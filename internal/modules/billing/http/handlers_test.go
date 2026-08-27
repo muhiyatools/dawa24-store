@@ -105,6 +105,10 @@ func (r stubRepo) GetInvoiceByID(ctx context.Context, id int64) (*billing.Invoic
 	r.fail("GetInvoiceByID")
 	return nil, nil
 }
+func (r stubRepo) GetInvoiceByOrderID(ctx context.Context, orderID int64) (*billing.Invoice, error) {
+	r.fail("GetInvoiceByOrderID")
+	return nil, nil
+}
 func (r stubRepo) UpdateInvoiceStatus(ctx context.Context, id int64, status billing.InvoiceStatus) error {
 	r.fail("UpdateInvoiceStatus")
 	return nil
@@ -256,6 +260,9 @@ func (happyRepo) CreateInvoice(ctx context.Context, inv *billing.Invoice) error 
 }
 func (happyRepo) GetInvoiceByID(ctx context.Context, id int64) (*billing.Invoice, error) {
 	return &billing.Invoice{ID: id, OrganizationID: 1, InvoiceNumber: "INV-1", Subtotal: money.MustParse("100.00")}, nil
+}
+func (happyRepo) GetInvoiceByOrderID(ctx context.Context, orderID int64) (*billing.Invoice, error) {
+	return &billing.Invoice{ID: 1, OrganizationID: 1, OrderID: &orderID, InvoiceNumber: "INV-1", Subtotal: money.MustParse("100.00")}, nil
 }
 func (happyRepo) UpdateInvoiceStatus(ctx context.Context, id int64, status billing.InvoiceStatus) error {
 	return nil

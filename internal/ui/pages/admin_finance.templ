@@ -182,13 +182,21 @@ templ AdminFinance(data AdminFinanceData, lang, dir string) {
 												<th>طريقة الدفع</th>
 												<th>الحالة</th>
 												<th>تاريخ الإصدار</th>
+												<th style="text-align:center; min-width:130px;">الإجراءات</th>
 											</tr>
 										</thead>
 										<tbody>
 											for _, inv := range data.Invoices {
 												<tr>
 													<td class="tabular-nums">
-														<span class="fw-800 text-primary">{ inv.InvoiceNumber }</span>
+														<a
+															href={ templ.SafeURL(fmt.Sprintf("/invoices/%d/print", inv.ID)) }
+															target="_blank"
+															class="fw-800 text-primary"
+															style="text-decoration:none;"
+														>
+															{ inv.InvoiceNumber }
+														</a>
 													</td>
 													<td>
 														<div class="fw-700 text-primary">{ inv.VendorName }</div>
@@ -225,6 +233,28 @@ templ AdminFinance(data AdminFinanceData, lang, dir string) {
 														}
 													</td>
 													<td class="tabular-nums" style="font-size:0.82rem; color:var(--text-muted);">{ inv.IssueDate.Format("2006-01-02") }</td>
+													<td style="text-align:center;">
+														<div style="display:inline-flex; align-items:center; gap:0.35rem;">
+															<a
+																href={ templ.SafeURL(fmt.Sprintf("/invoices/%d/print", inv.ID)) }
+																target="_blank"
+																class="btn btn-primary btn-xs"
+																style="font-weight:700; padding:0.25rem 0.55rem;"
+																title="طباعة الفاتورة الضريبية أو إيصال الكاشير"
+															>
+																<span>🖨️ طباعة</span>
+															</a>
+															<a
+																href={ templ.SafeURL(fmt.Sprintf("/invoices/%d/print?autoprint=0", inv.ID)) }
+																target="_blank"
+																class="btn btn-secondary btn-xs"
+																style="font-weight:700; padding:0.25rem 0.55rem;"
+																title="معاينة الفاتورة"
+															>
+																<span>عرض</span>
+															</a>
+														</div>
+													</td>
 												</tr>
 											}
 										</tbody>

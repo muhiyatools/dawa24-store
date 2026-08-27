@@ -105,6 +105,55 @@ func (r *Repository) GetInvoiceByID(ctx context.Context, id int64) (*billing.Inv
 	return &inv, nil
 }
 
+// GetInvoiceByOrderID retrieves an invoice and its lines by associated order ID.
+func (r *Repository) GetInvoiceByOrderID(ctx context.Context, orderID int64) (*billing.Invoice, error) {
+	var inv billing.Invoice
+	err := r.db.InReadTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
+		query := `
+			SELECT id, public_id, organization_id, customer_org_id, order_id, invoice_number,
+			       issue_date, due_date, subtotal, tax_amount, discount_amount, total_amount,
+			       status, payment_method, notes, created_at, updated_at
+			FROM billing.invoices WHERE order_id = $1 ORDER BY id DESC LIMIT 1;
+		`
+		var statusStr string
+		var notes *string
+		if err := tx.QueryRow(txCtx, query, orderID).Scan(
+			&inv.ID, &inv.PublicID, &inv.OrganizationID, &inv.CustomerOrgID, &inv.OrderID, &inv.InvoiceNumber,
+			&inv.IssueDate, &inv.DueDate, &inv.Subtotal, &inv.TaxAmount, &inv.DiscountAmount, &inv.TotalAmount,
+			&statusStr, &inv.PaymentMethod, &notes, &inv.CreatedAt, &inv.UpdatedAt,
+		); err != nil {
+			if database.IsNotFound(err) {
+				return apperr.NotFound("invoice")
+			}
+			return err
+		}
+		inv.Status = billing.InvoiceStatus(statusStr)
+		if notes != nil {
+			inv.Notes = *notes
+		}
+
+		linesQuery := `SELECT id, invoice_id, product_id, description, quantity, unit_price, total_price FROM billing.invoice_lines WHERE invoice_id = $1;`
+		rows, err := tx.Query(txCtx, linesQuery, inv.ID)
+		if err != nil {
+			return err
+		}
+		defer rows.Close()
+
+		for rows.Next() {
+			var line billing.InvoiceLine
+			if err := rows.Scan(&line.ID, &line.InvoiceID, &line.ProductID, &line.Description, &line.Quantity, &line.UnitPrice, &line.TotalPrice); err != nil {
+				return err
+			}
+			inv.Lines = append(inv.Lines, line)
+		}
+		return rows.Err()
+	})
+	if err != nil {
+		return nil, err
+	}
+	return &inv, nil
+}
+
 // UpdateInvoiceStatus changes invoice status.
 func (r *Repository) UpdateInvoiceStatus(ctx context.Context, id int64, status billing.InvoiceStatus) error {
 	return r.db.InTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {

@@ -86,12 +86,23 @@ templ CustomerOrderDetail(order *commerce.Order, history []*commerce.OrderStatus
 					</div>
 				</div>
 
-				<div style="display:flex; flex-direction:column; align-items:flex-end; gap:0.35rem;">
+				<div style="display:flex; flex-direction:column; align-items:flex-end; gap:0.5rem;">
 					<div style="font-size:0.85rem; color:var(--text-muted); font-weight:700;">إجمالي الفاتورة المعتمدة:</div>
 					<div style="font-size:2.2rem; font-weight:900; color:var(--accent); line-height:1;" class="tabular-nums">
 						{ order.TotalAmount.String() } <span style="font-size:1.1rem; font-weight:700; color:var(--text-muted);">ج.م</span>
 					</div>
-					<div style="font-size:0.775rem; color:var(--text-muted);">شامل ضريبة القيمة المضافة والشحن المبرد (Cold-Chain)</div>
+					<div style="display:flex; align-items:center; gap:0.5rem; margin-top:0.25rem;">
+						<a
+							href={ templ.SafeURL(fmt.Sprintf("/orders/%d/invoice/print", order.ID)) }
+							target="_blank"
+							class="btn btn-primary btn-sm"
+							style="font-weight:800; font-size:0.85rem; padding:0.45rem 0.95rem; gap:0.4rem; box-shadow:0 2px 8px rgba(37,99,235,0.25);"
+							title="طباعة الفاتورة الضريبية الرسمية أو إيصال الكاشير"
+						>
+							@components.IconPrinter("icon-xs")
+							<span>طباعة الفاتورة الضريبية</span>
+						</a>
+					</div>
 				</div>
 			</div>
 

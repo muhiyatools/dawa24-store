@@ -29,6 +29,7 @@ type Repository interface {
 
 	CreateInvoice(ctx context.Context, inv *Invoice) error
 	GetInvoiceByID(ctx context.Context, id int64) (*Invoice, error)
+	GetInvoiceByOrderID(ctx context.Context, orderID int64) (*Invoice, error)
 	UpdateInvoiceStatus(ctx context.Context, id int64, status InvoiceStatus) error
 	ListInvoicesByOrg(ctx context.Context, orgID int64, limit, offset int) ([]*Invoice, error)
 

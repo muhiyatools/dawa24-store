@@ -1,0 +1,658 @@
+package pages
+
+import (
+	"fmt"
+
+	"github.com/muhiya/dawa24-store/internal/modules/billing"
+)
+
+templ InvoicePrintablePage(data billing.PrintableInvoiceData, lang, dir string) {
+	<!DOCTYPE html>
+	<html lang={ lang } dir={ dir }>
+		<head>
+			<meta charset="utf-8"/>
+			<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+			<title>{ fmt.Sprintf("فاتورة ضريبية #%s - دواء 24", data.InvoiceNumber) }</title>
+			<style>
+				:root {
+					--primary: #0f172a;
+					--accent: #2563eb;
+					--border: #cbd5e1;
+					--text: #1e293b;
+					--text-muted: #64748b;
+					--bg-light: #f8fafc;
+				}
+				* {
+					box-sizing: border-box;
+					margin: 0;
+					padding: 0;
+					font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans Arabic", sans-serif;
+				}
+				body {
+					background-color: #e2e8f0;
+					color: #1e293b;
+					direction: rtl;
+					font-size: 13px;
+					line-height: 1.4;
+					padding: 1.5rem 1rem 3rem 1rem;
+				}
+
+				/* Action Bar (Hidden in Print) */
+				.no-print-toolbar {
+					max-width: 820px;
+					margin: 0 auto 1.5rem auto;
+					background: #ffffff;
+					padding: 0.85rem 1.25rem;
+					border-radius: 12px;
+					box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+					display: flex;
+					align-items: center;
+					justify-content: space-between;
+					flex-wrap: wrap;
+					gap: 0.75rem;
+				}
+				.toolbar-btn-group {
+					display: flex;
+					align-items: center;
+					gap: 0.5rem;
+				}
+				.btn-action {
+					display: inline-flex;
+					align-items: center;
+					gap: 0.4rem;
+					padding: 0.55rem 1rem;
+					font-size: 0.85rem;
+					font-weight: 700;
+					border-radius: 8px;
+					cursor: pointer;
+					text-decoration: none;
+					transition: all 0.15s ease;
+					border: 1px solid transparent;
+				}
+				.btn-primary {
+					background: #2563eb;
+					color: #ffffff;
+				}
+				.btn-primary:hover {
+					background: #1d4ed8;
+				}
+				.btn-thermal {
+					background: #0f172a;
+					color: #ffffff;
+				}
+				.btn-thermal:hover {
+					background: #1e293b;
+				}
+				.btn-secondary {
+					background: #f1f5f9;
+					color: #334155;
+					border-color: #cbd5e1;
+				}
+				.btn-secondary:hover {
+					background: #e2e8f0;
+				}
+
+				/* A4 Container */
+				.invoice-paper-a4 {
+					max-width: 800px;
+					margin: 0 auto;
+					background: #ffffff;
+					padding: 2.5rem 2rem;
+					border-radius: 12px;
+					box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+					border: 1px solid #cbd5e1;
+				}
+
+				/* Thermal Container */
+				.invoice-paper-thermal {
+					display: none;
+					width: 80mm;
+					max-width: 80mm;
+					margin: 0 auto;
+					background: #ffffff;
+					padding: 10px 8px;
+					font-size: 11px;
+					line-height: 1.35;
+					color: #000000;
+				}
+
+				/* Common Typography & Tables */
+				.tabular-nums {
+					font-variant-numeric: tabular-nums;
+					font-family: monospace, sans-serif;
+				}
+				.invoice-header-grid {
+					display: grid;
+					grid-template-columns: 1fr auto 1fr;
+					gap: 1rem;
+					align-items: center;
+					border-bottom: 2px solid #0f172a;
+					padding-bottom: 1.25rem;
+					margin-bottom: 1.25rem;
+				}
+				.invoice-parties-grid {
+					display: grid;
+					grid-template-columns: 1fr 1fr;
+					gap: 1.5rem;
+					margin-bottom: 1.5rem;
+					padding: 1rem 1.25rem;
+					background: #f8fafc;
+					border-radius: 8px;
+					border: 1px solid #e2e8f0;
+				}
+				.party-box h4 {
+					font-size: 0.85rem;
+					font-weight: 800;
+					color: #0f172a;
+					margin-bottom: 0.35rem;
+					border-bottom: 1px dashed #cbd5e1;
+					padding-bottom: 0.25rem;
+				}
+				.party-field {
+					font-size: 0.825rem;
+					color: #334155;
+					margin-bottom: 0.2rem;
+				}
+				.party-field strong {
+					color: #0f172a;
+				}
+
+				/* Items Table */
+				.items-table {
+					width: 100%;
+					border-collapse: collapse;
+					margin-bottom: 1.25rem;
+				}
+				.items-table th {
+					background: #0f172a;
+					color: #ffffff;
+					font-size: 0.8rem;
+					font-weight: 700;
+					padding: 0.6rem 0.5rem;
+					text-align: right;
+				}
+				.items-table td {
+					padding: 0.55rem 0.5rem;
+					border-bottom: 1px solid #e2e8f0;
+					font-size: 0.825rem;
+				}
+				.items-table tr:nth-child(even) {
+					background: #f8fafc;
+				}
+
+				/* Totals Box */
+				.totals-container {
+					display: flex;
+					justify-content: space-between;
+					align-items: flex-start;
+					gap: 1.5rem;
+					margin-top: 1rem;
+				}
+				.tax-legal-notice {
+					flex: 1;
+					font-size: 0.75rem;
+					color: #64748b;
+					background: #f8fafc;
+					padding: 0.75rem;
+					border-radius: 6px;
+					border-inline-start: 3px solid #2563eb;
+					line-height: 1.4;
+				}
+				.totals-table {
+					width: 280px;
+					border-collapse: collapse;
+				}
+				.totals-table td {
+					padding: 0.35rem 0.5rem;
+					font-size: 0.825rem;
+				}
+				.totals-table .total-row {
+					font-weight: 900;
+					font-size: 1rem;
+					border-top: 2px solid #0f172a;
+					color: #0f172a;
+				}
+
+				/* QR Code & Barcode Box */
+				.verification-box {
+					margin-top: 1.5rem;
+					padding-top: 1rem;
+					border-top: 1px dashed #cbd5e1;
+					display: flex;
+					justify-content: space-between;
+					align-items: center;
+				}
+
+				/* Thermal Specific Classes */
+				.thermal-divider {
+					border-top: 1px dashed #000000;
+					margin: 6px 0;
+				}
+				.thermal-center {
+					text-align: center;
+				}
+				.thermal-row {
+					display: flex;
+					justify-content: space-between;
+					margin-bottom: 2px;
+				}
+				.thermal-bold {
+					font-weight: 900;
+				}
+			</style>
+		</head>
+		<body>
+			
+			<!-- Floating Action Toolbar (Hidden in print) -->
+			<div class="no-print-toolbar">
+				<div style="display:flex; align-items:center; gap:0.5rem;">
+					<span style="font-size:1.3rem;">🧾</span>
+					<div>
+						<strong style="font-size:0.95rem; display:block; color:#0f172a;">
+							فاتورة ضريبية إلكترونية معتمدة
+						</strong>
+						<span style="font-size:0.75rem; color:#64748b;">
+							رقم الفاتورة: <span class="tabular-nums font-bold">{ data.InvoiceNumber }</span>
+						</span>
+					</div>
+				</div>
+
+				<div class="toolbar-btn-group">
+					<!-- Thermal Print (POS 80mm) -->
+					<button
+						type="button"
+						class="btn-action btn-thermal"
+						onclick="printThermal()"
+						title="طباعة على طابعات الإيصالات والكاشير الحرارية 80 مم"
+					>
+						<span>🖨️ طباعة إيصال كاشير (Thermal 80mm)</span>
+					</button>
+
+					<!-- Standard A4 Print -->
+					<button
+						type="button"
+						class="btn-action btn-primary"
+						onclick="printA4()"
+						title="طباعة فاتورة ضريبية رسمية بالحجم القياسي A4"
+					>
+						<span>📄 طباعة فاتورة قياسية (A4)</span>
+					</button>
+
+					<!-- Close / Back -->
+					<button
+						type="button"
+						class="btn-action btn-secondary"
+						onclick="window.close(); if(!window.closed) window.history.back();"
+					>
+						<span>✕ إغلاق</span>
+					</button>
+				</div>
+			</div>
+
+			<!-- =========================================================================
+			     VIEW 1: Standard A4 Tax Invoice (فاتورة ضريبية مصرية رسمية معتمدة)
+			     ========================================================================= -->
+			<div class="invoice-paper-a4" id="a4-invoice-container">
+				
+				<!-- Header Section -->
+				<div class="invoice-header-grid">
+					<div>
+						<h2 style="font-size:1.35rem; font-weight:900; color:#0f172a; margin-bottom:0.25rem;">
+							{ data.Vendor.DisplayName }
+						</h2>
+						if data.Vendor.LegalName != "" && data.Vendor.LegalName != data.Vendor.DisplayName {
+							<div style="font-size:0.8rem; color:#64748b; margin-bottom:0.25rem;">
+								{ data.Vendor.LegalName }
+							</div>
+						}
+						<div style="font-size:0.8rem; color:#334155;">
+							if data.Vendor.TaxNumber != "" {
+								<span>ب.ض: <strong class="tabular-nums">{ data.Vendor.TaxNumber }</strong></span>
+							}
+							if data.Vendor.CommercialRegister != "" {
+								<span style="margin-inline-start:0.5rem;">س.ت: <strong class="tabular-nums">{ data.Vendor.CommercialRegister }</strong></span>
+							}
+						</div>
+						if data.Vendor.Phone != "" {
+							<div style="font-size:0.8rem; color:#334155;">
+								هاتف: <span class="tabular-nums" dir="ltr">{ data.Vendor.Phone }</span>
+							</div>
+						}
+					</div>
+
+					<div style="text-align:center;">
+						<div style="font-size:1.6rem; font-weight:900; color:#2563eb; letter-spacing:-0.5px; line-height:1.1;">
+							دواء <span style="color:#0f172a;">24</span>
+						</div>
+						<span style="display:inline-block; font-size:0.75rem; font-weight:800; padding:0.2rem 0.6rem; background:#0f172a; color:#ffffff; border-radius:4px; margin-top:0.35rem;">
+							فاتورة ضريبية إلكترونية
+						</span>
+						<div style="font-size:0.7rem; color:#64748b; margin-top:0.2rem;">
+							ETA e-Invoice Standard
+						</div>
+					</div>
+
+					<div style="text-align:left;">
+						<div style="font-size:0.85rem; color:#334155; margin-bottom:0.2rem;">
+							رقم الفاتورة: <strong class="tabular-nums" style="color:#0f172a; font-size:1rem;">{ data.InvoiceNumber }</strong>
+						</div>
+						if data.OrderNumber != "" {
+							<div style="font-size:0.8rem; color:#334155; margin-bottom:0.2rem;">
+								أمر الشراء: <strong class="tabular-nums">#{ data.OrderNumber }</strong>
+							</div>
+						}
+						<div style="font-size:0.8rem; color:#334155; margin-bottom:0.2rem;">
+							تاريخ الإصدار: <span class="tabular-nums">{ data.IssueDate.Format("2006-01-02 15:04") }</span>
+						</div>
+						<div style="font-size:0.8rem; color:#334155;">
+							الحالة: 
+							if data.Status == billing.InvoicePaid {
+								<strong style="color:#10b981;">مدفوعة بالكامل (PAID)</strong>
+							} else {
+								<strong style="color:#f59e0b;">مستحقة السداد</strong>
+							}
+						</div>
+					</div>
+				</div>
+
+				<!-- Parties Info Box (Vendor & Customer) -->
+				<div class="invoice-parties-grid">
+					<div class="party-box">
+						<h4>بيانات المورد (البائع / المصدر)</h4>
+						<div class="party-field">الاسم: <strong>{ data.Vendor.DisplayName }</strong></div>
+						if data.Vendor.TaxNumber != "" {
+							<div class="party-field">البطاقة الضريبية: <strong class="tabular-nums">{ data.Vendor.TaxNumber }</strong></div>
+						}
+						if data.Vendor.CommercialRegister != "" {
+							<div class="party-field">السجل التجاري: <strong class="tabular-nums">{ data.Vendor.CommercialRegister }</strong></div>
+						}
+						if data.Vendor.Address != "" {
+							<div class="party-field">العنوان: { data.Vendor.Address }</div>
+						}
+					</div>
+
+					<div class="party-box">
+						<h4>بيانات الصيدلية (المشتري / المستلم)</h4>
+						<div class="party-field">الصيدلية: <strong>{ data.Customer.DisplayName }</strong></div>
+						if data.Customer.PharmacistLicense != "" {
+							<div class="party-field">ترخيص الصيدلية: <strong class="tabular-nums">{ data.Customer.PharmacistLicense }</strong></div>
+						}
+						if data.Customer.TaxNumber != "" {
+							<div class="party-field">البطاقة الضريبية: <strong class="tabular-nums">{ data.Customer.TaxNumber }</strong></div>
+						}
+						if data.Customer.Address != "" {
+							<div class="party-field">عنوان التسليم: { data.Customer.Address }</div>
+						}
+						if data.Customer.Phone != "" {
+							<div class="party-field">الهاتف: <span class="tabular-nums" dir="ltr">{ data.Customer.Phone }</span></div>
+						}
+					</div>
+				</div>
+
+				<!-- Items Table -->
+				<table class="items-table">
+					<thead>
+						<tr>
+							<th style="width:35px; text-align:center;">#</th>
+							<th>الصنف الدوائي / البيان</th>
+							<th style="width:65px; text-align:center;">الكمية</th>
+							<th style="width:90px; text-align:center;">سعر الجمهور</th>
+							<th style="width:75px; text-align:center;">الخصم %</th>
+							<th style="width:90px; text-align:center;">السعر الصافي</th>
+							<th style="width:105px; text-align:center;">الإجمالي</th>
+						</tr>
+					</thead>
+					<tbody>
+						if len(data.Lines) == 0 {
+							<tr>
+								<td colspan="7" style="text-align:center; padding:1.5rem; color:#64748b;">
+									لا توجد أصناف مسجلة في الفاتورة.
+								</td>
+							</tr>
+						}
+						for idx, line := range data.Lines {
+							<tr>
+								<td style="text-align:center; color:#64748b;" class="tabular-nums">{ fmt.Sprintf("%d", idx+1) }</td>
+								<td>
+									<strong style="color:#0f172a;">{ line.ItemName }</strong>
+									if line.SKU != "" {
+										<span style="font-size:0.75rem; color:#64748b; font-family:monospace; margin-inline-start:0.35rem;">
+											({ line.SKU })
+										</span>
+									}
+								</td>
+								<td style="text-align:center; font-weight:700;" class="tabular-nums">{ fmt.Sprintf("%d", line.Quantity) }</td>
+								<td style="text-align:center;" class="tabular-nums">{ line.UnitPrice.String() } ج.م</td>
+								<td style="text-align:center; font-weight:700; color:#2563eb;" class="tabular-nums">
+									if line.DiscountPercent > 0 {
+										{ fmt.Sprintf("%.1f%%", line.DiscountPercent) }
+									} else {
+										<span style="color:#94a3b8;">0%</span>
+									}
+								</td>
+								<td style="text-align:center;" class="tabular-nums">{ line.NetUnitPrice.String() } ج.م</td>
+								<td style="text-align:center; font-weight:800; color:#0f172a;" class="tabular-nums">
+									{ line.TotalPrice.String() } ج.م
+								</td>
+							</tr>
+						}
+					</tbody>
+				</table>
+
+				<!-- Totals & Legal Notice -->
+				<div class="totals-container">
+					<div class="tax-legal-notice">
+						<strong>ملاحظات الإقرار الضريبي:</strong><br/>
+						• تخضع الأدوية البشرية المحلية والمستوردة للإعفاء من ضريبة القيمة المضافة طبقاً لأحكام القانون المصري رقم 67 لسنة 2016 (الجدول المرافق - سلعة معفاة).<br/>
+						• هذه الفاتورة محررة ومعتمدة إلكترونياً عبر منصة دواء 24 وتسري لأغراض المحاسبة والخصم الضريبي لشركات التوزيع والصيدليات.
+						if data.Notes != "" {
+							<div style="margin-top:0.35rem; color:#0f172a; font-weight:700;">
+								ملاحظات الطلبية: { data.Notes }
+							</div>
+						}
+					</div>
+
+					<table class="totals-table">
+						<tr>
+							<td style="color:#64748b;">الإجمالي قبل الخصم:</td>
+							<td style="text-align:left;" class="tabular-nums">{ data.Subtotal.String() } ج.م</td>
+						</tr>
+						if data.TotalDiscount.IsPositive() {
+							<tr>
+								<td style="color:#10b981;">إجمالي الخصم التجاري:</td>
+								<td style="text-align:left; color:#10b981; font-weight:700;" class="tabular-nums">
+									-{ data.TotalDiscount.String() } ج.م
+								</td>
+							</tr>
+						}
+						<tr>
+							<td style="color:#64748b;">ضريبة القيمة المضافة (0% أدوية):</td>
+							<td style="text-align:left;" class="tabular-nums">{ data.TotalTax.String() } ج.م</td>
+						</tr>
+						<tr class="total-row">
+							<td>الصافي المطلوب سداده:</td>
+							<td style="text-align:left; color:#2563eb;" class="tabular-nums">{ data.TotalAmount.String() } ج.م</td>
+						</tr>
+					</table>
+				</div>
+
+				<!-- Verification QR & Footer -->
+				<div class="verification-box">
+					<div style="display:flex; align-items:center; gap:0.75rem;">
+						<!-- QR Code Render -->
+						<div id="qrcode-a4" style="width:75px; height:75px; border:1px solid #cbd5e1; padding:4px; border-radius:4px; display:flex; align-items:center; justify-content:center;">
+							<img
+								src={ fmt.Sprintf("https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=%s", data.QRCodeData) }
+								alt="QR Code"
+								style="width:100%; height:100%; object-fit:contain;"
+							/>
+						</div>
+						<div style="font-size:0.75rem; color:#64748b; line-height:1.35;">
+							<strong style="color:#0f172a;">رمز التحقق الضريبي المعتمد</strong><br/>
+							المورد: { data.Vendor.DisplayName }<br/>
+							الرقم الضريبي: { data.Vendor.TaxNumber }<br/>
+							التاريخ: { data.IssueDate.Format("2006-01-02 15:04") }
+						</div>
+					</div>
+
+					<div style="text-align:left; font-size:0.75rem; color:#64748b;">
+						<div style="margin-bottom:0.25rem;">ختم واعتماد المورد:</div>
+						<div style="width:140px; height:45px; border:1px dashed #cbd5e1; border-radius:4px; display:flex; align-items:center; justify-content:center; color:#94a3b8; font-size:0.7rem;">
+							معتمد إلكترونياً
+						</div>
+					</div>
+				</div>
+
+			</div>
+
+
+			<!-- =========================================================================
+			     VIEW 2: Thermal POS Receipt 80mm (إيصال كاشير حراري فائق الدقة)
+			     ========================================================================= -->
+			<div class="invoice-paper-thermal" id="thermal-invoice-container">
+				
+				<div class="thermal-center">
+					<div style="font-size:16px; font-weight:900; letter-spacing:-0.5px;">
+						{ data.Vendor.DisplayName }
+					</div>
+					if data.Vendor.TaxNumber != "" {
+						<div style="font-size:10px;">ب.ض: { data.Vendor.TaxNumber } | س.ت: { data.Vendor.CommercialRegister }</div>
+					}
+					if data.Vendor.Phone != "" {
+						<div style="font-size:10px;">هاتف: { data.Vendor.Phone }</div>
+					}
+					<div class="thermal-divider"></div>
+					<div style="font-size:12px; font-weight:900;">
+						إيصال فاتورة ضريبية
+					</div>
+					<div style="font-size:10px;">#{ data.InvoiceNumber }</div>
+					<div class="thermal-divider"></div>
+				</div>
+
+				<!-- Meta -->
+				<div class="thermal-row">
+					<span>التاريخ:</span>
+					<span class="tabular-nums">{ data.IssueDate.Format("2006-01-02 15:04") }</span>
+				</div>
+				if data.OrderNumber != "" {
+					<div class="thermal-row">
+						<span>أمر الطلب:</span>
+						<span class="tabular-nums">#{ data.OrderNumber }</span>
+					</div>
+				}
+				<div class="thermal-row">
+					<span>الصيدلية:</span>
+					<span class="thermal-bold">{ data.Customer.DisplayName }</span>
+				</div>
+				if data.Customer.PharmacistLicense != "" {
+					<div class="thermal-row">
+						<span>الترخيص:</span>
+						<span>{ data.Customer.PharmacistLicense }</span>
+					</div>
+				}
+				<div class="thermal-divider"></div>
+
+				<!-- Items Header -->
+				<div class="thermal-row thermal-bold" style="font-size:10px; border-bottom:1px solid #000; padding-bottom:2px; margin-bottom:4px;">
+					<span style="flex:2;">الصنف</span>
+					<span style="width:30px; text-align:center;">الكمية</span>
+					<span style="width:40px; text-align:center;">الخصم</span>
+					<span style="width:50px; text-align:left;">الإجمالي</span>
+				</div>
+
+				<!-- Items -->
+				for _, line := range data.Lines {
+					<div style="margin-bottom:4px;">
+						<div style="font-weight:700; font-size:11px;">{ line.ItemName }</div>
+						<div class="thermal-row" style="font-size:10px; color:#333;">
+							<span style="flex:2;" class="tabular-nums">{ "@ " + line.UnitPrice.String() }</span>
+							<span style="width:30px; text-align:center;" class="tabular-nums">{ fmt.Sprintf("%d", line.Quantity) }</span>
+							<span style="width:40px; text-align:center;" class="tabular-nums">
+								if line.DiscountPercent > 0 {
+									{ fmt.Sprintf("%.1f%%", line.DiscountPercent) }
+								} else {
+									0%
+								}
+							</span>
+							<span style="width:50px; text-align:left; font-weight:800;" class="tabular-nums">{ line.TotalPrice.String() }</span>
+						</div>
+					</div>
+				}
+
+				<div class="thermal-divider"></div>
+
+				<!-- Totals -->
+				<div class="thermal-row">
+					<span>الإجمالي قبل الخصم:</span>
+					<span class="tabular-nums">{ data.Subtotal.String() } ج.م</span>
+				</div>
+				if data.TotalDiscount.IsPositive() {
+					<div class="thermal-row">
+						<span>إجمالي الخصم:</span>
+						<span class="tabular-nums">-{ data.TotalDiscount.String() } ج.م</span>
+					</div>
+				}
+				<div class="thermal-row">
+					<span>ض.ق.م (0% أدوية بشرية):</span>
+					<span class="tabular-nums">{ data.TotalTax.String() } ج.م</span>
+				</div>
+				<div class="thermal-divider"></div>
+				<div class="thermal-row thermal-bold" style="font-size:14px;">
+					<span>الصافي المطلوب:</span>
+					<span class="tabular-nums">{ data.TotalAmount.String() } ج.م</span>
+				</div>
+				<div class="thermal-divider"></div>
+
+				<!-- Thermal QR Code -->
+				<div class="thermal-center" style="margin-top:6px;">
+					<img
+						src={ fmt.Sprintf("https://api.qrserver.com/v1/create-qr-code/?size=90x90&data=%s", data.QRCodeData) }
+						alt="QR Code"
+						style="width:70px; height:70px; margin:0 auto; display:block;"
+					/>
+					<div style="font-size:9px; margin-top:4px;">
+						فاتورة إلكترونية معتمدة - دواء 24
+					</div>
+					<div style="font-size:8px; color:#555;">
+						{ data.IssueDate.Format("2006-01-02 15:04:05") }
+					</div>
+				</div>
+
+			</div>
+
+			<!-- Scripts for Thermal and A4 Printing Modes -->
+			<script>
+				function printA4() {
+					const thermal = document.getElementById('thermal-invoice-container');
+					const a4 = document.getElementById('a4-invoice-container');
+					if (thermal) thermal.style.display = 'none';
+					if (a4) a4.style.display = 'block';
+					window.print();
+				}
+
+				function printThermal() {
+					const thermal = document.getElementById('thermal-invoice-container');
+					const a4 = document.getElementById('a4-invoice-container');
+					if (a4) a4.style.display = 'none';
+					if (thermal) thermal.style.display = 'block';
+					window.print();
+					// restore after print dialog
+					setTimeout(() => {
+						if (a4) a4.style.display = 'block';
+						if (thermal) thermal.style.display = 'none';
+					}, 1000);
+				}
+
+				// Auto print if requested via query parameter
+				window.addEventListener('DOMContentLoaded', () => {
+					const params = new URLSearchParams(window.location.search);
+					if (params.get('thermal') === '1') {
+						printThermal();
+					} else if (params.get('autoprint') === '1') {
+						printA4();
+					}
+				});
+			</script>
+		</body>
+	</html>
+}

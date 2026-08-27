@@ -15,7 +15,11 @@ type WalletData struct {
 
 // InvoicesData is the /invoices view model.
 type InvoicesData struct {
-	Invoices []*billing.Invoice
+	Invoices     []*billing.AdminInvoiceView
+	RawInvoices  []*billing.Invoice
+	Search       string
+	StatusFilter string
+	IsVendor     bool
 }
 
 // TxLabel maps a wallet transaction type onto an Arabic label.

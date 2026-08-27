@@ -208,6 +208,15 @@ func (m *mockBillingRepo) GetInvoiceByID(_ context.Context, id int64) (*Invoice,
 	return inv, nil
 }
 
+func (m *mockBillingRepo) GetInvoiceByOrderID(_ context.Context, orderID int64) (*Invoice, error) {
+	for _, inv := range m.invoices {
+		if inv.OrderID != nil && *inv.OrderID == orderID {
+			return inv, nil
+		}
+	}
+	return nil, apperr.NotFound("invoice")
+}
+
 func (m *mockBillingRepo) UpdateInvoiceStatus(_ context.Context, id int64, status InvoiceStatus) error {
 	if inv, ok := m.invoices[id]; ok {
 		inv.Status = status

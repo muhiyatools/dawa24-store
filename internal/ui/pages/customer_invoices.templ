@@ -2,72 +2,195 @@ package pages
 
 import (
 	"fmt"
-	"github.com/muhiya/dawa24-store/internal/platform/authctx"
+
 	"github.com/muhiya/dawa24-store/internal/ui/components"
 	"github.com/muhiya/dawa24-store/internal/ui/layouts"
 )
 
 templ InvoicesPage(lang, dir string, data InvoicesData) {
-	@layouts.ShellFor("الفواتير الضريبية والإلكترونية", "invoices", lang, dir, authctx.FromContext(ctx)) {
-
-		<div style="max-width:100%; margin:0 0 4rem 0;">
-			<div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem; margin-bottom:2rem;">
-				<div>
-					<div class="row-center-sm mb-sm">
-						<div style="width:36px; height:36px; border-radius:var(--radius-md); background:var(--primary-100); color:var(--primary-700); display:flex; align-items:center; justify-content:center;">
-							@components.IconFileText("icon-sm")
+	@layouts.VendorShell("الفواتير الضريبية والإلكترونية | Dawa24", "invoices", lang, dir) {
+		<div class="max-w-6xl mx-auto stack-lg">
+			
+			<!-- Header Banner -->
+			<div class="card" style="background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-2xl); padding:1.5rem 1.75rem;">
+				<div class="flex-between flex-wrap gap-md">
+					<div>
+						<div style="display:flex; align-items:center; gap:0.6rem; margin-bottom:0.25rem;">
+							<div style="width:42px; height:42px; border-radius:var(--radius-lg); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center; font-size:1.3rem;">
+								🧾
+							</div>
+							<h1 style="font-size:1.45rem; font-weight:900; color:var(--text); margin:0;">
+								الفواتير الضريبية والإلكترونية
+							</h1>
 						</div>
-						<h2 style="font-size:1.6rem; font-weight:900; color:var(--neutral-900); margin:0;">
-							الفواتير الضريبية والإلكترونية
-						</h2>
+						<p style="color:var(--text-muted); font-size:0.875rem; margin:0;">
+							الفواتير الرسمية الصادرة للطلبيات معتمدة وفقاً لمعايير مصلحة الضرائب المصرية (ETA e-Invoicing) وقابلة للطباعة الفورية.
+						</p>
 					</div>
-					<p style="color:var(--neutral-500); font-size:0.925rem; margin:0;">
-						الفواتير الرسمية المعتمدة من منظومة الضرائب المصرية (ETA e-Invoicing)
-					</p>
+
+					<div style="display:flex; align-items:center; gap:0.75rem; flex-wrap:wrap;">
+						<span class="badge badge-emerald" style="font-size:0.85rem; padding:0.45rem 0.85rem;">
+							@components.IconCheckCircle("icon-xs")
+							<span>معتمدة ضريبياً</span>
+						</span>
+					</div>
 				</div>
 			</div>
 
-			<div class="card p-modal">
+			<!-- Search & Filter Bar -->
+			<div class="card" style="background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-xl); padding:1.15rem 1.25rem;">
+				<form method="GET" action="/invoices" style="display:grid; grid-template-columns:1fr auto auto; gap:0.75rem; align-items:center; margin:0;">
+					<div>
+						<input
+							type="text"
+							name="q"
+							value={ data.Search }
+							placeholder="بحث برقم الفاتورة، رقم الطلبية، اسم الصيدلية..."
+							class="form-control"
+							style="height:40px; font-size:0.875rem;"
+						/>
+					</div>
+
+					<div>
+						<select name="status" class="form-select" style="height:40px; font-size:0.875rem;">
+							<option value="">-- جميع الحالات --</option>
+							<option value="paid" selected?={ data.StatusFilter == "paid" }>مدفوعة (Paid)</option>
+							<option value="issued" selected?={ data.StatusFilter == "issued" }>صادرة (Issued)</option>
+							<option value="overdue" selected?={ data.StatusFilter == "overdue" }>متأخرة (Overdue)</option>
+							<option value="cancelled" selected?={ data.StatusFilter == "cancelled" }>ملغاة (Cancelled)</option>
+						</select>
+					</div>
+
+					<button type="submit" class="btn btn-primary fw-800" style="height:40px; padding:0 1.25rem;">
+						تطبيق الفلتر
+					</button>
+				</form>
+			</div>
+
+			<!-- Invoices Table -->
+			<div class="card" style="padding:0; overflow:hidden; background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-2xl); box-shadow:var(--shadow-sm);">
 				if len(data.Invoices) == 0 {
-					<div style="padding:3rem 1rem; text-align:center; color:var(--neutral-500);">
-						<div style="width:48px; height:48px; border-radius:var(--radius-full); background:var(--neutral-100); color:var(--neutral-400); display:flex; align-items:center; justify-content:center; margin:0 auto 1rem auto;">
-							@components.IconFileText("icon-md")
+					<div style="padding:3.5rem 1rem; text-align:center; color:var(--text-muted);">
+						<div style="width:52px; height:52px; border-radius:var(--radius-full); background:var(--surface-sunken); color:var(--text-muted); display:flex; align-items:center; justify-content:center; margin:0 auto 1rem auto; font-size:1.5rem;">
+							📄
 						</div>
-						<h3 style="font-size:1.15rem; font-weight:800; color:var(--neutral-800); margin-bottom:0.35rem;">لا توجد فواتير صادرة حالياً</h3>
-						<p class="text-sm">تظهر الفواتير الضريبية فور اكتمال تسليم أوامر الشراء واعتمادها من المورد.</p>
+						<h3 style="font-size:1.15rem; font-weight:800; color:var(--text); margin-bottom:0.35rem;">
+							لا توجد فواتير مطابقة
+						</h3>
+						<p style="font-size:0.85rem; margin:0;">
+							يتم إنشاء وتوثيق الفواتير الضريبية تلقائياً فور تسجيل أوامر الشراء واعتمادها من الصيدليات.
+						</p>
 					</div>
 				} else {
-					<div class="table-container">
-						<table class="b2b-table">
+					<div class="table-responsive">
+						<table class="table" style="margin:0; width:100%; border-collapse:collapse; font-size:0.875rem;">
 							<thead>
-								<tr>
-									<th>رقم الفاتورة</th>
-									<th>رقم الطلبية</th>
-									<th>المبلغ الإجمالي</th>
-									<th>ضريبة القيمة المضافة (VAT)</th>
-									<th>تاريخ الإصدار</th>
-									<th>الحالة الضريبية</th>
+								<tr style="background:var(--surface-sunken); border-bottom:2px solid var(--border); font-size:0.825rem; text-align:start;">
+									<th style="padding:0.9rem 1rem;">رقم الفاتورة</th>
+									<th style="padding:0.9rem 0.85rem; text-align:center;">رقم الطلبية</th>
+									<th style="padding:0.9rem 1rem; min-width:200px;">الصيدلية المستلمة</th>
+									<th style="padding:0.9rem 0.85rem; text-align:center;">تاريخ الإصدار</th>
+									<th style="padding:0.9rem 0.85rem; text-align:center;">المبلغ الإجمالي</th>
+									<th style="padding:0.9rem 0.85rem; text-align:center;">الحالة</th>
+									<th style="padding:0.9rem 1rem; text-align:center; min-width:140px;">الإجراءات</th>
 								</tr>
 							</thead>
 							<tbody>
 								for _, inv := range data.Invoices {
-									<tr>
-										<td class="tabular-nums" style="font-weight:700; color:var(--primary-700);">{ inv.InvoiceNumber }</td>
-										<td class="tabular-nums">
+									<tr style="border-bottom:1px solid var(--border);">
+										<!-- رقم الفاتورة -->
+										<td style="padding:0.85rem 1rem;">
+											<a
+												href={ templ.SafeURL(fmt.Sprintf("/invoices/%d/print", inv.ID)) }
+												target="_blank"
+												class="tabular-nums fw-800"
+												style="color:var(--accent); text-decoration:none;"
+											>
+												{ inv.InvoiceNumber }
+											</a>
+										</td>
+
+										<!-- رقم الطلبية -->
+										<td style="padding:0.85rem 0.85rem; text-align:center;" class="tabular-nums">
 											if inv.OrderID != nil {
-												#{ fmt.Sprintf("%d", *inv.OrderID) }
+												<span class="badge badge-secondary" style="font-size:0.75rem;">
+													#{ fmt.Sprintf("%d", *inv.OrderID) }
+												</span>
+											} else if inv.OrderNumber != "" {
+												<span class="badge badge-secondary" style="font-size:0.75rem;">
+													#{ inv.OrderNumber }
+												</span>
 											} else {
-												—
+												<span style="color:var(--text-muted);">—</span>
 											}
 										</td>
-										<td class="tabular-nums fw-800">{ inv.TotalAmount.String() } ج.م</td>
-										<td class="tabular-nums" style="color:var(--neutral-600);">{ inv.TaxAmount.String() } ج.م</td>
-										<td class="tabular-nums" style="color:var(--neutral-500); font-size:0.85rem;">{ inv.IssueDate.Format("2006-01-02") }</td>
-										<td>
-											<span class="badge badge-emerald">
-												@components.IconCheckCircle("icon-xs")
-												<span>معتمدة ضريبياً</span>
-											</span>
+
+										<!-- الصيدلية المستلمة -->
+										<td style="padding:0.85rem 1rem;">
+											<div style="font-weight:700; color:var(--text);">
+												if inv.CustomerName != "" {
+													{ inv.CustomerName }
+												} else {
+													صيدلية معتمدة
+												}
+											</div>
+											if inv.CustomerOrgID != nil {
+												<div style="font-size:0.725rem; color:var(--text-muted);">
+													كود العميل: #{ fmt.Sprintf("%d", *inv.CustomerOrgID) }
+												</div>
+											}
+										</td>
+
+										<!-- تاريخ الإصدار -->
+										<td style="padding:0.85rem 0.85rem; text-align:center; color:var(--text-secondary);" class="tabular-nums">
+											{ inv.IssueDate.Format("2006-01-02") }
+										</td>
+
+										<!-- المبلغ الإجمالي -->
+										<td style="padding:0.85rem 0.85rem; text-align:center; font-weight:800; color:var(--text);" class="tabular-nums">
+											{ inv.TotalAmount.String() } ج.م
+										</td>
+
+										<!-- الحالة -->
+										<td style="padding:0.85rem 0.85rem; text-align:center;">
+											if inv.Status == "paid" {
+												<span class="badge badge-emerald" style="font-size:0.75rem;">مدفوعة</span>
+											} else if inv.Status == "issued" {
+												<span class="badge badge-sky" style="font-size:0.75rem;">صادرة</span>
+											} else if inv.Status == "overdue" {
+												<span class="badge badge-amber" style="font-size:0.75rem;">متأخرة</span>
+											} else if inv.Status == "cancelled" {
+												<span class="badge badge-rose" style="font-size:0.75rem;">ملغاة</span>
+											} else {
+												<span class="badge badge-secondary" style="font-size:0.75rem;">{ string(inv.Status) }</span>
+											}
+										</td>
+
+										<!-- الإجراءات: عرض + طباعة -->
+										<td style="padding:0.85rem 1rem; text-align:center;">
+											<div style="display:inline-flex; align-items:center; gap:0.4rem;">
+												<!-- زر الطباعة -->
+												<a
+													href={ templ.SafeURL(fmt.Sprintf("/invoices/%d/print", inv.ID)) }
+													target="_blank"
+													class="btn btn-primary btn-sm"
+													style="font-weight:700; font-size:0.775rem; padding:0.35rem 0.65rem;"
+													title="طباعة الفاتورة الضريبية أو إيصال الكاشير"
+												>
+													<span>🖨️ طباعة</span>
+												</a>
+
+												<!-- زر العرض -->
+												<a
+													href={ templ.SafeURL(fmt.Sprintf("/invoices/%d/print?autoprint=0", inv.ID)) }
+													target="_blank"
+													class="btn btn-secondary btn-sm"
+													style="font-weight:700; font-size:0.775rem; padding:0.35rem 0.65rem;"
+													title="معاينة تفاصيل الفاتورة"
+												>
+													<span>عرض</span>
+												</a>
+											</div>
 										</td>
 									</tr>
 								}
@@ -76,6 +199,7 @@ templ InvoicesPage(lang, dir string, data InvoicesData) {
 					</div>
 				}
 			</div>
+
 		</div>
 	}
 }

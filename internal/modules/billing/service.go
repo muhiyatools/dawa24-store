@@ -268,6 +268,11 @@ func (s *Service) GetInvoice(ctx context.Context, id int64) (*Invoice, error) {
 	return s.repo.GetInvoiceByID(ctx, id)
 }
 
+// GetInvoiceByOrderID returns an invoice by its associated order ID.
+func (s *Service) GetInvoiceByOrderID(ctx context.Context, orderID int64) (*Invoice, error) {
+	return s.repo.GetInvoiceByOrderID(ctx, orderID)
+}
+
 // ListInvoices lists invoices for an organization.
 func (s *Service) ListInvoices(ctx context.Context, orgID int64, limit, offset int) ([]*Invoice, error) {
 	return s.repo.ListInvoicesByOrg(ctx, orgID, limit, offset)

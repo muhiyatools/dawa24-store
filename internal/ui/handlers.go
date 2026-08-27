@@ -626,6 +626,9 @@ func (h *UIHandler) RegisterSharedRoutes(r chi.Router) {
 	// Wallet, invoices, messages, requests
 	r.Get("/wallet", h.WalletPage)
 	r.Get("/invoices", h.InvoicesPage)
+	r.Get("/vendor/invoices", h.InvoicesPage)
+	r.Get("/invoices/{id}/print", h.InvoicePrintPage)
+	r.Get("/orders/{id}/invoice/print", h.OrderInvoicePrintPage)
 	r.Get("/messages", h.MessagesPage)
 	r.Get("/messages/{id}", h.MessagesConversationPage)
 	r.Get("/requests", h.RequestsPage)
