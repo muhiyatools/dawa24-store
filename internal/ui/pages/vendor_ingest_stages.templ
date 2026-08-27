@@ -16,12 +16,67 @@ templ importMappingStage(view VendorImportView) {
 	if view.Analysis != nil {
 		@importFindings(view.Analysis)
 		<form method="POST" action={ templ.SafeURL("/vendor/ingest/" + view.Session.PublicID + "/mapping") } hx-boost="false">
+			
+			<!-- Core Required Fields Status Overview -->
 			<div class="card">
-				<h2 class="wiz-head">2. راجع ربط الأعمدة</h2>
+				<h2 class="wiz-head">1. حالة الحقول الأساسية والمخزون</h2>
 				<p class="wiz-sub">
-					تم تحديد كل عمود من عنوانه ومن محتوى صفوفه معاً، ودرجة الثقة مذكورة بجانبه مع سبب
-					القرار. غيّر ما تريد؛ أي عمود تتركه على «حدد تلقائياً» سيربطه النظام بعد اعتمادك
-					إن كان لديه دليل كافٍ، وسيظهر لك في شاشة التأكيد.
+					تحقق من ربط الحقول الإلزامية وحقل الكمية (المخزون). إذا لم يُكتشف أحد الحقول تلقائياً، يمكنك تحديده مباشرة من جدول الأعمدة أدناه.
+				</p>
+				<div class="table-wrap">
+					<table class="table">
+						<thead>
+							<tr>
+								<th>الحقل المطلوب</th>
+								<th>أهمية الحقل</th>
+								<th>حالة الربط بالملف</th>
+								<th>ملاحظة المخزون والتخزين</th>
+							</tr>
+						</thead>
+						<tbody>
+							for _, st := range view.CoreFieldsStatus() {
+								<tr>
+									<td>
+										<div class="fw-800">{ st.Label }</div>
+										<div class="text-xs text-muted">{ st.Description }</div>
+									</td>
+									<td>
+										if st.Required {
+											<span class="badge badge-rose text-xs">إلزامي / أساسي</span>
+										} else {
+											<span class="badge badge-slate text-xs">اختياري</span>
+										}
+									</td>
+									<td>
+										if st.ColumnIndex >= 0 {
+											<span class="badge badge-emerald text-xs">
+												✓ مربوط بـ: { st.ColumnName }
+											</span>
+										} else {
+											<span class="badge badge-amber text-xs">
+												⚠️ لم يُربط تلقائياً — حدده من الجدول أدناه
+											</span>
+										}
+									</td>
+									<td class="text-xs text-muted">
+										if st.Field == productmatch.FieldQuantity {
+											<strong class="text-primary">يتم قيد هذه الكمية في المستودع المحدد في الخطوة التالية</strong>
+										} else {
+											<span>—</span>
+										}
+									</td>
+								</tr>
+							}
+						</tbody>
+					</table>
+				</div>
+			</div>
+
+			<!-- All Columns Mapping Table -->
+			<div class="card">
+				<h2 class="wiz-head">2. راجع ربط الأعمدة في الملف</h2>
+				<p class="wiz-sub">
+					تم فحص جميع أعمدة ملفك. غيّر ما تريد لربط الحقول بدقة (مثل اختيار عمود الكمية، السعر، والاسم).
 				</p>
 				<div class="table-wrap">
 					<table class="table">
@@ -29,8 +84,8 @@ templ importMappingStage(view VendorImportView) {
 							<tr>
 								<th>العمود في ملفك</th>
 								<th>عينة من القيم</th>
-								<th>الحقل</th>
-								<th>الثقة</th>
+								<th>الحقل المربوط</th>
+								<th>الثقة والسبب</th>
 							</tr>
 						</thead>
 						<tbody>
@@ -41,14 +96,15 @@ templ importMappingStage(view VendorImportView) {
 					</table>
 				</div>
 			</div>
+
 			<div class="card mb-0">
 				<div class="wiz-actions">
-					<span class="wiz-actions-note">لن يُكتب أي صنف بعد — الخطوة التالية هي الإعدادات.</span>
+					<span class="wiz-actions-note">لن يُكتب أي صنف بعد — الخطوة التالية هي تحديد المستودع والإعدادات.</span>
 					<div class="row-center">
 						<form method="POST" action={ templ.SafeURL("/vendor/ingest/" + view.Session.PublicID + "/cancel") }>
 							<button type="submit" class="btn btn-ghost">إلغاء</button>
 						</form>
-						<button type="submit" class="btn btn-primary">اعتماد الربط والمتابعة</button>
+						<button type="submit" class="btn btn-primary">اعتماد الربط والمتابعة ←</button>
 					</div>
 				</div>
 			</div>
@@ -155,15 +211,16 @@ templ importSettingsStage(view VendorImportView) {
 			<p class="wiz-sub">اختر المخزن وطريقة التعامل مع الأصناف والأرصدة. القيم الافتراضية هي الأكثر تحفظاً.</p>
 			<div class="stack-lg">
 				<div>
-					<label class="form-label">المخزن الذي ستُسجَّل فيه الأرصدة <span class="text-danger">*</span></label>
+					<label class="form-label">المستودع الذي ستُسجَّل فيه الأرصدة والكميات المستوردة <span class="text-danger">*</span></label>
 					<select name="warehouse_id" class="form-input" required>
-						<option value="">— اختر المخزن —</option>
+						<option value="">— اختر المستودع —</option>
 						for _, wh := range view.Warehouses {
 							<option value={ fmt.Sprint(wh.ID) } selected?={ view.Session.Settings.WarehouseID == wh.ID }>
 								{ wh.Name }
 							</option>
 						}
 					</select>
+					<div class="text-xs text-muted mt-1">سيتم إيداع كميات جميع الأصناف المستوردة والمطابقة مباشرة في رصيد هذا المستودع.</div>
 				</div>
 			</div>
 		</div>

@@ -23,6 +23,17 @@ templ Base(title string, lang string, dir string) {
 						var isDark = t === 'dark' || (t === 'system' && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
 						if (isDark) document.documentElement.setAttribute('data-theme', 'dark');
 						else document.documentElement.setAttribute('data-theme', 'light');
+
+						// Immediate early scroll restoration
+						try {
+							var raw = sessionStorage.getItem('dawa24_scroll_pos');
+							if (raw) {
+								var data = JSON.parse(raw);
+								if (data && typeof data.y === 'number' && (Date.now() - data.time < 20000)) {
+									window.scrollTo(0, data.y);
+								}
+							}
+						} catch(e) {}
 					})();
 				</script>
 				<link rel="icon" type="image/png" href={ site.FaviconURL }/>

@@ -214,6 +214,11 @@ func (s *AdminImageImportSessionStore) ProcessImageImport(
 			continue
 		}
 
+		// Apply subtle Dawa24 watermark to the image
+		if watermarked, wmErr := ingest.ApplyWatermark(imgData, ext); wmErr == nil && len(watermarked) > 0 {
+			imgData = watermarked
+		}
+
 		// Save locally to data/uploads/products/<uuid>.<ext>
 		fileName := fmt.Sprintf("%s.%s", uuid.New().String(), ext)
 		localPath := filepath.Join(prodUploadDir, fileName)

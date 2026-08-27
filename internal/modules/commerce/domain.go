@@ -240,14 +240,22 @@ func IsValidStatusTransition(from, to OrderStatus) bool {
 	}
 }
 
-// GenerateOrderNumber formats a standardized order identifier.
+// GenerateOrderNumber formats a clean, simplified, natural order identifier without prefixes.
+// It produces short, human-friendly natural numbers (e.g. "2608270001" or "10542") that are easy to read and unique.
 func GenerateOrderNumber(t time.Time, id int64) string {
-	return fmt.Sprintf("ORD-%s-%06d", t.Format("20060102"), id%1000000)
+	if id > 0 && id < 100000000 {
+		return fmt.Sprintf("%d", id)
+	}
+	seq := id % 10000
+	if seq < 0 {
+		seq = -seq
+	}
+	return fmt.Sprintf("%s%04d", t.Format("060102"), seq)
 }
 
-// GenerateShipmentNumber formats a shipment partition identifier.
+// GenerateShipmentNumber formats a shipment partition identifier based on the order number.
 func GenerateShipmentNumber(orderNumber string, seq int) string {
-	return fmt.Sprintf("%s-S%d", orderNumber, seq)
+	return fmt.Sprintf("%s-%d", orderNumber, seq)
 }
 
 // ValidateLine ensures an order line has positive quantity and consistent totals.

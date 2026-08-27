@@ -101,6 +101,60 @@ func (v VendorImportView) MappedColumns() []*productmatch.Column {
 	return nil
 }
 
+// CoreFieldStatus tracks the mapping state of critical and required catalog & inventory fields.
+type CoreFieldStatus struct {
+	Field       productmatch.Field
+	Label       string
+	Description string
+	Required    bool
+	ColumnIndex int
+	ColumnName  string
+}
+
+// CoreFieldsStatus inspects all mapped columns and reports status for every essential field.
+func (v VendorImportView) CoreFieldsStatus() []CoreFieldStatus {
+	defs := []struct {
+		f   productmatch.Field
+		l   string
+		d   string
+		req bool
+	}{
+		{productmatch.FieldName, "اسم الصنف", "الاسم التجاري أو الوصف في الملف", true},
+		{productmatch.FieldPrice, "سعر البيع", "سعر بيع الصنف", true},
+		{productmatch.FieldQuantity, "الكمية (رصيد المخزون)", "الكمية المتوفرة لتسجيلها في المستودع المحدد", true},
+		{productmatch.FieldSKU, "كود الصنف (SKU)", "رمز الصنف الداخلي لديك", false},
+		{productmatch.FieldBarcode, "الباركود الدولي", "رقم الباركود للمطابقة التلقائية الفورية", false},
+		{productmatch.FieldExpiryDate, "تاريخ الصلاحية", "تاريخ انتهاء صلاحية التشغيلة", false},
+		{productmatch.FieldDiscountPct, "نسبة الخصم %", "نسبة الخصم الممنوحة على الصنف", false},
+	}
+
+	cols := v.MappedColumns()
+	res := make([]CoreFieldStatus, 0, len(defs))
+	for _, d := range defs {
+		st := CoreFieldStatus{
+			Field:       d.f,
+			Label:       d.l,
+			Description: d.d,
+			Required:    d.req,
+			ColumnIndex: -1,
+			ColumnName:  "",
+		}
+		for _, c := range cols {
+			if c.Field == d.f && !c.Ignored {
+				st.ColumnIndex = c.Index
+				if c.Header != "" {
+					st.ColumnName = c.Header
+				} else {
+					st.ColumnName = fmt.Sprintf("العمود %d", c.Index+1)
+				}
+				break
+			}
+		}
+		res = append(res, st)
+	}
+	return res
+}
+
 // FieldChoices lists the fields a column may be bound to, grouped for the
 // dropdown.
 func FieldChoices() []productmatch.Spec { return productmatch.Specs }

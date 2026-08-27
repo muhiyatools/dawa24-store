@@ -7,6 +7,64 @@ function getCookie(name) {
   return match ? decodeURIComponent(match[2]) : null;
 }
 
+// Universal Scroll Position Retention for all Platform Actions and Form Submissions
+(function() {
+  function saveScroll() {
+    try {
+      if (window.scrollY > 0) {
+        sessionStorage.setItem('dawa24_scroll_pos', JSON.stringify({
+          y: window.scrollY,
+          path: window.location.pathname,
+          time: Date.now()
+        }));
+      }
+    } catch(e) {}
+  }
+
+  function restoreScroll() {
+    try {
+      var raw = sessionStorage.getItem('dawa24_scroll_pos');
+      if (!raw) return;
+      var data = JSON.parse(raw);
+      sessionStorage.removeItem('dawa24_scroll_pos');
+      if (data && typeof data.y === 'number' && (Date.now() - data.time < 20000)) {
+        window.scrollTo({ top: data.y, behavior: 'instant' });
+        setTimeout(function() {
+          if (Math.abs(window.scrollY - data.y) > 10) {
+            window.scrollTo({ top: data.y, behavior: 'instant' });
+          }
+        }, 50);
+        setTimeout(function() {
+          if (Math.abs(window.scrollY - data.y) > 10) {
+            window.scrollTo({ top: data.y, behavior: 'instant' });
+          }
+        }, 150);
+      }
+    } catch(e) {}
+  }
+
+  document.addEventListener('submit', function(e) {
+    saveScroll();
+  }, true);
+
+  document.addEventListener('click', function(e) {
+    var btn = e.target.closest('button[type="submit"], a.btn, [data-keep-scroll]');
+    if (btn) {
+      saveScroll();
+    }
+  }, true);
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', restoreScroll);
+  } else {
+    restoreScroll();
+  }
+  window.addEventListener('pageshow', restoreScroll);
+
+  document.addEventListener('htmx:beforeRequest', saveScroll);
+  document.addEventListener('htmx:afterSettle', restoreScroll);
+})();
+
 // 0. Auto-inject _csrf token into all Native HTML form submissions
 document.addEventListener('submit', (e) => {
   const form = e.target;

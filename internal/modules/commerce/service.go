@@ -3,12 +3,19 @@ package commerce
 import (
 	"context"
 	"log/slog"
+	"sync/atomic"
 	"time"
 
 	"github.com/muhiya/dawa24-store/internal/shared/apperr"
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/shared/money"
 )
+
+var orderCounter atomic.Int64
+
+func init() {
+	orderCounter.Store(time.Now().Unix() % 10000)
+}
 
 // Service manages shopping carts, order checkouts, and state machine transitions.
 type Service struct {
@@ -112,7 +119,8 @@ func (s *Service) Checkout(ctx context.Context, input CheckoutInput) (*Order, er
 	}
 
 	now := time.Now().UTC()
-	orderNumber := GenerateOrderNumber(now, now.UnixNano())
+	seq := orderCounter.Add(1)
+	orderNumber := GenerateOrderNumber(now, seq)
 
 	// Group line items by vendor organization
 	vendorMap := make(map[int64][]*OrderLine)
