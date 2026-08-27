@@ -74,27 +74,14 @@ func (h *UIHandler) AdminMatchDecisionsClearSubmit(w http.ResponseWriter, r *htt
 	h.redirectWithNotice(w, r, "/admin/match-decisions", "success", "تم مسح كافة قرارات الذاكرة بنجاح.")
 }
 
-// VendorDecisionMemoryPage renders the decision memory list for vendors.
-func (h *UIHandler) VendorDecisionMemoryPage(w http.ResponseWriter, r *http.Request) {
-	h.renderOrgDecisionMemory(w, r, true)
-}
-
 // CustomerDecisionMemoryPage renders the decision memory list for pharmacy customer organizations.
 func (h *UIHandler) CustomerDecisionMemoryPage(w http.ResponseWriter, r *http.Request) {
-	h.renderOrgDecisionMemory(w, r, false)
-}
-
-func (h *UIHandler) renderOrgDecisionMemory(w http.ResponseWriter, r *http.Request, isVendor bool) {
 	ctx := r.Context()
 	lang, dir := h.localeAndDir(r)
 
 	actor, ok := authctx.From(ctx)
 	if !ok || actor.OrganizationID <= 0 {
-		redirectPath := "/customer/decision-memory"
-		if isVendor {
-			redirectPath = "/vendor/decision-memory"
-		}
-		http.Redirect(w, r, "/auth/login?redirect="+redirectPath, http.StatusSeeOther)
+		http.Redirect(w, r, "/auth/login?redirect=/customer/decision-memory", http.StatusSeeOther)
 		return
 	}
 
@@ -120,73 +107,50 @@ func (h *UIHandler) renderOrgDecisionMemory(w http.ResponseWriter, r *http.Reque
 		Page:     page,
 		PerPage:  limit,
 		Search:   search,
-		IsVendor: isVendor,
 	}
 
-	if isVendor {
-		_ = pages.VendorDecisionMemoryPage(lang, dir, data).Render(ctx, w)
-	} else {
-		_ = pages.CustomerDecisionMemoryPage(lang, dir, data).Render(ctx, w)
-	}
+	_ = pages.CustomerDecisionMemoryPage(lang, dir, data).Render(ctx, w)
 }
 
-// VendorDecisionMemoryDeleteSubmit deletes a single customer/vendor saved mapping.
-func (h *UIHandler) VendorDecisionMemoryDeleteSubmit(w http.ResponseWriter, r *http.Request) {
-	h.deleteOrgDecisionMemory(w, r, "/vendor/decision-memory")
-}
-
-// CustomerDecisionMemoryDeleteSubmit deletes a single customer/vendor saved mapping.
+// CustomerDecisionMemoryDeleteSubmit deletes a single customer saved mapping.
 func (h *UIHandler) CustomerDecisionMemoryDeleteSubmit(w http.ResponseWriter, r *http.Request) {
-	h.deleteOrgDecisionMemory(w, r, "/customer/decision-memory")
-}
-
-func (h *UIHandler) deleteOrgDecisionMemory(w http.ResponseWriter, r *http.Request, redirectBase string) {
 	ctx := r.Context()
 	actor, ok := authctx.From(ctx)
 	if !ok || actor.OrganizationID <= 0 {
-		http.Redirect(w, r, "/auth/login?redirect="+redirectBase, http.StatusSeeOther)
+		http.Redirect(w, r, "/auth/login?redirect=/customer/decision-memory", http.StatusSeeOther)
 		return
 	}
 
 	idStr := chi.URLParam(r, "id")
 	id, err := strconv.ParseInt(idStr, 10, 64)
 	if err != nil || id <= 0 {
-		h.redirectWithNotice(w, r, redirectBase, "error", "معرف القرار غير صالح.")
+		h.redirectWithNotice(w, r, "/customer/decision-memory", "error", "معرف القرار غير صالح.")
 		return
 	}
 
 	if err := h.catSvc.DeleteCustomerMapping(ctx, actor.OrganizationID, id); err != nil {
 		h.log.ErrorContext(ctx, "failed to delete customer mapping", "id", id, "org_id", actor.OrganizationID, "error", err)
-		h.redirectWithNotice(w, r, redirectBase, "error", "حدث خطأ أثناء حذف القرار.")
+		h.redirectWithNotice(w, r, "/customer/decision-memory", "error", "حدث خطأ أثناء حذف القرار.")
 		return
 	}
 
-	h.redirectWithNotice(w, r, redirectBase, "success", "تم حذف الربط من ذاكرة القرارات بنجاح.")
+	h.redirectWithNotice(w, r, "/customer/decision-memory", "success", "تم حذف الربط من ذاكرة القرارات بنجاح.")
 }
 
-// VendorDecisionMemoryClearSubmit clears all saved mappings for the vendor.
-func (h *UIHandler) VendorDecisionMemoryClearSubmit(w http.ResponseWriter, r *http.Request) {
-	h.clearOrgDecisionMemory(w, r, "/vendor/decision-memory")
-}
-
-// CustomerDecisionMemoryClearSubmit clears all saved mappings for the customer.
+// CustomerDecisionMemoryClearSubmit clears all saved mappings for the customer pharmacy.
 func (h *UIHandler) CustomerDecisionMemoryClearSubmit(w http.ResponseWriter, r *http.Request) {
-	h.clearOrgDecisionMemory(w, r, "/customer/decision-memory")
-}
-
-func (h *UIHandler) clearOrgDecisionMemory(w http.ResponseWriter, r *http.Request, redirectBase string) {
 	ctx := r.Context()
 	actor, ok := authctx.From(ctx)
 	if !ok || actor.OrganizationID <= 0 {
-		http.Redirect(w, r, "/auth/login?redirect="+redirectBase, http.StatusSeeOther)
+		http.Redirect(w, r, "/auth/login?redirect=/customer/decision-memory", http.StatusSeeOther)
 		return
 	}
 
 	if err := h.catSvc.ClearCustomerMappings(ctx, actor.OrganizationID); err != nil {
 		h.log.ErrorContext(ctx, "failed to clear customer mappings", "org_id", actor.OrganizationID, "error", err)
-		h.redirectWithNotice(w, r, redirectBase, "error", "حدث خطأ أثناء مسح الذاكرة.")
+		h.redirectWithNotice(w, r, "/customer/decision-memory", "error", "حدث خطأ أثناء مسح الذاكرة.")
 		return
 	}
 
-	h.redirectWithNotice(w, r, redirectBase, "success", "تم مسح ذاكرة القرارات الخاصة بمنشأتك بنجاح.")
+	h.redirectWithNotice(w, r, "/customer/decision-memory", "success", "تم مسح ذاكرة القرارات الخاصة بصيدليتك بنجاح.")
 }

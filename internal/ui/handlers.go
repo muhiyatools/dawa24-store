@@ -392,11 +392,6 @@ func (h *UIHandler) RegisterCustomerRoutes(r chi.Router) {
 func (h *UIHandler) RegisterVendorRoutes(r chi.Router) {
 	r.Get("/vendor/dashboard", h.VendorDashboardPage)
 	r.Get("/vendor/subscription", h.TenantSubscriptionPage)
-
-	// Decision Memory (ذاكرة قرارات المطابقة)
-	r.Get("/vendor/decision-memory", h.VendorDecisionMemoryPage)
-	r.Post("/vendor/decision-memory/{id}/delete", h.VendorDecisionMemoryDeleteSubmit)
-	r.Post("/vendor/decision-memory/clear", h.VendorDecisionMemoryClearSubmit)
 	r.Get("/vendor/organization", h.VendorOrganizationPage)
 	r.Post("/vendor/organization", h.VendorOrganizationSubmit)
 	r.Get("/vendor/settings/organization", h.VendorOrganizationPage)
