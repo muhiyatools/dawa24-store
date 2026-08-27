@@ -72,6 +72,8 @@ func (h *UIHandler) registerAdminPlatformRoutes(r chi.Router) {
 		g.Post("/admin/policies/{id}/publish", h.AdminPolicyPublishSubmit)
 		g.Post("/admin/cities/new", h.AdminCityCreateSubmit)
 		g.Post("/admin/cities/{id}/toggle", h.AdminCityToggleSubmit)
+		g.Post("/admin/governorates/new", h.AdminGovernorateCreateSubmit)
+		g.Post("/admin/governorates/{id}/toggle", h.AdminGovernorateToggleSubmit)
 		g.Post("/admin/messages/{id}/toggle", h.AdminMessageToggleSubmit)
 		g.Post("/admin/messages/{id}/delete", h.AdminMessageDeleteSubmit)
 	})

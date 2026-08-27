@@ -13,8 +13,15 @@ type Repository interface {
 	ListPublicSettings(ctx context.Context) ([]*SystemSetting, error)
 
 	ListCountries(ctx context.Context) ([]*Country, error)
+	ListGovernorates(ctx context.Context, countryID int64) ([]*Governorate, error)
+	ListAllGovernorates(ctx context.Context, countryID int64) ([]*Governorate, error)
+	GetGovernorate(ctx context.Context, id int64) (*Governorate, error)
+	CreateGovernorate(ctx context.Context, g *Governorate) error
+	UpdateGovernorate(ctx context.Context, g *Governorate) error
+	ToggleGovernorateStatus(ctx context.Context, id int64) error
 	ListCities(ctx context.Context, countryID int64) ([]*City, error)
 	ListAllCities(ctx context.Context, countryID int64) ([]*City, error)
+	ListCitiesByGovernorate(ctx context.Context, governorateID int64) ([]*City, error)
 	ToggleCityStatus(ctx context.Context, id int64) error
 	CreateCity(ctx context.Context, c *City) error
 

@@ -2281,17 +2281,50 @@ func (h *UIHandler) AdminCitiesPage(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	lang, dir := h.localeAndDir(r)
 
-	var cities []*platformadmin.City
+	var governorates []*platformadmin.Governorate
+	var allCities []*platformadmin.City
 	if h.adminSvc != nil {
-		cities, _ = h.adminSvc.ListAllCities(ctx, 1)
+		governorates, _ = h.adminSvc.ListAllGovernorates(ctx, 1)
+		allCities, _ = h.adminSvc.ListAllCities(ctx, 1)
 	}
-	if len(cities) == 0 {
-		cities = h.listCities(ctx)
+	if len(allCities) == 0 {
+		allCities = h.listCities(ctx)
 	}
+
+	selectedGovID, _ := strconv.ParseInt(r.URL.Query().Get("gov_id"), 10, 64)
+	query := strings.TrimSpace(r.URL.Query().Get("q"))
+
+	// Filter cities by governorate and search query
+	filteredCities := make([]*platformadmin.City, 0, len(allCities))
+	for _, c := range allCities {
+		if selectedGovID > 0 && (c.GovernorateID == nil || *c.GovernorateID != selectedGovID) {
+			continue
+		}
+		if query != "" {
+			qLower := strings.ToLower(query)
+			nameAr := c.Name["ar"]
+			nameEn := strings.ToLower(c.Name["en"])
+			govAr := ""
+			govEn := ""
+			if c.GovernorateName != nil {
+				govAr = (*c.GovernorateName)["ar"]
+				govEn = strings.ToLower((*c.GovernorateName)["en"])
+			}
+			if !strings.Contains(nameAr, query) && !strings.Contains(nameEn, qLower) &&
+				!strings.Contains(govAr, query) && !strings.Contains(govEn, qLower) {
+				continue
+			}
+		}
+		filteredCities = append(filteredCities, c)
+	}
+
 	data := pages.AdminCitiesData{
-		Cities:     cities,
-		TotalCount: len(cities),
-		Query:      r.URL.Query().Get("q"),
+		Governorates:          governorates,
+		Cities:                filteredCities,
+		SelectedGovernorateID: selectedGovID,
+		TotalCities:           len(allCities),
+		TotalGovernorates:     len(governorates),
+		Query:                 query,
 	}
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
@@ -2300,7 +2333,7 @@ func (h *UIHandler) AdminCitiesPage(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// AdminCityCreateSubmit adds a new city / district with coordinates.
+// AdminCityCreateSubmit adds a new city / district with coordinates under a governorate.
 func (h *UIHandler) AdminCityCreateSubmit(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	_ = r.ParseForm()
@@ -2314,15 +2347,22 @@ func (h *UIHandler) AdminCityCreateSubmit(w http.ResponseWriter, r *http.Request
 		nameEn = nameAr
 	}
 
+	var govIDPtr *int64
+	govID, _ := strconv.ParseInt(r.PostFormValue("governorate_id"), 10, 64)
+	if govID > 0 {
+		govIDPtr = &govID
+	}
+
 	lat, _ := strconv.ParseFloat(r.PostFormValue("city_lat"), 64)
 	lon, _ := strconv.ParseFloat(r.PostFormValue("city_lon"), 64)
 
 	city := &platformadmin.City{
-		CountryID: 1,
-		Name:      i18n.New(nameAr, nameEn),
-		Latitude:  lat,
-		Longitude: lon,
-		IsActive:  true,
+		CountryID:     1,
+		GovernorateID: govIDPtr,
+		Name:          i18n.New(nameAr, nameEn),
+		Latitude:      lat,
+		Longitude:     lon,
+		IsActive:      true,
 	}
 
 	if h.adminSvc != nil {
@@ -2332,7 +2372,11 @@ func (h *UIHandler) AdminCityCreateSubmit(w http.ResponseWriter, r *http.Request
 		}
 	}
 
-	h.redirectWithNotice(w, r, "/admin/cities", "success", "تم حفظ وإضافة المدينة بنجاح في قاعدة البيانات.")
+	redirectURL := "/admin/cities"
+	if govID > 0 {
+		redirectURL = fmt.Sprintf("/admin/cities?gov_id=%d", govID)
+	}
+	h.redirectWithNotice(w, r, redirectURL, "success", "تم حفظ وإضافة المدينة الفرعية بنجاح في قاعدة البيانات.")
 }
 
 // AdminCityToggleSubmit toggles the active status of a city.
@@ -2351,7 +2395,65 @@ func (h *UIHandler) AdminCityToggleSubmit(w http.ResponseWriter, r *http.Request
 		}
 	}
 
-	h.redirectWithNotice(w, r, "/admin/cities", "success", "تم تحديث حالة تفعيل المدينة بنجاح.")
+	referer := r.Header.Get("Referer")
+	if referer == "" {
+		referer = "/admin/cities"
+	}
+	h.redirectWithNotice(w, r, referer, "success", "تم تحديث حالة تفعيل المدينة بنجاح.")
+}
+
+// AdminGovernorateCreateSubmit adds a new main governorate.
+func (h *UIHandler) AdminGovernorateCreateSubmit(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	_ = r.ParseForm()
+	nameAr := strings.TrimSpace(r.PostFormValue("gov_name_ar"))
+	nameEn := strings.TrimSpace(r.PostFormValue("gov_name_en"))
+	if nameAr == "" {
+		h.redirectWithNotice(w, r, "/admin/cities", "error", "اسم المحافظة بالعربية مطلوب.")
+		return
+	}
+	if nameEn == "" {
+		nameEn = nameAr
+	}
+
+	lat, _ := strconv.ParseFloat(r.PostFormValue("gov_lat"), 64)
+	lon, _ := strconv.ParseFloat(r.PostFormValue("gov_lon"), 64)
+
+	gov := &platformadmin.Governorate{
+		CountryID: 1,
+		Name:      i18n.New(nameAr, nameEn),
+		Latitude:  lat,
+		Longitude: lon,
+		IsActive:  true,
+	}
+
+	if h.adminSvc != nil {
+		if err := h.adminSvc.CreateGovernorate(ctx, gov); err != nil {
+			h.redirectWithNotice(w, r, "/admin/cities", "error", h.safeMessage(err, langOf(r)))
+			return
+		}
+	}
+
+	h.redirectWithNotice(w, r, "/admin/cities", "success", "تم حفظ وإضافة المحافظة الرئيسية بنجاح.")
+}
+
+// AdminGovernorateToggleSubmit toggles the active status of a governorate.
+func (h *UIHandler) AdminGovernorateToggleSubmit(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	id, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
+	if err != nil || id <= 0 {
+		h.redirectWithNotice(w, r, "/admin/cities", "error", "معرف المحافظة غير صالح.")
+		return
+	}
+
+	if h.adminSvc != nil {
+		if err := h.adminSvc.ToggleGovernorateStatus(ctx, id); err != nil {
+			h.redirectWithNotice(w, r, "/admin/cities", "error", h.safeMessage(err, langOf(r)))
+			return
+		}
+	}
+
+	h.redirectWithNotice(w, r, "/admin/cities", "success", "تم تحديث حالة تفعيل المحافظة بنجاح.")
 }
 
 // AdminDevelopersPage renders the unified developer portal with 4 tabs:

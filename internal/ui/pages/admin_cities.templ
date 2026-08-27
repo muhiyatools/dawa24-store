@@ -8,9 +8,13 @@ import (
 )
 
 type AdminCitiesData struct {
-	Cities     []*platformadmin.City
-	TotalCount int
-	Query      string
+	Governorates          []*platformadmin.Governorate
+	Cities                []*platformadmin.City
+	SelectedGovernorateID int64
+	TotalCities           int
+	TotalGovernorates     int
+	Query                 string
+	ActiveTab             string
 }
 
 templ AdminCities(data AdminCitiesData, lang string, dir string, isHTMX bool) {
@@ -19,79 +23,207 @@ templ AdminCities(data AdminCitiesData, lang string, dir string, isHTMX bool) {
 			<!-- Header -->
 			<div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:1rem; border-bottom:1px solid var(--border); padding-bottom:1.25rem;">
 				<div>
-					<h2 style="font-size:1.45rem; font-weight:800; color:var(--text); margin:0 0 0.4rem 0;">
-						المحافظات والمدن الجغرافية 🌍
-					</h2>
-					<p style="font-size:0.875rem; color:var(--text-secondary); margin:0; max-width:640px; line-height:1.6;">
-						إدارة التقسيم الجغرافي والإحداثيات المكانية لمحافظات ومراكز جمهورية مصر العربية الـ 125 المستخدمة في حساب دوائر التغطية وشحن الأدوية.
+					<div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:0.35rem;">
+						<span style="font-size:1.5rem;">🌍</span>
+						<h2 style="font-size:1.45rem; font-weight:800; color:var(--text); margin:0;">
+							المحافظات والمدن والمراكز الجغرافية
+						</h2>
+					</div>
+					<p style="font-size:0.875rem; color:var(--text-secondary); margin:0; max-width:700px; line-height:1.6;">
+						منظومة التقسيم الهرمي للمحافظات والمدن والمراكز والأحياء المعتمدة في جمهورية مصر العربية مع الإحداثيات الجغرافية المكانية (GPS) لضبط نطاقات التغطية وعمليات الشحن والتوصيل.
 					</p>
 				</div>
 
-				<div class="row-center">
+				<div style="display:flex; align-items:center; gap:0.6rem; flex-wrap:wrap;">
+					<a href="#new-gov-card" class="btn btn-secondary btn-sm fw-700">
+						@components.IconPlus("icon-xs")
+						<span>+ إضافة محافظة</span>
+					</a>
 					<a href="#new-city-card" class="btn btn-primary btn-sm fw-700">
 						@components.IconPlus("icon-xs")
-						<span>+ إضافة مدينة / منطقة</span>
+						<span>+ إضافة مدينة / حي</span>
 					</a>
 				</div>
 			</div>
 
 			<!-- Metrics -->
-			<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:1rem;">
-				<div class="card" style="padding:1.25rem; background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-xl);">
-					<div style="font-size:0.8rem; font-weight:600; color:var(--text-muted); margin-bottom:0.25rem;">إجمالي المدن والمراكز</div>
-					<div style="font-size:1.75rem; font-weight:800; color:var(--text);" class="tabular-nums">{ fmt.Sprintf("%d", len(data.Cities)) }</div>
-				</div>
+			<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:1rem;">
 				<div class="card" style="padding:1.25rem; background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-xl);">
 					<div style="font-size:0.8rem; font-weight:600; color:var(--text-muted); margin-bottom:0.25rem;">المحافظات الرئيسية</div>
-					<div style="font-size:1.75rem; font-weight:800; color:var(--accent);" class="tabular-nums">27</div>
+					<div style="font-size:1.85rem; font-weight:800; color:var(--accent);" class="tabular-nums">
+						if data.TotalGovernorates > 0 {
+							{ fmt.Sprintf("%d", data.TotalGovernorates) }
+						} else {
+							{ fmt.Sprintf("%d", len(data.Governorates)) }
+						}
+					</div>
+					<div style="font-size:0.75rem; color:var(--text-muted); margin-top:0.2rem;">محافظة معتمدة بجمهورية مصر العربية</div>
 				</div>
+
+				<div class="card" style="padding:1.25rem; background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-xl);">
+					<div style="font-size:0.8rem; font-weight:600; color:var(--text-muted); margin-bottom:0.25rem;">المدن والمراكز والأحياء</div>
+					<div style="font-size:1.85rem; font-weight:800; color:var(--text);" class="tabular-nums">
+						if data.TotalCities > 0 {
+							{ fmt.Sprintf("%d", data.TotalCities) }
+						} else {
+							{ fmt.Sprintf("%d", len(data.Cities)) }
+						}
+					</div>
+					<div style="font-size:0.75rem; color:var(--text-muted); margin-top:0.2rem;">مدينة / حي / مركز فرعي مسجل</div>
+				</div>
+
+				<div class="card" style="padding:1.25rem; background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-xl);">
+					<div style="font-size:0.8rem; font-weight:600; color:var(--text-muted); margin-bottom:0.25rem;">جاهزية الإحداثيات المكانية</div>
+					<div style="margin-top:0.35rem;">
+						<span class="badge badge-emerald" style="font-size:0.8rem; font-weight:700;">100% إحداثيات GPS دقيقة</span>
+					</div>
+					<div style="font-size:0.75rem; color:var(--text-muted); margin-top:0.4rem;">حساب مسافات التوصيل بالخرائط التفاعلية</div>
+				</div>
+
 				<div class="card" style="padding:1.25rem; background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-xl);">
 					<div style="font-size:0.8rem; font-weight:600; color:var(--text-muted); margin-bottom:0.25rem;">حالة النطاق الجغرافي</div>
 					<div style="margin-top:0.35rem;">
-						<span class="badge badge-emerald" style="font-size:0.775rem;">تغطية جغرافية مكتملة (100%)</span>
+						<span class="badge badge-sky" style="font-size:0.8rem; font-weight:700;">تغطية شاملة لجميع المحافظات</span>
 					</div>
+					<div style="font-size:0.75rem; color:var(--text-muted); margin-top:0.4rem;">محدثة ومطابقة للمخطط الإداري</div>
 				</div>
 			</div>
 
-			<!-- Main Layout: Table + Add Form -->
-			<div style="display:grid; grid-template-columns:1.4fr 1fr; gap:1.75rem; align-items:start;">
+			<!-- Filter Bar -->
+			<div style="background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-xl); padding:1rem; display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:1rem;">
+				<form method="GET" action="/admin/cities" style="display:flex; flex-wrap:wrap; align-items:center; gap:0.75rem; flex:1; max-width:800px; margin:0;">
+					<div style="min-width:220px; flex:1;">
+						<select name="gov_id" onchange="this.form.submit()" class="form-input w-full" style="font-weight:600; font-size:0.875rem;">
+							<option value="0">🌍 كل المحافظات (عرض جميع المدن)</option>
+							for _, g := range data.Governorates {
+								if data.SelectedGovernorateID == g.ID {
+									<option value={ fmt.Sprintf("%d", g.ID) } selected>
+										{ g.Name["ar"] } ({ g.Name["en"] }) - { fmt.Sprintf("%d", g.CityCount) } مدينة
+									</option>
+								} else {
+									<option value={ fmt.Sprintf("%d", g.ID) }>
+										{ g.Name["ar"] } ({ g.Name["en"] }) - { fmt.Sprintf("%d", g.CityCount) } مدينة
+									</option>
+								}
+							}
+						</select>
+					</div>
+
+					<div style="min-width:220px; flex:1; position:relative;">
+						<input
+							type="text"
+							name="q"
+							value={ data.Query }
+							placeholder="بحث باسم المدينة أو المحافظة..."
+							class="form-input w-full"
+							style="padding-inline-start:2rem; font-size:0.875rem;"
+						/>
+						<span style="position:absolute; inset-inline-start:0.65rem; top:50%; transform:translateY(-50%); color:var(--text-muted); pointer-events:none;">
+							🔍
+						</span>
+					</div>
+
+					<button type="submit" class="btn btn-secondary btn-sm fw-700">
+						بحث وفلترة
+					</button>
+
+					if data.Query != "" || data.SelectedGovernorateID > 0 {
+						<a href="/admin/cities" class="btn btn-ghost btn-sm text-muted">
+							إعادة ضبط
+						</a>
+					}
+				</form>
+
+				<div style="display:flex; align-items:center; gap:0.5rem;">
+					<span style="font-size:0.8rem; color:var(--text-muted); font-weight:600;">
+						عدد النتائج المعروضة:
+					</span>
+					<span class="badge badge-sky tabular-nums fw-700" style="font-size:0.825rem;">
+						{ fmt.Sprintf("%d", len(data.Cities)) } مدينة
+					</span>
+				</div>
+			</div>
+
+			<!-- Main Content Grid -->
+			<div style="display:grid; grid-template-columns:1.5fr 1fr; gap:1.75rem; align-items:start;">
 				
 				<!-- Left: Cities Table -->
 				<div style="background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-2xl); padding:1.5rem; display:flex; flex-direction:column; gap:1.25rem;">
-					<div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.75rem;">
-						<h3 class="text-lg fw-800 text-primary m-0">
-							سجل المدن والمراكز المعتمدة
-						</h3>
-						<span class="badge badge-sky tabular-nums fw-700">{ fmt.Sprintf("%d", len(data.Cities)) } مدينة</span>
+					<div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.75rem; border-bottom:1px solid var(--border); padding-bottom:0.75rem;">
+						<div>
+							<h3 class="text-lg fw-800 text-primary m-0">
+								سجل المدن والمراكز المعتمدة
+							</h3>
+							if data.SelectedGovernorateID > 0 {
+								for _, g := range data.Governorates {
+									if g.ID == data.SelectedGovernorateID {
+										<div style="font-size:0.8rem; color:var(--accent); font-weight:700; margin-top:0.2rem;">
+											عرض مدن محافظة: { g.Name["ar"] } ({ g.Name["en"] })
+										</div>
+									}
+								}
+							}
+						</div>
+						<span class="badge badge-emerald tabular-nums fw-700">{ fmt.Sprintf("%d", len(data.Cities)) } مدينة مفعلة</span>
 					</div>
 
 					<div style="overflow-x:auto;">
 						<table style="width:100%; text-align:start; border-collapse:collapse; font-size:0.85rem;">
 							<thead>
 								<tr style="border-bottom:1px solid var(--border); color:var(--text-muted); font-size:0.75rem; text-transform:uppercase;">
-									<th style="padding:0.6rem 0.75rem;">المدينة / المحافظة</th>
+									<th style="padding:0.6rem 0.75rem;">المدينة / الحي</th>
+									<th style="padding:0.6rem 0.75rem;">المحافظة التابعة</th>
 									<th style="padding:0.6rem 0.75rem;">الإحداثيات الجغرافية (GPS)</th>
 									<th style="padding:0.6rem 0.75rem;">الحالة</th>
 									<th style="padding:0.6rem 0.75rem; text-align:end;">الإجراء</th>
 								</tr>
 							</thead>
 							<tbody style="divide-y:1px solid var(--border);">
+								if len(data.Cities) == 0 {
+									<tr>
+										<td colspan="5" style="padding:3rem 1rem; text-align:center; color:var(--text-muted);">
+											<div style="font-size:2rem; margin-bottom:0.5rem;">🔍</div>
+											<div style="font-weight:700; font-size:1rem; color:var(--text);">لم يتم العثور على أي مدن تطابق شروط البحث</div>
+											<div style="font-size:0.85rem; margin-top:0.25rem;">جرب تغيير المحافظة أو عبارة البحث في الأعلى.</div>
+										</td>
+									</tr>
+								}
 								for _, c := range data.Cities {
-									<tr style="border-bottom:1px solid var(--border);">
+									<tr style="border-bottom:1px solid var(--border); transition:background-color 0.15s ease;">
 										<td class="p-sm">
-											<div class="fw-800 text-primary">
+											<div class="fw-800 text-primary" style="display:flex; align-items:center; gap:0.35rem;">
+												if c.IsCapital {
+													<span title="عاصمة / مركز رئيسي" style="font-size:0.85rem;">⭐</span>
+												}
 												if c.Name["ar"] != "" {
-													{ c.Name["ar"] }
+													<span>{ c.Name["ar"] }</span>
 												} else {
-													{ c.Name["en"] }
+													<span>{ c.Name["en"] }</span>
 												}
 											</div>
 											if c.Name["en"] != "" && c.Name["ar"] != "" {
-												<div style="font-size:0.725rem; color:var(--text-muted);">{ c.Name["en"] }</div>
+												<div style="font-size:0.75rem; color:var(--text-muted); font-weight:500;">{ c.Name["en"] }</div>
 											}
 										</td>
-										<td style="padding:0.75rem; font-family:monospace; font-size:0.775rem;" class="tabular-nums">
-											<span class="text-accent">{ fmt.Sprintf("%.4f, %.4f", c.Latitude, c.Longitude) }</span>
+										<td style="padding:0.6rem 0.75rem;">
+											if c.GovernorateName != nil && (*c.GovernorateName)["ar"] != "" {
+												<span class="badge badge-sky" style="font-size:0.75rem; font-weight:700;">
+													{ (*c.GovernorateName)["ar"] }
+												</span>
+											} else {
+												<span class="badge badge-gray text-xs">غير محدد</span>
+											}
+										</td>
+										<td style="padding:0.6rem 0.75rem; font-family:monospace; font-size:0.775rem;" class="tabular-nums">
+											<a
+												href={ templ.SafeURL(fmt.Sprintf("https://www.google.com/maps?q=%.6f,%.6f", c.Latitude, c.Longitude)) }
+												target="_blank"
+												rel="noopener noreferrer"
+												title="فتح الموقع على خرائط جوجل"
+												style="display:inline-flex; align-items:center; gap:0.25rem; color:var(--accent); text-decoration:none;"
+											>
+												<span>📍 { fmt.Sprintf("%.4f, %.4f", c.Latitude, c.Longitude) }</span>
+											</a>
 										</td>
 										<td class="p-sm">
 											if c.IsActive {
@@ -100,7 +232,7 @@ templ AdminCities(data AdminCitiesData, lang string, dir string, isHTMX bool) {
 												<span class="badge badge-gray text-xs">معطلة</span>
 											}
 										</td>
-										<td style="padding:0.75rem; text-align:end;">
+										<td style="padding:0.6rem 0.75rem; text-align:end;">
 											<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/cities/%d/toggle", c.ID)) } class="m-0 inline">
 												<button type="submit" class="btn btn-secondary btn-xs text-xs">
 													if c.IsActive {
@@ -118,46 +250,139 @@ templ AdminCities(data AdminCitiesData, lang string, dir string, isHTMX bool) {
 					</div>
 				</div>
 
-				<!-- Right: Add City Form -->
-				<div id="new-city-card" style="background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-2xl); padding:1.5rem; position:sticky; top:calc(var(--header-height) + 1.5rem);">
-					<div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:1rem; border-bottom:1px solid var(--border); padding-bottom:0.75rem;">
-						<div style="width:32px; height:32px; border-radius:var(--radius-md); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center;">
-							@components.IconPlus("icon-xs")
+				<!-- Right Side: Forms Container -->
+				<div style="display:flex; flex-direction:column; gap:1.5rem; position:sticky; top:calc(var(--header-height) + 1.5rem);">
+					
+					<!-- Card 1: Add New City / Subgovernorate -->
+					<div id="new-city-card" style="background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-2xl); padding:1.5rem;">
+						<div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:1rem; border-bottom:1px solid var(--border); padding-bottom:0.75rem;">
+							<div style="width:32px; height:32px; border-radius:var(--radius-md); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center;">
+								@components.IconPlus("icon-xs")
+							</div>
+							<div>
+								<h3 style="font-size:1.05rem; font-weight:800; color:var(--text); margin:0;">
+									إضافة مدينة / حي فرعي
+								</h3>
+								<div style="font-size:0.75rem; color:var(--text-muted);">إدراج منطقة جديدة تحت محافظة معتمدة</div>
+							</div>
 						</div>
-						<h3 style="font-size:1.05rem; font-weight:800; color:var(--text); margin:0;">
-							إضافة مدينة / محافظة جديدة
-						</h3>
+
+						<form method="POST" action="/admin/cities/new" class="stack" style="gap:1rem;">
+							<div>
+								<label class="form-label" style="font-size:0.825rem; font-weight:700;">
+									المحافظة التابعة <span class="text-danger">*</span>
+								</label>
+								<select name="governorate_id" required class="form-input w-full" style="font-size:0.875rem;">
+									<option value="">-- اختر المحافظة --</option>
+									for _, g := range data.Governorates {
+										if data.SelectedGovernorateID == g.ID {
+											<option value={ fmt.Sprintf("%d", g.ID) } selected>
+												{ g.Name["ar"] } ({ g.Name["en"] })
+											</option>
+										} else {
+											<option value={ fmt.Sprintf("%d", g.ID) }>
+												{ g.Name["ar"] } ({ g.Name["en"] })
+											</option>
+										}
+									}
+								</select>
+							</div>
+
+							<div>
+								<label class="form-label" style="font-size:0.825rem; font-weight:700;">
+									اسم المدينة / الحي بالعربية <span class="text-danger">*</span>
+								</label>
+								<input type="text" name="name_ar" required placeholder="مثال: المنصورة الجديدة" class="form-input w-full" style="font-size:0.875rem;"/>
+							</div>
+
+							<div>
+								<label class="form-label" style="font-size:0.825rem; font-weight:700;">
+									اسم المدينة / الحي بالإنجليزية
+								</label>
+								<input type="text" name="name_en" placeholder="New Mansoura" class="form-input w-full" style="font-size:0.875rem;"/>
+							</div>
+
+							<div>
+								@components.MapPicker(components.MapPickerProps{
+									NamePrefix: "city",
+									Label:      "تحديد الموقع الجغرافي للمدينة / المركز (GPS)",
+									Height:     "200px",
+								})
+							</div>
+
+							<button type="submit" class="btn btn-primary" style="font-weight:800; padding:0.65rem; width:100%; justify-content:center;">
+								@components.IconCheck("icon-xs")
+								<span>حفظ وإضافة المدينة</span>
+							</button>
+						</form>
 					</div>
 
-					<form method="POST" action="/admin/cities/new" class="stack">
-						<div>
-							<label class="form-label">
-								اسم المدينة / المحافظة بالعربية <span class="text-danger">*</span>
-							</label>
-							<input type="text" name="name_ar" required placeholder="مثال: المنصورة الجديدة" class="form-input w-full"/>
+					<!-- Card 2: Add New Governorate -->
+					<div id="new-gov-card" style="background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-2xl); padding:1.5rem;">
+						<div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:1rem; border-bottom:1px solid var(--border); padding-bottom:0.75rem;">
+							<div style="width:32px; height:32px; border-radius:var(--radius-md); background:var(--sky-subtle); color:var(--sky); display:flex; align-items:center; justify-content:center;">
+								@components.IconPlus("icon-xs")
+							</div>
+							<div>
+								<h3 style="font-size:1.05rem; font-weight:800; color:var(--text); margin:0;">
+									إضافة محافظة رئيسية جديدة
+								</h3>
+								<div style="font-size:0.75rem; color:var(--text-muted);">إدراج نطاق محافظة جديد بالجمهورية</div>
+							</div>
 						</div>
 
-						<div>
-							<label class="form-label">
-								اسم المدينة / المحافظة بالإنجليزية
-							</label>
-							<input type="text" name="name_en" placeholder="New Mansoura" class="form-input w-full"/>
+						<form method="POST" action="/admin/governorates/new" class="stack" style="gap:1rem;">
+							<div>
+								<label class="form-label" style="font-size:0.825rem; font-weight:700;">
+									اسم المحافظة بالعربية <span class="text-danger">*</span>
+								</label>
+								<input type="text" name="gov_name_ar" required placeholder="مثال: مطروح" class="form-input w-full" style="font-size:0.875rem;"/>
+							</div>
+
+							<div>
+								<label class="form-label" style="font-size:0.825rem; font-weight:700;">
+									اسم المحافظة بالإنجليزية
+								</label>
+								<input type="text" name="gov_name_en" placeholder="Matrooh" class="form-input w-full" style="font-size:0.875rem;"/>
+							</div>
+
+							<div style="display:grid; grid-template-columns:1fr 1fr; gap:0.5rem;">
+								<div>
+									<label class="form-label" style="font-size:0.75rem;">خط العرض (Lat)</label>
+									<input type="number" step="any" name="gov_lat" placeholder="30.0444" class="form-input w-full" style="font-size:0.825rem;"/>
+								</div>
+								<div>
+									<label class="form-label" style="font-size:0.75rem;">خط الطول (Lon)</label>
+									<input type="number" step="any" name="gov_lon" placeholder="31.2357" class="form-input w-full" style="font-size:0.825rem;"/>
+								</div>
+							</div>
+
+							<button type="submit" class="btn btn-secondary" style="font-weight:800; padding:0.65rem; width:100%; justify-content:center;">
+								@components.IconCheck("icon-xs")
+								<span>حفظ وإضافة المحافظة</span>
+							</button>
+						</form>
+					</div>
+
+					<!-- Card 3: Governorates Summary List -->
+					<div style="background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-2xl); padding:1.25rem;">
+						<h4 style="font-size:0.925rem; font-weight:800; color:var(--text); margin:0 0 0.75rem 0; border-bottom:1px solid var(--border); padding-bottom:0.5rem;">
+							قائمة المحافظات المعتمدة ({ fmt.Sprintf("%d", len(data.Governorates)) })
+						</h4>
+						<div style="display:flex; flex-wrap:wrap; gap:0.4rem; max-height:220px; overflow-y:auto; padding-inline-end:0.25rem;">
+							for _, g := range data.Governorates {
+								<a
+									href={ templ.SafeURL(fmt.Sprintf("/admin/cities?gov_id=%d", g.ID)) }
+									class={ "badge", templ.KV("badge-primary", data.SelectedGovernorateID == g.ID), templ.KV("badge-gray", data.SelectedGovernorateID != g.ID) }
+									style="text-decoration:none; cursor:pointer; font-size:0.75rem; padding:0.35rem 0.55rem;"
+								>
+									<span>{ g.Name["ar"] }</span>
+									<span style="opacity:0.75; font-size:0.7rem;">({ fmt.Sprintf("%d", g.CityCount) })</span>
+								</a>
+							}
 						</div>
+					</div>
 
-						<div>
-							@components.MapPicker(components.MapPickerProps{
-								NamePrefix: "city",
-								Label:      "تحديد الموقع الجغرافي للمدينة / المركز (GPS)",
-								Height:     "240px",
-							})
-						</div>
-
-						<button type="submit" class="btn btn-primary" style="font-weight:800; padding:0.65rem; width:100%; justify-content:center;">
-							@components.IconCheck("icon-xs")
-							<span>حفظ وإضافة المدينة</span>
-						</button>
-
-					</form>
 				</div>
 			</div>
 		</div>

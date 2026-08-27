@@ -44,12 +44,40 @@ func (r stubRepo) ListCountries(context.Context) ([]*platformadmin.Country, erro
 	r.fail("ListCountries")
 	return nil, nil
 }
+func (r stubRepo) ListGovernorates(context.Context, int64) ([]*platformadmin.Governorate, error) {
+	r.fail("ListGovernorates")
+	return nil, nil
+}
+func (r stubRepo) ListAllGovernorates(context.Context, int64) ([]*platformadmin.Governorate, error) {
+	r.fail("ListAllGovernorates")
+	return nil, nil
+}
+func (r stubRepo) GetGovernorate(context.Context, int64) (*platformadmin.Governorate, error) {
+	r.fail("GetGovernorate")
+	return nil, nil
+}
+func (r stubRepo) CreateGovernorate(context.Context, *platformadmin.Governorate) error {
+	r.fail("CreateGovernorate")
+	return nil
+}
+func (r stubRepo) UpdateGovernorate(context.Context, *platformadmin.Governorate) error {
+	r.fail("UpdateGovernorate")
+	return nil
+}
+func (r stubRepo) ToggleGovernorateStatus(context.Context, int64) error {
+	r.fail("ToggleGovernorateStatus")
+	return nil
+}
 func (r stubRepo) ListCities(context.Context, int64) ([]*platformadmin.City, error) {
 	r.fail("ListCities")
 	return nil, nil
 }
 func (r stubRepo) ListAllCities(context.Context, int64) ([]*platformadmin.City, error) {
 	r.fail("ListAllCities")
+	return nil, nil
+}
+func (r stubRepo) ListCitiesByGovernorate(context.Context, int64) ([]*platformadmin.City, error) {
+	r.fail("ListCitiesByGovernorate")
 	return nil, nil
 }
 func (r stubRepo) ToggleCityStatus(context.Context, int64) error {
@@ -221,11 +249,32 @@ func (happyRepo) ListPublicSettings(ctx context.Context) ([]*platformadmin.Syste
 func (happyRepo) ListCountries(ctx context.Context) ([]*platformadmin.Country, error) {
 	return []*platformadmin.Country{{ID: 1, Name: i18n.Text{"en": "Egypt"}, Code: "EG"}}, nil
 }
+func (happyRepo) ListGovernorates(ctx context.Context, countryID int64) ([]*platformadmin.Governorate, error) {
+	return []*platformadmin.Governorate{{ID: 1, CountryID: countryID, Name: i18n.Text{"en": "Cairo"}, IsActive: true}}, nil
+}
+func (happyRepo) ListAllGovernorates(ctx context.Context, countryID int64) ([]*platformadmin.Governorate, error) {
+	return []*platformadmin.Governorate{{ID: 1, CountryID: countryID, Name: i18n.Text{"en": "Cairo"}, IsActive: true}}, nil
+}
+func (happyRepo) GetGovernorate(ctx context.Context, id int64) (*platformadmin.Governorate, error) {
+	return &platformadmin.Governorate{ID: id, CountryID: 1, Name: i18n.Text{"en": "Cairo"}, IsActive: true}, nil
+}
+func (happyRepo) CreateGovernorate(ctx context.Context, g *platformadmin.Governorate) error {
+	return nil
+}
+func (happyRepo) UpdateGovernorate(ctx context.Context, g *platformadmin.Governorate) error {
+	return nil
+}
+func (happyRepo) ToggleGovernorateStatus(ctx context.Context, id int64) error {
+	return nil
+}
 func (happyRepo) ListCities(ctx context.Context, countryID int64) ([]*platformadmin.City, error) {
 	return []*platformadmin.City{{ID: 1, CountryID: countryID, Name: i18n.Text{"en": "Cairo"}, IsActive: true}}, nil
 }
 func (happyRepo) ListAllCities(ctx context.Context, countryID int64) ([]*platformadmin.City, error) {
 	return []*platformadmin.City{{ID: 1, CountryID: countryID, Name: i18n.Text{"en": "Cairo"}, IsActive: true}}, nil
+}
+func (happyRepo) ListCitiesByGovernorate(ctx context.Context, governorateID int64) ([]*platformadmin.City, error) {
+	return []*platformadmin.City{{ID: 1, CountryID: 1, Name: i18n.Text{"en": "Cairo"}, IsActive: true}}, nil
 }
 func (happyRepo) ToggleCityStatus(ctx context.Context, id int64) error {
 	return nil

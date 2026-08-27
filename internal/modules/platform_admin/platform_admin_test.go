@@ -53,12 +53,40 @@ func (m *mockPlatformAdminRepo) ListCountries(_ context.Context) ([]*Country, er
 	return m.countries, nil
 }
 
+func (m *mockPlatformAdminRepo) ListGovernorates(_ context.Context, _ int64) ([]*Governorate, error) {
+	return nil, nil
+}
+
+func (m *mockPlatformAdminRepo) ListAllGovernorates(_ context.Context, _ int64) ([]*Governorate, error) {
+	return nil, nil
+}
+
+func (m *mockPlatformAdminRepo) GetGovernorate(_ context.Context, _ int64) (*Governorate, error) {
+	return nil, nil
+}
+
+func (m *mockPlatformAdminRepo) CreateGovernorate(_ context.Context, _ *Governorate) error {
+	return nil
+}
+
+func (m *mockPlatformAdminRepo) UpdateGovernorate(_ context.Context, _ *Governorate) error {
+	return nil
+}
+
+func (m *mockPlatformAdminRepo) ToggleGovernorateStatus(_ context.Context, _ int64) error {
+	return nil
+}
+
 func (m *mockPlatformAdminRepo) ListCities(_ context.Context, countryID int64) ([]*City, error) {
 	return m.cities[countryID], nil
 }
 
 func (m *mockPlatformAdminRepo) ListAllCities(_ context.Context, countryID int64) ([]*City, error) {
 	return m.cities[countryID], nil
+}
+
+func (m *mockPlatformAdminRepo) ListCitiesByGovernorate(_ context.Context, _ int64) ([]*City, error) {
+	return nil, nil
 }
 
 func (m *mockPlatformAdminRepo) ToggleCityStatus(_ context.Context, _ int64) error {

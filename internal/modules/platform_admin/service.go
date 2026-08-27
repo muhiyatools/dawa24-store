@@ -53,6 +53,36 @@ func (s *Service) ListCountries(ctx context.Context) ([]*Country, error) {
 	return s.repo.ListCountries(ctx)
 }
 
+// ListGovernorates returns active governorates for a country.
+func (s *Service) ListGovernorates(ctx context.Context, countryID int64) ([]*Governorate, error) {
+	return s.repo.ListGovernorates(ctx, countryID)
+}
+
+// ListAllGovernorates returns all governorates for admin management.
+func (s *Service) ListAllGovernorates(ctx context.Context, countryID int64) ([]*Governorate, error) {
+	return s.repo.ListAllGovernorates(ctx, countryID)
+}
+
+// GetGovernorate returns a single governorate by ID.
+func (s *Service) GetGovernorate(ctx context.Context, id int64) (*Governorate, error) {
+	return s.repo.GetGovernorate(ctx, id)
+}
+
+// CreateGovernorate adds a new governorate.
+func (s *Service) CreateGovernorate(ctx context.Context, g *Governorate) error {
+	return s.repo.CreateGovernorate(ctx, g)
+}
+
+// UpdateGovernorate updates an existing governorate.
+func (s *Service) UpdateGovernorate(ctx context.Context, g *Governorate) error {
+	return s.repo.UpdateGovernorate(ctx, g)
+}
+
+// ToggleGovernorateStatus toggles the active status of a governorate.
+func (s *Service) ToggleGovernorateStatus(ctx context.Context, id int64) error {
+	return s.repo.ToggleGovernorateStatus(ctx, id)
+}
+
 // ListCities returns active cities for a country.
 func (s *Service) ListCities(ctx context.Context, countryID int64) ([]*City, error) {
 	return s.repo.ListCities(ctx, countryID)
@@ -61,6 +91,11 @@ func (s *Service) ListCities(ctx context.Context, countryID int64) ([]*City, err
 // ListAllCities returns all cities (both active and inactive) for admin management.
 func (s *Service) ListAllCities(ctx context.Context, countryID int64) ([]*City, error) {
 	return s.repo.ListAllCities(ctx, countryID)
+}
+
+// ListCitiesByGovernorate returns all cities belonging to a specific governorate.
+func (s *Service) ListCitiesByGovernorate(ctx context.Context, governorateID int64) ([]*City, error) {
+	return s.repo.ListCitiesByGovernorate(ctx, governorateID)
 }
 
 // ToggleCityStatus toggles the active state of a city.

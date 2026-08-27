@@ -29,14 +29,28 @@ type Country struct {
 	IsActive  bool      `json:"is_active"`
 }
 
-// City represents an operating city within a country.
-type City struct {
+// Governorate represents an administrative governorate (المحافظة) within a country.
+type Governorate struct {
 	ID        int64     `json:"id"`
 	CountryID int64     `json:"country_id"`
 	Name      i18n.Text `json:"name"`
 	Latitude  float64   `json:"latitude"`
 	Longitude float64   `json:"longitude"`
 	IsActive  bool      `json:"is_active"`
+	CityCount int       `json:"city_count,omitempty"`
+}
+
+// City represents an operating subgovernorate / city / district (المدينة / المركز / الحي) within a governorate.
+type City struct {
+	ID              int64      `json:"id"`
+	CountryID       int64      `json:"country_id"`
+	GovernorateID   *int64     `json:"governorate_id,omitempty"`
+	GovernorateName *i18n.Text `json:"governorate_name,omitempty"`
+	Name            i18n.Text  `json:"name"`
+	Latitude        float64    `json:"latitude"`
+	Longitude       float64    `json:"longitude"`
+	IsActive        bool       `json:"is_active"`
+	IsCapital       bool       `json:"is_capital"`
 }
 
 // Validate ensures setting keys are non-empty.
