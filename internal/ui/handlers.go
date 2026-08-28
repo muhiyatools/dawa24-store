@@ -323,6 +323,7 @@ func (h *UIHandler) RegisterCustomerRoutes(r chi.Router) {
 	})
 	r.Get("/orders/{id}", h.CustomerOrderDetailPage)
 	r.Get("/favorites", h.FavoritesPage)
+	r.Get("/customer/favorites", h.FavoritesPage)
 	r.Get("/suppliers/followed", h.FollowedSuppliersPage)
 
 	r.Post("/cart/add", h.AddToCartSubmit)

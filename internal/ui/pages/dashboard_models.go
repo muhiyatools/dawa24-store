@@ -54,8 +54,33 @@ type VendorDashboardData struct {
 	Subscription       *OrgSubscriptionView
 }
 
+// AIPercentage returns the percentage of AI usage (0 - 100).
+func (v *OrgSubscriptionView) AIPercentage() int {
+	if v == nil || v.AIBudgetLimitUSD <= 0 {
+		return 0
+	}
+	pct := int((v.AIBudgetSpentUSD / v.AIBudgetLimitUSD) * 100)
+	if pct < 0 {
+		return 0
+	}
+	if pct > 100 {
+		return 100
+	}
+	return pct
+}
+
+// AIResetText returns a user-friendly string indicating when the quota resets.
+func (v *OrgSubscriptionView) AIResetText() string {
+	if v == nil || v.AIBudgetResetTime == "" {
+		return "تجديد دوري مستمر"
+	}
+	return "يتجدد: " + v.AIBudgetResetTime
+}
+
 // PharmacyDashboardData is the pharmacy dashboard view model.
 type PharmacyDashboardData struct {
+	ActiveOrders       int
+	CompletedOrders    int
 	OpenOrders         int
 	MonthSpend         money.Amount
 	WalletBalance      money.Amount

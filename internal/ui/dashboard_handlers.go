@@ -282,8 +282,11 @@ func (h *UIHandler) PharmacyDashboardPage(w http.ResponseWriter, r *http.Request
 			h.log.WarnContext(ctx, "pharmacy dashboard: list orders", "error", err)
 		} else {
 			for _, o := range orders {
-				if o.Status != commerce.StatusDelivered && o.Status != commerce.StatusCancelled && o.Status != commerce.StatusRefunded {
+				if o.Status == commerce.StatusDelivered || o.Status == commerce.StatusCompleted {
+					data.CompletedOrders++
+				} else if o.Status != commerce.StatusCancelled && o.Status != commerce.StatusRefunded && o.Status != commerce.StatusFailed {
 					data.OpenOrders++
+					data.ActiveOrders++
 				}
 				if len(data.Orders) < 10 {
 					data.Orders = append(data.Orders, o)

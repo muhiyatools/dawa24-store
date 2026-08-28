@@ -33,118 +33,118 @@ templ PharmacyDashboard(lang, dir string, data PharmacyDashboardData, perms []st
 			</div>
 		}
 
-		if data.Subscription != nil && data.Subscription.HasSubscription {
-			<div class="card" style="margin-bottom:1.5rem; background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-xl); padding:1.25rem 1.5rem; box-shadow:var(--shadow-sm);">
-				<div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem; margin-bottom:1rem; border-bottom:1px solid var(--border); padding-bottom:0.75rem;">
-					<div class="row-center-sm">
-						<span class="text-xl">🏢</span>
-						<div>
-							<h3 style="margin:0; font-size:1.05rem; font-weight:800; color:var(--text);">
-								باقة الاشتراك وخدمات الذكاء الاصطناعي للمنشأة
-							</h3>
-							<p style="margin:0.15rem 0 0; font-size:0.775rem; color:var(--text-secondary);">
-								الخطة المعتمدة وحدود الجلسات المطبقة على المنشأة بالكامل وحصة الـ AI Gateway
-							</p>
+		<!-- Top 5 Metrics Cards Grid -->
+		<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(210px, 1fr)); gap:1.15rem; margin-bottom:1.75rem;">
+			
+			<!-- Card 1: الطلبات النشطة (Active Orders) -->
+			<a href="/orders" class="card hover-lift" style="margin:0; padding:1.25rem 1.35rem; border-radius:var(--radius-xl); border:1px solid var(--border); background:var(--surface); text-decoration:none; display:flex; flex-direction:column; justify-content:space-between; box-shadow:var(--shadow-xs); transition:all 0.2s ease;">
+				<div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:0.85rem;">
+					<span style="font-size:0.875rem; font-weight:700; color:var(--text-secondary);">الطلبات النشطة</span>
+					<div style="width:38px; height:38px; border-radius:var(--radius-lg); background:rgba(245, 158, 11, 0.12); color:#d97706; display:flex; align-items:center; justify-content:center; font-size:1.2rem;">
+						📋
+					</div>
+				</div>
+				<div>
+					<div class="tabular-nums" style="font-size:1.9rem; font-weight:900; color:var(--text); line-height:1.2;">
+						{ fmt.Sprintf("%d", data.ActiveOrders) }
+					</div>
+					<div style="font-size:0.8rem; font-weight:700; color:#d97706; margin-top:0.4rem; display:flex; align-items:center; gap:0.35rem;">
+						<span style="width:7px; height:7px; border-radius:50%; background:#d97706; display:inline-block;"></span>
+						<span>قيد التنفيذ</span>
+					</div>
+				</div>
+			</a>
+
+			<!-- Card 2: الطلبات المكتملة (Completed Orders) -->
+			<a href="/orders" class="card hover-lift" style="margin:0; padding:1.25rem 1.35rem; border-radius:var(--radius-xl); border:1px solid var(--border); background:var(--surface); text-decoration:none; display:flex; flex-direction:column; justify-content:space-between; box-shadow:var(--shadow-xs); transition:all 0.2s ease;">
+				<div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:0.85rem;">
+					<span style="font-size:0.875rem; font-weight:700; color:var(--text-secondary);">الطلبات المكتملة</span>
+					<div style="width:38px; height:38px; border-radius:var(--radius-lg); background:rgba(16, 185, 129, 0.12); color:#059669; display:flex; align-items:center; justify-content:center; font-size:1.2rem;">
+						✅
+					</div>
+				</div>
+				<div>
+					<div class="tabular-nums" style="font-size:1.9rem; font-weight:900; color:var(--text); line-height:1.2;">
+						{ fmt.Sprintf("%d", data.CompletedOrders) }
+					</div>
+					<div style="font-size:0.8rem; font-weight:700; color:var(--emerald); margin-top:0.4rem; display:flex; align-items:center; gap:0.35rem;">
+						<span style="width:7px; height:7px; border-radius:50%; background:var(--emerald); display:inline-block;"></span>
+						<span>هذا الشهر</span>
+					</div>
+				</div>
+			</a>
+
+			<!-- Card 3: المفضلة (Favorite Products) -->
+			<a href="/favorites" class="card hover-lift" style="margin:0; padding:1.25rem 1.35rem; border-radius:var(--radius-xl); border:1px solid var(--border); background:var(--surface); text-decoration:none; display:flex; flex-direction:column; justify-content:space-between; box-shadow:var(--shadow-xs); transition:all 0.2s ease;">
+				<div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:0.85rem;">
+					<span style="font-size:0.875rem; font-weight:700; color:var(--text-secondary);">المفضلة</span>
+					<div style="width:38px; height:38px; border-radius:var(--radius-lg); background:rgba(239, 68, 68, 0.12); color:#dc2626; display:flex; align-items:center; justify-content:center; font-size:1.2rem;">
+						❤️
+					</div>
+				</div>
+				<div>
+					<div class="tabular-nums" style="font-size:1.9rem; font-weight:900; color:var(--text); line-height:1.2;">
+						{ fmt.Sprintf("%d", data.Favorites) }
+					</div>
+					<div style="font-size:0.8rem; font-weight:700; color:var(--text-muted); margin-top:0.4rem;">
+						المنتج المفضل
+					</div>
+				</div>
+			</a>
+
+			<!-- Card 4: الإنفاق الشهري (Monthly Spending) -->
+			<a href="/orders" class="card hover-lift" style="margin:0; padding:1.25rem 1.35rem; border-radius:var(--radius-xl); border:1px solid var(--border); background:var(--surface); text-decoration:none; display:flex; flex-direction:column; justify-content:space-between; box-shadow:var(--shadow-xs); transition:all 0.2s ease;">
+				<div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:0.85rem;">
+					<span style="font-size:0.875rem; font-weight:700; color:var(--text-secondary);">الإنفاق الشهري</span>
+					<div style="width:38px; height:38px; border-radius:var(--radius-lg); background:rgba(59, 130, 246, 0.12); color:#2563eb; display:flex; align-items:center; justify-content:center; font-size:1.2rem;">
+						💳
+					</div>
+				</div>
+				<div>
+					<div class="tabular-nums" style="font-size:1.9rem; font-weight:900; color:var(--text); line-height:1.2;">
+						{ data.MonthSpend.String() }
+					</div>
+					<div style="font-size:0.8rem; font-weight:700; color:var(--text-muted); margin-top:0.4rem;">
+						ج.م
+					</div>
+				</div>
+			</a>
+
+			<!-- Card 5: استهلاك الذكاء الاصطناعي (AI Usage) -->
+			<a href="/customer/subscription" class="card hover-lift" style="margin:0; padding:1.25rem 1.35rem; border-radius:var(--radius-xl); border:1px solid var(--border); background:var(--surface); text-decoration:none; display:flex; flex-direction:column; justify-content:space-between; box-shadow:var(--shadow-xs); transition:all 0.2s ease;">
+				<div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:0.6rem;">
+					<div style="display:flex; flex-direction:column;">
+						<span style="font-size:0.875rem; font-weight:700; color:var(--text-secondary);">الذكاء الاصطناعي</span>
+						<span class="badge badge-info" dir="ltr" style="font-size:0.675rem; font-weight:800; padding:0.15rem 0.45rem; margin-top:0.25rem; align-self:flex-start;">
+							if data.Subscription != nil && data.Subscription.AIPlanID != "" {
+								{ data.Subscription.AIPlanID }
+							} else {
+								<span>AI Gateway</span>
+							}
+						</span>
+					</div>
+					<div style="width:38px; height:38px; border-radius:var(--radius-lg); background:rgba(139, 92, 246, 0.12); color:#7c3aed; display:flex; align-items:center; justify-content:center; font-size:1.2rem;">
+						✨
+					</div>
+				</div>
+				<div>
+					<div style="display:flex; justify-content:space-between; align-items:baseline;">
+						<div class="tabular-nums" style="font-size:1.9rem; font-weight:900; color:var(--primary); line-height:1.2;">
+							{ fmt.Sprintf("%d", data.Subscription.AIPercentage()) + "%" }
 						</div>
+						<span style="font-size:0.75rem; color:var(--text-muted); font-weight:700;">استهلاك الحصة</span>
 					</div>
-					<div class="row-center-sm">
-						<span class="badge badge-emerald fw-700">{ data.Subscription.Status }</span>
-						if data.Subscription.IsDefaultPlan {
-							<span class="badge badge-primary text-xs">باقة افتراضية</span>
-						}
+					<!-- Progress Bar -->
+					<div style="width:100%; height:7px; border-radius:4px; background:var(--neutral-100); margin:0.45rem 0; overflow:hidden;">
+						<div style={ "width:" + fmt.Sprintf("%d", data.Subscription.AIPercentage()) + "%; height:100%; border-radius:4px; background:linear-gradient(90deg, var(--primary), #8b5cf6); transition:width 0.4s ease;" }></div>
 					</div>
-				</div>
-
-				<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(210px, 1fr)); gap:1rem;">
-					<!-- Plan Name & Expiry -->
-					<div style="background:var(--surface-sunken); border:1px solid var(--border); border-radius:var(--radius-lg); padding:0.85rem 1rem;">
-						<span style="font-size:0.75rem; color:var(--text-secondary); font-weight:600; display:block;">خطة الاشتراك المعتمدة</span>
-						<strong style="font-size:1rem; color:var(--text); display:block; margin-top:0.25rem;">{ data.Subscription.PlanName }</strong>
-						<span style="font-size:0.75rem; color:var(--text-muted); margin-top:0.25rem; display:block;">الصلاحية: { data.Subscription.ExpiresAt }</span>
-					</div>
-
-					<!-- Sessions Quota -->
-					<div style="background:var(--surface-sunken); border:1px solid var(--border); border-radius:var(--radius-lg); padding:0.85rem 1rem;">
-						<span style="font-size:0.75rem; color:var(--text-secondary); font-weight:600; display:block;">الجلسات المتزامنة (إجمالي المنشأة)</span>
-						<strong style="font-size:1.15rem; color:var(--primary); display:block; margin-top:0.25rem;" class="tabular-nums">
-							{ fmt.Sprintf("%d جلسات", data.Subscription.MaxLoginSessions) }
-						</strong>
-						<span style="font-size:0.725rem; color:var(--text-muted); margin-top:0.25rem; display:block;">مشتركة لكافة موظفي الصيدلية</span>
-					</div>
-
-					<!-- Devices Quota -->
-					<div style="background:var(--surface-sunken); border:1px solid var(--border); border-radius:var(--radius-lg); padding:0.85rem 1rem;">
-						<span style="font-size:0.75rem; color:var(--text-secondary); font-weight:600; display:block;">الأجهزة المصرح بها</span>
-						<strong style="font-size:1.15rem; color:var(--text); display:block; margin-top:0.25rem;" class="tabular-nums">
-							{ fmt.Sprintf("%d أجهزة", data.Subscription.MaxDevices) }
-						</strong>
-						<span style="font-size:0.725rem; color:var(--text-muted); margin-top:0.25rem; display:block;">حد الأجهزة المفتوحة</span>
-					</div>
-
-					<!-- AI Gateway & Live Consumption -->
-					<div style="background:rgba(56, 189, 248, 0.05); border:1px solid rgba(56, 189, 248, 0.2); border-radius:var(--radius-lg); padding:0.85rem 1rem;">
-						<div class="flex-between">
-							<span style="font-size:0.75rem; color:var(--primary); font-weight:700;">بوابة الذكاء الاصطناعي</span>
-							<span class="badge badge-info" dir="ltr" style="font-size:0.7rem; font-weight:700;">{ data.Subscription.AIPlanID }</span>
-						</div>
-						if data.Subscription.HasAIUsage && data.Subscription.AIBudgetLimitUSD > 0 {
-							<div style="margin-top:0.35rem; font-size:0.8rem; color:var(--text);">
-								<span>الميزانية: </span><strong class="tabular-nums" dir="ltr" style="color:var(--primary); font-weight:800;">${ fmt.Sprintf("%.2f / $%.2f", data.Subscription.AIBudgetSpentUSD, data.Subscription.AIBudgetLimitUSD) }</strong>
-							</div>
-							<div style="margin-top:0.25rem; font-size:0.725rem; color:var(--text-muted);">
-								if data.Subscription.AIBudgetResetTime != "" {
-									<span>تجديد: <strong class="tabular-nums">{ data.Subscription.AIBudgetResetTime }</strong></span>
-								} else {
-									<span>تجديد دوري مستمر</span>
-								}
-							</div>
-						} else {
-							<div style="margin-top:0.35rem; font-size:0.8rem; color:var(--text);">
-								<span>المعرّف: </span><code dir="ltr" class="text-xs">{ data.Subscription.AIUserID }</code>
-							</div>
-							<div style="margin-top:0.25rem; font-size:0.725rem; color:var(--emerald); font-weight:600;">
-								✓ المفتاح الافتراضي مفعل وجاهز
-							</div>
-						}
+					<div style="font-size:0.75rem; font-weight:700; color:var(--text-muted); display:flex; align-items:center; gap:0.3rem;">
+						<span>⏱</span>
+						<span>{ data.Subscription.AIResetText() }</span>
 					</div>
 				</div>
+			</a>
 
-				<div style="margin-top:1rem; padding-top:0.75rem; border-top:1px solid var(--border); display:flex; justify-content:flex-end;">
-					<a href="/customer/subscription" style="font-size:0.8rem; font-weight:700; color:var(--primary); text-decoration:none; display:inline-flex; align-items:center; gap:0.3rem;">
-						<span>عرض تفاصيل الاشتراك والترقية ↗</span>
-					</a>
-				</div>
-			</div>
-		}
-
-		<div class="b2b-metric-grid" style="grid-template-columns:repeat(auto-fit, minmax(180px, 1fr));">
-			@components.StatCard(components.StatCardProps{
-				Label: "طلبات مفتوحة",
-				Value: fmt.Sprintf("%d طلب", data.OpenOrders),
-				Tone:  "warning",
-			})
-			@components.StatCard(components.StatCardProps{
-				Label: "إنفاق الشهر",
-				Money: &data.MonthSpend,
-				Tone:  "neutral",
-			})
-			if data.HasWallet {
-				@components.StatCard(components.StatCardProps{
-					Label: "رصيد المحفظة",
-					Money: &data.WalletBalance,
-					Tone:  "info",
-				})
-			}
-			@components.StatCard(components.StatCardProps{
-				Label: "المفضلة",
-				Value: fmt.Sprintf("%d صنف", data.Favorites),
-				Tone:  "primary",
-			})
-			@components.StatCard(components.StatCardProps{
-				Label: "عروض متاحة",
-				Value: fmt.Sprintf("%d عرض", data.ActiveOffers),
-				Tone:  "primary",
-			})
 		</div>
 
 		<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(360px, 1fr)); gap:1.25rem;">

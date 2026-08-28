@@ -47,6 +47,10 @@ templ CustomerShell(title string, activeNav string, lang string, dir string, per
 							@components.IconTruck("icon-sm")
 							<span>{ i18n.T(lang, "nav.orders_and_shipments") }</span>
 						</a>
+						<a href="/favorites" class={ "sidebar-link", templ.KV("active", activeNav == "favorites") }>
+							@components.IconHeart("icon-sm")
+							<span>{ i18n.T(lang, "nav.favorite_products") }</span>
+						</a>
 						<a href="/customer/purchase-request" class={ "sidebar-link", templ.KV("active", activeNav == "purchase-request") }>
 							@components.IconFile("icon-sm")
 							<span>{ i18n.T(lang, "nav.purchase_requests") }</span>

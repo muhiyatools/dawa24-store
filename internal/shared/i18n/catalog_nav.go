@@ -20,6 +20,7 @@ func loadNavKeys(e *engine) {
 	addKey(e, "nav.saving_products", "nav", "منتجات التوفير", "Smart Savings", "Savings products nav link")
 	addKey(e, "nav.suppliers_directory", "nav", "دليل الموردين", "Suppliers Directory", "Suppliers directory nav")
 	addKey(e, "nav.followed_suppliers", "nav", "الموردون المتابعون", "Followed Suppliers", "Followed suppliers nav")
+	addKey(e, "nav.favorite_products", "nav", "الأدوية والمستلزمات المفضلة", "Favorite Products", "Favorite products nav link")
 	addKey(e, "nav.pharmacy_branches", "nav", "فروع الصيدلية ومواقع الاستلام", "Pharmacy Branches & Delivery Locations", "Pharmacy branches nav link")
 	addKey(e, "nav.documents_and_licenses", "nav", "المستندات والتراخيص", "Documents & Licenses", "Documents nav link")
 	addKey(e, "nav.subscription_and_membership", "nav", "الاشتراك والعضوية", "Subscription & Membership", "Subscription nav link")
