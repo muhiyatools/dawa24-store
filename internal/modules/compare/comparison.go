@@ -940,4 +940,3 @@ func ClassifyMarketComparison(supplierNet, marketNet money.Amount, supplierDisco
 	}
 	return MarketFilterEqualToMarket
 }
-

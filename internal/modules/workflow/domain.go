@@ -33,16 +33,16 @@ type PurchasePriorityRequest struct {
 
 // WeeklyCoverage defines branch geographic delivery schedules.
 type WeeklyCoverage struct {
-	ID             int64   `json:"id"`
-	PublicID       string  `json:"public_id"`
-	OrganizationID int64   `json:"organization_id"`
-	BranchID       int64   `json:"branch_id"`
-	GovernorateID  *int64  `json:"governorate_id,omitempty"`
-	CityID         *int64  `json:"city_id,omitempty"`
-	DayOfWeek      int     `json:"day_of_week"` // 0 = Sunday .. 6 = Saturday
-	CoverageFrom   *string `json:"coverage_from,omitempty"`
-	CoverageTo     *string `json:"coverage_to,omitempty"`
-	Address        string  `json:"address,omitempty"`
+	ID             int64     `json:"id"`
+	PublicID       string    `json:"public_id"`
+	OrganizationID int64     `json:"organization_id"`
+	BranchID       int64     `json:"branch_id"`
+	GovernorateID  *int64    `json:"governorate_id,omitempty"`
+	CityID         *int64    `json:"city_id,omitempty"`
+	DayOfWeek      int       `json:"day_of_week"` // 0 = Sunday .. 6 = Saturday
+	CoverageFrom   *string   `json:"coverage_from,omitempty"`
+	CoverageTo     *string   `json:"coverage_to,omitempty"`
+	Address        string    `json:"address,omitempty"`
 	Latitude       *float64  `json:"latitude,omitempty"`
 	Longitude      *float64  `json:"longitude,omitempty"`
 	DistanceMeters int       `json:"distance_meters"`

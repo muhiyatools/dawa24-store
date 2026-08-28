@@ -188,4 +188,3 @@ func SuppliersJSON(suppliers []*SupplierDirectoryItem, lang string) string {
 	bytes, _ := json.Marshal(list)
 	return string(bytes)
 }
-

@@ -755,4 +755,3 @@ func (h *UIHandler) generateRelationalAILogs(ctx context.Context, actor authctx.
 
 	return logs
 }
-

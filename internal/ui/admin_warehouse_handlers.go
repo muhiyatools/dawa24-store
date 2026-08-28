@@ -81,7 +81,7 @@ func (h *UIHandler) AdminWarehouseDetailPage(w http.ResponseWriter, r *http.Requ
 
 	var orgName string
 	if h.orgSvc != nil && wh.OrganizationID > 0 {
-		if o, err := h.orgSvc.GetOrganizationByID(database.AsSystem(ctx), wh.OrganizationID); err == nil && o != nil {
+		if o, err := h.orgSvc.GetOrganization(database.AsSystem(ctx), wh.OrganizationID); err == nil && o != nil {
 			orgName = o.LegalName
 		}
 	}

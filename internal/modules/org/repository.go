@@ -93,4 +93,3 @@ type Repository interface {
 	ListUserOrganizationsByVendor(ctx context.Context, vendorOrgID int64, statusFilter string) ([]*UserOrganization, error)
 	ListAllUserOrganizations(ctx context.Context, statusFilter string) ([]*UserOrganization, error)
 }
-

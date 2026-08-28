@@ -258,16 +258,23 @@ func (r *Repository) ListDetailedStocksByWarehouse(ctx context.Context, warehous
 			SELECT s.id, s.warehouse_id, s.organization_id, s.product_id, s.product_variant_id,
 			       COALESCE(p.name->>'ar', p.name->>'en', ''),
 			       COALESCE(v.name->>'ar', v.name->>'en', ''),
+			       COALESCE(p.scientific_name, ''),
+			       COALESCE(p.dosage_form, ''),
+			       COALESCE(p.concentration, ''),
+			       COALESCE(p.manufacturing_companies, p.company, ''),
 			       COALESCE(v.sku, p.sku, ''),
 			       COALESCE(v.barcode, p.barcode, ''),
 			       COALESCE(v.batch_number, ''),
 			       v.expiry_date,
 			       COALESCE(v.price::text, p.price::text, '0.00'),
+			       COALESCE(v.cost_price::text, '0.00'),
+			       COALESCE(p.old_price::text, p.price::text, '0.00'),
 			       COALESCE(v.discount::text, p.discount::text, '0.00'),
 			       s.quantity,
 			       s.min_threshold,
 			       COALESCE(v.is_negotiable, false),
-			       COALESCE(v.status, 'active')
+			       COALESCE(v.status, 'active'),
+			       s.updated_at
 			FROM inventory.stocks s
 			LEFT JOIN catalog.products p ON p.id = s.product_id AND p.deleted_at IS NULL
 			LEFT JOIN catalog.product_variants v ON v.id = s.product_variant_id AND v.deleted_at IS NULL
@@ -284,9 +291,10 @@ func (r *Repository) ListDetailedStocksByWarehouse(ctx context.Context, warehous
 			var v inventory.DetailedWarehouseStockView
 			if err := rows.Scan(
 				&v.StockID, &v.WarehouseID, &v.OrganizationID, &v.ProductID, &v.ProductVariantID,
-				&v.ProductName, &v.VariantName, &v.SKU, &v.Barcode, &v.BatchNumber,
-				&v.ExpiryDate, &v.PriceStr, &v.DiscountStr, &v.Quantity, &v.MinThreshold,
-				&v.IsNegotiable, &v.Status,
+				&v.ProductName, &v.VariantName, &v.ScientificName, &v.DosageForm, &v.Concentration,
+				&v.Manufacturer, &v.SKU, &v.Barcode, &v.BatchNumber,
+				&v.ExpiryDate, &v.PriceStr, &v.CostPriceStr, &v.PublicPriceStr, &v.DiscountStr,
+				&v.Quantity, &v.MinThreshold, &v.IsNegotiable, &v.Status, &v.UpdatedAt,
 			); err != nil {
 				return err
 			}

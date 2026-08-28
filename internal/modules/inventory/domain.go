@@ -118,14 +118,21 @@ type DetailedWarehouseStockView struct {
 	ProductVariantID int64      `json:"product_variant_id"`
 	ProductName      string     `json:"product_name"`
 	VariantName      string     `json:"variant_name"`
+	ScientificName   string     `json:"scientific_name,omitempty"`
+	DosageForm       string     `json:"dosage_form,omitempty"`
+	Concentration    string     `json:"concentration,omitempty"`
+	Manufacturer     string     `json:"manufacturer,omitempty"`
 	SKU              string     `json:"sku"`
 	Barcode          string     `json:"barcode"`
 	BatchNumber      string     `json:"batch_number"`
 	ExpiryDate       *time.Time `json:"expiry_date,omitempty"`
 	PriceStr         string     `json:"price_str"`
+	CostPriceStr     string     `json:"cost_price_str,omitempty"`
+	PublicPriceStr   string     `json:"public_price_str,omitempty"`
 	DiscountStr      string     `json:"discount_str"`
 	Quantity         int        `json:"quantity"`
 	MinThreshold     int        `json:"min_threshold"`
 	IsNegotiable     bool       `json:"is_negotiable"`
 	Status           string     `json:"status"`
+	UpdatedAt        time.Time  `json:"updated_at"`
 }

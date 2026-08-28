@@ -326,7 +326,7 @@ type PrintableOrgInfo struct {
 	OrganizationID     int64  `json:"organization_id"`
 	DisplayName        string `json:"display_name"`
 	LegalName          string `json:"legal_name"`
-	TaxNumber          string `json:"tax_number"`           // البطاقة الضريبية (ETA Tax Registration)
+	TaxNumber          string `json:"tax_number"`          // البطاقة الضريبية (ETA Tax Registration)
 	CommercialRegister string `json:"commercial_register"` // السجل التجاري
 	PharmacistLicense  string `json:"pharmacist_license"`  // ترخيص مزاولة المهنة / الصيدلية
 	Phone              string `json:"phone"`
@@ -342,11 +342,11 @@ type PrintableInvoiceLine struct {
 	ItemName        string       `json:"item_name"`
 	SKU             string       `json:"sku,omitempty"`
 	Quantity        int          `json:"quantity"`
-	UnitPrice       money.Amount `json:"unit_price"`        // سعر الجمهور / الوحدة الرسمي
-	DiscountPercent float64      `json:"discount_percent"`  // نسبة الخصم التجاري %
-	NetUnitPrice    money.Amount `json:"net_unit_price"`    // سعر الوحدة الصافي بعد الخصم
-	TotalPrice      money.Amount `json:"total_price"`       // الإجمالي للسطر
-	IsExempt        bool         `json:"is_exempt"`         // معفى من ضريبة القيمة المضافة (أدوية بشرية قانون 67/2016)
+	UnitPrice       money.Amount `json:"unit_price"`       // سعر الجمهور / الوحدة الرسمي
+	DiscountPercent float64      `json:"discount_percent"` // نسبة الخصم التجاري %
+	NetUnitPrice    money.Amount `json:"net_unit_price"`   // سعر الوحدة الصافي بعد الخصم
+	TotalPrice      money.Amount `json:"total_price"`      // الإجمالي للسطر
+	IsExempt        bool         `json:"is_exempt"`        // معفى من ضريبة القيمة المضافة (أدوية بشرية قانون 67/2016)
 }
 
 // PrintableInvoiceData holds the full payload required to render an official Egyptian tax invoice (Thermal POS / A4).
@@ -361,13 +361,13 @@ type PrintableInvoiceData struct {
 	Vendor         PrintableOrgInfo        `json:"vendor"`
 	Customer       PrintableOrgInfo        `json:"customer"`
 	Lines          []*PrintableInvoiceLine `json:"lines"`
-	Subtotal       money.Amount            `json:"subtotal"`        // الإجمالي قبل الخصم
-	TotalDiscount  money.Amount            `json:"total_discount"`  // إجمالي الخصم التجاري
-	TaxableAmount  money.Amount            `json:"taxable_amount"`  // الوعاء الخاضع للضريبة
-	VATAmtExempt   money.Amount            `json:"vat_amt_exempt"`  // ضريبة 0% (أدوية بشرية معفاة)
-	VATAmtStandard money.Amount            `json:"vat_amt_standard"`// ضريبة 14% (مستلزمات ومستحضرات)
-	TotalTax       money.Amount            `json:"total_tax"`       // إجمالي ضريبة القيمة المضافة
-	TotalAmount    money.Amount            `json:"total_amount"`    // الصافي الإجمالي المطلوب سداده
+	Subtotal       money.Amount            `json:"subtotal"`         // الإجمالي قبل الخصم
+	TotalDiscount  money.Amount            `json:"total_discount"`   // إجمالي الخصم التجاري
+	TaxableAmount  money.Amount            `json:"taxable_amount"`   // الوعاء الخاضع للضريبة
+	VATAmtExempt   money.Amount            `json:"vat_amt_exempt"`   // ضريبة 0% (أدوية بشرية معفاة)
+	VATAmtStandard money.Amount            `json:"vat_amt_standard"` // ضريبة 14% (مستلزمات ومستحضرات)
+	TotalTax       money.Amount            `json:"total_tax"`        // إجمالي ضريبة القيمة المضافة
+	TotalAmount    money.Amount            `json:"total_amount"`     // الصافي الإجمالي المطلوب سداده
 	Status         InvoiceStatus           `json:"status"`
 	PaymentMethod  string                  `json:"payment_method"`
 	PaymentStatus  string                  `json:"payment_status"`

@@ -23,7 +23,7 @@ import (
 // computeVendorWorkingStatus evaluates working hours, open/closed status, and coverage schedule.
 func computeVendorWorkingStatus(branches []*org.Branch, coverages []*workflow.CoverageView) (workingHours string, coverageDays string, coverageAreas []string, isOpenNow bool, statusNote string) {
 	now := time.Now().UTC().Add(3 * time.Hour) // Egypt Time UTC+3 / EET
-	currentWeekday := int(now.Weekday())        // 0=Sun, 1=Mon, ..., 6=Sat
+	currentWeekday := int(now.Weekday())       // 0=Sun, 1=Mon, ..., 6=Sat
 	currentHourMin := fmt.Sprintf("%02d:%02d", now.Hour(), now.Minute())
 
 	workingHours = "09:00 ص - 06:00 م"

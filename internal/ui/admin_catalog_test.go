@@ -58,6 +58,28 @@ func TestAdminCatalogAndInventoryRoutes(t *testing.T) {
 			wantStatus: http.StatusOK,
 		},
 		{
+			name:   "Super admin GET /admin/warehouses/999 redirects to /admin/warehouses when not found",
+			path:   "/admin/warehouses/999",
+			method: "GET",
+			actor: &authctx.Actor{
+				UserID:  1,
+				IsStaff: true,
+				Role:    "super_admin",
+			},
+			wantStatus: http.StatusSeeOther,
+		},
+		{
+			name:   "Super admin GET /admin/warehouses/999/stocks-json returns 200 JSON",
+			path:   "/admin/warehouses/999/stocks-json",
+			method: "GET",
+			actor: &authctx.Actor{
+				UserID:  1,
+				IsStaff: true,
+				Role:    "super_admin",
+			},
+			wantStatus: http.StatusOK,
+		},
+		{
 			name:   "Super admin GET /admin/user/temparte-warehouses returns 200",
 			path:   "/admin/user/temparte-warehouses",
 			method: "GET",

@@ -631,4 +631,3 @@ func (s *Service) ListUserOrganizationsByVendor(ctx context.Context, vendorOrgID
 func (s *Service) ListAllUserOrganizations(ctx context.Context, statusFilter string) ([]*UserOrganization, error) {
 	return s.repo.ListAllUserOrganizations(ctx, statusFilter)
 }
-
