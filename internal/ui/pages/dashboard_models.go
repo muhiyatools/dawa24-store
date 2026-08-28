@@ -77,6 +77,44 @@ func (v *OrgSubscriptionView) AIResetText() string {
 	return "يتجدد: " + v.AIBudgetResetTime
 }
 
+// AILogItemView represents one unified, high-density AI request log entry.
+type AILogItemView struct {
+	ID            string
+	Timestamp     string
+	TimeFormatted string
+	FeatureName   string
+	FeatureKey    string
+	ModelAlias    string
+	ModelTier     string
+	InputTokens   int
+	OutputTokens  int
+	TotalTokens   int
+	CostUSD       float64
+	DurationMs    int64
+	Status        string // "success", "cached", "failed", "completed"
+	StatusLabel   string
+	SourceContext string
+}
+
+// AIConsumptionLogsPageData represents the full view model for the AI Consumption Logs page.
+type AIConsumptionLogsPageData struct {
+	Logs              []*AILogItemView
+	TotalRequests     int
+	TotalTokens       int
+	TotalCostUSD      float64
+	ActiveBudgetLimit float64
+	ActiveBudgetSpent float64
+	UsagePercentage   int
+	AIUserID          string
+	PlanName          string
+	PlanSlug          string
+	AIPlanID          string
+	ResetTime         string
+	IsVendor          bool
+	IsCustomer        bool
+	FeatureBreakdown  map[string]int
+}
+
 // PharmacyDashboardData is the pharmacy dashboard view model.
 type PharmacyDashboardData struct {
 	ActiveOrders       int

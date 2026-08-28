@@ -105,6 +105,10 @@ templ CustomerShell(title string, activeNav string, lang string, dir string, per
 							@components.IconBriefcase("icon-sm")
 							<span>{ i18n.T(lang, "nav.jobs_and_careers") }</span>
 						</a>
+						<a href="/customer/ai-logs" class={ "sidebar-link", templ.KV("active", activeNav == "ai_logs") }>
+							@components.IconSparkles("icon-sm")
+							<span>سجل استهلاك الذكاء الاصطناعي</span>
+						</a>
 						<a href="/settings/profile" class={ "sidebar-link", templ.KV("active", activeNav == "profile" || activeNav == "settings" || activeNav == "wallet" || activeNav == "organization") }>
 							@components.IconUser("icon-sm")
 							<span>{ i18n.T(lang, "nav.profile_and_settings") }</span>

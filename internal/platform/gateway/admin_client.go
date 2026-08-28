@@ -194,6 +194,55 @@ func (c *AdminClient) GetUserUsageSummary(ctx context.Context, userID string) (*
 	return &s, nil
 }
 
+// GatewayLogEntry represents one logged AI request from the Gateway.
+type GatewayLogEntry struct {
+	ID           string    `json:"id"`
+	UserID       string    `json:"user_id"`
+	Model        string    `json:"model"`
+	Capability   string    `json:"capability,omitempty"`
+	Feature      string    `json:"feature,omitempty"`
+	Status       string    `json:"status"` // "success", "failed", "completed"
+	StatusCode   int       `json:"status_code"`
+	InputTokens  int       `json:"input_tokens"`
+	OutputTokens int       `json:"output_tokens"`
+	TotalTokens  int       `json:"total_tokens"`
+	CostUSD      float64   `json:"cost_usd"`
+	DurationMs   int64     `json:"duration_ms"`
+	CreatedAt    time.Time `json:"created_at"`
+	ErrorMessage string    `json:"error_message,omitempty"`
+}
+
+// GetUserLogs fetches request log records for a user from the AI Gateway.
+func (c *AdminClient) GetUserLogs(ctx context.Context, userID string, limit, offset int) ([]GatewayLogEntry, error) {
+	if strings.TrimSpace(userID) == "" {
+		return nil, fmt.Errorf("empty user ID")
+	}
+	if limit <= 0 {
+		limit = 50
+	}
+	reqURL := fmt.Sprintf("%s/api/logs?user_id=%s&limit=%d&offset=%d", c.baseURL, userID, limit, offset)
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, reqURL, nil)
+	if err != nil {
+		return nil, err
+	}
+	c.setAuth(req)
+	resp, err := c.httpClient.Do(req)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		body, _ := io.ReadAll(resp.Body)
+		return nil, fmt.Errorf("gateway error (%d): %s", resp.StatusCode, string(body))
+	}
+	var logs []GatewayLogEntry
+	if err := json.NewDecoder(resp.Body).Decode(&logs); err != nil {
+		return nil, err
+	}
+	return logs, nil
+}
+
 // ProvisionOrganization registers or synchronizes an organization with the AI Gateway,
 // creating a dedicated user and issuing a virtual API key with the plan's quota.
 func (c *AdminClient) ProvisionOrganization(ctx context.Context, orgID int64, name, email, planID string) (userID, virtualKey string, err error) {

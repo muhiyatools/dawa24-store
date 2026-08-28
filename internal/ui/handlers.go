@@ -362,6 +362,9 @@ func (h *UIHandler) RegisterCustomerRoutes(r chi.Router) {
 	r.Get("/customer/jobs/{id}", h.JobDetailPage)
 	r.Post("/customer/jobs/{id}/apply", h.JobApplySubmit)
 
+	// Pharmacy AI Consumption Logs
+	r.Get("/customer/ai-logs", h.AIConsumptionLogsPage)
+
 	// Customer interactions
 	r.Post("/suppliers/{id}/follow", h.SupplierFollowSubmit)
 	r.Post("/suppliers/{id}/message", h.SupplierMessageSubmit)
@@ -553,6 +556,7 @@ func (h *UIHandler) RegisterVendorRoutes(r chi.Router) {
 	r.Post("/vendor/jobs/{id}/toggle", h.VendorJobToggleSubmit)
 	r.Post("/vendor/jobs/{id}/delete", h.VendorJobDeleteSubmit)
 	r.Get("/vendor/jobs/{id}/applications", h.VendorJobApplicationsJSON)
+	r.Get("/vendor/ai-logs", h.AIConsumptionLogsPage)
 
 	r.Get("/vendor/documents", h.OrganizationDocumentsPage)
 	r.Post("/documents/upload", h.OrganizationDocumentsUploadSubmit)

@@ -1,0 +1,328 @@
+package pages
+
+import (
+	"fmt"
+	"strings"
+
+	"github.com/muhiya/dawa24-store/internal/ui/components"
+	"github.com/muhiya/dawa24-store/internal/ui/layouts"
+)
+
+// AIConsumptionLogsPage renders the full AI request logs screen for either Customer or Vendor.
+templ AIConsumptionLogsPage(data AIConsumptionLogsPageData, lang, dir string) {
+	if data.IsVendor {
+		@layouts.VendorShell("سجل استهلاك الذكاء الاصطناعي", "ai_logs", lang, dir) {
+			@aiConsumptionLogsBody(data, lang, dir)
+		}
+	} else {
+		@layouts.CustomerShell("سجل استهلاك الذكاء الاصطناعي", "ai_logs", lang, dir, nil) {
+			@aiConsumptionLogsBody(data, lang, dir)
+		}
+	}
+}
+
+templ aiConsumptionLogsBody(data AIConsumptionLogsPageData, lang, dir string) {
+	<div class="jobs-container" style="max-width:1300px; margin:0 auto; padding-bottom:3rem;">
+		
+		<!-- Header Banner -->
+		<div class="jobs-header">
+			<div>
+				<div style="display:flex; align-items:center; gap:0.6rem; margin-bottom:0.35rem;">
+					<div style="width:38px; height:38px; border-radius:var(--radius-lg); background:rgba(139, 92, 246, 0.12); color:#7c3aed; display:flex; align-items:center; justify-content:center; font-size:1.25rem;">
+						✨
+					</div>
+					<div>
+						<h1 style="font-size:1.45rem; font-weight:900; color:var(--text); margin:0;">
+							سجل استهلاك وعمليات الذكاء الاصطناعي
+						</h1>
+						<span style="font-size:0.775rem; color:var(--text-muted); font-weight:700;">AI Gateway Telemetry & Request Audit</span>
+					</div>
+				</div>
+				<p style="font-size:0.875rem; color:var(--text-secondary); margin:0; max-width:720px; line-height:1.6;">
+					متابعة حركات واستدعاءات بوابات الذكاء الاصطناعي (AI Gateway)، وتتبع استهلاك الحصة ومعدل التوكنز لكل عملية تشغيلية بالمنصة.
+				</p>
+			</div>
+
+			<div style="display:flex; align-items:center; gap:0.5rem; flex-wrap:wrap;">
+				<div style="background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-lg); padding:0.4rem 0.75rem; font-size:0.8rem; display:flex; align-items:center; gap:0.4rem;">
+					<span style="color:var(--text-muted); font-weight:600;">معرّف البوابة:</span>
+					<code dir="ltr" style="font-weight:700; color:var(--primary);">{ data.AIUserID }</code>
+				</div>
+				<a href={ templ.SafeURL(func() string { if data.IsVendor { return "/vendor/subscription" }; return "/customer/subscription" }()) } class="btn btn-secondary btn-sm fw-700" style="gap:0.35rem;">
+					@components.IconSparkles("icon-xs")
+					<span>إدارة الباقة والاشتراك</span>
+				</a>
+			</div>
+		</div>
+
+		<!-- Executive Quota & Metric Cards Strip -->
+		<div class="jobs-metrics-grid">
+			
+			<!-- Card 1: Active Budget & Usage Percentage -->
+			<div class="jobs-metric-card">
+				<div style="display:flex; justify-content:space-between; align-items:center;">
+					<span style="font-size:0.8rem; font-weight:600; color:var(--text-muted);">استهلاك الميزانية الشهرية</span>
+					<span class="badge badge-sky text-xs fw-800" dir="ltr">{ data.AIPlanID }</span>
+				</div>
+				
+				<div style="display:flex; align-items:baseline; justify-content:space-between; margin-top:0.35rem;">
+					<div class="tabular-nums" style="font-size:1.75rem; font-weight:900; color:var(--primary);">
+						{ fmt.Sprintf("%d%%", data.UsagePercentage) }
+					</div>
+					<div class="tabular-nums" style="font-size:0.875rem; font-weight:800; color:var(--text-secondary);" dir="ltr">
+						${ fmt.Sprintf("%.2f / $%.2f USD", data.ActiveBudgetSpent, data.ActiveBudgetLimit) }
+					</div>
+				</div>
+
+				<!-- Working Dynamic Progress Bar -->
+				<div style="width:100%; height:7px; background:var(--neutral-100); border-radius:4px; margin-top:0.4rem; overflow:hidden;">
+					<div style={ fmt.Sprintf("height:100%%; width:%d%%; border-radius:4px; background:linear-gradient(90deg, var(--primary), #8b5cf6); transition:width 0.4s ease;", data.UsagePercentage) }></div>
+				</div>
+
+				<div style="display:flex; justify-content:space-between; align-items:center; font-size:0.725rem; color:var(--text-muted); margin-top:0.35rem;">
+					<span>متبقي: <strong class="text-success">{ fmt.Sprintf("%d%%", 100-data.UsagePercentage) }</strong></span>
+					<span>التجديد: <strong class="tabular-nums">{ data.ResetTime }</strong></span>
+				</div>
+			</div>
+
+			<!-- Card 2: Total AI Requests -->
+			<div class="jobs-metric-card">
+				<span style="font-size:0.8rem; font-weight:600; color:var(--text-muted);">إجمالي استدعاءات الذكاء الاصطناعي</span>
+				<div class="tabular-nums" style="font-size:1.75rem; font-weight:900; color:var(--text); margin-top:0.25rem;">
+					{ fmt.Sprintf("%d", data.TotalRequests) } <span style="font-size:0.85rem; font-weight:600; color:var(--text-secondary);">طلب مسجل</span>
+				</div>
+				<div style="font-size:0.75rem; color:var(--emerald); font-weight:700; margin-top:0.35rem; display:flex; align-items:center; gap:0.35rem;">
+					<span style="width:7px; height:7px; border-radius:50%; background:var(--emerald); display:inline-block;"></span>
+					<span>تكامل مباشر مع بوابة MuhiyaLLM</span>
+				</div>
+			</div>
+
+			<!-- Card 3: Total Tokens Consumed -->
+			<div class="jobs-metric-card">
+				<span style="font-size:0.8rem; font-weight:600; color:var(--text-muted);">إجمالي التوكنز المعالجة</span>
+				<div class="tabular-nums" style="font-size:1.75rem; font-weight:900; color:var(--text); margin-top:0.25rem;">
+					{ fmt.Sprintf("%d", data.TotalTokens) } <span style="font-size:0.8rem; font-weight:700; color:var(--text-muted);">Tokens</span>
+				</div>
+				<div style="font-size:0.75rem; color:var(--text-muted); margin-top:0.35rem;">
+					شامل الإدخال وسياق المطابقة والإخراج
+				</div>
+			</div>
+
+			<!-- Card 4: Total Cost -->
+			<div class="jobs-metric-card">
+				<span style="font-size:0.8rem; font-weight:600; color:var(--text-muted);">التكلفة التقديرية التراكمية</span>
+				<div class="tabular-nums" style="font-size:1.75rem; font-weight:900; color:var(--text); margin-top:0.25rem;" dir="ltr">
+					${ fmt.Sprintf("%.3f", data.TotalCostUSD) } <span style="font-size:0.8rem; font-weight:700; color:var(--text-muted);">USD</span>
+				</div>
+				<div style="font-size:0.75rem; color:var(--text-muted); margin-top:0.35rem;">
+					تخصم تلقائياً من حصة الباقة الشهرية
+				</div>
+			</div>
+
+		</div>
+
+		<!-- Instant Filter & Search Bar -->
+		<div class="jobs-filter-strip">
+			<!-- Search Input -->
+			<div style="position:relative; flex:1; min-width:260px;">
+				<input
+					type="text"
+					id="ai-logs-search"
+					placeholder="ابحث بكود الطلب، موضع الاستخدام، أو اسم النموذج..."
+					class="form-input input-sm w-full"
+					style="padding-inline-start:2rem;"
+					oninput="filterAILogs()"
+				/>
+				<div style="position:absolute; inset-inline-start:0.65rem; top:50%; transform:translateY(-50%); color:var(--text-muted); pointer-events:none;">
+					@components.IconSearch("icon-xs")
+				</div>
+			</div>
+
+			<!-- Feature Filter -->
+			<select id="ai-logs-feature-filter" class="form-input input-sm" style="width:230px;" onchange="filterAILogs()">
+				<option value="">كافة مواضع الاستخدام</option>
+				if data.IsCustomer {
+					<option value="smart_order">الطلب الذكي (Smart Ordering)</option>
+					<option value="assistant">المساعد الصيدلاني (AI Assistant)</option>
+					<option value="savings">بدائل التوفير (Savings Products)</option>
+					<option value="voice_ocr">الأوامر الصوتية والروشتات</option>
+				} else {
+					<option value="variant_match">استيراد ومطابقة الأصناف</option>
+					<option value="savings_import">استيراد منتجات التوفير</option>
+					<option value="column_detect">التعرف على أعمدة الكتالوج</option>
+					<option value="assistant">المساعد الآلي للموردين</option>
+				}
+			</select>
+
+			<!-- Status Filter -->
+			<select id="ai-logs-status-filter" class="form-input input-sm" style="width:160px;" onchange="filterAILogs()">
+				<option value="">كافة الحالات</option>
+				<option value="success">ناجح</option>
+				<option value="cached">من الذاكرة (مجاني)</option>
+				<option value="completed">مكتمل</option>
+				<option value="failed">غير مكتمل</option>
+			</select>
+		</div>
+
+		<!-- AI Logs Data Table -->
+		if len(data.Logs) == 0 {
+			<div class="card" style="padding:3.5rem 1.5rem; text-align:center; background:var(--surface-raised); border-radius:var(--radius-xl); border:1px solid var(--border);">
+				<div style="width:48px; height:48px; border-radius:50%; background:var(--surface-sunken); color:var(--text-muted); display:flex; align-items:center; justify-content:center; margin:0 auto 0.75rem auto;">
+					✨
+				</div>
+				<h3 style="font-size:1.15rem; font-weight:800; color:var(--text); margin:0 0 0.35rem 0;">لا توجد سجلات استهلاك مسجلة حالياً</h3>
+				<p class="text-sm text-muted m-0">
+					if data.IsCustomer {
+						سيتم تسجيل استدعاءات الذكاء الاصطناعي واستهلاك التوكنز تلقائياً عند استخدام خدمات الطلب الذكي، المساعد الصيدلاني، أو مطابقة البدائل.
+					} else {
+						سيتم تسجيل استدعاءات الذكاء الاصطناعي واستهلاك التوكنز تلقائياً عند استيراد كتالوجات المورد، مطابقة الأصناف، أو معالجة البدائل.
+					}
+				</p>
+			</div>
+		} else {
+			<div class="cb-emp-table-wrap">
+				<table class="b2b-table" id="ai-logs-table" style="width:100%; border-collapse:collapse;">
+					<thead>
+						<tr style="background:var(--surface-sunken); border-bottom:1px solid var(--border); font-size:0.775rem; color:var(--text-secondary); text-align:start;">
+							<th style="padding:0.75rem 1rem;">الطلب والتوقيت</th>
+							<th style="padding:0.75rem 1rem;">موضع الاستخدام والخاصية</th>
+							<th style="padding:0.75rem 1rem;">النموذج والطبقة</th>
+							<th style="padding:0.75rem 1rem;">التوكنز المستهلكة</th>
+							<th style="padding:0.75rem 1rem;">التكلفة التقديرية</th>
+							<th style="padding:0.75rem 1rem;">زمن الاستجابة</th>
+							<th style="padding:0.75rem 1rem; text-align:center;">الحالة</th>
+						</tr>
+					</thead>
+					<tbody>
+						for _, log := range data.Logs {
+							if log != nil {
+								<tr
+									class="ai-log-row"
+									data-log-id={ strings.ToLower(log.ID) }
+									data-log-feature={ strings.ToLower(log.FeatureKey + " " + log.FeatureName + " " + log.SourceContext) }
+									data-log-model={ strings.ToLower(log.ModelAlias) }
+									data-log-status={ log.Status }
+									style="border-bottom:1px solid var(--border); transition:background 0.15s ease;"
+								>
+									<!-- Request ID & Timestamp -->
+									<td style="padding:0.75rem 1rem; vertical-align:middle;">
+										<div style="display:flex; flex-direction:column; gap:0.15rem;">
+											<code dir="ltr" style="font-size:0.8rem; font-weight:800; color:var(--primary);">{ log.ID }</code>
+											<span class="tabular-nums text-xs text-muted">{ log.TimeFormatted }</span>
+										</div>
+									</td>
+
+									<!-- Feature Name & Context -->
+									<td style="padding:0.75rem 1rem; vertical-align:middle;">
+										<div style="display:flex; flex-direction:column; gap:0.2rem;">
+											<strong style="font-size:0.875rem; color:var(--text);">{ log.FeatureName }</strong>
+											if log.SourceContext != "" {
+												<span style="font-size:0.75rem; color:var(--text-secondary); display:flex; align-items:center; gap:0.3rem;">
+													<span>📌</span>
+													<span>{ log.SourceContext }</span>
+												</span>
+											}
+										</div>
+									</td>
+
+									<!-- Model & Tier -->
+									<td style="padding:0.75rem 1rem; vertical-align:middle;">
+										<div style="display:flex; align-items:center; gap:0.4rem;">
+											<code dir="ltr" class="text-xs fw-700" style="background:var(--surface-sunken); padding:0.15rem 0.4rem; border-radius:var(--radius-sm); border:1px solid var(--border);">{ log.ModelAlias }</code>
+											if log.ModelTier == "quality" {
+												<span class="badge badge-purple text-xs">Quality</span>
+											} else {
+												<span class="badge badge-sky text-xs">Fast</span>
+											}
+										</div>
+									</td>
+
+									<!-- Tokens -->
+									<td style="padding:0.75rem 1rem; vertical-align:middle;">
+										<div style="display:flex; flex-direction:column; gap:0.15rem;">
+											<strong class="tabular-nums" style="font-size:0.875rem; color:var(--text);">
+												{ fmt.Sprintf("%d", log.TotalTokens) } <span style="font-size:0.75rem; color:var(--text-muted); font-weight:600;">Tokens</span>
+											</strong>
+											<span class="tabular-nums text-xs text-muted" dir="ltr">
+												in: { fmt.Sprintf("%d", log.InputTokens) } / out: { fmt.Sprintf("%d", log.OutputTokens) }
+											</span>
+										</div>
+									</td>
+
+									<!-- Cost -->
+									<td style="padding:0.75rem 1rem; vertical-align:middle;">
+										if log.Status == "cached" {
+											<span class="badge badge-emerald text-xs fw-700">مجاني $0.000</span>
+										} else {
+											<strong class="tabular-nums" style="font-size:0.875rem; color:var(--accent);" dir="ltr">
+												${ fmt.Sprintf("%.4f", log.CostUSD) }
+											</strong>
+										}
+									</td>
+
+									<!-- Latency -->
+									<td style="padding:0.75rem 1rem; vertical-align:middle;">
+										<span class="tabular-nums text-xs" style="color:var(--text-secondary); font-weight:700;">
+											if log.DurationMs > 0 {
+												{ fmt.Sprintf("%d ms", log.DurationMs) }
+											} else {
+												<span>-</span>
+											}
+										</span>
+									</td>
+
+									<!-- Status Badge -->
+									<td style="padding:0.75rem 1rem; vertical-align:middle; text-align:center;">
+										if log.Status == "success" || log.Status == "completed" {
+											<span class="badge badge-emerald text-xs fw-700">
+												@components.IconCheckCircle("icon-xs")
+												<span>{ log.StatusLabel }</span>
+											</span>
+										} else if log.Status == "cached" {
+											<span class="badge badge-sky text-xs fw-700">
+												@components.IconZap("icon-xs")
+												<span>ذاكرة سريعة</span>
+											</span>
+										} else {
+											<span class="badge badge-amber text-xs fw-700">
+												<span>{ log.StatusLabel }</span>
+											</span>
+										}
+									</td>
+								</tr>
+							}
+						}
+					</tbody>
+				</table>
+			</div>
+		}
+
+	</div>
+
+	<!-- Client-side Filtering Script -->
+	<script>
+		function filterAILogs() {
+			const q = (document.getElementById('ai-logs-search')?.value || '').toLowerCase().trim();
+			const feature = (document.getElementById('ai-logs-feature-filter')?.value || '').toLowerCase().trim();
+			const status = (document.getElementById('ai-logs-status-filter')?.value || '').toLowerCase().trim();
+			const rows = document.querySelectorAll('#ai-logs-table tbody .ai-log-row');
+
+			rows.forEach(row => {
+				const id = row.getAttribute('data-log-id') || '';
+				const f = row.getAttribute('data-log-feature') || '';
+				const m = row.getAttribute('data-log-model') || '';
+				const s = row.getAttribute('data-log-status') || '';
+
+				const matchesQ = !q || id.includes(q) || f.includes(q) || m.includes(q);
+				const matchesFeature = !feature || f.includes(feature);
+				const matchesStatus = !status || s.includes(status);
+
+				if (matchesQ && matchesFeature && matchesStatus) {
+					row.style.display = '';
+				} else {
+					row.style.display = 'none';
+				}
+			});
+		}
+	</script>
+}

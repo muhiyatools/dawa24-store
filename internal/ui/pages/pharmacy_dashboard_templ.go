@@ -163,7 +163,7 @@ func PharmacyDashboard(lang, dir string, data PharmacyDashboardData, perms []str
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "</div><div style=\"font-size:0.8rem; font-weight:700; color:var(--text-muted); margin-top:0.4rem;\">ج.م</div></div></a><!-- Card 5: استهلاك الذكاء الاصطناعي (AI Usage) --><a href=\"/customer/subscription\" class=\"card hover-lift\" style=\"margin:0; padding:1.25rem 1.35rem; border-radius:var(--radius-xl); border:1px solid var(--border); background:var(--surface); text-decoration:none; display:flex; flex-direction:column; justify-content:space-between; box-shadow:var(--shadow-xs); transition:all 0.2s ease;\"><div style=\"display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:0.6rem;\"><div style=\"display:flex; flex-direction:column;\"><span style=\"font-size:0.875rem; font-weight:700; color:var(--text-secondary);\">الذكاء الاصطناعي</span> <span class=\"badge badge-info\" dir=\"ltr\" style=\"font-size:0.675rem; font-weight:800; padding:0.15rem 0.45rem; margin-top:0.25rem; align-self:flex-start;\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "</div><div style=\"font-size:0.8rem; font-weight:700; color:var(--text-muted); margin-top:0.4rem;\">ج.م</div></div></a><!-- Card 5: استهلاك الذكاء الاصطناعي (AI Usage) --><a href=\"/customer/ai-logs\" class=\"card hover-lift\" style=\"margin:0; padding:1.25rem 1.35rem; border-radius:var(--radius-xl); border:1px solid var(--border); background:var(--surface); text-decoration:none; display:flex; flex-direction:column; justify-content:space-between; box-shadow:var(--shadow-xs); transition:all 0.2s ease;\"><div style=\"display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:0.6rem;\"><div style=\"display:flex; flex-direction:column;\"><span style=\"font-size:0.875rem; font-weight:700; color:var(--text-secondary);\">الذكاء الاصطناعي</span> <span class=\"badge badge-info\" dir=\"ltr\" style=\"font-size:0.675rem; font-weight:800; padding:0.15rem 0.45rem; margin-top:0.25rem; align-self:flex-start;\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -188,41 +188,41 @@ func PharmacyDashboard(lang, dir string, data PharmacyDashboardData, perms []str
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var11 string
-			templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", data.Subscription.AIPercentage()) + "%")
+			templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d%%", data.Subscription.AIPercentage()))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/pharmacy_dashboard.templ`, Line: 133, Col: 66}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/pharmacy_dashboard.templ`, Line: 133, Col: 62}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var11))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "</div><span style=\"font-size:0.75rem; color:var(--text-muted); font-weight:700;\">استهلاك الحصة</span></div><!-- Progress Bar --><div style=\"width:100%; height:7px; border-radius:4px; background:var(--neutral-100); margin:0.45rem 0; overflow:hidden;\"><div style=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "</div><span style=\"font-size:0.75rem; color:var(--text-muted); font-weight:700;\">استهلاك الحصة</span></div><!-- Progress Bar --><div style=\"width:100%; height:7px; border-radius:4px; background:var(--neutral-200); margin:0.45rem 0; overflow:hidden;\"><div style=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var12 string
-			templ_7745c5c3_Var12, templ_7745c5c3_Err = templruntime.SanitizeStyleAttributeValues("width:" + fmt.Sprintf("%d", data.Subscription.AIPercentage()) + "%; height:100%; border-radius:4px; background:linear-gradient(90deg, var(--primary), #8b5cf6); transition:width 0.4s ease;")
+			templ_7745c5c3_Var12, templ_7745c5c3_Err = templruntime.SanitizeStyleAttributeValues(fmt.Sprintf("width:%d%%; height:100%%; border-radius:4px; background:linear-gradient(90deg, var(--primary), #8b5cf6); transition:width 0.4s ease;", data.Subscription.AIPercentage()))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/pharmacy_dashboard.templ`, Line: 139, Col: 208}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/pharmacy_dashboard.templ`, Line: 139, Col: 200}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var12))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "\"></div></div><div style=\"font-size:0.75rem; font-weight:700; color:var(--text-muted); display:flex; align-items:center; gap:0.3rem;\"><span>⏱</span> <span>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "\"></div></div><div style=\"display:flex; justify-content:space-between; align-items:center; font-size:0.725rem; font-weight:700; color:var(--text-muted);\"><span dir=\"ltr\" class=\"tabular-nums\">$")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var13 string
-			templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.JoinStringErrs(data.Subscription.AIResetText())
+			templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%.2f / $%.2f", data.Subscription.AIBudgetSpentUSD, data.Subscription.AIBudgetLimitUSD))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/pharmacy_dashboard.templ`, Line: 143, Col: 45}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/pharmacy_dashboard.templ`, Line: 142, Col: 145}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var13))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "</span></div></div></a></div><div style=\"display:grid; grid-template-columns:repeat(auto-fit, minmax(360px, 1fr)); gap:1.25rem;\"><div class=\"b2b-table-card p-card-sm\"><div class=\"flex-between mb-md\"><h2 class=\"card-title\" style=\"margin:0; font-size:1.1rem; font-weight:700;\">متابعة الطلبات</h2><a href=\"/orders\" class=\"btn btn-secondary btn-sm fw-600\">كل الطلبات</a></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "</span> <span style=\"color:var(--primary);\">سجل العمليات ↗</span></div></div></a></div><div style=\"display:grid; grid-template-columns:repeat(auto-fit, minmax(360px, 1fr)); gap:1.25rem;\"><div class=\"b2b-table-card p-card-sm\"><div class=\"flex-between mb-md\"><h2 class=\"card-title\" style=\"margin:0; font-size:1.1rem; font-weight:700;\">متابعة الطلبات</h2><a href=\"/orders\" class=\"btn btn-secondary btn-sm fw-600\">كل الطلبات</a></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

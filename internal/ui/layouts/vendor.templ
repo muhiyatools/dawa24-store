@@ -165,6 +165,10 @@ templ VendorShell(title string, activeNav string, lang string, dir string) {
 							@components.IconClock("icon-sm")
 							<span>سجل العمليات والنشاط</span>
 						</a>
+						<a href="/vendor/ai-logs" class={ "sidebar-link", templ.KV("active", activeNav == "ai_logs") }>
+							@components.IconSparkles("icon-sm")
+							<span>سجل استهلاك الذكاء الاصطناعي</span>
+						</a>
 					</div>
 
 				</nav>

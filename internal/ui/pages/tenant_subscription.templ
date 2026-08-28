@@ -83,35 +83,42 @@ templ tenantSubscriptionBody(data TenantSubscriptionPageData, orgType string, la
 						<span style="font-size:0.75rem; color:var(--text-muted); margin-top:0.35rem; display:block;">الحد الأقصى للأجهزة المصرح بها</span>
 					</div>
 
-					<!-- AI Gateway Budget & Window -->
-					<div style="background:rgba(56, 189, 248, 0.05); border:1px solid rgba(56, 189, 248, 0.25); border-radius:var(--radius-lg); padding:1rem 1.15rem;">
-						<div class="flex-between">
-							<span style="font-size:0.775rem; color:var(--primary); font-weight:800;">بوابة الذكاء الاصطناعي</span>
-							<span class="badge badge-info text-xs fw-800" dir="ltr">{ data.Subscription.AIPlanID }</span>
-						</div>
-						<div style="margin-top:0.35rem; font-size:0.8rem; color:var(--text);">
-							<span>المعرّف: </span><code dir="ltr" class="text-xs">{ data.Subscription.AIUserID }</code>
-						</div>
-						if data.Subscription.HasAIUsage && data.Subscription.AIBudgetLimitUSD > 0 {
-							<div style="margin-top:0.45rem;">
-								<div style="display:flex; justify-content:space-between; font-size:0.75rem; margin-bottom:0.25rem;">
-									<span style="color:var(--text-secondary); font-weight:600;">استهلاك الميزانية:</span>
-									<strong class="tabular-nums text-primary" dir="ltr">${ fmt.Sprintf("%.2f / $%.2f", data.Subscription.AIBudgetSpentUSD, data.Subscription.AIBudgetLimitUSD) }</strong>
+					<!-- AI Gateway Budget & Usage -->
+					<div style="background:rgba(56, 189, 248, 0.05); border:1px solid rgba(56, 189, 248, 0.25); border-radius:var(--radius-lg); padding:1rem 1.15rem; display:flex; flex-direction:column; justify-content:space-between;">
+						<div>
+							<div class="flex-between">
+								<span style="font-size:0.775rem; color:var(--primary); font-weight:800;">بوابة الذكاء الاصطناعي (AI Gateway)</span>
+								<span class="badge badge-info text-xs fw-800" dir="ltr">{ data.Subscription.AIPlanID }</span>
+							</div>
+							<div style="margin-top:0.35rem; font-size:0.8rem; color:var(--text);">
+								<span>معرّف البوابة: </span><code dir="ltr" class="text-xs fw-700">{ data.Subscription.AIUserID }</code>
+							</div>
+							
+							<div style="margin-top:0.6rem;">
+								<div style="display:flex; justify-content:space-between; align-items:baseline; margin-bottom:0.25rem;">
+									<span style="color:var(--text-secondary); font-size:0.75rem; font-weight:700;">استهلاك الحصة الشهرية:</span>
+									<div class="tabular-nums" style="font-size:1.15rem; font-weight:900; color:var(--primary);">
+										{ fmt.Sprintf("%d%%", data.Subscription.AIPercentage()) }
+									</div>
 								</div>
-								<div style="width:100%; height:6px; background:var(--border); border-radius:3px; overflow:hidden;">
-									<div style={ fmt.Sprintf("height:100%%; background:var(--primary); width:%.1f%%; transition:width 300ms;", (data.Subscription.AIBudgetSpentUSD / data.Subscription.AIBudgetLimitUSD) * 100.0) }></div>
+
+								<!-- Working Dynamic Progress Bar -->
+								<div style="width:100%; height:7px; background:var(--neutral-200); border-radius:4px; overflow:hidden;">
+									<div style={ fmt.Sprintf("height:100%%; width:%d%%; border-radius:4px; background:linear-gradient(90deg, var(--primary), #8b5cf6); transition:width 0.4s ease;", data.Subscription.AIPercentage()) }></div>
+								</div>
+
+								<div style="display:flex; justify-content:space-between; font-size:0.725rem; color:var(--text-muted); margin-top:0.35rem;">
+									<span dir="ltr" class="tabular-nums" style="font-weight:700;">${ fmt.Sprintf("%.2f / $%.2f USD", data.Subscription.AIBudgetSpentUSD, data.Subscription.AIBudgetLimitUSD) }</span>
+									<span>متبقي: <strong class="text-success">{ fmt.Sprintf("%d%%", 100-data.Subscription.AIPercentage()) }</strong></span>
 								</div>
 							</div>
-							if data.Subscription.AIBudgetResetTime != "" {
-								<div style="margin-top:0.35rem; font-size:0.725rem; color:var(--text-muted);">
-									موعد التجديد: <span class="tabular-nums">{ data.Subscription.AIBudgetResetTime }</span>
-								</div>
-							}
-						} else {
-							<div style="margin-top:0.45rem; font-size:0.75rem; color:var(--emerald); font-weight:600;">
-								✓ المفتاح الافتراضي (Virtual Key) مفعل وجاهز
-							</div>
-						}
+						</div>
+
+						<div style="margin-top:0.75rem; padding-top:0.5rem; border-top:1px dashed rgba(56, 189, 248, 0.25);">
+							<a href={ templ.SafeURL(func() string { if orgType == "vendor" || orgType == "supplier" { return "/vendor/ai-logs" }; return "/customer/ai-logs" }()) } style="font-size:0.775rem; font-weight:800; color:var(--primary); text-decoration:none; display:inline-flex; align-items:center; gap:0.3rem;">
+								<span>عرض سجل استهلاك الذكاء الاصطناعي (AI Logs) ↗</span>
+							</a>
+						</div>
 					</div>
 				</div>
 			</div>
