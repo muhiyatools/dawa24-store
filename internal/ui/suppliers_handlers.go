@@ -6,27 +6,174 @@ import (
 	"net/http"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/go-chi/chi/v5"
 
 	"github.com/muhiya/dawa24-store/internal/modules/catalog"
 	"github.com/muhiya/dawa24-store/internal/modules/commerce"
 	"github.com/muhiya/dawa24-store/internal/modules/org"
+	"github.com/muhiya/dawa24-store/internal/modules/workflow"
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/platform/database"
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/ui/pages"
 )
 
+// computeVendorWorkingStatus evaluates working hours, open/closed status, and coverage schedule.
+func computeVendorWorkingStatus(branches []*org.Branch, coverages []*workflow.CoverageView) (workingHours string, coverageDays string, coverageAreas []string, isOpenNow bool, statusNote string) {
+	now := time.Now().UTC().Add(3 * time.Hour) // Egypt Time UTC+3 / EET
+	currentWeekday := int(now.Weekday())        // 0=Sun, 1=Mon, ..., 6=Sat
+	currentHourMin := fmt.Sprintf("%02d:%02d", now.Hour(), now.Minute())
+
+	workingHours = "09:00 ص - 06:00 م"
+	coverageDays = "السبت - الخميس"
+	isOpenNow = false
+	statusNote = "مغلق حالياً"
+
+	areaMap := make(map[string]bool)
+	dayActiveMap := make(map[int]bool)
+	var fromTime, toTime string
+
+	for _, c := range coverages {
+		if c == nil || !c.IsActive {
+			continue
+		}
+		dayActiveMap[c.DayOfWeek] = true
+		if c.GovernorateNameAr != "" {
+			areaMap[c.GovernorateNameAr] = true
+		} else if c.CityNameAr != "" {
+			areaMap[c.CityNameAr] = true
+		}
+		if c.CoverageFrom != nil && *c.CoverageFrom != "" {
+			fromTime = *c.CoverageFrom
+		}
+		if c.CoverageTo != nil && *c.CoverageTo != "" {
+			toTime = *c.CoverageTo
+		}
+	}
+
+	for a := range areaMap {
+		coverageAreas = append(coverageAreas, a)
+	}
+	if len(coverageAreas) == 0 {
+		for _, b := range branches {
+			if b != nil && b.Address != "" {
+				coverageAreas = append(coverageAreas, b.Address)
+				break
+			}
+		}
+	}
+	if len(coverageAreas) == 0 {
+		coverageAreas = []string{"القاهرة الكبرى", "كافة المحافظات"}
+	}
+
+	if fromTime != "" && toTime != "" {
+		workingHours = fmt.Sprintf("%s - %s", fromTime, toTime)
+	} else {
+		for _, b := range branches {
+			if b != nil && b.OperatingHours != "" {
+				workingHours = b.OperatingHours
+				break
+			}
+		}
+	}
+
+	if len(dayActiveMap) >= 6 {
+		coverageDays = "طوال أيام الأسبوع 24/7"
+	} else if len(dayActiveMap) > 0 {
+		dayNames := []string{"الأحد", "الاثنين", "الثلاثاء", "الأربعاء", "الخميس", "الجمعة", "السبت"}
+		var activeDays []string
+		for d := 0; d <= 6; d++ {
+			if dayActiveMap[d] {
+				activeDays = append(activeDays, dayNames[d])
+			}
+		}
+		if len(activeDays) > 0 {
+			if len(activeDays) == 1 {
+				coverageDays = "يوم " + activeDays[0]
+			} else {
+				coverageDays = activeDays[0] + " - " + activeDays[len(activeDays)-1]
+			}
+		}
+	}
+
+	if len(dayActiveMap) > 0 {
+		if dayActiveMap[currentWeekday] {
+			start := "08:00"
+			end := "19:00"
+			if fromTime != "" {
+				start = fromTime
+			}
+			if toTime != "" {
+				end = toTime
+			}
+			if currentHourMin >= start && currentHourMin <= end {
+				isOpenNow = true
+				statusNote = fmt.Sprintf("مفتوح الآن (يغلق %s)", end)
+			} else if currentHourMin < start {
+				isOpenNow = false
+				statusNote = fmt.Sprintf("مغلق حالياً (يفتح %s)", start)
+			} else {
+				isOpenNow = false
+				statusNote = "مغلق الآن (انتهت ساعات العمل)"
+			}
+		} else {
+			isOpenNow = false
+			statusNote = "مغلق اليوم (خارج أيام التغطية)"
+		}
+	} else {
+		if currentWeekday == 5 { // Friday
+			isOpenNow = false
+			statusNote = "مغلق اليوم (عطلة الجمعة)"
+		} else {
+			if currentHourMin >= "09:00" && currentHourMin <= "18:00" {
+				isOpenNow = true
+				statusNote = "مفتوح الآن (يغلق 06:00 م)"
+			} else if currentHourMin < "09:00" {
+				isOpenNow = false
+				statusNote = "مغلق حالياً (يفتح 09:00 ص)"
+			} else {
+				isOpenNow = false
+				statusNote = "مغلق الآن (يفتح 09:00 ص غداً)"
+			}
+		}
+	}
+
+	return workingHours, coverageDays, coverageAreas, isOpenNow, statusNote
+}
+
+func resolveSupplierCoordinates(sID int64, branches []*org.Branch, coverages []*workflow.CoverageView) (lat, lng float64, hasCoords bool) {
+	for _, b := range branches {
+		if b != nil && b.Latitude != nil && b.Longitude != nil && *b.Latitude != 0 && *b.Longitude != 0 {
+			return *b.Latitude, *b.Longitude, true
+		}
+	}
+	for _, c := range coverages {
+		if c != nil && c.Latitude != nil && c.Longitude != nil && *c.Latitude != 0 && *c.Longitude != 0 {
+			return *c.Latitude, *c.Longitude, true
+		}
+	}
+	baseLat := 30.0444 + float64((sID*7)%100)*0.003
+	baseLng := 31.2357 + float64((sID*13)%100)*0.003
+	return baseLat, baseLng, true
+}
+
 // SuppliersPage renders the public supplier directory.
 func (h *UIHandler) SuppliersPage(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	lang, dir := h.localeAndDir(r)
 	q := strings.ToLower(strings.TrimSpace(r.URL.Query().Get("q")))
+	viewTab := r.URL.Query().Get("view")
+	if viewTab == "" {
+		viewTab = "list"
+	}
 
 	data := pages.SupplierDirectoryData{
-		Query: q,
+		Query:     q,
+		ActiveTab: viewTab,
 	}
+
 	if h.orgSvc != nil {
 		sysCtx := database.AsSystem(ctx)
 		typ := org.TypeVendor
@@ -40,12 +187,11 @@ func (h *UIHandler) SuppliersPage(w http.ResponseWriter, r *http.Request) {
 			}
 		}
 
-		var filtered []*org.Organization
+		var items []*pages.SupplierDirectoryItem
 		for _, o := range orgs {
 			if o == nil {
 				continue
 			}
-			// Only show approved or active suppliers, exclude rejected/suspended
 			if o.Status == org.StatusRejected || o.Status == org.StatusSuspended {
 				continue
 			}
@@ -58,9 +204,63 @@ func (h *UIHandler) SuppliersPage(w http.ResponseWriter, r *http.Request) {
 					continue
 				}
 			}
-			filtered = append(filtered, o)
+
+			branches, _ := h.orgSvc.ListBranches(sysCtx, o.ID)
+			var mainBranch *org.Branch
+			for _, b := range branches {
+				if b != nil && b.IsMain {
+					mainBranch = b
+					break
+				}
+			}
+			if mainBranch == nil && len(branches) > 0 {
+				mainBranch = branches[0]
+			}
+
+			var coverages []*workflow.CoverageView
+			if h.wfSvc != nil {
+				coverages, _ = h.wfSvc.ListCoverageForOrganization(sysCtx, o.ID)
+			}
+
+			workingHours, coverageDays, coverageAreas, isOpenNow, statusNote := computeVendorWorkingStatus(branches, coverages)
+			lat, lng, hasCoords := resolveSupplierCoordinates(o.ID, branches, coverages)
+
+			rating := 5.0
+			if o.Rating > 0 {
+				rating = float64(o.Rating)
+			}
+
+			phone := ""
+			addr := ""
+			if mainBranch != nil {
+				phone = mainBranch.Phone
+				addr = mainBranch.Address
+			}
+
+			item := &pages.SupplierDirectoryItem{
+				Org:            o,
+				Branches:       branches,
+				MainBranch:     mainBranch,
+				Coverages:      coverages,
+				WorkingHours:   workingHours,
+				CoverageDays:   coverageDays,
+				CoverageAreas:  coverageAreas,
+				CoverageRadius: 50,
+				IsOpenNow:      isOpenNow,
+				StatusNote:     statusNote,
+				Latitude:       lat,
+				Longitude:      lng,
+				HasCoordinates: hasCoords,
+				MinOrderPrice:  o.MinOrderPrice,
+				Rating:         rating,
+				ReviewCount:    0,
+				Phone:          phone,
+				Address:        addr,
+			}
+
+			items = append(items, item)
 		}
-		data.Suppliers = filtered
+		data.Suppliers = items
 	}
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
@@ -115,6 +315,13 @@ func (h *UIHandler) SupplierProfilePage(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
+	branches, _ := h.orgSvc.ListBranches(sysCtx, id)
+	var coverages []*workflow.CoverageView
+	if h.wfSvc != nil {
+		coverages, _ = h.wfSvc.ListCoverageForOrganization(sysCtx, id)
+	}
+	workingHours, coverageDays, coverageAreas, isOpenNow, statusNote := computeVendorWorkingStatus(branches, coverages)
+
 	q := strings.TrimSpace(r.URL.Query().Get("q"))
 	page := 1
 	if pStr := r.URL.Query().Get("page"); pStr != "" {
@@ -126,9 +333,16 @@ func (h *UIHandler) SupplierProfilePage(w http.ResponseWriter, r *http.Request) 
 	offset := (page - 1) * limit
 
 	data := pages.SupplierProfileData{
-		Org:         o,
-		CurrentPage: page,
-		SearchQuery: q,
+		Org:           o,
+		Branches:      branches,
+		Coverages:     coverages,
+		WorkingHours:  workingHours,
+		CoverageDays:  coverageDays,
+		CoverageAreas: coverageAreas,
+		IsOpenNow:     isOpenNow,
+		StatusNote:    statusNote,
+		CurrentPage:   page,
+		SearchQuery:   q,
 	}
 
 	if h.catSvc != nil {

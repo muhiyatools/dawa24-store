@@ -525,6 +525,14 @@ func (h *UIHandler) AddToCartSubmit(w http.ResponseWriter, r *http.Request) {
 		qty = 1
 	}
 
+	back := strings.TrimSpace(r.PostFormValue("return_to"))
+	if back == "" {
+		back = r.Header.Get("Referer")
+	}
+	if back == "" {
+		back = "/cart"
+	}
+
 	// Auto-resolve missing product/vendor info from variant
 	if h.catSvc != nil && variantID > 0 && (productID <= 0 || vendorOrgID <= 0) {
 		if v, err := h.catSvc.GetVariant(ctx, variantID); err == nil && v != nil {
@@ -540,7 +548,7 @@ func (h *UIHandler) AddToCartSubmit(w http.ResponseWriter, r *http.Request) {
 	// Stock, supplier approval, branch ownership and weekly coverage are all
 	// decided by commerce.CheckAvailability. Nothing here defaults a missing
 	// supplier or quietly reduces the quantity the pharmacy asked for.
-	if !h.assertCartLineAvailable(w, r, actor, variantID, vendorOrgID, qty, "/catalog") {
+	if !h.assertCartLineAvailable(w, r, actor, variantID, vendorOrgID, qty, back) {
 		return
 	}
 
@@ -574,9 +582,28 @@ func (h *UIHandler) AddToCartSubmit(w http.ResponseWriter, r *http.Request) {
 	if _, err := h.commSvc.AddToCart(ctx, userID, item); err != nil {
 		h.log.ErrorContext(ctx, "add to cart", "error", err,
 			"user", userID, "variant", variantID, "vendor", vendorOrgID)
-		h.redirectWithNotice(w, r, "/catalog", "error", h.safeMessage(err, langOf(r)))
+		h.redirectWithNotice(w, r, back, "error", h.safeMessage(err, langOf(r)))
 		return
 	}
+
+	if h.isHTMX(r) {
+		cart, _ := h.commSvc.GetCart(ctx, userID)
+		itemCount := 0
+		if cart != nil {
+			for _, ci := range cart.Items {
+				itemCount += ci.Quantity
+			}
+		}
+		w.Header().Set("HX-Trigger", fmt.Sprintf(`{"showToast":{"message":"تمت إضافة الصنف إلى سلة المشتريات بنجاح","type":"success"},"cartUpdated":{"count":%d}}`, itemCount))
+		w.WriteHeader(http.StatusOK)
+		return
+	}
+
+	if returnTo := strings.TrimSpace(r.PostFormValue("return_to")); returnTo != "" {
+		h.redirectWithNotice(w, r, returnTo, "success", "تمت إضافة الصنف إلى سلة المشتريات بنجاح.")
+		return
+	}
+
 	http.Redirect(w, r, "/cart", http.StatusSeeOther)
 }
 
