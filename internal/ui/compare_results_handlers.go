@@ -46,8 +46,18 @@ func (h *UIHandler) CompareRunSubmit(w http.ResponseWriter, r *http.Request) {
 			if id, err := strconv.ParseInt(strings.TrimSpace(idStr), 10, 64); err == nil && id > 0 {
 				file, errGet := h.compareSvc.GetFile(ctx, id)
 				if errGet == nil && file != nil && file.Status != compare.FileReady {
-					h.redirectWithNotice(w, r, "/compare/tool", "error",
-						fmt.Sprintf("الملف '%s' بحاجة إلى تعيين الأعمدة أولاً. الرجاء اكتمال تعيين الأعمدة لجميع الملفات المختارة.", file.SupplierName))
+					// A failed file is not an unmapped one. Telling the user to
+					// finish the mapping when parsing actually broke sends them
+					// to a screen that cannot fix anything.
+					msg := fmt.Sprintf("الملف '%s' بحاجة إلى تعيين الأعمدة أولاً. الرجاء اكتمال تعيين الأعمدة لجميع الملفات المختارة.", file.SupplierName)
+					if file.Status == compare.FileFailed {
+						reason := strings.TrimSpace(file.ErrorMessage)
+						if reason == "" {
+							reason = "تعذرت قراءة محتوى الملف."
+						}
+						msg = fmt.Sprintf("تعذرت معالجة الملف '%s': %s يرجى إعادة رفع الملف أو مراجعة تعيين الأعمدة.", file.SupplierName, reason)
+					}
+					h.redirectWithNotice(w, r, "/compare/tool", "error", msg)
 					return
 				}
 			}
@@ -332,19 +342,15 @@ func (h *UIHandler) CompareMarketIntelligencePage(w http.ResponseWriter, r *http
 	}
 }
 
-// MarketDiscountsPage renders market-wide approved discounts matching the Laravel MarketDiscounts module.
+// MarketDiscountsPage renders market-wide approved discounts across all suppliers and warehouses.
 func (h *UIHandler) MarketDiscountsPage(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	lang, dir := h.localeAndDir(r)
 
-	// Authentication check (same as other pharmacy/customer tools)
+	// Authentication check
 	actor, ok := authctx.From(ctx)
 	if !ok {
 		http.Redirect(w, r, "/auth/login?redirect=/market-discounts", http.StatusSeeOther)
-		return
-	}
-	if actor.IsCustomer() {
-		h.redirectWithNotice(w, r, "/customer/dashboard", "error", "هذه الصفحة مخصصة لحسابات الموردين فقط.")
 		return
 	}
 
@@ -352,7 +358,7 @@ func (h *UIHandler) MarketDiscountsPage(w http.ResponseWriter, r *http.Request) 
 	supplier := strings.TrimSpace(r.URL.Query().Get("supplier"))
 	sortBy := strings.TrimSpace(r.URL.Query().Get("sort"))
 	if sortBy == "" {
-		sortBy = "newest"
+		sortBy = "discount_desc"
 	}
 	currentView := strings.TrimSpace(r.URL.Query().Get("view"))
 	if currentView != "grid" {
@@ -362,6 +368,13 @@ func (h *UIHandler) MarketDiscountsPage(w http.ResponseWriter, r *http.Request) 
 	page, _ := strconv.Atoi(r.URL.Query().Get("page"))
 	if page <= 0 {
 		page = 1
+	}
+
+	limit := 24
+	if lStr := strings.TrimSpace(r.URL.Query().Get("limit")); lStr != "" {
+		if l, err := strconv.Atoi(lStr); err == nil && (l == 24 || l == 48 || l == 96) {
+			limit = l
+		}
 	}
 
 	var minPricePtr, maxPricePtr *float64
@@ -397,7 +410,7 @@ func (h *UIHandler) MarketDiscountsPage(w http.ResponseWriter, r *http.Request) 
 		MaxDiscount: maxDiscPtr,
 		SortBy:      sortBy,
 		Page:        page,
-		Limit:       24,
+		Limit:       limit,
 	}
 
 	var result *compare.MarketDiscountsResult
@@ -414,14 +427,14 @@ func (h *UIHandler) MarketDiscountsPage(w http.ResponseWriter, r *http.Request) 
 		result = &compare.MarketDiscountsResult{
 			Items:              make([]*compare.MarketDiscountRow, 0),
 			Page:               page,
-			Limit:              24,
+			Limit:              limit,
 			TotalPages:         1,
 			AvailableSuppliers: make([]string, 0),
 		}
 	}
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	if err := pages.MarketDiscountsPage(lang, dir, result, filter, currentView).Render(ctx, w); err != nil {
+	if err := pages.MarketDiscountsPage(lang, dir, *actor, result, filter, currentView).Render(ctx, w); err != nil {
 		h.log.ErrorContext(ctx, "render market discounts", "error", err)
 	}
 }

@@ -3,8 +3,10 @@ package ui
 import (
 	"fmt"
 	"net/http"
+	"sort"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/go-chi/chi/v5"
 
@@ -12,6 +14,7 @@ import (
 	"github.com/muhiya/dawa24-store/internal/modules/org"
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/platform/database"
+	"github.com/muhiya/dawa24-store/internal/shared/arabic"
 	"github.com/muhiya/dawa24-store/internal/ui/pages"
 )
 
@@ -61,16 +64,18 @@ func (h *UIHandler) VendorWarehouseDetailPage(w http.ResponseWriter, r *http.Req
 	}
 
 	var wh *inventory.Warehouse
-	var stocks []*inventory.Stock
+	var allDetailed []*inventory.DetailedWarehouseStockView
 	if h.invSvc != nil {
 		whs, _ := h.invSvc.ListWarehouses(ctx)
 		for _, item := range whs {
-			if item.ID == whID {
+			if item.ID == whID && item.OrganizationID == actor.OrganizationID {
 				wh = item
 				break
 			}
 		}
-		stocks, _ = h.invSvc.ListStocksByWarehouse(ctx, whID)
+		if wh != nil {
+			allDetailed, _ = h.invSvc.ListDetailedStocksByWarehouse(ctx, whID)
+		}
 	}
 
 	if wh == nil {
@@ -78,10 +83,255 @@ func (h *UIHandler) VendorWarehouseDetailPage(w http.ResponseWriter, r *http.Req
 		return
 	}
 
+	// Calculate overall warehouse metrics
+	stats := pages.VendorWarehouseStats{
+		TotalItems: len(allDetailed),
+	}
+	now := time.Now()
+	sixMonths := now.AddDate(0, 6, 0)
+	for _, s := range allDetailed {
+		stats.TotalUnits += s.Quantity
+		if s.Quantity <= s.MinThreshold && s.Quantity > 0 {
+			stats.LowStockCount++
+		} else if s.Quantity == 0 {
+			stats.OutOfStockCount++
+		}
+		if s.ExpiryDate != nil {
+			if s.ExpiryDate.Before(now) {
+				stats.ExpiredCount++
+			} else if s.ExpiryDate.Before(sixMonths) {
+				stats.ExpiringSoonCount++
+			}
+		}
+	}
+
+	// Read filter and pagination params
+	q := strings.TrimSpace(r.URL.Query().Get("q"))
+	stockStatus := r.URL.Query().Get("stock_status")
+	expiryStatus := r.URL.Query().Get("expiry_status")
+	sortParam := r.URL.Query().Get("sort")
+	if sortParam == "" {
+		sortParam = "updated_desc"
+	}
+
+	page := 1
+	if p, err := strconv.Atoi(r.URL.Query().Get("page")); err == nil && p > 1 {
+		page = p
+	}
+
+	limit := 20
+	if l, err := strconv.Atoi(r.URL.Query().Get("limit")); err == nil {
+		switch l {
+		case 10, 20, 50, 100:
+			limit = l
+		}
+	}
+
+	// Apply filtering
+	var filtered []*inventory.DetailedWarehouseStockView
+	for _, s := range allDetailed {
+		if q != "" {
+			qNorm := arabic.Normalize(q)
+			qLower := strings.ToLower(q)
+			nameNorm := arabic.Normalize(s.ProductName)
+			nameLower := strings.ToLower(s.ProductName)
+			varNorm := arabic.Normalize(s.VariantName)
+			varLower := strings.ToLower(s.VariantName)
+			sciLower := strings.ToLower(s.ScientificName)
+			mfgLower := strings.ToLower(s.Manufacturer)
+			skuLower := strings.ToLower(s.SKU)
+			bcLower := strings.ToLower(s.Barcode)
+			bnLower := strings.ToLower(s.BatchNumber)
+
+			match := strings.Contains(nameNorm, qNorm) || strings.Contains(nameLower, qLower) ||
+				strings.Contains(varNorm, qNorm) || strings.Contains(varLower, qLower) ||
+				strings.Contains(sciLower, qLower) || strings.Contains(mfgLower, qLower) ||
+				strings.Contains(skuLower, qLower) || strings.Contains(bcLower, qLower) ||
+				strings.Contains(bnLower, qLower)
+
+			if !match {
+				continue
+			}
+		}
+
+		if stockStatus == "available" && s.Quantity <= s.MinThreshold {
+			continue
+		} else if stockStatus == "low" && (s.Quantity <= 0 || s.Quantity > s.MinThreshold) {
+			continue
+		} else if stockStatus == "out_of_stock" && s.Quantity > 0 {
+			continue
+		}
+
+		if expiryStatus == "expiring_soon" {
+			if s.ExpiryDate == nil || s.ExpiryDate.Before(now) || s.ExpiryDate.After(sixMonths) {
+				continue
+			}
+		} else if expiryStatus == "expired" {
+			if s.ExpiryDate == nil || s.ExpiryDate.After(now) {
+				continue
+			}
+		}
+
+		filtered = append(filtered, s)
+	}
+
+	// Apply sorting
+	sort.SliceStable(filtered, func(i, j int) bool {
+		switch sortParam {
+		case "name_asc":
+			return strings.ToLower(filtered[i].ProductName) < strings.ToLower(filtered[j].ProductName)
+		case "name_desc":
+			return strings.ToLower(filtered[i].ProductName) > strings.ToLower(filtered[j].ProductName)
+		case "qty_desc":
+			return filtered[i].Quantity > filtered[j].Quantity
+		case "qty_asc":
+			return filtered[i].Quantity < filtered[j].Quantity
+		case "expiry_asc":
+			if filtered[i].ExpiryDate == nil {
+				return false
+			}
+			if filtered[j].ExpiryDate == nil {
+				return true
+			}
+			return filtered[i].ExpiryDate.Before(*filtered[j].ExpiryDate)
+		case "updated_desc":
+			return filtered[i].UpdatedAt.After(filtered[j].UpdatedAt)
+		default:
+			return filtered[i].StockID > filtered[j].StockID
+		}
+	})
+
+	// Apply pagination
+	totalFiltered := len(filtered)
+	totalPages := (totalFiltered + limit - 1) / limit
+	if totalPages < 1 {
+		totalPages = 1
+	}
+	if page > totalPages {
+		page = totalPages
+	}
+
+	start := (page - 1) * limit
+	end := start + limit
+	if start > totalFiltered {
+		start = totalFiltered
+	}
+	if end > totalFiltered {
+		end = totalFiltered
+	}
+
+	var paged []*inventory.DetailedWarehouseStockView
+	if start < end {
+		paged = filtered[start:end]
+	}
+
+	fromItem := 0
+	toItem := 0
+	if totalFiltered > 0 {
+		fromItem = start + 1
+		toItem = end
+	}
+
+	data := pages.VendorWarehouseDetailData{
+		Warehouse: wh,
+		Stocks:    paged,
+		Stats:     stats,
+		Filter: pages.VendorWarehouseStockFilter{
+			Query:        q,
+			StockStatus:  stockStatus,
+			ExpiryStatus: expiryStatus,
+			Sort:         sortParam,
+			Page:         page,
+			PerPage:      limit,
+		},
+		TotalFiltered: totalFiltered,
+		TotalPages:    totalPages,
+		FromItem:      fromItem,
+		ToItem:        toItem,
+		NoticeType:    r.URL.Query().Get("notice"),
+		NoticeMsg:     r.URL.Query().Get("msg"),
+	}
+
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	if err := pages.VendorWarehouseDetailPage(wh, stocks, lang, dir).Render(ctx, w); err != nil {
+	if err := pages.VendorWarehouseDetailPage(data, lang, dir).Render(ctx, w); err != nil {
 		h.log.ErrorContext(ctx, "render vendor warehouse detail", "error", err)
 	}
+}
+
+// VendorWarehouseStockAdjustSubmit adjusts a stock level directly from warehouse detail page.
+func (h *UIHandler) VendorWarehouseStockAdjustSubmit(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	actor, ok := authctx.From(ctx)
+	if !ok || actor.OrganizationID <= 0 {
+		http.Redirect(w, r, "/auth/login?redirect=/vendor/warehouses", http.StatusSeeOther)
+		return
+	}
+
+	whID, _ := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
+	stockID, _ := strconv.ParseInt(chi.URLParam(r, "stockID"), 10, 64)
+	if whID <= 0 || stockID <= 0 {
+		http.Redirect(w, r, "/vendor/warehouses", http.StatusSeeOther)
+		return
+	}
+
+	if err := r.ParseForm(); err != nil {
+		h.redirectWithNotice(w, r, fmt.Sprintf("/vendor/warehouses/%d", whID), "error", "بيانات النموذج غير صالحة.")
+		return
+	}
+
+	reason := strings.TrimSpace(r.PostFormValue("reason"))
+	if reason == "" {
+		reason = "تسوية جردية يدوية من شاشة المخزن"
+	}
+
+	if h.invSvc != nil {
+		if newQtyStr := strings.TrimSpace(r.PostFormValue("new_quantity")); newQtyStr != "" {
+			if newQty, err := strconv.Atoi(newQtyStr); err == nil && newQty >= 0 {
+				stocks, _ := h.invSvc.ListStocksByWarehouse(ctx, whID)
+				var currentStock *inventory.Stock
+				for _, st := range stocks {
+					if st.ID == stockID {
+						currentStock = st
+						break
+					}
+				}
+				if currentStock != nil {
+					delta := newQty - currentStock.Quantity
+					if delta != 0 {
+						_, err := h.invSvc.AdjustStock(ctx, inventory.AdjustStockInput{
+							StockID: stockID,
+							Delta:   delta,
+							Type:    inventory.MovementAdjustment,
+							Details: reason,
+							UserID:  &actor.UserID,
+						})
+						if err != nil {
+							h.log.ErrorContext(ctx, "adjust stock failed", "error", err)
+							h.redirectWithNotice(w, r, fmt.Sprintf("/vendor/warehouses/%d", whID), "error", "تعذر تعديل الرصيد: "+h.safeMessage(err, langOf(r)))
+							return
+						}
+					}
+				}
+			}
+		} else if deltaStr := strings.TrimSpace(r.PostFormValue("delta")); deltaStr != "" {
+			if delta, err := strconv.Atoi(deltaStr); err == nil && delta != 0 {
+				_, err := h.invSvc.AdjustStock(ctx, inventory.AdjustStockInput{
+					StockID: stockID,
+					Delta:   delta,
+					Type:    inventory.MovementAdjustment,
+					Details: reason,
+					UserID:  &actor.UserID,
+				})
+				if err != nil {
+					h.log.ErrorContext(ctx, "adjust stock failed", "error", err)
+					h.redirectWithNotice(w, r, fmt.Sprintf("/vendor/warehouses/%d", whID), "error", "تعذر تعديل الرصيد: "+h.safeMessage(err, langOf(r)))
+					return
+				}
+			}
+		}
+	}
+
+	h.redirectWithNotice(w, r, fmt.Sprintf("/vendor/warehouses/%d", whID), "success", "تم تحديث رصيد الصنف في المخزن بنجاح.")
 }
 
 // VendorWarehouseCreateSubmit handles creating a new warehouse facility for the vendor.

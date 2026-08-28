@@ -601,10 +601,11 @@ func (r *Repository) ListDistinctSuppliers(ctx context.Context) ([]string, error
 	var suppliers []string
 	err := r.db.InReadTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
 		rows, err := tx.Query(txCtx, `
-			SELECT DISTINCT supplier_name 
-			FROM compare.files 
-			WHERE deleted_at IS NULL AND status = 'ready' 
-			ORDER BY supplier_name ASC;
+			SELECT DISTINCT f.supplier_name 
+			FROM compare.files f
+			JOIN compare.file_rows r ON r.file_id = f.id
+			WHERE f.status != 'failed' AND (f.deleted_at IS NULL OR f.status = 'ready') 
+			ORDER BY f.supplier_name ASC;
 		`)
 		if err != nil {
 			return err
@@ -639,8 +640,8 @@ func (r *Repository) ListMarketDiscounts(ctx context.Context, filter compare.Mar
 	argIdx := 1
 
 	whereClauses := []string{
-		"f.deleted_at IS NULL",
-		"f.status = 'ready'",
+		"f.status != 'failed'",
+		"(f.deleted_at IS NULL OR f.status = 'ready')",
 	}
 
 	if filter.Query != "" {

@@ -1,7 +1,6 @@
 package compare
 
 import (
-	"bytes"
 	"context"
 	"encoding/csv"
 	"fmt"
@@ -13,8 +12,6 @@ import (
 	"strconv"
 	"strings"
 	"time"
-
-	"github.com/xuri/excelize/v2"
 
 	"github.com/muhiya/dawa24-store/internal/platform/storage"
 	"github.com/muhiya/dawa24-store/internal/shared/apperr"
@@ -578,16 +575,12 @@ func (s *Service) ProcessCompareFile(ctx context.Context, fileID int64) error {
 	}
 	defer reader.Close()
 
-	// Parse spreadsheet based on file type
+	// Parse the spreadsheet by content, not by extension. Suppliers send
+	// legacy BIFF .xls, HTML tables named .xls, and CSVs named .xlsx; the
+	// universal reader sniffs the real container, where excelize alone rejects
+	// everything that is not a true .xlsx.
 	var rows []*CompareFileRow
-	lowerName := strings.ToLower(file.OriginalFilename)
-	if strings.HasSuffix(lowerName, ".xlsx") || strings.HasSuffix(lowerName, ".xls") {
-		rows, err = s.parseXLSX(reader, file)
-	} else if strings.HasSuffix(lowerName, ".csv") {
-		rows, err = s.parseCSV(reader, file)
-	} else {
-		return apperr.Validation("compare.unsupported_format", "Unsupported file format. Use .xlsx, .xls, or .csv", nil)
-	}
+	rows, err = s.parseSpreadsheet(reader, file)
 	if err != nil {
 		file.Status = FileFailed
 		file.ErrorMessage = err.Error()
@@ -650,27 +643,18 @@ func (s *Service) parseCSV(reader io.Reader, file *CompareFile) ([]*CompareFileR
 	return rows, nil
 }
 
-// parseXLSX parses an XLSX file using the column mapping.
-func (s *Service) parseXLSX(reader io.Reader, file *CompareFile) ([]*CompareFileRow, error) {
+// parseSpreadsheet parses any supported workbook - .xlsx, legacy .xls, the XML
+// 2003 dialect, an HTML table, or a delimited text file - using the column
+// mapping saved for the file.
+func (s *Service) parseSpreadsheet(reader io.Reader, file *CompareFile) ([]*CompareFileRow, error) {
 	data, err := io.ReadAll(reader)
 	if err != nil {
-		return nil, fmt.Errorf("read xlsx data: %w", err)
+		return nil, fmt.Errorf("read spreadsheet data: %w", err)
 	}
 
-	f, err := excelize.OpenReader(bytes.NewReader(data))
+	allRows, err := spreadsheet.ReadRows(data)
 	if err != nil {
-		return nil, fmt.Errorf("open xlsx: %w", err)
-	}
-	defer f.Close()
-
-	sheets := f.GetSheetList()
-	if len(sheets) == 0 {
-		return nil, fmt.Errorf("xlsx workbook has no sheets")
-	}
-
-	allRows, err := f.GetRows(sheets[0])
-	if err != nil {
-		return nil, fmt.Errorf("get rows: %w", err)
+		return nil, fmt.Errorf("read spreadsheet: %w", err)
 	}
 	if len(allRows) == 0 {
 		return nil, fmt.Errorf("empty sheet")
@@ -731,6 +715,11 @@ func (s *Service) extractRowFromRecord(record []string, headers []string, file *
 			}
 		}
 	}
+	// price and price_after_discount are numeric(12,2): ten integer digits.
+	// A barcode read as a price would overflow and fail the batch.
+	if price.Minor() < 0 || price.Minor() >= maxPriceMinor {
+		price = money.Zero
+	}
 
 	// Parse discount
 	discountStr := getValue(cfg.DiscountCol)
@@ -743,6 +732,14 @@ func (s *Service) extractRowFromRecord(record []string, headers []string, file *
 				discount = val
 			}
 		}
+	}
+	// compare.file_rows.discount is numeric(5,2) and this value is a
+	// percentage, so anything outside 0-100 is not a discount at all - it is
+	// the auto-mapper having pointed at a price, a barcode or a pack size.
+	// Storing it raw overflows the column, and because rows are inserted as one
+	// batch a single such cell used to fail the whole file.
+	if discount < 0 || discount > 100 {
+		discount = 0
 	}
 
 	// Parse code/SKU
@@ -768,6 +765,10 @@ func (s *Service) extractRowFromRecord(record []string, headers []string, file *
 		MatchMethod:        MatchMethodNone,
 	}
 }
+
+// maxPriceMinor is the exclusive ceiling for a price in minor units, set by
+// compare.file_rows.price being numeric(12,2).
+const maxPriceMinor int64 = 10_000_000_000
 
 // extractNumber extracts the first number from a string, handling Arabic/Eastern numerals and commas.
 func extractNumber(s string) (float64, error) {

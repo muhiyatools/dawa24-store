@@ -465,6 +465,7 @@ func (h *UIHandler) RegisterVendorRoutes(r chi.Router) {
 	r.Get("/vendor/warehouses/{id}", h.VendorWarehouseDetailPage)
 	r.Post("/vendor/warehouses/{id}", h.VendorWarehouseUpdateSubmit)
 	r.Post("/vendor/warehouses/{id}/toggle", h.VendorWarehouseToggleSubmit)
+	r.Post("/vendor/warehouses/{id}/stocks/{stockID}/adjust", h.VendorWarehouseStockAdjustSubmit)
 	r.Get("/vendor/saving-products", h.VendorSavingProductsPage)
 	r.Post("/vendor/saving-products", h.VendorSavingProductCreateSubmit)
 	r.Post("/vendor/saving-products/{id}/update", h.VendorSavingProductUpdateSubmit)
