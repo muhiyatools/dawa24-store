@@ -139,6 +139,14 @@ func (s *Service) Results(ctx context.Context, run *Run, f LineFilter) ([]*Line,
 	return lines, total, nil
 }
 
+// FilterCounts returns accurate row counts for each independent smart order filter.
+func (s *Service) FilterCounts(ctx context.Context, runID int64) (FilterCounts, error) {
+	if s.repo == nil {
+		return FilterCounts{}, nil
+	}
+	return s.repo.FilterCounts(ctx, runID)
+}
+
 // attachProductNames fills in the display name of each matched product.
 //
 // A failure here is never fatal: the page still renders, the ids are still

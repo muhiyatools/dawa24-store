@@ -133,6 +133,18 @@ type Stats struct {
 	BelowMinQtyRows          int `json:"below_min_qty_rows"`
 }
 
+// FilterCounts represents exact counts for each independent smart order status.
+type FilterCounts struct {
+	Total           int `json:"total"`
+	Unmatched       int `json:"unmatched"`
+	MatchedProduct  int `json:"matched_product"`
+	MatchedSupplier int `json:"matched_supplier"`
+	AvailableStock  int `json:"available_stock"`
+	CoveredBranch   int `json:"covered_branch"`
+	PriceAvailable  int `json:"price_available"`
+	ReadyToOrder    int `json:"ready_to_order"`
+}
+
 // AIUsage is telemetry, not commerce.
 //
 // CostEstimate is USD with six decimals and deliberately not money.Amount:

@@ -131,12 +131,20 @@ func (r *Repository) ListLines(ctx context.Context, runID int64, f smartorder.Li
 
 		if f.MatchGroup != "" {
 			switch f.MatchGroup {
-			case "matched":
-				where = append(where, "(matched_product_id IS NOT NULL)")
-			case "matched_available", "available":
-				where = append(where, "(matched_product_id IS NOT NULL AND outcome = 'ordered')")
 			case "unmatched":
-				where = append(where, "(matched_product_id IS NULL OR outcome = 'unmatched')")
+				where = append(where, "(matched_product_id IS NULL OR matched_product_id = 0)")
+			case "matched", "matched_product":
+				where = append(where, "(matched_product_id IS NOT NULL AND matched_product_id > 0)")
+			case "matched_supplier":
+				where = append(where, "(EXISTS (SELECT 1 FROM smartorder.line_candidates c WHERE c.line_id = smartorder.run_lines.id))")
+			case "available_stock":
+				where = append(where, "(EXISTS (SELECT 1 FROM smartorder.line_candidates c WHERE c.line_id = smartorder.run_lines.id AND c.stock_qty > 0))")
+			case "covered_branch":
+				where = append(where, "(EXISTS (SELECT 1 FROM smartorder.line_candidates c WHERE c.line_id = smartorder.run_lines.id AND (c.ineligible_reason IS NULL OR c.ineligible_reason != 'coverage')))")
+			case "price_available":
+				where = append(where, "(EXISTS (SELECT 1 FROM smartorder.line_candidates c WHERE c.line_id = smartorder.run_lines.id AND c.net_unit_price > 0))")
+			case "ready_to_order", "matched_available", "ordered":
+				where = append(where, "(outcome = 'ordered')")
 			case "review":
 				where = append(where, "(outcome IN ('no_supplier', 'coverage_blocked', 'institutional_blocked', 'out_of_stock', 'below_min_qty', 'zero_qty'))")
 			}
@@ -309,4 +317,35 @@ func (r *Repository) UpdateLineQuantity(ctx context.Context, orgID, lineID int64
 		}
 		return nil
 	})
+}
+
+// FilterCounts returns exact row counts for each independent smart order filter tab.
+func (r *Repository) FilterCounts(ctx context.Context, runID int64) (smartorder.FilterCounts, error) {
+	var fc smartorder.FilterCounts
+	err := r.db.InReadTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
+		query := `
+			SELECT
+				COUNT(*),
+				COUNT(*) FILTER (WHERE matched_product_id IS NULL OR matched_product_id = 0),
+				COUNT(*) FILTER (WHERE matched_product_id IS NOT NULL AND matched_product_id > 0),
+				COUNT(*) FILTER (WHERE EXISTS (SELECT 1 FROM smartorder.line_candidates c WHERE c.line_id = l.id)),
+				COUNT(*) FILTER (WHERE EXISTS (SELECT 1 FROM smartorder.line_candidates c WHERE c.line_id = l.id AND c.stock_qty > 0)),
+				COUNT(*) FILTER (WHERE EXISTS (SELECT 1 FROM smartorder.line_candidates c WHERE c.line_id = l.id AND (c.ineligible_reason IS NULL OR c.ineligible_reason != 'coverage'))),
+				COUNT(*) FILTER (WHERE EXISTS (SELECT 1 FROM smartorder.line_candidates c WHERE c.line_id = l.id AND c.net_unit_price > 0)),
+				COUNT(*) FILTER (WHERE outcome = 'ordered')
+			FROM smartorder.run_lines l
+			WHERE l.run_id = $1;
+		`
+		return tx.QueryRow(txCtx, query, runID).Scan(
+			&fc.Total,
+			&fc.Unmatched,
+			&fc.MatchedProduct,
+			&fc.MatchedSupplier,
+			&fc.AvailableStock,
+			&fc.CoveredBranch,
+			&fc.PriceAvailable,
+			&fc.ReadyToOrder,
+		)
+	})
+	return fc, err
 }

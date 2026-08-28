@@ -111,6 +111,8 @@ func (h *UIHandler) SmartOrderResultsPage(w http.ResponseWriter, r *http.Request
 		All:        limit == -1,
 	}
 
+	filterCounts, _ := h.smartOrderSvc.FilterCounts(ctx, run.ID)
+
 	lines, total, err := h.smartOrderSvc.Results(ctx, run, filter)
 	if err != nil {
 		h.log.ErrorContext(ctx, "load smart order results", "run_id", run.ID, "error", err)
@@ -121,6 +123,7 @@ func (h *UIHandler) SmartOrderResultsPage(w http.ResponseWriter, r *http.Request
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 	if err := pages.SmartOrderResultsPage(lang, dir, pages.SmartOrderResultsData{
 		Run:       run,
+		Counts:    filterCounts,
 		Lines:     lines,
 		Total:     total,
 		Page:      page,
@@ -185,15 +188,16 @@ func (h *UIHandler) SmartOrderReviewPage(w http.ResponseWriter, r *http.Request)
 			byVendor[vendor] = group
 		}
 		group.Lines = append(group.Lines, pages.SmartOrderReviewLine{
-			Line:          l,
-			VendorName:    vendor,
-			UnitPrice:     chosen.NetUnitPrice,
-			DiscountPct:   float64(chosen.DiscountBps) / 100,
-			LineNet:       sel.LineNet,
-			DecidedBy:     sel.DecidedBy,
-			SkippedName:   h.skippedVendorName(ctx, candidates, sel.SkippedCandidateID),
-			SkippedExcess: derefFloat(sel.SkippedExcessPct),
-			Alternatives:  alternatives,
+			Line:           l,
+			VendorName:     vendor,
+			AvailableStock: chosen.StockQty,
+			UnitPrice:      chosen.NetUnitPrice,
+			DiscountPct:    float64(chosen.DiscountBps) / 100,
+			LineNet:        sel.LineNet,
+			DecidedBy:      sel.DecidedBy,
+			SkippedName:    h.skippedVendorName(ctx, candidates, sel.SkippedCandidateID),
+			SkippedExcess:  derefFloat(sel.SkippedExcessPct),
+			Alternatives:   alternatives,
 		})
 		if sum, err := group.Subtotal.Add(sel.LineNet); err == nil {
 			group.Subtotal = sum

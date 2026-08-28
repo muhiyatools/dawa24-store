@@ -10,6 +10,7 @@ import (
 
 type SmartOrderResultsData struct {
 	Run       *smartorder.Run
+	Counts    smartorder.FilterCounts
 	Lines     []*smartorder.Line
 	Total     int
 	Page      int
@@ -45,24 +46,6 @@ func buildSmartOrderResultsURL(publicID, match, sort, order string, page, limit 
 		return base + "?" + vals.Encode()
 	}
 	return base
-}
-
-func smartOrderMatchedAvailableCount(r *smartorder.Run) int {
-	if r == nil {
-		return 0
-	}
-	avail := r.Stats.MatchedRows - (r.Stats.NoSupplierRows + r.Stats.CoverageBlockedRows + r.Stats.InstitutionalBlockedRows + r.Stats.BelowMinQtyRows)
-	if avail < 0 {
-		return 0
-	}
-	return avail
-}
-
-func smartOrderReviewCount(r *smartorder.Run) int {
-	if r == nil {
-		return 0
-	}
-	return r.Stats.NoSupplierRows + r.Stats.CoverageBlockedRows + r.Stats.InstitutionalBlockedRows + r.Stats.BelowMinQtyRows
 }
 
 func SmartOrderOutcomeLabel(o smartorder.Outcome) string {
@@ -146,9 +129,9 @@ func aiSummary(ai smartorder.AIUsage) string {
 }
 
 templ statCard(label string, value string, tone string) {
-	<div style="padding:1rem 1.25rem; border:1px solid var(--border); border-radius:var(--radius-xl); background:var(--surface-raised); min-width:150px; flex:1; box-shadow:var(--shadow-xs);">
-		<div style="font-size:1.6rem; font-weight:800; color:var(--text); line-height:1.2;" class="tabular-nums">{ value }</div>
-		<div style={ "font-size:0.8rem; font-weight:600; margin-top:0.35rem; color:" + tone + ";" }>{ label }</div>
+	<div style="padding:1rem 1.25rem; border:1px solid var(--border); border-radius:var(--radius-xl); background:var(--surface-raised); min-width:140px; flex:1; box-shadow:var(--shadow-xs);">
+		<div style="font-size:1.5rem; font-weight:800; color:var(--text); line-height:1.2;" class="tabular-nums">{ value }</div>
+		<div style={ "font-size:0.775rem; font-weight:700; margin-top:0.35rem; color:" + tone + ";" }>{ label }</div>
 	</div>
 }
 
@@ -180,20 +163,20 @@ templ soSortHeader(data SmartOrderResultsData, colKey, label string) {
 
 templ soFilterTab(data SmartOrderResultsData, matchKey, label string, count int) {
 	{{
-		active := data.Match == matchKey || (matchKey == "" && data.Match == "all")
+		active := data.Match == matchKey || (matchKey == "" && (data.Match == "all" || data.Match == ""))
 		href := buildSmartOrderResultsURL(data.Run.PublicID, matchKey, data.SortBy, data.SortOrder, 1, data.PerPage, data.Search)
 	}}
 	<a href={ templ.SafeURL(href) }
 		class={ "wiz-chip", templ.KV("is-on", active) }
-		style="display:inline-flex; align-items:center; gap:0.4rem; padding:0.45rem 0.9rem; border-radius:var(--radius-full); font-weight:700; font-size:0.85rem; text-decoration:none;">
+		style="display:inline-flex; align-items:center; gap:0.4rem; padding:0.45rem 0.85rem; border-radius:var(--radius-full); font-weight:700; font-size:0.825rem; text-decoration:none; white-space:nowrap;">
 		<span>{ label }</span>
-		<span class="badge" style="font-size:0.725rem; padding:0.15rem 0.45rem; background:rgba(0,0,0,0.08); border-radius:var(--radius-full);">{ fmt.Sprintf("%d", count) }</span>
+		<span class="badge" style="font-size:0.725rem; padding:0.15rem 0.45rem; background:rgba(0,0,0,0.08); border-radius:var(--radius-full);" class="tabular-nums">{ fmt.Sprintf("%d", count) }</span>
 	</a>
 }
 
 templ SmartOrderResultsPage(lang, dir string, data SmartOrderResultsData) {
 	@layouts.CustomerShell("نتائج الطلب الذكي والمطابقة", "purchase-request", lang, dir, nil) {
-		<div class="container-fluid" style="max-width:1320px; margin:0 auto; padding:1.5rem 1rem; display:flex; flex-direction:column; gap:1.5rem;">
+		<div class="container-fluid" style="max-width:1380px; margin:0 auto; padding:1.5rem 1rem; display:flex; flex-direction:column; gap:1.5rem;">
 			
 			<!-- Header Banner -->
 			<div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:1rem; border-bottom:1px solid var(--border); padding-bottom:1.25rem;">
@@ -202,15 +185,15 @@ templ SmartOrderResultsPage(lang, dir string, data SmartOrderResultsData) {
 						نتائج مطابقة الأصناف — { data.Run.RunNumber }
 					</h1>
 					<p style="font-size:0.875rem; color:var(--text-secondary); margin:0; line-height:1.5;">
-						فحص ومراجعة نتائج مطابقة الأصناف بالكتالوج المركزي، مع إمكانية الربط اليدوي وتحديد الموردين والتغطية قبل الاعتماد النهائي.
+						فحص ومراجعة نتائج مطابقة الأصناف وتوفر الموردين والتغطية بدقة مع إمكانية التعديل اليدوي قبل اعتماد الطلب.
 					</p>
 				</div>
-				<div style="display:flex; align-items:center; gap:0.75rem;">
+				<div style="display:flex; align-items:center; gap:0.75rem; flex-wrap:wrap;">
 					<a href={ templ.SafeURL(fmt.Sprintf("/customer/smart-order/%s/export", data.Run.PublicID)) } class="btn btn-secondary btn-sm fw-700">
 						<span>📥 تصدير النتائج (CSV)</span>
 					</a>
-					<a href={ templ.SafeURL(fmt.Sprintf("/customer/smart-order/%s/review", data.Run.PublicID)) } class="btn btn-primary btn-sm fw-700">
-						<span>مراجعة الطلب والشراء ←</span>
+					<a href={ templ.SafeURL(fmt.Sprintf("/customer/smart-order/%s/review", data.Run.PublicID)) } class="btn btn-primary btn-sm fw-800" style="padding:0.5rem 1.25rem;">
+						<span>المتابعة إلى مراجعة الطلب ←</span>
 					</a>
 				</div>
 			</div>
@@ -218,12 +201,14 @@ templ SmartOrderResultsPage(lang, dir string, data SmartOrderResultsData) {
 			@stepBar(4)
 
 			<!-- Summary Stats Grid -->
-			<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(160px, 1fr)); gap:0.85rem;">
-				@statCard("إجمالي الأصناف", fmt.Sprintf("%d", data.Run.Stats.TotalRows), "var(--text-secondary)")
-				@statCard("غير مطابق (يحتاج ربط)", fmt.Sprintf("%d", data.Run.Stats.UnmatchedRows), "var(--danger)")
-				@statCard("مطابق وجاهز", fmt.Sprintf("%d", data.Run.Stats.MatchedRows), "var(--primary-700)")
-				@statCard("بلا مورد", fmt.Sprintf("%d", data.Run.Stats.NoSupplierRows), "var(--warning)")
-				@statCard("خارج التغطية", fmt.Sprintf("%d", data.Run.Stats.CoverageBlockedRows), "var(--warning)")
+			<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(150px, 1fr)); gap:0.85rem;">
+				@statCard("إجمالي الأصناف", fmt.Sprintf("%d", data.Counts.Total), "var(--text-secondary)")
+				@statCard("غير مطابق", fmt.Sprintf("%d", data.Counts.Unmatched), "var(--danger)")
+				@statCard("مطابق للصنف", fmt.Sprintf("%d", data.Counts.MatchedProduct), "var(--primary-700)")
+				@statCard("لديه مورد", fmt.Sprintf("%d", data.Counts.MatchedSupplier), "var(--accent)")
+				@statCard("متوفر بالمخزون", fmt.Sprintf("%d", data.Counts.AvailableStock), "var(--emerald)")
+				@statCard("مشمول بالتغطية", fmt.Sprintf("%d", data.Counts.CoveredBranch), "var(--primary-700)")
+				@statCard("جاهز للطلب", fmt.Sprintf("%d", data.Counts.ReadyToOrder), "var(--emerald)")
 				@statCard("التكلفة التقديرية", data.Run.EstimatedTotal.String(), "var(--accent)")
 			</div>
 
@@ -249,14 +234,18 @@ templ SmartOrderResultsPage(lang, dir string, data SmartOrderResultsData) {
 			}
 
 			<!-- Filter Tabs Bar & Search Toolbar -->
-			<div class="card" style="padding:1rem 1.25rem; background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-xl); display:flex; flex-direction:column; gap:1rem;">
+			<div class="card" style="padding:1rem 1.25rem; background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-2xl); display:flex; flex-direction:column; gap:1rem; box-shadow:var(--shadow-xs);">
 				
-				<!-- Tabs: 3 focused filters + All -->
-				<div style="display:flex; align-items:center; flex-wrap:wrap; gap:0.5rem; border-bottom:1px solid var(--border); padding-bottom:0.85rem;">
-					@soFilterTab(data, "unmatched", "غير مطابق", data.Run.Stats.UnmatchedRows)
-					@soFilterTab(data, "matched", "مطابق", data.Run.Stats.MatchedRows)
-					@soFilterTab(data, "matched_available", "مطابق ومتوفر", smartOrderMatchedAvailableCount(data.Run))
-					@soFilterTab(data, "all", "الكل", data.Run.Stats.TotalRows)
+				<!-- Tabs: 6 Independent Statuses + Unmatched + All -->
+				<div style="display:flex; align-items:center; flex-wrap:wrap; gap:0.5rem; border-bottom:1px solid var(--border); padding-bottom:0.85rem; overflow-x:auto;">
+					@soFilterTab(data, "all", "الكل", data.Counts.Total)
+					@soFilterTab(data, "unmatched", "غير مطابق", data.Counts.Unmatched)
+					@soFilterTab(data, "matched_product", "مطابق للصنف", data.Counts.MatchedProduct)
+					@soFilterTab(data, "matched_supplier", "لديه مورد", data.Counts.MatchedSupplier)
+					@soFilterTab(data, "available_stock", "متوفر بالمخزون", data.Counts.AvailableStock)
+					@soFilterTab(data, "covered_branch", "مشمول بالتغطية", data.Counts.CoveredBranch)
+					@soFilterTab(data, "price_available", "السعر متوفر", data.Counts.PriceAvailable)
+					@soFilterTab(data, "ready_to_order", "جاهز للطلب", data.Counts.ReadyToOrder)
 				</div>
 
 				<!-- Search & Rows-Per-Page Form -->

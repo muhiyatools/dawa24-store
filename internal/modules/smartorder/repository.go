@@ -53,6 +53,7 @@ type Repository interface {
 
 	InsertLines(ctx context.Context, lines []*Line) error
 	ListLines(ctx context.Context, runID int64, f LineFilter) ([]*Line, int, error)
+	FilterCounts(ctx context.Context, runID int64) (FilterCounts, error)
 	GetLine(ctx context.Context, orgID, lineID int64) (*Line, error)
 	UpdateLines(ctx context.Context, lines []*Line) error
 	UpdateLineQuantity(ctx context.Context, orgID, lineID int64, qty float64) error
