@@ -115,6 +115,12 @@ type Repository interface {
 	ListMatchDecisions(ctx context.Context, search string, limit, offset int) ([]*MatchDecisionView, int, error)
 	DeleteMatchDecision(ctx context.Context, id int64) error
 	ClearMatchDecisions(ctx context.Context) error
+	ListMatchDecisionsForOrg(ctx context.Context, orgID int64, search string, limit, offset int) ([]*MatchDecisionView, int, error)
+	DeleteMatchDecisionForOrg(ctx context.Context, orgID, id int64) error
+	ClearMatchDecisionsForOrg(ctx context.Context, orgID int64) error
+	SaveManualDecision(ctx context.Context, orgID, userID int64, rawName string, productID int64, reason string) error
+	IsDecisionMemoryEnabled(ctx context.Context) bool
+	SetDecisionMemoryEnabled(ctx context.Context, enabled bool) error
 	ListCustomerMappings(ctx context.Context, orgID int64, search string, limit, offset int) ([]*CustomerMappingView, int, error)
 	DeleteCustomerMapping(ctx context.Context, orgID, id int64) error
 	ClearCustomerMappings(ctx context.Context, orgID int64) error

@@ -377,6 +377,8 @@ func ComposeUniqueRowID(productID int64, variantID, branchID *int64) string {
 // MatchDecisionView represents a record in the AI & matching decision memory cache.
 type MatchDecisionView struct {
 	ID                int64     `json:"id"`
+	OrganizationID    *int64    `json:"organization_id,omitempty"`
+	UserID            *int64    `json:"user_id,omitempty"`
 	DecisionKey       string    `json:"decision_key"`
 	NormName          string    `json:"norm_name"`
 	ChosenProductID   *int64    `json:"chosen_product_id,omitempty"`

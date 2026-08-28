@@ -621,14 +621,44 @@ func (s *Service) ListMatchDecisions(ctx context.Context, search string, limit, 
 	return s.repo.ListMatchDecisions(ctx, search, limit, offset)
 }
 
+// ListMatchDecisionsForOrg returns decision memories scoped to an organization.
+func (s *Service) ListMatchDecisionsForOrg(ctx context.Context, orgID int64, search string, limit, offset int) ([]*MatchDecisionView, int, error) {
+	return s.repo.ListMatchDecisionsForOrg(ctx, orgID, search, limit, offset)
+}
+
 // DeleteMatchDecision removes a single match decision from the system cache.
 func (s *Service) DeleteMatchDecision(ctx context.Context, id int64) error {
 	return s.repo.DeleteMatchDecision(ctx, id)
 }
 
+// DeleteMatchDecisionForOrg removes a single match decision belonging to an organization.
+func (s *Service) DeleteMatchDecisionForOrg(ctx context.Context, orgID, id int64) error {
+	return s.repo.DeleteMatchDecisionForOrg(ctx, orgID, id)
+}
+
 // ClearMatchDecisions purges all cached matching decisions from the system.
 func (s *Service) ClearMatchDecisions(ctx context.Context) error {
 	return s.repo.ClearMatchDecisions(ctx)
+}
+
+// ClearMatchDecisionsForOrg purges all cached matching decisions for a single organization.
+func (s *Service) ClearMatchDecisionsForOrg(ctx context.Context, orgID int64) error {
+	return s.repo.ClearMatchDecisionsForOrg(ctx, orgID)
+}
+
+// SaveManualDecision records a user-indicated match decision.
+func (s *Service) SaveManualDecision(ctx context.Context, orgID, userID int64, rawName string, productID int64, reason string) error {
+	return s.repo.SaveManualDecision(ctx, orgID, userID, rawName, productID, reason)
+}
+
+// IsDecisionMemoryEnabled checks if the decision memory feature is enabled in system settings.
+func (s *Service) IsDecisionMemoryEnabled(ctx context.Context) bool {
+	return s.repo.IsDecisionMemoryEnabled(ctx)
+}
+
+// SetDecisionMemoryEnabled updates the decision memory feature state in system settings.
+func (s *Service) SetDecisionMemoryEnabled(ctx context.Context, enabled bool) error {
+	return s.repo.SetDecisionMemoryEnabled(ctx, enabled)
 }
 
 // ListCustomerMappings returns the saved learned matching decisions for a customer/vendor organization.

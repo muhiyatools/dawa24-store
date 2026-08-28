@@ -403,6 +403,7 @@ func (h *UIHandler) RegisterCustomerRoutes(r chi.Router) {
 
 	// Decision Memory (ذاكرة قرارات المطابقة)
 	r.Get("/customer/decision-memory", h.CustomerDecisionMemoryPage)
+	r.Post("/customer/decision-memory/add", h.CustomerDecisionMemoryAddSubmit)
 	r.Post("/customer/decision-memory/{id}/delete", h.CustomerDecisionMemoryDeleteSubmit)
 	r.Post("/customer/decision-memory/clear", h.CustomerDecisionMemoryClearSubmit)
 }
@@ -557,6 +558,10 @@ func (h *UIHandler) RegisterVendorRoutes(r chi.Router) {
 	r.Post("/vendor/jobs/{id}/delete", h.VendorJobDeleteSubmit)
 	r.Get("/vendor/jobs/{id}/applications", h.VendorJobApplicationsJSON)
 	r.Get("/vendor/ai-logs", h.AIConsumptionLogsPage)
+	r.Get("/vendor/decision-memory", h.VendorDecisionMemoryPage)
+	r.Post("/vendor/decision-memory/add", h.VendorDecisionMemoryAddSubmit)
+	r.Post("/vendor/decision-memory/{id}/delete", h.VendorDecisionMemoryDeleteSubmit)
+	r.Post("/vendor/decision-memory/clear", h.VendorDecisionMemoryClearSubmit)
 
 	r.Get("/vendor/documents", h.OrganizationDocumentsPage)
 	r.Post("/documents/upload", h.OrganizationDocumentsUploadSubmit)

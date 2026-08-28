@@ -384,6 +384,24 @@ func (mockCatalogRepoStub) DeleteMatchDecision(context.Context, int64) error {
 func (mockCatalogRepoStub) ClearMatchDecisions(context.Context) error {
 	return nil
 }
+func (mockCatalogRepoStub) ListMatchDecisionsForOrg(context.Context, int64, string, int, int) ([]*catalog.MatchDecisionView, int, error) {
+	return nil, 0, nil
+}
+func (mockCatalogRepoStub) DeleteMatchDecisionForOrg(context.Context, int64, int64) error {
+	return nil
+}
+func (mockCatalogRepoStub) ClearMatchDecisionsForOrg(context.Context, int64) error {
+	return nil
+}
+func (mockCatalogRepoStub) SaveManualDecision(context.Context, int64, int64, string, int64, string) error {
+	return nil
+}
+func (mockCatalogRepoStub) IsDecisionMemoryEnabled(context.Context) bool {
+	return true
+}
+func (mockCatalogRepoStub) SetDecisionMemoryEnabled(context.Context, bool) error {
+	return nil
+}
 func (mockCatalogRepoStub) ListCustomerMappings(context.Context, int64, string, int, int) ([]*catalog.CustomerMappingView, int, error) {
 	return nil, 0, nil
 }

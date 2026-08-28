@@ -61,6 +61,7 @@ func (h *UIHandler) registerAdminCatalogRoutes(r chi.Router) {
 
 		// Decision Memory & AI Matching Decisions
 		g.Get("/admin/match-decisions", h.AdminMatchDecisionsPage)
+		g.Post("/admin/match-decisions/toggle-state", h.AdminMatchDecisionToggleStateSubmit)
 		g.Post("/admin/match-decisions/{id}/delete", h.AdminMatchDecisionDeleteSubmit)
 		g.Post("/admin/match-decisions/clear", h.AdminMatchDecisionsClearSubmit)
 

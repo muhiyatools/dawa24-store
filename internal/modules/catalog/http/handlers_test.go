@@ -253,6 +253,24 @@ func (r stubRepo) DeleteMatchDecision(ctx context.Context, id int64) error {
 func (r stubRepo) ClearMatchDecisions(ctx context.Context) error {
 	return nil
 }
+func (r stubRepo) ListMatchDecisionsForOrg(ctx context.Context, orgID int64, search string, limit, offset int) ([]*catalog.MatchDecisionView, int, error) {
+	return nil, 0, nil
+}
+func (r stubRepo) DeleteMatchDecisionForOrg(ctx context.Context, orgID, id int64) error {
+	return nil
+}
+func (r stubRepo) ClearMatchDecisionsForOrg(ctx context.Context, orgID int64) error {
+	return nil
+}
+func (r stubRepo) SaveManualDecision(ctx context.Context, orgID, userID int64, rawName string, productID int64, reason string) error {
+	return nil
+}
+func (r stubRepo) IsDecisionMemoryEnabled(ctx context.Context) bool {
+	return true
+}
+func (r stubRepo) SetDecisionMemoryEnabled(ctx context.Context, enabled bool) error {
+	return nil
+}
 func (r stubRepo) ListCustomerMappings(ctx context.Context, orgID int64, search string, limit, offset int) ([]*catalog.CustomerMappingView, int, error) {
 	return nil, 0, nil
 }

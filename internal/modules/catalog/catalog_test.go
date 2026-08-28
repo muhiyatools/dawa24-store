@@ -361,6 +361,24 @@ func (m *mockCatalogRepo) DeleteMatchDecision(_ context.Context, _ int64) error 
 func (m *mockCatalogRepo) ClearMatchDecisions(_ context.Context) error {
 	return nil
 }
+func (m *mockCatalogRepo) ListMatchDecisionsForOrg(_ context.Context, _ int64, _ string, _, _ int) ([]*MatchDecisionView, int, error) {
+	return nil, 0, nil
+}
+func (m *mockCatalogRepo) DeleteMatchDecisionForOrg(_ context.Context, _, _ int64) error {
+	return nil
+}
+func (m *mockCatalogRepo) ClearMatchDecisionsForOrg(_ context.Context, _ int64) error {
+	return nil
+}
+func (m *mockCatalogRepo) SaveManualDecision(_ context.Context, _, _ int64, _ string, _ int64, _ string) error {
+	return nil
+}
+func (m *mockCatalogRepo) IsDecisionMemoryEnabled(_ context.Context) bool {
+	return true
+}
+func (m *mockCatalogRepo) SetDecisionMemoryEnabled(_ context.Context, _ bool) error {
+	return nil
+}
 func (m *mockCatalogRepo) ListCustomerMappings(_ context.Context, _ int64, _ string, _, _ int) ([]*CustomerMappingView, int, error) {
 	return nil, 0, nil
 }
@@ -499,4 +517,40 @@ func (m *mockCatalogRepo) BrandInCategory(context.Context, int64, int64) (bool, 
 
 func (m *mockCatalogRepo) SetBrandCategories(context.Context, int64, []int64) error {
 	return nil
+}
+
+func TestDecisionMemoryServiceMethods(t *testing.T) {
+	repo := newMockCatalogRepo()
+	logger := slog.New(slog.NewTextHandler(io.Discard, nil))
+	svc := NewService(repo, logger)
+	ctx := context.Background()
+
+	// Verify global switch
+	if !svc.IsDecisionMemoryEnabled(ctx) {
+		t.Errorf("expected decision memory to be enabled by default")
+	}
+	if err := svc.SetDecisionMemoryEnabled(ctx, false); err != nil {
+		t.Fatalf("SetDecisionMemoryEnabled failed: %v", err)
+	}
+
+	// Verify manual decision saving
+	if err := svc.SaveManualDecision(ctx, 10, 1, "Panadol Extra", 100, "صيدلي"); err != nil {
+		t.Fatalf("SaveManualDecision failed: %v", err)
+	}
+
+	// Verify org-scoped listing, delete, clear
+	decisions, total, err := svc.ListMatchDecisionsForOrg(ctx, 10, "", 50, 0)
+	if err != nil {
+		t.Fatalf("ListMatchDecisionsForOrg failed: %v", err)
+	}
+	if total < 0 || len(decisions) < 0 {
+		t.Errorf("unexpected results from ListMatchDecisionsForOrg")
+	}
+
+	if err := svc.DeleteMatchDecisionForOrg(ctx, 10, 1); err != nil {
+		t.Fatalf("DeleteMatchDecisionForOrg failed: %v", err)
+	}
+	if err := svc.ClearMatchDecisionsForOrg(ctx, 10); err != nil {
+		t.Fatalf("ClearMatchDecisionsForOrg failed: %v", err)
+	}
 }

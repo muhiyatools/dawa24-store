@@ -14,6 +14,7 @@ type AdminMatchDecisionsData struct {
 	Page      int
 	PerPage   int
 	Search    string
+	IsEnabled bool
 }
 
 func buildAdminMatchDecisionsURL(search string, page, limit int) string {
@@ -41,26 +42,80 @@ templ AdminMatchDecisionsPage(lang, dir string, data AdminMatchDecisionsData) {
 			<!-- Header Banner -->
 			<div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:1rem; border-bottom:1px solid var(--border); padding-bottom:1.25rem;">
 				<div>
-					<h1 style="font-size:1.5rem; font-weight:800; color:var(--text); margin:0 0 0.4rem 0;">
-						⚡ ذاكرة قرارات المطابقة الذكية (Decision Memories)
-					</h1>
+					<div style="display:flex; align-items:center; gap:0.75rem; margin-bottom:0.4rem;">
+						<h1 style="font-size:1.5rem; font-weight:800; color:var(--text); margin:0;">
+							⚡ ذاكرة قرارات المطابقة الذكية (Decision Memories)
+						</h1>
+						if data.IsEnabled {
+							<span class="badge badge-emerald" style="font-size:0.75rem; font-weight:800; padding:0.25rem 0.65rem;">
+								🟢 النظام مفعّل ونشط
+							</span>
+						} else {
+							<span class="badge badge-rose" style="font-size:0.75rem; font-weight:800; padding:0.25rem 0.65rem;">
+								🔴 النظام معطّل بالكامل
+							</span>
+						}
+					</div>
 					<p style="font-size:0.875rem; color:var(--text-secondary); margin:0; line-height:1.5;">
-						القرارات التي اتخذها محرك المطابقة والذكاء الاصطناعي وتم تخزينها في الكتالوج المركزي لإعادة استخدامها وتسريع عمليات الاستيراد والطلب الذكي.
+						إدارة وتحكم مركزي في ذاكرة القرارات. عند تفعيل النظام، يتم عزل وتطبيق قرارات كل صيدلية ومورد على حدة لتسريع وتوحيد عمليات الاستيراد والطلب الذكي.
 					</p>
 				</div>
 				<div style="display:flex; align-items:center; gap:0.75rem;">
-					<button
-						type="button"
-						class="btn btn-outline-danger btn-sm fw-700"
-						onclick="confirmClearAllDecisions()"
-						title="مسح كافة القرارات المخزنة">
-						🗑️ مسح الذاكرة بالكامل
-					</button>
+					<!-- Global Toggle Button -->
+					<form method="POST" action="/admin/match-decisions/toggle-state" style="margin:0;">
+						if data.IsEnabled {
+							<input type="hidden" name="enabled" value="false" />
+							<button
+								type="submit"
+								class="btn btn-outline-warning btn-sm fw-700"
+								onclick="return confirm('هل أنت متأكد من رغبتك في إيقاف نظام ذاكرة القرارات بالكامل؟ لن تستخدم عمليات الاستيراد والطلب الذكي أي ذاكرة مخزنة حتى إعادة التفعيل.');"
+								title="إيقاف النظام مؤقتاً">
+								⏸️ إيقاف ذاكرة القرارات
+							</button>
+						} else {
+							<input type="hidden" name="enabled" value="true" />
+							<button
+								type="submit"
+								class="btn btn-primary btn-sm fw-700"
+								title="تشغيل نظام ذاكرة القرارات">
+								▶️ تفعيل ذاكرة القرارات
+							</button>
+						}
+					</form>
+
+					if data.Total > 0 {
+						<button
+							type="button"
+							class="btn btn-outline-danger btn-sm fw-700"
+							onclick="confirmClearAllDecisions()"
+							title="مسح كافة القرارات المخزنة">
+							🗑️ مسح الذاكرة بالكامل
+						</button>
+					}
 				</div>
 			</div>
 
+			<!-- Status Alert Banner if Disabled -->
+			if !data.IsEnabled {
+				<div class="card" style="padding:1rem 1.25rem; background:rgba(239, 68, 68, 0.08); border:1px solid rgba(239, 68, 68, 0.3); border-radius:var(--radius-xl); display:flex; align-items:center; gap:1rem;">
+					<div style="font-size:1.5rem;">⚠️</div>
+					<div style="flex:1;">
+						<div style="font-weight:800; color:var(--rose-700); font-size:0.95rem;">نظام ذاكرة القرارات معطّل حالياً</div>
+						<div style="font-size:0.825rem; color:var(--text-secondary); margin-top:0.15rem;">
+							جميع وحدات المنصة (الطلب الذكي، استيراد الكتالوج، أداة المقارنة، والتعرف التلقائي) لن تستخدم أي قرارات مخزنة مسبقاً ولن تقوم بحفظ قرارات جديدة حتى يتم إعادة التفعيل من هذا القسم.
+						</div>
+					</div>
+					<form method="POST" action="/admin/match-decisions/toggle-state" style="margin:0;">
+						<input type="hidden" name="enabled" value="true" />
+						<button type="submit" class="btn btn-primary btn-sm fw-700">
+							تشغيل الآن
+						</button>
+					</form>
+				</div>
+			}
+
 			<!-- Stats Grid -->
-			<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(180px, 1fr)); gap:1rem;">
+			<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:1rem;">
 				<div class="card" style="padding:1.25rem; background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-xl);">
 					<div style="font-size:1.75rem; font-weight:800; color:var(--primary-700);" class="tabular-nums">
 						{ fmt.Sprintf("%d", data.Total) }
@@ -81,6 +136,18 @@ templ AdminMatchDecisionsPage(lang, dir string, data AdminMatchDecisionsData) {
 					</div>
 					<div style="font-size:0.825rem; font-weight:600; color:var(--text-secondary); margin-top:0.25rem;">
 						مرات إعادة الاستخدام في الصفحة
+					</div>
+				</div>
+				<div class="card" style="padding:1.25rem; background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-xl);">
+					<div style="font-size:1.25rem; font-weight:800; color:var(--text);" class="tabular-nums">
+						if data.IsEnabled {
+							<span style="color:var(--emerald-600);">مفعّل (ON)</span>
+						} else {
+							<span style="color:var(--rose-600);">معطّل (OFF)</span>
+						}
+					</div>
+					<div style="font-size:0.825rem; font-weight:600; color:var(--text-secondary); margin-top:0.25rem;">
+						حالة المفتاح العام للنظام
 					</div>
 				</div>
 			</div>
@@ -127,6 +194,7 @@ templ AdminMatchDecisionsPage(lang, dir string, data AdminMatchDecisionsData) {
 						<thead>
 							<tr style="background:var(--surface-sunken); border-bottom:1px solid var(--border); font-size:0.825rem; text-align:start;">
 								<th style="padding:0.85rem 0.75rem; width:65px; text-align:center;">#</th>
+								<th style="padding:0.85rem 0.75rem; width:130px;">المنشأة المربوطة</th>
 								<th style="padding:0.85rem 1rem; min-width:240px;">النص الوارد (Norm Name)</th>
 								<th style="padding:0.85rem 1rem; min-width:280px;">الصنف المعتمد بالكتالوج</th>
 								<th style="padding:0.85rem 0.75rem; width:110px; text-align:center;">نسبة التطابق</th>
@@ -139,10 +207,10 @@ templ AdminMatchDecisionsPage(lang, dir string, data AdminMatchDecisionsData) {
 						<tbody>
 							if len(data.Decisions) == 0 {
 								<tr>
-									<td colspan="8" style="text-align:center; padding:3rem 1rem; color:var(--text-muted);">
+									<td colspan="9" style="text-align:center; padding:3rem 1rem; color:var(--text-muted);">
 										<div style="font-size:2rem; margin-bottom:0.5rem;">🧠</div>
 										<div style="font-weight:700; font-size:1rem; color:var(--text);">لا توجد قرارات مطابقة مخزنة حالياً</div>
-										<div style="font-size:0.85rem; margin-top:0.25rem;">عند استيراد ملفات جديدة أو تشغيل المطابقة الذكية سيتم حفظ القرارات الموثوقة هنا تلقائياً.</div>
+										<div style="font-size:0.85rem; margin-top:0.25rem;">عند قيام المستخدمين باتخاذ قرارات مطابقة أو تصحيح يدوي سيتم حفظها هنا فورياً.</div>
 									</td>
 								</tr>
 							}
@@ -151,6 +219,19 @@ templ AdminMatchDecisionsPage(lang, dir string, data AdminMatchDecisionsData) {
 									<!-- ID -->
 									<td style="padding:0.85rem 0.75rem; text-align:center; font-weight:700; color:var(--text-muted); font-size:0.8rem;" class="tabular-nums">
 										{ fmt.Sprintf("%d", d.ID) }
+									</td>
+
+									<!-- Organization Scope -->
+									<td style="padding:0.85rem 0.75rem;">
+										if d.OrganizationID != nil && *d.OrganizationID > 0 {
+											<span class="badge badge-sky" style="font-size:0.75rem; font-weight:700;">
+												منشأة #{ fmt.Sprintf("%d", *d.OrganizationID) }
+											</span>
+										} else {
+											<span class="badge badge-slate" style="font-size:0.75rem;">
+												عام للمنصة
+											</span>
+										}
 									</td>
 
 									<!-- Norm Name -->

@@ -335,6 +335,25 @@ func (s *Service) SaveGatewaySettings(ctx context.Context, gw *GatewaySettings) 
 	})
 }
 
+// IsDecisionMemoryEnabled checks if the platform-wide decision memory system is active.
+func (s *Service) IsDecisionMemoryEnabled(ctx context.Context) (bool, error) {
+	setting, err := s.repo.GetSetting(ctx, "decision_memory_enabled")
+	if err != nil || setting == nil || setting.Value == nil {
+		return true, nil // default enabled
+	}
+	return getBool(setting.Value, "enabled", true), nil
+}
+
+// SetDecisionMemoryEnabled updates the global decision memory active state.
+func (s *Service) SetDecisionMemoryEnabled(ctx context.Context, enabled bool) error {
+	return s.repo.SetSetting(ctx, &SystemSetting{
+		Key:         "decision_memory_enabled",
+		Value:       map[string]any{"enabled": enabled},
+		Description: "Global switch to enable or disable AI Decision Memory across all platform features",
+		IsPublic:    true,
+	})
+}
+
 // GetSiteSettings loads public website branding, contact info, and social links.
 func (s *Service) GetSiteSettings(ctx context.Context) (*SiteSettings, error) {
 	setting, err := s.repo.GetSetting(ctx, "site_public_settings")

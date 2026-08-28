@@ -10,6 +10,8 @@ import (
 	"github.com/jackc/pgx/v5"
 
 	"github.com/muhiya/dawa24-store/internal/modules/compare"
+	"github.com/muhiya/dawa24-store/internal/platform/authctx"
+	"github.com/muhiya/dawa24-store/internal/platform/database"
 	"github.com/muhiya/dawa24-store/internal/shared/apperr"
 	"github.com/muhiya/dawa24-store/internal/shared/money"
 )
@@ -398,35 +400,85 @@ func (r *Repository) UpdateFileRowMatch(ctx context.Context, rowID int64, matche
 }
 
 func (r *Repository) SaveCustomerProductMapping(ctx context.Context, orgID *int64, rawName string, productID int64, source string) error {
-	return r.db.InTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
-		// Use default org 1 if nil for platform-wide manual mapping
-		effectiveOrgID := int64(1)
+	normName := strings.ToLower(strings.TrimSpace(rawName))
+	decKey := "manual:" + normName
+
+	return r.db.InTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
+		var effectiveOrgID *int64
 		if orgID != nil && *orgID > 0 {
-			effectiveOrgID = *orgID
+			effectiveOrgID = orgID
+		} else if actor, ok := authctx.From(ctx); ok && actor.OrganizationID > 0 {
+			effectiveOrgID = &actor.OrganizationID
 		}
+
+		if effectiveOrgID == nil {
+			return nil
+		}
+
+		// 1. Insert into catalog.customer_product_mappings
 		query := `
 			INSERT INTO catalog.customer_product_mappings (
-				organization_id, product_id, raw_name, source, status, is_active, created_at, updated_at
-			) VALUES ($1, $2, $3, $4, 'processed', true, now(), now())
+				organization_id, customer_org_id, product_id, raw_name, source, status, is_active, created_at, updated_at
+			) VALUES ($1, $1, $2, $3, $4, 'processed', true, now(), now())
 			ON CONFLICT DO NOTHING;
 		`
-		_, err := tx.Exec(txCtx, query, effectiveOrgID, productID, rawName, source)
-		return err
+		if _, err := tx.Exec(txCtx, query, *effectiveOrgID, productID, rawName, source); err != nil {
+			return err
+		}
+
+		// 2. Insert or update in catalog.match_decisions
+		var userID *int64
+		if actor, ok := authctx.From(ctx); ok && actor.UserID > 0 {
+			userID = &actor.UserID
+		}
+
+		if normName != "" && productID > 0 {
+			_, err := tx.Exec(txCtx, `
+				INSERT INTO catalog.match_decisions (
+					organization_id, user_id, decision_key, norm_name, chosen_product_id,
+					confidence, reason, prompt_version, hit_count, created_at, last_used_at
+				) VALUES (
+					$1, $2, $3, $4, $5,
+					1.000, 'قرار تصحيح يدوي من أداة المقارنة', 'manual:v1', 1, now(), now()
+				)
+				ON CONFLICT (COALESCE(organization_id, 0), decision_key)
+				DO UPDATE SET
+					chosen_product_id = EXCLUDED.chosen_product_id,
+					confidence = 1.000,
+					user_id = COALESCE(EXCLUDED.user_id, catalog.match_decisions.user_id),
+					hit_count = catalog.match_decisions.hit_count + 1,
+					last_used_at = now();
+			`, *effectiveOrgID, userID, decKey, normName, productID)
+			return err
+		}
+
+		return nil
 	})
 }
 
 func (r *Repository) GetSavedProductMapping(ctx context.Context, orgID *int64, rawName string) (*int64, error) {
+	var targetOrgID int64
+	if orgID != nil && *orgID > 0 {
+		targetOrgID = *orgID
+	} else if actor, ok := authctx.From(ctx); ok && actor.OrganizationID > 0 {
+		targetOrgID = actor.OrganizationID
+	}
+
+	if targetOrgID <= 0 {
+		return nil, nil
+	}
+
 	var productID int64
-	err := r.db.InReadTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
+	err := r.db.InReadTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
 		query := `
 			SELECT product_id
 			FROM catalog.customer_product_mappings
 			WHERE raw_name = $1 AND is_active = true AND status = 'processed'
-			  AND ($2::bigint IS NULL OR organization_id = $2 OR organization_id = 1)
-			ORDER BY (organization_id = $2) DESC, id DESC
+			  AND (organization_id = $2 OR customer_org_id = $2)
+			ORDER BY updated_at DESC, id DESC
 			LIMIT 1;
 		`
-		return tx.QueryRow(txCtx, query, rawName, orgID).Scan(&productID)
+		return tx.QueryRow(txCtx, query, rawName, targetOrgID).Scan(&productID)
 	})
 	if err != nil {
 		if err == pgx.ErrNoRows {

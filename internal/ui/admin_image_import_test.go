@@ -213,6 +213,24 @@ func (m *mockCatalogImageRepo) DeleteMatchDecision(_ context.Context, _ int64) e
 func (m *mockCatalogImageRepo) ClearMatchDecisions(_ context.Context) error {
 	return nil
 }
+func (m *mockCatalogImageRepo) ListMatchDecisionsForOrg(_ context.Context, _ int64, _ string, _, _ int) ([]*catalog.MatchDecisionView, int, error) {
+	return nil, 0, nil
+}
+func (m *mockCatalogImageRepo) DeleteMatchDecisionForOrg(_ context.Context, _, _ int64) error {
+	return nil
+}
+func (m *mockCatalogImageRepo) ClearMatchDecisionsForOrg(_ context.Context, _ int64) error {
+	return nil
+}
+func (m *mockCatalogImageRepo) SaveManualDecision(_ context.Context, _, _ int64, _ string, _ int64, _ string) error {
+	return nil
+}
+func (m *mockCatalogImageRepo) IsDecisionMemoryEnabled(_ context.Context) bool {
+	return true
+}
+func (m *mockCatalogImageRepo) SetDecisionMemoryEnabled(_ context.Context, _ bool) error {
+	return nil
+}
 func (m *mockCatalogImageRepo) ListCustomerMappings(_ context.Context, _ int64, _ string, _, _ int) ([]*catalog.CustomerMappingView, int, error) {
 	return nil, 0, nil
 }

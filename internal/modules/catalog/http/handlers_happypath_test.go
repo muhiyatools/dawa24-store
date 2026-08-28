@@ -191,6 +191,24 @@ func (happyRepo) DeleteMatchDecision(ctx context.Context, id int64) error {
 func (happyRepo) ClearMatchDecisions(ctx context.Context) error {
 	return nil
 }
+func (happyRepo) ListMatchDecisionsForOrg(ctx context.Context, orgID int64, search string, limit, offset int) ([]*catalog.MatchDecisionView, int, error) {
+	return nil, 0, nil
+}
+func (happyRepo) DeleteMatchDecisionForOrg(ctx context.Context, orgID, id int64) error {
+	return nil
+}
+func (happyRepo) ClearMatchDecisionsForOrg(ctx context.Context, orgID int64) error {
+	return nil
+}
+func (happyRepo) SaveManualDecision(ctx context.Context, orgID, userID int64, rawName string, productID int64, reason string) error {
+	return nil
+}
+func (happyRepo) IsDecisionMemoryEnabled(ctx context.Context) bool {
+	return true
+}
+func (happyRepo) SetDecisionMemoryEnabled(ctx context.Context, enabled bool) error {
+	return nil
+}
 func (happyRepo) ListCustomerMappings(ctx context.Context, orgID int64, search string, limit, offset int) ([]*catalog.CustomerMappingView, int, error) {
 	return nil, 0, nil
 }

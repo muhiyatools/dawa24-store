@@ -17,6 +17,7 @@ import (
 	"github.com/jackc/pgx/v5"
 
 	"github.com/muhiya/dawa24-store/internal/modules/ingest"
+	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/platform/database"
 )
 
@@ -65,16 +66,7 @@ func (r *Repository) ApplyAIMatches(
 	})
 }
 
-// LookupDecisions reads the shared decision cache for a batch of keys.
-//
-// The same table the smart order reads and writes. That is the point: the two
-// features ask an identical question through an identical prompt, so an answer
-// bought by either is free to the other, and a vendor's weekly re-upload of a
-// price list they changed twelve rows of costs twelve rows' worth of model
-// time.
-//
-// AsSystem, because the cache is knowledge about the shared catalogue rather
-// than about any one tenant — and cross-tenant reuse is most of its value.
+// LookupDecisions reads the tenant-scoped decision cache for a batch of keys.
 func (r *Repository) LookupDecisions(
 	ctx context.Context, keys []string,
 ) (map[string]ingest.CachedDecision, error) {
@@ -83,13 +75,35 @@ func (r *Repository) LookupDecisions(
 	}
 	out := make(map[string]ingest.CachedDecision, len(keys))
 
+	var orgID int64
+	if actor, ok := authctx.From(ctx); ok && actor.OrganizationID > 0 {
+		orgID = actor.OrganizationID
+	} else if tid, ok := database.TenantFrom(ctx); ok && tid > 0 {
+		orgID = tid
+	}
+
 	err := r.db.InTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
-		rows, err := tx.Query(txCtx, `
-			UPDATE catalog.match_decisions
-			SET hit_count = hit_count + 1, last_used_at = now()
-			WHERE decision_key = ANY($1::text[])
-			RETURNING decision_key, norm_name, chosen_product_id, confidence, reason, prompt_version;`,
-			keys)
+		if !isDecisionMemoryEnabled(txCtx, tx) {
+			return nil // Global kill switch is OFF
+		}
+
+		var rows pgx.Rows
+		var err error
+		if orgID > 0 {
+			rows, err = tx.Query(txCtx, `
+				UPDATE catalog.match_decisions
+				SET hit_count = hit_count + 1, last_used_at = now()
+				WHERE organization_id = $1 AND decision_key = ANY($2::text[])
+				RETURNING decision_key, norm_name, chosen_product_id, confidence, reason, prompt_version;`,
+				orgID, keys)
+		} else {
+			rows, err = tx.Query(txCtx, `
+				UPDATE catalog.match_decisions
+				SET hit_count = hit_count + 1, last_used_at = now()
+				WHERE organization_id IS NULL AND decision_key = ANY($1::text[])
+				RETURNING decision_key, norm_name, chosen_product_id, confidence, reason, prompt_version;`,
+				keys)
+		}
 		if err != nil {
 			return err
 		}
@@ -107,17 +121,26 @@ func (r *Repository) LookupDecisions(
 	return out, err
 }
 
-// SaveDecisions writes what the model decided to the shared cache.
-//
-// ON CONFLICT DO NOTHING rather than an update: the key already contains the
-// prompt version and the shortlist, so a collision means the identical question
-// was answered concurrently, and either answer is as good as the other.
+// SaveDecisions writes what the model decided to the tenant-scoped cache.
 func (r *Repository) SaveDecisions(ctx context.Context, decisions []ingest.CachedDecision) error {
 	if len(decisions) == 0 {
 		return nil
 	}
+	var orgID int64
+	var userID int64
+	if actor, ok := authctx.From(ctx); ok {
+		orgID = actor.OrganizationID
+		userID = actor.UserID
+	} else if tid, ok := database.TenantFrom(ctx); ok && tid > 0 {
+		orgID = tid
+	}
+
 	return r.db.InTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
-		const cols = 6
+		if !isDecisionMemoryEnabled(txCtx, tx) {
+			return nil // Global switch is OFF
+		}
+
+		const cols = 8
 		values := make([]string, 0, len(decisions))
 		args := make([]any, 0, len(decisions)*cols)
 		for i, d := range decisions {
@@ -127,16 +150,52 @@ func (r *Repository) SaveDecisions(ctx context.Context, decisions []ingest.Cache
 				ph[j] = "$" + strconv.Itoa(base+j+1)
 			}
 			values = append(values, "("+strings.Join(ph, ",")+")")
-			args = append(args, d.Key, d.NormName, d.ChosenProductID,
+			args = append(args,
+				sqlNullOrgID(orgID), sqlNullOrgID(userID),
+				d.Key, d.NormName, d.ChosenProductID,
 				d.Confidence, d.Reason, d.PromptVersion)
 		}
 		_, err := tx.Exec(txCtx, `
 			INSERT INTO catalog.match_decisions (
-				decision_key, norm_name, chosen_product_id, confidence, reason, prompt_version
+				organization_id, user_id, decision_key, norm_name, chosen_product_id,
+				confidence, reason, prompt_version
 			) VALUES `+strings.Join(values, ",")+`
-			ON CONFLICT (decision_key) DO NOTHING;`, args...)
+			ON CONFLICT (COALESCE(organization_id, 0), decision_key)
+			DO UPDATE SET
+				chosen_product_id = EXCLUDED.chosen_product_id,
+				confidence = EXCLUDED.confidence,
+				reason = EXCLUDED.reason,
+				user_id = COALESCE(EXCLUDED.user_id, catalog.match_decisions.user_id),
+				hit_count = catalog.match_decisions.hit_count + 1,
+				last_used_at = now();`, args...)
 		return err
 	})
+}
+
+func sqlNullOrgID(id int64) *int64 {
+	if id <= 0 {
+		return nil
+	}
+	return &id
+}
+
+func isDecisionMemoryEnabled(ctx context.Context, tx pgx.Tx) bool {
+	var val any
+	err := tx.QueryRow(ctx, `SELECT value FROM platform_admin.system_settings WHERE key = 'decision_memory_enabled' LIMIT 1;`).Scan(&val)
+	if err != nil || val == nil {
+		return true // default enabled
+	}
+	switch v := val.(type) {
+	case bool:
+		return v
+	case string:
+		return v == "true" || v == "1" || v == "yes"
+	case []byte:
+		s := string(v)
+		return strings.Contains(s, "true") || strings.Contains(s, "1")
+	default:
+		return true
+	}
 }
 
 // SaveAlias records a confirmed name for a catalogue product.
