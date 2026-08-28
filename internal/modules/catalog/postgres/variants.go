@@ -387,7 +387,7 @@ func (r *Repository) UpdateVariant(ctx context.Context, v *catalog.ProductVarian
 
 // DeleteVariant soft-deletes a product variant and cascades to warehouse stocks.
 func (r *Repository) DeleteVariant(ctx context.Context, id int64) error {
-	return r.db.InTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
+	return r.db.InTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
 		query := `UPDATE catalog.product_variants SET deleted_at = now() WHERE id = $1 AND deleted_at IS NULL;`
 		res, err := tx.Exec(txCtx, query, id)
 		if err != nil {

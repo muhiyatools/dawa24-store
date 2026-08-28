@@ -388,15 +388,17 @@ templ VendorOrdersContent(data VendorOrdersData, lang, dir string) {
 									<span>تم تسليم الشحنة وتوثيق الاستلام</span>
 								</span>
 							}
-							<a
-								href={ templ.SafeURL(fmt.Sprintf("/orders/%d/invoice/print", sh.OrderID)) }
-								target="_blank"
-								class="btn btn-secondary"
-								style="font-weight:800; padding:0.6rem 1.15rem; font-size:0.875rem;"
-								title="طباعة الفاتورة الضريبية الرسمية"
-							>
-								<span>🖨️ طباعة الفاتورة</span>
-							</a>
+							if sh.Status != commerce.StatusPending {
+								<a
+									href={ templ.SafeURL(fmt.Sprintf("/orders/%d/invoice/print", sh.OrderID)) }
+									target="_blank"
+									class="btn btn-secondary"
+									style="font-weight:800; padding:0.6rem 1.15rem; font-size:0.875rem;"
+									title="طباعة الفاتورة"
+								>
+									<span>🖨️ طباعة الفاتورة</span>
+								</a>
+							}
 						</div>
 					</div>
 				</div>

@@ -307,11 +307,11 @@ func (h *UIHandler) VendorVariantNewSubmit(w http.ResponseWriter, r *http.Reques
 	h.redirectWithNotice(w, r, "/vendor/products", "success", "تم نشر عرض التوريد بنجاح في الكتالوج.")
 }
 
-// VendorVariantDeleteSubmit removes a supplier's variant offer.
+// VendorVariantDeleteSubmit removes a supplier's variant offer and clears associated warehouse stocks.
 func (h *UIHandler) VendorVariantDeleteSubmit(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	actor, ok := authctx.From(ctx)
-	if !ok {
+	if !ok || actor.OrganizationID <= 0 {
 		http.Redirect(w, r, "/auth/login?redirect=/vendor/products", http.StatusSeeOther)
 		return
 	}
@@ -323,11 +323,14 @@ func (h *UIHandler) VendorVariantDeleteSubmit(w http.ResponseWriter, r *http.Req
 	}
 
 	if h.catSvc != nil {
-		_ = h.catSvc.DeleteVariant(ctx, id)
+		ctx = database.WithTenant(ctx, actor.OrganizationID)
+		if err := h.catSvc.DeleteVariant(ctx, id); err != nil {
+			h.redirectWithNotice(w, r, "/vendor/products", "error", "تعذر حذف الصنف: "+h.safeMessage(err, langOf(r)))
+			return
+		}
 	}
 
-	_ = actor
-	h.redirectWithNotice(w, r, "/vendor/products", "success", "تم حذف عرض التوريد بنجاح.")
+	h.redirectWithNotice(w, r, "/vendor/products", "success", "تم حذف الصنف ومسح الأرصدة المرتبطة به بالمخازن بنجاح.")
 }
 
 // VendorBranchesPage renders the detailed branch management view.

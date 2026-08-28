@@ -217,6 +217,11 @@ func (h *UIHandler) OrderInvoicePrintPage(w http.ResponseWriter, r *http.Request
 		return
 	}
 
+	if order.Status == commerce.StatusPending {
+		h.redirectWithNotice(w, r, fmt.Sprintf("/orders/%d", id), "error", "لا يمكن طباعة الفاتورة قبل قبول وتأكيد المورد للطلب.")
+		return
+	}
+
 	printableData, errBuild := h.buildPrintableInvoiceData(ctx, nil, order)
 	if errBuild != nil {
 		h.log.ErrorContext(ctx, "failed to build printable invoice data for order", "error", errBuild)

@@ -750,7 +750,7 @@ func AdminFinance(data AdminFinanceData, lang, dir string) templ.Component {
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 74, "\" target=\"_blank\" class=\"btn btn-primary btn-xs\" style=\"font-weight:700; padding:0.25rem 0.55rem;\" title=\"طباعة الفاتورة الضريبية أو إيصال الكاشير\"><span>🖨️ طباعة</span></a> <a href=\"")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 74, "\" target=\"_blank\" class=\"btn btn-primary btn-xs\" style=\"font-weight:700; padding:0.25rem 0.55rem;\" title=\"طباعة الفاتورة أو إيصال الكاشير\"><span>🖨️ طباعة</span></a> <a href=\"")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}

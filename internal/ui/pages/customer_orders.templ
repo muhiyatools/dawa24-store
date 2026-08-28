@@ -228,16 +228,18 @@ templ CustomerOrdersList(orders []*commerce.Order, lang string) {
 						</div>
 
 						<div style="display:flex; align-items:center; gap:0.5rem;">
-							<a
-								href={ templ.SafeURL(fmt.Sprintf("/orders/%d/invoice/print", o.ID)) }
-								target="_blank"
-								class="btn btn-secondary btn-sm"
-								style="font-weight:700; gap:0.35rem; padding:0.45rem 0.85rem; border-radius:var(--radius-md);"
-								title="طباعة الفاتورة الضريبية الرسمية"
-							>
-								@components.IconPrinter("icon-xs")
-								<span>طباعة</span>
-							</a>
+							if o.Status != commerce.StatusPending {
+								<a
+									href={ templ.SafeURL(fmt.Sprintf("/orders/%d/invoice/print", o.ID)) }
+									target="_blank"
+									class="btn btn-secondary btn-sm"
+									style="font-weight:700; gap:0.35rem; padding:0.45rem 0.85rem; border-radius:var(--radius-md);"
+									title="طباعة الفاتورة"
+								>
+									@components.IconPrinter("icon-xs")
+									<span>طباعة الفاتورة</span>
+								</a>
+							}
 							<a
 								href={ templ.SafeURL(fmt.Sprintf("/orders/%d", o.ID)) }
 								class="btn btn-primary btn-sm"

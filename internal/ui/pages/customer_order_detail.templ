@@ -115,16 +115,18 @@ templ CustomerOrderDetail(order *commerce.Order, history []*commerce.OrderStatus
 					<a href="/orders" class="btn btn-secondary btn-sm" style="font-weight:700;">
 						<span>← العودة لطلبياتي</span>
 					</a>
-					<a
-						href={ templ.SafeURL(fmt.Sprintf("/orders/%d/invoice/print", order.ID)) }
-						target="_blank"
-						class="btn btn-primary btn-sm"
-						style="font-weight:700; gap:0.4rem; padding:0.5rem 1rem; border-radius:var(--radius-md);"
-						title="طباعة الفاتورة الضريبية الرسمية أو إيصال الكاشير الحراري"
-					>
-						@components.IconPrinter("icon-xs")
-						<span>طباعة الفاتورة الضريبية</span>
-					</a>
+					if order.Status != commerce.StatusPending {
+						<a
+							href={ templ.SafeURL(fmt.Sprintf("/orders/%d/invoice/print", order.ID)) }
+							target="_blank"
+							class="btn btn-primary btn-sm"
+							style="font-weight:700; gap:0.4rem; padding:0.5rem 1rem; border-radius:var(--radius-md);"
+							title="طباعة الفاتورة أو إيصال الكاشير"
+						>
+							@components.IconPrinter("icon-xs")
+							<span>طباعة الفاتورة</span>
+						</a>
+					}
 				</div>
 			</div>
 
@@ -226,9 +228,10 @@ templ CustomerOrderDetail(order *commerce.Order, history []*commerce.OrderStatus
 								if order.Status == commerce.StatusPending {
 									<button
 										type="button"
+										id="btn-open-order-edit"
 										class="btn btn-primary btn-sm"
-										onclick="openOrderEditModal()"
-										style="font-weight:800; gap:0.4rem; padding:0.45rem 0.95rem; border-radius:var(--radius-md); box-shadow:0 2px 8px rgba(37,99,235,0.25);"
+										onclick="if(window.openOrderEditModal) window.openOrderEditModal(); else openOrderEditModal();"
+										style="font-weight:800; gap:0.4rem; padding:0.45rem 0.95rem; border-radius:var(--radius-md); box-shadow:0 2px 8px rgba(37,99,235,0.25); cursor:pointer;"
 									>
 										@components.IconEdit("icon-xs")
 										<span>تعديل الطلب (الكميات والأصناف)</span>
@@ -505,15 +508,21 @@ templ CustomerOrderDetail(order *commerce.Order, history []*commerce.OrderStatus
 
 							<!-- Print invoice button CTA -->
 							<div style="margin-top:0.5rem;">
-								<a
-									href={ templ.SafeURL(fmt.Sprintf("/orders/%d/invoice/print", order.ID)) }
-									target="_blank"
-									class="btn btn-primary"
-									style="width:100%; justify-content:center; font-weight:800; padding:0.65rem 1rem; border-radius:var(--radius-lg); gap:0.4rem;"
-								>
-									@components.IconPrinter("icon-xs")
-									<span>طباعة الفاتورة الضريبية</span>
-								</a>
+								if order.Status != commerce.StatusPending {
+									<a
+										href={ templ.SafeURL(fmt.Sprintf("/orders/%d/invoice/print", order.ID)) }
+										target="_blank"
+										class="btn btn-primary"
+										style="width:100%; justify-content:center; font-weight:800; padding:0.65rem 1rem; border-radius:var(--radius-lg); gap:0.4rem;"
+									>
+										@components.IconPrinter("icon-xs")
+										<span>طباعة الفاتورة</span>
+									</a>
+								} else {
+									<div style="background:var(--surface-sunken); border:1px dashed var(--border); border-radius:var(--radius-lg); padding:0.75rem; text-align:center; font-size:0.8rem; color:var(--text-muted);">
+										<span>🔒 تتاح طباعة الفاتورة فور تأكيد وقبول المورد للطلب</span>
+									</div>
+								}
 							</div>
 						</div>
 					</div>
@@ -590,7 +599,7 @@ templ CustomerOrderDetail(order *commerce.Order, history []*commerce.OrderStatus
 
 			<!-- Edit Order Modal (Only rendered/available when order is pending) -->
 			if order.Status == commerce.StatusPending {
-				<div id="order-edit-modal" class="modal-overlay hidden" style="position:fixed; inset:0; z-index:9999; background:rgba(15,23,42,0.6); backdrop-filter:blur(4px); display:none; align-items:center; justify-content:center; padding:1rem;">
+				<div id="order-edit-modal" class="modal-overlay hidden" style="position:fixed; inset:0; z-index:99999; background:rgba(15,23,42,0.65); backdrop-filter:blur(4px); display:none; align-items:center; justify-content:center; padding:1rem;" onclick="if(event.target===this) window.closeOrderEditModal();">
 					<div class="modal-card" style="background:var(--surface-raised); border-radius:var(--radius-2xl); border:1px solid var(--border); box-shadow:var(--shadow-xl); width:100%; max-width:860px; max-height:90vh; display:flex; flex-direction:column; overflow:hidden;">
 						<!-- Header -->
 						<div style="display:flex; justify-content:space-between; align-items:center; padding:1.25rem 1.5rem; border-bottom:1px solid var(--border); background:var(--surface);">
@@ -605,7 +614,7 @@ templ CustomerOrderDetail(order *commerce.Order, history []*commerce.OrderStatus
 									</p>
 								</div>
 							</div>
-							<button type="button" class="btn btn-secondary btn-icon" onclick="closeOrderEditModal()" style="border:none;">
+							<button type="button" class="btn btn-secondary btn-icon" onclick="window.closeOrderEditModal()" style="border:none; cursor:pointer;">
 								@components.IconClose("icon-sm")
 							</button>
 						</div>
@@ -635,22 +644,22 @@ templ CustomerOrderDetail(order *commerce.Order, history []*commerce.OrderStatus
 												</td>
 												<td style="padding:0.65rem 0.75rem;">
 													<div style="display:flex; align-items:center; gap:0.25rem; justify-content:center;">
-														<button type="button" class="btn btn-secondary btn-icon" style="width:26px; height:26px; padding:0; font-size:0.9rem;" onclick="stepQty(this, -1)">-</button>
-														<input type="number" name="quantity[]" value={ fmt.Sprintf("%d", line.Quantity) } min="1" required class="form-input input-sm tabular-nums text-center line-qty-input" style="width:55px; font-weight:800; padding:0.25rem 0.35rem;" oninput="recalcEditOrder()"/>
-														<button type="button" class="btn btn-secondary btn-icon" style="width:26px; height:26px; padding:0; font-size:0.9rem;" onclick="stepQty(this, 1)">+</button>
+														<button type="button" class="btn btn-secondary btn-icon" style="width:26px; height:26px; padding:0; font-size:0.9rem;" onclick="window.stepQty(this, -1)">-</button>
+														<input type="number" name="quantity[]" value={ fmt.Sprintf("%d", line.Quantity) } min="1" required class="form-input input-sm tabular-nums text-center line-qty-input" style="width:55px; font-weight:800; padding:0.25rem 0.35rem;" oninput="window.recalcEditOrder()"/>
+														<button type="button" class="btn btn-secondary btn-icon" style="width:26px; height:26px; padding:0; font-size:0.9rem;" onclick="window.stepQty(this, 1)">+</button>
 													</div>
 												</td>
 												<td style="padding:0.65rem 0.75rem;" class="td-numeric">
-													<input type="text" name="unit_price[]" value={ line.UnitPrice.String() } required class="form-input input-sm tabular-nums line-unit-price text-right" style="width:100%; font-weight:700;" oninput="recalcEditOrder()"/>
+													<input type="text" name="unit_price[]" value={ line.UnitPrice.String() } required class="form-input input-sm tabular-nums line-unit-price text-right" style="width:100%; font-weight:700;" oninput="window.recalcEditOrder()"/>
 												</td>
 												<td style="padding:0.65rem 0.75rem;" class="td-numeric">
-													<input type="text" name="discount_amount[]" value={ line.DiscountAmount.String() } class="form-input input-sm tabular-nums line-disc-amount text-right" style="width:100%;" oninput="recalcEditOrder()"/>
+													<input type="text" name="discount_amount[]" value={ line.DiscountAmount.String() } class="form-input input-sm tabular-nums line-disc-amount text-right" style="width:100%;" oninput="window.recalcEditOrder()"/>
 												</td>
 												<td style="padding:0.65rem 0.85rem;" class="td-numeric">
 													<span class="line-total-cell tabular-nums fw-800 text-primary">{ line.TotalPrice.String() }</span>
 												</td>
 												<td style="padding:0.65rem 0.5rem; text-align:center;">
-													<button type="button" class="btn btn-secondary btn-icon" title="حذف الصنف" onclick="deleteEditRow(this)" style="width:28px; height:28px; padding:0; border-radius:var(--radius-md); color:var(--rose);">
+													<button type="button" class="btn btn-secondary btn-icon" title="حذف الصنف" onclick="window.deleteEditRow(this)" style="width:28px; height:28px; padding:0; border-radius:var(--radius-md); color:var(--rose);">
 														🗑️
 													</button>
 												</td>
@@ -662,7 +671,7 @@ templ CustomerOrderDetail(order *commerce.Order, history []*commerce.OrderStatus
 
 							<!-- Button to add new line row -->
 							<div style="display:flex; justify-content:flex-start;">
-								<button type="button" class="btn btn-secondary btn-sm fw-700" onclick="addNewEditRow()" style="gap:0.4rem; border-style:dashed;">
+								<button type="button" class="btn btn-secondary btn-sm fw-700" onclick="window.addNewEditRow()" style="gap:0.4rem; border-style:dashed;">
 									<span>➕ إضافة صنف جديد يدوياً للطلب</span>
 								</button>
 							</div>
@@ -694,7 +703,7 @@ templ CustomerOrderDetail(order *commerce.Order, history []*commerce.OrderStatus
 
 							<!-- Modal Footer Actions -->
 							<div style="display:flex; justify-content:flex-end; gap:0.75rem; border-top:1px solid var(--border); padding-top:1rem;">
-								<button type="button" class="btn btn-secondary btn-sm" onclick="closeOrderEditModal()">إلغاء</button>
+								<button type="button" class="btn btn-secondary btn-sm" onclick="window.closeOrderEditModal()">إلغاء</button>
 								<button type="submit" class="btn btn-primary btn-sm fw-800" style="padding:0.55rem 1.5rem; gap:0.4rem;">
 									@components.IconCheck("icon-xs")
 									<span>حفظ وتحديث الطلب</span>
@@ -705,22 +714,27 @@ templ CustomerOrderDetail(order *commerce.Order, history []*commerce.OrderStatus
 				</div>
 
 				<script>
-					function openOrderEditModal() {
+					window.openOrderEditModal = function() {
 						const modal = document.getElementById('order-edit-modal');
 						if (modal) {
-							modal.style.display = 'flex';
-							recalcEditOrder();
+							modal.classList.remove('hidden');
+							modal.style.removeProperty('display');
+							modal.style.setProperty('display', 'flex', 'important');
+							if (typeof window.recalcEditOrder === 'function') {
+								window.recalcEditOrder();
+							}
 						}
-					}
+					};
 
-					function closeOrderEditModal() {
+					window.closeOrderEditModal = function() {
 						const modal = document.getElementById('order-edit-modal');
 						if (modal) {
-							modal.style.display = 'none';
+							modal.classList.add('hidden');
+							modal.style.setProperty('display', 'none', 'important');
 						}
-					}
+					};
 
-					function stepQty(btn, delta) {
+					window.stepQty = function(btn, delta) {
 						const row = btn.closest('.edit-line-row');
 						if (!row) return;
 						const input = row.querySelector('.line-qty-input');
@@ -729,11 +743,13 @@ templ CustomerOrderDetail(order *commerce.Order, history []*commerce.OrderStatus
 							val += delta;
 							if (val < 1) val = 1;
 							input.value = val;
-							recalcEditOrder();
+							if (typeof window.recalcEditOrder === 'function') {
+								window.recalcEditOrder();
+							}
 						}
-					}
+					};
 
-					function deleteEditRow(btn) {
+					window.deleteEditRow = function(btn) {
 						const row = btn.closest('.edit-line-row');
 						if (!row) return;
 						const lineIdInput = row.querySelector('input[name="line_id[]"]');
@@ -744,10 +760,12 @@ templ CustomerOrderDetail(order *commerce.Order, history []*commerce.OrderStatus
 						} else {
 							row.remove();
 						}
-						recalcEditOrder();
-					}
+						if (typeof window.recalcEditOrder === 'function') {
+							window.recalcEditOrder();
+						}
+					};
 
-					function addNewEditRow() {
+					window.addNewEditRow = function() {
 						const tbody = document.getElementById('edit-lines-tbody');
 						if (!tbody) return;
 						const tr = document.createElement('tr');
@@ -760,31 +778,33 @@ templ CustomerOrderDetail(order *commerce.Order, history []*commerce.OrderStatus
 							</td>
 							<td style="padding:0.65rem 0.75rem;">
 								<div style="display:flex; align-items:center; gap:0.25rem; justify-content:center;">
-									<button type="button" class="btn btn-secondary btn-icon" style="width:26px; height:26px; padding:0; font-size:0.9rem;" onclick="stepQty(this, -1)">-</button>
-									<input type="number" name="quantity[]" value="1" min="1" required class="form-input input-sm tabular-nums text-center line-qty-input" style="width:55px; font-weight:800; padding:0.25rem 0.35rem;" oninput="recalcEditOrder()"/>
-									<button type="button" class="btn btn-secondary btn-icon" style="width:26px; height:26px; padding:0; font-size:0.9rem;" onclick="stepQty(this, 1)">+</button>
+									<button type="button" class="btn btn-secondary btn-icon" style="width:26px; height:26px; padding:0; font-size:0.9rem;" onclick="window.stepQty(this, -1)">-</button>
+									<input type="number" name="quantity[]" value="1" min="1" required class="form-input input-sm tabular-nums text-center line-qty-input" style="width:55px; font-weight:800; padding:0.25rem 0.35rem;" oninput="window.recalcEditOrder()"/>
+									<button type="button" class="btn btn-secondary btn-icon" style="width:26px; height:26px; padding:0; font-size:0.9rem;" onclick="window.stepQty(this, 1)">+</button>
 								</div>
 							</td>
 							<td style="padding:0.65rem 0.75rem;" class="td-numeric">
-								<input type="text" name="unit_price[]" value="0.00" required class="form-input input-sm tabular-nums line-unit-price text-right" style="width:100%; font-weight:700;" oninput="recalcEditOrder()"/>
+								<input type="text" name="unit_price[]" value="0.00" required class="form-input input-sm tabular-nums line-unit-price text-right" style="width:100%; font-weight:700;" oninput="window.recalcEditOrder()"/>
 							</td>
 							<td style="padding:0.65rem 0.75rem;" class="td-numeric">
-								<input type="text" name="discount_amount[]" value="0.00" class="form-input input-sm tabular-nums line-disc-amount text-right" style="width:100%;" oninput="recalcEditOrder()"/>
+								<input type="text" name="discount_amount[]" value="0.00" class="form-input input-sm tabular-nums line-disc-amount text-right" style="width:100%;" oninput="window.recalcEditOrder()"/>
 							</td>
 							<td style="padding:0.65rem 0.85rem;" class="td-numeric">
 								<span class="line-total-cell tabular-nums fw-800 text-primary">0.00</span>
 							</td>
 							<td style="padding:0.65rem 0.5rem; text-align:center;">
-								<button type="button" class="btn btn-secondary btn-icon" title="حذف الصنف" onclick="deleteEditRow(this)" style="width:28px; height:28px; padding:0; border-radius:var(--radius-md); color:var(--rose);">
+								<button type="button" class="btn btn-secondary btn-icon" title="حذف الصنف" onclick="window.deleteEditRow(this)" style="width:28px; height:28px; padding:0; border-radius:var(--radius-md); color:var(--rose);">
 									🗑️
 								</button>
 							</td>
 						`;
 						tbody.appendChild(tr);
-						recalcEditOrder();
-					}
+						if (typeof window.recalcEditOrder === 'function') {
+							window.recalcEditOrder();
+						}
+					};
 
-					function recalcEditOrder() {
+					window.recalcEditOrder = function() {
 						const rows = document.querySelectorAll('#edit-lines-tbody .edit-line-row');
 						let subtotal = 0;
 						let discount = 0;
@@ -824,7 +844,7 @@ templ CustomerOrderDetail(order *commerce.Order, history []*commerce.OrderStatus
 						if (subEl) subEl.textContent = subtotal.toFixed(2);
 						if (discEl) discEl.textContent = '-' + discount.toFixed(2);
 						if (grandEl) grandEl.textContent = grandTotal.toFixed(2);
-					}
+					};
 				</script>
 			}
 		</div>

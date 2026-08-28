@@ -7,6 +7,7 @@ import (
 	"github.com/jackc/pgx/v5"
 
 	"github.com/muhiya/dawa24-store/internal/modules/catalog"
+	"github.com/muhiya/dawa24-store/internal/platform/database"
 )
 
 // ListVariantsByProducts retrieves the active variants of many products in a
@@ -58,7 +59,7 @@ func (r *Repository) ListVariantsByProducts(ctx context.Context, productIDs []in
 // DeleteAllVariantsByOrg soft-deletes all variants belonging to an organization and clears their stocks.
 func (r *Repository) DeleteAllVariantsByOrg(ctx context.Context, orgID int64) (int64, error) {
 	var count int64
-	err := r.db.InTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
+	err := r.db.InTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
 		res, err := tx.Exec(txCtx, `
 			UPDATE catalog.product_variants
 			SET deleted_at = now()
@@ -84,7 +85,7 @@ func (r *Repository) DeleteAllVariantsByOrg(ctx context.Context, orgID int64) (i
 // DeleteAllProducts soft-deletes all master catalog products, variants, and warehouse stocks.
 func (r *Repository) DeleteAllProducts(ctx context.Context) (int64, error) {
 	var count int64
-	err := r.db.InTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
+	err := r.db.InTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
 		_, _ = tx.Exec(txCtx, `UPDATE catalog.product_variants SET deleted_at = now() WHERE deleted_at IS NULL;`)
 		_, _ = tx.Exec(txCtx, `UPDATE inventory.stocks SET deleted_at = now() WHERE deleted_at IS NULL;`)
 		res, err := tx.Exec(txCtx, `UPDATE catalog.products SET deleted_at = now() WHERE deleted_at IS NULL;`)

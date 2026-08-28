@@ -322,7 +322,7 @@ func InvoicesPage(lang, dir string, data InvoicesData) templ.Component {
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 37, "\" target=\"_blank\" class=\"btn btn-primary btn-sm\" style=\"font-weight:700; font-size:0.775rem; padding:0.35rem 0.65rem;\" title=\"طباعة الفاتورة الضريبية أو إيصال الكاشير\"><span>🖨️ طباعة</span></a><!-- زر العرض --><a href=\"")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 37, "\" target=\"_blank\" class=\"btn btn-primary btn-sm\" style=\"font-weight:700; font-size:0.775rem; padding:0.35rem 0.65rem;\" title=\"طباعة الفاتورة أو إيصال الكاشير\"><span>🖨️ طباعة</span></a><!-- زر العرض --><a href=\"")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}

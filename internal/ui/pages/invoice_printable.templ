@@ -12,7 +12,7 @@ templ InvoicePrintablePage(data billing.PrintableInvoiceData, lang, dir string) 
 		<head>
 			<meta charset="utf-8"/>
 			<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-			<title>{ fmt.Sprintf("فاتورة ضريبية #%s - دواء 24", data.InvoiceNumber) }</title>
+			<title>{ fmt.Sprintf("فاتورة توريد #%s - دواء 24", data.InvoiceNumber) }</title>
 			<style>
 				:root {
 					--primary: #0f172a;
@@ -249,7 +249,7 @@ templ InvoicePrintablePage(data billing.PrintableInvoiceData, lang, dir string) 
 					<span style="font-size:1.3rem;">🧾</span>
 					<div>
 						<strong style="font-size:0.95rem; display:block; color:#0f172a;">
-							فاتورة ضريبية إلكترونية معتمدة
+							فاتورة توريد معتمدة
 						</strong>
 						<span style="font-size:0.75rem; color:#64748b;">
 							رقم الفاتورة: <span class="tabular-nums font-bold">{ data.InvoiceNumber }</span>
@@ -263,9 +263,9 @@ templ InvoicePrintablePage(data billing.PrintableInvoiceData, lang, dir string) 
 						type="button"
 						class="btn-action btn-thermal"
 						onclick="printThermal()"
-						title="طباعة على طابعات الإيصالات والكاشير الحرارية 80 مم"
+						title="طباعة إيصال كاشير 80 مم"
 					>
-						<span>🖨️ طباعة إيصال كاشير (Thermal 80mm)</span>
+						<span>🖨️ طباعة إيصال كاشير (Thermal)</span>
 					</button>
 
 					<!-- Standard A4 Print -->
@@ -273,9 +273,9 @@ templ InvoicePrintablePage(data billing.PrintableInvoiceData, lang, dir string) 
 						type="button"
 						class="btn-action btn-primary"
 						onclick="printA4()"
-						title="طباعة فاتورة ضريبية رسمية بالحجم القياسي A4"
+						title="طباعة الفاتورة بالحجم القياسي A4"
 					>
-						<span>📄 طباعة فاتورة قياسية (A4)</span>
+						<span>📄 طباعة الفاتورة (A4)</span>
 					</button>
 
 					<!-- Close / Back -->
@@ -290,7 +290,7 @@ templ InvoicePrintablePage(data billing.PrintableInvoiceData, lang, dir string) 
 			</div>
 
 			<!-- =========================================================================
-			     VIEW 1: Standard A4 Tax Invoice (فاتورة ضريبية مصرية رسمية معتمدة)
+			     VIEW 1: Standard A4 Invoice
 			     ========================================================================= -->
 			<div class="invoice-paper-a4" id="a4-invoice-container">
 				
@@ -325,10 +325,10 @@ templ InvoicePrintablePage(data billing.PrintableInvoiceData, lang, dir string) 
 							دواء <span style="color:#0f172a;">24</span>
 						</div>
 						<span style="display:inline-block; font-size:0.75rem; font-weight:800; padding:0.2rem 0.6rem; background:#0f172a; color:#ffffff; border-radius:4px; margin-top:0.35rem;">
-							فاتورة ضريبية إلكترونية
+							فاتورة توريد معتمدة
 						</span>
 						<div style="font-size:0.7rem; color:#64748b; margin-top:0.2rem;">
-							ETA e-Invoice Standard
+							دواء 24 - B2B Marketplace
 						</div>
 					</div>
 
@@ -521,7 +521,7 @@ templ InvoicePrintablePage(data billing.PrintableInvoiceData, lang, dir string) 
 					}
 					<div class="thermal-divider"></div>
 					<div style="font-size:12px; font-weight:900;">
-						إيصال فاتورة ضريبية
+						إيصال فاتورة توريد
 					</div>
 					<div style="font-size:10px;">#{ data.InvoiceNumber }</div>
 					<div class="thermal-divider"></div>
@@ -591,7 +591,7 @@ templ InvoicePrintablePage(data billing.PrintableInvoiceData, lang, dir string) 
 					</div>
 				}
 				<div class="thermal-row">
-					<span>ض.ق.م (0% أدوية بشرية):</span>
+					<span>ضريبة القيمة المضافة:</span>
 					<span class="tabular-nums">{ data.TotalTax.String() } ج.م</span>
 				</div>
 				<div class="thermal-divider"></div>
@@ -609,7 +609,7 @@ templ InvoicePrintablePage(data billing.PrintableInvoiceData, lang, dir string) 
 						style="width:70px; height:70px; margin:0 auto; display:block;"
 					/>
 					<div style="font-size:9px; margin-top:4px;">
-						فاتورة إلكترونية معتمدة - دواء 24
+						فاتورة توريد معتمدة - دواء 24
 					</div>
 					<div style="font-size:8px; color:#555;">
 						{ data.IssueDate.Format("2006-01-02 15:04:05") }
