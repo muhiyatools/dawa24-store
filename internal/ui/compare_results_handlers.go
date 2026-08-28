@@ -79,16 +79,33 @@ func (h *UIHandler) CompareResultsPage(w http.ResponseWriter, r *http.Request) {
 		http.Redirect(w, r, "/auth/login?redirect=/compare/results", http.StatusSeeOther)
 		return
 	}
-	if actor.IsCustomer() {
-		h.redirectWithNotice(w, r, "/customer/dashboard", "error", "هذه الصفحة مخصصة لحسابات الموردين فقط.")
-		return
-	}
 
 	supParam := r.URL.Query().Get("suppliers")
 	var fileIDs []int64
 	for _, s := range strings.Split(supParam, ",") {
 		if id, err := strconv.ParseInt(strings.TrimSpace(s), 10, 64); err == nil && id > 0 {
 			fileIDs = append(fileIDs, id)
+		}
+	}
+
+	if len(fileIDs) == 0 && h.compareSvc != nil {
+		var orgPtr *int64
+		if actor.OrganizationID > 0 {
+			orgPtr = &actor.OrganizationID
+		}
+		allF, _ := h.compareSvc.ListFiles(ctx, actor.UserID, orgPtr, nil)
+		if len(allF) == 0 {
+			allF, _ = h.compareSvc.ListAllFiles(ctx, "", nil)
+		}
+		for _, f := range allF {
+			if f.Status == compare.FileReady && f.RowCount > 0 {
+				fileIDs = append(fileIDs, f.ID)
+			}
+		}
+		if len(fileIDs) == 0 && len(allF) > 0 {
+			for _, f := range allF {
+				fileIDs = append(fileIDs, f.ID)
+			}
 		}
 	}
 
@@ -137,6 +154,9 @@ func (h *UIHandler) CompareHeadToHeadPage(w http.ResponseWriter, r *http.Request
 			orgPtr = &actor.OrganizationID
 		}
 		files, _ = h.compareSvc.ListFiles(ctx, actor.UserID, orgPtr, nil)
+		if len(files) == 0 {
+			files, _ = h.compareSvc.ListAllFiles(ctx, "", nil)
+		}
 	}
 
 	sourceID, _ := strconv.ParseInt(strings.TrimSpace(r.URL.Query().Get("source")), 10, 64)
@@ -148,6 +168,8 @@ func (h *UIHandler) CompareHeadToHeadPage(w http.ResponseWriter, r *http.Request
 	}
 	if targetID <= 0 && len(files) >= 2 {
 		targetID = files[1].ID
+	} else if targetID <= 0 && len(files) == 1 {
+		targetID = files[0].ID
 	}
 
 	q := strings.TrimSpace(r.URL.Query().Get("q"))
@@ -243,6 +265,9 @@ func (h *UIHandler) CompareMarketBenchmarkPage(w http.ResponseWriter, r *http.Re
 			orgPtr = &actor.OrganizationID
 		}
 		files, _ = h.compareSvc.ListFiles(ctx, actor.UserID, orgPtr, nil)
+		if len(files) == 0 {
+			files, _ = h.compareSvc.ListAllFiles(ctx, "", nil)
+		}
 	}
 
 	fileID, _ := strconv.ParseInt(strings.TrimSpace(r.URL.Query().Get("file")), 10, 64)

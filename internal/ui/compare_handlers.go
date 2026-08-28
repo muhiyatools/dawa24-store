@@ -125,10 +125,6 @@ func (h *UIHandler) CompareToolPage(w http.ResponseWriter, r *http.Request) {
 		http.Redirect(w, r, "/auth/login?redirect=/compare/tool", http.StatusSeeOther)
 		return
 	}
-	if actor.IsCustomer() {
-		h.redirectWithNotice(w, r, "/customer/dashboard", "error", "هذه الصفحة مخصصة لحسابات الموردين فقط.")
-		return
-	}
 
 	noticeType := r.URL.Query().Get("notice")
 	noticeMsg := r.URL.Query().Get("msg")
@@ -140,6 +136,9 @@ func (h *UIHandler) CompareToolPage(w http.ResponseWriter, r *http.Request) {
 			orgPtr = &actor.OrganizationID
 		}
 		files, _ = h.compareSvc.ListFiles(ctx, actor.UserID, orgPtr, nil)
+		if len(files) == 0 && (actor.IsPlatformAdmin() || actor.IsStaff) {
+			files, _ = h.compareSvc.ListAllFiles(ctx, "", nil)
+		}
 	}
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")

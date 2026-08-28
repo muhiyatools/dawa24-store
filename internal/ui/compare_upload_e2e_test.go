@@ -574,7 +574,7 @@ func TestMarketDiscountsPage_E2E(t *testing.T) {
 	}
 }
 
-func TestCompare_PharmacyRestricted(t *testing.T) {
+func TestCompare_PharmacyAccessible(t *testing.T) {
 	logger := slog.New(slog.NewTextHandler(io.Discard, nil))
 	h := ui.NewUIHandler(
 		nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, logger,
@@ -582,13 +582,13 @@ func TestCompare_PharmacyRestricted(t *testing.T) {
 
 	pharmacyActor := authctx.Actor{UserID: 100, OrganizationID: 200, OrgType: "customer"}
 
-	// 1. Compare Tool Page should redirect pharmacy
+	// 1. Compare Tool Page should render for pharmacy
 	reqTool := httptest.NewRequest("GET", "/compare/tool", nil)
 	reqTool = reqTool.WithContext(authctx.WithActor(reqTool.Context(), pharmacyActor))
 	recTool := httptest.NewRecorder()
 	h.CompareToolPage(recTool, reqTool)
-	if recTool.Code != http.StatusSeeOther {
-		t.Errorf("expected redirect for pharmacy on compare tool, got %d", recTool.Code)
+	if recTool.Code != http.StatusOK {
+		t.Errorf("expected 200 OK for pharmacy on compare tool, got %d", recTool.Code)
 	}
 
 	// 2. Market Discounts Page should be accessible for pharmacy/customer accounts

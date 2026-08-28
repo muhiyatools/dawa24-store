@@ -4,7 +4,9 @@ import (
 	"context"
 	"fmt"
 	"math"
+	"regexp"
 	"sort"
+	"strconv"
 	"strings"
 
 	"github.com/muhiya/dawa24-store/internal/shared/apperr"
@@ -120,6 +122,140 @@ func CalculatePriceAfterDiscount(price money.Amount, discountPercent float64) mo
 	return net
 }
 
+// drugPhoneticMap maps common Arabic drug brand names & modifiers to canonical forms for cross-language matching.
+var drugPhoneticMap = map[string]string{
+	"بانادول": "panadol", "بنادول": "panadol", "باراسيتامول": "paracetamol",
+	"كونجستال": "congestal", "كتافلام": "cataflam", "فولتارين": "voltaren",
+	"اوجمنتين": "augmentin", "اوجمينتين": "augmentin", "بروفين": "brufen",
+	"انتينال": "antinal", "امريزول": "amrizole", "فلاجيل": "flagyl",
+	"سيبتازول": "septazole", "اوميبرازول": "omeprazole", "اتورفاستاتين": "atorvastatin",
+	"اميبريديل": "amipride", "كابوتن": "capoten", "الفينترن": "alphintern",
+	"كونكور": "concor", "موبيتيل": "mobitil", "نوفالدول": "novaldol",
+	"بروسبان": "prospan", "ستربسلز": "strepsils", "داونيل": "daonil",
+	"جلوكوفاج": "glucophage", "سيرفيتام": "cervitam", "سبازموبيرالجين": "spasmopyralgin",
+	"بوسكوبان": "buscopan", "ترايتيكو": "trittico", "نيوروتون": "neuroton",
+	"نيوروبيون": "neurobion", "كيورام": "curam", "هاي بيوتك": "hibiotic",
+	"كلافيموكس": "klavimox", "ميجا موكس": "megamox", "يونيكتام": "unicatam",
+	"زيثروماكس": "zithromax", "زيثرون": "zithron", "سوبراكس": "suprax",
+	"سيفاكسون": "cefaxone", "سيفوتاكس": "cefotax", "يوناسين": "unasyn",
+	"كلاسيد": "klacid", "تارجو": "targo", "ليفانيك": "levanic",
+	"سيبروفار": "ciprofar", "سيبروسين": "ciprocin", "تارينج": "taring",
+	"اكسترا": "extra", "بلس": "plus", "فورت": "forte", "ماكس": "max",
+	"ادفانس": "advance", "نايت": "night", "فاست": "fast", "كومبي": "combi",
+	"ريتارد": "retard", "رابد": "rapid", "كولد": "cold", "فلو": "flu",
+}
+
+// pharmaNoiseWords contains common pharmaceutical dosage forms and noise words that should be stripped for matching core products.
+var pharmaNoiseWords = map[string]bool{
+	"اقراص": true, "قرص": true, "كبسول": true, "كبسولات": true, "امبول": true, "امبولات": true,
+	"شرب": true, "شراب": true, "نقط": true, "نقطة": true, "دهان": true, "مرهم": true, "كريم": true,
+	"فوار": true, "لبوس": true, "لبوسة": true, "بخاخ": true, "بخاخة": true, "قطرة": true,
+	"محلول": true, "حقن": true, "حقنة": true, "شريط": true, "علبة": true, "عبوة": true,
+	"تشغيلة": true, "tab": true, "tabs": true, "tablet": true, "tablets": true,
+	"cap": true, "caps": true, "capsule": true, "capsules": true, "amp": true, "amps": true,
+	"ampoule": true, "ampoules": true, "syr": true, "syrup": true, "susp": true, "suspension": true,
+	"drops": true, "drop": true, "cream": true, "oint": true, "ointment": true, "gel": true,
+	"vial": true, "vials": true, "supp": true, "suppositories": true, "spray": true,
+	"sachet": true, "sachets": true, "eff": true, "effervescent": true, "solution": true,
+	"sol": true, "inj": true, "injection": true, "strip": true, "box": true, "pack": true,
+	"oral": true, "topical": true, "nasal": true, "eye": true, "ear": true,
+}
+
+var (
+	packCountRegex = regexp.MustCompile(`(?i)\b\d+\s*(?:tab|tabs|tablet|tablets|cap|caps|capsule|capsules|amp|amps|ampoule|ampoules|sachet|sachets|قرص|اقراص|كبسول|كبسولات|امبول|امبولات|شريط|كيس|اكياس)\b`)
+	strengthRegex  = regexp.MustCompile(`(?i)(\d+(?:\.\d+)?)\s*(mg|mcg|gm|g|ml|iu|مجم|جرام|جم|مل)`)
+)
+
+// getCoreDrugMatchKey extracts a unified, clean, phonetic, noise-free representation of a pharmaceutical product.
+func getCoreDrugMatchKey(name string) string {
+	norm := normalizeProductText(name)
+	if norm == "" {
+		return ""
+	}
+
+	// 1. Strip pack count phrases (e.g. "24 tab", "20 قرص", "14 tabs")
+	norm = packCountRegex.ReplaceAllString(norm, " ")
+
+	// 2. Standardize strengths (e.g. "50 mg" -> "50mg", "1 gm" -> "1g", "1000 mg" -> "1g", "120 ml" -> "120ml")
+	norm = strengthRegex.ReplaceAllStringFunc(norm, func(m string) string {
+		sub := strengthRegex.FindStringSubmatch(m)
+		if len(sub) < 3 {
+			return m
+		}
+		numStr := sub[1]
+		unit := strings.ToLower(sub[2])
+		val, err := strconv.ParseFloat(numStr, 64)
+		if err != nil {
+			return m
+		}
+		switch unit {
+		case "mg", "مجم":
+			if val == 1000 {
+				return "1g"
+			}
+			return fmt.Sprintf("%gmg", val)
+		case "g", "gm", "جم", "جرام":
+			return fmt.Sprintf("%gg", val)
+		case "ml", "مل":
+			return fmt.Sprintf("%gml", val)
+		case "mcg":
+			return fmt.Sprintf("%gmcg", val)
+		case "iu":
+			return fmt.Sprintf("%giu", val)
+		default:
+			return fmt.Sprintf("%g%s", val, unit)
+		}
+	})
+
+	rawTokens := strings.Fields(norm)
+	var cleanTokens []string
+
+	for _, token := range rawTokens {
+		token = strings.ToLower(strings.TrimSpace(token))
+		if token == "" {
+			continue
+		}
+
+		if mapped, ok := drugPhoneticMap[token]; ok {
+			token = mapped
+		}
+
+		if pharmaNoiseWords[token] {
+			continue
+		}
+
+		if len(token) <= 3 && isPureDigits(token) {
+			continue
+		}
+
+		cleanTokens = append(cleanTokens, token)
+	}
+
+	if len(cleanTokens) == 0 {
+		return norm
+	}
+
+	sort.Strings(cleanTokens)
+	return strings.Join(cleanTokens, " ")
+}
+
+// GetCoreDrugMatchKeyForTest exports getCoreDrugMatchKey for package tests.
+func GetCoreDrugMatchKeyForTest(name string) string {
+	return getCoreDrugMatchKey(name)
+}
+
+func isPureDigits(s string) bool {
+	if s == "" {
+		return false
+	}
+	for _, r := range s {
+		if r < '0' || r > '9' {
+			return false
+		}
+	}
+	return true
+}
+
 // getSortedWordsKey generates a bag-of-words key for order-independent name matching (e.g. "Panadol Extra" == "Extra Panadol").
 func getSortedWordsKey(name string) string {
 	norm := normalizeProductText(name)
@@ -153,6 +289,7 @@ func (s *Service) RunMultiSupplierComparison(ctx context.Context, fileIDs []int6
 	var resultRows []*ProductComparisonRow
 	bySKU := make(map[string]*ProductComparisonRow)
 	byNorm := make(map[string]*ProductComparisonRow)
+	byCore := make(map[string]*ProductComparisonRow)
 	bySorted := make(map[string]*ProductComparisonRow)
 	byCatalogID := make(map[int64]*ProductComparisonRow)
 
@@ -171,6 +308,7 @@ func (s *Service) RunMultiSupplierComparison(ctx context.Context, fileIDs []int6
 			if normText == "" {
 				normText = r.NormalizedName
 			}
+			coreKey := getCoreDrugMatchKey(r.RawName)
 			sortedKey := getSortedWordsKey(r.RawName)
 			cleanSKU := strings.ToLower(strings.TrimSpace(r.SKU))
 
@@ -188,7 +326,11 @@ func (s *Service) RunMultiSupplierComparison(ctx context.Context, fileIDs []int6
 			if compRow == nil && normText != "" {
 				compRow = byNorm[normText]
 			}
-			// 4. Match by bag-of-words sorted key
+			// 4. Match by core drug phonetic/noise-free key
+			if compRow == nil && coreKey != "" {
+				compRow = byCore[coreKey]
+			}
+			// 5. Match by bag-of-words sorted key
 			if compRow == nil && sortedKey != "" {
 				compRow = bySorted[sortedKey]
 			}
@@ -227,6 +369,9 @@ func (s *Service) RunMultiSupplierComparison(ctx context.Context, fileIDs []int6
 				}
 				if normText != "" {
 					byNorm[normText] = compRow
+				}
+				if coreKey != "" {
+					byCore[coreKey] = compRow
 				}
 				if sortedKey != "" {
 					bySorted[sortedKey] = compRow
@@ -374,6 +519,7 @@ func (s *Service) RunSupplierVsSupplierDetailed(ctx context.Context, filter Head
 	// Index target rows
 	targetBySKU := make(map[string]*CompareFileRow)
 	targetByName := make(map[string]*CompareFileRow)
+	targetByCore := make(map[string]*CompareFileRow)
 	targetBySorted := make(map[string]*CompareFileRow)
 	targetByProductID := make(map[int64]*CompareFileRow)
 
@@ -388,6 +534,10 @@ func (s *Service) RunSupplierVsSupplierDetailed(ctx context.Context, filter Head
 		norm := normalizeProductText(tr.RawName)
 		if norm != "" {
 			targetByName[norm] = tr
+		}
+		coreKey := getCoreDrugMatchKey(tr.RawName)
+		if coreKey != "" {
+			targetByCore[coreKey] = tr
 		}
 		sortedKey := getSortedWordsKey(tr.RawName)
 		if sortedKey != "" {
@@ -418,6 +568,10 @@ func (s *Service) RunSupplierVsSupplierDetailed(ctx context.Context, filter Head
 		if tr == nil {
 			norm := normalizeProductText(sr.RawName)
 			tr = targetByName[norm]
+		}
+		if tr == nil {
+			coreKey := getCoreDrugMatchKey(sr.RawName)
+			tr = targetByCore[coreKey]
 		}
 		if tr == nil {
 			sortedKey := getSortedWordsKey(sr.RawName)
@@ -541,7 +695,7 @@ func (s *Service) RunMarketBenchmarkDetailed(ctx context.Context, filter MarketB
 		return nil, fmt.Errorf("failed to get supplier file: %w", err)
 	}
 
-	supplierRows, err := s.repo.ListFileRows(ctx, filter.FileID, 20000, 0)
+	supplierRows, err := s.repo.ListFileRows(ctx, filter.FileID, 100000, 0)
 	if err != nil {
 		return nil, err
 	}
@@ -557,7 +711,7 @@ func (s *Service) RunMarketBenchmarkDetailed(ctx context.Context, filter MarketB
 		return nil, err
 	}
 
-	// Index market offers by normalized name and SKU
+	// Index market offers by normalized name, core drug key, sorted key, and SKU
 	type marketAgg struct {
 		discounts    []float64
 		bestDiscount float64
@@ -566,31 +720,63 @@ func (s *Service) RunMarketBenchmarkDetailed(ctx context.Context, filter MarketB
 		count        int
 	}
 	marketMap := make(map[string]*marketAgg)
+	marketMapCore := make(map[string]*marketAgg)
+	marketMapSorted := make(map[string]*marketAgg)
+	marketMapSKU := make(map[string]*marketAgg)
 
 	for _, item := range marketRes.Items {
 		if item.FileID == filter.FileID {
 			continue // Skip own file
 		}
 		norm := normalizeProductText(item.ProductName)
-		if norm == "" {
-			continue
+		coreKey := getCoreDrugMatchKey(item.ProductName)
+		sortedKey := getSortedWordsKey(item.ProductName)
+		cleanSKU := strings.ToLower(strings.TrimSpace(item.SKU))
+
+		agg := &marketAgg{
+			bestDiscount: item.DiscountPercent,
+			bestSupplier: item.SupplierName,
+			bestNet:      item.PriceAfterDiscount,
+			count:        1,
+			discounts:    []float64{item.DiscountPercent},
 		}
-		agg, ok := marketMap[norm]
-		if !ok {
-			agg = &marketAgg{
-				bestDiscount: item.DiscountPercent,
-				bestSupplier: item.SupplierName,
-				bestNet:      item.PriceAfterDiscount,
-				count:        0,
+
+		if norm != "" {
+			if existing, ok := marketMap[norm]; ok {
+				existing.discounts = append(existing.discounts, item.DiscountPercent)
+				existing.count++
+				if item.DiscountPercent > existing.bestDiscount {
+					existing.bestDiscount = item.DiscountPercent
+					existing.bestSupplier = item.SupplierName
+					existing.bestNet = item.PriceAfterDiscount
+				}
+			} else {
+				marketMap[norm] = agg
 			}
-			marketMap[norm] = agg
 		}
-		agg.discounts = append(agg.discounts, item.DiscountPercent)
-		agg.count++
-		if item.DiscountPercent > agg.bestDiscount {
-			agg.bestDiscount = item.DiscountPercent
-			agg.bestSupplier = item.SupplierName
-			agg.bestNet = item.PriceAfterDiscount
+
+		if coreKey != "" {
+			if existing, ok := marketMapCore[coreKey]; ok {
+				if item.DiscountPercent > existing.bestDiscount {
+					existing.bestDiscount = item.DiscountPercent
+					existing.bestSupplier = item.SupplierName
+					existing.bestNet = item.PriceAfterDiscount
+				}
+			} else {
+				marketMapCore[coreKey] = agg
+			}
+		}
+
+		if sortedKey != "" {
+			if _, ok := marketMapSorted[sortedKey]; !ok {
+				marketMapSorted[sortedKey] = agg
+			}
+		}
+
+		if cleanSKU != "" {
+			if _, ok := marketMapSKU[cleanSKU]; !ok {
+				marketMapSKU[cleanSKU] = agg
+			}
 		}
 	}
 
@@ -607,7 +793,20 @@ func (s *Service) RunMarketBenchmarkDetailed(ctx context.Context, filter MarketB
 
 	for _, sr := range supplierRows {
 		norm := normalizeProductText(sr.RawName)
+		coreKey := getCoreDrugMatchKey(sr.RawName)
+		sortedKey := getSortedWordsKey(sr.RawName)
+		cleanSKU := strings.ToLower(strings.TrimSpace(sr.SKU))
+
 		marketInfo, hasMarket := marketMap[norm]
+		if !hasMarket && coreKey != "" {
+			marketInfo, hasMarket = marketMapCore[coreKey]
+		}
+		if !hasMarket && sortedKey != "" {
+			marketInfo, hasMarket = marketMapSorted[sortedKey]
+		}
+		if !hasMarket && cleanSKU != "" {
+			marketInfo, hasMarket = marketMapSKU[cleanSKU]
+		}
 
 		var classification string
 		avgMarketDisc := 0.0

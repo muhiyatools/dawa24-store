@@ -1104,3 +1104,75 @@ func TestSearchAcrossSuppliersAndCatalog_ThreeWayDifferentiation(t *testing.T) {
 		t.Errorf("expected Congestal to be missing from both 2 active suppliers, got %v", congestalItem.MissingFromSuppliers)
 	}
 }
+
+func TestEnhancedCrossSupplierProductMatching(t *testing.T) {
+	ctx := context.Background()
+	repo := newMockCompareRepo()
+	logger := slog.New(slog.NewTextHandler(io.Discard, nil))
+	svc := compare.NewService(repo, logger)
+
+	// File 1 from Supplier A (English and formatted)
+	f1 := &compare.CompareFile{
+		ID:           101,
+		UserID:       1,
+		SupplierName: "المورد أ",
+		Status:       compare.FileReady,
+		RowCount:     3,
+	}
+	_ = repo.CreateFile(ctx, f1)
+	_ = repo.InsertFileRows(ctx, []*compare.CompareFileRow{
+		{FileID: f1.ID, RowNumber: 1, RawName: "PANADOL EXTRA 24 TAB", Price: money.FromMajor(50), Discount: 20.0},
+		{FileID: f1.ID, RowNumber: 2, RawName: "Cataflam 50 mg 20 tab", Price: money.FromMajor(60), Discount: 25.0},
+		{FileID: f1.ID, RowNumber: 3, RawName: "Augmentin 1gm 14 tab", Price: money.FromMajor(120), Discount: 15.0},
+	})
+
+	// File 2 from Supplier B (Arabic and variations)
+	f2 := &compare.CompareFile{
+		ID:           102,
+		UserID:       1,
+		SupplierName: "المورد ب",
+		Status:       compare.FileReady,
+		RowCount:     3,
+	}
+	_ = repo.CreateFile(ctx, f2)
+	_ = repo.InsertFileRows(ctx, []*compare.CompareFileRow{
+		{FileID: f2.ID, RowNumber: 1, RawName: "بانادول اكسترا 24 قرص", Price: money.FromMajor(50), Discount: 22.0},
+		{FileID: f2.ID, RowNumber: 2, RawName: "كتافلام 50 مجم 20 قرص", Price: money.FromMajor(60), Discount: 23.0},
+		{FileID: f2.ID, RowNumber: 3, RawName: "اوجمنتين 1 جم 14 قرص", Price: money.FromMajor(120), Discount: 18.0},
+	})
+
+	// Run Multi-Supplier Comparison
+	multiRes, err := svc.RunMultiSupplierComparison(ctx, []int64{f1.ID, f2.ID})
+	if err != nil {
+		t.Fatalf("RunMultiSupplierComparison failed: %v", err)
+	}
+
+	t.Logf("k1(Augmentin)=%q, k2(اوجمنتين)=%q", compare.GetCoreDrugMatchKeyForTest("Augmentin 1gm 14 tab"), compare.GetCoreDrugMatchKeyForTest("اوجمنتين 1 جم 14 قرص"))
+
+	if multiRes.Summary.TotalProducts != 3 {
+		t.Errorf("expected exactly 3 matched products across suppliers, got %d", multiRes.Summary.TotalProducts)
+		for idx, row := range multiRes.Rows {
+			t.Logf("Row %d: %s (Offers: %d)", idx, row.ProductName, len(row.Offers))
+		}
+	}
+
+	for _, r := range multiRes.Rows {
+		if len(r.Offers) != 2 {
+			t.Errorf("product %s expected offers from both suppliers, got %d", r.ProductName, len(r.Offers))
+		}
+	}
+
+	// Run Head-to-Head Comparison
+	h2hRes, err := svc.RunSupplierVsSupplierDetailed(ctx, compare.HeadToHeadFilter{
+		SourceFileID: f1.ID,
+		TargetFileID: f2.ID,
+	})
+	if err != nil {
+		t.Fatalf("RunSupplierVsSupplierDetailed failed: %v", err)
+	}
+
+	if h2hRes.TotalShared != 3 {
+		t.Errorf("expected 3 shared products in head-to-head, got %d", h2hRes.TotalShared)
+	}
+}
+
