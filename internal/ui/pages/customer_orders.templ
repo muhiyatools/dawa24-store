@@ -3,39 +3,159 @@ package pages
 import (
 	"fmt"
 	"github.com/muhiya/dawa24-store/internal/modules/commerce"
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/ui/components"
 	"github.com/muhiya/dawa24-store/internal/ui/layouts"
 )
 
 templ CustomerOrders(orders []*commerce.Order, lang, dir string, isPartial bool) {
 	if isPartial {
-		@CustomerOrdersList(orders)
+		@CustomerOrdersList(orders, lang)
 	} else {
 		@layouts.CustomerShell("طلبياتي وأوامر التوريد", "orders", lang, dir, nil) {
 			{{
 				ordersCount := len(orders)
+				activeCount := 0
+				completedCount := 0
+				cancelledCount := 0
+				for _, o := range orders {
+					if o.Status == commerce.StatusDelivered || o.Status == commerce.StatusCompleted {
+						completedCount++
+					} else if o.Status == commerce.StatusCancelled || o.Status == commerce.StatusRefunded || o.Status == commerce.StatusFailed {
+						cancelledCount++
+					} else {
+						activeCount++
+					}
+				}
 			}}
 			<div class="orders-page-container" style="max-width:100%;">
-				@components.PageHeader(components.PageHeaderProps{
-					Title:      "سجل طلبيات وأوامر التوريد",
-					Subtitle:   "متابعة كافة طلبيات الشراء وفواتير التوريد وحالات الشحن المباشرة للصيدلية",
-					Count:      &ordersCount,
-					CountLabel: "طلبية",
-				}) {
-					<a href="/catalog" class="btn btn-primary" style="font-weight:700; gap:0.4rem;">
-						@components.IconPlus("icon-xs")
-						<span>طلب توريد جديد</span>
-					</a>
-				}
+				<!-- Header Section -->
+				<div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1.25rem; margin-bottom:1.75rem;">
+					<div>
+						<div style="display:flex; align-items:center; gap:0.6rem; margin-bottom:0.35rem;">
+							<h1 style="font-size:1.6rem; font-weight:900; color:var(--text); margin:0;">
+								سجل طلبيات وأوامر التوريد
+							</h1>
+							<span class="badge badge-primary text-xs tabular-nums fw-700" style="padding:0.2rem 0.6rem;">
+								{ fmt.Sprintf("%d طلبية", ordersCount) }
+							</span>
+						</div>
+						<p style="font-size:0.875rem; color:var(--text-secondary); margin:0;">
+							متابعة كافة طلبيات الشراء وفواتير التوريد وحالات الشحن المباشرة للصيدلية
+						</p>
+					</div>
+
+					<div style="display:flex; align-items:center; gap:0.75rem; flex-wrap:wrap;">
+						<a href="/catalog" class="btn btn-primary" style="font-weight:700; gap:0.4rem; padding:0.55rem 1.15rem; border-radius:var(--radius-lg);">
+							@components.IconPlus("icon-xs")
+							<span>طلب توريد جديد</span>
+						</a>
+					</div>
+				</div>
+
+				<!-- Filter Tabs -->
+				<div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:1rem; margin-bottom:1.5rem; border-bottom:1px solid var(--border); padding-bottom:0.75rem;">
+					<div style="display:flex; align-items:center; gap:0.5rem; flex-wrap:wrap;">
+						<button
+							type="button"
+							class="btn btn-secondary btn-sm filter-tab active"
+							onclick="filterOrders('all', this)"
+							style="font-weight:700; border-radius:var(--radius-md); padding:0.4rem 0.85rem; font-size:0.825rem;"
+						>
+							<span>كل الطلبيات</span>
+							<span class="badge badge-slate text-xs tabular-nums" style="margin-inline-start:0.35rem;">{ fmt.Sprintf("%d", ordersCount) }</span>
+						</button>
+						<button
+							type="button"
+							class="btn btn-secondary btn-sm filter-tab"
+							onclick="filterOrders('active', this)"
+							style="font-weight:700; border-radius:var(--radius-md); padding:0.4rem 0.85rem; font-size:0.825rem;"
+						>
+							<span>قيد التنفيذ</span>
+							<span class="badge badge-amber text-xs tabular-nums" style="margin-inline-start:0.35rem;">{ fmt.Sprintf("%d", activeCount) }</span>
+						</button>
+						<button
+							type="button"
+							class="btn btn-secondary btn-sm filter-tab"
+							onclick="filterOrders('completed', this)"
+							style="font-weight:700; border-radius:var(--radius-md); padding:0.4rem 0.85rem; font-size:0.825rem;"
+						>
+							<span>المكتملة</span>
+							<span class="badge badge-emerald text-xs tabular-nums" style="margin-inline-start:0.35rem;">{ fmt.Sprintf("%d", completedCount) }</span>
+						</button>
+						if cancelledCount > 0 {
+							<button
+								type="button"
+								class="btn btn-secondary btn-sm filter-tab"
+								onclick="filterOrders('cancelled', this)"
+								style="font-weight:700; border-radius:var(--radius-md); padding:0.4rem 0.85rem; font-size:0.825rem;"
+							>
+								<span>الملغية</span>
+								<span class="badge badge-rose text-xs tabular-nums" style="margin-inline-start:0.35rem;">{ fmt.Sprintf("%d", cancelledCount) }</span>
+							</button>
+						}
+					</div>
+
+					<!-- Search input -->
+					<div style="position:relative; min-width:240px;">
+						<input
+							type="text"
+							id="order-search-input"
+							placeholder="بحث برقم الطلب..."
+							onkeyup="searchOrders(this.value)"
+							class="input input-sm"
+							style="padding-inline-start:2rem; width:100%; border-radius:var(--radius-md);"
+						/>
+						<span style="position:absolute; inset-inline-start:0.65rem; top:50%; transform:translateY(-50%); color:var(--text-muted); pointer-events:none;">
+							@components.IconSearch("icon-xs")
+						</span>
+					</div>
+				</div>
+
+				<!-- Orders List Container -->
 				<div id="orders-list">
-					@CustomerOrdersList(orders)
+					@CustomerOrdersList(orders, lang)
 				</div>
 			</div>
+
+			<script>
+				function filterOrders(status, btn) {
+					document.querySelectorAll('.filter-tab').forEach(b => {
+						b.classList.remove('btn-primary');
+						b.classList.add('btn-secondary');
+					});
+					btn.classList.remove('btn-secondary');
+					btn.classList.add('btn-primary');
+
+					const items = document.querySelectorAll('.order-card-item');
+					items.forEach(item => {
+						const s = item.getAttribute('data-status-category');
+						if (status === 'all' || s === status) {
+							item.style.display = 'flex';
+						} else {
+							item.style.display = 'none';
+						}
+					});
+				}
+
+				function searchOrders(q) {
+					const query = (q || '').trim().toLowerCase();
+					const items = document.querySelectorAll('.order-card-item');
+					items.forEach(item => {
+						const num = (item.getAttribute('data-order-num') || '').toLowerCase();
+						if (!query || num.includes(query)) {
+							item.style.display = 'flex';
+						} else {
+							item.style.display = 'none';
+						}
+					});
+				}
+			</script>
 		}
 	}
 }
 
-templ CustomerOrdersList(orders []*commerce.Order) {
+templ CustomerOrdersList(orders []*commerce.Order, lang string) {
 	if len(orders) == 0 {
 		@components.EmptyState(components.EmptyStateProps{
 			Title:       "لا توجد طلبيات سابقة",
@@ -44,40 +164,85 @@ templ CustomerOrdersList(orders []*commerce.Order) {
 			ActionURL:   "/catalog",
 		})
 	} else {
-		<div style="display:flex; flex-direction:column; gap:0.875rem;">
+		<div style="display:flex; flex-direction:column; gap:1rem;">
 			for _, o := range orders {
-				<div class="b2b-table-card" style="display:flex; align-items:center; justify-content:space-between; padding:1.25rem 1.5rem; margin-bottom:0; flex-wrap:wrap; gap:1rem;">
-					<div>
-						<div style="display:flex; align-items:center; gap:0.75rem; margin-bottom:0.4rem;">
-							<span style="font-weight:800; font-size:1.1rem; color:var(--text);" class="tabular-nums">
+				{{
+					statusCategory := "active"
+					if o.Status == commerce.StatusDelivered || o.Status == commerce.StatusCompleted {
+						statusCategory = "completed"
+					} else if o.Status == commerce.StatusCancelled || o.Status == commerce.StatusRefunded || o.Status == commerce.StatusFailed {
+						statusCategory = "cancelled"
+					}
+
+					itemsCount := len(o.Lines)
+					shipmentsCount := len(o.Shipments)
+					if shipmentsCount == 0 {
+						shipmentsCount = 1
+					}
+				}}
+				<div
+					class="card hover-lift order-card-item"
+					data-status-category={ statusCategory }
+					data-order-num={ o.OrderNumber }
+					style="display:flex; align-items:center; justify-content:space-between; padding:1.25rem 1.5rem; margin-bottom:0; flex-wrap:wrap; gap:1.25rem; border-radius:var(--radius-xl); border:1px solid var(--border); background:var(--surface); box-shadow:var(--shadow-xs); transition:all 0.2s ease;"
+				>
+					<!-- Left info -->
+					<div style="display:flex; flex-direction:column; gap:0.5rem; min-width:280px; flex:1;">
+						<div style="display:flex; align-items:center; gap:0.65rem; flex-wrap:wrap;">
+							<a href={ templ.SafeURL(fmt.Sprintf("/orders/%d", o.ID)) } style="font-weight:800; font-size:1.15rem; color:var(--text); text-decoration:none;" class="tabular-nums">
 								#{ o.OrderNumber }
-							</span>
+							</a>
 							@components.StatusBadge(string(o.Status))
+							if o.PaymentStatus == commerce.PaymentPaid {
+								<span class="badge badge-emerald text-xs fw-700">مدفوع</span>
+							} else {
+								<span class="badge badge-amber text-xs fw-700">دفع عند الاستلام</span>
+							}
 						</div>
-						<div style="font-size:0.85rem; color:var(--text-secondary); display:flex; gap:1.25rem; flex-wrap:wrap;">
-							<span>التاريخ: <strong class="tabular-nums">{ o.CreatedAt.Format("2006-01-02 15:04") }</strong></span>
-							<span>طريقة الدفع: { string(o.PaymentMethod) }</span>
+
+						<div style="display:flex; align-items:center; gap:1.25rem; flex-wrap:wrap; font-size:0.8125rem; color:var(--text-secondary);">
+							<span style="display:flex; align-items:center; gap:0.35rem;">
+								<span>📅</span>
+								<span class="tabular-nums">{ o.CreatedAt.Format("2006-01-02 15:04") }</span>
+							</span>
+							if o.CustomerBranchName.Get(i18n.Lang(lang)) != "" {
+								<span style="display:flex; align-items:center; gap:0.35rem;">
+									@components.IconLocation("icon-xs")
+									<span>{ o.CustomerBranchName.Get(i18n.Lang(lang)) }</span>
+								</span>
+							}
+							<span style="display:flex; align-items:center; gap:0.35rem;">
+								@components.IconPackage("icon-xs")
+								<span>{ fmt.Sprintf("%d أصناف", itemsCount) } ({ fmt.Sprintf("%d شحنات/موزعين", shipmentsCount) })</span>
+							</span>
 						</div>
 					</div>
-					<div style="display:flex; align-items:center; gap:1.5rem;">
-						<div class="text-end">
-							<div style="font-size:0.75rem; color:var(--text-muted); font-weight:600;">إجمالي الطلبية</div>
-							<div style="font-weight:800; font-size:1.2rem; color:var(--text);" class="tabular-nums">
-								{ o.TotalAmount.String() } <span style="font-size:0.8rem; font-weight:600; color:var(--text-secondary);">ج.م</span>
+
+					<!-- Right finance & actions -->
+					<div style="display:flex; align-items:center; gap:1.75rem; flex-wrap:wrap;">
+						<div style="text-align:end;">
+							<div style="font-size:0.75rem; color:var(--text-muted); font-weight:600;">المبلغ الإجمالي</div>
+							<div style="font-weight:900; font-size:1.35rem; color:var(--accent); line-height:1.2;" class="tabular-nums">
+								{ o.TotalAmount.String() } <span style="font-size:0.8rem; font-weight:700; color:var(--text-secondary);">ج.م</span>
 							</div>
 						</div>
+
 						<div style="display:flex; align-items:center; gap:0.5rem;">
 							<a
 								href={ templ.SafeURL(fmt.Sprintf("/orders/%d/invoice/print", o.ID)) }
 								target="_blank"
 								class="btn btn-secondary btn-sm"
-								style="font-weight:700; gap:0.35rem; padding:0.35rem 0.65rem;"
+								style="font-weight:700; gap:0.35rem; padding:0.45rem 0.85rem; border-radius:var(--radius-md);"
 								title="طباعة الفاتورة الضريبية الرسمية"
 							>
 								@components.IconPrinter("icon-xs")
 								<span>طباعة</span>
 							</a>
-							<a href={ templ.SafeURL(fmt.Sprintf("/orders/%d", o.ID)) } class="btn btn-primary btn-sm" style="font-weight:700; gap:0.35rem;">
+							<a
+								href={ templ.SafeURL(fmt.Sprintf("/orders/%d", o.ID)) }
+								class="btn btn-primary btn-sm"
+								style="font-weight:700; gap:0.35rem; padding:0.45rem 1rem; border-radius:var(--radius-md);"
+							>
 								<span>تفاصيل الطلب</span>
 								@components.IconArrowLeft("icon-xs")
 							</a>
@@ -88,4 +253,5 @@ templ CustomerOrdersList(orders []*commerce.Order) {
 		</div>
 	}
 }
+
 
