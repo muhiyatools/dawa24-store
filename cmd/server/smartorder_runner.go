@@ -131,11 +131,23 @@ func executeSmartOrderRun(
 			"run_id", runID, "branch_id", run.BranchID)
 	}
 
-	if err := run.TransitionTo(smartorder.StatusProcessing); err != nil {
-		return err
-	}
-	if err := repo.UpdateRunStatus(ctx, run.ID, run.Status, run.CurrentStep, ""); err != nil {
-		return err
+	if claimer, ok := repo.(smartorder.RunClaimer); ok {
+		claimed, err := claimer.ClaimRun(ctx, orgID, runID)
+		if err != nil {
+			return err
+		}
+		if !claimed {
+			log.InfoContext(ctx, "smart order run claim lost", "run_id", runID)
+			return nil
+		}
+		run.Status = smartorder.StatusProcessing
+	} else {
+		if err := run.TransitionTo(smartorder.StatusProcessing); err != nil {
+			return err
+		}
+		if err := repo.UpdateRunStatus(ctx, run.ID, run.Status, run.CurrentStep, ""); err != nil {
+			return err
+		}
 	}
 
 	if err := runner.Execute(ctx, run, cfg, branch); err != nil {

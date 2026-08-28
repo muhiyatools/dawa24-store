@@ -91,11 +91,23 @@ func (w *RunWorker) Work(ctx context.Context, job *river.Job[queue.SmartOrderRun
 			"run_id", runID, "branch_id", run.BranchID)
 	}
 
-	if err := run.TransitionTo(smartorder.StatusProcessing); err != nil {
-		return w.fail(ctx, run, err)
-	}
-	if err := w.repo.UpdateRunStatus(ctx, run.ID, run.Status, run.CurrentStep, ""); err != nil {
-		return err
+	if claimer, ok := w.repo.(smartorder.RunClaimer); ok {
+		claimed, err := claimer.ClaimRun(ctx, orgID, runID)
+		if err != nil {
+			return err
+		}
+		if !claimed {
+			w.log.InfoContext(ctx, "smart order run claim lost", "run_id", runID)
+			return nil
+		}
+		run.Status = smartorder.StatusProcessing
+	} else {
+		if err := run.TransitionTo(smartorder.StatusProcessing); err != nil {
+			return w.fail(ctx, run, err)
+		}
+		if err := w.repo.UpdateRunStatus(ctx, run.ID, run.Status, run.CurrentStep, ""); err != nil {
+			return err
+		}
 	}
 
 	if err := w.runner.Execute(ctx, run, cfg, branch); err != nil {

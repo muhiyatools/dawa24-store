@@ -174,11 +174,31 @@ func (r *Repository) UpdateRunStatus(ctx context.Context, id int64, status smart
 		if err != nil {
 			return err
 		}
+
 		if tag.RowsAffected() == 0 {
 			return apperr.NotFound("smart_order_run")
 		}
 		return nil
 	})
+}
+
+// ClaimRun atomically changes a queued run to processing. A false result means
+// another worker or the inline runner won the race; it is not an error.
+func (r *Repository) ClaimRun(ctx context.Context, orgID, runID int64) (bool, error) {
+	var claimed bool
+	err := r.db.InTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
+		tag, err := tx.Exec(txCtx, `
+			UPDATE smartorder.runs
+			SET status = 'processing', current_step = 1, failure_reason = ''
+			WHERE id = $1 AND organization_id = $2 AND status = 'queued';`,
+			runID, orgID)
+		if err != nil {
+			return err
+		}
+		claimed = tag.RowsAffected() == 1
+		return nil
+	})
+	return claimed, err
 }
 
 // UpdateRunStats writes the counters, totals and AI telemetry after a pass.

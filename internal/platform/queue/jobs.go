@@ -66,6 +66,8 @@ type SmartOrderRunArgs struct {
 func (SmartOrderRunArgs) Kind() string { return "smartorder.run" }
 func (SmartOrderRunArgs) InsertOpts() river.InsertOpts {
 	// A ten-thousand-row import is minutes of work, so it gets its own queue
-	// rather than blocking short jobs behind it.
-	return river.InsertOpts{Queue: "smartorder", MaxAttempts: 3}
+	// rather than blocking short jobs behind it. The pipeline is not yet
+	// checkpointed per stage, so retrying this job would restart the entire AI
+	// stage and multiply upstream requests after a transient failure.
+	return river.InsertOpts{Queue: "smartorder", MaxAttempts: 1}
 }
