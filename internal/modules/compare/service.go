@@ -367,6 +367,11 @@ func (s *Service) ListFiles(ctx context.Context, userID int64, orgID *int64, sta
 	return s.repo.ListFiles(ctx, userID, orgID, status)
 }
 
+// ListAllFiles lists all compare files across the system with optional search and status filter.
+func (s *Service) ListAllFiles(ctx context.Context, search string, status *CompareFileStatus) ([]*CompareFile, error) {
+	return s.repo.ListAllFiles(ctx, search, status)
+}
+
 // GetFile retrieves a file by ID.
 func (s *Service) GetFile(ctx context.Context, fileID int64) (*CompareFile, error) {
 	return s.repo.GetFileByID(ctx, fileID)

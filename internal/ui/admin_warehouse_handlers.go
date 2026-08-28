@@ -8,6 +8,7 @@ import (
 
 	"github.com/go-chi/chi/v5"
 
+	"github.com/muhiya/dawa24-store/internal/modules/compare"
 	"github.com/muhiya/dawa24-store/internal/modules/inventory"
 	"github.com/muhiya/dawa24-store/internal/modules/org"
 	"github.com/muhiya/dawa24-store/internal/platform/database"
@@ -253,13 +254,69 @@ func (h *UIHandler) AdminWarehouseStocksJSON(w http.ResponseWriter, r *http.Requ
 	_ = json.NewEncoder(w).Encode(stocks)
 }
 
-// AdminTempWarehousesPage renders temporary warehouses staging directory.
+// AdminTempWarehousesPage renders temporary warehouses staging directory with database integration.
 func (h *UIHandler) AdminTempWarehousesPage(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	lang, dir := h.localeAndDir(r)
 
+	query := strings.TrimSpace(r.URL.Query().Get("q"))
+	statusFilter := strings.TrimSpace(r.URL.Query().Get("status"))
+
+	var statusPtr *compare.CompareFileStatus
+	if statusFilter != "" {
+		s := compare.CompareFileStatus(statusFilter)
+		statusPtr = &s
+	}
+
+	var files []*compare.CompareFile
+	var err error
+	if h.compareSvc != nil {
+		files, err = h.compareSvc.ListAllFiles(database.AsSystem(ctx), query, statusPtr)
+		if err != nil {
+			h.log.ErrorContext(ctx, "list all temp warehouse files", "error", err)
+		}
+	}
+
+	var totalRows int64
+	var activeCount int
+	var archivedCount int
+	var items []*pages.AdminTempWarehouseItem
+
+	for _, f := range files {
+		if f == nil {
+			continue
+		}
+		totalRows += int64(f.RowCount)
+		if f.Status == compare.FileReady {
+			activeCount++
+		} else if f.Status == compare.FileArchived {
+			archivedCount++
+		}
+
+		items = append(items, &pages.AdminTempWarehouseItem{
+			ID:               f.ID,
+			SupplierName:     f.SupplierName,
+			OriginalFilename: f.OriginalFilename,
+			RowCount:         f.RowCount,
+			SizeBytes:        f.SizeBytes,
+			Status:           string(f.Status),
+			CreatedAt:        f.CreatedAt,
+			ArchivedAt:       f.ArchivedAt,
+		})
+	}
+
+	data := &pages.AdminTempWarehousesData{
+		Items:         items,
+		TotalCount:    len(items),
+		TotalRows:     totalRows,
+		ActiveCount:   activeCount,
+		ArchivedCount: archivedCount,
+		Query:         query,
+		StatusFilter:  statusFilter,
+	}
+
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	if err := pages.AdminTempWarehousesPage(nil, lang, dir).Render(ctx, w); err != nil {
+	if err := pages.AdminTempWarehousesPage(data, lang, dir).Render(ctx, w); err != nil {
 		h.log.ErrorContext(ctx, "render temp warehouses", "error", err)
 	}
 }

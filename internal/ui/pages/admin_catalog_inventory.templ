@@ -3,6 +3,7 @@ package pages
 import (
 	"fmt"
 	"net/url"
+	"time"
 
 	"github.com/muhiya/dawa24-store/internal/modules/catalog"
 	"github.com/muhiya/dawa24-store/internal/modules/inventory"
@@ -815,18 +816,288 @@ templ AdminWarehouseDetailPage(data AdminWarehouseDetailView, lang, dir string) 
 	}
 }
 
-// AdminTempWarehousesPage renders temp warehouses list.
-templ AdminTempWarehousesPage(items []any, lang, dir string) {
+// AdminTempWarehouseItem represents a single temporary warehouse or uploaded price spreadsheet.
+type AdminTempWarehouseItem struct {
+	ID               int64
+	SupplierName     string
+	OriginalFilename string
+	RowCount         int
+	SizeBytes        int64
+	Status           string
+	CreatedAt        time.Time
+	ArchivedAt       *time.Time
+}
+
+// AdminTempWarehousesData carries data for the temporary warehouses admin page.
+type AdminTempWarehousesData struct {
+	Items         []*AdminTempWarehouseItem
+	TotalCount    int
+	TotalRows     int64
+	ActiveCount   int
+	ArchivedCount int
+	Query         string
+	StatusFilter  string
+}
+
+// AdminTempWarehousesPage renders the full temporary warehouses management and staging interface.
+templ AdminTempWarehousesPage(data *AdminTempWarehousesData, lang, dir string) {
 	@layouts.AdminShell("إدارة المستودعات المؤقتة وملفات التوريد", "temp_warehouses", lang, dir) {
-		<div class="card mb-0">
-			<div class="header-row">
-				<div>
-					<h2 class="card-title m-0">المستودعات المؤقتة وملفات الأسعار المرفوعة</h2>
-					<p class="subtitle">مستودعات مؤقتة يتم رفعها لمطابقة الأسعار والخصومات دون دمجها الدائم في الكتالوج.</p>
+		<div style="display:flex; flex-direction:column; gap:1.5rem; max-width:1440px; margin:0 auto 3.5rem auto;">
+			
+			<!-- 1. Header Banner -->
+			<div class="card mb-0" style="border:1px solid var(--border); background:linear-gradient(135deg, var(--surface-raised) 0%, var(--surface-sunken) 100%); border-radius:var(--radius-xl); padding:1.75rem; box-shadow:0 4px 20px rgba(0,0,0,0.03);">
+				<div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1.5rem;">
+					<div>
+						<div style="display:flex; align-items:center; gap:0.75rem; margin-bottom:0.35rem;">
+							<div style="width:46px; height:46px; border-radius:var(--radius-xl); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center; font-size:1.4rem;">
+								📦
+							</div>
+							<div>
+								<h1 style="font-size:1.5rem; font-weight:900; color:var(--text); margin:0;">
+									المستودعات المؤقتة وعروض أسعار الموردين
+								</h1>
+								<span style="font-size:0.75rem; font-weight:700; color:var(--accent); text-transform:uppercase;">
+									Temporary Warehouses & Staged Supplier Catalogs
+								</span>
+							</div>
+						</div>
+						<p style="font-size:0.875rem; color:var(--text-secondary); margin:0.35rem 0 0 0; line-height:1.6; max-width:820px;">
+							مستودعات وجداول أسعار مؤقتة مرفوعة من قبل الموردين لمطابقة الأصناف وعرض خصومات السوق، تتيح فحص ومقارنة الأسعار بشكل فوري دون التعديل على الكتالوج الدائم.
+						</p>
+					</div>
+
+					<div style="display:flex; gap:0.75rem; align-items:center; flex-wrap:wrap;">
+						<a href="/market-discounts" class="btn btn-secondary btn-sm" style="font-weight:700; border-radius:var(--radius-lg); padding:0.55rem 1.15rem;">
+							<span>🏷️ خصومات السوق العامة</span>
+						</a>
+						<a href="/compare/tool" class="btn btn-primary btn-sm" style="display:inline-flex; align-items:center; gap:0.4rem; font-weight:800; padding:0.55rem 1.25rem; border-radius:var(--radius-lg);">
+							@components.IconPlus("icon-xs")
+							<span>رفع كشف مستودع جديد</span>
+						</a>
+					</div>
 				</div>
-				<a href="/admin/import" class="btn btn-primary btn-sm">رفع مستودع مؤقت جديد</a>
 			</div>
-			@components.EmptyState(components.EmptyStateProps{Title: "لا توجد مستودعات مؤقتة", Message: "يتم إنشاء المستودعات المؤقتة تلقائياً عند رفع ملفات جداول الأسعار."})
+
+			<!-- 2. KPI Metrics Summary Cards -->
+			<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:1rem;">
+				<div class="card mb-0" style="padding:1.25rem; border:1px solid var(--border); border-radius:var(--radius-lg); background:var(--surface-raised);">
+					<div style="font-size:0.825rem; font-weight:700; color:var(--text-secondary); margin-bottom:0.35rem;">إجمالي المستودعات المؤقتة</div>
+					<div class="tabular-nums" style="font-size:1.75rem; font-weight:900; color:var(--text);">
+						{ fmt.Sprintf("%d", data.TotalCount) }
+					</div>
+					<div style="font-size:0.75rem; color:var(--text-muted); margin-top:0.25rem;">
+						كشف ومستودع مسجل
+					</div>
+				</div>
+
+				<div class="card mb-0" style="padding:1.25rem; border:1px solid var(--border); border-radius:var(--radius-lg); background:var(--surface-raised);">
+					<div style="font-size:0.825rem; font-weight:700; color:var(--text-secondary); margin-bottom:0.35rem;">إجمالي الأصناف المرفوعة</div>
+					<div class="tabular-nums" style="font-size:1.75rem; font-weight:900; color:var(--accent);">
+						{ fmt.Sprintf("%d", data.TotalRows) }
+					</div>
+					<div style="font-size:0.75rem; color:var(--text-muted); margin-top:0.25rem;">
+						صنف وعرض سعر مسجل
+					</div>
+				</div>
+
+				<div class="card mb-0" style="padding:1.25rem; border:1px solid var(--border); border-radius:var(--radius-lg); background:var(--surface-raised);">
+					<div style="font-size:0.825rem; font-weight:700; color:var(--text-secondary); margin-bottom:0.35rem;">المستودعات النشطة بالخصومات</div>
+					<div class="tabular-nums" style="font-size:1.75rem; font-weight:900; color:var(--emerald);">
+						{ fmt.Sprintf("%d", data.ActiveCount) }
+					</div>
+					<div style="font-size:0.75rem; color:var(--text-muted); margin-top:0.25rem;">
+						متاحة في السوق العام
+					</div>
+				</div>
+
+				<div class="card mb-0" style="padding:1.25rem; border:1px solid var(--border); border-radius:var(--radius-lg); background:var(--surface-raised);">
+					<div style="font-size:0.825rem; font-weight:700; color:var(--text-secondary); margin-bottom:0.35rem;">المستودعات المؤرشفة</div>
+					<div class="tabular-nums" style="font-size:1.75rem; font-weight:900; color:var(--text-muted);">
+						{ fmt.Sprintf("%d", data.ArchivedCount) }
+					</div>
+					<div style="font-size:0.75rem; color:var(--text-muted); margin-top:0.25rem;">
+						كشوف تاريخية سابقة
+					</div>
+				</div>
+			</div>
+
+			<!-- 3. Search & Filter Bar -->
+			<div class="card mb-0" style="border:1px solid var(--border); border-radius:var(--radius-xl); padding:1.25rem; background:var(--surface-raised);">
+				<form method="GET" action="/admin/user/temparte-warehouses" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:1rem; align-items:flex-end; margin:0;">
+					
+					<!-- Search Input -->
+					<div class="form-group mb-0" style="grid-column: span 2; min-width:260px;">
+						<label class="form-label" style="font-size:0.825rem; font-weight:700; color:var(--text-secondary); margin-bottom:0.35rem;">
+							البحث في المستودعات
+						</label>
+						<div style="position:relative;">
+							<input
+								type="text"
+								name="q"
+								value={ data.Query }
+								class="form-input"
+								style="padding-inline-start:2.25rem; font-size:0.875rem; height:42px; width:100%; border-radius:var(--radius-lg);"
+								placeholder="اسم المستودع / المورد، أو اسم الملف..."
+							/>
+							<div style="position:absolute; inset-inline-start:0.75rem; top:50%; transform:translateY(-50%); color:var(--text-muted); pointer-events:none;">
+								@components.IconSearch("icon-xs")
+							</div>
+						</div>
+					</div>
+
+					<!-- Status Filter -->
+					<div class="form-group mb-0">
+						<label class="form-label" style="font-size:0.825rem; font-weight:700; color:var(--text-secondary); margin-bottom:0.35rem;">
+							حالة المستودع
+						</label>
+						<select name="status" class="form-input" style="font-size:0.875rem; height:42px; border-radius:var(--radius-lg);">
+							<option value="" selected?={ data.StatusFilter == "" }>جميع الحالات</option>
+							<option value="ready" selected?={ data.StatusFilter == "ready" }>جاهز ومتاح بالخصومات العامة</option>
+							<option value="mapping" selected?={ data.StatusFilter == "mapping" }>قيد ضبط وتعيين الأعمدة</option>
+							<option value="archived" selected?={ data.StatusFilter == "archived" }>مؤرشف</option>
+						</select>
+					</div>
+
+					<!-- Actions -->
+					<div style="display:flex; gap:0.5rem; justify-content:flex-end;">
+						<button type="submit" class="btn btn-primary btn-sm" style="display:flex; align-items:center; gap:0.4rem; height:42px; padding:0 1.25rem; font-weight:800; border-radius:var(--radius-lg);">
+							@components.IconSearch("icon-xs")
+							<span>بحث وتصفية</span>
+						</button>
+						if data.Query != "" || data.StatusFilter != "" {
+							<a href="/admin/user/temparte-warehouses" class="btn btn-secondary btn-sm" style="height:42px; display:flex; align-items:center; padding:0 1rem; border-radius:var(--radius-lg);" title="إعادة ضبط">
+								مسح
+							</a>
+						}
+					</div>
+				</form>
+			</div>
+
+			<!-- 4. Table Surface -->
+			<div class="card mb-0" style="border:1px solid var(--border); border-radius:var(--radius-xl); padding:0; overflow:hidden; background:var(--surface-raised); box-shadow:0 4px 16px rgba(0,0,0,0.03);">
+				<div style="padding:1.25rem 1.5rem; border-bottom:1px solid var(--border-subtle); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.75rem; background:var(--surface);">
+					<div style="display:flex; align-items:center; gap:0.6rem;">
+						<span style="font-size:1.1rem;">🏢</span>
+						<h3 style="font-weight:800; font-size:1rem; color:var(--text); margin:0;">
+							سجل المستودعات المؤقتة وجداول الأسعار
+						</h3>
+						<span class="badge badge-slate text-xs tabular-nums" style="font-weight:700;">
+							{ fmt.Sprintf("%d مستودع", len(data.Items)) }
+						</span>
+					</div>
+				</div>
+
+				if len(data.Items) == 0 {
+					<div style="text-align:center; padding:3.5rem 1.5rem;">
+						<div style="width:48px; height:48px; border-radius:var(--radius-full); background:var(--surface-sunken); color:var(--text-muted); display:flex; align-items:center; justify-content:center; margin:0 auto 1rem auto; font-size:1.5rem;">
+							📦
+						</div>
+						<h3 style="font-size:1.1rem; font-weight:800; color:var(--text); margin-bottom:0.4rem;">
+							لا توجد مستودعات مؤقتة مطابقة
+						</h3>
+						<p style="font-size:0.85rem; color:var(--text-secondary); max-width:440px; margin:0 auto 1.25rem;">
+							يتم إنشاء المستودعات المؤقتة تلقائياً عند رفع ملفات كشوف الأسعار من قبل الموردين أو إدارة المنصة.
+						</p>
+						<a href="/compare/tool" class="btn btn-primary btn-sm" style="font-weight:700;">
+							رفع كشف مستودع جديد الآن
+						</a>
+					</div>
+				} else {
+					<div class="table-container">
+						<table class="b2b-table m-0">
+							<thead>
+								<tr>
+									<th style="width:50px;">#</th>
+									<th>اسم المستودع / المورد</th>
+									<th>اسم الملف المرفوع</th>
+									<th>عدد الأصناف</th>
+									<th>حجم الملف</th>
+									<th>الحالة في السوق</th>
+									<th>تاريخ الرفع</th>
+									<th style="width:240px; text-align:center;">الإجراءات والتجربة</th>
+								</tr>
+							</thead>
+							<tbody>
+								for idx, item := range data.Items {
+									<tr>
+										<td class="tabular-nums text-muted text-sm">
+											{ fmt.Sprintf("%d", idx+1) }
+										</td>
+										<td>
+											<div style="font-weight:800; color:var(--text); font-size:0.925rem;">
+												🏢 { item.SupplierName }
+											</div>
+										</td>
+										<td>
+											<div class="tabular-nums" style="font-family:var(--font-mono, monospace); font-size:0.8rem; color:var(--text-secondary); background:var(--surface-sunken); padding:2px 8px; border-radius:var(--radius-sm); border:1px solid var(--border); display:inline-block;">
+												{ item.OriginalFilename }
+											</div>
+										</td>
+										<td class="tabular-nums" style="font-weight:800; font-size:0.95rem; color:var(--accent);">
+											{ fmt.Sprintf("%d صنف", item.RowCount) }
+										</td>
+										<td class="tabular-nums text-muted text-xs">
+											if item.SizeBytes > 1024*1024 {
+												{ fmt.Sprintf("%.1f MB", float64(item.SizeBytes)/(1024*1024)) }
+											} else if item.SizeBytes > 1024 {
+												{ fmt.Sprintf("%.0f KB", float64(item.SizeBytes)/1024) }
+											} else {
+												{ fmt.Sprintf("%d B", item.SizeBytes) }
+											}
+										</td>
+										<td>
+											if item.Status == "ready" {
+												<span class="badge badge-emerald fw-800 text-xs" style="padding:0.3rem 0.65rem;">
+													🟢 متاح بالخصومات العامة
+												</span>
+											} else if item.Status == "archived" {
+												<span class="badge badge-slate text-xs" style="padding:0.3rem 0.65rem;">
+													📁 مؤرشف
+												</span>
+											} else if item.Status == "mapping" {
+												<span class="badge badge-amber text-xs" style="padding:0.3rem 0.65rem;">
+													⏳ قيد ضبط الأعمدة
+												</span>
+											} else {
+												<span class="badge badge-rose text-xs" style="padding:0.3rem 0.65rem;">
+													❌ { item.Status }
+												</span>
+											}
+										</td>
+										<td class="tabular-nums text-muted text-xs" style="white-space:nowrap;">
+											{ item.CreatedAt.Format("2006-01-02 15:04") }
+										</td>
+										<td>
+											<div style="display:flex; gap:0.4rem; justify-content:center; align-items:center; flex-wrap:wrap;">
+												<!-- Direct View Link to Market Discounts for this warehouse -->
+												<a
+													href={ templ.SafeURL(fmt.Sprintf("/market-discounts?supplier=%s", url.QueryEscape(item.SupplierName))) }
+													class="btn btn-secondary btn-sm"
+													style="padding:0.35rem 0.65rem; font-size:0.775rem; font-weight:700; color:var(--primary-700); border-color:var(--primary-300);"
+													title="استعراض أصناف هذا المستودع في صفحة الخصومات العامة"
+												>
+													🔍 استعراض الأصناف
+												</a>
+
+												<!-- Configure / Edit Column Mapping Modal -->
+												<a
+													href={ templ.SafeURL(fmt.Sprintf("/compare/tool?open_mapping=%d", item.ID)) }
+													class="btn btn-ghost btn-sm"
+													style="padding:0.35rem 0.65rem; font-size:0.775rem; font-weight:700;"
+													title="ضبط وتعيين الأعمدة"
+												>
+													⚙️ ضبط الأعمدة
+												</a>
+											</div>
+										</td>
+									</tr>
+								}
+							</tbody>
+						</table>
+					</div>
+				}
+			</div>
+
 		</div>
 	}
 }

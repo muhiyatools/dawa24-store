@@ -129,6 +129,47 @@ func (r *Repository) ListFiles(ctx context.Context, userID int64, orgID *int64, 
 	return list, err
 }
 
+func (r *Repository) ListAllFiles(ctx context.Context, search string, status *compare.CompareFileStatus) ([]*compare.CompareFile, error) {
+	var list []*compare.CompareFile
+	err := r.db.InReadTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
+		var whereClauses []string
+		var args []any
+		argIdx := 1
+
+		whereClauses = append(whereClauses, "deleted_at IS NULL")
+
+		if status != nil {
+			whereClauses = append(whereClauses, fmt.Sprintf("status = $%d", argIdx))
+			args = append(args, string(*status))
+			argIdx++
+		}
+
+		if search != "" {
+			q := "%" + strings.TrimSpace(search) + "%"
+			whereClauses = append(whereClauses, fmt.Sprintf("(supplier_name ILIKE $%d OR original_filename ILIKE $%d)", argIdx, argIdx))
+			args = append(args, q)
+			argIdx++
+		}
+
+		sql := `SELECT ` + fileColumns + ` FROM compare.files WHERE ` + strings.Join(whereClauses, " AND ") + ` ORDER BY created_at DESC;`
+		rows, err := tx.Query(txCtx, sql, args...)
+		if err != nil {
+			return err
+		}
+		defer rows.Close()
+
+		for rows.Next() {
+			f, err := scanFile(rows)
+			if err != nil {
+				return err
+			}
+			list = append(list, f)
+		}
+		return rows.Err()
+	})
+	return list, err
+}
+
 func (r *Repository) CountActiveFiles(ctx context.Context, userID int64, orgID *int64) (int, error) {
 	var count int
 	err := r.db.InReadTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {

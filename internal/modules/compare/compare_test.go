@@ -374,6 +374,20 @@ func (m *mockCompareRepo) ListFiles(ctx context.Context, userID int64, orgID *in
 	return list, nil
 }
 
+func (m *mockCompareRepo) ListAllFiles(ctx context.Context, search string, status *compare.CompareFileStatus) ([]*compare.CompareFile, error) {
+	var list []*compare.CompareFile
+	for _, f := range m.files {
+		if status != nil && f.Status != *status {
+			continue
+		}
+		if search != "" && !strings.Contains(strings.ToLower(f.SupplierName), strings.ToLower(search)) && !strings.Contains(strings.ToLower(f.OriginalFilename), strings.ToLower(search)) {
+			continue
+		}
+		list = append(list, f)
+	}
+	return list, nil
+}
+
 func (m *mockCompareRepo) CountActiveFiles(ctx context.Context, userID int64, orgID *int64) (int, error) {
 	count := 0
 	for _, f := range m.files {

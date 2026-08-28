@@ -52,6 +52,7 @@ type Repository interface {
 	GetFileByID(ctx context.Context, id int64) (*CompareFile, error)
 	GetFileByPublicID(ctx context.Context, publicID string) (*CompareFile, error)
 	ListFiles(ctx context.Context, userID int64, orgID *int64, status *CompareFileStatus) ([]*CompareFile, error)
+	ListAllFiles(ctx context.Context, search string, status *CompareFileStatus) ([]*CompareFile, error)
 	CountActiveFiles(ctx context.Context, userID int64, orgID *int64) (int, error)
 	UpdateFile(ctx context.Context, f *CompareFile) error
 	RenameFile(ctx context.Context, id int64, newSupplierName string) error

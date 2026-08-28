@@ -132,6 +132,13 @@ func (m *mockCompareRepoE2E) ListFiles(ctx context.Context, userID int64, orgID 
 	}
 	return list, nil
 }
+func (m *mockCompareRepoE2E) ListAllFiles(ctx context.Context, search string, status *compare.CompareFileStatus) ([]*compare.CompareFile, error) {
+	var list []*compare.CompareFile
+	for _, f := range m.files {
+		list = append(list, f)
+	}
+	return list, nil
+}
 func (m *mockCompareRepoE2E) CountActiveFiles(ctx context.Context, userID int64, orgID *int64) (int, error) {
 	return len(m.files), nil
 }
