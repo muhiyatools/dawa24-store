@@ -1194,7 +1194,7 @@ func AdminWarehousesPage(warehouses []*AdminWarehouseRowView, lang, dir string) 
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 115, "</div><!-- Live Stock Inspection Modal --><div x-show=\"modalOpen\" x-cloak class=\"modal-overlay\" @keydown.escape.window=\"modalOpen = false\"><div @click.outside=\"modalOpen = false\" class=\"modal-card modal-xl\"><!-- Modal Header --><div style=\"padding:1.25rem 1.75rem; border-bottom:1px solid var(--border); background:var(--surface-sunken); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem;\"><div class=\"row-center\"><div style=\"width:40px; height:40px; border-radius:var(--radius-lg); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center; font-size:1.2rem;\"></div><div><div class=\"row-center-sm\"><h3 style=\"font-size:1.15rem; font-weight:900; margin:0; color:var(--text);\" x-text=\"'مخزون مستودع: ' + activeWh.name\"></h3><span class=\"badge badge-sky text-xs fw-700\" x-show=\"activeWh.org_name\" x-text=\"activeWh.org_name\"></span></div><div style=\"font-size:0.8rem; color:var(--text-secondary); margin-top:2px;\" x-text=\"activeWh.address ? ('العنوان: ' + activeWh.address) : 'تفاصيل المخزون المسجل بالمنظومة'\"></div></div></div><div class=\"row-center\"><button type=\"button\" @click=\"modalOpen = false\" class=\"btn btn-secondary btn-sm\" style=\"font-weight:700; border-radius:var(--radius-full); width:32px; height:32px; padding:0; display:flex; align-items:center; justify-content:center;\">✕</button></div></div><!-- Modal Search & Stats Filter Bar --><div style=\"padding:1rem 1.75rem; border-bottom:1px solid var(--border); background:var(--surface-raised); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem;\"><div style=\"position:relative; flex:1; min-width:260px;\"><input type=\"text\" x-model=\"searchQuery\" placeholder=\"بحث باسم الدواء، الصنف، كود SKU، أو رقم التشغيلة…\" class=\"form-input\" style=\"width:100%; font-size:0.85rem; padding:0.45rem 1rem; border-radius:var(--radius-lg);\"></div><div style=\"display:flex; align-items:center; gap:0.5rem; font-size:0.8rem;\"><span class=\"badge badge-slate\" x-text=\"'الأصناف المعروضة: ' + filteredStocks.length\" style=\"font-weight:700; padding:0.35rem 0.75rem;\"></span></div></div><!-- Modal Body Table Content --><div style=\"flex:1; overflow-y:auto; padding:1.25rem 1.75rem;\"><!-- Loading Spinner --><div x-show=\"loading\" style=\"padding:3rem 1rem; text-align:center;\"><div style=\"display:inline-block; font-size:2rem; animation:spin 1s linear infinite;\">⏳</div><p style=\"font-size:0.875rem; color:var(--text-secondary); font-weight:700; margin-top:0.75rem;\">جاري جلب أرصدة المخزون وتفاصيل الأصناف من قاعدة البيانات…</p></div><!-- Error Message --><div x-show=\"!loading && error\" style=\"padding:2rem 1rem; text-align:center; color:var(--danger-text);\"><p x-text=\"error\" style=\"font-weight:700; font-size:0.9rem;\"></p></div><!-- Empty State inside modal --><div x-show=\"!loading && !error && filteredStocks.length === 0\" style=\"padding:3rem 1rem; text-align:center;\"><div style=\"font-size:2.5rem; margin-bottom:0.5rem;\"></div><h4 class=\"text-base fw-800 text-primary m-0\">لا توجد أصناف مخزنة مطابقة</h4><p style=\"font-size:0.825rem; color:var(--text-secondary); margin-top:0.35rem;\">لم يتم تسجيل أي رصيد مخزني لهذا المستودع يطابق معايير البحث.</p></div><!-- Live Table --><div x-show=\"!loading && !error && filteredStocks.length > 0\" class=\"table-container\" style=\"border:1px solid var(--border); border-radius:var(--radius-lg); overflow:hidden;\"><table class=\"b2b-table m-0\"><thead><tr><th>اسم الدواء والصنف</th><th>كود SKU والباركود</th><th>رقم التشغيلة والصلاحية</th><th>سعر التوريد</th><th>قابل للتفاوض</th><th>الرصيد المتاح</th><th>حد الأمان</th><th>الحالة</th></tr></thead> <tbody><template x-for=\"st in filteredStocks\" :key=\"st.stock_id\"><tr><td><div><strong style=\"color:var(--text); font-size:0.9rem;\" x-text=\"st.product_name || 'صنف دوائي'\"></strong><div class=\"text-xs text-muted\" x-show=\"st.variant_name\" x-text=\"st.variant_name\"></div></div></td><td class=\"tabular-nums\" style=\"font-family:var(--font-mono, monospace); font-size:0.8rem;\"><span x-text=\"st.sku || st.barcode || '-'\"></span></td><td class=\"tabular-nums\"><div class=\"text-sm fw-700\" x-text=\"st.batch_number ? ('تشغيلة: ' + st.batch_number) : '-'\"></div><div style=\"font-size:0.725rem; color:var(--text-muted);\" x-show=\"st.expiry_date\" x-text=\"'صلاحية: ' + (st.expiry_date ? st.expiry_date.substring(0,10) : '')\"></div></td><td class=\"tabular-nums\" style=\"font-weight:700; color:var(--primary-600);\"><span x-text=\"st.price_str ? (st.price_str + ' ج.م') : '-'\"></span></td><td><span class=\"badge badge-amber\" x-show=\"st.is_negotiable\" style=\"font-size:0.725rem; font-weight:800;\">نعم</span> <span class=\"badge badge-slate text-xs\" x-show=\"!st.is_negotiable\">لا (ثابت)</span></td><td class=\"tabular-nums\"><strong class=\"text-base\" :style=\"st.quantity > st.min_threshold ? 'color:var(--primary-600);' : 'color:var(--danger-text);'\" x-text=\"st.quantity\"></strong></td><td class=\"tabular-nums\" style=\"color:var(--text-muted); font-size:0.85rem;\" x-text=\"st.min_threshold\"></td><td><span class=\"badge badge-emerald\" x-show=\"st.quantity > st.min_threshold\">متوفر</span> <span class=\"badge badge-amber\" x-show=\"st.quantity > 0 && st.quantity <= st.min_threshold\">منخفض</span> <span class=\"badge badge-rose\" x-show=\"st.quantity <= 0\">نفد المخزون</span></td></tr></template></tbody></table></div></div><!-- Modal Footer --><div style=\"padding:1rem 1.75rem; border-top:1px solid var(--border); background:var(--surface-sunken); display:flex; justify-content:flex-end;\"><button type=\"button\" @click=\"modalOpen = false\" class=\"btn btn-secondary\" style=\"font-weight:700; font-size:0.85rem; padding:0.45rem 1.5rem;\">إغلاق</button></div></div></div></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 115, "</div><!-- Live Stock Inspection Modal --><div x-show=\"modalOpen\" x-cloak class=\"modal-overlay\" @keydown.escape.window=\"modalOpen = false\"><div @click.outside=\"modalOpen = false\" class=\"modal-card modal-xl\"><!-- Modal Header --><div style=\"padding:1.25rem 1.75rem; border-bottom:1px solid var(--border); background:var(--surface-sunken); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem;\"><div class=\"row-center\"><div style=\"width:40px; height:40px; border-radius:var(--radius-lg); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center; font-size:1.2rem;\"></div><div><div class=\"row-center-sm\"><h3 style=\"font-size:1.15rem; font-weight:900; margin:0; color:var(--text);\" x-text=\"'مخزون مستودع: ' + activeWh.name\"></h3><span class=\"badge badge-sky text-xs fw-700\" x-show=\"activeWh.org_name\" x-text=\"activeWh.org_name\"></span></div><div style=\"font-size:0.8rem; color:var(--text-secondary); margin-top:2px;\" x-text=\"activeWh.address ? ('العنوان: ' + activeWh.address) : 'تفاصيل المخزون المسجل بالمنظومة'\"></div></div></div><div class=\"row-center\"><button type=\"button\" @click=\"modalOpen = false\" class=\"btn btn-secondary btn-sm\" style=\"font-weight:700; border-radius:var(--radius-full); width:32px; height:32px; padding:0; display:flex; align-items:center; justify-content:center;\">✕</button></div></div><!-- Modal Search & Stats Filter Bar --><div style=\"padding:1rem 1.75rem; border-bottom:1px solid var(--border); background:var(--surface-raised); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem;\"><div style=\"position:relative; flex:1; min-width:260px;\"><input type=\"text\" x-model=\"searchQuery\" placeholder=\"بحث باسم الدواء، الصنف، كود SKU، أو رقم التشغيلة…\" class=\"form-input\" style=\"width:100%; font-size:0.85rem; padding:0.45rem 1rem; border-radius:var(--radius-lg);\"></div><div style=\"display:flex; align-items:center; gap:0.5rem; font-size:0.8rem;\"><span class=\"badge badge-slate\" x-text=\"'الأصناف المعروضة: ' + filteredStocks.length\" style=\"font-weight:700; padding:0.35rem 0.75rem;\"></span></div></div><!-- Modal Body Table Content --><div style=\"flex:1; overflow-y:auto; padding:1.25rem 1.75rem;\"><!-- Loading Spinner --><div x-show=\"loading\" style=\"padding:3rem 1rem; text-align:center;\"><div style=\"display:inline-block; font-size:2rem; animation:spin 1s linear infinite;\">⏳</div><p style=\"font-size:0.875rem; color:var(--text-secondary); font-weight:700; margin-top:0.75rem;\">جاري جلب أرصدة المخزون وتفاصيل الأصناف من قاعدة البيانات…</p></div><!-- Error Message --><div x-show=\"!loading && error\" style=\"padding:2rem 1rem; text-align:center; color:var(--danger-text);\"><p x-text=\"error\" style=\"font-weight:700; font-size:0.9rem;\"></p></div><!-- Empty State inside modal --><div x-show=\"!loading && !error && filteredStocks.length === 0\" style=\"padding:3rem 1rem; text-align:center;\"><div style=\"font-size:2.5rem; margin-bottom:0.5rem;\"></div><h4 class=\"text-base fw-800 text-primary m-0\">لا توجد أصناف مخزنة مطابقة</h4><p style=\"font-size:0.825rem; color:var(--text-secondary); margin-top:0.35rem;\">لم يتم تسجيل أي رصيد مخزني لهذا المستودع يطابق معايير البحث.</p></div><!-- Live Table --><div x-show=\"!loading && !error && filteredStocks.length > 0\" class=\"table-container\" style=\"border:1px solid var(--border); border-radius:var(--radius-lg); overflow:hidden;\"><table class=\"b2b-table m-0\"><thead><tr><th>اسم الدواء والصنف</th><th>كود SKU والباركود</th><th>رقم التشغيلة والصلاحية</th><th>سعر التوريد قبل الخصم</th><th>الخصم</th><th>قابل للتفاوض</th><th>الرصيد المتاح</th><th>حد الأمان</th><th>الحالة</th></tr></thead> <tbody><template x-for=\"st in filteredStocks\" :key=\"st.stock_id\"><tr><td><div><strong style=\"color:var(--text); font-size:0.9rem;\" x-text=\"st.product_name || 'صنف دوائي'\"></strong><div class=\"text-xs text-muted\" x-show=\"st.variant_name\" x-text=\"st.variant_name\"></div></div></td><td class=\"tabular-nums\" style=\"font-family:var(--font-mono, monospace); font-size:0.8rem;\"><span x-text=\"st.sku || st.barcode || '-'\"></span></td><td class=\"tabular-nums\"><div class=\"text-sm fw-700\" x-text=\"st.batch_number ? ('تشغيلة: ' + st.batch_number) : '-'\"></div><div style=\"font-size:0.725rem; color:var(--text-muted);\" x-show=\"st.expiry_date\" x-text=\"'صلاحية: ' + (st.expiry_date ? st.expiry_date.substring(0,10) : '')\"></div></td><td class=\"tabular-nums\" style=\"font-weight:700; color:var(--primary-600);\"><span x-text=\"st.price_str ? (st.price_str + ' ج.م') : '-'\"></span></td><td class=\"tabular-nums\" style=\"font-weight:700; color:var(--emerald);\"><span x-text=\"(st.discount_str || '0.00') + ' ج.م'\"></span></td><td><span class=\"badge badge-amber\" x-show=\"st.is_negotiable\" style=\"font-size:0.725rem; font-weight:800;\">نعم</span> <span class=\"badge badge-slate text-xs\" x-show=\"!st.is_negotiable\">لا (ثابت)</span></td><td class=\"tabular-nums\"><strong class=\"text-base\" :style=\"st.quantity > st.min_threshold ? 'color:var(--primary-600);' : 'color:var(--danger-text);'\" x-text=\"st.quantity\"></strong></td><td class=\"tabular-nums\" style=\"color:var(--text-muted); font-size:0.85rem;\" x-text=\"st.min_threshold\"></td><td><span class=\"badge badge-emerald\" x-show=\"st.quantity > st.min_threshold\">متوفر</span> <span class=\"badge badge-amber\" x-show=\"st.quantity > 0 && st.quantity <= st.min_threshold\">منخفض</span> <span class=\"badge badge-rose\" x-show=\"st.quantity <= 0\">نفد المخزون</span></td></tr></template></tbody></table></div></div><!-- Modal Footer --><div style=\"padding:1rem 1.75rem; border-top:1px solid var(--border); background:var(--surface-sunken); display:flex; justify-content:flex-end;\"><button type=\"button\" @click=\"modalOpen = false\" class=\"btn btn-secondary\" style=\"font-weight:700; font-size:0.85rem; padding:0.45rem 1.5rem;\">إغلاق</button></div></div></div></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -1249,7 +1249,7 @@ func AdminWarehouseDetailPage(wh *inventory.Warehouse, stocks []*inventory.Stock
 			var templ_7745c5c3_Var58 string
 			templ_7745c5c3_Var58, templ_7745c5c3_Err = templ.JoinStringErrs(wh.Name)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_catalog_inventory.templ`, Line: 619, Col: 41}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_catalog_inventory.templ`, Line: 623, Col: 41}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var58))
 			if templ_7745c5c3_Err != nil {
@@ -1262,7 +1262,7 @@ func AdminWarehouseDetailPage(wh *inventory.Warehouse, stocks []*inventory.Stock
 			var templ_7745c5c3_Var59 string
 			templ_7745c5c3_Var59, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", wh.OrganizationID))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_catalog_inventory.templ`, Line: 620, Col: 75}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_catalog_inventory.templ`, Line: 624, Col: 75}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var59))
 			if templ_7745c5c3_Err != nil {
@@ -1275,7 +1275,7 @@ func AdminWarehouseDetailPage(wh *inventory.Warehouse, stocks []*inventory.Stock
 			var templ_7745c5c3_Var60 string
 			templ_7745c5c3_Var60, templ_7745c5c3_Err = templ.JoinStringErrs(wh.Address)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_catalog_inventory.templ`, Line: 620, Col: 92}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_catalog_inventory.templ`, Line: 624, Col: 92}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var60))
 			if templ_7745c5c3_Err != nil {
@@ -1432,7 +1432,7 @@ func AdminSavingProductsPage(data AdminSavingProductsData, lang, dir string) tem
 				var templ_7745c5c3_Var65 string
 				templ_7745c5c3_Var65, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", data.Stats.TotalProducts))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_catalog_inventory.templ`, Line: 696, Col: 140}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_catalog_inventory.templ`, Line: 700, Col: 140}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var65))
 				if templ_7745c5c3_Err != nil {
@@ -1445,7 +1445,7 @@ func AdminSavingProductsPage(data AdminSavingProductsData, lang, dir string) tem
 				var templ_7745c5c3_Var66 string
 				templ_7745c5c3_Var66, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", data.Stats.TotalUsers))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_catalog_inventory.templ`, Line: 702, Col: 139}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_catalog_inventory.templ`, Line: 706, Col: 139}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var66))
 				if templ_7745c5c3_Err != nil {
@@ -1458,7 +1458,7 @@ func AdminSavingProductsPage(data AdminSavingProductsData, lang, dir string) tem
 				var templ_7745c5c3_Var67 string
 				templ_7745c5c3_Var67, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", data.Stats.TotalOrganizations))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_catalog_inventory.templ`, Line: 702, Col: 283}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_catalog_inventory.templ`, Line: 706, Col: 283}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var67))
 				if templ_7745c5c3_Err != nil {
@@ -1471,7 +1471,7 @@ func AdminSavingProductsPage(data AdminSavingProductsData, lang, dir string) tem
 				var templ_7745c5c3_Var68 string
 				templ_7745c5c3_Var68, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%.0f", data.Stats.TotalQuantity))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_catalog_inventory.templ`, Line: 708, Col: 145}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_catalog_inventory.templ`, Line: 712, Col: 145}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var68))
 				if templ_7745c5c3_Err != nil {
@@ -1484,7 +1484,7 @@ func AdminSavingProductsPage(data AdminSavingProductsData, lang, dir string) tem
 				var templ_7745c5c3_Var69 string
 				templ_7745c5c3_Var69, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", data.Stats.CountLinked))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_catalog_inventory.templ`, Line: 715, Col: 135}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_catalog_inventory.templ`, Line: 719, Col: 135}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var69))
 				if templ_7745c5c3_Err != nil {
@@ -1497,7 +1497,7 @@ func AdminSavingProductsPage(data AdminSavingProductsData, lang, dir string) tem
 				var templ_7745c5c3_Var70 string
 				templ_7745c5c3_Var70, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", data.Stats.CountUnlinked))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_catalog_inventory.templ`, Line: 716, Col: 135}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_catalog_inventory.templ`, Line: 720, Col: 135}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var70))
 				if templ_7745c5c3_Err != nil {
@@ -1515,7 +1515,7 @@ func AdminSavingProductsPage(data AdminSavingProductsData, lang, dir string) tem
 			var templ_7745c5c3_Var71 string
 			templ_7745c5c3_Var71, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", len(data.Organizations)))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_catalog_inventory.templ`, Line: 732, Col: 93}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_catalog_inventory.templ`, Line: 736, Col: 93}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var71))
 			if templ_7745c5c3_Err != nil {
@@ -1533,7 +1533,7 @@ func AdminSavingProductsPage(data AdminSavingProductsData, lang, dir string) tem
 				var templ_7745c5c3_Var72 string
 				templ_7745c5c3_Var72, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%d", o.ID))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_catalog_inventory.templ`, Line: 734, Col: 48}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_catalog_inventory.templ`, Line: 738, Col: 48}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var72)
 				if templ_7745c5c3_Err != nil {
@@ -1556,7 +1556,7 @@ func AdminSavingProductsPage(data AdminSavingProductsData, lang, dir string) tem
 				var templ_7745c5c3_Var73 string
 				templ_7745c5c3_Var73, templ_7745c5c3_Err = templ.JoinStringErrs(o.Name)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_catalog_inventory.templ`, Line: 735, Col: 18}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_catalog_inventory.templ`, Line: 739, Col: 18}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var73))
 				if templ_7745c5c3_Err != nil {
@@ -1569,7 +1569,7 @@ func AdminSavingProductsPage(data AdminSavingProductsData, lang, dir string) tem
 				var templ_7745c5c3_Var74 string
 				templ_7745c5c3_Var74, templ_7745c5c3_Err = templ.JoinStringErrs(o.Type)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_catalog_inventory.templ`, Line: 735, Col: 30}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_catalog_inventory.templ`, Line: 739, Col: 30}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var74))
 				if templ_7745c5c3_Err != nil {
@@ -1587,7 +1587,7 @@ func AdminSavingProductsPage(data AdminSavingProductsData, lang, dir string) tem
 			var templ_7745c5c3_Var75 string
 			templ_7745c5c3_Var75, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", len(data.Users)))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_catalog_inventory.templ`, Line: 745, Col: 91}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_catalog_inventory.templ`, Line: 749, Col: 91}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var75))
 			if templ_7745c5c3_Err != nil {
@@ -1605,7 +1605,7 @@ func AdminSavingProductsPage(data AdminSavingProductsData, lang, dir string) tem
 				var templ_7745c5c3_Var76 string
 				templ_7745c5c3_Var76, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%d", u.ID))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_catalog_inventory.templ`, Line: 747, Col: 48}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_catalog_inventory.templ`, Line: 751, Col: 48}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var76)
 				if templ_7745c5c3_Err != nil {
@@ -1628,7 +1628,7 @@ func AdminSavingProductsPage(data AdminSavingProductsData, lang, dir string) tem
 				var templ_7745c5c3_Var77 string
 				templ_7745c5c3_Var77, templ_7745c5c3_Err = templ.JoinStringErrs(u.Name)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_catalog_inventory.templ`, Line: 748, Col: 18}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_catalog_inventory.templ`, Line: 752, Col: 18}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var77))
 				if templ_7745c5c3_Err != nil {
@@ -1676,7 +1676,7 @@ func AdminSavingProductsPage(data AdminSavingProductsData, lang, dir string) tem
 			var templ_7745c5c3_Var78 string
 			templ_7745c5c3_Var78, templ_7745c5c3_Err = templ.ResolveAttributeValue(data.SearchQuery)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_catalog_inventory.templ`, Line: 771, Col: 33}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_catalog_inventory.templ`, Line: 775, Col: 33}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var78)
 			if templ_7745c5c3_Err != nil {
@@ -1715,7 +1715,7 @@ func AdminSavingProductsPage(data AdminSavingProductsData, lang, dir string) tem
 			var templ_7745c5c3_Var79 string
 			templ_7745c5c3_Var79, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", len(data.Items)))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_catalog_inventory.templ`, Line: 802, Col: 82}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_catalog_inventory.templ`, Line: 806, Col: 82}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var79))
 			if templ_7745c5c3_Err != nil {
@@ -1751,7 +1751,7 @@ func AdminSavingProductsPage(data AdminSavingProductsData, lang, dir string) tem
 					var templ_7745c5c3_Var80 string
 					templ_7745c5c3_Var80, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", item.ID))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_catalog_inventory.templ`, Line: 837, Col: 40}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_catalog_inventory.templ`, Line: 841, Col: 40}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var80))
 					if templ_7745c5c3_Err != nil {
@@ -1764,7 +1764,7 @@ func AdminSavingProductsPage(data AdminSavingProductsData, lang, dir string) tem
 					var templ_7745c5c3_Var81 string
 					templ_7745c5c3_Var81, templ_7745c5c3_Err = templ.JoinStringErrs(item.NameProduct)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_catalog_inventory.templ`, Line: 840, Col: 62}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_catalog_inventory.templ`, Line: 844, Col: 62}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var81))
 					if templ_7745c5c3_Err != nil {
@@ -1782,7 +1782,7 @@ func AdminSavingProductsPage(data AdminSavingProductsData, lang, dir string) tem
 						var templ_7745c5c3_Var82 string
 						templ_7745c5c3_Var82, templ_7745c5c3_Err = templ.JoinStringErrs(item.SKU)
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_catalog_inventory.templ`, Line: 843, Col: 28}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_catalog_inventory.templ`, Line: 847, Col: 28}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var82))
 						if templ_7745c5c3_Err != nil {
@@ -1800,7 +1800,7 @@ func AdminSavingProductsPage(data AdminSavingProductsData, lang, dir string) tem
 					var templ_7745c5c3_Var83 string
 					templ_7745c5c3_Var83, templ_7745c5c3_Err = templ.JoinStringErrs(item.UserName)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_catalog_inventory.templ`, Line: 850, Col: 28}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_catalog_inventory.templ`, Line: 854, Col: 28}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var83))
 					if templ_7745c5c3_Err != nil {
@@ -1813,7 +1813,7 @@ func AdminSavingProductsPage(data AdminSavingProductsData, lang, dir string) tem
 					var templ_7745c5c3_Var84 string
 					templ_7745c5c3_Var84, templ_7745c5c3_Err = templ.JoinStringErrs(item.OrganizationName)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_catalog_inventory.templ`, Line: 854, Col: 37}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_catalog_inventory.templ`, Line: 858, Col: 37}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var84))
 					if templ_7745c5c3_Err != nil {
@@ -1831,7 +1831,7 @@ func AdminSavingProductsPage(data AdminSavingProductsData, lang, dir string) tem
 						var templ_7745c5c3_Var85 string
 						templ_7745c5c3_Var85, templ_7745c5c3_Err = templ.JoinStringErrs(item.UserPhone)
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_catalog_inventory.templ`, Line: 857, Col: 67}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_catalog_inventory.templ`, Line: 861, Col: 67}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var85))
 						if templ_7745c5c3_Err != nil {
@@ -1862,7 +1862,7 @@ func AdminSavingProductsPage(data AdminSavingProductsData, lang, dir string) tem
 						var templ_7745c5c3_Var86 string
 						templ_7745c5c3_Var86, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", *item.ProductID))
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_catalog_inventory.templ`, Line: 867, Col: 69}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_catalog_inventory.templ`, Line: 871, Col: 69}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var86))
 						if templ_7745c5c3_Err != nil {
@@ -1875,7 +1875,7 @@ func AdminSavingProductsPage(data AdminSavingProductsData, lang, dir string) tem
 						var templ_7745c5c3_Var87 string
 						templ_7745c5c3_Var87, templ_7745c5c3_Err = templ.JoinStringErrs(item.MasterProductName)
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_catalog_inventory.templ`, Line: 870, Col: 38}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_catalog_inventory.templ`, Line: 874, Col: 38}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var87))
 						if templ_7745c5c3_Err != nil {
@@ -1898,7 +1898,7 @@ func AdminSavingProductsPage(data AdminSavingProductsData, lang, dir string) tem
 					var templ_7745c5c3_Var88 string
 					templ_7745c5c3_Var88, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%.0f", item.Quantity))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_catalog_inventory.templ`, Line: 880, Col: 47}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_catalog_inventory.templ`, Line: 884, Col: 47}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var88))
 					if templ_7745c5c3_Err != nil {
@@ -1911,7 +1911,7 @@ func AdminSavingProductsPage(data AdminSavingProductsData, lang, dir string) tem
 					var templ_7745c5c3_Var89 string
 					templ_7745c5c3_Var89, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%s ج.م", item.Price.String()))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_catalog_inventory.templ`, Line: 883, Col: 57}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_catalog_inventory.templ`, Line: 887, Col: 57}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var89))
 					if templ_7745c5c3_Err != nil {
@@ -1924,7 +1924,7 @@ func AdminSavingProductsPage(data AdminSavingProductsData, lang, dir string) tem
 					var templ_7745c5c3_Var90 string
 					templ_7745c5c3_Var90, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%s ج.م", item.TotalValue.String()))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_catalog_inventory.templ`, Line: 886, Col: 62}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_catalog_inventory.templ`, Line: 890, Col: 62}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var90))
 					if templ_7745c5c3_Err != nil {
@@ -1937,7 +1937,7 @@ func AdminSavingProductsPage(data AdminSavingProductsData, lang, dir string) tem
 					var templ_7745c5c3_Var91 string
 					templ_7745c5c3_Var91, templ_7745c5c3_Err = templ.JoinStringErrs(item.CreatedAt.Format("2006-01-02 15:04"))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_catalog_inventory.templ`, Line: 889, Col: 54}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_catalog_inventory.templ`, Line: 893, Col: 54}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var91))
 					if templ_7745c5c3_Err != nil {
@@ -1955,7 +1955,7 @@ func AdminSavingProductsPage(data AdminSavingProductsData, lang, dir string) tem
 						var templ_7745c5c3_Var92 templ.SafeURL
 						templ_7745c5c3_Var92, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("/admin/products/%d", *item.ProductID)))
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_catalog_inventory.templ`, Line: 893, Col: 87}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_catalog_inventory.templ`, Line: 897, Col: 87}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var92))
 						if templ_7745c5c3_Err != nil {
@@ -1973,7 +1973,7 @@ func AdminSavingProductsPage(data AdminSavingProductsData, lang, dir string) tem
 						var templ_7745c5c3_Var93 templ.SafeURL
 						templ_7745c5c3_Var93, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("/admin/products?q=%s", item.NameProduct)))
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_catalog_inventory.templ`, Line: 897, Col: 90}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_catalog_inventory.templ`, Line: 901, Col: 90}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var93))
 						if templ_7745c5c3_Err != nil {

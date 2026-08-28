@@ -551,7 +551,8 @@ templ AdminWarehousesPage(warehouses []*AdminWarehouseRowView, lang, dir string)
 										<th>اسم الدواء والصنف</th>
 										<th>كود SKU والباركود</th>
 										<th>رقم التشغيلة والصلاحية</th>
-										<th>سعر التوريد</th>
+										<th>سعر التوريد قبل الخصم</th>
+										<th>الخصم</th>
 										<th>قابل للتفاوض</th>
 										<th>الرصيد المتاح</th>
 										<th>حد الأمان</th>
@@ -576,6 +577,9 @@ templ AdminWarehousesPage(warehouses []*AdminWarehouseRowView, lang, dir string)
 											</td>
 											<td class="tabular-nums" style="font-weight:700; color:var(--primary-600);">
 												<span x-text="st.price_str ? (st.price_str + ' ج.م') : '-'"></span>
+											</td>
+											<td class="tabular-nums" style="font-weight:700; color:var(--emerald);">
+												<span x-text="(st.discount_str || '0.00') + ' ج.م'"></span>
 											</td>
 											<td>
 												<span class="badge badge-amber" x-show="st.is_negotiable" style="font-size:0.725rem; font-weight:800;">نعم</span>

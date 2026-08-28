@@ -119,7 +119,7 @@ func VendorOfferFormPage(data VendorOfferFormData, lang, dir string) templ.Compo
 					return templ_7745c5c3_Err
 				}
 			} else {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "<div style=\"overflow-x:auto;\"><table style=\"width:100%; border-collapse:collapse; text-align:start; font-size:0.875rem;\"><thead><tr style=\"border-bottom:1px solid var(--border); color:var(--text-muted); font-size:0.75rem; text-transform:uppercase;\"><th style=\"padding:0.75rem; width:50px;\">شمول</th><th class=\"p-sm\">الصنف الدوائي</th><th class=\"p-sm\">السعر الأصلي</th><th class=\"p-sm\">الكمية (Qty)</th><th class=\"p-sm\">خصم % مخصص</th><th class=\"p-sm\">سعر العرض المخصص</th></tr></thead> <tbody>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "<div style=\"overflow-x:auto;\"><table style=\"width:100%; border-collapse:collapse; text-align:start; font-size:0.875rem;\"><thead><tr style=\"border-bottom:1px solid var(--border); color:var(--text-muted); font-size:0.75rem; text-transform:uppercase;\"><th style=\"padding:0.75rem; width:50px;\">شمول</th><th class=\"p-sm\">الصنف الدوائي</th><th class=\"p-sm\">السعر قبل الخصم</th><th class=\"p-sm\">الكمية (Qty)</th><th class=\"p-sm\">خصم % مخصص</th><th class=\"p-sm\">سعر العرض المخصص</th></tr></thead> <tbody>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}

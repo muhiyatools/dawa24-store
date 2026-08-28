@@ -276,8 +276,8 @@ templ CustomerProductDetail(product *catalog.Product, variants []*catalog.Produc
 							<thead>
 								<tr style="background:var(--surface-sunken); border-bottom:1px solid var(--border); font-size:0.8rem; color:var(--text-muted); text-transform:uppercase;">
 									<th style="padding:1rem 1.25rem; font-weight:800;">المورد والفرع</th>
-									<th style="padding:1rem; font-weight:800;">سعر التوريد</th>
-									<th style="padding:1rem; font-weight:800;">الخصم والوفر</th>
+									<th style="padding:1rem; font-weight:800;">سعر التوريد قبل الخصم</th>
+									<th style="padding:1rem; font-weight:800;">الخصم</th>
 									<th style="padding:1rem; font-weight:800;">المخزون المتاح</th>
 									<th style="padding:1rem; font-weight:800;">حالة التغطية</th>
 									<th style="padding:1rem 1.25rem; font-weight:800; text-align:end;">الشراء</th>
@@ -301,20 +301,23 @@ templ CustomerProductDetail(product *catalog.Product, variants []*catalog.Produc
 											}
 										</td>
 
-										<!-- Price -->
+										<!-- Price Before Discount -->
 										<td style="padding:1rem; font-weight:900; color:var(--primary-600); font-family:var(--font-mono, monospace); font-size:1.05rem;">
-											{ off.Price.String() } ج.م
+											if off.OldPrice.IsPositive() {
+												{ off.OldPrice.String() } ج.م
+											} else {
+												{ off.Price.String() } ج.م
+											}
 										</td>
 
 										<!-- Discount -->
 										<td class="p-md">
-											if off.DiscountBPS > 0 {
-												<span class="badge badge-emerald text-xs fw-800">
-													{ fmt.Sprintf("خصم %.1f%%", float64(off.DiscountBPS)/100.0) }
-												</span>
-											} else {
-												<span class="text-muted text-sm">سعر قياسي</span>
-											}
+											<span class="badge badge-emerald text-xs fw-800">
+												{ off.DiscountAmount.String() } ج.م
+												if off.DiscountBPS > 0 {
+													{ fmt.Sprintf(" (%.1f%%)", float64(off.DiscountBPS)/100.0) }
+												}
+											</span>
 										</td>
 
 										<!-- Stock -->
