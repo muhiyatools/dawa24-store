@@ -479,8 +479,25 @@ func (m *mockCompareRepo) ListFileRows(ctx context.Context, fileID int64, limit,
 	return m.fileRows[fileID], nil
 }
 
+func (m *mockCompareRepo) GetFileRowsPaginated(ctx context.Context, fileID int64, page, limit int) ([]*compare.CompareFileRow, int64, error) {
+	rows := m.fileRows[fileID]
+	return rows, int64(len(rows)), nil
+}
+
 func (m *mockCompareRepo) DeleteFileRows(ctx context.Context, fileID int64) error {
 	delete(m.fileRows, fileID)
+	return nil
+}
+
+func (m *mockCompareRepo) DeleteFileRow(ctx context.Context, rowID int64) error {
+	for fileID, rows := range m.fileRows {
+		for i, r := range rows {
+			if r.ID == rowID {
+				m.fileRows[fileID] = append(rows[:i], rows[i+1:]...)
+				return nil
+			}
+		}
+	}
 	return nil
 }
 

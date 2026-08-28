@@ -780,3 +780,30 @@ func extractNumber(s string) (float64, error) {
 func (s *Service) ListMarketDiscounts(ctx context.Context, filter MarketDiscountsFilter) (*MarketDiscountsResult, error) {
 	return s.repo.ListMarketDiscounts(ctx, filter)
 }
+
+// GetFileRowsPaginated retrieves paginated rows for a specific warehouse file.
+func (s *Service) GetFileRowsPaginated(ctx context.Context, fileID int64, page, limit int) ([]*CompareFileRow, int64, error) {
+	return s.repo.GetFileRowsPaginated(ctx, fileID, page, limit)
+}
+
+// DeleteFileRow deletes a single item from a temporary warehouse and decrements row_count.
+func (s *Service) DeleteFileRow(ctx context.Context, rowID int64) error {
+	return s.repo.DeleteFileRow(ctx, rowID)
+}
+
+// CreateFile creates a new compare/warehouse file record.
+func (s *Service) CreateFile(ctx context.Context, f *CompareFile) error {
+	return s.repo.CreateFile(ctx, f)
+}
+
+// UpdateFile updates compare/warehouse file metadata.
+func (s *Service) UpdateFile(ctx context.Context, f *CompareFile) error {
+	return s.repo.UpdateFile(ctx, f)
+}
+
+// InsertFileRows inserts rows for a compare/warehouse file.
+func (s *Service) InsertFileRows(ctx context.Context, rows []*CompareFileRow) error {
+	return s.repo.InsertFileRows(ctx, rows)
+}
+
+

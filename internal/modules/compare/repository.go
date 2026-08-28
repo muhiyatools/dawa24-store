@@ -64,7 +64,9 @@ type Repository interface {
 	// Compare File Rows
 	InsertFileRows(ctx context.Context, rows []*CompareFileRow) error
 	ListFileRows(ctx context.Context, fileID int64, limit, offset int) ([]*CompareFileRow, error)
+	GetFileRowsPaginated(ctx context.Context, fileID int64, page, limit int) ([]*CompareFileRow, int64, error)
 	DeleteFileRows(ctx context.Context, fileID int64) error
+	DeleteFileRow(ctx context.Context, rowID int64) error
 	UpdateFileRowMatch(ctx context.Context, rowID int64, matchedProductID *int64, method MatchMethod, confidence float64) error
 
 	// Deterministic Product Matching & Saved Mappings (Plan V5 Phase 2 §2.4)

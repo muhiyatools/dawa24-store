@@ -374,29 +374,29 @@ func isExpired(exp *time.Time) bool {
 // VendorWarehouseDetailPage renders complete warehouse inventory details, filters, KPIs, and stock adjustment tools.
 templ VendorWarehouseDetailPage(data VendorWarehouseDetailData, lang, dir string) {
 	@layouts.VendorShell(fmt.Sprintf("مخزن: %s | جرد المخزون", data.Warehouse.Name), "warehouses", lang, dir) {
-		<div x-data="{ adjustModal: false, adjustStock: { id: 0, name: '', batch: '', qty: 0, min: 0 } }" class="space-y-6">
+		<div x-data="{ adjustModal: false, adjustStock: { id: 0, name: '', batch: '', qty: 0, min: 0 } }" class="space-y-6" style="max-width:1440px; margin:0 auto 3rem auto;">
 			
 			<!-- Breadcrumb & Top Action Navigation -->
 			<div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem;">
-				<div class="row-center-sm gap-xs text-sm text-muted">
-					<a href="/vendor/warehouses" class="text-primary fw-700">المخازن ومواقع التخزين</a>
+				<div style="display:flex; align-items:center; gap:0.5rem; font-size:0.875rem; color:var(--text-muted);">
+					<a href="/vendor/warehouses" style="color:var(--accent); font-weight:700; text-decoration:none;">المخازن ومواقع التخزين</a>
 					<span>/</span>
-					<span class="text-foreground fw-800">{ data.Warehouse.Name }</span>
+					<span style="color:var(--text); font-weight:800;">{ data.Warehouse.Name }</span>
 				</div>
-				<div class="row-center gap-xs flex-wrap">
-					<a href="/vendor/warehouses" class="btn btn-secondary btn-sm">
+				<div style="display:flex; align-items:center; gap:0.5rem; flex-wrap:wrap;">
+					<a href="/vendor/warehouses" class="btn btn-secondary btn-sm" style="font-weight:700; border-radius:var(--radius-lg); gap:0.4rem;">
 						@components.IconArrowRight("icon-xs")
 						<span>العودة للمخازن</span>
 					</a>
-					<a href="/vendor/transfers" class="btn btn-secondary btn-sm">
+					<a href="/vendor/transfers" class="btn btn-secondary btn-sm" style="font-weight:700; border-radius:var(--radius-lg); gap:0.4rem;">
 						@components.IconRefresh("icon-xs")
 						<span>التحويلات المخزنية</span>
 					</a>
-					<a href="/vendor/ingest" class="btn btn-secondary btn-sm">
+					<a href="/vendor/ingest" class="btn btn-secondary btn-sm" style="font-weight:700; border-radius:var(--radius-lg); gap:0.4rem;">
 						@components.IconPackage("icon-xs")
 						<span>استيراد كشف أسعار ومخزون</span>
 					</a>
-					<a href="/vendor/inventory" class="btn btn-primary btn-sm">
+					<a href="/vendor/inventory" class="btn btn-primary btn-sm" style="font-weight:800; border-radius:var(--radius-lg); gap:0.4rem;">
 						@components.IconPackage("icon-xs")
 						<span>إدارة المخزون الشامل</span>
 					</a>
@@ -411,130 +411,172 @@ templ VendorWarehouseDetailPage(data VendorWarehouseDetailData, lang, dir string
 						templ.KV("alert-danger", data.NoticeType == "error"),
 						templ.KV("alert-info", data.NoticeType != "success" && data.NoticeType != "error") }
 					role="alert"
+					style="border-radius:var(--radius-xl); font-weight:700;"
 				>
 					{ data.NoticeMsg }
 				</div>
 			}
 
 			<!-- Warehouse Header Profile Card -->
-			<div class="card mb-0" style="background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-xl); padding:1.5rem;">
+			<div class="card mb-0" style="background:linear-gradient(135deg, var(--surface-raised) 0%, var(--surface-sunken) 100%); border:1px solid var(--border); border-radius:var(--radius-2xl); padding:1.75rem; box-shadow:0 4px 20px rgba(0,0,0,0.03);">
 				<div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:1.25rem;">
 					<div>
-						<div class="row-center-sm gap-sm mb-sm flex-wrap">
-							<div class="b2b-icon-box-sm" style="background:var(--accent-subtle); color:var(--accent); width:40px; height:40px; border-radius:var(--radius-lg); display:flex; align-items:center; justify-content:center;">
-								@components.IconBuilding("icon-sm")
+						<div style="display:flex; align-items:center; gap:0.85rem; margin-bottom:0.6rem; flex-wrap:wrap;">
+							<div style="background:var(--accent-subtle); color:var(--accent); width:46px; height:46px; border-radius:var(--radius-xl); display:flex; align-items:center; justify-content:center; font-size:1.35rem; box-shadow:0 2px 8px rgba(0,0,0,0.04);">
+								🏢
 							</div>
-							<h1 style="font-size:1.5rem; font-weight:900; color:var(--text); margin:0;">
-								مخزن { data.Warehouse.Name }
-							</h1>
-							if data.Warehouse.IsActive {
-								<span class="badge badge-emerald">🟢 نشط وجاهز للعمليات</span>
-							} else {
-								<span class="badge badge-rose">🔴 معطل حالياً</span>
-							}
+							<div>
+								<div style="display:flex; align-items:center; gap:0.75rem; flex-wrap:wrap;">
+									<h1 style="font-size:1.6rem; font-weight:900; color:var(--text); margin:0; line-height:1.2;">
+										مخزن { data.Warehouse.Name }
+									</h1>
+									if data.Warehouse.IsActive {
+										<span class="badge badge-emerald fw-800" style="font-size:0.8rem; padding:0.3rem 0.75rem; border-radius:var(--radius-full);">
+											🟢 نشط وجاهز للعمليات
+										</span>
+									} else {
+										<span class="badge badge-rose fw-800" style="font-size:0.8rem; padding:0.3rem 0.75rem; border-radius:var(--radius-full);">
+											🔴 معطل حالياً
+										</span>
+									}
+								</div>
+								<div style="font-size:0.8rem; color:var(--text-muted); margin-top:0.25rem;">
+									مركز توزيع وموقع تخزيني للمستحضرات والأدوية
+								</div>
+							</div>
 						</div>
-						<div style="display:flex; gap:1.5rem; flex-wrap:wrap; font-size:0.875rem; color:var(--text-secondary); margin-top:0.6rem;">
-							<div>كود المخزن: <code style="background:var(--surface-sunken); padding:0.2rem 0.6rem; border-radius:var(--radius-md); font-weight:700;">{ data.Warehouse.Code }</code></div>
+						
+						<div style="display:flex; gap:1.25rem; flex-wrap:wrap; font-size:0.85rem; color:var(--text-secondary); margin-top:0.85rem; padding-top:0.75rem; border-top:1px solid var(--border-subtle);">
+							<div style="display:flex; align-items:center; gap:0.35rem;">
+								<span style="color:var(--text-muted);">كود المخزن:</span>
+								<code style="background:var(--surface-sunken); border:1px solid var(--border); padding:0.2rem 0.6rem; border-radius:var(--radius-md); font-weight:800; font-family:var(--font-mono, monospace); color:var(--accent);">{ data.Warehouse.Code }</code>
+							</div>
 							if data.Warehouse.BranchID != nil && *data.Warehouse.BranchID > 0 {
-								<div>🏢 مرتبط بالفرع رقم: <strong>#{ fmt.Sprintf("%d", *data.Warehouse.BranchID) }</strong></div>
+								<div style="display:flex; align-items:center; gap:0.35rem;">
+									<span style="color:var(--text-muted);">الفرع التابع له:</span>
+									<strong style="color:var(--text);">#{ fmt.Sprintf("%d", *data.Warehouse.BranchID) }</strong>
+								</div>
 							} else {
-								<div>🏢 مخزن عام رئيسي للمنشأة</div>
+								<div style="display:flex; align-items:center; gap:0.35rem;">
+									<span style="color:var(--text-muted);">النوع:</span>
+									<span class="badge badge-slate text-xs fw-700">مخزن عام رئيسي</span>
+								</div>
 							}
 							if data.Warehouse.Address != "" {
-								<div>📍 { data.Warehouse.Address }</div>
+								<div style="display:flex; align-items:center; gap:0.35rem;">
+									<span>📍</span>
+									<span>{ data.Warehouse.Address }</span>
+								</div>
 							}
 							if data.Warehouse.Phone != "" {
-								<div class="tabular-nums">📞 { data.Warehouse.Phone }</div>
+								<div class="tabular-nums" style="display:flex; align-items:center; gap:0.35rem;">
+									<span>📞</span>
+									<span>{ data.Warehouse.Phone }</span>
+								</div>
 							}
 						</div>
 					</div>
 				</div>
 			</div>
 
-			<!-- 4 High-Impact KPI Metric Cards -->
-			<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:1rem;">
+			<!-- 4 High-Impact KPI Metric Cards (Unified Card Tokens) -->
+			<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(240px, 1fr)); gap:1rem;">
 				<!-- Card 1: Total Items -->
-				<div class="card mb-0" style="padding:1.25rem; background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-xl);">
-					<div class="row-center-sm gap-xs text-muted text-xs fw-700 mb-1">
-						<span>📦</span>
-						<span>إجمالي الأصناف المسجلة</span>
+				<div class="card mb-0" style="padding:1.35rem; background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-xl); box-shadow:0 2px 10px rgba(0,0,0,0.02); display:flex; flex-direction:column; justify-content:space-between; gap:0.75rem;">
+					<div style="display:flex; justify-content:space-between; align-items:center;">
+						<span style="font-size:0.825rem; font-weight:700; color:var(--text-secondary);">إجمالي الأصناف المسجلة</span>
+						<span style="font-size:1.25rem;">📦</span>
 					</div>
-					<div style="font-size:1.85rem; font-weight:900; color:var(--text);" class="tabular-nums">
-						{ fmt.Sprintf("%d", data.Stats.TotalItems) }
-						<span style="font-size:0.9rem; font-weight:600; color:var(--text-muted);">صنف دوائي</span>
+					<div>
+						<div style="font-size:2rem; font-weight:900; color:var(--text); line-height:1;" class="tabular-nums">
+							{ fmt.Sprintf("%d", data.Stats.TotalItems) }
+						</div>
+						<div style="font-size:0.75rem; font-weight:600; color:var(--text-muted); margin-top:0.4rem;">
+							صنف دوائي مسجل بالمخزن
+						</div>
 					</div>
 				</div>
 
 				<!-- Card 2: Total Units -->
-				<div class="card mb-0" style="padding:1.25rem; background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-xl);">
-					<div class="row-center-sm gap-xs text-muted text-xs fw-700 mb-1">
-						<span>📊</span>
-						<span>إجمالي الوحدات والعبوات</span>
+				<div class="card mb-0" style="padding:1.35rem; background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-xl); box-shadow:0 2px 10px rgba(0,0,0,0.02); display:flex; flex-direction:column; justify-content:space-between; gap:0.75rem;">
+					<div style="display:flex; justify-content:space-between; align-items:center;">
+						<span style="font-size:0.825rem; font-weight:700; color:var(--text-secondary);">إجمالي الوحدات والعبوات</span>
+						<span style="font-size:1.25rem;">📊</span>
 					</div>
-					<div style="font-size:1.85rem; font-weight:900; color:var(--primary);" class="tabular-nums">
-						{ fmt.Sprintf("%d", data.Stats.TotalUnits) }
-						<span style="font-size:0.9rem; font-weight:600; color:var(--text-muted);">عبوة / وحدة</span>
+					<div>
+						<div style="font-size:2rem; font-weight:900; color:var(--accent); line-height:1;" class="tabular-nums">
+							{ fmt.Sprintf("%d", data.Stats.TotalUnits) }
+						</div>
+						<div style="font-size:0.75rem; font-weight:600; color:var(--text-muted); margin-top:0.4rem;">
+							عبوة / وحدة مخزنة حالياً
+						</div>
 					</div>
 				</div>
 
 				<!-- Card 3: Low Stock -->
-				<div class="card mb-0" style="padding:1.25rem; background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-xl);">
-					<div class="row-center-sm gap-xs text-muted text-xs fw-700 mb-1">
-						<span>⚠️</span>
-						<span>أصناف قاربت النفاد</span>
+				<div class="card mb-0" style="padding:1.35rem; background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-xl); box-shadow:0 2px 10px rgba(0,0,0,0.02); display:flex; flex-direction:column; justify-content:space-between; gap:0.75rem;">
+					<div style="display:flex; justify-content:space-between; align-items:center;">
+						<span style="font-size:0.825rem; font-weight:700; color:var(--text-secondary);">أصناف قاربت النفاد</span>
+						<span style="font-size:1.25rem;">⚠️</span>
 					</div>
-					<div style="font-size:1.85rem; font-weight:900; color:var(--warning-text, #d97706);" class="tabular-nums">
-						{ fmt.Sprintf("%d", data.Stats.LowStockCount) }
-						<span style="font-size:0.9rem; font-weight:600; color:var(--text-muted);">تحت حد الأمان</span>
+					<div>
+						<div style="font-size:2rem; font-weight:900; color:#d97706; line-height:1;" class="tabular-nums">
+							{ fmt.Sprintf("%d", data.Stats.LowStockCount) }
+						</div>
+						<div style="font-size:0.75rem; font-weight:600; color:var(--text-muted); margin-top:0.4rem;">
+							تحت حد إعادة الطلب والأمان
+						</div>
 					</div>
 				</div>
 
 				<!-- Card 4: Expiring Soon / Expired -->
-				<div class="card mb-0" style="padding:1.25rem; background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-xl);">
-					<div class="row-center-sm gap-xs text-muted text-xs fw-700 mb-1">
-						<span>⏳</span>
-						<span>تنبيهات الصلاحية</span>
+				<div class="card mb-0" style="padding:1.35rem; background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-xl); box-shadow:0 2px 10px rgba(0,0,0,0.02); display:flex; flex-direction:column; justify-content:space-between; gap:0.75rem;">
+					<div style="display:flex; justify-content:space-between; align-items:center;">
+						<span style="font-size:0.825rem; font-weight:700; color:var(--text-secondary);">تنبيهات الصلاحية</span>
+						<span style="font-size:1.25rem;">⏳</span>
 					</div>
-					<div style="font-size:1.85rem; font-weight:900; color:var(--danger-text, #dc2626);" class="tabular-nums">
-						{ fmt.Sprintf("%d", data.Stats.ExpiringSoonCount + data.Stats.ExpiredCount) }
-						<span style="font-size:0.9rem; font-weight:600; color:var(--text-muted);">
+					<div>
+						<div style="font-size:2rem; font-weight:900; color:#dc2626; line-height:1;" class="tabular-nums">
+							{ fmt.Sprintf("%d", data.Stats.ExpiringSoonCount + data.Stats.ExpiredCount) }
+						</div>
+						<div style="font-size:0.75rem; font-weight:600; color:var(--text-muted); margin-top:0.4rem;">
 							if data.Stats.ExpiredCount > 0 {
-								({ fmt.Sprintf("%d", data.Stats.ExpiredCount) } منتهي)
+								<span>({ fmt.Sprintf("%d", data.Stats.ExpiredCount) } منتهي الصلاحية)</span>
 							} else {
-								(خلال 6 أشهر)
+								<span>(خلال الـ 6 أشهر القادمة)</span>
 							}
-						</span>
+						</div>
 					</div>
 				</div>
 			</div>
 
 			<!-- Filter & Control Toolbar Card -->
-			<div class="card mb-0" style="background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-xl); padding:1.25rem;">
+			<div class="card mb-0" style="background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-xl); padding:1.35rem; box-shadow:0 2px 10px rgba(0,0,0,0.02);">
 				<form method="GET" action={ templ.SafeURL(fmt.Sprintf("/vendor/warehouses/%d", data.Warehouse.ID)) } class="stack-md" hx-boost="false">
 					<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:0.85rem; align-items:flex-end;">
 						
 						<!-- Search Query -->
 						<div style="grid-column: span 2; min-width:260px;">
-							<label class="form-label text-xs fw-700">البحث في المخزن</label>
+							<label class="form-label text-xs fw-700" style="color:var(--text-secondary); margin-bottom:0.35rem;">البحث في أصناف المخزن</label>
 							<div style="position:relative;">
 								<input
 									type="text"
 									name="q"
 									value={ data.Filter.Query }
 									class="form-input"
-									placeholder="ابحث باسم الدواء، الكود SKU، الباركود، رقم التشغيلة، المادة الفعالة..."
-									style="padding-inline-start:2.25rem; height:42px;"
+									placeholder="ابحث باسم الدواء، الكود SKU، الباركود، رقم التشغيلة..."
+									style="padding-inline-start:2.25rem; height:42px; width:100%; border-radius:var(--radius-lg);"
 								/>
-								<span style="position:absolute; right:0.75rem; top:50%; transform:translateY(-50%); color:var(--text-muted); font-size:0.95rem; pointer-events:none;">
-									🔍
+								<span style="position:absolute; inset-inline-start:0.75rem; top:50%; transform:translateY(-50%); color:var(--text-muted); pointer-events:none;">
+									@components.IconSearch("icon-xs")
 								</span>
 							</div>
 						</div>
 
 						<!-- Stock Status Filter -->
 						<div>
-							<label class="form-label text-xs fw-700">حالة الرصيد</label>
-							<select name="stock_status" class="form-select" style="height:42px;">
+							<label class="form-label text-xs fw-700" style="color:var(--text-secondary); margin-bottom:0.35rem;">حالة الرصيد</label>
+							<select name="stock_status" class="form-input" style="height:42px; border-radius:var(--radius-lg);">
 								<option value="all" selected?={ data.Filter.StockStatus == "" || data.Filter.StockStatus == "all" }>كافة الأرصدة</option>
 								<option value="available" selected?={ data.Filter.StockStatus == "available" }>🟢 متوفر (فوق حد الأمان)</option>
 								<option value="low" selected?={ data.Filter.StockStatus == "low" }>🟡 منخفض المخزون</option>
@@ -544,8 +586,8 @@ templ VendorWarehouseDetailPage(data VendorWarehouseDetailData, lang, dir string
 
 						<!-- Expiry Status Filter -->
 						<div>
-							<label class="form-label text-xs fw-700">حالة الصلاحية</label>
-							<select name="expiry_status" class="form-select" style="height:42px;">
+							<label class="form-label text-xs fw-700" style="color:var(--text-secondary); margin-bottom:0.35rem;">حالة الصلاحية</label>
+							<select name="expiry_status" class="form-input" style="height:42px; border-radius:var(--radius-lg);">
 								<option value="all" selected?={ data.Filter.ExpiryStatus == "" || data.Filter.ExpiryStatus == "all" }>كافة التواريخ</option>
 								<option value="expiring_soon" selected?={ data.Filter.ExpiryStatus == "expiring_soon" }>⏳ ينتهي قريباً (خلال 6 أشهر)</option>
 								<option value="expired" selected?={ data.Filter.ExpiryStatus == "expired" }>⛔ منتهي الصلاحية</option>
@@ -554,8 +596,8 @@ templ VendorWarehouseDetailPage(data VendorWarehouseDetailData, lang, dir string
 
 						<!-- Sort Selector -->
 						<div>
-							<label class="form-label text-xs fw-700">الترتيب حسب</label>
-							<select name="sort" class="form-select" style="height:42px;">
+							<label class="form-label text-xs fw-700" style="color:var(--text-secondary); margin-bottom:0.35rem;">الترتيب حسب</label>
+							<select name="sort" class="form-input" style="height:42px; border-radius:var(--radius-lg);">
 								<option value="updated_desc" selected?={ data.Filter.Sort == "updated_desc" || data.Filter.Sort == "" }>الأحدث حركة وتحديثاً</option>
 								<option value="name_asc" selected?={ data.Filter.Sort == "name_asc" }>الاسم أبجدياً (أ - ي)</option>
 								<option value="name_desc" selected?={ data.Filter.Sort == "name_desc" }>الاسم عكسي (ي - أ)</option>
@@ -565,25 +607,15 @@ templ VendorWarehouseDetailPage(data VendorWarehouseDetailData, lang, dir string
 							</select>
 						</div>
 
-						<!-- Per Page Selector -->
-						<div>
-							<label class="form-label text-xs fw-700">عدد السجلات</label>
-							<select name="limit" class="form-select" style="height:42px;">
-								<option value="10" selected?={ data.Filter.PerPage == 10 }>10 لكل صفحة</option>
-								<option value="20" selected?={ data.Filter.PerPage == 20 || data.Filter.PerPage == 0 }>20 لكل صفحة</option>
-								<option value="50" selected?={ data.Filter.PerPage == 50 }>50 لكل صفحة</option>
-								<option value="100" selected?={ data.Filter.PerPage == 100 }>100 لكل صفحة</option>
-							</select>
-						</div>
-
 						<!-- Filter Buttons -->
-						<div class="row-center gap-xs">
-							<button type="submit" class="btn btn-primary fw-800" style="height:42px; flex:1;">
-								تطبيق التصفية
+						<div style="display:flex; align-items:center; gap:0.5rem;">
+							<button type="submit" class="btn btn-primary fw-800" style="height:42px; flex:1; border-radius:var(--radius-lg);">
+								@components.IconSearch("icon-xs")
+								<span>تطبيق التصفية</span>
 							</button>
 							if data.Filter.Query != "" || (data.Filter.StockStatus != "" && data.Filter.StockStatus != "all") || (data.Filter.ExpiryStatus != "" && data.Filter.ExpiryStatus != "all") || (data.Filter.Sort != "" && data.Filter.Sort != "updated_desc") {
-								<a href={ templ.SafeURL(fmt.Sprintf("/vendor/warehouses/%d", data.Warehouse.ID)) } class="btn btn-secondary" style="height:42px;" title="إلغاء الفلاتر">
-									إعادة تعيين
+								<a href={ templ.SafeURL(fmt.Sprintf("/vendor/warehouses/%d", data.Warehouse.ID)) } class="btn btn-secondary" style="height:42px; border-radius:var(--radius-lg); padding:0 0.85rem;" title="إلغاء الفلاتر">
+									إلغاء
 								</a>
 							}
 						</div>
@@ -592,33 +624,39 @@ templ VendorWarehouseDetailPage(data VendorWarehouseDetailData, lang, dir string
 			</div>
 
 			<!-- Inventory Data Table Section -->
-			<div class="card mb-0" style="background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-xl); padding:1.5rem;">
-				<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.25rem; flex-wrap:wrap; gap:0.75rem;">
+			<div class="card mb-0" style="background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-2xl); padding:0; overflow:hidden; box-shadow:0 4px 16px rgba(0,0,0,0.03);">
+				<div style="padding:1.25rem 1.5rem; border-bottom:1px solid var(--border-subtle); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.75rem; background:var(--surface);">
 					<div>
-						<h2 class="text-lg fw-900 text-primary m-0">الأصناف والأرصدة الفعلية في المخزن</h2>
-						<p class="text-xs text-muted mb-0 mt-1">
+						<h2 style="font-size:1.15rem; font-weight:900; color:var(--text); margin:0;">
+							📦 سجل الأرصدة والمخزون الفعلي
+						</h2>
+						<p style="font-size:0.8rem; color:var(--text-muted); margin:0.2rem 0 0 0;">
 							عرض تفصيلي لبيانات الأدوية، التشغيلات، تواريخ الصلاحية، وأسعار التوريد.
 						</p>
 					</div>
-					<div class="badge badge-slate text-xs fw-800 tabular-nums">
+					<div class="badge badge-slate text-xs fw-800 tabular-nums" style="padding:0.35rem 0.75rem; border-radius:var(--radius-md);">
 						إجمالي النتائج: { fmt.Sprintf("%d", data.TotalFiltered) } صنف
 					</div>
 				</div>
 
 				if len(data.Stocks) == 0 {
-					<div style="padding:3rem 1.5rem; text-align:center;">
-						<div style="font-size:2.5rem; margin-bottom:0.75rem;">🔍</div>
-						<h3 class="fw-800 text-foreground mb-1">لا توجد أصناف مطابقة لمعايير البحث</h3>
-						<p class="text-sm text-muted mb-3">
+					<div style="padding:4rem 1.5rem; text-align:center;">
+						<div style="width:56px; height:56px; border-radius:var(--radius-full); background:var(--surface-sunken); color:var(--text-muted); display:flex; align-items:center; justify-content:center; margin:0 auto 1rem auto; font-size:1.75rem;">
+							🔍
+						</div>
+						<h3 style="font-size:1.15rem; font-weight:800; color:var(--text); margin-bottom:0.4rem;">
+							لا توجد أصناف مطابقة لمعايير البحث
+						</h3>
+						<p style="font-size:0.85rem; color:var(--text-secondary); max-width:440px; margin:0 auto 1.5rem;">
 							لم نجد أي صنف مخزن يتطابق مع الفلاتر المحددة حالياً. يمكنك تعديل كلمات البحث أو تصفير الفلاتر.
 						</p>
-						<a href={ templ.SafeURL(fmt.Sprintf("/vendor/warehouses/%d", data.Warehouse.ID)) } class="btn btn-secondary btn-sm">
+						<a href={ templ.SafeURL(fmt.Sprintf("/vendor/warehouses/%d", data.Warehouse.ID)) } class="btn btn-secondary btn-sm" style="font-weight:700; border-radius:var(--radius-lg);">
 							إعادة ضبط الفلاتر وعرض كافة الأصناف
 						</a>
 					</div>
 				} else {
-					<div class="table-container">
-						<table class="b2b-table">
+					<div class="table-container m-0">
+						<table class="b2b-table m-0">
 							<thead>
 								<tr>
 									<th style="width:50px;">#</th>
@@ -640,7 +678,7 @@ templ VendorWarehouseDetailPage(data VendorWarehouseDetailData, lang, dir string
 
 										<!-- Product Information -->
 										<td>
-											<div class="fw-800 text-foreground" style="font-size:0.95rem;">
+											<div style="font-weight:800; color:var(--text); font-size:0.95rem;">
 												if s.ProductName != "" {
 													{ s.ProductName }
 												} else if s.VariantName != "" {
@@ -651,25 +689,25 @@ templ VendorWarehouseDetailPage(data VendorWarehouseDetailData, lang, dir string
 											</div>
 											
 											if s.VariantName != "" && s.VariantName != s.ProductName {
-												<div class="text-xs text-primary fw-600 mt-0.5">
+												<div style="font-size:0.8rem; color:var(--accent); font-weight:700; margin-top:0.2rem;">
 													{ s.VariantName }
 												</div>
 											}
 
 											if s.ScientificName != "" {
-												<div class="text-xs text-muted mt-0.5">
+												<div style="font-size:0.75rem; color:var(--text-muted); margin-top:0.2rem;">
 													🧪 { s.ScientificName }
 												</div>
 											}
 
-											<div class="row-center-sm gap-xs mt-1 flex-wrap">
+											<div style="display:flex; align-items:center; gap:0.35rem; margin-top:0.35rem; flex-wrap:wrap;">
 												if s.DosageForm != "" {
-													<span class="badge badge-slate text-xs" style="padding:0.15rem 0.45rem;">
+													<span class="badge badge-slate text-xs" style="padding:0.15rem 0.45rem; border-radius:var(--radius-sm);">
 														💊 { s.DosageForm }
 													</span>
 												}
 												if s.Manufacturer != "" {
-													<span class="badge badge-slate text-xs" style="padding:0.15rem 0.45rem;">
+													<span class="badge badge-slate text-xs" style="padding:0.15rem 0.45rem; border-radius:var(--radius-sm);">
 														🏭 { s.Manufacturer }
 													</span>
 												}
@@ -679,30 +717,30 @@ templ VendorWarehouseDetailPage(data VendorWarehouseDetailData, lang, dir string
 										<!-- Codes, Batch & Expiry -->
 										<td>
 											if s.SKU != "" || s.Barcode != "" {
-												<div class="row-center-sm gap-xs flex-wrap mb-1">
+												<div style="display:flex; align-items:center; gap:0.35rem; flex-wrap:wrap; margin-bottom:0.25rem;">
 													if s.SKU != "" {
-														<code style="background:var(--surface-sunken); padding:0.15rem 0.4rem; border-radius:var(--radius-sm); font-size:0.75rem;">SKU: { s.SKU }</code>
+														<code style="background:var(--surface-sunken); border:1px solid var(--border); padding:0.15rem 0.4rem; border-radius:var(--radius-sm); font-size:0.75rem; font-family:var(--font-mono, monospace);">SKU: { s.SKU }</code>
 													}
 													if s.Barcode != "" {
-														<code style="background:var(--surface-sunken); padding:0.15rem 0.4rem; border-radius:var(--radius-sm); font-size:0.75rem;">باركود: { s.Barcode }</code>
+														<code style="background:var(--surface-sunken); border:1px solid var(--border); padding:0.15rem 0.4rem; border-radius:var(--radius-sm); font-size:0.75rem; font-family:var(--font-mono, monospace);">باركود: { s.Barcode }</code>
 													}
 												</div>
 											}
 
 											if s.BatchNumber != "" {
-												<div class="text-xs text-muted tabular-nums">
+												<div class="text-xs text-muted tabular-nums" style="margin-top:0.2rem;">
 													تشغيلة: <strong class="text-foreground">{ s.BatchNumber }</strong>
 												</div>
 											}
 
 											if s.ExpiryDate != nil {
-												<div class="mt-1">
+												<div style="margin-top:0.25rem;">
 													if isExpired(s.ExpiryDate) {
-														<span class="badge badge-rose text-xs tabular-nums" title="صلاحية منتهية">
+														<span class="badge badge-rose text-xs tabular-nums fw-800" title="صلاحية منتهية">
 															⛔ منتهي: { s.ExpiryDate.Format("2006-01-02") }
 														</span>
 													} else if isExpiringSoon(s.ExpiryDate) {
-														<span class="badge badge-amber text-xs tabular-nums" title="ينتهي قريباً خلال 6 أشهر">
+														<span class="badge badge-amber text-xs tabular-nums fw-800" title="ينتهي قريباً خلال 6 أشهر">
 															⚠️ ينتهي: { s.ExpiryDate.Format("2006-01-02") }
 														</span>
 													} else {
@@ -716,16 +754,16 @@ templ VendorWarehouseDetailPage(data VendorWarehouseDetailData, lang, dir string
 
 										<!-- Pricing -->
 										<td>
-											<div class="text-sm fw-800 text-foreground tabular-nums">
-												{ s.PriceStr } ج.م
+											<div class="tabular-nums" style="font-weight:900; font-size:0.95rem; color:var(--text);">
+												{ s.PriceStr } <span style="font-size:0.75rem; font-weight:600; color:var(--text-secondary);">ج.م</span>
 											</div>
 											if s.PublicPriceStr != "" && s.PublicPriceStr != "0.00" && s.PublicPriceStr != s.PriceStr {
-												<div class="text-xs text-muted tabular-nums">
+												<div class="tabular-nums" style="font-size:0.75rem; color:var(--text-muted); text-decoration:line-through; margin-top:0.15rem;">
 													الجمهور: { s.PublicPriceStr } ج.م
 												</div>
 											}
 											if s.DiscountStr != "" && s.DiscountStr != "0.00" && s.DiscountStr != "0" {
-												<div class="badge badge-emerald text-xs tabular-nums mt-0.5" style="padding:0.1rem 0.35rem;">
+												<div class="badge badge-emerald text-xs tabular-nums fw-800" style="padding:0.15rem 0.45rem; margin-top:0.25rem; display:inline-block;">
 													خصم { s.DiscountStr }%
 												</div>
 											}
@@ -734,20 +772,20 @@ templ VendorWarehouseDetailPage(data VendorWarehouseDetailData, lang, dir string
 										<!-- Actual Stock Balance -->
 										<td>
 											if s.Quantity == 0 {
-												<div class="badge badge-rose text-sm fw-900 tabular-nums">
+												<div class="badge badge-rose text-xs fw-900 tabular-nums" style="padding:0.3rem 0.6rem;">
 													0 عبوة (نافد)
 												</div>
 											} else if s.Quantity <= s.MinThreshold {
 												<div>
-													<span class="badge badge-amber text-sm fw-900 tabular-nums">
+													<span class="badge badge-amber text-xs fw-900 tabular-nums" style="padding:0.3rem 0.6rem;">
 														{ fmt.Sprintf("%d", s.Quantity) } عبوة
 													</span>
-													<div class="text-xs text-muted mt-0.5 fw-600" style="color:var(--warning-text, #d97706);">
+													<div style="font-size:0.7rem; color:#d97706; font-weight:700; margin-top:0.2rem;">
 														⚠️ مخزون منخفض
 													</div>
 												</div>
 											} else {
-												<span class="badge badge-emerald text-sm fw-900 tabular-nums">
+												<span class="badge badge-emerald text-xs fw-900 tabular-nums" style="padding:0.3rem 0.6rem;">
 													{ fmt.Sprintf("%d", s.Quantity) } عبوة
 												</span>
 											}
@@ -755,7 +793,7 @@ templ VendorWarehouseDetailPage(data VendorWarehouseDetailData, lang, dir string
 
 										<!-- Reorder Threshold -->
 										<td class="tabular-nums">
-											<span class="badge badge-slate text-xs fw-700">
+											<span class="badge badge-slate text-xs fw-700" style="padding:0.2rem 0.5rem;">
 												{ fmt.Sprintf("%d", s.MinThreshold) }
 											</span>
 										</td>
@@ -765,15 +803,14 @@ templ VendorWarehouseDetailPage(data VendorWarehouseDetailData, lang, dir string
 											<div style="display:flex; justify-content:flex-end; align-items:center; gap:0.35rem;">
 												<button
 													type="button"
-													class="btn btn-secondary btn-sm fw-700"
-													style="padding:0.3rem 0.65rem;"
+													class="btn btn-secondary btn-sm fw-800"
+													style="padding:0.35rem 0.75rem; border-radius:var(--radius-md); font-size:0.8rem;"
 													@click={ fmt.Sprintf("adjustStock = { id: %d, name: %q, batch: %q, qty: %d, min: %d }; adjustModal = true;", s.StockID, func() string { if s.ProductName != "" { return s.ProductName }; return s.VariantName }(), s.BatchNumber, s.Quantity, s.MinThreshold) }
 													title="تعديل الرصيد الفعلي لهذا الصنف"
 												>
-													<span>تعديل</span>
-													<span>✏️</span>
+													<span>✏️ تعديل</span>
 												</button>
-												<a href="/vendor/products" class="btn btn-secondary btn-sm btn-icon" title="عرض في قائمة الأصناف">
+												<a href="/vendor/products" class="btn btn-ghost btn-sm" style="padding:0.35rem; border-radius:var(--radius-md);" title="عرض في قائمة الأصناف">
 													↗
 												</a>
 											</div>
@@ -785,36 +822,37 @@ templ VendorWarehouseDetailPage(data VendorWarehouseDetailData, lang, dir string
 					</div>
 
 					<!-- Pagination Footer -->
-					<div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem; margin-top:1.5rem; padding-top:1.25rem; border-top:1px solid var(--border);">
+					<div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem; padding:1.25rem 1.5rem; background:var(--surface); border-top:1px solid var(--border-subtle);">
 						<div class="text-xs text-muted fw-700 tabular-nums">
 							عرض من <strong>{ fmt.Sprintf("%d", data.FromItem) }</strong> إلى <strong>{ fmt.Sprintf("%d", data.ToItem) }</strong> من إجمالي <strong>{ fmt.Sprintf("%d", data.TotalFiltered) }</strong> صنف (صفحة { fmt.Sprintf("%d", data.Filter.Page) } من { fmt.Sprintf("%d", data.TotalPages) })
 						</div>
 
 						if data.TotalPages > 1 {
-							<div class="row-center gap-xs">
+							<div style="display:flex; align-items:center; gap:0.35rem;">
 								<!-- Previous Page Button -->
 								if data.Filter.Page > 1 {
 									<a
 										href={ templ.SafeURL(buildWarehouseInventoryURL(data.Warehouse.ID, data.Filter, data.Filter.Page-1, data.Filter.PerPage)) }
 										class="btn btn-secondary btn-sm"
+										style="border-radius:var(--radius-md); font-weight:700;"
 									>
 										السابق
 									</a>
 								} else {
-									<button class="btn btn-secondary btn-sm" disabled>السابق</button>
+									<button class="btn btn-secondary btn-sm" disabled style="border-radius:var(--radius-md);">السابق</button>
 								}
 
 								<!-- Page Numbers -->
 								for p := 1; p <= data.TotalPages; p++ {
 									if p == data.Filter.Page {
-										<span class="btn btn-primary btn-sm fw-900 tabular-nums" style="min-width:34px;">
+										<span class="btn btn-primary btn-sm fw-900 tabular-nums" style="min-width:34px; border-radius:var(--radius-md);">
 											{ fmt.Sprintf("%d", p) }
 										</span>
 									} else if p <= 3 || p >= data.TotalPages - 2 || (p >= data.Filter.Page - 1 && p <= data.Filter.Page + 1) {
 										<a
 											href={ templ.SafeURL(buildWarehouseInventoryURL(data.Warehouse.ID, data.Filter, p, data.Filter.PerPage)) }
 											class="btn btn-secondary btn-sm tabular-nums"
-											style="min-width:34px;"
+											style="min-width:34px; border-radius:var(--radius-md); font-weight:700;"
 										>
 											{ fmt.Sprintf("%d", p) }
 										</a>
@@ -830,11 +868,12 @@ templ VendorWarehouseDetailPage(data VendorWarehouseDetailData, lang, dir string
 									<a
 										href={ templ.SafeURL(buildWarehouseInventoryURL(data.Warehouse.ID, data.Filter, data.Filter.Page+1, data.Filter.PerPage)) }
 										class="btn btn-secondary btn-sm"
+										style="border-radius:var(--radius-md); font-weight:700;"
 									>
 										التالي
 									</a>
 								} else {
-									<button class="btn btn-secondary btn-sm" disabled>التالي</button>
+									<button class="btn btn-secondary btn-sm" disabled style="border-radius:var(--radius-md);">التالي</button>
 								}
 							</div>
 						}
@@ -845,49 +884,53 @@ templ VendorWarehouseDetailPage(data VendorWarehouseDetailData, lang, dir string
 			<!-- Quick Stock Adjustment Modal -->
 			<div
 				x-show="adjustModal"
-				style="position:fixed; inset:0; z-index:9999; background:rgba(0,0,0,0.6); backdrop-filter:blur(4px); display:flex; align-items:center; justify-content:center; padding:1rem;"
+				style="position:fixed; inset:0; z-index:99999; background:rgba(15,23,42,0.65); backdrop-filter:blur(6px); display:flex; align-items:center; justify-content:center; padding:1rem;"
 				x-cloak
 				@keydown.escape.window="adjustModal = false"
+				@click.self="adjustModal = false"
 			>
 				<div
-					@click.away="adjustModal = false"
 					class="card mb-0"
-					style="max-width:520px; width:100%; max-height:90vh; overflow-y:auto; padding:1.75rem; background:var(--surface-raised); border-radius:var(--radius-2xl); border:1px solid var(--border); box-shadow:var(--shadow-xl);"
+					style="max-width:520px; width:100%; max-height:90vh; overflow-y:auto; padding:1.75rem; background:var(--surface-raised); border-radius:var(--radius-2xl); border:1px solid var(--border); box-shadow:var(--shadow-2xl);"
 				>
 					<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.25rem;">
 						<div>
-							<h3 class="text-lg fw-900 text-primary m-0">تعديل رصيد الصنف في المخزن</h3>
-							<p class="text-xs text-muted m-0 mt-0.5">تسجيل تسوية جردية أو تصحيح الكمية المتاحة</p>
+							<h3 style="font-size:1.2rem; font-weight:900; color:var(--text); margin:0;">
+								✏️ تعديل رصيد الصنف بالمخزن
+							</h3>
+							<p style="font-size:0.8rem; color:var(--text-muted); margin:0.2rem 0 0 0;">
+								تسجيل تسوية جردية أو تصحيح الكمية المتاحة فعلياً
+							</p>
 						</div>
-						<button type="button" @click="adjustModal = false" class="btn btn-secondary btn-icon btn-sm">&times;</button>
+						<button type="button" @click="adjustModal = false" class="btn btn-secondary btn-sm" style="border-radius:var(--radius-full); width:32px; height:32px; padding:0; display:flex; align-items:center; justify-content:center; font-size:1.1rem;">&times;</button>
 					</div>
 
 					<form :action={ fmt.Sprintf("'/vendor/warehouses/%d/stocks/' + adjustStock.id + '/adjust'", data.Warehouse.ID) } method="POST" class="stack-lg">
 						<!-- Product Summary Header -->
-						<div style="background:var(--surface-sunken); padding:1rem; border-radius:var(--radius-lg); border:1px solid var(--border);">
-							<div class="text-xs text-muted fw-700 mb-0.5">الصنف المختار:</div>
-							<div class="fw-800 text-foreground text-sm" x-text="adjustStock.name"></div>
-							<div class="row-center-sm gap-md mt-1 text-xs text-muted" x-show="adjustStock.batch">
-								<span>رقم التشغيلة: <strong class="text-foreground tabular-nums" x-text="adjustStock.batch"></strong></span>
+						<div style="background:var(--surface-sunken); padding:1rem; border-radius:var(--radius-xl); border:1px solid var(--border);">
+							<div style="font-size:0.75rem; color:var(--text-muted); font-weight:700; margin-bottom:0.25rem;">الصنف المختار:</div>
+							<div style="font-weight:800; color:var(--text); font-size:0.95rem;" x-text="adjustStock.name"></div>
+							<div style="display:flex; gap:0.75rem; margin-top:0.4rem; font-size:0.8rem; color:var(--text-muted);" x-show="adjustStock.batch">
+								<span>رقم التشغيلة: <strong style="color:var(--text);" class="tabular-nums" x-text="adjustStock.batch"></strong></span>
 							</div>
 						</div>
 
 						<!-- Current vs New Quantity -->
 						<div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
 							<div class="form-group mb-0">
-								<label class="form-label text-xs fw-700">الرصيد الحالي بالمخزن</label>
-								<div class="form-input text-center fw-900 tabular-nums text-muted" style="background:var(--surface-sunken); font-size:1.1rem; height:44px; display:flex; align-items:center; justify-content:center;" x-text="adjustStock.qty + ' عبوة'"></div>
+								<label class="form-label text-xs fw-700" style="color:var(--text-secondary); margin-bottom:0.35rem;">الرصيد الحالي بالمخزن</label>
+								<div class="form-input text-center fw-900 tabular-nums text-muted" style="background:var(--surface-sunken); font-size:1.1rem; height:44px; display:flex; align-items:center; justify-content:center; border-radius:var(--radius-lg);" x-text="adjustStock.qty + ' عبوة'"></div>
 							</div>
 
 							<div class="form-group mb-0">
-								<label class="form-label text-xs fw-700 text-primary">الرصيد الفعلي الجديد <span class="text-danger">*</span></label>
+								<label class="form-label text-xs fw-700" style="color:var(--accent); margin-bottom:0.35rem;">الرصيد الفعلي الجديد <span class="text-danger">*</span></label>
 								<input
 									type="number"
 									name="new_quantity"
 									min="0"
 									required
 									class="form-input text-center fw-900 tabular-nums"
-									style="font-size:1.1rem; height:44px; border-color:var(--primary);"
+									style="font-size:1.1rem; height:44px; border-color:var(--accent); border-radius:var(--radius-lg);"
 									:value="adjustStock.qty"
 									placeholder="0"
 								/>
@@ -896,8 +939,8 @@ templ VendorWarehouseDetailPage(data VendorWarehouseDetailData, lang, dir string
 
 						<!-- Reason for Adjustment -->
 						<div class="form-group mb-0">
-							<label class="form-label text-xs fw-700">سبب التسوية / التعديل <span class="text-danger">*</span></label>
-							<select name="reason" class="form-select" required style="height:44px;">
+							<label class="form-label text-xs fw-700" style="color:var(--text-secondary); margin-bottom:0.35rem;">سبب التسوية / التعديل <span class="text-danger">*</span></label>
+							<select name="reason" class="form-input" required style="height:44px; border-radius:var(--radius-lg);">
 								<option value="جرد دوري ومطابقة فعلية">جرد دوري ومطابقة فعلية</option>
 								<option value="استلام شحنة إضافية / توريد">استلام شحنة إضافية / توريد</option>
 								<option value="تسوية تلفيات أو إرجاع مورد">تسوية تلفيات أو إرجاع مورد</option>
@@ -907,8 +950,8 @@ templ VendorWarehouseDetailPage(data VendorWarehouseDetailData, lang, dir string
 						</div>
 
 						<div style="display:flex; justify-content:flex-end; gap:0.75rem; margin-top:0.5rem;">
-							<button type="button" class="btn btn-secondary" @click="adjustModal = false">إلغاء</button>
-							<button type="submit" class="btn btn-primary fw-800">حفظ وتحديث الرصيد فورياً</button>
+							<button type="button" class="btn btn-secondary" style="border-radius:var(--radius-lg); font-weight:700;" @click="adjustModal = false">إلغاء</button>
+							<button type="submit" class="btn btn-primary fw-800" style="border-radius:var(--radius-lg);">حفظ وتحديث الرصيد فورياً</button>
 						</div>
 					</form>
 				</div>

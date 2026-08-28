@@ -42,6 +42,9 @@ func (h *UIHandler) registerAdminCatalogRoutes(r chi.Router) {
 		g.Get("/admin/warehouses/{id}/stocks-json", h.AdminWarehouseStocksJSON)
 
 		// Temp Warehouses
+		g.Get("/admin/temporary-warehouses", h.AdminTempWarehousesPage)
+		g.Get("/admin/temporary-warehouses/{id}/items-json", h.AdminTempWarehouseItemsJSON)
+		g.Get("/admin/temporary-warehouses/{id}/export", h.AdminTempWarehouseExportXLSX)
 		g.Get("/admin/user/temparte-warehouses", h.AdminTempWarehousesPage)
 		g.Get("/admin/user/temparte-warehouses/{id}", h.AdminTempWarehousesPage)
 		g.Get("/admin/my/temparte-warehouses", h.AdminTempWarehousesPage)
@@ -96,8 +99,13 @@ func (h *UIHandler) registerAdminCatalogRoutes(r chi.Router) {
 		g.Post("/admin/categories/new", h.AdminCategoryCreateSubmit)
 		g.Post("/admin/categories/{id}/edit", h.AdminCategoryEditSubmit)
 		g.Post("/admin/categories/{id}/toggle", h.AdminCategoryToggleSubmit)
-		g.Post("/admin/categories/{id}/status", h.AdminCategoryToggleSubmit)
 		g.Post("/admin/product-child/{id}/status", h.AdminProductChildStatusSubmit)
+
+		// Temp Warehouses
+		g.Post("/admin/temporary-warehouses/upload", h.AdminTempWarehouseUploadSubmit)
+		g.Post("/admin/temporary-warehouses/{id}/toggle-archive", h.AdminTempWarehouseToggleArchiveSubmit)
+		g.Post("/admin/temporary-warehouses/items/{id}/delete", h.AdminTempWarehouseItemDeleteSubmit)
+		g.Post("/admin/temporary-warehouses/{id}/delete", h.AdminTempWarehouseDeleteSubmit)
 	})
 
 	r.Group(func(g chi.Router) {

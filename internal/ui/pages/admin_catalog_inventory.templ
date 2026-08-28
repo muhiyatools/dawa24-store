@@ -824,6 +824,7 @@ type AdminTempWarehouseItem struct {
 	RowCount         int
 	SizeBytes        int64
 	Status           string
+	CreatedBy        *int64
 	CreatedAt        time.Time
 	ArchivedAt       *time.Time
 }
@@ -837,24 +838,145 @@ type AdminTempWarehousesData struct {
 	ArchivedCount int
 	Query         string
 	StatusFilter  string
+	Scope         string
+	NoticeMsg     string
+	NoticeType    string
 }
 
 // AdminTempWarehousesPage renders the full temporary warehouses management and staging interface.
 templ AdminTempWarehousesPage(data *AdminTempWarehousesData, lang, dir string) {
-	@layouts.AdminShell("إدارة المستودعات المؤقتة وملفات التوريد", "temp_warehouses", lang, dir) {
-		<div style="display:flex; flex-direction:column; gap:1.5rem; max-width:1440px; margin:0 auto 3.5rem auto;">
+	@layouts.AdminShell("قوائم المستودعات التابعة لحسابي المشرف", "temp_warehouses", lang, dir) {
+		<div
+			x-data="{
+				uploadModal: false,
+				itemsModal: false,
+				selectedWarehouse: { id: 0, name: '', total: 0 },
+				modalItems: [],
+				modalPage: 1,
+				modalTotalPages: 1,
+				modalLoading: false,
+				uploadStep: 1,
+				fileHeaders: [],
+				sampleRows: [],
+				detectedCode: 0,
+				detectedName: 1,
+				detectedPrice: 2,
+				detectedDiscount: 3,
+				async openItems(id, name, total) {
+					this.selectedWarehouse = { id: id, name: name, total: total };
+					this.modalPage = 1;
+					this.itemsModal = true;
+					await this.fetchItems();
+				},
+				async fetchItems() {
+					this.modalLoading = true;
+					try {
+						const res = await fetch('/admin/temporary-warehouses/' + this.selectedWarehouse.id + '/items-json?page=' + this.modalPage + '&limit=10');
+						const json = await res.json();
+						if (json.success) {
+							this.modalItems = json.items || [];
+							this.modalTotalPages = json.total_pages || 1;
+							this.selectedWarehouse.total = json.total || 0;
+						}
+					} catch(e) {
+						console.error('Error fetching items:', e);
+					} finally {
+						this.modalLoading = false;
+					}
+				},
+				async nextModalPage() {
+					if (this.modalPage < this.modalTotalPages) {
+						this.modalPage++;
+						await this.fetchItems();
+					}
+				},
+				async prevModalPage() {
+					if (this.modalPage > 1) {
+						this.modalPage--;
+						await this.fetchItems();
+					}
+				},
+				async deleteItem(rowId) {
+					if (!confirm('هل أنت متأكد من حذف هذا الصنف من المستودع؟')) return;
+					try {
+						const formData = new FormData();
+						const res = await fetch('/admin/temporary-warehouses/items/' + rowId + '/delete', {
+							method: 'POST',
+							body: formData
+						});
+						const json = await res.json();
+						if (json.success) {
+							await this.fetchItems();
+						} else {
+							alert(json.error || 'حدث خطأ أثناء الحذف');
+						}
+					} catch(e) {
+						alert('فشل الاتصال بالخادم');
+					}
+				},
+				handleFileSelect(event) {
+					const file = event.target.files[0];
+					if (!file) return;
+					// Read file to detect headers if client-side or prepare preview
+					const reader = new FileReader();
+					reader.onload = (e) => {
+						const text = e.target.result;
+						// If text/csv
+						if (file.name.endsWith('.csv') || file.name.endsWith('.txt')) {
+							const lines = text.split(/\r?\n/).filter(l => l.trim().length > 0);
+							if (lines.length > 0) {
+								this.fileHeaders = lines[0].split(',').map(h => h.trim().replace(/^[\&quot;\']|[\&quot;\']$/g, ''));
+								this.guessColumns();
+							}
+						} else {
+							// For Excel files, set reasonable default columns
+							this.fileHeaders = ['كود الصنف (SKU)', 'اسم المنتج / الصنف', 'سعر الجمهور', 'نسبة الخصم %', 'الكمية'];
+							this.detectedCode = 0;
+							this.detectedName = 1;
+							this.detectedPrice = 2;
+							this.detectedDiscount = 3;
+						}
+					};
+					if (file.name.endsWith('.csv') || file.name.endsWith('.txt')) {
+						reader.readAsText(file);
+					} else {
+						reader.readAsArrayBuffer(file);
+					}
+				},
+				guessColumns() {
+					if (!this.fileHeaders || this.fileHeaders.length === 0) return;
+					this.detectedCode = 0;
+					this.detectedName = 1;
+					this.detectedPrice = 2;
+					this.detectedDiscount = 3;
+					this.fileHeaders.forEach((h, idx) => {
+						const norm = h.toLowerCase().replace(/[\s_\-]/g, '');
+						if (norm.includes('كود') || norm.includes('code') || norm.includes('sku') || norm.includes('باركود') || norm.includes('barcode')) {
+							this.detectedCode = idx;
+						} else if (norm.includes('اسم') || norm.includes('name') || norm.includes('صنف') || norm.includes('منتج')) {
+							this.detectedName = idx;
+						} else if ((norm.includes('سعر') || norm.includes('price') || norm.includes('جمهور') || norm.includes('رسمي')) && !norm.includes('خصم') && !norm.includes('صافي')) {
+							this.detectedPrice = idx;
+						} else if (norm.includes('خصم') || norm.includes('discount') || norm.includes('%') || norm.includes('نسبة')) {
+							this.detectedDiscount = idx;
+						}
+					});
+				}
+			}"
+			style="display:flex; flex-direction:column; gap:1.5rem; max-width:1440px; margin:0 auto 3.5rem auto;"
+		>
 			
-			<!-- 1. Header Banner -->
-			<div class="card mb-0" style="border:1px solid var(--border); background:linear-gradient(135deg, var(--surface-raised) 0%, var(--surface-sunken) 100%); border-radius:var(--radius-xl); padding:1.75rem; box-shadow:0 4px 20px rgba(0,0,0,0.03);">
-				<div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1.5rem;">
+			<!-- 1. Header Banner & Top Action Tabs (Matching Image 4) -->
+			<div class="card mb-0" style="border:1px solid var(--border); background:linear-gradient(135deg, var(--surface-raised) 0%, var(--surface-sunken) 100%); border-radius:var(--radius-2xl); padding:1.75rem; box-shadow:0 4px 20px rgba(0,0,0,0.03);">
+				<div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:1.5rem;">
 					<div>
 						<div style="display:flex; align-items:center; gap:0.75rem; margin-bottom:0.35rem;">
 							<div style="width:46px; height:46px; border-radius:var(--radius-xl); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center; font-size:1.4rem;">
-								📦
+								🏢
 							</div>
 							<div>
 								<h1 style="font-size:1.5rem; font-weight:900; color:var(--text); margin:0;">
-									المستودعات المؤقتة وعروض أسعار الموردين
+									قوائم المستودعات التابعة لحسابي المشرف
 								</h1>
 								<span style="font-size:0.75rem; font-weight:700; color:var(--accent); text-transform:uppercase;">
 									Temporary Warehouses & Staged Supplier Catalogs
@@ -862,232 +984,257 @@ templ AdminTempWarehousesPage(data *AdminTempWarehousesData, lang, dir string) {
 							</div>
 						</div>
 						<p style="font-size:0.875rem; color:var(--text-secondary); margin:0.35rem 0 0 0; line-height:1.6; max-width:820px;">
-							مستودعات وجداول أسعار مؤقتة مرفوعة من قبل الموردين لمطابقة الأصناف وعرض خصومات السوق، تتيح فحص ومقارنة الأسعار بشكل فوري دون التعديل على الكتالوج الدائم.
+							تعرض هذه الصفحة ملفات المستودعات وكشوف الأسعار المؤقتة التي تم رفعها، والمرتبطة بعروض خصومات السوق العامة.
 						</p>
 					</div>
 
-					<div style="display:flex; gap:0.75rem; align-items:center; flex-wrap:wrap;">
-						<a href="/market-discounts" class="btn btn-secondary btn-sm" style="font-weight:700; border-radius:var(--radius-lg); padding:0.55rem 1.15rem;">
-							<span>🏷️ خصومات السوق العامة</span>
+					<!-- Top Navigation Scope Tabs + Upload Button (Image 4) -->
+					<div style="display:flex; gap:0.6rem; align-items:center; flex-wrap:wrap;">
+						<a
+							href="/admin/user/temparte-warehouses?scope=my"
+							class="btn btn-sm"
+							style={ templ.KV("background:var(--accent); color:#fff; font-weight:800;", data.Scope == "my" || data.Scope == ""), templ.KV("background:var(--surface-sunken); border:1px solid var(--border); color:var(--text-secondary); font-weight:700;", data.Scope != "my" && data.Scope != "") }
+							style="border-radius:var(--radius-lg); padding:0.5rem 1rem;"
+						>
+							<span>👤 مستودعاتي المرفوعة</span>
 						</a>
-						<a href="/compare/tool" class="btn btn-primary btn-sm" style="display:inline-flex; align-items:center; gap:0.4rem; font-weight:800; padding:0.55rem 1.25rem; border-radius:var(--radius-lg);">
-							@components.IconPlus("icon-xs")
-							<span>رفع كشف مستودع جديد</span>
+						<a
+							href="/admin/user/temparte-warehouses?scope=admins"
+							class="btn btn-sm"
+							style={ templ.KV("background:var(--accent); color:#fff; font-weight:800;", data.Scope == "admins"), templ.KV("background:var(--surface-sunken); border:1px solid var(--border); color:var(--text-secondary); font-weight:700;", data.Scope != "admins") }
+							style="border-radius:var(--radius-lg); padding:0.5rem 1rem;"
+						>
+							<span>🛡️ مستودعات كافة المشرفين</span>
 						</a>
+						<a
+							href="/admin/user/temparte-warehouses?scope=all"
+							class="btn btn-sm"
+							style={ templ.KV("background:var(--accent); color:#fff; font-weight:800;", data.Scope == "all"), templ.KV("background:var(--surface-sunken); border:1px solid var(--border); color:var(--text-secondary); font-weight:700;", data.Scope != "all") }
+							style="border-radius:var(--radius-lg); padding:0.5rem 1rem;"
+						>
+							<span>👥 جميع مستودعات العملاء والبائعين</span>
+						</a>
+						<button
+							type="button"
+							@click="uploadModal = true"
+							class="btn btn-primary btn-sm"
+							style="display:inline-flex; align-items:center; gap:0.4rem; font-weight:900; padding:0.55rem 1.25rem; border-radius:var(--radius-lg);"
+						>
+							<span>➕ رفع الملفات وسجل الأخطاء</span>
+						</button>
 					</div>
 				</div>
 			</div>
 
-			<!-- 2. KPI Metrics Summary Cards -->
-			<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:1rem;">
-				<div class="card mb-0" style="padding:1.25rem; border:1px solid var(--border); border-radius:var(--radius-lg); background:var(--surface-raised);">
-					<div style="font-size:0.825rem; font-weight:700; color:var(--text-secondary); margin-bottom:0.35rem;">إجمالي المستودعات المؤقتة</div>
-					<div class="tabular-nums" style="font-size:1.75rem; font-weight:900; color:var(--text);">
-						{ fmt.Sprintf("%d", data.TotalCount) }
-					</div>
-					<div style="font-size:0.75rem; color:var(--text-muted); margin-top:0.25rem;">
-						كشف ومستودع مسجل
-					</div>
+			<!-- Notice Banner -->
+			if data.NoticeMsg != "" {
+				<div
+					class={ "alert",
+						templ.KV("alert-success", data.NoticeType == "success"),
+						templ.KV("alert-danger", data.NoticeType == "error"),
+						templ.KV("alert-info", data.NoticeType != "success" && data.NoticeType != "error") }
+					role="alert"
+					style="border-radius:var(--radius-xl); font-weight:700;"
+				>
+					{ data.NoticeMsg }
 				</div>
+			}
 
-				<div class="card mb-0" style="padding:1.25rem; border:1px solid var(--border); border-radius:var(--radius-lg); background:var(--surface-raised);">
-					<div style="font-size:0.825rem; font-weight:700; color:var(--text-secondary); margin-bottom:0.35rem;">إجمالي الأصناف المرفوعة</div>
-					<div class="tabular-nums" style="font-size:1.75rem; font-weight:900; color:var(--accent);">
+			<!-- 2. 4 Stat Metric Cards (Image 4) -->
+			<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:1rem;">
+				<!-- Card 1: Total Items -->
+				<div class="card mb-0" style="padding:1.35rem; border:1px solid var(--border); border-radius:var(--radius-xl); background:var(--surface-raised); box-shadow:0 2px 10px rgba(0,0,0,0.02); text-align:center;">
+					<div class="tabular-nums" style="font-size:2.2rem; font-weight:900; color:var(--accent); line-height:1.1;">
 						{ fmt.Sprintf("%d", data.TotalRows) }
 					</div>
-					<div style="font-size:0.75rem; color:var(--text-muted); margin-top:0.25rem;">
-						صنف وعرض سعر مسجل
+					<div style="font-size:0.85rem; font-weight:700; color:var(--text-secondary); margin-top:0.4rem;">
+						إجمالي الأصناف المرفوعة
 					</div>
 				</div>
 
-				<div class="card mb-0" style="padding:1.25rem; border:1px solid var(--border); border-radius:var(--radius-lg); background:var(--surface-raised);">
-					<div style="font-size:0.825rem; font-weight:700; color:var(--text-secondary); margin-bottom:0.35rem;">المستودعات النشطة بالخصومات</div>
-					<div class="tabular-nums" style="font-size:1.75rem; font-weight:900; color:var(--emerald);">
+				<!-- Card 2: Total Files -->
+				<div class="card mb-0" style="padding:1.35rem; border:1px solid var(--border); border-radius:var(--radius-xl); background:var(--surface-raised); box-shadow:0 2px 10px rgba(0,0,0,0.02); text-align:center;">
+					<div class="tabular-nums" style="font-size:2.2rem; font-weight:900; color:var(--emerald, #10b981); line-height:1.1;">
+						{ fmt.Sprintf("%d", data.TotalCount) }
+					</div>
+					<div style="font-size:0.85rem; font-weight:700; color:var(--text-secondary); margin-top:0.4rem;">
+						إجمالي ملفات الموردين
+					</div>
+				</div>
+
+				<!-- Card 3: Active Warehouses -->
+				<div class="card mb-0" style="padding:1.35rem; border:1px solid var(--border); border-radius:var(--radius-xl); background:var(--surface-raised); box-shadow:0 2px 10px rgba(0,0,0,0.02); text-align:center;">
+					<div class="tabular-nums" style="font-size:2.2rem; font-weight:900; color:var(--emerald, #10b981); line-height:1.1;">
 						{ fmt.Sprintf("%d", data.ActiveCount) }
 					</div>
-					<div style="font-size:0.75rem; color:var(--text-muted); margin-top:0.25rem;">
-						متاحة في السوق العام
+					<div style="font-size:0.85rem; font-weight:700; color:var(--text-secondary); margin-top:0.4rem;">
+						المستودعات النشطة
 					</div>
 				</div>
 
-				<div class="card mb-0" style="padding:1.25rem; border:1px solid var(--border); border-radius:var(--radius-lg); background:var(--surface-raised);">
-					<div style="font-size:0.825rem; font-weight:700; color:var(--text-secondary); margin-bottom:0.35rem;">المستودعات المؤرشفة</div>
-					<div class="tabular-nums" style="font-size:1.75rem; font-weight:900; color:var(--text-muted);">
+				<!-- Card 4: Archived Warehouses -->
+				<div class="card mb-0" style="padding:1.35rem; border:1px solid var(--border); border-radius:var(--radius-xl); background:var(--surface-raised); box-shadow:0 2px 10px rgba(0,0,0,0.02); text-align:center;">
+					<div class="tabular-nums" style="font-size:2.2rem; font-weight:900; color:var(--text-muted); line-height:1.1;">
 						{ fmt.Sprintf("%d", data.ArchivedCount) }
 					</div>
-					<div style="font-size:0.75rem; color:var(--text-muted); margin-top:0.25rem;">
-						كشوف تاريخية سابقة
+					<div style="font-size:0.85rem; font-weight:700; color:var(--text-secondary); margin-top:0.4rem;">
+						المستودعات المؤرشفة
 					</div>
 				</div>
 			</div>
 
-			<!-- 3. Search & Filter Bar -->
-			<div class="card mb-0" style="border:1px solid var(--border); border-radius:var(--radius-xl); padding:1.25rem; background:var(--surface-raised);">
-				<form method="GET" action="/admin/user/temparte-warehouses" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:1rem; align-items:flex-end; margin:0;">
+			<!-- 3. Search & Status Tabs Bar (Image 4) -->
+			<div class="card mb-0" style="border:1px solid var(--border); border-radius:var(--radius-xl); padding:1.25rem 1.5rem; background:var(--surface-raised);">
+				<form method="GET" action="/admin/user/temparte-warehouses" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem; margin:0;">
+					<input type="hidden" name="scope" value={ data.Scope } />
 					
 					<!-- Search Input -->
-					<div class="form-group mb-0" style="grid-column: span 2; min-width:260px;">
-						<label class="form-label" style="font-size:0.825rem; font-weight:700; color:var(--text-secondary); margin-bottom:0.35rem;">
-							البحث في المستودعات
-						</label>
-						<div style="position:relative;">
-							<input
-								type="text"
-								name="q"
-								value={ data.Query }
-								class="form-input"
-								style="padding-inline-start:2.25rem; font-size:0.875rem; height:42px; width:100%; border-radius:var(--radius-lg);"
-								placeholder="اسم المستودع / المورد، أو اسم الملف..."
-							/>
-							<div style="position:absolute; inset-inline-start:0.75rem; top:50%; transform:translateY(-50%); color:var(--text-muted); pointer-events:none;">
-								@components.IconSearch("icon-xs")
-							</div>
+					<div style="position:relative; min-width:280px; flex:1;">
+						<input
+							type="text"
+							name="q"
+							value={ data.Query }
+							class="form-input"
+							style="padding-inline-start:2.25rem; font-size:0.875rem; height:42px; width:100%; border-radius:var(--radius-lg);"
+							placeholder="بحث باسم المورد / المستودع..."
+						/>
+						<div style="position:absolute; inset-inline-start:0.75rem; top:50%; transform:translateY(-50%); color:var(--text-muted); pointer-events:none;">
+							@components.IconSearch("icon-xs")
 						</div>
 					</div>
 
-					<!-- Status Filter -->
-					<div class="form-group mb-0">
-						<label class="form-label" style="font-size:0.825rem; font-weight:700; color:var(--text-secondary); margin-bottom:0.35rem;">
-							حالة المستودع
-						</label>
-						<select name="status" class="form-input" style="font-size:0.875rem; height:42px; border-radius:var(--radius-lg);">
-							<option value="" selected?={ data.StatusFilter == "" }>جميع الحالات</option>
-							<option value="ready" selected?={ data.StatusFilter == "ready" }>جاهز ومتاح بالخصومات العامة</option>
-							<option value="mapping" selected?={ data.StatusFilter == "mapping" }>قيد ضبط وتعيين الأعمدة</option>
-							<option value="archived" selected?={ data.StatusFilter == "archived" }>مؤرشف</option>
-						</select>
-					</div>
+					<!-- Status Pill Tabs (Image 4) -->
+					<div style="display:flex; align-items:center; gap:0.5rem;">
+						<div style="display:flex; background:var(--surface-sunken); border:1px solid var(--border); border-radius:var(--radius-lg); padding:2px; gap:2px;">
+							<a
+								href={ templ.SafeURL(fmt.Sprintf("/admin/user/temparte-warehouses?scope=%s&q=%s&status=ready", data.Scope, data.Query)) }
+								class="btn btn-sm"
+								style={ templ.KV("background:var(--surface-raised); font-weight:800; color:var(--emerald); box-shadow:0 1px 3px rgba(0,0,0,0.06);", data.StatusFilter == "ready"), templ.KV("background:transparent; color:var(--text-secondary); border:none;", data.StatusFilter != "ready") }
+								style="padding:0.35rem 0.85rem; font-size:0.825rem; border-radius:var(--radius-md);"
+							>
+								<span>🟢 النشطة</span>
+							</a>
+							<a
+								href={ templ.SafeURL(fmt.Sprintf("/admin/user/temparte-warehouses?scope=%s&q=%s&status=archived", data.Scope, data.Query)) }
+								class="btn btn-sm"
+								style={ templ.KV("background:var(--surface-raised); font-weight:800; color:var(--accent); box-shadow:0 1px 3px rgba(0,0,0,0.06);", data.StatusFilter == "archived"), templ.KV("background:transparent; color:var(--text-secondary); border:none;", data.StatusFilter != "archived") }
+								style="padding:0.35rem 0.85rem; font-size:0.825rem; border-radius:var(--radius-md);"
+							>
+								<span>📦 المؤرشفة</span>
+							</a>
+							<a
+								href={ templ.SafeURL(fmt.Sprintf("/admin/user/temparte-warehouses?scope=%s&q=%s", data.Scope, data.Query)) }
+								class="btn btn-sm"
+								style={ templ.KV("background:var(--surface-raised); font-weight:800; color:var(--text); box-shadow:0 1px 3px rgba(0,0,0,0.06);", data.StatusFilter == ""), templ.KV("background:transparent; color:var(--text-secondary); border:none;", data.StatusFilter != "") }
+								style="padding:0.35rem 0.85rem; font-size:0.825rem; border-radius:var(--radius-md);"
+							>
+								<span>الكل</span>
+							</a>
+						</div>
 
-					<!-- Actions -->
-					<div style="display:flex; gap:0.5rem; justify-content:flex-end;">
 						<button type="submit" class="btn btn-primary btn-sm" style="display:flex; align-items:center; gap:0.4rem; height:42px; padding:0 1.25rem; font-weight:800; border-radius:var(--radius-lg);">
 							@components.IconSearch("icon-xs")
-							<span>بحث وتصفية</span>
+							<span>بحث</span>
 						</button>
-						if data.Query != "" || data.StatusFilter != "" {
-							<a href="/admin/user/temparte-warehouses" class="btn btn-secondary btn-sm" style="height:42px; display:flex; align-items:center; padding:0 1rem; border-radius:var(--radius-lg);" title="إعادة ضبط">
-								مسح
-							</a>
-						}
 					</div>
 				</form>
 			</div>
 
-			<!-- 4. Table Surface -->
-			<div class="card mb-0" style="border:1px solid var(--border); border-radius:var(--radius-xl); padding:0; overflow:hidden; background:var(--surface-raised); box-shadow:0 4px 16px rgba(0,0,0,0.03);">
-				<div style="padding:1.25rem 1.5rem; border-bottom:1px solid var(--border-subtle); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.75rem; background:var(--surface);">
-					<div style="display:flex; align-items:center; gap:0.6rem;">
-						<span style="font-size:1.1rem;">🏢</span>
-						<h3 style="font-weight:800; font-size:1rem; color:var(--text); margin:0;">
-							سجل المستودعات المؤقتة وجداول الأسعار
-						</h3>
-						<span class="badge badge-slate text-xs tabular-nums" style="font-weight:700;">
-							{ fmt.Sprintf("%d مستودع", len(data.Items)) }
-						</span>
-					</div>
-				</div>
-
+			<!-- 4. Table Surface (Matching Image 4) -->
+			<div class="card mb-0" style="border:1px solid var(--border); border-radius:var(--radius-2xl); padding:0; overflow:hidden; background:var(--surface-raised); box-shadow:0 4px 16px rgba(0,0,0,0.03);">
 				if len(data.Items) == 0 {
-					<div style="text-align:center; padding:3.5rem 1.5rem;">
-						<div style="width:48px; height:48px; border-radius:var(--radius-full); background:var(--surface-sunken); color:var(--text-muted); display:flex; align-items:center; justify-content:center; margin:0 auto 1rem auto; font-size:1.5rem;">
+					<div style="text-align:center; padding:4.5rem 1.5rem;">
+						<div style="width:56px; height:56px; border-radius:var(--radius-full); background:var(--surface-sunken); color:var(--text-muted); display:flex; align-items:center; justify-content:center; margin:0 auto 1rem auto; font-size:1.75rem;">
 							📦
 						</div>
-						<h3 style="font-size:1.1rem; font-weight:800; color:var(--text); margin-bottom:0.4rem;">
+						<h3 style="font-size:1.2rem; font-weight:800; color:var(--text); margin-bottom:0.4rem;">
 							لا توجد مستودعات مؤقتة مطابقة
 						</h3>
-						<p style="font-size:0.85rem; color:var(--text-secondary); max-width:440px; margin:0 auto 1.25rem;">
-							يتم إنشاء المستودعات المؤقتة تلقائياً عند رفع ملفات كشوف الأسعار من قبل الموردين أو إدارة المنصة.
+						<p style="font-size:0.875rem; color:var(--text-secondary); max-width:440px; margin:0 auto 1.5rem;">
+							يمكنك رفع كشف أسعار ومستودع جديد بالنقر على زر الرفع أعلاه.
 						</p>
-						<a href="/compare/tool" class="btn btn-primary btn-sm" style="font-weight:700;">
+						<button type="button" @click="uploadModal = true" class="btn btn-primary btn-sm" style="font-weight:800; border-radius:var(--radius-lg);">
 							رفع كشف مستودع جديد الآن
-						</a>
+						</button>
 					</div>
 				} else {
-					<div class="table-container">
+					<div class="table-container m-0">
 						<table class="b2b-table m-0">
 							<thead>
 								<tr>
-									<th style="width:50px;">#</th>
-									<th>اسم المستودع / المورد</th>
-									<th>اسم الملف المرفوع</th>
-									<th>عدد الأصناف</th>
-									<th>حجم الملف</th>
-									<th>الحالة في السوق</th>
-									<th>تاريخ الرفع</th>
-									<th style="width:240px; text-align:center;">الإجراءات والتجربة</th>
+									<th style="width:40px; text-align:center;">#</th>
+									<th style="min-width:240px;">اسم المورد / الملف</th>
+									<th style="min-width:140px;">عدد المنتجات</th>
+									<th style="min-width:160px;">تاريخ الرفع</th>
+									<th style="min-width:260px; text-align:center;">الإجراءات</th>
 								</tr>
 							</thead>
 							<tbody>
 								for idx, item := range data.Items {
 									<tr>
-										<td class="tabular-nums text-muted text-sm">
+										<td class="tabular-nums text-muted text-sm" style="text-align:center;">
 											{ fmt.Sprintf("%d", idx+1) }
 										</td>
 										<td>
-											<div style="font-weight:800; color:var(--text); font-size:0.925rem;">
-												🏢 { item.SupplierName }
+											<div style="font-weight:900; color:var(--text); font-size:1.05rem;">
+												{ item.SupplierName }
 											</div>
-										</td>
-										<td>
-											<div class="tabular-nums" style="font-family:var(--font-mono, monospace); font-size:0.8rem; color:var(--text-secondary); background:var(--surface-sunken); padding:2px 8px; border-radius:var(--radius-sm); border:1px solid var(--border); display:inline-block;">
-												{ item.OriginalFilename }
-											</div>
-										</td>
-										<td class="tabular-nums" style="font-weight:800; font-size:0.95rem; color:var(--accent);">
-											{ fmt.Sprintf("%d صنف", item.RowCount) }
-										</td>
-										<td class="tabular-nums text-muted text-xs">
-											if item.SizeBytes > 1024*1024 {
-												{ fmt.Sprintf("%.1f MB", float64(item.SizeBytes)/(1024*1024)) }
-											} else if item.SizeBytes > 1024 {
-												{ fmt.Sprintf("%.0f KB", float64(item.SizeBytes)/1024) }
-											} else {
-												{ fmt.Sprintf("%d B", item.SizeBytes) }
+											if item.OriginalFilename != "" && item.OriginalFilename != item.SupplierName {
+												<div class="tabular-nums text-xs text-muted font-mono mt-0.5">
+													📁 { item.OriginalFilename }
+												</div>
 											}
 										</td>
 										<td>
-											if item.Status == "ready" {
-												<span class="badge badge-emerald fw-800 text-xs" style="padding:0.3rem 0.65rem;">
-													🟢 متاح بالخصومات العامة
-												</span>
-											} else if item.Status == "archived" {
-												<span class="badge badge-slate text-xs" style="padding:0.3rem 0.65rem;">
-													📁 مؤرشف
-												</span>
-											} else if item.Status == "mapping" {
-												<span class="badge badge-amber text-xs" style="padding:0.3rem 0.65rem;">
-													⏳ قيد ضبط الأعمدة
-												</span>
-											} else {
-												<span class="badge badge-rose text-xs" style="padding:0.3rem 0.65rem;">
-													❌ { item.Status }
-												</span>
-											}
+											<span class="badge badge-sky fw-800 text-xs tabular-nums" style="padding:0.35rem 0.75rem; border-radius:var(--radius-md); font-size:0.85rem;">
+												{ fmt.Sprintf("%d صنف", item.RowCount) }
+											</span>
 										</td>
-										<td class="tabular-nums text-muted text-xs" style="white-space:nowrap;">
+										<td class="tabular-nums text-xs text-muted" style="white-space:nowrap;">
 											{ item.CreatedAt.Format("2006-01-02 15:04") }
 										</td>
 										<td>
 											<div style="display:flex; gap:0.4rem; justify-content:center; align-items:center; flex-wrap:wrap;">
-												<!-- Direct View Link to Market Discounts for this warehouse -->
-												<a
-													href={ templ.SafeURL(fmt.Sprintf("/market-discounts?supplier=%s", url.QueryEscape(item.SupplierName))) }
-													class="btn btn-secondary btn-sm"
-													style="padding:0.35rem 0.65rem; font-size:0.775rem; font-weight:700; color:var(--primary-700); border-color:var(--primary-300);"
-													title="استعراض أصناف هذا المستودع في صفحة الخصومات العامة"
+												<!-- View Items Button (Image 4 -> opens Image 3) -->
+												<button
+													type="button"
+													@click={ fmt.Sprintf("openItems(%d, %q, %d)", item.ID, item.SupplierName, item.RowCount) }
+													class="btn btn-secondary btn-sm fw-800"
+													style="padding:0.35rem 0.75rem; font-size:0.8rem; border-radius:var(--radius-md); color:var(--accent);"
+													title="عرض وفحص كافة أصناف هذا المستودع"
 												>
-													🔍 استعراض الأصناف
+													<span>👁️ الأصناف</span>
+												</button>
+
+												<!-- Download XLSX -->
+												<a
+													href={ templ.SafeURL(fmt.Sprintf("/admin/temporary-warehouses/%d/export", item.ID)) }
+													class="btn btn-secondary btn-sm fw-800"
+													style="padding:0.35rem 0.65rem; font-size:0.8rem; border-radius:var(--radius-md); color:var(--emerald, #10b981);"
+													title="تنزيل كشف المستودع بصيغة Excel"
+												>
+													<span>📊 XLSX</span>
 												</a>
 
-												<!-- Configure / Edit Column Mapping Modal -->
-												<a
-													href={ templ.SafeURL(fmt.Sprintf("/compare/tool?open_mapping=%d", item.ID)) }
-													class="btn btn-ghost btn-sm"
-													style="padding:0.35rem 0.65rem; font-size:0.775rem; font-weight:700;"
-													title="ضبط وتعيين الأعمدة"
-												>
-													⚙️ ضبط الأعمدة
-												</a>
+												<!-- Toggle Archive -->
+												<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/temporary-warehouses/%d/toggle-archive", item.ID)) } style="display:inline; margin:0;">
+													if item.Status == "archived" {
+														<button type="submit" class="btn btn-secondary btn-sm fw-800" style="padding:0.35rem 0.65rem; font-size:0.8rem; border-radius:var(--radius-md);" title="إعادة تفعيل المستودع بالخصومات">
+															<span>🟢 تفعيل</span>
+														</button>
+													} else {
+														<button type="submit" class="btn btn-secondary btn-sm fw-800" style="padding:0.35rem 0.65rem; font-size:0.8rem; border-radius:var(--radius-md);" title="أرشفة المستودع">
+															<span>📦 أرشفة</span>
+														</button>
+													}
+												</form>
+
+												<!-- Delete Warehouse -->
+												<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/temporary-warehouses/%d/delete", item.ID)) } onsubmit="return confirm('هل أنت متأكد تماماً من حذف هذا المستودع وكافة أصنافه نهائياً؟');" style="display:inline; margin:0;">
+													<button type="submit" class="btn btn-secondary btn-sm fw-800" style="padding:0.35rem 0.65rem; font-size:0.8rem; border-radius:var(--radius-md); color:#dc2626;" title="حذف المستودع بالكامل">
+														<span>🗑️ حذف</span>
+													</button>
+												</form>
 											</div>
 										</td>
 									</tr>
@@ -1096,6 +1243,277 @@ templ AdminTempWarehousesPage(data *AdminTempWarehousesData, lang, dir string) {
 						</table>
 					</div>
 				}
+			</div>
+
+			<!-- 5. Warehouse Items Modal (Matching Image 3) -->
+			<div
+				x-show="itemsModal"
+				style="position:fixed; inset:0; z-index:99999; background:rgba(15,23,42,0.75); backdrop-filter:blur(6px); display:flex; align-items:center; justify-content:center; padding:1.25rem;"
+				x-cloak
+				@keydown.escape.window="itemsModal = false"
+				@click.self="itemsModal = false"
+			>
+				<div
+					class="card mb-0"
+					style="max-width:920px; width:100%; max-height:92vh; display:flex; flex-direction:column; overflow:hidden; padding:0; background:var(--surface-raised); border-radius:var(--radius-2xl); border:1px solid var(--border); box-shadow:var(--shadow-2xl);"
+				>
+					<!-- Modal Top Header (Image 3) -->
+					<div style="padding:1.25rem 1.75rem; border-bottom:1px solid var(--border-subtle); display:flex; justify-content:space-between; align-items:center; background:var(--surface);">
+						<div style="display:flex; align-items:center; gap:0.6rem;">
+							<span style="font-size:1.3rem;">📦</span>
+							<h3 style="font-size:1.2rem; font-weight:900; color:var(--text); margin:0;">
+								أصناف المستودع: <span x-text="selectedWarehouse.name" style="color:var(--accent);"></span> (<span x-text="selectedWarehouse.total" class="tabular-nums"></span> صنف)
+							</h3>
+						</div>
+
+						<div style="display:flex; align-items:center; gap:0.6rem;">
+							<!-- Download XLSX Button -->
+							<a
+								:href="'/admin/temporary-warehouses/' + selectedWarehouse.id + '/export'"
+								class="btn btn-secondary btn-sm fw-800"
+								style="display:inline-flex; align-items:center; gap:0.35rem; padding:0.4rem 0.85rem; border-radius:var(--radius-md); color:var(--emerald, #10b981);"
+							>
+								<span>📥 تحميل XLSX</span>
+							</a>
+
+							<!-- Close Button -->
+							<button
+								type="button"
+								@click="itemsModal = false"
+								class="btn btn-secondary btn-sm"
+								style="border-radius:var(--radius-full); width:32px; height:32px; padding:0; display:flex; align-items:center; justify-content:center; font-size:1.1rem;"
+							>
+								&times;
+							</button>
+						</div>
+					</div>
+
+					<!-- Modal Body Table (Image 3) -->
+					<div style="flex:1; overflow-y:auto; padding:0;">
+						<template x-if="modalLoading">
+							<div style="padding:4rem; text-align:center; color:var(--text-muted);">
+								<div style="font-size:2rem; margin-bottom:0.5rem;">⏳</div>
+								<div class="fw-700">جاري تحميل أصناف المستودع...</div>
+							</div>
+						</template>
+
+						<template x-if="!modalLoading && modalItems.length === 0">
+							<div style="padding:4rem; text-align:center; color:var(--text-muted);">
+								<div style="font-size:2rem; margin-bottom:0.5rem;">🔍</div>
+								<div class="fw-700">لا توجد أصناف في هذا المستودع حالياً.</div>
+							</div>
+						</template>
+
+						<template x-if="!modalLoading && modalItems.length > 0">
+							<table class="b2b-table m-0">
+								<thead>
+									<tr>
+										<th style="min-width:120px;">الكود</th>
+										<th style="min-width:320px;">اسم المنتج</th>
+										<th style="min-width:130px;">السعر (سعر الجمهور)</th>
+										<th style="min-width:110px;">الخصم</th>
+										<th style="width:60px; text-align:center;">حذف</th>
+									</tr>
+								</thead>
+								<tbody>
+									<template x-for="row in modalItems" :key="row.id">
+										<tr>
+											<!-- SKU Code -->
+											<td class="tabular-nums font-mono" style="font-size:0.85rem; font-weight:800; color:var(--text);" x-text="row.sku || ('#' + row.id)"></td>
+											
+											<!-- Product Name -->
+											<td>
+												<div class="fw-900 text-foreground" style="font-size:0.95rem;" x-text="row.raw_name"></div>
+											</td>
+
+											<!-- Public Price -->
+											<td class="tabular-nums font-bold" style="font-size:0.95rem; color:var(--text);" x-text="row.price + ' EGP'"></td>
+
+											<!-- Discount -->
+											<td class="tabular-nums">
+												<span class="badge badge-emerald fw-800 text-xs" style="padding:0.25rem 0.6rem; border-radius:var(--radius-md);" x-text="row.discount + '%'"></span>
+											</td>
+
+											<!-- Delete Single Item Button (Image 3) -->
+											<td style="text-align:center;">
+												<button
+													type="button"
+													@click="deleteItem(row.id)"
+													class="btn btn-secondary btn-xs"
+													style="color:#dc2626; border-radius:var(--radius-md); padding:0.25rem 0.5rem; font-weight:800;"
+													title="حذف هذا الصنف من المستودع"
+												>
+													✕
+												</button>
+											</td>
+										</tr>
+									</template>
+								</tbody>
+							</table>
+						</template>
+					</div>
+
+					<!-- Modal Pagination Footer (Image 3) -->
+					<div style="padding:1rem 1.75rem; border-top:1px solid var(--border-subtle); display:flex; justify-content:space-between; align-items:center; background:var(--surface); flex-wrap:wrap; gap:1rem;">
+						<div class="text-xs text-muted fw-700 tabular-nums">
+							<span>عرض صفحة </span>
+							<strong class="text-foreground" x-text="modalPage"></strong>
+							<span> من </span>
+							<strong class="text-foreground" x-text="modalTotalPages"></strong>
+							<span> (إجمالي </span>
+							<strong class="text-accent" x-text="selectedWarehouse.total"></strong>
+							<span> صنف)</span>
+						</div>
+
+						<div style="display:flex; align-items:center; gap:0.5rem;">
+							<button
+								type="button"
+								@click="prevModalPage()"
+								:disabled="modalPage <= 1 || modalLoading"
+								class="btn btn-secondary btn-sm fw-800"
+								style="border-radius:var(--radius-md); padding:0.35rem 0.85rem;"
+							>
+								السابق
+							</button>
+							<button
+								type="button"
+								@click="nextModalPage()"
+								:disabled="modalPage >= modalTotalPages || modalLoading"
+								class="btn btn-secondary btn-sm fw-800"
+								style="border-radius:var(--radius-md); padding:0.35rem 0.85rem;"
+							>
+								التالي
+							</button>
+							<button
+								type="button"
+								@click="itemsModal = false"
+								class="btn btn-secondary btn-sm fw-800"
+								style="border-radius:var(--radius-md); padding:0.35rem 0.85rem; margin-inline-start:0.5rem;"
+							>
+								إغلاق
+							</button>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<!-- 6. Upload & Column Mapping Modal with Auto-Guessing -->
+			<div
+				x-show="uploadModal"
+				style="position:fixed; inset:0; z-index:99999; background:rgba(15,23,42,0.75); backdrop-filter:blur(6px); display:flex; align-items:center; justify-content:center; padding:1.25rem;"
+				x-cloak
+				@keydown.escape.window="uploadModal = false"
+			>
+				<div
+					class="card mb-0"
+					style="max-width:620px; width:100%; max-height:92vh; overflow-y:auto; padding:1.75rem; background:var(--surface-raised); border-radius:var(--radius-2xl); border:1px solid var(--border); box-shadow:var(--shadow-2xl);"
+				>
+					<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.25rem;">
+						<div>
+							<h3 style="font-size:1.25rem; font-weight:900; color:var(--text); margin:0;">
+								➕ رفع كشف مستودع جديد وربط الأعمدة
+							</h3>
+							<p style="font-size:0.8rem; color:var(--text-muted); margin:0.2rem 0 0 0;">
+								رفع ملف كشف الأصناف والأسعار (Excel / CSV) مع تعيين الأعمدة تلقائياً
+							</p>
+						</div>
+						<button type="button" @click="uploadModal = false" class="btn btn-secondary btn-sm" style="border-radius:var(--radius-full); width:32px; height:32px; padding:0; display:flex; align-items:center; justify-content:center; font-size:1.1rem;">&times;</button>
+					</div>
+
+					<form action="/admin/temporary-warehouses/upload" method="POST" enctype="multipart/form-data" class="stack-lg">
+						<!-- Supplier / Warehouse Name -->
+						<div class="form-group mb-0">
+							<label class="form-label text-xs fw-700" style="color:var(--text-secondary); margin-bottom:0.35rem;">
+								اسم المورد / اسم المستودع <span class="text-danger">*</span>
+							</label>
+							<input
+								type="text"
+								name="supplier_name"
+								required
+								class="form-input"
+								placeholder="مثال: لايف كير (تروفى)-11، مستودع الأمل، شركة النور..."
+								style="height:44px; border-radius:var(--radius-lg);"
+							/>
+						</div>
+
+						<!-- File Upload -->
+						<div class="form-group mb-0">
+							<label class="form-label text-xs fw-700" style="color:var(--text-secondary); margin-bottom:0.35rem;">
+								ملف الأسعار (XLSX, XLS, CSV) <span class="text-danger">*</span>
+							</label>
+							<input
+								type="file"
+								name="file"
+								required
+								accept=".xlsx,.xls,.csv,.txt"
+								@change="handleFileSelect($event)"
+								class="form-input"
+								style="height:44px; border-radius:var(--radius-lg); padding-top:0.4rem;"
+							/>
+						</div>
+
+						<!-- Intelligent Column Mapping Deck -->
+						<div style="background:var(--surface-sunken); padding:1.25rem; border-radius:var(--radius-xl); border:1px solid var(--border);">
+							<div style="font-size:0.85rem; font-weight:800; color:var(--text); margin-bottom:0.25rem;">
+								⚙️ تعيين وتخمين الأعمدة الذكي (Column Mapping)
+							</div>
+							<p style="font-size:0.75rem; color:var(--text-muted); margin:0 0 1rem 0;">
+								يخمن النظام الأعمدة تلقائياً بناءً على ترويسة الملف. يمكنك مراجعة أو تعديل أرقام الأعمدة:
+							</p>
+
+							<div style="display:grid; grid-template-columns:1fr 1fr; gap:0.85rem;">
+								<!-- Code Column -->
+								<div class="form-group mb-0">
+									<label class="form-label text-xs fw-700">عمود كود الصنف (SKU)</label>
+									<select name="col_code" class="form-input text-xs" style="height:38px; border-radius:var(--radius-md);" x-model="detectedCode">
+										<template x-for="(h, idx) in fileHeaders" :key="idx">
+											<option :value="idx" x-text="'عمود ' + (idx+1) + ': ' + h"></option>
+										</template>
+										<option value="0" x-show="fileHeaders.length === 0">العمود 1 (تلقائي)</option>
+									</select>
+								</div>
+
+								<!-- Name Column -->
+								<div class="form-group mb-0">
+									<label class="form-label text-xs fw-700">عمود اسم المنتج / الصنف</label>
+									<select name="col_name" class="form-input text-xs" style="height:38px; border-radius:var(--radius-md);" x-model="detectedName">
+										<template x-for="(h, idx) in fileHeaders" :key="idx">
+											<option :value="idx" x-text="'عمود ' + (idx+1) + ': ' + h"></option>
+										</template>
+										<option value="1" x-show="fileHeaders.length === 0">العمود 2 (تلقائي)</option>
+									</select>
+								</div>
+
+								<!-- Price Column -->
+								<div class="form-group mb-0">
+									<label class="form-label text-xs fw-700">عمود السعر (سعر الجمهور)</label>
+									<select name="col_price" class="form-input text-xs" style="height:38px; border-radius:var(--radius-md);" x-model="detectedPrice">
+										<template x-for="(h, idx) in fileHeaders" :key="idx">
+											<option :value="idx" x-text="'عمود ' + (idx+1) + ': ' + h"></option>
+										</template>
+										<option value="2" x-show="fileHeaders.length === 0">العمود 3 (تلقائي)</option>
+									</select>
+								</div>
+
+								<!-- Discount Column -->
+								<div class="form-group mb-0">
+									<label class="form-label text-xs fw-700">عمود نسبة الخصم (%)</label>
+									<select name="col_discount" class="form-input text-xs" style="height:38px; border-radius:var(--radius-md);" x-model="detectedDiscount">
+										<template x-for="(h, idx) in fileHeaders" :key="idx">
+											<option :value="idx" x-text="'عمود ' + (idx+1) + ': ' + h"></option>
+										</template>
+										<option value="3" x-show="fileHeaders.length === 0">العمود 4 (تلقائي)</option>
+									</select>
+								</div>
+							</div>
+						</div>
+
+						<div style="display:flex; justify-content:flex-end; gap:0.75rem; margin-top:0.5rem;">
+							<button type="button" class="btn btn-secondary" style="border-radius:var(--radius-lg); font-weight:700;" @click="uploadModal = false">إلغاء</button>
+							<button type="submit" class="btn btn-primary fw-900" style="border-radius:var(--radius-lg); padding:0.6rem 1.5rem;">تأكيد ورفع المستودع</button>
+						</div>
+					</form>
+				</div>
 			</div>
 
 		</div>
