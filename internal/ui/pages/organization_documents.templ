@@ -310,7 +310,13 @@ templ OrganizationDocumentsContent(lang string, data *OrganizationDocumentsData)
 										type="button"
 										class="btn btn-secondary btn-sm fw-700"
 										style="gap:0.35rem; height:34px;"
-										onclick={ templ.ComponentScript{Call: fmt.Sprintf("openDocViewer(%d, %q, %q, %q, %q, %q)", doc.ID, req.TitleAr, string(doc.DocumentType), doc.OriginalName, string(doc.Status), doc.FileURL)} }
+										data-doc-id={ fmt.Sprintf("%d", doc.ID) }
+										data-title={ req.TitleAr }
+										data-doctype={ string(doc.DocumentType) }
+										data-name={ doc.OriginalName }
+										data-status={ string(doc.Status) }
+										data-url={ doc.FileURL }
+										onclick="openDocViewerFromBtn(this)"
 									>
 										@components.IconEye("icon-xs")
 										<span>معاينة</span>
@@ -331,7 +337,11 @@ templ OrganizationDocumentsContent(lang string, data *OrganizationDocumentsData)
 										type="button"
 										class="btn btn-secondary btn-sm fw-700"
 										style="gap:0.35rem; height:34px;"
-										onclick={ templ.ComponentScript{Call: fmt.Sprintf("openReplaceDocModal(%d, %q, %q, %q)", doc.ID, string(req.DocType), req.TitleAr, doc.OriginalName)} }
+										data-doc-id={ fmt.Sprintf("%d", doc.ID) }
+										data-doctype={ string(req.DocType) }
+										data-title={ req.TitleAr }
+										data-name={ doc.OriginalName }
+										onclick="openReplaceDocModalFromBtn(this)"
 										title="استبدال وتحديث هذا المستند"
 									>
 										<span>🔄 استبدال المستند</span>
@@ -538,6 +548,26 @@ templ OrganizationDocumentsContent(lang string, data *OrganizationDocumentsData)
 
 	<!-- Viewer & Replace Modal Logic Scripts -->
 	<script>
+		function openDocViewerFromBtn(btn) {
+			if (!btn) return;
+			const docId = btn.getAttribute('data-doc-id');
+			const title = btn.getAttribute('data-title') || '';
+			const docType = btn.getAttribute('data-doctype') || '';
+			const name = btn.getAttribute('data-name') || '';
+			const status = btn.getAttribute('data-status') || '';
+			const url = btn.getAttribute('data-url') || '';
+			openDocViewer(docId, title, docType, name, status, url);
+		}
+
+		function openReplaceDocModalFromBtn(btn) {
+			if (!btn) return;
+			const docId = btn.getAttribute('data-doc-id');
+			const docType = btn.getAttribute('data-doctype') || '';
+			const title = btn.getAttribute('data-title') || '';
+			const name = btn.getAttribute('data-name') || '';
+			openReplaceDocModal(docId, docType, title, name);
+		}
+
 		function openDocViewer(docId, title, docType, originalName, status, rawUrl) {
 			const viewUrl = '/documents/' + docId + '/view';
 			const downloadUrl = '/documents/' + docId + '/download';

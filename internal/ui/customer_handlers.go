@@ -921,7 +921,11 @@ func (h *UIHandler) CustomerBranchesPage(w http.ResponseWriter, r *http.Request)
 	lang, dir := h.localeAndDir(r)
 
 	actor, ok := authctx.From(ctx)
-	if !ok || actor.OrganizationID <= 0 {
+	orgID := actor.OrganizationID
+	if orgID <= 0 {
+		orgID = actor.OrgID
+	}
+	if !ok || orgID <= 0 {
 		http.Redirect(w, r, "/auth/login?redirect=/customer/branches", http.StatusSeeOther)
 		return
 	}
@@ -929,8 +933,8 @@ func (h *UIHandler) CustomerBranchesPage(w http.ResponseWriter, r *http.Request)
 	var branches []*org.Branch
 	var employees []*org.EmployeeView
 	if h.orgSvc != nil {
-		branches, _ = h.orgSvc.ListBranches(ctx, actor.OrganizationID)
-		employees, _ = h.orgSvc.ListEmployees(ctx, actor.OrganizationID)
+		branches, _ = h.orgSvc.ListBranches(ctx, orgID)
+		employees, _ = h.orgSvc.ListEmployees(ctx, orgID)
 	}
 
 	activeTab := r.URL.Query().Get("tab")
@@ -938,11 +942,16 @@ func (h *UIHandler) CustomerBranchesPage(w http.ResponseWriter, r *http.Request)
 		activeTab = "branches"
 	}
 
+	noticeType := r.URL.Query().Get("notice_type")
+	noticeMsg := r.URL.Query().Get("notice")
+
 	data := pages.CustomerBranchesData{
-		Branches:  branches,
-		Employees: employees,
-		Cities:    h.listCities(ctx),
-		ActiveTab: activeTab,
+		Branches:   branches,
+		Employees:  employees,
+		Cities:     h.listCities(ctx),
+		ActiveTab:  activeTab,
+		NoticeType: noticeType,
+		NoticeMsg:  noticeMsg,
 	}
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
@@ -1163,7 +1172,11 @@ func (h *UIHandler) CustomerBranchDeleteSubmit(w http.ResponseWriter, r *http.Re
 func (h *UIHandler) CustomerEmployeeCreateSubmit(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	actor, ok := authctx.From(ctx)
-	if !ok || actor.OrganizationID <= 0 {
+	orgID := actor.OrganizationID
+	if orgID <= 0 {
+		orgID = actor.OrgID
+	}
+	if !ok || orgID <= 0 {
 		http.Redirect(w, r, "/auth/login?redirect=/customer/branches?tab=employees", http.StatusSeeOther)
 		return
 	}
@@ -1181,8 +1194,12 @@ func (h *UIHandler) CustomerEmployeeCreateSubmit(w http.ResponseWriter, r *http.
 	jobTitle := strings.TrimSpace(r.PostFormValue("job_title"))
 	employeeCode := strings.TrimSpace(r.PostFormValue("employee_code"))
 	roleKey := strings.TrimSpace(r.PostFormValue("role_key"))
-	if roleKey == "" {
-		roleKey = "org_employee"
+	if roleKey == "" || roleKey == "org_admin" {
+		if roleKey == "org_admin" {
+			roleKey = "org_owner"
+		} else {
+			roleKey = "org_pharmacist"
+		}
 	}
 	password := strings.TrimSpace(r.PostFormValue("password"))
 
@@ -1198,9 +1215,11 @@ func (h *UIHandler) CustomerEmployeeCreateSubmit(w http.ResponseWriter, r *http.
 		}
 	}
 
+	sysCtx := database.AsSystem(ctx)
+
 	// 1. Locate or create user account
 	var targetUserID int64
-	existingUser, err := h.idSvc.GetUserByEmail(ctx, email)
+	existingUser, err := h.idSvc.GetUserByEmail(sysCtx, email)
 	if err == nil && existingUser != nil {
 		targetUserID = existingUser.ID
 	} else {
@@ -1210,7 +1229,7 @@ func (h *UIHandler) CustomerEmployeeCreateSubmit(w http.ResponseWriter, r *http.
 			password = fmt.Sprintf("Dawa24!%s", hex.EncodeToString(randBytes))
 		}
 
-		newUser, _, err := h.idSvc.Register(ctx, identity.RegisterInput{
+		newUser, _, err := h.idSvc.Register(sysCtx, identity.RegisterInput{
 			Email:    email,
 			Password: password,
 			NameAr:   name,
@@ -1231,7 +1250,7 @@ func (h *UIHandler) CustomerEmployeeCreateSubmit(w http.ResponseWriter, r *http.
 
 	// 2. Add to organization members
 	member := &org.Member{
-		OrganizationID: actor.OrganizationID,
+		OrganizationID: orgID,
 		UserID:         targetUserID,
 		BranchID:       branchID,
 		RoleKey:        roleKey,
@@ -1240,24 +1259,28 @@ func (h *UIHandler) CustomerEmployeeCreateSubmit(w http.ResponseWriter, r *http.
 		IsActive:       true,
 	}
 
-	if err := h.orgSvc.AddMemberDirect(ctx, member); err != nil {
+	if err := h.orgSvc.AddMemberDirect(sysCtx, member); err != nil {
 		h.redirectWithNotice(w, r, "/customer/branches?tab=employees", "error", h.safeMessage(err, langOf(r)))
 		return
 	}
 
 	// 3. If role is org_manager and branch is specified, assign as branch manager
 	if roleKey == "org_manager" && branchID != nil {
-		_ = h.orgSvc.AssignBranchManager(ctx, actor.OrganizationID, *branchID, &targetUserID)
+		_ = h.orgSvc.AssignBranchManager(sysCtx, orgID, *branchID, &targetUserID)
 	}
 
-	h.redirectWithNotice(w, r, "/customer/branches?tab=employees", "success", "تم إضافة الموظف وتعيينه للفرع وتحديد الصلاحيات بنجاح.")
+	h.redirectWithNotice(w, r, "/customer/branches?tab=employees", "success", "تم إضافة وتعيين الموظف بالفرع وتحديد صلاحياته بنجاح.")
 }
 
 // CustomerEmployeeEditSubmit updates an employee's branch assignment, role, job title, and details.
 func (h *UIHandler) CustomerEmployeeEditSubmit(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	actor, ok := authctx.From(ctx)
-	if !ok || actor.OrganizationID <= 0 {
+	orgID := actor.OrganizationID
+	if orgID <= 0 {
+		orgID = actor.OrgID
+	}
+	if !ok || orgID <= 0 {
 		http.Redirect(w, r, "/auth/login?redirect=/customer/branches?tab=employees", http.StatusSeeOther)
 		return
 	}
@@ -1273,8 +1296,12 @@ func (h *UIHandler) CustomerEmployeeEditSubmit(w http.ResponseWriter, r *http.Re
 	jobTitle := strings.TrimSpace(r.PostFormValue("job_title"))
 	employeeCode := strings.TrimSpace(r.PostFormValue("employee_code"))
 	roleKey := strings.TrimSpace(r.PostFormValue("role_key"))
-	if roleKey == "" {
-		roleKey = "org_employee"
+	if roleKey == "" || roleKey == "org_admin" {
+		if roleKey == "org_admin" {
+			roleKey = "org_owner"
+		} else {
+			roleKey = "org_pharmacist"
+		}
 	}
 	isActive := r.PostFormValue("is_active") == "true" || r.PostFormValue("is_active") == "on" || r.PostFormValue("is_active") == "1"
 
@@ -1285,8 +1312,9 @@ func (h *UIHandler) CustomerEmployeeEditSubmit(w http.ResponseWriter, r *http.Re
 		}
 	}
 
+	sysCtx := database.AsSystem(ctx)
 	member := &org.Member{
-		OrganizationID: actor.OrganizationID,
+		OrganizationID: orgID,
 		UserID:         targetUserID,
 		BranchID:       branchID,
 		RoleKey:        roleKey,
@@ -1295,23 +1323,27 @@ func (h *UIHandler) CustomerEmployeeEditSubmit(w http.ResponseWriter, r *http.Re
 		IsActive:       isActive,
 	}
 
-	if err := h.orgSvc.AddMemberDirect(ctx, member); err != nil {
+	if err := h.orgSvc.AddMemberDirect(sysCtx, member); err != nil {
 		h.redirectWithNotice(w, r, "/customer/branches?tab=employees", "error", h.safeMessage(err, langOf(r)))
 		return
 	}
 
 	if roleKey == "org_manager" && branchID != nil {
-		_ = h.orgSvc.AssignBranchManager(ctx, actor.OrganizationID, *branchID, &targetUserID)
+		_ = h.orgSvc.AssignBranchManager(sysCtx, orgID, *branchID, &targetUserID)
 	}
 
-	h.redirectWithNotice(w, r, "/customer/branches?tab=employees", "success", "تم تحديث بيانات الموظف والصلاحيات والفرع بنجاح.")
+	h.redirectWithNotice(w, r, "/customer/branches?tab=employees", "success", "تم حفظ وتحديث بيانات وصلاحيات الموظف بنجاح.")
 }
 
 // CustomerEmployeeDeleteSubmit removes an employee member from the organization and branch.
 func (h *UIHandler) CustomerEmployeeDeleteSubmit(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	actor, ok := authctx.From(ctx)
-	if !ok || actor.OrganizationID <= 0 {
+	orgID := actor.OrganizationID
+	if orgID <= 0 {
+		orgID = actor.OrgID
+	}
+	if !ok || orgID <= 0 {
 		http.Redirect(w, r, "/auth/login?redirect=/customer/branches?tab=employees", http.StatusSeeOther)
 		return
 	}
@@ -1327,8 +1359,9 @@ func (h *UIHandler) CustomerEmployeeDeleteSubmit(w http.ResponseWriter, r *http.
 		return
 	}
 
+	sysCtx := database.AsSystem(ctx)
 	if h.orgSvc != nil {
-		if err := h.orgSvc.RemoveMember(ctx, actor.OrganizationID, targetUserID); err != nil {
+		if err := h.orgSvc.RemoveMember(sysCtx, orgID, targetUserID); err != nil {
 			h.redirectWithNotice(w, r, "/customer/branches?tab=employees", "error", h.safeMessage(err, langOf(r)))
 			return
 		}
@@ -1341,7 +1374,11 @@ func (h *UIHandler) CustomerEmployeeDeleteSubmit(w http.ResponseWriter, r *http.
 func (h *UIHandler) CustomerEmployeeStatusSubmit(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	actor, ok := authctx.From(ctx)
-	if !ok || actor.OrganizationID <= 0 {
+	orgID := actor.OrganizationID
+	if orgID <= 0 {
+		orgID = actor.OrgID
+	}
+	if !ok || orgID <= 0 {
 		http.Redirect(w, r, "/auth/login?redirect=/customer/branches?tab=employees", http.StatusSeeOther)
 		return
 	}
@@ -1352,14 +1389,15 @@ func (h *UIHandler) CustomerEmployeeStatusSubmit(w http.ResponseWriter, r *http.
 		return
 	}
 
+	sysCtx := database.AsSystem(ctx)
 	if h.orgSvc != nil {
-		if err := h.orgSvc.ToggleMemberStatus(ctx, actor.OrganizationID, memberID); err != nil {
+		if err := h.orgSvc.ToggleMemberStatus(sysCtx, orgID, memberID); err != nil {
 			h.redirectWithNotice(w, r, "/customer/branches?tab=employees", "error", h.safeMessage(err, langOf(r)))
 			return
 		}
 	}
 
-	h.redirectWithNotice(w, r, "/customer/branches?tab=employees", "success", "تم تحديث حالة الموظف بنجاح.")
+	h.redirectWithNotice(w, r, "/customer/branches?tab=employees", "success", "تم تحديث حالة تفعيل الموظف بنجاح.")
 }
 
 // ReviewSubmit handles customer feedback submissions with multi-criteria rating.

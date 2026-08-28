@@ -648,24 +648,85 @@ func OrganizationDocumentsContent(lang string, data *OrganizationDocumentsData) 
 					return templ_7745c5c3_Err
 				}
 				if doc != nil {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 77, "<!-- View Button: Triggers Dynamic In-App Viewer Modal --> ")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 77, "<!-- View Button: Triggers Dynamic In-App Viewer Modal --> <button type=\"button\" class=\"btn btn-secondary btn-sm fw-700\" style=\"gap:0.35rem; height:34px;\" data-doc-id=\"")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templ.RenderScriptItems(ctx, templ_7745c5c3_Buffer, templ.ComponentScript{Call: fmt.Sprintf("openDocViewer(%d, %q, %q, %q, %q, %q)", doc.ID, req.TitleAr, string(doc.DocumentType), doc.OriginalName, string(doc.Status), doc.FileURL)})
+					var templ_7745c5c3_Var23 string
+					templ_7745c5c3_Var23, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%d", doc.ID))
+					if templ_7745c5c3_Err != nil {
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/organization_documents.templ`, Line: 313, Col: 49}
+					}
+					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var23)
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 78, "<button type=\"button\" class=\"btn btn-secondary btn-sm fw-700\" style=\"gap:0.35rem; height:34px;\" onclick=\"")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 78, "\" data-title=\"")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					var templ_7745c5c3_Var23 templ.ComponentScript = templ.ComponentScript{Call: fmt.Sprintf("openDocViewer(%d, %q, %q, %q, %q, %q)", doc.ID, req.TitleAr, string(doc.DocumentType), doc.OriginalName, string(doc.Status), doc.FileURL)}
-					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var23.Call)
+					var templ_7745c5c3_Var24 string
+					templ_7745c5c3_Var24, templ_7745c5c3_Err = templ.ResolveAttributeValue(req.TitleAr)
+					if templ_7745c5c3_Err != nil {
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/organization_documents.templ`, Line: 314, Col: 34}
+					}
+					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var24)
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 79, "\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 79, "\" data-doctype=\"")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					var templ_7745c5c3_Var25 string
+					templ_7745c5c3_Var25, templ_7745c5c3_Err = templ.ResolveAttributeValue(string(doc.DocumentType))
+					if templ_7745c5c3_Err != nil {
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/organization_documents.templ`, Line: 315, Col: 49}
+					}
+					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var25)
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 80, "\" data-name=\"")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					var templ_7745c5c3_Var26 string
+					templ_7745c5c3_Var26, templ_7745c5c3_Err = templ.ResolveAttributeValue(doc.OriginalName)
+					if templ_7745c5c3_Err != nil {
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/organization_documents.templ`, Line: 316, Col: 38}
+					}
+					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var26)
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 81, "\" data-status=\"")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					var templ_7745c5c3_Var27 string
+					templ_7745c5c3_Var27, templ_7745c5c3_Err = templ.ResolveAttributeValue(string(doc.Status))
+					if templ_7745c5c3_Err != nil {
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/organization_documents.templ`, Line: 317, Col: 42}
+					}
+					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var27)
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 82, "\" data-url=\"")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					var templ_7745c5c3_Var28 string
+					templ_7745c5c3_Var28, templ_7745c5c3_Err = templ.ResolveAttributeValue(doc.FileURL)
+					if templ_7745c5c3_Err != nil {
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/organization_documents.templ`, Line: 318, Col: 32}
+					}
+					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var28)
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 83, "\" onclick=\"openDocViewerFromBtn(this)\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -673,20 +734,20 @@ func OrganizationDocumentsContent(lang string, data *OrganizationDocumentsData) 
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 80, "<span>معاينة</span></button><!-- Direct Download Button --> <a href=\"")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 84, "<span>معاينة</span></button><!-- Direct Download Button --> <a href=\"")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					var templ_7745c5c3_Var24 templ.SafeURL
-					templ_7745c5c3_Var24, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("/documents/%d/download", doc.ID)))
+					var templ_7745c5c3_Var29 templ.SafeURL
+					templ_7745c5c3_Var29, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("/documents/%d/download", doc.ID)))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/organization_documents.templ`, Line: 321, Col: 77}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/organization_documents.templ`, Line: 327, Col: 77}
 					}
-					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var24))
+					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var29))
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 81, "\" class=\"btn btn-secondary btn-sm\" style=\"height:34px; display:inline-flex; align-items:center; justify-content:center;\" title=\"تحميل الملف إلى جهازك\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 85, "\" class=\"btn btn-secondary btn-sm\" style=\"height:34px; display:inline-flex; align-items:center; justify-content:center;\" title=\"تحميل الملف إلى جهازك\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -694,70 +755,105 @@ func OrganizationDocumentsContent(lang string, data *OrganizationDocumentsData) 
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 82, "</a><!-- Replace Document Button (Opens Replacement Reason Modal) --> ")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 86, "</a><!-- Replace Document Button (Opens Replacement Reason Modal) --> <button type=\"button\" class=\"btn btn-secondary btn-sm fw-700\" style=\"gap:0.35rem; height:34px;\" data-doc-id=\"")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templ.RenderScriptItems(ctx, templ_7745c5c3_Buffer, templ.ComponentScript{Call: fmt.Sprintf("openReplaceDocModal(%d, %q, %q, %q)", doc.ID, string(req.DocType), req.TitleAr, doc.OriginalName)})
+					var templ_7745c5c3_Var30 string
+					templ_7745c5c3_Var30, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%d", doc.ID))
+					if templ_7745c5c3_Err != nil {
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/organization_documents.templ`, Line: 340, Col: 49}
+					}
+					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var30)
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 83, "<button type=\"button\" class=\"btn btn-secondary btn-sm fw-700\" style=\"gap:0.35rem; height:34px;\" onclick=\"")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 87, "\" data-doctype=\"")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					var templ_7745c5c3_Var25 templ.ComponentScript = templ.ComponentScript{Call: fmt.Sprintf("openReplaceDocModal(%d, %q, %q, %q)", doc.ID, string(req.DocType), req.TitleAr, doc.OriginalName)}
-					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var25.Call)
+					var templ_7745c5c3_Var31 string
+					templ_7745c5c3_Var31, templ_7745c5c3_Err = templ.ResolveAttributeValue(string(req.DocType))
+					if templ_7745c5c3_Err != nil {
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/organization_documents.templ`, Line: 341, Col: 44}
+					}
+					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var31)
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 84, "\" title=\"استبدال وتحديث هذا المستند\"><span>🔄 استبدال المستند</span></button>")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 88, "\" data-title=\"")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					var templ_7745c5c3_Var32 string
+					templ_7745c5c3_Var32, templ_7745c5c3_Err = templ.ResolveAttributeValue(req.TitleAr)
+					if templ_7745c5c3_Err != nil {
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/organization_documents.templ`, Line: 342, Col: 34}
+					}
+					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var32)
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 89, "\" data-name=\"")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					var templ_7745c5c3_Var33 string
+					templ_7745c5c3_Var33, templ_7745c5c3_Err = templ.ResolveAttributeValue(doc.OriginalName)
+					if templ_7745c5c3_Err != nil {
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/organization_documents.templ`, Line: 343, Col: 38}
+					}
+					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var33)
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 90, "\" onclick=\"openReplaceDocModalFromBtn(this)\" title=\"استبدال وتحديث هذا المستند\"><span>🔄 استبدال المستند</span></button>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 				} else {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 85, "<!-- Initial Upload Form (When doc is not uploaded yet) --> <form action=\"/documents/upload\" method=\"POST\" enctype=\"multipart/form-data\" style=\"margin:0; display:inline-flex; gap:0.4rem; align-items:center;\"><input type=\"hidden\" name=\"document_type\" value=\"")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 91, "<!-- Initial Upload Form (When doc is not uploaded yet) --> <form action=\"/documents/upload\" method=\"POST\" enctype=\"multipart/form-data\" style=\"margin:0; display:inline-flex; gap:0.4rem; align-items:center;\"><input type=\"hidden\" name=\"document_type\" value=\"")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					var templ_7745c5c3_Var26 string
-					templ_7745c5c3_Var26, templ_7745c5c3_Err = templ.ResolveAttributeValue(string(req.DocType))
+					var templ_7745c5c3_Var34 string
+					templ_7745c5c3_Var34, templ_7745c5c3_Err = templ.ResolveAttributeValue(string(req.DocType))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/organization_documents.templ`, Line: 342, Col: 79}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/organization_documents.templ`, Line: 352, Col: 79}
 					}
-					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var26)
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 86, "\"> <input type=\"file\" name=\"file\" id=\"")
+					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var34)
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					var templ_7745c5c3_Var27 string
-					templ_7745c5c3_Var27, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("file-input-%s", req.DocType))
-					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/organization_documents.templ`, Line: 346, Col: 57}
-					}
-					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var27)
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 92, "\"> <input type=\"file\" name=\"file\" id=\"")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 87, "\" accept=\".pdf,.png,.jpg,.jpeg,.webp\" required class=\"form-control\" style=\"padding:0.25rem 0.5rem; font-size:0.775rem; max-width:180px; height:34px;\"> <button type=\"submit\" class=\"btn btn-primary btn-sm fw-700\" style=\"height:34px;\"><span>رفع المستند</span></button></form>")
+					var templ_7745c5c3_Var35 string
+					templ_7745c5c3_Var35, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("file-input-%s", req.DocType))
+					if templ_7745c5c3_Err != nil {
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/organization_documents.templ`, Line: 356, Col: 57}
+					}
+					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var35)
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 93, "\" accept=\".pdf,.png,.jpg,.jpeg,.webp\" required class=\"form-control\" style=\"padding:0.25rem 0.5rem; font-size:0.775rem; max-width:180px; height:34px;\"> <button type=\"submit\" class=\"btn btn-primary btn-sm fw-700\" style=\"height:34px;\"><span>رفع المستند</span></button></form>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 88, "</div></div>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 94, "</div></div>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 89, "</div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 95, "</div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 90, "</div></div><!-- Dynamic In-App Document Viewer Modal (PDF + Image Responsive) --><div id=\"doc-viewer-modal\" style=\"display:none; position:fixed; inset:0; background:rgba(0,0,0,0.7); z-index:99999; align-items:center; justify-content:center; padding:1rem; backdrop-filter:blur(4px);\"><div style=\"background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-xl); width:100%; max-width:980px; box-shadow:var(--shadow-2xl); overflow:hidden; display:flex; flex-direction:column; max-height:92vh;\"><!-- Modal Header --><div style=\"padding:1rem 1.5rem; border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:center; background:var(--surface-sunken); flex-wrap:wrap; gap:0.75rem;\"><div><div style=\"display:flex; align-items:center; gap:0.5rem;\"><span style=\"font-size:1.25rem;\">📑</span><h3 id=\"modal-doc-title\" style=\"font-size:1.1rem; font-weight:800; color:var(--text); margin:0;\">معاينة المستند الرسمي</h3></div><div id=\"modal-doc-filename\" style=\"font-size:0.775rem; color:var(--text-muted); font-family:monospace; margin-top:2px;\" dir=\"ltr\">filename.pdf</div></div><div style=\"display:flex; align-items:center; gap:0.5rem;\"><a id=\"modal-doc-tab-btn\" href=\"#\" target=\"_blank\" class=\"btn btn-secondary btn-sm fw-700\" style=\"gap:0.35rem;\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 96, "</div></div><!-- Dynamic In-App Document Viewer Modal (PDF + Image Responsive) --><div id=\"doc-viewer-modal\" style=\"display:none; position:fixed; inset:0; background:rgba(0,0,0,0.7); z-index:99999; align-items:center; justify-content:center; padding:1rem; backdrop-filter:blur(4px);\"><div style=\"background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-xl); width:100%; max-width:980px; box-shadow:var(--shadow-2xl); overflow:hidden; display:flex; flex-direction:column; max-height:92vh;\"><!-- Modal Header --><div style=\"padding:1rem 1.5rem; border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:center; background:var(--surface-sunken); flex-wrap:wrap; gap:0.75rem;\"><div><div style=\"display:flex; align-items:center; gap:0.5rem;\"><span style=\"font-size:1.25rem;\">📑</span><h3 id=\"modal-doc-title\" style=\"font-size:1.1rem; font-weight:800; color:var(--text); margin:0;\">معاينة المستند الرسمي</h3></div><div id=\"modal-doc-filename\" style=\"font-size:0.775rem; color:var(--text-muted); font-family:monospace; margin-top:2px;\" dir=\"ltr\">filename.pdf</div></div><div style=\"display:flex; align-items:center; gap:0.5rem;\"><a id=\"modal-doc-tab-btn\" href=\"#\" target=\"_blank\" class=\"btn btn-secondary btn-sm fw-700\" style=\"gap:0.35rem;\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -765,7 +861,7 @@ func OrganizationDocumentsContent(lang string, data *OrganizationDocumentsData) 
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 91, "<span>فتح في نافذة جديدة ↗</span></a> <a id=\"modal-doc-download-btn\" href=\"#\" class=\"btn btn-primary btn-sm fw-800\" style=\"gap:0.35rem;\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 97, "<span>فتح في نافذة جديدة ↗</span></a> <a id=\"modal-doc-download-btn\" href=\"#\" class=\"btn btn-primary btn-sm fw-800\" style=\"gap:0.35rem;\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -773,7 +869,7 @@ func OrganizationDocumentsContent(lang string, data *OrganizationDocumentsData) 
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 92, "<span>تحميل الملف</span></a> <button type=\"button\" onclick=\"closeDocViewer()\" style=\"background:none; border:none; font-size:1.4rem; color:var(--text-muted); cursor:pointer; padding:0 0.5rem; line-height:1;\">✕</button></div></div><!-- Dynamic Interactive Viewer Viewport --><div id=\"modal-doc-viewport\" style=\"width:100%; height:72vh; background:var(--surface-sunken); overflow:auto; display:flex; align-items:center; justify-content:center; position:relative; padding:0.5rem;\"><!-- Mode 1: PDF Viewer Iframe --><iframe id=\"modal-doc-iframe\" src=\"about:blank\" style=\"width:100%; height:100%; border:none; border-radius:var(--radius-md); display:none;\" loading=\"lazy\"></iframe><!-- Mode 2: Image Viewer --><div id=\"modal-doc-img-container\" style=\"display:none; width:100%; height:100%; align-items:center; justify-content:center; overflow:auto;\"><img id=\"modal-doc-img\" src=\"\" alt=\"معاينة المستند\" style=\"max-width:100%; max-height:100%; object-fit:contain; border-radius:var(--radius-md); box-shadow:var(--shadow-md);\"></div></div><!-- Modal Footer --><div style=\"display:flex; justify-content:space-between; align-items:center; padding:0.75rem 1.5rem; border-top:1px solid var(--border); background:var(--surface); font-size:0.8rem; color:var(--text-muted);\"><span>🔒 مستند رقمي مشفر ومحمي لمنشأتك فقط</span> <button type=\"button\" class=\"btn btn-secondary btn-sm\" onclick=\"closeDocViewer()\">إغلاق المعاينة</button></div></div></div><!-- Modal: Replace Document Modal with Replacement Reason --><div id=\"replace-doc-modal\" style=\"display:none; position:fixed; inset:0; background:rgba(0,0,0,0.7); z-index:99999; align-items:center; justify-content:center; padding:1rem; backdrop-filter:blur(4px);\"><div style=\"background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-2xl); width:100%; max-width:580px; box-shadow:var(--shadow-2xl); overflow:hidden; display:flex; flex-direction:column;\"><!-- Header --><div style=\"padding:1.25rem 1.5rem; border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:center; background:var(--surface-sunken);\"><div style=\"display:flex; align-items:center; gap:0.6rem;\"><span style=\"font-size:1.4rem;\">🔄</span><div><h3 id=\"replace-modal-title\" style=\"font-size:1.15rem; font-weight:900; color:var(--text); margin:0;\">استبدال وتحديث المستند</h3><div id=\"replace-modal-subtitle\" style=\"font-size:0.775rem; color:var(--text-muted); margin-top:2px;\">رفع نسخة جديدة مع توضيح سبب الاستبدال</div></div></div><button type=\"button\" onclick=\"closeReplaceDocModal()\" style=\"background:none; border:none; font-size:1.3rem; color:var(--text-muted); cursor:pointer; padding:0 0.4rem; line-height:1;\">✕</button></div><!-- Body Form --><form action=\"/documents/upload\" method=\"POST\" enctype=\"multipart/form-data\" style=\"padding:1.5rem; display:flex; flex-direction:column; gap:1.25rem; margin:0;\"><input type=\"hidden\" name=\"document_type\" id=\"replace-doc-type\" value=\"\"> <input type=\"hidden\" name=\"existing_doc_id\" id=\"replace-existing-id\" value=\"\"><!-- Current File Info Box --><div style=\"background:var(--surface-sunken); border:1px solid var(--border); border-radius:var(--radius-lg); padding:0.85rem 1rem; display:flex; align-items:center; justify-content:space-between; font-size:0.825rem;\"><span style=\"color:var(--text-secondary); font-weight:700;\">الملف الحالي المسجل:</span> <span id=\"replace-modal-current-file\" style=\"font-weight:800; color:var(--primary); font-family:monospace;\" dir=\"ltr\">file.pdf</span></div><!-- New File Upload Field --><div><label class=\"form-label\" style=\"font-size:0.85rem; font-weight:800; color:var(--text); margin-bottom:0.4rem; display:block;\">اختر ملف المستند الجديد <span class=\"text-rose fw-800\">*</span></label> <input type=\"file\" name=\"file\" required accept=\".pdf,.png,.jpg,.jpeg,.webp\" class=\"form-control\" style=\"padding:0.5rem 0.75rem; font-size:0.85rem; width:100%; border-radius:var(--radius-lg);\"> <span style=\"font-size:0.75rem; color:var(--text-muted); margin-top:0.35rem; display:block;\">الصيغ المقبولة: PDF أو صور (PNG, JPG, WebP) بحجم أقصى 20 ميجابايت.</span></div><!-- Replacement Reason Field --><div><label class=\"form-label\" style=\"font-size:0.85rem; font-weight:800; color:var(--text); margin-bottom:0.4rem; display:block;\">سبب استبدال / تحديث المستند <span class=\"text-rose fw-800\">*</span></label> <textarea name=\"replacement_reason\" id=\"replace-doc-reason\" required rows=\"3\" class=\"form-control\" placeholder=\"يرجى توضيح سبب الاستبدال لإدارة المنصة (مثال: تجديد ترخيص المنشأة السنوي، تصحيح خطأ بالصورة السابقة، صدور سجل تجاري محدث...)\" style=\"width:100%; font-size:0.85rem; padding:0.65rem 0.85rem; border-radius:var(--radius-lg); resize:vertical;\"></textarea></div><!-- Footer Actions --><div style=\"display:flex; justify-content:flex-end; gap:0.75rem; padding-top:0.75rem; border-top:1px solid var(--border); margin-top:0.25rem;\"><button type=\"button\" class=\"btn btn-secondary\" onclick=\"closeReplaceDocModal()\">إلغاء</button> <button type=\"submit\" class=\"btn btn-primary\" style=\"font-weight:850; padding:0 1.5rem; gap:0.4rem;\"><span>تأكيد واستبدال المستند 🔄</span></button></div></form></div></div><!-- Viewer & Replace Modal Logic Scripts --><script>\n\t\tfunction openDocViewer(docId, title, docType, originalName, status, rawUrl) {\n\t\t\tconst viewUrl = '/documents/' + docId + '/view';\n\t\t\tconst downloadUrl = '/documents/' + docId + '/download';\n\n\t\t\tconst titleEl = document.getElementById('modal-doc-title');\n\t\t\tconst filenameEl = document.getElementById('modal-doc-filename');\n\t\t\tconst tabBtn = document.getElementById('modal-doc-tab-btn');\n\t\t\tconst downloadBtn = document.getElementById('modal-doc-download-btn');\n\t\t\tconst iframe = document.getElementById('modal-doc-iframe');\n\t\t\tconst imgContainer = document.getElementById('modal-doc-img-container');\n\t\t\tconst img = document.getElementById('modal-doc-img');\n\t\t\tconst modal = document.getElementById('doc-viewer-modal');\n\n\t\t\tif (titleEl) titleEl.textContent = title;\n\t\t\tif (filenameEl) filenameEl.textContent = originalName || ('Document #' + docId);\n\t\t\tif (tabBtn) tabBtn.href = viewUrl;\n\t\t\tif (downloadBtn) downloadBtn.href = downloadUrl;\n\n\t\t\tconst ext = (originalName || '').split('.').pop().toLowerCase();\n\t\t\tconst isImage = ['png', 'jpg', 'jpeg', 'webp', 'svg', 'gif'].includes(ext);\n\n\t\t\tif (isImage) {\n\t\t\t\tif (iframe) {\n\t\t\t\t\tiframe.style.display = 'none';\n\t\t\t\t\tiframe.src = 'about:blank';\n\t\t\t\t}\n\t\t\t\tif (img && imgContainer) {\n\t\t\t\t\timg.src = viewUrl;\n\t\t\t\t\timgContainer.style.display = 'flex';\n\t\t\t\t}\n\t\t\t} else {\n\t\t\t\tif (imgContainer) imgContainer.style.display = 'none';\n\t\t\t\tif (iframe) {\n\t\t\t\t\tiframe.src = viewUrl;\n\t\t\t\t\tiframe.style.display = 'block';\n\t\t\t\t}\n\t\t\t}\n\n\t\t\tif (modal) {\n\t\t\t\tmodal.style.display = 'flex';\n\t\t\t}\n\t\t}\n\n\t\tfunction closeDocViewer() {\n\t\t\tconst modal = document.getElementById('doc-viewer-modal');\n\t\t\tconst iframe = document.getElementById('modal-doc-iframe');\n\t\t\tconst img = document.getElementById('modal-doc-img');\n\t\t\tif (modal) modal.style.display = 'none';\n\t\t\tif (iframe) iframe.src = 'about:blank';\n\t\t\tif (img) img.src = '';\n\t\t}\n\n\t\tfunction openReplaceDocModal(docId, docType, titleAr, origName) {\n\t\t\tconst modal = document.getElementById('replace-doc-modal');\n\t\t\tconst titleEl = document.getElementById('replace-modal-title');\n\t\t\tconst currFileEl = document.getElementById('replace-modal-current-file');\n\t\t\tconst docTypeInput = document.getElementById('replace-doc-type');\n\t\t\tconst existingIdInput = document.getElementById('replace-existing-id');\n\t\t\tconst reasonInput = document.getElementById('replace-doc-reason');\n\n\t\t\tif (titleEl) titleEl.textContent = 'استبدال مستند: ' + (titleAr || '');\n\t\t\tif (currFileEl) currFileEl.textContent = origName || ('مستند #' + docId);\n\t\t\tif (docTypeInput) docTypeInput.value = docType || '';\n\t\t\tif (existingIdInput) existingIdInput.value = docId || '';\n\t\t\tif (reasonInput) reasonInput.value = '';\n\n\t\t\tif (modal) {\n\t\t\t\tmodal.style.display = 'flex';\n\t\t\t}\n\t\t}\n\n\t\tfunction closeReplaceDocModal() {\n\t\t\tconst modal = document.getElementById('replace-doc-modal');\n\t\t\tif (modal) {\n\t\t\t\tmodal.style.display = 'none';\n\t\t\t}\n\t\t}\n\n\t\t// Close modals on backdrop click\n\t\twindow.addEventListener('click', function(e) {\n\t\t\tconst viewModal = document.getElementById('doc-viewer-modal');\n\t\t\tconst replModal = document.getElementById('replace-doc-modal');\n\t\t\tif (e.target === viewModal) closeDocViewer();\n\t\t\tif (e.target === replModal) closeReplaceDocModal();\n\t\t});\n\t</script>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 98, "<span>تحميل الملف</span></a> <button type=\"button\" onclick=\"closeDocViewer()\" style=\"background:none; border:none; font-size:1.4rem; color:var(--text-muted); cursor:pointer; padding:0 0.5rem; line-height:1;\">✕</button></div></div><!-- Dynamic Interactive Viewer Viewport --><div id=\"modal-doc-viewport\" style=\"width:100%; height:72vh; background:var(--surface-sunken); overflow:auto; display:flex; align-items:center; justify-content:center; position:relative; padding:0.5rem;\"><!-- Mode 1: PDF Viewer Iframe --><iframe id=\"modal-doc-iframe\" src=\"about:blank\" style=\"width:100%; height:100%; border:none; border-radius:var(--radius-md); display:none;\" loading=\"lazy\"></iframe><!-- Mode 2: Image Viewer --><div id=\"modal-doc-img-container\" style=\"display:none; width:100%; height:100%; align-items:center; justify-content:center; overflow:auto;\"><img id=\"modal-doc-img\" src=\"\" alt=\"معاينة المستند\" style=\"max-width:100%; max-height:100%; object-fit:contain; border-radius:var(--radius-md); box-shadow:var(--shadow-md);\"></div></div><!-- Modal Footer --><div style=\"display:flex; justify-content:space-between; align-items:center; padding:0.75rem 1.5rem; border-top:1px solid var(--border); background:var(--surface); font-size:0.8rem; color:var(--text-muted);\"><span>🔒 مستند رقمي مشفر ومحمي لمنشأتك فقط</span> <button type=\"button\" class=\"btn btn-secondary btn-sm\" onclick=\"closeDocViewer()\">إغلاق المعاينة</button></div></div></div><!-- Modal: Replace Document Modal with Replacement Reason --><div id=\"replace-doc-modal\" style=\"display:none; position:fixed; inset:0; background:rgba(0,0,0,0.7); z-index:99999; align-items:center; justify-content:center; padding:1rem; backdrop-filter:blur(4px);\"><div style=\"background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-2xl); width:100%; max-width:580px; box-shadow:var(--shadow-2xl); overflow:hidden; display:flex; flex-direction:column;\"><!-- Header --><div style=\"padding:1.25rem 1.5rem; border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:center; background:var(--surface-sunken);\"><div style=\"display:flex; align-items:center; gap:0.6rem;\"><span style=\"font-size:1.4rem;\">🔄</span><div><h3 id=\"replace-modal-title\" style=\"font-size:1.15rem; font-weight:900; color:var(--text); margin:0;\">استبدال وتحديث المستند</h3><div id=\"replace-modal-subtitle\" style=\"font-size:0.775rem; color:var(--text-muted); margin-top:2px;\">رفع نسخة جديدة مع توضيح سبب الاستبدال</div></div></div><button type=\"button\" onclick=\"closeReplaceDocModal()\" style=\"background:none; border:none; font-size:1.3rem; color:var(--text-muted); cursor:pointer; padding:0 0.4rem; line-height:1;\">✕</button></div><!-- Body Form --><form action=\"/documents/upload\" method=\"POST\" enctype=\"multipart/form-data\" style=\"padding:1.5rem; display:flex; flex-direction:column; gap:1.25rem; margin:0;\"><input type=\"hidden\" name=\"document_type\" id=\"replace-doc-type\" value=\"\"> <input type=\"hidden\" name=\"existing_doc_id\" id=\"replace-existing-id\" value=\"\"><!-- Current File Info Box --><div style=\"background:var(--surface-sunken); border:1px solid var(--border); border-radius:var(--radius-lg); padding:0.85rem 1rem; display:flex; align-items:center; justify-content:space-between; font-size:0.825rem;\"><span style=\"color:var(--text-secondary); font-weight:700;\">الملف الحالي المسجل:</span> <span id=\"replace-modal-current-file\" style=\"font-weight:800; color:var(--primary); font-family:monospace;\" dir=\"ltr\">file.pdf</span></div><!-- New File Upload Field --><div><label class=\"form-label\" style=\"font-size:0.85rem; font-weight:800; color:var(--text); margin-bottom:0.4rem; display:block;\">اختر ملف المستند الجديد <span class=\"text-rose fw-800\">*</span></label> <input type=\"file\" name=\"file\" required accept=\".pdf,.png,.jpg,.jpeg,.webp\" class=\"form-control\" style=\"padding:0.5rem 0.75rem; font-size:0.85rem; width:100%; border-radius:var(--radius-lg);\"> <span style=\"font-size:0.75rem; color:var(--text-muted); margin-top:0.35rem; display:block;\">الصيغ المقبولة: PDF أو صور (PNG, JPG, WebP) بحجم أقصى 20 ميجابايت.</span></div><!-- Replacement Reason Field --><div><label class=\"form-label\" style=\"font-size:0.85rem; font-weight:800; color:var(--text); margin-bottom:0.4rem; display:block;\">سبب استبدال / تحديث المستند <span class=\"text-rose fw-800\">*</span></label> <textarea name=\"replacement_reason\" id=\"replace-doc-reason\" required rows=\"3\" class=\"form-control\" placeholder=\"يرجى توضيح سبب الاستبدال لإدارة المنصة (مثال: تجديد ترخيص المنشأة السنوي، تصحيح خطأ بالصورة السابقة، صدور سجل تجاري محدث...)\" style=\"width:100%; font-size:0.85rem; padding:0.65rem 0.85rem; border-radius:var(--radius-lg); resize:vertical;\"></textarea></div><!-- Footer Actions --><div style=\"display:flex; justify-content:flex-end; gap:0.75rem; padding-top:0.75rem; border-top:1px solid var(--border); margin-top:0.25rem;\"><button type=\"button\" class=\"btn btn-secondary\" onclick=\"closeReplaceDocModal()\">إلغاء</button> <button type=\"submit\" class=\"btn btn-primary\" style=\"font-weight:850; padding:0 1.5rem; gap:0.4rem;\"><span>تأكيد واستبدال المستند 🔄</span></button></div></form></div></div><!-- Viewer & Replace Modal Logic Scripts --><script>\n\t\tfunction openDocViewerFromBtn(btn) {\n\t\t\tif (!btn) return;\n\t\t\tconst docId = btn.getAttribute('data-doc-id');\n\t\t\tconst title = btn.getAttribute('data-title') || '';\n\t\t\tconst docType = btn.getAttribute('data-doctype') || '';\n\t\t\tconst name = btn.getAttribute('data-name') || '';\n\t\t\tconst status = btn.getAttribute('data-status') || '';\n\t\t\tconst url = btn.getAttribute('data-url') || '';\n\t\t\topenDocViewer(docId, title, docType, name, status, url);\n\t\t}\n\n\t\tfunction openReplaceDocModalFromBtn(btn) {\n\t\t\tif (!btn) return;\n\t\t\tconst docId = btn.getAttribute('data-doc-id');\n\t\t\tconst docType = btn.getAttribute('data-doctype') || '';\n\t\t\tconst title = btn.getAttribute('data-title') || '';\n\t\t\tconst name = btn.getAttribute('data-name') || '';\n\t\t\topenReplaceDocModal(docId, docType, title, name);\n\t\t}\n\n\t\tfunction openDocViewer(docId, title, docType, originalName, status, rawUrl) {\n\t\t\tconst viewUrl = '/documents/' + docId + '/view';\n\t\t\tconst downloadUrl = '/documents/' + docId + '/download';\n\n\t\t\tconst titleEl = document.getElementById('modal-doc-title');\n\t\t\tconst filenameEl = document.getElementById('modal-doc-filename');\n\t\t\tconst tabBtn = document.getElementById('modal-doc-tab-btn');\n\t\t\tconst downloadBtn = document.getElementById('modal-doc-download-btn');\n\t\t\tconst iframe = document.getElementById('modal-doc-iframe');\n\t\t\tconst imgContainer = document.getElementById('modal-doc-img-container');\n\t\t\tconst img = document.getElementById('modal-doc-img');\n\t\t\tconst modal = document.getElementById('doc-viewer-modal');\n\n\t\t\tif (titleEl) titleEl.textContent = title;\n\t\t\tif (filenameEl) filenameEl.textContent = originalName || ('Document #' + docId);\n\t\t\tif (tabBtn) tabBtn.href = viewUrl;\n\t\t\tif (downloadBtn) downloadBtn.href = downloadUrl;\n\n\t\t\tconst ext = (originalName || '').split('.').pop().toLowerCase();\n\t\t\tconst isImage = ['png', 'jpg', 'jpeg', 'webp', 'svg', 'gif'].includes(ext);\n\n\t\t\tif (isImage) {\n\t\t\t\tif (iframe) {\n\t\t\t\t\tiframe.style.display = 'none';\n\t\t\t\t\tiframe.src = 'about:blank';\n\t\t\t\t}\n\t\t\t\tif (img && imgContainer) {\n\t\t\t\t\timg.src = viewUrl;\n\t\t\t\t\timgContainer.style.display = 'flex';\n\t\t\t\t}\n\t\t\t} else {\n\t\t\t\tif (imgContainer) imgContainer.style.display = 'none';\n\t\t\t\tif (iframe) {\n\t\t\t\t\tiframe.src = viewUrl;\n\t\t\t\t\tiframe.style.display = 'block';\n\t\t\t\t}\n\t\t\t}\n\n\t\t\tif (modal) {\n\t\t\t\tmodal.style.display = 'flex';\n\t\t\t}\n\t\t}\n\n\t\tfunction closeDocViewer() {\n\t\t\tconst modal = document.getElementById('doc-viewer-modal');\n\t\t\tconst iframe = document.getElementById('modal-doc-iframe');\n\t\t\tconst img = document.getElementById('modal-doc-img');\n\t\t\tif (modal) modal.style.display = 'none';\n\t\t\tif (iframe) iframe.src = 'about:blank';\n\t\t\tif (img) img.src = '';\n\t\t}\n\n\t\tfunction openReplaceDocModal(docId, docType, titleAr, origName) {\n\t\t\tconst modal = document.getElementById('replace-doc-modal');\n\t\t\tconst titleEl = document.getElementById('replace-modal-title');\n\t\t\tconst currFileEl = document.getElementById('replace-modal-current-file');\n\t\t\tconst docTypeInput = document.getElementById('replace-doc-type');\n\t\t\tconst existingIdInput = document.getElementById('replace-existing-id');\n\t\t\tconst reasonInput = document.getElementById('replace-doc-reason');\n\n\t\t\tif (titleEl) titleEl.textContent = 'استبدال مستند: ' + (titleAr || '');\n\t\t\tif (currFileEl) currFileEl.textContent = origName || ('مستند #' + docId);\n\t\t\tif (docTypeInput) docTypeInput.value = docType || '';\n\t\t\tif (existingIdInput) existingIdInput.value = docId || '';\n\t\t\tif (reasonInput) reasonInput.value = '';\n\n\t\t\tif (modal) {\n\t\t\t\tmodal.style.display = 'flex';\n\t\t\t}\n\t\t}\n\n\t\tfunction closeReplaceDocModal() {\n\t\t\tconst modal = document.getElementById('replace-doc-modal');\n\t\t\tif (modal) {\n\t\t\t\tmodal.style.display = 'none';\n\t\t\t}\n\t\t}\n\n\t\t// Close modals on backdrop click\n\t\twindow.addEventListener('click', function(e) {\n\t\t\tconst viewModal = document.getElementById('doc-viewer-modal');\n\t\t\tconst replModal = document.getElementById('replace-doc-modal');\n\t\t\tif (e.target === viewModal) closeDocViewer();\n\t\t\tif (e.target === replModal) closeReplaceDocModal();\n\t\t});\n\t</script>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

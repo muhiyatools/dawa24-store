@@ -381,24 +381,124 @@ func VendorJobs(lang, dir string, data VendorJobsData) templ.Component {
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 38, "</td><!-- Actions --><td style=\"padding:1.1rem 1.25rem; text-align:end;\"><div style=\"display:flex; justify-content:flex-end; align-items:center; gap:0.5rem;\"><!-- Edit Job Button -->")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 38, "</td><!-- Actions --><td style=\"padding:1.1rem 1.25rem; text-align:end;\"><div style=\"display:flex; justify-content:flex-end; align-items:center; gap:0.5rem;\"><!-- Edit Job Button --><button type=\"button\" class=\"btn btn-secondary btn-sm fw-700\" style=\"font-size:0.775rem; gap:0.35rem; color:var(--primary-700); padding:0.4rem 0.75rem;\" data-job-id=\"")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templ.RenderScriptItems(ctx, templ_7745c5c3_Buffer, templ.ComponentScript{Call: fmt.Sprintf("openEditJobModal(%d, %q, %q, %q, %q, %q, %q, %q, %q)", item.Job.ID, item.Job.Title.Get(i18n.AR), item.Job.Title.Get(i18n.EN), item.Job.Location, item.Job.SalaryMin.String(), item.Job.SalaryMax.String(), item.Job.Status, item.Job.Description, item.Job.Requirements)})
+					var templ_7745c5c3_Var18 string
+					templ_7745c5c3_Var18, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%d", item.Job.ID))
+					if templ_7745c5c3_Err != nil {
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_jobs.templ`, Line: 247, Col: 57}
+					}
+					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var18)
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 39, "<button type=\"button\" class=\"btn btn-secondary btn-sm fw-700\" style=\"font-size:0.775rem; gap:0.35rem; color:var(--primary-700); padding:0.4rem 0.75rem;\" onclick=\"")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 39, "\" data-title-ar=\"")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					var templ_7745c5c3_Var18 templ.ComponentScript = templ.ComponentScript{Call: fmt.Sprintf("openEditJobModal(%d, %q, %q, %q, %q, %q, %q, %q, %q)", item.Job.ID, item.Job.Title.Get(i18n.AR), item.Job.Title.Get(i18n.EN), item.Job.Location, item.Job.SalaryMin.String(), item.Job.SalaryMax.String(), item.Job.Status, item.Job.Description, item.Job.Requirements)}
-					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var18.Call)
+					var templ_7745c5c3_Var19 string
+					templ_7745c5c3_Var19, templ_7745c5c3_Err = templ.ResolveAttributeValue(item.Job.Title.Get(i18n.AR))
+					if templ_7745c5c3_Err != nil {
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_jobs.templ`, Line: 248, Col: 56}
+					}
+					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var19)
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 40, "\" title=\"تعديل بيانات وحالة الوظيفة\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 40, "\" data-title-en=\"")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					var templ_7745c5c3_Var20 string
+					templ_7745c5c3_Var20, templ_7745c5c3_Err = templ.ResolveAttributeValue(item.Job.Title.Get(i18n.EN))
+					if templ_7745c5c3_Err != nil {
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_jobs.templ`, Line: 249, Col: 56}
+					}
+					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var20)
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 41, "\" data-location=\"")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					var templ_7745c5c3_Var21 string
+					templ_7745c5c3_Var21, templ_7745c5c3_Err = templ.ResolveAttributeValue(item.Job.Location)
+					if templ_7745c5c3_Err != nil {
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_jobs.templ`, Line: 250, Col: 46}
+					}
+					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var21)
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 42, "\" data-sal-min=\"")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					var templ_7745c5c3_Var22 string
+					templ_7745c5c3_Var22, templ_7745c5c3_Err = templ.ResolveAttributeValue(item.Job.SalaryMin.String())
+					if templ_7745c5c3_Err != nil {
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_jobs.templ`, Line: 251, Col: 55}
+					}
+					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var22)
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 43, "\" data-sal-max=\"")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					var templ_7745c5c3_Var23 string
+					templ_7745c5c3_Var23, templ_7745c5c3_Err = templ.ResolveAttributeValue(item.Job.SalaryMax.String())
+					if templ_7745c5c3_Err != nil {
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_jobs.templ`, Line: 252, Col: 55}
+					}
+					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var23)
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 44, "\" data-status=\"")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					var templ_7745c5c3_Var24 string
+					templ_7745c5c3_Var24, templ_7745c5c3_Err = templ.ResolveAttributeValue(item.Job.Status)
+					if templ_7745c5c3_Err != nil {
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_jobs.templ`, Line: 253, Col: 42}
+					}
+					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var24)
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 45, "\" data-desc=\"")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					var templ_7745c5c3_Var25 string
+					templ_7745c5c3_Var25, templ_7745c5c3_Err = templ.ResolveAttributeValue(item.Job.Description)
+					if templ_7745c5c3_Err != nil {
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_jobs.templ`, Line: 254, Col: 45}
+					}
+					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var25)
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 46, "\" data-reqs=\"")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					var templ_7745c5c3_Var26 string
+					templ_7745c5c3_Var26, templ_7745c5c3_Err = templ.ResolveAttributeValue(item.Job.Requirements)
+					if templ_7745c5c3_Err != nil {
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_jobs.templ`, Line: 255, Col: 46}
+					}
+					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var26)
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 47, "\" onclick=\"openEditJobModalFromBtn(this)\" title=\"تعديل بيانات وحالة الوظيفة\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -406,48 +506,48 @@ func VendorJobs(lang, dir string, data VendorJobsData) templ.Component {
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 41, "<span>تعديل</span></button><!-- Toggle Status Form --><form method=\"POST\" action=\"")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 48, "<span>تعديل</span></button><!-- Toggle Status Form --><form method=\"POST\" action=\"")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					var templ_7745c5c3_Var19 templ.SafeURL
-					templ_7745c5c3_Var19, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("/vendor/jobs/%d/toggle", item.Job.ID)))
+					var templ_7745c5c3_Var27 templ.SafeURL
+					templ_7745c5c3_Var27, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("/vendor/jobs/%d/toggle", item.Job.ID)))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_jobs.templ`, Line: 255, Col: 106}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_jobs.templ`, Line: 264, Col: 106}
 					}
-					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var19))
+					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var27))
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 42, "\" class=\"m-0\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 49, "\" class=\"m-0\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 					if item.Job.Status == "published" {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 43, "<button type=\"submit\" class=\"btn btn-secondary btn-sm text-xs fw-700\" title=\"إغلاق استقبال الطلبات\">إغلاق</button>")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 50, "<button type=\"submit\" class=\"btn btn-secondary btn-sm text-xs fw-700\" title=\"إغلاق استقبال الطلبات\">إغلاق</button>")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
 					} else {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 44, "<button type=\"submit\" class=\"btn btn-secondary btn-sm\" title=\"إعادة نشر الوظيفة\" style=\"font-size:0.75rem; font-weight:700; color:var(--primary-600);\">إعادة النشر</button>")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 51, "<button type=\"submit\" class=\"btn btn-secondary btn-sm\" title=\"إعادة نشر الوظيفة\" style=\"font-size:0.75rem; font-weight:700; color:var(--primary-600);\">إعادة النشر</button>")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 45, "</form><!-- Delete Form --><form method=\"POST\" action=\"")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 52, "</form><!-- Delete Form --><form method=\"POST\" action=\"")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					var templ_7745c5c3_Var20 templ.SafeURL
-					templ_7745c5c3_Var20, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("/vendor/jobs/%d/delete", item.Job.ID)))
+					var templ_7745c5c3_Var28 templ.SafeURL
+					templ_7745c5c3_Var28, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("/vendor/jobs/%d/delete", item.Job.ID)))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_jobs.templ`, Line: 268, Col: 106}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_jobs.templ`, Line: 277, Col: 106}
 					}
-					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var20))
+					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var28))
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 46, "\" onsubmit=\"return confirm('هل أنت متأكد من رغبتك في حذف هذه الوظيفة نهائياً؟');\" class=\"m-0\"><button type=\"submit\" class=\"btn btn-secondary btn-sm btn-icon text-danger\" title=\"حذف الوظيفة\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 53, "\" onsubmit=\"return confirm('هل أنت متأكد من رغبتك في حذف هذه الوظيفة نهائياً؟');\" class=\"m-0\"><button type=\"submit\" class=\"btn btn-secondary btn-sm btn-icon text-danger\" title=\"حذف الوظيفة\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -455,17 +555,17 @@ func VendorJobs(lang, dir string, data VendorJobsData) templ.Component {
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 47, "</button></form></div></td></tr>")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 54, "</button></form></div></td></tr>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 48, "</tbody></table></div>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 55, "</tbody></table></div>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 49, "</div></div><!-- MODAL: Add New Job Modal --> <div id=\"add-job-modal\" class=\"modal-overlay hidden\"><div class=\"card\" style=\"max-width:680px; width:100%; max-height:90vh; overflow-y:auto; background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-2xl); padding:2rem; box-shadow:0 25px 50px -12px rgba(0,0,0,0.5);\"><div style=\"display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--border); padding-bottom:1.25rem; margin-bottom:1.5rem;\"><div class=\"row-center\"><div style=\"width:40px; height:40px; border-radius:var(--radius-lg); background:var(--primary-subtle); display:flex; align-items:center; justify-content:center; font-size:1.25rem;\">💼</div><div><h3 style=\"font-size:1.3rem; font-weight:900; color:var(--text); margin:0;\">نشر شاغر وظيفي جديد</h3><p style=\"font-size:0.8rem; color:var(--text-muted); margin:0.2rem 0 0;\">تحديد مواصفات الوظيفة، المتطلبات والراتب المتوقع</p></div></div><button type=\"button\" class=\"btn btn-secondary btn-sm btn-icon\" onclick=\"closeAddJobModal()\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 56, "</div></div><!-- MODAL: Add New Job Modal --> <div id=\"add-job-modal\" class=\"modal-overlay hidden\"><div class=\"card\" style=\"max-width:680px; width:100%; max-height:90vh; overflow-y:auto; background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-2xl); padding:2rem; box-shadow:0 25px 50px -12px rgba(0,0,0,0.5);\"><div style=\"display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--border); padding-bottom:1.25rem; margin-bottom:1.5rem;\"><div class=\"row-center\"><div style=\"width:40px; height:40px; border-radius:var(--radius-lg); background:var(--primary-subtle); display:flex; align-items:center; justify-content:center; font-size:1.25rem;\">💼</div><div><h3 style=\"font-size:1.3rem; font-weight:900; color:var(--text); margin:0;\">نشر شاغر وظيفي جديد</h3><p style=\"font-size:0.8rem; color:var(--text-muted); margin:0.2rem 0 0;\">تحديد مواصفات الوظيفة، المتطلبات والراتب المتوقع</p></div></div><button type=\"button\" class=\"btn btn-secondary btn-sm btn-icon\" onclick=\"closeAddJobModal()\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -473,7 +573,7 @@ func VendorJobs(lang, dir string, data VendorJobsData) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 50, "</button></div><form method=\"POST\" action=\"/vendor/jobs\" class=\"stack-lg\"><!-- Titles --><div class=\"grid-2\"><div><label class=\"form-label\">المسمى الوظيفي (بالعربية) <span class=\"text-danger\">*</span></label> <input type=\"text\" name=\"title_ar\" required class=\"form-input\" placeholder=\"مثال: صيدلي أول / مندوب مبيعات\" style=\"height:44px; border-radius:var(--radius-lg);\"></div><div><label class=\"form-label\">المسمى الوظيفي (بالإنجليزية)</label> <input type=\"text\" name=\"title_en\" class=\"form-input\" placeholder=\"e.g. Senior Pharmacist\" dir=\"ltr\" style=\"height:44px; border-radius:var(--radius-lg);\"></div></div><!-- Location --><div><label class=\"form-label\">مقر العمل / المحافظة أو المدينة <span class=\"text-danger\">*</span></label> <input type=\"text\" name=\"location\" required class=\"form-input\" placeholder=\"مثال: القاهرة - التجمع الخامس / بنها\" style=\"height:44px; border-radius:var(--radius-lg);\"></div><!-- Salary Range --><div class=\"grid-2\"><div><label class=\"form-label\">الحد الأدنى للراتب (ج.م)</label> <input type=\"number\" step=\"100\" name=\"salary_min\" class=\"form-input\" placeholder=\"5000\" style=\"height:44px; font-family:var(--font-mono, monospace); border-radius:var(--radius-lg);\"></div><div><label class=\"form-label\">الحد الأقصى للراتب (ج.م)</label> <input type=\"number\" step=\"100\" name=\"salary_max\" class=\"form-input\" placeholder=\"12000\" style=\"height:44px; font-family:var(--font-mono, monospace); border-radius:var(--radius-lg);\"></div></div><!-- Description --><div><label class=\"form-label\">الوصف الوظيفي والمهام والمسؤوليات <span class=\"text-danger\">*</span></label> <textarea name=\"description\" rows=\"4\" required class=\"form-input\" style=\"border-radius:var(--radius-lg); padding:0.75rem; font-size:0.875rem;\" placeholder=\"اكتب نبذة عن الدور الوظيفي، المهام اليومية، وساعات العمل...\"></textarea></div><!-- Requirements --><div><label class=\"form-label\">المؤهلات والمتطلبات والشروط</label> <textarea name=\"requirements\" rows=\"3\" class=\"form-input\" style=\"border-radius:var(--radius-lg); padding:0.75rem; font-size:0.875rem;\" placeholder=\"سنوات الخبرة المطلوبة، المؤهل العلمي، المهارات التقنية المطلوبة...\"></textarea></div><!-- Form Footer --><div style=\"display:flex; justify-content:flex-end; gap:0.75rem; margin-top:1rem; border-top:1px solid var(--border); padding-top:1.25rem;\"><button type=\"button\" class=\"btn btn-secondary\" onclick=\"closeAddJobModal()\">إلغاء</button> <button type=\"submit\" class=\"btn btn-primary\" style=\"font-weight:800; padding:0.6rem 1.75rem;\">نشر الوظيفة الآن 🚀</button></div></form></div></div><!-- MODAL: Job Applicants Viewer --> <div id=\"job-applicants-modal\" class=\"modal-overlay hidden\"><div class=\"card\" style=\"max-width:800px; width:100%; max-height:85vh; overflow-y:auto; background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-2xl); padding:1.75rem; box-shadow:0 25px 50px -12px rgba(0,0,0,0.5);\"><div style=\"display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--border); padding-bottom:1rem; margin-bottom:1.25rem;\"><div><h3 id=\"applicants-modal-title\" class=\"text-xl fw-900 text-primary m-0\">قائمة المتقدمين للوظيفة</h3><p id=\"applicants-modal-subtitle\" style=\"color:var(--text-muted); font-size:0.85rem; margin:0.25rem 0 0 0;\"></p></div><button type=\"button\" class=\"btn btn-secondary btn-sm btn-icon\" onclick=\"closeApplicantsModal()\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 57, "</button></div><form method=\"POST\" action=\"/vendor/jobs\" class=\"stack-lg\"><!-- Titles --><div class=\"grid-2\"><div><label class=\"form-label\">المسمى الوظيفي (بالعربية) <span class=\"text-danger\">*</span></label> <input type=\"text\" name=\"title_ar\" required class=\"form-input\" placeholder=\"مثال: صيدلي أول / مندوب مبيعات\" style=\"height:44px; border-radius:var(--radius-lg);\"></div><div><label class=\"form-label\">المسمى الوظيفي (بالإنجليزية)</label> <input type=\"text\" name=\"title_en\" class=\"form-input\" placeholder=\"e.g. Senior Pharmacist\" dir=\"ltr\" style=\"height:44px; border-radius:var(--radius-lg);\"></div></div><!-- Location --><div><label class=\"form-label\">مقر العمل / المحافظة أو المدينة <span class=\"text-danger\">*</span></label> <input type=\"text\" name=\"location\" required class=\"form-input\" placeholder=\"مثال: القاهرة - التجمع الخامس / بنها\" style=\"height:44px; border-radius:var(--radius-lg);\"></div><!-- Salary Range --><div class=\"grid-2\"><div><label class=\"form-label\">الحد الأدنى للراتب (ج.م)</label> <input type=\"number\" step=\"100\" name=\"salary_min\" class=\"form-input\" placeholder=\"5000\" style=\"height:44px; font-family:var(--font-mono, monospace); border-radius:var(--radius-lg);\"></div><div><label class=\"form-label\">الحد الأقصى للراتب (ج.م)</label> <input type=\"number\" step=\"100\" name=\"salary_max\" class=\"form-input\" placeholder=\"12000\" style=\"height:44px; font-family:var(--font-mono, monospace); border-radius:var(--radius-lg);\"></div></div><!-- Description --><div><label class=\"form-label\">الوصف الوظيفي والمهام والمسؤوليات <span class=\"text-danger\">*</span></label> <textarea name=\"description\" rows=\"4\" required class=\"form-input\" style=\"border-radius:var(--radius-lg); padding:0.75rem; font-size:0.875rem;\" placeholder=\"اكتب نبذة عن الدور الوظيفي، المهام اليومية، وساعات العمل...\"></textarea></div><!-- Requirements --><div><label class=\"form-label\">المؤهلات والمتطلبات والشروط</label> <textarea name=\"requirements\" rows=\"3\" class=\"form-input\" style=\"border-radius:var(--radius-lg); padding:0.75rem; font-size:0.875rem;\" placeholder=\"سنوات الخبرة المطلوبة، المؤهل العلمي، المهارات التقنية المطلوبة...\"></textarea></div><!-- Form Footer --><div style=\"display:flex; justify-content:flex-end; gap:0.75rem; margin-top:1rem; border-top:1px solid var(--border); padding-top:1.25rem;\"><button type=\"button\" class=\"btn btn-secondary\" onclick=\"closeAddJobModal()\">إلغاء</button> <button type=\"submit\" class=\"btn btn-primary\" style=\"font-weight:800; padding:0.6rem 1.75rem;\">نشر الوظيفة الآن 🚀</button></div></form></div></div><!-- MODAL: Job Applicants Viewer --> <div id=\"job-applicants-modal\" class=\"modal-overlay hidden\"><div class=\"card\" style=\"max-width:800px; width:100%; max-height:85vh; overflow-y:auto; background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-2xl); padding:1.75rem; box-shadow:0 25px 50px -12px rgba(0,0,0,0.5);\"><div style=\"display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--border); padding-bottom:1rem; margin-bottom:1.25rem;\"><div><h3 id=\"applicants-modal-title\" class=\"text-xl fw-900 text-primary m-0\">قائمة المتقدمين للوظيفة</h3><p id=\"applicants-modal-subtitle\" style=\"color:var(--text-muted); font-size:0.85rem; margin:0.25rem 0 0 0;\"></p></div><button type=\"button\" class=\"btn btn-secondary btn-sm btn-icon\" onclick=\"closeApplicantsModal()\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -481,7 +581,7 @@ func VendorJobs(lang, dir string, data VendorJobsData) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 51, "</button></div><div id=\"applicants-modal-content\"><div style=\"padding:2rem; text-align:center; color:var(--text-muted);\">⏳ جاري تحميل المتقدمين...</div></div></div></div><!-- MODAL: Edit Job Modal --> <div id=\"edit-job-modal\" class=\"modal-overlay hidden\"><div class=\"card\" style=\"max-width:680px; width:100%; max-height:90vh; overflow-y:auto; background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-2xl); padding:2rem; box-shadow:0 25px 50px -12px rgba(0,0,0,0.5);\"><div style=\"display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--border); padding-bottom:1.25rem; margin-bottom:1.5rem;\"><div class=\"row-center\"><div style=\"width:40px; height:40px; border-radius:var(--radius-lg); background:var(--primary-subtle); display:flex; align-items:center; justify-content:center; font-size:1.25rem;\">✏️</div><div><h3 style=\"font-size:1.3rem; font-weight:900; color:var(--text); margin:0;\">تعديل بيانات وحالة الشاغر الوظيفي</h3><p style=\"font-size:0.8rem; color:var(--text-muted); margin:0.2rem 0 0;\">تحديث المسمى الوظيفي، المتطلبات، الراتب وحالة نشر الوظيفة</p></div></div><button type=\"button\" class=\"btn btn-secondary btn-sm btn-icon\" onclick=\"closeEditJobModal()\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 58, "</button></div><div id=\"applicants-modal-content\"><div style=\"padding:2rem; text-align:center; color:var(--text-muted);\">⏳ جاري تحميل المتقدمين...</div></div></div></div><!-- MODAL: Edit Job Modal --> <div id=\"edit-job-modal\" class=\"modal-overlay hidden\"><div class=\"card\" style=\"max-width:680px; width:100%; max-height:90vh; overflow-y:auto; background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-2xl); padding:2rem; box-shadow:0 25px 50px -12px rgba(0,0,0,0.5);\"><div style=\"display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--border); padding-bottom:1.25rem; margin-bottom:1.5rem;\"><div class=\"row-center\"><div style=\"width:40px; height:40px; border-radius:var(--radius-lg); background:var(--primary-subtle); display:flex; align-items:center; justify-content:center; font-size:1.25rem;\">✏️</div><div><h3 style=\"font-size:1.3rem; font-weight:900; color:var(--text); margin:0;\">تعديل بيانات وحالة الشاغر الوظيفي</h3><p style=\"font-size:0.8rem; color:var(--text-muted); margin:0.2rem 0 0;\">تحديث المسمى الوظيفي، المتطلبات، الراتب وحالة نشر الوظيفة</p></div></div><button type=\"button\" class=\"btn btn-secondary btn-sm btn-icon\" onclick=\"closeEditJobModal()\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -489,7 +589,7 @@ func VendorJobs(lang, dir string, data VendorJobsData) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 52, "</button></div><form id=\"edit-job-form\" method=\"POST\" action=\"\" class=\"stack-lg\"><!-- Titles --><div class=\"grid-2\"><div><label class=\"form-label\">المسمى الوظيفي (بالعربية) <span class=\"text-danger\">*</span></label> <input type=\"text\" name=\"title_ar\" id=\"edit-job-title-ar\" required class=\"form-input\" placeholder=\"مثال: صيدلي أول / مندوب مبيعات\" style=\"height:44px; border-radius:var(--radius-lg);\"></div><div><label class=\"form-label\">المسمى الوظيفي (بالإنجليزية)</label> <input type=\"text\" name=\"title_en\" id=\"edit-job-title-en\" class=\"form-input\" placeholder=\"e.g. Senior Pharmacist / Sales Rep\" style=\"height:44px; border-radius:var(--radius-lg);\"></div></div><!-- Location & Status --><div class=\"grid-2\"><div><label class=\"form-label\">الموقع الجغرافي / الفرع</label> <input type=\"text\" name=\"location\" id=\"edit-job-location\" class=\"form-input\" placeholder=\"مثال: القاهرة - التجمع الخامس / الإسكندرية\" style=\"height:44px; border-radius:var(--radius-lg);\"></div><div><label class=\"form-label\">حالة الوظيفة <span class=\"text-danger\">*</span></label> <select name=\"status\" id=\"edit-job-status\" required class=\"form-input\" style=\"height:44px; border-radius:var(--radius-lg); font-weight:700;\"><option value=\"published\">🟢 منشورة ومتاحة للتقديم (Published)</option> <option value=\"closed\">🔒 مغلقة ومكتفية (Closed)</option> <option value=\"draft\">📝 مسودة غير معلنة (Draft)</option></select></div></div><!-- Salary Range --><div class=\"grid-2\"><div><label class=\"form-label\">الحد الأدنى للراتب (اختياري)</label> <input type=\"text\" name=\"salary_min\" id=\"edit-job-salary-min\" class=\"form-input\" placeholder=\"مثال: 8000\" style=\"height:44px; border-radius:var(--radius-lg);\"></div><div><label class=\"form-label\">الحد الأقصى للراتب (اختياري)</label> <input type=\"text\" name=\"salary_max\" id=\"edit-job-salary-max\" class=\"form-input\" placeholder=\"مثال: 12000\" style=\"height:44px; border-radius:var(--radius-lg);\"></div></div><!-- Description --><div><label class=\"form-label\">الوصف الوظيفي والمهام المطلوبة</label> <textarea name=\"description\" id=\"edit-job-description\" rows=\"4\" class=\"form-input\" placeholder=\"اكتب نبذة عن المسؤوليات والمهام اليومية للوظيفة...\" style=\"border-radius:var(--radius-lg); resize:vertical;\"></textarea></div><!-- Requirements --><div><label class=\"form-label\">المتطلبات والمؤهلات المطلوبة</label> <textarea name=\"requirements\" id=\"edit-job-requirements\" rows=\"3\" class=\"form-input\" placeholder=\"مثال: بكالوريوس صيدلة، خبرة لا تقل عن سنتين، إجادة اللغة الإنجليزية...\" style=\"border-radius:var(--radius-lg); resize:vertical;\"></textarea></div><!-- Form Actions --><div style=\"display:flex; justify-content:flex-end; gap:0.75rem; border-top:1px solid var(--border); padding-top:1.25rem; margin-top:0.5rem;\"><button type=\"button\" class=\"btn btn-secondary\" onclick=\"closeEditJobModal()\">إلغاء</button> <button type=\"submit\" class=\"btn btn-primary\" style=\"font-weight:800; padding:0 1.75rem;\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 59, "</button></div><form id=\"edit-job-form\" method=\"POST\" action=\"\" class=\"stack-lg\"><!-- Titles --><div class=\"grid-2\"><div><label class=\"form-label\">المسمى الوظيفي (بالعربية) <span class=\"text-danger\">*</span></label> <input type=\"text\" name=\"title_ar\" id=\"edit-job-title-ar\" required class=\"form-input\" placeholder=\"مثال: صيدلي أول / مندوب مبيعات\" style=\"height:44px; border-radius:var(--radius-lg);\"></div><div><label class=\"form-label\">المسمى الوظيفي (بالإنجليزية)</label> <input type=\"text\" name=\"title_en\" id=\"edit-job-title-en\" class=\"form-input\" placeholder=\"e.g. Senior Pharmacist / Sales Rep\" style=\"height:44px; border-radius:var(--radius-lg);\"></div></div><!-- Location & Status --><div class=\"grid-2\"><div><label class=\"form-label\">الموقع الجغرافي / الفرع</label> <input type=\"text\" name=\"location\" id=\"edit-job-location\" class=\"form-input\" placeholder=\"مثال: القاهرة - التجمع الخامس / الإسكندرية\" style=\"height:44px; border-radius:var(--radius-lg);\"></div><div><label class=\"form-label\">حالة الوظيفة <span class=\"text-danger\">*</span></label> <select name=\"status\" id=\"edit-job-status\" required class=\"form-input\" style=\"height:44px; border-radius:var(--radius-lg); font-weight:700;\"><option value=\"published\">🟢 منشورة ومتاحة للتقديم (Published)</option> <option value=\"closed\">🔒 مغلقة ومكتفية (Closed)</option> <option value=\"draft\">📝 مسودة غير معلنة (Draft)</option></select></div></div><!-- Salary Range --><div class=\"grid-2\"><div><label class=\"form-label\">الحد الأدنى للراتب (اختياري)</label> <input type=\"text\" name=\"salary_min\" id=\"edit-job-salary-min\" class=\"form-input\" placeholder=\"مثال: 8000\" style=\"height:44px; border-radius:var(--radius-lg);\"></div><div><label class=\"form-label\">الحد الأقصى للراتب (اختياري)</label> <input type=\"text\" name=\"salary_max\" id=\"edit-job-salary-max\" class=\"form-input\" placeholder=\"مثال: 12000\" style=\"height:44px; border-radius:var(--radius-lg);\"></div></div><!-- Description --><div><label class=\"form-label\">الوصف الوظيفي والمهام المطلوبة</label> <textarea name=\"description\" id=\"edit-job-description\" rows=\"4\" class=\"form-input\" placeholder=\"اكتب نبذة عن المسؤوليات والمهام اليومية للوظيفة...\" style=\"border-radius:var(--radius-lg); resize:vertical;\"></textarea></div><!-- Requirements --><div><label class=\"form-label\">المتطلبات والمؤهلات المطلوبة</label> <textarea name=\"requirements\" id=\"edit-job-requirements\" rows=\"3\" class=\"form-input\" placeholder=\"مثال: بكالوريوس صيدلة، خبرة لا تقل عن سنتين، إجادة اللغة الإنجليزية...\" style=\"border-radius:var(--radius-lg); resize:vertical;\"></textarea></div><!-- Form Actions --><div style=\"display:flex; justify-content:flex-end; gap:0.75rem; border-top:1px solid var(--border); padding-top:1.25rem; margin-top:0.5rem;\"><button type=\"button\" class=\"btn btn-secondary\" onclick=\"closeEditJobModal()\">إلغاء</button> <button type=\"submit\" class=\"btn btn-primary\" style=\"font-weight:800; padding:0 1.75rem;\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -497,7 +597,7 @@ func VendorJobs(lang, dir string, data VendorJobsData) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 53, "<span>حفظ التعديلات والتحديث</span></button></div></form></div></div><script>\n\t\t\tfunction openAddJobModal() {\n\t\t\t\tif (window.openModal) {\n\t\t\t\t\twindow.openModal('add-job-modal');\n\t\t\t\t} else {\n\t\t\t\t\tconst el = document.getElementById('add-job-modal');\n\t\t\t\t\tif (el) {\n\t\t\t\t\t\tel.classList.remove('hidden');\n\t\t\t\t\t\tel.style.display = 'flex';\n\t\t\t\t\t}\n\t\t\t\t}\n\t\t\t}\n\n\t\t\tfunction closeAddJobModal() {\n\t\t\t\tif (window.closeModal) {\n\t\t\t\t\twindow.closeModal('add-job-modal');\n\t\t\t\t} else {\n\t\t\t\t\tconst el = document.getElementById('add-job-modal');\n\t\t\t\t\tif (el) {\n\t\t\t\t\t\tel.classList.add('hidden');\n\t\t\t\t\t\tel.style.display = 'none';\n\t\t\t\t\t}\n\t\t\t\t}\n\t\t\t}\n\n\t\t\tfunction openEditJobModal(jobId, titleAr, titleEn, location, salMin, salMax, status, desc, reqs) {\n\t\t\t\tconst form = document.getElementById('edit-job-form');\n\t\t\t\tif (form) {\n\t\t\t\t\tform.action = `/vendor/jobs/${jobId}/edit`;\n\t\t\t\t}\n\t\t\t\tconst titleArInput = document.getElementById('edit-job-title-ar');\n\t\t\t\tconst titleEnInput = document.getElementById('edit-job-title-en');\n\t\t\t\tconst locationInput = document.getElementById('edit-job-location');\n\t\t\t\tconst statusInput = document.getElementById('edit-job-status');\n\t\t\t\tconst salMinInput = document.getElementById('edit-job-salary-min');\n\t\t\t\tconst salMaxInput = document.getElementById('edit-job-salary-max');\n\t\t\t\tconst descInput = document.getElementById('edit-job-description');\n\t\t\t\tconst reqsInput = document.getElementById('edit-job-requirements');\n\n\t\t\t\tif (titleArInput) titleArInput.value = titleAr || '';\n\t\t\t\tif (titleEnInput) titleEnInput.value = titleEn || '';\n\t\t\t\tif (locationInput) locationInput.value = location || '';\n\t\t\t\tif (statusInput) statusInput.value = status || 'published';\n\t\t\t\tif (salMinInput) salMinInput.value = salMin || '';\n\t\t\t\tif (salMaxInput) salMaxInput.value = salMax || '';\n\t\t\t\tif (descInput) descInput.value = desc || '';\n\t\t\t\tif (reqsInput) reqsInput.value = reqs || '';\n\n\t\t\t\tconst modal = document.getElementById('edit-job-modal');\n\t\t\t\tif (modal) {\n\t\t\t\t\tmodal.classList.remove('hidden');\n\t\t\t\t\tmodal.style.display = 'flex';\n\t\t\t\t}\n\t\t\t}\n\n\t\t\tfunction closeEditJobModal() {\n\t\t\t\tconst modal = document.getElementById('edit-job-modal');\n\t\t\t\tif (modal) {\n\t\t\t\t\tmodal.classList.add('hidden');\n\t\t\t\t\tmodal.style.display = 'none';\n\t\t\t\t}\n\t\t\t}\n\n\t\t\tfunction openApplicantsModal() {\n\t\t\t\tif (window.openModal) {\n\t\t\t\t\twindow.openModal('job-applicants-modal');\n\t\t\t\t} else {\n\t\t\t\t\tconst el = document.getElementById('job-applicants-modal');\n\t\t\t\t\tif (el) {\n\t\t\t\t\t\tel.classList.remove('hidden');\n\t\t\t\t\t\tel.style.display = 'flex';\n\t\t\t\t\t}\n\t\t\t\t}\n\t\t\t}\n\n\t\t\tfunction closeApplicantsModal() {\n\t\t\t\tif (window.closeModal) {\n\t\t\t\t\twindow.closeModal('job-applicants-modal');\n\t\t\t\t} else {\n\t\t\t\t\tconst el = document.getElementById('job-applicants-modal');\n\t\t\t\t\tif (el) {\n\t\t\t\t\t\tel.classList.add('hidden');\n\t\t\t\t\t\tel.style.display = 'none';\n\t\t\t\t\t}\n\t\t\t\t}\n\t\t\t}\n\n\t\t\tasync function viewApplicants(jobId, jobTitle) {\n\t\t\t\tdocument.getElementById('applicants-modal-subtitle').textContent = `الوظيفة: ${jobTitle}`;\n\t\t\t\tdocument.getElementById('applicants-modal-content').innerHTML = `\n\t\t\t\t\t<div style=\"padding:2.5rem; text-align:center; color:var(--text-muted);\">\n\t\t\t\t\t\t<div style=\"font-size:1.5rem; margin-bottom:0.5rem;\">⏳</div>\n\t\t\t\t\t\t<div>جاري استرجاع طلبات التقديم والسير الذاتية...</div>\n\t\t\t\t\t</div>\n\t\t\t\t`;\n\t\t\t\topenApplicantsModal();\n\n\t\t\t\ttry {\n\t\t\t\t\tconst res = await fetch(`/vendor/jobs/${jobId}/applications`);\n\t\t\t\t\tif (!res.ok) throw new Error('فشل في جلب البيانات');\n\t\t\t\t\tconst apps = await res.json();\n\n\t\t\t\t\tif (!apps || apps.length === 0) {\n\t\t\t\t\t\tdocument.getElementById('applicants-modal-content').innerHTML = `\n\t\t\t\t\t\t\t<div style=\"text-align:center; padding:3rem 1rem;\">\n\t\t\t\t\t\t\t\t<div style=\"font-size:2.5rem; margin-bottom:0.5rem;\">📬</div>\n\t\t\t\t\t\t\t\t<h4 style=\"color:var(--text); font-weight:800; margin:0;\">لا يوجد متقدمين حتى الآن</h4>\n\t\t\t\t\t\t\t\t<p style=\"color:var(--text-muted); font-size:0.85rem; margin:0.25rem 0 0;\">\n\t\t\t\t\t\t\t\t\tلم يقم أي مستخدم بالتقديم على هذه الوظيفة بعد.\n\t\t\t\t\t\t\t\t</p>\n\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t`;\n\t\t\t\t\t\treturn;\n\t\t\t\t\t}\n\n\t\t\t\t\tlet html = `\n\t\t\t\t\t\t<div style=\"display:flex; flex-direction:column; gap:0.75rem;\">\n\t\t\t\t\t`;\n\n\t\t\t\t\tapps.forEach(app => {\n\t\t\t\t\t\tconst dateStr = app.created_at ? new Date(app.created_at).toLocaleDateString('ar-EG') : '';\n\t\t\t\t\t\tconst cvBtn = app.cv_storage_key \n\t\t\t\t\t\t\t? `<a href=\"${app.cv_storage_key}\" target=\"_blank\" class=\"btn btn-secondary btn-sm\" style=\"font-size:0.75rem; font-weight:700; gap:0.35rem; color:var(--primary-600);\">\n\t\t\t\t\t\t\t\t\t<span>📄</span>\n\t\t\t\t\t\t\t\t\t<span>تحميل السيرة الذاتية (CV)</span>\n\t\t\t\t\t\t\t   </a>`\n\t\t\t\t\t\t\t: `<span class=\"text-xs text-muted\">لم يرفق CV</span>`;\n\n\t\t\t\t\t\thtml += `\n\t\t\t\t\t\t\t<div style=\"padding:1.1rem; background:var(--surface-sunken); border:1px solid var(--border); border-radius:var(--radius-xl); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem;\">\n\t\t\t\t\t\t\t\t<div>\n\t\t\t\t\t\t\t\t\t<div style=\"font-weight:800; font-size:0.95rem; color:var(--text);\">${app.applicant_name || 'متقدم'}</div>\n\t\t\t\t\t\t\t\t\t<div style=\"display:flex; gap:1rem; font-size:0.8rem; color:var(--text-muted); margin-top:0.25rem; flex-wrap:wrap;\">\n\t\t\t\t\t\t\t\t\t\t<span>📧 ${app.applicant_email || '-'}</span>\n\t\t\t\t\t\t\t\t\t\t<span>📞 ${app.applicant_phone || '-'}</span>\n\t\t\t\t\t\t\t\t\t\t<span>📅 ${dateStr}</span>\n\t\t\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t\t\t<div>\n\t\t\t\t\t\t\t\t\t${cvBtn}\n\t\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t`;\n\t\t\t\t\t});\n\n\t\t\t\t\thtml += `</div>`;\n\t\t\t\t\tdocument.getElementById('applicants-modal-content').innerHTML = html;\n\t\t\t\t} catch (err) {\n\t\t\t\t\tdocument.getElementById('applicants-modal-content').innerHTML = `\n\t\t\t\t\t\t<div class=\"alert alert-danger p-md\">\n\t\t\t\t\t\t\tحدث خطأ أثناء تحميل المتقدمين: ${err.message}\n\t\t\t\t\t\t</div>\n\t\t\t\t\t`;\n\t\t\t\t}\n\t\t\t}\n\n\t\t\t// Close on backdrop click\n\t\t\twindow.addEventListener('click', function(e) {\n\t\t\t\tconst addModal = document.getElementById('add-job-modal');\n\t\t\t\tconst editModal = document.getElementById('edit-job-modal');\n\t\t\t\tconst appModal = document.getElementById('job-applicants-modal');\n\t\t\t\tif (e.target === addModal) closeAddJobModal();\n\t\t\t\tif (e.target === editModal) closeEditJobModal();\n\t\t\t\tif (e.target === appModal) closeApplicantsModal();\n\t\t\t});\n\t\t</script>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 60, "<span>حفظ التعديلات والتحديث</span></button></div></form></div></div><script>\n\t\t\tfunction openAddJobModal() {\n\t\t\t\tif (window.openModal) {\n\t\t\t\t\twindow.openModal('add-job-modal');\n\t\t\t\t} else {\n\t\t\t\t\tconst el = document.getElementById('add-job-modal');\n\t\t\t\t\tif (el) {\n\t\t\t\t\t\tel.classList.remove('hidden');\n\t\t\t\t\t\tel.style.display = 'flex';\n\t\t\t\t\t}\n\t\t\t\t}\n\t\t\t}\n\n\t\t\tfunction closeAddJobModal() {\n\t\t\t\tif (window.closeModal) {\n\t\t\t\t\twindow.closeModal('add-job-modal');\n\t\t\t\t} else {\n\t\t\t\t\tconst el = document.getElementById('add-job-modal');\n\t\t\t\t\tif (el) {\n\t\t\t\t\t\tel.classList.add('hidden');\n\t\t\t\t\t\tel.style.display = 'none';\n\t\t\t\t\t}\n\t\t\t\t}\n\t\t\t}\n\n\t\t\tfunction openEditJobModalFromBtn(btn) {\n\t\t\t\tif (!btn) return;\n\t\t\t\tconst jobId = btn.getAttribute('data-job-id');\n\t\t\t\tconst titleAr = btn.getAttribute('data-title-ar') || '';\n\t\t\t\tconst titleEn = btn.getAttribute('data-title-en') || '';\n\t\t\t\tconst location = btn.getAttribute('data-location') || '';\n\t\t\t\tconst salMin = btn.getAttribute('data-sal-min') || '';\n\t\t\t\tconst salMax = btn.getAttribute('data-sal-max') || '';\n\t\t\t\tconst status = btn.getAttribute('data-status') || '';\n\t\t\t\tconst desc = btn.getAttribute('data-desc') || '';\n\t\t\t\tconst reqs = btn.getAttribute('data-reqs') || '';\n\t\t\t\topenEditJobModal(jobId, titleAr, titleEn, location, salMin, salMax, status, desc, reqs);\n\t\t\t}\n\n\t\t\tfunction openEditJobModal(jobId, titleAr, titleEn, location, salMin, salMax, status, desc, reqs) {\n\t\t\t\tconst form = document.getElementById('edit-job-form');\n\t\t\t\tif (form) {\n\t\t\t\t\tform.action = `/vendor/jobs/${jobId}/edit`;\n\t\t\t\t}\n\t\t\t\tconst titleArInput = document.getElementById('edit-job-title-ar');\n\t\t\t\tconst titleEnInput = document.getElementById('edit-job-title-en');\n\t\t\t\tconst locationInput = document.getElementById('edit-job-location');\n\t\t\t\tconst statusInput = document.getElementById('edit-job-status');\n\t\t\t\tconst salMinInput = document.getElementById('edit-job-salary-min');\n\t\t\t\tconst salMaxInput = document.getElementById('edit-job-salary-max');\n\t\t\t\tconst descInput = document.getElementById('edit-job-description');\n\t\t\t\tconst reqsInput = document.getElementById('edit-job-requirements');\n\n\t\t\t\tif (titleArInput) titleArInput.value = titleAr || '';\n\t\t\t\tif (titleEnInput) titleEnInput.value = titleEn || '';\n\t\t\t\tif (locationInput) locationInput.value = location || '';\n\t\t\t\tif (statusInput) statusInput.value = status || 'published';\n\t\t\t\tif (salMinInput) salMinInput.value = salMin || '';\n\t\t\t\tif (salMaxInput) salMaxInput.value = salMax || '';\n\t\t\t\tif (descInput) descInput.value = desc || '';\n\t\t\t\tif (reqsInput) reqsInput.value = reqs || '';\n\n\t\t\t\tconst modal = document.getElementById('edit-job-modal');\n\t\t\t\tif (modal) {\n\t\t\t\t\tmodal.classList.remove('hidden');\n\t\t\t\t\tmodal.style.display = 'flex';\n\t\t\t\t}\n\t\t\t}\n\n\t\t\tfunction closeEditJobModal() {\n\t\t\t\tconst modal = document.getElementById('edit-job-modal');\n\t\t\t\tif (modal) {\n\t\t\t\t\tmodal.classList.add('hidden');\n\t\t\t\t\tmodal.style.display = 'none';\n\t\t\t\t}\n\t\t\t}\n\n\t\t\tfunction openApplicantsModal() {\n\t\t\t\tif (window.openModal) {\n\t\t\t\t\twindow.openModal('job-applicants-modal');\n\t\t\t\t} else {\n\t\t\t\t\tconst el = document.getElementById('job-applicants-modal');\n\t\t\t\t\tif (el) {\n\t\t\t\t\t\tel.classList.remove('hidden');\n\t\t\t\t\t\tel.style.display = 'flex';\n\t\t\t\t\t}\n\t\t\t\t}\n\t\t\t}\n\n\t\t\tfunction closeApplicantsModal() {\n\t\t\t\tif (window.closeModal) {\n\t\t\t\t\twindow.closeModal('job-applicants-modal');\n\t\t\t\t} else {\n\t\t\t\t\tconst el = document.getElementById('job-applicants-modal');\n\t\t\t\t\tif (el) {\n\t\t\t\t\t\tel.classList.add('hidden');\n\t\t\t\t\t\tel.style.display = 'none';\n\t\t\t\t\t}\n\t\t\t\t}\n\t\t\t}\n\n\t\t\tasync function viewApplicants(jobId, jobTitle) {\n\t\t\t\tdocument.getElementById('applicants-modal-subtitle').textContent = `الوظيفة: ${jobTitle}`;\n\t\t\t\tdocument.getElementById('applicants-modal-content').innerHTML = `\n\t\t\t\t\t<div style=\"padding:2.5rem; text-align:center; color:var(--text-muted);\">\n\t\t\t\t\t\t<div style=\"font-size:1.5rem; margin-bottom:0.5rem;\">⏳</div>\n\t\t\t\t\t\t<div>جاري استرجاع طلبات التقديم والسير الذاتية...</div>\n\t\t\t\t\t</div>\n\t\t\t\t`;\n\t\t\t\topenApplicantsModal();\n\n\t\t\t\ttry {\n\t\t\t\t\tconst res = await fetch(`/vendor/jobs/${jobId}/applications`);\n\t\t\t\t\tif (!res.ok) throw new Error('فشل في جلب البيانات');\n\t\t\t\t\tconst apps = await res.json();\n\n\t\t\t\t\tif (!apps || apps.length === 0) {\n\t\t\t\t\t\tdocument.getElementById('applicants-modal-content').innerHTML = `\n\t\t\t\t\t\t\t<div style=\"text-align:center; padding:3rem 1rem;\">\n\t\t\t\t\t\t\t\t<div style=\"font-size:2.5rem; margin-bottom:0.5rem;\">📬</div>\n\t\t\t\t\t\t\t\t<h4 style=\"color:var(--text); font-weight:800; margin:0;\">لا يوجد متقدمين حتى الآن</h4>\n\t\t\t\t\t\t\t\t<p style=\"color:var(--text-muted); font-size:0.85rem; margin:0.25rem 0 0;\">\n\t\t\t\t\t\t\t\t\tلم يقم أي مستخدم بالتقديم على هذه الوظيفة بعد.\n\t\t\t\t\t\t\t\t</p>\n\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t`;\n\t\t\t\t\t\treturn;\n\t\t\t\t\t}\n\n\t\t\t\t\tlet html = `\n\t\t\t\t\t\t<div style=\"display:flex; flex-direction:column; gap:0.75rem;\">\n\t\t\t\t\t`;\n\n\t\t\t\t\tapps.forEach(app => {\n\t\t\t\t\t\tconst dateStr = app.created_at ? new Date(app.created_at).toLocaleDateString('ar-EG') : '';\n\t\t\t\t\t\tconst cvBtn = app.cv_storage_key \n\t\t\t\t\t\t\t? `<a href=\"${app.cv_storage_key}\" target=\"_blank\" class=\"btn btn-secondary btn-sm\" style=\"font-size:0.75rem; font-weight:700; gap:0.35rem; color:var(--primary-600);\">\n\t\t\t\t\t\t\t\t\t<span>📄</span>\n\t\t\t\t\t\t\t\t\t<span>تحميل السيرة الذاتية (CV)</span>\n\t\t\t\t\t\t\t   </a>`\n\t\t\t\t\t\t\t: `<span class=\"text-xs text-muted\">لم يرفق CV</span>`;\n\n\t\t\t\t\t\thtml += `\n\t\t\t\t\t\t\t<div style=\"padding:1.1rem; background:var(--surface-sunken); border:1px solid var(--border); border-radius:var(--radius-xl); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem;\">\n\t\t\t\t\t\t\t\t<div>\n\t\t\t\t\t\t\t\t\t<div style=\"font-weight:800; font-size:0.95rem; color:var(--text);\">${app.applicant_name || 'متقدم'}</div>\n\t\t\t\t\t\t\t\t\t<div style=\"display:flex; gap:1rem; font-size:0.8rem; color:var(--text-muted); margin-top:0.25rem; flex-wrap:wrap;\">\n\t\t\t\t\t\t\t\t\t\t<span>📧 ${app.applicant_email || '-'}</span>\n\t\t\t\t\t\t\t\t\t\t<span>📞 ${app.applicant_phone || '-'}</span>\n\t\t\t\t\t\t\t\t\t\t<span>📅 ${dateStr}</span>\n\t\t\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t\t\t<div>\n\t\t\t\t\t\t\t\t\t${cvBtn}\n\t\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t`;\n\t\t\t\t\t});\n\n\t\t\t\t\thtml += `</div>`;\n\t\t\t\t\tdocument.getElementById('applicants-modal-content').innerHTML = html;\n\t\t\t\t} catch (err) {\n\t\t\t\t\tdocument.getElementById('applicants-modal-content').innerHTML = `\n\t\t\t\t\t\t<div class=\"alert alert-danger p-md\">\n\t\t\t\t\t\t\tحدث خطأ أثناء تحميل المتقدمين: ${err.message}\n\t\t\t\t\t\t</div>\n\t\t\t\t\t`;\n\t\t\t\t}\n\t\t\t}\n\n\t\t\t// Close on backdrop click\n\t\t\twindow.addEventListener('click', function(e) {\n\t\t\t\tconst addModal = document.getElementById('add-job-modal');\n\t\t\t\tconst editModal = document.getElementById('edit-job-modal');\n\t\t\t\tconst appModal = document.getElementById('job-applicants-modal');\n\t\t\t\tif (e.target === addModal) closeAddJobModal();\n\t\t\t\tif (e.target === editModal) closeEditJobModal();\n\t\t\t\tif (e.target === appModal) closeApplicantsModal();\n\t\t\t});\n\t\t</script>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

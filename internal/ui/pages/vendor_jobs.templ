@@ -244,7 +244,16 @@ templ VendorJobs(lang, dir string, data VendorJobsData) {
 													type="button"
 													class="btn btn-secondary btn-sm fw-700"
 													style="font-size:0.775rem; gap:0.35rem; color:var(--primary-700); padding:0.4rem 0.75rem;"
-													onclick={ templ.ComponentScript{Call: fmt.Sprintf("openEditJobModal(%d, %q, %q, %q, %q, %q, %q, %q, %q)", item.Job.ID, item.Job.Title.Get(i18n.AR), item.Job.Title.Get(i18n.EN), item.Job.Location, item.Job.SalaryMin.String(), item.Job.SalaryMax.String(), item.Job.Status, item.Job.Description, item.Job.Requirements)} }
+													data-job-id={ fmt.Sprintf("%d", item.Job.ID) }
+													data-title-ar={ item.Job.Title.Get(i18n.AR) }
+													data-title-en={ item.Job.Title.Get(i18n.EN) }
+													data-location={ item.Job.Location }
+													data-sal-min={ item.Job.SalaryMin.String() }
+													data-sal-max={ item.Job.SalaryMax.String() }
+													data-status={ item.Job.Status }
+													data-desc={ item.Job.Description }
+													data-reqs={ item.Job.Requirements }
+													onclick="openEditJobModalFromBtn(this)"
 													title="تعديل بيانات وحالة الوظيفة"
 												>
 													@components.IconEdit("icon-xs")
@@ -641,6 +650,20 @@ templ VendorJobs(lang, dir string, data VendorJobsData) {
 						el.style.display = 'none';
 					}
 				}
+			}
+
+			function openEditJobModalFromBtn(btn) {
+				if (!btn) return;
+				const jobId = btn.getAttribute('data-job-id');
+				const titleAr = btn.getAttribute('data-title-ar') || '';
+				const titleEn = btn.getAttribute('data-title-en') || '';
+				const location = btn.getAttribute('data-location') || '';
+				const salMin = btn.getAttribute('data-sal-min') || '';
+				const salMax = btn.getAttribute('data-sal-max') || '';
+				const status = btn.getAttribute('data-status') || '';
+				const desc = btn.getAttribute('data-desc') || '';
+				const reqs = btn.getAttribute('data-reqs') || '';
+				openEditJobModal(jobId, titleAr, titleEn, location, salMin, salMax, status, desc, reqs);
 			}
 
 			function openEditJobModal(jobId, titleAr, titleEn, location, salMin, salMax, status, desc, reqs) {

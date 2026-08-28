@@ -11,10 +11,12 @@ import (
 )
 
 type CustomerBranchesData struct {
-	Branches  []*org.Branch
-	Employees []*org.EmployeeView
-	Cities    []*platformadmin.City
-	ActiveTab string // "branches" or "employees"
+	Branches   []*org.Branch
+	Employees  []*org.EmployeeView
+	Cities     []*platformadmin.City
+	ActiveTab  string // "branches" or "employees"
+	NoticeType string
+	NoticeMsg  string
 }
 
 func (d CustomerBranchesData) GetBranchEmployees(branchID int64) []*org.EmployeeView {
@@ -56,7 +58,7 @@ func (d CustomerBranchesData) GetMainBranch() *org.Branch {
 
 func cbRoleLabelArabic(key string) string {
 	switch key {
-	case "org_admin", "admin":
+	case "org_admin", "admin", "org_owner", "owner":
 		return "مدير عام المؤسسة"
 	case "org_manager", "manager":
 		return "مدير فرع / صيدلية"
@@ -78,7 +80,7 @@ func cbRoleLabelArabic(key string) string {
 
 func cbRoleBadgeClass(key string) string {
 	switch key {
-	case "org_admin", "admin":
+	case "org_admin", "admin", "org_owner", "owner":
 		return "badge-primary"
 	case "org_manager", "manager":
 		return "badge-emerald"
@@ -96,6 +98,21 @@ func cbRoleBadgeClass(key string) string {
 templ CustomerBranches(data CustomerBranchesData, lang string, dir string, perms []string) {
 	@layouts.CustomerShell(i18n.T(lang, "nav.pharmacy_branches"), "branches", lang, dir, perms) {
 		<div class="cb-container">
+			
+			<!-- Notice Feedback Banner -->
+			if data.NoticeMsg != "" {
+				if data.NoticeType == "error" {
+					<div class="alert alert-danger" style="display:flex; align-items:center; gap:0.75rem; padding:1rem 1.25rem; border-radius:var(--radius-xl); background:rgba(239,68,68,0.12); border:1px solid rgba(239,68,68,0.3); color:var(--rose); font-weight:700; margin-bottom:1rem;">
+						<span style="font-size:1.25rem;">⚠️</span>
+						<span>{ data.NoticeMsg }</span>
+					</div>
+				} else {
+					<div class="alert alert-success" style="display:flex; align-items:center; gap:0.75rem; padding:1rem 1.25rem; border-radius:var(--radius-xl); background:rgba(16,185,129,0.12); border:1px solid rgba(16,185,129,0.3); color:var(--emerald); font-weight:700; margin-bottom:1rem;">
+						<span style="font-size:1.25rem;">✅</span>
+						<span>{ data.NoticeMsg }</span>
+					</div>
+				}
+			}
 			
 			<!-- Header Banner -->
 			<div class="cb-header">
@@ -250,8 +267,8 @@ templ CustomerBranches(data CustomerBranchesData, lang string, dir string, perms
 												<button
 													type="button"
 													class="btn btn-secondary btn-xs fw-700"
-													data-modal-open="add-employee-modal"
-													onclick={ templ.ComponentScript{Call: fmt.Sprintf("openAddEmployeeModal(%d)", b.ID)} }
+													data-branch-id={ fmt.Sprintf("%d", b.ID) }
+													onclick="openAddEmployeeModalFromBtn(this)"
 													style="gap:0.25rem; color:var(--primary-600);"
 													title="إضافة موظف لهذا الفرع"
 												>
@@ -590,7 +607,8 @@ templ CustomerBranches(data CustomerBranchesData, lang string, dir string, perms
 													<button
 														type="button"
 														class="btn btn-secondary btn-xs fw-700"
-														data-modal-open={ fmt.Sprintf("edit-emp-modal-%d", emp.Member.ID) }
+														data-emp-id={ fmt.Sprintf("%d", emp.Member.ID) }
+														onclick="openEditEmployeeModalFromBtn(this)"
 														title="تعديل بيانات وصلاحيات الموظف"
 													>
 														<span>تعديل</span>
@@ -821,7 +839,7 @@ templ CustomerBranches(data CustomerBranchesData, lang string, dir string, perms
 									<option value="org_accountant">محاسب / مسؤول مشتريات (فواتير ومدفوعات)</option>
 									<option value="org_warehouse">أمين مخزن (استلام وجرد شحنات)</option>
 									<option value="org_employee">موظف صيدلية / فرع (تشغيل عام)</option>
-									<option value="org_admin">مدير عام المؤسسة (صلاحيات كاملة)</option>
+									<option value="org_owner">شريك / مالك المؤسسة (صلاحيات كاملة)</option>
 								</select>
 							</div>
 						</div>
@@ -902,7 +920,7 @@ templ CustomerBranches(data CustomerBranchesData, lang string, dir string, perms
 											<option value="org_accountant" selected?={ emp.Member.RoleKey == "org_accountant" }>محاسب / مشتريات</option>
 											<option value="org_warehouse" selected?={ emp.Member.RoleKey == "org_warehouse" }>أمين مخزن</option>
 											<option value="org_employee" selected?={ emp.Member.RoleKey == "org_employee" }>موظف فرع</option>
-											<option value="org_admin" selected?={ emp.Member.RoleKey == "org_admin" }>مدير عام المؤسسة</option>
+											<option value="org_owner" selected?={ emp.Member.RoleKey == "org_owner" || emp.Member.RoleKey == "org_admin" }>شريك / مالك المؤسسة</option>
 										</select>
 									</div>
 								</div>
@@ -970,6 +988,12 @@ templ CustomerBranches(data CustomerBranchesData, lang string, dir string, perms
 				});
 			}
 
+			function openAddEmployeeModalFromBtn(btn) {
+				if (!btn) return;
+				const branchId = btn.getAttribute('data-branch-id');
+				openAddEmployeeModal(branchId);
+			}
+
 			function openAddEmployeeModal(branchId) {
 				const modal = document.getElementById('add-employee-modal');
 				if (branchId) {
@@ -988,6 +1012,12 @@ templ CustomerBranches(data CustomerBranchesData, lang string, dir string, perms
 					modal.classList.add('hidden');
 					modal.style.display = 'none';
 				}
+			}
+
+			function openEditEmployeeModalFromBtn(btn) {
+				if (!btn) return;
+				const empId = btn.getAttribute('data-emp-id');
+				openEditEmployeeModal(empId);
 			}
 
 			function openEditEmployeeModal(empId) {
