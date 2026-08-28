@@ -63,6 +63,14 @@ func (w *RunWorker) Work(ctx context.Context, job *river.Job[queue.SmartOrderRun
 		w.log.InfoContext(ctx, "skipping smart order run that is already placed", "run_id", runID)
 		return nil
 	}
+	if run.Status != smartorder.StatusQueued {
+		// River may redeliver a job after a transport failure. Never restart a
+		// run that another worker already owns or that has already produced
+		// results; retrying it would repeat the AI stage.
+		w.log.InfoContext(ctx, "skipping smart order run that is not queued",
+			"run_id", runID, "status", run.Status)
+		return nil
+	}
 
 	cfg, err := w.repo.GetConfig(ctx, runID)
 	if err != nil {

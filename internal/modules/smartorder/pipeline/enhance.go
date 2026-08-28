@@ -112,7 +112,7 @@ const (
 
 	// MaxWallClock bounds the stage. The run itself is allowed twenty minutes,
 	// so this leaves ample room for supplier resolution afterwards.
-	MaxWallClock = 8 * time.Minute
+	MaxWallClock = 4 * time.Minute
 
 	// MinApplyConfidence is the floor below which an answer is recorded but not
 	// applied. The prompt instructs the model to answer null below the same

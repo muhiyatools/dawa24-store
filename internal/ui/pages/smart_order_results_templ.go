@@ -321,7 +321,7 @@ func soFilterTab(data SmartOrderResultsData, matchKey, label string, count int) 
 			templ_7745c5c3_Var10 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		active := data.Match == matchKey || (matchKey == "" && (data.Match == "all" || data.Match == ""))
+		active := (matchKey == "all" && data.Match == "") || data.Match == matchKey
 		href := buildSmartOrderResultsURL(data.Run.PublicID, matchKey, data.SortBy, data.SortOrder, 1, data.PerPage, data.Search)
 		var templ_7745c5c3_Var11 = []any{"wiz-chip", templ.KV("is-on", active)}
 		templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var11...)

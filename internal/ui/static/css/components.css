@@ -1818,7 +1818,7 @@ dialog.modal::backdrop {
 	stroke-dasharray: 326.7;
 	/* The bar only ever advances, and it advances in steps as each stage
 	   finishes. Easing the change stops those steps reading as glitches. */
-	transition: stroke-dashoffset 600ms ease-out;
+	transition: stroke-dashoffset 3200ms linear;
 }
 .so-ring-label {
 	position: absolute;
@@ -2574,7 +2574,6 @@ select.form-control:focus-visible {
   border-radius: var(--radius-full, 9999px);
   transition: width 0.3s ease;
 }
-
 
 
 

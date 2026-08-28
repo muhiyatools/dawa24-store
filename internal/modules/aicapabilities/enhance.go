@@ -28,8 +28,7 @@ package aicapabilities
 
 import (
 	"context"
-	"errors"
-	"strings"
+	"fmt"
 
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/platform/gateway"
@@ -142,12 +141,12 @@ func (s *Service) EnhanceMatches(ctx context.Context, req EnhanceRequest) ([]Enh
 		return nil, nil
 	}
 	if s.gw == nil {
-		return nil, errors.New("aicapabilities: gateway not configured")
+		return nil, fmt.Errorf("aicapabilities: gateway not configured")
 	}
 	if len(req.Catalog) == 0 {
 		// Nothing to choose from. Asking anyway would invite the model to
 		// invent an id, which is the one failure that must never happen.
-		return nil, errors.New("aicapabilities: empty catalogue window")
+		return nil, fmt.Errorf("aicapabilities: empty catalogue window")
 	}
 
 	var orgID, userID int64
@@ -176,23 +175,17 @@ func (s *Service) EnhanceMatches(ctx context.Context, req EnhanceRequest) ([]Enh
 		MaxTokens:      enhanceMaxTokens(len(req.Items)),
 	}
 
+	// Do not retry the same logical batch with a different wire format. The
+	// prompt already specifies strict JSON, and the deterministic result is a
+	// safe fallback when a deployment rejects schemas.
 	resp, err := s.gw.Invoke(ctx, gwReq)
-	if err != nil && isSchemaRejection(err) {
-		// Not every Gateway deployment or model supports json_schema response
-		// formats. Losing the whole stage over a protocol nicety would be a
-		// poor trade when the prompt already specifies the shape in full.
-		s.log.WarnContext(ctx, "gateway rejected structured output; retrying without schema",
-			"capability", gateway.CapMatchEnhance, "err", err)
-		gwReq.Schema = nil
-		resp, err = s.gw.Invoke(ctx, gwReq)
-	}
 	if err != nil {
 		s.log.WarnContext(ctx, "match enhancement failed; deterministic results stand",
 			"items", len(req.Items), "catalog", len(req.Catalog), "err", err)
 		return nil, err
 	}
 	if resp == nil || resp.Content == "" {
-		return nil, errors.New("aicapabilities: empty enhancement response")
+		return nil, fmt.Errorf("aicapabilities: empty enhancement response")
 	}
 
 	decisions, err := DecodeEnhanceResponse(resp.Content)
@@ -221,29 +214,4 @@ func enhanceMaxTokens(items int) int {
 		n = 60000
 	}
 	return n
-}
-
-// isSchemaRejection reports whether an error looks like the Gateway or the model
-// refusing the structured-output request rather than failing the work itself.
-//
-// Any bad request counts, not only one that names the schema. Structured output
-// is the only optional, model-dependent thing in this call — everything else is
-// a chat completion the Gateway has always accepted — so a 400 after sending one
-// is overwhelmingly likely to be about it, and models differ in whether they say
-// so. Retrying without the schema costs one request and recovers the whole
-// stage; not retrying loses every decision in the batch because a model does not
-// implement a protocol nicety. If the 400 was about something else the retry
-// fails identically and the deterministic result stands, which is where this was
-// heading anyway.
-func isSchemaRejection(err error) bool {
-	if err == nil || errors.Is(err, gateway.ErrDisabled) {
-		return false
-	}
-	if errors.Is(err, gateway.ErrBadRequest) {
-		return true
-	}
-	msg := strings.ToLower(err.Error())
-	return strings.Contains(msg, "response_format") ||
-		strings.Contains(msg, "json_schema") ||
-		strings.Contains(msg, "schema")
 }
