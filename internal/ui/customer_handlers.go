@@ -1,6 +1,8 @@
 package ui
 
 import (
+	"crypto/rand"
+	"encoding/hex"
 	"fmt"
 	"net/http"
 	"strconv"
@@ -11,6 +13,7 @@ import (
 
 	"github.com/muhiya/dawa24-store/internal/modules/catalog"
 	"github.com/muhiya/dawa24-store/internal/modules/commerce"
+	"github.com/muhiya/dawa24-store/internal/modules/identity"
 	"github.com/muhiya/dawa24-store/internal/modules/org"
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/platform/database"
@@ -912,7 +915,7 @@ func (h *UIHandler) MarkNotificationReadSubmit(w http.ResponseWriter, r *http.Re
 	http.Redirect(w, r, "/notifications", http.StatusSeeOther)
 }
 
-// CustomerBranchesPage renders the pharmacy's own branches screen in CustomerShell.
+// CustomerBranchesPage renders the pharmacy's own branches and employees management screen in CustomerShell.
 func (h *UIHandler) CustomerBranchesPage(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	lang, dir := h.localeAndDir(r)
@@ -924,13 +927,22 @@ func (h *UIHandler) CustomerBranchesPage(w http.ResponseWriter, r *http.Request)
 	}
 
 	var branches []*org.Branch
+	var employees []*org.EmployeeView
 	if h.orgSvc != nil {
 		branches, _ = h.orgSvc.ListBranches(ctx, actor.OrganizationID)
+		employees, _ = h.orgSvc.ListEmployees(ctx, actor.OrganizationID)
+	}
+
+	activeTab := r.URL.Query().Get("tab")
+	if activeTab != "employees" {
+		activeTab = "branches"
 	}
 
 	data := pages.CustomerBranchesData{
-		Branches: branches,
-		Cities:   h.listCities(ctx),
+		Branches:  branches,
+		Employees: employees,
+		Cities:    h.listCities(ctx),
+		ActiveTab: activeTab,
 	}
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
@@ -950,19 +962,21 @@ func (h *UIHandler) CustomerBranchNewSubmit(w http.ResponseWriter, r *http.Reque
 
 	_ = r.ParseForm()
 
-	nameAr := r.PostFormValue("name_ar")
-	nameEn := r.PostFormValue("name_en")
+	nameAr := strings.TrimSpace(r.PostFormValue("name_ar"))
+	nameEn := strings.TrimSpace(r.PostFormValue("name_en"))
 	if nameAr == "" {
 		nameAr = "فرع صيدلية"
 	}
 	if nameEn == "" {
 		nameEn = nameAr
 	}
-	code := r.PostFormValue("code")
-	address := r.PostFormValue("address")
-	phone := r.PostFormValue("phone")
-	gmaps := r.PostFormValue("google_maps_url")
-	isMain := r.PostFormValue("is_main") == "true"
+	code := strings.TrimSpace(r.PostFormValue("code"))
+	address := strings.TrimSpace(r.PostFormValue("address"))
+	phone := strings.TrimSpace(r.PostFormValue("phone"))
+	operatingHours := strings.TrimSpace(r.PostFormValue("operating_hours"))
+	gmaps := strings.TrimSpace(r.PostFormValue("google_maps_url"))
+	isMain := r.PostFormValue("is_main") == "true" || r.PostFormValue("is_main") == "on" || r.PostFormValue("is_main") == "1"
+	hasColdStorage := r.PostFormValue("has_cold_storage") == "true" || r.PostFormValue("has_cold_storage") == "on" || r.PostFormValue("has_cold_storage") == "1"
 
 	cityIDVal, _ := strconv.ParseInt(r.PostFormValue("city_id"), 10, 64)
 	var cityID *int64
@@ -989,6 +1003,8 @@ func (h *UIHandler) CustomerBranchNewSubmit(w http.ResponseWriter, r *http.Reque
 		WarehouseType:  "pharmacy",
 		Address:        address,
 		Phone:          phone,
+		OperatingHours: operatingHours,
+		HasColdStorage: hasColdStorage,
 		GoogleMapsURL:  gmaps,
 		CityID:         cityID,
 		Latitude:       latPtr,
@@ -1008,6 +1024,107 @@ func (h *UIHandler) CustomerBranchNewSubmit(w http.ResponseWriter, r *http.Reque
 	h.redirectWithNotice(w, r, "/customer/branches", "success", "تم إضافة فرع الصيدلية بنجاح.")
 }
 
+// CustomerBranchEditSubmit updates an existing pharmacy branch.
+func (h *UIHandler) CustomerBranchEditSubmit(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	actor, ok := authctx.From(ctx)
+	if !ok || actor.OrganizationID <= 0 {
+		http.Redirect(w, r, "/auth/login?redirect=/customer/branches", http.StatusSeeOther)
+		return
+	}
+
+	id, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
+	if err != nil || id <= 0 {
+		h.redirectWithNotice(w, r, "/customer/branches", "error", "معرف الفرع غير صالح.")
+		return
+	}
+
+	if h.orgSvc == nil {
+		h.redirectWithNotice(w, r, "/customer/branches", "error", "الخدمة غير متاحة حالياً.")
+		return
+	}
+
+	existing, err := h.orgSvc.GetBranch(ctx, id)
+	if err != nil || existing == nil || existing.OrganizationID != actor.OrganizationID {
+		h.redirectWithNotice(w, r, "/customer/branches", "error", "الفرع غير موجود أو لا تملك صلاحية تعديله.")
+		return
+	}
+
+	_ = r.ParseForm()
+
+	nameAr := strings.TrimSpace(r.PostFormValue("name_ar"))
+	nameEn := strings.TrimSpace(r.PostFormValue("name_en"))
+	if nameAr == "" {
+		nameAr = existing.Name.Get(i18n.AR)
+	}
+	if nameEn == "" {
+		nameEn = nameAr
+	}
+	code := strings.TrimSpace(r.PostFormValue("code"))
+	address := strings.TrimSpace(r.PostFormValue("address"))
+	phone := strings.TrimSpace(r.PostFormValue("phone"))
+	operatingHours := strings.TrimSpace(r.PostFormValue("operating_hours"))
+	gmaps := strings.TrimSpace(r.PostFormValue("google_maps_url"))
+	status := strings.TrimSpace(r.PostFormValue("status"))
+	if status == "" {
+		status = "active"
+	}
+	isMain := r.PostFormValue("is_main") == "true" || r.PostFormValue("is_main") == "on" || r.PostFormValue("is_main") == "1"
+	hasColdStorage := r.PostFormValue("has_cold_storage") == "true" || r.PostFormValue("has_cold_storage") == "on" || r.PostFormValue("has_cold_storage") == "1"
+
+	cityIDVal, _ := strconv.ParseInt(r.PostFormValue("city_id"), 10, 64)
+	var cityID *int64
+	if cityIDVal > 0 {
+		cityID = &cityIDVal
+	} else {
+		cityID = existing.CityID
+	}
+
+	var latPtr, lngPtr *float64
+	if latStr := r.PostFormValue("latitude"); latStr != "" {
+		if lat, err := strconv.ParseFloat(latStr, 64); err == nil {
+			latPtr = &lat
+		}
+	}
+	if lngStr := r.PostFormValue("longitude"); lngStr != "" {
+		if lng, err := strconv.ParseFloat(lngStr, 64); err == nil {
+			lngPtr = &lng
+		}
+	}
+	if latPtr == nil {
+		latPtr = existing.Latitude
+	}
+	if lngPtr == nil {
+		lngPtr = existing.Longitude
+	}
+
+	b := &org.Branch{
+		ID:             id,
+		OrganizationID: actor.OrganizationID,
+		Name:           i18n.New(nameAr, nameEn),
+		Code:           code,
+		WarehouseType:  "pharmacy",
+		Address:        address,
+		Phone:          phone,
+		OperatingHours: operatingHours,
+		HasColdStorage: hasColdStorage,
+		GoogleMapsURL:  gmaps,
+		CityID:         cityID,
+		Latitude:       latPtr,
+		Longitude:      lngPtr,
+		IsMain:         isMain,
+		Status:         status,
+	}
+
+	if err := h.orgSvc.UpdateBranch(ctx, b); err != nil {
+		h.log.ErrorContext(ctx, "customer edit branch error", "error", err, "branch_id", id)
+		h.redirectWithNotice(w, r, "/customer/branches", "error", h.safeMessage(err, langOf(r)))
+		return
+	}
+
+	h.redirectWithNotice(w, r, "/customer/branches", "success", "تم تحديث بيانات الفرع بنجاح.")
+}
+
 // CustomerBranchDeleteSubmit deletes a branch owned by the customer organization.
 func (h *UIHandler) CustomerBranchDeleteSubmit(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
@@ -1024,13 +1141,225 @@ func (h *UIHandler) CustomerBranchDeleteSubmit(w http.ResponseWriter, r *http.Re
 	}
 
 	if h.orgSvc != nil {
-		if err := h.orgSvc.DeleteBranch(ctx, actor.OrganizationID, id); err != nil {
+		existing, err := h.orgSvc.GetBranch(ctx, id)
+		if err != nil || existing == nil || existing.OrganizationID != actor.OrganizationID {
+			h.redirectWithNotice(w, r, "/customer/branches", "error", "الفرع غير موجود أو لا تملك صلاحية حذفه.")
+			return
+		}
+		if existing.IsMain {
+			h.redirectWithNotice(w, r, "/customer/branches", "error", "لا يمكن حذف الفرع الرئيسي، يرجى تعيين فرع رئيسي آخر أولاً.")
+			return
+		}
+		if err := h.orgSvc.DeleteBranch(ctx, id, actor.OrganizationID); err != nil {
 			h.redirectWithNotice(w, r, "/customer/branches", "error", h.safeMessage(err, langOf(r)))
 			return
 		}
 	}
 
 	h.redirectWithNotice(w, r, "/customer/branches", "success", "تم حذف الفرع بنجاح.")
+}
+
+// CustomerEmployeeCreateSubmit creates a new employee user and binds them to the branch and role.
+func (h *UIHandler) CustomerEmployeeCreateSubmit(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	actor, ok := authctx.From(ctx)
+	if !ok || actor.OrganizationID <= 0 {
+		http.Redirect(w, r, "/auth/login?redirect=/customer/branches?tab=employees", http.StatusSeeOther)
+		return
+	}
+
+	if h.idSvc == nil || h.orgSvc == nil {
+		h.redirectWithNotice(w, r, "/customer/branches?tab=employees", "error", "الخدمة غير متاحة حالياً.")
+		return
+	}
+
+	_ = r.ParseForm()
+
+	email := strings.TrimSpace(r.PostFormValue("email"))
+	name := strings.TrimSpace(r.PostFormValue("name"))
+	phone := strings.TrimSpace(r.PostFormValue("phone"))
+	jobTitle := strings.TrimSpace(r.PostFormValue("job_title"))
+	employeeCode := strings.TrimSpace(r.PostFormValue("employee_code"))
+	roleKey := strings.TrimSpace(r.PostFormValue("role_key"))
+	if roleKey == "" {
+		roleKey = "org_employee"
+	}
+	password := strings.TrimSpace(r.PostFormValue("password"))
+
+	if email == "" || name == "" {
+		h.redirectWithNotice(w, r, "/customer/branches?tab=employees", "error", "الاسم والبريد الإلكتروني حقول إلزامية.")
+		return
+	}
+
+	var branchID *int64
+	if bStr := r.PostFormValue("branch_id"); bStr != "" {
+		if bID, err := strconv.ParseInt(bStr, 10, 64); err == nil && bID > 0 {
+			branchID = &bID
+		}
+	}
+
+	// 1. Locate or create user account
+	var targetUserID int64
+	existingUser, err := h.idSvc.GetUserByEmail(ctx, email)
+	if err == nil && existingUser != nil {
+		targetUserID = existingUser.ID
+	} else {
+		if password == "" {
+			randBytes := make([]byte, 8)
+			_, _ = rand.Read(randBytes)
+			password = fmt.Sprintf("Dawa24!%s", hex.EncodeToString(randBytes))
+		}
+
+		newUser, _, err := h.idSvc.Register(ctx, identity.RegisterInput{
+			Email:    email,
+			Password: password,
+			NameAr:   name,
+			NameEn:   name,
+			Phone:    phone,
+			Role:     "user",
+		})
+		if err != nil {
+			h.redirectWithNotice(w, r, "/customer/branches?tab=employees", "error", h.safeMessage(err, langOf(r)))
+			return
+		}
+		targetUserID = newUser.ID
+	}
+
+	if employeeCode == "" {
+		employeeCode = fmt.Sprintf("EMP-%d", targetUserID)
+	}
+
+	// 2. Add to organization members
+	member := &org.Member{
+		OrganizationID: actor.OrganizationID,
+		UserID:         targetUserID,
+		BranchID:       branchID,
+		RoleKey:        roleKey,
+		EmployeeCode:   employeeCode,
+		JobTitle:       jobTitle,
+		IsActive:       true,
+	}
+
+	if err := h.orgSvc.AddMemberDirect(ctx, member); err != nil {
+		h.redirectWithNotice(w, r, "/customer/branches?tab=employees", "error", h.safeMessage(err, langOf(r)))
+		return
+	}
+
+	// 3. If role is org_manager and branch is specified, assign as branch manager
+	if roleKey == "org_manager" && branchID != nil {
+		_ = h.orgSvc.AssignBranchManager(ctx, actor.OrganizationID, *branchID, &targetUserID)
+	}
+
+	h.redirectWithNotice(w, r, "/customer/branches?tab=employees", "success", "تم إضافة الموظف وتعيينه للفرع وتحديد الصلاحيات بنجاح.")
+}
+
+// CustomerEmployeeEditSubmit updates an employee's branch assignment, role, job title, and details.
+func (h *UIHandler) CustomerEmployeeEditSubmit(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	actor, ok := authctx.From(ctx)
+	if !ok || actor.OrganizationID <= 0 {
+		http.Redirect(w, r, "/auth/login?redirect=/customer/branches?tab=employees", http.StatusSeeOther)
+		return
+	}
+
+	targetUserID, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
+	if err != nil || targetUserID <= 0 {
+		h.redirectWithNotice(w, r, "/customer/branches?tab=employees", "error", "معرف المستخدم غير صالح.")
+		return
+	}
+
+	_ = r.ParseForm()
+
+	jobTitle := strings.TrimSpace(r.PostFormValue("job_title"))
+	employeeCode := strings.TrimSpace(r.PostFormValue("employee_code"))
+	roleKey := strings.TrimSpace(r.PostFormValue("role_key"))
+	if roleKey == "" {
+		roleKey = "org_employee"
+	}
+	isActive := r.PostFormValue("is_active") == "true" || r.PostFormValue("is_active") == "on" || r.PostFormValue("is_active") == "1"
+
+	var branchID *int64
+	if bStr := r.PostFormValue("branch_id"); bStr != "" {
+		if bID, err := strconv.ParseInt(bStr, 10, 64); err == nil && bID > 0 {
+			branchID = &bID
+		}
+	}
+
+	member := &org.Member{
+		OrganizationID: actor.OrganizationID,
+		UserID:         targetUserID,
+		BranchID:       branchID,
+		RoleKey:        roleKey,
+		EmployeeCode:   employeeCode,
+		JobTitle:       jobTitle,
+		IsActive:       isActive,
+	}
+
+	if err := h.orgSvc.AddMemberDirect(ctx, member); err != nil {
+		h.redirectWithNotice(w, r, "/customer/branches?tab=employees", "error", h.safeMessage(err, langOf(r)))
+		return
+	}
+
+	if roleKey == "org_manager" && branchID != nil {
+		_ = h.orgSvc.AssignBranchManager(ctx, actor.OrganizationID, *branchID, &targetUserID)
+	}
+
+	h.redirectWithNotice(w, r, "/customer/branches?tab=employees", "success", "تم تحديث بيانات الموظف والصلاحيات والفرع بنجاح.")
+}
+
+// CustomerEmployeeDeleteSubmit removes an employee member from the organization and branch.
+func (h *UIHandler) CustomerEmployeeDeleteSubmit(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	actor, ok := authctx.From(ctx)
+	if !ok || actor.OrganizationID <= 0 {
+		http.Redirect(w, r, "/auth/login?redirect=/customer/branches?tab=employees", http.StatusSeeOther)
+		return
+	}
+
+	targetUserID, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
+	if err != nil || targetUserID <= 0 {
+		h.redirectWithNotice(w, r, "/customer/branches?tab=employees", "error", "معرف الموظف غير صالح.")
+		return
+	}
+
+	if targetUserID == actor.UserID {
+		h.redirectWithNotice(w, r, "/customer/branches?tab=employees", "error", "لا يمكنك إزالة حسابك الحالي من المؤسسة.")
+		return
+	}
+
+	if h.orgSvc != nil {
+		if err := h.orgSvc.RemoveMember(ctx, actor.OrganizationID, targetUserID); err != nil {
+			h.redirectWithNotice(w, r, "/customer/branches?tab=employees", "error", h.safeMessage(err, langOf(r)))
+			return
+		}
+	}
+
+	h.redirectWithNotice(w, r, "/customer/branches?tab=employees", "success", "تم حذف الموظف وإلغاء ربطه بالفرع بنجاح.")
+}
+
+// CustomerEmployeeStatusSubmit toggles active status for an employee.
+func (h *UIHandler) CustomerEmployeeStatusSubmit(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	actor, ok := authctx.From(ctx)
+	if !ok || actor.OrganizationID <= 0 {
+		http.Redirect(w, r, "/auth/login?redirect=/customer/branches?tab=employees", http.StatusSeeOther)
+		return
+	}
+
+	memberID, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
+	if err != nil || memberID <= 0 {
+		h.redirectWithNotice(w, r, "/customer/branches?tab=employees", "error", "معرف الموظف غير صالح.")
+		return
+	}
+
+	if h.orgSvc != nil {
+		if err := h.orgSvc.ToggleMemberStatus(ctx, actor.OrganizationID, memberID); err != nil {
+			h.redirectWithNotice(w, r, "/customer/branches?tab=employees", "error", h.safeMessage(err, langOf(r)))
+			return
+		}
+	}
+
+	h.redirectWithNotice(w, r, "/customer/branches?tab=employees", "success", "تم تحديث حالة الموظف بنجاح.")
 }
 
 // ReviewSubmit handles customer feedback submissions with multi-criteria rating.

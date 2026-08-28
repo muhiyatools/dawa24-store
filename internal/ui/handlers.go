@@ -346,7 +346,16 @@ func (h *UIHandler) RegisterCustomerRoutes(r chi.Router) {
 	r.Get("/customer/branches", h.CustomerBranchesPage)
 	r.Post("/customer/branches/active", h.CustomerSwitchActiveBranchSubmit)
 	r.Post("/customer/branches/new", h.CustomerBranchNewSubmit)
+	r.Post("/customer/branches/{id}/edit", h.CustomerBranchEditSubmit)
+	r.Post("/customer/branches/{id}", h.CustomerBranchEditSubmit)
 	r.Post("/customer/branches/{id}/delete", h.CustomerBranchDeleteSubmit)
+
+	// Pharmacy Branch Employees & Users Management
+	r.Post("/customer/employees/new", h.CustomerEmployeeCreateSubmit)
+	r.Post("/customer/employees/{id}/edit", h.CustomerEmployeeEditSubmit)
+	r.Post("/customer/employees/{id}", h.CustomerEmployeeEditSubmit)
+	r.Post("/customer/employees/{id}/delete", h.CustomerEmployeeDeleteSubmit)
+	r.Post("/customer/employees/{id}/status", h.CustomerEmployeeStatusSubmit)
 
 	// Customer interactions
 	r.Post("/suppliers/{id}/follow", h.SupplierFollowSubmit)

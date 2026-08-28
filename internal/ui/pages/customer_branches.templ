@@ -2,6 +2,7 @@ package pages
 
 import (
 	"fmt"
+	"strings"
 	"github.com/muhiya/dawa24-store/internal/modules/org"
 	platformadmin "github.com/muhiya/dawa24-store/internal/modules/platform_admin"
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
@@ -10,257 +11,965 @@ import (
 )
 
 type CustomerBranchesData struct {
-	Branches []*org.Branch
-	Cities   []*platformadmin.City
+	Branches  []*org.Branch
+	Employees []*org.EmployeeView
+	Cities    []*platformadmin.City
+	ActiveTab string // "branches" or "employees"
+}
+
+func (d CustomerBranchesData) GetBranchEmployees(branchID int64) []*org.EmployeeView {
+	var list []*org.EmployeeView
+	for _, emp := range d.Employees {
+		if emp != nil && emp.Member != nil && emp.Member.BranchID != nil && *emp.Member.BranchID == branchID {
+			list = append(list, emp)
+		}
+	}
+	return list
+}
+
+func (d CustomerBranchesData) GetBranchName(branchID *int64) string {
+	if branchID == nil || *branchID <= 0 {
+		return "غير محدد بفرع معين"
+	}
+	for _, b := range d.Branches {
+		if b != nil && b.ID == *branchID {
+			if b.Name["ar"] != "" {
+				return b.Name["ar"]
+			}
+			return b.Name["en"]
+		}
+	}
+	return fmt.Sprintf("فرع رقم #%d", *branchID)
+}
+
+func (d CustomerBranchesData) GetMainBranch() *org.Branch {
+	for _, b := range d.Branches {
+		if b != nil && b.IsMain {
+			return b
+		}
+	}
+	if len(d.Branches) > 0 {
+		return d.Branches[0]
+	}
+	return nil
+}
+
+func cbRoleLabelArabic(key string) string {
+	switch key {
+	case "org_admin", "admin":
+		return "مدير عام المؤسسة"
+	case "org_manager", "manager":
+		return "مدير فرع / صيدلية"
+	case "org_pharmacist", "pharmacist":
+		return "صيدلي مسؤول"
+	case "org_accountant", "accountant":
+		return "محاسب / مسؤول مشتريات"
+	case "org_warehouse", "warehouse":
+		return "أمين مخزن / استلام"
+	case "org_employee", "employee":
+		return "موظف صيدلية / فرع"
+	default:
+		if strings.HasPrefix(key, "org_") {
+			return strings.TrimPrefix(key, "org_")
+		}
+		return key
+	}
+}
+
+func cbRoleBadgeClass(key string) string {
+	switch key {
+	case "org_admin", "admin":
+		return "badge-primary"
+	case "org_manager", "manager":
+		return "badge-emerald"
+	case "org_pharmacist", "pharmacist":
+		return "badge-sky"
+	case "org_accountant", "accountant":
+		return "badge-amber"
+	case "org_warehouse", "warehouse":
+		return "badge-slate"
+	default:
+		return "badge-secondary"
+	}
 }
 
 templ CustomerBranches(data CustomerBranchesData, lang string, dir string, perms []string) {
 	@layouts.CustomerShell(i18n.T(lang, "nav.pharmacy_branches"), "branches", lang, dir, perms) {
-		<div style="display:flex; flex-direction:column; gap:1.75rem;">
+		<div class="cb-container">
+			
 			<!-- Header Banner -->
-			<div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:1rem; border-bottom:1px solid var(--border); padding-bottom:1.25rem;">
+			<div class="cb-header">
 				<div>
 					<h2 style="font-size:1.45rem; font-weight:800; color:var(--text); margin:0 0 0.4rem 0;">
-						{ i18n.T(lang, "customer.branches_title") }
+						إدارة الفروع ومستخدمي الصيدلية
 					</h2>
-					<p style="font-size:0.875rem; color:var(--text-secondary); margin:0; max-width:640px; line-height:1.6;">
-						{ i18n.T(lang, "customer.branches_sub") }
+					<p style="font-size:0.875rem; color:var(--text-secondary); margin:0; max-width:680px; line-height:1.6;">
+						إدارة شبكة الفروع ومواقع الاستلام الجغرافية، وتعيين الموظفين والصيادلة لكل فرع وتحديد أدوارهم وصلاحياتهم.
 					</p>
 				</div>
-				<a href="#new-branch-form" class="btn btn-primary btn-sm fw-700">
-					@components.IconPlus("icon-xs")
-					<span>{ i18n.T(lang, "customer.add_branch") }</span>
-				</a>
+				<div style="display:flex; align-items:center; gap:0.6rem; flex-wrap:wrap;">
+					<button type="button" class="btn btn-secondary btn-sm fw-700" data-modal-open="add-employee-modal">
+						@components.IconUser("icon-xs")
+						<span>+ إضافة مستخدم / موظف</span>
+					</button>
+					<a href="#new-branch-form" class="btn btn-primary btn-sm fw-700" onclick="switchCustomerBranchTab('branches')">
+						@components.IconPlus("icon-xs")
+						<span>+ إضافة فرع جديد</span>
+					</a>
+				</div>
 			</div>
 
 			<!-- Metrics Strip -->
-			<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:1rem;">
-				<div class="card" style="padding:1.25rem; background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-xl);">
-					<div style="font-size:0.8rem; font-weight:600; color:var(--text-muted); margin-bottom:0.25rem;">
-						{ i18n.T(lang, "customer.total_branches") }
+			<div class="cb-metrics-grid">
+				<div class="cb-metric-card">
+					<div style="font-size:0.8rem; font-weight:600; color:var(--text-muted);">
+						إجمالي الفروع المسجلة
 					</div>
-					<div style="font-size:1.75rem; font-weight:800; color:var(--text);" class="tabular-nums">{ fmt.Sprintf("%d", len(data.Branches)) }</div>
+					<div style="font-size:1.75rem; font-weight:800; color:var(--text);" class="tabular-nums">
+						{ fmt.Sprintf("%d", len(data.Branches)) } <span style="font-size:0.85rem; font-weight:600; color:var(--text-secondary);">فروع</span>
+					</div>
 				</div>
-				<div class="card" style="padding:1.25rem; background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-xl);">
-					<div style="font-size:0.8rem; font-weight:600; color:var(--text-muted); margin-bottom:0.25rem;">
-						{ i18n.T(lang, "customer.main_branch") }
+
+				<div class="cb-metric-card">
+					<div style="font-size:0.8rem; font-weight:600; color:var(--text-muted);">
+						الفرع الرئيسي للاستلام
 					</div>
 					<div style="font-size:1.15rem; font-weight:800; color:var(--accent);">
-						if len(data.Branches) > 0 {
-							<span>{ data.Branches[0].Name.Get(i18n.ParseLang(lang)) }</span>
+						if mb := data.GetMainBranch(); mb != nil {
+							<span>{ mb.Name.Get(i18n.ParseLang(lang)) }</span>
 						} else {
 							<span>غير محدد</span>
 						}
 					</div>
 				</div>
-				<div class="card" style="padding:1.25rem; background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-xl);">
-					<div style="font-size:0.8rem; font-weight:600; color:var(--text-muted); margin-bottom:0.25rem;">
-						{ i18n.T(lang, "customer.coverage_status") }
+
+				<div class="cb-metric-card">
+					<div style="font-size:0.8rem; font-weight:600; color:var(--text-muted);">
+						الموظفون والصيادلة
+					</div>
+					<div style="font-size:1.75rem; font-weight:800; color:var(--primary-600);" class="tabular-nums">
+						{ fmt.Sprintf("%d", len(data.Employees)) } <span style="font-size:0.85rem; font-weight:600; color:var(--text-secondary);">مستخدمين</span>
+					</div>
+				</div>
+
+				<div class="cb-metric-card">
+					<div style="font-size:0.8rem; font-weight:600; color:var(--text-muted);">
+						حالة التغطية والشحن
 					</div>
 					<div style="display:flex; align-items:center; gap:0.4rem; margin-top:0.25rem;">
-						<span class="badge badge-emerald" style="font-size:0.775rem;">
-							{ i18n.T(lang, "customer.active_covered") }
+						<span class="badge badge-emerald text-xs fw-700">
+							@components.IconCheckCircle("icon-xs")
+							<span>جاهز لتلقي طلبيات التوريد</span>
 						</span>
 					</div>
 				</div>
 			</div>
 
-			<!-- Main 2-Column Split Layout -->
-			<div style="display:grid; grid-template-columns:1.2fr 1fr; gap:1.75rem; align-items:start;">
-				
-				<!-- Left Column: Existing Pharmacy Branches List -->
-				<div class="stack">
-					<div style="font-size:1.1rem; font-weight:800; color:var(--text); display:flex; align-items:center; gap:0.5rem;">
-						@components.IconBuilding("icon-xs")
-						<span>قائمة فروع الصيدلية الحالية</span>
-					</div>
+			<!-- Navigation Tabs -->
+			<div class="cb-tabs-nav">
+				<button
+					type="button"
+					id="cb-tab-btn-branches"
+					onclick="switchCustomerBranchTab('branches')"
+					class={ "cb-tab-btn", templ.KV("active", data.ActiveTab != "employees") }
+				>
+					@components.IconBuilding("icon-xs")
+					<span>شبكة الفروع ومواقع الاستلام ({ fmt.Sprintf("%d", len(data.Branches)) })</span>
+				</button>
+				<button
+					type="button"
+					id="cb-tab-btn-employees"
+					onclick="switchCustomerBranchTab('employees')"
+					class={ "cb-tab-btn", templ.KV("active", data.ActiveTab == "employees") }
+				>
+					@components.IconUser("icon-xs")
+					<span>موظفو ومستخدمو الفروع والصلاحيات ({ fmt.Sprintf("%d", len(data.Employees)) })</span>
+				</button>
+			</div>
 
-					if len(data.Branches) == 0 {
-						<div style="padding:2.5rem; text-align:center; background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-2xl);">
-							<div style="font-size:2rem; margin-bottom:0.5rem;">🏥</div>
-							<h3 style="font-size:1.1rem; font-weight:700; color:var(--text); margin-bottom:0.4rem;">لم تقم بإضافة فروع بعد</h3>
-							<p style="font-size:0.85rem; color:var(--text-muted); margin-bottom:1rem;">أضف فرع صيدليتك الرئيسي لتتمكن من تصفح العروض وتحديد نطاق التوريد المتاح لمنطقتك.</p>
+			<!-- TAB 1: Branches Network Content -->
+			<div id="cb-tab-panel-branches" style={ fmt.Sprintf("display: %s;", func() string { if data.ActiveTab == "employees" { return "none" }; return "block" }()) }>
+				<div class="cb-split-grid">
+					
+					<!-- Left Column: Existing Pharmacy Branches List -->
+					<div style="display:flex; flex-direction:column; gap:1rem;">
+						<div style="font-size:1.05rem; font-weight:800; color:var(--text); display:flex; align-items:center; justify-content:space-between;">
+							<div style="display:flex; align-items:center; gap:0.5rem;">
+								@components.IconBuilding("icon-xs")
+								<span>فروع الصيدلية المعتمدة</span>
+							</div>
+							<span class="badge badge-sky text-xs fw-700">{ fmt.Sprintf("%d فروع", len(data.Branches)) }</span>
 						</div>
-					} else {
-						<div class="stack">
-							for _, b := range data.Branches {
-								<div style="background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-xl); padding:1.25rem; display:flex; flex-direction:column; gap:0.85rem;">
-									<div style="display:flex; justify-content:space-between; align-items:flex-start; gap:0.5rem;">
-										<div>
-											<div class="row-center-sm">
-												<strong style="font-size:1.05rem; color:var(--text);">
-													if b.Name["ar"] != "" {
-														{ b.Name["ar"] }
-													} else {
-														{ b.Name["en"] }
+
+						if len(data.Branches) == 0 {
+							<div style="padding:2.5rem; text-align:center; background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-xl);">
+								<div style="font-size:2rem; margin-bottom:0.5rem;">🏥</div>
+								<h3 style="font-size:1.1rem; font-weight:700; color:var(--text); margin-bottom:0.4rem;">لم تقم بإضافة فروع بعد</h3>
+								<p style="font-size:0.85rem; color:var(--text-muted); margin-bottom:1rem;">أضف فرع صيدليتك الرئيسي لتتمكن من تصفح العروض وتحديد نطاق التوريد المتاح لمنطقتك.</p>
+							</div>
+						} else {
+							<div style="display:flex; flex-direction:column; gap:1rem;">
+								for _, b := range data.Branches {
+									<div class="cb-branch-card">
+										<div style="display:flex; justify-content:space-between; align-items:flex-start; gap:0.75rem; flex-wrap:wrap;">
+											<div>
+												<div style="display:flex; align-items:center; gap:0.5rem; flex-wrap:wrap;">
+													<strong style="font-size:1.1rem; font-weight:800; color:var(--text);">
+														if b.Name["ar"] != "" {
+															{ b.Name["ar"] }
+														} else {
+															{ b.Name["en"] }
+														}
+													</strong>
+													if b.IsMain {
+														<span class="badge badge-emerald text-xs fw-700">الفرع الرئيسي</span>
 													}
-												</strong>
-												if b.IsMain {
-													<span class="badge badge-emerald text-xs">الفرع الرئيسي</span>
+													if b.Status == "inactive" {
+														<span class="badge badge-slate text-xs">معطل</span>
+													} else {
+														<span class="badge badge-emerald text-xs">نشط</span>
+													}
+												</div>
+												if b.Code != "" {
+													<span class="badge badge-slate tabular-nums text-xs" style="margin-top:0.25rem;">كود: { b.Code }</span>
 												}
 											</div>
-											if b.Code != "" {
-												<span class="badge badge-slate tabular-nums" style="font-size:0.7rem; margin-top:0.25rem;">كود: { b.Code }</span>
+
+											<div style="display:flex; align-items:center; gap:0.4rem;">
+												<!-- Edit Branch Button -->
+												<button
+													type="button"
+													class="btn btn-secondary btn-xs fw-700"
+													data-modal-open={ fmt.Sprintf("edit-branch-modal-%d", b.ID) }
+													style="gap:0.25rem;"
+												>
+													<span>تعديل</span>
+												</button>
+
+												<!-- Add Employee to Branch Button -->
+												<button
+													type="button"
+													class="btn btn-secondary btn-xs fw-700"
+													data-modal-open="add-employee-modal"
+													onclick={ templ.ComponentScript{Call: fmt.Sprintf("setTimeout(function(){ var sel=document.querySelector('#add-emp-branch-select'); if(sel) sel.value='%d'; }, 50);", b.ID)} }
+													style="gap:0.25rem; color:var(--primary-600);"
+													title="إضافة موظف لهذا الفرع"
+												>
+													@components.IconPlus("icon-xs")
+													<span>موظف</span>
+												</button>
+
+												<!-- Delete Branch Button -->
+												if !b.IsMain {
+													<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/customer/branches/%d/delete", b.ID)) } class="m-0" onsubmit="return confirm('هل أنت متأكد من حذف هذا الفرع؟');">
+														<button type="submit" class="btn btn-secondary btn-xs" style="color:var(--danger); border-color:rgba(255, 71, 87, 0.2);">
+															<span>حذف</span>
+														</button>
+													</form>
+												}
+											</div>
+										</div>
+
+										<div style="font-size:0.85rem; color:var(--text-secondary); display:flex; flex-direction:column; gap:0.35rem;">
+											if b.Address != "" {
+												<div><span class="text-muted">العنوان: </span><strong class="text-primary">{ b.Address }</strong></div>
+											}
+											if b.Phone != "" {
+												<div><span class="text-muted">الهاتف: </span><strong class="tabular-nums text-primary">{ b.Phone }</strong></div>
+											}
+											if b.OperatingHours != "" {
+												<div><span class="text-muted">ساعات العمل: </span><strong class="tabular-nums">{ b.OperatingHours }</strong></div>
 											}
 										</div>
 
-										<div class="row-center-sm">
-											if !b.IsMain {
-												<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/customer/branches/%d/delete", b.ID)) } class="m-0" onsubmit="return confirm('هل أنت متأكد من حذف هذا الفرع؟');">
-													<button type="submit" class="btn btn-secondary btn-xs" style="color:var(--danger); border-color:rgba(255, 71, 87, 0.2);">
-														<span>حذف</span>
-													</button>
-												</form>
-											}
+										<!-- Badges Strip: Cold Storage & Staff Count -->
+										<div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:0.5rem; background:var(--surface-sunken); padding:0.6rem 0.85rem; border-radius:var(--radius-lg); font-size:0.775rem; border:1px solid var(--border);">
+											<div style="display:flex; align-items:center; gap:0.5rem; flex-wrap:wrap;">
+												<!-- Coordinates -->
+												<div style="display:flex; align-items:center; gap:0.35rem; color:var(--accent);">
+													<span>📍 الإحداثيات:</span>
+													if b.Latitude != nil && b.Longitude != nil {
+														<span class="tabular-nums fw-700">{ fmt.Sprintf("%.4f, %.4f", *b.Latitude, *b.Longitude) }</span>
+													} else {
+														<span class="text-muted">غير محددة</span>
+													}
+												</div>
+
+												if b.HasColdStorage {
+													<span class="badge badge-sky text-xs">❄️ مجهز بتبريد 2-8°C</span>
+												}
+											</div>
+
+											<div style="display:flex; align-items:center; gap:0.65rem;">
+												<!-- Assigned Staff Pill -->
+												{{ branchEmps := data.GetBranchEmployees(b.ID) }}
+												<span class="badge badge-secondary text-xs" style="font-weight:700;">
+													👥 { fmt.Sprintf("%d موظف بالفرع", len(branchEmps)) }
+												</span>
+
+												<!-- Google Maps Link -->
+												if b.GoogleMapsURL != "" {
+													<a href={ templ.SafeURL(b.GoogleMapsURL) } target="_blank" rel="noopener" style="color:var(--accent); font-weight:700; text-decoration:none; font-size:0.75rem;">
+														عرض على الخريطة ↗
+													</a>
+												} else if b.Latitude != nil && b.Longitude != nil {
+													<a href={ templ.SafeURL(fmt.Sprintf("https://www.google.com/maps?q=%f,%f", *b.Latitude, *b.Longitude)) } target="_blank" rel="noopener" style="color:var(--accent); font-weight:700; text-decoration:none; font-size:0.75rem;">
+														عرض على الخريطة ↗
+													</a>
+												}
+											</div>
 										</div>
 									</div>
-
-									<div style="font-size:0.825rem; color:var(--text-secondary); display:flex; flex-direction:column; gap:0.3rem;">
-										if b.Address != "" {
-											<div><span>العنوان: </span><strong class="text-primary">{ b.Address }</strong></div>
-										}
-										if b.Phone != "" {
-											<div><span>الهاتف: </span><strong class="tabular-nums text-primary">{ b.Phone }</strong></div>
-										}
-									</div>
-
-									<!-- Coordinates Badge & Google Maps Link -->
-									<div style="display:flex; justify-content:space-between; align-items:center; background:var(--surface-sunken); padding:0.5rem 0.75rem; border-radius:var(--radius-lg); font-size:0.775rem;">
-										<div style="display:flex; align-items:center; gap:0.4rem; color:var(--accent);">
-											<span>📍 الإحداثيات:</span>
-											if b.Latitude != nil && b.Longitude != nil {
-												<span class="tabular-nums fw-700">{ fmt.Sprintf("%.4f, %.4f", *b.Latitude, *b.Longitude) }</span>
-											} else {
-												<span class="text-muted">غير محددة</span>
-											}
-										</div>
-
-										if b.GoogleMapsURL != "" {
-											<a href={ templ.SafeURL(b.GoogleMapsURL) } target="_blank" rel="noopener" style="color:var(--accent); font-weight:700; text-decoration:none; font-size:0.75rem;">
-												عرض على الخريطة ↗
-											</a>
-										} else if b.Latitude != nil && b.Longitude != nil {
-											<a href={ templ.SafeURL(fmt.Sprintf("https://www.google.com/maps?q=%f,%f", *b.Latitude, *b.Longitude)) } target="_blank" rel="noopener" style="color:var(--accent); font-weight:700; text-decoration:none; font-size:0.75rem;">
-												عرض على الخريطة ↗
-											</a>
-										}
-									</div>
-								</div>
-							}
-						</div>
-					}
-				</div>
-
-				<!-- Right Column: Add New Pharmacy Branch Form -->
-				<div id="new-branch-form" style="background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-2xl); padding:1.75rem; position:sticky; top:calc(var(--header-height) + 1.5rem);">
-					<div style="display:flex; align-items:center; gap:0.6rem; margin-bottom:1.25rem; border-bottom:1px solid var(--border); padding-bottom:0.75rem;">
-						<div style="width:36px; height:36px; border-radius:var(--radius-lg); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center;">
-							@components.IconPlus("icon-xs")
-						</div>
-						<div>
-							<h3 class="text-lg fw-800 text-primary m-0">
-								إضافة فرع صيدلية جديد
-							</h3>
-							<p style="font-size:0.775rem; color:var(--text-muted); margin:0.15rem 0 0 0;">
-								أدخل بيانات الفرع وموقعه الجغرافي على الخريطة
-							</p>
-						</div>
+								}
+							</div>
+						}
 					</div>
 
-					<form method="POST" action="/customer/branches/new" style="display:flex; flex-direction:column; gap:1.1rem;">
-						<div style="display:grid; grid-template-columns:1fr 1fr; gap:0.75rem;">
-							<div>
-								<label class="form-label">
-									اسم الفرع بالعربية <span class="text-danger">*</span>
-								</label>
-								<input type="text" name="name_ar" required placeholder="صيدلية الأمل - فرع المعادي" class="form-input w-full"/>
+					<!-- Right Column: Add New Pharmacy Branch Form -->
+					<div id="new-branch-form" style="background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-xl); padding:1.5rem; position:sticky; top:calc(var(--header-height) + 1.5rem); box-shadow:var(--shadow-xs);">
+						<div style="display:flex; align-items:center; gap:0.6rem; margin-bottom:1.25rem; border-bottom:1px solid var(--border); padding-bottom:0.75rem;">
+							<div style="width:36px; height:36px; border-radius:var(--radius-lg); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center;">
+								@components.IconPlus("icon-xs")
 							</div>
 							<div>
-								<label class="form-label">
-									اسم الفرع بالإنجليزية
+								<h3 class="text-base fw-800 text-primary m-0">
+									إضافة فرع صيدلية جديد
+								</h3>
+								<p style="font-size:0.775rem; color:var(--text-muted); margin:0.15rem 0 0 0;">
+									أدخل بيانات الفرع وموقعه على الخريطة لتفعيل التغطية
+								</p>
+							</div>
+						</div>
+
+						<form method="POST" action="/customer/branches/new" style="display:flex; flex-direction:column; gap:1rem;">
+							<div style="display:grid; grid-template-columns:1fr 1fr; gap:0.75rem;">
+								<div>
+									<label class="form-label" style="font-size:0.8rem; font-weight:700;">
+										اسم الفرع بالعربية <span class="text-danger">*</span>
+									</label>
+									<input type="text" name="name_ar" required placeholder="صيدلية الأمل - المعادي" class="form-input input-sm w-full"/>
+								</div>
+								<div>
+									<label class="form-label" style="font-size:0.8rem; font-weight:700;">
+										اسم الفرع بالإنجليزية
+									</label>
+									<input type="text" name="name_en" placeholder="Al Amal - Maadi" class="form-input input-sm w-full"/>
+								</div>
+							</div>
+
+							<div style="display:grid; grid-template-columns:1fr 1fr; gap:0.75rem;">
+								<div>
+									<label class="form-label" style="font-size:0.8rem; font-weight:700;">
+										كود الفرع الداخلي
+									</label>
+									<input type="text" name="code" placeholder="PH-01" class="form-input input-sm tabular-nums w-full"/>
+								</div>
+								<div>
+									<label class="form-label" style="font-size:0.8rem; font-weight:700;">
+										المدينة / المحافظة <span class="text-danger">*</span>
+									</label>
+									<select name="city_id" required class="form-input input-sm w-full">
+										<option value="">-- اختر المدينة / المحافظة --</option>
+										for _, c := range data.Cities {
+											<option
+												value={ fmt.Sprintf("%d", c.ID) }
+												data-lat={ fmt.Sprintf("%.6f", c.Latitude) }
+												data-lng={ fmt.Sprintf("%.6f", c.Longitude) }
+											>
+												if c.Name["ar"] != "" {
+													{ c.Name["ar"] }
+												} else {
+													{ c.Name["en"] }
+												}
+											</option>
+										}
+									</select>
+								</div>
+							</div>
+
+							<div>
+								<label class="form-label" style="font-size:0.8rem; font-weight:700;">
+									العنوان التفصيلي <span class="text-danger">*</span>
 								</label>
-								<input type="text" name="name_en" placeholder="Al Amal Pharmacy - Maadi" class="form-input w-full"/>
+								<input type="text" name="address" required placeholder="شارع النصر، أمام مستشفى المعادي" class="form-input input-sm w-full"/>
+							</div>
+
+							<div style="display:grid; grid-template-columns:1fr 1fr; gap:0.75rem;">
+								<div>
+									<label class="form-label" style="font-size:0.8rem; font-weight:700;">
+										رقم هاتف الفرع
+									</label>
+									<input type="tel" name="phone" placeholder="01012345678" class="form-input input-sm tabular-nums w-full"/>
+								</div>
+								<div>
+									<label class="form-label" style="font-size:0.8rem; font-weight:700;">
+										ساعات العمل
+									</label>
+									<input type="text" name="operating_hours" placeholder="09:00 - 23:00" class="form-input input-sm w-full"/>
+								</div>
+							</div>
+
+							<!-- Leaflet Map Picker with Auto-Pan -->
+							<div class="stack-xs">
+								<label style="display:block; font-size:0.775rem; font-weight:700; color:var(--text-secondary);">
+									🗺️ موقع الفرع على الخريطة (سيتم التحريك تلقائياً عند اختيار المدينة)
+								</label>
+								<div data-map-picker data-default-lat="30.0444" data-default-lon="31.2357" style="border-radius:var(--radius-lg); overflow:hidden; border:1px solid var(--border); background:var(--surface-sunken); position:relative;">
+									<div class="map-container map-canvas" style="height:190px; width:100%; z-index:1;"></div>
+									<div style="display:flex; justify-content:space-between; align-items:center; padding:0.4rem 0.75rem; background:var(--surface-raised); border-top:1px solid var(--border); font-size:0.75rem;">
+										<span data-map-coords-badge class="tabular-nums fw-700 text-primary">30.0444, 31.2357</span>
+										<button type="button" data-map-locate class="btn btn-secondary btn-xs fw-700">📍 موقعي</button>
+									</div>
+									<input type="hidden" name="latitude" data-map-input="lat" value="30.0444"/>
+									<input type="hidden" name="longitude" data-map-input="lon" value="31.2357"/>
+								</div>
+							</div>
+
+							<div>
+								<label class="form-label" style="font-size:0.775rem; font-weight:700;">
+									🔗 رابط خرائط Google (اختياري)
+								</label>
+								<input type="url" name="google_maps_url" data-map-google-url placeholder="https://maps.google.com/?q=30.0444,31.2357" class="form-input input-sm w-full" style="font-size:0.75rem;"/>
+							</div>
+
+							<div style="display:flex; flex-direction:column; gap:0.5rem; background:var(--surface-sunken); padding:0.75rem 0.85rem; border-radius:var(--radius-md); border:1px solid var(--border);">
+								<label style="display:flex; align-items:center; gap:0.5rem; cursor:pointer; font-size:0.8rem; font-weight:700; color:var(--text);">
+									<input type="checkbox" name="has_cold_storage" value="true" style="width:16px; height:16px; accent-color:var(--accent);"/>
+									<span>❄️ تتوفر ثلاجة لحفظ وتبريد الأدوية (2-8°C)</span>
+								</label>
+								<label style="display:flex; align-items:center; gap:0.5rem; cursor:pointer; font-size:0.8rem; font-weight:700; color:var(--text);">
+									<input type="checkbox" name="is_main" value="true" style="width:16px; height:16px; accent-color:var(--accent);"/>
+									<span>تعيين كفرع رئيسي لاستلام طلبيات الصيدلية</span>
+								</label>
+							</div>
+
+							<button type="submit" class="btn btn-primary btn-sm" style="font-weight:800; padding:0.6rem; width:100%; justify-content:center;">
+								@components.IconCheck("icon-xs")
+								<span>حفظ وإضافة فرع الصيدلية</span>
+							</button>
+						</form>
+					</div>
+				</div>
+			</div>
+
+			<!-- TAB 2: Branch Employees & RBAC Content -->
+			<div id="cb-tab-panel-employees" style={ fmt.Sprintf("display: %s;", func() string { if data.ActiveTab == "employees" { return "block" }; return "none" }()) }>
+				
+				<!-- Employees Toolbar -->
+				<div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.85rem; margin-bottom:1.25rem;">
+					<div style="display:flex; align-items:center; gap:0.65rem; flex:1; min-width:280px; max-width:500px;">
+						<div style="position:relative; flex:1;">
+							<input
+								type="text"
+								id="cb-emp-search-input"
+								placeholder="ابحث باسم الموظف، البريد، أو الكود..."
+								class="form-input input-sm w-full"
+								style="padding-inline-start:2rem;"
+								oninput="filterCustomerEmployees()"
+							/>
+							<div style="position:absolute; inset-inline-start:0.65rem; top:50%; transform:translateY(-50%); color:var(--text-muted); pointer-events:none;">
+								@components.IconSearch("icon-xs")
+							</div>
+						</div>
+
+						<select id="cb-emp-branch-filter" class="form-input input-sm" style="width:180px;" onchange="filterCustomerEmployees()">
+							<option value="">كل الفروع</option>
+							for _, b := range data.Branches {
+								<option value={ fmt.Sprintf("%d", b.ID) }>
+									if b.Name["ar"] != "" {
+										{ b.Name["ar"] }
+									} else {
+										{ b.Name["en"] }
+									}
+								</option>
+							}
+						</select>
+					</div>
+
+					<button type="button" class="btn btn-primary btn-sm fw-700" data-modal-open="add-employee-modal">
+						@components.IconPlus("icon-xs")
+						<span>إضافة مستخدم جديد للفرع</span>
+					</button>
+				</div>
+
+				if len(data.Employees) == 0 {
+					<div class="card" style="padding:3.5rem 1.5rem; text-align:center; background:var(--surface-raised); border-radius:var(--radius-xl); border:1px solid var(--border);">
+						@components.IconUser("icon-lg")
+						<h3 style="font-size:1.1rem; font-weight:800; color:var(--text); margin:0.85rem 0 0.35rem 0;">لم يتم تسجيل موظفين بعد</h3>
+						<p class="text-sm text-muted m-0">أضف موظفي وصيادلة الفروع وقم بتعيين أدوارهم وصلاحياتهم لإدارة الطلبيات والمخزون.</p>
+					</div>
+				} else {
+					<!-- High-Density Swiss B2B Employees Table -->
+					<div class="cb-emp-table-wrap">
+						<table class="sp-table" id="customer-employees-table">
+							<thead>
+								<tr>
+									<th>الموظف والبيانات الشخصية</th>
+									<th>الفرع المعين به</th>
+									<th>المسمى الوظيفي</th>
+									<th>الدور والصلاحيات</th>
+									<th>الحالة</th>
+									<th style="text-align:center;">الإجراءات</th>
+								</tr>
+							</thead>
+							<tbody>
+								for _, emp := range data.Employees {
+									if emp != nil && emp.Member != nil {
+										<tr data-emp-name={ strings.ToLower(emp.UserName + " " + emp.UserEmail + " " + emp.Member.EmployeeCode) } data-branch-id={ fmt.Sprintf("%d", func() int64 { if emp.Member.BranchID != nil { return *emp.Member.BranchID }; return 0 }()) }>
+											<!-- Personal Info -->
+											<td>
+												<div style="display:flex; align-items:center; gap:0.75rem;">
+													<div style="width:38px; height:38px; border-radius:var(--radius-full); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center; font-weight:800; font-size:0.85rem; border:1px solid var(--border); flex-shrink:0;">
+														if len(emp.UserName) >= 2 {
+															{ string([]rune(emp.UserName)[0:1]) }
+														} else {
+															<span>👤</span>
+														}
+													</div>
+													<div style="display:flex; flex-direction:column; gap:0.15rem;">
+														<div style="font-weight:800; color:var(--text); font-size:0.925rem;">
+															{ emp.UserName }
+														</div>
+														<div style="font-size:0.75rem; color:var(--text-muted); display:flex; gap:0.5rem; align-items:center;">
+															<span>{ emp.UserEmail }</span>
+															if emp.Member.EmployeeCode != "" {
+																<span class="badge badge-slate tabular-nums" style="font-size:0.65rem;">{ emp.Member.EmployeeCode }</span>
+															}
+														</div>
+													</div>
+												</div>
+											</td>
+
+											<!-- Branch Assignment -->
+											<td>
+												if emp.Member.BranchID != nil && *emp.Member.BranchID > 0 {
+													<div style="display:flex; align-items:center; gap:0.4rem;">
+														<span class="badge badge-primary text-xs fw-700">
+															🏥 { data.GetBranchName(emp.Member.BranchID) }
+														</span>
+														if emp.IsManager {
+															<span class="badge badge-emerald text-xs">⭐ مدير الفرع</span>
+														}
+													</div>
+												} else {
+													<span class="badge badge-slate text-xs text-muted">
+														غير معين بفرع
+													</span>
+												}
+											</td>
+
+											<!-- Job Title -->
+											<td>
+												if emp.Member.JobTitle != "" {
+													<span style="font-weight:700; color:var(--text); font-size:0.875rem;">{ emp.Member.JobTitle }</span>
+												} else {
+													<span class="text-xs text-muted">-</span>
+												}
+											</td>
+
+											<!-- Role & Permissions -->
+											<td>
+												<span class={ "badge text-xs fw-700", cbRoleBadgeClass(emp.Member.RoleKey) }>
+													{ cbRoleLabelArabic(emp.Member.RoleKey) }
+												</span>
+											</td>
+
+											<!-- Status -->
+											<td>
+												if emp.Member.IsActive {
+													<span class="badge badge-emerald text-xs fw-700">نشط</span>
+												} else {
+													<span class="badge badge-slate text-xs">معطل</span>
+												}
+											</td>
+
+											<!-- Actions -->
+											<td style="text-align:center;">
+												<div style="display:flex; align-items:center; justify-content:center; gap:0.35rem;">
+													<!-- Edit Button -->
+													<button
+														type="button"
+														class="btn btn-secondary btn-xs fw-700"
+														data-modal-open={ fmt.Sprintf("edit-emp-modal-%d", emp.Member.ID) }
+														title="تعديل بيانات وصلاحيات الموظف"
+													>
+														<span>تعديل</span>
+													</button>
+
+													<!-- Toggle Status -->
+													<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/customer/employees/%d/status", emp.Member.ID)) } class="m-0">
+														<button type="submit" class="btn btn-secondary btn-xs" title="تبديل حالة التفعيل">
+															if emp.Member.IsActive {
+																<span style="color:var(--warning-text);">تعطيل</span>
+															} else {
+																<span style="color:var(--success-text);">تفعيل</span>
+															}
+														</button>
+													</form>
+
+													<!-- Delete Button -->
+													<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/customer/employees/%d/delete", emp.Member.UserID)) } class="m-0" onsubmit="return confirm('هل أنت متأكد من حذف هذا الموظف وإلغاء ربطه بالفرع؟');">
+														<button type="submit" class="btn btn-secondary btn-xs" style="color:var(--danger); border-color:rgba(255,71,87,0.2);" title="حذف وإلغاء الربط">
+															<span>حذف</span>
+														</button>
+													</form>
+												</div>
+											</td>
+										</tr>
+									}
+								}
+							</tbody>
+						</table>
+					</div>
+				}
+			</div>
+
+			<!-- MODALS -->
+
+			<!-- 1. Edit Branch Modals (for each branch) -->
+			for _, b := range data.Branches {
+				<div id={ fmt.Sprintf("edit-branch-modal-%d", b.ID) } class="modal-overlay hidden">
+					<div class="modal-card" style="max-width:580px; padding:1.75rem; background:var(--surface-raised); border-radius:var(--radius-xl); border:1px solid var(--border); box-shadow:var(--shadow-lg); max-height:90vh; overflow-y:auto;">
+						<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.25rem; border-bottom:1px solid var(--border); padding-bottom:0.75rem;">
+							<div style="display:flex; align-items:center; gap:0.5rem;">
+								@components.IconBuilding("icon-sm")
+								<h3 class="text-base fw-800 text-primary m-0">
+									تعديل بيانات فرع الصيدلية
+								</h3>
+							</div>
+							<button type="button" class="btn btn-secondary btn-icon" data-modal-close={ fmt.Sprintf("edit-branch-modal-%d", b.ID) } style="border:none;">
+								@components.IconClose("icon-sm")
+							</button>
+						</div>
+
+						<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/customer/branches/%d/edit", b.ID)) } style="display:flex; flex-direction:column; gap:1rem;">
+							<div style="display:grid; grid-template-columns:1fr 1fr; gap:0.75rem;">
+								<div>
+									<label class="form-label" style="font-size:0.8rem; font-weight:700;">اسم الفرع بالعربية <span class="text-danger">*</span></label>
+									<input type="text" name="name_ar" value={ b.Name.Get(i18n.AR) } required class="form-input input-sm w-full"/>
+								</div>
+								<div>
+									<label class="form-label" style="font-size:0.8rem; font-weight:700;">اسم الفرع بالإنجليزية</label>
+									<input type="text" name="name_en" value={ b.Name.Get(i18n.EN) } class="form-input input-sm w-full"/>
+								</div>
+							</div>
+
+							<div style="display:grid; grid-template-columns:1fr 1fr; gap:0.75rem;">
+								<div>
+									<label class="form-label" style="font-size:0.8rem; font-weight:700;">كود الفرع الداخلي</label>
+									<input type="text" name="code" value={ b.Code } class="form-input input-sm tabular-nums w-full"/>
+								</div>
+								<div>
+									<label class="form-label" style="font-size:0.8rem; font-weight:700;">المدينة / المحافظة <span class="text-danger">*</span></label>
+									<select name="city_id" required class="form-input input-sm w-full">
+										<option value="">-- اختر المدينة / المحافظة --</option>
+										for _, c := range data.Cities {
+											<option
+												value={ fmt.Sprintf("%d", c.ID) }
+												data-lat={ fmt.Sprintf("%.6f", c.Latitude) }
+												data-lng={ fmt.Sprintf("%.6f", c.Longitude) }
+												selected?={ b.CityID != nil && *b.CityID == c.ID }
+											>
+												if c.Name["ar"] != "" {
+													{ c.Name["ar"] }
+												} else {
+													{ c.Name["en"] }
+												}
+											</option>
+										}
+									</select>
+								</div>
+							</div>
+
+							<div>
+								<label class="form-label" style="font-size:0.8rem; font-weight:700;">العنوان التفصيلي <span class="text-danger">*</span></label>
+								<input type="text" name="address" value={ b.Address } required class="form-input input-sm w-full"/>
+							</div>
+
+							<div style="display:grid; grid-template-columns:1fr 1fr; gap:0.75rem;">
+								<div>
+									<label class="form-label" style="font-size:0.8rem; font-weight:700;">رقم هاتف الفرع</label>
+									<input type="tel" name="phone" value={ b.Phone } class="form-input input-sm tabular-nums w-full"/>
+								</div>
+								<div>
+									<label class="form-label" style="font-size:0.8rem; font-weight:700;">ساعات العمل</label>
+									<input type="text" name="operating_hours" value={ b.OperatingHours } class="form-input input-sm w-full"/>
+								</div>
+							</div>
+
+							<!-- Map Picker in Edit Modal -->
+							<div class="stack-xs">
+								<label style="display:block; font-size:0.775rem; font-weight:700; color:var(--text-secondary);">
+									🗺️ تعديل موقع الفرع على الخريطة
+								</label>
+								{{
+									curLat := "30.0444"
+									curLon := "31.2357"
+									if b.Latitude != nil { curLat = fmt.Sprintf("%.6f", *b.Latitude) }
+									if b.Longitude != nil { curLon = fmt.Sprintf("%.6f", *b.Longitude) }
+								}}
+								<div data-map-picker data-default-lat={ curLat } data-default-lon={ curLon } style="border-radius:var(--radius-lg); overflow:hidden; border:1px solid var(--border); background:var(--surface-sunken); position:relative;">
+									<div class="map-container map-canvas" style="height:180px; width:100%; z-index:1;"></div>
+									<div style="display:flex; justify-content:space-between; align-items:center; padding:0.4rem 0.75rem; background:var(--surface-raised); border-top:1px solid var(--border); font-size:0.75rem;">
+										<span data-map-coords-badge class="tabular-nums fw-700 text-primary">{ curLat }, { curLon }</span>
+										<button type="button" data-map-locate class="btn btn-secondary btn-xs fw-700">📍 موقعي</button>
+									</div>
+									<input type="hidden" name="latitude" data-map-input="lat" value={ curLat }/>
+									<input type="hidden" name="longitude" data-map-input="lon" value={ curLon }/>
+								</div>
+							</div>
+
+							<div>
+								<label class="form-label" style="font-size:0.775rem; font-weight:700;">🔗 رابط خرائط Google</label>
+								<input type="url" name="google_maps_url" value={ b.GoogleMapsURL } class="form-input input-sm w-full" style="font-size:0.75rem;"/>
+							</div>
+
+							<div style="display:flex; flex-direction:column; gap:0.5rem; background:var(--surface-sunken); padding:0.75rem 0.85rem; border-radius:var(--radius-md); border:1px solid var(--border);">
+								<label style="display:flex; align-items:center; gap:0.5rem; cursor:pointer; font-size:0.8rem; font-weight:700; color:var(--text);">
+									<input type="checkbox" name="has_cold_storage" value="true" checked?={ b.HasColdStorage } style="width:16px; height:16px; accent-color:var(--accent);"/>
+									<span>❄️ تتوفر ثلاجة لحفظ وتبريد الأدوية (2-8°C)</span>
+								</label>
+								<label style="display:flex; align-items:center; gap:0.5rem; cursor:pointer; font-size:0.8rem; font-weight:700; color:var(--text);">
+									<input type="checkbox" name="is_main" value="true" checked?={ b.IsMain } style="width:16px; height:16px; accent-color:var(--accent);"/>
+									<span>تعيين كفرع رئيسي لاستلام الطلبيات</span>
+								</label>
+							</div>
+
+							<div style="display:flex; justify-content:flex-end; gap:0.6rem; margin-top:0.5rem;">
+								<button type="button" class="btn btn-secondary btn-sm" data-modal-close={ fmt.Sprintf("edit-branch-modal-%d", b.ID) }>إلغاء</button>
+								<button type="submit" class="btn btn-primary btn-sm fw-700">
+									@components.IconCheck("icon-xs")
+									<span>حفظ التعديلات</span>
+								</button>
+							</div>
+						</form>
+					</div>
+				</div>
+			}
+
+			<!-- 2. Add Employee Modal -->
+			<div id="add-employee-modal" class="modal-overlay hidden">
+				<div class="modal-card" style="max-width:540px; padding:1.75rem; background:var(--surface-raised); border-radius:var(--radius-xl); border:1px solid var(--border); box-shadow:var(--shadow-lg);">
+					<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.25rem; border-bottom:1px solid var(--border); padding-bottom:0.75rem;">
+						<div style="display:flex; align-items:center; gap:0.5rem;">
+							@components.IconUser("icon-sm")
+							<h3 class="text-base fw-800 text-primary m-0">
+								إضافة مستخدم / موظف جديد للصيدلية
+							</h3>
+						</div>
+						<button type="button" class="btn btn-secondary btn-icon" data-modal-close="add-employee-modal" style="border:none;">
+							@components.IconClose("icon-sm")
+						</button>
+					</div>
+
+					<form method="POST" action="/customer/employees/new" style="display:flex; flex-direction:column; gap:1rem;">
+						<div style="display:grid; grid-template-columns:1fr 1fr; gap:0.75rem;">
+							<div>
+								<label class="form-label" style="font-size:0.8rem; font-weight:700;">اسم الموظف بالكامل <span class="text-danger">*</span></label>
+								<input type="text" name="name" required placeholder="د. أحمد محمد" class="form-input input-sm w-full"/>
+							</div>
+							<div>
+								<label class="form-label" style="font-size:0.8rem; font-weight:700;">البريد الإلكتروني <span class="text-danger">*</span></label>
+								<input type="email" name="email" required placeholder="ahmed@pharmacy.com" class="form-input input-sm w-full"/>
 							</div>
 						</div>
 
 						<div style="display:grid; grid-template-columns:1fr 1fr; gap:0.75rem;">
 							<div>
-								<label class="form-label">
-									كود الفرع الداخلي
-								</label>
-								<input type="text" name="code" placeholder="PH-01" class="form-input tabular-nums w-full"/>
+								<label class="form-label" style="font-size:0.8rem; font-weight:700;">رقم الهاتف للتواصل</label>
+								<input type="tel" name="phone" placeholder="01099887766" class="form-input input-sm tabular-nums w-full"/>
 							</div>
 							<div>
-								<label class="form-label">
-									المحافظة / المدينة <span class="text-danger">*</span>
-								</label>
-								<select name="city_id" required class="form-input w-full">
-									<option value="">-- اختر المدينة / المحافظة --</option>
-									for _, c := range data.Cities {
-										<option value={ fmt.Sprintf("%d", c.ID) }>
-											if c.Name["ar"] != "" {
-												{ c.Name["ar"] }
+								<label class="form-label" style="font-size:0.8rem; font-weight:700;">المسمى الوظيفي</label>
+								<input type="text" name="job_title" placeholder="صيدلي أول / مدير فرع" class="form-input input-sm w-full"/>
+							</div>
+						</div>
+
+						<div style="display:grid; grid-template-columns:1fr 1fr; gap:0.75rem;">
+							<div>
+								<label class="form-label" style="font-size:0.8rem; font-weight:700;">كود الموظف الداخلي</label>
+								<input type="text" name="employee_code" placeholder="EMP-01" class="form-input input-sm tabular-nums w-full"/>
+							</div>
+							<div>
+								<label class="form-label" style="font-size:0.8rem; font-weight:700;">كلمة المرور (اختياري)</label>
+								<input type="password" name="password" placeholder="اتركه فارغاً للتوليد التلقائي" class="form-input input-sm w-full"/>
+							</div>
+						</div>
+
+						<div style="display:grid; grid-template-columns:1fr 1fr; gap:0.75rem;">
+							<div>
+								<label class="form-label" style="font-size:0.8rem; font-weight:700;">الفرع التابع له الموظف <span class="text-danger">*</span></label>
+								<select id="add-emp-branch-select" name="branch_id" class="form-input input-sm w-full">
+									<option value="">-- عام (كافة الفروع) --</option>
+									for _, b := range data.Branches {
+										<option value={ fmt.Sprintf("%d", b.ID) }>
+											if b.Name["ar"] != "" {
+												{ b.Name["ar"] }
 											} else {
-												{ c.Name["en"] }
+												{ b.Name["en"] }
 											}
 										</option>
 									}
 								</select>
 							</div>
-						</div>
 
-						<div>
-							<label class="form-label">
-								العنوان التفصيلي <span class="text-danger">*</span>
-							</label>
-							<input type="text" name="address" required placeholder="شارع النصر، أمام مستشفى المعادي" class="form-input w-full"/>
-						</div>
-
-						<div>
-							<label class="form-label">
-								رقم الهاتف للتواصل
-							</label>
-							<input type="tel" name="phone" placeholder="01012345678" class="form-input tabular-nums w-full"/>
-						</div>
-
-						<!-- Leaflet Map Picker -->
-						<div class="stack-sm">
-							<label style="display:block; font-size:0.8rem; font-weight:700; color:var(--text-secondary);">
-								🗺️ موقع الفرع على الخريطة (OpenStreetMap / GPS)
-							</label>
-							<div data-map-picker data-default-lat="30.0444" data-default-lon="31.2357" style="border-radius:var(--radius-xl); overflow:hidden; border:1px solid var(--border); background:var(--surface-sunken); position:relative;">
-								<div class="map-container map-canvas" style="height:210px; width:100%; z-index:1;"></div>
-								<div style="display:flex; justify-content:space-between; align-items:center; padding:0.5rem 0.8rem; background:var(--surface-raised); border-top:1px solid var(--border); font-size:0.75rem;">
-									<span data-map-coords-badge class="tabular-nums" style="font-weight:700; color:var(--accent);">30.0444, 31.2357</span>
-									<button type="button" data-map-locate class="btn btn-secondary btn-xs fw-700">📍 موقعي</button>
-								</div>
-								<input type="hidden" name="latitude" data-map-input="lat" value="30.0444"/>
-								<input type="hidden" name="longitude" data-map-input="lon" value="31.2357"/>
+							<div>
+								<label class="form-label" style="font-size:0.8rem; font-weight:700;">الدور والصلاحيات (Role) <span class="text-danger">*</span></label>
+								<select name="role_key" required class="form-input input-sm w-full">
+									<option value="org_pharmacist">صيدلي مسؤول (طلب أدوية واستعراض)</option>
+									<option value="org_manager">مدير فرع (صلاحيات كاملة للفرع والمخزون)</option>
+									<option value="org_accountant">محاسب / مسؤول مشتريات (فواتير ومدفوعات)</option>
+									<option value="org_warehouse">أمين مخزن (استلام وجرد شحنات)</option>
+									<option value="org_employee">موظف صيدلية / فرع (تشغيل عام)</option>
+									<option value="org_admin">مدير عام المؤسسة (صلاحيات كاملة)</option>
+								</select>
 							</div>
 						</div>
 
-						<!-- Google Maps URL Input -->
-						<div>
-							<label class="form-label">
-								🔗 رابط خرائط Google (Google Maps URL)
-							</label>
-							<input type="url" name="google_maps_url" data-map-google-url placeholder="https://maps.google.com/?q=30.0444,31.2357" class="form-input" style="width:100%; font-size:0.8rem;"/>
+						<div style="display:flex; justify-content:flex-end; gap:0.6rem; margin-top:0.5rem;">
+							<button type="button" class="btn btn-secondary btn-sm" data-modal-close="add-employee-modal">إلغاء</button>
+							<button type="submit" class="btn btn-primary btn-sm fw-700">
+								@components.IconCheck("icon-xs")
+								<span>حفظ وإضافة الموظف</span>
+							</button>
 						</div>
-
-						<div style="background:var(--surface-sunken); padding:0.75rem 1rem; border-radius:var(--radius-lg); border:1px solid var(--border);">
-							<label style="display:flex; align-items:center; gap:0.5rem; cursor:pointer; font-size:0.825rem; font-weight:700; color:var(--text);">
-								<input type="checkbox" name="is_main" value="true" style="width:16px; height:16px; accent-color:var(--accent);"/>
-								<span>تعيين كفرع رئيسي لاستلام طلبيات الصيدلية</span>
-							</label>
-						</div>
-
-						<button type="submit" class="btn btn-primary" style="font-weight:800; padding:0.65rem; width:100%; justify-content:center;">
-							@components.IconCheck("icon-xs")
-							<span>حفظ وإضافة فرع الصيدلية</span>
-						</button>
 					</form>
 				</div>
 			</div>
+
+			<!-- 3. Edit Employee Modals (for each employee) -->
+			for _, emp := range data.Employees {
+				if emp != nil && emp.Member != nil {
+					<div id={ fmt.Sprintf("edit-emp-modal-%d", emp.Member.ID) } class="modal-overlay hidden">
+						<div class="modal-card" style="max-width:540px; padding:1.75rem; background:var(--surface-raised); border-radius:var(--radius-xl); border:1px solid var(--border); box-shadow:var(--shadow-lg);">
+							<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.25rem; border-bottom:1px solid var(--border); padding-bottom:0.75rem;">
+								<div style="display:flex; align-items:center; gap:0.5rem;">
+									@components.IconUser("icon-sm")
+									<h3 class="text-base fw-800 text-primary m-0">
+										تعديل بيانات وصلاحيات الموظف
+									</h3>
+								</div>
+								<button type="button" class="btn btn-secondary btn-icon" data-modal-close={ fmt.Sprintf("edit-emp-modal-%d", emp.Member.ID) } style="border:none;">
+									@components.IconClose("icon-sm")
+								</button>
+							</div>
+
+							<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/customer/employees/%d/edit", emp.Member.UserID)) } style="display:flex; flex-direction:column; gap:1rem;">
+								<div style="display:grid; grid-template-columns:1fr 1fr; gap:0.75rem;">
+									<div>
+										<label class="form-label" style="font-size:0.8rem; font-weight:700;">اسم الموظف</label>
+										<input type="text" value={ emp.UserName } disabled class="form-input input-sm w-full" style="opacity:0.8;"/>
+									</div>
+									<div>
+										<label class="form-label" style="font-size:0.8rem; font-weight:700;">البريد الإلكتروني</label>
+										<input type="email" value={ emp.UserEmail } disabled class="form-input input-sm w-full" style="opacity:0.8;"/>
+									</div>
+								</div>
+
+								<div style="display:grid; grid-template-columns:1fr 1fr; gap:0.75rem;">
+									<div>
+										<label class="form-label" style="font-size:0.8rem; font-weight:700;">المسمى الوظيفي</label>
+										<input type="text" name="job_title" value={ emp.Member.JobTitle } class="form-input input-sm w-full"/>
+									</div>
+									<div>
+										<label class="form-label" style="font-size:0.8rem; font-weight:700;">كود الموظف</label>
+										<input type="text" name="employee_code" value={ emp.Member.EmployeeCode } class="form-input input-sm tabular-nums w-full"/>
+									</div>
+								</div>
+
+								<div style="display:grid; grid-template-columns:1fr 1fr; gap:0.75rem;">
+									<div>
+										<label class="form-label" style="font-size:0.8rem; font-weight:700;">الفرع التابع له الموظف</label>
+										<select name="branch_id" class="form-input input-sm w-full">
+											<option value="">-- عام (كافة الفروع) --</option>
+											for _, b := range data.Branches {
+												<option value={ fmt.Sprintf("%d", b.ID) } selected?={ emp.Member.BranchID != nil && *emp.Member.BranchID == b.ID }>
+													if b.Name["ar"] != "" {
+														{ b.Name["ar"] }
+													} else {
+														{ b.Name["en"] }
+													}
+												</option>
+											}
+										</select>
+									</div>
+
+									<div>
+										<label class="form-label" style="font-size:0.8rem; font-weight:700;">الدور والصلاحيات</label>
+										<select name="role_key" required class="form-input input-sm w-full">
+											<option value="org_pharmacist" selected?={ emp.Member.RoleKey == "org_pharmacist" }>صيدلي مسؤول</option>
+											<option value="org_manager" selected?={ emp.Member.RoleKey == "org_manager" }>مدير فرع</option>
+											<option value="org_accountant" selected?={ emp.Member.RoleKey == "org_accountant" }>محاسب / مشتريات</option>
+											<option value="org_warehouse" selected?={ emp.Member.RoleKey == "org_warehouse" }>أمين مخزن</option>
+											<option value="org_employee" selected?={ emp.Member.RoleKey == "org_employee" }>موظف فرع</option>
+											<option value="org_admin" selected?={ emp.Member.RoleKey == "org_admin" }>مدير عام المؤسسة</option>
+										</select>
+									</div>
+								</div>
+
+								<div style="background:var(--surface-sunken); padding:0.65rem 0.85rem; border-radius:var(--radius-md); border:1px solid var(--border);">
+									<label style="display:flex; align-items:center; gap:0.5rem; cursor:pointer; font-size:0.8rem; font-weight:700; color:var(--text);">
+										<input type="checkbox" name="is_active" value="true" checked?={ emp.Member.IsActive } style="width:16px; height:16px; accent-color:var(--accent);"/>
+										<span>الموظف نشط ومصرح له بتسجيل الدخول والعمل على النظام</span>
+									</label>
+								</div>
+
+								<div style="display:flex; justify-content:flex-end; gap:0.6rem; margin-top:0.5rem;">
+									<button type="button" class="btn btn-secondary btn-sm" data-modal-close={ fmt.Sprintf("edit-emp-modal-%d", emp.Member.ID) }>إلغاء</button>
+									<button type="submit" class="btn btn-primary btn-sm fw-700">
+										@components.IconCheck("icon-xs")
+										<span>حفظ التعديلات</span>
+									</button>
+								</div>
+							</form>
+						</div>
+					</div>
+				}
+			}
+
 		</div>
+
+		<!-- Tab & Filter Client Scripts -->
+		<script>
+			function switchCustomerBranchTab(tabName) {
+				const branchesBtn = document.getElementById('cb-tab-btn-branches');
+				const empsBtn = document.getElementById('cb-tab-btn-employees');
+				const branchesPanel = document.getElementById('cb-tab-panel-branches');
+				const empsPanel = document.getElementById('cb-tab-panel-employees');
+
+				if (tabName === 'employees') {
+					if (branchesBtn) branchesBtn.classList.remove('active');
+					if (empsBtn) empsBtn.classList.add('active');
+					if (branchesPanel) branchesPanel.style.display = 'none';
+					if (empsPanel) empsPanel.style.display = 'block';
+				} else {
+					if (branchesBtn) branchesBtn.classList.add('active');
+					if (empsBtn) empsBtn.classList.remove('active');
+					if (branchesPanel) branchesPanel.style.display = 'block';
+					if (empsPanel) empsPanel.style.display = 'none';
+				}
+			}
+
+			function filterCustomerEmployees() {
+				const search = (document.getElementById('cb-emp-search-input')?.value || '').toLowerCase().trim();
+				const branchFilter = document.getElementById('cb-emp-branch-filter')?.value || '';
+				const rows = document.querySelectorAll('#customer-employees-table tbody tr');
+
+				rows.forEach(row => {
+					const nameStr = row.getAttribute('data-emp-name') || '';
+					const branchId = row.getAttribute('data-branch-id') || '';
+
+					const matchesSearch = !search || nameStr.includes(search);
+					const matchesBranch = !branchFilter || branchId === branchFilter;
+
+					if (matchesSearch && matchesBranch) {
+						row.style.display = '';
+					} else {
+						row.style.display = 'none';
+					}
+				});
+			}
+		</script>
 	}
 }
+

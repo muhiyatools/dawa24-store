@@ -1161,7 +1161,37 @@ function initMapPickers() {
       lonInput.addEventListener('input', onManualInputChange);
     }
 
-    // Radius Input Change Handler
+    // Radius Input & City Preset & Dropdown Selector (Auto-Pan & Zoom)
+    const parentScope = container.closest('form') || container.closest('.modal-card') || container.closest('.card') || document;
+    const citySelectors = parentScope.querySelectorAll('select[name="city_id"], select[name="branch_city_id"], [data-city-selector], [data-map-city]');
+    citySelectors.forEach((sel) => {
+      sel.addEventListener('change', (e) => {
+        const selEl = e.target;
+        const opt = selEl.selectedOptions && selEl.selectedOptions[0] ? selEl.selectedOptions[0] : null;
+        if (!opt) return;
+
+        let cLat = parseFloat(opt.dataset.lat || opt.getAttribute('data-lat'));
+        let cLon = parseFloat(opt.dataset.lng || opt.getAttribute('data-lng') || opt.dataset.lon || opt.getAttribute('data-lon'));
+
+        if (isNaN(cLat) || isNaN(cLon)) {
+          const val = selEl.value;
+          if (val && val.includes(',')) {
+            const parts = val.split(',').map((v) => parseFloat(v.trim()));
+            cLat = parts[0];
+            cLon = parts[1];
+          }
+        }
+
+        if (!isNaN(cLat) && !isNaN(cLon) && (cLat !== 0 || cLon !== 0)) {
+          updateCoordinates(cLat, cLon, 13);
+          const name = opt.text ? opt.text.trim() : '';
+          if (window.showToast && name && !name.startsWith('--')) {
+            showToast(`تم تحريك الخريطة تلقائياً إلى: ${name} 📍`, 'info');
+          }
+        }
+      });
+    });
+
     if (radiusInput && circle) {
       radiusInput.addEventListener('input', () => {
         const rad = parseInt(radiusInput.value, 10);
@@ -1196,38 +1226,7 @@ function initMapPickers() {
       gmapsInput.addEventListener('paste', () => setTimeout(onGmapsUrlInput, 50));
     }
 
-    // City Preset Selector
-    if (citySelect) {
-      citySelect.addEventListener('change', (e) => {
-        const val = e.target.value;
-        if (!val) return;
-        const [cLat, cLon] = val.split(',').map((v) => parseFloat(v.trim()));
-        if (!isNaN(cLat) && !isNaN(cLon)) {
-          updateCoordinates(cLat, cLon, 13);
-        }
-        if (e.target.selectedOptions && e.target.selectedOptions[0]) {
-          const opt = e.target.selectedOptions[0];
-          const cityId = opt.dataset.cityId;
-          const nameAr = opt.dataset.nameAr;
-          const nameEn = opt.dataset.nameEn;
 
-          if (cityId) {
-            document.querySelectorAll('[data-map-city-id], input[name="branch_city_id"], input[name="city_id"]').forEach((hi) => {
-              hi.value = cityId;
-            });
-          }
-
-          // Auto-fill city/governorate name inputs in Add City form if present
-          const parentForm = container.closest('form') || document.querySelector('#new-city-card form') || document.querySelector('form[action*="/cities/new"]');
-          if (parentForm) {
-            const nameArInput = parentForm.querySelector('input[name="name_ar"]');
-            const nameEnInput = parentForm.querySelector('input[name="name_en"]');
-            if (nameArInput && nameAr) nameArInput.value = nameAr;
-            if (nameEnInput && nameEn) nameEnInput.value = nameEn;
-          }
-        }
-      });
-    }
 
     // GPS Locate Me Button (High Accuracy)
     if (locateBtn) {
