@@ -6,6 +6,7 @@ import (
 	"io"
 	"math"
 	"net/http"
+	"path/filepath"
 	"strconv"
 	"strings"
 	"time"
@@ -16,6 +17,7 @@ import (
 	"github.com/muhiya/dawa24-store/internal/modules/compare"
 	"github.com/muhiya/dawa24-store/internal/modules/inventory"
 	"github.com/muhiya/dawa24-store/internal/modules/org"
+	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/platform/database"
 	"github.com/muhiya/dawa24-store/internal/shared/money"
 	"github.com/muhiya/dawa24-store/internal/shared/spreadsheet"
@@ -570,10 +572,26 @@ func (h *UIHandler) AdminTempWarehouseUploadSubmit(w http.ResponseWriter, r *htt
 
 	codeCol, nameCol, priceCol, discountCol := detectTempWarehouseCols(headers, customCode, customName, customPrice, customDiscount)
 
+	// Determine actor user ID / fallback
+	var userID int64 = 41
+	var orgID *int64
+	if actor, ok := authctx.From(ctx); ok {
+		if actor.UserID > 0 {
+			userID = actor.UserID
+		}
+		if actor.OrgID > 0 {
+			orgID = &actor.OrgID
+		}
+	}
+
 	// Create warehouse file in database
 	compareFile := &compare.CompareFile{
+		UserID:           userID,
+		OrganizationID:   orgID,
 		SupplierName:     supplierName,
 		OriginalFilename: header.Filename,
+		StorageKey:       fmt.Sprintf("temp_warehouses/%d_%s", time.Now().UnixNano(), filepath.Base(header.Filename)),
+		MIMEType:         "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
 		SizeBytes:        int64(len(fileBytes)),
 		Status:           compare.FileReady,
 		MappingConfig: compare.MappingConfig{
@@ -633,6 +651,7 @@ func (h *UIHandler) AdminTempWarehouseUploadSubmit(w http.ResponseWriter, r *htt
 
 		fileRows = append(fileRows, &compare.CompareFileRow{
 			FileID:             compareFile.ID,
+			OrganizationID:     orgID,
 			RowNumber:          idx + 2,
 			RawName:            rawName,
 			NormalizedName:     strings.ToLower(rawName),
@@ -734,6 +753,9 @@ func detectTempWarehouseCols(headers []string, customCode, customName, customPri
 // parsePriceFloat parses a numeric string into float64, converting Arabic numerals and commas.
 func parsePriceFloat(raw string) (float64, error) {
 	s := strings.TrimSpace(raw)
+	if s == "" {
+		return 0, fmt.Errorf("empty string")
+	}
 	s = strings.ReplaceAll(s, "٠", "0")
 	s = strings.ReplaceAll(s, "١", "1")
 	s = strings.ReplaceAll(s, "٢", "2")
@@ -746,16 +768,31 @@ func parsePriceFloat(raw string) (float64, error) {
 	s = strings.ReplaceAll(s, "٩", "9")
 	s = strings.ReplaceAll(s, "٫", ".")
 	s = strings.ReplaceAll(s, "%", "")
-	s = strings.ReplaceAll(s, ",", ".")
+	s = strings.ReplaceAll(s, "ج.م", "")
+	s = strings.ReplaceAll(s, "جم", "")
+	s = strings.ReplaceAll(s, "EGP", "")
+	s = strings.ReplaceAll(s, "egp", "")
+	s = strings.ReplaceAll(s, "LE", "")
+	s = strings.ReplaceAll(s, "le", "")
 	s = strings.TrimSpace(s)
 
+	if strings.Contains(s, ",") && strings.Contains(s, ".") {
+		s = strings.ReplaceAll(s, ",", "")
+	} else if strings.Contains(s, ",") {
+		s = strings.ReplaceAll(s, ",", ".")
+	}
+
 	var numStr strings.Builder
+	hasDot := false
 	foundDigit := false
 	for _, r := range s {
-		if (r >= '0' && r <= '9') || r == '.' {
+		if r >= '0' && r <= '9' {
 			numStr.WriteRune(r)
 			foundDigit = true
-		} else if foundDigit && r != ' ' {
+		} else if r == '.' && !hasDot {
+			numStr.WriteRune(r)
+			hasDot = true
+		} else if foundDigit && r != ' ' && r != '\t' {
 			break
 		}
 	}

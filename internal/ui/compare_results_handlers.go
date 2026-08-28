@@ -8,6 +8,7 @@ import (
 
 	"github.com/muhiya/dawa24-store/internal/modules/compare"
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
+	"github.com/muhiya/dawa24-store/internal/platform/database"
 	"github.com/muhiya/dawa24-store/internal/ui/pages"
 )
 
@@ -347,11 +348,9 @@ func (h *UIHandler) MarketDiscountsPage(w http.ResponseWriter, r *http.Request) 
 	ctx := r.Context()
 	lang, dir := h.localeAndDir(r)
 
-	// Authentication check
-	actor, ok := authctx.From(ctx)
-	if !ok {
-		http.Redirect(w, r, "/auth/login?redirect=/market-discounts", http.StatusSeeOther)
-		return
+	var actor authctx.Actor
+	if a, ok := authctx.From(ctx); ok {
+		actor = a
 	}
 
 	query := strings.TrimSpace(r.URL.Query().Get("q"))
@@ -415,7 +414,7 @@ func (h *UIHandler) MarketDiscountsPage(w http.ResponseWriter, r *http.Request) 
 
 	var result *compare.MarketDiscountsResult
 	if h.compareSvc != nil {
-		res, err := h.compareSvc.ListMarketDiscounts(ctx, filter)
+		res, err := h.compareSvc.ListMarketDiscounts(database.AsSystem(ctx), filter)
 		if err != nil {
 			h.log.ErrorContext(ctx, "list market discounts error", "error", err)
 		} else {

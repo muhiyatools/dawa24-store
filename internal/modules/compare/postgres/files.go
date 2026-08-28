@@ -39,7 +39,7 @@ func scanFile(row pgx.Row) (*compare.CompareFile, error) {
 }
 
 func (r *Repository) CreateFile(ctx context.Context, f *compare.CompareFile) error {
-	return r.db.InTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
+	return r.db.InTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
 		query := `
 			INSERT INTO compare.files (
 				organization_id, user_id, supplier_name, original_filename, storage_key,
@@ -60,7 +60,7 @@ func (r *Repository) CreateFile(ctx context.Context, f *compare.CompareFile) err
 
 func (r *Repository) GetFileByID(ctx context.Context, id int64) (*compare.CompareFile, error) {
 	var f *compare.CompareFile
-	err := r.db.InReadTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
+	err := r.db.InReadTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
 		query := `SELECT ` + fileColumns + ` FROM compare.files WHERE id = $1 AND deleted_at IS NULL;`
 		var err error
 		f, err = scanFile(tx.QueryRow(txCtx, query, id))
@@ -77,7 +77,7 @@ func (r *Repository) GetFileByID(ctx context.Context, id int64) (*compare.Compar
 
 func (r *Repository) GetFileByPublicID(ctx context.Context, publicID string) (*compare.CompareFile, error) {
 	var f *compare.CompareFile
-	err := r.db.InReadTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
+	err := r.db.InReadTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
 		query := `SELECT ` + fileColumns + ` FROM compare.files WHERE public_id = $1::uuid AND deleted_at IS NULL;`
 		var err error
 		f, err = scanFile(tx.QueryRow(txCtx, query, publicID))
@@ -94,7 +94,7 @@ func (r *Repository) GetFileByPublicID(ctx context.Context, publicID string) (*c
 
 func (r *Repository) ListFiles(ctx context.Context, userID int64, orgID *int64, status *compare.CompareFileStatus) ([]*compare.CompareFile, error) {
 	var list []*compare.CompareFile
-	err := r.db.InReadTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
+	err := r.db.InReadTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
 		query := `
 			SELECT ` + fileColumns + `
 			FROM compare.files
@@ -131,7 +131,7 @@ func (r *Repository) ListFiles(ctx context.Context, userID int64, orgID *int64, 
 
 func (r *Repository) ListAllFiles(ctx context.Context, search string, status *compare.CompareFileStatus) ([]*compare.CompareFile, error) {
 	var list []*compare.CompareFile
-	err := r.db.InReadTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
+	err := r.db.InReadTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
 		var whereClauses []string
 		var args []any
 		argIdx := 1
@@ -279,7 +279,7 @@ func (r *Repository) ArchiveOldestFiles(ctx context.Context, userID int64, orgID
 }
 
 func (r *Repository) ArchiveFile(ctx context.Context, id int64, reason string) error {
-	return r.db.InTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
+	return r.db.InTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
 		now := time.Now().UTC()
 		res, err := tx.Exec(txCtx, `UPDATE compare.files SET status = 'archived', archived_at = $2, archive_reason = $3, updated_at = $2 WHERE id = $1 AND deleted_at IS NULL;`, id, now, reason)
 		if err != nil {
@@ -293,7 +293,7 @@ func (r *Repository) ArchiveFile(ctx context.Context, id int64, reason string) e
 }
 
 func (r *Repository) UnarchiveFile(ctx context.Context, id int64) error {
-	return r.db.InTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
+	return r.db.InTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
 		res, err := tx.Exec(txCtx, `UPDATE compare.files SET status = 'ready', archived_at = NULL, archive_reason = NULL, updated_at = now() WHERE id = $1 AND deleted_at IS NULL;`, id)
 		if err != nil {
 			return err
@@ -306,7 +306,7 @@ func (r *Repository) UnarchiveFile(ctx context.Context, id int64) error {
 }
 
 func (r *Repository) DeleteFile(ctx context.Context, id int64) error {
-	return r.db.InTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
+	return r.db.InTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
 		res, err := tx.Exec(txCtx, `UPDATE compare.files SET deleted_at = now() WHERE id = $1 AND deleted_at IS NULL;`, id)
 		if err != nil {
 			return err
@@ -347,7 +347,7 @@ func (r *Repository) InsertFileRows(ctx context.Context, rows []*compare.Compare
 	if len(rows) == 0 {
 		return nil
 	}
-	return r.db.InTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
+	return r.db.InTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
 		batch := &pgx.Batch{}
 		query := `
 			INSERT INTO compare.file_rows (
@@ -380,7 +380,7 @@ func (r *Repository) ListFileRows(ctx context.Context, fileID int64, limit, offs
 		limit = 100
 	}
 	var list []*compare.CompareFileRow
-	err := r.db.InReadTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
+	err := r.db.InReadTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
 		query := `
 			SELECT ` + rowColumns + `
 			FROM compare.file_rows
@@ -712,7 +712,7 @@ func (r *Repository) SearchFileRows(ctx context.Context, userID int64, orgID *in
 
 func (r *Repository) ListDistinctSuppliers(ctx context.Context) ([]string, error) {
 	var suppliers []string
-	err := r.db.InReadTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
+	err := r.db.InReadTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
 		rows, err := tx.Query(txCtx, `
 			SELECT DISTINCT f.supplier_name 
 			FROM compare.files f
@@ -829,7 +829,7 @@ func (r *Repository) ListMarketDiscounts(ctx context.Context, filter compare.Mar
 		TotalPages: 1,
 	}
 
-	err := r.db.InReadTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
+	err := r.db.InReadTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
 		rows, err := tx.Query(txCtx, sql, args...)
 		if err != nil {
 			return err
