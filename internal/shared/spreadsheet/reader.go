@@ -63,7 +63,22 @@ func SniffFormat(data []byte) Format {
 
 // ReadRows parses all rows from a spreadsheet byte buffer regardless of whether it is
 // .xlsx, .xls, .csv, XML-Spreadsheet 2003, or an HTML table.
+//
+// Every cell is scrubbed of NUL and other C0 control bytes before it is
+// returned. Legacy BIFF .xls in particular carries NUL padding inside its
+// string records, and PostgreSQL rejects those outright in a text column
+// ("invalid byte sequence for encoding UTF8: 0x00"), which fails the whole
+// import batch on a byte the user cannot see.
 func ReadRows(data []byte) ([][]string, error) {
+	rows, err := readRowsRaw(data)
+	if err != nil {
+		return nil, err
+	}
+	scrubRows(rows)
+	return rows, nil
+}
+
+func readRowsRaw(data []byte) ([][]string, error) {
 	if len(data) == 0 {
 		return nil, errors.New("empty file data")
 	}
@@ -97,6 +112,63 @@ func ReadRows(data []byte) ([][]string, error) {
 		}
 		return readCSV(data)
 	}
+}
+
+// scrubRows cleans every cell in place.
+func scrubRows(rows [][]string) {
+	for _, row := range rows {
+		for i, cell := range row {
+			row[i] = ScrubCell(cell)
+		}
+	}
+}
+
+// ScrubCell removes NUL and other C0 control characters from a cell, repairs
+// invalid UTF-8, and trims surrounding whitespace. Tab, newline and carriage
+// return are treated as spaces rather than dropped, so words either side of
+// them do not run together.
+func ScrubCell(s string) string {
+	if s == "" {
+		return s
+	}
+	if !strings.ContainsFunc(s, needsScrub) && utf8.ValidString(s) {
+		return strings.TrimSpace(s)
+	}
+
+	var b strings.Builder
+	b.Grow(len(s))
+	for _, r := range s {
+		switch {
+		case r == utf8.RuneError:
+			// Dropped: an undecodable byte carries no meaning here.
+		case isSpaceControl(r):
+			b.WriteRune(0x20)
+		case isScrubbable(r):
+			// NUL and the remaining C0/C1 controls are dropped outright.
+		default:
+			b.WriteRune(r)
+		}
+	}
+	return strings.TrimSpace(b.String())
+}
+
+// needsScrub reports any character ScrubCell would rewrite or drop.
+func needsScrub(r rune) bool {
+	return isScrubbable(r) || isSpaceControl(r)
+}
+
+// isSpaceControl reports the control characters that stand in for a space.
+func isSpaceControl(r rune) bool {
+	return r == 0x09 || r == 0x0a || r == 0x0d
+}
+
+// isScrubbable reports a character PostgreSQL will not accept in a text
+// column, or that carries no meaning in a spreadsheet cell.
+func isScrubbable(r rune) bool {
+	if isSpaceControl(r) {
+		return false
+	}
+	return r == 0 || r < 0x20 || (r >= 0x7f && r <= 0x9f)
 }
 
 // ReadHeadersAndPreview extracts the first detected header row and up to previewCount subsequent rows.

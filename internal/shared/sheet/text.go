@@ -108,6 +108,8 @@ func CleanCell(s string) string {
 			r = ' '
 		case r == '​', r == '‌', r == '‍', r == '‎', r == '‏', r == '\uFEFF':
 			continue // invisible: drop rather than turn into a space
+		case isControlByte(r):
+			continue // NUL and other control bytes: PostgreSQL rejects these in a text column
 		case unicode.IsSpace(r):
 			r = ' '
 		}
@@ -122,6 +124,17 @@ func CleanCell(s string) string {
 		b.WriteRune(r)
 	}
 	return strings.TrimSpace(b.String())
+}
+
+// isControlByte reports a byte PostgreSQL refuses to store in a text column.
+// Legacy BIFF .xls pads its string records with NUL, and a single one fails an
+// entire insert batch with "invalid byte sequence for encoding UTF8: 0x00".
+// Tab, CR and LF are excluded: the caller folds those into spaces.
+func isControlByte(r rune) bool {
+	if r == 0x09 || r == 0x0a || r == 0x0d {
+		return false
+	}
+	return r == 0 || r < 0x20 || (r >= 0x7f && r <= 0x9f)
 }
 
 // NormalizeKey reduces a header label to its comparable core: folded Arabic

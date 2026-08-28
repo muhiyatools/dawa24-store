@@ -2,7 +2,6 @@ package compare
 
 import (
 	"context"
-	"encoding/csv"
 	"fmt"
 	"io"
 	"log/slog"
@@ -613,39 +612,6 @@ func (s *Service) ProcessCompareFile(ctx context.Context, fileID int64) error {
 	file.Status = FileReady
 	file.ErrorMessage = ""
 	return s.repo.UpdateFile(ctx, file)
-}
-
-// parseCSV parses a CSV file using the column mapping.
-func (s *Service) parseCSV(reader io.Reader, file *CompareFile) ([]*CompareFileRow, error) {
-	csvReader := csv.NewReader(reader)
-	csvReader.FieldsPerRecord = -1
-	csvReader.TrimLeadingSpace = true
-
-	headers, err := csvReader.Read()
-	if err != nil {
-		return nil, fmt.Errorf("read csv headers: %w", err)
-	}
-
-	var rows []*CompareFileRow
-	rowNumber := 1
-
-	for {
-		record, err := csvReader.Read()
-		if err == io.EOF {
-			break
-		}
-		if err != nil {
-			continue // skip corrupted line
-		}
-
-		row := s.extractRowFromRecord(record, headers, file, rowNumber)
-		if row != nil {
-			rows = append(rows, row)
-		}
-		rowNumber++
-	}
-
-	return rows, nil
 }
 
 // parseSpreadsheet parses any supported workbook - .xlsx, legacy .xls, the XML

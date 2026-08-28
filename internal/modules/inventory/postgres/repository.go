@@ -223,11 +223,13 @@ func (r *Repository) ListStocksByWarehouse(ctx context.Context, warehouseID int6
 	var list []*inventory.Stock
 	err := r.db.InReadTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
 		query := `
-			SELECT id, organization_id, warehouse_id, product_id, product_variant_id,
-			       quantity, min_threshold, negotiation, created_at, updated_at, deleted_at
-			FROM inventory.stocks
-			WHERE warehouse_id = $1 AND deleted_at IS NULL
-			ORDER BY id ASC;
+			SELECT s.id, s.organization_id, s.warehouse_id, s.product_id, s.product_variant_id,
+			       s.quantity, s.min_threshold, s.negotiation, s.created_at, s.updated_at, s.deleted_at
+			FROM inventory.stocks s
+			JOIN catalog.products p ON p.id = s.product_id AND p.deleted_at IS NULL
+			JOIN catalog.product_variants v ON v.id = s.product_variant_id AND v.deleted_at IS NULL
+			WHERE s.warehouse_id = $1 AND s.deleted_at IS NULL
+			ORDER BY s.id ASC;
 		`
 		rows, err := tx.Query(txCtx, query, warehouseID)
 		if err != nil {
@@ -276,8 +278,8 @@ func (r *Repository) ListDetailedStocksByWarehouse(ctx context.Context, warehous
 			       COALESCE(v.status, 'active'),
 			       s.updated_at
 			FROM inventory.stocks s
-			LEFT JOIN catalog.products p ON p.id = s.product_id AND p.deleted_at IS NULL
-			LEFT JOIN catalog.product_variants v ON v.id = s.product_variant_id AND v.deleted_at IS NULL
+			JOIN catalog.products p ON p.id = s.product_id AND p.deleted_at IS NULL
+			JOIN catalog.product_variants v ON v.id = s.product_variant_id AND v.deleted_at IS NULL
 			WHERE s.warehouse_id = $1 AND s.deleted_at IS NULL
 			ORDER BY s.id ASC;
 		`
@@ -310,11 +312,13 @@ func (r *Repository) ListStocksByOrg(ctx context.Context, orgID int64) ([]*inven
 	var list []*inventory.Stock
 	err := r.db.InReadTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
 		query := `
-			SELECT id, organization_id, warehouse_id, product_id, product_variant_id,
-			       quantity, min_threshold, negotiation, created_at, updated_at, deleted_at
-			FROM inventory.stocks
-			WHERE organization_id = $1 AND deleted_at IS NULL
-			ORDER BY id ASC;
+			SELECT s.id, s.organization_id, s.warehouse_id, s.product_id, s.product_variant_id,
+			       s.quantity, s.min_threshold, s.negotiation, s.created_at, s.updated_at, s.deleted_at
+			FROM inventory.stocks s
+			JOIN catalog.products p ON p.id = s.product_id AND p.deleted_at IS NULL
+			JOIN catalog.product_variants v ON v.id = s.product_variant_id AND v.deleted_at IS NULL
+			WHERE s.organization_id = $1 AND s.deleted_at IS NULL
+			ORDER BY s.id ASC;
 		`
 		rows, err := tx.Query(txCtx, query, orgID)
 		if err != nil {

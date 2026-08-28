@@ -137,7 +137,7 @@ func (r *Repository) UpdateProduct(ctx context.Context, p *catalog.Product) erro
 	})
 }
 
-// DeleteProduct soft-deletes a product.
+// DeleteProduct soft-deletes a product, its variants, and associated warehouse stocks.
 func (r *Repository) DeleteProduct(ctx context.Context, id int64) error {
 	return r.db.InTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
 		query := `UPDATE catalog.products SET deleted_at = now() WHERE id = $1 AND deleted_at IS NULL;`
@@ -148,6 +148,11 @@ func (r *Repository) DeleteProduct(ctx context.Context, id int64) error {
 		if res.RowsAffected() == 0 {
 			return apperr.NotFound("product")
 		}
+
+		// Cascade soft-delete to child variants and stocks
+		_, _ = tx.Exec(txCtx, `UPDATE catalog.product_variants SET deleted_at = now() WHERE product_id = $1 AND deleted_at IS NULL;`, id)
+		_, _ = tx.Exec(txCtx, `UPDATE inventory.stocks SET deleted_at = now() WHERE product_id = $1 AND deleted_at IS NULL;`, id)
+
 		return nil
 	})
 }
