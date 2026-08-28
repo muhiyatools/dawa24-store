@@ -17,7 +17,7 @@ import (
 	"github.com/muhiya/dawa24-store/internal/ui/pages"
 )
 
-// JobsPage renders the public job board.
+// JobsPage renders the job board (public or authenticated in customer/vendor dashboard).
 func (h *UIHandler) JobsPage(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	if !features.Enabled(ctx, "jobs.enabled") {
@@ -25,19 +25,66 @@ func (h *UIHandler) JobsPage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	lang, dir := h.localeAndDir(r)
+	actor, isLoggedIn := authctx.From(ctx)
 
-	var jobs []*hr.JobOffer
+	var rawJobs []*hr.JobOffer
 	if h.hrSvc != nil {
-		jobs, _ = h.hrSvc.ListPublishedJobs(ctx, 50, 0)
+		rawJobs, _ = h.hrSvc.ListPublishedJobs(ctx, 100, 0)
+	}
+
+	// Enrich with organization names
+	orgNames := make(map[int64]string)
+	if h.orgSvc != nil {
+		for _, j := range rawJobs {
+			if _, exists := orgNames[j.OrganizationID]; !exists && j.OrganizationID > 0 {
+				if o, err := h.orgSvc.GetOrganization(ctx, j.OrganizationID); err == nil && o != nil {
+					cName := o.TradeName.Get(i18n.ParseLang(lang))
+					if cName == "" {
+						cName = o.LegalName
+					}
+					if cName != "" {
+						orgNames[j.OrganizationID] = cName
+					}
+				}
+			}
+		}
+	}
+
+	var jobItems []*pages.JobItemView
+	for _, j := range rawJobs {
+		compName := orgNames[j.OrganizationID]
+		if compName == "" {
+			compName = "جهة صيدلانية معتمدة"
+		}
+		jobItems = append(jobItems, &pages.JobItemView{
+			Job:         j,
+			CompanyName: compName,
+			IsVerified:  true,
+		})
+	}
+
+	// The post job button shows ONLY for vendors & staff, NEVER for pharmacy customers
+	canPost := isLoggedIn && (actor.IsVendor() || actor.IsStaff)
+
+	data := pages.JobsPageData{
+		Jobs:       jobItems,
+		TotalCount: len(jobItems),
+		Cities:     h.listCities(ctx),
+		Actor:      actor,
+		IsLoggedIn: isLoggedIn,
+		IsCustomer: isLoggedIn && actor.IsCustomer(),
+		IsVendor:   isLoggedIn && actor.IsVendor(),
+		IsAdmin:    isLoggedIn && actor.IsStaff,
+		CanPostJob: canPost,
 	}
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	if err := pages.JobsPage(lang, dir, jobs).Render(ctx, w); err != nil {
+	if err := pages.JobsPage(data, lang, dir).Render(ctx, w); err != nil {
 		h.log.ErrorContext(ctx, "render jobs page", "error", err)
 	}
 }
 
-// JobDetailPage renders one vacancy with an apply form (publicly viewable, auth required for apply).
+// JobDetailPage renders one vacancy with an apply form (adapted to dashboard shell).
 func (h *UIHandler) JobDetailPage(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	lang, dir := h.localeAndDir(r)
@@ -54,6 +101,16 @@ func (h *UIHandler) JobDetailPage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	compName := "جهة صيدلانية معتمدة"
+	if h.orgSvc != nil && j.OrganizationID > 0 {
+		if o, err := h.orgSvc.GetOrganization(ctx, j.OrganizationID); err == nil && o != nil {
+			compName = o.TradeName.Get(i18n.ParseLang(lang))
+			if compName == "" {
+				compName = o.LegalName
+			}
+		}
+	}
+
 	actor, isLoggedIn := authctx.From(ctx)
 	userEmail, userName, userPhone := "", "", ""
 	if isLoggedIn && h.idSvc != nil {
@@ -64,8 +121,22 @@ func (h *UIHandler) JobDetailPage(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
+	data := pages.JobDetailData{
+		Job:         j,
+		CompanyName: compName,
+		Actor:       actor,
+		IsLoggedIn:  isLoggedIn,
+		IsCustomer:  isLoggedIn && actor.IsCustomer(),
+		IsVendor:    isLoggedIn && actor.IsVendor(),
+		IsAdmin:     isLoggedIn && actor.IsStaff,
+		Submitted:   false,
+		UserEmail:   userEmail,
+		UserName:    userName,
+		UserPhone:   userPhone,
+	}
+
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	if err := pages.JobDetail(lang, dir, j, false, isLoggedIn, userEmail, userName, userPhone).Render(ctx, w); err != nil {
+	if err := pages.JobDetail(data, lang, dir).Render(ctx, w); err != nil {
 		h.log.ErrorContext(ctx, "render job detail", "error", err)
 	}
 }
@@ -93,6 +164,16 @@ func (h *UIHandler) JobApplySubmit(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	compName := "جهة صيدلانية معتمدة"
+	if h.orgSvc != nil && offer.OrganizationID > 0 {
+		if o, err := h.orgSvc.GetOrganization(ctx, offer.OrganizationID); err == nil && o != nil {
+			compName = o.TradeName.Get(i18n.ParseLang(lang))
+			if compName == "" {
+				compName = o.LegalName
+			}
+		}
+	}
+
 	// Process attached CV
 	cvURL, _ := saveUploadedFile(r, "resume_file", "resumes")
 
@@ -100,10 +181,11 @@ func (h *UIHandler) JobApplySubmit(w http.ResponseWriter, r *http.Request) {
 		JobOfferID:      offerID,
 		OrganizationID:  offer.OrganizationID,
 		ApplicantUserID: &actor.UserID,
-		ApplicantName:   r.PostFormValue("applicant_name"),
-		ApplicantEmail:  r.PostFormValue("applicant_email"),
-		ApplicantPhone:  r.PostFormValue("applicant_phone"),
+		ApplicantName:   strings.TrimSpace(r.PostFormValue("applicant_name")),
+		ApplicantEmail:  strings.TrimSpace(r.PostFormValue("applicant_email")),
+		ApplicantPhone:  strings.TrimSpace(r.PostFormValue("applicant_phone")),
 		CVStorageKey:    cvURL,
+		Notes:           strings.TrimSpace(r.PostFormValue("notes")),
 		Status:          "pending",
 	}
 	if err := h.hrSvc.ApplyToJob(ctx, app); err != nil {
@@ -111,9 +193,23 @@ func (h *UIHandler) JobApplySubmit(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Re-render with the success state so the visitor stays on the page.
+	// Re-render with the success state so the applicant stays on the page.
+	data := pages.JobDetailData{
+		Job:         offer,
+		CompanyName: compName,
+		Actor:       actor,
+		IsLoggedIn:  true,
+		IsCustomer:  actor.IsCustomer(),
+		IsVendor:    actor.IsVendor(),
+		IsAdmin:     actor.IsStaff,
+		Submitted:   true,
+		UserEmail:   app.ApplicantEmail,
+		UserName:    app.ApplicantName,
+		UserPhone:   app.ApplicantPhone,
+	}
+
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	if err := pages.JobDetail(lang, dir, offer, true, true, app.ApplicantEmail, app.ApplicantName, app.ApplicantPhone).Render(ctx, w); err != nil {
+	if err := pages.JobDetail(data, lang, dir).Render(ctx, w); err != nil {
 		h.log.ErrorContext(ctx, "render job detail after apply", "error", err)
 	}
 }

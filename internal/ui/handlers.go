@@ -357,6 +357,11 @@ func (h *UIHandler) RegisterCustomerRoutes(r chi.Router) {
 	r.Post("/customer/employees/{id}/delete", h.CustomerEmployeeDeleteSubmit)
 	r.Post("/customer/employees/{id}/status", h.CustomerEmployeeStatusSubmit)
 
+	// Pharmacy Jobs & Careers (in-dashboard)
+	r.Get("/customer/jobs", h.JobsPage)
+	r.Get("/customer/jobs/{id}", h.JobDetailPage)
+	r.Post("/customer/jobs/{id}/apply", h.JobApplySubmit)
+
 	// Customer interactions
 	r.Post("/suppliers/{id}/follow", h.SupplierFollowSubmit)
 	r.Post("/suppliers/{id}/message", h.SupplierMessageSubmit)

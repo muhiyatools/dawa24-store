@@ -101,7 +101,7 @@ templ CustomerShell(title string, activeNav string, lang string, dir string, per
 							@components.IconSparkles("icon-sm")
 							<span>{ i18n.T(lang, "nav.subscription_and_membership") }</span>
 						</a>
-						<a href="/jobs" class={ "sidebar-link", templ.KV("active", activeNav == "jobs") }>
+						<a href="/customer/jobs" class={ "sidebar-link", templ.KV("active", activeNav == "jobs") }>
 							@components.IconBriefcase("icon-sm")
 							<span>{ i18n.T(lang, "nav.jobs_and_careers") }</span>
 						</a>
