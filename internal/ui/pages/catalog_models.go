@@ -99,28 +99,49 @@ type ProductDetailViewData struct {
 	LowestPrice    money.Amount
 }
 
-// CatalogPageData encapsulates filter inputs and variant card results for the catalog page.
+// CatalogPageData encapsulates filter inputs, pagination metadata, and variant card results for the catalog page.
 type CatalogPageData struct {
-	Variants   []*SupplierVariantCard
-	Categories []*catalog.Category
-	Query      string
-	CategoryID *int64
-	MinPrice   string
-	MaxPrice   string
-	DosageForm string
-	Sort       string
-	InStock    bool
+	Variants        []*SupplierVariantCard
+	Categories      []*catalog.Category
+	Brands          []*catalog.Brand
+	Query           string
+	CategoryID      *int64
+	BrandID         *int64
+	MinPrice        string
+	MaxPrice        string
+	DosageForm      string
+	Sort            string
+	InStock         bool
+	HasDiscount     bool
+	ViewMode        string // "grid" or "table"
+	Page            int
+	PageSize        int
+	TotalItems      int
+	TotalPages      int
+	HasPrev         bool
+	HasNext         bool
+	PrevPage        int
+	NextPage        int
+	StartItem       int
+	EndItem         int
+	ActiveCategory  string
+	ActiveBrand     string
 }
 
 // CatalogFilterParams encapsulates filter inputs for the catalog page.
 type CatalogFilterParams struct {
-	Query      string
-	CategoryID *int64
-	MinPrice   string
-	MaxPrice   string
-	DosageForm string
-	Sort       string
-	InStock    bool
+	Query       string
+	CategoryID  *int64
+	BrandID     *int64
+	MinPrice    string
+	MaxPrice    string
+	DosageForm  string
+	Sort        string
+	InStock     bool
+	HasDiscount bool
+	ViewMode    string
+	Page        int
+	PageSize    int
 }
 
 // IngestWizardData contains comprehensive state for the multi-step ingest wizard.

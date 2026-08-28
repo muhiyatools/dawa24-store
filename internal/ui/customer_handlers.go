@@ -25,13 +25,40 @@ import (
 
 func (h *UIHandler) CustomerCatalogPage(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	query := r.URL.Query().Get("q")
 	lang, dir := h.localeAndDir(r)
+
+	// 1. Security & Anti-Scraping / Bot Defense
+	// Honeypot trap check: if filled by a scraper/bot, return empty page safely
+	if botTrap := r.URL.Query().Get("company_tax_ref"); botTrap != "" {
+		w.Header().Set("Content-Type", "text/html; charset=utf-8")
+		_ = pages.CustomerCatalog(pages.CatalogPageData{
+			Page:     1,
+			PageSize: 24,
+			ViewMode: "grid",
+		}, lang, dir, h.isHTMX(r)).Render(ctx, w)
+		return
+	}
+
+	w.Header().Set("X-Content-Type-Options", "nosniff")
+	w.Header().Set("X-Frame-Options", "SAMEORIGIN")
+
+	// Sanitize and cap search query string to prevent ReDoS / query stuffing
+	query := strings.TrimSpace(r.URL.Query().Get("q"))
+	if len(query) > 80 {
+		query = query[:80]
+	}
 
 	var categoryID *int64
 	if v := r.URL.Query().Get("category_id"); v != "" {
-		if id, err := strconv.ParseInt(v, 10, 64); err == nil {
+		if id, err := strconv.ParseInt(v, 10, 64); err == nil && id > 0 {
 			categoryID = &id
+		}
+	}
+
+	var brandID *int64
+	if v := r.URL.Query().Get("brand_id"); v != "" {
+		if id, err := strconv.ParseInt(v, 10, 64); err == nil && id > 0 {
+			brandID = &id
 		}
 	}
 
@@ -39,38 +66,74 @@ func (h *UIHandler) CustomerCatalogPage(w http.ResponseWriter, r *http.Request) 
 	minPriceStr := r.URL.Query().Get("min_price")
 	maxPriceStr := r.URL.Query().Get("max_price")
 	if minPriceStr != "" {
-		if a, err := money.Parse(minPriceStr); err == nil {
+		if a, err := money.Parse(minPriceStr); err == nil && a.IsPositive() {
 			minPrice = &a
 		}
 	}
 	if maxPriceStr != "" {
-		if a, err := money.Parse(maxPriceStr); err == nil {
+		if a, err := money.Parse(maxPriceStr); err == nil && a.IsPositive() {
 			maxPrice = &a
 		}
 	}
 
-	dosageForm := r.URL.Query().Get("dosage_form")
-	sort := r.URL.Query().Get("sort")
+	dosageForm := strings.TrimSpace(r.URL.Query().Get("dosage_form"))
+	sort := strings.TrimSpace(r.URL.Query().Get("sort"))
 	inStock := r.URL.Query().Get("in_stock") == "true"
+	hasDiscount := r.URL.Query().Get("has_discount") == "true"
+	viewMode := r.URL.Query().Get("view")
+	if viewMode != "table" && viewMode != "grid" {
+		viewMode = "grid"
+	}
+
+	// 2. Rows per page (PageSize) & Page bounds enforcement
+	pageSize := 24
+	if psVal := r.URL.Query().Get("page_size"); psVal != "" {
+		if ps, err := strconv.Atoi(psVal); err == nil {
+			switch ps {
+			case 12, 24, 48, 96:
+				pageSize = ps
+			default:
+				pageSize = 24
+			}
+		}
+	}
+
+	page := 1
+	if pVal := r.URL.Query().Get("page"); pVal != "" {
+		if p, err := strconv.Atoi(pVal); err == nil && p >= 1 {
+			page = p
+		}
+	}
+	// Bound page depth to 200 to prevent database exhaustion by scrapers
+	if page > 200 {
+		page = 200
+	}
 
 	if h.catSvc == nil {
 		w.Header().Set("Content-Type", "text/html; charset=utf-8")
 		if err := pages.CustomerCatalog(pages.CatalogPageData{
-			Query: query,
+			Query:    query,
+			Page:     page,
+			PageSize: pageSize,
+			ViewMode: viewMode,
 		}, lang, dir, h.isHTMX(r)).Render(ctx, w); err != nil {
 			h.log.ErrorContext(ctx, "render customer catalog", "error", err)
 		}
 		return
 	}
 
-	products, err := h.catSvc.Search(ctx, catalog.SearchParams{
+	offset := (page - 1) * pageSize
+
+	// Search products with total count for accurate server-side pagination
+	products, totalCount, err := h.catSvc.SearchWithTotal(ctx, catalog.SearchParams{
 		Query:      query,
 		CategoryID: categoryID,
+		BrandID:    brandID,
 		Sort:       sort,
 		MinPrice:   minPrice,
 		MaxPrice:   maxPrice,
-		Limit:      100,
-		Offset:     0,
+		Limit:      pageSize,
+		Offset:     offset,
 	})
 	if err != nil {
 		h.renderError(w, r, err)
@@ -86,17 +149,37 @@ func (h *UIHandler) CustomerCatalogPage(w http.ResponseWriter, r *http.Request) 
 		}
 	}
 
-	var variantCards []*pages.SupplierVariantCard
+	// Resolve active category and brand names for active filter tags
+	activeCatName := ""
+	if categoryID != nil {
+		for _, cat := range categories {
+			if cat != nil && cat.ID == *categoryID {
+				activeCatName = cat.Name["ar"]
+				if activeCatName == "" {
+					activeCatName = cat.Name["en"]
+				}
+				break
+			}
+		}
+	}
 
-	// Batch-prefetch variants for every filtered product, then resolve all
-	// supplier/branch/stock/offer lookups in a handful of queries instead of
-	// one to four per variant.
+	activeBrandName := ""
+	if brandID != nil {
+		if b, ok := brandMap[*brandID]; ok && b != nil {
+			activeBrandName = b.Name.Get(i18n.AR)
+			if activeBrandName == "" {
+				activeBrandName = b.Name.Get(i18n.EN)
+			}
+		}
+	}
+
+	// Batch-prefetch variants for current page slice
 	filtered := make([]*catalog.Product, 0, len(products))
 	for _, p := range products {
 		if p == nil {
 			continue
 		}
-		if dosageForm != "" && !strings.EqualFold(p.DosageForm, dosageForm) {
+		if dosageForm != "" && !strings.Contains(strings.ToLower(p.DosageForm), strings.ToLower(dosageForm)) {
 			continue
 		}
 		filtered = append(filtered, p)
@@ -108,31 +191,33 @@ func (h *UIHandler) CustomerCatalogPage(w http.ResponseWriter, r *http.Request) 
 	}
 
 	variantsByProduct := make(map[int64][]*catalog.ProductVariant)
-	if h.catSvc != nil {
+	if h.catSvc != nil && len(productIDs) > 0 {
 		if grouped, err := h.catSvc.ListVariantsByProducts(ctx, productIDs); err == nil && grouped != nil {
 			variantsByProduct = grouped
 		}
 	}
 	env := h.buildOfferEnv(ctx, productIDs, variantsByProduct)
 
+	var variantCards []*pages.SupplierVariantCard
+
 	for _, p := range filtered {
 		variants := variantsByProduct[p.ID]
 
-		var brandID *int64
-		var brandName string
-		var brandLogo string
+		var pBrandID *int64
+		var pBrandName string
+		var pBrandLogo string
 		if p.BrandID != nil {
-			brandID = p.BrandID
+			pBrandID = p.BrandID
 			if b, found := brandMap[*p.BrandID]; found && b != nil {
-				brandName = b.Name.Get(i18n.AR)
-				if brandName == "" {
-					brandName = b.Name.Get(i18n.EN)
+				pBrandName = b.Name.Get(i18n.AR)
+				if pBrandName == "" {
+					pBrandName = b.Name.Get(i18n.EN)
 				}
-				brandLogo = b.Image
+				pBrandLogo = b.Image
 			}
 		}
-		if brandName == "" && p.ManufacturingCompanies != "" {
-			brandName = p.ManufacturingCompanies
+		if pBrandName == "" && p.ManufacturingCompanies != "" {
+			pBrandName = p.ManufacturingCompanies
 		}
 
 		offers := h.offersForProduct(ctx, p, variants, env)
@@ -140,6 +225,9 @@ func (h *UIHandler) CustomerCatalogPage(w http.ResponseWriter, r *http.Request) 
 		if len(offers) > 0 {
 			for _, off := range offers {
 				if inStock && off.AvailableStock <= 0 {
+					continue
+				}
+				if hasDiscount && off.DiscountBPS <= 0 {
 					continue
 				}
 				if minPrice != nil && off.Price.Minor() < minPrice.Minor() {
@@ -175,9 +263,9 @@ func (h *UIHandler) CustomerCatalogPage(w http.ResponseWriter, r *http.Request) 
 					SKU:             varSKU,
 					DosageForm:      p.DosageForm,
 					Manufacturer:    p.ManufacturingCompanies,
-					BrandID:         brandID,
-					BrandName:       brandName,
-					BrandLogo:       brandLogo,
+					BrandID:         pBrandID,
+					BrandName:       pBrandName,
+					BrandLogo:       pBrandLogo,
 					ScientificName:  p.ScientificName,
 					PublicPrice:     p.Price,
 					SupplierID:      off.SupplierID,
@@ -199,8 +287,8 @@ func (h *UIHandler) CustomerCatalogPage(w http.ResponseWriter, r *http.Request) 
 				})
 			}
 		} else {
-			// Fallback: master product without active supplier offer
-			if !inStock {
+			// Master product placeholder when no active offer
+			if !inStock && !hasDiscount {
 				variantCards = append(variantCards, &pages.SupplierVariantCard{
 					ProductID:      p.ID,
 					ProductNameAr:  p.Name.Get(i18n.AR),
@@ -208,9 +296,9 @@ func (h *UIHandler) CustomerCatalogPage(w http.ResponseWriter, r *http.Request) 
 					ProductImage:   p.Image,
 					DosageForm:     p.DosageForm,
 					Manufacturer:   p.ManufacturingCompanies,
-					BrandID:        brandID,
-					BrandName:      brandName,
-					BrandLogo:      brandLogo,
+					BrandID:        pBrandID,
+					BrandName:      pBrandName,
+					BrandLogo:      pBrandLogo,
 					ScientificName: p.ScientificName,
 					PublicPrice:    p.Price,
 					Price:          p.Price,
@@ -223,16 +311,51 @@ func (h *UIHandler) CustomerCatalogPage(w http.ResponseWriter, r *http.Request) 
 		}
 	}
 
+	// 3. Compute pagination metrics
+	totalPages := 1
+	if totalCount > 0 {
+		totalPages = (totalCount + pageSize - 1) / pageSize
+	}
+	if totalPages < 1 {
+		totalPages = 1
+	}
+
+	startItem := 0
+	endItem := 0
+	if totalCount > 0 {
+		startItem = offset + 1
+		endItem = offset + len(variantCards)
+		if endItem > totalCount {
+			endItem = totalCount
+		}
+	}
+
 	viewData := pages.CatalogPageData{
-		Variants:   variantCards,
-		Categories: categories,
-		Query:      query,
-		CategoryID: categoryID,
-		MinPrice:   minPriceStr,
-		MaxPrice:   maxPriceStr,
-		DosageForm: dosageForm,
-		Sort:       sort,
-		InStock:    inStock,
+		Variants:       variantCards,
+		Categories:     categories,
+		Brands:         brands,
+		Query:          query,
+		CategoryID:     categoryID,
+		BrandID:        brandID,
+		MinPrice:       minPriceStr,
+		MaxPrice:       maxPriceStr,
+		DosageForm:     dosageForm,
+		Sort:           sort,
+		InStock:        inStock,
+		HasDiscount:    hasDiscount,
+		ViewMode:       viewMode,
+		Page:           page,
+		PageSize:       pageSize,
+		TotalItems:     totalCount,
+		TotalPages:     totalPages,
+		HasPrev:        page > 1,
+		HasNext:        page < totalPages,
+		PrevPage:       page - 1,
+		NextPage:       page + 1,
+		StartItem:      startItem,
+		EndItem:        endItem,
+		ActiveCategory: activeCatName,
+		ActiveBrand:    activeBrandName,
 	}
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
