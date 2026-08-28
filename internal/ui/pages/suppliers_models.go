@@ -54,6 +54,7 @@ type SupplierProfileData struct {
 	StatusNote    string
 	Products      []*catalog.Product
 	Variants      []*catalog.ProductVariant
+	ProductsMap   map[int64]*catalog.Product
 	TotalVariants int
 	CurrentPage   int
 	TotalPages    int
@@ -64,6 +65,66 @@ type SupplierProfileData struct {
 	IsFollowing   bool
 	Rating        float64
 	ReviewCount   int
+}
+
+// GetProduct returns the master product associated with productID, or nil.
+func (d *SupplierProfileData) GetProduct(productID int64) *catalog.Product {
+	if d.ProductsMap != nil {
+		return d.ProductsMap[productID]
+	}
+	return nil
+}
+
+// GetProductImage returns the image URL from the variant or parent product.
+func (d *SupplierProfileData) GetProductImage(v *catalog.ProductVariant) string {
+	if v == nil {
+		return ""
+	}
+	if v.Image != "" {
+		return v.Image
+	}
+	if p := d.GetProduct(v.ProductID); p != nil {
+		if p.Image != "" {
+			return p.Image
+		}
+		if p.ImageLink != "" {
+			return p.ImageLink
+		}
+	}
+	return ""
+}
+
+// GetDosageForm returns the dosage form if available.
+func (d *SupplierProfileData) GetDosageForm(v *catalog.ProductVariant) string {
+	if v == nil {
+		return ""
+	}
+	if p := d.GetProduct(v.ProductID); p != nil && p.DosageForm != "" {
+		return p.DosageForm
+	}
+	return ""
+}
+
+// GetScientificName returns the scientific/active ingredient name.
+func (d *SupplierProfileData) GetScientificName(v *catalog.ProductVariant) string {
+	if v == nil {
+		return ""
+	}
+	if p := d.GetProduct(v.ProductID); p != nil && p.ScientificName != "" {
+		return p.ScientificName
+	}
+	return ""
+}
+
+// GetConcentration returns the product concentration if available.
+func (d *SupplierProfileData) GetConcentration(v *catalog.ProductVariant) string {
+	if v == nil {
+		return ""
+	}
+	if p := d.GetProduct(v.ProductID); p != nil && p.Concentration != "" {
+		return p.Concentration
+	}
+	return ""
 }
 
 // OrgTypeLabel maps an organization type onto an Arabic label.

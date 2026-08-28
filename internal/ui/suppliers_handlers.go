@@ -359,6 +359,19 @@ func (h *UIHandler) SupplierProfilePage(w http.ResponseWriter, r *http.Request) 
 			} else {
 				data.TotalPages = 1
 			}
+
+			if len(variants) > 0 {
+				data.ProductsMap = make(map[int64]*catalog.Product)
+				for _, v := range variants {
+					if v != nil && v.ProductID > 0 {
+						if _, ok := data.ProductsMap[v.ProductID]; !ok {
+							if p, _, err := h.catSvc.GetProduct(ctx, v.ProductID); err == nil && p != nil {
+								data.ProductsMap[v.ProductID] = p
+							}
+						}
+					}
+				}
+			}
 		}
 	}
 
