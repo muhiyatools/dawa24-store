@@ -348,6 +348,34 @@ func (m *mockBillingRepo) AdminPerformWalletAdjustment(_ context.Context, _ int6
 	return nil
 }
 
+func (m *mockBillingRepo) CreateDepositRequest(_ context.Context, _ *WalletDeposit) error {
+	return nil
+}
+
+func (m *mockBillingRepo) GetDepositRequestByID(_ context.Context, _ int64) (*WalletDeposit, error) {
+	return nil, nil
+}
+
+func (m *mockBillingRepo) UpdatePendingDepositRequest(_ context.Context, _ *WalletDeposit) error {
+	return nil
+}
+
+func (m *mockBillingRepo) ListDepositRequestsByUser(_ context.Context, _ int64, _, _ int) ([]*WalletDeposit, error) {
+	return nil, nil
+}
+
+func (m *mockBillingRepo) AdminListDetailedDeposits(_ context.Context, _ DepositFilter) ([]*AdminWalletDepositView, int, error) {
+	return nil, 0, nil
+}
+
+func (m *mockBillingRepo) AdminApproveDepositRequest(_ context.Context, _ int64, _ int64) (*WalletDeposit, *WalletTransaction, error) {
+	return nil, nil, nil
+}
+
+func (m *mockBillingRepo) AdminRejectDepositRequest(_ context.Context, _ int64, _ int64, _ string) (*WalletDeposit, error) {
+	return nil, nil
+}
+
 func TestWalletDepositAndWithdraw(t *testing.T) {
 	ctx := context.Background()
 	repo := newMockBillingRepo()

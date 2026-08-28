@@ -17,6 +17,7 @@ type UnifiedSettingsData struct {
 	User                   *identity.User
 	Wallet                 *billing.Wallet
 	Transactions           []*billing.WalletTransaction
+	DepositRequests        []*billing.WalletDeposit
 	PaymentMethods         []*billing.UserPaymentMethod
 	PlatformPaymentMethods []*billing.PlatformPaymentMethod
 	Sessions               []*identity.Session
@@ -53,6 +54,22 @@ templ UnifiedSettingsPage(data UnifiedSettingsData, lang, dir string) {
 				editIsDefault: false,
 				isDeleteAccountModalOpen: false,
 				isDepositModalOpen: false,
+				isEditDepositModalOpen: false,
+				editDepositID: 0,
+				editDepositAmount: '',
+				editDepositMethod: 'instapay',
+				editDepositReference: '',
+				editDepositNotes: '',
+				editDepositReceiptURL: '',
+				openEditDeposit(id, amount, method, ref, notes, receiptUrl) {
+					this.editDepositID = id;
+					this.editDepositAmount = amount;
+					this.editDepositMethod = method;
+					this.editDepositReference = ref;
+					this.editDepositNotes = notes;
+					this.editDepositReceiptURL = receiptUrl;
+					this.isEditDepositModalOpen = true;
+				},
 				isWithdrawModalOpen: false,
 				depositMethod: 'instapay',
 				copiedNotice: '',
@@ -374,6 +391,128 @@ templ UnifiedSettingsPage(data UnifiedSettingsData, lang, dir string) {
 							سجل حركات دفتر الأستاذ غير القابل للتعديل
 						</div>
 					</div>
+				</div>
+
+				<!-- Section: Deposit Requests (طلبات شحن الرصيد ودورة المراجعة) -->
+				<div style="border:1px solid var(--border); border-radius:var(--radius-xl); overflow:hidden; background:var(--surface-raised); margin-bottom:2rem;">
+					<div style="padding:1.25rem 1.5rem; border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem; background:var(--surface-sunken);">
+						<div>
+							<div class="row-center-sm">
+								<span style="font-size:1.1rem;">⏳</span>
+								<h4 style="font-size:1.05rem; font-weight:800; color:var(--text); margin:0;">
+									طلبات شحن الرصيد ودورة الموافقة والتدقيق
+								</h4>
+							</div>
+							<p style="font-size:0.8rem; color:var(--text-muted); margin:0.2rem 0 0 0;">
+								متابعة حالة طلبات الشحن المقدمة (قيد المراجعة / معتمدة / مرفوضة) مع إمكانية تعديل البيانات طالما الطلب قيد الانتظار.
+							</p>
+						</div>
+
+						<button
+							type="button"
+							class="btn btn-primary btn-sm fw-800"
+							@click="isDepositModalOpen = true"
+						>
+							@components.IconPlus("icon-xs")
+							<span>شحن رصيد جديد</span>
+						</button>
+					</div>
+
+					if len(data.DepositRequests) == 0 {
+						<div style="padding:2rem 1.5rem; text-align:center; color:var(--text-muted); font-size:0.875rem;">
+							لم تقم بتقديم أي طلبات شحن رصيد بعد.
+						</div>
+					} else {
+						<div class="table-container" style="margin:0; border:none;">
+							<table class="b2b-table m-0">
+								<thead>
+									<tr>
+										<th># الطلب</th>
+										<th>المبلغ</th>
+										<th>طريقة التحويل</th>
+										<th>الرقم المرجعي</th>
+										<th>إشعار التحويل</th>
+										<th>تاريخ الطلب</th>
+										<th>حالة الطلب والمراجعة</th>
+										<th class="text-end">الإجراء</th>
+									</tr>
+								</thead>
+								<tbody>
+									for _, dep := range data.DepositRequests {
+										<tr>
+											<td class="tabular-nums fw-800" style="color:var(--accent);">
+												#{ fmt.Sprintf("DEP-%d", dep.ID) }
+											</td>
+											<td class="tabular-nums fw-900 text-emerald">
+												+ { dep.Amount.String() } ج.م
+											</td>
+											<td>
+												<span class="badge badge-purple text-xs fw-800" dir="ltr">{ dep.PaymentMethod }</span>
+											</td>
+											<td class="tabular-nums fw-700" dir="ltr">
+												{ dep.ReferenceNumber }
+											</td>
+											<td>
+												if dep.AttachmentURL != "" {
+													<a href={ templ.SafeURL(dep.AttachmentURL) } target="_blank" class="btn btn-secondary btn-xs fw-700" style="gap:0.25rem;">
+														@components.IconFile("icon-xs")
+														<span>عرض الإيصال 📎</span>
+													</a>
+												} else {
+													<span class="text-muted text-xs">لا يوجد مرفق</span>
+												}
+											</td>
+											<td class="tabular-nums text-muted text-xs">
+												{ dep.CreatedAt.Format("2006-01-02 15:04") }
+											</td>
+											<td>
+												if dep.Status == billing.DepositPending {
+													<span class="badge badge-amber text-xs fw-800">
+														<span>⏳ قيد المراجعة والتدقيق</span>
+													</span>
+													if dep.UserNotes != "" {
+														<div class="text-xs text-muted mt-1">📝 { dep.UserNotes }</div>
+													}
+												} else if dep.Status == billing.DepositApproved {
+													<span class="badge badge-emerald text-xs fw-800">
+														@components.IconCheckCircle("icon-xs")
+														<span>✓ معتمد ومضاف للمحفظة</span>
+													</span>
+													if dep.ReviewedAt != nil {
+														<div class="text-xs text-muted mt-0.5 tabular-nums">في { dep.ReviewedAt.Format("2006-01-02 15:04") }</div>
+													}
+												} else if dep.Status == billing.DepositRejected {
+													<span class="badge badge-danger text-xs fw-800">
+														<span>✕ مرفوض</span>
+													</span>
+													if dep.RejectionReason != "" {
+														<div class="text-xs text-danger mt-1" style="background:var(--danger-surface); padding:0.25rem 0.5rem; border-radius:4px; border:1px solid var(--danger-border); max-width:260px;">
+															<strong>سبب الرفض:</strong> { dep.RejectionReason }
+														</div>
+													}
+												}
+											</td>
+											<td class="text-end">
+												if dep.CanEdit() {
+													<button
+														type="button"
+														class="btn btn-secondary btn-xs fw-800"
+														style="gap:0.3rem;"
+														@click={ fmt.Sprintf("openEditDeposit(%d, '%s', '%s', '%s', '%s', '%s')", dep.ID, dep.Amount.String(), dep.PaymentMethod, strings.ReplaceAll(dep.ReferenceNumber, "'", "\\'"), strings.ReplaceAll(dep.UserNotes, "'", "\\'"), dep.AttachmentURL) }
+													>
+														@components.IconEdit("icon-xs")
+														<span>تعديل</span>
+													</button>
+												} else {
+													<span class="text-muted text-xs fw-600">غير قابل للتعديل</span>
+												}
+											</td>
+										</tr>
+									}
+								</tbody>
+							</table>
+						</div>
+					}
 				</div>
 
 				<!-- Live Transactions Table -->
@@ -1370,7 +1509,7 @@ templ UnifiedSettingsPage(data UnifiedSettingsData, lang, dir string) {
 						</button>
 					</div>
 
-					<form action="/wallet/deposit" method="POST" style="display:flex; flex-direction:column; gap:1.25rem; text-align:start;">
+					<form action="/wallet/deposit" method="POST" enctype="multipart/form-data" style="display:flex; flex-direction:column; gap:1.25rem; text-align:start;">
 						<div class="form-group mb-0">
 							<label class="form-label" for="dep-amount-unified">المبلغ المراد إيداعه (ج.م) *</label>
 							<input id="dep-amount-unified" name="amount" type="number" step="0.01" min="50" class="form-input tabular-nums" placeholder="مثال: 5000" required />
@@ -1461,6 +1600,14 @@ templ UnifiedSettingsPage(data UnifiedSettingsData, lang, dir string) {
 						</div>
 
 						<div class="form-group mb-0">
+							<label class="form-label" for="dep-receipt-unified">إرفاق صورة الإيصال أو إشعار التحويل (اختياري / يُوصى به)</label>
+							<input id="dep-receipt-unified" name="receipt" type="file" accept="image/*,.pdf" class="form-input" />
+							<span style="font-size:0.75rem; color:var(--text-muted); display:block; margin-top:0.25rem;">
+								يمكنك إرفاق لقطة شاشة للإيصال (PNG / JPG) أو مستند PDF لتسهيل المراجعة السريعة.
+							</span>
+						</div>
+
+						<div class="form-group mb-0">
 							<label class="form-label" for="dep-notes-unified">ملاحظات إضافية (اختياري)</label>
 							<textarea id="dep-notes-unified" name="notes" rows="2" class="form-input" placeholder="أي ملاحظات تخص عملية الإيداع..."></textarea>
 						</div>
@@ -1469,7 +1616,91 @@ templ UnifiedSettingsPage(data UnifiedSettingsData, lang, dir string) {
 							<button type="button" @click="isDepositModalOpen = false" class="btn btn-secondary">إلغاء</button>
 							<button type="submit" class="btn btn-primary" style="padding-inline:1.75rem; font-weight:800;">
 								@components.IconCheck("icon-xs")
-								<span>تأكيد تسجيل الإيداع</span>
+								<span>تأكيد إرسال طلب الشحن</span>
+							</button>
+						</div>
+					</form>
+				</div>
+			</div>
+
+			<!-- Dynamic Modal 2.5: Edit Deposit Request Modal (Centered Popup) -->
+			<div
+				x-show="isEditDepositModalOpen"
+				x-cloak
+				class="modal-overlay"
+				@keydown.escape.window="isEditDepositModalOpen = false"
+			>
+				<div
+					@click.outside="isEditDepositModalOpen = false"
+					class="card"
+					style="max-width:540px; width:100%; max-height:90vh; overflow-y:auto; padding:2rem; background:var(--surface-raised); border-radius:var(--radius-2xl); border:1px solid var(--border); box-shadow:var(--shadow-xl);"
+				>
+					<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; border-bottom:1px solid var(--border); padding-bottom:1rem;">
+						<div class="row-center-sm">
+							<div class="b2b-icon-box-sm">
+								@components.IconEdit("icon-xs")
+							</div>
+							<h3 class="text-xl fw-800 text-primary m-0">
+								تعديل بيانات طلب شحن الرصيد
+							</h3>
+						</div>
+						<button type="button" @click="isEditDepositModalOpen = false" class="btn btn-secondary btn-icon size-8">
+							@components.IconClose("icon-xs")
+						</button>
+					</div>
+
+					<form :action="'/wallet/deposit/' + editDepositID + '/edit'" method="POST" enctype="multipart/form-data" style="display:flex; flex-direction:column; gap:1.25rem; text-align:start;">
+						<div style="background:var(--accent-subtle); border:1px solid var(--accent); border-radius:var(--radius-lg); padding:0.75rem 1rem; font-size:0.825rem; color:var(--text);">
+							يمكنك تعديل تفاصيل الطلب ما دام قيد المراجعة. بمجرد اعتماد أو رفض العملية من الإدارة لا يمكن تغييرها.
+						</div>
+
+						<div class="form-group mb-0">
+							<label class="form-label" for="edit-dep-amount">المبلغ المراد إيداعه (ج.م) *</label>
+							<input id="edit-dep-amount" name="amount" type="number" step="0.01" min="50" x-model="editDepositAmount" class="form-input tabular-nums" required />
+						</div>
+
+						<div class="form-group mb-0">
+							<label class="form-label" for="edit-dep-method">طريقة الإيداع والتحويل *</label>
+							<select id="edit-dep-method" name="payment_method" x-model="editDepositMethod" class="form-select">
+								if len(data.PlatformPaymentMethods) > 0 {
+									for _, ppm := range data.PlatformPaymentMethods {
+										if ppm.IsDepositEnabled && ppm.IsActive {
+											<option value={ ppm.ID }>{ ppm.Name.Get(i18n.Lang(lang)) }</option>
+										}
+									}
+								} else {
+									<option value="instapay">انستاباي InstaPay (التحويل اللحظي الفوري)</option>
+									<option value="bank_transfer">تحويل بنكي رسمي (CIB / الأهلي NBE)</option>
+									<option value="card">بطاقة دفع إلكترونية (Visa / Mastercard)</option>
+								}
+							</select>
+						</div>
+
+						<div class="form-group mb-0">
+							<label class="form-label" for="edit-dep-ref">رقم الإشعار أو مرجع التحويل البنكي *</label>
+							<input id="edit-dep-ref" name="reference_number" type="text" x-model="editDepositReference" class="form-input" required />
+						</div>
+
+						<div class="form-group mb-0">
+							<label class="form-label" for="edit-dep-receipt">تحديث صورة الإشعار / الإيصال (اختياري)</label>
+							<input id="edit-dep-receipt" name="receipt" type="file" accept="image/*,.pdf" class="form-input" />
+							<template x-if="editDepositReceiptURL">
+								<div style="font-size:0.775rem; color:var(--text-secondary); margin-top:0.35rem;">
+									يوجد إشعار مرفق حالياً (<a :href="editDepositReceiptURL" target="_blank" class="text-primary fw-700">عرض المرفق الحالي</a>). سيتم استبداله إذا اخترت ملفاً جديداً.
+								</div>
+							</template>
+						</div>
+
+						<div class="form-group mb-0">
+							<label class="form-label" for="edit-dep-notes">ملاحظات إضافية (اختياري)</label>
+							<textarea id="edit-dep-notes" name="notes" rows="2" x-model="editDepositNotes" class="form-input"></textarea>
+						</div>
+
+						<div class="modal-footer-standard">
+							<button type="button" @click="isEditDepositModalOpen = false" class="btn btn-secondary">إلغاء</button>
+							<button type="submit" class="btn btn-primary" style="padding-inline:1.75rem; font-weight:800;">
+								@components.IconCheck("icon-xs")
+								<span>حفظ التعديلات</span>
 							</button>
 						</div>
 					</form>

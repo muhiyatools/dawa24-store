@@ -24,7 +24,7 @@ func (h *UIHandler) AdminFinancePage(w http.ResponseWriter, r *http.Request) {
 
 	tab := r.URL.Query().Get("tab")
 	if tab == "" {
-		tab = "invoices"
+		tab = "deposits"
 	}
 	searchQuery := strings.TrimSpace(r.URL.Query().Get("q"))
 	statusFilter := strings.TrimSpace(r.URL.Query().Get("status"))
@@ -34,17 +34,31 @@ func (h *UIHandler) AdminFinancePage(w http.ResponseWriter, r *http.Request) {
 	walletID, _ := strconv.ParseInt(walletIDStr, 10, 64)
 
 	var (
-		invoices          []*billing.AdminInvoiceView
-		payments          []*billing.AdminPaymentView
-		wallets           []*billing.AdminWalletView
-		transactions      []*billing.AdminWalletTransactionView
-		totalInvoices     int
-		totalPayments     int
-		totalWallets      int
-		totalTransactions int
+		invoices             []*billing.AdminInvoiceView
+		payments             []*billing.AdminPaymentView
+		wallets              []*billing.AdminWalletView
+		transactions         []*billing.AdminWalletTransactionView
+		deposits             []*billing.AdminWalletDepositView
+		totalInvoices        int
+		totalPayments        int
+		totalWallets         int
+		totalTransactions    int
+		totalDeposits        int
+		pendingDepositsCount int
 	)
 
 	if h.billSvc != nil {
+		deposits, totalDeposits, _ = h.billSvc.AdminListDetailedDeposits(ctx, billing.DepositFilter{
+			Search:        searchQuery,
+			Status:        statusFilter,
+			PaymentMethod: methodFilter,
+			WalletID:      walletID,
+			Limit:         100,
+		})
+		_, pendingDepositsCount, _ = h.billSvc.AdminListDetailedDeposits(ctx, billing.DepositFilter{
+			Status: "pending",
+			Limit:  1,
+		})
 		invoices, totalInvoices, _ = h.billSvc.AdminListDetailedInvoices(ctx, billing.InvoiceFilter{
 			Search: searchQuery,
 			Status: statusFilter,
@@ -96,30 +110,98 @@ func (h *UIHandler) AdminFinancePage(w http.ResponseWriter, r *http.Request) {
 	totalHeld := money.FromMinor(totalHeldMinor)
 
 	data := pages.AdminFinanceData{
-		ActiveTab:         tab,
-		Invoices:          invoices,
-		Payments:          payments,
-		Wallets:           wallets,
-		Transactions:      transactions,
-		TotalInvoices:     totalInvoices,
-		TotalPayments:     totalPayments,
-		TotalWallets:      totalWallets,
-		TotalTransactions: totalTransactions,
-		TotalRevenue:      totalRevenue,
-		TotalCommission:   commission,
-		TotalPaid:         totalPaid,
-		TotalHeld:         totalHeld,
-		Query:             searchQuery,
-		StatusFilter:      statusFilter,
-		TypeFilter:        typeFilter,
-		MethodFilter:      methodFilter,
-		SelectedWalletID:  walletID,
+		ActiveTab:            tab,
+		Invoices:             invoices,
+		Payments:             payments,
+		Wallets:              wallets,
+		Transactions:         transactions,
+		Deposits:             deposits,
+		TotalInvoices:        totalInvoices,
+		TotalPayments:        totalPayments,
+		TotalWallets:         totalWallets,
+		TotalTransactions:    totalTransactions,
+		TotalDeposits:        totalDeposits,
+		PendingDepositsCount: pendingDepositsCount,
+		TotalRevenue:         totalRevenue,
+		TotalCommission:      commission,
+		TotalPaid:            totalPaid,
+		TotalHeld:            totalHeld,
+		Query:                searchQuery,
+		StatusFilter:         statusFilter,
+		TypeFilter:           typeFilter,
+		MethodFilter:         methodFilter,
+		SelectedWalletID:     walletID,
 	}
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 	if err := pages.AdminFinance(data, lang, dir).Render(ctx, w); err != nil {
-		h.log.ErrorContext(ctx, "render admin finance hub", "error", err)
+		h.log.ErrorContext(ctx, "render admin finance page", "error", err)
 	}
+}
+
+// AdminDepositApproveSubmit approves a pending deposit request and credits the user's wallet.
+func (h *UIHandler) AdminDepositApproveSubmit(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	actor, ok := authctx.From(ctx)
+	if !ok {
+		http.Redirect(w, r, "/auth/login?redirect=/admin/finance?tab=deposits", http.StatusSeeOther)
+		return
+	}
+
+	depositID, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
+	if err != nil || depositID <= 0 {
+		h.redirectWithNotice(w, r, "/admin/finance?tab=deposits", "error", "معرف طلب الإيداع غير صالح.")
+		return
+	}
+
+	if h.billSvc == nil {
+		h.redirectWithNotice(w, r, "/admin/finance?tab=deposits", "error", "خدمة المدفوعات والمحفظة غير متاحة.")
+		return
+	}
+
+	dep, tx, err := h.billSvc.AdminApproveDeposit(ctx, depositID, actor.UserID)
+	if err != nil {
+		h.log.ErrorContext(ctx, "failed to approve deposit", "error", err, "deposit_id", depositID)
+		h.redirectWithNotice(w, r, "/admin/finance?tab=deposits", "error", h.safeMessage(err, langOf(r)))
+		return
+	}
+
+	h.redirectWithNotice(w, r, "/admin/finance?tab=deposits", "success", fmt.Sprintf("تم اعتماد طلب الإيداع بنجاح وإضافة %s ج.م إلى محفظة المستخدم (معاملة #TX-%d).", dep.Amount.String(), tx.ID))
+}
+
+// AdminDepositRejectSubmit rejects a pending deposit request with an explicit reason.
+func (h *UIHandler) AdminDepositRejectSubmit(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	actor, ok := authctx.From(ctx)
+	if !ok {
+		http.Redirect(w, r, "/auth/login?redirect=/admin/finance?tab=deposits", http.StatusSeeOther)
+		return
+	}
+
+	depositID, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
+	if err != nil || depositID <= 0 {
+		h.redirectWithNotice(w, r, "/admin/finance?tab=deposits", "error", "معرف طلب الإيداع غير صالح.")
+		return
+	}
+
+	_ = r.ParseForm()
+	reason := strings.TrimSpace(r.PostFormValue("rejection_reason"))
+	if reason == "" {
+		reason = "تم رفض طلب الإيداع لعدم تطابق بيانات أو إشعار التحويل البنكي."
+	}
+
+	if h.billSvc == nil {
+		h.redirectWithNotice(w, r, "/admin/finance?tab=deposits", "error", "خدمة المدفوعات والمحفظة غير متاحة.")
+		return
+	}
+
+	if _, err := h.billSvc.AdminRejectDeposit(ctx, depositID, actor.UserID, reason); err != nil {
+		h.log.ErrorContext(ctx, "failed to reject deposit", "error", err, "deposit_id", depositID)
+		h.redirectWithNotice(w, r, "/admin/finance?tab=deposits", "error", h.safeMessage(err, langOf(r)))
+		return
+	}
+
+	h.redirectWithNotice(w, r, "/admin/finance?tab=deposits", "success", "تم رفض طلب الإيداع وإشعار صاحب الحساب بحيثيات الرفض.")
 }
 
 // AdminWalletAdjustSubmit handles manual balance adjustment/credit/debit for a wallet.

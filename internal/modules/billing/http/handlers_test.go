@@ -211,6 +211,34 @@ func (r stubRepo) AdminPerformWalletAdjustment(ctx context.Context, walletID int
 	r.fail("AdminPerformWalletAdjustment")
 	return nil
 }
+func (r stubRepo) CreateDepositRequest(ctx context.Context, dep *billing.WalletDeposit) error {
+	r.fail("CreateDepositRequest")
+	return nil
+}
+func (r stubRepo) GetDepositRequestByID(ctx context.Context, id int64) (*billing.WalletDeposit, error) {
+	r.fail("GetDepositRequestByID")
+	return nil, nil
+}
+func (r stubRepo) UpdatePendingDepositRequest(ctx context.Context, dep *billing.WalletDeposit) error {
+	r.fail("UpdatePendingDepositRequest")
+	return nil
+}
+func (r stubRepo) ListDepositRequestsByUser(ctx context.Context, userID int64, limit, offset int) ([]*billing.WalletDeposit, error) {
+	r.fail("ListDepositRequestsByUser")
+	return nil, nil
+}
+func (r stubRepo) AdminListDetailedDeposits(ctx context.Context, filter billing.DepositFilter) ([]*billing.AdminWalletDepositView, int, error) {
+	r.fail("AdminListDetailedDeposits")
+	return nil, 0, nil
+}
+func (r stubRepo) AdminApproveDepositRequest(ctx context.Context, depositID int64, reviewerID int64) (*billing.WalletDeposit, *billing.WalletTransaction, error) {
+	r.fail("AdminApproveDepositRequest")
+	return nil, nil, nil
+}
+func (r stubRepo) AdminRejectDepositRequest(ctx context.Context, depositID int64, reviewerID int64, reason string) (*billing.WalletDeposit, error) {
+	r.fail("AdminRejectDepositRequest")
+	return nil, nil
+}
 
 type happyRepo struct{}
 
@@ -351,6 +379,28 @@ func (happyRepo) AdminListDetailedPayments(ctx context.Context, filter billing.P
 }
 func (happyRepo) AdminPerformWalletAdjustment(ctx context.Context, walletID int64, amount money.Amount, txType billing.TransactionType, reason string, actorID int64) error {
 	return nil
+}
+func (happyRepo) CreateDepositRequest(ctx context.Context, dep *billing.WalletDeposit) error {
+	dep.ID = 1
+	return nil
+}
+func (happyRepo) GetDepositRequestByID(ctx context.Context, id int64) (*billing.WalletDeposit, error) {
+	return &billing.WalletDeposit{ID: id, UserID: 1, Status: billing.DepositPending}, nil
+}
+func (happyRepo) UpdatePendingDepositRequest(ctx context.Context, dep *billing.WalletDeposit) error {
+	return nil
+}
+func (happyRepo) ListDepositRequestsByUser(ctx context.Context, userID int64, limit, offset int) ([]*billing.WalletDeposit, error) {
+	return []*billing.WalletDeposit{{ID: 1, UserID: userID, Status: billing.DepositPending}}, nil
+}
+func (happyRepo) AdminListDetailedDeposits(ctx context.Context, filter billing.DepositFilter) ([]*billing.AdminWalletDepositView, int, error) {
+	return []*billing.AdminWalletDepositView{{ID: 1, UserID: 1, Status: billing.DepositPending}}, 1, nil
+}
+func (happyRepo) AdminApproveDepositRequest(ctx context.Context, depositID int64, reviewerID int64) (*billing.WalletDeposit, *billing.WalletTransaction, error) {
+	return &billing.WalletDeposit{ID: depositID, Status: billing.DepositApproved}, &billing.WalletTransaction{ID: 1}, nil
+}
+func (happyRepo) AdminRejectDepositRequest(ctx context.Context, depositID int64, reviewerID int64, reason string) (*billing.WalletDeposit, error) {
+	return &billing.WalletDeposit{ID: depositID, Status: billing.DepositRejected, RejectionReason: reason}, nil
 }
 
 func newTestRouter(t *testing.T) http.Handler {

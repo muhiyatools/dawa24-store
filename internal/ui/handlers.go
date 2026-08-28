@@ -689,6 +689,7 @@ func (h *UIHandler) RegisterSharedRoutes(r chi.Router) {
 	r.Post("/report-issue", h.CustomerReportIssueSubmit)
 
 	r.Post("/wallet/deposit", h.WalletDepositSubmit)
+	r.Post("/wallet/deposit/{id}/edit", h.WalletDepositEditSubmit)
 	r.Post("/wallet/withdraw", h.WalletWithdrawSubmit)
 	r.Post("/messages/{id}/send", h.MessagesSendSubmit)
 	r.Post("/requests", h.RequestCreateSubmit)

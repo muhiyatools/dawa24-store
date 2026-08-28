@@ -10,7 +10,9 @@ import (
 	"github.com/muhiya/dawa24-store/internal/modules/billing"
 	"github.com/muhiya/dawa24-store/internal/modules/catalog"
 	"github.com/muhiya/dawa24-store/internal/modules/commerce"
+	"github.com/muhiya/dawa24-store/internal/modules/org"
 	"github.com/muhiya/dawa24-store/internal/modules/promo"
+	"github.com/muhiya/dawa24-store/internal/modules/smartorder"
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/platform/database"
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
@@ -284,7 +286,7 @@ func (h *UIHandler) PharmacyDashboardPage(w http.ResponseWriter, r *http.Request
 
 	actor, ok := authctx.From(ctx)
 	if !ok {
-		http.Redirect(w, r, "/auth/login?redirect=/pharmacy/dashboard", http.StatusSeeOther)
+		http.Redirect(w, r, "/auth/login?redirect=/customer/dashboard", http.StatusSeeOther)
 		return
 	}
 
@@ -292,6 +294,43 @@ func (h *UIHandler) PharmacyDashboardPage(w http.ResponseWriter, r *http.Request
 		Subscription: h.loadOrgSubscriptionView(ctx, actor, lang),
 	}
 
+	// 1. Pharmacy Organization & Branches
+	if h.orgSvc != nil && actor.OrganizationID > 0 {
+		sysCtx := database.AsSystem(ctx)
+		if o, err := h.orgSvc.GetOrganization(sysCtx, actor.OrganizationID); err == nil && o != nil {
+			data.CustomerOrgName = o.LegalName
+			if data.CustomerOrgName == "" && !o.TradeName.IsEmpty() {
+				data.CustomerOrgName = o.TradeName.Get(i18n.Lang(lang))
+			}
+		}
+		if branches, err := h.orgSvc.ListBranches(ctx, actor.OrganizationID); err == nil {
+			data.Branches = branches
+			data.TotalBranches = len(branches)
+			for _, b := range branches {
+				if b != nil && b.Status == "active" {
+					data.ActiveBranches++
+				}
+			}
+		}
+		if actor.BranchID != nil && *actor.BranchID > 0 {
+			data.ActiveBranchID = *actor.BranchID
+			for _, b := range data.Branches {
+				if b.ID == *actor.BranchID {
+					data.ActiveBranchName = b.Name.Get(i18n.Lang(lang))
+					if data.ActiveBranchName == "" {
+						data.ActiveBranchName = b.Code
+					}
+					break
+				}
+			}
+		}
+		if data.ActiveBranchName == "" && len(data.Branches) > 0 {
+			data.ActiveBranchID = data.Branches[0].ID
+			data.ActiveBranchName = data.Branches[0].Name.Get(i18n.Lang(lang))
+		}
+	}
+
+	// 2. Urgent Administrative Document Requests
 	if h.attSvc != nil && actor.OrganizationID > 0 {
 		if reqs, err := h.attSvc.ListDocumentRequests(ctx, actor, &actor.OrganizationID); err == nil {
 			for _, reqItem := range reqs {
@@ -302,20 +341,54 @@ func (h *UIHandler) PharmacyDashboardPage(w http.ResponseWriter, r *http.Request
 		}
 	}
 
+	// 3. Orders, Spend & Item totals
 	if h.commSvc != nil {
 		if orders, err := h.commSvc.ListCustomerOrders(ctx, actor.UserID, 100, 0); err != nil {
 			h.log.WarnContext(ctx, "pharmacy dashboard: list orders", "error", err)
 		} else {
-			for _, o := range orders {
+			data.TotalOrders = len(orders)
+			branchMap := make(map[int64]*org.Branch)
+			for _, b := range data.Branches {
+				branchMap[b.ID] = b
+			}
+
+			for i, o := range orders {
+				if o.BranchID != nil && *o.BranchID > 0 {
+					if b, ok := branchMap[*o.BranchID]; ok && b != nil {
+						if o.CustomerBranchName.IsEmpty() {
+							o.CustomerBranchName = b.Name
+						}
+					}
+				}
 				if o.Status == commerce.StatusDelivered || o.Status == commerce.StatusCompleted {
 					data.CompletedOrders++
-				} else if o.Status != commerce.StatusCancelled && o.Status != commerce.StatusRefunded && o.Status != commerce.StatusFailed {
-					data.OpenOrders++
+					data.TotalSpend, _ = data.TotalSpend.Add(o.TotalAmount)
+				} else if o.Status == commerce.StatusCancelled || o.Status == commerce.StatusFailed || o.Status == commerce.StatusReturned || o.Status == commerce.StatusRefunded {
+					data.CancelledOrders++
+				} else {
 					data.ActiveOrders++
+					data.TotalSpend, _ = data.TotalSpend.Add(o.TotalAmount)
 				}
-				if len(data.Orders) < 10 {
+
+				// Hydrate recent orders for display (up to 8)
+				if i < 8 {
+					if len(o.Lines) == 0 {
+						if fullOrder, err := h.commSvc.GetOrder(ctx, o.ID); err == nil && fullOrder != nil {
+							o.Lines = fullOrder.Lines
+							if o.CustomerBranchName.IsEmpty() && !fullOrder.CustomerBranchName.IsEmpty() {
+								o.CustomerBranchName = fullOrder.CustomerBranchName
+							}
+						}
+					}
 					data.Orders = append(data.Orders, o)
 				}
+			}
+
+			for _, o := range data.Orders {
+				data.TotalOrderedItems += len(o.Lines)
+			}
+			if data.TotalOrderedItems == 0 && data.TotalOrders > 0 {
+				data.TotalOrderedItems = data.TotalOrders
 			}
 		}
 		if total, err := h.commSvc.MonthSpendByCustomer(ctx, actor.UserID); err != nil {
@@ -325,6 +398,54 @@ func (h *UIHandler) PharmacyDashboardPage(w http.ResponseWriter, r *http.Request
 		}
 	}
 
+	// 4. Wallet, Balance, Pending Deposits & Transactions
+	if h.billSvc != nil {
+		if wallet, err := h.billSvc.GetWallet(ctx, actor.UserID, "EGP"); err != nil {
+			h.log.DebugContext(ctx, "pharmacy dashboard: get wallet optional", "error", err)
+		} else if wallet != nil {
+			data.WalletBalance = wallet.Balance
+			data.HasWallet = true
+
+			if txs, err := h.billSvc.ListWalletTransactions(ctx, wallet.ID, 5, 0); err == nil {
+				data.RecentTransactions = txs
+			}
+		}
+
+		if deposits, err := h.billSvc.ListUserDeposits(ctx, actor.UserID, 50, 0); err == nil {
+			for _, dep := range deposits {
+				if dep != nil && dep.Status == billing.DepositPending {
+					data.PendingDepositsCount++
+					data.PendingDepositsTotal, _ = data.PendingDepositsTotal.Add(dep.Amount)
+				}
+			}
+		}
+	}
+
+	// 5. Smart Orders Lifecycle & Recent Runs
+	if h.smartOrderSvc != nil && actor.OrganizationID > 0 {
+		if runs, err := h.smartOrderSvc.History(ctx, actor.OrganizationID, 50, 0); err == nil {
+			data.SmartOrdersTotal = len(runs)
+			data.SmartOrdersCount = len(runs)
+			for _, r := range runs {
+				if r == nil {
+					continue
+				}
+				switch r.Status {
+				case smartorder.StatusProcessing, smartorder.StatusQueued:
+					data.SmartOrdersProcessing++
+				case smartorder.StatusPlaced, smartorder.StatusCompleted, smartorder.StatusFinalizing:
+					data.SmartOrdersCompleted++
+				case smartorder.StatusDraft, smartorder.StatusMapping, smartorder.StatusStale:
+					data.SmartOrdersNeedsReview++
+				}
+				if len(data.RecentSmartOrders) < 4 {
+					data.RecentSmartOrders = append(data.RecentSmartOrders, r)
+				}
+			}
+		}
+	}
+
+	// 6. Favorites & Active Offers
 	if h.idSvc != nil {
 		if favs, err := h.idSvc.ListFavorites(ctx, actor.UserID); err != nil {
 			h.log.WarnContext(ctx, "pharmacy dashboard: list favorites", "error", err)
@@ -334,7 +455,7 @@ func (h *UIHandler) PharmacyDashboardPage(w http.ResponseWriter, r *http.Request
 	}
 
 	if h.promoSvc != nil {
-		if visible := h.visibleOffersForActor(ctx, &actor, 10); len(visible) > 0 {
+		if visible := h.visibleOffersForActor(ctx, &actor, 6); len(visible) > 0 {
 			data.Offers = make([]*promo.Offer, 0, len(visible))
 			for _, v := range visible {
 				if v.Offer != nil {
@@ -342,15 +463,6 @@ func (h *UIHandler) PharmacyDashboardPage(w http.ResponseWriter, r *http.Request
 				}
 			}
 			data.ActiveOffers = len(data.Offers)
-		}
-	}
-
-	if h.billSvc != nil {
-		if wallet, err := h.billSvc.GetWallet(ctx, actor.UserID, "EGP"); err != nil {
-			h.log.DebugContext(ctx, "pharmacy dashboard: get wallet optional", "error", err)
-		} else if wallet != nil {
-			data.WalletBalance = wallet.Balance
-			data.HasWallet = true
 		}
 	}
 

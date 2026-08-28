@@ -30,6 +30,7 @@ func RegisterUploadRoutes(r chi.Router) {
 	_ = os.MkdirAll(filepath.Join(UploadBaseDir, "brands"), 0755)
 	_ = os.MkdirAll(filepath.Join(UploadBaseDir, "compare"), 0755)
 	_ = os.MkdirAll(filepath.Join(UploadBaseDir, "imports"), 0755)
+	_ = os.MkdirAll(filepath.Join(UploadBaseDir, "receipts"), 0755)
 
 	fs := http.FileServer(http.Dir(UploadBaseDir))
 	r.Get("/uploads/*", func(w http.ResponseWriter, r *http.Request) {
@@ -47,6 +48,7 @@ var allowedUploadCategories = map[string]bool{
 	"brands":    true,
 	"compare":   true,
 	"imports":   true,
+	"receipts":  true,
 }
 
 func sanitizeCategory(category string) string {

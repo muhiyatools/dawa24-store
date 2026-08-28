@@ -54,6 +54,8 @@ func (h *UIHandler) registerAdminCommerceRoutes(r chi.Router) {
 			http.Redirect(w, r, "/admin/finance?tab=wallets", http.StatusMovedPermanently)
 		})
 		g.Post("/admin/finance/wallets/{id}/adjust", h.AdminWalletAdjustSubmit)
+		g.Post("/admin/finance/deposits/{id}/approve", h.AdminDepositApproveSubmit)
+		g.Post("/admin/finance/deposits/{id}/reject", h.AdminDepositRejectSubmit)
 	})
 
 	// Plans & Subscriptions Hub

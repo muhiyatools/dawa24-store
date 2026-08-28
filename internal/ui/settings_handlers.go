@@ -57,6 +57,8 @@ func (h *UIHandler) SettingsIndex(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
+	var depositRequests []*billing.WalletDeposit
+
 	if h.billSvc != nil {
 		if pms, err := h.billSvc.ListPaymentMethods(ctx, actor.UserID); err != nil {
 			h.log.WarnContext(ctx, "settings: list payment methods", "error", err)
@@ -67,6 +69,11 @@ func (h *UIHandler) SettingsIndex(w http.ResponseWriter, r *http.Request) {
 			h.log.WarnContext(ctx, "settings: list platform payment methods", "error", err)
 		} else {
 			platformPaymentMethods = ppms
+		}
+		if deps, err := h.billSvc.ListUserDeposits(ctx, actor.UserID, 50, 0); err != nil {
+			h.log.WarnContext(ctx, "settings: list user deposits", "error", err)
+		} else {
+			depositRequests = deps
 		}
 		if w, err := h.billSvc.GetWallet(ctx, actor.UserID, "EGP"); err != nil {
 			h.log.DebugContext(ctx, "settings: get wallet optional", "error", err)
@@ -93,6 +100,7 @@ func (h *UIHandler) SettingsIndex(w http.ResponseWriter, r *http.Request) {
 		User:                   user,
 		Wallet:                 wallet,
 		Transactions:           txs,
+		DepositRequests:        depositRequests,
 		PaymentMethods:         paymentMethods,
 		PlatformPaymentMethods: platformPaymentMethods,
 		Sessions:               sessions,

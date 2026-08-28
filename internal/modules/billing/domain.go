@@ -61,6 +61,42 @@ type WalletTransaction struct {
 	CreatedAt     time.Time       `json:"created_at"`
 }
 
+// DepositStatus tracks the approval workflow lifecycle of a wallet deposit.
+type DepositStatus string
+
+const (
+	DepositPending  DepositStatus = "pending"
+	DepositApproved DepositStatus = "approved"
+	DepositRejected DepositStatus = "rejected"
+)
+
+// WalletDeposit records a user deposit request subject to administrative approval.
+type WalletDeposit struct {
+	ID              int64         `json:"id"`
+	PublicID        string        `json:"public_id"`
+	WalletID        int64         `json:"wallet_id"`
+	UserID          int64         `json:"user_id"`
+	OrganizationID  *int64        `json:"organization_id,omitempty"`
+	Amount          money.Amount  `json:"amount"`
+	Currency        string        `json:"currency"`
+	PaymentMethod   string        `json:"payment_method"`
+	ReferenceNumber string        `json:"reference_number"`
+	AttachmentURL   string        `json:"attachment_url,omitempty"`
+	UserNotes       string        `json:"user_notes,omitempty"`
+	Status          DepositStatus `json:"status"`
+	RejectionReason string        `json:"rejection_reason,omitempty"`
+	ReviewedBy      *int64        `json:"reviewed_by,omitempty"`
+	ReviewedAt      *time.Time    `json:"reviewed_at,omitempty"`
+	TransactionID   *int64        `json:"transaction_id,omitempty"`
+	CreatedAt       time.Time     `json:"created_at"`
+	UpdatedAt       time.Time     `json:"updated_at"`
+}
+
+// CanEdit reports whether the deposit is still pending and eligible for user modification.
+func (d *WalletDeposit) CanEdit() bool {
+	return d != nil && d.Status == DepositPending
+}
+
 // Payment records a monetary transaction via a payment method.
 type Payment struct {
 	ID                   int64        `json:"id"`
@@ -287,12 +323,51 @@ type AdminPaymentView struct {
 	CreatedAt            time.Time    `json:"created_at"`
 }
 
+// AdminWalletDepositView represents an enriched deposit request record for admin audit and review.
+type AdminWalletDepositView struct {
+	ID               int64         `json:"id"`
+	PublicID         string        `json:"public_id"`
+	WalletID         int64         `json:"wallet_id"`
+	UserID           int64         `json:"user_id"`
+	UserName         string        `json:"user_name"`
+	UserEmail        string        `json:"user_email"`
+	UserPhone        string        `json:"user_phone"`
+	OrganizationID   *int64        `json:"organization_id,omitempty"`
+	OrganizationName string        `json:"organization_name"`
+	OrganizationType string        `json:"organization_type"`
+	Amount           money.Amount  `json:"amount"`
+	Currency         string        `json:"currency"`
+	PaymentMethod    string        `json:"payment_method"`
+	ReferenceNumber  string        `json:"reference_number"`
+	AttachmentURL    string        `json:"attachment_url,omitempty"`
+	UserNotes        string        `json:"user_notes,omitempty"`
+	Status           DepositStatus `json:"status"`
+	RejectionReason  string        `json:"rejection_reason,omitempty"`
+	ReviewedBy       *int64        `json:"reviewed_by,omitempty"`
+	ReviewerName     string        `json:"reviewer_name,omitempty"`
+	ReviewedAt       *time.Time    `json:"reviewed_at,omitempty"`
+	TransactionID    *int64        `json:"transaction_id,omitempty"`
+	CreatedAt        time.Time     `json:"created_at"`
+	UpdatedAt        time.Time     `json:"updated_at"`
+}
+
 // WalletFilter specifies parameters for querying wallets.
 type WalletFilter struct {
 	Search string
 	Type   string // "customer", "vendor", ""
 	Limit  int
 	Offset int
+}
+
+// DepositFilter specifies parameters for querying wallet deposit requests.
+type DepositFilter struct {
+	UserID        int64
+	WalletID      int64
+	Status        string // "pending", "approved", "rejected", ""
+	PaymentMethod string
+	Search        string
+	Limit         int
+	Offset        int
 }
 
 // TransactionFilter specifies parameters for querying wallet ledger records.

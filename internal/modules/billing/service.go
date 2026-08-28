@@ -62,6 +62,110 @@ func (s *Service) Deposit(
 	return tx, nil
 }
 
+// RequestDeposit initiates a funds deposit workflow, placing the request in pending status for admin review.
+func (s *Service) RequestDeposit(
+	ctx context.Context,
+	userID int64,
+	orgID *int64,
+	currency string,
+	amount money.Amount,
+	method string,
+	referenceNumber string,
+	attachmentURL string,
+	userNotes string,
+) (*WalletDeposit, error) {
+	if err := ValidateCreditAmount(amount); err != nil {
+		return nil, err
+	}
+	if currency == "" {
+		currency = "EGP"
+	}
+	if method == "" {
+		return nil, apperr.Validation("payment_method.required", "يرجى تحديد وسيلة الدفع أو التحويل.", nil)
+	}
+	if referenceNumber == "" {
+		return nil, apperr.Validation("reference_number.required", "يرجى إدخال رقم الإشعار أو مرجع العملية.", nil)
+	}
+
+	wallet, err := s.repo.GetOrCreateWallet(ctx, userID, currency)
+	if err != nil {
+		return nil, err
+	}
+
+	dep := &WalletDeposit{
+		WalletID:        wallet.ID,
+		UserID:          userID,
+		OrganizationID:  orgID,
+		Amount:          amount,
+		Currency:        currency,
+		PaymentMethod:   method,
+		ReferenceNumber: referenceNumber,
+		AttachmentURL:   attachmentURL,
+		UserNotes:       userNotes,
+		Status:          DepositPending,
+	}
+
+	if err := s.repo.CreateDepositRequest(ctx, dep); err != nil {
+		return nil, err
+	}
+
+	s.log.InfoContext(ctx, "wallet deposit requested", "deposit_id", dep.ID, "user_id", userID, "amount", amount.String(), "method", method)
+	return dep, nil
+}
+
+// EditPendingDeposit allows the user to update a deposit request as long as it remains in pending status.
+func (s *Service) EditPendingDeposit(
+	ctx context.Context,
+	userID int64,
+	depositID int64,
+	amount money.Amount,
+	method string,
+	referenceNumber string,
+	attachmentURL string,
+	userNotes string,
+) (*WalletDeposit, error) {
+	if err := ValidateCreditAmount(amount); err != nil {
+		return nil, err
+	}
+	if method == "" {
+		return nil, apperr.Validation("payment_method.required", "يرجى تحديد وسيلة الدفع أو التحويل.", nil)
+	}
+	if referenceNumber == "" {
+		return nil, apperr.Validation("reference_number.required", "يرجى إدخال رقم الإشعار أو مرجع العملية.", nil)
+	}
+
+	existing, err := s.repo.GetDepositRequestByID(ctx, depositID)
+	if err != nil {
+		return nil, err
+	}
+	if existing.UserID != userID {
+		return nil, apperr.Forbidden("deposit.not_owner", "غير مصرح لك بتعديل هذا الطلب.")
+	}
+	if existing.Status != DepositPending {
+		return nil, apperr.Conflict("deposit.locked", "لا يمكن تعديل الطلب بعد مراجعته من الإدارة.")
+	}
+
+	existing.Amount = amount
+	existing.PaymentMethod = method
+	existing.ReferenceNumber = referenceNumber
+	if attachmentURL != "" {
+		existing.AttachmentURL = attachmentURL
+	}
+	existing.UserNotes = userNotes
+
+	if err := s.repo.UpdatePendingDepositRequest(ctx, existing); err != nil {
+		return nil, err
+	}
+
+	s.log.InfoContext(ctx, "wallet deposit updated by user", "deposit_id", depositID, "user_id", userID, "amount", amount.String())
+	return existing, nil
+}
+
+// ListUserDeposits returns all deposit requests submitted by a user.
+func (s *Service) ListUserDeposits(ctx context.Context, userID int64, limit, offset int) ([]*WalletDeposit, error) {
+	return s.repo.ListDepositRequestsByUser(ctx, userID, limit, offset)
+}
+
 // Withdraw debits funds from a wallet, rejecting overdrafts.
 func (s *Service) Withdraw(
 	ctx context.Context,

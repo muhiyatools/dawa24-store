@@ -50,3 +50,32 @@ func (s *Service) AdminListDetailedPayments(ctx context.Context, filter PaymentF
 func (s *Service) AdminPerformWalletAdjustment(ctx context.Context, walletID int64, amount money.Amount, txType TransactionType, reason string, actorID int64) error {
 	return s.repo.AdminPerformWalletAdjustment(ctx, walletID, amount, txType, reason, actorID)
 }
+
+// AdminListDetailedDeposits returns deposit requests enriched with user, tenant, and reviewer details.
+func (s *Service) AdminListDetailedDeposits(ctx context.Context, filter DepositFilter) ([]*AdminWalletDepositView, int, error) {
+	return s.repo.AdminListDetailedDeposits(ctx, filter)
+}
+
+// AdminApproveDeposit approves a pending deposit request, crediting the user's wallet ledger.
+func (s *Service) AdminApproveDeposit(ctx context.Context, depositID int64, reviewerID int64) (*WalletDeposit, *WalletTransaction, error) {
+	dep, tx, err := s.repo.AdminApproveDepositRequest(ctx, depositID, reviewerID)
+	if err != nil {
+		return nil, nil, err
+	}
+	s.log.InfoContext(ctx, "admin approved wallet deposit", "deposit_id", depositID, "reviewer_id", reviewerID, "amount", dep.Amount.String())
+	return dep, tx, nil
+}
+
+// AdminRejectDeposit rejects a pending deposit request with an explanatory reason.
+func (s *Service) AdminRejectDeposit(ctx context.Context, depositID int64, reviewerID int64, reason string) (*WalletDeposit, error) {
+	if reason == "" {
+		reason = "لم يتم قبول إشعار أو بيانات التحويل المقدمة"
+	}
+	dep, err := s.repo.AdminRejectDepositRequest(ctx, depositID, reviewerID, reason)
+	if err != nil {
+		return nil, err
+	}
+	s.log.InfoContext(ctx, "admin rejected wallet deposit", "deposit_id", depositID, "reviewer_id", reviewerID, "reason", reason)
+	return dep, nil
+}
+

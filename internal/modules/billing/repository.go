@@ -46,6 +46,14 @@ type Repository interface {
 	TogglePlatformPaymentMethod(ctx context.Context, id string, active bool) error
 	DeletePlatformPaymentMethod(ctx context.Context, id string) error
 
+	CreateDepositRequest(ctx context.Context, dep *WalletDeposit) error
+	GetDepositRequestByID(ctx context.Context, id int64) (*WalletDeposit, error)
+	UpdatePendingDepositRequest(ctx context.Context, dep *WalletDeposit) error
+	ListDepositRequestsByUser(ctx context.Context, userID int64, limit, offset int) ([]*WalletDeposit, error)
+	AdminListDetailedDeposits(ctx context.Context, filter DepositFilter) ([]*AdminWalletDepositView, int, error)
+	AdminApproveDepositRequest(ctx context.Context, depositID int64, reviewerID int64) (*WalletDeposit, *WalletTransaction, error)
+	AdminRejectDepositRequest(ctx context.Context, depositID int64, reviewerID int64, reason string) (*WalletDeposit, error)
+
 	ListPaymentsByOrg(ctx context.Context, orgID int64, limit, offset int) ([]*Payment, error)
 
 	AdminListSubscriptions(ctx context.Context, limit, offset int) ([]*Subscription, error)

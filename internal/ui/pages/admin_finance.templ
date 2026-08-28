@@ -2,6 +2,7 @@ package pages
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/muhiya/dawa24-store/internal/modules/billing"
 	"github.com/muhiya/dawa24-store/internal/modules/commerce"
@@ -12,32 +13,55 @@ import (
 
 // AdminFinanceData contains aggregated financial datasets from the database.
 type AdminFinanceData struct {
-	ActiveTab         string // "invoices", "payments", "wallets", "transactions", "earnings"
-	Invoices          []*billing.AdminInvoiceView
-	Payments          []*billing.AdminPaymentView
-	Wallets           []*billing.AdminWalletView
-	Transactions      []*billing.AdminWalletTransactionView
-	TotalInvoices     int
-	TotalPayments     int
-	TotalWallets      int
-	TotalTransactions int
-	TotalRevenue      money.Amount
-	TotalCommission   money.Amount
-	TotalPaid         money.Amount
-	TotalHeld         money.Amount
-	DirectCommissions money.Amount
-	OfferCommissions  money.Amount
-	Query             string
-	StatusFilter      string
-	TypeFilter        string
-	MethodFilter      string
-	SelectedWalletID  int64
+	ActiveTab            string // "deposits", "invoices", "payments", "wallets", "transactions", "earnings"
+	Invoices             []*billing.AdminInvoiceView
+	Payments             []*billing.AdminPaymentView
+	Wallets              []*billing.AdminWalletView
+	Transactions         []*billing.AdminWalletTransactionView
+	Deposits             []*billing.AdminWalletDepositView
+	TotalInvoices        int
+	TotalPayments        int
+	TotalWallets         int
+	TotalTransactions    int
+	TotalDeposits        int
+	PendingDepositsCount int
+	TotalRevenue         money.Amount
+	TotalCommission      money.Amount
+	TotalPaid            money.Amount
+	TotalHeld            money.Amount
+	DirectCommissions    money.Amount
+	OfferCommissions     money.Amount
+	Query                string
+	StatusFilter         string
+	TypeFilter           string
+	MethodFilter         string
+	SelectedWalletID     int64
 }
 
 // AdminFinance renders the unified financial management hub.
 templ AdminFinance(data AdminFinanceData, lang, dir string) {
 	@layouts.AdminShell("الإدارة المالية والمحافظ والتحصيل", "finance", lang, dir) {
-		<div class="admin-finance-hub space-y-6">
+		<div
+			class="admin-finance-hub space-y-6"
+			x-data="{
+				isRejectModalOpen: false,
+				rejectDepositID: 0,
+				rejectDepositAmount: '',
+				rejectUserName: '',
+				isReceiptModalOpen: false,
+				receiptModalURL: '',
+				openRejectModal(id, amount, userName) {
+					this.rejectDepositID = id;
+					this.rejectDepositAmount = amount;
+					this.rejectUserName = userName;
+					this.isRejectModalOpen = true;
+				},
+				openReceiptModal(url) {
+					this.receiptModalURL = url;
+					this.isReceiptModalOpen = true;
+				}
+			}"
+		>
 			<!-- Header Title & Quick Export Row -->
 			@components.PageHeader(components.PageHeaderProps{
 				Title:    "المركز المالي والمحافظ والتحصيل",
@@ -111,7 +135,16 @@ templ AdminFinance(data AdminFinanceData, lang, dir string) {
 			<!-- Unified Tabs Navigation -->
 			<div class="card mb-0" style="border:1px solid var(--border); border-radius:18px; padding:0; overflow:hidden; box-shadow:var(--shadow-sm);">
 				<div class="tab-header" style="display:flex; border-bottom:1px solid var(--border); background:var(--surface-sunken); padding:0 1rem; overflow-x:auto; gap:0.25rem;">
-					<a href="/admin/finance?tab=invoices" class={ "tab-btn", templ.KV("active", data.ActiveTab == "invoices" || data.ActiveTab == "") } style="padding:1rem 1.25rem; display:inline-flex; align-items:center; gap:0.5rem; font-weight:700; color:var(--text); text-decoration:none; border-bottom:3px solid transparent; white-space:nowrap;">
+					<a href="/admin/finance?tab=deposits" class={ "tab-btn", templ.KV("active", data.ActiveTab == "deposits" || data.ActiveTab == "") } style="padding:1rem 1.25rem; display:inline-flex; align-items:center; gap:0.5rem; font-weight:700; color:var(--text); text-decoration:none; border-bottom:3px solid transparent; white-space:nowrap;">
+						@components.IconWallet("icon-sm")
+						<span>مراجعة طلبات شحن المحفظة</span>
+						if data.PendingDepositsCount > 0 {
+							<span class="badge badge-amber text-xs fw-800">{ fmt.Sprintf("%d قيد المراجعة", data.PendingDepositsCount) }</span>
+						} else {
+							<span class="badge badge-secondary text-xs">{ fmt.Sprintf("%d", data.TotalDeposits) }</span>
+						}
+					</a>
+					<a href="/admin/finance?tab=invoices" class={ "tab-btn", templ.KV("active", data.ActiveTab == "invoices") } style="padding:1rem 1.25rem; display:inline-flex; align-items:center; gap:0.5rem; font-weight:700; color:var(--text); text-decoration:none; border-bottom:3px solid transparent; white-space:nowrap;">
 						@components.IconFile("icon-sm")
 						<span>الفواتير الضريبية والمطالبات</span>
 						<span class="badge badge-secondary text-xs">{ fmt.Sprintf("%d", data.TotalInvoices) }</span>
@@ -139,9 +172,169 @@ templ AdminFinance(data AdminFinanceData, lang, dir string) {
 
 				<div class="p-card">
 					<!-- ══════════════════════════════════════════
+					     TAB 0: DEPOSIT REQUESTS REVIEW
+					══════════════════════════════════════════ -->
+					if data.ActiveTab == "deposits" || data.ActiveTab == "" {
+						<div class="tab-content-pane space-y-4">
+							<div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.75rem;">
+								<div>
+									<h2 style="font-size:1.15rem; font-weight:800; margin:0; color:var(--text);">مراجعة وتدقيق طلبات شحن المحفظة</h2>
+									<p style="font-size:0.83rem; color:var(--text-secondary); margin:0.2rem 0 0;">الموافقة والاعتماد الفوري لتحويلات الصيدليات والعملاء، أو الرفض مع ذكر السبب.</p>
+								</div>
+								<!-- Search & Filter Form -->
+								<form method="GET" action="/admin/finance" style="display:flex; gap:0.5rem; align-items:center; flex-wrap:wrap;">
+									<input type="hidden" name="tab" value="deposits"/>
+									<input type="text" name="q" value={ data.Query } placeholder="ابحث برقم الإشعار، اسم العميل، الهاتف، أو المنشأة..." class="form-input" style="padding:0.45rem 0.85rem; font-size:0.85rem; min-width:260px; border-radius:8px;"/>
+									<select name="status" class="form-input" style="padding:0.45rem 0.85rem; font-size:0.85rem; border-radius:8px;">
+										<option value="">كل الحالات</option>
+										<option value="pending" selected?={ data.StatusFilter == "pending" }>⏳ قيد المراجعة (Pending)</option>
+										<option value="approved" selected?={ data.StatusFilter == "approved" }>✓ معتمدة ومقبولة (Approved)</option>
+										<option value="rejected" selected?={ data.StatusFilter == "rejected" }>✕ مرفوضة (Rejected)</option>
+									</select>
+									<select name="method" class="form-input" style="padding:0.45rem 0.85rem; font-size:0.85rem; border-radius:8px;">
+										<option value="">كل وسائل الدفع</option>
+										<option value="instapay" selected?={ data.MethodFilter == "instapay" }>إنستاباي InstaPay</option>
+										<option value="bank_transfer" selected?={ data.MethodFilter == "bank_transfer" }>تحويل بنكي Bank</option>
+										<option value="wallet" selected?={ data.MethodFilter == "wallet" }>محفظة هاتف كاش</option>
+										<option value="card" selected?={ data.MethodFilter == "card" }>بطاقة دفع إلكترونية</option>
+									</select>
+									<button type="submit" class="btn btn-secondary btn-sm">تصفية</button>
+									if data.Query != "" || data.StatusFilter != "" || data.MethodFilter != "" {
+										<a href="/admin/finance?tab=deposits" class="btn btn-secondary btn-sm text-muted">إلغاء</a>
+									}
+								</form>
+							</div>
+
+							if len(data.Deposits) == 0 {
+								@components.EmptyState(components.EmptyStateProps{Title: "لا توجد طلبات إيداع مطابقة", Message: "لم يتم العثور على أي طلبات شحن محفظة تطابق معايير الفلترة المحددة."})
+							} else {
+								<div class="table-container" style="border:1px solid var(--border); border-radius:12px; overflow:hidden;">
+									<table class="b2b-table">
+										<thead>
+											<tr>
+												<th># الطلب</th>
+												<th>المستخدم / المنشأة</th>
+												<th>المبلغ المودع</th>
+												<th>وسيلة الدفع والرقم المرجعي</th>
+												<th>إشعار التحويل / الإيصال</th>
+												<th>تاريخ الطلب</th>
+												<th>الحالة والملاحظات</th>
+												<th class="text-end">الإجراءات والتدقيق</th>
+											</tr>
+										</thead>
+										<tbody>
+											for _, d := range data.Deposits {
+												<tr>
+													<td class="tabular-nums fw-700" style="color:var(--accent);">
+														#{ fmt.Sprintf("DEP-%d", d.ID) }
+													</td>
+													<td>
+														<div class="fw-800 text-primary">{ d.UserName }</div>
+														<div class="text-xs text-muted tabular-nums" dir="ltr">
+															<span>{ d.UserEmail }</span>
+															if d.UserPhone != "" {
+																<span> • { d.UserPhone }</span>
+															}
+														</div>
+														if d.OrganizationName != "" {
+															<div style="margin-top:0.25rem;">
+																<span class="badge badge-sky text-xs fw-700">{ d.OrganizationName }</span>
+															</div>
+														}
+													</td>
+													<td>
+														<div class="tabular-nums fw-900 text-base text-emerald" style="white-space:nowrap;">
+															+ { d.Amount.String() } ج.م
+														</div>
+													</td>
+													<td>
+														<span class="badge badge-purple text-xs fw-800" dir="ltr">{ d.PaymentMethod }</span>
+														<div class="tabular-nums text-xs mt-1" style="font-weight:700;" dir="ltr">
+															<span class="text-muted">المرجع:</span> { d.ReferenceNumber }
+														</div>
+													</td>
+													<td>
+														if d.AttachmentURL != "" {
+															<button
+																type="button"
+																class="btn btn-secondary btn-xs fw-700"
+																style="gap:0.3rem;"
+																@click={ fmt.Sprintf("openReceiptModal('%s')", d.AttachmentURL) }
+															>
+																@components.IconFile("icon-xs")
+																<span>عرض الإيصال 📎</span>
+															</button>
+														} else {
+															<span class="text-muted text-xs">لا يوجد مرفق</span>
+														}
+													</td>
+													<td class="tabular-nums text-xs text-muted">
+														{ d.CreatedAt.Format("2006-01-02 15:04") }
+													</td>
+													<td>
+														if d.Status == billing.DepositPending {
+															<span class="badge badge-amber text-xs fw-800">⏳ قيد المراجعة</span>
+														} else if d.Status == billing.DepositApproved {
+															<span class="badge badge-emerald text-xs fw-800">✓ معتمد ومضاف</span>
+															if d.ReviewerName != "" {
+																<div class="text-xs text-muted mt-1">بواسطة: { d.ReviewerName }</div>
+															}
+															if d.TransactionID != nil {
+																<div class="text-xs text-muted tabular-nums">معاملة #{ fmt.Sprintf("TX-%d", *d.TransactionID) }</div>
+															}
+														} else if d.Status == billing.DepositRejected {
+															<span class="badge badge-danger text-xs fw-800">✕ مرفوض</span>
+															if d.RejectionReason != "" {
+																<div class="text-xs text-danger mt-1" style="max-width:200px; word-break:break-word;">
+																	<strong>السبب:</strong> { d.RejectionReason }
+																</div>
+															}
+															if d.ReviewerName != "" {
+																<div class="text-xs text-muted mt-0.5">بواسطة: { d.ReviewerName }</div>
+															}
+														}
+														if d.UserNotes != "" {
+															<div class="text-xs text-secondary mt-1" style="background:var(--surface-sunken); padding:0.25rem 0.5rem; border-radius:4px; border:1px solid var(--border); max-width:200px; word-break:break-word;">
+																📝 { d.UserNotes }
+															</div>
+														}
+													</td>
+													<td class="text-end">
+														if d.Status == billing.DepositPending {
+															<div style="display:flex; gap:0.4rem; justify-content:flex-end;">
+																<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/finance/deposits/%d/approve", d.ID)) } class="m-0" onsubmit="return confirm('هل أنت متأكد من رغبتك في اعتماد هذا الإيداع وإضافته للرصيد الآن؟');">
+																	<button type="submit" class="btn btn-primary btn-xs fw-800" style="gap:0.25rem; background:var(--emerald); border-color:var(--emerald);">
+																		@components.IconCheck("icon-xs")
+																		<span>اعتماد</span>
+																	</button>
+																</form>
+																<button
+																	type="button"
+																	class="btn btn-danger btn-xs fw-800"
+																	style="gap:0.25rem;"
+																	@click={ fmt.Sprintf("openRejectModal(%d, '%s', '%s')", d.ID, d.Amount.String(), strings.ReplaceAll(d.UserName, "'", "\\'")) }
+																>
+																	@components.IconClose("icon-xs")
+																	<span>رفض</span>
+																</button>
+															</div>
+														} else {
+															<span class="badge badge-secondary text-xs">تمت المعالجة</span>
+														}
+													</td>
+												</tr>
+											}
+										</tbody>
+									</table>
+								</div>
+							}
+						</div>
+					}
+
+					<!-- ══════════════════════════════════════════
 					     TAB 1: INVOICES
 					══════════════════════════════════════════ -->
-					if data.ActiveTab == "invoices" || data.ActiveTab == "" {
+					if data.ActiveTab == "invoices" {
 						<div class="tab-content-pane space-y-4">
 							<div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.75rem;">
 								<div>
@@ -720,6 +913,83 @@ templ AdminFinance(data AdminFinanceData, lang, dir string) {
 					modal.style.display = 'none';
 				}
 			</script>
+
+			<!-- Reject Deposit Request Modal -->
+			<div
+				x-show="isRejectModalOpen"
+				x-cloak
+				class="modal-overlay"
+				@keydown.escape.window="isRejectModalOpen = false"
+				style="position:fixed; inset:0; background:rgba(0,0,0,0.75); backdrop-filter:blur(4px); z-index:9999; display:flex; align-items:center; justify-content:center; padding:1rem;"
+			>
+				<div
+					@click.outside="isRejectModalOpen = false"
+					class="card"
+					style="width:100%; max-width:500px; background:var(--surface-raised); border:1px solid var(--border); border-radius:18px; box-shadow:var(--shadow-xl); padding:1.75rem; text-align:start;"
+				>
+					<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.25rem; border-bottom:1px solid var(--border); padding-bottom:0.75rem;">
+						<div class="row-center-sm" style="color:var(--danger-text);">
+							@components.IconTrash("icon-sm")
+							<h3 class="text-lg fw-800 text-danger m-0">رفض طلب شحن المحفظة</h3>
+						</div>
+						<button type="button" @click="isRejectModalOpen = false" class="btn btn-secondary btn-icon size-7">
+							@components.IconClose("icon-xs")
+						</button>
+					</div>
+					<form :action="'/admin/finance/deposits/' + rejectDepositID + '/reject'" method="POST" style="display:flex; flex-direction:column; gap:1.25rem;">
+						<div style="background:var(--danger-surface); border:1px solid var(--danger-border); border-radius:var(--radius-lg); padding:0.85rem 1rem; font-size:0.85rem; color:var(--danger-text);">
+							أنت على وشك رفض طلب الإيداع المقدم من <strong x-text="rejectUserName"></strong> بمبلغ <strong class="tabular-nums" x-text="rejectDepositAmount + ' ج.م'"></strong>. لن يتم شحن الرصيد.
+						</div>
+						<div class="form-group mb-0">
+							<label class="form-label font-bold" for="rejection_reason_admin">سبب الرفض (سيظهر للمستخدم في صيدليته) *</label>
+							<textarea id="rejection_reason_admin" name="rejection_reason" rows="3" class="form-input" placeholder="مثال: صورة الإيصال غير واضحة / رقم المرجع لا يطابق كشف حساب البنك / لم يصل التحويل بعد..." required></textarea>
+						</div>
+						<div style="display:flex; justify-content:flex-end; gap:0.5rem; margin-top:0.5rem;">
+							<button type="button" @click="isRejectModalOpen = false" class="btn btn-secondary">إلغاء</button>
+							<button type="submit" class="btn btn-danger fw-800">
+								<span>تأكيد رفض الطلب</span>
+							</button>
+						</div>
+					</form>
+				</div>
+			</div>
+
+			<!-- Receipt Preview Lightbox Modal -->
+			<div
+				x-show="isReceiptModalOpen"
+				x-cloak
+				class="modal-overlay"
+				@keydown.escape.window="isReceiptModalOpen = false"
+				style="position:fixed; inset:0; background:rgba(0,0,0,0.85); backdrop-filter:blur(6px); z-index:9999; display:flex; align-items:center; justify-content:center; padding:1.5rem;"
+			>
+				<div
+					@click.outside="isReceiptModalOpen = false"
+					class="card"
+					style="width:100%; max-width:760px; background:var(--surface-raised); border:1px solid var(--border); border-radius:20px; box-shadow:var(--shadow-2xl); padding:1.5rem; text-align:start;"
+				>
+					<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem; border-bottom:1px solid var(--border); padding-bottom:0.75rem;">
+						<div class="row-center-sm">
+							@components.IconFile("icon-sm")
+							<h3 class="text-lg fw-800 text-primary m-0">معاينة إشعار التحويل البنكي / الإيصال</h3>
+						</div>
+						<div class="row-center-sm" style="gap:0.5rem;">
+							<a :href="receiptModalURL" target="_blank" download class="btn btn-secondary btn-xs fw-700">فتح بالحجم الكامل ↗</a>
+							<button type="button" @click="isReceiptModalOpen = false" class="btn btn-secondary btn-icon size-7">
+								@components.IconClose("icon-xs")
+							</button>
+						</div>
+					</div>
+					<div style="display:flex; justify-content:center; align-items:center; background:var(--surface-sunken); border-radius:var(--radius-lg); padding:1rem; min-height:280px; max-height:68vh; overflow:auto;">
+						<template x-if="receiptModalURL.toLowerCase().endsWith('.pdf')">
+							<iframe :src="receiptModalURL" style="width:100%; height:500px; border:none; border-radius:var(--radius-md);"></iframe>
+						</template>
+						<template x-if="!receiptModalURL.toLowerCase().endsWith('.pdf')">
+							<img :src="receiptModalURL" alt="إشعار التحويل" style="max-width:100%; max-height:62vh; object-fit:contain; border-radius:var(--radius-md); box-shadow:var(--shadow-md);" />
+						</template>
+					</div>
+				</div>
+			</div>
+
 		</div>
 	}
 }

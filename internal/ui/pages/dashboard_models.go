@@ -9,7 +9,9 @@ import (
 	"github.com/muhiya/dawa24-store/internal/modules/billing"
 	"github.com/muhiya/dawa24-store/internal/modules/commerce"
 	"github.com/muhiya/dawa24-store/internal/modules/inventory"
+	"github.com/muhiya/dawa24-store/internal/modules/org"
 	"github.com/muhiya/dawa24-store/internal/modules/promo"
+	"github.com/muhiya/dawa24-store/internal/modules/smartorder"
 	"github.com/muhiya/dawa24-store/internal/shared/money"
 )
 
@@ -175,18 +177,109 @@ func (d *AIConsumptionLogsPageData) ResetCountdown() string {
 
 // PharmacyDashboardData is the pharmacy dashboard view model.
 type PharmacyDashboardData struct {
-	ActiveOrders       int
-	CompletedOrders    int
-	OpenOrders         int
-	MonthSpend         money.Amount
-	WalletBalance      money.Amount
-	HasWallet          bool
+	// Top 8 KPI Metrics
+	TotalOrders       int
+	CompletedOrders   int
+	ActiveOrders      int
+	CancelledOrders   int
+	TotalSpend        money.Amount
+	MonthSpend        money.Amount
+	WalletBalance     money.Amount
+	HasWallet         bool
+	TotalOrderedItems int
+	SmartOrdersCount  int
+
+	// Pharmacy & Branch Context
+	CustomerOrgName  string
+	ActiveBranchID   int64
+	ActiveBranchName string
+	TotalBranches    int
+	ActiveBranches   int
+	Branches         []*org.Branch
+
+	// Recent Orders Table
+	Orders []*commerce.Order
+
+	// Wallet Details
+	PendingDepositsTotal money.Amount
+	PendingDepositsCount int
+	RecentTransactions   []*billing.WalletTransaction
+
+	// Smart Orders Section
+	SmartOrdersTotal       int
+	SmartOrdersProcessing  int
+	SmartOrdersCompleted   int
+	SmartOrdersNeedsReview int
+	RecentSmartOrders      []*smartorder.Run
+
+	// Legacy & Supplemental
 	Favorites          int
 	ActiveOffers       int
-	Orders             []*commerce.Order
 	Offers             []*promo.Offer
 	PendingDocRequests []*attachments.DocumentRequest
 	Subscription       *OrgSubscriptionView
+}
+
+// FormatSmartOrderStatusLabel returns the localized Arabic label for Smart Order RunStatus.
+func FormatSmartOrderStatusLabel(status smartorder.RunStatus) string {
+	switch status {
+	case smartorder.StatusPlaced, smartorder.StatusCompleted, smartorder.StatusFinalizing:
+		return "مكتمل ومعتمد"
+	case smartorder.StatusProcessing, smartorder.StatusQueued:
+		return "جاري المعالجة"
+	case smartorder.StatusMapping:
+		return "بانتظار تعيين الأعمدة"
+	case smartorder.StatusDraft:
+		return "مسودة"
+	case smartorder.StatusStale:
+		return "بحاجة لإعادة تشغيل"
+	case smartorder.StatusFailed:
+		return "تعذّر الاكتمال"
+	default:
+		return string(status)
+	}
+}
+
+// FormatSmartOrderStatusTone returns the badge tone for Smart Order RunStatus.
+func FormatSmartOrderStatusTone(status smartorder.RunStatus) string {
+	switch status {
+	case smartorder.StatusPlaced, smartorder.StatusCompleted:
+		return "emerald"
+	case smartorder.StatusProcessing, smartorder.StatusQueued, smartorder.StatusFinalizing:
+		return "amber"
+	case smartorder.StatusMapping, smartorder.StatusDraft:
+		return "sky"
+	case smartorder.StatusStale, smartorder.StatusFailed:
+		return "rose"
+	default:
+		return "slate"
+	}
+}
+
+// FormatTxTypeLabel returns the Arabic translation for a wallet transaction type.
+func FormatTxTypeLabel(t billing.TransactionType) string {
+	switch t {
+	case billing.TxDeposit:
+		return "إيداع رصيد"
+	case billing.TxWithdrawal:
+		return "سحب / استرداد"
+	case billing.TxPurchase:
+		return "سداد طلبية"
+	case billing.TxRefund:
+		return "استرجاع مالي"
+	case billing.TxBonus:
+		return "مكافأة / بونص"
+	case billing.TxPenalty:
+		return "خصم إداري"
+	case billing.TxTransferIn:
+		return "تحويل وارد"
+	case billing.TxTransferOut:
+		return "تحويل صادر"
+	case billing.TxAdjustment:
+		return "تسوية رصيد"
+	default:
+		return string(t)
+	}
 }
 
 // CoveredPharmacyItem represents one pharmacy branch covered by the vendor's distribution network.
