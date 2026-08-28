@@ -13,7 +13,7 @@ import (
 
 // MarketDiscountsPage renders market-wide approved discounts with responsive views, filters, and pagination.
 templ MarketDiscountsPage(lang, dir string, actor authctx.Actor, result *compare.MarketDiscountsResult, filter compare.MarketDiscountsFilter, currentView string) {
-	@layouts.ShellFor("خصومات وعروض أسعار السوق العامة", "market-discounts", lang, dir, actor) {
+	@layouts.ShellFor("خصومات السوق العامة | دواء 24", "market-discounts", lang, dir, actor) {
 		<div
 			style="display:flex; flex-direction:column; gap:1.5rem; max-width:1440px; margin:0 auto 3.5rem auto;"
 			x-data={ fmt.Sprintf("{ showMoreFilters: %t, currentView: '%s', setView(v) { this.currentView = v; localStorage.setItem('d24_market_view', v); }, init() { const saved = localStorage.getItem('d24_market_view'); if (saved && (saved === 'list' || saved === 'grid')) { this.currentView = saved; } } }", (filter.MinPrice != nil || filter.MaxPrice != nil || filter.MinDiscount != nil || filter.MaxDiscount != nil), currentView) }
@@ -28,7 +28,7 @@ templ MarketDiscountsPage(lang, dir string, actor authctx.Actor, result *compare
 							</div>
 							<div>
 								<h1 style="font-size:1.5rem; font-weight:900; color:var(--text); margin:0;">
-									خصومات وعروض أسعار السوق العامة
+									خصومات السوق العامة
 								</h1>
 								<span style="font-size:0.75rem; font-weight:700; color:var(--accent); text-transform:uppercase;">
 									Market Intelligence & Supplier Price Lists
@@ -351,15 +351,15 @@ templ MarketDiscountsPage(lang, dir string, actor authctx.Actor, result *compare
 										<td class="tabular-nums">
 											if item.DiscountPercent >= 40 {
 												<span class="badge badge-rose fw-800" style="font-size:0.85rem; padding:0.25rem 0.65rem;">
-													🔥 %{ fmt.Sprintf("%.1f", item.DiscountPercent) }
+													🔥 %{ formatDiscount(item.DiscountPercent) } خصم
 												</span>
 											} else if item.DiscountPercent >= 25 {
 												<span class="badge badge-emerald fw-800" style="font-size:0.85rem; padding:0.25rem 0.65rem;">
-													%{ fmt.Sprintf("%.1f", item.DiscountPercent) }
+													%{ formatDiscount(item.DiscountPercent) } خصم
 												</span>
 											} else {
 												<span class="badge badge-sky fw-700" style="font-size:0.85rem; padding:0.25rem 0.65rem;">
-													%{ fmt.Sprintf("%.1f", item.DiscountPercent) }
+													%{ formatDiscount(item.DiscountPercent) } خصم
 												</span>
 											}
 										</td>
@@ -395,11 +395,11 @@ templ MarketDiscountsPage(lang, dir string, actor authctx.Actor, result *compare
 									</span>
 									if item.DiscountPercent >= 40 {
 										<span class="badge badge-rose fw-800" style="font-size:0.8rem; padding:0.25rem 0.65rem; border-radius:var(--radius-md);">
-											🔥 %{ fmt.Sprintf("%.1f", item.DiscountPercent) } خصم
+											🔥 %{ formatDiscount(item.DiscountPercent) } خصم
 										</span>
 									} else if item.DiscountPercent > 0 {
 										<span class="badge badge-emerald fw-800" style="font-size:0.8rem; padding:0.25rem 0.65rem; border-radius:var(--radius-md);">
-											%{ fmt.Sprintf("%.1f", item.DiscountPercent) } خصم
+											%{ formatDiscount(item.DiscountPercent) } خصم
 										</span>
 									}
 								</div>
@@ -530,6 +530,13 @@ func calculateMaxDiscount(items []*compare.MarketDiscountRow) float64 {
 		}
 	}
 	return maxD
+}
+
+func formatDiscount(d float64) string {
+	if d == float64(int(d)) {
+		return fmt.Sprintf("%.0f", d)
+	}
+	return fmt.Sprintf("%.1f", d)
 }
 
 func formatOptionalFloat(v *float64) string {

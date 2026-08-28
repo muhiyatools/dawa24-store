@@ -66,7 +66,7 @@ func MarketDiscountsPage(lang, dir string, actor authctx.Actor, result *compare.
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "\"><!-- 1. Header Banner --><div class=\"card mb-0\" style=\"border:1px solid var(--border); background:linear-gradient(135deg, var(--surface-raised) 0%, var(--surface-sunken) 100%); border-radius:var(--radius-xl); padding:1.75rem; box-shadow:0 4px 20px rgba(0,0,0,0.03);\"><div style=\"display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1.5rem;\"><div><div style=\"display:flex; align-items:center; gap:0.75rem; margin-bottom:0.35rem;\"><div style=\"width:46px; height:46px; border-radius:var(--radius-xl); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center; font-size:1.4rem;\">🏷️</div><div><h1 style=\"font-size:1.5rem; font-weight:900; color:var(--text); margin:0;\">خصومات وعروض أسعار السوق العامة</h1><span style=\"font-size:0.75rem; font-weight:700; color:var(--accent); text-transform:uppercase;\">Market Intelligence & Supplier Price Lists</span></div></div><p style=\"font-size:0.875rem; color:var(--text-secondary); margin:0.35rem 0 0 0; line-height:1.6; max-width:800px;\">تصفح وقارن أحدث الخصومات وعروض الأسعار التنافسية المرفوعة من مختلف الموزعين والمستودعات الطبية في السوق.</p></div><div style=\"display:flex; gap:0.75rem; align-items:center; flex-wrap:wrap;\"><a href=\"/compare/tool\" class=\"btn btn-primary btn-sm\" style=\"display:inline-flex; align-items:center; gap:0.4rem; font-weight:800; padding:0.55rem 1.25rem; border-radius:var(--radius-lg);\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "\"><!-- 1. Header Banner --><div class=\"card mb-0\" style=\"border:1px solid var(--border); background:linear-gradient(135deg, var(--surface-raised) 0%, var(--surface-sunken) 100%); border-radius:var(--radius-xl); padding:1.75rem; box-shadow:0 4px 20px rgba(0,0,0,0.03);\"><div style=\"display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1.5rem;\"><div><div style=\"display:flex; align-items:center; gap:0.75rem; margin-bottom:0.35rem;\"><div style=\"width:46px; height:46px; border-radius:var(--radius-xl); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center; font-size:1.4rem;\">🏷️</div><div><h1 style=\"font-size:1.5rem; font-weight:900; color:var(--text); margin:0;\">خصومات السوق العامة</h1><span style=\"font-size:0.75rem; font-weight:700; color:var(--accent); text-transform:uppercase;\">Market Intelligence & Supplier Price Lists</span></div></div><p style=\"font-size:0.875rem; color:var(--text-secondary); margin:0.35rem 0 0 0; line-height:1.6; max-width:800px;\">تصفح وقارن أحدث الخصومات وعروض الأسعار التنافسية المرفوعة من مختلف الموزعين والمستودعات الطبية في السوق.</p></div><div style=\"display:flex; gap:0.75rem; align-items:center; flex-wrap:wrap;\"><a href=\"/compare/tool\" class=\"btn btn-primary btn-sm\" style=\"display:inline-flex; align-items:center; gap:0.4rem; font-weight:800; padding:0.55rem 1.25rem; border-radius:var(--radius-lg);\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -510,15 +510,15 @@ func MarketDiscountsPage(lang, dir string, actor authctx.Actor, result *compare.
 							return templ_7745c5c3_Err
 						}
 						var templ_7745c5c3_Var24 string
-						templ_7745c5c3_Var24, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%.1f", item.DiscountPercent))
+						templ_7745c5c3_Var24, templ_7745c5c3_Err = templ.JoinStringErrs(formatDiscount(item.DiscountPercent))
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/market_discounts.templ`, Line: 354, Col: 62}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/market_discounts.templ`, Line: 354, Col: 57}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var24))
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 57, "</span>")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 57, " خصم</span>")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
@@ -528,15 +528,15 @@ func MarketDiscountsPage(lang, dir string, actor authctx.Actor, result *compare.
 							return templ_7745c5c3_Err
 						}
 						var templ_7745c5c3_Var25 string
-						templ_7745c5c3_Var25, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%.1f", item.DiscountPercent))
+						templ_7745c5c3_Var25, templ_7745c5c3_Err = templ.JoinStringErrs(formatDiscount(item.DiscountPercent))
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/market_discounts.templ`, Line: 358, Col: 57}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/market_discounts.templ`, Line: 358, Col: 52}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var25))
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 59, "</span>")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 59, " خصم</span>")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
@@ -546,15 +546,15 @@ func MarketDiscountsPage(lang, dir string, actor authctx.Actor, result *compare.
 							return templ_7745c5c3_Err
 						}
 						var templ_7745c5c3_Var26 string
-						templ_7745c5c3_Var26, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%.1f", item.DiscountPercent))
+						templ_7745c5c3_Var26, templ_7745c5c3_Err = templ.JoinStringErrs(formatDiscount(item.DiscountPercent))
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/market_discounts.templ`, Line: 362, Col: 57}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/market_discounts.templ`, Line: 362, Col: 52}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var26))
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 61, "</span>")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 61, " خصم</span>")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
@@ -646,9 +646,9 @@ func MarketDiscountsPage(lang, dir string, actor authctx.Actor, result *compare.
 							return templ_7745c5c3_Err
 						}
 						var templ_7745c5c3_Var31 string
-						templ_7745c5c3_Var31, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%.1f", item.DiscountPercent))
+						templ_7745c5c3_Var31, templ_7745c5c3_Err = templ.JoinStringErrs(formatDiscount(item.DiscountPercent))
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/market_discounts.templ`, Line: 398, Col: 60}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/market_discounts.templ`, Line: 398, Col: 55}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var31))
 						if templ_7745c5c3_Err != nil {
@@ -664,9 +664,9 @@ func MarketDiscountsPage(lang, dir string, actor authctx.Actor, result *compare.
 							return templ_7745c5c3_Err
 						}
 						var templ_7745c5c3_Var32 string
-						templ_7745c5c3_Var32, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%.1f", item.DiscountPercent))
+						templ_7745c5c3_Var32, templ_7745c5c3_Err = templ.JoinStringErrs(formatDiscount(item.DiscountPercent))
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/market_discounts.templ`, Line: 402, Col: 55}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/market_discounts.templ`, Line: 402, Col: 50}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var32))
 						if templ_7745c5c3_Err != nil {
@@ -940,7 +940,7 @@ func MarketDiscountsPage(lang, dir string, actor authctx.Actor, result *compare.
 			}
 			return nil
 		})
-		templ_7745c5c3_Err = layouts.ShellFor("خصومات وعروض أسعار السوق العامة", "market-discounts", lang, dir, actor).Render(templ.WithChildren(ctx, templ_7745c5c3_Var2), templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = layouts.ShellFor("خصومات السوق العامة | دواء 24", "market-discounts", lang, dir, actor).Render(templ.WithChildren(ctx, templ_7745c5c3_Var2), templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -956,6 +956,13 @@ func calculateMaxDiscount(items []*compare.MarketDiscountRow) float64 {
 		}
 	}
 	return maxD
+}
+
+func formatDiscount(d float64) string {
+	if d == float64(int(d)) {
+		return fmt.Sprintf("%.0f", d)
+	}
+	return fmt.Sprintf("%.1f", d)
 }
 
 func formatOptionalFloat(v *float64) string {

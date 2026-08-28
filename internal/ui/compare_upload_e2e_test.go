@@ -569,12 +569,12 @@ func TestCompare_PharmacyRestricted(t *testing.T) {
 		t.Errorf("expected redirect for pharmacy on compare tool, got %d", recTool.Code)
 	}
 
-	// 2. Market Discounts Page should redirect pharmacy
+	// 2. Market Discounts Page should be accessible for pharmacy/customer accounts
 	reqMarket := httptest.NewRequest("GET", "/market-discounts", nil)
 	reqMarket = reqMarket.WithContext(authctx.WithActor(reqMarket.Context(), pharmacyActor))
 	recMarket := httptest.NewRecorder()
 	h.MarketDiscountsPage(recMarket, reqMarket)
-	if recMarket.Code != http.StatusSeeOther {
-		t.Errorf("expected redirect for pharmacy on market discounts, got %d", recMarket.Code)
+	if recMarket.Code != http.StatusOK {
+		t.Errorf("expected 200 OK for pharmacy on market discounts, got %d", recMarket.Code)
 	}
 }

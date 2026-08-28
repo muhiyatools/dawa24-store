@@ -434,7 +434,7 @@ func (h *UIHandler) MarketDiscountsPage(w http.ResponseWriter, r *http.Request) 
 	}
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	if err := pages.MarketDiscountsPage(lang, dir, *actor, result, filter, currentView).Render(ctx, w); err != nil {
+	if err := pages.MarketDiscountsPage(lang, dir, actor, result, filter, currentView).Render(ctx, w); err != nil {
 		h.log.ErrorContext(ctx, "render market discounts", "error", err)
 	}
 }
