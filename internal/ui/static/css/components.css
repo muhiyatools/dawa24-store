@@ -2508,5 +2508,74 @@ dialog.modal::backdrop {
   color: var(--text);
 }
 
+/* ==========================================================================
+   Form Selects & Enhanced Dropdown System (muhiya-design)
+   ========================================================================== */
+
+.form-select,
+select.form-input,
+select.form-control {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  background-color: var(--surface-raised, #ffffff);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2364748b' stroke-width='2.2'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: left 0.85rem center;
+  background-size: 1.1rem;
+  padding: 0.55rem 0.85rem 0.55rem 2.25rem;
+  border: 1px solid var(--border, #cbd5e1);
+  border-radius: var(--radius-lg, 0.5rem);
+  color: var(--text, #0f172a);
+  font-family: inherit;
+  font-size: 0.875rem;
+  font-weight: 700;
+  line-height: 1.4;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
+  cursor: pointer;
+  box-shadow: var(--shadow-xs, 0 1px 2px rgba(0, 0, 0, 0.04));
+}
+
+[dir="ltr"] .form-select,
+[dir="ltr"] select.form-input,
+[dir="ltr"] select.form-control {
+  background-position: right 0.85rem center;
+  padding: 0.55rem 2.25rem 0.55rem 0.85rem;
+}
+
+.form-select:hover,
+select.form-input:hover,
+select.form-control:hover {
+  border-color: var(--border-hover, #94a3b8);
+}
+
+.form-select:focus,
+.form-select:focus-visible,
+select.form-input:focus,
+select.form-input:focus-visible,
+select.form-control:focus,
+select.form-control:focus-visible {
+  outline: none;
+  border-color: var(--accent, #0284c7);
+  box-shadow: 0 0 0 3px var(--accent-subtle, rgba(2, 132, 199, 0.18));
+  background-color: var(--surface-raised, #ffffff);
+}
+
+.form-select option {
+  background-color: var(--surface-raised, #ffffff);
+  color: var(--text, #0f172a);
+  font-weight: 600;
+  padding: 0.5rem;
+}
+
+.progress-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent, #0284c7), #10b981);
+  border-radius: var(--radius-full, 9999px);
+  transition: width 0.3s ease;
+}
+
+
+
 
 

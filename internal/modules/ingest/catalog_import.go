@@ -237,12 +237,12 @@ func DefaultSettings() Settings {
 		MinMatchScore:       0.30,
 		UseAI:               true,
 		BlankQuantityIsZero: false,
-		InferDosageForm:     true,
-		InferConcentration:  true,
-		RejectExpired:       true,
+		InferDosageForm:     false,
+		InferConcentration:  false,
+		RejectExpired:       false,
 		DefaultMinOrderQty:  1,
 		DefaultMinThreshold: 0,
-		PublishImmediately:  true,
+		PublishImmediately:  false,
 		RecordRows:          true,
 	}
 }

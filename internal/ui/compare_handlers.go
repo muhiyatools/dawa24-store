@@ -7,6 +7,7 @@ import (
 	"io"
 	"mime/multipart"
 	"net/http"
+	"net/url"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -256,6 +257,7 @@ func (h *UIHandler) CompareUploadSubmit(w http.ResponseWriter, r *http.Request) 
 	var totalRows int
 	var errorFiles []string
 	var allArchived []string
+	var uploadedIDs []string
 
 	for _, header := range fileHeaders {
 		ext := strings.ToLower(filepath.Ext(header.Filename))
@@ -308,6 +310,7 @@ func (h *UIHandler) CompareUploadSubmit(w http.ResponseWriter, r *http.Request) 
 		processedCount++
 		totalRows += uploadedFile.RowCount
 		allArchived = append(allArchived, archived...)
+		uploadedIDs = append(uploadedIDs, strconv.FormatInt(uploadedFile.ID, 10))
 	}
 
 	if processedCount == 0 {
@@ -317,14 +320,14 @@ func (h *UIHandler) CompareUploadSubmit(w http.ResponseWriter, r *http.Request) 
 	}
 
 	msg := fmt.Sprintf("تم رفع ومعالجة %d كشوف موردين بنجاح (إجمالي %d صنف جاهزة للمقارنة).", processedCount, totalRows)
+	// Trigger Setup Mode for the uploaded files!
+	firstID := uploadedIDs[0]
+	queueStr := strings.Join(uploadedIDs, ",")
+	redirectURL := fmt.Sprintf("/compare/tool?setup_queue=%s&setup_file=%s&setup_step=1&setup_total=%d&notice=success&msg=%s", url.QueryEscape(queueStr), firstID, len(uploadedIDs), url.QueryEscape(msg))
 	if len(errorFiles) > 0 {
-		msg += " تعذر رفع: " + strings.Join(errorFiles, "، ") + "."
+		redirectURL += "&warning=" + url.QueryEscape("تعذر رفع: "+strings.Join(errorFiles, "، "))
 	}
-	if len(allArchived) > 0 {
-		msg += " تنبيه: تم أرشفة الموردين الأقدم (" + strings.Join(allArchived, "، ") + ") لتجاوز الحد الأقصى."
-	}
-
-	h.redirectWithNotice(w, r, "/compare/tool", "success", msg)
+	http.Redirect(w, r, redirectURL, http.StatusSeeOther)
 }
 
 // CompareFileRenameSubmit handles renaming a supplier file label.
@@ -361,7 +364,7 @@ func (h *UIHandler) CompareFileRenameSubmit(w http.ResponseWriter, r *http.Reque
 	h.redirectWithNotice(w, r, "/compare/tool", "success", "تم تغيير اسم المورد بنجاح.")
 }
 
-// CompareFileMappingModal renders the interactive modal HTML fragment for column mapping.
+// CompareFileMappingModal renders the interactive modal HTML fragment for column mapping and setup mode.
 func (h *UIHandler) CompareFileMappingModal(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	actor, ok := authctx.From(ctx)
@@ -408,8 +411,60 @@ func (h *UIHandler) CompareFileMappingModal(w http.ResponseWriter, r *http.Reque
 		FieldScores: scores,
 	}
 
+	// Parse optional setup mode query parameters
+	isSetup := r.URL.Query().Get("setup") == "1" || r.URL.Query().Get("setup_queue") != "" || r.URL.Query().Get("queue") != ""
+	queueParam := strings.TrimSpace(r.URL.Query().Get("setup_queue"))
+	if queueParam == "" {
+		queueParam = strings.TrimSpace(r.URL.Query().Get("queue"))
+	}
+	step, _ := strconv.Atoi(r.URL.Query().Get("setup_step"))
+	if step <= 0 {
+		step, _ = strconv.Atoi(r.URL.Query().Get("step"))
+	}
+	if step <= 0 {
+		step = 1
+	}
+	total, _ := strconv.Atoi(r.URL.Query().Get("setup_total"))
+	if total <= 0 {
+		total, _ = strconv.Atoi(r.URL.Query().Get("total"))
+	}
+
+	var nextFileID int64
+	var remainingQueue string
+	if queueParam != "" {
+		idParts := strings.Split(queueParam, ",")
+		var cleanedParts []string
+		foundCurrent := false
+		for _, part := range idParts {
+			part = strings.TrimSpace(part)
+			if part == "" {
+				continue
+			}
+			partID, _ := strconv.ParseInt(part, 10, 64)
+			if partID == id {
+				foundCurrent = true
+				continue
+			}
+			if foundCurrent {
+				if nextFileID == 0 {
+					nextFileID = partID
+				}
+				cleanedParts = append(cleanedParts, part)
+			}
+		}
+		if total <= 0 {
+			total = len(idParts)
+		}
+		if len(cleanedParts) > 0 {
+			remainingQueue = strings.Join(cleanedParts, ",")
+		}
+	}
+	if total <= 0 {
+		total = 1
+	}
+
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	if err := pages.CompareFileMappingModal(file, headers, preview, detectedMapping).Render(ctx, w); err != nil {
+	if err := pages.CompareFileMappingModal(file, headers, preview, detectedMapping, isSetup, step, total, remainingQueue, nextFileID).Render(ctx, w); err != nil {
 		h.log.ErrorContext(ctx, "render compare file mapping modal", "error", err)
 	}
 }
@@ -468,8 +523,47 @@ func (h *UIHandler) CompareFileMappingPage(w http.ResponseWriter, r *http.Reques
 		FieldScores: scores,
 	}
 
+	isSetup := r.URL.Query().Get("setup") == "1" || r.URL.Query().Get("setup_queue") != ""
+	queueParam := strings.TrimSpace(r.URL.Query().Get("setup_queue"))
+	step, _ := strconv.Atoi(r.URL.Query().Get("setup_step"))
+	if step <= 0 {
+		step = 1
+	}
+	total, _ := strconv.Atoi(r.URL.Query().Get("setup_total"))
+	if total <= 0 {
+		total = 1
+	}
+
+	var nextFileID int64
+	var remainingQueue string
+	if queueParam != "" {
+		idParts := strings.Split(queueParam, ",")
+		var cleanedParts []string
+		foundCurrent := false
+		for _, part := range idParts {
+			part = strings.TrimSpace(part)
+			if part == "" {
+				continue
+			}
+			partID, _ := strconv.ParseInt(part, 10, 64)
+			if partID == id {
+				foundCurrent = true
+				continue
+			}
+			if foundCurrent {
+				if nextFileID == 0 {
+					nextFileID = partID
+				}
+				cleanedParts = append(cleanedParts, part)
+			}
+		}
+		if len(cleanedParts) > 0 {
+			remainingQueue = strings.Join(cleanedParts, ",")
+		}
+	}
+
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	if err := pages.CompareFileMappingPage(lang, dir, file, headers, preview, detectedMapping).Render(ctx, w); err != nil {
+	if err := pages.CompareFileMappingPage(lang, dir, file, headers, preview, detectedMapping, isSetup, step, total, remainingQueue, nextFileID).Render(ctx, w); err != nil {
 		h.log.ErrorContext(ctx, "render compare file mapping", "error", err)
 	}
 }
@@ -629,12 +723,20 @@ func (h *UIHandler) CompareFileMappingSubmit(w http.ResponseWriter, r *http.Requ
 	ctx := r.Context()
 	actor, ok := authctx.From(ctx)
 	if !ok {
+		if r.Header.Get("Accept") == "application/json" {
+			http.Error(w, `{"error":"unauthorized"}`, http.StatusUnauthorized)
+			return
+		}
 		http.Redirect(w, r, "/auth/login?redirect=/compare/tool", http.StatusSeeOther)
 		return
 	}
 
 	id, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
 	if err != nil || id <= 0 {
+		if r.Header.Get("Accept") == "application/json" {
+			http.Error(w, `{"error":"invalid file id"}`, http.StatusBadRequest)
+			return
+		}
 		h.redirectWithNotice(w, r, "/compare/tool", "error", "معرف ملف غير صالح.")
 		return
 	}
@@ -642,8 +744,17 @@ func (h *UIHandler) CompareFileMappingSubmit(w http.ResponseWriter, r *http.Requ
 	if h.compareSvc != nil {
 		file, err := h.compareSvc.GetFile(ctx, id)
 		if err != nil || !h.checkFileOwnership(actor, file) {
+			if r.Header.Get("Accept") == "application/json" {
+				http.Error(w, `{"error":"forbidden"}`, http.StatusForbidden)
+				return
+			}
 			h.redirectWithNotice(w, r, "/compare/tool", "error", "غير مصرح لك بتعديل هذا الملف.")
 			return
+		}
+
+		// Update supplier name if modified in setup wizard
+		if newSupplierName := strings.TrimSpace(r.FormValue("supplier_name")); newSupplierName != "" && newSupplierName != file.SupplierName {
+			_ = h.compareSvc.RenameFile(ctx, id, newSupplierName)
 		}
 
 		var config compare.MappingConfig
@@ -669,12 +780,122 @@ func (h *UIHandler) CompareFileMappingSubmit(w http.ResponseWriter, r *http.Requ
 		}
 
 		if err := h.compareSvc.SaveFileMapping(ctx, id, config); err != nil {
+			if r.Header.Get("Accept") == "application/json" {
+				http.Error(w, `{"error":"`+h.safeMessage(err, langOf(r))+`"}`, http.StatusInternalServerError)
+				return
+			}
 			h.redirectWithNotice(w, r, "/compare/tool", "error", h.safeMessage(err, langOf(r)))
 			return
 		}
 	}
 
-	h.redirectWithNotice(w, r, "/compare/tool", "success", "تم حفظ وتطبيق تعيين الأعمدة بنجاح.")
+	queue := strings.TrimSpace(r.FormValue("setup_queue"))
+	if queue == "" {
+		queue = strings.TrimSpace(r.FormValue("queue"))
+	}
+	step, _ := strconv.Atoi(r.FormValue("step"))
+	total, _ := strconv.Atoi(r.FormValue("total"))
+
+	var nextFileID int64
+	var nextQueue string
+	if queue != "" {
+		parts := strings.Split(queue, ",")
+		if len(parts) > 0 {
+			nextFileID, _ = strconv.ParseInt(strings.TrimSpace(parts[0]), 10, 64)
+			if len(parts) > 1 {
+				nextQueue = strings.Join(parts[1:], ",")
+			}
+		}
+	}
+
+	if r.Header.Get("Accept") == "application/json" {
+		w.Header().Set("Content-Type", "application/json; charset=utf-8")
+		_ = json.NewEncoder(w).Encode(map[string]any{
+			"success":         true,
+			"next_file_id":    nextFileID,
+			"remaining_queue": nextQueue,
+			"step":            step + 1,
+			"total":           total,
+		})
+		return
+	}
+
+	if nextFileID > 0 {
+		redirectURL := fmt.Sprintf("/compare/tool?setup_file=%d&setup_queue=%s&setup_step=%d&setup_total=%d", nextFileID, url.QueryEscape(nextQueue), step+1, total)
+		http.Redirect(w, r, redirectURL, http.StatusSeeOther)
+		return
+	}
+
+	h.redirectWithNotice(w, r, "/compare/tool", "success", "تم حفظ وتطبيق ضبط أعمدة كشف المورد بنجاح.")
+}
+
+// CompareFileSkipSubmit handles skipping an uploaded file in setup mode.
+func (h *UIHandler) CompareFileSkipSubmit(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	actor, ok := authctx.From(ctx)
+	if !ok {
+		if r.Header.Get("Accept") == "application/json" {
+			http.Error(w, `{"error":"unauthorized"}`, http.StatusUnauthorized)
+			return
+		}
+		http.Redirect(w, r, "/auth/login?redirect=/compare/tool", http.StatusSeeOther)
+		return
+	}
+	id, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
+	if err != nil || id <= 0 {
+		if r.Header.Get("Accept") == "application/json" {
+			http.Error(w, `{"error":"invalid id"}`, http.StatusBadRequest)
+			return
+		}
+		h.redirectWithNotice(w, r, "/compare/tool", "error", "معرف ملف غير صالح.")
+		return
+	}
+	if h.compareSvc != nil {
+		file, err := h.compareSvc.GetFile(ctx, id)
+		if err == nil && h.checkFileOwnership(actor, file) {
+			_ = h.compareSvc.DeleteFile(ctx, id)
+		}
+	}
+
+	queue := strings.TrimSpace(r.FormValue("setup_queue"))
+	if queue == "" {
+		queue = strings.TrimSpace(r.FormValue("queue"))
+	}
+	step, _ := strconv.Atoi(r.FormValue("step"))
+	total, _ := strconv.Atoi(r.FormValue("total"))
+
+	var nextFileID int64
+	var nextQueue string
+	if queue != "" {
+		parts := strings.Split(queue, ",")
+		if len(parts) > 0 {
+			nextFileID, _ = strconv.ParseInt(strings.TrimSpace(parts[0]), 10, 64)
+			if len(parts) > 1 {
+				nextQueue = strings.Join(parts[1:], ",")
+			}
+		}
+	}
+
+	if r.Header.Get("Accept") == "application/json" {
+		w.Header().Set("Content-Type", "application/json; charset=utf-8")
+		_ = json.NewEncoder(w).Encode(map[string]any{
+			"success":         true,
+			"skipped_id":      id,
+			"next_file_id":    nextFileID,
+			"remaining_queue": nextQueue,
+			"step":            step + 1,
+			"total":           total,
+		})
+		return
+	}
+
+	if nextFileID > 0 {
+		redirectURL := fmt.Sprintf("/compare/tool?setup_file=%d&setup_queue=%s&setup_step=%d&setup_total=%d", nextFileID, url.QueryEscape(nextQueue), step+1, total)
+		http.Redirect(w, r, redirectURL, http.StatusSeeOther)
+		return
+	}
+
+	h.redirectWithNotice(w, r, "/compare/tool", "success", "تم تخطي الملف بنجاح.")
 }
 
 // CompareRowManualMatchSubmit allows users to manually link an uploaded row to a master product.

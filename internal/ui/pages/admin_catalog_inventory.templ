@@ -2,6 +2,7 @@ package pages
 
 import (
 	"fmt"
+	"net/url"
 
 	"github.com/muhiya/dawa24-store/internal/modules/catalog"
 	"github.com/muhiya/dawa24-store/internal/modules/inventory"
@@ -331,50 +332,29 @@ type AdminWarehouseRowView struct {
 	OrgName   string
 }
 
-// AdminWarehousesPage renders permanent warehouses with live in-page inventory modals.
+// AdminWarehouseDetailView carries all metadata, metrics, items, filters and pagination for a warehouse.
+type AdminWarehouseDetailView struct {
+	Warehouse        *inventory.Warehouse
+	OrgName          string
+	Items            []*inventory.DetailedWarehouseStockView
+	TotalItems       int
+	TotalUnits       int
+	AvailableCount   int
+	LowStockCount    int
+	OutOfStockCount  int
+	SearchQuery      string
+	StatusFilter     string
+	NegotiableFilter string
+	CurrentPage      int
+	PageSize         int
+	TotalCount       int
+	QueryValues      url.Values
+}
+
+// AdminWarehousesPage renders permanent warehouses list.
 templ AdminWarehousesPage(warehouses []*AdminWarehouseRowView, lang, dir string) {
 	@layouts.AdminShell("إدارة المخازن ومراكز التوزيع", "warehouses", lang, dir) {
-		<div style="display:flex; flex-direction:column; gap:1.5rem; max-width:1400px; margin:0 auto 3rem auto;"
-			x-data="{
-				modalOpen: false,
-				loading: false,
-				error: '',
-				activeWh: {},
-				stocks: [],
-				searchQuery: '',
-				get filteredStocks() {
-					if (!this.searchQuery) return this.stocks;
-					const q = this.searchQuery.toLowerCase();
-					return this.stocks.filter(s =>
-						(s.product_name && s.product_name.toLowerCase().includes(q)) ||
-						(s.variant_name && s.variant_name.toLowerCase().includes(q)) ||
-						(s.sku && s.sku.toLowerCase().includes(q)) ||
-						(s.batch_number && s.batch_number.toLowerCase().includes(q))
-					);
-				},
-				openStocks(wh) {
-					this.activeWh = wh;
-					this.stocks = [];
-					this.error = '';
-					this.searchQuery = '';
-					this.loading = true;
-					this.modalOpen = true;
-					fetch('/admin/warehouses/' + wh.id + '/stocks-json')
-						.then(res => {
-							if (!res.ok) throw new Error('فشل جلب بيانات المخزون من الخادم');
-							return res.json();
-						})
-						.then(data => {
-							this.stocks = data || [];
-							this.loading = false;
-						})
-						.catch(err => {
-							this.error = err.message || 'تعذر تحميل بيانات المخزون';
-							this.loading = false;
-						});
-				}
-			}"
-		>
+		<div style="display:flex; flex-direction:column; gap:1.5rem; max-width:1400px; margin:0 auto 3rem auto;">
 			<!-- Header Banner -->
 			<div class="card mb-0" style="border:1px solid var(--border); background:linear-gradient(135deg, var(--surface-raised) 0%, var(--surface-sunken) 100%); border-radius:var(--radius-xl); padding:1.75rem; box-shadow:0 4px 20px rgba(0,0,0,0.03);">
 				<div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1.25rem;">
@@ -388,7 +368,7 @@ templ AdminWarehousesPage(warehouses []*AdminWarehouseRowView, lang, dir string)
 								<span style="font-size:0.75rem; font-weight:700; color:var(--accent); text-transform:uppercase;">Central Distribution & Storage Facilities</span>
 							</div>
 						</div>
-						<p style="font-size:0.875rem; color:var(--text-secondary); margin:0.35rem 0 0 0; line-height:1.5;">استعراض المخازن التابعة لكافة الموردين مع إمكانية فحص وإدارة المخزون الداخلي بدقة عبر النافذة التفاعلية المباشرة.</p>
+						<p style="font-size:0.875rem; color:var(--text-secondary); margin:0.35rem 0 0 0; line-height:1.5;">استعراض المخازن التابعة لكافة الموردين مع إمكانية فحص وإدارة المخزون الداخلي بدقة عبر الصفحات المخصصة.</p>
 					</div>
 
 					<div class="row-center">
@@ -463,15 +443,14 @@ templ AdminWarehousesPage(warehouses []*AdminWarehouseRowView, lang, dir string)
 											}
 										</td>
 										<td class="text-end">
-											<button
-												type="button"
+											<a
+												href={ templ.SafeURL(fmt.Sprintf("/admin/warehouses/%d", row.Warehouse.ID)) }
 												class="btn btn-secondary btn-sm"
-												@click={ fmt.Sprintf("openStocks({ id: %d, name: '%s', org_name: '%s', address: '%s', phone: '%s' })", row.Warehouse.ID, row.Warehouse.Name, row.OrgName, row.Warehouse.Address, row.Warehouse.Phone) }
-												style="font-weight:800; font-size:0.8rem; padding:0.4rem 0.85rem; border-radius:var(--radius-md); gap:0.4rem;"
+												style="font-weight:800; font-size:0.8rem; padding:0.4rem 0.85rem; border-radius:var(--radius-md); gap:0.4rem; display:inline-flex; align-items:center;"
 											>
-												
+												@components.IconPackage("icon-xs")
 												<span>عرض المخزون للمخزن</span>
-											</button>
+											</a>
 										</td>
 									</tr>
 								}
@@ -480,151 +459,358 @@ templ AdminWarehousesPage(warehouses []*AdminWarehouseRowView, lang, dir string)
 					</div>
 				}
 			</div>
-
-			<!-- Live Stock Inspection Modal -->
-			<div x-show="modalOpen" x-cloak class="modal-overlay" @keydown.escape.window="modalOpen = false">
-				<div @click.outside="modalOpen = false" class="modal-card modal-xl">
-					
-					<!-- Modal Header -->
-					<div style="padding:1.25rem 1.75rem; border-bottom:1px solid var(--border); background:var(--surface-sunken); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem;">
-						<div class="row-center">
-							<div style="width:40px; height:40px; border-radius:var(--radius-lg); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center; font-size:1.2rem;">
-								
-							</div>
-							<div>
-								<div class="row-center-sm">
-									<h3 style="font-size:1.15rem; font-weight:900; margin:0; color:var(--text);" x-text="'مخزون مخزن: ' + activeWh.name"></h3>
-									<span class="badge badge-sky text-xs fw-700" x-show="activeWh.org_name" x-text="activeWh.org_name"></span>
-								</div>
-								<div style="font-size:0.8rem; color:var(--text-secondary); margin-top:2px;" x-text="activeWh.address ? ('العنوان: ' + activeWh.address) : 'تفاصيل المخزون المسجل بالمنظومة'"></div>
-							</div>
-						</div>
-
-						<div class="row-center">
-							<button type="button" @click="modalOpen = false" class="btn btn-secondary btn-sm" style="font-weight:700; border-radius:var(--radius-full); width:32px; height:32px; padding:0; display:flex; align-items:center; justify-content:center;">✕</button>
-						</div>
-					</div>
-
-					<!-- Modal Search & Stats Filter Bar -->
-					<div style="padding:1rem 1.75rem; border-bottom:1px solid var(--border); background:var(--surface-raised); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem;">
-						<div style="position:relative; flex:1; min-width:260px;">
-							<input
-								type="text"
-								x-model="searchQuery"
-								placeholder="بحث باسم الدواء، الصنف، كود SKU، أو رقم التشغيلة…"
-								class="form-input"
-								style="width:100%; font-size:0.85rem; padding:0.45rem 1rem; border-radius:var(--radius-lg);"
-							/>
-						</div>
-
-						<div style="display:flex; align-items:center; gap:0.5rem; font-size:0.8rem;">
-							<span class="badge badge-slate" x-text="'الأصناف المعروضة: ' + filteredStocks.length" style="font-weight:700; padding:0.35rem 0.75rem;"></span>
-						</div>
-					</div>
-
-					<!-- Modal Body Table Content -->
-					<div style="flex:1; overflow-y:auto; padding:1.25rem 1.75rem;">
-						
-						<!-- Loading Spinner -->
-						<div x-show="loading" style="padding:3rem 1rem; text-align:center;">
-							<div style="display:inline-block; font-size:2rem; animation:spin 1s linear infinite;">⏳</div>
-							<p style="font-size:0.875rem; color:var(--text-secondary); font-weight:700; margin-top:0.75rem;">جاري جلب أرصدة المخزون وتفاصيل الأصناف من قاعدة البيانات…</p>
-						</div>
-
-						<!-- Error Message -->
-						<div x-show="!loading && error" style="padding:2rem 1rem; text-align:center; color:var(--danger-text);">
-							<p x-text="error" style="font-weight:700; font-size:0.9rem;"></p>
-						</div>
-
-						<!-- Empty State inside modal -->
-						<div x-show="!loading && !error && filteredStocks.length === 0" style="padding:3rem 1rem; text-align:center;">
-							<div style="font-size:2.5rem; margin-bottom:0.5rem;"></div>
-							<h4 class="text-base fw-800 text-primary m-0">لا توجد أصناف مخزنة مطابقة</h4>
-							<p style="font-size:0.825rem; color:var(--text-secondary); margin-top:0.35rem;">لم يتم تسجيل أي رصيد مخزني لهذا المخزن يطابق معايير البحث.</p>
-						</div>
-
-						<!-- Live Table -->
-						<div x-show="!loading && !error && filteredStocks.length > 0" class="table-container" style="border:1px solid var(--border); border-radius:var(--radius-lg); overflow:hidden;">
-							<table class="b2b-table m-0">
-								<thead>
-									<tr>
-										<th>اسم الدواء والصنف</th>
-										<th>كود SKU والباركود</th>
-										<th>رقم التشغيلة والصلاحية</th>
-										<th>سعر التوريد قبل الخصم</th>
-										<th>الخصم</th>
-										<th>قابل للتفاوض</th>
-										<th>الرصيد المتاح</th>
-										<th>حد الأمان</th>
-										<th>الحالة</th>
-									</tr>
-								</thead>
-								<tbody>
-									<template x-for="st in filteredStocks" :key="st.stock_id">
-										<tr>
-											<td>
-												<div>
-													<strong style="color:var(--text); font-size:0.9rem;" x-text="st.product_name || 'صنف دوائي'"></strong>
-													<div class="text-xs text-muted" x-show="st.variant_name" x-text="st.variant_name"></div>
-												</div>
-											</td>
-											<td class="tabular-nums" style="font-family:var(--font-mono, monospace); font-size:0.8rem;">
-												<span x-text="st.sku || st.barcode || '-'"></span>
-											</td>
-											<td class="tabular-nums">
-												<div class="text-sm fw-700" x-text="st.batch_number ? ('تشغيلة: ' + st.batch_number) : '-'"></div>
-												<div style="font-size:0.725rem; color:var(--text-muted);" x-show="st.expiry_date" x-text="'صلاحية: ' + (st.expiry_date ? st.expiry_date.substring(0,10) : '')"></div>
-											</td>
-											<td class="tabular-nums" style="font-weight:700; color:var(--primary-600);">
-												<span x-text="st.price_str ? (st.price_str + ' ج.م') : '-'"></span>
-											</td>
-											<td class="tabular-nums" style="font-weight:700; color:var(--emerald);">
-												<span x-text="(st.discount_str || '0.00') + ' ج.م'"></span>
-											</td>
-											<td>
-												<span class="badge badge-amber" x-show="st.is_negotiable" style="font-size:0.725rem; font-weight:800;">نعم</span>
-												<span class="badge badge-slate text-xs" x-show="!st.is_negotiable">لا (ثابت)</span>
-											</td>
-											<td class="tabular-nums">
-												<strong class="text-base" :style="st.quantity > st.min_threshold ? 'color:var(--primary-600);' : 'color:var(--danger-text);'" x-text="st.quantity"></strong>
-											</td>
-											<td class="tabular-nums" style="color:var(--text-muted); font-size:0.85rem;" x-text="st.min_threshold"></td>
-											<td>
-												<span class="badge badge-emerald" x-show="st.quantity > st.min_threshold">متوفر</span>
-												<span class="badge badge-amber" x-show="st.quantity > 0 && st.quantity <= st.min_threshold">منخفض</span>
-												<span class="badge badge-rose" x-show="st.quantity <= 0">نفد المخزون</span>
-											</td>
-										</tr>
-									</template>
-								</tbody>
-							</table>
-						</div>
-
-					</div>
-
-					<!-- Modal Footer -->
-					<div style="padding:1rem 1.75rem; border-top:1px solid var(--border); background:var(--surface-sunken); display:flex; justify-content:flex-end;">
-						<button type="button" @click="modalOpen = false" class="btn btn-secondary" style="font-weight:700; font-size:0.85rem; padding:0.45rem 1.5rem;">إغلاق</button>
-					</div>
-
-				</div>
-			</div>
-
 		</div>
 	}
 }
 
-// AdminWarehouseDetailPage renders warehouse detail fallback.
-templ AdminWarehouseDetailPage(wh *inventory.Warehouse, stocks []*inventory.Stock, lang, dir string) {
-	@layouts.AdminShell(fmt.Sprintf("مخزن: %s", wh.Name), "warehouses", lang, dir) {
-		<div class="card" style="max-width:800px; margin:0 auto 1.5rem auto;">
-			<div class="flex-between">
-				<div>
-					<h2 class="card-title m-0">{ wh.Name }</h2>
-					<p class="subtitle">منشأة #{ fmt.Sprintf("%d", wh.OrganizationID) } | { wh.Address }</p>
+// AdminWarehouseDetailPage renders full warehouse detail and searchable/paginated stocks page.
+templ AdminWarehouseDetailPage(data AdminWarehouseDetailView, lang, dir string) {
+	@layouts.AdminShell(fmt.Sprintf("مخزون مخزن: %s", data.Warehouse.Name), "warehouses", lang, dir) {
+		<div style="display:flex; flex-direction:column; gap:1.5rem; max-width:1440px; margin:0 auto 3rem auto;">
+			
+			<!-- Breadcrumb & Top Bar -->
+			<div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem;">
+				<div style="display:flex; align-items:center; gap:0.5rem; font-size:0.875rem;">
+					<a href="/admin/warehouses" class="btn btn-secondary btn-sm" style="display:inline-flex; align-items:center; gap:0.4rem; font-weight:700;">
+						@components.IconArrowRight("icon-xs")
+						<span>العودة إلى دليل المخازن</span>
+					</a>
+					<span style="color:var(--text-muted);">/</span>
+					<span style="font-weight:700; color:var(--text);">{ data.Warehouse.Name }</span>
 				</div>
-				<a href="/admin/warehouses" class="btn btn-secondary btn-sm">العودة للمخازن</a>
+
+				<div style="display:flex; align-items:center; gap:0.5rem;">
+					if data.Warehouse.IsActive {
+						<span class="badge badge-emerald fw-800" style="padding:0.4rem 0.85rem; font-size:0.85rem;">✓ مخزن نشط ومتاح</span>
+					} else {
+						<span class="badge badge-rose fw-800" style="padding:0.4rem 0.85rem; font-size:0.85rem;">✕ مخزن معطل</span>
+					}
+				</div>
 			</div>
+
+			<!-- Warehouse Profile Banner -->
+			<div class="card mb-0" style="border:1px solid var(--border); background:linear-gradient(135deg, var(--surface-raised) 0%, var(--surface-sunken) 100%); border-radius:var(--radius-xl); padding:1.75rem; box-shadow:0 4px 20px rgba(0,0,0,0.03);">
+				<div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:1.5rem;">
+					<div style="display:flex; align-items:center; gap:1rem;">
+						<div style="width:52px; height:52px; border-radius:var(--radius-xl); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center; font-size:1.6rem; flex-shrink:0;">
+							🏬
+						</div>
+						<div>
+							<div style="display:flex; align-items:center; gap:0.6rem; flex-wrap:wrap;">
+								<h1 style="font-size:1.5rem; font-weight:900; color:var(--text); margin:0;">
+									مخزون مخزن: { data.Warehouse.Name }
+								</h1>
+								if data.OrgName != "" {
+									<span class="badge badge-sky" style="font-weight:700; font-size:0.85rem; padding:0.3rem 0.75rem;">
+										🏢 { data.OrgName }
+									</span>
+								} else {
+									<span class="badge badge-slate" style="font-weight:700; font-size:0.8rem;">
+										منشأة #{ fmt.Sprintf("%d", data.Warehouse.OrganizationID) }
+									</span>
+								}
+							</div>
+							<div style="display:flex; align-items:center; gap:1.25rem; flex-wrap:wrap; font-size:0.85rem; color:var(--text-secondary); margin-top:0.5rem;">
+								if data.Warehouse.Code != "" {
+									<div style="display:flex; align-items:center; gap:0.35rem;">
+										<span style="color:var(--text-muted);">كود المخزن:</span>
+										<code style="background:var(--surface-raised); padding:0.15rem 0.5rem; border-radius:var(--radius-sm); border:1px solid var(--border); font-family:var(--font-mono, monospace); font-weight:700; font-size:0.8rem;">{ data.Warehouse.Code }</code>
+									</div>
+								}
+								<div style="display:flex; align-items:center; gap:0.35rem;">
+									<span style="color:var(--text-muted);">📍 العنوان:</span>
+									<span style="color:var(--text); font-weight:600;">
+										if data.Warehouse.Address != "" {
+											{ data.Warehouse.Address }
+										} else {
+											غير محدد
+										}
+									</span>
+								</div>
+								if data.Warehouse.Phone != "" {
+									<div style="display:flex; align-items:center; gap:0.35rem;">
+										<span style="color:var(--text-muted);">📞 الهاتف:</span>
+										<span dir="ltr" class="tabular-nums" style="color:var(--text); font-weight:700;">{ data.Warehouse.Phone }</span>
+									</div>
+								}
+							</div>
+						</div>
+					</div>
+
+					<div style="display:flex; gap:0.5rem; align-items:center;">
+						<a href={ templ.SafeURL(fmt.Sprintf("/admin/warehouses/%d", data.Warehouse.ID)) } class="btn btn-secondary btn-sm" style="display:flex; align-items:center; gap:0.4rem; font-weight:700;">
+							@components.IconRefresh("icon-xs")
+							<span>تحديث البيانات</span>
+						</a>
+					</div>
+				</div>
+			</div>
+
+			<!-- KPI Stat Summary Cards -->
+			<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:1rem;">
+				<div class="card mb-0" style="padding:1.25rem; border:1px solid var(--border); border-radius:var(--radius-lg); background:var(--surface-raised);">
+					<div style="font-size:0.825rem; font-weight:700; color:var(--text-secondary); margin-bottom:0.35rem;">إجمالي أصناف المخزون</div>
+					<div class="tabular-nums" style="font-size:1.75rem; font-weight:900; color:var(--text);">{ fmt.Sprintf("%d", data.TotalItems) }</div>
+					<div style="font-size:0.75rem; color:var(--text-muted); margin-top:0.25rem;">
+						بإجمالي <strong>{ fmt.Sprintf("%d", data.TotalUnits) }</strong> وحدة مخزنة
+					</div>
+				</div>
+
+				<div class="card mb-0" style="padding:1.25rem; border:1px solid var(--border); border-radius:var(--radius-lg); background:var(--surface-raised);">
+					<div style="font-size:0.825rem; font-weight:700; color:var(--text-secondary); margin-bottom:0.35rem;">أصناف متوفرة (جاهزة للطلب)</div>
+					<div class="tabular-nums" style="font-size:1.75rem; font-weight:900; color:var(--emerald);">{ fmt.Sprintf("%d", data.AvailableCount) }</div>
+					<div style="font-size:0.75rem; color:var(--text-muted); margin-top:0.25rem;">أعلى من حد الأمان المحدد</div>
+				</div>
+
+				<div class="card mb-0" style="padding:1.25rem; border:1px solid var(--border); border-radius:var(--radius-lg); background:var(--surface-raised);">
+					<div style="font-size:0.825rem; font-weight:700; color:var(--text-secondary); margin-bottom:0.35rem;">أصناف رصيد منخفض</div>
+					<div class="tabular-nums" style="font-size:1.75rem; font-weight:900; color:var(--amber);">{ fmt.Sprintf("%d", data.LowStockCount) }</div>
+					<div style="font-size:0.75rem; color:var(--text-muted); margin-top:0.25rem;">عند أو تحت حد الأمان</div>
+				</div>
+
+				<div class="card mb-0" style="padding:1.25rem; border:1px solid var(--border); border-radius:var(--radius-lg); background:var(--surface-raised);">
+					<div style="font-size:0.825rem; font-weight:700; color:var(--text-secondary); margin-bottom:0.35rem;">أصناف نفد مخزونها</div>
+					<div class="tabular-nums" style="font-size:1.75rem; font-weight:900; color:var(--rose);">{ fmt.Sprintf("%d", data.OutOfStockCount) }</div>
+					<div style="font-size:0.75rem; color:var(--text-muted); margin-top:0.25rem;">رصيد صفر أو أقل</div>
+				</div>
+			</div>
+
+			<!-- Filter & Search Toolbar Card -->
+			<div class="card mb-0" style="border:1px solid var(--border); border-radius:var(--radius-xl); padding:1.25rem 1.5rem; background:var(--surface-raised);">
+				<form method="GET" action={ templ.SafeURL(fmt.Sprintf("/admin/warehouses/%d", data.Warehouse.ID)) } class="stack-md">
+					<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:1rem; align-items:flex-end;">
+						
+						<!-- Search Query -->
+						<div class="form-group mb-0" style="grid-column: span 2;">
+							<label class="form-label" style="font-size:0.825rem; font-weight:700; color:var(--text-secondary); margin-bottom:0.35rem;">
+								بحث بالأصناف والتشغيلات
+							</label>
+							<div style="position:relative;">
+								<input
+									type="text"
+									name="q"
+									value={ data.SearchQuery }
+									placeholder="بحث باسم الدواء، الصنف، كود SKU، الباركود، أو رقم التشغيلة..."
+									class="form-input"
+									style="padding-inline-start:2.25rem; font-size:0.875rem; height:42px; width:100%; border-radius:var(--radius-lg);"
+								/>
+								<div style="position:absolute; inset-inline-start:0.75rem; top:50%; transform:translateY(-50%); color:var(--text-muted); pointer-events:none;">
+									@components.IconSearch("icon-xs")
+								</div>
+							</div>
+						</div>
+
+						<!-- Stock Status Filter -->
+						<div class="form-group mb-0">
+							<label class="form-label" style="font-size:0.825rem; font-weight:700; color:var(--text-secondary); margin-bottom:0.35rem;">حالة التوفر</label>
+							<select name="status" class="form-input" style="font-size:0.875rem; height:42px; border-radius:var(--radius-lg);">
+								<option value="all" selected?={ data.StatusFilter == "all" || data.StatusFilter == "" }>جميع الحالات</option>
+								<option value="available" selected?={ data.StatusFilter == "available" }>متوفر (فوق حد الأمان)</option>
+								<option value="low" selected?={ data.StatusFilter == "low" }>رصيد منخفض</option>
+								<option value="out" selected?={ data.StatusFilter == "out" }>نفد المخزون (صفر)</option>
+							</select>
+						</div>
+
+						<!-- Negotiation Filter -->
+						<div class="form-group mb-0">
+							<label class="form-label" style="font-size:0.825rem; font-weight:700; color:var(--text-secondary); margin-bottom:0.35rem;">قابلية التفاوض</label>
+							<select name="negotiable" class="form-input" style="font-size:0.875rem; height:42px; border-radius:var(--radius-lg);">
+								<option value="all" selected?={ data.NegotiableFilter == "all" || data.NegotiableFilter == "" }>الكل</option>
+								<option value="yes" selected?={ data.NegotiableFilter == "yes" }>قابل للتفاوض</option>
+								<option value="no" selected?={ data.NegotiableFilter == "no" }>سعر ثابت فقط</option>
+							</select>
+						</div>
+
+						<!-- Page Size Selector -->
+						<div class="form-group mb-0">
+							<label class="form-label" style="font-size:0.825rem; font-weight:700; color:var(--text-secondary); margin-bottom:0.35rem;">عدد الأصناف بالصفحة</label>
+							<select name="limit" class="form-input" style="font-size:0.875rem; height:42px; border-radius:var(--radius-lg);">
+								<option value="25" selected?={ data.PageSize == 25 }>25 صنف بالصفحة</option>
+								<option value="50" selected?={ data.PageSize == 50 }>50 صنف بالصفحة</option>
+								<option value="100" selected?={ data.PageSize == 100 }>100 صنف بالصفحة</option>
+								<option value="250" selected?={ data.PageSize == 250 }>250 صنف بالصفحة</option>
+							</select>
+						</div>
+					</div>
+
+					<!-- Filter Actions -->
+					<div style="display:flex; justify-content:space-between; align-items:center; border-top:1px solid var(--border-subtle); padding-top:0.75rem; flex-wrap:wrap; gap:0.75rem;">
+						<div style="font-size:0.825rem; color:var(--text-secondary); font-weight:600;">
+							نتائج البحث: <span class="tabular-nums text-primary fw-800">{ fmt.Sprintf("%d", data.TotalCount) }</span> صنف مطابق
+						</div>
+
+						<div style="display:flex; align-items:center; gap:0.75rem;">
+							if data.SearchQuery != "" || (data.StatusFilter != "all" && data.StatusFilter != "") || (data.NegotiableFilter != "all" && data.NegotiableFilter != "") {
+								<a href={ templ.SafeURL(fmt.Sprintf("/admin/warehouses/%d", data.Warehouse.ID)) } class="btn btn-ghost btn-sm text-muted">
+									إلغاء التصفية
+								</a>
+							}
+							<button type="submit" class="btn btn-primary btn-sm" style="display:flex; align-items:center; gap:0.4rem; padding:0.5rem 1.25rem; font-weight:700; border-radius:var(--radius-md);">
+								@components.IconSearch("icon-xs")
+								<span>تطبيق التصفية</span>
+							</button>
+						</div>
+					</div>
+				</form>
+			</div>
+
+			<!-- Inventory Data Table Card -->
+			<div class="card mb-0" style="border:1px solid var(--border); border-radius:var(--radius-xl); padding:0; overflow:hidden; background:var(--surface-raised); box-shadow:0 4px 16px rgba(0,0,0,0.03);">
+				<div style="padding:1.25rem 1.5rem; border-bottom:1px solid var(--border-subtle); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.75rem; background:var(--surface);">
+					<div style="display:flex; align-items:center; gap:0.6rem;">
+						<span style="font-size:1.1rem;">📦</span>
+						<h3 style="font-weight:800; font-size:1rem; color:var(--text); margin:0;">
+							جدول أرصدة المخزون
+						</h3>
+						<span class="badge badge-slate text-xs tabular-nums" style="font-weight:700;">
+							{ fmt.Sprintf("%d صنف معروض", len(data.Items)) }
+						</span>
+					</div>
+				</div>
+
+				if len(data.Items) == 0 {
+					<div style="padding:4rem 2rem; text-align:center;">
+						<div style="width:54px; height:54px; border-radius:var(--radius-full); background:var(--surface-sunken); color:var(--text-muted); display:flex; align-items:center; justify-content:center; margin:0 auto 1rem auto; font-size:1.5rem;">
+							📦
+						</div>
+						<h4 style="font-size:1.1rem; font-weight:800; color:var(--text); margin:0 0 0.5rem 0;">لا توجد أصناف مخزنة مطابقة</h4>
+						<p style="font-size:0.875rem; color:var(--text-secondary); max-width:420px; margin:0 auto 1.5rem auto;">
+							لم يتم العثور على أي رصيد مخزني لهذا المخزن يطابق معايير البحث أو التصفية الحالية.
+						</p>
+						<a href={ templ.SafeURL(fmt.Sprintf("/admin/warehouses/%d", data.Warehouse.ID)) } class="btn btn-secondary btn-sm" style="font-weight:700;">
+							عرض كافة أصناف المخزن
+						</a>
+					</div>
+				} else {
+					<div class="table-container">
+						<table class="b2b-table m-0">
+							<thead>
+								<tr>
+									<th style="width:50px;">#</th>
+									<th>اسم الدواء والصنف</th>
+									<th>كود SKU والباركود</th>
+									<th>رقم التشغيلة والصلاحية</th>
+									<th>سعر التوريد قبل الخصم</th>
+									<th>الخصم</th>
+									<th>قابل للتفاوض</th>
+									<th>الرصيد المتاح</th>
+									<th>حد الأمان</th>
+									<th>حالة التوفر</th>
+								</tr>
+							</thead>
+							<tbody>
+								for idx, st := range data.Items {
+									<tr>
+										<td class="tabular-nums text-muted text-sm">
+											{ fmt.Sprintf("%d", (data.CurrentPage-1)*data.PageSize + idx + 1) }
+										</td>
+										<td>
+											<div>
+												<div style="font-weight:700; color:var(--text); font-size:0.925rem;">
+													if st.ProductName != "" {
+														{ st.ProductName }
+													} else {
+														صنف دوائي
+													}
+												</div>
+												if st.VariantName != "" {
+													<div style="font-size:0.8rem; color:var(--text-secondary); margin-top:2px;">
+														{ st.VariantName }
+													</div>
+												}
+												if st.ProductID > 0 {
+													<div style="font-size:0.725rem; color:var(--text-muted); margin-top:1px;">
+														ID: #{ fmt.Sprintf("%d", st.ProductID) }
+													</div>
+												}
+											</div>
+										</td>
+										<td class="tabular-nums" style="font-family:var(--font-mono, monospace); font-size:0.8rem;">
+											if st.SKU != "" {
+												<div style="font-weight:600; color:var(--text);">{ st.SKU }</div>
+											}
+											if st.Barcode != "" {
+												<div style="color:var(--text-muted); font-size:0.75rem;">{ st.Barcode }</div>
+											}
+											if st.SKU == "" && st.Barcode == "" {
+												<span class="text-muted">-</span>
+											}
+										</td>
+										<td class="tabular-nums">
+											if st.BatchNumber != "" {
+												<div style="font-size:0.85rem; font-weight:700; color:var(--text);">
+													{ st.BatchNumber }
+												</div>
+											} else {
+												<div class="text-muted text-sm">-</div>
+											}
+											if st.ExpiryDate != nil {
+												<div style="font-size:0.75rem; color:var(--text-muted);" title="تاريخ الصلاحية">
+													📅 { st.ExpiryDate.Format("2006-01-02") }
+												</div>
+											}
+										</td>
+										<td class="tabular-nums" style="font-weight:700; color:var(--primary-700); font-size:0.9rem;">
+											if st.PriceStr != "" && st.PriceStr != "0.00" {
+												{ st.PriceStr } <span style="font-size:0.75rem; font-weight:600; color:var(--text-secondary);">ج.م</span>
+											} else {
+												<span class="text-muted">-</span>
+											}
+										</td>
+										<td class="tabular-nums" style="font-weight:700; color:var(--emerald); font-size:0.9rem;">
+											if st.DiscountStr != "" && st.DiscountStr != "0.00" {
+												{ st.DiscountStr } <span style="font-size:0.75rem; font-weight:600; color:var(--text-secondary);">ج.م</span>
+											} else {
+												<span style="color:var(--text-muted); font-size:0.8rem;">0.00 ج.م</span>
+											}
+										</td>
+										<td>
+											if st.IsNegotiable {
+												<span class="badge badge-amber fw-800" style="font-size:0.725rem; padding:2px 8px;">قابل للتفاوض</span>
+											} else {
+												<span class="badge badge-slate text-xs" style="padding:2px 8px;">سعر ثابت</span>
+											}
+										</td>
+										<td class="tabular-nums">
+											if st.Quantity > st.MinThreshold {
+												<strong style="font-size:1rem; color:var(--primary-700);">{ fmt.Sprintf("%d", st.Quantity) }</strong>
+											} else if st.Quantity > 0 {
+												<strong style="font-size:1rem; color:var(--amber);">{ fmt.Sprintf("%d", st.Quantity) }</strong>
+											} else {
+												<strong style="font-size:1rem; color:var(--rose);">{ fmt.Sprintf("%d", st.Quantity) }</strong>
+											}
+										</td>
+										<td class="tabular-nums" style="color:var(--text-muted); font-size:0.85rem;">
+											{ fmt.Sprintf("%d", st.MinThreshold) }
+										</td>
+										<td>
+											if st.Quantity > st.MinThreshold {
+												<span class="badge badge-emerald fw-800">متوفر</span>
+											} else if st.Quantity > 0 {
+												<span class="badge badge-amber fw-800">رصيد منخفض</span>
+											} else {
+												<span class="badge badge-rose fw-800">نفد المخزون</span>
+											}
+										</td>
+									</tr>
+								}
+							</tbody>
+						</table>
+					</div>
+
+					<!-- Pagination Footer -->
+					<div style="padding:1rem 1.5rem; border-top:1px solid var(--border-subtle); background:var(--surface);">
+						@components.B2BPagination(components.PaginationProps{
+							CurrentPage: data.CurrentPage,
+							PageSize:    data.PageSize,
+							TotalCount:  data.TotalCount,
+							BaseURL:     fmt.Sprintf("/admin/warehouses/%d", data.Warehouse.ID),
+							QueryValues: data.QueryValues,
+						})
+					</div>
+				}
+			</div>
+
 		</div>
 	}
 }

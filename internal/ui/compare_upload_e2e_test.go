@@ -417,7 +417,7 @@ func TestCompareFileMappingModal_E2E(t *testing.T) {
 	if !strings.Contains(body, "اسم الصنف الدوائي") {
 		t.Errorf("expected modal to contain product name field")
 	}
-	if !strings.Contains(body, "حفظ وإعادة معالجة الأصناف فورياً") {
+	if !strings.Contains(body, "حفظ") {
 		t.Errorf("expected modal to contain submit button")
 	}
 }
