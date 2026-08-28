@@ -304,6 +304,12 @@ func (s *Service) GetGatewaySettings(ctx context.Context) (*GatewaySettings, err
 		QualityModel:   getString(v, "quality_model", ""),
 		AIPlanID:       getString(v, "ai_plan_id", ""),
 	}
+	if gw.FastModel == "nemotron-3.5-lightning" {
+		gw.FastModel = "qwen3.7-flash"
+	}
+	if gw.QualityModel == "nemotron-3.5-lightning" {
+		gw.QualityModel = "qwen3.7-flash"
+	}
 	return gw, nil
 }
 

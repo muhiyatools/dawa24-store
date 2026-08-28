@@ -23,14 +23,14 @@ const (
 
 // defaultRoleModels is the fallback when the operator has not overridden a role.
 var defaultRoleModels = map[Role]string{
-	RolePrimary:    "nemotron-3.5-lightning",
-	RoleAttachment: "voxtral-small-24b-2507",
+	RolePrimary:    "qwen3.7-flash",
+	RoleAttachment: "qwen3.7-flash",
 	RoleTranscribe: "whisper-1",
 
-	RoleMatching: "nemotron-3.5-lightning",
-	RoleColumns:  "nemotron-3.5-lightning",
-	RoleExpand:   "nemotron-3.5-lightning",
-	RoleClassify: "nemotron-3.5-lightning",
+	RoleMatching: "qwen3.7-flash",
+	RoleColumns:  "qwen3.7-flash",
+	RoleExpand:   "qwen3.7-flash",
+	RoleClassify: "qwen3.7-flash",
 }
 
 // resolveRoleModel returns the concrete Gateway model identifier for a given role.

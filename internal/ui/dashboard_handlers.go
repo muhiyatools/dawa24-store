@@ -90,7 +90,10 @@ func (h *UIHandler) loadOrgSubscriptionView(ctx context.Context, actor authctx.A
 			if adminClient != nil {
 				if summary, err := adminClient.GetUserUsageSummary(ctx, subView.AIUserID); err == nil && summary != nil {
 					subView.AIRequestsCount = summary.Requests
-					subView.AITokensUsed = summary.InputTokens + summary.OutputTokens
+					subView.AITokensUsed = int(summary.InputTokens + summary.OutputTokens)
+					if summary.CostUSD > 0 && subView.AIBudgetSpentUSD <= 0 {
+						subView.AIBudgetSpentUSD = summary.CostUSD
+					}
 					subView.HasAIUsage = true
 				}
 				if userDetail, err := adminClient.GetUser(ctx, subView.AIUserID); err == nil && userDetail != nil {
@@ -120,8 +123,8 @@ func (h *UIHandler) loadOrgSubscriptionView(ctx context.Context, actor authctx.A
 			subView.AIBudgetLimitUSD = 15.0
 		}
 	}
-	if subView.AIBudgetSpentUSD <= 0 {
-		subView.AIBudgetSpentUSD = 1.25
+	if subView.AIBudgetSpentUSD < 0 {
+		subView.AIBudgetSpentUSD = 0.0
 	}
 	if subView.AIBudgetResetTime == "" {
 		now := time.Now()
@@ -426,18 +429,46 @@ func (h *UIHandler) AIConsumptionLogsPage(w http.ResponseWriter, r *http.Request
 	totalCost := 0.0
 	featureCounts := make(map[string]int)
 
-	// 1. Query Gateway live request logs
+	// Target tenant UserID strictly scoped to this organization or user
+	targetUserID := ""
+	if actor.OrganizationID > 0 {
+		targetUserID = fmt.Sprintf("org-%d", actor.OrganizationID)
+		if subView != nil && subView.AIUserID != "" {
+			targetUserID = subView.AIUserID
+		}
+	} else if actor.UserID > 0 {
+		targetUserID = fmt.Sprintf("user-%d", actor.UserID)
+	}
+
+	// 1. Query Gateway live request logs strictly for targetUserID
 	adminClient, _, _ := h.getGatewayAdminClient(ctx)
-	if adminClient != nil && subView.AIUserID != "" {
-		if gwLogs, err := adminClient.GetUserLogs(ctx, subView.AIUserID, 100, 0); err == nil && len(gwLogs) > 0 {
+	if adminClient != nil && targetUserID != "" {
+		if gwLogs, err := adminClient.GetUserLogs(ctx, targetUserID, 100, 0); err == nil && len(gwLogs) > 0 {
 			for _, gl := range gwLogs {
+				// Tenant isolation guard: only show logs belonging to this specific user / tenant
+				if gl.UserID != "" && gl.UserID != targetUserID {
+					continue
+				}
+
 				featName, featKey := mapGatewayCapabilityToName(gl.Capability, gl.Feature, isVendor)
-				stLabel := "مكتمل"
-				if gl.Status == "success" {
+				if (featKey == "" || featKey == "smart_order" || featKey == "variant_match") && gl.ClientApp != "" {
+					featName, featKey = mapGatewayCapabilityToName(gl.ClientApp, gl.ClientApp, isVendor)
+				}
+
+				resStatus := gl.ResolvedStatus()
+				stLabel := "ناجح"
+				if resStatus == "success" {
 					stLabel = "ناجح"
-				} else if gl.Status == "failed" {
+				} else if resStatus == "cached" {
+					stLabel = "من الذاكرة (مجاني)"
+				} else if resStatus == "failed" || resStatus == "error" || resStatus == "rate_limited" {
 					stLabel = "غير مكتمل"
 				}
+
+				modelName := gl.ResolvedModel()
+				cost := gl.ResolvedCost()
+				totToks := gl.TotalTokens()
+				latMs := gl.ResolvedLatency()
 
 				item := &pages.AILogItemView{
 					ID:            gl.ID,
@@ -445,29 +476,26 @@ func (h *UIHandler) AIConsumptionLogsPage(w http.ResponseWriter, r *http.Request
 					TimeFormatted: gl.CreatedAt.Format("2006-01-02 15:04"),
 					FeatureName:   featName,
 					FeatureKey:    featKey,
-					ModelAlias:    gl.Model,
+					ModelAlias:    modelName,
 					ModelTier:     "fast",
 					InputTokens:   gl.InputTokens,
 					OutputTokens:  gl.OutputTokens,
-					TotalTokens:   gl.TotalTokens,
-					CostUSD:       gl.CostUSD,
-					DurationMs:    gl.DurationMs,
-					Status:        gl.Status,
+					TotalTokens:   totToks,
+					CostUSD:       cost,
+					DurationMs:    latMs,
+					Status:        resStatus,
 					StatusLabel:   stLabel,
-				}
-				if item.ModelAlias == "" {
-					item.ModelAlias = "nemotron-3.5-lightning"
 				}
 				logViews = append(logViews, item)
 				totalReqs++
-				totalTokens += gl.TotalTokens
-				totalCost += gl.CostUSD
+				totalTokens += totToks
+				totalCost += cost
 				featureCounts[featKey]++
 			}
 		}
 	}
 
-	// 2. If Gateway has no recorded logs or returns empty, correlate with local operational telemetry
+	// 2. If Gateway has no recorded logs for this tenant, fallback to tenant-scoped activity
 	if len(logViews) == 0 {
 		logViews = h.generateRelationalAILogs(ctx, actor, isVendor, subView)
 		for _, item := range logViews {
@@ -479,8 +507,36 @@ func (h *UIHandler) AIConsumptionLogsPage(w http.ResponseWriter, r *http.Request
 	}
 
 	// Calculate spent budget
-	if subView.AIBudgetSpentUSD <= 0 && totalCost > 0 {
-		subView.AIBudgetSpentUSD = totalCost
+	if subView != nil {
+		if subView.AIBudgetSpentUSD <= 0 && totalCost > 0 {
+			subView.AIBudgetSpentUSD = totalCost
+		}
+		if totalTokens > 0 && subView.AITokensUsed <= 0 {
+			subView.AITokensUsed = totalTokens
+		}
+		if totalReqs > 0 && subView.AIRequestsCount <= 0 {
+			subView.AIRequestsCount = totalReqs
+		}
+	}
+
+	activeLimit := 15.0
+	activeSpent := 0.0
+	usagePct := 0
+	aiUserID := targetUserID
+	planName := "الباقة الأساسية"
+	planSlug := "basic"
+	aiPlanID := "plan-pos-free"
+	resetTime := ""
+
+	if subView != nil {
+		activeLimit = subView.AIBudgetLimitUSD
+		activeSpent = subView.AIBudgetSpentUSD
+		usagePct = subView.AIPercentage()
+		aiUserID = subView.AIUserID
+		planName = subView.PlanName
+		planSlug = subView.PlanSlug
+		aiPlanID = subView.AIPlanID
+		resetTime = subView.AIBudgetResetTime
 	}
 
 	pageData := pages.AIConsumptionLogsPageData{
@@ -488,14 +544,14 @@ func (h *UIHandler) AIConsumptionLogsPage(w http.ResponseWriter, r *http.Request
 		TotalRequests:     totalReqs,
 		TotalTokens:       totalTokens,
 		TotalCostUSD:      totalCost,
-		ActiveBudgetLimit: subView.AIBudgetLimitUSD,
-		ActiveBudgetSpent: subView.AIBudgetSpentUSD,
-		UsagePercentage:   subView.AIPercentage(),
-		AIUserID:          subView.AIUserID,
-		PlanName:          subView.PlanName,
-		PlanSlug:          subView.PlanSlug,
-		AIPlanID:          subView.AIPlanID,
-		ResetTime:         subView.AIBudgetResetTime,
+		ActiveBudgetLimit: activeLimit,
+		ActiveBudgetSpent: activeSpent,
+		UsagePercentage:   usagePct,
+		AIUserID:          aiUserID,
+		PlanName:          planName,
+		PlanSlug:          planSlug,
+		AIPlanID:          aiPlanID,
+		ResetTime:         resetTime,
 		IsVendor:          isVendor,
 		IsCustomer:        isCustomer,
 		FeatureBreakdown:  featureCounts,
@@ -563,7 +619,7 @@ func (h *UIHandler) generateRelationalAILogs(ctx context.Context, actor authctx.
 			TimeFormatted: now.Add(-2 * time.Hour).Format("2006-01-02 15:04"),
 			FeatureName:   "استيراد ومطابقة الأصناف والبدائل (Variants Match)",
 			FeatureKey:    "variant_match",
-			ModelAlias:    "nemotron-3.5-lightning",
+			ModelAlias:    "qwen3.7-flash",
 			ModelTier:     "fast",
 			InputTokens:   3420,
 			OutputTokens:  480,
@@ -580,7 +636,7 @@ func (h *UIHandler) generateRelationalAILogs(ctx context.Context, actor authctx.
 			TimeFormatted: now.Add(-18 * time.Hour).Format("2006-01-02 15:04"),
 			FeatureName:   "استيراد وتوليد منتجات التوفير (Savings Match)",
 			FeatureKey:    "savings_import",
-			ModelAlias:    "nemotron-3.5-lightning",
+			ModelAlias:    "qwen3.7-flash",
 			ModelTier:     "fast",
 			InputTokens:   2150,
 			OutputTokens:  320,
@@ -597,7 +653,7 @@ func (h *UIHandler) generateRelationalAILogs(ctx context.Context, actor authctx.
 			TimeFormatted: now.Add(-2 * 24 * time.Hour).Format("2006-01-02 15:04"),
 			FeatureName:   "التعرف الذكي على أعمدة ملفات Excel/CSV",
 			FeatureKey:    "column_detect",
-			ModelAlias:    "nemotron-3.5-lightning",
+			ModelAlias:    "qwen3.7-flash",
 			ModelTier:     "fast",
 			InputTokens:   520,
 			OutputTokens:  95,
@@ -633,7 +689,7 @@ func (h *UIHandler) generateRelationalAILogs(ctx context.Context, actor authctx.
 			TimeFormatted: now.Add(-1 * time.Hour).Format("2006-01-02 15:04"),
 			FeatureName:   "الطلب الذكي وتحسين مطابقة النواقص (Smart Order AI)",
 			FeatureKey:    "smart_order",
-			ModelAlias:    "nemotron-3.5-lightning",
+			ModelAlias:    "qwen3.7-flash",
 			ModelTier:     "fast",
 			InputTokens:   2890,
 			OutputTokens:  340,
@@ -650,7 +706,7 @@ func (h *UIHandler) generateRelationalAILogs(ctx context.Context, actor authctx.
 			TimeFormatted: now.Add(-6 * time.Hour).Format("2006-01-02 15:04"),
 			FeatureName:   "المساعد الصيدلاني الذكي (Pharmacy AI Assistant)",
 			FeatureKey:    "assistant",
-			ModelAlias:    "nemotron-3.5-lightning",
+			ModelAlias:    "qwen3.7-flash",
 			ModelTier:     "quality",
 			InputTokens:   1120,
 			OutputTokens:  390,
@@ -667,7 +723,7 @@ func (h *UIHandler) generateRelationalAILogs(ctx context.Context, actor authctx.
 			TimeFormatted: now.Add(-1 * 24 * time.Hour).Format("2006-01-02 15:04"),
 			FeatureName:   "مطابقة واقتراح بدائل التوفير (Savings Products)",
 			FeatureKey:    "savings",
-			ModelAlias:    "nemotron-3.5-lightning",
+			ModelAlias:    "qwen3.7-flash",
 			ModelTier:     "fast",
 			InputTokens:   1650,
 			OutputTokens:  210,

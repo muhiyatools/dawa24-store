@@ -56,10 +56,12 @@ type GatewayUserSummary struct {
 	Requests        int     `json:"requests"`
 	Successful      int     `json:"successful"`
 	Failed          int     `json:"failed"`
-	InputTokens     int     `json:"input_tokens"`
-	OutputTokens    int     `json:"output_tokens"`
-	CreditsConsumed float64 `json:"credits_consumed"`
+	InputTokens     int64   `json:"input_tokens"`
+	OutputTokens    int64   `json:"output_tokens"`
+	CacheReadTokens int64   `json:"cache_read_tokens"`
 	CostUSD         float64 `json:"cost_usd"`
+	CostNanoUSD     int64   `json:"cost_nano_usd"`
+	CreditsConsumed float64 `json:"credits_consumed"`
 }
 
 // GatewayVirtualKey represents an API Key generated for a Gateway user.
@@ -196,20 +198,85 @@ func (c *AdminClient) GetUserUsageSummary(ctx context.Context, userID string) (*
 
 // GatewayLogEntry represents one logged AI request from the Gateway.
 type GatewayLogEntry struct {
-	ID           string    `json:"id"`
-	UserID       string    `json:"user_id"`
-	Model        string    `json:"model"`
-	Capability   string    `json:"capability,omitempty"`
-	Feature      string    `json:"feature,omitempty"`
-	Status       string    `json:"status"` // "success", "failed", "completed"
-	StatusCode   int       `json:"status_code"`
-	InputTokens  int       `json:"input_tokens"`
-	OutputTokens int       `json:"output_tokens"`
-	TotalTokens  int       `json:"total_tokens"`
-	CostUSD      float64   `json:"cost_usd"`
-	DurationMs   int64     `json:"duration_ms"`
-	CreatedAt    time.Time `json:"created_at"`
-	ErrorMessage string    `json:"error_message,omitempty"`
+	ID               string    `json:"id"`
+	VirtualKeyID     string    `json:"virtual_key_id"`
+	UserID           string    `json:"user_id"`
+	OwnerName        string    `json:"owner_name,omitempty"`
+	ModelID          string    `json:"model_id"`
+	RequestedModel   string    `json:"requested_model"`
+	Model            string    `json:"model,omitempty"`
+	ProviderID       string    `json:"provider_id,omitempty"`
+	RequestPath      string    `json:"request_path"`
+	StatusCode       int       `json:"status_code"`
+	RequestStatus    string    `json:"request_status"`
+	Status           string    `json:"status,omitempty"`
+	Streamed         bool      `json:"streamed"`
+	InputTokens      int       `json:"input_tokens"`
+	OutputTokens     int       `json:"output_tokens"`
+	CacheReadTokens  int       `json:"cache_read_tokens"`
+	CacheWriteTokens int       `json:"cache_write_tokens"`
+	ReasoningTokens  *int      `json:"reasoning_tokens,omitempty"`
+	Cost             float64   `json:"cost"`
+	CostUSD          float64   `json:"cost_usd,omitempty"`
+	CostNanoUSD      int64     `json:"cost_nano_usd"`
+	CreditsConsumed  float64   `json:"credits_consumed"`
+	LatencyMS        int       `json:"latency_ms"`
+	DurationMs       int64     `json:"duration_ms,omitempty"`
+	ClientApp        string    `json:"client_app"`
+	Capability       string    `json:"capability,omitempty"`
+	Feature          string    `json:"feature,omitempty"`
+	ErrorMessage     string    `json:"error_message,omitempty"`
+	CreatedAt        time.Time `json:"created_at"`
+}
+
+func (e GatewayLogEntry) ResolvedModel() string {
+	if e.ModelID != "" {
+		return e.ModelID
+	}
+	if e.RequestedModel != "" {
+		return e.RequestedModel
+	}
+	if e.Model != "" {
+		return e.Model
+	}
+	return "qwen3.7-flash"
+}
+
+func (e GatewayLogEntry) ResolvedStatus() string {
+	if e.RequestStatus != "" {
+		return e.RequestStatus
+	}
+	if e.Status != "" {
+		return e.Status
+	}
+	if e.StatusCode >= 200 && e.StatusCode < 300 {
+		return "success"
+	}
+	return "failed"
+}
+
+func (e GatewayLogEntry) TotalTokens() int {
+	return e.InputTokens + e.OutputTokens
+}
+
+func (e GatewayLogEntry) ResolvedCost() float64 {
+	if e.Cost > 0 {
+		return e.Cost
+	}
+	if e.CostUSD > 0 {
+		return e.CostUSD
+	}
+	if e.CostNanoUSD > 0 {
+		return float64(e.CostNanoUSD) / 1e9
+	}
+	return 0
+}
+
+func (e GatewayLogEntry) ResolvedLatency() int64 {
+	if e.LatencyMS > 0 {
+		return int64(e.LatencyMS)
+	}
+	return e.DurationMs
 }
 
 // GetUserLogs fetches request log records for a user from the AI Gateway.

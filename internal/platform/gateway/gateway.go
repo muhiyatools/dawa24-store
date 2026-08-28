@@ -90,8 +90,8 @@ const (
 // models. See budget.think: leaving their chain of thought on is not a cost
 // question but a correctness one.
 const (
-	defaultFastModel    = "nemotron-3.5-lightning"
-	defaultQualityModel = "nemotron-3.5-lightning"
+	defaultFastModel    = "qwen3.7-flash"
+	defaultQualityModel = "qwen3.7-flash"
 )
 
 // budget is the per-capability latency ceiling and retry policy.
