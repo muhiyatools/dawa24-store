@@ -2,6 +2,7 @@ package postgres
 
 import (
 	"context"
+	"errors"
 	"time"
 
 	"github.com/jackc/pgx/v5"
@@ -216,6 +217,11 @@ func (r *Repository) ListInvoicesByOrg(ctx context.Context, orgID int64, limit, 
 // AddPaymentMethod stores a user payment method.
 func (r *Repository) AddPaymentMethod(ctx context.Context, pm *billing.UserPaymentMethod) error {
 	return r.db.InTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
+		if pm.IsDefault {
+			if _, err := tx.Exec(txCtx, `UPDATE billing.user_payment_methods SET is_default = false WHERE user_id = $1;`, pm.UserID); err != nil {
+				return err
+			}
+		}
 		query := `
 			INSERT INTO billing.user_payment_methods (user_id, provider, account_identifier, is_default)
 			VALUES ($1, $2, $3, $4)
@@ -224,6 +230,23 @@ func (r *Repository) AddPaymentMethod(ctx context.Context, pm *billing.UserPayme
 		return tx.QueryRow(txCtx, query, pm.UserID, pm.Provider, pm.AccountIdentifier, pm.IsDefault).
 			Scan(&pm.ID, &pm.PublicID, &pm.CreatedAt)
 	})
+}
+
+// GetPaymentMethodByID returns a single payment method for a user.
+func (r *Repository) GetPaymentMethodByID(ctx context.Context, userID, id int64) (*billing.UserPaymentMethod, error) {
+	var pm billing.UserPaymentMethod
+	err := r.db.InReadTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
+		query := `SELECT id, public_id, user_id, provider, account_identifier, is_default, created_at FROM billing.user_payment_methods WHERE id = $1 AND user_id = $2;`
+		return tx.QueryRow(txCtx, query, id, userID).
+			Scan(&pm.ID, &pm.PublicID, &pm.UserID, &pm.Provider, &pm.AccountIdentifier, &pm.IsDefault, &pm.CreatedAt)
+	})
+	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return nil, apperr.NotFound("payment_method")
+		}
+		return nil, err
+	}
+	return &pm, nil
 }
 
 // ListPaymentMethods returns saved payment methods for a user.
@@ -248,13 +271,48 @@ func (r *Repository) ListPaymentMethods(ctx context.Context, userID int64) ([]*b
 	return list, err
 }
 
+// UpdatePaymentMethod updates an existing payment method for a user.
+func (r *Repository) UpdatePaymentMethod(ctx context.Context, pm *billing.UserPaymentMethod) error {
+	return r.db.InTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
+		if pm.IsDefault {
+			if _, err := tx.Exec(txCtx, `UPDATE billing.user_payment_methods SET is_default = false WHERE user_id = $1;`, pm.UserID); err != nil {
+				return err
+			}
+		}
+		query := `
+			UPDATE billing.user_payment_methods
+			SET provider = $1, account_identifier = $2, is_default = $3
+			WHERE id = $4 AND user_id = $5;
+		`
+		tag, err := tx.Exec(txCtx, query, pm.Provider, pm.AccountIdentifier, pm.IsDefault, pm.ID, pm.UserID)
+		if err != nil {
+			return err
+		}
+		if tag.RowsAffected() == 0 {
+			return apperr.NotFound("payment_method")
+		}
+		return nil
+	})
+}
+
+// SetDefaultPaymentMethod marks a specific payment method as default and clears others.
+func (r *Repository) SetDefaultPaymentMethod(ctx context.Context, userID, id int64) error {
+	return r.db.InTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
+		if _, err := tx.Exec(txCtx, `UPDATE billing.user_payment_methods SET is_default = false WHERE user_id = $1;`, userID); err != nil {
+			return err
+		}
+		tag, err := tx.Exec(txCtx, `UPDATE billing.user_payment_methods SET is_default = true WHERE id = $1 AND user_id = $2;`, id, userID)
+		if err != nil {
+			return err
+		}
+		if tag.RowsAffected() == 0 {
+			return apperr.NotFound("payment_method")
+		}
+		return nil
+	})
+}
+
 // DeletePaymentMethod removes a payment method belonging to the given user.
-//
-// userID is part of the predicate, not just a lookup argument. The previous
-// signature took the id alone and deleted on it, and billing.user_payment_methods
-// carries no row-level security - so once any handler reached this, one user
-// could delete another's saved card by id. Requiring the owner here means a
-// caller cannot express the unsafe version.
 func (r *Repository) DeletePaymentMethod(ctx context.Context, userID, id int64) error {
 	return r.db.InTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
 		query := `DELETE FROM billing.user_payment_methods WHERE id = $1 AND user_id = $2;`
@@ -262,9 +320,6 @@ func (r *Repository) DeletePaymentMethod(ctx context.Context, userID, id int64) 
 		if err != nil {
 			return err
 		}
-		// A row that exists but belongs to someone else is reported as absent
-		// rather than forbidden, so the endpoint cannot be used to probe which
-		// payment-method ids are real.
 		if tag.RowsAffected() == 0 {
 			return apperr.NotFound("payment_method")
 		}

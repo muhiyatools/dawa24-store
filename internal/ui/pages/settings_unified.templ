@@ -2,6 +2,7 @@ package pages
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/muhiya/dawa24-store/internal/modules/billing"
 	"github.com/muhiya/dawa24-store/internal/modules/identity"
@@ -34,11 +35,80 @@ templ UnifiedSettingsPage(data UnifiedSettingsData, lang, dir string) {
 			x-data="{
 				activeTab: (new URLSearchParams(window.location.search).get('tab') || window.location.hash.replace('#', '') || 'profile'),
 				isAddPaymentModalOpen: false,
+				isEditPaymentModalOpen: false,
 				paymentType: 'bank',
+				editPaymentID: 0,
+				editPaymentType: 'bank',
+				editBankName: '',
+				editAccountHolder: '',
+				editIBAN: '',
+				editAccountNumber: '',
+				editSwiftCode: '',
+				editBranchName: '',
+				editInstaPayHandle: '',
+				editWalletProvider: 'فودافون كاش',
+				editWalletPhone: '',
+				editCardName: '',
+				editCardNumber: '',
+				editIsDefault: false,
 				isDeleteAccountModalOpen: false,
 				isDepositModalOpen: false,
 				isWithdrawModalOpen: false,
-				depositMethod: 'instapay'
+				depositMethod: 'instapay',
+				copiedNotice: '',
+				copyToClipboard(text) {
+					if (!text) return;
+					navigator.clipboard.writeText(text);
+					this.copiedNotice = text;
+					setTimeout(() => { this.copiedNotice = ''; }, 2500);
+				},
+				openEditPayment(id, provider, rawIdentifier, isDefault) {
+					this.editPaymentID = id;
+					this.editPaymentType = provider;
+					this.editIsDefault = isDefault;
+					this.editBankName = '';
+					this.editAccountHolder = '';
+					this.editIBAN = '';
+					this.editAccountNumber = '';
+					this.editSwiftCode = '';
+					this.editBranchName = '';
+					this.editInstaPayHandle = '';
+					this.editWalletPhone = '';
+					this.editCardName = '';
+					this.editCardNumber = '';
+
+					const parts = rawIdentifier.split('•').map(s => s.trim());
+					if (provider === 'bank') {
+						if (parts.length > 0) this.editBankName = parts[0];
+						if (parts.length > 1 && !parts[1].startsWith('IBAN:') && !parts[1].startsWith('حساب:') && !parts[1].startsWith('SWIFT:')) {
+							this.editAccountHolder = parts[1];
+						}
+						parts.forEach(p => {
+							if (p.startsWith('IBAN:')) this.editIBAN = p.replace('IBAN:', '').trim();
+							if (p.startsWith('حساب:')) this.editAccountNumber = p.replace('حساب:', '').trim();
+							if (p.startsWith('SWIFT:')) this.editSwiftCode = p.replace('SWIFT:', '').trim();
+							if (p.startsWith('فرع')) this.editBranchName = p.replace('فرع', '').trim();
+						});
+					} else if (provider === 'instapay') {
+						parts.forEach(p => {
+							if (p.startsWith('InstaPay:')) this.editInstaPayHandle = p.replace('InstaPay:', '').trim();
+							else this.editAccountHolder = p;
+						});
+					} else if (provider === 'wallet' || provider === 'vodafone_cash') {
+						parts.forEach(p => {
+							if (p.includes(':')) {
+								const sub = p.split(':');
+								this.editWalletProvider = sub[0].trim();
+								this.editWalletPhone = sub[1].trim();
+							} else {
+								this.editAccountHolder = p;
+							}
+						});
+					} else if (provider === 'card') {
+						this.editCardNumber = rawIdentifier;
+					}
+					this.isEditPaymentModalOpen = true;
+				}
 			}"
 		>
 			<!-- Page Header -->
@@ -405,99 +475,375 @@ templ UnifiedSettingsPage(data UnifiedSettingsData, lang, dir string) {
 				</div>
 			</div>
 
-			<!-- Tab 3: Payment Methods -->
+			<!-- Tab 3: Payment Methods & Bank Accounts -->
 			<div
 				id="tab-payments"
 				class="tab-pane card"
 				:class="{ 'active': activeTab === 'payments' }"
 				x-show="activeTab === 'payments'"
-				style="padding:2.25rem;"
+				style="padding:1.75rem 2rem;"
 			>
-				<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; flex-wrap:wrap; gap:1rem;">
+				<!-- Toast notice for copy -->
+				<div x-show="copiedNotice" x-cloak style="position:fixed; bottom:2rem; inset-inline-end:2rem; z-index:9999; background:var(--emerald); color:#ffffff; padding:0.65rem 1.25rem; border-radius:var(--radius-lg); font-weight:800; font-size:0.875rem; box-shadow:var(--shadow-xl); display:flex; align-items:center; gap:0.5rem;">
+					<span>✓</span>
+					<span>تم النسخ إلى الحافظة بنجاح</span>
+				</div>
+
+				<!-- Section Header -->
+				<div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:1.5rem; flex-wrap:wrap; gap:1rem; border-bottom:1px solid var(--border); padding-bottom:1.25rem;">
 					<div>
-						<h3 class="text-xl fw-800 text-primary m-0">
-							طرق الدفع والحسابات البنكية المحفوظة
-						</h3>
-						<p style="color:var(--text-muted); font-size:0.85rem; margin-top:0.25rem;">
-							الحسابات المعتمدة لعمليات الدفع، التسوية، والتحويلات البنكية
+						<div style="display:flex; align-items:center; gap:0.5rem;">
+							<div style="width:34px; height:34px; border-radius:var(--radius-md); background:rgba(14, 165, 233, 0.12); color:var(--primary); display:flex; align-items:center; justify-content:center;">
+								@components.IconCreditCard("icon-xs")
+							</div>
+							<h3 class="text-xl fw-800 text-primary m-0">
+								طرق الدفع والحسابات البنكية المعتمدة
+							</h3>
+						</div>
+						<p style="color:var(--text-secondary); font-size:0.85rem; margin:0.35rem 0 0 0;">
+							إدارة الحسابات البنكية الرسمية، محافظ الدفع الإلكتروني، وتعيين الحسابات الافتراضية للتحويلات والتسويات المالية.
 						</p>
 					</div>
 
 					<button
 						type="button"
 						class="btn btn-primary btn-sm fw-800"
-						@click="isAddPaymentModalOpen = true"
-					
+						@click="isAddPaymentModalOpen = true; paymentType = 'bank'"
+						style="gap:0.4rem; padding:0.55rem 1.15rem;"
 					>
 						@components.IconPlus("icon-xs")
-						<span>إضافة وسيلة دفع جديدة</span>
+						<span>إضافة حساب / وسيلة دفع</span>
 					</button>
 				</div>
 
 				if len(data.PaymentMethods) == 0 {
-					<div style="padding:3.5rem 1.5rem; border:2px dashed var(--border); border-radius:var(--radius-2xl); text-align:center; background:var(--surface-sunken);">
-						<div style="width:54px; height:54px; border-radius:var(--radius-full); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center; margin:0 auto 1rem auto;">
-							@components.IconShield("icon-md")
+					<div style="padding:3.5rem 1.5rem; border:2px dashed var(--border); border-radius:var(--radius-xl); text-align:center; background:var(--surface-sunken);">
+						<div style="width:52px; height:52px; border-radius:var(--radius-full); background:rgba(14, 165, 233, 0.1); color:var(--primary); display:flex; align-items:center; justify-content:center; margin:0 auto 1rem auto; font-size:1.5rem;">
+							🏦
 						</div>
 						<h4 style="font-size:1.15rem; font-weight:800; color:var(--text); margin:0 0 0.4rem 0;">
-							لا توجد وسائل دفع محفوظة حالياً
+							لا توجد حسابات بنكية أو وسائل دفع مسجلة حالياً
 						</h4>
-						<p style="color:var(--text-muted); font-size:0.875rem; max-width:440px; margin:0 auto 1.5rem auto; line-height:1.5;">
-							أضف حسابك البنكي الرسمي أو معرف إنستاباي لربطه بالمعاملات المالية وأوامر التوريد المباشرة.
+						<p style="color:var(--text-muted); font-size:0.875rem; max-width:480px; margin:0 auto 1.5rem auto; line-height:1.6;">
+							أضف حسابك البنكي الرسمي (IBAN) أو معرف إنستاباي / محفظتك الإلكترونية لربطه بالمعاملات وسداد أوامر الشراء وسحب الأرصدة.
 						</p>
 						<button
 							type="button"
 							class="btn btn-primary fw-800"
-							@click="isAddPaymentModalOpen = true"
-						
+							@click="isAddPaymentModalOpen = true; paymentType = 'bank'"
 						>
 							@components.IconPlus("icon-xs")
-							<span>إضافة أول وسيلة دفع</span>
+							<span>إضافة أول حساب بنكي الآن</span>
 						</button>
 					</div>
 				} else {
-					<div style="display:grid; grid-template-columns:1fr; gap:1rem;">
-						for _, pm := range data.PaymentMethods {
-							<div style="display:flex; justify-content:space-between; align-items:center; padding:1.25rem; border:1px solid var(--border); background:var(--surface-raised); border-radius:var(--radius-xl); flex-wrap:wrap; gap:1rem;">
-								<div style="display:flex; align-items:center; gap:1rem;">
-									<div style="width:46px; height:46px; border-radius:var(--radius-lg); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center; flex-shrink:0;">
-										if pm.Provider == "bank" {
-											@components.IconBuilding("icon-sm")
-										} else if pm.Provider == "instapay" {
-											@components.IconWallet("icon-sm")
-										} else {
-											@components.IconShield("icon-sm")
-										}
-									</div>
-									<div>
-										<div style="font-weight:800; color:var(--text); display:flex; align-items:center; gap:0.5rem;">
-											<span>{ paymentProviderTitle(pm.Provider) }</span>
-											if pm.IsDefault {
-												<span class="badge badge-emerald text-xs">الافتراضي</span>
-											}
-										</div>
-										<div style="font-size:0.875rem; color:var(--text-secondary); margin-top:0.25rem;" class="tabular-nums" dir="ltr">
-											{ pm.AccountIdentifier }
-										</div>
-									</div>
+					<div style="display:flex; flex-direction:column; gap:2rem;">
+
+						<!-- Subsection 1: Saved Official Bank Accounts -->
+						<div>
+							<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.85rem;">
+								<div style="display:flex; align-items:center; gap:0.45rem;">
+									<span style="font-size:1.1rem;">🏦</span>
+									<h4 style="font-size:0.975rem; font-weight:800; color:var(--text); margin:0;">
+										الحسابات البنكية الرسمية للمنشأة
+									</h4>
 								</div>
+								<button type="button" @click="isAddPaymentModalOpen = true; paymentType = 'bank'" class="btn btn-secondary btn-xs fw-700" style="gap:0.3rem;">
+									@components.IconPlus("icon-xs")
+									<span>إضافة حساب بنكي</span>
+								</button>
+							</div>
 
-								<div class="row-center">
-									<span class="badge badge-sky fw-700">معتمد</span>
+							if !hasBankPaymentMethods(data.PaymentMethods) {
+								<div style="padding:1.25rem; background:var(--surface-sunken); border:1px dashed var(--border); border-radius:var(--radius-lg); font-size:0.85rem; color:var(--text-secondary); display:flex; justify-content:space-between; align-items:center;">
+									<span>لم يتم تسجيل أي حساب بنكي بعد. ينصح بإضافة رقم الآيبان لتسهيل التحويلات البنكية المباشرة.</span>
+									<button type="button" @click="isAddPaymentModalOpen = true; paymentType = 'bank'" class="btn btn-primary btn-xs fw-700">إضافة الآن</button>
+								</div>
+							} else {
+								<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(360px, 1fr)); gap:1rem;">
+									for _, pm := range data.PaymentMethods {
+										if isBankPaymentMethod(pm) {
+											{{ title, holder, iban, acc, other := parsePaymentParts(pm.AccountIdentifier) }}
+											<div style="border:1px solid var(--border); background:var(--surface-raised); border-radius:var(--radius-xl); padding:1.25rem; display:flex; flex-direction:column; justify-content:space-between; box-shadow:var(--shadow-xs); transition:all 0.15s ease;">
+												
+												<!-- Card Top: Bank Name, Badges & Actions -->
+												<div>
+													<div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:0.75rem;">
+														<div style="display:flex; align-items:center; gap:0.6rem;">
+															<div style="width:40px; height:40px; border-radius:var(--radius-lg); background:rgba(14, 165, 233, 0.12); color:var(--primary); display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+																@components.IconBuilding("icon-sm")
+															</div>
+															<div>
+																<h5 style="font-size:1rem; font-weight:800; color:var(--text); margin:0;">
+																	{ title }
+																</h5>
+																if holder != "" {
+																	<span style="font-size:0.8rem; color:var(--text-secondary); font-weight:600; display:block; margin-top:0.15rem;">
+																		{ holder }
+																	</span>
+																}
+															</div>
+														</div>
 
-									<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/settings/payment-methods/%d/delete", pm.ID)) } class="m-0" onsubmit="return confirm('هل أنت متأكد من رغبتك في حذف وسيلة الدفع هذه؟');">
-										<button
-											type="submit"
-											class="btn btn-secondary btn-icon"
-											style="color:var(--danger); border-color:var(--danger-border); width:36px; height:36px;"
-											title="حذف وسيلة الدفع"
-										>
-											@components.IconTrash("icon-xs")
-										</button>
-									</form>
+														<div style="display:flex; align-items:center; gap:0.4rem;">
+															if pm.IsDefault {
+																<span class="badge badge-emerald text-xs fw-800">⭐ الافتراضي الرئيسي</span>
+															}
+															<span class="badge badge-sky text-xs fw-700">✓ معتمد</span>
+														</div>
+													</div>
+
+													<!-- Account Details Box -->
+													<div style="background:var(--surface-sunken); border:1px solid var(--border); border-radius:var(--radius-lg); padding:0.75rem 0.85rem; display:flex; flex-direction:column; gap:0.5rem; margin:0.75rem 0;">
+														if iban != "" {
+															<div style="display:flex; justify-content:space-between; align-items:center; font-size:0.8rem;">
+																<span style="color:var(--text-muted); font-weight:600;">الآيبان (IBAN):</span>
+																<div style="display:flex; align-items:center; gap:0.4rem;">
+																	<code dir="ltr" class="tabular-nums" style="font-weight:700; color:var(--text);">{ iban }</code>
+																	<button
+																		type="button"
+																		class="btn btn-secondary btn-icon size-6"
+																		title="نسخ الآيبان"
+																		@click={ fmt.Sprintf("copyToClipboard('%s')", iban) }
+																	>
+																		@components.IconCopy("icon-xs")
+																	</button>
+																</div>
+															</div>
+														}
+														if acc != "" {
+															<div style="display:flex; justify-content:space-between; align-items:center; font-size:0.8rem; border-top:1px solid var(--border-subtle); padding-top:0.35rem;">
+																<span style="color:var(--text-muted); font-weight:600;">رقم الحساب:</span>
+																<div style="display:flex; align-items:center; gap:0.4rem;">
+																	<code dir="ltr" class="tabular-nums" style="font-weight:700; color:var(--text);">{ acc }</code>
+																	<button
+																		type="button"
+																		class="btn btn-secondary btn-icon size-6"
+																		title="نسخ رقم الحساب"
+																		@click={ fmt.Sprintf("copyToClipboard('%s')", acc) }
+																	>
+																		@components.IconCopy("icon-xs")
+																	</button>
+																</div>
+															</div>
+														}
+														if other != "" {
+															<div style="font-size:0.75rem; color:var(--text-muted); border-top:1px solid var(--border-subtle); padding-top:0.35rem;">
+																{ other }
+															</div>
+														}
+													</div>
+												</div>
+
+												<!-- Card Actions Footer -->
+												<div style="display:flex; justify-content:space-between; align-items:center; margin-top:0.5rem; padding-top:0.75rem; border-top:1px solid var(--border);">
+													<div>
+														if !pm.IsDefault {
+															<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/settings/payment-methods/%d/default", pm.ID)) } class="m-0">
+																<button type="submit" class="btn btn-secondary btn-xs fw-700" style="color:var(--primary); gap:0.25rem;">
+																	<span>⭐ تعيين كافتراضي</span>
+																</button>
+															</form>
+														} else {
+															<span style="font-size:0.75rem; color:var(--emerald); font-weight:700;">يستخدم تلقائياً للتحويلات</span>
+														}
+													</div>
+
+													<div style="display:flex; align-items:center; gap:0.35rem;">
+														<button
+															type="button"
+															class="btn btn-secondary btn-xs fw-700"
+															@click={ fmt.Sprintf("openEditPayment(%d, '%s', '%s', %t)", pm.ID, pm.Provider, strings.ReplaceAll(pm.AccountIdentifier, "'", "\\'"), pm.IsDefault) }
+															style="gap:0.25rem;"
+														>
+															@components.IconEdit("icon-xs")
+															<span>تعديل</span>
+														</button>
+
+														<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/settings/payment-methods/%d/delete", pm.ID)) } class="m-0" onsubmit="return confirm('هل أنت متأكد من رغبتك في حذف هذا الحساب البنكي؟');">
+															<button
+																type="submit"
+																class="btn btn-secondary btn-icon size-7 text-danger"
+																style="border-color:var(--danger-border);"
+																title="حذف الحساب"
+															>
+																@components.IconTrash("icon-xs")
+															</button>
+														</form>
+													</div>
+												</div>
+
+											</div>
+										}
+									}
+								</div>
+							}
+						</div>
+
+						<!-- Subsection 2: Saved Digital Wallets & Fast Payment Channels -->
+						<div>
+							<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.85rem;">
+								<div style="display:flex; align-items:center; gap:0.45rem;">
+									<span style="font-size:1.1rem;">⚡</span>
+									<h4 style="font-size:0.975rem; font-weight:800; color:var(--text); margin:0;">
+										المحافظ الإلكترونية وإنستاباي (InstaPay & E-Wallets)
+									</h4>
+								</div>
+								<button type="button" @click="isAddPaymentModalOpen = true; paymentType = 'instapay'" class="btn btn-secondary btn-xs fw-700" style="gap:0.3rem;">
+									@components.IconPlus("icon-xs")
+									<span>إضافة محفظة / إنستاباي</span>
+								</button>
+							</div>
+
+							if !hasDigitalPaymentMethods(data.PaymentMethods) {
+								<div style="padding:1.25rem; background:var(--surface-sunken); border:1px dashed var(--border); border-radius:var(--radius-lg); font-size:0.85rem; color:var(--text-secondary); display:flex; justify-content:space-between; align-items:center;">
+									<span>لم يتم حفظ أي عنوان إنستاباي أو محفظة هاتف بعد.</span>
+									<button type="button" @click="isAddPaymentModalOpen = true; paymentType = 'instapay'" class="btn btn-primary btn-xs fw-700">إضافة الآن</button>
+								</div>
+							} else {
+								<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(320px, 1fr)); gap:1rem;">
+									for _, pm := range data.PaymentMethods {
+										if !isBankPaymentMethod(pm) {
+											<div style="border:1px solid var(--border); background:var(--surface-raised); border-radius:var(--radius-xl); padding:1.25rem; display:flex; flex-direction:column; justify-content:space-between; box-shadow:var(--shadow-xs); transition:all 0.15s ease;">
+												
+												<div>
+													<div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:0.6rem;">
+														<div style="display:flex; align-items:center; gap:0.6rem;">
+															<div style="width:38px; height:38px; border-radius:var(--radius-lg); background:rgba(139, 92, 246, 0.12); color:#7c3aed; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+																if pm.Provider == "instapay" {
+																	@components.IconZap("icon-sm")
+																} else if pm.Provider == "card" {
+																	@components.IconCreditCard("icon-sm")
+																} else {
+																	@components.IconWallet("icon-sm")
+																}
+															</div>
+															<div>
+																<span class="badge badge-purple text-xs fw-800" dir="ltr">
+																	if pm.Provider == "instapay" {
+																		<span>InstaPay IPA</span>
+																	} else if pm.Provider == "card" {
+																		<span>Bank Card</span>
+																	} else {
+																		<span>E-Wallet</span>
+																	}
+																</span>
+															</div>
+														</div>
+
+														<div style="display:flex; align-items:center; gap:0.35rem;">
+															if pm.IsDefault {
+																<span class="badge badge-emerald text-xs fw-800">⭐ الافتراضي</span>
+															}
+															<span class="badge badge-sky text-xs fw-700">✓ معتمد</span>
+														</div>
+													</div>
+
+													<div style="background:var(--surface-sunken); border:1px solid var(--border); border-radius:var(--radius-lg); padding:0.65rem 0.85rem; margin:0.6rem 0; display:flex; justify-content:space-between; align-items:center;">
+														<span dir="ltr" class="tabular-nums" style="font-weight:800; font-size:0.875rem; color:var(--text); word-break:break-all;">
+															{ pm.AccountIdentifier }
+														</span>
+														<button
+															type="button"
+															class="btn btn-secondary btn-icon size-6"
+															title="نسخ المعرف"
+															@click={ fmt.Sprintf("copyToClipboard('%s')", pm.AccountIdentifier) }
+														>
+															@components.IconCopy("icon-xs")
+														</button>
+													</div>
+												</div>
+
+												<div style="display:flex; justify-content:space-between; align-items:center; margin-top:0.5rem; padding-top:0.75rem; border-top:1px solid var(--border);">
+													<div>
+														if !pm.IsDefault {
+															<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/settings/payment-methods/%d/default", pm.ID)) } class="m-0">
+																<button type="submit" class="btn btn-secondary btn-xs fw-700" style="color:var(--primary); gap:0.25rem;">
+																	<span>⭐ تعيين كافتراضي</span>
+																</button>
+															</form>
+														} else {
+															<span style="font-size:0.75rem; color:var(--emerald); font-weight:700;">معتمد للدفع السريع</span>
+														}
+													</div>
+
+													<div style="display:flex; align-items:center; gap:0.35rem;">
+														<button
+															type="button"
+															class="btn btn-secondary btn-xs fw-700"
+															@click={ fmt.Sprintf("openEditPayment(%d, '%s', '%s', %t)", pm.ID, pm.Provider, strings.ReplaceAll(pm.AccountIdentifier, "'", "\\'"), pm.IsDefault) }
+															style="gap:0.25rem;"
+														>
+															@components.IconEdit("icon-xs")
+															<span>تعديل</span>
+														</button>
+
+														<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/settings/payment-methods/%d/delete", pm.ID)) } class="m-0" onsubmit="return confirm('هل أنت متأكد من رغبتك في حذف وسيلة الدفع هذه؟');">
+															<button
+																type="submit"
+																class="btn btn-secondary btn-icon size-7 text-danger"
+																style="border-color:var(--danger-border);"
+																title="حذف"
+															>
+																@components.IconTrash("icon-xs")
+															</button>
+														</form>
+													</div>
+												</div>
+
+											</div>
+										}
+									}
+								</div>
+							}
+						</div>
+
+						<!-- Subsection 3: Official Platform Channels for Reference -->
+						if len(data.PlatformPaymentMethods) > 0 {
+							<div style="background:var(--surface-sunken); border:1px solid var(--border); border-radius:var(--radius-xl); padding:1.25rem 1.5rem;">
+								<div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:0.5rem;">
+									<span style="font-size:1.1rem;">🏛️</span>
+									<h4 style="font-size:0.95rem; font-weight:800; color:var(--text); margin:0;">
+										قنوات الدفع والإيداع الرسمية لمنصة دواء 24 (Platform Official Channels)
+									</h4>
+								</div>
+								<p style="font-size:0.8rem; color:var(--text-muted); margin:0 0 1rem 0;">
+									الحسابات البنكية المعتمدة لاستقبال التحويلات المباشرة وشحن رصيد المحفظة المالية.
+								</p>
+
+								<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:0.85rem;">
+									for _, ppm := range data.PlatformPaymentMethods {
+										if ppm.IsActive {
+											<div style="background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-lg); padding:0.85rem 1rem;">
+												<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.35rem;">
+													<strong style="font-size:0.9rem; color:var(--text);">{ ppm.Name.Get("ar") }</strong>
+													<span class="badge badge-sky text-xs fw-800" dir="ltr">{ ppm.ProviderType }</span>
+												</div>
+												if ppm.IBAN != "" {
+													<div style="display:flex; justify-content:space-between; align-items:center; font-size:0.775rem; margin-top:0.25rem;">
+														<span style="color:var(--text-muted);">IBAN:</span>
+														<div style="display:flex; align-items:center; gap:0.3rem;">
+															<code dir="ltr" class="tabular-nums" style="font-size:0.75rem;">{ ppm.IBAN }</code>
+															<button type="button" class="btn btn-secondary btn-icon size-6" @click={ fmt.Sprintf("copyToClipboard('%s')", ppm.IBAN) } title="نسخ">@components.IconCopy("icon-xs")</button>
+														</div>
+													</div>
+												}
+												if ppm.InstaPayHandle != "" {
+													<div style="display:flex; justify-content:space-between; align-items:center; font-size:0.775rem; margin-top:0.25rem;">
+														<span style="color:var(--text-muted);">InstaPay:</span>
+														<div style="display:flex; align-items:center; gap:0.3rem;">
+															<code dir="ltr" class="tabular-nums" style="font-size:0.75rem;">{ ppm.InstaPayHandle }</code>
+															<button type="button" class="btn btn-secondary btn-icon size-6" @click={ fmt.Sprintf("copyToClipboard('%s')", ppm.InstaPayHandle) } title="نسخ">@components.IconCopy("icon-xs")</button>
+														</div>
+													</div>
+												}
+											</div>
+										}
+									}
 								</div>
 							</div>
 						}
+
 					</div>
 				}
 			</div>
@@ -744,15 +1090,15 @@ templ UnifiedSettingsPage(data UnifiedSettingsData, lang, dir string) {
 				<div
 					@click.outside="isAddPaymentModalOpen = false"
 					class="card"
-					style="max-width:560px; width:100%; max-height:90vh; overflow-y:auto; padding:2rem; background:var(--surface-raised); border-radius:var(--radius-2xl); border:1px solid var(--border); box-shadow:var(--shadow-xl);"
+					style="max-width:580px; width:100%; max-height:90vh; overflow-y:auto; padding:2rem; background:var(--surface-raised); border-radius:var(--radius-2xl); border:1px solid var(--border); box-shadow:var(--shadow-xl);"
 				>
-					<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; border-bottom:1px solid var(--border); padding-bottom:1rem;">
+					<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.25rem; border-bottom:1px solid var(--border); padding-bottom:1rem;">
 						<div class="row-center-sm">
 							<div class="b2b-icon-box-sm">
-								@components.IconShield("icon-xs")
+								@components.IconPlus("icon-xs")
 							</div>
 							<h3 class="text-xl fw-800 text-primary m-0">
-								إضافة وسيلة دفع جديدة
+								إضافة وسيلة دفع أو حساب بنكي جديد
 							</h3>
 						</div>
 						<button type="button" @click="isAddPaymentModalOpen = false" class="btn btn-secondary btn-icon size-8">
@@ -762,12 +1108,37 @@ templ UnifiedSettingsPage(data UnifiedSettingsData, lang, dir string) {
 
 					<form action="/settings/payment-methods" method="POST" style="display:flex; flex-direction:column; gap:1.25rem; text-align:start;">
 						<div class="form-group mb-0">
-							<label class="form-label">نوع وسيلة الدفع *</label>
-							<select name="type" x-model="paymentType" class="form-select">
-								<option value="bank">حساب بنكي رسمي (Bank Account / IBAN)</option>
-								<option value="instapay">إنستاباي / محفظة هاتف (InstaPay / E-Wallet)</option>
-								<option value="card">بطاقة دفع إلكتروني (Debit / Credit Card)</option>
-							</select>
+							<label class="form-label font-bold">نوع الحساب / وسيلة الدفع *</label>
+							<div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:0.5rem; margin-top:0.25rem;">
+								<button
+									type="button"
+									class="btn btn-sm"
+									:class="paymentType === 'bank' ? 'btn-primary' : 'btn-secondary'"
+									@click="paymentType = 'bank'"
+									style="justify-content:center; font-weight:700;"
+								>
+									<span>🏦 حساب بنكي</span>
+								</button>
+								<button
+									type="button"
+									class="btn btn-sm"
+									:class="paymentType === 'instapay' ? 'btn-primary' : 'btn-secondary'"
+									@click="paymentType = 'instapay'"
+									style="justify-content:center; font-weight:700;"
+								>
+									<span>⚡ إنستاباي</span>
+								</button>
+								<button
+									type="button"
+									class="btn btn-sm"
+									:class="paymentType === 'wallet' ? 'btn-primary' : 'btn-secondary'"
+									@click="paymentType = 'wallet'"
+									style="justify-content:center; font-weight:700;"
+								>
+									<span>📱 محفظة هاتف</span>
+								</button>
+							</div>
+							<input type="hidden" name="type" :value="paymentType" />
 						</div>
 
 						<!-- Bank Account Fields -->
@@ -775,7 +1146,7 @@ templ UnifiedSettingsPage(data UnifiedSettingsData, lang, dir string) {
 							<div class="form-grid-2">
 								<div class="form-group mb-0">
 									<label class="form-label">اسم البنك *</label>
-									<input type="text" name="bank_name" class="form-input" placeholder="البنك الأهلي المصري NBE / CIB" />
+									<input type="text" name="bank_name" class="form-input" placeholder="البنك الأهلي المصري / CIB / بنك مصر" />
 								</div>
 								<div class="form-group mb-0">
 									<label class="form-label">اسم صاحب الحساب *</label>
@@ -786,6 +1157,20 @@ templ UnifiedSettingsPage(data UnifiedSettingsData, lang, dir string) {
 								<label class="form-label">رقم الآيبان الدولي (IBAN) *</label>
 								<input type="text" name="iban" class="form-input tabular-nums" dir="ltr" placeholder="EG380003000012345678901234567" />
 							</div>
+							<div class="form-grid-2">
+								<div class="form-group mb-0">
+									<label class="form-label">رقم الحساب البنكي (اختياري)</label>
+									<input type="text" name="account_number" class="form-input tabular-nums" dir="ltr" placeholder="1002345678" />
+								</div>
+								<div class="form-group mb-0">
+									<label class="form-label">رمز السويفت SWIFT (اختياري)</label>
+									<input type="text" name="swift_code" class="form-input tabular-nums" dir="ltr" placeholder="NBEGEGCX" />
+								</div>
+							</div>
+							<div class="form-group mb-0">
+								<label class="form-label">اسم الفرع (اختياري)</label>
+								<input type="text" name="branch_name" class="form-input" placeholder="فرع مدينة نصر / المهندسين" />
+							</div>
 						</div>
 
 						<!-- InstaPay Fields -->
@@ -794,24 +1179,40 @@ templ UnifiedSettingsPage(data UnifiedSettingsData, lang, dir string) {
 								<label class="form-label">عنوان الدفع اللحظي IPA أو رقم الهاتف *</label>
 								<input type="text" name="instapay_handle" class="form-input tabular-nums" dir="ltr" placeholder="pharmacy.name@instapay" />
 							</div>
-						</div>
-
-						<!-- Card Fields -->
-						<div x-show="paymentType === 'card'" x-cloak class="stack">
 							<div class="form-group mb-0">
-								<label class="form-label">اسم حامل البطاقة *</label>
-								<input type="text" name="card_name" class="form-input" placeholder="الاسم كما هو مدون على البطاقة" />
-							</div>
-							<div class="form-group mb-0">
-								<label class="form-label">رقم البطاقة (16 رقم) *</label>
-								<input type="text" name="card_number" class="form-input tabular-nums" dir="ltr" placeholder="•••• •••• •••• ••••" />
+								<label class="form-label">اسم المستفيد المسجل في إنستاباي</label>
+								<input type="text" name="account_holder" class="form-input" placeholder="الاسم الظاهر في تطبيق إنستاباي" />
 							</div>
 						</div>
 
-						<div style="display:flex; align-items:center; gap:0.5rem; margin-top:0.25rem;">
+						<!-- E-Wallet Fields -->
+						<div x-show="paymentType === 'wallet'" x-cloak class="stack">
+							<div class="form-grid-2">
+								<div class="form-group mb-0">
+									<label class="form-label">مزود المحفظة *</label>
+									<select name="wallet_provider" class="form-select">
+										<option value="فودافون كاش">فودافون كاش (Vodafone Cash)</option>
+										<option value="أورنج كاش">أورنج كاش (Orange Money)</option>
+										<option value="اتصالات كاش">اتصالات كاش (Etisalat Cash)</option>
+										<option value="وي باي">وي باي (WE Pay)</option>
+										<option value="محفظة بنكية ذكية">محفظة بنكية ذكية (Smart Wallet)</option>
+									</select>
+								</div>
+								<div class="form-group mb-0">
+									<label class="form-label">رقم هاتف المحفظة (11 رقم) *</label>
+									<input type="text" name="wallet_phone" class="form-input tabular-nums" dir="ltr" placeholder="01012345678" />
+								</div>
+							</div>
+							<div class="form-group mb-0">
+								<label class="form-label">اسم صاحب المحفظة</label>
+								<input type="text" name="account_holder" class="form-input" placeholder="الاسم المسجل للمحفظة" />
+							</div>
+						</div>
+
+						<div style="display:flex; align-items:center; gap:0.5rem; margin-top:0.25rem; background:var(--surface-sunken); padding:0.75rem 1rem; border-radius:var(--radius-lg); border:1px solid var(--border);">
 							<input type="checkbox" id="is_default_pm" name="is_default" value="1" style="width:18px; height:18px; accent-color:var(--accent);" />
 							<label for="is_default_pm" style="font-size:0.875rem; font-weight:700; color:var(--text); cursor:pointer;">
-								تعيين كوسيلة دفع وحساب افتراضي
+								تعيين كوسيلة دفع وحساب افتراضي رئيسي
 							</label>
 						</div>
 
@@ -819,7 +1220,124 @@ templ UnifiedSettingsPage(data UnifiedSettingsData, lang, dir string) {
 							<button type="button" @click="isAddPaymentModalOpen = false" class="btn btn-secondary">إلغاء</button>
 							<button type="submit" class="btn btn-primary" style="padding-inline:1.75rem; font-weight:800;">
 								@components.IconCheck("icon-xs")
-								<span>حفظ وسيلة الدفع</span>
+								<span>حفظ وإضافة الحساب</span>
+							</button>
+						</div>
+					</form>
+				</div>
+			</div>
+
+			<!-- Dynamic Modal 1.5: Edit Payment Method Modal -->
+			<div
+				x-show="isEditPaymentModalOpen"
+				x-cloak
+				class="modal-overlay"
+				@keydown.escape.window="isEditPaymentModalOpen = false"
+			>
+				<div
+					@click.outside="isEditPaymentModalOpen = false"
+					class="card"
+					style="max-width:580px; width:100%; max-height:90vh; overflow-y:auto; padding:2rem; background:var(--surface-raised); border-radius:var(--radius-2xl); border:1px solid var(--border); box-shadow:var(--shadow-xl);"
+				>
+					<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.25rem; border-bottom:1px solid var(--border); padding-bottom:1rem;">
+						<div class="row-center-sm">
+							<div class="b2b-icon-box-sm">
+								@components.IconEdit("icon-xs")
+							</div>
+							<h3 class="text-xl fw-800 text-primary m-0">
+								تعديل بيانات الحساب / وسيلة الدفع
+							</h3>
+						</div>
+						<button type="button" @click="isEditPaymentModalOpen = false" class="btn btn-secondary btn-icon size-8">
+							@components.IconClose("icon-xs")
+						</button>
+					</div>
+
+					<form :action="'/settings/payment-methods/' + editPaymentID + '/edit'" method="POST" style="display:flex; flex-direction:column; gap:1.25rem; text-align:start;">
+						<input type="hidden" name="type" :value="editPaymentType" />
+
+						<!-- Bank Account Fields -->
+						<div x-show="editPaymentType === 'bank'" class="stack">
+							<div class="form-grid-2">
+								<div class="form-group mb-0">
+									<label class="form-label">اسم البنك *</label>
+									<input type="text" name="bank_name" x-model="editBankName" class="form-input" placeholder="اسم البنك" />
+								</div>
+								<div class="form-group mb-0">
+									<label class="form-label">اسم صاحب الحساب *</label>
+									<input type="text" name="account_holder" x-model="editAccountHolder" class="form-input" placeholder="اسم صاحب الحساب" />
+								</div>
+							</div>
+							<div class="form-group mb-0">
+								<label class="form-label">رقم الآيبان الدولي (IBAN) *</label>
+								<input type="text" name="iban" x-model="editIBAN" class="form-input tabular-nums" dir="ltr" placeholder="رقم الآيبان" />
+							</div>
+							<div class="form-grid-2">
+								<div class="form-group mb-0">
+									<label class="form-label">رقم الحساب البنكي</label>
+									<input type="text" name="account_number" x-model="editAccountNumber" class="form-input tabular-nums" dir="ltr" placeholder="رقم الحساب" />
+								</div>
+								<div class="form-group mb-0">
+									<label class="form-label">رمز السويفت SWIFT</label>
+									<input type="text" name="swift_code" x-model="editSwiftCode" class="form-input tabular-nums" dir="ltr" placeholder="رمز السويفت" />
+								</div>
+							</div>
+							<div class="form-group mb-0">
+								<label class="form-label">اسم الفرع</label>
+								<input type="text" name="branch_name" x-model="editBranchName" class="form-input" placeholder="اسم الفرع" />
+							</div>
+						</div>
+
+						<!-- InstaPay Fields -->
+						<div x-show="editPaymentType === 'instapay'" x-cloak class="stack">
+							<div class="form-group mb-0">
+								<label class="form-label">عنوان الدفع اللحظي IPA أو رقم الهاتف *</label>
+								<input type="text" name="instapay_handle" x-model="editInstaPayHandle" class="form-input tabular-nums" dir="ltr" placeholder="pharmacy.name@instapay" />
+							</div>
+							<div class="form-group mb-0">
+								<label class="form-label">اسم المستفيد</label>
+								<input type="text" name="account_holder" x-model="editAccountHolder" class="form-input" placeholder="اسم المستفيد" />
+							</div>
+						</div>
+
+						<!-- E-Wallet Fields -->
+						<div x-show="editPaymentType === 'wallet' || editPaymentType === 'vodafone_cash'" x-cloak class="stack">
+							<div class="form-grid-2">
+								<div class="form-group mb-0">
+									<label class="form-label">مزود المحفظة *</label>
+									<input type="text" name="wallet_provider" x-model="editWalletProvider" class="form-input" placeholder="مزود المحفظة" />
+								</div>
+								<div class="form-group mb-0">
+									<label class="form-label">رقم هاتف المحفظة *</label>
+									<input type="text" name="wallet_phone" x-model="editWalletPhone" class="form-input tabular-nums" dir="ltr" placeholder="رقم الهاتف" />
+								</div>
+							</div>
+							<div class="form-group mb-0">
+								<label class="form-label">اسم صاحب المحفظة</label>
+								<input type="text" name="account_holder" x-model="editAccountHolder" class="form-input" placeholder="اسم صاحب المحفظة" />
+							</div>
+						</div>
+
+						<!-- Card Fields -->
+						<div x-show="editPaymentType === 'card'" x-cloak class="stack">
+							<div class="form-group mb-0">
+								<label class="form-label">بيانات البطاقة *</label>
+								<input type="text" name="card_number" x-model="editCardNumber" class="form-input" placeholder="بيانات البطاقة" />
+							</div>
+						</div>
+
+						<div style="display:flex; align-items:center; gap:0.5rem; margin-top:0.25rem; background:var(--surface-sunken); padding:0.75rem 1rem; border-radius:var(--radius-lg); border:1px solid var(--border);">
+							<input type="checkbox" id="edit_is_default_pm" name="is_default" value="1" x-model="editIsDefault" style="width:18px; height:18px; accent-color:var(--accent);" />
+							<label for="edit_is_default_pm" style="font-size:0.875rem; font-weight:700; color:var(--text); cursor:pointer;">
+								تعيين كوسيلة دفع وحساب افتراضي رئيسي
+							</label>
+						</div>
+
+						<div class="modal-footer-standard">
+							<button type="button" @click="isEditPaymentModalOpen = false" class="btn btn-secondary">إلغاء</button>
+							<button type="submit" class="btn btn-primary" style="padding-inline:1.75rem; font-weight:800;">
+								@components.IconCheck("icon-xs")
+								<span>تحديث بيانات الحساب</span>
 							</button>
 						</div>
 					</form>
@@ -1152,14 +1670,60 @@ func txTypeLabel(t billing.TransactionType) string {
 func paymentProviderTitle(provider string) string {
 	switch provider {
 	case "bank":
-		return "حساب بنكي معتمد"
+		return "حساب بنكي رسمي (Bank Account)"
 	case "instapay":
-		return "معرف إنستاباي (InstaPay / E-Wallet)"
+		return "إنستاباي (InstaPay IPA)"
+	case "wallet", "vodafone_cash":
+		return "محفظة إلكترونية (E-Wallet)"
 	case "card":
-		return "بطاقة دفع إلكتروني"
+		return "بطاقة دفع إلكتروني (Card)"
 	default:
 		return "وسيلة دفع معتمدة"
 	}
+}
+
+func isBankPaymentMethod(pm *billing.UserPaymentMethod) bool {
+	return pm != nil && pm.Provider == "bank"
+}
+
+func hasBankPaymentMethods(pms []*billing.UserPaymentMethod) bool {
+	for _, pm := range pms {
+		if pm != nil && pm.Provider == "bank" {
+			return true
+		}
+	}
+	return false
+}
+
+func hasDigitalPaymentMethods(pms []*billing.UserPaymentMethod) bool {
+	for _, pm := range pms {
+		if pm != nil && pm.Provider != "bank" {
+			return true
+		}
+	}
+	return false
+}
+
+func parsePaymentParts(identifier string) (title string, holder string, iban string, acc string, other string) {
+	parts := strings.Split(identifier, "•")
+	for i, p := range parts {
+		trimmed := strings.TrimSpace(p)
+		if i == 0 {
+			title = trimmed
+		} else if strings.HasPrefix(trimmed, "IBAN:") {
+			iban = strings.TrimSpace(strings.TrimPrefix(trimmed, "IBAN:"))
+		} else if strings.HasPrefix(trimmed, "حساب:") {
+			acc = strings.TrimSpace(strings.TrimPrefix(trimmed, "حساب:"))
+		} else if holder == "" && !strings.HasPrefix(trimmed, "SWIFT:") && !strings.HasPrefix(trimmed, "فرع") {
+			holder = trimmed
+		} else {
+			if other != "" {
+				other += " • "
+			}
+			other += trimmed
+		}
+	}
+	return
 }
 
 func userNameVal(u *identity.User) string {

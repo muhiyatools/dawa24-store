@@ -241,6 +241,13 @@ func (m *mockBillingRepo) AddPaymentMethod(_ context.Context, pm *UserPaymentMet
 	return nil
 }
 
+func (m *mockBillingRepo) GetPaymentMethodByID(_ context.Context, userID, id int64) (*UserPaymentMethod, error) {
+	if pm, ok := m.methods[id]; ok && pm.UserID == userID {
+		return pm, nil
+	}
+	return nil, apperr.NotFound("payment_method")
+}
+
 func (m *mockBillingRepo) ListPaymentMethods(_ context.Context, userID int64) ([]*UserPaymentMethod, error) {
 	var list []*UserPaymentMethod
 	for _, pm := range m.methods {
@@ -249,6 +256,23 @@ func (m *mockBillingRepo) ListPaymentMethods(_ context.Context, userID int64) ([
 		}
 	}
 	return list, nil
+}
+
+func (m *mockBillingRepo) UpdatePaymentMethod(_ context.Context, pm *UserPaymentMethod) error {
+	if existing, ok := m.methods[pm.ID]; ok && existing.UserID == pm.UserID {
+		m.methods[pm.ID] = pm
+		return nil
+	}
+	return apperr.NotFound("payment_method")
+}
+
+func (m *mockBillingRepo) SetDefaultPaymentMethod(_ context.Context, userID, id int64) error {
+	for _, pm := range m.methods {
+		if pm.UserID == userID {
+			pm.IsDefault = (pm.ID == id)
+		}
+	}
+	return nil
 }
 
 func (m *mockBillingRepo) DeletePaymentMethod(_ context.Context, _, id int64) error {

@@ -641,6 +641,8 @@ func (h *UIHandler) RegisterSharedRoutes(r chi.Router) {
 	r.Post("/settings/branches/{id}/manager", h.SettingsBranchManagerAssignSubmit)
 	r.Post("/settings/preferences", h.SettingsPreferencesSubmit)
 	r.Post("/settings/payment-methods", h.SettingsPaymentMethodsSubmit)
+	r.Post("/settings/payment-methods/{id}/edit", h.SettingsPaymentMethodEditSubmit)
+	r.Post("/settings/payment-methods/{id}/default", h.SettingsPaymentMethodSetDefaultSubmit)
 	r.Post("/settings/payment-methods/{id}/delete", h.SettingsPaymentMethodDeleteSubmit)
 
 	// Wallet, invoices, messages, requests

@@ -34,7 +34,10 @@ type Repository interface {
 	ListInvoicesByOrg(ctx context.Context, orgID int64, limit, offset int) ([]*Invoice, error)
 
 	AddPaymentMethod(ctx context.Context, pm *UserPaymentMethod) error
+	GetPaymentMethodByID(ctx context.Context, userID, id int64) (*UserPaymentMethod, error)
 	ListPaymentMethods(ctx context.Context, userID int64) ([]*UserPaymentMethod, error)
+	UpdatePaymentMethod(ctx context.Context, pm *UserPaymentMethod) error
+	SetDefaultPaymentMethod(ctx context.Context, userID, id int64) error
 	DeletePaymentMethod(ctx context.Context, userID, id int64) error
 
 	ListPlatformPaymentMethods(ctx context.Context, onlyActive bool) ([]*PlatformPaymentMethod, error)
