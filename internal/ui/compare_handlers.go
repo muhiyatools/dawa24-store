@@ -12,6 +12,7 @@ import (
 	"path/filepath"
 	"strconv"
 	"strings"
+	"sync"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/xuri/excelize/v2"
@@ -217,7 +218,7 @@ func (h *UIHandler) CompareSampleDownload(w http.ResponseWriter, r *http.Request
 	_ = f.Write(w)
 }
 
-// CompareUploadSubmit handles uploading one or multiple supplier spreadsheet files and automatically parses rows.
+// CompareUploadSubmit handles uploading one or multiple supplier spreadsheet files and automatically parses rows in parallel.
 func (h *UIHandler) CompareUploadSubmit(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	actor, ok := authctx.From(ctx)
@@ -231,8 +232,9 @@ func (h *UIHandler) CompareUploadSubmit(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	if err := r.ParseMultipartForm(MaxUploadBytes); err != nil {
-		h.redirectWithNotice(w, r, "/compare/tool", "error", "تعذر قراءة الملفات المرفوعة.")
+	// 128 MB max memory for multi-file batch uploads
+	if err := r.ParseMultipartForm(128 << 20); err != nil {
+		h.redirectWithNotice(w, r, "/compare/tool", "error", "تعذر قراءة الملفات المرفوعة، يرجى التأكد من حجم الملفات.")
 		return
 	}
 
@@ -253,13 +255,29 @@ func (h *UIHandler) CompareUploadSubmit(w http.ResponseWriter, r *http.Request) 
 		orgPtr = &actor.OrganizationID
 	}
 
-	var processedCount int
-	var totalRows int
-	var errorFiles []string
-	var allArchived []string
-	var uploadedIDs []string
+	type fileItem struct {
+		index        int
+		filename     string
+		supplierName string
+		contentType  string
+		size         int64
+		fileBytes    []byte
+		localURL     string
+	}
 
-	for _, header := range fileHeaders {
+	type fileResult struct {
+		index    int
+		file     *compare.CompareFile
+		archived []string
+		err      error
+		errFile  string
+	}
+
+	// 1. Read and validate all uploaded file payloads into memory/disk
+	var validItems []fileItem
+	var errorFiles []string
+
+	for idx, header := range fileHeaders {
 		ext := strings.ToLower(filepath.Ext(header.Filename))
 		if ext != ".xlsx" && ext != ".xls" && ext != ".csv" {
 			errorFiles = append(errorFiles, header.Filename+" (صيغة غير مدعومة)")
@@ -279,7 +297,6 @@ func (h *UIHandler) CompareUploadSubmit(w http.ResponseWriter, r *http.Request) 
 			continue
 		}
 
-		// Determine supplier name: use explicit form value if single file and provided, otherwise derive from filename
 		supplierName := strings.TrimSpace(r.FormValue("supplier_name"))
 		if supplierName == "" || len(fileHeaders) > 1 {
 			supplierName = strings.TrimSpace(strings.TrimSuffix(header.Filename, ext))
@@ -297,20 +314,78 @@ func (h *UIHandler) CompareUploadSubmit(w http.ResponseWriter, r *http.Request) 
 			continue
 		}
 
-		uploadedFile, archived, err := h.compareSvc.UploadAndProcessCompareFile(
-			ctx, actor.UserID, orgPtr, supplierName, header.Filename,
-			header.Header.Get("Content-Type"), header.Size, localURL, fileBytes,
-		)
-		if err != nil {
-			h.log.ErrorContext(ctx, "failed to upload and process compare file", "error", err, "supplier", supplierName)
-			errorFiles = append(errorFiles, header.Filename+" ("+h.safeMessage(err, langOf(r))+")")
-			continue
+		validItems = append(validItems, fileItem{
+			index:        idx,
+			filename:     header.Filename,
+			supplierName: supplierName,
+			contentType:  header.Header.Get("Content-Type"),
+			size:         header.Size,
+			fileBytes:    fileBytes,
+			localURL:     localURL,
+		})
+	}
+
+	// 2. Process valid files with bounded parallel concurrency (up to 6 parallel workers)
+	results := make([]fileResult, len(validItems))
+	if len(validItems) > 0 {
+		numWorkers := 6
+		if len(validItems) < numWorkers {
+			numWorkers = len(validItems)
 		}
 
-		processedCount++
-		totalRows += uploadedFile.RowCount
-		allArchived = append(allArchived, archived...)
-		uploadedIDs = append(uploadedIDs, strconv.FormatInt(uploadedFile.ID, 10))
+		itemChan := make(chan fileItem, len(validItems))
+		var wg sync.WaitGroup
+
+		for w := 0; w < numWorkers; w++ {
+			wg.Add(1)
+			go func() {
+				defer wg.Done()
+				for itm := range itemChan {
+					uploadedFile, archived, err := h.compareSvc.UploadAndProcessCompareFile(
+						ctx, actor.UserID, orgPtr, itm.supplierName, itm.filename,
+						itm.contentType, itm.size, itm.localURL, itm.fileBytes,
+					)
+					res := fileResult{
+						index:    itm.index,
+						file:     uploadedFile,
+						archived: archived,
+						err:      err,
+					}
+					if err != nil {
+						res.errFile = itm.filename + " (" + h.safeMessage(err, langOf(r)) + ")"
+					}
+					results[itm.index] = res
+				}
+			}()
+		}
+
+		for i, itm := range validItems {
+			itm.index = i
+			itemChan <- itm
+		}
+		close(itemChan)
+		wg.Wait()
+	}
+
+	// 3. Aggregate results
+	var processedCount int
+	var totalRows int
+	var allArchived []string
+	var uploadedIDs []string
+
+	for _, res := range results {
+		if res.err != nil {
+			if res.errFile != "" {
+				errorFiles = append(errorFiles, res.errFile)
+			}
+			continue
+		}
+		if res.file != nil {
+			processedCount++
+			totalRows += res.file.RowCount
+			allArchived = append(allArchived, res.archived...)
+			uploadedIDs = append(uploadedIDs, strconv.FormatInt(res.file.ID, 10))
+		}
 	}
 
 	if processedCount == 0 {
@@ -320,7 +395,6 @@ func (h *UIHandler) CompareUploadSubmit(w http.ResponseWriter, r *http.Request) 
 	}
 
 	msg := fmt.Sprintf("تم رفع ومعالجة %d كشوف موردين بنجاح (إجمالي %d صنف جاهزة للمقارنة).", processedCount, totalRows)
-	// Trigger Setup Mode for the uploaded files!
 	firstID := uploadedIDs[0]
 	queueStr := strings.Join(uploadedIDs, ",")
 	redirectURL := fmt.Sprintf("/compare/tool?setup_queue=%s&setup_file=%s&setup_step=1&setup_total=%d&notice=success&msg=%s", url.QueryEscape(queueStr), firstID, len(uploadedIDs), url.QueryEscape(msg))
