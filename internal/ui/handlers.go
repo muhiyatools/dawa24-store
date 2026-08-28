@@ -572,6 +572,8 @@ func (h *UIHandler) RegisterVendorRoutes(r chi.Router) {
 	r.Get("/vendor/institutional-work", h.VendorInstitutionalWorkPage)
 	r.Get("/vendor/jobs", h.VendorJobsPage)
 	r.Post("/vendor/jobs", h.VendorJobCreateSubmit)
+	r.Post("/vendor/jobs/{id}/edit", h.VendorJobUpdateSubmit)
+	r.Post("/vendor/jobs/{id}/update", h.VendorJobUpdateSubmit)
 	r.Post("/vendor/jobs/{id}/toggle", h.VendorJobToggleSubmit)
 	r.Post("/vendor/jobs/{id}/delete", h.VendorJobDeleteSubmit)
 	r.Get("/vendor/jobs/{id}/applications", h.VendorJobApplicationsJSON)

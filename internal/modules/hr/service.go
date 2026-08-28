@@ -109,6 +109,19 @@ func (s *Service) ToggleJobOfferStatus(ctx context.Context, orgID, jobID int64) 
 	return s.repo.ToggleJobOfferStatus(ctx, orgID, jobID)
 }
 
+// UpdateJobOffer updates an existing job vacancy belonging to an organization.
+func (s *Service) UpdateJobOffer(ctx context.Context, orgID int64, j *JobOffer) error {
+	existing, err := s.repo.GetJobOfferByID(ctx, j.ID)
+	if err != nil {
+		return err
+	}
+	if existing == nil || existing.OrganizationID != orgID {
+		return apperr.Forbidden("hr.forbidden", "not allowed to edit this job")
+	}
+	j.OrganizationID = orgID
+	return s.repo.UpdateJobOffer(ctx, j)
+}
+
 // CountApplications returns application count for a vacancy.
 func (s *Service) CountApplications(ctx context.Context, offerID int64) (int, error) {
 	return s.repo.CountApplicationsByOffer(ctx, offerID)

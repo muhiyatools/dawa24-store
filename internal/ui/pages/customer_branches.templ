@@ -108,7 +108,7 @@ templ CustomerBranches(data CustomerBranchesData, lang string, dir string, perms
 					</p>
 				</div>
 				<div style="display:flex; align-items:center; gap:0.6rem; flex-wrap:wrap;">
-					<button type="button" class="btn btn-secondary btn-sm fw-700" data-modal-open="add-employee-modal">
+					<button type="button" class="btn btn-secondary btn-sm fw-700" onclick="openAddEmployeeModal()" data-modal-open="add-employee-modal">
 						@components.IconUser("icon-xs")
 						<span>+ إضافة مستخدم / موظف</span>
 					</button>
@@ -251,7 +251,7 @@ templ CustomerBranches(data CustomerBranchesData, lang string, dir string, perms
 													type="button"
 													class="btn btn-secondary btn-xs fw-700"
 													data-modal-open="add-employee-modal"
-													onclick={ templ.ComponentScript{Call: fmt.Sprintf("setTimeout(function(){ var sel=document.querySelector('#add-emp-branch-select'); if(sel) sel.value='%d'; }, 50);", b.ID)} }
+													onclick={ templ.ComponentScript{Call: fmt.Sprintf("openAddEmployeeModal(%d)", b.ID)} }
 													style="gap:0.25rem; color:var(--primary-600);"
 													title="إضافة موظف لهذا الفرع"
 												>
@@ -486,7 +486,7 @@ templ CustomerBranches(data CustomerBranchesData, lang string, dir string, perms
 						</select>
 					</div>
 
-					<button type="button" class="btn btn-primary btn-sm fw-700" data-modal-open="add-employee-modal">
+					<button type="button" class="btn btn-primary btn-sm fw-700" onclick="openAddEmployeeModal()" data-modal-open="add-employee-modal">
 						@components.IconPlus("icon-xs")
 						<span>إضافة مستخدم جديد للفرع</span>
 					</button>
@@ -969,6 +969,69 @@ templ CustomerBranches(data CustomerBranchesData, lang string, dir string, perms
 					}
 				});
 			}
+
+			function openAddEmployeeModal(branchId) {
+				const modal = document.getElementById('add-employee-modal');
+				if (branchId) {
+					const branchSelect = document.getElementById('add-emp-branch-select');
+					if (branchSelect) branchSelect.value = String(branchId);
+				}
+				if (modal) {
+					modal.classList.remove('hidden');
+					modal.style.display = 'flex';
+				}
+			}
+
+			function closeAddEmployeeModal() {
+				const modal = document.getElementById('add-employee-modal');
+				if (modal) {
+					modal.classList.add('hidden');
+					modal.style.display = 'none';
+				}
+			}
+
+			function openEditEmployeeModal(empId) {
+				const modal = document.getElementById('edit-emp-modal-' + empId);
+				if (modal) {
+					modal.classList.remove('hidden');
+					modal.style.display = 'flex';
+				}
+			}
+
+			function closeEditEmployeeModal(empId) {
+				const modal = document.getElementById('edit-emp-modal-' + empId);
+				if (modal) {
+					modal.classList.add('hidden');
+					modal.style.display = 'none';
+				}
+			}
+
+			// Global modal open/close delegation
+			document.addEventListener('click', function(e) {
+				const openBtn = e.target.closest('[data-modal-open]');
+				if (openBtn) {
+					const modalId = openBtn.getAttribute('data-modal-open');
+					const modal = document.getElementById(modalId);
+					if (modal) {
+						modal.classList.remove('hidden');
+						modal.style.display = 'flex';
+					}
+				}
+				const closeBtn = e.target.closest('[data-modal-close]');
+				if (closeBtn) {
+					const modalId = closeBtn.getAttribute('data-modal-close');
+					const modal = document.getElementById(modalId);
+					if (modal) {
+						modal.classList.add('hidden');
+						modal.style.display = 'none';
+					}
+				}
+				// Backdrop click close
+				const addEmpModal = document.getElementById('add-employee-modal');
+				if (e.target === addEmpModal) {
+					closeAddEmployeeModal();
+				}
+			});
 		</script>
 	}
 }

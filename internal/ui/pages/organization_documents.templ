@@ -302,14 +302,14 @@ templ OrganizationDocumentsContent(lang string, data *OrganizationDocumentsData)
 								</div>
 							</div>
 
-							<!-- Actions & Upload Form -->
+							<!-- Actions & Upload / Replace Buttons -->
 							<div style="display:flex; align-items:center; gap:0.6rem; flex-wrap:wrap;">
 								if doc != nil {
 									<!-- View Button: Triggers Dynamic In-App Viewer Modal -->
 									<button
 										type="button"
 										class="btn btn-secondary btn-sm fw-700"
-										style="gap:0.35rem;"
+										style="gap:0.35rem; height:34px;"
 										onclick={ templ.ComponentScript{Call: fmt.Sprintf("openDocViewer(%d, %q, %q, %q, %q, %q)", doc.ID, req.TitleAr, string(doc.DocumentType), doc.OriginalName, string(doc.Status), doc.FileURL)} }
 									>
 										@components.IconEye("icon-xs")
@@ -320,42 +320,40 @@ templ OrganizationDocumentsContent(lang string, data *OrganizationDocumentsData)
 									<a
 										href={ templ.SafeURL(fmt.Sprintf("/documents/%d/download", doc.ID)) }
 										class="btn btn-secondary btn-sm"
+										style="height:34px; display:inline-flex; align-items:center; justify-content:center;"
 										title="تحميل الملف إلى جهازك"
 									>
 										@components.IconDownload("icon-xs")
 									</a>
 
-									<!-- Delete Button (Only for pending docs) -->
-									if doc.Status == attachments.StatusPending {
-										<form action="/documents/delete" method="POST" style="margin:0; display:inline;" onsubmit="return confirm('هل أنت متأكد من رغبتك في حذف هذا المستند؟');">
-											<input type="hidden" name="id" value={ fmt.Sprintf("%d", doc.ID) } />
-											<button type="submit" class="btn btn-secondary btn-sm" style="color:var(--rose);" title="حذف المستند">
-												@components.IconTrash("icon-xs")
-											</button>
-										</form>
-									}
-								}
-
-								<!-- Upload / Replace Form -->
-								<form action="/documents/upload" method="POST" enctype="multipart/form-data" style="margin:0; display:inline-flex; gap:0.4rem; align-items:center;">
-									<input type="hidden" name="document_type" value={ string(req.DocType) } />
-									<input
-										type="file"
-										name="file"
-										id={ fmt.Sprintf("file-input-%s", req.DocType) }
-										accept=".pdf,.png,.jpg,.jpeg,.webp"
-										required
-										class="form-control"
-										style="padding:0.25rem 0.5rem; font-size:0.775rem; max-width:180px; height:34px;"
-									/>
-									<button type="submit" class={ "btn btn-sm fw-700", templ.KV("btn-primary", doc == nil), templ.KV("btn-secondary", doc != nil) } style="height:34px;">
-										if doc == nil {
-											<span>رفع</span>
-										} else {
-											<span>استبدال</span>
-										}
+									<!-- Replace Document Button (Opens Replacement Reason Modal) -->
+									<button
+										type="button"
+										class="btn btn-secondary btn-sm fw-700"
+										style="gap:0.35rem; height:34px;"
+										onclick={ templ.ComponentScript{Call: fmt.Sprintf("openReplaceDocModal(%d, %q, %q, %q)", doc.ID, string(req.DocType), req.TitleAr, doc.OriginalName)} }
+										title="استبدال وتحديث هذا المستند"
+									>
+										<span>🔄 استبدال المستند</span>
 									</button>
-								</form>
+								} else {
+									<!-- Initial Upload Form (When doc is not uploaded yet) -->
+									<form action="/documents/upload" method="POST" enctype="multipart/form-data" style="margin:0; display:inline-flex; gap:0.4rem; align-items:center;">
+										<input type="hidden" name="document_type" value={ string(req.DocType) } />
+										<input
+											type="file"
+											name="file"
+											id={ fmt.Sprintf("file-input-%s", req.DocType) }
+											accept=".pdf,.png,.jpg,.jpeg,.webp"
+											required
+											class="form-control"
+											style="padding:0.25rem 0.5rem; font-size:0.775rem; max-width:180px; height:34px;"
+										/>
+										<button type="submit" class="btn btn-primary btn-sm fw-700" style="height:34px;">
+											<span>رفع المستند</span>
+										</button>
+									</form>
+								}
 							</div>
 						</div>
 					}
@@ -447,7 +445,98 @@ templ OrganizationDocumentsContent(lang string, data *OrganizationDocumentsData)
 		</div>
 	</div>
 
-	<!-- Viewer Modal Logic Script -->
+	<!-- Modal: Replace Document Modal with Replacement Reason -->
+	<div id="replace-doc-modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.7); z-index:99999; align-items:center; justify-content:center; padding:1rem; backdrop-filter:blur(4px);">
+		<div style="background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-2xl); width:100%; max-width:580px; box-shadow:var(--shadow-2xl); overflow:hidden; display:flex; flex-direction:column;">
+			<!-- Header -->
+			<div style="padding:1.25rem 1.5rem; border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:center; background:var(--surface-sunken);">
+				<div style="display:flex; align-items:center; gap:0.6rem;">
+					<span style="font-size:1.4rem;">🔄</span>
+					<div>
+						<h3 id="replace-modal-title" style="font-size:1.15rem; font-weight:900; color:var(--text); margin:0;">
+							استبدال وتحديث المستند
+						</h3>
+						<div id="replace-modal-subtitle" style="font-size:0.775rem; color:var(--text-muted); margin-top:2px;">
+							رفع نسخة جديدة مع توضيح سبب الاستبدال
+						</div>
+					</div>
+				</div>
+				<button
+					type="button"
+					onclick="closeReplaceDocModal()"
+					style="background:none; border:none; font-size:1.3rem; color:var(--text-muted); cursor:pointer; padding:0 0.4rem; line-height:1;"
+				>
+					✕
+				</button>
+			</div>
+
+			<!-- Body Form -->
+			<form action="/documents/upload" method="POST" enctype="multipart/form-data" style="padding:1.5rem; display:flex; flex-direction:column; gap:1.25rem; margin:0;">
+				<input type="hidden" name="document_type" id="replace-doc-type" value="" />
+				<input type="hidden" name="existing_doc_id" id="replace-existing-id" value="" />
+
+				<!-- Current File Info Box -->
+				<div style="background:var(--surface-sunken); border:1px solid var(--border); border-radius:var(--radius-lg); padding:0.85rem 1rem; display:flex; align-items:center; justify-content:space-between; font-size:0.825rem;">
+					<span style="color:var(--text-secondary); font-weight:700;">الملف الحالي المسجل:</span>
+					<span id="replace-modal-current-file" style="font-weight:800; color:var(--primary); font-family:monospace;" dir="ltr">file.pdf</span>
+				</div>
+
+				<!-- New File Upload Field -->
+				<div>
+					<label class="form-label" style="font-size:0.85rem; font-weight:800; color:var(--text); margin-bottom:0.4rem; display:block;">
+						اختر ملف المستند الجديد <span class="text-rose fw-800">*</span>
+					</label>
+					<input
+						type="file"
+						name="file"
+						required
+						accept=".pdf,.png,.jpg,.jpeg,.webp"
+						class="form-control"
+						style="padding:0.5rem 0.75rem; font-size:0.85rem; width:100%; border-radius:var(--radius-lg);"
+					/>
+					<span style="font-size:0.75rem; color:var(--text-muted); margin-top:0.35rem; display:block;">
+						الصيغ المقبولة: PDF أو صور (PNG, JPG, WebP) بحجم أقصى 20 ميجابايت.
+					</span>
+				</div>
+
+				<!-- Replacement Reason Field -->
+				<div>
+					<label class="form-label" style="font-size:0.85rem; font-weight:800; color:var(--text); margin-bottom:0.4rem; display:block;">
+						سبب استبدال / تحديث المستند <span class="text-rose fw-800">*</span>
+					</label>
+					<textarea
+						name="replacement_reason"
+						id="replace-doc-reason"
+						required
+						rows="3"
+						class="form-control"
+						placeholder="يرجى توضيح سبب الاستبدال لإدارة المنصة (مثال: تجديد ترخيص المنشأة السنوي، تصحيح خطأ بالصورة السابقة، صدور سجل تجاري محدث...)"
+						style="width:100%; font-size:0.85rem; padding:0.65rem 0.85rem; border-radius:var(--radius-lg); resize:vertical;"
+					></textarea>
+				</div>
+
+				<!-- Footer Actions -->
+				<div style="display:flex; justify-content:flex-end; gap:0.75rem; padding-top:0.75rem; border-top:1px solid var(--border); margin-top:0.25rem;">
+					<button
+						type="button"
+						class="btn btn-secondary"
+						onclick="closeReplaceDocModal()"
+					>
+						إلغاء
+					</button>
+					<button
+						type="submit"
+						class="btn btn-primary"
+						style="font-weight:850; padding:0 1.5rem; gap:0.4rem;"
+					>
+						<span>تأكيد واستبدال المستند 🔄</span>
+					</button>
+				</div>
+			</form>
+		</div>
+	</div>
+
+	<!-- Viewer & Replace Modal Logic Scripts -->
 	<script>
 		function openDocViewer(docId, title, docType, originalName, status, rawUrl) {
 			const viewUrl = '/documents/' + docId + '/view';
@@ -500,5 +589,39 @@ templ OrganizationDocumentsContent(lang string, data *OrganizationDocumentsData)
 			if (iframe) iframe.src = 'about:blank';
 			if (img) img.src = '';
 		}
+
+		function openReplaceDocModal(docId, docType, titleAr, origName) {
+			const modal = document.getElementById('replace-doc-modal');
+			const titleEl = document.getElementById('replace-modal-title');
+			const currFileEl = document.getElementById('replace-modal-current-file');
+			const docTypeInput = document.getElementById('replace-doc-type');
+			const existingIdInput = document.getElementById('replace-existing-id');
+			const reasonInput = document.getElementById('replace-doc-reason');
+
+			if (titleEl) titleEl.textContent = 'استبدال مستند: ' + (titleAr || '');
+			if (currFileEl) currFileEl.textContent = origName || ('مستند #' + docId);
+			if (docTypeInput) docTypeInput.value = docType || '';
+			if (existingIdInput) existingIdInput.value = docId || '';
+			if (reasonInput) reasonInput.value = '';
+
+			if (modal) {
+				modal.style.display = 'flex';
+			}
+		}
+
+		function closeReplaceDocModal() {
+			const modal = document.getElementById('replace-doc-modal');
+			if (modal) {
+				modal.style.display = 'none';
+			}
+		}
+
+		// Close modals on backdrop click
+		window.addEventListener('click', function(e) {
+			const viewModal = document.getElementById('doc-viewer-modal');
+			const replModal = document.getElementById('replace-doc-modal');
+			if (e.target === viewModal) closeDocViewer();
+			if (e.target === replModal) closeReplaceDocModal();
+		});
 	</script>
 }

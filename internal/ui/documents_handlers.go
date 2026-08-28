@@ -113,6 +113,13 @@ func (h *UIHandler) OrganizationDocumentsUploadSubmit(w http.ResponseWriter, r *
 		return
 	}
 
+	// If replacement reason is provided, attach it as a note for platform admins
+	replacementReason := strings.TrimSpace(r.PostFormValue("replacement_reason"))
+	if replacementReason != "" && uploadedDoc != nil {
+		adminActor := authctx.Actor{IsStaff: true, Role: "admin"}
+		_ = h.attSvc.VerifyDocument(sysCtx, adminActor, uploadedDoc.ID, attachments.StatusPending, fmt.Sprintf("سبب استبدال المستند: %s", replacementReason))
+	}
+
 	// If linked to an administrative document request, fulfill or submit it
 	reqIDStr := strings.TrimSpace(r.PostFormValue("request_id"))
 	if reqIDStr != "" && uploadedDoc != nil {
@@ -121,20 +128,19 @@ func (h *UIHandler) OrganizationDocumentsUploadSubmit(w http.ResponseWriter, r *
 		}
 	}
 
-	h.documentsRedirect(w, r, "success", "تم رفع المستند بنجاح وهو الآن قيد تدقيق إدارة المنصة.")
+	if replacementReason != "" {
+		h.documentsRedirect(w, r, "success", "تم استبدال وتحديث المستند بنجاح، وهو الآن قيد تدقيق واعتماد إدارة المنصة.")
+	} else {
+		h.documentsRedirect(w, r, "success", "تم رفع المستند بنجاح وهو الآن قيد تدقيق إدارة المنصة.")
+	}
 }
 
-// OrganizationDocumentDeleteSubmit removes a document the org owns, but only
-// while it is pending — a reviewed document stays on record.
+// OrganizationDocumentDeleteSubmit removes a document, restricted strictly to platform administrators.
 func (h *UIHandler) OrganizationDocumentDeleteSubmit(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	actor, ok := authctx.From(ctx)
-	orgID := actor.OrganizationID
-	if orgID <= 0 {
-		orgID = actor.OrgID
-	}
-	if !ok || orgID <= 0 {
-		h.documentsRedirect(w, r, "error", "يجب تسجيل الدخول.")
+	if !ok || !actor.IsPlatformAdmin() {
+		h.documentsRedirect(w, r, "error", "عفواً، لا يمكن حذف المستندات الرسمية المرفوعة إلا من خلال إدارة المنصة حصراً.")
 		return
 	}
 	if h.attSvc == nil {
@@ -149,28 +155,12 @@ func (h *UIHandler) OrganizationDocumentDeleteSubmit(w http.ResponseWriter, r *h
 	}
 
 	sysCtx := database.AsSystem(ctx)
-	docs, err := h.attSvc.ListByOrganization(sysCtx, orgID)
-	if err != nil {
-		h.documentsRedirect(w, r, "error", "تعذر الوصول للمستند.")
-		return
-	}
-	for _, doc := range docs {
-		if doc == nil || doc.ID != id {
-			continue
-		}
-		if doc.Status != attachments.StatusPending {
-			h.documentsRedirect(w, r, "error", "لا يمكن حذف مستند سبق تدقيقه واعتماده من الإدارة.")
-			return
-		}
-		if err := h.attSvc.Delete(sysCtx, actor, id); err != nil {
-			h.documentsRedirect(w, r, "error", h.safeMessage(err, langOf(r)))
-			return
-		}
-		h.documentsRedirect(w, r, "success", "تم حذف المستند بنجاح.")
+	if err := h.attSvc.Delete(sysCtx, actor, id); err != nil {
+		h.documentsRedirect(w, r, "error", h.safeMessage(err, langOf(r)))
 		return
 	}
 
-	h.documentsRedirect(w, r, "error", "المستند غير موجود لهذه المنشأة.")
+	h.documentsRedirect(w, r, "success", "تم حذف المستند بنجاح.")
 }
 
 // saveUploadedFileMeta saves a multipart file and returns its public URL and
