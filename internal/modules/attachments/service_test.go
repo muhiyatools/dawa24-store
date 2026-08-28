@@ -109,3 +109,38 @@ func TestRegisterUpload_CreatesPendingDocument(t *testing.T) {
 		t.Fatalf("want tax_card type, got %s", repo.created.DocumentType)
 	}
 }
+
+func TestRegisterUpload_SupportsSyndicateCard(t *testing.T) {
+	repo := &stubRepo{}
+	svc := NewService(repo, nil, nil)
+
+	got, err := svc.RegisterUpload(context.Background(), actor(5, 12), DocSyndicateCard, "/uploads/documents/card.png", "card.png")
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if got.DocumentType != DocSyndicateCard {
+		t.Fatalf("want syndicate_card, got %s", got.DocumentType)
+	}
+}
+
+func TestIsComplianceDocType(t *testing.T) {
+	complianceTypes := []DocumentType{
+		DocCommercialRegister, DocTaxCard, DocPharmacistLicense,
+		DocPharmacyLicense, DocNationalID, DocPassport,
+		DocBankCertificate, DocAuthorizationLetter, DocSyndicateCard, DocOther,
+	}
+	for _, ct := range complianceTypes {
+		if !IsComplianceDocType(ct) {
+			t.Errorf("expected %s to be compliance doc type", ct)
+		}
+	}
+
+	nonComplianceTypes := []DocumentType{
+		DocImportFile, DocAvatar, DocOrgLogo, DocProductImage, DocReviewImage,
+	}
+	for _, nct := range nonComplianceTypes {
+		if IsComplianceDocType(nct) {
+			t.Errorf("expected %s NOT to be compliance doc type", nct)
+		}
+	}
+}

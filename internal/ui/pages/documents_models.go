@@ -11,6 +11,8 @@ var docTitlesAr = map[attachments.DocumentType]string{
 	attachments.DocPharmacyLicense:     "ترخيص المنشأة الصيدلية (Facility License)",
 	attachments.DocPharmacistLicense:   "ترخيص مزاولة المهنة للصيدلي (Pharmacist License)",
 	attachments.DocNationalID:          "بطاقة الرقم القومي (National ID)",
+	attachments.DocPassport:            "جواز السفر (Passport)",
+	attachments.DocSyndicateCard:       "كارنيه نقابة الصيادلة (Syndicate Card)",
 	attachments.DocAuthorizationLetter: "خطاب التفويض الرسمي (Authorization Letter)",
 	attachments.DocBankCertificate:     "شهادة الحساب البنكي (Bank Certificate)",
 	attachments.DocOther:               "مستند رسمي إضافي (Other Document)",

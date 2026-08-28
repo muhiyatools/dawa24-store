@@ -61,7 +61,11 @@ func (s *Service) MissingRequiredDocuments(ctx context.Context, orgID int64, org
 // Unlike PresignUpload it needs no storage client: the uploader hands over
 // the final public URL.
 func (s *Service) RegisterUpload(ctx context.Context, actor authctx.Actor, docType DocumentType, url, originalName string) (*Document, error) {
-	if actor.OrgID <= 0 {
+	orgID := actor.OrganizationID
+	if orgID <= 0 {
+		orgID = actor.OrgID
+	}
+	if orgID <= 0 && !actor.IsPlatformAdmin() {
 		return nil, apperr.Unauthorized()
 	}
 
@@ -99,10 +103,6 @@ func (s *Service) RegisterUpload(ctx context.Context, actor authctx.Actor, docTy
 	}
 
 	var orgIDPtr *int64
-	orgID := actor.OrganizationID
-	if orgID <= 0 {
-		orgID = actor.OrgID
-	}
 	if orgID > 0 {
 		orgIDPtr = &orgID
 	}

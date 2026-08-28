@@ -134,6 +134,7 @@ func (r *Repository) ListByOrganization(ctx context.Context, orgID int64) ([]*at
 			       reviewed_by, reviewed_at, meta, created_at, updated_at, deleted_at
 			FROM platform_admin.documents
 			WHERE organization_id = $1 AND deleted_at IS NULL
+			  AND document_type NOT IN ('import_file', 'avatar', 'organization_logo', 'product_image', 'review_image')
 			ORDER BY created_at DESC;
 		`
 		rows, err := tx.Query(txCtx, query, orgID)
@@ -174,6 +175,7 @@ func (r *Repository) ListByUser(ctx context.Context, userID int64) ([]*attachmen
 			       reviewed_by, reviewed_at, meta, created_at, updated_at, deleted_at
 			FROM platform_admin.documents
 			WHERE user_id = $1 AND deleted_at IS NULL
+			  AND document_type NOT IN ('import_file', 'avatar', 'organization_logo', 'product_image', 'review_image')
 			ORDER BY created_at DESC;
 		`
 		rows, err := tx.Query(txCtx, query, userID)
@@ -228,6 +230,8 @@ func (r *Repository) ListAll(ctx context.Context, filter attachments.DocumentFil
 			baseQuery += fmt.Sprintf(" AND document_type = $%d", argIdx)
 			args = append(args, string(*filter.DocumentType))
 			argIdx++
+		} else {
+			baseQuery += " AND document_type NOT IN ('import_file', 'avatar', 'organization_logo', 'product_image', 'review_image')"
 		}
 		if filter.Status != nil {
 			baseQuery += fmt.Sprintf(" AND status = $%d", argIdx)

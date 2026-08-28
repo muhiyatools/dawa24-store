@@ -641,6 +641,9 @@ templ AdminApprovalsDocsTab(data *AdminApprovalsData) {
 // -------------------------------------------------------------
 // TAB 3: Requested Documents & Follow-up
 // -------------------------------------------------------------
+// -------------------------------------------------------------
+// TAB 3: Requested Documents & Follow-up
+// -------------------------------------------------------------
 templ AdminApprovalsRequestsTab(data *AdminApprovalsData) {
 	<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.25rem; gap:1rem; flex-wrap:wrap;">
 		<div>
@@ -651,7 +654,120 @@ templ AdminApprovalsRequestsTab(data *AdminApprovalsData) {
 				متابعة المستندات الرسمية التي طلبتها الإدارة من الصيدليات والشركات مع تواريخ انتهاء المهل.
 			</p>
 		</div>
+
+		<div>
+			<button
+				type="button"
+				class="btn btn-primary btn-sm fw-800"
+				data-modal-open="request-new-doc-modal"
+				style="gap:0.4rem;"
+			>
+				@components.IconPlus("icon-xs")
+				<span>طلب مستند جديد من منشأة</span>
+			</button>
+		</div>
 	</div>
+
+	<!-- Modal: Request Document from Org -->
+	@components.Modal(components.ModalProps{
+		ID:    "request-new-doc-modal",
+		Title: "طلب ترخيص أو مستند رسمي من منشأة",
+		Size:  "md",
+	}) {
+		<form method="POST" action="/admin/document-requests" style="display:flex; flex-direction:column; gap:1.1rem; text-align:start; margin:0;">
+			<div class="form-group m-0">
+				<label class="form-label" for="req-doc-org">
+					المنشأة المستهدفة (صيدلية أو مورد) *
+				</label>
+				<select id="req-doc-org" name="organization_id" required class="form-select fw-700">
+					<option value="">-- اختر المنشأة --</option>
+					for _, org := range data.AllOrganizations {
+						if org != nil {
+							<option value={ fmt.Sprintf("%d", org.ID) }>
+								{ org.LegalName } (#{ fmt.Sprintf("%d", org.ID) }) - { orgTypeAr(string(org.Type)) }
+							</option>
+						}
+					}
+				</select>
+			</div>
+
+			<div class="form-group m-0">
+				<label class="form-label" for="req-doc-type">
+					نوع المستند المطلوب *
+				</label>
+				<select id="req-doc-type" name="document_type" required class="form-select fw-700">
+					<option value="pharmacy_license">ترخيص الصيدلية / المنشأة (Pharmacy License)</option>
+					<option value="pharmacist_license">ترخيص مزاولة المهنة للصيدلي المدير (Pharmacist License)</option>
+					<option value="syndicate_card">كارنيه نقابة الصيادلة للعام الحالي (Syndicate Card)</option>
+					<option value="commercial_register">السجل التجاري ساري الصلاحية (Commercial Register)</option>
+					<option value="tax_card">البطاقة الضريبية (Tax Card)</option>
+					<option value="national_id">بطاقة الرقم القومي للمدير المسؤول (National ID)</option>
+					<option value="bank_certificate">شهادة الحساب البنكي والآيبان (Bank Certificate)</option>
+					<option value="authorization_letter">خطاب تفويض رسمي معتمد (Authorization Letter)</option>
+					<option value="other">مستند رسمي آخر (Other)</option>
+				</select>
+			</div>
+
+			<div class="form-group m-0">
+				<label class="form-label" for="req-doc-title">
+					عنوان الطلب / التنبيه *
+				</label>
+				<input
+					type="text"
+					id="req-doc-title"
+					name="title"
+					required
+					placeholder="مثال: مطلوب كارنيه النقابة للعام الحالي لاستكمال التوثيق"
+					class="form-control"
+					style="font-size:0.875rem;"
+				/>
+			</div>
+
+			<div class="form-group m-0">
+				<label class="form-label" for="req-doc-desc">
+					تفاصيل إضافية والتعليمات للمنشأة
+				</label>
+				<textarea
+					id="req-doc-desc"
+					name="description"
+					rows="3"
+					placeholder="تفاصيل الشروط المطلوبة في الملف..."
+					class="form-control"
+					style="font-size:0.85rem;"
+				></textarea>
+			</div>
+
+			<div class="form-group m-0">
+				<label class="form-label" for="req-doc-deadline">
+					المهلة الممنوحة بالأيام *
+				</label>
+				<input
+					type="number"
+					id="req-doc-deadline"
+					name="deadline_days"
+					value="14"
+					min="1"
+					max="90"
+					required
+					class="form-control"
+					style="font-size:0.875rem; max-width:140px;"
+				/>
+			</div>
+
+			<div style="display:flex; justify-content:flex-end; gap:0.75rem; margin-top:0.5rem;">
+				<button
+					type="button"
+					class="btn btn-secondary"
+					data-modal-close="request-new-doc-modal"
+				>
+					إلغاء
+				</button>
+				<button type="submit" class="btn btn-primary fw-800" style="padding:0 1.5rem;">
+					إرسال الطلب للمنشأة
+				</button>
+			</div>
+		</form>
+	}
 
 	if len(data.DocRequests) == 0 {
 		@components.EmptyState(components.EmptyStateProps{
@@ -779,8 +895,12 @@ func docTypeLabelAr(t string) string {
 		return "ترخيص الصيدلية / المنشأة"
 	case "national_id":
 		return "بطاقة الرقم القومي"
+	case "passport":
+		return "جواز السفر"
 	case "syndicate_card":
 		return "كارنيه النقابة"
+	case "bank_certificate":
+		return "شهادة الحساب البنكي والآيبان"
 	case "authorization_letter":
 		return "خطاب التفويض الرسمي"
 	case "cv":

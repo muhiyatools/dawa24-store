@@ -25,6 +25,7 @@ const (
 	DocPassport            DocumentType = "passport"
 	DocBankCertificate     DocumentType = "bank_certificate"
 	DocAuthorizationLetter DocumentType = "authorization_letter"
+	DocSyndicateCard       DocumentType = "syndicate_card"
 	DocAvatar              DocumentType = "avatar"
 	DocOrgLogo             DocumentType = "organization_logo"
 	DocProductImage        DocumentType = "product_image"
@@ -33,6 +34,18 @@ const (
 	DocImportFile          DocumentType = "import_file"
 	DocOther               DocumentType = "other"
 )
+
+// IsComplianceDocType returns true if the document type is a legal/compliance document for an organization.
+func IsComplianceDocType(t DocumentType) bool {
+	switch t {
+	case DocCommercialRegister, DocTaxCard, DocPharmacistLicense,
+		DocPharmacyLicense, DocNationalID, DocPassport,
+		DocBankCertificate, DocAuthorizationLetter, DocSyndicateCard, DocOther:
+		return true
+	default:
+		return false
+	}
+}
 
 // DocumentStatus represents the administrative approval status.
 type DocumentStatus string
@@ -140,13 +153,14 @@ var allowedMIMEs = map[DocumentType][]string{
 	DocPassport:            {"application/pdf", "image/jpeg", "image/png", "image/webp"},
 	DocBankCertificate:     {"application/pdf", "image/jpeg", "image/png", "image/webp"},
 	DocAuthorizationLetter: {"application/pdf", "image/jpeg", "image/png", "image/webp"},
+	DocSyndicateCard:       {"application/pdf", "image/jpeg", "image/png", "image/webp"},
 	DocAvatar:              {"image/jpeg", "image/png", "image/webp", "image/gif"},
 	DocOrgLogo:             {"image/jpeg", "image/png", "image/webp", "image/svg+xml"},
 	DocProductImage:        {"image/jpeg", "image/png", "image/webp"},
 	DocReviewImage:         {"image/jpeg", "image/png", "image/webp"},
 	DocCV:                  {"application/pdf", "application/msword", "application/vnd.openxmlformats-officedocument.wordprocessingml.document"},
 	DocImportFile:          {"text/csv", "application/vnd.ms-excel", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"},
-	DocOther:               {"application/pdf", "image/jpeg", "image/png"},
+	DocOther:               {"application/pdf", "image/jpeg", "image/png", "image/webp"},
 }
 
 // ValidatePresignRequest enforces strict server-side MIME and size rules before generating a presigned URL.
