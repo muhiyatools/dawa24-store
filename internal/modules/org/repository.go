@@ -83,4 +83,14 @@ type Repository interface {
 	ListOrgEmployeeInstitutionalWorks(ctx context.Context, orgID int64) ([]*EmployeeInstitutionalWork, error)
 	GetUserInstitutionalWorkIDs(ctx context.Context, userID int64) ([]int64, error)
 	GetConnectedInstitutionalWorkIDs(ctx context.Context, fromWorkIDs []int64) ([]int64, error)
+
+	// User Organizations (ربط مستخدمي الصيدليات بالمنظمات والموردين)
+	CreateUserOrganization(ctx context.Context, uo *UserOrganization) error
+	GetUserOrganizationByID(ctx context.Context, id int64) (*UserOrganization, error)
+	UpdateUserOrganization(ctx context.Context, id int64, orgNumber string, status UserOrganizationStatus, notes string) error
+	DeleteUserOrganization(ctx context.Context, id int64) error
+	ListUserOrganizationsByUser(ctx context.Context, userID int64) ([]*UserOrganization, error)
+	ListUserOrganizationsByVendor(ctx context.Context, vendorOrgID int64, statusFilter string) ([]*UserOrganization, error)
+	ListAllUserOrganizations(ctx context.Context, statusFilter string) ([]*UserOrganization, error)
 }
+

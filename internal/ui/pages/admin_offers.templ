@@ -148,7 +148,8 @@ templ AdminOffers(data AdminOffersData, lang, dir string) {
 									<th>العرض / باقة الأدوية</th>
 									<th>الشركة الموردة</th>
 									<th>الأصناف والكميات المشمولة</th>
-									<th>السعر الكلي والخصم</th>
+									<th>السعر قبل الخصم</th>
+									<th>الخصم</th>
 									<th>الحد الأدنى</th>
 									<th>نطاق التغطية والمدن</th>
 									<th>حالة الاعتماد والنشر</th>
@@ -234,20 +235,22 @@ templ AdminOffers(data AdminOffersData, lang, dir string) {
 											}
 										</td>
 
-										<!-- Total Price & Discount -->
+										<!-- Total Price Before Discount -->
 										<td>
-											if !o.TotalPrice.IsZero() {
-												<div class="tabular-nums" style="font-weight:900; color:var(--emerald); font-size:1rem;">
-													{ o.TotalPrice.String() } ج.م
-												</div>
-											}
+											<div class="tabular-nums" style="font-weight:900; color:var(--emerald); font-size:1rem;">
+												{ o.TotalPrice.String() } ج.م
+											</div>
+										</td>
+
+										<!-- Discount -->
+										<td>
 											if o.DiscountPercentage > 0 {
-												<div style="font-size:0.75rem; color:var(--accent); font-weight:700;" class="tabular-nums">
-													خصم { fmt.Sprintf("%.1f%%", o.DiscountPercentage) }
+												<div style="font-size:0.85rem; color:var(--accent); font-weight:800;" class="tabular-nums">
+													{ fmt.Sprintf("%.1f%%", o.DiscountPercentage) }
 												</div>
-											} else if !o.DiscountAmount.IsZero() {
-												<div style="font-size:0.75rem; color:var(--accent); font-weight:700;" class="tabular-nums">
-													وفر { o.DiscountAmount.String() } ج.م
+											} else {
+												<div style="font-size:0.85rem; color:var(--accent); font-weight:800;" class="tabular-nums">
+													{ o.DiscountAmount.String() } ج.م
 												</div>
 											}
 										</td>

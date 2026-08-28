@@ -224,7 +224,7 @@ func (r *Repository) RowCounts(ctx context.Context, importID int64) (map[string]
 func (r *Repository) UpdateRow(
 	ctx context.Context, importID, rowID int64,
 	displayName, customVariantName string,
-	price *float64, quantity *int, isExcluded *bool,
+	price, discount *float64, quantity *int, isExcluded *bool,
 ) error {
 	return r.db.InTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
 		var payload []byte
@@ -255,6 +255,14 @@ func (r *Repository) UpdateRow(
 			m := money.FromMinor(int64(math.Round(*price * 100)))
 			rowData.PublicPrice = m
 			rowData.NetPrice = m
+		}
+		// The review screen edits the list price and the discount separately,
+		// so the net is derived rather than stored twice.
+		if discount != nil {
+			d := money.FromMinor(int64(math.Round(*discount * 100)))
+			if net, subErr := rowData.PublicPrice.Sub(d); subErr == nil && net.Minor() >= 0 {
+				rowData.NetPrice = net
+			}
 		}
 		if quantity != nil {
 			rowData.Quantity = *quantity

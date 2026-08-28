@@ -391,6 +391,35 @@ func (m *mockOrgRepo) ToggleMemberStatus(_ context.Context, _, _ int64) error {
 	return nil
 }
 
+func (m *mockOrgRepo) CreateUserOrganization(_ context.Context, uo *UserOrganization) error {
+	uo.ID = 1
+	return nil
+}
+
+func (m *mockOrgRepo) GetUserOrganizationByID(_ context.Context, id int64) (*UserOrganization, error) {
+	return &UserOrganization{ID: id, OrganizationNumber: "NUM1001", Status: UserOrgStatusApproved}, nil
+}
+
+func (m *mockOrgRepo) UpdateUserOrganization(_ context.Context, _ int64, _ string, _ UserOrganizationStatus, _ string) error {
+	return nil
+}
+
+func (m *mockOrgRepo) DeleteUserOrganization(_ context.Context, _ int64) error {
+	return nil
+}
+
+func (m *mockOrgRepo) ListUserOrganizationsByUser(_ context.Context, _ int64) ([]*UserOrganization, error) {
+	return []*UserOrganization{}, nil
+}
+
+func (m *mockOrgRepo) ListUserOrganizationsByVendor(_ context.Context, _ int64, _ string) ([]*UserOrganization, error) {
+	return []*UserOrganization{}, nil
+}
+
+func (m *mockOrgRepo) ListAllUserOrganizations(_ context.Context, _ string) ([]*UserOrganization, error) {
+	return []*UserOrganization{}, nil
+}
+
 func TestOrgLifecycleAndBranches(t *testing.T) {
 
 	ctx := context.Background()
@@ -502,6 +531,45 @@ func TestOrgLifecycleAndBranches(t *testing.T) {
 	}
 	if err := svc.DeleteOrganization(ctx, createdOrg.ID); err != nil {
 		t.Fatalf("DeleteOrganization failed: %v", err)
+	}
+}
+
+func TestUserOrganizationFlow(t *testing.T) {
+	ctx := context.Background()
+	repo := newMockOrgRepo()
+	logger := slog.New(slog.NewTextHandler(io.Discard, nil))
+	svc := NewService(repo, logger)
+
+	// 1. Customer creates a link to vendor organization
+	custOrgID := int64(10)
+	uo, err := svc.CreateUserOrgLink(ctx, 42, &custOrgID, 100, "NUM10001", UserOrgStatusPending)
+	if err != nil {
+		t.Fatalf("CreateUserOrgLink failed: %v", err)
+	}
+	if uo.OrganizationNumber != "NUM10001" {
+		t.Errorf("got org number %s, want NUM10001", uo.OrganizationNumber)
+	}
+	if uo.Status != UserOrgStatusPending {
+		t.Errorf("got status %s, want pending", uo.Status)
+	}
+
+	// 2. Vendor approves the link
+	if err := svc.ApproveUserOrgLink(ctx, uo.ID); err != nil {
+		t.Fatalf("ApproveUserOrgLink failed: %v", err)
+	}
+
+	// 3. Vendor rejects / edits
+	if err := svc.RejectUserOrgLink(ctx, uo.ID, "Invalid customer code"); err != nil {
+		t.Fatalf("RejectUserOrgLink failed: %v", err)
+	}
+
+	if err := svc.UpdateUserOrgLink(ctx, uo.ID, "NUM10002", "Updated code"); err != nil {
+		t.Fatalf("UpdateUserOrgLink failed: %v", err)
+	}
+
+	// 4. Delete link
+	if err := svc.DeleteUserOrgLink(ctx, uo.ID); err != nil {
+		t.Fatalf("DeleteUserOrgLink failed: %v", err)
 	}
 }
 

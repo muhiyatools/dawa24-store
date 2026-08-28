@@ -290,6 +290,35 @@ func (m *institutionalMockRepo) ToggleMemberStatus(_ context.Context, _, _ int64
 	return nil
 }
 
+func (m *institutionalMockRepo) CreateUserOrganization(_ context.Context, uo *org.UserOrganization) error {
+	uo.ID = 1
+	return nil
+}
+
+func (m *institutionalMockRepo) GetUserOrganizationByID(_ context.Context, id int64) (*org.UserOrganization, error) {
+	return &org.UserOrganization{ID: id, OrganizationNumber: "NUM1001", Status: org.UserOrgStatusApproved}, nil
+}
+
+func (m *institutionalMockRepo) UpdateUserOrganization(_ context.Context, _ int64, _ string, _ org.UserOrganizationStatus, _ string) error {
+	return nil
+}
+
+func (m *institutionalMockRepo) DeleteUserOrganization(_ context.Context, _ int64) error {
+	return nil
+}
+
+func (m *institutionalMockRepo) ListUserOrganizationsByUser(_ context.Context, _ int64) ([]*org.UserOrganization, error) {
+	return []*org.UserOrganization{}, nil
+}
+
+func (m *institutionalMockRepo) ListUserOrganizationsByVendor(_ context.Context, _ int64, _ string) ([]*org.UserOrganization, error) {
+	return []*org.UserOrganization{}, nil
+}
+
+func (m *institutionalMockRepo) ListAllUserOrganizations(_ context.Context, _ string) ([]*org.UserOrganization, error) {
+	return []*org.UserOrganization{}, nil
+}
+
 func TestInstitutionalWorkHierarchyAndConnections(t *testing.T) {
 	ctx := context.Background()
 	repo := newInstMockRepo()

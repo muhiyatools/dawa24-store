@@ -3,6 +3,7 @@ package org
 import (
 	"context"
 	"log/slog"
+	"strings"
 
 	"github.com/muhiya/dawa24-store/internal/shared/apperr"
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
@@ -551,3 +552,83 @@ func (s *Service) ListEmployeeInstitutionalWorks(ctx context.Context, userID int
 func (s *Service) ListOrgEmployeeInstitutionalWorks(ctx context.Context, orgID int64) ([]*EmployeeInstitutionalWork, error) {
 	return s.repo.ListOrgEmployeeInstitutionalWorks(ctx, orgID)
 }
+
+// CreateUserOrgLink allows a customer user or vendor to link an organization number.
+func (s *Service) CreateUserOrgLink(ctx context.Context, userID int64, customerOrgID *int64, vendorOrgID int64, orgNumber string, initialStatus UserOrganizationStatus) (*UserOrganization, error) {
+	if userID <= 0 || vendorOrgID <= 0 {
+		return nil, apperr.Validation("user_org.invalid_params", "User ID and Vendor Organization ID are required.", nil)
+	}
+	orgNumber = strings.TrimSpace(orgNumber)
+	if orgNumber == "" {
+		return nil, apperr.Validation("user_org.number_required", "Organization Number is required.", nil)
+	}
+	if initialStatus == "" {
+		initialStatus = UserOrgStatusPending
+	}
+	uo := &UserOrganization{
+		UserID:             userID,
+		CustomerOrgID:      customerOrgID,
+		VendorOrgID:        vendorOrgID,
+		OrganizationNumber: orgNumber,
+		Status:             initialStatus,
+	}
+	if err := s.repo.CreateUserOrganization(ctx, uo); err != nil {
+		return nil, err
+	}
+	s.log.InfoContext(ctx, "created user organization link", "user_id", userID, "vendor_org_id", vendorOrgID, "org_number", orgNumber, "status", initialStatus)
+	return uo, nil
+}
+
+// UpdateUserOrgLink updates the organization number or notes.
+func (s *Service) UpdateUserOrgLink(ctx context.Context, id int64, orgNumber, notes string) error {
+	if id <= 0 {
+		return apperr.Validation("user_org.invalid_id", "Link ID is required.", nil)
+	}
+	return s.repo.UpdateUserOrganization(ctx, id, strings.TrimSpace(orgNumber), "", strings.TrimSpace(notes))
+}
+
+// ApproveUserOrgLink approves a customer link by the vendor or admin.
+func (s *Service) ApproveUserOrgLink(ctx context.Context, id int64) error {
+	if id <= 0 {
+		return apperr.Validation("user_org.invalid_id", "Link ID is required.", nil)
+	}
+	return s.repo.UpdateUserOrganization(ctx, id, "", UserOrgStatusApproved, "")
+}
+
+// RejectUserOrgLink rejects a customer link by the vendor or admin with optional notes.
+func (s *Service) RejectUserOrgLink(ctx context.Context, id int64, notes string) error {
+	if id <= 0 {
+		return apperr.Validation("user_org.invalid_id", "Link ID is required.", nil)
+	}
+	return s.repo.UpdateUserOrganization(ctx, id, "", UserOrgStatusRejected, strings.TrimSpace(notes))
+}
+
+// DeleteUserOrgLink removes a link.
+func (s *Service) DeleteUserOrgLink(ctx context.Context, id int64) error {
+	if id <= 0 {
+		return apperr.Validation("user_org.invalid_id", "Link ID is required.", nil)
+	}
+	return s.repo.DeleteUserOrganization(ctx, id)
+}
+
+// ListUserOrganizationsByUser returns all links for a customer user.
+func (s *Service) ListUserOrganizationsByUser(ctx context.Context, userID int64) ([]*UserOrganization, error) {
+	if userID <= 0 {
+		return []*UserOrganization{}, nil
+	}
+	return s.repo.ListUserOrganizationsByUser(ctx, userID)
+}
+
+// ListUserOrganizationsByVendor returns all customer links for a vendor.
+func (s *Service) ListUserOrganizationsByVendor(ctx context.Context, vendorOrgID int64, statusFilter string) ([]*UserOrganization, error) {
+	if vendorOrgID <= 0 {
+		return []*UserOrganization{}, nil
+	}
+	return s.repo.ListUserOrganizationsByVendor(ctx, vendorOrgID, statusFilter)
+}
+
+// ListAllUserOrganizations returns all links across the platform for admin.
+func (s *Service) ListAllUserOrganizations(ctx context.Context, statusFilter string) ([]*UserOrganization, error) {
+	return s.repo.ListAllUserOrganizations(ctx, statusFilter)
+}
+

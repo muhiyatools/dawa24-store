@@ -1,0 +1,290 @@
+package pages
+
+import (
+	"fmt"
+
+	"github.com/muhiya/dawa24-store/internal/modules/org"
+	"github.com/muhiya/dawa24-store/internal/shared/format"
+	"github.com/muhiya/dawa24-store/internal/ui/components"
+	"github.com/muhiya/dawa24-store/internal/ui/layouts"
+)
+
+type CustomerUserOrgData struct {
+	UserOrgs []*org.UserOrganization
+	Vendors  []*org.Organization
+	NoticeType string
+	NoticeMsg  string
+}
+
+templ CustomerUserOrganizationsPage(lang, dir string, data *CustomerUserOrgData, perms []string) {
+	@layouts.CustomerShell("المستخدم-المنظمة | My organizations", "user_organization", lang, dir, perms) {
+		<div style="max-width:1280px; margin:0 auto; display:flex; flex-direction:column; gap:1.5rem; padding-bottom:3.5rem;">
+
+			<!-- Notice Banner -->
+			if data != nil && data.NoticeMsg != "" {
+				if data.NoticeType == "error" {
+					<div class="card" style="margin:0; padding:1rem 1.25rem; background:rgba(239, 68, 68, 0.08); border:1px solid rgba(239, 68, 68, 0.25); border-radius:var(--radius-xl); color:var(--rose); font-size:0.875rem; display:flex; align-items:center; gap:0.5rem;">
+						<span>⚠️</span>
+						<strong>{ data.NoticeMsg }</strong>
+					</div>
+				} else {
+					<div class="card" style="margin:0; padding:1rem 1.25rem; background:rgba(16, 185, 129, 0.08); border:1px solid rgba(16, 185, 129, 0.25); border-radius:var(--radius-xl); color:var(--emerald-dark, #065f46); font-size:0.875rem; display:flex; align-items:center; gap:0.5rem;">
+						<span>✅</span>
+						<strong>{ data.NoticeMsg }</strong>
+					</div>
+				}
+			}
+
+			<!-- Top Header Banner matching old system -->
+			<div class="card" style="margin:0; padding:1.5rem 1.75rem; background:var(--surface-raised); border-radius:var(--radius-2xl); border:1px solid var(--border); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem; box-shadow:var(--shadow-xs);">
+				<div>
+					<div style="display:flex; align-items:center; gap:0.75rem; margin-bottom:0.35rem;">
+						<div style="width:42px; height:42px; border-radius:var(--radius-xl); background:rgba(37, 99, 235, 0.1); color:var(--primary); display:flex; align-items:center; justify-content:center; font-size:1.3rem; border:1px solid rgba(37, 99, 235, 0.2);">
+							🏢
+						</div>
+						<div>
+							<h1 style="font-size:1.45rem; font-weight:900; color:var(--text); margin:0;">
+								My organizations (منظماتي المرتبطة)
+							</h1>
+							<span style="font-size:0.775rem; color:var(--text-muted); font-weight:700;">Manage organization memberships & vendor connections</span>
+						</div>
+					</div>
+					<p style="font-size:0.875rem; color:var(--text-secondary); margin:0; line-height:1.5;">
+						ربط الصيدلية بالموردين والشركات داخل المنصة باستخدام رقم المنظمة (Organization Number) للحصول على الأسعار المعتمدة والتسهيلات المباشرة.
+					</p>
+				</div>
+
+				<div style="display:flex; align-items:center; gap:0.75rem; flex-wrap:wrap;">
+					<a href="/customer/dashboard" class="btn btn-secondary btn-sm" style="font-weight:700; gap:0.4rem;">
+						<span>العودة إلى لوحة التحكم ←</span>
+					</a>
+					<button
+						type="button"
+						class="btn btn-primary btn-sm fw-800"
+						data-modal-open="add-customer-user-org-modal"
+						style="gap:0.4rem; padding:0.5rem 1rem;"
+					>
+						@components.IconPlus("icon-xs")
+						<span>Add organization + (إضافة منظمة)</span>
+					</button>
+				</div>
+			</div>
+
+			<!-- Add Organization Modal -->
+			@components.Modal(components.ModalProps{
+				ID:    "add-customer-user-org-modal",
+				Title: "إضافة وربط منظمة / مورد جديد",
+				Size:  "md",
+			}) {
+				<form method="POST" action="/customer/user-organization/new" style="display:flex; flex-direction:column; gap:1.2rem; text-align:start; margin:0;">
+					<div class="form-group m-0">
+						<label class="form-label" for="add-uo-vendor">
+							المورد أو المنشأة المستهدفة *
+						</label>
+						<select id="add-uo-vendor" name="vendor_org_id" required class="form-select fw-700">
+							<option value="">-- اختر المورد / الشركة --</option>
+							if data != nil {
+								for _, v := range data.Vendors {
+									if v != nil {
+										<option value={ fmt.Sprintf("%d", v.ID) }>
+											{ v.LegalName } (#{ fmt.Sprintf("%d", v.ID) })
+										</option>
+									}
+								}
+							}
+						</select>
+					</div>
+
+					<div class="form-group m-0">
+						<label class="form-label" for="add-uo-number">
+							رقم المنظمة لدى المورد (Organization Number) *
+						</label>
+						<input
+							type="text"
+							id="add-uo-number"
+							name="organization_number"
+							required
+							placeholder="مثال: NUM10001 أو 010645645..."
+							class="form-control fw-700"
+							style="font-family:var(--font-mono, monospace); font-size:0.95rem;"
+							dir="ltr"
+						/>
+						<span style="font-size:0.75rem; color:var(--text-muted); margin-top:0.3rem; display:block;">
+							كود حساب الصيدلية أو رقم التعريف المسجل به لدى هذا المورد.
+						</span>
+					</div>
+
+					<div class="form-group m-0">
+						<label class="form-label" for="add-uo-notes">
+							ملاحظات إضافية (اختياري)
+						</label>
+						<textarea
+							id="add-uo-notes"
+							name="notes"
+							rows="2"
+							placeholder="أي تفاصيل أو ملاحظات للمورد..."
+							class="form-control"
+							style="font-size:0.85rem;"
+						></textarea>
+					</div>
+
+					<div style="display:flex; justify-content:flex-end; gap:0.75rem; margin-top:0.5rem;">
+						<button
+							type="button"
+							class="btn btn-secondary"
+							data-modal-close="add-customer-user-org-modal"
+						>
+							إلغاء
+						</button>
+						<button type="submit" class="btn btn-primary fw-800" style="padding:0 1.5rem;">
+							حفظ وإرسال الطلب للمورد
+						</button>
+					</div>
+				</form>
+			}
+
+			<!-- Grid of Organization Cards (Matching Old Reference UI) -->
+			if data == nil || len(data.UserOrgs) == 0 {
+				@components.EmptyState(components.EmptyStateProps{
+					Title:   "لا توجد منظمات مربوطة حالياً",
+					Message: "يمكنك إضافة وربط حسابك بالموردين والشركات بالضغط على 'Add organization +'.",
+				})
+			} else {
+				<div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(320px, 1fr)); gap:1.25rem;">
+					for _, uo := range data.UserOrgs {
+						if uo != nil {
+							<div
+								class="card"
+								style="margin:0; padding:1.35rem; background:var(--surface-raised); border-radius:var(--radius-2xl); border:1px solid var(--border); display:flex; flex-direction:column; justify-content:space-between; gap:1.2rem; box-shadow:0 4px 16px rgba(0,0,0,0.04); transition:transform 0.2s ease, box-shadow 0.2s ease;"
+							>
+								<!-- Card Header -->
+								<div style="display:flex; justify-content:space-between; align-items:flex-start; gap:0.75rem;">
+									<div style="display:flex; align-items:center; gap:0.75rem;">
+										<div style="width:42px; height:42px; border-radius:var(--radius-lg); background:var(--surface-sunken); border:1px solid var(--border); display:flex; align-items:center; justify-content:center; font-size:1.25rem; flex-shrink:0;">
+											🏢
+										</div>
+										<div>
+											<h3 style="font-size:1.05rem; font-weight:800; color:var(--text); margin:0;">
+												{ uo.VendorOrgName }
+											</h3>
+											<span style="font-size:0.75rem; color:var(--text-muted); font-weight:700;">
+												شركة / مورد معتمد
+											</span>
+										</div>
+									</div>
+
+									<!-- Status Pill -->
+									<div>
+										switch uo.Status {
+											case org.UserOrgStatusApproved:
+												<span class="badge badge-emerald text-xs fw-800" style="padding:0.35rem 0.65rem;">Approval ✓</span>
+											case org.UserOrgStatusRejected:
+												<span class="badge badge-rose text-xs fw-800" style="padding:0.35rem 0.65rem;">مرفوض ✗</span>
+											default:
+												<span class="badge badge-amber text-xs fw-800" style="padding:0.35rem 0.65rem;">قيد الانتظار</span>
+										}
+									</div>
+								</div>
+
+								<!-- Card Body: Organization Number Display -->
+								<div style="background:var(--surface-sunken); border:1px solid var(--border); border-radius:var(--radius-xl); padding:1rem 1.25rem; text-align:center;">
+									<div style="font-size:0.775rem; font-weight:700; color:var(--text-muted); margin-bottom:0.35rem;">
+										رقم المنظمة (Organization Number)
+									</div>
+									<div class="tabular-nums fw-900" style="font-size:1.4rem; color:var(--primary); font-family:var(--font-mono, monospace); letter-spacing:0.05em;" dir="ltr">
+										{ uo.OrganizationNumber }
+									</div>
+									if uo.Notes != "" {
+										<div style="font-size:0.75rem; color:var(--text-secondary); margin-top:0.4rem; border-top:1px dashed var(--border); padding-top:0.4rem;">
+											{ uo.Notes }
+										</div>
+									}
+								</div>
+
+								<!-- Card Footer: Actions & Date -->
+								<div style="display:flex; justify-content:space-between; align-items:center; padding-top:0.6rem; border-top:1px solid var(--border-subtle);">
+									<div style="display:flex; align-items:center; gap:0.4rem;">
+										<!-- Delete Form -->
+										<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/customer/user-organization/%d/delete", uo.ID)) } style="margin:0;" onsubmit="return confirm('هل أنت متأكد من حذف ربط هذه المنظمة؟');">
+											<button type="submit" class="btn btn-secondary btn-sm" style="padding:0.35rem 0.5rem; color:var(--rose);" title="حذف الربط">
+												@components.IconTrash("icon-xs")
+											</button>
+										</form>
+
+										<!-- Edit Button -->
+										<button
+											type="button"
+											class="btn btn-secondary btn-sm"
+											style="padding:0.35rem 0.5rem;"
+											title="تعديل رقم المنظمة"
+											data-modal-open={ fmt.Sprintf("edit-uo-modal-%d", uo.ID) }
+										>
+											@components.IconEdit("icon-xs")
+										</button>
+									</div>
+
+									<div class="tabular-nums" style="font-size:0.75rem; color:var(--text-muted);">
+										{ format.Date(uo.CreatedAt, "ar") }
+									</div>
+								</div>
+
+								<!-- Edit Modal -->
+								@components.Modal(components.ModalProps{
+									ID:    fmt.Sprintf("edit-uo-modal-%d", uo.ID),
+									Title: fmt.Sprintf("تعديل بيانات الربط مع %s", uo.VendorOrgName),
+									Size:  "md",
+								}) {
+									<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/customer/user-organization/%d/edit", uo.ID)) } style="display:flex; flex-direction:column; gap:1.1rem; text-align:start; margin:0;">
+										<div class="form-group m-0">
+											<label class="form-label" for={ fmt.Sprintf("edit-uo-num-%d", uo.ID) }>
+												رقم المنظمة (Organization Number) *
+											</label>
+											<input
+												type="text"
+												id={ fmt.Sprintf("edit-uo-num-%d", uo.ID) }
+												name="organization_number"
+												value={ uo.OrganizationNumber }
+												required
+												class="form-control fw-700"
+												style="font-family:var(--font-mono, monospace); font-size:0.95rem;"
+												dir="ltr"
+											/>
+										</div>
+
+										<div class="form-group m-0">
+											<label class="form-label" for={ fmt.Sprintf("edit-uo-notes-%d", uo.ID) }>
+												ملاحظات إضافية
+											</label>
+											<textarea
+												id={ fmt.Sprintf("edit-uo-notes-%d", uo.ID) }
+												name="notes"
+												rows="2"
+												class="form-control"
+												style="font-size:0.85rem;"
+											>{ uo.Notes }</textarea>
+										</div>
+
+										<div style="display:flex; justify-content:flex-end; gap:0.75rem; margin-top:0.5rem;">
+											<button
+												type="button"
+												class="btn btn-secondary"
+												data-modal-close={ fmt.Sprintf("edit-uo-modal-%d", uo.ID) }
+											>
+												إلغاء
+											</button>
+											<button type="submit" class="btn btn-primary fw-800">
+												حفظ التعديلات
+											</button>
+										</div>
+									</form>
+								}
+
+							</div>
+						}
+					}
+				</div>
+			}
+
+		</div>
+	}
+}

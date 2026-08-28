@@ -232,7 +232,7 @@ templ CustomerOrderDetail(order *commerce.Order, history []*commerce.OrderStatus
 													<tr>
 														<th style="padding:0.65rem 1rem;">الصنف الدوائي</th>
 														<th style="padding:0.65rem 0.75rem; text-align:center;">الكمية</th>
-														<th style="padding:0.65rem 0.75rem;" class="td-numeric">سعر الوحدة</th>
+														<th style="padding:0.65rem 0.75rem;" class="td-numeric">السعر قبل الخصم</th>
 														<th style="padding:0.65rem 0.75rem;" class="td-numeric">الخصم</th>
 														<th style="padding:0.65rem 1rem;" class="td-numeric">الإجمالي</th>
 													</tr>
@@ -264,11 +264,7 @@ templ CustomerOrderDetail(order *commerce.Order, history []*commerce.OrderStatus
 																{ l.UnitPrice.String() } ج.م
 															</td>
 															<td style="padding:0.75rem 0.75rem;" class="td-numeric tabular-nums text-emerald">
-																if l.DiscountAmount.Minor() > 0 {
-																	<span>- { l.DiscountAmount.String() } ج.م</span>
-																} else {
-																	<span class="text-muted">-</span>
-																}
+																{ l.DiscountAmount.String() } ج.م
 															</td>
 															<td style="padding:0.75rem 1rem; font-weight:800; color:var(--text);" class="td-numeric tabular-nums">
 																{ l.TotalPrice.String() } ج.م
@@ -289,7 +285,7 @@ templ CustomerOrderDetail(order *commerce.Order, history []*commerce.OrderStatus
 										<tr>
 											<th style="padding:0.65rem 1rem;">الصنف الدوائي</th>
 											<th style="padding:0.65rem 0.75rem; text-align:center;">الكمية</th>
-											<th style="padding:0.65rem 0.75rem;" class="td-numeric">سعر الوحدة</th>
+											<th style="padding:0.65rem 0.75rem;" class="td-numeric">السعر قبل الخصم</th>
 											<th style="padding:0.65rem 0.75rem;" class="td-numeric">الخصم</th>
 											<th style="padding:0.65rem 1rem;" class="td-numeric">الإجمالي</th>
 										</tr>
@@ -321,11 +317,7 @@ templ CustomerOrderDetail(order *commerce.Order, history []*commerce.OrderStatus
 													{ l.UnitPrice.String() } ج.م
 												</td>
 												<td style="padding:0.75rem 0.75rem;" class="td-numeric tabular-nums text-emerald">
-													if l.DiscountAmount.Minor() > 0 {
-														<span>- { l.DiscountAmount.String() } ج.م</span>
-													} else {
-														<span class="text-muted">-</span>
-													}
+													{ l.DiscountAmount.String() } ج.م
 												</td>
 												<td style="padding:0.75rem 1rem; font-weight:800; color:var(--text);" class="td-numeric tabular-nums">
 													{ l.TotalPrice.String() } ج.م

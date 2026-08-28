@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 	"strconv"
+	"strings"
 
 	"github.com/go-chi/chi/v5"
 
@@ -143,13 +144,24 @@ func (h *UIHandler) AdminUserOrganizationPage(w http.ResponseWriter, r *http.Req
 	ctx := r.Context()
 	lang, dir := h.localeAndDir(r)
 
-	var users []*identity.User
-	if h.idSvc != nil {
-		users, _ = h.idSvc.AdminListUsers(database.AsSystem(ctx), "", "")
+	statusFilter := strings.TrimSpace(r.URL.Query().Get("status"))
+	data := &pages.AdminUserOrgData{
+		ActiveTab: statusFilter,
+	}
+
+	sysCtx := database.AsSystem(ctx)
+	if h.orgSvc != nil {
+		all, _ := h.orgSvc.ListAllUserOrganizations(sysCtx, "")
+		data.TotalCount = len(all)
+
+		list, err := h.orgSvc.ListAllUserOrganizations(sysCtx, statusFilter)
+		if err == nil {
+			data.UserOrgs = list
+		}
 	}
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	if err := pages.AdminFullUserPage(users, "organizations", lang, dir).Render(ctx, w); err != nil {
+	if err := pages.AdminUserOrganizationsPage(lang, dir, data).Render(ctx, w); err != nil {
 		h.log.ErrorContext(ctx, "render admin user organizations", "error", err)
 	}
 }

@@ -13,7 +13,7 @@ import (
 // UpdateStagedRow modifies a staged row's editable attributes before commit.
 func (s *Service) UpdateStagedRow(
 	ctx context.Context, publicID string, rowID int64,
-	displayName, customVariantName string, price *float64, quantity *int, isExcluded *bool,
+	displayName, customVariantName string, price, discount *float64, quantity *int, isExcluded *bool,
 ) error {
 	session, err := s.LoadImport(ctx, publicID)
 	if err != nil {
@@ -22,7 +22,7 @@ func (s *Service) UpdateStagedRow(
 	if session.Phase != PhaseReview {
 		return apperr.Conflict("import.not_in_review", "لا يمكن تعديل الصفوف إلا في مرحلة المراجعة.")
 	}
-	return s.imports.UpdateRow(ctx, session.ID, rowID, displayName, customVariantName, price, quantity, isExcluded)
+	return s.imports.UpdateRow(ctx, session.ID, rowID, displayName, customVariantName, price, discount, quantity, isExcluded)
 }
 
 // SetBatchQuantity applies a uniform quantity to all staged rows in the import session.

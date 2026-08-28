@@ -1017,7 +1017,8 @@ templ VendorVariantsTable(variants []*VendorVariantView, lang string) {
 					<th style="width:26%; padding:1rem 1.25rem;">الصنف الدوائي المعتمد</th>
 					<th style="width:16%; padding:1rem;">المواصفات و SKU</th>
 					<th style="width:11%; padding:1rem;">رقم التشغيلة</th>
-					<th style="width:13%; padding:1rem;">سعر التوريد والخصم</th>
+					<th style="width:11%; padding:1rem;">سعر التوريد قبل الخصم</th>
+					<th style="width:8%; padding:1rem;">الخصم</th>
 					<th style="width:11%; padding:1rem; text-align:center;">الرصيد المتاح</th>
 					<th style="width:10%; padding:1rem;">تاريخ الصلاحية</th>
 					<th style="width:10%; padding:1rem;">مستودع الشحن</th>
@@ -1095,21 +1096,23 @@ templ VendorVariantsTable(variants []*VendorVariantView, lang string) {
 							}
 						</td>
 
-						<!-- Wholesale Price & Discount -->
+						<!-- Wholesale Price Before Discount -->
 						<td class="p-md">
 							<div class="tabular-nums" style="font-weight:900; color:var(--accent); font-size:1.05rem; line-height:1.2;">
 								{ v.Variant.Price.String() } <span style="font-size:0.75rem; font-weight:600; color:var(--text-secondary);">ج.م</span>
 							</div>
-							if v.Variant.Discount.IsPositive() {
-								<div style="font-size:0.725rem; color:#10b981; font-weight:700; margin-top:2px;">
-									خصم: { v.Variant.Discount.String() }%
-								</div>
-							}
 							if v.Variant.MinOrderQty > 1 {
 								<div style="font-size:0.725rem; color:var(--text-muted); margin-top:2px;">
 									الحد الأدنى: { fmt.Sprintf("%d", v.Variant.MinOrderQty) }
 								</div>
 							}
+						</td>
+
+						<!-- Discount -->
+						<td class="p-md">
+							<div class="tabular-nums" style="font-weight:800; color:#10b981; font-size:0.95rem;">
+								{ v.Variant.Discount.String() }%
+							</div>
 						</td>
 
 						<!-- Stock Quantity -->

@@ -122,7 +122,8 @@ templ AdminProductChildrenPage(data AdminProductChildrenData, lang, dir string) 
 									<th style="width:50px;">الصورة</th>
 									<th>المنتج / SKU</th>
 									<th>المنظمة (المورد)</th>
-									<th>السعر / الخصم</th>
+									<th>السعر قبل الخصم</th>
+									<th>الخصم</th>
 									<th>المخزون</th>
 									<th>حالة المنتج</th>
 									<th>حالة الصورة</th>
@@ -186,19 +187,18 @@ templ AdminProductChildrenPage(data AdminProductChildrenData, lang, dir string) 
 											</div>
 										</td>
 
-										<!-- 4. السعر / الخصم -->
+										<!-- 4. السعر قبل الخصم -->
 										<td>
 											<div class="tabular-nums fw-800 text-primary text-base">
 												@components.MoneyDisplay(components.MoneyDisplayProps{ Amount: v.Price })
 											</div>
-											if v.Discount.IsPositive() {
-												<div style="margin-top:2px;">
-													<span class="badge badge-rose" style="font-size:10px; font-weight:700;">
-														<span>خصم: </span>
-														@components.MoneyDisplay(components.MoneyDisplayProps{ Amount: v.Discount })
-													</span>
-												</div>
-											}
+										</td>
+
+										<!-- 5. الخصم -->
+										<td>
+											<div class="tabular-nums fw-800 text-base">
+												@components.MoneyDisplay(components.MoneyDisplayProps{ Amount: v.Discount })
+											</div>
 										</td>
 
 										<!-- 5. المخزون -->

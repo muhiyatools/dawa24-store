@@ -1376,7 +1376,7 @@ templ VendorSavingProductsPage(data VendorSavingPageData, lang, dir string) {
 							return;
 						}
 
-						let html = '<table class="table" style="width:100%; border-collapse:collapse; font-size:0.875rem;"><thead><tr style="background:var(--surface-sunken); border-bottom:2px solid var(--border); text-align:start; font-size:0.775rem; color:var(--text-muted);"><th class="p-sm">المورد / المنظمة</th><th class="p-sm">العبوة / التنويعة</th><th class="p-sm text-center">المخزون</th><th class="p-sm text-center">السعر الأساسي</th><th class="p-sm text-center">الخصم</th><th style="padding:0.75rem; text-align:end;">السعر الصافي</th></tr></thead><tbody>';
+						let html = '<table class="table" style="width:100%; border-collapse:collapse; font-size:0.875rem;"><thead><tr style="background:var(--surface-sunken); border-bottom:2px solid var(--border); text-align:start; font-size:0.775rem; color:var(--text-muted);"><th class="p-sm">المورد / المنظمة</th><th class="p-sm">العبوة / التنويعة</th><th class="p-sm text-center">المخزون</th><th class="p-sm text-center">السعر قبل الخصم</th><th class="p-sm text-center">الخصم</th></tr></thead><tbody>';
 
 						providers.forEach(p => {
 							const branchText = p.branch_name ? ('<div class="text-xs text-muted">' + p.branch_name + '</div>') : '';
@@ -1388,7 +1388,6 @@ templ VendorSavingProductsPage(data VendorSavingPageData, lang, dir string) {
 								'<td class="p-sm text-center tabular-nums"><span class="badge ' + stockBadge + '">' + p.stock_quantity + ' عبوة</span></td>' +
 								'<td class="p-sm text-center tabular-nums">' + p.price + ' ج.م</td>' +
 								'<td class="p-sm text-center tabular-nums"><span class="badge badge-sky">' + p.discount + ' ج.م</span></td>' +
-								'<td style="padding:0.75rem; text-align:end;" class="tabular-nums"><strong style="color:var(--accent); font-size:0.95rem;">' + p.price_after_discount + ' ج.م</strong></td>' +
 								'</tr>';
 						});
 

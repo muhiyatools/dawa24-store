@@ -97,6 +97,10 @@ templ CustomerShell(title string, activeNav string, lang string, dir string, per
 							@components.IconFile("icon-sm")
 							<span>{ i18n.T(lang, "nav.documents_and_licenses") }</span>
 						</a>
+						<a href="/customer/user-organization" class={ "sidebar-link", templ.KV("active", activeNav == "user_organization") }>
+							@components.IconBuilding("icon-sm")
+							<span>المستخدم-المنظمة</span>
+						</a>
 						<a href="/customer/subscription" class={ "sidebar-link", templ.KV("active", activeNav == "subscription") }>
 							@components.IconSparkles("icon-sm")
 							<span>{ i18n.T(lang, "nav.subscription_and_membership") }</span>

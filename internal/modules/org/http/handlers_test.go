@@ -471,6 +471,48 @@ func (happyRepo) GetReviewCriteria(ctx context.Context, contextType string) ([]*
 func (happyRepo) ReplyToReview(ctx context.Context, reviewID, orgID int64, response string, responderID int64) error {
 	return nil
 }
+func (happyRepo) CreateUserOrganization(ctx context.Context, uo *org.UserOrganization) error {
+	return nil
+}
+func (happyRepo) GetUserOrganizationByID(ctx context.Context, id int64) (*org.UserOrganization, error) {
+	return nil, nil
+}
+func (happyRepo) UpdateUserOrganization(ctx context.Context, id int64, orgNumber string, status org.UserOrganizationStatus, notes string) error {
+	return nil
+}
+func (happyRepo) DeleteUserOrganization(ctx context.Context, id int64) error {
+	return nil
+}
+func (happyRepo) ListUserOrganizationsByUser(ctx context.Context, userID int64) ([]*org.UserOrganization, error) {
+	return nil, nil
+}
+func (happyRepo) ListUserOrganizationsByVendor(ctx context.Context, vendorOrgID int64, statusFilter string) ([]*org.UserOrganization, error) {
+	return nil, nil
+}
+func (happyRepo) ListAllUserOrganizations(ctx context.Context, statusFilter string) ([]*org.UserOrganization, error) {
+	return nil, nil
+}
+func (stubRepo) CreateUserOrganization(ctx context.Context, uo *org.UserOrganization) error {
+	return nil
+}
+func (stubRepo) GetUserOrganizationByID(ctx context.Context, id int64) (*org.UserOrganization, error) {
+	return nil, nil
+}
+func (stubRepo) UpdateUserOrganization(ctx context.Context, id int64, orgNumber string, status org.UserOrganizationStatus, notes string) error {
+	return nil
+}
+func (stubRepo) DeleteUserOrganization(ctx context.Context, id int64) error {
+	return nil
+}
+func (stubRepo) ListUserOrganizationsByUser(ctx context.Context, userID int64) ([]*org.UserOrganization, error) {
+	return nil, nil
+}
+func (stubRepo) ListUserOrganizationsByVendor(ctx context.Context, vendorOrgID int64, statusFilter string) ([]*org.UserOrganization, error) {
+	return nil, nil
+}
+func (stubRepo) ListAllUserOrganizations(ctx context.Context, statusFilter string) ([]*org.UserOrganization, error) {
+	return nil, nil
+}
 
 const testCookieName = "dawa24_session"
 

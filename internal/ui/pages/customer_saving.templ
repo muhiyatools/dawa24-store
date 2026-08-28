@@ -1314,7 +1314,7 @@ templ CustomerSavingProductsPage(data CustomerSavingPageData, lang, dir string) 
 							return;
 						}
 
-						let html = '<div style="overflow-x:auto;"><table class="table" style="width:100%; border-collapse:collapse; font-size:0.875rem;"><thead><tr style="background:var(--surface-sunken); border-bottom:2px solid var(--border); text-align:start; font-size:0.775rem; color:var(--text-muted);"><th class="p-sm">المورد / المستودع</th><th class="p-sm">العبوة / المواصفات</th><th class="p-sm text-center">المخزون</th><th class="p-sm text-center">السعر الأساسي</th><th class="p-sm text-center">الخصم</th><th style="padding:0.75rem; text-align:end;">السعر الصافي</th><th class="p-sm text-center">طلب توريد</th></tr></thead><tbody>';
+						let html = '<div style="overflow-x:auto;"><table class="table" style="width:100%; border-collapse:collapse; font-size:0.875rem;"><thead><tr style="background:var(--surface-sunken); border-bottom:2px solid var(--border); text-align:start; font-size:0.775rem; color:var(--text-muted);"><th class="p-sm">المورد / المستودع</th><th class="p-sm">العبوة / المواصفات</th><th class="p-sm text-center">المخزون</th><th class="p-sm text-center">السعر قبل الخصم</th><th class="p-sm text-center">الخصم</th><th class="p-sm text-center">طلب توريد</th></tr></thead><tbody>';
 
 						providers.forEach(p => {
 							const branchText = p.branch_name ? ('<div style="font-size:0.725rem; color:var(--text-muted); margin-top:2px;">' + p.branch_name + '</div>') : '';
@@ -1341,7 +1341,6 @@ templ CustomerSavingProductsPage(data CustomerSavingPageData, lang, dir string) 
 								'<td class="p-sm text-center tabular-nums"><span class="badge ' + stockBadge + '">' + p.stock_quantity + ' عبوة</span></td>' +
 								'<td class="p-sm text-center tabular-nums">' + p.price + ' ج.م</td>' +
 								'<td class="p-sm text-center tabular-nums"><span class="badge badge-sky">' + p.discount + ' ج.م</span></td>' +
-								'<td style="padding:0.75rem; text-align:end;" class="tabular-nums"><strong style="color:var(--accent); font-size:0.95rem;">' + p.price_after_discount + ' ج.م</strong></td>' +
 								'<td class="p-sm text-center">' + addCartAction + '</td>' +
 								'</tr>';
 						});

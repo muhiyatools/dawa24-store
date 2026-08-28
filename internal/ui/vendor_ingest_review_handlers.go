@@ -77,6 +77,13 @@ func (h *UIHandler) VendorIngestRowUpdateSubmit(w http.ResponseWriter, r *http.R
 		}
 	}
 
+	var discountPtr *float64
+	if dStr := strings.TrimSpace(r.PostFormValue("discount")); dStr != "" {
+		if dVal, dErr := strconv.ParseFloat(dStr, 64); dErr == nil {
+			discountPtr = &dVal
+		}
+	}
+
 	var qtyPtr *int
 	if qStr := strings.TrimSpace(r.PostFormValue("quantity")); qStr != "" {
 		if qVal, qErr := strconv.Atoi(qStr); qErr == nil {
@@ -84,7 +91,7 @@ func (h *UIHandler) VendorIngestRowUpdateSubmit(w http.ResponseWriter, r *http.R
 		}
 	}
 
-	if err := h.ingSvc.UpdateStagedRow(ctx, publicID, rowID, displayName, customVariantName, pricePtr, qtyPtr, nil); err != nil {
+	if err := h.ingSvc.UpdateStagedRow(ctx, publicID, rowID, displayName, customVariantName, pricePtr, discountPtr, qtyPtr, nil); err != nil {
 		h.redirectWithNotice(w, r, buildReviewRedirect(publicID, r), "error", h.safeMessage(err, langOf(r)))
 		return
 	}

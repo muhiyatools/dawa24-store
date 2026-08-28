@@ -677,7 +677,8 @@ templ SupplierProfile(lang, dir string, data SupplierProfileData) {
 								<tr>
 									<th>الصنف الدوائي والمواصفات</th>
 									<th>التشغيلة والصلاحية</th>
-									<th>سعر التوريد للصيدلية</th>
+									<th>سعر التوريد قبل الخصم</th>
+									<th>الخصم</th>
 									<th>سعر الجمهور</th>
 									<th style="text-align:center;">طلب الصنف وإضافته للسلة</th>
 								</tr>
@@ -744,7 +745,7 @@ templ SupplierProfile(lang, dir string, data SupplierProfileData) {
 											</div>
 										</td>
 
-										<!-- Supply Price -->
+										<!-- Supply Price Before Discount -->
 										<td>
 											<div style="display:flex; flex-direction:column; gap:0.15rem;">
 												<div style="font-size:1.1rem; font-weight:900; color:var(--primary-600);" class="tabular-nums">
@@ -755,6 +756,13 @@ templ SupplierProfile(lang, dir string, data SupplierProfileData) {
 													}
 												</div>
 												<span class="text-xs text-muted">سعر الفاتورة الضريبية</span>
+											</div>
+										</td>
+
+										<!-- Discount -->
+										<td>
+											<div style="font-size:0.95rem; font-weight:800; color:var(--emerald);" class="tabular-nums">
+												{ v.Discount.String() } ج.م
 											</div>
 										</td>
 

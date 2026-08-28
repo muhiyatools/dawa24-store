@@ -214,9 +214,8 @@ templ CompareResultsPage(lang, dir string, result *compare.ComparisonResultSet, 
 							<thead>
 								<tr style="border-bottom:2px solid var(--border); text-align:start; font-size:0.85rem; color:var(--text-muted);">
 									<th style="padding:0.75rem 1rem; font-weight:800;">الصنف وحالة الكتالوج</th>
-									<th style="padding:0.75rem 1rem; font-weight:800;">السعر الرسمي</th>
+									<th style="padding:0.75rem 1rem; font-weight:800;">السعر قبل الخصم</th>
 									<th style="padding:0.75rem 1rem; font-weight:800;">أعلى نسبة خصم</th>
-									<th style="padding:0.75rem 1rem; font-weight:800;">أفضل سعر صافي</th>
 									<th style="padding:0.75rem 1rem; font-weight:800;">المورد الفائز بالصفقة</th>
 									<th style="padding:0.75rem 1rem; font-weight:800;">عروض الموردين وفجوات النواقص</th>
 								</tr>
@@ -257,22 +256,9 @@ templ CompareResultsPage(lang, dir string, result *compare.ComparisonResultSet, 
 
 										<!-- Best Discount -->
 										<td class="p-sm">
-											if row.BestDiscount > 0 {
-												<span class="badge badge-emerald" style="font-weight:800; font-size:0.85rem;">
-													{ fmt.Sprintf("%.1f%%", row.BestDiscount) }
-												</span>
-											} else {
-												<span class="badge badge-secondary text-xs">بدون خصم</span>
-											}
-										</td>
-
-										<!-- Net Price -->
-										<td style="padding:0.85rem 1rem; font-weight:900; color:var(--accent);" class="tabular-nums">
-											if row.BestNetPrice.IsPositive() {
-												<span>{ row.BestNetPrice.String() } ج.م</span>
-											} else {
-												<span class="text-muted">--</span>
-											}
+											<span class="badge badge-emerald" style="font-weight:800; font-size:0.85rem;">
+												{ fmt.Sprintf("%.1f%%", row.BestDiscount) }
+											</span>
 										</td>
 
 										<!-- Best Supplier -->

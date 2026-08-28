@@ -53,7 +53,7 @@ type ImportStore interface {
 	// the requests that produced them.
 	ApplyAIMatches(ctx context.Context, importID int64, matches []AIMatch) error
 	// UpdateRow updates fields on a staged row before commit.
-	UpdateRow(ctx context.Context, importID, rowID int64, displayName, customVariantName string, price *float64, quantity *int, isExcluded *bool) error
+	UpdateRow(ctx context.Context, importID, rowID int64, displayName, customVariantName string, price, discount *float64, quantity *int, isExcluded *bool) error
 	// SetBatchQuantity applies a uniform quantity to all staged rows of an import.
 	SetBatchQuantity(ctx context.Context, importID int64, quantity int) error
 	// AssignRowMatch links a staged row to a master catalog product manually.

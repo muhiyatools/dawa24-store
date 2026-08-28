@@ -342,6 +342,12 @@ func (h *UIHandler) RegisterCustomerRoutes(r chi.Router) {
 	r.Post("/documents/upload", h.OrganizationDocumentsUploadSubmit)
 	r.Post("/documents/delete", h.OrganizationDocumentDeleteSubmit)
 
+	// Customer Pharmacy User Organization Connections
+	r.Get("/customer/user-organization", h.CustomerUserOrganizationsPage)
+	r.Post("/customer/user-organization/new", h.CustomerUserOrganizationCreateSubmit)
+	r.Post("/customer/user-organization/{id}/edit", h.CustomerUserOrganizationUpdateSubmit)
+	r.Post("/customer/user-organization/{id}/delete", h.CustomerUserOrganizationDeleteSubmit)
+
 	// Pharmacy Branches & Delivery Receiving Locations (Rebuild V2 §5)
 	r.Get("/customer/branches", h.CustomerBranchesPage)
 	r.Post("/customer/branches/active", h.CustomerSwitchActiveBranchSubmit)
@@ -416,6 +422,15 @@ func (h *UIHandler) RegisterVendorRoutes(r chi.Router) {
 	r.Get("/vendor/organization", h.VendorOrganizationPage)
 	r.Post("/vendor/organization", h.VendorOrganizationSubmit)
 	r.Get("/vendor/settings/organization", h.VendorOrganizationPage)
+
+	// Vendor User Organization Management
+	r.Get("/vendor/user-organization", h.VendorUserOrganizationsPage)
+	r.Post("/vendor/user-organization/new", h.VendorUserOrganizationCreateSubmit)
+	r.Post("/vendor/user-organization/{id}/approve", h.VendorUserOrganizationApproveSubmit)
+	r.Post("/vendor/user-organization/{id}/reject", h.VendorUserOrganizationRejectSubmit)
+	r.Post("/vendor/user-organization/{id}/edit", h.VendorUserOrganizationUpdateSubmit)
+	r.Post("/vendor/user-organization/{id}/delete", h.VendorUserOrganizationDeleteSubmit)
+
 	r.Get("/vendor/products", h.VendorProductsPage)
 	r.Post("/vendor/products/add-from-catalog", h.VendorProductAddFromCatalogSubmit)
 	r.Post("/vendor/products/delete-all", h.VendorProductsDeleteAllSubmit)

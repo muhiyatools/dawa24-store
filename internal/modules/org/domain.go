@@ -368,3 +368,31 @@ const (
 	// Laravel: applyInstitutionalWorksFilter_WithConnections — purchase-request pages.
 	FilterWithConnections
 )
+
+// UserOrganizationStatus represents the approval state of a customer-to-vendor organization linkage.
+type UserOrganizationStatus string
+
+const (
+	UserOrgStatusPending  UserOrganizationStatus = "pending"
+	UserOrgStatusApproved UserOrganizationStatus = "approved"
+	UserOrgStatusRejected UserOrganizationStatus = "rejected"
+)
+
+// UserOrganization links a customer user (pharmacy) with a vendor organization using their organization number.
+type UserOrganization struct {
+	ID                 int64                  `json:"id"`
+	UserID             int64                  `json:"user_id"`
+	UserName           string                 `json:"user_name,omitempty"`
+	UserEmail          string                 `json:"user_email,omitempty"`
+	CustomerOrgID      *int64                 `json:"customer_org_id,omitempty"`
+	CustomerOrgName    string                 `json:"customer_org_name,omitempty"`
+	VendorOrgID        int64                  `json:"vendor_org_id"`
+	VendorOrgName      string                 `json:"vendor_org_name,omitempty"`
+	VendorOrgType      string                 `json:"vendor_org_type,omitempty"`
+	OrganizationNumber string                 `json:"organization_number"`
+	Status             UserOrganizationStatus `json:"status"`
+	Notes              string                 `json:"notes,omitempty"`
+	CreatedAt          time.Time              `json:"created_at"`
+	UpdatedAt          time.Time              `json:"updated_at"`
+}
+
