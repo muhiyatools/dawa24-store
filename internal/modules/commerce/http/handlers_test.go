@@ -70,6 +70,10 @@ func (r stubRepo) UpdateOrderStatus(ctx context.Context, orderID int64, toStatus
 	r.fail("UpdateOrderStatus")
 	return nil
 }
+func (r stubRepo) UpdateCustomerPendingOrder(ctx context.Context, order *commerce.Order, lines []commerce.OrderLineEditItem, changedByUserID int64) (*commerce.Order, error) {
+	r.fail("UpdateCustomerPendingOrder")
+	return nil, nil
+}
 func (r stubRepo) ListOrdersByCustomer(ctx context.Context, customerID int64, limit, offset int) ([]*commerce.Order, error) {
 	r.fail("ListOrdersByCustomer")
 	return nil, nil
@@ -278,6 +282,9 @@ func (happyRepo) AcceptNegotiation(ctx context.Context, orderID int64, actorID i
 }
 func (happyRepo) RejectNegotiation(ctx context.Context, orderID int64, reason string, actorID int64) error {
 	return nil
+}
+func (happyRepo) UpdateCustomerPendingOrder(ctx context.Context, order *commerce.Order, lines []commerce.OrderLineEditItem, changedByUserID int64) (*commerce.Order, error) {
+	return order, nil
 }
 
 func newTestRouter(t *testing.T) http.Handler {

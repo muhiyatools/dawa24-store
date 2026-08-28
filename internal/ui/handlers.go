@@ -324,6 +324,8 @@ func (h *UIHandler) RegisterCustomerRoutes(r chi.Router) {
 		http.Redirect(w, r, "/orders/"+id, http.StatusMovedPermanently)
 	})
 	r.Get("/orders/{id}", h.CustomerOrderDetailPage)
+	r.Post("/orders/{id}/edit", h.CustomerOrderEditSubmit)
+	r.Post("/customer/orders/{id}/edit", h.CustomerOrderEditSubmit)
 	r.Get("/favorites", h.FavoritesPage)
 	r.Get("/customer/favorites", h.FavoritesPage)
 	r.Get("/suppliers/followed", h.FollowedSuppliersPage)

@@ -25,6 +25,26 @@ templ SuppliersDirectoryContent(lang, dir string, data SupplierDirectoryData) {
 	<!-- Leaflet Map Assets -->
 	<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
 	<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+	
+	<style>
+		@keyframes supplier-pulse-ring {
+			0% {
+				transform: scale(0.85);
+				opacity: 0.9;
+			}
+			70% {
+				transform: scale(1.6);
+				opacity: 0;
+			}
+			100% {
+				transform: scale(1.8);
+				opacity: 0;
+			}
+		}
+		.supplier-active-pin-container {
+			z-index: 10000 !important;
+		}
+	</style>
 
 	<div class="suppliers-page-container" style="max-width:100%;">
 		
@@ -312,6 +332,34 @@ templ SuppliersDirectoryContent(lang, dir string, data SupplierDirectoryData) {
 			}
 		}
 
+		let activeMarkerIdx = -1;
+
+		function getNormalPinIcon(isOpen) {
+			const statusColor = isOpen ? '#10b981' : '#64748b';
+			return L.divIcon({
+				className: 'custom-map-pin',
+				html: `<div style="background:${statusColor}; color:#fff; width:38px; height:38px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:18px; font-weight:800; border:3px solid #fff; box-shadow:0 4px 14px rgba(0,0,0,0.35); transition:transform 0.2s;">🏢</div>`,
+				iconSize: [38, 38],
+				iconAnchor: [19, 38],
+				popupAnchor: [0, -38]
+			});
+		}
+
+		function getActiveLargePinIcon() {
+			return L.divIcon({
+				className: 'supplier-active-pin-container',
+				html: `
+					<div class="supplier-active-pin" style="position:relative; width:56px; height:56px; display:flex; align-items:center; justify-content:center;">
+						<div style="position:absolute; inset:-8px; border-radius:50%; background:rgba(37,99,235,0.35); animation:supplier-pulse-ring 1.8s infinite cubic-bezier(0.215, 0.61, 0.355, 1);"></div>
+						<div style="background:linear-gradient(135deg, #1e40af 0%, #2563eb 50%, #0284c7 100%); color:#fff; width:54px; height:54px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:26px; font-weight:900; border:3.5px solid #ffffff; box-shadow:0 8px 24px rgba(37,99,235,0.6); position:relative; z-index:2;">🏢</div>
+					</div>
+				`,
+				iconSize: [56, 56],
+				iconAnchor: [28, 56],
+				popupAnchor: [0, -56]
+			});
+		}
+
 		function initSuppliersMap() {
 			if (mapInstance) return;
 			const mapEl = document.getElementById('suppliers-leaflet-map');
@@ -329,30 +377,27 @@ templ SuppliersDirectoryContent(lang, dir string, data SupplierDirectoryData) {
 			data.forEach((s, idx) => {
 				if (!s.lat || !s.lng) return;
 
-				const statusColor = s.isOpen ? '#10b981' : '#64748b';
 				const statusText = s.isOpen ? 'مفتوح الآن 🟢' : 'مغلق حالياً ⚪';
-
-				const customIcon = L.divIcon({
-					className: 'custom-map-pin',
-					html: `<div style="background:${statusColor}; color:#fff; width:34px; height:34px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:16px; font-weight:800; border:2.5px solid #fff; box-shadow:0 4px 12px rgba(0,0,0,0.35);">🏢</div>`,
-					iconSize: [34, 34],
-					iconAnchor: [17, 34],
-					popupAnchor: [0, -32]
-				});
+				const customIcon = getNormalPinIcon(s.isOpen);
 
 				const marker = L.marker([parseFloat(s.lat), parseFloat(s.lng)], { icon: customIcon }).addTo(mapInstance);
 
-				const linkHtml = '<a href="/suppliers/' + s.id + '" style="display:block; text-align:center; background:#2563eb; color:#fff; padding:6px 12px; border-radius:6px; text-decoration:none; font-size:12px; font-weight:700;">عرض الكتالوج والطلب ↗</a>';
-				const popupContent = '<div style="font-family:inherit; direction:rtl; text-align:right; min-width:220px; padding:0.25rem;">' +
-					'<div style="font-size:14px; font-weight:800; color:#0f172a; margin-bottom:4px;">' + s.name + '</div>' +
-					'<div style="font-size:12px; margin-bottom:6px;"><span style="background:' + (s.isOpen ? '#dcfce7' : '#f1f5f9') + '; color:' + (s.isOpen ? '#15803d' : '#475569') + '; padding:2px 8px; border-radius:6px; font-weight:700;">' + statusText + '</span></div>' +
-					'<div style="font-size:12px; color:#475569; margin-bottom:4px;">⏱ <strong>مواعيد العمل:</strong> ' + s.hours + '</div>' +
+				const linkHtml = '<a href="/suppliers/' + s.id + '" style="display:block; text-align:center; background:#2563eb; color:#fff; padding:7px 14px; border-radius:8px; text-decoration:none; font-size:13px; font-weight:800; box-shadow:0 2px 8px rgba(37,99,235,0.3);">عرض الكتالوج والطلب ↗</a>';
+				const popupContent = '<div style="font-family:inherit; direction:rtl; text-align:right; min-width:240px; padding:0.4rem;">' +
+					'<div style="font-size:15px; font-weight:900; color:#0f172a; margin-bottom:6px; display:flex; align-items:center; gap:0.4rem;"><span>🏢</span> ' + s.name + '</div>' +
+					'<div style="font-size:12px; margin-bottom:8px;"><span style="background:' + (s.isOpen ? '#dcfce7' : '#f1f5f9') + '; color:' + (s.isOpen ? '#15803d' : '#475569') + '; padding:3px 10px; border-radius:6px; font-weight:800;">' + statusText + '</span></div>' +
+					'<div style="font-size:12px; color:#475569; margin-bottom:5px;">⏱ <strong>مواعيد العمل:</strong> ' + s.hours + '</div>' +
 					'<div style="font-size:12px; color:#475569; margin-bottom:6px;">🚚 <strong>أيام التغطية:</strong> ' + s.coverageDays + '</div>' +
-					(s.address ? '<div style="font-size:11px; color:#64748b; margin-bottom:8px;">📍 ' + s.address + '</div>' : '') +
-					'<div style="margin-top:8px; border-top:1px solid #e2e8f0; padding-top:8px;">' + linkHtml + '</div>' +
+					(s.address ? '<div style="font-size:12px; color:#64748b; margin-bottom:8px;">📍 ' + s.address + '</div>' : '') +
+					'<div style="margin-top:10px; border-top:1px solid #e2e8f0; padding-top:8px;">' + linkHtml + '</div>' +
 				'</div>';
 
 				marker.bindPopup(popupContent);
+				
+				marker.on('click', function() {
+					focusSupplierOnMap(parseFloat(s.lat), parseFloat(s.lng), idx);
+				});
+
 				markers.push(marker);
 			});
 		}
@@ -360,9 +405,24 @@ templ SuppliersDirectoryContent(lang, dir string, data SupplierDirectoryData) {
 		function focusSupplierOnMap(lat, lng, idx) {
 			switchSupplierView('map');
 			if (mapInstance) {
-				mapInstance.setView([lat, lng], 13);
+				// Reset previously active marker
+				if (activeMarkerIdx >= 0 && markers[activeMarkerIdx]) {
+					const prevData = getSuppliersData()[activeMarkerIdx];
+					if (prevData) {
+						markers[activeMarkerIdx].setIcon(getNormalPinIcon(prevData.isOpen));
+					}
+				}
+
+				// Set current marker to active large glowing pin
 				if (markers[idx]) {
-					markers[idx].openPopup();
+					markers[idx].setIcon(getActiveLargePinIcon());
+					activeMarkerIdx = idx;
+					mapInstance.flyTo([lat, lng], 15, { animate: true, duration: 1.2 });
+					setTimeout(() => {
+						markers[idx].openPopup();
+					}, 400);
+				} else {
+					mapInstance.flyTo([lat, lng], 15, { animate: true, duration: 1.2 });
 				}
 			}
 		}

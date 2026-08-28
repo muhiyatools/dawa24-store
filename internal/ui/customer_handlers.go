@@ -5,6 +5,7 @@ import (
 	"encoding/hex"
 	"fmt"
 	"net/http"
+	"net/url"
 	"strconv"
 	"strings"
 	"time"
@@ -456,10 +457,111 @@ func (h *UIHandler) CustomerOrderDetailPage(w http.ResponseWriter, r *http.Reque
 
 	history, _ := h.commSvc.GetOrderHistory(ctx, id)
 
+	noticeType := r.URL.Query().Get("notice")
+	noticeMsg := r.URL.Query().Get("msg")
+	if noticeType == "" {
+		noticeType = r.URL.Query().Get("notice_type")
+	}
+	if noticeMsg == "" {
+		noticeMsg = r.URL.Query().Get("notice_msg")
+	}
+
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	if err := pages.CustomerOrderDetail(order, history, lang, dir).Render(ctx, w); err != nil {
+	if err := pages.CustomerOrderDetail(order, history, noticeType, noticeMsg, lang, dir).Render(ctx, w); err != nil {
 		h.log.ErrorContext(ctx, "render customer order detail page", "error", err)
 	}
+}
+
+// CustomerOrderEditSubmit handles customer edits to quantities and items of a pending order.
+func (h *UIHandler) CustomerOrderEditSubmit(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	actor, ok := authctx.From(ctx)
+	if !ok || actor.UserID <= 0 {
+		http.Redirect(w, r, "/auth/login?redirect="+url.QueryEscape(r.URL.Path), http.StatusSeeOther)
+		return
+	}
+
+	id, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
+	if err != nil || id <= 0 {
+		h.redirectWithNotice(w, r, "/orders", "error", "معرف الطلب غير صالح.")
+		return
+	}
+
+	if h.commSvc == nil {
+		h.redirectWithNotice(w, r, fmt.Sprintf("/orders/%d", id), "error", "خدمة إدارة الطلبات غير متوفرة حالياً.")
+		return
+	}
+
+	_ = r.ParseForm()
+
+	lineIDs := r.PostForm["line_id[]"]
+	productNames := r.PostForm["product_name[]"]
+	quantities := r.PostForm["quantity[]"]
+	unitPrices := r.PostForm["unit_price[]"]
+	discountAmounts := r.PostForm["discount_amount[]"]
+	isDeletedList := r.PostForm["is_deleted[]"]
+
+	var lines []commerce.OrderLineEditItem
+	for i := 0; i < len(productNames); i++ {
+		var lineID int64
+		if i < len(lineIDs) {
+			lineID, _ = strconv.ParseInt(lineIDs[i], 10, 64)
+		}
+
+		pName := strings.TrimSpace(productNames[i])
+		if pName == "" {
+			continue
+		}
+
+		qty := 1
+		if i < len(quantities) {
+			if qVal, err := strconv.Atoi(quantities[i]); err == nil && qVal > 0 {
+				qty = qVal
+			}
+		}
+
+		uPrice := money.Zero
+		if i < len(unitPrices) {
+			if parsed, err := money.Parse(unitPrices[i]); err == nil {
+				uPrice = parsed
+			}
+		}
+
+		dAmount := money.Zero
+		if i < len(discountAmounts) {
+			if parsed, err := money.Parse(discountAmounts[i]); err == nil {
+				dAmount = parsed
+			}
+		}
+
+		isDel := false
+		if i < len(isDeletedList) {
+			isDel = isDeletedList[i] == "true" || isDeletedList[i] == "1"
+		}
+
+		lines = append(lines, commerce.OrderLineEditItem{
+			ID:             lineID,
+			ProductName:    pName,
+			Quantity:       qty,
+			UnitPrice:      uPrice,
+			DiscountAmount: dAmount,
+			IsDeleted:      isDel,
+		})
+	}
+
+	input := commerce.UpdateCustomerOrderInput{
+		OrderID: id,
+		Lines:   lines,
+		Notes:   strings.TrimSpace(r.PostFormValue("notes")),
+	}
+
+	_, err = h.commSvc.UpdateCustomerPendingOrder(ctx, actor, input)
+	if err != nil {
+		h.redirectWithNotice(w, r, fmt.Sprintf("/orders/%d", id), "error", "تعذر تعديل الطلب: "+h.safeMessage(err, langOf(r)))
+		return
+	}
+
+	h.redirectWithNotice(w, r, fmt.Sprintf("/orders/%d", id), "success", "تم حفظ وتعديل بيانات الطلب وتحديث الإجماليات بنجاح.")
 }
 
 func (h *UIHandler) NotificationsPage(w http.ResponseWriter, r *http.Request) {
@@ -942,8 +1044,14 @@ func (h *UIHandler) CustomerBranchesPage(w http.ResponseWriter, r *http.Request)
 		activeTab = "branches"
 	}
 
-	noticeType := r.URL.Query().Get("notice_type")
-	noticeMsg := r.URL.Query().Get("notice")
+	noticeType := r.URL.Query().Get("notice")
+	noticeMsg := r.URL.Query().Get("msg")
+	if noticeType == "" {
+		noticeType = r.URL.Query().Get("notice_type")
+	}
+	if noticeMsg == "" {
+		noticeMsg = r.URL.Query().Get("notice_msg")
+	}
 
 	data := pages.CustomerBranchesData{
 		Branches:   branches,

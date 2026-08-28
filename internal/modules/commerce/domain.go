@@ -206,6 +206,23 @@ type OrderStatusHistory struct {
 	CreatedAt       time.Time `json:"created_at"`
 }
 
+// OrderLineEditItem represents an item modification when a customer edits a pending order.
+type OrderLineEditItem struct {
+	ID             int64        `json:"id"` // 0 if new line
+	ProductName    string       `json:"product_name"`
+	Quantity       int          `json:"quantity"`
+	UnitPrice      money.Amount `json:"unit_price"`
+	DiscountAmount money.Amount `json:"discount_amount"`
+	IsDeleted      bool         `json:"is_deleted"`
+}
+
+// UpdateCustomerOrderInput represents the payload submitted by a pharmacist to edit their pending order.
+type UpdateCustomerOrderInput struct {
+	OrderID int64               `json:"order_id"`
+	Lines   []OrderLineEditItem `json:"lines"`
+	Notes   string              `json:"notes,omitempty"`
+}
+
 // IsValidStatusTransition validates order state machine transitions. Compare-
 // and-swap callers pass the status they read and the status they want; anything
 // outside the DAG below is refused. Terminal states: cancelled, returned,

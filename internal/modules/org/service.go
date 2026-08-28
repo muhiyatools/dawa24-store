@@ -2,6 +2,7 @@ package org
 
 import (
 	"context"
+	"fmt"
 	"log/slog"
 	"strings"
 
@@ -214,7 +215,10 @@ func (s *Service) AddMemberDirect(ctx context.Context, m *Member) error {
 		m.RoleID = 1
 	}
 	if m.RoleKey == "" {
-		m.RoleKey = "org_employee"
+		m.RoleKey = "org_pharmacist"
+	}
+	if m.EmployeeCode == "" {
+		m.EmployeeCode = fmt.Sprintf("EMP-%d", m.UserID)
 	}
 	if err := s.repo.AddMember(ctx, m); err != nil {
 		return err

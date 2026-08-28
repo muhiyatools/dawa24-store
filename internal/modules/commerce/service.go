@@ -6,6 +6,7 @@ import (
 	"sync/atomic"
 	"time"
 
+	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/shared/apperr"
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/shared/money"
@@ -306,6 +307,35 @@ func (s *Service) TransitionOrderStatus(
 // CancelOrder transitions an order to cancelled status.
 func (s *Service) CancelOrder(ctx context.Context, orderID int64, changedByUserID *int64, reason string) error {
 	return s.TransitionOrderStatus(ctx, orderID, StatusCancelled, changedByUserID, reason)
+}
+
+// UpdateCustomerPendingOrder allows a customer/pharmacist to edit items and quantities of an order
+// strictly before it is accepted/confirmed or processed by the vendor.
+func (s *Service) UpdateCustomerPendingOrder(ctx context.Context, actor authctx.Actor, input UpdateCustomerOrderInput) (*Order, error) {
+	if input.OrderID <= 0 {
+		return nil, apperr.Validation("order.invalid_id", "معرف الطلب غير صالح", nil)
+	}
+
+	order, err := s.repo.GetOrderByID(ctx, input.OrderID)
+	if err != nil {
+		return nil, err
+	}
+	if order == nil {
+		return nil, apperr.NotFound("order")
+	}
+
+	// Verify authorization: must belong to the customer
+	isOwner := actor.UserID == order.CustomerID || (order.OrganizationID != nil && *order.OrganizationID == actor.OrganizationID) || (order.OrganizationID != nil && *order.OrganizationID == actor.OrgID)
+	if !isOwner && !actor.IsPlatformAdmin() {
+		return nil, apperr.Forbidden("order.unauthorized", "غير مصرح لك بتعديل هذا الطلب")
+	}
+
+	// Check lifecycle state: strictly only StatusPending can be edited
+	if order.Status != StatusPending {
+		return nil, apperr.Forbidden("order.locked", "لا يمكن تعديل الطلب بعد قبوله أو تأكيده من قِبل المورد (حالة الطلب: "+string(order.Status)+")")
+	}
+
+	return s.repo.UpdateCustomerPendingOrder(ctx, order, input.Lines, actor.UserID)
 }
 
 // CountOrders returns the platform-wide order total, for admin dashboards.
