@@ -151,7 +151,7 @@ templ VendorOrdersContent(data VendorOrdersData, lang, dir string) {
 								if sh.Status == commerce.StatusPending {
 									<span class="badge badge-amber text-sm fw-800">بانتظار التأكيد والموافقة</span>
 								} else if sh.Status == commerce.StatusConfirmed {
-									<span class="badge badge-sky text-sm fw-800">قيد التجهيز بالمستودع</span>
+									<span class="badge badge-sky text-sm fw-800">قيد التجهيز بالمخزن</span>
 								} else if sh.Status == commerce.StatusShipped {
 									<span class="badge badge-indigo text-sm fw-800">قيد الشحن والتوصيل</span>
 								} else if sh.Status == commerce.StatusDelivered {
@@ -305,7 +305,7 @@ templ VendorOrdersContent(data VendorOrdersData, lang, dir string) {
 							if sh.Status == commerce.StatusPending {
 								<form action={ templ.SafeURL(fmt.Sprintf("/vendor/orders/%d/status", sh.ID)) } method="POST" class="m-0 inline">
 									<input type="hidden" name="status" value="confirmed" />
-									<input type="hidden" name="notes" value="تمت الموافقة على أمر التوريد والتجهيز بالمستودع" />
+									<input type="hidden" name="notes" value="تمت الموافقة على أمر التوريد والتجهيز بالمخزن" />
 									<button
 										type="submit"
 										class="btn btn-secondary"

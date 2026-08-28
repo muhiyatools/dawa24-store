@@ -239,7 +239,7 @@ func (s *Service) CommitSessionWithReconciliation(
 				actionUpdates = append(actionUpdates, RowActionUpdate{
 					RowID:        row.ID,
 					ImportAction: "insert",
-					ErrorDetails: fmt.Sprintf("تمت الإضافة للمستودع المفرغ (معرف: %d)", v.ID),
+					ErrorDetails: fmt.Sprintf("تمت الإضافة للمخزن المفرغ (معرف: %d)", v.ID),
 				})
 				outcome.Inserted++
 			}

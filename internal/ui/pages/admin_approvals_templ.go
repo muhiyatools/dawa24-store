@@ -1049,7 +1049,7 @@ func AdminApprovalsTable(orgs []*org.Organization, orgDocs map[int64][]*attachme
 						return templ_7745c5c3_Err
 					}
 					if string(o.Type) == "vendor" {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 96, "<option value=\"commercial_register\" selected>السجل التجاري (Commercial Register)</option> <option value=\"tax_card\">البطاقة الضريبية (Tax Card)</option> <option value=\"pharmacy_license\">ترخيص المستودع / المنشأة (Warehouse License)</option> <option value=\"pharmacist_license\">ترخيص المدير الفني / الصيدلي (Technical Director License)</option> <option value=\"authorization_letter\">خطاب تفويض رسمي (Authorization Letter)</option> <option value=\"national_id\">بطاقة الرقم القومي للمفوض (National ID)</option> <option value=\"other\">مستند رسمي آخر (Other)</option>")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 96, "<option value=\"commercial_register\" selected>السجل التجاري (Commercial Register)</option> <option value=\"tax_card\">البطاقة الضريبية (Tax Card)</option> <option value=\"pharmacy_license\">ترخيص المخزن / المنشأة (Warehouse License)</option> <option value=\"pharmacist_license\">ترخيص المدير الفني / الصيدلي (Technical Director License)</option> <option value=\"authorization_letter\">خطاب تفويض رسمي (Authorization Letter)</option> <option value=\"national_id\">بطاقة الرقم القومي للمفوض (National ID)</option> <option value=\"other\">مستند رسمي آخر (Other)</option>")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}

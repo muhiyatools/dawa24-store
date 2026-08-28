@@ -490,10 +490,10 @@ templ VendorProducts(data VendorVariantsData, lang, dir string, isPartial bool) 
 								<div class="grid-2">
 									<div>
 										<label class="form-label fw-700 text-primary text-sm">
-											مستودع / فرع الشحن
+											مخزن / فرع الشحن
 										</label>
 										<select name="branch_id" id="cat-field-branch" class="form-input" style="width:100%; border-radius:var(--radius-lg);">
-											<option value="">المستودع الرئيسي الافتراضي</option>
+											<option value="">المخزن الرئيسي الافتراضي</option>
 											for _, b := range data.Branches {
 												<option value={ fmt.Sprintf("%d", b.ID) }>{ b.Name }</option>
 											}
@@ -647,10 +647,10 @@ templ VendorProducts(data VendorVariantsData, lang, dir string, isPartial bool) 
 							<div class="grid-2">
 								<div>
 									<label class="form-label fw-700 text-primary text-sm">
-										مستودع / فرع الشحن
+										مخزن / فرع الشحن
 									</label>
 									<select name="branch_id" id="edit-form-branch" class="form-input" style="width:100%; border-radius:var(--radius-lg);">
-										<option value="">المستودع الرئيسي الافتراضي</option>
+										<option value="">المخزن الرئيسي الافتراضي</option>
 										for _, b := range data.Branches {
 											<option value={ fmt.Sprintf("%d", b.ID) }>{ b.Name }</option>
 										}
@@ -809,10 +809,10 @@ templ VendorProducts(data VendorVariantsData, lang, dir string, isPartial bool) 
 
 							<div>
 								<label class="form-label fw-700 text-primary text-sm">
-									مستودع / فرع الشحن
+									مخزن / فرع الشحن
 								</label>
 								<select name="branch_id" class="form-input" style="width:100%; border-radius:var(--radius-lg);">
-									<option value="">المستودع الرئيسي الافتراضي</option>
+									<option value="">المخزن الرئيسي الافتراضي</option>
 									for _, b := range data.Branches {
 										<option value={ fmt.Sprintf("%d", b.ID) }>{ b.Name }</option>
 									}
@@ -1021,7 +1021,7 @@ templ VendorVariantsTable(variants []*VendorVariantView, lang string) {
 					<th style="width:8%; padding:1rem;">الخصم</th>
 					<th style="width:11%; padding:1rem; text-align:center;">الرصيد المتاح</th>
 					<th style="width:10%; padding:1rem;">تاريخ الصلاحية</th>
-					<th style="width:10%; padding:1rem;">مستودع الشحن</th>
+					<th style="width:10%; padding:1rem;">مخزن الشحن</th>
 					<th style="width:8%; padding:1rem 1.25rem; text-align:center;">الإجراءات</th>
 				</tr>
 			</thead>
@@ -1150,7 +1150,7 @@ templ VendorVariantsTable(variants []*VendorVariantView, lang string) {
 									{ v.BranchName }
 								</span>
 							} else {
-								<span style="color:var(--text-secondary); font-size:0.8rem;">المستودع الرئيسي</span>
+								<span style="color:var(--text-secondary); font-size:0.8rem;">المخزن الرئيسي</span>
 							}
 						</td>
 

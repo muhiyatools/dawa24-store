@@ -49,7 +49,7 @@ func VendorTeamImportPage(lang, dir string) templ.Component {
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"card max-w-2xl mx-auto\"><div class=\"header-row\"><div><h2 class=\"card-title m-0\">رفع بيانات الموظفين دفعة واحدة (Excel / CSV)</h2><p class=\"subtitle\">إنشاء حسابات موظفي الفروع والمستودعات بشكل آمن مع توليد دعوات انضمام تلقائية.</p></div><a href=\"/settings/employees\" class=\"btn btn-secondary btn-sm\">العودة لفريق العمل</a></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"card max-w-2xl mx-auto\"><div class=\"header-row\"><div><h2 class=\"card-title m-0\">رفع بيانات الموظفين دفعة واحدة (Excel / CSV)</h2><p class=\"subtitle\">إنشاء حسابات موظفي الفروع والمخازن بشكل آمن مع توليد دعوات انضمام تلقائية.</p></div><a href=\"/settings/employees\" class=\"btn btn-secondary btn-sm\">العودة لفريق العمل</a></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

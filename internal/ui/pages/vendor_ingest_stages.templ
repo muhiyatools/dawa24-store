@@ -66,7 +66,7 @@ templ importMappingStage(view VendorImportView) {
 									<td class="text-xs text-muted">
 										if st.Field == productmatch.FieldQuantity {
 											if st.ColumnIndex >= 0 {
-												<strong class="text-primary">يتم قيد هذه الكمية في المستودع المحدد في الخطوة التالية</strong>
+												<strong class="text-primary">يتم قيد هذه الكمية في المخزن المحدد في الخطوة التالية</strong>
 											} else {
 												<strong class="text-primary">يمكنك تعيين كمية موحدة في (3) أدناه أو إدخال الكميات يدوياً في المراجعة</strong>
 											}
@@ -129,14 +129,14 @@ templ importMappingStage(view VendorImportView) {
 						class="form-input tabular-nums fw-700 text-center"
 						style="width:140px; height:42px; font-size:1rem; border-radius:var(--radius-lg);"/>
 					<span class="text-xs text-muted">
-						(عبوة / وحدة لكل صنف مستورد) — ستُسجَّل تلقائياً في رصيد المستودع المختار.
+						(عبوة / وحدة لكل صنف مستورد) — ستُسجَّل تلقائياً في رصيد المخزن المختار.
 					</span>
 				</div>
 			</div>
 
 			<div class="card mb-0">
 				<div class="wiz-actions">
-					<span class="wiz-actions-note">لن يُكتب أي صنف بعد — الخطوة التالية هي تحديد المستودع والإعدادات.</span>
+					<span class="wiz-actions-note">لن يُكتب أي صنف بعد — الخطوة التالية هي تحديد المخزن والإعدادات.</span>
 					<div class="row-center">
 						<form method="POST" action={ templ.SafeURL("/vendor/ingest/" + view.Session.PublicID + "/cancel") }>
 							<button type="submit" class="btn btn-ghost">إلغاء</button>
@@ -248,16 +248,16 @@ templ importSettingsStage(view VendorImportView) {
 			<p class="wiz-sub">اختر المخزن وطريقة التعامل مع الأصناف والأرصدة. القيم الافتراضية هي الأكثر تحفظاً.</p>
 			<div class="stack-lg">
 				<div>
-					<label class="form-label">المستودع الذي ستُسجَّل فيه الأرصدة والكميات المستوردة <span class="text-danger">*</span></label>
+					<label class="form-label">المخزن الذي ستُسجَّل فيه الأرصدة والكميات المستوردة <span class="text-danger">*</span></label>
 					<select name="warehouse_id" class="form-input" required>
-						<option value="">— اختر المستودع —</option>
+						<option value="">— اختر المخزن —</option>
 						for _, wh := range view.Warehouses {
 							<option value={ fmt.Sprint(wh.ID) } selected?={ view.Session.Settings.WarehouseID == wh.ID }>
 								{ wh.Name }
 							</option>
 						}
 					</select>
-					<div class="text-xs text-muted mt-1">سيتم إيداع كميات جميع الأصناف المستوردة والمطابقة مباشرة في رصيد هذا المستودع.</div>
+					<div class="text-xs text-muted mt-1">سيتم إيداع كميات جميع الأصناف المستوردة والمطابقة مباشرة في رصيد هذا المخزن.</div>
 				</div>
 			</div>
 		</div>

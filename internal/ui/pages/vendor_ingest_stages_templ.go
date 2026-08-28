@@ -147,7 +147,7 @@ func importMappingStage(view VendorImportView) templ.Component {
 				}
 				if st.Field == productmatch.FieldQuantity {
 					if st.ColumnIndex >= 0 {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "<strong class=\"text-primary\">يتم قيد هذه الكمية في المستودع المحدد في الخطوة التالية</strong>")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "<strong class=\"text-primary\">يتم قيد هذه الكمية في المخزن المحدد في الخطوة التالية</strong>")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
@@ -191,7 +191,7 @@ func importMappingStage(view VendorImportView) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, "\" class=\"form-input tabular-nums fw-700 text-center\" style=\"width:140px; height:42px; font-size:1rem; border-radius:var(--radius-lg);\"> <span class=\"text-xs text-muted\">(عبوة / وحدة لكل صنف مستورد) — ستُسجَّل تلقائياً في رصيد المستودع المختار.</span></div></div><div class=\"card mb-0\"><div class=\"wiz-actions\"><span class=\"wiz-actions-note\">لن يُكتب أي صنف بعد — الخطوة التالية هي تحديد المستودع والإعدادات.</span><div class=\"row-center\"><form method=\"POST\" action=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, "\" class=\"form-input tabular-nums fw-700 text-center\" style=\"width:140px; height:42px; font-size:1rem; border-radius:var(--radius-lg);\"> <span class=\"text-xs text-muted\">(عبوة / وحدة لكل صنف مستورد) — ستُسجَّل تلقائياً في رصيد المخزن المختار.</span></div></div><div class=\"card mb-0\"><div class=\"wiz-actions\"><span class=\"wiz-actions-note\">لن يُكتب أي صنف بعد — الخطوة التالية هي تحديد المخزن والإعدادات.</span><div class=\"row-center\"><form method=\"POST\" action=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -720,7 +720,7 @@ func importSettingsStage(view VendorImportView) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 65, "\" hx-boost=\"false\"><div class=\"card\"><h2 class=\"wiz-head\">3. إعدادات الاستيراد</h2><p class=\"wiz-sub\">اختر المخزن وطريقة التعامل مع الأصناف والأرصدة. القيم الافتراضية هي الأكثر تحفظاً.</p><div class=\"stack-lg\"><div><label class=\"form-label\">المستودع الذي ستُسجَّل فيه الأرصدة والكميات المستوردة <span class=\"text-danger\">*</span></label> <select name=\"warehouse_id\" class=\"form-input\" required><option value=\"\">— اختر المستودع —</option> ")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 65, "\" hx-boost=\"false\"><div class=\"card\"><h2 class=\"wiz-head\">3. إعدادات الاستيراد</h2><p class=\"wiz-sub\">اختر المخزن وطريقة التعامل مع الأصناف والأرصدة. القيم الافتراضية هي الأكثر تحفظاً.</p><div class=\"stack-lg\"><div><label class=\"form-label\">المخزن الذي ستُسجَّل فيه الأرصدة والكميات المستوردة <span class=\"text-danger\">*</span></label> <select name=\"warehouse_id\" class=\"form-input\" required><option value=\"\">— اختر المخزن —</option> ")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -766,7 +766,7 @@ func importSettingsStage(view VendorImportView) templ.Component {
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 71, "</select><div class=\"text-xs text-muted mt-1\">سيتم إيداع كميات جميع الأصناف المستوردة والمطابقة مباشرة في رصيد هذا المستودع.</div></div></div></div><div class=\"card\"><h3 class=\"wiz-head\">ماذا نفعل بأصناف كتالوجك؟</h3><div class=\"wiz-choices\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 71, "</select><div class=\"text-xs text-muted mt-1\">سيتم إيداع كميات جميع الأصناف المستوردة والمطابقة مباشرة في رصيد هذا المخزن.</div></div></div></div><div class=\"card\"><h3 class=\"wiz-head\">ماذا نفعل بأصناف كتالوجك؟</h3><div class=\"wiz-choices\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

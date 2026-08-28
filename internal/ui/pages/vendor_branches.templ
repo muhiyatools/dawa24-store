@@ -47,7 +47,7 @@ templ VendorBranchesPage(data VendorBranchesData, lang, dir string) {
 					</div>
 					<div>
 						<h1 class="text-2xl fw-800 text-primary m-0">
-							شبكة الفروع والمستودعات المركزية
+							شبكة الفروع والمخازن المركزية
 						</h1>
 						<p style="color:var(--text-muted); font-size:0.875rem; margin:0.2rem 0 0 0;">
 							إدارة مواقع الفروع، إحداثيات GPS، الأعمال المؤسسية، وسلاسل التبريد الدوائية
@@ -70,7 +70,7 @@ templ VendorBranchesPage(data VendorBranchesData, lang, dir string) {
 					<div style="font-size:1.75rem; font-weight:800; color:var(--text); margin-top:0.25rem;" class="tabular-nums">
 						{ fmt.Sprintf("%d", len(data.Branches)) }
 					</div>
-					<div style="font-size:0.75rem; color:var(--text-muted); margin-top:0.2rem;">فروع ومستودعات نشطة</div>
+					<div style="font-size:0.75rem; color:var(--text-muted); margin-top:0.2rem;">فروع ومخازن نشطة</div>
 				</div>
 
 				<div style="background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-xl); padding:1.2rem 1.4rem; border-inline-start:4px solid var(--success);">
@@ -78,7 +78,7 @@ templ VendorBranchesPage(data VendorBranchesData, lang, dir string) {
 					<div style="font-size:1.75rem; font-weight:800; color:var(--success); margin-top:0.25rem;" class="tabular-nums">
 						{ fmt.Sprintf("%d", countColdStorageBranches(data.Branches)) }
 					</div>
-					<div style="font-size:0.75rem; color:var(--text-muted); margin-top:0.2rem;">مستودعات مجهزة (2° - 8° مئوية)</div>
+					<div style="font-size:0.75rem; color:var(--text-muted); margin-top:0.2rem;">مخازن مجهزة (2° - 8° مئوية)</div>
 				</div>
 
 				<div style="background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-xl); padding:1.2rem 1.4rem; border-inline-start:4px solid var(--secondary);">
@@ -99,7 +99,7 @@ templ VendorBranchesPage(data VendorBranchesData, lang, dir string) {
 					<!-- Search & Notice -->
 					<div style="background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-xl); padding:1rem 1.25rem; display:flex; align-items:center; gap:0.75rem;">
 						@components.IconSearch("icon-sm")
-						<input type="text" id="branch-search-input" placeholder="بحث في الفروع والمستودعات حسب الاسم، الكود، أو المدينة..." style="background:transparent; border:none; color:var(--text); width:100%; outline:none; font-size:0.9rem;" oninput="filterBranchesList(this.value)"/>
+						<input type="text" id="branch-search-input" placeholder="بحث في الفروع والمخازن حسب الاسم، الكود، أو المدينة..." style="background:transparent; border:none; color:var(--text); width:100%; outline:none; font-size:0.9rem;" oninput="filterBranchesList(this.value)"/>
 					</div>
 
 					<div style="background:rgba(232, 255, 71, 0.05); border:1px solid rgba(232, 255, 71, 0.25); border-radius:var(--radius-xl); padding:1rem 1.25rem; display:flex; align-items:flex-start; gap:0.75rem;">
@@ -119,7 +119,7 @@ templ VendorBranchesPage(data VendorBranchesData, lang, dir string) {
 								لا توجد فروع مسجلة حتى الآن
 							</h3>
 							<p style="color:var(--text-muted); font-size:0.875rem; max-width:420px; margin:0 auto 1.25rem auto;">
-								أضف فرعك الرئيسي أو مستودعك المركزي عبر اللوحة المجاورة ليتمكن الصيادلة من معرفة نطاق التغطية والاستلام.
+								أضف فرعك الرئيسي أو مخزنك المركزي عبر اللوحة المجاورة ليتمكن الصيادلة من معرفة نطاق التغطية والاستلام.
 							</p>
 							<a href="#branch-form-panel" class="btn btn-primary btn-sm fw-700">
 								@components.IconPlus("icon-xs")
@@ -240,7 +240,7 @@ templ VendorBranchesPage(data VendorBranchesData, lang, dir string) {
 							</div>
 							<div>
 								<h2 class="text-xl fw-800 text-primary m-0">
-									إضافة فرع / مستودع جديد
+									إضافة فرع / مخزن جديد
 								</h2>
 								<p style="font-size:0.775rem; color:var(--text-muted); margin:0.15rem 0 0 0;">
 									البيانات الأساسية، تحديد الموقع، والأعمال المؤسسية
@@ -281,9 +281,9 @@ templ VendorBranchesPage(data VendorBranchesData, lang, dir string) {
 									نوع المنشأة اللوجستية <span class="text-danger">*</span>
 								</label>
 								<select name="warehouse_type" class="form-input w-full">
-									<option value="warehouse">مستودع أدوية مركزي (Warehouse)</option>
+									<option value="warehouse">مخزن أدوية مركزي (Warehouse)</option>
 									<option value="fast_hub">نقطة توزيع سريعة (Fast Hub)</option>
-									<option value="cold_depot">مستودع تبريد مخصص (Cold Depot)</option>
+									<option value="cold_depot">مخزن تبريد مخصص (Cold Depot)</option>
 									<option value="pharmacy_branch">فرع صيدلية (Pharmacy Branch)</option>
 								</select>
 							</div>

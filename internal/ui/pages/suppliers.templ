@@ -33,7 +33,7 @@ templ SuppliersDirectoryContent(lang, dir string, data SupplierDirectoryData) {
 			<div>
 				<div style="display:flex; align-items:center; gap:0.6rem; margin-bottom:0.35rem;">
 					<h1 style="font-size:1.6rem; font-weight:900; color:var(--text); margin:0;">
-						دليل شركات ومستودعات التوزيع الدوائي
+						دليل شركات ومخازن التوزيع الدوائي
 					</h1>
 					<span class="badge badge-primary text-xs tabular-nums fw-700" style="padding:0.2rem 0.6rem;">
 						{ fmt.Sprintf("%d مورد معتمد", len(data.Suppliers)) }
@@ -110,7 +110,7 @@ templ SuppliersDirectoryContent(lang, dir string, data SupplierDirectoryData) {
 			if len(data.Suppliers) == 0 {
 				@components.EmptyState(components.EmptyStateProps{
 					Title:       "لا يوجد موردون مطابقون للبحث",
-					Message:     "لم يتم العثور على شركات أو مستودعات أدوية مطابقة لمعايير البحث الحالية.",
+					Message:     "لم يتم العثور على شركات أو مخازن أدوية مطابقة لمعايير البحث الحالية.",
 					ActionLabel: "عرض كافة الموردين",
 					ActionURL:   "/suppliers",
 				})
@@ -248,7 +248,7 @@ templ SuppliersDirectoryContent(lang, dir string, data SupplierDirectoryData) {
 				<div class="card" style="margin:0; padding:1.25rem; background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-xl); display:flex; flex-direction:column; max-height:680px; overflow-y:auto;">
 					<div style="margin-bottom:1rem; border-bottom:1px solid var(--border); padding-bottom:0.75rem;">
 						<h3 style="font-size:1rem; font-weight:800; color:var(--text); margin:0;">
-							مواقع مستودعات التوزيع الدوائي
+							مواقع مخازن التوزيع الدوائي
 						</h3>
 						<span style="font-size:0.775rem; color:var(--text-muted);">انقر على أي مورد للتركيز عليه على الخريطة</span>
 					</div>
@@ -610,7 +610,7 @@ templ SupplierProfile(lang, dir string, data SupplierProfileData) {
 
 				<button type="button" class="sp-tab-btn" id="tab-btn-branches" onclick="switchProfileTab('branches')">
 					@components.IconBuilding("icon-xs")
-					<span>فروع ومستودعات التوزيع ({ fmt.Sprintf("%d", len(data.Branches)) })</span>
+					<span>فروع ومخازن التوزيع ({ fmt.Sprintf("%d", len(data.Branches)) })</span>
 				</button>
 
 				<button type="button" class="sp-tab-btn" id="tab-btn-reviews" onclick="switchProfileTab('reviews')">
@@ -994,8 +994,8 @@ templ SupplierProfile(lang, dir string, data SupplierProfileData) {
 				if len(data.Branches) == 0 {
 					<div class="card" style="padding:2.5rem; text-align:center; background:var(--surface-raised); border-radius:var(--radius-xl); border:1px solid var(--border);">
 						@components.IconBuilding("icon-lg")
-						<h3 style="font-size:1.05rem; font-weight:800; color:var(--text); margin:0.75rem 0 0.25rem 0;">المستودع الرئيسي للمورد</h3>
-						<p class="text-sm text-muted m-0">يتم شحن وتجهيز الطلبيات من المستودع المركزي للمورد في نطاق المحافظات المشمولة.</p>
+						<h3 style="font-size:1.05rem; font-weight:800; color:var(--text); margin:0.75rem 0 0.25rem 0;">المخزن الرئيسي للمورد</h3>
+						<p class="text-sm text-muted m-0">يتم شحن وتجهيز الطلبيات من المخزن المركزي للمورد في نطاق المحافظات المشمولة.</p>
 					</div>
 				} else {
 					<div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(340px, 1fr)); gap:1.25rem;">
@@ -1011,7 +1011,7 @@ templ SupplierProfile(lang, dir string, data SupplierProfileData) {
 												{ b.Name.Get(i18n.Lang(lang)) }
 											</h4>
 											if b.IsMain {
-												<span class="badge badge-primary text-xs" style="margin-top:2px;">المستودع الرئيسي</span>
+												<span class="badge badge-primary text-xs" style="margin-top:2px;">المخزن الرئيسي</span>
 											}
 										</div>
 									</div>

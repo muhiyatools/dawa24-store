@@ -188,7 +188,7 @@ func RegisterPage(lang, dir string, form RegisterFormData, cities []*platformadm
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "</div><div class=\"flex-1\"><div style=\"font-weight:800; color:var(--text); font-size:1.05rem;\">مورّد / شركة ومستودع أدوية</div><div style=\"font-size:0.85rem; color:var(--text-secondary); margin-top:0.2rem; line-height:1.4;\">توريد وبيع الأصناف الدوائية والمستلزمات الطبية للصيدليات والمستشفيات المسجلة.</div></div><div class=\"type-check\" style=\"width:24px; height:24px; border-radius:50%; border:2px solid var(--border); color:transparent; display:flex; align-items:center; justify-content:center;\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "</div><div class=\"flex-1\"><div style=\"font-weight:800; color:var(--text); font-size:1.05rem;\">مورّد / شركة ومخزن أدوية</div><div style=\"font-size:0.85rem; color:var(--text-secondary); margin-top:0.2rem; line-height:1.4;\">توريد وبيع الأصناف الدوائية والمستلزمات الطبية للصيدليات والمستشفيات المسجلة.</div></div><div class=\"type-check\" style=\"width:24px; height:24px; border-radius:50%; border:2px solid var(--border); color:transparent; display:flex; align-items:center; justify-content:center;\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

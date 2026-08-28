@@ -76,7 +76,7 @@ func seedDefaultInstitutionalWorks(ctx context.Context, tx pgx.Tx) error {
 		{
 			titleAr:     "جملة جملة",
 			titleEn:     "Wholesale - Wholesale",
-			descAr:      "كبار المستودعات وشركات التوزيع الدوائي المركزية للتوريد بالجملة الكبرى",
+			descAr:      "كبار المخازن وشركات التوزيع الدوائي المركزية للتوريد بالجملة الكبرى",
 			descEn:      "Primary large-scale pharmaceutical wholesalers and master hubs",
 			pricingType: "subscription",
 			icon:        "truck",

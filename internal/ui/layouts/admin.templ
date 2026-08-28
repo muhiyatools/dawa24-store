@@ -185,7 +185,7 @@ templ AdminShell(title string, activeNav string, lang string, dir string) {
 							if canAccessAdmin(ctx, "inventory.warehouse.manage") {
 							<a href="/admin/warehouses" class={ "sidebar-link", templ.KV("active", activeNav == "warehouses") }>
 									@components.IconPackage("icon-sm")
-									<span>المستودعات</span>
+									<span>المخازن</span>
 								</a>
 							}
 							if canAccessAdmin(ctx, "inventory.warehouse.manage") {

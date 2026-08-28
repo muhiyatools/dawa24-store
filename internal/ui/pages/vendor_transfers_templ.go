@@ -54,7 +54,7 @@ func VendorTransfers(transfers []*inventory.WarehouseTransfer, lang, dir string,
 					}()
 				}
 				ctx = templ.InitializeContext(ctx)
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"header-row\"><div><h2 style=\"font-size:1.5rem; font-weight:800; color:var(--neutral-900);\">سجل التحويلات بين المخازن</h2><p style=\"font-size:0.875rem; color:var(--neutral-500);\">متابعة حركة نقل البضائع بين الفروع والمستودعات</p></div></div><div id=\"vendor-transfers-content\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"header-row\"><div><h2 style=\"font-size:1.5rem; font-weight:800; color:var(--neutral-900);\">سجل التحويلات بين المخازن</h2><p style=\"font-size:0.875rem; color:var(--neutral-500);\">متابعة حركة نقل البضائع بين الفروع والمخازن</p></div></div><div id=\"vendor-transfers-content\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}

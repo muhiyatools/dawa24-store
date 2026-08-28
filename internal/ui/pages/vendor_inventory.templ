@@ -20,13 +20,13 @@ templ VendorInventory(stocks []*inventory.Stock, warehouses []*inventory.Warehou
 					<div>
 						<h1 class="text-2xl fw-800 text-primary m-0">أرصدة المخازن والتشغيلات</h1>
 						<p style="font-size:0.875rem; color:var(--text-secondary); margin:0.25rem 0 0 0;">
-							مراقبة الكميات المتاحة في المستودعات، إدارة التشغيلات، وتسوية الأرصدة في الوقت الفعلي.
+							مراقبة الكميات المتاحة في المخازن، إدارة التشغيلات، وتسوية الأرصدة في الوقت الفعلي.
 						</p>
 					</div>
 					<div style="display:flex; gap:0.75rem; flex-wrap:wrap;">
 						<a href="/vendor/warehouses" class="btn btn-secondary btn-sm">
 							@components.IconBuilding("icon-xs")
-							<span>مستودعات المنشأة</span>
+							<span>مخازن المنشأة</span>
 						</a>
 						<a href="/vendor/transfers" class="btn btn-secondary btn-sm">
 							@components.IconRefresh("icon-xs")
@@ -75,7 +75,7 @@ templ VendorInventory(stocks []*inventory.Stock, warehouses []*inventory.Warehou
 					</div>
 
 					<div class="card mb-0" style="padding:1.25rem; background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-xl);">
-						<div class="form-label">المستودعات المغذية</div>
+						<div class="form-label">المخازن المغذية</div>
 						<div style="font-size:1.65rem; font-weight:900; color:var(--accent);" class="tabular-nums">{ fmt.Sprintf("%d", len(warehouses)) }</div>
 					</div>
 				</div>
@@ -107,7 +107,7 @@ templ VendorInventory(stocks []*inventory.Stock, warehouses []*inventory.Warehou
 						<div style="background:var(--surface-sunken); border:1px solid var(--border); border-radius:var(--radius-md); padding:0.75rem; margin-bottom:1.25rem; font-size:0.85rem;">
 							<div class="fw-700 text-primary" x-text="selectedStock.variantName"></div>
 							<div style="color:var(--text-muted); margin-top:0.25rem;">
-								الرصيد الحالي بالمستودع: <strong class="tabular-nums text-accent" x-text="selectedStock.currentQty + ' عبوة'"></strong>
+								الرصيد الحالي بالمخزن: <strong class="tabular-nums text-accent" x-text="selectedStock.currentQty + ' عبوة'"></strong>
 							</div>
 						</div>
 
@@ -154,7 +154,7 @@ templ VendorInventoryTable(stocks []*inventory.Stock, warehouses []*inventory.Wa
 				<thead>
 					<tr>
 						<th>الصنف والتشغيلة</th>
-						<th>المستودع / الفرع</th>
+						<th>المخزن / الفرع</th>
 						<th>الرصيد المتاح</th>
 						<th>حد إعادة الطلب</th>
 						<th>الحالة</th>
@@ -237,7 +237,7 @@ func resolveWarehouseName(whID int64, warehouses []*inventory.Warehouse) string 
 			return w.Name
 		}
 	}
-	return fmt.Sprintf("مستودع #%d", whID)
+	return fmt.Sprintf("مخزن #%d", whID)
 }
 
 func resolveVariantName(variantID int64, variants []*catalog.ProductVariant) string {

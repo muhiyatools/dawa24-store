@@ -431,7 +431,7 @@ func TestOrgLifecycleAndBranches(t *testing.T) {
 	minOrder, _ := money.Parse("500.00")
 	regInput := RegisterOrgInput{
 		LegalName:          "Al-Amal Medical Distribution LLC",
-		TradeName:          i18n.New("مستودع الأمل", "Al-Amal Warehouse"),
+		TradeName:          i18n.New("مخزن الأمل", "Al-Amal Warehouse"),
 		TaxNumber:          "TX-883322",
 		CommercialRegister: "CR-992211",
 		Type:               TypeVendor,

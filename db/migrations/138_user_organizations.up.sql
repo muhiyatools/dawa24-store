@@ -18,6 +18,11 @@ CREATE INDEX IF NOT EXISTS idx_user_orgs_vendor ON org.user_organizations (vendo
 CREATE INDEX IF NOT EXISTS idx_user_orgs_cust ON org.user_organizations (customer_org_id) WHERE deleted_at IS NULL;
 CREATE UNIQUE INDEX IF NOT EXISTS uq_user_vendor_org ON org.user_organizations (user_id, vendor_org_id) WHERE deleted_at IS NULL;
 
+-- Guarded so the migration is re-runnable: every other statement here is
+-- IF NOT EXISTS, and CREATE TRIGGER has no such form. Without this, a run that
+-- committed the DDL but died before recording the version leaves the migrate
+-- container in a crash loop on "trigger already exists".
+DROP TRIGGER IF EXISTS user_organizations_touch ON org.user_organizations;
 CREATE TRIGGER user_organizations_touch BEFORE UPDATE ON org.user_organizations
     FOR EACH ROW EXECUTE FUNCTION platform.touch_updated_at();
 

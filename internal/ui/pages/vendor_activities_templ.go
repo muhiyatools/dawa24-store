@@ -37,7 +37,7 @@ func formatAuditAction(action, labelAr string) (string, string) {
 	case "invoice.created":
 		return "إصدار فاتورة", "badge-sky"
 	case "branch.created", "warehouse.created":
-		return "إضافة فرع / مستودع", "badge-emerald"
+		return "إضافة فرع / مخزن", "badge-emerald"
 	default:
 		clean := strings.ReplaceAll(action, ".", " — ")
 		clean = strings.ReplaceAll(clean, "_", " ")
@@ -63,7 +63,7 @@ func formatEntityType(entityType, entityTypeAr string) string {
 	case "invoice":
 		return "فاتورة ضريبية"
 	case "warehouse", "branch":
-		return "مستودع / فرع"
+		return "مخزن / فرع"
 	default:
 		return entityType
 	}
@@ -118,7 +118,7 @@ func VendorActivitiesPage(entries []*platformadmin.AuditEntry, lang, dir string)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</div><h2 class=\"card-title\" style=\"margin:0; font-size:1.35rem; font-weight:800; color:var(--text);\">سجل نشاطات وعمليات موظفي المنشأة</h2></div><p class=\"subtitle\" style=\"color:var(--text-secondary); font-size:0.875rem; margin:0;\">تدقيق وتتبع كافة العمليات والإجراءات المنفذة بواسطة موظفي الفروع، المستودعات، والمبيعات.</p></div><div class=\"row-center\"><span class=\"badge badge-sky\" style=\"font-weight:700; font-size:0.825rem; padding:0.4rem 0.85rem;\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</div><h2 class=\"card-title\" style=\"margin:0; font-size:1.35rem; font-weight:800; color:var(--text);\">سجل نشاطات وعمليات موظفي المنشأة</h2></div><p class=\"subtitle\" style=\"color:var(--text-secondary); font-size:0.875rem; margin:0;\">تدقيق وتتبع كافة العمليات والإجراءات المنفذة بواسطة موظفي الفروع، المخازن، والمبيعات.</p></div><div class=\"row-center\"><span class=\"badge badge-sky\" style=\"font-weight:700; font-size:0.825rem; padding:0.4rem 0.85rem;\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

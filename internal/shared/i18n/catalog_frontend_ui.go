@@ -23,8 +23,8 @@ func loadFrontendUIKeys(e *engine) {
 	addKey(e, "smart_order.budget_warning", "smart_order", "تنبيه: تجاوز الميزانية المحددة", "Warning: Budget Exceeded", "Budget warning alert")
 
 	// --- Inventory & Warehouses ---
-	addKey(e, "inventory.warehouses", "inventory", "المستودعات والمخازن", "Warehouses & Stock", "Warehouses page title")
-	addKey(e, "inventory.warehouse_name", "inventory", "اسم المستودع", "Warehouse Name", "Warehouse name")
+	addKey(e, "inventory.warehouses", "inventory", "المخازن", "Warehouses & Stock", "Warehouses page title")
+	addKey(e, "inventory.warehouse_name", "inventory", "اسم المخزن", "Warehouse Name", "Warehouse name")
 	addKey(e, "inventory.stock_level", "inventory", "مستوى الرصيد", "Stock Level", "Stock level")
 	addKey(e, "inventory.min_threshold", "inventory", "الحد الأدنى للإنذار", "Minimum Alert Threshold", "Threshold")
 	addKey(e, "inventory.out_of_stock", "inventory", "نفد من المخزون", "Out of Stock", "OOS badge")

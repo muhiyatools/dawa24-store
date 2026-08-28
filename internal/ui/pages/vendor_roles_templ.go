@@ -172,7 +172,7 @@ func VendorRoles(roles []*org.Role, memberCountMap map[string]int, lang, dir str
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "<span>إجراء التحويلات المخزنية بين مستودعات الفروع</span></div></div></div><div style=\"border-top:1px solid var(--border); padding-top:0.75rem; display:flex; justify-content:space-between; align-items:center; font-size:0.8rem; color:var(--text-muted);\"><span>الموظفين المسندين: <strong class=\"text-primary\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "<span>إجراء التحويلات المخزنية بين مخازن الفروع</span></div></div></div><div style=\"border-top:1px solid var(--border); padding-top:0.75rem; display:flex; justify-content:space-between; align-items:center; font-size:0.8rem; color:var(--text-muted);\"><span>الموظفين المسندين: <strong class=\"text-primary\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

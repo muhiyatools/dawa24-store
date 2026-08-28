@@ -85,7 +85,7 @@ func VendorShell(title string, activeNav string, lang string, dir string) templ.
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "</span> <span style=\"font-size:0.75rem; color:var(--text-muted); font-weight:700;\">بوابة الموردين والمستودعات</span></div></div><button type=\"button\" class=\"btn btn-icon\" data-sidebar-toggle style=\"background:rgba(255,255,255,0.08); color:#ffffff; width:34px; height:34px; border:none; border-radius:var(--radius-md); flex-shrink:0;\" title=\"طي/توسيع القائمة\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "</span> <span style=\"font-size:0.75rem; color:var(--text-muted); font-weight:700;\">بوابة الموردين والمخازن</span></div></div><button type=\"button\" class=\"btn btn-icon\" data-sidebar-toggle style=\"background:rgba(255,255,255,0.08); color:#ffffff; width:34px; height:34px; border:none; border-radius:var(--radius-md); flex-shrink:0;\" title=\"طي/توسيع القائمة\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -213,7 +213,7 @@ func VendorShell(title string, activeNav string, lang string, dir string) templ.
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "<span>الفروع والمستودعات</span></a> ")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "<span>الفروع والمخازن</span></a> ")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -543,7 +543,7 @@ func VendorShell(title string, activeNav string, lang string, dir string) templ.
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 50, "<span>المستودعات ومواقع التخزين</span></a></div><!-- Group 3: العروض والتسويق --><div class=\"sidebar-group\"><div class=\"sidebar-section-header\"><span>العروض والتسويق</span></div>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 50, "<span>المخازن ومواقع التخزين</span></a></div><!-- Group 3: العروض والتسويق --><div class=\"sidebar-group\"><div class=\"sidebar-section-header\"><span>العروض والتسويق</span></div>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}

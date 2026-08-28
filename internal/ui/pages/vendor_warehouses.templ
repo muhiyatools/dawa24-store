@@ -11,13 +11,13 @@ import (
 
 // VendorWarehousesPage renders the list of vendor warehouses.
 templ VendorWarehousesPage(warehouses []*inventory.Warehouse, branches []*org.Branch, lang, dir string) {
-	@layouts.VendorShell("المستودعات والمخازن", "warehouses", lang, dir) {
+	@layouts.VendorShell("المخازن ومواقع التخزين", "warehouses", lang, dir) {
 		<div x-data="{ showAddModal: false, editModal: false, editWh: { id: 0, name: '', code: '', address: '', phone: '', branch_id: 0, is_active: true } }" class="space-y-6">
 			
 			<!-- Header & Action Bar -->
 			<div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem; margin-bottom:1.5rem;">
 				<div>
-					<h1 class="text-2xl fw-800 text-primary m-0">مستودعات ومخازن المنشأة</h1>
+					<h1 class="text-2xl fw-800 text-primary m-0">مخازن ومواقع تخزين المنشأة</h1>
 					<p style="font-size:0.875rem; color:var(--text-secondary); margin:0.25rem 0 0 0;">
 						إدارة مراكز التخزين، ربطها بالفروع التوزيعية، ومتابعة الأرصدة والتحويلات.
 					</p>
@@ -29,7 +29,7 @@ templ VendorWarehousesPage(warehouses []*inventory.Warehouse, branches []*org.Br
 					</a>
 					<button type="button" class="btn btn-primary btn-sm" @click="showAddModal = true">
 						@components.IconPlus("icon-xs")
-						<span>إضافة مستودع جديد</span>
+						<span>إضافة مخزن جديد</span>
 					</button>
 				</div>
 			</div>
@@ -37,12 +37,12 @@ templ VendorWarehousesPage(warehouses []*inventory.Warehouse, branches []*org.Br
 			<!-- Quick Metric Stat Cards -->
 			<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:1rem; margin-bottom:1.5rem;">
 				<div class="card mb-0" style="padding:1.25rem; background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-xl);">
-					<div class="form-label">إجمالي المستودعات</div>
+					<div class="form-label">إجمالي المخازن</div>
 					<div style="font-size:1.65rem; font-weight:900; color:var(--text);" class="tabular-nums">{ fmt.Sprintf("%d", len(warehouses)) }</div>
 				</div>
 
 				<div class="card mb-0" style="padding:1.25rem; background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-xl);">
-					<div class="form-label">المستودعات النشطة</div>
+					<div class="form-label">المخازن النشطة</div>
 					<div style="font-size:1.65rem; font-weight:900; color:var(--success-text);" class="tabular-nums">
 						{ fmt.Sprintf("%d", func() int {
 							c := 0
@@ -64,16 +64,16 @@ templ VendorWarehousesPage(warehouses []*inventory.Warehouse, branches []*org.Br
 			<div class="card mb-0" style="background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-xl); padding:1.5rem;">
 				if len(warehouses) == 0 {
 					@components.EmptyState(components.EmptyStateProps{
-						Title:       "لا توجد مستودعات مسجلة",
-						Message:     "يمكنك تسجيل مستودعات جديدة لتخزين الأدوية وربطها بالفروع التوزيعية.",
-						ActionLabel: "إضافة مستودع جديد",
+						Title:       "لا توجد مخازن مسجلة",
+						Message:     "يمكنك تسجيل مخازن جديدة لتخزين الأدوية وربطها بالفروع التوزيعية.",
+						ActionLabel: "إضافة مخزن جديد",
 					})
 				} else {
 					<div class="table-container">
 						<table class="b2b-table">
 							<thead>
 								<tr>
-									<th>المستودع</th>
+									<th>المخزن</th>
 									<th>الكود</th>
 									<th>الفرع المرتبط</th>
 									<th>العنوان ورقم التواصل</th>
@@ -104,7 +104,7 @@ templ VendorWarehousesPage(warehouses []*inventory.Warehouse, branches []*org.Br
 													فرع #{ fmt.Sprintf("%d", *w.BranchID) }
 												</span>
 											} else {
-												<span class="text-muted text-sm">مستودع عام</span>
+												<span class="text-muted text-sm">مخزن عام</span>
 											}
 										</td>
 										<td>
@@ -169,25 +169,25 @@ templ VendorWarehousesPage(warehouses []*inventory.Warehouse, branches []*org.Br
 					style="max-width:560px; width:100%; max-height:90vh; overflow-y:auto; padding:1.75rem; background:var(--surface-raised); border-radius:var(--radius-2xl); border:1px solid var(--border);"
 				>
 					<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.25rem;">
-						<h3 class="text-lg fw-800 text-primary m-0">إضافة مستودع / مركز تخزين جديد</h3>
+						<h3 class="text-lg fw-800 text-primary m-0">إضافة مخزن / مركز تخزين جديد</h3>
 						<button type="button" @click="showAddModal = false" class="btn btn-secondary btn-icon btn-sm">&times;</button>
 					</div>
 
 					<form method="POST" action="/vendor/warehouses" class="stack-lg">
 						<div class="form-group mb-0">
-							<label class="form-label">اسم المستودع <span class="text-danger">*</span></label>
-							<input type="text" name="name" required class="form-input" placeholder="مثلاً: مستودع القاهرة الرئيسي / مخزن مدينة نصر" />
+							<label class="form-label">اسم المخزن <span class="text-danger">*</span></label>
+							<input type="text" name="name" required class="form-input" placeholder="مثلاً: مخزن القاهرة الرئيسي / مخزن مدينة نصر" />
 						</div>
 
 						<div class="form-group mb-0">
-							<label class="form-label">كود المستودع (اختياري)</label>
+							<label class="form-label">كود المخزن (اختياري)</label>
 							<input type="text" name="code" class="form-input" placeholder="WH-01" />
 						</div>
 
 						<div class="form-group mb-0">
 							<label class="form-label">الفرع التوزيعي المرتبط</label>
 							<select name="branch_id" class="form-select">
-								<option value="">بدون فرع محدد (مستودع رئيسي)</option>
+								<option value="">بدون فرع محدد (مخزن رئيسي)</option>
 								for _, b := range branches {
 									<option value={ fmt.Sprintf("%d", b.ID) }>
 										if b.Name["ar"] != "" {
@@ -213,7 +213,7 @@ templ VendorWarehousesPage(warehouses []*inventory.Warehouse, branches []*org.Br
 
 						<div style="display:flex; justify-content:flex-end; gap:0.75rem; margin-top:0.5rem;">
 							<button type="button" class="btn btn-secondary" @click="showAddModal = false">إلغاء</button>
-							<button type="submit" class="btn btn-primary">حفظ وتفعيل المستودع</button>
+							<button type="submit" class="btn btn-primary">حفظ وتفعيل المخزن</button>
 						</div>
 					</form>
 				</div>
@@ -232,25 +232,25 @@ templ VendorWarehousesPage(warehouses []*inventory.Warehouse, branches []*org.Br
 					style="max-width:560px; width:100%; max-height:90vh; overflow-y:auto; padding:1.75rem; background:var(--surface-raised); border-radius:var(--radius-2xl); border:1px solid var(--border);"
 				>
 					<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.25rem;">
-						<h3 class="text-lg fw-800 text-primary m-0">تعديل بيانات المستودع</h3>
+						<h3 class="text-lg fw-800 text-primary m-0">تعديل بيانات المخزن</h3>
 						<button type="button" @click="editModal = false" class="btn btn-secondary btn-icon btn-sm">&times;</button>
 					</div>
 
 					<form :action="'/vendor/warehouses/' + editWh.id" method="POST" class="stack-lg">
 						<div class="form-group mb-0">
-							<label class="form-label">اسم المستودع <span class="text-danger">*</span></label>
+							<label class="form-label">اسم المخزن <span class="text-danger">*</span></label>
 							<input type="text" name="name" x-model="editWh.name" required class="form-input" />
 						</div>
 
 						<div class="form-group mb-0">
-							<label class="form-label">كود المستودع</label>
+							<label class="form-label">كود المخزن</label>
 							<input type="text" name="code" x-model="editWh.code" class="form-input" />
 						</div>
 
 						<div class="form-group mb-0">
 							<label class="form-label">الفرع التوزيعي المرتبط</label>
 							<select name="branch_id" x-model="editWh.branch_id" class="form-select">
-								<option value="0">بدون فرع محدد (مستودع رئيسي)</option>
+								<option value="0">بدون فرع محدد (مخزن رئيسي)</option>
 								for _, b := range branches {
 									<option value={ fmt.Sprintf("%d", b.ID) }>
 										if b.Name["ar"] != "" {
@@ -277,7 +277,7 @@ templ VendorWarehousesPage(warehouses []*inventory.Warehouse, branches []*org.Br
 						<div class="form-group mb-0">
 							<label style="display:flex; align-items:center; gap:0.5rem; cursor:pointer;">
 								<input type="checkbox" name="is_active" value="true" x-model="editWh.is_active" style="accent-color:var(--accent); width:16px; height:16px;" />
-								<span style="font-weight:600; font-size:0.875rem; color:var(--text);">المستودع مفعل ونشط لإدارة المخزون</span>
+								<span style="font-weight:600; font-size:0.875rem; color:var(--text);">المخزن مفعل ونشط لإدارة المخزون</span>
 							</label>
 						</div>
 
@@ -294,7 +294,7 @@ templ VendorWarehousesPage(warehouses []*inventory.Warehouse, branches []*org.Br
 
 // VendorWarehouseDetailPage renders single warehouse details and its stocks.
 templ VendorWarehouseDetailPage(w *inventory.Warehouse, stocks []*inventory.Stock, lang, dir string) {
-	@layouts.VendorShell(fmt.Sprintf("مستودع: %s", w.Name), "warehouses", lang, dir) {
+	@layouts.VendorShell(fmt.Sprintf("مخزن: %s", w.Name), "warehouses", lang, dir) {
 		<div class="space-y-6">
 			<!-- Header -->
 			<div class="card mb-0" style="background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-xl); padding:1.5rem;">
@@ -305,7 +305,7 @@ templ VendorWarehouseDetailPage(w *inventory.Warehouse, stocks []*inventory.Stoc
 								@components.IconBuilding("icon-sm")
 							</div>
 							<h1 style="font-size:1.4rem; font-weight:800; color:var(--text); margin:0;">
-								مستودع { w.Name }
+								مخزن { w.Name }
 							</h1>
 							if w.IsActive {
 								<span class="badge badge-emerald">نشط</span>
@@ -314,7 +314,7 @@ templ VendorWarehouseDetailPage(w *inventory.Warehouse, stocks []*inventory.Stoc
 							}
 						</div>
 						<div style="display:flex; gap:1.25rem; flex-wrap:wrap; font-size:0.85rem; color:var(--text-secondary); margin-top:0.5rem;">
-							<div>كود المستودع: <code>{ w.Code }</code></div>
+							<div>كود المخزن: <code>{ w.Code }</code></div>
 							if w.Address != "" {
 								<div>📍 { w.Address }</div>
 							}
@@ -327,7 +327,7 @@ templ VendorWarehouseDetailPage(w *inventory.Warehouse, stocks []*inventory.Stoc
 					<div class="row-center">
 						<a href="/vendor/warehouses" class="btn btn-secondary btn-sm">
 							@components.IconArrowRight("icon-xs")
-							<span>العودة للمستودعات</span>
+							<span>العودة للمخازن</span>
 						</a>
 						<a href="/vendor/inventory" class="btn btn-primary btn-sm">
 							@components.IconPackage("icon-xs")
@@ -341,15 +341,15 @@ templ VendorWarehouseDetailPage(w *inventory.Warehouse, stocks []*inventory.Stoc
 			<div class="card mb-0" style="background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-xl); padding:1.5rem;">
 				<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.25rem; flex-wrap:wrap; gap:0.75rem;">
 					<div>
-						<h2 class="text-lg fw-800 text-primary m-0">الأصناف المخزنة في هذا المستودع</h2>
+						<h2 class="text-lg fw-800 text-primary m-0">الأصناف المخزنة في هذا المخزن</h2>
 						<span class="text-sm text-muted">إجمالي { fmt.Sprintf("%d", len(stocks)) } تشغيلة مخزنة</span>
 					</div>
 				</div>
 
 				if len(stocks) == 0 {
 					@components.EmptyState(components.EmptyStateProps{
-						Title:       "لا توجد أصناف في هذا المستودع",
-						Message:     "يمكنك إضافة أرصدة أو استيراد ملف كميات لهذا المستودع.",
+						Title:       "لا توجد أصناف في هذا المخزن",
+						Message:     "يمكنك إضافة أرصدة أو استيراد ملف كميات لهذا المخزن.",
 						ActionLabel: "رفع ملف أرصدة",
 					})
 				} else {

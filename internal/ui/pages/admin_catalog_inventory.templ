@@ -70,7 +70,7 @@ templ AdminProductChildrenPage(data AdminProductChildrenData, lang, dir string) 
 								أصناف الموردين وعروض الفروع ({ fmt.Sprintf("%d", len(data.Items)) })
 							</h2>
 							<p style="font-size:0.875rem; color:var(--neutral-500); margin-top:0.25rem; margin-bottom:0;">
-								متابعة أصناف الموردين والشركات، الأسعار والخصومات، والمخزون الحي بالمستودعات.
+								متابعة أصناف الموردين والشركات، الأسعار والخصومات، والمخزون الحي بالمخازن.
 							</p>
 						</div>
 					</div>
@@ -292,9 +292,9 @@ templ AdminApisProductsPage(lang, dir string) {
 templ AdminStocksPage(stocks []*inventory.Stock, lang, dir string) {
 	@layouts.AdminShell("إدارة الأرصدة والمخزون الحي", "stocks", lang, dir) {
 		<div class="card mb-0">
-			<h2 class="card-title mb-lg">أرصدة المخزون بالمنشآت والمستودعات ({ fmt.Sprintf("%d", len(stocks)) })</h2>
+			<h2 class="card-title mb-lg">أرصدة المخزون بالمنشآت والمخازن ({ fmt.Sprintf("%d", len(stocks)) })</h2>
 			if len(stocks) == 0 {
-				@components.EmptyState(components.EmptyStateProps{Title: "المخزون فارغ", Message: "لم يتم تسجيل أرصدة مخزون في المستودعات بعد."})
+				@components.EmptyState(components.EmptyStateProps{Title: "المخزون فارغ", Message: "لم يتم تسجيل أرصدة مخزون في المخازن بعد."})
 			} else {
 				<div class="table-container">
 					<table class="b2b-table">
@@ -302,7 +302,7 @@ templ AdminStocksPage(stocks []*inventory.Stock, lang, dir string) {
 							<tr>
 								<th>#</th>
 								<th>المنشأة</th>
-								<th>المستودع</th>
+								<th>المخزن</th>
 								<th>الكمية الحالية</th>
 								<th>حد الأمان</th>
 							</tr>
@@ -312,7 +312,7 @@ templ AdminStocksPage(stocks []*inventory.Stock, lang, dir string) {
 								<tr>
 									<td class="tabular-nums">#{ fmt.Sprintf("%d", s.ID) }</td>
 									<td>منشأة #{ fmt.Sprintf("%d", s.OrganizationID) }</td>
-									<td>مستودع #{ fmt.Sprintf("%d", s.WarehouseID) }</td>
+									<td>مخزن #{ fmt.Sprintf("%d", s.WarehouseID) }</td>
 									<td class="tabular-nums"><strong>{ fmt.Sprintf("%d", s.Quantity) }</strong></td>
 									<td class="tabular-nums">{ fmt.Sprintf("%d", s.MinThreshold) }</td>
 								</tr>
@@ -333,7 +333,7 @@ type AdminWarehouseRowView struct {
 
 // AdminWarehousesPage renders permanent warehouses with live in-page inventory modals.
 templ AdminWarehousesPage(warehouses []*AdminWarehouseRowView, lang, dir string) {
-	@layouts.AdminShell("إدارة المستودعات ومراكز التوزيع", "warehouses", lang, dir) {
+	@layouts.AdminShell("إدارة المخازن ومراكز التوزيع", "warehouses", lang, dir) {
 		<div style="display:flex; flex-direction:column; gap:1.5rem; max-width:1400px; margin:0 auto 3rem auto;"
 			x-data="{
 				modalOpen: false,
@@ -384,16 +384,16 @@ templ AdminWarehousesPage(warehouses []*AdminWarehouseRowView, lang, dir string)
 								🏬
 							</div>
 							<div>
-								<h1 style="font-size:1.4rem; font-weight:900; color:var(--text); margin:0;">دليل المستودعات ومراكز التوزيع</h1>
+								<h1 style="font-size:1.4rem; font-weight:900; color:var(--text); margin:0;">دليل المخازن ومراكز التوزيع</h1>
 								<span style="font-size:0.75rem; font-weight:700; color:var(--accent); text-transform:uppercase;">Central Distribution & Storage Facilities</span>
 							</div>
 						</div>
-						<p style="font-size:0.875rem; color:var(--text-secondary); margin:0.35rem 0 0 0; line-height:1.5;">استعراض المستودعات التابعة لكافة الموردين مع إمكانية فحص وإدارة المخزون الداخلي بدقة عبر النافذة التفاعلية المباشرة.</p>
+						<p style="font-size:0.875rem; color:var(--text-secondary); margin:0.35rem 0 0 0; line-height:1.5;">استعراض المخازن التابعة لكافة الموردين مع إمكانية فحص وإدارة المخزون الداخلي بدقة عبر النافذة التفاعلية المباشرة.</p>
 					</div>
 
 					<div class="row-center">
 						<div class="badge badge-sky" style="font-size:0.85rem; font-weight:800; padding:0.4rem 0.85rem;">
-							{ fmt.Sprintf("إجمالي %d مستودع معتمد", len(warehouses)) }
+							{ fmt.Sprintf("إجمالي %d مخزن معتمد", len(warehouses)) }
 						</div>
 					</div>
 				</div>
@@ -403,19 +403,19 @@ templ AdminWarehousesPage(warehouses []*AdminWarehouseRowView, lang, dir string)
 			<div class="card mb-0" style="border:1px solid var(--border); background:var(--surface-raised); border-radius:var(--radius-xl); overflow:hidden; box-shadow:0 4px 16px rgba(0,0,0,0.03);">
 				if len(warehouses) == 0 {
 					<div style="padding:3rem 1.5rem;">
-						@components.EmptyState(components.EmptyStateProps{Title: "لا توجد مستودعات", Message: "لم يتم تسجيل مستودعات بالمنصة بعد."})
+						@components.EmptyState(components.EmptyStateProps{Title: "لا توجد مخازن", Message: "لم يتم تسجيل مخازن بالمنصة بعد."})
 					</div>
 				} else {
 					<div class="table-container">
 						<table class="b2b-table">
 							<thead>
 								<tr>
-									<th>اسم المستودع</th>
+									<th>اسم المخزن</th>
 									<th>المنشأة التابع لها</th>
 									<th>العنوان وموقع التوزيع</th>
 									<th>الهاتف</th>
 									<th>الحالة</th>
-									<th class="text-end">مخزون المستودع</th>
+									<th class="text-end">مخزون المخزن</th>
 								</tr>
 							</thead>
 							<tbody>
@@ -470,7 +470,7 @@ templ AdminWarehousesPage(warehouses []*AdminWarehouseRowView, lang, dir string)
 												style="font-weight:800; font-size:0.8rem; padding:0.4rem 0.85rem; border-radius:var(--radius-md); gap:0.4rem;"
 											>
 												
-												<span>عرض المخزون للمستودع</span>
+												<span>عرض المخزون للمخزن</span>
 											</button>
 										</td>
 									</tr>
@@ -493,7 +493,7 @@ templ AdminWarehousesPage(warehouses []*AdminWarehouseRowView, lang, dir string)
 							</div>
 							<div>
 								<div class="row-center-sm">
-									<h3 style="font-size:1.15rem; font-weight:900; margin:0; color:var(--text);" x-text="'مخزون مستودع: ' + activeWh.name"></h3>
+									<h3 style="font-size:1.15rem; font-weight:900; margin:0; color:var(--text);" x-text="'مخزون مخزن: ' + activeWh.name"></h3>
 									<span class="badge badge-sky text-xs fw-700" x-show="activeWh.org_name" x-text="activeWh.org_name"></span>
 								</div>
 								<div style="font-size:0.8rem; color:var(--text-secondary); margin-top:2px;" x-text="activeWh.address ? ('العنوان: ' + activeWh.address) : 'تفاصيل المخزون المسجل بالمنظومة'"></div>
@@ -540,7 +540,7 @@ templ AdminWarehousesPage(warehouses []*AdminWarehouseRowView, lang, dir string)
 						<div x-show="!loading && !error && filteredStocks.length === 0" style="padding:3rem 1rem; text-align:center;">
 							<div style="font-size:2.5rem; margin-bottom:0.5rem;"></div>
 							<h4 class="text-base fw-800 text-primary m-0">لا توجد أصناف مخزنة مطابقة</h4>
-							<p style="font-size:0.825rem; color:var(--text-secondary); margin-top:0.35rem;">لم يتم تسجيل أي رصيد مخزني لهذا المستودع يطابق معايير البحث.</p>
+							<p style="font-size:0.825rem; color:var(--text-secondary); margin-top:0.35rem;">لم يتم تسجيل أي رصيد مخزني لهذا المخزن يطابق معايير البحث.</p>
 						</div>
 
 						<!-- Live Table -->
@@ -616,14 +616,14 @@ templ AdminWarehousesPage(warehouses []*AdminWarehouseRowView, lang, dir string)
 
 // AdminWarehouseDetailPage renders warehouse detail fallback.
 templ AdminWarehouseDetailPage(wh *inventory.Warehouse, stocks []*inventory.Stock, lang, dir string) {
-	@layouts.AdminShell(fmt.Sprintf("مستودع: %s", wh.Name), "warehouses", lang, dir) {
+	@layouts.AdminShell(fmt.Sprintf("مخزن: %s", wh.Name), "warehouses", lang, dir) {
 		<div class="card" style="max-width:800px; margin:0 auto 1.5rem auto;">
 			<div class="flex-between">
 				<div>
 					<h2 class="card-title m-0">{ wh.Name }</h2>
 					<p class="subtitle">منشأة #{ fmt.Sprintf("%d", wh.OrganizationID) } | { wh.Address }</p>
 				</div>
-				<a href="/admin/warehouses" class="btn btn-secondary btn-sm">العودة للمستودعات</a>
+				<a href="/admin/warehouses" class="btn btn-secondary btn-sm">العودة للمخازن</a>
 			</div>
 		</div>
 	}

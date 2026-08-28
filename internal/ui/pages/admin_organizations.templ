@@ -96,7 +96,7 @@ templ AdminOrganizations(data AdminEnterpriseHubData, lang, dir string) {
 								إدارة المنشآت والفروع والمستخدمين
 							</h1>
 							<p style="font-size:0.875rem; color:var(--text-secondary); margin:0.25rem 0 0 0;">
-								المنظومة المركزية الشاملة لإدارة المنشآت الطبية والتوريدية، شبكة الفروع والمستودعات، وحسابات الكوادر والمشرفين.
+								المنظومة المركزية الشاملة لإدارة المنشآت الطبية والتوريدية، شبكة الفروع والمخازن، وحسابات الكوادر والمشرفين.
 							</p>
 						</div>
 					</div>
@@ -106,7 +106,7 @@ templ AdminOrganizations(data AdminEnterpriseHubData, lang, dir string) {
 							{ fmt.Sprintf("%d", len(data.Organizations)) } منشأة
 						</span>
 						<span class="badge badge-emerald" style="font-weight:700; font-size:0.85rem; padding:0.4rem 0.8rem;">
-							{ fmt.Sprintf("%d", len(data.Branches)) } فرع ومستودع
+							{ fmt.Sprintf("%d", len(data.Branches)) } فرع ومخزن
 						</span>
 						<span class="badge badge-indigo" style="font-weight:700; font-size:0.85rem; padding:0.4rem 0.8rem;">
 							{ fmt.Sprintf("%d", len(data.Users)) } مستخدم
@@ -136,7 +136,7 @@ templ AdminOrganizations(data AdminEnterpriseHubData, lang, dir string) {
 					@click="setTab('branches')"
 				>
 					@components.IconLayers("icon-xs")
-					<span>الفروع والمستودعات ({ fmt.Sprintf("%d", len(data.Branches)) })</span>
+					<span>الفروع والمخازن ({ fmt.Sprintf("%d", len(data.Branches)) })</span>
 				</button>
 
 				<button
@@ -322,9 +322,9 @@ templ AdminOrganizations(data AdminEnterpriseHubData, lang, dir string) {
 								<label style="font-size:0.825rem; font-weight:700; color:var(--text-secondary);">النوع:</label>
 								<select x-model="branchTypeFilter" class="form-select" style="font-size:0.825rem; padding:0.35rem 0.75rem;">
 									<option value="all">كافة الأنواع</option>
-									<option value="warehouse">مستودع أدوية مركزي (Warehouse)</option>
+									<option value="warehouse">مخزن أدوية مركزي (Warehouse)</option>
 									<option value="fast_hub">نقطة توزيع سريعة (Fast Hub)</option>
-									<option value="cold_depot">مستودع تبريد (Cold Depot)</option>
+									<option value="cold_depot">مخزن تبريد (Cold Depot)</option>
 									<option value="pharmacy_branch">فرع صيدلية (Pharmacy Branch)</option>
 								</select>
 							</div>
@@ -356,7 +356,7 @@ templ AdminOrganizations(data AdminEnterpriseHubData, lang, dir string) {
 					if len(data.Branches) == 0 {
 						@components.EmptyState(components.EmptyStateProps{
 							Title:   "لا توجد فروع مسجلة",
-							Message: "لم يتم العثور على فروع أو مستودعات مسجلة حالياً.",
+							Message: "لم يتم العثور على فروع أو مخازن مسجلة حالياً.",
 						})
 					} else {
 						<div class="table-container">
@@ -676,7 +676,7 @@ templ AdminOrganizationDetail(o *org.Organization, branches []*org.Branch, emplo
 				<a href={ templ.SafeURL(fmt.Sprintf("/admin/organizations/%d", o.ID)) } class={ "btn btn-sm", templ.KV("btn-primary", activeTab == "overview"), templ.KV("btn-secondary", activeTab != "overview") }>نظرة عامة</a>
 				<a href={ templ.SafeURL(fmt.Sprintf("/admin/organizations/%d/info", o.ID)) } class={ "btn btn-sm", templ.KV("btn-primary", activeTab == "info"), templ.KV("btn-secondary", activeTab != "info") }>البيانات والتراخيص</a>
 				<a href={ templ.SafeURL(fmt.Sprintf("/admin/organizations/%d/users", o.ID)) } class={ "btn btn-sm", templ.KV("btn-primary", activeTab == "users"), templ.KV("btn-secondary", activeTab != "users") }>فريق العمل ({ fmt.Sprintf("%d", len(employees)) })</a>
-				<a href={ templ.SafeURL(fmt.Sprintf("/admin/organizations/%d/branches", o.ID)) } class={ "btn btn-sm", templ.KV("btn-primary", activeTab == "branches"), templ.KV("btn-secondary", activeTab != "branches") }>الفروع والمستودعات ({ fmt.Sprintf("%d", len(branches)) })</a>
+				<a href={ templ.SafeURL(fmt.Sprintf("/admin/organizations/%d/branches", o.ID)) } class={ "btn btn-sm", templ.KV("btn-primary", activeTab == "branches"), templ.KV("btn-secondary", activeTab != "branches") }>الفروع والمخازن ({ fmt.Sprintf("%d", len(branches)) })</a>
 			</div>
 
 			<!-- Tab Contents -->
@@ -717,9 +717,9 @@ templ AdminOrganizationDetail(o *org.Organization, branches []*org.Branch, emplo
 					}
 				}
 				if activeTab == "branches" {
-					<h3 style="font-size:1.1rem; font-weight:700; margin-bottom:1rem;">فروع ومستودعات المنشأة</h3>
+					<h3 style="font-size:1.1rem; font-weight:700; margin-bottom:1rem;">فروع ومخازن المنشأة</h3>
 					if len(branches) == 0 {
-						@components.EmptyState(components.EmptyStateProps{Title: "لا توجد فروع مسجلة", Message: "لم يتم إضافة فروع أو مستودعات لهذه المنشأة بعد."})
+						@components.EmptyState(components.EmptyStateProps{Title: "لا توجد فروع مسجلة", Message: "لم يتم إضافة فروع أو مخازن لهذه المنشأة بعد."})
 					} else {
 						<div class="table-container">
 							<table class="b2b-table">
@@ -779,17 +779,17 @@ templ AdminOrganizationDetail(o *org.Organization, branches []*org.Branch, emplo
 
 // AdminBranchesPage renders cross-organization branch directory.
 templ AdminBranchesPage(branches []*org.Branch, lang, dir string) {
-	@layouts.AdminShell("دليل الفروع والمستودعات الشامل", "branches", lang, dir) {
+	@layouts.AdminShell("دليل الفروع والمخازن الشامل", "branches", lang, dir) {
 		<div class="card mb-0">
 			<div class="header-row">
 				<div>
-					<h2 class="card-title m-0">كافة الفروع والمستودعات ({ fmt.Sprintf("%d", len(branches)) })</h2>
-					<p class="subtitle">إدارة ومراقبة كافة الفروع ومستودعات التوريد لكافة المنشآت على المنصة.</p>
+					<h2 class="card-title m-0">كافة الفروع والمخازن ({ fmt.Sprintf("%d", len(branches)) })</h2>
+					<p class="subtitle">إدارة ومراقبة كافة الفروع ومخازن التوريد لكافة المنشآت على المنصة.</p>
 				</div>
 			</div>
 
 			if len(branches) == 0 {
-				@components.EmptyState(components.EmptyStateProps{Title: "لا توجد فروع مسجلة", Message: "لم يتم العثور على فروع أو مستودعات مسجلة حالياً."})
+				@components.EmptyState(components.EmptyStateProps{Title: "لا توجد فروع مسجلة", Message: "لم يتم العثور على فروع أو مخازن مسجلة حالياً."})
 			} else {
 				<div class="table-container">
 					<table class="b2b-table">
@@ -964,7 +964,7 @@ templ AdminWeeklyCoveragesPage(data AdminWeeklyCoveragesData, lang, dir string) 
 									<th>يوم التوصيل</th>
 									<th>المنشأة / المورد</th>
 									<th>المدينة / المحافظة</th>
-									<th>الفرع أو المستودع المنفذ</th>
+									<th>الفرع أو المخزن المنفذ</th>
 									<th>نطاق التغطية</th>
 									<th>مواعيد التوصيل</th>
 									<th>حالة التغطية</th>
@@ -1078,7 +1078,7 @@ templ AdminWeeklyCoveragesPage(data AdminWeeklyCoveragesData, lang, dir string) 
 
 						<div class="grid-2">
 							<div>
-								<label class="form-label">الفرع أو المستودع المنفذ *</label>
+								<label class="form-label">الفرع أو المخزن المنفذ *</label>
 								<select name="branch_id" class="form-select" required style="width:100%; font-size:0.85rem;">
 									for _, b := range data.Branches {
 										<option value={ fmt.Sprintf("%d", b.ID) }>

@@ -328,7 +328,7 @@ func TestInstitutionalWorkHierarchyAndConnections(t *testing.T) {
 	// 1. Create Root Category: Wholesale (جملة جملة)
 	wholesale := &org.InstitutionalWork{
 		Title:       i18n.New("جملة جملة", "Wholesale - Wholesale"),
-		Description: i18n.New("كبار الموردين والمستودعات المركزية", "Primary wholesalers"),
+		Description: i18n.New("كبار الموردين والمخازن المركزية", "Primary wholesalers"),
 		Icon:        "truck",
 		PricingType: org.PricingSubscription,
 		IsActive:    true,

@@ -3,7 +3,7 @@ package i18n
 func loadOrgBranchesGeoKeys(e *engine) {
 	// --- Organizations & Verification ---
 	addKey(e, "org.title", "org", "إدارة المنشآت والشركاء", "Organizations & Partners", "Organizations title")
-	addKey(e, "org.subtitle", "org", "متابعة وتدقيق حسابات الصيدليات ومستودعات ومصانع الأدوية المسجلة في المنصة وتراخيصها الرسمية.", "Manage verified pharmacies, medical warehouses, and pharmaceutical distributors.", "Organizations subtitle")
+	addKey(e, "org.subtitle", "org", "متابعة وتدقيق حسابات الصيدليات ومخازن ومصانع الأدوية المسجلة في المنصة وتراخيصها الرسمية.", "Manage verified pharmacies, medical warehouses, and pharmaceutical distributors.", "Organizations subtitle")
 	addKey(e, "org.pharmacies", "org", "الصيدليات", "Pharmacies", "Pharmacies tab")
 	addKey(e, "org.suppliers", "org", "الموردون والموزعون", "Suppliers & Distributors", "Suppliers tab")
 	addKey(e, "org.institutional", "org", "الهيئات والكيانات المؤسسية", "Institutional Entities", "Institutional tab")

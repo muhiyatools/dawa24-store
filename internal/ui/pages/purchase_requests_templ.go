@@ -58,7 +58,7 @@ func CustomerPurchaseRequestWizardPage(lang, dir string, step int, option string
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</div><h3 style=\"font-size:1.3rem; font-weight:800; margin-bottom:0.75rem; color:var(--text);\">البدء باختيار المورد</h3><p style=\"color:var(--text-secondary); font-size:0.9rem; line-height:1.6; margin-bottom:1.5rem;\">تصفح قائمة الموردين والشركات المعتمدة، وتعرف على الفروع ونطاق التغطية وتفاصيل المستودعات المتاحة.</p></div><a href=\"/suppliers\" class=\"btn btn-primary\" style=\"width:100%; justify-content:center; font-weight:700; border-radius:var(--radius-lg);\"><span>تصفح دليل الموردين</span>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</div><h3 style=\"font-size:1.3rem; font-weight:800; margin-bottom:0.75rem; color:var(--text);\">البدء باختيار المورد</h3><p style=\"color:var(--text-secondary); font-size:0.9rem; line-height:1.6; margin-bottom:1.5rem;\">تصفح قائمة الموردين والشركات المعتمدة، وتعرف على الفروع ونطاق التغطية وتفاصيل المخازن المتاحة.</p></div><a href=\"/suppliers\" class=\"btn btn-primary\" style=\"width:100%; justify-content:center; font-weight:700; border-radius:var(--radius-lg);\"><span>تصفح دليل الموردين</span>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

@@ -196,7 +196,7 @@ func (s *Service) SetStock(ctx context.Context, st *Stock) error {
 	if st == nil || st.WarehouseID <= 0 || st.ProductVariantID <= 0 {
 		return apperr.Validation("inventory.stock_invalid",
 			"Warehouse and product variant are required.",
-			map[string]string{"warehouse_id": "المستودع والصنف مطلوبان"})
+			map[string]string{"warehouse_id": "المخزن والصنف مطلوبان"})
 	}
 	if st.Quantity < 0 {
 		return apperr.Validation("inventory.quantity_negative",

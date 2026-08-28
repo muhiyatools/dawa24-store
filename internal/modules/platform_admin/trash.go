@@ -42,7 +42,7 @@ var trashTableLabels = map[string][2]string{
 	"catalog.categories":               {"التصنيفات والمجموعات العلاجية", "Categories"},
 	"catalog.brands":                   {"الشركات المصنعة والماركات", "Brands & Manufacturers"},
 	"org.organizations":                {"المنشآت (صيدليات وشركات موردة)", "Organizations"},
-	"org.branches":                     {"الفروع والمستودعات", "Branches & Warehouses"},
+	"org.branches":                     {"الفروع والمخازن", "Branches & Warehouses"},
 	"identity.users":                   {"حسابات المستخدمين والمدراء", "User Accounts"},
 	"commerce.orders":                  {"أوامر التوريد والطلبيات", "Orders & Procurement"},
 	"billing.invoices":                 {"الفواتير والمطالبات المالية", "Invoices"},

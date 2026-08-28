@@ -45,7 +45,7 @@ templ AdminAnalytics(lang, dir string, a *platformadmin.VisitorAnalytics) {
 			@components.StatCard(components.StatCardProps{
 				Label:     "الموردين المعتمدين",
 				Value:     fmt.Sprintf("%d", a.TotalSuppliers),
-				Subtitle:  "شركات ومستودعات توزيع",
+				Subtitle:  "شركات ومخازن توزيع",
 				Tone:      "info",
 			})
 			@components.StatCard(components.StatCardProps{

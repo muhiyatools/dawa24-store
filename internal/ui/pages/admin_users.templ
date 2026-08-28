@@ -100,7 +100,7 @@ templ AdminUsers(data AdminUsersData, lang, dir string) {
 					@click="setTab('suppliers')"
 				>
 					@components.IconTruck("icon-xs")
-					<span>الموردين والمستودعات ({ fmt.Sprintf("%d", countUsersByGroup(data.Users, "supplier")) })</span>
+					<span>الموردين والمخازن ({ fmt.Sprintf("%d", countUsersByGroup(data.Users, "supplier")) })</span>
 				</button>
 
 				<button
@@ -461,7 +461,7 @@ func roleDisplayAr(role string) string {
 	case "supplier":
 		return "مورد معتمد"
 	case "vendor":
-		return "بائع / مستودع"
+		return "بائع / مخزن"
 	case "customer", "individual":
 		return "عميل / مشتري"
 	case "employer":

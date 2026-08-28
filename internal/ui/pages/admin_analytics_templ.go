@@ -120,7 +120,7 @@ func AdminAnalytics(lang, dir string, a *platformadmin.VisitorAnalytics) templ.C
 			templ_7745c5c3_Err = components.StatCard(components.StatCardProps{
 				Label:    "الموردين المعتمدين",
 				Value:    fmt.Sprintf("%d", a.TotalSuppliers),
-				Subtitle: "شركات ومستودعات توزيع",
+				Subtitle: "شركات ومخازن توزيع",
 				Tone:     "info",
 			}).Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {

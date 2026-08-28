@@ -28,7 +28,7 @@ templ AdminDashboard(stats AdminDashboardStats, pendingOrgs []*org.Organization,
 				@components.StatCard(components.StatCardProps{
 					Label:    "المؤسسات والشركات",
 					Value:    fmt.Sprintf("%d منشأة", stats.TotalOrganizations),
-					Subtitle: "صيدليات مرخصة ومستودعات أدوية",
+					Subtitle: "صيدليات مرخصة ومخازن أدوية",
 					Tone:     "primary",
 				})
 				@components.StatCard(components.StatCardProps{

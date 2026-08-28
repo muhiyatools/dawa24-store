@@ -71,7 +71,7 @@ func AdminDashboard(stats AdminDashboardStats, pendingOrgs []*org.Organization, 
 			templ_7745c5c3_Err = components.StatCard(components.StatCardProps{
 				Label:    "المؤسسات والشركات",
 				Value:    fmt.Sprintf("%d منشأة", stats.TotalOrganizations),
-				Subtitle: "صيدليات مرخصة ومستودعات أدوية",
+				Subtitle: "صيدليات مرخصة ومخازن أدوية",
 				Tone:     "primary",
 			}).Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {

@@ -110,7 +110,7 @@ func SuppliersDirectoryContent(lang, dir string, data SupplierDirectoryData) tem
 			templ_7745c5c3_Var4 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<!-- Leaflet Map Assets --><link rel=\"stylesheet\" href=\"https://unpkg.com/leaflet@1.9.4/dist/leaflet.css\" integrity=\"sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=\" crossorigin=\"\"><script src=\"https://unpkg.com/leaflet@1.9.4/dist/leaflet.js\" integrity=\"sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=\" crossorigin=\"\"></script><div class=\"suppliers-page-container\" style=\"max-width:100%;\"><!-- Top Banner & Header --><div style=\"display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1.25rem; margin-bottom:1.5rem;\"><div><div style=\"display:flex; align-items:center; gap:0.6rem; margin-bottom:0.35rem;\"><h1 style=\"font-size:1.6rem; font-weight:900; color:var(--text); margin:0;\">دليل شركات ومستودعات التوزيع الدوائي</h1><span class=\"badge badge-primary text-xs tabular-nums fw-700\" style=\"padding:0.2rem 0.6rem;\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<!-- Leaflet Map Assets --><link rel=\"stylesheet\" href=\"https://unpkg.com/leaflet@1.9.4/dist/leaflet.css\" integrity=\"sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=\" crossorigin=\"\"><script src=\"https://unpkg.com/leaflet@1.9.4/dist/leaflet.js\" integrity=\"sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=\" crossorigin=\"\"></script><div class=\"suppliers-page-container\" style=\"max-width:100%;\"><!-- Top Banner & Header --><div style=\"display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1.25rem; margin-bottom:1.5rem;\"><div><div style=\"display:flex; align-items:center; gap:0.6rem; margin-bottom:0.35rem;\"><h1 style=\"font-size:1.6rem; font-weight:900; color:var(--text); margin:0;\">دليل شركات ومخازن التوزيع الدوائي</h1><span class=\"badge badge-primary text-xs tabular-nums fw-700\" style=\"padding:0.2rem 0.6rem;\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -242,7 +242,7 @@ func SuppliersDirectoryContent(lang, dir string, data SupplierDirectoryData) tem
 		if len(data.Suppliers) == 0 {
 			templ_7745c5c3_Err = components.EmptyState(components.EmptyStateProps{
 				Title:       "لا يوجد موردون مطابقون للبحث",
-				Message:     "لم يتم العثور على شركات أو مستودعات أدوية مطابقة لمعايير البحث الحالية.",
+				Message:     "لم يتم العثور على شركات أو مخازن أدوية مطابقة لمعايير البحث الحالية.",
 				ActionLabel: "عرض كافة الموردين",
 				ActionURL:   "/suppliers",
 			}).Render(ctx, templ_7745c5c3_Buffer)
@@ -509,7 +509,7 @@ func SuppliersDirectoryContent(lang, dir string, data SupplierDirectoryData) tem
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 44, "\"><div style=\"display:grid; grid-template-columns:360px 1fr; gap:1.25rem; align-items:stretch; min-height:620px;\"><!-- Map Side Panel: Quick List & Focus --><div class=\"card\" style=\"margin:0; padding:1.25rem; background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-xl); display:flex; flex-direction:column; max-height:680px; overflow-y:auto;\"><div style=\"margin-bottom:1rem; border-bottom:1px solid var(--border); padding-bottom:0.75rem;\"><h3 style=\"font-size:1rem; font-weight:800; color:var(--text); margin:0;\">مواقع مستودعات التوزيع الدوائي</h3><span style=\"font-size:0.775rem; color:var(--text-muted);\">انقر على أي مورد للتركيز عليه على الخريطة</span></div><div style=\"display:flex; flex-direction:column; gap:0.65rem;\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 44, "\"><div style=\"display:grid; grid-template-columns:360px 1fr; gap:1.25rem; align-items:stretch; min-height:620px;\"><!-- Map Side Panel: Quick List & Focus --><div class=\"card\" style=\"margin:0; padding:1.25rem; background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-xl); display:flex; flex-direction:column; max-height:680px; overflow-y:auto;\"><div style=\"margin-bottom:1rem; border-bottom:1px solid var(--border); padding-bottom:0.75rem;\"><h3 style=\"font-size:1rem; font-weight:800; color:var(--text); margin:0;\">مواقع مخازن التوزيع الدوائي</h3><span style=\"font-size:0.775rem; color:var(--text-muted);\">انقر على أي مورد للتركيز عليه على الخريطة</span></div><div style=\"display:flex; flex-direction:column; gap:0.65rem;\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -1002,14 +1002,14 @@ func SupplierProfile(lang, dir string, data SupplierProfileData) templ.Component
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 95, "<span>فروع ومستودعات التوزيع (")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 95, "<span>فروع ومخازن التوزيع (")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var45 string
 			templ_7745c5c3_Var45, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", len(data.Branches)))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/suppliers.templ`, Line: 613, Col: 94}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/suppliers.templ`, Line: 613, Col: 88}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var45))
 			if templ_7745c5c3_Err != nil {
@@ -2161,7 +2161,7 @@ func SupplierProfile(lang, dir string, data SupplierProfileData) templ.Component
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 218, "<h3 style=\"font-size:1.05rem; font-weight:800; color:var(--text); margin:0.75rem 0 0.25rem 0;\">المستودع الرئيسي للمورد</h3><p class=\"text-sm text-muted m-0\">يتم شحن وتجهيز الطلبيات من المستودع المركزي للمورد في نطاق المحافظات المشمولة.</p></div>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 218, "<h3 style=\"font-size:1.05rem; font-weight:800; color:var(--text); margin:0.75rem 0 0.25rem 0;\">المخزن الرئيسي للمورد</h3><p class=\"text-sm text-muted m-0\">يتم شحن وتجهيز الطلبيات من المخزن المركزي للمورد في نطاق المحافظات المشمولة.</p></div>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -2189,7 +2189,7 @@ func SupplierProfile(lang, dir string, data SupplierProfileData) templ.Component
 						return templ_7745c5c3_Err
 					}
 					if b.IsMain {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 222, "<span class=\"badge badge-primary text-xs\" style=\"margin-top:2px;\">المستودع الرئيسي</span>")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 222, "<span class=\"badge badge-primary text-xs\" style=\"margin-top:2px;\">المخزن الرئيسي</span>")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}

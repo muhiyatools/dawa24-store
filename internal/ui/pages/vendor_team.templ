@@ -98,7 +98,7 @@ templ VendorTeamPage(data VendorTeamData, lang, dir string) {
 							فريق العمل وصلاحيات الموظفين
 						</h1>
 						<p style="color:var(--text-secondary); font-size:0.875rem; margin:0.35rem 0 0 0; line-height:1.5;">
-							إدارة حسابات موظفي المنشأة، تعيين الصلاحيات والأدوار، وتوزيع الصلاحيات التشغيلية عبر الفروع والمستودعات.
+							إدارة حسابات موظفي المنشأة، تعيين الصلاحيات والأدوار، وتوزيع الصلاحيات التشغيلية عبر الفروع والمخازن.
 						</p>
 					</div>
 				</div>
@@ -161,7 +161,7 @@ templ VendorTeamPage(data VendorTeamData, lang, dir string) {
 				<!-- Branches Covered -->
 				<div class="card" style="padding:1.35rem 1.6rem; background:var(--surface-raised); border-radius:var(--radius-2xl); border:1px solid var(--border); border-inline-start:4px solid #0ea5e9; box-shadow:0 4px 16px rgba(0,0,0,0.03);">
 					<div class="flex-between">
-						<span style="font-size:0.825rem; font-weight:700; color:var(--text-muted);">الفروع والمستودعات</span>
+						<span style="font-size:0.825rem; font-weight:700; color:var(--text-muted);">الفروع والمخازن</span>
 						<span class="text-xl">🏢</span>
 					</div>
 					<div style="font-size:2rem; font-weight:900; color:#0ea5e9; margin-top:0.4rem;" class="tabular-nums">
@@ -529,14 +529,14 @@ templ VendorTeamPage(data VendorTeamData, lang, dir string) {
 									<select name="role_key" class="form-input" style="height:44px; border-radius:var(--radius-xl);" required>
 										<option value="org_employee" selected>موظف مبيعات وتوريد (الأصناف والشحنات)</option>
 										<option value="org_manager">مدير عمليات (صلاحيات تشغيلية كاملة)</option>
-										<option value="org_warehouse">أمين مخزن (الأرصدة والمستودعات)</option>
+										<option value="org_warehouse">أمين مخزن (الأرصدة والمخازن)</option>
 										<option value="org_accountant">محاسب مالي (الفواتير والمدفوعات)</option>
 									</select>
 								</div>
 
 								<div>
 									<label class="form-label" style="font-size:0.825rem; font-weight:800; color:var(--text); margin-bottom:0.4rem; display:block;">
-										الفرع / المستودع التابع له
+										الفرع / المخزن التابع له
 									</label>
 									<select name="branch_id" class="form-input" style="height:44px; border-radius:var(--radius-xl);">
 										<option value="">كل الفروع / الإدارة العامة</option>

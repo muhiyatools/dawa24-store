@@ -29,7 +29,7 @@ func formatAuditAction(action, labelAr string) (string, string) {
 	case "invoice.created":
 		return "إصدار فاتورة", "badge-sky"
 	case "branch.created", "warehouse.created":
-		return "إضافة فرع / مستودع", "badge-emerald"
+		return "إضافة فرع / مخزن", "badge-emerald"
 	default:
 		clean := strings.ReplaceAll(action, ".", " — ")
 		clean = strings.ReplaceAll(clean, "_", " ")
@@ -55,7 +55,7 @@ func formatEntityType(entityType, entityTypeAr string) string {
 	case "invoice":
 		return "فاتورة ضريبية"
 	case "warehouse", "branch":
-		return "مستودع / فرع"
+		return "مخزن / فرع"
 	default:
 		return entityType
 	}
@@ -86,7 +86,7 @@ templ VendorActivitiesPage(entries []*platformadmin.AuditEntry, lang, dir string
 							</h2>
 						</div>
 						<p class="subtitle" style="color:var(--text-secondary); font-size:0.875rem; margin:0;">
-							تدقيق وتتبع كافة العمليات والإجراءات المنفذة بواسطة موظفي الفروع، المستودعات، والمبيعات.
+							تدقيق وتتبع كافة العمليات والإجراءات المنفذة بواسطة موظفي الفروع، المخازن، والمبيعات.
 						</p>
 					</div>
 

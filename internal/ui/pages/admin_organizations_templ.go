@@ -140,7 +140,7 @@ func AdminOrganizations(data AdminEnterpriseHubData, lang, dir string) templ.Com
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "</div><div><h1 style=\"font-size:1.45rem; font-weight:900; color:var(--text); margin:0;\">إدارة المنشآت والفروع والمستخدمين</h1><p style=\"font-size:0.875rem; color:var(--text-secondary); margin:0.25rem 0 0 0;\">المنظومة المركزية الشاملة لإدارة المنشآت الطبية والتوريدية، شبكة الفروع والمستودعات، وحسابات الكوادر والمشرفين.</p></div></div><div style=\"display:flex; align-items:center; gap:0.75rem; flex-wrap:wrap;\"><span class=\"badge badge-sky\" style=\"font-weight:700; font-size:0.85rem; padding:0.4rem 0.8rem;\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "</div><div><h1 style=\"font-size:1.45rem; font-weight:900; color:var(--text); margin:0;\">إدارة المنشآت والفروع والمستخدمين</h1><p style=\"font-size:0.875rem; color:var(--text-secondary); margin:0.25rem 0 0 0;\">المنظومة المركزية الشاملة لإدارة المنشآت الطبية والتوريدية، شبكة الفروع والمخازن، وحسابات الكوادر والمشرفين.</p></div></div><div style=\"display:flex; align-items:center; gap:0.75rem; flex-wrap:wrap;\"><span class=\"badge badge-sky\" style=\"font-weight:700; font-size:0.85rem; padding:0.4rem 0.8rem;\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -166,7 +166,7 @@ func AdminOrganizations(data AdminEnterpriseHubData, lang, dir string) templ.Com
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, " فرع ومستودع</span> <span class=\"badge badge-indigo\" style=\"font-weight:700; font-size:0.85rem; padding:0.4rem 0.8rem;\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, " فرع ومخزن</span> <span class=\"badge badge-indigo\" style=\"font-weight:700; font-size:0.85rem; padding:0.4rem 0.8rem;\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -208,14 +208,14 @@ func AdminOrganizations(data AdminEnterpriseHubData, lang, dir string) templ.Com
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "<span>الفروع والمستودعات (")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "<span>الفروع والمخازن (")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var8 string
 			templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", len(data.Branches)))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_organizations.templ`, Line: 139, Col: 87}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_organizations.templ`, Line: 139, Col: 81}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var8))
 			if templ_7745c5c3_Err != nil {
@@ -539,14 +539,14 @@ func AdminOrganizations(data AdminEnterpriseHubData, lang, dir string) templ.Com
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 46, "</select></div><div class=\"row-center-sm\"><label style=\"font-size:0.825rem; font-weight:700; color:var(--text-secondary);\">النوع:</label> <select x-model=\"branchTypeFilter\" class=\"form-select\" style=\"font-size:0.825rem; padding:0.35rem 0.75rem;\"><option value=\"all\">كافة الأنواع</option> <option value=\"warehouse\">مستودع أدوية مركزي (Warehouse)</option> <option value=\"fast_hub\">نقطة توزيع سريعة (Fast Hub)</option> <option value=\"cold_depot\">مستودع تبريد (Cold Depot)</option> <option value=\"pharmacy_branch\">فرع صيدلية (Pharmacy Branch)</option></select></div><button type=\"button\" class=\"btn btn-secondary btn-sm text-sm\" x-show=\"branchOrgFilter !== 'all' || branchTypeFilter !== 'all'\" @click=\"branchOrgFilter = 'all'; branchTypeFilter = 'all';\">إلغاء التصفية</button></div><div style=\"min-width:260px;\"><input type=\"text\" x-model=\"searchQuery\" class=\"form-input\" placeholder=\"بحث باسم الفرع، الكود، أو العنوان...\" style=\"font-size:0.85rem; padding:0.4rem 0.75rem;\"></div></div></div><div class=\"card mb-0\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 46, "</select></div><div class=\"row-center-sm\"><label style=\"font-size:0.825rem; font-weight:700; color:var(--text-secondary);\">النوع:</label> <select x-model=\"branchTypeFilter\" class=\"form-select\" style=\"font-size:0.825rem; padding:0.35rem 0.75rem;\"><option value=\"all\">كافة الأنواع</option> <option value=\"warehouse\">مخزن أدوية مركزي (Warehouse)</option> <option value=\"fast_hub\">نقطة توزيع سريعة (Fast Hub)</option> <option value=\"cold_depot\">مخزن تبريد (Cold Depot)</option> <option value=\"pharmacy_branch\">فرع صيدلية (Pharmacy Branch)</option></select></div><button type=\"button\" class=\"btn btn-secondary btn-sm text-sm\" x-show=\"branchOrgFilter !== 'all' || branchTypeFilter !== 'all'\" @click=\"branchOrgFilter = 'all'; branchTypeFilter = 'all';\">إلغاء التصفية</button></div><div style=\"min-width:260px;\"><input type=\"text\" x-model=\"searchQuery\" class=\"form-input\" placeholder=\"بحث باسم الفرع، الكود، أو العنوان...\" style=\"font-size:0.85rem; padding:0.4rem 0.75rem;\"></div></div></div><div class=\"card mb-0\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			if len(data.Branches) == 0 {
 				templ_7745c5c3_Err = components.EmptyState(components.EmptyStateProps{
 					Title:   "لا توجد فروع مسجلة",
-					Message: "لم يتم العثور على فروع أو مستودعات مسجلة حالياً.",
+					Message: "لم يتم العثور على فروع أو مخازن مسجلة حالياً.",
 				}).Render(ctx, templ_7745c5c3_Buffer)
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
@@ -1406,14 +1406,14 @@ func AdminOrganizationDetail(o *org.Organization, branches []*org.Branch, employ
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 135, "\">الفروع والمستودعات (")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 135, "\">الفروع والمخازن (")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var73 string
 			templ_7745c5c3_Var73, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", len(branches)))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_organizations.templ`, Line: 679, Col: 281}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_organizations.templ`, Line: 679, Col: 275}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var73))
 			if templ_7745c5c3_Err != nil {
@@ -1505,12 +1505,12 @@ func AdminOrganizationDetail(o *org.Organization, branches []*org.Branch, employ
 				}
 			}
 			if activeTab == "branches" {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 147, "<h3 style=\"font-size:1.1rem; font-weight:700; margin-bottom:1rem;\">فروع ومستودعات المنشأة</h3>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 147, "<h3 style=\"font-size:1.1rem; font-weight:700; margin-bottom:1rem;\">فروع ومخازن المنشأة</h3>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				if len(branches) == 0 {
-					templ_7745c5c3_Err = components.EmptyState(components.EmptyStateProps{Title: "لا توجد فروع مسجلة", Message: "لم يتم إضافة فروع أو مستودعات لهذه المنشأة بعد."}).Render(ctx, templ_7745c5c3_Buffer)
+					templ_7745c5c3_Err = components.EmptyState(components.EmptyStateProps{Title: "لا توجد فروع مسجلة", Message: "لم يتم إضافة فروع أو مخازن لهذه المنشأة بعد."}).Render(ctx, templ_7745c5c3_Buffer)
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -1691,25 +1691,25 @@ func AdminBranchesPage(branches []*org.Branch, lang, dir string) templ.Component
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 163, "<div class=\"card mb-0\"><div class=\"header-row\"><div><h2 class=\"card-title m-0\">كافة الفروع والمستودعات (")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 163, "<div class=\"card mb-0\"><div class=\"header-row\"><div><h2 class=\"card-title m-0\">كافة الفروع والمخازن (")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var86 string
 			templ_7745c5c3_Var86, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", len(branches)))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_organizations.templ`, Line: 786, Col: 112}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_organizations.templ`, Line: 786, Col: 106}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var86))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 164, ")</h2><p class=\"subtitle\">إدارة ومراقبة كافة الفروع ومستودعات التوريد لكافة المنشآت على المنصة.</p></div></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 164, ")</h2><p class=\"subtitle\">إدارة ومراقبة كافة الفروع ومخازن التوريد لكافة المنشآت على المنصة.</p></div></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			if len(branches) == 0 {
-				templ_7745c5c3_Err = components.EmptyState(components.EmptyStateProps{Title: "لا توجد فروع مسجلة", Message: "لم يتم العثور على فروع أو مستودعات مسجلة حالياً."}).Render(ctx, templ_7745c5c3_Buffer)
+				templ_7745c5c3_Err = components.EmptyState(components.EmptyStateProps{Title: "لا توجد فروع مسجلة", Message: "لم يتم العثور على فروع أو مخازن مسجلة حالياً."}).Render(ctx, templ_7745c5c3_Buffer)
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -1815,7 +1815,7 @@ func AdminBranchesPage(branches []*org.Branch, lang, dir string) templ.Component
 			}
 			return nil
 		})
-		templ_7745c5c3_Err = layouts.AdminShell("دليل الفروع والمستودعات الشامل", "branches", lang, dir).Render(templ.WithChildren(ctx, templ_7745c5c3_Var85), templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = layouts.AdminShell("دليل الفروع والمخازن الشامل", "branches", lang, dir).Render(templ.WithChildren(ctx, templ_7745c5c3_Var85), templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -2128,7 +2128,7 @@ func AdminWeeklyCoveragesPage(data AdminWeeklyCoveragesData, lang, dir string) t
 					return templ_7745c5c3_Err
 				}
 			} else {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 198, "<div class=\"table-container\"><table class=\"b2b-table\"><thead><tr><th>يوم التوصيل</th><th>المنشأة / المورد</th><th>المدينة / المحافظة</th><th>الفرع أو المستودع المنفذ</th><th>نطاق التغطية</th><th>مواعيد التوصيل</th><th>حالة التغطية</th><th class=\"text-end\">الإجراءات والتحكم</th></tr></thead> <tbody>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 198, "<div class=\"table-container\"><table class=\"b2b-table\"><thead><tr><th>يوم التوصيل</th><th>المنشأة / المورد</th><th>المدينة / المحافظة</th><th>الفرع أو المخزن المنفذ</th><th>نطاق التغطية</th><th>مواعيد التوصيل</th><th>حالة التغطية</th><th class=\"text-end\">الإجراءات والتحكم</th></tr></thead> <tbody>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -2461,7 +2461,7 @@ func AdminWeeklyCoveragesPage(data AdminWeeklyCoveragesData, lang, dir string) t
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 239, "</select></div><div class=\"grid-2\"><div><label class=\"form-label\">الفرع أو المستودع المنفذ *</label> <select name=\"branch_id\" class=\"form-select\" required style=\"width:100%; font-size:0.85rem;\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 239, "</select></div><div class=\"grid-2\"><div><label class=\"form-label\">الفرع أو المخزن المنفذ *</label> <select name=\"branch_id\" class=\"form-select\" required style=\"width:100%; font-size:0.85rem;\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

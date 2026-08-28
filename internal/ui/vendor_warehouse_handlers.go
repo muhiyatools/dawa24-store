@@ -104,7 +104,7 @@ func (h *UIHandler) VendorWarehouseCreateSubmit(w http.ResponseWriter, r *http.R
 	phone := strings.TrimSpace(r.PostFormValue("phone"))
 
 	if name == "" {
-		h.redirectWithNotice(w, r, "/vendor/warehouses", "error", "اسم المستودع مطلوب.")
+		h.redirectWithNotice(w, r, "/vendor/warehouses", "error", "اسم المخزن مطلوب.")
 		return
 	}
 	if code == "" {
@@ -163,12 +163,12 @@ func (h *UIHandler) VendorWarehouseCreateSubmit(w http.ResponseWriter, r *http.R
 	if h.invSvc != nil {
 		if _, err := h.invSvc.CreateWarehouse(ctx, wh); err != nil {
 			h.log.ErrorContext(ctx, "create warehouse failed", "error", err)
-			h.redirectWithNotice(w, r, "/vendor/warehouses", "error", "تعذر إضافة المستودع، يرجى التحقق من صحة البيانات.")
+			h.redirectWithNotice(w, r, "/vendor/warehouses", "error", "تعذر إضافة المخزن، يرجى التحقق من صحة البيانات.")
 			return
 		}
 	}
 
-	h.redirectWithNotice(w, r, "/vendor/warehouses", "success", "تمت إضافة المستودع بنجاح وتفعيله للأرصدة.")
+	h.redirectWithNotice(w, r, "/vendor/warehouses", "success", "تمت إضافة المخزن بنجاح وتفعيله للأرصدة.")
 }
 
 // VendorWarehouseUpdateSubmit handles editing an existing warehouse facility.
@@ -204,13 +204,13 @@ func (h *UIHandler) VendorWarehouseUpdateSubmit(w http.ResponseWriter, r *http.R
 	}
 
 	if wh == nil {
-		h.redirectWithNotice(w, r, "/vendor/warehouses", "error", "المستودع المطلوب غير موجود.")
+		h.redirectWithNotice(w, r, "/vendor/warehouses", "error", "المخزن المطلوب غير موجود.")
 		return
 	}
 
 	wh.Name = strings.TrimSpace(r.PostFormValue("name"))
 	if wh.Name == "" {
-		h.redirectWithNotice(w, r, "/vendor/warehouses", "error", "اسم المستودع مطلوب.")
+		h.redirectWithNotice(w, r, "/vendor/warehouses", "error", "اسم المخزن مطلوب.")
 		return
 	}
 	if code := strings.TrimSpace(r.PostFormValue("code")); code != "" {
@@ -230,12 +230,12 @@ func (h *UIHandler) VendorWarehouseUpdateSubmit(w http.ResponseWriter, r *http.R
 		ctx = database.WithTenant(ctx, actor.OrganizationID)
 		if _, err := h.invSvc.UpdateWarehouse(ctx, wh.ID, wh); err != nil {
 			h.log.ErrorContext(ctx, "update warehouse failed", "error", err)
-			h.redirectWithNotice(w, r, "/vendor/warehouses", "error", "تعذر تحديث بيانات المستودع.")
+			h.redirectWithNotice(w, r, "/vendor/warehouses", "error", "تعذر تحديث بيانات المخزن.")
 			return
 		}
 	}
 
-	h.redirectWithNotice(w, r, "/vendor/warehouses", "success", "تم تحديث بيانات المستودع بنجاح.")
+	h.redirectWithNotice(w, r, "/vendor/warehouses", "success", "تم تحديث بيانات المخزن بنجاح.")
 }
 
 // VendorWarehouseToggleSubmit toggles the active/inactive status of a warehouse.
@@ -266,7 +266,7 @@ func (h *UIHandler) VendorWarehouseToggleSubmit(w http.ResponseWriter, r *http.R
 	}
 
 	if wh == nil {
-		h.redirectWithNotice(w, r, "/vendor/warehouses", "error", "المستودع المطلوب غير موجود.")
+		h.redirectWithNotice(w, r, "/vendor/warehouses", "error", "المخزن المطلوب غير موجود.")
 		return
 	}
 
@@ -276,9 +276,9 @@ func (h *UIHandler) VendorWarehouseToggleSubmit(w http.ResponseWriter, r *http.R
 		_, _ = h.invSvc.UpdateWarehouse(ctx, wh.ID, wh)
 	}
 
-	msg := "تم تعطيل المستودع بنجاح."
+	msg := "تم تعطيل المخزن بنجاح."
 	if wh.IsActive {
-		msg = "تم تفعيل المستودع بنجاح."
+		msg = "تم تفعيل المخزن بنجاح."
 	}
 	h.redirectWithNotice(w, r, "/vendor/warehouses", "success", msg)
 }

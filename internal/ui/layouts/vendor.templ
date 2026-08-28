@@ -15,7 +15,7 @@ templ VendorShell(title string, activeNav string, lang string, dir string) {
 							<img src={ site.LogoURL } alt={ site.SiteName } style="height:46px; max-height:48px; object-fit:contain;" />
 							<div style="display:flex; flex-direction:column;">
 								<span style="font-weight:700; font-size:1.15rem; color:#ffffff; line-height:1.2;">{ site.SiteName }</span>
-								<span style="font-size:0.75rem; color:var(--text-muted); font-weight:700;">بوابة الموردين والمستودعات</span>
+								<span style="font-size:0.75rem; color:var(--text-muted); font-weight:700;">بوابة الموردين والمخازن</span>
 							</div>
 						</div>
 					<button type="button" class="btn btn-icon" data-sidebar-toggle style="background:rgba(255,255,255,0.08); color:#ffffff; width:34px; height:34px; border:none; border-radius:var(--radius-md); flex-shrink:0;" title="طي/توسيع القائمة">
@@ -44,7 +44,7 @@ templ VendorShell(title string, activeNav string, lang string, dir string) {
 						</a>
 						<a href="/vendor/branches" class={ "sidebar-link", templ.KV("active", activeNav == "branches") }>
 							@components.IconLayers("icon-sm")
-							<span>الفروع والمستودعات</span>
+							<span>الفروع والمخازن</span>
 						</a>
 						<a href="/vendor/team" class={ "sidebar-link", templ.KV("active", activeNav == "employees" || activeNav == "team") }>
 							@components.IconUsers("icon-sm")
@@ -95,7 +95,7 @@ templ VendorShell(title string, activeNav string, lang string, dir string) {
 						</a>
 						<a href="/vendor/warehouses" class={ "sidebar-link", templ.KV("active", activeNav == "warehouses") }>
 							@components.IconBuilding("icon-sm")
-							<span>المستودعات ومواقع التخزين</span>
+							<span>المخازن ومواقع التخزين</span>
 						</a>
 					</div>
 

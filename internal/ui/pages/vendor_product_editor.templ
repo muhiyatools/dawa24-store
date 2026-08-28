@@ -109,9 +109,9 @@ templ VendorProductEditor(data VendorVariantEditorData, lang, dir string) {
 				<!-- 6. Branch / Warehouse Location -->
 				<div style="display:grid; grid-template-columns:1fr 1fr; gap:1.25rem;">
 					<div>
-						<label class="form-label" for="var-branch">مستودع أو فرع الشحن المعتمد *</label>
+						<label class="form-label" for="var-branch">مخزن أو فرع الشحن المعتمد *</label>
 						<select id="var-branch" name="branch_id" class="form-select">
-							<option value="">المستودع الرئيسي الافتراضي</option>
+							<option value="">المخزن الرئيسي الافتراضي</option>
 							for _, b := range data.Branches {
 								<option value={ fmt.Sprintf("%d", b.ID) }>
 									{ b.Name.Get(i18n.Lang(lang)) }

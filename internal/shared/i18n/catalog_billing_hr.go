@@ -51,7 +51,7 @@ func loadBillingAndHRKeys(e *engine) {
 	addKey(e, "hr.role_owner", "hr", "المالك / المدير العام", "Owner / Administrator", "Role owner label")
 	addKey(e, "hr.role_pharmacist", "hr", "صيدلي مسؤول", "Lead Pharmacist", "Role pharmacist label")
 	addKey(e, "hr.role_sales", "hr", "مسؤول مبيعات وتوريد", "Sales & Supply Officer", "Role sales label")
-	addKey(e, "hr.role_warehouse", "hr", "أمين مخزن ومستودع", "Warehouse Manager", "Role warehouse label")
+	addKey(e, "hr.role_warehouse", "hr", "أمين مخزن", "Warehouse Manager", "Role warehouse label")
 	addKey(e, "hr.role_accountant", "hr", "محاسب مالي", "Financial Accountant", "Role accountant label")
 	addKey(e, "hr.role_viewer", "hr", "مستعرض (قراءة فقط)", "Viewer (Read Only)", "Role viewer label")
 	addKey(e, "hr.edit_permissions", "hr", "تعديل الصلاحيات", "Edit Permissions", "Edit permissions action")

@@ -10,11 +10,11 @@ import (
 
 // VendorCatalogSelectPage renders the master catalog selector.
 templ VendorCatalogSelectPage(products []*catalog.Product, search string, lang, dir string) {
-	@layouts.VendorShell("اختيار المنتجات المتاحة بالمستودع", "catalog_select", lang, dir) {
+	@layouts.VendorShell("اختيار المنتجات المتاحة بالمخزن", "catalog_select", lang, dir) {
 		<div class="card mb-0">
 			<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; flex-wrap:wrap; gap:1rem;">
 				<div>
-					<h2 class="card-title m-0">تحديد المستحضرات المتاحة بالمستودع ({ fmt.Sprintf("%d", len(products)) })</h2>
+					<h2 class="card-title m-0">تحديد المستحضرات المتاحة بالمخزن ({ fmt.Sprintf("%d", len(products)) })</h2>
 					<p class="subtitle">اختر من الكتالوج المركزي الأدوية والمستحضرات المتوفرة لديك لإضافتها إلى قائمة عروضك.</p>
 				</div>
 			</div>
