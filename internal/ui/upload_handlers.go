@@ -16,7 +16,7 @@ import (
 
 const (
 	UploadBaseDir  = "data/uploads"
-	MaxUploadBytes = 20 * 1024 * 1024 // 20 MB
+	MaxUploadBytes = 50 * 1024 * 1024 // 50 MB
 )
 
 // RegisterUploadRoutes registers the public static file server for uploaded documents & media.
@@ -63,49 +63,51 @@ func sanitizeCategory(category string) string {
 
 // saveUploadedFile safely processes multipart uploads, validates extensions, and prevents path traversal.
 func saveUploadedFile(r *http.Request, fieldName, category string) (string, error) {
-	file, header, err := r.FormFile(fieldName)
+	src, header, err := r.FormFile(fieldName)
 	if err != nil {
 		return "", fmt.Errorf("no file uploaded or invalid form field: %w", err)
 	}
-	defer file.Close()
+	defer src.Close()
 
 	if header.Size > MaxUploadBytes {
-		return "", fmt.Errorf("file size exceeds maximum allowed limit (20MB)")
+		return "", fmt.Errorf("file size exceeds maximum allowed limit (50MB)")
 	}
 
 	category = sanitizeCategory(category)
 
+	destDir := filepath.Join(UploadBaseDir, category)
+	if err := os.MkdirAll(destDir, 0755); err != nil {
+		return "", fmt.Errorf("failed to create upload directory: %w", err)
+	}
+
+	// Generate safe, unique filename
 	ext := strings.ToLower(filepath.Ext(header.Filename))
 	if ext == "" {
 		ext = ".bin"
 	}
-
-	// Generate random safe filename
 	randomBytes := make([]byte, 8)
 	_, _ = rand.Read(randomBytes)
-	safeFilename := fmt.Sprintf("%s_%s%s", category, hex.EncodeToString(randomBytes), ext)
+	uniqueName := fmt.Sprintf("%s_%s%s", category, hex.EncodeToString(randomBytes), ext)
+	targetPath := filepath.Join(destDir, uniqueName)
 
-	targetDir := filepath.Join(UploadBaseDir, category)
-	_ = os.MkdirAll(targetDir, 0755)
-
-	targetPath := filepath.Join(targetDir, safeFilename)
-	destFile, err := os.Create(targetPath)
+	dst, err := os.Create(targetPath)
 	if err != nil {
-		return "", fmt.Errorf("failed to save file: %w", err)
+		return "", fmt.Errorf("failed to create target file: %w", err)
 	}
-	defer destFile.Close()
+	defer dst.Close()
 
-	if _, err := io.Copy(destFile, file); err != nil {
-		return "", fmt.Errorf("failed to write file contents: %w", err)
+	if _, err := io.Copy(dst, src); err != nil {
+		return "", fmt.Errorf("failed to save uploaded file: %w", err)
 	}
 
-	return fmt.Sprintf("/uploads/%s/%s", category, safeFilename), nil
+	// Return public URL path
+	return fmt.Sprintf("/uploads/%s/%s", category, uniqueName), nil
 }
 
-// saveUploadedBytes writes raw byte content safely to disk in the upload directory.
+// saveUploadedBytes writes byte data directly to disk.
 func saveUploadedBytes(data []byte, originalFilename, category string) (string, error) {
 	if len(data) > MaxUploadBytes {
-		return "", fmt.Errorf("file size exceeds maximum allowed limit (20MB)")
+		return "", fmt.Errorf("file size exceeds maximum allowed limit (50MB)")
 	}
 
 	category = sanitizeCategory(category)

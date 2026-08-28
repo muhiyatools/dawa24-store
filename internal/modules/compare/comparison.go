@@ -161,7 +161,7 @@ func (s *Service) RunMultiSupplierComparison(ctx context.Context, fileIDs []int6
 
 	for _, f := range files {
 		suppliersList = append(suppliersList, f.SupplierName)
-		rows, err := s.repo.ListFileRows(ctx, f.ID, 10000, 0)
+		rows, err := s.repo.ListFileRows(ctx, f.ID, 100000, 0)
 		if err != nil {
 			return nil, err
 		}
@@ -362,11 +362,11 @@ func (s *Service) RunSupplierVsSupplierDetailed(ctx context.Context, filter Head
 		return nil, fmt.Errorf("failed to get target file: %w", err)
 	}
 
-	sourceRows, err := s.repo.ListFileRows(ctx, filter.SourceFileID, 20000, 0)
+	sourceRows, err := s.repo.ListFileRows(ctx, filter.SourceFileID, 100000, 0)
 	if err != nil {
 		return nil, err
 	}
-	targetRows, err := s.repo.ListFileRows(ctx, filter.TargetFileID, 20000, 0)
+	targetRows, err := s.repo.ListFileRows(ctx, filter.TargetFileID, 100000, 0)
 	if err != nil {
 		return nil, err
 	}

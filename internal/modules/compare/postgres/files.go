@@ -348,30 +348,57 @@ func (r *Repository) InsertFileRows(ctx context.Context, rows []*compare.Compare
 		return nil
 	}
 	return r.db.InTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
-		batch := &pgx.Batch{}
-		query := `
-			INSERT INTO compare.file_rows (
-				file_id, organization_id, row_number, raw_name, normalized_name, sku,
-				price, discount, price_after_discount, matched_product_id, match_confidence, match_method, meta
-			) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13);
-		`
-		for _, row := range rows {
-			metaJSON, _ := json.Marshal(row.Meta)
-			dbMethod := toDBMatchMethod(row.MatchMethod)
-			batch.Queue(query,
-				row.FileID, row.OrganizationID, row.RowNumber, row.RawName, row.NormalizedName, row.SKU,
-				row.Price, row.Discount, row.PriceAfterDiscount, row.MatchedProductID, row.MatchConfidence, dbMethod, metaJSON,
-			)
+		cols := []string{
+			"file_id", "organization_id", "row_number", "raw_name", "normalized_name", "sku",
+			"price", "discount", "price_after_discount", "matched_product_id", "match_confidence", "match_method", "meta",
 		}
 
-		br := tx.SendBatch(txCtx, batch)
-		for i := 0; i < len(rows); i++ {
-			if _, err := br.Exec(); err != nil {
-				_ = br.Close()
-				return fmt.Errorf("batch insert row %d: %w", i, err)
+		const chunkSize = 5000
+		for i := 0; i < len(rows); i += chunkSize {
+			end := i + chunkSize
+			if end > len(rows) {
+				end = len(rows)
+			}
+			chunk := rows[i:end]
+
+			copyRows := make([][]any, len(chunk))
+			for j, row := range chunk {
+				metaJSON, _ := json.Marshal(row.Meta)
+				dbMethod := toDBMatchMethod(row.MatchMethod)
+
+				var skuVal any
+				if strings.TrimSpace(row.SKU) != "" {
+					skuVal = strings.TrimSpace(row.SKU)
+				}
+
+				copyRows[j] = []any{
+					row.FileID,
+					row.OrganizationID,
+					row.RowNumber,
+					row.RawName,
+					row.NormalizedName,
+					skuVal,
+					row.Price.String(),
+					row.Discount,
+					row.PriceAfterDiscount.String(),
+					row.MatchedProductID,
+					row.MatchConfidence,
+					dbMethod,
+					metaJSON,
+				}
+			}
+
+			_, err := tx.CopyFrom(
+				txCtx,
+				pgx.Identifier{"compare", "file_rows"},
+				cols,
+				pgx.CopyFromRows(copyRows),
+			)
+			if err != nil {
+				return fmt.Errorf("CopyFrom chunk [%d:%d]: %w", i, end, err)
 			}
 		}
-		return br.Close()
+		return nil
 	})
 }
 

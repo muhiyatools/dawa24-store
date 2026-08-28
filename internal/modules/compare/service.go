@@ -299,9 +299,9 @@ func (s *Service) UploadCompareFile(ctx context.Context, userID int64, orgID *in
 		supplierName = strings.TrimSuffix(supplierName, ".csv")
 	}
 
-	// 20MB file size cap check
-	if sizeBytes > 20*1024*1024 {
-		return nil, nil, apperr.Validation("file.too_large", "File size exceeds 20MB limit.", nil)
+	// 50MB file size cap check
+	if sizeBytes > 50*1024*1024 {
+		return nil, nil, apperr.Validation("file.too_large", "File size exceeds 50MB limit.", nil)
 	}
 
 	var archivedNames []string
@@ -743,6 +743,11 @@ const maxPriceMinor int64 = 10_000_000_000
 
 // extractNumber extracts the first number from a string, handling Arabic/Eastern numerals and commas.
 func extractNumber(s string) (float64, error) {
+	s = strings.TrimSpace(s)
+	if s == "" {
+		return 0, fmt.Errorf("empty string")
+	}
+
 	// Convert Eastern Arabic numerals to standard digits
 	s = strings.ReplaceAll(s, "٠", "0")
 	s = strings.ReplaceAll(s, "١", "1")
@@ -755,18 +760,32 @@ func extractNumber(s string) (float64, error) {
 	s = strings.ReplaceAll(s, "٨", "8")
 	s = strings.ReplaceAll(s, "٩", "9")
 	s = strings.ReplaceAll(s, "٫", ".")
+	s = strings.ReplaceAll(s, "%", "")
+	s = strings.ReplaceAll(s, "ج.م", "")
+	s = strings.ReplaceAll(s, "جم", "")
+	s = strings.ReplaceAll(s, "EGP", "")
+	s = strings.ReplaceAll(s, "egp", "")
+	s = strings.ReplaceAll(s, "LE", "")
+	s = strings.ReplaceAll(s, "le", "")
+	s = strings.TrimSpace(s)
+
+	if strings.Contains(s, ",") && strings.Contains(s, ".") {
+		s = strings.ReplaceAll(s, ",", "")
+	} else if strings.Contains(s, ",") {
+		s = strings.ReplaceAll(s, ",", ".")
+	}
 
 	var numStr strings.Builder
+	hasDot := false
 	foundDigit := false
 	for _, r := range s {
-		if r >= '0' && r <= '9' || r == '.' || r == ',' {
-			if r == ',' {
-				numStr.WriteRune('.')
-			} else {
-				numStr.WriteRune(r)
-			}
+		if r >= '0' && r <= '9' {
+			numStr.WriteRune(r)
 			foundDigit = true
-		} else if foundDigit {
+		} else if r == '.' && !hasDot {
+			numStr.WriteRune(r)
+			hasDot = true
+		} else if foundDigit && r != ' ' && r != '\t' {
 			break
 		}
 	}

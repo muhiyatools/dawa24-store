@@ -224,7 +224,7 @@ func readXLSX(data []byte) ([][]string, error) {
 	for _, sheetName := range sheets {
 		rows, err := f.GetRows(sheetName)
 		if err == nil && len(rows) > 0 {
-			var cleaned [][]string
+			cleaned := make([][]string, 0, len(rows))
 			for _, r := range rows {
 				if !isRowEmpty(r) {
 					cleaned = append(cleaned, sanitizeRow(r))
@@ -266,7 +266,7 @@ func readXLS(data []byte) ([][]string, error) {
 		return nil, errors.New("legacy XLS workbook has no sheets")
 	}
 
-	var result [][]string
+	result := make([][]string, 0, sheet.MaxRow+1)
 	for i := 0; i <= int(sheet.MaxRow); i++ {
 		row := sheet.Row(i)
 		if row == nil {
@@ -357,8 +357,8 @@ func readCSV(data []byte) ([][]string, error) {
 	// Sniff delimiter: comma, semicolon, tab, pipe
 	delims := []rune{',', ';', '\t', '|'}
 	sampleLen := len(data)
-	if sampleLen > 2048 {
-		sampleLen = 2048
+	if sampleLen > 4096 {
+		sampleLen = 4096
 	}
 	sample := string(data[:sampleLen])
 	bestDelim := ','
@@ -377,16 +377,23 @@ func readCSV(data []byte) ([][]string, error) {
 	r.TrimLeadingSpace = true
 	r.LazyQuotes = true
 
-	rows, err := r.ReadAll()
-	if err != nil {
-		return nil, fmt.Errorf("failed to parse CSV: %w", err)
+	var cleaned [][]string
+	for {
+		record, err := r.Read()
+		if err == io.EOF {
+			break
+		}
+		if err != nil {
+			// Recover from malformed lines in large files without aborting
+			continue
+		}
+		if !isRowEmpty(record) {
+			cleaned = append(cleaned, sanitizeRow(record))
+		}
 	}
 
-	var cleaned [][]string
-	for _, row := range rows {
-		if !isRowEmpty(row) {
-			cleaned = append(cleaned, sanitizeRow(row))
-		}
+	if len(cleaned) == 0 {
+		return nil, errors.New("no valid rows found in CSV")
 	}
 	return cleaned, nil
 }
