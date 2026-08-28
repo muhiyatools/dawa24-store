@@ -11,101 +11,218 @@ import (
 )
 
 templ OrganizationDocuments(lang, dir string, data *OrganizationDocumentsData, perms []string) {
-	@layouts.ShellFor("مستندات المنشأة", "documents", lang, dir, authctx.FromContext(ctx)) {
+	@layouts.ShellFor("المستندات والتراخيص الرسمية", "documents", lang, dir, authctx.FromContext(ctx)) {
 		@OrganizationDocumentsContent(lang, data)
 	}
 }
 
-
 templ OrganizationDocumentsContent(lang string, data *OrganizationDocumentsData) {
-	<div style="display:flex; flex-direction:column; gap:var(--space-5);">
+	<div class="jobs-container" style="max-width:1300px; margin:0 auto; padding-bottom:3.5rem; display:flex; flex-direction:column; gap:1.5rem;">
 
+		<!-- Header Banner -->
+		<div class="jobs-header" style="margin-bottom:0;">
+			<div>
+				<div style="display:flex; align-items:center; gap:0.65rem; margin-bottom:0.35rem;">
+					<div style="width:40px; height:40px; border-radius:var(--radius-lg); background:rgba(37, 99, 235, 0.1); color:var(--primary); display:flex; align-items:center; justify-content:center; font-size:1.3rem;">
+						📑
+					</div>
+					<div>
+						<h1 style="font-size:1.45rem; font-weight:900; color:var(--text); margin:0;">
+							المستندات والتراخيص الرسمية للمنشأة
+						</h1>
+						<span style="font-size:0.775rem; color:var(--text-muted); font-weight:700;">Legal Compliance & Official Licensing Records</span>
+					</div>
+				</div>
+				<p style="font-size:0.875rem; color:var(--text-secondary); margin:0; line-height:1.6; max-width:760px;">
+					إدارة وتوثيق التراخيص والسجلات القانونية لضمان مطابقة اشتراطات هيئة الدواء المصرية وبدء التداول والتعاملات الرسمية.
+				</p>
+			</div>
+
+			<div style="display:flex; align-items:center; gap:0.6rem; flex-wrap:wrap;">
+				if data != nil && data.VerifiedCount() > 0 && len(data.Missing) == 0 {
+					<div class="badge badge-emerald" style="padding:0.5rem 0.9rem; font-size:0.825rem; font-weight:800; gap:0.4rem;">
+						@components.IconCheckCircle("icon-xs")
+						<span>موثق ومعتمد رسمياً</span>
+					</div>
+				} else if data != nil && data.PendingCount() > 0 {
+					<div class="badge badge-sky" style="padding:0.5rem 0.9rem; font-size:0.825rem; font-weight:800; gap:0.4rem;">
+						@components.IconClock("icon-xs")
+						<span>قيد المراجعة والتدقيق</span>
+					</div>
+				} else {
+					<div class="badge badge-amber" style="padding:0.5rem 0.9rem; font-size:0.825rem; font-weight:800; gap:0.4rem;">
+						@components.IconAlert("icon-xs")
+						<span>مستندات مطلوبة للتفعيل</span>
+					</div>
+				}
+			</div>
+		</div>
+
+		<!-- Executive Verification Strip (3-stat Grid) -->
+		if data != nil {
+			<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:1rem;">
+				
+				<!-- Card 1: Completion Progress -->
+				<div class="jobs-metric-card" style="padding:1.25rem; display:flex; flex-direction:column; justify-content:space-between;">
+					<div>
+						<div style="display:flex; justify-content:space-between; align-items:center;">
+							<span style="font-size:0.825rem; font-weight:700; color:var(--text-secondary);">نسبة اكتمال التوثيق</span>
+							<span class="badge badge-sky text-xs fw-800 tabular-nums">{ fmt.Sprintf("%d / %d", data.VerifiedCount(), data.TotalRequirementsCount()) }</span>
+						</div>
+						<div class="tabular-nums" style="font-size:1.9rem; font-weight:900; color:var(--primary); margin-top:0.35rem; line-height:1.2;">
+							{ fmt.Sprintf("%d%%", data.CompletionPercentage()) }
+						</div>
+						<!-- Dynamic Progress Bar -->
+						<div style="width:100%; height:7px; background:var(--neutral-100); border-radius:4px; margin-top:0.5rem; overflow:hidden;">
+							<div style={ fmt.Sprintf("height:100%%; width:%d%%; border-radius:4px; background:linear-gradient(90deg, var(--primary), #10b981); transition:width 0.4s ease;", data.CompletionPercentage()) }></div>
+						</div>
+					</div>
+					<div style="font-size:0.75rem; color:var(--text-muted); margin-top:0.6rem; padding-top:0.4rem; border-top:1px solid var(--border-subtle);">
+						<span>{ fmt.Sprintf("%d مستندات معتمدة ومطابقة", data.VerifiedCount()) }</span>
+					</div>
+				</div>
+
+				<!-- Card 2: Legal Status -->
+				<div class="jobs-metric-card" style="padding:1.25rem; display:flex; flex-direction:column; justify-content:space-between;">
+					<div>
+						<span style="font-size:0.825rem; font-weight:700; color:var(--text-secondary);">حالة الحساب والاعتماد</span>
+						<div style="margin-top:0.4rem; display:flex; align-items:center; gap:0.5rem;">
+							if data.VerifiedCount() > 0 && len(data.Missing) == 0 {
+								<span style="width:10px; height:10px; border-radius:50%; background:var(--emerald); display:inline-block;"></span>
+								<strong style="font-size:1.05rem; font-weight:800; color:var(--text);">منشأة موثقة ومطابقة</strong>
+							} else if data.PendingCount() > 0 {
+								<span style="width:10px; height:10px; border-radius:50%; background:var(--sky); display:inline-block;"></span>
+								<strong style="font-size:1.05rem; font-weight:800; color:var(--text);">قيد التدقيق الإداري</strong>
+							} else {
+								<span style="width:10px; height:10px; border-radius:50%; background:var(--amber); display:inline-block;"></span>
+								<strong style="font-size:1.05rem; font-weight:800; color:var(--text);">بانتظار استكمال المستندات</strong>
+							}
+						</div>
+					</div>
+					<div style="font-size:0.75rem; color:var(--text-muted); margin-top:0.6rem; padding-top:0.4rem; border-top:1px solid var(--border-subtle);">
+						<span>تتم مراجعة كافة المستندات الرسمية خلال 24 ساعة</span>
+					</div>
+				</div>
+
+				<!-- Card 3: Official Requests Status -->
+				<div class="jobs-metric-card" style="padding:1.25rem; display:flex; flex-direction:column; justify-content:space-between;">
+					<div>
+						<span style="font-size:0.825rem; font-weight:700; color:var(--text-secondary);">طلبات الإدارة والمهل</span>
+						<div class="tabular-nums" style="font-size:1.9rem; font-weight:900; color:var(--text); margin-top:0.35rem; line-height:1.2;">
+							{ fmt.Sprintf("%d", len(data.ActiveDocRequests())) } <span style="font-size:0.85rem; font-weight:700; color:var(--text-muted);">طلبات معلقة</span>
+						</div>
+					</div>
+					<div style="font-size:0.75rem; color:var(--text-muted); margin-top:0.6rem; padding-top:0.4rem; border-top:1px solid var(--border-subtle);">
+						if len(data.ActiveDocRequests()) > 0 {
+							<span class="text-amber fw-700">يوجد مهام وتحديثات مطلوبة من الإدارة</span>
+						} else {
+							<span class="text-success fw-700">لا توجد طلبات مستندات معلقة حالياً</span>
+						}
+					</div>
+				</div>
+
+			</div>
+		}
+
+		<!-- Missing Mandatory Documents Warning -->
+		if data != nil && len(data.Missing) > 0 {
+			<div class="card" style="margin:0; padding:1rem 1.25rem; background:rgba(239, 68, 68, 0.06); border:1px solid rgba(239, 68, 68, 0.25); border-radius:var(--radius-xl); display:flex; align-items:center; gap:0.85rem;">
+				<div style="color:var(--rose); flex-shrink:0; font-size:1.4rem;">
+					⚠️
+				</div>
+				<div style="font-size:0.85rem; color:var(--rose-dark, #991b1b); line-height:1.5;">
+					<strong>تنبيه توثيق الحساب:</strong> يتطلب تفعيل الحساب وإتمام المعاملات اعتماد { data.MissingTitles() } من إدارة المنصة.
+				</div>
+			</div>
+		}
+
+		<!-- Error Message Banner -->
+		if data != nil && data.Error != "" {
+			<div class="card" style="margin:0; padding:1rem 1.25rem; background:rgba(239, 68, 68, 0.06); border:1px solid rgba(239, 68, 68, 0.25); border-radius:var(--radius-xl); color:var(--rose); font-size:0.875rem;">
+				{ data.Error }
+			</div>
+		}
+
+		<!-- SECTION 1: Administrative Document Requests (If any) -->
 		if data != nil && len(data.Requests) > 0 {
-			<div class="card" style="margin-bottom:0; padding:var(--space-5); border:1px solid rgba(245, 158, 11, 0.35); background:rgba(245, 158, 11, 0.08); border-radius:var(--radius-xl);">
-				<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:var(--space-4); flex-wrap:wrap; gap:0.5rem;">
-					<div class="row-center-sm">
-						<div style="color:#f59e0b; flex-shrink:0;">
-							@components.IconClock("icon-md")
+			<div class="card" style="margin:0; padding:1.35rem; border:1px solid rgba(245, 158, 11, 0.35); background:rgba(245, 158, 11, 0.04); border-radius:var(--radius-xl);">
+				<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem; flex-wrap:wrap; gap:0.5rem;">
+					<div style="display:flex; align-items:center; gap:0.6rem;">
+						<div style="color:#d97706; font-size:1.2rem;">
+							⏳
 						</div>
 						<div>
-							<h3 style="font-size:var(--text-md); font-weight:800; color:#f59e0b; margin:0 0 2px;">
-								مستندات وتراخيص رسمية مطلوبة من إدارة المنصة
+							<h3 style="font-size:1.05rem; font-weight:800; color:#b45309; margin:0;">
+								مستندات وتراخيص مطلوبة من إدارة المنصة
 							</h3>
-							<p style="font-size:var(--text-xs); color:var(--text-secondary); margin:0;">
-								يرجى رفع المستندات المطلوبة أدناه خلال المهلة المحددة لتجنب إيقاف وتجميد حساب المنشأة.
+							<p style="font-size:0.775rem; color:var(--text-secondary); margin:0.15rem 0 0 0;">
+								يرجى رفع المستندات المحددة أدناه خلال المهلة الزمنية المقررة لضمان استمرار تفعيل حساب المنشأة.
 							</p>
 						</div>
 					</div>
 				</div>
 
-				<div style="display:flex; flex-direction:column; gap:var(--space-3);">
+				<div style="display:flex; flex-direction:column; gap:0.75rem;">
 					for _, req := range data.Requests {
-						<div style="background:var(--surface-sunken); border:1px solid var(--border); border-radius:var(--radius-lg); padding:var(--space-4); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:var(--space-3);">
-							<div>
-								<div style="font-weight:700; color:var(--text); font-size:var(--text-sm); display:flex; align-items:center; gap:var(--space-2);">
-									<span>{ req.Title }</span>
-									if req.Status == attachments.DocReqFulfilled {
-										<span class="badge badge-emerald" style="font-size:10px;">معتمد ومطابق ✓</span>
+						if req != nil {
+							<div style="background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-lg); padding:1rem 1.25rem; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem;">
+								<div style="max-width:600px;">
+									<div style="display:flex; align-items:center; gap:0.5rem; flex-wrap:wrap;">
+										<strong style="font-size:0.95rem; color:var(--text);">{ req.Title }</strong>
+										if req.Status == attachments.DocReqFulfilled {
+											<span class="badge badge-emerald text-xs fw-800">معتمد ومطابق ✓</span>
+										} else if req.Status == attachments.DocReqSubmitted {
+											<span class="badge badge-sky text-xs fw-800">تم الرفع (قيد المراجعة)</span>
+										} else if req.IsOverdue() {
+											<span class="badge badge-rose text-xs fw-800">انتهت المهلة ⚠️</span>
+										} else {
+											<span class="badge badge-amber text-xs fw-800">متبقي { fmt.Sprintf("%d", req.DaysRemaining()) } يوم</span>
+										}
+									</div>
+									if req.Description != "" {
+										<div style="font-size:0.8rem; color:var(--text-secondary); margin-top:0.25rem; line-height:1.4;">
+											{ req.Description }
+										</div>
+									}
+									<div style="font-size:0.75rem; color:var(--text-muted); margin-top:0.35rem;">
+										الموعد النهائي: <strong class="tabular-nums text-primary">{ format.Date(req.DeadlineAt, "ar") }</strong>
+									</div>
+								</div>
+
+								<div>
+									if req.Status == attachments.DocReqPending {
+										<form action="/documents/upload" method="POST" enctype="multipart/form-data" style="margin:0; display:flex; gap:0.5rem; align-items:center; flex-wrap:wrap;">
+											<input type="hidden" name="request_id" value={ fmt.Sprintf("%d", req.ID) } />
+											<input type="hidden" name="document_type" value={ string(req.DocumentType) } />
+											<input type="file" name="file" accept=".pdf,.png,.jpg,.jpeg,.webp" required class="form-input input-sm" style="max-width:210px; font-size:0.775rem;" />
+											<button type="submit" class="btn btn-primary btn-sm fw-800">
+												@components.IconUpload("icon-xs")
+												<span>رفع المستند</span>
+											</button>
+										</form>
 									} else if req.Status == attachments.DocReqSubmitted {
-										<span class="badge badge-sky" style="font-size:10px;">تم الرفع (قيد المراجعة)</span>
-									} else if req.IsOverdue() {
-										<span class="badge badge-rose" style="font-size:10px;">انتهت المهلة ⚠️</span>
-									} else {
-										<span class="badge badge-amber" style="font-size:10px;">متبقي { fmt.Sprintf("%d", req.DaysRemaining()) } يوم</span>
+										<div style="display:flex; align-items:center; gap:0.4rem; font-size:0.8rem; font-weight:700; color:var(--primary);">
+											@components.IconClock("icon-xs")
+											<span>تم الرفع وبانتظار اعتماد الإدارة</span>
+										</div>
 									}
 								</div>
-								if req.Description != "" {
-									<div style="font-size:var(--text-xs); color:var(--text-secondary); margin-top:3px;">
-										{ req.Description }
-									</div>
-								}
-								<div style="font-size:var(--text-xs); color:var(--text-muted); margin-top:2px;">
-									تاريخ المهلة: <strong class="tabular-nums text-primary">{ format.Date(req.DeadlineAt, "ar") }</strong>
-								</div>
 							</div>
-
-							<div>
-								if req.Status == attachments.DocReqPending {
-									<form action="/documents/upload" method="POST" enctype="multipart/form-data" style="margin:0; display:inline-flex; gap:var(--space-2); align-items:center;">
-										<input type="hidden" name="request_id" value={ fmt.Sprintf("%d", req.ID) } />
-										<input type="hidden" name="document_type" value={ string(req.DocumentType) } />
-										<input type="file" name="file" accept=".pdf,.png,.jpg,.jpeg,.webp" required class="form-input" style="padding:0.35rem; font-size:var(--text-xs); max-width:200px;" />
-										<button type="submit" class="btn btn-primary btn-sm fw-700">
-											<span>رفع المستند المطلوب</span>
-										</button>
-									</form>
-								} else if req.Status == attachments.DocReqSubmitted {
-									<span style="font-size:var(--text-xs); font-weight:700; color:var(--primary-700);">تم رفع المستند وبانتظار اعتماد الإدارة</span>
-								}
-							</div>
-						</div>
+						}
 					}
 				</div>
 			</div>
 		}
 
-		if data != nil && len(data.Missing) > 0 {
-			<div style="background:rgba(239, 68, 68, 0.08); border:1px solid rgba(239, 68, 68, 0.35); color:#ef4444; border-radius:var(--radius-lg); padding:var(--space-4); display:flex; gap:var(--space-3); align-items:flex-start;">
-				@components.IconAlert("icon-md")
-				<div style="font-size:var(--text-sm); line-height:1.6;">
-					<strong>مستندات إلزامية غير معتمدة:</strong> { data.MissingTitles() }
-					— لا يمكن إتمام العمليات (نشر العروض / إنهاء الطلبات) حتى اعتمادها.
-				</div>
-			</div>
-		}
-
-		if data != nil && data.Error != "" {
-			<div style="background:rgba(239, 68, 68, 0.08); border:1px solid rgba(239, 68, 68, 0.35); color:#ef4444; border-radius:var(--radius-lg); padding:var(--space-4); font-size:var(--text-sm);">
-				{ data.Error }
-			</div>
-		}
-
-		<div class="card" style="margin-bottom:0; padding:var(--space-5);">
-			<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:var(--space-4);">
+		<!-- SECTION 2: Official Organization Documents Grid -->
+		<div class="card" style="margin:0; padding:1.5rem; border-radius:var(--radius-xl); border:1px solid var(--border); background:var(--surface-raised);">
+			<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.25rem; flex-wrap:wrap; gap:0.75rem;">
 				<div>
-					<h3 style="font-size:var(--text-lg); font-weight:800; color:var(--text); margin:0 0 2px;">مستندات المنشأة الرسمية</h3>
-					<p style="font-size:var(--text-xs); color:var(--text-secondary); margin:0;">
-						تُراجع الملفات من إدارة المنصة خلال 24 ساعة من رفعها.
+					<h3 style="font-size:1.15rem; font-weight:900; color:var(--text); margin:0 0 0.2rem 0;">
+						قائمة التراخيص والمستندات القانونية
+					</h3>
+					<p style="font-size:0.8rem; color:var(--text-secondary); margin:0;">
+						يمكنك رفع المستندات بصيغة (PDF، PNG، JPG، WebP) بحد أقصى 20 ميجابايت للملف.
 					</p>
 				</div>
 			</div>
@@ -116,68 +233,122 @@ templ OrganizationDocumentsContent(lang string, data *OrganizationDocumentsData)
 					Message: "لا توجد مستندات مطلوبة لهذا النوع من الحسابات.",
 				})
 			} else {
-				<div style="display:flex; flex-direction:column; gap:var(--space-4);">
-				for _, req := range data.Requirements {
-					if doc := data.LatestFor(req.DocType); true {
-						<div style="border:1px solid var(--border); border-radius:var(--radius-lg); padding:var(--space-4); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:var(--space-3);">
-							<div style="display:flex; align-items:center; gap:var(--space-3);">
-								@components.IconFile("icon-lg")
+				<div style="display:flex; flex-direction:column; gap:1rem;">
+					for _, req := range data.Requirements {
+						{{ doc := data.LatestFor(req.DocType) }}
+						<div
+							class="doc-requirement-card"
+							style="border:1px solid var(--border); border-radius:var(--radius-xl); padding:1.25rem 1.35rem; background:var(--surface); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1.25rem; transition:box-shadow 0.2s ease, border-color 0.2s ease;"
+						>
+							<!-- Document Info -->
+							<div style="display:flex; align-items:flex-start; gap:1rem; max-width:620px;">
+								<div style="width:42px; height:42px; border-radius:var(--radius-lg); background:var(--surface-sunken); border:1px solid var(--border); color:var(--primary); display:flex; align-items:center; justify-content:center; flex-shrink:0; font-size:1.25rem; margin-top:2px;">
+									if doc != nil && doc.Status == attachments.StatusVerified {
+										<span style="color:var(--emerald);">✓</span>
+									} else {
+										<span>📄</span>
+									}
+								</div>
 								<div>
-									<div style="font-weight:700; color:var(--text); font-size:var(--text-sm); display:flex; align-items:center; gap:var(--space-2);">
-										{ req.TitleAr }
+									<div style="display:flex; align-items:center; gap:0.5rem; flex-wrap:wrap;">
+										<h4 style="font-size:0.975rem; font-weight:800; color:var(--text); margin:0;">
+											{ req.TitleAr }
+										</h4>
 										if req.Required {
-											<span class="badge badge-rose" style="font-size:10px;">إلزامي</span>
+											<span class="badge badge-rose text-xs fw-800">إلزامي</span>
 										} else {
-											<span class="badge badge-slate" style="font-size:10px;">اختياري</span>
+											<span class="badge badge-slate text-xs fw-700">اختياري</span>
+										}
+
+										<!-- Status Pill -->
+										if doc != nil {
+											switch doc.Status {
+												case attachments.StatusVerified:
+													<span class="badge badge-emerald text-xs fw-800">معتمد ومطابق ✓</span>
+												case attachments.StatusRejected:
+													<span class="badge badge-rose text-xs fw-800">مرفوض ✗</span>
+												default:
+													<span class="badge badge-sky text-xs fw-800">قيد التدقيق والمراجعة</span>
+											}
+										} else {
+											<span class="badge badge-slate text-xs">لم يُرفع بعد</span>
 										}
 									</div>
-									<div style="font-size:var(--text-xs); color:var(--text-muted); margin-top:2px;">
-										if doc == nil {
-											لم يُرفع بعد
-										} else {
-											{ doc.OriginalName }
-											<span style="margin:0 6px; color:var(--border-strong);">|</span>
-											{ format.Date(doc.CreatedAt, "ar") }
+
+									if req.Description != "" {
+										<p style="font-size:0.8rem; color:var(--text-secondary); margin:0.25rem 0 0 0; line-height:1.4;">
+											{ req.Description }
+										</p>
+									}
+
+									<!-- File Meta -->
+									if doc != nil {
+										<div style="display:flex; align-items:center; gap:0.6rem; font-size:0.75rem; color:var(--text-muted); margin-top:0.4rem; flex-wrap:wrap;">
+											<span style="font-weight:700; color:var(--text);" dir="ltr">{ doc.OriginalName }</span>
+											<span style="color:var(--border-strong);">•</span>
+											if doc.SizeBytes > 0 {
+												<span class="tabular-nums">{ format.Bytes(doc.SizeBytes) }</span>
+												<span style="color:var(--border-strong);">•</span>
+											}
+											<span class="tabular-nums">تاريخ الرفع: { format.Date(doc.CreatedAt, "ar") }</span>
+										</div>
+
+										if doc.Status == attachments.StatusRejected && doc.ReviewNotes != "" {
+											<div style="margin-top:0.4rem; padding:0.35rem 0.65rem; background:rgba(239, 68, 68, 0.08); border-radius:var(--radius-sm); border:1px solid rgba(239, 68, 68, 0.2); font-size:0.775rem; color:var(--rose);">
+												<strong>سبب الرفض:</strong> { doc.ReviewNotes }
+											</div>
 										}
-									</div>
+									}
 								</div>
 							</div>
 
-							<div style="display:flex; align-items:center; gap:var(--space-3); flex-wrap:wrap;">
+							<!-- Actions & Upload Form -->
+							<div style="display:flex; align-items:center; gap:0.6rem; flex-wrap:wrap;">
 								if doc != nil {
-									<span style="display:inline-flex; align-items:center; gap:var(--space-1);">
-										switch doc.Status {
-											case attachments.StatusVerified:
-												<span class="badge badge-emerald">معتمد</span>
-											case attachments.StatusRejected:
-												<span class="badge badge-rose">مرفوض</span>
-											default:
-												<span class="badge badge-amber">قيد التدقيق</span>
-										}
-									</span>
-									if doc.Status == attachments.StatusRejected && doc.ReviewNotes != "" {
-										<span style="font-size:var(--text-xs); color:#b91c1c; max-width:220px;" title={ doc.ReviewNotes }>
-											{ doc.ReviewNotes }
-										</span>
-									}
-									<a href={ templ.SafeURL(doc.FileURL) } target="_blank" class="btn btn-secondary btn-sm">
+									<!-- View Button: Triggers Dynamic In-App Viewer Modal -->
+									<button
+										type="button"
+										class="btn btn-secondary btn-sm fw-700"
+										style="gap:0.35rem;"
+										onclick={ templ.ComponentScript{Call: fmt.Sprintf("openDocViewer(%d, %q, %q, %q, %q, %q)", doc.ID, req.TitleAr, string(doc.DocumentType), doc.OriginalName, string(doc.Status), doc.FileURL)} }
+									>
+										@components.IconEye("icon-xs")
 										<span>معاينة</span>
+									</button>
+
+									<!-- Direct Download Button -->
+									<a
+										href={ templ.SafeURL(fmt.Sprintf("/documents/%d/download", doc.ID)) }
+										class="btn btn-secondary btn-sm"
+										title="تحميل الملف إلى جهازك"
+									>
+										@components.IconDownload("icon-xs")
 									</a>
+
+									<!-- Delete Button (Only for pending docs) -->
+									if doc.Status == attachments.StatusPending {
+										<form action="/documents/delete" method="POST" style="margin:0; display:inline;" onsubmit="return confirm('هل أنت متأكد من رغبتك في حذف هذا المستند؟');">
+											<input type="hidden" name="id" value={ fmt.Sprintf("%d", doc.ID) } />
+											<button type="submit" class="btn btn-secondary btn-sm" style="color:var(--rose);" title="حذف المستند">
+												@components.IconTrash("icon-xs")
+											</button>
+										</form>
+									}
 								}
 
-								if doc != nil && doc.Status != attachments.StatusVerified {
-									<form action="/documents/delete" method="POST" class="m-0 inline">
-										<input type="hidden" name="id" value={ fmt.Sprintf("%d", doc.ID) } />
-										<button type="submit" class="btn btn-secondary btn-sm" style="color:#b91c1c;">
-											<span>حذف</span>
-										</button>
-									</form>
-								}
-
-								<form action="/documents/upload" method="POST" enctype="multipart/form-data" style="margin:0; display:inline-flex; gap:var(--space-2); align-items:center;">
+								<!-- Upload / Replace Form -->
+								<form action="/documents/upload" method="POST" enctype="multipart/form-data" style="margin:0; display:inline-flex; gap:0.4rem; align-items:center;">
 									<input type="hidden" name="document_type" value={ string(req.DocType) } />
-									<input type="file" name="file" accept=".pdf,.png,.jpg,.jpeg,.webp" required class="form-input" style="padding:0.35rem; font-size:var(--text-xs); max-width:200px;" />
-									<button type="submit" class="btn btn-primary btn-sm">
+									<input
+										type="file"
+										name="file"
+										id={ fmt.Sprintf("file-input-%s", req.DocType) }
+										accept=".pdf,.png,.jpg,.jpeg,.webp"
+										required
+										class="form-input input-sm"
+										style="padding:0.3rem 0.5rem; font-size:0.775rem; max-width:180px;"
+									/>
+									<button type="submit" class={ "btn btn-sm fw-700", templ.KV("btn-primary", doc == nil), templ.KV("btn-secondary", doc != nil) }>
 										if doc == nil {
 											<span>رفع</span>
 										} else {
@@ -187,10 +358,105 @@ templ OrganizationDocumentsContent(lang string, data *OrganizationDocumentsData)
 								</form>
 							</div>
 						</div>
-						}
 					}
 				</div>
 			}
 		</div>
+
 	</div>
+
+	<!-- Dynamic In-App Document Viewer Modal -->
+	@components.Modal(components.ModalProps{
+		ID:    "doc-viewer-modal",
+		Title: "معاينة المستند الرسمي",
+		Size:  "xl",
+	}) {
+		<div style="display:flex; flex-direction:column; gap:0.85rem; text-align:start;">
+			<!-- Modal Meta Bar -->
+			<div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.6rem; padding-bottom:0.75rem; border-bottom:1px solid var(--border);">
+				<div>
+					<h3 id="modal-doc-title" style="font-size:1.1rem; font-weight:800; color:var(--text); margin:0 0 0.2rem 0;">
+						معاينة المستند
+					</h3>
+					<span id="modal-doc-filename" style="font-size:0.8rem; color:var(--text-muted); font-family:monospace;" dir="ltr">
+						filename.pdf
+					</span>
+				</div>
+
+				<div style="display:flex; align-items:center; gap:0.5rem;">
+					<a
+						id="modal-doc-tab-btn"
+						href="#"
+						target="_blank"
+						class="btn btn-secondary btn-sm fw-700"
+						style="gap:0.35rem;"
+					>
+						@components.IconExternalLink("icon-xs")
+						<span>فتح في نافذة جديدة ↗</span>
+					</a>
+					<a
+						id="modal-doc-download-btn"
+						href="#"
+						class="btn btn-primary btn-sm fw-800"
+						style="gap:0.35rem;"
+					>
+						@components.IconDownload("icon-xs")
+						<span>تحميل الملف</span>
+					</a>
+				</div>
+			</div>
+
+			<!-- Dynamic Interactive Viewer Container -->
+			<div id="modal-doc-viewport" style="width:100%; min-height:600px; max-height:78vh; background:var(--surface-sunken); border-radius:var(--radius-lg); border:1px solid var(--border); overflow:hidden; display:flex; align-items:center; justify-content:center; position:relative;">
+				<iframe
+					id="modal-doc-iframe"
+					src="about:blank"
+					style="width:100%; height:75vh; border:none; border-radius:var(--radius-lg);"
+					loading="lazy"
+				></iframe>
+			</div>
+
+			<!-- Modal Footer -->
+			<div style="display:flex; justify-content:flex-end; gap:0.5rem; padding-top:0.5rem; border-top:1px solid var(--border);">
+				<button
+					type="button"
+					class="btn btn-secondary"
+					data-modal-close="doc-viewer-modal"
+				>
+					إغلاق المعاينة
+				</button>
+			</div>
+		</div>
+	}
+
+	<!-- Viewer Modal Logic -->
+	<script>
+		function openDocViewer(docId, title, docType, originalName, status, rawUrl) {
+			const viewUrl = '/documents/' + docId + '/view';
+			const downloadUrl = '/documents/' + docId + '/download';
+
+			const titleEl = document.getElementById('modal-doc-title');
+			const filenameEl = document.getElementById('modal-doc-filename');
+			const tabBtn = document.getElementById('modal-doc-tab-btn');
+			const downloadBtn = document.getElementById('modal-doc-download-btn');
+			const iframe = document.getElementById('modal-doc-iframe');
+
+			if (titleEl) titleEl.textContent = title;
+			if (filenameEl) filenameEl.textContent = originalName || ('Document #' + docId);
+			if (tabBtn) tabBtn.href = viewUrl;
+			if (downloadBtn) downloadBtn.href = downloadUrl;
+			if (iframe) iframe.src = viewUrl;
+
+			if (window.openModal) {
+				window.openModal('doc-viewer-modal');
+			} else {
+				const modal = document.getElementById('doc-viewer-modal');
+				if (modal) {
+					modal.classList.add('is-open');
+					modal.style.display = 'flex';
+				}
+			}
+		}
+	</script>
 }
+

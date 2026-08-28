@@ -98,9 +98,24 @@ func (s *Service) RegisterUpload(ctx context.Context, actor authctx.Actor, docTy
 		return nil, apperr.Validation("document.file_required", "ملف المستند مطلوب", nil)
 	}
 
-	orgID := actor.OrgID
+	var orgIDPtr *int64
+	orgID := actor.OrganizationID
+	if orgID <= 0 {
+		orgID = actor.OrgID
+	}
+	if orgID > 0 {
+		orgIDPtr = &orgID
+	}
+
+	var userIDPtr *int64
+	if actor.UserID > 0 {
+		v := actor.UserID
+		userIDPtr = &v
+	}
+
 	doc := &Document{
-		OrganizationID: &orgID,
+		OrganizationID: orgIDPtr,
+		UserID:         userIDPtr,
 		DocumentType:   docType,
 		FileURL:        url,
 		OriginalName:   strings.TrimSpace(originalName),
@@ -218,37 +233,66 @@ func (s *Service) ConfirmUpload(ctx context.Context, actor authctx.Actor, id int
 	return doc, nil
 }
 
-// GetDownloadURL generates a short-lived presigned GET URL for viewing or downloading the document.
-func (s *Service) GetDownloadURL(ctx context.Context, actor authctx.Actor, id int64) (string, error) {
+// GetDocumentByID retrieves a document ensuring the actor has access permissions.
+func (s *Service) GetDocumentByID(ctx context.Context, actor authctx.Actor, id int64) (*Document, error) {
 	doc, err := s.repo.GetByID(ctx, id)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
-	// Check access permissions
 	if !actor.IsPlatformAdmin() {
-		if doc.UserID != nil && *doc.UserID != actor.UserID && (doc.OrganizationID == nil || *doc.OrganizationID != actor.OrgID) {
-			return "", apperr.Forbidden("document.access_denied", "ليس لديك صلاحية الوصول لهذا المستند")
+		orgID := actor.OrganizationID
+		if orgID <= 0 {
+			orgID = actor.OrgID
+		}
+		hasAccess := false
+		if doc.OrganizationID != nil && orgID > 0 && *doc.OrganizationID == orgID {
+			hasAccess = true
+		}
+		if doc.UserID != nil && actor.UserID > 0 && *doc.UserID == actor.UserID {
+			hasAccess = true
+		}
+		if !hasAccess {
+			return nil, apperr.Forbidden("document.access_denied", "ليس لديك صلاحية الوصول لهذا المستند")
+		}
+	}
+	return doc, nil
+}
+
+// GetByIDAdmin fetches a document by ID directly for platform administrative tasks.
+func (s *Service) GetByIDAdmin(ctx context.Context, id int64) (*Document, error) {
+	return s.repo.GetByID(ctx, id)
+}
+
+// GetDownloadURL generates a secure URL for viewing or downloading the document.
+func (s *Service) GetDownloadURL(ctx context.Context, actor authctx.Actor, id int64) (string, error) {
+	doc, err := s.GetDocumentByID(ctx, actor, id)
+	if err != nil {
+		if actor.IsPlatformAdmin() {
+			doc, err = s.repo.GetByID(ctx, id)
+		}
+		if err != nil || doc == nil {
+			return "", err
 		}
 	}
 
 	fileURL := strings.TrimSpace(doc.FileURL)
 	if fileURL == "" {
-		return "/static/docs/placeholder.pdf", nil
+		return "", apperr.NotFound("document.file_empty")
 	}
 
 	// If it's already a direct HTTP(S) URL or local uploads/static path, return it directly
-	if strings.HasPrefix(fileURL, "http://") || strings.HasPrefix(fileURL, "https://") || strings.HasPrefix(fileURL, "/uploads/") || strings.HasPrefix(fileURL, "/static/") {
+	if strings.HasPrefix(fileURL, "http://") || strings.HasPrefix(fileURL, "https://") || strings.HasPrefix(fileURL, "/uploads/") || strings.HasPrefix(fileURL, "/static/") || strings.HasPrefix(fileURL, "/documents/") {
 		return fileURL, nil
 	}
 
 	if s.storage != nil {
-		presigned, presignErr := s.storage.PresignGet(ctx, fileURL, 30*time.Minute)
+		presigned, presignErr := s.storage.PresignGet(ctx, fileURL, 60*time.Minute)
 		if presignErr == nil && presigned != "" {
 			return presigned, nil
 		}
 		if s.log != nil {
-			s.log.WarnContext(ctx, "storage presign get failed, falling back to direct key or placeholder", "id", id, "key", fileURL, "error", presignErr)
+			s.log.WarnContext(ctx, "storage presign get failed", "id", id, "key", fileURL, "error", presignErr)
 		}
 	}
 

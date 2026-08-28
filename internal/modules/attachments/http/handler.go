@@ -110,8 +110,8 @@ func (h *Handler) downloadURL(w http.ResponseWriter, r *http.Request) {
 				return
 			}
 		}
-		h.log.WarnContext(r.Context(), "downloadURL fallback to placeholder", "id", id, "error", err)
-		url = "/static/docs/placeholder.pdf"
+		httpx.Error(w, r, h.log, apperr.NotFound("تعذر العثور على رابط المستند المطلوب"))
+		return
 	}
 
 	if r.Header.Get("Accept") == "application/json" {

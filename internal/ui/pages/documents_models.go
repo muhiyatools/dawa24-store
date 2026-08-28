@@ -4,46 +4,94 @@ import (
 	"github.com/muhiya/dawa24-store/internal/modules/attachments"
 )
 
-// docTitlesAr is the UI-facing Arabic title per document type. The type set
-// itself lives in the attachments module (RequirementsFor); only presentation
-// lives here.
+// docTitlesAr is the UI-facing Arabic title per document type.
 var docTitlesAr = map[attachments.DocumentType]string{
-	attachments.DocCommercialRegister:  "السجل التجاري",
-	attachments.DocTaxCard:             "البطاقة الضريبية",
-	attachments.DocPharmacyLicense:     "ترخيص الصيدلية",
-	attachments.DocPharmacistLicense:   "بطاقة الصيدلي",
-	attachments.DocAuthorizationLetter: "خطاب تفويض",
+	attachments.DocCommercialRegister:  "السجل التجاري (Commercial Register)",
+	attachments.DocTaxCard:             "البطاقة الضريبية (Tax Card)",
+	attachments.DocPharmacyLicense:     "ترخيص المنشأة الصيدلية (Facility License)",
+	attachments.DocPharmacistLicense:   "ترخيص مزاولة المهنة للصيدلي (Pharmacist License)",
+	attachments.DocNationalID:          "بطاقة الرقم القومي (National ID)",
+	attachments.DocAuthorizationLetter: "خطاب التفويض الرسمي (Authorization Letter)",
+	attachments.DocBankCertificate:     "شهادة الحساب البنكي (Bank Certificate)",
+	attachments.DocOther:               "مستند رسمي إضافي (Other Document)",
 }
 
-// DocRequirement is one entry of the mandatory-document table (Rebuild V2
-// §4.2): a document type, its Arabic title, and whether the audience must
-// hold it to trade.
+// DocRequirement is one entry of the document requirement table.
 type DocRequirement struct {
-	DocType  attachments.DocumentType
-	TitleAr  string
-	Required bool
+	DocType     attachments.DocumentType
+	TitleAr     string
+	Description string
+	Required    bool
 }
 
 // docRequirements returns the audience requirement set with UI titles.
 func docRequirements(vendor bool) []DocRequirement {
-	orgType := "customer"
 	if vendor {
-		orgType = "vendor"
+		return []DocRequirement{
+			{
+				DocType:     attachments.DocCommercialRegister,
+				TitleAr:     "السجل التجاري ساري المفعول",
+				Description: "شهادة القيد بالسجل التجاري للمنشأة لم يمر عليها أكثر من 3 أشهر.",
+				Required:    true,
+			},
+			{
+				DocType:     attachments.DocTaxCard,
+				TitleAr:     "البطاقة الضريبية",
+				Description: "البطاقة الضريبية سارية ومسجلة باسم المنشأة.",
+				Required:    true,
+			},
+			{
+				DocType:     attachments.DocPharmacyLicense,
+				TitleAr:     "ترخيص هيئة الدواء المصرية / ترخيص المخزن",
+				Description: "ترخيص مخزن الأدوية أو المنشأة الصادرة من هيئة الدواء المصرية.",
+				Required:    true,
+			},
+			{
+				DocType:     attachments.DocAuthorizationLetter,
+				TitleAr:     "خطاب تفويض المدير المسؤول",
+				Description: "تفويض رسمي موثق للشخص المفوض بإدارة الحساب وإبرام الصفقات.",
+				Required:    false,
+			},
+		}
 	}
-	reqs := attachments.RequirementsFor(orgType)
-	out := make([]DocRequirement, 0, len(reqs))
-	for _, r := range reqs {
-		out = append(out, DocRequirement{
-			DocType:  r.DocType,
-			TitleAr:  docTitlesAr[r.DocType],
-			Required: r.Required,
-		})
+
+	return []DocRequirement{
+		{
+			DocType:     attachments.DocPharmacyLicense,
+			TitleAr:     "ترخيص المنشأة الصيدلية الرسمية",
+			Description: "ترخيص فتح الصيدلية الصادر من وزارة الصحة أو هيئة الدواء المصرية.",
+			Required:    true,
+		},
+		{
+			DocType:     attachments.DocPharmacistLicense,
+			TitleAr:     "ترخيص مزاولة المهنة للصيدلي المدير",
+			Description: "ترخيص مزاولة مهنة الصيدلة للصيدلي المسؤول أو المدير الفني للصيدلية.",
+			Required:    true,
+		},
+		{
+			DocType:     attachments.DocCommercialRegister,
+			TitleAr:     "السجل التجاري (إن وجد)",
+			Description: "مستخرج حديث من السجل التجاري للصيدلية أو المجموعة.",
+			Required:    false,
+		},
+		{
+			DocType:     attachments.DocTaxCard,
+			TitleAr:     "البطاقة الضريبية",
+			Description: "صورة واضحة من البطاقة الضريبية سارية الصلاحية.",
+			Required:    false,
+		},
+		{
+			DocType:     attachments.DocAuthorizationLetter,
+			TitleAr:     "خطاب تفويض / توكيل الإدارة",
+			Description: "تفويض رسمي موثق في حال كان المفوض غير الصيدلي المالك أو المدير.",
+			Required:    false,
+		},
 	}
-	return out
 }
 
 // OrganizationDocumentsData backs the shared customer/vendor documents screen.
 type OrganizationDocumentsData struct {
+	IsVendor     bool
 	Requirements []DocRequirement
 	Docs         []*attachments.Document
 	Requests     []*attachments.DocumentRequest
@@ -52,10 +100,13 @@ type OrganizationDocumentsData struct {
 }
 
 // BuildOrganizationDocumentsData groups the org's documents by requirement
-// and computes which mandatory ones are missing. The latest document of each
-// type is what the screen acts on (replace/delete).
+// and computes which mandatory ones are missing.
 func BuildOrganizationDocumentsData(docs []*attachments.Document, requests []*attachments.DocumentRequest, vendor bool) *OrganizationDocumentsData {
-	data := &OrganizationDocumentsData{Docs: docs, Requests: requests}
+	data := &OrganizationDocumentsData{
+		IsVendor: vendor,
+		Docs:     docs,
+		Requests: requests,
+	}
 	data.Requirements = docRequirements(vendor)
 
 	hasVerified := false
@@ -78,7 +129,7 @@ func BuildOrganizationDocumentsData(docs []*attachments.Document, requests []*at
 func (d *OrganizationDocumentsData) LatestFor(t attachments.DocumentType) *attachments.Document {
 	var latest *attachments.Document
 	for _, doc := range d.Docs {
-		if doc == nil || doc.DocumentType != t {
+		if doc == nil || doc.DocumentType != t || doc.DeletedAt != nil {
 			continue
 		}
 		if latest == nil || doc.CreatedAt.After(latest.CreatedAt) {
@@ -86,6 +137,64 @@ func (d *OrganizationDocumentsData) LatestFor(t attachments.DocumentType) *attac
 		}
 	}
 	return latest
+}
+
+// TotalRequirementsCount returns total requirements.
+func (d *OrganizationDocumentsData) TotalRequirementsCount() int {
+	return len(d.Requirements)
+}
+
+// VerifiedCount counts requirements that have an active verified document.
+func (d *OrganizationDocumentsData) VerifiedCount() int {
+	count := 0
+	for _, req := range d.Requirements {
+		if doc := d.LatestFor(req.DocType); doc != nil && doc.Status == attachments.StatusVerified {
+			count++
+		}
+	}
+	return count
+}
+
+// PendingCount counts requirements currently under administrative review.
+func (d *OrganizationDocumentsData) PendingCount() int {
+	count := 0
+	for _, req := range d.Requirements {
+		if doc := d.LatestFor(req.DocType); doc != nil && doc.Status == attachments.StatusPending {
+			count++
+		}
+	}
+	return count
+}
+
+// RejectedCount counts requirements that were rejected.
+func (d *OrganizationDocumentsData) RejectedCount() int {
+	count := 0
+	for _, req := range d.Requirements {
+		if doc := d.LatestFor(req.DocType); doc != nil && doc.Status == attachments.StatusRejected {
+			count++
+		}
+	}
+	return count
+}
+
+// CompletionPercentage returns integer percentage of verified documents against total requirements.
+func (d *OrganizationDocumentsData) CompletionPercentage() int {
+	if len(d.Requirements) == 0 {
+		return 100
+	}
+	v := d.VerifiedCount()
+	return (v * 100) / len(d.Requirements)
+}
+
+// ActiveDocRequests returns active (pending or submitted) requests from platform administration.
+func (d *OrganizationDocumentsData) ActiveDocRequests() []*attachments.DocumentRequest {
+	var active []*attachments.DocumentRequest
+	for _, r := range d.Requests {
+		if r != nil && (r.Status == attachments.DocReqPending || r.Status == attachments.DocReqSubmitted) {
+			active = append(active, r)
+		}
+	}
+	return active
 }
 
 // MissingTitles joins the missing requirements for the banner message.

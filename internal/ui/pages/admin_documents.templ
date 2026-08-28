@@ -126,8 +126,8 @@ templ AdminDocuments(docs []*attachments.Document, total int, filter attachments
 									</td>
 									<td class="text-end">
 										<div style="display:inline-flex; gap:var(--space-2);">
-											<a href={ templ.SafeURL(fmt.Sprintf("/api/v1/attachments/%d", doc.ID)) } target="_blank" class="btn btn-secondary btn-sm">
-												<span>معاينة</span>
+											<a href={ templ.SafeURL(fmt.Sprintf("/documents/%d/view", doc.ID)) } target="_blank" class="btn btn-secondary btn-sm">
+												<span>معاينة ↗</span>
 											</a>
 											if doc.Status == attachments.StatusPending {
 												<button

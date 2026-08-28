@@ -26,16 +26,15 @@ func RegisterUploadRoutes(r chi.Router) {
 	_ = os.MkdirAll(filepath.Join(UploadBaseDir, "avatars"), 0755)
 	_ = os.MkdirAll(filepath.Join(UploadBaseDir, "resumes"), 0755)
 	_ = os.MkdirAll(filepath.Join(UploadBaseDir, "products"), 0755)
+	_ = os.MkdirAll(filepath.Join(UploadBaseDir, "documents"), 0755)
+	_ = os.MkdirAll(filepath.Join(UploadBaseDir, "brands"), 0755)
+	_ = os.MkdirAll(filepath.Join(UploadBaseDir, "compare"), 0755)
+	_ = os.MkdirAll(filepath.Join(UploadBaseDir, "imports"), 0755)
 
 	fs := http.FileServer(http.Dir(UploadBaseDir))
 	r.Get("/uploads/*", func(w http.ResponseWriter, r *http.Request) {
-		rctx := chi.RouteContext(r.Context())
-		pathPrefix := strings.TrimSuffix(rctx.RoutePattern(), "/*")
-		fsHandler := http.StripPrefix(pathPrefix, fs)
-
-		// Set caching & inline header for images/PDFs
 		w.Header().Set("Cache-Control", "public, max-age=86400")
-		fsHandler.ServeHTTP(w, r)
+		http.StripPrefix("/uploads", fs).ServeHTTP(w, r)
 	})
 }
 

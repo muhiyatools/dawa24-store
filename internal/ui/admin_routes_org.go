@@ -35,6 +35,8 @@ func (h *UIHandler) registerAdminOrgRoutes(r chi.Router) {
 		g.Post("/admin/approvals/{id}/review", h.AdminOrgReviewSubmit)
 		g.Post("/admin/document-requests", h.AdminCreateDocumentRequestSubmit)
 		g.Post("/admin/document-requests/{id}/cancel", h.AdminCancelDocumentRequestSubmit)
+		g.Get("/admin/documents/{id}/view", h.DocumentViewHandler)
+		g.Get("/admin/documents/{id}/download", h.DocumentDownloadHandler)
 		g.Post("/admin/documents/{id}/verify", h.AdminVerifyUploadedDocSubmit)
 	})
 

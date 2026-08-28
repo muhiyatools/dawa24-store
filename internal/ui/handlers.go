@@ -597,6 +597,10 @@ func (h *UIHandler) RegisterSharedRoutes(r chi.Router) {
 	r.Get("/customer/documents", h.OrganizationDocumentsPage)
 	r.Get("/vendor/documents", h.OrganizationDocumentsPage)
 	r.Get("/documents", h.OrganizationDocumentsPage)
+	r.Get("/documents/{id}/view", h.DocumentViewHandler)
+	r.Get("/documents/{id}/download", h.DocumentDownloadHandler)
+	r.Get("/customer/documents/{id}/view", h.DocumentViewHandler)
+	r.Get("/vendor/documents/{id}/view", h.DocumentViewHandler)
 	r.Post("/documents/upload", h.OrganizationDocumentsUploadSubmit)
 	r.Post("/documents/delete", h.OrganizationDocumentDeleteSubmit)
 

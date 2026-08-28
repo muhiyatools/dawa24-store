@@ -1,10 +1,15 @@
 package ui
 
 import (
+	"fmt"
 	"net/http"
+	"os"
+	"path/filepath"
 	"strconv"
 	"strings"
+	"time"
 
+	"github.com/go-chi/chi/v5"
 	"github.com/muhiya/dawa24-store/internal/modules/attachments"
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/ui/pages"
@@ -148,4 +153,128 @@ func saveUploadedFileMeta(r *http.Request, formKey, category string) (url, name 
 		name = header.Filename
 	}
 	return url, name, nil
+}
+
+// DocumentViewHandler streams or redirects to the document file for in-browser viewing / preview.
+func (h *UIHandler) DocumentViewHandler(w http.ResponseWriter, r *http.Request) {
+	h.serveDocumentFile(w, r, false)
+}
+
+// DocumentDownloadHandler forces downloading the document file.
+func (h *UIHandler) DocumentDownloadHandler(w http.ResponseWriter, r *http.Request) {
+	h.serveDocumentFile(w, r, true)
+}
+
+// serveDocumentFile safely finds, verifies access to, and streams a document file.
+func (h *UIHandler) serveDocumentFile(w http.ResponseWriter, r *http.Request, download bool) {
+	ctx := r.Context()
+	actor, ok := authctx.From(ctx)
+	if !ok {
+		http.Error(w, "يجب تسجيل الدخول لعرض المستند", http.StatusUnauthorized)
+		return
+	}
+
+	idStr := chi.URLParam(r, "id")
+	if idStr == "" {
+		idStr = r.URL.Query().Get("id")
+	}
+	id, err := strconv.ParseInt(idStr, 10, 64)
+	if err != nil || id <= 0 {
+		http.Error(w, "معرف المستند غير صالح", http.StatusBadRequest)
+		return
+	}
+
+	if h.attSvc == nil {
+		http.Error(w, "خدمة المستندات غير متاحة", http.StatusServiceUnavailable)
+		return
+	}
+
+	doc, err := h.attSvc.GetDocumentByID(ctx, actor, id)
+	if err != nil {
+		if actor.IsPlatformAdmin() || actor.IsStaff {
+			doc, err = h.attSvc.GetByIDAdmin(ctx, id)
+		}
+		if err != nil || doc == nil {
+			http.Error(w, "المستند غير موجود أو ليس لديك صلاحية لعرضه", http.StatusForbidden)
+			return
+		}
+	}
+
+	fileURL := strings.TrimSpace(doc.FileURL)
+	if fileURL == "" {
+		http.Error(w, "ملف المستند غير موجود", http.StatusNotFound)
+		return
+	}
+
+	// 1. If it's a remote URL (http:// or https://), redirect directly
+	if strings.HasPrefix(fileURL, "http://") || strings.HasPrefix(fileURL, "https://") {
+		http.Redirect(w, r, fileURL, http.StatusTemporaryRedirect)
+		return
+	}
+
+	// 2. Check local disk locations
+	cleanPath := strings.TrimPrefix(fileURL, "/uploads/")
+	candidates := []string{
+		filepath.Join("data", "uploads", cleanPath),
+		filepath.Join(UploadBaseDir, cleanPath),
+		filepath.Join("data", fileURL),
+		fileURL,
+		filepath.Join(UploadBaseDir, "documents", filepath.Base(fileURL)),
+		filepath.Join(UploadBaseDir, "licenses", filepath.Base(fileURL)),
+	}
+
+	for _, cand := range candidates {
+		info, statErr := os.Stat(cand)
+		if statErr == nil && !info.IsDir() {
+			f, openErr := os.Open(cand)
+			if openErr == nil {
+				defer f.Close()
+
+				// Determine mime type
+				mimeType := doc.MimeType
+				if mimeType == "" {
+					ext := strings.ToLower(filepath.Ext(cand))
+					switch ext {
+					case ".pdf":
+						mimeType = "application/pdf"
+					case ".png":
+						mimeType = "image/png"
+					case ".jpg", ".jpeg":
+						mimeType = "image/jpeg"
+					case ".webp":
+						mimeType = "image/webp"
+					default:
+						mimeType = "application/octet-stream"
+					}
+				}
+
+				filename := doc.OriginalName
+				if filename == "" {
+					filename = filepath.Base(cand)
+				}
+
+				disposition := "inline"
+				if download {
+					disposition = "attachment"
+				}
+
+				w.Header().Set("Content-Type", mimeType)
+				w.Header().Set("Content-Disposition", fmt.Sprintf(`%s; filename="%s"`, disposition, filename))
+				w.Header().Set("Cache-Control", "private, max-age=3600")
+				http.ServeContent(w, r, filename, info.ModTime(), f)
+				return
+			}
+		}
+	}
+
+	// 3. If storage client (S3/MinIO) is configured, get presigned URL or redirect
+	if h.storage != nil {
+		presigned, presignErr := h.storage.PresignGet(ctx, fileURL, 60*time.Minute)
+		if presignErr == nil && presigned != "" {
+			http.Redirect(w, r, presigned, http.StatusTemporaryRedirect)
+			return
+		}
+	}
+
+	http.Error(w, "تعذر العثور على ملف المستند على الخادم", http.StatusNotFound)
 }
