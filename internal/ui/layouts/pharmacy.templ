@@ -43,9 +43,9 @@ templ CustomerShell(title string, activeNav string, lang string, dir string, per
 							@components.IconHome("icon-sm")
 							<span>{ i18n.T(lang, "nav.dashboard") }</span>
 						</a>
-						<a href="/customer/smart-order" class={ "sidebar-link", templ.KV("active", activeNav == "smart_order" || activeNav == "smart-order" || activeNav == "purchase-request") }>
-							@components.IconZap("icon-sm")
-							<span>الطلب الذكي</span>
+						<a href="/customer/purchase-request" class={ "sidebar-link", templ.KV("active", activeNav == "purchase-request" || activeNav == "purchase_request" || activeNav == "smart-order" || activeNav == "smart_order") }>
+							@components.IconShoppingBag("icon-sm")
+							<span>طلب الشراء</span>
 						</a>
 						<a href="/orders" class={ "sidebar-link", templ.KV("active", activeNav == "orders") }>
 							@components.IconTruck("icon-sm")

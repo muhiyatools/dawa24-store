@@ -253,15 +253,15 @@ templ CustomerBranches(data CustomerBranchesData, lang string, dir string, perms
 											</div>
 
 											<div style="display:flex; align-items:center; gap:0.4rem;">
-												<!-- Edit Branch Button -->
-												<button
-													type="button"
+												<!-- Edit Branch Button (Full Page) -->
+												<a
+													href={ templ.SafeURL(fmt.Sprintf("/customer/branches/%d/edit", b.ID)) }
 													class="btn btn-secondary btn-xs fw-700"
-													data-modal-open={ fmt.Sprintf("edit-branch-modal-%d", b.ID) }
 													style="gap:0.25rem;"
 												>
+													@components.IconEdit("icon-xs")
 													<span>تعديل</span>
-												</button>
+												</a>
 
 												<!-- Add Employee to Branch Button -->
 												<button
@@ -644,128 +644,7 @@ templ CustomerBranches(data CustomerBranchesData, lang string, dir string, perms
 
 			<!-- MODALS -->
 
-			<!-- 1. Edit Branch Modals (for each branch) -->
-			for _, b := range data.Branches {
-				<div id={ fmt.Sprintf("edit-branch-modal-%d", b.ID) } class="modal-overlay hidden">
-					<div class="modal-card" style="max-width:580px; padding:1.75rem; background:var(--surface-raised); border-radius:var(--radius-xl); border:1px solid var(--border); box-shadow:var(--shadow-lg); max-height:90vh; overflow-y:auto;">
-						<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.25rem; border-bottom:1px solid var(--border); padding-bottom:0.75rem;">
-							<div style="display:flex; align-items:center; gap:0.5rem;">
-								@components.IconBuilding("icon-sm")
-								<h3 class="text-base fw-800 text-primary m-0">
-									تعديل بيانات فرع الصيدلية
-								</h3>
-							</div>
-							<button type="button" class="btn btn-secondary btn-icon" data-modal-close={ fmt.Sprintf("edit-branch-modal-%d", b.ID) } style="border:none;">
-								@components.IconClose("icon-sm")
-							</button>
-						</div>
-
-						<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/customer/branches/%d/edit", b.ID)) } style="display:flex; flex-direction:column; gap:1rem;">
-							<div style="display:grid; grid-template-columns:1fr 1fr; gap:0.75rem;">
-								<div>
-									<label class="form-label" style="font-size:0.8rem; font-weight:700;">اسم الفرع بالعربية <span class="text-danger">*</span></label>
-									<input type="text" name="name_ar" value={ b.Name.Get(i18n.AR) } required class="form-input input-sm w-full"/>
-								</div>
-								<div>
-									<label class="form-label" style="font-size:0.8rem; font-weight:700;">اسم الفرع بالإنجليزية</label>
-									<input type="text" name="name_en" value={ b.Name.Get(i18n.EN) } class="form-input input-sm w-full"/>
-								</div>
-							</div>
-
-							<div style="display:grid; grid-template-columns:1fr 1fr; gap:0.75rem;">
-								<div>
-									<label class="form-label" style="font-size:0.8rem; font-weight:700;">كود الفرع الداخلي</label>
-									<input type="text" name="code" value={ b.Code } class="form-input input-sm tabular-nums w-full"/>
-								</div>
-								<div>
-									<label class="form-label" style="font-size:0.8rem; font-weight:700;">المدينة / المحافظة <span class="text-danger">*</span></label>
-									<select name="city_id" required class="form-input input-sm w-full">
-										<option value="">-- اختر المدينة / المحافظة --</option>
-										for _, c := range data.Cities {
-											<option
-												value={ fmt.Sprintf("%d", c.ID) }
-												data-lat={ fmt.Sprintf("%.6f", c.Latitude) }
-												data-lng={ fmt.Sprintf("%.6f", c.Longitude) }
-												selected?={ b.CityID != nil && *b.CityID == c.ID }
-											>
-												if c.Name["ar"] != "" {
-													{ c.Name["ar"] }
-												} else {
-													{ c.Name["en"] }
-												}
-											</option>
-										}
-									</select>
-								</div>
-							</div>
-
-							<div>
-								<label class="form-label" style="font-size:0.8rem; font-weight:700;">العنوان التفصيلي <span class="text-danger">*</span></label>
-								<input type="text" name="address" value={ b.Address } required class="form-input input-sm w-full"/>
-							</div>
-
-							<div style="display:grid; grid-template-columns:1fr 1fr; gap:0.75rem;">
-								<div>
-									<label class="form-label" style="font-size:0.8rem; font-weight:700;">رقم هاتف الفرع</label>
-									<input type="tel" name="phone" value={ b.Phone } class="form-input input-sm tabular-nums w-full"/>
-								</div>
-								<div>
-									<label class="form-label" style="font-size:0.8rem; font-weight:700;">ساعات العمل</label>
-									<input type="text" name="operating_hours" value={ b.OperatingHours } class="form-input input-sm w-full"/>
-								</div>
-							</div>
-
-							<!-- Map Picker in Edit Modal -->
-							<div class="stack-xs">
-								<label style="display:block; font-size:0.775rem; font-weight:700; color:var(--text-secondary);">
-									🗺️ تعديل موقع الفرع على الخريطة
-								</label>
-								{{
-									curLat := "30.0444"
-									curLon := "31.2357"
-									if b.Latitude != nil { curLat = fmt.Sprintf("%.6f", *b.Latitude) }
-									if b.Longitude != nil { curLon = fmt.Sprintf("%.6f", *b.Longitude) }
-								}}
-								<div data-map-picker data-default-lat={ curLat } data-default-lon={ curLon } style="border-radius:var(--radius-lg); overflow:hidden; border:1px solid var(--border); background:var(--surface-sunken); position:relative;">
-									<div class="map-container map-canvas" style="height:180px; width:100%; z-index:1;"></div>
-									<div style="display:flex; justify-content:space-between; align-items:center; padding:0.4rem 0.75rem; background:var(--surface-raised); border-top:1px solid var(--border); font-size:0.75rem;">
-										<span data-map-coords-badge class="tabular-nums fw-700 text-primary">{ curLat }, { curLon }</span>
-										<button type="button" data-map-locate class="btn btn-secondary btn-xs fw-700">📍 موقعي</button>
-									</div>
-									<input type="hidden" name="latitude" data-map-input="lat" value={ curLat }/>
-									<input type="hidden" name="longitude" data-map-input="lon" value={ curLon }/>
-								</div>
-							</div>
-
-							<div>
-								<label class="form-label" style="font-size:0.775rem; font-weight:700;">🔗 رابط خرائط Google</label>
-								<input type="url" name="google_maps_url" value={ b.GoogleMapsURL } class="form-input input-sm w-full" style="font-size:0.75rem;"/>
-							</div>
-
-							<div style="display:flex; flex-direction:column; gap:0.5rem; background:var(--surface-sunken); padding:0.75rem 0.85rem; border-radius:var(--radius-md); border:1px solid var(--border);">
-								<label style="display:flex; align-items:center; gap:0.5rem; cursor:pointer; font-size:0.8rem; font-weight:700; color:var(--text);">
-									<input type="checkbox" name="has_cold_storage" value="true" checked?={ b.HasColdStorage } style="width:16px; height:16px; accent-color:var(--accent);"/>
-									<span>❄️ تتوفر ثلاجة لحفظ وتبريد الأدوية (2-8°C)</span>
-								</label>
-								<label style="display:flex; align-items:center; gap:0.5rem; cursor:pointer; font-size:0.8rem; font-weight:700; color:var(--text);">
-									<input type="checkbox" name="is_main" value="true" checked?={ b.IsMain } style="width:16px; height:16px; accent-color:var(--accent);"/>
-									<span>تعيين كفرع رئيسي لاستلام الطلبيات</span>
-								</label>
-							</div>
-
-							<div style="display:flex; justify-content:flex-end; gap:0.6rem; margin-top:0.5rem;">
-								<button type="button" class="btn btn-secondary btn-sm" data-modal-close={ fmt.Sprintf("edit-branch-modal-%d", b.ID) }>إلغاء</button>
-								<button type="submit" class="btn btn-primary btn-sm fw-700">
-									@components.IconCheck("icon-xs")
-									<span>حفظ التعديلات</span>
-								</button>
-							</div>
-						</form>
-					</div>
-				</div>
-			}
-
-			<!-- 2. Add Employee Modal -->
+			<!-- 1. Add Employee Modal -->
 			<div id="add-employee-modal" class="modal-overlay hidden">
 				<div class="modal-card" style="max-width:540px; padding:1.75rem; background:var(--surface-raised); border-radius:var(--radius-xl); border:1px solid var(--border); box-shadow:var(--shadow-lg);">
 					<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.25rem; border-bottom:1px solid var(--border); padding-bottom:0.75rem;">

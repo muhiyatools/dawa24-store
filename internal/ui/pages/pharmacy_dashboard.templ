@@ -206,16 +206,16 @@ templ PharmacyDashboard(lang, dir string, data PharmacyDashboardData, perms []st
 				</div>
 				<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(170px, 1fr)); gap:0.75rem;">
 					
-					<!-- Action 1: New Order / Catalog -->
-					<a href="/storefront" class="btn btn-secondary" style="justify-content:flex-start; font-weight:700; padding:0.65rem 0.85rem; font-size:0.825rem; border-radius:var(--radius-lg); gap:0.5rem; border-color:var(--border);">
+					<!-- Action 1: Purchase Request Hub (طلب الشراء) -->
+					<a href="/customer/purchase-request" class="btn btn-secondary" style="justify-content:flex-start; font-weight:700; padding:0.65rem 0.85rem; font-size:0.825rem; border-radius:var(--radius-lg); gap:0.5rem; border-color:var(--border);">
 						<span style="color:var(--primary);">@components.IconShoppingBag("icon-xs")</span>
-						<span>إنشاء طلب جديد</span>
+						<span>طلب الشراء</span>
 					</a>
 
 					<!-- Action 2: New Smart Order (الطلب الذكي) -->
 					<a href="/customer/smart-order/new" class="btn btn-secondary" style="justify-content:flex-start; font-weight:700; padding:0.65rem 0.85rem; font-size:0.825rem; border-radius:var(--radius-lg); gap:0.5rem; border-color:var(--border);">
 						<span style="color:#7c3aed;">@components.IconZap("icon-xs")</span>
-						<span>إنشاء طلب ذكي</span>
+						<span>الطلب الذكي</span>
 					</a>
 
 					<!-- Action 3: Top up Wallet -->

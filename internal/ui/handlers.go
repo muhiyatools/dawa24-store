@@ -354,6 +354,8 @@ func (h *UIHandler) RegisterCustomerRoutes(r chi.Router) {
 
 	// Pharmacy Branches & Delivery Receiving Locations (Rebuild V2 §5)
 	r.Get("/customer/branches", h.CustomerBranchesPage)
+	r.Get("/customer/branches/create", h.CustomerBranchCreatePage)
+	r.Get("/customer/branches/{id}/edit", h.CustomerBranchEditPage)
 	r.Post("/customer/branches/active", h.CustomerSwitchActiveBranchSubmit)
 	r.Post("/customer/branches/new", h.CustomerBranchNewSubmit)
 	r.Post("/customer/branches/{id}/edit", h.CustomerBranchEditSubmit)
