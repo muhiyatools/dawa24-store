@@ -16,7 +16,7 @@ import (
 	"github.com/muhiya/dawa24-store/internal/shared/money"
 )
 
-const fileColumns = `id, public_id, organization_id, user_id, supplier_name, original_filename, storage_key, mime_type, size_bytes, row_count, status, mapping_config, archived_at, archive_reason, error_message, created_at, updated_at, deleted_at`
+const fileColumns = `id, public_id, organization_id, user_id, supplier_name, original_filename, storage_key, mime_type, size_bytes, row_count, status, mapping_config, archived_at, archive_reason, error_message, is_temp_warehouse, created_at, updated_at, deleted_at`
 
 func scanFile(row pgx.Row) (*compare.CompareFile, error) {
 	var f compare.CompareFile
@@ -26,7 +26,7 @@ func scanFile(row pgx.Row) (*compare.CompareFile, error) {
 		&f.ID, &f.PublicID, &f.OrganizationID, &f.UserID,
 		&f.SupplierName, &f.OriginalFilename, &f.StorageKey, &f.MIMEType,
 		&f.SizeBytes, &f.RowCount, &statusStr, &mappingBytes,
-		&f.ArchivedAt, &f.ArchiveReason, &f.ErrorMessage,
+		&f.ArchivedAt, &f.ArchiveReason, &f.ErrorMessage, &f.IsTempWarehouse,
 		&f.CreatedAt, &f.UpdatedAt, &f.DeletedAt,
 	); err != nil {
 		return nil, err
@@ -43,8 +43,8 @@ func (r *Repository) CreateFile(ctx context.Context, f *compare.CompareFile) err
 		query := `
 			INSERT INTO compare.files (
 				organization_id, user_id, supplier_name, original_filename, storage_key,
-				mime_type, size_bytes, row_count, status, mapping_config, error_message
-			) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
+				mime_type, size_bytes, row_count, status, mapping_config, error_message, is_temp_warehouse
+			) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
 			RETURNING id, public_id, created_at, updated_at;
 		`
 		mappingJSON, _ := json.Marshal(f.MappingConfig)
@@ -53,7 +53,7 @@ func (r *Repository) CreateFile(ctx context.Context, f *compare.CompareFile) err
 		}
 		return tx.QueryRow(txCtx, query,
 			f.OrganizationID, f.UserID, f.SupplierName, f.OriginalFilename, f.StorageKey,
-			f.MIMEType, f.SizeBytes, f.RowCount, string(f.Status), mappingJSON, f.ErrorMessage,
+			f.MIMEType, f.SizeBytes, f.RowCount, string(f.Status), mappingJSON, f.ErrorMessage, f.IsTempWarehouse,
 		).Scan(&f.ID, &f.PublicID, &f.CreatedAt, &f.UpdatedAt)
 	})
 }
@@ -99,6 +99,7 @@ func (r *Repository) ListFiles(ctx context.Context, userID int64, orgID *int64, 
 			SELECT ` + fileColumns + `
 			FROM compare.files
 			WHERE deleted_at IS NULL
+			  AND is_temp_warehouse = FALSE
 			  AND ($1::text IS NULL OR status = $1)
 			  AND (
 			      user_id = $3
@@ -137,6 +138,7 @@ func (r *Repository) ListAllFiles(ctx context.Context, search string, status *co
 		argIdx := 1
 
 		whereClauses = append(whereClauses, "deleted_at IS NULL")
+		whereClauses = append(whereClauses, "is_temp_warehouse = TRUE")
 
 		if status != nil {
 			whereClauses = append(whereClauses, fmt.Sprintf("status = $%d", argIdx))
@@ -744,7 +746,9 @@ func (r *Repository) ListDistinctSuppliers(ctx context.Context) ([]string, error
 			SELECT DISTINCT f.supplier_name 
 			FROM compare.files f
 			JOIN compare.file_rows r ON r.file_id = f.id
-			WHERE f.status != 'failed' AND (f.deleted_at IS NULL OR f.status = 'ready') 
+			WHERE f.is_temp_warehouse = TRUE 
+			  AND f.status != 'failed' 
+			  AND (f.deleted_at IS NULL OR f.status = 'ready') 
 			ORDER BY f.supplier_name ASC;
 		`)
 		if err != nil {
@@ -780,6 +784,7 @@ func (r *Repository) ListMarketDiscounts(ctx context.Context, filter compare.Mar
 	argIdx := 1
 
 	whereClauses := []string{
+		"f.is_temp_warehouse = TRUE",
 		"f.status != 'failed'",
 		"(f.deleted_at IS NULL OR f.status = 'ready')",
 	}

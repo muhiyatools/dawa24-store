@@ -594,6 +594,7 @@ func (h *UIHandler) AdminTempWarehouseUploadSubmit(w http.ResponseWriter, r *htt
 		MIMEType:         "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
 		SizeBytes:        int64(len(fileBytes)),
 		Status:           compare.FileReady,
+		IsTempWarehouse:  true,
 		MappingConfig: compare.MappingConfig{
 			CodeCol:     &codeCol,
 			NameCol:     &nameCol,

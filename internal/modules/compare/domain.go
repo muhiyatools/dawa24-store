@@ -204,6 +204,7 @@ type CompareFile struct {
 	RowCount         int               `json:"row_count"`
 	Status           CompareFileStatus `json:"status"`
 	MappingConfig    MappingConfig     `json:"mapping_config"`
+	IsTempWarehouse  bool              `json:"is_temp_warehouse"`
 	ArchivedAt       *time.Time        `json:"archived_at,omitempty"`
 	ArchiveReason    string            `json:"archive_reason,omitempty"`
 	ErrorMessage     string            `json:"error_message,omitempty"`
