@@ -163,7 +163,7 @@ templ soSortHeader(data SmartOrderResultsData, colKey, label string) {
 
 templ soFilterTab(data SmartOrderResultsData, matchKey, label string, count int) {
 	{{
-		active := data.Match == matchKey || (matchKey == "" && (data.Match == "all" || data.Match == ""))
+		active := (matchKey == "all" && data.Match == "") || data.Match == matchKey
 		href := buildSmartOrderResultsURL(data.Run.PublicID, matchKey, data.SortBy, data.SortOrder, 1, data.PerPage, data.Search)
 	}}
 	<a href={ templ.SafeURL(href) }

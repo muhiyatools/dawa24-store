@@ -147,25 +147,31 @@ func matchHeaderRow(row []string) (map[int]string, map[string]float64) {
 }
 
 // fieldAliases are the header spellings each target field answers to.
-var fieldAliases = map[string][]string{
-	"product_name": {"اسم الصنف", "الصنف", "اسم المنتج", "المنتج", "اسم الدواء", "الدواء",
-		"البيان", "product", "product name", "item", "item name", "description", "name"},
-	"sku": {"كود الصنف", "الكود", "كود المنتج", "رمز الصنف", "sku", "code", "item code",
-		"product code", "ref"},
-	"barcode": {"الباركود", "باركود", "barcode", "ean", "gtin", "upc"},
-	"quantity": {"الكمية", "العدد", "الكميه", "كمية", "quantity", "qty", "count", "units",
-		"required", "المطلوب"},
+var fieldAliases = []struct {
+	Field   string
+	Aliases []string
+}{
+	{"product_name", []string{"اسم الصنف", "الصنف", "اسم المنتج", "المنتج", "اسم الدواء", "الدواء",
+		"البيان", "product", "product name", "item", "item name", "description", "name"}},
+	{"sku", []string{"كود الصنف", "الكود", "كود المنتج", "رمز الصنف", "sku", "code", "item code",
+		"product code", "ref"}},
+	{"barcode", []string{"الباركود", "باركود", "barcode", "ean", "gtin", "upc"}},
+	{"quantity", []string{"الكمية", "العدد", "الكميه", "كمية", "quantity", "qty", "count", "units",
+		"required", "المطلوب"}},
 }
 
 // bestFieldFor picks the target field a header best matches.
 func bestFieldFor(header string) (string, float64) {
 	var bestField string
 	var bestScore float64
-	for field, aliases := range fieldAliases {
-		for _, alias := range aliases {
+	for _, candidate := range fieldAliases {
+		for _, alias := range candidate.Aliases {
+			if header == productmatch.NormalizeText(alias) {
+				return candidate.Field, 1
+			}
 			score := productmatch.TextSimilarity(header, productmatch.NormalizeText(alias))
 			if score > bestScore {
-				bestField, bestScore = field, score
+				bestField, bestScore = candidate.Field, score
 			}
 		}
 	}

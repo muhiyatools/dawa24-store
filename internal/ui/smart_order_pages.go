@@ -78,10 +78,12 @@ func (h *UIHandler) SmartOrderResultsPage(w http.ResponseWriter, r *http.Request
 	q := r.URL.Query()
 
 	// Default filter is "unmatched" as requested, unless explicitly overridden
-	match := q.Get("match")
+	match := strings.TrimSpace(q.Get("match"))
 	if match == "" && q.Get("outcome") != "" {
 		match = q.Get("outcome")
-	} else if match == "" && !q.Has("all") && !q.Has("match") && !q.Has("outcome") {
+	} else if match == "" && q.Has("all") {
+		match = ""
+	} else if match == "" && !q.Has("match") && !q.Has("outcome") {
 		match = "unmatched"
 	} else if match == "all" {
 		match = ""
@@ -111,7 +113,12 @@ func (h *UIHandler) SmartOrderResultsPage(w http.ResponseWriter, r *http.Request
 		All:        limit == -1,
 	}
 
-	filterCounts, _ := h.smartOrderSvc.FilterCounts(ctx, run.ID)
+	filterCounts, err := h.smartOrderSvc.FilterCounts(ctx, run.ID)
+	if err != nil {
+		h.log.ErrorContext(ctx, "load smart order filter counts", "run_id", run.ID, "error", err)
+		http.Error(w, "تعذّر تحميل فلاتر النتائج", http.StatusInternalServerError)
+		return
+	}
 
 	lines, total, err := h.smartOrderSvc.Results(ctx, run, filter)
 	if err != nil {

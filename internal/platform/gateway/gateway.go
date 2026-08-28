@@ -133,12 +133,12 @@ var budgets = map[Capability]budget{
 	// costs a whole batch again, and the pipeline's bisection handles failure
 	// better than a blind repeat would.
 	CapMatchAdjudicate: {timeout: 90 * time.Second, retries: 1, tier: TierFast},
-	// Enhancement sends the largest prompt this application produces — a
-	// catalogue window of several thousand rows — and expects a compact JSON
-	// answer. The timeout is sized for that prompt being read, not for the
-	// answer being written, and the quality tier is deliberate: this is the one
-	// capability whose mistakes become a purchase order.
-	CapMatchEnhance: {timeout: 300 * time.Second, retries: 1, tier: TierQuality},
+	// Enhancement sends the largest prompt this application produces and expects
+	// compact JSON. A batch is intentionally single-attempt: retrying a large
+	// matching request repeats the full bill and can keep a run waiting for
+	// minutes. The pipeline keeps its deterministic result when this attempt
+	// fails.
+	CapMatchEnhance: {timeout: 150 * time.Second, retries: 0, tier: TierQuality},
 }
 
 // modelFor resolves a capability's tier to the model name to send.
