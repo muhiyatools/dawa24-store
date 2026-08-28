@@ -21,12 +21,12 @@ func (r *Repository) UpdateCustomerPendingOrder(
 	err := r.db.InTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
 		// 1. Lock the order row and verify status is still pending
 		var currentStatus string
-		var shippingFee, taxAmount money.Amount
+		var oldSubtotal, oldDiscount, shippingFee, oldTax money.Amount
 		err := tx.QueryRow(txCtx, `
-			SELECT status, shipping_fee, tax_amount 
+			SELECT status, subtotal, discount_amount, shipping_fee, tax_amount 
 			FROM commerce.orders 
 			WHERE id = $1 FOR UPDATE;
-		`, order.ID).Scan(&currentStatus, &shippingFee, &taxAmount)
+		`, order.ID).Scan(&currentStatus, &oldSubtotal, &oldDiscount, &shippingFee, &oldTax)
 		if err != nil {
 			if database.IsNotFound(err) {
 				return apperr.NotFound("order")
@@ -35,7 +35,14 @@ func (r *Repository) UpdateCustomerPendingOrder(
 		}
 
 		if commerce.OrderStatus(currentStatus) != commerce.StatusPending {
-			return apperr.Forbidden("order.locked", fmt.Sprintf("لا يمكن تعديل الطلب بعد قبوله أو تأكيده من قِبل المورد (حالة الطلب الحالية: %s)", currentStatus))
+			return apperr.Forbidden("order.locked", fmt.Sprintf("لا يمكن تعديل الطلب لأن المورد قام بتأكيد الطلب أو استلامه بالفعل (حالة الطلب الحالية: %s)", currentStatus))
+		}
+
+		// Calculate initial tax percentage rate if tax was present on the order
+		taxRate := 0.0
+		oldTaxable, _ := oldSubtotal.Sub(oldDiscount)
+		if oldTax.IsPositive() && oldTaxable.IsPositive() {
+			taxRate = float64(oldTax.Minor()) / float64(oldTaxable.Minor())
 		}
 
 		// Get primary shipment ID and vendor organization ID if existing
@@ -48,7 +55,7 @@ func (r *Repository) UpdateCustomerPendingOrder(
 			defaultOrgID = *order.OrganizationID
 		}
 
-		// 2. Process line edits
+		// 2. Process line edits with stock and price validation
 		for _, l := range lines {
 			if l.IsDeleted {
 				if l.ID > 0 {
@@ -58,31 +65,95 @@ func (r *Repository) UpdateCustomerPendingOrder(
 			}
 
 			if l.Quantity <= 0 {
-				continue
+				return apperr.Validation("quantity", "يجب أن تكون كمية الصنف 1 على الأقل.", nil)
 			}
-
-			effectivePrice, _ := l.UnitPrice.Sub(l.DiscountAmount)
-			if effectivePrice.IsNegative() {
-				effectivePrice = money.Zero
-			}
-			lineTotal, _ := effectivePrice.MulInt(int64(l.Quantity))
 
 			if l.ID > 0 {
-				// Update existing line
+				// Query existing line to preserve authentic pricing and validate against catalog
+				var dbProductID, dbVariantID *int64
+				var dbUnitPrice, dbOldDiscount money.Amount
+				var dbOldQty int
+				var dbOriginalDiscount float64
+				var dbProductName string
+
+				err := tx.QueryRow(txCtx, `
+					SELECT product_id, product_variant_id, unit_price, quantity, discount_amount, COALESCE(original_discount, 0),
+					       COALESCE(product_name->>'ar', product_name->>'en', '')
+					FROM commerce.order_lines
+					WHERE id = $1 AND order_id = $2
+					FOR UPDATE;
+				`, l.ID, order.ID).Scan(&dbProductID, &dbVariantID, &dbUnitPrice, &dbOldQty, &dbOldDiscount, &dbOriginalDiscount, &dbProductName)
+				if err != nil {
+					if database.IsNotFound(err) {
+						continue
+					}
+					return fmt.Errorf("fetch line %d: %w", l.ID, err)
+				}
+
+				if dbProductName == "" {
+					dbProductName = l.ProductName
+				}
+
+				// Check minimum order quantity & available stock if variant exists in catalog
+				if dbVariantID != nil && *dbVariantID > 0 {
+					var minOrderQty int
+					_ = tx.QueryRow(txCtx, `
+						SELECT COALESCE(min_order_qty, 0)
+						FROM catalog.product_variants
+						WHERE id = $1 AND deleted_at IS NULL;
+					`, *dbVariantID).Scan(&minOrderQty)
+					if minOrderQty > 0 && l.Quantity < minOrderQty {
+						return apperr.Validation("min_order_qty", fmt.Sprintf("الحد الأدنى لطلب الصنف (%s) هو %d قطعة.", dbProductName, minOrderQty), nil)
+					}
+
+					var availableStock int
+					_ = tx.QueryRow(txCtx, `
+						SELECT COALESCE(SUM(quantity), 0)
+						FROM inventory.stocks
+						WHERE product_variant_id = $1 AND deleted_at IS NULL;
+					`, *dbVariantID).Scan(&availableStock)
+					if availableStock > 0 && l.Quantity > availableStock {
+						return apperr.Validation("stock_exceeded", fmt.Sprintf("الكمية المطلوبة للصنف (%s) هي %d وتتجاوز المخزون المتاح حالياً لدى المورد (%d قطعة).", dbProductName, l.Quantity, availableStock), nil)
+					}
+				}
+
+				// Calculate per-unit discount accurately
+				unitDiscount := money.Zero
+				if dbOriginalDiscount > 0 {
+					discMinor := int64(float64(dbUnitPrice.Minor()) * (dbOriginalDiscount / 100.0))
+					unitDiscount = money.FromMinor(discMinor)
+				} else if dbOldQty > 0 && dbOldDiscount.IsPositive() {
+					discMinor := dbOldDiscount.Minor() / int64(dbOldQty)
+					unitDiscount = money.FromMinor(discMinor)
+				}
+
+				lineDiscount, _ := unitDiscount.MulInt(int64(l.Quantity))
+				lineSubtotal, _ := dbUnitPrice.MulInt(int64(l.Quantity))
+				lineTotal, _ := lineSubtotal.Sub(lineDiscount)
+				if lineTotal.IsNegative() {
+					lineTotal = money.Zero
+				}
+
+				// Update existing line in DB
 				_, err = tx.Exec(txCtx, `
 					UPDATE commerce.order_lines
 					SET quantity = $1,
 						unit_price = $2,
 						discount_amount = $3,
-						total_price = $4,
-						product_name = CASE WHEN $5 != '' THEN jsonb_build_object('ar', $5::text, 'en', $5::text) ELSE product_name END
-					WHERE id = $6 AND order_id = $7;
-				`, l.Quantity, l.UnitPrice, l.DiscountAmount, lineTotal, l.ProductName, l.ID, order.ID)
+						total_price = $4
+					WHERE id = $5 AND order_id = $6;
+				`, l.Quantity, dbUnitPrice, lineDiscount, lineTotal, l.ID, order.ID)
 				if err != nil {
 					return fmt.Errorf("update line %d: %w", l.ID, err)
 				}
 			} else {
 				// Insert newly added line
+				effectivePrice, _ := l.UnitPrice.Sub(l.DiscountAmount)
+				if effectivePrice.IsNegative() {
+					effectivePrice = money.Zero
+				}
+				lineTotal, _ := effectivePrice.MulInt(int64(l.Quantity))
+
 				nameJSON := fmt.Sprintf(`{"ar": %q, "en": %q}`, l.ProductName, l.ProductName)
 				_, err = tx.Exec(txCtx, `
 					INSERT INTO commerce.order_lines (
@@ -107,7 +178,7 @@ func (r *Repository) UpdateCustomerPendingOrder(
 			return apperr.Validation("order.empty", "لا يمكن حفظ الطلب بدون أصناف. يجب أن يحتوي الطلب على صنف واحد على الأقل.", nil)
 		}
 
-		// 4. Recalculate order totals from all lines in DB
+		// 4. Recalculate order totals from all active lines in DB
 		newSubtotal := money.Zero
 		newTotalDiscount := money.Zero
 		rows, err := tx.Query(txCtx, `
@@ -123,19 +194,28 @@ func (r *Repository) UpdateCustomerPendingOrder(
 			var qty int
 			if err := rows.Scan(&up, &qty, &da); err == nil {
 				lineSub, _ := up.MulInt(int64(qty))
-				lineDisc, _ := da.MulInt(int64(qty))
 				newSubtotal, _ = newSubtotal.Add(lineSub)
-				newTotalDiscount, _ = newTotalDiscount.Add(lineDisc)
+				newTotalDiscount, _ = newTotalDiscount.Add(da)
 			}
 		}
 		rows.Close()
 
-		newTotalAmount, _ := newSubtotal.Sub(newTotalDiscount)
-		if newTotalAmount.IsNegative() {
-			newTotalAmount = money.Zero
+		newTaxable, _ := newSubtotal.Sub(newTotalDiscount)
+		if newTaxable.IsNegative() {
+			newTaxable = money.Zero
 		}
+
+		newTaxAmount := money.Zero
+		if taxRate > 0 && newTaxable.IsPositive() {
+			taxMinor := int64(float64(newTaxable.Minor()) * taxRate)
+			newTaxAmount = money.FromMinor(taxMinor)
+		} else if oldTax.IsPositive() {
+			newTaxAmount = oldTax
+		}
+
+		newTotalAmount := newTaxable
 		newTotalAmount, _ = newTotalAmount.Add(shippingFee)
-		newTotalAmount, _ = newTotalAmount.Add(taxAmount)
+		newTotalAmount, _ = newTotalAmount.Add(newTaxAmount)
 
 		// 5. Update master order row
 		_, err = tx.Exec(txCtx, `
@@ -143,11 +223,12 @@ func (r *Repository) UpdateCustomerPendingOrder(
 			SET subtotal = $1,
 				discount_amount = $2,
 				total_discount = $2,
-				total_amount = $3,
-				final_price = $3,
+				tax_amount = $3,
+				total_amount = $4,
+				final_price = $4,
 				updated_at = now()
-			WHERE id = $4;
-		`, newSubtotal, newTotalDiscount, newTotalAmount, order.ID)
+			WHERE id = $5;
+		`, newSubtotal, newTotalDiscount, newTaxAmount, newTotalAmount, order.ID)
 		if err != nil {
 			return err
 		}
@@ -175,7 +256,7 @@ func (r *Repository) UpdateCustomerPendingOrder(
 		if changedByUserID > 0 {
 			userPtr = &changedByUserID
 		}
-		_, _ = tx.Exec(txCtx, historyQuery, order.ID, shipmentIDPtr, currentStatus, currentStatus, "تم تعديل تفاصيل الطلب والأصناف والكميات من قِبل الصيدلي", userPtr)
+		_, _ = tx.Exec(txCtx, historyQuery, order.ID, shipmentIDPtr, currentStatus, currentStatus, "تم تعديل كميات وتفاصيل أصناف الطلب من قِبل الصيدلية وإعادة احتساب الإجماليات والخصومات والضرائب بنجاح", userPtr)
 
 		return nil
 	})

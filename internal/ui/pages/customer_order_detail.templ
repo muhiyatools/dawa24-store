@@ -226,19 +226,12 @@ templ CustomerOrderDetail(order *commerce.Order, history []*commerce.OrderStatus
 							</div>
 							<div style="display:flex; align-items:center; gap:0.6rem; flex-wrap:wrap;">
 								if order.Status == commerce.StatusPending {
-									<button
-										type="button"
-										id="btn-open-order-edit"
-										class="btn btn-primary btn-sm"
-										onclick="if(window.openOrderEditModal) window.openOrderEditModal(); else openOrderEditModal();"
-										style="font-weight:800; gap:0.4rem; padding:0.45rem 0.95rem; border-radius:var(--radius-md); box-shadow:0 2px 8px rgba(37,99,235,0.25); cursor:pointer;"
-									>
-										@components.IconEdit("icon-xs")
-										<span>تعديل الطلب (الكميات والأصناف)</span>
-									</button>
+									<span class="badge badge-amber text-xs fw-800" style="padding:0.35rem 0.75rem; gap:0.35rem;">
+										<span>✏️ تعديل الكميات متاح مباشرة (قيد المراجعة)</span>
+									</span>
 								} else {
 									<span class="badge badge-slate text-xs fw-700" style="padding:0.35rem 0.75rem; gap:0.35rem;" title="لا يمكن تعديل الطلب بعد قبوله أو معالجته من المورد">
-										<span>🔒 الطلب قيد التنفيذ ولا يمكن تعديله</span>
+										<span>🔒 الطلب مؤكد من المورد ولا يمكن تعديله</span>
 									</span>
 								}
 								<span class="badge badge-sky text-xs fw-700">
@@ -252,45 +245,126 @@ templ CustomerOrderDetail(order *commerce.Order, history []*commerce.OrderStatus
 								Title:   "جاري تجهيز الشحنات",
 								Message: "يقوم الموردون حالياً بتجهيز تفاصيل الشحن وأرقام التشغيلات.",
 							})
-						} else if len(order.Shipments) > 0 {
-							<!-- Grouped by Shipment / Vendor -->
-							<div style="display:flex; flex-direction:column; gap:1.25rem;">
-								for idx, sh := range order.Shipments {
-									<div style="border:1px solid var(--border); border-radius:var(--radius-lg); background:var(--surface-sunken); overflow:hidden;">
-										<!-- Shipment Header -->
-										<div style="display:flex; justify-content:space-between; align-items:center; padding:0.85rem 1.15rem; background:var(--surface-raised); border-bottom:1px solid var(--border); flex-wrap:wrap; gap:0.75rem;">
-											<div style="display:flex; align-items:center; gap:0.6rem;">
-												<span class="badge badge-primary text-xs fw-800 tabular-nums">طرد { fmt.Sprintf("%d", idx+1) }</span>
-												<strong style="font-size:0.95rem; color:var(--text); font-weight:800;">
-													{ sh.VendorName.Get(i18n.Lang(lang)) }
-												</strong>
-												<span style="font-size:0.75rem; color:var(--text-muted); margin-inline-start:0.25rem;">
-													(رقم الشحنة: <span class="tabular-nums font-mono">{ sh.ShipmentNumber }</span>)
-												</span>
-											</div>
-											<div style="display:flex; align-items:center; gap:0.5rem;">
-												if sh.TrackingNumber != "" {
-													<span class="badge badge-slate text-xs font-mono">بوليصة: { sh.TrackingNumber }</span>
-												}
-												@components.StatusBadge(string(sh.Status))
-											</div>
-										</div>
+						} else {
+							<!-- Direct & Editable Order Lines Form -->
+							if order.Status == commerce.StatusPending {
+								<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/orders/%d/edit", order.ID)) } id="main-order-lines-form">
+									if len(order.Shipments) > 0 {
+										<!-- Grouped by Shipment / Vendor -->
+										<div style="display:flex; flex-direction:column; gap:1.25rem;">
+											for idx, sh := range order.Shipments {
+												<div style="border:1px solid var(--border); border-radius:var(--radius-lg); background:var(--surface-sunken); overflow:hidden;">
+													<!-- Shipment Header -->
+													<div style="display:flex; justify-content:space-between; align-items:center; padding:0.85rem 1.15rem; background:var(--surface-raised); border-bottom:1px solid var(--border); flex-wrap:wrap; gap:0.75rem;">
+														<div style="display:flex; align-items:center; gap:0.6rem;">
+															<span class="badge badge-primary text-xs fw-800 tabular-nums">طرد { fmt.Sprintf("%d", idx+1) }</span>
+															<strong style="font-size:0.95rem; color:var(--text); font-weight:800;">
+																{ sh.VendorName.Get(i18n.Lang(lang)) }
+															</strong>
+															<span style="font-size:0.75rem; color:var(--text-muted); margin-inline-start:0.25rem;">
+																(رقم الشحنة: <span class="tabular-nums font-mono">{ sh.ShipmentNumber }</span>)
+															</span>
+														</div>
+														<div style="display:flex; align-items:center; gap:0.5rem;">
+															if sh.TrackingNumber != "" {
+																<span class="badge badge-slate text-xs font-mono">بوليصة: { sh.TrackingNumber }</span>
+															}
+															@components.StatusBadge(string(sh.Status))
+														</div>
+													</div>
 
-										<!-- Shipment Lines Table -->
-										<div class="table-container" style="padding:0; margin:0;">
+													<!-- Shipment Lines Table -->
+													<div class="table-container" style="padding:0; margin:0; overflow-x:auto;">
+														<table class="b2b-table" style="margin:0; font-size:0.875rem;">
+															<thead>
+																<tr>
+																	<th style="padding:0.65rem 1rem;">الصنف الدوائي</th>
+																	<th style="padding:0.65rem 0.75rem; text-align:center; width:155px;">الكمية المطلوبة</th>
+																	<th style="padding:0.65rem 0.75rem;" class="td-numeric">سعر الوحدة</th>
+																	<th style="padding:0.65rem 0.75rem;" class="td-numeric">الخصم</th>
+																	<th style="padding:0.65rem 1rem;" class="td-numeric">الإجمالي</th>
+																	<th style="padding:0.65rem 0.5rem; text-align:center; width:45px;"></th>
+																</tr>
+															</thead>
+															<tbody>
+																for _, l := range sh.Lines {
+																	<tr class="order-table-row">
+																		<td style="padding:0.75rem 1rem;">
+																			<div style="font-weight:800; color:var(--text); font-size:0.925rem;">
+																				{ l.ProductName.Get(i18n.Lang(lang)) }
+																			</div>
+																			if l.VariantName.Get(i18n.Lang(lang)) != "" || l.SKU != "" {
+																				<div style="font-size:0.75rem; color:var(--text-muted); margin-top:0.15rem;">
+																					if l.VariantName.Get(i18n.Lang(lang)) != "" {
+																						<span>{ l.VariantName.Get(i18n.Lang(lang)) }</span>
+																					}
+																					if l.SKU != "" {
+																						<span class="font-mono text-xs" style="margin-inline-start:0.4rem;">SKU: { l.SKU }</span>
+																					}
+																				</div>
+																			}
+																			<input type="hidden" name="line_id[]" value={ fmt.Sprintf("%d", l.ID) }/>
+																			<input type="hidden" name="product_name[]" value={ l.ProductName.Get(i18n.Lang(lang)) }/>
+																			<input type="hidden" name="unit_price[]" value={ l.UnitPrice.String() } class="row-unit-price-input"/>
+																			<input type="hidden" name="discount_amount[]" value={ l.DiscountAmount.String() } class="row-discount-input"/>
+																			<input type="hidden" name="is_deleted[]" value="0" class="row-deleted-input"/>
+																		</td>
+																		<td style="padding:0.75rem 0.75rem; text-align:center;">
+																			<!-- Direct Quantity Stepper: [ - ] 10 [ + ] -->
+																			<div style="display:flex; align-items:center; gap:0.25rem; justify-content:center;">
+																				<button type="button" class="btn btn-secondary btn-icon" style="width:28px; height:28px; font-weight:900; font-size:1.1rem; padding:0; line-height:1;" onclick="stepRowQty(this, -1)">−</button>
+																				<input
+																					type="number"
+																					name="quantity[]"
+																					value={ fmt.Sprintf("%d", l.Quantity) }
+																					min="1"
+																					required
+																					class="form-input input-sm tabular-nums text-center row-qty-input"
+																					style="width:58px; font-weight:800; padding:0.25rem 0.35rem; font-size:0.925rem;"
+																					oninput="recalcRowTotal(this)"
+																				/>
+																				<button type="button" class="btn btn-secondary btn-icon" style="width:28px; height:28px; font-weight:900; font-size:1.1rem; padding:0; line-height:1;" onclick="stepRowQty(this, 1)">+</button>
+																			</div>
+																		</td>
+																		<td style="padding:0.75rem 0.75rem;" class="td-numeric tabular-nums">
+																			{ l.UnitPrice.String() } ج.م
+																		</td>
+																		<td style="padding:0.75rem 0.75rem;" class="td-numeric tabular-nums text-emerald">
+																			{ l.DiscountAmount.String() } ج.م
+																		</td>
+																		<td style="padding:0.75rem 1rem; font-weight:800; color:var(--text);" class="td-numeric tabular-nums">
+																			<span class="row-total-display">{ l.TotalPrice.String() } ج.م</span>
+																		</td>
+																		<td style="padding:0.75rem 0.5rem; text-align:center;">
+																			<button type="button" class="btn btn-secondary btn-xs" style="color:var(--danger); border-color:rgba(239,68,68,0.25); padding:0.2rem 0.45rem; font-size:0.75rem;" onclick="deleteRowLine(this)" title="حذف الصنف من الطلب">
+																				✕
+																			</button>
+																		</td>
+																	</tr>
+																}
+															</tbody>
+														</table>
+													</div>
+												</div>
+											}
+										</div>
+									} else {
+										<!-- Direct Flat Lines Table -->
+										<div class="table-container" style="padding:0; margin:0; border:1px solid var(--border); border-radius:var(--radius-lg); overflow:hidden; overflow-x:auto;">
 											<table class="b2b-table" style="margin:0; font-size:0.875rem;">
 												<thead>
 													<tr>
 														<th style="padding:0.65rem 1rem;">الصنف الدوائي</th>
-														<th style="padding:0.65rem 0.75rem; text-align:center;">الكمية</th>
-														<th style="padding:0.65rem 0.75rem;" class="td-numeric">السعر قبل الخصم</th>
+														<th style="padding:0.65rem 0.75rem; text-align:center; width:155px;">الكمية المطلوبة</th>
+														<th style="padding:0.65rem 0.75rem;" class="td-numeric">سعر الوحدة</th>
 														<th style="padding:0.65rem 0.75rem;" class="td-numeric">الخصم</th>
 														<th style="padding:0.65rem 1rem;" class="td-numeric">الإجمالي</th>
+														<th style="padding:0.65rem 0.5rem; text-align:center; width:45px;"></th>
 													</tr>
 												</thead>
 												<tbody>
-													for _, l := range sh.Lines {
-														<tr>
+													for _, l := range order.Lines {
+														<tr class="order-table-row">
 															<td style="padding:0.75rem 1rem;">
 																<div style="font-weight:800; color:var(--text); font-size:0.925rem;">
 																	{ l.ProductName.Get(i18n.Lang(lang)) }
@@ -305,11 +379,28 @@ templ CustomerOrderDetail(order *commerce.Order, history []*commerce.OrderStatus
 																		}
 																	</div>
 																}
+																<input type="hidden" name="line_id[]" value={ fmt.Sprintf("%d", l.ID) }/>
+																<input type="hidden" name="product_name[]" value={ l.ProductName.Get(i18n.Lang(lang)) }/>
+																<input type="hidden" name="unit_price[]" value={ l.UnitPrice.String() } class="row-unit-price-input"/>
+																<input type="hidden" name="discount_amount[]" value={ l.DiscountAmount.String() } class="row-discount-input"/>
+																<input type="hidden" name="is_deleted[]" value="0" class="row-deleted-input"/>
 															</td>
 															<td style="padding:0.75rem 0.75rem; text-align:center;">
-																<span class="tabular-nums fw-700" style="background:var(--surface); padding:0.2rem 0.55rem; border-radius:var(--radius-sm); border:1px solid var(--border);">
-																	{ fmt.Sprintf("%d", l.Quantity) }
-																</span>
+																<!-- Direct Quantity Stepper: [ - ] 10 [ + ] -->
+																<div style="display:flex; align-items:center; gap:0.25rem; justify-content:center;">
+																	<button type="button" class="btn btn-secondary btn-icon" style="width:28px; height:28px; font-weight:900; font-size:1.1rem; padding:0; line-height:1;" onclick="stepRowQty(this, -1)">−</button>
+																	<input
+																		type="number"
+																		name="quantity[]"
+																		value={ fmt.Sprintf("%d", l.Quantity) }
+																		min="1"
+																		required
+																		class="form-input input-sm tabular-nums text-center row-qty-input"
+																		style="width:58px; font-weight:800; padding:0.25rem 0.35rem; font-size:0.925rem;"
+																		oninput="recalcRowTotal(this)"
+																	/>
+																	<button type="button" class="btn btn-secondary btn-icon" style="width:28px; height:28px; font-weight:900; font-size:1.1rem; padding:0; line-height:1;" onclick="stepRowQty(this, 1)">+</button>
+																</div>
 															</td>
 															<td style="padding:0.75rem 0.75rem;" class="td-numeric tabular-nums">
 																{ l.UnitPrice.String() } ج.م
@@ -318,66 +409,138 @@ templ CustomerOrderDetail(order *commerce.Order, history []*commerce.OrderStatus
 																{ l.DiscountAmount.String() } ج.م
 															</td>
 															<td style="padding:0.75rem 1rem; font-weight:800; color:var(--text);" class="td-numeric tabular-nums">
-																{ l.TotalPrice.String() } ج.م
+																<span class="row-total-display">{ l.TotalPrice.String() } ج.م</span>
+															</td>
+															<td style="padding:0.75rem 0.5rem; text-align:center;">
+																<button type="button" class="btn btn-secondary btn-xs" style="color:var(--danger); border-color:rgba(239,68,68,0.25); padding:0.2rem 0.45rem; font-size:0.75rem;" onclick="deleteRowLine(this)" title="حذف الصنف من الطلب">
+																	✕
+																</button>
 															</td>
 														</tr>
 													}
 												</tbody>
 											</table>
 										</div>
+									}
+
+									<!-- Save Edits Action Bar -->
+									<div style="display:flex; justify-content:space-between; align-items:center; padding:1.1rem 1.35rem; background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-xl); margin-top:1.25rem; flex-wrap:wrap; gap:1rem; box-shadow:var(--shadow-xs);">
+										<div style="display:flex; align-items:center; gap:0.5rem; font-size:0.85rem; color:var(--text-secondary);">
+											<span style="color:#d97706; font-size:1.1rem;">⚠️</span>
+											<span>الطلب في حالة <strong>قيد المراجعة</strong>: يمكنك تعديل الكميات مباشرة قبل تأكيد المورد.</span>
+										</div>
+										<button type="submit" class="btn btn-primary btn-md fw-800" style="gap:0.4rem; padding:0.65rem 1.85rem; box-shadow:var(--shadow-sm); font-size:0.9rem;">
+											@components.IconCheck("icon-xs")
+											<span>💾 حفظ تعديلات الكميات وتحديث الإجماليات</span>
+										</button>
+									</div>
+								</form>
+							} else {
+								<!-- Read-Only Locked Table for Confirmed / Processed Orders -->
+								if len(order.Shipments) > 0 {
+									<div style="display:flex; flex-direction:column; gap:1.25rem;">
+										for idx, sh := range order.Shipments {
+											<div style="border:1px solid var(--border); border-radius:var(--radius-lg); background:var(--surface-sunken); overflow:hidden;">
+												<div style="display:flex; justify-content:space-between; align-items:center; padding:0.85rem 1.15rem; background:var(--surface-raised); border-bottom:1px solid var(--border); flex-wrap:wrap; gap:0.75rem;">
+													<div style="display:flex; align-items:center; gap:0.6rem;">
+														<span class="badge badge-primary text-xs fw-800 tabular-nums">طرد { fmt.Sprintf("%d", idx+1) }</span>
+														<strong style="font-size:0.95rem; color:var(--text); font-weight:800;">
+															{ sh.VendorName.Get(i18n.Lang(lang)) }
+														</strong>
+													</div>
+													<div style="display:flex; align-items:center; gap:0.5rem;">
+														if sh.TrackingNumber != "" {
+															<span class="badge badge-slate text-xs font-mono">بوليصة: { sh.TrackingNumber }</span>
+														}
+														@components.StatusBadge(string(sh.Status))
+													</div>
+												</div>
+												<div class="table-container" style="padding:0; margin:0; overflow-x:auto;">
+													<table class="b2b-table" style="margin:0; font-size:0.875rem;">
+														<thead>
+															<tr>
+																<th style="padding:0.65rem 1rem;">الصنف الدوائي</th>
+																<th style="padding:0.65rem 0.75rem; text-align:center;">الكمية</th>
+																<th style="padding:0.65rem 0.75rem;" class="td-numeric">السعر</th>
+																<th style="padding:0.65rem 0.75rem;" class="td-numeric">الخصم</th>
+																<th style="padding:0.65rem 1rem;" class="td-numeric">الإجمالي</th>
+															</tr>
+														</thead>
+														<tbody>
+															for _, l := range sh.Lines {
+																<tr>
+																	<td style="padding:0.75rem 1rem;">
+																		<div style="font-weight:800; color:var(--text); font-size:0.925rem;">
+																			{ l.ProductName.Get(i18n.Lang(lang)) }
+																		</div>
+																	</td>
+																	<td style="padding:0.75rem 0.75rem; text-align:center;">
+																		<span class="tabular-nums fw-700" style="background:var(--surface); padding:0.2rem 0.55rem; border-radius:var(--radius-sm); border:1px solid var(--border);">
+																			{ fmt.Sprintf("%d", l.Quantity) }
+																		</span>
+																	</td>
+																	<td style="padding:0.75rem 0.75rem;" class="td-numeric tabular-nums">
+																		{ l.UnitPrice.String() } ج.م
+																	</td>
+																	<td style="padding:0.75rem 0.75rem;" class="td-numeric tabular-nums text-emerald">
+																		{ l.DiscountAmount.String() } ج.م
+																	</td>
+																	<td style="padding:0.75rem 1rem; font-weight:800; color:var(--text);" class="td-numeric tabular-nums">
+																		{ l.TotalPrice.String() } ج.م
+																	</td>
+																</tr>
+															}
+														</tbody>
+													</table>
+												</div>
+											</div>
+										}
+									</div>
+								} else {
+									<div class="table-container" style="padding:0; margin:0; border:1px solid var(--border); border-radius:var(--radius-lg); overflow:hidden; overflow-x:auto;">
+										<table class="b2b-table" style="margin:0; font-size:0.875rem;">
+											<thead>
+												<tr>
+													<th style="padding:0.65rem 1rem;">الصنف الدوائي</th>
+													<th style="padding:0.65rem 0.75rem; text-align:center;">الكمية</th>
+													<th style="padding:0.65rem 0.75rem;" class="td-numeric">السعر</th>
+													<th style="padding:0.65rem 0.75rem;" class="td-numeric">الخصم</th>
+													<th style="padding:0.65rem 1rem;" class="td-numeric">الإجمالي</th>
+												</tr>
+											</thead>
+											<tbody>
+												for _, l := range order.Lines {
+													<tr>
+														<td style="padding:0.75rem 1rem;">
+															<div style="font-weight:800; color:var(--text); font-size:0.925rem;">
+																{ l.ProductName.Get(i18n.Lang(lang)) }
+															</div>
+														</td>
+														<td style="padding:0.75rem 0.75rem; text-align:center;">
+															<span class="tabular-nums fw-700" style="background:var(--surface); padding:0.2rem 0.55rem; border-radius:var(--radius-sm); border:1px solid var(--border);">
+																{ fmt.Sprintf("%d", l.Quantity) }
+															</span>
+														</td>
+														<td style="padding:0.75rem 0.75rem;" class="td-numeric tabular-nums">
+															{ l.UnitPrice.String() } ج.م
+														</td>
+														<td style="padding:0.75rem 0.75rem;" class="td-numeric tabular-nums text-emerald">
+															{ l.DiscountAmount.String() } ج.م
+														</td>
+														<td style="padding:0.75rem 1rem; font-weight:800; color:var(--text);" class="td-numeric tabular-nums">
+															{ l.TotalPrice.String() } ج.م
+														</td>
+													</tr>
+												}
+											</tbody>
+										</table>
 									</div>
 								}
-							</div>
-						} else {
-							<!-- Direct Lines Table -->
-							<div class="table-container" style="padding:0; margin:0; border:1px solid var(--border); border-radius:var(--radius-lg); overflow:hidden;">
-								<table class="b2b-table" style="margin:0; font-size:0.875rem;">
-									<thead>
-										<tr>
-											<th style="padding:0.65rem 1rem;">الصنف الدوائي</th>
-											<th style="padding:0.65rem 0.75rem; text-align:center;">الكمية</th>
-											<th style="padding:0.65rem 0.75rem;" class="td-numeric">السعر قبل الخصم</th>
-											<th style="padding:0.65rem 0.75rem;" class="td-numeric">الخصم</th>
-											<th style="padding:0.65rem 1rem;" class="td-numeric">الإجمالي</th>
-										</tr>
-									</thead>
-									<tbody>
-										for _, l := range order.Lines {
-											<tr>
-												<td style="padding:0.75rem 1rem;">
-													<div style="font-weight:800; color:var(--text); font-size:0.925rem;">
-														{ l.ProductName.Get(i18n.Lang(lang)) }
-													</div>
-													if l.VariantName.Get(i18n.Lang(lang)) != "" || l.SKU != "" {
-														<div style="font-size:0.75rem; color:var(--text-muted); margin-top:0.15rem;">
-															if l.VariantName.Get(i18n.Lang(lang)) != "" {
-																<span>{ l.VariantName.Get(i18n.Lang(lang)) }</span>
-															}
-															if l.SKU != "" {
-																<span class="font-mono text-xs" style="margin-inline-start:0.4rem;">SKU: { l.SKU }</span>
-															}
-														</div>
-													}
-												</td>
-												<td style="padding:0.75rem 0.75rem; text-align:center;">
-													<span class="tabular-nums fw-700" style="background:var(--surface); padding:0.2rem 0.55rem; border-radius:var(--radius-sm); border:1px solid var(--border);">
-														{ fmt.Sprintf("%d", l.Quantity) }
-													</span>
-												</td>
-												<td style="padding:0.75rem 0.75rem;" class="td-numeric tabular-nums">
-													{ l.UnitPrice.String() } ج.م
-												</td>
-												<td style="padding:0.75rem 0.75rem;" class="td-numeric tabular-nums text-emerald">
-													{ l.DiscountAmount.String() } ج.م
-												</td>
-												<td style="padding:0.75rem 1rem; font-weight:800; color:var(--text);" class="td-numeric tabular-nums">
-													{ l.TotalPrice.String() } ج.م
-												</td>
-											</tr>
-										}
-									</tbody>
-								</table>
-							</div>
+								<div style="display:flex; align-items:center; gap:0.5rem; padding:0.75rem 1rem; border-radius:var(--radius-lg); background:var(--surface-sunken); border:1px solid var(--border); font-size:0.825rem; color:var(--text-secondary); margin-top:1rem;">
+									<span>🔒</span>
+									<span>تم تأكيد هذا الطلب أو بدء تجهيزه من قِبل المورد (حالة الطلب: <strong>{ string(order.Status) }</strong>). لا يمكن تعديل الكميات بعد بدء التنفيذ.</span>
+								</div>
+							}
 						}
 					</div>
 
@@ -714,6 +877,50 @@ templ CustomerOrderDetail(order *commerce.Order, history []*commerce.OrderStatus
 				</div>
 
 				<script>
+					window.stepRowQty = function(btn, delta) {
+						const tr = btn.closest('.order-table-row');
+						if (!tr) return;
+						const input = tr.querySelector('.row-qty-input');
+						if (input) {
+							let val = parseInt(input.value, 10) || 1;
+							val += delta;
+							if (val < 1) val = 1;
+							input.value = val;
+							window.recalcRowTotal(input);
+						}
+					};
+
+					window.recalcRowTotal = function(input) {
+						const tr = input.closest('.order-table-row');
+						if (!tr) return;
+						const qty = parseInt(input.value, 10) || 1;
+						const priceInput = tr.querySelector('.row-unit-price-input');
+						const discInput = tr.querySelector('.row-discount-input');
+						const totalDisplay = tr.querySelector('.row-total-display');
+
+						const price = parseFloat(priceInput ? priceInput.value.replace(/,/g, '') : 0) || 0;
+						const disc = parseFloat(discInput ? discInput.value.replace(/,/g, '') : 0) || 0;
+
+						let effectivePrice = price - disc;
+						if (effectivePrice < 0) effectivePrice = 0;
+						const lineTotal = effectivePrice * qty;
+
+						if (totalDisplay) {
+							totalDisplay.textContent = lineTotal.toFixed(2) + ' ج.م';
+						}
+					};
+
+					window.deleteRowLine = function(btn) {
+						if (!confirm('هل أنت متأكد من رغبتك في حذف هذا الصنف من الطلب؟')) return;
+						const tr = btn.closest('.order-table-row');
+						if (!tr) return;
+						const delInput = tr.querySelector('.row-deleted-input');
+						if (delInput) {
+							delInput.value = '1';
+						}
+						tr.style.display = 'none';
+					};
+
 					window.openOrderEditModal = function() {
 						const modal = document.getElementById('order-edit-modal');
 						if (modal) {

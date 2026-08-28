@@ -39,7 +39,6 @@ templ CustomerBranchFormPage(data CustomerBranchFormData, lang string, dir strin
 		code := ""
 		address := ""
 		phone := ""
-		operatingHours := ""
 		gmapsURL := ""
 		hasColdStorage := false
 		isMain := false
@@ -53,7 +52,6 @@ templ CustomerBranchFormPage(data CustomerBranchFormData, lang string, dir strin
 			code = data.Branch.Code
 			address = data.Branch.Address
 			phone = data.Branch.Phone
-			operatingHours = data.Branch.OperatingHours
 			gmapsURL = data.Branch.GoogleMapsURL
 			hasColdStorage = data.Branch.HasColdStorage
 			isMain = data.Branch.IsMain
@@ -218,7 +216,7 @@ templ CustomerBranchFormPage(data CustomerBranchFormData, lang string, dir strin
 							</div>
 						</div>
 
-						<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(260px, 1fr)); gap:1.25rem;">
+						<div style="display:grid; grid-template-columns:1fr; gap:1.25rem;">
 							<div>
 								<label class="form-label" style="font-size:0.85rem; font-weight:700; color:var(--text); margin-bottom:0.35rem; display:block;">
 									رقم هاتف / محمول الفرع
@@ -229,20 +227,6 @@ templ CustomerBranchFormPage(data CustomerBranchFormData, lang string, dir strin
 									value={ phone }
 									placeholder="مثال: 01012345678"
 									class="form-input tabular-nums w-full"
-									style="font-size:0.9rem;"
-								/>
-							</div>
-
-							<div>
-								<label class="form-label" style="font-size:0.85rem; font-weight:700; color:var(--text); margin-bottom:0.35rem; display:block;">
-									ساعات وأوقات العمل
-								</label>
-								<input
-									type="text"
-									name="operating_hours"
-									value={ operatingHours }
-									placeholder="مثال: 09:00 ص - 12:00 م (يومياً)"
-									class="form-input w-full"
 									style="font-size:0.9rem;"
 								/>
 							</div>
