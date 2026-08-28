@@ -247,7 +247,12 @@ func (h *UIHandler) serveDocumentFile(w http.ResponseWriter, r *http.Request, do
 		}
 	}
 
+	// Older rows (and any storage-backed upload) carry the path in storage_key
+	// only, so fall back to it when file_url was never populated.
 	fileURL := strings.TrimSpace(doc.FileURL)
+	if fileURL == "" {
+		fileURL = strings.TrimSpace(doc.StorageKey)
+	}
 
 	// 1. If it's a remote URL (http:// or https://), redirect directly
 	if strings.HasPrefix(fileURL, "http://") || strings.HasPrefix(fileURL, "https://") {

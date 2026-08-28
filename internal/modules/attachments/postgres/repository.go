@@ -26,11 +26,11 @@ func (r *Repository) Create(ctx context.Context, doc *attachments.Document) (*at
 	err := r.db.InTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
 		query := `
 			INSERT INTO platform_admin.documents (
-				organization_id, user_id, document_type, file_url, original_name,
-				mime_type, size_bytes, status, review_notes, meta
+				organization_id, user_id, document_type, file_url, title, storage_key,
+				original_name, mime_type, size_bytes, status, review_notes, meta
 			) VALUES (
-				$1, $2, $3, $4, $5,
-				$6, $7, $8, $9, $10
+				$1, $2, $3, $4, $5, $6,
+				$7, $8, $9, $10, $11, $12
 			)
 			RETURNING id, public_id, created_at, updated_at;
 		`
@@ -40,6 +40,8 @@ func (r *Repository) Create(ctx context.Context, doc *attachments.Document) (*at
 			doc.UserID,
 			string(doc.DocumentType),
 			doc.FileURL,
+			doc.Title,
+			doc.StorageKey,
 			doc.OriginalName,
 			doc.MimeType,
 			doc.SizeBytes,
@@ -63,6 +65,7 @@ func (r *Repository) GetByID(ctx context.Context, id int64) (*attachments.Docume
 	err := r.db.InReadTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
 		query := `
 			SELECT id, public_id, organization_id, user_id, document_type, file_url,
+			       COALESCE(title, ''), COALESCE(storage_key, ''),
 			       original_name, mime_type, size_bytes, status, review_notes,
 			       reviewed_by, reviewed_at, meta, created_at, updated_at, deleted_at
 			FROM platform_admin.documents
@@ -70,6 +73,7 @@ func (r *Repository) GetByID(ctx context.Context, id int64) (*attachments.Docume
 		`
 		return tx.QueryRow(txCtx, query, id).Scan(
 			&doc.ID, &doc.PublicID, &doc.OrganizationID, &doc.UserID, &docType, &doc.FileURL,
+			&doc.Title, &doc.StorageKey,
 			&doc.OriginalName, &doc.MimeType, &doc.SizeBytes, &status, &doc.ReviewNotes,
 			&doc.ReviewedBy, &doc.ReviewedAt, &metaBytes, &doc.CreatedAt, &doc.UpdatedAt, &doc.DeletedAt,
 		)
@@ -98,6 +102,7 @@ func (r *Repository) GetByPublicID(ctx context.Context, publicID uuid.UUID) (*at
 	err := r.db.InReadTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
 		query := `
 			SELECT id, public_id, organization_id, user_id, document_type, file_url,
+			       COALESCE(title, ''), COALESCE(storage_key, ''),
 			       original_name, mime_type, size_bytes, status, review_notes,
 			       reviewed_by, reviewed_at, meta, created_at, updated_at, deleted_at
 			FROM platform_admin.documents
@@ -105,6 +110,7 @@ func (r *Repository) GetByPublicID(ctx context.Context, publicID uuid.UUID) (*at
 		`
 		return tx.QueryRow(txCtx, query, publicID).Scan(
 			&doc.ID, &doc.PublicID, &doc.OrganizationID, &doc.UserID, &docType, &doc.FileURL,
+			&doc.Title, &doc.StorageKey,
 			&doc.OriginalName, &doc.MimeType, &doc.SizeBytes, &status, &doc.ReviewNotes,
 			&doc.ReviewedBy, &doc.ReviewedAt, &metaBytes, &doc.CreatedAt, &doc.UpdatedAt, &doc.DeletedAt,
 		)
@@ -130,6 +136,7 @@ func (r *Repository) ListByOrganization(ctx context.Context, orgID int64) ([]*at
 	err := r.db.InReadTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
 		query := `
 			SELECT id, public_id, organization_id, user_id, document_type, file_url,
+			       COALESCE(title, ''), COALESCE(storage_key, ''),
 			       original_name, mime_type, size_bytes, status, review_notes,
 			       reviewed_by, reviewed_at, meta, created_at, updated_at, deleted_at
 			FROM platform_admin.documents
@@ -149,6 +156,7 @@ func (r *Repository) ListByOrganization(ctx context.Context, orgID int64) ([]*at
 			var metaBytes []byte
 			if err := rows.Scan(
 				&doc.ID, &doc.PublicID, &doc.OrganizationID, &doc.UserID, &docType, &doc.FileURL,
+				&doc.Title, &doc.StorageKey,
 				&doc.OriginalName, &doc.MimeType, &doc.SizeBytes, &status, &doc.ReviewNotes,
 				&doc.ReviewedBy, &doc.ReviewedAt, &metaBytes, &doc.CreatedAt, &doc.UpdatedAt, &doc.DeletedAt,
 			); err != nil {
@@ -171,6 +179,7 @@ func (r *Repository) ListByUser(ctx context.Context, userID int64) ([]*attachmen
 	err := r.db.InReadTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
 		query := `
 			SELECT id, public_id, organization_id, user_id, document_type, file_url,
+			       COALESCE(title, ''), COALESCE(storage_key, ''),
 			       original_name, mime_type, size_bytes, status, review_notes,
 			       reviewed_by, reviewed_at, meta, created_at, updated_at, deleted_at
 			FROM platform_admin.documents
@@ -190,6 +199,7 @@ func (r *Repository) ListByUser(ctx context.Context, userID int64) ([]*attachmen
 			var metaBytes []byte
 			if err := rows.Scan(
 				&doc.ID, &doc.PublicID, &doc.OrganizationID, &doc.UserID, &docType, &doc.FileURL,
+				&doc.Title, &doc.StorageKey,
 				&doc.OriginalName, &doc.MimeType, &doc.SizeBytes, &status, &doc.ReviewNotes,
 				&doc.ReviewedBy, &doc.ReviewedAt, &metaBytes, &doc.CreatedAt, &doc.UpdatedAt, &doc.DeletedAt,
 			); err != nil {
@@ -260,6 +270,7 @@ func (r *Repository) ListAll(ctx context.Context, filter attachments.DocumentFil
 
 		selectQuery := `
 			SELECT id, public_id, organization_id, user_id, document_type, file_url,
+			       COALESCE(title, ''), COALESCE(storage_key, ''),
 			       original_name, mime_type, size_bytes, status, review_notes,
 			       reviewed_by, reviewed_at, meta, created_at, updated_at, deleted_at
 		` + baseQuery + fmt.Sprintf(" ORDER BY created_at DESC LIMIT %d OFFSET %d;", limit, offset)
@@ -276,6 +287,7 @@ func (r *Repository) ListAll(ctx context.Context, filter attachments.DocumentFil
 			var metaBytes []byte
 			if err := rows.Scan(
 				&doc.ID, &doc.PublicID, &doc.OrganizationID, &doc.UserID, &docType, &doc.FileURL,
+				&doc.Title, &doc.StorageKey,
 				&doc.OriginalName, &doc.MimeType, &doc.SizeBytes, &status, &doc.ReviewNotes,
 				&doc.ReviewedBy, &doc.ReviewedAt, &metaBytes, &doc.CreatedAt, &doc.UpdatedAt, &doc.DeletedAt,
 			); err != nil {

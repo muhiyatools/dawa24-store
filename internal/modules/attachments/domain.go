@@ -64,6 +64,8 @@ type Document struct {
 	UserID         *int64                 `json:"user_id,omitempty"`
 	DocumentType   DocumentType           `json:"document_type"`
 	FileURL        string                 `json:"file_url"`
+	Title          string                 `json:"title"`
+	StorageKey     string                 `json:"storage_key"`
 	OriginalName   string                 `json:"original_name"`
 	MimeType       string                 `json:"mime_type"`
 	SizeBytes      int64                  `json:"size_bytes"`

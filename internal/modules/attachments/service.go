@@ -113,11 +113,18 @@ func (s *Service) RegisterUpload(ctx context.Context, actor authctx.Actor, docTy
 		userIDPtr = &v
 	}
 
+	title := strings.TrimSpace(originalName)
+	if title == "" {
+		title = string(docType)
+	}
+
 	doc := &Document{
 		OrganizationID: orgIDPtr,
 		UserID:         userIDPtr,
 		DocumentType:   docType,
 		FileURL:        url,
+		Title:          title,
+		StorageKey:     url,
 		OriginalName:   strings.TrimSpace(originalName),
 		MimeType:       mime,
 		Status:         StatusPending,
@@ -168,6 +175,8 @@ func (s *Service) PresignUpload(ctx context.Context, actor authctx.Actor, req Pr
 		UserID:         userID,
 		DocumentType:   req.DocumentType,
 		FileURL:        storageKey,
+		Title:          presignTitle(req),
+		StorageKey:     storageKey,
 		OriginalName:   req.OriginalName,
 		MimeType:       req.MimeType,
 		SizeBytes:      req.SizeBytes,
@@ -448,4 +457,14 @@ func (s *Service) ListByUser(ctx context.Context, userID int64) ([]*Document, er
 // ListAll returns documents matching administrative search criteria.
 func (s *Service) ListAll(ctx context.Context, filter DocumentFilter) ([]*Document, int, error) {
 	return s.repo.ListAll(ctx, filter)
+}
+
+// presignTitle derives the human-readable title stored alongside the document
+// row; platform_admin.documents.title is NOT NULL with no default.
+func presignTitle(req PresignRequest) string {
+	title := strings.TrimSpace(req.OriginalName)
+	if title == "" {
+		title = string(req.DocumentType)
+	}
+	return title
 }
