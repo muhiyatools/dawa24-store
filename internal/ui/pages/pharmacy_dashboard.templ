@@ -139,7 +139,7 @@ templ PharmacyDashboard(lang, dir string, data PharmacyDashboardData, perms []st
 						<div style={ fmt.Sprintf("width:%d%%; height:100%%; border-radius:4px; background:linear-gradient(90deg, var(--primary), #8b5cf6); transition:width 0.4s ease;", data.Subscription.AIPercentage()) }></div>
 					</div>
 					<div style="display:flex; justify-content:space-between; align-items:center; font-size:0.725rem; font-weight:700; color:var(--text-muted);">
-						<span dir="ltr" class="tabular-nums">${ fmt.Sprintf("%.2f / $%.2f", data.Subscription.AIBudgetSpentUSD, data.Subscription.AIBudgetLimitUSD) }</span>
+						<span>{ data.Subscription.AIResetText() }</span>
 						<span style="color:var(--primary);">سجل العمليات ↗</span>
 					</div>
 				</div>

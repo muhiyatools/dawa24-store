@@ -1,6 +1,10 @@
 package pages
 
 import (
+	"fmt"
+	"strings"
+	"time"
+
 	"github.com/muhiya/dawa24-store/internal/modules/attachments"
 	"github.com/muhiya/dawa24-store/internal/modules/billing"
 	"github.com/muhiya/dawa24-store/internal/modules/commerce"
@@ -69,12 +73,61 @@ func (v *OrgSubscriptionView) AIPercentage() int {
 	return pct
 }
 
+// FormatRelativeResetTime converts a reset timestamp into friendly countdown text (e.g. "متبقي 14 يوماً", "متبقي 8 ساعات").
+func FormatRelativeResetTime(rawTime string) string {
+	cleaned := strings.TrimSpace(rawTime)
+	if cleaned == "" {
+		return "تجديد شهري دوري"
+	}
+	layouts := []string{
+		"2006-01-02 15:04",
+		"2006-01-02 15:04:05",
+		"2006-01-02T15:04:05Z07:00",
+		"2006-01-02T15:04:05Z",
+		"2006-01-02",
+		"15:04 02-01-2006",
+		"02-01-2006 15:04",
+		"02-01-2006",
+	}
+	var resetTime time.Time
+	for _, l := range layouts {
+		if t, err := time.Parse(l, cleaned); err == nil {
+			resetTime = t
+			break
+		}
+	}
+	if resetTime.IsZero() {
+		return "تجديد شهري دوري"
+	}
+	now := time.Now()
+	diff := resetTime.Sub(now)
+	if diff <= 0 {
+		return "اليوم (جاري التجديد)"
+	}
+	hours := int(diff.Hours())
+	days := hours / 24
+	if days > 1 {
+		return fmt.Sprintf("متبقي %d يوماً", days)
+	} else if days == 1 {
+		return "متبقي يوم واحد"
+	} else if hours > 1 {
+		return fmt.Sprintf("متبقي %d ساعة", hours)
+	} else if hours == 1 {
+		return "متبقي ساعة واحدة"
+	}
+	mins := int(diff.Minutes())
+	if mins > 1 {
+		return fmt.Sprintf("متبقي %d دقيقة", mins)
+	}
+	return "أقل من دقيقة"
+}
+
 // AIResetText returns a user-friendly string indicating when the quota resets.
 func (v *OrgSubscriptionView) AIResetText() string {
 	if v == nil || v.AIBudgetResetTime == "" {
 		return "تجديد دوري مستمر"
 	}
-	return "يتجدد: " + v.AIBudgetResetTime
+	return FormatRelativeResetTime(v.AIBudgetResetTime)
 }
 
 // AILogItemView represents one unified, high-density AI request log entry.
@@ -113,6 +166,11 @@ type AIConsumptionLogsPageData struct {
 	IsVendor          bool
 	IsCustomer        bool
 	FeatureBreakdown  map[string]int
+}
+
+// ResetCountdown returns friendly relative text for quota renewal.
+func (d *AIConsumptionLogsPageData) ResetCountdown() string {
+	return FormatRelativeResetTime(d.ResetTime)
 }
 
 // PharmacyDashboardData is the pharmacy dashboard view model.

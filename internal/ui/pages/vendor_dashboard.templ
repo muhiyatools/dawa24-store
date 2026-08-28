@@ -101,8 +101,8 @@ templ VendorDashboard(lang, dir string, data VendorDashboardData) {
 								</div>
 
 								<div style="display:flex; justify-content:space-between; font-size:0.7rem; color:var(--text-muted);">
-									<span dir="ltr" class="tabular-nums font-bold">${ fmt.Sprintf("%.2f / $%.2f", data.Subscription.AIBudgetSpentUSD, data.Subscription.AIBudgetLimitUSD) }</span>
 									<span>متبقي: <strong class="text-success">{ fmt.Sprintf("%d%%", 100-data.Subscription.AIPercentage()) }</strong></span>
+									<span>التجديد: <strong style="color:var(--text);">{ data.Subscription.AIResetText() }</strong></span>
 								</div>
 							</div>
 						</div>

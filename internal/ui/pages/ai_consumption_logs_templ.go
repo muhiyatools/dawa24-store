@@ -110,14 +110,14 @@ func aiConsumptionLogsBody(data AIConsumptionLogsPageData, lang, dir string) tem
 			templ_7745c5c3_Var4 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"jobs-container\" style=\"max-width:1300px; margin:0 auto; padding-bottom:3rem;\"><!-- Header Banner --><div class=\"jobs-header\"><div><div style=\"display:flex; align-items:center; gap:0.6rem; margin-bottom:0.35rem;\"><div style=\"width:38px; height:38px; border-radius:var(--radius-lg); background:rgba(139, 92, 246, 0.12); color:#7c3aed; display:flex; align-items:center; justify-content:center; font-size:1.25rem;\">✨</div><div><h1 style=\"font-size:1.45rem; font-weight:900; color:var(--text); margin:0;\">سجل استهلاك وعمليات الذكاء الاصطناعي</h1><span style=\"font-size:0.775rem; color:var(--text-muted); font-weight:700;\">AI Gateway Telemetry & Request Audit</span></div></div><p style=\"font-size:0.875rem; color:var(--text-secondary); margin:0; max-width:720px; line-height:1.6;\">متابعة حركات واستدعاءات بوابات الذكاء الاصطناعي (AI Gateway)، وتتبع استهلاك الحصة ومعدل التوكنز لكل عملية تشغيلية بالمنصة.</p></div><div style=\"display:flex; align-items:center; gap:0.5rem; flex-wrap:wrap;\"><div style=\"background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-lg); padding:0.4rem 0.75rem; font-size:0.8rem; display:flex; align-items:center; gap:0.4rem;\"><span style=\"color:var(--text-muted); font-weight:600;\">معرّف البوابة:</span> <code dir=\"ltr\" style=\"font-weight:700; color:var(--primary);\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"jobs-container\" style=\"max-width:1300px; margin:0 auto; padding-bottom:3rem;\"><!-- Header Banner --><div class=\"jobs-header\" style=\"margin-bottom:1.5rem;\"><div><div style=\"display:flex; align-items:center; gap:0.6rem; margin-bottom:0.25rem;\"><div style=\"width:36px; height:36px; border-radius:var(--radius-lg); background:rgba(139, 92, 246, 0.12); color:#7c3aed; display:flex; align-items:center; justify-content:center; font-size:1.2rem;\">✨</div><div><h1 style=\"font-size:1.35rem; font-weight:900; color:var(--text); margin:0;\">سجل استهلاك وعمليات الذكاء الاصطناعي</h1></div></div><p style=\"font-size:0.85rem; color:var(--text-secondary); margin:0; line-height:1.5;\">متابعة استدعاءات بوابات الذكاء الاصطناعي، وتتبع استهلاك الحصة ومعدل التوكنز للعمليات التشغيلية.</p></div><div style=\"display:flex; align-items:center; gap:0.5rem; flex-wrap:wrap;\"><div style=\"background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-lg); padding:0.4rem 0.75rem; font-size:0.8rem; display:flex; align-items:center; gap:0.4rem;\"><span style=\"color:var(--text-muted); font-weight:600;\">معرّف البوابة:</span> <code dir=\"ltr\" style=\"font-weight:700; color:var(--primary);\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var5 string
 		templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(data.AIUserID)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/ai_consumption_logs.templ`, Line: 49, Col: 83}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/ai_consumption_logs.templ`, Line: 48, Col: 83}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
 		if templ_7745c5c3_Err != nil {
@@ -135,7 +135,7 @@ func aiConsumptionLogsBody(data AIConsumptionLogsPageData, lang, dir string) tem
 			return "/customer/subscription"
 		}()))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/ai_consumption_logs.templ`, Line: 51, Col: 132}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/ai_consumption_logs.templ`, Line: 50, Col: 132}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
 		if templ_7745c5c3_Err != nil {
@@ -149,124 +149,98 @@ func aiConsumptionLogsBody(data AIConsumptionLogsPageData, lang, dir string) tem
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "<span>إدارة الباقة والاشتراك</span></a></div></div><!-- Executive Quota & Metric Cards Strip --><div class=\"jobs-metrics-grid\"><!-- Card 1: Active Budget & Usage Percentage --><div class=\"jobs-metric-card\"><div style=\"display:flex; justify-content:space-between; align-items:center;\"><span style=\"font-size:0.8rem; font-weight:600; color:var(--text-muted);\">استهلاك الميزانية الشهرية</span> <span class=\"badge badge-sky text-xs fw-800\" dir=\"ltr\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "<span>إدارة الباقة والاشتراك</span></a></div></div><!-- Executive Quota & Metric Cards Strip (Clean 3-Card Layout) --><div style=\"display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:1rem; margin-bottom:1.5rem;\"><!-- Card 1: Quota Usage Percentage & Progress --><div class=\"jobs-metric-card\" style=\"display:flex; flex-direction:column; justify-content:space-between; padding:1.25rem;\"><div><div style=\"display:flex; justify-content:space-between; align-items:center;\"><span style=\"font-size:0.825rem; font-weight:700; color:var(--text-secondary);\">استهلاك الحصة الشهرية</span> <span class=\"badge badge-sky text-xs fw-800\" dir=\"ltr\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var7 string
 		templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(data.AIPlanID)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/ai_consumption_logs.templ`, Line: 65, Col: 75}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/ai_consumption_logs.templ`, Line: 65, Col: 76}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "</span></div><div style=\"display:flex; align-items:baseline; justify-content:space-between; margin-top:0.35rem;\"><div class=\"tabular-nums\" style=\"font-size:1.75rem; font-weight:900; color:var(--primary);\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "</span></div><div style=\"margin-top:0.4rem;\"><div class=\"tabular-nums\" style=\"font-size:1.9rem; font-weight:900; color:var(--primary); line-height:1.2;\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var8 string
 		templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d%%", data.UsagePercentage))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/ai_consumption_logs.templ`, Line: 70, Col: 49}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/ai_consumption_logs.templ`, Line: 70, Col: 50}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var8))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "</div><div class=\"tabular-nums\" style=\"font-size:0.875rem; font-weight:800; color:var(--text-secondary);\" dir=\"ltr\">$")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "</div></div><!-- Working Dynamic Progress Bar --><div style=\"width:100%; height:7px; background:var(--neutral-100); border-radius:4px; margin-top:0.5rem; overflow:hidden;\"><div style=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var9 string
-		templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%.2f / $%.2f USD", data.ActiveBudgetSpent, data.ActiveBudgetLimit))
+		templ_7745c5c3_Var9, templ_7745c5c3_Err = templruntime.SanitizeStyleAttributeValues(fmt.Sprintf("height:100%%; width:%d%%; border-radius:4px; background:linear-gradient(90deg, var(--primary), #8b5cf6); transition:width 0.4s ease;", data.UsagePercentage))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/ai_consumption_logs.templ`, Line: 73, Col: 88}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/ai_consumption_logs.templ`, Line: 76, Col: 188}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var9))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "</div></div><!-- Working Dynamic Progress Bar --><div style=\"width:100%; height:7px; background:var(--neutral-100); border-radius:4px; margin-top:0.4rem; overflow:hidden;\"><div style=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "\"></div></div></div><div style=\"display:flex; justify-content:space-between; align-items:center; font-size:0.75rem; color:var(--text-muted); margin-top:0.6rem; padding-top:0.4rem; border-top:1px solid var(--border-subtle);\"><span>متبقي: <strong class=\"text-success\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var10 string
-		templ_7745c5c3_Var10, templ_7745c5c3_Err = templruntime.SanitizeStyleAttributeValues(fmt.Sprintf("height:100%%; width:%d%%; border-radius:4px; background:linear-gradient(90deg, var(--primary), #8b5cf6); transition:width 0.4s ease;", data.UsagePercentage))
+		templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d%%", 100-data.UsagePercentage))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/ai_consumption_logs.templ`, Line: 79, Col: 187}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/ai_consumption_logs.templ`, Line: 81, Col: 99}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var10))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "\"></div></div><div style=\"display:flex; justify-content:space-between; align-items:center; font-size:0.725rem; color:var(--text-muted); margin-top:0.35rem;\"><span>متبقي: <strong class=\"text-success\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "</strong></span> <span>التجديد: <strong style=\"color:var(--text);\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var11 string
-		templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d%%", 100-data.UsagePercentage))
+		templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.JoinStringErrs(data.ResetCountdown())
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/ai_consumption_logs.templ`, Line: 83, Col: 99}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/ai_consumption_logs.templ`, Line: 82, Col: 85}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var11))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "</strong></span> <span>التجديد: <strong class=\"tabular-nums\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "</strong></span></div></div><!-- Card 2: Total AI Requests --><div class=\"jobs-metric-card\" style=\"display:flex; flex-direction:column; justify-content:space-between; padding:1.25rem;\"><div><span style=\"font-size:0.825rem; font-weight:700; color:var(--text-secondary);\">إجمالي الاستدعاءات</span><div class=\"tabular-nums\" style=\"font-size:1.9rem; font-weight:900; color:var(--text); margin-top:0.4rem; line-height:1.2;\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var12 string
-		templ_7745c5c3_Var12, templ_7745c5c3_Err = templ.JoinStringErrs(data.ResetTime)
+		templ_7745c5c3_Var12, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", data.TotalRequests))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/ai_consumption_logs.templ`, Line: 84, Col: 72}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/ai_consumption_logs.templ`, Line: 91, Col: 45}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var12))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "</strong></span></div></div><!-- Card 2: Total AI Requests --><div class=\"jobs-metric-card\"><span style=\"font-size:0.8rem; font-weight:600; color:var(--text-muted);\">إجمالي استدعاءات الذكاء الاصطناعي</span><div class=\"tabular-nums\" style=\"font-size:1.75rem; font-weight:900; color:var(--text); margin-top:0.25rem;\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, " <span style=\"font-size:0.85rem; font-weight:700; color:var(--text-muted);\">طلب</span></div></div><div style=\"font-size:0.75rem; color:var(--text-muted); margin-top:0.6rem; padding-top:0.4rem; border-top:1px solid var(--border-subtle);\"><span>العمليات التشغيلية التراكمية المسجلة</span></div></div><!-- Card 3: Processed Tokens (In / Out) --><div class=\"jobs-metric-card\" style=\"display:flex; flex-direction:column; justify-content:space-between; padding:1.25rem;\"><div><span style=\"font-size:0.825rem; font-weight:700; color:var(--text-secondary);\">إجمالي التوكنز المعالجة</span><div class=\"tabular-nums\" style=\"font-size:1.9rem; font-weight:900; color:var(--text); margin-top:0.4rem; line-height:1.2;\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var13 string
-		templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", data.TotalRequests))
+		templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", data.TotalTokens))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/ai_consumption_logs.templ`, Line: 92, Col: 44}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/ai_consumption_logs.templ`, Line: 104, Col: 43}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var13))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, " <span style=\"font-size:0.85rem; font-weight:600; color:var(--text-secondary);\">طلب مسجل</span></div><div style=\"font-size:0.75rem; color:var(--emerald); font-weight:700; margin-top:0.35rem; display:flex; align-items:center; gap:0.35rem;\"><span style=\"width:7px; height:7px; border-radius:50%; background:var(--emerald); display:inline-block;\"></span> <span>تكامل مباشر مع بوابة MuhiyaLLM</span></div></div><!-- Card 3: Total Tokens Consumed --><div class=\"jobs-metric-card\"><span style=\"font-size:0.8rem; font-weight:600; color:var(--text-muted);\">إجمالي التوكنز المعالجة</span><div class=\"tabular-nums\" style=\"font-size:1.75rem; font-weight:900; color:var(--text); margin-top:0.25rem;\">")
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		var templ_7745c5c3_Var14 string
-		templ_7745c5c3_Var14, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", data.TotalTokens))
-		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/ai_consumption_logs.templ`, Line: 104, Col: 42}
-		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var14))
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, " <span style=\"font-size:0.8rem; font-weight:700; color:var(--text-muted);\">Tokens</span></div><div style=\"font-size:0.75rem; color:var(--text-muted); margin-top:0.35rem;\">شامل الإدخال وسياق المطابقة والإخراج</div></div><!-- Card 4: Total Cost --><div class=\"jobs-metric-card\"><span style=\"font-size:0.8rem; font-weight:600; color:var(--text-muted);\">التكلفة التقديرية التراكمية</span><div class=\"tabular-nums\" style=\"font-size:1.75rem; font-weight:900; color:var(--text); margin-top:0.25rem;\" dir=\"ltr\">$")
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		var templ_7745c5c3_Var15 string
-		templ_7745c5c3_Var15, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%.3f", data.TotalCostUSD))
-		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/ai_consumption_logs.templ`, Line: 115, Col: 46}
-		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var15))
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, " <span style=\"font-size:0.8rem; font-weight:700; color:var(--text-muted);\">USD</span></div><div style=\"font-size:0.75rem; color:var(--text-muted); margin-top:0.35rem;\">تخصم تلقائياً من حصة الباقة الشهرية</div></div></div><!-- Instant Filter & Search Bar --><div class=\"jobs-filter-strip\"><!-- Search Input --><div style=\"position:relative; flex:1; min-width:260px;\"><input type=\"text\" id=\"ai-logs-search\" placeholder=\"ابحث بكود الطلب، موضع الاستخدام، أو اسم النموذج...\" class=\"form-input input-sm w-full\" style=\"padding-inline-start:2rem;\" oninput=\"filterAILogs()\"><div style=\"position:absolute; inset-inline-start:0.65rem; top:50%; transform:translateY(-50%); color:var(--text-muted); pointer-events:none;\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "</div></div><div style=\"font-size:0.75rem; color:var(--text-muted); margin-top:0.6rem; padding-top:0.4rem; border-top:1px solid var(--border-subtle);\"><span>سياق الإدخال ومطابقة البيانات والإخراج</span></div></div></div><!-- Instant Filter & Search Bar --><div class=\"jobs-filter-strip\" style=\"margin-bottom:1rem; padding:0.75rem 1rem; border-radius:var(--radius-lg); background:var(--surface-raised); border:1px solid var(--border);\"><!-- Search Input --><div style=\"position:relative; flex:1; min-width:240px;\"><input type=\"text\" id=\"ai-logs-search\" placeholder=\"ابحث بكود الطلب، موضع الاستخدام، أو اسم النموذج...\" class=\"form-input input-sm w-full\" style=\"padding-inline-start:2rem;\" oninput=\"filterAILogs()\"><div style=\"position:absolute; inset-inline-start:0.65rem; top:50%; transform:translateY(-50%); color:var(--text-muted); pointer-events:none;\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -274,287 +248,246 @@ func aiConsumptionLogsBody(data AIConsumptionLogsPageData, lang, dir string) tem
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "</div></div><!-- Feature Filter --><select id=\"ai-logs-feature-filter\" class=\"form-input input-sm\" style=\"width:230px;\" onchange=\"filterAILogs()\"><option value=\"\">كافة مواضع الاستخدام</option> ")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "</div></div><!-- Feature Filter --><select id=\"ai-logs-feature-filter\" class=\"form-input input-sm\" style=\"width:220px;\" onchange=\"filterAILogs()\"><option value=\"\">كافة مواضع الاستخدام</option> ")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		if data.IsCustomer {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "<option value=\"smart_order\">الطلب الذكي (Smart Ordering)</option> <option value=\"assistant\">المساعد الصيدلاني (AI Assistant)</option> <option value=\"savings\">بدائل التوفير (Savings Products)</option> <option value=\"voice_ocr\">الأوامر الصوتية والروشتات</option>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "<option value=\"smart_order\">الطلب الذكي (Smart Ordering)</option> <option value=\"assistant\">المساعد الصيدلاني (AI Assistant)</option> <option value=\"savings\">بدائل التوفير (Savings Products)</option> <option value=\"voice_ocr\">الأوامر الصوتية والروشتات</option>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 		} else {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "<option value=\"variant_match\">استيراد ومطابقة الأصناف</option> <option value=\"savings_import\">استيراد منتجات التوفير</option> <option value=\"column_detect\">التعرف على أعمدة الكتالوج</option> <option value=\"assistant\">المساعد الآلي للموردين</option>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "<option value=\"variant_match\">استيراد ومطابقة الأصناف</option> <option value=\"savings_import\">استيراد منتجات التوفير</option> <option value=\"column_detect\">التعرف على أعمدة الكتالوج</option> <option value=\"assistant\">المساعد الآلي للموردين</option>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "</select><!-- Status Filter --><select id=\"ai-logs-status-filter\" class=\"form-input input-sm\" style=\"width:160px;\" onchange=\"filterAILogs()\"><option value=\"\">كافة الحالات</option> <option value=\"success\">ناجح</option> <option value=\"cached\">من الذاكرة (مجاني)</option> <option value=\"completed\">مكتمل</option> <option value=\"failed\">غير مكتمل</option></select></div><!-- AI Logs Data Table -->")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "</select><!-- Status Filter --><select id=\"ai-logs-status-filter\" class=\"form-input input-sm\" style=\"width:150px;\" onchange=\"filterAILogs()\"><option value=\"\">كافة الحالات</option> <option value=\"success\">ناجح</option> <option value=\"cached\">ذاكرة سريعة</option> <option value=\"completed\">مكتمل</option> <option value=\"failed\">غير مكتمل</option></select></div><!-- AI Logs Data Table -->")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		if len(data.Logs) == 0 {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "<div class=\"card\" style=\"padding:3.5rem 1.5rem; text-align:center; background:var(--surface-raised); border-radius:var(--radius-xl); border:1px solid var(--border);\"><div style=\"width:48px; height:48px; border-radius:50%; background:var(--surface-sunken); color:var(--text-muted); display:flex; align-items:center; justify-content:center; margin:0 auto 0.75rem auto;\">✨</div><h3 style=\"font-size:1.15rem; font-weight:800; color:var(--text); margin:0 0 0.35rem 0;\">لا توجد سجلات استهلاك مسجلة حالياً</h3><p class=\"text-sm text-muted m-0\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "<div class=\"card\" style=\"padding:3.5rem 1.5rem; text-align:center; background:var(--surface-raised); border-radius:var(--radius-xl); border:1px solid var(--border);\"><div style=\"width:48px; height:48px; border-radius:50%; background:var(--surface-sunken); color:var(--text-muted); display:flex; align-items:center; justify-content:center; margin:0 auto 0.75rem auto;\">✨</div><h3 style=\"font-size:1.15rem; font-weight:800; color:var(--text); margin:0 0 0.35rem 0;\">لا توجد سجلات استهلاك مسجلة حالياً</h3><p class=\"text-sm text-muted m-0\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			if data.IsCustomer {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "سيتم تسجيل استدعاءات الذكاء الاصطناعي واستهلاك التوكنز تلقائياً عند استخدام خدمات الطلب الذكي، المساعد الصيدلاني، أو مطابقة البدائل.")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "سيتم تسجيل استدعاءات الذكاء الاصطناعي واستهلاك التوكنز تلقائياً عند استخدام خدمات الطلب الذكي، المساعد الصيدلاني، أو مطابقة البدائل.")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			} else {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, "سيتم تسجيل استدعاءات الذكاء الاصطناعي واستهلاك التوكنز تلقائياً عند استيراد كتالوجات المورد، مطابقة الأصناف، أو معالجة البدائل.")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "سيتم تسجيل استدعاءات الذكاء الاصطناعي واستهلاك التوكنز تلقائياً عند استيراد كتالوجات المورد، مطابقة الأصناف، أو معالجة البدائل.")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, "</p></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "</p></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 		} else {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, "<div class=\"cb-emp-table-wrap\"><table class=\"b2b-table\" id=\"ai-logs-table\" style=\"width:100%; border-collapse:collapse;\"><thead><tr style=\"background:var(--surface-sunken); border-bottom:1px solid var(--border); font-size:0.775rem; color:var(--text-secondary); text-align:start;\"><th style=\"padding:0.75rem 1rem;\">الطلب والتوقيت</th><th style=\"padding:0.75rem 1rem;\">موضع الاستخدام والخاصية</th><th style=\"padding:0.75rem 1rem;\">النموذج والطبقة</th><th style=\"padding:0.75rem 1rem;\">التوكنز المستهلكة</th><th style=\"padding:0.75rem 1rem;\">التكلفة التقديرية</th><th style=\"padding:0.75rem 1rem;\">زمن الاستجابة</th><th style=\"padding:0.75rem 1rem; text-align:center;\">الحالة</th></tr></thead> <tbody>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, "<div class=\"cb-emp-table-wrap\" style=\"border:1px solid var(--border); border-radius:var(--radius-xl); overflow:hidden; background:var(--surface-raised);\"><table class=\"b2b-table\" id=\"ai-logs-table\" style=\"width:100%; border-collapse:collapse;\"><thead><tr style=\"background:var(--surface-sunken); border-bottom:1px solid var(--border); font-size:0.775rem; color:var(--text-secondary); text-align:start;\"><th style=\"padding:0.75rem 1rem;\">الطلب والتوقيت</th><th style=\"padding:0.75rem 1rem;\">موضع الاستخدام والخاصية</th><th style=\"padding:0.75rem 1rem;\">النموذج والطبقة</th><th style=\"padding:0.75rem 1rem;\">التوكنز (In / Out)</th><th style=\"padding:0.75rem 1rem;\">زمن الاستجابة</th><th style=\"padding:0.75rem 1rem; text-align:center;\">الحالة</th></tr></thead> <tbody>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			for _, log := range data.Logs {
 				if log != nil {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, "<tr class=\"ai-log-row\" data-log-id=\"")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, "<tr class=\"ai-log-row\" data-log-id=\"")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					var templ_7745c5c3_Var14 string
+					templ_7745c5c3_Var14, templ_7745c5c3_Err = templ.ResolveAttributeValue(strings.ToLower(log.ID))
+					if templ_7745c5c3_Err != nil {
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/ai_consumption_logs.templ`, Line: 190, Col: 46}
+					}
+					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var14)
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, "\" data-log-feature=\"")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					var templ_7745c5c3_Var15 string
+					templ_7745c5c3_Var15, templ_7745c5c3_Err = templ.ResolveAttributeValue(strings.ToLower(log.FeatureKey + " " + log.FeatureName + " " + log.SourceContext))
+					if templ_7745c5c3_Err != nil {
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/ai_consumption_logs.templ`, Line: 191, Col: 109}
+					}
+					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var15)
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, "\" data-log-model=\"")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var16 string
-					templ_7745c5c3_Var16, templ_7745c5c3_Err = templ.ResolveAttributeValue(strings.ToLower(log.ID))
+					templ_7745c5c3_Var16, templ_7745c5c3_Err = templ.ResolveAttributeValue(strings.ToLower(log.ModelAlias))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/ai_consumption_logs.templ`, Line: 201, Col: 46}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/ai_consumption_logs.templ`, Line: 192, Col: 57}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var16)
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, "\" data-log-feature=\"")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, "\" data-log-status=\"")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var17 string
-					templ_7745c5c3_Var17, templ_7745c5c3_Err = templ.ResolveAttributeValue(strings.ToLower(log.FeatureKey + " " + log.FeatureName + " " + log.SourceContext))
+					templ_7745c5c3_Var17, templ_7745c5c3_Err = templ.ResolveAttributeValue(log.Status)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/ai_consumption_logs.templ`, Line: 202, Col: 109}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/ai_consumption_logs.templ`, Line: 193, Col: 37}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var17)
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 25, "\" data-log-model=\"")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 25, "\" style=\"border-bottom:1px solid var(--border); transition:background 0.15s ease;\"><!-- Request ID & Timestamp --><td style=\"padding:0.75rem 1rem; vertical-align:middle;\"><div style=\"display:flex; flex-direction:column; gap:0.15rem;\"><code dir=\"ltr\" style=\"font-size:0.8rem; font-weight:800; color:var(--primary);\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var18 string
-					templ_7745c5c3_Var18, templ_7745c5c3_Err = templ.ResolveAttributeValue(strings.ToLower(log.ModelAlias))
+					templ_7745c5c3_Var18, templ_7745c5c3_Err = templ.JoinStringErrs(log.ID)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/ai_consumption_logs.templ`, Line: 203, Col: 57}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/ai_consumption_logs.templ`, Line: 199, Col: 100}
 					}
-					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var18)
+					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var18))
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 26, "\" data-log-status=\"")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 26, "</code> <span class=\"tabular-nums text-xs text-muted\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var19 string
-					templ_7745c5c3_Var19, templ_7745c5c3_Err = templ.ResolveAttributeValue(log.Status)
+					templ_7745c5c3_Var19, templ_7745c5c3_Err = templ.JoinStringErrs(log.TimeFormatted)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/ai_consumption_logs.templ`, Line: 204, Col: 37}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/ai_consumption_logs.templ`, Line: 200, Col: 76}
 					}
-					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var19)
+					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var19))
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 27, "\" style=\"border-bottom:1px solid var(--border); transition:background 0.15s ease;\"><!-- Request ID & Timestamp --><td style=\"padding:0.75rem 1rem; vertical-align:middle;\"><div style=\"display:flex; flex-direction:column; gap:0.15rem;\"><code dir=\"ltr\" style=\"font-size:0.8rem; font-weight:800; color:var(--primary);\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 27, "</span></div></td><!-- Feature Name & Context --><td style=\"padding:0.75rem 1rem; vertical-align:middle;\"><div style=\"display:flex; flex-direction:column; gap:0.2rem;\"><strong style=\"font-size:0.875rem; color:var(--text);\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var20 string
-					templ_7745c5c3_Var20, templ_7745c5c3_Err = templ.JoinStringErrs(log.ID)
+					templ_7745c5c3_Var20, templ_7745c5c3_Err = templ.JoinStringErrs(log.FeatureName)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/ai_consumption_logs.templ`, Line: 210, Col: 100}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/ai_consumption_logs.templ`, Line: 207, Col: 83}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var20))
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 28, "</code> <span class=\"tabular-nums text-xs text-muted\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 28, "</strong> ")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					var templ_7745c5c3_Var21 string
-					templ_7745c5c3_Var21, templ_7745c5c3_Err = templ.JoinStringErrs(log.TimeFormatted)
-					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/ai_consumption_logs.templ`, Line: 211, Col: 76}
+					if log.SourceContext != "" {
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 29, "<span style=\"font-size:0.75rem; color:var(--text-secondary); display:flex; align-items:center; gap:0.3rem;\"><span>📌</span> <span>")
+						if templ_7745c5c3_Err != nil {
+							return templ_7745c5c3_Err
+						}
+						var templ_7745c5c3_Var21 string
+						templ_7745c5c3_Var21, templ_7745c5c3_Err = templ.JoinStringErrs(log.SourceContext)
+						if templ_7745c5c3_Err != nil {
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/ai_consumption_logs.templ`, Line: 211, Col: 38}
+						}
+						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var21))
+						if templ_7745c5c3_Err != nil {
+							return templ_7745c5c3_Err
+						}
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 30, "</span></span>")
+						if templ_7745c5c3_Err != nil {
+							return templ_7745c5c3_Err
+						}
 					}
-					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var21))
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 29, "</span></div></td><!-- Feature Name & Context --><td style=\"padding:0.75rem 1rem; vertical-align:middle;\"><div style=\"display:flex; flex-direction:column; gap:0.2rem;\"><strong style=\"font-size:0.875rem; color:var(--text);\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 31, "</div></td><!-- Model & Tier --><td style=\"padding:0.75rem 1rem; vertical-align:middle;\"><div style=\"display:flex; align-items:center; gap:0.4rem;\"><code dir=\"ltr\" class=\"text-xs fw-700\" style=\"background:var(--surface-sunken); padding:0.15rem 0.4rem; border-radius:var(--radius-sm); border:1px solid var(--border);\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var22 string
-					templ_7745c5c3_Var22, templ_7745c5c3_Err = templ.JoinStringErrs(log.FeatureName)
+					templ_7745c5c3_Var22, templ_7745c5c3_Err = templ.JoinStringErrs(log.ModelAlias)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/ai_consumption_logs.templ`, Line: 218, Col: 83}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/ai_consumption_logs.templ`, Line: 220, Col: 196}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var22))
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 30, "</strong> ")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 32, "</code> ")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					if log.SourceContext != "" {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 31, "<span style=\"font-size:0.75rem; color:var(--text-secondary); display:flex; align-items:center; gap:0.3rem;\"><span>📌</span> <span>")
+					if log.ModelTier == "quality" {
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 33, "<span class=\"badge badge-purple text-xs\">Quality</span>")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
-						var templ_7745c5c3_Var23 string
-						templ_7745c5c3_Var23, templ_7745c5c3_Err = templ.JoinStringErrs(log.SourceContext)
-						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/ai_consumption_logs.templ`, Line: 222, Col: 38}
-						}
-						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var23))
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 32, "</span></span>")
+					} else {
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 34, "<span class=\"badge badge-sky text-xs\">Fast</span>")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 33, "</div></td><!-- Model & Tier --><td style=\"padding:0.75rem 1rem; vertical-align:middle;\"><div style=\"display:flex; align-items:center; gap:0.4rem;\"><code dir=\"ltr\" class=\"text-xs fw-700\" style=\"background:var(--surface-sunken); padding:0.15rem 0.4rem; border-radius:var(--radius-sm); border:1px solid var(--border);\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 35, "</div></td><!-- Tokens (Clean In / Out format - No '0 tokens' badge) --><td style=\"padding:0.75rem 1rem; vertical-align:middle;\"><div class=\"tabular-nums\" dir=\"ltr\" style=\"font-family:monospace; font-size:0.825rem; font-weight:700; color:var(--text);\">In: ")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					var templ_7745c5c3_Var23 string
+					templ_7745c5c3_Var23, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", log.InputTokens))
+					if templ_7745c5c3_Err != nil {
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/ai_consumption_logs.templ`, Line: 232, Col: 51}
+					}
+					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var23))
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 36, " · Out: ")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var24 string
-					templ_7745c5c3_Var24, templ_7745c5c3_Err = templ.JoinStringErrs(log.ModelAlias)
+					templ_7745c5c3_Var24, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", log.OutputTokens))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/ai_consumption_logs.templ`, Line: 231, Col: 196}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/ai_consumption_logs.templ`, Line: 232, Col: 99}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var24))
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 34, "</code> ")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					if log.ModelTier == "quality" {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 35, "<span class=\"badge badge-purple text-xs\">Quality</span>")
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-					} else {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 36, "<span class=\"badge badge-sky text-xs\">Fast</span>")
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 37, "</div></td><!-- Tokens --><td style=\"padding:0.75rem 1rem; vertical-align:middle;\"><div style=\"display:flex; flex-direction:column; gap:0.15rem;\"><strong class=\"tabular-nums\" style=\"font-size:0.875rem; color:var(--text);\">")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					var templ_7745c5c3_Var25 string
-					templ_7745c5c3_Var25, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", log.TotalTokens))
-					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/ai_consumption_logs.templ`, Line: 244, Col: 48}
-					}
-					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var25))
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 38, " <span style=\"font-size:0.75rem; color:var(--text-muted); font-weight:600;\">Tokens</span></strong> <span class=\"tabular-nums text-xs text-muted\" dir=\"ltr\">in: ")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					var templ_7745c5c3_Var26 string
-					templ_7745c5c3_Var26, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", log.InputTokens))
-					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/ai_consumption_logs.templ`, Line: 247, Col: 52}
-					}
-					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var26))
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 39, " / out: ")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					var templ_7745c5c3_Var27 string
-					templ_7745c5c3_Var27, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", log.OutputTokens))
-					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/ai_consumption_logs.templ`, Line: 247, Col: 99}
-					}
-					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var27))
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 40, "</span></div></td><!-- Cost --><td style=\"padding:0.75rem 1rem; vertical-align:middle;\">")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					if log.Status == "cached" {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 41, "<span class=\"badge badge-emerald text-xs fw-700\">مجاني $0.000</span>")
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-					} else {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 42, "<strong class=\"tabular-nums\" style=\"font-size:0.875rem; color:var(--accent);\" dir=\"ltr\">$")
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-						var templ_7745c5c3_Var28 string
-						templ_7745c5c3_Var28, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%.4f", log.CostUSD))
-						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/ai_consumption_logs.templ`, Line: 258, Col: 47}
-						}
-						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var28))
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 43, "</strong>")
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 44, "</td><!-- Latency --><td style=\"padding:0.75rem 1rem; vertical-align:middle;\"><span class=\"tabular-nums text-xs\" style=\"color:var(--text-secondary); font-weight:700;\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 37, "</div></td><!-- Latency --><td style=\"padding:0.75rem 1rem; vertical-align:middle;\"><span class=\"tabular-nums text-xs\" style=\"color:var(--text-secondary); font-weight:700;\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 					if log.DurationMs > 0 {
-						var templ_7745c5c3_Var29 string
-						templ_7745c5c3_Var29, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d ms", log.DurationMs))
+						var templ_7745c5c3_Var25 string
+						templ_7745c5c3_Var25, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d ms", log.DurationMs))
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/ai_consumption_logs.templ`, Line: 267, Col: 50}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/ai_consumption_logs.templ`, Line: 240, Col: 50}
 						}
-						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var29))
+						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var25))
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
 					} else {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 45, "<span>-</span>")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 38, "<span>-</span>")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 46, "</span></td><!-- Status Badge --><td style=\"padding:0.75rem 1rem; vertical-align:middle; text-align:center;\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 39, "</span></td><!-- Status Badge --><td style=\"padding:0.75rem 1rem; vertical-align:middle; text-align:center;\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 					if log.Status == "success" || log.Status == "completed" {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 47, "<span class=\"badge badge-emerald text-xs fw-700\">")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 40, "<span class=\"badge badge-emerald text-xs fw-700\">")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
@@ -562,25 +495,25 @@ func aiConsumptionLogsBody(data AIConsumptionLogsPageData, lang, dir string) tem
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 48, "<span>")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 41, "<span>")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
-						var templ_7745c5c3_Var30 string
-						templ_7745c5c3_Var30, templ_7745c5c3_Err = templ.JoinStringErrs(log.StatusLabel)
+						var templ_7745c5c3_Var26 string
+						templ_7745c5c3_Var26, templ_7745c5c3_Err = templ.JoinStringErrs(log.StatusLabel)
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/ai_consumption_logs.templ`, Line: 279, Col: 35}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/ai_consumption_logs.templ`, Line: 252, Col: 35}
 						}
-						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var30))
+						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var26))
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 49, "</span></span>")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 42, "</span></span>")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
 					} else if log.Status == "cached" {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 50, "<span class=\"badge badge-sky text-xs fw-700\">")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 43, "<span class=\"badge badge-sky text-xs fw-700\">")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
@@ -588,41 +521,41 @@ func aiConsumptionLogsBody(data AIConsumptionLogsPageData, lang, dir string) tem
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 51, "<span>ذاكرة سريعة</span></span>")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 44, "<span>ذاكرة سريعة</span></span>")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
 					} else {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 52, "<span class=\"badge badge-amber text-xs fw-700\"><span>")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 45, "<span class=\"badge badge-amber text-xs fw-700\"><span>")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
-						var templ_7745c5c3_Var31 string
-						templ_7745c5c3_Var31, templ_7745c5c3_Err = templ.JoinStringErrs(log.StatusLabel)
+						var templ_7745c5c3_Var27 string
+						templ_7745c5c3_Var27, templ_7745c5c3_Err = templ.JoinStringErrs(log.StatusLabel)
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/ai_consumption_logs.templ`, Line: 288, Col: 35}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/ai_consumption_logs.templ`, Line: 261, Col: 35}
 						}
-						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var31))
+						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var27))
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 53, "</span></span>")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 46, "</span></span>")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 54, "</td></tr>")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 47, "</td></tr>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 55, "</tbody></table></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 48, "</tbody></table></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 56, "</div><!-- Client-side Filtering Script --><script>\n\t\tfunction filterAILogs() {\n\t\t\tconst q = (document.getElementById('ai-logs-search')?.value || '').toLowerCase().trim();\n\t\t\tconst feature = (document.getElementById('ai-logs-feature-filter')?.value || '').toLowerCase().trim();\n\t\t\tconst status = (document.getElementById('ai-logs-status-filter')?.value || '').toLowerCase().trim();\n\t\t\tconst rows = document.querySelectorAll('#ai-logs-table tbody .ai-log-row');\n\n\t\t\trows.forEach(row => {\n\t\t\t\tconst id = row.getAttribute('data-log-id') || '';\n\t\t\t\tconst f = row.getAttribute('data-log-feature') || '';\n\t\t\t\tconst m = row.getAttribute('data-log-model') || '';\n\t\t\t\tconst s = row.getAttribute('data-log-status') || '';\n\n\t\t\t\tconst matchesQ = !q || id.includes(q) || f.includes(q) || m.includes(q);\n\t\t\t\tconst matchesFeature = !feature || f.includes(feature);\n\t\t\t\tconst matchesStatus = !status || s.includes(status);\n\n\t\t\t\tif (matchesQ && matchesFeature && matchesStatus) {\n\t\t\t\t\trow.style.display = '';\n\t\t\t\t} else {\n\t\t\t\t\trow.style.display = 'none';\n\t\t\t\t}\n\t\t\t});\n\t\t}\n\t</script>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 49, "</div><!-- Client-side Filtering Script --><script>\n\t\tfunction filterAILogs() {\n\t\t\tconst q = (document.getElementById('ai-logs-search')?.value || '').toLowerCase().trim();\n\t\t\tconst feature = (document.getElementById('ai-logs-feature-filter')?.value || '').toLowerCase().trim();\n\t\t\tconst status = (document.getElementById('ai-logs-status-filter')?.value || '').toLowerCase().trim();\n\t\t\tconst rows = document.querySelectorAll('#ai-logs-table tbody .ai-log-row');\n\n\t\t\trows.forEach(row => {\n\t\t\t\tconst id = row.getAttribute('data-log-id') || '';\n\t\t\t\tconst f = row.getAttribute('data-log-feature') || '';\n\t\t\t\tconst m = row.getAttribute('data-log-model') || '';\n\t\t\t\tconst s = row.getAttribute('data-log-status') || '';\n\n\t\t\t\tconst matchesQ = !q || id.includes(q) || f.includes(q) || m.includes(q);\n\t\t\t\tconst matchesFeature = !feature || f.includes(feature);\n\t\t\t\tconst matchesStatus = !status || s.includes(status);\n\n\t\t\t\tif (matchesQ && matchesFeature && matchesStatus) {\n\t\t\t\t\trow.style.display = '';\n\t\t\t\t} else {\n\t\t\t\t\trow.style.display = 'none';\n\t\t\t\t}\n\t\t\t});\n\t\t}\n\t</script>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

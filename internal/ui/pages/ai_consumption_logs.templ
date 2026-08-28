@@ -25,21 +25,20 @@ templ aiConsumptionLogsBody(data AIConsumptionLogsPageData, lang, dir string) {
 	<div class="jobs-container" style="max-width:1300px; margin:0 auto; padding-bottom:3rem;">
 		
 		<!-- Header Banner -->
-		<div class="jobs-header">
+		<div class="jobs-header" style="margin-bottom:1.5rem;">
 			<div>
-				<div style="display:flex; align-items:center; gap:0.6rem; margin-bottom:0.35rem;">
-					<div style="width:38px; height:38px; border-radius:var(--radius-lg); background:rgba(139, 92, 246, 0.12); color:#7c3aed; display:flex; align-items:center; justify-content:center; font-size:1.25rem;">
+				<div style="display:flex; align-items:center; gap:0.6rem; margin-bottom:0.25rem;">
+					<div style="width:36px; height:36px; border-radius:var(--radius-lg); background:rgba(139, 92, 246, 0.12); color:#7c3aed; display:flex; align-items:center; justify-content:center; font-size:1.2rem;">
 						✨
 					</div>
 					<div>
-						<h1 style="font-size:1.45rem; font-weight:900; color:var(--text); margin:0;">
+						<h1 style="font-size:1.35rem; font-weight:900; color:var(--text); margin:0;">
 							سجل استهلاك وعمليات الذكاء الاصطناعي
 						</h1>
-						<span style="font-size:0.775rem; color:var(--text-muted); font-weight:700;">AI Gateway Telemetry & Request Audit</span>
 					</div>
 				</div>
-				<p style="font-size:0.875rem; color:var(--text-secondary); margin:0; max-width:720px; line-height:1.6;">
-					متابعة حركات واستدعاءات بوابات الذكاء الاصطناعي (AI Gateway)، وتتبع استهلاك الحصة ومعدل التوكنز لكل عملية تشغيلية بالمنصة.
+				<p style="font-size:0.85rem; color:var(--text-secondary); margin:0; line-height:1.5;">
+					متابعة استدعاءات بوابات الذكاء الاصطناعي، وتتبع استهلاك الحصة ومعدل التوكنز للعمليات التشغيلية.
 				</p>
 			</div>
 
@@ -55,76 +54,67 @@ templ aiConsumptionLogsBody(data AIConsumptionLogsPageData, lang, dir string) {
 			</div>
 		</div>
 
-		<!-- Executive Quota & Metric Cards Strip -->
-		<div class="jobs-metrics-grid">
+		<!-- Executive Quota & Metric Cards Strip (Clean 3-Card Layout) -->
+		<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:1rem; margin-bottom:1.5rem;">
 			
-			<!-- Card 1: Active Budget & Usage Percentage -->
-			<div class="jobs-metric-card">
-				<div style="display:flex; justify-content:space-between; align-items:center;">
-					<span style="font-size:0.8rem; font-weight:600; color:var(--text-muted);">استهلاك الميزانية الشهرية</span>
-					<span class="badge badge-sky text-xs fw-800" dir="ltr">{ data.AIPlanID }</span>
-				</div>
-				
-				<div style="display:flex; align-items:baseline; justify-content:space-between; margin-top:0.35rem;">
-					<div class="tabular-nums" style="font-size:1.75rem; font-weight:900; color:var(--primary);">
-						{ fmt.Sprintf("%d%%", data.UsagePercentage) }
+			<!-- Card 1: Quota Usage Percentage & Progress -->
+			<div class="jobs-metric-card" style="display:flex; flex-direction:column; justify-content:space-between; padding:1.25rem;">
+				<div>
+					<div style="display:flex; justify-content:space-between; align-items:center;">
+						<span style="font-size:0.825rem; font-weight:700; color:var(--text-secondary);">استهلاك الحصة الشهرية</span>
+						<span class="badge badge-sky text-xs fw-800" dir="ltr">{ data.AIPlanID }</span>
 					</div>
-					<div class="tabular-nums" style="font-size:0.875rem; font-weight:800; color:var(--text-secondary);" dir="ltr">
-						${ fmt.Sprintf("%.2f / $%.2f USD", data.ActiveBudgetSpent, data.ActiveBudgetLimit) }
+					
+					<div style="margin-top:0.4rem;">
+						<div class="tabular-nums" style="font-size:1.9rem; font-weight:900; color:var(--primary); line-height:1.2;">
+							{ fmt.Sprintf("%d%%", data.UsagePercentage) }
+						</div>
+					</div>
+
+					<!-- Working Dynamic Progress Bar -->
+					<div style="width:100%; height:7px; background:var(--neutral-100); border-radius:4px; margin-top:0.5rem; overflow:hidden;">
+						<div style={ fmt.Sprintf("height:100%%; width:%d%%; border-radius:4px; background:linear-gradient(90deg, var(--primary), #8b5cf6); transition:width 0.4s ease;", data.UsagePercentage) }></div>
 					</div>
 				</div>
 
-				<!-- Working Dynamic Progress Bar -->
-				<div style="width:100%; height:7px; background:var(--neutral-100); border-radius:4px; margin-top:0.4rem; overflow:hidden;">
-					<div style={ fmt.Sprintf("height:100%%; width:%d%%; border-radius:4px; background:linear-gradient(90deg, var(--primary), #8b5cf6); transition:width 0.4s ease;", data.UsagePercentage) }></div>
-				</div>
-
-				<div style="display:flex; justify-content:space-between; align-items:center; font-size:0.725rem; color:var(--text-muted); margin-top:0.35rem;">
+				<div style="display:flex; justify-content:space-between; align-items:center; font-size:0.75rem; color:var(--text-muted); margin-top:0.6rem; padding-top:0.4rem; border-top:1px solid var(--border-subtle);">
 					<span>متبقي: <strong class="text-success">{ fmt.Sprintf("%d%%", 100-data.UsagePercentage) }</strong></span>
-					<span>التجديد: <strong class="tabular-nums">{ data.ResetTime }</strong></span>
+					<span>التجديد: <strong style="color:var(--text);">{ data.ResetCountdown() }</strong></span>
 				</div>
 			</div>
 
 			<!-- Card 2: Total AI Requests -->
-			<div class="jobs-metric-card">
-				<span style="font-size:0.8rem; font-weight:600; color:var(--text-muted);">إجمالي استدعاءات الذكاء الاصطناعي</span>
-				<div class="tabular-nums" style="font-size:1.75rem; font-weight:900; color:var(--text); margin-top:0.25rem;">
-					{ fmt.Sprintf("%d", data.TotalRequests) } <span style="font-size:0.85rem; font-weight:600; color:var(--text-secondary);">طلب مسجل</span>
+			<div class="jobs-metric-card" style="display:flex; flex-direction:column; justify-content:space-between; padding:1.25rem;">
+				<div>
+					<span style="font-size:0.825rem; font-weight:700; color:var(--text-secondary);">إجمالي الاستدعاءات</span>
+					<div class="tabular-nums" style="font-size:1.9rem; font-weight:900; color:var(--text); margin-top:0.4rem; line-height:1.2;">
+						{ fmt.Sprintf("%d", data.TotalRequests) } <span style="font-size:0.85rem; font-weight:700; color:var(--text-muted);">طلب</span>
+					</div>
 				</div>
-				<div style="font-size:0.75rem; color:var(--emerald); font-weight:700; margin-top:0.35rem; display:flex; align-items:center; gap:0.35rem;">
-					<span style="width:7px; height:7px; border-radius:50%; background:var(--emerald); display:inline-block;"></span>
-					<span>تكامل مباشر مع بوابة MuhiyaLLM</span>
-				</div>
-			</div>
-
-			<!-- Card 3: Total Tokens Consumed -->
-			<div class="jobs-metric-card">
-				<span style="font-size:0.8rem; font-weight:600; color:var(--text-muted);">إجمالي التوكنز المعالجة</span>
-				<div class="tabular-nums" style="font-size:1.75rem; font-weight:900; color:var(--text); margin-top:0.25rem;">
-					{ fmt.Sprintf("%d", data.TotalTokens) } <span style="font-size:0.8rem; font-weight:700; color:var(--text-muted);">Tokens</span>
-				</div>
-				<div style="font-size:0.75rem; color:var(--text-muted); margin-top:0.35rem;">
-					شامل الإدخال وسياق المطابقة والإخراج
+				<div style="font-size:0.75rem; color:var(--text-muted); margin-top:0.6rem; padding-top:0.4rem; border-top:1px solid var(--border-subtle);">
+					<span>العمليات التشغيلية التراكمية المسجلة</span>
 				</div>
 			</div>
 
-			<!-- Card 4: Total Cost -->
-			<div class="jobs-metric-card">
-				<span style="font-size:0.8rem; font-weight:600; color:var(--text-muted);">التكلفة التقديرية التراكمية</span>
-				<div class="tabular-nums" style="font-size:1.75rem; font-weight:900; color:var(--text); margin-top:0.25rem;" dir="ltr">
-					${ fmt.Sprintf("%.3f", data.TotalCostUSD) } <span style="font-size:0.8rem; font-weight:700; color:var(--text-muted);">USD</span>
+			<!-- Card 3: Processed Tokens (In / Out) -->
+			<div class="jobs-metric-card" style="display:flex; flex-direction:column; justify-content:space-between; padding:1.25rem;">
+				<div>
+					<span style="font-size:0.825rem; font-weight:700; color:var(--text-secondary);">إجمالي التوكنز المعالجة</span>
+					<div class="tabular-nums" style="font-size:1.9rem; font-weight:900; color:var(--text); margin-top:0.4rem; line-height:1.2;">
+						{ fmt.Sprintf("%d", data.TotalTokens) }
+					</div>
 				</div>
-				<div style="font-size:0.75rem; color:var(--text-muted); margin-top:0.35rem;">
-					تخصم تلقائياً من حصة الباقة الشهرية
+				<div style="font-size:0.75rem; color:var(--text-muted); margin-top:0.6rem; padding-top:0.4rem; border-top:1px solid var(--border-subtle);">
+					<span>سياق الإدخال ومطابقة البيانات والإخراج</span>
 				</div>
 			</div>
 
 		</div>
 
 		<!-- Instant Filter & Search Bar -->
-		<div class="jobs-filter-strip">
+		<div class="jobs-filter-strip" style="margin-bottom:1rem; padding:0.75rem 1rem; border-radius:var(--radius-lg); background:var(--surface-raised); border:1px solid var(--border);">
 			<!-- Search Input -->
-			<div style="position:relative; flex:1; min-width:260px;">
+			<div style="position:relative; flex:1; min-width:240px;">
 				<input
 					type="text"
 					id="ai-logs-search"
@@ -139,7 +129,7 @@ templ aiConsumptionLogsBody(data AIConsumptionLogsPageData, lang, dir string) {
 			</div>
 
 			<!-- Feature Filter -->
-			<select id="ai-logs-feature-filter" class="form-input input-sm" style="width:230px;" onchange="filterAILogs()">
+			<select id="ai-logs-feature-filter" class="form-input input-sm" style="width:220px;" onchange="filterAILogs()">
 				<option value="">كافة مواضع الاستخدام</option>
 				if data.IsCustomer {
 					<option value="smart_order">الطلب الذكي (Smart Ordering)</option>
@@ -155,10 +145,10 @@ templ aiConsumptionLogsBody(data AIConsumptionLogsPageData, lang, dir string) {
 			</select>
 
 			<!-- Status Filter -->
-			<select id="ai-logs-status-filter" class="form-input input-sm" style="width:160px;" onchange="filterAILogs()">
+			<select id="ai-logs-status-filter" class="form-input input-sm" style="width:150px;" onchange="filterAILogs()">
 				<option value="">كافة الحالات</option>
 				<option value="success">ناجح</option>
-				<option value="cached">من الذاكرة (مجاني)</option>
+				<option value="cached">ذاكرة سريعة</option>
 				<option value="completed">مكتمل</option>
 				<option value="failed">غير مكتمل</option>
 			</select>
@@ -180,15 +170,14 @@ templ aiConsumptionLogsBody(data AIConsumptionLogsPageData, lang, dir string) {
 				</p>
 			</div>
 		} else {
-			<div class="cb-emp-table-wrap">
+			<div class="cb-emp-table-wrap" style="border:1px solid var(--border); border-radius:var(--radius-xl); overflow:hidden; background:var(--surface-raised);">
 				<table class="b2b-table" id="ai-logs-table" style="width:100%; border-collapse:collapse;">
 					<thead>
 						<tr style="background:var(--surface-sunken); border-bottom:1px solid var(--border); font-size:0.775rem; color:var(--text-secondary); text-align:start;">
 							<th style="padding:0.75rem 1rem;">الطلب والتوقيت</th>
 							<th style="padding:0.75rem 1rem;">موضع الاستخدام والخاصية</th>
 							<th style="padding:0.75rem 1rem;">النموذج والطبقة</th>
-							<th style="padding:0.75rem 1rem;">التوكنز المستهلكة</th>
-							<th style="padding:0.75rem 1rem;">التكلفة التقديرية</th>
+							<th style="padding:0.75rem 1rem;">التوكنز (In / Out)</th>
 							<th style="padding:0.75rem 1rem;">زمن الاستجابة</th>
 							<th style="padding:0.75rem 1rem; text-align:center;">الحالة</th>
 						</tr>
@@ -237,27 +226,11 @@ templ aiConsumptionLogsBody(data AIConsumptionLogsPageData, lang, dir string) {
 										</div>
 									</td>
 
-									<!-- Tokens -->
+									<!-- Tokens (Clean In / Out format - No '0 tokens' badge) -->
 									<td style="padding:0.75rem 1rem; vertical-align:middle;">
-										<div style="display:flex; flex-direction:column; gap:0.15rem;">
-											<strong class="tabular-nums" style="font-size:0.875rem; color:var(--text);">
-												{ fmt.Sprintf("%d", log.TotalTokens) } <span style="font-size:0.75rem; color:var(--text-muted); font-weight:600;">Tokens</span>
-											</strong>
-											<span class="tabular-nums text-xs text-muted" dir="ltr">
-												in: { fmt.Sprintf("%d", log.InputTokens) } / out: { fmt.Sprintf("%d", log.OutputTokens) }
-											</span>
+										<div class="tabular-nums" dir="ltr" style="font-family:monospace; font-size:0.825rem; font-weight:700; color:var(--text);">
+											In: { fmt.Sprintf("%d", log.InputTokens) } · Out: { fmt.Sprintf("%d", log.OutputTokens) }
 										</div>
-									</td>
-
-									<!-- Cost -->
-									<td style="padding:0.75rem 1rem; vertical-align:middle;">
-										if log.Status == "cached" {
-											<span class="badge badge-emerald text-xs fw-700">مجاني $0.000</span>
-										} else {
-											<strong class="tabular-nums" style="font-size:0.875rem; color:var(--accent);" dir="ltr">
-												${ fmt.Sprintf("%.4f", log.CostUSD) }
-											</strong>
-										}
 									</td>
 
 									<!-- Latency -->
