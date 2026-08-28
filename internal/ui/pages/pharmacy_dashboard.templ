@@ -80,166 +80,125 @@ templ PharmacyDashboard(lang, dir string, data PharmacyDashboardData, perms []st
 				</div>
 			}
 
-			<!-- Top 8 KPI Metric Cards Grid -->
-			<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(210px, 1fr)); gap:1rem; margin-bottom:1.5rem;">
+			<!-- 4-Pillar Executive Metrics Strip (Simplified & Focused) -->
+			<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(260px, 1fr)); gap:1rem; margin-bottom:1.5rem;">
 				
-				<!-- 1: Total Orders (إجمالي الطلبات) -->
-				<a href="/orders" class="card hover-lift" style="margin:0; padding:1.1rem 1.25rem; border-radius:var(--radius-xl); border:1px solid var(--border); background:var(--surface-raised); text-decoration:none; display:flex; flex-direction:column; justify-content:space-between; box-shadow:var(--shadow-xs); transition:all 0.2s ease;">
+				<!-- Pillar 1: Purchases & Spending (إجمالي المشتريات) -->
+				<div class="card hover-lift" style="margin:0; padding:1.25rem 1.4rem; border-radius:var(--radius-xl); border:1px solid var(--border); background:var(--surface-raised); display:flex; flex-direction:column; justify-content:space-between; box-shadow:var(--shadow-xs); transition:all 0.2s ease;">
 					<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.75rem;">
-						<span style="font-size:0.8125rem; font-weight:700; color:var(--text-secondary);">إجمالي الطلبات</span>
-						<div style="width:34px; height:34px; border-radius:var(--radius-md); background:rgba(59, 130, 246, 0.12); color:#2563eb; display:flex; align-items:center; justify-content:center;">
-							@components.IconPackage("icon-sm")
-						</div>
-					</div>
-					<div>
-						<div class="tabular-nums" style="font-size:1.75rem; font-weight:900; color:var(--text); line-height:1.2;">
-							{ fmt.Sprintf("%d", data.TotalOrders) }
-						</div>
-						<div style="font-size:0.775rem; font-weight:600; color:var(--text-muted); margin-top:0.35rem;">
-							كل الطلبيات المسجلة
-						</div>
-					</div>
-				</a>
-
-				<!-- 2: Completed Orders (الطلبات المكتملة) -->
-				<a href="/orders" class="card hover-lift" style="margin:0; padding:1.1rem 1.25rem; border-radius:var(--radius-xl); border:1px solid var(--border); background:var(--surface-raised); text-decoration:none; display:flex; flex-direction:column; justify-content:space-between; box-shadow:var(--shadow-xs); transition:all 0.2s ease;">
-					<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.75rem;">
-						<span style="font-size:0.8125rem; font-weight:700; color:var(--text-secondary);">الطلبات المكتملة</span>
-						<div style="width:34px; height:34px; border-radius:var(--radius-md); background:rgba(16, 185, 129, 0.12); color:#059669; display:flex; align-items:center; justify-content:center;">
-							@components.IconCheckCircle("icon-sm")
-						</div>
-					</div>
-					<div>
-						<div class="tabular-nums" style="font-size:1.75rem; font-weight:900; color:#059669; line-height:1.2;">
-							{ fmt.Sprintf("%d", data.CompletedOrders) }
-						</div>
-						<div style="font-size:0.775rem; font-weight:700; color:#059669; margin-top:0.35rem; display:flex; align-items:center; gap:0.3rem;">
-							<span style="width:6px; height:6px; border-radius:50%; background:#059669; display:inline-block;"></span>
-							<span>تم الاستلام بنجاح</span>
-						</div>
-					</div>
-				</a>
-
-				<!-- 3: Active Orders (الطلبات قيد التنفيذ) -->
-				<a href="/orders" class="card hover-lift" style="margin:0; padding:1.1rem 1.25rem; border-radius:var(--radius-xl); border:1px solid var(--border); background:var(--surface-raised); text-decoration:none; display:flex; flex-direction:column; justify-content:space-between; box-shadow:var(--shadow-xs); transition:all 0.2s ease;">
-					<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.75rem;">
-						<span style="font-size:0.8125rem; font-weight:700; color:var(--text-secondary);">طلبات قيد التنفيذ</span>
-						<div style="width:34px; height:34px; border-radius:var(--radius-md); background:rgba(245, 158, 11, 0.12); color:#d97706; display:flex; align-items:center; justify-content:center;">
-							@components.IconTruck("icon-sm")
-						</div>
-					</div>
-					<div>
-						<div class="tabular-nums" style="font-size:1.75rem; font-weight:900; color:#d97706; line-height:1.2;">
-							{ fmt.Sprintf("%d", data.ActiveOrders) }
-						</div>
-						<div style="font-size:0.775rem; font-weight:700; color:#d97706; margin-top:0.35rem; display:flex; align-items:center; gap:0.3rem;">
-							<span style="width:6px; height:6px; border-radius:50%; background:#d97706; display:inline-block;"></span>
-							<span>جاري الشحن والتجهيز</span>
-						</div>
-					</div>
-				</a>
-
-				<!-- 4: Cancelled Orders (الطلبات الملغاة) -->
-				<a href="/orders" class="card hover-lift" style="margin:0; padding:1.1rem 1.25rem; border-radius:var(--radius-xl); border:1px solid var(--border); background:var(--surface-raised); text-decoration:none; display:flex; flex-direction:column; justify-content:space-between; box-shadow:var(--shadow-xs); transition:all 0.2s ease;">
-					<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.75rem;">
-						<span style="font-size:0.8125rem; font-weight:700; color:var(--text-secondary);">الطلبات الملغاة</span>
-						<div style="width:34px; height:34px; border-radius:var(--radius-md); background:rgba(239, 68, 68, 0.12); color:#dc2626; display:flex; align-items:center; justify-content:center;">
-							@components.IconClose("icon-sm")
-						</div>
-					</div>
-					<div>
-						<div class="tabular-nums" style="font-size:1.75rem; font-weight:900; color:var(--text); line-height:1.2;">
-							{ fmt.Sprintf("%d", data.CancelledOrders) }
-						</div>
-						<div style="font-size:0.775rem; font-weight:600; color:var(--text-muted); margin-top:0.35rem;">
-							ملغاة أو مسترجعة
-						</div>
-					</div>
-				</a>
-
-				<!-- 5: Total Purchases (إجمالي المشتريات) -->
-				<a href="/orders" class="card hover-lift" style="margin:0; padding:1.1rem 1.25rem; border-radius:var(--radius-xl); border:1px solid var(--border); background:var(--surface-raised); text-decoration:none; display:flex; flex-direction:column; justify-content:space-between; box-shadow:var(--shadow-xs); transition:all 0.2s ease;">
-					<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.75rem;">
-						<span style="font-size:0.8125rem; font-weight:700; color:var(--text-secondary);">إجمالي المشتريات</span>
-						<div style="width:34px; height:34px; border-radius:var(--radius-md); background:rgba(14, 165, 233, 0.12); color:#0284c7; display:flex; align-items:center; justify-content:center;">
+						<span style="font-size:0.85rem; font-weight:700; color:var(--text-secondary);">إجمالي المشتريات</span>
+						<div style="width:36px; height:36px; border-radius:var(--radius-md); background:rgba(14, 165, 233, 0.12); color:#0284c7; display:flex; align-items:center; justify-content:center;">
 							@components.IconChart("icon-sm")
 						</div>
 					</div>
 					<div>
-						<div class="tabular-nums" style="font-size:1.55rem; font-weight:900; color:var(--text); line-height:1.2;">
-							@components.MoneyDisplay(components.MoneyDisplayProps{ Amount: data.TotalSpend })
+						<div class="tabular-nums" style="font-size:1.75rem; font-weight:900; color:var(--text); line-height:1.2;">
+							@components.MoneyDisplay(components.MoneyDisplayProps{ Amount: data.TotalSpend, Large: true })
 						</div>
-						<div style="font-size:0.775rem; font-weight:600; color:var(--text-secondary); margin-top:0.35rem;">
-							الشهر الحالي: <strong class="tabular-nums">{ data.MonthSpend.String() }</strong> ج.م
+						<div style="display:flex; justify-content:space-between; align-items:center; font-size:0.775rem; font-weight:600; color:var(--text-secondary); margin-top:0.5rem; padding-top:0.45rem; border-top:1px dashed var(--border);">
+							<span>الشهر الحالي: <strong class="tabular-nums text-primary">{ data.MonthSpend.String() }</strong> ج.م</span>
+							<span class="badge badge-slate" style="font-size:0.7rem; padding:0.15rem 0.45rem;">{ fmt.Sprintf("%d صنف", data.TotalOrderedItems) }</span>
 						</div>
 					</div>
-				</a>
+				</div>
 
-				<!-- 6: Wallet Balance (رصيد المحفظة) -->
-				<a href="/wallet" class="card hover-lift" style="margin:0; padding:1.1rem 1.25rem; border-radius:var(--radius-xl); border:1px solid var(--border); background:var(--surface-raised); text-decoration:none; display:flex; flex-direction:column; justify-content:space-between; box-shadow:var(--shadow-xs); transition:all 0.2s ease;">
+				<!-- Pillar 2: Orders Lifecycle Status (حالة الطلبيات) -->
+				<div class="card hover-lift" style="margin:0; padding:1.25rem 1.4rem; border-radius:var(--radius-xl); border:1px solid var(--border); background:var(--surface-raised); display:flex; flex-direction:column; justify-content:space-between; box-shadow:var(--shadow-xs); transition:all 0.2s ease;">
 					<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.75rem;">
-						<span style="font-size:0.8125rem; font-weight:700; color:var(--text-secondary);">رصيد المحفظة</span>
-						<div style="width:34px; height:34px; border-radius:var(--radius-md); background:rgba(16, 185, 129, 0.12); color:#059669; display:flex; align-items:center; justify-content:center;">
+						<span style="font-size:0.85rem; font-weight:700; color:var(--text-secondary);">حالة الطلبيات</span>
+						<div style="width:36px; height:36px; border-radius:var(--radius-md); background:rgba(59, 130, 246, 0.12); color:#2563eb; display:flex; align-items:center; justify-content:center;">
+							@components.IconPackage("icon-sm")
+						</div>
+					</div>
+					<div>
+						<div style="display:flex; align-items:baseline; gap:0.5rem;">
+							<span class="tabular-nums" style="font-size:1.75rem; font-weight:900; color:var(--text); line-height:1.2;">
+								{ fmt.Sprintf("%d", data.TotalOrders) }
+							</span>
+							<span style="font-size:0.8rem; color:var(--text-muted); font-weight:600;">طلبية مسجلة</span>
+						</div>
+						<div style="display:flex; align-items:center; gap:0.4rem; font-size:0.75rem; font-weight:700; margin-top:0.5rem; padding-top:0.45rem; border-top:1px dashed var(--border); flex-wrap:wrap;">
+							<span style="color:#d97706; display:flex; align-items:center; gap:0.25rem;">
+								<span style="width:6px; height:6px; border-radius:50%; background:#d97706; display:inline-block;"></span>
+								<span>{ fmt.Sprintf("%d قيد التنفيذ", data.ActiveOrders) }</span>
+							</span>
+							<span style="color:var(--border);">•</span>
+							<span style="color:#059669; display:flex; align-items:center; gap:0.25rem;">
+								<span style="width:6px; height:6px; border-radius:50%; background:#059669; display:inline-block;"></span>
+								<span>{ fmt.Sprintf("%d مكتمل", data.CompletedOrders) }</span>
+							</span>
+							if data.CancelledOrders > 0 {
+								<span style="color:var(--border);">•</span>
+								<span style="color:#dc2626; display:flex; align-items:center; gap:0.25rem;">
+									<span style="width:6px; height:6px; border-radius:50%; background:#dc2626; display:inline-block;"></span>
+									<span>{ fmt.Sprintf("%d ملغي", data.CancelledOrders) }</span>
+								</span>
+							}
+						</div>
+					</div>
+				</div>
+
+				<!-- Pillar 3: Wallet Balance & Funds (المحفظة والرصيد) -->
+				<div class="card hover-lift" style="margin:0; padding:1.25rem 1.4rem; border-radius:var(--radius-xl); border:1px solid var(--border); background:var(--surface-raised); display:flex; flex-direction:column; justify-content:space-between; box-shadow:var(--shadow-xs); transition:all 0.2s ease;">
+					<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.75rem;">
+						<span style="font-size:0.85rem; font-weight:700; color:var(--text-secondary);">رصيد المحفظة</span>
+						<div style="width:36px; height:36px; border-radius:var(--radius-md); background:rgba(16, 185, 129, 0.12); color:#059669; display:flex; align-items:center; justify-content:center;">
 							@components.IconWallet("icon-sm")
 						</div>
 					</div>
 					<div>
-						<div class="tabular-nums" style="font-size:1.55rem; font-weight:900; color:#059669; line-height:1.2;">
-							@components.MoneyDisplay(components.MoneyDisplayProps{ Amount: data.WalletBalance })
+						<div class="tabular-nums" style="font-size:1.75rem; font-weight:900; color:#059669; line-height:1.2;">
+							@components.MoneyDisplay(components.MoneyDisplayProps{ Amount: data.WalletBalance, Large: true })
 						</div>
-						<div style="font-size:0.775rem; font-weight:600; color:var(--text-muted); margin-top:0.35rem;">
+						<div style="display:flex; justify-content:space-between; align-items:center; font-size:0.775rem; font-weight:600; margin-top:0.5rem; padding-top:0.45rem; border-top:1px dashed var(--border);">
 							if data.PendingDepositsCount > 0 {
-								<span style="color:#d97706;">معلق: <strong class="tabular-nums">{ data.PendingDepositsTotal.String() }</strong> ج.م</span>
+								<span style="color:#d97706; font-weight:700;">معلق: <strong class="tabular-nums">{ data.PendingDepositsTotal.String() }</strong> ج.م</span>
 							} else {
-								<span>جاهز للسداد المباشر</span>
+								<span style="color:var(--text-muted);">رصيد متاح للسداد الفوري</span>
 							}
+							<a href="/wallet" class="btn btn-secondary btn-xs" style="padding:0.15rem 0.5rem; font-size:0.725rem; font-weight:700;">
+								شحن +
+							</a>
 						</div>
 					</div>
-				</a>
+				</div>
 
-				<!-- 7: Ordered Products (المنتجات المطلوبة) -->
-				<a href="/orders" class="card hover-lift" style="margin:0; padding:1.1rem 1.25rem; border-radius:var(--radius-xl); border:1px solid var(--border); background:var(--surface-raised); text-decoration:none; display:flex; flex-direction:column; justify-content:space-between; box-shadow:var(--shadow-xs); transition:all 0.2s ease;">
+				<!-- Pillar 4: Smart Procurement (الطلب الذكي) -->
+				<div class="card hover-lift" style="margin:0; padding:1.25rem 1.4rem; border-radius:var(--radius-xl); border:1px solid var(--border); background:var(--surface-raised); display:flex; flex-direction:column; justify-content:space-between; box-shadow:var(--shadow-xs); transition:all 0.2s ease;">
 					<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.75rem;">
-						<span style="font-size:0.8125rem; font-weight:700; color:var(--text-secondary);">الأصناف المطلوبة</span>
-						<div style="width:34px; height:34px; border-radius:var(--radius-md); background:rgba(100, 116, 139, 0.12); color:#475569; display:flex; align-items:center; justify-content:center;">
-							@components.IconPill("icon-sm")
+						<div style="display:flex; align-items:center; gap:0.4rem;">
+							<span style="font-size:0.85rem; font-weight:700; color:var(--text-secondary);">الطلب الذكي</span>
+							<span class="badge badge-sky" style="font-size:0.65rem; padding:0.1rem 0.35rem;">AI</span>
 						</div>
-					</div>
-					<div>
-						<div class="tabular-nums" style="font-size:1.75rem; font-weight:900; color:var(--text); line-height:1.2;">
-							{ fmt.Sprintf("%d", data.TotalOrderedItems) }
-						</div>
-						<div style="font-size:0.775rem; font-weight:600; color:var(--text-muted); margin-top:0.35rem;">
-							إجمالي أصناف المشتريات
-						</div>
-					</div>
-				</a>
-
-				<!-- 8: Smart Orders (الطلب الذكي) -->
-				<a href="/customer/smart-order" class="card hover-lift" style="margin:0; padding:1.1rem 1.25rem; border-radius:var(--radius-xl); border:1px solid var(--border); background:var(--surface-raised); text-decoration:none; display:flex; flex-direction:column; justify-content:space-between; box-shadow:var(--shadow-xs); transition:all 0.2s ease;">
-					<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.75rem;">
-						<span style="font-size:0.8125rem; font-weight:700; color:var(--text-secondary);">الطلب الذكي</span>
-						<div style="width:34px; height:34px; border-radius:var(--radius-md); background:rgba(139, 92, 246, 0.12); color:#7c3aed; display:flex; align-items:center; justify-content:center;">
+						<div style="width:36px; height:36px; border-radius:var(--radius-md); background:rgba(139, 92, 246, 0.12); color:#7c3aed; display:flex; align-items:center; justify-content:center;">
 							@components.IconZap("icon-sm")
 						</div>
 					</div>
 					<div>
-						<div class="tabular-nums" style="font-size:1.75rem; font-weight:900; color:#7c3aed; line-height:1.2;">
-							{ fmt.Sprintf("%d", data.SmartOrdersCount) }
+						<div style="display:flex; align-items:baseline; gap:0.5rem;">
+							<span class="tabular-nums" style="font-size:1.75rem; font-weight:900; color:#7c3aed; line-height:1.2;">
+								{ fmt.Sprintf("%d", data.SmartOrdersCount) }
+							</span>
+							<span style="font-size:0.8rem; color:var(--text-muted); font-weight:600;">ملف نواقص</span>
 						</div>
-						<div style="font-size:0.775rem; font-weight:700; color:var(--text-muted); margin-top:0.35rem;">
+						<div style="display:flex; justify-content:space-between; align-items:center; font-size:0.775rem; font-weight:700; margin-top:0.5rem; padding-top:0.45rem; border-top:1px dashed var(--border);">
 							if data.SmartOrdersProcessing > 0 {
-								<span style="color:#d97706;">{ fmt.Sprintf("%d قيد المعالجة الآن", data.SmartOrdersProcessing) }</span>
+								<span style="color:#d97706;">{ fmt.Sprintf("%d قيد المعالجة", data.SmartOrdersProcessing) }</span>
+							} else if data.SmartOrdersNeedsReview > 0 {
+								<span style="color:#2563eb;">{ fmt.Sprintf("%d بحاجة لمراجعة", data.SmartOrdersNeedsReview) }</span>
 							} else {
-								<span>عمليات المطابقة الذكية</span>
+								<span style="color:#059669;">{ fmt.Sprintf("%d مكتمل ومعتمد", data.SmartOrdersCompleted) }</span>
 							}
+							<a href="/customer/smart-order/new" class="btn btn-secondary btn-xs" style="padding:0.15rem 0.5rem; font-size:0.725rem; font-weight:700;">
+								رفع جديد ↗
+							</a>
 						</div>
 					</div>
-				</a>
+				</div>
 
 			</div>
 
-			<!-- Quick Actions Bar -->
+			<!-- Quick Actions Hub -->
 			<div class="card" style="margin-bottom:1.5rem; padding:1.15rem 1.4rem; border-radius:var(--radius-xl); border:1px solid var(--border); background:var(--surface-raised); box-shadow:var(--shadow-xs);">
 				<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.85rem;">
 					<span style="font-size:0.9rem; font-weight:800; color:var(--text);">إجراءات سريعة واختصارات</span>
@@ -253,10 +212,10 @@ templ PharmacyDashboard(lang, dir string, data PharmacyDashboardData, perms []st
 						<span>إنشاء طلب جديد</span>
 					</a>
 
-					<!-- Action 2: New Smart Order -->
+					<!-- Action 2: New Smart Order (الطلب الذكي) -->
 					<a href="/customer/smart-order/new" class="btn btn-secondary" style="justify-content:flex-start; font-weight:700; padding:0.65rem 0.85rem; font-size:0.825rem; border-radius:var(--radius-lg); gap:0.5rem; border-color:var(--border);">
 						<span style="color:#7c3aed;">@components.IconZap("icon-xs")</span>
-						<span>إنشاء Smart Order</span>
+						<span>إنشاء طلب ذكي</span>
 					</a>
 
 					<!-- Action 3: Top up Wallet -->
@@ -280,7 +239,7 @@ templ PharmacyDashboard(lang, dir string, data PharmacyDashboardData, perms []st
 					<!-- Action 6: View Orders -->
 					<a href="/orders" class="btn btn-secondary" style="justify-content:flex-start; font-weight:700; padding:0.65rem 0.85rem; font-size:0.825rem; border-radius:var(--radius-lg); gap:0.5rem; border-color:var(--border);">
 						<span style="color:var(--text-secondary);">@components.IconPackage("icon-xs")</span>
-						<span>عرض كل الطلبات</span>
+						<span>سجل الطلبات</span>
 					</a>
 
 				</div>
@@ -374,13 +333,13 @@ templ PharmacyDashboard(lang, dir string, data PharmacyDashboardData, perms []st
 						}
 					</div>
 
-					<!-- Smart Orders Section -->
+					<!-- Section: الطلب الذكي (الطلب الذكي ومطابقة النواقص) -->
 					<div class="card" style="margin:0; padding:1.25rem 1.4rem; border-radius:var(--radius-xl); border:1px solid var(--border); background:var(--surface-raised); box-shadow:var(--shadow-xs);">
 						<div class="flex-between mb-md" style="padding-bottom:0.75rem; border-bottom:1px solid var(--border);">
 							<div>
 								<div style="display:flex; align-items:center; gap:0.5rem;">
-									<h2 class="card-title" style="margin:0; font-size:1.05rem; font-weight:800; color:var(--text);">إحصائيات ونشاط الطلب الذكي (Smart Orders)</h2>
-									<span class="badge badge-sky" style="font-size:0.7rem; font-weight:700;">AI Engine</span>
+									<h2 class="card-title" style="margin:0; font-size:1.05rem; font-weight:800; color:var(--text);">الطلب الذكي ومطابقة النواقص</h2>
+									<span class="badge badge-sky" style="font-size:0.7rem; font-weight:700;">ذكاء اصطناعي</span>
 								</div>
 								<span style="font-size:0.775rem; color:var(--text-secondary);">استيراد ومطابقة ملفات النواقص تلقائياً بأفضل عروض الموردين</span>
 							</div>
@@ -660,4 +619,3 @@ func branchCardStyle(isActive bool) string {
 	}
 	return "display:flex; justify-content:space-between; align-items:center; padding:0.65rem 0.8rem; border:1px solid var(--border); border-radius:var(--radius-lg); background:var(--surface-sunken);"
 }
-

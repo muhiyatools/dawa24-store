@@ -176,29 +176,32 @@ templ AdminFinance(data AdminFinanceData, lang, dir string) {
 					══════════════════════════════════════════ -->
 					if data.ActiveTab == "deposits" || data.ActiveTab == "" {
 						<div class="tab-content-pane space-y-4">
-							<div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.75rem;">
+							<div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem; padding-bottom:0.75rem; border-bottom:1px solid var(--border);">
 								<div>
-									<h2 style="font-size:1.15rem; font-weight:800; margin:0; color:var(--text);">مراجعة وتدقيق طلبات شحن المحفظة</h2>
-									<p style="font-size:0.83rem; color:var(--text-secondary); margin:0.2rem 0 0;">الموافقة والاعتماد الفوري لتحويلات الصيدليات والعملاء، أو الرفض مع ذكر السبب.</p>
+									<h2 style="font-size:1.2rem; font-weight:800; margin:0; color:var(--text); display:flex; align-items:center; gap:0.5rem;">
+										<span>💳</span>
+										<span>مراجعة وتدقيق طلبات شحن المحفظة</span>
+									</h2>
+									<p style="font-size:0.83rem; color:var(--text-secondary); margin:0.25rem 0 0;">الموافقة والاعتماد الفوري لتحويلات الصيدليات والعملاء، أو الرفض مع ذكر السبب.</p>
 								</div>
 								<!-- Search & Filter Form -->
 								<form method="GET" action="/admin/finance" style="display:flex; gap:0.5rem; align-items:center; flex-wrap:wrap;">
 									<input type="hidden" name="tab" value="deposits"/>
-									<input type="text" name="q" value={ data.Query } placeholder="ابحث برقم الإشعار، اسم العميل، الهاتف، أو المنشأة..." class="form-input" style="padding:0.45rem 0.85rem; font-size:0.85rem; min-width:260px; border-radius:8px;"/>
-									<select name="status" class="form-input" style="padding:0.45rem 0.85rem; font-size:0.85rem; border-radius:8px;">
+									<input type="text" name="q" value={ data.Query } placeholder="ابحث بالاسم، الإيميل، الهاتف، أو المرجع..." class="form-input" style="padding:0.45rem 0.85rem; font-size:0.85rem; min-width:240px; border-radius:8px;"/>
+									<select name="status" class="form-select" style="padding:0.45rem 0.85rem; font-size:0.85rem; border-radius:8px; width:auto;">
 										<option value="">كل الحالات</option>
 										<option value="pending" selected?={ data.StatusFilter == "pending" }>⏳ قيد المراجعة (Pending)</option>
 										<option value="approved" selected?={ data.StatusFilter == "approved" }>✓ معتمدة ومقبولة (Approved)</option>
 										<option value="rejected" selected?={ data.StatusFilter == "rejected" }>✕ مرفوضة (Rejected)</option>
 									</select>
-									<select name="method" class="form-input" style="padding:0.45rem 0.85rem; font-size:0.85rem; border-radius:8px;">
+									<select name="method" class="form-select" style="padding:0.45rem 0.85rem; font-size:0.85rem; border-radius:8px; width:auto;">
 										<option value="">كل وسائل الدفع</option>
 										<option value="instapay" selected?={ data.MethodFilter == "instapay" }>إنستاباي InstaPay</option>
 										<option value="bank_transfer" selected?={ data.MethodFilter == "bank_transfer" }>تحويل بنكي Bank</option>
 										<option value="wallet" selected?={ data.MethodFilter == "wallet" }>محفظة هاتف كاش</option>
 										<option value="card" selected?={ data.MethodFilter == "card" }>بطاقة دفع إلكترونية</option>
 									</select>
-									<button type="submit" class="btn btn-secondary btn-sm">تصفية</button>
+									<button type="submit" class="btn btn-secondary btn-sm fw-700" style="padding:0.45rem 1rem;">تصفية</button>
 									if data.Query != "" || data.StatusFilter != "" || data.MethodFilter != "" {
 										<a href="/admin/finance?tab=deposits" class="btn btn-secondary btn-sm text-muted">إلغاء</a>
 									}
@@ -208,57 +211,59 @@ templ AdminFinance(data AdminFinanceData, lang, dir string) {
 							if len(data.Deposits) == 0 {
 								@components.EmptyState(components.EmptyStateProps{Title: "لا توجد طلبات إيداع مطابقة", Message: "لم يتم العثور على أي طلبات شحن محفظة تطابق معايير الفلترة المحددة."})
 							} else {
-								<div class="table-container" style="border:1px solid var(--border); border-radius:12px; overflow:hidden;">
-									<table class="b2b-table">
+								<div class="table-container" style="border:1px solid var(--border); border-radius:12px; overflow:hidden; background:var(--surface-raised);">
+									<table class="b2b-table" style="margin:0; width:100%;">
 										<thead>
 											<tr>
-												<th># الطلب</th>
+												<th style="white-space:nowrap;"># الطلب</th>
 												<th>المستخدم / المنشأة</th>
-												<th>المبلغ المودع</th>
+												<th style="white-space:nowrap;">المبلغ المودع</th>
 												<th>وسيلة الدفع والرقم المرجعي</th>
-												<th>إشعار التحويل / الإيصال</th>
-												<th>تاريخ الطلب</th>
+												<th style="white-space:nowrap;">إشعار التحويل</th>
+												<th style="white-space:nowrap;">تاريخ الطلب</th>
 												<th>الحالة والملاحظات</th>
-												<th class="text-end">الإجراءات والتدقيق</th>
+												<th class="text-end" style="white-space:nowrap; min-width:160px;">الإجراءات والتدقيق</th>
 											</tr>
 										</thead>
 										<tbody>
 											for _, d := range data.Deposits {
-												<tr>
-													<td class="tabular-nums fw-700" style="color:var(--accent);">
+												<tr style="vertical-align:middle;">
+													<td class="tabular-nums fw-800" style="color:var(--accent); white-space:nowrap;">
 														#{ fmt.Sprintf("DEP-%d", d.ID) }
 													</td>
 													<td>
-														<div class="fw-800 text-primary">{ d.UserName }</div>
-														<div class="text-xs text-muted tabular-nums" dir="ltr">
+														<div class="fw-800 text-primary" style="font-size:0.92rem;">{ d.UserName }</div>
+														<div class="text-xs text-muted tabular-nums" style="margin-top:2px;" dir="ltr">
 															<span>{ d.UserEmail }</span>
 															if d.UserPhone != "" {
 																<span> • { d.UserPhone }</span>
 															}
 														</div>
 														if d.OrganizationName != "" {
-															<div style="margin-top:0.25rem;">
-																<span class="badge badge-sky text-xs fw-700">{ d.OrganizationName }</span>
+															<div style="margin-top:0.3rem;">
+																<span class="badge badge-sky text-xs fw-700" style="padding:0.15rem 0.5rem; border-radius:4px;">{ d.OrganizationName }</span>
 															</div>
 														}
 													</td>
 													<td>
-														<div class="tabular-nums fw-900 text-base text-emerald" style="white-space:nowrap;">
+														<div class="tabular-nums fw-900 text-emerald" style="font-size:1.05rem; white-space:nowrap;">
 															+ { d.Amount.String() } ج.م
 														</div>
 													</td>
 													<td>
-														<span class="badge badge-purple text-xs fw-800" dir="ltr">{ d.PaymentMethod }</span>
-														<div class="tabular-nums text-xs mt-1" style="font-weight:700;" dir="ltr">
-															<span class="text-muted">المرجع:</span> { d.ReferenceNumber }
+														<div style="display:flex; flex-direction:column; gap:0.25rem;">
+															<span class="badge badge-purple text-xs fw-800" style="width:fit-content;" dir="ltr">{ d.PaymentMethod }</span>
+															<div class="tabular-nums text-xs" style="font-weight:700; color:var(--text-secondary);" dir="ltr">
+																<span class="text-muted">المرجع:</span> { d.ReferenceNumber }
+															</div>
 														</div>
 													</td>
 													<td>
 														if d.AttachmentURL != "" {
 															<button
 																type="button"
-																class="btn btn-secondary btn-xs fw-700"
-																style="gap:0.3rem;"
+																class="btn btn-secondary btn-xs fw-800"
+																style="white-space:nowrap; display:inline-flex; align-items:center; gap:0.35rem; padding:0.35rem 0.65rem; border-radius:6px; font-size:0.78rem; background:var(--surface-sunken); border:1px solid var(--border);"
 																@click={ fmt.Sprintf("openReceiptModal('%s')", d.AttachmentURL) }
 															>
 																@components.IconFile("icon-xs")
@@ -268,58 +273,70 @@ templ AdminFinance(data AdminFinanceData, lang, dir string) {
 															<span class="text-muted text-xs">لا يوجد مرفق</span>
 														}
 													</td>
-													<td class="tabular-nums text-xs text-muted">
+													<td class="tabular-nums text-xs text-muted" style="white-space:nowrap;">
 														{ d.CreatedAt.Format("2006-01-02 15:04") }
 													</td>
 													<td>
-														if d.Status == billing.DepositPending {
-															<span class="badge badge-amber text-xs fw-800">⏳ قيد المراجعة</span>
-														} else if d.Status == billing.DepositApproved {
-															<span class="badge badge-emerald text-xs fw-800">✓ معتمد ومضاف</span>
-															if d.ReviewerName != "" {
-																<div class="text-xs text-muted mt-1">بواسطة: { d.ReviewerName }</div>
+														<div style="display:flex; flex-direction:column; gap:0.35rem; align-items:flex-start;">
+															if d.Status == billing.DepositPending {
+																<span class="badge badge-amber text-xs fw-800" style="padding:0.25rem 0.6rem; border-radius:6px; display:inline-flex; align-items:center; gap:0.3rem;">
+																	<span>⏳ قيد المراجعة</span>
+																</span>
+															} else if d.Status == billing.DepositApproved {
+																<span class="badge badge-emerald text-xs fw-800" style="padding:0.25rem 0.6rem; border-radius:6px; display:inline-flex; align-items:center; gap:0.3rem;">
+																	<span>✓ معتمد ومضاف</span>
+																</span>
+																if d.ReviewerName != "" {
+																	<div class="text-xs text-muted">بواسطة: { d.ReviewerName }</div>
+																}
+																if d.TransactionID != nil {
+																	<div class="text-xs text-muted tabular-nums">معاملة #{ fmt.Sprintf("TX-%d", *d.TransactionID) }</div>
+																}
+															} else if d.Status == billing.DepositRejected {
+																<span class="badge badge-danger text-xs fw-800" style="padding:0.25rem 0.6rem; border-radius:6px; display:inline-flex; align-items:center; gap:0.3rem;">
+																	<span>✕ مرفوض</span>
+																</span>
+																if d.RejectionReason != "" {
+																	<div class="text-xs text-danger" style="background:var(--danger-surface); border:1px solid var(--danger-border); padding:0.25rem 0.5rem; border-radius:4px; max-width:220px; word-break:break-word;">
+																		<strong>السبب:</strong> { d.RejectionReason }
+																	</div>
+																}
+																if d.ReviewerName != "" {
+																	<div class="text-xs text-muted">بواسطة: { d.ReviewerName }</div>
+																}
 															}
-															if d.TransactionID != nil {
-																<div class="text-xs text-muted tabular-nums">معاملة #{ fmt.Sprintf("TX-%d", *d.TransactionID) }</div>
-															}
-														} else if d.Status == billing.DepositRejected {
-															<span class="badge badge-danger text-xs fw-800">✕ مرفوض</span>
-															if d.RejectionReason != "" {
-																<div class="text-xs text-danger mt-1" style="max-width:200px; word-break:break-word;">
-																	<strong>السبب:</strong> { d.RejectionReason }
+															if d.UserNotes != "" {
+																<div class="text-xs text-secondary" style="background:var(--surface-sunken); padding:0.25rem 0.5rem; border-radius:4px; border:1px solid var(--border); max-width:220px; word-break:break-word;">
+																	📝 { d.UserNotes }
 																</div>
 															}
-															if d.ReviewerName != "" {
-																<div class="text-xs text-muted mt-0.5">بواسطة: { d.ReviewerName }</div>
-															}
-														}
-														if d.UserNotes != "" {
-															<div class="text-xs text-secondary mt-1" style="background:var(--surface-sunken); padding:0.25rem 0.5rem; border-radius:4px; border:1px solid var(--border); max-width:200px; word-break:break-word;">
-																📝 { d.UserNotes }
-															</div>
-														}
+														</div>
 													</td>
-													<td class="text-end">
+													<td class="text-end" style="white-space:nowrap;">
 														if d.Status == billing.DepositPending {
-															<div style="display:flex; gap:0.4rem; justify-content:flex-end;">
+															<div style="display:inline-flex; gap:0.5rem; justify-content:flex-end; align-items:center;">
 																<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/finance/deposits/%d/approve", d.ID)) } class="m-0" onsubmit="return confirm('هل أنت متأكد من رغبتك في اعتماد هذا الإيداع وإضافته للرصيد الآن؟');">
-																	<button type="submit" class="btn btn-primary btn-xs fw-800" style="gap:0.25rem; background:var(--emerald); border-color:var(--emerald);">
+																	<button
+																		type="submit"
+																		class="btn btn-xs fw-800"
+																		style="background:#059669; color:#ffffff !important; border:1px solid #10b981; padding:0.4rem 0.85rem; border-radius:7px; display:inline-flex; align-items:center; gap:0.3rem; box-shadow:0 1px 3px rgba(0,0,0,0.25); cursor:pointer; font-size:0.8rem;"
+																	>
 																		@components.IconCheck("icon-xs")
-																		<span>اعتماد</span>
+																		<span style="color:#ffffff !important;">اعتماد</span>
 																	</button>
 																</form>
 																<button
 																	type="button"
-																	class="btn btn-danger btn-xs fw-800"
-																	style="gap:0.25rem;"
+																	class="btn btn-xs fw-800"
+																	style="background:#dc2626; color:#ffffff !important; border:1px solid #ef4444; padding:0.4rem 0.85rem; border-radius:7px; display:inline-flex; align-items:center; gap:0.3rem; box-shadow:0 1px 3px rgba(0,0,0,0.25); cursor:pointer; font-size:0.8rem;"
 																	@click={ fmt.Sprintf("openRejectModal(%d, '%s', '%s')", d.ID, d.Amount.String(), strings.ReplaceAll(d.UserName, "'", "\\'")) }
 																>
 																	@components.IconClose("icon-xs")
-																	<span>رفض</span>
+																	<span style="color:#ffffff !important;">رفض</span>
 																</button>
 															</div>
 														} else {
-															<span class="badge badge-secondary text-xs">تمت المعالجة</span>
+															<span class="badge badge-secondary text-xs" style="padding:0.25rem 0.6rem; border-radius:6px;">تمت المعالجة</span>
 														}
 													</td>
 												</tr>
