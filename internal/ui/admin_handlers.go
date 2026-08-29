@@ -145,8 +145,88 @@ func (h *UIHandler) AdminDashboardPage(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// AdminUsersPage renders the dedicated user management directory.
 func (h *UIHandler) AdminUsersPage(w http.ResponseWriter, r *http.Request) {
-	h.renderAdminEnterpriseHub(w, r, "users")
+	ctx := r.Context()
+	sysCtx := database.AsSystem(ctx)
+	lang, dir := h.localeAndDir(r)
+
+	searchQuery := strings.TrimSpace(r.URL.Query().Get("q"))
+	roleFilter := strings.TrimSpace(r.URL.Query().Get("role"))
+	statusFilter := strings.TrimSpace(r.URL.Query().Get("status"))
+
+	var users []*identity.User
+	var allOrgs []*org.Organization
+	orgNames := make(map[int64]string)
+	var deletionRequests []*identity.AccountDeletionRequest
+	var totalUsers, customerUsers, vendorUsers, staffUsers, activeUsers, suspendedUsers int
+
+	if h.orgSvc != nil {
+		if orgsList, err := h.orgSvc.ListOrganizations(sysCtx, nil, nil, 500, 0); err == nil {
+			allOrgs = orgsList
+			for _, o := range orgsList {
+				if o != nil {
+					orgNames[o.ID] = o.LegalName
+				}
+			}
+		}
+	}
+
+	if h.idSvc != nil {
+		allUsers, _ := h.idSvc.AdminListUsers(sysCtx, "", "")
+		for _, u := range allUsers {
+			if u == nil {
+				continue
+			}
+			totalUsers++
+			if u.Role == "super_admin" || u.Role == "admin" || u.Role == "staff" {
+				staffUsers++
+			} else if u.Role == "vendor" {
+				vendorUsers++
+			} else {
+				customerUsers++
+			}
+			if u.Status == identity.StatusActive {
+				activeUsers++
+			} else if u.Status == identity.StatusSuspended {
+				suspendedUsers++
+			}
+		}
+
+		list, _ := h.idSvc.AdminListUsers(sysCtx, roleFilter, searchQuery)
+		for _, u := range list {
+			if u == nil {
+				continue
+			}
+			if statusFilter != "" && string(u.Status) != statusFilter {
+				continue
+			}
+			users = append(users, u)
+		}
+
+		deletionRequests, _ = h.idSvc.AdminListDeletionRequests(sysCtx, "")
+	}
+
+	data := pages.AdminUsersPageData{
+		Users:            users,
+		Organizations:    allOrgs,
+		OrgNames:         orgNames,
+		DeletionRequests: deletionRequests,
+		TotalUsers:       totalUsers,
+		CustomerUsers:    customerUsers,
+		VendorUsers:      vendorUsers,
+		StaffUsers:       staffUsers,
+		ActiveUsers:      activeUsers,
+		SuspendedUsers:   suspendedUsers,
+		SearchQuery:      searchQuery,
+		RoleFilter:       roleFilter,
+		StatusFilter:     statusFilter,
+	}
+
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+	if err := pages.AdminUsersPage(data, lang, dir).Render(ctx, w); err != nil {
+		h.log.ErrorContext(ctx, "render admin users page", "error", err)
+	}
 }
 
 func (h *UIHandler) AdminApprovalsPage(w http.ResponseWriter, r *http.Request) {
@@ -1147,108 +1227,6 @@ func localizeAuditEntry(e *platformadmin.AuditEntry) {
 	if e.Route == "" {
 		e.Route = "/admin/" + e.EntityType
 	}
-}
-
-// renderAdminEnterpriseHub renders the enterprise management suite with decoupled tab loading.
-func (h *UIHandler) renderAdminEnterpriseHub(w http.ResponseWriter, r *http.Request, defaultTab string) {
-	ctx := r.Context()
-	sysCtx := database.AsSystem(ctx)
-	lang, dir := h.localeAndDir(r)
-
-	typeParam := r.URL.Query().Get("type")
-	if strings.Contains(r.URL.Path, "/vendors") || strings.Contains(r.URL.Path, "/suppliers") {
-		typeParam = "vendor"
-	}
-
-	activeTab := r.URL.Query().Get("tab")
-	if activeTab == "" {
-		activeTab = defaultTab
-	}
-
-	var orgs []*org.Organization
-	var branches []*org.Branch
-	var users []*identity.User
-	var deletionRequests []*identity.AccountDeletionRequest
-
-	orgNames := make(map[int64]string)
-	orgTypes := make(map[int64]string)
-	branchCounts := make(map[int64]int)
-	var totalOrgs, totalBranches, totalUsers int
-
-	if h.orgSvc != nil {
-		totalOrgs, _ = h.orgSvc.CountOrganizations(sysCtx, nil, nil)
-		allBranches, _ := h.orgSvc.ListBranches(sysCtx, 0)
-		totalBranches = len(allBranches)
-		for _, b := range allBranches {
-			if b != nil {
-				branchCounts[b.OrganizationID]++
-			}
-		}
-
-		if activeTab == "organizations" {
-			var filterType *org.OrganizationType
-			if typeParam != "" {
-				t := org.OrganizationType(typeParam)
-				filterType = &t
-			}
-			orgs, _ = h.orgSvc.ListOrganizations(sysCtx, filterType, nil, 300, 0)
-			for _, o := range orgs {
-				if o != nil {
-					orgNames[o.ID] = o.LegalName
-					orgTypes[o.ID] = string(o.Type)
-				}
-			}
-		} else if activeTab == "branches" {
-			branches = allBranches
-			if allOrgs, err := h.orgSvc.ListOrganizations(sysCtx, nil, nil, 500, 0); err == nil {
-				for _, o := range allOrgs {
-					if o != nil {
-						orgNames[o.ID] = o.LegalName
-						orgTypes[o.ID] = string(o.Type)
-					}
-				}
-			}
-		}
-	}
-
-	if h.idSvc != nil {
-		totalUsers, _ = h.idSvc.AdminCountUsers(ctx)
-		if activeTab == "users" {
-			searchQuery := r.URL.Query().Get("q")
-			roleFilter := r.URL.Query().Get("role")
-			if roleFilter == "" {
-				roleFilter = typeParam
-			}
-			users, _ = h.idSvc.AdminListUsers(ctx, roleFilter, searchQuery)
-		} else if activeTab == "deletion_requests" {
-			deletionRequests, _ = h.idSvc.AdminListDeletionRequests(ctx, "")
-		}
-	}
-
-	data := pages.AdminEnterpriseHubData{
-		Organizations:      orgs,
-		Branches:           branches,
-		Users:              users,
-		DeletionRequests:   deletionRequests,
-		ActiveTab:          activeTab,
-		CurrentType:        typeParam,
-		OrgNames:           orgNames,
-		OrgTypes:           orgTypes,
-		BranchCounts:       branchCounts,
-		TotalOrgsCount:     totalOrgs,
-		TotalBranchesCount: totalBranches,
-		TotalUsersCount:    totalUsers,
-	}
-
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	if err := pages.AdminOrganizations(data, lang, dir).Render(ctx, w); err != nil {
-		h.log.ErrorContext(ctx, "render admin organizations hub", "error", err)
-	}
-}
-
-// AdminOrganizationsPage renders the full organization list with lifecycle actions.
-func (h *UIHandler) AdminOrganizationsPage(w http.ResponseWriter, r *http.Request) {
-	h.renderAdminEnterpriseHub(w, r, "organizations")
 }
 
 // AdminOrgApproveSubmit approves an organization.

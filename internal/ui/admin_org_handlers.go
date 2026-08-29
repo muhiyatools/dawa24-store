@@ -3,9 +3,13 @@ package ui
 import (
 	"net/http"
 	"strconv"
+	"strings"
 
 	"github.com/go-chi/chi/v5"
 
+	"github.com/muhiya/dawa24-store/internal/modules/attachments"
+	"github.com/muhiya/dawa24-store/internal/modules/billing"
+	"github.com/muhiya/dawa24-store/internal/modules/commerce"
 	"github.com/muhiya/dawa24-store/internal/modules/org"
 	platformadmin "github.com/muhiya/dawa24-store/internal/modules/platform_admin"
 	"github.com/muhiya/dawa24-store/internal/modules/workflow"
@@ -13,9 +17,10 @@ import (
 	"github.com/muhiya/dawa24-store/internal/ui/pages"
 )
 
-// AdminOrganizationDetailPage renders the main profile overview for an organization.
+// AdminOrganizationDetailPage renders the deep 360° profile overview for an organization.
 func (h *UIHandler) AdminOrganizationDetailPage(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
+	sysCtx := database.AsSystem(ctx)
 	lang, dir := h.localeAndDir(r)
 	idStr := chi.URLParam(r, "id")
 	orgID, err := strconv.ParseInt(idStr, 10, 64)
@@ -27,12 +32,15 @@ func (h *UIHandler) AdminOrganizationDetailPage(w http.ResponseWriter, r *http.R
 	var organization *org.Organization
 	var branches []*org.Branch
 	var employees []*org.EmployeeView
+	var docs []*attachments.Document
+	var wallet *billing.Wallet
+	var recentTxs []*billing.WalletTransaction
+	var recentDeposits []*billing.WalletDeposit
+	var ordersCount int
+	var recentOrders []*commerce.Order
+
 	if h.orgSvc != nil {
-		// AsSystem justified: platform admin inspecting organization details across tenants
-		sysCtx := database.AsSystem(ctx)
-		if o, err := h.orgSvc.GetOrganization(sysCtx, orgID); err == nil && o != nil {
-			organization = o
-		}
+		organization, _ = h.orgSvc.GetOrganization(sysCtx, orgID)
 		branches, _ = h.orgSvc.ListBranches(sysCtx, orgID)
 		employees, _ = h.orgSvc.ListEmployees(sysCtx, orgID)
 	}
@@ -42,87 +50,242 @@ func (h *UIHandler) AdminOrganizationDetailPage(w http.ResponseWriter, r *http.R
 		return
 	}
 
+	if h.attSvc != nil {
+		docs, _ = h.attSvc.ListByOrganization(sysCtx, orgID)
+	}
+
+	if h.billSvc != nil && organization.OwnerID > 0 {
+		wallet, _ = h.billSvc.GetWallet(sysCtx, organization.OwnerID, "EGP")
+		if wallet != nil {
+			recentTxs, _ = h.billSvc.ListWalletTransactions(sysCtx, wallet.ID, 5, 0)
+		}
+		recentDeposits, _ = h.billSvc.ListUserDeposits(sysCtx, organization.OwnerID, 5, 0)
+	}
+
+	if h.commSvc != nil {
+		if ords, err := h.commSvc.AdminSearchOrders(sysCtx, "", 20, 0); err == nil {
+			for _, o := range ords {
+				if o != nil && o.OrganizationID != nil && *o.OrganizationID == orgID {
+					ordersCount++
+					if len(recentOrders) < 5 {
+						recentOrders = append(recentOrders, o)
+					}
+				}
+			}
+		}
+	}
+
+	aiUserID, aiKey := h.EnsureOrgAIGatewayProvisioned(ctx, orgID)
+
+	data := pages.AdminOrgDetailData{
+		Organization:   organization,
+		Branches:       branches,
+		Employees:      employees,
+		Documents:      docs,
+		Wallet:         wallet,
+		RecentTxs:      recentTxs,
+		RecentDeposits: recentDeposits,
+		OrdersCount:    ordersCount,
+		RecentOrders:   recentOrders,
+		AIUserID:       aiUserID,
+		AIVirtualKey:   aiKey,
+	}
+
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	if err := pages.AdminOrganizationDetail(organization, branches, employees, "overview", lang, dir).Render(ctx, w); err != nil {
+	if err := pages.AdminOrganizationDetailPage(data, lang, dir).Render(ctx, w); err != nil {
 		h.log.ErrorContext(ctx, "render admin org detail", "error", err)
 	}
 }
 
-// AdminOrganizationInfoPage renders registration and documents info.
+// AdminOrganizationInfoPage redirects to the 360 org detail profile.
 func (h *UIHandler) AdminOrganizationInfoPage(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-	lang, dir := h.localeAndDir(r)
 	idStr := chi.URLParam(r, "id")
-	orgID, _ := strconv.ParseInt(idStr, 10, 64)
-
-	var organization *org.Organization
-	if h.orgSvc != nil {
-		organization, _ = h.orgSvc.GetOrganization(database.AsSystem(ctx), orgID)
-	}
-	if organization == nil {
-		http.Redirect(w, r, "/admin/organizations", http.StatusSeeOther)
-		return
-	}
-
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	if err := pages.AdminOrganizationDetail(organization, nil, nil, "info", lang, dir).Render(ctx, w); err != nil {
-		h.log.ErrorContext(ctx, "render admin organization detail info", "error", err)
-	}
+	http.Redirect(w, r, "/admin/organizations/"+idStr, http.StatusMovedPermanently)
 }
 
-// AdminOrganizationUsersPage renders members and employees list.
+// AdminOrganizationUsersPage redirects to the 360 org detail profile.
 func (h *UIHandler) AdminOrganizationUsersPage(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-	lang, dir := h.localeAndDir(r)
 	idStr := chi.URLParam(r, "id")
-	orgID, _ := strconv.ParseInt(idStr, 10, 64)
-
-	var organization *org.Organization
-	var employees []*org.EmployeeView
-	if h.orgSvc != nil {
-		sysCtx := database.AsSystem(ctx)
-		organization, _ = h.orgSvc.GetOrganization(sysCtx, orgID)
-		employees, _ = h.orgSvc.ListEmployees(sysCtx, orgID)
-	}
-	if organization == nil {
-		http.Redirect(w, r, "/admin/organizations", http.StatusSeeOther)
-		return
-	}
-
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	if err := pages.AdminOrganizationDetail(organization, nil, employees, "users", lang, dir).Render(ctx, w); err != nil {
-		h.log.ErrorContext(ctx, "render admin organization detail users", "error", err)
-	}
+	http.Redirect(w, r, "/admin/organizations/"+idStr, http.StatusMovedPermanently)
 }
 
-// AdminOrganizationBranchesPage renders branches for a specific org.
+// AdminOrganizationBranchesPage redirects to the branches filter for this org.
 func (h *UIHandler) AdminOrganizationBranchesPage(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-	lang, dir := h.localeAndDir(r)
 	idStr := chi.URLParam(r, "id")
-	orgID, _ := strconv.ParseInt(idStr, 10, 64)
+	http.Redirect(w, r, "/admin/branches?org_id="+idStr, http.StatusSeeOther)
+}
 
-	var organization *org.Organization
-	var branches []*org.Branch
+// AdminOrganizationsPage renders the dedicated organizations management screen.
+func (h *UIHandler) AdminOrganizationsPage(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	sysCtx := database.AsSystem(ctx)
+	lang, dir := h.localeAndDir(r)
+
+	searchQuery := strings.TrimSpace(r.URL.Query().Get("q"))
+	typeParam := strings.TrimSpace(r.URL.Query().Get("type"))
+	statusParam := strings.TrimSpace(r.URL.Query().Get("status"))
+
+	var orgs []*org.Organization
+	branchCounts := make(map[int64]int)
+	userCounts := make(map[int64]int)
+	var totalOrgs, totalPharmacies, totalVendors, pendingCount, approvedCount int
+
 	if h.orgSvc != nil {
-		sysCtx := database.AsSystem(ctx)
-		organization, _ = h.orgSvc.GetOrganization(sysCtx, orgID)
-		branches, _ = h.orgSvc.ListBranches(sysCtx, orgID)
+		var filterType *org.OrganizationType
+		if typeParam != "" {
+			t := org.OrganizationType(typeParam)
+			filterType = &t
+		}
+		var filterStatus *org.OrganizationStatus
+		if statusParam != "" {
+			s := org.OrganizationStatus(statusParam)
+			filterStatus = &s
+		}
+
+		allOrgs, _ := h.orgSvc.ListOrganizations(sysCtx, nil, nil, 500, 0)
+		for _, o := range allOrgs {
+			if o == nil {
+				continue
+			}
+			totalOrgs++
+			if o.Type == org.TypeVendor {
+				totalVendors++
+			} else {
+				totalPharmacies++
+			}
+			if o.Status == org.StatusPending {
+				pendingCount++
+			} else if o.Status == org.StatusApproved {
+				approvedCount++
+			}
+		}
+
+		allBranches, _ := h.orgSvc.ListBranches(sysCtx, 0)
+		for _, b := range allBranches {
+			if b != nil {
+				branchCounts[b.OrganizationID]++
+			}
+		}
+
+		list, _ := h.orgSvc.ListOrganizations(sysCtx, filterType, filterStatus, 300, 0)
+		for _, o := range list {
+			if o == nil {
+				continue
+			}
+			if searchQuery != "" {
+				qLower := strings.ToLower(searchQuery)
+				nameMatch := strings.Contains(strings.ToLower(o.LegalName), qLower)
+				crMatch := strings.Contains(o.CommercialRegister, searchQuery)
+				taxMatch := strings.Contains(o.TaxNumber, searchQuery)
+				licMatch := strings.Contains(o.PharmacistLicense, searchQuery)
+				if !nameMatch && !crMatch && !taxMatch && !licMatch {
+					continue
+				}
+			}
+			orgs = append(orgs, o)
+		}
 	}
-	if organization == nil {
-		http.Redirect(w, r, "/admin/organizations", http.StatusSeeOther)
-		return
+
+	data := pages.AdminOrganizationsPageData{
+		Organizations:   orgs,
+		TotalOrgs:       totalOrgs,
+		TotalPharmacies: totalPharmacies,
+		TotalVendors:    totalVendors,
+		PendingCount:    pendingCount,
+		ApprovedCount:   approvedCount,
+		BranchCounts:    branchCounts,
+		UserCounts:      userCounts,
+		SearchQuery:     searchQuery,
+		TypeFilter:      typeParam,
+		StatusFilter:    statusParam,
 	}
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	if err := pages.AdminOrganizationDetail(organization, branches, nil, "branches", lang, dir).Render(ctx, w); err != nil {
-		h.log.ErrorContext(ctx, "render admin organization detail branches", "error", err)
+	if err := pages.AdminOrganizationsPage(data, lang, dir).Render(ctx, w); err != nil {
+		h.log.ErrorContext(ctx, "render admin organizations page", "error", err)
 	}
 }
 
-// AdminBranchesPage renders list of all branches within the unified enterprise hub.
+// AdminBranchesPage renders the dedicated branches and warehouses directory.
 func (h *UIHandler) AdminBranchesPage(w http.ResponseWriter, r *http.Request) {
-	h.renderAdminEnterpriseHub(w, r, "branches")
+	ctx := r.Context()
+	sysCtx := database.AsSystem(ctx)
+	lang, dir := h.localeAndDir(r)
+
+	searchQuery := strings.TrimSpace(r.URL.Query().Get("q"))
+	statusFilter := strings.TrimSpace(r.URL.Query().Get("status"))
+	orgIDFilter, _ := strconv.ParseInt(r.URL.Query().Get("org_id"), 10, 64)
+
+	var branches []*org.Branch
+	var allOrgs []*org.Organization
+	orgNames := make(map[int64]string)
+	orgTypes := make(map[int64]string)
+	var totalBranches, activeBranches, pharmacyBranches, vendorWarehouses int
+
+	if h.orgSvc != nil {
+		allOrgsList, _ := h.orgSvc.ListOrganizations(sysCtx, nil, nil, 500, 0)
+		allOrgs = allOrgsList
+		for _, o := range allOrgsList {
+			if o != nil {
+				orgNames[o.ID] = o.LegalName
+				orgTypes[o.ID] = string(o.Type)
+			}
+		}
+
+		allBranchesList, _ := h.orgSvc.ListBranches(sysCtx, 0)
+		for _, b := range allBranchesList {
+			if b == nil {
+				continue
+			}
+			totalBranches++
+			if b.Status == "active" || b.Status == "" {
+				activeBranches++
+			}
+			if orgTypes[b.OrganizationID] == "vendor" {
+				vendorWarehouses++
+			} else {
+				pharmacyBranches++
+			}
+
+			if orgIDFilter > 0 && b.OrganizationID != orgIDFilter {
+				continue
+			}
+			if statusFilter != "" && b.Status != statusFilter {
+				continue
+			}
+			if searchQuery != "" {
+				qLower := strings.ToLower(searchQuery)
+				nameAr := strings.ToLower(b.Name.Get("ar"))
+				nameEn := strings.ToLower(b.Name.Get("en"))
+				codeMatch := strings.Contains(strings.ToLower(b.Code), qLower)
+				addrMatch := strings.Contains(strings.ToLower(b.Address), qLower)
+				orgMatch := strings.Contains(strings.ToLower(orgNames[b.OrganizationID]), qLower)
+				if !strings.Contains(nameAr, qLower) && !strings.Contains(nameEn, qLower) && !codeMatch && !addrMatch && !orgMatch {
+					continue
+				}
+			}
+			branches = append(branches, b)
+		}
+	}
+
+	data := pages.AdminBranchesPageData{
+		Branches:         branches,
+		Organizations:    allOrgs,
+		OrgNames:         orgNames,
+		OrgTypes:         orgTypes,
+		TotalBranches:    totalBranches,
+		ActiveBranches:   activeBranches,
+		PharmacyBranches: pharmacyBranches,
+		VendorWarehouses: vendorWarehouses,
+		SearchQuery:      searchQuery,
+		SelectedOrgID:    orgIDFilter,
+		StatusFilter:     statusFilter,
+	}
+
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+	if err := pages.AdminBranchesPage(data, lang, dir).Render(ctx, w); err != nil {
+		h.log.ErrorContext(ctx, "render admin branches page", "error", err)
+	}
 }
 
 // AdminBranchDetailPage renders detail for a specific branch.
