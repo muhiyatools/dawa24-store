@@ -139,120 +139,120 @@ templ SmartOrderReviewPage(lang, dir string, data SmartOrderReviewData) {
 
 			<!-- Main Supplier Groups Review Tables -->
 			for _, g := range data.Groups {
-				<div class="card" style="padding:0; overflow:hidden; background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-2xl); box-shadow:var(--shadow-xs);">
+				<div class="card so-review-group">
 					
 					<!-- Group Header Strip -->
-					<div style="padding:1rem 1.35rem; background:var(--surface-sunken); border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.75rem;">
-						<div style="display:flex; align-items:center; gap:0.6rem;">
+					<div class="so-group-header">
+						<div class="so-group-heading">
 							<span class="so-group-icon" aria-hidden="true"></span>
-							<div>
-								<div style="font-size:1rem; font-weight:800; color:var(--text);">
+							<div class="so-group-details">
+								<div class="so-group-name">
 									{ g.VendorName }
 								</div>
-								<div style="font-size:0.75rem; color:var(--text-secondary);">
+								<div class="so-group-count">
 									{ fmt.Sprintf("%d أصناف مطلوبة من هذا المورد", len(g.Lines)) }
 								</div>
 							</div>
 						</div>
-						<div style="display:flex; align-items:center; gap:0.75rem;">
-							<span style="font-size:0.8rem; color:var(--text-secondary); font-weight:700;">إجمالي المورد:</span>
-							<span class="tabular-nums" style="font-size:1.2rem; font-weight:900; color:var(--accent);">
+						<div class="so-group-total">
+							<span class="so-group-total-label">إجمالي المورد:</span>
+							<span class="tabular-nums so-group-total-value">
 								{ g.Subtotal.String() } ج.م
 							</span>
 						</div>
 					</div>
 
 					<!-- 9-Column Master Responsive Table in Exact Specified Order -->
-					<div class="table-responsive" style="overflow-x:auto;">
-						<table class="table" style="margin:0; width:100%; border-collapse:collapse; font-size:0.85rem;">
+					<div class="table-responsive so-review-table-wrap">
+						<table class="table so-review-table">
 							<thead>
-								<tr style="background:var(--surface-raised); border-bottom:1px solid var(--border); font-size:0.8rem; color:var(--text-secondary);">
-									<th style="padding:0.75rem 1rem; min-width:180px;">1. اسم الصنف</th>
-									<th style="padding:0.75rem 0.75rem; width:110px;">2. كود الصنف (SKU)</th>
-									<th style="padding:0.75rem 0.85rem; width:140px; text-align:center;">3. الكمية المطلوبة</th>
-									<th style="padding:0.75rem 1rem; min-width:200px;">4. الصنف المطابق</th>
-									<th style="padding:0.75rem 0.85rem; min-width:150px;">5. المورد</th>
-									<th style="padding:0.75rem 0.75rem; width:110px; text-align:center;">6. الكمية المتاحة</th>
-									<th style="padding:0.75rem 0.75rem; width:100px; text-align:center;" class="td-numeric">7. سعر الوحدة</th>
-									<th style="padding:0.75rem 0.85rem; width:110px; text-align:center;" class="td-numeric">8. الإجمالي</th>
-									<th style="padding:0.75rem 0.85rem; width:130px; text-align:center;">9. الحالة</th>
+								<tr class="so-review-table-head">
+									<th class="so-review-col-item">1. اسم الصنف</th>
+									<th class="so-review-col-sku">2. كود الصنف (SKU)</th>
+									<th class="so-review-col-qty">3. الكمية المطلوبة</th>
+									<th class="so-review-col-match">4. الصنف المطابق</th>
+									<th class="so-review-col-vendor">5. المورد</th>
+									<th class="so-review-col-stock">6. الكمية المتاحة</th>
+									<th class="so-review-col-price td-numeric">7. سعر الوحدة</th>
+									<th class="so-review-col-total td-numeric">8. الإجمالي</th>
+									<th class="so-review-col-status">9. الحالة</th>
 								</tr>
 							</thead>
 							<tbody>
 								for _, l := range g.Lines {
-									<tr style="border-bottom:1px solid var(--border); transition:background 0.15s ease;">
+									<tr class="so-review-row">
 										
 										<!-- 1. Product Name -->
-										<td style="padding:0.75rem 1rem;">
-											<div style="font-weight:800; color:var(--text); line-height:1.4;">
+										<td class="so-review-cell so-review-item">
+											<div class="so-review-item-name">
 												{ l.Line.RawName }
 											</div>
 											if l.Line.RawBarcode != "" {
-												<div style="font-size:0.7rem; color:var(--text-secondary); margin-top:2px;">
+												<div class="so-review-item-barcode">
 													باركود: { l.Line.RawBarcode }
 												</div>
 											}
 										</td>
 
 										<!-- 2. SKU -->
-										<td style="padding:0.75rem 0.75rem;">
+										<td class="so-review-cell so-review-sku">
 											if l.Line.RawSKU != "" {
-												<span class="badge badge-slate" style="font-size:0.725rem; font-family:monospace;">
+												<span class="badge badge-slate so-review-sku-badge">
 													{ l.Line.RawSKU }
 												</span>
 											} else {
-												<span style="color:var(--text-secondary); font-size:0.8rem;">—</span>
+												<span class="so-review-muted">—</span>
 											}
 										</td>
 
 										<!-- 3. Requested Quantity (with in-place stepper form) -->
-										<td style="padding:0.75rem 0.85rem; text-align:center;">
-											<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/customer/smart-order/%s/lines/%d/quantity", data.Run.PublicID, l.Line.ID)) } style="display:flex; align-items:center; justify-content:center; gap:0.25rem; margin:0;">
-												<div style="display:flex; align-items:center; border:1px solid var(--border); border-radius:var(--radius-md); overflow:hidden; background:var(--surface-sunken);">
-													<button type="button" class="btn btn-ghost btn-xs" style="width:22px; height:32px; padding:0; font-weight:900;" onclick="stepReviewQty(this, -1)">−</button>
+										<td class="so-review-cell so-review-qty">
+											<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/customer/smart-order/%s/lines/%d/quantity", data.Run.PublicID, l.Line.ID)) } class="so-quantity-form">
+												<div class="so-quantity-stepper">
+													<button type="button" class="btn btn-ghost btn-xs so-quantity-button" onclick="stepReviewQty(this, -1)">−</button>
 													<input
 														type="number"
 														name="quantity"
 														value={ fmt.Sprintf("%g", l.Line.EffectiveQty) }
 														min="1"
 														class="tabular-nums"
-														style="width:42px; height:32px; text-align:center; font-weight:800; border:none; background:transparent; font-size:0.825rem;"
+														class="tabular-nums so-quantity-input"
 													/>
-													<button type="button" class="btn btn-ghost btn-xs" style="width:22px; height:32px; padding:0; font-weight:900;" onclick="stepReviewQty(this, 1)">+</button>
+													<button type="button" class="btn btn-ghost btn-xs so-quantity-button" onclick="stepReviewQty(this, 1)">+</button>
 												</div>
-												<button type="submit" class="btn btn-secondary btn-xs fw-700" style="height:32px; padding:0 0.5rem;" title="حفظ الكمية">
+												<button type="submit" class="btn btn-secondary btn-xs fw-700 so-quantity-save" title="حفظ الكمية">
 													تعديل
 												</button>
 											</form>
 										</td>
 
 										<!-- 4. Matched Product -->
-										<td style="padding:0.75rem 1rem;">
+										<td class="so-review-cell so-review-match">
 											if l.Line.MatchedProductName != "" {
-												<div style="font-weight:700; color:var(--text);">
+												<div class="so-review-match-name">
 													{ l.Line.MatchedProductName }
 												</div>
 												if l.Line.MatchedProductID != nil {
-													<div style="font-size:0.7rem; color:var(--accent); font-family:monospace; font-weight:700;">
+													<div class="so-review-product-id">
 														#{ fmt.Sprintf("%d", *l.Line.MatchedProductID) }
 													</div>
 												}
 											} else {
-												<span class="badge badge-rose" style="font-size:0.7rem;">غير محدد</span>
+												<span class="badge badge-rose so-review-small-badge">غير محدد</span>
 											}
 										</td>
 
 										<!-- 5. Supplier & Selection Decision -->
-										<td style="padding:0.75rem 0.85rem;">
-											<div style="font-weight:700; color:var(--text);">
+										<td class="so-review-cell so-review-vendor">
+											<div class="so-review-vendor-name">
 												{ l.VendorName }
 											</div>
-											<div style="display:flex; align-items:center; gap:0.35rem; margin-top:2px; flex-wrap:wrap;">
-												<span class="badge badge-slate" style="font-size:0.65rem;">
+											<div class="so-review-vendor-meta">
+												<span class="badge badge-slate so-review-decision-badge">
 													{ decidedLabel(l.DecidedBy) }
 												</span>
 												if l.Alternatives > 0 {
-													<a href={ templ.SafeURL(fmt.Sprintf("/customer/smart-order/%s/lines/%d/candidates", data.Run.PublicID, l.Line.ID)) } class="btn btn-ghost btn-xs" style="font-size:0.675rem; padding:0 0.25rem; color:var(--accent); text-decoration:underline;">
+													<a href={ templ.SafeURL(fmt.Sprintf("/customer/smart-order/%s/lines/%d/candidates", data.Run.PublicID, l.Line.ID)) } class="btn btn-ghost btn-xs so-alternative-link">
 														{ fmt.Sprintf("بدلاء (%d)", l.Alternatives) }
 													</a>
 												}
@@ -260,46 +260,46 @@ templ SmartOrderReviewPage(lang, dir string, data SmartOrderReviewData) {
 										</td>
 
 										<!-- 6. Available Quantity -->
-										<td style="padding:0.75rem 0.75rem; text-align:center;">
+										<td class="so-review-cell so-review-stock">
 											if l.AvailableStock > 0 {
-												<span class="badge badge-emerald tabular-nums" style="font-size:0.75rem; font-weight:800;">
-													🟢 { fmt.Sprintf("%d", l.AvailableStock) } عبوة
+												<span class="badge badge-emerald tabular-nums so-stock-badge">
+													{ fmt.Sprintf("%d", l.AvailableStock) } عبوة
 												</span>
 											} else {
-												<span class="badge badge-rose" style="font-size:0.725rem; font-weight:700;">
+												<span class="badge badge-rose so-review-small-badge">
 													غير محدد
 												</span>
 											}
 										</td>
 
 										<!-- 7. Unit Price -->
-										<td style="padding:0.75rem 0.75rem; text-align:center;" class="td-numeric">
-											<div class="tabular-nums font-mono" style="font-weight:800; color:var(--text);">
+										<td class="so-review-cell so-review-price td-numeric">
+											<div class="tabular-nums font-mono so-review-price-value">
 												{ l.UnitPrice.String() } ج.م
 											</div>
 											if l.DiscountPct > 0 {
-												<span class="badge badge-emerald" style="font-size:0.65rem; padding:0.1rem 0.35rem;">
+												<span class="badge badge-emerald so-discount-badge">
 													خصم { fmt.Sprintf("%.0f%%", l.DiscountPct) }
 												</span>
 											}
 										</td>
 
 										<!-- 8. Subtotal -->
-										<td style="padding:0.75rem 0.85rem; text-align:center;" class="td-numeric">
-											<div class="tabular-nums font-mono" style="font-weight:900; font-size:0.95rem; color:var(--accent);">
+										<td class="so-review-cell so-review-total td-numeric">
+											<div class="tabular-nums font-mono so-review-line-total">
 												{ l.LineNet.String() } ج.م
 											</div>
 										</td>
 
 										<!-- 9. Status & Line Actions -->
-										<td style="padding:0.75rem 0.85rem; text-align:center;">
-											<div style="display:flex; align-items:center; justify-content:center; gap:0.4rem;">
-												<span class="badge badge-emerald" style="font-size:0.7rem; font-weight:800;">
-													جاهز للطلب ✓
+										<td class="so-review-cell so-review-status">
+											<div class="so-status-actions">
+												<span class="badge badge-emerald so-ready-badge">
+													جاهز للطلب
 												</span>
-												<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/customer/smart-order/%s/lines/%d/remove", data.Run.PublicID, l.Line.ID)) } style="margin:0;">
-													<button type="submit" class="btn btn-ghost btn-xs text-danger" style="width:24px; height:24px; padding:0; border-radius:var(--radius-full);" title="حذف الصنف من الطلب">
-														✕
+												<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/customer/smart-order/%s/lines/%d/remove", data.Run.PublicID, l.Line.ID)) } class="so-remove-form">
+													<button type="submit" class="btn btn-ghost btn-xs text-danger so-remove-button" title="حذف الصنف من الطلب">
+														حذف
 													</button>
 												</form>
 											</div>
@@ -316,15 +316,15 @@ templ SmartOrderReviewPage(lang, dir string, data SmartOrderReviewData) {
 
 			<!-- Excluded Items Section (if any) -->
 			if len(data.Excluded) > 0 {
-				<div class="card" style="padding:1.25rem 1.5rem; background:var(--surface-raised); border:1px dashed var(--border); border-radius:var(--radius-2xl);">
-					<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
-						<div style="display:flex; align-items:center; gap:0.5rem;">
+				<div class="card so-excluded-card">
+					<div class="so-excluded-header">
+						<div class="so-excluded-heading">
 							<span class="so-warning-icon" aria-hidden="true"></span>
-							<div>
-								<h3 style="font-size:0.95rem; font-weight:800; color:var(--text); margin:0;">
+							<div class="so-excluded-details">
+								<h3 class="so-excluded-title">
 									أصناف مستبعدة ولن تُطلب تلقائياً ({ fmt.Sprintf("%d", len(data.Excluded)) } صنف)
 								</h3>
-								<div style="font-size:0.775rem; color:var(--text-secondary); margin-top:2px;">
+								<div class="so-excluded-description">
 									هذه الأصناف لم تكتمل شروط توريدها (بسبب عدم التطابق أو عدم توفر مورد أو نفاد المخزون).
 								</div>
 							</div>
@@ -334,40 +334,40 @@ templ SmartOrderReviewPage(lang, dir string, data SmartOrderReviewData) {
 						</a>
 					</div>
 
-					<div class="table-responsive" style="overflow-x:auto;">
-						<table class="table" style="margin:0; width:100%; border-collapse:collapse; font-size:0.825rem;">
+					<div class="table-responsive so-excluded-table-wrap">
+						<table class="table so-excluded-table">
 							<thead>
-								<tr style="background:var(--surface-sunken); border-bottom:1px solid var(--border); font-size:0.775rem; color:var(--text-secondary);">
-									<th style="padding:0.6rem 0.75rem;">اسم الصنف المطلوب</th>
-									<th style="padding:0.6rem 0.75rem; width:100px;">كود SKU</th>
-									<th style="padding:0.6rem 0.75rem; width:90px; text-align:center;">الكمية</th>
-									<th style="padding:0.6rem 0.75rem; width:160px; text-align:center;">سبب الاستبعاد / الحالة</th>
-									<th style="padding:0.6rem 0.75rem; width:120px; text-align:center;">الإجراء</th>
+								<tr class="so-excluded-table-head">
+									<th>اسم الصنف المطلوب</th>
+									<th class="so-excluded-col-sku">كود SKU</th>
+									<th class="so-excluded-col-qty">الكمية</th>
+									<th class="so-excluded-col-reason">سبب الاستبعاد / الحالة</th>
+									<th class="so-excluded-col-action">الإجراء</th>
 								</tr>
 							</thead>
 							<tbody>
 								for _, l := range data.Excluded {
-									<tr style="border-bottom:1px solid var(--border);">
-										<td style="padding:0.6rem 0.75rem; font-weight:700; color:var(--text);">
+									<tr>
+										<td class="so-excluded-name">
 											{ l.RawName }
 										</td>
-										<td style="padding:0.6rem 0.75rem;">
+										<td class="so-excluded-cell">
 											if l.RawSKU != "" {
-												<span class="badge badge-slate" style="font-size:0.7rem;">{ l.RawSKU }</span>
+												<span class="badge badge-slate so-review-small-badge">{ l.RawSKU }</span>
 											} else {
-												<span style="color:var(--text-secondary);">-</span>
+												<span class="so-review-muted">-</span>
 											}
 										</td>
-										<td style="padding:0.6rem 0.75rem; text-align:center; font-weight:800;" class="tabular-nums">
+										<td class="so-excluded-cell so-excluded-qty tabular-nums">
 											{ fmt.Sprintf("%g", l.EffectiveQty) }
 										</td>
-										<td style="padding:0.6rem 0.75rem; text-align:center;">
-											<span style={ outcomeChip(l.Outcome) }>
+										<td class="so-excluded-cell so-excluded-reason">
+											<span class={ outcomeChip(l.Outcome) }>
 												{ SmartOrderOutcomeLabel(l.Outcome) }
 											</span>
 										</td>
-										<td style="padding:0.6rem 0.75rem; text-align:center;">
-											<a href={ templ.SafeURL(fmt.Sprintf("/customer/smart-order/%s/results?q=%s", data.Run.PublicID, l.RawName)) } class="btn btn-secondary btn-xs fw-700" style="padding:0.2rem 0.5rem; font-size:0.725rem;">
+										<td class="so-excluded-cell so-excluded-action">
+											<a href={ templ.SafeURL(fmt.Sprintf("/customer/smart-order/%s/results?q=%s", data.Run.PublicID, l.RawName)) } class="btn btn-secondary btn-xs fw-700 so-link-button">
 												ربط الصنف
 											</a>
 										</td>
@@ -380,29 +380,28 @@ templ SmartOrderReviewPage(lang, dir string, data SmartOrderReviewData) {
 			}
 
 			<!-- Bottom Sticky Placement Action Bar -->
-			<div class="card" style="padding:1.25rem 1.75rem; background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-2xl); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1.25rem; box-shadow:var(--shadow-md);">
+			<div class="card so-finalize-bar">
 				<div>
-					<div style="font-size:0.8rem; color:var(--text-secondary); font-weight:700;">إجمالي الطلب الشامل:</div>
-					<div class="tabular-nums" style="font-size:1.6rem; font-weight:900; color:var(--accent);">
-						{ data.Run.EstimatedTotal.String() } <span style="font-size:0.95rem; font-weight:800; color:var(--text-secondary);">ج.م</span>
+					<div class="so-finalize-label">إجمالي الطلب الشامل:</div>
+					<div class="tabular-nums so-finalize-total">
+						{ data.Run.EstimatedTotal.String() } <span class="so-finalize-currency">ج.م</span>
 					</div>
-					<div style="font-size:0.75rem; color:var(--text-secondary);">
+					<div class="so-finalize-note">
 						{ fmt.Sprintf("سيتم إنشاء %d أوامر شراء منفصلة ومباشرة للموردين المحددين", len(data.Groups)) }
 					</div>
 				</div>
 
-				<div style="display:flex; align-items:center; gap:0.85rem;">
-					<a href={ templ.SafeURL(fmt.Sprintf("/customer/smart-order/%s/results", data.Run.PublicID)) } class="btn btn-secondary fw-700" style="padding:0.75rem 1.25rem;">
+				<div class="so-finalize-actions">
+					<a href={ templ.SafeURL(fmt.Sprintf("/customer/smart-order/%s/results", data.Run.PublicID)) } class="btn btn-secondary fw-700 so-finalize-secondary">
 						تعديل المطابقة
 					</a>
-					<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/customer/smart-order/%s/finalize", data.Run.PublicID)) } style="margin:0;">
+					<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/customer/smart-order/%s/finalize", data.Run.PublicID)) } class="so-finalize-form">
 						<button
 							type="submit"
-							class="btn btn-primary"
-							style="font-weight:900; padding:0.75rem 2rem; font-size:1rem; border-radius:var(--radius-xl); box-shadow:0 4px 14px rgba(37,99,235,0.35);"
+							class="btn btn-primary so-finalize-primary"
 							disabled?={ len(data.Groups) == 0 }
 						>
-							<span>اعتماد الطلب وإرسال أوامر الشراء ✓</span>
+							<span>اعتماد الطلب وإرسال أوامر الشراء</span>
 						</button>
 					</form>
 				</div>

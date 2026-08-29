@@ -133,9 +133,9 @@ templ savingUploadStage(view SavingImportView) {
 		</p>
 
 		<form method="POST" action={ templ.SafeURL(view.ImportURL + "/upload") } enctype="multipart/form-data" hx-boost="false">
-			<label class="dropzone" id="saving-dropzone" style="cursor: pointer;">
-				<input type="file" name="file" accept=".xlsx,.xls,.csv" required style="display: none;" onchange="handleSavingFileSelect(this)" />
-				<div style="font-size: 2.5rem;">📊</div>
+			<label class="dropzone saving-dropzone" id="saving-dropzone">
+				<input type="file" name="file" accept=".xlsx,.xls,.csv" required class="visually-hidden" onchange="handleSavingFileSelect(this)" />
+				<div class="saving-upload-mark" aria-hidden="true"></div>
 				<div class="dropzone-title" id="dropzone-title">اضغط لاختيار الملف أو اسحبه وأفلته هنا</div>
 				<div class="dropzone-hint" id="dropzone-hint">الصيغ المدعومة: Excel (.xlsx, .xls) و CSV — الحجم الأقصى: 30 ميجابايت</div>
 			</label>
@@ -187,10 +187,10 @@ templ savingSessionsHistoryCard(view SavingImportView) {
 					<thead>
 						<tr>
 							<th>اسم الملف</th>
-							<th style="width: 140px;">تاريخ الجلسة</th>
-							<th style="width: 100px; text-align: center;">عدد الأصناف</th>
-							<th style="width: 120px; text-align: center;">الحالة</th>
-							<th style="width: 180px; text-align: center;">الإجراءات</th>
+							<th class="saving-col-date">تاريخ الجلسة</th>
+							<th class="saving-col-count">عدد الأصناف</th>
+							<th class="saving-col-status">الحالة</th>
+							<th class="saving-col-actions">الإجراءات</th>
 						</tr>
 					</thead>
 					<tbody>
@@ -198,7 +198,7 @@ templ savingSessionsHistoryCard(view SavingImportView) {
 							<tr>
 								<td class="fw-700">
 									<div class="row-center-xs gap-xs">
-										<span>📄</span>
+										<span class="saving-file-mark" aria-hidden="true"></span>
 										<span>{ sess.Filename }</span>
 									</div>
 								</td>
@@ -229,9 +229,9 @@ templ savingSessionsHistoryCard(view SavingImportView) {
 											</a>
 										}
 										<form method="POST" action={ templ.SafeURL(fmt.Sprintf("%s/%s/cancel", view.ImportURL, sess.ID)) }
-											onsubmit="return confirm('هل أنت متأكد من حذف هذه الجلسة والبيانات المؤقتة الخاصة بها؟');" style="display: inline;">
+											onsubmit="return confirm('هل أنت متأكد من حذف هذه الجلسة والبيانات المؤقتة الخاصة بها؟');" class="saving-delete-form">
 											<button type="submit" class="btn btn-ghost btn-xs text-danger" title="حذف الجلسة">
-												✕
+												حذف
 											</button>
 										</form>
 									</div>
@@ -324,7 +324,7 @@ templ savingMappingStage(view SavingImportView) {
 templ savingCompletedStage(view SavingImportView) {
 	{{ sess := view.Session }}
 	<div class="card text-center p-xl">
-		<div style="font-size: 3rem; margin-bottom: 0.5rem;">🎉</div>
+		<div class="saving-complete-mark" aria-hidden="true"></div>
 		<h2 class="wiz-head mb-sm">تم بنجاح استيراد وحفظ قائمة التوفير</h2>
 		<p class="wiz-sub mb-lg">
 			تم حفظ وتحديث <strong>{ fmt.Sprint(sess.InsertedCount + sess.UpdatedCount) }</strong> صنفاً في قائمة أدوية التوفير الخاصة بك بنجاح.

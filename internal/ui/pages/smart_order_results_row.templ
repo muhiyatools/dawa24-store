@@ -6,43 +6,43 @@ import (
 )
 
 templ smartOrderResultRow(data SmartOrderResultsData, l *smartorder.Line) {
-	<tr style="border-bottom:1px solid var(--border);">
+	<tr class="so-results-row">
 		<!-- Row Number -->
-		<td style="padding:0.85rem 0.75rem; text-align:center; font-weight:700; color:var(--text-muted); font-size:0.8rem;" class="tabular-nums">
+		<td class="so-results-cell so-results-index tabular-nums">
 			{ fmt.Sprintf("%d", l.RowNumber) }
 		</td>
 
 		<!-- Raw Name & Details -->
-		<td style="padding:0.85rem 1rem;">
-			<div style="font-weight:700; font-size:0.9rem; color:var(--text); line-height:1.4;">
+		<td class="so-results-cell so-results-item">
+			<div class="so-results-item-name">
 				{ l.RawName }
 			</div>
-			<div style="display:flex; align-items:center; flex-wrap:wrap; gap:0.4rem; margin-top:0.25rem;">
+			<div class="so-results-item-meta">
 				if l.RawSKU != "" {
-					<span class="badge badge-slate" style="font-size:0.7rem;">كود: { l.RawSKU }</span>
+					<span class="badge badge-slate so-results-meta-badge">كود: { l.RawSKU }</span>
 				}
 				if l.RawBarcode != "" {
-					<span class="badge badge-outline" style="font-size:0.7rem;">باركود: { l.RawBarcode }</span>
+					<span class="badge badge-outline so-results-meta-badge">باركود: { l.RawBarcode }</span>
 				}
 				if l.QtyParseNote != "" {
-					<span style="font-size:0.725rem; color:var(--warning); font-weight:600;">({ l.QtyParseNote })</span>
+					<span class="so-results-qty-note">({ l.QtyParseNote })</span>
 				}
 			</div>
 		</td>
 
 		<!-- Catalog Matched Product Cell with In-Cell Dropdown -->
-		<td style="padding:0.85rem 1rem; position:relative;" class="catalog-cell-container">
-			<div style="display:flex; align-items:center; justify-content:space-between; gap:0.5rem; flex-wrap:wrap;">
+		<td class="so-results-cell so-results-match catalog-cell-container">
+			<div class="so-catalog-match">
 				if l.Matched() {
-					<div style="display:flex; flex-direction:column; gap:0.15rem;">
-						<div style="font-weight:700; font-size:0.875rem; color:var(--text);">
+					<div class="so-catalog-product">
+						<div class="so-catalog-product-name">
 							if l.MatchedProductName != "" {
 								{ l.MatchedProductName }
 							} else {
 								صنف كتالوج #{ fmt.Sprintf("%d", *l.MatchedProductID) }
 							}
 						</div>
-						<div style="font-size:0.725rem; color:var(--accent); font-family:monospace; font-weight:700;">
+						<div class="so-catalog-product-id">
 							#{ fmt.Sprintf("%d", *l.MatchedProductID) }
 						</div>
 					</div>
@@ -53,11 +53,11 @@ templ smartOrderResultRow(data SmartOrderResultsData, l *smartorder.Line) {
 						class="btn btn-secondary btn-xs fw-700"
 						onclick="toggleCatalogDropdown(this)"
 						title="تغيير الصنف المربوط بالكتالوج">
-						🔄 تغيير
+						تغيير
 					</button>
 				} else {
-					<div style="display:flex; align-items:center; gap:0.4rem;">
-						<span class="badge badge-rose" style="font-size:0.75rem; font-weight:700;">
+					<div class="so-catalog-unmatched">
+						<span class="badge badge-rose so-results-status-badge">
 							غير مطابق بالكتالوج
 						</span>
 					</div>
@@ -68,14 +68,13 @@ templ smartOrderResultRow(data SmartOrderResultsData, l *smartorder.Line) {
 						class="btn btn-primary btn-xs fw-700"
 						onclick="toggleCatalogDropdown(this)"
 						title="بحث وربط بالكتالوج المركزي">
-						🔍 ربط
+						ربط
 					</button>
 				}
 			</div>
 
 			<!-- In-Cell Search Dropdown Menu -->
 			<div id={ fmt.Sprintf("catalog-dropdown-%d", l.ID) }
-				class="combobox-menu"
 				data-public-id={ data.Run.PublicID }
 				data-match={ data.Match }
 				data-sort={ data.SortBy }
@@ -83,30 +82,29 @@ templ smartOrderResultRow(data SmartOrderResultsData, l *smartorder.Line) {
 				data-page={ fmt.Sprint(data.Page) }
 				data-limit={ fmt.Sprint(data.PerPage) }
 				data-search={ data.Search }
-				style="display:none; position:absolute; top:calc(100% + 4px); inset-inline-start:0; min-width:340px; max-width:440px; z-index:100; padding:0.75rem; background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-xl); box-shadow:var(--shadow-xl);">
+				class="combobox-menu so-catalog-dropdown">
 				
-				<div style="margin-bottom:0.5rem;">
+				<div class="so-catalog-search">
 					<input
 						type="text"
 						placeholder="ابحث بالاسم أو SKU في الكتالوج المركزي..."
 						data-line-id={ fmt.Sprint(l.ID) }
-						class="form-control"
-						style="padding:0.4rem 0.65rem; font-size:0.85rem; width:100%; height:36px;"
+						class="form-control so-catalog-search-input"
 						oninput="onDropdownSearchInput(this)"
 					/>
 				</div>
 
-				<div id={ fmt.Sprintf("dropdown-results-%d", l.ID) } style="max-height:220px; overflow-y:auto; display:flex; flex-direction:column; gap:0.35rem;">
-					<div style="text-align:center; color:var(--text-muted); padding:0.75rem; font-size:0.775rem;">
+				<div id={ fmt.Sprintf("dropdown-results-%d", l.ID) } class="so-catalog-results">
+					<div class="so-catalog-empty">
 						جارٍ البحث في الكتالوج...
 					</div>
 				</div>
 
 				if l.Matched() {
-					<div style="border-top:1px solid var(--border); padding-top:0.5rem; margin-top:0.5rem;">
-						<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/customer/smart-order/%s/lines/%d/match?product_id=0&match=%s&sort=%s&order=%s&page=%d&limit=%d&q=%s", data.Run.PublicID, l.ID, data.Match, data.SortBy, data.SortOrder, data.Page, data.PerPage, data.Search)) } style="margin:0;">
-							<button type="submit" class="btn btn-ghost btn-xs text-danger" style="width:100%; text-align:start; justify-content:flex-start;">
-								✕ إلغاء الربط (جعله غير مطابق)
+					<div class="so-catalog-unlink">
+						<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/customer/smart-order/%s/lines/%d/match?product_id=0&match=%s&sort=%s&order=%s&page=%d&limit=%d&q=%s", data.Run.PublicID, l.ID, data.Match, data.SortBy, data.SortOrder, data.Page, data.PerPage, data.Search)) } class="so-catalog-unlink-form">
+							<button type="submit" class="btn btn-ghost btn-xs text-danger so-catalog-unlink-button">
+								إلغاء الربط (جعله غير مطابق)
 							</button>
 						</form>
 					</div>
@@ -115,29 +113,29 @@ templ smartOrderResultRow(data SmartOrderResultsData, l *smartorder.Line) {
 		</td>
 
 		<!-- Match Method -->
-		<td style="padding:0.85rem 0.75rem; text-align:center;">
-			<span class="badge badge-slate" style="font-size:0.75rem; font-weight:600;">
+		<td class="so-results-cell so-results-method">
+			<span class="badge badge-slate so-results-method-badge">
 				{ MatchMethodLabel(l.MatchMethod) }
 			</span>
 		</td>
 
 		<!-- Confidence Score -->
-		<td style="padding:0.85rem 0.75rem; text-align:center; font-weight:700; font-size:0.85rem;" class="tabular-nums">
+		<td class="so-results-cell so-results-confidence tabular-nums">
 			if l.MatchConfidence > 0 {
 				{ fmt.Sprintf("%.0f%%", l.MatchConfidence*100) }
 			} else {
-				<span style="color:var(--text-muted);">—</span>
+				<span class="so-results-muted">—</span>
 			}
 		</td>
 
 		<!-- Quantity -->
-		<td style="padding:0.85rem 0.75rem; text-align:center; font-weight:800; font-size:0.9rem;" class="tabular-nums">
+		<td class="so-results-cell so-results-quantity tabular-nums">
 			{ fmt.Sprintf("%g", l.EffectiveQty) }
 		</td>
 
 		<!-- Outcome Status Badge -->
-		<td style="padding:0.85rem 1rem; text-align:center;">
-			<span style={ outcomeChip(l.Outcome) }>
+		<td class="so-results-cell so-results-outcome">
+			<span class={ outcomeChip(l.Outcome) }>
 				{ SmartOrderOutcomeLabel(l.Outcome) }
 			</span>
 		</td>
@@ -157,14 +155,14 @@ templ smartOrderScript() {
 
 			if (activeDropdownLineId && activeDropdownLineId !== lineId) {
 				var prev = document.getElementById('catalog-dropdown-' + activeDropdownLineId);
-				if (prev) prev.style.display = 'none';
+				if (prev) prev.classList.remove('is-open');
 			}
 
-			if (dropdown.style.display === 'block') {
-				dropdown.style.display = 'none';
+			if (dropdown.classList.contains('is-open')) {
+				dropdown.classList.remove('is-open');
 				activeDropdownLineId = null;
 			} else {
-				dropdown.style.display = 'block';
+				dropdown.classList.add('is-open');
 				activeDropdownLineId = lineId;
 				var input = dropdown.querySelector('input[type="text"]');
 				if (input) {
@@ -180,7 +178,7 @@ templ smartOrderScript() {
 		function closeAllDropdowns() {
 			if (activeDropdownLineId) {
 				var el = document.getElementById('catalog-dropdown-' + activeDropdownLineId);
-				if (el) el.style.display = 'none';
+				if (el) el.classList.remove('is-open');
 				activeDropdownLineId = null;
 			}
 		}
@@ -213,31 +211,28 @@ templ smartOrderScript() {
 			var search = dropdown.getAttribute('data-search') || '';
 
 			if (!query) {
-				resultsBox.innerHTML = '<div style="text-align:center; color:var(--text-muted); padding:0.75rem; font-size:0.775rem;">يرجى كتابة اسم الصنف للبحث</div>';
+				resultsBox.innerHTML = '<div class="so-catalog-empty">يرجى كتابة اسم الصنف للبحث</div>';
 				return;
 			}
 
-			resultsBox.innerHTML = '<div style="text-align:center; color:var(--text-muted); padding:0.75rem; font-size:0.775rem;">جارٍ البحث في الكتالوج المركزي...</div>';
+			resultsBox.innerHTML = '<div class="so-catalog-empty">جارٍ البحث في الكتالوج المركزي...</div>';
 
 			fetch('/customer/smart-order/' + encodeURIComponent(publicId) + '/catalog-search?q=' + encodeURIComponent(query))
 				.then(function(res) { return res.json(); })
 				.then(function(data) {
 					if (!data || data.length === 0) {
-						resultsBox.innerHTML = '<div style="text-align:center; color:var(--text-muted); padding:0.75rem; font-size:0.775rem;">لم يتم العثور على نتائج في الكتالوج</div>';
+						resultsBox.innerHTML = '<div class="so-catalog-empty">لم يتم العثور على نتائج في الكتالوج</div>';
 						return;
 					}
 					resultsBox.innerHTML = '';
 					data.forEach(function(p) {
 						var card = document.createElement('div');
-						card.style.background = 'var(--surface-sunken)';
-						card.style.border = '1px solid var(--border)';
-						card.style.borderRadius = 'var(--radius-lg)';
-						card.style.padding = '0.5rem 0.75rem';
+						card.className = 'so-catalog-result';
 
 						var form = document.createElement('form');
 						form.method = 'POST';
 						form.action = '/customer/smart-order/' + encodeURIComponent(publicId) + '/lines/' + encodeURIComponent(lineId) + '/match?match=' + encodeURIComponent(match) + '&sort=' + encodeURIComponent(sortBy) + '&order=' + encodeURIComponent(sortOrder) + '&page=' + encodeURIComponent(page) + '&limit=' + encodeURIComponent(limit) + '&q=' + encodeURIComponent(search);
-						form.style.margin = '0';
+						form.className = 'so-catalog-result-form';
 
 						var hiddenInput = document.createElement('input');
 						hiddenInput.type = 'hidden';
@@ -247,27 +242,16 @@ templ smartOrderScript() {
 
 						var btn = document.createElement('button');
 						btn.type = 'submit';
-						btn.className = 'btn btn-ghost btn-xs';
-						btn.style.display = 'flex';
-						btn.style.justifyContent = 'space-between';
-						btn.style.alignItems = 'center';
-						btn.style.width = '100%';
-						btn.style.padding = '0';
-						btn.style.textAlign = 'start';
-						btn.style.color = 'var(--text)';
+						btn.className = 'btn btn-ghost btn-xs so-catalog-result-button';
 
 						var info = document.createElement('div');
 						var nameDiv = document.createElement('div');
-						nameDiv.style.fontWeight = '700';
-						nameDiv.style.fontSize = '0.8rem';
-						nameDiv.style.color = 'var(--text)';
+						nameDiv.className = 'so-catalog-result-name';
 						nameDiv.textContent = p.name_ar || p.name_en || 'بدون اسم';
 						info.appendChild(nameDiv);
 
 						var metaDiv = document.createElement('div');
-						metaDiv.style.fontSize = '0.7rem';
-						metaDiv.style.color = 'var(--text-muted)';
-						metaDiv.style.marginTop = '2px';
+						metaDiv.className = 'so-catalog-result-meta';
 						var metaText = '';
 						if (p.sku) metaText += 'SKU: ' + p.sku + ' ';
 						if (p.dosage_form) metaText += '· ' + p.dosage_form + ' ';
@@ -278,9 +262,7 @@ templ smartOrderScript() {
 						btn.appendChild(info);
 
 						var badge = document.createElement('span');
-						badge.className = 'badge badge-primary';
-						badge.style.fontSize = '0.7rem';
-						badge.style.fontWeight = '700';
+						badge.className = 'badge badge-primary so-catalog-result-badge';
 						badge.textContent = 'اختيار';
 						btn.appendChild(badge);
 
@@ -290,7 +272,7 @@ templ smartOrderScript() {
 					});
 				})
 				.catch(function() {
-					resultsBox.innerHTML = '<div style="text-align:center; color:var(--danger); padding:0.75rem; font-size:0.775rem;">تعذر تحميل النتائج</div>';
+					resultsBox.innerHTML = '<div class="so-catalog-empty so-catalog-error">تعذر تحميل النتائج</div>';
 				});
 		}
 	</script>
