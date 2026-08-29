@@ -254,13 +254,23 @@ templ savingMappingStage(view SavingImportView) {
 			</div>
 
 			<div>
-				<label class="form-label">استراتيجية المطابقة مع الكتالوج المركزي العام</label>
+				<label class="form-label">استراتيجية المطابقة مع الكتالوج المركزي</label>
 				<select name="match_strategy" class="form-select">
-					<option value="smart_auto" selected>🤖 المطابقة الذكية التلقائية (ذكاء اصطناعي + نصوص + باركود - موصى بها)</option>
-					<option value="barcode_first">🔍 المطابقة بالباركود وكود SKU أولاً</option>
-					<option value="name_exact">📝 المطابقة بالاسم الدقيق فقط</option>
-					<option value="none">🚫 بدون مطابقة تلقائية (إدراج الأصناف كما هي للربط اليدوي)</option>
+					<option value="smart_auto" selected>⚡ المطابقة الكاملة: المعرف ثم الكود ثم الاسم (موصى بها)</option>
+					<option value="sku_only">🔢 بالكود والباركود فقط</option>
+					<option value="name_only">📝 بالاسم فقط (تجاهل أكواد الصيدلية الداخلية)</option>
+					<option value="id_only">🆔 بمعرف المنتج في دواء 24 فقط</option>
+					<option value="none">🚫 بدون مطابقة تلقائية (للربط اليدوي)</option>
 				</select>
+				<p class="wiz-sub mt-xs">
+					تعمل المطابقة الحتمية دائماً وبدون تكلفة. كل صنف تحسمه لا يُرسل إلى أي خدمة خارجية.
+				</p>
+			</div>
+
+			<div>
+				@WizardToggles([]WizardToggle{
+					AIToggle("use_ai", false, view.AIAvailable, view.AIUnavailableReason),
+				}, GroupAI)
 			</div>
 
 			<div class="flex-between items-center mt-md">

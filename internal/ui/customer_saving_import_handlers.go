@@ -32,12 +32,14 @@ func (h *UIHandler) CustomerSavingProductsImportPage(w http.ResponseWriter, r *h
 	noticeMsg := r.URL.Query().Get("notice")
 
 	view := pages.SavingImportView{
-		Audience:   "customer",
-		BaseURL:    "/customer/saving-products",
-		ImportURL:  "/customer/saving-products/import",
-		Sessions:   sessions,
-		NoticeType: noticeType,
-		NoticeMsg:  noticeMsg,
+		AIAvailable:         h.matchEnhancer != nil,
+		AIUnavailableReason: savingAIUnavailableReason(h.matchEnhancer),
+		Audience:            "customer",
+		BaseURL:             "/customer/saving-products",
+		ImportURL:           "/customer/saving-products/import",
+		Sessions:            sessions,
+		NoticeType:          noticeType,
+		NoticeMsg:           noticeMsg,
 	}
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
@@ -165,15 +167,17 @@ func (h *UIHandler) CustomerSavingProductsImportSessionPage(w http.ResponseWrite
 	noticeMsg := r.URL.Query().Get("notice")
 
 	view := pages.SavingImportView{
-		Audience:   "customer",
-		BaseURL:    "/customer/saving-products",
-		ImportURL:  "/customer/saving-products/import",
-		Session:    session,
-		Filter:     filter,
-		Rows:       rows,
-		RowTotal:   total,
-		NoticeType: noticeType,
-		NoticeMsg:  noticeMsg,
+		AIAvailable:         h.matchEnhancer != nil,
+		AIUnavailableReason: savingAIUnavailableReason(h.matchEnhancer),
+		Audience:            "customer",
+		BaseURL:             "/customer/saving-products",
+		ImportURL:           "/customer/saving-products/import",
+		Session:             session,
+		Filter:              filter,
+		Rows:                rows,
+		RowTotal:            total,
+		NoticeType:          noticeType,
+		NoticeMsg:           noticeMsg,
 	}
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")

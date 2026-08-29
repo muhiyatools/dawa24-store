@@ -23,14 +23,10 @@ package pipeline
 
 import (
 	"context"
-	"crypto/sha256"
-	"encoding/hex"
-	"sort"
-	"strconv"
-	"strings"
 	"time"
 
 	"github.com/muhiya/dawa24-store/internal/modules/smartorder"
+	"github.com/muhiya/dawa24-store/internal/shared/matchflow"
 	"github.com/muhiya/dawa24-store/internal/shared/productmatch"
 )
 
@@ -225,18 +221,11 @@ func decisionKey(r Review) string {
 	for _, c := range r.Candidates {
 		ids = append(ids, c.ProductID)
 	}
-	sort.Slice(ids, func(i, j int) bool { return ids[i] < ids[j] })
+	return matchflow.DecisionKey(r.Line.NormName, ids)
+}
 
-	var b strings.Builder
-	b.WriteString(r.Line.NormName)
-	b.WriteByte('\x1f')
-	for _, id := range ids {
-		b.WriteString(strconv.FormatInt(id, 10))
-		b.WriteByte(',')
-	}
-	b.WriteByte('\x1f')
-	b.WriteString(PromptVersion)
-
-	sum := sha256.Sum256([]byte(b.String()))
-	return hex.EncodeToString(sum[:])
+// DebugDecisionKey exposes the cache key for the cross-module test that asserts
+// this pipeline and the vendor import hash the same question identically.
+func DebugDecisionKey(normName string, candidateIDs []int64) string {
+	return matchflow.DecisionKey(normName, candidateIDs)
 }

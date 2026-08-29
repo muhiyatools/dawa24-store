@@ -20,38 +20,42 @@ type AdminTranslationsData struct {
 
 templ AdminTranslations(data AdminTranslationsData, lang string, dir string) {
 	@layouts.AdminShell("اللغات وإدارة الترجمة والتدويل (i18n)", "translations", lang, dir) {
-		<div style="display:flex; flex-direction:column; gap:1.75rem;">
+		<div class="page-container">
 			<!-- Header Banner -->
-			<div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:1rem; border-bottom:1px solid var(--border); padding-bottom:1.25rem;">
-				<div>
-					<div style="display:flex; align-items:center; gap:0.6rem; margin-bottom:0.35rem;">
-						<span style="font-size:1.5rem;">🌐</span>
-						<h2 style="font-size:1.4rem; font-weight:800; color:var(--text); margin:0;">
-							{ i18n.T(lang, "admin.translations_title") }
-						</h2>
-						<span class="badge badge-sky" style="font-size:0.725rem;">i18n Dynamic Engine</span>
+			<div class="glass-panel p-6 mb-0">
+				<div class="flex-between items-center flex-wrap gap-4">
+					<div>
+						<div class="d-flex items-center gap-3 mb-1">
+							<div class="user-avatar-badge text-xl">
+								🌐
+							</div>
+							<h1 class="text-2xl font-black text-primary m-0">
+								{ i18n.T(lang, "admin.translations_title") }
+							</h1>
+							<span class="badge badge-sky text-xs font-bold font-mono">i18n Engine</span>
+						</div>
+						<p class="text-sm text-secondary m-0 mt-1 max-w-2xl">
+							{ i18n.T(lang, "admin.translations_sub") }
+						</p>
 					</div>
-					<p style="font-size:0.875rem; color:var(--text-secondary); margin:0; max-width:680px; line-height:1.6;">
-						{ i18n.T(lang, "admin.translations_sub") }
-					</p>
-				</div>
-				<div style="display:flex; align-items:center; gap:0.75rem;">
-					<form method="POST" action="/admin/translations/sync" style="margin:0;">
-						<button type="submit" class="btn btn-secondary btn-sm fw-700" title="مزامنة وتحديث كافة المفاتيح الافتراضية من الكود إلى قاعدة البيانات">
-							@components.IconRefresh("icon-xs")
-							<span>{ i18n.T(lang, "admin.translations_sync") }</span>
-						</button>
-					</form>
+					<div class="d-flex items-center gap-2">
+						<form method="POST" action="/admin/translations/sync" class="m-0">
+							<button type="submit" class="btn btn-secondary font-bold gap-2" title="مزامنة وتحديث كافة المفاتيح الافتراضية من الكود إلى قاعدة البيانات">
+								@components.IconRefresh("icon-xs")
+								<span>{ i18n.T(lang, "admin.translations_sync") }</span>
+							</button>
+						</form>
+					</div>
 				</div>
 			</div>
 
 			<!-- Stats Row -->
-			<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:1rem;">
-				<div class="card" style="padding:1.25rem; background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-xl);">
-					<div style="font-size:0.8rem; font-weight:600; color:var(--text-muted); margin-bottom:0.35rem;">
+			<div class="dashboard-stat-grid mb-0">
+				<div class="stat-card-3d">
+					<div class="stat-card-label">
 						{ i18n.T(lang, "admin.translations_total_keys") }
 					</div>
-					<div style="font-size:1.75rem; font-weight:800; color:var(--text);" class="tabular-nums">
+					<div class="stat-card-value text-primary tabular-nums mt-1">
 						if data.Stats != nil {
 							{ fmt.Sprintf("%d", data.Stats.TotalKeys) }
 						} else {
@@ -60,11 +64,11 @@ templ AdminTranslations(data AdminTranslationsData, lang string, dir string) {
 					</div>
 				</div>
 
-				<div class="card" style="padding:1.25rem; background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-xl);">
-					<div style="font-size:0.8rem; font-weight:600; color:var(--text-muted); margin-bottom:0.35rem;">
+				<div class="stat-card-3d">
+					<div class="stat-card-label">
 						{ i18n.T(lang, "admin.translations_custom_overrides") }
 					</div>
-					<div style="font-size:1.75rem; font-weight:800; color:var(--accent);" class="tabular-nums">
+					<div class="stat-card-value text-brand tabular-nums mt-1">
 						if data.Stats != nil {
 							{ fmt.Sprintf("%d", data.Stats.CustomOverrides) }
 						} else {
@@ -73,11 +77,11 @@ templ AdminTranslations(data AdminTranslationsData, lang string, dir string) {
 					</div>
 				</div>
 
-				<div class="card" style="padding:1.25rem; background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-xl);">
-					<div style="font-size:0.8rem; font-weight:600; color:var(--text-muted); margin-bottom:0.35rem;">
+				<div class="stat-card-3d">
+					<div class="stat-card-label">
 						{ i18n.T(lang, "admin.translations_namespaces") }
 					</div>
-					<div style="font-size:1.75rem; font-weight:800; color:var(--text);" class="tabular-nums">
+					<div class="stat-card-value text-primary tabular-nums mt-1">
 						if data.Stats != nil {
 							{ fmt.Sprintf("%d", data.Stats.TotalNamespaces) }
 						} else {
@@ -88,21 +92,20 @@ templ AdminTranslations(data AdminTranslationsData, lang string, dir string) {
 			</div>
 
 			<!-- Search & Filter Controls -->
-			<div class="card" style="padding:1rem 1.25rem; background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-xl);">
-				<form method="GET" action="/admin/translations" style="display:flex; flex-wrap:wrap; gap:0.75rem; align-items:center;">
-					<div style="flex:1; min-width:260px; position:relative;">
+			<div class="glass-panel p-4 mb-0">
+				<form method="GET" action="/admin/translations" class="d-flex flex-wrap gap-3 items-center m-0">
+					<div class="flex-1" style="min-width:240px;">
 						<input
 							type="text"
 							name="q"
 							value={ data.Query }
 							placeholder={ i18n.T(lang, "common.search_placeholder") }
-							class="form-control"
-							style="width:100%; height:40px;"
+							class="form-input text-xs w-full"
 						/>
 					</div>
 
 					<div style="min-width:180px;">
-						<select name="ns" class="form-select" style="height:40px; width:100%;">
+						<select name="ns" class="form-select text-xs w-full">
 							<option value="">{ i18n.T(lang, "admin.translations_all_namespaces") }</option>
 							for _, ns := range data.Namespaces {
 								<option value={ ns } selected?={ data.SelectedNS == ns }>{ ns }</option>
@@ -110,20 +113,20 @@ templ AdminTranslations(data AdminTranslationsData, lang string, dir string) {
 						</select>
 					</div>
 
-					<div style="min-width:160px;">
-						<select name="custom" class="form-select" style="height:40px; width:100%;">
+					<div style="min-width:150px;">
+						<select name="custom" class="form-select text-xs w-full">
 							<option value="">{ i18n.T(lang, "common.all") }</option>
 							<option value="true" selected?={ data.CustomFilter == "true" }>{ i18n.T(lang, "admin.translations_custom_badge") }</option>
 							<option value="false" selected?={ data.CustomFilter == "false" }>{ i18n.T(lang, "admin.translations_default_badge") }</option>
 						</select>
 					</div>
 
-					<button type="submit" class="btn btn-primary fw-700" style="height:40px; padding:0 1.25rem;">
+					<button type="submit" class="btn btn-primary font-bold px-4">
 						@components.IconSearch("icon-xs")
 						<span>{ i18n.T(lang, "common.filter") }</span>
 					</button>
 					if data.Query != "" || data.SelectedNS != "" || data.CustomFilter != "" {
-						<a href="/admin/translations" class="btn btn-secondary" style="height:40px;" title="إعادة تعيين الفلاتر">
+						<a href="/admin/translations" class="btn btn-ghost font-bold text-xs" title="إعادة تعيين الفلاتر">
 							<span>{ i18n.T(lang, "common.cancel") }</span>
 						</a>
 					}
@@ -131,27 +134,27 @@ templ AdminTranslations(data AdminTranslationsData, lang string, dir string) {
 			</div>
 
 			<!-- Translations Table -->
-			<div class="card" style="background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-xl); overflow:hidden;">
-				<div class="table-responsive">
-					<table class="table" style="margin:0; width:100%;">
+			<div class="glass-panel p-0 mb-6 overflow-hidden">
+				<div class="table-container m-0">
+					<table class="data-table m-0">
 						<thead>
-							<tr style="background:var(--surface-sunken); border-bottom:1px solid var(--border);">
-								<th style="padding:0.85rem 1rem; font-size:0.825rem; font-weight:700; color:var(--text-secondary); width:240px;">
+							<tr>
+								<th style="width:240px;">
 									{ i18n.T(lang, "admin.translations_key_col") }
 								</th>
-								<th style="padding:0.85rem 1rem; font-size:0.825rem; font-weight:700; color:var(--text-secondary); width:130px;">
+								<th style="width:130px;">
 									{ i18n.T(lang, "admin.translations_ns_col") }
 								</th>
-								<th style="padding:0.85rem 1rem; font-size:0.825rem; font-weight:700; color:var(--text-secondary);">
+								<th>
 									{ i18n.T(lang, "admin.translations_ar_col") }
 								</th>
-								<th style="padding:0.85rem 1rem; font-size:0.825rem; font-weight:700; color:var(--text-secondary);">
+								<th>
 									{ i18n.T(lang, "admin.translations_en_col") }
 								</th>
-								<th style="padding:0.85rem 1rem; font-size:0.825rem; font-weight:700; color:var(--text-secondary); width:100px; text-align:center;">
+								<th style="width:110px;" class="text-center">
 									{ i18n.T(lang, "admin.translations_type_col") }
 								</th>
-								<th style="padding:0.85rem 1rem; font-size:0.825rem; font-weight:700; color:var(--text-secondary); width:130px; text-align:center;">
+								<th style="width:130px;" class="text-end">
 									{ i18n.T(lang, "common.actions") }
 								</th>
 							</tr>
@@ -159,46 +162,46 @@ templ AdminTranslations(data AdminTranslationsData, lang string, dir string) {
 						<tbody>
 							if len(data.Translations) == 0 {
 								<tr>
-									<td colspan="6" style="padding:3rem 1rem; text-align:center; color:var(--text-muted);">
-										<div style="font-size:2rem; margin-bottom:0.5rem;">🔍</div>
-										<div style="font-weight:700; font-size:1rem; color:var(--text);">
+									<td colspan="6" class="p-8 text-center text-muted">
+										<div class="text-4xl mb-3">🔍</div>
+										<div class="font-extrabold text-base text-primary">
 											{ i18n.T(lang, "common.no_results") }
 										</div>
 									</td>
 								</tr>
 							}
 							for _, tr := range data.Translations {
-								<tr style="border-bottom:1px solid var(--border);">
-									<td style="padding:0.85rem 1rem; font-family:monospace; font-size:0.825rem; font-weight:700; color:var(--text);">
+								<tr class="border-b">
+									<td class="font-mono text-xs font-bold text-primary">
 										{ tr.Key }
 									</td>
-									<td style="padding:0.85rem 1rem;">
-										<span class="badge badge-slate" style="font-size:0.75rem; font-weight:700;">
+									<td>
+										<span class="badge badge-slate text-xs font-bold">
 											{ tr.Namespace }
 										</span>
 									</td>
-									<td style="padding:0.85rem 1rem; font-size:0.875rem; color:var(--text); line-height:1.5;" dir="rtl">
+									<td class="text-sm text-primary leading-relaxed" dir="rtl">
 										{ tr.TextAR }
 									</td>
-									<td style="padding:0.85rem 1rem; font-size:0.875rem; color:var(--text); line-height:1.5;" dir="ltr">
+									<td class="text-sm text-secondary leading-relaxed" dir="ltr">
 										{ tr.TextEN }
 									</td>
-									<td style="padding:0.85rem 1rem; text-align:center;">
+									<td class="text-center">
 										if tr.IsCustom {
-											<span class="badge badge-emerald" style="font-size:0.725rem;">
+											<span class="badge badge-emerald text-xs font-bold">
 												{ i18n.T(lang, "admin.translations_custom_badge") }
 											</span>
 										} else {
-											<span class="badge badge-slate" style="font-size:0.725rem;">
+											<span class="badge badge-slate text-xs font-bold">
 												{ i18n.T(lang, "admin.translations_default_badge") }
 											</span>
 										}
 									</td>
-									<td style="padding:0.85rem 1rem; text-align:center;">
-										<div style="display:inline-flex; align-items:center; gap:0.35rem;">
+									<td class="text-end">
+										<div class="d-inline-flex items-center gap-1">
 											<button
 												type="button"
-												class="btn btn-secondary btn-xs fw-700"
+												class="btn btn-secondary btn-xs font-bold"
 												onclick={ showEditModal(tr.Key, tr.Namespace, tr.TextAR, tr.TextEN, tr.Description) }
 												title="تعديل الترجمة"
 											>
@@ -206,9 +209,9 @@ templ AdminTranslations(data AdminTranslationsData, lang string, dir string) {
 												<span>{ i18n.T(lang, "common.edit") }</span>
 											</button>
 											if tr.IsCustom {
-												<form method="POST" action="/admin/translations/reset" style="margin:0; display:inline;" onsubmit="return confirm('هل أنت متأكد من استعادة الترجمة الافتراضية؟');">
+												<form method="POST" action="/admin/translations/reset" class="m-0 d-inline" onsubmit="return confirm('هل أنت متأكد من استعادة الترجمة الافتراضية؟');">
 													<input type="hidden" name="key" value={ tr.Key } />
-													<button type="submit" class="btn btn-icon btn-xs" style="color:var(--danger-text);" title="استعادة القيمة الافتراضية">
+													<button type="submit" class="btn btn-icon btn-xs text-danger" title="استعادة القيمة الافتراضية">
 														@components.IconRefresh("icon-xxs")
 													</button>
 												</form>
@@ -222,57 +225,57 @@ templ AdminTranslations(data AdminTranslationsData, lang string, dir string) {
 				</div>
 
 				<!-- Pagination Footer -->
-				<div style="padding:1rem; border-top:1px solid var(--border); display:flex; justify-content:center;">
+				<div class="p-4 border-t d-flex justify-center">
 					@components.B2BPagination(data.Pagination)
 				</div>
 			</div>
 		</div>
 
 		<!-- Edit Translation Modal -->
-		<div id="edit-translation-modal" class="modal-backdrop" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.6); z-index:var(--z-modal); align-items:center; justify-content:center; padding:1rem;">
-			<div class="card" style="background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-2xl); width:100%; max-width:580px; box-shadow:var(--shadow-xl); overflow:hidden;">
-				<div style="padding:1.25rem 1.5rem; border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:center;">
-					<h3 style="font-size:1.15rem; font-weight:800; color:var(--text); margin:0;">
+		<div id="edit-translation-modal" class="modal-backdrop" style="display:none; position:fixed; top:0; left:0; right:0; bottom:0; width:100vw; height:100vh; margin:0; background:rgba(4,8,16,0.85); backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px); z-index:var(--z-modal); align-items:center; justify-content:center; padding:1.25rem;">
+			<div class="glass-panel p-6" style="margin:auto; width:100%; max-width:580px; max-height:90vh; overflow-y:auto;">
+				<div class="flex-between items-center pb-3 border-b mb-4">
+					<h3 class="text-lg font-black text-primary m-0">
 						{ i18n.T(lang, "admin.translations_edit_modal") }
 					</h3>
 					<button type="button" class="btn btn-icon btn-xs" onclick="closeEditModal()">
 						@components.IconX("icon-xs")
 					</button>
 				</div>
-				<form method="POST" action="/admin/translations" style="padding:1.5rem; display:flex; flex-direction:column; gap:1.25rem; margin:0;">
+				<form method="POST" action="/admin/translations" class="d-flex flex-col gap-4 m-0">
 					<div>
-						<label class="form-label" style="font-size:0.8rem; font-weight:700; color:var(--text-secondary); margin-bottom:0.35rem; display:block;">
+						<label class="form-label">
 							{ i18n.T(lang, "admin.translations_key_col") }
 						</label>
-						<input type="text" id="modal-key" name="key" readonly class="form-control" style="background:var(--surface-sunken); font-family:monospace; font-weight:700;" />
+						<input type="text" id="modal-key" name="key" readonly class="form-input font-mono font-bold bg-surface-sunken" />
 					</div>
 
 					<div>
-						<label class="form-label" style="font-size:0.8rem; font-weight:700; color:var(--text-secondary); margin-bottom:0.35rem; display:block;">
+						<label class="form-label">
 							{ i18n.T(lang, "admin.translations_ar_col") }
 						</label>
-						<textarea id="modal-text-ar" name="text_ar" rows="3" class="form-control" style="resize:vertical;" dir="rtl" required></textarea>
+						<textarea id="modal-text-ar" name="text_ar" rows="3" class="form-input" dir="rtl" required></textarea>
 					</div>
 
 					<div>
-						<label class="form-label" style="font-size:0.8rem; font-weight:700; color:var(--text-secondary); margin-bottom:0.35rem; display:block;">
+						<label class="form-label">
 							{ i18n.T(lang, "admin.translations_en_col") }
 						</label>
-						<textarea id="modal-text-en" name="text_en" rows="3" class="form-control" style="resize:vertical;" dir="ltr" required></textarea>
+						<textarea id="modal-text-en" name="text_en" rows="3" class="form-input" dir="ltr" required></textarea>
 					</div>
 
 					<div>
-						<label class="form-label" style="font-size:0.8rem; font-weight:700; color:var(--text-secondary); margin-bottom:0.35rem; display:block;">
+						<label class="form-label">
 							الوصف أو ملاحظات الاستخدام
 						</label>
-						<input type="text" id="modal-desc" name="description" class="form-control" />
+						<input type="text" id="modal-desc" name="description" class="form-input" />
 					</div>
 
-					<div style="display:flex; justify-content:flex-end; gap:0.75rem; border-top:1px solid var(--border); padding-top:1.25rem;">
-						<button type="button" class="btn btn-secondary" onclick="closeEditModal()">
+					<div class="flex-between items-center border-t pt-4 mt-2">
+						<button type="button" class="btn btn-secondary font-bold" onclick="closeEditModal()">
 							{ i18n.T(lang, "common.cancel") }
 						</button>
-						<button type="submit" class="btn btn-primary fw-700">
+						<button type="submit" class="btn btn-primary font-extrabold px-6">
 							{ i18n.T(lang, "common.save_changes") }
 						</button>
 					</div>

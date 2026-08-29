@@ -25,6 +25,34 @@ import (
 // catalogue cannot plausibly answer is never sent: the retrieval gate that saved
 // two thirds of a smart order's requests applies here unchanged.
 
+// enhanceSaving is the single entry point every staging path calls.
+//
+// The toggle is applied here rather than at each call site. There are four
+// staging paths in this package, and the first version of this feature was
+// wired into two of them — so it was present in the flow nobody uses and absent
+// from the one the upload screen actually drives. One function that every path
+// must go through is how that stops being possible.
+func (h *UIHandler) enhanceSaving(
+	ctx context.Context, useAI bool, engine *SavingProductMatchEngine, items []*StagedSavingItem,
+) int {
+	if !useAI {
+		return 0
+	}
+	return enhanceSavingItems(ctx, h.matchEnhancer, engine, items, h.log)
+}
+
+// savingAIUnavailableReason explains a disabled switch.
+//
+// A toggle that ticks and then does nothing is worse than one that says why it
+// cannot: the old strategy dropdown promised "ذكاء اصطناعي" from an engine that
+// had none, and nobody could tell the promise was empty.
+func savingAIUnavailableReason(e matchflow.Enhancer) string {
+	if e != nil {
+		return ""
+	}
+	return "خدمة الذكاء الاصطناعي غير مهيّأة على هذا الخادم؛ تعمل المطابقة الحتمية وحدها."
+}
+
 // savingAICeilings is what one saving-list run may spend.
 //
 // The order profile rather than the vendor one: these files are short, a person
