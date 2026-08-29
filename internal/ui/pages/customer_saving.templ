@@ -1314,7 +1314,7 @@ templ CustomerSavingProductsPage(data CustomerSavingPageData, lang, dir string) 
 							return;
 						}
 
-						let html = '<div style="overflow-x:auto;"><table class="table" style="width:100%; border-collapse:collapse; font-size:0.875rem;"><thead><tr style="background:var(--surface-sunken); border-bottom:2px solid var(--border); text-align:start; font-size:0.775rem; color:var(--text-muted);"><th class="p-sm">المورد / المخزن</th><th class="p-sm">العبوة / المواصفات</th><th class="p-sm text-center">المخزون</th><th class="p-sm text-center">السعر قبل الخصم</th><th class="p-sm text-center">الخصم</th><th class="p-sm text-center">طلب توريد</th></tr></thead><tbody>';
+						let html = '<div style="overflow-x:auto;"><table class="table" style="width:100%; border-collapse:collapse; font-size:0.875rem;"><thead><tr style="background:var(--surface-sunken); border-bottom:2px solid var(--border); text-align:start; font-size:0.775rem; color:var(--text-muted);"><th class="p-sm">المورد / المخزن</th><th class="p-sm">العبوة / المواصفات</th><th class="p-sm text-center">المخزون</th><th class="p-sm text-center">سعر الجمهور</th><th class="p-sm text-center">نسبة الخصم</th><th class="p-sm text-center">السعر بعد الخصم</th><th class="p-sm text-center">طلب توريد</th></tr></thead><tbody>';
 
 						providers.forEach(p => {
 							const branchText = p.branch_name ? ('<div style="font-size:0.725rem; color:var(--text-muted); margin-top:2px;">' + p.branch_name + '</div>') : '';
@@ -1323,13 +1323,17 @@ templ CustomerSavingProductsPage(data CustomerSavingPageData, lang, dir string) 
 							const orgDisplayName = (typeof p.org_name === 'object' && p.org_name) ? (p.org_name.ar || p.org_name.en || 'مورد معتمد') : (p.org_name || 'مورد معتمد');
 							const varDisplayName = (typeof p.variant_name === 'object' && p.variant_name) ? (p.variant_name.ar || p.variant_name.en || 'العبوة القياسية') : (p.variant_name || 'العبوة القياسية');
 							
+							const publicPrice = p.public_price || p.cost_price || p.price;
+							const discountPct = p.discount_percentage ? (p.discount_percentage + '%') : (p.discount ? (p.discount + '%') : '0%');
+							const netPrice = p.price_after_discount || p.price;
+
 							const addCartAction = (p.stock_quantity > 0 && p.variant_id) ?
 								('<form method="POST" action="/cart/add" style="margin:0; display:inline-flex; gap:0.25rem;">' +
 									'<input type="hidden" name="variant_id" value="' + p.variant_id + '" />' +
 									'<input type="hidden" name="product_id" value="' + productId + '" />' +
 									'<input type="hidden" name="organization_id" value="' + (p.organization_id || '') + '" />' +
 									'<input type="hidden" name="vendor_org_id" value="' + (p.organization_id || '') + '" />' +
-									'<input type="hidden" name="offer_price" value="' + (p.price_after_discount || p.price) + '" />' +
+									'<input type="hidden" name="offer_price" value="' + netPrice + '" />' +
 									'<input type="hidden" name="qty" value="1" />' +
 									'<button type="submit" class="btn btn-primary btn-sm" style="font-size:0.75rem; font-weight:800; padding:0.25rem 0.65rem;">+ أضف للسلة</button>' +
 								'</form>') :
@@ -1339,8 +1343,9 @@ templ CustomerSavingProductsPage(data CustomerSavingPageData, lang, dir string) 
 								'<td class="p-sm"><strong style="color:var(--text); font-size:0.875rem;">' + orgDisplayName + '</strong>' + branchText + '</td>' +
 								'<td class="p-sm"><div>' + varDisplayName + '</div>' + skuText + '</td>' +
 								'<td class="p-sm text-center tabular-nums"><span class="badge ' + stockBadge + '">' + p.stock_quantity + ' عبوة</span></td>' +
-								'<td class="p-sm text-center tabular-nums">' + p.price + ' ج.م</td>' +
-								'<td class="p-sm text-center tabular-nums"><span class="badge badge-sky">' + p.discount + ' ج.م</span></td>' +
+								'<td class="p-sm text-center tabular-nums">' + publicPrice + ' ج.م</td>' +
+								'<td class="p-sm text-center tabular-nums"><span class="badge badge-emerald">' + discountPct + '</span></td>' +
+								'<td class="p-sm text-center tabular-nums"><strong class="text-primary tabular-nums">' + netPrice + ' ج.م</strong></td>' +
 								'<td class="p-sm text-center">' + addCartAction + '</td>' +
 								'</tr>';
 						});

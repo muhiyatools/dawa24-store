@@ -923,7 +923,7 @@ func savingMappingStage(view SavingImportView) templ.Component {
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 80, "</select></div><div><label class=\"form-label\">عمود سعر الشراء المسجل (ج.م)</label> <select name=\"col_price\" class=\"form-select\"><option value=\"\">-- غير محدد (افتراضي: 0.00) --</option> ")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 80, "</select></div><div><label class=\"form-label\">عمود سعر الجمهور المسجل (ج.م)</label> <select name=\"col_price\" class=\"form-select\"><option value=\"\">-- غير محدد (افتراضي: 0.00) --</option> ")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

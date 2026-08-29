@@ -248,9 +248,9 @@ templ VendorOrdersContent(data VendorOrdersData, lang, dir string) {
 									<tr style="background:var(--surface-sunken);">
 										<th class="text-sm fw-700">اسم الدواء / الصنف</th>
 										<th style="font-size:0.8rem; font-weight:700; text-align:center;">الكمية المطلوبة</th>
-										<th style="font-size:0.8rem; font-weight:700; text-align:center;">السعر قبل الخصم</th>
-										<th style="font-size:0.8rem; font-weight:700; text-align:center;">الخصم</th>
-										<th style="font-size:0.8rem; font-weight:700; text-align:end;">الإجمالي</th>
+										<th style="font-size:0.8rem; font-weight:700; text-align:center;">سعر الجمهور</th>
+										<th style="font-size:0.8rem; font-weight:700; text-align:center;">نسبة الخصم</th>
+										<th style="font-size:0.8rem; font-weight:700; text-align:end;">السعر بعد الخصم (الإجمالي)</th>
 									</tr>
 								</thead>
 								<tbody>
@@ -278,7 +278,17 @@ templ VendorOrdersContent(data VendorOrdersData, lang, dir string) {
 												<span style="color:var(--text); font-weight:700;">{ line.UnitPrice.String() } ج.م</span>
 											</td>
 											<td class="text-center tabular-nums">
-												<span style="color:var(--emerald); font-weight:700;">{ line.DiscountAmount.String() } ج.م</span>
+												{{
+													discPct := 0.0
+													if line.UnitPrice.IsPositive() && line.DiscountAmount.IsPositive() {
+														discPct = (float64(line.DiscountAmount.Minor()) / float64(line.UnitPrice.Minor())) * 100.0
+													}
+												}}
+												if discPct > 0 {
+													<span class="badge badge-emerald tabular-nums" style="font-weight:800; font-size:0.8rem;">{ fmt.Sprintf("%.1f%%", discPct) }</span>
+												} else {
+													<span class="text-xs text-muted">0%</span>
+												}
 											</td>
 											<td class="text-end tabular-nums">
 												<strong style="color:var(--accent); font-size:1.05rem;">{ line.TotalPrice.String() } ج.م</strong>

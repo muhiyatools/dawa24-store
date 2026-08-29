@@ -191,7 +191,7 @@ func (h *UIHandler) CustomerSavingProductsSampleXLSX(w http.ResponseWriter, r *h
 		RightToLeft: func(b bool) *bool { return &b }(true),
 	})
 
-	headers := []string{"اسم الصنف", "كود الصنف / SKU", "الكمية", "سعر الشراء (ج.م)"}
+	headers := []string{"اسم الصنف", "كود الصنف / SKU", "الكمية", "سعر الجمهور (ج.م)"}
 	for i, hName := range headers {
 		cell, _ := excelize.CoordinatesToCellName(i+1, 1)
 		_ = f.SetCellValue(sheet, cell, hName)
@@ -218,7 +218,7 @@ func (h *UIHandler) CustomerSavingProductsSampleXLSX(w http.ResponseWriter, r *h
 
 // CustomerSavingProductsSampleCSV streams download of a clean CSV template.
 func (h *UIHandler) CustomerSavingProductsSampleCSV(w http.ResponseWriter, r *http.Request) {
-	csvContent := "\xEF\xBB\xBFاسم الصنف,كود الصنف / SKU,الكمية,سعر الشراء (ج.م)\n" +
+	csvContent := "\xEF\xBB\xBFاسم الصنف,كود الصنف / SKU,الكمية,سعر الجمهور (ج.م)\n" +
 		"بانادول اكسترا 500 مجم أقراص,PAN-EXT-24,50,48.50\n" +
 		"كونجستال أقراص للبرد,CONG-TAB-20,30,29.00\n" +
 		"أوجمنتين 1 جم أقراص 14 قرص,AUG-1G-14,20,110.00\n" +

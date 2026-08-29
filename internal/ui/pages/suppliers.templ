@@ -737,9 +737,9 @@ templ SupplierProfile(lang, dir string, data SupplierProfileData) {
 								<tr>
 									<th>الصنف الدوائي والمواصفات</th>
 									<th>التشغيلة والصلاحية</th>
-									<th>سعر التوريد قبل الخصم</th>
-									<th>الخصم</th>
 									<th>سعر الجمهور</th>
+									<th>نسبة الخصم</th>
+									<th>السعر بعد الخصم</th>
 									<th style="text-align:center;">طلب الصنف وإضافته للسلة</th>
 								</tr>
 							</thead>
@@ -805,7 +805,41 @@ templ SupplierProfile(lang, dir string, data SupplierProfileData) {
 											</div>
 										</td>
 
-										<!-- Supply Price Before Discount -->
+										<!-- 1. Retail Public Price (سعر الجمهور) -->
+										<td>
+											if p := data.GetProduct(v.ProductID); p != nil && p.PublicPrice().IsPositive() {
+												<div style="font-size:0.95rem; font-weight:700; color:var(--text);" class="tabular-nums">
+													{ p.PublicPrice().String() } <span style="font-size:0.75rem; color:var(--text-secondary);">ج.م</span>
+												</div>
+											} else if v.Price.IsPositive() {
+												<div style="font-size:0.95rem; font-weight:700; color:var(--text);" class="tabular-nums">
+													{ v.Price.String() } <span style="font-size:0.75rem; color:var(--text-secondary);">ج.م</span>
+												</div>
+											} else {
+												<span class="text-xs text-muted">-</span>
+											}
+										</td>
+
+										<!-- 2. Discount Percentage (نسبة الخصم %) -->
+										<td>
+											{{
+												discPct := 0.0
+												if p := data.GetProduct(v.ProductID); p != nil && p.PublicPrice().IsPositive() && v.Price.IsPositive() && v.Price.Minor() < p.PublicPrice().Minor() {
+													discPct = (1.0 - float64(v.Price.Minor())/float64(p.PublicPrice().Minor())) * 100.0
+												} else if v.Discount.IsPositive() {
+													discPct = float64(v.Discount.Minor()) / 100.0
+												}
+											}}
+											if discPct > 0 {
+												<span class="badge badge-emerald tabular-nums" style="font-size:0.825rem; font-weight:800; padding:0.2rem 0.55rem;">
+													{ fmt.Sprintf("%.1f%%", discPct) }
+												</span>
+											} else {
+												<span class="text-xs text-muted">0%</span>
+											}
+										</td>
+
+										<!-- 3. Price After Discount (السعر بعد الخصم) -->
 										<td>
 											<div style="display:flex; flex-direction:column; gap:0.15rem;">
 												<div style="font-size:1.1rem; font-weight:900; color:var(--primary-600);" class="tabular-nums">
@@ -817,24 +851,6 @@ templ SupplierProfile(lang, dir string, data SupplierProfileData) {
 												</div>
 												<span class="text-xs text-muted">سعر الفاتورة الضريبية</span>
 											</div>
-										</td>
-
-										<!-- Discount -->
-										<td>
-											<div style="font-size:0.95rem; font-weight:800; color:var(--emerald);" class="tabular-nums">
-												{ v.Discount.String() } ج.م
-											</div>
-										</td>
-
-										<!-- Retail Public Price -->
-										<td>
-											if p := data.GetProduct(v.ProductID); p != nil && p.PublicPrice().IsPositive() {
-												<div style="font-size:0.95rem; font-weight:700; color:var(--text-secondary);" class="tabular-nums">
-													{ p.PublicPrice().String() } ج.م
-												</div>
-											} else {
-												<span class="text-xs text-muted">-</span>
-											}
 										</td>
 
 										<!-- Order Action & Stepper -->

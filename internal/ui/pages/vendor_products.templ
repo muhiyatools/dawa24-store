@@ -397,7 +397,7 @@ templ VendorProducts(data VendorVariantsData, lang, dir string, isPartial bool) 
 								<div class="grid-2">
 									<div>
 										<label class="form-label fw-700 text-primary text-sm">
-											سعر التوريد للجملة (ج.م) <span class="text-danger">*</span>
+											سعر الجمهور (ج.م) <span class="text-danger">*</span>
 										</label>
 										<input
 											type="number"
@@ -413,14 +413,16 @@ templ VendorProducts(data VendorVariantsData, lang, dir string, isPartial bool) 
 
 									<div>
 										<label class="form-label fw-700 text-primary text-sm">
-											قيمة الخصم للصيدليات (ج.م)
+											نسبة الخصم للصيدليات (%)
 										</label>
 										<input
 											type="number"
-											step="0.01"
+											step="0.1"
+											min="0"
+											max="100"
 											id="cat-field-discount"
 											name="discount"
-											placeholder="0.00"
+											placeholder="مثال: 15.5%"
 											class="form-input"
 											style="width:100%; border-radius:var(--radius-lg);"
 										/>
@@ -558,7 +560,7 @@ templ VendorProducts(data VendorVariantsData, lang, dir string, isPartial bool) 
 							<div class="grid-2">
 								<div>
 									<label class="form-label fw-700 text-primary text-sm">
-										سعر التوريد (ج.م) <span class="text-danger">*</span>
+										سعر الجمهور (ج.م) <span class="text-danger">*</span>
 									</label>
 									<input
 										type="number"
@@ -573,13 +575,16 @@ templ VendorProducts(data VendorVariantsData, lang, dir string, isPartial bool) 
 
 								<div>
 									<label class="form-label fw-700 text-primary text-sm">
-										قيمة الخصم (ج.م)
+										نسبة الخصم (%)
 									</label>
 									<input
 										type="number"
-										step="0.01"
+										step="0.1"
+										min="0"
+										max="100"
 										id="edit-form-discount"
 										name="discount"
+										placeholder="0.0%"
 										class="form-input"
 										style="width:100%; border-radius:var(--radius-lg);"
 									/>
@@ -737,7 +742,7 @@ templ VendorProducts(data VendorVariantsData, lang, dir string, isPartial bool) 
 
 								<div>
 									<label class="form-label fw-700 text-primary text-sm">
-										سعر التوريد (ج.م) <span class="text-danger">*</span>
+										سعر الجمهور (ج.م) <span class="text-danger">*</span>
 									</label>
 									<input
 										type="number"
@@ -754,13 +759,15 @@ templ VendorProducts(data VendorVariantsData, lang, dir string, isPartial bool) 
 							<div class="grid-2">
 								<div>
 									<label class="form-label fw-700 text-primary text-sm">
-										قيمة الخصم (ج.م)
+										نسبة الخصم (%)
 									</label>
 									<input
 										type="number"
-										step="0.01"
+										step="0.1"
+										min="0"
+										max="100"
 										name="discount"
-										placeholder="0.00"
+										placeholder="0.0%"
 										class="form-input"
 										style="width:100%; border-radius:var(--radius-lg);"
 									/>
@@ -1014,15 +1021,16 @@ templ VendorVariantsTable(variants []*VendorVariantView, lang string) {
 		<table class="b2b-table" style="min-width:1050px;">
 			<thead>
 				<tr style="background:var(--surface-sunken); border-bottom:2px solid var(--border); text-align:start; font-size:0.8rem; color:var(--text-muted);">
-					<th style="width:26%; padding:1rem 1.25rem;">الصنف الدوائي المعتمد</th>
-					<th style="width:16%; padding:1rem;">المواصفات و SKU</th>
-					<th style="width:11%; padding:1rem;">رقم التشغيلة</th>
-					<th style="width:11%; padding:1rem;">سعر التوريد قبل الخصم</th>
-					<th style="width:8%; padding:1rem;">الخصم</th>
-					<th style="width:11%; padding:1rem; text-align:center;">الرصيد المتاح</th>
-					<th style="width:10%; padding:1rem;">تاريخ الصلاحية</th>
-					<th style="width:10%; padding:1rem;">مخزن الشحن</th>
-					<th style="width:8%; padding:1rem 1.25rem; text-align:center;">الإجراءات</th>
+					<th style="width:24%; padding:1rem 1.25rem;">الصنف الدوائي المعتمد</th>
+					<th style="width:14%; padding:1rem;">المواصفات و SKU</th>
+					<th style="width:10%; padding:1rem;">رقم التشغيلة</th>
+					<th style="width:10%; padding:1rem;">سعر الجمهور</th>
+					<th style="width:8%; padding:1rem; text-align:center;">نسبة الخصم</th>
+					<th style="width:10%; padding:1rem;">السعر بعد الخصم</th>
+					<th style="width:9%; padding:1rem; text-align:center;">الرصيد المتاح</th>
+					<th style="width:9%; padding:1rem;">تاريخ الصلاحية</th>
+					<th style="width:9%; padding:1rem;">مخزن الشحن</th>
+					<th style="width:7%; padding:1rem 1.25rem; text-align:center;">الإجراءات</th>
 				</tr>
 			</thead>
 			<tbody>
@@ -1096,9 +1104,9 @@ templ VendorVariantsTable(variants []*VendorVariantView, lang string) {
 							}
 						</td>
 
-						<!-- Wholesale Price Before Discount -->
+						<!-- Public Price (سعر الجمهور) -->
 						<td class="p-md">
-							<div class="tabular-nums" style="font-weight:900; color:var(--accent); font-size:1.05rem; line-height:1.2;">
+							<div class="tabular-nums" style="font-weight:800; color:var(--text); font-size:1rem; line-height:1.2;">
 								{ v.Variant.Price.String() } <span style="font-size:0.75rem; font-weight:600; color:var(--text-secondary);">ج.م</span>
 							</div>
 							if v.Variant.MinOrderQty > 1 {
@@ -1108,10 +1116,21 @@ templ VendorVariantsTable(variants []*VendorVariantView, lang string) {
 							}
 						</td>
 
-						<!-- Discount -->
-						<td class="p-md">
-							<div class="tabular-nums" style="font-weight:800; color:#10b981; font-size:0.95rem;">
+						<!-- Discount Percentage % -->
+						<td class="p-md text-center">
+							<div class="tabular-nums badge badge-emerald" style="font-weight:800; font-size:0.825rem; padding:0.2rem 0.5rem;">
 								{ v.Variant.Discount.String() }%
+							</div>
+						</td>
+
+						<!-- Net Price (السعر بعد الخصم) -->
+						<td class="p-md">
+							<div class="tabular-nums" style="font-weight:900; color:var(--accent); font-size:1.05rem; line-height:1.2;">
+								if v.Variant.Discount.IsPositive() {
+									{ v.Variant.Price.ApplyPercent(int64((100.0 - (float64(v.Variant.Discount.Minor())/100.0)) * 100)).String() } <span style="font-size:0.75rem; font-weight:600; color:var(--text-secondary);">ج.م</span>
+								} else {
+									{ v.Variant.Price.String() } <span style="font-size:0.75rem; font-weight:600; color:var(--text-secondary);">ج.م</span>
+								}
 							</div>
 						</td>
 

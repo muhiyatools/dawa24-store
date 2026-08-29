@@ -419,7 +419,7 @@ func InvoicePrintablePage(data billing.PrintableInvoiceData, lang, dir string) t
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 43, "</div></div><!-- Items Table --><table class=\"items-table\"><thead><tr><th style=\"width:35px; text-align:center;\">#</th><th>الصنف الدوائي / البيان</th><th style=\"width:65px; text-align:center;\">الكمية</th><th style=\"width:90px; text-align:center;\">السعر قبل الخصم</th><th style=\"width:75px; text-align:center;\">الخصم %</th><th style=\"width:105px; text-align:center;\">الإجمالي</th></tr></thead> <tbody>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 43, "</div></div><!-- Items Table --><table class=\"items-table\"><thead><tr><th style=\"width:35px; text-align:center;\">#</th><th>الصنف الدوائي / البيان</th><th style=\"width:65px; text-align:center;\">الكمية</th><th style=\"width:90px; text-align:center;\">سعر الجمهور</th><th style=\"width:75px; text-align:center;\">نسبة الخصم</th><th style=\"width:115px; text-align:center;\">السعر بعد الخصم (الإجمالي)</th></tr></thead> <tbody>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -566,7 +566,7 @@ func InvoicePrintablePage(data billing.PrintableInvoiceData, lang, dir string) t
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 59, "</div><table class=\"totals-table\"><tr><td style=\"color:#64748b;\">الإجمالي قبل الخصم:</td><td style=\"text-align:left;\" class=\"tabular-nums\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 59, "</div><table class=\"totals-table\"><tr><td style=\"color:#64748b;\">سعر الجمهور الإجمالي:</td><td style=\"text-align:left;\" class=\"tabular-nums\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -915,7 +915,7 @@ func InvoicePrintablePage(data billing.PrintableInvoiceData, lang, dir string) t
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 93, "<div class=\"thermal-divider\"></div><!-- Totals --><div class=\"thermal-row\"><span>الإجمالي قبل الخصم:</span> <span class=\"tabular-nums\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 93, "<div class=\"thermal-divider\"></div><!-- Totals --><div class=\"thermal-row\"><span>سعر الجمهور الإجمالي:</span> <span class=\"tabular-nums\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

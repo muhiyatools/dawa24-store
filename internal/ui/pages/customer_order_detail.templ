@@ -280,9 +280,9 @@ templ CustomerOrderDetail(order *commerce.Order, history []*commerce.OrderStatus
 																<tr>
 																	<th style="padding:0.65rem 1rem;">الصنف الدوائي</th>
 																	<th style="padding:0.65rem 0.75rem; text-align:center; width:155px;">الكمية المطلوبة</th>
-																	<th style="padding:0.65rem 0.75rem;" class="td-numeric">سعر الوحدة</th>
-																	<th style="padding:0.65rem 0.75rem;" class="td-numeric">الخصم</th>
-																	<th style="padding:0.65rem 1rem;" class="td-numeric">الإجمالي</th>
+																	<th style="padding:0.65rem 0.75rem;" class="td-numeric">سعر الجمهور</th>
+																	<th style="padding:0.65rem 0.75rem; text-align:center;">نسبة الخصم</th>
+																	<th style="padding:0.65rem 1rem;" class="td-numeric">السعر بعد الخصم (الإجمالي)</th>
 																	<th style="padding:0.65rem 0.5rem; text-align:center; width:45px;"></th>
 																</tr>
 															</thead>
@@ -329,8 +329,18 @@ templ CustomerOrderDetail(order *commerce.Order, history []*commerce.OrderStatus
 																		<td style="padding:0.75rem 0.75rem;" class="td-numeric tabular-nums">
 																			{ l.UnitPrice.String() } ج.م
 																		</td>
-																		<td style="padding:0.75rem 0.75rem;" class="td-numeric tabular-nums text-emerald">
-																			{ l.DiscountAmount.String() } ج.م
+																		<td style="padding:0.75rem 0.75rem; text-align:center;" class="tabular-nums">
+																			{{
+																				discPct := 0.0
+																				if l.UnitPrice.IsPositive() && l.DiscountAmount.IsPositive() {
+																					discPct = (float64(l.DiscountAmount.Minor()) / float64(l.UnitPrice.Minor())) * 100.0
+																				}
+																			}}
+																			if discPct > 0 {
+																				<span class="badge badge-emerald tabular-nums" style="font-weight:800; font-size:0.8rem;">{ fmt.Sprintf("%.1f%%", discPct) }</span>
+																			} else {
+																				<span class="text-xs text-muted">0%</span>
+																			}
 																		</td>
 																		<td style="padding:0.75rem 1rem; font-weight:800; color:var(--text);" class="td-numeric tabular-nums">
 																			<span class="row-total-display">{ l.TotalPrice.String() } ج.م</span>
@@ -356,9 +366,9 @@ templ CustomerOrderDetail(order *commerce.Order, history []*commerce.OrderStatus
 													<tr>
 														<th style="padding:0.65rem 1rem;">الصنف الدوائي</th>
 														<th style="padding:0.65rem 0.75rem; text-align:center; width:155px;">الكمية المطلوبة</th>
-														<th style="padding:0.65rem 0.75rem;" class="td-numeric">سعر الوحدة</th>
-														<th style="padding:0.65rem 0.75rem;" class="td-numeric">الخصم</th>
-														<th style="padding:0.65rem 1rem;" class="td-numeric">الإجمالي</th>
+														<th style="padding:0.65rem 0.75rem;" class="td-numeric">سعر الجمهور</th>
+														<th style="padding:0.65rem 0.75rem; text-align:center;">نسبة الخصم</th>
+														<th style="padding:0.65rem 1rem;" class="td-numeric">السعر بعد الخصم (الإجمالي)</th>
 														<th style="padding:0.65rem 0.5rem; text-align:center; width:45px;"></th>
 													</tr>
 												</thead>
@@ -405,8 +415,18 @@ templ CustomerOrderDetail(order *commerce.Order, history []*commerce.OrderStatus
 															<td style="padding:0.75rem 0.75rem;" class="td-numeric tabular-nums">
 																{ l.UnitPrice.String() } ج.م
 															</td>
-															<td style="padding:0.75rem 0.75rem;" class="td-numeric tabular-nums text-emerald">
-																{ l.DiscountAmount.String() } ج.م
+															<td style="padding:0.75rem 0.75rem; text-align:center;" class="tabular-nums">
+																{{
+																	discPct := 0.0
+																	if l.UnitPrice.IsPositive() && l.DiscountAmount.IsPositive() {
+																		discPct = (float64(l.DiscountAmount.Minor()) / float64(l.UnitPrice.Minor())) * 100.0
+																	}
+																}}
+																if discPct > 0 {
+																	<span class="badge badge-emerald tabular-nums" style="font-weight:800; font-size:0.8rem;">{ fmt.Sprintf("%.1f%%", discPct) }</span>
+																} else {
+																	<span class="text-xs text-muted">0%</span>
+																}
 															</td>
 															<td style="padding:0.75rem 1rem; font-weight:800; color:var(--text);" class="td-numeric tabular-nums">
 																<span class="row-total-display">{ l.TotalPrice.String() } ج.م</span>

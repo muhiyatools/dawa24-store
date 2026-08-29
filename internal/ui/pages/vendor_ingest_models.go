@@ -120,7 +120,7 @@ func (v VendorImportView) CoreFieldsStatus() []CoreFieldStatus {
 		req bool
 	}{
 		{productmatch.FieldName, "اسم الصنف", "الاسم التجاري أو الوصف في الملف", true},
-		{productmatch.FieldPrice, "سعر البيع", "سعر بيع الصنف", true},
+		{productmatch.FieldPrice, "سعر الجمهور", "سعر الجمهور الرسمي للصنف", true},
 		{productmatch.FieldQuantity, "الكمية (رصيد المخزون)", "الكمية المتوفرة لتسجيلها في المستودع المحدد", true},
 		{productmatch.FieldSKU, "كود الصنف (SKU)", "رمز الصنف الداخلي لديك", false},
 		{productmatch.FieldBarcode, "الباركود الدولي", "رقم الباركود للمطابقة التلقائية الفورية", false},

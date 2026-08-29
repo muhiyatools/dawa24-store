@@ -15,7 +15,7 @@ func loadCommerceAndIngestKeys(e *engine) {
 	addKey(e, "ingest.mapped_to", "ingest", "مربوط بـ", "Mapped to", "Mapped badge prefix")
 	addKey(e, "ingest.unmapped_warning", "ingest", "لم يُربط تلقائياً — حدده من الجدول أدناه", "Not auto-mapped — select from table below", "Unmapped warning")
 	addKey(e, "ingest.stock_quantity", "ingest", "الكمية (رصيد المخزون)", "Stock Quantity", "Quantity field name")
-	addKey(e, "ingest.unit_price", "ingest", "سعر البيع", "Unit Price", "Price field name")
+	addKey(e, "ingest.unit_price", "ingest", "سعر الجمهور", "Public Price", "Price field name")
 	addKey(e, "ingest.item_name", "ingest", "اسم الصنف", "Item Name", "Name field name")
 	addKey(e, "ingest.item_sku", "ingest", "كود الصنف (SKU)", "Item SKU", "SKU field name")
 	addKey(e, "ingest.barcode", "ingest", "الباركود الدولي", "International Barcode", "Barcode field name")

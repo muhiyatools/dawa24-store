@@ -24,9 +24,9 @@ var importSampleHeaders = []string{
 	"التركيز",
 	"الوحدة",
 	"الشركة المصنعة",
-	"سعر البيع",
 	"سعر الجمهور",
 	"نسبة الخصم",
+	"السعر بعد الخصم",
 	"الوصف بالعربي",
 	"الوصف بالإنجليزي",
 }
@@ -38,25 +38,25 @@ var importSampleRows = [][]string{
 	{
 		"كونجستال أقراص", "Congestal Tablets", "CONG-TAB-650", "6221234567890",
 		"Paracetamol + Pseudoephedrine", "Paracetamol 500mg", "أقراص", "650mg", "علبة",
-		"Eva Pharma", "25.00", "30.00", "10%",
+		"Eva Pharma", "30.00", "10%", "27.00",
 		"لعلاج أعراض نزلات البرد والإنفلونزا", "For cold and flu relief",
 	},
 	{
 		"بانادول إكسترا", "Panadol Extra", "PAN-EXT-500", "6229876543210",
 		"Paracetamol + Caffeine", "Paracetamol 500mg + Caffeine 65mg", "أقراص", "500mg", "علبة",
-		"GSK", "35.00", "40.00", "5%",
+		"GSK", "40.00", "5%", "38.00",
 		"مسكن للآلام وخافض للحرارة", "Pain reliever and fever reducer",
 	},
 	{
 		"أوجمنتين 1 جم أقراص", "Augmentin 1g Tablets", "AUG-1G", "6223334445556",
 		"Amoxicillin + Clavulanic Acid", "Amoxicillin 875mg + Clavulanate 125mg", "أقراص", "1g", "علبة",
-		"GlaxoSmithKline", "89.50", "95.00", "",
+		"GlaxoSmithKline", "95.00", "5.8%", "89.50",
 		"مضاد حيوي واسع المجال", "Broad spectrum antibiotic",
 	},
 	{
 		"أنتينال كبسول", "Antinal Capsules", "ANTIN-CAP-200", "6224445556667",
 		"Nifuroxazide", "Nifuroxazide 200mg", "كبسولات", "200mg", "شريط",
-		"Amoun Pharmaceutical", "30.00", "", "",
+		"Amoun Pharmaceutical", "30.00", "0%", "30.00",
 		"مطهر معوي ومضاد للإسهال", "Intestinal antiseptic",
 	},
 	{

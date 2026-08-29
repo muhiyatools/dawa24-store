@@ -755,7 +755,7 @@ func (h *UIHandler) CustomerSavingProductsExport(w http.ResponseWriter, r *http.
 		"اسم صنف الصيدلية",
 		"كود SKU",
 		"الكمية",
-		"سعر الشراء المسجل (ج.م)",
+		"سعر الجمهور المسجل (ج.م)",
 		"القيمة الإجمالية (ج.م)",
 		"معرف صنف الكتالوج (ProductID)",
 		"اسم الصنف المرتبط بالكتالوج",

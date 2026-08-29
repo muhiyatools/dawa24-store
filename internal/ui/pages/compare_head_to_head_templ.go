@@ -640,14 +640,14 @@ func CompareHeadToHeadContent(data HeadToHeadPageData) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 52, ")</a></div></div><!-- Main Comparison Table Matching Image 1 Exactly --> <div class=\"card\" style=\"padding:0; overflow:hidden; background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-2xl); box-shadow:var(--shadow-sm);\"><div class=\"table-responsive\"><table class=\"table\" id=\"head-to-head-table\" style=\"margin:0; width:100%; border-collapse:collapse; font-size:0.875rem;\"><thead><tr style=\"background:var(--surface-sunken); border-bottom:2px solid var(--border); font-size:0.825rem; text-align:start;\"><!-- 1. المنتج --><th style=\"padding:0.9rem 1rem; min-width:260px;\">المنتج</th><!-- 2. السعر قبل الخصم --><th style=\"padding:0.9rem 0.85rem; width:120px; text-align:center;\">السعر قبل الخصم</th><!-- 3. الخصم --><th style=\"padding:0.9rem 0.85rem; width:100px; text-align:center;\">الخصم (")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 52, ")</a></div></div><!-- Main Comparison Table Matching Image 1 Exactly --> <div class=\"card\" style=\"padding:0; overflow:hidden; background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-2xl); box-shadow:var(--shadow-sm);\"><div class=\"table-responsive\"><table class=\"table\" id=\"head-to-head-table\" style=\"margin:0; width:100%; border-collapse:collapse; font-size:0.875rem;\"><thead><tr style=\"background:var(--surface-sunken); border-bottom:2px solid var(--border); font-size:0.825rem; text-align:start;\"><!-- 1. المنتج --><th style=\"padding:0.9rem 1rem; min-width:260px;\">المنتج</th><!-- 2. سعر الجمهور --><th style=\"padding:0.9rem 0.85rem; width:120px; text-align:center;\">سعر الجمهور</th><!-- 3. نسبة الخصم --><th style=\"padding:0.9rem 0.85rem; width:100px; text-align:center;\">نسبة الخصم (")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var40 string
 			templ_7745c5c3_Var40, templ_7745c5c3_Err = templ.JoinStringErrs(data.Result.SourceSupplierName)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/compare_head_to_head.templ`, Line: 371, Col: 53}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/compare_head_to_head.templ`, Line: 371, Col: 62}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var40))
 			if templ_7745c5c3_Err != nil {

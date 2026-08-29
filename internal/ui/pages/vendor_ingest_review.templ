@@ -122,14 +122,19 @@ templ importReviewStage(view VendorImportView) {
 							<th style="min-width: 280px;">
 								@reviewSortHeader(view, "catalog_name", "الصنف المطابق بالكتالوج المركزي")
 							</th>
-							<th style="width: 120px; text-align: center;">
+							<th style="width: 110px; text-align: center;">
 								@reviewSortHeader(view, "score", "نسبة التطابق")
 							</th>
-							<th style="width: 120px; text-align: center;">
-								@reviewSortHeader(view, "price", "السعر قبل الخصم")
+							<th style="width: 110px; text-align: center;">
+								@reviewSortHeader(view, "price", "سعر الجمهور")
 							</th>
-							<th style="width: 110px; text-align: center;">الخصم</th>
-							<th style="width: 90px; text-align: center;">
+							<th style="width: 100px; text-align: center;">
+								@reviewSortHeader(view, "discount", "نسبة الخصم %")
+							</th>
+							<th style="width: 110px; text-align: center;">
+								السعر بعد الخصم
+							</th>
+							<th style="width: 85px; text-align: center;">
 								@reviewSortHeader(view, "quantity", "الكمية")
 							</th>
 						</tr>
@@ -495,7 +500,7 @@ templ reviewTableRow(view VendorImportView, row *ingest.RowOutcome) {
 			}
 		</td>
 
-		<!-- Price (Editable Inline) -->
+		<!-- Public Price (سعر الجمهور - Editable Inline) -->
 		<td class="text-center align-middle tabular-nums">
 			<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/vendor/ingest/%s/rows/%d/update?match=%s&sort=%s&order=%s&page=%d&limit=%d&q=%s", view.Session.PublicID, row.ID, view.Filter.MatchLevel, view.Filter.SortBy, view.Filter.SortOrder, view.Page, view.PerPage, view.Filter.Search)) }
 				class="row-center-xs gap-xs" style="justify-content: center;">
@@ -510,26 +515,34 @@ templ reviewTableRow(view VendorImportView, row *ingest.RowOutcome) {
 					placeholder="0.00"
 					class="form-input text-center tabular-nums fw-700"
 					style="width: 78px; height: 32px; padding: 0.2rem 0.35rem; font-size: 0.85rem; border-radius: var(--radius-md);"
-					title="تعديل السعر يدوياً"/>
-				<button type="submit" class="btn btn-secondary btn-sm px-2" style="height: 32px; padding: 0 0.45rem;" title="حفظ السعر">✓</button>
+					title="تعديل سعر الجمهور"/>
+				<button type="submit" class="btn btn-secondary btn-sm px-2" style="height: 32px; padding: 0 0.45rem;" title="حفظ سعر الجمهور">✓</button>
 			</form>
 		</td>
 
-		<!-- Discount (Editable Inline) -->
+		<!-- Discount Percentage % (نسبة الخصم - Editable Inline) -->
 		<td class="text-center align-middle tabular-nums">
 			<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/vendor/ingest/%s/rows/%d/update?match=%s&sort=%s&order=%s&page=%d&limit=%d&q=%s", view.Session.PublicID, row.ID, view.Filter.MatchLevel, view.Filter.SortBy, view.Filter.SortOrder, view.Page, view.PerPage, view.Filter.Search)) }
 				class="row-center-xs gap-xs" style="justify-content: center;">
 				<input type="hidden" name="display_name" value={ row.DisplayName }/>
 				<input type="number" name="discount"
-					value={ rowDiscountValue(row) }
-					step="0.01"
+					value={ rowDiscountPercentValue(row) }
+					step="0.1"
 					min="0"
-					placeholder="0.00"
+					max="100"
+					placeholder="0.0"
 					class="form-input text-center tabular-nums fw-700"
-					style="width: 78px; height: 32px; padding: 0.2rem 0.35rem; font-size: 0.85rem; border-radius: var(--radius-md);"
-					title="تعديل الخصم يدوياً"/>
-				<button type="submit" class="btn btn-secondary btn-sm px-2" style="height: 32px; padding: 0 0.45rem;" title="حفظ الخصم">✓</button>
+					style="width: 70px; height: 32px; padding: 0.2rem 0.35rem; font-size: 0.85rem; border-radius: var(--radius-md);"
+					title="تعديل نسبة الخصم %"/>
+				<button type="submit" class="btn btn-secondary btn-sm px-2" style="height: 32px; padding: 0 0.45rem;" title="حفظ نسبة الخصم">✓</button>
 			</form>
+		</td>
+
+		<!-- Net Price (السعر بعد الخصم) -->
+		<td class="text-center align-middle tabular-nums">
+			<span class="fw-800 text-primary" style="font-size: 0.875rem;">
+				{ rowNetPriceValue(row) } <span style="font-size:0.7rem; color:var(--text-secondary);">ج.م</span>
+			</span>
 		</td>
 
 		<!-- Quantity (Editable Inline) -->
@@ -565,9 +578,7 @@ func rowQuantityValue(row *ingest.RowOutcome) string {
 	return ""
 }
 
-// rowPriceValue is the list price shown in the "السعر قبل الخصم" column, so it
-// prefers the public price and falls back to the net only when the supplier's
-// file carried no list price at all.
+// rowPriceValue is the public price shown in the "سعر الجمهور" column.
 func rowPriceValue(row *ingest.RowOutcome) string {
 	if row != nil && row.Payload != nil {
 		if row.Payload.PublicPrice.IsPositive() {
@@ -580,22 +591,40 @@ func rowPriceValue(row *ingest.RowOutcome) string {
 	return ""
 }
 
-// rowDiscountValue derives the discount from the two prices the supplier's file
-// carried, matching how listAndDiscount stores it on the committed variant.
-func rowDiscountValue(row *ingest.RowOutcome) string {
+// rowDiscountPercentValue derives the discount percentage.
+func rowDiscountPercentValue(row *ingest.RowOutcome) string {
 	if row == nil || row.Payload == nil {
-		return ""
+		return "0.0"
+	}
+	if row.Payload.DiscountBps > 0 {
+		return fmt.Sprintf("%.1f", float64(row.Payload.DiscountBps)/100.0)
 	}
 	list := row.Payload.PublicPrice
 	net := row.Payload.NetPrice
-	if !list.IsPositive() || !net.IsPositive() || net.Minor() >= list.Minor() {
+	if list.IsPositive() && net.IsPositive() && net.Minor() < list.Minor() {
+		pct := (1.0 - float64(net.Minor())/float64(list.Minor())) * 100.0
+		return fmt.Sprintf("%.1f", pct)
+	}
+	return "0.0"
+}
+
+// rowNetPriceValue calculates the price after discount.
+func rowNetPriceValue(row *ingest.RowOutcome) string {
+	if row == nil || row.Payload == nil {
 		return "0.00"
 	}
-	diff, err := list.Sub(net)
-	if err != nil {
-		return "0.00"
+	if row.Payload.NetPrice.IsPositive() {
+		return row.Payload.NetPrice.String()
 	}
-	return diff.String()
+	list := row.Payload.PublicPrice
+	if list.IsPositive() {
+		if row.Payload.DiscountBps > 0 {
+			net := list.ApplyPercent(10000 - row.Payload.DiscountBps)
+			return net.String()
+		}
+		return list.String()
+	}
+	return "0.00"
 }
 
 templ reviewPagination(view VendorImportView) {
