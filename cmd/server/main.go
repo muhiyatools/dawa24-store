@@ -95,7 +95,7 @@ func run() error {
 		for i := 0; i < 30; i++ {
 			time.Sleep(2000 * time.Millisecond)
 			dbHandle := deps.Handle()
-			if dbHandle != nil && dbHandle.Pool != nil {
+			if dbHandle != nil && dbHandle.Connected() {
 				_ = dbHandle.InTx(database.AsSystem(context.Background()), func(txCtx context.Context, tx pgx.Tx) error {
 					_, _ = tx.Exec(txCtx, `
 						UPDATE catalog.product_variants v

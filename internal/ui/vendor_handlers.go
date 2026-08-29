@@ -136,7 +136,7 @@ func (h *UIHandler) vendorBranchOptions(
 		if name == "" {
 			name = b.Name.Get(i18n.EN)
 		}
-		options = append(options, pages.VendorBranchOption{ID: b.ID, Name: name})
+		options = append(options, pages.VendorBranchOption{ID: b.ID, Name: name, IsMain: b.IsMain})
 		names[b.ID] = name
 	}
 	return options, names

@@ -100,11 +100,10 @@ templ aiConsumptionLogsBody(data AIConsumptionLogsPageData, lang, dir string) {
 					<span class="text-purple">🔮</span>
 				</div>
 				<div class="tabular-nums text-2xl font-black text-purple mt-2">
-					{ fmt.Sprintf("%s", data.FormattedTokens(data.TotalTokens)) }
+					{ fmt.Sprintf("%d", data.TotalTokens) }
 				</div>
-				<div class="flex-between items-center text-xs text-muted mt-2 pt-2 border-t tabular-nums">
-					<span>إدخال: <strong>{ data.FormattedTokens(data.PromptTokens) }</strong></span>
-					<span>توليد: <strong>{ data.FormattedTokens(data.CompletionTokens) }</strong></span>
+				<div class="text-xs text-muted mt-2 pt-2 border-t">
+					استهلاك الرموز للعمليات التشغيلية
 				</div>
 			</div>
 		</div>
