@@ -12,6 +12,7 @@ import (
 	"github.com/xuri/excelize/v2"
 
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
+	"github.com/muhiya/dawa24-store/internal/shared/productmatch"
 	"github.com/muhiya/dawa24-store/internal/shared/sheet"
 	"github.com/muhiya/dawa24-store/internal/ui/pages"
 )
@@ -88,15 +89,33 @@ func (h *UIHandler) CustomerSavingProductsImportUploadSubmit(w http.ResponseWrit
 		return
 	}
 
-	headers := rawRows[0]
-	var sampleRows [][]string
-	if len(rawRows) > 1 {
-		limit := 4
-		if len(rawRows)-1 < limit {
-			limit = len(rawRows) - 1
-		}
-		sampleRows = rawRows[1 : 1+limit]
+	layout, _ := productmatch.AnalyzeLayout(rawRows)
+	var headers []string
+	dataStart := 1
+	if layout.HeaderRow >= 0 && layout.HeaderRow < len(rawRows) {
+		headers = layout.Headers
+		dataStart = layout.FirstDataRow
+	} else if len(rawRows) > 0 {
+		headers = rawRows[0]
+		dataStart = 1
 	}
+
+	if dataStart > len(rawRows) {
+		dataStart = len(rawRows)
+	}
+
+	dataRows := rawRows[dataStart:]
+	if len(dataRows) == 0 {
+		h.redirectWithNotice(w, r, "/customer/saving-products/import", "error", "لم يتم العثور على أي صفوف بيانات للأصناف بعد صف العناوين.")
+		return
+	}
+
+	var sampleRows [][]string
+	limit := 5
+	if len(dataRows) < limit {
+		limit = len(dataRows)
+	}
+	sampleRows = dataRows[:limit]
 
 	nameCol, skuCol, qtyCol, priceCol, productIDCol := detectSavingProductColumns(
 		headers,
@@ -104,11 +123,11 @@ func (h *UIHandler) CustomerSavingProductsImportUploadSubmit(w http.ResponseWrit
 		"", "", "", "", "",
 	)
 
-	session := globalSavingImportSessionStore.NewSession(actor.OrganizationID, actor.UserID, fileHeader.Filename, len(rawRows)-1)
+	session := globalSavingImportSessionStore.NewSession(actor.OrganizationID, actor.UserID, fileHeader.Filename, len(dataRows))
 	session.Phase = SavingPhaseMapping
 	session.Headers = headers
 	session.SampleRows = sampleRows
-	session.RawDataRows = rawRows[1:]
+	session.RawDataRows = dataRows
 	session.DetectedCols = SavingDetectedCols{
 		NameCol:      nameCol,
 		SKUCol:       skuCol,

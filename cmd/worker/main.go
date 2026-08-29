@@ -18,6 +18,7 @@ import (
 	catalogJobs "github.com/muhiya/dawa24-store/internal/modules/catalog/jobs"
 	"github.com/muhiya/dawa24-store/internal/platform/config"
 	"github.com/muhiya/dawa24-store/internal/platform/database"
+	"github.com/muhiya/dawa24-store/internal/platform/gateway"
 	"github.com/muhiya/dawa24-store/internal/platform/observability"
 	"github.com/muhiya/dawa24-store/internal/platform/queue"
 	"github.com/muhiya/dawa24-store/internal/shared/arabic"
@@ -55,10 +56,13 @@ func run() error {
 	river.AddWorker(workers, &expirePromotionsWorker{db: db, log: log})
 	river.AddWorker(workers, catalogJobs.NewProductReindexWorker(db, log))
 
-	// Smart ordering (specs/001-smart-ordering-system). Registered last because
-	// it is the only worker with an optional AI dependency; the rest run
-	// regardless of Gateway state.
-	registerSmartOrderWorker(workers, db, nil, log)
+	// Smart ordering (specs/001-smart-ordering-system). Registered with AI Gateway
+	// client if configured, or deterministic fallback if unconfigured.
+	var ai gateway.Client
+	if cfg.Gateway.BaseURL != "" || cfg.Gateway.ClientApp != "" {
+		ai = gateway.New(cfg.Gateway, log)
+	}
+	registerSmartOrderWorker(workers, db, ai, log)
 
 	queueClient, err := queue.New(db, workers, cfg.Worker, log)
 	if err != nil {

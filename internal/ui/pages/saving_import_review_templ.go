@@ -354,7 +354,7 @@ func savingReviewStage(view SavingImportView) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 35, "</div></div><script>\n\tfunction openSavingCatalogSearch(btn, rowIndex, searchURL, actionURL) {\n\t\tconst row = document.getElementById('saving-row-' + rowIndex);\n\t\tif (!row) return;\n\t\tconst dropdown = row.querySelector('.saving-catalog-dropdown');\n\t\tif (!dropdown) return;\n\n\t\t// Close any other open dropdowns\n\t\tdocument.querySelectorAll('.saving-catalog-dropdown').forEach(d => {\n\t\t\tif (d !== dropdown) d.style.display = 'none';\n\t\t});\n\n\t\tconst isOpen = dropdown.style.display === 'block';\n\t\tif (isOpen) {\n\t\t\tdropdown.style.display = 'none';\n\t\t\treturn;\n\t\t}\n\n\t\tdropdown.style.display = 'block';\n\t\tconst input = dropdown.querySelector('.saving-search-input');\n\t\tif (input) {\n\t\t\tinput.focus();\n\t\t\tif (!input.dataset.initialized) {\n\t\t\t\tinput.dataset.initialized = 'true';\n\t\t\t\tlet debounceTimer = null;\n\t\t\t\tinput.addEventListener('input', function() {\n\t\t\t\t\tclearTimeout(debounceTimer);\n\t\t\t\t\tdebounceTimer = setTimeout(() => {\n\t\t\t\t\t\tfetchSavingCatalogResults(dropdown, input.value, searchURL, actionURL);\n\t\t\t\t\t}, 250);\n\t\t\t\t});\n\t\t\t\tfetchSavingCatalogResults(dropdown, input.value, searchURL, actionURL);\n\t\t\t}\n\t\t}\n\t}\n\n\tfunction fetchSavingCatalogResults(dropdown, query, searchURL, actionURL) {\n\t\tvar resultsContainer = dropdown.querySelector('.saving-search-results');\n\t\tif (!resultsContainer) return;\n\t\tresultsContainer.innerHTML = '<div style=\"padding:0.75rem; text-align:center; color:var(--text-muted); font-size:0.8rem;\">جاري البحث في الكتالوج المركزي...</div>';\n\n\t\tfetch(searchURL + '?q=' + encodeURIComponent(query))\n\t\t\t.then(function(res) { return res.json(); })\n\t\t\t.then(function(data) {\n\t\t\t\tvar items = data.items || data.products || data || [];\n\t\t\t\tif (!items || items.length === 0) {\n\t\t\t\t\tresultsContainer.innerHTML = '<div style=\"padding:0.75rem; text-align:center; color:var(--text-muted); font-size:0.8rem;\">لم يتم العثور على أي صنف مطابق.</div>';\n\t\t\t\t\treturn;\n\t\t\t\t}\n\t\t\t\tvar html = '';\n\t\t\t\titems.forEach(function(item) {\n\t\t\t\t\tvar name = item.name_ar || item.name_en || item.name || '';\n\t\t\t\t\tvar sku = item.sku || '';\n\t\t\t\t\tvar id = item.id;\n\t\t\t\t\tvar skuHtml = sku ? '<div style=\"font-size:0.75rem; color:var(--text-muted); font-family:monospace;\">' + escapeHtml(sku) + '</div>' : '';\n\t\t\t\t\thtml += '<form method=\"POST\" action=\"' + actionURL + '\" style=\"margin:0;\">' +\n\t\t\t\t\t\t'<input type=\"hidden\" name=\"product_id\" value=\"' + id + '\" />' +\n\t\t\t\t\t\t'<input type=\"hidden\" name=\"master_name\" value=\"' + escapeHtml(name) + '\" />' +\n\t\t\t\t\t\t'<input type=\"hidden\" name=\"master_sku\" value=\"' + escapeHtml(sku) + '\" />' +\n\t\t\t\t\t\t'<button type=\"submit\" class=\"saving-combobox-item\" style=\"width:100%; text-align:inherit; display:flex; justify-content:space-between; align-items:center; padding:0.5rem 0.75rem; border:none; background:none; cursor:pointer; font-size:0.85rem; border-bottom:1px solid var(--border-subtle);\">' +\n\t\t\t\t\t\t'<div><div style=\"font-weight:700; color:var(--text-primary);\">' + escapeHtml(name) + '</div>' + skuHtml + '</div>' +\n\t\t\t\t\t\t'<span style=\"font-size:0.75rem; color:var(--brand-primary); font-weight:700;\">ربط ✓</span>' +\n\t\t\t\t\t\t'</button></form>';\n\t\t\t\t});\n\t\t\t\tresultsContainer.innerHTML = html;\n\t\t\t})\n\t\t\t.catch(function(err) {\n\t\t\t\tresultsContainer.innerHTML = '<div style=\"padding:0.75rem; text-align:center; color:var(--danger); font-size:0.8rem;\">حدث خطأ أثناء البحث.</div>';\n\t\t\t});\n\t}\n\n\tfunction escapeHtml(str) {\n\t\tif (!str) return '';\n\t\treturn String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/\"/g, '&quot;');\n\t}\n\n\tdocument.addEventListener('click', function(e) {\n\t\tif (!e.target.closest('.saving-catalog-cell')) {\n\t\t\tdocument.querySelectorAll('.saving-catalog-dropdown').forEach(d => d.style.display = 'none');\n\t\t}\n\t});\n\t</script>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 35, "</div></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -396,7 +396,7 @@ func savingThSort(view SavingImportView, colKey, label string) templ.Component {
 		var templ_7745c5c3_Var16 templ.SafeURL
 		templ_7745c5c3_Var16, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(sortURL))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/saving_import_review.templ`, Line: 211, Col: 34}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/saving_import_review.templ`, Line: 128, Col: 34}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var16))
 		if templ_7745c5c3_Err != nil {
@@ -409,7 +409,7 @@ func savingThSort(view SavingImportView, colKey, label string) templ.Component {
 		var templ_7745c5c3_Var17 string
 		templ_7745c5c3_Var17, templ_7745c5c3_Err = templ.JoinStringErrs(label)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/saving_import_review.templ`, Line: 212, Col: 16}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/saving_import_review.templ`, Line: 129, Col: 16}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var17))
 		if templ_7745c5c3_Err != nil {
@@ -480,7 +480,7 @@ func savingFilterTab(view SavingImportView, matchKey, label string) templ.Compon
 		var templ_7745c5c3_Var20 templ.SafeURL
 		templ_7745c5c3_Var20, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(tabURL))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/saving_import_review.templ`, Line: 231, Col: 32}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/saving_import_review.templ`, Line: 148, Col: 32}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var20))
 		if templ_7745c5c3_Err != nil {
@@ -506,7 +506,7 @@ func savingFilterTab(view SavingImportView, matchKey, label string) templ.Compon
 		var templ_7745c5c3_Var22 string
 		templ_7745c5c3_Var22, templ_7745c5c3_Err = templ.JoinStringErrs(label)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/saving_import_review.templ`, Line: 233, Col: 9}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/saving_import_review.templ`, Line: 150, Col: 9}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var22))
 		if templ_7745c5c3_Err != nil {
@@ -557,7 +557,7 @@ func savingProductRow(view SavingImportView, row *StagedSavingItem) templ.Compon
 		var templ_7745c5c3_Var25 string
 		templ_7745c5c3_Var25, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("saving-row-%d", row.Index))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/saving_import_review.templ`, Line: 244, Col: 49}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/saving_import_review.templ`, Line: 161, Col: 49}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var25)
 		if templ_7745c5c3_Err != nil {
@@ -583,7 +583,7 @@ func savingProductRow(view SavingImportView, row *StagedSavingItem) templ.Compon
 		var templ_7745c5c3_Var27 templ.SafeURL
 		templ_7745c5c3_Var27, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(actionBase + "/toggle" + querySuffix))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/saving_import_review.templ`, Line: 246, Col: 83}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/saving_import_review.templ`, Line: 163, Col: 83}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var27))
 		if templ_7745c5c3_Err != nil {
@@ -606,7 +606,7 @@ func savingProductRow(view SavingImportView, row *StagedSavingItem) templ.Compon
 		var templ_7745c5c3_Var28 templ.SafeURL
 		templ_7745c5c3_Var28, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(actionBase + "/update" + querySuffix))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/saving_import_review.templ`, Line: 252, Col: 83}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/saving_import_review.templ`, Line: 169, Col: 83}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var28))
 		if templ_7745c5c3_Err != nil {
@@ -619,7 +619,7 @@ func savingProductRow(view SavingImportView, row *StagedSavingItem) templ.Compon
 		var templ_7745c5c3_Var29 string
 		templ_7745c5c3_Var29, templ_7745c5c3_Err = templ.ResolveAttributeValue(row.NameProduct)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/saving_import_review.templ`, Line: 254, Col: 59}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/saving_import_review.templ`, Line: 171, Col: 59}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var29)
 		if templ_7745c5c3_Err != nil {
@@ -637,7 +637,7 @@ func savingProductRow(view SavingImportView, row *StagedSavingItem) templ.Compon
 			var templ_7745c5c3_Var30 string
 			templ_7745c5c3_Var30, templ_7745c5c3_Err = templ.JoinStringErrs(row.SKU)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/saving_import_review.templ`, Line: 259, Col: 58}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/saving_import_review.templ`, Line: 176, Col: 58}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var30))
 			if templ_7745c5c3_Err != nil {
@@ -648,7 +648,7 @@ func savingProductRow(view SavingImportView, row *StagedSavingItem) templ.Compon
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 57, "</form></td><td class=\"align-middle saving-catalog-cell position-relative\"><div class=\"row-center-sm gap-xs\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 57, "</form></td><td class=\"align-middle saving-catalog-cell\"><div class=\"row-center-sm gap-xs\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -660,7 +660,7 @@ func savingProductRow(view SavingImportView, row *StagedSavingItem) templ.Compon
 			var templ_7745c5c3_Var31 string
 			templ_7745c5c3_Var31, templ_7745c5c3_Err = templ.JoinStringErrs(row.MasterProductName)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/saving_import_review.templ`, Line: 268, Col: 71}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/saving_import_review.templ`, Line: 185, Col: 71}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var31))
 			if templ_7745c5c3_Err != nil {
@@ -678,7 +678,7 @@ func savingProductRow(view SavingImportView, row *StagedSavingItem) templ.Compon
 				var templ_7745c5c3_Var32 string
 				templ_7745c5c3_Var32, templ_7745c5c3_Err = templ.JoinStringErrs(row.MasterProductSKU)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/saving_import_review.templ`, Line: 270, Col: 73}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/saving_import_review.templ`, Line: 187, Col: 73}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var32))
 				if templ_7745c5c3_Err != nil {
@@ -693,15 +693,15 @@ func savingProductRow(view SavingImportView, row *StagedSavingItem) templ.Compon
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templ.RenderScriptItems(ctx, templ_7745c5c3_Buffer, templ.ComponentScript{Call: fmt.Sprintf("openSavingCatalogSearch(this, %d, '%s', '%s')", row.Index, searchURL, actionBase+"/match"+querySuffix)})
+			templ_7745c5c3_Err = templ.RenderScriptItems(ctx, templ_7745c5c3_Buffer, templ.ComponentScript{Call: fmt.Sprintf("openSavingCatalogModal(%d, '%s', '%s', '%s', true)", row.Index, searchURL, actionBase+"/match"+querySuffix, row.NameProduct)})
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 63, "<button type=\"button\" class=\"btn btn-secondary btn-xs\" onclick=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 63, "<button type=\"button\" class=\"btn btn-secondary btn-xs font-bold\" onclick=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			var templ_7745c5c3_Var33 templ.ComponentScript = templ.ComponentScript{Call: fmt.Sprintf("openSavingCatalogSearch(this, %d, '%s', '%s')", row.Index, searchURL, actionBase+"/match"+querySuffix)}
+			var templ_7745c5c3_Var33 templ.ComponentScript = templ.ComponentScript{Call: fmt.Sprintf("openSavingCatalogModal(%d, '%s', '%s', '%s', true)", row.Index, searchURL, actionBase+"/match"+querySuffix, row.NameProduct)}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var33.Call)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
@@ -711,15 +711,15 @@ func savingProductRow(view SavingImportView, row *StagedSavingItem) templ.Compon
 				return templ_7745c5c3_Err
 			}
 		} else {
-			templ_7745c5c3_Err = templ.RenderScriptItems(ctx, templ_7745c5c3_Buffer, templ.ComponentScript{Call: fmt.Sprintf("openSavingCatalogSearch(this, %d, '%s', '%s')", row.Index, searchURL, actionBase+"/match"+querySuffix)})
+			templ_7745c5c3_Err = templ.RenderScriptItems(ctx, templ_7745c5c3_Buffer, templ.ComponentScript{Call: fmt.Sprintf("openSavingCatalogModal(%d, '%s', '%s', '%s', false)", row.Index, searchURL, actionBase+"/match"+querySuffix, row.NameProduct)})
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 65, "<button type=\"button\" class=\"btn btn-outline-warning btn-xs fw-700\" onclick=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 65, "<button type=\"button\" class=\"btn btn-primary btn-xs font-bold d-inline-flex items-center gap-1\" onclick=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			var templ_7745c5c3_Var34 templ.ComponentScript = templ.ComponentScript{Call: fmt.Sprintf("openSavingCatalogSearch(this, %d, '%s', '%s')", row.Index, searchURL, actionBase+"/match"+querySuffix)}
+			var templ_7745c5c3_Var34 templ.ComponentScript = templ.ComponentScript{Call: fmt.Sprintf("openSavingCatalogModal(%d, '%s', '%s', '%s', false)", row.Index, searchURL, actionBase+"/match"+querySuffix, row.NameProduct)}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var34.Call)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
@@ -728,7 +728,7 @@ func savingProductRow(view SavingImportView, row *StagedSavingItem) templ.Compon
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = components.IconPlus("icon-xs").Render(ctx, templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = components.IconPlus("icon-xxs").Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -737,161 +737,125 @@ func savingProductRow(view SavingImportView, row *StagedSavingItem) templ.Compon
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 68, "</div><div class=\"saving-catalog-dropdown combobox-menu shadow-lg\" style=\"display:none; position:absolute; z-index:50; top:100%; start:0; width:340px; background:var(--bg-surface); border:1px solid var(--border-subtle); border-radius:var(--radius-md); padding:0.5rem; margin-top:0.25rem;\"><div class=\"p-xs\"><input type=\"text\" class=\"form-input saving-search-input w-100\" placeholder=\"ابحث في الكتالوج المركزي باسم الدواء...\" value=\"")
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		var templ_7745c5c3_Var35 string
-		templ_7745c5c3_Var35, templ_7745c5c3_Err = templ.ResolveAttributeValue(row.NameProduct)
-		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/saving_import_review.templ`, Line: 290, Col: 29}
-		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var35)
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 69, "\" style=\"padding:0.4rem 0.6rem; font-size:0.85rem;\"></div><div class=\"saving-search-results max-h-60 overflow-y-auto mt-xs\"></div>")
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		if row.ProductID != nil && *row.ProductID > 0 {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 70, "<div class=\"pt-xs mt-xs border-top\" style=\"border-color: var(--border-subtle);\"><form method=\"POST\" action=\"")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			var templ_7745c5c3_Var36 templ.SafeURL
-			templ_7745c5c3_Var36, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(actionBase + "/match" + querySuffix))
-			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/saving_import_review.templ`, Line: 295, Col: 85}
-			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var36))
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 71, "\"><input type=\"hidden\" name=\"product_id\" value=\"0\"> <button type=\"submit\" class=\"btn btn-ghost btn-xs text-danger w-100 text-start\">✕ إلغاء الربط (جعله غير مرتبط)</button></form></div>")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 72, "</div></td><td class=\"text-center align-middle\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 68, "</div></td><td class=\"text-center align-middle\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		if row.ProductID != nil && *row.ProductID > 0 {
 			if row.MatchType == "manual" {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 73, "<span class=\"badge badge-emerald text-xs fw-800\">مطابقة يدوية</span>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 69, "<span class=\"badge badge-emerald text-xs fw-800\">مطابقة يدوية</span>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			} else if row.Confidence >= 0.75 {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 74, "<span class=\"badge badge-emerald text-xs fw-800\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 70, "<span class=\"badge badge-emerald text-xs fw-800\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				var templ_7745c5c3_Var37 string
-				templ_7745c5c3_Var37, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%.0f%%", row.Confidence*100))
+				var templ_7745c5c3_Var35 string
+				templ_7745c5c3_Var35, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%.0f%%", row.Confidence*100))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/saving_import_review.templ`, Line: 311, Col: 97}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/saving_import_review.templ`, Line: 209, Col: 97}
 				}
-				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var37))
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var35))
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 75, " (مطابق)</span>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 71, " (مطابق)</span>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			} else {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 76, "<span class=\"badge badge-amber text-xs fw-700\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 72, "<span class=\"badge badge-amber text-xs fw-700\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				var templ_7745c5c3_Var38 string
-				templ_7745c5c3_Var38, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%.0f%%", row.Confidence*100))
+				var templ_7745c5c3_Var36 string
+				templ_7745c5c3_Var36, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%.0f%%", row.Confidence*100))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/saving_import_review.templ`, Line: 313, Col: 95}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/saving_import_review.templ`, Line: 211, Col: 95}
 				}
-				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var38))
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var36))
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 77, "</span>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 73, "</span>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			}
 		} else {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 78, "<span class=\"badge badge-rose text-xs\">غير مرتبط</span>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 74, "<span class=\"badge badge-rose text-xs\">غير مرتبط</span>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 79, "</td><td class=\"text-center align-middle\"><form method=\"POST\" action=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 75, "</td><td class=\"text-center align-middle\"><form method=\"POST\" action=\"")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		var templ_7745c5c3_Var37 templ.SafeURL
+		templ_7745c5c3_Var37, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(actionBase + "/update" + querySuffix))
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/saving_import_review.templ`, Line: 219, Col: 83}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var37))
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 76, "\" class=\"row-center-xs justify-center gap-xs\"><input type=\"number\" step=\"1\" min=\"1\" name=\"quantity\" value=\"")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		var templ_7745c5c3_Var38 string
+		templ_7745c5c3_Var38, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%.0f", row.Quantity))
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/saving_import_review.templ`, Line: 220, Col: 99}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var38)
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 77, "\" class=\"form-input text-center tabular-nums\" style=\"padding: 0.25rem 0.4rem; font-size: 0.85rem; width: 60px;\"> <button type=\"submit\" class=\"btn btn-ghost btn-xs px-1\" title=\"حفظ الكمية\">✓</button></form></td><td class=\"text-center align-middle\"><form method=\"POST\" action=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var39 templ.SafeURL
 		templ_7745c5c3_Var39, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(actionBase + "/update" + querySuffix))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/saving_import_review.templ`, Line: 321, Col: 83}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/saving_import_review.templ`, Line: 227, Col: 83}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var39))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 80, "\" class=\"row-center-xs justify-center gap-xs\"><input type=\"number\" step=\"1\" min=\"1\" name=\"quantity\" value=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 78, "\" class=\"row-center-xs justify-center gap-xs\"><input type=\"number\" step=\"0.01\" min=\"0\" name=\"price\" value=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var40 string
-		templ_7745c5c3_Var40, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%.0f", row.Quantity))
+		templ_7745c5c3_Var40, templ_7745c5c3_Err = templ.ResolveAttributeValue(row.Price.String())
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/saving_import_review.templ`, Line: 322, Col: 99}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/saving_import_review.templ`, Line: 228, Col: 84}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var40)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 81, "\" class=\"form-input text-center tabular-nums\" style=\"padding: 0.25rem 0.4rem; font-size: 0.85rem; width: 60px;\"> <button type=\"submit\" class=\"btn btn-ghost btn-xs px-1\" title=\"حفظ الكمية\">✓</button></form></td><td class=\"text-center align-middle\"><form method=\"POST\" action=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 79, "\" class=\"form-input text-center tabular-nums\" style=\"padding: 0.25rem 0.4rem; font-size: 0.85rem; width: 75px;\"> <button type=\"submit\" class=\"btn btn-ghost btn-xs px-1\" title=\"حفظ السعر\">✓</button></form></td><td class=\"text-center align-middle tabular-nums fw-700\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		var templ_7745c5c3_Var41 templ.SafeURL
-		templ_7745c5c3_Var41, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(actionBase + "/update" + querySuffix))
+		var templ_7745c5c3_Var41 string
+		templ_7745c5c3_Var41, templ_7745c5c3_Err = templ.JoinStringErrs(row.TotalValue.String())
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/saving_import_review.templ`, Line: 329, Col: 83}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/saving_import_review.templ`, Line: 235, Col: 28}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var41))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 82, "\" class=\"row-center-xs justify-center gap-xs\"><input type=\"number\" step=\"0.01\" min=\"0\" name=\"price\" value=\"")
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		var templ_7745c5c3_Var42 string
-		templ_7745c5c3_Var42, templ_7745c5c3_Err = templ.ResolveAttributeValue(row.Price.String())
-		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/saving_import_review.templ`, Line: 330, Col: 84}
-		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var42)
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 83, "\" class=\"form-input text-center tabular-nums\" style=\"padding: 0.25rem 0.4rem; font-size: 0.85rem; width: 75px;\"> <button type=\"submit\" class=\"btn btn-ghost btn-xs px-1\" title=\"حفظ السعر\">✓</button></form></td><td class=\"text-center align-middle tabular-nums fw-700\">")
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		var templ_7745c5c3_Var43 string
-		templ_7745c5c3_Var43, templ_7745c5c3_Err = templ.JoinStringErrs(row.TotalValue.String())
-		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/saving_import_review.templ`, Line: 337, Col: 28}
-		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var43))
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 84, " ج.م</td></tr>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 80, " ج.م</td></tr>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -915,9 +879,9 @@ func savingPagination(view SavingImportView) templ.Component {
 			}()
 		}
 		ctx = templ.InitializeContext(ctx)
-		templ_7745c5c3_Var44 := templ.GetChildren(ctx)
-		if templ_7745c5c3_Var44 == nil {
-			templ_7745c5c3_Var44 = templ.NopComponent
+		templ_7745c5c3_Var42 := templ.GetChildren(ctx)
+		if templ_7745c5c3_Var42 == nil {
+			templ_7745c5c3_Var42 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
 		limit := view.Filter.Limit
@@ -929,115 +893,123 @@ func savingPagination(view SavingImportView) templ.Component {
 		if currPage <= 0 {
 			currPage = 1
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 85, "<div class=\"b2b-pagination\"><div class=\"b2b-pagination-info\">عرض <strong>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 81, "<div class=\"b2b-pagination p-4 border-t flex-between items-center flex-wrap gap-3\"><div class=\"b2b-pagination-info text-xs text-secondary\">عرض <strong class=\"text-primary tabular-nums font-bold\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		var templ_7745c5c3_Var45 string
-		templ_7745c5c3_Var45, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprint(len(view.Rows)))
+		var templ_7745c5c3_Var43 string
+		templ_7745c5c3_Var43, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprint(len(view.Rows)))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/saving_import_review.templ`, Line: 356, Col: 46}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/saving_import_review.templ`, Line: 254, Col: 90}
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var45))
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 86, "</strong> من إجمالي <strong>")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var43))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		var templ_7745c5c3_Var46 string
-		templ_7745c5c3_Var46, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprint(view.RowTotal))
-		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/saving_import_review.templ`, Line: 356, Col: 111}
-		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var46))
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 82, "</strong> من إجمالي <strong class=\"text-primary tabular-nums font-bold\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 87, "</strong> صنف</div>")
+		var templ_7745c5c3_Var44 string
+		templ_7745c5c3_Var44, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprint(view.RowTotal))
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/saving_import_review.templ`, Line: 254, Col: 199}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var44))
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 83, "</strong> صنف</div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		if totalPages > 1 {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 88, "<div class=\"b2b-pagination-controls\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 84, "<div class=\"b2b-pagination-controls d-flex items-center gap-2\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			if currPage > 1 {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 89, "<a href=\"")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 85, "<a href=\"")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				var templ_7745c5c3_Var47 templ.SafeURL
-				templ_7745c5c3_Var47, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(buildSavingURL(view.ImportURL, view.Session.ID, view.Filter.MatchFilter, view.Filter.SortBy, view.Filter.SortOrder, currPage-1, limit, view.Filter.Search)))
+				var templ_7745c5c3_Var45 templ.SafeURL
+				templ_7745c5c3_Var45, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(buildSavingURL(view.ImportURL, view.Session.ID, view.Filter.MatchFilter, view.Filter.SortBy, view.Filter.SortOrder, currPage-1, limit, view.Filter.Search)))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/saving_import_review.templ`, Line: 361, Col: 184}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/saving_import_review.templ`, Line: 259, Col: 184}
 				}
-				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var47))
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 90, "\" class=\"b2b-pagination-btn\">السابق</a> ")
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var45))
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 86, "\" class=\"btn btn-secondary btn-xs font-bold\">السابق</a> ")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 91, "<span class=\"text-xs px-2\">صفحة ")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 87, "<span class=\"text-xs text-secondary px-2 tabular-nums\">صفحة <strong class=\"text-primary font-bold\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			var templ_7745c5c3_Var48 string
-			templ_7745c5c3_Var48, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprint(currPage))
+			var templ_7745c5c3_Var46 string
+			templ_7745c5c3_Var46, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprint(currPage))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/saving_import_review.templ`, Line: 366, Col: 62}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/saving_import_review.templ`, Line: 264, Col: 129}
 			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var48))
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 92, " من ")
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var46))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			var templ_7745c5c3_Var49 string
-			templ_7745c5c3_Var49, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprint(totalPages))
-			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/saving_import_review.templ`, Line: 366, Col: 94}
-			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var49))
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 88, "</strong> من <strong class=\"text-primary font-bold\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 93, "</span> ")
+			var templ_7745c5c3_Var47 string
+			templ_7745c5c3_Var47, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprint(totalPages))
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/saving_import_review.templ`, Line: 264, Col: 209}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var47))
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 89, "</strong></span> ")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			if currPage < totalPages {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 94, "<a href=\"")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 90, "<a href=\"")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				var templ_7745c5c3_Var50 templ.SafeURL
-				templ_7745c5c3_Var50, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(buildSavingURL(view.ImportURL, view.Session.ID, view.Filter.MatchFilter, view.Filter.SortBy, view.Filter.SortOrder, currPage+1, limit, view.Filter.Search)))
+				var templ_7745c5c3_Var48 templ.SafeURL
+				templ_7745c5c3_Var48, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(buildSavingURL(view.ImportURL, view.Session.ID, view.Filter.MatchFilter, view.Filter.SortBy, view.Filter.SortOrder, currPage+1, limit, view.Filter.Search)))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/saving_import_review.templ`, Line: 368, Col: 184}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/saving_import_review.templ`, Line: 266, Col: 184}
 				}
-				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var50))
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var48))
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 95, "\" class=\"b2b-pagination-btn\">التالي</a>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 91, "\" class=\"btn btn-secondary btn-xs font-bold\">التالي</a>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 96, "</div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 92, "</div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 97, "</div>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 93, "</div><!-- Centered Modal for Linking Saving Product to Master Catalog --><div id=\"saving-catalog-match-modal\" class=\"modal-backdrop\" style=\"display:none; position:fixed; top:0; left:0; right:0; bottom:0; width:100vw; height:100vh; margin:0; background:rgba(4,8,16,0.85); backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px); z-index:var(--z-modal); align-items:center; justify-content:center; padding:1.25rem;\"><div class=\"glass-panel p-6\" style=\"margin:auto; width:100%; max-width:540px; max-height:90vh; display:flex; flex-direction:column; overflow:hidden;\"><div class=\"flex-between items-center pb-3 border-b mb-3\"><div><h3 class=\"text-lg font-black text-primary m-0\">الربط بالكتالوج المركزي</h3><p class=\"text-xs text-secondary m-0 mt-0.5\" id=\"saving-modal-item-name\"></p></div><button type=\"button\" class=\"btn btn-icon btn-xs\" onclick=\"closeSavingCatalogModal()\">")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = components.IconX("icon-xs").Render(ctx, templ_7745c5c3_Buffer)
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 94, "</button></div><div class=\"mb-3\"><input type=\"text\" id=\"saving-modal-search-input\" class=\"form-input text-sm w-100\" placeholder=\"ابحث باسم الدواء، الكود، أو المادة الفعالة...\" autocomplete=\"off\"></div><div id=\"saving-modal-results\" class=\"flex-1 overflow-y-auto pr-1 d-flex flex-col gap-2\" style=\"min-height:220px; max-height:360px;\"><div class=\"p-6 text-center text-muted text-xs\">اكتب للبحث في الكتالوج المركزي...</div></div><div id=\"saving-modal-unlink-section\" class=\"pt-3 border-t mt-3 flex-between items-center\" style=\"display:none;\"><form id=\"saving-modal-unlink-form\" method=\"POST\" action=\"\" class=\"m-0\"><input type=\"hidden\" name=\"product_id\" value=\"0\"> <button type=\"submit\" class=\"btn btn-ghost btn-xs text-danger font-bold\">✕ إلغاء الربط (جعله غير مرتبط)</button></form><button type=\"button\" class=\"btn btn-secondary btn-xs font-bold\" onclick=\"closeSavingCatalogModal()\">إغلاق</button></div></div></div><script>\n\tvar currentSavingSearchURL = '';\n\tvar currentSavingActionURL = '';\n\tvar savingSearchDebounceTimer = null;\n\n\tfunction openSavingCatalogModal(rowIndex, searchURL, actionURL, itemName, isLinked) {\n\t\tcurrentSavingSearchURL = searchURL;\n\t\tcurrentSavingActionURL = actionURL;\n\n\t\tvar modal = document.getElementById('saving-catalog-match-modal');\n\t\tvar titleEl = document.getElementById('saving-modal-item-name');\n\t\tvar inputEl = document.getElementById('saving-modal-search-input');\n\t\tvar unlinkSec = document.getElementById('saving-modal-unlink-section');\n\t\tvar unlinkForm = document.getElementById('saving-modal-unlink-form');\n\n\t\tif (titleEl) titleEl.textContent = 'الصنف بالملف: ' + itemName;\n\t\tif (inputEl) {\n\t\t\tinputEl.value = itemName;\n\t\t\tinputEl.oninput = function() {\n\t\t\t\tclearTimeout(savingSearchDebounceTimer);\n\t\t\t\tsavingSearchDebounceTimer = setTimeout(function() {\n\t\t\t\t\tfetchSavingModalResults(inputEl.value);\n\t\t\t\t}, 200);\n\t\t\t};\n\t\t}\n\t\tif (unlinkSec && unlinkForm) {\n\t\t\tunlinkSec.style.display = isLinked ? 'flex' : 'none';\n\t\t\tunlinkForm.action = actionURL;\n\t\t}\n\n\t\tmodal.style.display = 'flex';\n\t\tsetTimeout(function() {\n\t\t\tif (inputEl) {\n\t\t\t\tinputEl.focus();\n\t\t\t\tinputEl.select();\n\t\t\t}\n\t\t\tfetchSavingModalResults(itemName);\n\t\t}, 50);\n\t}\n\n\tfunction closeSavingCatalogModal() {\n\t\tvar modal = document.getElementById('saving-catalog-match-modal');\n\t\tif (modal) modal.style.display = 'none';\n\t}\n\n\tfunction fetchSavingModalResults(query) {\n\t\tvar resultsEl = document.getElementById('saving-modal-results');\n\t\tif (!resultsEl) return;\n\t\tresultsEl.innerHTML = '<div class=\"p-6 text-center text-muted text-xs\">جاري البحث في الكتالوج المركزي...</div>';\n\n\t\tfetch(currentSavingSearchURL + '?q=' + encodeURIComponent(query))\n\t\t\t.then(function(res) { return res.json(); })\n\t\t\t.then(function(data) {\n\t\t\t\tvar items = data.items || data.products || data || [];\n\t\t\t\tif (!items || items.length === 0) {\n\t\t\t\t\tresultsEl.innerHTML = '<div class=\"p-6 text-center text-muted text-xs\">لم يتم العثور على أي صنف مطابق في الكتالوج.</div>';\n\t\t\t\t\treturn;\n\t\t\t\t}\n\t\t\t\tvar html = '';\n\t\t\t\titems.forEach(function(item) {\n\t\t\t\t\tvar name = item.name_ar || item.name_en || item.name || '';\n\t\t\t\t\tvar sku = item.sku || '';\n\t\t\t\t\tvar id = item.id;\n\t\t\t\t\tvar price = item.public_price || item.price || '';\n\t\t\t\t\tvar priceStr = price ? '<span class=\"badge badge-slate text-xs tabular-nums\">' + price + ' ج.م</span>' : '';\n\t\t\t\t\tvar skuStr = sku ? '<span class=\"text-xs text-muted font-mono\">' + escapeSavingHtml(sku) + '</span>' : '';\n\n\t\t\t\t\thtml += '<form method=\"POST\" action=\"' + currentSavingActionURL + '\" class=\"m-0\">' +\n\t\t\t\t\t\t'<input type=\"hidden\" name=\"product_id\" value=\"' + id + '\" />' +\n\t\t\t\t\t\t'<input type=\"hidden\" name=\"master_name\" value=\"' + escapeSavingHtml(name) + '\" />' +\n\t\t\t\t\t\t'<input type=\"hidden\" name=\"master_sku\" value=\"' + escapeSavingHtml(sku) + '\" />' +\n\t\t\t\t\t\t'<button type=\"submit\" class=\"glass-panel p-3 w-100 text-start flex-between items-center gap-3 border hover-lift cursor-pointer\" style=\"margin-bottom:0; background:var(--bg-surface-raised);\">' +\n\t\t\t\t\t\t'<div><div class=\"text-sm font-extrabold text-primary\">' + escapeSavingHtml(name) + '</div>' +\n\t\t\t\t\t\t'<div class=\"d-flex items-center gap-2 mt-1\">' + skuStr + priceStr + '</div></div>' +\n\t\t\t\t\t\t'<span class=\"badge badge-emerald text-xs font-bold\">ربط ✓</span>' +\n\t\t\t\t\t\t'</button></form>';\n\t\t\t\t});\n\t\t\t\tresultsEl.innerHTML = html;\n\t\t\t})\n\t\t\t.catch(function(err) {\n\t\t\t\tresultsEl.innerHTML = '<div class=\"p-6 text-center text-danger text-xs\">تعذر إجراء البحث في الكتالوج.</div>';\n\t\t\t});\n\t}\n\n\tfunction escapeSavingHtml(str) {\n\t\tif (!str) return '';\n\t\treturn String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/\"/g, '&quot;');\n\t}\n\n\tdocument.addEventListener('keydown', function(e) {\n\t\tif (e.key === 'Escape') {\n\t\t\tcloseSavingCatalogModal();\n\t\t}\n\t});\n\t</script>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
