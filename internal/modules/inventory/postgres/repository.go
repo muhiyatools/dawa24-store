@@ -29,7 +29,11 @@ func (r *Repository) CreateWarehouse(ctx context.Context, w *inventory.Warehouse
 			INSERT INTO inventory.warehouses (
 				organization_id, branch_id, name, code, address, phone,
 				latitude, longitude, is_active
-			) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+			) VALUES (
+				$1,
+				COALESCE($2, (SELECT b.id FROM org.branches b WHERE b.organization_id = $1 AND b.deleted_at IS NULL ORDER BY b.is_main DESC, b.id ASC LIMIT 1)),
+				$3, $4, $5, $6, $7, $8, $9
+			)
 			RETURNING id, public_id, created_at, updated_at;
 		`
 		return tx.QueryRow(txCtx, query,

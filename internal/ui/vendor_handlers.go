@@ -1721,10 +1721,42 @@ func (h *UIHandler) recordInitialStock(ctx context.Context, orgID int64, v *cata
 		return err
 	}
 	var warehouseID int64
-	for _, wh := range warehouses {
-		if wh.OrganizationID == orgID {
-			warehouseID = wh.ID
-			break
+	// Match warehouse associated with the variant's branch
+	if v.BranchID != nil && *v.BranchID > 0 {
+		for _, wh := range warehouses {
+			if wh.OrganizationID == orgID && wh.BranchID != nil && *wh.BranchID == *v.BranchID && wh.IsActive {
+				warehouseID = wh.ID
+				break
+			}
+		}
+	}
+	// Fallback to any active warehouse of the vendor
+	if warehouseID == 0 {
+		for _, wh := range warehouses {
+			if wh.OrganizationID == orgID && wh.IsActive {
+				warehouseID = wh.ID
+				break
+			}
+		}
+	}
+	// If no warehouse exists, auto-create a real warehouse linked to the vendor's branch
+	if warehouseID == 0 {
+		whName := "المخزن الرئيسي"
+		if v.BranchID != nil && h.orgSvc != nil {
+			if b, err := h.orgSvc.GetBranch(ctx, *v.BranchID); err == nil && b != nil {
+				whName = "مخزن " + b.Name.Get(i18n.AR)
+			}
+		}
+		newWh := &inventory.Warehouse{
+			OrganizationID: orgID,
+			BranchID:       v.BranchID,
+			Name:           whName,
+			Code:           "WH-MAIN",
+			IsActive:       true,
+		}
+		createdWh, err := h.invSvc.CreateWarehouse(ctx, newWh)
+		if err == nil && createdWh != nil {
+			warehouseID = createdWh.ID
 		}
 	}
 	if warehouseID == 0 {

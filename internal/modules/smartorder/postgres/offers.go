@@ -43,7 +43,7 @@ func (r *Repository) LoadOffers(ctx context.Context, buyerOrgID int64, productID
 				v.product_id,
 				v.id                                    AS variant_id,
 				v.organization_id                       AS vendor_org_id,
-				p.branch_id,
+				COALESCE(v.branch_id, (SELECT b.id FROM org.branches b WHERE b.organization_id = v.organization_id AND b.deleted_at IS NULL ORDER BY b.is_main DESC, b.id ASC LIMIT 1), 0) AS branch_id,
 				(v.price * 100)::bigint                 AS price_minor,
 				(v.discount * 100)::bigint              AS discount_bps,
 				COALESCE(v.unit, p.unit, '')            AS unit,

@@ -198,8 +198,54 @@ func (h *UIHandler) VendorIngestSettingsSubmit(w http.ResponseWriter, r *http.Re
 		return
 	}
 
+	actor, _ := authctx.From(ctx)
+
 	settings := ingest.DefaultSettings()
 	settings.WarehouseID, _ = strconv.ParseInt(r.PostFormValue("warehouse_id"), 10, 64)
+
+	// Auto-resolve branch and warehouse linkage
+	if settings.WarehouseID > 0 && h.invSvc != nil {
+		if wh, err := h.invSvc.GetWarehouse(ctx, settings.WarehouseID); err == nil && wh != nil && wh.BranchID != nil && *wh.BranchID > 0 {
+			settings.BranchID = wh.BranchID
+		}
+	}
+	if settings.BranchID == nil && actor.OrganizationID > 0 && h.orgSvc != nil {
+		if branches, err := h.orgSvc.ListBranches(ctx, actor.OrganizationID); err == nil && len(branches) > 0 {
+			for _, b := range branches {
+				if b.IsMain {
+					settings.BranchID = &b.ID
+					break
+				}
+			}
+			if settings.BranchID == nil {
+				settings.BranchID = &branches[0].ID
+			}
+		}
+	}
+	if settings.WarehouseID <= 0 && actor.OrganizationID > 0 && h.invSvc != nil {
+		whs, _ := h.invSvc.ListWarehouses(ctx)
+		for _, w := range whs {
+			if w.OrganizationID == actor.OrganizationID && w.IsActive {
+				settings.WarehouseID = w.ID
+				if settings.BranchID == nil && w.BranchID != nil && *w.BranchID > 0 {
+					settings.BranchID = w.BranchID
+				}
+				break
+			}
+		}
+		if settings.WarehouseID <= 0 {
+			newWh := &inventory.Warehouse{
+				OrganizationID: actor.OrganizationID,
+				BranchID:       settings.BranchID,
+				Name:           "المخزن الرئيسي",
+				Code:           "WH-MAIN",
+				IsActive:       true,
+			}
+			if created, err := h.invSvc.CreateWarehouse(ctx, newWh); err == nil && created != nil {
+				settings.WarehouseID = created.ID
+			}
+		}
+	}
 	settings.Mode = ingest.ParseMode(r.PostFormValue("mode"))
 	settings.StockMode = inventory.StockMode(r.PostFormValue("stock_mode"))
 	settings.Duplicates = productmatch.DuplicatePolicy(r.PostFormValue("duplicates"))

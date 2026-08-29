@@ -60,7 +60,10 @@ const insertVariantSQL = `
 		organization_id, product_id, name, sku, barcode, price, cost_price,
 		discount, unit, image, status, is_featured, is_negotiable, batch_number,
 		expiry_date, min_order_qty, branch_id
-	) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17)
+	) VALUES (
+		$1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16,
+		COALESCE($17, (SELECT b.id FROM org.branches b WHERE b.organization_id = $1 AND b.deleted_at IS NULL ORDER BY b.is_main DESC, b.id ASC LIMIT 1))
+	)
 	RETURNING id`
 
 // updateVariantSQL refreshes an existing variant.
@@ -87,7 +90,7 @@ const updateVariantSQL = `
 	    batch_number = COALESCE(NULLIF($12, ''), batch_number),
 	    expiry_date = COALESCE($13, expiry_date),
 	    min_order_qty = $14,
-	    branch_id = COALESCE($15, branch_id),
+	    branch_id = COALESCE($15, branch_id, (SELECT b.id FROM org.branches b WHERE b.organization_id = $2 AND b.deleted_at IS NULL ORDER BY b.is_main DESC, b.id ASC LIMIT 1)),
 	    product_id = COALESCE($16, product_id),
 	    updated_at = now()
 	WHERE id = $1 AND organization_id = $2 AND deleted_at IS NULL

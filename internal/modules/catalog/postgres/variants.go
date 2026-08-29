@@ -21,7 +21,8 @@ func (r *Repository) CreateVariant(ctx context.Context, v *catalog.ProductVarian
 				discount, unit, image, status, is_featured, is_negotiable, batch_number, expiry_date,
 				min_order_qty, branch_id
 			) VALUES (
-				$1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17
+				$1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16,
+				COALESCE($17, (SELECT b.id FROM org.branches b WHERE b.organization_id = $1 AND b.deleted_at IS NULL ORDER BY b.is_main DESC, b.id ASC LIMIT 1))
 			) RETURNING id, public_id, created_at, updated_at;
 		`
 		minQty := v.MinOrderQty
@@ -363,7 +364,9 @@ func (r *Repository) UpdateVariant(ctx context.Context, v *catalog.ProductVarian
 			SET name = $2, sku = $3, barcode = $4, price = $5, cost_price = $6,
 			    discount = $7, unit = $8, image = $9, status = $10,
 			    is_featured = $11, is_negotiable = $12, batch_number = $13, expiry_date = $14,
-			    min_order_qty = $15, branch_id = $16, updated_at = now()
+			    min_order_qty = $15,
+			    branch_id = COALESCE($16, branch_id, (SELECT b.id FROM org.branches b WHERE b.organization_id = catalog.product_variants.organization_id AND b.deleted_at IS NULL ORDER BY b.is_main DESC, b.id ASC LIMIT 1)),
+			    updated_at = now()
 			WHERE id = $1 AND deleted_at IS NULL;
 		`
 		minQty := v.MinOrderQty

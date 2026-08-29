@@ -22,6 +22,7 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	chimw "github.com/go-chi/chi/v5/middleware"
+	"github.com/jackc/pgx/v5"
 
 	dbfs "github.com/muhiya/dawa24-store/db"
 	platformadmin "github.com/muhiya/dawa24-store/internal/modules/platform_admin"
@@ -84,6 +85,45 @@ func run() error {
 		for i := 0; i < 30; i++ {
 			time.Sleep(1500 * time.Millisecond)
 			if err := adminSvc.SyncRuntimeOverrides(context.Background()); err == nil {
+				break
+			}
+		}
+	}()
+
+	// Ensure orphaned variants, warehouses, and offers are linked to real vendor branches
+	go func() {
+		for i := 0; i < 30; i++ {
+			time.Sleep(2000 * time.Millisecond)
+			dbHandle := deps.Handle()
+			if dbHandle != nil && dbHandle.Pool != nil {
+				_ = dbHandle.InTx(database.AsSystem(context.Background()), func(txCtx context.Context, tx pgx.Tx) error {
+					_, _ = tx.Exec(txCtx, `
+						UPDATE catalog.product_variants v
+						SET branch_id = (
+							SELECT b.id FROM org.branches b
+							WHERE b.organization_id = v.organization_id AND b.deleted_at IS NULL
+							ORDER BY b.is_main DESC, b.id ASC LIMIT 1
+						)
+						WHERE v.branch_id IS NULL;
+
+						UPDATE inventory.warehouses w
+						SET branch_id = (
+							SELECT b.id FROM org.branches b
+							WHERE b.organization_id = w.organization_id AND b.deleted_at IS NULL
+							ORDER BY b.is_main DESC, b.id ASC LIMIT 1
+						)
+						WHERE w.branch_id IS NULL;
+
+						UPDATE promo.offers o
+						SET branch_id = (
+							SELECT b.id FROM org.branches b
+							WHERE b.organization_id = o.organization_id AND b.deleted_at IS NULL
+							ORDER BY b.is_main DESC, b.id ASC LIMIT 1
+						)
+						WHERE o.branch_id IS NULL;
+					`)
+					return nil
+				})
 				break
 			}
 		}
