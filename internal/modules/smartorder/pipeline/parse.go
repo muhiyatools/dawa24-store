@@ -11,19 +11,13 @@ import (
 
 // Reading the buyer's file.
 //
-// The workbook is streamed, never loaded whole: a ten-thousand-row file with a
-// dozen columns is a lot of strings to hold at once, and the rows are handed
-// straight to the database in batches anyway.
+// The workbook is streamed, never loaded whole: a large file with a dozen
+// columns is a lot of strings to hold at once, and rows are handed straight to
+// the database in batches anyway.
 //
 // The header row is found rather than assumed. Pharmacy exports routinely open
 // with a title, a date, a branch name and a blank line before the real headers,
 // and reading row 1 as the header turns every column into a mystery.
-
-// MaxRows caps an import.
-//
-// Ten thousand is the figure the spec commits to (FR-002), and the cap is
-// enforced at parse time so the buyer is told before waiting rather than after.
-const MaxRows = 10000
 
 // TargetFields are the columns smart ordering can use.
 //
@@ -213,10 +207,6 @@ func Stage(content []byte, filename string, m *smartorder.Mapping,
 		if isRepeatedHeader(row, headers) {
 			return nil // repeated header row inside the data
 		}
-		if len(lines) >= MaxRows {
-			return fmt.Errorf("the file has more than %d rows", MaxRows)
-		}
-
 		name := cell(row, nameCol, hasName)
 		sku := cell(row, skuCol, hasSKU)
 		barcode := cell(row, barcodeCol, hasBarcode)

@@ -136,13 +136,13 @@ func (r *Repository) ListLines(ctx context.Context, runID int64, f smartorder.Li
 			case "matched", "matched_product":
 				where = append(where, "(matched_product_id IS NOT NULL AND matched_product_id > 0)")
 			case "matched_supplier":
-				where = append(where, "(EXISTS (SELECT 1 FROM smartorder.line_candidates c WHERE c.line_id = smartorder.run_lines.id))")
+				where = append(where, "(EXISTS (SELECT 1 FROM smartorder.line_candidates c WHERE c.line_id = smartorder.run_lines.id AND c.eligible))")
 			case "available_stock":
-				where = append(where, "(EXISTS (SELECT 1 FROM smartorder.line_candidates c WHERE c.line_id = smartorder.run_lines.id AND c.stock_qty > 0))")
+				where = append(where, "(EXISTS (SELECT 1 FROM smartorder.line_candidates c WHERE c.line_id = smartorder.run_lines.id AND c.eligible AND c.stock_qty > 0))")
 			case "covered_branch":
-				where = append(where, "(EXISTS (SELECT 1 FROM smartorder.line_candidates c WHERE c.line_id = smartorder.run_lines.id AND (c.ineligible_reason IS NULL OR c.ineligible_reason != 'coverage')))")
+				where = append(where, "(EXISTS (SELECT 1 FROM smartorder.line_candidates c WHERE c.line_id = smartorder.run_lines.id AND c.eligible AND (c.ineligible_reason IS NULL OR c.ineligible_reason != 'coverage')))")
 			case "price_available":
-				where = append(where, "(EXISTS (SELECT 1 FROM smartorder.line_candidates c WHERE c.line_id = smartorder.run_lines.id AND c.net_unit_price > 0))")
+				where = append(where, "(EXISTS (SELECT 1 FROM smartorder.line_candidates c WHERE c.line_id = smartorder.run_lines.id AND c.eligible AND c.net_unit_price > 0))")
 			case "ready_to_order", "matched_available", "ordered":
 				where = append(where, "(outcome = 'ordered')")
 			case "review":
@@ -328,10 +328,10 @@ func (r *Repository) FilterCounts(ctx context.Context, runID int64) (smartorder.
 				COUNT(*),
 				COUNT(*) FILTER (WHERE matched_product_id IS NULL OR matched_product_id = 0),
 				COUNT(*) FILTER (WHERE matched_product_id IS NOT NULL AND matched_product_id > 0),
-				COUNT(*) FILTER (WHERE EXISTS (SELECT 1 FROM smartorder.line_candidates c WHERE c.line_id = l.id)),
-				COUNT(*) FILTER (WHERE EXISTS (SELECT 1 FROM smartorder.line_candidates c WHERE c.line_id = l.id AND c.stock_qty > 0)),
-				COUNT(*) FILTER (WHERE EXISTS (SELECT 1 FROM smartorder.line_candidates c WHERE c.line_id = l.id AND (c.ineligible_reason IS NULL OR c.ineligible_reason != 'coverage'))),
-				COUNT(*) FILTER (WHERE EXISTS (SELECT 1 FROM smartorder.line_candidates c WHERE c.line_id = l.id AND c.net_unit_price > 0)),
+				COUNT(*) FILTER (WHERE EXISTS (SELECT 1 FROM smartorder.line_candidates c WHERE c.line_id = l.id AND c.eligible)),
+				COUNT(*) FILTER (WHERE EXISTS (SELECT 1 FROM smartorder.line_candidates c WHERE c.line_id = l.id AND c.eligible AND c.stock_qty > 0)),
+				COUNT(*) FILTER (WHERE EXISTS (SELECT 1 FROM smartorder.line_candidates c WHERE c.line_id = l.id AND c.eligible AND (c.ineligible_reason IS NULL OR c.ineligible_reason != 'coverage'))),
+				COUNT(*) FILTER (WHERE EXISTS (SELECT 1 FROM smartorder.line_candidates c WHERE c.line_id = l.id AND c.eligible AND c.net_unit_price > 0)),
 				COUNT(*) FILTER (WHERE outcome = 'ordered')
 			FROM smartorder.run_lines l
 			WHERE l.run_id = $1;

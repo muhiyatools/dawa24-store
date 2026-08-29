@@ -142,6 +142,12 @@ type Repository interface {
 	ListEvents(ctx context.Context, runID int64, afterID int64) ([]*Event, error)
 }
 
+// RunClaimer is an optional atomic claim capability. Implementations that
+// provide it prevent two dispatchers from starting the same queued run.
+type RunClaimer interface {
+	ClaimRun(ctx context.Context, orgID, runID int64) (bool, error)
+}
+
 // Mapping is the confirmed association between file columns and target fields.
 type Mapping struct {
 	RunID          int64              `json:"run_id"`

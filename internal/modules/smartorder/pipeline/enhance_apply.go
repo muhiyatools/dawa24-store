@@ -28,6 +28,7 @@ import (
 	"sort"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/muhiya/dawa24-store/internal/modules/smartorder"
 	"github.com/muhiya/dawa24-store/internal/shared/productmatch"
@@ -152,9 +153,13 @@ func (e *Enhancement) flush(ctx context.Context, decisions []smartorder.CachedDe
 	if len(decisions) == 0 {
 		return
 	}
+	e.persistMu.Lock()
+	defer e.persistMu.Unlock()
+	persistCtx, cancel := context.WithTimeout(context.WithoutCancel(ctx), 10*time.Second)
+	defer cancel()
 	// A cache write failing must not fail the run: the decisions were still
 	// applied, they will simply be paid for again next time.
-	_ = e.repo.SaveDecisions(ctx, decisions)
+	_ = e.repo.SaveDecisions(persistCtx, decisions)
 
 	// Each accepted match is also recorded as an *untrusted* alias, source
 	// 'ai_confirmed', which the deterministic alias tier deliberately excludes.
@@ -166,12 +171,12 @@ func (e *Enhancement) flush(ctx context.Context, decisions []smartorder.CachedDe
 		if d.ChosenProductID == nil || d.NormName == "" {
 			continue
 		}
-		_ = e.repo.SaveAlias(ctx, *d.ChosenProductID, d.NormName, "ai_confirmed", d.Confidence)
+		_ = e.repo.SaveAlias(persistCtx, *d.ChosenProductID, d.NormName, "ai_confirmed", d.Confidence)
 	}
 }
 
 // applyCache resolves what is already known and returns the remainder.
-func (e *Enhancement) applyCache(ctx context.Context, reviews []Review) ([]Review, []smartorder.CachedDecision) {
+func (e *Enhancement) applyCache(ctx context.Context, reviews []Review) []Review {
 	keys := make([]string, 0, len(reviews))
 	for _, r := range reviews {
 		keys = append(keys, decisionKey(r))
@@ -206,7 +211,7 @@ func (e *Enhancement) applyCache(ctx context.Context, reviews []Review) ([]Revie
 		}
 	}
 	e.Stats.Reviewed = len(pending)
-	return pending, nil
+	return pending
 }
 
 // decisionKey identifies the exact question being asked.

@@ -56,13 +56,16 @@ func (r *Repository) LoadOffers(ctx context.Context, buyerOrgID int64, productID
 					WHERE f.organization_id = v.organization_id
 					  AND m.organization_id = $2
 				)                                       AS is_followed,
-				(o.status = 'approved' AND o.deleted_at IS NULL) AS vendor_active,
+				(o.status = 'approved'
+				 AND o.type IN ('vendor', 'supplier', 'company')
+				 AND o.deleted_at IS NULL) AS vendor_active,
 				-- 'pending' is legacy: the catalogue no longer has a review
-				-- queue and nothing produces that status any more. Rows written
-				-- before it went away are ordinary live products, and excluding
-				-- them here while the matcher happily resolves to them would
-				-- produce a matched line with no supplier and no explanation.
-				(v.status = 'active' AND p.status IN ('active', 'pending')
+				-- queue and nothing produces that status any more. Some migrated
+				-- vendor variants are inactive despite having live stock; keeping
+				-- stocked rows visible prevents a matched line from becoming a
+				-- supplier-less result solely because of that stale flag.
+				((v.status IN ('active', 'pending') OR COALESCE(st.qty, 0) > 0)
+				 AND p.status IN ('active', 'pending')
 				 AND v.deleted_at IS NULL AND p.deleted_at IS NULL) AS product_active,
 				COALESCE(p.institutional_work_ids, '{}'::bigint[]) AS institutional_work_ids
 			FROM catalog.product_variants v

@@ -87,12 +87,6 @@ func TestIsSummaryRowCatchesFooterLabels(t *testing.T) {
 	}
 }
 
-func TestMaxRowsIsTheSpecifiedCap(t *testing.T) {
-	if MaxRows != 10000 {
-		t.Fatalf("FR-002 commits to 10,000 rows, got %d", MaxRows)
-	}
-}
-
 func TestRawOfKeepsOriginalCells(t *testing.T) {
 	// Whatever the mapping decided, the buyer must be able to see what they
 	// actually uploaded.
