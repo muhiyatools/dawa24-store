@@ -116,7 +116,11 @@ func (r *Repository) GetDefaultPlan(ctx context.Context) (*billing.Plan, error) 
 				&p.IsActive, &p.CreatedAt, &p.UpdatedAt,
 			)
 		}
-		return err
+		if err != nil {
+			return err
+		}
+		p.Features = loadPlanFeatures(txCtx, tx, p.ID)
+		return nil
 	})
 	if err != nil {
 		if database.IsNotFound(err) {
@@ -125,4 +129,21 @@ func (r *Repository) GetDefaultPlan(ctx context.Context) (*billing.Plan, error) 
 		return nil, err
 	}
 	return &p, nil
+}
+
+// loadPlanFeatures reads the feature key-value pairs for a plan from billing.plan_features.
+func loadPlanFeatures(ctx context.Context, tx pgx.Tx, planID int64) map[string]string {
+	features := make(map[string]string)
+	rows, err := tx.Query(ctx, `SELECT feature_key, value FROM billing.plan_features WHERE plan_id = $1;`, planID)
+	if err != nil {
+		return features
+	}
+	defer rows.Close()
+	for rows.Next() {
+		var k, v string
+		if err := rows.Scan(&k, &v); err == nil {
+			features[k] = v
+		}
+	}
+	return features
 }

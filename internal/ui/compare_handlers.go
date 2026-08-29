@@ -129,6 +129,26 @@ func (h *UIHandler) CompareToolPage(w http.ResponseWriter, r *http.Request) {
 	noticeType := r.URL.Query().Get("notice")
 	noticeMsg := r.URL.Query().Get("msg")
 
+	// Subscription Feature Gate Check
+	if !actor.IsStaff && h.billSvc != nil {
+		allowed, err := h.billSvc.CheckOrgEntitlement(ctx, actor.OrganizationID, actor.UserID, billing.FeatureCompareTool)
+		if err != nil || !allowed {
+			plans, _ := h.billSvc.ListPlans(ctx)
+			w.Header().Set("Content-Type", "text/html; charset=utf-8")
+			if err := pages.SubscriptionGatePage(lang, dir, pages.SubscriptionGateProps{
+				FeatureKey:   billing.FeatureCompareTool,
+				FeatureTitle: "أداة مقارنة الخصومات الخاصة (Private Comparison Tool)",
+				FeatureDesc:  "تتيح لك هذه الأداة رفع كشوف أسعار وخصومات الموردين وتحليل الفروقات واختيار أفضل العروض الدوائية لصيدليتك تلقائياً.",
+				FeatureIcon:  "📊",
+				Plans:        plans,
+				Actor:        actor,
+			}).Render(ctx, w); err != nil {
+				h.log.ErrorContext(ctx, "render subscription gate page", "error", err)
+			}
+			return
+		}
+	}
+
 	var files []*compare.CompareFile
 	if h.compareSvc != nil {
 		var orgPtr *int64

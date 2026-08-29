@@ -9,11 +9,11 @@ import (
 
 templ SavingImportPage(view SavingImportView, lang, dir string) {
 	if view.Audience == "vendor" {
-		@layouts.VendorShell("استيراد قائمة أصناف التوفير | Dawa24", "saving-products", lang, dir) {
+		@layouts.VendorShell("استيراد قائمة أصناف التوفير | Dawa24", "saving_products", lang, dir) {
 			@savingImportContent(view)
 		}
 	} else {
-		@layouts.CustomerShell("استيراد قائمة أصناف التوفير | Dawa24", "saving-products", lang, dir, nil) {
+		@layouts.CustomerShell("استيراد قائمة أصناف التوفير | Dawa24", "saving_products", lang, dir, nil) {
 			@savingImportContent(view)
 		}
 	}

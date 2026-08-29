@@ -281,6 +281,7 @@ func (r *Repository) ListPlans(ctx context.Context) ([]*billing.Plan, error) {
 			); err != nil {
 				return err
 			}
+			p.Features = loadPlanFeatures(txCtx, tx, p.ID)
 			plans = append(plans, &p)
 		}
 		return rows.Err()
@@ -298,12 +299,16 @@ func (r *Repository) GetPlanByID(ctx context.Context, id int64) (*billing.Plan, 
 			FROM billing.plans
 			WHERE id = $1;
 		`
-		return tx.QueryRow(txCtx, query, id).Scan(
+		if err := tx.QueryRow(txCtx, query, id).Scan(
 			&p.ID, &p.PublicID, &p.Slug, &p.Name, &p.Description,
 			&p.PriceMonth, &p.PriceYear, &p.DurationDays, &p.MaxUsers,
 			&p.MaxLoginSessions, &p.MaxDevices, &p.AIPlanID, &p.IsDefault,
 			&p.IsActive, &p.CreatedAt, &p.UpdatedAt,
-		)
+		); err != nil {
+			return err
+		}
+		p.Features = loadPlanFeatures(txCtx, tx, p.ID)
+		return nil
 	})
 	if err != nil {
 		if database.IsNotFound(err) {
@@ -324,12 +329,16 @@ func (r *Repository) GetPlanBySlug(ctx context.Context, slug string) (*billing.P
 			FROM billing.plans
 			WHERE slug = $1 AND is_active = true;
 		`
-		return tx.QueryRow(txCtx, query, slug).Scan(
+		if err := tx.QueryRow(txCtx, query, slug).Scan(
 			&p.ID, &p.PublicID, &p.Slug, &p.Name, &p.Description,
 			&p.PriceMonth, &p.PriceYear, &p.DurationDays, &p.MaxUsers,
 			&p.MaxLoginSessions, &p.MaxDevices, &p.AIPlanID, &p.IsDefault,
 			&p.IsActive, &p.CreatedAt, &p.UpdatedAt,
-		)
+		); err != nil {
+			return err
+		}
+		p.Features = loadPlanFeatures(txCtx, tx, p.ID)
+		return nil
 	})
 	if err != nil {
 		if database.IsNotFound(err) {
@@ -577,6 +586,50 @@ func (r *Repository) CheckEntitlement(ctx context.Context, userID int64, feature
 		return false, "", err
 	}
 	return true, val, nil
+}
+
+// CheckOrgEntitlement resolves whether an organization or user has access to a specific feature key via their active subscription or default plan.
+func (r *Repository) CheckOrgEntitlement(ctx context.Context, orgID, userID int64, featureKey string) (bool, error) {
+	var val string
+	err := r.db.InReadTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
+		// 1. Check active subscription for organization or user
+		querySub := `
+			SELECT pf.value
+			FROM billing.subscriptions s
+			JOIN billing.plan_features pf ON pf.plan_id = s.plan_id
+			WHERE ((s.organization_id IS NOT NULL AND s.organization_id = $1 AND $1 > 0)
+			   OR (s.user_id = $2 AND $2 > 0))
+			  AND s.status = 'active'
+			  AND s.expires_at > now()
+			  AND pf.feature_key = $3
+			ORDER BY s.expires_at DESC
+			LIMIT 1;
+		`
+		err := tx.QueryRow(txCtx, querySub, orgID, userID, featureKey).Scan(&val)
+		if err == nil {
+			return nil
+		}
+		if !database.IsNotFound(err) {
+			return err
+		}
+
+		// 2. Fallback to default active plan features
+		queryDefault := `
+			SELECT pf.value
+			FROM billing.plans p
+			JOIN billing.plan_features pf ON pf.plan_id = p.id
+			WHERE p.is_default = true AND p.is_active = true AND pf.feature_key = $1
+			LIMIT 1;
+		`
+		return tx.QueryRow(txCtx, queryDefault, featureKey).Scan(&val)
+	})
+	if err != nil {
+		if database.IsNotFound(err) {
+			return false, nil
+		}
+		return false, err
+	}
+	return val == "true" || val == "1" || val == "enabled", nil
 }
 
 // CreateDepositRequest inserts a new deposit request with pending status.

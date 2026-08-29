@@ -9,86 +9,126 @@ import (
 templ savingReviewStage(view SavingImportView) {
 	{{ sess := view.Session }}
 	<div class="stack-md">
-		<div class="row-between flex-wrap gap-md">
-			<div>
-				<h2 class="wiz-head">مراجعة أصناف التوفير والربط بالكتالوج</h2>
-				<p class="wiz-sub">راجع أسماء وأسعار وكميات الأدوية، واربط الأصناف غير المرتبطة بالكتالوج بالبحث المباشر داخل الجدول.</p>
+		<!-- Top Action Header Panel -->
+		<div class="glass-panel p-6 mb-4">
+			<div class="flex-between items-center flex-wrap gap-4">
+				<div class="d-flex items-center gap-3">
+					<div class="user-avatar-badge text-xl">
+						📋
+					</div>
+					<div>
+						<h2 class="text-xl font-black text-primary m-0">مراجعة أصناف التوفير والربط بالكتالوج المركزي</h2>
+						<p class="text-xs text-secondary m-0 mt-1">راجع أسماء وأسعار وكميات الأدوية المرفوعة، واربط الأصناف غير المرتبطة بالبحث المباشر داخل الكتالوج المركزي قبل الحفظ.</p>
+					</div>
+				</div>
+
+				<div class="d-flex items-center gap-2 flex-wrap">
+					<form method="POST" action={ templ.SafeURL(fmt.Sprintf("%s/%s/cancel", view.ImportURL, sess.ID)) }
+						onsubmit="return confirm('هل أنت متأكد من رغبتك في إلغاء هذه الجلسة والتراجع عن الاستيراد؟');" class="m-0">
+						<button type="submit" class="btn btn-secondary btn-sm text-danger font-bold">
+							✕ إلغاء الجلسة
+						</button>
+					</form>
+
+					<form method="POST" action={ templ.SafeURL(fmt.Sprintf("%s/%s/commit", view.ImportURL, sess.ID)) }
+						onsubmit="return confirm('هل أنت متأكد من رغبتك في اعتماد وحفظ الأصناف المحددة في قائمة أدوية التوفير؟');" class="m-0">
+						<button type="submit" class="btn btn-primary btn-sm font-bold shadow-md">
+							@components.IconCheck("icon-xs")
+							<span>اعتماد وحفظ القائمة ({ fmt.Sprint(sess.TotalRows) } صنف)</span>
+						</button>
+					</form>
+				</div>
 			</div>
-			<div class="row-center-sm gap-sm">
-				<form method="POST" action={ templ.SafeURL(fmt.Sprintf("%s/%s/commit", view.ImportURL, sess.ID)) }
-					onsubmit="return confirm('هل أنت متأكد من رغبتك في اعتماد وحفظ الأصناف المحددة في قائمة أدوية التوفير؟');">
-					<button type="submit" class="btn btn-primary fw-700">
-						@components.IconCheck("icon-xs")
-						<span>اعتماد وحفظ القائمة ({ fmt.Sprint(sess.TotalRows) } صنف)</span>
-					</button>
+		</div>
+
+		<!-- 4 KPI Stat Cards -->
+		<div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+			<div class="glass-panel p-4 d-flex items-center gap-3" style="border-radius:var(--radius-lg);">
+				<div class="text-2xl p-2.5 rounded-xl" style="background:rgba(59, 130, 246, 0.1); border:1px solid rgba(59, 130, 246, 0.2);">
+					📦
+				</div>
+				<div>
+					<div class="text-xs text-secondary font-bold">إجمالي الأصناف</div>
+					<div class="text-xl font-black text-primary tabular-nums">{ fmt.Sprint(sess.TotalRows) }</div>
+				</div>
+			</div>
+
+			<div class="glass-panel p-4 d-flex items-center gap-3" style="border-radius:var(--radius-lg);">
+				<div class="text-2xl p-2.5 rounded-xl" style="background:rgba(16, 185, 129, 0.1); border:1px solid rgba(16, 185, 129, 0.2);">
+					✓
+				</div>
+				<div>
+					<div class="text-xs text-secondary font-bold">مطابق بالكتالوج</div>
+					<div class="text-xl font-black text-emerald tabular-nums">{ fmt.Sprint(sess.MatchedRows) }</div>
+				</div>
+			</div>
+
+			<div class="glass-panel p-4 d-flex items-center gap-3" style="border-radius:var(--radius-lg);">
+				<div class="text-2xl p-2.5 rounded-xl" style="background:rgba(245, 158, 11, 0.1); border:1px solid rgba(245, 158, 11, 0.2);">
+					⚠️
+				</div>
+				<div>
+					<div class="text-xs text-secondary font-bold">غير مرتبط</div>
+					<div class="text-xl font-black text-amber tabular-nums">{ fmt.Sprint(sess.UnlinkedRows) }</div>
+				</div>
+			</div>
+
+			<div class="glass-panel p-4 d-flex items-center gap-3" style="border-radius:var(--radius-lg);">
+				<div class="text-2xl p-2.5 rounded-xl" style="background:rgba(99, 102, 241, 0.1); border:1px solid rgba(99, 102, 241, 0.2);">
+					💰
+				</div>
+				<div>
+					<div class="text-xs text-secondary font-bold">القيمة التقديرية</div>
+					<div class="text-lg font-black text-primary tabular-nums">{ sess.TotalValue.String() } <span class="text-xs font-normal text-muted">ج.م</span></div>
+				</div>
+			</div>
+		</div>
+
+		<!-- Filter & Search Toolbar -->
+		<div class="glass-panel p-4 mb-4">
+			<div class="flex-between items-center flex-wrap gap-3">
+				<div class="d-flex items-center gap-2 flex-wrap">
+					@savingFilterTab(view, "", "الكل (" + fmt.Sprint(sess.TotalRows) + ")")
+					@savingFilterTab(view, "matched", "مطابق بالكتالوج (" + fmt.Sprint(sess.MatchedRows) + ")")
+					@savingFilterTab(view, "unmatched", "غير مرتبط (" + fmt.Sprint(sess.UnlinkedRows) + ")")
+				</div>
+
+				<form method="GET" action={ templ.SafeURL(fmt.Sprintf("%s/%s", view.ImportURL, sess.ID)) } class="d-flex items-center gap-2 flex-wrap m-0">
+					if view.Filter.MatchFilter != "" {
+						<input type="hidden" name="match" value={ view.Filter.MatchFilter }/>
+					}
+					if view.Filter.SortBy != "" {
+						<input type="hidden" name="sort" value={ view.Filter.SortBy }/>
+					}
+					if view.Filter.SortOrder != "" {
+						<input type="hidden" name="order" value={ view.Filter.SortOrder }/>
+					}
+					<input type="text" name="q" value={ view.Filter.Search } placeholder="بحث بالاسم أو الكود..."
+						class="form-input text-xs" style="min-width:220px;"/>
+					<select name="limit" onchange="this.form.submit()" class="form-select text-xs" style="width:auto;">
+						<option value="10" selected?={ view.Filter.Limit == 10 }>10 صفوف</option>
+						<option value="25" selected?={ view.Filter.Limit == 25 || view.Filter.Limit == 0 }>25 صنف</option>
+						<option value="50" selected?={ view.Filter.Limit == 50 }>50 صنف</option>
+						<option value="100" selected?={ view.Filter.Limit == 100 }>100 صنف</option>
+					</select>
+					<button type="submit" class="btn btn-secondary btn-xs font-bold">بحث</button>
+					if view.Filter.Search != "" {
+						<a href={ templ.SafeURL(buildSavingURL(view.ImportURL, sess.ID, view.Filter.MatchFilter, view.Filter.SortBy, view.Filter.SortOrder, 1, view.Filter.Limit, "")) } class="btn btn-ghost btn-xs text-xs">إلغاء</a>
+					}
 				</form>
-				<form method="POST" action={ templ.SafeURL(fmt.Sprintf("%s/%s/cancel", view.ImportURL, sess.ID)) }
-					onsubmit="return confirm('هل تريد إلغاء هذه الجلسة والتراجع؟');">
-					<button type="submit" class="btn btn-ghost btn-sm text-danger">✕ إلغاء الجلسة</button>
-				</form>
 			</div>
 		</div>
 
-		<div class="import-stats">
-			<div class="import-stat">
-				<span class="import-stat-value">{ fmt.Sprint(sess.TotalRows) }</span>
-				<span class="import-stat-label">إجمالي الأصناف</span>
-			</div>
-			<div class="import-stat import-stat--ok">
-				<span class="import-stat-value">{ fmt.Sprint(sess.MatchedRows) }</span>
-				<span class="import-stat-label">مطابق بالكتالوج</span>
-			</div>
-			<div class="import-stat import-stat--warn">
-				<span class="import-stat-value">{ fmt.Sprint(sess.UnlinkedRows) }</span>
-				<span class="import-stat-label">غير مرتبط</span>
-			</div>
-			<div class="import-stat">
-				<span class="import-stat-value">{ sess.TotalValue.String() } ج.م</span>
-				<span class="import-stat-label">إجمالي القيمة التقديرية</span>
-			</div>
-		</div>
-
-		<div class="b2b-filter-bar mb-md">
-			<div class="row-center-sm flex-wrap gap-xs">
-				@savingFilterTab(view, "", "الكل (" + fmt.Sprint(sess.TotalRows) + ")")
-				@savingFilterTab(view, "matched", "مطابق بالكتالوج (" + fmt.Sprint(sess.MatchedRows) + ")")
-				@savingFilterTab(view, "unmatched", "غير مرتبط (" + fmt.Sprint(sess.UnlinkedRows) + ")")
-			</div>
-
-			<form method="GET" action={ templ.SafeURL(fmt.Sprintf("%s/%s", view.ImportURL, sess.ID)) } class="row-center-sm ms-auto flex-wrap gap-xs">
-				if view.Filter.MatchFilter != "" {
-					<input type="hidden" name="match" value={ view.Filter.MatchFilter }/>
-				}
-				if view.Filter.SortBy != "" {
-					<input type="hidden" name="sort" value={ view.Filter.SortBy }/>
-				}
-				if view.Filter.SortOrder != "" {
-					<input type="hidden" name="order" value={ view.Filter.SortOrder }/>
-				}
-				<input type="text" name="q" value={ view.Filter.Search } placeholder="بحث بالاسم أو الكود..."
-					class="form-input saving-filter-search"/>
-				<select name="limit" onchange="this.form.submit()" class="form-select saving-filter-limit">
-					<option value="10" selected?={ view.Filter.Limit == 10 }>10 صفوف</option>
-					<option value="25" selected?={ view.Filter.Limit == 25 || view.Filter.Limit == 0 }>25 صنف</option>
-					<option value="50" selected?={ view.Filter.Limit == 50 }>50 صنف</option>
-					<option value="100" selected?={ view.Filter.Limit == 100 }>100 صنف</option>
-				</select>
-				<button type="submit" class="btn btn-secondary btn-sm">بحث</button>
-				if view.Filter.Search != "" {
-					<a href={ templ.SafeURL(buildSavingURL(view.ImportURL, sess.ID, view.Filter.MatchFilter, view.Filter.SortBy, view.Filter.SortOrder, 1, view.Filter.Limit, "")) } class="btn btn-ghost btn-sm text-xs">إلغاء</a>
-				}
-			</form>
-		</div>
-
+		<!-- Table Container -->
 		<div class="glass-panel p-0 mb-6 overflow-hidden">
 			<div class="table-container m-0">
 				<table class="data-table m-0">
 					<thead>
 						<tr>
-							<th class="saving-review-col-index text-center">#</th>
+							<th class="saving-review-col-index text-center" style="width:48px;">#</th>
 							@savingThSort(view, "name", "اسم الصنف بالملف المرفوع")
-							<th class="saving-review-col-product">الصنف المطابق بالكتالوج المركزي</th>
-							@savingThSort(view, "score", "نسبة التطابق")
+							<th class="saving-review-col-product" style="min-width:260px;">الصنف المطابق بالكتالوج المركزي</th>
+							@savingThSort(view, "score", "حالة التطابق")
 							@savingThSort(view, "qty", "الكمية المطلوبة")
 							@savingThSort(view, "price", "سعر الجمهور")
 							@savingThSort(view, "total", "القيمة الإجمالية")
@@ -97,7 +137,7 @@ templ savingReviewStage(view SavingImportView) {
 					<tbody>
 						if len(view.Rows) == 0 {
 							<tr>
-								<td colspan="7" class="text-center p-xl text-muted">
+								<td colspan="7" class="text-center p-8 text-muted text-sm">
 									لا توجد أصناف مطابقة لخيارات الفلترة أو البحث الحالية.
 								</td>
 							</tr>
@@ -113,6 +153,156 @@ templ savingReviewStage(view SavingImportView) {
 			@savingPagination(view)
 		</div>
 	</div>
+
+	<!-- Centered Modal for Linking Saving Product to Master Catalog -->
+	<div id="saving-catalog-match-modal" class="modal-backdrop" style="display:none; position:fixed; inset:0; width:100vw; height:100vh; margin:0; background:rgba(3,7,18,0.85); backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px); z-index:9999999; align-items:center; justify-content:center; padding:1.25rem;">
+		<div class="card" style="margin:auto; width:100%; max-width:580px; max-height:90vh; display:flex; flex-direction:column; overflow:hidden; background:#0f172a; border:1px solid rgba(59,130,246,0.3); border-radius:var(--radius-xl); box-shadow:0 25px 50px -12px rgba(0,0,0,0.75); padding:1.5rem;">
+			<div class="flex-between items-center pb-3 border-b mb-3">
+				<div>
+					<h3 class="text-lg font-black text-primary m-0">الربط بالكتالوج المركزي</h3>
+					<p class="text-xs text-secondary m-0 mt-0.5 font-mono" id="saving-modal-item-name"></p>
+				</div>
+				<button type="button" class="btn btn-secondary btn-xs" onclick="closeSavingCatalogModal()" style="border-radius:var(--radius-full); width:32px; height:32px; padding:0; justify-content:center;">
+					✕
+				</button>
+			</div>
+
+			<div class="mb-3">
+				<label class="form-label text-xs mb-1">ابحث في الكتالوج المركزي:</label>
+				<input type="text" id="saving-modal-search-input" class="form-input text-sm w-100" placeholder="ابحث باسم الدواء، الكود، أو المادة الفعالة..." autocomplete="off" />
+			</div>
+
+			<div id="saving-modal-results" class="flex-1 overflow-y-auto pr-1 d-flex flex-col gap-2" style="min-height:220px; max-height:360px;">
+				<div class="p-6 text-center text-muted text-xs">اكتب للبحث في الكتالوج المركزي...</div>
+			</div>
+
+			<div id="saving-modal-unlink-section" class="pt-3 border-t mt-3 flex-between items-center" style="display:none;">
+				<form id="saving-modal-unlink-form" method="POST" action="" class="m-0">
+					<input type="hidden" name="product_id" value="0" />
+					<button type="submit" class="btn btn-ghost btn-xs text-danger font-bold">
+						✕ إلغاء الربط (جعله غير مرتبط)
+					</button>
+				</form>
+				<button type="button" class="btn btn-secondary btn-xs font-bold" onclick="closeSavingCatalogModal()">إغلاق</button>
+			</div>
+		</div>
+	</div>
+
+	<script>
+	var currentSavingSearchURL = '';
+	var currentSavingActionURL = '';
+	var savingSearchDebounceTimer = null;
+
+	function ensureSavingModalInBody() {
+		var modal = document.getElementById('saving-catalog-match-modal');
+		if (modal && modal.parentElement !== document.body) {
+			document.body.appendChild(modal);
+		}
+	}
+
+	function openSavingCatalogModal(rowIndex, searchURL, actionURL, itemName, isLinked) {
+		ensureSavingModalInBody();
+		currentSavingSearchURL = searchURL;
+		currentSavingActionURL = actionURL;
+
+		var modal = document.getElementById('saving-catalog-match-modal');
+		var titleEl = document.getElementById('saving-modal-item-name');
+		var inputEl = document.getElementById('saving-modal-search-input');
+		var unlinkSec = document.getElementById('saving-modal-unlink-section');
+		var unlinkForm = document.getElementById('saving-modal-unlink-form');
+
+		if (titleEl) titleEl.textContent = 'الصنف بالملف: ' + itemName;
+		if (inputEl) {
+			inputEl.value = itemName;
+			inputEl.oninput = function() {
+				clearTimeout(savingSearchDebounceTimer);
+				savingSearchDebounceTimer = setTimeout(function() {
+					fetchSavingModalResults(inputEl.value);
+				}, 200);
+			};
+		}
+		if (unlinkSec && unlinkForm) {
+			unlinkSec.style.display = isLinked ? 'flex' : 'none';
+			unlinkForm.action = actionURL;
+		}
+
+		if (modal) modal.style.display = 'flex';
+		setTimeout(function() {
+			if (inputEl) {
+				inputEl.focus();
+				inputEl.select();
+			}
+			fetchSavingModalResults(itemName);
+		}, 50);
+	}
+
+	function closeSavingCatalogModal() {
+		var modal = document.getElementById('saving-catalog-match-modal');
+		if (modal) modal.style.display = 'none';
+	}
+
+	function fetchSavingModalResults(query) {
+		var resultsEl = document.getElementById('saving-modal-results');
+		if (!resultsEl) return;
+		resultsEl.innerHTML = '<div class="p-6 text-center text-muted text-xs">جاري البحث في الكتالوج المركزي...</div>';
+
+		fetch(currentSavingSearchURL + '?q=' + encodeURIComponent(query))
+			.then(function(res) { return res.json(); })
+			.then(function(data) {
+				var items = data.items || data.products || data || [];
+				if (!items || items.length === 0) {
+					resultsEl.innerHTML = '<div class="p-6 text-center text-muted text-xs">لم يتم العثور على أي صنف مطابق في الكتالوج.</div>';
+					return;
+				}
+				var html = '';
+				items.forEach(function(item) {
+					var name = item.name_ar || item.name_en || item.name || '';
+					var sku = item.sku || '';
+					var id = item.id;
+					var price = item.public_price || item.price || '';
+					var priceStr = price ? '<span class="badge badge-slate text-xs tabular-nums font-bold">' + price + ' ج.م</span>' : '';
+					var skuStr = sku ? '<span class="text-xs text-muted font-mono">' + escapeSavingHtml(sku) + '</span>' : '';
+
+					html += '<form method="POST" action="' + currentSavingActionURL + '" class="m-0">' +
+						'<input type="hidden" name="product_id" value="' + id + '" />' +
+						'<input type="hidden" name="master_name" value="' + escapeSavingHtml(name) + '" />' +
+						'<input type="hidden" name="master_sku" value="' + escapeSavingHtml(sku) + '" />' +
+						'<button type="submit" class="p-3 w-100 text-start flex-between items-center gap-3 border rounded-xl hover-lift cursor-pointer" style="margin-bottom:0; background:rgba(30,41,59,0.7); border-color:rgba(59,130,246,0.25);">' +
+						'<div><div class="text-sm font-extrabold text-primary">' + escapeSavingHtml(name) + '</div>' +
+						'<div class="d-flex items-center gap-2 mt-1">' + skuStr + priceStr + '</div></div>' +
+						'<span class="btn btn-primary btn-xs font-bold shrink-0">ربط ✓</span>' +
+						'</button>' +
+						'</form>';
+				});
+				resultsEl.innerHTML = html;
+			})
+			.catch(function(err) {
+				resultsEl.innerHTML = '<div class="p-6 text-center text-danger text-xs">تعذر جلب نتائج البحث. يرجى المحاولة ثانية.</div>';
+			});
+	}
+
+	function escapeSavingHtml(text) {
+		if (!text) return '';
+		return String(text)
+			.replace(/&/g, "&amp;")
+			.replace(/</g, "&lt;")
+			.replace(/>/g, "&gt;")
+			.replace(/"/g, "&quot;")
+			.replace(/'/g, "&#039;");
+	}
+
+	document.addEventListener('keydown', function(e) {
+		if (e.key === 'Escape') {
+			closeSavingCatalogModal();
+		}
+	});
+
+	if (document.readyState === 'loading') {
+		document.addEventListener('DOMContentLoaded', ensureSavingModalInBody);
+	} else {
+		ensureSavingModalInBody();
+	}
+	</script>
 }
 
 templ savingThSort(view SavingImportView, colKey, label string) {
@@ -146,7 +336,7 @@ templ savingFilterTab(view SavingImportView, matchKey, label string) {
 		tabURL := buildSavingURL(view.ImportURL, view.Session.ID, matchKey, view.Filter.SortBy, view.Filter.SortOrder, 1, view.Filter.Limit, view.Filter.Search)
 	}}
 	<a href={ templ.SafeURL(tabURL) }
-		class={ "btn btn-sm", templ.KV("btn-primary", isActive), templ.KV("btn-ghost", !isActive) }>
+		class={ "btn btn-xs font-bold", templ.KV("btn-primary", isActive), templ.KV("btn-secondary", !isActive) }>
 		{ label }
 	</a>
 }
@@ -166,11 +356,11 @@ templ savingProductRow(view SavingImportView, row *StagedSavingItem) {
 		</td>
 
 		<td class="align-middle">
-			<form method="POST" action={ templ.SafeURL(actionBase + "/update" + querySuffix) } class="stack-2xs">
+			<form method="POST" action={ templ.SafeURL(actionBase + "/update" + querySuffix) } class="stack-2xs m-0">
 				<div class="row-center-xs gap-xs">
-					<input type="text" name="name" value={ row.NameProduct } class="form-input text-sm"
-						style="padding: 0.25rem 0.5rem; font-weight: 600;" />
-					<button type="submit" class="btn btn-ghost btn-xs px-1" title="حفظ الاسم">✓</button>
+					<input type="text" name="name" value={ row.NameProduct } class="form-input text-xs font-bold"
+						style="padding: 0.35rem 0.5rem;" />
+					<button type="submit" class="btn btn-ghost btn-xs px-1.5" title="حفظ الاسم">✓</button>
 				</div>
 				if row.SKU != "" {
 					<span class="text-2xs text-muted font-mono">{ row.SKU }</span>
@@ -182,7 +372,7 @@ templ savingProductRow(view SavingImportView, row *StagedSavingItem) {
 			<div class="row-center-sm gap-xs">
 				if row.ProductID != nil && *row.ProductID > 0 {
 					<div class="stack-2xs flex-1">
-						<span class="text-sm fw-700 text-primary">{ row.MasterProductName }</span>
+						<span class="text-xs font-black text-primary">{ row.MasterProductName }</span>
 						if row.MasterProductSKU != "" {
 							<span class="text-2xs text-muted font-mono">{ row.MasterProductSKU }</span>
 						}
@@ -204,34 +394,34 @@ templ savingProductRow(view SavingImportView, row *StagedSavingItem) {
 		<td class="text-center align-middle">
 			if row.ProductID != nil && *row.ProductID > 0 {
 				if row.MatchType == "manual" {
-					<span class="badge badge-emerald text-xs fw-800">مطابقة يدوية</span>
+					<span class="badge badge-emerald text-xs font-bold">مطابقة يدوية</span>
 				} else if row.Confidence >= 0.75 {
-					<span class="badge badge-emerald text-xs fw-800">{ fmt.Sprintf("%.0f%%", row.Confidence*100) } (مطابق)</span>
+					<span class="badge badge-emerald text-xs font-bold">{ fmt.Sprintf("%.0f%%", row.Confidence*100) } (مطابق)</span>
 				} else {
-					<span class="badge badge-amber text-xs fw-700">{ fmt.Sprintf("%.0f%%", row.Confidence*100) }</span>
+					<span class="badge badge-amber text-xs font-bold">{ fmt.Sprintf("%.0f%%", row.Confidence*100) }</span>
 				}
 			} else {
-				<span class="badge badge-rose text-xs">غير مرتبط</span>
+				<span class="badge badge-rose text-xs font-bold">غير مرتبط</span>
 			}
 		</td>
 
 		<td class="text-center align-middle">
-			<form method="POST" action={ templ.SafeURL(actionBase + "/update" + querySuffix) } class="row-center-xs justify-center gap-xs">
+			<form method="POST" action={ templ.SafeURL(actionBase + "/update" + querySuffix) } class="row-center-xs justify-center gap-xs m-0">
 				<input type="number" step="1" min="1" name="quantity" value={ fmt.Sprintf("%.0f", row.Quantity) }
-					class="form-input text-center tabular-nums" style="padding: 0.25rem 0.4rem; font-size: 0.85rem; width: 60px;" />
-				<button type="submit" class="btn btn-ghost btn-xs px-1" title="حفظ الكمية">✓</button>
+					class="form-input text-center tabular-nums text-xs" style="padding: 0.35rem 0.4rem; width: 60px;" />
+				<button type="submit" class="btn btn-ghost btn-xs px-1.5" title="حفظ الكمية">✓</button>
 			</form>
 		</td>
 
 		<td class="text-center align-middle">
-			<form method="POST" action={ templ.SafeURL(actionBase + "/update" + querySuffix) } class="row-center-xs justify-center gap-xs">
+			<form method="POST" action={ templ.SafeURL(actionBase + "/update" + querySuffix) } class="row-center-xs justify-center gap-xs m-0">
 				<input type="number" step="0.01" min="0" name="price" value={ row.Price.String() }
-					class="form-input text-center tabular-nums" style="padding: 0.25rem 0.4rem; font-size: 0.85rem; width: 75px;" />
-				<button type="submit" class="btn btn-ghost btn-xs px-1" title="حفظ السعر">✓</button>
+					class="form-input text-center tabular-nums text-xs" style="padding: 0.35rem 0.4rem; width: 75px;" />
+				<button type="submit" class="btn btn-ghost btn-xs px-1.5" title="حفظ السعر">✓</button>
 			</form>
 		</td>
 
-		<td class="text-center align-middle tabular-nums fw-700">
+		<td class="text-center align-middle tabular-nums font-black text-xs text-primary">
 			{ row.TotalValue.String() } ج.م
 		</td>
 	</tr>
@@ -271,133 +461,4 @@ templ savingPagination(view SavingImportView) {
 			</div>
 		}
 	</div>
-
-	<!-- Centered Modal for Linking Saving Product to Master Catalog -->
-	<div id="saving-catalog-match-modal" class="modal-backdrop" style="display:none; position:fixed; top:0; left:0; right:0; bottom:0; width:100vw; height:100vh; margin:0; background:rgba(4,8,16,0.85); backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px); z-index:var(--z-modal); align-items:center; justify-content:center; padding:1.25rem;">
-		<div class="glass-panel p-6" style="margin:auto; width:100%; max-width:540px; max-height:90vh; display:flex; flex-direction:column; overflow:hidden;">
-			<div class="flex-between items-center pb-3 border-b mb-3">
-				<div>
-					<h3 class="text-lg font-black text-primary m-0">الربط بالكتالوج المركزي</h3>
-					<p class="text-xs text-secondary m-0 mt-0.5" id="saving-modal-item-name"></p>
-				</div>
-				<button type="button" class="btn btn-icon btn-xs" onclick="closeSavingCatalogModal()">
-					@components.IconX("icon-xs")
-				</button>
-			</div>
-
-			<div class="mb-3">
-				<input type="text" id="saving-modal-search-input" class="form-input text-sm w-100" placeholder="ابحث باسم الدواء، الكود، أو المادة الفعالة..." autocomplete="off" />
-			</div>
-
-			<div id="saving-modal-results" class="flex-1 overflow-y-auto pr-1 d-flex flex-col gap-2" style="min-height:220px; max-height:360px;">
-				<div class="p-6 text-center text-muted text-xs">اكتب للبحث في الكتالوج المركزي...</div>
-			</div>
-
-			<div id="saving-modal-unlink-section" class="pt-3 border-t mt-3 flex-between items-center" style="display:none;">
-				<form id="saving-modal-unlink-form" method="POST" action="" class="m-0">
-					<input type="hidden" name="product_id" value="0" />
-					<button type="submit" class="btn btn-ghost btn-xs text-danger font-bold">
-						✕ إلغاء الربط (جعله غير مرتبط)
-					</button>
-				</form>
-				<button type="button" class="btn btn-secondary btn-xs font-bold" onclick="closeSavingCatalogModal()">إغلاق</button>
-			</div>
-		</div>
-	</div>
-
-	<script>
-	var currentSavingSearchURL = '';
-	var currentSavingActionURL = '';
-	var savingSearchDebounceTimer = null;
-
-	function openSavingCatalogModal(rowIndex, searchURL, actionURL, itemName, isLinked) {
-		currentSavingSearchURL = searchURL;
-		currentSavingActionURL = actionURL;
-
-		var modal = document.getElementById('saving-catalog-match-modal');
-		var titleEl = document.getElementById('saving-modal-item-name');
-		var inputEl = document.getElementById('saving-modal-search-input');
-		var unlinkSec = document.getElementById('saving-modal-unlink-section');
-		var unlinkForm = document.getElementById('saving-modal-unlink-form');
-
-		if (titleEl) titleEl.textContent = 'الصنف بالملف: ' + itemName;
-		if (inputEl) {
-			inputEl.value = itemName;
-			inputEl.oninput = function() {
-				clearTimeout(savingSearchDebounceTimer);
-				savingSearchDebounceTimer = setTimeout(function() {
-					fetchSavingModalResults(inputEl.value);
-				}, 200);
-			};
-		}
-		if (unlinkSec && unlinkForm) {
-			unlinkSec.style.display = isLinked ? 'flex' : 'none';
-			unlinkForm.action = actionURL;
-		}
-
-		modal.style.display = 'flex';
-		setTimeout(function() {
-			if (inputEl) {
-				inputEl.focus();
-				inputEl.select();
-			}
-			fetchSavingModalResults(itemName);
-		}, 50);
-	}
-
-	function closeSavingCatalogModal() {
-		var modal = document.getElementById('saving-catalog-match-modal');
-		if (modal) modal.style.display = 'none';
-	}
-
-	function fetchSavingModalResults(query) {
-		var resultsEl = document.getElementById('saving-modal-results');
-		if (!resultsEl) return;
-		resultsEl.innerHTML = '<div class="p-6 text-center text-muted text-xs">جاري البحث في الكتالوج المركزي...</div>';
-
-		fetch(currentSavingSearchURL + '?q=' + encodeURIComponent(query))
-			.then(function(res) { return res.json(); })
-			.then(function(data) {
-				var items = data.items || data.products || data || [];
-				if (!items || items.length === 0) {
-					resultsEl.innerHTML = '<div class="p-6 text-center text-muted text-xs">لم يتم العثور على أي صنف مطابق في الكتالوج.</div>';
-					return;
-				}
-				var html = '';
-				items.forEach(function(item) {
-					var name = item.name_ar || item.name_en || item.name || '';
-					var sku = item.sku || '';
-					var id = item.id;
-					var price = item.public_price || item.price || '';
-					var priceStr = price ? '<span class="badge badge-slate text-xs tabular-nums">' + price + ' ج.م</span>' : '';
-					var skuStr = sku ? '<span class="text-xs text-muted font-mono">' + escapeSavingHtml(sku) + '</span>' : '';
-
-					html += '<form method="POST" action="' + currentSavingActionURL + '" class="m-0">' +
-						'<input type="hidden" name="product_id" value="' + id + '" />' +
-						'<input type="hidden" name="master_name" value="' + escapeSavingHtml(name) + '" />' +
-						'<input type="hidden" name="master_sku" value="' + escapeSavingHtml(sku) + '" />' +
-						'<button type="submit" class="glass-panel p-3 w-100 text-start flex-between items-center gap-3 border hover-lift cursor-pointer" style="margin-bottom:0; background:var(--bg-surface-raised);">' +
-						'<div><div class="text-sm font-extrabold text-primary">' + escapeSavingHtml(name) + '</div>' +
-						'<div class="d-flex items-center gap-2 mt-1">' + skuStr + priceStr + '</div></div>' +
-						'<span class="badge badge-emerald text-xs font-bold">ربط ✓</span>' +
-						'</button></form>';
-				});
-				resultsEl.innerHTML = html;
-			})
-			.catch(function(err) {
-				resultsEl.innerHTML = '<div class="p-6 text-center text-danger text-xs">تعذر إجراء البحث في الكتالوج.</div>';
-			});
-	}
-
-	function escapeSavingHtml(str) {
-		if (!str) return '';
-		return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
-	}
-
-	document.addEventListener('keydown', function(e) {
-		if (e.key === 'Escape') {
-			closeSavingCatalogModal();
-		}
-	});
-	</script>
 }

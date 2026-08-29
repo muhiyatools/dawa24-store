@@ -1848,8 +1848,16 @@ func (h *UIHandler) AdminPlanSubmit(w http.ResponseWriter, r *http.Request) {
 	isDefault := r.PostFormValue("is_default") == "1" || r.PostFormValue("is_default") == "true"
 
 	features := map[string]string{}
-	if r.PostFormValue("is_compare") == "1" {
+	if r.PostFormValue("feature_market_discounts") == "1" || r.PostFormValue("feature_market_discounts") == "true" {
+		features["feature_market_discounts"] = "true"
+	} else {
+		features["feature_market_discounts"] = "false"
+	}
+	if r.PostFormValue("feature_compare_tool") == "1" || r.PostFormValue("feature_compare_tool") == "true" || r.PostFormValue("is_compare") == "1" {
+		features["feature_compare_tool"] = "true"
 		features["compare"] = "true"
+	} else {
+		features["feature_compare_tool"] = "false"
 	}
 	if r.PostFormValue("feature_bulk_import") == "1" {
 		features["bulk_import"] = "true"
@@ -1910,8 +1918,16 @@ func (h *UIHandler) AdminPlanUpdateSubmit(w http.ResponseWriter, r *http.Request
 	isActive := r.PostFormValue("is_active") != "0"
 
 	features := map[string]string{}
-	if r.PostFormValue("is_compare") == "1" {
+	if r.PostFormValue("feature_market_discounts") == "1" || r.PostFormValue("feature_market_discounts") == "true" {
+		features["feature_market_discounts"] = "true"
+	} else {
+		features["feature_market_discounts"] = "false"
+	}
+	if r.PostFormValue("feature_compare_tool") == "1" || r.PostFormValue("feature_compare_tool") == "true" || r.PostFormValue("is_compare") == "1" {
+		features["feature_compare_tool"] = "true"
 		features["compare"] = "true"
+	} else {
+		features["feature_compare_tool"] = "false"
 	}
 	if r.PostFormValue("feature_bulk_import") == "1" {
 		features["bulk_import"] = "true"

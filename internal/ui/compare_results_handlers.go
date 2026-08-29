@@ -6,6 +6,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/muhiya/dawa24-store/internal/modules/billing"
 	"github.com/muhiya/dawa24-store/internal/modules/compare"
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/platform/database"
@@ -347,6 +348,26 @@ func (h *UIHandler) CompareMarketIntelligencePage(w http.ResponseWriter, r *http
 		return
 	}
 
+	// Subscription Feature Gate Check
+	if !actor.IsStaff && h.billSvc != nil {
+		allowed, err := h.billSvc.CheckOrgEntitlement(ctx, actor.OrganizationID, actor.UserID, billing.FeatureMarketDiscounts)
+		if err != nil || !allowed {
+			plans, _ := h.billSvc.ListPlans(ctx)
+			w.Header().Set("Content-Type", "text/html; charset=utf-8")
+			if err := pages.SubscriptionGatePage(lang, dir, pages.SubscriptionGateProps{
+				FeatureKey:   billing.FeatureMarketDiscounts,
+				FeatureTitle: "مؤشرات وذكاء السوق (Market Intelligence)",
+				FeatureDesc:  "تتيح لك هذه اللوحة استكشاف حركة الأسعار والخصومات الإجمالية في السوق الدوائي المصري والمقارنات التنافسية.",
+				FeatureIcon:  "📈",
+				Plans:        plans,
+				Actor:        actor,
+			}).Render(ctx, w); err != nil {
+				h.log.ErrorContext(ctx, "render subscription gate page", "error", err)
+			}
+			return
+		}
+	}
+
 	var report *compare.MarketIntelligenceReport
 	if h.compareSvc != nil {
 		rep, err := h.compareSvc.GetMarketIntelligenceReport(ctx)
@@ -373,9 +394,30 @@ func (h *UIHandler) MarketDiscountsPage(w http.ResponseWriter, r *http.Request) 
 	ctx := r.Context()
 	lang, dir := h.localeAndDir(r)
 
-	var actor authctx.Actor
-	if a, ok := authctx.From(ctx); ok {
-		actor = a
+	actor, ok := authctx.From(ctx)
+	if !ok {
+		http.Redirect(w, r, "/auth/login?redirect=/market-discounts", http.StatusSeeOther)
+		return
+	}
+
+	// Subscription Feature Gate Check
+	if !actor.IsStaff && h.billSvc != nil {
+		allowed, err := h.billSvc.CheckOrgEntitlement(ctx, actor.OrganizationID, actor.UserID, billing.FeatureMarketDiscounts)
+		if err != nil || !allowed {
+			plans, _ := h.billSvc.ListPlans(ctx)
+			w.Header().Set("Content-Type", "text/html; charset=utf-8")
+			if err := pages.SubscriptionGatePage(lang, dir, pages.SubscriptionGateProps{
+				FeatureKey:   billing.FeatureMarketDiscounts,
+				FeatureTitle: "خصومات السوق العامة (Public Market Discounts)",
+				FeatureDesc:  "استكشف وتابع كافة عروض وخصومات الموردين والمصانع المعتمدة في السوق اللحظي الموحد وتحديثاتها المباشرة.",
+				FeatureIcon:  "🛒",
+				Plans:        plans,
+				Actor:        actor,
+			}).Render(ctx, w); err != nil {
+				h.log.ErrorContext(ctx, "render subscription gate page", "error", err)
+			}
+			return
+		}
 	}
 
 	query := strings.TrimSpace(r.URL.Query().Get("q"))

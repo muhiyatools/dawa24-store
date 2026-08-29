@@ -136,6 +136,26 @@ type Plan struct {
 	UpdatedAt        time.Time         `json:"updated_at"`
 }
 
+// Subscription feature gate keys for platform access control.
+const (
+	FeatureMarketDiscounts = "feature_market_discounts"
+	FeatureCompareTool    = "feature_compare_tool"
+	FeatureBulkImport     = "bulk_import"
+	FeatureAnalytics      = "analytics"
+)
+
+// HasFeature reports whether the plan grants access to the specified feature key.
+func (p *Plan) HasFeature(key string) bool {
+	if p == nil || p.Features == nil {
+		return false
+	}
+	v, ok := p.Features[key]
+	if !ok {
+		return false
+	}
+	return v == "true" || v == "1" || v == "enabled"
+}
+
 // Subscription represents an active plan subscription (unifying legacy D7 systems).
 type Subscription struct {
 	ID              int64              `json:"id"`
