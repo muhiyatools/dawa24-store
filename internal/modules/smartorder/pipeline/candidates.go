@@ -135,17 +135,47 @@ func (m *Matcher) Score(lines []*smartorder.Line) []Review {
 //
 // Called only when the AI stage will actually run, so an import that resolves
 // deterministically never pays for retrieval nothing reads.
-func (m *Matcher) Retrieve(reviews []Review) {
+// It also decides which lines are worth asking about at all, and that is the
+// single largest saving available in this pipeline. A line whose best retrieved
+// candidate is implausible has no answer for the model to choose: the product is
+// not in the catalogue. Sending it anyway is what run 43 did — 8,790 rows of
+// cosmetics against a pharmaceutical catalogue, 7,939 lines sent, 156 improved,
+// thirty requests, the ceiling hit, and 345 seconds of wall clock against 1.6
+// seconds of deterministic work. "غير مطابق" was already the right answer for
+// almost all of them, and it was the answer they got, five minutes later.
+//
+// Returned rather than filtered in place, so the caller keeps the full review
+// set for the screen and sends only the answerable subset.
+func (m *Matcher) Retrieve(reviews []Review) []Review {
 	if m.index == nil {
-		return
+		return nil
 	}
 	opts := productmatch.DefaultRecallOptions()
 	opts.Limit = ceilings.RecallLimit
 
+	askable := make([]Review, 0, len(reviews))
 	for i := range reviews {
 		wide := m.index.Recall(reviews[i].Row, opts)
 		reviews[i].Candidates = mergeCandidates(reviews[i].Candidates, wide, ceilings.RecallLimit)
+		if plausible(reviews[i].Candidates, ceilings.MinPlausible) {
+			askable = append(askable, reviews[i])
+		}
 	}
+	return askable
+}
+
+// plausible reports whether retrieval found anything worth a second opinion.
+//
+// The best candidate decides it. A shortlist whose strongest member is a
+// coincidence of one shared word is not a shortlist, and offering it to a model
+// asks a question whose honest answer is the one already recorded.
+func plausible(candidates []productmatch.MatchCandidate, floor float64) bool {
+	for _, c := range candidates {
+		if c.Score >= floor {
+			return true
+		}
+	}
+	return false
 }
 
 // mergeCandidates keeps the deterministic shortlist first, then fills from the

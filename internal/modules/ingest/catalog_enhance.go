@@ -157,6 +157,11 @@ type AIStats struct {
 	Rejected   int            `json:"rejected"`
 	RefusedBy  map[string]int `json:"refused_by,omitempty"`
 	CeilingHit bool           `json:"ceiling_hit"`
+	// Skipped counts rows retrieval could find no plausible candidate for, so
+	// they were never sent. It is reported rather than hidden: a vendor looking
+	// at a low match rate needs to know the difference between "the model was
+	// asked and could not answer" and "the catalogue does not carry this".
+	Skipped int `json:"skipped"`
 	// Ran distinguishes "the stage did nothing because there was nothing to do"
 	// from "the stage never ran", which are different things to tell a vendor.
 	Ran bool `json:"ran"`
@@ -204,12 +209,42 @@ func NewEnhancement(ai Enhancer, memory MatchMemory, index *productmatch.Index,
 // live supplier file is most of the residue.
 //
 // Nothing here calls a model; it is index arithmetic and costs no budget.
-func (e *Enhancement) Retrieve(rows []*openRow) {
+// It also decides which rows are worth asking about at all, which is the single
+// largest saving available in this stage. A row whose best retrieved candidate
+// is implausible has no answer for the model to choose from: the product is not
+// in the shared catalogue, and "لم يُطابق" is already the honest outcome. On a
+// live smart order of the same shape — 8,790 rows of cosmetics against a
+// pharmaceutical catalogue — sending them anyway cost thirty requests, the
+// ceiling, and five and a half minutes to improve 156 rows out of 7,939.
+//
+// The rows are returned rather than filtered in place, so the staging table
+// still carries every one of them for the vendor to review by hand.
+func (e *Enhancement) Retrieve(rows []*openRow) []*openRow {
 	opts := productmatch.DefaultRecallOptions()
 	opts.Limit = ceilings.RecallLimit
+	askable := make([]*openRow, 0, len(rows))
 	for _, r := range rows {
 		r.candidates = e.index.Recall(r.row, opts)
+		if plausible(r.candidates, ceilings.MinPlausible) {
+			askable = append(askable, r)
+		}
 	}
+	e.count(func(s *AIStats) { s.Skipped = len(rows) - len(askable) })
+	return askable
+}
+
+// plausible reports whether retrieval found anything worth a second opinion.
+//
+// The best candidate decides it. A shortlist whose strongest member is a
+// coincidence of one shared word is not a shortlist, and offering it to a model
+// asks a question whose honest answer is the one already recorded.
+func plausible(candidates []productmatch.MatchCandidate, floor float64) bool {
+	for _, c := range candidates {
+		if c.Score >= floor {
+			return true
+		}
+	}
+	return false
 }
 
 // Run improves what it can and leaves the rest as the deterministic engine

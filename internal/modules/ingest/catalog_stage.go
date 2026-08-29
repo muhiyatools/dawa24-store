@@ -288,9 +288,9 @@ func (r *stagingRun) enhance(ctx context.Context) {
 	// request budget: it is index arithmetic that costs nothing but CPU, and
 	// running it once over de-duplicated questions is a fraction of what
 	// running it per row would have been.
-	enh.Retrieve(r.open)
+	askable := enh.Retrieve(r.open)
 
-	matches := enh.Run(ctx, r.open)
+	matches := enh.Run(ctx, askable)
 	r.session.AI = enh.Stats
 
 	if len(matches) > 0 {
