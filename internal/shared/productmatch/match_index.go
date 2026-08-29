@@ -51,6 +51,10 @@ type MasterProduct struct {
 	packSize int
 	makerKey string
 	sciKey   string
+	// skeleton is the consonant reduction both scripts fold into, which is the
+	// only channel on which an Arabic query and a Latin catalogue name can
+	// agree at all. See translit.go.
+	skeleton string
 }
 
 // strength is a parsed dose: a number and the unit it was written in, converted
@@ -177,6 +181,10 @@ func prepare(p *MasterProduct) {
 	p.packSize = InferPackSize(p.NameAR + " " + p.NameEN)
 	p.makerKey = sheet.NormalizeKey(p.Manufacturer)
 	p.sciKey = sheet.NormalizeKey(p.Scientific)
+	// Built from whichever name the catalogue actually holds — both, where it
+	// holds both — because the query may be written in either script and the
+	// skeleton is the same either way.
+	p.skeleton = skeletonOf(append(append([]string{}, p.coreAR...), p.coreEN...))
 }
 
 // maxIDF is the weight of a token no catalogue product carries — the ceiling

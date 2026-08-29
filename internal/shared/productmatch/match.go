@@ -166,6 +166,7 @@ type query struct {
 	epoch int32
 
 	tri      []string
+	skeleton string
 	nums     []float64
 	nameKey  string
 	formKey  string
@@ -181,6 +182,7 @@ func (idx *Index) newQuery(row *Row) *query {
 	q := &query{
 		tokens:   coreTokens(full + " " + row.Scientific),
 		tri:      sortedTrigrams(nameTokens),
+		skeleton: skeletonOf(nameTokens),
 		nums:     numberSignature(full),
 		nameKey:  strings.Join(nameTokens, " "),
 		formKey:  formKeyOf(full + " " + row.DosageForm),

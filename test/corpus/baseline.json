@@ -66,14 +66,14 @@
     "rejected": 0,
     "duplicates": 0,
     "levels": {
-      "ambiguous": 872,
+      "ambiguous": 880,
       "exact": 22,
-      "none": 6248,
-      "review": 513,
-      "strong": 1135
+      "none": 6212,
+      "review": 523,
+      "strong": 1153
     },
     "settled_pct": 13,
-    "matched_pct": 28
+    "matched_pct": 29
   },
   {
     "entry": {
@@ -542,14 +542,14 @@
     "rejected": 0,
     "duplicates": 0,
     "levels": {
-      "ambiguous": 81,
+      "ambiguous": 82,
       "exact": 96,
-      "none": 75,
-      "review": 16,
+      "none": 73,
+      "review": 17,
       "strong": 200
     },
     "settled_pct": 63,
-    "matched_pct": 83
+    "matched_pct": 84
   },
   {
     "entry": {
@@ -575,14 +575,14 @@
     "rejected": 0,
     "duplicates": 0,
     "levels": {
-      "ambiguous": 140,
+      "ambiguous": 134,
       "exact": 366,
-      "none": 183,
-      "review": 32,
-      "strong": 473
+      "none": 179,
+      "review": 30,
+      "strong": 485
     },
-    "settled_pct": 70,
-    "matched_pct": 84
+    "settled_pct": 71,
+    "matched_pct": 85
   },
   {
     "entry": {
@@ -606,11 +606,11 @@
     "rejected": 0,
     "duplicates": 0,
     "levels": {
-      "ambiguous": 47,
+      "ambiguous": 46,
       "exact": 123,
       "none": 55,
-      "review": 5,
-      "strong": 132
+      "review": 4,
+      "strong": 134
     },
     "settled_pct": 70,
     "matched_pct": 84
@@ -650,11 +650,11 @@
     "rejected": 0,
     "duplicates": 0,
     "levels": {
-      "ambiguous": 68,
+      "ambiguous": 66,
       "exact": 84,
-      "none": 57,
+      "none": 56,
       "review": 12,
-      "strong": 160
+      "strong": 163
     },
     "settled_pct": 64,
     "matched_pct": 85
@@ -678,13 +678,13 @@
     "rejected": 0,
     "duplicates": 0,
     "levels": {
-      "ambiguous": 83,
+      "ambiguous": 78,
       "exact": 247,
       "none": 560,
-      "review": 7,
-      "strong": 237
+      "review": 6,
+      "strong": 243
     },
-    "settled_pct": 42,
+    "settled_pct": 43,
     "matched_pct": 50
   },
   {
@@ -707,13 +707,13 @@
     "rejected": 0,
     "duplicates": 0,
     "levels": {
-      "ambiguous": 300,
+      "ambiguous": 298,
       "exact": 153,
-      "none": 390,
+      "none": 384,
       "review": 251,
-      "strong": 549
+      "strong": 557
     },
-    "settled_pct": 42,
+    "settled_pct": 43,
     "matched_pct": 76
   }
 ]
