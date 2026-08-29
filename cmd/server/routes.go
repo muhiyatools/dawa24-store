@@ -57,7 +57,6 @@ import (
 	workflowHttp "github.com/muhiya/dawa24-store/internal/modules/workflow/http"
 
 	"github.com/muhiya/dawa24-store/internal/platform/config"
-	"github.com/muhiya/dawa24-store/internal/platform/database"
 	"github.com/muhiya/dawa24-store/internal/platform/features"
 	"github.com/muhiya/dawa24-store/internal/platform/gateway"
 	"github.com/muhiya/dawa24-store/internal/platform/httpx"
@@ -79,6 +78,7 @@ func mountModuleRoutes(
 	deps *dependencies,
 	ai gateway.Client,
 	adminKeys *adminKeyProvisioner,
+	tenantKeys *tenantKeyProvisioner,
 ) {
 	db := deps.Handle()
 
@@ -141,7 +141,7 @@ func mountModuleRoutes(
 		// Attachments API
 		attachmentsHttp.NewHandler(attachSvc, log).RegisterRoutes(protected)
 
-		mountAuthenticatedModules(protected, cfg, log, deps, ai, adminKeys, storageClient, docsGate)
+		mountAuthenticatedModules(protected, cfg, log, deps, ai, adminKeys, tenantKeys, storageClient, docsGate)
 	})
 
 	// 13. Templ SSR Frontend & Static Assets
@@ -258,46 +258,16 @@ func mountModuleRoutes(
 		attachSvc,
 		log,
 	)
-	adminSvcUI := platformadmin.NewService(adminRepoUI, log)
-	billSvcUI := billing.NewService(billRepoUI, log)
 
+	// Every employee of a منشأة spends against that منشأة's own Gateway key.
+	//
+	// The four hand-rolled copies of this — two here, one in the dashboard
+	// handler, one in the admin handler — each provisioned inline on the request
+	// path and each minted a fresh key every time, which revoked the one before
+	// it. tenantKeyProvisioner does the same job once, with a per-organisation
+	// lock, a validated cache, and a plan that follows the subscription.
 	keyResolverUI := func(ctx context.Context, orgID int64) (string, error) {
-		if orgID <= 0 {
-			if adminKeys != nil {
-				return adminKeys.Key(ctx), nil
-			}
-			return "", nil
-		}
-		sysCtx := database.AsSystem(ctx)
-		o, err := orgSvcUI.GetOrganization(sysCtx, orgID)
-		if err != nil || o == nil {
-			if adminKeys != nil {
-				return adminKeys.Key(ctx), nil
-			}
-			return "", err
-		}
-		if o.AIVirtualKey != "" {
-			return o.AIVirtualKey, nil
-		}
-		// Auto-provision on the Gateway if missing
-		if gw, _ := adminSvcUI.GetGatewaySettings(sysCtx); gw != nil && gw.EndpointURL != "" && gw.APIKey != "" {
-			adminClient := gateway.NewAdminClient(gw.EndpointURL, "", gw.APIKey)
-			aiPlanID := "plan-pos-free"
-			if sub, _ := billSvcUI.GetActiveSubscriptionByOrg(sysCtx, orgID); sub != nil {
-				if plan, err := billSvcUI.GetPlanByID(sysCtx, sub.PlanID); err == nil && plan != nil && plan.AIPlanID != "" {
-					aiPlanID = plan.AIPlanID
-				}
-			}
-			userID, vkey, provErr := adminClient.ProvisionOrganization(sysCtx, orgID, o.LegalName, "", aiPlanID)
-			if provErr == nil && vkey != "" {
-				_ = orgSvcUI.UpdateOrganizationAICredentials(sysCtx, orgID, userID, vkey)
-				return vkey, nil
-			}
-		}
-		if adminKeys != nil {
-			return adminKeys.Key(ctx), nil
-		}
-		return "", nil
+		return tenantKeys.Key(ctx, orgID), nil
 	}
 
 	compareRepoUI := comparePostgres.NewRepository(db)
@@ -420,6 +390,7 @@ func mountAuthenticatedModules(
 	deps *dependencies,
 	ai gateway.Client,
 	adminKeys *adminKeyProvisioner,
+	tenantKeys *tenantKeyProvisioner,
 	storageClient *storage.Client,
 	docsGate func(ctx context.Context, orgID int64, orgType string) error,
 ) {
@@ -521,43 +492,15 @@ func mountAuthenticatedModules(
 	orgSvc := org.NewService(orgRepo, log)
 	orgHttp.NewHandler(orgSvc, log).RegisterRoutes(r)
 
+	// Every employee of a منشأة spends against that منشأة's own Gateway key.
+	//
+	// The four hand-rolled copies of this — two here, one in the dashboard
+	// handler, one in the admin handler — each provisioned inline on the request
+	// path and each minted a fresh key every time, which revoked the one before
+	// it. tenantKeyProvisioner does the same job once, with a per-organisation
+	// lock, a validated cache, and a plan that follows the subscription.
 	keyResolverAPI := func(ctx context.Context, orgID int64) (string, error) {
-		if orgID <= 0 {
-			if adminKeys != nil {
-				return adminKeys.Key(ctx), nil
-			}
-			return "", nil
-		}
-		sysCtx := database.AsSystem(ctx)
-		o, err := orgSvc.GetOrganization(sysCtx, orgID)
-		if err != nil || o == nil {
-			if adminKeys != nil {
-				return adminKeys.Key(ctx), nil
-			}
-			return "", err
-		}
-		if o.AIVirtualKey != "" {
-			return o.AIVirtualKey, nil
-		}
-		// Auto-provision if missing on the Gateway
-		if gw, _ := paSvc.GetGatewaySettings(sysCtx); gw != nil && gw.EndpointURL != "" && gw.APIKey != "" {
-			adminClient := gateway.NewAdminClient(gw.EndpointURL, "", gw.APIKey)
-			aiPlanID := "plan-pos-free"
-			if sub, _ := billSvc.GetActiveSubscriptionByOrg(sysCtx, orgID); sub != nil {
-				if plan, err := billSvc.GetPlanByID(sysCtx, sub.PlanID); err == nil && plan != nil && plan.AIPlanID != "" {
-					aiPlanID = plan.AIPlanID
-				}
-			}
-			userID, vkey, provErr := adminClient.ProvisionOrganization(sysCtx, orgID, o.LegalName, "", aiPlanID)
-			if provErr == nil && vkey != "" {
-				_ = orgSvc.UpdateOrganizationAICredentials(sysCtx, orgID, userID, vkey)
-				return vkey, nil
-			}
-		}
-		if adminKeys != nil {
-			return adminKeys.Key(ctx), nil
-		}
-		return "", nil
+		return tenantKeys.Key(ctx, orgID), nil
 	}
 
 	// 13. Assistant (كبسولة)

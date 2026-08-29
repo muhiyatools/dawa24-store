@@ -25,6 +25,10 @@ import (
 	"github.com/jackc/pgx/v5"
 
 	dbfs "github.com/muhiya/dawa24-store/db"
+	"github.com/muhiya/dawa24-store/internal/modules/billing"
+	billingPostgres "github.com/muhiya/dawa24-store/internal/modules/billing/postgres"
+	"github.com/muhiya/dawa24-store/internal/modules/org"
+	orgPostgres "github.com/muhiya/dawa24-store/internal/modules/org/postgres"
 	platformadmin "github.com/muhiya/dawa24-store/internal/modules/platform_admin"
 	platformadminPostgres "github.com/muhiya/dawa24-store/internal/modules/platform_admin/postgres"
 	"github.com/muhiya/dawa24-store/internal/platform/config"
@@ -135,6 +139,20 @@ func run() error {
 	adminKeys := newAdminKeyProvisioner(adminSvc, log)
 	gwSource := newAdminGatewaySettings(adminSvc, adminKeys)
 
+	// One Gateway identity per منشأة, resolved through a single cache.
+	//
+	// It is built here rather than at each mount point for the same reason
+	// adminKeys is: two instances would provision independently, and because
+	// issuing a virtual key revokes the previous one, the second would silently
+	// invalidate the first tenant key the moment both were asked at once.
+	tenantKeys := newTenantKeyProvisioner(
+		org.NewService(orgPostgres.NewRepository(deps.Handle()), log),
+		billing.NewService(billingPostgres.NewRepository(deps.Handle()), log),
+		adminSvc,
+		adminKeys,
+		log,
+	)
+
 	ai := gateway.New(cfg.Gateway, log).WithSettingsSource(gwSource)
 	if ai.Enabled() {
 		log.Info("ai gateway enabled",
@@ -145,7 +163,7 @@ func run() error {
 
 	srv := &http.Server{
 		Addr:              fmt.Sprintf(":%d", cfg.HTTP.Port),
-		Handler:           newRouter(cfg, log, deps, ai, adminKeys, migrations),
+		Handler:           newRouter(cfg, log, deps, ai, adminKeys, tenantKeys, migrations),
 		ReadTimeout:       cfg.HTTP.ReadTimeout,
 		ReadHeaderTimeout: 10 * time.Second,
 		WriteTimeout:      cfg.HTTP.WriteTimeout,
@@ -194,6 +212,10 @@ func newRouter(
 	// rebuilt here — two instances would cache independently and one would go
 	// on serving a key the operator had just replaced.
 	adminKeys *adminKeyProvisioner,
+	// tenantKeys resolves the per-organisation Gateway key every employee of
+	// that organisation spends against. Threaded through for the same reason as
+	// adminKeys: a second instance would cache and provision independently.
+	tenantKeys *tenantKeyProvisioner,
 	migrations []database.Migration,
 ) http.Handler {
 	r := chi.NewRouter()
@@ -250,7 +272,7 @@ func newRouter(
 	})
 
 	// Mount all domain module and UI endpoints
-	mountModuleRoutes(r, cfg, log, deps, ai, adminKeys)
+	mountModuleRoutes(r, cfg, log, deps, ai, adminKeys, tenantKeys)
 
 	return r
 }

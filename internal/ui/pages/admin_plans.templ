@@ -49,21 +49,21 @@ templ AdminPlans(lang, dir string, plans []*billing.Plan) {
 
 templ AdminPlansHub(data AdminPlansData, lang, dir string) {
 	@layouts.AdminShell("باقات وخطط الاشتراك الموحدة", "plans", lang, dir) {
-		<div x-data="adminPlansManager()" class="page-container">
+		<div x-data="adminPlansManager()" class="page-container py-6">
 			
 			<!-- Top Header & Actions -->
-			<div class="glass-panel p-6 mb-6">
+			<div class="glass-panel p-6 mb-6 border border-slate-200/80 rounded-2xl shadow-sm">
 				<div class="flex-between items-center flex-wrap gap-4">
 					<div>
 						<div class="d-flex items-center gap-3">
-							<div class="user-avatar-badge text-xl">
-								🏷️
+							<div class="w-10 h-10 rounded-xl bg-brand-50 text-brand-600 d-flex items-center justify-center border border-brand-200/60 shadow-2xs">
+								@components.IconTag("icon-sm")
 							</div>
 							<div>
 								<h1 class="text-2xl font-black text-primary m-0">
 									باقات واشتراكات المنظومة الموحدة
 								</h1>
-								<p class="text-sm text-secondary m-0 mt-1">
+								<p class="text-xs text-secondary m-0 mt-1 font-medium">
 									إدارة مركزية لخطط الاشتراكات، حدود الجلسات المتزامنة، وحصص بوابة الذكاء الاصطناعي (AI Gateway)
 								</p>
 							</div>
@@ -72,8 +72,8 @@ templ AdminPlansHub(data AdminPlansData, lang, dir string) {
 
 					<div class="d-flex items-center gap-3 flex-wrap">
 						<!-- AI Gateway Connection Status Indicator -->
-						<div class="d-inline-flex items-center gap-2 px-3 py-1.5 rounded-full border text-xs" style="background:var(--surface-sunken);">
-							<span>🤖</span>
+						<div class="d-inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-slate-200/80 text-xs bg-surface-sunken">
+							@components.IconZap("icon-xs text-amber-500")
 							<span class="text-secondary font-bold">بوابة الذكاء الاصطناعي:</span>
 							if data.GatewayOnline {
 								<span class="badge badge-emerald text-xs font-bold">متصلة ومزامنة</span>
@@ -88,7 +88,7 @@ templ AdminPlansHub(data AdminPlansData, lang, dir string) {
 						<!-- Add New Plan Action -->
 						<button
 							type="button"
-							class="btn btn-primary btn-sm font-bold text-xs gap-1"
+							class="btn btn-primary btn-sm font-black text-xs gap-1.5 shadow-sm"
 							@click="openCreateModal()"
 						>
 							@components.IconPlus("icon-xs")
@@ -104,7 +104,7 @@ templ AdminPlansHub(data AdminPlansData, lang, dir string) {
 				<div class="stat-card-3d">
 					<div class="flex-between items-center">
 						<span class="text-xs font-bold text-muted">إجمالي الباقات</span>
-						<span class="text-brand">🏷️</span>
+						<span class="text-brand">@components.IconTag("icon-xs")</span>
 					</div>
 					<div class="tabular-nums text-2xl font-black text-primary mt-2">
 						{ fmt.Sprintf("%d", len(data.Plans)) } <span class="text-xs text-muted font-normal">باقة</span>
@@ -119,7 +119,7 @@ templ AdminPlansHub(data AdminPlansData, lang, dir string) {
 				<div class="stat-card-3d">
 					<div class="flex-between items-center">
 						<span class="text-xs font-bold text-muted">الباقة الافتراضية</span>
-						<span class="text-amber">★</span>
+						<span class="text-amber-500">@components.IconShield("icon-xs")</span>
 					</div>
 					<div class="text-lg font-black text-primary mt-2 text-truncate" title={ getDefaultPlanName(data.Plans, lang) }>
 						{ getDefaultPlanName(data.Plans, lang) }
@@ -133,7 +133,7 @@ templ AdminPlansHub(data AdminPlansData, lang, dir string) {
 				<div class="stat-card-3d">
 					<div class="flex-between items-center">
 						<span class="text-xs font-bold text-muted">المشتركون النشطون</span>
-						<span class="text-emerald">👥</span>
+						<span class="text-emerald">@components.IconUsers("icon-xs")</span>
 					</div>
 					<div class="tabular-nums text-2xl font-black text-emerald mt-2">
 						{ fmt.Sprintf("%d", len(data.Subscriptions)) } <span class="text-xs text-muted font-normal">منشأة</span>
@@ -147,7 +147,7 @@ templ AdminPlansHub(data AdminPlansData, lang, dir string) {
 				<div class="stat-card-3d">
 					<div class="flex-between items-center">
 						<span class="text-xs font-bold text-muted">باقات الـ AI Gateway</span>
-						<span class="text-purple">🔮</span>
+						<span class="text-purple-500">@components.IconZap("icon-xs")</span>
 					</div>
 					<div class="tabular-nums text-2xl font-black text-purple mt-2">
 						{ fmt.Sprintf("%d", len(data.GatewayPlans)) } <span class="text-xs text-muted font-normal">باقة</span>
@@ -183,62 +183,61 @@ templ AdminPlansHub(data AdminPlansData, lang, dir string) {
 						<!-- TAB 2: Subscriptions Table -->
 						if len(data.Subscriptions) == 0 {
 							<div class="p-8 text-center empty-state-glass">
-								<div class="text-4xl mb-3">🏷️</div>
-								<h3 class="text-lg font-black text-primary mb-2">لا توجد اشتراكات مسجلة حالياً</h3>
-								<p class="text-sm text-secondary max-w-md mx-auto">ستظهر هنا سجلات اشتراكات المنشآت فور اعتمادها وتفعيل حساباتها.</p>
+								<div class="w-12 h-12 rounded-full bg-slate-100 text-slate-400 d-flex items-center justify-center mx-auto mb-3">
+									@components.IconTag("icon-md")
+								</div>
+								<h3 class="text-base font-black text-primary mb-1.5">لا توجد اشتراكات مسجلة حالياً</h3>
+								<p class="text-xs text-secondary max-w-md mx-auto">ستظهر هنا سجلات اشتراكات المنشآت فور اعتمادها وتفعيل حساباتها.</p>
 							</div>
 						} else {
-							<div class="table-container m-0">
-								<table class="data-table m-0">
+							<div class="table-container m-0 overflow-x-auto">
+								<table class="data-table m-0 text-xs w-full">
 									<thead>
-										<tr>
-											<th>رقم الاشتراك</th>
-											<th>المنشأة / المستفيد</th>
-											<th>باقة الاشتراك</th>
-											<th>الحالة</th>
-											<th>دورة الفوترة</th>
-											<th>تاريخ البدء</th>
-											<th>تاريخ الانتهاء</th>
+										<tr class="bg-slate-50/80 border-b border-slate-200/70 text-slate-700 font-bold">
+											<th class="py-3 text-start ps-4">رقم الاشتراك</th>
+											<th class="py-3 text-start">المنشأة / المستفيد</th>
+											<th class="py-3 text-start">باقة الاشتراك</th>
+											<th class="text-center py-3">الحالة</th>
+											<th class="text-center py-3">دورة الفوترة</th>
+											<th class="text-center py-3">تاريخ البدء</th>
+											<th class="text-center py-3 pe-4">تاريخ الانتهاء</th>
 										</tr>
 									</thead>
-									<tbody>
+									<tbody class="divide-y divide-slate-100">
 										for _, s := range data.Subscriptions {
-											<tr>
-												<td class="tabular-nums"><strong>{ fmt.Sprintf("SUB-%d", s.ID) }</strong></td>
-												<td>
+											<tr class="hover:bg-slate-50/50 transition-colors">
+												<td class="tabular-nums font-bold text-primary py-3 ps-4">{ fmt.Sprintf("SUB-%d", s.ID) }</td>
+												<td class="py-3">
 													if s.OrganizationID != nil && *s.OrganizationID > 0 {
-														<span class="badge badge-primary fw-700">منشأة #{ fmt.Sprintf("%d", *s.OrganizationID) }</span>
+														<span class="badge badge-primary font-bold text-xs">منشأة #{ fmt.Sprintf("%d", *s.OrganizationID) }</span>
 													} else {
-														<span class="badge badge-secondary">مستخدم #{ fmt.Sprintf("%d", s.UserID) }</span>
+														<span class="badge badge-secondary text-xs">مستخدم #{ fmt.Sprintf("%d", s.UserID) }</span>
 													}
 												</td>
-												<td>
+												<td class="py-3">
 													for _, p := range data.Plans {
 														if p.ID == s.PlanID {
-															<div class="fw-800 text-primary">{ p.Name.Get(i18n.Lang(lang)) }</div>
+															<div class="font-extrabold text-primary">{ p.Name.Get(i18n.Lang(lang)) }</div>
 															<span class="text-xs text-muted" dir="ltr"><code>{ p.Slug }</code></span>
 														}
 													}
-													if s.PlanID > 0 {
-														<span style="font-size:0.75rem; color:var(--text-muted); display:none;">(خطة #{ fmt.Sprintf("%d", s.PlanID) })</span>
-													}
 												</td>
-												<td>
+												<td class="text-center py-3">
 													if s.Status == "active" {
-														<span class="badge badge-emerald">ساري وفعال</span>
+														<span class="badge badge-emerald font-extrabold text-xs">ساري وفعال</span>
 													} else {
-														<span class="badge badge-secondary">{ string(s.Status) }</span>
+														<span class="badge badge-slate text-xs">{ string(s.Status) }</span>
 													}
 												</td>
-												<td>
+												<td class="text-center py-3">
 													if s.BillingCycle == "annual" {
 														<span class="badge badge-sky font-bold text-xs">سنوي</span>
 													} else {
 														<span class="badge badge-slate text-xs">شهري</span>
 													}
 												</td>
-												<td class="tabular-nums">{ s.StartsAt.Format("2006-01-02") }</td>
-												<td class="tabular-nums">{ s.ExpiresAt.Format("2006-01-02") }</td>
+												<td class="text-center tabular-nums text-secondary font-medium py-3">{ s.StartsAt.Format("2006-01-02") }</td>
+												<td class="text-center tabular-nums text-secondary font-medium py-3 pe-4">{ s.ExpiresAt.Format("2006-01-02") }</td>
 											</tr>
 										}
 									</tbody>
@@ -249,175 +248,164 @@ templ AdminPlansHub(data AdminPlansData, lang, dir string) {
 						<!-- TAB 1: Unified Plans Cards Grid -->
 						if len(data.Plans) == 0 {
 							<div class="p-8 text-center empty-state-glass">
-								<div class="text-4xl mb-3">📦</div>
-								<h3 class="text-lg font-black text-primary mb-2">لا توجد باقات اشتراك معرفة بالمنظومة</h3>
-								<p class="text-sm text-secondary max-w-md mx-auto mb-4">قم بإنشاء باقة اشتراك جديدة لتحديد الأسعار وحدود الجلسات وصلاحيات الذكاء الاصطناعي.</p>
-								<button type="button" class="btn btn-primary btn-sm font-bold" @click="openCreateModal()">
+								<div class="w-12 h-12 rounded-full bg-slate-100 text-slate-400 d-flex items-center justify-center mx-auto mb-3">
+									@components.IconBoxes("icon-md")
+								</div>
+								<h3 class="text-base font-black text-primary mb-1.5">لا توجد باقات اشتراك معرفة بالمنظومة</h3>
+								<p class="text-xs text-secondary max-w-md mx-auto mb-4">قم بإنشاء باقة اشتراك جديدة لتحديد الأسعار وحدود الجلسات وصلاحيات الذكاء الاصطناعي.</p>
+								<button type="button" class="btn btn-primary btn-sm font-bold shadow-xs" @click="openCreateModal()">
 									@components.IconPlus("icon-xs")
 									<span>إنشاء الباقة الأولى</span>
 								</button>
 							</div>
 						} else {
-							<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(360px, 1fr)); gap:1.5rem; align-items:stretch;">
+							<div class="d-grid grid-cols-1 md:grid-cols-3 gap-6">
 								for _, p := range data.Plans {
-									<div
-										class={ "card mb-0 plan-card-container", templ.KV("border-brand shadow-sm", p.IsDefault) }
-										style="display:flex; flex-direction:column; justify-content:space-between; border:1px solid var(--border); background:var(--surface); border-radius:var(--radius-xl); padding:1.5rem; position:relative;"
-									>
+									<div class={ "glass-panel p-6 border border-slate-200/80 rounded-2xl shadow-xs hover:border-brand-300 transition-all d-flex flex-col justify-between", templ.KV("ring-2 ring-brand-500 shadow-md", p.IsDefault) }>
 										<!-- Card Top: Badges & Title -->
 										<div>
 											<!-- Header Badges -->
-											<div style="display:flex; justify-content:space-between; align-items:flex-start; gap:0.5rem; margin-bottom:0.75rem;">
-												<div style="display:flex; flex-direction:column; gap:0.25rem;">
-													<div style="display:flex; align-items:center; gap:0.5rem; flex-wrap:wrap;">
-														<h3 style="margin:0; font-size:1.2rem; font-weight:900; color:var(--text);">
+											<div class="flex-between items-start gap-2 mb-3">
+												<div>
+													<div class="d-flex items-center gap-2 flex-wrap">
+														<h3 class="m-0 text-base font-black text-primary">
 															{ p.Name.Get(i18n.Lang(lang)) }
 														</h3>
 														if p.IsDefault {
-															<span class="badge badge-primary font-bold text-xs" style="padding:0.2rem 0.6rem;">
-																★ الباقة الافتراضية
+															<span class="badge badge-primary font-black text-2xs shadow-2xs">
+																الباقة الافتراضية
 															</span>
 														}
 													</div>
-													<div dir="ltr" class="text-xs text-muted">
+													<div dir="ltr" class="text-xs text-muted font-mono mt-0.5">
 														<code>{ p.Slug }</code>
 													</div>
 												</div>
 
 												<div class="d-flex items-center gap-1">
 													if p.IsActive {
-														<span class="badge badge-emerald font-bold text-xs">● نشطة</span>
+														<span class="badge badge-emerald font-extrabold text-2xs">نشطة</span>
 													} else {
-														<span class="badge badge-secondary text-xs">○ معطلة</span>
+														<span class="badge badge-slate text-2xs">معطلة</span>
 													}
 												</div>
 											</div>
 
 											<!-- Description -->
 											if p.Description.Get(i18n.Lang(lang)) != "" {
-												<p style="font-size:0.85rem; color:var(--text-secondary); margin:0 0 1.25rem 0; line-height:1.6;">
+												<p class="text-xs text-secondary mb-4 leading-relaxed font-medium">
 													{ p.Description.Get(i18n.Lang(lang)) }
 												</p>
 											} else {
-												<p style="font-size:0.85rem; color:var(--text-muted); margin:0 0 1.25rem 0; font-style:italic;">
+												<p class="text-xs text-muted mb-4 italic">
 													لا يوجد وصف محدد للباقة
 												</p>
 											}
 
 											<!-- Pricing Display Strip -->
-											<div style="background:var(--surface-sunken); border:1px solid var(--border); border-radius:var(--radius-lg); padding:0.9rem 1.1rem; margin-bottom:1.25rem; display:flex; justify-content:space-between; align-items:center;">
+											<div class="bg-surface-sunken border border-slate-200/80 rounded-xl p-3.5 mb-4 flex-between items-center">
 												<div>
-													<div style="font-size:0.75rem; color:var(--text-secondary); font-weight:700;">الاشتراك الشهري</div>
-													<div style="font-size:1.35rem; font-weight:900; color:var(--primary);" class="tabular-nums">
+													<div class="text-2xs text-secondary font-bold">الاشتراك الشهري</div>
+													<div class="text-lg font-black text-brand tabular-nums">
 														if p.PriceMonth.IsPositive() {
-															{ p.PriceMonth.String() } <span style="font-size:0.8rem; font-weight:600;">ج.م</span>
+															{ p.PriceMonth.String() } <span class="text-xs font-bold text-secondary">ج.م</span>
 														} else {
-															<span class="text-emerald">مجاني (0.00)</span>
+															<span class="text-emerald-600 font-bold">مجاني</span>
 														}
 													</div>
 												</div>
-												<div style="text-align:end; border-inline-start:1px solid var(--border); padding-inline-start:1rem;">
-													<div style="font-size:0.75rem; color:var(--text-secondary); font-weight:700;">الاشتراك السنوي</div>
-													<div style="font-size:1.1rem; font-weight:800; color:var(--text);" class="tabular-nums">
+												<div class="text-end border-s border-slate-200/80 ps-3">
+													<div class="text-2xs text-secondary font-bold">الاشتراك السنوي</div>
+													<div class="text-sm font-black text-primary tabular-nums">
 														if p.PriceYear.IsPositive() {
-															{ p.PriceYear.String() } <span style="font-size:0.75rem; font-weight:600;">ج.م</span>
+															{ p.PriceYear.String() } <span class="text-2xs font-bold text-secondary">ج.م</span>
 														} else {
-															<span class="text-emerald">مجاني (0.00)</span>
+															<span class="text-emerald-600 font-bold">مجاني</span>
 														}
 													</div>
 												</div>
-												<div style="text-align:end; border-inline-start:1px solid var(--border); padding-inline-start:1rem;">
-													<div style="font-size:0.75rem; color:var(--text-secondary); font-weight:700;">الصلاحية</div>
-													<div style="font-size:0.9rem; font-weight:800; color:var(--text-secondary);" class="tabular-nums">
+												<div class="text-end border-s border-slate-200/80 ps-3">
+													<div class="text-2xs text-secondary font-bold">الصلاحية</div>
+													<div class="text-xs font-extrabold text-secondary tabular-nums">
 														{ fmt.Sprintf("%d يوم", p.DurationDays) }
 													</div>
 												</div>
 											</div>
 
 											<!-- Quotas & Limits Box -->
-											<div style="background:rgba(56, 189, 248, 0.04); border:1px solid rgba(56, 189, 248, 0.2); border-radius:var(--radius-lg); padding:1rem; margin-bottom:1.25rem;">
-												<div style="font-size:0.8rem; font-weight:800; color:var(--primary); margin-bottom:0.75rem; display:flex; align-items:center; gap:0.4rem;">
-													<span>⚙️</span>
-													<span>حدود الأمان والجلسات المطبقة على إجمالي المنشأة</span>
+											<div class="bg-brand-50/40 border border-brand-200/50 rounded-xl p-3.5 mb-4">
+												<div class="text-xs font-extrabold text-brand-700 mb-2.5 d-flex items-center gap-1.5">
+													@components.IconShield("icon-2xs")
+													<span>حدود الجلسات والأمان للمنشأة</span>
 												</div>
 
-												<div style="display:flex; flex-direction:column; gap:0.6rem; font-size:0.85rem;">
+												<div class="d-flex flex-col gap-2 text-xs">
 													<!-- Concurrent Sessions Limit -->
 													<div class="flex-between">
-														<span style="color:var(--text-secondary); display:flex; align-items:center; gap:0.35rem;">
-															<span>👥</span>
+														<span class="text-secondary d-flex items-center gap-1.5 font-medium">
+															@components.IconUsers("icon-2xs text-muted")
 															<span>الجلسات المتزامنة:</span>
 														</span>
-														<strong class="text-primary tabular-nums">
-															{ fmt.Sprintf("%d جلسات (إجمالي المنشأة)", p.MaxLoginSessions) }
+														<strong class="text-primary tabular-nums font-bold">
+															{ fmt.Sprintf("%d جلسات", p.MaxLoginSessions) }
 														</strong>
 													</div>
 
 													<!-- Max Devices Limit -->
 													<div class="flex-between">
-														<span style="color:var(--text-secondary); display:flex; align-items:center; gap:0.35rem;">
-															<span>💻</span>
+														<span class="text-secondary d-flex items-center gap-1.5 font-medium">
+															@components.IconSettings("icon-2xs text-muted")
 															<span>الأجهزة المسموح بها:</span>
 														</span>
-														<strong class="text-primary tabular-nums">
+														<strong class="text-primary tabular-nums font-bold">
 															{ fmt.Sprintf("%d أجهزة", p.MaxDevices) }
 														</strong>
 													</div>
 
 													<!-- AI Gateway Plan -->
-													<div style="display:flex; justify-content:space-between; align-items:center; border-top:1px dashed var(--border); padding-top:0.5rem; margin-top:0.25rem;">
-														<span style="color:var(--text-secondary); display:flex; align-items:center; gap:0.35rem;">
-															<span>🤖</span>
+													<div class="flex-between border-t border-dashed border-slate-200 pt-2 mt-1">
+														<span class="text-secondary d-flex items-center gap-1.5 font-medium">
+															@components.IconZap("icon-2xs text-amber-500")
 															<span>باقة الـ AI Gateway:</span>
 														</span>
-														<span class="badge badge-info" dir="ltr" style="font-weight:700; font-size:0.75rem;">
+														<span class="badge badge-sky font-mono font-bold text-2xs" dir="ltr">
 															{ p.AIPlanID }
 														</span>
 													</div>
 												</div>
 											</div>
 
-											<!-- Vendor Features Badges -->
-											<div style="background:var(--surface-sunken); border:1px solid var(--border); border-radius:var(--radius-lg); padding:0.75rem 1rem; margin-bottom:1.25rem;">
-												<div style="font-size:0.75rem; font-weight:700; color:var(--text-secondary); margin-bottom:0.5rem;">
-													صلاحيات وميزات المنظومة المتضمنة:
+											<!-- Features Badges -->
+											<div class="bg-surface-sunken border border-slate-200/80 rounded-xl p-3 mb-4">
+												<div class="text-2xs font-bold text-secondary mb-2">
+													صلاحيات وميزات المنظومة:
 												</div>
-												<div style="display:flex; flex-direction:column; gap:0.4rem; font-size:0.8rem;">
+												<div class="d-flex flex-col gap-1.5 text-xs font-medium">
 													if p.HasFeature("feature_market_discounts") {
-														<div class="d-flex items-center gap-2 text-emerald font-bold">
-															<span>✓</span>
-															<span>🛒 (للموردين) خصومات السوق العامة ومؤشرات الأسعار</span>
-														</div>
-													} else {
-														<div class="d-flex items-center gap-2 text-muted" style="opacity:0.6;">
-															<span>✕</span>
-															<span>خصومات السوق العامة (معطلة)</span>
+														<div class="d-flex items-center gap-1.5 text-emerald-600 font-bold">
+															@components.IconCheck("icon-2xs")
+															<span>خصومات السوق العامة ومؤشرات الأسعار</span>
 														</div>
 													}
 
 													if p.HasFeature("feature_compare_tool") || p.HasFeature("compare") {
-														<div class="d-flex items-center gap-2 text-indigo font-bold">
-															<span>✓</span>
-															<span>📊 (للموردين) أداة مقارنة الخصومات وتحليل العروض</span>
-														</div>
-													} else {
-														<div class="d-flex items-center gap-2 text-muted" style="opacity:0.6;">
-															<span>✕</span>
-															<span>أداة مقارنة الخصومات (معطلة)</span>
+														<div class="d-flex items-center gap-1.5 text-brand-600 font-bold">
+															@components.IconCheck("icon-2xs")
+															<span>أداة مقارنة الخصومات وتحليل العروض</span>
 														</div>
 													}
 
 													if p.HasFeature("bulk_import") {
-														<div class="d-flex items-center gap-2 text-sky font-bold">
-															<span>✓</span>
-															<span>📦 استيراد وتحديث الكتالوجات بالجملة</span>
+														<div class="d-flex items-center gap-1.5 text-sky-600 font-bold">
+															@components.IconCheck("icon-2xs")
+															<span>استيراد وتحديث الكتالوجات بالجملة</span>
 														</div>
 													}
 
 													if p.HasFeature("analytics") {
-														<div class="d-flex items-center gap-2 text-purple font-bold">
-															<span>✓</span>
-															<span>📈 لوحة التحليلات المتقدمة والتقارير</span>
+														<div class="d-flex items-center gap-1.5 text-purple-600 font-bold">
+															@components.IconCheck("icon-2xs")
+															<span>لوحة التحليلات المتقدمة والتقارير</span>
 														</div>
 													}
 												</div>
@@ -425,13 +413,10 @@ templ AdminPlansHub(data AdminPlansData, lang, dir string) {
 										</div>
 
 										<!-- Card Bottom Action Toolbar -->
-										<div style="border-top:1px solid var(--border); padding-top:1rem; margin-top:0.5rem; display:flex; flex-direction:column; gap:0.5rem;">
-											
-											<!-- Edit Action -->
+										<div class="border-t border-slate-100 pt-3 mt-auto d-flex flex-col gap-2">
 											<button
 												type="button"
-												class="btn btn-secondary btn-sm edit-plan-trigger-btn"
-												style="font-weight:800; width:100%; justify-content:center; gap:0.4rem;"
+												class="btn btn-secondary btn-sm w-full justify-center font-extrabold gap-1.5 shadow-2xs edit-plan-trigger-btn"
 												data-id={ fmt.Sprintf("%d", p.ID) }
 												data-slug={ p.Slug }
 												data-name-ar={ p.Name.Get("ar") }
@@ -474,8 +459,9 @@ templ AdminPlansHub(data AdminPlansData, lang, dir string) {
 												<!-- Set Default Plan -->
 												if !p.IsDefault {
 													<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/plans/%d/set-default", p.ID)) } style="flex:1; margin:0;">
-														<button type="submit" class="btn btn-outline-amber btn-xs w-full" title="جعلها الباقة الافتراضية">
-															<span>★ تعيين كافتراضية</span>
+														<button type="submit" class="btn btn-outline-amber btn-xs w-full d-flex items-center justify-center gap-1" title="جعلها الباقة الافتراضية">
+															@components.IconShield("icon-2xs")
+															<span>تعيين كافتراضية</span>
 														</button>
 													</form>
 												}
@@ -484,7 +470,7 @@ templ AdminPlansHub(data AdminPlansData, lang, dir string) {
 												if !p.IsDefault {
 													<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/plans/%d/delete", p.ID)) } style="margin:0;" onsubmit="return confirm('هل أنت متأكد من حذف هذه الباقة نهائياً؟');">
 														<button type="submit" class="btn btn-outline-danger btn-xs btn-icon" title="حذف الباقة">
-															<span>🗑️</span>
+															@components.IconTrash("icon-2xs text-rose-600")
 														</button>
 													</form>
 												}
@@ -509,174 +495,173 @@ templ AdminPlansHub(data AdminPlansData, lang, dir string) {
 			>
 				<div
 					@click.away="showModal = false"
-					class="card"
-					style="width:100%; max-width:680px; max-height:92vh; overflow-y:auto; margin:0; background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-xl); box-shadow:0 24px 48px rgba(0,0,0,0.6); padding:1.75rem;"
+					class="glass-panel p-6 border border-slate-200/80 rounded-2xl shadow-xl max-w-2xl w-full"
+					style="max-height:92vh; overflow-y:auto;"
 				>
 					<!-- Modal Header -->
-					<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.25rem; border-bottom:1px solid var(--border); padding-bottom:1rem;">
+					<div class="flex-between items-center pb-4 mb-4 border-b border-slate-100">
 						<div>
-							<h3 style="margin:0; font-size:1.25rem; font-weight:900; color:var(--text);" x-text="isEdit ? 'تعديل باقة الاشتراك الموحدة' : 'إضافة باقة اشتراك جديدة'"></h3>
-							<p style="margin:0.25rem 0 0; font-size:0.8rem; color:var(--text-secondary);">
+							<h3 class="m-0 text-lg font-black text-primary" x-text="isEdit ? 'تعديل باقة الاشتراك الموحدة' : 'إضافة باقة اشتراك جديدة'"></h3>
+							<p class="m-0 mt-0.5 text-xs text-secondary font-medium">
 								تحديد الأسعار، حدود الجلسات المتزامنة، وصلاحيات الوصول لحصص الذكاء الاصطناعي وخصومات السوق.
 							</p>
 						</div>
-						<button type="button" @click="showModal = false" class="btn btn-secondary btn-xs" style="border-radius:var(--radius-full); width:32px; height:32px; padding:0; justify-content:center;">✕</button>
+						<button type="button" @click="showModal = false" class="btn btn-secondary btn-xs rounded-full w-8 h-8 p-0 d-flex items-center justify-center">
+							@components.IconClose("icon-xs")
+						</button>
 					</div>
 
-					<form :action="formAction" method="POST" style="display:flex; flex-direction:column; gap:1.2rem;">
+					<form :action="formAction" method="POST" class="d-flex flex-col gap-4 m-0">
 						
 						<!-- Section 1: Identity & Names -->
-						<div class="form-grid-2">
-							<div class="form-group m-0">
-								<label class="form-label font-bold text-xs">المعرّف الفريد (Slug) <span class="text-danger">*</span></label>
-								<input type="text" name="slug" x-model="form.slug" required class="form-input text-xs" placeholder="e.g. basic, pro, enterprise" dir="ltr" />
+						<div class="d-grid grid-cols-1 md:grid-cols-2 gap-4">
+							<div>
+								<label class="form-label font-bold text-xs d-block mb-1">المعرّف الفريد (Slug) <span class="text-danger">*</span></label>
+								<input type="text" name="slug" x-model="form.slug" required class="form-input text-xs font-mono" placeholder="e.g. basic, pro, enterprise" dir="ltr" />
 							</div>
-							<div class="form-group m-0">
-								<label class="form-label font-bold text-xs">اسم الباقة (عربي) <span class="text-danger">*</span></label>
-								<input type="text" name="name_ar" x-model="form.name_ar" required class="form-input text-xs" placeholder="مثال: الباقة الاحترافية" />
+							<div>
+								<label class="form-label font-bold text-xs d-block mb-1">اسم الباقة (عربي) <span class="text-danger">*</span></label>
+								<input type="text" name="name_ar" x-model="form.name_ar" required class="form-input text-xs font-bold" placeholder="مثال: الباقة الاحترافية" />
 							</div>
 						</div>
 
-						<div class="form-grid-2">
-							<div class="form-group m-0">
-								<label class="form-label font-bold text-xs">اسم الباقة (إنجليزي)</label>
+						<div class="d-grid grid-cols-1 md:grid-cols-2 gap-4">
+							<div>
+								<label class="form-label font-bold text-xs d-block mb-1">اسم الباقة (إنجليزي)</label>
 								<input type="text" name="name_en" x-model="form.name_en" class="form-input text-xs" placeholder="e.g. Professional Plan" dir="ltr" />
 							</div>
-							<div class="form-group m-0">
-								<label class="form-label font-bold text-xs">فترة الصلاحية (أيام) <span class="text-danger">*</span></label>
+							<div>
+								<label class="form-label font-bold text-xs d-block mb-1">فترة الصلاحية (أيام) <span class="text-danger">*</span></label>
 								<input type="number" name="duration_days" x-model="form.duration" class="form-input tabular-nums text-xs" min="1" required />
 							</div>
 						</div>
 
-						<div class="form-group m-0">
-							<label class="form-label font-bold text-xs">وصف الباقة ومزاياها للمشتركين</label>
+						<div>
+							<label class="form-label font-bold text-xs d-block mb-1">وصف الباقة ومزاياها للمشتركين</label>
 							<textarea name="description_ar" x-model="form.desc_ar" rows="2" class="form-input text-xs" placeholder="اكتب نبذة توضيحية عن ميزات الباقة..."></textarea>
 						</div>
 
 						<!-- Section 2: Pricing (Monthly & Yearly) -->
-						<div style="background:var(--surface-sunken); border:1px solid var(--border); border-radius:var(--radius-lg); padding:1rem;">
-							<div style="font-size:0.825rem; font-weight:800; color:var(--text); margin-bottom:0.75rem; display:flex; align-items:center; gap:0.4rem;">
-								<span>💰</span>
+						<div class="bg-surface-sunken border border-slate-200/80 rounded-xl p-4">
+							<div class="text-xs font-extrabold text-primary mb-3 d-flex items-center gap-1.5">
+								@components.IconCreditCard("icon-xs text-brand")
 								<span>تسعير الباقة (شهري وسنوي)</span>
 							</div>
 
-							<div style="display:grid; grid-template-columns:1fr 1fr; gap:0.75rem;">
-								<div class="form-group m-0">
-									<label class="form-label font-bold text-xs">السعر الشهري (ج.م) <span class="text-danger">*</span></label>
-									<input type="number" step="0.01" min="0" name="price_month" x-model="form.price_month" class="form-input tabular-nums text-xs" placeholder="0.00" required />
-									<span class="text-xs text-muted mt-1 d-block">ضع 0 للباقات المجانية</span>
+							<div class="d-grid grid-cols-1 md:grid-cols-2 gap-3">
+								<div>
+									<label class="form-label font-bold text-xs d-block mb-1">السعر الشهري (ج.م) <span class="text-danger">*</span></label>
+									<input type="number" step="0.01" min="0" name="price_month" x-model="form.price_month" class="form-input tabular-nums text-xs font-bold" placeholder="0.00" required />
+									<span class="text-2xs text-muted mt-1 d-block font-medium">ضع 0 للباقات المجانية</span>
 								</div>
-								<div class="form-group m-0">
-									<label class="form-label font-bold text-xs">السعر السنوي (ج.م) <span class="text-danger">*</span></label>
-									<input type="number" step="0.01" min="0" name="price_year" x-model="form.price_year" class="form-input tabular-nums text-xs" placeholder="0.00" required />
-									<span class="text-xs text-muted mt-1 d-block">سعر الدفع السنوي المجمع</span>
+								<div>
+									<label class="form-label font-bold text-xs d-block mb-1">السعر السنوي (ج.م) <span class="text-danger">*</span></label>
+									<input type="number" step="0.01" min="0" name="price_year" x-model="form.price_year" class="form-input tabular-nums text-xs font-bold" placeholder="0.00" required />
+									<span class="text-2xs text-muted mt-1 d-block font-medium">سعر الدفع السنوي المجمع</span>
 								</div>
 							</div>
 						</div>
 
 						<!-- Section 3: Limits & AI Gateway Plan -->
-						<div style="background:var(--surface-sunken); border:1px solid var(--border); border-radius:var(--radius-lg); padding:1rem; display:flex; flex-direction:column; gap:0.85rem;">
-							<div style="font-size:0.825rem; font-weight:800; color:var(--text); display:flex; align-items:center; gap:0.4rem;">
-								<span>🛡️</span>
+						<div class="bg-surface-sunken border border-slate-200/80 rounded-xl p-4 d-flex flex-col gap-3">
+							<div class="text-xs font-extrabold text-primary d-flex items-center gap-1.5">
+								@components.IconShield("icon-xs text-brand")
 								<span>حدود الأمان والجلسات المطبقة على إجمالي المنشأة</span>
 							</div>
 
-							<div style="display:grid; grid-template-columns:1fr 1fr; gap:0.75rem;">
-								<div class="form-group m-0">
-									<label class="form-label font-bold text-xs">الجلسات المتزامنة (إجمالي المنشأة) <span class="text-danger">*</span></label>
+							<div class="d-grid grid-cols-1 md:grid-cols-2 gap-3">
+								<div>
+									<label class="form-label font-bold text-xs d-block mb-1">الجلسات المتزامنة <span class="text-danger">*</span></label>
 									<input type="number" name="max_login_sessions" x-model="form.sessions" class="form-input tabular-nums text-xs" min="1" max="500" required />
-									<span style="font-size:0.75rem; color:var(--text-secondary); margin-top:0.2rem; display:block;">مطبقة على إجمالي مستخدمي المنشأة</span>
+									<span class="text-2xs text-secondary mt-1 d-block font-medium">مطبقة على إجمالي مستخدمي المنشأة</span>
 								</div>
-								<div class="form-group m-0">
-									<label class="form-label font-bold text-xs">حد الأجهزة المسموح بها <span class="text-danger">*</span></label>
+								<div>
+									<label class="form-label font-bold text-xs d-block mb-1">حد الأجهزة المسموح بها <span class="text-danger">*</span></label>
 									<input type="number" name="max_devices" x-model="form.devices" class="form-input tabular-nums text-xs" min="1" max="500" required />
-									<span style="font-size:0.75rem; color:var(--text-secondary); margin-top:0.2rem; display:block;">أقصى أجهزة مسجلة</span>
+									<span class="text-2xs text-secondary mt-1 d-block font-medium">أقصى أجهزة مسجلة</span>
 								</div>
 							</div>
 
-							<div class="form-group m-0 pt-2 border-t">
-								<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.35rem;">
+							<div class="pt-2 border-t border-slate-200/80">
+								<div class="flex-between items-center mb-1">
 									<label class="form-label m-0 font-bold text-xs">باقة بوابة الذكاء الاصطناعي (AI Gateway Plan) <span class="text-danger">*</span></label>
 									if data.GatewayURL != "" {
-										<span style="font-size:0.75rem; color:var(--primary); font-weight:600;">(مزامنة من { data.GatewayURL })</span>
+										<span class="text-2xs text-primary font-semibold">(مزامنة من { data.GatewayURL })</span>
 									}
 								</div>
-								<select name="ai_plan_id" x-model="form.ai_plan" class="form-input text-xs" style="background:var(--surface);">
+								<select name="ai_plan_id" x-model="form.ai_plan" class="form-input text-xs font-semibold">
 									for _, gp := range data.GatewayPlans {
 										<option value={ gp.ID }>
 											{ gp.Name } ({ gp.ID }) — { fmt.Sprintf("%d RPM / %d TPM", gp.RPMLimit, gp.TPMLimit) }
 										</option>
 									}
 								</select>
-								<span style="font-size:0.75rem; color:var(--text-secondary); margin-top:0.25rem; display:block;">
-									الربط التلقائي وتحديد حصة الكوتا في الـ AI Gateway وتوليد المفتاح الافتراضي (Virtual Key) تلقائياً للمنشأة.
-								</span>
 							</div>
 						</div>
 
 						<!-- Section 4: Entitlements & Features Checklist -->
-						<div style="display:flex; flex-direction:column; gap:0.75rem; font-size:0.875rem; border-top:1px solid var(--border); padding-top:0.9rem;">
-							<div style="font-size:0.8rem; font-weight:800; color:var(--primary); display:flex; align-items:center; gap:0.4rem;">
-								<span>🏢</span>
-								<span>صلاحيات وميزات المنظومة المتضمنة (Feature Entitlements):</span>
+						<div class="d-flex flex-col gap-2.5 pt-2 border-t border-slate-100">
+							<div class="text-xs font-extrabold text-primary d-flex items-center gap-1.5">
+								@components.IconTag("icon-xs text-brand")
+								<span>صلاحيات وميزات المنظومة المتضمنة:</span>
 							</div>
 
-							<label style="display:flex; gap:0.6rem; align-items:center; cursor:pointer; background:rgba(16, 185, 129, 0.05); padding:0.6rem 0.85rem; border-radius:var(--radius-md); border:1px solid rgba(16, 185, 129, 0.2);">
+							<label class="d-flex gap-2.5 items-center cursor-pointer p-2.5 rounded-xl border border-emerald-200/60 bg-emerald-50/40">
 								<input type="checkbox" name="feature_market_discounts" value="1" x-model="form.feat_market" />
 								<div>
-									<strong style="color:var(--text); display:block; font-size:0.825rem;">🛒 (خاص بالموردين) إتاحة الوصول إلى: خصومات السوق العامة ومؤشرات الأسعار</strong>
-									<span class="text-xs text-secondary">تمكين المورد من استعراض خصومات السوق الحية والتحليلات المقارنة</span>
+									<strong class="text-primary d-block text-xs font-extrabold">(خاص بالموردين) إتاحة الوصول إلى: خصومات السوق العامة ومؤشرات الأسعار</strong>
+									<span class="text-2xs text-secondary font-medium">تمكين المورد من استعراض خصومات السوق الحية والتحليلات المقارنة</span>
 								</div>
 							</label>
 
-							<label style="display:flex; gap:0.6rem; align-items:center; cursor:pointer; background:rgba(99, 102, 241, 0.05); padding:0.6rem 0.85rem; border-radius:var(--radius-md); border:1px solid rgba(99, 102, 241, 0.2);">
+							<label class="d-flex gap-2.5 items-center cursor-pointer p-2.5 rounded-xl border border-indigo-200/60 bg-indigo-50/40">
 								<input type="checkbox" name="feature_compare_tool" value="1" x-model="form.feat_compare" />
 								<div>
-									<strong style="color:var(--text); display:block; font-size:0.825rem;">📊 (خاص بالموردين) إتاحة الوصول إلى: أداة مقارنة الخصومات وتحليل العروض</strong>
-									<span class="text-xs text-secondary">تمكين المورد من تشغيل أداة المقارنة المتقدمة للملفات وخصومات الموردين</span>
+									<strong class="text-primary d-block text-xs font-extrabold">(خاص بالموردين) إتاحة الوصول إلى: أداة مقارنة الخصومات وتحليل العروض</strong>
+									<span class="text-2xs text-secondary font-medium">تمكين المورد من تشغيل أداة المقارنة المتقدمة للملفات وخصومات الموردين</span>
 								</div>
 							</label>
 
-							<label style="display:flex; gap:0.6rem; align-items:center; cursor:pointer; background:rgba(14, 165, 233, 0.05); padding:0.6rem 0.85rem; border-radius:var(--radius-md); border:1px solid rgba(14, 165, 233, 0.2);">
+							<label class="d-flex gap-2.5 items-center cursor-pointer p-2.5 rounded-xl border border-sky-200/60 bg-sky-50/40">
 								<input type="checkbox" name="feature_bulk_import" value="1" x-model="form.feat_import" />
 								<div>
-									<strong style="color:var(--text); display:block; font-size:0.825rem;">📦 إتاحة استيراد وتحديث الكتالوجات بالجملة (Bulk Ingest)</strong>
-									<span class="text-xs text-secondary">معالجة وتحديث كميات وأسعار الأصناف من ملفات Excel و CSV</span>
+									<strong class="text-primary d-block text-xs font-extrabold">إتاحة استيراد وتحديث الكتالوجات بالجملة (Bulk Ingest)</strong>
+									<span class="text-2xs text-secondary font-medium">معالجة وتحديث كميات وأسعار الأصناف من ملفات Excel و CSV</span>
 								</div>
 							</label>
 
-							<label style="display:flex; gap:0.6rem; align-items:center; cursor:pointer; background:rgba(168, 85, 247, 0.05); padding:0.6rem 0.85rem; border-radius:var(--radius-md); border:1px solid rgba(168, 85, 247, 0.2);">
+							<label class="d-flex gap-2.5 items-center cursor-pointer p-2.5 rounded-xl border border-purple-200/60 bg-purple-50/40">
 								<input type="checkbox" name="feature_analytics" value="1" x-model="form.feat_analytics" />
 								<div>
-									<strong style="color:var(--text); display:block; font-size:0.825rem;">📈 إتاحة لوحة التحليلات المتقدمة والتقارير المالية</strong>
-									<span class="text-xs text-secondary">إحصائيات تفصيلية ومؤشرات الأداء للأعمال والمبيعات</span>
+									<strong class="text-primary d-block text-xs font-extrabold">إتاحة لوحة التحليلات المتقدمة والتقارير المالية</strong>
+									<span class="text-2xs text-secondary font-medium">إحصائيات تفصيلية ومؤشرات الأداء للأعمال والمبيعات</span>
 								</div>
 							</label>
 						</div>
 
 						<!-- Section 5: Default & Status Switches -->
-						<div style="display:flex; flex-direction:column; gap:0.6rem; font-size:0.875rem; border-top:1px solid var(--border); padding-top:0.9rem;">
-							<label style="display:flex; gap:0.6rem; align-items:center; cursor:pointer; background:rgba(245, 158, 11, 0.06); padding:0.6rem 0.85rem; border-radius:var(--radius-md); border:1px solid rgba(245, 158, 11, 0.25);">
+						<div class="d-flex flex-col gap-2.5 pt-2 border-t border-slate-100">
+							<label class="d-flex gap-2.5 items-center cursor-pointer p-2.5 rounded-xl border border-amber-200/60 bg-amber-50/40">
 								<input type="checkbox" name="is_default" value="1" x-model="form.is_default" />
 								<div>
-									<strong style="color:var(--text); display:block; font-size:0.825rem;">تعيين كباقة افتراضية للمنظومة (Default Plan)</strong>
-									<span class="text-xs text-secondary">تُمنح تلقائياً ومجاناً لأي منشأة جديدة فور تسجيلها واعتمادها من الإدارة</span>
+									<strong class="text-primary d-block text-xs font-extrabold">تعيين كباقة افتراضية للمنظومة (Default Plan)</strong>
+									<span class="text-2xs text-secondary font-medium">تُمنح تلقائياً ومجاناً لأي منشأة جديدة فور تسجيلها واعتمادها من الإدارة</span>
 								</div>
 							</label>
 
-							<label style="display:flex; gap:0.6rem; align-items:center; cursor:pointer; background:var(--surface-sunken); padding:0.6rem 0.85rem; border-radius:var(--radius-md); border:1px solid var(--border);">
+							<label class="d-flex gap-2.5 items-center cursor-pointer p-2.5 rounded-xl border border-slate-200/80 bg-surface-sunken">
 								<input type="checkbox" name="is_active" value="1" x-model="form.is_active" />
 								<div>
-									<strong style="color:var(--text); display:block; font-size:0.825rem;">الباقة نشطة ومتاحة للاشتراك والتجديد</strong>
-									<span class="text-xs text-secondary">عند التعطيل لن يتمكن المشتركون الجدد من اختيار هذه الباقة</span>
+									<strong class="text-primary d-block text-xs font-extrabold">الباقة نشطة ومتاحة للاشتراك والتجديد</strong>
+									<span class="text-2xs text-secondary font-medium">عند التعطيل لن يتمكن المشتركون الجدد من اختيار هذه الباقة</span>
 								</div>
 							</label>
 						</div>
 
 						<!-- Modal Actions -->
-						<div style="display:flex; justify-content:flex-end; gap:0.75rem; border-top:1px solid var(--border); padding-top:1.25rem; margin-top:0.5rem;">
-							<button type="button" class="btn btn-secondary" @click="showModal = false">إلغاء</button>
-							<button type="submit" class="btn btn-primary" style="font-weight:800; padding:0.6rem 2rem;">
+						<div class="d-flex justify-end gap-2.5 pt-3 border-t border-slate-100">
+							<button type="button" class="btn btn-secondary btn-sm font-bold" @click="showModal = false">إلغاء</button>
+							<button type="submit" class="btn btn-primary btn-sm font-black px-6 shadow-sm gap-1.5">
 								@components.IconCheck("icon-xs")
 								<span x-text="isEdit ? 'حفظ التحديثات' : 'إضافة وتفعيل الباقة'"></span>
 							</button>
