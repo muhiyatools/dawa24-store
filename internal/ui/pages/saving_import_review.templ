@@ -153,14 +153,14 @@ templ savingReviewStage(view SavingImportView) {
 	function fetchSavingCatalogResults(dropdown, query, searchURL, actionURL) {
 		var resultsContainer = dropdown.querySelector('.saving-search-results');
 		if (!resultsContainer) return;
-		resultsContainer.innerHTML = '<div style="padding:0.75rem; text-align:center; color:var(--text-muted); font-size:0.8rem;">جاري البحث في الكتالوج المركزي...</div>';
+		resultsContainer.innerHTML = '<div class="saving-search-state saving-search-state-muted">جاري البحث في الكتالوج المركزي...</div>';
 
 		fetch(searchURL + '?q=' + encodeURIComponent(query))
 			.then(function(res) { return res.json(); })
 			.then(function(data) {
 				var items = data.items || data.products || data || [];
 				if (!items || items.length === 0) {
-					resultsContainer.innerHTML = '<div style="padding:0.75rem; text-align:center; color:var(--text-muted); font-size:0.8rem;">لم يتم العثور على أي صنف مطابق.</div>';
+					resultsContainer.innerHTML = '<div class="saving-search-state saving-search-state-muted">لم يتم العثور على أي صنف مطابق.</div>';
 					return;
 				}
 				var html = '';
@@ -168,20 +168,20 @@ templ savingReviewStage(view SavingImportView) {
 					var name = item.name_ar || item.name_en || item.name || '';
 					var sku = item.sku || '';
 					var id = item.id;
-					var skuHtml = sku ? '<div style="font-size:0.75rem; color:var(--text-muted); font-family:monospace;">' + escapeHtml(sku) + '</div>' : '';
-					html += '<form method="POST" action="' + actionURL + '" style="margin:0;">' +
+					var skuHtml = sku ? '<div class="saving-search-sku">' + escapeHtml(sku) + '</div>' : '';
+					html += '<form method="POST" action="' + actionURL + '" class="saving-search-form">' +
 						'<input type="hidden" name="product_id" value="' + id + '" />' +
 						'<input type="hidden" name="master_name" value="' + escapeHtml(name) + '" />' +
 						'<input type="hidden" name="master_sku" value="' + escapeHtml(sku) + '" />' +
-						'<button type="submit" class="saving-combobox-item" style="width:100%; text-align:inherit; display:flex; justify-content:space-between; align-items:center; padding:0.5rem 0.75rem; border:none; background:none; cursor:pointer; font-size:0.85rem; border-bottom:1px solid var(--border-subtle);">' +
-						'<div><div style="font-weight:700; color:var(--text-primary);">' + escapeHtml(name) + '</div>' + skuHtml + '</div>' +
-						'<span style="font-size:0.75rem; color:var(--brand-primary); font-weight:700;">ربط ✓</span>' +
+						'<button type="submit" class="saving-combobox-item saving-search-item">' +
+						'<div><div class="saving-search-name">' + escapeHtml(name) + '</div>' + skuHtml + '</div>' +
+						'<span class="saving-search-action">ربط ✓</span>' +
 						'</button></form>';
 				});
 				resultsContainer.innerHTML = html;
 			})
 			.catch(function(err) {
-				resultsContainer.innerHTML = '<div style="padding:0.75rem; text-align:center; color:var(--danger); font-size:0.8rem;">حدث خطأ أثناء البحث.</div>';
+				resultsContainer.innerHTML = '<div class="saving-search-state saving-search-state-error">حدث خطأ أثناء البحث.</div>';
 			});
 	}
 
@@ -208,16 +208,16 @@ templ savingThSort(view SavingImportView, colKey, label string) {
 		sortURL := buildSavingURL(view.ImportURL, view.Session.ID, view.Filter.MatchFilter, colKey, nextOrder, 1, view.Filter.Limit, view.Filter.Search)
 	}}
 	<th>
-		<a href={ templ.SafeURL(sortURL) } class="row-center-xs gap-xs" style="color: inherit; text-decoration: none;">
+		<a href={ templ.SafeURL(sortURL) } class="saving-sort-link">
 			<span>{ label }</span>
 			if isCurrent {
 				if view.Filter.SortOrder == "desc" {
-					<span style="font-size: 0.75rem;">▼</span>
+					<span class="saving-sort-icon">▼</span>
 				} else {
-					<span style="font-size: 0.75rem;">▲</span>
+					<span class="saving-sort-icon">▲</span>
 				}
 			} else {
-				<span style="font-size: 0.75rem; opacity: 0.4;">⇅</span>
+				<span class="saving-sort-icon saving-sort-icon-muted">⇅</span>
 			}
 		</a>
 	</th>
@@ -243,7 +243,7 @@ templ savingProductRow(view SavingImportView, row *StagedSavingItem) {
 	}}
 	<tr id={ fmt.Sprintf("saving-row-%d", row.Index) } class={ templ.KV("opacity-50", !row.Included) }>
 		<td class="text-center align-middle">
-			<form method="POST" action={ templ.SafeURL(actionBase + "/toggle" + querySuffix) } style="margin: 0;">
+			<form method="POST" action={ templ.SafeURL(actionBase + "/toggle" + querySuffix) } class="saving-toggle-form">
 				<input type="checkbox" checked?={ row.Included } onchange="this.form.submit()" title="تضمين / استثناء" />
 			</form>
 		</td>
@@ -252,7 +252,7 @@ templ savingProductRow(view SavingImportView, row *StagedSavingItem) {
 			<form method="POST" action={ templ.SafeURL(actionBase + "/update" + querySuffix) } class="stack-2xs">
 				<div class="row-center-xs gap-xs">
 					<input type="text" name="name" value={ row.NameProduct } class="form-input text-sm"
-						style="padding: 0.25rem 0.5rem; font-weight: 600;" />
+						class="saving-name-input" />
 					<button type="submit" class="btn btn-ghost btn-xs px-1" title="حفظ الاسم">✓</button>
 				</div>
 				if row.SKU != "" {
@@ -283,15 +283,14 @@ templ savingProductRow(view SavingImportView, row *StagedSavingItem) {
 				}
 			</div>
 
-			<div class="saving-catalog-dropdown combobox-menu shadow-lg"
-				style="display:none; position:absolute; z-index:50; top:100%; start:0; width:340px; background:var(--bg-surface); border:1px solid var(--border-subtle); border-radius:var(--radius-md); padding:0.5rem; margin-top:0.25rem;">
+			<div class="saving-catalog-dropdown combobox-menu shadow-lg">
 				<div class="p-xs">
 					<input type="text" class="form-input saving-search-input w-100" placeholder="ابحث في الكتالوج المركزي باسم الدواء..."
-						value={ row.NameProduct } style="padding:0.4rem 0.6rem; font-size:0.85rem;" />
+						value={ row.NameProduct } class="saving-search-input" />
 				</div>
 				<div class="saving-search-results max-h-60 overflow-y-auto mt-xs"></div>
 				if row.ProductID != nil && *row.ProductID > 0 {
-					<div class="pt-xs mt-xs border-top" style="border-color: var(--border-subtle);">
+					<div class="saving-unlink-section">
 						<form method="POST" action={ templ.SafeURL(actionBase + "/match" + querySuffix) }>
 							<input type="hidden" name="product_id" value="0"/>
 							<button type="submit" class="btn btn-ghost btn-xs text-danger w-100 text-start">
@@ -320,7 +319,7 @@ templ savingProductRow(view SavingImportView, row *StagedSavingItem) {
 		<td class="text-center align-middle">
 			<form method="POST" action={ templ.SafeURL(actionBase + "/update" + querySuffix) } class="row-center-xs justify-center gap-xs">
 				<input type="number" step="1" min="1" name="quantity" value={ fmt.Sprintf("%.0f", row.Quantity) }
-					class="form-input text-center tabular-nums" style="padding: 0.25rem 0.4rem; font-size: 0.85rem; width: 60px;" />
+					class="form-input text-center tabular-nums saving-quantity-input" />
 				<button type="submit" class="btn btn-ghost btn-xs px-1" title="حفظ الكمية">✓</button>
 			</form>
 		</td>
@@ -328,7 +327,7 @@ templ savingProductRow(view SavingImportView, row *StagedSavingItem) {
 		<td class="text-center align-middle">
 			<form method="POST" action={ templ.SafeURL(actionBase + "/update" + querySuffix) } class="row-center-xs justify-center gap-xs">
 				<input type="number" step="0.01" min="0" name="price" value={ row.Price.String() }
-					class="form-input text-center tabular-nums" style="padding: 0.25rem 0.4rem; font-size: 0.85rem; width: 75px;" />
+					class="form-input text-center tabular-nums saving-price-input" />
 				<button type="submit" class="btn btn-ghost btn-xs px-1" title="حفظ السعر">✓</button>
 			</form>
 		</td>
