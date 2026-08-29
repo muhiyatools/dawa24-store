@@ -46,9 +46,13 @@ dialog:not([open]) { display: none !important; }
 .form-step.active { display: block; }
 
 /* ---- Rendering & Layout Shift (CLS) Optimizations ---- */
-img, svg, video {
+img, video {
   max-width: 100%;
   height: auto;
+  vertical-align: middle;
+}
+
+svg {
   vertical-align: middle;
 }
 
@@ -56,3 +60,4 @@ img, svg, video {
   aspect-ratio: 1 / 1;
   object-fit: contain;
 }
+

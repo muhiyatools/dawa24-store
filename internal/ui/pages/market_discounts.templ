@@ -15,33 +15,33 @@ import (
 templ MarketDiscountsPage(lang, dir string, actor authctx.Actor, result *compare.MarketDiscountsResult, filter compare.MarketDiscountsFilter, currentView string) {
 	@layouts.ShellFor("خصومات السوق العامة | دواء 24", "market-discounts", lang, dir, actor) {
 		<div
-			style="display:flex; flex-direction:column; gap:1.5rem; max-width:1440px; margin:0 auto 3.5rem auto;"
+			class="page-container"
 			x-data={ fmt.Sprintf("{ showMoreFilters: %t, currentView: '%s', setView(v) { this.currentView = v; localStorage.setItem('d24_market_view', v); }, init() { const saved = localStorage.getItem('d24_market_view'); if (saved && (saved === 'list' || saved === 'grid')) { this.currentView = saved; } } }", (filter.MinPrice != nil || filter.MaxPrice != nil || filter.MinDiscount != nil || filter.MaxDiscount != nil), currentView) }
 		>
 			<!-- 1. Header Banner -->
-			<div class="card mb-0" style="border:1px solid var(--border); background:linear-gradient(135deg, var(--surface-raised) 0%, var(--surface-sunken) 100%); border-radius:var(--radius-xl); padding:1.75rem; box-shadow:0 4px 20px rgba(0,0,0,0.03);">
-				<div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1.5rem;">
+			<div class="glass-panel p-6 mb-0">
+				<div class="flex-between items-center flex-wrap gap-4">
 					<div>
-						<div style="display:flex; align-items:center; gap:0.75rem; margin-bottom:0.35rem;">
-							<div style="width:46px; height:46px; border-radius:var(--radius-xl); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center; font-size:1.4rem;">
+						<div class="d-flex items-center gap-3 mb-1">
+							<div class="user-avatar-badge text-xl">
 								🏷️
 							</div>
 							<div>
-								<h1 style="font-size:1.5rem; font-weight:900; color:var(--text); margin:0;">
+								<h1 class="text-2xl font-black text-primary m-0">
 									خصومات السوق العامة
 								</h1>
-								<span style="font-size:0.75rem; font-weight:700; color:var(--accent); text-transform:uppercase;">
+								<span class="text-xs text-brand font-bold uppercase">
 									Market Intelligence & Supplier Price Lists
 								</span>
 							</div>
 						</div>
-						<p style="font-size:0.875rem; color:var(--text-secondary); margin:0.35rem 0 0 0; line-height:1.6; max-width:800px;">
+						<p class="text-sm text-secondary m-0 mt-2">
 							تصفح وقارن أحدث الخصومات وعروض الأسعار التنافسية المرفوعة من مختلف الموزعين والمستودعات الطبية في السوق.
 						</p>
 					</div>
 
-					<div style="display:flex; gap:0.75rem; align-items:center; flex-wrap:wrap;">
-						<a href="/compare/tool" class="btn btn-primary btn-sm" style="display:inline-flex; align-items:center; gap:0.4rem; font-weight:800; padding:0.55rem 1.25rem; border-radius:var(--radius-lg);">
+					<div>
+						<a href="/compare/tool" class="btn btn-primary btn-sm font-bold text-xs px-4 py-2 gap-1">
 							@components.IconTrendingUp("icon-xs")
 							<span>محرك المقارنة الذكي</span>
 						</a>
@@ -50,81 +50,77 @@ templ MarketDiscountsPage(lang, dir string, actor authctx.Actor, result *compare
 			</div>
 
 			<!-- 2. KPI Metrics Summary Cards -->
-			<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:1rem;">
-				<div class="card mb-0" style="padding:1.25rem; border:1px solid var(--border); border-radius:var(--radius-lg); background:var(--surface-raised);">
-					<div style="font-size:0.825rem; font-weight:700; color:var(--text-secondary); margin-bottom:0.35rem;">إجمالي العروض بالسوق</div>
-					<div class="tabular-nums" style="font-size:1.75rem; font-weight:900; color:var(--text);">
+			<div class="dashboard-stat-grid cols-4 mb-0">
+				<div class="stat-card-3d">
+					<div class="stat-card-label">إجمالي العروض بالسوق</div>
+					<div class="stat-card-value text-primary tabular-nums">
 						{ fmt.Sprintf("%d", result.TotalCount) }
 					</div>
-					<div style="font-size:0.75rem; color:var(--text-muted); margin-top:0.25rem;">
+					<div class="text-xs text-muted mt-1">
 						عرض وخصم دوائي متاح
 					</div>
 				</div>
 
-				<div class="card mb-0" style="padding:1.25rem; border:1px solid var(--border); border-radius:var(--radius-lg); background:var(--surface-raised);">
-					<div style="font-size:0.825rem; font-weight:700; color:var(--text-secondary); margin-bottom:0.35rem;">الشركات والموردون</div>
-					<div class="tabular-nums" style="font-size:1.75rem; font-weight:900; color:var(--accent);">
+				<div class="stat-card-3d">
+					<div class="stat-card-label">الشركات والموردون</div>
+					<div class="stat-card-value text-brand tabular-nums">
 						{ fmt.Sprintf("%d", len(result.AvailableSuppliers)) }
 					</div>
-					<div style="font-size:0.75rem; color:var(--text-muted); margin-top:0.25rem;">
+					<div class="text-xs text-muted mt-1">
 						شركة توزيع ومستودع مسجل
 					</div>
 				</div>
 
-				<div class="card mb-0" style="padding:1.25rem; border:1px solid var(--border); border-radius:var(--radius-lg); background:var(--surface-raised);">
-					<div style="font-size:0.825rem; font-weight:700; color:var(--text-secondary); margin-bottom:0.35rem;">أعلى نسبة خصم بالسوق</div>
-					<div class="tabular-nums" style="font-size:1.75rem; font-weight:900; color:var(--emerald);">
+				<div class="stat-card-3d">
+					<div class="stat-card-label">أعلى نسبة خصم بالسوق</div>
+					<div class="stat-card-value text-success tabular-nums">
 						{ fmt.Sprintf("%.1f%%", calculateMaxDiscount(result.Items)) }
 					</div>
-					<div style="font-size:0.75rem; color:var(--text-muted); margin-top:0.25rem;">
+					<div class="text-xs text-muted mt-1">
 						أفضل فرصة توفير متاحة
 					</div>
 				</div>
 
-				<div class="card mb-0" style="padding:1.25rem; border:1px solid var(--border); border-radius:var(--radius-lg); background:var(--surface-raised);">
-					<div style="font-size:0.825rem; font-weight:700; color:var(--text-secondary); margin-bottom:0.35rem;">الأصناف المعروضة حالياً</div>
-					<div class="tabular-nums" style="font-size:1.75rem; font-weight:900; color:var(--primary-700);">
+				<div class="stat-card-3d">
+					<div class="stat-card-label">الأصناف المعروضة حالياً</div>
+					<div class="stat-card-value text-primary tabular-nums">
 						{ fmt.Sprintf("%d", len(result.Items)) }
 					</div>
-					<div style="font-size:0.75rem; color:var(--text-muted); margin-top:0.25rem;">
+					<div class="text-xs text-muted mt-1">
 						صفحة { fmt.Sprintf("%d", result.Page) } من { fmt.Sprintf("%d", result.TotalPages) }
 					</div>
 				</div>
 			</div>
 
 			<!-- 3. Filter & Search Deck Card -->
-			<div class="card mb-0" style="border:1px solid var(--border); border-radius:var(--radius-xl); padding:1.25rem 1.5rem; background:var(--surface-raised); box-shadow:0 4px 16px rgba(0,0,0,0.02);">
-				<form method="GET" action="/market-discounts" class="stack-md" id="market-filter-form">
+			<div class="glass-panel p-6 mb-0">
+				<form method="GET" action="/market-discounts" class="d-flex flex-col gap-4 m-0" id="market-filter-form">
 					<input type="hidden" name="view" x-bind:value="currentView" />
 
-					<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:1rem; align-items:flex-end;">
+					<div class="d-grid grid-auto-fit gap-4 items-end">
 						
 						<!-- Search Input -->
 						<div class="form-group mb-0" style="grid-column: span 2; min-width:260px;">
-							<label class="form-label" style="font-size:0.825rem; font-weight:700; color:var(--text-secondary); margin-bottom:0.35rem;">
+							<label class="form-label text-xs font-bold text-primary mb-1">
 								بحث بالأدوية والمواد الفعالة
 							</label>
-							<div style="position:relative;">
+							<div class="position-relative">
 								<input
 									type="text"
 									name="q"
 									value={ filter.Query }
-									class="form-input"
-									style="padding-inline-start:2.25rem; font-size:0.875rem; height:42px; width:100%; border-radius:var(--radius-lg);"
+									class="form-input text-xs w-full"
 									placeholder="اسم الدواء، المادة الفعالة، كود SKU، الباركود..."
 								/>
-								<div style="position:absolute; inset-inline-start:0.75rem; top:50%; transform:translateY(-50%); color:var(--text-muted); pointer-events:none;">
-									@components.IconSearch("icon-xs")
-								</div>
 							</div>
 						</div>
 
 						<!-- Supplier Select -->
 						<div class="form-group mb-0">
-							<label class="form-label" style="font-size:0.825rem; font-weight:700; color:var(--text-secondary); margin-bottom:0.35rem;">
+							<label class="form-label text-xs font-bold text-primary mb-1">
 								الشركة الموردة
 							</label>
-							<select name="supplier" class="form-input" style="font-size:0.875rem; height:42px; border-radius:var(--radius-lg);">
+							<select name="supplier" class="form-input text-xs w-full">
 								<option value="">كل الشركات ({ fmt.Sprintf("%d", len(result.AvailableSuppliers)) })</option>
 								for _, sup := range result.AvailableSuppliers {
 									<option value={ sup } selected?={ filter.Supplier == sup }>{ sup }</option>
@@ -134,10 +130,10 @@ templ MarketDiscountsPage(lang, dir string, actor authctx.Actor, result *compare
 
 						<!-- Sort Order -->
 						<div class="form-group mb-0">
-							<label class="form-label" style="font-size:0.825rem; font-weight:700; color:var(--text-secondary); margin-bottom:0.35rem;">
+							<label class="form-label text-xs font-bold text-primary mb-1">
 								ترتيب النتائج
 							</label>
-							<select name="sort" class="form-input" style="font-size:0.875rem; height:42px; border-radius:var(--radius-lg);">
+							<select name="sort" class="form-input text-xs w-full">
 								<option value="discount_desc" selected?={ filter.SortBy == "" || filter.SortBy == "discount_desc" }>الأعلى خصماً 🔥</option>
 								<option value="price_asc" selected?={ filter.SortBy == "price_asc" }>الأقل سعراً 💰</option>
 								<option value="price_desc" selected?={ filter.SortBy == "price_desc" }>الأعلى سعراً</option>
@@ -148,10 +144,10 @@ templ MarketDiscountsPage(lang, dir string, actor authctx.Actor, result *compare
 
 						<!-- Page Size Limit -->
 						<div class="form-group mb-0">
-							<label class="form-label" style="font-size:0.825rem; font-weight:700; color:var(--text-secondary); margin-bottom:0.35rem;">
+							<label class="form-label text-xs font-bold text-primary mb-1">
 								عناصر بالصفحة
 							</label>
-							<select name="limit" class="form-input" style="font-size:0.875rem; height:42px; border-radius:var(--radius-lg);">
+							<select name="limit" class="form-input text-xs w-full">
 								<option value="24" selected?={ filter.Limit == 24 || filter.Limit == 0 }>24 عنصر</option>
 								<option value="48" selected?={ filter.Limit == 48 }>48 عنصر</option>
 								<option value="96" selected?={ filter.Limit == 96 }>96 عنصر</option>
@@ -160,20 +156,19 @@ templ MarketDiscountsPage(lang, dir string, actor authctx.Actor, result *compare
 					</div>
 
 					<!-- Collapsible Advanced Range Filters -->
-					<div x-show="showMoreFilters" x-collapse style="padding-top:1rem; border-top:1px solid var(--border-subtle); display:grid; grid-template-columns:repeat(auto-fit, minmax(260px, 1fr)); gap:1.25rem;">
+					<div x-show="showMoreFilters" x-collapse class="pt-4 border-t d-grid grid-auto-fit gap-4">
 						<!-- Price Range -->
 						<div>
-							<label class="form-label" style="font-size:0.8rem; font-weight:700; color:var(--text-secondary); margin-bottom:0.35rem;">
+							<label class="form-label text-xs font-bold text-secondary mb-1">
 								💰 نطاق السعر الصافي بعد الخصم (ج.م)
 							</label>
-							<div style="display:flex; gap:0.5rem; align-items:center;">
+							<div class="d-flex gap-2 items-center">
 								<input
 									type="number"
 									step="0.5"
 									name="min_price"
 									value={ formatOptionalFloat(filter.MinPrice) }
-									class="form-input"
-									style="border-radius:var(--radius-md); height:38px; font-size:0.85rem;"
+									class="form-input text-xs flex-1"
 									placeholder="من سعر"
 								/>
 								<span class="text-muted">-</span>
@@ -182,8 +177,7 @@ templ MarketDiscountsPage(lang, dir string, actor authctx.Actor, result *compare
 									step="0.5"
 									name="max_price"
 									value={ formatOptionalFloat(filter.MaxPrice) }
-									class="form-input"
-									style="border-radius:var(--radius-md); height:38px; font-size:0.85rem;"
+									class="form-input text-xs flex-1"
 									placeholder="إلى سعر"
 								/>
 							</div>
@@ -191,17 +185,16 @@ templ MarketDiscountsPage(lang, dir string, actor authctx.Actor, result *compare
 
 						<!-- Discount Range -->
 						<div>
-							<label class="form-label" style="font-size:0.8rem; font-weight:700; color:var(--text-secondary); margin-bottom:0.35rem;">
+							<label class="form-label text-xs font-bold text-secondary mb-1">
 								📉 نطاق نسبة الخصم (%)
 							</label>
-							<div style="display:flex; gap:0.5rem; align-items:center;">
+							<div class="d-flex gap-2 items-center">
 								<input
 									type="number"
 									step="1"
 									name="min_discount"
 									value={ formatOptionalFloat(filter.MinDiscount) }
-									class="form-input"
-									style="border-radius:var(--radius-md); height:38px; font-size:0.85rem;"
+									class="form-input text-xs flex-1"
 									placeholder="من خصم %"
 								/>
 								<span class="text-muted">-</span>
@@ -210,8 +203,7 @@ templ MarketDiscountsPage(lang, dir string, actor authctx.Actor, result *compare
 									step="1"
 									name="max_discount"
 									value={ formatOptionalFloat(filter.MaxDiscount) }
-									class="form-input"
-									style="border-radius:var(--radius-md); height:38px; font-size:0.85rem;"
+									class="form-input text-xs flex-1"
 									placeholder="إلى خصم %"
 								/>
 							</div>
@@ -219,48 +211,45 @@ templ MarketDiscountsPage(lang, dir string, actor authctx.Actor, result *compare
 					</div>
 
 					<!-- Toolbar Actions & View Mode Switcher -->
-					<div style="display:flex; justify-content:space-between; align-items:center; border-top:1px solid var(--border-subtle); padding-top:0.75rem; flex-wrap:wrap; gap:0.75rem;">
-						<div style="display:flex; align-items:center; gap:0.5rem;">
+					<div class="flex-between items-center border-t pt-4 flex-wrap gap-3">
+						<div class="d-flex items-center gap-2">
 							<button
 								type="button"
 								@click="showMoreFilters = !showMoreFilters"
-								class="btn btn-secondary btn-sm"
-								style="font-weight:700; font-size:0.8rem; border-radius:var(--radius-md);"
+								class="btn btn-secondary btn-sm font-bold text-xs"
 							>
 								<span x-text="showMoreFilters ? 'إخفاء نطاقات الأسعار والخصم ▲' : 'نطاق السعر والخصم المتقدم ▼'"></span>
 							</button>
 
 							if filter.Query != "" || filter.Supplier != "" || filter.MinPrice != nil || filter.MaxPrice != nil || filter.MinDiscount != nil || filter.MaxDiscount != nil || (filter.SortBy != "" && filter.SortBy != "discount_desc") {
-								<a href="/market-discounts" class="btn btn-ghost btn-sm text-muted" style="font-size:0.8rem;">
+								<a href="/market-discounts" class="btn btn-secondary btn-sm text-xs">
 									إلغاء التصفية
 								</a>
 							}
 						</div>
 
-						<div style="display:flex; align-items:center; gap:0.75rem;">
+						<div class="d-flex items-center gap-3">
 							<!-- View Switcher -->
-							<div style="display:flex; background:var(--surface-sunken); border:1px solid var(--border); border-radius:var(--radius-lg); padding:2px; gap:2px;">
+							<div class="cb-tabs-nav m-0">
 								<button
 									type="button"
 									@click="setView('list')"
-									class="btn btn-sm"
-									:style="currentView === 'list' ? 'background:var(--surface-raised); font-weight:800; color:var(--accent); box-shadow:0 1px 3px rgba(0,0,0,0.06);' : 'background:transparent; color:var(--text-secondary); border:none;'"
-									style="padding:0.35rem 0.85rem; font-size:0.825rem; border-radius:var(--radius-md); gap:0.35rem;"
+									class="cb-tab-btn"
+									:class="{ 'active': currentView === 'list' }"
 								>
 									<span>☰ عرض القائمة</span>
 								</button>
 								<button
 									type="button"
 									@click="setView('grid')"
-									class="btn btn-sm"
-									:style="currentView === 'grid' ? 'background:var(--surface-raised); font-weight:800; color:var(--accent); box-shadow:0 1px 3px rgba(0,0,0,0.06);' : 'background:transparent; color:var(--text-secondary); border:none;'"
-									style="padding:0.35rem 0.85rem; font-size:0.825rem; border-radius:var(--radius-md); gap:0.35rem;"
+									class="cb-tab-btn"
+									:class="{ 'active': currentView === 'grid' }"
 								>
 									<span>⊞ عرض الكروت</span>
 								</button>
 							</div>
 
-							<button type="submit" class="btn btn-primary btn-sm" style="display:flex; align-items:center; gap:0.4rem; padding:0.5rem 1.25rem; font-weight:800; border-radius:var(--radius-lg);">
+							<button type="submit" class="btn btn-primary btn-sm font-bold text-xs px-4">
 								@components.IconSearch("icon-xs")
 								<span>تطبيق البحث</span>
 							</button>
@@ -271,42 +260,37 @@ templ MarketDiscountsPage(lang, dir string, actor authctx.Actor, result *compare
 
 			<!-- 4. Results Surface -->
 			if len(result.Items) == 0 {
-				<div class="card" style="text-align:center; padding:4.5rem 1.5rem; background:var(--surface-raised); border-radius:var(--radius-xl); border:1px solid var(--border);">
-					<div style="width:56px; height:56px; border-radius:var(--radius-full); background:var(--surface-sunken); color:var(--text-muted); display:flex; align-items:center; justify-content:center; margin:0 auto 1rem auto; font-size:1.75rem;">
-						🔍
-					</div>
-					<h3 style="font-size:1.2rem; font-weight:800; color:var(--text); margin-bottom:0.5rem;">
+				<div class="glass-panel p-12 text-center empty-state-glass">
+					<div class="text-4xl mb-3">🔍</div>
+					<h3 class="text-lg font-black text-primary mb-2">
 						لم نجد أي خصومات مطابقة
 					</h3>
-					<p style="font-size:0.875rem; color:var(--text-secondary); max-width:480px; margin:0 auto 1.5rem;">
+					<p class="text-sm text-secondary max-w-md mx-auto mb-6">
 						جرب البحث بكلمات أخرى، أو تغيير خيارات الشركة الموردة ونطاقات الأسعار والخصومات المحددة.
 					</p>
-					<a href="/market-discounts" class="btn btn-secondary btn-sm" style="font-weight:700; border-radius:var(--radius-lg);">
+					<a href="/market-discounts" class="btn btn-primary font-bold text-xs">
 						عرض كافة خصومات السوق
 					</a>
 				</div>
 			} else {
-				<!-- 1. LIST VIEW (Horizontal Rows matching Image 1) -->
-				<div x-show="currentView === 'list'" style="display:flex; flex-direction:column; gap:0.85rem;">
+				<!-- 1. LIST VIEW -->
+				<div x-show="currentView === 'list'" class="d-flex flex-col gap-3">
 					for _, item := range result.Items {
-						<div
-							class="card mb-0"
-							style="border:1px solid var(--border); border-radius:var(--radius-xl); padding:1.25rem 1.75rem; background:var(--surface-raised); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1.25rem; box-shadow:0 2px 10px rgba(0,0,0,0.02); transition:transform 150ms ease, box-shadow 150ms ease;"
-						>
+						<div class="glass-panel p-4 flex-between items-center flex-wrap gap-4">
 							<!-- Right: Product Name & SKU -->
 							<div style="min-width:240px; flex:1;">
-								<h3 style="font-size:1.25rem; font-weight:900; color:var(--text); margin:0 0 0.4rem 0; line-height:1.3;">
+								<h3 class="text-base font-black text-primary m-0 mb-1 leading-snug">
 									{ item.ProductName }
 								</h3>
-								<div style="display:flex; align-items:center; gap:0.4rem; font-size:0.875rem; color:var(--text-secondary);">
-									<span>الكود :</span>
+								<div class="d-flex items-center gap-2 text-xs text-secondary">
+									<span>الكود:</span>
 									if item.SKU != "" {
-										<strong class="tabular-nums font-mono" style="color:var(--text); font-weight:800; letter-spacing:0.5px;">{ item.SKU }</strong>
+										<strong class="tabular-nums font-mono text-primary font-bold">{ item.SKU }</strong>
 									} else {
-										<strong class="tabular-nums font-mono" style="color:var(--text-muted); font-weight:700;">#{ fmt.Sprintf("%d", item.ID) }</strong>
+										<strong class="tabular-nums font-mono text-muted font-bold">#{ fmt.Sprintf("%d", item.ID) }</strong>
 									}
 									if item.InCatalog {
-										<span class="badge badge-sky text-xs fw-700" style="padding:0.15rem 0.45rem; margin-inline-start:0.5rem;">
+										<span class="badge badge-sky text-xs font-bold">
 											✓ معتمد
 										</span>
 									}
@@ -314,41 +298,38 @@ templ MarketDiscountsPage(lang, dir string, actor authctx.Actor, result *compare
 							</div>
 
 							<!-- Center: Warehouse Pill & Date -->
-							<div style="text-align:center; min-width:200px;">
-								<div style="background:var(--surface-sunken); border:1px solid var(--border); padding:0.45rem 1.15rem; border-radius:var(--radius-xl); font-weight:800; font-size:0.925rem; color:var(--accent); display:inline-block; box-shadow:0 1px 4px rgba(0,0,0,0.02);">
+							<div class="text-center" style="min-width:180px;">
+								<div class="badge badge-primary text-xs font-bold py-1 px-3">
 									{ item.SupplierName }
 								</div>
-								<div style="font-size:0.8rem; color:var(--text-muted); margin-top:0.45rem; display:flex; align-items:center; justify-content:center; gap:0.35rem;">
-									<span>تاريخ العرض:</span>
-									<strong class="tabular-nums" style="color:var(--text-secondary);">{ item.CreatedAt.Format("2006-01-02") }</strong>
+								<div class="text-xs text-muted mt-1 tabular-nums">
+									تاريخ العرض: <strong class="text-secondary">{ item.CreatedAt.Format("2006-01-02") }</strong>
 								</div>
 							</div>
 
 							<!-- Left: Discount Pill + Public Price & Total Price -->
-							<div style="display:flex; align-items:center; gap:1.5rem; min-width:220px; justify-content:flex-end;">
+							<div class="d-flex items-center gap-4 justify-end" style="min-width:200px;">
 								<!-- Discount Badge Pill -->
 								<div>
 									if item.DiscountPercent >= 40 {
-										<div class="badge badge-rose" style="font-size:0.95rem; font-weight:900; padding:0.45rem 0.85rem; border-radius:var(--radius-lg);">
+										<div class="badge badge-rose text-xs font-black py-2 px-3">
 											%{ formatDiscount(item.DiscountPercent) } خصم
 										</div>
 									} else {
-										<div class="badge badge-emerald" style="font-size:0.95rem; font-weight:900; padding:0.45rem 0.85rem; border-radius:var(--radius-lg);">
+										<div class="badge badge-emerald text-xs font-black py-2 px-3">
 											%{ formatDiscount(item.DiscountPercent) } خصم
 										</div>
 									}
 								</div>
 
-								<!-- Prices (سعر الجمهور + السعر الإجمالي) -->
-								<div style="text-align:left; min-width:110px;">
-									<!-- سعر الجمهور (Big Bold Price) -->
-									<div class="tabular-nums" style="font-size:1.75rem; font-weight:900; color:var(--text); line-height:1;" title="سعر الجمهور">
-										<span style="font-size:0.8rem; font-weight:700; color:var(--text-secondary); margin-inline-end:0.25rem;">EGP</span>
+								<!-- Prices -->
+								<div class="text-start">
+									<div class="tabular-nums text-xl font-black text-primary leading-none" title="سعر الجمهور">
+										<span class="text-xs font-bold text-muted me-1">ج.م</span>
 										<span>{ item.OriginalPrice.String() }</span>
 									</div>
-									<!-- السعر الإجمالي (Total Price after discount) -->
-									<div class="tabular-nums" style="font-size:0.925rem; font-weight:800; color:var(--accent); margin-top:0.3rem;" title="السعر الإجمالي بعد الخصم">
-										<span>EGP { item.PriceAfterDiscount.String() }</span>
+									<div class="tabular-nums text-xs font-black text-brand mt-1" title="السعر الإجمالي بعد الخصم">
+										<span>ج.م { item.PriceAfterDiscount.String() }</span>
 									</div>
 								</div>
 							</div>
@@ -356,27 +337,22 @@ templ MarketDiscountsPage(lang, dir string, actor authctx.Actor, result *compare
 					}
 				</div>
 
-				<!-- 2. CARDS / GRID VIEW (Interactive Product Cards matching Image 2) -->
-				<div x-show="currentView === 'grid'" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(280px, 1fr)); gap:1.25rem;">
+				<!-- 2. CARDS / GRID VIEW -->
+				<div x-show="currentView === 'grid'" class="product-grid-wrapper">
 					for _, item := range result.Items {
-						<div
-							class="card mb-0"
-							style="border:1px solid var(--border); border-radius:var(--radius-2xl); padding:1.35rem; background:var(--surface-raised); display:flex; flex-direction:column; justify-content:space-between; gap:1rem; box-shadow:0 4px 16px rgba(0,0,0,0.02); transition:transform 150ms ease, box-shadow 150ms ease;"
-						>
-							<!-- Top Section: Badges + Title + SKU -->
-							<div style="display:flex; flex-direction:column; gap:0.75rem;">
-								<!-- Top Badges: Warehouse (Right) + Discount (Left) -->
-								<div style="display:flex; justify-content:space-between; align-items:flex-start; gap:0.5rem;">
-									<div style="background:var(--surface-sunken); border:1px solid var(--border); padding:0.35rem 0.75rem; border-radius:var(--radius-lg); font-weight:800; font-size:0.825rem; color:var(--accent); line-height:1.3; max-width:65%;">
+						<div class="glass-panel p-4 d-flex flex-col justify-between mb-0">
+							<div>
+								<div class="flex-between items-start gap-2 mb-2">
+									<div class="badge badge-primary text-xs font-bold">
 										{ item.SupplierName }
 									</div>
 									<div>
 										if item.DiscountPercent >= 40 {
-											<span class="badge badge-rose fw-900" style="font-size:0.825rem; padding:0.35rem 0.7rem; border-radius:var(--radius-lg);">
+											<span class="badge badge-rose text-xs font-black">
 												%{ formatDiscount(item.DiscountPercent) } خصم
 											</span>
 										} else {
-											<span class="badge badge-emerald fw-900" style="font-size:0.825rem; padding:0.35rem 0.7rem; border-radius:var(--radius-lg);">
+											<span class="badge badge-emerald text-xs font-black">
 												%{ formatDiscount(item.DiscountPercent) } خصم
 											</span>
 										}
@@ -384,96 +360,85 @@ templ MarketDiscountsPage(lang, dir string, actor authctx.Actor, result *compare
 								</div>
 
 								<!-- Drug Title -->
-								<h3 style="font-size:1.15rem; font-weight:900; color:var(--text); margin:0.35rem 0 0 0; line-height:1.35; min-height:2.7em;">
+								<h3 class="text-sm font-black text-primary m-0 mb-1 leading-snug product-card-title">
 									{ item.ProductName }
 								</h3>
 
 								<!-- SKU Code -->
-								<div style="display:flex; align-items:center; gap:0.35rem; font-size:0.85rem; color:var(--text-secondary);">
-									<span>الكود :</span>
+								<div class="d-flex items-center gap-1 text-xs text-muted mb-3">
+									<span>الكود:</span>
 									if item.SKU != "" {
-										<strong class="tabular-nums font-mono" style="color:var(--text); font-weight:800;">{ item.SKU }</strong>
+										<strong class="tabular-nums font-mono text-primary font-bold">{ item.SKU }</strong>
 									} else {
-										<strong class="tabular-nums font-mono" style="color:var(--text-muted); font-weight:700;">#{ fmt.Sprintf("%d", item.ID) }</strong>
+										<strong class="tabular-nums font-mono text-muted font-bold">#{ fmt.Sprintf("%d", item.ID) }</strong>
 									}
 								</div>
 							</div>
 
-							<!-- Divider -->
-							<div style="height:1px; background:var(--border-subtle); margin:0.15rem 0;"></div>
-
-							<!-- Bottom Section: Discount % (Left) + Public Price & Total Price (Right) -->
-							<div style="display:flex; justify-content:space-between; align-items:flex-end;">
-								<!-- Left: Large Discount Percentage -->
-								<div>
-									<div class="tabular-nums" style="font-size:1.85rem; font-weight:900; color:var(--emerald, #10b981); line-height:1;">
+							<div class="border-t pt-3 mt-2">
+								<div class="flex-between items-baseline">
+									<div class="tabular-nums text-lg font-black text-success">
 										%{ formatDiscount(item.DiscountPercent) }
 									</div>
-								</div>
 
-								<!-- Right: سعر الجمهور + السعر الإجمالي -->
-								<div style="text-align:left;">
-									<!-- سعر الجمهور (Public Price) -->
-									<div class="tabular-nums" style="font-size:1.6rem; font-weight:900; color:var(--text); line-height:1;" title="سعر الجمهور">
-										<span style="font-size:0.75rem; font-weight:700; color:var(--text-secondary); margin-inline-end:0.25rem;">EGP</span>
-										<span>{ item.OriginalPrice.String() }</span>
-									</div>
-									<!-- السعر الإجمالي (Total Price after discount) -->
-									<div class="tabular-nums" style="font-size:0.875rem; font-weight:800; color:var(--accent); margin-top:0.25rem;" title="السعر الإجمالي بعد الخصم">
-										<span>EGP { item.PriceAfterDiscount.String() }</span>
+									<div class="text-start">
+										<div class="tabular-nums text-base font-black text-primary leading-none">
+											<span class="text-xs text-muted me-1">ج.م</span>
+											<span>{ item.OriginalPrice.String() }</span>
+										</div>
+										<div class="tabular-nums text-xs font-bold text-brand mt-1">
+											<span>ج.م { item.PriceAfterDiscount.String() }</span>
+										</div>
 									</div>
 								</div>
-							</div>
 
-							<!-- Footer: Display Date -->
-							<div style="display:flex; justify-content:space-between; align-items:center; font-size:0.75rem; color:var(--text-muted); border-top:1px solid var(--border-subtle); padding-top:0.6rem;">
-								<span>تاريخ العرض:</span>
-								<strong class="tabular-nums" style="color:var(--text-secondary);">{ item.CreatedAt.Format("2006-01-02") }</strong>
+								<div class="flex-between text-xs text-muted border-t pt-2 mt-2">
+									<span>تاريخ العرض:</span>
+									<strong class="tabular-nums text-secondary">{ item.CreatedAt.Format("2006-01-02") }</strong>
+								</div>
 							</div>
 						</div>
 					}
 				</div>
 
 				<!-- 5. Modern Pagination Footer -->
-				<div class="card mb-0" style="padding:1.25rem 1.75rem; background:var(--surface-raised); border-radius:var(--radius-xl); border:1px solid var(--border); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem; box-shadow:0 4px 16px rgba(0,0,0,0.02);">
+				<div class="glass-panel p-4 flex-between items-center flex-wrap gap-3">
 					
 					<!-- Left: Pagination Info -->
-					<div style="font-size:0.875rem; color:var(--text-secondary); font-weight:600;">
+					<div class="text-xs text-secondary font-semibold">
 						<span>عرض </span>
-						<strong class="tabular-nums text-primary" style="font-weight:800;">{ fmt.Sprintf("%d", calculateStartItem(result.Page, result.Limit, result.TotalCount)) }</strong>
+						<strong class="tabular-nums text-primary font-bold">{ fmt.Sprintf("%d", calculateStartItem(result.Page, result.Limit, result.TotalCount)) }</strong>
 						<span> إلى </span>
-						<strong class="tabular-nums text-primary" style="font-weight:800;">{ fmt.Sprintf("%d", calculateEndItem(result.Page, result.Limit, result.TotalCount)) }</strong>
+						<strong class="tabular-nums text-primary font-bold">{ fmt.Sprintf("%d", calculateEndItem(result.Page, result.Limit, result.TotalCount)) }</strong>
 						<span> من إجمالي </span>
-						<strong class="tabular-nums text-primary" style="font-weight:900;">{ fmt.Sprintf("%d", result.TotalCount) }</strong>
+						<strong class="tabular-nums text-primary font-black">{ fmt.Sprintf("%d", result.TotalCount) }</strong>
 						<span> عرض وخصم متاح</span>
 					</div>
 
 					<!-- Right: Prev / Numbered / Next Buttons -->
-					<div style="display:flex; gap:0.4rem; align-items:center;">
+					<div class="d-flex gap-1 items-center">
 						if result.HasPrev {
 							<a
 								href={ templ.SafeURL(buildMarketPaginationURL(filter, result.Page-1, currentView)) }
-								class="btn btn-secondary btn-sm"
-								style="padding:0.4rem 0.85rem; border-radius:var(--radius-md); font-weight:700;"
+								class="btn btn-secondary btn-sm text-xs font-bold"
 							>
 								&laquo; السابق
 							</a>
 						} else {
-							<button class="btn btn-secondary btn-sm" disabled style="opacity:0.4; padding:0.4rem 0.85rem; border-radius:var(--radius-md);">
+							<button class="btn btn-secondary btn-sm text-xs" disabled style="opacity:0.4;">
 								&laquo; السابق
 							</button>
 						}
 
 						for _, p := range calculatePageRange(result.Page, result.TotalPages) {
 							if p == result.Page {
-								<span class="btn btn-primary btn-sm" style="font-weight:900; padding:0.4rem 0.75rem; border-radius:var(--radius-md); min-width:34px;">
+								<span class="btn btn-primary btn-sm text-xs font-black">
 									{ fmt.Sprintf("%d", p) }
 								</span>
 							} else {
 								<a
 									href={ templ.SafeURL(buildMarketPaginationURL(filter, p, currentView)) }
-									class="btn btn-secondary btn-sm"
-									style="padding:0.4rem 0.75rem; border-radius:var(--radius-md); min-width:34px;"
+									class="btn btn-secondary btn-sm text-xs font-bold"
 								>
 									{ fmt.Sprintf("%d", p) }
 								</a>
@@ -483,13 +448,12 @@ templ MarketDiscountsPage(lang, dir string, actor authctx.Actor, result *compare
 						if result.HasNext {
 							<a
 								href={ templ.SafeURL(buildMarketPaginationURL(filter, result.Page+1, currentView)) }
-								class="btn btn-secondary btn-sm"
-								style="padding:0.4rem 0.85rem; border-radius:var(--radius-md); font-weight:700; color:var(--primary-700);"
+								class="btn btn-secondary btn-sm text-xs font-bold text-primary"
 							>
 								التالي &raquo;
 							</a>
 						} else {
-							<button class="btn btn-secondary btn-sm" disabled style="opacity:0.4; padding:0.4rem 0.85rem; border-radius:var(--radius-md);">
+							<button class="btn btn-secondary btn-sm text-xs" disabled style="opacity:0.4;">
 								التالي &raquo;
 							</button>
 						}

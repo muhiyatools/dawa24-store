@@ -11,80 +11,86 @@ import (
 // CustomerPurchaseRequestWizardPage renders the clean gateway to catalog and suppliers.
 templ CustomerPurchaseRequestWizardPage(lang, dir string, step int, option string) {
 	@layouts.CustomerShell("طلبات الشراء والتوريد", "purchase-request", lang, dir, nil) {
-		<div class="container-fluid" style="max-width:1000px; margin:0 auto; padding:1.5rem 1rem;">
-			<div style="margin-bottom:2rem;">
-				<h1 style="font-size:1.75rem; font-weight:800; color:var(--text); margin:0 0 0.5rem 0;">طلبات الشراء والتوريد</h1>
-				<p style="color:var(--text-secondary); margin:0; font-size:0.95rem; line-height:1.6;">
-					اختر الطريقة المناسبة للبدء: استعراض دليل الموردين المعتمدين وفروعهم، أو البحث المباشر في كتالوج أصناف وسوق الجملة الدوائي.
-				</p>
+		<div class="page-container">
+			<!-- Header Banner -->
+			<div class="glass-panel p-6 mb-0">
+				<div class="flex-between items-center flex-wrap gap-4">
+					<div>
+						<div class="d-flex items-center gap-3 mb-1">
+							<div class="user-avatar-badge text-xl">
+								🛍️
+							</div>
+							<div>
+								<h1 class="text-2xl font-black text-primary m-0">طلبات الشراء والتوريد</h1>
+								<p class="text-sm text-secondary m-0 mt-1">
+									اختر الطريقة المناسبة للبدء: استعراض دليل الموردين المعتمدين وفروعهم، أو البحث المباشر في كتالوج الأصناف، أو تجهيز طلب ذكي من ملف.
+								</p>
+							</div>
+						</div>
+					</div>
+				</div>
 			</div>
 
-			<div class="card" style="padding:2.5rem; border-radius:var(--radius-2xl); background:var(--surface-raised); border:1px solid var(--border); box-shadow:var(--shadow-sm);">
-				<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:2rem;">
-					
-					<!-- Option 1: By Supplier -->
-					<div
-						class="card"
-						style="padding:2rem; border:2px solid var(--border); border-radius:var(--radius-xl); text-align:center; transition:all 200ms; cursor:pointer; display:flex; flex-direction:column; justify-content:space-between; background:var(--surface-sunken);"
-						onclick="window.location='/suppliers'"
-					>
-						<div>
-							<div style="width:64px; height:64px; border-radius:50%; background:rgba(16,185,129,0.12); color:var(--primary-700); display:flex; align-items:center; justify-content:center; margin:0 auto 1.5rem auto;">
-								@components.IconBuilding("icon-lg")
-							</div>
-							<h3 style="font-size:1.3rem; font-weight:800; margin-bottom:0.75rem; color:var(--text);">البدء باختيار المورد</h3>
-							<p style="color:var(--text-secondary); font-size:0.9rem; line-height:1.6; margin-bottom:1.5rem;">
-								تصفح قائمة الموردين والشركات المعتمدة، وتعرف على الفروع ونطاق التغطية وتفاصيل المخازن المتاحة.
-							</p>
+			<!-- 3 Direct Options Grid -->
+			<div class="dashboard-grid-3col mb-0">
+				<!-- Option 1: By Supplier -->
+				<div
+					class="glass-panel p-6 mb-0 text-center d-flex flex-col justify-between cursor-pointer"
+					onclick="window.location='/suppliers'"
+				>
+					<div>
+						<div class="user-avatar-badge text-2xl mx-auto mb-4" style="width:64px; height:64px;">
+							@components.IconBuilding("icon-lg")
 						</div>
-						<a href="/suppliers" class="btn btn-primary" style="width:100%; justify-content:center; font-weight:700; border-radius:var(--radius-lg);">
-							<span>تصفح دليل الموردين</span>
-							@components.IconArrowLeft("icon-xs")
-						</a>
+						<h2 class="text-lg font-black text-primary mb-2">البدء باختيار المورد</h2>
+						<p class="text-xs text-secondary leading-relaxed mb-6">
+							تصفح قائمة الموردين والشركات المعتمدة، وتعرف على الفروع ونطاق التغطية وتفاصيل المخازن المتاحة.
+						</p>
 					</div>
+					<a href="/suppliers" class="btn btn-primary w-full justify-center font-bold text-xs gap-1">
+						<span>تصفح دليل الموردين</span>
+						@components.IconArrowLeft("icon-xs")
+					</a>
+				</div>
 
-					<!-- Option 2: By Products -->
-					<div
-						class="card"
-						style="padding:2rem; border:2px solid var(--border); border-radius:var(--radius-xl); text-align:center; transition:all 200ms; cursor:pointer; display:flex; flex-direction:column; justify-content:space-between; background:var(--surface-sunken);"
-						onclick="window.location='/catalog'"
-					>
-						<div>
-							<div style="width:64px; height:64px; border-radius:50%; background:rgba(59,130,246,0.12); color:var(--info); display:flex; align-items:center; justify-content:center; margin:0 auto 1.5rem auto;">
-								@components.IconPackage("icon-lg")
-							</div>
-							<h3 style="font-size:1.3rem; font-weight:800; margin-bottom:0.75rem; color:var(--text);">البحث في كتالوج الأصناف</h3>
-							<p style="color:var(--text-secondary); font-size:0.9rem; line-height:1.6; margin-bottom:1.5rem;">
-								ابحث في كتالوج المنتجات والأصناف المتاحة عبر جميع الموردين، وقارن الأسعار والخصومات وأضف مشترياتك للسلة مباشرة.
-							</p>
+				<!-- Option 2: By Products -->
+				<div
+					class="glass-panel p-6 mb-0 text-center d-flex flex-col justify-between cursor-pointer"
+					onclick="window.location='/catalog'"
+				>
+					<div>
+						<div class="user-avatar-badge text-2xl mx-auto mb-4" style="width:64px; height:64px;">
+							@components.IconPackage("icon-lg")
 						</div>
-						<a href="/catalog" class="btn btn-secondary" style="width:100%; justify-content:center; font-weight:700; border-radius:var(--radius-lg);">
-							<span>البحث في كتالوج الأصناف</span>
-							@components.IconArrowLeft("icon-xs")
-						</a>
+						<h2 class="text-lg font-black text-primary mb-2">البحث في كتالوج الأصناف</h2>
+						<p class="text-xs text-secondary leading-relaxed mb-6">
+							ابحث في كتالوج المنتجات والأصناف المتاحة عبر جميع الموردين، وقارن الأسعار والخصومات وأضف مشترياتك للسلة مباشرة.
+						</p>
 					</div>
+					<a href="/catalog" class="btn btn-secondary w-full justify-center font-bold text-xs gap-1">
+						<span>البحث في كتالوج الأصناف</span>
+						@components.IconArrowLeft("icon-xs")
+					</a>
+				</div>
 
-					<!-- Option 3: Smart Ordering (نظام الطلب الذكي) -->
-					<div
-						class="card"
-						style="padding:2rem; border:2px solid var(--primary-600); border-radius:var(--radius-xl); text-align:center; transition:all 200ms; cursor:pointer; display:flex; flex-direction:column; justify-content:space-between; background:var(--surface-sunken);"
-						onclick="window.location='/customer/smart-order/new'"
-					>
-						<div>
-							<div style="width:64px; height:64px; border-radius:50%; background:rgba(139,92,246,0.12); color:var(--primary-700); display:flex; align-items:center; justify-content:center; margin:0 auto 1.5rem auto;">
-								@components.IconSparkles("icon-lg")
-							</div>
-							<h3 style="font-size:1.3rem; font-weight:800; margin-bottom:0.75rem; color:var(--text);">الطلب الذكي من ملف</h3>
-							<p style="color:var(--text-secondary); font-size:0.9rem; line-height:1.6; margin-bottom:1.5rem;">
-								ارفع ملف الأصناف المطلوبة بالكميات، ويتولى النظام مطابقتها بالكتالوج، واختيار المورد المناسب لكل صنف حسب معاييرك، وتجهيز الطلب للمراجعة.
-							</p>
+				<!-- Option 3: Smart Ordering -->
+				<div
+					class="glass-panel p-6 mb-0 text-center d-flex flex-col justify-between cursor-pointer border-brand"
+					onclick="window.location='/customer/smart-order/new'"
+				>
+					<div>
+						<div class="user-avatar-badge text-2xl mx-auto mb-4" style="width:64px; height:64px; background:var(--accent-subtle); color:var(--accent);">
+							@components.IconSparkles("icon-lg")
 						</div>
-						<a href="/customer/smart-order/new" class="btn btn-primary" style="width:100%; justify-content:center; font-weight:700; border-radius:var(--radius-lg);">
-							<span>ابدأ الطلب الذكي</span>
-							@components.IconArrowLeft("icon-xs")
-						</a>
+						<h2 class="text-lg font-black text-primary mb-2">الطلب الذكي من ملف</h2>
+						<p class="text-xs text-secondary leading-relaxed mb-6">
+							ارفع ملف الأصناف المطلوبة بالكميات، ويتولى النظام مطابقتها بالكتالوج واختيار المورد الأفضل وتجهيز الطلب للمراجعة.
+						</p>
 					</div>
-
+					<a href="/customer/smart-order/new" class="btn btn-primary w-full justify-center font-bold text-xs gap-1">
+						<span>ابدأ الطلب الذكي</span>
+						@components.IconArrowLeft("icon-xs")
+					</a>
 				</div>
 			</div>
 		</div>
@@ -94,47 +100,55 @@ templ CustomerPurchaseRequestWizardPage(lang, dir string, step int, option strin
 // VendorPurchaseRequestsPage lists incoming purchase requests for supplier.
 templ VendorPurchaseRequestsPage(lang, dir string, requests []*commerce.PurchaseRequest, activeStatus string) {
 	@layouts.VendorShell("طلبات الشراء الواردة", "purchase-requests", lang, dir) {
-		<div class="container-fluid" style="max-width:1200px; margin:0 auto; padding:1.5rem 1rem;">
-			<div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:1.5rem;">
-				<div>
-					<h1 style="font-size:1.5rem; font-weight:700; color:var(--text); margin:0 0 0.25rem 0;">طلبات الشراء الواردة من الصيدليات</h1>
-					<p style="color:var(--text-secondary); margin:0; font-size:0.875rem;">إدارة وقبول وتعديل عروض أسعار طلبات الشراء الموجهة لمنشأتك.</p>
-				</div>
-			</div>
+		<div class="page-container">
+			<!-- Header -->
+			<div class="glass-panel p-6 mb-0">
+				<div class="flex-between items-center flex-wrap gap-4">
+					<div>
+						<div class="d-flex items-center gap-3 mb-1">
+							<div class="user-avatar-badge text-xl">
+								📥
+							</div>
+							<div>
+								<h1 class="text-2xl font-black text-primary m-0">طلبات الشراء الواردة من الصيدليات</h1>
+								<p class="text-sm text-secondary m-0 mt-1">إدارة وقبول وتعديل عروض أسعار طلبات الشراء الموجهة لمنشأتك.</p>
+							</div>
+						</div>
+					</div>
 
-			<!-- Status Filter Tabs -->
-			<div style="display:flex; gap:0.5rem; margin-bottom:1.5rem;">
-				<a href="/vendor/purchase-requests?status=all" class={ "btn btn-sm", templ.KV("btn-primary", activeStatus == "all"), templ.KV("btn-secondary", activeStatus != "all") }>الكل</a>
-				<a href="/vendor/purchase-requests?status=pending" class={ "btn btn-sm", templ.KV("btn-primary", activeStatus == "pending"), templ.KV("btn-secondary", activeStatus != "pending") }>قيد الانتظار</a>
-				<a href="/vendor/purchase-requests?status=approved" class={ "btn btn-sm", templ.KV("btn-primary", activeStatus == "approved"), templ.KV("btn-secondary", activeStatus != "approved") }>تمت الموافقة</a>
-				<a href="/vendor/purchase-requests?status=completed" class={ "btn btn-sm", templ.KV("btn-primary", activeStatus == "completed"), templ.KV("btn-secondary", activeStatus != "completed") }>مكتمل</a>
+					<!-- Status Filter Tabs -->
+					<div class="cb-tabs-nav m-0">
+						<a href="/vendor/purchase-requests?status=all" class={ "cb-tab-btn", templ.KV("active", activeStatus == "all" || activeStatus == "") }>الكل</a>
+						<a href="/vendor/purchase-requests?status=pending" class={ "cb-tab-btn", templ.KV("active", activeStatus == "pending") }>قيد الانتظار</a>
+						<a href="/vendor/purchase-requests?status=approved" class={ "cb-tab-btn", templ.KV("active", activeStatus == "approved") }>تمت الموافقة</a>
+						<a href="/vendor/purchase-requests?status=completed" class={ "cb-tab-btn", templ.KV("active", activeStatus == "completed") }>مكتمل</a>
+					</div>
+				</div>
 			</div>
 
 			if len(requests) == 0 {
-				<div class="card" style="padding:3rem; text-align:center; color:var(--text-secondary); background:var(--surface-raised); border:1px solid var(--border);">
-					@components.IconInbox("icon-lg")
-					<h4 style="margin-top:1rem; color:var(--text);">لا توجد طلبات شراء واردة</h4>
-					<p class="m-0">لم تتلق منشأتك طلبات شراء جديدة في هذا القسم.</p>
+				<div class="glass-panel p-12 text-center empty-state-glass">
+					<div class="text-4xl mb-3">📭</div>
+					<h3 class="text-lg font-black text-primary mb-2">لا توجد طلبات شراء واردة</h3>
+					<p class="text-sm text-secondary max-w-md mx-auto">لم تتلق منشأتك طلبات شراء جديدة في هذا القسم حالياً.</p>
 				</div>
 			} else {
-				<div class="stack-lg">
+				<div class="d-flex flex-col gap-3">
 					for _, req := range requests {
-						<div class="card" style="padding:1.5rem; background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-md);">
-							<div style="display:flex; justify-content:space-between; align-items:flex-start;">
-								<div>
-									<div style="display:flex; align-items:center; gap:0.75rem; margin-bottom:0.25rem;">
-										<h3 style="margin:0; font-size:1.15rem; color:var(--text); font-weight:700;">طلب #{ req.RequestNumber }</h3>
-										<span class="badge badge-primary">{ string(req.Status) }</span>
-									</div>
-									<div class="text-sm text-secondary">
-										العميل / الصيدلية: <strong>{ req.CustomerName }</strong> | تاريخ الطلب: { req.CreatedAt.Format("2006-01-02 15:04") }
-									</div>
+						<div class="glass-panel p-4 flex-between items-center flex-wrap gap-4">
+							<div>
+								<div class="d-flex items-center gap-2 mb-1">
+									<h3 class="m-0 text-base font-extrabold text-primary">طلب #{ req.RequestNumber }</h3>
+									<span class="badge badge-primary text-xs font-bold">{ string(req.Status) }</span>
 								</div>
-								<a href={ templ.SafeURL(fmt.Sprintf("/vendor/purchase-requests/%d", req.ID)) } class="btn btn-primary btn-sm">
-									<span>معاينة والرد</span>
-									@components.IconArrowLeft("icon-xs")
-								</a>
+								<div class="text-xs text-secondary">
+									العميل / الصيدلية: <strong class="text-primary">{ req.CustomerName }</strong> | تاريخ الطلب: <span class="tabular-nums">{ req.CreatedAt.Format("2006-01-02 15:04") }</span>
+								</div>
 							</div>
+							<a href={ templ.SafeURL(fmt.Sprintf("/vendor/purchase-requests/%d", req.ID)) } class="btn btn-primary btn-sm font-bold text-xs gap-1">
+								<span>معاينة والرد</span>
+								@components.IconArrowLeft("icon-xs")
+							</a>
 						</div>
 					}
 				</div>
@@ -146,45 +160,55 @@ templ VendorPurchaseRequestsPage(lang, dir string, requests []*commerce.Purchase
 // VendorPurchaseRequestDetailPage renders one incoming request for response.
 templ VendorPurchaseRequestDetailPage(lang, dir string, request *commerce.PurchaseRequest) {
 	@layouts.VendorShell(fmt.Sprintf("تفاصيل طلب شراء #%s", request.RequestNumber), "purchase-requests", lang, dir) {
-		<div class="container-fluid" style="max-width:1100px; margin:0 auto; padding:1.5rem 1rem;">
-			<div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:1.5rem;">
-				<div>
-					<h1 style="font-size:1.5rem; font-weight:700; color:var(--text); margin:0 0 0.25rem 0;">طلب شراء #{ request.RequestNumber }</h1>
-					<p style="color:var(--text-secondary); margin:0; font-size:0.875rem;">العميل: { request.CustomerName } | الحالة: { string(request.Status) }</p>
+		<div class="page-container">
+			<!-- Header -->
+			<div class="glass-panel p-6 mb-0">
+				<div class="flex-between items-center flex-wrap gap-4">
+					<div>
+						<div class="d-flex items-center gap-3 mb-1">
+							<div class="user-avatar-badge text-xl">
+								📄
+							</div>
+							<div>
+								<h1 class="text-2xl font-black text-primary m-0">طلب شراء #{ request.RequestNumber }</h1>
+								<p class="text-sm text-secondary m-0 mt-1">العميل: { request.CustomerName } | الحالة: { string(request.Status) }</p>
+							</div>
+						</div>
+					</div>
+					<a href="/vendor/purchase-requests" class="btn btn-secondary btn-sm font-bold text-xs gap-1">
+						@components.IconArrowRight("icon-xs")
+						<span>قائمة الطلبات</span>
+					</a>
 				</div>
-				<a href="/vendor/purchase-requests" class="btn btn-secondary btn-sm">
-					@components.IconArrowRight("icon-xs")
-					<span>قائمة الطلبات</span>
-				</a>
 			</div>
 
-			<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/vendor/purchase-requests/%d/respond", request.ID)) }>
-				<div class="card" style="padding:1.5rem; background:var(--surface-raised); border:1px solid var(--border); margin-bottom:1.5rem;">
-					<h3 style="font-size:1.15rem; font-weight:700; margin:0 0 1rem 0;">الأصناف المطلوبة</h3>
-					<div class="table-responsive">
-						<table class="table" style="width:100%; font-size:0.9rem;">
+			<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/vendor/purchase-requests/%d/respond", request.ID)) } class="d-flex flex-col gap-6 m-0">
+				<div class="glass-panel p-6 mb-0">
+					<h2 class="text-base font-extrabold text-primary m-0 mb-4 pb-3 border-b">الأصناف المطلوبة</h2>
+					<div class="table-container m-0">
+						<table class="data-table m-0">
 							<thead>
 								<tr>
 									<th>اسم الصنف</th>
-									<th>الكمية</th>
-									<th>السعر المستهدف</th>
-									<th>الخصم المطلوب</th>
-									<th>السعر المعروض للوحدة</th>
-									<th>الخصم المعروض %</th>
+									<th class="text-center">الكمية</th>
+									<th class="text-end">السعر المستهدف</th>
+									<th class="text-center">الخصم المطلوب</th>
+									<th class="text-end" style="width:130px;">السعر المعروض</th>
+									<th class="text-center" style="width:110px;">الخصم المعروض %</th>
 								</tr>
 							</thead>
 							<tbody>
 								for _, line := range request.Lines {
 									<tr>
-										<td><strong>{ line.ProductName }</strong></td>
-										<td>{ fmt.Sprintf("%d", line.Quantity) }</td>
-										<td>{ line.TargetPrice.String() } ج.م</td>
-										<td>{ fmt.Sprintf("%.1f%%", line.TargetDiscount) }</td>
-										<td>
-											<input type="text" name={ fmt.Sprintf("line_price_%d", line.ID) } value={ line.OfferedPrice.String() } placeholder={ line.TargetPrice.String() } class="form-control form-control-sm" style="width:110px;" />
+										<td class="font-bold text-xs text-primary">{ line.ProductName }</td>
+										<td class="text-center tabular-nums font-bold text-xs">{ fmt.Sprintf("%d", line.Quantity) }</td>
+										<td class="text-end tabular-nums text-xs">{ line.TargetPrice.String() } ج.م</td>
+										<td class="text-center tabular-nums text-xs text-brand font-bold">{ fmt.Sprintf("%.1f%%", line.TargetDiscount) }</td>
+										<td class="text-end">
+											<input type="text" name={ fmt.Sprintf("line_price_%d", line.ID) } value={ line.OfferedPrice.String() } placeholder={ line.TargetPrice.String() } class="form-input text-xs w-full text-end tabular-nums" />
 										</td>
-										<td>
-											<input type="number" step="0.5" name={ fmt.Sprintf("line_discount_%d", line.ID) } value={ fmt.Sprintf("%.1f", line.OfferedDiscount) } class="form-control form-control-sm" style="width:90px;" />
+										<td class="text-center">
+											<input type="number" step="0.5" name={ fmt.Sprintf("line_discount_%d", line.ID) } value={ fmt.Sprintf("%.1f", line.OfferedDiscount) } class="form-input text-xs w-full text-center tabular-nums" />
 										</td>
 									</tr>
 								}
@@ -193,24 +217,24 @@ templ VendorPurchaseRequestDetailPage(lang, dir string, request *commerce.Purcha
 					</div>
 				</div>
 
-				<div class="card" style="padding:1.5rem; background:var(--surface-raised); border:1px solid var(--border); margin-bottom:1.5rem;">
-					<div class="mb-md">
-						<label class="form-label fw-600">القرار والحالة</label>
-						<select name="status" class="form-input" style="max-width:300px;">
+				<div class="glass-panel p-6 mb-0">
+					<div class="mb-4">
+						<label class="form-label text-xs font-bold text-primary mb-1">القرار والحالة</label>
+						<select name="status" class="form-input text-xs" style="max-width:300px;">
 							<option value="approved">قبول وتأكيد الطلب</option>
 							<option value="processing">قبول وقيد التجهيز</option>
 							<option value="cancelled">اعتذار / رفض الطلب</option>
 						</select>
 					</div>
 					<div>
-						<label class="form-label fw-600">ملاحظات التوريد الموجهة للصيدلية</label>
-						<textarea name="vendor_notes" rows="3" class="form-input" placeholder="اكتب أية شروط أو ملاحظات للمشتري...">{ request.VendorNotes }</textarea>
+						<label class="form-label text-xs font-bold text-primary mb-1">ملاحظات التوريد الموجهة للصيدلية</label>
+						<textarea name="vendor_notes" rows="3" class="form-input text-xs w-full" placeholder="اكتب أية شروط أو ملاحظات للمشتري...">{ request.VendorNotes }</textarea>
 					</div>
 				</div>
 
-				<div style="display:flex; justify-content:flex-end; gap:1rem;">
-					<a href="/vendor/purchase-requests" class="btn btn-secondary">إلغاء</a>
-					<button type="submit" class="btn btn-primary btn-lg">
+				<div class="flex-between items-center">
+					<a href="/vendor/purchase-requests" class="btn btn-secondary btn-sm font-bold text-xs">إلغاء</a>
+					<button type="submit" class="btn btn-primary btn-sm font-bold text-xs px-6 gap-1">
 						@components.IconCheckCircle("icon-xs")
 						<span>حفظ وإرسال الرد للصيدلية</span>
 					</button>
@@ -219,3 +243,4 @@ templ VendorPurchaseRequestDetailPage(lang, dir string, request *commerce.Purcha
 		</div>
 	}
 }
+
