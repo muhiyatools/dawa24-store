@@ -282,7 +282,11 @@ templ CompareFileMappingModal(file *compare.CompareFile, headers []string, previ
 						if isSetup || total > 1 {
 							<button
 								type="button"
-								onclick={ handleSetupSkipScript(file.ID, remainingQueue, step, total) }
+								data-file-id={ fmt.Sprintf("%d", file.ID) }
+								data-queue={ remainingQueue }
+								data-step={ fmt.Sprintf("%d", step) }
+								data-total={ fmt.Sprintf("%d", total) }
+								onclick="handleSetupSkip(parseInt(this.dataset.fileId,10), this.dataset.queue, parseInt(this.dataset.step,10), parseInt(this.dataset.total,10))"
 								class="btn btn-secondary text-danger"
 								style="font-weight:700; padding:0.6rem 1.15rem; font-size:0.85rem;"
 								title="حذف وتخطي هذا الملف والانتقال للملف التالي"
