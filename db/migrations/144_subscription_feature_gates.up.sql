@@ -1,4 +1,4 @@
--- 141_subscription_feature_gates.up.sql
+-- 144_subscription_feature_gates.up.sql
 -- Seed feature keys for market discounts and compare tool across subscription plans.
 
 BEGIN;

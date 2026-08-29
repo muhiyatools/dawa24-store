@@ -1,4 +1,4 @@
--- 141_subscription_feature_gates.down.sql
+-- 144_subscription_feature_gates.down.sql
 BEGIN;
 
 DELETE FROM billing.plan_features
