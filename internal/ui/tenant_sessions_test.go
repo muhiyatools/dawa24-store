@@ -70,10 +70,10 @@ func TestTenantSessionsPage_RendersAndManagesSessions(t *testing.T) {
 		t.Fatalf("GET /customer/sessions returned %d, expected 200", rec.Code)
 	}
 	body := rec.Body.String()
-	if !strings.Contains(body, "الأجهزة والجلسات النشطة المصرح بها") {
+	if !strings.Contains(body, "الأجهزة والجلسات النشطة") {
 		t.Errorf("expected page title in body, got: %s", body)
 	}
-	if !strings.Contains(body, "الجلسات المتصلة حالياً") {
+	if !strings.Contains(body, "الجلسات المتصلة") {
 		t.Errorf("expected sessions quota card in body")
 	}
 

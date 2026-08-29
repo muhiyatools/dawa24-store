@@ -6,6 +6,7 @@ import (
 	"log/slog"
 	"testing"
 
+	"github.com/muhiya/dawa24-store/internal/shared/apperr"
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/shared/money"
 )
@@ -18,6 +19,7 @@ type mockOrgRepo struct {
 	policies      map[int64][]*Policy
 	followers     map[int64]map[int64]bool
 	deliveryBands map[int64][]*DeliveryBand
+	roles         []*Role
 	nextID        int64
 }
 
@@ -283,21 +285,50 @@ func (m *mockOrgRepo) CreateRole(_ context.Context, role *Role) error {
 	return nil
 }
 
-func (m *mockOrgRepo) GetRoleByID(_ context.Context, id int64) (*Role, error) {
-	return &Role{ID: id, Key: "custom_role", Permissions: []string{"org.organization.view"}}, nil
+func (m *mockOrgRepo) GetRole(_ context.Context, orgID, roleID int64) (*Role, error) {
+	for _, r := range m.roles {
+		if r.ID == roleID && r.OrganizationID == orgID {
+			return r, nil
+		}
+	}
+	return nil, apperr.NotFound("role")
 }
 
-func (m *mockOrgRepo) UpdateRole(_ context.Context, _ *Role) error {
-	return nil
+func (m *mockOrgRepo) UpdateRole(_ context.Context, orgID int64, role *Role) error {
+	for i, r := range m.roles {
+		if r.ID == role.ID && r.OrganizationID == orgID {
+			m.roles[i] = role
+			return nil
+		}
+	}
+	return apperr.NotFound("role")
 }
 
-func (m *mockOrgRepo) DeleteRole(_ context.Context, _ int64) error {
-	return nil
+func (m *mockOrgRepo) DeleteRole(_ context.Context, orgID, roleID int64) error {
+	for i, r := range m.roles {
+		if r.ID == roleID && r.OrganizationID == orgID {
+			m.roles = append(m.roles[:i], m.roles[i+1:]...)
+			return nil
+		}
+	}
+	return apperr.NotFound("role")
 }
 
-func (m *mockOrgRepo) ListRolesByOrg(_ context.Context, _ int64) ([]*Role, error) {
-	return nil, nil
+func (m *mockOrgRepo) ListRoles(_ context.Context, orgID int64) ([]*Role, error) {
+	var out []*Role
+	for _, r := range m.roles {
+		if r.OrganizationID == orgID {
+			out = append(out, r)
+		}
+	}
+	return out, nil
 }
+
+func (m *mockOrgRepo) CountRoleMembers(_ context.Context, _ int64) (map[int64]int, error) {
+	return map[int64]int{}, nil
+}
+
+func (m *mockOrgRepo) AssignMemberRole(_ context.Context, _, _, _ int64) error { return nil }
 
 func (m *mockOrgRepo) GetDeliveryBands(_ context.Context, orgID int64) ([]*DeliveryBand, error) {
 	if m.deliveryBands != nil {

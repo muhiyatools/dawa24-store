@@ -1,7 +1,6 @@
 package ui
 
 import (
-	"fmt"
 	"net/http"
 	"strconv"
 	"strings"
@@ -9,7 +8,7 @@ import (
 	"github.com/go-chi/chi/v5"
 
 	"github.com/muhiya/dawa24-store/internal/modules/identity"
-	"github.com/muhiya/dawa24-store/internal/modules/org"
+	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/platform/database"
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/ui/pages"
@@ -117,8 +116,31 @@ func (h *UIHandler) AdminUserDetailPage(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
+	actor := authctx.FromContext(ctx)
+	view := pages.AdminUserDetailView{
+		User:     user,
+		SelfEdit: actor.UserID == user.ID,
+	}
+	// The assignable roles are offered only to a viewer who may assign them.
+	// The route refuses the post regardless; not rendering the control means
+	// the page does not offer an action it knows will fail.
+	if actor.Can("identity.admin_role.assign") && h.idSvc != nil {
+		roles, err := h.idSvc.ListPlatformRoles(ctx)
+		if err != nil {
+			h.log.ErrorContext(ctx, "list platform roles for user detail", "error", err)
+		}
+		for _, role := range roles {
+			view.Roles = append(view.Roles, pages.AdminUserRoleOption{
+				Key:      role.Key,
+				Name:     role.Name.Get(i18n.ParseLang(lang)),
+				IsStaff:  role.IsStaff,
+				Selected: role.Key == user.Role,
+			})
+		}
+	}
+
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	if err := pages.AdminUserDetailPage(user, lang, dir).Render(ctx, w); err != nil {
+	if err := pages.AdminUserDetailPage(view, lang, dir).Render(ctx, w); err != nil {
 		h.log.ErrorContext(ctx, "render admin user detail page", "error", err)
 	}
 }
@@ -191,68 +213,4 @@ func (h *UIHandler) AdminEmployeeActivitiesPage(w http.ResponseWriter, r *http.R
 	if err := pages.AdminEmployeeActivitiesPage(nil, lang, dir).Render(ctx, w); err != nil {
 		h.log.ErrorContext(ctx, "render employee activities", "error", err)
 	}
-}
-
-// AdminRolesPage renders list of roles and permissions (RBAC).
-func (h *UIHandler) AdminRolesPage(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-	lang, dir := h.localeAndDir(r)
-
-	var roles []*org.Role
-	if h.orgSvc != nil {
-		// AsSystem justified: platform admin inspecting custom roles across all organizations
-		roles, _ = h.orgSvc.ListRoles(database.AsSystem(ctx), 0)
-	}
-
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	if err := pages.AdminRolesPage(roles, lang, dir).Render(ctx, w); err != nil {
-		h.log.ErrorContext(ctx, "render admin roles page", "error", err)
-	}
-}
-
-// AdminRoleDetailPage renders role permissions matrix editor.
-func (h *UIHandler) AdminRoleDetailPage(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-	lang, dir := h.localeAndDir(r)
-	idStr := chi.URLParam(r, "id")
-	roleID, _ := strconv.ParseInt(idStr, 10, 64)
-
-	var role *org.Role
-	if h.orgSvc != nil && roleID > 0 {
-		role, _ = h.orgSvc.GetRole(database.AsSystem(ctx), roleID)
-	}
-
-	if role == nil {
-		http.Redirect(w, r, "/admin/roles", http.StatusSeeOther)
-		return
-	}
-
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	if err := pages.AdminRoleEditPage(role, lang, dir).Render(ctx, w); err != nil {
-		h.log.ErrorContext(ctx, "render admin role edit", "error", err)
-	}
-}
-
-// AdminRoleUpdateSubmit saves updated permissions for a role.
-func (h *UIHandler) AdminRoleUpdateSubmit(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-	idStr := chi.URLParam(r, "id")
-	roleID, _ := strconv.ParseInt(idStr, 10, 64)
-
-	_ = r.ParseForm()
-	permissions := r.Form["permissions"]
-	nameAr := r.PostFormValue("name_ar")
-	desc := r.PostFormValue("description")
-
-	if h.orgSvc != nil && roleID > 0 {
-		role, err := h.orgSvc.GetRole(database.AsSystem(ctx), roleID)
-		if err == nil && role != nil {
-			role.Name = i18n.New(nameAr, nameAr)
-			role.Description = desc
-			role.Permissions = permissions
-			_ = h.orgSvc.UpdateRole(database.AsSystem(ctx), role)
-		}
-	}
-
-	http.Redirect(w, r, fmt.Sprintf("/admin/admin-roles/%d", roleID), http.StatusSeeOther)
 }

@@ -53,11 +53,22 @@ func RequireStaff(log *slog.Logger) func(http.Handler) http.Handler {
 	}
 }
 
-// RequirePagePermission gates an HTML admin page on a single permission key.
-// It mirrors RequirePermission's rules (super_admin and developer bypass, or wildcard)
-// but answers with the audience policy's 404 rather than a JSON 403: a support
-// agent must not learn that /admin/developers or other restricted admin subtrees exist.
-func RequirePagePermission(permissionKey string, log *slog.Logger) func(http.Handler) http.Handler {
+// RequirePagePermission gates an HTML admin page on a permission key. Pass
+// several and holding any one of them is enough, for a page two roles reach
+// for different reasons.
+//
+// It answers with the audience policy's 404 rather than a JSON 403: a support
+// agent must not learn that /admin/developers or other restricted admin
+// subtrees exist.
+//
+// There is no longer a role-name bypass here. It used to read
+// `actor.Role == "super_admin" || actor.Role == "developer"`, which meant the
+// developer role could open every admin page regardless of its grants, and
+// meant a new staff role could not be given full access without editing this
+// function. Both roles now hold their access as permissions like everyone
+// else — super_admin holds the whole catalogue, which is the same outcome
+// arrived at through the system rather than around it.
+func RequirePagePermission(permissionKeys ...string) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			actor, ok := From(r.Context())
@@ -69,16 +80,68 @@ func RequirePagePermission(permissionKey string, log *slog.Logger) func(http.Han
 				notFound(w, r)
 				return
 			}
-			if actor.Role == "super_admin" || actor.Role == "developer" || actor.Can("*") || actor.Can(permissionKey) {
+			if actor.CanAny(permissionKeys...) {
 				next.ServeHTTP(w, r)
 				return
 			}
-			log.WarnContext(r.Context(), "admin page permission denied",
-				"path", r.URL.Path, "user_id", actor.UserID,
-				"role", actor.Role, "required_permission", permissionKey)
+			denied(r, "admin", actor, permissionKeys)
 			notFound(w, r)
 		})
 	}
+}
+
+// RequireTenantPagePermission gates an HTML page inside a vendor or pharmacy
+// dashboard. It is the same rule as the admin gate, held against the caller's
+// own company: the permissions were resolved from their membership, so a role
+// that reveals /vendor/wallet in one company says nothing about another.
+//
+// The vendor and pharmacy dashboards had no gate of any kind before this. Every
+// sidebar link was rendered for every member and every route was reachable by
+// URL, so a warehouse clerk could open the wallet, the team page and the role
+// editor — the company owner had a roles screen that was static markup and no
+// way to stop them.
+func RequireTenantPagePermission(permissionKeys ...string) func(http.Handler) http.Handler {
+	return func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			actor, ok := From(r.Context())
+			if !ok {
+				redirectToLogin(w, r)
+				return
+			}
+			// Staff do not hold tenant permissions and have no business on a
+			// company dashboard; the audience gate already said so, and this
+			// keeps the two answers consistent.
+			if actor.IsStaff {
+				notFound(w, r)
+				return
+			}
+			if actor.OrganizationID <= 0 {
+				notFound(w, r)
+				return
+			}
+			if actor.CanAny(permissionKeys...) {
+				next.ServeHTTP(w, r)
+				return
+			}
+			denied(r, "tenant", actor, permissionKeys)
+			notFound(w, r)
+		})
+	}
+}
+
+// denied records a refusal. Every gate logs through here so that a permission
+// problem in production is one grep, and so the log line always carries the
+// caller, the path and what was required.
+func denied(r *http.Request, surface string, actor Actor, required []string) {
+	slog.WarnContext(r.Context(), "permission denied",
+		"surface", surface,
+		"path", r.URL.Path,
+		"method", r.Method,
+		"user_id", actor.UserID,
+		"organization_id", actor.OrganizationID,
+		"role", actor.Role,
+		"scope", string(actor.Scope),
+		"required", required)
 }
 
 // RequireApproved blocks members whose organization has not been approved.

@@ -183,6 +183,7 @@ func TestVendorWarehouseDetailPage_Overhaul_E2E(t *testing.T) {
 		UserID:         10,
 		OrganizationID: 100,
 		OrgType:        "vendor",
+		Permissions:    []string{"vendor.*"},
 	}
 
 	// Create a test warehouse

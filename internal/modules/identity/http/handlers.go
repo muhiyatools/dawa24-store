@@ -10,6 +10,7 @@ import (
 	"github.com/muhiya/dawa24-store/internal/modules/identity"
 	"github.com/muhiya/dawa24-store/internal/platform/config"
 	"github.com/muhiya/dawa24-store/internal/platform/httpx"
+	"github.com/muhiya/dawa24-store/internal/platform/rbac"
 	"github.com/muhiya/dawa24-store/internal/shared/apperr"
 )
 
@@ -19,8 +20,13 @@ type Handler struct {
 	cookieName   string
 	sessionTTL   time.Duration
 	secureCookie bool
+	resolver     *rbac.Resolver
 	log          *slog.Logger
 }
+
+// SetResolver supplies the permission resolver. It is optional so that tests
+// which only exercise authentication need not stand up a database.
+func (h *Handler) SetResolver(r *rbac.Resolver) { h.resolver = r }
 
 // NewHandler creates an identity HTTP handler.
 func NewHandler(service *identity.Service, cfg config.Session, log *slog.Logger) *Handler {
@@ -40,7 +46,7 @@ func (h *Handler) RegisterRoutes(r chi.Router) {
 	r.Post("/api/v1/auth/logout", h.Logout)
 
 	r.Group(func(protected chi.Router) {
-		protected.Use(RequireAuth(h.service, h.cookieName, h.log))
+		protected.Use(RequireAuth(h.service, h.resolver, h.cookieName, h.log))
 		protected.Get("/api/v1/auth/me", h.Me)
 		protected.Get("/api/v1/me", h.GetMe)
 		protected.Put("/api/v1/me", h.UpdateMe)

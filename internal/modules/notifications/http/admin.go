@@ -12,7 +12,7 @@ import (
 // RegisterAdminRoutes mounts administrative notification routes.
 func (h *Handler) RegisterAdminRoutes(r chi.Router) {
 	r.Group(func(admin chi.Router) {
-		admin.Use(authctx.RequirePermission("notifications.admin", h.log))
+		admin.Use(authctx.RequirePermission("notifications.admin"))
 
 		admin.Post("/api/v1/admin/notifications/broadcast", h.AdminBroadcast)
 	})

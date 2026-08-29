@@ -89,9 +89,10 @@ func TestInvoicePrintAndVendorInvoicesPages(t *testing.T) {
 	t.Run("Admin GET /admin/finance?tab=invoices returns 200 OK", func(t *testing.T) {
 		req := httptest.NewRequest("GET", "/admin/finance?tab=invoices", nil)
 		ctx := authctx.WithActor(context.Background(), authctx.Actor{
-			UserID:  1,
-			IsStaff: true,
-			Role:    "super_admin",
+			UserID:      1,
+			IsStaff:     true,
+			Role:        "super_admin",
+			Permissions: []string{"*"},
 		})
 		req = req.WithContext(ctx)
 		rec := httptest.NewRecorder()

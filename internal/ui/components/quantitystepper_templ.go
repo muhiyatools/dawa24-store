@@ -48,7 +48,7 @@ func QuantityStepper(props QuantityStepperProps) templ.Component {
 		var templ_7745c5c3_Var2 string
 		templ_7745c5c3_Var2, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("{ qty: %d, min: %d, max: %d }", props.Value, props.Min, props.Max))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/components/quantitystepper.templ`, Line: 16, Col: 114}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/quantitystepper.templ`, Line: 16, Col: 114}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var2)
 		if templ_7745c5c3_Err != nil {
@@ -61,7 +61,7 @@ func QuantityStepper(props QuantityStepperProps) templ.Component {
 		var templ_7745c5c3_Var3 string
 		templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.ResolveAttributeValue(props.Name)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/components/quantitystepper.templ`, Line: 20, Col: 20}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/quantitystepper.templ`, Line: 20, Col: 20}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var3)
 		if templ_7745c5c3_Err != nil {

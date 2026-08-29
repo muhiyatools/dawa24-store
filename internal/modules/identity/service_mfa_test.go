@@ -271,4 +271,3 @@ func TestParseUserAgentDevice(t *testing.T) {
 		}
 	}
 }
-

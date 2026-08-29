@@ -134,7 +134,7 @@ func OffersContent(lang string, offers []*promo.Offer) templ.Component {
 		var templ_7745c5c3_Var5 string
 		templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d عروض متاحة في نطاق تغطيتك", len(offers)))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/offers.templ`, Line: 60, Col: 84}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `pages/offers.templ`, Line: 60, Col: 84}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
 		if templ_7745c5c3_Err != nil {
@@ -166,7 +166,7 @@ func OffersContent(lang string, offers []*promo.Offer) templ.Component {
 				var templ_7745c5c3_Var6 string
 				templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(o.DiscountValue.String())
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/offers.templ`, Line: 78, Col: 43}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `pages/offers.templ`, Line: 78, Col: 43}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
 				if templ_7745c5c3_Err != nil {
@@ -180,7 +180,7 @@ func OffersContent(lang string, offers []*promo.Offer) templ.Component {
 					var templ_7745c5c3_Var7 string
 					templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs("%")
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/offers.templ`, Line: 80, Col: 16}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `pages/offers.templ`, Line: 80, Col: 16}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
 					if templ_7745c5c3_Err != nil {
@@ -194,7 +194,7 @@ func OffersContent(lang string, offers []*promo.Offer) templ.Component {
 				var templ_7745c5c3_Var8 string
 				templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(o.Title.Get(i18n.Lang(lang)))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/offers.templ`, Line: 86, Col: 39}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `pages/offers.templ`, Line: 86, Col: 39}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var8))
 				if templ_7745c5c3_Err != nil {
@@ -207,7 +207,7 @@ func OffersContent(lang string, offers []*promo.Offer) templ.Component {
 				var templ_7745c5c3_Var9 string
 				templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinStringErrs(o.Description.Get(i18n.Lang(lang)))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/offers.templ`, Line: 89, Col: 45}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `pages/offers.templ`, Line: 89, Col: 45}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var9))
 				if templ_7745c5c3_Err != nil {
@@ -220,7 +220,7 @@ func OffersContent(lang string, offers []*promo.Offer) templ.Component {
 				var templ_7745c5c3_Var10 string
 				templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.JoinStringErrs(o.ExpiresAt.Format("2006-01-02"))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/offers.templ`, Line: 95, Col: 102}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `pages/offers.templ`, Line: 95, Col: 102}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var10))
 				if templ_7745c5c3_Err != nil {
@@ -233,7 +233,7 @@ func OffersContent(lang string, offers []*promo.Offer) templ.Component {
 				var templ_7745c5c3_Var11 templ.SafeURL
 				templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("/offers/%d", o.ID)))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/offers.templ`, Line: 97, Col: 64}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `pages/offers.templ`, Line: 97, Col: 64}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var11))
 				if templ_7745c5c3_Err != nil {
@@ -357,7 +357,7 @@ func OfferDetailContent(lang string, o *promo.Offer) templ.Component {
 		var templ_7745c5c3_Var16 string
 		templ_7745c5c3_Var16, templ_7745c5c3_Err = templ.JoinStringErrs(o.Title.Get(i18n.Lang(lang)))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/offers.templ`, Line: 130, Col: 34}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `pages/offers.templ`, Line: 130, Col: 34}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var16))
 		if templ_7745c5c3_Err != nil {
@@ -370,7 +370,7 @@ func OfferDetailContent(lang string, o *promo.Offer) templ.Component {
 		var templ_7745c5c3_Var17 string
 		templ_7745c5c3_Var17, templ_7745c5c3_Err = templ.JoinStringErrs(o.Description.Get(i18n.Lang(lang)))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/offers.templ`, Line: 133, Col: 40}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `pages/offers.templ`, Line: 133, Col: 40}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var17))
 		if templ_7745c5c3_Err != nil {
@@ -383,7 +383,7 @@ func OfferDetailContent(lang string, o *promo.Offer) templ.Component {
 		var templ_7745c5c3_Var18 string
 		templ_7745c5c3_Var18, templ_7745c5c3_Err = templ.JoinStringErrs(o.DiscountValue.String())
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/offers.templ`, Line: 140, Col: 32}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `pages/offers.templ`, Line: 140, Col: 32}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var18))
 		if templ_7745c5c3_Err != nil {
@@ -397,7 +397,7 @@ func OfferDetailContent(lang string, o *promo.Offer) templ.Component {
 			var templ_7745c5c3_Var19 string
 			templ_7745c5c3_Var19, templ_7745c5c3_Err = templ.JoinStringErrs("%")
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/offers.templ`, Line: 142, Col: 12}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `pages/offers.templ`, Line: 142, Col: 12}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var19))
 			if templ_7745c5c3_Err != nil {
@@ -411,7 +411,7 @@ func OfferDetailContent(lang string, o *promo.Offer) templ.Component {
 		var templ_7745c5c3_Var20 string
 		templ_7745c5c3_Var20, templ_7745c5c3_Err = templ.JoinStringErrs(o.ExpiresAt.Format("2006-01-02"))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/offers.templ`, Line: 149, Col: 40}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `pages/offers.templ`, Line: 149, Col: 40}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var20))
 		if templ_7745c5c3_Err != nil {

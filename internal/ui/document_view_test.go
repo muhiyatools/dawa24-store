@@ -122,6 +122,7 @@ func TestTenantSubscriptionPage_ShowsPlansAndUpgrades(t *testing.T) {
 		OrgID:          orgID,
 		Role:           "customer",
 		OrgType:        "customer",
+		Permissions:    []string{"pharmacy.*"},
 	}
 
 	// 2. GET /customer/subscription
@@ -151,6 +152,7 @@ func TestTenantSubscriptionPage_ShowsPlansAndUpgrades(t *testing.T) {
 		OrgID:          orgID,
 		Role:           "vendor",
 		OrgType:        "vendor",
+		Permissions:    []string{"vendor.*"},
 	}
 	vReq := httptest.NewRequest("GET", "/vendor/subscription", nil)
 	vReq = vReq.WithContext(authctx.WithActor(vReq.Context(), vendorActor))
@@ -216,6 +218,7 @@ func TestTenantSubscriptionCheckoutSubmit_UpgradesAndDeductsWallet(t *testing.T)
 		OrgID:          orgID,
 		Role:           "customer",
 		OrgType:        "customer",
+		Permissions:    []string{"pharmacy.*"},
 	}
 
 	// 2. Perform POST /customer/subscription/checkout for 'pro' plan monthly

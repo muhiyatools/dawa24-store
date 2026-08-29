@@ -139,9 +139,9 @@ type Plan struct {
 // Subscription feature gate keys for platform access control.
 const (
 	FeatureMarketDiscounts = "feature_market_discounts"
-	FeatureCompareTool    = "feature_compare_tool"
-	FeatureBulkImport     = "bulk_import"
-	FeatureAnalytics      = "analytics"
+	FeatureCompareTool     = "feature_compare_tool"
+	FeatureBulkImport      = "bulk_import"
+	FeatureAnalytics       = "analytics"
 )
 
 // HasFeature reports whether the plan grants access to the specified feature key.

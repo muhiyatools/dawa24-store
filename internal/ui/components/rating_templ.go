@@ -41,7 +41,7 @@ func Rating(value float64) templ.Component {
 		var templ_7745c5c3_Var2 string
 		templ_7745c5c3_Var2, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("التقييم %.1f من 5", value))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/components/rating.templ`, Line: 9, Col: 147}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/rating.templ`, Line: 9, Col: 147}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var2)
 		if templ_7745c5c3_Err != nil {

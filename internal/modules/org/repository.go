@@ -35,12 +35,17 @@ type Repository interface {
 	ListEmployees(ctx context.Context, orgID int64) ([]*EmployeeView, error)
 	RemoveMember(ctx context.Context, orgID, userID int64) error
 
-	// Custom Roles
+	// Company roles. Every one of these takes the caller's organization id
+	// and the implementation puts it in the WHERE clause — a role id alone is
+	// never enough to reach a role, because a role id alone belongs to
+	// whichever company happens to own it.
 	CreateRole(ctx context.Context, role *Role) error
-	GetRoleByID(ctx context.Context, id int64) (*Role, error)
-	UpdateRole(ctx context.Context, role *Role) error
-	DeleteRole(ctx context.Context, id int64) error
-	ListRolesByOrg(ctx context.Context, orgID int64) ([]*Role, error)
+	GetRole(ctx context.Context, orgID, roleID int64) (*Role, error)
+	UpdateRole(ctx context.Context, orgID int64, role *Role) error
+	DeleteRole(ctx context.Context, orgID, roleID int64) error
+	ListRoles(ctx context.Context, orgID int64) ([]*Role, error)
+	CountRoleMembers(ctx context.Context, orgID int64) (map[int64]int, error)
+	AssignMemberRole(ctx context.Context, orgID, memberID, roleID int64) error
 
 	// Delivery Bands
 	GetDeliveryBands(ctx context.Context, orgID int64) ([]*DeliveryBand, error)

@@ -43,6 +43,14 @@ type Repository interface {
 	AdminResetMFA(ctx context.Context, id int64, actorID int64) error
 	AdminAssignRole(ctx context.Context, id int64, role string, actorID int64) error
 
+	// Platform roles. A super admin builds moderator roles here; the grants
+	// they carry are restricted to the admin dashboard before they are stored.
+	ListPlatformRoles(ctx context.Context) ([]*PlatformRole, error)
+	GetPlatformRole(ctx context.Context, key string) (*PlatformRole, error)
+	CreatePlatformRole(ctx context.Context, role *PlatformRole, actorID int64) error
+	UpdatePlatformRole(ctx context.Context, role *PlatformRole, actorID int64) error
+	DeletePlatformRole(ctx context.Context, key string) error
+
 	GetPreferences(ctx context.Context, userID int64) (*UserPreferences, error)
 	UpdatePreferences(ctx context.Context, p *UserPreferences) error
 

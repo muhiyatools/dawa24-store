@@ -15,7 +15,7 @@ import (
 
 func (h *Handler) RegisterAdminRoutes(r chi.Router) {
 	r.Group(func(admin chi.Router) {
-		admin.Use(authctx.RequirePermission("billing.admin", h.log))
+		admin.Use(authctx.RequirePermission("billing.admin"))
 
 		admin.Get("/api/v1/admin/billing/subscriptions", h.AdminListSubscriptions)
 		admin.Post("/api/v1/admin/billing/wallets/{id}/adjust", h.AdminAdjustWallet)

@@ -1996,7 +1996,7 @@ func (h *UIHandler) AdminPlanUpdateSubmit(w http.ResponseWriter, r *http.Request
 
 	features := map[string]string{}
 	if r.PostFormValue("feature_market_discounts") == "1" || r.PostFormValue("feature_market_discounts") == "true" {
-features[billing.FeatureMarketDiscounts] = "true"
+		features[billing.FeatureMarketDiscounts] = "true"
 	} else {
 		features[billing.FeatureMarketDiscounts] = "false"
 	}

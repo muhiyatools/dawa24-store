@@ -370,43 +370,6 @@ func (s *Service) UpdateMemberRole(ctx context.Context, orgID, userID int64, rol
 	return s.repo.UpdateMemberRole(ctx, orgID, userID, role)
 }
 
-// CreateRole adds a custom organization role.
-func (s *Service) CreateRole(ctx context.Context, role *Role) error {
-	if role.OrganizationID <= 0 || role.Key == "" {
-		return apperr.Validation("role.invalid", "Organization and role key are required.", nil)
-	}
-	return s.repo.CreateRole(ctx, role)
-}
-
-// GetRole retrieves a role by ID.
-func (s *Service) GetRole(ctx context.Context, id int64) (*Role, error) {
-	if id <= 0 {
-		return nil, apperr.Validation("role.invalid", "Valid role ID is required.", nil)
-	}
-	return s.repo.GetRoleByID(ctx, id)
-}
-
-// UpdateRole updates an existing role's permissions.
-func (s *Service) UpdateRole(ctx context.Context, role *Role) error {
-	if role.ID <= 0 {
-		return apperr.Validation("role.invalid", "Valid role ID is required.", nil)
-	}
-	return s.repo.UpdateRole(ctx, role)
-}
-
-// DeleteRole removes a custom role.
-func (s *Service) DeleteRole(ctx context.Context, id int64) error {
-	if id <= 0 {
-		return apperr.Validation("role.invalid", "Valid role ID is required.", nil)
-	}
-	return s.repo.DeleteRole(ctx, id)
-}
-
-// ListRoles retrieves all roles for an organization.
-func (s *Service) ListRoles(ctx context.Context, orgID int64) ([]*Role, error) {
-	return s.repo.ListRolesByOrg(ctx, orgID)
-}
-
 // GetDeliveryBands retrieves delivery bands for distance pricing.
 func (s *Service) GetDeliveryBands(ctx context.Context, orgID int64) ([]*DeliveryBand, error) {
 	return s.repo.GetDeliveryBands(ctx, orgID)

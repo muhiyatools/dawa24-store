@@ -20,25 +20,30 @@ import (
 
 // Session holds the active user session stored in Redis.
 type Session struct {
-	Token            string    `json:"token"`
-	UserID           int64     `json:"user_id"`
-	PublicID         string    `json:"public_id"`
-	Email            string    `json:"email"`
-	Role             string    `json:"role"`
-	ActiveOrgID      int64     `json:"active_org_id,omitempty"`
-	OrgType          string    `json:"org_type,omitempty"`
-	OrgStatus        string    `json:"org_status,omitempty"`
-	Permissions      []string  `json:"permissions"`
-	CreatedAt        time.Time `json:"created_at"`
-	ExpiresAt        time.Time `json:"expires_at"`
-	IP               string    `json:"ip,omitempty"`
-	UserAgent        string    `json:"user_agent,omitempty"`
-	DeviceName       string    `json:"device_name,omitempty"`
-	DeviceType       string    `json:"device_type,omitempty"`
-	Browser          string    `json:"browser,omitempty"`
-	OS               string    `json:"os,omitempty"`
-	Icon             string    `json:"icon,omitempty"`
-	LastActiveAt     time.Time `json:"last_active_at,omitempty"`
+	Token    string `json:"token"`
+	UserID   int64  `json:"user_id"`
+	PublicID string `json:"public_id"`
+	Email    string `json:"email"`
+	Role     string `json:"role"`
+	// StaffRole records whether the platform role this session was issued
+	// under reaches the admin dashboard. It is written at login from
+	// identity.roles.is_staff, so a role an operator invented after this code
+	// was written is recognised as staff without a code change.
+	StaffRole    bool      `json:"staff_role"`
+	ActiveOrgID  int64     `json:"active_org_id,omitempty"`
+	OrgType      string    `json:"org_type,omitempty"`
+	OrgStatus    string    `json:"org_status,omitempty"`
+	Permissions  []string  `json:"permissions"`
+	CreatedAt    time.Time `json:"created_at"`
+	ExpiresAt    time.Time `json:"expires_at"`
+	IP           string    `json:"ip,omitempty"`
+	UserAgent    string    `json:"user_agent,omitempty"`
+	DeviceName   string    `json:"device_name,omitempty"`
+	DeviceType   string    `json:"device_type,omitempty"`
+	Browser      string    `json:"browser,omitempty"`
+	OS           string    `json:"os,omitempty"`
+	Icon         string    `json:"icon,omitempty"`
+	LastActiveAt time.Time `json:"last_active_at,omitempty"`
 	// MaxLoginSessions, when set, is the concurrent-sign-in limit enforced by
 	// SessionStore.Create (evicting the oldest session beyond the limit).
 	MaxLoginSessions *int `json:"max_login_sessions,omitempty"`
@@ -47,7 +52,15 @@ type Session struct {
 // IsStaff reports whether this session belongs to platform staff. Platform
 // admin is staff, not an account type (Rebuild V2 rule 1); an organization
 // member's capability comes from the membership, never from the platform role.
+//
+// The answer comes from StaffRole, stamped at login from the role row. The
+// four hardcoded names remain only as a fallback for sessions issued before
+// that field existed — without it, every logged-in administrator would be
+// bounced out of /admin the moment this version deployed.
 func (s *Session) IsStaff() bool {
+	if s.StaffRole {
+		return true
+	}
 	return s.Role == "super_admin" || s.Role == "admin" || s.Role == "support" || s.Role == "developer"
 }
 

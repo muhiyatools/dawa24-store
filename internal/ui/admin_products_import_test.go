@@ -36,7 +36,7 @@ import (
 // measures.
 
 func superAdmin() authctx.Actor {
-	return authctx.Actor{UserID: 1, IsStaff: true, Role: "super_admin"}
+	return authctx.Actor{UserID: 1, IsStaff: true, Role: "super_admin", Permissions: []string{"*"}}
 }
 
 // importTestTag marks every row these tests create, so a stray one is

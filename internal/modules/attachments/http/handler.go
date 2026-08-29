@@ -38,7 +38,7 @@ func (h *Handler) RegisterRoutes(r chi.Router) {
 	})
 
 	r.Group(func(admin chi.Router) {
-		admin.Use(authctx.RequirePermission("platform.settings.manage", h.log))
+		admin.Use(authctx.RequirePermission("platform.settings.manage"))
 		admin.Route("/api/v1/admin/attachments", func(aar chi.Router) {
 			aar.Get("/", h.adminList)
 			aar.Post("/{id}/verify", h.adminVerify)

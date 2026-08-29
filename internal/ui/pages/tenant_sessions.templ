@@ -32,33 +32,30 @@ templ TenantSessionsPage(lang, dir string, data TenantSessionsViewData) {
 }
 
 templ tenantSessionsContent(lang, dir string, data TenantSessionsViewData) {
-	<div class="stack-xl" style="max-width:1100px; margin:0 auto; padding-bottom:3rem;">
-		<!-- Header Banner -->
-		<div class="glass-panel p-6" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1.5rem; border-radius:var(--radius-2xl);">
-			<div style="display:flex; align-items:center; gap:1rem;">
-				<div style="width:54px; height:54px; border-radius:var(--radius-xl); background:var(--primary-subtle); color:var(--primary); display:flex; align-items:center; justify-content:center; flex-shrink:0;">
-					@components.IconShield("icon-md")
-				</div>
-				<div>
-					<h1 style="font-size:1.45rem; font-weight:800; color:var(--text); margin:0;">
-						الأجهزة والجلسات النشطة المصرح بها
-					</h1>
-					<p style="color:var(--text-secondary); font-size:0.875rem; margin-top:0.25rem; margin-bottom:0;">
-						مراقبة الأجهزة المتصلة بحساب المنشأة وإدارة الجلسات المتزامنة وفقاً لحدود باقة الاشتراك
-					</p>
-				</div>
+	<div class="page-container" style="max-width:980px; margin:0 auto; padding:1.5rem 1rem 3rem 1rem;">
+		
+		<!-- Compact Page Header -->
+		<div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem; margin-bottom:1.5rem;">
+			<div>
+				<h1 style="font-size:1.35rem; font-weight:800; color:var(--text); margin:0; display:flex; align-items:center; gap:0.5rem;">
+					@components.IconShield("icon-sm")
+					<span>الأجهزة والجلسات النشطة</span>
+				</h1>
+				<p style="color:var(--text-secondary); font-size:0.85rem; margin:0.25rem 0 0 0;">
+					إدارة الأجهزة المتصلة بحساب المنشأة وسعة الجلسات المتزامنة ({ data.PlanName })
+				</p>
 			</div>
 
-			<div style="display:flex; gap:0.75rem; align-items:center; flex-wrap:wrap;">
+			<div style="display:flex; gap:0.5rem; align-items:center;">
 				if data.IsVendor {
-					<a href="/vendor/subscription" class="btn btn-primary btn-sm fw-800" style="padding:0.6rem 1.25rem;">
+					<a href="/vendor/subscription" class="btn btn-outline-brand btn-sm font-bold">
 						@components.IconSparkles("icon-xs")
-						<span>ترقية باقة المنشأة</span>
+						<span>ترقية الباقة</span>
 					</a>
 				} else {
-					<a href="/customer/subscription" class="btn btn-primary btn-sm fw-800" style="padding:0.6rem 1.25rem;">
+					<a href="/customer/subscription" class="btn btn-outline-brand btn-sm font-bold">
 						@components.IconSparkles("icon-xs")
-						<span>ترقية باقة المنشأة</span>
+						<span>ترقية الباقة</span>
 					</a>
 				}
 			</div>
@@ -67,101 +64,68 @@ templ tenantSessionsContent(lang, dir string, data TenantSessionsViewData) {
 		<!-- Flash Notices -->
 		if data.NoticeMessage != "" {
 			if data.NoticeType == "error" {
-				<div class="alert alert-danger" style="display:flex; align-items:center; gap:0.75rem; border-radius:var(--radius-xl); padding:1rem 1.25rem;">
-					@components.IconAlert("icon-sm")
-					<span style="font-weight:700; font-size:0.925rem;">{ data.NoticeMessage }</span>
+				<div class="alert alert-danger" style="border-radius:var(--radius-lg); padding:0.75rem 1rem; margin-bottom:1.25rem; font-size:0.875rem; font-weight:600; display:flex; align-items:center; gap:0.5rem;">
+					@components.IconAlert("icon-xs")
+					<span>{ data.NoticeMessage }</span>
 				</div>
 			} else {
-				<div class="alert alert-success" style="display:flex; align-items:center; gap:0.75rem; border-radius:var(--radius-xl); padding:1rem 1.25rem; background:var(--success-surface); border:1px solid var(--success-border); color:var(--success-text);">
-					@components.IconCheckCircle("icon-sm")
-					<span style="font-weight:700; font-size:0.925rem;">{ data.NoticeMessage }</span>
+				<div class="alert alert-success" style="border-radius:var(--radius-lg); padding:0.75rem 1rem; margin-bottom:1.25rem; font-size:0.875rem; font-weight:600; display:flex; align-items:center; gap:0.5rem;">
+					@components.IconCheckCircle("icon-xs")
+					<span>{ data.NoticeMessage }</span>
 				</div>
 			}
 		}
 
-		<!-- 3 Quota KPI Cards -->
-		<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:1.25rem;">
-			<!-- Card 1: Active Concurrent Sessions -->
-			<div class="card p-6" style="border-radius:var(--radius-xl); border:1px solid var(--border); background:var(--surface-raised);">
-				<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
-					<span style="font-size:0.875rem; font-weight:700; color:var(--text-secondary);">الجلسات المتصلة حالياً</span>
-					<div style="width:36px; height:36px; border-radius:var(--radius-md); background:var(--primary-subtle); color:var(--primary); display:flex; align-items:center; justify-content:center;">
-						@components.IconUsers("icon-xs")
-					</div>
-				</div>
-				<div style="font-size:1.85rem; font-weight:900; color:var(--text); line-height:1;" class="tabular-nums">
-					{ fmt.Sprintf("%d", len(data.Sessions)) } <span style="font-size:1rem; font-weight:700; color:var(--text-muted);">/ { fmt.Sprintf("%d", data.MaxLoginSessions) } جلسات</span>
-				</div>
-				<div style="margin-top:0.75rem; display:flex; align-items:center; gap:0.4rem;">
-					if len(data.Sessions) >= data.MaxLoginSessions {
-						<span class="badge badge-amber text-xs font-bold">تم بلوغ الحد الأقصى للجلسات</span>
-					} else {
-						<span class="badge badge-emerald text-xs font-bold">ضمن السعة المسموحة</span>
-					}
-				</div>
-			</div>
-
-			<!-- Card 2: Plan Concurrent Quota -->
-			<div class="card p-6" style="border-radius:var(--radius-xl); border:1px solid var(--border); background:var(--surface-raised);">
-				<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
-					<span style="font-size:0.875rem; font-weight:700; color:var(--text-secondary);">حد الجلسات المتزامنة</span>
-					<div style="width:36px; height:36px; border-radius:var(--radius-md); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center;">
-						@components.IconZap("icon-xs")
-					</div>
-				</div>
-				<div style="font-size:1.85rem; font-weight:900; color:var(--text); line-height:1;" class="tabular-nums">
-					{ fmt.Sprintf("%d", data.MaxLoginSessions) } <span style="font-size:1rem; font-weight:700; color:var(--text-muted);">جلسات متزامنة</span>
-				</div>
-				<div style="margin-top:0.75rem; font-size:0.8rem; color:var(--text-secondary);">
-					باقة الحساب: <strong style="color:var(--text);">{ data.PlanName }</strong>
-				</div>
-			</div>
-
-			<!-- Card 3: Authorized Devices Limit -->
-			<div class="card p-6" style="border-radius:var(--radius-xl); border:1px solid var(--border); background:var(--surface-raised);">
-				<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
-					<span style="font-size:0.875rem; font-weight:700; color:var(--text-secondary);">حد الأجهزة المصرح بها</span>
-					<div style="width:36px; height:36px; border-radius:var(--radius-md); background:var(--success-surface); color:var(--success); display:flex; align-items:center; justify-content:center;">
-						@components.IconShield("icon-xs")
-					</div>
-				</div>
-				<div style="font-size:1.85rem; font-weight:900; color:var(--text); line-height:1;" class="tabular-nums">
-					{ fmt.Sprintf("%d", data.MaxDevices) } <span style="font-size:1rem; font-weight:700; color:var(--text-muted);">أجهزة مصرحة</span>
-				</div>
-				<div style="margin-top:0.75rem; font-size:0.8rem; color:var(--text-secondary);">
-					حماية أمنية وتشفير جلسات مشدد
-				</div>
-			</div>
-		</div>
-
-		<!-- Security Enforcement Notice Banner -->
-		<div style="padding:1.15rem 1.35rem; background:linear-gradient(135deg, var(--primary-subtle) 0%, var(--surface-sunken) 100%); border:1px solid var(--border); border-radius:var(--radius-xl); display:flex; align-items:flex-start; gap:1rem;">
-			<div style="color:var(--primary); flex-shrink:0; margin-top:2px;">
-				@components.IconInfo("icon-sm")
-			</div>
-			<div style="font-size:0.875rem; color:var(--text); line-height:1.6;">
-				<strong>آلية تطبيق حد الجلسات والأجهزة:</strong> يتم تطبيق الحد الأقصى للجلسات المتزامنة ({ fmt.Sprintf("%d", data.MaxLoginSessions) } جلسات) آلياً على مستوى المنشأة بالكامل. في حال تسجيل الدخول من جهاز جديد مع بلوغ الحد الأقصى، يقوم النظام تلقائياً بإنهاء أقدم جلسة نشطة وتسجيل سبب الخروج لحماية حسابك من الاستخدام غير المصرح به.
-			</div>
-		</div>
-
-		<!-- Connected Devices List Card -->
-		<div class="card p-6" style="border-radius:var(--radius-2xl); border:1px solid var(--border);">
-			<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; flex-wrap:wrap; gap:1rem; border-bottom:1px solid var(--border); padding-bottom:1.25rem;">
+		<!-- Compact Metrics Bar -->
+		<div class="card p-4" style="border-radius:var(--radius-xl); margin-bottom:1.5rem; background:var(--surface);">
+			<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(180px, 1fr)); gap:1.25rem; align-items:center;">
 				<div>
-					<h2 style="font-size:1.15rem; font-weight:800; color:var(--text); margin:0;">
-						الأجهزة والجلسات المتصلة حالياً ({ fmt.Sprintf("%d", len(data.Sessions)) })
-					</h2>
-					<p style="font-size:0.85rem; color:var(--text-secondary); margin:0.25rem 0 0 0;">
-						قائمة الأجهزة والمتصفحات المسجلة حالياً في منظومة المنشأة
-					</p>
+					<div style="font-size:0.75rem; font-weight:700; color:var(--text-muted); text-transform:uppercase;">الجلسات المتصلة</div>
+					<div style="font-size:1.4rem; font-weight:800; color:var(--text); margin-top:0.15rem;" class="tabular-nums">
+						{ fmt.Sprintf("%d", len(data.Sessions)) } <span style="font-size:0.85rem; font-weight:600; color:var(--text-secondary);">/ { fmt.Sprintf("%d", data.MaxLoginSessions) } مسموحة</span>
+					</div>
 				</div>
+
+				<div>
+					<div style="font-size:0.75rem; font-weight:700; color:var(--text-muted); text-transform:uppercase;">حالة السعة</div>
+					<div style="margin-top:0.25rem;">
+						if len(data.Sessions) >= data.MaxLoginSessions {
+							<span class="badge badge-amber font-bold text-xs">الحد الأقصى مستنفد</span>
+						} else {
+							<span class="badge badge-emerald font-bold text-xs">سعة متاحة</span>
+						}
+					</div>
+				</div>
+
+				<div>
+					<div style="font-size:0.75rem; font-weight:700; color:var(--text-muted); text-transform:uppercase;">حد الأجهزة المعتمدة</div>
+					<div style="font-size:1.15rem; font-weight:800; color:var(--text); margin-top:0.15rem;" class="tabular-nums">
+						{ fmt.Sprintf("%d", data.MaxDevices) } أجهزة
+					</div>
+				</div>
+
+				<div>
+					<div style="font-size:0.75rem; font-weight:700; color:var(--text-muted); text-transform:uppercase;">باقة المنشأة</div>
+					<div style="font-size:1rem; font-weight:800; color:var(--brand); margin-top:0.15rem;">
+						{ data.PlanName }
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- Active Sessions List -->
+		<div class="card p-5" style="border-radius:var(--radius-xl); margin-bottom:1.5rem; background:var(--surface);">
+			<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem; flex-wrap:wrap; gap:0.75rem;">
+				<h2 style="font-size:1rem; font-weight:800; color:var(--text); margin:0;">
+					الأجهزة المتصلة حالياً ({ fmt.Sprintf("%d", len(data.Sessions)) })
+				</h2>
 
 				if len(data.Sessions) > 1 {
-					<form action={ templ.SafeURL(ternary(data.IsVendor, "/vendor/sessions/revoke-all", "/customer/sessions/revoke-all")) } method="POST" class="m-0" onsubmit="return confirm('هل أنت متأكد من إنهاء كافة الجلسات الأخرى والإبقاء على هذا الجهاز فقط؟');">
+					<form action={ templ.SafeURL(ternary(data.IsVendor, "/vendor/sessions/revoke-all", "/customer/sessions/revoke-all")) } method="POST" class="m-0" onsubmit="return confirm('إنهاء كافة الجلسات الأخرى والإبقاء على هذا الجهاز فقط؟');">
 						<input type="hidden" name="current_token" value={ data.CurrentToken } />
-						<button type="submit" class="btn btn-outline-danger btn-sm fw-800" style="gap:0.4rem;">
+						<button type="submit" class="btn btn-outline-danger btn-xs font-bold" style="padding:0.35rem 0.75rem;">
 							@components.IconLogout("icon-xs")
-							<span>إنهاء كافة الجلسات الأخرى</span>
+							<span>إنهاء الجلسات الأخرى</span>
 						</button>
 					</form>
 				}
@@ -173,44 +137,42 @@ templ tenantSessionsContent(lang, dir string, data TenantSessionsViewData) {
 					Message: "لم يتم العثور على أي جلسات متصلة حالياً.",
 				})
 			} else {
-				<div style="display:flex; flex-direction:column; gap:1rem;">
+				<div style="display:flex; flex-direction:column; gap:0.6rem;">
 					for _, sess := range data.Sessions {
 						<div
-							style={ fmt.Sprintf("display:flex; justify-content:space-between; align-items:center; padding:1.25rem 1.35rem; border:1px solid %s; border-radius:var(--radius-xl); background:%s; flex-wrap:wrap; gap:1rem; transition:all 0.15s ease;",
-								ternary(sess.Token == data.CurrentToken, "var(--primary)", "var(--border)"),
+							style={ fmt.Sprintf("display:flex; justify-content:space-between; align-items:center; padding:0.85rem 1rem; border-radius:var(--radius-lg); border:1px solid %s; background:%s; flex-wrap:wrap; gap:0.75rem;",
+								ternary(sess.Token == data.CurrentToken, "var(--primary-subtle)", "var(--border)"),
 								ternary(sess.Token == data.CurrentToken, "var(--primary-subtle)", "var(--surface-sunken)")) }
 						>
-							<div style="display:flex; align-items:center; gap:1rem;">
-								<div style="font-size:1.75rem; line-height:1; flex-shrink:0;">
+							<div style="display:flex; align-items:center; gap:0.75rem; min-width:240px;">
+								<span style="font-size:1.35rem; line-height:1; flex-shrink:0;">
 									if sess.Icon != "" {
 										{ sess.Icon }
 									} else {
 										💻
 									}
-								</div>
+								</span>
 								<div>
-									<div style="display:flex; align-items:center; gap:0.6rem; flex-wrap:wrap;">
-										<span style="font-weight:800; font-size:0.95rem; color:var(--text);">
+									<div style="display:flex; align-items:center; gap:0.5rem; flex-wrap:wrap;">
+										<span style="font-weight:700; font-size:0.9rem; color:var(--text);">
 											if sess.DeviceName != "" {
 												{ sess.DeviceName }
-											} else if sess.UserAgent != "" {
-												{ sess.UserAgent }
 											} else {
 												جهاز غير محدد
 											}
 										</span>
 										if sess.Token == data.CurrentToken {
-											<span class="badge badge-emerald text-xs font-bold">
-												✓ هذا الجهاز (جلستك الحالية)
+											<span class="badge badge-emerald text-xs font-bold" style="padding:0.15rem 0.5rem;">
+												جهازك الحالي
 											</span>
 										}
 									</div>
-									<div style="display:flex; align-items:center; gap:1rem; margin-top:0.4rem; font-size:0.8rem; color:var(--text-secondary); flex-wrap:wrap;" class="tabular-nums">
-										<span>المستخدم: <strong style="color:var(--text);">{ sess.Email }</strong></span>
+									<div style="display:flex; align-items:center; gap:0.75rem; margin-top:0.2rem; font-size:0.75rem; color:var(--text-secondary); flex-wrap:wrap;" class="tabular-nums">
+										<span>{ sess.Email }</span>
 										if sess.IP != "" {
-											<span>IP: <strong>{ sess.IP }</strong></span>
+											<span>• { sess.IP }</span>
 										}
-										<span>وقت الدخول: <strong>{ sess.CreatedAt.Format("2006-01-02 15:04") }</strong></span>
+										<span>• { sess.CreatedAt.Format("2006-01-02 15:04") }</span>
 									</div>
 								</div>
 							</div>
@@ -218,17 +180,15 @@ templ tenantSessionsContent(lang, dir string, data TenantSessionsViewData) {
 							<div>
 								if sess.Token == data.CurrentToken {
 									<form action="/auth/logout" method="POST" class="m-0">
-										<button type="submit" class="btn btn-secondary btn-sm" title="تسجيل الخروج من هذا الجهاز">
-											@components.IconLogout("icon-xs")
+										<button type="submit" class="btn btn-secondary btn-xs font-semibold" style="padding:0.35rem 0.75rem;">
 											<span>تسجيل الخروج</span>
 										</button>
 									</form>
 								} else {
-									<form action={ templ.SafeURL(ternary(data.IsVendor, "/vendor/sessions/revoke", "/customer/sessions/revoke")) } method="POST" class="m-0" onsubmit="return confirm('هل أنت متأكد من إنهاء جلسة هذا الجهاز؟');">
+									<form action={ templ.SafeURL(ternary(data.IsVendor, "/vendor/sessions/revoke", "/customer/sessions/revoke")) } method="POST" class="m-0" onsubmit="return confirm('إنهاء جلسة هذا الجهاز؟');">
 										<input type="hidden" name="token" value={ sess.Token } />
-										<button type="submit" class="btn btn-danger btn-sm" title="إنهاء الجلسة فوراً">
-											@components.IconTrash("icon-xs")
-											<span>إنهاء الجلسة</span>
+										<button type="submit" class="btn btn-outline-danger btn-xs font-semibold" style="padding:0.35rem 0.75rem;">
+											<span>إنهاء</span>
 										</button>
 									</form>
 								}
@@ -239,41 +199,42 @@ templ tenantSessionsContent(lang, dir string, data TenantSessionsViewData) {
 			}
 		</div>
 
-		<!-- Password Update & Account Security Card -->
-		<div class="card p-6" style="border-radius:var(--radius-2xl); border:1px solid var(--border); max-width:700px;">
-			<div style="margin-bottom:1.5rem;">
-				<h2 style="font-size:1.15rem; font-weight:800; color:var(--text); margin:0;">
-					تحديث كلمة المرور وتأمين الدخول
+		<!-- Password Security Form -->
+		<div class="card p-5" style="border-radius:var(--radius-xl); background:var(--surface); max-width:650px;">
+			<div style="margin-bottom:1rem;">
+				<h2 style="font-size:1rem; font-weight:800; color:var(--text); margin:0;">
+					تحديث كلمة المرور
 				</h2>
-				<p style="font-size:0.85rem; color:var(--text-secondary); margin:0.25rem 0 0 0;">
-					قم بتغيير كلمة المرور الخاصة بحسابك لتعزيز أمان المنشأة. سيؤدي التغيير إلى إنهاء كافة الجلسات الأخرى تلقائياً.
+				<p style="font-size:0.8rem; color:var(--text-secondary); margin:0.2rem 0 0 0;">
+					تغيير كلمة المرور الخاصة بحسابك ينهي الجلسات الأخرى فوراً
 				</p>
 			</div>
 
-			<form action={ templ.SafeURL(ternary(data.IsVendor, "/vendor/password", "/customer/password")) } method="POST" class="stack">
-				<div class="form-group mb-0">
-					<label class="form-label" for="sess-current-password">كلمة المرور الحالية</label>
-					<input type="password" id="sess-current-password" name="current_password" required class="form-input" placeholder="••••••••" />
+			<form action={ templ.SafeURL(ternary(data.IsVendor, "/vendor/password", "/customer/password")) } method="POST" class="stack-sm">
+				<div class="form-group mb-2">
+					<label class="form-label text-xs" for="sess-current-password">كلمة المرور الحالية</label>
+					<input type="password" id="sess-current-password" name="current_password" required class="form-input form-input-sm" placeholder="••••••••" />
 				</div>
 
-				<div class="form-grid-2">
+				<div class="form-grid-2 mb-2">
 					<div class="form-group mb-0">
-						<label class="form-label" for="sess-new-password">كلمة المرور الجديدة</label>
-						<input type="password" id="sess-new-password" name="new_password" required minlength="8" class="form-input" placeholder="••••••••" />
+						<label class="form-label text-xs" for="sess-new-password">كلمة المرور الجديدة</label>
+						<input type="password" id="sess-new-password" name="new_password" required minlength="8" class="form-input form-input-sm" placeholder="8 أحرف كحد أدنى" />
 					</div>
 					<div class="form-group mb-0">
-						<label class="form-label" for="sess-confirm-password">تأكيد كلمة المرور الجديدة</label>
-						<input type="password" id="sess-confirm-password" name="confirm_password" required minlength="8" class="form-input" placeholder="••••••••" />
+						<label class="form-label text-xs" for="sess-confirm-password">تأكيد الجديدة</label>
+						<input type="password" id="sess-confirm-password" name="confirm_password" required minlength="8" class="form-input form-input-sm" placeholder="••••••••" />
 					</div>
 				</div>
 
 				<div style="margin-top:0.75rem;">
-					<button type="submit" class="btn btn-primary fw-800" style="padding:0.65rem 1.75rem;">
+					<button type="submit" class="btn btn-primary btn-sm font-bold" style="padding:0.45rem 1.25rem;">
 						@components.IconCheck("icon-xs")
-						<span>تحديث كلمة المرور</span>
+						<span>حفظ التغييرات</span>
 					</button>
 				</div>
 			</form>
 		</div>
+
 	</div>
 }

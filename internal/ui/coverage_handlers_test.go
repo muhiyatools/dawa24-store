@@ -217,7 +217,7 @@ func TestVendorCoverageRoutes(t *testing.T) {
 		OrgType:        "vendor",
 		OrgStatus:      "approved",
 		Role:           "vendor",
-		Permissions:    []string{"org.manage"},
+		Permissions:    []string{"vendor.*"},
 	}
 
 	customerActor := &authctx.Actor{
@@ -226,6 +226,7 @@ func TestVendorCoverageRoutes(t *testing.T) {
 		OrgType:        "customer",
 		OrgStatus:      "approved",
 		Role:           "customer",
+		Permissions:    []string{"pharmacy.*"},
 	}
 
 	wfRepo := newMockCoverageRepo()

@@ -1,0 +1,211 @@
+package pages
+
+import (
+	"fmt"
+	"strconv"
+
+	"github.com/muhiya/dawa24-store/internal/platform/authctx"
+	"github.com/muhiya/dawa24-store/internal/ui/components"
+	"github.com/muhiya/dawa24-store/internal/ui/layouts"
+)
+
+// The pharmacy team screen.
+//
+// The pharmacy dashboard had no team page at all: the employee create, edit,
+// delete and status routes existed and were reachable by URL, but the only way
+// to see who was in the company was the branches screen. An owner could
+// therefore add staff and not see them, and had nowhere to assign a role.
+
+// TenantRoleOption is one of the company's own roles, for the assign dropdown.
+type TenantRoleOption struct {
+	ID   int64
+	Name string
+}
+
+// TenantTeamMember is one employee row.
+type TenantTeamMember struct {
+	ID           int64
+	UserID       int64
+	Name         string
+	Email        string
+	Phone        string
+	JobTitle     string
+	EmployeeCode string
+	BranchName   string
+	RoleID       int64
+	RoleName     string
+	IsActive     bool
+	JoinedAt     string
+}
+
+// TenantTeamView is everything the page renders.
+type TenantTeamView struct {
+	Title       string
+	Members     []TenantTeamMember
+	Roles       []TenantRoleOption
+	Branches    []*BranchOption
+	RolesPath   string
+	CanCreate   bool
+	CanUpdate   bool
+	CanDelete   bool
+	CanAssign   bool
+	ActionBase  string
+	Notice      string
+	NoticeKind  string
+}
+
+templ TenantTeamPage(v TenantTeamView, lang, dir string) {
+	@layouts.ShellFor(v.Title+" | دواء 24", "team", lang, dir, authctx.FromContext(ctx)) {
+		<div class="page-container" x-data="{ showAdd: false }">
+			@roleNotice(v.NoticeKind, v.Notice)
+			<div class="glass-panel p-6 mb-4">
+				<div class="flex-between items-start flex-wrap gap-4">
+					<div>
+						<div class="d-flex items-center gap-3 mb-1">
+							<div class="user-avatar-badge text-xl">
+								@components.IconUsers("icon-sm")
+							</div>
+							<h1 class="text-2xl font-black text-primary m-0">{ v.Title }</h1>
+						</div>
+						<p class="text-sm text-secondary m-0">
+							{ fmt.Sprintf("%d عضو في المنشأة. الدور المسند لكل عضو يحدد ما يراه وما يستطيع تنفيذه.", len(v.Members)) }
+						</p>
+					</div>
+					<div class="d-flex items-center gap-2">
+						<a href={ templ.SafeURL(v.RolesPath) } class="btn btn-secondary font-bold gap-2">
+							@components.IconShield("icon-xs")
+							<span>الأدوار والصلاحيات</span>
+						</a>
+						if v.CanCreate {
+							<button type="button" class="btn btn-primary font-bold gap-2" @click="showAdd = !showAdd">
+								@components.IconPlus("icon-xs")
+								<span>إضافة موظف</span>
+							</button>
+						}
+					</div>
+				</div>
+			</div>
+			if v.CanCreate {
+				@tenantTeamAddForm(v)
+			}
+			@tenantTeamList(v)
+		</div>
+	}
+}
+
+templ tenantTeamAddForm(v TenantTeamView) {
+	<div class="glass-panel p-6 mb-4" x-show="showAdd" x-cloak>
+		<h2 class="text-lg font-extrabold text-primary mt-0 mb-4">إضافة موظف جديد</h2>
+		<form method="POST" action={ templ.SafeURL(v.ActionBase + "/new") } class="d-grid grid-cols-2 gap-4">
+			<div>
+				<label class="form-label" for="team-name">الاسم</label>
+				<input id="team-name" class="form-input" type="text" name="name" required maxlength="120"/>
+			</div>
+			<div>
+				<label class="form-label" for="team-email">البريد الإلكتروني</label>
+				<input id="team-email" class="form-input" type="email" name="email" required/>
+			</div>
+			<div>
+				<label class="form-label" for="team-phone">رقم الهاتف</label>
+				<input id="team-phone" class="form-input" type="tel" name="phone" maxlength="20"/>
+			</div>
+			<div>
+				<label class="form-label" for="team-password">كلمة مرور مبدئية</label>
+				<input id="team-password" class="form-input" type="password" name="password" required minlength="8"/>
+			</div>
+			<div>
+				<label class="form-label" for="team-job-title">المسمى الوظيفي</label>
+				<input id="team-job-title" class="form-input" type="text" name="job_title" maxlength="80"/>
+			</div>
+			<div>
+				<label class="form-label" for="team-role">الدور</label>
+				<select id="team-role" class="form-input" name="role_id">
+					for _, role := range v.Roles {
+						<option value={ strconv.FormatInt(role.ID, 10) }>{ role.Name }</option>
+					}
+				</select>
+			</div>
+			<div class="col-span-2">
+				<button type="submit" class="btn btn-primary font-bold">إضافة الموظف</button>
+			</div>
+		</form>
+	</div>
+}
+
+templ tenantTeamList(v TenantTeamView) {
+	if len(v.Members) == 0 {
+		<div class="glass-panel p-6 text-center">
+			<p class="text-sm text-secondary m-0">لا يوجد موظفون بعد.</p>
+		</div>
+	} else {
+		<div class="glass-panel p-0 overflow-x-auto">
+			<table class="data-table w-full">
+				<thead>
+					<tr>
+						<th>الموظف</th>
+						<th>المسمى الوظيفي</th>
+						<th>الفرع</th>
+						<th>الدور</th>
+						<th>الحالة</th>
+						<th>إجراءات</th>
+					</tr>
+				</thead>
+				<tbody>
+					for _, m := range v.Members {
+						<tr>
+							<td>
+								<span class="d-block font-bold text-primary">{ m.Name }</span>
+								<span class="d-block text-xs text-muted">{ m.Email }</span>
+							</td>
+							<td class="text-sm">{ m.JobTitle }</td>
+							<td class="text-sm">{ m.BranchName }</td>
+							<td>
+								if v.CanAssign {
+									<form method="POST" action={ templ.SafeURL(fmt.Sprintf("%s/%d/role", v.ActionBase, m.ID)) } class="d-flex items-center gap-2 m-0">
+										<select class="form-input form-input-sm" name="role_id" onchange="this.form.submit()">
+											for _, role := range v.Roles {
+												<option value={ strconv.FormatInt(role.ID, 10) } selected?={ role.ID == m.RoleID }>{ role.Name }</option>
+											}
+										</select>
+									</form>
+								} else {
+									<span class="badge text-xs">{ m.RoleName }</span>
+								}
+							</td>
+							<td>
+								if m.IsActive {
+									<span class="badge badge-emerald text-xs">نشط</span>
+								} else {
+									<span class="badge text-xs">موقوف</span>
+								}
+							</td>
+							<td>
+								<div class="d-flex items-center gap-2">
+									if v.CanUpdate {
+										<form method="POST" action={ templ.SafeURL(fmt.Sprintf("%s/%d/status", v.ActionBase, m.ID)) } class="m-0 inline">
+											<button type="submit" class="btn btn-secondary btn-sm" title="تفعيل / إيقاف">
+												@components.IconRefresh("icon-xs")
+											</button>
+										</form>
+									}
+									if v.CanDelete {
+										<form
+											method="POST"
+											action={ templ.SafeURL(fmt.Sprintf("%s/%d/delete", v.ActionBase, m.ID)) }
+											class="m-0 inline"
+											onsubmit="return confirm('سيتم إزالة الموظف من المنشأة. متابعة؟');"
+										>
+											<button type="submit" class="btn btn-danger btn-sm" title="إزالة">
+												@components.IconTrash("icon-xs")
+											</button>
+										</form>
+									}
+								</div>
+							</td>
+						</tr>
+					}
+				</tbody>
+			</table>
+		</div>
+	}
+}

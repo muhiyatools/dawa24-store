@@ -487,19 +487,21 @@ func (h *UIHandler) SettingsPaymentMethodsSubmit(w http.ResponseWriter, r *http.
 	ctx := r.Context()
 	actor, ok := authctx.From(ctx)
 	if !ok {
-		http.Redirect(w, r, "/auth/login?redirect=/settings", http.StatusSeeOther)
+		http.Redirect(w, r, "/auth/login", http.StatusSeeOther)
 		return
 	}
 
+	dest := walletDestFor(actor)
+
 	if h.billSvc == nil {
-		h.redirectWithNotice(w, r, "/settings?tab=payments", "error", "خدمة المدفوعات غير متاحة حالياً.")
+		h.redirectWithNotice(w, r, dest, "error", "خدمة المدفوعات غير متاحة حالياً.")
 		return
 	}
 
 	_ = r.ParseForm()
 	provider, identifier, err := buildPaymentMethodIdentifier(r)
 	if err != nil {
-		h.redirectWithNotice(w, r, "/settings?tab=payments", "error", err.Error())
+		h.redirectWithNotice(w, r, dest, "error", err.Error())
 		return
 	}
 
@@ -514,11 +516,11 @@ func (h *UIHandler) SettingsPaymentMethodsSubmit(w http.ResponseWriter, r *http.
 
 	if err := h.billSvc.AddPaymentMethod(ctx, pm); err != nil {
 		h.log.ErrorContext(ctx, "failed to add payment method", "error", err)
-		h.redirectWithNotice(w, r, "/settings?tab=payments", "error", h.safeMessage(err, langOf(r)))
+		h.redirectWithNotice(w, r, dest, "error", h.safeMessage(err, langOf(r)))
 		return
 	}
 
-	h.redirectWithNotice(w, r, "/settings?tab=payments", "success", "تمت إضافة وحفظ وسيلة الدفع بنجاح.")
+	h.redirectWithNotice(w, r, dest, "success", "تمت إضافة وحفظ وسيلة الدفع بنجاح.")
 }
 
 // SettingsPaymentMethodEditSubmit updates an existing saved payment method or bank account.
@@ -526,25 +528,27 @@ func (h *UIHandler) SettingsPaymentMethodEditSubmit(w http.ResponseWriter, r *ht
 	ctx := r.Context()
 	actor, ok := authctx.From(ctx)
 	if !ok {
-		http.Redirect(w, r, "/auth/login?redirect=/settings", http.StatusSeeOther)
+		http.Redirect(w, r, "/auth/login", http.StatusSeeOther)
 		return
 	}
 
+	dest := walletDestFor(actor)
+
 	id, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
 	if err != nil || id <= 0 {
-		h.redirectWithNotice(w, r, "/settings?tab=payments", "error", "معرف وسيلة الدفع غير صالح.")
+		h.redirectWithNotice(w, r, dest, "error", "معرف وسيلة الدفع غير صالح.")
 		return
 	}
 
 	if h.billSvc == nil {
-		h.redirectWithNotice(w, r, "/settings?tab=payments", "error", "خدمة المدفوعات غير متاحة حالياً.")
+		h.redirectWithNotice(w, r, dest, "error", "خدمة المدفوعات غير متاحة حالياً.")
 		return
 	}
 
 	_ = r.ParseForm()
 	provider, identifier, err := buildPaymentMethodIdentifier(r)
 	if err != nil {
-		h.redirectWithNotice(w, r, "/settings?tab=payments", "error", err.Error())
+		h.redirectWithNotice(w, r, dest, "error", err.Error())
 		return
 	}
 
@@ -560,11 +564,11 @@ func (h *UIHandler) SettingsPaymentMethodEditSubmit(w http.ResponseWriter, r *ht
 
 	if err := h.billSvc.UpdatePaymentMethod(ctx, pm); err != nil {
 		h.log.ErrorContext(ctx, "failed to update payment method", "error", err, "id", id)
-		h.redirectWithNotice(w, r, "/settings?tab=payments", "error", h.safeMessage(err, langOf(r)))
+		h.redirectWithNotice(w, r, dest, "error", h.safeMessage(err, langOf(r)))
 		return
 	}
 
-	h.redirectWithNotice(w, r, "/settings?tab=payments", "success", "تم تحديث بيانات وسيلة الدفع والحساب بنجاح.")
+	h.redirectWithNotice(w, r, dest, "success", "تم تحديث بيانات وسيلة الدفع والحساب بنجاح.")
 }
 
 // SettingsPaymentMethodSetDefaultSubmit marks a payment method as default.
@@ -572,25 +576,27 @@ func (h *UIHandler) SettingsPaymentMethodSetDefaultSubmit(w http.ResponseWriter,
 	ctx := r.Context()
 	actor, ok := authctx.From(ctx)
 	if !ok {
-		http.Redirect(w, r, "/auth/login?redirect=/settings", http.StatusSeeOther)
+		http.Redirect(w, r, "/auth/login", http.StatusSeeOther)
 		return
 	}
 
+	dest := walletDestFor(actor)
+
 	id, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
 	if err != nil || id <= 0 {
-		h.redirectWithNotice(w, r, "/settings?tab=payments", "error", "معرف وسيلة الدفع غير صالح.")
+		h.redirectWithNotice(w, r, dest, "error", "معرف وسيلة الدفع غير صالح.")
 		return
 	}
 
 	if h.billSvc != nil {
 		if err := h.billSvc.SetDefaultPaymentMethod(ctx, actor.UserID, id); err != nil {
 			h.log.ErrorContext(ctx, "failed to set default payment method", "error", err, "id", id)
-			h.redirectWithNotice(w, r, "/settings?tab=payments", "error", h.safeMessage(err, langOf(r)))
+			h.redirectWithNotice(w, r, dest, "error", h.safeMessage(err, langOf(r)))
 			return
 		}
 	}
 
-	h.redirectWithNotice(w, r, "/settings?tab=payments", "success", "تم تعيين وسيلة الدفع كافتراضية بنجاح.")
+	h.redirectWithNotice(w, r, dest, "success", "تم تعيين وسيلة الدفع كافتراضية بنجاح.")
 }
 
 // SettingsPaymentMethodDeleteSubmit deletes a saved payment method.
@@ -598,25 +604,27 @@ func (h *UIHandler) SettingsPaymentMethodDeleteSubmit(w http.ResponseWriter, r *
 	ctx := r.Context()
 	actor, ok := authctx.From(ctx)
 	if !ok {
-		http.Redirect(w, r, "/auth/login?redirect=/settings", http.StatusSeeOther)
+		http.Redirect(w, r, "/auth/login", http.StatusSeeOther)
 		return
 	}
 
+	dest := walletDestFor(actor)
+
 	id, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
 	if err != nil || id <= 0 {
-		h.redirectWithNotice(w, r, "/settings?tab=payments", "error", "معرف وسيلة الدفع غير صالح.")
+		h.redirectWithNotice(w, r, dest, "error", "معرف وسيلة الدفع غير صالح.")
 		return
 	}
 
 	if h.billSvc != nil {
 		if err := h.billSvc.DeletePaymentMethod(ctx, actor.UserID, id); err != nil {
 			h.log.ErrorContext(ctx, "failed to delete payment method", "error", err)
-			h.redirectWithNotice(w, r, "/settings?tab=payments", "error", h.safeMessage(err, langOf(r)))
+			h.redirectWithNotice(w, r, dest, "error", h.safeMessage(err, langOf(r)))
 			return
 		}
 	}
 
-	h.redirectWithNotice(w, r, "/settings?tab=payments", "success", "تم حذف وسيلة الدفع بنجاح.")
+	h.redirectWithNotice(w, r, dest, "success", "تم حذف وسيلة الدفع بنجاح.")
 }
 
 // SettingsEmployeesPage renders the employee roster and branch manager assignments.

@@ -20,6 +20,7 @@ import (
 	"github.com/muhiya/dawa24-store/internal/platform/database"
 	"github.com/muhiya/dawa24-store/internal/platform/gateway"
 	"github.com/muhiya/dawa24-store/internal/platform/observability"
+	"github.com/muhiya/dawa24-store/internal/platform/rbac"
 )
 
 func main() {
@@ -81,7 +82,18 @@ func run() error {
 		}); err != nil {
 			return err
 		}
-		log.Info("migrations up to date", "total", len(migrations))
+		// The permission catalogue lives in Go; identity.permissions mirrors
+		// it. Syncing as part of "migrate" keeps the two together, so an
+		// operator who runs migrations never ends up with a schema that is
+		// current and a role editor that is not.
+		if err := rbac.Sync(ctx, db); err != nil {
+			return fmt.Errorf("sync permission catalogue: %w", err)
+		}
+		seeded, err := rbac.SeedExistingCompanies(ctx, db)
+		if err != nil {
+			return fmt.Errorf("seed company roles: %w", err)
+		}
+		log.Info("migrations up to date", "total", len(migrations), "companies_seeded", seeded)
 		return nil
 
 	case "migrate-status":

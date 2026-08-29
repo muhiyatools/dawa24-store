@@ -72,7 +72,7 @@ func TestVendorOrganization_Flow(t *testing.T) {
 		DescriptionEn:      "Software company specializing in web apps",
 	}
 
-	vendorActor := authctx.Actor{UserID: 10, OrganizationID: 42, OrgType: "vendor"}
+	vendorActor := authctx.Actor{UserID: 10, OrganizationID: 42, OrgType: "vendor", Permissions: []string{"vendor.*"}}
 
 	// 1. Test GET /vendor/organization renders populated profile
 	t.Run("GET /vendor/organization renders fields", func(t *testing.T) {
@@ -158,7 +158,7 @@ func TestVendorOrganization_Flow(t *testing.T) {
 		}
 
 		// Customer / Pharmacy request
-		custActor := authctx.Actor{UserID: 20, OrganizationID: 10, OrgType: "customer"}
+		custActor := authctx.Actor{UserID: 20, OrganizationID: 10, OrgType: "customer", Permissions: []string{"pharmacy.*"}}
 		cReq := httptest.NewRequest("GET", "/settings/organization", nil)
 		cReq = cReq.WithContext(authctx.WithActor(cReq.Context(), custActor))
 		cRec := httptest.NewRecorder()

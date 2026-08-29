@@ -1,8 +1,6 @@
 package authctx_test
 
 import (
-	"io"
-	"log/slog"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -11,9 +9,8 @@ import (
 )
 
 func TestRequirePagePermission(t *testing.T) {
-	logger := slog.New(slog.NewTextHandler(io.Discard, nil))
-	gate := authctx.RequirePagePermission("catalog.product.view", logger)
-	developerGate := authctx.RequirePagePermission("platform.developer.sql", logger)
+	gate := authctx.RequirePagePermission("catalog.product.view")
+	developerGate := authctx.RequirePagePermission("platform.developer.sql")
 
 	okHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
@@ -65,24 +62,30 @@ func TestRequirePagePermission(t *testing.T) {
 			wantStatus: http.StatusOK,
 		},
 		{
-			name: "Super admin role bypasses permission check",
+			// A role name is no longer a bypass. super_admin passes because it
+			// holds every permission, which the resolver gives it — not
+			// because this middleware knows the string "super_admin". That
+			// difference is what lets an operator create a new staff role and
+			// have it work without a code change.
+			name: "Super admin holds the permission and passes",
 			gate: developerGate,
 			actor: &authctx.Actor{
-				UserID:  4,
-				IsStaff: true,
-				Role:    "super_admin",
+				UserID:      4,
+				IsStaff:     true,
+				Role:        "super_admin",
+				Permissions: []string{"*"},
 			},
 			wantStatus: http.StatusOK,
 		},
 		{
-			name: "Developer role bypasses developer gate",
+			name: "A staff role with no grants is refused, whatever it is called",
 			gate: developerGate,
 			actor: &authctx.Actor{
 				UserID:  5,
 				IsStaff: true,
 				Role:    "developer",
 			},
-			wantStatus: http.StatusOK,
+			wantStatus: http.StatusNotFound,
 		},
 		{
 			name: "Wildcard permission bypasses check",

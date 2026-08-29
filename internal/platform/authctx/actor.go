@@ -14,6 +14,7 @@ package authctx
 import (
 	"context"
 
+	"github.com/muhiya/dawa24-store/internal/platform/rbac"
 	"github.com/muhiya/dawa24-store/internal/shared/apperr"
 )
 
@@ -34,6 +35,36 @@ type Actor struct {
 	IsStaff        bool
 	Email          string
 	Name           string
+	// Scope names the dashboard this actor's permissions belong to. It decides
+	// which sidebar is rendered and which permissions a role editor may offer,
+	// and it is set by authentication from the resolved grant — never from the
+	// request.
+	Scope rbac.Scope
+	// IsOwner marks the platform super admin or a company owner: the holder of
+	// everything within their own scope.
+	IsOwner bool
+
+	// perms is the matched form of Permissions, built lazily. Actor is copied
+	// by value through the context, so this is rebuilt per copy rather than
+	// shared — the slice is short and the map build is cheaper than the linear
+	// scan it replaces once a handler asks more than twice.
+	perms *rbac.Set
+}
+
+// Grants replaces the actor's holding. Only authentication middleware and the
+// tests that stand in for it should call this.
+func (a *Actor) Grants(keys []string) {
+	a.Permissions = keys
+	set := rbac.NewSet(keys)
+	a.perms = &set
+}
+
+// set returns the matcher for this actor's holding.
+func (a Actor) set() rbac.Set {
+	if a.perms != nil {
+		return *a.perms
+	}
+	return rbac.NewSet(a.Permissions)
 }
 
 // IsPlatformAdmin reports whether the actor has super_admin or admin role.
@@ -84,13 +115,25 @@ func (a Actor) DisplayName() string {
 }
 
 // Can reports whether the actor holds a permission.
+//
+// Matching is hierarchical: a holder of "catalog.*" satisfies
+// "catalog.product.view", and a holder of "*" satisfies everything. The old
+// implementation compared strings exactly, so the wildcard grant that
+// RequirePagePermission checked for separately was invisible here — two
+// callers asking the same question got different answers.
 func (a Actor) Can(permission string) bool {
-	for _, p := range a.Permissions {
-		if p == permission {
-			return true
-		}
-	}
-	return false
+	return a.set().Has(permission)
+}
+
+// CanAny reports whether the actor holds at least one of the permissions. An
+// empty list is an ungated requirement and passes.
+func (a Actor) CanAny(permissions ...string) bool {
+	return a.set().HasAny(permissions...)
+}
+
+// CanAll reports whether the actor holds every one of the permissions.
+func (a Actor) CanAll(permissions ...string) bool {
+	return a.set().HasAll(permissions...)
 }
 
 // WithActor binds the authenticated caller to the context. Only authentication

@@ -14,7 +14,7 @@ import (
 // RegisterAdminRoutes mounts administrative HR routes.
 func (h *Handler) RegisterAdminRoutes(r chi.Router) {
 	r.Group(func(admin chi.Router) {
-		admin.Use(authctx.RequirePermission("hr.admin", h.log))
+		admin.Use(authctx.RequirePermission("hr.admin"))
 
 		admin.Get("/api/v1/admin/hr/employees", h.AdminListEmployees)
 	})

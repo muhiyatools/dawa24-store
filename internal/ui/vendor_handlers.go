@@ -724,6 +724,7 @@ func (h *UIHandler) VendorTeamPage(w http.ResponseWriter, r *http.Request) {
 					BranchName:   emp.BranchName,
 					RoleKey:      emp.Member.RoleKey,
 					RoleName:     roleName,
+					RoleID:       derefRoleID(emp.Member.OrgRoleID),
 					IsActive:     emp.Member.IsActive,
 					CreatedAt:    emp.Member.CreatedAt.Format("2006-01-02"),
 				})
@@ -771,6 +772,7 @@ func (h *UIHandler) VendorTeamPage(w http.ResponseWriter, r *http.Request) {
 					EmployeeCode: m.EmployeeCode,
 					RoleKey:      m.RoleKey,
 					RoleName:     roleName,
+					RoleID:       derefRoleID(m.OrgRoleID),
 					IsActive:     m.IsActive,
 					CreatedAt:    m.CreatedAt.Format("2006-01-02"),
 				})
@@ -793,10 +795,35 @@ func (h *UIHandler) VendorTeamPage(w http.ResponseWriter, r *http.Request) {
 	}
 
 	data := pages.VendorTeamData{
-		NoticeType: noticeType,
-		NoticeMsg:  noticeMsg,
-		Members:    memberViews,
-		Branches:   branchOptions,
+		NoticeType:    noticeType,
+		NoticeMsg:     noticeMsg,
+		Members:       memberViews,
+		Branches:      branchOptions,
+		CanAssignRole: actor.Can("vendor.role.assign"),
+	}
+	// The assignable roles are this company's own. Resolving each member's
+	// current role through the same list is what makes the selector show
+	// where they stand rather than defaulting everyone to the first option.
+	if h.orgSvc != nil && actor.OrganizationID > 0 {
+		h.ensureCompanyRoles(ctx, actor.OrganizationID, actor.OrgType)
+		roles, err := h.orgSvc.ListRoles(ctx, actor.OrganizationID)
+		if err != nil {
+			h.log.ErrorContext(ctx, "list company roles for team page",
+				"error", err, "organization_id", actor.OrganizationID)
+		}
+		roleIDByKey := map[string]int64{}
+		for _, role := range roles {
+			data.CompanyRoles = append(data.CompanyRoles, pages.TenantRoleOption{
+				ID:   role.ID,
+				Name: role.Name.Get(i18n.ParseLang(lang)),
+			})
+			roleIDByKey[role.Key] = role.ID
+		}
+		for _, m := range memberViews {
+			if m.RoleID == 0 {
+				m.RoleID = roleIDByKey[m.RoleKey]
+			}
+		}
 	}
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
@@ -948,48 +975,6 @@ func (h *UIHandler) VendorTeamDeleteSubmit(w http.ResponseWriter, r *http.Reques
 		return
 	}
 	h.redirectWithNotice(w, r, "/vendor/team", "success", "تم حذف الموظف من المنشأة بنجاح.")
-}
-
-// VendorRolesPage renders the full roles and permissions matrix for vendor organization.
-func (h *UIHandler) VendorRolesPage(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-	lang, dir := h.localeAndDir(r)
-
-	actor, ok := authctx.From(ctx)
-	if !ok {
-		http.Redirect(w, r, "/auth/login?redirect=/vendor/roles", http.StatusSeeOther)
-		return
-	}
-
-	var roles []*org.Role
-	memberCountMap := make(map[string]int)
-
-	if h.orgSvc != nil && actor.OrganizationID > 0 {
-		if rl, err := h.orgSvc.ListRoles(ctx, actor.OrganizationID); err != nil {
-			h.log.WarnContext(ctx, "vendor roles: list roles", "error", err)
-		} else {
-			roles = rl
-		}
-		if members, err := h.orgSvc.ListMembers(ctx, actor.OrganizationID); err != nil {
-			h.log.WarnContext(ctx, "vendor roles: list members", "error", err)
-		} else {
-			for _, m := range members {
-				if m != nil && m.RoleKey != "" {
-					memberCountMap[m.RoleKey]++
-				}
-			}
-		}
-	}
-
-	// Defaults if empty
-	if memberCountMap["org_owner"] == 0 {
-		memberCountMap["org_owner"] = 1
-	}
-
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	if err := pages.VendorRoles(roles, memberCountMap, lang, dir).Render(ctx, w); err != nil {
-		h.log.ErrorContext(ctx, "render vendor roles page", "error", err)
-	}
 }
 
 // VendorInventoryPage renders the inventory stock view with search, warehouse filtering, and pagination.
@@ -2003,4 +1988,14 @@ func (h *UIHandler) VendorOrganizationSubmit(w http.ResponseWriter, r *http.Requ
 	}
 
 	http.Redirect(w, r, "/vendor/organization?notice_type=success&notice_msg="+url.QueryEscape("تم حفظ وتحديث بيانات المنشأة والهوية التجارية بنجاح"), http.StatusSeeOther)
+}
+
+// derefRoleID unwraps the optional custom-role link on a membership. Zero
+// means "no custom role assigned", and the caller falls back to the company's
+// starter role for the member's role_key.
+func derefRoleID(id *int64) int64 {
+	if id == nil {
+		return 0
+	}
+	return *id
 }

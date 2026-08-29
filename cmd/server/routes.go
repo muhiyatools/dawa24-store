@@ -66,6 +66,7 @@ import (
 	"github.com/muhiya/dawa24-store/internal/ui/components"
 
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
+	"github.com/muhiya/dawa24-store/internal/platform/rbac"
 	"github.com/muhiya/dawa24-store/internal/shared/apperr"
 )
 
@@ -119,11 +120,21 @@ func mountModuleRoutes(
 	idRepo := identityPostgres.NewRepository(db)
 	sessionStore := identity.NewSessionStore(deps.CacheHandle(), cfg.Session)
 	idSvc := identity.NewService(idRepo, sessionStore, log)
-	identityHttp.NewHandler(idSvc, cfg.Session, log).RegisterRoutes(r)
+
+	// The permission resolver is shared by every gate in the process. It reads
+	// a caller's effective permissions from the database and caches them
+	// against identity.rbac_version, so a role change is visible to every
+	// process within seconds rather than at the end of a 720-hour session.
+	permissions := rbac.NewResolver(db)
+	idSvc.SetPermissionResolver(permissions)
+
+	identityHandler := identityHttp.NewHandler(idSvc, cfg.Session, log)
+	identityHandler.SetResolver(permissions)
+	identityHandler.RegisterRoutes(r)
 
 	// Authenticated API routes
 	r.Group(func(protected chi.Router) {
-		protected.Use(identityHttp.RequireAuth(idSvc, cfg.Session.CookieName, log))
+		protected.Use(identityHttp.RequireAuth(idSvc, permissions, cfg.Session.CookieName, log))
 		protected.Use(identityHttp.ResolveTenant(idSvc, log))
 
 		// Attachments API
@@ -319,6 +330,14 @@ func mountModuleRoutes(
 		uiHandler.SetStorage(storageClient)
 	}
 	uiHandler.SetAssistantRepository(assistantPostgres.NewRepository(db))
+	uiHandler.SetPermissionResolver(permissions)
+	// A company that has no roles yet gets them the first time its owner opens
+	// the roles or team screen. The boot seeder covers companies that already
+	// existed; this covers one registered while the process was running, and a
+	// registration whose seeding step failed.
+	uiHandler.SetRoleSeeder(func(ctx context.Context, orgID int64, orgType string) error {
+		return rbac.EnsureCompanyRoles(ctx, db, orgID, orgType)
+	})
 
 	// Smart ordering (specs/001-smart-ordering-system). The server has no queue
 	// client, so runs are left queued and the worker collects them — which is
@@ -335,7 +354,7 @@ func mountModuleRoutes(
 
 	r.Group(func(uiRouter chi.Router) {
 		uiRouter.Use(httpx.CSRF(isProd))
-		uiRouter.Use(identityHttp.RequireAuth(idSvc, cfg.Session.CookieName, log))
+		uiRouter.Use(identityHttp.RequireAuth(idSvc, permissions, cfg.Session.CookieName, log))
 		uiRouter.Use(identityHttp.ResolveTenant(idSvc, log))
 		uiRouter.Use(uiHandler.SiteSettingsMiddleware)
 		uiRouter.Use(authctx.RequireCustomer(log))
@@ -346,7 +365,7 @@ func mountModuleRoutes(
 	})
 	r.Group(func(uiRouter chi.Router) {
 		uiRouter.Use(httpx.CSRF(isProd))
-		uiRouter.Use(identityHttp.RequireAuth(idSvc, cfg.Session.CookieName, log))
+		uiRouter.Use(identityHttp.RequireAuth(idSvc, permissions, cfg.Session.CookieName, log))
 		uiRouter.Use(identityHttp.ResolveTenant(idSvc, log))
 		uiRouter.Use(uiHandler.SiteSettingsMiddleware)
 		uiRouter.Use(authctx.RequireVendor(log))
@@ -355,7 +374,7 @@ func mountModuleRoutes(
 	})
 	r.Group(func(uiRouter chi.Router) {
 		uiRouter.Use(httpx.CSRF(isProd))
-		uiRouter.Use(identityHttp.RequireAuth(idSvc, cfg.Session.CookieName, log))
+		uiRouter.Use(identityHttp.RequireAuth(idSvc, permissions, cfg.Session.CookieName, log))
 		uiRouter.Use(identityHttp.ResolveTenant(idSvc, log))
 		uiRouter.Use(uiHandler.SiteSettingsMiddleware)
 		uiRouter.Use(authctx.RequireStaff(log))
@@ -363,7 +382,7 @@ func mountModuleRoutes(
 	})
 	r.Group(func(uiRouter chi.Router) {
 		uiRouter.Use(httpx.CSRF(isProd))
-		uiRouter.Use(identityHttp.RequireAuth(idSvc, cfg.Session.CookieName, log))
+		uiRouter.Use(identityHttp.RequireAuth(idSvc, permissions, cfg.Session.CookieName, log))
 		uiRouter.Use(identityHttp.ResolveTenant(idSvc, log))
 		uiRouter.Use(uiHandler.SiteSettingsMiddleware)
 		uiHandler.RegisterSharedRoutes(uiRouter)

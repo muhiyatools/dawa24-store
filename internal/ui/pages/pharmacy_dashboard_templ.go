@@ -59,7 +59,7 @@ func PharmacyDashboard(lang, dir string, data PharmacyDashboardData, perms []str
 				var templ_7745c5c3_Var3 string
 				templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(data.CustomerOrgName)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/pharmacy_dashboard.templ`, Line: 23, Col: 30}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `pages/pharmacy_dashboard.templ`, Line: 23, Col: 30}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
 				if templ_7745c5c3_Err != nil {
@@ -78,7 +78,7 @@ func PharmacyDashboard(lang, dir string, data PharmacyDashboardData, perms []str
 			var templ_7745c5c3_Var4 string
 			templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(format.Date(time.Now(), "ar"))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/pharmacy_dashboard.templ`, Line: 35, Col: 97}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `pages/pharmacy_dashboard.templ`, Line: 35, Col: 97}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
 			if templ_7745c5c3_Err != nil {
@@ -100,7 +100,7 @@ func PharmacyDashboard(lang, dir string, data PharmacyDashboardData, perms []str
 				var templ_7745c5c3_Var5 string
 				templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(data.ActiveBranchName)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/pharmacy_dashboard.templ`, Line: 46, Col: 31}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `pages/pharmacy_dashboard.templ`, Line: 46, Col: 31}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
 				if templ_7745c5c3_Err != nil {
@@ -132,7 +132,7 @@ func PharmacyDashboard(lang, dir string, data PharmacyDashboardData, perms []str
 				var templ_7745c5c3_Var6 string
 				templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(data.PendingDocRequests[0].Title)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/pharmacy_dashboard.templ`, Line: 67, Col: 121}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `pages/pharmacy_dashboard.templ`, Line: 67, Col: 121}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
 				if templ_7745c5c3_Err != nil {
@@ -145,7 +145,7 @@ func PharmacyDashboard(lang, dir string, data PharmacyDashboardData, perms []str
 				var templ_7745c5c3_Var7 string
 				templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", data.PendingDocRequests[0].DaysRemaining()))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/pharmacy_dashboard.templ`, Line: 70, Col: 155}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `pages/pharmacy_dashboard.templ`, Line: 70, Col: 155}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
 				if templ_7745c5c3_Err != nil {
@@ -158,7 +158,7 @@ func PharmacyDashboard(lang, dir string, data PharmacyDashboardData, perms []str
 				var templ_7745c5c3_Var8 string
 				templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(format.Date(data.PendingDocRequests[0].DeadlineAt, "ar"))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/pharmacy_dashboard.templ`, Line: 70, Col: 240}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `pages/pharmacy_dashboard.templ`, Line: 70, Col: 240}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var8))
 				if templ_7745c5c3_Err != nil {
@@ -200,7 +200,7 @@ func PharmacyDashboard(lang, dir string, data PharmacyDashboardData, perms []str
 			var templ_7745c5c3_Var9 string
 			templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinStringErrs(data.MonthSpend.String())
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/pharmacy_dashboard.templ`, Line: 97, Col: 106}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `pages/pharmacy_dashboard.templ`, Line: 97, Col: 106}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var9))
 			if templ_7745c5c3_Err != nil {
@@ -213,7 +213,7 @@ func PharmacyDashboard(lang, dir string, data PharmacyDashboardData, perms []str
 			var templ_7745c5c3_Var10 string
 			templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d صنف", data.TotalOrderedItems))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/pharmacy_dashboard.templ`, Line: 98, Col: 97}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `pages/pharmacy_dashboard.templ`, Line: 98, Col: 97}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var10))
 			if templ_7745c5c3_Err != nil {
@@ -234,7 +234,7 @@ func PharmacyDashboard(lang, dir string, data PharmacyDashboardData, perms []str
 			var templ_7745c5c3_Var11 string
 			templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", data.TotalOrders))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/pharmacy_dashboard.templ`, Line: 114, Col: 45}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `pages/pharmacy_dashboard.templ`, Line: 114, Col: 45}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var11))
 			if templ_7745c5c3_Err != nil {
@@ -247,7 +247,7 @@ func PharmacyDashboard(lang, dir string, data PharmacyDashboardData, perms []str
 			var templ_7745c5c3_Var12 string
 			templ_7745c5c3_Var12, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d قيد التنفيذ", data.ActiveOrders))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/pharmacy_dashboard.templ`, Line: 121, Col: 74}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `pages/pharmacy_dashboard.templ`, Line: 121, Col: 74}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var12))
 			if templ_7745c5c3_Err != nil {
@@ -260,7 +260,7 @@ func PharmacyDashboard(lang, dir string, data PharmacyDashboardData, perms []str
 			var templ_7745c5c3_Var13 string
 			templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d مكتمل", data.CompletedOrders))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/pharmacy_dashboard.templ`, Line: 126, Col: 66}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `pages/pharmacy_dashboard.templ`, Line: 126, Col: 66}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var13))
 			if templ_7745c5c3_Err != nil {
@@ -278,7 +278,7 @@ func PharmacyDashboard(lang, dir string, data PharmacyDashboardData, perms []str
 				var templ_7745c5c3_Var14 string
 				templ_7745c5c3_Var14, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d ملغي", data.CancelledOrders))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/pharmacy_dashboard.templ`, Line: 132, Col: 65}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `pages/pharmacy_dashboard.templ`, Line: 132, Col: 65}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var14))
 				if templ_7745c5c3_Err != nil {
@@ -317,7 +317,7 @@ func PharmacyDashboard(lang, dir string, data PharmacyDashboardData, perms []str
 				var templ_7745c5c3_Var15 string
 				templ_7745c5c3_Var15, templ_7745c5c3_Err = templ.JoinStringErrs(data.PendingDepositsTotal.String())
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/pharmacy_dashboard.templ`, Line: 153, Col: 120}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `pages/pharmacy_dashboard.templ`, Line: 153, Col: 120}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var15))
 				if templ_7745c5c3_Err != nil {
@@ -348,7 +348,7 @@ func PharmacyDashboard(lang, dir string, data PharmacyDashboardData, perms []str
 			var templ_7745c5c3_Var16 string
 			templ_7745c5c3_Var16, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", data.SmartOrdersCount))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/pharmacy_dashboard.templ`, Line: 178, Col: 50}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `pages/pharmacy_dashboard.templ`, Line: 178, Col: 50}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var16))
 			if templ_7745c5c3_Err != nil {
@@ -366,7 +366,7 @@ func PharmacyDashboard(lang, dir string, data PharmacyDashboardData, perms []str
 				var templ_7745c5c3_Var17 string
 				templ_7745c5c3_Var17, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d قيد المعالجة", data.SmartOrdersProcessing))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/pharmacy_dashboard.templ`, Line: 184, Col: 106}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `pages/pharmacy_dashboard.templ`, Line: 184, Col: 106}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var17))
 				if templ_7745c5c3_Err != nil {
@@ -384,7 +384,7 @@ func PharmacyDashboard(lang, dir string, data PharmacyDashboardData, perms []str
 				var templ_7745c5c3_Var18 string
 				templ_7745c5c3_Var18, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d بحاجة لمراجعة", data.SmartOrdersNeedsReview))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/pharmacy_dashboard.templ`, Line: 186, Col: 106}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `pages/pharmacy_dashboard.templ`, Line: 186, Col: 106}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var18))
 				if templ_7745c5c3_Err != nil {
@@ -402,7 +402,7 @@ func PharmacyDashboard(lang, dir string, data PharmacyDashboardData, perms []str
 				var templ_7745c5c3_Var19 string
 				templ_7745c5c3_Var19, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d مكتمل ومعتمد", data.SmartOrdersCompleted))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/pharmacy_dashboard.templ`, Line: 188, Col: 105}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `pages/pharmacy_dashboard.templ`, Line: 188, Col: 105}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var19))
 				if templ_7745c5c3_Err != nil {
@@ -452,7 +452,7 @@ func PharmacyDashboard(lang, dir string, data PharmacyDashboardData, perms []str
 			var templ_7745c5c3_Var20 string
 			templ_7745c5c3_Var20, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", data.TotalBranches))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/pharmacy_dashboard.templ`, Line: 228, Col: 76}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `pages/pharmacy_dashboard.templ`, Line: 228, Col: 76}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var20))
 			if templ_7745c5c3_Err != nil {
@@ -481,7 +481,7 @@ func PharmacyDashboard(lang, dir string, data PharmacyDashboardData, perms []str
 			var templ_7745c5c3_Var21 string
 			templ_7745c5c3_Var21, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", data.TotalOrders))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/pharmacy_dashboard.templ`, Line: 260, Col: 66}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `pages/pharmacy_dashboard.templ`, Line: 260, Col: 66}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var21))
 			if templ_7745c5c3_Err != nil {
@@ -512,7 +512,7 @@ func PharmacyDashboard(lang, dir string, data PharmacyDashboardData, perms []str
 					var templ_7745c5c3_Var22 templ.SafeURL
 					templ_7745c5c3_Var22, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("/orders/%d", o.ID)))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/pharmacy_dashboard.templ`, Line: 287, Col: 69}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `pages/pharmacy_dashboard.templ`, Line: 287, Col: 69}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var22))
 					if templ_7745c5c3_Err != nil {
@@ -525,7 +525,7 @@ func PharmacyDashboard(lang, dir string, data PharmacyDashboardData, perms []str
 					var templ_7745c5c3_Var23 string
 					templ_7745c5c3_Var23, templ_7745c5c3_Err = templ.JoinStringErrs(o.OrderNumber)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/pharmacy_dashboard.templ`, Line: 288, Col: 30}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `pages/pharmacy_dashboard.templ`, Line: 288, Col: 30}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var23))
 					if templ_7745c5c3_Err != nil {
@@ -538,7 +538,7 @@ func PharmacyDashboard(lang, dir string, data PharmacyDashboardData, perms []str
 					var templ_7745c5c3_Var24 string
 					templ_7745c5c3_Var24, templ_7745c5c3_Err = templ.JoinStringErrs(format.Date(o.CreatedAt, "ar"))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/pharmacy_dashboard.templ`, Line: 292, Col: 45}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `pages/pharmacy_dashboard.templ`, Line: 292, Col: 45}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var24))
 					if templ_7745c5c3_Err != nil {
@@ -552,7 +552,7 @@ func PharmacyDashboard(lang, dir string, data PharmacyDashboardData, perms []str
 						var templ_7745c5c3_Var25 string
 						templ_7745c5c3_Var25, templ_7745c5c3_Err = templ.JoinStringErrs(o.CustomerBranchName.Get(i18n.Lang(lang)))
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/pharmacy_dashboard.templ`, Line: 296, Col: 57}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `pages/pharmacy_dashboard.templ`, Line: 296, Col: 57}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var25))
 						if templ_7745c5c3_Err != nil {
@@ -562,7 +562,7 @@ func PharmacyDashboard(lang, dir string, data PharmacyDashboardData, perms []str
 						var templ_7745c5c3_Var26 string
 						templ_7745c5c3_Var26, templ_7745c5c3_Err = templ.JoinStringErrs(data.ActiveBranchName)
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/pharmacy_dashboard.templ`, Line: 298, Col: 37}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `pages/pharmacy_dashboard.templ`, Line: 298, Col: 37}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var26))
 						if templ_7745c5c3_Err != nil {
@@ -586,7 +586,7 @@ func PharmacyDashboard(lang, dir string, data PharmacyDashboardData, perms []str
 						var templ_7745c5c3_Var27 string
 						templ_7745c5c3_Var27, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d صنف", len(o.Lines)))
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/pharmacy_dashboard.templ`, Line: 305, Col: 86}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `pages/pharmacy_dashboard.templ`, Line: 305, Col: 86}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var27))
 						if templ_7745c5c3_Err != nil {
@@ -625,7 +625,7 @@ func PharmacyDashboard(lang, dir string, data PharmacyDashboardData, perms []str
 					var templ_7745c5c3_Var28 templ.SafeURL
 					templ_7745c5c3_Var28, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("/orders/%d", o.ID)))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/pharmacy_dashboard.templ`, Line: 318, Col: 70}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `pages/pharmacy_dashboard.templ`, Line: 318, Col: 70}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var28))
 					if templ_7745c5c3_Err != nil {
@@ -638,7 +638,7 @@ func PharmacyDashboard(lang, dir string, data PharmacyDashboardData, perms []str
 					var templ_7745c5c3_Var29 templ.SafeURL
 					templ_7745c5c3_Var29, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("/orders/%d/invoice/print", o.ID)))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/pharmacy_dashboard.templ`, Line: 321, Col: 84}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `pages/pharmacy_dashboard.templ`, Line: 321, Col: 84}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var29))
 					if templ_7745c5c3_Err != nil {
@@ -677,7 +677,7 @@ func PharmacyDashboard(lang, dir string, data PharmacyDashboardData, perms []str
 			var templ_7745c5c3_Var30 string
 			templ_7745c5c3_Var30, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", data.SmartOrdersTotal))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/pharmacy_dashboard.templ`, Line: 356, Col: 51}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `pages/pharmacy_dashboard.templ`, Line: 356, Col: 51}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var30))
 			if templ_7745c5c3_Err != nil {
@@ -690,7 +690,7 @@ func PharmacyDashboard(lang, dir string, data PharmacyDashboardData, perms []str
 			var templ_7745c5c3_Var31 string
 			templ_7745c5c3_Var31, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", data.SmartOrdersProcessing))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/pharmacy_dashboard.templ`, Line: 363, Col: 56}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `pages/pharmacy_dashboard.templ`, Line: 363, Col: 56}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var31))
 			if templ_7745c5c3_Err != nil {
@@ -703,7 +703,7 @@ func PharmacyDashboard(lang, dir string, data PharmacyDashboardData, perms []str
 			var templ_7745c5c3_Var32 string
 			templ_7745c5c3_Var32, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", data.SmartOrdersCompleted))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/pharmacy_dashboard.templ`, Line: 370, Col: 55}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `pages/pharmacy_dashboard.templ`, Line: 370, Col: 55}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var32))
 			if templ_7745c5c3_Err != nil {
@@ -716,7 +716,7 @@ func PharmacyDashboard(lang, dir string, data PharmacyDashboardData, perms []str
 			var templ_7745c5c3_Var33 string
 			templ_7745c5c3_Var33, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", data.SmartOrdersNeedsReview))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/pharmacy_dashboard.templ`, Line: 377, Col: 57}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `pages/pharmacy_dashboard.templ`, Line: 377, Col: 57}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var33))
 			if templ_7745c5c3_Err != nil {
@@ -744,7 +744,7 @@ func PharmacyDashboard(lang, dir string, data PharmacyDashboardData, perms []str
 					var templ_7745c5c3_Var34 string
 					templ_7745c5c3_Var34, templ_7745c5c3_Err = templ.JoinStringErrs(r.OriginalFile)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/pharmacy_dashboard.templ`, Line: 398, Col: 34}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `pages/pharmacy_dashboard.templ`, Line: 398, Col: 34}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var34))
 					if templ_7745c5c3_Err != nil {
@@ -757,7 +757,7 @@ func PharmacyDashboard(lang, dir string, data PharmacyDashboardData, perms []str
 					var templ_7745c5c3_Var35 string
 					templ_7745c5c3_Var35, templ_7745c5c3_Err = templ.JoinStringErrs(r.RunNumber)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/pharmacy_dashboard.templ`, Line: 399, Col: 136}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `pages/pharmacy_dashboard.templ`, Line: 399, Col: 136}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var35))
 					if templ_7745c5c3_Err != nil {
@@ -770,7 +770,7 @@ func PharmacyDashboard(lang, dir string, data PharmacyDashboardData, perms []str
 					var templ_7745c5c3_Var36 string
 					templ_7745c5c3_Var36, templ_7745c5c3_Err = templ.JoinStringErrs(format.Date(r.CreatedAt, "ar"))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/pharmacy_dashboard.templ`, Line: 402, Col: 50}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `pages/pharmacy_dashboard.templ`, Line: 402, Col: 50}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var36))
 					if templ_7745c5c3_Err != nil {
@@ -783,7 +783,7 @@ func PharmacyDashboard(lang, dir string, data PharmacyDashboardData, perms []str
 					var templ_7745c5c3_Var37 string
 					templ_7745c5c3_Var37, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", r.Stats.MatchedRows))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/pharmacy_dashboard.templ`, Line: 404, Col: 90}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `pages/pharmacy_dashboard.templ`, Line: 404, Col: 90}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var37))
 					if templ_7745c5c3_Err != nil {
@@ -796,7 +796,7 @@ func PharmacyDashboard(lang, dir string, data PharmacyDashboardData, perms []str
 					var templ_7745c5c3_Var38 string
 					templ_7745c5c3_Var38, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", r.Stats.TotalRows))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/pharmacy_dashboard.templ`, Line: 404, Col: 136}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `pages/pharmacy_dashboard.templ`, Line: 404, Col: 136}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var38))
 					if templ_7745c5c3_Err != nil {
@@ -820,7 +820,7 @@ func PharmacyDashboard(lang, dir string, data PharmacyDashboardData, perms []str
 					var templ_7745c5c3_Var39 templ.SafeURL
 					templ_7745c5c3_Var39, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("/customer/smart-order/%s/results", r.PublicID)))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/pharmacy_dashboard.templ`, Line: 412, Col: 95}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `pages/pharmacy_dashboard.templ`, Line: 412, Col: 95}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var39))
 					if templ_7745c5c3_Err != nil {
@@ -864,7 +864,7 @@ func PharmacyDashboard(lang, dir string, data PharmacyDashboardData, perms []str
 				var templ_7745c5c3_Var40 string
 				templ_7745c5c3_Var40, templ_7745c5c3_Err = templ.JoinStringErrs(data.PendingDepositsTotal.String())
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/pharmacy_dashboard.templ`, Line: 449, Col: 72}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `pages/pharmacy_dashboard.templ`, Line: 449, Col: 72}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var40))
 				if templ_7745c5c3_Err != nil {
@@ -877,7 +877,7 @@ func PharmacyDashboard(lang, dir string, data PharmacyDashboardData, perms []str
 				var templ_7745c5c3_Var41 string
 				templ_7745c5c3_Var41, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", data.PendingDepositsCount))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/pharmacy_dashboard.templ`, Line: 449, Col: 128}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `pages/pharmacy_dashboard.templ`, Line: 449, Col: 128}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var41))
 				if templ_7745c5c3_Err != nil {
@@ -910,7 +910,7 @@ func PharmacyDashboard(lang, dir string, data PharmacyDashboardData, perms []str
 					var templ_7745c5c3_Var42 string
 					templ_7745c5c3_Var42, templ_7745c5c3_Err = templ.JoinStringErrs(FormatTxTypeLabel(tx.Type))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/pharmacy_dashboard.templ`, Line: 468, Col: 89}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `pages/pharmacy_dashboard.templ`, Line: 468, Col: 89}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var42))
 					if templ_7745c5c3_Err != nil {
@@ -923,7 +923,7 @@ func PharmacyDashboard(lang, dir string, data PharmacyDashboardData, perms []str
 					var templ_7745c5c3_Var43 string
 					templ_7745c5c3_Var43, templ_7745c5c3_Err = templ.JoinStringErrs(tx.CreatedAt.Format("2006-01-02 15:04"))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/pharmacy_dashboard.templ`, Line: 469, Col: 109}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `pages/pharmacy_dashboard.templ`, Line: 469, Col: 109}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var43))
 					if templ_7745c5c3_Err != nil {
@@ -936,7 +936,7 @@ func PharmacyDashboard(lang, dir string, data PharmacyDashboardData, perms []str
 					var templ_7745c5c3_Var44 string
 					templ_7745c5c3_Var44, templ_7745c5c3_Err = templruntime.SanitizeStyleAttributeValues(fmt.Sprintf("font-weight:800; color:%s;", txColor(tx.Amount.Minor())))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/pharmacy_dashboard.templ`, Line: 471, Col: 114}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `pages/pharmacy_dashboard.templ`, Line: 471, Col: 114}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var44))
 					if templ_7745c5c3_Err != nil {
@@ -954,7 +954,7 @@ func PharmacyDashboard(lang, dir string, data PharmacyDashboardData, perms []str
 						var templ_7745c5c3_Var45 string
 						templ_7745c5c3_Var45, templ_7745c5c3_Err = templ.JoinStringErrs(tx.Amount.String())
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/pharmacy_dashboard.templ`, Line: 473, Col: 40}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `pages/pharmacy_dashboard.templ`, Line: 473, Col: 40}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var45))
 						if templ_7745c5c3_Err != nil {
@@ -972,7 +972,7 @@ func PharmacyDashboard(lang, dir string, data PharmacyDashboardData, perms []str
 						var templ_7745c5c3_Var46 string
 						templ_7745c5c3_Var46, templ_7745c5c3_Err = templ.JoinStringErrs(tx.Amount.String())
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/pharmacy_dashboard.templ`, Line: 475, Col: 39}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `pages/pharmacy_dashboard.templ`, Line: 475, Col: 39}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var46))
 						if templ_7745c5c3_Err != nil {
@@ -1016,7 +1016,7 @@ func PharmacyDashboard(lang, dir string, data PharmacyDashboardData, perms []str
 			var templ_7745c5c3_Var47 string
 			templ_7745c5c3_Var47, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", data.TotalBranches))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/pharmacy_dashboard.templ`, Line: 499, Col: 72}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `pages/pharmacy_dashboard.templ`, Line: 499, Col: 72}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var47))
 			if templ_7745c5c3_Err != nil {
@@ -1044,7 +1044,7 @@ func PharmacyDashboard(lang, dir string, data PharmacyDashboardData, perms []str
 					var templ_7745c5c3_Var48 string
 					templ_7745c5c3_Var48, templ_7745c5c3_Err = templruntime.SanitizeStyleAttributeValues(branchCardStyle(b.ID == data.ActiveBranchID))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/pharmacy_dashboard.templ`, Line: 510, Col: 66}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `pages/pharmacy_dashboard.templ`, Line: 510, Col: 66}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var48))
 					if templ_7745c5c3_Err != nil {
@@ -1057,7 +1057,7 @@ func PharmacyDashboard(lang, dir string, data PharmacyDashboardData, perms []str
 					var templ_7745c5c3_Var49 string
 					templ_7745c5c3_Var49, templ_7745c5c3_Err = templ.JoinStringErrs(b.Name.Get(i18n.Lang(lang)))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/pharmacy_dashboard.templ`, Line: 513, Col: 47}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `pages/pharmacy_dashboard.templ`, Line: 513, Col: 47}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var49))
 					if templ_7745c5c3_Err != nil {
@@ -1091,7 +1091,7 @@ func PharmacyDashboard(lang, dir string, data PharmacyDashboardData, perms []str
 						var templ_7745c5c3_Var50 string
 						templ_7745c5c3_Var50, templ_7745c5c3_Err = templ.JoinStringErrs(b.Address)
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/pharmacy_dashboard.templ`, Line: 523, Col: 24}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `pages/pharmacy_dashboard.templ`, Line: 523, Col: 24}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var50))
 						if templ_7745c5c3_Err != nil {
@@ -1133,7 +1133,7 @@ func PharmacyDashboard(lang, dir string, data PharmacyDashboardData, perms []str
 					var templ_7745c5c3_Var51 string
 					templ_7745c5c3_Var51, templ_7745c5c3_Err = templ.JoinStringErrs(data.Subscription.AIPlanID)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/pharmacy_dashboard.templ`, Line: 547, Col: 38}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `pages/pharmacy_dashboard.templ`, Line: 547, Col: 38}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var51))
 					if templ_7745c5c3_Err != nil {
@@ -1152,7 +1152,7 @@ func PharmacyDashboard(lang, dir string, data PharmacyDashboardData, perms []str
 				var templ_7745c5c3_Var52 string
 				templ_7745c5c3_Var52, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d%%", data.Subscription.AIPercentage()))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/pharmacy_dashboard.templ`, Line: 558, Col: 65}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `pages/pharmacy_dashboard.templ`, Line: 558, Col: 65}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var52))
 				if templ_7745c5c3_Err != nil {
@@ -1165,7 +1165,7 @@ func PharmacyDashboard(lang, dir string, data PharmacyDashboardData, perms []str
 				var templ_7745c5c3_Var53 string
 				templ_7745c5c3_Var53, templ_7745c5c3_Err = templruntime.SanitizeStyleAttributeValues(fmt.Sprintf("width:%d%%; height:100%%; border-radius:4px; background:linear-gradient(90deg, var(--primary), #8b5cf6); transition:width 0.4s ease;", data.Subscription.AIPercentage()))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/pharmacy_dashboard.templ`, Line: 563, Col: 203}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `pages/pharmacy_dashboard.templ`, Line: 563, Col: 203}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var53))
 				if templ_7745c5c3_Err != nil {
@@ -1178,7 +1178,7 @@ func PharmacyDashboard(lang, dir string, data PharmacyDashboardData, perms []str
 				var templ_7745c5c3_Var54 string
 				templ_7745c5c3_Var54, templ_7745c5c3_Err = templ.JoinStringErrs(data.Subscription.AIResetText())
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/pharmacy_dashboard.templ`, Line: 566, Col: 48}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `pages/pharmacy_dashboard.templ`, Line: 566, Col: 48}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var54))
 				if templ_7745c5c3_Err != nil {
@@ -1214,7 +1214,7 @@ func PharmacyDashboard(lang, dir string, data PharmacyDashboardData, perms []str
 					var templ_7745c5c3_Var55 string
 					templ_7745c5c3_Var55, templ_7745c5c3_Err = templ.JoinStringErrs(o.Title.Get(i18n.Lang(lang)))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/pharmacy_dashboard.templ`, Line: 587, Col: 110}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `pages/pharmacy_dashboard.templ`, Line: 587, Col: 110}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var55))
 					if templ_7745c5c3_Err != nil {
@@ -1227,7 +1227,7 @@ func PharmacyDashboard(lang, dir string, data PharmacyDashboardData, perms []str
 					var templ_7745c5c3_Var56 string
 					templ_7745c5c3_Var56, templ_7745c5c3_Err = templ.JoinStringErrs(o.DiscountValue.String())
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/pharmacy_dashboard.templ`, Line: 589, Col: 88}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `pages/pharmacy_dashboard.templ`, Line: 589, Col: 88}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var56))
 					if templ_7745c5c3_Err != nil {

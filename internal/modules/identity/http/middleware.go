@@ -13,6 +13,7 @@ import (
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/platform/database"
 	"github.com/muhiya/dawa24-store/internal/platform/httpx"
+	"github.com/muhiya/dawa24-store/internal/platform/rbac"
 	"github.com/muhiya/dawa24-store/internal/shared/apperr"
 )
 
@@ -34,7 +35,7 @@ func SessionFrom(ctx context.Context) (*identity.Session, bool) {
 }
 
 // RequireAuth authenticates incoming requests via Authorization Bearer token or session cookie.
-func RequireAuth(service *identity.Service, cookieName string, log *slog.Logger) func(http.Handler) http.Handler {
+func RequireAuth(service *identity.Service, resolver *rbac.Resolver, cookieName string, log *slog.Logger) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			token := extractToken(r, cookieName)
@@ -83,23 +84,67 @@ func RequireAuth(service *identity.Service, cookieName string, log *slog.Logger)
 			// OrgType and OrgStatus come from the session, which login built
 			// from org.members joined to org.organizations — never from the
 			// request (Rebuild V2 §1.2).
-			ctx = authctx.WithActor(ctx, authctx.Actor{
-				UserID:         sess.UserID,
-				OrganizationID: activeOrgID,
-				OrgType:        sess.OrgType,
-				OrgStatus:      sess.OrgStatus,
-				Role:           sess.Role,
-				Permissions:    sess.Permissions,
-				IsStaff:        sess.IsStaff(),
-				Email:          sess.Email,
-			})
+			ctx = authctx.WithActor(ctx, actorFor(ctx, resolver, sess, activeOrgID, log))
 			next.ServeHTTP(w, r.WithContext(ctx))
 		})
 	}
 }
 
+// actorFor builds the authenticated caller.
+//
+// Permissions come from the resolver, which reads them now, rather than from
+// the copy the session was stamped with at login. That copy was the whole
+// problem: sessions last 720 hours, so revoking a role had no effect on anyone
+// already signed in until they happened to log out. A permission system that
+// cannot revoke within the session lifetime is not enforcing anything.
+//
+// If the resolver is unavailable — it is not wired in tests, and the database
+// can be down — the caller falls back to the session's copy. That is the
+// conservative choice in the wrong direction only for revocation; the
+// alternative, denying everything, turns a database blip into a total outage
+// for signed-in users.
+func actorFor(ctx context.Context, resolver *rbac.Resolver, sess *identity.Session, orgID int64, log *slog.Logger) authctx.Actor {
+	actor := authctx.Actor{
+		UserID:         sess.UserID,
+		OrganizationID: orgID,
+		OrgType:        sess.OrgType,
+		OrgStatus:      sess.OrgStatus,
+		Role:           sess.Role,
+		IsStaff:        sess.IsStaff(),
+		Email:          sess.Email,
+	}
+	actor.Grants(sess.Permissions)
+
+	if resolver == nil {
+		if scope, ok := rbac.TenantScopeFor(sess.OrgType); ok {
+			actor.Scope = scope
+		} else if actor.IsStaff {
+			actor.Scope = rbac.ScopeAdmin
+		}
+		return actor
+	}
+
+	grant, err := resolver.Resolve(ctx, sess.UserID, orgID)
+	if err != nil {
+		log.ErrorContext(ctx, "could not resolve permissions; falling back to the session copy",
+			"error", err, "user_id", sess.UserID, "organization_id", orgID)
+		return actor
+	}
+	actor.IsStaff = grant.IsStaff
+	actor.IsOwner = grant.IsPlatformOwner || grant.IsOrgOwner
+	actor.Scope = grant.Scope
+	if grant.PlatformRole != "" {
+		actor.Role = grant.PlatformRole
+	}
+	if grant.OrgType != "" {
+		actor.OrgType = grant.OrgType
+	}
+	actor.Grants(grant.Keys)
+	return actor
+}
+
 // OptionalAuth authenticates incoming requests if a valid session exists, but allows anonymous requests.
-func OptionalAuth(service *identity.Service, cookieName string) func(http.Handler) http.Handler {
+func OptionalAuth(service *identity.Service, resolver *rbac.Resolver, cookieName string, log *slog.Logger) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			token := extractToken(r, cookieName)
@@ -122,54 +167,8 @@ func OptionalAuth(service *identity.Service, cookieName string) func(http.Handle
 			if activeOrgID > 0 {
 				ctx = database.WithTenant(ctx, activeOrgID)
 			}
-			ctx = authctx.WithActor(ctx, authctx.Actor{
-				UserID:         sess.UserID,
-				OrganizationID: activeOrgID,
-				OrgType:        sess.OrgType,
-				OrgStatus:      sess.OrgStatus,
-				Role:           sess.Role,
-				Permissions:    sess.Permissions,
-				IsStaff:        sess.IsStaff(),
-				Email:          sess.Email,
-			})
+			ctx = authctx.WithActor(ctx, actorFor(ctx, resolver, sess, activeOrgID, log))
 			next.ServeHTTP(w, r.WithContext(ctx))
-		})
-	}
-}
-
-// RequirePermission ensures the authenticated user possesses the required permission.
-func RequirePermission(permissionKey string, log *slog.Logger) func(http.Handler) http.Handler {
-	return func(next http.Handler) http.Handler {
-		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			sess, ok := SessionFrom(r.Context())
-			if !ok {
-				httpx.Error(w, r, log, apperr.Unauthorized())
-				return
-			}
-
-			// Super admins bypass granular permission checks
-			if sess.Role == "super_admin" || sess.Role == "developer" {
-				next.ServeHTTP(w, r)
-				return
-			}
-
-			hasPerm := false
-			for _, p := range sess.Permissions {
-				if p == permissionKey {
-					hasPerm = true
-					break
-				}
-			}
-
-			if !hasPerm {
-				httpx.Error(w, r, log, apperr.Forbidden(
-					"auth.forbidden",
-					"You do not have permission to perform this action.",
-				))
-				return
-			}
-
-			next.ServeHTTP(w, r)
 		})
 	}
 }

@@ -50,7 +50,7 @@ func ImageGallery(props ImageGalleryProps) templ.Component {
 			var templ_7745c5c3_Var2 string
 			templ_7745c5c3_Var2, templ_7745c5c3_Err = templ.ResolveAttributeValue(src)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/components/imagegallery.templ`, Line: 16, Col: 18}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/imagegallery.templ`, Line: 16, Col: 18}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var2)
 			if templ_7745c5c3_Err != nil {
@@ -63,7 +63,7 @@ func ImageGallery(props ImageGalleryProps) templ.Component {
 			var templ_7745c5c3_Var3 string
 			templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.ResolveAttributeValue(props.Alt)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/components/imagegallery.templ`, Line: 16, Col: 36}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/imagegallery.templ`, Line: 16, Col: 36}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var3)
 			if templ_7745c5c3_Err != nil {
@@ -76,7 +76,7 @@ func ImageGallery(props ImageGalleryProps) templ.Component {
 			var templ_7745c5c3_Var4 string
 			templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("current === %d", i))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/components/imagegallery.templ`, Line: 16, Col: 80}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/imagegallery.templ`, Line: 16, Col: 80}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var4)
 			if templ_7745c5c3_Err != nil {
@@ -104,7 +104,7 @@ func ImageGallery(props ImageGalleryProps) templ.Component {
 				var templ_7745c5c3_Var5 string
 				templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("current = %d", i))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/components/imagegallery.templ`, Line: 22, Col: 70}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/imagegallery.templ`, Line: 22, Col: 70}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var5)
 				if templ_7745c5c3_Err != nil {
@@ -117,7 +117,7 @@ func ImageGallery(props ImageGalleryProps) templ.Component {
 				var templ_7745c5c3_Var6 string
 				templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.ResolveAttributeValue(src)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/components/imagegallery.templ`, Line: 23, Col: 20}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/imagegallery.templ`, Line: 23, Col: 20}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var6)
 				if templ_7745c5c3_Err != nil {
@@ -130,7 +130,7 @@ func ImageGallery(props ImageGalleryProps) templ.Component {
 				var templ_7745c5c3_Var7 string
 				templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.ResolveAttributeValue(props.Alt)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/components/imagegallery.templ`, Line: 23, Col: 38}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/imagegallery.templ`, Line: 23, Col: 38}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var7)
 				if templ_7745c5c3_Err != nil {

@@ -10,7 +10,7 @@ import (
 func (h *UIHandler) registerAdminCommerceRoutes(r chi.Router) {
 	// Orders & Procurement
 	r.Group(func(g chi.Router) {
-		g.Use(authctx.RequirePagePermission("commerce.order.view", h.log))
+		g.Use(authctx.RequirePagePermission("commerce.order.view"))
 		g.Get("/admin/orders", h.AdminOrdersPage)
 		g.Get("/admin/orders/offers", func(w http.ResponseWriter, r *http.Request) {
 			http.Redirect(w, r, "/admin/orders?tab=negotiations", http.StatusMovedPermanently)
@@ -23,20 +23,26 @@ func (h *UIHandler) registerAdminCommerceRoutes(r chi.Router) {
 
 	// Offers & Promotions
 	r.Group(func(g chi.Router) {
-		g.Use(authctx.RequirePagePermission("promo.offer.view", h.log))
+		g.Use(authctx.RequirePagePermission("promo.offer.view"))
 		g.Get("/admin/offers", h.AdminOffersPage)
 	})
 
 	r.Group(func(g chi.Router) {
-		g.Use(authctx.RequirePagePermission("promo.offer.update", h.log))
+		g.Use(authctx.RequirePagePermission("promo.offer.update"))
 		g.Post("/admin/offers/{id}/status", h.AdminOfferStatusSubmit)
 		g.Post("/admin/offers/{id}/approve", h.AdminOfferApproveSubmit)
 		g.Post("/admin/offers/{id}/reject", h.AdminOfferRejectSubmit)
 	})
 
-	// Finance Hub, Invoices, Payments, Wallets & Earnings
+	// Finance Hub, Invoices, Payments, Wallets & Earnings.
+	//
+	// Reading the finance hub and moving money through it are different
+	// rights. Adjusting a wallet balance and approving a deposit change what a
+	// tenant may spend; they sit behind their own grants, and the starter
+	// "Administrator" role does not hold the wallet one.
 	r.Group(func(g chi.Router) {
-		g.Use(authctx.RequirePagePermission("billing.invoice.view", h.log))
+		g.Use(authctx.RequirePagePermission(
+			"billing.finance.view", "billing.invoice.view", "billing.payment.view", "billing.wallet.read"))
 		g.Get("/admin/finance", h.AdminFinancePage)
 		g.Get("/admin/earnings/order", func(w http.ResponseWriter, r *http.Request) {
 			http.Redirect(w, r, "/admin/finance?tab=earnings", http.StatusMovedPermanently)
@@ -53,14 +59,22 @@ func (h *UIHandler) registerAdminCommerceRoutes(r chi.Router) {
 		g.Get("/admin/wallets", func(w http.ResponseWriter, r *http.Request) {
 			http.Redirect(w, r, "/admin/finance?tab=wallets", http.StatusMovedPermanently)
 		})
+	})
+
+	r.Group(func(g chi.Router) {
+		g.Use(authctx.RequirePagePermission("billing.wallet.manage"))
 		g.Post("/admin/finance/wallets/{id}/adjust", h.AdminWalletAdjustSubmit)
+	})
+
+	r.Group(func(g chi.Router) {
+		g.Use(authctx.RequirePagePermission("billing.payment.update"))
 		g.Post("/admin/finance/deposits/{id}/approve", h.AdminDepositApproveSubmit)
 		g.Post("/admin/finance/deposits/{id}/reject", h.AdminDepositRejectSubmit)
 	})
 
 	// Plans & Subscriptions Hub
 	r.Group(func(g chi.Router) {
-		g.Use(authctx.RequirePagePermission("billing.subscription_plan.view", h.log))
+		g.Use(authctx.RequirePagePermission("billing.subscription_plan.view"))
 		g.Get("/admin/plans", h.AdminPlansPage)
 		g.Get("/admin/plans-info", func(w http.ResponseWriter, r *http.Request) {
 			http.Redirect(w, r, "/admin/plans?tab=plans", http.StatusMovedPermanently)
@@ -77,7 +91,7 @@ func (h *UIHandler) registerAdminCommerceRoutes(r chi.Router) {
 	})
 
 	r.Group(func(g chi.Router) {
-		g.Use(authctx.RequirePagePermission("billing.subscription_plan.update", h.log))
+		g.Use(authctx.RequirePagePermission("billing.subscription_plan.update"))
 		g.Post("/admin/plans", h.AdminPlanSubmit)
 		g.Post("/admin/plans/{id}/update", h.AdminPlanUpdateSubmit)
 		g.Post("/admin/plans/{id}/toggle", h.AdminPlanToggleSubmit)
@@ -85,9 +99,9 @@ func (h *UIHandler) registerAdminCommerceRoutes(r chi.Router) {
 		g.Post("/admin/plans/{id}/delete", h.AdminPlanDeleteSubmit)
 	})
 
-	// Phase 8: Offer Packages, Sponsorships, Promotions, Ads, Analytics, Locations
+	// Offer packages, sponsorships, promotions and their analytics.
 	r.Group(func(g chi.Router) {
-		g.Use(authctx.RequirePagePermission("promo.offer.view", h.log))
+		g.Use(authctx.RequirePagePermission("promo.offer_package.view"))
 		g.Get("/admin/offers-packages", h.AdminOffersPackagesHubPage)
 		g.Get("/admin/offers-packages/packages", h.AdminOfferPackagesListPage)
 		g.Get("/admin/offers-packages/packages/{id}", h.AdminOfferPackageDetailPage)
@@ -101,12 +115,24 @@ func (h *UIHandler) registerAdminCommerceRoutes(r chi.Router) {
 		g.Get("/admin/offers-packages/sponsorships/{id}", h.AdminOfferSponsorshipsPage)
 		g.Get("/admin/offers-packages/promotions", h.AdminOfferPromotionsPage)
 		g.Get("/admin/offers-packages/promotions/{id}", h.AdminOfferPromotionsPage)
-		g.Get("/admin/ads", h.AdminAdsListPage)
-		g.Get("/admin/ad-plan", h.AdminAdPlansPage)
 		g.Get("/admin/offers-packages/views", h.AdminOfferAnalyticsViewsPage)
 		g.Get("/admin/offers-packages/views/{id}", h.AdminOfferAnalyticsViewsPage)
 		g.Get("/admin/offers-packages/clicks", h.AdminOfferAnalyticsClicksPage)
 		g.Get("/admin/offers-packages/clicks/{id}", h.AdminOfferAnalyticsClicksPage)
+	})
+
+	r.Group(func(g chi.Router) {
+		g.Use(authctx.RequirePagePermission("promo.ad.view"))
+		g.Get("/admin/ads", h.AdminAdsListPage)
+	})
+
+	r.Group(func(g chi.Router) {
+		g.Use(authctx.RequirePagePermission("promo.ad_plan.view"))
+		g.Get("/admin/ad-plan", h.AdminAdPlansPage)
+	})
+
+	r.Group(func(g chi.Router) {
+		g.Use(authctx.RequirePagePermission("promo.offer_location.view"))
 		g.Get("/admin/offers/locations", h.AdminOfferLocationsPage)
 		g.Get("/admin/offers/{id}/locations", h.AdminOfferLocationsPage)
 	})

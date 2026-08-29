@@ -120,20 +120,33 @@ func tenantSessionsContent(lang, dir string, data TenantSessionsViewData) templ.
 			templ_7745c5c3_Var4 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"stack-xl\" style=\"max-width:1100px; margin:0 auto; padding-bottom:3rem;\"><!-- Header Banner --><div class=\"glass-panel p-6\" style=\"display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1.5rem; border-radius:var(--radius-2xl);\"><div style=\"display:flex; align-items:center; gap:1rem;\"><div style=\"width:54px; height:54px; border-radius:var(--radius-xl); background:var(--primary-subtle); color:var(--primary); display:flex; align-items:center; justify-content:center; flex-shrink:0;\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"page-container\" style=\"max-width:980px; margin:0 auto; padding:1.5rem 1rem 3rem 1rem;\"><!-- Compact Page Header --><div style=\"display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem; margin-bottom:1.5rem;\"><div><h1 style=\"font-size:1.35rem; font-weight:800; color:var(--text); margin:0; display:flex; align-items:center; gap:0.5rem;\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = components.IconShield("icon-md").Render(ctx, templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = components.IconShield("icon-sm").Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</div><div><h1 style=\"font-size:1.45rem; font-weight:800; color:var(--text); margin:0;\">الأجهزة والجلسات النشطة المصرح بها</h1><p style=\"color:var(--text-secondary); font-size:0.875rem; margin-top:0.25rem; margin-bottom:0;\">مراقبة الأجهزة المتصلة بحساب المنشأة وإدارة الجلسات المتزامنة وفقاً لحدود باقة الاشتراك</p></div></div><div style=\"display:flex; gap:0.75rem; align-items:center; flex-wrap:wrap;\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "<span>الأجهزة والجلسات النشطة</span></h1><p style=\"color:var(--text-secondary); font-size:0.85rem; margin:0.25rem 0 0 0;\">إدارة الأجهزة المتصلة بحساب المنشأة وسعة الجلسات المتزامنة (")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		var templ_7745c5c3_Var5 string
+		templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(data.PlanName)
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `pages/tenant_sessions.templ`, Line: 45, Col: 131}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, ")</p></div><div style=\"display:flex; gap:0.5rem; align-items:center;\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		if data.IsVendor {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "<a href=\"/vendor/subscription\" class=\"btn btn-primary btn-sm fw-800\" style=\"padding:0.6rem 1.25rem;\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "<a href=\"/vendor/subscription\" class=\"btn btn-outline-brand btn-sm font-bold\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -141,12 +154,12 @@ func tenantSessionsContent(lang, dir string, data TenantSessionsViewData) templ.
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "<span>ترقية باقة المنشأة</span></a>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "<span>ترقية الباقة</span></a>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 		} else {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "<a href=\"/customer/subscription\" class=\"btn btn-primary btn-sm fw-800\" style=\"padding:0.6rem 1.25rem;\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "<a href=\"/customer/subscription\" class=\"btn btn-outline-brand btn-sm font-bold\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -154,240 +167,182 @@ func tenantSessionsContent(lang, dir string, data TenantSessionsViewData) templ.
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "<span>ترقية باقة المنشأة</span></a>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "<span>ترقية الباقة</span></a>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "</div></div><!-- Flash Notices -->")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "</div></div><!-- Flash Notices -->")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		if data.NoticeMessage != "" {
 			if data.NoticeType == "error" {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "<div class=\"alert alert-danger\" style=\"display:flex; align-items:center; gap:0.75rem; border-radius:var(--radius-xl); padding:1rem 1.25rem;\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "<div class=\"alert alert-danger\" style=\"border-radius:var(--radius-lg); padding:0.75rem 1rem; margin-bottom:1.25rem; font-size:0.875rem; font-weight:600; display:flex; align-items:center; gap:0.5rem;\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = components.IconAlert("icon-sm").Render(ctx, templ_7745c5c3_Buffer)
+				templ_7745c5c3_Err = components.IconAlert("icon-xs").Render(ctx, templ_7745c5c3_Buffer)
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "<span style=\"font-weight:700; font-size:0.925rem;\">")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				var templ_7745c5c3_Var5 string
-				templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(data.NoticeMessage)
-				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/tenant_sessions.templ`, Line: 72, Col: 76}
-				}
-				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "</span></div>")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-			} else {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "<div class=\"alert alert-success\" style=\"display:flex; align-items:center; gap:0.75rem; border-radius:var(--radius-xl); padding:1rem 1.25rem; background:var(--success-surface); border:1px solid var(--success-border); color:var(--success-text);\">")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				templ_7745c5c3_Err = components.IconCheckCircle("icon-sm").Render(ctx, templ_7745c5c3_Buffer)
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "<span style=\"font-weight:700; font-size:0.925rem;\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "<span>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var6 string
 				templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(data.NoticeMessage)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/tenant_sessions.templ`, Line: 77, Col: 76}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `pages/tenant_sessions.templ`, Line: 69, Col: 31}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "</span></div>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "</span></div>")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+			} else {
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "<div class=\"alert alert-success\" style=\"border-radius:var(--radius-lg); padding:0.75rem 1rem; margin-bottom:1.25rem; font-size:0.875rem; font-weight:600; display:flex; align-items:center; gap:0.5rem;\">")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				templ_7745c5c3_Err = components.IconCheckCircle("icon-xs").Render(ctx, templ_7745c5c3_Buffer)
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "<span>")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				var templ_7745c5c3_Var7 string
+				templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(data.NoticeMessage)
+				if templ_7745c5c3_Err != nil {
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `pages/tenant_sessions.templ`, Line: 74, Col: 31}
+				}
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "</span></div>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "<!-- 3 Quota KPI Cards --><div style=\"display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:1.25rem;\"><!-- Card 1: Active Concurrent Sessions --><div class=\"card p-6\" style=\"border-radius:var(--radius-xl); border:1px solid var(--border); background:var(--surface-raised);\"><div style=\"display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;\"><span style=\"font-size:0.875rem; font-weight:700; color:var(--text-secondary);\">الجلسات المتصلة حالياً</span><div style=\"width:36px; height:36px; border-radius:var(--radius-md); background:var(--primary-subtle); color:var(--primary); display:flex; align-items:center; justify-content:center;\">")
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		templ_7745c5c3_Err = components.IconUsers("icon-xs").Render(ctx, templ_7745c5c3_Buffer)
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "</div></div><div style=\"font-size:1.85rem; font-weight:900; color:var(--text); line-height:1;\" class=\"tabular-nums\">")
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		var templ_7745c5c3_Var7 string
-		templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", len(data.Sessions)))
-		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/tenant_sessions.templ`, Line: 93, Col: 44}
-		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, " <span style=\"font-size:1rem; font-weight:700; color:var(--text-muted);\">/ ")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "<!-- Compact Metrics Bar --><div class=\"card p-4\" style=\"border-radius:var(--radius-xl); margin-bottom:1.5rem; background:var(--surface);\"><div style=\"display:grid; grid-template-columns:repeat(auto-fit, minmax(180px, 1fr)); gap:1.25rem; align-items:center;\"><div><div style=\"font-size:0.75rem; font-weight:700; color:var(--text-muted); text-transform:uppercase;\">الجلسات المتصلة</div><div style=\"font-size:1.4rem; font-weight:800; color:var(--text); margin-top:0.15rem;\" class=\"tabular-nums\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var8 string
-		templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", data.MaxLoginSessions))
+		templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", len(data.Sessions)))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/tenant_sessions.templ`, Line: 93, Col: 163}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `pages/tenant_sessions.templ`, Line: 85, Col: 45}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var8))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, " جلسات</span></div><div style=\"margin-top:0.75rem; display:flex; align-items:center; gap:0.4rem;\">")
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		if len(data.Sessions) >= data.MaxLoginSessions {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "<span class=\"badge badge-amber text-xs font-bold\">تم بلوغ الحد الأقصى للجلسات</span>")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-		} else {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "<span class=\"badge badge-emerald text-xs font-bold\">ضمن السعة المسموحة</span>")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, "</div></div><!-- Card 2: Plan Concurrent Quota --><div class=\"card p-6\" style=\"border-radius:var(--radius-xl); border:1px solid var(--border); background:var(--surface-raised);\"><div style=\"display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;\"><span style=\"font-size:0.875rem; font-weight:700; color:var(--text-secondary);\">حد الجلسات المتزامنة</span><div style=\"width:36px; height:36px; border-radius:var(--radius-md); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center;\">")
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		templ_7745c5c3_Err = components.IconZap("icon-xs").Render(ctx, templ_7745c5c3_Buffer)
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, "</div></div><div style=\"font-size:1.85rem; font-weight:900; color:var(--text); line-height:1;\" class=\"tabular-nums\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, " <span style=\"font-size:0.85rem; font-weight:600; color:var(--text-secondary);\">/ ")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var9 string
 		templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", data.MaxLoginSessions))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/tenant_sessions.templ`, Line: 113, Col: 47}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `pages/tenant_sessions.templ`, Line: 85, Col: 171}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var9))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, " <span style=\"font-size:1rem; font-weight:700; color:var(--text-muted);\">جلسات متزامنة</span></div><div style=\"margin-top:0.75rem; font-size:0.8rem; color:var(--text-secondary);\">باقة الحساب: <strong style=\"color:var(--text);\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, " مسموحة</span></div></div><div><div style=\"font-size:0.75rem; font-weight:700; color:var(--text-muted); text-transform:uppercase;\">حالة السعة</div><div style=\"margin-top:0.25rem;\">")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		if len(data.Sessions) >= data.MaxLoginSessions {
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "<span class=\"badge badge-amber font-bold text-xs\">الحد الأقصى مستنفد</span>")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+		} else {
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "<span class=\"badge badge-emerald font-bold text-xs\">سعة متاحة</span>")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, "</div></div><div><div style=\"font-size:0.75rem; font-weight:700; color:var(--text-muted); text-transform:uppercase;\">حد الأجهزة المعتمدة</div><div style=\"font-size:1.15rem; font-weight:800; color:var(--text); margin-top:0.15rem;\" class=\"tabular-nums\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var10 string
-		templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.JoinStringErrs(data.PlanName)
+		templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", data.MaxDevices))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/tenant_sessions.templ`, Line: 116, Col: 78}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `pages/tenant_sessions.templ`, Line: 103, Col: 42}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var10))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, "</strong></div></div><!-- Card 3: Authorized Devices Limit --><div class=\"card p-6\" style=\"border-radius:var(--radius-xl); border:1px solid var(--border); background:var(--surface-raised);\"><div style=\"display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;\"><span style=\"font-size:0.875rem; font-weight:700; color:var(--text-secondary);\">حد الأجهزة المصرح بها</span><div style=\"width:36px; height:36px; border-radius:var(--radius-md); background:var(--success-surface); color:var(--success); display:flex; align-items:center; justify-content:center;\">")
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		templ_7745c5c3_Err = components.IconShield("icon-xs").Render(ctx, templ_7745c5c3_Buffer)
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, "</div></div><div style=\"font-size:1.85rem; font-weight:900; color:var(--text); line-height:1;\" class=\"tabular-nums\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, " أجهزة</div></div><div><div style=\"font-size:0.75rem; font-weight:700; color:var(--text-muted); text-transform:uppercase;\">باقة المنشأة</div><div style=\"font-size:1rem; font-weight:800; color:var(--brand); margin-top:0.15rem;\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var11 string
-		templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", data.MaxDevices))
+		templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.JoinStringErrs(data.PlanName)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/tenant_sessions.templ`, Line: 129, Col: 41}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `pages/tenant_sessions.templ`, Line: 110, Col: 21}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var11))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 25, " <span style=\"font-size:1rem; font-weight:700; color:var(--text-muted);\">أجهزة مصرحة</span></div><div style=\"margin-top:0.75rem; font-size:0.8rem; color:var(--text-secondary);\">حماية أمنية وتشفير جلسات مشدد</div></div></div><!-- Security Enforcement Notice Banner --><div style=\"padding:1.15rem 1.35rem; background:linear-gradient(135deg, var(--primary-subtle) 0%, var(--surface-sunken) 100%); border:1px solid var(--border); border-radius:var(--radius-xl); display:flex; align-items:flex-start; gap:1rem;\"><div style=\"color:var(--primary); flex-shrink:0; margin-top:2px;\">")
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		templ_7745c5c3_Err = components.IconInfo("icon-sm").Render(ctx, templ_7745c5c3_Buffer)
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 26, "</div><div style=\"font-size:0.875rem; color:var(--text); line-height:1.6;\"><strong>آلية تطبيق حد الجلسات والأجهزة:</strong> يتم تطبيق الحد الأقصى للجلسات المتزامنة (")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, "</div></div></div></div><!-- Active Sessions List --><div class=\"card p-5\" style=\"border-radius:var(--radius-xl); margin-bottom:1.5rem; background:var(--surface);\"><div style=\"display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem; flex-wrap:wrap; gap:0.75rem;\"><h2 style=\"font-size:1rem; font-weight:800; color:var(--text); margin:0;\">الأجهزة المتصلة حالياً (")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var12 string
-		templ_7745c5c3_Var12, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", data.MaxLoginSessions))
+		templ_7745c5c3_Var12, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", len(data.Sessions)))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/tenant_sessions.templ`, Line: 143, Col: 196}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `pages/tenant_sessions.templ`, Line: 120, Col: 88}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var12))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 27, " جلسات) آلياً على مستوى المنشأة بالكامل. في حال تسجيل الدخول من جهاز جديد مع بلوغ الحد الأقصى، يقوم النظام تلقائياً بإنهاء أقدم جلسة نشطة وتسجيل سبب الخروج لحماية حسابك من الاستخدام غير المصرح به.</div></div><!-- Connected Devices List Card --><div class=\"card p-6\" style=\"border-radius:var(--radius-2xl); border:1px solid var(--border);\"><div style=\"display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; flex-wrap:wrap; gap:1rem; border-bottom:1px solid var(--border); padding-bottom:1.25rem;\"><div><h2 style=\"font-size:1.15rem; font-weight:800; color:var(--text); margin:0;\">الأجهزة والجلسات المتصلة حالياً (")
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		var templ_7745c5c3_Var13 string
-		templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", len(data.Sessions)))
-		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/tenant_sessions.templ`, Line: 152, Col: 106}
-		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var13))
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 28, ")</h2><p style=\"font-size:0.85rem; color:var(--text-secondary); margin:0.25rem 0 0 0;\">قائمة الأجهزة والمتصفحات المسجلة حالياً في منظومة المنشأة</p></div>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, ")</h2>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		if len(data.Sessions) > 1 {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 29, "<form action=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, "<form action=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			var templ_7745c5c3_Var14 templ.SafeURL
-			templ_7745c5c3_Var14, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(ternary(data.IsVendor, "/vendor/sessions/revoke-all", "/customer/sessions/revoke-all")))
+			var templ_7745c5c3_Var13 templ.SafeURL
+			templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(ternary(data.IsVendor, "/vendor/sessions/revoke-all", "/customer/sessions/revoke-all")))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/tenant_sessions.templ`, Line: 160, Col: 121}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `pages/tenant_sessions.templ`, Line: 124, Col: 121}
 			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var14))
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 30, "\" method=\"POST\" class=\"m-0\" onsubmit=\"return confirm('هل أنت متأكد من إنهاء كافة الجلسات الأخرى والإبقاء على هذا الجهاز فقط؟');\"><input type=\"hidden\" name=\"current_token\" value=\"")
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var13))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			var templ_7745c5c3_Var15 string
-			templ_7745c5c3_Var15, templ_7745c5c3_Err = templ.ResolveAttributeValue(data.CurrentToken)
-			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/tenant_sessions.templ`, Line: 161, Col: 73}
-			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var15)
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 25, "\" method=\"POST\" class=\"m-0\" onsubmit=\"return confirm('إنهاء كافة الجلسات الأخرى والإبقاء على هذا الجهاز فقط؟');\"><input type=\"hidden\" name=\"current_token\" value=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 31, "\"> <button type=\"submit\" class=\"btn btn-outline-danger btn-sm fw-800\" style=\"gap:0.4rem;\">")
+			var templ_7745c5c3_Var14 string
+			templ_7745c5c3_Var14, templ_7745c5c3_Err = templ.ResolveAttributeValue(data.CurrentToken)
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `pages/tenant_sessions.templ`, Line: 125, Col: 73}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var14)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 26, "\"> <button type=\"submit\" class=\"btn btn-outline-danger btn-xs font-bold\" style=\"padding:0.35rem 0.75rem;\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -395,12 +350,12 @@ func tenantSessionsContent(lang, dir string, data TenantSessionsViewData) templ.
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 32, "<span>إنهاء كافة الجلسات الأخرى</span></button></form>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 27, "<span>إنهاء الجلسات الأخرى</span></button></form>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 33, "</div>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 28, "</div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -413,216 +368,190 @@ func tenantSessionsContent(lang, dir string, data TenantSessionsViewData) templ.
 				return templ_7745c5c3_Err
 			}
 		} else {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 34, "<div style=\"display:flex; flex-direction:column; gap:1rem;\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 29, "<div style=\"display:flex; flex-direction:column; gap:0.6rem;\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			for _, sess := range data.Sessions {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 35, "<div style=\"")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 30, "<div style=\"")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				var templ_7745c5c3_Var16 string
-				templ_7745c5c3_Var16, templ_7745c5c3_Err = templruntime.SanitizeStyleAttributeValues(fmt.Sprintf("display:flex; justify-content:space-between; align-items:center; padding:1.25rem 1.35rem; border:1px solid %s; border-radius:var(--radius-xl); background:%s; flex-wrap:wrap; gap:1rem; transition:all 0.15s ease;",
-					ternary(sess.Token == data.CurrentToken, "var(--primary)", "var(--border)"),
+				var templ_7745c5c3_Var15 string
+				templ_7745c5c3_Var15, templ_7745c5c3_Err = templruntime.SanitizeStyleAttributeValues(fmt.Sprintf("display:flex; justify-content:space-between; align-items:center; padding:0.85rem 1rem; border-radius:var(--radius-lg); border:1px solid %s; background:%s; flex-wrap:wrap; gap:0.75rem;",
+					ternary(sess.Token == data.CurrentToken, "var(--primary-subtle)", "var(--border)"),
 					ternary(sess.Token == data.CurrentToken, "var(--primary-subtle)", "var(--surface-sunken)")))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/tenant_sessions.templ`, Line: 181, Col: 99}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `pages/tenant_sessions.templ`, Line: 145, Col: 99}
 				}
-				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var16))
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var15))
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 36, "\"><div style=\"display:flex; align-items:center; gap:1rem;\"><div style=\"font-size:1.75rem; line-height:1; flex-shrink:0;\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 31, "\"><div style=\"display:flex; align-items:center; gap:0.75rem; min-width:240px;\"><span style=\"font-size:1.35rem; line-height:1; flex-shrink:0;\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				if sess.Icon != "" {
-					var templ_7745c5c3_Var17 string
-					templ_7745c5c3_Var17, templ_7745c5c3_Err = templ.JoinStringErrs(sess.Icon)
+					var templ_7745c5c3_Var16 string
+					templ_7745c5c3_Var16, templ_7745c5c3_Err = templ.JoinStringErrs(sess.Icon)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/tenant_sessions.templ`, Line: 186, Col: 21}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `pages/tenant_sessions.templ`, Line: 150, Col: 21}
+					}
+					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var16))
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+				} else {
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 32, "💻")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+				}
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 33, "</span><div><div style=\"display:flex; align-items:center; gap:0.5rem; flex-wrap:wrap;\"><span style=\"font-weight:700; font-size:0.9rem; color:var(--text);\">")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				if sess.DeviceName != "" {
+					var templ_7745c5c3_Var17 string
+					templ_7745c5c3_Var17, templ_7745c5c3_Err = templ.JoinStringErrs(sess.DeviceName)
+					if templ_7745c5c3_Err != nil {
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `pages/tenant_sessions.templ`, Line: 159, Col: 29}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var17))
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 				} else {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 37, "💻")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 34, "جهاز غير محدد")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 38, "</div><div><div style=\"display:flex; align-items:center; gap:0.6rem; flex-wrap:wrap;\"><span style=\"font-weight:800; font-size:0.95rem; color:var(--text);\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 35, "</span> ")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				if sess.DeviceName != "" {
-					var templ_7745c5c3_Var18 string
-					templ_7745c5c3_Var18, templ_7745c5c3_Err = templ.JoinStringErrs(sess.DeviceName)
-					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/tenant_sessions.templ`, Line: 195, Col: 29}
-					}
-					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var18))
+				if sess.Token == data.CurrentToken {
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 36, "<span class=\"badge badge-emerald text-xs font-bold\" style=\"padding:0.15rem 0.5rem;\">جهازك الحالي</span>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-				} else if sess.UserAgent != "" {
-					var templ_7745c5c3_Var19 string
-					templ_7745c5c3_Var19, templ_7745c5c3_Err = templ.JoinStringErrs(sess.UserAgent)
+				}
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 37, "</div><div style=\"display:flex; align-items:center; gap:0.75rem; margin-top:0.2rem; font-size:0.75rem; color:var(--text-secondary); flex-wrap:wrap;\" class=\"tabular-nums\"><span>")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				var templ_7745c5c3_Var18 string
+				templ_7745c5c3_Var18, templ_7745c5c3_Err = templ.JoinStringErrs(sess.Email)
+				if templ_7745c5c3_Err != nil {
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `pages/tenant_sessions.templ`, Line: 171, Col: 28}
+				}
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var18))
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 38, "</span> ")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				if sess.IP != "" {
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 39, "<span>• ")
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/tenant_sessions.templ`, Line: 197, Col: 28}
+						return templ_7745c5c3_Err
+					}
+					var templ_7745c5c3_Var19 string
+					templ_7745c5c3_Var19, templ_7745c5c3_Err = templ.JoinStringErrs(sess.IP)
+					if templ_7745c5c3_Err != nil {
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `pages/tenant_sessions.templ`, Line: 173, Col: 30}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var19))
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-				} else {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 39, "جهاز غير محدد")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 40, "</span> ")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 40, "</span> ")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				if sess.Token == data.CurrentToken {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 41, "<span class=\"badge badge-emerald text-xs font-bold\">✓ هذا الجهاز (جلستك الحالية)</span>")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 42, "</div><div style=\"display:flex; align-items:center; gap:1rem; margin-top:0.4rem; font-size:0.8rem; color:var(--text-secondary); flex-wrap:wrap;\" class=\"tabular-nums\"><span>المستخدم: <strong style=\"color:var(--text);\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 41, "<span>• ")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var20 string
-				templ_7745c5c3_Var20, templ_7745c5c3_Err = templ.JoinStringErrs(sess.Email)
+				templ_7745c5c3_Var20, templ_7745c5c3_Err = templ.JoinStringErrs(sess.CreatedAt.Format("2006-01-02 15:04"))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/tenant_sessions.templ`, Line: 209, Col: 81}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `pages/tenant_sessions.templ`, Line: 175, Col: 63}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var20))
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 43, "</strong></span> ")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 42, "</span></div></div></div><div>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				if sess.IP != "" {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 44, "<span>IP: <strong>")
+				if sess.Token == data.CurrentToken {
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 43, "<form action=\"/auth/logout\" method=\"POST\" class=\"m-0\"><button type=\"submit\" class=\"btn btn-secondary btn-xs font-semibold\" style=\"padding:0.35rem 0.75rem;\"><span>تسجيل الخروج</span></button></form>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					var templ_7745c5c3_Var21 string
-					templ_7745c5c3_Var21, templ_7745c5c3_Err = templ.JoinStringErrs(sess.IP)
+				} else {
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 44, "<form action=\"")
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/tenant_sessions.templ`, Line: 211, Col: 38}
+						return templ_7745c5c3_Err
+					}
+					var templ_7745c5c3_Var21 templ.SafeURL
+					templ_7745c5c3_Var21, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(ternary(data.IsVendor, "/vendor/sessions/revoke", "/customer/sessions/revoke")))
+					if templ_7745c5c3_Err != nil {
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `pages/tenant_sessions.templ`, Line: 188, Col: 117}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var21))
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 45, "</strong></span> ")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 45, "\" method=\"POST\" class=\"m-0\" onsubmit=\"return confirm('إنهاء جلسة هذا الجهاز؟');\"><input type=\"hidden\" name=\"token\" value=\"")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					var templ_7745c5c3_Var22 string
+					templ_7745c5c3_Var22, templ_7745c5c3_Err = templ.ResolveAttributeValue(sess.Token)
+					if templ_7745c5c3_Err != nil {
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `pages/tenant_sessions.templ`, Line: 189, Col: 62}
+					}
+					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var22)
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 46, "\"> <button type=\"submit\" class=\"btn btn-outline-danger btn-xs font-semibold\" style=\"padding:0.35rem 0.75rem;\"><span>إنهاء</span></button></form>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 46, "<span>وقت الدخول: <strong>")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				var templ_7745c5c3_Var22 string
-				templ_7745c5c3_Var22, templ_7745c5c3_Err = templ.JoinStringErrs(sess.CreatedAt.Format("2006-01-02 15:04"))
-				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/tenant_sessions.templ`, Line: 213, Col: 88}
-				}
-				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var22))
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 47, "</strong></span></div></div></div><div>")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				if sess.Token == data.CurrentToken {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 48, "<form action=\"/auth/logout\" method=\"POST\" class=\"m-0\"><button type=\"submit\" class=\"btn btn-secondary btn-sm\" title=\"تسجيل الخروج من هذا الجهاز\">")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					templ_7745c5c3_Err = components.IconLogout("icon-xs").Render(ctx, templ_7745c5c3_Buffer)
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 49, "<span>تسجيل الخروج</span></button></form>")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-				} else {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 50, "<form action=\"")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					var templ_7745c5c3_Var23 templ.SafeURL
-					templ_7745c5c3_Var23, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(ternary(data.IsVendor, "/vendor/sessions/revoke", "/customer/sessions/revoke")))
-					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/tenant_sessions.templ`, Line: 227, Col: 117}
-					}
-					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var23))
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 51, "\" method=\"POST\" class=\"m-0\" onsubmit=\"return confirm('هل أنت متأكد من إنهاء جلسة هذا الجهاز؟');\"><input type=\"hidden\" name=\"token\" value=\"")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					var templ_7745c5c3_Var24 string
-					templ_7745c5c3_Var24, templ_7745c5c3_Err = templ.ResolveAttributeValue(sess.Token)
-					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/tenant_sessions.templ`, Line: 228, Col: 62}
-					}
-					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var24)
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 52, "\"> <button type=\"submit\" class=\"btn btn-danger btn-sm\" title=\"إنهاء الجلسة فوراً\">")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					templ_7745c5c3_Err = components.IconTrash("icon-xs").Render(ctx, templ_7745c5c3_Buffer)
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 53, "<span>إنهاء الجلسة</span></button></form>")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 54, "</div></div>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 47, "</div></div>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 55, "</div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 48, "</div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 56, "</div><!-- Password Update & Account Security Card --><div class=\"card p-6\" style=\"border-radius:var(--radius-2xl); border:1px solid var(--border); max-width:700px;\"><div style=\"margin-bottom:1.5rem;\"><h2 style=\"font-size:1.15rem; font-weight:800; color:var(--text); margin:0;\">تحديث كلمة المرور وتأمين الدخول</h2><p style=\"font-size:0.85rem; color:var(--text-secondary); margin:0.25rem 0 0 0;\">قم بتغيير كلمة المرور الخاصة بحسابك لتعزيز أمان المنشأة. سيؤدي التغيير إلى إنهاء كافة الجلسات الأخرى تلقائياً.</p></div><form action=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 49, "</div><!-- Password Security Form --><div class=\"card p-5\" style=\"border-radius:var(--radius-xl); background:var(--surface); max-width:650px;\"><div style=\"margin-bottom:1rem;\"><h2 style=\"font-size:1rem; font-weight:800; color:var(--text); margin:0;\">تحديث كلمة المرور</h2><p style=\"font-size:0.8rem; color:var(--text-secondary); margin:0.2rem 0 0 0;\">تغيير كلمة المرور الخاصة بحسابك ينهي الجلسات الأخرى فوراً</p></div><form action=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		var templ_7745c5c3_Var25 templ.SafeURL
-		templ_7745c5c3_Var25, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(ternary(data.IsVendor, "/vendor/password", "/customer/password")))
+		var templ_7745c5c3_Var23 templ.SafeURL
+		templ_7745c5c3_Var23, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(ternary(data.IsVendor, "/vendor/password", "/customer/password")))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/tenant_sessions.templ`, Line: 253, Col: 97}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `pages/tenant_sessions.templ`, Line: 213, Col: 97}
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var25))
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var23))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 57, "\" method=\"POST\" class=\"stack\"><div class=\"form-group mb-0\"><label class=\"form-label\" for=\"sess-current-password\">كلمة المرور الحالية</label> <input type=\"password\" id=\"sess-current-password\" name=\"current_password\" required class=\"form-input\" placeholder=\"••••••••\"></div><div class=\"form-grid-2\"><div class=\"form-group mb-0\"><label class=\"form-label\" for=\"sess-new-password\">كلمة المرور الجديدة</label> <input type=\"password\" id=\"sess-new-password\" name=\"new_password\" required minlength=\"8\" class=\"form-input\" placeholder=\"••••••••\"></div><div class=\"form-group mb-0\"><label class=\"form-label\" for=\"sess-confirm-password\">تأكيد كلمة المرور الجديدة</label> <input type=\"password\" id=\"sess-confirm-password\" name=\"confirm_password\" required minlength=\"8\" class=\"form-input\" placeholder=\"••••••••\"></div></div><div style=\"margin-top:0.75rem;\"><button type=\"submit\" class=\"btn btn-primary fw-800\" style=\"padding:0.65rem 1.75rem;\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 50, "\" method=\"POST\" class=\"stack-sm\"><div class=\"form-group mb-2\"><label class=\"form-label text-xs\" for=\"sess-current-password\">كلمة المرور الحالية</label> <input type=\"password\" id=\"sess-current-password\" name=\"current_password\" required class=\"form-input form-input-sm\" placeholder=\"••••••••\"></div><div class=\"form-grid-2 mb-2\"><div class=\"form-group mb-0\"><label class=\"form-label text-xs\" for=\"sess-new-password\">كلمة المرور الجديدة</label> <input type=\"password\" id=\"sess-new-password\" name=\"new_password\" required minlength=\"8\" class=\"form-input form-input-sm\" placeholder=\"8 أحرف كحد أدنى\"></div><div class=\"form-group mb-0\"><label class=\"form-label text-xs\" for=\"sess-confirm-password\">تأكيد الجديدة</label> <input type=\"password\" id=\"sess-confirm-password\" name=\"confirm_password\" required minlength=\"8\" class=\"form-input form-input-sm\" placeholder=\"••••••••\"></div></div><div style=\"margin-top:0.75rem;\"><button type=\"submit\" class=\"btn btn-primary btn-sm font-bold\" style=\"padding:0.45rem 1.25rem;\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -630,7 +559,7 @@ func tenantSessionsContent(lang, dir string, data TenantSessionsViewData) templ.
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 58, "<span>تحديث كلمة المرور</span></button></div></form></div></div>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 51, "<span>حفظ التغييرات</span></button></div></form></div></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

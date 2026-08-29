@@ -303,6 +303,7 @@ func TestCompareUploadSubmit_E2E(t *testing.T) {
 		UserID:         100,
 		OrganizationID: 200,
 		OrgType:        "vendor",
+		Permissions:    []string{"vendor.*"},
 	}
 	req = req.WithContext(authctx.WithActor(req.Context(), actor))
 
@@ -414,7 +415,7 @@ func TestCompareFileMappingModal_E2E(t *testing.T) {
 		{FileID: file.ID, SKU: "102", RawName: "كونجستال 20 قرص", NormalizedName: "كونجستال 20 قرص", Price: money.FromMinor(3100), Discount: 20.0},
 	})
 
-	actor := authctx.Actor{UserID: 100, OrganizationID: 200, OrgType: "customer"}
+	actor := authctx.Actor{UserID: 100, OrganizationID: 200, OrgType: "customer", Permissions: []string{"pharmacy.*"}}
 
 	// Test GET /compare/files/{id}/mapping-modal
 	reqModal := httptest.NewRequest("GET", fmt.Sprintf("/compare/files/%d/mapping-modal", file.ID), nil)
@@ -478,7 +479,7 @@ func TestCompareQuickSearch_E2E(t *testing.T) {
 		},
 	})
 
-	actor := authctx.Actor{UserID: 100, OrganizationID: 200, OrgType: "customer"}
+	actor := authctx.Actor{UserID: 100, OrganizationID: 200, OrgType: "customer", Permissions: []string{"pharmacy.*"}}
 
 	// Test GET /compare/search?q=بانادول
 	req := httptest.NewRequest("GET", "/compare/search?q=بانادول", nil)
@@ -547,7 +548,7 @@ func TestMarketDiscountsPage_E2E(t *testing.T) {
 		},
 	})
 
-	actor := authctx.Actor{UserID: 100, OrganizationID: 200, OrgType: "vendor"}
+	actor := authctx.Actor{UserID: 100, OrganizationID: 200, OrgType: "vendor", Permissions: []string{"vendor.*"}}
 
 	req := httptest.NewRequest("GET", "/market-discounts?q=اماريل&supplier=مخزن+المتحدة+بلقيس", nil)
 	req = req.WithContext(authctx.WithActor(req.Context(), actor))
@@ -580,8 +581,8 @@ func TestCompare_PharmacyAccessible(t *testing.T) {
 		nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, logger,
 	)
 
-	pharmacyActor := authctx.Actor{UserID: 100, OrganizationID: 200, OrgType: "customer"}
-	vendorActor := authctx.Actor{UserID: 101, OrganizationID: 201, OrgType: "vendor"}
+	pharmacyActor := authctx.Actor{UserID: 100, OrganizationID: 200, OrgType: "customer", Permissions: []string{"pharmacy.*"}}
+	vendorActor := authctx.Actor{UserID: 101, OrganizationID: 201, OrgType: "vendor", Permissions: []string{"vendor.*"}}
 
 	// 1. Compare Tool Page should NOT be accessible for pharmacy (redirects to dashboard)
 	reqTool := httptest.NewRequest("GET", "/compare/tool", nil)

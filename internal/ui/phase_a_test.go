@@ -55,7 +55,7 @@ func TestPhaseA_FabricatedDatasets_Removed(t *testing.T) {
 	handler := ui.NewUIHandler(nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil)
 	r := newRealUIHandlerRouter(handler)
 
-	staffActor := authctx.Actor{UserID: 1, IsStaff: true, Role: "super_admin"}
+	staffActor := authctx.Actor{UserID: 1, IsStaff: true, Role: "super_admin", Permissions: []string{"*"}}
 
 	// 1. Cities
 	rec := doGET(t, r, "/admin/cities", staffActor)
@@ -85,8 +85,8 @@ func TestPhaseA_NoOpDestructiveActions_DoNotEmitFakeSuccess(t *testing.T) {
 	handler := ui.NewUIHandler(nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil)
 	r := newRealUIHandlerRouter(handler)
 
-	staffActor := authctx.Actor{UserID: 1, IsStaff: true, Role: "super_admin"}
-	vendorActor := authctx.Actor{UserID: 2, OrganizationID: 10, OrgType: "vendor"}
+	staffActor := authctx.Actor{UserID: 1, IsStaff: true, Role: "super_admin", Permissions: []string{"*"}}
+	vendorActor := authctx.Actor{UserID: 2, OrganizationID: 10, OrgType: "vendor", Permissions: []string{"vendor.*"}}
 
 	// Trash restore without DB service must not say success
 	rec := doPOST(t, r, "/admin/trash-list/products/10/restore", url.Values{}, staffActor)

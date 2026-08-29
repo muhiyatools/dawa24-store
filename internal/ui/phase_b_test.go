@@ -15,7 +15,7 @@ import (
 func TestPhaseB_UserListAliases_Redirect301(t *testing.T) {
 	handler := ui.NewUIHandler(nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil)
 	r := newRealUIHandlerRouter(handler)
-	adminActor := authctx.Actor{UserID: 1, IsStaff: true, Role: "super_admin"}
+	adminActor := authctx.Actor{UserID: 1, IsStaff: true, Role: "super_admin", Permissions: []string{"*"}}
 
 	tests := []struct {
 		path           string
@@ -46,7 +46,7 @@ func TestPhaseB_UserListAliases_Redirect301(t *testing.T) {
 func TestPhaseB_OrgAliases_Redirect301(t *testing.T) {
 	handler := ui.NewUIHandler(nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil)
 	r := newRealUIHandlerRouter(handler)
-	adminActor := authctx.Actor{UserID: 1, IsStaff: true, Role: "super_admin"}
+	adminActor := authctx.Actor{UserID: 1, IsStaff: true, Role: "super_admin", Permissions: []string{"*"}}
 
 	for _, path := range []string{"/admin/vendors", "/admin/suppliers"} {
 		rec := doGET(t, r, path, adminActor)
@@ -59,7 +59,7 @@ func TestPhaseB_OrgAliases_Redirect301(t *testing.T) {
 func TestPhaseB_SponsorshipAndSavingAliases_Redirect301(t *testing.T) {
 	handler := ui.NewUIHandler(nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil)
 	r := newRealUIHandlerRouter(handler)
-	adminActor := authctx.Actor{UserID: 1, IsStaff: true, Role: "super_admin"}
+	adminActor := authctx.Actor{UserID: 1, IsStaff: true, Role: "super_admin", Permissions: []string{"*"}}
 
 	// 1. Sponsorships
 	rec := doGET(t, r, "/admin/offer-sponsorships", adminActor)
@@ -76,7 +76,7 @@ func TestPhaseB_SponsorshipAndSavingAliases_Redirect301(t *testing.T) {
 func TestPhaseB_PoliciesDuplication_Resolved(t *testing.T) {
 	handler := ui.NewUIHandler(nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil)
 	r := newRealUIHandlerRouter(handler)
-	adminActor := authctx.Actor{UserID: 1, IsStaff: true, Role: "super_admin"}
+	adminActor := authctx.Actor{UserID: 1, IsStaff: true, Role: "super_admin", Permissions: []string{"*"}}
 
 	// POST /admin/settings/policy is deleted and returns 404/405
 	rec := doPOST(t, r, "/admin/settings/policy", url.Values{
@@ -97,8 +97,8 @@ func TestPhaseB_PoliciesDuplication_Resolved(t *testing.T) {
 func TestPhaseB_DeadLinks_Resolved(t *testing.T) {
 	handler := ui.NewUIHandler(nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil)
 	r := newRealUIHandlerRouter(handler)
-	adminActor := authctx.Actor{UserID: 1, IsStaff: true, Role: "super_admin"}
-	customerActor := authctx.Actor{UserID: 2, OrganizationID: 10, OrgType: "customer"}
+	adminActor := authctx.Actor{UserID: 1, IsStaff: true, Role: "super_admin", Permissions: []string{"*"}}
+	customerActor := authctx.Actor{UserID: 2, OrganizationID: 10, OrgType: "customer", Permissions: []string{"pharmacy.*"}}
 
 	// 1. /admin/notifications is reachable
 	rec := doGET(t, r, "/admin/notifications", adminActor)

@@ -523,3 +523,39 @@ func (r stubRepo) SetMaxLoginSessions(_ context.Context, _ int64, _ int) error {
 	r.fail("SetMaxLoginSessions")
 	return nil
 }
+
+func (r stubRepo) ListPlatformRoles(ctx context.Context) ([]*identity.PlatformRole, error) {
+	return nil, nil
+}
+
+func (r stubRepo) GetPlatformRole(ctx context.Context, key string) (*identity.PlatformRole, error) {
+	return nil, nil
+}
+
+func (r stubRepo) CreatePlatformRole(ctx context.Context, role *identity.PlatformRole, actorID int64) error {
+	return nil
+}
+
+func (r stubRepo) UpdatePlatformRole(ctx context.Context, role *identity.PlatformRole, actorID int64) error {
+	return nil
+}
+
+func (r stubRepo) DeletePlatformRole(ctx context.Context, key string) error { return nil }
+
+func (happyRepo) ListPlatformRoles(ctx context.Context) ([]*identity.PlatformRole, error) {
+	return nil, nil
+}
+
+func (happyRepo) GetPlatformRole(ctx context.Context, key string) (*identity.PlatformRole, error) {
+	return &identity.PlatformRole{Key: key}, nil
+}
+
+func (happyRepo) CreatePlatformRole(ctx context.Context, role *identity.PlatformRole, actorID int64) error {
+	return nil
+}
+
+func (happyRepo) UpdatePlatformRole(ctx context.Context, role *identity.PlatformRole, actorID int64) error {
+	return nil
+}
+
+func (happyRepo) DeletePlatformRole(ctx context.Context, key string) error { return nil }

@@ -1,6 +1,7 @@
 package layouts
 
 import (
+	"github.com/muhiya/dawa24-store/internal/platform/rbac"
 	"context"
 	"fmt"
 
@@ -32,97 +33,7 @@ templ CustomerShell(title string, activeNav string, lang string, dir string, per
 					</button>
 				</div>
 
-				<nav class="sidebar-nav">
-					
-					<!-- Group 1: الرئيسية والطلبات -->
-					<div class="sidebar-group">
-						<div class="sidebar-section-header">
-							<span>{ i18n.T(lang, "nav.orders_and_shipments") }</span>
-						</div>
-						<a href="/customer/dashboard" class={ "sidebar-link", templ.KV("active", activeNav == "dashboard") }>
-							@components.IconHome("icon-sm")
-							<span>{ i18n.T(lang, "nav.dashboard") }</span>
-						</a>
-						<a href="/customer/purchase-request" class={ "sidebar-link", templ.KV("active", activeNav == "purchase-request" || activeNav == "purchase_request" || activeNav == "smart-order" || activeNav == "smart_order") }>
-							@components.IconShoppingBag("icon-sm")
-							<span>طلب الشراء</span>
-						</a>
-						<a href="/orders" class={ "sidebar-link", templ.KV("active", activeNav == "orders") }>
-							@components.IconTruck("icon-sm")
-							<span>{ i18n.T(lang, "nav.orders_and_shipments") }</span>
-						</a>
-						<a href="/favorites" class={ "sidebar-link", templ.KV("active", activeNav == "favorites") }>
-							@components.IconHeart("icon-sm")
-							<span>{ i18n.T(lang, "nav.favorite_products") }</span>
-						</a>
-					</div>
-
-					<!-- Group 2: العروض والموردون -->
-					<div class="sidebar-group">
-						<div class="sidebar-section-header">
-							<span>{ i18n.T(lang, "nav.offers_and_discounts") }</span>
-						</div>
-						<a href="/offers" class={ "sidebar-link", templ.KV("active", activeNav == "offers") }>
-							@components.IconTag("icon-sm")
-							<span>{ i18n.T(lang, "nav.offers_and_discounts") }</span>
-						</a>
-						<a href="/customer/saving-products" class={ "sidebar-link", templ.KV("active", activeNav == "saving_products") }>
-							@components.IconPackage("icon-sm")
-							<span>{ i18n.T(lang, "nav.saving_products") }</span>
-						</a>
-						<a href="/customer/decision-memory" class={ "sidebar-link", templ.KV("active", activeNav == "decision_memory") }>
-							@components.IconZap("icon-sm")
-							<span>ذاكرة قرارات المطابقة</span>
-						</a>
-						<a href="/suppliers" class={ "sidebar-link", templ.KV("active", activeNav == "suppliers") }>
-							@components.IconBuilding("icon-sm")
-							<span>{ i18n.T(lang, "nav.suppliers_directory") }</span>
-						</a>
-						<a href="/suppliers/followed" class={ "sidebar-link", templ.KV("active", activeNav == "followed") }>
-							@components.IconHeart("icon-sm")
-							<span>{ i18n.T(lang, "nav.followed_suppliers") }</span>
-						</a>
-					</div>
-
-					<!-- Group 3: الخدمات والحساب -->
-					<div class="sidebar-group">
-						<div class="sidebar-section-header">
-							<span>{ i18n.T(lang, "nav.profile_and_settings") }</span>
-						</div>
-						<a href="/customer/branches" class={ "sidebar-link", templ.KV("active", activeNav == "branches") }>
-							@components.IconLocation("icon-sm")
-							<span>{ i18n.T(lang, "nav.pharmacy_branches") }</span>
-						</a>
-						<a href="/customer/documents" class={ "sidebar-link", templ.KV("active", activeNav == "documents") }>
-							@components.IconFile("icon-sm")
-							<span>{ i18n.T(lang, "nav.documents_and_licenses") }</span>
-						</a>
-						<a href="/customer/user-organization" class={ "sidebar-link", templ.KV("active", activeNav == "user_organization") }>
-							@components.IconBuilding("icon-sm")
-							<span>المستخدم-المنظمة</span>
-						</a>
-						<a href="/customer/subscription" class={ "sidebar-link", templ.KV("active", activeNav == "subscription") }>
-							@components.IconSparkles("icon-sm")
-							<span>{ i18n.T(lang, "nav.subscription_and_membership") }</span>
-						</a>
-						<a href="/customer/jobs" class={ "sidebar-link", templ.KV("active", activeNav == "jobs") }>
-							@components.IconBriefcase("icon-sm")
-							<span>{ i18n.T(lang, "nav.jobs_and_careers") }</span>
-						</a>
-						<a href="/customer/ai-logs" class={ "sidebar-link", templ.KV("active", activeNav == "ai_logs") }>
-							@components.IconSparkles("icon-sm")
-							<span>سجل استهلاك الذكاء الاصطناعي</span>
-						</a>
-						<a href="/customer/sessions" class={ "sidebar-link", templ.KV("active", activeNav == "sessions") }>
-							@components.IconShield("icon-sm")
-							<span>الأجهزة والجلسات النشطة</span>
-						</a>
-						<a href="/settings/profile" class={ "sidebar-link", templ.KV("active", activeNav == "profile" || activeNav == "settings" || activeNav == "wallet" || activeNav == "organization") }>
-							@components.IconUser("icon-sm")
-							<span>{ i18n.T(lang, "nav.profile_and_settings") }</span>
-						</a>
-					</div>
-				</nav>
+				@SidebarNav(rbac.ScopePharmacy, activeNav, lang)
 			</aside>
 
 			<!-- Main Content -->

@@ -167,14 +167,23 @@ func (m *institutionalMockRepo) ListEmployees(_ context.Context, _ int64) ([]*or
 }
 func (m *institutionalMockRepo) RemoveMember(_ context.Context, _, _ int64) error { return nil }
 func (m *institutionalMockRepo) CreateRole(_ context.Context, _ *org.Role) error  { return nil }
-func (m *institutionalMockRepo) GetRoleByID(_ context.Context, id int64) (*org.Role, error) {
-	return &org.Role{ID: id, Key: "custom_role", Permissions: []string{"org.organization.view"}}, nil
-}
-func (m *institutionalMockRepo) UpdateRole(_ context.Context, _ *org.Role) error { return nil }
-func (m *institutionalMockRepo) DeleteRole(_ context.Context, _ int64) error     { return nil }
-func (m *institutionalMockRepo) ListRolesByOrg(_ context.Context, _ int64) ([]*org.Role, error) {
+func (m *institutionalMockRepo) GetRole(_ context.Context, _, _ int64) (*org.Role, error) {
 	return nil, nil
 }
+
+func (m *institutionalMockRepo) UpdateRole(_ context.Context, _ int64, _ *org.Role) error { return nil }
+
+func (m *institutionalMockRepo) DeleteRole(_ context.Context, _, _ int64) error { return nil }
+
+func (m *institutionalMockRepo) ListRoles(_ context.Context, _ int64) ([]*org.Role, error) {
+	return nil, nil
+}
+
+func (m *institutionalMockRepo) CountRoleMembers(_ context.Context, _ int64) (map[int64]int, error) {
+	return map[int64]int{}, nil
+}
+
+func (m *institutionalMockRepo) AssignMemberRole(_ context.Context, _, _, _ int64) error { return nil }
 func (m *institutionalMockRepo) GetDeliveryBands(_ context.Context, _ int64) ([]*org.DeliveryBand, error) {
 	return nil, nil
 }

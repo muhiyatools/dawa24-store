@@ -21,6 +21,10 @@ func TestVendorIngestWizardResumability(t *testing.T) {
 	actor := authctx.Actor{
 		UserID:         100,
 		OrganizationID: 10,
+		OrgType:        "vendor",
+		// The vendor dashboard is permission-gated; this double stands in for
+		// a company owner, who holds their whole dashboard.
+		Permissions: []string{"vendor.*"},
 	}
 	ctx = authctx.WithActor(ctx, actor)
 	ctx = database.WithTenant(ctx, 10)

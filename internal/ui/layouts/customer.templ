@@ -138,13 +138,23 @@ templ PublicShell(title string, lang string, dir string) {
 
 								<!-- 1. Wallet Balance Snapshot (staff have their own surface) -->
 								if !actor.IsStaff {
-									<a href="/settings?tab=wallet" class="dropdown-item wallet-item">
-										<div class="row-center-sm">
-											@components.IconWallet("icon-xs")
-											<span class="wallet-label">المحفظة</span>
-										</div>
-										<span class="dropdown-item-arrow">←</span>
-									</a>
+									if actor.IsVendor() {
+										<a href="/vendor/wallet" class="dropdown-item wallet-item">
+											<div class="row-center-sm">
+												@components.IconWallet("icon-xs")
+												<span class="wallet-label">المحفظة</span>
+											</div>
+											<span class="dropdown-item-arrow">←</span>
+										</a>
+									} else {
+										<a href="/customer/wallet" class="dropdown-item wallet-item">
+											<div class="row-center-sm">
+												@components.IconWallet("icon-xs")
+												<span class="wallet-label">المحفظة</span>
+											</div>
+											<span class="dropdown-item-arrow">←</span>
+										</a>
+									}
 								}
 
 								<!-- 2. Dashboard -->

@@ -3,7 +3,6 @@ package pages
 import (
 	"fmt"
 
-	"github.com/muhiya/dawa24-store/internal/modules/identity"
 	"github.com/muhiya/dawa24-store/internal/ui/components"
 	"github.com/muhiya/dawa24-store/internal/ui/layouts"
 )
@@ -19,6 +18,9 @@ type TeamMemberView struct {
 	BranchName   string
 	RoleKey      string
 	RoleName     string
+	// RoleID is the company's own role this member holds. Roles are per
+	// company, so this is meaningless outside the organization that owns it.
+	RoleID int64
 	IsActive     bool
 	CreatedAt    string
 }
@@ -28,20 +30,18 @@ type BranchOption struct {
 	Name string
 }
 
-type RolePermissionDef struct {
-	Key         string
-	NameAr      string
-	Description string
-	Category    string
-}
-
 type VendorTeamData struct {
-	NoticeType  string
-	NoticeMsg   string
-	Members     []*TeamMemberView
-	Branches    []*BranchOption
-	Roles       []*identity.Role
-	Permissions []RolePermissionDef
+	NoticeType string
+	NoticeMsg  string
+	Members    []*TeamMemberView
+	Branches   []*BranchOption
+	// CompanyRoles are this company's own roles, the only ones assignable
+	// here. A role belonging to another company is not in the list and would
+	// be refused on submit even if it were.
+	CompanyRoles []TenantRoleOption
+	// CanAssignRole gates the selector. Whoever may assign a role can hand
+	// themselves everything that role holds, so it is its own permission.
+	CanAssignRole bool
 }
 
 templ VendorTeamPage(data VendorTeamData, lang, dir string) {
@@ -272,28 +272,20 @@ templ VendorTeamPage(data VendorTeamData, lang, dir string) {
 											}
 										</td>
 
-										<!-- Role Badge -->
+										<!-- Role -->
 										<td>
-											if m.RoleKey == "org_owner" {
-												<span class="badge badge-amber text-xs font-bold">
-													👑 { m.RoleName }
-												</span>
-											} else if m.RoleKey == "org_manager" {
-												<span class="badge badge-sky text-xs font-bold">
-													🛡️ { m.RoleName }
-												</span>
-											} else if m.RoleKey == "org_warehouse" {
-												<span class="badge badge-emerald text-xs font-bold">
-													📦 { m.RoleName }
-												</span>
-											} else if m.RoleKey == "org_accountant" {
-												<span class="badge badge-sky text-xs font-bold">
-													💰 { m.RoleName }
-												</span>
+											if data.CanAssignRole && m.RoleKey != "org_owner" {
+												<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/vendor/team/%d/role", m.ID)) } class="m-0">
+													<select name="role_id" class="form-input form-input-sm text-xs" onchange="this.form.submit()">
+														for _, role := range data.CompanyRoles {
+															<option value={ fmt.Sprintf("%d", role.ID) } selected?={ role.ID == m.RoleID }>{ role.Name }</option>
+														}
+													</select>
+												</form>
+											} else if m.RoleKey == "org_owner" {
+												<span class="badge badge-amber text-xs font-bold">👑 { m.RoleName }</span>
 											} else {
-												<span class="badge badge-slate text-xs font-bold">
-													🤝 { m.RoleName }
-												</span>
+												<span class="badge badge-slate text-xs font-bold">{ m.RoleName }</span>
 											}
 										</td>
 

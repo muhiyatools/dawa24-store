@@ -14,7 +14,7 @@ import (
 // RegisterAdminRoutes mounts administrative inventory routes.
 func (h *Handler) RegisterAdminRoutes(r chi.Router) {
 	r.Group(func(admin chi.Router) {
-		admin.Use(authctx.RequirePermission("inventory.admin", h.log))
+		admin.Use(authctx.RequirePermission("inventory.admin"))
 
 		admin.Get("/api/v1/admin/inventory/warehouses", h.AdminListWarehouses)
 		admin.Get("/api/v1/admin/inventory/transfers", h.AdminListTransfers)

@@ -20,7 +20,7 @@ func (h *Handler) RegisterAdminRoutes(r chi.Router) {
 		// database.AsSystem. Without this guard the whole group was reachable
 		// by any authenticated user, matching neither the other modules nor
 		// the intent of an /admin/ path.
-		admin.Use(authctx.RequirePermission("promo.admin", h.log))
+		admin.Use(authctx.RequirePermission("promo.admin"))
 
 		admin.Get("/api/v1/admin/promo/ads", h.AdminListAds)
 		admin.Post("/api/v1/admin/promo/ads/{id}/approve", h.AdminApproveAd)

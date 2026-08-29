@@ -9,6 +9,7 @@ import (
 	"github.com/muhiya/dawa24-store/internal/platform/cache"
 	"github.com/muhiya/dawa24-store/internal/platform/config"
 	"github.com/muhiya/dawa24-store/internal/platform/database"
+	"github.com/muhiya/dawa24-store/internal/platform/rbac"
 )
 
 // dependencies holds connections that may not be available at boot.
@@ -131,6 +132,22 @@ func (d *dependencies) connect(ctx context.Context, cfg *config.Config, log *slo
 		if err := d.db.Connect(ctx, cfg.Database); err != nil {
 			d.setDBErr(err)
 			return err
+		}
+		// The permission catalogue is defined in Go and mirrored into
+		// identity.permissions. Syncing here, on the connection that just came
+		// up, means a deploy that adds a permission has it grantable before the
+		// first request rather than after somebody notices the checkbox missing.
+		//
+		// A failure is logged, not fatal: the mirror only feeds the role
+		// editor, and enforcement reads the catalogue from Go directly. A
+		// process that refuses to serve because a role editor would be stale
+		// turns a cosmetic problem into an outage.
+		if err := rbac.Sync(ctx, d.db); err != nil {
+			log.Error("could not sync the permission catalogue", "error", err)
+		} else if seeded, err := rbac.SeedExistingCompanies(ctx, d.db); err != nil {
+			log.Error("could not seed company roles", "error", err)
+		} else if seeded > 0 {
+			log.Info("seeded starter roles for organizations", "organizations", seeded)
 		}
 		d.setDBErr(nil)
 		return nil

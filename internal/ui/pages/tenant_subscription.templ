@@ -101,10 +101,17 @@ templ tenantSubscriptionBody(data TenantSubscriptionPageData, orgType string, la
 							@components.MoneyDisplay(components.MoneyDisplayProps{ Amount: data.WalletBalance })
 						</div>
 					</div>
-					<a href="/settings?tab=wallet" class="btn btn-secondary btn-sm font-bold gap-1">
-						@components.IconWallet("icon-xs")
-						<span>شحن المحفظة</span>
-					</a>
+					if orgType == "vendor" || orgType == "supplier" {
+						<a href="/vendor/wallet" class="btn btn-secondary btn-sm font-bold gap-1">
+							@components.IconWallet("icon-xs")
+							<span>شحن المحفظة</span>
+						</a>
+					} else {
+						<a href="/customer/wallet" class="btn btn-secondary btn-sm font-bold gap-1">
+							@components.IconWallet("icon-xs")
+							<span>شحن المحفظة</span>
+						</a>
+					}
 				</div>
 			</div>
 		</div>
@@ -451,7 +458,11 @@ templ tenantSubscriptionBody(data TenantSubscriptionPageData, orgType string, la
 								<strong>رصيد محفظتك غير كافٍ.</strong>
 								<span>يرجى شحن المحفظة أولاً لإتمام تفعيل الاشتراك.</span>
 							</div>
-							<a href="/settings?tab=wallet" class="btn btn-secondary btn-xs font-bold" target="_blank">شحن الآن ↗</a>
+							if orgType == "vendor" || orgType == "supplier" {
+								<a href="/vendor/wallet" class="btn btn-secondary btn-xs font-bold" target="_blank">شحن الآن ↗</a>
+							} else {
+								<a href="/customer/wallet" class="btn btn-secondary btn-xs font-bold" target="_blank">شحن الآن ↗</a>
+							}
 						</div>
 					</template>
 

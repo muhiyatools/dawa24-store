@@ -15,7 +15,7 @@ import (
 func TestPhaseC_VendorContentAndPolicies(t *testing.T) {
 	handler := ui.NewUIHandler(nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil)
 	r := newRealUIHandlerRouter(handler)
-	vendorActor := authctx.Actor{UserID: 10, OrganizationID: 2, Role: "vendor", Permissions: []string{"org.admin"}}
+	vendorActor := authctx.Actor{UserID: 10, OrganizationID: 2, Role: "vendor", OrgType: "vendor", Permissions: []string{"vendor.*"}}
 
 	// GET /vendor/policies renders
 	rec := doGET(t, r, "/vendor/policies", vendorActor)
@@ -36,7 +36,7 @@ func TestPhaseC_VendorContentAndPolicies(t *testing.T) {
 func TestPhaseC_VendorSavingProducts(t *testing.T) {
 	handler := ui.NewUIHandler(nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil)
 	r := newRealUIHandlerRouter(handler)
-	vendorActor := authctx.Actor{UserID: 10, OrganizationID: 2, Role: "vendor"}
+	vendorActor := authctx.Actor{UserID: 10, OrganizationID: 2, Role: "vendor", OrgType: "vendor", Permissions: []string{"vendor.*"}}
 
 	// GET /vendor/saving-products renders
 	rec := doGET(t, r, "/vendor/saving-products", vendorActor)
@@ -53,7 +53,7 @@ func TestPhaseC_VendorSavingProducts(t *testing.T) {
 func TestPhaseC_VendorInstitutionalWork(t *testing.T) {
 	handler := ui.NewUIHandler(nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil)
 	r := newRealUIHandlerRouter(handler)
-	vendorActor := authctx.Actor{UserID: 10, OrganizationID: 2, Role: "vendor"}
+	vendorActor := authctx.Actor{UserID: 10, OrganizationID: 2, Role: "vendor", OrgType: "vendor", Permissions: []string{"vendor.*"}}
 
 	// GET /vendor/institutional-work renders
 	rec := doGET(t, r, "/vendor/institutional-work", vendorActor)
@@ -70,7 +70,7 @@ func TestPhaseC_VendorInstitutionalWork(t *testing.T) {
 func TestPhaseC_AdminReferenceData(t *testing.T) {
 	handler := ui.NewUIHandler(nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil)
 	r := newRealUIHandlerRouter(handler)
-	adminActor := authctx.Actor{UserID: 1, IsStaff: true, Role: "super_admin"}
+	adminActor := authctx.Actor{UserID: 1, IsStaff: true, Role: "super_admin", Permissions: []string{"*"}}
 
 	// Categories
 	rec := doGET(t, r, "/admin/categories", adminActor)
@@ -95,7 +95,7 @@ func TestPhaseC_AdminReferenceData(t *testing.T) {
 func TestPhaseC_AdminFinanceScreens(t *testing.T) {
 	handler := ui.NewUIHandler(nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil)
 	r := newRealUIHandlerRouter(handler)
-	adminActor := authctx.Actor{UserID: 1, IsStaff: true, Role: "super_admin"}
+	adminActor := authctx.Actor{UserID: 1, IsStaff: true, Role: "super_admin", Permissions: []string{"*"}}
 
 	// Unified Finance Hub
 	rec := doGET(t, r, "/admin/finance", adminActor)

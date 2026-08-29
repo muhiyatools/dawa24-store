@@ -30,6 +30,7 @@ import (
 	"github.com/muhiya/dawa24-store/internal/modules/workflow"
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/platform/gateway"
+	"github.com/muhiya/dawa24-store/internal/platform/rbac"
 	"github.com/muhiya/dawa24-store/internal/platform/storage"
 	"github.com/muhiya/dawa24-store/internal/shared/apperr"
 	"github.com/muhiya/dawa24-store/internal/shared/matchflow"
@@ -60,6 +61,15 @@ type UIHandler struct {
 	gatewayKeys   GatewayKeyCache
 	log           *slog.Logger
 
+	// resolver answers "what may this caller do", reading the database rather
+	// than trusting the permission list stamped into the session at login.
+	resolver *rbac.Resolver
+
+	// roleSeeder provisions a company's starter roles. A function rather than
+	// the rbac package plus a database handle, so the UI keeps no database
+	// dependency of its own and a test can hand it a no-op.
+	roleSeeder RoleSeederFunc
+
 	// Smart ordering (specs/001-smart-ordering-system). Optional: when the
 	// service is nil the wizard reports itself unavailable rather than panicking,
 	// which keeps the rest of the customer surface working if it is not wired.
@@ -75,6 +85,17 @@ type UIHandler struct {
 	// able to build its list when the Gateway is down (AGENTS.md R3).
 	matchEnhancer matchflow.Enhancer
 }
+
+// RoleSeederFunc provisions the starter roles for one company.
+type RoleSeederFunc func(ctx context.Context, orgID int64, orgType string) error
+
+// SetRoleSeeder wires starter-role provisioning for companies that have none.
+func (h *UIHandler) SetRoleSeeder(fn RoleSeederFunc) { h.roleSeeder = fn }
+
+// SetPermissionResolver wires live permission resolution. Optional: without
+// it the UI falls back to the session's permission copy, which is correct but
+// cannot see a revocation until the session ends.
+func (h *UIHandler) SetPermissionResolver(r *rbac.Resolver) { h.resolver = r }
 
 // SetMatchEnhancer attaches the shared AI matching stage.
 func (h *UIHandler) SetMatchEnhancer(e matchflow.Enhancer) { h.matchEnhancer = e }
@@ -191,7 +212,7 @@ func (h *UIHandler) RegisterPublicRoutes(r chi.Router) {
 
 	r.Group(func(pub chi.Router) {
 		if h.idSvc != nil {
-			pub.Use(identityHttp.OptionalAuth(h.idSvc, "dawa24_session"))
+			pub.Use(identityHttp.OptionalAuth(h.idSvc, h.resolver, "dawa24_session", h.log))
 		}
 		pub.Use(h.BuyingBranchSelector)
 		pub.Use(h.siteSettingsMiddleware)
@@ -275,370 +296,19 @@ func (h *UIHandler) RegisterPublicRoutes(r chi.Router) {
 // group is gated by RequireCustomer — a vendor who spells /customer/* gets the
 // same 404 as a stranger (the URL space does not exist for them).
 func (h *UIHandler) RegisterCustomerRoutes(r chi.Router) {
-	r.Get("/customer/dashboard", h.PharmacyDashboardPage)
-	// Legacy URL kept as a redirect so bookmarks survive the rename.
-	r.Get("/pharmacy/dashboard", func(w http.ResponseWriter, r *http.Request) {
-		http.Redirect(w, r, "/customer/dashboard", http.StatusFound)
-	})
-
-	// The cPanel was a link hub to /customer/branches, /settings/organization
-	// and /wallet — all three already in the sidebar. Nothing on it was
-	// reachable only from there (PLAN_V7 Task 3.2).
-	r.Get("/customer/cpanel", func(w http.ResponseWriter, r *http.Request) {
-		http.Redirect(w, r, "/customer/dashboard", http.StatusMovedPermanently)
-	})
-	r.Get("/customer/saving-products", h.CustomerSavingProductsPage)
-	r.Post("/customer/saving-products/new", h.CustomerSavingProductCreateSubmit)
-	r.Post("/customer/saving-products/{id}/update", h.CustomerSavingProductUpdateSubmit)
-	r.Post("/customer/saving-products/{id}/delete", h.CustomerSavingProductDeleteSubmit)
-	r.Post("/customer/saving-products/delete-all", h.CustomerSavingProductsDeleteAllSubmit)
-
-	// Customer Saving Products Import Wizard & Sessions
-	r.Get("/customer/saving-products/import", h.CustomerSavingProductsImportPage)
-	r.Get("/customer/saving-products/sample.xlsx", h.CustomerSavingProductsSampleXLSX)
-	r.Get("/customer/saving-products/sample.csv", h.CustomerSavingProductsSampleCSV)
-	r.Post("/customer/saving-products/import/upload", h.CustomerSavingProductsImportUploadSubmit)
-	r.Get("/customer/saving-products/import/{id}", h.CustomerSavingProductsImportSessionPage)
-	r.Post("/customer/saving-products/import/{id}/map", h.CustomerSavingProductsImportMapSubmit)
-	r.Post("/customer/saving-products/import/{id}/items/{itemIndex}/update", h.CustomerSavingProductsImportItemUpdateSubmit)
-	r.Post("/customer/saving-products/import/{id}/items/{itemIndex}/match", h.CustomerSavingProductsImportItemMatchSubmit)
-	r.Post("/customer/saving-products/import/{id}/items/{itemIndex}/toggle", h.CustomerSavingProductsImportItemToggleSubmit)
-	r.Post("/customer/saving-products/import/{id}/commit", h.CustomerSavingProductsImportCommitSubmit)
-	r.Post("/customer/saving-products/import/{id}/cancel", h.CustomerSavingProductsImportCancelSubmit)
-
-	r.Post("/customer/saving-products/import", h.CustomerSavingProductsImportSubmit)
-	r.Post("/customer/saving-products/import/start", h.CustomerSavingProductsImportStartJSON)
-	r.Get("/customer/saving-products/import/session/{id}/progress", h.CustomerSavingProductsImportProgressJSON)
-	r.Post("/customer/saving-products/import/session/{id}/commit", h.CustomerSavingProductsImportCommitJSON)
-	r.Post("/customer/saving-products/import/session/{id}/cancel", h.CustomerSavingProductsImportCancelJSON)
-	r.Post("/customer/saving-products/preview-columns", h.CustomerSavingProductsPreviewColumnsJSON)
-	r.Get("/customer/saving-products/export", h.CustomerSavingProductsExport)
-	r.Get("/customer/saving-products/providers/{id}", h.CustomerSavingProductProvidersJSON)
-	r.Get("/customer/saving-products/search-products", h.CustomerSavingProductSearchJSON)
-	r.Get("/customer/saving-products/import-page", h.CustomerSavingProductsImportPage)
-	r.Get("/customer/saving-products/{id}", h.CustomerSavingProductDetailPage)
-	r.Get("/customer/saveing-products", h.CustomerSavingProductsAlias)
-	r.Get("/customer/add-order", h.CustomerAddOrderPage)
-	r.Get("/customer/products/main/{id}", h.CustomerProductsMainAlias)
-
-	r.Post("/customer/set-branch", h.SetBuyingBranchSubmit)
-
-	r.Get("/cart", h.CustomerCartPage)
-	r.Get("/checkout", h.CustomerCheckoutPage)
-	r.Get("/offers/{id}/checkout", h.CustomerOfferCheckoutPage)
-	r.Get("/orders", h.CustomerOrdersPage)
-	r.Get("/orders/offers", func(w http.ResponseWriter, r *http.Request) {
-		http.Redirect(w, r, "/orders", http.StatusMovedPermanently)
-	})
-	r.Get("/orders/offers/{id}", func(w http.ResponseWriter, r *http.Request) {
-		id := chi.URLParam(r, "id")
-		http.Redirect(w, r, "/orders/"+id, http.StatusMovedPermanently)
-	})
-	r.Get("/orders/{id}", h.CustomerOrderDetailPage)
-	r.Post("/orders/{id}/edit", h.CustomerOrderEditSubmit)
-	r.Post("/customer/orders/{id}/edit", h.CustomerOrderEditSubmit)
-	r.Get("/favorites", h.FavoritesPage)
-	r.Get("/customer/favorites", h.FavoritesPage)
-	r.Get("/suppliers/followed", h.FollowedSuppliersPage)
-
-	r.Post("/cart/add", h.AddToCartSubmit)
-	r.Post("/cart/remove", h.RemoveFromCartSubmit)
-	r.Post("/cart/update-quantity", h.UpdateCartQuantitySubmit)
-	r.Post("/checkout", h.CheckoutSubmit)
-	r.Post("/customer/negotiate-order", h.CustomerNegotiateOrderSubmit)
-	r.Post("/favorites/{id}/remove", h.FavoriteRemoveSubmit)
-	r.Post("/favorites/{id}/add", h.FavoriteAddSubmit)
-	r.Post("/favorites/{id}/toggle", h.FavoriteToggleSubmit)
-	r.Post("/favorites/toggle", h.FavoriteToggleSubmit)
-
-	// Organization documents (Rebuild V2 §4.2) — the upload/delete POSTs live
-	// in both audience groups, the page itself is audience-prefixed.
-	r.Get("/customer/documents", h.OrganizationDocumentsPage)
-	r.Post("/documents/upload", h.OrganizationDocumentsUploadSubmit)
-	r.Post("/documents/delete", h.OrganizationDocumentDeleteSubmit)
-
-	// Customer Pharmacy User Organization Connections
-	r.Get("/customer/user-organization", h.CustomerUserOrganizationsPage)
-	r.Get("/customer/api/vendors/search", h.CustomerVendorSearchJSON)
-	r.Post("/customer/user-organization/new", h.CustomerUserOrganizationCreateSubmit)
-	r.Post("/customer/user-organization/{id}/edit", h.CustomerUserOrganizationUpdateSubmit)
-	r.Post("/customer/user-organization/{id}/delete", h.CustomerUserOrganizationDeleteSubmit)
-
-	// Pharmacy Branches & Delivery Receiving Locations (Rebuild V2 §5)
-	r.Get("/customer/branches", h.CustomerBranchesPage)
-	r.Get("/customer/branches/create", h.CustomerBranchCreatePage)
-	r.Get("/customer/branches/{id}/edit", h.CustomerBranchEditPage)
-	r.Post("/customer/branches/active", h.CustomerSwitchActiveBranchSubmit)
-	r.Post("/customer/branches/new", h.CustomerBranchNewSubmit)
-	r.Post("/customer/branches/{id}/edit", h.CustomerBranchEditSubmit)
-	r.Post("/customer/branches/{id}", h.CustomerBranchEditSubmit)
-	r.Post("/customer/branches/{id}/delete", h.CustomerBranchDeleteSubmit)
-
-	// Pharmacy Branch Employees & Users Management
-	r.Post("/customer/employees/new", h.CustomerEmployeeCreateSubmit)
-	r.Post("/customer/employees/{id}/edit", h.CustomerEmployeeEditSubmit)
-	r.Post("/customer/employees/{id}", h.CustomerEmployeeEditSubmit)
-	r.Post("/customer/employees/{id}/delete", h.CustomerEmployeeDeleteSubmit)
-	r.Post("/customer/employees/{id}/status", h.CustomerEmployeeStatusSubmit)
-
-	// Pharmacy Jobs & Recruitment Management
-	r.Get("/customer/jobs", h.CustomerJobsPage)
-	r.Get("/customer/jobs/{id}", h.JobDetailPage)
-	r.Post("/customer/jobs", h.CustomerJobCreateSubmit)
-	r.Post("/customer/jobs/{id}/edit", h.CustomerJobUpdateSubmit)
-	r.Post("/customer/jobs/{id}/update", h.CustomerJobUpdateSubmit)
-	r.Post("/customer/jobs/{id}/toggle", h.CustomerJobToggleSubmit)
-	r.Post("/customer/jobs/{id}/delete", h.CustomerJobDeleteSubmit)
-	r.Get("/customer/jobs/{id}/applications", h.CustomerJobApplicationsJSON)
-	r.Post("/customer/jobs/{id}/applications/{appId}/accept", h.CustomerJobApplicationAcceptSubmit)
-	r.Post("/customer/jobs/{id}/applications/{appId}/reject", h.CustomerJobApplicationRejectSubmit)
-
-	// Pharmacy AI Consumption Logs
-	r.Get("/customer/ai-logs", h.AIConsumptionLogsPage)
-
-	// Customer interactions
-	r.Post("/suppliers/{id}/follow", h.SupplierFollowSubmit)
-	r.Post("/suppliers/{id}/message", h.SupplierMessageSubmit)
-	r.Post("/suppliers/{id}/quote", h.SupplierQuoteSubmit)
-	r.Post("/compare/subscribe", h.CompareSubscribeSubmit)
-	r.Post("/reviews/submit", h.ReviewSubmit)
-
-	// Customer Purchase Requests Gateway (Plan V5 Phase 3 Task 3.1)
-	r.Get("/customer/purchase-request", h.CustomerPurchaseRequestWizardPage)
-	r.Get("/customer/purchase-request/products", h.CustomerPurchaseRequestProductsRedirect)
-	r.Get("/customer/purchase-request/previous", h.CustomerPurchaseRequestPreviousRedirect)
-	r.Get("/customer/purchase-request/supplier", h.CustomerPurchaseRequestSupplierRedirect)
-	r.Get("/customer/purchase-request/supplier/{id}", h.CustomerPurchaseRequestSupplierRedirect)
-
-	// Customer Purchase Priority Engine (Plan V5 Phase 3 Task 3.2)
-	r.Get("/customer/purchase-priority", h.CustomerPurchasePriorityPage)
-	r.Post("/customer/purchase-priority/run", h.CustomerPurchasePriorityRunSubmit)
-	r.Get("/customer/purchase-priority/{id}", h.CustomerPurchasePriorityDetailPage)
-
-	// The former Automatic Purchase Request feature is superseded by Smart
-	// Ordering (specs/001-smart-ordering-system). Its table held zero rows, so
-	// no detail URL can resolve to real content and only the two entry points
-	// are redirected. Remove these after one release.
-	r.Get("/customer/automation", func(w http.ResponseWriter, r *http.Request) {
-		http.Redirect(w, r, "/customer/smart-order", http.StatusMovedPermanently)
-	})
-	r.Get("/customer/automation/previous", func(w http.ResponseWriter, r *http.Request) {
-		http.Redirect(w, r, "/customer/smart-order/history", http.StatusMovedPermanently)
-	})
-
-	// Subscription & Membership
-	r.Get("/customer/subscription", h.TenantSubscriptionPage)
-	r.Post("/customer/subscription/checkout", h.TenantSubscriptionCheckoutSubmit)
-	r.Get("/pharmacy/subscription", func(w http.ResponseWriter, r *http.Request) {
-		http.Redirect(w, r, "/customer/subscription", http.StatusMovedPermanently)
-	})
-
-	// Sessions & Device Security
-	r.Get("/customer/sessions", h.TenantSessionsPage)
-	r.Post("/customer/sessions/revoke", h.TenantSessionRevokeSubmit)
-	r.Post("/customer/sessions/revoke-all", h.TenantSessionRevokeAllSubmit)
-	r.Post("/customer/password", h.TenantPasswordChangeSubmit)
-
-	// Decision Memory (ذاكرة قرارات المطابقة - التوليد آلي فقط)
-	r.Get("/customer/decision-memory", h.CustomerDecisionMemoryPage)
-	r.Post("/customer/decision-memory/{id}/delete", h.CustomerDecisionMemoryDeleteSubmit)
-	r.Post("/customer/decision-memory/clear", h.CustomerDecisionMemoryClearSubmit)
+	// The route table lives in customer_routes.go, grouped by the permission
+	// that gates it. This function stays here because test/route_audience_test.go
+	// checks that every audience registrar is declared in this file and mounted
+	// behind the right gates in cmd/server/routes.go.
+	h.registerCustomerRoutes(r)
 }
 
 // RegisterVendorRoutes mounts the vendor (مورّد) surface, gated by
 // RequireVendor.
 func (h *UIHandler) RegisterVendorRoutes(r chi.Router) {
-	r.Get("/vendor/dashboard", h.VendorDashboardPage)
-	r.Get("/vendor/subscription", h.TenantSubscriptionPage)
-	r.Post("/vendor/subscription/checkout", h.TenantSubscriptionCheckoutSubmit)
-
-	// Sessions & Device Security
-	r.Get("/vendor/sessions", h.TenantSessionsPage)
-	r.Post("/vendor/sessions/revoke", h.TenantSessionRevokeSubmit)
-	r.Post("/vendor/sessions/revoke-all", h.TenantSessionRevokeAllSubmit)
-	r.Post("/vendor/password", h.TenantPasswordChangeSubmit)
-
-	r.Get("/vendor/organization", h.VendorOrganizationPage)
-	r.Post("/vendor/organization", h.VendorOrganizationSubmit)
-	r.Get("/vendor/settings/organization", h.VendorOrganizationPage)
-
-	// Vendor User Organization Management
-	r.Get("/vendor/user-organization", h.VendorUserOrganizationsPage)
-	r.Get("/vendor/api/users/search", h.VendorUserSearchJSON)
-	r.Post("/vendor/user-organization/new", h.VendorUserOrganizationCreateSubmit)
-	r.Post("/vendor/user-organization/{id}/approve", h.VendorUserOrganizationApproveSubmit)
-	r.Post("/vendor/user-organization/{id}/reject", h.VendorUserOrganizationRejectSubmit)
-	r.Post("/vendor/user-organization/{id}/edit", h.VendorUserOrganizationUpdateSubmit)
-	r.Post("/vendor/user-organization/{id}/delete", h.VendorUserOrganizationDeleteSubmit)
-
-	r.Get("/vendor/products", h.VendorProductsPage)
-	r.Post("/vendor/products/add-from-catalog", h.VendorProductAddFromCatalogSubmit)
-	r.Post("/vendor/products/delete-all", h.VendorProductsDeleteAllSubmit)
-	r.Get("/vendor/products/new", h.VendorVariantNewPage)
-	r.Get("/vendor/variants/new", h.VendorVariantNewPage)
-	r.Post("/vendor/variants/new", h.VendorVariantNewSubmit)
-	r.Post("/vendor/variants/{id}/update", h.VendorVariantUpdateSubmit)
-	r.Post("/vendor/variants/{id}/delete", h.VendorVariantDeleteSubmit)
-	r.Get("/vendor/catalog/select", h.VendorCatalogSelectPage)
-	r.Post("/vendor/catalog/select", h.VendorCatalogSelectSubmit)
-	r.Get("/vendor/catalog/search-json", h.VendorCatalogSearchJSON)
-	r.Get("/vendor/catalog/product-json/{id}", h.VendorProductDetailJSON)
-	r.Get("/vendor/branches", h.VendorBranchesPage)
-	r.Post("/vendor/branches/new", h.VendorBranchNewSubmit)
-	r.Get("/vendor/branches/{id}/edit", h.VendorBranchEditPage)
-	r.Post("/vendor/branches/{id}/edit", h.VendorBranchEditSubmit)
-	r.Post("/vendor/branches/{id}/delete", h.VendorBranchDeleteSubmit)
-	r.Post("/vendor/branches/{id}/manager", h.SettingsBranchManagerAssignSubmit)
-	r.Get("/vendor/team", h.VendorTeamPage)
-	r.Get("/vendor/team/import", h.VendorTeamImportPage)
-	r.Get("/vendor/team/fast-add", h.VendorTeamFastAddPage)
-	r.Get("/vendor/team/{id}", h.VendorTeamUserDetailPage)
-	r.Get("/vendor/team/{id}/info", h.VendorTeamUserInfoPage)
-	r.Get("/vendor/roles", h.VendorRolesPage)
-	r.Post("/vendor/team/new", h.VendorTeamNewSubmit)
-	r.Post("/vendor/team/{id}/toggle", h.VendorTeamToggleSubmit)
-	r.Post("/vendor/team/{id}/delete", h.VendorTeamDeleteSubmit)
-	r.Get("/vendor/inventory", h.VendorInventoryPage)
-	r.Post("/vendor/inventory/{id}/adjust", h.VendorStockAdjustSubmit)
-	r.Get("/vendor/warehouses", h.VendorWarehousesPage)
-	r.Post("/vendor/warehouses", h.VendorWarehouseCreateSubmit)
-	r.Get("/vendor/warehouses/{id}", h.VendorWarehouseDetailPage)
-	r.Post("/vendor/warehouses/{id}", h.VendorWarehouseUpdateSubmit)
-	r.Post("/vendor/warehouses/{id}/toggle", h.VendorWarehouseToggleSubmit)
-	r.Post("/vendor/warehouses/{id}/stocks/{stockID}/adjust", h.VendorWarehouseStockAdjustSubmit)
-	r.Get("/vendor/saving-products", h.VendorSavingProductsPage)
-	r.Post("/vendor/saving-products", h.VendorSavingProductCreateSubmit)
-	r.Post("/vendor/saving-products/{id}/update", h.VendorSavingProductUpdateSubmit)
-	r.Post("/vendor/saving-products/{id}/delete", h.VendorSavingProductDeleteSubmit)
-	r.Post("/vendor/saving-products/delete-all", h.VendorSavingProductsDeleteAllSubmit)
-
-	// Vendor Saving Products Import Wizard & Sessions
-	r.Get("/vendor/saving-products/import", h.VendorSavingProductsImportPage)
-	r.Get("/vendor/saving-products/sample.xlsx", h.VendorSavingProductsSampleXLSX)
-	r.Get("/vendor/saving-products/sample.csv", h.VendorSavingProductsSampleCSV)
-	r.Post("/vendor/saving-products/import/upload", h.VendorSavingProductsImportUploadSubmit)
-	r.Get("/vendor/saving-products/import/{id}", h.VendorSavingProductsImportSessionPage)
-	r.Post("/vendor/saving-products/import/{id}/map", h.VendorSavingProductsImportMapSubmit)
-	r.Post("/vendor/saving-products/import/{id}/items/{itemIndex}/update", h.VendorSavingProductsImportItemUpdateSubmit)
-	r.Post("/vendor/saving-products/import/{id}/items/{itemIndex}/match", h.VendorSavingProductsImportItemMatchSubmit)
-	r.Post("/vendor/saving-products/import/{id}/items/{itemIndex}/toggle", h.VendorSavingProductsImportItemToggleSubmit)
-	r.Post("/vendor/saving-products/import/{id}/commit", h.VendorSavingProductsImportCommitSubmit)
-	r.Post("/vendor/saving-products/import/{id}/cancel", h.VendorSavingProductsImportCancelSubmit)
-
-	r.Post("/vendor/saving-products/import", h.VendorSavingProductsImportSubmit)
-	r.Post("/vendor/saving-products/import/start", h.VendorSavingProductsImportStartJSON)
-	r.Get("/vendor/saving-products/import/session/{id}/progress", h.VendorSavingProductsImportProgressJSON)
-	r.Post("/vendor/saving-products/import/session/{id}/commit", h.VendorSavingProductsImportCommitJSON)
-	r.Post("/vendor/saving-products/import/session/{id}/cancel", h.VendorSavingProductsImportCancelJSON)
-	r.Post("/vendor/saving-products/preview-columns", h.VendorSavingProductsPreviewColumnsJSON)
-	r.Get("/vendor/saving-products/export", h.VendorSavingProductsExport)
-	r.Get("/vendor/saving-products/providers/{id}", h.VendorSavingProductProvidersJSON)
-	r.Get("/vendor/saving-products/search-products", h.VendorSavingProductSearchJSON)
-	r.Get("/vendor/saveing-products", h.VendorSavingProductsAlias)
-	r.Get("/vendor/coverage", h.VendorCoveragePage)
-	r.Get("/vendor/coverage/governorates/{id}/cities", h.APIGovernorateCitiesJSON)
-	r.Get("/api/geo/governorates/{id}/cities", h.APIGovernorateCitiesJSON)
-	r.Post("/vendor/coverage", h.VendorCoverageCreateSubmit)
-	r.Post("/vendor/coverage/{id}", h.VendorCoverageUpdateSubmit)
-	r.Post("/vendor/coverage/{id}/update", h.VendorCoverageUpdateSubmit)
-	r.Post("/vendor/coverage/{id}/edit", h.VendorCoverageUpdateSubmit)
-	r.Post("/vendor/coverage/{id}/delete", h.VendorCoverageDeleteSubmit)
-	r.Post("/vendor/coverage/{id}/toggle", h.VendorCoverageToggleSubmit)
-	r.Post("/vendor/delivery-bands", h.VendorDeliveryBandCreateSubmit)
-	r.Post("/vendor/delivery-bands/create", h.VendorDeliveryBandCreateSubmit)
-	r.Post("/vendor/delivery-bands/{id}/delete", h.VendorDeliveryBandDeleteSubmit)
-	r.Get("/vendor/coverage/branch/{branchID}", h.VendorBranchCoveragePage)
-	r.Get("/vendor/pharmacy-coverage", h.VendorPharmacyCoveragePage)
-	r.Get("/vendor/pharmacy-coverage/{id}", h.VendorPharmacyCoverageDetailPage)
-	r.Get("/vendor/transfers", h.VendorTransfersPage)
-	// The vendor catalogue import. The literal paths are registered before the
-	// wildcard so "sample.csv" is a template download and not an import id.
-	r.Get("/vendor/ingest", h.VendorIngestPage)
-	r.Get("/vendor/ingest/sample.csv", h.VendorIngestSampleCSV)
-	r.Get("/vendor/ingest/sample.xlsx", h.VendorIngestSampleXLSX)
-	r.Get("/vendor/ingest/inventory.csv", h.VendorIngestExport)
-	r.Post("/vendor/ingest/upload", h.VendorIngestUploadSubmit)
-	r.Get("/vendor/ingest/{id}", h.VendorIngestSessionPage)
-	r.Get("/vendor/ingest/{id}/progress", h.VendorIngestProgress)
-	r.Get("/vendor/ingest/{id}/export", h.VendorIngestRowsExport)
-	r.Get("/vendor/ingest/{id}/catalog-search", h.VendorIngestCatalogSearchJSON)
-	r.Post("/vendor/ingest/{id}/mapping", h.VendorIngestMappingSubmit)
-	r.Post("/vendor/ingest/{id}/settings", h.VendorIngestSettingsSubmit)
-	r.Post("/vendor/ingest/{id}/back", h.VendorIngestBackSubmit)
-	r.Post("/vendor/ingest/{id}/back-settings", h.VendorIngestBackToSettingsSubmit)
-	r.Post("/vendor/ingest/{id}/rows/{rowID}/update", h.VendorIngestRowUpdateSubmit)
-	r.Post("/vendor/ingest/{id}/rows/{rowID}/match", h.VendorIngestRowMatchSubmit)
-	r.Post("/vendor/ingest/{id}/rows/{rowID}/toggle", h.VendorIngestRowToggleSubmit)
-	r.Post("/vendor/ingest/{id}/batch-quantity", h.VendorIngestBatchQuantitySubmit)
-	r.Post("/vendor/ingest/{id}/confirm", h.VendorIngestConfirmSubmit)
-	r.Post("/vendor/ingest/{id}/commit", h.VendorIngestCommitSubmit)
-	r.Post("/vendor/ingest/{id}/cancel", h.VendorIngestCancelSubmit)
-	r.Get("/vendor/orders", h.VendorOrdersPage)
-	r.Get("/vendor/orders/offers", func(w http.ResponseWriter, r *http.Request) {
-		http.Redirect(w, r, "/vendor/orders", http.StatusMovedPermanently)
-	})
-	r.Get("/vendor/orders/offers/{id}", func(w http.ResponseWriter, r *http.Request) {
-		http.Redirect(w, r, "/vendor/orders", http.StatusMovedPermanently)
-	})
-	r.Post("/vendor/orders/{id}/status", h.VendorOrderStatusSubmit)
-	r.Post("/vendor/orders/{id}/negotiation/accept", h.VendorNegotiationAcceptSubmit)
-	r.Post("/vendor/orders/{id}/negotiation/reject", h.VendorNegotiationRejectSubmit)
-	r.Get("/vendor/offers", h.VendorOffersPage)
-	r.Get("/vendor/offers/new", h.VendorOfferNewPage)
-	r.Post("/vendor/offers/new", h.VendorOfferNewSubmit)
-	r.Get("/vendor/offers/{id}/locations", h.VendorOfferLocationsPage)
-	r.Post("/vendor/offers/{id}/locations/new", h.VendorOfferLocationNewSubmit)
-	r.Post("/vendor/offers/{id}/delete", h.VendorOfferDeleteSubmit)
-	r.Get("/vendor/offers/locations", h.VendorOffersLocationsPage)
-	r.Get("/vendor/offers-packages", h.VendorOffersPackagesPage)
-	r.Get("/vendor/offers-packages/{id}", h.VendorOffersPackagesPage)
-	r.Get("/vendor/offers-packages/sponsorships", h.VendorOffersPackagesSponsorshipsPage)
-	r.Get("/vendor/offers-packages/sponsorships/{id}", h.VendorOffersPackagesSponsorshipsPage)
-	r.Get("/vendor/offers-packages/promotions", h.VendorOffersPackagesPromotionsPage)
-	r.Get("/vendor/ads", h.VendorAdsPage)
-	r.Get("/vendor/ads/add", h.VendorAdsPage)
-	r.Get("/vendor/ads/{id}", h.VendorAdsPage)
-	r.Get("/vendor/ads/{id}/edit", h.VendorAdsPage)
-	r.Get("/vendor/payments", h.VendorPaymentsPage)
-	r.Get("/vendor/earnings/order", h.VendorEarningsOrderPage)
-	r.Get("/vendor/earnings/offers", h.VendorEarningsOffersPage)
-	r.Get("/vendor/policies", h.VendorPoliciesPage)
-	r.Post("/vendor/policies", h.VendorPoliciesSubmit)
-	r.Get("/vendor/social-media", func(w http.ResponseWriter, r *http.Request) {
-		http.Redirect(w, r, "/vendor/policies", http.StatusMovedPermanently)
-	})
-	r.Get("/vendor/storefront", h.VendorStorefrontPage)
-	r.Post("/vendor/storefront/section", h.VendorStorefrontSectionSubmit)
-	r.Post("/vendor/storefront/section/{id}/update", h.VendorStorefrontSectionUpdateSubmit)
-	r.Post("/vendor/storefront/section/{id}/delete", h.VendorStorefrontSectionDeleteSubmit)
-	r.Post("/vendor/storefront/section/{id}/toggle", h.VendorStorefrontSectionToggleSubmit)
-	r.Get("/vendor/activities", h.VendorActivitiesPage)
-	r.Get("/vendor/institutional-work", h.VendorInstitutionalWorkPage)
-	r.Get("/vendor/jobs", h.VendorJobsPage)
-	r.Get("/vendor/jobs/{id}", h.JobDetailPage)
-	r.Post("/vendor/jobs", h.VendorJobCreateSubmit)
-	r.Post("/vendor/jobs/{id}/edit", h.VendorJobUpdateSubmit)
-	r.Post("/vendor/jobs/{id}/update", h.VendorJobUpdateSubmit)
-	r.Post("/vendor/jobs/{id}/toggle", h.VendorJobToggleSubmit)
-	r.Post("/vendor/jobs/{id}/delete", h.VendorJobDeleteSubmit)
-	r.Get("/vendor/jobs/{id}/applications", h.VendorJobApplicationsJSON)
-	r.Post("/vendor/jobs/{id}/applications/{appId}/accept", h.VendorJobApplicationAcceptSubmit)
-	r.Post("/vendor/jobs/{id}/applications/{appId}/reject", h.VendorJobApplicationRejectSubmit)
-	r.Get("/vendor/ai-logs", h.AIConsumptionLogsPage)
-	r.Get("/vendor/decision-memory", h.VendorDecisionMemoryPage)
-	r.Post("/vendor/decision-memory/{id}/delete", h.VendorDecisionMemoryDeleteSubmit)
-	r.Post("/vendor/decision-memory/clear", h.VendorDecisionMemoryClearSubmit)
-
-	r.Get("/vendor/documents", h.OrganizationDocumentsPage)
-	r.Post("/documents/upload", h.OrganizationDocumentsUploadSubmit)
-	r.Post("/documents/delete", h.OrganizationDocumentDeleteSubmit)
-	r.Post("/requests/{id}/respond", h.RequestRespondSubmit)
-
-	// Vendor Purchase Requests (Plan V5 Phase 3 §3.1.5)
-	r.Get("/vendor/purchase-requests", h.VendorPurchaseRequestsPage)
-	r.Get("/vendor/purchase-requests/{id}", h.VendorPurchaseRequestDetailPage)
-	r.Post("/vendor/purchase-requests/{id}/respond", h.VendorPurchaseRequestRespondSubmit)
-	r.Post("/vendor/purchase-requests/lines/{id}/respond", h.VendorPurchaseRequestLineRespondSubmit)
+	// See vendor_routes.go for the table; the same reasoning as
+	// RegisterCustomerRoutes applies to why this shim is here.
+	h.registerVendorRoutes(r)
 }
 
 // RegisterAdminRoutes mounts the platform staff surface, gated by RequireStaff
@@ -955,12 +625,37 @@ func acceptLanguage(header string) string {
 }
 
 // redirectToSettingsTab permanently redirects a retired settings sub-page to
-// its tab on the unified page.
+// its tab or dedicated surface.
 func redirectToSettingsTab(tab string) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+		ctx := r.Context()
+		actor, hasActor := authctx.From(ctx)
+
 		if tab == "organization" {
-			if actor, ok := authctx.From(r.Context()); ok && actor.OrgType == "vendor" {
-				http.Redirect(w, r, "/vendor/organization", http.StatusSeeOther)
+			if hasActor && actor.IsVendor() {
+				http.Redirect(w, r, "/vendor/organization", http.StatusMovedPermanently)
+				return
+			}
+		}
+		if tab == "wallet" || tab == "payments" {
+			if hasActor && actor.UserID > 0 {
+				http.Redirect(w, r, walletDestFor(actor), http.StatusMovedPermanently)
+				return
+			}
+			http.Redirect(w, r, "/customer/wallet", http.StatusMovedPermanently)
+			return
+		}
+		if tab == "security" || tab == "sessions" {
+			if hasActor && actor.IsVendor() {
+				http.Redirect(w, r, "/vendor/sessions", http.StatusMovedPermanently)
+				return
+			}
+			http.Redirect(w, r, "/customer/sessions", http.StatusMovedPermanently)
+			return
+		}
+		if tab == "profile" || tab == "preferences" {
+			if hasActor && actor.IsVendor() {
+				http.Redirect(w, r, "/vendor/dashboard", http.StatusSeeOther)
 				return
 			}
 		}

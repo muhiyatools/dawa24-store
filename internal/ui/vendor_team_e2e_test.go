@@ -142,6 +142,21 @@ func (m *mockOrgRepoTeamTest) RemoveMember(ctx context.Context, orgID, memberID 
 	return nil
 }
 
+// The team page offers a role selector now, so it reads the company's roles.
+// The mock embeds org.Repository as a nil interface, which panics on any
+// method it does not implement — these two are what the page asks for.
+func (m *mockOrgRepoTeamTest) ListRoles(_ context.Context, orgID int64) ([]*org.Role, error) {
+	return []*org.Role{
+		{ID: 1, OrganizationID: orgID, Key: "org_owner", Name: i18n.New("مالك المنشأة", "Owner"), IsSystem: true, IsOwner: true},
+		{ID: 2, OrganizationID: orgID, Key: "org_manager", Name: i18n.New("مدير", "Manager"), IsSystem: true},
+		{ID: 3, OrganizationID: orgID, Key: "org_warehouse", Name: i18n.New("أمين مخزن", "Warehouse"), IsSystem: true},
+	}, nil
+}
+
+func (m *mockOrgRepoTeamTest) CountRoleMembers(_ context.Context, _ int64) (map[int64]int, error) {
+	return map[int64]int{}, nil
+}
+
 func TestVendorTeam_CompleteOverhaul_E2E(t *testing.T) {
 	logger := slog.New(slog.NewTextHandler(io.Discard, nil))
 	idRepo := newMockIdentityRepoTeamTest()
@@ -156,7 +171,7 @@ func TestVendorTeam_CompleteOverhaul_E2E(t *testing.T) {
 	r := chi.NewRouter()
 	h.RegisterVendorRoutes(r)
 
-	vendorActor := authctx.Actor{UserID: 1, OrganizationID: 55, OrgType: "vendor"}
+	vendorActor := authctx.Actor{UserID: 1, OrganizationID: 55, OrgType: "vendor", Permissions: []string{"vendor.*"}}
 
 	// 1. GET /vendor/team renders page
 	t.Run("GET /vendor/team renders 200 OK", func(t *testing.T) {

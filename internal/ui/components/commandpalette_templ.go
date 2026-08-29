@@ -52,7 +52,7 @@ func CommandPalette(props CommandPaletteProps) templ.Component {
 			var templ_7745c5c3_Var2 templ.SafeURL
 			templ_7745c5c3_Var2, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(c.URL))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/components/commandpalette.templ`, Line: 21, Col: 35}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/commandpalette.templ`, Line: 21, Col: 35}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var2))
 			if templ_7745c5c3_Err != nil {
@@ -65,7 +65,7 @@ func CommandPalette(props CommandPaletteProps) templ.Component {
 			var templ_7745c5c3_Var3 string
 			templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(c.Label)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/components/commandpalette.templ`, Line: 22, Col: 21}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/commandpalette.templ`, Line: 22, Col: 21}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
 			if templ_7745c5c3_Err != nil {

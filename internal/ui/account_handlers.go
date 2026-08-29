@@ -19,66 +19,20 @@ import (
 	"github.com/muhiya/dawa24-store/internal/ui/pages"
 )
 
-// WalletPage redirects to the unified settings wallet tab.
+// WalletPage redirects to the dedicated wallet page.
 func (h *UIHandler) WalletPage(w http.ResponseWriter, r *http.Request) {
-	http.Redirect(w, r, "/settings?tab=wallet", http.StatusMovedPermanently)
+	ctx := r.Context()
+	actor, ok := authctx.From(ctx)
+	if !ok || actor.UserID == 0 {
+		http.Redirect(w, r, "/customer/wallet", http.StatusMovedPermanently)
+		return
+	}
+	http.Redirect(w, r, walletDestFor(actor), http.StatusMovedPermanently)
 }
 
 // WalletDepositSubmit handles submitting a funds deposit request, placing it in pending status for admin review.
 func (h *UIHandler) WalletDepositSubmit(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-	actor, ok := authctx.From(ctx)
-	if !ok {
-		http.Redirect(w, r, "/auth/login?redirect=/settings?tab=wallet", http.StatusSeeOther)
-		return
-	}
-
-	_ = r.ParseMultipartForm(MaxUploadBytes)
-	amountStr := r.PostFormValue("amount")
-	amt, err := money.Parse(amountStr)
-	if err != nil || amt.IsZero() || amt.IsNegative() {
-		h.redirectWithNotice(w, r, "/settings?tab=wallet", "error", "يرجى إدخال مبلغ إيداع صالح وموجب.")
-		return
-	}
-
-	method := strings.TrimSpace(r.PostFormValue("payment_method"))
-	ref := strings.TrimSpace(r.PostFormValue("reference_number"))
-	notes := strings.TrimSpace(r.PostFormValue("notes"))
-
-	if method == "" {
-		h.redirectWithNotice(w, r, "/settings?tab=wallet", "error", "يرجى اختيار وسيلة الدفع أو التحويل.")
-		return
-	}
-	if ref == "" {
-		h.redirectWithNotice(w, r, "/settings?tab=wallet", "error", "يرجى إدخال رقم الإشعار أو مرجع التحويل.")
-		return
-	}
-
-	var attachmentURL string
-	if file, _, err := r.FormFile("receipt"); err == nil && file != nil {
-		_ = file.Close()
-		if savedPath, err := saveUploadedFile(r, "receipt", "receipts"); err == nil {
-			attachmentURL = savedPath
-		}
-	}
-
-	if h.billSvc == nil {
-		h.redirectWithNotice(w, r, "/settings?tab=wallet", "error", "خدمة المحفظة والفواتير غير متوفرة.")
-		return
-	}
-
-	var orgPtr *int64
-	if actor.OrganizationID > 0 {
-		orgPtr = &actor.OrganizationID
-	}
-
-	if _, err := h.billSvc.RequestDeposit(ctx, actor.UserID, orgPtr, "EGP", amt, method, ref, attachmentURL, notes); err != nil {
-		h.log.ErrorContext(ctx, "failed to submit deposit request", "error", err)
-		h.redirectWithNotice(w, r, "/settings?tab=wallet", "error", h.safeMessage(err, langOf(r)))
-		return
-	}
-
-	h.redirectWithNotice(w, r, "/settings?tab=wallet", "success", "تم تسجيل طلب شحن الرصيد بنجاح، والعملية قيد مراجعة وتدقيق الإدارة المالية.")
+	h.TenantWalletDepositSubmit(w, r)
 }
 
 // WalletDepositEditSubmit handles updating a pending deposit request before admin review.
@@ -86,13 +40,15 @@ func (h *UIHandler) WalletDepositEditSubmit(w http.ResponseWriter, r *http.Reque
 	ctx := r.Context()
 	actor, ok := authctx.From(ctx)
 	if !ok {
-		http.Redirect(w, r, "/auth/login?redirect=/settings?tab=wallet", http.StatusSeeOther)
+		http.Redirect(w, r, "/auth/login", http.StatusSeeOther)
 		return
 	}
 
+	dest := walletDestFor(actor)
+
 	depositID, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
 	if err != nil || depositID <= 0 {
-		h.redirectWithNotice(w, r, "/settings?tab=wallet", "error", "معرف عملية الإيداع غير صالح.")
+		h.redirectWithNotice(w, r, dest, "error", "معرف عملية الإيداع غير صالح.")
 		return
 	}
 
@@ -100,7 +56,7 @@ func (h *UIHandler) WalletDepositEditSubmit(w http.ResponseWriter, r *http.Reque
 	amountStr := r.PostFormValue("amount")
 	amt, err := money.Parse(amountStr)
 	if err != nil || amt.IsZero() || amt.IsNegative() {
-		h.redirectWithNotice(w, r, "/settings?tab=wallet", "error", "يرجى إدخال مبلغ إيداع صالح.")
+		h.redirectWithNotice(w, r, dest, "error", "يرجى إدخال مبلغ إيداع صالح.")
 		return
 	}
 
@@ -117,55 +73,22 @@ func (h *UIHandler) WalletDepositEditSubmit(w http.ResponseWriter, r *http.Reque
 	}
 
 	if h.billSvc == nil {
-		h.redirectWithNotice(w, r, "/settings?tab=wallet", "error", "خدمة المحفظة والفواتير غير متوفرة.")
+		h.redirectWithNotice(w, r, dest, "error", "خدمة المحفظة والفواتير غير متوفرة.")
 		return
 	}
 
 	if _, err := h.billSvc.EditPendingDeposit(ctx, actor.UserID, depositID, amt, method, ref, attachmentURL, notes); err != nil {
 		h.log.ErrorContext(ctx, "failed to update pending deposit", "error", err, "deposit_id", depositID)
-		h.redirectWithNotice(w, r, "/settings?tab=wallet", "error", h.safeMessage(err, langOf(r)))
+		h.redirectWithNotice(w, r, dest, "error", h.safeMessage(err, langOf(r)))
 		return
 	}
 
-	h.redirectWithNotice(w, r, "/settings?tab=wallet", "success", "تم تحديث بيانات طلب شحن الرصيد بنجاح.")
+	h.redirectWithNotice(w, r, dest, "success", "تم تحديث بيانات طلب شحن الرصيد بنجاح.")
 }
 
 // WalletWithdrawSubmit handles submitting a funds withdrawal request and debiting the wallet.
 func (h *UIHandler) WalletWithdrawSubmit(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-	actor, ok := authctx.From(ctx)
-	if !ok {
-		http.Redirect(w, r, "/auth/login?redirect=/settings?tab=wallet", http.StatusSeeOther)
-		return
-	}
-
-	_ = r.ParseForm()
-	amountStr := r.PostFormValue("amount")
-	amt, err := money.Parse(amountStr)
-	if err != nil || amt.IsZero() || amt.IsNegative() {
-		h.redirectWithNotice(w, r, "/settings?tab=wallet", "error", "يرجى إدخال مبلغ سحب صالح.")
-		return
-	}
-
-	dest := r.PostFormValue("destination_id")
-	reason := r.PostFormValue("reason")
-	desc := fmt.Sprintf("طلب سحب رصيد إلى: %s", dest)
-	if reason != "" {
-		desc += fmt.Sprintf(" (السبب: %s)", reason)
-	}
-
-	if h.billSvc == nil {
-		h.redirectWithNotice(w, r, "/settings?tab=wallet", "error", "خدمة المحفظة والفواتير غير متوفرة.")
-		return
-	}
-
-	if _, err := h.billSvc.Withdraw(ctx, actor.UserID, "EGP", amt, "user_withdrawal", nil, desc); err != nil {
-		h.log.ErrorContext(ctx, "failed wallet withdrawal", "error", err)
-		h.redirectWithNotice(w, r, "/settings?tab=wallet", "error", h.safeMessage(err, langOf(r)))
-		return
-	}
-
-	h.redirectWithNotice(w, r, "/settings?tab=wallet", "success", "تم خصم وتسجيل طلب السحب بنجاح.")
+	h.TenantWalletWithdrawSubmit(w, r)
 }
 
 // InvoicesPage renders the vendor's invoice list with status badges and actions.

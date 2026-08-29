@@ -953,53 +953,6 @@ func (r *Repository) CountOrganizations(
 	return total, err
 }
 
-// CreateRole inserts a new per-organization role and its permissions.
-func (r *Repository) CreateRole(ctx context.Context, role *org.Role) error {
-	return r.db.InTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
-		query := `
-			INSERT INTO org.roles (organization_id, key, name, description, is_system)
-			VALUES ($1, $2, $3, $4, $5)
-			RETURNING id, created_at;
-		`
-		err := tx.QueryRow(txCtx, query, role.OrganizationID, role.Key, role.Name, role.Description, role.IsSystem).
-			Scan(&role.ID, &role.CreatedAt)
-		if err != nil {
-			return err
-		}
-
-		for _, perm := range role.Permissions {
-			queryPerm := `INSERT INTO org.role_permissions (role_id, permission_key) VALUES ($1, $2) ON CONFLICT DO NOTHING;`
-			if _, err := tx.Exec(txCtx, queryPerm, role.ID, perm); err != nil {
-				return err
-			}
-		}
-		return nil
-	})
-}
-
-// ListRolesByOrg retrieves all roles defined for an organization.
-func (r *Repository) ListRolesByOrg(ctx context.Context, orgID int64) ([]*org.Role, error) {
-	var list []*org.Role
-	err := r.db.InReadTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
-		query := `SELECT id, organization_id, key, name, description, is_system, created_at FROM org.roles WHERE organization_id = $1 ORDER BY created_at ASC;`
-		rows, err := tx.Query(txCtx, query, orgID)
-		if err != nil {
-			return err
-		}
-		defer rows.Close()
-
-		for rows.Next() {
-			var role org.Role
-			if err := rows.Scan(&role.ID, &role.OrganizationID, &role.Key, &role.Name, &role.Description, &role.IsSystem, &role.CreatedAt); err != nil {
-				return err
-			}
-			list = append(list, &role)
-		}
-		return rows.Err()
-	})
-	return list, err
-}
-
 // GetDeliveryBands retrieves active delivery bands for an organization.
 func (r *Repository) GetDeliveryBands(ctx context.Context, orgID int64) ([]*org.DeliveryBand, error) {
 	var list []*org.DeliveryBand

@@ -374,3 +374,10 @@ func (m *mockRepo) GetOrgPlanLimits(_ context.Context, _ int64) (int, int, strin
 	return 3, 3, "الباقة الأساسية", nil
 }
 
+func (m *mockRepo) ListPlatformRoles(_ context.Context) ([]*PlatformRole, error) { return nil, nil }
+func (m *mockRepo) GetPlatformRole(_ context.Context, _ string) (*PlatformRole, error) {
+	return nil, apperr.NotFound("role")
+}
+func (m *mockRepo) CreatePlatformRole(_ context.Context, _ *PlatformRole, _ int64) error { return nil }
+func (m *mockRepo) UpdatePlatformRole(_ context.Context, _ *PlatformRole, _ int64) error { return nil }
+func (m *mockRepo) DeletePlatformRole(_ context.Context, _ string) error                 { return nil }

@@ -120,6 +120,9 @@ func TestAuthenticatedUIRoutesWithActor(t *testing.T) {
 		Role:           "user",
 		OrgType:        "customer",
 		OrgStatus:      "approved",
+		// The pharmacy dashboard is permission-gated now. This double stands
+		// in for a company owner, who holds their whole dashboard.
+		Permissions: []string{"pharmacy.*"},
 	}
 	router := newTestRouter(&actor)
 
@@ -169,10 +172,11 @@ func TestFormActionRoutes(t *testing.T) {
 
 func TestAdminProductSampleDownloads(t *testing.T) {
 	actor := authctx.Actor{
-		UserID:    1,
-		Role:      "super_admin",
-		IsStaff:   true,
-		OrgStatus: "approved",
+		UserID:      1,
+		Role:        "super_admin",
+		IsStaff:     true,
+		OrgStatus:   "approved",
+		Permissions: []string{"*"},
 	}
 	router := newTestRouter(&actor)
 
@@ -216,7 +220,7 @@ func TestVendorIngestAndRolesRoutes(t *testing.T) {
 		OrgType:        "vendor",
 		OrgStatus:      "approved",
 		Role:           "vendor",
-		Permissions:    []string{"products.manage", "catalog.read", "org.manage"},
+		Permissions:    []string{"vendor.*"},
 	}
 	router := newTestRouter(actor)
 

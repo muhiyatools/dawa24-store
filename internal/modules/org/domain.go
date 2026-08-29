@@ -127,8 +127,12 @@ type Role struct {
 	Name           i18n.Text `json:"name"`
 	Description    string    `json:"description"`
 	IsSystem       bool      `json:"is_system"`
-	Permissions    []string  `json:"permissions"`
-	CreatedAt      time.Time `json:"created_at"`
+	// IsOwner marks the role that holds the whole dashboard. It is not
+	// editable and not deletable: an owner who could edit it could remove
+	// their own access to the company with no way to restore it.
+	IsOwner     bool      `json:"is_owner"`
+	Permissions []string  `json:"permissions"`
+	CreatedAt   time.Time `json:"created_at"`
 }
 
 // CustomRole backwards compatibility alias for Role.

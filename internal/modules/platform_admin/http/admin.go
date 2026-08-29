@@ -13,7 +13,7 @@ import (
 // RegisterAdminRoutes mounts administrative platform routes.
 func (h *Handler) RegisterAdminRoutes(r chi.Router) {
 	r.Group(func(admin chi.Router) {
-		admin.Use(authctx.RequirePermission("platform.admin", h.log))
+		admin.Use(authctx.RequirePermission("platform.admin"))
 
 		admin.Get("/api/v1/admin/platform/settings", h.ListPublicSettings)
 		admin.Put("/api/v1/admin/platform/settings/{key}", h.SetSetting)

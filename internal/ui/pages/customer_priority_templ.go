@@ -70,7 +70,7 @@ func CustomerPurchasePriorityPage(lang, dir string, history []*workflow.Purchase
 				var templ_7745c5c3_Var3 string
 				templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", summary.TotalProductsAnalyzed))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_priority.templ`, Line: 91, Col: 111}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `pages/customer_priority.templ`, Line: 91, Col: 111}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
 				if templ_7745c5c3_Err != nil {
@@ -83,7 +83,7 @@ func CustomerPurchasePriorityPage(lang, dir string, history []*workflow.Purchase
 				var templ_7745c5c3_Var4 string
 				templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", summary.RecommendationsGenerated))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_priority.templ`, Line: 95, Col: 114}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `pages/customer_priority.templ`, Line: 95, Col: 114}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
 				if templ_7745c5c3_Err != nil {
@@ -96,7 +96,7 @@ func CustomerPurchasePriorityPage(lang, dir string, history []*workflow.Purchase
 				var templ_7745c5c3_Var5 string
 				templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%.2f", summary.AverageScore))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_priority.templ`, Line: 99, Col: 111}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `pages/customer_priority.templ`, Line: 99, Col: 111}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
 				if templ_7745c5c3_Err != nil {
@@ -109,7 +109,7 @@ func CustomerPurchasePriorityPage(lang, dir string, history []*workflow.Purchase
 				var templ_7745c5c3_Var6 string
 				templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d ms", summary.ProcessingDurationMs))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_priority.templ`, Line: 103, Col: 113}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `pages/customer_priority.templ`, Line: 103, Col: 113}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
 				if templ_7745c5c3_Err != nil {
@@ -150,7 +150,7 @@ func CustomerPurchasePriorityPage(lang, dir string, history []*workflow.Purchase
 					var templ_7745c5c3_Var7 string
 					templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(h.RequestNumber)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_priority.templ`, Line: 134, Col: 39}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `pages/customer_priority.templ`, Line: 134, Col: 39}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
 					if templ_7745c5c3_Err != nil {
@@ -196,7 +196,7 @@ func CustomerPurchasePriorityPage(lang, dir string, history []*workflow.Purchase
 						var templ_7745c5c3_Var8 string
 						templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(h.BudgetConstraint.String())
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_priority.templ`, Line: 153, Col: 47}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `pages/customer_priority.templ`, Line: 153, Col: 47}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var8))
 						if templ_7745c5c3_Err != nil {
@@ -244,7 +244,7 @@ func CustomerPurchasePriorityPage(lang, dir string, history []*workflow.Purchase
 					var templ_7745c5c3_Var9 string
 					templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinStringErrs(h.CreatedAt.Format("2006-01-02 15:04"))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_priority.templ`, Line: 169, Col: 54}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `pages/customer_priority.templ`, Line: 169, Col: 54}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var9))
 					if templ_7745c5c3_Err != nil {
@@ -257,7 +257,7 @@ func CustomerPurchasePriorityPage(lang, dir string, history []*workflow.Purchase
 					var templ_7745c5c3_Var10 templ.SafeURL
 					templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("/customer/purchase-priority/%d", h.ID)))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_priority.templ`, Line: 171, Col: 87}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `pages/customer_priority.templ`, Line: 171, Col: 87}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var10))
 					if templ_7745c5c3_Err != nil {
@@ -328,7 +328,7 @@ func CustomerPurchasePriorityDetailPage(lang, dir string, req *workflow.Purchase
 			var templ_7745c5c3_Var13 string
 			templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.JoinStringErrs(req.RequestNumber)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_priority.templ`, Line: 192, Col: 161}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `pages/customer_priority.templ`, Line: 192, Col: 161}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var13))
 			if templ_7745c5c3_Err != nil {
@@ -341,7 +341,7 @@ func CustomerPurchasePriorityDetailPage(lang, dir string, req *workflow.Purchase
 			var templ_7745c5c3_Var14 string
 			templ_7745c5c3_Var14, templ_7745c5c3_Err = templ.JoinStringErrs(req.CreatedAt.Format("2006-01-02 15:04"))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_priority.templ`, Line: 193, Col: 146}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `pages/customer_priority.templ`, Line: 193, Col: 146}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var14))
 			if templ_7745c5c3_Err != nil {
@@ -354,7 +354,7 @@ func CustomerPurchasePriorityDetailPage(lang, dir string, req *workflow.Purchase
 			var templ_7745c5c3_Var15 string
 			templ_7745c5c3_Var15, templ_7745c5c3_Err = templ.JoinStringErrs(req.Status)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_priority.templ`, Line: 193, Col: 177}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `pages/customer_priority.templ`, Line: 193, Col: 177}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var15))
 			if templ_7745c5c3_Err != nil {

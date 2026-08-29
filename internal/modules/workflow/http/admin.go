@@ -14,7 +14,7 @@ import (
 // RegisterAdminRoutes mounts administrative workflow routes.
 func (h *Handler) RegisterAdminRoutes(r chi.Router) {
 	r.Group(func(admin chi.Router) {
-		admin.Use(authctx.RequirePermission("workflow.admin", h.log))
+		admin.Use(authctx.RequirePermission("workflow.admin"))
 
 		admin.Get("/api/v1/admin/workflow/issues", h.AdminListIssues)
 	})

@@ -4,7 +4,6 @@ import (
 	"fmt"
 
 	"github.com/muhiya/dawa24-store/internal/modules/identity"
-	"github.com/muhiya/dawa24-store/internal/modules/org"
 	"github.com/muhiya/dawa24-store/internal/ui/layouts"
 )
 
@@ -84,7 +83,28 @@ templ AdminFullUserPage(users []*identity.User, activeFilter string, lang, dir s
 }
 
 // AdminUserDetailPage renders a detailed view of a user.
-templ AdminUserDetailPage(u *identity.User, lang, dir string) {
+// AdminUserRoleOption is one assignable platform role.
+type AdminUserRoleOption struct {
+	Key      string
+	Name      string
+	IsStaff  bool
+	Selected bool
+}
+
+// AdminUserDetailView carries the account and what may be done to it.
+type AdminUserDetailView struct {
+	User *identity.User
+	// Roles is empty when the viewer may not assign roles; the form is then
+	// not rendered at all, which matches what the route would answer.
+	Roles []AdminUserRoleOption
+	// SelfEdit marks the viewer looking at their own account. Assigning your
+	// own role is refused by the handler, so the form says why rather than
+	// offering a control that always fails.
+	SelfEdit bool
+}
+
+templ AdminUserDetailPage(v AdminUserDetailView, lang, dir string) {
+	{{ u := v.User }}
 	@layouts.AdminShell(fmt.Sprintf("ملف المستخدم: %s", u.Name.Get("ar")), "users", lang, dir) {
 		<div class="page-container max-w-2xl mx-auto">
 			<div class="glass-panel p-6 mb-6">
@@ -117,6 +137,45 @@ templ AdminUserDetailPage(u *identity.User, lang, dir string) {
 					</div>
 				</div>
 			</div>
+			@adminUserRoleForm(v)
+		</div>
+	}
+}
+
+// adminUserRoleForm assigns the account a platform role.
+//
+// Changing a role ends every session the account holds, because permissions
+// are resolved per request from the role: leaving the old sessions open would
+// let the user keep acting under authority that was just taken away until
+// their cookie happened to expire.
+templ adminUserRoleForm(v AdminUserDetailView) {
+	if len(v.Roles) > 0 {
+		<div class="glass-panel p-6">
+			<h3 class="text-base font-extrabold text-primary mt-0 mb-1">الدور على مستوى المنصة</h3>
+			<p class="text-xs text-secondary mb-4">
+				يحدد الدور ما يراه هذا الحساب داخل لوحة الإدارة. صلاحياته داخل منشأته تأتي من عضويته وليس من هنا.
+			</p>
+			if v.SelfEdit {
+				<p class="text-sm text-secondary m-0">
+					لا يمكنك تغيير دور حسابك بنفسك؛ يقوم بذلك مشرف آخر.
+				</p>
+			} else {
+				<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/users/%d/role", v.User.ID)) } class="d-flex items-center gap-3">
+					<select name="role" class="form-input" style="max-width:320px;">
+						for _, role := range v.Roles {
+							<option value={ role.Key } selected?={ role.Selected }>
+								if role.IsStaff {
+									{ role.Name + " — لوحة الإدارة" }
+								} else {
+									{ role.Name }
+								}
+							</option>
+						}
+					</select>
+					<button type="submit" class="btn btn-primary font-bold">حفظ الدور</button>
+					<span class="text-xs text-muted">سيتم إنهاء جلسات المستخدم الحالية فوراً.</span>
+				</form>
+			}
 		</div>
 	}
 }
@@ -202,109 +261,3 @@ templ AdminEmployeeActivitiesPage(activities []any, lang, dir string) {
 	}
 }
 
-// AdminRolesPage renders RBAC roles management.
-templ AdminRolesPage(roles []*org.Role, lang, dir string) {
-	@layouts.AdminShell("إدارة الأدوار والصلاحيات (RBAC)", "roles", lang, dir) {
-		<div class="page-container">
-			<div class="glass-panel p-6 mb-6">
-				<div class="d-flex items-center gap-3">
-					<div class="user-avatar-badge text-xl">
-						🛡️
-					</div>
-					<div>
-						<h1 class="text-2xl font-black text-primary m-0">الأدوار والصلاحيات ({ fmt.Sprintf("%d", len(roles)) })</h1>
-						<p class="text-sm text-secondary m-0 mt-1">تحديد صلاحيات الوصول والتعديل لمجموعات المستخدمين والموظفين</p>
-					</div>
-				</div>
-			</div>
-
-			<div class="glass-panel p-0 mb-6 overflow-hidden">
-				if len(roles) == 0 {
-					<div class="p-8 text-center empty-state-glass">
-						<div class="text-4xl mb-3">🛡️</div>
-						<h3 class="text-lg font-black text-primary mb-2">لا توجد أدوار مخصصة</h3>
-						<p class="text-sm text-secondary max-w-md mx-auto">يتم استخدام الأدوار القياسية للنظام.</p>
-					</div>
-				} else {
-					<div class="table-container m-0">
-						<table class="data-table m-0">
-						<thead>
-							<tr>
-								<th>اسم الدور</th>
-								<th>الكود التعريفي</th>
-								<th>الوصف</th>
-								<th>عدد الصلاحيات</th>
-								<th class="text-end">الإجراءات</th>
-							</tr>
-						</thead>
-						<tbody>
-							for _, r := range roles {
-								<tr>
-									<td><strong>{ r.Name.Get("ar") }</strong></td>
-									<td><code>{ r.Key }</code></td>
-									<td>{ r.Description }</td>
-									<td><span class="badge badge-sky">{ fmt.Sprintf("%d صلاحية", len(r.Permissions)) }</span></td>
-									<td class="text-end">
-										<a href={ templ.SafeURL(fmt.Sprintf("/admin/admin-roles/%d", r.ID)) } class="btn btn-secondary btn-sm">تعديل الصلاحيات</a>
-									</td>
-								</tr>
-							}
-						</tbody>
-					</table>
-				</div>
-			}
-			</div>
-		</div>
-	}
-}
-
-// AdminRoleEditPage renders role permissions editor.
-templ AdminRoleEditPage(r *org.Role, lang, dir string) {
-	@layouts.AdminShell(fmt.Sprintf("تعديل صلاحيات الدور: %s", r.Name.Get("ar")), "roles", lang, dir) {
-		<div class="card max-w-2xl mx-auto">
-			<div class="header-row">
-				<div>
-					<h2 class="card-title m-0">تعديل صلاحيات الدور ({ r.Key })</h2>
-					<p class="subtitle">حدد الصلاحيات الممنوحة للمستخدمين المسند إليهم هذا الدور.</p>
-				</div>
-				<a href="/admin/roles" class="btn btn-secondary btn-sm">العودة للأدوار</a>
-			</div>
-
-			<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/admin-roles/%d", r.ID)) }>
-				<div class="form-group" style="margin-bottom:1.25rem;">
-					<label class="form-label">اسم الدور بالعربي</label>
-					<input type="text" name="name_ar" class="form-input" value={ r.Name.Get("ar") } required />
-				</div>
-
-				<div class="form-group mb-lg">
-					<label class="form-label">الوصف</label>
-					<textarea name="description" class="form-input" rows="2">{ r.Description }</textarea>
-				</div>
-
-				<h3 style="font-size:1.05rem; font-weight:700; margin-bottom:1rem;">مصفوفة الصلاحيات المتاحة</h3>
-				<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:0.75rem; margin-bottom:2rem; background:var(--surface-sunken); padding:1.25rem; border-radius:var(--radius-lg);">
-					for _, perm := range []string{"org.organization.view", "org.organization.update", "catalog.product.view", "catalog.product.manage", "commerce.order.view", "commerce.order.manage", "workflow.coverage.manage", "identity.user.view", "identity.user.update", "platform.setting.view", "platform.setting.update"} {
-						<label style="display:flex; align-items:center; gap:0.5rem; cursor:pointer; font-size:0.875rem;">
-							<input type="checkbox" name="permissions" value={ perm } checked?={ containsPerm(r.Permissions, perm) } />
-							<code>{ perm }</code>
-						</label>
-					}
-				</div>
-
-				<div style="display:flex; justify-content:space-between;">
-					<a href="/admin/roles" class="btn btn-secondary">إلغاء</a>
-					<button type="submit" class="btn btn-primary">حفظ الصلاحيات</button>
-				</div>
-			</form>
-		</div>
-	}
-}
-
-func containsPerm(perms []string, target string) bool {
-	for _, p := range perms {
-		if p == target {
-			return true
-		}
-	}
-	return false
-}

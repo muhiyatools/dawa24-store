@@ -33,9 +33,10 @@ func TestAdminTranslationsRoutes(t *testing.T) {
 
 	// 2. Super admin access returns 200
 	adminCtx := authctx.WithActor(context.Background(), authctx.Actor{
-		UserID:  1,
-		IsStaff: true,
-		Role:    "super_admin",
+		UserID:      1,
+		IsStaff:     true,
+		Role:        "super_admin",
+		Permissions: []string{"*"},
 	})
 	req, _ = http.NewRequestWithContext(adminCtx, http.MethodGet, "/admin/translations", nil)
 	w = httptest.NewRecorder()

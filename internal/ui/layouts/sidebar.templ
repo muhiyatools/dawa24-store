@@ -1,0 +1,74 @@
+package layouts
+
+import (
+	"context"
+
+	"github.com/muhiya/dawa24-store/internal/platform/authctx"
+	"github.com/muhiya/dawa24-store/internal/platform/rbac"
+	"github.com/muhiya/dawa24-store/internal/ui/components"
+)
+
+// The sidebar, rendered from the permission registry.
+//
+// Every one of the three shells used to hand-write its own list of links. The
+// admin one guarded each link with an inline permission string — six of which
+// named permissions that did not exist, so those links were invisible to
+// everyone except super_admin. The vendor and pharmacy shells guarded nothing
+// at all: every member of a company saw the wallet, the team page and the role
+// editor whether or not they could use them.
+//
+// Now all three read internal/platform/rbac, which is the same declaration the
+// route gates are written against. A link the caller can see leads somewhere
+// they can go, and a page they cannot open has no link — not because someone
+// remembered to keep the two in step, but because there is only one list.
+
+// SidebarNav renders the caller's visible navigation for a dashboard.
+templ SidebarNav(scope rbac.Scope, activeNav string, lang string) {
+	<nav class="sidebar-nav">
+		for _, section := range visibleNav(ctx, scope) {
+			<div class="sidebar-group">
+				<div class="sidebar-section-header">
+					<span>{ section.Label(lang) }</span>
+				</div>
+				for _, item := range section.Items {
+					<a
+						href={ templ.SafeURL(item.Href) }
+						class={ "sidebar-link", templ.KV("active", item.Active(activeNav)) }
+					>
+						@components.Icon(item.Icon, "icon-sm")
+						<span>{ item.Label(lang) }</span>
+					</a>
+				}
+			</div>
+		}
+	</nav>
+}
+
+// visibleNav filters the declared navigation down to what the caller holds.
+//
+// This is presentation, not enforcement. The gate on the route is what stops a
+// caller reaching a page; hiding the link only stops them being offered a door
+// that will not open. Both read the same registry, so they agree.
+func visibleNav(ctx context.Context, scope rbac.Scope) []rbac.NavSection {
+	actor, ok := authctx.From(ctx)
+	if !ok {
+		return nil
+	}
+	if scope == "" {
+		scope = actor.Scope
+	}
+	if scope == "" {
+		return nil
+	}
+	return rbac.VisibleNav(scope, rbac.NewSet(actor.Permissions))
+}
+
+// CanSee reports whether the caller holds a permission. Pages use it to hide
+// an action button whose route would refuse them anyway.
+func CanSee(ctx context.Context, permission string) bool {
+	actor, ok := authctx.From(ctx)
+	if !ok {
+		return false
+	}
+	return actor.Can(permission)
+}

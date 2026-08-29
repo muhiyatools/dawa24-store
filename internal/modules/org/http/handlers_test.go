@@ -148,21 +148,34 @@ func (r stubRepo) CreateRole(ctx context.Context, role *org.Role) error {
 	r.fail("CreateRole")
 	return nil
 }
-func (r stubRepo) GetRoleByID(ctx context.Context, id int64) (*org.Role, error) {
-	r.fail("GetRoleByID")
+func (r stubRepo) GetRole(ctx context.Context, orgID, roleID int64) (*org.Role, error) {
+	r.fail("GetRole")
 	return nil, nil
 }
-func (r stubRepo) UpdateRole(ctx context.Context, role *org.Role) error {
+
+func (r stubRepo) UpdateRole(ctx context.Context, orgID int64, role *org.Role) error {
 	r.fail("UpdateRole")
 	return nil
 }
-func (r stubRepo) DeleteRole(ctx context.Context, id int64) error {
+
+func (r stubRepo) DeleteRole(ctx context.Context, orgID, roleID int64) error {
 	r.fail("DeleteRole")
 	return nil
 }
-func (r stubRepo) ListRolesByOrg(ctx context.Context, orgID int64) ([]*org.Role, error) {
-	r.fail("ListRolesByOrg")
+
+func (r stubRepo) ListRoles(ctx context.Context, orgID int64) ([]*org.Role, error) {
+	r.fail("ListRoles")
 	return nil, nil
+}
+
+func (r stubRepo) CountRoleMembers(ctx context.Context, orgID int64) (map[int64]int, error) {
+	r.fail("CountRoleMembers")
+	return nil, nil
+}
+
+func (r stubRepo) AssignMemberRole(ctx context.Context, orgID, memberID, roleID int64) error {
+	r.fail("AssignMemberRole")
+	return nil
 }
 func (r stubRepo) GetDeliveryBands(ctx context.Context, orgID int64) ([]*org.DeliveryBand, error) {
 	r.fail("GetDeliveryBands")
@@ -443,17 +456,22 @@ func (happyRepo) CreateRole(ctx context.Context, role *org.Role) error {
 	role.ID = 1
 	return nil
 }
-func (happyRepo) GetRoleByID(ctx context.Context, id int64) (*org.Role, error) {
-	return &org.Role{ID: id, Key: "custom_role", Permissions: []string{"org.organization.view"}}, nil
+func (happyRepo) GetRole(ctx context.Context, orgID, roleID int64) (*org.Role, error) {
+	return &org.Role{ID: roleID, OrganizationID: orgID}, nil
 }
-func (happyRepo) UpdateRole(ctx context.Context, role *org.Role) error {
+
+func (happyRepo) UpdateRole(ctx context.Context, orgID int64, role *org.Role) error { return nil }
+
+func (happyRepo) DeleteRole(ctx context.Context, orgID, roleID int64) error { return nil }
+
+func (happyRepo) ListRoles(ctx context.Context, orgID int64) ([]*org.Role, error) { return nil, nil }
+
+func (happyRepo) CountRoleMembers(ctx context.Context, orgID int64) (map[int64]int, error) {
+	return map[int64]int{}, nil
+}
+
+func (happyRepo) AssignMemberRole(ctx context.Context, orgID, memberID, roleID int64) error {
 	return nil
-}
-func (happyRepo) DeleteRole(ctx context.Context, id int64) error {
-	return nil
-}
-func (happyRepo) ListRolesByOrg(ctx context.Context, orgID int64) ([]*org.Role, error) {
-	return nil, nil
 }
 func (happyRepo) GetDeliveryBands(ctx context.Context, orgID int64) ([]*org.DeliveryBand, error) {
 	return nil, nil

@@ -6,6 +6,7 @@ import (
 	"log/slog"
 	"time"
 
+	"github.com/muhiya/dawa24-store/internal/platform/rbac"
 	"github.com/muhiya/dawa24-store/internal/shared/apperr"
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 )
@@ -14,7 +15,43 @@ import (
 type Service struct {
 	repo         Repository
 	sessionStore *SessionStore
+	resolver     *rbac.Resolver
 	log          *slog.Logger
+}
+
+// SetPermissionResolver supplies the shared permission resolver.
+//
+// Optional: without it, the session is stamped with the repository's older
+// permission query, which does not know about company roles. That copy is only
+// a fallback — every request re-resolves through the middleware — but a login
+// that stamps the wrong list makes the fallback wrong too, so the composition
+// root wires this.
+func (s *Service) SetPermissionResolver(r *rbac.Resolver) { s.resolver = r }
+
+// resolvePermissions returns the caller's effective permissions, preferring the
+// shared resolver so that a session's stamped copy matches what the gates will
+// decide on the next request.
+func (s *Service) resolvePermissions(ctx context.Context, userID, orgID int64) []string {
+	perms, _ := s.resolveGrant(ctx, userID, orgID)
+	return perms
+}
+
+// resolveGrant returns the caller's permissions and whether their platform
+// role reaches the admin dashboard.
+func (s *Service) resolveGrant(ctx context.Context, userID, orgID int64) ([]string, bool) {
+	if s.resolver != nil {
+		if grant, err := s.resolver.Resolve(ctx, userID, orgID); err == nil {
+			return grant.Keys, grant.IsStaff
+		} else {
+			s.log.ErrorContext(ctx, "could not resolve permissions at login",
+				"error", err, "user_id", userID, "organization_id", orgID)
+		}
+	}
+	perms, err := s.repo.GetPermissionsForUser(ctx, userID, orgID)
+	if err != nil {
+		return []string{}, false
+	}
+	return perms, false
 }
 
 // NewService creates a new Identity Service.
@@ -104,10 +141,7 @@ func (s *Service) Register(ctx context.Context, input RegisterInput) (*User, *Se
 	_ = s.repo.UpsertSecurity(ctx, sec)
 
 	// Issue initial session
-	permissions, err := s.repo.GetPermissionsForUser(ctx, user.ID, 0)
-	if err != nil {
-		permissions = []string{}
-	}
+	permissions := s.resolvePermissions(ctx, user.ID, 0)
 
 	sess := &Session{
 		UserID:      user.ID,
@@ -208,11 +242,7 @@ func (s *Service) Login(ctx context.Context, input LoginInput) (*LoginResult, er
 		orgType = normType
 	}
 
-	permissions, err := s.repo.GetPermissionsForUser(ctx, user.ID, orgID)
-
-	if err != nil {
-		permissions = []string{}
-	}
+	permissions, staffRole := s.resolveGrant(ctx, user.ID, orgID)
 
 	// Resolve dynamic plan concurrency limit:
 	maxSessions := 3
@@ -232,6 +262,7 @@ func (s *Service) Login(ctx context.Context, input LoginInput) (*LoginResult, er
 		ActiveOrgID:      orgID,
 		OrgType:          orgType,
 		OrgStatus:        orgStatus,
+		StaffRole:        staffRole,
 		Permissions:      permissions,
 		IP:               input.IP,
 		UserAgent:        input.UserAgent,
@@ -391,7 +422,7 @@ func (s *Service) UserBelongsToOrg(ctx context.Context, userID, orgID int64) (bo
 
 // ResolvePermissions computes effective permissions for a user within an org.
 func (s *Service) ResolvePermissions(ctx context.Context, userID int64, orgID int64) ([]string, error) {
-	return s.repo.GetPermissionsForUser(ctx, userID, orgID)
+	return s.resolvePermissions(ctx, userID, orgID), nil
 }
 
 // ListUserOrganizations lists all organizations a user has active membership in.
@@ -414,10 +445,7 @@ func (s *Service) SwitchActiveOrg(ctx context.Context, userID, targetOrgID int64
 		return nil, err
 	}
 
-	perms, err := s.repo.GetPermissionsForUser(ctx, userID, targetOrgID)
-	if err != nil {
-		perms = []string{}
-	}
+	perms := s.resolvePermissions(ctx, userID, targetOrgID)
 
 	// Lookup target org info
 	orgs, err := s.repo.ListUserOrganizations(ctx, userID)
@@ -486,7 +514,7 @@ func (s *Service) GetOrgInfoForUser(ctx context.Context, userID, orgID int64) (o
 			"original", orgType, "normalized", normType, "user_id", userID, "org_id", orgID)
 	}
 	orgType = normType
-	perms, _ = s.repo.GetPermissionsForUser(ctx, userID, orgID)
+	perms = s.resolvePermissions(ctx, userID, orgID)
 	return orgType, orgStatus, perms, nil
 }
 

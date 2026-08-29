@@ -15,7 +15,7 @@ import (
 
 func (h *Handler) RegisterAdminRoutes(r chi.Router) {
 	r.Group(func(admin chi.Router) {
-		admin.Use(authctx.RequirePermission("catalog.admin", h.log))
+		admin.Use(authctx.RequirePermission("catalog.admin"))
 
 		admin.Get("/api/v1/admin/catalog/products", h.AdminListProducts)
 		admin.Get("/api/v1/admin/catalog/products/{id}", h.AdminGetProduct)
