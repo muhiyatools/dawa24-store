@@ -58,10 +58,20 @@ templ AdminShell(title string, activeNav string, lang string, dir string) {
 							<div class="sidebar-section-header">
 								<span>المؤسسة والمشرفين</span>
 							</div>
-							if canAccessAdmin(ctx, "org.organization.view") || canAccessAdmin(ctx, "identity.user.view") {
-								<a href="/admin/organizations" class={ "sidebar-link", templ.KV("active", activeNav == "organizations" || activeNav == "branches" || activeNav == "users") }>
+							if canAccessAdmin(ctx, "org.organization.view") {
+								<a href="/admin/organizations" class={ "sidebar-link", templ.KV("active", activeNav == "organizations") }>
 									@components.IconBuilding("icon-sm")
-									<span>المنشآت والفروع والمستخدمين</span>
+									<span>المنشآت والمؤسسات</span>
+								</a>
+								<a href="/admin/branches" class={ "sidebar-link", templ.KV("active", activeNav == "branches") }>
+									@components.IconMapPin("icon-sm")
+									<span>الفروع والمستودعات</span>
+								</a>
+							}
+							if canAccessAdmin(ctx, "identity.user.view") {
+								<a href="/admin/users" class={ "sidebar-link", templ.KV("active", activeNav == "users") }>
+									@components.IconUsers("icon-sm")
+									<span>المستخدمون والحسابات</span>
 								</a>
 							}
 							if canAccessAdmin(ctx, "identity.user.view") {

@@ -361,11 +361,11 @@ func (r *Repository) ListAllSavingProductsAdmin(ctx context.Context, userID *int
 		baseQuery := `
 			SELECT 
 				sp.id, sp.public_id, sp.user_id,
-				COALESCE(u.full_name, u.email, 'مستخدم #' || COALESCE(sp.user_id, 0)) AS user_name,
+				COALESCE(NULLIF(u.name->>'ar', ''), NULLIF(u.name->>'en', ''), NULLIF(u.email, ''), 'مستخدم #' || COALESCE(sp.user_id, 0)) AS user_name,
 				COALESCE(u.email, '') AS user_email,
 				COALESCE(u.phone, '') AS user_phone,
 				sp.organization_id,
-				COALESCE(o.legal_name, o.name->>'ar', 'منشأة #' || sp.organization_id) AS org_name,
+				COALESCE(NULLIF(o.legal_name, ''), NULLIF(o.trade_name->>'ar', ''), NULLIF(o.trade_name->>'en', ''), 'منشأة #' || sp.organization_id) AS org_name,
 				COALESCE(o.type, '') AS org_type,
 				sp.product_id,
 				COALESCE(p.name->>'ar', p.name->>'en', '') AS master_product_name,
@@ -398,7 +398,7 @@ func (r *Repository) ListAllSavingProductsAdmin(ctx context.Context, userID *int
 		}
 		if search != "" {
 			term := "%" + strings.ToLower(strings.TrimSpace(search)) + "%"
-			conditions = append(conditions, fmt.Sprintf("(LOWER(sp.name_product) LIKE $%d OR LOWER(COALESCE(sp.sku, '')) LIKE $%d OR LOWER(COALESCE(u.full_name, '')) LIKE $%d OR LOWER(COALESCE(u.email, '')) LIKE $%d OR LOWER(COALESCE(o.legal_name, '')) LIKE $%d)", argIdx, argIdx, argIdx, argIdx, argIdx))
+			conditions = append(conditions, fmt.Sprintf("(LOWER(sp.name_product) LIKE $%d OR LOWER(COALESCE(sp.sku, '')) LIKE $%d OR LOWER(COALESCE(u.name->>'ar', '')) LIKE $%d OR LOWER(COALESCE(u.name->>'en', '')) LIKE $%d OR LOWER(COALESCE(u.email, '')) LIKE $%d OR LOWER(COALESCE(o.legal_name, '')) LIKE $%d OR LOWER(COALESCE(o.trade_name->>'ar', '')) LIKE $%d)", argIdx, argIdx, argIdx, argIdx, argIdx, argIdx, argIdx))
 			args = append(args, term)
 			argIdx++
 		}

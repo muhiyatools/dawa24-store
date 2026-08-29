@@ -2,12 +2,13 @@ package ui
 
 import (
 	"fmt"
+	"io"
 	"net/http"
+	"net/url"
 	"os"
 	"path/filepath"
 	"strconv"
 	"strings"
-	"time"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/muhiya/dawa24-store/internal/modules/attachments"
@@ -190,6 +191,7 @@ func (h *UIHandler) DocumentDownloadHandler(w http.ResponseWriter, r *http.Reque
 // serveDocumentFile safely finds, verifies access to, and streams a document file.
 func (h *UIHandler) serveDocumentFile(w http.ResponseWriter, r *http.Request, download bool) {
 	ctx := r.Context()
+	lang, dir := h.localeAndDir(r)
 	actor, ok := authctx.From(ctx)
 	if !ok {
 		http.Error(w, "يجب تسجيل الدخول لعرض المستند", http.StatusUnauthorized)
@@ -214,7 +216,7 @@ func (h *UIHandler) serveDocumentFile(w http.ResponseWriter, r *http.Request, do
 	sysCtx := database.AsSystem(ctx)
 	doc, err := h.attSvc.GetByIDAdmin(sysCtx, id)
 	if err != nil || doc == nil {
-		http.Error(w, "المستند غير موجود", http.StatusNotFound)
+		h.renderMissingDocError(w, r, nil, "المستند المطلوب غير مسجل بالنظام أو تم حذفه.", lang, dir)
 		return
 	}
 
@@ -237,35 +239,59 @@ func (h *UIHandler) serveDocumentFile(w http.ResponseWriter, r *http.Request, do
 		}
 	}
 
-	// Older rows (and any storage-backed upload) carry the path in storage_key
-	// only, so fall back to it when file_url was never populated.
-	fileURL := strings.TrimSpace(doc.FileURL)
-	if fileURL == "" {
-		fileURL = strings.TrimSpace(doc.StorageKey)
+	rawURL := strings.TrimSpace(doc.FileURL)
+	if rawURL == "" {
+		rawURL = strings.TrimSpace(doc.StorageKey)
 	}
 
-	// 1. If it's a remote URL (http:// or https://), redirect directly
-	if strings.HasPrefix(fileURL, "http://") || strings.HasPrefix(fileURL, "https://") {
-		http.Redirect(w, r, fileURL, http.StatusTemporaryRedirect)
+	// 1. Sanitize the URL / Storage Key (NEVER redirect to localhost / private network endpoints)
+	cleanKey := rawURL
+	isInternalURL := false
+	if strings.Contains(cleanKey, "://") {
+		if u, parseErr := url.Parse(cleanKey); parseErr == nil {
+			host := strings.ToLower(u.Hostname())
+			if host == "localhost" || host == "127.0.0.1" || host == "minio" || host == "0.0.0.0" ||
+				strings.HasPrefix(host, "192.168.") || strings.HasPrefix(host, "10.") || strings.HasPrefix(host, "172.") {
+				isInternalURL = true
+				p := u.Path
+				p = strings.TrimPrefix(p, "/dawa24")
+				cleanKey = p
+			}
+		}
+	}
+
+	// If it's a genuine public external URL (and NOT an internal localhost endpoint), redirect safely
+	if !isInternalURL && (strings.HasPrefix(rawURL, "http://") || strings.HasPrefix(rawURL, "https://")) {
+		http.Redirect(w, r, rawURL, http.StatusTemporaryRedirect)
 		return
 	}
 
-	// 2. Check all local disk locations
-	cleanPath := strings.TrimPrefix(fileURL, "/uploads/")
-	baseName := filepath.Base(fileURL)
+	for strings.HasPrefix(cleanKey, "/") {
+		cleanKey = strings.TrimPrefix(cleanKey, "/")
+	}
+	cleanPath := strings.TrimPrefix(cleanKey, "uploads/")
+	for strings.HasPrefix(cleanPath, "/") {
+		cleanPath = strings.TrimPrefix(cleanPath, "/")
+	}
+	baseName := filepath.Base(cleanKey)
 
+	// 2. Check all local disk locations
 	candidates := []string{
 		filepath.Join(UploadBaseDir, cleanPath),
-		filepath.Join("data", "uploads", cleanPath),
-		filepath.Join("internal", "ui", "data", "uploads", cleanPath),
-		filepath.Join("cmd", "server", "data", "uploads", cleanPath),
+		filepath.Join(UploadBaseDir, cleanKey),
 		filepath.Join(UploadBaseDir, "documents", baseName),
-		filepath.Join("data", "uploads", "documents", baseName),
-		filepath.Join("internal", "ui", "data", "uploads", "documents", baseName),
-		filepath.Join("cmd", "server", "data", "uploads", "documents", baseName),
 		filepath.Join(UploadBaseDir, "licenses", baseName),
-		filepath.Join("data", fileURL),
-		fileURL,
+		filepath.Join("data", "uploads", cleanPath),
+		filepath.Join("data", "uploads", cleanKey),
+		filepath.Join("data", "uploads", "documents", baseName),
+		filepath.Join("data", "uploads", "licenses", baseName),
+		filepath.Join("internal", "ui", "data", "uploads", cleanPath),
+		filepath.Join("internal", "ui", "data", "uploads", "documents", baseName),
+		filepath.Join("cmd", "server", "data", "uploads", cleanPath),
+		filepath.Join("cmd", "server", "data", "uploads", "documents", baseName),
+		filepath.Join("data", cleanPath),
+		filepath.Join("data", cleanKey),
+		cleanKey,
 		cleanPath,
 	}
 
@@ -317,36 +343,129 @@ func (h *UIHandler) serveDocumentFile(w http.ResponseWriter, r *http.Request, do
 		}
 	}
 
-	// 3. Storage client (S3/MinIO) check
-	if h.storage != nil && fileURL != "" {
-		presigned, presignErr := h.storage.PresignGet(ctx, fileURL, 60*time.Minute)
-		if presignErr == nil && presigned != "" {
-			http.Redirect(w, r, presigned, http.StatusTemporaryRedirect)
-			return
+	// 3. Storage client (S3/MinIO) direct proxy stream (fetching object directly from storage without unroutable redirects)
+	if h.storage != nil {
+		storageKeys := []string{
+			cleanKey,
+			cleanPath,
+			doc.StorageKey,
+			fmt.Sprintf("documents/%s", baseName),
+			fmt.Sprintf("uploads/documents/%s", baseName),
+			fmt.Sprintf("licenses/%s", baseName),
+			fmt.Sprintf("uploads/%s", cleanPath),
+		}
+		if doc.OrganizationID != nil && *doc.OrganizationID > 0 {
+			storageKeys = append(storageKeys,
+				fmt.Sprintf("orgs/%d/%s", *doc.OrganizationID, cleanPath),
+				fmt.Sprintf("orgs/%d/documents/%s", *doc.OrganizationID, baseName),
+			)
+		}
+
+		for _, sKey := range storageKeys {
+			if sKey == "" {
+				continue
+			}
+			body, cType, sErr := h.storage.Get(ctx, sKey)
+			if sErr == nil && body != nil {
+				defer body.Close()
+
+				mimeType := cType
+				if mimeType == "" || mimeType == "application/octet-stream" {
+					mimeType = doc.MimeType
+				}
+				if mimeType == "" || mimeType == "application/octet-stream" {
+					ext := strings.ToLower(filepath.Ext(baseName))
+					switch ext {
+					case ".pdf":
+						mimeType = "application/pdf"
+					case ".png":
+						mimeType = "image/png"
+					case ".jpg", ".jpeg":
+						mimeType = "image/jpeg"
+					case ".webp":
+						mimeType = "image/webp"
+					case ".svg":
+						mimeType = "image/svg+xml"
+					default:
+						mimeType = "application/pdf"
+					}
+				}
+
+				filename := doc.OriginalName
+				if filename == "" {
+					filename = baseName
+				}
+
+				disposition := "inline"
+				if download {
+					disposition = "attachment"
+				}
+
+				w.Header().Set("Content-Type", mimeType)
+				w.Header().Set("Content-Disposition", fmt.Sprintf(`%s; filename="%s"`, disposition, filename))
+				w.Header().Set("Cache-Control", "private, max-age=3600")
+				_, _ = io.Copy(w, body)
+				return
+			}
 		}
 	}
 
-	// 4. Guaranteed High-Craft Digital Document SVG Card Preview
-	// When physical file is not on disk (e.g. legacy seed record or text file),
-	// render an official digital record certificate so preview NEVER fails with an error!
-	svgData := renderOfficialDocSVG(doc)
-	filename := doc.OriginalName
-	if filename == "" {
-		filename = fmt.Sprintf("document_%d.svg", doc.ID)
+	// 4. If file is unavailable anywhere, render the clear, polished Document Unavailable Error Page
+	h.renderMissingDocError(w, r, doc, "لم يتم العثور على الملف الرقمي الفعلي للمستند في وسائط التخزين السحابي.", lang, dir)
+}
+
+func (h *UIHandler) renderMissingDocError(w http.ResponseWriter, r *http.Request, doc *attachments.Document, reason, lang, dir string) {
+	actor, _ := authctx.From(r.Context())
+
+	returnURL := "/customer/documents"
+	if actor.IsPlatformAdmin() || actor.IsStaff {
+		returnURL = "/admin/approvals?tab=documents"
+	} else if actor.IsVendor() {
+		returnURL = "/vendor/documents"
 	}
 
-	disposition := "inline"
-	if download {
-		disposition = fmt.Sprintf(`attachment; filename="%s"`, filename)
+	view := pages.DocumentUnavailableView{
+		ReturnURL: returnURL,
+		IsAdmin:   actor.IsPlatformAdmin() || actor.IsStaff,
+	}
+
+	if doc != nil {
+		view.DocID = doc.ID
+		view.DocTypeLabel = pages.FormatDocTypeLabel(doc.DocumentType)
+		view.OriginalName = doc.OriginalName
+		if view.OriginalName == "" {
+			view.OriginalName = fmt.Sprintf("Document #%d", doc.ID)
+		}
+		view.UploadDate = doc.CreatedAt.Format("2006-01-02 15:04")
+		if doc.OrganizationID != nil && *doc.OrganizationID > 0 {
+			view.OrgID = *doc.OrganizationID
+			if h.orgSvc != nil {
+				if orgObj, err := h.orgSvc.GetOrganization(r.Context(), *doc.OrganizationID); err == nil && orgObj != nil {
+					view.OrgName = orgObj.LegalName
+				}
+			}
+			if view.OrgName == "" {
+				view.OrgName = fmt.Sprintf("منشأة #%d", *doc.OrganizationID)
+			}
+		}
+		switch doc.Status {
+		case attachments.StatusVerified:
+			view.StatusLabel = "معتمد ومطابق"
+		case attachments.StatusRejected:
+			view.StatusLabel = "مرفوض"
+		default:
+			view.StatusLabel = "قيد التدقيق"
+		}
 	} else {
-		disposition = fmt.Sprintf(`inline; filename="%s"`, filename)
+		view.DocTypeLabel = "مستند غير مسجل"
+		view.OriginalName = "الملف غير متوفر"
 	}
 
-	w.Header().Set("Content-Type", "image/svg+xml; charset=utf-8")
-	w.Header().Set("Content-Disposition", disposition)
-	w.Header().Set("Cache-Control", "private, no-cache")
-	w.WriteHeader(http.StatusOK)
-	_, _ = w.Write(svgData)
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+	w.WriteHeader(http.StatusNotFound)
+	if err := pages.DocumentUnavailablePage(view, lang, dir).Render(r.Context(), w); err != nil {
+		h.log.ErrorContext(r.Context(), "render document unavailable page", "error", err)
+	}
 }
 
 // renderOfficialDocSVG dynamically generates an official SVG document badge/receipt.

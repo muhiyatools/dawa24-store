@@ -2,142 +2,348 @@ package pages
 
 import (
 	"fmt"
+
+	"github.com/muhiya/dawa24-store/internal/modules/commerce"
 	"github.com/muhiya/dawa24-store/internal/modules/org"
 	"github.com/muhiya/dawa24-store/internal/ui/components"
 	"github.com/muhiya/dawa24-store/internal/ui/layouts"
 )
 
 type AdminDashboardStats struct {
-	TotalUsers         int
-	TotalOrganizations int
-	PendingApprovals   int
-	TotalOrders        int
+	TotalUsers          int
+	TotalOrganizations  int
+	TotalPharmacies     int
+	TotalVendors        int
+	TotalBranches       int
+	PendingApprovals    int
+	TotalOrders         int
+	TotalProducts       int
+	TotalSavingProducts int
+	TotalGMV            string
+	TotalVisitors       int
+	TodayVisitors       int
+	TopDevices          map[string]int
+	TopBrowsers         map[string]int
+	TopLocations        map[string]int
+	GatewayOnline       bool
+	GatewayURL          string
+	RecentOrders        []*commerce.Order
 }
 
 templ AdminDashboard(stats AdminDashboardStats, pendingOrgs []*org.Organization, lang, dir string) {
 	@layouts.AdminShell("لوحة التحكم والمؤشرات الرئيسية", "dashboard", lang, dir) {
 		<div class="page-container">
-			<!-- 1. KPI Stats Cards -->
-			<div class="dashboard-stat-grid mb-6">
-				@components.StatCard(components.StatCardProps{
-					Label:    "المستخدمين المسجلين",
-					Value:    fmt.Sprintf("%d مستخدم", stats.TotalUsers),
-					Subtitle: "صيادلة، مديرو فروع، ومسؤولو توريد",
-					Tone:     "neutral",
-				})
-				@components.StatCard(components.StatCardProps{
-					Label:    "المؤسسات والشركات",
-					Value:    fmt.Sprintf("%d منشأة", stats.TotalOrganizations),
-					Subtitle: "صيدليات مرخصة ومخازن أدوية",
-					Tone:     "primary",
-				})
-				@components.StatCard(components.StatCardProps{
-					Label:    "طلبات الاعتماد المعلقة",
-					Value:    fmt.Sprintf("%d طلب", stats.PendingApprovals),
-					Subtitle: "منشآت جديدة بانتظار مراجعة التراخيص",
-					Tone:     "warning",
-				})
-				@components.StatCard(components.StatCardProps{
-					Label:    "إجمالي العمليات والطلبات",
-					Value:    fmt.Sprintf("%d طلبية", stats.TotalOrders),
-					Subtitle: "أوامر شراء مسجلة عبر المنظومة",
-					Tone:     "primary",
-				})
-			</div>
-
-			<!-- 2. Quick Actions & Management Links -->
-			<div class="dashboard-workspace-grid">
-				<!-- Approvals & Operations Card -->
-				<div class="glass-panel p-6">
-					<div class="flex-between mb-4 flex-wrap gap-2">
+			
+			<!-- Top Hero Banner with Live Status & Quick Action Bar -->
+			<div class="glass-panel p-6 mb-6">
+				<div class="flex-between items-center flex-wrap gap-4">
+					<div class="d-flex items-center gap-3">
+						<div class="user-avatar-badge text-2xl">
+							📊
+						</div>
 						<div>
-							<h3 class="text-lg font-extrabold text-primary m-0">
-								العمليات الرقابية والتحقق
-							</h3>
-							<p class="text-xs text-muted mt-1 m-0">
-								التحقق من التراخيص الصيدلية، السجلات التجارية، وتوثيق الكيانات
+							<h1 class="text-2xl font-black text-primary m-0">
+								لوحة المؤشرات والتحليلات المركزية
+							</h1>
+							<p class="text-sm text-secondary m-0 mt-1">
+								رصد مباشر لحركة الزوار، التداولات المالية، شبكة الإمداد الصيدلي، وجاهزية بوابة الذكاء الاصطناعي
 							</p>
 						</div>
+					</div>
 
-						<a href="/admin/approvals" class="btn btn-primary btn-sm font-bold gap-1">
-							<span>عرض قائمة المراجعة</span>
+					<div class="d-flex items-center gap-3 flex-wrap">
+						<!-- Live AI Status -->
+						<div class="d-inline-flex items-center gap-2 px-3 py-1.5 rounded-full border text-xs" style="background:var(--surface-sunken);">
+							<span>🤖</span>
+							<span class="text-secondary font-bold">بوابة الـ AI:</span>
+							if stats.GatewayOnline {
+								<span class="badge badge-emerald text-xs font-bold">متصلة</span>
+							} else {
+								<span class="badge badge-amber text-xs font-bold">مستعدة للربط</span>
+							}
+						</div>
+
+						<!-- Quick Refresh Button -->
+						<a href="/admin/dashboard" class="btn btn-secondary btn-sm font-bold text-xs gap-1">
+							@components.IconRefresh("icon-xs")
+							<span>تحديث الإحصائيات</span>
+						</a>
+					</div>
+				</div>
+			</div>
+
+			<!-- 1. Top 4 High-Impact Stat Cards -->
+			<div class="grid-4 mb-6">
+				<!-- Card 1: Live Visitors & Platform Traffic -->
+				<div class="stat-card-3d">
+					<div class="flex-between items-center">
+						<span class="text-xs font-bold text-muted">زوار المنصة (Visitors)</span>
+						<span class="text-sky">🌐</span>
+					</div>
+					<div class="tabular-nums text-3xl font-black text-primary mt-2">
+						{ fmt.Sprintf("%d", stats.TotalVisitors) } <span class="text-xs text-muted font-normal">زائر</span>
+					</div>
+					<div class="text-xs text-muted mt-2 pt-2 border-t flex-between">
+						<span>اليوم: <strong class="text-emerald tabular-nums">+{ fmt.Sprintf("%d", stats.TodayVisitors) }</strong></span>
+						<span>إجمالي الحركة الحية</span>
+					</div>
+				</div>
+
+				<!-- Card 2: Orders & Gross Merchandise Value (GMV) -->
+				<div class="stat-card-3d">
+					<div class="flex-between items-center">
+						<span class="text-xs font-bold text-muted">أوامر الشراء والتداول (Orders)</span>
+						<span class="text-emerald">🛒</span>
+					</div>
+					<div class="tabular-nums text-3xl font-black text-emerald mt-2">
+						{ fmt.Sprintf("%d", stats.TotalOrders) } <span class="text-xs text-muted font-normal">طلب</span>
+					</div>
+					<div class="text-xs text-muted mt-2 pt-2 border-t flex-between">
+						<span>حجم التداول: <strong class="text-primary tabular-nums">{ stats.TotalGMV }</strong></span>
+					</div>
+				</div>
+
+				<!-- Card 3: Organizations & Verified Pharmacies / Vendors -->
+				<div class="stat-card-3d">
+					<div class="flex-between items-center">
+						<span class="text-xs font-bold text-muted">المنشآت وشبكة الإمداد</span>
+						<span class="text-brand">🏢</span>
+					</div>
+					<div class="tabular-nums text-3xl font-black text-primary mt-2">
+						{ fmt.Sprintf("%d", stats.TotalOrganizations) } <span class="text-xs text-muted font-normal">منشأة</span>
+					</div>
+					<div class="text-xs text-muted mt-2 pt-2 border-t flex-between">
+						<span>صيدليات: <strong class="text-emerald">{ fmt.Sprintf("%d", stats.TotalPharmacies) }</strong></span>
+						<span>موردون: <strong class="text-sky">{ fmt.Sprintf("%d", stats.TotalVendors) }</strong></span>
+					</div>
+				</div>
+
+				<!-- Card 4: Registered Users & Pending Reviews -->
+				<div class="stat-card-3d">
+					<div class="flex-between items-center">
+						<span class="text-xs font-bold text-muted">المستخدمون والتراخيص</span>
+						<span class="text-purple">👥</span>
+					</div>
+					<div class="tabular-nums text-3xl font-black text-purple mt-2">
+						{ fmt.Sprintf("%d", stats.TotalUsers) } <span class="text-xs text-muted font-normal">حساب</span>
+					</div>
+					<div class="text-xs text-muted mt-2 pt-2 border-t flex-between">
+						<span>بانتظار الاعتماد:</span>
+						if stats.PendingApprovals > 0 {
+							<span class="badge badge-amber font-bold text-xs">{ fmt.Sprintf("%d طلب معلق", stats.PendingApprovals) }</span>
+						} else {
+							<span class="badge badge-emerald text-xs">تم اعتماد الكل ✓</span>
+						}
+					</div>
+				</div>
+			</div>
+
+			<!-- 2. Secondary Analytics & Operations Grid (2 columns) -->
+			<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(420px, 1fr)); gap:1.5rem; margin-bottom:1.5rem; align-items:start;">
+				
+				<!-- Column 1: Commerce & Catalog Distribution Widget -->
+				<div class="glass-panel p-6">
+					<div class="flex-between items-center mb-4 pb-3 border-b">
+						<div>
+							<h3 class="text-base font-black text-primary m-0">
+								حركة الكتالوج والمنتجات والطلبيات
+							</h3>
+							<p class="text-xs text-secondary m-0 mt-0.5">
+								توزيع الأصناف الدوائية وقوائم التوفير والطلبات المسجلة
+							</p>
+						</div>
+						<a href="/admin/orders" class="btn btn-outline-primary btn-xs font-bold">
+							<span>عرض الطلبات</span>
 							@components.IconArrowLeft("icon-xs")
 						</a>
 					</div>
-					if len(pendingOrgs) == 0 {
-						<div class="d-flex items-center gap-3 p-4 bg-surface-sunken border rounded-xl">
-							<div class="user-avatar-badge text-success">
-								@components.IconCheck("icon-xs")
-							</div>
-							<div>
-								<div class="font-extrabold text-sm text-primary">تم تدقيق واعتماد كافة تراخيص المنشآت بالكامل</div>
-								<div class="text-xs text-muted mt-1">لا توجد طلبات تسجيل أو تراخيص جديدة معلقة بانتظار الفحص حالياً.</div>
-							</div>
-						</div>
-					} else {
-						<div class="d-flex flex-col gap-3">
-							for _, po := range pendingOrgs {
-								<div class="flex-between p-3 bg-surface-sunken border rounded-xl flex-wrap gap-2">
-									<div class="d-flex items-center gap-3">
-										<div class="user-avatar-badge">
-											@components.IconBuilding("icon-xs")
-										</div>
-										<div>
-											<div class="d-flex items-center gap-2">
-												<span class="font-extrabold text-sm text-primary">{ po.LegalName }</span>
-												if string(po.Type) == "vendor" {
-													<span class="badge badge-sky text-xs">مورد أدوية</span>
-												} else {
-													<span class="badge badge-emerald text-xs">صيدلية</span>
-												}
-											</div>
-											<div class="text-xs text-muted mt-1 tabular-nums">
-												if po.CommercialRegister != "" {
-													<span>سجل تجاري: <strong>{ po.CommercialRegister }</strong></span>
-												}
-												if po.PharmacistLicense != "" {
-													<span class="ms-2">• ترخيص: <strong>{ po.PharmacistLicense }</strong></span>
-												}
-											</div>
-										</div>
-									</div>
-									<div class="d-flex items-center">
-										<a href="/admin/approvals" class="btn btn-primary btn-sm font-bold">فحص واعتماد</a>
-									</div>
-								</div>
-							}
-						</div>
-					}
-				</div>
 
-				<!-- System Health Card -->
-				<div class="glass-panel p-6">
-					<h3 class="text-lg font-extrabold text-primary m-0 mb-4">
-						جاهزية البنية التحتية
-					</h3>
-
-					<div class="d-flex flex-col gap-3 mb-6 text-sm">
-						<div class="flex-between">
-							<span class="text-secondary">قاعدة البيانات PostgreSQL:</span>
-							<span class="badge badge-emerald text-xs">متصلة وتعمل بكفاءة</span>
+					<!-- Metrics mini-grid -->
+					<div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:0.75rem; margin-bottom:1.25rem;">
+						<div class="p-3 rounded-lg border text-center" style="background:var(--surface-sunken);">
+							<div class="text-xs text-muted font-bold">الأدوية المعتمدة</div>
+							<div class="text-xl font-black text-primary tabular-nums mt-1">{ fmt.Sprintf("%d", stats.TotalProducts) }</div>
 						</div>
-						<div class="flex-between">
-							<span class="text-secondary">خادم التخزين المؤقت Redis:</span>
-							<span class="badge badge-emerald text-xs">يعمل بكفاءة</span>
+						<div class="p-3 rounded-lg border text-center" style="background:var(--surface-sunken);">
+							<div class="text-xs text-muted font-bold">منتجات التوفير</div>
+							<div class="text-xl font-black text-emerald tabular-nums mt-1">{ fmt.Sprintf("%d", stats.TotalSavingProducts) }</div>
 						</div>
-						<div class="flex-between">
-							<span class="text-secondary">طوابير المهام River Queue:</span>
-							<span class="badge badge-emerald text-xs">معالجة نشطة</span>
+						<div class="p-3 rounded-lg border text-center" style="background:var(--surface-sunken);">
+							<div class="text-xs text-muted font-bold">شبكة الفروع</div>
+							<div class="text-xl font-black text-sky tabular-nums mt-1">{ fmt.Sprintf("%d", stats.TotalBranches) }</div>
 						</div>
 					</div>
 
-					<a href="/ready" target="_blank" class="btn btn-secondary w-full justify-center font-bold gap-2">
-						@components.IconRefresh("icon-xs")
-						<span>فحص فوري لنقطة /ready</span>
+					<!-- Recent Orders Feed -->
+					<div>
+						<div class="text-xs font-bold text-secondary mb-2 flex-between">
+							<span>أحدث أوامر الشراء المسجلة:</span>
+							<span class="text-muted text-xs">تحديث فوري</span>
+						</div>
+						if len(stats.RecentOrders) == 0 {
+							<div class="p-4 text-center text-xs text-muted border rounded-lg" style="background:var(--surface-sunken);">
+								لا توجد طلبيات مسجلة حديثاً في النظام.
+							</div>
+						} else {
+							<div class="d-flex flex-col gap-2">
+								for _, ord := range stats.RecentOrders {
+									<div class="flex-between items-center p-2.5 rounded-lg border text-xs" style="background:var(--surface-sunken);">
+										<div class="d-flex items-center gap-2">
+											<span class="font-mono font-bold text-primary">ORD-#{ fmt.Sprintf("%d", ord.ID) }</span>
+											if ord.Status == "completed" || ord.Status == "delivered" {
+												<span class="badge badge-emerald text-xs">مكتمل</span>
+											} else if ord.Status == "pending" {
+												<span class="badge badge-amber text-xs">معلق</span>
+											} else if ord.Status == "cancelled" || ord.Status == "rejected" {
+												<span class="badge badge-danger text-xs">ملغي</span>
+											} else {
+												<span class="badge badge-sky text-xs">{ string(ord.Status) }</span>
+											}
+										</div>
+										<div class="d-flex items-center gap-3">
+											<strong class="tabular-nums text-primary">{ ord.TotalAmount.String() } ج.م</strong>
+											<span class="text-muted tabular-nums">{ ord.CreatedAt.Format("01/02 15:04") }</span>
+										</div>
+									</div>
+								}
+							</div>
+						}
+					</div>
+				</div>
+
+				<!-- Column 2: Traffic & Devices & System Health -->
+				<div class="glass-panel p-6">
+					<div class="flex-between items-center mb-4 pb-3 border-b">
+						<div>
+							<h3 class="text-base font-black text-primary m-0">
+								حركة الزوار وجاهزية البنية التحتية
+							</h3>
+							<p class="text-xs text-secondary m-0 mt-0.5">
+								توزيع الأجهزة والمتصفحات وحالة خوادم التشغيل
+							</p>
+						</div>
+						<a href="/admin/analytics" class="btn btn-outline-secondary btn-xs font-bold">
+							<span>تفاصيل الزوار</span>
+							@components.IconArrowLeft("icon-xs")
+						</a>
+					</div>
+
+					<!-- Device Distribution Bars -->
+					<div class="mb-4">
+						<div class="text-xs font-bold text-secondary mb-2">توزيع أجهزة الزوار (Devices):</div>
+						<div class="d-flex flex-col gap-2">
+							for devName, devCount := range stats.TopDevices {
+								<div class="flex-between items-center text-xs p-2 rounded border" style="background:var(--surface-sunken);">
+									<span class="d-flex items-center gap-1.5 font-bold text-primary">
+										if devName == "desktop" || devName == "حاسوب مكتبي (Desktop)" {
+											<span>💻</span>
+										} else {
+											<span>📱</span>
+										}
+										<span>{ devName }</span>
+									</span>
+									<span class="badge badge-slate tabular-nums font-bold">{ fmt.Sprintf("%d زيارة", devCount) }</span>
+								</div>
+							}
+							if len(stats.TopDevices) == 0 {
+								<div class="text-xs text-muted p-2 text-center">جاري تجميع بيانات الأجهزة الحية...</div>
+							}
+						</div>
+					</div>
+
+					<!-- Infrastructure & Cloud Health -->
+					<div class="pt-3 border-t">
+						<div class="text-xs font-bold text-secondary mb-2">حالة الخدمات السحابية:</div>
+						<div class="d-flex flex-col gap-2 text-xs">
+							<div class="flex-between items-center p-2 rounded border" style="background:var(--surface-sunken);">
+								<span class="text-secondary font-bold">قاعدة بيانات PostgreSQL:</span>
+								<span class="badge badge-emerald text-xs font-bold">متصلة ونشطة ✓</span>
+							</div>
+							<div class="flex-between items-center p-2 rounded border" style="background:var(--surface-sunken);">
+								<span class="text-secondary font-bold">طوابير المهام River Queue:</span>
+								<span class="badge badge-emerald text-xs font-bold">معالجة فورية ✓</span>
+							</div>
+							<div class="flex-between items-center p-2 rounded border" style="background:var(--surface-sunken);">
+								<span class="text-secondary font-bold">بوابة الذكاء الاصطناعي:</span>
+								if stats.GatewayOnline {
+									<span class="badge badge-emerald text-xs font-bold">جاهزة ومزامنة ✓</span>
+								} else {
+									<span class="badge badge-amber text-xs font-bold">جاهزة للربط</span>
+								}
+							</div>
+						</div>
+					</div>
+				</div>
+
+			</div>
+
+			<!-- 3. Approvals & Operational Governance Queue -->
+			<div class="glass-panel p-6 mb-6">
+				<div class="flex-between items-center mb-4 pb-3 border-b flex-wrap gap-2">
+					<div>
+						<h3 class="text-lg font-black text-primary m-0">
+							قائمة تدقيق واعتماد المنشآت الطبية والتجارية
+						</h3>
+						<p class="text-xs text-secondary m-0 mt-0.5">
+							التحقق من التراخيص الصيدلية، السجلات التجارية، وتوثيق الكيانات الجديدة المسجلة
+						</p>
+					</div>
+
+					<a href="/admin/approvals" class="btn btn-primary btn-sm font-bold gap-1">
+						<span>عرض قائمة المراجعة الكاملة</span>
+						@components.IconArrowLeft("icon-xs")
 					</a>
 				</div>
+
+				if len(pendingOrgs) == 0 {
+					<div class="d-flex items-center gap-3 p-4 border rounded-xl" style="background:rgba(16, 185, 129, 0.05); border-color:rgba(16, 185, 129, 0.2);">
+						<div class="user-avatar-badge text-success text-xl">
+							✓
+						</div>
+						<div>
+							<div class="font-black text-sm text-primary">تم تدقيق واعتماد كافة تراخيص المنشآت بالكامل</div>
+							<div class="text-xs text-secondary mt-0.5">لا توجد طلبات تسجيل أو تراخيص صيدلية جديدة معلقة بانتظار الفحص حالياً.</div>
+						</div>
+					</div>
+				} else {
+					<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(320px, 1fr)); gap:1rem;">
+						for _, po := range pendingOrgs {
+							<div class="p-4 bg-surface-sunken border rounded-xl d-flex flex-col justify-between gap-3">
+								<div class="d-flex items-start gap-3">
+									<div class="user-avatar-badge">
+										@components.IconBuilding("icon-sm")
+									</div>
+									<div style="flex:1;">
+										<div class="d-flex items-center gap-2 flex-wrap">
+											<span class="font-black text-sm text-primary">{ po.LegalName }</span>
+											if string(po.Type) == "vendor" {
+												<span class="badge badge-sky text-xs font-bold">مورد أدوية</span>
+											} else {
+												<span class="badge badge-emerald text-xs font-bold">صيدلية</span>
+											}
+										</div>
+										<div class="text-xs text-muted mt-1.5 tabular-nums">
+											if po.CommercialRegister != "" {
+												<div>سجل تجاري: <strong>{ po.CommercialRegister }</strong></div>
+											}
+											if po.PharmacistLicense != "" {
+												<div>ترخيص: <strong>{ po.PharmacistLicense }</strong></div>
+											}
+										</div>
+									</div>
+								</div>
+								<div class="pt-2 border-t flex-between items-center">
+									<span class="text-xs text-muted tabular-nums">{ po.CreatedAt.Format("2006-01-02") }</span>
+									<a href="/admin/approvals" class="btn btn-primary btn-xs font-bold">فحص واعتماد</a>
+								</div>
+							</div>
+						}
+					</div>
+				}
 			</div>
+
 		</div>
 	}
 }
+
 

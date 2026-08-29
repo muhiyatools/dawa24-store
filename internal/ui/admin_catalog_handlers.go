@@ -221,7 +221,11 @@ func (h *UIHandler) AdminSavingProductsPage(w http.ResponseWriter, r *http.Reque
 	var items []*catalog.SavingProductAdminView
 	var stats *catalog.SavingProductAdminStats
 	if h.catSvc != nil {
-		items, stats, _ = h.catSvc.ListAllSavingProductsAdmin(database.AsSystem(ctx), userID, orgID, search, filter, 500, 0)
+		var err error
+		items, stats, err = h.catSvc.ListAllSavingProductsAdmin(database.AsSystem(ctx), userID, orgID, search, filter, 500, 0)
+		if err != nil {
+			h.log.ErrorContext(ctx, "admin list saving products", "error", err)
+		}
 	}
 	if stats == nil {
 		stats = &catalog.SavingProductAdminStats{}

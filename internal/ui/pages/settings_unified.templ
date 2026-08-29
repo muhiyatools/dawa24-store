@@ -238,21 +238,75 @@ templ UnifiedSettingsPage(data UnifiedSettingsData, lang, dir string) {
 					البيانات الشخصية والصورة الرمزية
 				</h3>
 
-				<form action="/settings/profile" method="POST" style="max-width:680px; display:flex; flex-direction:column; gap:1.5rem; text-align:start;">
+				<form 
+					action="/settings/profile" 
+					method="POST" 
+					enctype="multipart/form-data" 
+					style="max-width:680px; display:flex; flex-direction:column; gap:1.5rem; text-align:start;" 
+					x-data="{ avatarPreview: '', removeAvatar: false }"
+				>
 					
-					<!-- Avatar Picker Section -->
-					<div style="display:flex; align-items:center; gap:1.5rem; padding:1.25rem; background:var(--surface-sunken); border:1px solid var(--border); border-radius:var(--radius-xl);">
-						<div style="width:72px; height:72px; border-radius:var(--radius-full); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center; flex-shrink:0; border:2px solid var(--accent); overflow:hidden;">
-							if data.User != nil && data.User.AvatarURL != "" {
-								<img src={ data.User.AvatarURL } alt="Avatar" style="width:100%; height:100%; object-fit:cover;" />
-							} else {
+					<!-- Avatar Upload Section -->
+					<div style="display:flex; align-items:center; gap:1.5rem; padding:1.25rem; background:var(--surface-sunken); border:1px solid var(--border); border-radius:var(--radius-xl);" class="flex-wrap sm:flex-nowrap">
+						<!-- Circular Avatar Preview -->
+						<div style="position:relative; width:80px; height:80px; border-radius:var(--radius-full); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center; flex-shrink:0; border:2.5px solid var(--accent); overflow:hidden; box-shadow:0 4px 12px rgba(0,0,0,0.1);">
+							<template x-if="avatarPreview">
+								<img :src="avatarPreview" alt="Avatar Preview" style="width:100%; height:100%; object-fit:cover;" />
+							</template>
+							<template x-if="!avatarPreview && !removeAvatar">
+								if data.User != nil && data.User.AvatarURL != "" {
+									<img src={ data.User.AvatarURL } alt="Avatar" style="width:100%; height:100%; object-fit:cover;" />
+								} else {
+									@components.IconUser("icon-lg")
+								}
+							</template>
+							<template x-if="!avatarPreview && removeAvatar">
 								@components.IconUser("icon-lg")
-							}
+							</template>
 						</div>
+
+						<!-- Upload Controls -->
 						<div class="flex-1">
-							<label class="form-label" for="user-avatar" style="margin-bottom:0.25rem;">رابط الصورة الشخصية / الصورة الرمزية</label>
-							<input type="text" id="user-avatar" name="avatar_url" class="form-input" value={ ternaryStr(data.User != nil, data.User.AvatarURL, "") } placeholder="https://example.com/avatar.jpg" />
-							<span style="font-size:0.75rem; color:var(--text-muted); display:block; margin-top:0.25rem;">يمكنك إدخال رابط مباشر لصورتك أو شعار الصيدلية</span>
+							<label class="form-label" style="margin-bottom:0.35rem; font-weight:800; font-size:0.9rem;">الصورة الشخصية / شعار الصيدلية</label>
+							<div class="d-flex items-center gap-2 flex-wrap">
+								<label class="btn btn-secondary btn-sm font-bold cursor-pointer" style="margin:0; gap:0.4rem; cursor:pointer;">
+									@components.IconUpload("icon-xs")
+									<span>اختيار وتغيير الصورة</span>
+									<input 
+										type="file" 
+										id="user-avatar-file" 
+										name="avatar_file" 
+										accept="image/png,image/jpeg,image/jpg,image/webp" 
+										style="display:none;" 
+										@change="
+											const file = $event.target.files[0];
+											if (file) {
+												removeAvatar = false;
+												const reader = new FileReader();
+												reader.onload = (e) => { avatarPreview = e.target.result };
+												reader.readAsDataURL(file);
+											}
+										"
+									/>
+								</label>
+								
+								if data.User != nil && data.User.AvatarURL != "" {
+									<button 
+										type="button" 
+										class="btn btn-ghost btn-sm font-bold text-danger" 
+										style="margin:0; gap:0.3rem;"
+										x-show="!removeAvatar"
+										@click="removeAvatar = true; avatarPreview = ''; const el = document.getElementById('user-avatar-file'); if(el) el.value = '';"
+									>
+										@components.IconTrash("icon-xs")
+										<span>حذف الصورة</span>
+									</button>
+								}
+							</div>
+							<input type="hidden" name="remove_avatar" :value="removeAvatar ? '1' : '0'" />
+							<span style="font-size:0.75rem; color:var(--text-muted); display:block; margin-top:0.4rem;">
+								يدعم الصور بتنسيق JPG, PNG, WEBP حتى 50 ميجابايت كحد أقصى.
+							</span>
 						</div>
 					</div>
 

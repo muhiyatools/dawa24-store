@@ -14,16 +14,19 @@ import (
 )
 
 type AdminEnterpriseHubData struct {
-	Organizations    []*org.Organization
-	Branches         []*org.Branch
-	Users            []*identity.User
-	DeletionRequests []*identity.AccountDeletionRequest
-	ActiveTab        string
-	CurrentType      string
-	OrgNames         map[int64]string
-	OrgTypes         map[int64]string
-	BranchCounts     map[int64]int
-	UserCounts       map[int64]int
+	Organizations      []*org.Organization
+	Branches           []*org.Branch
+	Users              []*identity.User
+	DeletionRequests   []*identity.AccountDeletionRequest
+	ActiveTab          string
+	CurrentType        string
+	OrgNames           map[int64]string
+	OrgTypes           map[int64]string
+	BranchCounts       map[int64]int
+	UserCounts         map[int64]int
+	TotalOrgsCount     int
+	TotalBranchesCount int
+	TotalUsersCount    int
 }
 
 func getOrgLegalName(id int64, names map[int64]string) string {
@@ -110,13 +113,25 @@ templ AdminOrganizations(data AdminEnterpriseHubData, lang, dir string) {
 
 					<div class="d-flex items-center gap-2 flex-wrap">
 						<span class="badge badge-sky text-xs font-bold px-3 py-1">
-							{ fmt.Sprintf("%d", len(data.Organizations)) } منشأة
+							if data.TotalOrgsCount > 0 {
+								{ fmt.Sprintf("%d", data.TotalOrgsCount) } منشأة
+							} else {
+								{ fmt.Sprintf("%d", len(data.Organizations)) } منشأة
+							}
 						</span>
 						<span class="badge badge-emerald text-xs font-bold px-3 py-1">
-							{ fmt.Sprintf("%d", len(data.Branches)) } فرع ومخزن
+							if data.TotalBranchesCount > 0 {
+								{ fmt.Sprintf("%d", data.TotalBranchesCount) } فرع ومخزن
+							} else {
+								{ fmt.Sprintf("%d", len(data.Branches)) } فرع ومخزن
+							}
 						</span>
 						<span class="badge badge-indigo text-xs font-bold px-3 py-1">
-							{ fmt.Sprintf("%d", len(data.Users)) } مستخدم
+							if data.TotalUsersCount > 0 {
+								{ fmt.Sprintf("%d", data.TotalUsersCount) } مستخدم
+							} else {
+								{ fmt.Sprintf("%d", len(data.Users)) } مستخدم
+							}
 						</span>
 					</div>
 				</div>
@@ -124,46 +139,64 @@ templ AdminOrganizations(data AdminEnterpriseHubData, lang, dir string) {
 
 			<!-- Main Top-Level Navigation Tabs -->
 			<div class="cb-tabs-nav mb-6">
-				<button
-					type="button"
+				<a
+					href="/admin/organizations"
 					class="cb-tab-btn"
 					:class="activeTab === 'organizations' ? 'active' : ''"
 					@click="setTab('organizations')"
 				>
 					@components.IconBuilding("icon-xs")
-					<span>المؤسسات والشركات ({ fmt.Sprintf("%d", len(data.Organizations)) })</span>
-				</button>
+					<span>المؤسسات والشركات (
+						if data.TotalOrgsCount > 0 {
+							{ fmt.Sprintf("%d", data.TotalOrgsCount) }
+						} else {
+							{ fmt.Sprintf("%d", len(data.Organizations)) }
+						}
+					)</span>
+				</a>
 
-				<button
-					type="button"
+				<a
+					href="/admin/branches"
 					class="cb-tab-btn"
 					:class="activeTab === 'branches' ? 'active' : ''"
 					@click="setTab('branches')"
 				>
 					@components.IconLayers("icon-xs")
-					<span>الفروع والمخازن ({ fmt.Sprintf("%d", len(data.Branches)) })</span>
-				</button>
+					<span>الفروع والمخازن (
+						if data.TotalBranchesCount > 0 {
+							{ fmt.Sprintf("%d", data.TotalBranchesCount) }
+						} else {
+							{ fmt.Sprintf("%d", len(data.Branches)) }
+						}
+					)</span>
+				</a>
 
-				<button
-					type="button"
+				<a
+					href="/admin/users"
 					class="cb-tab-btn"
 					:class="activeTab === 'users' ? 'active' : ''"
 					@click="setTab('users')"
 				>
 					@components.IconUsers("icon-xs")
-					<span>المستخدمين والحسابات ({ fmt.Sprintf("%d", len(data.Users)) })</span>
-				</button>
+					<span>المستخدمين والحسابات (
+						if data.TotalUsersCount > 0 {
+							{ fmt.Sprintf("%d", data.TotalUsersCount) }
+						} else {
+							{ fmt.Sprintf("%d", len(data.Users)) }
+						}
+					)</span>
+				</a>
 
 				if len(data.DeletionRequests) > 0 {
-					<button
-						type="button"
+					<a
+						href="/admin/users?tab=deletion_requests"
 						class="cb-tab-btn text-danger"
 						:class="activeTab === 'deletion_requests' ? 'active' : ''"
 						@click="setTab('deletion_requests')"
 					>
 						@components.IconTrash("icon-xs")
 						<span>طلبات حذف الحسابات ({ fmt.Sprintf("%d", countPendingDeletions(data.DeletionRequests)) })</span>
-					</button>
+					</a>
 				}
 			</div>
 

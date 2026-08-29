@@ -37,46 +37,72 @@ import (
 
 func (h *UIHandler) AdminDashboardPage(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
+	sysCtx := database.AsSystem(ctx)
 	lang, dir := h.localeAndDir(r)
 
-	// Every figure here used to be len() of a page capped at 100 rows, so the
-	// dashboard silently stopped counting at 100 and reported "100 users" to a
-	// platform with a thousand. Totals come from COUNT queries.
-	stats := pages.AdminDashboardStats{}
+	stats := pages.AdminDashboardStats{
+		TopDevices:   make(map[string]int),
+		TopBrowsers:  make(map[string]int),
+		TopLocations: make(map[string]int),
+	}
 	var pendingOrgs []*org.Organization
 
 	if h.idSvc != nil {
-		if n, err := h.idSvc.AdminCountUsers(ctx); err != nil {
-			h.log.ErrorContext(ctx, "dashboard: count users", "error", err)
-		} else {
+		if n, err := h.idSvc.AdminCountUsers(ctx); err == nil {
 			stats.TotalUsers = n
 		}
 	}
 	if h.orgSvc != nil {
-		if n, err := h.orgSvc.CountOrganizations(ctx, nil, nil); err != nil {
-			h.log.ErrorContext(ctx, "dashboard: count organizations", "error", err)
-		} else {
+		if n, err := h.orgSvc.CountOrganizations(ctx, nil, nil); err == nil {
 			stats.TotalOrganizations = n
 		}
+		pharmacyType := org.TypeCustomer
+		if n, err := h.orgSvc.CountOrganizations(ctx, &pharmacyType, nil); err == nil {
+			stats.TotalPharmacies = n
+		}
+		vendorType := org.TypeVendor
+		if n, err := h.orgSvc.CountOrganizations(ctx, &vendorType, nil); err == nil {
+			stats.TotalVendors = n
+		}
 		pending := org.StatusPending
-		if n, err := h.orgSvc.CountOrganizations(ctx, nil, &pending); err != nil {
-			h.log.ErrorContext(ctx, "dashboard: count pending organizations", "error", err)
-		} else {
+		if n, err := h.orgSvc.CountOrganizations(ctx, nil, &pending); err == nil {
 			stats.PendingApprovals = n
 		}
-		list, err := h.orgSvc.ListOrganizations(ctx, nil, &pending, 5, 0)
-		if err != nil {
-			h.log.WarnContext(ctx, "dashboard: list pending organizations", "error", err)
-		} else {
+		if list, err := h.orgSvc.ListOrganizations(ctx, nil, &pending, 6, 0); err == nil {
 			pendingOrgs = list
+		}
+		if branches, err := h.orgSvc.ListBranches(sysCtx, 0); err == nil {
+			stats.TotalBranches = len(branches)
 		}
 	}
 	if h.commSvc != nil {
-		if n, err := h.commSvc.CountOrders(ctx); err != nil {
-			h.log.ErrorContext(ctx, "dashboard: count orders", "error", err)
-		} else {
+		if n, err := h.commSvc.CountOrders(ctx); err == nil {
 			stats.TotalOrders = n
 		}
+		if recent, err := h.commSvc.AdminSearchOrders(ctx, "", 5, 0); err == nil {
+			stats.RecentOrders = recent
+		}
+	}
+	if h.catSvc != nil {
+		if _, savingStats, err := h.catSvc.ListAllSavingProductsAdmin(sysCtx, nil, nil, "", "all", 1, 0); err == nil && savingStats != nil {
+			stats.TotalSavingProducts = savingStats.TotalProducts
+		}
+	}
+	if h.adminSvc != nil {
+		if va, err := h.adminSvc.VisitorAnalytics(ctx, 10); err == nil && va != nil {
+			stats.TotalVisitors = va.Total
+			stats.TodayVisitors = va.Today
+			stats.TopDevices = va.ByDevice
+			stats.TopBrowsers = va.ByBrowser
+			stats.TopLocations = va.ByCity
+			stats.TotalGMV = va.TotalGMV
+			if stats.TotalProducts == 0 {
+				stats.TotalProducts = va.TotalProducts
+			}
+		}
+	}
+	if gwAdmin, _, ok := h.getGatewayAdminClient(ctx); ok && gwAdmin != nil {
+		stats.GatewayOnline = true
 	}
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
@@ -1089,7 +1115,7 @@ func localizeAuditEntry(e *platformadmin.AuditEntry) {
 	}
 }
 
-// renderAdminEnterpriseHub renders the unified enterprise management suite.
+// renderAdminEnterpriseHub renders the enterprise management suite with decoupled tab loading.
 func (h *UIHandler) renderAdminEnterpriseHub(w http.ResponseWriter, r *http.Request, defaultTab string) {
 	ctx := r.Context()
 	sysCtx := database.AsSystem(ctx)
@@ -1113,44 +1139,71 @@ func (h *UIHandler) renderAdminEnterpriseHub(w http.ResponseWriter, r *http.Requ
 	orgNames := make(map[int64]string)
 	orgTypes := make(map[int64]string)
 	branchCounts := make(map[int64]int)
+	var totalOrgs, totalBranches, totalUsers int
 
 	if h.orgSvc != nil {
-		var filterType *org.OrganizationType
-		if typeParam != "" {
-			t := org.OrganizationType(typeParam)
-			filterType = &t
-		}
-		orgs, _ = h.orgSvc.ListOrganizations(sysCtx, filterType, nil, 300, 0)
-		for _, o := range orgs {
-			if o != nil {
-				orgNames[o.ID] = o.LegalName
-				orgTypes[o.ID] = string(o.Type)
+		totalOrgs, _ = h.orgSvc.CountOrganizations(sysCtx, nil, nil)
+		allBranches, _ := h.orgSvc.ListBranches(sysCtx, 0)
+		totalBranches = len(allBranches)
+		for _, b := range allBranches {
+			if b != nil {
+				branchCounts[b.OrganizationID]++
 			}
 		}
 
-		branches, _ = h.orgSvc.ListBranches(sysCtx, 0)
-		for _, b := range branches {
-			if b != nil {
-				branchCounts[b.OrganizationID]++
+		if activeTab == "organizations" {
+			var filterType *org.OrganizationType
+			if typeParam != "" {
+				t := org.OrganizationType(typeParam)
+				filterType = &t
+			}
+			orgs, _ = h.orgSvc.ListOrganizations(sysCtx, filterType, nil, 300, 0)
+			for _, o := range orgs {
+				if o != nil {
+					orgNames[o.ID] = o.LegalName
+					orgTypes[o.ID] = string(o.Type)
+				}
+			}
+		} else if activeTab == "branches" {
+			branches = allBranches
+			if allOrgs, err := h.orgSvc.ListOrganizations(sysCtx, nil, nil, 500, 0); err == nil {
+				for _, o := range allOrgs {
+					if o != nil {
+						orgNames[o.ID] = o.LegalName
+						orgTypes[o.ID] = string(o.Type)
+					}
+				}
 			}
 		}
 	}
 
 	if h.idSvc != nil {
-		users, _ = h.idSvc.AdminListUsers(ctx, "", "")
-		deletionRequests, _ = h.idSvc.AdminListDeletionRequests(ctx, "")
+		totalUsers, _ = h.idSvc.AdminCountUsers(ctx)
+		if activeTab == "users" {
+			searchQuery := r.URL.Query().Get("q")
+			roleFilter := r.URL.Query().Get("role")
+			if roleFilter == "" {
+				roleFilter = typeParam
+			}
+			users, _ = h.idSvc.AdminListUsers(ctx, roleFilter, searchQuery)
+		} else if activeTab == "deletion_requests" {
+			deletionRequests, _ = h.idSvc.AdminListDeletionRequests(ctx, "")
+		}
 	}
 
 	data := pages.AdminEnterpriseHubData{
-		Organizations:    orgs,
-		Branches:         branches,
-		Users:            users,
-		DeletionRequests: deletionRequests,
-		ActiveTab:        activeTab,
-		CurrentType:      typeParam,
-		OrgNames:         orgNames,
-		OrgTypes:         orgTypes,
-		BranchCounts:     branchCounts,
+		Organizations:      orgs,
+		Branches:           branches,
+		Users:              users,
+		DeletionRequests:   deletionRequests,
+		ActiveTab:          activeTab,
+		CurrentType:        typeParam,
+		OrgNames:           orgNames,
+		OrgTypes:           orgTypes,
+		BranchCounts:       branchCounts,
+		TotalOrgsCount:     totalOrgs,
+		TotalBranchesCount: totalBranches,
+		TotalUsersCount:    totalUsers,
 	}
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")

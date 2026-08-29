@@ -128,6 +128,8 @@ func (h *UIHandler) SettingsProfileSubmit(w http.ResponseWriter, r *http.Request
 		return
 	}
 
+	_ = r.ParseMultipartForm(10 << 20)
+
 	name := r.PostFormValue("name")
 	nameAr := r.PostFormValue("name_ar")
 	if nameAr == "" && name != "" {
@@ -149,7 +151,14 @@ func (h *UIHandler) SettingsProfileSubmit(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	if avatarURL := r.PostFormValue("avatar_url"); avatarURL != "" {
+	// Handle avatar file upload or removal
+	if r.PostFormValue("remove_avatar") == "1" {
+		_, _ = h.idSvc.UpdateAvatar(ctx, actor.UserID, "")
+	} else if uploadedURL, err := saveUploadedFile(r, "avatar_file", "avatars"); err == nil && uploadedURL != "" {
+		_, _ = h.idSvc.UpdateAvatar(ctx, actor.UserID, uploadedURL)
+	} else if uploadedURL, err := saveUploadedFile(r, "avatar", "avatars"); err == nil && uploadedURL != "" {
+		_, _ = h.idSvc.UpdateAvatar(ctx, actor.UserID, uploadedURL)
+	} else if avatarURL := r.PostFormValue("avatar_url"); avatarURL != "" {
 		_, _ = h.idSvc.UpdateAvatar(ctx, actor.UserID, avatarURL)
 	}
 
