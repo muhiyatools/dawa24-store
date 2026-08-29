@@ -418,6 +418,66 @@ dialog.modal::backdrop {
 .dropzone.is-dragging { border-color: var(--primary-600); background: var(--primary-100); }
 .dropzone-title { font-weight: 700; color: var(--neutral-800); }
 .dropzone-hint { font-size: 0.825rem; color: var(--neutral-500); }
+.visually-hidden {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  clip: rect(0, 0, 0, 0) !important;
+  white-space: nowrap !important;
+  border: 0 !important;
+}
+.saving-upload-mark,
+.saving-file-mark,
+.saving-complete-mark {
+  display: inline-grid;
+  place-items: center;
+  color: var(--primary-600);
+}
+.saving-upload-mark {
+  width: 2.5rem;
+  height: 2.5rem;
+  border: 2px solid currentColor;
+  border-radius: var(--radius-lg);
+}
+.saving-upload-mark::before {
+  content: "↑";
+  font-size: 1.5rem;
+  font-weight: 800;
+}
+.saving-file-mark {
+  width: 1rem;
+  height: 1.15rem;
+  border: 1.5px solid currentColor;
+  border-radius: 2px;
+}
+.saving-file-mark::after {
+  content: "";
+  width: 0.45rem;
+  height: 1px;
+  background: currentColor;
+  box-shadow: 0 0.2rem currentColor;
+}
+.saving-complete-mark {
+  width: 3rem;
+  height: 3rem;
+  margin-block-end: 0.5rem;
+  border: 2px solid var(--success);
+  border-radius: var(--radius-full);
+}
+.saving-complete-mark::before {
+  content: "✓";
+  color: var(--success);
+  font-size: 1.8rem;
+  font-weight: 800;
+}
+.saving-col-date { width: 140px; }
+.saving-col-count { width: 100px; text-align: center; }
+.saving-col-status { width: 120px; text-align: center; }
+.saving-col-actions { width: 180px; text-align: center; }
+.saving-delete-form { display: inline; }
 
 .progress-track {
   width: 100%;
