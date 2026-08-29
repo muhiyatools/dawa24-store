@@ -116,8 +116,8 @@ func TestResolveQueryCountIsIndependentOfRowCount(t *testing.T) {
 			t.Fatalf("query count changed with row count: %v — a per-row lookup has crept in (case %d)", counts, i)
 		}
 	}
-	// Seven tiers, seven queries, whatever the file size.
-	if counts[0] > 9 {
+	// Five tiers, five queries, whatever the file size.
+	if counts[0] > 7 {
 		t.Fatalf("expected a handful of queries for the whole file, got %d", counts[0])
 	}
 }

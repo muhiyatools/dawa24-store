@@ -6,22 +6,22 @@
 -- catalogue size.
 
 -- Exact match on normalized Arabic name.
-CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_products_name_ar_norm_btree
+CREATE INDEX IF NOT EXISTS idx_products_name_ar_norm_btree
 ON catalog.products (platform.normalize_arabic(lower(trim(name->>'ar'))))
 WHERE deleted_at IS NULL;
 
 -- Exact match on lowercased English name.
-CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_products_name_en_lower_btree
+CREATE INDEX IF NOT EXISTS idx_products_name_en_lower_btree
 ON catalog.products (lower(trim(name->>'en')))
 WHERE deleted_at IS NULL;
 
 -- Saving-products lookup by normalized name, used by the saving-product tier.
-CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_saving_products_norm_name
+CREATE INDEX IF NOT EXISTS idx_saving_products_norm_name
 ON catalog.saving_products (platform.normalize_arabic(lower(trim(name_product))))
 WHERE deleted_at IS NULL AND product_id IS NOT NULL;
 
 -- Customer product mappings lookup by normalized raw name.
-CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_customer_mappings_norm_name
+CREATE INDEX IF NOT EXISTS idx_customer_mappings_norm_name
 ON catalog.customer_product_mappings (platform.normalize_arabic(lower(trim(raw_name))))
 WHERE product_id IS NOT NULL AND is_active;
 

@@ -101,21 +101,7 @@ func (r *Resolver) Resolve(ctx context.Context, lines []*smartorder.Line) error 
 		return err
 	}
 
-	// Tier 5 — fuzzy DB (pg_trgm). Catches transliteration variants and typos
-	// that share no exact word but have similar character sequences. Uses
-	// PostgreSQL's trigram similarity with the existing GIN indexes, so it runs
-	// against the whole catalogue without a per-line round trip.
-	if err := r.applyFuzzyDB(ctx, lines); err != nil {
-		return err
-	}
-
-	// Tier 6 — contains matching. Handles cases where the pharmacy entered a
-	// product name that is contained within (or contains) the catalogue name.
-	if err := r.applyContains(ctx, lines); err != nil {
-		return err
-	}
-
-	// Tier 7 — aliases confirmed against the shared catalogue.
+	// Tier 5 — aliases confirmed against the shared catalogue.
 	return r.applyAliases(ctx, lines)
 }
 
