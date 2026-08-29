@@ -69,7 +69,7 @@ func TestInvoicePrintAndVendorInvoicesPages(t *testing.T) {
 			t.Errorf("expected 200 OK for vendor on /invoices, got %d", rec.Code)
 		}
 		body := rec.Body.String()
-		if !strings.Contains(body, "الفواتير الضريبية والإلكترونية") {
+		if !strings.Contains(body, "فواتير وسندات التوريد") {
 			t.Errorf("expected page to contain invoice title, got: %s", body)
 		}
 	})
