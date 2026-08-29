@@ -57,14 +57,14 @@ func AdminShell(title string, activeNav string, lang string, dir string) templ.C
 					}()
 				}
 				ctx = templ.InitializeContext(ctx)
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"app-shell\"><!-- Sidebar --><aside class=\"sidebar\"><div class=\"sidebar-header\" style=\"padding:1.25rem 1.25rem; display:flex; align-items:center; justify-content:space-between; border-bottom:1px solid rgba(255,255,255,0.08);\"><div style=\"display:flex; align-items:center; gap:0.75rem; overflow:hidden;\"><img src=\"")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"app-shell\"><!-- Sidebar --><aside class=\"sidebar\"><div class=\"sidebar-header\"><div class=\"sidebar-brand\"><img class=\"sidebar-logo\" src=\"")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var3 string
 				templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.ResolveAttributeValue(site.LogoURL)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/layouts/admin.templ`, Line: 26, Col: 30}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/layouts/admin.templ`, Line: 26, Col: 51}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var3)
 				if templ_7745c5c3_Err != nil {
@@ -77,26 +77,26 @@ func AdminShell(title string, activeNav string, lang string, dir string) templ.C
 				var templ_7745c5c3_Var4 string
 				templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.ResolveAttributeValue(site.SiteName)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/layouts/admin.templ`, Line: 26, Col: 52}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/layouts/admin.templ`, Line: 26, Col: 73}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var4)
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "\" style=\"height:46px; max-height:48px; object-fit:contain;\"><div style=\"display:flex; flex-direction:column;\"><span style=\"font-weight:700; font-size:1.1rem; color:#ffffff; line-height:1.2;\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "\"><div class=\"sidebar-brand-copy\"><span class=\"sidebar-brand-name\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var5 string
 				templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(site.SiteName)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/layouts/admin.templ`, Line: 28, Col: 104}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/layouts/admin.templ`, Line: 28, Col: 56}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "</span> <span style=\"font-size:0.75rem; color:var(--primary-400); font-weight:700;\">لوحة الإدارة والتحكم</span></div></div><button type=\"button\" class=\"btn btn-icon\" data-sidebar-toggle style=\"background:rgba(255,255,255,0.08); color:#ffffff; width:34px; height:34px; border:none; border-radius:var(--radius-md); flex-shrink:0;\" title=\"طي/توسيع القائمة\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "</span> <span class=\"sidebar-brand-subtitle\">لوحة الإدارة والتحكم</span></div></div><button type=\"button\" class=\"btn btn-icon sidebar-toggle\" data-sidebar-toggle title=\"طي/توسيع القائمة\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -104,7 +104,7 @@ func AdminShell(title string, activeNav string, lang string, dir string) templ.C
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "</button></div><nav class=\"sidebar-nav\" style=\"padding:0.75rem 0.65rem; display:flex; flex-direction:column; gap:0.5rem; overflow-y:auto;\"><!-- Group 1: الرئيسية والمتابعة (dashboard_and_overview) --><div class=\"sidebar-group\"><div class=\"sidebar-section-header\"><span>الرئيسية والمتابعة</span></div>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "</button></div><nav class=\"sidebar-nav\"><!-- Group 1: الرئيسية والمتابعة (dashboard_and_overview) --><div class=\"sidebar-group\"><div class=\"sidebar-section-header\"><span>الرئيسية والمتابعة</span></div>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -1318,7 +1318,7 @@ func AdminShell(title string, activeNav string, lang string, dir string) templ.C
 						return templ_7745c5c3_Err
 					}
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 125, "</div></nav><div style=\"margin-top:auto; border-top:1px solid rgba(255,255,255,0.08); padding:0.75rem; display:flex; flex-direction:column; gap:0.5rem;\"><a href=\"/catalog\" class=\"btn sidebar-footer-btn\" style=\"width:100%; justify-content:center; font-weight:600; padding:0.6rem 0.75rem; color:rgba(255,255,255,0.85); background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.1); border-radius:var(--radius-md);\" title=\"كتالوج المنتجات\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 125, "</div></nav><div style=\"margin-top:auto; border-top:1px solid rgba(255,255,255,0.08); padding:0.75rem; display:flex; flex-direction:column; gap:0.5rem;\"><a href=\"/catalog\" class=\"btn sidebar-footer-btn\" title=\"كتالوج المنتجات\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -1326,7 +1326,7 @@ func AdminShell(title string, activeNav string, lang string, dir string) templ.C
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 126, "<span>كتالوج المنتجات</span></a></div></aside><script>\n\t\t\t\t\t(function() {\n\t\t\t\t\t\ttry {\n\t\t\t\t\t\t\tvar nav = document.querySelector('.sidebar-nav');\n\t\t\t\t\t\t\tif (!nav) return;\n\t\t\t\t\t\t\tvar currentPath = window.location.pathname;\n\t\t\t\t\t\t\tvar links = Array.from(nav.querySelectorAll('.sidebar-link'));\n\t\t\t\t\t\t\tvar hasActive = links.some(function(l) { return l.classList.contains('active'); });\n\t\t\t\t\t\t\tif (!hasActive && links.length > 0) {\n\t\t\t\t\t\t\t\tvar sorted = links.slice().sort(function(a, b) { return (b.getAttribute('href') || '').length - (a.getAttribute('href') || '').length; });\n\t\t\t\t\t\t\t\tfor (var i = 0; i < sorted.length; i++) {\n\t\t\t\t\t\t\t\t\tvar href = sorted[i].getAttribute('href');\n\t\t\t\t\t\t\t\t\tif (href && (currentPath === href || (href !== '/admin/dashboard' && currentPath.indexOf(href) === 0))) {\n\t\t\t\t\t\t\t\t\t\tsorted[i].classList.add('active');\n\t\t\t\t\t\t\t\t\t\tbreak;\n\t\t\t\t\t\t\t\t\t}\n\t\t\t\t\t\t\t\t}\n\t\t\t\t\t\t\t}\n\t\t\t\t\t\t\tvar saved = sessionStorage.getItem('dawa_sidebar_scroll_top');\n\t\t\t\t\t\t\tif (saved !== null) {\n\t\t\t\t\t\t\t\tnav.scrollTop = parseInt(saved, 10);\n\t\t\t\t\t\t\t} else {\n\t\t\t\t\t\t\t\tvar act = nav.querySelector('.sidebar-link.active');\n\t\t\t\t\t\t\t\tif (act) {\n\t\t\t\t\t\t\t\t\tact.scrollIntoView({ block: 'nearest' });\n\t\t\t\t\t\t\t\t}\n\t\t\t\t\t\t\t}\n\t\t\t\t\t\t} catch (e) {}\n\t\t\t\t\t})();\n\t\t\t\t</script><!-- Main Admin Content Area --><main class=\"main-content\"><!-- Top Admin Header --><header class=\"top-navbar\" style=\"border-bottom:1px solid var(--border); background:var(--surface-raised); padding:0 var(--space-6); height:var(--header-height); display:flex; align-items:center; justify-content:space-between; position:sticky; top:0; z-index:var(--z-sticky);\"><div style=\"display:flex; align-items:center; gap:var(--space-3);\"><h1 style=\"font-size:var(--text-lg); font-weight:700; color:var(--text); margin:0;\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 126, "<span>كتالوج المنتجات</span></a></div></aside><script>\n\t\t\t\t\t(function() {\n\t\t\t\t\t\ttry {\n\t\t\t\t\t\t\tvar nav = document.querySelector('.sidebar-nav');\n\t\t\t\t\t\t\tif (!nav) return;\n\t\t\t\t\t\t\tvar currentPath = window.location.pathname;\n\t\t\t\t\t\t\tvar links = Array.from(nav.querySelectorAll('.sidebar-link'));\n\t\t\t\t\t\t\tvar hasActive = links.some(function(l) { return l.classList.contains('active'); });\n\t\t\t\t\t\t\tif (!hasActive && links.length > 0) {\n\t\t\t\t\t\t\t\tvar sorted = links.slice().sort(function(a, b) { return (b.getAttribute('href') || '').length - (a.getAttribute('href') || '').length; });\n\t\t\t\t\t\t\t\tfor (var i = 0; i < sorted.length; i++) {\n\t\t\t\t\t\t\t\t\tvar href = sorted[i].getAttribute('href');\n\t\t\t\t\t\t\t\t\tif (href && (currentPath === href || (href !== '/admin/dashboard' && currentPath.indexOf(href) === 0))) {\n\t\t\t\t\t\t\t\t\t\tsorted[i].classList.add('active');\n\t\t\t\t\t\t\t\t\t\tbreak;\n\t\t\t\t\t\t\t\t\t}\n\t\t\t\t\t\t\t\t}\n\t\t\t\t\t\t\t}\n\t\t\t\t\t\t\tvar saved = sessionStorage.getItem('dawa_sidebar_scroll_top');\n\t\t\t\t\t\t\tif (saved !== null) {\n\t\t\t\t\t\t\t\tnav.scrollTop = parseInt(saved, 10);\n\t\t\t\t\t\t\t} else {\n\t\t\t\t\t\t\t\tvar act = nav.querySelector('.sidebar-link.active');\n\t\t\t\t\t\t\t\tif (act) {\n\t\t\t\t\t\t\t\t\tact.scrollIntoView({ block: 'nearest' });\n\t\t\t\t\t\t\t\t}\n\t\t\t\t\t\t\t}\n\t\t\t\t\t\t} catch (e) {}\n\t\t\t\t\t})();\n\t\t\t\t</script><!-- Main Admin Content Area --><main class=\"main-content\"><!-- Top Admin Header --><header class=\"top-navbar\"><div style=\"display:flex; align-items:center; gap:var(--space-3);\"><h1 style=\"font-size:var(--text-lg); font-weight:700; color:var(--text); margin:0;\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}

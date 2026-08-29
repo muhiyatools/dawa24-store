@@ -12,29 +12,29 @@ import (
 templ PublicShell(title string, lang string, dir string) {
 	if site := GetSiteSettings(ctx); site != nil {
 		@Base(title, lang, dir) {
-			<header class="top-navbar">
-				<div style="display:flex; align-items:center; gap:2rem;">
-					<a href="/" style="display:flex; align-items:center; gap:0.85rem; text-decoration:none;">
-						<img src={ site.LogoURL } alt={ site.SiteName } style="height:46px; max-height:48px; object-fit:contain; border-radius:var(--radius-sm);" />
-						<span style="font-size:1.45rem; font-weight:700; color:var(--text); letter-spacing:-0.5px;">
+			<header class="top-navbar public-navbar">
+				<div class="top-navbar-brand">
+					<a href="/" class="brand-lockup">
+						<img class="brand-logo" src={ site.LogoURL } alt={ site.SiteName } />
+						<span class="brand-name">
 							دواء <span class="text-accent">24</span>
 						</span>
 					</a>
 
-					<nav class="nav-links" style="display:flex; align-items:center; gap:1.25rem;">
-						<a href="/catalog" style="font-size:var(--text-sm); font-weight:600; color:var(--text); text-decoration:none; padding:0.4rem 0.6rem; border-radius:var(--radius-md); transition:color 150ms;">كتالوج الأدوية</a>
+					<nav class="nav-links">
+						<a href="/catalog">كتالوج الأدوية</a>
 						if features.Enabled(ctx, "offers.enabled") {
-							<a href="/offers" style="font-size:var(--text-sm); font-weight:600; color:var(--accent); text-decoration:none; padding:0.4rem 0.6rem; border-radius:var(--radius-md); transition:color 150ms;">العروض والتخفيضات</a>
+							<a href="/offers">العروض والتخفيضات</a>
 						}
-						<a href="/compare/results" style="font-size:var(--text-sm); font-weight:600; color:var(--text-secondary); text-decoration:none; padding:0.4rem 0.6rem; border-radius:var(--radius-md); transition:color 150ms;">مقارنة الخصومات</a>
-						<a href="/suppliers" style="font-size:var(--text-sm); font-weight:600; color:var(--text-secondary); text-decoration:none; padding:0.4rem 0.6rem; border-radius:var(--radius-md); transition:color 150ms;">دليل الموردين</a>
+						<a href="/compare/results">مقارنة الخصومات</a>
+						<a href="/suppliers">دليل الموردين</a>
 						if features.Enabled(ctx, "jobs.enabled") {
-							<a href="/jobs" style="font-size:var(--text-sm); font-weight:600; color:var(--text-secondary); text-decoration:none; padding:0.4rem 0.6rem; border-radius:var(--radius-md); transition:color 150ms;">وظائف وصيادلة</a>
+							<a href="/jobs">وظائف وصيادلة</a>
 						}
 					</nav>
 				</div>
 
-				<div style="display:flex; align-items:center; gap:0.75rem;">
+				<div class="top-navbar-actions">
 					if actor, ok := authctx.From(ctx); ok && actor.IsCustomer() {
 						@PharmacyBranchSelector(ctx)
 					}
@@ -52,38 +52,36 @@ templ PublicShell(title string, lang string, dir string) {
 						<div class="dropdown">
 							<button
 								type="button"
-								class="btn btn-secondary btn-icon"
 								title="الإشعارات"
 								hx-get="/notifications/dropdown"
 								hx-target="#notif-dropdown-content"
 								hx-trigger="click"
 								hx-swap="innerHTML"
-								style="position:relative;"
+								class="btn btn-secondary btn-icon has-indicator"
 							>
 								@components.IconBell("icon-md")
-								<span hx-get="/notifications/unread-badge" hx-trigger="load, every 60s" hx-swap="innerHTML" hx-target="this" style="position:absolute; top:4px; inset-inline-end:4px; pointer-events:none;"></span>
+								<span class="notification-indicator" hx-get="/notifications/unread-badge" hx-trigger="load, every 60s" hx-swap="innerHTML" hx-target="this"></span>
 							</button>
 
 							<div
-								class="dropdown-menu"
-								style="inset-inline-start:auto; inset-inline-end:0; min-width:340px; padding:0; overflow:hidden;"
+								class="dropdown-menu notification-menu"
 								id="notif-dropdown-content"
 							>
-								<div style="min-width:320px; max-width:380px;">
-									<div style="display:flex; justify-content:space-between; align-items:center; padding:0.75rem 1rem; border-bottom:1px solid var(--neutral-100);">
+								<div class="notification-panel">
+									<div class="notification-header">
 										<div class="row-center-sm">
 											@components.IconBell("icon-xs")
-											<span style="font-weight:600; color:var(--text); font-size:0.9rem;">الإشعارات</span>
+											<span class="notification-title">الإشعارات</span>
 										</div>
 									</div>
-									<div style="padding:2rem 1rem; text-align:center; color:var(--text-muted); font-size:0.875rem;">
-										<div style="width:36px; height:36px; border-radius:var(--radius-full); background:var(--neutral-100); color:var(--text-muted); display:flex; align-items:center; justify-content:center; margin:0 auto 0.5rem auto;">
+									<div class="notification-empty">
+										<div class="notification-empty-icon">
 											@components.IconBell("icon-sm")
 										</div>
 										<div>لا توجد إشعارات جديدة</div>
 									</div>
-									<div style="display:flex; border-top:1px solid var(--neutral-100); background:var(--neutral-50);">
-										<a href="/notifications" style="flex:1; display:block; text-align:center; padding:0.65rem; font-size:0.825rem; font-weight:700; color:var(--text-secondary);">عرض كل الإشعارات</a>
+									<div class="notification-footer">
+										<a href="/notifications" class="notification-footer-link">عرض كل الإشعارات</a>
 									</div>
 								</div>
 							</div>
@@ -94,12 +92,12 @@ templ PublicShell(title string, lang string, dir string) {
 							<button
 								type="button"
 								class="btn btn-secondary"
-								style="padding:0.35rem 0.85rem; display:inline-flex; align-items:center; gap:0.6rem; border-radius:var(--radius-md); height:42px;"
+								class="btn btn-secondary account-trigger"
 							>
-								<div style="width:30px; height:30px; border-radius:var(--radius-full); background:var(--accent-subtle); color:var(--accent-hover); display:inline-flex; align-items:center; justify-content:center; flex-shrink:0; overflow:hidden; border:1px solid var(--primary-200);">
+								<div class="account-avatar">
 									@components.IconUser("icon-xs")
 								</div>
-								<span style="font-weight:600; font-size:0.875rem; color:var(--text); max-width:140px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">
+								<span class="account-name">
 									{ actor.DisplayName() }
 								</span>
 								@components.IconChevronDown("icon-xs")
@@ -107,25 +105,25 @@ templ PublicShell(title string, lang string, dir string) {
 
 							<div
 								class="dropdown-menu"
-								style="inset-inline-start:auto; inset-inline-end:0; min-width:260px; padding:0.5rem 0;"
+								class="dropdown-menu account-menu"
 							>
 								<!-- User Header Card -->
-								<div style="padding:0.75rem 1rem 0.6rem 1rem; border-bottom:1px solid var(--neutral-100);">
+								<div class="account-header">
 									<div class="row-center">
-										<div style="width:36px; height:36px; border-radius:var(--radius-full); background:var(--accent-subtle); color:var(--accent-hover); display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+										<div class="account-avatar account-avatar-lg">
 											@components.IconUser("icon-sm")
 										</div>
-										<div style="flex:1; overflow:hidden;">
-											<div style="font-weight:700; font-size:0.95rem; color:var(--text); text-overflow:ellipsis; overflow:hidden; white-space:nowrap;">
+										<div class="account-details">
+											<div class="account-name account-name-lg">
 												{ actor.DisplayName() }
 											</div>
-											<div style="font-size:0.75rem; color:var(--text-muted); margin-top:0.1rem;">
+											<div class="account-role">
 												if actor.IsStaff {
-													<span class="badge badge-sky" style="font-size:0.675rem; padding:0.1rem 0.4rem;">فريق المنصة</span>
+													<span class="badge badge-sky badge-compact">فريق المنصة</span>
 												} else if actor.IsVendor() {
-													<span class="badge badge-emerald" style="font-size:0.675rem; padding:0.1rem 0.4rem;">مورد معتمد</span>
+													<span class="badge badge-emerald badge-compact">مورد معتمد</span>
 												} else {
-													<span class="badge badge-slate" style="font-size:0.675rem; padding:0.1rem 0.4rem;">صيدلية معتمدة</span>
+													<span class="badge badge-slate badge-compact">صيدلية معتمدة</span>
 												}
 											</div>
 										</div>
@@ -134,10 +132,10 @@ templ PublicShell(title string, lang string, dir string) {
 
 								<!-- 1. Wallet Balance Snapshot (staff have their own surface) -->
 								if !actor.IsStaff {
-									<a href="/settings?tab=wallet" class="dropdown-item" style="background:var(--accent-subtle); border-radius:var(--radius-lg); margin:0.5rem 0.75rem; color:var(--primary-800); font-weight:600; justify-content:space-between; padding:0.65rem 0.85rem;">
-										<div style="display:flex; align-items:center; gap:0.45rem;">
+									<a href="/settings?tab=wallet" class="dropdown-item wallet-item">
+										<div class="row-center-sm">
 											@components.IconWallet("icon-xs")
-											<span style="font-size:0.825rem;">المحفظة</span>
+											<span class="wallet-label">المحفظة</span>
 										</div>
 										<span class="dropdown-item-arrow">←</span>
 									</a>
@@ -170,8 +168,8 @@ templ PublicShell(title string, lang string, dir string) {
 								<div class="dropdown-divider"></div>
 
 								<!-- 4. Sign Out -->
-								<form action="/auth/logout" method="POST" style="margin:0;">
-									<button type="submit" class="dropdown-item text-danger" style="width:100%;">
+								<form action="/auth/logout" method="POST" class="logout-form">
+									<button type="submit" class="dropdown-item text-danger dropdown-action">
 										@components.IconLogout("icon-xs")
 										<span>تسجيل الخروج</span>
 									</button>
@@ -180,11 +178,11 @@ templ PublicShell(title string, lang string, dir string) {
 						</div>
 					} else {
 						<div class="row-center-xs">
-							<a href="/auth/login" class="btn btn-secondary btn-sm fw-700" style="padding-inline:0.9rem;">
+							<a href="/auth/login" class="btn btn-secondary btn-sm fw-700 navbar-auth-link">
 								@components.IconUser("icon-xs")
 								<span>تسجيل الدخول</span>
 							</a>
-							<a href="/auth/register" class="btn btn-primary btn-sm fw-800" style="padding-inline:1rem;">
+							<a href="/auth/register" class="btn btn-primary btn-sm fw-800 navbar-auth-link">
 								@components.IconPlus("icon-xs")
 								<span>تسجيل حساب</span>
 							</a>
@@ -203,18 +201,18 @@ templ PublicShell(title string, lang string, dir string) {
 				<div class="footer-content">
 					<!-- Brand & Bio -->
 					<div>
-						<div style="display:flex; align-items:center; gap:0.75rem; margin-bottom:1rem;">
-							<img src={ site.LogoURL } alt={ site.SiteName } style="height:44px; max-height:46px; object-fit:contain;" />
+						<div class="footer-brand">
+							<img src={ site.LogoURL } alt={ site.SiteName } class="footer-logo" />
 							<div>
-								<div style="font-weight:900; font-size:1.35rem; color:var(--text); line-height:1.2;">
+								<div class="footer-brand-name">
 									دواء <span class="text-accent">24</span>
 								</div>
-								<div style="font-size:0.775rem; color:var(--text-muted); font-weight:700;">
+								<div class="footer-brand-subtitle">
 									منظومة الربط والتوريد الدوائي المباشر
 								</div>
 							</div>
 						</div>
-						<p style="font-size:0.875rem; color:var(--text-secondary); line-height:1.75; margin-bottom:1.25rem; max-width:42ch;">
+						<p class="footer-description">
 							{ site.SiteDescription }
 						</p>
 						<div class="footer-social-links">
@@ -253,10 +251,10 @@ templ PublicShell(title string, lang string, dir string) {
 
 					<!-- Quick Links -->
 					<div>
-						<h4 style="font-size:1rem; font-weight:800; color:var(--text); margin-bottom:1.25rem;">
+						<h4 class="footer-heading">
 							خدمات وروابط المنصة
 						</h4>
-						<ul style="list-style:none; padding:0; margin:0; display:flex; flex-direction:column; gap:0.75rem; font-size:0.9rem;">
+						<ul class="footer-link-list">
 							<li><a href="/catalog">كتالوج الأدوية والمستلزمات</a></li>
 							if features.Enabled(ctx, "offers.enabled") {
 								<li><a href="/offers">العروض والتخفيضات الحية</a></li>
@@ -273,25 +271,25 @@ templ PublicShell(title string, lang string, dir string) {
 
 					<!-- Contact & Support -->
 					<div>
-						<h4 style="font-size:1rem; font-weight:800; color:var(--text); margin-bottom:1.25rem;">
+						<h4 class="footer-heading">
 							التواصل والدعم الفني
 						</h4>
-						<ul style="list-style:none; padding:0; margin:0; display:flex; flex-direction:column; gap:0.875rem; font-size:0.9rem; color:var(--text-secondary);">
+						<ul class="footer-link-list footer-contact-list">
 							<li class="row-center-sm">
 								@components.IconMail("icon-sm")
-								<a href={ templ.SafeURL("mailto:" + site.SupportEmail) } style="direction:ltr; font-weight:700; color:var(--accent-hover);">{ site.SupportEmail }</a>
+								<a href={ templ.SafeURL("mailto:" + site.SupportEmail) } class="contact-link">{ site.SupportEmail }</a>
 							</li>
 							<li class="row-center-sm">
 								@components.IconPhone("icon-sm")
-								<a href={ templ.SafeURL("tel:" + site.Phone) } class="tabular-nums" style="direction:ltr; font-weight:700; color:var(--accent-hover);">{ site.Phone }</a>
+								<a href={ templ.SafeURL("tel:" + site.Phone) } class="tabular-nums contact-link">{ site.Phone }</a>
 							</li>
 							if site.Address != "" {
-								<li style="display:flex; align-items:center; gap:0.6rem; font-size:0.85rem;">
+								<li class="footer-address">
 									@components.IconBuilding("icon-sm")
 									<span>{ site.Address }</span>
 								</li>
 							}
-							<li style="font-size:0.825rem; color:var(--text-muted); margin-top:0.5rem; line-height:1.6;">
+							<li class="footer-support-note">
 								خدمة العملاء والدعم الفني متاح 24/7 للمؤسسات والصيدليات المعتمدة.
 							</li>
 						</ul>
@@ -302,7 +300,7 @@ templ PublicShell(title string, lang string, dir string) {
 					<div>
 						<p>جميع الحقوق محفوظة © 2026 { site.SiteName } — ترخيص واعتماد المنشآت الطبية والصيدلانية</p>
 					</div>
-					<div style="display:flex; gap:1.75rem;">
+					<div class="footer-legal-links">
 						<a href="/privacy">الخصوصية</a>
 						<a href="/terms">الشروط</a>
 					</div>

@@ -66,8 +66,8 @@ templ savingReviewStage(view SavingImportView) {
 					<input type="hidden" name="order" value={ view.Filter.SortOrder }/>
 				}
 				<input type="text" name="q" value={ view.Filter.Search } placeholder="بحث بالاسم أو الكود..."
-					class="form-input" style="min-width: 220px; padding: 0.4rem 0.75rem; font-size: 0.85rem;"/>
-				<select name="limit" onchange="this.form.submit()" class="form-select" style="width: auto; padding: 0.4rem 0.75rem; font-size: 0.85rem;">
+					class="form-input saving-filter-search"/>
+				<select name="limit" onchange="this.form.submit()" class="form-select saving-filter-limit">
 					<option value="10" selected?={ view.Filter.Limit == 10 }>10 صفوف</option>
 					<option value="25" selected?={ view.Filter.Limit == 25 || view.Filter.Limit == 0 }>25 صنف</option>
 					<option value="50" selected?={ view.Filter.Limit == 50 }>50 صنف</option>
@@ -85,9 +85,9 @@ templ savingReviewStage(view SavingImportView) {
 				<table class="b2b-table">
 					<thead>
 						<tr>
-							<th style="width: 40px;" class="text-center">#</th>
+							<th class="saving-review-col-index text-center">#</th>
 							@savingThSort(view, "name", "اسم الصنف بالملف المرفوع")
-							<th style="min-width: 280px;">الصنف المطابق بالكتالوج المركزي</th>
+							<th class="saving-review-col-product">الصنف المطابق بالكتالوج المركزي</th>
 							@savingThSort(view, "score", "نسبة التطابق")
 							@savingThSort(view, "qty", "الكمية المطلوبة")
 							@savingThSort(view, "price", "سعر الجمهور")
