@@ -187,7 +187,7 @@ func VendorCoveragePage(data VendorCoverageData, lang, dir string) templ.Compone
 			var templ_7745c5c3_Var3 string
 			templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.ResolveAttributeValue(citiesToJSON(data.Cities))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `vendor_coverage.templ`, Line: 145, Col: 66}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_coverage.templ`, Line: 145, Col: 66}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var3)
 			if templ_7745c5c3_Err != nil {
@@ -206,7 +206,7 @@ func VendorCoveragePage(data VendorCoverageData, lang, dir string) templ.Compone
 					var templ_7745c5c3_Var4 string
 					templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(data.NoticeMessage)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `vendor_coverage.templ`, Line: 304, Col: 57}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_coverage.templ`, Line: 304, Col: 57}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
 					if templ_7745c5c3_Err != nil {
@@ -224,7 +224,7 @@ func VendorCoveragePage(data VendorCoverageData, lang, dir string) templ.Compone
 					var templ_7745c5c3_Var5 string
 					templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(data.NoticeMessage)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `vendor_coverage.templ`, Line: 309, Col: 57}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_coverage.templ`, Line: 309, Col: 57}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
 					if templ_7745c5c3_Err != nil {
@@ -249,7 +249,7 @@ func VendorCoveragePage(data VendorCoverageData, lang, dir string) templ.Compone
 			var templ_7745c5c3_Var6 string
 			templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", len(data.Coverages)))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `vendor_coverage.templ`, Line: 349, Col: 100}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_coverage.templ`, Line: 349, Col: 100}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
 			if templ_7745c5c3_Err != nil {
@@ -262,7 +262,7 @@ func VendorCoveragePage(data VendorCoverageData, lang, dir string) templ.Compone
 			var templ_7745c5c3_Var7 string
 			templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", countCoveredGovernorates(data.Coverages)))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `vendor_coverage.templ`, Line: 354, Col: 119}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_coverage.templ`, Line: 354, Col: 119}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
 			if templ_7745c5c3_Err != nil {
@@ -275,7 +275,7 @@ func VendorCoveragePage(data VendorCoverageData, lang, dir string) templ.Compone
 			var templ_7745c5c3_Var8 string
 			templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", countVendorCoveredCities(data.Coverages)))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `vendor_coverage.templ`, Line: 359, Col: 117}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_coverage.templ`, Line: 359, Col: 117}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var8))
 			if templ_7745c5c3_Err != nil {
@@ -288,7 +288,7 @@ func VendorCoveragePage(data VendorCoverageData, lang, dir string) templ.Compone
 			var templ_7745c5c3_Var9 string
 			templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d / 7", countActiveDays(data.Coverages)))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `vendor_coverage.templ`, Line: 364, Col: 116}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_coverage.templ`, Line: 364, Col: 116}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var9))
 			if templ_7745c5c3_Err != nil {
@@ -306,7 +306,7 @@ func VendorCoveragePage(data VendorCoverageData, lang, dir string) templ.Compone
 				var templ_7745c5c3_Var10 string
 				templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%d", b.ID))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `vendor_coverage.templ`, Line: 394, Col: 48}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_coverage.templ`, Line: 394, Col: 48}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var10)
 				if templ_7745c5c3_Err != nil {
@@ -321,7 +321,7 @@ func VendorCoveragePage(data VendorCoverageData, lang, dir string) templ.Compone
 					return b.Name.Get("ar")
 				}())
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `vendor_coverage.templ`, Line: 397, Col: 13}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_coverage.templ`, Line: 397, Col: 13}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var11))
 				if templ_7745c5c3_Err != nil {
@@ -360,7 +360,7 @@ func VendorCoveragePage(data VendorCoverageData, lang, dir string) templ.Compone
 				var templ_7745c5c3_Var12 string
 				templ_7745c5c3_Var12, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%d", g.ID))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `vendor_coverage.templ`, Line: 416, Col: 48}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_coverage.templ`, Line: 416, Col: 48}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var12)
 				if templ_7745c5c3_Err != nil {
@@ -378,7 +378,7 @@ func VendorCoveragePage(data VendorCoverageData, lang, dir string) templ.Compone
 					return fmt.Sprintf("محافظة %d", g.ID)
 				}())
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `vendor_coverage.templ`, Line: 422, Col: 13}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_coverage.templ`, Line: 422, Col: 13}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var13))
 				if templ_7745c5c3_Err != nil {
@@ -389,14 +389,14 @@ func VendorCoveragePage(data VendorCoverageData, lang, dir string) templ.Compone
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, "</select></div></div><!-- Step 2: Multi-Days Selector --><div class=\"bg-surface-sunken p-5 rounded-xl border\"><div class=\"flex-between items-center mb-3 flex-wrap gap-2\"><label class=\"text-sm font-bold m-0 text-primary d-flex items-center gap-2\"><span>📅</span> <span>أيام التغطية والتوصيل الأسبوعية (اختر يوماً أو أكثر)</span> <span class=\"text-danger\">*</span></label><div class=\"d-flex gap-2\"><button type=\"button\" @click=\"selectAllDays()\" class=\"btn btn-xs btn-secondary\">تحديد كل الأيام</button> <button type=\"button\" @click=\"clearDays()\" class=\"btn btn-xs btn-secondary\">مسح التحديد</button></div></div><div class=\"d-grid gap-2\" style=\"grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));\"><!-- Saturday (6) --><label :class=\"{ 'is-active': selectedDays.includes(6) }\" class=\"day-pill-toggle\"><input type=\"checkbox\" name=\"days_of_week\" value=\"6\" :checked=\"selectedDays.includes(6)\" @change=\"toggleDay(6)\" style=\"display:none;\"> <span>السبت</span> <span x-show=\"selectedDays.includes(6)\" class=\"text-xs\">✓</span></label><!-- Sunday (0) --><label :class=\"{ 'is-active': selectedDays.includes(0) }\" class=\"day-pill-toggle\"><input type=\"checkbox\" name=\"days_of_week\" value=\"0\" :checked=\"selectedDays.includes(0)\" @change=\"toggleDay(0)\" style=\"display:none;\"> <span>الأحد</span> <span x-show=\"selectedDays.includes(0)\" class=\"text-xs\">✓</span></label><!-- Monday (1) --><label :class=\"{ 'is-active': selectedDays.includes(1) }\" class=\"day-pill-toggle\"><input type=\"checkbox\" name=\"days_of_week\" value=\"1\" :checked=\"selectedDays.includes(1)\" @change=\"toggleDay(1)\" style=\"display:none;\"> <span>الاثنين</span> <span x-show=\"selectedDays.includes(1)\" class=\"text-xs\">✓</span></label><!-- Tuesday (2) --><label :class=\"{ 'is-active': selectedDays.includes(2) }\" class=\"day-pill-toggle\"><input type=\"checkbox\" name=\"days_of_week\" value=\"2\" :checked=\"selectedDays.includes(2)\" @change=\"toggleDay(2)\" style=\"display:none;\"> <span>الثلاثاء</span> <span x-show=\"selectedDays.includes(2)\" class=\"text-xs\">✓</span></label><!-- Wednesday (3) --><label :class=\"{ 'is-active': selectedDays.includes(3) }\" class=\"day-pill-toggle\"><input type=\"checkbox\" name=\"days_of_week\" value=\"3\" :checked=\"selectedDays.includes(3)\" @change=\"toggleDay(3)\" style=\"display:none;\"> <span>الأربعاء</span> <span x-show=\"selectedDays.includes(3)\" class=\"text-xs\">✓</span></label><!-- Thursday (4) --><label :class=\"{ 'is-active': selectedDays.includes(4) }\" class=\"day-pill-toggle\"><input type=\"checkbox\" name=\"days_of_week\" value=\"4\" :checked=\"selectedDays.includes(4)\" @change=\"toggleDay(4)\" style=\"display:none;\"> <span>الخميس</span> <span x-show=\"selectedDays.includes(4)\" class=\"text-xs\">✓</span></label><!-- Friday (5) --><label :class=\"{ 'is-active': selectedDays.includes(5) }\" class=\"day-pill-toggle\"><input type=\"checkbox\" name=\"days_of_week\" value=\"5\" :checked=\"selectedDays.includes(5)\" @change=\"toggleDay(5)\" style=\"display:none;\"> <span>الجمعة</span> <span x-show=\"selectedDays.includes(5)\" class=\"text-xs\">✓</span></label></div></div><!-- Step 3: Subgovernorates / Cities Selection (Dynamic) --><div x-show=\"selectedGovId\" class=\"bg-surface-sunken p-5 rounded-xl border d-flex flex-col gap-3\"><div style=\"display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.75rem;\"><div><label style=\"font-size:0.9rem; font-weight:800; margin:0; color:var(--color-text-heading); display:flex; align-items:center; gap:0.5rem;\"><span>🏙️</span> <span>المدن والمراكز المستهدفة بالمحافظة</span> <span class=\"badge badge-primary\" style=\"font-size:0.75rem;\" x-text=\"selectedCities.length + ' مدينة محددة'\"></span></label></div><div style=\"display:flex; align-items:center; gap:0.75rem;\"><input type=\"text\" x-model=\"citySearch\" placeholder=\"بحث باسم المدينة أو الحي...\" class=\"form-control\" style=\"width:200px; padding:0.35rem 0.65rem; font-size:0.825rem; border-radius:0.5rem;\"> <button type=\"button\" @click=\"toggleSelectAllCities()\" class=\"btn btn-sm btn-primary\" style=\"font-weight:700; font-size:0.8rem; padding:0.35rem 0.75rem; border-radius:0.5rem;\"><span x-text=\"allCitiesInGov ? 'إلغاء تحديد كل المدن' : 'تحديد كل مدن المحافظة'\"></span></button></div></div><!-- Hidden input for all_cities_in_gov --><input type=\"hidden\" name=\"all_cities_in_gov\" :value=\"allCitiesInGov ? 'true' : 'false'\"><!-- Grid of cities under governorate --><div class=\"d-grid gap-2 max-h-56 overflow-y-auto p-2 bg-surface rounded-lg border\" style=\"grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));\"><template x-for=\"c in filteredCities\" :key=\"c.id\"><label :class=\"selectedCities.includes(String(c.id)) ? 'badge-primary' : 'bg-surface-sunken'\" class=\"p-2 rounded-lg border d-flex items-center gap-2 cursor-pointer transition\"><input type=\"checkbox\" name=\"city_ids\" :value=\"c.id\" :checked=\"selectedCities.includes(String(c.id))\" @change=\"toggleCity(c.id)\" class=\"w-4 h-4 cursor-pointer\"><div class=\"flex-1 min-w-0\"><div class=\"font-bold text-sm text-primary\" x-text=\"c.name_ar\"></div><div class=\"text-xs text-muted\" x-text=\"c.name_en\"></div></div><span x-show=\"c.is_capital\" class=\"badge badge-amber badge-compact\">عاصمة</span></label></template><div x-show=\"filteredCities.length === 0\" class=\"text-center py-6 text-muted text-xs col-span-full\">لم يتم العثور على مدن تطابق البحث.</div></div></div><!-- Step 4: General Radius & Timing Configurations --><div class=\"d-grid gap-4\" style=\"grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));\"><!-- Radius in Meters --><div class=\"bg-surface-sunken p-5 rounded-xl border\"><label class=\"d-block text-xs font-bold mb-2 text-primary\">📡 نصف قطر التغطية الافتراضي (بالمتر)</label><div class=\"d-flex items-center gap-2 mb-3\"><input type=\"number\" name=\"distance_meters\" x-model=\"distanceMeters\" min=\"100\" max=\"500000\" step=\"500\" class=\"form-control font-bold text-md w-36\" required> <span class=\"font-bold text-xs text-muted\">متر</span> <span class=\"badge badge-primary text-xs\" x-text=\"(distanceMeters / 1000).toFixed(1) + ' كم'\"></span></div><!-- Quick Presets --><div class=\"d-flex flex-wrap gap-1\"><button type=\"button\" @click=\"setDistance(1000)\" class=\"btn btn-2xs btn-secondary\">1 كم</button> <button type=\"button\" @click=\"setDistance(3000)\" class=\"btn btn-2xs btn-secondary\">3 كم</button> <button type=\"button\" @click=\"setDistance(5000)\" class=\"btn btn-2xs btn-secondary\">5 كم (قياسي)</button> <button type=\"button\" @click=\"setDistance(10000)\" class=\"btn btn-2xs btn-secondary\">10 كم</button> <button type=\"button\" @click=\"setDistance(25000)\" class=\"btn btn-2xs btn-secondary\">25 كم</button> <button type=\"button\" @click=\"setDistance(50000)\" class=\"btn btn-2xs btn-secondary\">50 كم</button></div></div><!-- Time Window --><div class=\"bg-surface-sunken p-5 rounded-xl border\"><label class=\"d-block text-xs font-bold mb-2 text-primary\">⏰ مواعيد وساعات العمل والتوصيل الافتراضية</label><div class=\"d-grid gap-3 mb-3\" style=\"grid-template-columns: 1fr 1fr;\"><div><span class=\"text-xs text-muted font-semibold d-block mb-1\">من (وقت البدء):</span> <input type=\"time\" name=\"coverage_from\" x-model=\"coverageFrom\" class=\"form-control text-xs\"></div><div><span class=\"text-xs text-muted font-semibold d-block mb-1\">إلى (وقت الانتهاء):</span> <input type=\"time\" name=\"coverage_to\" x-model=\"coverageTo\" class=\"form-control text-xs\"></div></div><!-- Time Presets --><div class=\"d-flex flex-wrap gap-1\"><button type=\"button\" @click=\"setTimePreset('09:00', '17:00')\" class=\"btn btn-2xs btn-secondary\">دوام كامل (9 ص - 5 م)</button> <button type=\"button\" @click=\"setTimePreset('16:00', '23:00')\" class=\"btn btn-2xs btn-secondary\">فترة مسائية</button> <button type=\"button\" @click=\"setTimePreset('', '')\" class=\"btn btn-2xs btn-secondary\">طوال اليوم (24 ساعة)</button></div></div></div><!-- Step 5: Per-City Timing & Radius Customization Grid --><div x-show=\"selectedCities.length > 0\" class=\"bg-surface-sunken p-5 rounded-xl border d-flex flex-col gap-4\"><div class=\"flex-between items-center flex-wrap gap-3\"><div><h3 class=\"text-sm font-extrabold text-primary m-0 d-flex items-center gap-2\"><span>⏱️</span> <span>تخصيص مواعيد وساعات التوصيل ونصف القطر لكل مدينة محددة على حدة</span></h3><p class=\"text-xs text-muted m-0 mt-1\">يمكنك تعديل مواعيد العمل ونطاق التغطية لكل مدينة مستقلة، أو تطبيق الإعدادات العامة عليها بضغطة زر.</p></div><button type=\"button\" @click=\"applyDefaultsToAllCities()\" class=\"btn btn-xs btn-secondary font-bold\">⚡ تطبيق الإعدادات العامة على كل المدن</button></div><div class=\"d-grid gap-3\" style=\"grid-template-columns: repeat(auto-fit, minmax(310px, 1fr));\"><template x-for=\"c in getSelectedCityDetails()\" :key=\"c.id\"><div class=\"bg-surface-raised p-4 rounded-xl border d-flex flex-col gap-3 shadow-xs\"><div class=\"flex-between items-start\"><div><div class=\"font-extrabold text-sm text-brand\" x-text=\"c.name_ar\"></div><div class=\"text-xs text-muted\" x-text=\"c.name_en + (c.lat ? ' (' + c.lat.toFixed(4) + ', ' + c.lon.toFixed(4) + ')' : '')\"></div></div><button type=\"button\" @click=\"toggleCity(c.id)\" class=\"btn btn-icon btn-2xs text-danger\" title=\"إزالة هذه المدينة\">✕</button></div><div class=\"d-grid gap-2\" style=\"grid-template-columns: 1fr 1fr;\"><div><label class=\"d-block text-xs font-semibold text-muted mb-1\">من (ساعة البدء):</label> <input type=\"time\" :name=\"'coverage_from_' + c.id\" x-model=\"initCityConfig(String(c.id)).from\" class=\"form-control text-xs\"></div><div><label class=\"d-block text-xs font-semibold text-muted mb-1\">إلى (ساعة الانتهاء):</label> <input type=\"time\" :name=\"'coverage_to_' + c.id\" x-model=\"initCityConfig(String(c.id)).to\" class=\"form-control text-xs\"></div></div><div><label class=\"d-block text-xs font-semibold text-muted mb-1\">نصف قطر التغطية (بالمتر من مركز المدينة):</label><div class=\"d-flex items-center gap-2\"><input type=\"number\" :name=\"'distance_meters_' + c.id\" x-model=\"initCityConfig(String(c.id)).distance\" min=\"100\" max=\"500000\" step=\"500\" class=\"form-control text-xs font-bold flex-1\"> <span class=\"badge badge-primary text-xs\" x-text=\"((initCityConfig(String(c.id)).distance || 5000) / 1000).toFixed(1) + ' كم'\"></span></div></div></div></template></div></div><!-- Live Impact Summary & Submit Button --><div class=\"glass-panel p-5 flex-between items-center flex-wrap gap-4 border\"><div class=\"d-flex items-center gap-3\"><span class=\"text-2xl\">⚡</span><div><div class=\"font-extrabold text-primary text-sm\">ملخص العملية: <span x-text=\"selectedDays.length\" class=\"text-brand\"></span> أيام × <span x-text=\"selectedCities.length > 0 ? selectedCities.length : '1'\" class=\"text-brand\"></span> مدينة = <span class=\"text-brand font-black\" x-text=\"(selectedDays.length * (selectedCities.length > 0 ? selectedCities.length : 1)) + ' نطاق تغطية أسبوعية'\"></span></div><div class=\"text-xs text-secondary mt-1\">سيتم إنشاء / تحديث جدول التوزيع ومواعيد التوصيل تلقائياً وفورياً لجميع الصيدليات ضمن هذه النطاقات.</div></div></div><button type=\"submit\" :disabled=\"selectedDays.length === 0 || !selectedGovId\" class=\"btn btn-primary px-8 font-extrabold text-sm shadow-md\"><span>حفظ وجدولة التغطية الأسبوعية</span> <span>←</span></button></div></form></div><!-- Active Weekly Coverages Table & Filters --><div class=\"glass-panel p-6 mb-6\"><div class=\"flex-between items-center mb-6 pb-4 border-b flex-wrap gap-4\"><div><h2 class=\"text-lg font-black text-primary m-0 d-flex items-center gap-2\"><span>📋</span> <span>سجل نطاقات التغطية والتوزيع المسجلة (")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, "</select></div></div><!-- Step 2: Multi-Days Selector --><div class=\"bg-surface-sunken p-5 rounded-xl border\"><div class=\"flex-between items-center mb-3 flex-wrap gap-2\"><label class=\"text-sm font-bold m-0 text-primary d-flex items-center gap-2\"><span>📅</span> <span>أيام التغطية والتوصيل الأسبوعية (اختر يوماً أو أكثر)</span> <span class=\"text-danger\">*</span></label><div class=\"d-flex gap-2\"><button type=\"button\" @click=\"selectAllDays()\" class=\"btn btn-xs btn-secondary\">تحديد كل الأيام</button> <button type=\"button\" @click=\"clearDays()\" class=\"btn btn-xs btn-secondary\">مسح التحديد</button></div></div><div class=\"d-grid gap-2\" style=\"grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));\"><!-- Saturday (6) --><label :class=\"{ 'is-active': selectedDays.includes(6) }\" class=\"day-pill-toggle\"><input type=\"checkbox\" name=\"days_of_week\" value=\"6\" :checked=\"selectedDays.includes(6)\" @change=\"toggleDay(6)\" style=\"display:none;\"> <span>السبت</span> <span x-show=\"selectedDays.includes(6)\" class=\"text-xs\">✓</span></label><!-- Sunday (0) --><label :class=\"{ 'is-active': selectedDays.includes(0) }\" class=\"day-pill-toggle\"><input type=\"checkbox\" name=\"days_of_week\" value=\"0\" :checked=\"selectedDays.includes(0)\" @change=\"toggleDay(0)\" style=\"display:none;\"> <span>الأحد</span> <span x-show=\"selectedDays.includes(0)\" class=\"text-xs\">✓</span></label><!-- Monday (1) --><label :class=\"{ 'is-active': selectedDays.includes(1) }\" class=\"day-pill-toggle\"><input type=\"checkbox\" name=\"days_of_week\" value=\"1\" :checked=\"selectedDays.includes(1)\" @change=\"toggleDay(1)\" style=\"display:none;\"> <span>الاثنين</span> <span x-show=\"selectedDays.includes(1)\" class=\"text-xs\">✓</span></label><!-- Tuesday (2) --><label :class=\"{ 'is-active': selectedDays.includes(2) }\" class=\"day-pill-toggle\"><input type=\"checkbox\" name=\"days_of_week\" value=\"2\" :checked=\"selectedDays.includes(2)\" @change=\"toggleDay(2)\" style=\"display:none;\"> <span>الثلاثاء</span> <span x-show=\"selectedDays.includes(2)\" class=\"text-xs\">✓</span></label><!-- Wednesday (3) --><label :class=\"{ 'is-active': selectedDays.includes(3) }\" class=\"day-pill-toggle\"><input type=\"checkbox\" name=\"days_of_week\" value=\"3\" :checked=\"selectedDays.includes(3)\" @change=\"toggleDay(3)\" style=\"display:none;\"> <span>الأربعاء</span> <span x-show=\"selectedDays.includes(3)\" class=\"text-xs\">✓</span></label><!-- Thursday (4) --><label :class=\"{ 'is-active': selectedDays.includes(4) }\" class=\"day-pill-toggle\"><input type=\"checkbox\" name=\"days_of_week\" value=\"4\" :checked=\"selectedDays.includes(4)\" @change=\"toggleDay(4)\" style=\"display:none;\"> <span>الخميس</span> <span x-show=\"selectedDays.includes(4)\" class=\"text-xs\">✓</span></label><!-- Friday (5) --><label :class=\"{ 'is-active': selectedDays.includes(5) }\" class=\"day-pill-toggle\"><input type=\"checkbox\" name=\"days_of_week\" value=\"5\" :checked=\"selectedDays.includes(5)\" @change=\"toggleDay(5)\" style=\"display:none;\"> <span>الجمعة</span> <span x-show=\"selectedDays.includes(5)\" class=\"text-xs\">✓</span></label></div></div><!-- Step 3: Subgovernorates / Cities Selection (Dynamic) --><div x-show=\"selectedGovId\" class=\"bg-surface-sunken p-5 rounded-xl border d-flex flex-col gap-3\"><div style=\"display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.75rem;\"><div><label style=\"font-size:0.9rem; font-weight:800; margin:0; color:var(--color-text-heading); display:flex; align-items:center; gap:0.5rem;\"><span>🏙️</span> <span>المدن والمراكز المستهدفة بالمحافظة</span> <span class=\"badge badge-primary\" style=\"font-size:0.75rem;\" x-text=\"selectedCities.length + ' مدينة محددة'\"></span></label></div><div style=\"display:flex; align-items:center; gap:0.75rem;\"><input type=\"text\" x-model=\"citySearch\" placeholder=\"بحث باسم المدينة أو الحي...\" class=\"form-control\" style=\"width:200px; padding:0.35rem 0.65rem; font-size:0.825rem; border-radius:0.5rem;\"> <button type=\"button\" @click=\"toggleSelectAllCities()\" class=\"btn btn-sm btn-primary\" style=\"font-weight:700; font-size:0.8rem; padding:0.35rem 0.75rem; border-radius:0.5rem;\"><span x-text=\"allCitiesInGov ? 'إلغاء تحديد كل المدن' : 'تحديد كل مدن المحافظة'\"></span></button></div></div><!-- Hidden input for all_cities_in_gov --><input type=\"hidden\" name=\"all_cities_in_gov\" :value=\"allCitiesInGov ? 'true' : 'false'\"><!-- Grid of cities under governorate --><div class=\"d-grid gap-2 max-h-56 overflow-y-auto p-2 bg-surface rounded-lg border\" style=\"grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));\"><template x-for=\"c in filteredCities\" :key=\"c.id\"><label :class=\"selectedCities.includes(String(c.id)) ? 'badge-primary' : 'bg-surface-sunken'\" class=\"p-2 rounded-lg border d-flex items-center gap-2 cursor-pointer transition\"><input type=\"checkbox\" name=\"city_ids\" :value=\"c.id\" :checked=\"selectedCities.includes(String(c.id))\" @change=\"toggleCity(c.id)\" class=\"w-4 h-4 cursor-pointer\"><div class=\"flex-1 min-w-0\"><div class=\"font-bold text-sm text-primary\" x-text=\"c.name_ar\"></div><div class=\"text-xs text-muted\" x-text=\"c.name_en\"></div></div><span x-show=\"c.is_capital\" class=\"badge badge-amber badge-compact\">عاصمة</span></label></template><div x-show=\"filteredCities.length === 0\" class=\"text-center py-6 text-muted text-xs col-span-full\">لم يتم العثور على مدن تطابق البحث.</div></div></div><!-- Step 4: General Radius & Timing Configurations --><div class=\"d-grid gap-4\" style=\"grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));\"><!-- Radius in Meters --><div class=\"bg-surface-sunken p-5 rounded-xl border\"><label class=\"d-block text-xs font-bold mb-2 text-primary\">📡 نصف قطر التغطية الافتراضي (بالمتر)</label><div class=\"d-flex items-center gap-2 mb-3\"><input type=\"number\" name=\"distance_meters\" x-model=\"distanceMeters\" min=\"1\" max=\"1000000\" step=\"1\" class=\"form-control font-bold text-md w-36\" required> <span class=\"font-bold text-xs text-muted\">متر</span> <span class=\"badge badge-primary text-xs\" x-text=\"(distanceMeters / 1000).toFixed(1) + ' كم'\"></span></div><!-- Quick Presets --><div class=\"d-flex flex-wrap gap-1\"><button type=\"button\" @click=\"setDistance(1000)\" class=\"btn btn-2xs btn-secondary\">1 كم</button> <button type=\"button\" @click=\"setDistance(3000)\" class=\"btn btn-2xs btn-secondary\">3 كم</button> <button type=\"button\" @click=\"setDistance(5000)\" class=\"btn btn-2xs btn-secondary\">5 كم (قياسي)</button> <button type=\"button\" @click=\"setDistance(10000)\" class=\"btn btn-2xs btn-secondary\">10 كم</button> <button type=\"button\" @click=\"setDistance(25000)\" class=\"btn btn-2xs btn-secondary\">25 كم</button> <button type=\"button\" @click=\"setDistance(50000)\" class=\"btn btn-2xs btn-secondary\">50 كم</button></div></div><!-- Time Window --><div class=\"bg-surface-sunken p-5 rounded-xl border\"><label class=\"d-block text-xs font-bold mb-2 text-primary\">⏰ مواعيد وساعات العمل والتوصيل الافتراضية</label><div class=\"d-grid gap-3 mb-3\" style=\"grid-template-columns: 1fr 1fr;\"><div><span class=\"text-xs text-muted font-semibold d-block mb-1\">من (وقت البدء):</span> <input type=\"time\" name=\"coverage_from\" x-model=\"coverageFrom\" class=\"form-control text-xs\"></div><div><span class=\"text-xs text-muted font-semibold d-block mb-1\">إلى (وقت الانتهاء):</span> <input type=\"time\" name=\"coverage_to\" x-model=\"coverageTo\" class=\"form-control text-xs\"></div></div><!-- Time Presets --><div class=\"d-flex flex-wrap gap-1\"><button type=\"button\" @click=\"setTimePreset('09:00', '17:00')\" class=\"btn btn-2xs btn-secondary\">دوام كامل (9 ص - 5 م)</button> <button type=\"button\" @click=\"setTimePreset('16:00', '23:00')\" class=\"btn btn-2xs btn-secondary\">فترة مسائية</button> <button type=\"button\" @click=\"setTimePreset('', '')\" class=\"btn btn-2xs btn-secondary\">طوال اليوم (24 ساعة)</button></div></div></div><!-- Step 5: Per-City Timing & Radius Customization Grid --><div x-show=\"selectedCities.length > 0\" class=\"bg-surface-sunken p-5 rounded-xl border d-flex flex-col gap-4\"><div class=\"flex-between items-center flex-wrap gap-3\"><div><h3 class=\"text-sm font-extrabold text-primary m-0 d-flex items-center gap-2\"><span>⏱️</span> <span>تخصيص مواعيد وساعات التوصيل ونصف القطر لكل مدينة محددة على حدة</span></h3><p class=\"text-xs text-muted m-0 mt-1\">يمكنك تعديل مواعيد العمل ونطاق التغطية لكل مدينة مستقلة، أو تطبيق الإعدادات العامة عليها بضغطة زر.</p></div><button type=\"button\" @click=\"applyDefaultsToAllCities()\" class=\"btn btn-xs btn-secondary font-bold\">⚡ تطبيق الإعدادات العامة على كل المدن</button></div><div class=\"d-grid gap-3\" style=\"grid-template-columns: repeat(auto-fit, minmax(310px, 1fr));\"><template x-for=\"c in getSelectedCityDetails()\" :key=\"c.id\"><div class=\"bg-surface-raised p-4 rounded-xl border d-flex flex-col gap-3 shadow-xs\"><div class=\"flex-between items-start\"><div><div class=\"font-extrabold text-sm text-brand\" x-text=\"c.name_ar\"></div><div class=\"text-xs text-muted\" x-text=\"c.name_en + (c.lat ? ' (' + c.lat.toFixed(4) + ', ' + c.lon.toFixed(4) + ')' : '')\"></div></div><button type=\"button\" @click=\"toggleCity(c.id)\" class=\"btn btn-icon btn-2xs text-danger\" title=\"إزالة هذه المدينة\">✕</button></div><div class=\"d-grid gap-2\" style=\"grid-template-columns: 1fr 1fr;\"><div><label class=\"d-block text-xs font-semibold text-muted mb-1\">من (ساعة البدء):</label> <input type=\"time\" :name=\"'coverage_from_' + c.id\" x-model=\"initCityConfig(String(c.id)).from\" class=\"form-control text-xs\"></div><div><label class=\"d-block text-xs font-semibold text-muted mb-1\">إلى (ساعة الانتهاء):</label> <input type=\"time\" :name=\"'coverage_to_' + c.id\" x-model=\"initCityConfig(String(c.id)).to\" class=\"form-control text-xs\"></div></div><div><label class=\"d-block text-xs font-semibold text-muted mb-1\">نصف قطر التغطية (بالمتر من مركز المدينة):</label><div class=\"d-flex items-center gap-2\"><input type=\"number\" :name=\"'distance_meters_' + c.id\" x-model=\"initCityConfig(String(c.id)).distance\" min=\"1\" max=\"1000000\" step=\"1\" class=\"form-control text-xs font-bold flex-1\"> <span class=\"badge badge-primary text-xs\" x-text=\"((initCityConfig(String(c.id)).distance || 5000) / 1000).toFixed(1) + ' كم'\"></span></div></div></div></template></div></div><!-- Live Impact Summary & Submit Button --><div class=\"glass-panel p-5 flex-between items-center flex-wrap gap-4 border\"><div class=\"d-flex items-center gap-3\"><span class=\"text-2xl\">⚡</span><div><div class=\"font-extrabold text-primary text-sm\">ملخص العملية: <span x-text=\"selectedDays.length\" class=\"text-brand\"></span> أيام × <span x-text=\"selectedCities.length > 0 ? selectedCities.length : '1'\" class=\"text-brand\"></span> مدينة = <span class=\"text-brand font-black\" x-text=\"(selectedDays.length * (selectedCities.length > 0 ? selectedCities.length : 1)) + ' نطاق تغطية أسبوعية'\"></span></div><div class=\"text-xs text-secondary mt-1\">سيتم إنشاء / تحديث جدول التوزيع ومواعيد التوصيل تلقائياً وفورياً لجميع الصيدليات ضمن هذه النطاقات.</div></div></div><button type=\"submit\" :disabled=\"selectedDays.length === 0 || !selectedGovId\" class=\"btn btn-primary px-8 font-extrabold text-sm shadow-md\"><span>حفظ وجدولة التغطية الأسبوعية</span> <span>←</span></button></div></form></div><!-- Active Weekly Coverages Table & Filters --><div class=\"glass-panel p-6 mb-6\"><div class=\"flex-between items-center mb-6 pb-4 border-b flex-wrap gap-4\"><div><h2 class=\"text-lg font-black text-primary m-0 d-flex items-center gap-2\"><span>📋</span> <span>سجل نطاقات التغطية والتوزيع المسجلة (")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var14 string
 			templ_7745c5c3_Var14, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", len(data.Coverages)))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `vendor_coverage.templ`, Line: 671, Col: 121}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_coverage.templ`, Line: 671, Col: 121}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var14))
 			if templ_7745c5c3_Err != nil {
@@ -424,7 +424,7 @@ func VendorCoveragePage(data VendorCoverageData, lang, dir string) templ.Compone
 					var templ_7745c5c3_Var15 string
 					templ_7745c5c3_Var15, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("(filterDay === 'all' || filterDay === '%d') && (!searchQuery || '%s'.toLowerCase().includes(searchQuery.toLowerCase()) || '%s'.toLowerCase().includes(searchQuery.toLowerCase()))", c.DayOfWeek, c.GovernorateNameAr, c.CityNameAr))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `vendor_coverage.templ`, Line: 725, Col: 262}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_coverage.templ`, Line: 725, Col: 262}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var15)
 					if templ_7745c5c3_Err != nil {
@@ -446,7 +446,7 @@ func VendorCoveragePage(data VendorCoverageData, lang, dir string) templ.Compone
 					var templ_7745c5c3_Var17 string
 					templ_7745c5c3_Var17, templ_7745c5c3_Err = templ.ResolveAttributeValue(templ.CSSClasses(templ_7745c5c3_Var16).String())
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `vendor_coverage.templ`, Line: 1, Col: 0}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_coverage.templ`, Line: 1, Col: 0}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var17)
 					if templ_7745c5c3_Err != nil {
@@ -459,7 +459,7 @@ func VendorCoveragePage(data VendorCoverageData, lang, dir string) templ.Compone
 					var templ_7745c5c3_Var18 string
 					templ_7745c5c3_Var18, templ_7745c5c3_Err = templ.JoinStringErrs(dayNameArabic(c.DayOfWeek))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `vendor_coverage.templ`, Line: 729, Col: 40}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_coverage.templ`, Line: 729, Col: 40}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var18))
 					if templ_7745c5c3_Err != nil {
@@ -473,7 +473,7 @@ func VendorCoveragePage(data VendorCoverageData, lang, dir string) templ.Compone
 						var templ_7745c5c3_Var19 string
 						templ_7745c5c3_Var19, templ_7745c5c3_Err = templ.JoinStringErrs(c.GovernorateNameAr)
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `vendor_coverage.templ`, Line: 737, Col: 34}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_coverage.templ`, Line: 737, Col: 34}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var19))
 						if templ_7745c5c3_Err != nil {
@@ -487,7 +487,7 @@ func VendorCoveragePage(data VendorCoverageData, lang, dir string) templ.Compone
 						var templ_7745c5c3_Var20 string
 						templ_7745c5c3_Var20, templ_7745c5c3_Err = templ.JoinStringErrs(c.GovernorateName)
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `vendor_coverage.templ`, Line: 739, Col: 32}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_coverage.templ`, Line: 739, Col: 32}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var20))
 						if templ_7745c5c3_Err != nil {
@@ -512,7 +512,7 @@ func VendorCoveragePage(data VendorCoverageData, lang, dir string) templ.Compone
 							var templ_7745c5c3_Var21 string
 							templ_7745c5c3_Var21, templ_7745c5c3_Err = templ.JoinStringErrs(c.CityNameAr)
 							if templ_7745c5c3_Err != nil {
-								return templ.Error{Err: templ_7745c5c3_Err, FileName: `vendor_coverage.templ`, Line: 747, Col: 29}
+								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_coverage.templ`, Line: 747, Col: 29}
 							}
 							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var21))
 							if templ_7745c5c3_Err != nil {
@@ -522,7 +522,7 @@ func VendorCoveragePage(data VendorCoverageData, lang, dir string) templ.Compone
 							var templ_7745c5c3_Var22 string
 							templ_7745c5c3_Var22, templ_7745c5c3_Err = templ.JoinStringErrs(c.CityName)
 							if templ_7745c5c3_Err != nil {
-								return templ.Error{Err: templ_7745c5c3_Err, FileName: `vendor_coverage.templ`, Line: 749, Col: 27}
+								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_coverage.templ`, Line: 749, Col: 27}
 							}
 							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var22))
 							if templ_7745c5c3_Err != nil {
@@ -546,7 +546,7 @@ func VendorCoveragePage(data VendorCoverageData, lang, dir string) templ.Compone
 						var templ_7745c5c3_Var23 string
 						templ_7745c5c3_Var23, templ_7745c5c3_Err = templ.JoinStringErrs(c.Address)
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `vendor_coverage.templ`, Line: 756, Col: 29}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_coverage.templ`, Line: 756, Col: 29}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var23))
 						if templ_7745c5c3_Err != nil {
@@ -569,7 +569,7 @@ func VendorCoveragePage(data VendorCoverageData, lang, dir string) templ.Compone
 						var templ_7745c5c3_Var24 string
 						templ_7745c5c3_Var24, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%.4f, %.4f", *c.Latitude, *c.Longitude))
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `vendor_coverage.templ`, Line: 765, Col: 73}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_coverage.templ`, Line: 765, Col: 73}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var24))
 						if templ_7745c5c3_Err != nil {
@@ -582,7 +582,7 @@ func VendorCoveragePage(data VendorCoverageData, lang, dir string) templ.Compone
 						var templ_7745c5c3_Var25 templ.SafeURL
 						templ_7745c5c3_Var25, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("https://www.google.com/maps?q=%f,%f", *c.Latitude, *c.Longitude)))
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `vendor_coverage.templ`, Line: 766, Col: 115}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_coverage.templ`, Line: 766, Col: 115}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var25))
 						if templ_7745c5c3_Err != nil {
@@ -605,7 +605,7 @@ func VendorCoveragePage(data VendorCoverageData, lang, dir string) templ.Compone
 					var templ_7745c5c3_Var26 string
 					templ_7745c5c3_Var26, templ_7745c5c3_Err = templ.JoinStringErrs(formatDistanceKM(c.DistanceMeters))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `vendor_coverage.templ`, Line: 778, Col: 48}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_coverage.templ`, Line: 778, Col: 48}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var26))
 					if templ_7745c5c3_Err != nil {
@@ -623,7 +623,7 @@ func VendorCoveragePage(data VendorCoverageData, lang, dir string) templ.Compone
 						var templ_7745c5c3_Var27 string
 						templ_7745c5c3_Var27, templ_7745c5c3_Err = templ.JoinStringErrs(*c.CoverageFrom)
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `vendor_coverage.templ`, Line: 786, Col: 35}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_coverage.templ`, Line: 786, Col: 35}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var27))
 						if templ_7745c5c3_Err != nil {
@@ -636,7 +636,7 @@ func VendorCoveragePage(data VendorCoverageData, lang, dir string) templ.Compone
 						var templ_7745c5c3_Var28 string
 						templ_7745c5c3_Var28, templ_7745c5c3_Err = templ.JoinStringErrs(*c.CoverageTo)
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `vendor_coverage.templ`, Line: 786, Col: 55}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_coverage.templ`, Line: 786, Col: 55}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var28))
 						if templ_7745c5c3_Err != nil {
@@ -659,7 +659,7 @@ func VendorCoveragePage(data VendorCoverageData, lang, dir string) templ.Compone
 					var templ_7745c5c3_Var29 string
 					templ_7745c5c3_Var29, templ_7745c5c3_Err = templ.JoinStringErrs(c.BranchName)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `vendor_coverage.templ`, Line: 795, Col: 25}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_coverage.templ`, Line: 795, Col: 25}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var29))
 					if templ_7745c5c3_Err != nil {
@@ -672,7 +672,7 @@ func VendorCoveragePage(data VendorCoverageData, lang, dir string) templ.Compone
 					var templ_7745c5c3_Var30 templ.SafeURL
 					templ_7745c5c3_Var30, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("/vendor/coverage/%d/toggle", c.ID)))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `vendor_coverage.templ`, Line: 800, Col: 102}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_coverage.templ`, Line: 800, Col: 102}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var30))
 					if templ_7745c5c3_Err != nil {
@@ -685,7 +685,7 @@ func VendorCoveragePage(data VendorCoverageData, lang, dir string) templ.Compone
 					var templ_7745c5c3_Var31 string
 					templ_7745c5c3_Var31, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%d", c.ID))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `vendor_coverage.templ`, Line: 802, Col: 74}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_coverage.templ`, Line: 802, Col: 74}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var31)
 					if templ_7745c5c3_Err != nil {
@@ -762,7 +762,7 @@ func VendorCoveragePage(data VendorCoverageData, lang, dir string) templ.Compone
 						c.IsActive,
 					))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `vendor_coverage.templ`, Line: 831, Col: 13}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_coverage.templ`, Line: 831, Col: 13}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var32)
 					if templ_7745c5c3_Err != nil {
@@ -775,7 +775,7 @@ func VendorCoveragePage(data VendorCoverageData, lang, dir string) templ.Compone
 					var templ_7745c5c3_Var33 templ.SafeURL
 					templ_7745c5c3_Var33, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("/vendor/coverage/%d/delete", c.ID)))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `vendor_coverage.templ`, Line: 835, Col: 103}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_coverage.templ`, Line: 835, Col: 103}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var33))
 					if templ_7745c5c3_Err != nil {
@@ -788,7 +788,7 @@ func VendorCoveragePage(data VendorCoverageData, lang, dir string) templ.Compone
 					var templ_7745c5c3_Var34 string
 					templ_7745c5c3_Var34, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%d", c.ID))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `vendor_coverage.templ`, Line: 837, Col: 75}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_coverage.templ`, Line: 837, Col: 75}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var34)
 					if templ_7745c5c3_Err != nil {
@@ -804,20 +804,20 @@ func VendorCoveragePage(data VendorCoverageData, lang, dir string) templ.Compone
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 62, "</div><!-- Delivery Distance Pricing Bands --><div class=\"glass-panel p-6 mb-6\"><div class=\"flex-between items-center mb-6 pb-4 border-b flex-wrap gap-3\"><div><h2 class=\"text-lg font-black text-primary m-0 d-flex items-center gap-2\"><span>💵</span> <span>شرائح ورسوم التوصيل حسب المسافة (Delivery Distance Bands)</span></h2><p class=\"text-xs text-muted mt-1 m-0\">تحديد تكلفة الشحن الإضافية للطلبات بناءً على بُعد الصيدلية بالمتر (أو الكيلومتر) عن مركز التغطية ونقطة التوزيع. (1000 متر = 1 كم).</p></div></div><div class=\"d-grid gap-6\" style=\"grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));\"><!-- Add Delivery Band Form --><form method=\"POST\" action=\"/vendor/delivery-bands/create\" class=\"bg-surface-sunken p-5 rounded-xl border d-flex flex-col gap-4\"><input type=\"hidden\" name=\"gorilla.csrf.Token\" value=\"\"><div class=\"font-extrabold text-sm text-primary d-flex items-center gap-2\"><span>➕</span> <span>إضافة شريحة تسعير جديدة بالمتر</span></div><div class=\"d-grid gap-3\" style=\"grid-template-columns: 1fr 1fr 1fr;\"><div><span class=\"text-xs font-bold text-primary d-block mb-1\">من (متر):</span> <input type=\"number\" name=\"from_meters\" min=\"0\" step=\"100\" value=\"0\" class=\"form-control font-bold\" placeholder=\"0 م\" required></div><div><span class=\"text-xs font-bold text-primary d-block mb-1\">إلى (متر):</span> <input type=\"number\" name=\"to_meters\" min=\"100\" step=\"100\" value=\"5000\" class=\"form-control font-bold\" placeholder=\"5000 م\" required></div><div><span class=\"text-xs font-bold text-primary d-block mb-1\">الرسوم (")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 62, "</div><!-- Delivery Distance Pricing Bands --><div class=\"glass-panel p-6 mb-6\"><div class=\"flex-between items-center mb-6 pb-4 border-b flex-wrap gap-3\"><div><h2 class=\"text-lg font-black text-primary m-0 d-flex items-center gap-2\"><span>💵</span> <span>شرائح ورسوم التوصيل حسب المسافة (Delivery Distance Bands)</span></h2><p class=\"text-xs text-muted mt-1 m-0\">تحديد تكلفة الشحن الإضافية للطلبات بناءً على بُعد الصيدلية بالمتر (أو الكيلومتر) عن مركز التغطية ونقطة التوزيع. (1000 متر = 1 كم).</p></div></div><div class=\"d-grid gap-6\" style=\"grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));\"><!-- Add Delivery Band Form --><form method=\"POST\" action=\"/vendor/delivery-bands/create\" class=\"bg-surface-sunken p-5 rounded-xl border d-flex flex-col gap-4\"><input type=\"hidden\" name=\"gorilla.csrf.Token\" value=\"\"><div class=\"font-extrabold text-sm text-primary d-flex items-center gap-2\"><span>➕</span> <span>إضافة شريحة تسعير جديدة بالمتر</span></div><div class=\"d-grid gap-3\" style=\"grid-template-columns: 1fr 1fr 1fr;\"><div><span class=\"text-xs font-bold text-primary d-block mb-1\">من (متر):</span> <input type=\"number\" name=\"from_meters\" min=\"0\" step=\"1\" value=\"0\" class=\"form-control font-bold\" placeholder=\"0 م\" required></div><div><span class=\"text-xs font-bold text-primary d-block mb-1\">إلى (متر):</span> <input type=\"number\" name=\"to_meters\" min=\"0\" step=\"1\" value=\"5000\" class=\"form-control font-bold\" placeholder=\"5000 م\" required></div><div><span class=\"text-xs font-bold text-primary d-block mb-1\">الرسوم (")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var35 string
 			templ_7745c5c3_Var35, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(lang, "common.currency_egp"))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `vendor_coverage.templ`, Line: 884, Col: 117}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_coverage.templ`, Line: 884, Col: 117}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var35))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 63, "):</span> <input type=\"number\" step=\"0.5\" name=\"delivery_fee\" min=\"0\" value=\"30\" class=\"form-control font-bold\" placeholder=\"30\" required></div></div><button type=\"submit\" class=\"btn btn-primary btn-sm font-bold align-self-start shadow-xs\">💾 حفظ الشريحة</button></form><!-- List of Existing Bands --><div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 63, "):</span> <input type=\"number\" step=\"any\" name=\"delivery_fee\" min=\"0\" value=\"30\" class=\"form-control font-bold\" placeholder=\"30\" required></div></div><button type=\"submit\" class=\"btn btn-primary btn-sm font-bold align-self-start shadow-xs\">💾 حفظ الشريحة</button></form><!-- List of Existing Bands --><div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -839,7 +839,7 @@ func VendorCoveragePage(data VendorCoverageData, lang, dir string) templ.Compone
 					var templ_7745c5c3_Var36 string
 					templ_7745c5c3_Var36, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", band.FromMeters))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `vendor_coverage.templ`, Line: 905, Col: 53}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_coverage.templ`, Line: 905, Col: 53}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var36))
 					if templ_7745c5c3_Err != nil {
@@ -852,7 +852,7 @@ func VendorCoveragePage(data VendorCoverageData, lang, dir string) templ.Compone
 					var templ_7745c5c3_Var37 string
 					templ_7745c5c3_Var37, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", band.ToMeters))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `vendor_coverage.templ`, Line: 905, Col: 100}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_coverage.templ`, Line: 905, Col: 100}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var37))
 					if templ_7745c5c3_Err != nil {
@@ -865,7 +865,7 @@ func VendorCoveragePage(data VendorCoverageData, lang, dir string) templ.Compone
 					var templ_7745c5c3_Var38 string
 					templ_7745c5c3_Var38, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%.1f", float64(band.FromMeters)/1000.0))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `vendor_coverage.templ`, Line: 908, Col: 78}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_coverage.templ`, Line: 908, Col: 78}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var38))
 					if templ_7745c5c3_Err != nil {
@@ -878,7 +878,7 @@ func VendorCoveragePage(data VendorCoverageData, lang, dir string) templ.Compone
 					var templ_7745c5c3_Var39 string
 					templ_7745c5c3_Var39, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%.1f", float64(band.ToMeters)/1000.0))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `vendor_coverage.templ`, Line: 908, Col: 145}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_coverage.templ`, Line: 908, Col: 145}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var39))
 					if templ_7745c5c3_Err != nil {
@@ -891,7 +891,7 @@ func VendorCoveragePage(data VendorCoverageData, lang, dir string) templ.Compone
 					var templ_7745c5c3_Var40 string
 					templ_7745c5c3_Var40, templ_7745c5c3_Err = templ.JoinStringErrs(band.Fee.String() + " " + i18n.T(lang, "common.currency_egp"))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `vendor_coverage.templ`, Line: 913, Col: 75}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_coverage.templ`, Line: 913, Col: 75}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var40))
 					if templ_7745c5c3_Err != nil {
@@ -904,7 +904,7 @@ func VendorCoveragePage(data VendorCoverageData, lang, dir string) templ.Compone
 					var templ_7745c5c3_Var41 templ.SafeURL
 					templ_7745c5c3_Var41, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("/vendor/delivery-bands/%d/delete", band.ID)))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `vendor_coverage.templ`, Line: 915, Col: 111}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_coverage.templ`, Line: 915, Col: 111}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var41))
 					if templ_7745c5c3_Err != nil {
@@ -932,7 +932,7 @@ func VendorCoveragePage(data VendorCoverageData, lang, dir string) templ.Compone
 				var templ_7745c5c3_Var42 string
 				templ_7745c5c3_Var42, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%d", b.ID))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `vendor_coverage.templ`, Line: 962, Col: 49}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_coverage.templ`, Line: 962, Col: 49}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var42)
 				if templ_7745c5c3_Err != nil {
@@ -945,7 +945,7 @@ func VendorCoveragePage(data VendorCoverageData, lang, dir string) templ.Compone
 				var templ_7745c5c3_Var43 string
 				templ_7745c5c3_Var43, templ_7745c5c3_Err = templ.JoinStringErrs(b.Name.Get("ar"))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `vendor_coverage.templ`, Line: 963, Col: 29}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_coverage.templ`, Line: 963, Col: 29}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var43))
 				if templ_7745c5c3_Err != nil {
@@ -968,7 +968,7 @@ func VendorCoveragePage(data VendorCoverageData, lang, dir string) templ.Compone
 				var templ_7745c5c3_Var44 string
 				templ_7745c5c3_Var44, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%d", c.ID))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `vendor_coverage.templ`, Line: 974, Col: 49}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_coverage.templ`, Line: 974, Col: 49}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var44)
 				if templ_7745c5c3_Err != nil {
@@ -981,7 +981,7 @@ func VendorCoveragePage(data VendorCoverageData, lang, dir string) templ.Compone
 				var templ_7745c5c3_Var45 string
 				templ_7745c5c3_Var45, templ_7745c5c3_Err = templ.JoinStringErrs(c.Name.Get("ar"))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `vendor_coverage.templ`, Line: 975, Col: 29}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_coverage.templ`, Line: 975, Col: 29}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var45))
 				if templ_7745c5c3_Err != nil {
@@ -992,7 +992,7 @@ func VendorCoveragePage(data VendorCoverageData, lang, dir string) templ.Compone
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 82, "</select></div><div class=\"d-grid gap-3\" style=\"grid-template-columns: 1fr 1fr;\"><div><label class=\"d-block text-xs font-bold mb-1 text-primary\">من (وقت البدء)</label> <input type=\"time\" name=\"coverage_from\" x-model=\"editCov.coverage_from\" class=\"form-control text-xs\"></div><div><label class=\"d-block text-xs font-bold mb-1 text-primary\">إلى (وقت النهاية)</label> <input type=\"time\" name=\"coverage_to\" x-model=\"editCov.coverage_to\" class=\"form-control text-xs\"></div></div><div><label class=\"d-block text-xs font-bold mb-1 text-primary\">نصف القطر (بالمتر)</label><div class=\"d-flex items-center gap-2\"><input type=\"number\" name=\"distance_meters\" x-model=\"editCov.distance_meters\" min=\"100\" max=\"500000\" step=\"500\" class=\"form-control text-xs font-bold flex-1\" required> <span class=\"badge badge-primary text-xs\" x-text=\"((editCov.distance_meters || 5000) / 1000).toFixed(1) + ' كم'\"></span></div></div><div><label class=\"d-block text-xs font-bold mb-1 text-primary\">العنوان أو الوصف الميداني (اختياري)</label> <input type=\"text\" name=\"address\" x-model=\"editCov.address\" placeholder=\"مثال: قطاع شمال المدينة حتى الطريق الدائري\" class=\"form-control text-xs\"></div><div class=\"d-flex items-center gap-2 mt-2\"><input type=\"checkbox\" name=\"is_active\" value=\"true\" :checked=\"editCov.is_active\" id=\"edit_is_active\" class=\"w-4 h-4\"> <label for=\"edit_is_active\" class=\"text-xs font-bold text-primary cursor-pointer\">تفعيل هذا النطاق وجعله متاحاً للطلبات</label></div></div><div class=\"modal-footer\"><button type=\"button\" @click=\"closeEdit()\" class=\"btn btn-secondary btn-sm font-bold\">إلغاء</button> <button type=\"submit\" class=\"btn btn-primary btn-sm font-extrabold px-6\">حفظ التعديلات</button></div></form></div></div></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 82, "</select></div><div class=\"d-grid gap-3\" style=\"grid-template-columns: 1fr 1fr;\"><div><label class=\"d-block text-xs font-bold mb-1 text-primary\">من (وقت البدء)</label> <input type=\"time\" name=\"coverage_from\" x-model=\"editCov.coverage_from\" class=\"form-control text-xs\"></div><div><label class=\"d-block text-xs font-bold mb-1 text-primary\">إلى (وقت النهاية)</label> <input type=\"time\" name=\"coverage_to\" x-model=\"editCov.coverage_to\" class=\"form-control text-xs\"></div></div><div><label class=\"d-block text-xs font-bold mb-1 text-primary\">نصف القطر (بالمتر)</label><div class=\"d-flex items-center gap-2\"><input type=\"number\" name=\"distance_meters\" x-model=\"editCov.distance_meters\" min=\"1\" max=\"1000000\" step=\"1\" class=\"form-control text-xs font-bold flex-1\" required> <span class=\"badge badge-primary text-xs\" x-text=\"((editCov.distance_meters || 5000) / 1000).toFixed(1) + ' كم'\"></span></div></div><div><label class=\"d-block text-xs font-bold mb-1 text-primary\">العنوان أو الوصف الميداني (اختياري)</label> <input type=\"text\" name=\"address\" x-model=\"editCov.address\" placeholder=\"مثال: قطاع شمال المدينة حتى الطريق الدائري\" class=\"form-control text-xs\"></div><div class=\"d-flex items-center gap-2 mt-2\"><input type=\"checkbox\" name=\"is_active\" value=\"true\" :checked=\"editCov.is_active\" id=\"edit_is_active\" class=\"w-4 h-4\"> <label for=\"edit_is_active\" class=\"text-xs font-bold text-primary cursor-pointer\">تفعيل هذا النطاق وجعله متاحاً للطلبات</label></div></div><div class=\"modal-footer\"><button type=\"button\" @click=\"closeEdit()\" class=\"btn btn-secondary btn-sm font-bold\">إلغاء</button> <button type=\"submit\" class=\"btn btn-primary btn-sm font-extrabold px-6\">حفظ التعديلات</button></div></form></div></div></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

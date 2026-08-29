@@ -75,6 +75,7 @@ type SupplierProfileData struct {
 	IsFollowing   bool
 	Rating        float64
 	ReviewCount   int
+	ActiveTab     string // "catalog", "sections", "policies", "branches", "reviews"
 }
 
 // GetAvailableStock returns the actual warehouse inventory balance for this variant.

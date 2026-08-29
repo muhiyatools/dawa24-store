@@ -324,10 +324,11 @@ templ CustomerCatalog(data CatalogPageData, lang, dir string, isPartial bool) {
 											class="form-input text-xs w-auto py-1"
 											onchange={ templ.ComponentScript{Call: "changeSort(this.value)"} }
 										>
-											<option value="" selected?={ data.Sort == "" }>الأفضل تقييماً والأحدث</option>
+											<option value="" selected?={ data.Sort == "" }>الأقرب جغرافياً والأعلى توفراً (تلقائي)</option>
+											<option value="nearby" selected?={ data.Sort == "nearby" }>الأقرب جغرافياً لموقعك 📍</option>
 											<option value="price_asc" selected?={ data.Sort == "price_asc" }>سعر التوريد: الأقل أولاً</option>
 											<option value="price_desc" selected?={ data.Sort == "price_desc" }>سعر التوريد: الأعلى أولاً</option>
-											<option value="discount_desc" selected?={ data.Sort == "discount_desc" }>أعلى نسبة خصم %</option>
+											<option value="discount_desc" selected?={ data.Sort == "discount_desc" || data.Sort == "discount" }>أعلى نسبة خصم %</option>
 											<option value="newest" selected?={ data.Sort == "newest" }>الأحدث إضافة</option>
 											<option value="name" selected?={ data.Sort == "name" }>الاسم أبجدياً</option>
 										</select>
@@ -572,18 +573,29 @@ templ CustomerCatalogGrid(variants []*SupplierVariantCard, lang string) {
 								<div class="text-xs font-extrabold text-primary">
 									{ v.SupplierName }
 								</div>
-								if v.BranchName != "" {
+								if v.CityName != "" || v.BranchName != "" {
 									<div class="text-xs text-muted">
-										{ v.BranchName }
+										if v.CityName != "" {
+											{ v.CityName }
+										} else {
+											{ v.BranchName }
+										}
 									</div>
 								}
 							</div>
 						</div>
-						if v.IsVerified {
-							<span class="badge badge-emerald text-xs font-bold">
-								معتمد ✓
-							</span>
-						}
+						<div class="d-flex items-center gap-1">
+							if v.DistanceText != "" {
+								<span class="badge badge-sky text-xs font-mono" title="المسافة التقديرية عن فرعكم">
+									📍 { v.DistanceText }
+								</span>
+							}
+							if v.IsVerified {
+								<span class="badge badge-emerald text-xs font-bold">
+									معتمد ✓
+								</span>
+							}
+						</div>
 					</div>
 
 					<!-- Stock & Expiry -->
@@ -756,11 +768,18 @@ templ CustomerCatalogTable(variants []*SupplierVariantCard, lang string) {
 										<span class="badge badge-emerald text-xs">✓</span>
 									}
 								</div>
-								if v.BranchName != "" {
-									<div class="text-xs text-muted mt-1">
-										{ v.BranchName }
-									</div>
-								}
+								<div class="d-flex items-center gap-1 mt-1">
+									if v.BranchName != "" {
+										<span class="text-xs text-muted">
+											{ v.BranchName }
+										</span>
+									}
+									if v.DistanceText != "" {
+										<span class="badge badge-sky text-xs font-mono" title="المسافة التقديرية عن فرعكم">
+											📍 { v.DistanceText }
+										</span>
+									}
+								</div>
 							</td>
 							<td class="text-center">
 								if v.AvailableStock > 0 {

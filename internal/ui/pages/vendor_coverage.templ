@@ -545,7 +545,7 @@ templ VendorCoveragePage(data VendorCoverageData, lang, dir string) {
 								📡 نصف قطر التغطية الافتراضي (بالمتر)
 							</label>
 							<div class="d-flex items-center gap-2 mb-3">
-								<input type="number" name="distance_meters" x-model="distanceMeters" min="100" max="500000" step="500" class="form-control font-bold text-md w-36" required/>
+								<input type="number" name="distance_meters" x-model="distanceMeters" min="1" max="1000000" step="1" class="form-control font-bold text-md w-36" required/>
 								<span class="font-bold text-xs text-muted">متر</span>
 								<span class="badge badge-primary text-xs" x-text="(distanceMeters / 1000).toFixed(1) + ' كم'"></span>
 							</div>
@@ -628,7 +628,7 @@ templ VendorCoveragePage(data VendorCoverageData, lang, dir string) {
 									<div>
 										<label class="d-block text-xs font-semibold text-muted mb-1">نصف قطر التغطية (بالمتر من مركز المدينة):</label>
 										<div class="d-flex items-center gap-2">
-											<input type="number" :name="'distance_meters_' + c.id" x-model="initCityConfig(String(c.id)).distance" min="100" max="500000" step="500" class="form-control text-xs font-bold flex-1"/>
+											<input type="number" :name="'distance_meters_' + c.id" x-model="initCityConfig(String(c.id)).distance" min="1" max="1000000" step="1" class="form-control text-xs font-bold flex-1"/>
 											<span class="badge badge-primary text-xs" x-text="((initCityConfig(String(c.id)).distance || 5000) / 1000).toFixed(1) + ' كم'"></span>
 										</div>
 									</div>
@@ -874,15 +874,15 @@ templ VendorCoveragePage(data VendorCoverageData, lang, dir string) {
 						<div class="d-grid gap-3" style="grid-template-columns: 1fr 1fr 1fr;">
 							<div>
 								<span class="text-xs font-bold text-primary d-block mb-1">من (متر):</span>
-								<input type="number" name="from_meters" min="0" step="100" value="0" class="form-control font-bold" placeholder="0 م" required/>
+								<input type="number" name="from_meters" min="0" step="1" value="0" class="form-control font-bold" placeholder="0 م" required/>
 							</div>
 							<div>
 								<span class="text-xs font-bold text-primary d-block mb-1">إلى (متر):</span>
-								<input type="number" name="to_meters" min="100" step="100" value="5000" class="form-control font-bold" placeholder="5000 م" required/>
+								<input type="number" name="to_meters" min="0" step="1" value="5000" class="form-control font-bold" placeholder="5000 م" required/>
 							</div>
 							<div>
 								<span class="text-xs font-bold text-primary d-block mb-1">الرسوم ({ i18n.T(lang, "common.currency_egp") }):</span>
-								<input type="number" step="0.5" name="delivery_fee" min="0" value="30" class="form-control font-bold" placeholder="30" required/>
+								<input type="number" step="any" name="delivery_fee" min="0" value="30" class="form-control font-bold" placeholder="30" required/>
 							</div>
 						</div>
 						<button type="submit" class="btn btn-primary btn-sm font-bold align-self-start shadow-xs">
@@ -992,7 +992,7 @@ templ VendorCoveragePage(data VendorCoverageData, lang, dir string) {
 							<div>
 								<label class="d-block text-xs font-bold mb-1 text-primary">نصف القطر (بالمتر)</label>
 								<div class="d-flex items-center gap-2">
-									<input type="number" name="distance_meters" x-model="editCov.distance_meters" min="100" max="500000" step="500" class="form-control text-xs font-bold flex-1" required/>
+									<input type="number" name="distance_meters" x-model="editCov.distance_meters" min="1" max="1000000" step="1" class="form-control text-xs font-bold flex-1" required/>
 									<span class="badge badge-primary text-xs" x-text="((editCov.distance_meters || 5000) / 1000).toFixed(1) + ' كم'"></span>
 								</div>
 							</div>

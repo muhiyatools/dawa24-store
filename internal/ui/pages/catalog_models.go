@@ -32,6 +32,9 @@ type SupplierVariantCard struct {
 	IsVerified      bool
 	BranchName      string
 	CityName        string
+	GovernorateName string
+	DistanceKM      float64
+	DistanceText    string
 	Price           money.Amount // Net pharmacy price
 	OriginalPrice   money.Amount // Original list price before offer
 	DiscountPercent int          // 15 = 15%
@@ -67,6 +70,9 @@ type SupplierOffer struct {
 	BranchName       string
 	WarehouseName    string
 	CityName         string
+	GovernorateName  string
+	DistanceKM       float64
+	DistanceText     string
 	IsCovered        bool
 	CoverageReason   string // e.g. "مفيش فرع بيوصل لموقعك للمنتج ده"
 	CanAddToCart     bool

@@ -331,6 +331,11 @@ func (h *UIHandler) SupplierProfilePage(w http.ResponseWriter, r *http.Request) 
 	}
 	limit := 24
 
+	tab := strings.TrimSpace(r.URL.Query().Get("tab"))
+	if tab == "" {
+		tab = "catalog"
+	}
+
 	data := pages.SupplierProfileData{
 		Org:           o,
 		Branches:      branches,
@@ -342,6 +347,7 @@ func (h *UIHandler) SupplierProfilePage(w http.ResponseWriter, r *http.Request) 
 		StatusNote:    statusNote,
 		CurrentPage:   page,
 		SearchQuery:   q,
+		ActiveTab:     tab,
 	}
 
 	data.VariantMeta = make(map[int64]pages.SupplierVariantMeta)

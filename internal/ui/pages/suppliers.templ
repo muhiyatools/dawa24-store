@@ -646,36 +646,36 @@ templ SupplierProfile(lang, dir string, data SupplierProfileData) {
 
 			<!-- 3. Navigation Tabs -->
 			<div class="sp-tabs-nav">
-				<button type="button" class="sp-tab-btn active" id="tab-btn-catalog" onclick="switchProfileTab('catalog')">
+				<button type="button" class={ "sp-tab-btn", templ.KV("active", data.ActiveTab == "catalog" || data.ActiveTab == "") } id="tab-btn-catalog" onclick="switchProfileTab('catalog')">
 					@components.IconPackage("icon-xs")
 					<span>كتالوج الأصناف والتشغيلات ({ fmt.Sprintf("%d", data.TotalVariants) })</span>
 				</button>
 
 				if len(data.Sections) > 0 {
-					<button type="button" class="sp-tab-btn" id="tab-btn-sections" onclick="switchProfileTab('sections')">
+					<button type="button" class={ "sp-tab-btn", templ.KV("active", data.ActiveTab == "sections") } id="tab-btn-sections" onclick="switchProfileTab('sections')">
 						<span>✨</span>
 						<span>نبذة وأقسام المنشأة ({ fmt.Sprintf("%d", len(data.Sections)) })</span>
 					</button>
 				}
 
-				<button type="button" class="sp-tab-btn" id="tab-btn-policies" onclick="switchProfileTab('policies')">
+				<button type="button" class={ "sp-tab-btn", templ.KV("active", data.ActiveTab == "policies") } id="tab-btn-policies" onclick="switchProfileTab('policies')">
 					@components.IconShield("icon-xs")
 					<span>شروط وسياسات التوريد ({ fmt.Sprintf("%d", len(data.Policies)) })</span>
 				</button>
 
-				<button type="button" class="sp-tab-btn" id="tab-btn-branches" onclick="switchProfileTab('branches')">
+				<button type="button" class={ "sp-tab-btn", templ.KV("active", data.ActiveTab == "branches") } id="tab-btn-branches" onclick="switchProfileTab('branches')">
 					@components.IconBuilding("icon-xs")
 					<span>فروع ومخازن التوزيع ({ fmt.Sprintf("%d", len(data.Branches)) })</span>
 				</button>
 
-				<button type="button" class="sp-tab-btn" id="tab-btn-reviews" onclick="switchProfileTab('reviews')">
+				<button type="button" class={ "sp-tab-btn", templ.KV("active", data.ActiveTab == "reviews") } id="tab-btn-reviews" onclick="switchProfileTab('reviews')">
 					@components.IconUser("icon-xs")
 					<span>تقييمات الصيادلة ({ fmt.Sprintf("%d", data.ReviewCount) })</span>
 				</button>
 			</div>
 
 			<!-- 4. Tab 1: Catalog & Batches Content -->
-			<div id="tab-content-catalog" class="sp-tab-panel">
+			<div id="tab-content-catalog" class="sp-tab-panel" style={ templ.KV("display:none;", data.ActiveTab != "" && data.ActiveTab != "catalog") }>
 				
 				<!-- Catalog Controls Toolbar -->
 				<div class="sp-catalog-toolbar">
@@ -1124,7 +1124,7 @@ templ SupplierProfile(lang, dir string, data SupplierProfileData) {
 
 			<!-- 5. Tab 2: About & Highlights -->
 			if len(data.Sections) > 0 {
-				<div id="tab-content-sections" class="sp-tab-panel" style="display:none;">
+				<div id="tab-content-sections" class="sp-tab-panel" style={ templ.KV("display:none;", data.ActiveTab != "sections") }>
 					<div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(320px, 1fr)); gap:1.25rem;">
 						for _, s := range data.Sections {
 							if s.IsActive {
@@ -1156,7 +1156,7 @@ templ SupplierProfile(lang, dir string, data SupplierProfileData) {
 			}
 
 			<!-- 6. Tab 3: Supply Policies -->
-			<div id="tab-content-policies" class="sp-tab-panel" style="display:none;">
+			<div id="tab-content-policies" class="sp-tab-panel" style={ templ.KV("display:none;", data.ActiveTab != "policies") }>
 				if len(data.Policies) == 0 {
 					<div class="card" style="padding:2rem; background:var(--surface-raised); border-radius:var(--radius-xl); border:1px solid var(--border);">
 						<div style="display:flex; align-items:center; gap:0.65rem; margin-bottom:0.75rem;">
@@ -1193,7 +1193,7 @@ templ SupplierProfile(lang, dir string, data SupplierProfileData) {
 			</div>
 
 			<!-- 7. Tab 4: Branches & Warehouses -->
-			<div id="tab-content-branches" class="sp-tab-panel" style="display:none;">
+			<div id="tab-content-branches" class="sp-tab-panel" style={ templ.KV("display:none;", data.ActiveTab != "branches") }>
 				if len(data.Branches) == 0 {
 					<div class="card" style="padding:2.5rem; text-align:center; background:var(--surface-raised); border-radius:var(--radius-xl); border:1px solid var(--border);">
 						@components.IconBuilding("icon-lg")
@@ -1244,7 +1244,7 @@ templ SupplierProfile(lang, dir string, data SupplierProfileData) {
 			</div>
 
 			<!-- 8. Tab 5: Reviews -->
-			<div id="tab-content-reviews" class="sp-tab-panel" style="display:none;">
+			<div id="tab-content-reviews" class="sp-tab-panel" style={ templ.KV("display:none;", data.ActiveTab != "reviews") }>
 				if len(data.Reviews) == 0 {
 					<div class="card" style="padding:3rem 1.5rem; text-align:center; background:var(--surface-raised); border-radius:var(--radius-xl); border:1px solid var(--border);">
 						<div style="font-size:2rem; margin-bottom:0.5rem;">⭐</div>
@@ -1377,8 +1377,11 @@ templ SupplierProfile(lang, dir string, data SupplierProfileData) {
 
 		<!-- Client Tab & View Switcher Script -->
 		<script>
-			function switchProfileTab(tabName) {
+			function switchProfileTab(tabName, updateUrl) {
+				if (updateUrl === undefined) updateUrl = true;
 				const tabs = ['catalog', 'sections', 'policies', 'branches', 'reviews'];
+				if (!tabs.includes(tabName)) tabName = 'catalog';
+
 				tabs.forEach(t => {
 					const btn = document.getElementById('tab-btn-' + t);
 					const panel = document.getElementById('tab-content-' + t);
@@ -1397,7 +1400,52 @@ templ SupplierProfile(lang, dir string, data SupplierProfileData) {
 						}
 					}
 				});
+
+				try {
+					if (updateUrl) {
+						if (window.history && window.history.replaceState) {
+							window.history.replaceState(null, null, '#' + tabName);
+						} else {
+							window.location.hash = '#' + tabName;
+						}
+					}
+					sessionStorage.setItem('dawa24_active_tab_' + window.location.pathname, tabName);
+				} catch (e) {}
 			}
+
+			function restoreActiveProfileTab() {
+				let targetTab = '';
+				// 1. Priority to URL Hash (#policies)
+				if (window.location.hash) {
+					targetTab = window.location.hash.replace('#', '').trim();
+				}
+				// 2. Query param (?tab=policies)
+				if (!targetTab) {
+					try {
+						const params = new URLSearchParams(window.location.search);
+						targetTab = params.get('tab') || '';
+					} catch (e) {}
+				}
+				// 3. Session storage
+				if (!targetTab) {
+					try {
+						targetTab = sessionStorage.getItem('dawa24_active_tab_' + window.location.pathname) || '';
+					} catch (e) {}
+				}
+
+				if (targetTab && ['catalog', 'sections', 'policies', 'branches', 'reviews'].includes(targetTab)) {
+					switchProfileTab(targetTab, false);
+				}
+			}
+
+			if (document.readyState === 'loading') {
+				document.addEventListener('DOMContentLoaded', restoreActiveProfileTab);
+			} else {
+				restoreActiveProfileTab();
+			}
+			window.addEventListener('hashchange', function() {
+				restoreActiveProfileTab();
+			});
 
 			function switchCatalogView(view) {
 				const tbl = document.getElementById('catalog-table-view');

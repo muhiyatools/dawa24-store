@@ -1,8 +1,9 @@
-// Storefront offer presentation helpers (Rebuild V2 §3.1).
 package ui
 
 import (
 	"context"
+	"fmt"
+	"math"
 	"sort"
 	"time"
 
@@ -14,6 +15,32 @@ import (
 	"github.com/muhiya/dawa24-store/internal/shared/money"
 	"github.com/muhiya/dawa24-store/internal/ui/pages"
 )
+
+func calculateHaversineKM(lat1, lon1, lat2, lon2 float64) float64 {
+	const earthRadiusKM = 6371.0
+	dLat := (lat2 - lat1) * (math.Pi / 180.0)
+	dLon := (lon2 - lon1) * (math.Pi / 180.0)
+	rLat1 := lat1 * (math.Pi / 180.0)
+	rLat2 := lat2 * (math.Pi / 180.0)
+
+	a := math.Sin(dLat/2)*math.Sin(dLat/2) +
+		math.Sin(dLon/2)*math.Sin(dLon/2)*math.Cos(rLat1)*math.Cos(rLat2)
+	c := 2 * math.Atan2(math.Sqrt(a), math.Sqrt(1-a))
+	return earthRadiusKM * c
+}
+
+func formatDistanceKMText(km float64) string {
+	if km <= 0 {
+		return ""
+	}
+	if km < 1.0 {
+		return "< 1 كم"
+	}
+	if km < 100.0 {
+		return fmt.Sprintf("%.1f كم", km)
+	}
+	return fmt.Sprintf("%d كم", int(km))
+}
 
 // offersForProduct turns the approved vendor variants and promo offers selling the product into
 // storefront rows. Every price passes through promo.EffectivePrice when discounts apply.
@@ -40,6 +67,7 @@ func (h *UIHandler) offersForProduct(ctx context.Context, product *catalog.Produ
 	if isPharmacy {
 		customerBranchID = h.pharmacyBranchID(ctx, &actor)
 	}
+	custLat, custLng, hasCustCoords := h.pharmacyBranchCoords(ctx, &actor)
 
 	// 1. Process all direct vendor supply variants
 	for _, v := range variants {
@@ -91,14 +119,28 @@ func (h *UIHandler) offersForProduct(ctx context.Context, product *catalog.Produ
 		}
 
 		branchNameStr := ""
+		cityNameStr := ""
+		var distKM float64 = 0
+		var distText string = ""
+
+		var venBranch *org.Branch
 		if v.BranchID != nil && *v.BranchID > 0 {
-			if b := env.branch(*v.BranchID); b != nil {
-				if b.Name["ar"] != "" {
-					branchNameStr = b.Name["ar"]
+			venBranch = env.branch(*v.BranchID)
+			if venBranch != nil {
+				if venBranch.Name["ar"] != "" {
+					branchNameStr = venBranch.Name["ar"]
 				} else {
-					branchNameStr = b.Name["en"]
+					branchNameStr = venBranch.Name["en"]
+				}
+				if venBranch.Address != "" {
+					cityNameStr = venBranch.Address
 				}
 			}
+		}
+
+		if hasCustCoords && venBranch != nil && venBranch.Latitude != nil && venBranch.Longitude != nil && (*venBranch.Latitude != 0 || *venBranch.Longitude != 0) {
+			distKM = calculateHaversineKM(custLat, custLng, *venBranch.Latitude, *venBranch.Longitude)
+			distText = formatDistanceKMText(distKM)
 		}
 
 		isCovered := false
@@ -173,6 +215,9 @@ func (h *UIHandler) offersForProduct(ctx context.Context, product *catalog.Produ
 			DeliveryEstimate: "توصيل خلال 24 ساعة",
 			ColdChain:        true,
 			BranchName:       branchNameStr,
+			CityName:         cityNameStr,
+			DistanceKM:       distKM,
+			DistanceText:     distText,
 			IsCovered:        isCovered,
 			CanAddToCart:     canAddToCart,
 			CoverageReason:   covReason,
@@ -229,13 +274,22 @@ func (h *UIHandler) offersForProduct(ctx context.Context, product *catalog.Produ
 		}
 	}
 
-	// Sort offers: actionable & covered first, then lowest price
+	// Sort offers:
+	// 1. Actionable & covered first (CanAddToCart)
+	// 2. Proximity to client (DistanceKM ascending)
+	// 3. Lowest price / highest discount
 	sort.SliceStable(offers, func(i, j int) bool {
 		if offers[i].CanAddToCart != offers[j].CanAddToCart {
 			return offers[i].CanAddToCart
 		}
 		if offers[i].IsCovered != offers[j].IsCovered {
 			return offers[i].IsCovered
+		}
+		if (offers[i].AvailableStock > 0) != (offers[j].AvailableStock > 0) {
+			return offers[i].AvailableStock > 0
+		}
+		if offers[i].DistanceKM > 0 && offers[j].DistanceKM > 0 && math.Abs(offers[i].DistanceKM-offers[j].DistanceKM) > 1.0 {
+			return offers[i].DistanceKM < offers[j].DistanceKM
 		}
 		return offers[i].Price.Minor() < offers[j].Price.Minor()
 	})
