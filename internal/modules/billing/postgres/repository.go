@@ -3,6 +3,7 @@ package postgres
 import (
 	"context"
 	"fmt"
+	"time"
 
 	"github.com/jackc/pgx/v5"
 
@@ -342,15 +343,20 @@ func (r *Repository) GetPlanBySlug(ctx context.Context, slug string) (*billing.P
 // CreateSubscription activates a subscription for a user/org.
 func (r *Repository) CreateSubscription(ctx context.Context, sub *billing.Subscription) error {
 	return r.db.InTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
+		if sub.BillingCycle == "" {
+			sub.BillingCycle = "monthly"
+		}
 		query := `
 			INSERT INTO billing.subscriptions (
-				user_id, organization_id, plan_id, status, starts_at, expires_at, source_system, source_id
-			) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+				user_id, organization_id, plan_id, status, billing_cycle, auto_renew,
+				starts_at, expires_at, last_renewed_at, renewal_attempts, source_system, source_id
+			) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
 			RETURNING id, public_id, created_at, updated_at;
 		`
 		return tx.QueryRow(txCtx, query,
 			sub.UserID, sub.OrganizationID, sub.PlanID, string(sub.Status),
-			sub.StartsAt, sub.ExpiresAt, sub.SourceSystem, sub.SourceID,
+			sub.BillingCycle, sub.AutoRenew, sub.StartsAt, sub.ExpiresAt,
+			sub.LastRenewedAt, sub.RenewalAttempts, sub.SourceSystem, sub.SourceID,
 		).Scan(&sub.ID, &sub.PublicID, &sub.CreatedAt, &sub.UpdatedAt)
 	})
 }
@@ -361,7 +367,9 @@ func (r *Repository) GetActiveSubscription(ctx context.Context, userID int64) (*
 	err := r.db.InReadTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
 		query := `
 			SELECT id, public_id, user_id, organization_id, plan_id, status,
-			       starts_at, expires_at, source_system, source_id, created_at, updated_at
+			       COALESCE(billing_cycle, 'monthly'), COALESCE(auto_renew, false),
+			       starts_at, expires_at, last_renewed_at, COALESCE(renewal_attempts, 0),
+			       source_system, source_id, created_at, updated_at
 			FROM billing.subscriptions
 			WHERE user_id = $1 AND status = 'active' AND expires_at > now()
 			ORDER BY expires_at DESC
@@ -370,8 +378,9 @@ func (r *Repository) GetActiveSubscription(ctx context.Context, userID int64) (*
 		var statusStr string
 		err := tx.QueryRow(txCtx, query, userID).Scan(
 			&sub.ID, &sub.PublicID, &sub.UserID, &sub.OrganizationID, &sub.PlanID,
-			&statusStr, &sub.StartsAt, &sub.ExpiresAt, &sub.SourceSystem, &sub.SourceID,
-			&sub.CreatedAt, &sub.UpdatedAt,
+			&statusStr, &sub.BillingCycle, &sub.AutoRenew,
+			&sub.StartsAt, &sub.ExpiresAt, &sub.LastRenewedAt, &sub.RenewalAttempts,
+			&sub.SourceSystem, &sub.SourceID, &sub.CreatedAt, &sub.UpdatedAt,
 		)
 		if err != nil {
 			if database.IsNotFound(err) {
@@ -394,7 +403,9 @@ func (r *Repository) GetActiveSubscriptionByOrg(ctx context.Context, orgID int64
 	err := r.db.InReadTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
 		query := `
 			SELECT id, public_id, user_id, organization_id, plan_id, status,
-			       starts_at, expires_at, source_system, source_id, created_at, updated_at
+			       COALESCE(billing_cycle, 'monthly'), COALESCE(auto_renew, false),
+			       starts_at, expires_at, last_renewed_at, COALESCE(renewal_attempts, 0),
+			       source_system, source_id, created_at, updated_at
 			FROM billing.subscriptions
 			WHERE organization_id = $1 AND status = 'active' AND expires_at > now()
 			ORDER BY expires_at DESC
@@ -403,8 +414,9 @@ func (r *Repository) GetActiveSubscriptionByOrg(ctx context.Context, orgID int64
 		var statusStr string
 		err := tx.QueryRow(txCtx, query, orgID).Scan(
 			&sub.ID, &sub.PublicID, &sub.UserID, &sub.OrganizationID, &sub.PlanID,
-			&statusStr, &sub.StartsAt, &sub.ExpiresAt, &sub.SourceSystem, &sub.SourceID,
-			&sub.CreatedAt, &sub.UpdatedAt,
+			&statusStr, &sub.BillingCycle, &sub.AutoRenew,
+			&sub.StartsAt, &sub.ExpiresAt, &sub.LastRenewedAt, &sub.RenewalAttempts,
+			&sub.SourceSystem, &sub.SourceID, &sub.CreatedAt, &sub.UpdatedAt,
 		)
 		if err != nil {
 			if database.IsNotFound(err) {
@@ -419,6 +431,129 @@ func (r *Repository) GetActiveSubscriptionByOrg(ctx context.Context, orgID int64
 		return nil, err
 	}
 	return &sub, nil
+}
+
+// ListDueSubscriptionsForRenewal returns subscriptions where auto_renew is enabled and expires_at is due.
+func (r *Repository) ListDueSubscriptionsForRenewal(ctx context.Context, now time.Time) ([]*billing.Subscription, error) {
+	var list []*billing.Subscription
+	err := r.db.InReadTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
+		query := `
+			SELECT id, public_id, user_id, organization_id, plan_id, status,
+			       COALESCE(billing_cycle, 'monthly'), COALESCE(auto_renew, false),
+			       starts_at, expires_at, last_renewed_at, COALESCE(renewal_attempts, 0),
+			       source_system, source_id, created_at, updated_at
+			FROM billing.subscriptions
+			WHERE auto_renew = true AND status = 'active' AND expires_at <= $1
+			ORDER BY expires_at ASC
+			LIMIT 100;
+		`
+		rows, err := tx.Query(txCtx, query, now)
+		if err != nil {
+			return err
+		}
+		defer rows.Close()
+
+		for rows.Next() {
+			var sub billing.Subscription
+			var statusStr string
+			if err := rows.Scan(
+				&sub.ID, &sub.PublicID, &sub.UserID, &sub.OrganizationID, &sub.PlanID,
+				&statusStr, &sub.BillingCycle, &sub.AutoRenew,
+				&sub.StartsAt, &sub.ExpiresAt, &sub.LastRenewedAt, &sub.RenewalAttempts,
+				&sub.SourceSystem, &sub.SourceID, &sub.CreatedAt, &sub.UpdatedAt,
+			); err != nil {
+				return err
+			}
+			sub.Status = billing.SubscriptionStatus(statusStr)
+			list = append(list, &sub)
+		}
+		return rows.Err()
+	})
+	return list, err
+}
+
+// UpdateSubscriptionStatus updates the status and retry counter of a subscription.
+func (r *Repository) UpdateSubscriptionStatus(ctx context.Context, id int64, status billing.SubscriptionStatus, renewalAttempts int) error {
+	return r.db.InTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
+		_, err := tx.Exec(txCtx, `
+			UPDATE billing.subscriptions
+			SET status = $1, renewal_attempts = $2, updated_at = now()
+			WHERE id = $3;
+		`, string(status), renewalAttempts, id)
+		return err
+	})
+}
+
+// RenewSubscription performs atomic wallet deduction and advances the subscription expiration date.
+func (r *Repository) RenewSubscription(ctx context.Context, subID int64, walletID int64, cost money.Amount, newExpiresAt time.Time, details string) error {
+	return r.db.InTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
+		// 1. Lock subscription row
+		var currentStatus string
+		var planID int64
+		var orgID *int64
+		var userID int64
+		err := tx.QueryRow(txCtx, `
+			SELECT status, plan_id, organization_id, user_id
+			FROM billing.subscriptions
+			WHERE id = $1
+			FOR UPDATE;
+		`, subID).Scan(&currentStatus, &planID, &orgID, &userID)
+		if err != nil {
+			return err
+		}
+
+		// 2. If cost > 0, deduct from wallet with ledger record
+		if !cost.IsZero() && !cost.IsNegative() {
+			var balance money.Amount
+			err = tx.QueryRow(txCtx, `
+				SELECT COALESCE(SUM(amount), 0)
+				FROM billing.wallet_transactions
+				WHERE wallet_id = $1;
+			`, walletID).Scan(&balance)
+			if err != nil {
+				return err
+			}
+
+			if balance.Minor() < cost.Minor() {
+				return apperr.Conflict("wallet.insufficient_funds", "رصيد المحفظة غير كافٍ للتجديد التلقائي.")
+			}
+
+			newBalance, _ := balance.Sub(cost)
+			negCost := money.FromMinor(-cost.Minor())
+
+			_, err = tx.Exec(txCtx, `
+				INSERT INTO billing.wallet_transactions (
+					wallet_id, type, amount, balance_after, reference_type, reference_id, description
+				) VALUES ($1, $2, $3, $4, $5, $6, $7);
+			`, walletID, string(billing.TxPurchase), negCost, newBalance, "subscription_renewal", subID, "تجديد تلقائي للاشتراك: "+details)
+			if err != nil {
+				return err
+			}
+		}
+
+		// 3. Update subscription expiration and renewal metadata
+		_, err = tx.Exec(txCtx, `
+			UPDATE billing.subscriptions
+			SET expires_at = $1, last_renewed_at = now(), renewal_attempts = 0, status = 'active', updated_at = now()
+			WHERE id = $2;
+		`, newExpiresAt, subID)
+		if err != nil {
+			return err
+		}
+
+		// 4. Record history entry
+		var histOrgID int64
+		if orgID != nil {
+			histOrgID = *orgID
+		}
+		_, _ = tx.Exec(txCtx, `
+			INSERT INTO billing.subscription_histories (
+				subscription_id, organization_id, user_id, plan_id, action, amount_minor, currency, details
+			) VALUES ($1, $2, $3, $4, 'renewed', $5, 'EGP', $6);
+		`, subID, histOrgID, userID, planID, cost.Minor(), details)
+
+		return nil
+	})
 }
 
 // CheckEntitlement resolves whether a user has access to a specific feature via plan.

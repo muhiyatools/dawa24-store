@@ -192,7 +192,10 @@ func (r *Repository) ClearMatchDecisions(ctx context.Context) error {
 // ClearMatchDecisionsForOrg purges all cached matching decisions for a single organization.
 func (r *Repository) ClearMatchDecisionsForOrg(ctx context.Context, orgID int64) error {
 	return r.db.InTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
-		_, err := tx.Exec(txCtx, `DELETE FROM catalog.match_decisions WHERE organization_id = $1;`, orgID)
+		if _, err := tx.Exec(txCtx, `DELETE FROM catalog.match_decisions WHERE organization_id = $1;`, orgID); err != nil {
+			return err
+		}
+		_, err := tx.Exec(txCtx, `DELETE FROM catalog.customer_product_mappings WHERE organization_id = $1 OR customer_org_id = $1;`, orgID)
 		return err
 	})
 }

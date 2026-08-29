@@ -13,6 +13,8 @@ import (
 	"github.com/jackc/pgx/v5"
 	"github.com/riverqueue/river"
 
+	"github.com/muhiya/dawa24-store/internal/modules/billing"
+	billingPostgres "github.com/muhiya/dawa24-store/internal/modules/billing/postgres"
 	catalogJobs "github.com/muhiya/dawa24-store/internal/modules/catalog/jobs"
 	"github.com/muhiya/dawa24-store/internal/platform/config"
 	"github.com/muhiya/dawa24-store/internal/platform/database"
@@ -67,9 +69,37 @@ func run() error {
 		return err
 	}
 
-	if err := queueClient.Start(ctx); err != nil {
-		return err
-	}
+	// Daily Subscription Renewal Scheduler (Runs once every 24 hours)
+	go func() {
+		billSvc := billing.NewService(billingPostgres.NewRepository(db), log)
+		select {
+		case <-ctx.Done():
+			return
+		case <-time.After(10 * time.Second):
+			if r, f, err := billSvc.ProcessDueSubscriptionRenewals(ctx); err != nil {
+				log.Error("initial subscription renewal pass failed", "error", err)
+			} else if r > 0 || f > 0 {
+				log.Info("initial subscription renewal pass completed", "renewed", r, "failed", f)
+			}
+		}
+
+		ticker := time.NewTicker(24 * time.Hour)
+		defer ticker.Stop()
+
+		for {
+			select {
+			case <-ctx.Done():
+				return
+			case <-ticker.C:
+				if r, f, err := billSvc.ProcessDueSubscriptionRenewals(ctx); err != nil {
+					log.Error("daily subscription renewal pass failed", "error", err)
+				} else {
+					log.Info("daily subscription renewal pass completed", "renewed", r, "failed", f)
+				}
+			}
+		}
+	}()
+
 	log.Info("worker started", "queues", cfg.Worker.Queues)
 
 	<-ctx.Done()

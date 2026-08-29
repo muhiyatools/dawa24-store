@@ -49,10 +49,11 @@ templ PublicShell(title string, lang string, dir string) {
 						}
 
 						<!-- Notifications Popover -->
-						<div class="dropdown">
+						<div class="dropdown" x-data="{ open: false }" @click.outside="open = false" @keydown.escape.window="open = false">
 							<button
 								type="button"
 								title="الإشعارات"
+								@click="open = !open"
 								hx-get="/notifications/dropdown"
 								hx-target="#notif-dropdown-content"
 								hx-trigger="click"
@@ -66,6 +67,9 @@ templ PublicShell(title string, lang string, dir string) {
 							<div
 								class="dropdown-menu notification-menu"
 								id="notif-dropdown-content"
+								x-show="open"
+								x-cloak
+								x-transition.origin.top.duration.150ms
 							>
 								<div class="notification-panel">
 									<div class="notification-header">
@@ -88,10 +92,10 @@ templ PublicShell(title string, lang string, dir string) {
 						</div>
 
 						<!-- User Avatar Dropdown -->
-						<div class="dropdown">
+						<div class="dropdown" x-data="{ open: false }" @click.outside="open = false" @keydown.escape.window="open = false">
 							<button
 								type="button"
-								class="btn btn-secondary"
+								@click="open = !open"
 								class="btn btn-secondary account-trigger"
 							>
 								<div class="account-avatar">
@@ -104,8 +108,10 @@ templ PublicShell(title string, lang string, dir string) {
 							</button>
 
 							<div
-								class="dropdown-menu"
 								class="dropdown-menu account-menu"
+								x-show="open"
+								x-cloak
+								x-transition.origin.top.duration.150ms
 							>
 								<!-- User Header Card -->
 								<div class="account-header">
@@ -160,7 +166,7 @@ templ PublicShell(title string, lang string, dir string) {
 								}
 
 								<!-- 3. Profile & Settings -->
-								<a href="/settings/profile" class="dropdown-item">
+								<a href="/settings" class="dropdown-item">
 									@components.IconSettings("icon-xs")
 									<span>الملف الشخصي والإعدادات</span>
 								</a>

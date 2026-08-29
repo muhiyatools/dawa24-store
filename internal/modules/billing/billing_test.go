@@ -176,6 +176,39 @@ func (m *mockBillingRepo) GetActiveSubscriptionByOrg(_ context.Context, orgID in
 	return nil, apperr.NotFound("subscription")
 }
 
+func (m *mockBillingRepo) ListDueSubscriptionsForRenewal(_ context.Context, _ time.Time) ([]*Subscription, error) {
+	var list []*Subscription
+	for _, sub := range m.subscriptions {
+		if sub.AutoRenew && sub.Status == SubActive {
+			list = append(list, sub)
+		}
+	}
+	return list, nil
+}
+
+func (m *mockBillingRepo) UpdateSubscriptionStatus(_ context.Context, id int64, status SubscriptionStatus, renewalAttempts int) error {
+	for _, sub := range m.subscriptions {
+		if sub.ID == id {
+			sub.Status = status
+			sub.RenewalAttempts = renewalAttempts
+			return nil
+		}
+	}
+	return nil
+}
+
+func (m *mockBillingRepo) RenewSubscription(_ context.Context, subID int64, walletID int64, cost money.Amount, newExpiresAt time.Time, _ string) error {
+	for _, sub := range m.subscriptions {
+		if sub.ID == subID {
+			sub.ExpiresAt = newExpiresAt
+			sub.Status = SubActive
+			sub.RenewalAttempts = 0
+			return nil
+		}
+	}
+	return nil
+}
+
 func (m *mockBillingRepo) CheckEntitlement(_ context.Context, userID int64, featureKey string) (bool, string, error) {
 	sub, ok := m.subscriptions[userID]
 	if !ok || sub.Status != SubActive {

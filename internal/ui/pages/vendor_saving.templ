@@ -94,6 +94,24 @@ templ VendorSavingProductsPage(data VendorSavingPageData, lang, dir string) {
 							@components.IconDownload("icon-xs")
 							<span>تصدير Excel 📊</span>
 						</a>
+
+						if data.Stats != nil && data.Stats.CountAll > 0 {
+							<form
+								method="POST"
+								action="/vendor/saving-products/delete-all"
+								onsubmit="return confirm('⚠️ هل أنت متأكد من رغبتك في حذف جميع منتجات التوفير الخاصة بمنشأتك نهائياً؟ لا يمكن التراجع عن هذه العملية.');"
+								style="margin:0; display:inline;"
+							>
+								<button
+									type="submit"
+									class="btn btn-secondary font-bold text-xs px-3 py-2 text-danger"
+									title="حذف كافة منتجات التوفير المسجلة للمنشأة فقط"
+								>
+									@components.IconTrash("icon-xs")
+									<span>حذف كافة منتجات التوفير</span>
+								</button>
+							</form>
+						}
 					</div>
 				</div>
 			</div>

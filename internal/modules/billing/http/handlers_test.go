@@ -9,6 +9,7 @@ import (
 	"net/http/httptest"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/go-chi/chi/v5"
 
@@ -91,6 +92,18 @@ func (r stubRepo) GetActiveSubscription(ctx context.Context, userID int64) (*bil
 func (r stubRepo) GetActiveSubscriptionByOrg(ctx context.Context, orgID int64) (*billing.Subscription, error) {
 	r.fail("GetActiveSubscriptionByOrg")
 	return nil, nil
+}
+func (r stubRepo) ListDueSubscriptionsForRenewal(ctx context.Context, now time.Time) ([]*billing.Subscription, error) {
+	r.fail("ListDueSubscriptionsForRenewal")
+	return nil, nil
+}
+func (r stubRepo) UpdateSubscriptionStatus(ctx context.Context, id int64, status billing.SubscriptionStatus, renewalAttempts int) error {
+	r.fail("UpdateSubscriptionStatus")
+	return nil
+}
+func (r stubRepo) RenewSubscription(ctx context.Context, subID int64, walletID int64, cost money.Amount, newExpiresAt time.Time, details string) error {
+	r.fail("RenewSubscription")
+	return nil
 }
 func (r stubRepo) CheckEntitlement(ctx context.Context, userID int64, featureKey string) (bool, string, error) {
 	r.fail("CheckEntitlement")
@@ -290,6 +303,15 @@ func (happyRepo) GetActiveSubscription(ctx context.Context, userID int64) (*bill
 }
 func (happyRepo) GetActiveSubscriptionByOrg(ctx context.Context, orgID int64) (*billing.Subscription, error) {
 	return &billing.Subscription{ID: 1, OrganizationID: &orgID, Status: billing.SubActive}, nil
+}
+func (happyRepo) ListDueSubscriptionsForRenewal(ctx context.Context, now time.Time) ([]*billing.Subscription, error) {
+	return []*billing.Subscription{{ID: 1, UserID: 1, Status: billing.SubActive, AutoRenew: true}}, nil
+}
+func (happyRepo) UpdateSubscriptionStatus(ctx context.Context, id int64, status billing.SubscriptionStatus, renewalAttempts int) error {
+	return nil
+}
+func (happyRepo) RenewSubscription(ctx context.Context, subID int64, walletID int64, cost money.Amount, newExpiresAt time.Time, details string) error {
+	return nil
 }
 func (happyRepo) CheckEntitlement(ctx context.Context, userID int64, featureKey string) (bool, string, error) {
 	return true, "unlimited", nil

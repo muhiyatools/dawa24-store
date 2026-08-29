@@ -93,22 +93,13 @@ templ decisionMemoryContent(lang, dir string, data CustomerDecisionMemoryData) {
 					</p>
 				</div>
 				<div class="d-flex items-center gap-2 flex-wrap">
-					<!-- Add Manual Decision Button -->
-					<button
-						type="button"
-						class="btn btn-primary btn-sm font-bold gap-1"
-						onclick="openAddDecisionModal()"
-						title="إضافة قرار مطابقة يدوي جديد">
-						<span>➕ إضافة قرار يدوي للذاكرة</span>
-					</button>
-
 					if data.Total > 0 {
 						<button
 							type="button"
 							class="btn btn-secondary btn-sm font-bold text-danger gap-1"
 							onclick="confirmClearMyDecisions()"
-							title="مسح كافة القرارات المحفوظة">
-							<span>🗑️ مسح الذاكرة</span>
+							title="مسح كافة قرارات المطابقة المحفوظة في ذاكرتك فقط">
+							<span>🗑️ مسح كافة قراراتي الذكية</span>
 						</button>
 					}
 				</div>
@@ -339,190 +330,16 @@ templ decisionMemoryContent(lang, dir string, data CustomerDecisionMemoryData) {
 		</div>
 	</div>
 
-	<!-- Add Decision Modal -->
-	<div id="add-decision-modal" class="modal-overlay hidden" style="display:none; position:fixed; inset:0; background:rgba(15,23,42,0.65); backdrop-filter:blur(4px); z-index:9999; align-items:center; justify-content:center; padding:1rem;" onclick="if(event.target===this) closeAddDecisionModal();">
-		<div class="glass-panel p-0 max-w-lg w-full overflow-hidden d-flex flex-col">
-			<!-- Modal Header -->
-			<div class="flex-between items-center p-4 px-6 border-b bg-surface-sunken">
-				<div class="d-flex items-center gap-2">
-					<span class="text-xl">🧠</span>
-					<h3 class="text-base font-extrabold text-primary m-0">
-						إضافة قرار مطابقة يدوي إلى الذاكرة
-					</h3>
-				</div>
-				<button type="button" onclick="closeAddDecisionModal()" class="btn btn-secondary btn-icon btn-sm">
-					✕
-				</button>
-			</div>
-
-			<!-- Modal Body -->
-			<form method="POST" action={ templ.SafeURL(fmt.Sprintf("%s/add", basePath)) } class="p-6 d-flex flex-col gap-4 m-0">
-				<!-- Input 1: Raw Name -->
-				<div>
-					<label class="form-label text-xs font-bold mb-1 d-block text-primary">
-						اسم الصنف الوارد (كما يظهر في ملف الطلبية أو الفاتورة) <span class="text-danger">*</span>
-					</label>
-					<input
-						type="text"
-						name="raw_name"
-						id="add-decision-raw-name"
-						required
-						placeholder="مثال: Panadol Extra 500mg Tab أو بنادول اكسترا..."
-						class="form-input text-xs w-full"
-					/>
-					<span class="text-xs text-muted mt-1 d-block">
-						النص الذي تريد من النظام التعرف عليه تلقائياً وربطه بالدواء المعتمد.
-					</span>
-				</div>
-
-				<!-- Input 2: Master Product Search & Link -->
-				<div class="position-relative">
-					<label class="form-label text-xs font-bold mb-1 d-block text-primary">
-						الدواء المعتمد بالكتالوج المركزي <span class="text-danger">*</span>
-					</label>
-					<input
-						type="hidden"
-						name="product_id"
-						id="add-decision-product-id"
-						required
-					/>
-					<input
-						type="text"
-						id="add-decision-product-search"
-						autocomplete="off"
-						oninput="searchCatalogForDecision(this.value)"
-						placeholder="ابحث باسم الدواء بالكتالوج، المادة الفعالة، أو الكود..."
-						class="form-input text-xs w-full"
-					/>
-
-					<!-- Selected Product Preview -->
-					<div id="add-decision-selected-preview" style="display:none;" class="mt-2 p-3 rounded-lg bg-surface-sunken border border-brand-subtle">
-						<div class="flex-between items-center">
-							<div>
-								<div id="selected-product-name" class="font-extrabold text-brand text-xs"></div>
-								<div id="selected-product-sub" class="text-xs text-muted mt-1"></div>
-							</div>
-							<button type="button" onclick="clearSelectedDecisionProduct()" class="btn btn-secondary btn-sm text-xs">
-								تغيير
-							</button>
-						</div>
-					</div>
-
-					<!-- Search Dropdown Results -->
-					<div
-						id="add-decision-dropdown"
-						style="display:none; position:absolute; top:100%; inset-inline-start:0; inset-inline-end:0; max-height:220px; overflow-y:auto; z-index:10000; margin-top:4px;"
-						class="glass-panel p-2 shadow-lg">
-					</div>
-				</div>
-
-				<!-- Input 3: Optional Reason / Notes -->
-				<div>
-					<label class="form-label text-xs font-bold mb-1 d-block text-primary">
-						سبب القرار / ملاحظات توضيحية (اختياري)
-					</label>
-					<input
-						type="text"
-						name="reason"
-						placeholder="مثال: مطابقة مؤكدة من الصيدلي المسؤول"
-						class="form-input text-xs w-full"
-					/>
-				</div>
-
-				<!-- Modal Footer Actions -->
-				<div class="flex-between items-center border-t pt-4 mt-2">
-					<button type="button" onclick="closeAddDecisionModal()" class="btn btn-secondary btn-sm text-xs">
-						إلغاء
-					</button>
-					<button type="submit" class="btn btn-primary btn-sm font-bold text-xs px-6">
-						💾 حفظ القرار في الذاكرة
-					</button>
-				</div>
-			</form>
-		</div>
-	</div>
-
-	<!-- Clear All & Autocomplete Scripts -->
+	<!-- Clear All Script -->
 	<script>
 		function confirmClearMyDecisions() {
-			if (confirm("⚠️ هل أنت متأكد من مسح جميع قرارات المطابقة المحفوظة في ذاكرتك الخاصة؟ سيقوم النظام بإعادة تقييم ومطابقة الأصناف من البداية في العمليات القادمة.")) {
+			if (confirm("⚠️ هل أنت متأكد من مسح جميع قرارات المطابقة المحفوظة في ذاكرتك الخاصة فقط؟\n\nلن يؤثر ذلك على أي صيدلية أو مورد آخر.")) {
 				var form = document.createElement('form');
 				form.method = 'POST';
 				form.action = basePath + '/clear';
 				document.body.appendChild(form);
 				form.submit();
 			}
-		}
-
-		function openAddDecisionModal() {
-			document.getElementById('add-decision-modal').style.display = 'flex';
-			document.getElementById('add-decision-raw-name').focus();
-		}
-
-		function closeAddDecisionModal() {
-			document.getElementById('add-decision-modal').style.display = 'none';
-			document.getElementById('add-decision-raw-name').value = '';
-			clearSelectedDecisionProduct();
-		}
-
-		let searchDebounce = null;
-		function searchCatalogForDecision(query) {
-			clearTimeout(searchDebounce);
-			const dropdown = document.getElementById('add-decision-dropdown');
-			if (!query || query.trim().length < 2) {
-				dropdown.style.display = 'none';
-				return;
-			}
-			searchDebounce = setTimeout(() => {
-				fetch('/vendor/catalog/search-json?q=' + encodeURIComponent(query.trim()))
-					.then(r => r.json())
-					.then(items => {
-						if (!items || items.length === 0) {
-							dropdown.innerHTML = '<div style="padding:0.75rem 1rem; color:var(--text-muted); font-size:0.8rem; text-align:center;">لم يتم العثور على أدوية مطابقة</div>';
-							dropdown.style.display = 'block';
-							return;
-						}
-						let html = '';
-						items.forEach(it => {
-							const name = it.name_ar || it.name_en || '';
-							const sci = it.scientific_name || '';
-							const sku = it.sku ? ('كود: ' + it.sku) : '';
-							const safeName = name.replace(/'/g, "\\'");
-							const safeSci = sci.replace(/'/g, "\\'");
-							html += '<div style="padding:0.75rem 1rem; border-bottom:1px solid var(--border); cursor:pointer; display:flex; justify-content:space-between; align-items:center; transition:background 0.15s;" ' +
-								'onmouseover="this.style.background=\'var(--surface-sunken)\'" onmouseout="this.style.background=\'\'" ' +
-								'onclick="selectDecisionProduct(' + it.id + ', \'' + safeName + '\', \'' + safeSci + '\', \'' + sku + '\')">' +
-								'<div>' +
-									'<div style="font-weight:700; color:var(--text); font-size:0.875rem;">' + name + '</div>' +
-									'<div style="font-size:0.75rem; color:var(--text-muted); margin-top:2px;">' + (sci || sku) + '</div>' +
-								'</div>' +
-								'<span class="badge badge-emerald text-xs fw-700">اختيار</span>' +
-							'</div>';
-						});
-						dropdown.innerHTML = html;
-						dropdown.style.display = 'block';
-					})
-					.catch(() => {
-						dropdown.style.display = 'none';
-					});
-			}, 200);
-		}
-
-		function selectDecisionProduct(id, name, scientific, sku) {
-			document.getElementById('add-decision-product-id').value = id;
-			document.getElementById('selected-product-name').textContent = name;
-			document.getElementById('selected-product-sub').textContent = [scientific, sku].filter(Boolean).join(' • ');
-			document.getElementById('add-decision-dropdown').style.display = 'none';
-			document.getElementById('add-decision-product-search').style.display = 'none';
-			document.getElementById('add-decision-selected-preview').style.display = 'block';
-		}
-
-		function clearSelectedDecisionProduct() {
-			document.getElementById('add-decision-product-id').value = '';
-			document.getElementById('add-decision-product-search').value = '';
-			document.getElementById('add-decision-product-search').style.display = 'block';
-			document.getElementById('add-decision-selected-preview').style.display = 'none';
-			document.getElementById('add-decision-dropdown').style.display = 'none';
 		}
 	</script>
 }

@@ -372,6 +372,7 @@ func (h *UIHandler) RegisterCustomerRoutes(r chi.Router) {
 
 	// Pharmacy Jobs & Recruitment Management
 	r.Get("/customer/jobs", h.CustomerJobsPage)
+	r.Get("/customer/jobs/{id}", h.JobDetailPage)
 	r.Post("/customer/jobs", h.CustomerJobCreateSubmit)
 	r.Post("/customer/jobs/{id}/edit", h.CustomerJobUpdateSubmit)
 	r.Post("/customer/jobs/{id}/update", h.CustomerJobUpdateSubmit)
@@ -416,13 +417,13 @@ func (h *UIHandler) RegisterCustomerRoutes(r chi.Router) {
 
 	// Subscription & Membership
 	r.Get("/customer/subscription", h.TenantSubscriptionPage)
+	r.Post("/customer/subscription/checkout", h.TenantSubscriptionCheckoutSubmit)
 	r.Get("/pharmacy/subscription", func(w http.ResponseWriter, r *http.Request) {
 		http.Redirect(w, r, "/customer/subscription", http.StatusMovedPermanently)
 	})
 
-	// Decision Memory (ذاكرة قرارات المطابقة)
+	// Decision Memory (ذاكرة قرارات المطابقة - التوليد آلي فقط)
 	r.Get("/customer/decision-memory", h.CustomerDecisionMemoryPage)
-	r.Post("/customer/decision-memory/add", h.CustomerDecisionMemoryAddSubmit)
 	r.Post("/customer/decision-memory/{id}/delete", h.CustomerDecisionMemoryDeleteSubmit)
 	r.Post("/customer/decision-memory/clear", h.CustomerDecisionMemoryClearSubmit)
 }
@@ -432,6 +433,7 @@ func (h *UIHandler) RegisterCustomerRoutes(r chi.Router) {
 func (h *UIHandler) RegisterVendorRoutes(r chi.Router) {
 	r.Get("/vendor/dashboard", h.VendorDashboardPage)
 	r.Get("/vendor/subscription", h.TenantSubscriptionPage)
+	r.Post("/vendor/subscription/checkout", h.TenantSubscriptionCheckoutSubmit)
 	r.Get("/vendor/organization", h.VendorOrganizationPage)
 	r.Post("/vendor/organization", h.VendorOrganizationSubmit)
 	r.Get("/vendor/settings/organization", h.VendorOrganizationPage)
@@ -484,6 +486,7 @@ func (h *UIHandler) RegisterVendorRoutes(r chi.Router) {
 	r.Post("/vendor/saving-products", h.VendorSavingProductCreateSubmit)
 	r.Post("/vendor/saving-products/{id}/update", h.VendorSavingProductUpdateSubmit)
 	r.Post("/vendor/saving-products/{id}/delete", h.VendorSavingProductDeleteSubmit)
+	r.Post("/vendor/saving-products/delete-all", h.VendorSavingProductsDeleteAllSubmit)
 
 	// Vendor Saving Products Import Wizard & Sessions
 	r.Get("/vendor/saving-products/import", h.VendorSavingProductsImportPage)
@@ -588,6 +591,7 @@ func (h *UIHandler) RegisterVendorRoutes(r chi.Router) {
 	r.Get("/vendor/activities", h.VendorActivitiesPage)
 	r.Get("/vendor/institutional-work", h.VendorInstitutionalWorkPage)
 	r.Get("/vendor/jobs", h.VendorJobsPage)
+	r.Get("/vendor/jobs/{id}", h.JobDetailPage)
 	r.Post("/vendor/jobs", h.VendorJobCreateSubmit)
 	r.Post("/vendor/jobs/{id}/edit", h.VendorJobUpdateSubmit)
 	r.Post("/vendor/jobs/{id}/update", h.VendorJobUpdateSubmit)
@@ -598,7 +602,6 @@ func (h *UIHandler) RegisterVendorRoutes(r chi.Router) {
 	r.Post("/vendor/jobs/{id}/applications/{appId}/reject", h.VendorJobApplicationRejectSubmit)
 	r.Get("/vendor/ai-logs", h.AIConsumptionLogsPage)
 	r.Get("/vendor/decision-memory", h.VendorDecisionMemoryPage)
-	r.Post("/vendor/decision-memory/add", h.VendorDecisionMemoryAddSubmit)
 	r.Post("/vendor/decision-memory/{id}/delete", h.VendorDecisionMemoryDeleteSubmit)
 	r.Post("/vendor/decision-memory/clear", h.VendorDecisionMemoryClearSubmit)
 

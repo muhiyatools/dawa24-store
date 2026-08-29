@@ -725,3 +725,55 @@ func (h *UIHandler) FavoriteToggleSubmit(w http.ResponseWriter, r *http.Request)
 	}
 	http.Redirect(w, r, redirect, http.StatusSeeOther)
 }
+
+// TenantSubscriptionCheckoutSubmit handles purchasing/upgrading a plan with wallet deduction.
+func (h *UIHandler) TenantSubscriptionCheckoutSubmit(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	actor, ok := authctx.From(ctx)
+	if !ok || (actor.OrganizationID <= 0 && actor.UserID <= 0) {
+		http.Redirect(w, r, "/auth/login", http.StatusSeeOther)
+		return
+	}
+
+	redirectURL := "/customer/subscription"
+	if actor.IsVendor() {
+		redirectURL = "/vendor/subscription"
+	}
+
+	if err := r.ParseForm(); err != nil {
+		h.redirectWithNotice(w, r, redirectURL, "error", "بيانات غير صالحة.")
+		return
+	}
+
+	planSlug := strings.TrimSpace(r.FormValue("plan_slug"))
+	billingCycle := strings.TrimSpace(r.FormValue("billing_cycle"))
+	autoRenew := r.FormValue("auto_renew") == "1" || r.FormValue("auto_renew") == "true" || r.FormValue("auto_renew") == "on"
+
+	if planSlug == "" {
+		h.redirectWithNotice(w, r, redirectURL, "error", "يرجى اختيار باقة صالحة.")
+		return
+	}
+
+	if billingCycle != "annual" && billingCycle != "monthly" {
+		billingCycle = "monthly"
+	}
+
+	var orgPtr *int64
+	if actor.OrganizationID > 0 {
+		orgPtr = &actor.OrganizationID
+	}
+
+	if h.billSvc == nil {
+		h.redirectWithNotice(w, r, redirectURL, "error", "خدمة الاشتراكات غير متوفرة حالياً.")
+		return
+	}
+
+	_, err := h.billSvc.SubscribeWithWallet(ctx, actor.UserID, orgPtr, planSlug, billingCycle, autoRenew)
+	if err != nil {
+		h.log.ErrorContext(ctx, "subscription checkout failed", "error", err, "user_id", actor.UserID, "plan", planSlug)
+		h.redirectWithNotice(w, r, redirectURL, "error", h.safeMessage(err, langOf(r)))
+		return
+	}
+
+	h.redirectWithNotice(w, r, redirectURL, "success", "تم تفعيل باقة الاشتراك وخصم القيمة من محفظتك بنجاح.")
+}

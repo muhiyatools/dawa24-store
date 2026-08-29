@@ -192,12 +192,12 @@ func decisionMemoryContent(lang, dir string, data CustomerDecisionMemoryData) te
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "</p></div><div class=\"d-flex items-center gap-2 flex-wrap\"><!-- Add Manual Decision Button --><button type=\"button\" class=\"btn btn-primary btn-sm font-bold gap-1\" onclick=\"openAddDecisionModal()\" title=\"إضافة قرار مطابقة يدوي جديد\"><span>➕ إضافة قرار يدوي للذاكرة</span></button> ")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "</p></div><div class=\"d-flex items-center gap-2 flex-wrap\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		if data.Total > 0 {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "<button type=\"button\" class=\"btn btn-secondary btn-sm font-bold text-danger gap-1\" onclick=\"confirmClearMyDecisions()\" title=\"مسح كافة القرارات المحفوظة\"><span>🗑️ مسح الذاكرة</span></button>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "<button type=\"button\" class=\"btn btn-secondary btn-sm font-bold text-danger gap-1\" onclick=\"confirmClearMyDecisions()\" title=\"مسح كافة قرارات المطابقة المحفوظة في ذاكرتك فقط\"><span>🗑️ مسح كافة قراراتي الذكية</span></button>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -219,7 +219,7 @@ func decisionMemoryContent(lang, dir string, data CustomerDecisionMemoryData) te
 		var templ_7745c5c3_Var7 string
 		templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", data.Total))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_decision_memory.templ`, Line: 136, Col: 36}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_decision_memory.templ`, Line: 127, Col: 36}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
 		if templ_7745c5c3_Err != nil {
@@ -237,7 +237,7 @@ func decisionMemoryContent(lang, dir string, data CustomerDecisionMemoryData) te
 		var templ_7745c5c3_Var8 string
 		templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", hitTotal))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_decision_memory.templ`, Line: 148, Col: 34}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_decision_memory.templ`, Line: 139, Col: 34}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var8))
 		if templ_7745c5c3_Err != nil {
@@ -259,7 +259,7 @@ func decisionMemoryContent(lang, dir string, data CustomerDecisionMemoryData) te
 		var templ_7745c5c3_Var10 string
 		templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.JoinStringErrs(data.Search)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_decision_memory.templ`, Line: 166, Col: 25}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_decision_memory.templ`, Line: 157, Col: 25}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var10))
 		if templ_7745c5c3_Err != nil {
@@ -342,7 +342,7 @@ func decisionMemoryContent(lang, dir string, data CustomerDecisionMemoryData) te
 			var templ_7745c5c3_Var12 string
 			templ_7745c5c3_Var12, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", d.ID))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_decision_memory.templ`, Line: 230, Col: 34}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_decision_memory.templ`, Line: 221, Col: 34}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var12))
 			if templ_7745c5c3_Err != nil {
@@ -355,7 +355,7 @@ func decisionMemoryContent(lang, dir string, data CustomerDecisionMemoryData) te
 			var templ_7745c5c3_Var13 string
 			templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.JoinStringErrs(d.NormName)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_decision_memory.templ`, Line: 236, Col: 22}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_decision_memory.templ`, Line: 227, Col: 22}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var13))
 			if templ_7745c5c3_Err != nil {
@@ -374,7 +374,7 @@ func decisionMemoryContent(lang, dir string, data CustomerDecisionMemoryData) te
 					var templ_7745c5c3_Var14 string
 					templ_7745c5c3_Var14, templ_7745c5c3_Err = templ.JoinStringErrs(d.ChosenProductName)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_decision_memory.templ`, Line: 245, Col: 33}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_decision_memory.templ`, Line: 236, Col: 33}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var14))
 					if templ_7745c5c3_Err != nil {
@@ -388,7 +388,7 @@ func decisionMemoryContent(lang, dir string, data CustomerDecisionMemoryData) te
 					var templ_7745c5c3_Var15 string
 					templ_7745c5c3_Var15, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", *d.ChosenProductID))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_decision_memory.templ`, Line: 247, Col: 72}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_decision_memory.templ`, Line: 238, Col: 72}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var15))
 					if templ_7745c5c3_Err != nil {
@@ -402,7 +402,7 @@ func decisionMemoryContent(lang, dir string, data CustomerDecisionMemoryData) te
 				var templ_7745c5c3_Var16 string
 				templ_7745c5c3_Var16, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", *d.ChosenProductID))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_decision_memory.templ`, Line: 252, Col: 52}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_decision_memory.templ`, Line: 243, Col: 52}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var16))
 				if templ_7745c5c3_Err != nil {
@@ -420,7 +420,7 @@ func decisionMemoryContent(lang, dir string, data CustomerDecisionMemoryData) te
 					var templ_7745c5c3_Var17 string
 					templ_7745c5c3_Var17, templ_7745c5c3_Err = templ.JoinStringErrs(d.ChosenProductSKU)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_decision_memory.templ`, Line: 256, Col: 41}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_decision_memory.templ`, Line: 247, Col: 41}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var17))
 					if templ_7745c5c3_Err != nil {
@@ -453,7 +453,7 @@ func decisionMemoryContent(lang, dir string, data CustomerDecisionMemoryData) te
 				var templ_7745c5c3_Var18 string
 				templ_7745c5c3_Var18, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%.0f%%", d.Confidence*100))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_decision_memory.templ`, Line: 271, Col: 52}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_decision_memory.templ`, Line: 262, Col: 52}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var18))
 				if templ_7745c5c3_Err != nil {
@@ -476,7 +476,7 @@ func decisionMemoryContent(lang, dir string, data CustomerDecisionMemoryData) te
 			var templ_7745c5c3_Var19 string
 			templ_7745c5c3_Var19, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", d.HitCount))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_decision_memory.templ`, Line: 281, Col: 41}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_decision_memory.templ`, Line: 272, Col: 41}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var19))
 			if templ_7745c5c3_Err != nil {
@@ -490,7 +490,7 @@ func decisionMemoryContent(lang, dir string, data CustomerDecisionMemoryData) te
 				var templ_7745c5c3_Var20 string
 				templ_7745c5c3_Var20, templ_7745c5c3_Err = templ.JoinStringErrs(d.Reason)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_decision_memory.templ`, Line: 288, Col: 20}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_decision_memory.templ`, Line: 279, Col: 20}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var20))
 				if templ_7745c5c3_Err != nil {
@@ -509,7 +509,7 @@ func decisionMemoryContent(lang, dir string, data CustomerDecisionMemoryData) te
 			var templ_7745c5c3_Var21 string
 			templ_7745c5c3_Var21, templ_7745c5c3_Err = templ.JoinStringErrs(d.LastUsedAt.Format("2006-01-02 15:04"))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_decision_memory.templ`, Line: 296, Col: 50}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_decision_memory.templ`, Line: 287, Col: 50}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var21))
 			if templ_7745c5c3_Err != nil {
@@ -531,7 +531,7 @@ func decisionMemoryContent(lang, dir string, data CustomerDecisionMemoryData) te
 			var templ_7745c5c3_Var23 string
 			templ_7745c5c3_Var23, templ_7745c5c3_Err = templ.JoinStringErrs(data.Search)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_decision_memory.templ`, Line: 302, Col: 59}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_decision_memory.templ`, Line: 293, Col: 59}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var23))
 			if templ_7745c5c3_Err != nil {
@@ -544,7 +544,7 @@ func decisionMemoryContent(lang, dir string, data CustomerDecisionMemoryData) te
 			var templ_7745c5c3_Var24 string
 			templ_7745c5c3_Var24, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprint(data.Page))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_decision_memory.templ`, Line: 303, Col: 72}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_decision_memory.templ`, Line: 294, Col: 72}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var24))
 			if templ_7745c5c3_Err != nil {
@@ -557,7 +557,7 @@ func decisionMemoryContent(lang, dir string, data CustomerDecisionMemoryData) te
 			var templ_7745c5c3_Var25 string
 			templ_7745c5c3_Var25, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprint(data.PerPage))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_decision_memory.templ`, Line: 304, Col: 76}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_decision_memory.templ`, Line: 295, Col: 76}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var25))
 			if templ_7745c5c3_Err != nil {
@@ -580,7 +580,7 @@ func decisionMemoryContent(lang, dir string, data CustomerDecisionMemoryData) te
 			var templ_7745c5c3_Var26 string
 			templ_7745c5c3_Var26, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", data.Total))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_decision_memory.templ`, Line: 320, Col: 95}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_decision_memory.templ`, Line: 311, Col: 95}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var26))
 			if templ_7745c5c3_Err != nil {
@@ -612,7 +612,7 @@ func decisionMemoryContent(lang, dir string, data CustomerDecisionMemoryData) te
 			var templ_7745c5c3_Var28 string
 			templ_7745c5c3_Var28, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", data.Page))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_decision_memory.templ`, Line: 329, Col: 46}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_decision_memory.templ`, Line: 320, Col: 46}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var28))
 			if templ_7745c5c3_Err != nil {
@@ -642,16 +642,7 @@ func decisionMemoryContent(lang, dir string, data CustomerDecisionMemoryData) te
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 61, "</div></div><!-- Add Decision Modal --><div id=\"add-decision-modal\" class=\"modal-overlay hidden\" style=\"display:none; position:fixed; inset:0; background:rgba(15,23,42,0.65); backdrop-filter:blur(4px); z-index:9999; align-items:center; justify-content:center; padding:1rem;\" onclick=\"if(event.target===this) closeAddDecisionModal();\"><div class=\"glass-panel p-0 max-w-lg w-full overflow-hidden d-flex flex-col\"><!-- Modal Header --><div class=\"flex-between items-center p-4 px-6 border-b bg-surface-sunken\"><div class=\"d-flex items-center gap-2\"><span class=\"text-xl\">🧠</span><h3 class=\"text-base font-extrabold text-primary m-0\">إضافة قرار مطابقة يدوي إلى الذاكرة</h3></div><button type=\"button\" onclick=\"closeAddDecisionModal()\" class=\"btn btn-secondary btn-icon btn-sm\">✕</button></div><!-- Modal Body --><form method=\"POST\" action=\"")
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		var templ_7745c5c3_Var30 templ.SafeURL = templ.SafeURL(fmt.Sprintf("%s/add", basePath))
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(string(templ_7745c5c3_Var30)))
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 62, "\" class=\"p-6 d-flex flex-col gap-4 m-0\"><!-- Input 1: Raw Name --><div><label class=\"form-label text-xs font-bold mb-1 d-block text-primary\">اسم الصنف الوارد (كما يظهر في ملف الطلبية أو الفاتورة) <span class=\"text-danger\">*</span></label> <input type=\"text\" name=\"raw_name\" id=\"add-decision-raw-name\" required placeholder=\"مثال: Panadol Extra 500mg Tab أو بنادول اكسترا...\" class=\"form-input text-xs w-full\"> <span class=\"text-xs text-muted mt-1 d-block\">النص الذي تريد من النظام التعرف عليه تلقائياً وربطه بالدواء المعتمد.</span></div><!-- Input 2: Master Product Search & Link --><div class=\"position-relative\"><label class=\"form-label text-xs font-bold mb-1 d-block text-primary\">الدواء المعتمد بالكتالوج المركزي <span class=\"text-danger\">*</span></label> <input type=\"hidden\" name=\"product_id\" id=\"add-decision-product-id\" required> <input type=\"text\" id=\"add-decision-product-search\" autocomplete=\"off\" oninput=\"searchCatalogForDecision(this.value)\" placeholder=\"ابحث باسم الدواء بالكتالوج، المادة الفعالة، أو الكود...\" class=\"form-input text-xs w-full\"><!-- Selected Product Preview --><div id=\"add-decision-selected-preview\" style=\"display:none;\" class=\"mt-2 p-3 rounded-lg bg-surface-sunken border border-brand-subtle\"><div class=\"flex-between items-center\"><div><div id=\"selected-product-name\" class=\"font-extrabold text-brand text-xs\"></div><div id=\"selected-product-sub\" class=\"text-xs text-muted mt-1\"></div></div><button type=\"button\" onclick=\"clearSelectedDecisionProduct()\" class=\"btn btn-secondary btn-sm text-xs\">تغيير</button></div></div><!-- Search Dropdown Results --><div id=\"add-decision-dropdown\" style=\"display:none; position:absolute; top:100%; inset-inline-start:0; inset-inline-end:0; max-height:220px; overflow-y:auto; z-index:10000; margin-top:4px;\" class=\"glass-panel p-2 shadow-lg\"></div></div><!-- Input 3: Optional Reason / Notes --><div><label class=\"form-label text-xs font-bold mb-1 d-block text-primary\">سبب القرار / ملاحظات توضيحية (اختياري)</label> <input type=\"text\" name=\"reason\" placeholder=\"مثال: مطابقة مؤكدة من الصيدلي المسؤول\" class=\"form-input text-xs w-full\"></div><!-- Modal Footer Actions --><div class=\"flex-between items-center border-t pt-4 mt-2\"><button type=\"button\" onclick=\"closeAddDecisionModal()\" class=\"btn btn-secondary btn-sm text-xs\">إلغاء</button> <button type=\"submit\" class=\"btn btn-primary btn-sm font-bold text-xs px-6\">💾 حفظ القرار في الذاكرة</button></div></form></div></div><!-- Clear All & Autocomplete Scripts --><script>\n\t\tfunction confirmClearMyDecisions() {\n\t\t\tif (confirm(\"⚠️ هل أنت متأكد من مسح جميع قرارات المطابقة المحفوظة في ذاكرتك الخاصة؟ سيقوم النظام بإعادة تقييم ومطابقة الأصناف من البداية في العمليات القادمة.\")) {\n\t\t\t\tvar form = document.createElement('form');\n\t\t\t\tform.method = 'POST';\n\t\t\t\tform.action = basePath + '/clear';\n\t\t\t\tdocument.body.appendChild(form);\n\t\t\t\tform.submit();\n\t\t\t}\n\t\t}\n\n\t\tfunction openAddDecisionModal() {\n\t\t\tdocument.getElementById('add-decision-modal').style.display = 'flex';\n\t\t\tdocument.getElementById('add-decision-raw-name').focus();\n\t\t}\n\n\t\tfunction closeAddDecisionModal() {\n\t\t\tdocument.getElementById('add-decision-modal').style.display = 'none';\n\t\t\tdocument.getElementById('add-decision-raw-name').value = '';\n\t\t\tclearSelectedDecisionProduct();\n\t\t}\n\n\t\tlet searchDebounce = null;\n\t\tfunction searchCatalogForDecision(query) {\n\t\t\tclearTimeout(searchDebounce);\n\t\t\tconst dropdown = document.getElementById('add-decision-dropdown');\n\t\t\tif (!query || query.trim().length < 2) {\n\t\t\t\tdropdown.style.display = 'none';\n\t\t\t\treturn;\n\t\t\t}\n\t\t\tsearchDebounce = setTimeout(() => {\n\t\t\t\tfetch('/vendor/catalog/search-json?q=' + encodeURIComponent(query.trim()))\n\t\t\t\t\t.then(r => r.json())\n\t\t\t\t\t.then(items => {\n\t\t\t\t\t\tif (!items || items.length === 0) {\n\t\t\t\t\t\t\tdropdown.innerHTML = '<div style=\"padding:0.75rem 1rem; color:var(--text-muted); font-size:0.8rem; text-align:center;\">لم يتم العثور على أدوية مطابقة</div>';\n\t\t\t\t\t\t\tdropdown.style.display = 'block';\n\t\t\t\t\t\t\treturn;\n\t\t\t\t\t\t}\n\t\t\t\t\t\tlet html = '';\n\t\t\t\t\t\titems.forEach(it => {\n\t\t\t\t\t\t\tconst name = it.name_ar || it.name_en || '';\n\t\t\t\t\t\t\tconst sci = it.scientific_name || '';\n\t\t\t\t\t\t\tconst sku = it.sku ? ('كود: ' + it.sku) : '';\n\t\t\t\t\t\t\tconst safeName = name.replace(/'/g, \"\\\\'\");\n\t\t\t\t\t\t\tconst safeSci = sci.replace(/'/g, \"\\\\'\");\n\t\t\t\t\t\t\thtml += '<div style=\"padding:0.75rem 1rem; border-bottom:1px solid var(--border); cursor:pointer; display:flex; justify-content:space-between; align-items:center; transition:background 0.15s;\" ' +\n\t\t\t\t\t\t\t\t'onmouseover=\"this.style.background=\\'var(--surface-sunken)\\'\" onmouseout=\"this.style.background=\\'\\'\" ' +\n\t\t\t\t\t\t\t\t'onclick=\"selectDecisionProduct(' + it.id + ', \\'' + safeName + '\\', \\'' + safeSci + '\\', \\'' + sku + '\\')\">' +\n\t\t\t\t\t\t\t\t'<div>' +\n\t\t\t\t\t\t\t\t\t'<div style=\"font-weight:700; color:var(--text); font-size:0.875rem;\">' + name + '</div>' +\n\t\t\t\t\t\t\t\t\t'<div style=\"font-size:0.75rem; color:var(--text-muted); margin-top:2px;\">' + (sci || sku) + '</div>' +\n\t\t\t\t\t\t\t\t'</div>' +\n\t\t\t\t\t\t\t\t'<span class=\"badge badge-emerald text-xs fw-700\">اختيار</span>' +\n\t\t\t\t\t\t\t'</div>';\n\t\t\t\t\t\t});\n\t\t\t\t\t\tdropdown.innerHTML = html;\n\t\t\t\t\t\tdropdown.style.display = 'block';\n\t\t\t\t\t})\n\t\t\t\t\t.catch(() => {\n\t\t\t\t\t\tdropdown.style.display = 'none';\n\t\t\t\t\t});\n\t\t\t}, 200);\n\t\t}\n\n\t\tfunction selectDecisionProduct(id, name, scientific, sku) {\n\t\t\tdocument.getElementById('add-decision-product-id').value = id;\n\t\t\tdocument.getElementById('selected-product-name').textContent = name;\n\t\t\tdocument.getElementById('selected-product-sub').textContent = [scientific, sku].filter(Boolean).join(' • ');\n\t\t\tdocument.getElementById('add-decision-dropdown').style.display = 'none';\n\t\t\tdocument.getElementById('add-decision-product-search').style.display = 'none';\n\t\t\tdocument.getElementById('add-decision-selected-preview').style.display = 'block';\n\t\t}\n\n\t\tfunction clearSelectedDecisionProduct() {\n\t\t\tdocument.getElementById('add-decision-product-id').value = '';\n\t\t\tdocument.getElementById('add-decision-product-search').value = '';\n\t\t\tdocument.getElementById('add-decision-product-search').style.display = 'block';\n\t\t\tdocument.getElementById('add-decision-selected-preview').style.display = 'none';\n\t\t\tdocument.getElementById('add-decision-dropdown').style.display = 'none';\n\t\t}\n\t</script>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 61, "</div></div><!-- Clear All Script --><script>\n\t\tfunction confirmClearMyDecisions() {\n\t\t\tif (confirm(\"⚠️ هل أنت متأكد من مسح جميع قرارات المطابقة المحفوظة في ذاكرتك الخاصة فقط؟\\n\\nلن يؤثر ذلك على أي صيدلية أو مورد آخر.\")) {\n\t\t\t\tvar form = document.createElement('form');\n\t\t\t\tform.method = 'POST';\n\t\t\t\tform.action = basePath + '/clear';\n\t\t\t\tdocument.body.appendChild(form);\n\t\t\t\tform.submit();\n\t\t\t}\n\t\t}\n\t</script>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

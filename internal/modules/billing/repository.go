@@ -2,6 +2,7 @@ package billing
 
 import (
 	"context"
+	"time"
 
 	"github.com/muhiya/dawa24-store/internal/shared/money"
 )
@@ -25,6 +26,9 @@ type Repository interface {
 	CreateSubscription(ctx context.Context, sub *Subscription) error
 	GetActiveSubscription(ctx context.Context, userID int64) (*Subscription, error)
 	GetActiveSubscriptionByOrg(ctx context.Context, orgID int64) (*Subscription, error)
+	ListDueSubscriptionsForRenewal(ctx context.Context, now time.Time) ([]*Subscription, error)
+	UpdateSubscriptionStatus(ctx context.Context, id int64, status SubscriptionStatus, renewalAttempts int) error
+	RenewSubscription(ctx context.Context, subID int64, walletID int64, cost money.Amount, newExpiresAt time.Time, details string) error
 	CheckEntitlement(ctx context.Context, userID int64, featureKey string) (bool, string, error)
 
 	CreateInvoice(ctx context.Context, inv *Invoice) error

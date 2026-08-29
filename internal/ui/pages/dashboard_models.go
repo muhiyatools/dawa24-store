@@ -42,6 +42,11 @@ type TenantSubscriptionPageData struct {
 	Subscription  *OrgSubscriptionView
 	Plans         []*billing.Plan
 	CurrentPlanID int64
+	WalletBalance money.Amount
+	AutoRenew     bool
+	BillingCycle  string
+	NoticeType    string
+	NoticeMsg     string
 }
 
 // VendorDashboardData is the supplier dashboard view model.

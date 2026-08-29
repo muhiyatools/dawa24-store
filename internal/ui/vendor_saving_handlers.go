@@ -207,6 +207,26 @@ func (h *UIHandler) VendorSavingProductDeleteSubmit(w http.ResponseWriter, r *ht
 	h.redirectWithNotice(w, r, "/vendor/saving-products", "success", "تم حذف المنتج من قائمة المساعدة بنجاح.")
 }
 
+// VendorSavingProductsDeleteAllSubmit deletes all saving products for the vendor org.
+func (h *UIHandler) VendorSavingProductsDeleteAllSubmit(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	actor, ok := authctx.From(ctx)
+	if !ok || actor.OrganizationID <= 0 {
+		http.Redirect(w, r, "/auth/login?redirect=/vendor/saving-products", http.StatusSeeOther)
+		return
+	}
+
+	if h.catSvc != nil {
+		if err := h.catSvc.DeleteAllSavingProducts(ctx, actor.OrganizationID); err != nil {
+			h.log.ErrorContext(ctx, "delete all vendor saving products error", "error", err)
+			h.redirectWithNotice(w, r, "/vendor/saving-products", "error", "حدث خطأ أثناء حذف الأصناف.")
+			return
+		}
+	}
+
+	h.redirectWithNotice(w, r, "/vendor/saving-products", "success", "تم حذف جميع منتجات التوفير بنجاح.")
+}
+
 // VendorSavingProductsImportSubmit handles Excel/CSV bulk import with intelligent auto-matching.
 func (h *UIHandler) VendorSavingProductsImportSubmit(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()

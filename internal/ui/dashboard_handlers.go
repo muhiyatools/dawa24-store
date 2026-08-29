@@ -16,6 +16,7 @@ import (
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/platform/database"
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
+	"github.com/muhiya/dawa24-store/internal/shared/money"
 	"github.com/muhiya/dawa24-store/internal/ui/pages"
 )
 
@@ -152,6 +153,9 @@ func (h *UIHandler) TenantSubscriptionPage(w http.ResponseWriter, r *http.Reques
 
 	var allPlans []*billing.Plan
 	var currentPlanID int64
+	var walletBal money.Amount
+	var autoRenew bool
+	var billingCycle string = "monthly"
 	sysCtx := database.AsSystem(ctx)
 
 	if h.billSvc != nil {
@@ -161,7 +165,14 @@ func (h *UIHandler) TenantSubscriptionPage(w http.ResponseWriter, r *http.Reques
 		if actor.OrganizationID > 0 {
 			if sub, _ := h.billSvc.GetActiveSubscriptionByOrg(sysCtx, actor.OrganizationID); sub != nil {
 				currentPlanID = sub.PlanID
+				autoRenew = sub.AutoRenew
+				if sub.BillingCycle != "" {
+					billingCycle = sub.BillingCycle
+				}
 			}
+		}
+		if w, err := h.billSvc.GetWallet(ctx, actor.UserID, "EGP"); err == nil && w != nil {
+			walletBal = w.Balance
 		}
 	}
 
@@ -169,6 +180,11 @@ func (h *UIHandler) TenantSubscriptionPage(w http.ResponseWriter, r *http.Reques
 		Subscription:  subView,
 		Plans:         allPlans,
 		CurrentPlanID: currentPlanID,
+		WalletBalance: walletBal,
+		AutoRenew:     autoRenew,
+		BillingCycle:  billingCycle,
+		NoticeType:    r.URL.Query().Get("notice_type"),
+		NoticeMsg:     r.URL.Query().Get("notice"),
 	}
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")

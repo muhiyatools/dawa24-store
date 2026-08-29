@@ -319,6 +319,8 @@ func (s *Service) Subscribe(
 		OrganizationID: orgID,
 		PlanID:         plan.ID,
 		Status:         SubActive,
+		BillingCycle:   "monthly",
+		AutoRenew:      false,
 		StartsAt:       now,
 		ExpiresAt:      now.Add(duration),
 		SourceSystem:   sourceSystem,
@@ -331,6 +333,127 @@ func (s *Service) Subscribe(
 
 	s.log.InfoContext(ctx, "subscription activated", "user_id", userID, "plan", planSlug, "expires", sub.ExpiresAt)
 	return sub, nil
+}
+
+// SubscribeWithWallet purchases or upgrades a subscription plan using the user's/org's wallet balance.
+func (s *Service) SubscribeWithWallet(
+	ctx context.Context,
+	userID int64,
+	orgID *int64,
+	planSlug string,
+	cycle string,
+	autoRenew bool,
+) (*Subscription, error) {
+	plan, err := s.repo.GetPlanBySlug(ctx, planSlug)
+	if err != nil {
+		return nil, err
+	}
+
+	if cycle != "annual" && cycle != "monthly" {
+		cycle = "monthly"
+	}
+
+	cost := plan.PriceMonth
+	durationDays := 30
+	if cycle == "annual" {
+		cost = plan.PriceYear
+		durationDays = 365
+	}
+
+	wallet, err := s.repo.GetOrCreateWallet(ctx, userID, "EGP")
+	if err != nil {
+		return nil, err
+	}
+
+	if !cost.IsZero() && !cost.IsNegative() {
+		if wallet.Balance.Minor() < cost.Minor() {
+			return nil, apperr.Conflict("wallet.insufficient_funds", "رصيد المحفظة الحالي غير كافٍ لإتمام الاشتراك. يرجى شحن المحفظة أولاً.")
+		}
+
+		negCost := money.FromMinor(-cost.Minor())
+		desc := fmt.Sprintf("اشتراك في %s (%s)", plan.Name.Get("ar"), func() string {
+			if cycle == "annual" {
+				return "سنوي"
+			}
+			return "شهري"
+		}())
+
+		_, err = s.repo.RecordTransaction(ctx, wallet.ID, TxPurchase, negCost, "subscription_checkout", nil, desc)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	now := time.Now().UTC()
+	sub := &Subscription{
+		UserID:         userID,
+		OrganizationID: orgID,
+		PlanID:         plan.ID,
+		Status:         SubActive,
+		BillingCycle:   cycle,
+		AutoRenew:      autoRenew,
+		StartsAt:       now,
+		ExpiresAt:      now.Add(time.Duration(durationDays) * 24 * time.Hour),
+		SourceSystem:   "wallet_checkout",
+	}
+
+	if err := s.repo.CreateSubscription(ctx, sub); err != nil {
+		return nil, err
+	}
+
+	s.log.InfoContext(ctx, "subscription purchased via wallet", "user_id", userID, "org_id", orgID, "plan", planSlug, "cycle", cycle, "cost", cost.String(), "auto_renew", autoRenew)
+	return sub, nil
+}
+
+// ProcessDueSubscriptionRenewals checks and executes auto-renewals for all due subscriptions.
+func (s *Service) ProcessDueSubscriptionRenewals(ctx context.Context) (renewed int, failed int, err error) {
+	now := time.Now().UTC()
+	dueSubs, err := s.repo.ListDueSubscriptionsForRenewal(ctx, now)
+	if err != nil {
+		s.log.ErrorContext(ctx, "failed to list due subscriptions for renewal", "error", err)
+		return 0, 0, err
+	}
+
+	for _, sub := range dueSubs {
+		plan, err := s.repo.GetPlanByID(ctx, sub.PlanID)
+		if err != nil {
+			s.log.ErrorContext(ctx, "renewal: failed to fetch plan", "sub_id", sub.ID, "plan_id", sub.PlanID, "error", err)
+			continue
+		}
+
+		cost := plan.PriceMonth
+		durationDays := 30
+		if sub.BillingCycle == "annual" {
+			cost = plan.PriceYear
+			durationDays = 365
+		}
+
+		// Calculate new expiration date anchored on current expiration (or now if past)
+		baseTime := sub.ExpiresAt
+		if baseTime.Before(now.Add(-24 * time.Hour)) {
+			baseTime = now
+		}
+		newExpiresAt := baseTime.Add(time.Duration(durationDays) * 24 * time.Hour)
+
+		wallet, err := s.repo.GetOrCreateWallet(ctx, sub.UserID, "EGP")
+		if err != nil {
+			s.log.ErrorContext(ctx, "renewal: failed to get wallet", "sub_id", sub.ID, "user_id", sub.UserID, "error", err)
+			continue
+		}
+
+		desc := fmt.Sprintf("تجديد باقة %s - دورة %s", plan.Name.Get("ar"), sub.BillingCycle)
+		err = s.repo.RenewSubscription(ctx, sub.ID, wallet.ID, cost, newExpiresAt, desc)
+		if err != nil {
+			s.log.WarnContext(ctx, "subscription renewal failed", "sub_id", sub.ID, "user_id", sub.UserID, "error", err)
+			_ = s.repo.UpdateSubscriptionStatus(ctx, sub.ID, SubPastDue, sub.RenewalAttempts+1)
+			failed++
+		} else {
+			s.log.InfoContext(ctx, "subscription renewed successfully", "sub_id", sub.ID, "user_id", sub.UserID, "new_expires_at", newExpiresAt)
+			renewed++
+		}
+	}
+
+	return renewed, failed, nil
 }
 
 // CheckEntitlement resolves whether a user has access to a specific feature key.

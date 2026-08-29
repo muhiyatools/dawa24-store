@@ -138,18 +138,22 @@ type Plan struct {
 
 // Subscription represents an active plan subscription (unifying legacy D7 systems).
 type Subscription struct {
-	ID             int64              `json:"id"`
-	PublicID       string             `json:"public_id"`
-	UserID         int64              `json:"user_id"`
-	OrganizationID *int64             `json:"organization_id,omitempty"`
-	PlanID         int64              `json:"plan_id"`
-	Status         SubscriptionStatus `json:"status"`
-	StartsAt       time.Time          `json:"starts_at"`
-	ExpiresAt      time.Time          `json:"expires_at"`
-	SourceSystem   string             `json:"source_system"`
-	SourceID       *int64             `json:"source_id,omitempty"`
-	CreatedAt      time.Time          `json:"created_at"`
-	UpdatedAt      time.Time          `json:"updated_at"`
+	ID              int64              `json:"id"`
+	PublicID        string             `json:"public_id"`
+	UserID          int64              `json:"user_id"`
+	OrganizationID  *int64             `json:"organization_id,omitempty"`
+	PlanID          int64              `json:"plan_id"`
+	Status          SubscriptionStatus `json:"status"`
+	BillingCycle    string             `json:"billing_cycle"` // "monthly" or "annual"
+	AutoRenew       bool               `json:"auto_renew"`
+	StartsAt        time.Time          `json:"starts_at"`
+	ExpiresAt       time.Time          `json:"expires_at"`
+	LastRenewedAt   *time.Time         `json:"last_renewed_at,omitempty"`
+	RenewalAttempts int                `json:"renewal_attempts"`
+	SourceSystem    string             `json:"source_system"`
+	SourceID        *int64             `json:"source_id,omitempty"`
+	CreatedAt       time.Time          `json:"created_at"`
+	UpdatedAt       time.Time          `json:"updated_at"`
 }
 
 // IsActiveAt checks whether the subscription is active at a given moment in time.
