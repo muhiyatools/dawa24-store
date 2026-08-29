@@ -150,276 +150,311 @@ templ VendorOrdersContent(data VendorOrdersData, lang, dir string) {
 			<p class="text-sm text-secondary m-0">ستظهر هنا أي طلبيات جديدة يتم إجراؤها من الصيدليات والعملاء التابعين لتغطيتك الجغرافية.</p>
 		</div>
 	} else {
-		<div class="d-flex flex-col gap-6">
+		<div class="d-flex flex-col gap-4">
 			for _, sh := range data.Shipments {
-				<div class="glass-panel p-6">
-					
-					<!-- Header Row: Order/Shipment Identification & Badges -->
-					<div class="flex-between items-start flex-wrap gap-4 pb-4 mb-4 border-b">
-						<div>
-							<div class="d-flex items-center gap-3 mb-1 flex-wrap">
-								<span class="text-lg font-black text-primary tabular-nums">
-									شحنة #{ sh.ShipmentNumber }
-								</span>
-								if sh.OrderNumber != "" {
-									<span class="badge badge-secondary text-xs font-bold">
-										أمر الشراء #{ sh.OrderNumber }
-									</span>
-								}
-								if sh.Status == commerce.StatusPending {
-									<span class="badge badge-amber text-xs font-black">بانتظار التأكيد والموافقة</span>
-								} else if sh.Status == commerce.StatusConfirmed {
-									<span class="badge badge-sky text-xs font-black">قيد التجهيز بالمخزن</span>
-								} else if sh.Status == commerce.StatusShipped {
-									<span class="badge badge-indigo text-xs font-black">قيد الشحن والتوصيل</span>
-								} else if sh.Status == commerce.StatusDelivered {
-									<span class="badge badge-emerald text-xs font-black">تم التسليم بنجاح</span>
-								} else {
-									<span class="badge badge-slate text-xs font-black">{ string(sh.Status) }</span>
-								}
-							</div>
-							<div class="text-xs text-secondary tabular-nums">
-								تاريخ وتوقيت الطلب: <strong class="text-primary">{ sh.CreatedAt.Format("2006-01-02 15:04:05") }</strong>
-							</div>
-						</div>
+				<div
+					x-data="{ expanded: false }"
+					class="glass-panel p-5 transition-all"
+					style="border-radius: var(--radius-xl);"
+				>
+					<!-- Compact Summary Header (Always Visible, Clickable to Expand) -->
+					<div
+						class="flex-between items-center flex-wrap gap-4 cursor-pointer"
+						@click="expanded = !expanded"
+					>
+						<div class="d-flex items-center gap-3 flex-wrap">
+							<!-- Expand / Collapse Indicator -->
+							<button
+								type="button"
+								class="btn btn-secondary btn-icon btn-sm"
+								style="width:32px; height:32px; font-size:0.75rem;"
+								:title="expanded ? 'طي التفاصيل' : 'عرض التفاصيل'"
+							>
+								<span x-text="expanded ? '▲' : '▼'"></span>
+							</button>
 
-						<div class="d-flex flex-col items-end gap-1">
-							<div class="text-xs text-muted font-bold">قيمة الشحنة المطلوبة:</div>
-							<div class="text-2xl font-black text-brand tabular-nums">
-								{ sh.TotalAmount.String() } <span class="text-sm font-bold text-muted">ج.م</span>
-							</div>
-							<div class="text-xs text-muted">
-								{ sh.PaymentMethod } • { string(sh.PaymentStatus) }
-							</div>
-						</div>
-					</div>
+							<span class="text-base font-black text-primary tabular-nums">
+								شحنة #{ sh.ShipmentNumber }
+							</span>
 
-					<!-- Pharmacy Destination & Contact Box -->
-					<div class="d-grid gap-4 bg-surface-sunken p-4 rounded-xl border mb-6 text-sm" style="grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));">
-						<div>
-							<div class="text-muted text-xs font-bold mb-1 d-flex items-center gap-2">
-								@components.IconBuilding("icon-xs")
-								<span>الصيدلية والفرع المستلم:</span>
-							</div>
-							<strong class="text-base font-extrabold text-primary d-block">
-								{ sh.CustomerBranchName.Get(i18n.Lang(lang)) }
-							</strong>
-							if sh.CustomerOrgName.Get(i18n.Lang(lang)) != "" {
-								<span class="text-secondary text-xs">
-									{ sh.CustomerOrgName.Get(i18n.Lang(lang)) }
+							if sh.OrderNumber != "" {
+								<span class="badge badge-secondary text-xs font-bold">
+									أمر الشراء #{ sh.OrderNumber }
 								</span>
 							}
+
+							if sh.Status == commerce.StatusPending {
+								<span class="badge badge-amber text-xs font-black">بانتظار التأكيد</span>
+							} else if sh.Status == commerce.StatusConfirmed {
+								<span class="badge badge-sky text-xs font-black">قيد التجهيز بالمخزن</span>
+							} else if sh.Status == commerce.StatusShipped {
+								<span class="badge badge-indigo text-xs font-black">قيد الشحن والتوصيل</span>
+							} else if sh.Status == commerce.StatusDelivered {
+								<span class="badge badge-emerald text-xs font-black">تم التسليم بنجاح</span>
+							} else {
+								<span class="badge badge-slate text-xs font-black">{ string(sh.Status) }</span>
+							}
+
+							<!-- Destination Chip -->
+							<span class="badge badge-slate text-xs font-bold gap-1 d-none d-md-inline-flex">
+								@components.IconBuilding("icon-xs")
+								<span>{ sh.CustomerBranchName.Get(i18n.Lang(lang)) }</span>
+							</span>
+
+							<!-- Items count chip -->
+							<span class="badge badge-secondary text-xs font-bold tabular-nums">
+								📦 { fmt.Sprintf("%d أصناف", len(sh.Lines)) }
+							</span>
 						</div>
 
-						<div>
-							<div class="text-muted text-xs font-bold mb-1 d-flex items-center gap-2">
-								@components.IconTruck("icon-xs")
-								<span>عنوان التسليم الجغرافي:</span>
+						<div class="d-flex items-center gap-4">
+							<div class="text-end">
+								<span class="text-xs text-muted d-block font-bold">القيمة الإجمالية</span>
+								<strong class="text-lg font-black text-brand tabular-nums">
+									{ sh.TotalAmount.String() } <span class="text-xs font-bold text-muted">ج.م</span>
+								</strong>
 							</div>
-							<div class="text-primary leading-normal">
-								if sh.CustomerBranchAddress != "" {
-									{ sh.CustomerBranchAddress }
-								} else {
-									<span class="text-muted">العنوان المسجل لفرع الصيدلية</span>
-								}
-							</div>
-						</div>
 
-						<div>
-							<div class="text-muted text-xs font-bold mb-1 d-flex items-center gap-2">
-								@components.IconPhone("icon-xs")
-								<span>مسؤول الاستلام والتواصل:</span>
-							</div>
-							<div class="text-primary">
-								if sh.CustomerManagerName != "" {
-									<div class="font-bold">{ sh.CustomerManagerName }</div>
-								}
-								if sh.CustomerBranchPhone != "" {
-									<div class="tabular-nums text-secondary text-left">{ sh.CustomerBranchPhone }</div>
-								} else if sh.CustomerManagerName == "" {
-									<span class="text-muted">الصيدلي المسؤول بالفرع</span>
-								}
-							</div>
+							<button
+								type="button"
+								class="btn btn-secondary btn-sm font-bold text-xs gap-1"
+								@click.stop="expanded = !expanded"
+							>
+								<span x-text="expanded ? 'طي التفاصيل ▲' : 'استعراض الأصناف ▼'"></span>
+							</button>
 						</div>
-
-						if sh.Notes != "" {
-							<div class="border-t pt-2 mt-1" style="grid-column: 1 / -1;">
-								<div class="text-muted text-xs font-bold mb-1">ملاحظات خاصة من الصيدلية:</div>
-								<div class="text-primary text-xs">{ sh.Notes }</div>
-							</div>
-						}
 					</div>
 
-					<!-- Detailed Line Items Table -->
-					<div class="mb-6">
-						<div class="flex-between items-center mb-3">
-							<h4 class="text-sm font-black text-primary m-0 d-flex items-center gap-2">
-								@components.IconPackage("icon-xs")
-								<span>الأصناف والكميات المطلوبة ({ fmt.Sprintf("%d", len(sh.Lines)) } صنف)</span>
-							</h4>
-							<span class="badge badge-sky text-xs font-bold">شحن مبرد معتمد Cold-Chain</span>
-						</div>
+					<!-- Expandable Details Section (Shown when expanded == true) -->
+					<div x-show="expanded" x-cloak class="mt-4 pt-4 border-t">
+						
+						<!-- Destination & Contact Grid -->
+						<div class="d-grid gap-4 bg-surface-sunken p-4 rounded-xl border mb-5 text-sm" style="grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));">
+							<div>
+								<div class="text-muted text-xs font-bold mb-1 d-flex items-center gap-2">
+									@components.IconBuilding("icon-xs")
+									<span>الصيدلية والفرع المستلم:</span>
+								</div>
+								<strong class="text-base font-extrabold text-primary d-block">
+									{ sh.CustomerBranchName.Get(i18n.Lang(lang)) }
+								</strong>
+								if sh.CustomerOrgName.Get(i18n.Lang(lang)) != "" {
+									<span class="text-secondary text-xs">
+										{ sh.CustomerOrgName.Get(i18n.Lang(lang)) }
+									</span>
+								}
+							</div>
 
-						<div class="table-container m-0">
-							<table class="data-table m-0">
-								<thead>
-									<tr>
-										<th>اسم الدواء / الصنف</th>
-										<th class="text-center tabular-nums">الكمية المطلوبة</th>
-										<th class="text-center tabular-nums">سعر الجمهور</th>
-										<th class="text-center tabular-nums">نسبة الخصم</th>
-										<th class="text-end tabular-nums">السعر بعد الخصم (الإجمالي)</th>
-									</tr>
-								</thead>
-								<tbody>
-									for _, line := range sh.Lines {
-										<tr>
-											<td>
-												<div class="d-flex items-center gap-2 flex-wrap">
-													<strong class="text-primary text-sm font-bold">{ line.ProductName.Get(i18n.Lang(lang)) }</strong>
-													if line.IsNegotiated {
-														<span class="badge badge-amber text-xs font-bold">🤝 سعر تفاوضي</span>
-													}
-												</div>
-												if line.VariantName.Get(i18n.Lang(lang)) != "" {
-													<div class="text-xs text-muted">
-														{ line.VariantName.Get(i18n.Lang(lang)) }
-													</div>
-												}
-											</td>
-											<td class="text-center">
-												<span class="badge badge-secondary text-xs font-black">
-													{ fmt.Sprintf("%d", line.Quantity) } عبوة
-												</span>
-											</td>
-											<td class="text-center font-bold text-secondary tabular-nums">
-												{ line.UnitPrice.String() } ج.م
-											</td>
-											<td class="text-center tabular-nums">
-												{{
-													discPct := 0.0
-													if line.UnitPrice.IsPositive() && line.DiscountAmount.IsPositive() {
-														discPct = (float64(line.DiscountAmount.Minor()) / float64(line.UnitPrice.Minor())) * 100.0
-													}
-												}}
-												if discPct > 0 {
-													<span class="badge badge-emerald tabular-nums text-xs font-bold">{ fmt.Sprintf("%.1f%%", discPct) }</span>
-												} else {
-													<span class="text-xs text-muted">0%</span>
-												}
-											</td>
-											<td class="text-end tabular-nums">
-												<strong class="text-brand font-black text-base">{ line.TotalPrice.String() } ج.م</strong>
-											</td>
-										</tr>
+							<div>
+								<div class="text-muted text-xs font-bold mb-1 d-flex items-center gap-2">
+									@components.IconTruck("icon-xs")
+									<span>عنوان التسليم الجغرافي:</span>
+								</div>
+								<div class="text-primary leading-normal text-xs">
+									if sh.CustomerBranchAddress != "" {
+										{ sh.CustomerBranchAddress }
+									} else {
+										<span class="text-muted">العنوان المسجل لفرع الصيدلية</span>
 									}
-								</tbody>
-							</table>
-						</div>
-					</div>
+								</div>
+							</div>
 
-					<!-- Action Controls Toolbar -->
-					<div class="flex-between items-center flex-wrap gap-4 pt-4 border-t">
-						<div>
-							if sh.TrackingNumber != "" {
-								<div class="text-xs text-secondary bg-surface-sunken p-2 px-3 rounded-lg border d-flex items-center gap-2">
-									<span>رقم البوليصة / الشحنة:</span>
-									<strong class="tabular-nums text-primary font-black">{ sh.TrackingNumber }</strong>
+							<div>
+								<div class="text-muted text-xs font-bold mb-1 d-flex items-center gap-2">
+									@components.IconPhone("icon-xs")
+									<span>مسؤول الاستلام والتواصل:</span>
+								</div>
+								<div class="text-primary text-xs">
+									if sh.CustomerManagerName != "" {
+										<div class="font-bold">{ sh.CustomerManagerName }</div>
+									}
+									if sh.CustomerBranchPhone != "" {
+										<div class="tabular-nums text-secondary">{ sh.CustomerBranchPhone }</div>
+									} else if sh.CustomerManagerName == "" {
+										<span class="text-muted">الصيدلي المسؤول بالفرع</span>
+									}
+								</div>
+							</div>
+
+							if sh.Notes != "" {
+								<div class="border-t pt-2 mt-1" style="grid-column: 1 / -1;">
+									<div class="text-muted text-xs font-bold mb-1">ملاحظات خاصة من الصيدلية:</div>
+									<div class="text-primary text-xs">{ sh.Notes }</div>
 								</div>
 							}
 						</div>
 
-						<div class="d-flex items-center gap-3 flex-wrap">
-							if sh.Status == commerce.StatusPending {
-								<form action={ templ.SafeURL(fmt.Sprintf("/vendor/orders/%d/status", sh.ID)) } method="POST" class="m-0 d-inline">
-									<input type="hidden" name="status" value="confirmed" />
-									<input type="hidden" name="notes" value="تمت الموافقة على أمر التوريد والتجهيز بالمخزن" />
-									<button
-										type="submit"
-										class="btn btn-secondary font-bold px-4 py-2 gap-2"
-									>
-										@components.IconCheck("icon-xs")
-										<span>قبول وتأكيد الطلب</span>
-									</button>
-								</form>
-								<form action={ templ.SafeURL(fmt.Sprintf("/vendor/orders/%d/status", sh.ID)) } method="POST" class="m-0 d-inline" onsubmit="return confirm('هل أنت متأكد من رفض هذا الطلب؟');">
-									<input type="hidden" name="status" value="cancelled" />
-									<input type="hidden" name="notes" value="تم رفض الطلب أو السعر المقترح من قبل المورد" />
-									<button
-										type="submit"
-										class="btn btn-danger font-bold px-4 py-2"
-									>
-										<span>✕ رفض الطلب</span>
-									</button>
-								</form>
-								<form action={ templ.SafeURL(fmt.Sprintf("/vendor/orders/%d/status", sh.ID)) } method="POST" class="m-0 d-inline">
-									<input type="hidden" name="status" value="delivered" />
-									<input type="hidden" name="notes" value="تم تسليم الشحنة المبردة بالصيدلية وتوثيق الاستلام" />
-									<button
-										type="submit"
-										class="btn btn-primary font-black px-4 py-2 gap-2"
-									>
+						<!-- Detailed Line Items Table -->
+						<div class="mb-5">
+							<div class="flex-between items-center mb-3">
+								<h4 class="text-xs font-black text-primary m-0 d-flex items-center gap-2">
+									@components.IconPackage("icon-xs")
+									<span>الأصناف والكميات المطلوبة ({ fmt.Sprintf("%d", len(sh.Lines)) } صنف)</span>
+								</h4>
+								<span class="badge badge-sky text-xs font-bold">شحن مبرد معتمد Cold-Chain</span>
+							</div>
+
+							<div class="table-container m-0">
+								<table class="data-table m-0">
+									<thead>
+										<tr>
+											<th>اسم الدواء / الصنف</th>
+											<th class="text-center tabular-nums">الكمية المطلوبة</th>
+											<th class="text-center tabular-nums">سعر الجمهور</th>
+											<th class="text-center tabular-nums">نسبة الخصم</th>
+											<th class="text-end tabular-nums">السعر بعد الخصم (الإجمالي)</th>
+										</tr>
+									</thead>
+									<tbody>
+										for _, line := range sh.Lines {
+											<tr>
+												<td>
+													<div class="d-flex items-center gap-2 flex-wrap">
+														<strong class="text-primary text-sm font-bold">{ line.ProductName.Get(i18n.Lang(lang)) }</strong>
+														if line.IsNegotiated {
+															<span class="badge badge-amber text-xs font-bold">🤝 سعر تفاوضي</span>
+														}
+													</div>
+													if line.VariantName.Get(i18n.Lang(lang)) != "" {
+														<div class="text-xs text-muted">
+															{ line.VariantName.Get(i18n.Lang(lang)) }
+														</div>
+													}
+												</td>
+												<td class="text-center">
+													<span class="badge badge-secondary text-xs font-black">
+														{ fmt.Sprintf("%d", line.Quantity) } عبوة
+													</span>
+												</td>
+												<td class="text-center font-bold text-secondary tabular-nums text-xs">
+													{ line.UnitPrice.String() } ج.م
+												</td>
+												<td class="text-center tabular-nums text-xs">
+													{{
+														discPct := 0.0
+														if line.UnitPrice.IsPositive() && line.DiscountAmount.IsPositive() {
+															discPct = (float64(line.DiscountAmount.Minor()) / float64(line.UnitPrice.Minor())) * 100.0
+														}
+													}}
+													if discPct > 0 {
+														<span class="badge badge-emerald tabular-nums text-xs font-bold">{ fmt.Sprintf("%.1f%%", discPct) }</span>
+													} else {
+														<span class="text-xs text-muted">0%</span>
+													}
+												</td>
+												<td class="text-end tabular-nums">
+													<strong class="text-brand font-black text-sm">{ line.TotalPrice.String() } ج.م</strong>
+												</td>
+											</tr>
+										}
+									</tbody>
+								</table>
+							</div>
+						</div>
+
+						<!-- Action Controls Toolbar -->
+						<div class="flex-between items-center flex-wrap gap-4 pt-4 border-t">
+							<div>
+								if sh.TrackingNumber != "" {
+									<div class="text-xs text-secondary bg-surface-sunken p-2 px-3 rounded-lg border d-flex items-center gap-2">
+										<span>رقم البوليصة / الشحنة:</span>
+										<strong class="tabular-nums text-primary font-black">{ sh.TrackingNumber }</strong>
+									</div>
+								}
+							</div>
+
+							<div class="d-flex items-center gap-3 flex-wrap">
+								if sh.Status == commerce.StatusPending {
+									<form action={ templ.SafeURL(fmt.Sprintf("/vendor/orders/%d/status", sh.ID)) } method="POST" class="m-0 d-inline">
+										<input type="hidden" name="status" value="confirmed" />
+										<input type="hidden" name="notes" value="تمت الموافقة على أمر التوريد والتجهيز بالمخزن" />
+										<button
+											type="submit"
+											class="btn btn-secondary font-bold px-4 py-2 gap-2 text-xs"
+										>
+											@components.IconCheck("icon-xs")
+											<span>قبول وتأكيد الطلب</span>
+										</button>
+									</form>
+									<form action={ templ.SafeURL(fmt.Sprintf("/vendor/orders/%d/status", sh.ID)) } method="POST" class="m-0 d-inline" onsubmit="return confirm('هل أنت متأكد من رفض هذا الطلب؟');">
+										<input type="hidden" name="status" value="cancelled" />
+										<input type="hidden" name="notes" value="تم رفض الطلب أو السعر المقترح من قبل المورد" />
+										<button
+											type="submit"
+											class="btn btn-danger font-bold px-4 py-2 text-xs"
+										>
+											<span>✕ رفض الطلب</span>
+										</button>
+									</form>
+									<form action={ templ.SafeURL(fmt.Sprintf("/vendor/orders/%d/status", sh.ID)) } method="POST" class="m-0 d-inline">
+										<input type="hidden" name="status" value="delivered" />
+										<input type="hidden" name="notes" value="تم تسليم الشحنة المبردة بالصيدلية وتوثيق الاستلام" />
+										<button
+											type="submit"
+											class="btn btn-primary font-black px-4 py-2 gap-2 text-xs"
+										>
+											@components.IconCheckCircle("icon-xs")
+											<span>تأكيد وإتمام التسليم للصيدلية</span>
+										</button>
+									</form>
+								} else if sh.Status == commerce.StatusConfirmed {
+									<form action={ templ.SafeURL(fmt.Sprintf("/vendor/orders/%d/status", sh.ID)) } method="POST" class="m-0 d-flex items-center gap-2 flex-wrap">
+										<input type="hidden" name="status" value="shipped" />
+										<input
+											type="text"
+											name="tracking"
+											placeholder="رقم البوليصة / المندوب..."
+											class="form-input text-xs"
+											style="width:180px;"
+										/>
+										<button
+											type="submit"
+											class="btn btn-secondary font-bold px-4 py-2 gap-2 text-xs"
+										>
+											@components.IconTruck("icon-xs")
+											<span>إرسال للشحن</span>
+										</button>
+									</form>
+									<form action={ templ.SafeURL(fmt.Sprintf("/vendor/orders/%d/status", sh.ID)) } method="POST" class="m-0 d-inline">
+										<input type="hidden" name="status" value="delivered" />
+										<input type="hidden" name="notes" value="تم تسليم الشحنة المبردة بالصيدلية وتوثيق الاستلام" />
+										<button
+											type="submit"
+											class="btn btn-primary font-black px-4 py-2 gap-2 text-xs"
+										>
+											@components.IconCheckCircle("icon-xs")
+											<span>تأكيد وإتمام التسليم للصيدلية</span>
+										</button>
+									</form>
+								} else if sh.Status == commerce.StatusShipped {
+									<form action={ templ.SafeURL(fmt.Sprintf("/vendor/orders/%d/status", sh.ID)) } method="POST" class="m-0 d-inline">
+										<input type="hidden" name="status" value="delivered" />
+										<input type="hidden" name="notes" value="تم تسليم الشحنة المبردة بالصيدلية وتوثيق الاستلام" />
+										<button
+											type="submit"
+											class="btn btn-primary font-black px-4 py-2 gap-2 text-xs"
+										>
+											@components.IconCheckCircle("icon-xs")
+											<span>تأكيد وإتمام التسليم للصيدلية</span>
+										</button>
+									</form>
+								} else {
+									<span class="badge badge-emerald text-xs font-black p-2 px-3 gap-2">
 										@components.IconCheckCircle("icon-xs")
-										<span>تأكيد وإتمام التسليم للصيدلية</span>
-									</button>
-								</form>
-							} else if sh.Status == commerce.StatusConfirmed {
-								<form action={ templ.SafeURL(fmt.Sprintf("/vendor/orders/%d/status", sh.ID)) } method="POST" class="m-0 d-flex items-center gap-2 flex-wrap">
-									<input type="hidden" name="status" value="shipped" />
-									<input
-										type="text"
-										name="tracking"
-										placeholder="رقم البوليصة / المندوب..."
-										class="form-input text-xs"
-										style="width:180px;"
-									/>
-									<button
-										type="submit"
-										class="btn btn-secondary font-bold px-4 py-2 gap-2"
+										<span>تم تسليم الشحنة وتوثيق الاستلام</span>
+									</span>
+								}
+								if sh.Status != commerce.StatusPending {
+									<a
+										href={ templ.SafeURL(fmt.Sprintf("/orders/%d/invoice/print", sh.OrderID)) }
+										target="_blank"
+										class="btn btn-secondary font-bold px-4 py-2 text-xs"
+										title="طباعة الفاتورة"
 									>
-										@components.IconTruck("icon-xs")
-										<span>إرسال للشحن</span>
-									</button>
-								</form>
-								<form action={ templ.SafeURL(fmt.Sprintf("/vendor/orders/%d/status", sh.ID)) } method="POST" class="m-0 d-inline">
-									<input type="hidden" name="status" value="delivered" />
-									<input type="hidden" name="notes" value="تم تسليم الشحنة المبردة بالصيدلية وتوثيق الاستلام" />
-									<button
-										type="submit"
-										class="btn btn-primary font-black px-4 py-2 gap-2"
-									>
-										@components.IconCheckCircle("icon-xs")
-										<span>تأكيد وإتمام التسليم للصيدلية</span>
-									</button>
-								</form>
-							} else if sh.Status == commerce.StatusShipped {
-								<form action={ templ.SafeURL(fmt.Sprintf("/vendor/orders/%d/status", sh.ID)) } method="POST" class="m-0 d-inline">
-									<input type="hidden" name="status" value="delivered" />
-									<input type="hidden" name="notes" value="تم تسليم الشحنة المبردة بالصيدلية وتوثيق الاستلام" />
-									<button
-										type="submit"
-										class="btn btn-primary font-black px-4 py-2 gap-2"
-									>
-										@components.IconCheckCircle("icon-xs")
-										<span>تأكيد وإتمام التسليم للصيدلية</span>
-									</button>
-								</form>
-							} else {
-								<span class="badge badge-emerald text-sm font-black p-2 px-4 gap-2">
-									@components.IconCheckCircle("icon-xs")
-									<span>تم تسليم الشحنة وتوثيق الاستلام</span>
-								</span>
-							}
-							if sh.Status != commerce.StatusPending {
-								<a
-									href={ templ.SafeURL(fmt.Sprintf("/orders/%d/invoice/print", sh.OrderID)) }
-									target="_blank"
-									class="btn btn-secondary font-bold px-4 py-2"
-									title="طباعة الفاتورة"
-								>
-									<span>🖨️ طباعة الفاتورة</span>
-								</a>
-							}
+										<span>🖨️ طباعة الفاتورة</span>
+									</a>
+								}
+							</div>
 						</div>
 					</div>
 				</div>

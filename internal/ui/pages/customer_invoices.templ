@@ -9,7 +9,7 @@ import (
 )
 
 templ InvoicesPage(lang, dir string, data InvoicesData) {
-	@layouts.ShellFor("الفواتير الضريبية والإلكترونية", "invoices", lang, dir, authctx.FromContext(ctx)) {
+	@layouts.ShellFor("فواتير وسندات التوريد", "invoices", lang, dir, authctx.FromContext(ctx)) {
 		<div class="max-w-6xl mx-auto stack-lg">
 			
 			<!-- Header Banner -->
@@ -21,18 +21,18 @@ templ InvoicesPage(lang, dir string, data InvoicesData) {
 								🧾
 							</div>
 							<h1 style="font-size:1.45rem; font-weight:900; color:var(--text); margin:0;">
-								الفواتير الضريبية والإلكترونية
+								فواتير وسندات التوريد
 							</h1>
 						</div>
 						<p style="color:var(--text-muted); font-size:0.875rem; margin:0;">
-							الفواتير الرسمية الصادرة للطلبيات معتمدة وفقاً لمعايير مصلحة الضرائب المصرية (ETA e-Invoicing) وقابلة للطباعة الفورية.
+							سجل الفواتير وسندات التوريد الصادرة لطلبيات الأدوية مع تفاصيل المبالغ والبنود وقابلة للطباعة الفورية.
 						</p>
 					</div>
 
 					<div style="display:flex; align-items:center; gap:0.75rem; flex-wrap:wrap;">
-						<span class="badge badge-emerald" style="font-size:0.85rem; padding:0.45rem 0.85rem;">
-							@components.IconCheckCircle("icon-xs")
-							<span>معتمدة ضريبياً</span>
+						<span class="badge badge-secondary" style="font-size:0.85rem; padding:0.45rem 0.85rem;">
+							@components.IconFileText("icon-xs")
+							<span>سجل الفواتير</span>
 						</span>
 					</div>
 				</div>
@@ -79,7 +79,7 @@ templ InvoicesPage(lang, dir string, data InvoicesData) {
 							لا توجد فواتير مطابقة
 						</h3>
 						<p style="font-size:0.85rem; margin:0;">
-							يتم إنشاء وتوثيق الفواتير الضريبية تلقائياً فور تسجيل أوامر الشراء واعتمادها من الصيدليات.
+							يتم إنشاء وتوثيق فواتير وسندات التوريد تلقائياً فور تسجيل واعتماد أوامر الشراء.
 						</p>
 					</div>
 				} else {

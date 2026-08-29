@@ -315,7 +315,7 @@ templ tenantSubscriptionBody(data TenantSubscriptionPageData, orgType string, la
 									type="button"
 									data-plan-slug={ p.Slug }
 									class={ "btn w-full justify-center font-bold text-xs gap-1", templ.KV("btn-secondary", data.CurrentPlanID == p.ID || (data.CurrentPlanID <= 0 && p.IsDefault)), templ.KV("btn-primary", !(data.CurrentPlanID == p.ID || (data.CurrentPlanID <= 0 && p.IsDefault))) }
-									onclick={ templ.ComponentScript{ Call: fmt.Sprintf("openCheckout(%q, %q, %d, %d)", p.Slug, p.Name.Get("ar"), p.PriceMonth.Minor(), p.PriceYear.Minor()) } }
+									@click={ fmt.Sprintf("openCheckout('%s', '%s', %d, %d)", p.Slug, p.Name.Get("ar"), p.PriceMonth.Minor(), p.PriceYear.Minor()) }
 								>
 									@components.IconSparkles("icon-xs")
 									if data.CurrentPlanID == p.ID || (data.CurrentPlanID <= 0 && p.IsDefault) {

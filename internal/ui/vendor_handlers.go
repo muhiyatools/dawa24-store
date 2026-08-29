@@ -488,49 +488,14 @@ func (h *UIHandler) VendorBranchNewSubmit(w http.ResponseWriter, r *http.Request
 	h.redirectWithNotice(w, r, "/vendor/branches", "success", "تم إضافة الفرع ونقطة التوزيع بنجاح.")
 }
 
-// VendorBranchEditPage renders the branch edit form with map and full parameters.
+// VendorBranchEditPage redirects to the unified vendor branches page with edit mode preloaded.
 func (h *UIHandler) VendorBranchEditPage(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-	lang, dir := h.localeAndDir(r)
-
-	actor, ok := authctx.From(ctx)
-	if !ok || !actor.IsVendor() {
-		http.Redirect(w, r, "/auth/login?redirect=/vendor/branches", http.StatusSeeOther)
+	branchID := chi.URLParam(r, "id")
+	if branchID != "" {
+		http.Redirect(w, r, "/vendor/branches?edit="+branchID, http.StatusSeeOther)
 		return
 	}
-
-	branchID, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
-	if err != nil || branchID <= 0 {
-		h.redirectWithNotice(w, r, "/vendor/branches", "error", "معرف فرع غير صالح.")
-		return
-	}
-
-	if h.orgSvc == nil {
-		h.redirectWithNotice(w, r, "/vendor/branches", "error", "خدمة المنظمة غير متوفرة.")
-		return
-	}
-
-	branch, err := h.orgSvc.GetBranch(ctx, branchID)
-	if err != nil || branch == nil || branch.OrganizationID != actor.OrganizationID {
-		h.redirectWithNotice(w, r, "/vendor/branches", "error", "الفرع غير موجود أو غير مصرح لك بتعديله.")
-		return
-	}
-
-	employees, _ := h.orgSvc.ListEmployees(ctx, actor.OrganizationID)
-
-	data := pages.VendorBranchFormData{
-		Branch:     branch,
-		Cities:     h.listCities(ctx),
-		Employees:  employees,
-		IsEdit:     true,
-		NoticeType: r.URL.Query().Get("notice_type"),
-		NoticeMsg:  r.URL.Query().Get("notice_msg"),
-	}
-
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	if err := pages.VendorBranchFormPage(data, lang, dir).Render(ctx, w); err != nil {
-		h.log.ErrorContext(ctx, "render vendor branch edit page", "error", err)
-	}
+	http.Redirect(w, r, "/vendor/branches", http.StatusSeeOther)
 }
 
 // VendorBranchEditSubmit saves updates to an existing branch.

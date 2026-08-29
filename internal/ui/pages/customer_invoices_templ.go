@@ -49,15 +49,15 @@ func InvoicesPage(lang, dir string, data InvoicesData) templ.Component {
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"max-w-6xl mx-auto stack-lg\"><!-- Header Banner --><div class=\"card\" style=\"background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-2xl); padding:1.5rem 1.75rem;\"><div class=\"flex-between flex-wrap gap-md\"><div><div style=\"display:flex; align-items:center; gap:0.6rem; margin-bottom:0.25rem;\"><div style=\"width:42px; height:42px; border-radius:var(--radius-lg); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center; font-size:1.3rem;\">🧾</div><h1 style=\"font-size:1.45rem; font-weight:900; color:var(--text); margin:0;\">الفواتير الضريبية والإلكترونية</h1></div><p style=\"color:var(--text-muted); font-size:0.875rem; margin:0;\">الفواتير الرسمية الصادرة للطلبيات معتمدة وفقاً لمعايير مصلحة الضرائب المصرية (ETA e-Invoicing) وقابلة للطباعة الفورية.</p></div><div style=\"display:flex; align-items:center; gap:0.75rem; flex-wrap:wrap;\"><span class=\"badge badge-emerald\" style=\"font-size:0.85rem; padding:0.45rem 0.85rem;\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"max-w-6xl mx-auto stack-lg\"><!-- Header Banner --><div class=\"card\" style=\"background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-2xl); padding:1.5rem 1.75rem;\"><div class=\"flex-between flex-wrap gap-md\"><div><div style=\"display:flex; align-items:center; gap:0.6rem; margin-bottom:0.25rem;\"><div style=\"width:42px; height:42px; border-radius:var(--radius-lg); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center; font-size:1.3rem;\">🧾</div><h1 style=\"font-size:1.45rem; font-weight:900; color:var(--text); margin:0;\">فواتير وسندات التوريد</h1></div><p style=\"color:var(--text-muted); font-size:0.875rem; margin:0;\">سجل الفواتير وسندات التوريد الصادرة لطلبيات الأدوية مع تفاصيل المبالغ والبنود وقابلة للطباعة الفورية.</p></div><div style=\"display:flex; align-items:center; gap:0.75rem; flex-wrap:wrap;\"><span class=\"badge badge-secondary\" style=\"font-size:0.85rem; padding:0.45rem 0.85rem;\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = components.IconCheckCircle("icon-xs").Render(ctx, templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = components.IconFileText("icon-xs").Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "<span>معتمدة ضريبياً</span></span></div></div></div><!-- Search & Filter Bar --><div class=\"card\" style=\"background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-xl); padding:1.15rem 1.25rem;\"><form method=\"GET\" action=\"/invoices\" style=\"display:grid; grid-template-columns:1fr auto auto; gap:0.75rem; align-items:center; margin:0;\"><div><input type=\"text\" name=\"q\" value=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "<span>سجل الفواتير</span></span></div></div></div><!-- Search & Filter Bar --><div class=\"card\" style=\"background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-xl); padding:1.15rem 1.25rem;\"><form method=\"GET\" action=\"/invoices\" style=\"display:grid; grid-template-columns:1fr auto auto; gap:0.75rem; align-items:center; margin:0;\"><div><input type=\"text\" name=\"q\" value=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -115,7 +115,7 @@ func InvoicesPage(lang, dir string, data InvoicesData) templ.Component {
 				return templ_7745c5c3_Err
 			}
 			if len(data.Invoices) == 0 {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "<div style=\"padding:3.5rem 1rem; text-align:center; color:var(--text-muted);\"><div style=\"width:52px; height:52px; border-radius:var(--radius-full); background:var(--surface-sunken); color:var(--text-muted); display:flex; align-items:center; justify-content:center; margin:0 auto 1rem auto; font-size:1.5rem;\">📄</div><h3 style=\"font-size:1.15rem; font-weight:800; color:var(--text); margin-bottom:0.35rem;\">لا توجد فواتير مطابقة</h3><p style=\"font-size:0.85rem; margin:0;\">يتم إنشاء وتوثيق الفواتير الضريبية تلقائياً فور تسجيل أوامر الشراء واعتمادها من الصيدليات.</p></div>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "<div style=\"padding:3.5rem 1rem; text-align:center; color:var(--text-muted);\"><div style=\"width:52px; height:52px; border-radius:var(--radius-full); background:var(--surface-sunken); color:var(--text-muted); display:flex; align-items:center; justify-content:center; margin:0 auto 1rem auto; font-size:1.5rem;\">📄</div><h3 style=\"font-size:1.15rem; font-weight:800; color:var(--text); margin-bottom:0.35rem;\">لا توجد فواتير مطابقة</h3><p style=\"font-size:0.85rem; margin:0;\">يتم إنشاء وتوثيق فواتير وسندات التوريد تلقائياً فور تسجيل واعتماد أوامر الشراء.</p></div>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -351,7 +351,7 @@ func InvoicesPage(lang, dir string, data InvoicesData) templ.Component {
 			}
 			return nil
 		})
-		templ_7745c5c3_Err = layouts.ShellFor("الفواتير الضريبية والإلكترونية", "invoices", lang, dir, authctx.FromContext(ctx)).Render(templ.WithChildren(ctx, templ_7745c5c3_Var2), templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = layouts.ShellFor("فواتير وسندات التوريد", "invoices", lang, dir, authctx.FromContext(ctx)).Render(templ.WithChildren(ctx, templ_7745c5c3_Var2), templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

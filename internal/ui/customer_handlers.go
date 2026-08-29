@@ -1152,97 +1152,19 @@ func (h *UIHandler) MarkNotificationReadSubmit(w http.ResponseWriter, r *http.Re
 	http.Redirect(w, r, "/notifications", http.StatusSeeOther)
 }
 
-// CustomerBranchCreatePage renders the full-page create form for adding a pharmacy branch.
+// CustomerBranchCreatePage redirects to the unified branches page in add mode.
 func (h *UIHandler) CustomerBranchCreatePage(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-	lang, dir := h.localeAndDir(r)
-
-	actor, ok := authctx.From(ctx)
-	orgID := actor.OrganizationID
-	if orgID <= 0 {
-		orgID = actor.OrgID
-	}
-	if !ok || orgID <= 0 {
-		http.Redirect(w, r, "/auth/login?redirect=/customer/branches/create", http.StatusSeeOther)
-		return
-	}
-
-	noticeType := r.URL.Query().Get("notice")
-	noticeMsg := r.URL.Query().Get("msg")
-	if noticeType == "" {
-		noticeType = r.URL.Query().Get("notice_type")
-	}
-	if noticeMsg == "" {
-		noticeMsg = r.URL.Query().Get("notice_msg")
-	}
-
-	data := pages.CustomerBranchFormData{
-		Branch:     nil,
-		Cities:     h.listCities(ctx),
-		IsEdit:     false,
-		NoticeType: noticeType,
-		NoticeMsg:  noticeMsg,
-	}
-
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	if err := pages.CustomerBranchFormPage(data, lang, dir, actor.Permissions).Render(ctx, w); err != nil {
-		h.log.ErrorContext(ctx, "render customer branch create page", "error", err)
-	}
+	http.Redirect(w, r, "/customer/branches", http.StatusSeeOther)
 }
 
-// CustomerBranchEditPage renders the full-page edit form for an existing pharmacy branch.
+// CustomerBranchEditPage redirects to the unified branches page with edit mode preloaded.
 func (h *UIHandler) CustomerBranchEditPage(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-	lang, dir := h.localeAndDir(r)
-
-	actor, ok := authctx.From(ctx)
-	orgID := actor.OrganizationID
-	if orgID <= 0 {
-		orgID = actor.OrgID
-	}
-	if !ok || orgID <= 0 {
-		http.Redirect(w, r, "/auth/login?redirect="+r.URL.Path, http.StatusSeeOther)
+	id := chi.URLParam(r, "id")
+	if id != "" {
+		http.Redirect(w, r, "/customer/branches?edit="+id, http.StatusSeeOther)
 		return
 	}
-
-	id, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
-	if err != nil || id <= 0 {
-		h.redirectWithNotice(w, r, "/customer/branches", "error", "معرف الفرع غير صالح.")
-		return
-	}
-
-	if h.orgSvc == nil {
-		h.redirectWithNotice(w, r, "/customer/branches", "error", "الخدمة غير متاحة حالياً.")
-		return
-	}
-
-	branch, err := h.orgSvc.GetBranch(ctx, id)
-	if err != nil || branch == nil || branch.OrganizationID != orgID {
-		h.redirectWithNotice(w, r, "/customer/branches", "error", "الفرع غير موجود أو لا تملك صلاحية تعديله.")
-		return
-	}
-
-	noticeType := r.URL.Query().Get("notice")
-	noticeMsg := r.URL.Query().Get("msg")
-	if noticeType == "" {
-		noticeType = r.URL.Query().Get("notice_type")
-	}
-	if noticeMsg == "" {
-		noticeMsg = r.URL.Query().Get("notice_msg")
-	}
-
-	data := pages.CustomerBranchFormData{
-		Branch:     branch,
-		Cities:     h.listCities(ctx),
-		IsEdit:     true,
-		NoticeType: noticeType,
-		NoticeMsg:  noticeMsg,
-	}
-
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	if err := pages.CustomerBranchFormPage(data, lang, dir, actor.Permissions).Render(ctx, w); err != nil {
-		h.log.ErrorContext(ctx, "render customer branch edit page", "error", err, "branch_id", id)
-	}
+	http.Redirect(w, r, "/customer/branches", http.StatusSeeOther)
 }
 
 // CustomerBranchesPage renders the pharmacy's own branches and employees management screen in CustomerShell.

@@ -66,14 +66,6 @@ templ CustomerShell(title string, activeNav string, lang string, dir string, per
 							@components.IconTag("icon-sm")
 							<span>{ i18n.T(lang, "nav.offers_and_discounts") }</span>
 						</a>
-						<a href="/market-discounts" class={ "sidebar-link", templ.KV("active", activeNav == "market-discounts" || activeNav == "market_discounts") }>
-							@components.IconChart("icon-sm")
-							<span>خصومات السوق العامة</span>
-						</a>
-						<a href="/compare/tool" class={ "sidebar-link", templ.KV("active", activeNav == "compare" || activeNav == "compare-tool") }>
-							@components.IconTrendingUp("icon-sm")
-							<span>مقارنة الخصومات</span>
-						</a>
 						<a href="/customer/saving-products" class={ "sidebar-link", templ.KV("active", activeNav == "saving_products") }>
 							@components.IconPackage("icon-sm")
 							<span>{ i18n.T(lang, "nav.saving_products") }</span>

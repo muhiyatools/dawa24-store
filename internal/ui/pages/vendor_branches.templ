@@ -1,6 +1,7 @@
 package pages
 
 import (
+	"encoding/json"
 	"fmt"
 	"github.com/muhiya/dawa24-store/internal/modules/org"
 	"github.com/muhiya/dawa24-store/internal/modules/platform_admin"
@@ -37,10 +38,10 @@ var institutionalWorkCategories = []struct {
 
 templ VendorBranchesPage(data VendorBranchesData, lang, dir string) {
 	@layouts.VendorShell("إدارة الفروع ونقاط التوزيع اللوجستية", "branches", lang, dir) {
-		<div class="page-container">
+		<div x-data="vendorBranchManager()" x-init="init()" class="page-container">
 			
 			<!-- Header Action Bar -->
-			<div class="glass-panel p-6 mb-0">
+			<div class="glass-panel p-6 mb-4">
 				<div class="flex-between items-center flex-wrap gap-4">
 					<div class="d-flex items-center gap-3">
 						<div class="user-avatar-badge text-2xl">
@@ -57,16 +58,20 @@ templ VendorBranchesPage(data VendorBranchesData, lang, dir string) {
 					</div>
 
 					<div>
-						<a href="#branch-form-panel" class="btn btn-primary font-bold text-xs px-4 py-2 gap-2">
+						<button
+							type="button"
+							class="btn btn-primary font-bold text-xs px-4 py-2 gap-2"
+							@click="resetToAddMode(); document.getElementById('branch-form-panel').scrollIntoView({behavior:'smooth'});"
+						>
 							@components.IconPlus("icon-xs")
 							<span>إضافة فرع جديد</span>
-						</a>
+						</button>
 					</div>
 				</div>
 			</div>
 
 			<!-- Quick Logistics Metrics -->
-			<div class="dashboard-stat-grid cols-3 mb-0">
+			<div class="dashboard-stat-grid cols-3 mb-6">
 				<div class="stat-card-3d">
 					<div class="stat-card-label">إجمالي الفروع المسجلة</div>
 					<div class="stat-card-value text-primary tabular-nums">
@@ -92,14 +97,14 @@ templ VendorBranchesPage(data VendorBranchesData, lang, dir string) {
 				</div>
 			</div>
 
-			<!-- Split Screen Main Layout: Left = Branch List, Right = Sticky Form Panel -->
-			<div class="catalog-main-layout">
+			<!-- Responsive 2-Column Split: Left = Branch List, Right = Unified Form Panel -->
+			<div style="display:grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr); gap:1.5rem; align-items:start;">
 				
 				<!-- Left Column: Branch Cards List -->
 				<div class="d-flex flex-col gap-4">
 					
 					<!-- Search Input -->
-					<div class="glass-panel p-3">
+					<div class="glass-panel p-3 mb-0">
 						<input
 							type="text"
 							id="branch-search-input"
@@ -109,7 +114,7 @@ templ VendorBranchesPage(data VendorBranchesData, lang, dir string) {
 						/>
 					</div>
 
-					<div class="alert alert-warning p-3 d-flex items-center gap-2 text-xs">
+					<div class="alert alert-warning p-3 d-flex items-center gap-2 text-xs mb-0">
 						<span class="text-base">💡</span>
 						<span>
 							لظهور منتجات الفرع في التغطية الجغرافية بدقة، تأكد من تعيين <strong>الأعمال المؤسسية</strong> والإحداثيات الجغرافية.
@@ -126,10 +131,10 @@ templ VendorBranchesPage(data VendorBranchesData, lang, dir string) {
 							<p class="text-xs text-secondary max-w-md mx-auto mb-4">
 								أضف فرعك الرئيسي أو مخزنك المركزي عبر اللوحة المجاورة ليتمكن الصيادلة من معرفة نطاق التغطية والاستلام.
 							</p>
-							<a href="#branch-form-panel" class="btn btn-primary btn-sm font-bold text-xs">
+							<button type="button" class="btn btn-primary btn-sm font-bold text-xs" @click="resetToAddMode()">
 								@components.IconPlus("icon-xs")
 								<span>بدء تعبئة بيانات الفرع الأول</span>
-							</a>
+							</button>
 						</div>
 					} else {
 						<div id="branches-container" class="d-flex flex-col gap-3">
@@ -224,13 +229,22 @@ templ VendorBranchesPage(data VendorBranchesData, lang, dir string) {
 										</div>
 
 										<div class="d-flex items-center gap-2">
-											<a
-												href={ templ.SafeURL(fmt.Sprintf("/vendor/branches/%d/edit", b.ID)) }
+											<button
+												type="button"
 												class="btn btn-secondary btn-sm font-bold text-xs gap-1"
+												data-edit-branch-btn={ fmt.Sprintf("%d", b.ID) }
+												@click={ fmt.Sprintf("setEditMode({id: %d, name_ar: %q, name_en: %q, code: %q, warehouse_type: %q, city_id: %d, manager_id: %d, address: %q, phone: %q, capacity_sqm: %.0f, google_maps_url: %q, has_cold_storage: %t, is_main: %t, latitude: %f, longitude: %f, institutional_works: %s})",
+													b.ID, b.Name.Get("ar"), b.Name.Get("en"), b.Code, b.WarehouseType,
+													func() int64 { if b.CityID != nil { return *b.CityID }; return 0 }(),
+													func() int64 { if b.ManagerID != nil { return *b.ManagerID }; return 0 }(),
+													b.Address, b.Phone, b.CapacitySQM, b.GoogleMapsURL, b.HasColdStorage, b.IsMain,
+													func() float64 { if b.Latitude != nil { return *b.Latitude }; return 30.0444 }(),
+													func() float64 { if b.Longitude != nil { return *b.Longitude }; return 31.2357 }(),
+													formatWorksSliceJSON(b.InstitutionalWorks)) }
 											>
 												@components.IconEdit("icon-xs")
 												<span>تعديل</span>
-											</a>
+											</button>
 
 											<form action={ templ.SafeURL(fmt.Sprintf("/vendor/branches/%d/delete", b.ID)) } method="POST" onsubmit="return confirm('هل أنت متأكد من حذف هذا الفرع؟');" class="m-0">
 												<button type="submit" class="btn btn-secondary btn-sm btn-icon text-danger" title="حذف الفرع">
@@ -245,20 +259,35 @@ templ VendorBranchesPage(data VendorBranchesData, lang, dir string) {
 					}
 				</div>
 
-				<!-- Right Column: Sticky Form Panel -->
+				<!-- Right Column: Sticky Form Panel with Add / Edit Modes -->
 				<div id="branch-form-panel" class="glass-panel p-6 d-flex flex-col gap-4 sticky top-6">
 					
 					<!-- Form Header -->
 					<div class="flex-between items-center pb-3 border-b">
 						<div class="d-flex items-center gap-2">
-							<span class="text-xl">🏢</span>
-							<h2 class="text-base font-black text-primary m-0">
-								إضافة فرع / مخزن جديد
-							</h2>
+							<span class="text-xl" x-text="mode === 'edit' ? '✏️' : '🏢'"></span>
+							<div>
+								<h2 class="text-base font-black text-primary m-0" x-text="mode === 'edit' ? 'تعديل بيانات الفرع: ' + (form.name_ar || '') : 'إضافة فرع / مخزن جديد'">
+								</h2>
+								<p class="text-xs text-secondary m-0 mt-0.5" x-text="mode === 'edit' ? 'تحديث وتعديل بيانات الفرع المحدد وموقعه الجغرافي' : 'أدخل بيانات الفرع أو المستودع وموقعه لإضافته لشبكتك'">
+								</p>
+							</div>
 						</div>
+
+						<!-- Exit Edit Mode Button -->
+						<template x-if="mode === 'edit'">
+							<button
+								type="button"
+								class="btn btn-secondary btn-xs font-bold gap-1"
+								@click="resetToAddMode()"
+								title="الخروج من وضع التعديل والعودة لإضافة فرع جديد"
+							>
+								<span>✕ الخروج من وضع التعديل</span>
+							</button>
+						</template>
 					</div>
 
-					<form action="/vendor/branches/new" method="POST" class="d-flex flex-col gap-3 m-0">
+					<form method="POST" :action="formAction" class="d-flex flex-col gap-3 m-0">
 						
 						<!-- Section 1: Names & Code -->
 						<div class="d-grid grid-cols-2 gap-3">
@@ -266,14 +295,14 @@ templ VendorBranchesPage(data VendorBranchesData, lang, dir string) {
 								<label class="form-label text-xs font-bold text-primary mb-1 d-block">
 									اسم الفرع (بالعربية) <span class="text-danger">*</span>
 								</label>
-								<input type="text" name="name_ar" required placeholder="مثال: الفرع الرئيسي - القاهرة" class="form-input text-xs w-full"/>
+								<input type="text" name="name_ar" x-model="form.name_ar" required placeholder="مثال: الفرع الرئيسي - القاهرة" class="form-input text-xs w-full"/>
 							</div>
 
 							<div>
 								<label class="form-label text-xs font-bold text-primary mb-1 d-block">
 									اسم الفرع (بالإنجليزية) <span class="text-danger">*</span>
 								</label>
-								<input type="text" name="name_en" placeholder="e.g. Main Branch - Cairo" class="form-input text-xs w-full" dir="ltr"/>
+								<input type="text" name="name_en" x-model="form.name_en" placeholder="e.g. Main Branch - Cairo" class="form-input text-xs w-full" dir="ltr"/>
 							</div>
 						</div>
 
@@ -282,14 +311,14 @@ templ VendorBranchesPage(data VendorBranchesData, lang, dir string) {
 								<label class="form-label text-xs font-bold text-primary mb-1 d-block">
 									كود الفرع (Branch Code)
 								</label>
-								<input type="text" name="code" placeholder="مثال: BR-CAI-01" class="form-input text-xs tabular-nums w-full"/>
+								<input type="text" name="code" x-model="form.code" placeholder="مثال: BR-CAI-01" class="form-input text-xs tabular-nums w-full"/>
 							</div>
 
 							<div>
 								<label class="form-label text-xs font-bold text-primary mb-1 d-block">
 									نوع المنشأة اللوجستية <span class="text-danger">*</span>
 								</label>
-								<select name="warehouse_type" class="form-input text-xs w-full">
+								<select name="warehouse_type" x-model="form.warehouse_type" class="form-input text-xs w-full">
 									<option value="warehouse">مخزن أدوية مركزي (Warehouse)</option>
 									<option value="fast_hub">نقطة توزيع سريعة (Fast Hub)</option>
 									<option value="cold_depot">مخزن تبريد مخصص (Cold Depot)</option>
@@ -314,8 +343,8 @@ templ VendorBranchesPage(data VendorBranchesData, lang, dir string) {
 									</button>
 								</div>
 
-								<input type="hidden" name="latitude" data-map-input="lat" value="30.0444"/>
-								<input type="hidden" name="longitude" data-map-input="lon" value="31.2357"/>
+								<input type="hidden" name="latitude" data-map-input="lat" :value="form.latitude"/>
+								<input type="hidden" name="longitude" data-map-input="lon" :value="form.longitude"/>
 							</div>
 						</div>
 
@@ -324,7 +353,7 @@ templ VendorBranchesPage(data VendorBranchesData, lang, dir string) {
 							<label class="form-label text-xs font-bold text-primary mb-1 d-block">
 								🔗 رابط خرائط Google (Google Maps URL)
 							</label>
-							<input type="text" name="google_maps_url" data-map-input="google_url" placeholder="الصق أي رابط من Google Maps لاستخراج الإحداثيات فوراً..." class="form-input text-xs w-full"/>
+							<input type="text" name="google_maps_url" x-model="form.google_maps_url" data-map-input="google_url" placeholder="الصق أي رابط من Google Maps لاستخراج الإحداثيات فوراً..." class="form-input text-xs w-full"/>
 						</div>
 
 						<!-- Section 3: City, Address, Manager -->
@@ -333,7 +362,7 @@ templ VendorBranchesPage(data VendorBranchesData, lang, dir string) {
 								<label class="form-label text-xs font-bold text-primary mb-1 d-block">
 									المدينة / المحافظة <span class="text-danger">*</span>
 								</label>
-								<select name="city_id" data-map-city class="form-input text-xs w-full">
+								<select name="city_id" x-model="form.city_id" data-map-city class="form-input text-xs w-full">
 									<option value="">-- اختر المدينة --</option>
 									for _, c := range data.Cities {
 										<option
@@ -351,7 +380,7 @@ templ VendorBranchesPage(data VendorBranchesData, lang, dir string) {
 								<label class="form-label text-xs font-bold text-primary mb-1 d-block">
 									مدير الفرع المسؤول
 								</label>
-								<select name="manager_id" class="form-input text-xs w-full">
+								<select name="manager_id" x-model="form.manager_id" class="form-input text-xs w-full">
 									<option value="">-- تعيين مدير من الموظفين --</option>
 									for _, emp := range data.Employees {
 										if emp.Member != nil {
@@ -368,7 +397,7 @@ templ VendorBranchesPage(data VendorBranchesData, lang, dir string) {
 							<label class="form-label text-xs font-bold text-primary mb-1 d-block">
 								العنوان التفصيلي <span class="text-danger">*</span>
 							</label>
-							<input type="text" name="address" required placeholder="مثال: المنطقة الصناعية الثانية، قطعة 42" class="form-input text-xs w-full"/>
+							<input type="text" name="address" x-model="form.address" required placeholder="مثال: المنطقة الصناعية الثانية، قطعة 42" class="form-input text-xs w-full"/>
 						</div>
 
 						<div class="d-grid grid-cols-2 gap-3">
@@ -376,14 +405,14 @@ templ VendorBranchesPage(data VendorBranchesData, lang, dir string) {
 								<label class="form-label text-xs font-bold text-primary mb-1 d-block">
 									رقم هاتف الفرع
 								</label>
-								<input type="tel" name="phone" placeholder="010XXXXXXXX" class="form-input text-xs tabular-nums w-full"/>
+								<input type="tel" name="phone" x-model="form.phone" placeholder="010XXXXXXXX" class="form-input text-xs tabular-nums w-full"/>
 							</div>
 
 							<div>
 								<label class="form-label text-xs font-bold text-primary mb-1 d-block">
 									المساحة التخزينية (م²)
 								</label>
-								<input type="number" name="capacity_sqm" placeholder="500" class="form-input text-xs tabular-nums w-full"/>
+								<input type="number" name="capacity_sqm" x-model="form.capacity_sqm" placeholder="500" class="form-input text-xs tabular-nums w-full"/>
 							</div>
 						</div>
 
@@ -396,7 +425,7 @@ templ VendorBranchesPage(data VendorBranchesData, lang, dir string) {
 							<div class="d-grid grid-cols-2 gap-1.5 mt-1" style="max-height: 140px; overflow-y: auto;">
 								for _, cat := range institutionalWorkCategories {
 									<label class="d-flex items-center gap-1.5 text-xs text-secondary cursor-pointer p-1 rounded hover:bg-surface-raised">
-										<input type="checkbox" name="institutional_works" value={ cat.Key } class="form-checkbox"/>
+										<input type="checkbox" name="institutional_works" value={ cat.Key } x-model="form.institutional_works" class="form-checkbox"/>
 										<span>{ cat.Icon } { cat.LabelAr }</span>
 									</label>
 								}
@@ -406,20 +435,20 @@ templ VendorBranchesPage(data VendorBranchesData, lang, dir string) {
 						<!-- Section 5: Checkboxes -->
 						<div class="d-grid grid-cols-2 gap-3 py-1">
 							<label class="d-flex items-center gap-2 text-xs font-bold text-primary cursor-pointer p-2 rounded-lg bg-surface-sunken border">
-								<input type="checkbox" name="has_cold_storage" value="true" class="form-checkbox"/>
+								<input type="checkbox" name="has_cold_storage" value="true" x-model="form.has_cold_storage" class="form-checkbox"/>
 								<span>❄️ سلسلة تبريد (2° - 8°)</span>
 							</label>
 
 							<label class="d-flex items-center gap-2 text-xs font-bold text-primary cursor-pointer p-2 rounded-lg bg-surface-sunken border">
-								<input type="checkbox" name="is_main" value="true" class="form-checkbox"/>
+								<input type="checkbox" name="is_main" value="true" x-model="form.is_main" class="form-checkbox"/>
 								<span>⭐ تعيين كفرع رئيسي</span>
 							</label>
 						</div>
 
 						<!-- Submit Button -->
 						<button type="submit" class="btn btn-primary btn-sm font-black w-full justify-center py-2.5 mt-2">
-							@components.IconPlus("icon-xs")
-							<span>حفظ وإضافة الفرع الآن</span>
+							@components.IconCheck("icon-xs")
+							<span x-text="mode === 'edit' ? '💾 حفظ تحديثات الفرع' : 'حفظ وإضافة الفرع الآن'"></span>
 						</button>
 					</form>
 				</div>
@@ -427,6 +456,90 @@ templ VendorBranchesPage(data VendorBranchesData, lang, dir string) {
 		</div>
 
 		<script>
+			function vendorBranchManager() {
+				return {
+					mode: 'add',
+					editId: 0,
+					formAction: '/vendor/branches/new',
+					form: {
+						id: 0,
+						name_ar: '',
+						name_en: '',
+						code: '',
+						warehouse_type: 'warehouse',
+						city_id: '',
+						manager_id: '',
+						address: '',
+						phone: '',
+						capacity_sqm: '',
+						google_maps_url: '',
+						has_cold_storage: false,
+						is_main: false,
+						latitude: 30.0444,
+						longitude: 31.2357,
+						institutional_works: []
+					},
+					init() {
+						const urlParams = new URLSearchParams(window.location.search);
+						const editParam = urlParams.get('edit');
+						if (editParam) {
+							const btn = document.querySelector(`[data-edit-branch-btn="${editParam}"]`);
+							if (btn) btn.click();
+						}
+					},
+					setEditMode(b) {
+						this.mode = 'edit';
+						this.editId = b.id;
+						this.formAction = '/vendor/branches/' + b.id + '/edit';
+						this.form = {
+							id: b.id,
+							name_ar: b.name_ar || '',
+							name_en: b.name_en || '',
+							code: b.code || '',
+							warehouse_type: b.warehouse_type || 'warehouse',
+							city_id: b.city_id ? String(b.city_id) : '',
+							manager_id: b.manager_id ? String(b.manager_id) : '',
+							address: b.address || '',
+							phone: b.phone || '',
+							capacity_sqm: b.capacity_sqm || '',
+							google_maps_url: b.google_maps_url || '',
+							has_cold_storage: !!b.has_cold_storage,
+							is_main: !!b.is_main,
+							latitude: b.latitude || 30.0444,
+							longitude: b.longitude || 31.2357,
+							institutional_works: Array.isArray(b.institutional_works) ? b.institutional_works : []
+						};
+						const formEl = document.getElementById('branch-form-panel');
+						if (formEl) {
+							formEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+						}
+					},
+					resetToAddMode() {
+						this.mode = 'add';
+						this.editId = 0;
+						this.formAction = '/vendor/branches/new';
+						this.form = {
+							id: 0,
+							name_ar: '',
+							name_en: '',
+							code: '',
+							warehouse_type: 'warehouse',
+							city_id: '',
+							manager_id: '',
+							address: '',
+							phone: '',
+							capacity_sqm: '',
+							google_maps_url: '',
+							has_cold_storage: false,
+							is_main: false,
+							latitude: 30.0444,
+							longitude: 31.2357,
+							institutional_works: []
+						};
+					}
+				};
+			}
+
 			function filterBranchesList(q) {
 				const query = (q || '').toLowerCase().trim();
 				const cards = document.querySelectorAll('.branch-card');
@@ -469,4 +582,15 @@ func formatInstitutionalWorkLabel(key string) string {
 		}
 	}
 	return key
+}
+
+func formatWorksSliceJSON(works []string) string {
+	if len(works) == 0 {
+		return "[]"
+	}
+	b, err := json.Marshal(works)
+	if err != nil {
+		return "[]"
+	}
+	return string(b)
 }
