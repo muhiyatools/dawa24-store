@@ -3,8 +3,6 @@ package pages
 import (
 	"fmt"
 
-	"github.com/muhiya/dawa24-store/internal/shared/i18n"
-
 	"github.com/muhiya/dawa24-store/internal/modules/identity"
 	"github.com/muhiya/dawa24-store/internal/modules/org"
 	"github.com/muhiya/dawa24-store/internal/shared/format"
@@ -101,22 +99,51 @@ templ VendorUserOrganizationsPage(lang, dir string, data *VendorUserOrgData) {
 				Size:  "md",
 			}) {
 				<form method="POST" action="/vendor/user-organization/new" style="display:flex; flex-direction:column; gap:1.2rem; text-align:start; margin:0;">
-					<div class="form-group m-0">
-						<label class="form-label" for="vendor-uo-user">
+					<!-- Live AJAX User Search with Debouncing -->
+					<div class="form-group m-0" style="position:relative;">
+						<label class="form-label" for="vendor-uo-user-search">
 							المستخدم / الصيدلية المستهدفة *
 						</label>
-						<select id="vendor-uo-user" name="user_id" required class="form-select fw-700">
-							<option value="">-- اختر المستخدم / الصيدلية --</option>
-							if data != nil {
-								for _, u := range data.AllCustomers {
-									if u != nil {
-										<option value={ fmt.Sprintf("%d", u.ID) }>
-											{ u.Name.Get(i18n.Lang(lang)) } ({ u.Email }) - #{ fmt.Sprintf("%d", u.ID) }
-										</option>
-									}
-								}
-							}
-						</select>
+						
+						<!-- Hidden Input holding the selected User ID -->
+						<input type="hidden" id="vendor-selected-user-id" name="user_id" required value="" />
+
+						<!-- Selected User Chip Card (shown once a user is chosen) -->
+						<div id="vendor-selected-user-chip" style="display:none; padding:0.75rem 1rem; border-radius:var(--radius-lg); background:rgba(16,185,129,0.08); border:1px solid rgba(16,185,129,0.3); margin-bottom:0.5rem; justify-content:space-between; align-items:center;">
+							<div style="display:flex; align-items:center; gap:0.6rem;">
+								<span style="font-size:1.2rem;">👤</span>
+								<div>
+									<strong id="vendor-selected-user-name" style="color:var(--text); font-size:0.9rem;"></strong>
+									<div id="vendor-selected-user-details" style="font-size:0.75rem; color:var(--text-muted);" dir="ltr"></div>
+								</div>
+							</div>
+							<button type="button" class="btn btn-ghost btn-xs text-danger" onclick="clearVendorSelectedUser()" style="font-weight:700;">
+								✕ تغيير
+							</button>
+						</div>
+
+						<!-- Search Input Field -->
+						<div id="vendor-search-input-wrapper" style="position:relative;">
+							<input
+								type="text"
+								id="vendor-uo-user-search"
+								placeholder="ابحث بالاسم أو البريد الإلكتروني أو الهاتف..."
+								autocomplete="off"
+								class="form-control fw-700"
+								style="font-size:0.9rem; padding-inline-end:2.2rem;"
+								oninput="handleVendorUserSearch(this.value)"
+								onfocus="handleVendorUserSearch(this.value)"
+							/>
+							<div id="vendor-search-spinner" style="position:absolute; inset-inline-end:10px; top:50%; transform:translateY(-50%); display:none; font-size:0.8rem;">
+								⏳
+							</div>
+						</div>
+
+						<!-- Autocomplete Results Dropdown -->
+						<div
+							id="vendor-user-search-dropdown"
+							style="display:none; position:absolute; top:100%; inset-inline-start:0; inset-inline-end:0; z-index:1050; max-height:220px; overflow-y:auto; background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-lg); box-shadow:0 10px 25px rgba(0,0,0,0.15); margin-top:4px;"
+						></div>
 					</div>
 
 					<div class="form-group m-0">
@@ -361,5 +388,111 @@ templ VendorUserOrganizationsPage(lang, dir string, data *VendorUserOrgData) {
 			}
 
 		</div>
+
+		<script>
+			let searchDebounceTimer = null;
+
+			function handleVendorUserSearch(val) {
+				clearTimeout(searchDebounceTimer);
+				const dropdown = document.getElementById('vendor-user-search-dropdown');
+				const spinner = document.getElementById('vendor-search-spinner');
+				if (!dropdown) return;
+
+				const query = (val || '').trim();
+				if (!query) {
+					dropdown.style.display = 'none';
+					dropdown.innerHTML = '';
+					if (spinner) spinner.style.display = 'none';
+					return;
+				}
+
+				if (spinner) spinner.style.display = 'block';
+
+				searchDebounceTimer = setTimeout(() => {
+					fetch('/vendor/api/users/search?q=' + encodeURIComponent(query))
+						.then(res => res.json())
+						.then(users => {
+							if (spinner) spinner.style.display = 'none';
+							if (!users || users.length === 0) {
+								dropdown.innerHTML = '<div style="padding:0.75rem 1rem; color:var(--text-muted); font-size:0.85rem; text-align:center;">لا توجد حسابات صيدليات أو مستخدمين مطابقة</div>';
+								dropdown.style.display = 'block';
+								return;
+							}
+
+							let html = '';
+							users.forEach(u => {
+								const safeName = (u.name || 'بدون اسم').replace(/'/g, "\\'");
+								const safeEmail = (u.email || '').replace(/'/g, "\\'");
+								const safePhone = (u.phone || '').replace(/'/g, "\\'");
+								html += `
+									<div
+										onclick="selectVendorUser(${u.id}, '${safeName}', '${safeEmail}', '${safePhone}')"
+										style="padding:0.65rem 0.9rem; border-bottom:1px solid var(--border); cursor:pointer; display:flex; align-items:center; justify-content:space-between; gap:0.5rem; transition:background 0.15s;"
+										onmouseenter="this.style.background='var(--surface-sunken)'"
+										onmouseleave="this.style.background='transparent'"
+									>
+										<div>
+											<strong style="font-size:0.875rem; color:var(--text);">${u.name}</strong>
+											<div style="font-size:0.75rem; color:var(--text-muted);" dir="ltr">${u.email} ${u.phone ? '• ' + u.phone : ''}</div>
+										</div>
+										<span class="badge badge-sky text-xs">#${u.id}</span>
+									</div>
+								`;
+							});
+							dropdown.innerHTML = html;
+							dropdown.style.display = 'block';
+						})
+						.catch(err => {
+							if (spinner) spinner.style.display = 'none';
+							dropdown.innerHTML = '<div style="padding:0.75rem 1rem; color:var(--danger); font-size:0.85rem; text-align:center;">حدث خطأ أثناء البحث</div>';
+							dropdown.style.display = 'block';
+						});
+				}, 250);
+			}
+
+			function selectVendorUser(id, name, email, phone) {
+				const hiddenInput = document.getElementById('vendor-selected-user-id');
+				const chip = document.getElementById('vendor-selected-user-chip');
+				const chipName = document.getElementById('vendor-selected-user-name');
+				const chipDetails = document.getElementById('vendor-selected-user-details');
+				const searchWrapper = document.getElementById('vendor-search-input-wrapper');
+				const dropdown = document.getElementById('vendor-user-search-dropdown');
+				const searchInput = document.getElementById('vendor-uo-user-search');
+
+				if (hiddenInput) hiddenInput.value = id;
+				if (chipName) chipName.textContent = name;
+				if (chipDetails) chipDetails.textContent = email + (phone ? ' • ' + phone : '') + ' (ID: #' + id + ')';
+				if (chip) chip.style.display = 'flex';
+				if (searchWrapper) searchWrapper.style.display = 'none';
+				if (dropdown) {
+					dropdown.style.display = 'none';
+					dropdown.innerHTML = '';
+				}
+				if (searchInput) searchInput.value = '';
+			}
+
+			function clearVendorSelectedUser() {
+				const hiddenInput = document.getElementById('vendor-selected-user-id');
+				const chip = document.getElementById('vendor-selected-user-chip');
+				const searchWrapper = document.getElementById('vendor-search-input-wrapper');
+				const searchInput = document.getElementById('vendor-uo-user-search');
+
+				if (hiddenInput) hiddenInput.value = '';
+				if (chip) chip.style.display = 'none';
+				if (searchWrapper) searchWrapper.style.display = 'block';
+				if (searchInput) {
+					searchInput.value = '';
+					searchInput.focus();
+				}
+			}
+
+			document.addEventListener('click', (e) => {
+				const dropdown = document.getElementById('vendor-user-search-dropdown');
+				const searchInput = document.getElementById('vendor-uo-user-search');
+				if (dropdown && !dropdown.contains(e.target) && e.target !== searchInput) {
+					dropdown.style.display = 'none';
+				}
+			});
+		</script>
 	}
 }

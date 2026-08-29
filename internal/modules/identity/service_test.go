@@ -172,6 +172,13 @@ func (m *mockRepo) AdminListUsers(ctx context.Context, role, status string) ([]*
 	}
 	return list, nil
 }
+func (m *mockRepo) SearchUsers(ctx context.Context, query, role string, limit int) ([]*User, error) {
+	var list []*User
+	for _, u := range m.users {
+		list = append(list, u)
+	}
+	return list, nil
+}
 func (m *mockRepo) AdminUpdateUserStatus(ctx context.Context, id int64, status string, actorID int64) error {
 	if u, ok := m.users[id]; ok {
 		u.Status = UserStatus(status)

@@ -214,6 +214,9 @@ func (happyRepo) ListFavorites(ctx context.Context, userID int64) ([]int64, erro
 func (happyRepo) AdminListUsers(ctx context.Context, role, status string) ([]*identity.User, error) {
 	return []*identity.User{{ID: 1, Email: "user@example.com"}}, nil
 }
+func (happyRepo) SearchUsers(ctx context.Context, query, role string, limit int) ([]*identity.User, error) {
+	return []*identity.User{{ID: 1, Email: "user@example.com"}}, nil
+}
 func (happyRepo) AdminCountUsers(ctx context.Context) (int, error) {
 	return 1, nil
 }
@@ -463,6 +466,11 @@ func TestIdentityHandler_HappyPaths(t *testing.T) {
 func (r stubRepo) AdminCountUsers(_ context.Context) (int, error) {
 	r.fail("AdminCountUsers")
 	return 0, nil
+}
+
+func (r stubRepo) SearchUsers(_ context.Context, _ string, _ string, _ int) ([]*identity.User, error) {
+	r.fail("SearchUsers")
+	return nil, nil
 }
 
 func (r stubRepo) DefaultOrgForUser(_ context.Context, _ int64) (int64, error) {

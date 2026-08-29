@@ -1,6 +1,7 @@
 package ui
 
 import (
+	"encoding/json"
 	"net/http"
 	"net/url"
 	"strconv"
@@ -12,6 +13,56 @@ import (
 	"github.com/muhiya/dawa24-store/internal/platform/database"
 	"github.com/muhiya/dawa24-store/internal/ui/pages"
 )
+
+// VendorUserSearchJSON provides live AJAX user search for vendors to link customers/pharmacies.
+func (h *UIHandler) VendorUserSearchJSON(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	actor, ok := authctx.From(ctx)
+	if !ok || (!actor.IsVendor() && !actor.IsStaff()) {
+		http.Error(w, `{"error":"unauthorized"}`, http.StatusUnauthorized)
+		return
+	}
+
+	q := strings.TrimSpace(r.URL.Query().Get("q"))
+	sysCtx := database.AsSystem(ctx)
+
+	type UserSearchResult struct {
+		ID    int64  `json:"id"`
+		Name  string `json:"name"`
+		Email string `json:"email"`
+		Phone string `json:"phone"`
+		Role  string `json:"role"`
+	}
+
+	var results []UserSearchResult
+	if h.idSvc != nil {
+		users, err := h.idSvc.SearchUsers(sysCtx, q, "", 20)
+		if err == nil {
+			for _, u := range users {
+				if u == nil {
+					continue
+				}
+				name := u.Name.Get("ar")
+				if name == "" {
+					name = u.Name.Get("en")
+				}
+				if name == "" {
+					name = u.Email
+				}
+				results = append(results, UserSearchResult{
+					ID:    u.ID,
+					Name:  name,
+					Email: u.Email,
+					Phone: u.Phone,
+					Role:  u.Role,
+				})
+			}
+		}
+	}
+
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	_ = json.NewEncoder(w).Encode(results)
+}
 
 // VendorUserOrganizationsPage renders the vendor's customer user connections and requests.
 func (h *UIHandler) VendorUserOrganizationsPage(w http.ResponseWriter, r *http.Request) {
@@ -60,14 +111,6 @@ func (h *UIHandler) VendorUserOrganizationsPage(w http.ResponseWriter, r *http.R
 		filteredLinks, err := h.orgSvc.ListUserOrganizationsByVendor(sysCtx, orgID, statusFilter)
 		if err == nil {
 			data.UserOrgs = filteredLinks
-		}
-
-		// Load customer users for "ADD USER" modal
-		if h.idSvc != nil {
-			customers, err := h.idSvc.AdminListUsers(sysCtx, "", "customer")
-			if err == nil {
-				data.AllCustomers = customers
-			}
 		}
 	}
 

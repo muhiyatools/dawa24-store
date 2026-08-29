@@ -832,7 +832,7 @@ templ SupplierProfile(lang, dir string, data SupplierProfileData) {
 											}}
 											if discPct > 0 {
 												<span class="badge badge-emerald tabular-nums" style="font-size:0.825rem; font-weight:800; padding:0.2rem 0.55rem;">
-													{ fmt.Sprintf("%.1f%%", discPct) }
+													{ fmt.Sprintf("%.0f%%", discPct) }
 												</span>
 											} else {
 												<span class="text-xs text-muted">0%</span>

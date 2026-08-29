@@ -898,10 +898,7 @@ func calculateMaxDiscount(items []*compare.MarketDiscountRow) float64 {
 }
 
 func formatDiscount(d float64) string {
-	if d == float64(int(d)) {
-		return fmt.Sprintf("%.0f", d)
-	}
-	return fmt.Sprintf("%.1f", d)
+	return fmt.Sprintf("%.0f", d)
 }
 
 func formatOptionalFloat(v *float64) string {

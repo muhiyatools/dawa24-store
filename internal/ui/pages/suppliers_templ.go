@@ -1415,7 +1415,7 @@ func SupplierProfile(lang, dir string, data SupplierProfileData) templ.Component
 							return templ_7745c5c3_Err
 						}
 						var templ_7745c5c3_Var65 string
-						templ_7745c5c3_Var65, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%.1f%%", discPct))
+						templ_7745c5c3_Var65, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%.0f%%", discPct))
 						if templ_7745c5c3_Err != nil {
 							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/suppliers.templ`, Line: 835, Col: 45}
 						}

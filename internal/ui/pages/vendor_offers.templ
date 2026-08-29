@@ -146,7 +146,7 @@ templ VendorSpecialOffersPage(data VendorSpecialOffersData, lang, dir string) {
 									<div>
 										<div style="font-size:0.725rem; color:var(--text-muted); font-weight:700;">نسبة الخصم:</div>
 										<div style="font-size:1.1rem; font-weight:800; color:var(--accent);" class="tabular-nums">
-											{ fmt.Sprintf("%.1f%%", o.DiscountPercentage) }
+											{ fmt.Sprintf("%.0f%%", o.DiscountPercentage) }
 										</div>
 									</div>
 

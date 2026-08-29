@@ -8,6 +8,10 @@ func (s *Service) AdminListUsers(ctx context.Context, role, status string) ([]*U
 	return s.repo.AdminListUsers(ctx, role, status)
 }
 
+func (s *Service) SearchUsers(ctx context.Context, query, role string, limit int) ([]*User, error) {
+	return s.repo.SearchUsers(ctx, query, role, limit)
+}
+
 // AdminCountUsers returns the total number of accounts, for dashboards that
 // need a figure rather than a page of rows.
 func (s *Service) AdminCountUsers(ctx context.Context) (int, error) {

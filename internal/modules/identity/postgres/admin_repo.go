@@ -75,6 +75,54 @@ func (r *Repository) AdminListUsers(ctx context.Context, role, status string) ([
 	return list, err
 }
 
+// SearchUsers returns active users matching a query by name, email, or phone.
+func (r *Repository) SearchUsers(ctx context.Context, query, role string, limit int) ([]*identity.User, error) {
+	if limit <= 0 || limit > 100 {
+		limit = 20
+	}
+	var list []*identity.User
+	err := r.db.InReadTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
+		sql := `
+			SELECT id, public_id, email, name, role, status, language, timezone,
+			       phone, email_verified_at, phone_verified_at, created_at, updated_at
+			FROM identity.users
+			WHERE deleted_at IS NULL
+			  AND ($1::text = '' OR (
+			      email::text ILIKE '%' || $1 || '%' OR
+			      phone ILIKE '%' || $1 || '%' OR
+			      name->>'ar' ILIKE '%' || $1 || '%' OR
+			      name->>'en' ILIKE '%' || $1 || '%' OR
+			      name::text ILIKE '%' || $1 || '%'
+			  ))
+			  AND ($2::text = '' OR role = $2)
+			ORDER BY created_at DESC
+			LIMIT $3;
+		`
+		rows, err := tx.Query(txCtx, sql, query, role, limit)
+		if err != nil {
+			return err
+		}
+		defer rows.Close()
+
+		for rows.Next() {
+			var u identity.User
+			var statusStr, langStr string
+			if err := rows.Scan(
+				&u.ID, &u.PublicID, &u.Email, &u.Name, &u.Role, &statusStr, &langStr,
+				&u.Timezone, &u.Phone, &u.EmailVerifiedAt, &u.PhoneVerifiedAt,
+				&u.CreatedAt, &u.UpdatedAt,
+			); err != nil {
+				return err
+			}
+			u.Status = identity.UserStatus(statusStr)
+			u.Language = i18n.Lang(langStr)
+			list = append(list, &u)
+		}
+		return rows.Err()
+	})
+	return list, err
+}
+
 // AdminUpdateUserStatus activates, suspends or bans an account.
 func (r *Repository) AdminUpdateUserStatus(ctx context.Context, id int64, status string, actorID int64) error {
 	return r.db.InTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {

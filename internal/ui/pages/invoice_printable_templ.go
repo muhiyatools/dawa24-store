@@ -14,6 +14,13 @@ import (
 	"github.com/muhiya/dawa24-store/internal/modules/billing"
 )
 
+func formatDiscountInt(pct float64) string {
+	if pct <= 0 {
+		return "0%"
+	}
+	return fmt.Sprintf("%.0f%%", pct)
+}
+
 func InvoicePrintablePage(data billing.PrintableInvoiceData, lang, dir string) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
@@ -42,7 +49,7 @@ func InvoicePrintablePage(data billing.PrintableInvoiceData, lang, dir string) t
 		var templ_7745c5c3_Var2 string
 		templ_7745c5c3_Var2, templ_7745c5c3_Err = templ.ResolveAttributeValue(lang)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/invoice_printable.templ`, Line: 11, Col: 18}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/invoice_printable.templ`, Line: 18, Col: 18}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var2)
 		if templ_7745c5c3_Err != nil {
@@ -55,7 +62,7 @@ func InvoicePrintablePage(data billing.PrintableInvoiceData, lang, dir string) t
 		var templ_7745c5c3_Var3 string
 		templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.ResolveAttributeValue(dir)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/invoice_printable.templ`, Line: 11, Col: 30}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/invoice_printable.templ`, Line: 18, Col: 30}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var3)
 		if templ_7745c5c3_Err != nil {
@@ -68,235 +75,234 @@ func InvoicePrintablePage(data billing.PrintableInvoiceData, lang, dir string) t
 		var templ_7745c5c3_Var4 string
 		templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("فاتورة توريد #%s - دواء 24", data.InvoiceNumber))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/invoice_printable.templ`, Line: 15, Col: 88}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/invoice_printable.templ`, Line: 22, Col: 88}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "</title><style>\n\t\t\t\t:root {\n\t\t\t\t\t--primary: #0f172a;\n\t\t\t\t\t--accent: #2563eb;\n\t\t\t\t\t--border: #cbd5e1;\n\t\t\t\t\t--text: #1e293b;\n\t\t\t\t\t--text-muted: #64748b;\n\t\t\t\t\t--bg-light: #f8fafc;\n\t\t\t\t}\n\t\t\t\t* {\n\t\t\t\t\tbox-sizing: border-box;\n\t\t\t\t\tmargin: 0;\n\t\t\t\t\tpadding: 0;\n\t\t\t\t\tfont-family: -apple-system, BlinkMacSystemFont, \"Segoe UI\", Roboto, \"Helvetica Neue\", Arial, \"Noto Sans Arabic\", sans-serif;\n\t\t\t\t}\n\t\t\t\tbody {\n\t\t\t\t\tbackground-color: #e2e8f0;\n\t\t\t\t\tcolor: #1e293b;\n\t\t\t\t\tdirection: rtl;\n\t\t\t\t\tfont-size: 13px;\n\t\t\t\t\tline-height: 1.4;\n\t\t\t\t\tpadding: 1.5rem 1rem 3rem 1rem;\n\t\t\t\t}\n\n\t\t\t\t/* Action Bar (Hidden in Print) */\n\t\t\t\t.no-print-toolbar {\n\t\t\t\t\tmax-width: 820px;\n\t\t\t\t\tmargin: 0 auto 1.5rem auto;\n\t\t\t\t\tbackground: #ffffff;\n\t\t\t\t\tpadding: 0.85rem 1.25rem;\n\t\t\t\t\tborder-radius: 12px;\n\t\t\t\t\tbox-shadow: 0 4px 12px rgba(0,0,0,0.08);\n\t\t\t\t\tdisplay: flex;\n\t\t\t\t\talign-items: center;\n\t\t\t\t\tjustify-content: space-between;\n\t\t\t\t\tflex-wrap: wrap;\n\t\t\t\t\tgap: 0.75rem;\n\t\t\t\t}\n\t\t\t\t.toolbar-btn-group {\n\t\t\t\t\tdisplay: flex;\n\t\t\t\t\talign-items: center;\n\t\t\t\t\tgap: 0.5rem;\n\t\t\t\t}\n\t\t\t\t.btn-action {\n\t\t\t\t\tdisplay: inline-flex;\n\t\t\t\t\talign-items: center;\n\t\t\t\t\tgap: 0.4rem;\n\t\t\t\t\tpadding: 0.55rem 1rem;\n\t\t\t\t\tfont-size: 0.85rem;\n\t\t\t\t\tfont-weight: 700;\n\t\t\t\t\tborder-radius: 8px;\n\t\t\t\t\tcursor: pointer;\n\t\t\t\t\ttext-decoration: none;\n\t\t\t\t\ttransition: all 0.15s ease;\n\t\t\t\t\tborder: 1px solid transparent;\n\t\t\t\t}\n\t\t\t\t.btn-primary {\n\t\t\t\t\tbackground: #2563eb;\n\t\t\t\t\tcolor: #ffffff;\n\t\t\t\t}\n\t\t\t\t.btn-primary:hover {\n\t\t\t\t\tbackground: #1d4ed8;\n\t\t\t\t}\n\t\t\t\t.btn-thermal {\n\t\t\t\t\tbackground: #0f172a;\n\t\t\t\t\tcolor: #ffffff;\n\t\t\t\t}\n\t\t\t\t.btn-thermal:hover {\n\t\t\t\t\tbackground: #1e293b;\n\t\t\t\t}\n\t\t\t\t.btn-secondary {\n\t\t\t\t\tbackground: #f1f5f9;\n\t\t\t\t\tcolor: #334155;\n\t\t\t\t\tborder-color: #cbd5e1;\n\t\t\t\t}\n\t\t\t\t.btn-secondary:hover {\n\t\t\t\t\tbackground: #e2e8f0;\n\t\t\t\t}\n\n\t\t\t\t/* A4 Container */\n\t\t\t\t.invoice-paper-a4 {\n\t\t\t\t\tmax-width: 800px;\n\t\t\t\t\tmargin: 0 auto;\n\t\t\t\t\tbackground: #ffffff;\n\t\t\t\t\tpadding: 2.5rem 2rem;\n\t\t\t\t\tborder-radius: 12px;\n\t\t\t\t\tbox-shadow: 0 10px 25px rgba(0,0,0,0.1);\n\t\t\t\t\tborder: 1px solid #cbd5e1;\n\t\t\t\t}\n\n\t\t\t\t/* Thermal Container */\n\t\t\t\t.invoice-paper-thermal {\n\t\t\t\t\tdisplay: none;\n\t\t\t\t\twidth: 80mm;\n\t\t\t\t\tmax-width: 80mm;\n\t\t\t\t\tmargin: 0 auto;\n\t\t\t\t\tbackground: #ffffff;\n\t\t\t\t\tpadding: 10px 8px;\n\t\t\t\t\tfont-size: 11px;\n\t\t\t\t\tline-height: 1.35;\n\t\t\t\t\tcolor: #000000;\n\t\t\t\t}\n\n\t\t\t\t/* Common Typography & Tables */\n\t\t\t\t.tabular-nums {\n\t\t\t\t\tfont-variant-numeric: tabular-nums;\n\t\t\t\t\tfont-family: monospace, sans-serif;\n\t\t\t\t}\n\t\t\t\t.invoice-header-grid {\n\t\t\t\t\tdisplay: grid;\n\t\t\t\t\tgrid-template-columns: 1fr auto 1fr;\n\t\t\t\t\tgap: 1rem;\n\t\t\t\t\talign-items: center;\n\t\t\t\t\tborder-bottom: 2px solid #0f172a;\n\t\t\t\t\tpadding-bottom: 1.25rem;\n\t\t\t\t\tmargin-bottom: 1.25rem;\n\t\t\t\t}\n\t\t\t\t.invoice-parties-grid {\n\t\t\t\t\tdisplay: grid;\n\t\t\t\t\tgrid-template-columns: 1fr 1fr;\n\t\t\t\t\tgap: 1.5rem;\n\t\t\t\t\tmargin-bottom: 1.5rem;\n\t\t\t\t\tpadding: 1rem 1.25rem;\n\t\t\t\t\tbackground: #f8fafc;\n\t\t\t\t\tborder-radius: 8px;\n\t\t\t\t\tborder: 1px solid #e2e8f0;\n\t\t\t\t}\n\t\t\t\t.party-box h4 {\n\t\t\t\t\tfont-size: 0.85rem;\n\t\t\t\t\tfont-weight: 800;\n\t\t\t\t\tcolor: #0f172a;\n\t\t\t\t\tmargin-bottom: 0.35rem;\n\t\t\t\t\tborder-bottom: 1px dashed #cbd5e1;\n\t\t\t\t\tpadding-bottom: 0.25rem;\n\t\t\t\t}\n\t\t\t\t.party-field {\n\t\t\t\t\tfont-size: 0.825rem;\n\t\t\t\t\tcolor: #334155;\n\t\t\t\t\tmargin-bottom: 0.2rem;\n\t\t\t\t}\n\t\t\t\t.party-field strong {\n\t\t\t\t\tcolor: #0f172a;\n\t\t\t\t}\n\n\t\t\t\t/* Items Table */\n\t\t\t\t.items-table {\n\t\t\t\t\twidth: 100%;\n\t\t\t\t\tborder-collapse: collapse;\n\t\t\t\t\tmargin-bottom: 1.25rem;\n\t\t\t\t}\n\t\t\t\t.items-table th {\n\t\t\t\t\tbackground: #0f172a;\n\t\t\t\t\tcolor: #ffffff;\n\t\t\t\t\tfont-size: 0.8rem;\n\t\t\t\t\tfont-weight: 700;\n\t\t\t\t\tpadding: 0.6rem 0.5rem;\n\t\t\t\t\ttext-align: right;\n\t\t\t\t}\n\t\t\t\t.items-table td {\n\t\t\t\t\tpadding: 0.55rem 0.5rem;\n\t\t\t\t\tborder-bottom: 1px solid #e2e8f0;\n\t\t\t\t\tfont-size: 0.825rem;\n\t\t\t\t}\n\t\t\t\t.items-table tr:nth-child(even) {\n\t\t\t\t\tbackground: #f8fafc;\n\t\t\t\t}\n\n\t\t\t\t/* Totals Box */\n\t\t\t\t.totals-container {\n\t\t\t\t\tdisplay: flex;\n\t\t\t\t\tjustify-content: space-between;\n\t\t\t\t\talign-items: flex-start;\n\t\t\t\t\tgap: 1.5rem;\n\t\t\t\t\tmargin-top: 1rem;\n\t\t\t\t}\n\t\t\t\t.tax-legal-notice {\n\t\t\t\t\tflex: 1;\n\t\t\t\t\tfont-size: 0.75rem;\n\t\t\t\t\tcolor: #64748b;\n\t\t\t\t\tbackground: #f8fafc;\n\t\t\t\t\tpadding: 0.75rem;\n\t\t\t\t\tborder-radius: 6px;\n\t\t\t\t\tborder-inline-start: 3px solid #2563eb;\n\t\t\t\t\tline-height: 1.4;\n\t\t\t\t}\n\t\t\t\t.totals-table {\n\t\t\t\t\twidth: 280px;\n\t\t\t\t\tborder-collapse: collapse;\n\t\t\t\t}\n\t\t\t\t.totals-table td {\n\t\t\t\t\tpadding: 0.35rem 0.5rem;\n\t\t\t\t\tfont-size: 0.825rem;\n\t\t\t\t}\n\t\t\t\t.totals-table .total-row {\n\t\t\t\t\tfont-weight: 900;\n\t\t\t\t\tfont-size: 1rem;\n\t\t\t\t\tborder-top: 2px solid #0f172a;\n\t\t\t\t\tcolor: #0f172a;\n\t\t\t\t}\n\n\t\t\t\t/* QR Code & Barcode Box */\n\t\t\t\t.verification-box {\n\t\t\t\t\tmargin-top: 1.5rem;\n\t\t\t\t\tpadding-top: 1rem;\n\t\t\t\t\tborder-top: 1px dashed #cbd5e1;\n\t\t\t\t\tdisplay: flex;\n\t\t\t\t\tjustify-content: space-between;\n\t\t\t\t\talign-items: center;\n\t\t\t\t}\n\n\t\t\t\t/* Thermal Specific Classes */\n\t\t\t\t.thermal-divider {\n\t\t\t\t\tborder-top: 1px dashed #000000;\n\t\t\t\t\tmargin: 6px 0;\n\t\t\t\t}\n\t\t\t\t.thermal-center {\n\t\t\t\t\ttext-align: center;\n\t\t\t\t}\n\t\t\t\t.thermal-row {\n\t\t\t\t\tdisplay: flex;\n\t\t\t\t\tjustify-content: space-between;\n\t\t\t\t\tmargin-bottom: 2px;\n\t\t\t\t}\n\t\t\t\t.thermal-bold {\n\t\t\t\t\tfont-weight: 900;\n\t\t\t\t}\n\t\t\t</style></head><body><!-- Floating Action Toolbar (Hidden in print) --><div class=\"no-print-toolbar\"><div style=\"display:flex; align-items:center; gap:0.5rem;\"><span style=\"font-size:1.3rem;\">🧾</span><div><strong style=\"font-size:0.95rem; display:block; color:#0f172a;\">فاتورة توريد معتمدة</strong> <span style=\"font-size:0.75rem; color:#64748b;\">رقم الفاتورة: <span class=\"tabular-nums font-bold\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "</title><style>\n\t\t\t\t:root {\n\t\t\t\t\t--primary: #0f172a;\n\t\t\t\t\t--accent: #2563eb;\n\t\t\t\t\t--border: #cbd5e1;\n\t\t\t\t\t--border-light: #e2e8f0;\n\t\t\t\t\t--text: #0f172a;\n\t\t\t\t\t--text-secondary: #475569;\n\t\t\t\t\t--text-muted: #64748b;\n\t\t\t\t\t--bg-light: #f8fafc;\n\t\t\t\t}\n\t\t\t\t* {\n\t\t\t\t\tbox-sizing: border-box;\n\t\t\t\t\tmargin: 0;\n\t\t\t\t\tpadding: 0;\n\t\t\t\t\tfont-family: -apple-system, BlinkMacSystemFont, \"Segoe UI\", Roboto, \"Helvetica Neue\", Arial, \"Noto Sans Arabic\", sans-serif;\n\t\t\t\t}\n\t\t\t\tbody {\n\t\t\t\t\tbackground-color: #f1f5f9;\n\t\t\t\t\tcolor: var(--text);\n\t\t\t\t\tdirection: rtl;\n\t\t\t\t\tfont-size: 13px;\n\t\t\t\t\tline-height: 1.45;\n\t\t\t\t\tpadding: 1.5rem 1rem 3rem 1rem;\n\t\t\t\t}\n\n\t\t\t\t/* Action Bar (Hidden in Print) */\n\t\t\t\t.no-print-toolbar {\n\t\t\t\t\tmax-width: 840px;\n\t\t\t\t\tmargin: 0 auto 1.5rem auto;\n\t\t\t\t\tbackground: #ffffff;\n\t\t\t\t\tpadding: 0.85rem 1.25rem;\n\t\t\t\t\tborder-radius: 12px;\n\t\t\t\t\tbox-shadow: 0 4px 14px rgba(0,0,0,0.06);\n\t\t\t\t\tborder: 1px solid var(--border-light);\n\t\t\t\t\tdisplay: flex;\n\t\t\t\t\talign-items: center;\n\t\t\t\t\tjustify-content: space-between;\n\t\t\t\t\tflex-wrap: wrap;\n\t\t\t\t\tgap: 0.75rem;\n\t\t\t\t}\n\t\t\t\t.toolbar-btn-group {\n\t\t\t\t\tdisplay: flex;\n\t\t\t\t\talign-items: center;\n\t\t\t\t\tgap: 0.5rem;\n\t\t\t\t}\n\t\t\t\t.btn-action {\n\t\t\t\t\tdisplay: inline-flex;\n\t\t\t\t\talign-items: center;\n\t\t\t\t\tgap: 0.4rem;\n\t\t\t\t\tpadding: 0.55rem 1.1rem;\n\t\t\t\t\tfont-size: 0.85rem;\n\t\t\t\t\tfont-weight: 700;\n\t\t\t\t\tborder-radius: 8px;\n\t\t\t\t\tcursor: pointer;\n\t\t\t\t\ttext-decoration: none;\n\t\t\t\t\ttransition: all 0.15s ease;\n\t\t\t\t\tborder: 1px solid transparent;\n\t\t\t\t}\n\t\t\t\t.btn-primary {\n\t\t\t\t\tbackground: #2563eb;\n\t\t\t\t\tcolor: #ffffff;\n\t\t\t\t}\n\t\t\t\t.btn-primary:hover {\n\t\t\t\t\tbackground: #1d4ed8;\n\t\t\t\t}\n\t\t\t\t.btn-thermal {\n\t\t\t\t\tbackground: #0f172a;\n\t\t\t\t\tcolor: #ffffff;\n\t\t\t\t}\n\t\t\t\t.btn-thermal:hover {\n\t\t\t\t\tbackground: #1e293b;\n\t\t\t\t}\n\t\t\t\t.btn-secondary {\n\t\t\t\t\tbackground: #f8fafc;\n\t\t\t\t\tcolor: #334155;\n\t\t\t\t\tborder-color: #cbd5e1;\n\t\t\t\t}\n\t\t\t\t.btn-secondary:hover {\n\t\t\t\t\tbackground: #e2e8f0;\n\t\t\t\t}\n\n\t\t\t\t/* A4 Container */\n\t\t\t\t.invoice-paper-a4 {\n\t\t\t\t\tmax-width: 840px;\n\t\t\t\t\tmargin: 0 auto;\n\t\t\t\t\tbackground: #ffffff;\n\t\t\t\t\tpadding: 2.25rem 2.25rem 2rem 2.25rem;\n\t\t\t\t\tborder-radius: 10px;\n\t\t\t\t\tbox-shadow: 0 4px 20px rgba(0,0,0,0.06);\n\t\t\t\t\tborder: 1px solid var(--border-light);\n\t\t\t\t}\n\n\t\t\t\t/* Thermal Container */\n\t\t\t\t.invoice-paper-thermal {\n\t\t\t\t\tdisplay: none;\n\t\t\t\t\twidth: 80mm;\n\t\t\t\t\tmax-width: 80mm;\n\t\t\t\t\tmargin: 0 auto;\n\t\t\t\t\tbackground: #ffffff;\n\t\t\t\t\tpadding: 12px 10px;\n\t\t\t\t\tfont-size: 11px;\n\t\t\t\t\tline-height: 1.35;\n\t\t\t\t\tcolor: #000000;\n\t\t\t\t}\n\n\t\t\t\t/* Typography & Number tabular format */\n\t\t\t\t.tabular-nums {\n\t\t\t\t\tfont-variant-numeric: tabular-nums;\n\t\t\t\t\tfont-family: -apple-system, BlinkMacSystemFont, \"Segoe UI\", Roboto, monospace;\n\t\t\t\t}\n\n\t\t\t\t/* Top Header: 3-column layout (Right: Vendor Logo/Info, Center: Dawa24 Logo, Left: Invoice Meta) */\n\t\t\t\t.invoice-header {\n\t\t\t\t\tdisplay: grid;\n\t\t\t\t\tgrid-template-columns: 1.2fr 1fr 1.2fr;\n\t\t\t\t\talign-items: center;\n\t\t\t\t\tborder-bottom: 2px solid #0f172a;\n\t\t\t\t\tpadding-bottom: 1.25rem;\n\t\t\t\t\tmargin-bottom: 1.25rem;\n\t\t\t\t\tgap: 1rem;\n\t\t\t\t}\n\t\t\t\t.header-vendor {\n\t\t\t\t\ttext-align: right;\n\t\t\t\t}\n\t\t\t\t.header-center-logo {\n\t\t\t\t\ttext-align: center;\n\t\t\t\t}\n\t\t\t\t.header-meta {\n\t\t\t\t\ttext-align: left;\n\t\t\t\t\tdirection: ltr;\n\t\t\t\t}\n\n\t\t\t\t/* Parties Info Grid */\n\t\t\t\t.parties-grid {\n\t\t\t\t\tdisplay: grid;\n\t\t\t\t\tgrid-template-columns: 1fr 1fr;\n\t\t\t\t\tgap: 1.25rem;\n\t\t\t\t\tmargin-bottom: 1.25rem;\n\t\t\t\t\tborder: 1px solid var(--border-light);\n\t\t\t\t\tborder-radius: 8px;\n\t\t\t\t\tpadding: 0.85rem 1.1rem;\n\t\t\t\t\tbackground: #fafafa;\n\t\t\t\t}\n\t\t\t\t.party-column h4 {\n\t\t\t\t\tfont-size: 0.85rem;\n\t\t\t\t\tfont-weight: 800;\n\t\t\t\t\tcolor: #0f172a;\n\t\t\t\t\tmargin-bottom: 0.4rem;\n\t\t\t\t\tpadding-bottom: 0.25rem;\n\t\t\t\t\tborder-bottom: 1px solid #e2e8f0;\n\t\t\t\t}\n\t\t\t\t.party-info-row {\n\t\t\t\t\tfont-size: 0.825rem;\n\t\t\t\t\tcolor: #334155;\n\t\t\t\t\tmargin-bottom: 0.2rem;\n\t\t\t\t\tline-height: 1.4;\n\t\t\t\t}\n\t\t\t\t.party-info-row strong {\n\t\t\t\t\tcolor: #0f172a;\n\t\t\t\t}\n\n\t\t\t\t/* Items Table */\n\t\t\t\t.invoice-table {\n\t\t\t\t\twidth: 100%;\n\t\t\t\t\tborder-collapse: collapse;\n\t\t\t\t\tmargin-bottom: 1.25rem;\n\t\t\t\t}\n\t\t\t\t.invoice-table th {\n\t\t\t\t\tbackground: #0f172a;\n\t\t\t\t\tcolor: #ffffff;\n\t\t\t\t\tfont-size: 0.775rem;\n\t\t\t\t\tfont-weight: 800;\n\t\t\t\t\tpadding: 0.55rem 0.5rem;\n\t\t\t\t\ttext-align: right;\n\t\t\t\t\tborder: 1px solid #0f172a;\n\t\t\t\t}\n\t\t\t\t.invoice-table td {\n\t\t\t\t\tpadding: 0.5rem 0.5rem;\n\t\t\t\t\tborder: 1px solid #cbd5e1;\n\t\t\t\t\tfont-size: 0.825rem;\n\t\t\t\t\tcolor: #0f172a;\n\t\t\t\t\tvertical-align: middle;\n\t\t\t\t}\n\t\t\t\t.invoice-table tr:nth-child(even) {\n\t\t\t\t\tbackground: #f8fafc;\n\t\t\t\t}\n\n\t\t\t\t/* Totals & Signatures */\n\t\t\t\t.invoice-bottom-grid {\n\t\t\t\t\tdisplay: grid;\n\t\t\t\t\tgrid-template-columns: 1.2fr 1fr;\n\t\t\t\t\tgap: 1.5rem;\n\t\t\t\t\talign-items: start;\n\t\t\t\t\tmargin-top: 1rem;\n\t\t\t\t\tmargin-bottom: 1.25rem;\n\t\t\t\t}\n\t\t\t\t.signatures-box {\n\t\t\t\t\tborder: 1px dashed #cbd5e1;\n\t\t\t\t\tborder-radius: 8px;\n\t\t\t\t\tpadding: 0.75rem 1rem;\n\t\t\t\t\tbackground: #fafafa;\n\t\t\t\t\tdisplay: flex;\n\t\t\t\t\tjustify-content: space-between;\n\t\t\t\t\tgap: 1rem;\n\t\t\t\t}\n\t\t\t\t.sig-col {\n\t\t\t\t\tflex: 1;\n\t\t\t\t\tfont-size: 0.75rem;\n\t\t\t\t\tcolor: #475569;\n\t\t\t\t}\n\t\t\t\t.sig-line {\n\t\t\t\t\theight: 38px;\n\t\t\t\t\tborder-bottom: 1px solid #94a3b8;\n\t\t\t\t\tmargin-top: 0.25rem;\n\t\t\t\t}\n\t\t\t\t.totals-table {\n\t\t\t\t\twidth: 100%;\n\t\t\t\t\tborder-collapse: collapse;\n\t\t\t\t\tborder: 1px solid var(--border-light);\n\t\t\t\t\tborder-radius: 6px;\n\t\t\t\t\toverflow: hidden;\n\t\t\t\t}\n\t\t\t\t.totals-table td {\n\t\t\t\t\tpadding: 0.4rem 0.6rem;\n\t\t\t\t\tfont-size: 0.825rem;\n\t\t\t\t\tborder-bottom: 1px solid var(--border-light);\n\t\t\t\t}\n\t\t\t\t.totals-table tr.grand-total {\n\t\t\t\t\tbackground: #f1f5f9;\n\t\t\t\t\tfont-weight: 900;\n\t\t\t\t\tfont-size: 0.95rem;\n\t\t\t\t\tcolor: #0f172a;\n\t\t\t\t\tborder-top: 2px solid #0f172a;\n\t\t\t\t}\n\n\t\t\t\t/* Legal Disclaimer Box (Strictly Required) */\n\t\t\t\t.legal-disclaimer-box {\n\t\t\t\t\tborder-top: 1px solid var(--border);\n\t\t\t\t\tpadding-top: 0.75rem;\n\t\t\t\t\tmargin-top: 0.75rem;\n\t\t\t\t\ttext-align: center;\n\t\t\t\t\tfont-size: 0.75rem;\n\t\t\t\t\tcolor: #64748b;\n\t\t\t\t\tline-height: 1.5;\n\t\t\t\t}\n\n\t\t\t\t/* Print Styles (Pixel-perfect A4 Output) */\n\t\t\t\t@media print {\n\t\t\t\t\t@page {\n\t\t\t\t\t\tsize: A4 portrait;\n\t\t\t\t\t\tmargin: 10mm 12mm;\n\t\t\t\t\t}\n\t\t\t\t\thtml, body {\n\t\t\t\t\t\tbackground: #ffffff !important;\n\t\t\t\t\t\tpadding: 0 !important;\n\t\t\t\t\t\tmargin: 0 !important;\n\t\t\t\t\t\tcolor: #000000 !important;\n\t\t\t\t\t\tfont-size: 11pt !important;\n\t\t\t\t\t\t-webkit-print-color-adjust: exact !important;\n\t\t\t\t\t\tprint-color-adjust: exact !important;\n\t\t\t\t\t}\n\t\t\t\t\t.no-print-toolbar, .no-print {\n\t\t\t\t\t\tdisplay: none !important;\n\t\t\t\t\t}\n\t\t\t\t\t.invoice-paper-a4 {\n\t\t\t\t\t\tmax-width: 100% !important;\n\t\t\t\t\t\twidth: 100% !important;\n\t\t\t\t\t\tmargin: 0 !important;\n\t\t\t\t\t\tpadding: 0 !important;\n\t\t\t\t\t\tborder: none !important;\n\t\t\t\t\t\tbox-shadow: none !important;\n\t\t\t\t\t\tborder-radius: 0 !important;\n\t\t\t\t\t}\n\t\t\t\t\t.invoice-header {\n\t\t\t\t\t\tborder-bottom: 2px solid #000000 !important;\n\t\t\t\t\t}\n\t\t\t\t\t.invoice-table th {\n\t\t\t\t\t\tbackground: #0f172a !important;\n\t\t\t\t\t\tcolor: #ffffff !important;\n\t\t\t\t\t\tborder: 1px solid #000000 !important;\n\t\t\t\t\t}\n\t\t\t\t\t.invoice-table td {\n\t\t\t\t\t\tborder: 1px solid #94a3b8 !important;\n\t\t\t\t\t\tcolor: #000000 !important;\n\t\t\t\t\t}\n\t\t\t\t\t.invoice-table tr {\n\t\t\t\t\t\tpage-break-inside: avoid !important;\n\t\t\t\t\t}\n\t\t\t\t\t.invoice-bottom-grid, .legal-disclaimer-box {\n\t\t\t\t\t\tpage-break-inside: avoid !important;\n\t\t\t\t\t}\n\t\t\t\t}\n\n\t\t\t\t/* Thermal Receipt Specifics */\n\t\t\t\t.thermal-divider {\n\t\t\t\t\tborder-top: 1px dashed #000000;\n\t\t\t\t\tmargin: 5px 0;\n\t\t\t\t}\n\t\t\t\t.thermal-center {\n\t\t\t\t\ttext-align: center;\n\t\t\t\t}\n\t\t\t\t.thermal-row {\n\t\t\t\t\tdisplay: flex;\n\t\t\t\t\tjustify-content: space-between;\n\t\t\t\t\tmargin-bottom: 2px;\n\t\t\t\t}\n\t\t\t\t.thermal-bold {\n\t\t\t\t\tfont-weight: 800;\n\t\t\t\t}\n\t\t\t</style></head><body><!-- Floating Action Toolbar (Hidden in print) --><div class=\"no-print-toolbar\"><div style=\"display:flex; align-items:center; gap:0.5rem;\"><span style=\"font-size:1.3rem;\">🧾</span><div><strong style=\"font-size:0.95rem; display:block; color:#0f172a;\">فاتورة استلام وتوريد</strong> <span style=\"font-size:0.75rem; color:#64748b;\">رقم الفاتورة: <span class=\"tabular-nums font-bold\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var5 string
 		templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(data.InvoiceNumber)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/invoice_printable.templ`, Line: 255, Col: 89}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/invoice_printable.templ`, Line: 346, Col: 89}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "</span></span></div></div><div class=\"toolbar-btn-group\"><!-- Thermal Print (POS 80mm) --><button type=\"button\" class=\"btn-action btn-thermal\" onclick=\"printThermal()\" title=\"طباعة إيصال كاشير 80 مم\"><span>🖨️ طباعة إيصال كاشير (Thermal)</span></button><!-- Standard A4 Print --><button type=\"button\" class=\"btn-action btn-primary\" onclick=\"printA4()\" title=\"طباعة الفاتورة بالحجم القياسي A4\"><span>📄 طباعة الفاتورة (A4)</span></button><!-- Close / Back --><button type=\"button\" class=\"btn-action btn-secondary\" onclick=\"window.close(); if(!window.closed) window.history.back();\"><span>✕ إغلاق</span></button></div></div><!-- =========================================================================\n\t\t\t     VIEW 1: Standard A4 Invoice\n\t\t\t     ========================================================================= --><div class=\"invoice-paper-a4\" id=\"a4-invoice-container\"><!-- Header Section --><div class=\"invoice-header-grid\"><div><h2 style=\"font-size:1.35rem; font-weight:900; color:#0f172a; margin-bottom:0.25rem;\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "</span></span></div></div><div class=\"toolbar-btn-group\"><!-- Standard A4 Print --><button type=\"button\" class=\"btn-action btn-primary\" onclick=\"printA4()\" title=\"طباعة الفاتورة بالحجم القياسي A4\"><span>📄 طباعة الفاتورة (A4)</span></button><!-- Thermal Print (POS 80mm) --><button type=\"button\" class=\"btn-action btn-thermal\" onclick=\"printThermal()\" title=\"طباعة إيصال كاشير 80 مم\"><span>🖨️ طباعة إيصال كاشير (Thermal)</span></button><!-- Close / Back --><button type=\"button\" class=\"btn-action btn-secondary\" onclick=\"window.close(); if(!window.closed) window.history.back();\"><span>✕ إغلاق</span></button></div></div><!-- =========================================================================\n\t\t\t     VIEW 1: Standard A4 Invoice (فاتورة A4 منسقة ومعيارية)\n\t\t\t     ========================================================================= --><div class=\"invoice-paper-a4\" id=\"a4-invoice-container\"><!-- Header Section: Vendor Right, Dawa 24 Center, Invoice Details Left --><div class=\"invoice-header\"><!-- 1. Right Column: Vendor Logo & Basic Info --><div class=\"header-vendor\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		var templ_7745c5c3_Var6 string
-		templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(data.Vendor.DisplayName)
-		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/invoice_printable.templ`, Line: 301, Col: 32}
-		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "</h2>")
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		if data.Vendor.LegalName != "" && data.Vendor.LegalName != data.Vendor.DisplayName {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "<div style=\"font-size:0.8rem; color:#64748b; margin-bottom:0.25rem;\">")
+		if data.Vendor.LogoURL != "" {
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "<img src=\"")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var6 string
+			templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.ResolveAttributeValue(data.Vendor.LogoURL)
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/invoice_printable.templ`, Line: 395, Col: 33}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var6)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "\" alt=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var7 string
-			templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(data.Vendor.LegalName)
+			templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.ResolveAttributeValue(data.Vendor.DisplayName)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/invoice_printable.templ`, Line: 305, Col: 31}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/invoice_printable.templ`, Line: 396, Col: 37}
 			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var7)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "</div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "\" style=\"max-height:46px; max-width:140px; object-fit:contain; margin-bottom:0.25rem; display:block;\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "<div style=\"font-size:0.8rem; color:#334155;\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "<div style=\"font-size:1.15rem; font-weight:900; color:#0f172a; line-height:1.2;\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		if data.Vendor.TaxNumber != "" {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "<span>ب.ض: <strong class=\"tabular-nums\">")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			var templ_7745c5c3_Var8 string
-			templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(data.Vendor.TaxNumber)
-			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/invoice_printable.templ`, Line: 310, Col: 73}
-			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var8))
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "</strong></span> ")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
+		var templ_7745c5c3_Var8 string
+		templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(data.Vendor.DisplayName)
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/invoice_printable.templ`, Line: 401, Col: 32}
 		}
-		if data.Vendor.CommercialRegister != "" {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "<span style=\"margin-inline-start:0.5rem;\">س.ت: <strong class=\"tabular-nums\">")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var8))
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "</div>")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		if data.Vendor.LegalName != "" && data.Vendor.LegalName != data.Vendor.DisplayName {
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "<div style=\"font-size:0.75rem; color:#64748b; margin-top:2px;\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var9 string
-			templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinStringErrs(data.Vendor.CommercialRegister)
+			templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinStringErrs(data.Vendor.LegalName)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/invoice_printable.templ`, Line: 313, Col: 118}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/invoice_printable.templ`, Line: 405, Col: 31}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var9))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "</strong></span>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "</div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "</div>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "<div style=\"font-size:0.75rem; color:#334155; margin-top:3px;\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		if data.Vendor.Phone != "" {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "<div style=\"font-size:0.8rem; color:#334155;\">هاتف: <span class=\"tabular-nums\" dir=\"ltr\">")
+		if data.Vendor.TaxNumber != "" {
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "<span>ب.ض: <strong class=\"tabular-nums\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var10 string
-			templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.JoinStringErrs(data.Vendor.Phone)
+			templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.JoinStringErrs(data.Vendor.TaxNumber)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/invoice_printable.templ`, Line: 318, Col: 74}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/invoice_printable.templ`, Line: 410, Col: 73}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var10))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "</span></div>")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "</div><div style=\"text-align:center;\"><div style=\"font-size:1.6rem; font-weight:900; color:#2563eb; letter-spacing:-0.5px; line-height:1.1;\">دواء <span style=\"color:#0f172a;\">24</span></div><span style=\"display:inline-block; font-size:0.75rem; font-weight:800; padding:0.2rem 0.6rem; background:#0f172a; color:#ffffff; border-radius:4px; margin-top:0.35rem;\">فاتورة توريد معتمدة</span><div style=\"font-size:0.7rem; color:#64748b; margin-top:0.2rem;\">دواء 24 - B2B Marketplace</div></div><div style=\"text-align:left;\"><div style=\"font-size:0.85rem; color:#334155; margin-bottom:0.2rem;\">رقم الفاتورة: <strong class=\"tabular-nums\" style=\"color:#0f172a; font-size:1rem;\">")
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		var templ_7745c5c3_Var11 string
-		templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.JoinStringErrs(data.InvoiceNumber)
-		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/invoice_printable.templ`, Line: 337, Col: 120}
-		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var11))
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "</strong></div>")
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		if data.OrderNumber != "" {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "<div style=\"font-size:0.8rem; color:#334155; margin-bottom:0.2rem;\">أمر الشراء: <strong class=\"tabular-nums\">#")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			var templ_7745c5c3_Var12 string
-			templ_7745c5c3_Var12, templ_7745c5c3_Err = templ.JoinStringErrs(data.OrderNumber)
-			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/invoice_printable.templ`, Line: 341, Col: 77}
-			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var12))
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, "</strong></div>")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, "<div style=\"font-size:0.8rem; color:#334155; margin-bottom:0.2rem;\">تاريخ الإصدار: <span class=\"tabular-nums\">")
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		var templ_7745c5c3_Var13 string
-		templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.JoinStringErrs(data.IssueDate.Format("2006-01-02 15:04"))
-		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/invoice_printable.templ`, Line: 345, Col: 104}
-		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var13))
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, "</span></div><div style=\"font-size:0.8rem; color:#334155;\">الحالة:  ")
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		if data.Status == billing.InvoicePaid {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, "<strong style=\"color:#10b981;\">مدفوعة بالكامل (PAID)</strong>")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-		} else {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, "<strong style=\"color:#f59e0b;\">مستحقة السداد</strong>")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 25, "</div></div></div><!-- Parties Info Box (Vendor & Customer) --><div class=\"invoice-parties-grid\"><div class=\"party-box\"><h4>بيانات المورد (البائع / المصدر)</h4><div class=\"party-field\">الاسم: <strong>")
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		var templ_7745c5c3_Var14 string
-		templ_7745c5c3_Var14, templ_7745c5c3_Err = templ.JoinStringErrs(data.Vendor.DisplayName)
-		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/invoice_printable.templ`, Line: 362, Col: 76}
-		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var14))
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 26, "</strong></div>")
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		if data.Vendor.TaxNumber != "" {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 27, "<div class=\"party-field\">البطاقة الضريبية: <strong class=\"tabular-nums\">")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			var templ_7745c5c3_Var15 string
-			templ_7745c5c3_Var15, templ_7745c5c3_Err = templ.JoinStringErrs(data.Vendor.TaxNumber)
-			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/invoice_printable.templ`, Line: 364, Col: 117}
-			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var15))
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 28, "</strong></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "</strong></span> ")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 		}
 		if data.Vendor.CommercialRegister != "" {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 29, "<div class=\"party-field\">السجل التجاري: <strong class=\"tabular-nums\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "<span style=\"margin-inline-start:0.4rem;\">س.ت: <strong class=\"tabular-nums\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var11 string
+			templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.JoinStringErrs(data.Vendor.CommercialRegister)
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/invoice_printable.templ`, Line: 413, Col: 118}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var11))
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "</strong></span>")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "</div></div><!-- 2. Center Column: Dawa 24 Logo & Document Title --><div class=\"header-center-logo\"><div style=\"display:inline-flex; align-items:center; justify-content:center; gap:0.35rem;\"><span style=\"font-size:1.6rem; font-weight:900; color:#2563eb; letter-spacing:-0.5px;\">دواء</span> <span style=\"font-size:1.6rem; font-weight:900; color:#0f172a; letter-spacing:-0.5px;\">24</span></div><div style=\"font-size:0.75rem; font-weight:700; color:#475569; margin-top:2px;\">منصة الربط والتوزيع الدوائي</div><div style=\"font-size:0.75rem; font-weight:800; color:#0f172a; margin-top:4px; padding:0.15rem 0.5rem; background:#f1f5f9; border-radius:4px; display:inline-block;\">فاتورة استلام وتوريد</div></div><!-- 3. Left Column: Invoice Meta Details --><div class=\"header-meta\" style=\"text-align:left; direction:ltr;\"><div style=\"font-size:0.85rem; color:#334155; margin-bottom:0.2rem;\"><span style=\"direction:rtl; display:inline-block; font-size:0.8rem; color:#64748b; margin-right:4px;\">رقم الفاتورة:</span> <strong class=\"tabular-nums\" style=\"color:#0f172a; font-size:0.95rem;\">")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		var templ_7745c5c3_Var12 string
+		templ_7745c5c3_Var12, templ_7745c5c3_Err = templ.JoinStringErrs(data.InvoiceNumber)
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/invoice_printable.templ`, Line: 436, Col: 98}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var12))
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "</strong></div>")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		if data.OrderNumber != "" {
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, "<div style=\"font-size:0.8rem; color:#334155; margin-bottom:0.2rem;\"><span style=\"direction:rtl; display:inline-block; font-size:0.75rem; color:#64748b; margin-right:4px;\">أمر الشراء:</span> <strong class=\"tabular-nums\">#")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var13 string
+			templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.JoinStringErrs(data.OrderNumber)
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/invoice_printable.templ`, Line: 441, Col: 56}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var13))
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, "</strong></div>")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, "<div style=\"font-size:0.775rem; color:#334155; margin-bottom:0.2rem;\"><span style=\"direction:rtl; display:inline-block; font-size:0.75rem; color:#64748b; margin-right:4px;\">تاريخ الإصدار:</span> <span class=\"tabular-nums\">")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		var templ_7745c5c3_Var14 string
+		templ_7745c5c3_Var14, templ_7745c5c3_Err = templ.JoinStringErrs(data.IssueDate.Format("2006-01-02 15:04"))
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/invoice_printable.templ`, Line: 446, Col: 77}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var14))
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, "</span></div><div style=\"font-size:0.775rem; color:#334155;\"><span style=\"direction:rtl; display:inline-block; font-size:0.75rem; color:#64748b; margin-right:4px;\">طريقة السداد:</span> ")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		if data.PaymentMethod == "cash" || data.PaymentMethod == "cash_on_delivery" {
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, "<span style=\"font-weight:700;\">نقداً عند الاستلام</span>")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+		} else if data.PaymentMethod == "wallet" {
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 25, "<span style=\"font-weight:700;\">المحفظة الإلكترونية</span>")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+		} else {
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 26, "<span style=\"font-weight:700;\">آجل / حساب ائتماني</span>")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 27, "</div></div></div><!-- Parties Info Box (Clean 2-Column Grid) --><div class=\"parties-grid\"><!-- Vendor Details (Right in RTL) --><div class=\"party-column\"><h4>بيانات المورد (البائع / المصدر)</h4><div class=\"party-info-row\">الاسم التجاري: <strong>")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		var templ_7745c5c3_Var15 string
+		templ_7745c5c3_Var15, templ_7745c5c3_Err = templ.JoinStringErrs(data.Vendor.DisplayName)
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/invoice_printable.templ`, Line: 468, Col: 94}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var15))
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 28, "</strong></div>")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		if data.Vendor.TaxNumber != "" {
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 29, "<div class=\"party-info-row\">البطاقة الضريبية: <strong class=\"tabular-nums\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var16 string
-			templ_7745c5c3_Var16, templ_7745c5c3_Err = templ.JoinStringErrs(data.Vendor.CommercialRegister)
+			templ_7745c5c3_Var16, templ_7745c5c3_Err = templ.JoinStringErrs(data.Vendor.TaxNumber)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/invoice_printable.templ`, Line: 367, Col: 120}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/invoice_printable.templ`, Line: 470, Col: 120}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var16))
 			if templ_7745c5c3_Err != nil {
@@ -307,703 +313,617 @@ func InvoicePrintablePage(data billing.PrintableInvoiceData, lang, dir string) t
 				return templ_7745c5c3_Err
 			}
 		}
-		if data.Vendor.Address != "" {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 31, "<div class=\"party-field\">العنوان: ")
+		if data.Vendor.CommercialRegister != "" {
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 31, "<div class=\"party-info-row\">السجل التجاري: <strong class=\"tabular-nums\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var17 string
-			templ_7745c5c3_Var17, templ_7745c5c3_Err = templ.JoinStringErrs(data.Vendor.Address)
+			templ_7745c5c3_Var17, templ_7745c5c3_Err = templ.JoinStringErrs(data.Vendor.CommercialRegister)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/invoice_printable.templ`, Line: 370, Col: 69}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/invoice_printable.templ`, Line: 473, Col: 123}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var17))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 32, "</div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 32, "</strong></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 33, "</div><div class=\"party-box\"><h4>بيانات الصيدلية (المشتري / المستلم)</h4><div class=\"party-field\">الصيدلية: <strong>")
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
+		if data.Vendor.Address != "" {
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 33, "<div class=\"party-info-row\">العنوان: ")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var18 string
+			templ_7745c5c3_Var18, templ_7745c5c3_Err = templ.JoinStringErrs(data.Vendor.Address)
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/invoice_printable.templ`, Line: 476, Col: 72}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var18))
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 34, "</div>")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
 		}
-		var templ_7745c5c3_Var18 string
-		templ_7745c5c3_Var18, templ_7745c5c3_Err = templ.JoinStringErrs(data.Customer.DisplayName)
-		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/invoice_printable.templ`, Line: 376, Col: 84}
-		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var18))
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 34, "</strong></div>")
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		if data.Customer.PharmacistLicense != "" {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 35, "<div class=\"party-field\">ترخيص الصيدلية: <strong class=\"tabular-nums\">")
+		if data.Vendor.Phone != "" {
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 35, "<div class=\"party-info-row\">الهاتف: <span class=\"tabular-nums\" dir=\"ltr\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var19 string
-			templ_7745c5c3_Var19, templ_7745c5c3_Err = templ.JoinStringErrs(data.Customer.PharmacistLicense)
+			templ_7745c5c3_Var19, templ_7745c5c3_Err = templ.JoinStringErrs(data.Vendor.Phone)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/invoice_printable.templ`, Line: 378, Col: 123}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/invoice_printable.templ`, Line: 479, Col: 105}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var19))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 36, "</strong></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 36, "</span></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 		}
-		if data.Customer.TaxNumber != "" {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 37, "<div class=\"party-field\">البطاقة الضريبية: <strong class=\"tabular-nums\">")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			var templ_7745c5c3_Var20 string
-			templ_7745c5c3_Var20, templ_7745c5c3_Err = templ.JoinStringErrs(data.Customer.TaxNumber)
-			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/invoice_printable.templ`, Line: 381, Col: 119}
-			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var20))
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 38, "</strong></div>")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 37, "</div><!-- Customer / Pharmacy Details (Left in RTL) --><div class=\"party-column\"><h4>بيانات الصيدلية (المشتري / المستلم)</h4><div class=\"party-info-row\">اسم الصيدلية: <strong>")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
 		}
-		if data.Customer.Address != "" {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 39, "<div class=\"party-field\">عنوان التسليم: ")
+		var templ_7745c5c3_Var20 string
+		templ_7745c5c3_Var20, templ_7745c5c3_Err = templ.JoinStringErrs(data.Customer.DisplayName)
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/invoice_printable.templ`, Line: 486, Col: 94}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var20))
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 38, "</strong></div>")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		if data.Customer.PharmacistLicense != "" {
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 39, "<div class=\"party-info-row\">ترخيص الصيدلية: <strong class=\"tabular-nums\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var21 string
-			templ_7745c5c3_Var21, templ_7745c5c3_Err = templ.JoinStringErrs(data.Customer.Address)
+			templ_7745c5c3_Var21, templ_7745c5c3_Err = templ.JoinStringErrs(data.Customer.PharmacistLicense)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/invoice_printable.templ`, Line: 384, Col: 82}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/invoice_printable.templ`, Line: 488, Col: 126}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var21))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 40, "</div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 40, "</strong></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 		}
-		if data.Customer.Phone != "" {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 41, "<div class=\"party-field\">الهاتف: <span class=\"tabular-nums\" dir=\"ltr\">")
+		if data.Customer.Address != "" {
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 41, "<div class=\"party-info-row\">عنوان الاستلام: ")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var22 string
-			templ_7745c5c3_Var22, templ_7745c5c3_Err = templ.JoinStringErrs(data.Customer.Phone)
+			templ_7745c5c3_Var22, templ_7745c5c3_Err = templ.JoinStringErrs(data.Customer.Address)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/invoice_printable.templ`, Line: 387, Col: 104}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/invoice_printable.templ`, Line: 491, Col: 87}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var22))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 42, "</span></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 42, "</div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 43, "</div></div><!-- Items Table --><table class=\"items-table\"><thead><tr><th style=\"width:35px; text-align:center;\">#</th><th>الصنف الدوائي / البيان</th><th style=\"width:65px; text-align:center;\">الكمية</th><th style=\"width:90px; text-align:center;\">سعر الجمهور</th><th style=\"width:75px; text-align:center;\">نسبة الخصم</th><th style=\"width:115px; text-align:center;\">السعر بعد الخصم (الإجمالي)</th></tr></thead> <tbody>")
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		if len(data.Lines) == 0 {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 44, "<tr><td colspan=\"6\" style=\"text-align:center; padding:1.5rem; color:#64748b;\">لا توجد أصناف مسجلة في الفاتورة.</td></tr>")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-		}
-		for idx, line := range data.Lines {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 45, "<tr><td style=\"text-align:center; color:#64748b;\" class=\"tabular-nums\">")
+		if data.Customer.Phone != "" {
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 43, "<div class=\"party-info-row\">الهاتف: <span class=\"tabular-nums\" dir=\"ltr\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var23 string
-			templ_7745c5c3_Var23, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", idx+1))
+			templ_7745c5c3_Var23, templ_7745c5c3_Err = templ.JoinStringErrs(data.Customer.Phone)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/invoice_printable.templ`, Line: 414, Col: 101}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/invoice_printable.templ`, Line: 494, Col: 107}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var23))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 46, "</td><td><strong style=\"color:#0f172a;\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 44, "</span></div>")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 45, "</div></div><!-- Items Table with Strict Clean Pharmaceutical Columns --><table class=\"invoice-table\"><thead><tr><th style=\"width:35px; text-align:center;\">#</th><th>الصنف الدوائي / البيان</th><th style=\"width:55px; text-align:center;\">الكمية</th><th style=\"width:95px; text-align:center;\">سعر الجمهور</th><th style=\"width:75px; text-align:center;\">نسبة الخصم</th><th style=\"width:105px; text-align:center;\">سعر الوحدة الصافي</th><th style=\"width:115px; text-align:center;\">الإجمالي</th></tr></thead> <tbody>")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		if len(data.Lines) == 0 {
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 46, "<tr><td colspan=\"7\" style=\"text-align:center; padding:1.5rem; color:#64748b;\">لا توجد أصناف مسجلة في الفاتورة.</td></tr>")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+		}
+		for idx, line := range data.Lines {
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 47, "<tr><td style=\"text-align:center; color:#64748b;\" class=\"tabular-nums\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var24 string
-			templ_7745c5c3_Var24, templ_7745c5c3_Err = templ.JoinStringErrs(line.ItemName)
+			templ_7745c5c3_Var24, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", idx+1))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/invoice_printable.templ`, Line: 416, Col: 55}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/invoice_printable.templ`, Line: 523, Col: 101}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var24))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 47, "</strong> ")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 48, "</td><td><strong style=\"color:#0f172a;\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var25 string
+			templ_7745c5c3_Var25, templ_7745c5c3_Err = templ.JoinStringErrs(line.ItemName)
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/invoice_printable.templ`, Line: 525, Col: 55}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var25))
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 49, "</strong> ")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			if line.SKU != "" {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 48, "<span style=\"font-size:0.75rem; color:#64748b; font-family:monospace; margin-inline-start:0.35rem;\">(")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 50, "<span style=\"font-size:0.725rem; color:#64748b; font-family:monospace; margin-inline-start:0.35rem;\">(")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				var templ_7745c5c3_Var25 string
-				templ_7745c5c3_Var25, templ_7745c5c3_Err = templ.JoinStringErrs(line.SKU)
+				var templ_7745c5c3_Var26 string
+				templ_7745c5c3_Var26, templ_7745c5c3_Err = templ.JoinStringErrs(line.SKU)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/invoice_printable.templ`, Line: 419, Col: 22}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/invoice_printable.templ`, Line: 528, Col: 22}
 				}
-				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var25))
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 49, ")</span>")
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var26))
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 51, ")</span>")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 50, "</td><td style=\"text-align:center; font-weight:700;\" class=\"tabular-nums\">")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			var templ_7745c5c3_Var26 string
-			templ_7745c5c3_Var26, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", line.Quantity))
-			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/invoice_printable.templ`, Line: 423, Col: 111}
-			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var26))
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 51, "</td><td style=\"text-align:center;\" class=\"tabular-nums\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 52, "</td><td style=\"text-align:center; font-weight:800;\" class=\"tabular-nums\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var27 string
-			templ_7745c5c3_Var27, templ_7745c5c3_Err = templ.JoinStringErrs(line.UnitPrice.String())
+			templ_7745c5c3_Var27, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", line.Quantity))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/invoice_printable.templ`, Line: 424, Col: 85}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/invoice_printable.templ`, Line: 532, Col: 111}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var27))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 52, " ج.م</td><td style=\"text-align:center; font-weight:700; color:#2563eb;\" class=\"tabular-nums\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 53, "</td><td style=\"text-align:center;\" class=\"tabular-nums\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			if line.DiscountPercent > 0 {
-				var templ_7745c5c3_Var28 string
-				templ_7745c5c3_Var28, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%.1f%%", line.DiscountPercent))
-				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/invoice_printable.templ`, Line: 427, Col: 55}
-				}
-				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var28))
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-			} else {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 53, "<span style=\"color:#94a3b8;\">0%</span>")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
+			var templ_7745c5c3_Var28 string
+			templ_7745c5c3_Var28, templ_7745c5c3_Err = templ.JoinStringErrs(line.UnitPrice.String())
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/invoice_printable.templ`, Line: 533, Col: 85}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 54, "</td><td style=\"text-align:center; font-weight:800; color:#0f172a;\" class=\"tabular-nums\">")
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var28))
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 54, " ج.م</td><td style=\"text-align:center; font-weight:800; color:#0f172a;\" class=\"tabular-nums\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var29 string
-			templ_7745c5c3_Var29, templ_7745c5c3_Err = templ.JoinStringErrs(line.TotalPrice.String())
+			templ_7745c5c3_Var29, templ_7745c5c3_Err = templ.JoinStringErrs(formatDiscountInt(line.DiscountPercent))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/invoice_printable.templ`, Line: 433, Col: 35}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/invoice_printable.templ`, Line: 535, Col: 50}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var29))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 55, " ج.م</td></tr>")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 56, "</tbody></table><!-- Totals & Legal Notice --><div class=\"totals-container\"><div class=\"tax-legal-notice\"><strong>ملاحظات الإقرار الضريبي:</strong><br>• تخضع الأدوية البشرية المحلية والمستوردة للإعفاء من ضريبة القيمة المضافة طبقاً لأحكام القانون المصري رقم 67 لسنة 2016 (الجدول المرافق - سلعة معفاة).<br>• هذه الفاتورة محررة ومعتمدة إلكترونياً عبر منصة دواء 24 وتسري لأغراض المحاسبة والخصم الضريبي لشركات التوزيع والصيدليات. ")
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		if data.Notes != "" {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 57, "<div style=\"margin-top:0.35rem; color:#0f172a; font-weight:700;\">ملاحظات الطلبية: ")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 55, "</td><td style=\"text-align:center;\" class=\"tabular-nums\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var30 string
-			templ_7745c5c3_Var30, templ_7745c5c3_Err = templ.JoinStringErrs(data.Notes)
+			templ_7745c5c3_Var30, templ_7745c5c3_Err = templ.JoinStringErrs(line.NetUnitPrice.String())
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/invoice_printable.templ`, Line: 448, Col: 51}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/invoice_printable.templ`, Line: 538, Col: 37}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var30))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 58, "</div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 56, " ج.م</td><td style=\"text-align:center; font-weight:800; color:#0f172a;\" class=\"tabular-nums\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var31 string
+			templ_7745c5c3_Var31, templ_7745c5c3_Err = templ.JoinStringErrs(line.TotalPrice.String())
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/invoice_printable.templ`, Line: 541, Col: 35}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var31))
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 57, " ج.م</td></tr>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 59, "</div><table class=\"totals-table\"><tr><td style=\"color:#64748b;\">سعر الجمهور الإجمالي:</td><td style=\"text-align:left;\" class=\"tabular-nums\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 58, "</tbody></table><!-- Bottom Section: Signatures (Right) & Financial Totals (Left) --><div class=\"invoice-bottom-grid\"><!-- Signatures Box --><div class=\"signatures-box\"><div class=\"sig-col\"><strong style=\"display:block; color:#0f172a; margin-bottom:0.25rem;\">تسليم المورد (المندوب):</strong><div style=\"font-size:0.7rem; color:#64748b;\">الاسم: .......................................</div><div class=\"sig-line\"></div><div style=\"font-size:0.7rem; color:#64748b; margin-top:2px;\">التوقيع والتاريخ</div></div><div class=\"sig-col\"><strong style=\"display:block; color:#0f172a; margin-bottom:0.25rem;\">استلام الصيدلية (المشتري):</strong><div style=\"font-size:0.7rem; color:#64748b;\">الاسم: .......................................</div><div class=\"sig-line\"></div><div style=\"font-size:0.7rem; color:#64748b; margin-top:2px;\">الختم / التوقيع</div></div></div><!-- Financial Totals --><div><table class=\"totals-table\"><tr><td style=\"color:#64748b;\">إجمالي سعر الجمهور:</td><td style=\"text-align:left;\" class=\"tabular-nums\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		var templ_7745c5c3_Var31 string
-		templ_7745c5c3_Var31, templ_7745c5c3_Err = templ.JoinStringErrs(data.Subtotal.String())
+		var templ_7745c5c3_Var32 string
+		templ_7745c5c3_Var32, templ_7745c5c3_Err = templ.JoinStringErrs(data.Subtotal.String())
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/invoice_printable.templ`, Line: 456, Col: 81}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/invoice_printable.templ`, Line: 572, Col: 82}
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var31))
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var32))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 60, " ج.م</td></tr>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 59, " ج.م</td></tr>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		if data.TotalDiscount.IsPositive() {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 61, "<tr><td style=\"color:#10b981;\">إجمالي الخصم التجاري:</td><td style=\"text-align:left; color:#10b981; font-weight:700;\" class=\"tabular-nums\">-")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 60, "<tr><td style=\"color:#0f172a;\">إجمالي الخصم التجاري:</td><td style=\"text-align:left; font-weight:700;\" class=\"tabular-nums\">-")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			var templ_7745c5c3_Var32 string
-			templ_7745c5c3_Var32, templ_7745c5c3_Err = templ.JoinStringErrs(data.TotalDiscount.String())
+			var templ_7745c5c3_Var33 string
+			templ_7745c5c3_Var33, templ_7745c5c3_Err = templ.JoinStringErrs(data.TotalDiscount.String())
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/invoice_printable.templ`, Line: 462, Col: 39}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/invoice_printable.templ`, Line: 578, Col: 40}
 			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var32))
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 62, " ج.م</td></tr>")
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var33))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 61, " ج.م</td></tr>")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 63, "<tr><td style=\"color:#64748b;\">ضريبة القيمة المضافة (0% أدوية):</td><td style=\"text-align:left;\" class=\"tabular-nums\">")
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		var templ_7745c5c3_Var33 string
-		templ_7745c5c3_Var33, templ_7745c5c3_Err = templ.JoinStringErrs(data.TotalTax.String())
-		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/invoice_printable.templ`, Line: 468, Col: 81}
-		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var33))
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 64, " ج.م</td></tr><tr class=\"total-row\"><td>الصافي المطلوب سداده:</td><td style=\"text-align:left; color:#2563eb;\" class=\"tabular-nums\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 62, "<tr class=\"grand-total\"><td>الصافي المستحق سداده:</td><td style=\"text-align:left; color:#2563eb;\" class=\"tabular-nums\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var34 string
 		templ_7745c5c3_Var34, templ_7745c5c3_Err = templ.JoinStringErrs(data.TotalAmount.String())
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/invoice_printable.templ`, Line: 472, Col: 99}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/invoice_printable.templ`, Line: 584, Col: 100}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var34))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 65, " ج.م</td></tr></table></div><!-- Verification QR & Footer --><div class=\"verification-box\"><div style=\"display:flex; align-items:center; gap:0.75rem;\"><!-- QR Code Render --><div id=\"qrcode-a4\" style=\"width:75px; height:75px; border:1px solid #cbd5e1; padding:4px; border-radius:4px; display:flex; align-items:center; justify-content:center;\"><img src=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 63, " ج.م</td></tr></table>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		var templ_7745c5c3_Var35 string
-		templ_7745c5c3_Var35, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=%s", data.QRCodeData))
-		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/invoice_printable.templ`, Line: 483, Col: 110}
+		if data.Notes != "" {
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 64, "<div style=\"font-size:0.75rem; color:#475569; margin-top:0.4rem;\"><strong>ملاحظات:</strong> ")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var35 string
+			templ_7745c5c3_Var35, templ_7745c5c3_Err = templ.JoinStringErrs(data.Notes)
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/invoice_printable.templ`, Line: 589, Col: 53}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var35))
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 65, "</div>")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var35)
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 66, "\" alt=\"QR Code\" style=\"width:100%; height:100%; object-fit:contain;\"></div><div style=\"font-size:0.75rem; color:#64748b; line-height:1.35;\"><strong style=\"color:#0f172a;\">رمز التحقق الضريبي المعتمد</strong><br>المورد: ")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 66, "</div></div><!-- Exact Required Disclaimer Statement (Bottom of A4) --><div class=\"legal-disclaimer-box\">هذه الفاتورة ليست سند شراء أو فاتورة ضريبية معتمدة من مصلحة الضرائب المصرية، ولا تُعتد إلا بعد اعتمادها من الأطراف المعنية. وتكون مسؤولية تسليم واستلام الأصناف والمبالغ على المورد والمشتري.</div></div><!-- =========================================================================\n\t\t\t     VIEW 2: Thermal POS Receipt 80mm (إيصال كاشير حراري منسق)\n\t\t\t     ========================================================================= --><div class=\"invoice-paper-thermal\" id=\"thermal-invoice-container\"><div class=\"thermal-center\"><div style=\"font-size:15px; font-weight:900; letter-spacing:-0.5px;\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var36 string
 		templ_7745c5c3_Var36, templ_7745c5c3_Err = templ.JoinStringErrs(data.Vendor.DisplayName)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/invoice_printable.templ`, Line: 490, Col: 46}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/invoice_printable.templ`, Line: 611, Col: 31}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var36))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 67, "<br>الرقم الضريبي: ")
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		var templ_7745c5c3_Var37 string
-		templ_7745c5c3_Var37, templ_7745c5c3_Err = templ.JoinStringErrs(data.Vendor.TaxNumber)
-		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/invoice_printable.templ`, Line: 491, Col: 57}
-		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var37))
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 68, "<br>التاريخ: ")
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		var templ_7745c5c3_Var38 string
-		templ_7745c5c3_Var38, templ_7745c5c3_Err = templ.JoinStringErrs(data.IssueDate.Format("2006-01-02 15:04"))
-		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/invoice_printable.templ`, Line: 492, Col: 66}
-		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var38))
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 69, "</div></div><div style=\"text-align:left; font-size:0.75rem; color:#64748b;\"><div style=\"margin-bottom:0.25rem;\">ختم واعتماد المورد:</div><div style=\"width:140px; height:45px; border:1px dashed #cbd5e1; border-radius:4px; display:flex; align-items:center; justify-content:center; color:#94a3b8; font-size:0.7rem;\">معتمد إلكترونياً</div></div></div></div><!-- =========================================================================\n\t\t\t     VIEW 2: Thermal POS Receipt 80mm (إيصال كاشير حراري فائق الدقة)\n\t\t\t     ========================================================================= --><div class=\"invoice-paper-thermal\" id=\"thermal-invoice-container\"><div class=\"thermal-center\"><div style=\"font-size:16px; font-weight:900; letter-spacing:-0.5px;\">")
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		var templ_7745c5c3_Var39 string
-		templ_7745c5c3_Var39, templ_7745c5c3_Err = templ.JoinStringErrs(data.Vendor.DisplayName)
-		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/invoice_printable.templ`, Line: 514, Col: 31}
-		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var39))
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 70, "</div>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 67, "</div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		if data.Vendor.TaxNumber != "" {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 71, "<div style=\"font-size:10px;\">ب.ض: ")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 68, "<div style=\"font-size:10px;\">ب.ض: ")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			var templ_7745c5c3_Var40 string
-			templ_7745c5c3_Var40, templ_7745c5c3_Err = templ.JoinStringErrs(data.Vendor.TaxNumber)
+			var templ_7745c5c3_Var37 string
+			templ_7745c5c3_Var37, templ_7745c5c3_Err = templ.JoinStringErrs(data.Vendor.TaxNumber)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/invoice_printable.templ`, Line: 517, Col: 65}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/invoice_printable.templ`, Line: 614, Col: 65}
 			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var40))
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 72, " | س.ت: ")
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var37))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			var templ_7745c5c3_Var41 string
-			templ_7745c5c3_Var41, templ_7745c5c3_Err = templ.JoinStringErrs(data.Vendor.CommercialRegister)
-			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/invoice_printable.templ`, Line: 517, Col: 109}
-			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var41))
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 69, " | س.ت: ")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 73, "</div>")
+			var templ_7745c5c3_Var38 string
+			templ_7745c5c3_Var38, templ_7745c5c3_Err = templ.JoinStringErrs(data.Vendor.CommercialRegister)
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/invoice_printable.templ`, Line: 614, Col: 109}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var38))
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 70, "</div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 		}
 		if data.Vendor.Phone != "" {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 74, "<div style=\"font-size:10px;\">هاتف: ")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 71, "<div style=\"font-size:10px;\">هاتف: ")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var39 string
+			templ_7745c5c3_Var39, templ_7745c5c3_Err = templ.JoinStringErrs(data.Vendor.Phone)
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/invoice_printable.templ`, Line: 617, Col: 64}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var39))
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 72, "</div>")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 73, "<div class=\"thermal-divider\"></div><div style=\"font-size:13px; font-weight:900;\">دواء 24 — إيصال استلام وتوريد</div><div style=\"font-size:10px;\" class=\"tabular-nums\">#")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		var templ_7745c5c3_Var40 string
+		templ_7745c5c3_Var40, templ_7745c5c3_Err = templ.JoinStringErrs(data.InvoiceNumber)
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/invoice_printable.templ`, Line: 623, Col: 76}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var40))
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 74, "</div><div class=\"thermal-divider\"></div></div><!-- Meta --><div class=\"thermal-row\"><span>التاريخ:</span> <span class=\"tabular-nums\">")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		var templ_7745c5c3_Var41 string
+		templ_7745c5c3_Var41, templ_7745c5c3_Err = templ.JoinStringErrs(data.IssueDate.Format("2006-01-02 15:04"))
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/invoice_printable.templ`, Line: 630, Col: 75}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var41))
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 75, "</span></div>")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		if data.OrderNumber != "" {
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 76, "<div class=\"thermal-row\"><span>أمر الشراء:</span> <span class=\"tabular-nums\">#")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var42 string
-			templ_7745c5c3_Var42, templ_7745c5c3_Err = templ.JoinStringErrs(data.Vendor.Phone)
+			templ_7745c5c3_Var42, templ_7745c5c3_Err = templ.JoinStringErrs(data.OrderNumber)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/invoice_printable.templ`, Line: 520, Col: 64}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/invoice_printable.templ`, Line: 635, Col: 52}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var42))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 75, "</div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 77, "</span></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 76, "<div class=\"thermal-divider\"></div><div style=\"font-size:12px; font-weight:900;\">إيصال فاتورة توريد</div><div style=\"font-size:10px;\">#")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 78, "<div class=\"thermal-row\"><span>الصيدلية:</span> <span class=\"thermal-bold\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var43 string
-		templ_7745c5c3_Var43, templ_7745c5c3_Err = templ.JoinStringErrs(data.InvoiceNumber)
+		templ_7745c5c3_Var43, templ_7745c5c3_Err = templ.JoinStringErrs(data.Customer.DisplayName)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/invoice_printable.templ`, Line: 526, Col: 55}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/invoice_printable.templ`, Line: 640, Col: 59}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var43))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 77, "</div><div class=\"thermal-divider\"></div></div><!-- Meta --><div class=\"thermal-row\"><span>التاريخ:</span> <span class=\"tabular-nums\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 79, "</span></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		var templ_7745c5c3_Var44 string
-		templ_7745c5c3_Var44, templ_7745c5c3_Err = templ.JoinStringErrs(data.IssueDate.Format("2006-01-02 15:04"))
-		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/invoice_printable.templ`, Line: 533, Col: 75}
+		if data.Customer.PharmacistLicense != "" {
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 80, "<div class=\"thermal-row\"><span>الترخيص:</span> <span>")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var44 string
+			templ_7745c5c3_Var44, templ_7745c5c3_Err = templ.JoinStringErrs(data.Customer.PharmacistLicense)
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/invoice_printable.templ`, Line: 645, Col: 45}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var44))
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 81, "</span></div>")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var44))
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 82, "<div class=\"thermal-divider\"></div><!-- Items Header --><div class=\"thermal-row thermal-bold\" style=\"font-size:10px; border-bottom:1px solid #000; padding-bottom:2px; margin-bottom:4px;\"><span style=\"flex:2;\">الصنف</span> <span style=\"width:28px; text-align:center;\">الكمية</span> <span style=\"width:38px; text-align:center;\">الخصم</span> <span style=\"width:52px; text-align:left;\">الإجمالي</span></div><!-- Items -->")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 78, "</span></div>")
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		if data.OrderNumber != "" {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 79, "<div class=\"thermal-row\"><span>أمر الطلب:</span> <span class=\"tabular-nums\">#")
+		for _, line := range data.Lines {
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 83, "<div style=\"margin-bottom:4px;\"><div style=\"font-weight:700; font-size:10.5px;\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var45 string
-			templ_7745c5c3_Var45, templ_7745c5c3_Err = templ.JoinStringErrs(data.OrderNumber)
+			templ_7745c5c3_Var45, templ_7745c5c3_Err = templ.JoinStringErrs(line.ItemName)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/invoice_printable.templ`, Line: 538, Col: 52}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/invoice_printable.templ`, Line: 661, Col: 69}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var45))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 80, "</span></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 84, "</div><div class=\"thermal-row\" style=\"font-size:9.5px; color:#111;\"><span style=\"flex:2;\" class=\"tabular-nums\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 81, "<div class=\"thermal-row\"><span>الصيدلية:</span> <span class=\"thermal-bold\">")
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		var templ_7745c5c3_Var46 string
-		templ_7745c5c3_Var46, templ_7745c5c3_Err = templ.JoinStringErrs(data.Customer.DisplayName)
-		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/invoice_printable.templ`, Line: 543, Col: 59}
-		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var46))
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 82, "</span></div>")
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		if data.Customer.PharmacistLicense != "" {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 83, "<div class=\"thermal-row\"><span>الترخيص:</span> <span>")
+			var templ_7745c5c3_Var46 string
+			templ_7745c5c3_Var46, templ_7745c5c3_Err = templ.JoinStringErrs("@ " + line.UnitPrice.String())
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/invoice_printable.templ`, Line: 663, Col: 82}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var46))
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 85, "</span> <span style=\"width:28px; text-align:center;\" class=\"tabular-nums\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var47 string
-			templ_7745c5c3_Var47, templ_7745c5c3_Err = templ.JoinStringErrs(data.Customer.PharmacistLicense)
+			templ_7745c5c3_Var47, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", line.Quantity))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/invoice_printable.templ`, Line: 548, Col: 45}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/invoice_printable.templ`, Line: 664, Col: 107}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var47))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 84, "</span></div>")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 85, "<div class=\"thermal-divider\"></div><!-- Items Header --><div class=\"thermal-row thermal-bold\" style=\"font-size:10px; border-bottom:1px solid #000; padding-bottom:2px; margin-bottom:4px;\"><span style=\"flex:2;\">الصنف</span> <span style=\"width:30px; text-align:center;\">الكمية</span> <span style=\"width:40px; text-align:center;\">الخصم</span> <span style=\"width:50px; text-align:left;\">الإجمالي</span></div><!-- Items -->")
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		for _, line := range data.Lines {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 86, "<div style=\"margin-bottom:4px;\"><div style=\"font-weight:700; font-size:11px;\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 86, "</span> <span style=\"width:38px; text-align:center;\" class=\"tabular-nums\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var48 string
-			templ_7745c5c3_Var48, templ_7745c5c3_Err = templ.JoinStringErrs(line.ItemName)
+			templ_7745c5c3_Var48, templ_7745c5c3_Err = templ.JoinStringErrs(formatDiscountInt(line.DiscountPercent))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/invoice_printable.templ`, Line: 564, Col: 67}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/invoice_printable.templ`, Line: 666, Col: 49}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var48))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 87, "</div><div class=\"thermal-row\" style=\"font-size:10px; color:#333;\"><span style=\"flex:2;\" class=\"tabular-nums\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 87, "</span> <span style=\"width:52px; text-align:left; font-weight:800;\" class=\"tabular-nums\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var49 string
-			templ_7745c5c3_Var49, templ_7745c5c3_Err = templ.JoinStringErrs("@ " + line.UnitPrice.String())
+			templ_7745c5c3_Var49, templ_7745c5c3_Err = templ.JoinStringErrs(line.TotalPrice.String())
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/invoice_printable.templ`, Line: 566, Col: 82}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/invoice_printable.templ`, Line: 668, Col: 114}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var49))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 88, "</span> <span style=\"width:30px; text-align:center;\" class=\"tabular-nums\">")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			var templ_7745c5c3_Var50 string
-			templ_7745c5c3_Var50, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", line.Quantity))
-			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/invoice_printable.templ`, Line: 567, Col: 107}
-			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var50))
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 89, "</span> <span style=\"width:40px; text-align:center;\" class=\"tabular-nums\">")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			if line.DiscountPercent > 0 {
-				var templ_7745c5c3_Var51 string
-				templ_7745c5c3_Var51, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%.1f%%", line.DiscountPercent))
-				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/invoice_printable.templ`, Line: 570, Col: 54}
-				}
-				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var51))
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-			} else {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 90, "0%")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 91, "</span> <span style=\"width:50px; text-align:left; font-weight:800;\" class=\"tabular-nums\">")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			var templ_7745c5c3_Var52 string
-			templ_7745c5c3_Var52, templ_7745c5c3_Err = templ.JoinStringErrs(line.TotalPrice.String())
-			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/invoice_printable.templ`, Line: 575, Col: 114}
-			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var52))
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 92, "</span></div></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 88, "</span></div></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 93, "<div class=\"thermal-divider\"></div><!-- Totals --><div class=\"thermal-row\"><span>سعر الجمهور الإجمالي:</span> <span class=\"tabular-nums\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 89, "<div class=\"thermal-divider\"></div><!-- Totals --><div class=\"thermal-row\"><span>إجمالي سعر الجمهور:</span> <span class=\"tabular-nums\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		var templ_7745c5c3_Var53 string
-		templ_7745c5c3_Var53, templ_7745c5c3_Err = templ.JoinStringErrs(data.Subtotal.String())
+		var templ_7745c5c3_Var50 string
+		templ_7745c5c3_Var50, templ_7745c5c3_Err = templ.JoinStringErrs(data.Subtotal.String())
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/invoice_printable.templ`, Line: 585, Col: 56}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/invoice_printable.templ`, Line: 678, Col: 56}
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var53))
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var50))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 94, " ج.م</span></div>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 90, " ج.م</span></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		if data.TotalDiscount.IsPositive() {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 95, "<div class=\"thermal-row\"><span>إجمالي الخصم:</span> <span class=\"tabular-nums\">-")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 91, "<div class=\"thermal-row\"><span>إجمالي الخصم:</span> <span class=\"tabular-nums\">-")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			var templ_7745c5c3_Var54 string
-			templ_7745c5c3_Var54, templ_7745c5c3_Err = templ.JoinStringErrs(data.TotalDiscount.String())
+			var templ_7745c5c3_Var51 string
+			templ_7745c5c3_Var51, templ_7745c5c3_Err = templ.JoinStringErrs(data.TotalDiscount.String())
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/invoice_printable.templ`, Line: 590, Col: 63}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/invoice_printable.templ`, Line: 683, Col: 63}
 			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var54))
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 96, " ج.م</span></div>")
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var51))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 92, " ج.م</span></div>")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 97, "<div class=\"thermal-row\"><span>ضريبة القيمة المضافة:</span> <span class=\"tabular-nums\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 93, "<div class=\"thermal-divider\"></div><div class=\"thermal-row thermal-bold\" style=\"font-size:13px;\"><span>الصافي المطلوب:</span> <span class=\"tabular-nums\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		var templ_7745c5c3_Var55 string
-		templ_7745c5c3_Var55, templ_7745c5c3_Err = templ.JoinStringErrs(data.TotalTax.String())
+		var templ_7745c5c3_Var52 string
+		templ_7745c5c3_Var52, templ_7745c5c3_Err = templ.JoinStringErrs(data.TotalAmount.String())
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/invoice_printable.templ`, Line: 595, Col: 56}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/invoice_printable.templ`, Line: 689, Col: 59}
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var55))
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 98, " ج.م</span></div><div class=\"thermal-divider\"></div><div class=\"thermal-row thermal-bold\" style=\"font-size:14px;\"><span>الصافي المطلوب:</span> <span class=\"tabular-nums\">")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var52))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		var templ_7745c5c3_Var56 string
-		templ_7745c5c3_Var56, templ_7745c5c3_Err = templ.JoinStringErrs(data.TotalAmount.String())
-		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/invoice_printable.templ`, Line: 600, Col: 59}
-		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var56))
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 99, " ج.م</span></div><div class=\"thermal-divider\"></div><!-- Thermal QR Code --><div class=\"thermal-center\" style=\"margin-top:6px;\"><img src=\"")
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		var templ_7745c5c3_Var57 string
-		templ_7745c5c3_Var57, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("https://api.qrserver.com/v1/create-qr-code/?size=90x90&data=%s", data.QRCodeData))
-		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/invoice_printable.templ`, Line: 607, Col: 106}
-		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var57)
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 100, "\" alt=\"QR Code\" style=\"width:70px; height:70px; margin:0 auto; display:block;\"><div style=\"font-size:9px; margin-top:4px;\">فاتورة توريد معتمدة - دواء 24</div><div style=\"font-size:8px; color:#555;\">")
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		var templ_7745c5c3_Var58 string
-		templ_7745c5c3_Var58, templ_7745c5c3_Err = templ.JoinStringErrs(data.IssueDate.Format("2006-01-02 15:04:05"))
-		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/invoice_printable.templ`, Line: 615, Col: 52}
-		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var58))
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 101, "</div></div></div><!-- Scripts for Thermal and A4 Printing Modes --><script>\n\t\t\t\tfunction printA4() {\n\t\t\t\t\tconst thermal = document.getElementById('thermal-invoice-container');\n\t\t\t\t\tconst a4 = document.getElementById('a4-invoice-container');\n\t\t\t\t\tif (thermal) thermal.style.display = 'none';\n\t\t\t\t\tif (a4) a4.style.display = 'block';\n\t\t\t\t\twindow.print();\n\t\t\t\t}\n\n\t\t\t\tfunction printThermal() {\n\t\t\t\t\tconst thermal = document.getElementById('thermal-invoice-container');\n\t\t\t\t\tconst a4 = document.getElementById('a4-invoice-container');\n\t\t\t\t\tif (a4) a4.style.display = 'none';\n\t\t\t\t\tif (thermal) thermal.style.display = 'block';\n\t\t\t\t\twindow.print();\n\t\t\t\t\t// restore after print dialog\n\t\t\t\t\tsetTimeout(() => {\n\t\t\t\t\t\tif (a4) a4.style.display = 'block';\n\t\t\t\t\t\tif (thermal) thermal.style.display = 'none';\n\t\t\t\t\t}, 1000);\n\t\t\t\t}\n\n\t\t\t\t// Auto print if requested via query parameter\n\t\t\t\twindow.addEventListener('DOMContentLoaded', () => {\n\t\t\t\t\tconst params = new URLSearchParams(window.location.search);\n\t\t\t\t\tif (params.get('thermal') === '1') {\n\t\t\t\t\t\tprintThermal();\n\t\t\t\t\t} else if (params.get('autoprint') === '1') {\n\t\t\t\t\t\tprintA4();\n\t\t\t\t\t}\n\t\t\t\t});\n\t\t\t</script></body></html>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 94, " ج.م</span></div><div class=\"thermal-divider\"></div><!-- Exact Required Disclaimer Statement (Bottom of Thermal) --><div class=\"thermal-center\" style=\"font-size:8.5px; line-height:1.35; color:#333; margin-top:6px; padding-top:4px; border-top:1px dashed #000;\">هذه الفاتورة ليست سند شراء أو فاتورة ضريبية معتمدة من مصلحة الضرائب المصرية، ولا تُعتد إلا بعد اعتمادها من الأطراف المعنية. وتكون مسؤولية تسليم واستلام الأصناف والمبالغ على المورد والمشتري.</div></div><!-- Scripts for Thermal and A4 Printing Modes --><script>\n\t\t\t\tfunction printA4() {\n\t\t\t\t\tconst thermal = document.getElementById('thermal-invoice-container');\n\t\t\t\t\tconst a4 = document.getElementById('a4-invoice-container');\n\t\t\t\t\tif (thermal) thermal.style.display = 'none';\n\t\t\t\t\tif (a4) a4.style.display = 'block';\n\t\t\t\t\twindow.print();\n\t\t\t\t}\n\n\t\t\t\tfunction printThermal() {\n\t\t\t\t\tconst thermal = document.getElementById('thermal-invoice-container');\n\t\t\t\t\tconst a4 = document.getElementById('a4-invoice-container');\n\t\t\t\t\tif (a4) a4.style.display = 'none';\n\t\t\t\t\tif (thermal) thermal.style.display = 'block';\n\t\t\t\t\twindow.print();\n\t\t\t\t\t// restore after print dialog\n\t\t\t\t\tsetTimeout(() => {\n\t\t\t\t\t\tif (a4) a4.style.display = 'block';\n\t\t\t\t\t\tif (thermal) thermal.style.display = 'none';\n\t\t\t\t\t}, 1000);\n\t\t\t\t}\n\n\t\t\t\t// Auto print if requested via query parameter\n\t\t\t\twindow.addEventListener('DOMContentLoaded', () => {\n\t\t\t\t\tconst params = new URLSearchParams(window.location.search);\n\t\t\t\t\tif (params.get('thermal') === '1') {\n\t\t\t\t\t\tprintThermal();\n\t\t\t\t\t} else if (params.get('autoprint') === '1') {\n\t\t\t\t\t\tprintA4();\n\t\t\t\t\t}\n\t\t\t\t});\n\t\t\t</script></body></html>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

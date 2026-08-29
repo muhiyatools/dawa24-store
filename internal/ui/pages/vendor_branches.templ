@@ -214,8 +214,17 @@ templ VendorBranchesPage(data VendorBranchesData, lang, dir string) {
 											}
 										</div>
 
-										<div class="row-center-sm">
-											<form action={ templ.SafeURL(fmt.Sprintf("/vendor/branches/%d/delete", b.ID)) } method="POST" onsubmit="return confirm('هل أنت متأكد من حذف هذا الفرع؟');">
+										<div class="row-center-sm" style="gap:0.5rem;">
+											<a
+												href={ templ.SafeURL(fmt.Sprintf("/vendor/branches/%d/edit", b.ID)) }
+												class="btn btn-secondary btn-xs fw-700"
+												style="gap:0.35rem;"
+											>
+												@components.IconEdit("icon-xs")
+												<span>تعديل الفرع</span>
+											</a>
+
+											<form action={ templ.SafeURL(fmt.Sprintf("/vendor/branches/%d/delete", b.ID)) } method="POST" onsubmit="return confirm('هل أنت متأكد من حذف هذا الفرع؟');" style="margin:0;">
 												<button type="submit" class="btn btn-secondary btn-xs" style="color:var(--danger); border-color:rgba(255, 71, 87, 0.2);">
 													@components.IconTrash("icon-xs")
 													<span>حذف</span>
@@ -336,7 +345,11 @@ templ VendorBranchesPage(data VendorBranchesData, lang, dir string) {
 								<select name="city_id" data-map-city class="form-input w-full">
 									<option value="">-- اختر المدينة --</option>
 									for _, c := range data.Cities {
-										<option value={ fmt.Sprintf("%d", c.ID) }>
+										<option
+											value={ fmt.Sprintf("%d", c.ID) }
+											data-lat={ fmt.Sprintf("%.6f", c.Latitude) }
+											data-lng={ fmt.Sprintf("%.6f", c.Longitude) }
+										>
 											{ c.Name.Get(i18n.Lang(lang)) }
 										</option>
 									}

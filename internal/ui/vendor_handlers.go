@@ -476,6 +476,188 @@ func (h *UIHandler) VendorBranchNewSubmit(w http.ResponseWriter, r *http.Request
 	h.redirectWithNotice(w, r, "/vendor/branches", "success", "تم إضافة الفرع ونقطة التوزيع بنجاح.")
 }
 
+// VendorBranchEditPage renders the branch edit form with map and full parameters.
+func (h *UIHandler) VendorBranchEditPage(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	lang, dir := h.localeAndDir(r)
+
+	actor, ok := authctx.From(ctx)
+	if !ok || !actor.IsVendor() {
+		http.Redirect(w, r, "/auth/login?redirect=/vendor/branches", http.StatusSeeOther)
+		return
+	}
+
+	branchID, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
+	if err != nil || branchID <= 0 {
+		h.redirectWithNotice(w, r, "/vendor/branches", "error", "معرف فرع غير صالح.")
+		return
+	}
+
+	if h.orgSvc == nil {
+		h.redirectWithNotice(w, r, "/vendor/branches", "error", "خدمة المنظمة غير متوفرة.")
+		return
+	}
+
+	branch, err := h.orgSvc.GetBranch(ctx, branchID)
+	if err != nil || branch == nil || branch.OrganizationID != actor.OrganizationID {
+		h.redirectWithNotice(w, r, "/vendor/branches", "error", "الفرع غير موجود أو غير مصرح لك بتعديله.")
+		return
+	}
+
+	employees, _ := h.orgSvc.ListEmployees(ctx, actor.OrganizationID)
+
+	data := pages.VendorBranchFormData{
+		Branch:     branch,
+		Cities:     h.listCities(ctx),
+		Employees:  employees,
+		IsEdit:     true,
+		NoticeType: r.URL.Query().Get("notice_type"),
+		NoticeMsg:  r.URL.Query().Get("notice_msg"),
+	}
+
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+	if err := pages.VendorBranchFormPage(data, lang, dir).Render(ctx, w); err != nil {
+		h.log.ErrorContext(ctx, "render vendor branch edit page", "error", err)
+	}
+}
+
+// VendorBranchEditSubmit saves updates to an existing branch.
+func (h *UIHandler) VendorBranchEditSubmit(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	actor, ok := authctx.From(ctx)
+	if !ok || !actor.IsVendor() {
+		http.Redirect(w, r, "/auth/login?redirect=/vendor/branches", http.StatusSeeOther)
+		return
+	}
+
+	branchID, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
+	if err != nil || branchID <= 0 {
+		h.redirectWithNotice(w, r, "/vendor/branches", "error", "معرف فرع غير صالح.")
+		return
+	}
+
+	if h.orgSvc == nil {
+		h.redirectWithNotice(w, r, "/vendor/branches", "error", "خدمة المنظمة غير متوفرة.")
+		return
+	}
+
+	existing, err := h.orgSvc.GetBranch(ctx, branchID)
+	if err != nil || existing == nil || existing.OrganizationID != actor.OrganizationID {
+		h.redirectWithNotice(w, r, "/vendor/branches", "error", "الفرع غير موجود أو غير مصرح لك بتعديله.")
+		return
+	}
+
+	if err := r.ParseForm(); err != nil {
+		h.log.WarnContext(ctx, "parse form error", "error", err)
+	}
+
+	nameAr := strings.TrimSpace(r.PostFormValue("name_ar"))
+	nameEn := strings.TrimSpace(r.PostFormValue("name_en"))
+	if nameAr == "" {
+		h.redirectWithNotice(w, r, fmt.Sprintf("/vendor/branches/%d/edit", branchID), "error", "اسم الفرع بالعربية مطلوب.")
+		return
+	}
+	if nameEn == "" {
+		nameEn = nameAr
+	}
+
+	code := strings.TrimSpace(r.PostFormValue("code"))
+	warehouseType := strings.TrimSpace(r.PostFormValue("warehouse_type"))
+	if warehouseType == "" {
+		warehouseType = "warehouse"
+	}
+	address := strings.TrimSpace(r.PostFormValue("address"))
+	phone := strings.TrimSpace(r.PostFormValue("phone"))
+	gmaps := strings.TrimSpace(r.PostFormValue("google_maps_url"))
+	hours := strings.TrimSpace(r.PostFormValue("operating_hours"))
+	hasCold := r.PostFormValue("has_cold_storage") == "true"
+	isMain := r.PostFormValue("is_main") == "true"
+	status := strings.TrimSpace(r.PostFormValue("status"))
+	if status == "" {
+		status = "active"
+	}
+
+	managerIDVal, _ := strconv.ParseInt(r.PostFormValue("manager_id"), 10, 64)
+	var managerID *int64
+	if managerIDVal > 0 {
+		managerID = &managerIDVal
+	}
+
+	cityIDVal, _ := strconv.ParseInt(r.PostFormValue("city_id"), 10, 64)
+	var cityID *int64
+	if cityIDVal > 0 {
+		cityID = &cityIDVal
+	}
+
+	capSQM, _ := strconv.ParseFloat(r.PostFormValue("capacity_sqm"), 64)
+
+	var latPtr, lngPtr *float64
+	latStr := strings.TrimSpace(r.PostFormValue("latitude"))
+	if latStr == "" {
+		latStr = strings.TrimSpace(r.PostFormValue("branch_lat"))
+	}
+	if latStr != "" {
+		if lat, err := strconv.ParseFloat(latStr, 64); err == nil {
+			latPtr = &lat
+		}
+	}
+
+	lngStr := strings.TrimSpace(r.PostFormValue("longitude"))
+	if lngStr == "" {
+		lngStr = strings.TrimSpace(r.PostFormValue("branch_lon"))
+	}
+	if lngStr != "" {
+		if lng, err := strconv.ParseFloat(lngStr, 64); err == nil {
+			lngPtr = &lng
+		}
+	}
+
+	if gmaps == "" {
+		gmaps = strings.TrimSpace(r.PostFormValue("branch_google_maps_url"))
+	}
+
+	instWorks := r.Form["institutional_works"]
+
+	var managerName string
+	if managerID != nil && h.idSvc != nil {
+		if u, err := h.idSvc.GetUserByID(ctx, *managerID); err == nil && u != nil {
+			managerName = u.Name.Get("ar")
+			if managerName == "" {
+				managerName = u.Name.Get("en")
+			}
+			if managerName == "" {
+				managerName = u.Email
+			}
+		}
+	}
+
+	existing.Name = i18n.New(nameAr, nameEn)
+	existing.Code = code
+	existing.WarehouseType = warehouseType
+	existing.Address = address
+	existing.Phone = phone
+	existing.ManagerID = managerID
+	existing.ManagerName = managerName
+	existing.GoogleMapsURL = gmaps
+	existing.OperatingHours = hours
+	existing.HasColdStorage = hasCold
+	existing.CapacitySQM = capSQM
+	existing.CityID = cityID
+	existing.Latitude = latPtr
+	existing.Longitude = lngPtr
+	existing.IsMain = isMain
+	existing.Status = status
+	existing.InstitutionalWorks = instWorks
+
+	if err := h.orgSvc.UpdateBranch(ctx, existing); err != nil {
+		h.log.ErrorContext(ctx, "update branch error", "error", err)
+		h.redirectWithNotice(w, r, fmt.Sprintf("/vendor/branches/%d/edit", branchID), "error", h.safeMessage(err, langOf(r)))
+		return
+	}
+
+	h.redirectWithNotice(w, r, "/vendor/branches", "success", "تم تحديث وحفظ بيانات الفرع بنجاح.")
+}
+
 // VendorBranchDeleteSubmit deletes a branch scoped to the vendor organization.
 func (h *UIHandler) VendorBranchDeleteSubmit(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()

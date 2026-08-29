@@ -401,6 +401,7 @@ type PrintableOrgInfo struct {
 	OrganizationID     int64  `json:"organization_id"`
 	DisplayName        string `json:"display_name"`
 	LegalName          string `json:"legal_name"`
+	LogoURL            string `json:"logo_url,omitempty"`
 	TaxNumber          string `json:"tax_number"`          // البطاقة الضريبية (ETA Tax Registration)
 	CommercialRegister string `json:"commercial_register"` // السجل التجاري
 	PharmacistLicense  string `json:"pharmacist_license"`  // ترخيص مزاولة المهنة / الصيدلية

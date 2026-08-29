@@ -375,6 +375,9 @@ func (h *UIHandler) buildPrintableInvoiceData(ctx context.Context, invoice *bill
 		vOrg, _ := h.orgSvc.GetOrganization(ctx, invoice.OrganizationID)
 		if vOrg != nil {
 			vendorInfo.OrganizationID = vOrg.ID
+			if vOrg.Image != "" {
+				vendorInfo.LogoURL = vOrg.Image
+			}
 			if vOrg.LegalName != "" {
 				vendorInfo.LegalName = vOrg.LegalName
 				vendorInfo.DisplayName = vOrg.LegalName
@@ -412,6 +415,9 @@ func (h *UIHandler) buildPrintableInvoiceData(ctx context.Context, invoice *bill
 		cOrg, _ := h.orgSvc.GetOrganization(ctx, *custOrgID)
 		if cOrg != nil {
 			custInfo.OrganizationID = cOrg.ID
+			if cOrg.Image != "" {
+				custInfo.LogoURL = cOrg.Image
+			}
 			if cOrg.LegalName != "" {
 				custInfo.LegalName = cOrg.LegalName
 				custInfo.DisplayName = cOrg.LegalName

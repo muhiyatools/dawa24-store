@@ -437,6 +437,7 @@ func (h *UIHandler) RegisterVendorRoutes(r chi.Router) {
 
 	// Vendor User Organization Management
 	r.Get("/vendor/user-organization", h.VendorUserOrganizationsPage)
+	r.Get("/vendor/api/users/search", h.VendorUserSearchJSON)
 	r.Post("/vendor/user-organization/new", h.VendorUserOrganizationCreateSubmit)
 	r.Post("/vendor/user-organization/{id}/approve", h.VendorUserOrganizationApproveSubmit)
 	r.Post("/vendor/user-organization/{id}/reject", h.VendorUserOrganizationRejectSubmit)
@@ -457,6 +458,8 @@ func (h *UIHandler) RegisterVendorRoutes(r chi.Router) {
 	r.Get("/vendor/catalog/product-json/{id}", h.VendorProductDetailJSON)
 	r.Get("/vendor/branches", h.VendorBranchesPage)
 	r.Post("/vendor/branches/new", h.VendorBranchNewSubmit)
+	r.Get("/vendor/branches/{id}/edit", h.VendorBranchEditPage)
+	r.Post("/vendor/branches/{id}/edit", h.VendorBranchEditSubmit)
 	r.Post("/vendor/branches/{id}/delete", h.VendorBranchDeleteSubmit)
 	r.Post("/vendor/branches/{id}/manager", h.SettingsBranchManagerAssignSubmit)
 	r.Get("/vendor/team", h.VendorTeamPage)

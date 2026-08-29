@@ -282,7 +282,7 @@ templ CompareFileMappingModal(file *compare.CompareFile, headers []string, previ
 						if isSetup || total > 1 {
 							<button
 								type="button"
-								onclick={ templ.ComponentScript{Call: fmt.Sprintf("handleSetupSkip(%d, %q, %d, %d)", file.ID, remainingQueue, step, total)} }
+								onclick={ handleSetupSkipScript(file.ID, remainingQueue, step, total) }
 								class="btn btn-secondary text-danger"
 								style="font-weight:700; padding:0.6rem 1.15rem; font-size:0.85rem;"
 								title="حذف وتخطي هذا الملف والانتقال للملف التالي"
@@ -320,6 +320,73 @@ templ CompareFileMappingModal(file *compare.CompareFile, headers []string, previ
 
 			</form>
 		</div>
+
+		<script>
+			if (typeof window.closeMappingModal !== 'function') {
+				window.closeMappingModal = function() {
+					const modal = document.getElementById('compare-mapping-modal-backdrop');
+					if (modal) {
+						modal.remove();
+					} else {
+						const root = document.getElementById('mapping-modal-root');
+						if (root) root.innerHTML = '';
+						else window.location.href = '/compare/tool';
+					}
+				};
+			}
+
+			if (typeof window.handleSetupSkip !== 'function') {
+				window.handleSetupSkip = function(fileId, remainingQueue, step, total) {
+					if (!confirm('هل أنت متأكد من تخطي هذا الملف؟ سيتم حذفه من المقارنة والانتقال للملف التالي.')) {
+						return;
+					}
+
+					const modal = document.getElementById('compare-mapping-modal-backdrop');
+					if (modal) {
+						modal.innerHTML = `
+							<div class="card" style="background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-2xl); padding:2rem; color:var(--text); font-weight:800; text-align:center; display:flex; flex-direction:column; align-items:center; gap:0.75rem;">
+								<div style="font-size:2rem;">⏩</div>
+								<div>جاري تخطي الملف والانتقال للملف التالي...</div>
+							</div>
+						`;
+					}
+
+					const formData = new FormData();
+					formData.append('setup_queue', remainingQueue);
+					formData.append('step', step);
+					formData.append('total', total);
+
+					fetch('/compare/files/' + fileId + '/skip', {
+						method: 'POST',
+						body: formData,
+						headers: {
+							'Accept': 'application/json'
+						}
+					})
+					.then(res => {
+						if (!res.ok) throw new Error('فشل تخطي الملف.');
+						return res.json();
+					})
+					.then(data => {
+						if (data.next_file_id && data.next_file_id > 0) {
+							if (typeof window.openSetupModal === 'function') {
+								window.openSetupModal(data.next_file_id, data.remaining_queue, data.step, data.total);
+							} else {
+								window.location.href = '/compare/tool?setup_file=' + data.next_file_id + '&setup_queue=' + encodeURIComponent(data.remaining_queue || '') + '&setup_step=' + data.step + '&setup_total=' + data.total;
+							}
+						} else {
+							window.location.href = '/compare/tool?notice=success&msg=' + encodeURIComponent('تم تخطي الملف والانتهاء من معالج الإعداد.');
+						}
+					})
+					.catch(err => {
+						alert(err.message || 'تعذر تخطي الملف.');
+						if (typeof window.closeMappingModal === 'function') {
+							window.closeMappingModal();
+						}
+					});
+				};
+			}
+		</script>
 	</div>
 }
 

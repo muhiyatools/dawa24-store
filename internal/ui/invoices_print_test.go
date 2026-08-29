@@ -102,4 +102,49 @@ func TestInvoicePrintAndVendorInvoicesPages(t *testing.T) {
 			t.Errorf("expected invoices tab to be rendered")
 		}
 	})
+
+	t.Run("Printable invoice renders exact disclaimer and integer discount percentage", func(t *testing.T) {
+		data := billing.PrintableInvoiceData{
+			InvoiceNumber: "INV-2026-00001",
+			Vendor: billing.PrintableOrgInfo{
+				DisplayName: "شركة فارما للتوزيع",
+				TaxNumber:   "100-200-300",
+			},
+			Customer: billing.PrintableOrgInfo{
+				DisplayName: "صيدلية النور",
+			},
+			Lines: []*billing.PrintableInvoiceLine{
+				{
+					Index:           1,
+					ItemName:        "Panadol Extra 500mg",
+					Quantity:        10,
+					UnitPrice:       money.FromMinor(10000), // 100 EGP
+					DiscountPercent: 15.4,                   // should render as 15% without decimals
+					NetUnitPrice:    money.FromMinor(8500),
+					TotalPrice:      money.FromMinor(85000),
+				},
+			},
+		}
+
+		var sb strings.Builder
+		err := pages.InvoicePrintablePage(data, "ar", "rtl").Render(context.Background(), &sb)
+		if err != nil {
+			t.Fatalf("failed to render invoice printable page: %v", err)
+		}
+		rendered := sb.String()
+
+		expectedDisclaimer := "هذه الفاتورة ليست سند شراء أو فاتورة ضريبية معتمدة من مصلحة الضرائب المصرية، ولا تُعتد إلا بعد اعتمادها من الأطراف المعنية. وتكون مسؤولية تسليم واستلام الأصناف والمبالغ على المورد والمشتري."
+		if !strings.Contains(rendered, expectedDisclaimer) {
+			t.Errorf("expected rendered invoice to contain required legal disclaimer")
+		}
+
+		if !strings.Contains(rendered, "15%") {
+			t.Errorf("expected rendered invoice to format 15.4%% discount as 15%% (integer)")
+		}
+
+		if !strings.Contains(rendered, "دواء") || !strings.Contains(rendered, "24") {
+			t.Errorf("expected rendered invoice to contain Dawa 24 branding")
+		}
+	})
 }
+
