@@ -33,7 +33,8 @@ func (r *Repository) ListOffersForProduct(ctx context.Context, productID int64) 
 			  AND o.deleted_at IS NULL
 			  AND o.is_active = true
 			  AND o.admin_status = 'approved'
-			  AND o.starts_at <= now() AND o.expires_at >= now()
+			  AND (o.starts_at IS NULL OR o.starts_at <= now())
+			  AND (o.expires_at IS NULL OR o.expires_at >= now())
 			ORDER BY o.id DESC;
 		`
 		rows, err := tx.Query(txCtx, query, productID)
@@ -79,7 +80,8 @@ func (r *Repository) ListOffersForProducts(ctx context.Context, productIDs []int
 			  AND o.deleted_at IS NULL
 			  AND o.is_active = true
 			  AND o.admin_status = 'approved'
-			  AND o.starts_at <= now() AND o.expires_at >= now()
+			  AND (o.starts_at IS NULL OR o.starts_at <= now())
+			  AND (o.expires_at IS NULL OR o.expires_at >= now())
 			ORDER BY o.id DESC;
 		`
 		rows, err := tx.Query(txCtx, query, productIDs)
@@ -120,6 +122,8 @@ func scanOffer(row pgx.Row) (*promo.Offer, error) {
 		o          promo.Offer
 		discType   string
 		branchID   *int64
+		startsAt   *time.Time
+		expiresAt  *time.Time
 		approvedAt *time.Time
 		approvedBy *int64
 		rejectedAt *time.Time
@@ -130,11 +134,21 @@ func scanOffer(row pgx.Row) (*promo.Offer, error) {
 		&discType, &o.DiscountValue, &o.MinOrderAmount,
 		&o.AdminStatus, &o.AdminNotes, &approvedAt, &approvedBy,
 		&rejectedAt, &rejectedBy,
-		&o.StartsAt, &o.ExpiresAt, &o.IsActive,
+		&startsAt, &expiresAt, &o.IsActive,
 		&o.ViewsCount, &o.ClicksCount, &o.CreatedAt, &o.UpdatedAt, &o.DeletedAt,
 	)
 	if err != nil {
 		return nil, err
+	}
+	if startsAt != nil {
+		o.StartsAt = *startsAt
+	} else {
+		o.StartsAt = o.CreatedAt
+	}
+	if expiresAt != nil {
+		o.ExpiresAt = *expiresAt
+	} else {
+		o.ExpiresAt = time.Now().Add(365 * 24 * time.Hour)
 	}
 	o.DiscountType = promo.DiscountType(discType)
 	o.BranchID = branchID
@@ -156,6 +170,8 @@ func scanOfferProductWithOffer(row pgx.Row) (*promo.OfferProductWithOffer, error
 		o              promo.Offer
 		discType       string
 		branchID       *int64
+		startsAt       *time.Time
+		expiresAt      *time.Time
 		approvedAt     *time.Time
 		approvedBy     *int64
 		rejectedAt     *time.Time
@@ -177,11 +193,22 @@ func scanOfferProductWithOffer(row pgx.Row) (*promo.OfferProductWithOffer, error
 		&o.Title, &o.Description, &discType, &o.DiscountValue,
 		&o.MinOrderAmount,
 		&o.AdminStatus, &o.AdminNotes, &approvedAt, &approvedBy,
-		&rejectedAt, &rejectedBy, &o.StartsAt, &o.ExpiresAt, &o.IsActive,
+		&rejectedAt, &rejectedBy, &startsAt, &expiresAt, &o.IsActive,
 		&o.ViewsCount, &o.ClicksCount, &o.CreatedAt, &o.UpdatedAt, &o.DeletedAt,
 	)
 	if err != nil {
 		return nil, err
+	}
+
+	if startsAt != nil {
+		o.StartsAt = *startsAt
+	} else {
+		o.StartsAt = o.CreatedAt
+	}
+	if expiresAt != nil {
+		o.ExpiresAt = *expiresAt
+	} else {
+		o.ExpiresAt = time.Now().Add(365 * 24 * time.Hour)
 	}
 
 	op.VariantID = variantID

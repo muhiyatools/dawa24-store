@@ -207,3 +207,85 @@ func platformRoleKey(in PlatformRoleInput) string {
 	}
 	return base
 }
+
+// StaffUserInput creates a platform administrator or moderator account.
+type StaffUserInput struct {
+	Email    string
+	Password string
+	NameAr   string
+	NameEn   string
+	Phone    string
+	// RoleKey must name a staff role. A non-staff role would create an
+	// account that cannot reach the dashboard it was made for.
+	RoleKey string
+	ActorID int64
+}
+
+// CreateStaffUser creates a moderator or administrator account and puts it
+// straight into a staff role.
+//
+// This is the missing half of the roles feature: a super admin could define a
+// "Finance Moderator" role and had no way to create anyone to hold it. Signing
+// up through the public form produces an ordinary account with no organization,
+// which is not what a moderator is.
+//
+// The role must already exist and must be marked staff. Refusing a non-staff
+// role here rather than creating the account and letting the audience gate
+// bounce them is the difference between an error an operator can act on and a
+// new colleague who cannot log in for reasons nobody can see.
+func (s *Service) CreateStaffUser(ctx context.Context, in StaffUserInput) (*User, error) {
+	email := NormalizeEmail(in.Email)
+	if email == "" || !stringsContains(email, "@") {
+		return nil, apperr.Validation("email.invalid", "بريد إلكتروني صالح مطلوب.", nil)
+	}
+	if len(in.Password) < 8 {
+		return nil, apperr.Validation("password.too_short",
+			"كلمة المرور يجب أن تكون 8 أحرف على الأقل.", nil)
+	}
+	nameAr := strings.TrimSpace(in.NameAr)
+	if nameAr == "" {
+		return nil, apperr.Validation("identity.name_required", "اسم المشرف مطلوب.", nil)
+	}
+
+	role, err := s.GetPlatformRole(ctx, strings.TrimSpace(in.RoleKey))
+	if err != nil {
+		return nil, err
+	}
+	if !role.IsStaff {
+		return nil, apperr.Validation("identity.role_not_staff",
+			"هذا الدور لا يمنح الوصول إلى لوحة الإدارة؛ اختر دوراً إدارياً.", nil)
+	}
+
+	hash, err := HashPassword(in.Password)
+	if err != nil {
+		return nil, err
+	}
+	nameEn := strings.TrimSpace(in.NameEn)
+	if nameEn == "" {
+		nameEn = nameAr
+	}
+
+	user := &User{
+		Email:        email,
+		PasswordHash: hash,
+		Name:         i18n.New(nameAr, nameEn),
+		Role:         role.Key,
+		Status:       StatusActive,
+		Phone:        strings.TrimSpace(in.Phone),
+		Language:     i18n.AR,
+		Timezone:     "Africa/Cairo",
+	}
+	if err := s.repo.CreateUser(ctx, user); err != nil {
+		return nil, err
+	}
+	// The security record is what the login path reads for attempt counting
+	// and lockout; an account without one behaves differently from every other.
+	if err := s.repo.UpsertSecurity(ctx, &UserSecurity{UserID: user.ID}); err != nil {
+		s.log.ErrorContext(ctx, "created staff account but could not initialise its security record",
+			"error", err, "user_id", user.ID)
+	}
+
+	s.log.InfoContext(ctx, "staff account created",
+		"user_id", user.ID, "email", email, "role", role.Key, "actor_id", in.ActorID)
+	return user, nil
+}

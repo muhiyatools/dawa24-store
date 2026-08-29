@@ -61,6 +61,12 @@ type AdminUsersPageData struct {
 	SearchQuery      string
 	RoleFilter       string
 	StatusFilter     string
+	// StaffRoles are the roles a new administrator may be created into. It is
+	// populated only for a viewer who may assign roles, so the create form is
+	// absent rather than present-and-refused for everyone else.
+	StaffRoles []AdminUserRoleOption
+	Notice     string
+	NoticeKind string
 }
 
 type AdminOrgDetailData struct {
@@ -472,7 +478,9 @@ templ AdminBranchesPage(data AdminBranchesPageData, lang, dir string) {
 
 templ AdminUsersPage(data AdminUsersPageData, lang, dir string) {
 	@layouts.AdminShell("إدارة المستخدمين والحسابات", "users", lang, dir) {
-		<div style="max-width:1440px; margin:0 auto; padding-bottom:3rem;">
+		<div style="max-width:1440px; margin:0 auto; padding-bottom:3rem;" x-data="{ showAddStaff: false }">
+			@roleNotice(data.NoticeKind, data.Notice)
+			@adminStaffCreateForm(data)
 			
 			<!-- Header Banner -->
 			<div style="background:var(--surface-raised); border:1px solid var(--border); border-radius:18px; padding:1.25rem 1.5rem; margin-bottom:1.25rem; box-shadow:var(--shadow-sm);">
@@ -493,6 +501,12 @@ templ AdminUsersPage(data AdminUsersPageData, lang, dir string) {
 					</div>
 
 					<div style="display:flex; align-items:center; gap:0.6rem; flex-wrap:wrap;">
+						if len(data.StaffRoles) > 0 {
+							<button type="button" class="btn btn-primary btn-sm fw-800" style="padding:0.45rem 0.9rem; font-size:0.82rem; gap:0.35rem; border-radius:8px;" @click="showAddStaff = !showAddStaff">
+								@components.IconPlus("icon-xs")
+								<span>مشرف جديد</span>
+							</button>
+						}
 						<a href="/admin/roles" class="btn btn-secondary btn-sm fw-800" style="padding:0.45rem 0.9rem; font-size:0.82rem; gap:0.35rem; border-radius:8px;">
 							@components.IconShield("icon-xs")
 							<span>الأدوار والصلاحيات (RBAC)</span>
@@ -1380,6 +1394,64 @@ templ AdminWeeklyCoveragesPage(data AdminWeeklyCoveragesData, lang, dir string) 
 				</div>
 			</div>
 
+		</div>
+	}
+}
+
+// adminStaffCreateForm creates a moderator or administrator in one step.
+//
+// The role list is the same one the role editor manages, filtered to roles
+// marked staff — so a role a super admin invents this morning is selectable
+// this afternoon without a code change. That was the missing half of the
+// feature: roles could be defined and nobody could be created to hold them.
+templ adminStaffCreateForm(data AdminUsersPageData) {
+	if len(data.StaffRoles) > 0 {
+		<div
+			x-show="showAddStaff"
+			x-cloak
+			style="background:var(--surface-raised); border:1px solid var(--border); border-radius:18px; padding:1.5rem; margin-bottom:1.25rem; box-shadow:var(--shadow-sm);"
+		>
+			<h2 style="font-size:1.05rem; font-weight:900; color:var(--text); margin:0 0 0.35rem 0;">إنشاء حساب مشرف جديد</h2>
+			<p style="font-size:0.82rem; color:var(--text-secondary); margin:0 0 1.25rem 0;">
+				يحدد الدور المختار الصفحات والإجراءات المتاحة للمشرف داخل لوحة الإدارة. يمكنك تعديل صلاحيات أي دور من صفحة الأدوار.
+			</p>
+			<form method="POST" action="/admin/users/staff" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:1rem;">
+				<div>
+					<label class="form-label" for="staff-name-ar">الاسم بالعربية</label>
+					<input id="staff-name-ar" class="form-input" type="text" name="name_ar" required maxlength="120"/>
+				</div>
+				<div>
+					<label class="form-label" for="staff-name-en">الاسم بالإنجليزية</label>
+					<input id="staff-name-en" class="form-input" type="text" name="name_en" maxlength="120"/>
+				</div>
+				<div>
+					<label class="form-label" for="staff-email">البريد الإلكتروني</label>
+					<input id="staff-email" class="form-input" type="email" name="email" required autocomplete="off"/>
+				</div>
+				<div>
+					<label class="form-label" for="staff-phone">رقم الهاتف</label>
+					<input id="staff-phone" class="form-input" type="tel" name="phone" maxlength="20"/>
+				</div>
+				<div>
+					<label class="form-label" for="staff-password">كلمة مرور مبدئية</label>
+					<input id="staff-password" class="form-input" type="password" name="password" required minlength="8" autocomplete="new-password"/>
+				</div>
+				<div>
+					<label class="form-label" for="staff-role">الدور الإداري</label>
+					<select id="staff-role" class="form-input" name="role" required>
+						for _, role := range data.StaffRoles {
+							<option value={ role.Key }>{ role.Name }</option>
+						}
+					</select>
+				</div>
+				<div style="grid-column:1/-1; display:flex; align-items:center; gap:0.75rem;">
+					<button type="submit" class="btn btn-primary fw-800">إنشاء الحساب</button>
+					<button type="button" class="btn btn-secondary" @click="showAddStaff = false">إلغاء</button>
+					<span style="font-size:0.78rem; color:var(--text-muted);">
+						يُنشأ الحساب مفعّلاً؛ يغيّر المشرف كلمة المرور المبدئية عند أول دخول.
+					</span>
+				</div>
+			</form>
 		</div>
 	}
 }

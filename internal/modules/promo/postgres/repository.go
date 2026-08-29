@@ -100,7 +100,9 @@ func (r *Repository) ListActiveOffers(ctx context.Context, limit, offset int) ([
 			SELECT ` + offerColumns + `
 			FROM promo.offers
 			WHERE is_active = true AND admin_status = 'approved'
-			  AND starts_at <= now() AND expires_at >= now() AND deleted_at IS NULL
+			  AND (starts_at IS NULL OR starts_at <= now())
+			  AND (expires_at IS NULL OR expires_at >= now())
+			  AND deleted_at IS NULL
 			ORDER BY id DESC
 			LIMIT $1 OFFSET $2;
 		`
@@ -323,7 +325,9 @@ func (r *Repository) CreateSpecialOffer(ctx context.Context, o *promo.SpecialOff
 				$1, $2, $3, $4,
 				CASE WHEN $5 > 0 THEN 'fixed'::text ELSE 'percentage'::text END,
 				CASE WHEN $5 > 0 THEN $5 ELSE $6 END,
-				$7, $8, $9, $10,
+				$7, $8, 
+				COALESCE($9, now()), 
+				COALESCE($10, now() + interval '1 year'),
 				COALESCE($11, 'active') = 'active',
 				COALESCE($11, 'active') = 'draft',
 				COALESCE(NULLIF($12, ''), 'approved'), COALESCE($13, ''), 'special'
@@ -365,7 +369,7 @@ func (r *Repository) GetSpecialOfferByID(ctx context.Context, id int64) (*promo.
 	var o promo.SpecialOffer
 	err := r.db.InReadTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
 		query := `
-			SELECT o.id, o.public_id, o.organization_id, o.branch_id, COALESCE(b.name->>'ar', ''),
+			SELECT o.id, o.public_id, o.organization_id, COALESCE(org.name->>'ar', org.legal_name, 'مورد معتمد'), o.branch_id, COALESCE(b.name->>'ar', ''),
 			       o.title, o.description,
 			       CASE WHEN o.discount_type = 'percentage' THEN o.discount_value ELSE 0 END,
 			       CASE WHEN o.discount_type = 'fixed'      THEN o.discount_value ELSE 0 END,
@@ -377,11 +381,12 @@ func (r *Repository) GetSpecialOfferByID(ctx context.Context, id int64) (*promo.
 			       o.admin_status, COALESCE(o.image, ''),
 			       o.created_at, o.updated_at
 			FROM promo.offers o
+			LEFT JOIN org.organizations org ON org.id = o.organization_id
 			LEFT JOIN org.branches b ON b.id = o.branch_id
 			WHERE o.id = $1 AND o.deleted_at IS NULL;
 		`
 		err := tx.QueryRow(txCtx, query, id).Scan(
-			&o.ID, &o.PublicID, &o.OrganizationID, &o.BranchID, &o.BranchName,
+			&o.ID, &o.PublicID, &o.OrganizationID, &o.OrganizationName, &o.BranchID, &o.BranchName,
 			&o.Title, &o.Description, &o.DiscountPercentage,
 			&o.DiscountAmount, &o.MinOrderAmount, &o.TotalPrice,
 			&o.StartDate, &o.EndDate, &o.Status, &o.AdminStatus, &o.Image,
@@ -396,10 +401,11 @@ func (r *Repository) GetSpecialOfferByID(ctx context.Context, id int64) (*promo.
 
 		// Load Products
 		pRows, _ := tx.Query(txCtx, `
-			SELECT p.id, p.offer_id, p.variant_id, COALESCE(pv.sku, ''), COALESCE(pv.price, 0),
+			SELECT p.id, p.offer_id, p.variant_id, COALESCE(prod.name->>'ar', prod.name->>'en', pv.sku, ''), COALESCE(pv.price, 0),
 			       p.custom_price, p.custom_discount_percentage, p.custom_discount_amount, p.custom_qty, p.created_at
 			FROM promo.offer_products p
 			LEFT JOIN catalog.product_variants pv ON pv.id = p.variant_id
+			LEFT JOIN catalog.products prod ON prod.id = pv.product_id
 			WHERE p.offer_id = $1;
 		`, id)
 		if pRows != nil {

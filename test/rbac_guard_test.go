@@ -202,7 +202,6 @@ func TestEverySidebarPermissionGatesARoute(t *testing.T) {
 		"vendor.invoice.view":          true, // /invoices is a shared route
 		"vendor.compare.use":           true, // /compare/tool is shared with pharmacies
 		"vendor.market_discounts.view": true, // /market-discounts is a public page
-		"pharmacy.compare.use":         true,
 		"pharmacy.offer.view":          true, // /offers is a public storefront route
 		"pharmacy.supplier.view":       true, // /suppliers is a public directory
 		"platform.dashboard.view":      true, // /admin/dashboard: any staff member

@@ -5,6 +5,7 @@ package attachments
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/muhiya/dawa24-store/internal/platform/rbac"
 	"path/filepath"
 	"strings"
 	"time"
@@ -226,10 +227,14 @@ type Requirement struct {
 }
 
 // RequirementsFor returns the document requirements of an organization type.
-// "vendor" trades on the EDA license; every other type is treated as a
+// A vendor trades on the EDA license; every other type is treated as a
 // customer (صيدلية) audience.
+//
+// The type is normalised first. Comparing the raw column against "vendor"
+// meant a supplier row — the legacy spelling most supplier organizations
+// actually carry — was asked for a pharmacist licence it has no way to hold.
 func RequirementsFor(orgType string) []Requirement {
-	if orgType == "vendor" {
+	if rbac.NormalizeOrgType(orgType) == rbac.OrgTypeVendor {
 		return []Requirement{
 			{DocCommercialRegister, false},
 			{DocTaxCard, false},

@@ -72,16 +72,38 @@ func (a Actor) IsPlatformAdmin() bool {
 	return a.Role == "super_admin" || a.Role == "admin"
 }
 
+// DashboardScope reports which dashboard this actor belongs to.
+//
+// Scope is set by authentication from the resolved grant. The OrgType fallback
+// covers an actor built without a resolver — tests, and the degraded path when
+// the database is unreachable — and it goes through rbac.TenantScopeFor so a
+// legacy type spelling cannot produce a different answer here than elsewhere.
+func (a Actor) DashboardScope() rbac.Scope {
+	if a.IsStaff {
+		return rbac.ScopeAdmin
+	}
+	if a.Scope != "" {
+		return a.Scope
+	}
+	if scope, ok := rbac.TenantScopeFor(a.OrgType); ok {
+		return scope
+	}
+	return ""
+}
+
 // IsCustomer reports whether the actor belongs to a customer (صيدلية) tenant.
 // An organization member with no resolved type is treated as a customer so a
 // pending organization cannot reach vendor surfaces by omission.
 func (a Actor) IsCustomer() bool {
-	return !a.IsStaff && a.OrgType != "vendor" && a.OrgType != "supplier"
+	if a.IsStaff {
+		return false
+	}
+	return a.DashboardScope() != rbac.ScopeVendor
 }
 
 // IsVendor reports whether the actor belongs to a vendor (مورّد) tenant.
 func (a Actor) IsVendor() bool {
-	return !a.IsStaff && (a.OrgType == "vendor" || a.OrgType == "supplier")
+	return !a.IsStaff && a.DashboardScope() == rbac.ScopeVendor
 }
 
 // IsJobSeeker reports whether the actor has the job_seeker platform role.
@@ -108,7 +130,7 @@ func (a Actor) DisplayName() string {
 	if a.Role == "job_seeker" {
 		return "باحث عن عمل"
 	}
-	if a.OrgType == "vendor" {
+	if a.IsVendor() {
 		return "مورّد أدوية"
 	}
 	return "صيدلي معتمد"

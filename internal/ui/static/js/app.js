@@ -122,7 +122,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  // 2. HTMX Error Handling
+  // 2. HTMX Error Handling & Custom Events
   document.body.addEventListener('htmx:responseError', (evt) => {
     const status = evt.detail.xhr.status;
     console.error('Request failed:', status, evt.detail.xhr.responseText);
@@ -131,6 +131,25 @@ document.addEventListener('DOMContentLoaded', () => {
 
   document.body.addEventListener('htmx:sendError', () => {
     showToast('تعذر الاتصال بالخادم. تحقق من اتصالك بالإنترنت.', 'error');
+  });
+
+  // HTMX Custom Trigger Events: showToast & cartUpdated
+  document.body.addEventListener('showToast', (evt) => {
+    const detail = evt.detail || {};
+    const msg = detail.message || detail.value || 'تمت العملية بنجاح';
+    const type = detail.type || 'info';
+    showToast(msg, type);
+  });
+
+  document.body.addEventListener('cartUpdated', (evt) => {
+    const detail = evt.detail || {};
+    const count = detail.count;
+    if (typeof count === 'number') {
+      document.querySelectorAll('.cart-badge, .cart-count, [data-cart-count]').forEach((el) => {
+        el.textContent = count > 0 ? count.toString() : '';
+        el.style.display = count > 0 ? 'inline-flex' : 'none';
+      });
+    }
   });
 
   showNoticeFromQuery();

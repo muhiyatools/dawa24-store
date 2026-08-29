@@ -161,7 +161,10 @@ func loadMembership(ctx context.Context, tx pgx.Tx, g *Grant) error {
 		return fmt.Errorf("rbac: read membership for user %d in org %d: %w", g.UserID, g.OrganizationID, err)
 	}
 
-	g.OrgType = orgType
+	// The canonical type, never the raw column. Publishing "supplier" here
+	// undid the normalization login performs, and every consumer that compares
+	// against "vendor" then silently took the wrong branch.
+	g.OrgType = NormalizeOrgType(orgType)
 	g.MemberRoleKey = roleKey
 	if scope, ok := TenantScopeFor(orgType); ok {
 		g.Scope = scope

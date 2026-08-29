@@ -146,8 +146,16 @@ func (d *dependencies) connect(ctx context.Context, cfg *config.Config, log *slo
 			log.Error("could not sync the permission catalogue", "error", err)
 		} else if seeded, err := rbac.SeedExistingCompanies(ctx, d.db); err != nil {
 			log.Error("could not seed company roles", "error", err)
-		} else if seeded > 0 {
-			log.Info("seeded starter roles for organizations", "organizations", seeded)
+		} else {
+			if seeded > 0 {
+				log.Info("seeded starter roles for organizations", "organizations", seeded)
+			}
+			if repaired, err := rbac.RepairOutOfScopeGrants(ctx, d.db); err != nil {
+				log.Error("could not repair company role grants", "error", err)
+			} else if repaired > 0 {
+				log.Info("repaired company role grants after a scope change",
+					"organizations", repaired)
+			}
 		}
 		d.setDBErr(nil)
 		return nil

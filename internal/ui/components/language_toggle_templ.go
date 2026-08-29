@@ -45,7 +45,7 @@ func LanguageToggle(currentLang string) templ.Component {
 		var templ_7745c5c3_Var3 string
 		templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.ResolveAttributeValue(templ.CSSClasses(templ_7745c5c3_Var2).String())
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/language_toggle.templ`, Line: 1, Col: 0}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/components/language_toggle.templ`, Line: 1, Col: 0}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var3)
 		if templ_7745c5c3_Err != nil {
@@ -58,7 +58,7 @@ func LanguageToggle(currentLang string) templ.Component {
 		var templ_7745c5c3_Var4 string
 		templ_7745c5c3_Var4, templ_7745c5c3_Err = templruntime.SanitizeStyleAttributeValues("display:inline-flex; align-items:center; gap:0.35rem; padding:0.25rem 0.65rem; border-radius:var(--radius-full); font-size:0.775rem; font-weight:700; text-decoration:none !important; transition:all 0.15s ease;", templ.KV("background:var(--surface-raised); color:var(--text); box-shadow:var(--shadow-sm);", currentLang == "ar" || currentLang == ""), templ.KV("color:var(--text-muted);", currentLang == "en"))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/language_toggle.templ`, Line: 8, Col: 418}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/components/language_toggle.templ`, Line: 8, Col: 418}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
 		if templ_7745c5c3_Err != nil {
@@ -88,7 +88,7 @@ func LanguageToggle(currentLang string) templ.Component {
 		var templ_7745c5c3_Var6 string
 		templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.ResolveAttributeValue(templ.CSSClasses(templ_7745c5c3_Var5).String())
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/language_toggle.templ`, Line: 1, Col: 0}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/components/language_toggle.templ`, Line: 1, Col: 0}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var6)
 		if templ_7745c5c3_Err != nil {
@@ -101,7 +101,7 @@ func LanguageToggle(currentLang string) templ.Component {
 		var templ_7745c5c3_Var7 string
 		templ_7745c5c3_Var7, templ_7745c5c3_Err = templruntime.SanitizeStyleAttributeValues("display:inline-flex; align-items:center; gap:0.35rem; padding:0.25rem 0.65rem; border-radius:var(--radius-full); font-size:0.775rem; font-weight:700; text-decoration:none !important; transition:all 0.15s ease;", templ.KV("background:var(--surface-raised); color:var(--text); box-shadow:var(--shadow-sm);", currentLang == "en"), templ.KV("color:var(--text-muted);", currentLang != "en"))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/language_toggle.templ`, Line: 17, Col: 397}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/components/language_toggle.templ`, Line: 17, Col: 397}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
 		if templ_7745c5c3_Err != nil {

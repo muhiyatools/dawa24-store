@@ -69,20 +69,20 @@ func (r *Repository) UpdateCustomerPendingOrder(
 			}
 
 			if l.ID > 0 {
-				// Query existing line to preserve authentic pricing and validate against catalog
-				var dbProductID, dbVariantID *int64
-				var dbUnitPrice, dbOldDiscount money.Amount
+				// Query existing line to preserve authentic pricing and validate against catalog & offer
+				var dbProductID, dbVariantID, dbOfferProductID *int64
+				var dbUnitPrice, dbOldDiscount, dbOriginalDiscount money.Amount
 				var dbOldQty int
-				var dbOriginalDiscount float64
 				var dbProductName string
+				var dbOrgID int64
 
 				err := tx.QueryRow(txCtx, `
-					SELECT product_id, product_variant_id, unit_price, quantity, discount_amount, COALESCE(original_discount, 0),
+					SELECT product_id, product_variant_id, offer_product_id, organization_id, unit_price, quantity, discount_amount, COALESCE(original_discount, 0),
 					       COALESCE(product_name->>'ar', product_name->>'en', '')
 					FROM commerce.order_lines
 					WHERE id = $1 AND order_id = $2
 					FOR UPDATE;
-				`, l.ID, order.ID).Scan(&dbProductID, &dbVariantID, &dbUnitPrice, &dbOldQty, &dbOldDiscount, &dbOriginalDiscount, &dbProductName)
+				`, l.ID, order.ID).Scan(&dbProductID, &dbVariantID, &dbOfferProductID, &dbOrgID, &dbUnitPrice, &dbOldQty, &dbOldDiscount, &dbOriginalDiscount, &dbProductName)
 				if err != nil {
 					if database.IsNotFound(err) {
 						continue
@@ -92,6 +92,23 @@ func (r *Repository) UpdateCustomerPendingOrder(
 
 				if dbProductName == "" {
 					dbProductName = l.ProductName
+				}
+
+				// Check offer rules if order was placed under a special offer
+				if dbOfferProductID != nil && *dbOfferProductID > 0 {
+					var offerCustomQty, maxQtyPerOrder int
+					_ = tx.QueryRow(txCtx, `
+						SELECT COALESCE(custom_qty, 1), COALESCE(max_qty_per_order, 0)
+						FROM promo.offer_products
+						WHERE id = $1;
+					`, *dbOfferProductID).Scan(&offerCustomQty, &maxQtyPerOrder)
+
+					if maxQtyPerOrder > 0 && l.Quantity > maxQtyPerOrder {
+						return apperr.Validation("max_qty_exceeded", fmt.Sprintf("الكمية المطلوبة للصنف (%s) هي %d وتتجاوز الحد الأقصى المسموح به لكل طلب في هذا العرض (%d قطعة).", dbProductName, l.Quantity, maxQtyPerOrder), nil)
+					}
+					if offerCustomQty > 1 && l.Quantity < offerCustomQty {
+						return apperr.Validation("min_offer_qty", fmt.Sprintf("الحد الأدنى لطلب الصنف (%s) داخل هذا العرض هو %d قطعة.", dbProductName, offerCustomQty), nil)
+					}
 				}
 
 				// Check minimum order quantity & available stock if variant exists in catalog
@@ -107,11 +124,17 @@ func (r *Repository) UpdateCustomerPendingOrder(
 					}
 
 					var availableStock int
+					checkOrgID := dbOrgID
+					if checkOrgID == 0 {
+						checkOrgID = defaultOrgID
+					}
 					_ = tx.QueryRow(txCtx, `
 						SELECT COALESCE(SUM(quantity), 0)
 						FROM inventory.stocks
-						WHERE product_variant_id = $1 AND deleted_at IS NULL;
-					`, *dbVariantID).Scan(&availableStock)
+						WHERE product_variant_id = $1 
+						  AND ($2::bigint = 0 OR organization_id = $2)
+						  AND deleted_at IS NULL;
+					`, *dbVariantID, checkOrgID).Scan(&availableStock)
 					if availableStock > 0 && l.Quantity > availableStock {
 						return apperr.Validation("stock_exceeded", fmt.Sprintf("الكمية المطلوبة للصنف (%s) هي %d وتتجاوز المخزون المتاح حالياً لدى المورد (%d قطعة).", dbProductName, l.Quantity, availableStock), nil)
 					}
@@ -119,12 +142,11 @@ func (r *Repository) UpdateCustomerPendingOrder(
 
 				// Calculate per-unit discount accurately
 				unitDiscount := money.Zero
-				if dbOriginalDiscount > 0 {
-					discMinor := int64(float64(dbUnitPrice.Minor()) * (dbOriginalDiscount / 100.0))
-					unitDiscount = money.FromMinor(discMinor)
-				} else if dbOldQty > 0 && dbOldDiscount.IsPositive() {
+				if dbOldQty > 0 && dbOldDiscount.IsPositive() {
 					discMinor := dbOldDiscount.Minor() / int64(dbOldQty)
 					unitDiscount = money.FromMinor(discMinor)
+				} else if dbOriginalDiscount.IsPositive() {
+					unitDiscount = dbOriginalDiscount
 				}
 
 				lineDiscount, _ := unitDiscount.MulInt(int64(l.Quantity))

@@ -173,6 +173,9 @@ type OrderLine struct {
 	IsNegotiated      bool         `json:"is_negotiated"`
 	ProposedUnitPrice money.Amount `json:"proposed_unit_price,omitempty"`
 	Rating            *float64     `json:"rating,omitempty"` // per-line rating (Laravel adv_orders.rating parity)
+	AvailableStock    int          `json:"available_stock,omitempty"`
+	MinOrderQty       int          `json:"min_order_qty,omitempty"`
+	MaxQtyPerOrder    int          `json:"max_qty_per_order,omitempty"`
 	CreatedAt         time.Time    `json:"created_at"`
 }
 

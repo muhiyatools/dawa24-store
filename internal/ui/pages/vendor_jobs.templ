@@ -328,19 +328,34 @@ templ VendorJobs(lang, dir string, data VendorJobsData) {
 						</div>
 					</div>
 
-					<!-- Location -->
+					<!-- Location & Branch Selection -->
 					<div>
 						<label class="form-label">
-							مقر العمل / المحافظة أو المدينة <span class="text-danger">*</span>
+							الفرع / مقر العمل المخصص للوظيفة <span class="text-danger">*</span>
 						</label>
-						<input
-							type="text"
-							name="location"
-							required
-							class="form-input"
-							placeholder="مثال: القاهرة - التجمع الخامس / بنها"
-							style="height:44px; border-radius:var(--radius-lg);"
-						/>
+						if len(data.Branches) == 0 {
+							<div style="padding:0.65rem 0.85rem; background:var(--surface-sunken); border:1px dashed var(--border); border-radius:var(--radius-lg); font-size:0.8rem; color:var(--text-secondary);">
+								<span>لم تسجل فروعاً بعد. سيتم ربط الوظيفة بـ <strong>(الفرع الرئيسي)</strong>. يمكنك إضافة فروعك من <a href="/vendor/branches" class="text-primary font-bold text-decoration-none">إدارة الفروع ↗</a>.</span>
+							</div>
+							<input type="hidden" name="location" value="الفرع الرئيسي" />
+						} else {
+							<select
+								name="branch_id"
+								required
+								class="form-input"
+								style="height:44px; border-radius:var(--radius-lg); font-weight:700;"
+							>
+								<option value="">-- اختر الفرع المتاح للوظيفة --</option>
+								for _, b := range data.Branches {
+									<option value={ fmt.Sprintf("%d", b.ID) }>
+										{ b.Name.Get(i18n.ParseLang(lang)) }
+										if b.IsMain {
+											 (الفرع الرئيسي)
+										}
+									</option>
+								}
+							</select>
+						}
 					</div>
 
 					<!-- Salary Range -->
@@ -501,16 +516,41 @@ templ VendorJobs(lang, dir string, data VendorJobsData) {
 					<div class="grid-2">
 						<div>
 							<label class="form-label">
-								الموقع الجغرافي / الفرع
+								الفرع المخصص للشاغر <span class="text-danger">*</span>
 							</label>
-							<input
-								type="text"
-								name="location"
-								id="edit-job-location"
-								class="form-input"
-								placeholder="مثال: القاهرة - التجمع الخامس / الإسكندرية"
-								style="height:44px; border-radius:var(--radius-lg);"
-							/>
+							if len(data.Branches) == 0 {
+								<input
+									type="text"
+									name="location"
+									id="edit-job-location"
+									readonly
+									class="form-input"
+									style="height:44px; border-radius:var(--radius-lg); background:var(--surface-sunken);"
+								/>
+							} else {
+								<select
+									name="branch_id"
+									id="edit-job-branch-id"
+									required
+									class="form-input"
+									style="height:44px; border-radius:var(--radius-lg); font-weight:700;"
+								>
+									<option value="">-- اختر الفرع المتاح للوظيفة --</option>
+									for _, b := range data.Branches {
+										<option 
+											value={ fmt.Sprintf("%d", b.ID) }
+											data-branch-name={ b.Name.Get(i18n.ParseLang(lang)) }
+											data-branch-name-ar={ b.Name.Get(i18n.AR) }
+											data-branch-name-en={ b.Name.Get(i18n.EN) }
+										>
+											{ b.Name.Get(i18n.ParseLang(lang)) }
+											if b.IsMain {
+												 (الفرع الرئيسي)
+											}
+										</option>
+									}
+								</select>
+							}
 						</div>
 
 						<div>
@@ -779,6 +819,7 @@ templ VendorJobs(lang, dir string, data VendorJobsData) {
 				const titleArInput = document.getElementById('edit-job-title-ar');
 				const titleEnInput = document.getElementById('edit-job-title-en');
 				const locationInput = document.getElementById('edit-job-location');
+				const branchSelect = document.getElementById('edit-job-branch-id');
 				const statusInput = document.getElementById('edit-job-status');
 				const salMinInput = document.getElementById('edit-job-salary-min');
 				const salMaxInput = document.getElementById('edit-job-salary-max');
@@ -788,6 +829,26 @@ templ VendorJobs(lang, dir string, data VendorJobsData) {
 				if (titleArInput) titleArInput.value = titleAr || '';
 				if (titleEnInput) titleEnInput.value = titleEn || '';
 				if (locationInput) locationInput.value = location || '';
+				if (branchSelect) {
+					let matched = false;
+					if (location) {
+						for (let i = 0; i < branchSelect.options.length; i++) {
+							const opt = branchSelect.options[i];
+							const optText = opt.textContent.trim();
+							const optName = opt.getAttribute('data-branch-name') || '';
+							const optNameAr = opt.getAttribute('data-branch-name-ar') || '';
+							const optNameEn = opt.getAttribute('data-branch-name-en') || '';
+							if (optText.includes(location) || optName === location || optNameAr === location || optNameEn === location) {
+								branchSelect.selectedIndex = i;
+								matched = true;
+								break;
+							}
+						}
+					}
+					if (!matched && branchSelect.options.length > 1) {
+						branchSelect.selectedIndex = 1;
+					}
+				}
 				if (statusInput) statusInput.value = status || 'published';
 				if (salMinInput) salMinInput.value = salMin || '';
 				if (salMaxInput) salMaxInput.value = salMax || '';

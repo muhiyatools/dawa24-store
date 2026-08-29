@@ -221,6 +221,29 @@ func (h *UIHandler) AdminUsersPage(w http.ResponseWriter, r *http.Request) {
 		SearchQuery:      searchQuery,
 		RoleFilter:       roleFilter,
 		StatusFilter:     statusFilter,
+		NoticeKind:       r.URL.Query().Get("notice"),
+		Notice:           r.URL.Query().Get("msg"),
+	}
+
+	// The create-administrator form appears only for a viewer who may assign
+	// roles. Only staff roles are offered: creating an account into a
+	// non-staff role produces someone who cannot open the dashboard they were
+	// hired for, and the service refuses it anyway.
+	if actor := authctx.FromContext(ctx); actor.Can("identity.admin_role.assign") && h.idSvc != nil {
+		roles, err := h.idSvc.ListPlatformRoles(ctx)
+		if err != nil {
+			h.log.ErrorContext(ctx, "list platform roles for the users page", "error", err)
+		}
+		for _, role := range roles {
+			if !role.IsStaff {
+				continue
+			}
+			data.StaffRoles = append(data.StaffRoles, pages.AdminUserRoleOption{
+				Key:     role.Key,
+				Name:    role.Name.Get(i18n.ParseLang(lang)),
+				IsStaff: true,
+			})
+		}
 	}
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")

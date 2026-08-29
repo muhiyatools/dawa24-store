@@ -3,6 +3,7 @@ package ui
 import (
 	"crypto/rand"
 	"encoding/hex"
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"net/url"
@@ -624,16 +625,24 @@ func (h *UIHandler) CustomerOrderEditSubmit(w http.ResponseWriter, r *http.Reque
 	discountAmounts := r.PostForm["discount_amount[]"]
 	isDeletedList := r.PostForm["is_deleted[]"]
 
+	lineCount := len(lineIDs)
+	if len(productNames) > lineCount {
+		lineCount = len(productNames)
+	}
+	if len(quantities) > lineCount {
+		lineCount = len(quantities)
+	}
+
 	var lines []commerce.OrderLineEditItem
-	for i := 0; i < len(productNames); i++ {
+	for i := 0; i < lineCount; i++ {
 		var lineID int64
 		if i < len(lineIDs) {
 			lineID, _ = strconv.ParseInt(lineIDs[i], 10, 64)
 		}
 
-		pName := strings.TrimSpace(productNames[i])
-		if pName == "" {
-			continue
+		pName := ""
+		if i < len(productNames) {
+			pName = strings.TrimSpace(productNames[i])
 		}
 
 		qty := 1
@@ -662,6 +671,10 @@ func (h *UIHandler) CustomerOrderEditSubmit(w http.ResponseWriter, r *http.Reque
 			isDel = isDeletedList[i] == "true" || isDeletedList[i] == "1"
 		}
 
+		if lineID <= 0 && pName == "" && !isDel {
+			continue
+		}
+
 		lines = append(lines, commerce.OrderLineEditItem{
 			ID:             lineID,
 			ProductName:    pName,
@@ -678,9 +691,33 @@ func (h *UIHandler) CustomerOrderEditSubmit(w http.ResponseWriter, r *http.Reque
 		Notes:   strings.TrimSpace(r.PostFormValue("notes")),
 	}
 
-	_, err = h.commSvc.UpdateCustomerPendingOrder(ctx, actor, input)
+	updatedOrder, err := h.commSvc.UpdateCustomerPendingOrder(ctx, actor, input)
 	if err != nil {
-		h.redirectWithNotice(w, r, fmt.Sprintf("/orders/%d", id), "error", "تعذر تعديل الطلب: "+h.safeMessage(err, langOf(r)))
+		errMsg := "تعذر تعديل الطلب: " + h.safeMessage(err, langOf(r))
+		if r.Header.Get("X-Requested-With") == "XMLHttpRequest" || strings.Contains(r.Header.Get("Accept"), "application/json") {
+			w.Header().Set("Content-Type", "application/json; charset=utf-8")
+			w.WriteHeader(http.StatusBadRequest)
+			_ = json.NewEncoder(w).Encode(map[string]any{
+				"success": false,
+				"error":   errMsg,
+			})
+			return
+		}
+		h.redirectWithNotice(w, r, fmt.Sprintf("/orders/%d", id), "error", errMsg)
+		return
+	}
+
+	if r.Header.Get("X-Requested-With") == "XMLHttpRequest" || strings.Contains(r.Header.Get("Accept"), "application/json") {
+		w.Header().Set("Content-Type", "application/json; charset=utf-8")
+		_ = json.NewEncoder(w).Encode(map[string]any{
+			"success":     true,
+			"message":     "تم حفظ وتعديل بيانات الطلب وتحديث الإجماليات بنجاح.",
+			"subtotal":    updatedOrder.Subtotal.String(),
+			"discount":    updatedOrder.DiscountAmount.String(),
+			"total":       updatedOrder.TotalAmount.String(),
+			"shippingFee": updatedOrder.ShippingFee.String(),
+			"taxAmount":   updatedOrder.TaxAmount.String(),
+		})
 		return
 	}
 
@@ -723,17 +760,33 @@ func (h *UIHandler) AddToCartSubmit(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	actor, ok := authctx.From(ctx)
 	if !ok {
+		if h.isHTMX(r) {
+			w.Header().Set("HX-Redirect", "/auth/login?redirect=/cart")
+			w.Header().Set("HX-Trigger", `{"showToast":{"message":"يرجى تسجيل الدخول كصيدلية مرخصة للشراء","type":"error"}}`)
+			w.WriteHeader(http.StatusUnauthorized)
+			return
+		}
 		http.Redirect(w, r, "/auth/login?redirect=/cart", http.StatusSeeOther)
 		return
 	}
 
 	if !actor.IsCustomer() {
+		if h.isHTMX(r) {
+			w.Header().Set("HX-Trigger", `{"showToast":{"message":"عذراً، إضافة الأدوية وسلة المشتريات متاحة حصرياً لحسابات الصيدليات المرخصة","type":"error"}}`)
+			w.WriteHeader(http.StatusForbidden)
+			return
+		}
 		h.redirectWithNotice(w, r, "/catalog", "error", "عذراً، إضافة الأدوية وطلب التوريد متاح حصرياً للصيدليات المرخصة.")
 		return
 	}
 
 	userID := actor.UserID
 	if h.commSvc == nil {
+		if h.isHTMX(r) {
+			w.Header().Set("HX-Trigger", `{"showToast":{"message":"خدمة السلة غير متوفرة حالياً","type":"error"}}`)
+			w.WriteHeader(http.StatusServiceUnavailable)
+			return
+		}
 		http.Redirect(w, r, "/cart", http.StatusSeeOther)
 		return
 	}
@@ -763,7 +816,7 @@ func (h *UIHandler) AddToCartSubmit(w http.ResponseWriter, r *http.Request) {
 
 	// Auto-resolve missing product/vendor info from variant
 	if h.catSvc != nil && variantID > 0 && (productID <= 0 || vendorOrgID <= 0) {
-		if v, err := h.catSvc.GetVariant(ctx, variantID); err == nil && v != nil {
+		if v, err := h.catSvc.GetVariant(database.AsSystem(ctx), variantID); err == nil && v != nil {
 			if productID <= 0 {
 				productID = v.ProductID
 			}
@@ -795,12 +848,12 @@ func (h *UIHandler) AddToCartSubmit(w http.ResponseWriter, r *http.Request) {
 	// Authoritative catalog price lookup
 	if item.UnitPrice.IsZero() && h.catSvc != nil {
 		if variantID > 0 {
-			if v, err := h.catSvc.GetVariant(ctx, variantID); err == nil && v != nil && !v.Price.IsZero() {
+			if v, err := h.catSvc.GetVariant(database.AsSystem(ctx), variantID); err == nil && v != nil && !v.Price.IsZero() {
 				item.UnitPrice = v.Price
 			}
 		}
 		if item.UnitPrice.IsZero() && productID > 0 {
-			if prod, _, err := h.catSvc.GetProduct(ctx, productID); err == nil && prod != nil {
+			if prod, _, err := h.catSvc.GetProduct(database.AsSystem(ctx), productID); err == nil && prod != nil {
 				item.ProductName = prod.Name
 				item.UnitPrice = prod.EffectivePrice()
 			}
@@ -810,6 +863,11 @@ func (h *UIHandler) AddToCartSubmit(w http.ResponseWriter, r *http.Request) {
 	if _, err := h.commSvc.AddToCart(ctx, userID, item); err != nil {
 		h.log.ErrorContext(ctx, "add to cart", "error", err,
 			"user", userID, "variant", variantID, "vendor", vendorOrgID)
+		if h.isHTMX(r) {
+			w.Header().Set("HX-Trigger", fmt.Sprintf(`{"showToast":{"message":%q,"type":"error"}}`, h.safeMessage(err, langOf(r))))
+			w.WriteHeader(http.StatusBadRequest)
+			return
+		}
 		h.redirectWithNotice(w, r, back, "error", h.safeMessage(err, langOf(r)))
 		return
 	}
@@ -860,6 +918,11 @@ func (h *UIHandler) assertCartLineAvailable(
 		// A failed check is not permission to buy.
 		h.log.ErrorContext(ctx, "availability check failed", "error", err,
 			"variant", variantID, "vendor", vendorOrgID, "branch", branchID)
+		if h.isHTMX(r) {
+			w.Header().Set("HX-Trigger", `{"showToast":{"message":"تعذر التحقق من توفر الصنف حالياً، يرجى المحاولة مرة أخرى","type":"error"}}`)
+			w.WriteHeader(http.StatusBadRequest)
+			return false
+		}
 		h.redirectWithNotice(w, r, back, "error",
 			"تعذر التحقق من توفر الصنف حالياً، يرجى المحاولة مرة أخرى.")
 		return false
@@ -867,12 +930,17 @@ func (h *UIHandler) assertCartLineAvailable(
 	if !res.Allowed {
 		h.log.InfoContext(ctx, "cart line refused", "reason", res.Reason,
 			"variant", variantID, "vendor", vendorOrgID, "branch", branchID, "qty", qty)
-		if h.isHTMX(r) && back == "/cart" {
-			cart, _ := h.commSvc.GetCart(ctx, actor.UserID)
-			lang, _ := h.localeAndDir(r)
+		if h.isHTMX(r) {
+			if back == "/cart" {
+				cart, _ := h.commSvc.GetCart(ctx, actor.UserID)
+				lang, _ := h.localeAndDir(r)
+				w.Header().Set("HX-Trigger", fmt.Sprintf(`{"showToast":{"message":%q,"type":"error"}}`, res.MessageAr))
+				w.Header().Set("Content-Type", "text/html; charset=utf-8")
+				_ = pages.CustomerCartContent(cart, lang).Render(ctx, w)
+				return false
+			}
 			w.Header().Set("HX-Trigger", fmt.Sprintf(`{"showToast":{"message":%q,"type":"error"}}`, res.MessageAr))
-			w.Header().Set("Content-Type", "text/html; charset=utf-8")
-			_ = pages.CustomerCartContent(cart, lang).Render(ctx, w)
+			w.WriteHeader(http.StatusBadRequest)
 			return false
 		}
 		h.redirectWithNotice(w, r, back, "error", res.MessageAr)

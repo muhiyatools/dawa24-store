@@ -10,13 +10,22 @@ import templruntime "github.com/a-h/templ/runtime"
 
 import (
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
+	"github.com/muhiya/dawa24-store/internal/platform/rbac"
 )
 
-// ShellFor renders the appropriate dashboard shell based on the actor's audience:
-//   - customer (صيدلية) → CustomerShell (with permissions)
-//   - vendor (مورّد)     → VendorShell
-//   - staff (إدارة)      → AdminShell
-//   - default           → CustomerShell
+// ShellFor renders the dashboard frame the caller belongs to.
+//
+// It switches on the resolved scope, not on a string comparison against the
+// organization type. It used to read `actor.OrgType == "vendor"`, and the
+// database holds "supplier" for most supplier rows — a legacy spelling from
+// the Laravel schema. Every such account therefore fell through to the
+// pharmacy branch and got the pharmacy shell, complete with the "بوابة
+// الصيدلية المعتمدة" badge, and then an empty sidebar: the pharmacy navigation
+// renders only items the caller holds a pharmacy permission for, and a
+// supplier holds none.
+//
+// rbac.TenantScopeFor is the one place that folds the legacy spellings, so
+// this branch and the route gates cannot disagree about who a caller is.
 func ShellFor(title string, activeNav string, lang string, dir string, actor authctx.Actor) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
@@ -38,7 +47,8 @@ func ShellFor(title string, activeNav string, lang string, dir string, actor aut
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		if actor.IsStaff {
+		switch actor.DashboardScope() {
+		case rbac.ScopeAdmin:
 			templ_7745c5c3_Var2 := templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 				templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 				templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templruntime.GetBuffer(templ_7745c5c3_W)
@@ -61,7 +71,7 @@ func ShellFor(title string, activeNav string, lang string, dir string, actor aut
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-		} else if actor.OrgType == "vendor" {
+		case rbac.ScopeVendor:
 			templ_7745c5c3_Var3 := templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 				templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 				templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templruntime.GetBuffer(templ_7745c5c3_W)
@@ -84,7 +94,7 @@ func ShellFor(title string, activeNav string, lang string, dir string, actor aut
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-		} else {
+		default:
 			templ_7745c5c3_Var4 := templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 				templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 				templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templruntime.GetBuffer(templ_7745c5c3_W)

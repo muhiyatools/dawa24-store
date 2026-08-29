@@ -90,6 +90,8 @@ func (h *UIHandler) registerCustomerBuyingRoutes(r chi.Router) {
 		g.Use(authctx.RequireTenantPagePermission("pharmacy.order.view"))
 		g.Get("/orders", h.CustomerOrdersPage)
 		g.Get("/orders/{id}", h.CustomerOrderDetailPage)
+		g.Get("/customer/orders", h.CustomerOrdersPage)
+		g.Get("/customer/orders/{id}", h.CustomerOrderDetailPage)
 		g.Get("/orders/offers", func(w http.ResponseWriter, r *http.Request) {
 			http.Redirect(w, r, "/orders", http.StatusMovedPermanently)
 		})
@@ -152,11 +154,6 @@ func (h *UIHandler) registerCustomerMarketRoutes(r chi.Router) {
 	r.Group(func(g chi.Router) {
 		g.Use(authctx.RequireTenantPagePermission("pharmacy.review.write"))
 		g.Post("/reviews/submit", h.ReviewSubmit)
-	})
-
-	r.Group(func(g chi.Router) {
-		g.Use(authctx.RequireTenantPagePermission("pharmacy.compare.use"))
-		g.Post("/compare/subscribe", h.CompareSubscribeSubmit)
 	})
 
 	r.Group(func(g chi.Router) {

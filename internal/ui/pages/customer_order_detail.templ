@@ -69,6 +69,45 @@ func getAllOrderLines(order *commerce.Order) []*commerce.OrderLine {
 	return res
 }
 
+func unitDiscountMinor(l *commerce.OrderLine) int64 {
+	if l == nil || l.Quantity <= 0 || l.DiscountAmount.IsZero() {
+		return 0
+	}
+	return l.DiscountAmount.Minor() / int64(l.Quantity)
+}
+
+func minAllowedQty(l *commerce.OrderLine) int {
+	if l == nil || l.MinOrderQty <= 1 {
+		return 1
+	}
+	return l.MinOrderQty
+}
+
+func maxAllowedQty(l *commerce.OrderLine) int {
+	if l == nil {
+		return 99999
+	}
+	maxVal := 99999
+	if l.MaxQtyPerOrder > 0 {
+		maxVal = l.MaxQtyPerOrder
+	}
+	if l.AvailableStock > 0 && l.AvailableStock < maxVal {
+		maxVal = l.AvailableStock
+	}
+	return maxVal
+}
+
+func orderTaxRate(order *commerce.Order) float64 {
+	if order == nil || order.TaxAmount.IsZero() {
+		return 0.0
+	}
+	taxable, _ := order.Subtotal.Sub(order.DiscountAmount)
+	if taxable.IsPositive() {
+		return float64(order.TaxAmount.Minor()) / float64(taxable.Minor())
+	}
+	return 0.0
+}
+
 templ CustomerOrderDetail(order *commerce.Order, history []*commerce.OrderStatusHistory, noticeType, noticeMsg, lang, dir string) {
 	@layouts.CustomerShell(fmt.Sprintf("طلب توريد #%s", order.OrderNumber), "orders", lang, dir, nil) {
 		<div class="page-container">
@@ -81,7 +120,14 @@ templ CustomerOrderDetail(order *commerce.Order, history []*commerce.OrderStatus
 						templ.KV("alert-danger", noticeType == "error") }
 					role="alert"
 				>
-					{ noticeMsg }
+					<div class="d-flex items-center gap-2">
+						if noticeType == "error" {
+							<span>⚠️</span>
+						} else {
+							<span>✓</span>
+						}
+						<span class="font-bold">{ noticeMsg }</span>
+					</div>
 				</div>
 			}
 
@@ -116,7 +162,12 @@ templ CustomerOrderDetail(order *commerce.Order, history []*commerce.OrderStatus
 						<a href="/orders" class="btn btn-secondary btn-sm font-bold">
 							<span>← العودة لطلبياتي</span>
 						</a>
-						if order.Status != commerce.StatusPending {
+						if order.Status == commerce.StatusPending {
+							<button type="button" class="btn btn-primary btn-sm font-bold gap-1" onclick="window.scrollToEditForm()">
+								@components.IconEdit("icon-xs")
+								<span>تعديل كميات الطلب</span>
+							</button>
+						} else {
 							<a
 								href={ templ.SafeURL(fmt.Sprintf("/orders/%d/invoice/print", order.ID)) }
 								target="_blank"
@@ -134,7 +185,7 @@ templ CustomerOrderDetail(order *commerce.Order, history []*commerce.OrderStatus
 			<!-- Main 2-Column Responsive Grid -->
 			<div class="order-detail-layout mb-6">
 				
-				<!-- Right Column: Primary Details -->
+				<!-- Right Column: Primary Details & Line Items -->
 				<div class="d-flex flex-col gap-6">
 					
 					<!-- 1. Order Progress Timeline Card -->
@@ -217,7 +268,7 @@ templ CustomerOrderDetail(order *commerce.Order, history []*commerce.OrderStatus
 					</div>
 
 					<!-- 2. Shipments & Line Items Table Card -->
-					<div class="glass-panel p-6 mb-0">
+					<div class="glass-panel p-6 mb-0" id="order-lines-container">
 						<div class="flex-between items-center mb-4 flex-wrap gap-3 pb-3 border-b">
 							<div class="d-flex items-center gap-2">
 								<span class="text-xl">💊</span>
@@ -228,8 +279,11 @@ templ CustomerOrderDetail(order *commerce.Order, history []*commerce.OrderStatus
 							<div class="d-flex items-center gap-2 flex-wrap">
 								if order.Status == commerce.StatusPending {
 									<span class="badge badge-amber text-xs font-black">
-										<span>✏️ تعديل الكميات متاح مباشرة</span>
+										<span>✏️ تعديل الكميات متاح ومحفوظ في قاعدة البيانات</span>
 									</span>
+									<button type="button" class="btn btn-secondary btn-xs font-bold gap-1" onclick="window.openOrderEditModal()">
+										<span>➕ إضافة / حذف صنف</span>
+									</button>
 								} else {
 									<span class="badge badge-slate text-xs font-bold" title="لا يمكن تعديل الطلب بعد قبوله أو معالجته من المورد">
 										<span>🔒 الطلب مؤكد ولا يمكن تعديله</span>
@@ -280,7 +334,7 @@ templ CustomerOrderDetail(order *commerce.Order, history []*commerce.OrderStatus
 															<thead>
 																<tr>
 																	<th>الصنف الدوائي</th>
-																	<th style="width:155px;" class="text-center">الكمية المطلوبة</th>
+																	<th style="width:170px;" class="text-center">الكمية المطلوبة</th>
 																	<th class="text-end">سعر الجمهور</th>
 																	<th class="text-center">نسبة الخصم</th>
 																	<th class="text-end">السعر بعد الخصم (الإجمالي)</th>
@@ -289,7 +343,15 @@ templ CustomerOrderDetail(order *commerce.Order, history []*commerce.OrderStatus
 															</thead>
 															<tbody>
 																for _, l := range sh.Lines {
-																	<tr class="order-table-row">
+																	<tr
+																		class="order-table-row"
+																		data-line-id={ fmt.Sprintf("%d", l.ID) }
+																		data-unit-price-minor={ fmt.Sprintf("%d", l.UnitPrice.Minor()) }
+																		data-unit-discount-minor={ fmt.Sprintf("%d", unitDiscountMinor(l)) }
+																		data-min-qty={ fmt.Sprintf("%d", minAllowedQty(l)) }
+																		data-max-qty={ fmt.Sprintf("%d", maxAllowedQty(l)) }
+																		data-available-stock={ fmt.Sprintf("%d", l.AvailableStock) }
+																	>
 																		<td>
 																			<div class="font-extrabold text-primary text-xs">
 																				{ l.ProductName.Get(i18n.Lang(lang)) }
@@ -304,6 +366,13 @@ templ CustomerOrderDetail(order *commerce.Order, history []*commerce.OrderStatus
 																					}
 																				</div>
 																			}
+																			if l.AvailableStock > 0 {
+																				<div class="mt-1">
+																					<span class="badge badge-emerald text-xs font-bold" style="font-size:0.7rem; padding:0.1rem 0.4rem;">
+																						المتوفر لدى المورد: { fmt.Sprintf("%d", l.AvailableStock) } قطعة
+																					</span>
+																				</div>
+																			}
 																			<input type="hidden" name="line_id[]" value={ fmt.Sprintf("%d", l.ID) }/>
 																			<input type="hidden" name="product_name[]" value={ l.ProductName.Get(i18n.Lang(lang)) }/>
 																			<input type="hidden" name="unit_price[]" value={ l.UnitPrice.String() } class="row-unit-price-input"/>
@@ -313,18 +382,21 @@ templ CustomerOrderDetail(order *commerce.Order, history []*commerce.OrderStatus
 																		<td class="text-center">
 																			<!-- Direct Quantity Stepper: [ - ] 10 [ + ] -->
 																			<div class="d-flex items-center gap-1 justify-center">
-																				<button type="button" class="btn btn-secondary btn-icon btn-sm" onclick="stepRowQty(this, -1)">−</button>
+																				<button type="button" class="btn btn-secondary btn-icon btn-sm font-bold" onclick="stepRowQty(this, -1)" title="إنقاص الكمية">−</button>
 																				<input
 																					type="number"
 																					name="quantity[]"
 																					value={ fmt.Sprintf("%d", l.Quantity) }
-																					min="1"
+																					min={ fmt.Sprintf("%d", minAllowedQty(l)) }
+																					if maxAllowedQty(l) < 99999 {
+																						max={ fmt.Sprintf("%d", maxAllowedQty(l)) }
+																					}
 																					required
 																					class="form-input text-xs tabular-nums text-center row-qty-input font-bold"
-																					style="width:58px;"
+																					style="width:62px;"
 																					oninput="recalcRowTotal(this)"
 																				/>
-																				<button type="button" class="btn btn-secondary btn-icon btn-sm" onclick="stepRowQty(this, 1)">+</button>
+																				<button type="button" class="btn btn-secondary btn-icon btn-sm font-bold" onclick="stepRowQty(this, 1)" title="زيادة الكمية">+</button>
 																			</div>
 																		</td>
 																		<td class="text-end tabular-nums font-bold text-xs text-primary">
@@ -366,7 +438,7 @@ templ CustomerOrderDetail(order *commerce.Order, history []*commerce.OrderStatus
 												<thead>
 													<tr>
 														<th>الصنف الدوائي</th>
-														<th style="width:155px;" class="text-center">الكمية المطلوبة</th>
+														<th style="width:170px;" class="text-center">الكمية المطلوبة</th>
 														<th class="text-end">سعر الجمهور</th>
 														<th class="text-center">نسبة الخصم</th>
 														<th class="text-end">السعر بعد الخصم (الإجمالي)</th>
@@ -375,7 +447,15 @@ templ CustomerOrderDetail(order *commerce.Order, history []*commerce.OrderStatus
 												</thead>
 												<tbody>
 													for _, l := range order.Lines {
-														<tr class="order-table-row">
+														<tr
+															class="order-table-row"
+															data-line-id={ fmt.Sprintf("%d", l.ID) }
+															data-unit-price-minor={ fmt.Sprintf("%d", l.UnitPrice.Minor()) }
+															data-unit-discount-minor={ fmt.Sprintf("%d", unitDiscountMinor(l)) }
+															data-min-qty={ fmt.Sprintf("%d", minAllowedQty(l)) }
+															data-max-qty={ fmt.Sprintf("%d", maxAllowedQty(l)) }
+															data-available-stock={ fmt.Sprintf("%d", l.AvailableStock) }
+														>
 															<td>
 																<div class="font-extrabold text-primary text-xs">
 																	{ l.ProductName.Get(i18n.Lang(lang)) }
@@ -390,6 +470,13 @@ templ CustomerOrderDetail(order *commerce.Order, history []*commerce.OrderStatus
 																		}
 																	</div>
 																}
+																if l.AvailableStock > 0 {
+																	<div class="mt-1">
+																		<span class="badge badge-emerald text-xs font-bold" style="font-size:0.7rem; padding:0.1rem 0.4rem;">
+																			المتوفر لدى المورد: { fmt.Sprintf("%d", l.AvailableStock) } قطعة
+																		</span>
+																	</div>
+																}
 																<input type="hidden" name="line_id[]" value={ fmt.Sprintf("%d", l.ID) }/>
 																<input type="hidden" name="product_name[]" value={ l.ProductName.Get(i18n.Lang(lang)) }/>
 																<input type="hidden" name="unit_price[]" value={ l.UnitPrice.String() } class="row-unit-price-input"/>
@@ -399,18 +486,21 @@ templ CustomerOrderDetail(order *commerce.Order, history []*commerce.OrderStatus
 															<td class="text-center">
 																<!-- Direct Quantity Stepper: [ - ] 10 [ + ] -->
 																<div class="d-flex items-center gap-1 justify-center">
-																	<button type="button" class="btn btn-secondary btn-icon btn-sm" onclick="stepRowQty(this, -1)">−</button>
+																	<button type="button" class="btn btn-secondary btn-icon btn-sm font-bold" onclick="stepRowQty(this, -1)" title="إنقاص الكمية">−</button>
 																	<input
 																		type="number"
 																		name="quantity[]"
 																		value={ fmt.Sprintf("%d", l.Quantity) }
-																		min="1"
+																		min={ fmt.Sprintf("%d", minAllowedQty(l)) }
+																		if maxAllowedQty(l) < 99999 {
+																			max={ fmt.Sprintf("%d", maxAllowedQty(l)) }
+																		}
 																		required
 																		class="form-input text-xs tabular-nums text-center row-qty-input font-bold"
-																		style="width:58px;"
+																		style="width:62px;"
 																		oninput="recalcRowTotal(this)"
 																	/>
-																	<button type="button" class="btn btn-secondary btn-icon btn-sm" onclick="stepRowQty(this, 1)">+</button>
+																	<button type="button" class="btn btn-secondary btn-icon btn-sm font-bold" onclick="stepRowQty(this, 1)" title="زيادة الكمية">+</button>
 																</div>
 															</td>
 															<td class="text-end tabular-nums font-bold text-xs text-primary">
@@ -445,15 +535,18 @@ templ CustomerOrderDetail(order *commerce.Order, history []*commerce.OrderStatus
 									}
 
 									<!-- Save Edits Action Bar -->
-									<div class="glass-panel p-4 flex-between items-center mt-4 flex-wrap gap-3">
-										<div class="d-flex items-center gap-2 text-xs text-secondary">
-											<span class="text-warning text-base">⚠️</span>
-											<span>الطلب في حالة <strong>قيد المراجعة</strong>: يمكنك تعديل الكميات مباشرة قبل تأكيد المورد.</span>
+									<div class="glass-panel p-4 flex-between items-center mt-4 flex-wrap gap-3 border-brand-subtle" style="background:var(--surface-raised);">
+										<div class="d-flex items-center gap-3 text-xs text-secondary flex-wrap">
+											<span class="badge badge-amber font-bold">⚠️ قيد المراجعة</span>
+											<span>تم تعديل الكميات مباشرة: سيتم حفظ التعديلات وإعادة حساب الإجمالي الصافي فوراً.</span>
+											<span class="text-brand font-black ms-2 tabular-nums" style="font-size:0.95rem;">الإجمالي الصافي: <span id="form-bar-total">{ order.TotalAmount.String() } ج.م</span></span>
 										</div>
-										<button type="submit" class="btn btn-primary font-bold text-xs px-4 py-2 gap-1">
-											@components.IconCheck("icon-xs")
-											<span>💾 حفظ تعديلات الكميات وتحديث الإجماليات</span>
-										</button>
+										<div class="d-flex items-center gap-2">
+											<button type="submit" id="save-order-lines-btn" class="btn btn-primary font-bold text-xs px-5 py-2 gap-2 shadow-sm">
+												@components.IconCheck("icon-xs")
+												<span>💾 حفظ تعديلات الكميات وتحديث الفاتورة</span>
+											</button>
+										</div>
 									</div>
 								</form>
 							} else {
@@ -557,59 +650,42 @@ templ CustomerOrderDetail(order *commerce.Order, history []*commerce.OrderStatus
 										</table>
 									</div>
 								}
-								<div class="p-3 rounded-lg bg-surface-sunken border text-xs text-secondary d-flex items-center gap-2 mt-4">
-									<span>🔒</span>
-									<span>تم تأكيد هذا الطلب أو بدء تجهيزه من قِبل المورد (حالة الطلب: <strong>{ string(order.Status) }</strong>). لا يمكن تعديل الكميات بعد بدء التنفيذ.</span>
-								</div>
 							}
 						}
 					</div>
 
-					<!-- 3. Status History Timeline Card -->
-					<div class="glass-panel p-6 mb-0">
-						<div class="flex-between items-center mb-4 border-b pb-3">
-							<div class="d-flex items-center gap-2">
-								<span class="text-base">⏱</span>
+					<!-- 3. Status History Timeline -->
+					if len(history) > 0 {
+						<div class="glass-panel p-6 mb-0">
+							<div class="d-flex items-center gap-2 mb-4 pb-3 border-b">
+								<span class="text-xl">📜</span>
 								<h2 class="text-base font-extrabold text-primary m-0">
-									سجل التحديثات والمحطات
+									سجل حركات وتحديثات الطلب
 								</h2>
 							</div>
-						</div>
 
-						if len(history) == 0 {
-							<div class="text-xs text-muted text-center py-6">
-								تم تسجيل أمر التوريد، وسيتم تدوين التحديثات اللحظية هنا فور انتقال الشحنة بين المحطات.
-							</div>
-						} else {
 							<div class="d-flex flex-col gap-3">
 								for _, h := range history {
-									<div class="d-flex items-start gap-3 p-3 rounded-lg bg-surface-sunken border">
-										<div class="status-dot mt-1 flex-shrink-0"></div>
-										<div class="flex-1">
-											<div class="flex-between items-center mb-1">
-												<span class="badge badge-sky text-xs font-bold">{ h.ToStatus }</span>
-												<span class="tabular-nums text-xs text-muted">{ h.CreatedAt.Format("2006-01-02 15:04:05") }</span>
-											</div>
-											<div class="text-xs text-secondary">
-												if h.Notes != "" {
-													{ h.Notes }
-												} else {
-													<span>تم تحديث حالة الشحنة بنجاح في المنظومة</span>
-												}
-											</div>
+									<div class="p-3 rounded-lg bg-surface-sunken border d-flex items-start justify-between flex-wrap gap-2 text-xs">
+										<div class="d-flex items-center gap-2">
+											@components.StatusBadge(h.ToStatus)
+											if h.Notes != "" {
+												<span class="text-secondary font-medium">{ h.Notes }</span>
+											}
 										</div>
+										<span class="text-muted tabular-nums">{ h.CreatedAt.Format("2006-01-02 15:04:05") }</span>
 									</div>
 								}
 							</div>
-						}
-					</div>
+						</div>
+					}
 
 				</div>
 
-				<!-- Left Column: Summary & Delivery Context -->
+				<!-- Left Column: Summary & Metadata -->
 				<div class="d-flex flex-col gap-6">
 					
-					<!-- 1. Financial Breakdown Card -->
+					<!-- 1. Financial Summary Card -->
 					<div class="glass-panel p-6 mb-0">
 						<div class="d-flex items-center gap-2 mb-4 pb-3 border-b">
 							<span class="text-xl">🧾</span>
@@ -621,7 +697,7 @@ templ CustomerOrderDetail(order *commerce.Order, history []*commerce.OrderStatus
 						<div class="d-flex flex-col gap-3 text-xs">
 							<div class="flex-between items-center">
 								<span class="text-secondary">إجمالي الأصناف:</span>
-								<span class="tabular-nums font-bold text-primary">
+								<span id="live-summary-subtotal" class="tabular-nums font-bold text-primary">
 									if order.Subtotal.Minor() > 0 {
 										{ order.Subtotal.String() } ج.م
 									} else {
@@ -630,34 +706,34 @@ templ CustomerOrderDetail(order *commerce.Order, history []*commerce.OrderStatus
 								</span>
 							</div>
 
-							if order.DiscountAmount.Minor() > 0 || order.TotalDiscount.Minor() > 0 {
-								<div class="flex-between items-center text-success">
-									<span>إجمالي الخصم الممنوح:</span>
-									<span class="tabular-nums font-bold">
-										if order.TotalDiscount.Minor() > 0 {
-											- { order.TotalDiscount.String() } ج.م
-										} else {
-											- { order.DiscountAmount.String() } ج.م
-										}
-									</span>
-								</div>
-							}
+							<div class="flex-between items-center text-success">
+								<span>إجمالي الخصم الممنوح:</span>
+								<span id="live-summary-discount" class="tabular-nums font-bold">
+									if order.TotalDiscount.Minor() > 0 {
+										- { order.TotalDiscount.String() } ج.م
+									} else if order.DiscountAmount.Minor() > 0 {
+										- { order.DiscountAmount.String() } ج.م
+									} else {
+										0.00 ج.م
+									}
+								</span>
+							</div>
 
-							<div class="flex-between items-center">
+							<div class="flex-between items-center" id="order-summary-shipping" data-shipping-minor={ fmt.Sprintf("%d", order.ShippingFee.Minor()) }>
 								<span class="text-secondary">مصاريف الشحن والتوصيل:</span>
 								<span class="tabular-nums font-bold text-primary">
 									if order.ShippingFee.Minor() > 0 {
 										{ order.ShippingFee.String() } ج.م
 									} else {
-										<span class="text-emerald">مجاناً</span>
+										<span class="text-emerald font-bold">مجاناً</span>
 									}
 								</span>
 							</div>
 
 							if order.TaxAmount.Minor() > 0 {
-								<div class="flex-between items-center">
+								<div class="flex-between items-center" id="order-summary-tax" data-tax-rate={ fmt.Sprintf("%.4f", orderTaxRate(order)) }>
 									<span class="text-secondary">ضريبة القيمة المضافة:</span>
-									<span class="tabular-nums font-bold text-primary">{ order.TaxAmount.String() } ج.م</span>
+									<span id="live-summary-tax" class="tabular-nums font-bold text-primary">{ order.TaxAmount.String() } ج.م</span>
 								</div>
 							}
 
@@ -666,7 +742,7 @@ templ CustomerOrderDetail(order *commerce.Order, history []*commerce.OrderStatus
 							<div class="flex-between items-baseline">
 								<span class="font-extrabold text-primary text-sm">المبلغ الصافي المستحق:</span>
 								<div class="text-2xl font-black text-brand tabular-nums">
-									{ order.TotalAmount.String() } <span class="text-xs font-bold text-secondary">ج.م</span>
+									<span id="live-summary-total">{ order.TotalAmount.String() }</span> <span class="text-xs font-bold text-secondary">ج.م</span>
 								</div>
 							</div>
 
@@ -724,7 +800,7 @@ templ CustomerOrderDetail(order *commerce.Order, history []*commerce.OrderStatus
 						<div class="d-flex flex-col gap-3 text-xs">
 							<div>
 								<div class="text-muted font-bold mb-1">فرع الصيدلية:</div>
-								<div class="font-extrabold text-primary text-sm">
+								<div class="text-primary font-bold">
 									if order.CustomerBranchName.Get(i18n.Lang(lang)) != "" {
 										{ order.CustomerBranchName.Get(i18n.Lang(lang)) }
 									} else {
@@ -812,7 +888,7 @@ templ CustomerOrderDetail(order *commerce.Order, history []*commerce.OrderStatus
 									<thead>
 										<tr>
 											<th>الصنف الدوائي</th>
-											<th style="width:135px;" class="text-center">الكمية</th>
+											<th style="width:145px;" class="text-center">الكمية</th>
 											<th style="width:110px;" class="text-end">سعر الوحدة</th>
 											<th style="width:95px;" class="text-end">الخصم</th>
 											<th style="width:110px;" class="text-end">الإجمالي</th>
@@ -821,17 +897,40 @@ templ CustomerOrderDetail(order *commerce.Order, history []*commerce.OrderStatus
 									</thead>
 									<tbody id="edit-lines-tbody">
 										for _, line := range getAllOrderLines(order) {
-											<tr class="edit-line-row">
+											<tr
+												class="edit-line-row"
+												data-unit-price-minor={ fmt.Sprintf("%d", line.UnitPrice.Minor()) }
+												data-unit-discount-minor={ fmt.Sprintf("%d", unitDiscountMinor(line)) }
+												data-min-qty={ fmt.Sprintf("%d", minAllowedQty(line)) }
+												data-max-qty={ fmt.Sprintf("%d", maxAllowedQty(line)) }
+											>
 												<td>
 													<input type="hidden" name="line_id[]" value={ fmt.Sprintf("%d", line.ID) }/>
 													<input type="hidden" name="is_deleted[]" value="0" class="line-deleted-input"/>
 													<input type="text" name="product_name[]" value={ line.ProductName.Get(i18n.Lang(lang)) } required class="form-input text-xs w-full font-bold"/>
+													if line.AvailableStock > 0 {
+														<div class="text-xs text-emerald font-bold mt-1" style="font-size:0.7rem;">
+															المتوفر: { fmt.Sprintf("%d", line.AvailableStock) } قطعة
+														</div>
+													}
 												</td>
 												<td>
 													<div class="d-flex items-center gap-1 justify-center">
-														<button type="button" class="btn btn-secondary btn-icon btn-sm" onclick="window.stepQty(this, -1)">-</button>
-														<input type="number" name="quantity[]" value={ fmt.Sprintf("%d", line.Quantity) } min="1" required class="form-input text-xs tabular-nums text-center line-qty-input font-bold" style="width:55px;" oninput="window.recalcEditOrder()"/>
-														<button type="button" class="btn btn-secondary btn-icon btn-sm" onclick="window.stepQty(this, 1)">+</button>
+														<button type="button" class="btn btn-secondary btn-icon btn-sm font-bold" onclick="window.stepQty(this, -1)">−</button>
+														<input
+															type="number"
+															name="quantity[]"
+															value={ fmt.Sprintf("%d", line.Quantity) }
+															min={ fmt.Sprintf("%d", minAllowedQty(line)) }
+															if maxAllowedQty(line) < 99999 {
+																max={ fmt.Sprintf("%d", maxAllowedQty(line)) }
+															}
+															required
+															class="form-input text-xs tabular-nums text-center line-qty-input font-bold"
+															style="width:55px;"
+															oninput="window.recalcEditOrder()"
+														/>
+														<button type="button" class="btn btn-secondary btn-icon btn-sm font-bold" onclick="window.stepQty(this, 1)">+</button>
 													</div>
 												</td>
 												<td class="text-end">
@@ -899,37 +998,110 @@ templ CustomerOrderDetail(order *commerce.Order, history []*commerce.OrderStatus
 				</div>
 
 				<script>
+					window.scrollToEditForm = function() {
+						const el = document.getElementById('order-lines-container');
+						if (el) {
+							el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+						}
+						const firstInput = document.querySelector('.row-qty-input');
+						if (firstInput) {
+							firstInput.focus();
+							firstInput.select();
+						}
+					};
+
 					window.stepRowQty = function(btn, delta) {
 						const tr = btn.closest('.order-table-row');
 						if (!tr) return;
 						const input = tr.querySelector('.row-qty-input');
-						if (input) {
-							let val = parseInt(input.value, 10) || 1;
-							val += delta;
-							if (val < 1) val = 1;
-							input.value = val;
-							window.recalcRowTotal(input);
+						if (!input) return;
+
+						const minVal = parseInt(tr.getAttribute('data-min-qty'), 10) || 1;
+						const maxVal = parseInt(tr.getAttribute('data-max-qty'), 10) || 99999;
+
+						let val = parseInt(input.value, 10) || minVal;
+						val += delta;
+						if (val < minVal) val = minVal;
+						if (val > maxVal) {
+							val = maxVal;
+							alert('الكمية المطلوبة تتجاوز الحد الأقصى المتاح لدى المورد (' + maxVal + ' قطعة).');
 						}
+
+						input.value = val;
+						window.recalcRowTotal(input);
 					};
 
 					window.recalcRowTotal = function(input) {
 						const tr = input.closest('.order-table-row');
 						if (!tr) return;
-						const qty = parseInt(input.value, 10) || 1;
-						const priceInput = tr.querySelector('.row-unit-price-input');
-						const discInput = tr.querySelector('.row-discount-input');
-						const totalDisplay = tr.querySelector('.row-total-display');
 
-						const price = parseFloat(priceInput ? priceInput.value.replace(/,/g, '') : 0) || 0;
-						const disc = parseFloat(discInput ? discInput.value.replace(/,/g, '') : 0) || 0;
+						const minVal = parseInt(tr.getAttribute('data-min-qty'), 10) || 1;
+						const maxVal = parseInt(tr.getAttribute('data-max-qty'), 10) || 99999;
 
-						let effectivePrice = price - disc;
-						if (effectivePrice < 0) effectivePrice = 0;
-						const lineTotal = effectivePrice * qty;
-
-						if (totalDisplay) {
-							totalDisplay.textContent = lineTotal.toFixed(2) + ' ج.م';
+						let qty = parseInt(input.value, 10);
+						if (isNaN(qty) || qty < minVal) {
+							qty = minVal;
 						}
+						if (qty > maxVal) {
+							qty = maxVal;
+							input.value = maxVal;
+							alert('الكمية المطلوبة تتجاوز الحد الأقصى المتاح لدى المورد (' + maxVal + ' قطعة).');
+						}
+
+						const priceMinor = parseInt(tr.getAttribute('data-unit-price-minor'), 10) || 0;
+						const discMinor = parseInt(tr.getAttribute('data-unit-discount-minor'), 10) || 0;
+
+						const effectivePriceMinor = Math.max(0, priceMinor - discMinor);
+						const lineTotalMinor = effectivePriceMinor * qty;
+
+						const totalDisplay = tr.querySelector('.row-total-display');
+						if (totalDisplay) {
+							totalDisplay.textContent = (lineTotalMinor / 100).toFixed(2) + ' ج.م';
+						}
+
+						window.recalcOrderLiveTotals();
+					};
+
+					window.recalcOrderLiveTotals = function() {
+						const rows = document.querySelectorAll('.order-table-row');
+						let subtotalMinor = 0;
+						let discountMinor = 0;
+
+						rows.forEach(tr => {
+							const delInput = tr.querySelector('.row-deleted-input');
+							if (delInput && delInput.value === "1") return;
+							if (tr.style.display === 'none') return;
+
+							const qtyInput = tr.querySelector('.row-qty-input');
+							const priceMinor = parseInt(tr.getAttribute('data-unit-price-minor'), 10) || 0;
+							const discMinor = parseInt(tr.getAttribute('data-unit-discount-minor'), 10) || 0;
+
+							const qty = parseInt(qtyInput ? qtyInput.value : 1, 10) || 0;
+							subtotalMinor += (priceMinor * qty);
+							discountMinor += (discMinor * qty);
+						});
+
+						const taxableMinor = Math.max(0, subtotalMinor - discountMinor);
+						const shippingMinor = parseInt(document.getElementById('order-summary-shipping')?.getAttribute('data-shipping-minor') || '0', 10) || 0;
+						const taxRate = parseFloat(document.getElementById('order-summary-tax')?.getAttribute('data-tax-rate') || '0') || 0;
+
+						const taxMinor = Math.round(taxableMinor * taxRate);
+						const totalMinor = taxableMinor + shippingMinor + taxMinor;
+
+						const subEl = document.getElementById('live-summary-subtotal');
+						if (subEl) subEl.textContent = (subtotalMinor / 100).toFixed(2) + ' ج.م';
+
+						const discEl = document.getElementById('live-summary-discount');
+						if (discEl) discEl.textContent = (discountMinor > 0 ? '-' : '') + (discountMinor / 100).toFixed(2) + ' ج.م';
+
+						const taxEl = document.getElementById('live-summary-tax');
+						if (taxEl) taxEl.textContent = (taxMinor / 100).toFixed(2) + ' ج.م';
+
+						const totalEl = document.getElementById('live-summary-total');
+						if (totalEl) totalEl.textContent = (totalMinor / 100).toFixed(2);
+
+						const barTotalEl = document.getElementById('form-bar-total');
+						if (barTotalEl) barTotalEl.textContent = (totalMinor / 100).toFixed(2) + ' ج.م';
 					};
 
 					window.deleteRowLine = function(btn) {
@@ -941,6 +1113,7 @@ templ CustomerOrderDetail(order *commerce.Order, history []*commerce.OrderStatus
 							delInput.value = '1';
 						}
 						tr.style.display = 'none';
+						window.recalcOrderLiveTotals();
 					};
 
 					window.openOrderEditModal = function() {
@@ -967,14 +1140,22 @@ templ CustomerOrderDetail(order *commerce.Order, history []*commerce.OrderStatus
 						const row = btn.closest('.edit-line-row');
 						if (!row) return;
 						const input = row.querySelector('.line-qty-input');
-						if (input) {
-							let val = parseInt(input.value) || 1;
-							val += delta;
-							if (val < 1) val = 1;
-							input.value = val;
-							if (typeof window.recalcEditOrder === 'function') {
-								window.recalcEditOrder();
-							}
+						if (!input) return;
+
+						const minVal = parseInt(row.getAttribute('data-min-qty'), 10) || 1;
+						const maxVal = parseInt(row.getAttribute('data-max-qty'), 10) || 99999;
+
+						let val = parseInt(input.value, 10) || minVal;
+						val += delta;
+						if (val < minVal) val = minVal;
+						if (val > maxVal) {
+							val = maxVal;
+							alert('الكمية المطلوبة تتجاوز الحد الأقصى المتاح لدى المورد (' + maxVal + ' قطعة).');
+						}
+
+						input.value = val;
+						if (typeof window.recalcEditOrder === 'function') {
+							window.recalcEditOrder();
 						}
 					};
 
@@ -999,6 +1180,8 @@ templ CustomerOrderDetail(order *commerce.Order, history []*commerce.OrderStatus
 						if (!tbody) return;
 						const tr = document.createElement('tr');
 						tr.className = 'edit-line-row';
+						tr.setAttribute('data-min-qty', '1');
+						tr.setAttribute('data-max-qty', '99999');
 						tr.innerHTML = `
 							<td style="padding:0.65rem 0.85rem;">
 								<input type="hidden" name="line_id[]" value="0"/>
@@ -1048,7 +1231,7 @@ templ CustomerOrderDetail(order *commerce.Order, history []*commerce.OrderStatus
 							const discInput = row.querySelector('.line-disc-amount');
 							const totalCell = row.querySelector('.line-total-cell');
 
-							const qty = parseInt(qtyInput ? qtyInput.value : 1) || 0;
+							const qty = parseInt(qtyInput ? qtyInput.value : 1, 10) || 0;
 							const price = parseFloat(priceInput ? priceInput.value.replace(/,/g, '') : 0) || 0;
 							const disc = parseFloat(discInput ? discInput.value.replace(/,/g, '') : 0) || 0;
 
@@ -1079,4 +1262,3 @@ templ CustomerOrderDetail(order *commerce.Order, history []*commerce.OrderStatus
 		</div>
 	}
 }
-

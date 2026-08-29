@@ -115,5 +115,6 @@ func (h *UIHandler) registerAdminIdentityRoutes(r chi.Router) {
 	r.Group(func(g chi.Router) {
 		g.Use(authctx.RequirePagePermission("identity.admin_role.assign"))
 		g.Post("/admin/users/{id}/role", h.AdminUserRoleAssignSubmit)
+		g.Post("/admin/users/staff", h.AdminStaffCreateSubmit)
 	})
 }

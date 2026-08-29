@@ -99,7 +99,7 @@ func CustomerFollowedSuppliers(suppliers []*org.Organization, lang, dir string) 
 					var templ_7745c5c3_Var3 string
 					templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(s.TradeName.Get(i18n.Lang(lang)))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `pages/customer_followed_suppliers.templ`, Line: 56, Col: 46}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `customer_followed_suppliers.templ`, Line: 56, Col: 46}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
 					if templ_7745c5c3_Err != nil {
@@ -112,7 +112,7 @@ func CustomerFollowedSuppliers(suppliers []*org.Organization, lang, dir string) 
 					var templ_7745c5c3_Var4 templ.SafeURL
 					templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("/suppliers/%d/follow", s.ID)))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `pages/customer_followed_suppliers.templ`, Line: 64, Col: 94}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `customer_followed_suppliers.templ`, Line: 64, Col: 94}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
 					if templ_7745c5c3_Err != nil {
@@ -138,7 +138,7 @@ func CustomerFollowedSuppliers(suppliers []*org.Organization, lang, dir string) 
 						var templ_7745c5c3_Var5 string
 						templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(s.LegalName)
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `pages/customer_followed_suppliers.templ`, Line: 76, Col: 53}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `customer_followed_suppliers.templ`, Line: 76, Col: 53}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
 						if templ_7745c5c3_Err != nil {
@@ -157,7 +157,7 @@ func CustomerFollowedSuppliers(suppliers []*org.Organization, lang, dir string) 
 						var templ_7745c5c3_Var6 string
 						templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(s.CommercialRegister)
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `pages/customer_followed_suppliers.templ`, Line: 82, Col: 75}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `customer_followed_suppliers.templ`, Line: 82, Col: 75}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
 						if templ_7745c5c3_Err != nil {
@@ -175,7 +175,7 @@ func CustomerFollowedSuppliers(suppliers []*org.Organization, lang, dir string) 
 					var templ_7745c5c3_Var7 templ.SafeURL
 					templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("/suppliers/%d", s.ID)))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `pages/customer_followed_suppliers.templ`, Line: 90, Col: 67}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `customer_followed_suppliers.templ`, Line: 90, Col: 67}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
 					if templ_7745c5c3_Err != nil {

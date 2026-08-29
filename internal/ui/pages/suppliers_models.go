@@ -42,6 +42,15 @@ type SupplierDirectoryData struct {
 	ActiveTab string // "list" or "map"
 }
 
+// SupplierVariantMeta holds live availability, stock, and coverage state for a variant.
+type SupplierVariantMeta struct {
+	AvailableStock int
+	MinOrderQty    int
+	IsCovered      bool
+	CoverageReason string
+	CanAddToCart   bool
+}
+
 // SupplierProfileData is the /suppliers/{id} profile view model.
 type SupplierProfileData struct {
 	Org           *org.Organization
@@ -55,6 +64,7 @@ type SupplierProfileData struct {
 	Products      []*catalog.Product
 	Variants      []*catalog.ProductVariant
 	ProductsMap   map[int64]*catalog.Product
+	VariantMeta   map[int64]SupplierVariantMeta
 	TotalVariants int
 	CurrentPage   int
 	TotalPages    int
@@ -65,6 +75,77 @@ type SupplierProfileData struct {
 	IsFollowing   bool
 	Rating        float64
 	ReviewCount   int
+}
+
+// GetAvailableStock returns the actual warehouse inventory balance for this variant.
+func (d *SupplierProfileData) GetAvailableStock(v *catalog.ProductVariant) int {
+	if v == nil {
+		return 0
+	}
+	if d.VariantMeta != nil {
+		if m, ok := d.VariantMeta[v.ID]; ok {
+			return m.AvailableStock
+		}
+	}
+	if v.StockQty > 0 {
+		return v.StockQty
+	}
+	return 0
+}
+
+// IsVariantCovered returns whether the variant can be delivered to the buyer's branch.
+func (d *SupplierProfileData) IsVariantCovered(v *catalog.ProductVariant) bool {
+	if v == nil {
+		return false
+	}
+	if d.VariantMeta != nil {
+		if m, ok := d.VariantMeta[v.ID]; ok {
+			return m.IsCovered
+		}
+	}
+	return true
+}
+
+// GetCoverageReason returns a refusal reason or empty string if covered.
+func (d *SupplierProfileData) GetCoverageReason(v *catalog.ProductVariant) string {
+	if v == nil {
+		return ""
+	}
+	if d.VariantMeta != nil {
+		if m, ok := d.VariantMeta[v.ID]; ok {
+			return m.CoverageReason
+		}
+	}
+	return ""
+}
+
+// GetMinOrderQty returns the minimum order quantity for this variant, defaulting to 1.
+func (d *SupplierProfileData) GetMinOrderQty(v *catalog.ProductVariant) int {
+	if v == nil {
+		return 1
+	}
+	if d.VariantMeta != nil {
+		if m, ok := d.VariantMeta[v.ID]; ok && m.MinOrderQty > 0 {
+			return m.MinOrderQty
+		}
+	}
+	if v.MinOrderQty > 0 {
+		return v.MinOrderQty
+	}
+	return 1
+}
+
+// CanAddToCart returns whether the buyer can immediately add this variant to cart.
+func (d *SupplierProfileData) CanAddToCart(v *catalog.ProductVariant) bool {
+	if v == nil {
+		return false
+	}
+	if d.VariantMeta != nil {
+		if m, ok := d.VariantMeta[v.ID]; ok {
+			return m.CanAddToCart
+		}
+	}
+	return v.StockQty > 0
 }
 
 // GetProduct returns the master product associated with productID, or nil.

@@ -44,9 +44,6 @@ func pharmacyNav() []NavSection {
 				{Key: "followed", Href: "/suppliers/followed", Icon: "heart-filled",
 					NameAr: "الموردون المتابَعون", NameEn: "Followed suppliers",
 					Perm: "pharmacy.supplier.follow"},
-				{Key: "compare", Href: "/compare/tool", Icon: "trending-up",
-					NameAr: "مقارنة الخصومات", NameEn: "Discount comparison",
-					Perm: "pharmacy.compare.use"},
 			},
 		},
 		{

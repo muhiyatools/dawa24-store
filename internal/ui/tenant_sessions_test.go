@@ -59,8 +59,9 @@ func TestTenantSessionsPage_RendersAndManagesSessions(t *testing.T) {
 		UserID:         userID,
 		OrganizationID: orgID,
 		OrgType:        "customer",
-		Role:           "user",
-		Permissions:    []string{"view", "manage"},
+		Role:           "owner",
+		IsOwner:        true,
+		Permissions:    []string{"pharmacy.session.view", "pharmacy.session.manage", "pharmacy.session.revoke"},
 	}
 	req = req.WithContext(authctx.WithActor(req.Context(), customerActor))
 	rec := httptest.NewRecorder()
@@ -96,8 +97,9 @@ func TestTenantSessionsPage_RendersAndManagesSessions(t *testing.T) {
 		UserID:         userID,
 		OrganizationID: vendorOrgID,
 		OrgType:        "vendor",
-		Role:           "user",
-		Permissions:    []string{"view", "manage"},
+		Role:           "owner",
+		IsOwner:        true,
+		Permissions:    []string{"vendor.session.view", "vendor.session.manage", "vendor.session.revoke"},
 	}
 	vReq = vReq.WithContext(authctx.WithActor(vReq.Context(), vendorActor))
 	vRec := httptest.NewRecorder()

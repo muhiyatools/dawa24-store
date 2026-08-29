@@ -93,7 +93,12 @@ func run() error {
 		if err != nil {
 			return fmt.Errorf("seed company roles: %w", err)
 		}
-		log.Info("migrations up to date", "total", len(migrations), "companies_seeded", seeded)
+		repaired, err := rbac.RepairOutOfScopeGrants(ctx, db)
+		if err != nil {
+			return fmt.Errorf("repair company role grants: %w", err)
+		}
+		log.Info("migrations up to date", "total", len(migrations),
+			"companies_seeded", seeded, "companies_repaired", repaired)
 		return nil
 
 	case "migrate-status":

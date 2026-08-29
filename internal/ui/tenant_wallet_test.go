@@ -54,8 +54,9 @@ func TestTenantWallet_PharmacyAndVendor_E2E(t *testing.T) {
 		UserID:         userID,
 		OrganizationID: customerOrgID,
 		OrgType:        "customer",
-		Role:           "user",
-		Permissions:    []string{"view", "manage"},
+		Role:           "owner",
+		IsOwner:        true,
+		Permissions:    []string{"pharmacy.wallet.view", "pharmacy.wallet.manage"},
 	}
 	cReq = cReq.WithContext(authctx.WithActor(cReq.Context(), customerActor))
 	cRec := httptest.NewRecorder()
@@ -110,8 +111,9 @@ func TestTenantWallet_PharmacyAndVendor_E2E(t *testing.T) {
 		UserID:         userID,
 		OrganizationID: vendorOrgID,
 		OrgType:        "vendor",
-		Role:           "user",
-		Permissions:    []string{"view", "manage"},
+		Role:           "owner",
+		IsOwner:        true,
+		Permissions:    []string{"vendor.wallet.view", "vendor.wallet.manage"},
 	}
 	vReq = vReq.WithContext(authctx.WithActor(vReq.Context(), vendorActor))
 	vRec := httptest.NewRecorder()

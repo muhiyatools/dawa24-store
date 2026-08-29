@@ -94,14 +94,14 @@ func keysOf(set map[int64]struct{}) []int64 {
 // branch chosen in the shell selector, else the member-bound branch, else
 // the main branch, else the first active one.
 func (h *UIHandler) pharmacyBranchID(ctx context.Context, actor *authctx.Actor) int64 {
-	if h.orgSvc == nil || actor == nil || actor.OrganizationID <= 0 {
-		return 0
-	}
 	if selection, has := authctx.BuyingBranchFrom(ctx); has && selection.Active != nil && *selection.Active > 0 {
 		return *selection.Active
 	}
-	if actor.BranchID != nil && *actor.BranchID > 0 {
+	if actor != nil && actor.BranchID != nil && *actor.BranchID > 0 {
 		return *actor.BranchID
+	}
+	if h.orgSvc == nil || actor == nil || actor.OrganizationID <= 0 {
+		return 0
 	}
 	branches, err := h.orgSvc.ListBranches(ctx, actor.OrganizationID)
 	if err != nil {

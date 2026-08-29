@@ -89,13 +89,18 @@ func (r *Repository) CreateOrder(
 			orgID = order.OrganizationID
 		}
 
+		negStatus := string(order.NegotiationStatus)
+		if negStatus == "" {
+			negStatus = "none"
+		}
+
 		err := tx.QueryRow(txCtx, queryOrder,
 			order.OrderNumber, order.CustomerID, orgID, offerID,
 			branchID, vendorBranchID, userAddressID, string(order.Status),
 			order.Subtotal, order.DiscountAmount, order.TotalDiscount, order.ShippingFee,
 			order.TaxAmount, order.TotalAmount, order.FinalPrice,
 			order.PaymentMethod, string(order.PaymentStatus), order.Notes,
-			order.IsNegotiation, order.NegotiationStatus, order.NegotiationNotes,
+			order.IsNegotiation, negStatus, order.NegotiationNotes,
 		).Scan(&order.ID, &order.PublicID, &order.CreatedAt, &order.UpdatedAt)
 		if err != nil {
 			return fmt.Errorf("commerce postgres: insert order: %w", err)
@@ -300,18 +305,35 @@ func hydrateOrderDetails(txCtx context.Context, tx pgx.Tx, o *commerce.Order) er
 			}
 		}
 
-		// 3. Load order lines
+		// 3. Load order lines with real-time stock & constraint metadata
+		var orgIDParam int64
+		if o.OrganizationID != nil {
+			orgIDParam = *o.OrganizationID
+		}
+
 		queryLines := `
 			SELECT l.id, l.order_id, l.shipment_id, l.organization_id, l.product_id,
 			       l.product_variant_id, l.product_name, l.variant_name, l.sku,
 			       l.offer_product_id, l.unit_price, l.quantity, l.discount_amount,
 			       l.total_price, l.list_price, l.original_price, l.original_discount,
-			       l.is_negotiated, COALESCE(l.proposed_unit_price, 0) as proposed_unit_price, l.rating
+			       l.is_negotiated, COALESCE(l.proposed_unit_price, 0) as proposed_unit_price, l.rating,
+			       COALESCE(stk.available_stock, 0) as available_stock,
+			       COALESCE(pv.min_order_qty, 1) as min_order_qty,
+			       COALESCE(op.max_qty_per_order, 0) as max_qty_per_order
 			FROM commerce.order_lines l
+			LEFT JOIN catalog.product_variants pv ON pv.id = l.product_variant_id AND pv.deleted_at IS NULL
+			LEFT JOIN promo.offer_products op ON op.id = l.offer_product_id
+			LEFT JOIN LATERAL (
+			    SELECT COALESCE(SUM(s.quantity), 0)::int AS available_stock
+			    FROM inventory.stocks s
+			    WHERE s.product_variant_id = l.product_variant_id
+			      AND (s.organization_id = l.organization_id OR ($2::bigint > 0 AND s.organization_id = $2))
+			      AND s.deleted_at IS NULL
+			) stk ON true
 			WHERE l.order_id = $1
 			ORDER BY l.id ASC;
 		`
-		lRows, err := tx.Query(txCtx, queryLines, o.ID)
+		lRows, err := tx.Query(txCtx, queryLines, o.ID, orgIDParam)
 		if err == nil {
 			defer lRows.Close()
 			for lRows.Next() {
@@ -322,6 +344,7 @@ func hydrateOrderDetails(txCtx context.Context, tx pgx.Tx, o *commerce.Order) er
 					&l.OfferProductID, &l.UnitPrice, &l.Quantity, &l.DiscountAmount,
 					&l.TotalPrice, &l.ListPrice, &l.OriginalPrice, &l.OriginalDiscount,
 					&l.IsNegotiated, &l.ProposedUnitPrice, &l.Rating,
+					&l.AvailableStock, &l.MinOrderQty, &l.MaxQtyPerOrder,
 				); err == nil {
 					o.Lines = append(o.Lines, &l)
 					if sh, ok := shipmentMap[l.ShipmentID]; ok {

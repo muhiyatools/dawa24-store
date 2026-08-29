@@ -80,7 +80,6 @@ func pharmacyMarketPerms() []Permission {
 		pharmacyPage("pharmacy.supplier.view", g, "suppliers", "دليل الموردين", "Supplier directory"),
 		pharmacyAct("pharmacy.supplier.follow", g, "متابعة الموردين ومراسلتهم", "Follow and message suppliers", "pharmacy.supplier.view"),
 		pharmacyPage("pharmacy.review.write", g, "suppliers", "كتابة التقييمات", "Write reviews"),
-		pharmacyPage("pharmacy.compare.use", g, "compare", "مقارنة الخصومات", "Discount comparison"),
 	}
 }
 

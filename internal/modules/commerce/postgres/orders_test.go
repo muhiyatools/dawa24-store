@@ -214,6 +214,14 @@ func TestCommerceOrdersAndFulfilment(t *testing.T) {
 	})
 
 	t.Run("RateOrder_Validations", func(t *testing.T) {
+		// Transition order to delivered first so it can be rated
+		delivHist := commerce.OrderStatusHistory{
+			OrderID:  createdOrderID,
+			ToStatus: string(commerce.StatusDelivered),
+			Notes:    "Delivered to customer",
+		}
+		_ = repo.UpdateOrderStatus(ctx, createdOrderID, commerce.StatusDelivered, delivHist)
+
 		// Rate the order
 		err := repo.RateOrder(ctx, createdOrderID, testCommerceUserID, 5, "Excellent service and fast delivery")
 		if err != nil {

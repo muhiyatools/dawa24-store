@@ -47,13 +47,44 @@ func ValidScope(s Scope) bool {
 	return false
 }
 
+// Canonical organization types. The database holds legacy spellings from the
+// Laravel schema — "supplier", "company", "agency", "pharmacy",
+// "chain_pharmacy", "individual" — and every one of them still appears in
+// live rows. Two names for one thing is how the vendor roles page came to
+// render inside the pharmacy shell with an empty sidebar: the shell compared
+// `OrgType == "vendor"` while the row said "supplier", so a supplier fell
+// through to the pharmacy branch and then saw none of its links, because a
+// supplier holds no pharmacy permissions.
+const (
+	OrgTypeVendor   = "vendor"
+	OrgTypePharmacy = "customer"
+)
+
+// NormalizeOrgType folds a legacy organization type onto its canonical name.
+// Anything unrecognised is returned unchanged, and TenantScopeFor will then
+// refuse it rather than guess.
+func NormalizeOrgType(orgType string) string {
+	switch orgType {
+	case "vendor", "supplier", "company", "agency":
+		return OrgTypeVendor
+	case "customer", "pharmacy", "chain_pharmacy", "individual":
+		return OrgTypePharmacy
+	}
+	return orgType
+}
+
 // TenantScopeFor maps an organization type to the dashboard its members use.
 // It returns false for an organization whose type has no dashboard.
+//
+// This is the single place that answers "which dashboard is this company on".
+// Sidebars, shells, role editors and route gates all route through it, so a
+// new legacy spelling is one line here rather than a hunt for string equality
+// checks that quietly disagree.
 func TenantScopeFor(orgType string) (Scope, bool) {
-	switch orgType {
-	case "vendor", "supplier":
+	switch NormalizeOrgType(orgType) {
+	case OrgTypeVendor:
 		return ScopeVendor, true
-	case "customer", "pharmacy", "company":
+	case OrgTypePharmacy:
 		return ScopePharmacy, true
 	}
 	return "", false

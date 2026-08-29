@@ -1,6 +1,7 @@
 package ui
 
 import (
+	"fmt"
 	"net/http"
 	"strconv"
 	"strings"
@@ -236,4 +237,41 @@ func staffBadge(role *identity.PlatformRole) string {
 		return "لوحة الإدارة"
 	}
 	return "حساب عادي"
+}
+
+// AdminStaffCreateSubmit creates a moderator or administrator account from
+// /admin/users and puts it into a staff role in one step.
+//
+// Gated on identity.admin_role.assign, not on identity.user.update: creating a
+// staff account *is* granting a role, and whoever can do it can mint an
+// account holding whatever any staff role holds.
+func (h *UIHandler) AdminStaffCreateSubmit(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	actor := authctx.FromContext(ctx)
+	const target = "/admin/users?tab=staff"
+
+	if h.idSvc == nil {
+		h.redirectWithNotice(w, r, target, "error", "خدمة الهوية غير متوفرة.")
+		return
+	}
+	if err := r.ParseForm(); err != nil {
+		h.redirectWithNotice(w, r, target, "error", "بيانات النموذج غير صالحة.")
+		return
+	}
+
+	user, err := h.idSvc.CreateStaffUser(ctx, identity.StaffUserInput{
+		Email:    r.PostFormValue("email"),
+		Password: r.PostFormValue("password"),
+		NameAr:   r.PostFormValue("name_ar"),
+		NameEn:   r.PostFormValue("name_en"),
+		Phone:    r.PostFormValue("phone"),
+		RoleKey:  r.PostFormValue("role"),
+		ActorID:  actor.UserID,
+	})
+	if err != nil {
+		h.redirectWithNotice(w, r, target, "error", h.safeMessage(err, langOf(r)))
+		return
+	}
+	h.redirectWithNotice(w, r, fmt.Sprintf("/admin/users/%d", user.ID),
+		"success", "تم إنشاء حساب المشرف وإسناد دوره.")
 }

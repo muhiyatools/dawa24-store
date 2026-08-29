@@ -1,6 +1,7 @@
 package ui
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -55,13 +56,16 @@ func (h *UIHandler) VendorJobsPage(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	var branches []*org.Branch
-	if h.orgSvc != nil {
-		branches, _ = h.orgSvc.ListBranches(ctx, actor.OrganizationID)
-	}
+	branches := h.accessibleBranchesForActor(ctx, actor)
 
-	noticeType := r.URL.Query().Get("notice_type")
-	noticeMsg := r.URL.Query().Get("notice")
+	noticeType := r.URL.Query().Get("notice")
+	if noticeType == "" {
+		noticeType = r.URL.Query().Get("notice_type")
+	}
+	noticeMsg := r.URL.Query().Get("msg")
+	if noticeMsg == "" {
+		noticeMsg = r.URL.Query().Get("message")
+	}
 
 	data := pages.VendorJobsData{
 		Jobs:              jobItems,
@@ -142,13 +146,16 @@ func (h *UIHandler) CustomerJobsPage(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	var branches []*org.Branch
-	if h.orgSvc != nil {
-		branches, _ = h.orgSvc.ListBranches(ctx, actor.OrganizationID)
-	}
+	branches := h.accessibleBranchesForActor(ctx, actor)
 
-	noticeType := r.URL.Query().Get("notice_type")
-	noticeMsg := r.URL.Query().Get("notice")
+	noticeType := r.URL.Query().Get("notice")
+	if noticeType == "" {
+		noticeType = r.URL.Query().Get("notice_type")
+	}
+	noticeMsg := r.URL.Query().Get("msg")
+	if noticeMsg == "" {
+		noticeMsg = r.URL.Query().Get("message")
+	}
 
 	data := pages.CustomerJobsData{
 		Jobs:              jobItems,
@@ -215,6 +222,38 @@ func (h *UIHandler) CustomerJobApplicationRejectSubmit(w http.ResponseWriter, r 
 
 // ================= Helpers =================
 
+// accessibleBranchesForActor returns the branches of the actor's organization that the user is authorized to manage/select.
+func (h *UIHandler) accessibleBranchesForActor(ctx context.Context, actor authctx.Actor) []*org.Branch {
+	if h.orgSvc == nil || actor.OrganizationID <= 0 {
+		return nil
+	}
+	allBranches, err := h.orgSvc.ListBranches(ctx, actor.OrganizationID)
+	if err != nil || len(allBranches) == 0 {
+		return nil
+	}
+
+	// Check if the user has permission to manage/view all branches across their organization.
+	canManageAll := actor.IsOwner || actor.IsPlatformAdmin() ||
+		actor.Can("pharmacy.branch.view") || actor.Can("pharmacy.branch.manage") ||
+		actor.Can("pharmacy.branch.update") || actor.Can("vendor.branch.view") ||
+		actor.Can("vendor.branch.manage") || actor.Can("vendor.branch.update")
+
+	// If restricted to a specific branch and lacks global branch management permissions, restrict available branches.
+	if !canManageAll && actor.BranchID != nil && *actor.BranchID > 0 {
+		var filtered []*org.Branch
+		for _, b := range allBranches {
+			if b != nil && b.ID == *actor.BranchID {
+				filtered = append(filtered, b)
+			}
+		}
+		if len(filtered) > 0 {
+			return filtered
+		}
+	}
+
+	return allBranches
+}
+
 func (h *UIHandler) handleJobCreateSubmit(w http.ResponseWriter, r *http.Request, redirectURL string) {
 	ctx := r.Context()
 	actor, ok := authctx.From(ctx)
@@ -240,7 +279,47 @@ func (h *UIHandler) handleJobCreateSubmit(w http.ResponseWriter, r *http.Request
 		titleEn = titleAr
 	}
 
-	location := strings.TrimSpace(r.PostFormValue("location"))
+	accessibleBranches := h.accessibleBranchesForActor(ctx, actor)
+	branchIDStr := strings.TrimSpace(r.PostFormValue("branch_id"))
+	var location string
+
+	if len(accessibleBranches) > 0 {
+		if branchIDStr == "" {
+			h.redirectWithNotice(w, r, redirectURL, "error", "يرجى اختيار الفرع المخصص للشاغر الوظيفي.")
+			return
+		}
+		branchID, err := strconv.ParseInt(branchIDStr, 10, 64)
+		if err != nil || branchID <= 0 {
+			h.redirectWithNotice(w, r, redirectURL, "error", "معرف الفرع المحدد غير صالح.")
+			return
+		}
+
+		var selectedBranch *org.Branch
+		for _, b := range accessibleBranches {
+			if b != nil && b.ID == branchID {
+				selectedBranch = b
+				break
+			}
+		}
+		if selectedBranch == nil {
+			h.redirectWithNotice(w, r, redirectURL, "error", "الفرع المختار غير متاح أو لا تملك صلاحية النشر عليه.")
+			return
+		}
+
+		location = selectedBranch.Name.Get(i18n.AR)
+		if location == "" {
+			location = selectedBranch.Name.Get(i18n.EN)
+		}
+		if location == "" {
+			location = fmt.Sprintf("فرع #%d", selectedBranch.ID)
+		}
+	} else {
+		location = strings.TrimSpace(r.PostFormValue("location"))
+		if location == "" {
+			location = "الفرع الرئيسي"
+		}
+	}
+
 	desc := strings.TrimSpace(r.PostFormValue("description"))
 	reqs := strings.TrimSpace(r.PostFormValue("requirements"))
 
@@ -301,7 +380,47 @@ func (h *UIHandler) handleJobUpdateSubmit(w http.ResponseWriter, r *http.Request
 		titleEn = titleAr
 	}
 
-	location := strings.TrimSpace(r.PostFormValue("location"))
+	accessibleBranches := h.accessibleBranchesForActor(ctx, actor)
+	branchIDStr := strings.TrimSpace(r.PostFormValue("branch_id"))
+	var location string
+
+	if len(accessibleBranches) > 0 {
+		if branchIDStr == "" {
+			h.redirectWithNotice(w, r, redirectURL, "error", "يرجى اختيار الفرع المخصص للشاغر الوظيفي.")
+			return
+		}
+		branchID, err := strconv.ParseInt(branchIDStr, 10, 64)
+		if err != nil || branchID <= 0 {
+			h.redirectWithNotice(w, r, redirectURL, "error", "معرف الفرع المحدد غير صالح.")
+			return
+		}
+
+		var selectedBranch *org.Branch
+		for _, b := range accessibleBranches {
+			if b != nil && b.ID == branchID {
+				selectedBranch = b
+				break
+			}
+		}
+		if selectedBranch == nil {
+			h.redirectWithNotice(w, r, redirectURL, "error", "الفرع المختار غير متاح أو لا تملك صلاحية النشر عليه.")
+			return
+		}
+
+		location = selectedBranch.Name.Get(i18n.AR)
+		if location == "" {
+			location = selectedBranch.Name.Get(i18n.EN)
+		}
+		if location == "" {
+			location = fmt.Sprintf("فرع #%d", selectedBranch.ID)
+		}
+	} else {
+		location = strings.TrimSpace(r.PostFormValue("location"))
+		if location == "" {
+			location = "الفرع الرئيسي"
+		}
+	}
+
 	desc := strings.TrimSpace(r.PostFormValue("description"))
 	reqs := strings.TrimSpace(r.PostFormValue("requirements"))
 

@@ -3,6 +3,7 @@ package rbac
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 
 	"github.com/jackc/pgx/v5"
@@ -152,6 +153,110 @@ func BumpVersion(ctx context.Context, tx pgx.Tx, scopeKey string) error {
 	_, err := tx.Exec(ctx, `SELECT identity.bump_rbac_version($1);`, scopeKey)
 	if err != nil {
 		return fmt.Errorf("rbac: bump version %s: %w", scopeKey, err)
+	}
+	return nil
+}
+
+// RepairOutOfScopeGrants removes company role grants that do not belong to the
+// company's dashboard.
+//
+// They arise when an organization type is reclassified — "company" was read as
+// a pharmacy and is now read as a supplier, which is what identity's own
+// normalisation always said. The grants are already inert, because the
+// resolver restricts a holding to the company's scope before answering
+// anything. What they are not is honest: the role editor counts them, so an
+// owner sees a manager role with twenty-nine permissions that grant nothing.
+//
+// Running this on every boot rather than as a one-off migration means the next
+// reclassification repairs itself too.
+func RepairOutOfScopeGrants(ctx context.Context, db *database.DB) (int, error) {
+	c := Default()
+	repaired := 0
+
+	err := db.InTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
+		rows, err := tx.Query(txCtx, `
+			SELECT DISTINCT o.id, o.type
+			  FROM org.organizations o
+			  JOIN org.roles r ON r.organization_id = o.id AND r.deleted_at IS NULL
+			 WHERE o.deleted_at IS NULL
+			 ORDER BY o.id;`)
+		if err != nil {
+			return err
+		}
+		type company struct {
+			id      int64
+			orgType string
+		}
+		var companies []company
+		for rows.Next() {
+			var cmp company
+			if err := rows.Scan(&cmp.id, &cmp.orgType); err != nil {
+				rows.Close()
+				return err
+			}
+			companies = append(companies, cmp)
+		}
+		rows.Close()
+		if err := rows.Err(); err != nil {
+			return err
+		}
+
+		for _, cmp := range companies {
+			scope, ok := TenantScopeFor(cmp.orgType)
+			if !ok {
+				continue
+			}
+			tag, err := tx.Exec(txCtx, `
+				DELETE FROM org.role_permissions rp
+				 USING org.roles r
+				 WHERE rp.role_id = r.id
+				   AND r.organization_id = $1
+				   AND rp.permission_key <> ALL($2::text[]);`, cmp.id, c.KeysFor(scope))
+			if err != nil {
+				return fmt.Errorf("rbac repair: organization %d: %w", cmp.id, err)
+			}
+			if tag.RowsAffected() == 0 {
+				continue
+			}
+			repaired++
+			// A company whose starter roles were just emptied needs them back,
+			// in the right scope this time. Custom roles are left alone: their
+			// permissions were chosen by an owner, and the out-of-scope ones
+			// have been dropped rather than replaced.
+			if err := reseedSystemRoles(txCtx, tx, cmp.id, scope); err != nil {
+				return err
+			}
+			if err := BumpVersion(txCtx, tx, OrgVersionKey(cmp.id)); err != nil {
+				return err
+			}
+		}
+		return nil
+	})
+	return repaired, err
+}
+
+// reseedSystemRoles restores the starter grants for a company's system roles.
+// Custom roles are untouched.
+func reseedSystemRoles(ctx context.Context, tx pgx.Tx, orgID int64, scope Scope) error {
+	for _, r := range OrganizationRoles() {
+		var roleID int64
+		err := tx.QueryRow(ctx, `
+			SELECT id FROM org.roles
+			 WHERE organization_id = $1 AND key = $2 AND is_system = true AND deleted_at IS NULL;`,
+			orgID, r.Key).Scan(&roleID)
+		if errors.Is(err, pgx.ErrNoRows) {
+			continue
+		}
+		if err != nil {
+			return fmt.Errorf("rbac repair: read role %s for organization %d: %w", r.Key, orgID, err)
+		}
+		for _, k := range GrantsFor(r, scope) {
+			if _, err := tx.Exec(ctx, `
+				INSERT INTO org.role_permissions (role_id, permission_key)
+				VALUES ($1, $2) ON CONFLICT DO NOTHING;`, roleID, k); err != nil {
+				return fmt.Errorf("rbac repair: grant %s to role %d: %w", k, roleID, err)
+			}
+		}
 	}
 	return nil
 }
