@@ -15,12 +15,12 @@ templ CustomerCart(cart *commerce.Cart, lang, dir string, isPartial bool) {
 		@CustomerCartContent(cart, lang)
 	} else {
 		@layouts.CustomerShell("سلة المشتريات | Shopping Cart", "cart", lang, dir, nil) {
-			<div class="cart-page-container" style="max-width:1160px; margin:1.5rem auto 8rem auto; min-height:75vh;">
+			<div class="page-container max-w-6xl">
 				@components.PageHeader(components.PageHeaderProps{
 					Title:    "سلة المشتريات وأوامر التوريد",
 					Subtitle: "مراجعة أصناف الأدوية، الكميات المطلوبة، وتقسيم الشحنات حسب الموردين المعتمدين",
 				}) {
-					<a href="/catalog" class="btn btn-secondary" style="font-weight:600; gap:0.4rem;">
+					<a href="/catalog" class="btn btn-secondary font-semibold gap-2">
 						@components.IconArrowRight("icon-xs")
 						<span>متابعة إضافة أدوية</span>
 					</a>
@@ -36,31 +36,31 @@ templ CustomerCart(cart *commerce.Cart, lang, dir string, isPartial bool) {
 
 templ CustomerCartContent(cart *commerce.Cart, lang string) {
 	if cart == nil || len(cart.Items) == 0 {
-		<div class="card" style="padding:4rem 2rem; text-align:center; background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-2xl);">
-			<div style="width:64px; height:64px; border-radius:var(--radius-full); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center; margin:0 auto 1.5rem auto;">
+		<div class="empty-state-glass p-8 text-center">
+			<div class="empty-state-icon-wrapper mx-auto mb-4">
 				@components.IconCart("icon-lg")
 			</div>
-			<h2 style="font-size:1.5rem; font-weight:900; color:var(--text); margin-bottom:0.5rem;">
+			<h2 class="text-2xl font-black text-primary mb-2">
 				سلة المشتريات فارغة حالياً
 			</h2>
-			<p style="color:var(--text-muted); font-size:0.95rem; max-width:480px; margin:0 auto 2rem auto; line-height:1.6;">
+			<p class="text-sm text-muted max-w-md mx-auto mb-6 leading-relaxed">
 				لم تقم بإضافة أي أصناف دوائية أو مستلزمات طبية بعد. تصفح الكتالوج الدوائي لاكتشاف أفضل العروض والخصومات المباشرة.
 			</p>
-			<a href="/catalog" class="btn btn-primary" style="padding:0.75rem 2rem; font-size:1rem; font-weight:800; display:inline-flex; justify-content:center;">
+			<a href="/catalog" class="btn btn-primary btn-lg font-extrabold px-8">
 				@components.IconSearch("icon-xs")
 				<span>تصفح الكتالوج الدوائي الموحد</span>
 			</a>
 		</div>
 	} else {
 		if buying, has := authctx.BuyingBranchFrom(ctx); has && len(buying.Branches) > 0 {
-			<div style="background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-xl); padding:1rem 1.25rem; margin-bottom:1.5rem; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem;">
-				<div class="row-center">
-					<div style="width:36px; height:36px; border-radius:var(--radius-lg); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+			<div class="glass-panel p-4 mb-4 flex-between flex-wrap gap-4">
+				<div class="d-flex items-center gap-3">
+					<div class="user-avatar-badge">
 						@components.IconMapPin("icon-sm")
 					</div>
 					<div>
-						<div style="font-size:0.75rem; color:var(--text-muted); font-weight:600;">فرع استلام الشحنات وتغطية التوريد:</div>
-						<div style="font-size:0.95rem; font-weight:800; color:var(--text); display:flex; align-items:center; gap:0.5rem;">
+						<div class="text-xs text-muted font-semibold">فرع استلام الشحنات وتغطية التوريد:</div>
+						<div class="text-base font-extrabold text-primary d-flex items-center gap-2">
 							<span>
 								for _, b := range buying.Branches {
 									if buying.Active != nil && *buying.Active == b.ID {
@@ -68,18 +68,17 @@ templ CustomerCartContent(cart *commerce.Cart, lang string) {
 									}
 								}
 							</span>
-							<span class="badge badge-emerald" style="font-size:10px;">الفرع النشط</span>
+							<span class="badge badge-emerald text-xs">الفرع النشط</span>
 						</div>
 					</div>
 				</div>
-				<div class="row-center-sm">
-					<form method="POST" action="/customer/set-branch" class="m-0" style="display:inline-flex; align-items:center; gap:0.4rem;">
+				<div>
+					<form method="POST" action="/customer/set-branch" class="m-0 d-inline-flex items-center gap-2">
 						<input type="hidden" name="redirect_to" value="/cart" />
-						<span style="font-size:0.8rem; color:var(--text-secondary); font-weight:600;">تغيير الفرع:</span>
+						<span class="text-xs text-secondary font-semibold">تغيير الفرع:</span>
 						<select
 							name="branch_id"
-							class="form-select"
-							style="font-size:0.825rem; font-weight:700; padding:0.35rem 0.6rem; border-radius:var(--radius-md);"
+							class="form-select form-input-sm"
 							onchange="this.form.submit()"
 						>
 							for _, b := range buying.Branches {
@@ -95,23 +94,23 @@ templ CustomerCartContent(cart *commerce.Cart, lang string) {
 				</div>
 			</div>
 		}
-		<div style="display:grid; grid-template-columns:1fr 340px; gap:2rem; align-items:start;">
+		<div class="cart-grid-layout">
 			<!-- Left: Items Grouped by Supplier -->
-			<div style="display:flex; flex-direction:column; gap:1.75rem;">
+			<div class="d-flex flex-col gap-4">
 				for _, group := range GroupCartBySupplier(cart) {
-					<div class="card" style="margin-bottom:0; padding:1.5rem; background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-xl);">
+					<div class="cart-supplier-card">
 						<!-- Supplier Group Header -->
-						<div style="display:flex; justify-content:space-between; align-items:center; padding-bottom:1rem; border-bottom:1px solid var(--border); margin-bottom:1.25rem; flex-wrap:wrap; gap:0.5rem;">
-							<div class="row-center">
-								<div style="width:38px; height:38px; border-radius:var(--radius-md); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center;">
+						<div class="cart-supplier-header">
+							<div class="d-flex items-center gap-3">
+								<div class="user-avatar-badge">
 									@components.IconBuilding("icon-xs")
 								</div>
 								<div>
-									<div style="font-weight:800; font-size:1.1rem; color:var(--text);">
+									<div class="font-extrabold text-lg text-primary">
 										{ group.SupplierName.Get(i18n.Lang(lang)) }
 									</div>
-									<div style="display:flex; align-items:center; gap:0.5rem; font-size:0.75rem; color:var(--text-muted); margin-top:0.2rem;">
-										<span class="badge badge-sky" style="font-size:0.7rem; padding:0.1rem 0.4rem;">مورد معتمد</span>
+									<div class="d-flex items-center gap-2 text-xs text-muted mt-1">
+										<span class="badge badge-sky text-xs">مورد معتمد</span>
 										<span>•</span>
 										<span>شحن مبرد 2° - 8°C</span>
 									</div>
@@ -120,14 +119,14 @@ templ CustomerCartContent(cart *commerce.Cart, lang string) {
 
 							<div class="text-end">
 								<span class="text-sm text-muted">المجموع الفرعي للمورد:</span>
-								<div class="tabular-nums" style="font-weight:900; font-size:1.2rem; color:var(--accent);">
+								<div class="tabular-nums font-black text-xl text-brand">
 									@components.MoneyDisplay(components.MoneyDisplayProps{ Amount: group.Subtotal })
 								</div>
 							</div>
 						</div>
 
 						if group.BelowMin {
-							<div style="background:rgba(239, 68, 68, 0.1); border:1px solid rgba(239, 68, 68, 0.25); border-radius:var(--radius-lg); padding:0.6rem 0.85rem; margin-bottom:1rem; display:flex; align-items:center; gap:0.5rem; font-size:0.8rem; color:var(--danger-text);">
+							<div class="alert alert-danger mb-4 p-3 d-flex items-center gap-2 text-xs">
 								@components.IconAlertCircle("icon-xs")
 								<span>
 									الحد الأدنى للتوريد من هذا العرض هو <strong class="tabular-nums">{ group.MinOrderPrice.String() } ج.م</strong> (يتبقى <strong class="tabular-nums">{ money.FromMinor(group.MinOrderPrice.Minor() - group.Subtotal.Minor()).String() } ج.م</strong> لإتمام الشراء)
@@ -136,24 +135,24 @@ templ CustomerCartContent(cart *commerce.Cart, lang string) {
 						}
 
 						<!-- Items List -->
-						<div style="display:flex; flex-direction:column; gap:0.75rem;">
+						<div class="d-flex flex-col gap-3">
 							for _, item := range group.Items {
-								<div style="display:flex; align-items:center; justify-content:space-between; padding:0.85rem 1rem; background:var(--surface-sunken); border:1px solid var(--border); border-radius:var(--radius-lg); flex-wrap:wrap; gap:1rem;">
-									<div style="display:flex; align-items:center; gap:0.85rem; flex:1; min-width:240px;">
-										<div style="width:40px; height:40px; border-radius:var(--radius-md); background:var(--surface-raised); color:var(--accent); display:flex; align-items:center; justify-content:center; flex-shrink:0; border:1px solid var(--border);">
+								<div class="cart-item-row">
+									<div class="d-flex items-center gap-3 flex-1 min-w-0">
+										<div class="user-avatar-badge">
 											@components.IconPill("icon-sm")
 										</div>
 										<div>
-											<h4 style="font-weight:800; font-size:0.95rem; color:var(--text); margin:0;">
+											<h4 class="font-extrabold text-base text-primary m-0">
 												{ item.ProductName.Get(i18n.Lang(lang)) }
 											</h4>
-											<div style="display:flex; align-items:center; gap:0.75rem; font-size:0.8rem; color:var(--text-secondary); margin-top:0.25rem; flex-wrap:wrap;">
+											<div class="d-flex items-center gap-3 text-xs text-secondary mt-1 flex-wrap">
 												<span>سعر الوحدة: <strong class="tabular-nums text-primary">{ item.UnitPrice.String() } ج.م</strong></span>
 												if item.AvailableStock > 0 && item.Quantity >= item.AvailableStock {
-													<span class="badge badge-amber" style="font-size:10px; font-weight:700;">أقصى كمية متاحة بالمخزون</span>
+													<span class="badge badge-amber text-xs font-bold">أقصى كمية متاحة بالمخزون</span>
 												}
 												if !item.IsCovered && item.CoverageReason != "" {
-													<span class="badge" style="background:#fee2e2; color:#b91c1c; font-size:10px; font-weight:700;">
+													<span class="badge badge-rose text-xs font-bold">
 														{ item.CoverageReason }
 													</span>
 												}
@@ -161,34 +160,32 @@ templ CustomerCartContent(cart *commerce.Cart, lang string) {
 										</div>
 									</div>
 
-									<div style="display:flex; align-items:center; gap:1.25rem;">
+									<div class="d-flex items-center gap-4">
 										<!-- Horizontal Stepper -->
-										<div style="display:inline-flex; align-items:center; background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-md); padding:2px; gap:2px;">
-											<form action="/cart/update-quantity" method="POST" hx-post="/cart/update-quantity" hx-target="#cart-content" hx-swap="innerHTML" class="m-0 inline">
+										<div class="cart-stepper-control">
+											<form action="/cart/update-quantity" method="POST" hx-post="/cart/update-quantity" hx-target="#cart-content" hx-swap="innerHTML" class="m-0 d-inline">
 												<input type="hidden" name="variant_id" value={ fmt.Sprintf("%d", item.ProductVariantID) } />
 												<input type="hidden" name="quantity" value={ fmt.Sprintf("%d", item.Quantity - 1) } />
 												<button
 													type="submit"
-													class="btn-icon"
-													style="width:28px; height:28px; border:none; background:transparent; color:var(--text); display:flex; align-items:center; justify-content:center; cursor:pointer; border-radius:var(--radius-sm);"
+													class="cart-stepper-btn"
 													title="تقليل الكمية"
 												>
 													@components.IconMinus("icon-xs")
 												</button>
 											</form>
 
-											<span class="tabular-nums" style="min-width:32px; text-align:center; font-weight:800; font-size:0.9rem; color:var(--text);">
+											<span class="tabular-nums font-extrabold text-sm text-primary px-2">
 												{ fmt.Sprintf("%d", item.Quantity) }
 											</span>
 
-											<form action="/cart/update-quantity" method="POST" hx-post="/cart/update-quantity" hx-target="#cart-content" hx-swap="innerHTML" class="m-0 inline">
+											<form action="/cart/update-quantity" method="POST" hx-post="/cart/update-quantity" hx-target="#cart-content" hx-swap="innerHTML" class="m-0 d-inline">
 												<input type="hidden" name="variant_id" value={ fmt.Sprintf("%d", item.ProductVariantID) } />
 												<input type="hidden" name="quantity" value={ fmt.Sprintf("%d", item.Quantity + 1) } />
 												<button
 													type="submit"
-													class="btn-icon"
+													class="cart-stepper-btn"
 													disabled?={ item.AvailableStock > 0 && item.Quantity >= item.AvailableStock }
-													style="width:28px; height:28px; border:none; background:transparent; color:var(--text); display:flex; align-items:center; justify-content:center; cursor:pointer; border-radius:var(--radius-sm);"
 													title={ fmt.Sprintf("زيادة الكمية (المتاح: %d)", item.AvailableStock) }
 												>
 													@components.IconPlus("icon-xs")
@@ -197,19 +194,16 @@ templ CustomerCartContent(cart *commerce.Cart, lang string) {
 										</div>
 
 										<!-- Total Line Item Price -->
-										<div style="min-width:90px; text-align:end;" class="tabular-nums">
-											<div style="font-weight:800; font-size:1rem; color:var(--text);">
-												{ money.FromMinor(item.UnitPrice.Minor() * int64(item.Quantity)).String() } ج.م
-											</div>
+										<div class="tabular-nums text-end font-extrabold text-base text-primary min-w-0">
+											{ money.FromMinor(item.UnitPrice.Minor() * int64(item.Quantity)).String() } ج.م
 										</div>
 
 										<!-- Remove Button -->
-										<form action="/cart/remove" method="POST" hx-post="/cart/remove" hx-target="#cart-content" hx-swap="innerHTML" class="m-0 inline">
+										<form action="/cart/remove" method="POST" hx-post="/cart/remove" hx-target="#cart-content" hx-swap="innerHTML" class="m-0 d-inline">
 											<input type="hidden" name="variant_id" value={ fmt.Sprintf("%d", item.ProductVariantID) } />
 											<button
 												type="submit"
-												class="btn btn-secondary btn-icon"
-												style="color:var(--danger-text); border-color:var(--danger-border); width:32px; height:32px; display:flex; align-items:center; justify-content:center;"
+												class="btn btn-secondary btn-icon text-danger"
 												title="حذف من السلة"
 											>
 												@components.IconTrash("icon-xs")
@@ -224,64 +218,64 @@ templ CustomerCartContent(cart *commerce.Cart, lang string) {
 			</div>
 
 			<!-- Right: Order Summary Sidebar -->
-			<div class="card" style="margin-bottom:0; padding:1.75rem; position:sticky; top:6rem; background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-xl); box-shadow:var(--shadow-md);">
-				<h3 style="font-size:1.15rem; font-weight:900; color:var(--text); margin-bottom:1.25rem;">
+			<div class="cart-summary-card">
+				<h3 class="text-lg font-black text-primary mb-4">
 					ملخص أمر الشراء
 				</h3>
 
-				<div style="display:flex; flex-direction:column; gap:0.875rem; margin-bottom:1.5rem; font-size:0.9rem;">
-					<div style="display:flex; justify-content:space-between; color:var(--text-secondary);">
+				<div class="d-flex flex-col gap-3 mb-6 text-sm">
+					<div class="flex-between text-secondary">
 						<span>المجموع الفرعي:</span>
-						<span class="tabular-nums fw-700 text-primary">
+						<span class="tabular-nums font-bold text-primary">
 							@components.MoneyDisplay(components.MoneyDisplayProps{ Amount: CartTotal(cart) })
 						</span>
 					</div>
 
-					<div style="display:flex; justify-content:space-between; color:var(--text-secondary);">
+					<div class="flex-between text-secondary">
 						<span>ضريبة القيمة المضافة (14% VAT):</span>
-						<span class="tabular-nums" style="font-weight:700; color:var(--text-secondary);">مشمولة بالفاتورة</span>
+						<span class="tabular-nums font-bold text-secondary">مشمولة بالفاتورة</span>
 					</div>
 
-					<div style="display:flex; justify-content:space-between; color:var(--text-secondary);">
+					<div class="flex-between text-secondary">
 						<span>رسوم الشحن الدوائي المبرد:</span>
 						<span class="badge badge-emerald text-xs">مجاني للطلبيات المعتمدة</span>
 					</div>
 
-					<div style="border-top:1px dashed var(--border); padding-top:1rem; display:flex; justify-content:space-between; align-items:center;">
-						<span style="font-weight:900; font-size:1.05rem; color:var(--text);">الإجمالي النهائي:</span>
-						<div style="font-weight:900; font-size:1.45rem; color:var(--accent);" class="tabular-nums">
+					<div class="border-t pt-4 flex-between items-center">
+						<span class="font-black text-base text-primary">الإجمالي النهائي:</span>
+						<div class="font-black text-2xl text-brand tabular-nums">
 							@components.MoneyDisplay(components.MoneyDisplayProps{ Amount: CartTotal(cart), Large: true })
 						</div>
 					</div>
 				</div>
 
-				<div style="display:flex; flex-direction:column; gap:0.75rem;">
+				<div class="d-flex flex-col gap-3">
 					if HasUncoveredItems(cart) {
-						<div style="background:rgba(239, 68, 68, 0.08); border:1px solid rgba(239, 68, 68, 0.25); border-radius:var(--radius-lg); padding:0.75rem; font-size:0.8rem; color:var(--danger-text); line-height:1.5;">
+						<div class="alert alert-danger p-3 text-xs leading-relaxed">
 							<strong>تنبيه التغطية:</strong> يحتوي طلبك على أصناف خارج نطاق تغطية الفرع المحدد. يرجى حذفها أو اختيار فرع صيدلية آخر متاح في نطاق التوريد.
 						</div>
-						<button type="button" disabled class="btn btn-secondary" style="width:100%; padding:0.85rem; font-size:0.95rem; font-weight:800; justify-content:center; opacity:0.6; cursor:not-allowed;">
+						<button type="button" disabled class="btn btn-secondary w-full p-3 font-bold opacity-60 cursor-not-allowed">
 							<span>غير متاح للإتمام (أصناف خارج التغطية)</span>
 						</button>
 					} else {
-						<a href="/checkout" class="btn btn-primary" style="width:100%; padding:0.85rem; font-size:1rem; font-weight:800; justify-content:center;">
+						<a href="/checkout" class="btn btn-primary w-full p-3 font-extrabold flex-center gap-2">
 							@components.IconCheck("icon-xs")
 							<span>متابعة إتمام أمر الشراء</span>
 						</a>
 					}
 
-					<a href="/catalog" class="btn btn-secondary" style="width:100%; padding:0.65rem; justify-content:center; font-weight:700;">
+					<a href="/catalog" class="btn btn-secondary w-full p-2 flex-center font-bold">
 						<span>إضافة المزيد من الأدوية</span>
 					</a>
 				</div>
 
-				<div style="margin-top:1.25rem; padding-top:1.25rem; border-top:1px solid var(--border); display:flex; flex-direction:column; gap:0.5rem; font-size:0.775rem; color:var(--text-muted);">
-					<div class="row-center-sm">
-						<span style="color:var(--success);">@components.IconCheckCircle("icon-xs")</span>
+				<div class="mt-4 pt-4 border-t d-flex flex-col gap-2 text-xs text-muted">
+					<div class="d-flex items-center gap-2">
+						<span class="text-success">@components.IconCheckCircle("icon-xs")</span>
 						<span>شحن دوائي آمن تحت درجات حرارة محكومة</span>
 					</div>
-					<div class="row-center-sm">
-						<span class="text-accent">@components.IconFileText("icon-xs")</span>
+					<div class="d-flex items-center gap-2">
+						<span class="text-brand">@components.IconFileText("icon-xs")</span>
 						<span>فواتير ضريبية إلكترونية معتمدة (ETA e-Invoice)</span>
 					</div>
 				</div>

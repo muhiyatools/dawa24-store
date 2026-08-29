@@ -11,210 +11,212 @@ import (
 
 templ VendorDashboard(lang, dir string, data VendorDashboardData) {
 	@layouts.VendorShell("لوحة التحكم", "dashboard", lang, dir) {
-		if len(data.PendingDocRequests) > 0 {
-			<div class="card" style="background:rgba(245, 158, 11, 0.08); border:1px solid rgba(245, 158, 11, 0.35); border-radius:var(--radius-xl); padding:1.25rem 1.5rem; margin-bottom:1.5rem; display:flex; justify-content:space-between; align-items:center; gap:1rem; flex-wrap:wrap; box-shadow:var(--shadow-sm);">
-				<div class="row-center">
-					<div style="color:#f59e0b; flex-shrink:0;">
-						@components.IconAlert("icon-lg")
-					</div>
-					<div>
-						<div style="font-weight:800; color:#f59e0b; font-size:0.95rem;">
-							تنبيه إداري عاجل: مطلوب رفع مستند رسمي ({ data.PendingDocRequests[0].Title })
+		<div class="page-container">
+			if len(data.PendingDocRequests) > 0 {
+				<div class="alert alert-warning mb-6 p-4 flex-between flex-wrap gap-4">
+					<div class="d-flex items-center gap-3">
+						<div class="text-warning flex-shrink-0">
+							@components.IconAlert("icon-lg")
 						</div>
-						<div style="font-size:0.825rem; color:var(--text-secondary); margin-top:0.25rem;">
-							المهلة الممنوحة: متبقي <strong class="tabular-nums text-primary">{ fmt.Sprintf("%d", data.PendingDocRequests[0].DaysRemaining()) }</strong> يوم (حتى { format.Date(data.PendingDocRequests[0].DeadlineAt, "ar") }). يرجى الرفع لتجنب إيقاف وتجميد حساب المورد.
-						</div>
-					</div>
-				</div>
-				<a href="/vendor/documents" class="btn btn-primary btn-sm" style="font-weight:800; background:#d97706; border-color:#d97706; color:#ffffff; gap:0.35rem;">
-					@components.IconFile("icon-xs")
-					<span>رفع المستند المطلوب الآن ↗</span>
-				</a>
-			</div>
-		}
-
-		if data.Subscription != nil && data.Subscription.HasSubscription {
-			<div class="card" style="margin-bottom:1.5rem; background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-xl); padding:1.25rem 1.5rem; box-shadow:var(--shadow-sm);">
-				<div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem; margin-bottom:1rem; border-bottom:1px solid var(--border); padding-bottom:0.75rem;">
-					<div class="row-center-sm">
-						<span class="text-xl">🏢</span>
 						<div>
-							<h3 style="margin:0; font-size:1.05rem; font-weight:800; color:var(--text);">
-								باقة الاشتراك وخدمات الذكاء الاصطناعي للمورد
-							</h3>
-							<p style="margin:0.15rem 0 0; font-size:0.775rem; color:var(--text-secondary);">
-								الخطة المعتمدة وحدود الجلسات المطبقة على المنشأة بالكامل وحصة الـ AI Gateway
-							</p>
-						</div>
-					</div>
-					<div class="row-center-sm">
-						<span class="badge badge-emerald fw-700">{ data.Subscription.Status }</span>
-						if data.Subscription.IsDefaultPlan {
-							<span class="badge badge-primary text-xs">باقة افتراضية</span>
-						}
-					</div>
-				</div>
-
-				<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(210px, 1fr)); gap:1rem;">
-					<!-- Plan Name & Expiry -->
-					<div style="background:var(--surface-sunken); border:1px solid var(--border); border-radius:var(--radius-lg); padding:0.85rem 1rem;">
-						<span style="font-size:0.75rem; color:var(--text-secondary); font-weight:600; display:block;">خطة الاشتراك المعتمدة</span>
-						<strong style="font-size:1rem; color:var(--text); display:block; margin-top:0.25rem;">{ data.Subscription.PlanName }</strong>
-						<span style="font-size:0.75rem; color:var(--text-muted); margin-top:0.25rem; display:block;">الصلاحية: { data.Subscription.ExpiresAt }</span>
-					</div>
-
-					<!-- Sessions Quota -->
-					<div style="background:var(--surface-sunken); border:1px solid var(--border); border-radius:var(--radius-lg); padding:0.85rem 1rem;">
-						<span style="font-size:0.75rem; color:var(--text-secondary); font-weight:600; display:block;">الجلسات المتزامنة (إجمالي المنشأة)</span>
-						<strong style="font-size:1.15rem; color:var(--primary); display:block; margin-top:0.25rem;" class="tabular-nums">
-							{ fmt.Sprintf("%d جلسات", data.Subscription.MaxLoginSessions) }
-						</strong>
-						<span style="font-size:0.725rem; color:var(--text-muted); margin-top:0.25rem; display:block;">مشتركة لكافة موظفي المورد</span>
-					</div>
-
-					<!-- Devices Quota -->
-					<div style="background:var(--surface-sunken); border:1px solid var(--border); border-radius:var(--radius-lg); padding:0.85rem 1rem;">
-						<span style="font-size:0.75rem; color:var(--text-secondary); font-weight:600; display:block;">الأجهزة المصرح بها</span>
-						<strong style="font-size:1.15rem; color:var(--text); display:block; margin-top:0.25rem;" class="tabular-nums">
-							{ fmt.Sprintf("%d أجهزة", data.Subscription.MaxDevices) }
-						</strong>
-						<span style="font-size:0.725rem; color:var(--text-muted); margin-top:0.25rem; display:block;">حد الأجهزة المفتوحة</span>
-					</div>
-
-					<!-- AI Gateway & Live Consumption -->
-					<div style="background:rgba(56, 189, 248, 0.05); border:1px solid rgba(56, 189, 248, 0.25); border-radius:var(--radius-lg); padding:0.85rem 1rem; display:flex; flex-direction:column; justify-content:space-between;">
-						<div>
-							<div class="flex-between">
-								<span style="font-size:0.75rem; color:var(--primary); font-weight:800;">بوابة الذكاء الاصطناعي</span>
-								<span class="badge badge-info" dir="ltr" style="font-size:0.7rem; font-weight:800;">{ data.Subscription.AIPlanID }</span>
+							<div class="font-extrabold text-sm text-warning">
+								تنبيه إداري عاجل: مطلوب رفع مستند رسمي ({ data.PendingDocRequests[0].Title })
 							</div>
-
-							<div style="margin-top:0.35rem;">
-								<div style="display:flex; justify-content:space-between; align-items:baseline;">
-									<span style="font-size:0.75rem; color:var(--text-secondary); font-weight:700;">استهلاك الحصة:</span>
-									<span class="tabular-nums" style="font-size:1.1rem; font-weight:900; color:var(--primary);">{ fmt.Sprintf("%d%%", data.Subscription.AIPercentage()) }</span>
-								</div>
-
-								<!-- Progress Bar -->
-								<div style="width:100%; height:6px; background:var(--neutral-200); border-radius:3px; margin:0.35rem 0; overflow:hidden;">
-									<div style={ fmt.Sprintf("width:%d%%; height:100%%; border-radius:3px; background:linear-gradient(90deg, var(--primary), #8b5cf6); transition:width 0.4s ease;", data.Subscription.AIPercentage()) }></div>
-								</div>
-
-								<div style="display:flex; justify-content:space-between; font-size:0.7rem; color:var(--text-muted);">
-									<span>متبقي: <strong class="text-success">{ fmt.Sprintf("%d%%", 100-data.Subscription.AIPercentage()) }</strong></span>
-									<span>التجديد: <strong style="color:var(--text);">{ data.Subscription.AIResetText() }</strong></span>
-								</div>
+							<div class="text-xs text-muted mt-1">
+								المهلة الممنوحة: متبقي <strong class="tabular-nums text-primary">{ fmt.Sprintf("%d", data.PendingDocRequests[0].DaysRemaining()) }</strong> يوم (حتى { format.Date(data.PendingDocRequests[0].DeadlineAt, "ar") }). يرجى الرفع لتجنب إيقاف وتجميد حساب المورد.
 							</div>
 						</div>
-
-						<div style="margin-top:0.6rem; padding-top:0.4rem; border-top:1px dashed rgba(56, 189, 248, 0.25);">
-							<a href="/vendor/ai-logs" style="font-size:0.75rem; font-weight:800; color:var(--primary); text-decoration:none; display:inline-flex; align-items:center; gap:0.25rem;">
-								<span>سجل الاستهلاك (AI Logs) ↗</span>
-							</a>
-						</div>
 					</div>
-				</div>
-
-				<div style="margin-top:1rem; padding-top:0.75rem; border-top:1px solid var(--border); display:flex; justify-content:flex-end;">
-					<a href="/vendor/subscription" style="font-size:0.8rem; font-weight:700; color:var(--primary); text-decoration:none; display:inline-flex; align-items:center; gap:0.3rem;">
-						<span>عرض تفاصيل الاشتراك والترقية ↗</span>
+					<a href="/vendor/documents" class="btn btn-primary btn-sm font-bold gap-1">
+						@components.IconFile("icon-xs")
+						<span>رفع المستند المطلوب الآن ↗</span>
 					</a>
 				</div>
-			</div>
-		}
-
-		<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(180px, 1fr)); gap:1rem; margin-bottom:1.5rem;">
-			@components.StatCard(components.StatCardProps{ Label: "المنتجات النشطة", Value: fmt.Sprintf("%d", data.ActiveProducts), Tone: "primary" })
-			@components.StatCard(components.StatCardProps{ Label: "طلبات قيد التنفيذ", Value: fmt.Sprintf("%d", data.PendingShipments), Tone: "warning" })
-			@components.StatCard(components.StatCardProps{ Label: "مبيعات الشهر", Money: &data.MonthSales, Tone: "neutral" })
-			if data.HasWallet {
-				@components.StatCard(components.StatCardProps{ Label: "رصيد المحفظة", Money: &data.WalletBalance, Tone: "info" })
 			}
-			@components.StatCard(components.StatCardProps{ Label: "أصناف تحت الحد الأدنى", Value: fmt.Sprintf("%d", data.LowStockCount), Tone: "danger" })
-		</div>
 
-		<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(360px, 1fr)); gap:1.25rem;">
-			<div class="card">
-				<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.75rem;">
-					<h2 class="card-title m-0">شحنات بانتظار التنفيذ</h2>
-					<a href="/vendor/orders" class="btn btn-secondary btn-sm">عرض الكل</a>
-				</div>
-				if len(data.Shipments) == 0 {
-					<p style="color:var(--neutral-500); font-size:0.9rem;">لا توجد شحنات معلّقة حالياً.</p>
-				} else {
-					<div class="table-container">
-						<table class="b2b-table">
-							<thead><tr><th>الشحنة</th><th>الإجمالي</th><th></th></tr></thead>
-							<tbody>
-								for _, s := range data.Shipments {
-									<tr>
-										<td>{ s.ShipmentNumber }</td>
-										<td>@components.MoneyDisplay(components.MoneyDisplayProps{ Amount: s.TotalAmount })</td>
-										<td>
-											@components.ModalTrigger(fmt.Sprintf("dispatch-%d", s.ID), "btn btn-primary btn-sm") {
-												تنفيذ
-											}
-										</td>
-									</tr>
-								}
-							</tbody>
-						</table>
-					</div>
-				}
-			</div>
-
-			<div class="card">
-				<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.75rem;">
-					<h2 class="card-title m-0">أصناف تحت الحد الأدنى</h2>
-					<a href="/vendor/inventory" class="btn btn-secondary btn-sm">الأرصدة</a>
-				</div>
-				if len(data.LowStock) == 0 {
-					<p style="color:var(--neutral-500); font-size:0.9rem;">جميع الأرصدة فوق حد إعادة الطلب.</p>
-				} else {
-					<div class="table-container">
-						<table class="b2b-table">
-							<thead><tr><th>الصنف</th><th>الكمية</th><th>الحد</th></tr></thead>
-							<tbody>
-								for _, s := range data.LowStock {
-									<tr>
-										<td>صنف #{ fmt.Sprintf("%d", s.ProductID) }</td>
-										<td class="tabular-nums">{ fmt.Sprintf("%d", s.Quantity) }</td>
-										<td class="tabular-nums">{ fmt.Sprintf("%d", s.MinThreshold) }</td>
-									</tr>
-								}
-							</tbody>
-						</table>
-					</div>
-				}
-			</div>
-
-			<div class="card">
-				<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.75rem;">
-					<h2 class="card-title m-0">العروض النشطة</h2>
-					<a href="/vendor/offers" class="btn btn-secondary btn-sm">إدارة العروض</a>
-				</div>
-				if len(data.Offers) == 0 {
-					<p style="color:var(--neutral-500); font-size:0.9rem;">لا توجد عروض نشطة.</p>
-				} else {
-					for _, o := range data.Offers {
-						<div style="display:flex; justify-content:space-between; align-items:center; padding:0.65rem 0; border-bottom:1px solid var(--neutral-100);">
+			if data.Subscription != nil && data.Subscription.HasSubscription {
+				<div class="glass-panel p-4 mb-6">
+					<div class="flex-between flex-wrap gap-4 mb-4 border-b pb-3">
+						<div class="d-flex items-center gap-2">
+							<span class="text-xl">🏢</span>
 							<div>
-								<div style="font-weight:700; color:var(--neutral-900);">{ o.Title.Get(i18n.Lang(lang)) }</div>
-								<div style="font-size:0.8rem; color:var(--neutral-500);">مشاهدة { fmt.Sprintf("%d", o.ViewsCount) } · نقر { fmt.Sprintf("%d", o.ClicksCount) }</div>
+								<h3 class="text-base font-extrabold text-primary m-0">
+									باقة الاشتراك وخدمات الذكاء الاصطناعي للمورد
+								</h3>
+								<p class="text-xs text-muted m-0 mt-1">
+									الخطة المعتمدة وحدود الجلسات المطبقة على المنشأة بالكامل وحصة الـ AI Gateway
+								</p>
 							</div>
 						</div>
-					}
+						<div class="d-flex items-center gap-2">
+							<span class="badge badge-emerald font-bold">{ data.Subscription.Status }</span>
+							if data.Subscription.IsDefaultPlan {
+								<span class="badge badge-primary text-xs">باقة افتراضية</span>
+							}
+						</div>
+					</div>
+
+					<div class="d-grid grid-auto-fit-sm gap-3">
+						<!-- Plan Name & Expiry -->
+						<div class="bg-surface-sunken border rounded-lg p-3">
+							<span class="text-xs text-secondary font-semibold d-block">خطة الاشتراك المعتمدة</span>
+							<strong class="text-base text-primary d-block mt-1">{ data.Subscription.PlanName }</strong>
+							<span class="text-xs text-muted d-block mt-1">الصلاحية: { data.Subscription.ExpiresAt }</span>
+						</div>
+
+						<!-- Sessions Quota -->
+						<div class="bg-surface-sunken border rounded-lg p-3">
+							<span class="text-xs text-secondary font-semibold d-block">الجلسات المتزامنة (إجمالي المنشأة)</span>
+							<strong class="text-lg text-brand d-block mt-1 tabular-nums">
+								{ fmt.Sprintf("%d جلسات", data.Subscription.MaxLoginSessions) }
+							</strong>
+							<span class="text-xs text-muted d-block mt-1">مشتركة لكافة موظفي المورد</span>
+						</div>
+
+						<!-- Devices Quota -->
+						<div class="bg-surface-sunken border rounded-lg p-3">
+							<span class="text-xs text-secondary font-semibold d-block">الأجهزة المصرح بها</span>
+							<strong class="text-lg text-primary d-block mt-1 tabular-nums">
+								{ fmt.Sprintf("%d أجهزة", data.Subscription.MaxDevices) }
+							</strong>
+							<span class="text-xs text-muted d-block mt-1">حد الأجهزة المفتوحة</span>
+						</div>
+
+						<!-- AI Gateway & Live Consumption -->
+						<div class="bg-surface-sunken border rounded-lg p-3 d-flex flex-col justify-between">
+							<div>
+								<div class="flex-between">
+									<span class="text-xs text-brand font-extrabold">بوابة الذكاء الاصطناعي</span>
+									<span class="badge badge-info font-extrabold text-xs" dir="ltr">{ data.Subscription.AIPlanID }</span>
+								</div>
+
+								<div class="mt-2">
+									<div class="flex-between items-baseline">
+										<span class="text-xs text-secondary font-bold">استهلاك الحصة:</span>
+										<span class="tabular-nums font-black text-lg text-brand">{ fmt.Sprintf("%d%%", data.Subscription.AIPercentage()) }</span>
+									</div>
+
+									<!-- Progress Bar -->
+									<div class="progress-bar-container mt-1 mb-1">
+										<div class="progress-bar-fill" style={ fmt.Sprintf("width:%d%%;", data.Subscription.AIPercentage()) }></div>
+									</div>
+
+									<div class="flex-between text-xs text-muted">
+										<span>متبقي: <strong class="text-success">{ fmt.Sprintf("%d%%", 100-data.Subscription.AIPercentage()) }</strong></span>
+										<span>التجديد: <strong class="text-primary">{ data.Subscription.AIResetText() }</strong></span>
+									</div>
+								</div>
+							</div>
+
+							<div class="mt-2 pt-2 border-t">
+								<a href="/vendor/ai-logs" class="text-xs font-bold text-brand d-inline-flex items-center gap-1">
+									<span>سجل الاستهلاك (AI Logs) ↗</span>
+								</a>
+							</div>
+						</div>
+					</div>
+
+					<div class="mt-3 pt-2 border-t d-flex justify-end">
+						<a href="/vendor/subscription" class="text-xs font-bold text-brand d-inline-flex items-center gap-1">
+							<span>عرض تفاصيل الاشتراك والترقية ↗</span>
+						</a>
+					</div>
+				</div>
+			}
+
+			<div class="dashboard-stat-grid mb-6">
+				@components.StatCard(components.StatCardProps{ Label: "المنتجات النشطة", Value: fmt.Sprintf("%d", data.ActiveProducts), Tone: "primary" })
+				@components.StatCard(components.StatCardProps{ Label: "طلبات قيد التنفيذ", Value: fmt.Sprintf("%d", data.PendingShipments), Tone: "warning" })
+				@components.StatCard(components.StatCardProps{ Label: "مبيعات الشهر", Money: &data.MonthSales, Tone: "neutral" })
+				if data.HasWallet {
+					@components.StatCard(components.StatCardProps{ Label: "رصيد المحفظة", Money: &data.WalletBalance, Tone: "info" })
 				}
+				@components.StatCard(components.StatCardProps{ Label: "أصناف تحت الحد الأدنى", Value: fmt.Sprintf("%d", data.LowStockCount), Tone: "danger" })
 			</div>
 
-			<div class="card">
-				<h2 class="card-title" style="margin:0 0 0.75rem;">طلبات التسعير</h2>
-				if data.UnreadQuotes == 0 {
-					<p style="color:var(--neutral-500); font-size:0.9rem;">لا توجد طلبات تسعير غير مقروءة.</p>
-				} else {
-					<p style="font-weight:800; color:var(--primary-700); font-size:1.1rem;">{ fmt.Sprintf("%d", data.UnreadQuotes) } طلب تسعير بانتظار الرد</p>
-					<a href="/vendor/orders" class="btn btn-secondary btn-sm">مراجعة الطلبات</a>
-				}
+			<div class="d-grid grid-auto-fit-md gap-4">
+				<div class="glass-panel p-4">
+					<div class="flex-between mb-3">
+						<h2 class="card-title m-0 text-base font-extrabold text-primary">شحنات بانتظار التنفيذ</h2>
+						<a href="/vendor/orders" class="btn btn-secondary btn-sm font-bold">عرض الكل</a>
+					</div>
+					if len(data.Shipments) == 0 {
+						<p class="text-sm text-muted">لا توجد شحنات معلّقة حالياً.</p>
+					} else {
+						<div class="table-container">
+							<table class="data-table">
+								<thead><tr><th>الشحنة</th><th>الإجمالي</th><th></th></tr></thead>
+								<tbody>
+									for _, s := range data.Shipments {
+										<tr>
+											<td class="tabular-nums font-bold">#{ s.ShipmentNumber }</td>
+											<td class="tabular-nums font-extrabold text-brand">@components.MoneyDisplay(components.MoneyDisplayProps{ Amount: s.TotalAmount })</td>
+											<td class="text-end">
+												@components.ModalTrigger(fmt.Sprintf("dispatch-%d", s.ID), "btn btn-primary btn-sm font-bold") {
+													تنفيذ
+												}
+											</td>
+										</tr>
+									}
+								</tbody>
+							</table>
+						</div>
+					}
+				</div>
+
+				<div class="glass-panel p-4">
+					<div class="flex-between mb-3">
+						<h2 class="card-title m-0 text-base font-extrabold text-primary">أصناف تحت الحد الأدنى</h2>
+						<a href="/vendor/inventory" class="btn btn-secondary btn-sm font-bold">الأرصدة</a>
+					</div>
+					if len(data.LowStock) == 0 {
+						<p class="text-sm text-muted">جميع الأرصدة فوق حد إعادة الطلب.</p>
+					} else {
+						<div class="table-container">
+							<table class="data-table">
+								<thead><tr><th>الصنف</th><th>الكمية</th><th>الحد</th></tr></thead>
+								<tbody>
+									for _, s := range data.LowStock {
+										<tr>
+											<td class="font-bold">صنف #{ fmt.Sprintf("%d", s.ProductID) }</td>
+											<td class="tabular-nums text-danger font-bold">{ fmt.Sprintf("%d", s.Quantity) }</td>
+											<td class="tabular-nums">{ fmt.Sprintf("%d", s.MinThreshold) }</td>
+										</tr>
+									}
+								</tbody>
+							</table>
+						</div>
+					}
+				</div>
+
+				<div class="glass-panel p-4">
+					<div class="flex-between mb-3">
+						<h2 class="card-title m-0 text-base font-extrabold text-primary">العروض النشطة</h2>
+						<a href="/vendor/offers" class="btn btn-secondary btn-sm font-bold">إدارة العروض</a>
+					</div>
+					if len(data.Offers) == 0 {
+						<p class="text-sm text-muted">لا توجد عروض نشطة.</p>
+					} else {
+						for _, o := range data.Offers {
+							<div class="flex-between py-2 border-b">
+								<div>
+									<div class="font-bold text-primary">{ o.Title.Get(i18n.Lang(lang)) }</div>
+									<div class="text-xs text-muted">مشاهدة { fmt.Sprintf("%d", o.ViewsCount) } · نقر { fmt.Sprintf("%d", o.ClicksCount) }</div>
+								</div>
+							</div>
+						}
+					}
+				</div>
+
+				<div class="glass-panel p-4">
+					<h2 class="card-title m-0 text-base font-extrabold text-primary mb-3">طلبات التسعير</h2>
+					if data.UnreadQuotes == 0 {
+						<p class="text-sm text-muted">لا توجد طلبات تسعير غير مقروءة.</p>
+					} else {
+						<p class="font-extrabold text-brand text-lg">{ fmt.Sprintf("%d", data.UnreadQuotes) } طلب تسعير بانتظار الرد</p>
+						<a href="/vendor/orders" class="btn btn-secondary btn-sm font-bold mt-2">مراجعة الطلبات</a>
+					}
+				</div>
 			</div>
 		</div>
 	}

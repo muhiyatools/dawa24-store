@@ -11,7 +11,7 @@ templ FormInput(label, name, inputType, value, placeholder string, required bool
 		<label class="form-label" for={ name }>
 			{ label }
 			if required {
-				<span style="color:var(--danger); margin-inline-start:0.2rem;">*</span>
+				<span class="text-danger ms-1">*</span>
 			}
 		</label>
 		<input
@@ -33,7 +33,7 @@ templ FormSelect(label, name string, options []SelectOption, required bool) {
 		<label class="form-label" for={ name }>
 			{ label }
 			if required {
-				<span style="color:var(--danger); margin-inline-start:0.2rem;">*</span>
+				<span class="text-danger ms-1">*</span>
 			}
 		</label>
 		<select
@@ -56,7 +56,7 @@ templ FormTextarea(label, name, value, placeholder string, rows int, required bo
 		<label class="form-label" for={ name }>
 			{ label }
 			if required {
-				<span style="color:var(--danger); margin-inline-start:0.2rem;">*</span>
+				<span class="text-danger ms-1">*</span>
 			}
 		</label>
 		<textarea
@@ -73,19 +73,18 @@ templ FormTextarea(label, name, value, placeholder string, rows int, required bo
 }
 
 templ FormCheckbox(label, name string, checked bool, description string) {
-	<div class="form-group" style="display:flex; align-items:flex-start; gap:0.6rem;">
+	<div class="form-group form-checkbox-wrapper">
 		<input
 			type="checkbox"
 			id={ name }
 			name={ name }
 			checked?={ checked }
 			class="form-checkbox"
-			style="width:1.15rem; height:1.15rem; margin-top:0.2rem; accent-color:var(--accent);"
 		/>
 		<div>
-			<label class="form-label" for={ name } style="margin-bottom:0; cursor:pointer; font-weight:600;">{ label }</label>
+			<label class="form-label mb-0 cursor-pointer font-semibold" for={ name }>{ label }</label>
 			if description != "" {
-				<p style="margin:0.15rem 0 0 0; font-size:var(--text-xs); color:var(--text-secondary);">{ description }</p>
+				<p class="form-helper-text">{ description }</p>
 			}
 		</div>
 	</div>

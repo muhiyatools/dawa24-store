@@ -73,7 +73,7 @@ type ConfirmModalProps struct {
 // one click from the list view, and none of them had a confirmation step.
 templ ConfirmModal(props ConfirmModalProps) {
 	<dialog id={ props.ID } class="modal" aria-labelledby={ props.ID + "-title" }>
-		<div class="modal-box" style="max-width:min(92vw, 440px);">
+		<div class="modal-box modal-sm">
 			<div class="modal-header">
 				<h3 class="modal-title" id={ props.ID + "-title" }>{ props.Title }</h3>
 				<form method="dialog">
@@ -83,7 +83,7 @@ templ ConfirmModal(props ConfirmModalProps) {
 				</form>
 			</div>
 			<div class="modal-body">
-				<p style="color:var(--neutral-700); line-height:1.7; margin:0;">
+				<p class="text-secondary leading-relaxed m-0">
 					{ props.Message }
 				</p>
 			</div>

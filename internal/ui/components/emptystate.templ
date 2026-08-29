@@ -8,12 +8,12 @@ type EmptyStateProps struct {
 }
 
 templ EmptyState(props EmptyStateProps) {
-	<div style="display:flex; flex-direction:column; align-items:center; justify-content:center; padding:3.5rem 2rem; text-align:center; border:2px dashed var(--border); border-radius:var(--radius-2xl); background:var(--surface-sunken); margin:1.5rem 0;">
-		<div style="width:56px; height:56px; border-radius:var(--radius-xl); background:var(--surface-raised); border:1px solid var(--border); color:var(--accent); display:flex; align-items:center; justify-content:center; margin-bottom:1rem;">
+	<div class="empty-state-glass">
+		<div class="empty-state-icon-wrapper">
 			@IconPackage("icon-xl")
 		</div>
-		<h3 style="font-size:1.15rem; font-weight:800; color:var(--text); margin-bottom:0.35rem;">{ props.Title }</h3>
-		<p style="font-size:0.875rem; color:var(--text-muted); margin-bottom:1.25rem; max-width:420px; line-height:1.6;">{ props.Message }</p>
+		<h3 class="empty-state-title">{ props.Title }</h3>
+		<p class="empty-state-desc">{ props.Message }</p>
 		if props.ActionLabel != "" {
 			<a
 				if props.ActionURL != "" {
@@ -21,8 +21,7 @@ templ EmptyState(props EmptyStateProps) {
 				} else {
 					href="/catalog"
 				}
-				class="btn btn-primary"
-				style="padding:0.65rem 1.75rem; font-size:0.875rem; font-weight:700;"
+				class="btn btn-primary btn-md font-bold px-6"
 			>
 				{ props.ActionLabel }
 			</a>

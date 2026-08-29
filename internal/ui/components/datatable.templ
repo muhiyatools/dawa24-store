@@ -48,9 +48,9 @@ templ DataTable(props DataTableProps) {
 									}
 								>
 									if col.Sortable && props.SortURL != "" {
-										<a href={ templ.SafeURL(props.SortURL + "?sort=" + col.Key) } style="color:inherit; display:inline-flex; align-items:center; gap:0.25rem;">
-											{ col.Label }
-											<span aria-hidden="true" style="opacity:0.5;">↕</span>
+										<a href={ templ.SafeURL(props.SortURL + "?sort=" + col.Key) } class="table-sort-link">
+											<span>{ col.Label }</span>
+											<span class="table-sort-icon" aria-hidden="true">↕</span>
 										</a>
 									} else {
 										{ col.Label }
@@ -67,9 +67,9 @@ templ DataTable(props DataTableProps) {
 					</tbody>
 				</table>
 				if props.State == "partial" {
-					<div class="table-empty" style="border-top:1px solid var(--neutral-100);">
+					<div class="table-empty border-t">
 						@Spinner("")
-						<span style="margin-inline-start:0.5rem;">جارٍ تحميل المزيد…</span>
+						<span class="ms-2">جارٍ تحميل المزيد…</span>
 					</div>
 				}
 			</div>

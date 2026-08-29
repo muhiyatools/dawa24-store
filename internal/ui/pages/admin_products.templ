@@ -198,23 +198,22 @@ templ AdminProducts(lang, dir string, products []*catalog.Product, brands []*cat
 				Count:      &totalCountVal,
 				CountLabel: "صنف معتمد",
 			}) {
-				<a href="/admin/products/import" class="btn btn-secondary" style="font-weight:600; gap:0.4rem;">
+				<a href="/admin/products/import" class="btn btn-secondary font-semibold gap-2">
 					@components.IconUpload("icon-xs")
 					<span>استيراد ملف الكتالوج (Excel / CSV)</span>
 				</a>
 				<button
 					type="button"
-					class="btn btn-primary"
+					class="btn btn-primary font-bold gap-2"
 					@click="isCreateModalOpen = true"
-					style="font-weight:700; gap:0.4rem;"
 				>
 					@components.IconPlus("icon-xs")
 					<span>إضافة صنف دوائي جديد +</span>
 				</button>
 				if totalCount > 0 {
-					<form method="POST" action="/admin/products/delete-all" style="display:inline;"
+					<form method="POST" action="/admin/products/delete-all" class="d-inline m-0"
 						onsubmit="return confirm('تحذير نهائي فائق الأهمية: هل أنت متأكد من حذف جميع أصناف الكتالوج المركزي الأساسي بالكامل؟ لا يمكن التراجع عن هذا الإجراء.');">
-						<button type="submit" class="btn btn-ghost text-danger" style="font-weight:700; gap:0.4rem;">
+						<button type="submit" class="btn btn-ghost text-danger font-bold gap-2">
 							<span>🗑️ حذف جميع أصناف الكتالوج</span>
 						</button>
 					</form>
@@ -222,14 +221,14 @@ templ AdminProducts(lang, dir string, products []*catalog.Product, brands []*cat
 			}
 
 			<!-- Table & Search Card -->
-			<div class="card mb-0 overflow-visible">
+			<div class="glass-panel p-4 mb-0">
 				<!-- Search & Filter Controls (Server-Side Full Database Search) -->
 				<form
 					method="GET"
 					action="/admin/products"
-					class="b2b-filter-bar"
+					class="b2b-filter-bar mb-4"
 				>
-				<div class="b2b-filter-grid" style="grid-template-columns:2fr 1fr 1fr 1fr 1fr auto;">
+				<div class="b2b-filter-grid">
 				<div class="search-input-group w-full">
 					<span class="search-icon">
 						@components.IconSearch("icon-sm")
@@ -240,12 +239,11 @@ templ AdminProducts(lang, dir string, products []*catalog.Product, brands []*cat
 						class="form-input search-input"
 						placeholder="البحث بالاسم العربي، التجاري، العلمي، أو رقم التسجيل EDA..."
 						value={ searchQuery }
-						style="background:var(--surface-raised);"
 					/>
 				</div>
 
 				<div>
-					<select name="dosage" class="form-select" style="background:var(--surface-raised); height:100%;" onchange="this.form.submit()">
+					<select name="dosage" class="form-select" onchange="this.form.submit()">
 						<option value="all" selected?={ dosageFilter == "" || dosageFilter == "all" }>كل الأشكال الصيدلية</option>
 						<option value="أقراص" selected?={ dosageFilter == "أقراص" }>أقراص (Tablets)</option>
 						<option value="كبسولات" selected?={ dosageFilter == "كبسولات" }>كبسولات (Capsules)</option>
@@ -259,7 +257,7 @@ templ AdminProducts(lang, dir string, products []*catalog.Product, brands []*cat
 				</div>
 
 				<div>
-					<select name="brand_id" class="form-select" style="background:var(--surface-raised); height:100%;" onchange="this.form.submit()">
+					<select name="brand_id" class="form-select" onchange="this.form.submit()">
 						<option value="0" selected?={ brandFilterVal == 0 }>كل الشركات المصنعة</option>
 						for _, b := range brands {
 							<option value={ fmt.Sprintf("%d", b.ID) } selected?={ brandFilterVal == b.ID }>
@@ -270,7 +268,7 @@ templ AdminProducts(lang, dir string, products []*catalog.Product, brands []*cat
 				</div>
 
 				<div>
-					<select name="status" class="form-select" style="background:var(--surface-raised); height:100%;" onchange="this.form.submit()">
+					<select name="status" class="form-select" onchange="this.form.submit()">
 						<option value="all" selected?={ statusFilter == "" || statusFilter == "all" }>كل الحالات</option>
 						<option value="active" selected?={ statusFilter == "active" }>نشط ومعتمد (Active)</option>
 						<option value="inactive" selected?={ statusFilter == "inactive" }>موقوف (Inactive)</option>
@@ -278,7 +276,7 @@ templ AdminProducts(lang, dir string, products []*catalog.Product, brands []*cat
 				</div>
 
 				<div>
-					<select name="limit" class="form-select" style="background:var(--surface-raised); height:100%; font-size:0.875rem;" onchange="this.form.submit()">
+					<select name="limit" class="form-select" onchange="this.form.submit()">
 						<option value="25" selected?={ pageSize == 25 }>25 صنف لكل صفحة</option>
 						<option value="50" selected?={ pageSize == 50 }>50 صنف لكل صفحة</option>
 						<option value="100" selected?={ pageSize == 100 }>100 صنف لكل صفحة</option>
@@ -286,13 +284,13 @@ templ AdminProducts(lang, dir string, products []*catalog.Product, brands []*cat
 					</select>
 				</div>
 
-				<div style="display:flex; gap:0.5rem; align-items:center;">
-					<button type="submit" class="btn btn-primary btn-sm" style="font-weight:800; padding:0.6rem 1.25rem;">
+				<div class="d-flex items-center gap-2">
+					<button type="submit" class="btn btn-primary btn-sm font-extrabold px-4">
 						@components.IconSearch("icon-xs")
 						<span>بحث شامل</span>
 					</button>
 					if searchQuery != "" || (statusFilter != "" && statusFilter != "all") || (dosageFilter != "" && dosageFilter != "all") || brandFilterVal > 0 || catFilterVal > 0 {
-						<a href="/admin/products" class="btn btn-ghost btn-sm fw-700" title="إعادة تعيين الفلاتر">
+						<a href="/admin/products" class="btn btn-ghost btn-sm font-bold" title="إعادة تعيين الفلاتر">
 							إلغاء الفلاتر
 						</a>
 					}
@@ -308,10 +306,10 @@ templ AdminProducts(lang, dir string, products []*catalog.Product, brands []*cat
 				})
 			} else {
 				<div class="table-container">
-					<table class="b2b-table">
+					<table class="data-table">
 						<thead>
 							<tr>
-								<th style="width:50px;">الصورة</th>
+								<th class="w-12">الصورة</th>
 								<th>الاسم والتسجيل</th>
 								<th>الاسم العلمي والفعالية</th>
 								<th>الشكل الصيدلي</th>

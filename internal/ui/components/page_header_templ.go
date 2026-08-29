@@ -56,7 +56,7 @@ func PageHeader(props PageHeaderProps) templ.Component {
 			return templ_7745c5c3_Err
 		}
 		if props.Count != nil {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "<span class=\"badge badge-info\" style=\"font-size:0.8125rem; font-weight:700; padding:0.2rem 0.6rem; border-radius:var(--radius-full);\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "<span class=\"badge badge-sky badge-pill font-bold\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
