@@ -154,7 +154,7 @@ func TestEnhancementDoesNotApplyBelowTheConfidenceFloor(t *testing.T) {
 	repo := newEnhanceRepo()
 	id := int64(101)
 	ai := &stubEnhancer{answer: func(b EnhanceBatch) ([]EnhanceOutcome, error) {
-		return []EnhanceOutcome{{Ref: b.Items[0].Ref, ProductID: &id, Confidence: MinApplyConfidence - 0.01}}, nil
+		return []EnhanceOutcome{{Ref: b.Items[0].Ref, ProductID: &id, Confidence: ceilings.MinApplyConfidence - 0.01}}, nil
 	}}
 
 	r := reviewFor(1, "ابليفاى 10مجم", 101)

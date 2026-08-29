@@ -38,60 +38,24 @@ import (
 	"sync/atomic"
 	"time"
 
+	"github.com/muhiya/dawa24-store/internal/shared/matchflow"
 	"github.com/muhiya/dawa24-store/internal/shared/productmatch"
 )
 
 // PromptVersion is the version of the question being asked, and it is part of
-// the decision cache key.
+// the decision-cache key.
 //
-// It matches the smart order's on purpose: the same prompt asked of the same
-// window is the same question, and keying it differently would give the two
-// features separate caches for identical work. Change it only when the shared
-// prompt itself changes.
-const PromptVersion = "sm-enh-v3"
+// It is the shared one. It used to be declared here, and it had drifted from
+// the copy the other importer declared — so the two filed answers to the same
+// question under different keys and neither ever read the other's. A build gate
+// now fails if the literal is restated outside internal/shared/matchflow.
+const PromptVersion = matchflow.PromptVersion
 
-// Ceilings for one run.
+// ceilings are what one run may spend, from the shared table.
 //
-// Every number here is the smart order's, for the same reason the prompt is:
-// they were measured against the live Gateway on files of this shape, and a
-// second set tuned by guesswork would only be worse.
-const (
-	// RecallLimit is how many catalogue products are retrieved per row.
-	RecallLimit = 16
-
-	// MaxInputBytes caps one request's rendered input, in BYTES — Arabic costs
-	// two bytes a character in UTF-8, and conflating the two halves the budget
-	// silently. A backstop rather than the binding constraint; the item ceiling
-	// below fills roughly 300 KB at its limit.
-	MaxInputBytes = 400_000
-
-	// MaxItemsPerRequest bounds the answer, and it is latency that sets it
-	// rather than tokens: a hundred-item request returns in about thirty-five
-	// seconds, a three-hundred-item one is still generating past ninety. A
-	// vendor is watching a progress bar, and a batch that fails takes every row
-	// in it back to the deterministic outcome.
-	MaxItemsPerRequest = 200
-
-	// MaxRequestsPerRun is the spend ceiling and the one number here that is a
-	// business decision. Twelve requests at two hundred items cover a file with
-	// 2,400 unresolved rows — one where the deterministic engine failed on
-	// almost everything. Rows past it keep their deterministic outcome and are
-	// reported as such rather than silently dropped.
-	MaxRequestsPerRun = 12
-
-	// MaxConcurrent is what decides how long the stage takes, since the total
-	// output tokens are the same however the items are divided.
-	MaxConcurrent = 4
-
-	// MaxWallClock bounds the stage. Staging is allowed thirty minutes, so this
-	// leaves ample room for writing the rows afterwards.
-	MaxWallClock = 8 * time.Minute
-
-	// MinApplyConfidence is the floor below which an answer is recorded but not
-	// applied. The prompt instructs the model to answer null below the same
-	// figure; this enforces it, because an instruction is not a guarantee.
-	MinApplyConfidence = 0.80
-)
+// They used to be a const block here and another in the other importer, with
+// every number documented as measured and no two of them agreeing.
+var ceilings = matchflow.For(matchflow.ProfileVendor)
 
 // Enhancer resolves a batch of unsettled rows against a catalogue window.
 //
@@ -103,46 +67,16 @@ type Enhancer interface {
 
 // EnhanceBatch is one request: a de-duplicated catalogue window and the rows to
 // resolve against it.
-type EnhanceBatch struct {
-	Catalog []WindowProduct
-	Items   []ReviewLine
-}
+type EnhanceBatch = matchflow.Batch
 
 // WindowProduct is one catalogue product offered to the model.
-type WindowProduct struct {
-	ProductID     int64
-	NameAR        string
-	NameEN        string
-	Scientific    string
-	DosageForm    string
-	Concentration string
-	Manufacturer  string
-}
+type WindowProduct = matchflow.CatalogEntry
 
 // ReviewLine is one row needing a second opinion, as the model sees it.
-type ReviewLine struct {
-	Ref          int
-	Text         string
-	Brand        string
-	Strength     string
-	DosageForm   string
-	PackSize     int
-	Manufacturer string
-	Scientific   string
-	SKU          string
-	Barcode      string
-	CurrentGuess *int64
-	CurrentScore float64
-	Options      []int64
-}
+type ReviewLine = matchflow.Item
 
 // EnhanceOutcome is one decision, keyed by the request-local ref.
-type EnhanceOutcome struct {
-	Ref        int
-	ProductID  *int64
-	Confidence float64
-	Reason     string
-}
+type EnhanceOutcome = matchflow.Decision
 
 // CachedDecision is one remembered answer, shared with every other feature that
 // asks this question.
@@ -272,7 +206,7 @@ func NewEnhancement(ai Enhancer, memory MatchMemory, index *productmatch.Index,
 // Nothing here calls a model; it is index arithmetic and costs no budget.
 func (e *Enhancement) Retrieve(rows []*openRow) {
 	opts := productmatch.DefaultRecallOptions()
-	opts.Limit = RecallLimit
+	opts.Limit = ceilings.RecallLimit
 	for _, r := range rows {
 		r.candidates = e.index.Recall(r.row, opts)
 	}
@@ -293,7 +227,7 @@ func (e *Enhancement) Run(ctx context.Context, rows []*openRow) []AIMatch {
 	// The wall clock is enforced on the calls themselves, not merely checked
 	// between them: a check in the dispatch loop passes for every batch and
 	// then lets slow requests run past the limit unbounded.
-	runCtx, cancel := context.WithDeadline(ctx, e.now().Add(MaxWallClock))
+	runCtx, cancel := context.WithDeadline(ctx, e.now().Add(ceilings.MaxWallClock))
 	defer cancel()
 
 	// The cache answers first, so a remembered row never enters a request.
@@ -310,7 +244,7 @@ func (e *Enhancement) Run(ctx context.Context, rows []*openRow) []AIMatch {
 
 	var (
 		wg     sync.WaitGroup
-		slots  = make(chan struct{}, MaxConcurrent)
+		slots  = make(chan struct{}, ceilings.MaxConcurrent)
 		saveMu sync.Mutex
 		toSave []CachedDecision
 	)

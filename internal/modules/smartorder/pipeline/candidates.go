@@ -140,11 +140,11 @@ func (m *Matcher) Retrieve(reviews []Review) {
 		return
 	}
 	opts := productmatch.DefaultRecallOptions()
-	opts.Limit = RecallLimit
+	opts.Limit = ceilings.RecallLimit
 
 	for i := range reviews {
 		wide := m.index.Recall(reviews[i].Row, opts)
-		reviews[i].Candidates = mergeCandidates(reviews[i].Candidates, wide, RecallLimit)
+		reviews[i].Candidates = mergeCandidates(reviews[i].Candidates, wide, ceilings.RecallLimit)
 	}
 }
 

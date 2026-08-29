@@ -86,7 +86,7 @@ func TestAnswerOutsideTheWindowIsRefused(t *testing.T) {
 // guarantee, so the floor is enforced here too.
 func TestAnswerBelowTheConfidenceFloorIsNotApplied(t *testing.T) {
 	ai := &fakeEnhancer{reply: func(EnhanceBatch) []EnhanceOutcome {
-		return []EnhanceOutcome{answer(1, 22, MinApplyConfidence-0.01)}
+		return []EnhanceOutcome{answer(1, 22, ceilings.MinApplyConfidence-0.01)}
 	}}
 	e, matches := run(t, ai, question("بانادول", []int{2}, 22))
 
@@ -218,7 +218,7 @@ func TestDecisionKeyDependsOnTheShortlist(t *testing.T) {
 // A run stops at its request ceiling and says so, rather than spending without
 // limit or dropping rows silently.
 func TestRequestCeilingStopsTheRunAndIsReported(t *testing.T) {
-	rows := make([]*openRow, 0, (MaxRequestsPerRun+2)*MaxItemsPerRequest)
+	rows := make([]*openRow, 0, (ceilings.MaxRequestsPerRun+2)*ceilings.MaxItemsPerRequest)
 	for i := 0; i < cap(rows); i++ {
 		rows = append(rows, question(productName(i), []int{i + 2}, 22))
 	}
@@ -226,8 +226,8 @@ func TestRequestCeilingStopsTheRunAndIsReported(t *testing.T) {
 	e := NewEnhancement(ai, nil, testIndex(), nil)
 	e.Run(context.Background(), rows)
 
-	if ai.calls > MaxRequestsPerRun {
-		t.Errorf("requests = %d, over the ceiling of %d", ai.calls, MaxRequestsPerRun)
+	if ai.calls > ceilings.MaxRequestsPerRun {
+		t.Errorf("requests = %d, over the ceiling of %d", ai.calls, ceilings.MaxRequestsPerRun)
 	}
 	if !e.Stats.CeilingHit {
 		t.Error("the ceiling was reached and not reported")

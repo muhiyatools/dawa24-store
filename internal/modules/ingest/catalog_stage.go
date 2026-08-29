@@ -26,11 +26,11 @@ import (
 // maxOpenQuestions bounds the residue the AI stage will even consider.
 //
 // It is the request ceiling times the items a request holds: the exact number
-// of distinct questions twelve full requests can carry. Retrieval past it could
-// never be sent, so running it would be pure CPU spent on a batch that would be
-// dropped at the planning step anyway. A file that exceeds it is one the column
-// mapping is wrong on, and the vendor is told the ceiling was reached.
-const maxOpenQuestions = MaxRequestsPerRun * MaxItemsPerRequest
+// of distinct questions a full run can carry. Retrieval past it could never be
+// sent, so running it would be pure CPU spent on a batch that would be dropped
+// at the planning step anyway. A file that exceeds it is one the column mapping
+// is wrong on, and the vendor is told the ceiling was reached.
+var maxOpenQuestions = ceilings.MaxRequestsPerRun * ceilings.MaxItemsPerRequest
 
 // StageImport parses every row, scores it against the shared catalogue, asks
 // the model about what is left, and stages the result for the vendor to review.

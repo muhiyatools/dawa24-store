@@ -80,7 +80,7 @@ func (e *Enhancement) apply(b plannedBatch, outcomes []EnhanceOutcome) []smartor
 			e.Stats.Rejected += len(group)
 			continue
 
-		case out.Confidence < MinApplyConfidence:
+		case out.Confidence < ceilings.MinApplyConfidence:
 			// Recorded as an abstention, which is what it is: the model said it
 			// was not sure enough, and the lines keep their deterministic
 			// outcome.
@@ -194,7 +194,7 @@ func (e *Enhancement) applyCache(ctx context.Context, reviews []Review) []Review
 			continue
 		}
 		e.Stats.CacheHits++
-		if d.ChosenProductID == nil || d.Confidence < MinApplyConfidence {
+		if d.ChosenProductID == nil || d.Confidence < ceilings.MinApplyConfidence {
 			continue
 		}
 		if c := e.index.IdentityConflict(r.Row, *d.ChosenProductID); !c.None() {

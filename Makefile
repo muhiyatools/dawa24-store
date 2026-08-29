@@ -124,7 +124,7 @@ check-provider-isolation: ## Fail if an AI provider name leaks outside platform/
 .PHONY: check-prompt-version
 check-prompt-version: ## Fail if the match-prompt version is declared outside aicapabilities
 	@echo "checking prompt version isolation..."
-	@if grep -rn 'sm-enh-' --include='*.go' ./cmd ./internal 2>/dev/null 	     | grep -v '^./internal/modules/aicapabilities/' 	     | grep -v '_test.go'; then 	  echo ""; 	  echo "ERROR: the match-enhancement prompt version appears outside"; 	  echo "internal/modules/aicapabilities/. It is the decision-cache key: two"; 	  echo "copies drift, and a drifted key silently splits one cache in two."; 	  echo "Import aicapabilities.EnhancePromptVersion instead of restating it."; 	  exit 1; 	fi
+	@if grep -rn 'sm-enh-' --include='*.go' ./cmd ./internal 2>/dev/null 	     | grep -v '^./internal/shared/matchflow/' 	     | grep -v '_test.go'; then 	  echo ""; 	  echo "ERROR: the match-enhancement prompt version appears outside"; 	  echo "internal/shared/matchflow/. It is the decision-cache key: two copies"; 	  echo "drift, and a drifted key silently splits one cache in two."; 	  echo "Import matchflow.PromptVersion instead of restating it."; 	  exit 1; 	fi
 	@echo "  ok: one prompt version, declared once"
 
 .PHONY: check-file-size
