@@ -205,7 +205,24 @@ type Settings struct {
 	UseAI bool `json:"use_ai"`
 	// TrustSupplierCode lets the vendor's own item code match the shared
 	// catalogue's. Off by default: a vendor's "951" is their internal numbering.
-	TrustSupplierCode bool `json:"trust_supplier_code"`
+	//
+	// It has no effect unless a كود صنف column was mapped in step one. The two
+	// are set in different steps, so a vendor can switch this on and then go
+	// back and unmap the column; the run resolves both together rather than
+	// trusting the toggle alone.
+	TrustSupplierCode bool
+	// TrustBarcode lets the file's barcode settle a match on its own.
+	//
+	// Off by default, and it used not to be a choice: the barcode tier ran on
+	// every import, ahead of the name and the dose, and any eight-digit value
+	// with a single catalogue hit won outright. A vendor whose "barcode" column
+	// holds their own warehouse numbering got confident links to unrelated
+	// medicines with nothing in the review screen to mark them as doubtful.
+	TrustBarcode bool
+	// CodeIsCatalogCode says the mapped code column holds دواء 24's own codes
+	// rather than the vendor's internal numbering. Only then is a code hit
+	// accepted without the name agreeing too.
+	CodeIsCatalogCode bool `json:"trust_supplier_code"`
 
 	BlankQuantityIsZero bool `json:"blank_quantity_is_zero"`
 	InferDosageForm     bool `json:"infer_dosage_form"`
@@ -402,4 +419,14 @@ type RowFilter struct {
 	SortOrder  string
 	Limit      int
 	Offset     int
+}
+
+// identifierChoices is what the vendor switched on, in the shared engine's
+// vocabulary. The engine drops any choice whose column was never mapped.
+func (s Settings) identifierChoices() productmatch.IdentifierChoices {
+	return productmatch.IdentifierChoices{
+		ByCode:            s.TrustSupplierCode,
+		ByBarcode:         s.TrustBarcode,
+		CodeIsCatalogCode: s.CodeIsCatalogCode,
+	}
 }

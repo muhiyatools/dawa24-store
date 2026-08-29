@@ -167,10 +167,10 @@ func numberDelta(a, b []float64) (agree, compared bool) {
 // word shared at all — "ابيكوبريد" against "ابيكوبرايد".
 func (idx *Index) nameSimilarity(q *query, p *MasterProduct) float64 {
 	best := 0.0
-	if v := idx.weightedContainment(q, p.coreAR); v > best {
+	if v := idx.weightedContainment(q, p.coreAR, p.keysAR); v > best {
 		best = v
 	}
-	if v := idx.weightedContainment(q, p.coreEN); v > best {
+	if v := idx.weightedContainment(q, p.coreEN, p.keysEN); v > best {
 		best = v
 	}
 	if best >= 0.99 || len(q.tri) == 0 {
@@ -180,7 +180,7 @@ func (idx *Index) nameSimilarity(q *query, p *MasterProduct) float64 {
 	// Trigram agreement is weaker evidence than a shared word, so it is
 	// discounted before it can outrank one. Both sides are sorted sets built
 	// once, so this is a walk rather than a set construction.
-	for _, tri := range [][]string{p.triAR, p.triEN} {
+	for _, tri := range [][]trigram{p.triAR, p.triEN} {
 		if v := jaccardSorted(q.tri, tri) * 0.92; v > best {
 			best = v
 		}
@@ -204,7 +204,7 @@ func (idx *Index) nameSimilarity(q *query, p *MasterProduct) float64 {
 // counting as much as "اكسترا" in telling them apart, and it is why a two-word
 // query against a five-word catalogue name is not punished for the three words
 // it did not repeat.
-func (idx *Index) weightedContainment(q *query, candidate []string) float64 {
+func (idx *Index) weightedContainment(q *query, candidate, candidateKeys []string) float64 {
 	if q.totalWeight <= 0 || len(candidate) == 0 {
 		return 0
 	}
@@ -223,6 +223,25 @@ func (idx *Index) weightedContainment(q *query, candidate []string) float64 {
 		matched += q.weights[i]
 		hits++
 	}
+
+	// The variant channel, for the words the exact pass could not place.
+	//
+	// It runs second and only claims slots the exact pass left unstamped, so a
+	// word spelled identically is always credited in full and never displaced
+	// by a fold of some other word. Discounted, because two brands can share a
+	// skeleton while two identical strings cannot be a coincidence.
+	if len(q.keyPos) > 0 {
+		for _, key := range candidateKeys {
+			i, ok := q.keyPos[key]
+			if !ok || q.stamp[i] == q.epoch {
+				continue
+			}
+			q.stamp[i] = q.epoch
+			matched += q.weights[i] * variantWeight
+			hits++
+		}
+	}
+
 	if matched <= 0 {
 		return 0
 	}

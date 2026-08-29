@@ -16,6 +16,7 @@ import (
 	"github.com/muhiya/dawa24-store/internal/modules/workflow"
 	"github.com/muhiya/dawa24-store/internal/platform/database"
 	"github.com/muhiya/dawa24-store/internal/platform/gateway"
+	"github.com/muhiya/dawa24-store/internal/shared/matchflow"
 )
 
 // smartOrderSmoke drives a real run end to end against the live catalogue.
@@ -220,6 +221,8 @@ func (b *cliEnhanceAdapter) EnhanceBatch(ctx context.Context, batch pipeline.Gat
 	req := aicapabilities.EnhanceRequest{
 		Catalog: make([]aicapabilities.CatalogEntry, 0, len(batch.Catalog)),
 		Items:   make([]aicapabilities.EnhanceItem, 0, len(batch.Items)),
+		// Attribution for the AI usage ledger: a smoke run is attributed like the real thing.
+		Feature: matchflow.FeatureSmartOrder,
 	}
 	for _, c := range batch.Catalog {
 		req.Catalog = append(req.Catalog, aicapabilities.CatalogEntry(c))

@@ -100,11 +100,26 @@ type MatchOptions struct {
 	MinStrong float64
 	// MinReview is the score below which nothing is offered at all.
 	MinReview float64
-	// TrustSupplierCode allows the vendor's own item code to match the
-	// catalogue's. Off by default: a vendor's "951" is their internal
-	// numbering and coincides with a catalogue code by accident more often
-	// than by design.
+	// TrustSupplierCode allows the file's item code to match the catalogue's.
+	//
+	// Off by default: a vendor's "951" is their internal numbering and
+	// coincides with a catalogue code by accident more often than by design.
+	// Set it through WithIdentifiers rather than directly, so it can never be
+	// on for a file whose code column was never mapped.
 	TrustSupplierCode bool
+	// TrustBarcode allows the file's barcode to settle a match on its own.
+	//
+	// Off by default, and it did not used to be a choice at all: the barcode
+	// tier ran unconditionally, before the name, the dose or the form was
+	// consulted, and any eight-digit value with a single catalogue hit won at
+	// confidence 1.0. Pharmacy item numbering is routinely eight or nine
+	// digits, so a file that mapped its own reference numbers into that field
+	// produced confident, unreviewable links to unrelated medicines.
+	//
+	// A GTIN really does identify a package, so when the column holds one this
+	// is the strongest evidence available. The question is only ever whether
+	// the column holds one, and that is the user's to answer.
+	TrustBarcode bool
 	// CodeIsAuthoritative accepts a code match without corroboration from the
 	// name.
 	//
@@ -124,6 +139,12 @@ type MatchOptions struct {
 }
 
 // DefaultMatchOptions are the thresholds the wizard starts on.
+//
+// Every identifier tier is off. That is deliberate and it is the important part
+// of this function: a tier that settles a match without consulting the name is
+// only safe when the user has said the column holds the catalogue's own
+// identifier, and a default of "on" asks nobody. Tools switch them on through
+// WithIdentifiers once the column is mapped and the user has chosen it.
 func DefaultMatchOptions() MatchOptions {
 	return MatchOptions{
 		MinStrong:     0.30,
@@ -147,8 +168,10 @@ func (idx *Index) Match(row *Row, opts MatchOptions) MatchResult {
 
 	q := idx.newQuery(row)
 
-	if res, ok := idx.matchByBarcode(row); ok {
-		return res
+	if opts.TrustBarcode {
+		if res, ok := idx.matchByBarcode(row); ok {
+			return res
+		}
 	}
 	if opts.TrustSupplierCode {
 		if res, ok := idx.matchByCode(row, q, opts); ok {
@@ -172,12 +195,24 @@ type query struct {
 	weights     []float64
 	pos         map[string]int
 	totalWeight float64
+	// keyPos maps a token's VARIANT key onto the same weight slot its exact
+	// spelling occupies, so a candidate carrying another spelling of the word
+	// is credited through the primary channel rather than falling through to a
+	// discounted one. See variants.go.
+	//
+	// A key that two different query tokens fold onto is dropped rather than
+	// pointing at one of them arbitrarily: crediting the weight of the wrong
+	// word is worse than crediting nothing.
+	keyPos map[string]int
 	// stamp and epoch mark the tokens consumed by the candidate under
 	// comparison, so the map never has to be cleared between candidates.
 	stamp []int32
 	epoch int32
 
-	tri      []string
+	// keys are the query tokens' variant keys, used for retrieval. The
+	// comparison-side map is keyPos above; this is the list retrieval walks.
+	keys     []string
+	tri      []trigram
 	skeleton string
 	nums     []float64
 	nameKey  string
@@ -227,7 +262,36 @@ func (idx *Index) newQuery(row *Row) *query {
 		q.totalWeight += w
 	}
 	q.stamp = make([]int32, len(q.weights))
+	q.keyPos = buildKeyPos(q.pos)
+	q.keys = variantKeys(q.tokens)
 	return q
+}
+
+// buildKeyPos maps each query token's variant key onto that token's weight slot.
+//
+// A key two different query tokens fold onto is left out entirely rather than
+// pointing at whichever was seen first: crediting one word's weight to another
+// word's spelling is a wrong answer, and no answer is better than a wrong one
+// in the channel that decides most matches.
+func buildKeyPos(pos map[string]int) map[string]int {
+	keyPos := make(map[string]int, len(pos))
+	shared := make(map[string]struct{})
+	for token, slot := range pos {
+		key := variantKeyOf(token)
+		if key == "" || key == token {
+			continue
+		}
+		if _, dup := shared[key]; dup {
+			continue
+		}
+		if existing, taken := keyPos[key]; taken && existing != slot {
+			delete(keyPos, key)
+			shared[key] = struct{}{}
+			continue
+		}
+		keyPos[key] = slot
+	}
+	return keyPos
 }
 
 // matchByBarcode resolves the one identifier that means the same package.
@@ -288,7 +352,7 @@ type scoredProduct struct {
 
 // score rates every plausible catalogue product for one query.
 func (idx *Index) score(q *query, opts MatchOptions) []scoredProduct {
-	pool := idx.candidatePool(q.tokens, opts.PoolLimit)
+	pool := idx.candidatePoolWithKeys(q.tokens, q.keys, opts.PoolLimit)
 	if q.nameKey != "" {
 		pool = append(pool, idx.byName[q.nameKey]...)
 	}

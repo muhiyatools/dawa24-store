@@ -84,7 +84,28 @@ type Item struct {
 type Batch struct {
 	Catalog []CatalogEntry
 	Items   []Item
+
+	// Feature names the tool that asked, for the AI usage ledger. It is not
+	// sent to the model and takes no part in the prompt or the cache key — a
+	// pharmacy reading its usage log needs to know that the money went on the
+	// smart order rather than on a catalogue import, and a capability name
+	// alone cannot tell them, because both tools ask the same capability.
+	Feature string
 }
+
+// The features that spend AI budget, in the vocabulary the usage screens use.
+//
+// Declared here because this package is the dependency-free leaf every importer
+// already shares, and because a feature key invented separately in each module
+// is how the capability names drifted in the first place.
+const (
+	FeatureSmartOrder    = "smart_order"
+	FeatureVendorImport  = "variant_match"
+	FeatureCatalogImport = "catalog_import"
+	FeatureSavingsImport = "savings_import"
+	FeatureAssistant     = "assistant"
+	FeatureColumnDetect  = "column_detect"
+)
 
 // Decision is one answer, keyed by the request-local ref.
 //

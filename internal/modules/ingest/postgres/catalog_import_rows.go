@@ -151,7 +151,21 @@ func (r *Repository) Rows(
 		case "quantity":
 			orderByCol = "COALESCE((r.payload->>'quantity')::int, 0)"
 		default:
-			orderByCol = "r.source_row"
+			// Weakest match first, and this default is the whole review
+			// workflow.
+			//
+			// It used to be source-row order, which is the order the rows
+			// happen to sit in the vendor's file — an order that tells the
+			// reviewer nothing. Nine thousand rows in file order means reading
+			// nine thousand rows to find the forty that need a decision,
+			// because the ones that need it are scattered evenly among the ones
+			// that do not. Worst first puts every doubtful row on page one, and
+			// a reviewer who stops when the scores look right has still seen
+			// everything that mattered.
+			//
+			// A row with no match at all scores zero and therefore sorts first,
+			// which is correct: unmatched is the worst outcome there is.
+			orderByCol = "r.match_score"
 		}
 		orderByClause := fmt.Sprintf("%s %s, r.source_row ASC", orderByCol, orderDir)
 

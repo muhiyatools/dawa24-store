@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"github.com/muhiya/dawa24-store/internal/modules/catalog"
+	"github.com/muhiya/dawa24-store/internal/shared/productmatch"
 )
 
 func TestSavingProductMatchEngine(t *testing.T) {
@@ -28,10 +29,29 @@ func TestSavingProductMatchEngine(t *testing.T) {
 		},
 	}
 
+	// The engine starts with every identifier tier off, so the tests that
+	// exercise a tier have to declare what the user mapped and chose — which is
+	// the contract every caller now has.
+	codeEngine := NewSavingProductMatchEngine(catalogItems)
+	codeEngine.UseIdentifiers(
+		productmatch.MappedColumns{Code: true},
+		productmatch.IdentifierChoices{ByCode: true, CodeIsCatalogCode: true},
+	)
+
+	// A separate engine for the rows whose column really does hold GTINs. It
+	// used to be the same one: a single column was fed to the code tier AND the
+	// barcode tier, so an internal item number got a free pass through a tier
+	// that never looks at the name.
+	barcodeEngine := NewSavingProductMatchEngine(catalogItems)
+	barcodeEngine.UseIdentifiers(
+		productmatch.MappedColumns{Barcode: true},
+		productmatch.IdentifierChoices{ByBarcode: true},
+	)
+
 	engine := NewSavingProductMatchEngine(catalogItems)
 
 	t.Run("Exact SKU Match", func(t *testing.T) {
-		res := engine.Match(StrategySmartAuto, nil, "PAN-24", "اسم عشوائي مختلف")
+		res := codeEngine.Match(StrategySmartAuto, nil, "PAN-24", "اسم عشوائي مختلف")
 		if res.ProductID == nil || *res.ProductID != 101 {
 			t.Fatalf("expected product 101, got %v", res.ProductID)
 		}
@@ -41,7 +61,7 @@ func TestSavingProductMatchEngine(t *testing.T) {
 	})
 
 	t.Run("Cleaned Barcode with .0 and spaces", func(t *testing.T) {
-		res := engine.Match(StrategySmartAuto, nil, " 6221234567890.0 ", "")
+		res := barcodeEngine.Match(StrategySmartAuto, nil, " 6221234567890.0 ", "")
 		if res.ProductID == nil || *res.ProductID != 101 {
 			t.Fatalf("expected product 101, got %v", res.ProductID)
 		}
@@ -55,7 +75,7 @@ func TestSavingProductMatchEngine(t *testing.T) {
 		if sanitized != "20203380" {
 			t.Fatalf("expected 20203380, got %s", sanitized)
 		}
-		res := engine.Match(StrategySmartAuto, nil, "2.020338e+07", "")
+		res := barcodeEngine.Match(StrategySmartAuto, nil, "2.020338e+07", "")
 		if res.ProductID == nil || *res.ProductID != 102 {
 			t.Fatalf("expected product 102, got %v", res.ProductID)
 		}
@@ -111,13 +131,13 @@ func TestSavingProductMatchEngine(t *testing.T) {
 
 	t.Run("Strategy: SKU Only mode", func(t *testing.T) {
 		// Correct name but unknown SKU
-		res := engine.Match(StrategySKUOnly, nil, "UNKNOWN-SKU", "بانادول إكسترا 24 قرص")
+		res := codeEngine.Match(StrategySKUOnly, nil, "UNKNOWN-SKU", "بانادول إكسترا 24 قرص")
 		if res.ProductID != nil {
 			t.Fatalf("expected no match in SKUOnly mode with unknown SKU, got %v", res.ProductID)
 		}
 
 		// Known SKU
-		res2 := engine.Match(StrategySKUOnly, nil, "PAN-24", "اسم مختلف تماماً")
+		res2 := codeEngine.Match(StrategySKUOnly, nil, "PAN-24", "اسم مختلف تماماً")
 		if res2.ProductID == nil || *res2.ProductID != 101 {
 			t.Fatalf("expected product 101, got %v", res2.ProductID)
 		}
@@ -125,9 +145,34 @@ func TestSavingProductMatchEngine(t *testing.T) {
 
 	t.Run("Strategy: Name Only mode (Internal SKU ignored)", func(t *testing.T) {
 		// Internal pharmacy cashier SKU that does NOT match catalog, but name matches
-		res := engine.Match(StrategyNameOnly, nil, "MY-POS-998877", "بانادول اكسترا 24 قرص")
+		res := codeEngine.Match(StrategyNameOnly, nil, "MY-POS-998877", "بانادول اكسترا 24 قرص")
 		if res.ProductID == nil || *res.ProductID != 101 {
 			t.Fatalf("expected product 101 in NameOnly mode, got %v", res.ProductID)
+		}
+	})
+
+	// The default engine is the one a caller gets before saying anything about
+	// the file. It must not settle a row on an identifier alone.
+	t.Run("Identifier tiers are off until the user maps and chooses", func(t *testing.T) {
+		// A catalogue SKU, with a name that matches nothing.
+		if res := engine.Match(StrategySmartAuto, nil, "PAN-24", "اسم عشوائي مختلف"); res.ProductID != nil {
+			t.Errorf("code settled a match with the tier off: product %v", *res.ProductID)
+		}
+		// A real GTIN, with no name at all.
+		if res := engine.Match(StrategySmartAuto, nil, "6221234567890", ""); res.ProductID != nil {
+			t.Errorf("barcode settled a match with the tier off: product %v", *res.ProductID)
+		}
+	})
+
+	// The bug this replaced, pinned so it cannot come back: one mapped column
+	// must reach one tier. A pharmacy's internal item number that happens to be
+	// eight digits must not be tried as a GTIN.
+	t.Run("A code column is not also offered to the barcode tier", func(t *testing.T) {
+		// 20203380 is product 102's barcode AND its SKU in this fixture, so the
+		// two tiers would agree — use a value that is only ever a barcode.
+		res := codeEngine.Match(StrategySmartAuto, nil, "6221234567890", "")
+		if res.ProductID != nil && res.MatchType == "barcode" {
+			t.Errorf("a mapped CODE column reached the barcode tier and matched product %v", *res.ProductID)
 		}
 	})
 }

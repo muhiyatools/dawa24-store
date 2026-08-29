@@ -181,22 +181,25 @@ templ tenantSubscriptionBody(data TenantSubscriptionPageData, orgType string, la
 							</div>
 							
 							<div class="mt-2">
-								<div class="flex-between items-baseline mb-1">
-									<span class="text-xs text-secondary font-bold">استهلاك الحصة:</span>
-									<div class="tabular-nums text-base font-black text-brand">
-										{ fmt.Sprintf("%d%%", data.Subscription.AIPercentage()) }
+								if data.Subscription.HasAIBudget {
+									<div class="flex-between items-baseline mb-1">
+										<span class="text-xs text-secondary font-bold">استهلاك الحصة:</span>
+										<div class="tabular-nums text-base font-black text-brand">
+											{ fmt.Sprintf("%d%%", data.Subscription.AIPercentage()) }
+										</div>
 									</div>
-								</div>
-
-								<!-- Dynamic Progress Bar -->
-								<div class="progress-bar-container">
-									<div class="progress-bar-fill" style={ fmt.Sprintf("width:%d%%;", data.Subscription.AIPercentage()) }></div>
-								</div>
-
-								<div class="flex-between text-xs text-muted mt-1">
-									<span>متبقي: <strong class="text-success tabular-nums">{ fmt.Sprintf("%d%%", 100-data.Subscription.AIPercentage()) }</strong></span>
-									<span>التجديد: <strong class="text-primary">{ data.Subscription.AIResetText() }</strong></span>
-								</div>
+									<div class="progress-bar-container">
+										<div class="progress-bar-fill" style={ fmt.Sprintf("width:%d%%;", data.Subscription.AIPercentage()) }></div>
+									</div>
+									<div class="flex-between text-xs text-muted mt-1">
+										<span>متبقي: <strong class="text-success tabular-nums">{ fmt.Sprintf("%d%%", 100-data.Subscription.AIPercentage()) }</strong></span>
+										<span>التجديد: <strong class="text-primary">{ data.Subscription.AIResetText() }</strong></span>
+									</div>
+								} else {
+									<div class="text-xs text-secondary font-bold mb-1">الاستهلاك الفعلي:</div>
+									<div class="tabular-nums text-base font-black text-brand">{ data.Subscription.AIUsageText() }</div>
+									<div class="text-xs text-muted mt-1">لم تنشر البوابة سقفاً لهذه الباقة، لذلك لا تُعرض نسبة.</div>
+								}
 							</div>
 						</div>
 

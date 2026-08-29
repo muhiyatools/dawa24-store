@@ -1,14 +1,18 @@
 package ui
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
 	"math"
+	"mime/multipart"
 	"net/http"
 	"path/filepath"
+	"runtime"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/go-chi/chi/v5"
@@ -530,67 +534,66 @@ func (h *UIHandler) AdminTempWarehouseExportXLSX(w http.ResponseWriter, r *http.
 	_ = f.Write(w)
 }
 
-// AdminTempWarehouseUploadSubmit handles file upload, auto column mapping, and item persistence.
-func (h *UIHandler) AdminTempWarehouseUploadSubmit(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-
-	if err := r.ParseMultipartForm(50 << 20); err != nil { // 50MB max
-		h.redirectWithNotice(w, r, "/admin/user/temparte-warehouses", "error", "حجم الملف المرفوع كبير جداً.")
-		return
+func cleanSupplierNameFromFilename(filename string) string {
+	base := filepath.Base(filename)
+	ext := filepath.Ext(base)
+	name := strings.TrimSuffix(base, ext)
+	name = strings.ReplaceAll(name, "_", " ")
+	name = strings.ReplaceAll(name, "-", " ")
+	name = strings.Join(strings.Fields(name), " ")
+	if name == "" {
+		name = "مستودع " + time.Now().Format("2006-01-02 15:04")
 	}
+	return name
+}
 
-	supplierName := strings.TrimSpace(r.FormValue("supplier_name"))
-	if supplierName == "" {
-		h.redirectWithNotice(w, r, "/admin/user/temparte-warehouses", "error", "يرجى كتابة اسم المورد أو المستودع.")
-		return
-	}
+type tempWarehouseUploadResult struct {
+	Filename     string `json:"filename"`
+	SupplierName string `json:"supplier_name"`
+	RowCount     int    `json:"row_count"`
+	Success      bool   `json:"success"`
+	Error        string `json:"error,omitempty"`
+}
 
-	file, header, err := r.FormFile("file")
+// processSingleTempWarehouseFile handles parsing and inserting a single file in memory.
+func (h *UIHandler) processSingleTempWarehouseFile(
+	ctx context.Context,
+	fh *multipart.FileHeader,
+	defaultSupplierName string,
+	customCode, customName, customPrice, customDiscount string,
+	userID int64,
+	orgID *int64,
+) tempWarehouseUploadResult {
+	file, err := fh.Open()
 	if err != nil {
-		h.redirectWithNotice(w, r, "/admin/user/temparte-warehouses", "error", "يرجى اختيار ملف صحيح للرفع.")
-		return
+		return tempWarehouseUploadResult{Filename: fh.Filename, Success: false, Error: "فشل فتح الملف: " + err.Error()}
 	}
 	defer file.Close()
 
 	fileBytes, err := io.ReadAll(file)
 	if err != nil {
-		h.redirectWithNotice(w, r, "/admin/user/temparte-warehouses", "error", "فشل قراءة بيانات الملف.")
-		return
+		return tempWarehouseUploadResult{Filename: fh.Filename, Success: false, Error: "فشل قراءة محتوى الملف: " + err.Error()}
 	}
 
-	rawRows, err := sheet.ReadRows(fileBytes, header.Filename)
+	rawRows, err := sheet.ReadRows(fileBytes, fh.Filename)
 	if err != nil || len(rawRows) < 2 {
-		h.redirectWithNotice(w, r, "/admin/user/temparte-warehouses", "error", "فشل تحليل ملف الإكسيل أو الملف لا يحتوي على صفوف بيانات كافية.")
-		return
+		return tempWarehouseUploadResult{Filename: fh.Filename, Success: false, Error: "الملف لا يحتوي على صفوف بيانات كافية أو تعذر تحليله"}
 	}
 
 	headers := rawRows[0]
-	customCode := r.FormValue("col_code")
-	customName := r.FormValue("col_name")
-	customPrice := r.FormValue("col_price")
-	customDiscount := r.FormValue("col_discount")
-
 	codeCol, nameCol, priceCol, discountCol := detectTempWarehouseCols(headers, customCode, customName, customPrice, customDiscount)
 
-	// Determine actor user ID / fallback
-	var userID int64 = 41
-	var orgID *int64
-	if actor, ok := authctx.From(ctx); ok {
-		if actor.UserID > 0 {
-			userID = actor.UserID
-		}
-		if actor.OrgID > 0 {
-			orgID = &actor.OrgID
-		}
+	supplierName := defaultSupplierName
+	if supplierName == "" {
+		supplierName = cleanSupplierNameFromFilename(fh.Filename)
 	}
 
-	// Create warehouse file in database
 	compareFile := &compare.CompareFile{
 		UserID:           userID,
 		OrganizationID:   orgID,
 		SupplierName:     supplierName,
-		OriginalFilename: header.Filename,
-		StorageKey:       fmt.Sprintf("temp_warehouses/%d_%s", time.Now().UnixNano(), filepath.Base(header.Filename)),
+		OriginalFilename: fh.Filename,
+		StorageKey:       fmt.Sprintf("temp_warehouses/%d_%s", time.Now().UnixNano(), filepath.Base(fh.Filename)),
 		MIMEType:         "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
 		SizeBytes:        int64(len(fileBytes)),
 		Status:           compare.FileReady,
@@ -604,13 +607,10 @@ func (h *UIHandler) AdminTempWarehouseUploadSubmit(w http.ResponseWriter, r *htt
 	}
 
 	if err := h.compareSvc.CreateFile(database.AsSystem(ctx), compareFile); err != nil {
-		h.log.ErrorContext(ctx, "create temp warehouse file record", "error", err)
-		h.redirectWithNotice(w, r, "/admin/user/temparte-warehouses", "error", "فشل حفظ بيانات المستودع في قاعدة البيانات: "+err.Error())
-		return
+		return tempWarehouseUploadResult{Filename: fh.Filename, SupplierName: supplierName, Success: false, Error: "فشل إنشاء سجل المستودع: " + err.Error()}
 	}
 
-	// Parse file rows
-	var fileRows []*compare.CompareFileRow
+	fileRows := make([]*compare.CompareFileRow, 0, len(rawRows)-1)
 	for idx, row := range rawRows[1:] {
 		if len(row) == 0 {
 			continue
@@ -665,14 +665,186 @@ func (h *UIHandler) AdminTempWarehouseUploadSubmit(w http.ResponseWriter, r *htt
 
 	if len(fileRows) > 0 {
 		if err := h.compareSvc.InsertFileRows(database.AsSystem(ctx), fileRows); err != nil {
-			h.log.ErrorContext(ctx, "insert warehouse file rows", "error", err)
+			h.log.ErrorContext(ctx, "insert warehouse file rows", "error", err, "file_id", compareFile.ID)
 		}
 	}
 
 	compareFile.RowCount = len(fileRows)
 	_ = h.compareSvc.UpdateFile(database.AsSystem(ctx), compareFile)
 
-	h.redirectWithNotice(w, r, "/admin/user/temparte-warehouses", "success", fmt.Sprintf("تم رفع المستودع [%s] بنجاح بإجمالي %d صنف متاح في خصومات السوق.", supplierName, len(fileRows)))
+	return tempWarehouseUploadResult{
+		Filename:     fh.Filename,
+		SupplierName: supplierName,
+		RowCount:     len(fileRows),
+		Success:      true,
+	}
+}
+
+// AdminTempWarehouseUploadSubmit handles bulk and single file upload (optimized for 60+ files in parallel).
+func (h *UIHandler) AdminTempWarehouseUploadSubmit(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	// 500MB max limit to comfortably allow 60-100+ bulk files
+	if err := r.ParseMultipartForm(500 << 20); err != nil {
+		if isJSONOrAJAX(r) {
+			w.Header().Set("Content-Type", "application/json; charset=utf-8")
+			w.WriteHeader(http.StatusBadRequest)
+			_ = json.NewEncoder(w).Encode(map[string]any{"success": false, "error": "حجم الملفات المرفوعة يتجاوز الحد الأقصى المسموح (500 ميجابايت)."})
+			return
+		}
+		h.redirectWithNotice(w, r, "/admin/user/temparte-warehouses", "error", "حجم الملفات المرفوعة كبير جداً.")
+		return
+	}
+
+	// Gather all files from multipart form
+	var fileHeaders []*multipart.FileHeader
+	if r.MultipartForm != nil && r.MultipartForm.File != nil {
+		if files, ok := r.MultipartForm.File["files"]; ok && len(files) > 0 {
+			fileHeaders = append(fileHeaders, files...)
+		}
+		if file, ok := r.MultipartForm.File["file"]; ok && len(file) > 0 {
+			fileHeaders = append(fileHeaders, file...)
+		}
+		for k, fl := range r.MultipartForm.File {
+			if k != "files" && k != "file" {
+				fileHeaders = append(fileHeaders, fl...)
+			}
+		}
+	}
+
+	if len(fileHeaders) == 0 {
+		if isJSONOrAJAX(r) {
+			w.Header().Set("Content-Type", "application/json; charset=utf-8")
+			w.WriteHeader(http.StatusBadRequest)
+			_ = json.NewEncoder(w).Encode(map[string]any{"success": false, "error": "يرجى اختيار ملف أو أكثر للرفع."})
+			return
+		}
+		h.redirectWithNotice(w, r, "/admin/user/temparte-warehouses", "error", "يرجى اختيار ملف أو مجموعة ملفات للرفع.")
+		return
+	}
+
+	baseSupplierName := strings.TrimSpace(r.FormValue("supplier_name"))
+	customCode := r.FormValue("col_code")
+	customName := r.FormValue("col_name")
+	customPrice := r.FormValue("col_price")
+	customDiscount := r.FormValue("col_discount")
+
+	if len(fileHeaders) == 1 && baseSupplierName == "" {
+		baseSupplierName = cleanSupplierNameFromFilename(fileHeaders[0].Filename)
+	}
+
+	// Determine actor user ID / fallback
+	var userID int64 = 41
+	var orgID *int64
+	if actor, ok := authctx.From(ctx); ok {
+		if actor.UserID > 0 {
+			userID = actor.UserID
+		}
+		if actor.OrgID > 0 {
+			orgID = &actor.OrgID
+		}
+	}
+
+	// High-speed parallel worker pool: concurrency bounded by CPU cores (e.g. 8-16 workers)
+	numWorkers := 8
+	if n := runtime.NumCPU() * 2; n > numWorkers {
+		numWorkers = n
+	}
+	if numWorkers > 16 {
+		numWorkers = 16
+	}
+	if numWorkers > len(fileHeaders) {
+		numWorkers = len(fileHeaders)
+	}
+
+	results := make([]tempWarehouseUploadResult, len(fileHeaders))
+	sem := make(chan struct{}, numWorkers)
+	var wg sync.WaitGroup
+
+	for i, fh := range fileHeaders {
+		wg.Add(1)
+		go func(idx int, header *multipart.FileHeader) {
+			defer wg.Done()
+			sem <- struct{}{}
+			defer func() { <-sem }()
+
+			suppName := ""
+			if len(fileHeaders) == 1 {
+				suppName = baseSupplierName
+			} else {
+				fileClean := cleanSupplierNameFromFilename(header.Filename)
+				if baseSupplierName != "" {
+					suppName = baseSupplierName + " - " + fileClean
+				} else {
+					suppName = fileClean
+				}
+			}
+
+			res := h.processSingleTempWarehouseFile(
+				ctx,
+				header,
+				suppName,
+				customCode,
+				customName,
+				customPrice,
+				customDiscount,
+				userID,
+				orgID,
+			)
+			results[idx] = res
+		}(i, fh)
+	}
+
+	wg.Wait()
+
+	// Aggregate results
+	successCount := 0
+	failCount := 0
+	totalRows := int64(0)
+	var errorMessages []string
+
+	for _, res := range results {
+		if res.Success {
+			successCount++
+			totalRows += int64(res.RowCount)
+		} else {
+			failCount++
+			if res.Error != "" {
+				errorMessages = append(errorMessages, fmt.Sprintf("%s: %s", res.Filename, res.Error))
+			}
+		}
+	}
+
+	if isJSONOrAJAX(r) {
+		w.Header().Set("Content-Type", "application/json; charset=utf-8")
+		_ = json.NewEncoder(w).Encode(map[string]any{
+			"success":          successCount > 0,
+			"total_files":      len(fileHeaders),
+			"successful_files": successCount,
+			"failed_files":     failCount,
+			"total_items":      totalRows,
+			"results":          results,
+			"errors":           errorMessages,
+			"message":          fmt.Sprintf("تم بنجاح رفع ومعالجة %d من أصل %d ملف مستودع بإجمالي %d صنف متاح في خصومات ومقارنات السوق.", successCount, len(fileHeaders), totalRows),
+		})
+		return
+	}
+
+	if successCount == 0 && failCount > 0 {
+		h.redirectWithNotice(w, r, "/admin/user/temparte-warehouses", "error", "فشل معالجة كافة الملفات المرفوعة: "+strings.Join(errorMessages, " | "))
+		return
+	}
+
+	successMsg := fmt.Sprintf("تم بنجاح رفع ومعالجة %d من أصل %d ملف مستودع بإجمالي %d صنف.", successCount, len(fileHeaders), totalRows)
+	if failCount > 0 {
+		successMsg += fmt.Sprintf(" (فشل %d ملف)", failCount)
+	}
+	h.redirectWithNotice(w, r, "/admin/user/temparte-warehouses", "success", successMsg)
+}
+
+func isJSONOrAJAX(r *http.Request) bool {
+	accept := r.Header.Get("Accept")
+	return strings.Contains(accept, "application/json") || r.Header.Get("X-Requested-With") == "XMLHttpRequest" || r.Header.Get("HX-Request") == "true"
 }
 
 // detectTempWarehouseCols determines column indices based on header names or custom inputs.

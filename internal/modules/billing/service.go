@@ -14,6 +14,9 @@ import (
 type Service struct {
 	repo Repository
 	log  *slog.Logger
+	// aiPlans propagates an organisation's entitlement to the AI Gateway when
+	// its subscription changes. Optional; see ai_plan_sync.go.
+	aiPlans AIPlanSync
 }
 
 // NewService creates a new billing service.
@@ -319,6 +322,7 @@ func (s *Service) AssignDefaultSubscription(ctx context.Context, userID int64, o
 	if err := s.repo.CreateSubscription(ctx, sub); err != nil {
 		return nil, err
 	}
+	s.syncAIPlan(ctx, orgID)
 	s.log.InfoContext(ctx, "default subscription assigned", "user_id", userID, "org_id", orgID, "plan", plan.Slug)
 	return sub, nil
 }
@@ -360,6 +364,7 @@ func (s *Service) Subscribe(
 		return nil, err
 	}
 
+	s.syncAIPlan(ctx, orgID)
 	s.log.InfoContext(ctx, "subscription activated", "user_id", userID, "plan", planSlug, "expires", sub.ExpiresAt)
 	return sub, nil
 }
@@ -430,6 +435,10 @@ func (s *Service) SubscribeWithWallet(
 		return nil, err
 	}
 
+	// The upgrade the user just paid for is only real once their AI quota
+	// follows it. This is the transition that used to be silently dropped.
+	s.syncAIPlan(ctx, orgID)
+
 	s.log.InfoContext(ctx, "subscription purchased via wallet", "user_id", userID, "org_id", orgID, "plan", planSlug, "cycle", cycle, "cost", cost.String(), "auto_renew", autoRenew)
 	return sub, nil
 }
@@ -477,6 +486,9 @@ func (s *Service) ProcessDueSubscriptionRenewals(ctx context.Context) (renewed i
 			_ = s.repo.UpdateSubscriptionStatus(ctx, sub.ID, SubPastDue, sub.RenewalAttempts+1)
 			failed++
 		} else {
+			// A renewal can follow a plan change made while the old term ran,
+			// and it reopens the Gateway's budget window either way.
+			s.syncAIPlan(ctx, sub.OrganizationID)
 			s.log.InfoContext(ctx, "subscription renewed successfully", "sub_id", sub.ID, "user_id", sub.UserID, "new_expires_at", newExpiresAt)
 			renewed++
 		}

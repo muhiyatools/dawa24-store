@@ -114,7 +114,8 @@ func (s *Service) prepareWriter(ctx context.Context, session *Session) (*importW
 
 	matchOpts := productmatch.DefaultMatchOptions()
 	matchOpts.MinStrong = session.Settings.MinMatchScore
-	matchOpts.TrustSupplierCode = session.Settings.TrustSupplierCode
+	matchOpts = matchOpts.WithIdentifiers(
+		session.Mapping.MappedIdentifiers(), session.Settings.identifierChoices())
 
 	return &importWriter{
 		svc:      s,

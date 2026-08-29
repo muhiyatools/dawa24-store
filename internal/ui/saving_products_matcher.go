@@ -73,9 +73,18 @@ type SavingProductMatchEngine struct {
 	// be validated without scoring anything.
 	known map[int64]bool
 	opts  productmatch.MatchOptions
+	// codeIsBarcode records that the user said their code column holds GTINs,
+	// which is the only circumstance in which that column may be offered to the
+	// barcode tier. See Match.
+	codeIsBarcode bool
 }
 
-// NewSavingProductMatchEngine builds the index once per import.
+// NewSavingProductMatchEngine builds the index once per import, with every
+// identifier tier switched off.
+//
+// Callers that know what the user mapped and chose apply it with
+// WithIdentifiers. Everything else gets name matching, which cannot silently
+// link a row to an unrelated medicine.
 func NewSavingProductMatchEngine(products []catalog.MatchProduct) *SavingProductMatchEngine {
 	masters := make([]productmatch.MasterProduct, 0, len(products))
 	known := make(map[int64]bool, len(products))
@@ -92,22 +101,33 @@ func NewSavingProductMatchEngine(products []catalog.MatchProduct) *SavingProduct
 		})
 	}
 
-	opts := productmatch.DefaultMatchOptions()
-	// The file's own code column is trusted here, unlike in the vendor import.
-	// A pharmacy keeping a private list of what it buys is recording the code
-	// it looks the product up by, and that code is very often the catalogue's
-	// own — which is the whole reason the column is offered.
-	opts.TrustSupplierCode = true
-	// The user mapped a code column on the mapping screen; that is them saying
-	// the column holds the code they look products up by. Demanding the name
-	// agree as well refuses exactly the rows the column was mapped for.
-	opts.CodeIsAuthoritative = true
-
+	// Every identifier tier off. What used to be here forced BOTH of them on
+	// for every file regardless of what the user had mapped, reasoning that a
+	// pharmacy's private list is kept by the catalogue's own codes. Sometimes
+	// it is. When it is not — and a pharmacy's internal item numbering is the
+	// commoner case — the result was a row linked at confidence 0.95 to a
+	// medicine sharing nothing with it but a number, with the name check
+	// explicitly disabled and no way for the review screen to show the doubt.
 	return &SavingProductMatchEngine{
 		index: productmatch.NewIndex(masters),
 		known: known,
-		opts:  opts,
+		opts:  productmatch.DefaultMatchOptions(),
 	}
+}
+
+// UseIdentifiers switches on the identifier tiers the user mapped and chose.
+//
+// Separate from construction because the two facts arrive at different times:
+// the catalogue is loaded before the wizard knows what was mapped, and the
+// engine must be safe in the window between.
+func (e *SavingProductMatchEngine) UseIdentifiers(
+	mapped productmatch.MappedColumns, chosen productmatch.IdentifierChoices,
+) {
+	if e == nil {
+		return
+	}
+	e.opts = e.opts.WithIdentifiers(mapped, chosen)
+	e.codeIsBarcode = mapped.Barcode && chosen.ByBarcode
 }
 
 // Size reports how many catalogue products are indexed.
@@ -160,21 +180,28 @@ func (e *SavingProductMatchEngine) Match(strategy MatchStrategy, productID *int6
 
 	row := &productmatch.Row{Name: strings.TrimSpace(rawName)}
 	opts := e.opts
+	code := strings.TrimSpace(rawSKU)
+
+	// The code goes in the code slot. It used to go in BOTH slots — the same
+	// value offered to the code tier and to the barcode tier — and the barcode
+	// tier does not consult the name at all: any eight-digit item number with
+	// one catalogue hit returned confidence 1.0 before scoring began. One
+	// column is one identifier, and which identifier it is, is the user's to
+	// state on the mapping screen.
 	switch strategy {
 	case StrategySKUOnly:
-		row.SKU = strings.TrimSpace(rawSKU)
-		row.Barcode = strings.TrimSpace(rawSKU)
+		e.bindCode(row, code)
 		// The identifier tiers only. Scored matching is suppressed by putting
 		// the thresholds out of reach rather than by a second code path, so the
 		// strategies cannot drift apart.
 		opts.MinStrong, opts.MinReview = 1.01, 1.01
 	case StrategyNameOnly:
 		opts.TrustSupplierCode = false
+		opts.TrustBarcode = false
 	default:
-		row.SKU = strings.TrimSpace(rawSKU)
-		row.Barcode = strings.TrimSpace(rawSKU)
+		e.bindCode(row, code)
 	}
-	if row.Name == "" && row.SKU == "" {
+	if row.Name == "" && row.SKU == "" && row.Barcode == "" {
 		return unlinked
 	}
 
@@ -190,6 +217,19 @@ func (e *SavingProductMatchEngine) Match(strategy MatchStrategy, productID *int6
 		MatchType:  savingMatchType(res.Level),
 		Confidence: res.Score,
 	}
+}
+
+// bindCode puts the file's identifier column into the slot the user said it
+// belongs in, and only that slot.
+func (e *SavingProductMatchEngine) bindCode(row *productmatch.Row, code string) {
+	if code == "" {
+		return
+	}
+	if e.codeIsBarcode {
+		row.Barcode = code
+		return
+	}
+	row.SKU = code
 }
 
 // savingMatchType renders the engine's level in the vocabulary this screen and

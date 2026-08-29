@@ -28,6 +28,7 @@ import (
 	"github.com/muhiya/dawa24-store/internal/modules/promo"
 	"github.com/muhiya/dawa24-store/internal/modules/smartorder"
 	"github.com/muhiya/dawa24-store/internal/modules/workflow"
+	"github.com/muhiya/dawa24-store/internal/platform/aiusage"
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/platform/gateway"
 	"github.com/muhiya/dawa24-store/internal/platform/rbac"
@@ -59,6 +60,8 @@ type UIHandler struct {
 	storage       *storage.Client
 	aiClient      gateway.Client
 	gatewayKeys   GatewayKeyCache
+	tenantKeys    TenantGatewayKeys
+	aiUsage       aiusage.Repository
 	log           *slog.Logger
 
 	// resolver answers "what may this caller do", reading the database rather
@@ -135,6 +138,37 @@ type GatewayKeyCache interface {
 // SetGatewayKeyCache installs the credential cache the settings screen resets.
 func (h *UIHandler) SetGatewayKeyCache(cache GatewayKeyCache) {
 	h.gatewayKeys = cache
+}
+
+// TenantGatewayKeys resolves the Gateway credential one منشأة spends against,
+// provisioning the organisation's Gateway account on first use.
+//
+// The UI used to provision inline — read the org, read its plan, mint a key —
+// in two separate places, and minting a key revokes the previous one, so two
+// screens doing it at once left the tenant with a dead credential. It is a port
+// so the UI depends on the capability rather than on the composition root that
+// owns the cache and the per-organisation lock.
+type TenantGatewayKeys interface {
+	// Key returns the organisation's virtual key, or "" when none can be had.
+	Key(ctx context.Context, orgID int64) string
+	// SyncPlan moves the organisation onto the Gateway plan its current
+	// subscription entitles it to.
+	SyncPlan(ctx context.Context, orgID int64) error
+}
+
+// SetTenantGatewayKeys installs the per-organisation credential resolver.
+func (h *UIHandler) SetTenantGatewayKeys(keys TenantGatewayKeys) {
+	h.tenantKeys = keys
+}
+
+// SetAIUsage installs the local AI consumption ledger.
+//
+// The usage screens read from it rather than calling the Gateway on every
+// render. That is what gives a tenant a history longer than one API page, makes
+// the figures survive a Gateway outage, and removes the need for the invented
+// costs and latencies the screens used to fill the gaps with.
+func (h *UIHandler) SetAIUsage(repo aiusage.Repository) {
+	h.aiUsage = repo
 }
 
 // NewUIHandler creates a new UI page handler with all platform domain services wired.

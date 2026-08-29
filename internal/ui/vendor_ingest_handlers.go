@@ -253,6 +253,8 @@ func (h *UIHandler) VendorIngestSettingsSubmit(w http.ResponseWriter, r *http.Re
 		settings.MinMatchScore = score / 100
 	}
 	settings.TrustSupplierCode = checked(r, "trust_supplier_code")
+	settings.CodeIsCatalogCode = checked(r, "code_is_catalog_code")
+	settings.TrustBarcode = checked(r, "trust_barcode")
 	settings.BlankQuantityIsZero = checked(r, "blank_quantity_is_zero")
 	settings.InferDosageForm = checked(r, "infer_dosage_form")
 	settings.InferConcentration = checked(r, "infer_concentration")

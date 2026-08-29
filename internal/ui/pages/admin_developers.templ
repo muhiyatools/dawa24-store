@@ -279,6 +279,23 @@ templ AdminDevelopersPage(values AdminDevelopersValues, lang, dir string) {
 						}
 					</div>
 
+					if values.GatewaySettings.CredentialLooksMisconfigured() {
+						<!--
+						  The stored administrator credential looks like a database
+						  connection secret. It is sent as Basic auth to the Gateway
+						  host on every management call, so the operator has to be
+						  told even though they are not the one who typed it.
+						-->
+						<div style="background:rgba(220, 38, 38, 0.08); border:1px solid rgba(220, 38, 38, 0.35); border-radius:var(--radius-lg); padding:0.9rem 1.1rem; font-size:0.85rem; line-height:1.6;">
+							<strong style="color:var(--danger, #dc2626); display:block; margin-bottom:0.3rem;">⚠️ بيانات الاعتماد المحفوظة تبدو غير صحيحة</strong>
+							<span class="text-secondary">
+								القيمة المحفوظة في حقل بيانات اعتماد المدير تطابق شكل بيانات اتصال قاعدة بيانات، وليست بيانات اعتماد بوابة الذكاء الاصطناعي.
+								<strong>تُرسل هذه القيمة إلى خادم البوابة الخارجي عند كل عملية مزامنة أو استعلام.</strong>
+								يرجى تغيير كلمة مرور قاعدة البيانات فوراً، ثم إدخال بيانات اعتماد مدير البوابة الصحيحة هنا.
+							</span>
+						</div>
+					}
+
 					<!-- Informational Architecture Alert -->
 					<div style="background:rgba(56, 189, 248, 0.06); border:1px solid rgba(56, 189, 248, 0.2); border-radius:var(--radius-lg); padding:0.9rem 1.1rem; font-size:0.825rem; line-height:1.5;">
 						<strong style="color:var(--primary); display:block; margin-bottom:0.25rem;">ℹ️ مبدأ عمل وعزل الذكاء الاصطناعي للمنشآت:</strong>

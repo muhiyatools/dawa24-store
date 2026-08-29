@@ -182,8 +182,8 @@ func skeletonSimilarity(a, b string) float64 {
 
 // sortedStringTrigrams builds the sorted, de-duplicated trigram set of one
 // string, in the shape jaccardSorted expects.
-func sortedStringTrigrams(s string) []string {
-	// A skeleton is one word by construction, so the existing helper — which
-	// joins tokens and trigrams the result — does exactly the right thing.
-	return sortedTrigrams([]string{s})
+func sortedStringTrigrams(s string) []trigram {
+	// A skeleton is one word by construction, so hashing its windows directly
+	// is exactly right; there is nothing to join.
+	return trigramsOf(s)
 }

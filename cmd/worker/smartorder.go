@@ -17,6 +17,7 @@ import (
 	"github.com/muhiya/dawa24-store/internal/modules/workflow"
 	"github.com/muhiya/dawa24-store/internal/platform/database"
 	"github.com/muhiya/dawa24-store/internal/platform/gateway"
+	"github.com/muhiya/dawa24-store/internal/shared/matchflow"
 )
 
 // registerSmartOrderWorker wires the smart ordering pipeline into the worker.
@@ -132,6 +133,8 @@ func (b *enhanceAdapter) EnhanceBatch(ctx context.Context, batch pipeline.Gatewa
 	req := aicapabilities.EnhanceRequest{
 		Catalog: make([]aicapabilities.CatalogEntry, 0, len(batch.Catalog)),
 		Items:   make([]aicapabilities.EnhanceItem, 0, len(batch.Items)),
+		// Attribution for the AI usage ledger: the pharmacy reads "الطلب الذكي" on its usage log, not a capability name.
+		Feature: matchflow.FeatureSmartOrder,
 	}
 	for _, c := range batch.Catalog {
 		req.Catalog = append(req.Catalog, aicapabilities.CatalogEntry(c))

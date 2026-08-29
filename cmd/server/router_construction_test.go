@@ -36,7 +36,7 @@ func TestNewRouterMountsWithoutPanicking(t *testing.T) {
 		}
 	}()
 
-	h := newRouter(&config.Config{}, log, &dependencies{db: database.New()}, nil, nil, []database.Migration{})
+	h := newRouter(&config.Config{}, log, &dependencies{db: database.New()}, nil, nil, nil, []database.Migration{})
 	if h == nil {
 		t.Fatal("newRouter returned nil")
 	}

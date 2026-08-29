@@ -58,10 +58,13 @@ func (s *Service) StageImport(ctx context.Context, session *Session) error {
 	defer func() { _ = book.Close() }()
 
 	run := &stagingRun{
-		svc:      s,
-		session:  session,
-		index:    index,
-		match:    stagingMatchOptions(session.Settings),
+		svc:     s,
+		session: session,
+		index:   index,
+		// The live mapping, not the stored snapshot: staging runs immediately
+		// after the vendor confirms their columns, so this is the freshest
+		// statement of what is bound to what.
+		match:    stagingMatchOptions(session.Settings, analysis.Mapping.MappedIdentifiers()),
 		byNorm:   map[string]*openRow{},
 		bucketOf: map[int]matchBucket{},
 	}
@@ -71,12 +74,21 @@ func (s *Service) StageImport(ctx context.Context, session *Session) error {
 	opts.Duplicates = session.Settings.Duplicates
 	opts.Vocabulary = s.vocabulary(ctx, session.OrganizationID)
 
+	// Progress is persisted rather than held in memory, so a vendor who closes
+	// the tab and comes back sees where the run actually is.
+	s.note(ctx, session, 10, "جارٍ قراءة الملف ومطابقة الأصناف")
+
 	result, err := productmatch.Process(book, analysis.Layout, analysis.Mapping, opts,
 		func(batch []*productmatch.Row) error { return run.stage(ctx, batch) })
 	if err != nil {
 		return err
 	}
 
+	// The AI stage reports its own progress across 45–95%, per batch, so
+	// nothing is published here that would jump backwards over it. What this
+	// marks is the deterministic pass finishing, which is the point a vendor
+	// with AI switched off sees the run reach.
+	s.note(ctx, session, 45, "اكتملت المطابقة الحتمية")
 	run.enhance(ctx)
 
 	session.Stats = result.Stats
@@ -88,7 +100,23 @@ func (s *Service) StageImport(ctx context.Context, session *Session) error {
 	session.ErrorRows = run.counts.errors + result.Stats.Rejected
 	session.Phase = PhaseReview
 
-	return s.imports.SaveDraft(ctx, session)
+	if err := s.imports.SaveDraft(ctx, session); err != nil {
+		return err
+	}
+	s.note(ctx, session, 100, "اكتملت المعالجة")
+	return nil
+}
+
+// note records how far the run has reached, without letting a failed write stop
+// the run. Progress is for the vendor watching; the import is the work.
+func (s *Service) note(ctx context.Context, session *Session, percent int, message string) {
+	if s.imports == nil || session == nil {
+		return
+	}
+	if err := s.imports.Progress(ctx, session.ID, percent, message); err != nil {
+		s.log.WarnContext(ctx, "import progress not recorded",
+			"import", session.PublicID, "percent", percent, "error", err)
+	}
 }
 
 // loadCatalogIndex builds the in-memory shared catalogue both matching passes
@@ -133,15 +161,14 @@ func (s *Service) openBook(ctx context.Context, session *Session) (*sheet.Book, 
 // is not applied, but it IS shown to the vendor with its candidates, and it is
 // the residue the AI stage is asked about. Setting them equal would hide the
 // rows most likely to be a real match written differently.
-func stagingMatchOptions(settings Settings) productmatch.MatchOptions {
+func stagingMatchOptions(settings Settings, mapped productmatch.MappedColumns) productmatch.MatchOptions {
 	opts := productmatch.DefaultMatchOptions()
 	opts.MinStrong = settings.MinMatchScore
 	if opts.MinStrong <= 0 {
 		opts.MinStrong = 0.30
 	}
 	opts.MinReview = min(opts.MinStrong*0.5, 0.20)
-	opts.TrustSupplierCode = settings.TrustSupplierCode
-	return opts
+	return opts.WithIdentifiers(mapped, settings.identifierChoices())
 }
 
 // stagingRun carries the state of one staging pass.

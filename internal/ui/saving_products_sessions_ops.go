@@ -218,11 +218,26 @@ func (s *SavingImportSessionStore) FilterItems(session *SavingImportSession, fil
 			return filtered[i].TotalValue.Minor() < filtered[j].TotalValue.Minor()
 		})
 	default:
-		sort.Slice(filtered, func(i, j int) bool {
-			if isDesc {
-				return filtered[i].Index > filtered[j].Index
+		// Weakest match first.
+		//
+		// The default used to be the row's position in the pharmacy's file,
+		// which tells the reviewer nothing: the rows needing a decision are
+		// scattered evenly among the ones that do not, so finding them means
+		// reading all of them. Worst first puts every doubtful row on page one.
+		//
+		// An unlinked row has no confidence at all and sorts before everything,
+		// which is right — nothing matched is the worst outcome there is. The
+		// file position breaks ties so the order stays stable across reloads.
+		sort.SliceStable(filtered, func(i, j int) bool {
+			a, b := filtered[i], filtered[j]
+			ca, cb := reviewConfidence(a), reviewConfidence(b)
+			if ca != cb {
+				if isDesc {
+					return ca > cb
+				}
+				return ca < cb
 			}
-			return filtered[i].Index < filtered[j].Index
+			return a.Index < b.Index
 		})
 	}
 
@@ -317,4 +332,17 @@ func (s *SavingImportSessionStore) CommitSession(ctx context.Context, id string,
 	s.mu.Unlock()
 
 	return added, updated, nil
+}
+
+// reviewConfidence is the confidence a review screen should sort by.
+//
+// An unlinked row reports zero however confident the engine was about refusing
+// it: the reviewer's question is "what still needs me", and a row with no
+// product is top of that list whatever number happens to sit in its confidence
+// field.
+func reviewConfidence(it *StagedSavingItem) float64 {
+	if it == nil || it.ProductID == nil || *it.ProductID <= 0 {
+		return 0
+	}
+	return it.Confidence
 }

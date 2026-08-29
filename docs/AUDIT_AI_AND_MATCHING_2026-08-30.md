@@ -316,3 +316,196 @@ the field; refuse a DSN-shaped value.
 3. An `ai.match_attempts` ledger so a resumed run never re-bills a row.
 4. Lift the 600-row cap; replace it with a per-run budget the user sees.
 5. AI runs strictly after the deterministic pass, over unmatched rows only.
+
+---
+
+## Implementation log
+
+### 2026-08-30 — Phase 1, part one (identity, keys, plans, honest usage)
+
+Done:
+
+- `internal/platform/gateway/admin_tenant.go` (new) — `EnsureOrganization`
+  (idempotent: validate stored key, reuse a Gateway-held key, mint only as a
+  last resort), `SyncOrganizationPlan` (reports failure, unlike its
+  predecessor), `ListUserKeys`, `OrganizationUserID`, `FallbackPlanID`.
+- `internal/platform/gateway/admin_tenant_test.go` (new) — seven tests covering
+  reuse, revocation, outage tolerance, plan defaulting, rejection reporting.
+- `internal/platform/gateway/admin_client.go` — deleted `ProvisionOrganization`
+  and `UpdateOrganizationPlan`; removed the hardcoded model-name fallback from
+  `ResolvedModel`.
+- `cmd/server/gateway_tenant_key.go` (new) — `tenantKeyProvisioner`: per-org
+  lock, TTL cache keyed on the plan, failure back-off, persists only on change.
+- `cmd/server/routes.go`, `cmd/server/main.go` — one provisioner threaded
+  through; the four inline copies deleted.
+- `internal/ui/handlers.go` — `TenantGatewayKeys` port.
+- `internal/ui/dashboard_handlers.go` — `EnsureOrgAIGatewayProvisioned`
+  delegates; the fabricated budget ceiling, fabricated reset date and
+  unconditional `HasAIUsage = true` are gone; assistant rows no longer
+  synthesise cost or latency.
+- `internal/ui/admin_handlers.go` — approval provisions through the shared path.
+- `internal/modules/billing/ai_plan_sync.go` (new) + `service.go` — `AIPlanSync`
+  port fired on `AssignDefaultSubscription`, `Subscribe`, `SubscribeWithWallet`
+  and renewal.
+- `internal/ui/pages/dashboard_models.go` + four templates — `HasAIBudget`,
+  `AIUsageText`, `CostText`, `DurationText`, `ModelText`, `QuotaText`; screens
+  render "غير محدد" / "—" instead of invented figures.
+- `cmd/cli/ai_identities.go` (new) — `cli ai-identities [--apply] [--org N]`
+  backfill.
+
+Verified: `go build ./...`, `go vet ./...`, `go test ./...` all clean.
+
+### 2026-08-30 — Phase 1, part two (the usage ledger and the credential guard)
+
+Done:
+
+- `db/migrations/148_ai_usage_ledger.{up,down}.sql` (new) — the `ai` schema and
+  `ai.usage_events`, tenant-scoped with `ENABLE`/`FORCE ROW LEVEL SECURITY` and
+  a `platform.tenant_visible` policy. Cost is `BIGINT` nano-USD, never a float.
+  `cost_known` separates a free request from an unpriced one. Validated against
+  the live schema inside a rolled-back transaction; **not applied**.
+- `internal/platform/gateway/usage.go` (new) — `UsageEvent`, `UsageRecorder`,
+  and a `WithUsageRecorder` decorator recording every `Invoke` and every
+  `Stream` turn. Panic-safe: a failing ledger cannot fail a completion.
+- `internal/platform/gateway/usage_test.go` (new) — eight tests, race-clean.
+  Two of them caught real defects while being written: the decorator was not
+  in fact panic-safe, and the identity case was comparing an uncomparable type.
+- `internal/platform/aiusage/` (new) — `Entry`, `Filter`, `Summary`,
+  `FeatureUsage`, `Repository`; an async `Recorder` with a bounded buffer that
+  drops and *counts* rather than blocking an import; the Postgres store
+  (writes as system with an explicit org id, reads under tenant RLS).
+- `gateway.Request.Feature` / `ChatRequest.Feature` + `matchflow` feature
+  constants, threaded through the four enhancement adapters, the assistant and
+  the column-detect mapper — so a pharmacy's usage log names the tool, not a
+  capability.
+- `internal/ui/dashboard_handlers.go` — the logs page reads the ledger instead
+  of calling the Gateway per render; the cards take consumption from the ledger
+  and ask the Gateway only for the budget window, which is the one thing it
+  alone knows.
+- `internal/modules/platform_admin/gateway_credential.go` (+ tests, new) —
+  `ValidateAdminCredential` rejects a DSN-shaped value on save, and
+  `CredentialLooksMisconfigured` drives a red banner on the AI settings screen
+  for the value already stored. This is finding 0.1's guard rail; it does not
+  replace rotating the secret.
+- `cmd/server`, `cmd/worker` — recorder constructed and drained on shutdown.
+
+Verified: `go build ./...`, `go vet ./...`, `go test ./...`, and
+`go test -race` on the gateway package — all clean.
+
+Still open in Phase 1: validating `billing.plans.ai_plan_id` against
+`AdminClient.ListPlans` in the admin plans screen. The live values
+(`plan-dev`, `yalla`) are still not real Gateway plans.
+
+**Migration 148 has not been applied to production.** Run `cli migrate`.
+
+### 2026-08-30 — Phase 2 (the shared matching engine)
+
+Done:
+
+- `internal/shared/productmatch/variants.go` + `variants_test.go` (new) — a
+  per-token variant channel. `weightedContainment`, the measure that decides
+  almost every match, compared tokens by exact equality, so "ابيكوبريد" and
+  "ابيكوبرايد" met only in discounted fallback channels. Tokens now carry a
+  consonant-skeleton key computed once at index time, so the hot loop stays a
+  map lookup. Retrieval was extended the same way (`Index.keyTokens`) — without
+  that the pool came back empty and the scorer was never asked. It also lets an
+  Arabic query token meet a Latin catalogue token in the primary channel.
+- `internal/shared/productmatch/identifiers.go` (new) — `MappedColumns`,
+  `IdentifierChoices`, `MatchOptions.WithIdentifiers`. An identifier tier is on
+  only when the user mapped that column **and** switched the tier on; a stored
+  choice whose column was later unmapped is dropped rather than obeyed.
+- `MatchOptions.TrustBarcode` (new, default off). The barcode tier previously
+  ran unconditionally, ahead of name, dose and form: any 8+ digit value with a
+  single catalogue hit won at confidence 1.0. Pharmacy item numbering is
+  routinely 8–9 digits.
+- `internal/ui/saving_products_matcher.go` — the worst finding, fixed. It forced
+  `TrustSupplierCode` **and** `CodeIsAuthoritative` on for every file, and fed
+  the same column into *both* the SKU slot and the Barcode slot. One column now
+  reaches one tier, chosen by what the user mapped. `UseIdentifiers` is how a
+  caller opts in.
+- Vendor ingest — `TrustBarcode` and `CodeIsCatalogCode` settings; both option
+  builders resolve toggles through `WithIdentifiers` against the mapping; the
+  settings screen renders an identifier toggle only for a column that was
+  actually mapped.
+- Review ordering now defaults to **weakest match first** in the vendor import
+  (`catalog_import_rows.go`) and the savings review
+  (`saving_products_sessions_ops.go`). An unmatched row sorts first, since
+  nothing matched is the worst outcome there is.
+- `internal/shared/productmatch/scale_test.go` (new) — the stated workload,
+  30,000 rows against 150,000 products, plus index-build and per-row benchmarks.
+
+Measured (i5-12400F):
+
+| | before | after |
+|---|---|---|
+| 30k rows × 150k catalogue | not measured | **6.0 s** |
+| index build, 150k products | 2.23 s / 450 MB / 8.94M allocs | **2.20 s / 408 MB / 6.86M allocs** |
+| one row against 150k | 226 µs / 1773 allocs | **171 µs / 1208 allocs** |
+
+Two defects were found by the benchmark rather than by reading:
+
+1. `candidatePool` exempted the first token consulted from the crowded-postings
+   guard, so one over-common word could pull the entire catalogue into a single
+   row's comparison. Fixed by bounding inside the postings loop (`takeInto`).
+2. `coreTokens` used `strconv.ParseFloat` purely as a predicate; every
+   non-numeric word allocated an error that was checked for nil and discarded —
+   17 MB of them per index build. Replaced with a shape test.
+
+Verified: `go build ./...`, `go vet ./...`, `go test ./...` all clean.
+
+Still open in Phase 2: one calibrated confidence scale across the four tools
+(§2.4 — the same two strings still mean "accepted" at 0.55 in one tool and
+"rejected" in another), and worst-first defaults for the admin catalogue import
+and smart-order review screens.
+
+### 2026-08-30 — Phase 3 (AI as a durable final stage)
+
+Done:
+
+- `internal/modules/ingest/catalog_stage_background.go` (new) —
+  `StageInBackground`. `SaveSettings` used to run the whole staging pass
+  *inside the POST*: parse the file, score every row against the catalogue,
+  then ask a model about the residue. On a large file that is minutes, so the
+  browser timed out, a vendor who navigated away cancelled the run's context
+  mid-pass, and retrying started a second full pass and a second full AI bill.
+  It now publishes `PhaseProcessing`, hands the run a `context.WithoutCancel`
+  copy (keeps the tenant binding, loses the request's cancellation), and
+  returns. The vendor can close the tab and come back to a progress bar that
+  kept moving. A failed run lands in `PhaseFailed` with a message rather than
+  polling a bar that has stopped.
+- `catalog_stage.go` — progress persisted at the deterministic-pass boundary;
+  the AI stage already reported its own 45–95% per batch, so the markers were
+  placed not to jump backwards over it.
+- `internal/modules/catalog/import_match.go` — the admin importer's own
+  ceilings deleted in favour of `matchflow.For(ProfileCatalog)`. That lifts the
+  AI cap from 24×25 = **600 rows** (2% of a 30k file's residue, with nothing
+  telling the administrator the rest was never looked at) to 12×100 = 1,200,
+  and removes the local copy of numbers the shared table exists to own. The
+  apply floor moves from a local `0.70` to the table's `0.90` — the strictest
+  of the three profiles, because this is the importer whose wrong match
+  overwrites the entry every pharmacy reads.
+- `internal/modules/catalog/postgres/import_sessions.go` — the admin review
+  screen defaults to least-certain-first. There is no score column on that
+  table, so the ordering is by decision class: errors, then unmatched, then
+  AI-settled, then warnings, then similarity, then name, and last the
+  identifier hits that are facts rather than opinions. Validated against the
+  live schema.
+
+Verified: `go build ./...`, `go vet ./...`, `go test ./...` (69 packages) all
+clean; provider isolation clean; 30k×150k scale test 6.0 s.
+
+Still open, and deliberately not attempted:
+
+- **The `ai.match_attempts` ledger.** A resumed or retried run still re-sends
+  rows already asked about. `catalog.match_decisions` (6,773 rows) absorbs much
+  of this for the vendor path, which is why it was ranked below the items above.
+- **Moving the imports onto River workers.** `StageInBackground` survives a
+  navigation, a tab close and a proxy timeout, but not a pod restart — a deploy
+  mid-run still loses the pass. Smart order already uses River
+  (`smartorder/jobs/run.go`) and is the pattern to follow.
+- **One shared enhancement pipeline.** `smartorder/pipeline/enhance*.go` and
+  `ingest/catalog_enhance*.go` remain two implementations of one idea. They now
+  share the prompt version, the contract types and the ceilings table, which
+  removes the drift that mattered; merging the two bodies is a larger change
+  than the remaining benefit justifies without a parity suite.
+- **The savings import has no AI stage at all** (§3.1).

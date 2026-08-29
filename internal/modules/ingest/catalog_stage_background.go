@@ -1,0 +1,124 @@
+package ingest
+
+import (
+	"context"
+	"time"
+
+	"github.com/muhiya/dawa24-store/internal/platform/database"
+	"github.com/muhiya/dawa24-store/internal/shared/apperr"
+)
+
+// Running the staging pass without holding the vendor's browser open.
+//
+// Staging parses the whole file, scores every row against a catalogue of up to
+// a hundred and fifty thousand products, and then asks a model about whatever
+// the arithmetic could not settle. On a thirty-thousand-row price list that is
+// minutes of work, and every second of it used to happen inside the POST that
+// submitted the settings form.
+//
+// Three things followed from that, and all three were reported as bugs:
+//
+//   - The browser waited on a blank page and eventually gave up. Any proxy in
+//     front of the application has its own timeout, and it is measured in
+//     tens of seconds, not minutes.
+//   - A vendor who navigated away lost the run. The context belonged to the
+//     request, so cancelling the request cancelled the matching — halfway
+//     through, with rows already staged and no way to tell which.
+//   - Retrying looked like the fix and made it worse: a second POST started a
+//     second full pass, including a second full AI bill, over the same file.
+//
+// The phase machinery to do better already existed and was only used by the
+// commit path: PhaseProcessing has a screen of its own that polls, and
+// ingest.import_progress persists how far a run has reached. Staging now uses
+// both, so the vendor may close the tab, come back tomorrow, and find either
+// the review screen or a progress bar that has kept moving without them.
+
+// stageTimeout bounds one detached staging pass.
+//
+// Generous because the work is genuinely long — a large file against a large
+// catalogue, plus the AI stage — and because the alternative to finishing is a
+// vendor doing the matching by hand. A file that cannot be staged inside this
+// is one whose column mapping is wrong, and the vendor is told so rather than
+// left watching a bar that has stopped.
+const stageTimeout = 45 * time.Minute
+
+// StageInBackground starts the staging pass and returns immediately.
+//
+// The returned session is already in PhaseProcessing, so the caller can redirect
+// straight to the screen that polls. An error means the run could not be
+// started at all; once it has started, its outcome is reported through the
+// session's phase rather than to the caller, who is by then a request that has
+// long since been answered.
+func (s *Service) StageInBackground(ctx context.Context, session *Session) error {
+	if session == nil {
+		return apperr.Validation("import.missing", "لا توجد جلسة استيراد.", nil)
+	}
+	if !s.runs.claim(session.PublicID) {
+		return apperr.Conflict("import.running",
+			"هذه العملية قيد التنفيذ بالفعل. يرجى انتظار انتهائها.")
+	}
+
+	// Publish the phase before the goroutine starts. A vendor who is redirected
+	// faster than the scheduler gets round to the run must still land on the
+	// progress screen rather than on the settings form they just submitted.
+	session.Phase = PhaseProcessing
+	if err := s.imports.SaveDraft(ctx, session); err != nil {
+		s.runs.release(session.PublicID)
+		return err
+	}
+	if err := s.imports.Progress(ctx, session.ID, 1, "جارٍ تجهيز الملف والكتالوج المركزي"); err != nil {
+		s.log.WarnContext(ctx, "import progress not recorded", "import", session.PublicID, "error", err)
+	}
+
+	// The run outlives the request that asked for it, so it gets a context
+	// carrying the request's values — the tenant binding row-level security
+	// reads, most of all — but not its cancellation. context.WithoutCancel is
+	// exactly this: keep who you are, lose when you must stop.
+	runCtx, cancel := context.WithTimeout(context.WithoutCancel(ctx), stageTimeout)
+
+	go func() {
+		defer cancel()
+		defer s.runs.release(session.PublicID)
+		s.runStaging(runCtx, session)
+	}()
+	return nil
+}
+
+// runStaging performs the pass and records how it ended.
+func (s *Service) runStaging(ctx context.Context, session *Session) {
+	err := s.StageImport(ctx, session)
+	if err == nil {
+		s.log.InfoContext(ctx, "vendor import staged",
+			"import", session.PublicID, "rows", session.TotalRows,
+			"matched", session.MatchedRows, "review", session.ReviewRows,
+			"unmatched", session.UnmatchedRows)
+		return
+	}
+
+	// A failed run must not leave the session in PhaseProcessing: the screen
+	// would poll a bar that has stopped, forever, and the vendor has no way to
+	// tell that from a slow file.
+	s.log.ErrorContext(ctx, "vendor import staging failed",
+		"import", session.PublicID, "error", err)
+
+	session.Phase = PhaseFailed
+	session.ErrorMessage = s.stagingFailureMessage(err)
+	if saveErr := s.imports.SaveDraft(database.AsSystem(ctx), session); saveErr != nil {
+		s.log.ErrorContext(ctx, "could not record staging failure",
+			"import", session.PublicID, "error", saveErr)
+	}
+}
+
+// stagingFailureMessage turns an error into something a vendor can act on.
+//
+// Never the raw error: it names internal tables and column indexes, and the
+// vendor's only useful next step is almost always the same one — check the
+// column mapping and upload again.
+func (s *Service) stagingFailureMessage(err error) string {
+	if appErr, ok := apperr.As(err); ok && appErr != nil {
+		if msg := appErr.LocalizedMsg("ar"); msg != "" {
+			return msg
+		}
+	}
+	return "تعذّر إتمام معالجة الملف. يرجى مراجعة ربط الأعمدة ثم إعادة المحاولة."
+}

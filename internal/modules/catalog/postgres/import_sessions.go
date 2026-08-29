@@ -458,9 +458,31 @@ func (r *Repository) ListStagingRows(
 			return fmt.Errorf("catalog postgres: count staging rows: %w", err)
 		}
 
+		// Least certain first.
+		//
+		// The default used to be the row's position in the administrator's
+		// file, which is an order that tells the reviewer nothing: the rows
+		// needing a decision are scattered evenly among the ones that do not,
+		// so finding them means reading all of them — and this is the import
+		// whose mistakes overwrite the entry every pharmacy reads.
+		//
+		// There is no score column on this table, so the ordering is by how the
+		// row was decided, worst class first: anything that failed, then rows a
+		// model settled, then a similarity judgement, then a name, and last the
+		// identifier hits that are facts rather than opinions.
 		query := fmt.Sprintf(stagingRowSelect+`
 			WHERE %s
-			ORDER BY r.source_row
+			ORDER BY
+			  CASE
+			    WHEN r.has_error            THEN 0
+			    WHEN r.matched_product_id IS NULL THEN 1
+			    WHEN r.match_reason = 'ai'  THEN 2
+			    WHEN r.has_warning          THEN 3
+			    WHEN r.match_reason = 'similar' THEN 4
+			    WHEN r.match_reason = 'name'    THEN 5
+			    ELSE 6
+			  END,
+			  r.source_row
 			LIMIT $%d OFFSET $%d`, qualify(clause), len(args)-1, len(args))
 
 		cursor, err := tx.Query(txCtx, query, args...)

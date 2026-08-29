@@ -138,6 +138,7 @@ func (h *UIHandler) registerAdminWarehouseRoutes(r chi.Router) {
 	r.Group(func(g chi.Router) {
 		g.Use(authctx.RequirePagePermission("inventory.warehouse.update"))
 		g.Post("/admin/temporary-warehouses/upload", h.AdminTempWarehouseUploadSubmit)
+		g.Post("/admin/user/temparte-warehouses/upload", h.AdminTempWarehouseUploadSubmit)
 		g.Post("/admin/temporary-warehouses/{id}/toggle-archive", h.AdminTempWarehouseToggleArchiveSubmit)
 	})
 

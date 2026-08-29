@@ -274,7 +274,13 @@ func (s *Service) SaveSettings(ctx context.Context, publicID string, settings Se
 	}
 
 	session.Settings = settings
-	if err := s.StageImport(ctx, session); err != nil {
+
+	// Detached, not inline. Staging a thirty-thousand-row file against the
+	// shared catalogue and then asking a model about the residue is minutes of
+	// work, and it used to happen inside this POST — so the browser timed out,
+	// and a vendor who navigated away cancelled the run's context and lost the
+	// pass halfway through.
+	if err := s.StageInBackground(ctx, session); err != nil {
 		return nil, err
 	}
 	return session, nil

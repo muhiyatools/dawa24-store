@@ -220,13 +220,63 @@ func TestMatchingSeparatesTwoPackSizes(t *testing.T) {
 	}
 }
 
-func TestBarcodeMatchIsDecisive(t *testing.T) {
+func TestBarcodeMatchIsDecisiveWhenTheUserSaysTheColumnIsABarcode(t *testing.T) {
 	idx := NewIndex([]MasterProduct{
 		{ID: 7, NameAR: "لا يشبه الاسم المطلوب إطلاقاً", Barcode: "6221234567890"},
 	})
-	res := idx.Match(&Row{Name: "بانادول إكسترا", Barcode: "6221234567890"}, DefaultMatchOptions())
+	opts := DefaultMatchOptions().WithIdentifiers(
+		MappedColumns{Barcode: true},
+		IdentifierChoices{ByBarcode: true},
+	)
+
+	res := idx.Match(&Row{Name: "بانادول إكسترا", Barcode: "6221234567890"}, opts)
 	if res.ProductID != 7 || res.Level != MatchBarcode {
 		t.Fatalf("barcode match gave %d/%s, want 7/barcode", res.ProductID, res.Level)
+	}
+}
+
+// The same row with the tier left alone. A GTIN identifies a package and is the
+// strongest evidence there is — but only once somebody has said the column
+// holds one. Until then an eight-digit internal item number must not be able to
+// link a row to a medicine that shares nothing with it but a figure.
+func TestBarcodeIsIgnoredUntilTheUserOptsIn(t *testing.T) {
+	idx := NewIndex([]MasterProduct{
+		{ID: 7, NameAR: "لا يشبه الاسم المطلوب إطلاقاً", Barcode: "6221234567890"},
+	})
+
+	res := idx.Match(&Row{Name: "بانادول إكسترا", Barcode: "6221234567890"}, DefaultMatchOptions())
+	if res.Level == MatchBarcode {
+		t.Fatalf("barcode settled the match with the tier off; product %d", res.ProductID)
+	}
+}
+
+// A choice the mapping does not support is dropped rather than obeyed: a stored
+// setting can outlive the column it was made about.
+func TestIdentifierChoicesRequireAMappedColumn(t *testing.T) {
+	opts := DefaultMatchOptions().WithIdentifiers(
+		MappedColumns{}, // nothing mapped
+		IdentifierChoices{ByCode: true, ByBarcode: true, CodeIsCatalogCode: true},
+	)
+	if opts.TrustBarcode || opts.TrustSupplierCode || opts.CodeIsAuthoritative {
+		t.Errorf("identifier tiers enabled with no mapped column: barcode=%v code=%v authoritative=%v",
+			opts.TrustBarcode, opts.TrustSupplierCode, opts.CodeIsAuthoritative)
+	}
+
+	// And authority cannot outlive the tier it qualifies.
+	opts = DefaultMatchOptions().WithIdentifiers(
+		MappedColumns{Code: true},
+		IdentifierChoices{ByCode: false, CodeIsCatalogCode: true},
+	)
+	if opts.CodeIsAuthoritative {
+		t.Error("code treated as authoritative while code matching is switched off")
+	}
+}
+
+func TestDefaultOptionsEnableNoIdentifierTier(t *testing.T) {
+	opts := DefaultMatchOptions()
+	if opts.TrustBarcode || opts.TrustSupplierCode || opts.CodeIsAuthoritative {
+		t.Errorf("a tier is on by default: barcode=%v code=%v authoritative=%v",
+			opts.TrustBarcode, opts.TrustSupplierCode, opts.CodeIsAuthoritative)
 	}
 }
 

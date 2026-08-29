@@ -56,6 +56,9 @@ type ChatRequest struct {
 	OrgID       int64
 	UserID      int64
 	VirtualKey  string // Tenant virtual key
+	// Feature names the screen that asked, for the usage ledger. See
+	// Request.Feature.
+	Feature string
 }
 
 // StreamEvent represents one decoded SSE chunk or lifecycle event.

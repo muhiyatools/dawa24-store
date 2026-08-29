@@ -229,6 +229,12 @@ type GatewayLogEntry struct {
 	CreatedAt        time.Time `json:"created_at"`
 }
 
+// ResolvedModel is the model the Gateway says served the request.
+//
+// It returns "" when the Gateway named none. It used to return a hardcoded
+// model id in that case, which put a specific model's name against requests
+// nobody could show had used it — on a screen whose entire purpose is telling a
+// tenant what they were billed for.
 func (e GatewayLogEntry) ResolvedModel() string {
 	if e.ModelID != "" {
 		return e.ModelID
@@ -236,10 +242,7 @@ func (e GatewayLogEntry) ResolvedModel() string {
 	if e.RequestedModel != "" {
 		return e.RequestedModel
 	}
-	if e.Model != "" {
-		return e.Model
-	}
-	return "qwen3.7-flash"
+	return e.Model
 }
 
 func (e GatewayLogEntry) ResolvedStatus() string {
@@ -308,104 +311,6 @@ func (c *AdminClient) GetUserLogs(ctx context.Context, userID string, limit, off
 		return nil, err
 	}
 	return logs, nil
-}
-
-// ProvisionOrganization registers or synchronizes an organization with the AI Gateway,
-// creating a dedicated user and issuing a virtual API key with the plan's quota.
-func (c *AdminClient) ProvisionOrganization(ctx context.Context, orgID int64, name, email, planID string) (userID, virtualKey string, err error) {
-	targetUserID := fmt.Sprintf("org-%d", orgID)
-	if planID == "" {
-		planID = "plan-pos-free"
-	}
-	if name == "" {
-		name = fmt.Sprintf("Organization %d", orgID)
-	}
-	if email == "" {
-		email = fmt.Sprintf("org-%d@dawa24.app", orgID)
-	}
-
-	// 1. Create or update user in AI Gateway
-	u := GatewayUser{
-		ID:     targetUserID,
-		Name:   name,
-		Email:  email,
-		PlanID: planID,
-		Status: "active",
-	}
-	body, _ := json.Marshal(u)
-	postReq, _ := http.NewRequestWithContext(ctx, http.MethodPost, c.baseURL+"/api/users", bytes.NewReader(body))
-	c.setAuth(postReq)
-	postReq.Header.Set("Content-Type", "application/json")
-	resp, err := c.httpClient.Do(postReq)
-	if err == nil {
-		defer resp.Body.Close()
-		if resp.StatusCode != http.StatusCreated && resp.StatusCode != http.StatusOK {
-			// If already exists or conflicts, attempt a PUT update
-			putReq, _ := http.NewRequestWithContext(ctx, http.MethodPut, c.baseURL+"/api/users", bytes.NewReader(body))
-			c.setAuth(putReq)
-			putReq.Header.Set("Content-Type", "application/json")
-			if putResp, putErr := c.httpClient.Do(putReq); putErr == nil {
-				_ = putResp.Body.Close()
-			}
-		}
-	}
-
-	// 2. Generate a Virtual Key for this organization
-	keyReqBody, _ := json.Marshal(map[string]string{
-		"name":    fmt.Sprintf("Dawa24-Org-%d-Key", orgID),
-		"user_id": targetUserID,
-	})
-	keyReq, _ := http.NewRequestWithContext(ctx, http.MethodPost, c.baseURL+"/api/keys", bytes.NewReader(keyReqBody))
-	c.setAuth(keyReq)
-	keyReq.Header.Set("Content-Type", "application/json")
-	keyResp, err := c.httpClient.Do(keyReq)
-	if err != nil {
-		return targetUserID, "", err
-	}
-	defer keyResp.Body.Close()
-
-	if keyResp.StatusCode == http.StatusCreated || keyResp.StatusCode == http.StatusOK {
-		var createdKey GatewayVirtualKey
-		if err := json.NewDecoder(keyResp.Body).Decode(&createdKey); err == nil && createdKey.Secret() != "" {
-			return targetUserID, createdKey.Secret(), nil
-		}
-	}
-
-	return targetUserID, "", nil
-}
-
-// UpdateOrganizationPlan updates the AI plan assigned to an organization.
-func (c *AdminClient) UpdateOrganizationPlan(ctx context.Context, orgID int64, name, email, planID string) error {
-	targetUserID := fmt.Sprintf("org-%d", orgID)
-	if planID == "" {
-		planID = "plan-pos-free"
-	}
-	if name == "" {
-		name = fmt.Sprintf("Organization %d", orgID)
-	}
-	if email == "" {
-		email = fmt.Sprintf("org-%d@dawa24.app", orgID)
-	}
-	u := GatewayUser{
-		ID:     targetUserID,
-		Name:   name,
-		Email:  email,
-		PlanID: planID,
-		Status: "active",
-	}
-	body, _ := json.Marshal(u)
-	putReq, err := http.NewRequestWithContext(ctx, http.MethodPut, c.baseURL+"/api/users", bytes.NewReader(body))
-	if err != nil {
-		return err
-	}
-	c.setAuth(putReq)
-	putReq.Header.Set("Content-Type", "application/json")
-	resp, err := c.httpClient.Do(putReq)
-	if err != nil {
-		return err
-	}
-	defer resp.Body.Close()
-	return nil
 }
 
 func (c *AdminClient) setAuth(req *http.Request) {

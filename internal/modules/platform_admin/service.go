@@ -314,7 +314,15 @@ func (s *Service) GetGatewaySettings(ctx context.Context) (*GatewaySettings, err
 }
 
 // SaveGatewaySettings writes API Gateway settings to database.
+//
+// The administrator credential is validated before it is stored, because this
+// value is sent as Basic auth to an external host on every management call.
+// The live configuration was found holding the production database password;
+// see gateway_credential.go.
 func (s *Service) SaveGatewaySettings(ctx context.Context, gw *GatewaySettings) error {
+	if err := ValidateAdminCredential(gw.APIKey); err != nil {
+		return err
+	}
 	val := map[string]any{
 		"endpoint_url":    gw.EndpointURL,
 		"environment":     gw.Environment,

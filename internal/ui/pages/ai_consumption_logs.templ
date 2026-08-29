@@ -65,16 +65,21 @@ templ aiConsumptionLogsBody(data AIConsumptionLogsPageData, lang, dir string) {
 				</div>
 				
 				<div class="tabular-nums text-2xl font-black text-brand mt-2">
-					{ fmt.Sprintf("%d%%", data.UsagePercentage) }
+					{ data.QuotaText() }
 				</div>
 
-				<!-- Working Dynamic Progress Bar -->
-				<div style="width:100%; height:7px; background:var(--surface-sunken); border-radius:4px; margin-top:0.5rem; overflow:hidden;">
-					<div style={ fmt.Sprintf("height:100%%; width:%d%%; border-radius:4px; background:linear-gradient(90deg, var(--brand-primary, #0ea5e9), #8b5cf6); transition:width 0.4s ease;", data.UsagePercentage) }></div>
-				</div>
+				if data.HasBudget {
+					<div style="width:100%; height:7px; background:var(--surface-sunken); border-radius:4px; margin-top:0.5rem; overflow:hidden;">
+						<div style={ fmt.Sprintf("height:100%%; width:%d%%; border-radius:4px; background:linear-gradient(90deg, var(--brand-primary, #0ea5e9), #8b5cf6); transition:width 0.4s ease;", data.UsagePercentage) }></div>
+					</div>
+				}
 
 				<div class="flex-between items-center text-xs text-muted mt-2 pt-2 border-t">
-					<span>متبقي: <strong class="text-success">{ fmt.Sprintf("%d%%", 100-data.UsagePercentage) }</strong></span>
+					if data.HasBudget {
+						<span>متبقي: <strong class="text-success">{ fmt.Sprintf("%d%%", 100-data.UsagePercentage) }</strong></span>
+					} else {
+						<span class="text-muted">لم تنشر البوابة سقفاً لهذه الباقة</span>
+					}
 					<span>التجديد: <strong class="text-primary">{ data.ResetCountdown() }</strong></span>
 				</div>
 			</div>
@@ -210,10 +215,10 @@ templ aiConsumptionLogsBody(data AIConsumptionLogsPageData, lang, dir string) {
 									<!-- Model & Tier -->
 									<td style="padding:0.75rem 1rem; vertical-align:middle;">
 										<div style="display:flex; align-items:center; gap:0.4rem;">
-											<code dir="ltr" class="text-xs fw-700" style="background:var(--surface-sunken); padding:0.15rem 0.4rem; border-radius:var(--radius-sm); border:1px solid var(--border);">{ log.ModelAlias }</code>
+											<code dir="ltr" class="text-xs fw-700" style="background:var(--surface-sunken); padding:0.15rem 0.4rem; border-radius:var(--radius-sm); border:1px solid var(--border);">{ log.ModelText() }</code>
 											if log.ModelTier == "quality" {
 												<span class="badge badge-purple text-xs">Quality</span>
-											} else {
+											} else if log.ModelTier == "fast" {
 												<span class="badge badge-sky text-xs">Fast</span>
 											}
 										</div>
@@ -229,11 +234,7 @@ templ aiConsumptionLogsBody(data AIConsumptionLogsPageData, lang, dir string) {
 									<!-- Latency -->
 									<td style="padding:0.75rem 1rem; vertical-align:middle;">
 										<span class="tabular-nums text-xs" style="color:var(--text-secondary); font-weight:700;">
-											if log.DurationMs > 0 {
-												{ fmt.Sprintf("%d ms", log.DurationMs) }
-											} else {
-												<span>-</span>
-											}
+											{ log.DurationText() }
 										</span>
 									</td>
 

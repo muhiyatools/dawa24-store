@@ -145,3 +145,27 @@ func appendMessage(base, extra string) string {
 		return base + " — " + extra
 	}
 }
+
+// MappedIdentifiers reports which identifier columns the vendor bound, read
+// back from the stored snapshot.
+//
+// The settings screen and the matching run are separated by a page load and a
+// database round trip, so the run cannot ask the live Mapping what was bound —
+// it has only this. Without it the matching options would have to take the
+// vendor's toggle at face value, and a toggle switched on before the column was
+// unmapped would enable a tier for a column that no longer exists.
+func (s *MappingSnapshot) MappedIdentifiers() productmatch.MappedColumns {
+	out := productmatch.MappedColumns{}
+	if s == nil {
+		return out
+	}
+	for _, c := range s.Columns {
+		switch c.Field {
+		case productmatch.FieldSKU:
+			out.Code = true
+		case productmatch.FieldBarcode:
+			out.Barcode = true
+		}
+	}
+	return out
+}

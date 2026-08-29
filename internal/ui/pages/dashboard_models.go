@@ -34,7 +34,20 @@ type OrgSubscriptionView struct {
 	AIBudgetSpentUSD   float64
 	AIBudgetName       string
 	AIBudgetResetTime  string
-	HasAIUsage         bool
+	// HasAIUsage reports whether the Gateway actually answered with this
+	// tenant's consumption.
+	//
+	// It used to be assigned true unconditionally at the end of the loader,
+	// after every branch, so a screen with no data at all still claimed to be
+	// showing usage. A card that cannot say what a tenant has spent must say
+	// so; inventing a number is worse than an empty state, because a pharmacy
+	// makes decisions about its plan from this figure.
+	HasAIUsage bool
+	// HasAIBudget reports whether the Gateway publishes a spending ceiling for
+	// this tenant's plan. When false there is no percentage to draw: the limit
+	// was previously invented from the plan slug ($15 / $50 / $200), numbers
+	// that existed nowhere but one switch statement.
+	HasAIBudget bool
 }
 
 // TenantSubscriptionPageData represents the full subscription management view model.
@@ -69,9 +82,13 @@ type VendorDashboardData struct {
 	Subscription          *OrgSubscriptionView
 }
 
-// AIPercentage returns the percentage of AI usage (0 - 100).
+// AIPercentage returns how much of the published budget has been spent, 0-100.
+//
+// Callers must check HasAIBudget first: a zero here means "no ceiling is
+// known", not "nothing has been spent", and rendering it as a full-width empty
+// progress bar tells the reader the opposite of the truth.
 func (v *OrgSubscriptionView) AIPercentage() int {
-	if v == nil || v.AIBudgetLimitUSD <= 0 {
+	if v == nil || !v.HasAIBudget || v.AIBudgetLimitUSD <= 0 {
 		return 0
 	}
 	pct := int((v.AIBudgetSpentUSD / v.AIBudgetLimitUSD) * 100)
@@ -133,12 +150,28 @@ func FormatRelativeResetTime(rawTime string) string {
 	return "أقل من دقيقة"
 }
 
-// AIResetText returns a user-friendly string indicating when the quota resets.
+// AIResetText says when the Gateway's budget window reopens.
+//
+// The window is the Gateway's to publish. When it publishes none this reports
+// that plainly rather than computing the first of next month locally and
+// presenting the guess as the tenant's renewal date.
 func (v *OrgSubscriptionView) AIResetText() string {
 	if v == nil || v.AIBudgetResetTime == "" {
-		return "تجديد دوري مستمر"
+		return "غير محدد"
 	}
 	return FormatRelativeResetTime(v.AIBudgetResetTime)
+}
+
+// AIUsageText renders the spend against the ceiling, or says which of the two
+// is unknown.
+func (v *OrgSubscriptionView) AIUsageText() string {
+	if v == nil || !v.HasAIUsage {
+		return "لا تتوفر بيانات استهلاك من البوابة حالياً"
+	}
+	if !v.HasAIBudget {
+		return fmt.Sprintf("%.2f$ مستهلك — لا يوجد سقف منشور لهذه الباقة", v.AIBudgetSpentUSD)
+	}
+	return fmt.Sprintf("%.2f$ من %.2f$", v.AIBudgetSpentUSD, v.AIBudgetLimitUSD)
 }
 
 // AILogItemView represents one unified, high-density AI request log entry.
@@ -158,6 +191,39 @@ type AILogItemView struct {
 	Status        string // "success", "cached", "failed", "completed"
 	StatusLabel   string
 	SourceContext string
+	// CostKnown and DurationKnown separate a real zero from an absent value.
+	//
+	// Rows drawn from the assistant's own message table used to synthesise both
+	// — a cost from invented per-token rates and a flat 280 ms latency — which
+	// put fabricated figures in the same column as the Gateway's measured ones,
+	// indistinguishable to the reader.
+	CostKnown     bool
+	DurationKnown bool
+}
+
+// CostText renders the billed cost, or says it is not published.
+func (l *AILogItemView) CostText() string {
+	if l == nil || !l.CostKnown {
+		return "—"
+	}
+	return fmt.Sprintf("%.6f$", l.CostUSD)
+}
+
+// DurationText renders the measured latency, or says it is not published.
+func (l *AILogItemView) DurationText() string {
+	if l == nil || !l.DurationKnown {
+		return "—"
+	}
+	return fmt.Sprintf("%d ms", l.DurationMs)
+}
+
+// ModelText renders the model that served the request. The Gateway does not
+// always name one, and a blank is the honest answer when it does not.
+func (l *AILogItemView) ModelText() string {
+	if l == nil || strings.TrimSpace(l.ModelAlias) == "" {
+		return "غير محدد"
+	}
+	return l.ModelAlias
 }
 
 // AIConsumptionLogsPageData represents the full view model for the AI Consumption Logs page.
@@ -177,10 +243,43 @@ type AIConsumptionLogsPageData struct {
 	IsVendor          bool
 	IsCustomer        bool
 	FeatureBreakdown  map[string]int
+	// HasBudget reports whether the Gateway published a ceiling for this
+	// tenant. Without one there is no percentage to draw.
+	HasBudget bool
+	// CostIsComplete reports whether every request in the window carried a
+	// published price. When false the total is a floor, and the screen says so
+	// rather than presenting a partial sum as the whole bill.
+	CostIsComplete bool
+}
+
+// TotalCostText renders the window's spend, marked as a floor when some of the
+// requests in it carried no published price.
+func (d *AIConsumptionLogsPageData) TotalCostText() string {
+	if d == nil {
+		return "—"
+	}
+	if d.TotalRequests == 0 {
+		return "لا توجد عمليات في هذه الفترة"
+	}
+	if !d.CostIsComplete {
+		return fmt.Sprintf("%.4f$ على الأقل", d.TotalCostUSD)
+	}
+	return fmt.Sprintf("%.4f$", d.TotalCostUSD)
+}
+
+// QuotaText renders the quota headline, or says the Gateway published none.
+func (d *AIConsumptionLogsPageData) QuotaText() string {
+	if d == nil || !d.HasBudget {
+		return "لا يوجد سقف منشور"
+	}
+	return fmt.Sprintf("%d%%", d.UsagePercentage)
 }
 
 // ResetCountdown returns friendly relative text for quota renewal.
 func (d *AIConsumptionLogsPageData) ResetCountdown() string {
+	if d == nil || strings.TrimSpace(d.ResetTime) == "" {
+		return "غير محدد"
+	}
 	return FormatRelativeResetTime(d.ResetTime)
 }
 

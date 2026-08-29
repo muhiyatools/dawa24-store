@@ -69,13 +69,13 @@ func DefaultRecallOptions() RecallOptions {
 // apart lets retrieval consult them without disturbing the scorer.
 type recallIndex struct {
 	once sync.Once
-	tri  map[string][]*MasterProduct
+	tri  map[trigram][]*MasterProduct
 	sci  map[string][]*MasterProduct
 	// skel maps a consonant-skeleton trigram to the products carrying it. It is
 	// what makes a cross-script query retrievable at all: an Arabic row shares
 	// no token and no within-script trigram with a Latin catalogue name, so
 	// without this the correct product is not in the pool to be scored.
-	skel map[string][]*MasterProduct
+	skel map[trigram][]*MasterProduct
 	// makers is every word that appears in some product's manufacturer field.
 	// It is drawn from the catalogue rather than from a list, because the
 	// companies that matter are the ones this catalogue actually names.
@@ -84,16 +84,16 @@ type recallIndex struct {
 
 func (idx *Index) recall() *recallIndex {
 	idx.tri.once.Do(func() {
-		tri := make(map[string][]*MasterProduct, idx.total*8)
+		tri := make(map[trigram][]*MasterProduct, idx.total*8)
 		sci := make(map[string][]*MasterProduct, idx.total)
-		skel := make(map[string][]*MasterProduct, idx.total*6)
+		skel := make(map[trigram][]*MasterProduct, idx.total*6)
 		makers := make(map[string]bool, 2048)
 		for _, p := range idx.products {
 			for _, tok := range coreTokens(p.Manufacturer) {
 				makers[tok] = true
 			}
-			seen := make(map[string]bool, len(p.triAR)+len(p.triEN))
-			for _, set := range [][]string{p.triAR, p.triEN} {
+			seen := make(map[trigram]bool, len(p.triAR)+len(p.triEN))
+			for _, set := range [][]trigram{p.triAR, p.triEN} {
 				for _, t := range set {
 					if seen[t] {
 						continue
@@ -206,13 +206,13 @@ func (idx *Index) Recall(row *Row, opts RecallOptions) []MatchCandidate {
 // Ordering by rarity matters more here than in the token pool: a trigram like
 // "الا" appears in a third of the catalogue and reading its posting list first
 // would fill the pool with products chosen by an article rather than a brand.
-func (idx *Index) addTrigramPool(pool map[int64]*MasterProduct, tri []string, limit int) {
+func (idx *Index) addTrigramPool(pool map[int64]*MasterProduct, tri []trigram, limit int) {
 	if len(tri) == 0 {
 		return
 	}
 	postings := idx.recall().tri
 
-	ordered := make([]string, 0, len(tri))
+	ordered := make([]trigram, 0, len(tri))
 	for _, t := range tri {
 		if len(postings[t]) > 0 {
 			ordered = append(ordered, t)
@@ -231,10 +231,7 @@ func (idx *Index) addTrigramPool(pool map[int64]*MasterProduct, tri []string, li
 		if len(list) > crowded && len(pool) > 0 {
 			break // every remaining trigram is at least this common
 		}
-		for _, p := range list {
-			pool[p.ID] = p
-		}
-		if len(pool) >= limit {
+		if takeInto(pool, list, limit) {
 			return
 		}
 	}

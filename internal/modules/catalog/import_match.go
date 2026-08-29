@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
+	"github.com/muhiya/dawa24-store/internal/shared/matchflow"
 	"github.com/muhiya/dawa24-store/internal/shared/productmatch"
 )
 
@@ -62,21 +63,45 @@ const similarityFloor = 0.86
 const corroboratedFloor = 0.78
 
 // aiFloor is the confidence a model must express before its choice is applied.
-const aiFloor = 0.70
+//
+// From the shared table rather than a local number, and the shared table sets
+// it higher here than anywhere else — 0.90 against 0.80 — because this is the
+// one importer whose wrong match overwrites the catalogue entry every pharmacy
+// reads. The local constant was 0.70, which is below what the other two tools
+// demand for a decision with a far smaller blast radius.
+var aiFloor = catalogCeilings.MinApplyConfidence
+
+// catalogCeilings is what one administrative import may spend, from the shared
+// table.
+//
+// It used to be two constants declared here — 24 batches of 25 rows — and that
+// is precisely the drift internal/shared/matchflow was created to stop. The
+// vendor importer and the smart order had each grown their own copy of the same
+// numbers, every one of them documented as measured, and no two of them
+// agreeing. Reading the shared table means a change to what a run may spend is
+// one edit rather than three, and the master-catalogue profile is deliberately
+// the most conservative of the three because a wrong match here overwrites the
+// entry every pharmacy reads.
+//
+// It also lifts the ceiling this import was working under. 24 by 25 was 600
+// rows: on a thirty-thousand-row file that is two per cent of the residue, and
+// nothing told the administrator that the other ninety-eight per cent had never
+// been looked at. The shared profile allows 12 requests of 100.
+var catalogCeilings = matchflow.For(matchflow.ProfileCatalog)
 
 // maxAIAdjudicationBatches bounds the AI tier for one import.
 //
-// Each batch carries aiBatchSize rows, so this caps how much of a very large
-// file's residue is adjudicated. It exists because an import must finish: a
-// fifty-thousand-row file whose every row is ambiguous would otherwise spend
-// the afternoon in a model, and the deterministic outcome it already has —
-// "this is a new product" — is a serviceable answer.
-const maxAIAdjudicationBatches = 24
+// It exists because an import must finish: a fifty-thousand-row file whose
+// every row is ambiguous would otherwise spend the afternoon in a model, and
+// the deterministic outcome it already has — "this is a new product" — is a
+// serviceable answer. Rows past it keep that outcome and the screen says the
+// ceiling was reached.
+var maxAIAdjudicationBatches = catalogCeilings.MaxRequestsPerRun
 
 // aiBatchSize is how many rows go in one adjudication request. Batched, never
 // per row: the same rule the smart order's adjudication follows, for the same
 // reason — one request per row turns a three-minute import into an hour.
-const aiBatchSize = 25
+var aiBatchSize = catalogCeilings.MaxItemsPerRequest
 
 // MatchAdjudicationRequest is one batch of ambiguous rows, attributed to the
 // organisation whose import asked for it so AI spend is billed and capped per

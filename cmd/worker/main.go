@@ -16,6 +16,8 @@ import (
 	"github.com/muhiya/dawa24-store/internal/modules/billing"
 	billingPostgres "github.com/muhiya/dawa24-store/internal/modules/billing/postgres"
 	catalogJobs "github.com/muhiya/dawa24-store/internal/modules/catalog/jobs"
+	"github.com/muhiya/dawa24-store/internal/platform/aiusage"
+	aiusagePostgres "github.com/muhiya/dawa24-store/internal/platform/aiusage/postgres"
 	"github.com/muhiya/dawa24-store/internal/platform/config"
 	"github.com/muhiya/dawa24-store/internal/platform/database"
 	"github.com/muhiya/dawa24-store/internal/platform/gateway"
@@ -58,9 +60,19 @@ func run() error {
 
 	// Smart ordering (specs/001-smart-ordering-system). Registered with AI Gateway
 	// client if configured, or deterministic fallback if unconfigured.
+	// The same usage ledger the web process writes. A smart order run or an
+	// import that AI settles happens here, not in a request, and consumption
+	// recorded only on the web side would miss most of what a tenant spends.
+	usageRecorder := aiusage.NewRecorder(aiusagePostgres.NewRepository(db), log)
+	defer func() {
+		flushCtx, flushCancel := context.WithTimeout(context.Background(), 15*time.Second)
+		defer flushCancel()
+		usageRecorder.Close(flushCtx)
+	}()
+
 	var ai gateway.Client
 	if cfg.Gateway.BaseURL != "" || cfg.Gateway.ClientApp != "" {
-		ai = gateway.New(cfg.Gateway, log)
+		ai = gateway.WithUsageRecorder(gateway.New(cfg.Gateway, log), usageRecorder)
 	}
 	registerSmartOrderWorker(workers, db, ai, log)
 

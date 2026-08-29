@@ -14,6 +14,7 @@ import (
 	"github.com/muhiya/dawa24-store/internal/modules/assistant"
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/platform/gateway"
+	"github.com/muhiya/dawa24-store/internal/shared/matchflow"
 )
 
 // KeyResolver resolves tenant virtual key by organization ID.
@@ -157,6 +158,10 @@ func (h *Handler) AssistantStream(w http.ResponseWriter, r *http.Request) {
 		OrgID:       oid,
 		UserID:      actor.UserID,
 		VirtualKey:  virtualKey,
+		// Attribution for the AI usage ledger. Without it every assistant turn
+		// lands on the tenant's usage screen under a capability name they have
+		// no way to connect to the conversation they just had.
+		Feature: matchflow.FeatureAssistant,
 	}
 
 	events, err := h.gwClient.Stream(ctx, chatReq)

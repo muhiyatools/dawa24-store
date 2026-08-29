@@ -13,8 +13,10 @@ import (
 	"github.com/muhiya/dawa24-store/internal/modules/org"
 	"github.com/muhiya/dawa24-store/internal/modules/promo"
 	"github.com/muhiya/dawa24-store/internal/modules/smartorder"
+	"github.com/muhiya/dawa24-store/internal/platform/aiusage"
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/platform/database"
+	"github.com/muhiya/dawa24-store/internal/platform/gateway"
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/shared/money"
 	"github.com/muhiya/dawa24-store/internal/ui/pages"
@@ -33,7 +35,7 @@ func (h *UIHandler) loadOrgSubscriptionView(ctx context.Context, actor authctx.A
 		ExpiresAt:        "تجديد تلقائي مستمر",
 		MaxLoginSessions: 3,
 		MaxDevices:       3,
-		AIPlanID:         "plan-dev",
+		AIPlanID:         gateway.FallbackPlanID,
 		IsDefaultPlan:    true,
 	}
 
@@ -88,53 +90,58 @@ func (h *UIHandler) loadOrgSubscriptionView(ctx context.Context, actor authctx.A
 				subView.AIVirtualKeyMasked = "••••••••"
 			}
 
-			// Query Gateway live consumption for this tenant
-			adminClient, _, _ := h.getGatewayAdminClient(ctx)
-			if adminClient != nil {
-				if summary, err := adminClient.GetUserUsageSummary(ctx, subView.AIUserID); err == nil && summary != nil {
+			// Consumption comes from our own ledger: it is complete, it is
+			// not capped at one API page, and it is still there when the
+			// Gateway is not. This used to be a live HTTP call to
+			// api.muhiya.com on every dashboard render.
+			if h.aiUsage != nil {
+				if summary, err := h.aiUsage.Summarize(ctx, actor.OrganizationID, time.Now().Add(-aiLedgerWindow)); err == nil {
 					subView.AIRequestsCount = summary.Requests
-					subView.AITokensUsed = int(summary.InputTokens + summary.OutputTokens)
-					if summary.CostUSD > 0 && subView.AIBudgetSpentUSD <= 0 {
-						subView.AIBudgetSpentUSD = summary.CostUSD
-					}
+					subView.AITokensUsed = int(summary.TotalTokens())
+					subView.AIBudgetSpentUSD = summary.CostUSD()
 					subView.HasAIUsage = true
+				} else {
+					h.log.WarnContext(ctx, "could not summarise ai usage for dashboard",
+						"org_id", actor.OrganizationID, "error", err)
 				}
-				if userDetail, err := adminClient.GetUser(ctx, subView.AIUserID); err == nil && userDetail != nil {
-					if len(userDetail.BudgetUsage) > 0 {
-						bw := userDetail.BudgetUsage[0]
-						subView.AIBudgetName = bw.Name
-						subView.AIBudgetLimitUSD = bw.BudgetUSD
-						subView.AIBudgetSpentUSD = bw.CurrentSpent
-						if !bw.ResetTime.IsZero() {
-							subView.AIBudgetResetTime = bw.ResetTime.Format("2006-01-02 15:04")
-						}
-						subView.HasAIUsage = true
+			}
+
+			// The budget window is the one thing the Gateway alone knows: it
+			// owns the plan's ceiling and the moment it reopens. Asked for
+			// nothing else.
+			if adminClient, _, ok := h.getGatewayAdminClient(ctx); ok && adminClient != nil {
+				if userDetail, err := adminClient.GetUser(ctx, subView.AIUserID); err == nil && userDetail != nil && len(userDetail.BudgetUsage) > 0 {
+					bw := userDetail.BudgetUsage[0]
+					subView.AIBudgetName = bw.Name
+					subView.AIBudgetLimitUSD = bw.BudgetUSD
+					// The Gateway's own figure for the current window wins over
+					// the ledger's: it is what the quota is actually enforced
+					// against, and a percentage drawn from a different number
+					// than the one doing the limiting would mislead.
+					subView.AIBudgetSpentUSD = bw.CurrentSpent
+					subView.HasAIUsage = true
+					if !bw.ResetTime.IsZero() {
+						subView.AIBudgetResetTime = bw.ResetTime.Format("2006-01-02 15:04")
 					}
 				}
 			}
 		}
 	}
 
-	// Ensure accurate budget limit and reset time for progress bar calculations
-	if subView.AIBudgetLimitUSD <= 0 {
-		switch subView.PlanSlug {
-		case "enterprise", "plan-enterprise":
-			subView.AIBudgetLimitUSD = 200.0
-		case "pro", "growth", "plan-pro":
-			subView.AIBudgetLimitUSD = 50.0
-		default:
-			subView.AIBudgetLimitUSD = 15.0
-		}
-	}
+	// Nothing below invents a number.
+	//
+	// What used to be here manufactured a budget ceiling from the plan slug
+	// ($200 / $50 / $15), manufactured a reset date as the first of next month,
+	// and then set HasAIUsage true regardless — so every card drew a confident
+	// percentage out of two values the Gateway had never supplied. A pharmacy
+	// deciding whether to upgrade was reading fiction.
+	//
+	// The Gateway is the only authority on both figures. When it has not
+	// published them the flags stay false and the screens say so.
 	if subView.AIBudgetSpentUSD < 0 {
-		subView.AIBudgetSpentUSD = 0.0
+		subView.AIBudgetSpentUSD = 0
 	}
-	if subView.AIBudgetResetTime == "" {
-		now := time.Now()
-		nextMonth := time.Date(now.Year(), now.Month()+1, 1, 0, 0, 0, 0, now.Location())
-		subView.AIBudgetResetTime = nextMonth.Format("2006-01-02")
-	}
-	subView.HasAIUsage = true
+	subView.HasAIBudget = subView.AIBudgetLimitUSD > 0
 
 	return subView
 }
@@ -543,44 +550,54 @@ func (h *UIHandler) OnboardingPendingPage(w http.ResponseWriter, r *http.Request
 	}
 }
 
-// EnsureOrgAIGatewayProvisioned verifies that an organization has an active gateway user and virtual key, provisioning one if absent.
-func (h *UIHandler) EnsureOrgAIGatewayProvisioned(ctx context.Context, orgID int64) (string, string) {
+// EnsureOrgAIGatewayProvisioned returns the Gateway identity the organisation
+// spends against, provisioning it on first use.
+//
+// The provisioning itself lives in one place now. This used to read the
+// organisation, read its subscription, resolve a plan and mint a key inline —
+// and so did three other call sites, each minting a key that revoked the one
+// the others had just stored. It delegates instead, so the per-organisation
+// lock, the validated cache and the plan-follows-subscription rule apply
+// wherever the identity is asked for.
+func (h *UIHandler) EnsureOrgAIGatewayProvisioned(ctx context.Context, orgID int64) (userID, virtualKey string) {
 	if orgID <= 0 || h.orgSvc == nil {
 		return "", ""
 	}
-	sysCtx := database.AsSystem(ctx)
-	o, err := h.orgSvc.GetOrganization(sysCtx, orgID)
-	if err != nil || o == nil {
-		return "", ""
-	}
-	if o.AIVirtualKey != "" && o.AIUserID != "" {
-		return o.AIUserID, o.AIVirtualKey
+	if h.tenantKeys != nil {
+		virtualKey = h.tenantKeys.Key(ctx, orgID)
 	}
 
-	aiPlanID := "plan-pos-free"
-	if h.billSvc != nil {
-		if sub, _ := h.billSvc.GetActiveSubscriptionByOrg(sysCtx, orgID); sub != nil {
-			if plan, err := h.billSvc.GetPlanByID(sysCtx, sub.PlanID); err == nil && plan != nil && plan.AIPlanID != "" {
-				aiPlanID = plan.AIPlanID
+	// The user id is derived, not guessed: it is the key the Gateway files this
+	// tenant's whole usage history under, so a screen that displayed a
+	// different one would be reporting somebody else's consumption.
+	userID = gateway.OrganizationUserID(orgID)
+
+	if virtualKey == "" {
+		// Provisioning could not be completed — an unreachable Gateway, or
+		// credentials an operator has not supplied yet. Whatever is stored is
+		// the best answer available.
+		if o, err := h.orgSvc.GetOrganization(database.AsSystem(ctx), orgID); err == nil && o != nil {
+			if o.AIUserID != "" {
+				userID = o.AIUserID
 			}
-		} else if defPlan, err := h.billSvc.GetDefaultPlan(sysCtx); err == nil && defPlan != nil && defPlan.AIPlanID != "" {
-			aiPlanID = defPlan.AIPlanID
+			virtualKey = o.AIVirtualKey
 		}
 	}
-
-	adminClient, _, _ := h.getGatewayAdminClient(sysCtx)
-	if adminClient != nil {
-		userID, vkey, provErr := adminClient.ProvisionOrganization(sysCtx, orgID, o.LegalName, "", aiPlanID)
-		if provErr == nil && (vkey != "" || userID != "") {
-			_ = h.orgSvc.UpdateOrganizationAICredentials(sysCtx, orgID, userID, vkey)
-			h.log.InfoContext(ctx, "ai gateway organization auto-provisioned", "org_id", orgID, "user_id", userID, "plan_id", aiPlanID)
-			return userID, vkey
-		}
-	}
-	return o.AIUserID, o.AIVirtualKey
+	return userID, virtualKey
 }
 
-// AIConsumptionLogsPage renders the detailed AI request logs for Customer or Vendor.
+// AIConsumptionLogsPage renders a tenant's own AI consumption.
+//
+// It reads the local ledger, not the Gateway. The previous version made one to
+// three live HTTP calls to the Gateway per render, showed at most a hundred
+// rows, had no history beyond the Gateway's own retention, and displayed
+// nothing whatsoever when the Gateway was unreachable — while filling the gaps
+// it could not measure with invented per-token costs and a flat 280 ms latency.
+//
+// The ledger is written as the calls happen, so the history is ours, complete,
+// filterable, and unaffected by the Gateway being down. The Gateway is still
+// asked one thing, because it is the only authority on it: the live budget
+// window.
 func (h *UIHandler) AIConsumptionLogsPage(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	actor, ok := authctx.From(ctx)
@@ -592,180 +609,139 @@ func (h *UIHandler) AIConsumptionLogsPage(w http.ResponseWriter, r *http.Request
 	lang, dir := h.localeAndDir(r)
 	subView := h.loadOrgSubscriptionView(ctx, actor, lang)
 	isVendor := actor.IsVendor()
-	isCustomer := actor.IsCustomer()
-
-	var logViews []*pages.AILogItemView
-	totalReqs := 0
-	totalTokens := 0
-	totalCost := 0.0
-	featureCounts := make(map[string]int)
-
-	// Target tenant UserID strictly scoped to this organization or user
-	targetUserID := ""
-	if actor.OrganizationID > 0 {
-		targetUserID = fmt.Sprintf("org-%d", actor.OrganizationID)
-		if subView != nil && subView.AIUserID != "" {
-			targetUserID = subView.AIUserID
-		}
-	} else if actor.UserID > 0 {
-		targetUserID = fmt.Sprintf("user-%d", actor.UserID)
-	}
-
-	// 1. Query Gateway live request logs strictly for targetUserID
-	adminClient, _, _ := h.getGatewayAdminClient(ctx)
-	if adminClient != nil && targetUserID != "" {
-		if gwLogs, err := adminClient.GetUserLogs(ctx, targetUserID, 100, 0); err == nil && len(gwLogs) > 0 {
-			for _, gl := range gwLogs {
-				// Tenant isolation guard: only show logs belonging to this specific user / tenant
-				if gl.UserID != "" && gl.UserID != targetUserID {
-					continue
-				}
-
-				featName, featKey := mapGatewayCapabilityToName(gl.Capability, gl.Feature, isVendor)
-				if (featKey == "" || featKey == "smart_order" || featKey == "variant_match") && gl.ClientApp != "" {
-					featName, featKey = mapGatewayCapabilityToName(gl.ClientApp, gl.ClientApp, isVendor)
-				}
-
-				resStatus := gl.ResolvedStatus()
-				stLabel := "ناجح"
-				if resStatus == "success" {
-					stLabel = "ناجح"
-				} else if resStatus == "cached" {
-					stLabel = "من الذاكرة (مجاني)"
-				} else if resStatus == "failed" || resStatus == "error" || resStatus == "rate_limited" {
-					stLabel = "غير مكتمل"
-				}
-
-				modelName := gl.ResolvedModel()
-				cost := gl.ResolvedCost()
-				totToks := gl.TotalTokens()
-				latMs := gl.ResolvedLatency()
-
-				item := &pages.AILogItemView{
-					ID:            gl.ID,
-					Timestamp:     gl.CreatedAt.Format("2006-01-02 15:04:05"),
-					TimeFormatted: gl.CreatedAt.Format("2006-01-02 15:04"),
-					FeatureName:   featName,
-					FeatureKey:    featKey,
-					ModelAlias:    modelName,
-					ModelTier:     "fast",
-					InputTokens:   gl.InputTokens,
-					OutputTokens:  gl.OutputTokens,
-					TotalTokens:   totToks,
-					CostUSD:       cost,
-					DurationMs:    latMs,
-					Status:        resStatus,
-					StatusLabel:   stLabel,
-				}
-				logViews = append(logViews, item)
-				totalReqs++
-				totalTokens += totToks
-				totalCost += cost
-				featureCounts[featKey]++
-			}
-		}
-	}
-
-	// 2. Query real database assistant messages if available to ensure all tenant activity is accounted for
-	if h.assistantRepo != nil && actor.OrganizationID > 0 {
-		if convs, err := h.assistantRepo.ListConversations(ctx, actor.OrganizationID, 0, 20, 0); err == nil && len(convs) > 0 {
-			existingIDs := make(map[string]bool)
-			for _, lv := range logViews {
-				existingIDs[lv.ID] = true
-			}
-			for _, c := range convs {
-				if msgs, err := h.assistantRepo.ListMessages(ctx, c.ID, 20); err == nil {
-					for _, m := range msgs {
-						if m.Role != "assistant" || (m.InputTokens == 0 && m.OutputTokens == 0) {
-							continue
-						}
-						idStr := fmt.Sprintf("ast-msg-%d", m.ID)
-						if existingIDs[idStr] {
-							continue
-						}
-						totTok := m.InputTokens + m.OutputTokens
-						cost := (float64(m.InputTokens) * 0.0000008) + (float64(m.OutputTokens) * 0.000002)
-						item := &pages.AILogItemView{
-							ID:            idStr,
-							Timestamp:     m.CreatedAt.Format("2006-01-02 15:04:05"),
-							TimeFormatted: m.CreatedAt.Format("2006-01-02 15:04"),
-							FeatureName:   "المساعد الصيدلاني الذكي (كبسولة)",
-							FeatureKey:    "assistant",
-							ModelAlias:    "qwen3.7-flash",
-							ModelTier:     "fast",
-							InputTokens:   m.InputTokens,
-							OutputTokens:  m.OutputTokens,
-							TotalTokens:   totTok,
-							CostUSD:       cost,
-							DurationMs:    280,
-							Status:        "success",
-							StatusLabel:   "ناجح",
-						}
-						logViews = append(logViews, item)
-						totalReqs++
-						totalTokens += totTok
-						totalCost += cost
-						featureCounts["assistant"]++
-					}
-				}
-			}
-		}
-	}
-
-	// Calculate spent budget
-	if subView != nil {
-		if subView.AIBudgetSpentUSD <= 0 && totalCost > 0 {
-			subView.AIBudgetSpentUSD = totalCost
-		}
-		if totalTokens > 0 && subView.AITokensUsed <= 0 {
-			subView.AITokensUsed = totalTokens
-		}
-		if totalReqs > 0 && subView.AIRequestsCount <= 0 {
-			subView.AIRequestsCount = totalReqs
-		}
-	}
-
-	activeLimit := 15.0
-	activeSpent := 0.0
-	usagePct := 0
-	aiUserID := targetUserID
-	planName := "الباقة الأساسية"
-	planSlug := "basic"
-	aiPlanID := "plan-pos-free"
-	resetTime := ""
-
-	if subView != nil {
-		activeLimit = subView.AIBudgetLimitUSD
-		activeSpent = subView.AIBudgetSpentUSD
-		usagePct = subView.AIPercentage()
-		aiUserID = subView.AIUserID
-		planName = subView.PlanName
-		planSlug = subView.PlanSlug
-		aiPlanID = subView.AIPlanID
-		resetTime = subView.AIBudgetResetTime
-	}
 
 	pageData := pages.AIConsumptionLogsPageData{
-		Logs:              logViews,
-		TotalRequests:     totalReqs,
-		TotalTokens:       totalTokens,
-		TotalCostUSD:      totalCost,
-		ActiveBudgetLimit: activeLimit,
-		ActiveBudgetSpent: activeSpent,
-		UsagePercentage:   usagePct,
-		AIUserID:          aiUserID,
-		PlanName:          planName,
-		PlanSlug:          planSlug,
-		AIPlanID:          aiPlanID,
-		ResetTime:         resetTime,
-		IsVendor:          isVendor,
-		IsCustomer:        isCustomer,
-		FeatureBreakdown:  featureCounts,
+		IsVendor:         isVendor,
+		IsCustomer:       actor.IsCustomer(),
+		FeatureBreakdown: map[string]int{},
+		AIUserID:         gateway.OrganizationUserID(actor.OrganizationID),
+		PlanName:         "الباقة الأساسية",
+		PlanSlug:         "basic",
+		AIPlanID:         gateway.FallbackPlanID,
+	}
+	if subView != nil {
+		pageData.AIUserID = subView.AIUserID
+		pageData.PlanName = subView.PlanName
+		pageData.PlanSlug = subView.PlanSlug
+		pageData.AIPlanID = subView.AIPlanID
+		pageData.ResetTime = subView.AIBudgetResetTime
+		pageData.ActiveBudgetLimit = subView.AIBudgetLimitUSD
+		pageData.ActiveBudgetSpent = subView.AIBudgetSpentUSD
+		pageData.UsagePercentage = subView.AIPercentage()
+		pageData.HasBudget = subView.HasAIBudget
+	}
+
+	if h.aiUsage != nil && actor.OrganizationID > 0 {
+		h.fillAIUsageFromLedger(ctx, &pageData, actor.OrganizationID, isVendor)
 	}
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 	if err := pages.AIConsumptionLogsPage(pageData, lang, dir).Render(ctx, w); err != nil {
 		h.log.ErrorContext(ctx, "render ai consumption logs", "error", err)
+	}
+}
+
+// aiLedgerWindow is how far back the usage screens look.
+//
+// A month rather than everything: it is the period a budget window covers and
+// the period a pharmacy reasons about when deciding whether their plan fits.
+// The rows older than this are still in the ledger and still queryable.
+const aiLedgerWindow = 30 * 24 * time.Hour
+
+// fillAIUsageFromLedger populates the page from the local record.
+//
+// The listing runs under the caller's own transaction context, so row-level
+// security scopes it to their organisation. That is the isolation guarantee;
+// the previous version enforced it by comparing a user id string in a loop
+// after fetching, which is a filter rather than a boundary.
+func (h *UIHandler) fillAIUsageFromLedger(ctx context.Context, data *pages.AIConsumptionLogsPageData, orgID int64, isVendor bool) {
+	since := time.Now().Add(-aiLedgerWindow)
+
+	entries, _, err := h.aiUsage.List(ctx, aiusage.Filter{
+		OrganizationID: orgID,
+		Since:          since,
+		Limit:          200,
+	})
+	if err != nil {
+		h.log.WarnContext(ctx, "could not read ai usage ledger", "org_id", orgID, "error", err)
+		return
+	}
+
+	data.Logs = make([]*pages.AILogItemView, 0, len(entries))
+	for _, e := range entries {
+		featName, featKey := mapGatewayCapabilityToName(e.Capability, e.Feature, isVendor)
+		data.Logs = append(data.Logs, &pages.AILogItemView{
+			ID:            fmt.Sprintf("%d", e.ID),
+			Timestamp:     e.CreatedAt.Format("2006-01-02 15:04:05"),
+			TimeFormatted: e.CreatedAt.Format("2006-01-02 15:04"),
+			FeatureName:   featName,
+			FeatureKey:    featKey,
+			ModelAlias:    e.Model,
+			InputTokens:   e.InputTokens,
+			OutputTokens:  e.OutputTokens,
+			TotalTokens:   e.TotalTokens(),
+			CostUSD:       e.CostUSD(),
+			CostKnown:     e.CostKnown,
+			DurationMs:    int64(e.DurationMS),
+			DurationKnown: e.DurationMS > 0,
+			Status:        e.Status,
+			StatusLabel:   aiStatusLabel(e.Status, e.FromCache, e.Fallback),
+		})
+	}
+
+	summary, err := h.aiUsage.Summarize(ctx, orgID, since)
+	if err != nil {
+		h.log.WarnContext(ctx, "could not summarise ai usage", "org_id", orgID, "error", err)
+		return
+	}
+	data.TotalRequests = summary.Requests
+	data.TotalTokens = int(summary.TotalTokens())
+	data.TotalCostUSD = summary.CostUSD()
+	data.CostIsComplete = summary.CostIsComplete()
+
+	byFeature, err := h.aiUsage.ByFeature(ctx, orgID, since)
+	if err != nil {
+		h.log.WarnContext(ctx, "could not break ai usage down by feature", "org_id", orgID, "error", err)
+		return
+	}
+	for _, f := range byFeature {
+		_, key := mapGatewayCapabilityToName(f.Feature, f.Feature, isVendor)
+		data.FeatureBreakdown[key] += f.Requests
+	}
+}
+
+// aiStatusLabel renders an outcome in the tenant's language.
+//
+// A cached answer and a fallback are both "successful" in the sense that the
+// user got a result, and both cost nothing — but they mean different things and
+// a usage screen that calls them the same thing hides how often AI was actually
+// reached.
+func aiStatusLabel(status string, cached, fallback bool) string {
+	switch {
+	case fallback:
+		return "المسار الحتمي (بدون ذكاء اصطناعي)"
+	case cached:
+		return "من الذاكرة (مجاني)"
+	}
+	switch status {
+	case "success":
+		return "ناجح"
+	case "disabled":
+		return "الخدمة موقوفة"
+	case "timeout":
+		return "انتهت المهلة"
+	case "quota_exceeded":
+		return "تجاوز الحصة"
+	case "rate_limited":
+		return "تجاوز معدل الطلبات"
+	case "unauthorized":
+		return "مفتاح غير صالح"
+	case "circuit_open", "unavailable":
+		return "البوابة غير متاحة"
+	case "abandoned":
+		return "غادر المستخدم قبل الاكتمال"
+	default:
+		return "غير مكتمل"
 	}
 }
 

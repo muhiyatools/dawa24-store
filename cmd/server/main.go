@@ -31,6 +31,8 @@ import (
 	orgPostgres "github.com/muhiya/dawa24-store/internal/modules/org/postgres"
 	platformadmin "github.com/muhiya/dawa24-store/internal/modules/platform_admin"
 	platformadminPostgres "github.com/muhiya/dawa24-store/internal/modules/platform_admin/postgres"
+	"github.com/muhiya/dawa24-store/internal/platform/aiusage"
+	aiusagePostgres "github.com/muhiya/dawa24-store/internal/platform/aiusage/postgres"
 	"github.com/muhiya/dawa24-store/internal/platform/config"
 	"github.com/muhiya/dawa24-store/internal/platform/database"
 	"github.com/muhiya/dawa24-store/internal/platform/gateway"
@@ -153,7 +155,16 @@ func run() error {
 		log,
 	)
 
-	ai := gateway.New(cfg.Gateway, log).WithSettingsSource(gwSource)
+	// The usage ledger. Every AI call is written down locally, attributed to
+	// the منشأة that paid for it, so a tenant's consumption history survives a
+	// Gateway outage and is not capped at whatever one live API page returns.
+	//
+	// Wrapping is the last step in building the client, so nothing downstream
+	// can hold an unrecorded reference to it.
+	usageRecorder := aiusage.NewRecorder(aiusagePostgres.NewRepository(deps.Handle()), log)
+
+	var ai gateway.Client = gateway.New(cfg.Gateway, log).WithSettingsSource(gwSource)
+	ai = gateway.WithUsageRecorder(ai, usageRecorder)
 	if ai.Enabled() {
 		log.Info("ai gateway enabled",
 			"base_url", cfg.Gateway.BaseURL, "client_app", cfg.Gateway.ClientApp)
@@ -196,6 +207,11 @@ func run() error {
 		_ = srv.Close()
 		return err
 	}
+
+	// Drain the usage ledger after the requests that fill it have finished, so
+	// the last import's consumption is recorded rather than discarded on a
+	// deploy.
+	usageRecorder.Close(shutdownCtx)
 
 	log.Info("shutdown complete")
 	return nil

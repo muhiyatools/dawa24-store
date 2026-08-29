@@ -2671,14 +2671,14 @@ func AdminTempWarehousesPage(data *AdminTempWarehousesData, lang, dir string) te
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 278, "<div x-data=\"{\n\t\t\t\tuploadModal: false,\n\t\t\t\titemsModal: false,\n\t\t\t\tselectedWarehouse: { id: 0, name: '', total: 0 },\n\t\t\t\tmodalItems: [],\n\t\t\t\tmodalPage: 1,\n\t\t\t\tmodalTotalPages: 1,\n\t\t\t\tmodalLoading: false,\n\t\t\t\tuploadStep: 1,\n\t\t\t\tfileHeaders: [],\n\t\t\t\tsampleRows: [],\n\t\t\t\tdetectedCode: 0,\n\t\t\t\tdetectedName: 1,\n\t\t\t\tdetectedPrice: 2,\n\t\t\t\tdetectedDiscount: 3,\n\t\t\t\tasync openItems(id, name, total) {\n\t\t\t\t\tthis.selectedWarehouse = { id: id, name: name, total: total };\n\t\t\t\t\tthis.modalPage = 1;\n\t\t\t\t\tthis.itemsModal = true;\n\t\t\t\t\tawait this.fetchItems();\n\t\t\t\t},\n\t\t\t\tasync fetchItems() {\n\t\t\t\t\tthis.modalLoading = true;\n\t\t\t\t\ttry {\n\t\t\t\t\t\tconst res = await fetch('/admin/temporary-warehouses/' + this.selectedWarehouse.id + '/items-json?page=' + this.modalPage + '&limit=10');\n\t\t\t\t\t\tconst json = await res.json();\n\t\t\t\t\t\tif (json.success) {\n\t\t\t\t\t\t\tthis.modalItems = json.items || [];\n\t\t\t\t\t\t\tthis.modalTotalPages = json.total_pages || 1;\n\t\t\t\t\t\t\tthis.selectedWarehouse.total = json.total || 0;\n\t\t\t\t\t\t}\n\t\t\t\t\t} catch(e) {\n\t\t\t\t\t\tconsole.error('Error fetching items:', e);\n\t\t\t\t\t} finally {\n\t\t\t\t\t\tthis.modalLoading = false;\n\t\t\t\t\t}\n\t\t\t\t},\n\t\t\t\tasync nextModalPage() {\n\t\t\t\t\tif (this.modalPage < this.modalTotalPages) {\n\t\t\t\t\t\tthis.modalPage++;\n\t\t\t\t\t\tawait this.fetchItems();\n\t\t\t\t\t}\n\t\t\t\t},\n\t\t\t\tasync prevModalPage() {\n\t\t\t\t\tif (this.modalPage > 1) {\n\t\t\t\t\t\tthis.modalPage--;\n\t\t\t\t\t\tawait this.fetchItems();\n\t\t\t\t\t}\n\t\t\t\t},\n\t\t\t\tasync deleteItem(rowId) {\n\t\t\t\t\tif (!confirm('هل أنت متأكد من حذف هذا الصنف من المستودع؟')) return;\n\t\t\t\t\ttry {\n\t\t\t\t\t\tconst formData = new FormData();\n\t\t\t\t\t\tconst res = await fetch('/admin/temporary-warehouses/items/' + rowId + '/delete', {\n\t\t\t\t\t\t\tmethod: 'POST',\n\t\t\t\t\t\t\tbody: formData\n\t\t\t\t\t\t});\n\t\t\t\t\t\tconst json = await res.json();\n\t\t\t\t\t\tif (json.success) {\n\t\t\t\t\t\t\tawait this.fetchItems();\n\t\t\t\t\t\t} else {\n\t\t\t\t\t\t\talert(json.error || 'حدث خطأ أثناء الحذف');\n\t\t\t\t\t\t}\n\t\t\t\t\t} catch(e) {\n\t\t\t\t\t\talert('فشل الاتصال بالخادم');\n\t\t\t\t\t}\n\t\t\t\t},\n\t\t\t\thandleFileSelect(event) {\n\t\t\t\t\tconst file = event.target.files[0];\n\t\t\t\t\tif (!file) return;\n\t\t\t\t\t// Read file to detect headers if client-side or prepare preview\n\t\t\t\t\tconst reader = new FileReader();\n\t\t\t\t\treader.onload = (e) => {\n\t\t\t\t\t\tconst text = e.target.result;\n\t\t\t\t\t\t// If text/csv\n\t\t\t\t\t\tif (file.name.endsWith('.csv') || file.name.endsWith('.txt')) {\n\t\t\t\t\t\t\tconst lines = text.split(/\\r?\\n/).filter(l => l.trim().length > 0);\n\t\t\t\t\t\t\tif (lines.length > 0) {\n\t\t\t\t\t\t\t\tthis.fileHeaders = lines[0].split(',').map(h => h.trim().replace(/^[\\&quot;\\']|[\\&quot;\\']$/g, ''));\n\t\t\t\t\t\t\t\tthis.guessColumns();\n\t\t\t\t\t\t\t}\n\t\t\t\t\t\t} else {\n\t\t\t\t\t\t\t// For Excel files, set reasonable default columns\n\t\t\t\t\t\t\tthis.fileHeaders = ['كود الصنف (SKU)', 'اسم المنتج / الصنف', 'سعر الجمهور', 'نسبة الخصم %', 'الكمية'];\n\t\t\t\t\t\t\tthis.detectedCode = 0;\n\t\t\t\t\t\t\tthis.detectedName = 1;\n\t\t\t\t\t\t\tthis.detectedPrice = 2;\n\t\t\t\t\t\t\tthis.detectedDiscount = 3;\n\t\t\t\t\t\t}\n\t\t\t\t\t};\n\t\t\t\t\tif (file.name.endsWith('.csv') || file.name.endsWith('.txt')) {\n\t\t\t\t\t\treader.readAsText(file);\n\t\t\t\t\t} else {\n\t\t\t\t\t\treader.readAsArrayBuffer(file);\n\t\t\t\t\t}\n\t\t\t\t},\n\t\t\t\tguessColumns() {\n\t\t\t\t\tif (!this.fileHeaders || this.fileHeaders.length === 0) return;\n\t\t\t\t\tthis.detectedCode = 0;\n\t\t\t\t\tthis.detectedName = 1;\n\t\t\t\t\tthis.detectedPrice = 2;\n\t\t\t\t\tthis.detectedDiscount = 3;\n\t\t\t\t\tthis.fileHeaders.forEach((h, idx) => {\n\t\t\t\t\t\tconst norm = h.toLowerCase().replace(/[\\s_\\-]/g, '');\n\t\t\t\t\t\tif (norm.includes('كود') || norm.includes('code') || norm.includes('sku') || norm.includes('باركود') || norm.includes('barcode')) {\n\t\t\t\t\t\t\tthis.detectedCode = idx;\n\t\t\t\t\t\t} else if (norm.includes('اسم') || norm.includes('name') || norm.includes('صنف') || norm.includes('منتج')) {\n\t\t\t\t\t\t\tthis.detectedName = idx;\n\t\t\t\t\t\t} else if ((norm.includes('سعر') || norm.includes('price') || norm.includes('جمهور') || norm.includes('رسمي')) && !norm.includes('خصم') && !norm.includes('صافي')) {\n\t\t\t\t\t\t\tthis.detectedPrice = idx;\n\t\t\t\t\t\t} else if (norm.includes('خصم') || norm.includes('discount') || norm.includes('%') || norm.includes('نسبة')) {\n\t\t\t\t\t\t\tthis.detectedDiscount = idx;\n\t\t\t\t\t\t}\n\t\t\t\t\t});\n\t\t\t\t}\n\t\t\t}\" style=\"display:flex; flex-direction:column; gap:1.5rem; max-width:1440px; margin:0 auto 3.5rem auto;\"><!-- 1. Header Banner & Top Action Tabs (Matching Image 4) --><div class=\"card mb-0\" style=\"border:1px solid var(--border); background:linear-gradient(135deg, var(--surface-raised) 0%, var(--surface-sunken) 100%); border-radius:var(--radius-2xl); padding:1.75rem; box-shadow:0 4px 20px rgba(0,0,0,0.03);\"><div style=\"display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:1.5rem;\"><div><div style=\"display:flex; align-items:center; gap:0.75rem; margin-bottom:0.35rem;\"><div style=\"width:46px; height:46px; border-radius:var(--radius-xl); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center; font-size:1.4rem;\">🏢</div><div><h1 style=\"font-size:1.5rem; font-weight:900; color:var(--text); margin:0;\">قوائم المستودعات التابعة لحسابي المشرف</h1><span style=\"font-size:0.75rem; font-weight:700; color:var(--accent); text-transform:uppercase;\">Temporary Warehouses & Staged Supplier Catalogs</span></div></div><p style=\"font-size:0.875rem; color:var(--text-secondary); margin:0.35rem 0 0 0; line-height:1.6; max-width:820px;\">تعرض هذه الصفحة ملفات المستودعات وكشوف الأسعار المؤقتة التي تم رفعها، والمرتبطة بعروض خصومات السوق العامة.</p></div><!-- Top Navigation Scope Tabs + Upload Button (Image 4) --><div style=\"display:flex; gap:0.6rem; align-items:center; flex-wrap:wrap;\"><a href=\"/admin/user/temparte-warehouses?scope=my\" class=\"btn btn-sm\" style=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 278, "<div x-data=\"{\n\t\t\t\tuploadModal: false,\n\t\t\t\titemsModal: false,\n\t\t\t\tselectedWarehouse: { id: 0, name: '', total: 0 },\n\t\t\t\tmodalItems: [],\n\t\t\t\tmodalPage: 1,\n\t\t\t\tmodalTotalPages: 1,\n\t\t\t\tmodalLoading: false,\n\t\t\t\tuploadStep: 1,\n\t\t\t\tfileHeaders: [],\n\t\t\t\tsampleRows: [],\n\t\t\t\tdetectedCode: 0,\n\t\t\t\tdetectedName: 1,\n\t\t\t\tdetectedPrice: 2,\n\t\t\t\tdetectedDiscount: 3,\n\t\t\t\tisDragging: false,\n\t\t\t\tisBulkUploading: false,\n\t\t\t\tuploadProgress: 0,\n\t\t\t\tuploadStatusText: '',\n\t\t\t\tselectedFiles: [],\n\t\t\t\tbulkUploadResults: null,\n\t\t\t\tasync openItems(id, name, total) {\n\t\t\t\t\tthis.selectedWarehouse = { id: id, name: name, total: total };\n\t\t\t\t\tthis.modalPage = 1;\n\t\t\t\t\tthis.itemsModal = true;\n\t\t\t\t\tawait this.fetchItems();\n\t\t\t\t},\n\t\t\t\tasync fetchItems() {\n\t\t\t\t\tthis.modalLoading = true;\n\t\t\t\t\ttry {\n\t\t\t\t\t\tconst res = await fetch('/admin/temporary-warehouses/' + this.selectedWarehouse.id + '/items-json?page=' + this.modalPage + '&limit=10');\n\t\t\t\t\t\tconst json = await res.json();\n\t\t\t\t\t\tif (json.success) {\n\t\t\t\t\t\t\tthis.modalItems = json.items || [];\n\t\t\t\t\t\t\tthis.modalTotalPages = json.total_pages || 1;\n\t\t\t\t\t\t\tthis.selectedWarehouse.total = json.total || 0;\n\t\t\t\t\t\t}\n\t\t\t\t\t} catch(e) {\n\t\t\t\t\t\tconsole.error('Error fetching items:', e);\n\t\t\t\t\t} finally {\n\t\t\t\t\t\tthis.modalLoading = false;\n\t\t\t\t\t}\n\t\t\t\t},\n\t\t\t\tasync nextModalPage() {\n\t\t\t\t\tif (this.modalPage < this.modalTotalPages) {\n\t\t\t\t\t\tthis.modalPage++;\n\t\t\t\t\t\tawait this.fetchItems();\n\t\t\t\t\t}\n\t\t\t\t},\n\t\t\t\tasync prevModalPage() {\n\t\t\t\t\tif (this.modalPage > 1) {\n\t\t\t\t\t\tthis.modalPage--;\n\t\t\t\t\t\tawait this.fetchItems();\n\t\t\t\t\t}\n\t\t\t\t},\n\t\t\t\tasync deleteItem(rowId) {\n\t\t\t\t\tif (!confirm('هل أنت متأكد من حذف هذا الصنف من المستودع؟')) return;\n\t\t\t\t\ttry {\n\t\t\t\t\t\tconst formData = new FormData();\n\t\t\t\t\t\tconst res = await fetch('/admin/temporary-warehouses/items/' + rowId + '/delete', {\n\t\t\t\t\t\t\tmethod: 'POST',\n\t\t\t\t\t\t\tbody: formData\n\t\t\t\t\t\t});\n\t\t\t\t\t\tconst json = await res.json();\n\t\t\t\t\t\tif (json.success) {\n\t\t\t\t\t\t\tawait this.fetchItems();\n\t\t\t\t\t\t} else {\n\t\t\t\t\t\t\talert(json.error || 'حدث خطأ أثناء الحذف');\n\t\t\t\t\t\t}\n\t\t\t\t\t} catch(e) {\n\t\t\t\t\t\talert('فشل الاتصال بالخادم');\n\t\t\t\t\t}\n\t\t\t\t},\n\t\t\t\thandleFilesSelect(event) {\n\t\t\t\t\tconst files = Array.from(event.target.files || []);\n\t\t\t\t\tif (files.length === 0) return;\n\t\t\t\t\tthis.selectedFiles = files;\n\t\t\t\t\tthis.bulkUploadResults = null;\n\t\t\t\t\tif (files.length === 1) {\n\t\t\t\t\t\tthis.handleSingleFileHeaders(files[0]);\n\t\t\t\t\t}\n\t\t\t\t},\n\t\t\t\thandleDrop(event) {\n\t\t\t\t\tthis.isDragging = false;\n\t\t\t\t\tif (event.dataTransfer && event.dataTransfer.files) {\n\t\t\t\t\t\tconst files = Array.from(event.dataTransfer.files).filter(f => \n\t\t\t\t\t\t\tf.name.endsWith('.xlsx') || f.name.endsWith('.xls') || f.name.endsWith('.csv') || f.name.endsWith('.txt')\n\t\t\t\t\t\t);\n\t\t\t\t\t\tif (files.length > 0) {\n\t\t\t\t\t\t\tthis.selectedFiles = files;\n\t\t\t\t\t\t\tthis.bulkUploadResults = null;\n\t\t\t\t\t\t\tif (files.length === 1) {\n\t\t\t\t\t\t\t\tthis.handleSingleFileHeaders(files[0]);\n\t\t\t\t\t\t\t}\n\t\t\t\t\t\t}\n\t\t\t\t\t}\n\t\t\t\t},\n\t\t\t\tremoveSelectedFile(idx) {\n\t\t\t\t\tthis.selectedFiles.splice(idx, 1);\n\t\t\t\t\tif (this.selectedFiles.length === 1) {\n\t\t\t\t\t\tthis.handleSingleFileHeaders(this.selectedFiles[0]);\n\t\t\t\t\t}\n\t\t\t\t},\n\t\t\t\tclearSelectedFiles() {\n\t\t\t\t\tthis.selectedFiles = [];\n\t\t\t\t\tthis.fileHeaders = [];\n\t\t\t\t\tthis.bulkUploadResults = null;\n\t\t\t\t\tif (this.$refs && this.$refs.fileInput) {\n\t\t\t\t\t\tthis.$refs.fileInput.value = '';\n\t\t\t\t\t}\n\t\t\t\t},\n\t\t\t\tformatFileSize(bytes) {\n\t\t\t\t\tif (!bytes || bytes === 0) return '0 B';\n\t\t\t\t\tconst k = 1024;\n\t\t\t\t\tconst sizes = ['B', 'KB', 'MB', 'GB'];\n\t\t\t\t\tconst i = Math.floor(Math.log(bytes) / Math.log(k));\n\t\t\t\t\treturn parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];\n\t\t\t\t},\n\t\t\t\ttotalSelectedSize() {\n\t\t\t\t\tconst totalBytes = this.selectedFiles.reduce((acc, f) => acc + (f.size || 0), 0);\n\t\t\t\t\treturn this.formatFileSize(totalBytes);\n\t\t\t\t},\n\t\t\t\tcleanName(filename) {\n\t\t\t\t\tif (!filename) return '';\n\t\t\t\t\tlet name = filename.replace(/\\.[^/.]+$/, '');\n\t\t\t\t\tname = name.replace(/[_\\-]/g, ' ').trim();\n\t\t\t\t\treturn name || filename;\n\t\t\t\t},\n\t\t\t\thandleSingleFileHeaders(file) {\n\t\t\t\t\tif (!file) return;\n\t\t\t\t\tconst reader = new FileReader();\n\t\t\t\t\treader.onload = (e) => {\n\t\t\t\t\t\tconst text = e.target.result;\n\t\t\t\t\t\tif (file.name.endsWith('.csv') || file.name.endsWith('.txt')) {\n\t\t\t\t\t\t\tconst lines = text.split(/\\r?\\n/).filter(l => l.trim().length > 0);\n\t\t\t\t\t\t\tif (lines.length > 0) {\n\t\t\t\t\t\t\t\tthis.fileHeaders = lines[0].split(',').map(h => h.trim().replace(/^['\\x22]|['\\x22]$/g, ''));\n\t\t\t\t\t\t\t\tthis.guessColumns();\n\t\t\t\t\t\t\t}\n\t\t\t\t\t\t} else {\n\t\t\t\t\t\t\tthis.fileHeaders = ['كود الصنف (SKU)', 'اسم المنتج / الصنف', 'سعر الجمهور', 'نسبة الخصم %', 'الكمية'];\n\t\t\t\t\t\t\tthis.detectedCode = 0;\n\t\t\t\t\t\t\tthis.detectedName = 1;\n\t\t\t\t\t\t\tthis.detectedPrice = 2;\n\t\t\t\t\t\t\tthis.detectedDiscount = 3;\n\t\t\t\t\t\t}\n\t\t\t\t\t};\n\t\t\t\t\tif (file.name.endsWith('.csv') || file.name.endsWith('.txt')) {\n\t\t\t\t\t\treader.readAsText(file);\n\t\t\t\t\t} else {\n\t\t\t\t\t\treader.readAsArrayBuffer(file);\n\t\t\t\t\t}\n\t\t\t\t},\n\t\t\t\tguessColumns() {\n\t\t\t\t\tif (!this.fileHeaders || this.fileHeaders.length === 0) return;\n\t\t\t\t\tthis.detectedCode = 0;\n\t\t\t\t\tthis.detectedName = 1;\n\t\t\t\t\tthis.detectedPrice = 2;\n\t\t\t\t\tthis.detectedDiscount = 3;\n\t\t\t\t\tthis.fileHeaders.forEach((h, idx) => {\n\t\t\t\t\t\tconst norm = h.toLowerCase().replace(/[\\s_\\-]/g, '');\n\t\t\t\t\t\tif (norm.includes('كود') || norm.includes('code') || norm.includes('sku') || norm.includes('باركود') || norm.includes('barcode')) {\n\t\t\t\t\t\t\tthis.detectedCode = idx;\n\t\t\t\t\t\t} else if (norm.includes('اسم') || norm.includes('name') || norm.includes('صنف') || norm.includes('منتج')) {\n\t\t\t\t\t\t\tthis.detectedName = idx;\n\t\t\t\t\t\t} else if ((norm.includes('سعر') || norm.includes('price') || norm.includes('جمهور') || norm.includes('رسمي')) && !norm.includes('خصم') && !norm.includes('صافي')) {\n\t\t\t\t\t\t\tthis.detectedPrice = idx;\n\t\t\t\t\t\t} else if (norm.includes('خصم') || norm.includes('discount') || norm.includes('%') || norm.includes('نسبة')) {\n\t\t\t\t\t\t\tthis.detectedDiscount = idx;\n\t\t\t\t\t\t}\n\t\t\t\t\t});\n\t\t\t\t},\n\t\t\t\tasync submitBulkUpload(form) {\n\t\t\t\t\tif (this.selectedFiles.length === 0) {\n\t\t\t\t\t\talert('يرجى اختيار ملف أو أكثر أولاً');\n\t\t\t\t\t\treturn;\n\t\t\t\t\t}\n\t\t\t\t\tthis.isBulkUploading = true;\n\t\t\t\t\tthis.uploadProgress = 10;\n\t\t\t\t\tthis.uploadStatusText = 'جاري رفع ' + this.selectedFiles.length + ' ملف إلى الخادم...';\n\n\t\t\t\t\tconst formData = new FormData();\n\t\t\t\t\tif (this.selectedFiles.length === 1) {\n\t\t\t\t\t\tformData.append('supplier_name', form.supplier_name ? form.supplier_name.value : '');\n\t\t\t\t\t\tformData.append('col_code', this.detectedCode);\n\t\t\t\t\t\tformData.append('col_name', this.detectedName);\n\t\t\t\t\t\tformData.append('col_price', this.detectedPrice);\n\t\t\t\t\t\tformData.append('col_discount', this.detectedDiscount);\n\t\t\t\t\t} else if (form.supplier_name && form.supplier_name.value) {\n\t\t\t\t\t\tformData.append('supplier_name', form.supplier_name.value);\n\t\t\t\t\t}\n\n\t\t\t\t\tfor (let i = 0; i < this.selectedFiles.length; i++) {\n\t\t\t\t\t\tformData.append('files', this.selectedFiles[i]);\n\t\t\t\t\t}\n\n\t\t\t\t\ttry {\n\t\t\t\t\t\tthis.uploadProgress = 35;\n\t\t\t\t\t\tthis.uploadStatusText = 'جاري المعالجة المتوازية فائقة السرعة واستخراج أصناف المستودعات في قاعدة البيانات...';\n\n\t\t\t\t\t\tconst response = await fetch(form.action || '/admin/temporary-warehouses/upload', {\n\t\t\t\t\t\t\tmethod: 'POST',\n\t\t\t\t\t\t\tbody: formData,\n\t\t\t\t\t\t\theaders: {\n\t\t\t\t\t\t\t\t'Accept': 'application/json',\n\t\t\t\t\t\t\t\t'X-Requested-With': 'XMLHttpRequest'\n\t\t\t\t\t\t\t}\n\t\t\t\t\t\t});\n\n\t\t\t\t\t\tthis.uploadProgress = 85;\n\t\t\t\t\t\tconst result = await response.json();\n\t\t\t\t\t\tthis.uploadProgress = 100;\n\n\t\t\t\t\t\tif (result && result.success) {\n\t\t\t\t\t\t\tthis.bulkUploadResults = result;\n\t\t\t\t\t\t\tthis.uploadStatusText = result.message || 'تم الرفع والمعالجة بنجاح!';\n\t\t\t\t\t\t\tsetTimeout(() => {\n\t\t\t\t\t\t\t\twindow.location.reload();\n\t\t\t\t\t\t\t}, 2000);\n\t\t\t\t\t\t} else {\n\t\t\t\t\t\t\talert((result && result.error) || 'حدث خطأ أثناء معالجة الملفات');\n\t\t\t\t\t\t\tthis.isBulkUploading = false;\n\t\t\t\t\t\t}\n\t\t\t\t\t} catch(err) {\n\t\t\t\t\t\tconsole.error('Upload error:', err);\n\t\t\t\t\t\tthis.uploadStatusText = 'تم إرسال الملفات بنجاح، جاري تحديث الصفحة...';\n\t\t\t\t\t\tsetTimeout(() => {\n\t\t\t\t\t\t\twindow.location.reload();\n\t\t\t\t\t\t}, 2500);\n\t\t\t\t\t}\n\t\t\t\t}\n\t\t\t}\" style=\"display:flex; flex-direction:column; gap:1.5rem; max-width:1440px; margin:0 auto 3.5rem auto;\"><!-- 1. Header Banner & Top Action Tabs (Matching Image 4) --><div class=\"card mb-0\" style=\"border:1px solid var(--border); background:linear-gradient(135deg, var(--surface-raised) 0%, var(--surface-sunken) 100%); border-radius:var(--radius-2xl); padding:1.75rem; box-shadow:0 4px 20px rgba(0,0,0,0.03);\"><div style=\"display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:1.5rem;\"><div><div style=\"display:flex; align-items:center; gap:0.75rem; margin-bottom:0.35rem;\"><div style=\"width:46px; height:46px; border-radius:var(--radius-xl); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center; font-size:1.4rem;\">🏢</div><div><h1 style=\"font-size:1.5rem; font-weight:900; color:var(--text); margin:0;\">قوائم المستودعات التابعة لحسابي المشرف</h1><span style=\"font-size:0.75rem; font-weight:700; color:var(--accent); text-transform:uppercase;\">Temporary Warehouses & Staged Supplier Catalogs</span></div></div><p style=\"font-size:0.875rem; color:var(--text-secondary); margin:0.35rem 0 0 0; line-height:1.6; max-width:820px;\">تعرض هذه الصفحة ملفات المستودعات وكشوف الأسعار المؤقتة التي تم رفعها، والمرتبطة بعروض خصومات السوق العامة.</p></div><!-- Top Navigation Scope Tabs + Upload Button (Image 4) --><div style=\"display:flex; gap:0.6rem; align-items:center; flex-wrap:wrap;\"><a href=\"/admin/user/temparte-warehouses?scope=my\" class=\"btn btn-sm\" style=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var119 string
 			templ_7745c5c3_Var119, templ_7745c5c3_Err = templruntime.SanitizeStyleAttributeValues(templ.KV("background:var(--accent); color:#fff; font-weight:800;", data.Scope == "my" || data.Scope == ""), templ.KV("background:var(--surface-sunken); border:1px solid var(--border); color:var(--text-secondary); font-weight:700;", data.Scope != "my" && data.Scope != ""))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_catalog_inventory.templ`, Line: 1340, Col: 286}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_catalog_inventory.templ`, Line: 1456, Col: 286}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var119))
 			if templ_7745c5c3_Err != nil {
@@ -2691,7 +2691,7 @@ func AdminTempWarehousesPage(data *AdminTempWarehousesData, lang, dir string) te
 			var templ_7745c5c3_Var120 string
 			templ_7745c5c3_Var120, templ_7745c5c3_Err = templruntime.SanitizeStyleAttributeValues(templ.KV("background:var(--accent); color:#fff; font-weight:800;", data.Scope == "admins"), templ.KV("background:var(--surface-sunken); border:1px solid var(--border); color:var(--text-secondary); font-weight:700;", data.Scope != "admins"))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_catalog_inventory.templ`, Line: 1348, Col: 254}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_catalog_inventory.templ`, Line: 1464, Col: 254}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var120))
 			if templ_7745c5c3_Err != nil {
@@ -2704,7 +2704,7 @@ func AdminTempWarehousesPage(data *AdminTempWarehousesData, lang, dir string) te
 			var templ_7745c5c3_Var121 string
 			templ_7745c5c3_Var121, templ_7745c5c3_Err = templruntime.SanitizeStyleAttributeValues(templ.KV("background:var(--accent); color:#fff; font-weight:800;", data.Scope == "all"), templ.KV("background:var(--surface-sunken); border:1px solid var(--border); color:var(--text-secondary); font-weight:700;", data.Scope != "all"))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_catalog_inventory.templ`, Line: 1356, Col: 248}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_catalog_inventory.templ`, Line: 1472, Col: 248}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var121))
 			if templ_7745c5c3_Err != nil {
@@ -2743,7 +2743,7 @@ func AdminTempWarehousesPage(data *AdminTempWarehousesData, lang, dir string) te
 				var templ_7745c5c3_Var124 string
 				templ_7745c5c3_Var124, templ_7745c5c3_Err = templ.JoinStringErrs(data.NoticeMsg)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_catalog_inventory.templ`, Line: 1383, Col: 21}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_catalog_inventory.templ`, Line: 1499, Col: 21}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var124))
 				if templ_7745c5c3_Err != nil {
@@ -2761,7 +2761,7 @@ func AdminTempWarehousesPage(data *AdminTempWarehousesData, lang, dir string) te
 			var templ_7745c5c3_Var125 string
 			templ_7745c5c3_Var125, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", data.TotalRows))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_catalog_inventory.templ`, Line: 1392, Col: 41}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_catalog_inventory.templ`, Line: 1508, Col: 41}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var125))
 			if templ_7745c5c3_Err != nil {
@@ -2774,7 +2774,7 @@ func AdminTempWarehousesPage(data *AdminTempWarehousesData, lang, dir string) te
 			var templ_7745c5c3_Var126 string
 			templ_7745c5c3_Var126, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", data.TotalCount))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_catalog_inventory.templ`, Line: 1402, Col: 42}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_catalog_inventory.templ`, Line: 1518, Col: 42}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var126))
 			if templ_7745c5c3_Err != nil {
@@ -2787,7 +2787,7 @@ func AdminTempWarehousesPage(data *AdminTempWarehousesData, lang, dir string) te
 			var templ_7745c5c3_Var127 string
 			templ_7745c5c3_Var127, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", data.ActiveCount))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_catalog_inventory.templ`, Line: 1412, Col: 43}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_catalog_inventory.templ`, Line: 1528, Col: 43}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var127))
 			if templ_7745c5c3_Err != nil {
@@ -2800,7 +2800,7 @@ func AdminTempWarehousesPage(data *AdminTempWarehousesData, lang, dir string) te
 			var templ_7745c5c3_Var128 string
 			templ_7745c5c3_Var128, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", data.ArchivedCount))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_catalog_inventory.templ`, Line: 1422, Col: 45}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_catalog_inventory.templ`, Line: 1538, Col: 45}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var128))
 			if templ_7745c5c3_Err != nil {
@@ -2813,7 +2813,7 @@ func AdminTempWarehousesPage(data *AdminTempWarehousesData, lang, dir string) te
 			var templ_7745c5c3_Var129 string
 			templ_7745c5c3_Var129, templ_7745c5c3_Err = templ.ResolveAttributeValue(data.Scope)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_catalog_inventory.templ`, Line: 1433, Col: 57}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_catalog_inventory.templ`, Line: 1549, Col: 57}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var129)
 			if templ_7745c5c3_Err != nil {
@@ -2826,7 +2826,7 @@ func AdminTempWarehousesPage(data *AdminTempWarehousesData, lang, dir string) te
 			var templ_7745c5c3_Var130 string
 			templ_7745c5c3_Var130, templ_7745c5c3_Err = templ.ResolveAttributeValue(data.Query)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_catalog_inventory.templ`, Line: 1440, Col: 25}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_catalog_inventory.templ`, Line: 1556, Col: 25}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var130)
 			if templ_7745c5c3_Err != nil {
@@ -2847,7 +2847,7 @@ func AdminTempWarehousesPage(data *AdminTempWarehousesData, lang, dir string) te
 			var templ_7745c5c3_Var131 templ.SafeURL
 			templ_7745c5c3_Var131, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("/admin/user/temparte-warehouses?scope=%s&q=%s&status=ready", data.Scope, data.Query)))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_catalog_inventory.templ`, Line: 1454, Col: 127}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_catalog_inventory.templ`, Line: 1570, Col: 127}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var131))
 			if templ_7745c5c3_Err != nil {
@@ -2860,7 +2860,7 @@ func AdminTempWarehousesPage(data *AdminTempWarehousesData, lang, dir string) te
 			var templ_7745c5c3_Var132 string
 			templ_7745c5c3_Var132, templ_7745c5c3_Err = templruntime.SanitizeStyleAttributeValues(templ.KV("background:var(--surface-raised); font-weight:800; color:var(--emerald); box-shadow:0 1px 3px rgba(0,0,0,0.06);", data.StatusFilter == "ready"), templ.KV("background:transparent; color:var(--text-secondary); border:none;", data.StatusFilter != "ready"))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_catalog_inventory.templ`, Line: 1456, Col: 278}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_catalog_inventory.templ`, Line: 1572, Col: 278}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var132))
 			if templ_7745c5c3_Err != nil {
@@ -2873,7 +2873,7 @@ func AdminTempWarehousesPage(data *AdminTempWarehousesData, lang, dir string) te
 			var templ_7745c5c3_Var133 templ.SafeURL
 			templ_7745c5c3_Var133, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("/admin/user/temparte-warehouses?scope=%s&q=%s&status=archived", data.Scope, data.Query)))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_catalog_inventory.templ`, Line: 1462, Col: 130}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_catalog_inventory.templ`, Line: 1578, Col: 130}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var133))
 			if templ_7745c5c3_Err != nil {
@@ -2886,7 +2886,7 @@ func AdminTempWarehousesPage(data *AdminTempWarehousesData, lang, dir string) te
 			var templ_7745c5c3_Var134 string
 			templ_7745c5c3_Var134, templ_7745c5c3_Err = templruntime.SanitizeStyleAttributeValues(templ.KV("background:var(--surface-raised); font-weight:800; color:var(--accent); box-shadow:0 1px 3px rgba(0,0,0,0.06);", data.StatusFilter == "archived"), templ.KV("background:transparent; color:var(--text-secondary); border:none;", data.StatusFilter != "archived"))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_catalog_inventory.templ`, Line: 1464, Col: 283}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_catalog_inventory.templ`, Line: 1580, Col: 283}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var134))
 			if templ_7745c5c3_Err != nil {
@@ -2899,7 +2899,7 @@ func AdminTempWarehousesPage(data *AdminTempWarehousesData, lang, dir string) te
 			var templ_7745c5c3_Var135 templ.SafeURL
 			templ_7745c5c3_Var135, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("/admin/user/temparte-warehouses?scope=%s&q=%s", data.Scope, data.Query)))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_catalog_inventory.templ`, Line: 1470, Col: 114}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_catalog_inventory.templ`, Line: 1586, Col: 114}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var135))
 			if templ_7745c5c3_Err != nil {
@@ -2912,7 +2912,7 @@ func AdminTempWarehousesPage(data *AdminTempWarehousesData, lang, dir string) te
 			var templ_7745c5c3_Var136 string
 			templ_7745c5c3_Var136, templ_7745c5c3_Err = templruntime.SanitizeStyleAttributeValues(templ.KV("background:var(--surface-raised); font-weight:800; color:var(--text); box-shadow:0 1px 3px rgba(0,0,0,0.06);", data.StatusFilter == ""), templ.KV("background:transparent; color:var(--text-secondary); border:none;", data.StatusFilter != ""))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_catalog_inventory.templ`, Line: 1472, Col: 265}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_catalog_inventory.templ`, Line: 1588, Col: 265}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var136))
 			if templ_7745c5c3_Err != nil {
@@ -2948,7 +2948,7 @@ func AdminTempWarehousesPage(data *AdminTempWarehousesData, lang, dir string) te
 					var templ_7745c5c3_Var137 string
 					templ_7745c5c3_Var137, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", idx+1))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_catalog_inventory.templ`, Line: 1520, Col: 37}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_catalog_inventory.templ`, Line: 1636, Col: 37}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var137))
 					if templ_7745c5c3_Err != nil {
@@ -2961,7 +2961,7 @@ func AdminTempWarehousesPage(data *AdminTempWarehousesData, lang, dir string) te
 					var templ_7745c5c3_Var138 string
 					templ_7745c5c3_Var138, templ_7745c5c3_Err = templ.JoinStringErrs(item.SupplierName)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_catalog_inventory.templ`, Line: 1524, Col: 31}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_catalog_inventory.templ`, Line: 1640, Col: 31}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var138))
 					if templ_7745c5c3_Err != nil {
@@ -2979,7 +2979,7 @@ func AdminTempWarehousesPage(data *AdminTempWarehousesData, lang, dir string) te
 						var templ_7745c5c3_Var139 string
 						templ_7745c5c3_Var139, templ_7745c5c3_Err = templ.JoinStringErrs(item.OriginalFilename)
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_catalog_inventory.templ`, Line: 1528, Col: 41}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_catalog_inventory.templ`, Line: 1644, Col: 41}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var139))
 						if templ_7745c5c3_Err != nil {
@@ -2997,7 +2997,7 @@ func AdminTempWarehousesPage(data *AdminTempWarehousesData, lang, dir string) te
 					var templ_7745c5c3_Var140 string
 					templ_7745c5c3_Var140, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d صنف", item.RowCount))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_catalog_inventory.templ`, Line: 1534, Col: 53}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_catalog_inventory.templ`, Line: 1650, Col: 53}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var140))
 					if templ_7745c5c3_Err != nil {
@@ -3010,7 +3010,7 @@ func AdminTempWarehousesPage(data *AdminTempWarehousesData, lang, dir string) te
 					var templ_7745c5c3_Var141 string
 					templ_7745c5c3_Var141, templ_7745c5c3_Err = templ.JoinStringErrs(item.CreatedAt.Format("2006-01-02 15:04"))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_catalog_inventory.templ`, Line: 1538, Col: 54}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_catalog_inventory.templ`, Line: 1654, Col: 54}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var141))
 					if templ_7745c5c3_Err != nil {
@@ -3023,7 +3023,7 @@ func AdminTempWarehousesPage(data *AdminTempWarehousesData, lang, dir string) te
 					var templ_7745c5c3_Var142 string
 					templ_7745c5c3_Var142, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("openItems(%d, %q, %d)", item.ID, item.SupplierName, item.RowCount))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_catalog_inventory.templ`, Line: 1545, Col: 101}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_catalog_inventory.templ`, Line: 1661, Col: 101}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var142)
 					if templ_7745c5c3_Err != nil {
@@ -3036,7 +3036,7 @@ func AdminTempWarehousesPage(data *AdminTempWarehousesData, lang, dir string) te
 					var templ_7745c5c3_Var143 templ.SafeURL
 					templ_7745c5c3_Var143, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("/admin/temporary-warehouses/%d/export", item.ID)))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_catalog_inventory.templ`, Line: 1555, Col: 96}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_catalog_inventory.templ`, Line: 1671, Col: 96}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var143))
 					if templ_7745c5c3_Err != nil {
@@ -3049,7 +3049,7 @@ func AdminTempWarehousesPage(data *AdminTempWarehousesData, lang, dir string) te
 					var templ_7745c5c3_Var144 templ.SafeURL
 					templ_7745c5c3_Var144, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("/admin/temporary-warehouses/%d/toggle-archive", item.ID)))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_catalog_inventory.templ`, Line: 1564, Col: 125}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_catalog_inventory.templ`, Line: 1680, Col: 125}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var144))
 					if templ_7745c5c3_Err != nil {
@@ -3077,7 +3077,7 @@ func AdminTempWarehousesPage(data *AdminTempWarehousesData, lang, dir string) te
 					var templ_7745c5c3_Var145 templ.SafeURL
 					templ_7745c5c3_Var145, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("/admin/temporary-warehouses/%d/delete", item.ID)))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_catalog_inventory.templ`, Line: 1577, Col: 117}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_catalog_inventory.templ`, Line: 1693, Col: 117}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var145))
 					if templ_7745c5c3_Err != nil {
@@ -3093,7 +3093,7 @@ func AdminTempWarehousesPage(data *AdminTempWarehousesData, lang, dir string) te
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 318, "</div><!-- 5. Warehouse Items Modal (Matching Image 3) --><div x-show=\"itemsModal\" style=\"position:fixed; top:0; left:0; right:0; bottom:0; width:100vw; height:100vh; z-index:99999; background:rgba(15,23,42,0.75); backdrop-filter:blur(4px); display:flex; align-items:center; justify-content:center; padding:1.25rem; margin:0; box-sizing:border-box;\" x-cloak @keydown.escape.window=\"itemsModal = false\" @click.self=\"itemsModal = false\"><div class=\"card mb-0\" style=\"max-width:920px; width:100%; max-height:90vh; display:flex; flex-direction:column; overflow:hidden; padding:0; background:var(--surface-raised); border-radius:var(--radius-2xl); border:1px solid var(--border); box-shadow:var(--shadow-2xl); margin:auto;\"><!-- Modal Top Header (Image 3) --><div style=\"padding:1.25rem 1.75rem; border-bottom:1px solid var(--border-subtle); display:flex; justify-content:space-between; align-items:center; background:var(--surface);\"><div style=\"display:flex; align-items:center; gap:0.6rem;\"><span style=\"font-size:1.3rem;\">📦</span><h3 style=\"font-size:1.2rem; font-weight:900; color:var(--text); margin:0;\">أصناف المستودع: <span x-text=\"selectedWarehouse.name\" style=\"color:var(--accent);\"></span> (<span x-text=\"selectedWarehouse.total\" class=\"tabular-nums\"></span> صنف)</h3></div><div style=\"display:flex; align-items:center; gap:0.6rem;\"><!-- Download XLSX Button --><a :href=\"'/admin/temporary-warehouses/' + selectedWarehouse.id + '/export'\" class=\"btn btn-secondary btn-sm fw-800\" style=\"display:inline-flex; align-items:center; gap:0.35rem; padding:0.4rem 0.85rem; border-radius:var(--radius-md); color:var(--emerald, #10b981);\"><span>📥 تحميل XLSX</span></a><!-- Close Button --><button type=\"button\" @click=\"itemsModal = false\" class=\"btn btn-secondary btn-sm\" style=\"border-radius:var(--radius-full); width:32px; height:32px; padding:0; display:flex; align-items:center; justify-content:center; font-size:1.1rem;\">&times;</button></div></div><!-- Modal Body Table (Image 3) --><div style=\"flex:1; overflow-y:auto; padding:0;\"><template x-if=\"modalLoading\"><div style=\"padding:4rem; text-align:center; color:var(--text-muted);\"><div style=\"font-size:2rem; margin-bottom:0.5rem;\">⏳</div><div class=\"fw-700\">جاري تحميل أصناف المستودع...</div></div></template><template x-if=\"!modalLoading && modalItems.length === 0\"><div style=\"padding:4rem; text-align:center; color:var(--text-muted);\"><div style=\"font-size:2rem; margin-bottom:0.5rem;\">🔍</div><div class=\"fw-700\">لا توجد أصناف في هذا المستودع حالياً.</div></div></template><template x-if=\"!modalLoading && modalItems.length > 0\"><div class=\"table-container m-0\"><table class=\"data-table m-0\"><thead><tr><th style=\"min-width:120px;\">الكود</th><th style=\"min-width:320px;\">اسم المنتج</th><th style=\"min-width:130px;\">سعر الجمهور</th><th style=\"min-width:110px;\">نسبة الخصم</th><th style=\"width:60px; text-align:center;\">حذف</th></tr></thead> <tbody><template x-for=\"row in modalItems\" :key=\"row.id\"><tr><!-- SKU Code --><td class=\"tabular-nums font-mono\" style=\"font-size:0.85rem; font-weight:800; color:var(--text);\" x-text=\"row.sku || ('#' + row.id)\"></td><!-- Product Name --><td><div class=\"fw-900 text-foreground\" style=\"font-size:0.95rem;\" x-text=\"row.raw_name\"></div></td><!-- Public Price --><td class=\"tabular-nums font-bold\" style=\"font-size:0.95rem; color:var(--text);\" x-text=\"row.price + ' ج.م'\"></td><!-- Discount --><td class=\"tabular-nums\"><span class=\"badge badge-emerald fw-800 text-xs\" style=\"padding:0.25rem 0.6rem; border-radius:var(--radius-md);\" x-text=\"row.discount + '%'\"></span></td><!-- Delete Single Item Button (Image 3) --><td style=\"text-align:center;\"><button type=\"button\" @click=\"deleteItem(row.id)\" class=\"btn btn-secondary btn-xs\" style=\"color:#dc2626; border-radius:var(--radius-md); padding:0.25rem 0.5rem; font-weight:800;\" title=\"حذف هذا الصنف من المستودع\">✕</button></td></tr></template></tbody></table></div></template></div><!-- Modal Pagination Footer (Image 3) --><div style=\"padding:1rem 1.75rem; border-top:1px solid var(--border-subtle); display:flex; justify-content:space-between; align-items:center; background:var(--surface); flex-wrap:wrap; gap:1rem;\"><div class=\"text-xs text-muted fw-700 tabular-nums\"><span>عرض صفحة </span> <strong class=\"text-foreground\" x-text=\"modalPage\"></strong> <span>من </span> <strong class=\"text-foreground\" x-text=\"modalTotalPages\"></strong> <span>(إجمالي </span> <strong class=\"text-accent\" x-text=\"selectedWarehouse.total\"></strong> <span>صنف)</span></div><div style=\"display:flex; align-items:center; gap:0.5rem;\"><button type=\"button\" @click=\"prevModalPage()\" :disabled=\"modalPage <= 1 || modalLoading\" class=\"btn btn-secondary btn-sm fw-800\" style=\"border-radius:var(--radius-md); padding:0.35rem 0.85rem;\">السابق</button> <button type=\"button\" @click=\"nextModalPage()\" :disabled=\"modalPage >= modalTotalPages || modalLoading\" class=\"btn btn-secondary btn-sm fw-800\" style=\"border-radius:var(--radius-md); padding:0.35rem 0.85rem;\">التالي</button> <button type=\"button\" @click=\"itemsModal = false\" class=\"btn btn-secondary btn-sm fw-800\" style=\"border-radius:var(--radius-md); padding:0.35rem 0.85rem; margin-inline-start:0.5rem;\">إغلاق</button></div></div></div></div><!-- 6. Upload & Column Mapping Modal with Auto-Guessing --><div x-show=\"uploadModal\" style=\"position:fixed; top:0; left:0; right:0; bottom:0; width:100vw; height:100vh; z-index:99999; background:rgba(15,23,42,0.75); backdrop-filter:blur(4px); display:flex; align-items:center; justify-content:center; padding:1.25rem; margin:0; box-sizing:border-box;\" x-cloak @keydown.escape.window=\"uploadModal = false\" @click.self=\"uploadModal = false\"><div class=\"card mb-0\" style=\"max-width:620px; width:100%; max-height:90vh; overflow-y:auto; padding:1.75rem; background:var(--surface-raised); border-radius:var(--radius-2xl); border:1px solid var(--border); box-shadow:var(--shadow-2xl); margin:auto;\"><div style=\"display:flex; justify-content:space-between; align-items:center; margin-bottom:1.25rem;\"><div><h3 style=\"font-size:1.25rem; font-weight:900; color:var(--text); margin:0;\">➕ رفع كشف مستودع جديد وربط الأعمدة</h3><p style=\"font-size:0.8rem; color:var(--text-muted); margin:0.2rem 0 0 0;\">رفع ملف كشف الأصناف والأسعار (Excel / CSV) مع تعيين الأعمدة تلقائياً</p></div><button type=\"button\" @click=\"uploadModal = false\" class=\"btn btn-secondary btn-sm\" style=\"border-radius:var(--radius-full); width:32px; height:32px; padding:0; display:flex; align-items:center; justify-content:center; font-size:1.1rem;\">&times;</button></div><form action=\"/admin/temporary-warehouses/upload\" method=\"POST\" enctype=\"multipart/form-data\" class=\"stack-lg\"><!-- Supplier / Warehouse Name --><div class=\"form-group mb-0\"><label class=\"form-label text-xs fw-700\" style=\"color:var(--text-secondary); margin-bottom:0.35rem;\">اسم المورد / اسم المستودع <span class=\"text-danger\">*</span></label> <input type=\"text\" name=\"supplier_name\" required class=\"form-input\" placeholder=\"مثال: لايف كير (تروفى)-11، مستودع الأمل، شركة النور...\" style=\"height:44px; border-radius:var(--radius-lg);\"></div><!-- File Upload --><div class=\"form-group mb-0\"><label class=\"form-label text-xs fw-700\" style=\"color:var(--text-secondary); margin-bottom:0.35rem;\">ملف الأسعار (XLSX, XLS, CSV) <span class=\"text-danger\">*</span></label> <input type=\"file\" name=\"file\" required accept=\".xlsx,.xls,.csv,.txt\" @change=\"handleFileSelect($event)\" class=\"form-input\" style=\"height:44px; border-radius:var(--radius-lg); padding-top:0.4rem;\"></div><!-- Intelligent Column Mapping Deck --><div style=\"background:var(--surface-sunken); padding:1.25rem; border-radius:var(--radius-xl); border:1px solid var(--border);\"><div style=\"font-size:0.85rem; font-weight:800; color:var(--text); margin-bottom:0.25rem;\">⚙️ تعيين وتخمين الأعمدة الذكي (Column Mapping)</div><p style=\"font-size:0.75rem; color:var(--text-muted); margin:0 0 1rem 0;\">يخمن النظام الأعمدة تلقائياً بناءً على ترويسة الملف. يمكنك مراجعة أو تعديل أرقام الأعمدة:</p><div style=\"display:grid; grid-template-columns:1fr 1fr; gap:0.85rem;\"><!-- Code Column --><div class=\"form-group mb-0\"><label class=\"form-label text-xs fw-700\">عمود كود الصنف (SKU)</label> <select name=\"col_code\" class=\"form-input text-xs\" style=\"height:38px; border-radius:var(--radius-md);\" x-model=\"detectedCode\"><template x-for=\"(h, idx) in fileHeaders\" :key=\"idx\"><option :value=\"idx\" x-text=\"'عمود ' + (idx+1) + ': ' + h\"></option></template><option value=\"0\" x-show=\"fileHeaders.length === 0\">العمود 1 (تلقائي)</option></select></div><!-- Name Column --><div class=\"form-group mb-0\"><label class=\"form-label text-xs fw-700\">عمود اسم المنتج / الصنف</label> <select name=\"col_name\" class=\"form-input text-xs\" style=\"height:38px; border-radius:var(--radius-md);\" x-model=\"detectedName\"><template x-for=\"(h, idx) in fileHeaders\" :key=\"idx\"><option :value=\"idx\" x-text=\"'عمود ' + (idx+1) + ': ' + h\"></option></template><option value=\"1\" x-show=\"fileHeaders.length === 0\">العمود 2 (تلقائي)</option></select></div><!-- Price Column --><div class=\"form-group mb-0\"><label class=\"form-label text-xs fw-700\">عمود السعر (سعر الجمهور)</label> <select name=\"col_price\" class=\"form-input text-xs\" style=\"height:38px; border-radius:var(--radius-md);\" x-model=\"detectedPrice\"><template x-for=\"(h, idx) in fileHeaders\" :key=\"idx\"><option :value=\"idx\" x-text=\"'عمود ' + (idx+1) + ': ' + h\"></option></template><option value=\"2\" x-show=\"fileHeaders.length === 0\">العمود 3 (تلقائي)</option></select></div><!-- Discount Column --><div class=\"form-group mb-0\"><label class=\"form-label text-xs fw-700\">عمود نسبة الخصم (%)</label> <select name=\"col_discount\" class=\"form-input text-xs\" style=\"height:38px; border-radius:var(--radius-md);\" x-model=\"detectedDiscount\"><template x-for=\"(h, idx) in fileHeaders\" :key=\"idx\"><option :value=\"idx\" x-text=\"'عمود ' + (idx+1) + ': ' + h\"></option></template><option value=\"3\" x-show=\"fileHeaders.length === 0\">العمود 4 (تلقائي)</option></select></div></div></div><div style=\"display:flex; justify-content:flex-end; gap:0.75rem; margin-top:0.5rem;\"><button type=\"button\" class=\"btn btn-secondary\" style=\"border-radius:var(--radius-lg); font-weight:700;\" @click=\"uploadModal = false\">إلغاء</button> <button type=\"submit\" class=\"btn btn-primary fw-900\" style=\"border-radius:var(--radius-lg); padding:0.6rem 1.5rem;\">تأكيد ورفع المستودع</button></div></form></div></div></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 318, "</div><!-- 5. Warehouse Items Modal (Matching Image 3) --><div x-show=\"itemsModal\" style=\"position:fixed; top:0; left:0; right:0; bottom:0; width:100vw; height:100vh; z-index:99999; background:rgba(15,23,42,0.75); backdrop-filter:blur(4px); display:flex; align-items:center; justify-content:center; padding:1.25rem; margin:0; box-sizing:border-box;\" x-cloak @keydown.escape.window=\"itemsModal = false\" @click.self=\"itemsModal = false\"><div class=\"card mb-0\" style=\"max-width:920px; width:100%; max-height:90vh; display:flex; flex-direction:column; overflow:hidden; padding:0; background:var(--surface-raised); border-radius:var(--radius-2xl); border:1px solid var(--border); box-shadow:var(--shadow-2xl); margin:auto;\"><!-- Modal Top Header (Image 3) --><div style=\"padding:1.25rem 1.75rem; border-bottom:1px solid var(--border-subtle); display:flex; justify-content:space-between; align-items:center; background:var(--surface);\"><div style=\"display:flex; align-items:center; gap:0.6rem;\"><span style=\"font-size:1.3rem;\">📦</span><h3 style=\"font-size:1.2rem; font-weight:900; color:var(--text); margin:0;\">أصناف المستودع: <span x-text=\"selectedWarehouse.name\" style=\"color:var(--accent);\"></span> (<span x-text=\"selectedWarehouse.total\" class=\"tabular-nums\"></span> صنف)</h3></div><div style=\"display:flex; align-items:center; gap:0.6rem;\"><!-- Download XLSX Button --><a :href=\"'/admin/temporary-warehouses/' + selectedWarehouse.id + '/export'\" class=\"btn btn-secondary btn-sm fw-800\" style=\"display:inline-flex; align-items:center; gap:0.35rem; padding:0.4rem 0.85rem; border-radius:var(--radius-md); color:var(--emerald, #10b981);\"><span>📥 تحميل XLSX</span></a><!-- Close Button --><button type=\"button\" @click=\"itemsModal = false\" class=\"btn btn-secondary btn-sm\" style=\"border-radius:var(--radius-full); width:32px; height:32px; padding:0; display:flex; align-items:center; justify-content:center; font-size:1.1rem;\">&times;</button></div></div><!-- Modal Body Table (Image 3) --><div style=\"flex:1; overflow-y:auto; padding:0;\"><template x-if=\"modalLoading\"><div style=\"padding:4rem; text-align:center; color:var(--text-muted);\"><div style=\"font-size:2rem; margin-bottom:0.5rem;\">⏳</div><div class=\"fw-700\">جاري تحميل أصناف المستودع...</div></div></template><template x-if=\"!modalLoading && modalItems.length === 0\"><div style=\"padding:4rem; text-align:center; color:var(--text-muted);\"><div style=\"font-size:2rem; margin-bottom:0.5rem;\">🔍</div><div class=\"fw-700\">لا توجد أصناف في هذا المستودع حالياً.</div></div></template><template x-if=\"!modalLoading && modalItems.length > 0\"><div class=\"table-container m-0\"><table class=\"data-table m-0\"><thead><tr><th style=\"min-width:120px;\">الكود</th><th style=\"min-width:320px;\">اسم المنتج</th><th style=\"min-width:130px;\">سعر الجمهور</th><th style=\"min-width:110px;\">نسبة الخصم</th><th style=\"width:60px; text-align:center;\">حذف</th></tr></thead> <tbody><template x-for=\"row in modalItems\" :key=\"row.id\"><tr><!-- SKU Code --><td class=\"tabular-nums font-mono\" style=\"font-size:0.85rem; font-weight:800; color:var(--text);\" x-text=\"row.sku || ('#' + row.id)\"></td><!-- Product Name --><td><div class=\"fw-900 text-foreground\" style=\"font-size:0.95rem;\" x-text=\"row.raw_name\"></div></td><!-- Public Price --><td class=\"tabular-nums font-bold\" style=\"font-size:0.95rem; color:var(--text);\" x-text=\"row.price + ' ج.م'\"></td><!-- Discount --><td class=\"tabular-nums\"><span class=\"badge badge-emerald fw-800 text-xs\" style=\"padding:0.25rem 0.6rem; border-radius:var(--radius-md);\" x-text=\"row.discount + '%'\"></span></td><!-- Delete Single Item Button (Image 3) --><td style=\"text-align:center;\"><button type=\"button\" @click=\"deleteItem(row.id)\" class=\"btn btn-secondary btn-xs\" style=\"color:#dc2626; border-radius:var(--radius-md); padding:0.25rem 0.5rem; font-weight:800;\" title=\"حذف هذا الصنف من المستودع\">✕</button></td></tr></template></tbody></table></div></template></div><!-- Modal Pagination Footer (Image 3) --><div style=\"padding:1rem 1.75rem; border-top:1px solid var(--border-subtle); display:flex; justify-content:space-between; align-items:center; background:var(--surface); flex-wrap:wrap; gap:1rem;\"><div class=\"text-xs text-muted fw-700 tabular-nums\"><span>عرض صفحة </span> <strong class=\"text-foreground\" x-text=\"modalPage\"></strong> <span>من </span> <strong class=\"text-foreground\" x-text=\"modalTotalPages\"></strong> <span>(إجمالي </span> <strong class=\"text-accent\" x-text=\"selectedWarehouse.total\"></strong> <span>صنف)</span></div><div style=\"display:flex; align-items:center; gap:0.5rem;\"><button type=\"button\" @click=\"prevModalPage()\" :disabled=\"modalPage <= 1 || modalLoading\" class=\"btn btn-secondary btn-sm fw-800\" style=\"border-radius:var(--radius-md); padding:0.35rem 0.85rem;\">السابق</button> <button type=\"button\" @click=\"nextModalPage()\" :disabled=\"modalPage >= modalTotalPages || modalLoading\" class=\"btn btn-secondary btn-sm fw-800\" style=\"border-radius:var(--radius-md); padding:0.35rem 0.85rem;\">التالي</button> <button type=\"button\" @click=\"itemsModal = false\" class=\"btn btn-secondary btn-sm fw-800\" style=\"border-radius:var(--radius-md); padding:0.35rem 0.85rem; margin-inline-start:0.5rem;\">إغلاق</button></div></div></div></div><!-- 6. Upload & Column Mapping Modal with Auto-Guessing & 60+ Bulk Files Support --><div x-show=\"uploadModal\" style=\"position:fixed; top:0; left:0; right:0; bottom:0; width:100vw; height:100vh; z-index:99999; background:rgba(15,23,42,0.75); backdrop-filter:blur(4px); display:flex; align-items:center; justify-content:center; padding:1.25rem; margin:0; box-sizing:border-box;\" x-cloak @keydown.escape.window=\"if (!isBulkUploading) uploadModal = false\" @click.self=\"if (!isBulkUploading) uploadModal = false\"><div class=\"card mb-0\" style=\"max-width:720px; width:100%; max-height:92vh; overflow-y:auto; padding:1.75rem; background:var(--surface-raised); border-radius:var(--radius-2xl); border:1px solid var(--border); box-shadow:var(--shadow-2xl); margin:auto;\"><div style=\"display:flex; justify-content:space-between; align-items:center; margin-bottom:1.25rem; border-bottom:1px solid var(--border); padding-bottom:1rem;\"><div><h3 style=\"font-size:1.3rem; font-weight:900; color:var(--text); margin:0; display:flex; align-items:center; gap:0.5rem;\"><span>⚡</span> <span>رفع كشوف المستودعات (يدعم الرفع الجماعي لأكثر من 60 ملفاً)</span></h3><p style=\"font-size:0.8rem; color:var(--text-muted); margin:0.25rem 0 0 0;\">رفع ملفات الإكسيل و CSV لمعالجة واستخراج الأسعار والخصومات بالتوازي فائق السرعة</p></div><button type=\"button\" @click=\"if (!isBulkUploading) uploadModal = false\" :disabled=\"isBulkUploading\" class=\"btn btn-secondary btn-sm\" style=\"border-radius:var(--radius-full); width:32px; height:32px; padding:0; display:flex; align-items:center; justify-content:center; font-size:1.1rem;\">&times;</button></div><!-- Active Uploading Progress Overlay --><template x-if=\"isBulkUploading\"><div style=\"padding:2.5rem 1.5rem; text-align:center;\"><div class=\"spinner-border text-primary\" style=\"width:3.5rem; height:3.5rem; margin-bottom:1.25rem;\" role=\"status\"></div><h4 style=\"font-size:1.15rem; font-weight:900; color:var(--text); margin-bottom:0.5rem;\">جاري الرفع والمعالجة المتوازية فائقة السرعة...</h4><p class=\"text-xs text-muted\" x-text=\"uploadStatusText\" style=\"margin-bottom:1.5rem;\"></p><!-- Progress Bar --><div style=\"width:100%; height:12px; background:var(--surface-sunken); border-radius:var(--radius-full); overflow:hidden; border:1px solid var(--border); margin-bottom:0.75rem;\"><div style=\"height:100%; background:linear-gradient(90deg, var(--accent) 0%, var(--emerald, #10b981) 100%); transition:width 0.4s ease;\" :style=\"'width: ' + uploadProgress + '%'\"></div></div><div class=\"d-flex justify-between items-center text-xs text-muted font-bold tabular-nums\"><span x-text=\"'عدد الملفات: ' + selectedFiles.length\"></span> <span x-text=\"uploadProgress + '%'\"></span></div></div></template><!-- Upload Form --><form x-show=\"!isBulkUploading\" action=\"/admin/temporary-warehouses/upload\" method=\"POST\" enctype=\"multipart/form-data\" @submit.prevent=\"submitBulkUpload($event.target)\" class=\"stack-lg\"><!-- Drag & Drop Bulk Zone --><div @dragover.prevent=\"isDragging = true\" @dragleave.prevent=\"isDragging = false\" @drop.prevent=\"handleDrop($event)\" style=\"border:2px dashed var(--border); border-radius:var(--radius-xl); padding:1.75rem 1.25rem; text-align:center; background:var(--surface-sunken); transition:all 0.2s ease; cursor:pointer;\" :style=\"isDragging ? 'border-color:var(--accent); background:var(--accent-subtle);' : ''\" @click=\"$refs.fileInput.click()\"><input type=\"file\" name=\"files\" multiple accept=\".xlsx,.xls,.csv,.txt\" x-ref=\"fileInput\" @change=\"handleFilesSelect($event)\" style=\"display:none;\"><div style=\"font-size:2.5rem; margin-bottom:0.5rem;\">📂</div><div style=\"font-size:0.95rem; font-weight:800; color:var(--text); margin-bottom:0.25rem;\">اسحب وأفلت الملفات هنا، أو انقر لاختيار ملفات من جهازك</div><div style=\"font-size:0.75rem; color:var(--text-muted);\">يدعم اختيار ورفع أكثر من 60 ملفاً دفعة واحدة بصيغ (XLSX, XLS, CSV)</div></div><!-- Selected Files Badge & List --><template x-if=\"selectedFiles.length > 0\"><div style=\"background:var(--surface-sunken); border:1px solid var(--border); border-radius:var(--radius-xl); padding:1rem;\"><div style=\"display:flex; justify-content:space-between; align-items:center; margin-bottom:0.75rem;\"><div style=\"display:flex; align-items:center; gap:0.5rem;\"><span class=\"badge badge-emerald fw-800 text-xs tabular-nums\">✓ تم اختيار <strong x-text=\"selectedFiles.length\"></strong> ملف</span> <span class=\"text-xs text-muted tabular-nums\" x-text=\"'(الحجم: ' + totalSelectedSize() + ')'\"></span></div><button type=\"button\" @click=\"clearSelectedFiles()\" class=\"btn btn-secondary btn-xs text-danger fw-700\" style=\"border-radius:var(--radius-md);\">إفراغ القائمة</button></div><!-- Files Preview Scroll Area --><div style=\"max-height:160px; overflow-y:auto; display:flex; flex-direction:column; gap:0.35rem; padding-inline-end:0.25rem;\"><template x-for=\"(f, idx) in selectedFiles\" :key=\"idx\"><div style=\"display:flex; justify-content:space-between; align-items:center; background:var(--surface-raised); border:1px solid var(--border-subtle); border-radius:var(--radius-md); padding:0.4rem 0.65rem; font-size:0.75rem;\"><div style=\"display:flex; align-items:center; gap:0.4rem; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;\"><span class=\"text-muted tabular-nums\" x-text=\"(idx+1) + '.'\"></span> <strong class=\"text-primary text-truncate\" style=\"max-width:280px;\" x-text=\"f.name\"></strong> <span class=\"badge badge-slate text-xs\" x-text=\"'← مستودع: ' + cleanName(f.name)\"></span></div><div style=\"display:flex; align-items:center; gap:0.5rem; flex-shrink:0;\"><span class=\"text-muted tabular-nums\" x-text=\"formatFileSize(f.size)\"></span> <button type=\"button\" @click.stop=\"removeSelectedFile(idx)\" class=\"btn btn-secondary btn-xs text-danger\" style=\"padding:0.1rem 0.35rem; border-radius:var(--radius-sm);\" title=\"إزالة\">✕</button></div></div></template></div></div></template><!-- Case 1: Single File Options --><template x-if=\"selectedFiles.length === 1\"><div class=\"stack-md\"><div class=\"form-group mb-0\"><label class=\"form-label text-xs fw-700\" style=\"color:var(--text-secondary); margin-bottom:0.35rem;\">اسم المورد / اسم المستودع</label> <input type=\"text\" name=\"supplier_name\" class=\"form-input\" :value=\"cleanName(selectedFiles[0]?.name)\" placeholder=\"مثال: مستودع الأمل، شركة النور...\" style=\"height:42px; border-radius:var(--radius-lg);\"></div><!-- Single File Column Mapping Deck --><div style=\"background:var(--surface-sunken); padding:1rem; border-radius:var(--radius-xl); border:1px solid var(--border);\"><div style=\"font-size:0.8rem; font-weight:800; color:var(--text); margin-bottom:0.2rem;\">⚙️ تعيين الأعمدة الذكي (Column Mapping)</div><div style=\"display:grid; grid-template-columns:1fr 1fr; gap:0.75rem; margin-top:0.5rem;\"><!-- Code Column --><div class=\"form-group mb-0\"><label class=\"form-label text-xs fw-700\">عمود كود الصنف (SKU)</label> <select name=\"col_code\" class=\"form-input text-xs\" style=\"height:36px; border-radius:var(--radius-md);\" x-model=\"detectedCode\"><template x-for=\"(h, idx) in fileHeaders\" :key=\"idx\"><option :value=\"idx\" x-text=\"'عمود ' + (idx+1) + ': ' + h\"></option></template><option value=\"0\" x-show=\"fileHeaders.length === 0\">العمود 1 (تلقائي)</option></select></div><!-- Name Column --><div class=\"form-group mb-0\"><label class=\"form-label text-xs fw-700\">عمود اسم الصنف</label> <select name=\"col_name\" class=\"form-input text-xs\" style=\"height:36px; border-radius:var(--radius-md);\" x-model=\"detectedName\"><template x-for=\"(h, idx) in fileHeaders\" :key=\"idx\"><option :value=\"idx\" x-text=\"'عمود ' + (idx+1) + ': ' + h\"></option></template><option value=\"1\" x-show=\"fileHeaders.length === 0\">العمود 2 (تلقائي)</option></select></div><!-- Price Column --><div class=\"form-group mb-0\"><label class=\"form-label text-xs fw-700\">عمود سعر الجمهور</label> <select name=\"col_price\" class=\"form-input text-xs\" style=\"height:36px; border-radius:var(--radius-md);\" x-model=\"detectedPrice\"><template x-for=\"(h, idx) in fileHeaders\" :key=\"idx\"><option :value=\"idx\" x-text=\"'عمود ' + (idx+1) + ': ' + h\"></option></template><option value=\"2\" x-show=\"fileHeaders.length === 0\">العمود 3 (تلقائي)</option></select></div><!-- Discount Column --><div class=\"form-group mb-0\"><label class=\"form-label text-xs fw-700\">عمود نسبة الخصم (%)</label> <select name=\"col_discount\" class=\"form-input text-xs\" style=\"height:36px; border-radius:var(--radius-md);\" x-model=\"detectedDiscount\"><template x-for=\"(h, idx) in fileHeaders\" :key=\"idx\"><option :value=\"idx\" x-text=\"'عمود ' + (idx+1) + ': ' + h\"></option></template><option value=\"3\" x-show=\"fileHeaders.length === 0\">العمود 4 (تلقائي)</option></select></div></div></div></div></template><!-- Case 2: Multi-File Bulk Processing Notice --><template x-if=\"selectedFiles.length > 1\"><div style=\"background:linear-gradient(135deg, rgba(16,185,129,0.08) 0%, rgba(14,165,233,0.08) 100%); border:1px solid var(--emerald); border-radius:var(--radius-xl); padding:1rem;\"><div style=\"display:flex; align-items:center; gap:0.5rem; color:var(--emerald); font-weight:800; font-size:0.875rem; margin-bottom:0.35rem;\"><span>🚀 محرك الرفع المتوازي فائق السرعة (Parallel Bulk Engine)</span></div><p style=\"font-size:0.775rem; color:var(--text-secondary); margin:0; line-height:1.5;\">سيقوم النظام بمعالجة كافة الملفات (<strong x-text=\"selectedFiles.length\"></strong> ملف) بالتوازي عبر مسارات متعددة، مع التعرف التلقائي الذكي على أعمدة كل ملف وإنشاء مستودع مستقل لكل كشف أسعار.</p></div></template><!-- Action Buttons --><div style=\"display:flex; justify-content:flex-end; gap:0.75rem; margin-top:0.75rem; border-top:1px solid var(--border); pt-3;\"><button type=\"button\" class=\"btn btn-secondary\" style=\"border-radius:var(--radius-lg); font-weight:700;\" @click=\"uploadModal = false\">إلغاء</button> <button type=\"submit\" class=\"btn btn-primary fw-900\" style=\"border-radius:var(--radius-lg); padding:0.65rem 1.75rem;\" :disabled=\"selectedFiles.length === 0\"><span x-show=\"selectedFiles.length <= 1\">تأكيد ورفع المستودع ↗</span> <span x-show=\"selectedFiles.length > 1\" x-text=\"'تأكيد ورفع ' + selectedFiles.length + ' مستودع الآن ⚡'\"></span></button></div></form></div></div></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -3180,7 +3180,7 @@ func AdminSavingProductsPage(data AdminSavingProductsData, lang, dir string) tem
 				var templ_7745c5c3_Var148 string
 				templ_7745c5c3_Var148, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", data.Stats.TotalProducts))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_catalog_inventory.templ`, Line: 1926, Col: 52}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_catalog_inventory.templ`, Line: 2162, Col: 52}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var148))
 				if templ_7745c5c3_Err != nil {
@@ -3193,7 +3193,7 @@ func AdminSavingProductsPage(data AdminSavingProductsData, lang, dir string) tem
 				var templ_7745c5c3_Var149 string
 				templ_7745c5c3_Var149, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", data.Stats.TotalUsers))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_catalog_inventory.templ`, Line: 1934, Col: 49}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_catalog_inventory.templ`, Line: 2170, Col: 49}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var149))
 				if templ_7745c5c3_Err != nil {
@@ -3206,7 +3206,7 @@ func AdminSavingProductsPage(data AdminSavingProductsData, lang, dir string) tem
 				var templ_7745c5c3_Var150 string
 				templ_7745c5c3_Var150, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", data.Stats.TotalOrganizations))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_catalog_inventory.templ`, Line: 1934, Col: 166}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_catalog_inventory.templ`, Line: 2170, Col: 166}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var150))
 				if templ_7745c5c3_Err != nil {
@@ -3219,7 +3219,7 @@ func AdminSavingProductsPage(data AdminSavingProductsData, lang, dir string) tem
 				var templ_7745c5c3_Var151 string
 				templ_7745c5c3_Var151, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%.0f", data.Stats.TotalQuantity))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_catalog_inventory.templ`, Line: 1942, Col: 54}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_catalog_inventory.templ`, Line: 2178, Col: 54}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var151))
 				if templ_7745c5c3_Err != nil {
@@ -3232,7 +3232,7 @@ func AdminSavingProductsPage(data AdminSavingProductsData, lang, dir string) tem
 				var templ_7745c5c3_Var152 string
 				templ_7745c5c3_Var152, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", data.Stats.CountLinked))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_catalog_inventory.templ`, Line: 1950, Col: 102}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_catalog_inventory.templ`, Line: 2186, Col: 102}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var152))
 				if templ_7745c5c3_Err != nil {
@@ -3245,7 +3245,7 @@ func AdminSavingProductsPage(data AdminSavingProductsData, lang, dir string) tem
 				var templ_7745c5c3_Var153 string
 				templ_7745c5c3_Var153, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", data.Stats.CountUnlinked))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_catalog_inventory.templ`, Line: 1951, Col: 102}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_catalog_inventory.templ`, Line: 2187, Col: 102}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var153))
 				if templ_7745c5c3_Err != nil {
@@ -3263,7 +3263,7 @@ func AdminSavingProductsPage(data AdminSavingProductsData, lang, dir string) tem
 			var templ_7745c5c3_Var154 string
 			templ_7745c5c3_Var154, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", len(data.Organizations)))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_catalog_inventory.templ`, Line: 1967, Col: 93}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_catalog_inventory.templ`, Line: 2203, Col: 93}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var154))
 			if templ_7745c5c3_Err != nil {
@@ -3281,7 +3281,7 @@ func AdminSavingProductsPage(data AdminSavingProductsData, lang, dir string) tem
 				var templ_7745c5c3_Var155 string
 				templ_7745c5c3_Var155, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%d", o.ID))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_catalog_inventory.templ`, Line: 1969, Col: 48}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_catalog_inventory.templ`, Line: 2205, Col: 48}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var155)
 				if templ_7745c5c3_Err != nil {
@@ -3304,7 +3304,7 @@ func AdminSavingProductsPage(data AdminSavingProductsData, lang, dir string) tem
 				var templ_7745c5c3_Var156 string
 				templ_7745c5c3_Var156, templ_7745c5c3_Err = templ.JoinStringErrs(o.Name)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_catalog_inventory.templ`, Line: 1970, Col: 18}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_catalog_inventory.templ`, Line: 2206, Col: 18}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var156))
 				if templ_7745c5c3_Err != nil {
@@ -3317,7 +3317,7 @@ func AdminSavingProductsPage(data AdminSavingProductsData, lang, dir string) tem
 				var templ_7745c5c3_Var157 string
 				templ_7745c5c3_Var157, templ_7745c5c3_Err = templ.JoinStringErrs(o.Type)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_catalog_inventory.templ`, Line: 1970, Col: 30}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_catalog_inventory.templ`, Line: 2206, Col: 30}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var157))
 				if templ_7745c5c3_Err != nil {
@@ -3335,7 +3335,7 @@ func AdminSavingProductsPage(data AdminSavingProductsData, lang, dir string) tem
 			var templ_7745c5c3_Var158 string
 			templ_7745c5c3_Var158, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", len(data.Users)))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_catalog_inventory.templ`, Line: 1980, Col: 91}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_catalog_inventory.templ`, Line: 2216, Col: 91}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var158))
 			if templ_7745c5c3_Err != nil {
@@ -3353,7 +3353,7 @@ func AdminSavingProductsPage(data AdminSavingProductsData, lang, dir string) tem
 				var templ_7745c5c3_Var159 string
 				templ_7745c5c3_Var159, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%d", u.ID))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_catalog_inventory.templ`, Line: 1982, Col: 48}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_catalog_inventory.templ`, Line: 2218, Col: 48}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var159)
 				if templ_7745c5c3_Err != nil {
@@ -3376,7 +3376,7 @@ func AdminSavingProductsPage(data AdminSavingProductsData, lang, dir string) tem
 				var templ_7745c5c3_Var160 string
 				templ_7745c5c3_Var160, templ_7745c5c3_Err = templ.JoinStringErrs(u.Name)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_catalog_inventory.templ`, Line: 1983, Col: 18}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_catalog_inventory.templ`, Line: 2219, Col: 18}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var160))
 				if templ_7745c5c3_Err != nil {
@@ -3424,7 +3424,7 @@ func AdminSavingProductsPage(data AdminSavingProductsData, lang, dir string) tem
 			var templ_7745c5c3_Var161 string
 			templ_7745c5c3_Var161, templ_7745c5c3_Err = templ.ResolveAttributeValue(data.SearchQuery)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_catalog_inventory.templ`, Line: 2005, Col: 32}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_catalog_inventory.templ`, Line: 2241, Col: 32}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var161)
 			if templ_7745c5c3_Err != nil {
@@ -3455,7 +3455,7 @@ func AdminSavingProductsPage(data AdminSavingProductsData, lang, dir string) tem
 			var templ_7745c5c3_Var162 string
 			templ_7745c5c3_Var162, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", len(data.Items)))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_catalog_inventory.templ`, Line: 2033, Col: 82}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_catalog_inventory.templ`, Line: 2269, Col: 82}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var162))
 			if templ_7745c5c3_Err != nil {
@@ -3483,7 +3483,7 @@ func AdminSavingProductsPage(data AdminSavingProductsData, lang, dir string) tem
 					var templ_7745c5c3_Var163 string
 					templ_7745c5c3_Var163, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", item.ID))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_catalog_inventory.templ`, Line: 2066, Col: 40}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_catalog_inventory.templ`, Line: 2302, Col: 40}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var163))
 					if templ_7745c5c3_Err != nil {
@@ -3496,7 +3496,7 @@ func AdminSavingProductsPage(data AdminSavingProductsData, lang, dir string) tem
 					var templ_7745c5c3_Var164 string
 					templ_7745c5c3_Var164, templ_7745c5c3_Err = templ.JoinStringErrs(item.NameProduct)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_catalog_inventory.templ`, Line: 2069, Col: 73}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_catalog_inventory.templ`, Line: 2305, Col: 73}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var164))
 					if templ_7745c5c3_Err != nil {
@@ -3514,7 +3514,7 @@ func AdminSavingProductsPage(data AdminSavingProductsData, lang, dir string) tem
 						var templ_7745c5c3_Var165 string
 						templ_7745c5c3_Var165, templ_7745c5c3_Err = templ.JoinStringErrs(item.SKU)
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_catalog_inventory.templ`, Line: 2072, Col: 28}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_catalog_inventory.templ`, Line: 2308, Col: 28}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var165))
 						if templ_7745c5c3_Err != nil {
@@ -3532,7 +3532,7 @@ func AdminSavingProductsPage(data AdminSavingProductsData, lang, dir string) tem
 					var templ_7745c5c3_Var166 string
 					templ_7745c5c3_Var166, templ_7745c5c3_Err = templ.JoinStringErrs(item.UserName)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_catalog_inventory.templ`, Line: 2078, Col: 27}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_catalog_inventory.templ`, Line: 2314, Col: 27}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var166))
 					if templ_7745c5c3_Err != nil {
@@ -3545,7 +3545,7 @@ func AdminSavingProductsPage(data AdminSavingProductsData, lang, dir string) tem
 					var templ_7745c5c3_Var167 string
 					templ_7745c5c3_Var167, templ_7745c5c3_Err = templ.JoinStringErrs(item.OrganizationName)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_catalog_inventory.templ`, Line: 2082, Col: 36}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_catalog_inventory.templ`, Line: 2318, Col: 36}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var167))
 					if templ_7745c5c3_Err != nil {
@@ -3563,7 +3563,7 @@ func AdminSavingProductsPage(data AdminSavingProductsData, lang, dir string) tem
 						var templ_7745c5c3_Var168 string
 						templ_7745c5c3_Var168, templ_7745c5c3_Err = templ.JoinStringErrs(item.UserPhone)
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_catalog_inventory.templ`, Line: 2085, Col: 77}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_catalog_inventory.templ`, Line: 2321, Col: 77}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var168))
 						if templ_7745c5c3_Err != nil {
@@ -3594,7 +3594,7 @@ func AdminSavingProductsPage(data AdminSavingProductsData, lang, dir string) tem
 						var templ_7745c5c3_Var169 string
 						templ_7745c5c3_Var169, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", *item.ProductID))
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_catalog_inventory.templ`, Line: 2094, Col: 69}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_catalog_inventory.templ`, Line: 2330, Col: 69}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var169))
 						if templ_7745c5c3_Err != nil {
@@ -3607,7 +3607,7 @@ func AdminSavingProductsPage(data AdminSavingProductsData, lang, dir string) tem
 						var templ_7745c5c3_Var170 string
 						templ_7745c5c3_Var170, templ_7745c5c3_Err = templ.JoinStringErrs(item.MasterProductName)
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_catalog_inventory.templ`, Line: 2097, Col: 38}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_catalog_inventory.templ`, Line: 2333, Col: 38}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var170))
 						if templ_7745c5c3_Err != nil {
@@ -3630,7 +3630,7 @@ func AdminSavingProductsPage(data AdminSavingProductsData, lang, dir string) tem
 					var templ_7745c5c3_Var171 string
 					templ_7745c5c3_Var171, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%.0f", item.Quantity))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_catalog_inventory.templ`, Line: 2107, Col: 47}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_catalog_inventory.templ`, Line: 2343, Col: 47}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var171))
 					if templ_7745c5c3_Err != nil {
@@ -3643,7 +3643,7 @@ func AdminSavingProductsPage(data AdminSavingProductsData, lang, dir string) tem
 					var templ_7745c5c3_Var172 string
 					templ_7745c5c3_Var172, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%s ج.م", item.Price.String()))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_catalog_inventory.templ`, Line: 2110, Col: 57}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_catalog_inventory.templ`, Line: 2346, Col: 57}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var172))
 					if templ_7745c5c3_Err != nil {
@@ -3656,7 +3656,7 @@ func AdminSavingProductsPage(data AdminSavingProductsData, lang, dir string) tem
 					var templ_7745c5c3_Var173 string
 					templ_7745c5c3_Var173, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%s ج.م", item.TotalValue.String()))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_catalog_inventory.templ`, Line: 2113, Col: 62}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_catalog_inventory.templ`, Line: 2349, Col: 62}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var173))
 					if templ_7745c5c3_Err != nil {
@@ -3669,7 +3669,7 @@ func AdminSavingProductsPage(data AdminSavingProductsData, lang, dir string) tem
 					var templ_7745c5c3_Var174 string
 					templ_7745c5c3_Var174, templ_7745c5c3_Err = templ.JoinStringErrs(item.CreatedAt.Format("2006-01-02 15:04"))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_catalog_inventory.templ`, Line: 2116, Col: 54}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_catalog_inventory.templ`, Line: 2352, Col: 54}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var174))
 					if templ_7745c5c3_Err != nil {
@@ -3687,7 +3687,7 @@ func AdminSavingProductsPage(data AdminSavingProductsData, lang, dir string) tem
 						var templ_7745c5c3_Var175 templ.SafeURL
 						templ_7745c5c3_Var175, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("/admin/products/%d", *item.ProductID)))
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_catalog_inventory.templ`, Line: 2121, Col: 88}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_catalog_inventory.templ`, Line: 2357, Col: 88}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var175))
 						if templ_7745c5c3_Err != nil {
@@ -3705,7 +3705,7 @@ func AdminSavingProductsPage(data AdminSavingProductsData, lang, dir string) tem
 						var templ_7745c5c3_Var176 templ.SafeURL
 						templ_7745c5c3_Var176, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("/admin/products?q=%s", url.QueryEscape(item.NameProduct))))
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_catalog_inventory.templ`, Line: 2125, Col: 108}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_catalog_inventory.templ`, Line: 2361, Col: 108}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var176))
 						if templ_7745c5c3_Err != nil {

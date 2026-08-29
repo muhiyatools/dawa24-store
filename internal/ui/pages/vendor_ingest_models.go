@@ -44,6 +44,24 @@ type VendorImportView struct {
 	Fatal string
 }
 
+// MappedIdentifiers reports which identifier columns the vendor bound in step
+// one, so the settings screen can offer a toggle only where it could do
+// something.
+//
+// A switch for a column that was never mapped is worse than a missing switch: a
+// vendor ticks it, nothing changes, and they conclude the matching is broken.
+// The live analysis is preferred over the stored snapshot because a vendor who
+// steps back and re-maps sees the effect immediately.
+func (v VendorImportView) MappedIdentifiers() productmatch.MappedColumns {
+	if v.Analysis != nil && v.Analysis.Mapping != nil {
+		return v.Analysis.Mapping.MappedIdentifiers()
+	}
+	if v.Session != nil {
+		return v.Session.Mapping.MappedIdentifiers()
+	}
+	return productmatch.MappedColumns{}
+}
+
 // Phase is the stage the screen should render.
 func (v VendorImportView) Phase() ingest.Phase {
 	if v.Session == nil {

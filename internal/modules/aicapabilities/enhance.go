@@ -137,6 +137,7 @@ func (s *Service) EnhanceMatches(ctx context.Context, req EnhanceRequest) ([]Enh
 		OrganizationID: orgID,
 		UserID:         userID,
 		VirtualKey:     vKey,
+		Feature:        req.Feature,
 		MaxTokens:      enhanceMaxTokens(len(req.Items)),
 	}
 

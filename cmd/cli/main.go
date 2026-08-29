@@ -45,6 +45,7 @@ Usage:
   cli smartorder-smoke <orgID> <branchID> <userID> <file>   Drive a smart order end to end
   cli health            Verify database and cache connectivity
   cli corpus-export     Copy every retained import file into test/corpus
+  cli ai-identities [--apply] [--org N]   Give every منشأة a Gateway user and key
 `
 
 }
@@ -196,6 +197,9 @@ func run() error {
 
 	case "corpus-export":
 		return exportCorpus(ctx, db)
+
+	case "ai-identities":
+		return aiIdentities(ctx, db, log, os.Args[2:])
 
 	default:
 		fmt.Print(usage())

@@ -15,6 +15,7 @@ import (
 
 	"github.com/muhiya/dawa24-store/internal/modules/catalog"
 	"github.com/muhiya/dawa24-store/internal/platform/gateway"
+	"github.com/muhiya/dawa24-store/internal/shared/matchflow"
 )
 
 // KeyResolver resolves an organisation's Gateway virtual key, so AI spend is
@@ -134,6 +135,9 @@ func (m *Mapper) invoke(ctx context.Context, call aiCall) (string, error) {
 		OrganizationID: call.orgID,
 		UserID:         call.userID,
 		VirtualKey:     m.virtualKey(ctx, call.orgID),
+		// Attribution for the AI usage ledger: these are the column and
+		// taxonomy mapping calls an import makes before it reads a single row.
+		Feature: matchflow.FeatureColumnDetect,
 	})
 	if err != nil {
 		m.log.WarnContext(ctx, "ai mapping unavailable, falling back to exact matching",

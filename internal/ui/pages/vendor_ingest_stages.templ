@@ -338,8 +338,19 @@ templ importSettingsStage(view VendorImportView) {
 					"يُستخدم فقط إذا لم يوجد عمود للشكل الصيدلي.", view.Session.Settings.InferDosageForm)
 				@vendorImportSwitch("infer_concentration", "🧪", "استخراج التركيز من اسم الصنف",
 					"يُقتبس التركيز حرفياً من الاسم ولا يُخمَّن.", view.Session.Settings.InferConcentration)
-				@vendorImportSwitch("trust_supplier_code", "🔢", "مطابقة الكتالوج المركزي بكودك الداخلي",
-					"لا تفعّله إلا إذا كنت تستخدم أكواد دواء 24 نفسها.", view.Session.Settings.TrustSupplierCode)
+				if view.MappedIdentifiers().Code {
+					@vendorImportSwitch("trust_supplier_code", "🔢", "مطابقة الكتالوج المركزي بعمود كود الصنف",
+						"مغلق افتراضياً. الكود يحسم المطابقة قبل مقارنة الاسم، فلا تفعّله إلا إذا كان العمود يحمل كوداً يوجد فعلاً في الكتالوج المركزي.",
+						view.Session.Settings.TrustSupplierCode)
+					@vendorImportSwitch("code_is_catalog_code", "🎯", "عمود الكود يحمل أكواد دواء 24 نفسها",
+						"عند التفعيل يُقبل تطابق الكود دون اشتراط تشابه الاسم. اتركه مغلقاً إذا كان الكود ترقيماً داخلياً خاصاً بك.",
+						view.Session.Settings.CodeIsCatalogCode)
+				}
+				if view.MappedIdentifiers().Barcode {
+					@vendorImportSwitch("trust_barcode", "🏷️", "مطابقة الكتالوج المركزي بعمود الباركود",
+						"مغلق افتراضياً. الباركود يحسم المطابقة نهائياً دون النظر إلى الاسم أو التركيز، فلا تفعّله إلا إذا كان العمود يحمل باركود GTIN المطبوع على العبوة وليس ترقيم المخزن لديك.",
+						view.Session.Settings.TrustBarcode)
+				}
 				@vendorImportSwitch("mark_negotiable", "🤝", "تعليم الأصناف كقابلة للتفاوض", "",
 					view.Session.Settings.MarkNegotiable)
 				@vendorImportSwitch("record_rows", "🧾", "حفظ سجل تفصيلي لكل صف",

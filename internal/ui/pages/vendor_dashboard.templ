@@ -97,16 +97,25 @@ templ VendorDashboard(lang, dir string, data VendorDashboardData) {
 								<div class="mt-2">
 									<div class="flex-between items-baseline mb-1">
 										<span class="text-xs text-secondary font-bold">استهلاك الحصة:</span>
-										<div class="tabular-nums text-base font-black text-brand">{ fmt.Sprintf("%d%%", data.Subscription.AIPercentage()) }</div>
+										<div class="tabular-nums text-base font-black text-brand">
+											if data.Subscription.HasAIBudget {
+												{ fmt.Sprintf("%d%%", data.Subscription.AIPercentage()) }
+											} else {
+												{ data.Subscription.AIUsageText() }
+											}
+										</div>
 									</div>
 
-									<!-- Progress Bar -->
-									<div class="progress-bar-container">
-										<div class="progress-bar-fill" style={ fmt.Sprintf("width:%d%%;", data.Subscription.AIPercentage()) }></div>
-									</div>
+									if data.Subscription.HasAIBudget {
+										<div class="progress-bar-container">
+											<div class="progress-bar-fill" style={ fmt.Sprintf("width:%d%%;", data.Subscription.AIPercentage()) }></div>
+										</div>
+									}
 
 									<div class="flex-between text-xs text-muted mt-1">
-										<span>متبقي: <strong class="text-success">{ fmt.Sprintf("%d%%", 100-data.Subscription.AIPercentage()) }</strong></span>
+										if data.Subscription.HasAIBudget {
+											<span>متبقي: <strong class="text-success">{ fmt.Sprintf("%d%%", 100-data.Subscription.AIPercentage()) }</strong></span>
+										}
 										<span>التجديد: <strong class="text-primary">{ data.Subscription.AIResetText() }</strong></span>
 									</div>
 								</div>

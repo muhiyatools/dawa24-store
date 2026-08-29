@@ -56,6 +56,7 @@ import (
 	"github.com/muhiya/dawa24-store/internal/modules/workflow"
 	workflowHttp "github.com/muhiya/dawa24-store/internal/modules/workflow/http"
 
+	aiusagePostgres "github.com/muhiya/dawa24-store/internal/platform/aiusage/postgres"
 	"github.com/muhiya/dawa24-store/internal/platform/config"
 	"github.com/muhiya/dawa24-store/internal/platform/features"
 	"github.com/muhiya/dawa24-store/internal/platform/gateway"
@@ -241,6 +242,12 @@ func mountModuleRoutes(
 	ingSvcUI.SetCatalogPort(catSvcUI)
 	ingSvcUI.SetInventoryPort(invSvcUI)
 
+	// A subscription bought or assigned here has to move the tenant's AI quota
+	// with it, which is what the sync port does. Without it an upgrade changed
+	// the invoice and nothing else.
+	billSvcUI := billing.NewService(billRepoUI, log)
+	billSvcUI.SetAIPlanSync(tenantKeys)
+
 	uiHandler := ui.NewUIHandler(
 		catSvcUI,
 		orgSvcUI,
@@ -251,7 +258,7 @@ func mountModuleRoutes(
 		notifications.NewService(notifRepoUI, log),
 		promoSvcUI,
 		platformadmin.NewService(adminRepoUI, log),
-		billing.NewService(billRepoUI, log),
+		billSvcUI,
 		chat.NewService(chatRepoUI, log),
 		wfSvcUI,
 		hr.NewService(hrRepoUI, log),
@@ -277,6 +284,10 @@ func mountModuleRoutes(
 		// The settings screen resets this when an operator changes the Gateway
 		// credentials the admin panel's key was issued from.
 		uiHandler.SetGatewayKeyCache(adminKeys)
+		uiHandler.SetTenantGatewayKeys(tenantKeys)
+		// The usage screens read the local ledger rather than calling the
+		// Gateway on every render.
+		uiHandler.SetAIUsage(aiusagePostgres.NewRepository(db))
 		aiCapabilitiesSvc := aicapabilities.NewService(ai, log)
 		aiCapabilitiesSvc.SetKeyResolver(keyResolverUI)
 		compareSvcUI.SetAIMatcher(aiCapabilitiesSvc)
@@ -426,6 +437,7 @@ func mountAuthenticatedModules(
 	// 5. Billing & Entitlements
 	billRepo := billingPostgres.NewRepository(db)
 	billSvc := billing.NewService(billRepo, log)
+	billSvc.SetAIPlanSync(tenantKeys)
 	billingHttp.NewHandler(billSvc, log).RegisterRoutes(r)
 
 	// 6. Ingest & AI Matching

@@ -1292,43 +1292,35 @@ func (h *UIHandler) getGatewayAdminClient(ctx context.Context) (*gateway.AdminCl
 	return client, endpointURL, secretKey != ""
 }
 
+// provisionOrgAIAndSubscription gives a newly approved منشأة both of the things
+// it needs before anyone in it can use AI: a subscription, and the Gateway
+// identity its employees will spend against.
+//
+// Approval is the right moment for this. Until now the only trigger was a
+// dashboard render, so an organisation that was approved and never visited its
+// own dashboard had no Gateway account at all — and the first AI call anyone in
+// it made was billed to the platform's key instead.
 func (h *UIHandler) provisionOrgAIAndSubscription(ctx context.Context, orgID int64) {
-	if orgID <= 0 {
+	if orgID <= 0 || h.orgSvc == nil {
 		return
 	}
 	sysCtx := database.AsSystem(ctx)
 
-	// 1. Ensure default subscription if none exists
-	var sub *billing.Subscription
+	// The subscription comes first: it is what decides which Gateway plan — and
+	// therefore which quota — the identity below is created under.
 	if h.billSvc != nil {
-		sub, _ = h.billSvc.AssignDefaultSubscription(sysCtx, 0, &orgID)
-	}
-
-	// 2. Fetch organization to get details
-	if h.orgSvc == nil {
-		return
-	}
-	o, err := h.orgSvc.GetOrganization(sysCtx, orgID)
-	if err != nil || o == nil {
-		return
-	}
-
-	// Determine AI plan ID from subscription
-	aiPlanID := "plan-dev"
-	if sub != nil && h.billSvc != nil {
-		if plan, err := h.billSvc.GetPlanByID(sysCtx, sub.PlanID); err == nil && plan != nil && plan.AIPlanID != "" {
-			aiPlanID = plan.AIPlanID
+		if _, err := h.billSvc.AssignDefaultSubscription(sysCtx, 0, &orgID); err != nil {
+			h.log.WarnContext(ctx, "could not assign default subscription on approval",
+				"org_id", orgID, "error", err)
 		}
 	}
 
-	// 3. Provision user and virtual key in AI Gateway
-	adminClient, _, _ := h.getGatewayAdminClient(sysCtx)
-	userID, vkey, provErr := adminClient.ProvisionOrganization(sysCtx, orgID, o.LegalName, "", aiPlanID)
-	if provErr == nil && (vkey != "" || userID != "") {
-		_ = h.orgSvc.UpdateOrganizationAICredentials(sysCtx, orgID, userID, vkey)
-		h.log.InfoContext(ctx, "ai gateway organization provisioned", "org_id", orgID, "user_id", userID, "plan_id", aiPlanID)
-	} else if provErr != nil {
-		h.log.WarnContext(ctx, "ai gateway organization provisioning failed", "org_id", orgID, "error", provErr)
+	if h.tenantKeys == nil {
+		return
+	}
+	if key := h.tenantKeys.Key(sysCtx, orgID); key == "" {
+		h.log.WarnContext(ctx, "organisation approved without a gateway identity",
+			"org_id", orgID)
 	}
 }
 
