@@ -38,6 +38,7 @@ func (h *UIHandler) CustomerSavingProductsImportMapSubmit(w http.ResponseWriter,
 	colQty := strings.TrimSpace(r.FormValue("col_qty"))
 	colPrice := strings.TrimSpace(r.FormValue("col_price"))
 	stratStr := strings.TrimSpace(r.FormValue("match_strategy"))
+	useAI := r.FormValue("use_ai") == "1" || r.FormValue("use_ai") == "on"
 	if stratStr == "" {
 		stratStr = string(StrategySmartAuto)
 	}
@@ -155,7 +156,7 @@ func (h *UIHandler) CustomerSavingProductsImportMapSubmit(w http.ResponseWriter,
 	// use. A row it cannot verify against the catalogue's own record keeps the
 	// deterministic outcome, and the whole stage is a no-op when the Gateway is
 	// unwired.
-	if n := enhanceSavingItems(ctx, h.matchEnhancer, matchEngine, stagedItems, h.log); n > 0 {
+	if n := h.enhanceSaving(ctx, useAI, matchEngine, stagedItems); n > 0 {
 		matchedCount += n
 		unlinkedCount -= n
 	}

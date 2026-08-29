@@ -759,20 +759,30 @@ func savingMappingStage(view SavingImportView) templ.Component {
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 63, "</select></div></div><div><label class=\"form-label\">استراتيجية المطابقة مع الكتالوج المركزي العام</label> <select name=\"match_strategy\" class=\"form-select\"><option value=\"smart_auto\" selected>🤖 المطابقة الذكية التلقائية (ذكاء اصطناعي + نصوص + باركود - موصى بها)</option> <option value=\"barcode_first\">🔍 المطابقة بالباركود وكود SKU أولاً</option> <option value=\"name_exact\">📝 المطابقة بالاسم الدقيق فقط</option> <option value=\"none\">🚫 بدون مطابقة تلقائية (إدراج الأصناف كما هي للربط اليدوي)</option></select></div><div class=\"flex-between items-center mt-md\"><a href=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 63, "</select></div></div><div><label class=\"form-label\">استراتيجية المطابقة مع الكتالوج المركزي</label> <select name=\"match_strategy\" class=\"form-select\"><option value=\"smart_auto\" selected>⚡ المطابقة الكاملة: المعرف ثم الكود ثم الاسم (موصى بها)</option> <option value=\"sku_only\">🔢 بالكود والباركود فقط</option> <option value=\"name_only\">📝 بالاسم فقط (تجاهل أكواد الصيدلية الداخلية)</option> <option value=\"id_only\">🆔 بمعرف المنتج في دواء 24 فقط</option> <option value=\"none\">🚫 بدون مطابقة تلقائية (للربط اليدوي)</option></select><p class=\"wiz-sub mt-xs\">تعمل المطابقة الحتمية دائماً وبدون تكلفة. كل صنف تحسمه لا يُرسل إلى أي خدمة خارجية.</p></div><div>")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = WizardToggles([]WizardToggle{
+			AIToggle("use_ai", false, view.AIAvailable, view.AIUnavailableReason),
+		}, GroupAI).Render(ctx, templ_7745c5c3_Buffer)
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 64, "</div><div class=\"flex-between items-center mt-md\"><a href=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var36 templ.SafeURL
 		templ_7745c5c3_Var36, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(view.ImportURL))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `saving_import_wizard.templ`, Line: 267, Col: 43}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `saving_import_wizard.templ`, Line: 277, Col: 43}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var36))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 64, "\" class=\"btn btn-ghost\">العودة</a> <button type=\"submit\" class=\"btn btn-primary fw-700\">بدء المعالجة والمطابقة وتجهيز المسودة للمراجعة ←</button></div></form></div>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 65, "\" class=\"btn btn-ghost\">العودة</a> <button type=\"submit\" class=\"btn btn-primary fw-700\">بدء المعالجة والمطابقة وتجهيز المسودة للمراجعة ←</button></div></form></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -802,46 +812,46 @@ func savingCompletedStage(view SavingImportView) templ.Component {
 		}
 		ctx = templ.ClearChildren(ctx)
 		sess := view.Session
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 65, "<div class=\"card text-center p-xl\"><div class=\"saving-complete-mark\" aria-hidden=\"true\"></div><h2 class=\"wiz-head mb-sm\">تم بنجاح استيراد وحفظ قائمة التوفير</h2><p class=\"wiz-sub mb-lg\">تم حفظ وتحديث <strong>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 66, "<div class=\"card text-center p-xl\"><div class=\"saving-complete-mark\" aria-hidden=\"true\"></div><h2 class=\"wiz-head mb-sm\">تم بنجاح استيراد وحفظ قائمة التوفير</h2><p class=\"wiz-sub mb-lg\">تم حفظ وتحديث <strong>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var38 string
 		templ_7745c5c3_Var38, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprint(sess.InsertedCount + sess.UpdatedCount))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `saving_import_wizard.templ`, Line: 282, Col: 88}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `saving_import_wizard.templ`, Line: 292, Col: 88}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var38))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 66, "</strong> صنفاً في قائمة أدوية التوفير الخاصة بك بنجاح.</p><div class=\"row-center justify-center gap-md\"><a href=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 67, "</strong> صنفاً في قائمة أدوية التوفير الخاصة بك بنجاح.</p><div class=\"row-center justify-center gap-md\"><a href=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var39 templ.SafeURL
 		templ_7745c5c3_Var39, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(view.BaseURL))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `saving_import_wizard.templ`, Line: 286, Col: 40}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `saving_import_wizard.templ`, Line: 296, Col: 40}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var39))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 67, "\" class=\"btn btn-primary btn-lg fw-700\">الانتقال لقائمة أصناف التوفير ومتابعة الأسعار ←</a> <a href=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 68, "\" class=\"btn btn-primary btn-lg fw-700\">الانتقال لقائمة أصناف التوفير ومتابعة الأسعار ←</a> <a href=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var40 templ.SafeURL
 		templ_7745c5c3_Var40, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(view.ImportURL))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `saving_import_wizard.templ`, Line: 289, Col: 42}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `saving_import_wizard.templ`, Line: 299, Col: 42}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var40))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 68, "\" class=\"btn btn-secondary btn-lg fw-700\">استيراد ملف آخر</a></div></div>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 69, "\" class=\"btn btn-secondary btn-lg fw-700\">استيراد ملف آخر</a></div></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

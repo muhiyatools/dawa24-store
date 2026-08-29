@@ -521,10 +521,15 @@ func (h *UIHandler) CustomerSavingProductsImportStartJSON(w http.ResponseWriter,
 		matchStrategy = StrategySmartAuto
 	}
 
+	// Read before the goroutine and passed in, not captured: the background
+	// worker must run under the choice the user made on the request that
+	// started it, not whatever the session happens to hold later.
+	useAI := r.FormValue("use_ai") == "1" || r.FormValue("use_ai") == "on"
+
 	session := globalSavingImportSessionStore.NewSession(actor.OrganizationID, actor.UserID, fileHeader.Filename, len(rawRows)-1)
 
 	// Launch async background processing
-	go func(sessID string, orgID, userID int64, dataRows [][]string, nCol, sCol, qCol, pCol, pidCol int, strat MatchStrategy) {
+	go func(sessID string, orgID, userID int64, dataRows [][]string, nCol, sCol, qCol, pCol, pidCol int, strat MatchStrategy, aiOn bool) {
 		bgCtx := context.Background()
 
 		globalSavingImportSessionStore.UpdateProgress(sessID, 15, "تحميل وفهرسة كتالوج الأدوية المعتمد", 0)
@@ -637,6 +642,16 @@ func (h *UIHandler) CustomerSavingProductsImportStartJSON(w http.ResponseWriter,
 			}
 		}
 
+		// The same AI stage the other three importers run. It was hooked into
+		// the mapping-submit path first and this one — the background path the
+		// upload screen actually drives — was missed, which meant the feature
+		// was wired in the flow nobody uses and absent from the flow everybody
+		// does.
+		if n := h.enhanceSaving(bgCtx, aiOn, matchEngine, stagedItems); n > 0 {
+			matchedCount += n
+			unlinkedCount -= n
+		}
+
 		globalSavingImportSessionStore.CompleteProcessing(
 			sessID,
 			stagedItems,
@@ -645,7 +660,7 @@ func (h *UIHandler) CustomerSavingProductsImportStartJSON(w http.ResponseWriter,
 			totalQty,
 			money.FromMinor(totalValMinor),
 		)
-	}(session.ID, actor.OrganizationID, actor.UserID, rawRows[1:], nameCol, skuCol, qtyCol, priceCol, productIDCol, matchStrategy)
+	}(session.ID, actor.OrganizationID, actor.UserID, rawRows[1:], nameCol, skuCol, qtyCol, priceCol, productIDCol, matchStrategy, useAI)
 
 	_ = json.NewEncoder(w).Encode(map[string]any{
 		"success":    true,
