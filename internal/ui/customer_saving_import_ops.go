@@ -150,6 +150,16 @@ func (h *UIHandler) CustomerSavingProductsImportMapSubmit(w http.ResponseWriter,
 		})
 	}
 
+	// The residue goes to the shared AI stage — the same prompt, the same
+	// ceilings and the same decision cache the vendor import and the smart order
+	// use. A row it cannot verify against the catalogue's own record keeps the
+	// deterministic outcome, and the whole stage is a no-op when the Gateway is
+	// unwired.
+	if n := enhanceSavingItems(ctx, h.matchEnhancer, matchEngine, stagedItems, h.log); n > 0 {
+		matchedCount += n
+		unlinkedCount -= n
+	}
+
 	globalSavingImportSessionStore.CompleteProcessing(
 		session.ID,
 		stagedItems,

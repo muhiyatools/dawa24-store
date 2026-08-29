@@ -297,7 +297,13 @@ func mountModuleRoutes(
 		// bought by a pharmacy's order is free to the vendor whose price list
 		// asks the same question, and there is one prompt to tune rather than
 		// two that drift.
-		ingSvcUI.SetEnhancer(ingest.NewGatewayEnhancer(&ingestEnhanceAdapter{caps: aiCapabilitiesSvc}))
+		enhancer := &ingestEnhanceAdapter{caps: aiCapabilitiesSvc}
+		ingSvcUI.SetEnhancer(ingest.NewGatewayEnhancer(enhancer))
+		// The saving-list import runs the same stage through the same adapter.
+		// It was the last of the four importers without one, and giving it a
+		// second implementation would have been the mistake this whole refactor
+		// exists to undo.
+		uiHandler.SetMatchEnhancer(enhancer)
 	}
 	if storageClient != nil {
 		compareSvcUI.SetStorage(storageClient)
