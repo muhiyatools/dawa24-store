@@ -108,7 +108,7 @@ func TestBuildValueMappingDiscardsLowConfidence(t *testing.T) {
 // The column mapper's answer must never overrule a header the deterministic
 // mapper matched exactly, and never name a field the importer does not know.
 func TestApplyColumnMapGuardsAgainstBadAnswers(t *testing.T) {
-	plan := catalog.PlanColumns([]string{"اسم الصنف", "السعر", "عمود غامض"})
+	plan := catalog.PlanColumns([]string{"اسم الصنف", "السعر", "عمود غامض"}, nil)
 
 	overrides := catalog.ApplyColumnMap(catalog.ColumnMapResult{
 		Columns: []catalog.ColumnAssignment{
@@ -135,12 +135,12 @@ func TestApplyColumnMapGuardsAgainstBadAnswers(t *testing.T) {
 
 // A file with plainly named columns must not spend a request on them.
 func TestNeedsColumnHelpOnlyWhenDetectionIsUnsure(t *testing.T) {
-	clear := catalog.PlanColumns([]string{"اسم الصنف", "سعر البيع", "الشركة المصنعة"})
+	clear := catalog.PlanColumns([]string{"اسم الصنف", "سعر البيع", "الشركة المصنعة"}, nil)
 	if catalog.NeedsColumnHelp(clear) {
 		t.Error("a plainly named header asked for AI help")
 	}
 
-	vague := catalog.PlanColumns([]string{"العمود الأول", "قيمة", "بيان"})
+	vague := catalog.PlanColumns([]string{"العمود الأول", "قيمة", "بيان"}, nil)
 	if !catalog.NeedsColumnHelp(vague) {
 		t.Error("an unrecognisable header did not ask for help")
 	}

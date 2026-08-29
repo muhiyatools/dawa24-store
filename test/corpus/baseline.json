@@ -95,7 +95,8 @@
     "columns": [
       "manufacturer",
       "name",
-      "price"
+      "price",
+      "sku"
     ],
     "data_rows": 3,
     "parsed": 3,
@@ -123,7 +124,8 @@
     "columns": [
       "manufacturer",
       "name",
-      "price"
+      "price",
+      "sku"
     ],
     "data_rows": 3,
     "parsed": 3,
@@ -151,7 +153,8 @@
     "columns": [
       "manufacturer",
       "name",
-      "price"
+      "price",
+      "sku"
     ],
     "data_rows": 1,
     "parsed": 1,
@@ -178,7 +181,8 @@
     "columns": [
       "manufacturer",
       "name",
-      "price"
+      "price",
+      "sku"
     ],
     "data_rows": 1,
     "parsed": 1,
@@ -205,7 +209,8 @@
     "columns": [
       "manufacturer",
       "name",
-      "price"
+      "price",
+      "sku"
     ],
     "data_rows": 2,
     "parsed": 2,
@@ -238,7 +243,8 @@
     "columns": [
       "manufacturer",
       "name",
-      "price"
+      "price",
+      "sku"
     ],
     "data_rows": 3,
     "parsed": 3,
@@ -266,7 +272,8 @@
     "columns": [
       "manufacturer",
       "name",
-      "price"
+      "price",
+      "sku"
     ],
     "data_rows": 3,
     "parsed": 3,
@@ -294,7 +301,8 @@
     "columns": [
       "manufacturer",
       "name",
-      "price"
+      "price",
+      "sku"
     ],
     "data_rows": 3,
     "parsed": 3,
@@ -323,7 +331,8 @@
       "barcode",
       "manufacturer",
       "name",
-      "public_price"
+      "public_price",
+      "sku"
     ],
     "data_rows": 1,
     "parsed": 1,
@@ -349,7 +358,8 @@
     "columns": [
       "manufacturer",
       "name",
-      "price"
+      "price",
+      "sku"
     ],
     "data_rows": 30,
     "parsed": 30,
@@ -379,7 +389,8 @@
     "columns": [
       "manufacturer",
       "name",
-      "price"
+      "price",
+      "sku"
     ],
     "data_rows": 3,
     "parsed": 3,
@@ -409,7 +420,8 @@
     "columns": [
       "manufacturer",
       "name",
-      "price"
+      "price",
+      "sku"
     ],
     "data_rows": 3,
     "parsed": 3,
@@ -439,7 +451,8 @@
     "columns": [
       "manufacturer",
       "name",
-      "price"
+      "price",
+      "sku"
     ],
     "data_rows": 3,
     "parsed": 3,
@@ -470,7 +483,8 @@
     "columns": [
       "manufacturer",
       "name",
-      "price"
+      "price",
+      "sku"
     ],
     "data_rows": 3,
     "parsed": 3,
@@ -496,7 +510,8 @@
       "manufacturer",
       "name",
       "price",
-      "public_price"
+      "public_price",
+      "sku"
     ],
     "data_rows": 6,
     "parsed": 6,

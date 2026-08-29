@@ -236,6 +236,19 @@ func combineScores(headerScore int, v verdict, hasDetector bool) (float64, []str
 		why = append(why, v.why)
 	}
 
+	// An exact header match is the file stating what the column is, in the
+	// field's own name, with nothing else plausible about it. The values may
+	// still veto it — that happens before this function is reached — but short
+	// of a veto there is nothing left to be uncertain about, and reporting such
+	// a binding as a guess is what made a perfectly named column ask for AI
+	// help and show "تخميني" on the review screen.
+	//
+	// Corroborating values raise it further; their absence does not lower it,
+	// because a header-only file has no values to disagree with.
+	if headerScore >= scoreExact {
+		return clamp(max(0.85, 0.85+0.15*v.score)), why
+	}
+
 	if !hasDetector {
 		// Nothing measurable distinguishes this field's values, so the header
 		// carries it alone — and is capped, because an uncorroborated header is
@@ -347,7 +360,21 @@ func scorePairs(headers []string, shapes []*shape, vocab *Vocabulary, fields *Fi
 					vetoes[f] = map[int]string{}
 				}
 				vetoes[f][col] = v.why
-				continue
+				// A veto unmaps the column — unless the header names this field
+				// outright, in which case the file has told us what the column
+				// is and the values are telling us some of its cells are wrong.
+				//
+				// Those are different problems with different remedies. A
+				// column headed "السعر" holding one "راجع الادارة" among four
+				// hundred prices is the price column with a bad cell, and the
+				// row parser already rejects that row by number and says why.
+				// Unmapping the column instead discards all four hundred prices
+				// and reports nothing an admin can act on, which on a real file
+				// is silent and total.
+				if he.Score < scoreExact {
+					continue
+				}
+				v = verdict{why: v.why}
 			}
 			_, hasDetector := detectors[f]
 			score, why := combineScores(he.Score, v, hasDetector)
