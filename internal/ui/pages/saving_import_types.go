@@ -112,3 +112,27 @@ type SavingImportView struct {
 	NoticeMsg  string
 	Fatal      string
 }
+
+// WizardStep maps the session's phase onto the shared, canonically numbered
+// step.
+//
+// This list has no settings screen — there is nothing to decide beyond the
+// mapping — so step 3 is rendered greyed rather than the review being
+// renumbered into its place. The number is what a user remembers, and it has to
+// mean the same thing in every wizard on the platform.
+func (v SavingImportView) WizardStep() Step {
+	phase := SavingPhaseUpload
+	if v.Session != nil && v.Session.Phase != "" {
+		phase = v.Session.Phase
+	}
+	switch phase {
+	case SavingPhaseMapping:
+		return StepColumns
+	case SavingPhaseReview:
+		return StepReview
+	case SavingPhaseCompleted:
+		return StepResults
+	default:
+		return StepFile
+	}
+}

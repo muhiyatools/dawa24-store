@@ -44,7 +44,7 @@ templ AdminProductsImportReview(lang, dir string, view ImportReviewView) {
 			</div>
 
 			<div class="wizard">
-				@wizardRail(reviewStep(view))
+				@WizardRail(ImportRail(reviewStep(view)))
 				if view.Working {
 					@importProgressCard(view)
 				} else {
@@ -64,9 +64,9 @@ templ AdminProductsImportReview(lang, dir string, view ImportReviewView) {
 }
 
 // reviewStep shows the third node as reached once the session has committed.
-func reviewStep(view ImportReviewView) ImportStep {
+func reviewStep(view ImportReviewView) Step {
 	if view.Session != nil && view.Session.Status == catalog.SessionCommitted {
-		return StepDone
+		return StepResults
 	}
 	return StepReview
 }

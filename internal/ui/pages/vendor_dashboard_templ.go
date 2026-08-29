@@ -70,7 +70,7 @@ func VendorDashboard(lang, dir string, data VendorDashboardData) templ.Component
 				var templ_7745c5c3_Var3 string
 				templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(data.PendingDocRequests[0].Title)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_dashboard.templ`, Line: 25, Col: 113}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `vendor_dashboard.templ`, Line: 25, Col: 113}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
 				if templ_7745c5c3_Err != nil {
@@ -83,7 +83,7 @@ func VendorDashboard(lang, dir string, data VendorDashboardData) templ.Component
 				var templ_7745c5c3_Var4 string
 				templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", data.PendingDocRequests[0].DaysRemaining()))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_dashboard.templ`, Line: 28, Col: 155}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `vendor_dashboard.templ`, Line: 28, Col: 155}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
 				if templ_7745c5c3_Err != nil {
@@ -96,7 +96,7 @@ func VendorDashboard(lang, dir string, data VendorDashboardData) templ.Component
 				var templ_7745c5c3_Var5 string
 				templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(format.Date(data.PendingDocRequests[0].DeadlineAt, "ar"))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_dashboard.templ`, Line: 28, Col: 240}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `vendor_dashboard.templ`, Line: 28, Col: 240}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
 				if templ_7745c5c3_Err != nil {
@@ -127,7 +127,7 @@ func VendorDashboard(lang, dir string, data VendorDashboardData) templ.Component
 				var templ_7745c5c3_Var6 string
 				templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(data.Subscription.Status)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_dashboard.templ`, Line: 55, Col: 85}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `vendor_dashboard.templ`, Line: 55, Col: 85}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
 				if templ_7745c5c3_Err != nil {
@@ -150,7 +150,7 @@ func VendorDashboard(lang, dir string, data VendorDashboardData) templ.Component
 				var templ_7745c5c3_Var7 string
 				templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(data.Subscription.PlanName)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_dashboard.templ`, Line: 66, Col: 87}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `vendor_dashboard.templ`, Line: 66, Col: 87}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
 				if templ_7745c5c3_Err != nil {
@@ -163,7 +163,7 @@ func VendorDashboard(lang, dir string, data VendorDashboardData) templ.Component
 				var templ_7745c5c3_Var8 string
 				templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(data.Subscription.ExpiresAt)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_dashboard.templ`, Line: 67, Col: 91}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `vendor_dashboard.templ`, Line: 67, Col: 91}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var8))
 				if templ_7745c5c3_Err != nil {
@@ -176,7 +176,7 @@ func VendorDashboard(lang, dir string, data VendorDashboardData) templ.Component
 				var templ_7745c5c3_Var9 string
 				templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", data.Subscription.MaxLoginSessions))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_dashboard.templ`, Line: 74, Col: 63}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `vendor_dashboard.templ`, Line: 74, Col: 63}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var9))
 				if templ_7745c5c3_Err != nil {
@@ -189,7 +189,7 @@ func VendorDashboard(lang, dir string, data VendorDashboardData) templ.Component
 				var templ_7745c5c3_Var10 string
 				templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", data.Subscription.MaxDevices))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_dashboard.templ`, Line: 83, Col: 57}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `vendor_dashboard.templ`, Line: 83, Col: 57}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var10))
 				if templ_7745c5c3_Err != nil {
@@ -202,7 +202,7 @@ func VendorDashboard(lang, dir string, data VendorDashboardData) templ.Component
 				var templ_7745c5c3_Var11 string
 				templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.JoinStringErrs(data.Subscription.AIPlanID)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_dashboard.templ`, Line: 93, Col: 105}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `vendor_dashboard.templ`, Line: 93, Col: 105}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var11))
 				if templ_7745c5c3_Err != nil {
@@ -215,7 +215,7 @@ func VendorDashboard(lang, dir string, data VendorDashboardData) templ.Component
 				var templ_7745c5c3_Var12 string
 				templ_7745c5c3_Var12, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d%%", data.Subscription.AIPercentage()))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_dashboard.templ`, Line: 99, Col: 123}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `vendor_dashboard.templ`, Line: 99, Col: 123}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var12))
 				if templ_7745c5c3_Err != nil {
@@ -228,7 +228,7 @@ func VendorDashboard(lang, dir string, data VendorDashboardData) templ.Component
 				var templ_7745c5c3_Var13 string
 				templ_7745c5c3_Var13, templ_7745c5c3_Err = templruntime.SanitizeStyleAttributeValues(fmt.Sprintf("width:%d%%;", data.Subscription.AIPercentage()))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_dashboard.templ`, Line: 104, Col: 109}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `vendor_dashboard.templ`, Line: 104, Col: 109}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var13))
 				if templ_7745c5c3_Err != nil {
@@ -241,7 +241,7 @@ func VendorDashboard(lang, dir string, data VendorDashboardData) templ.Component
 				var templ_7745c5c3_Var14 string
 				templ_7745c5c3_Var14, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d%%", 100-data.Subscription.AIPercentage()))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_dashboard.templ`, Line: 108, Col: 116}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `vendor_dashboard.templ`, Line: 108, Col: 116}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var14))
 				if templ_7745c5c3_Err != nil {
@@ -254,7 +254,7 @@ func VendorDashboard(lang, dir string, data VendorDashboardData) templ.Component
 				var templ_7745c5c3_Var15 string
 				templ_7745c5c3_Var15, templ_7745c5c3_Err = templ.JoinStringErrs(data.Subscription.AIResetText())
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_dashboard.templ`, Line: 109, Col: 94}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `vendor_dashboard.templ`, Line: 109, Col: 94}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var15))
 				if templ_7745c5c3_Err != nil {
@@ -272,7 +272,7 @@ func VendorDashboard(lang, dir string, data VendorDashboardData) templ.Component
 			var templ_7745c5c3_Var16 string
 			templ_7745c5c3_Var16, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", data.ActiveProducts))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_dashboard.templ`, Line: 131, Col: 100}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `vendor_dashboard.templ`, Line: 131, Col: 100}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var16))
 			if templ_7745c5c3_Err != nil {
@@ -285,7 +285,7 @@ func VendorDashboard(lang, dir string, data VendorDashboardData) templ.Component
 			var templ_7745c5c3_Var17 string
 			templ_7745c5c3_Var17, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", data.PendingShipments))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_dashboard.templ`, Line: 135, Col: 102}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `vendor_dashboard.templ`, Line: 135, Col: 102}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var17))
 			if templ_7745c5c3_Err != nil {
@@ -324,7 +324,7 @@ func VendorDashboard(lang, dir string, data VendorDashboardData) templ.Component
 			var templ_7745c5c3_Var18 string
 			templ_7745c5c3_Var18, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", data.LowStockCount))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_dashboard.templ`, Line: 149, Col: 98}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `vendor_dashboard.templ`, Line: 149, Col: 98}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var18))
 			if templ_7745c5c3_Err != nil {
@@ -352,7 +352,7 @@ func VendorDashboard(lang, dir string, data VendorDashboardData) templ.Component
 					var templ_7745c5c3_Var19 string
 					templ_7745c5c3_Var19, templ_7745c5c3_Err = templ.JoinStringErrs(s.ShipmentNumber)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_dashboard.templ`, Line: 182, Col: 87}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `vendor_dashboard.templ`, Line: 182, Col: 87}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var19))
 					if templ_7745c5c3_Err != nil {
@@ -424,7 +424,7 @@ func VendorDashboard(lang, dir string, data VendorDashboardData) templ.Component
 					var templ_7745c5c3_Var21 string
 					templ_7745c5c3_Var21, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", s.ProductID))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_dashboard.templ`, Line: 225, Col: 95}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `vendor_dashboard.templ`, Line: 225, Col: 95}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var21))
 					if templ_7745c5c3_Err != nil {
@@ -437,7 +437,7 @@ func VendorDashboard(lang, dir string, data VendorDashboardData) templ.Component
 					var templ_7745c5c3_Var22 string
 					templ_7745c5c3_Var22, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", s.Quantity))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_dashboard.templ`, Line: 226, Col: 111}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `vendor_dashboard.templ`, Line: 226, Col: 111}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var22))
 					if templ_7745c5c3_Err != nil {
@@ -450,7 +450,7 @@ func VendorDashboard(lang, dir string, data VendorDashboardData) templ.Component
 					var templ_7745c5c3_Var23 string
 					templ_7745c5c3_Var23, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", s.MinThreshold))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_dashboard.templ`, Line: 227, Col: 103}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `vendor_dashboard.templ`, Line: 227, Col: 103}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var23))
 					if templ_7745c5c3_Err != nil {
@@ -488,7 +488,7 @@ func VendorDashboard(lang, dir string, data VendorDashboardData) templ.Component
 					var templ_7745c5c3_Var24 string
 					templ_7745c5c3_Var24, templ_7745c5c3_Err = templ.JoinStringErrs(o.Title.Get(i18n.Lang(lang)))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_dashboard.templ`, Line: 256, Col: 85}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `vendor_dashboard.templ`, Line: 256, Col: 85}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var24))
 					if templ_7745c5c3_Err != nil {
@@ -501,7 +501,7 @@ func VendorDashboard(lang, dir string, data VendorDashboardData) templ.Component
 					var templ_7745c5c3_Var25 string
 					templ_7745c5c3_Var25, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", o.ViewsCount))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_dashboard.templ`, Line: 257, Col: 107}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `vendor_dashboard.templ`, Line: 257, Col: 107}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var25))
 					if templ_7745c5c3_Err != nil {
@@ -514,7 +514,7 @@ func VendorDashboard(lang, dir string, data VendorDashboardData) templ.Component
 					var templ_7745c5c3_Var26 string
 					templ_7745c5c3_Var26, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", o.ClicksCount))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_dashboard.templ`, Line: 257, Col: 154}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `vendor_dashboard.templ`, Line: 257, Col: 154}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var26))
 					if templ_7745c5c3_Err != nil {
@@ -547,7 +547,7 @@ func VendorDashboard(lang, dir string, data VendorDashboardData) templ.Component
 				var templ_7745c5c3_Var27 string
 				templ_7745c5c3_Var27, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", data.UnreadQuotes))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_dashboard.templ`, Line: 283, Col: 108}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `vendor_dashboard.templ`, Line: 283, Col: 108}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var27))
 				if templ_7745c5c3_Err != nil {
@@ -588,7 +588,7 @@ func VendorDashboard(lang, dir string, data VendorDashboardData) templ.Component
 				var templ_7745c5c3_Var29 templ.SafeURL
 				templ_7745c5c3_Var29, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("/vendor/orders/%d/status", s.ID)))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_dashboard.templ`, Line: 300, Col: 92}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `vendor_dashboard.templ`, Line: 300, Col: 92}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var29))
 				if templ_7745c5c3_Err != nil {
@@ -601,7 +601,7 @@ func VendorDashboard(lang, dir string, data VendorDashboardData) templ.Component
 				var templ_7745c5c3_Var30 string
 				templ_7745c5c3_Var30, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("c-%d", s.ID))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_dashboard.templ`, Line: 303, Col: 98}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `vendor_dashboard.templ`, Line: 303, Col: 98}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var30)
 				if templ_7745c5c3_Err != nil {
@@ -614,7 +614,7 @@ func VendorDashboard(lang, dir string, data VendorDashboardData) templ.Component
 				var templ_7745c5c3_Var31 string
 				templ_7745c5c3_Var31, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("c-%d", s.ID))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_dashboard.templ`, Line: 304, Col: 54}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `vendor_dashboard.templ`, Line: 304, Col: 54}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var31)
 				if templ_7745c5c3_Err != nil {
@@ -627,7 +627,7 @@ func VendorDashboard(lang, dir string, data VendorDashboardData) templ.Component
 				var templ_7745c5c3_Var32 string
 				templ_7745c5c3_Var32, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("t-%d", s.ID))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_dashboard.templ`, Line: 307, Col: 98}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `vendor_dashboard.templ`, Line: 307, Col: 98}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var32)
 				if templ_7745c5c3_Err != nil {
@@ -640,7 +640,7 @@ func VendorDashboard(lang, dir string, data VendorDashboardData) templ.Component
 				var templ_7745c5c3_Var33 string
 				templ_7745c5c3_Var33, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("t-%d", s.ID))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_dashboard.templ`, Line: 308, Col: 54}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `vendor_dashboard.templ`, Line: 308, Col: 54}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var33)
 				if templ_7745c5c3_Err != nil {

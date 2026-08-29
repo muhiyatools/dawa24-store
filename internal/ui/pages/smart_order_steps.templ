@@ -47,7 +47,7 @@ templ SmartOrderMappingPage(lang, dir string, data SmartOrderMappingData) {
 	@layouts.CustomerShell("تعيين الأعمدة", "purchase-request", lang, dir, nil) {
 		<div class="container-fluid so-mapping-page">
 			<h1 class="so-mapping-title">تعيين أعمدة الملف</h1>
-			@stepBar(2)
+			@WizardRail(OrderRail(StepColumns))
 
 			if data.Error != "" {
 				<div class="so-alert so-alert-error">
@@ -163,7 +163,7 @@ templ SmartOrderProgressPage(lang, dir string, data SmartOrderProgressData) {
 	@layouts.CustomerShell("جارٍ المطابقة", "purchase-request", lang, dir, nil) {
 		<div class="container-fluid so-progress-page">
 			<h1 class="so-progress-title">جارٍ تجهيز الطلب</h1>
-			@stepBar(3)
+			@WizardRail(OrderRail(StepReview))
 
 			if data.Failed {
 				<div class="so-progress-failed">

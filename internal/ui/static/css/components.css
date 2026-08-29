@@ -5130,3 +5130,12 @@ input:focus {
 
 
 
+
+/* Wizard rail — a step this importer does not offer ---------------------- */
+/*
+   Rendered rather than removed, so the numbering is identical in all four
+   wizards: "the settings are step 3" has to be true even where step 3 is not
+   offered, because the number is what people remember.
+*/
+.wiz-node.is-skipped { color: var(--text-muted); opacity: 0.45; }
+.wiz-node.is-skipped .wiz-bubble { border-style: dashed; background: transparent; }

@@ -40,7 +40,7 @@ templ AdminProductsImportMapping(lang, dir string, view ImportMappingView) {
 			</div>
 
 			<div class="wizard">
-				@wizardRail(StepMapping)
+				@WizardRail(ImportRail(StepColumns))
 				if view.Notice != "" {
 					@importStepNotice(view.Notice, view.NoticeKind)
 				}

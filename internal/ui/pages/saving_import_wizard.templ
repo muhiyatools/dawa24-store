@@ -42,7 +42,7 @@ templ savingImportContent(view SavingImportView) {
 		</div>
 
 		<div class="wizard">
-			@savingImportRail(view)
+			@WizardRail(SavingRail(view.WizardStep()))
 
 			if view.NoticeMsg != "" {
 				<div class={ "alert", templ.KV("alert-danger", view.NoticeType == "error"), templ.KV("alert-success", view.NoticeType == "success"), templ.KV("alert-info", view.NoticeType != "error" && view.NoticeType != "success") } role="alert">
@@ -77,60 +77,6 @@ templ savingImportContent(view SavingImportView) {
 			}
 		</div>
 	</div>
-}
-
-templ savingImportRail(view SavingImportView) {
-	{{
-		currPhase := SavingPhaseUpload
-		if view.Session != nil && view.Session.Phase != "" {
-			currPhase = view.Session.Phase
-		}
-	}}
-	<nav class="wiz-rail" aria-label="مراحل استيراد قائمة التوفير">
-		<span class={ "wiz-node", templ.KV("is-active", currPhase == SavingPhaseUpload), templ.KV("is-done", currPhase != SavingPhaseUpload) }>
-			<span class="wiz-bubble">
-				if currPhase != SavingPhaseUpload {
-					✓
-				} else {
-					1
-				}
-			</span>
-			<span>1. رفع الملف</span>
-		</span>
-		<span class="wiz-sep"></span>
-		<span class={ "wiz-node", templ.KV("is-active", currPhase == SavingPhaseMapping), templ.KV("is-done", currPhase == SavingPhaseReview || currPhase == SavingPhaseCompleted) }>
-			<span class="wiz-bubble">
-				if currPhase == SavingPhaseReview || currPhase == SavingPhaseCompleted {
-					✓
-				} else {
-					2
-				}
-			</span>
-			<span>2. ربط الأعمدة والمطابقة</span>
-		</span>
-		<span class="wiz-sep"></span>
-		<span class={ "wiz-node", templ.KV("is-active", currPhase == SavingPhaseReview), templ.KV("is-done", currPhase == SavingPhaseCompleted) }>
-			<span class="wiz-bubble">
-				if currPhase == SavingPhaseCompleted {
-					✓
-				} else {
-					3
-				}
-			</span>
-			<span>3. مراجعة وتعديل المسودة</span>
-		</span>
-		<span class="wiz-sep"></span>
-		<span class={ "wiz-node", templ.KV("is-active", currPhase == SavingPhaseCompleted), templ.KV("is-done", currPhase == SavingPhaseCompleted) }>
-			<span class="wiz-bubble">
-				if currPhase == SavingPhaseCompleted {
-					✓
-				} else {
-					4
-				}
-			</span>
-			<span>4. الحفظ والنتائج</span>
-		</span>
-	</nav>
 }
 
 templ savingUploadStage(view SavingImportView) {

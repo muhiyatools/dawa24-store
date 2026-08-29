@@ -34,14 +34,32 @@ import (
 const MatchSimilar MatchReason = "similar"
 
 // similarityFloor is the score at or above which a similarity match is offered
-// as an update.
+// as an update on the strength of the name alone.
 //
-// Higher than the vendor import's 0.78, because the consequences differ: a
-// vendor's wrong match mislabels one of their own offers, while a wrong match
-// here overwrites the shared catalogue entry every pharmacy reads. Below this
-// the row is staged as an insert, which an admin can merge later; a wrong
-// update is not something they can see has happened.
+// Higher than any other importer's, because the consequences differ: a vendor's
+// wrong match mislabels one of their own offers, while a wrong match here
+// overwrites the shared catalogue entry every pharmacy reads.
+//
+// What that produced, measured on the live table: 37,576 rows staged as
+// `insert` with no reason, 82 as `similar`, 26 by name. A match rate of 0.29%,
+// which means every re-upload of the same administrative file duplicates the
+// catalogue. The floor was not wrong about the risk; it was the only tool being
+// used to manage it.
 const similarityFloor = 0.86
+
+// corroboratedFloor is the score at or above which a match is offered as an
+// update when something other than the name agrees as well.
+//
+// The engine's own settled levels — a barcode hit, a code hit, an exact folded
+// name — are already identifiers rather than judgements. Below those, a strong
+// score whose dose and pharmaceutical form both corroborate is a different
+// proposition from a strong score on the name alone, and the identity re-check
+// that guards the AI tier is available to say so.
+//
+// So the rule is: a bare name similarity still needs 0.86, and a corroborated
+// one needs 0.78 — the figure the vendor import has always used, applied here
+// only where the extra evidence exists.
+const corroboratedFloor = 0.78
 
 // aiFloor is the confidence a model must express before its choice is applied.
 const aiFloor = 0.70
@@ -181,14 +199,15 @@ func (s *Service) resolveSimilarMatches(
 	}
 
 	opts := productmatch.DefaultMatchOptions()
-	opts.MinStrong = similarityFloor
+	opts.MinStrong = corroboratedFloor
 	opts.MaxCandidates = 5
 
 	var forAI []pendingMatch
 	for _, i := range residual {
-		res := index.Match(matchRowFor(prods[i]), opts)
+		row := matchRowFor(prods[i])
+		res := index.Match(row, opts)
 		switch {
-		case res.Matched() && res.Score >= similarityFloor && res.Level != productmatch.MatchAmbiguous:
+		case res.Matched() && acceptsUpdate(index, row, res):
 			matches[i] = ExistingMatch{ProductID: res.ProductID, Reason: MatchSimilar}
 			stats.Similar++
 		case len(res.Candidates) > 0:
@@ -209,6 +228,36 @@ func (s *Service) resolveSimilarMatches(
 	s.adjudicateMatches(ctx, session, prods, matches, forAI, &stats)
 	stats.Unmatched += len(forAI) - stats.AI
 	return stats
+}
+
+// acceptsUpdate decides whether a match is safe to apply to the shared
+// catalogue without asking an administrator.
+//
+// Three ways in, in descending order of how little judgement each requires:
+//
+//   - the engine settled it on an identifier or an exact folded name;
+//   - the score clears the bare-name floor;
+//   - the score clears the corroborated floor AND the catalogue's own record
+//     agrees about the product's identity — the same re-check that validates an
+//     answer from the model before it is written.
+//
+// Ambiguity is refused in every case. Two products that fit equally well is not
+// a weaker match; it is a question, and the review screen exists to ask it.
+func acceptsUpdate(index *productmatch.Index, row *productmatch.Row, res productmatch.MatchResult) bool {
+	if res.Level == productmatch.MatchAmbiguous {
+		return false
+	}
+	if res.Level == productmatch.MatchBarcode || res.Level == productmatch.MatchCode ||
+		res.Level == productmatch.MatchExact {
+		return true
+	}
+	if res.Score >= similarityFloor {
+		return true
+	}
+	if res.Score < corroboratedFloor {
+		return false
+	}
+	return index.IdentityConflict(row, res.ProductID).None()
 }
 
 // catalogueIndex builds the in-memory catalogue the residue is scored against.
