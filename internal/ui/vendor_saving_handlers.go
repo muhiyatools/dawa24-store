@@ -17,7 +17,7 @@ import (
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/shared/money"
-	"github.com/muhiya/dawa24-store/internal/shared/spreadsheet"
+	"github.com/muhiya/dawa24-store/internal/shared/sheet"
 	"github.com/muhiya/dawa24-store/internal/ui/pages"
 )
 
@@ -260,7 +260,7 @@ func (h *UIHandler) VendorSavingProductsImportSubmit(w http.ResponseWriter, r *h
 		return
 	}
 
-	rawRows, err := spreadsheet.ReadRows(fileBytes)
+	rawRows, err := sheet.ReadRows(fileBytes, header.Filename)
 	if err != nil || len(rawRows) < 2 {
 		h.log.WarnContext(ctx, "failed to parse spreadsheet", "error", err, "filename", header.Filename)
 		h.redirectWithNotice(w, r, "/vendor/saving-products", "error", "تعذر قراءة ملف البيانات المرفوع أو أن الملف لا يحتوي على صفوف بيانات صالحة.")
@@ -402,7 +402,7 @@ func (h *UIHandler) VendorSavingProductsPreviewColumnsJSON(w http.ResponseWriter
 		return
 	}
 
-	file, _, err := r.FormFile("file")
+	file, header, err := r.FormFile("file")
 	if err != nil {
 		_ = json.NewEncoder(w).Encode(SavingProductsPreviewResponse{Success: false, Error: "يرجى اختيار ملف Excel أو CSV صالح"})
 		return
@@ -415,7 +415,7 @@ func (h *UIHandler) VendorSavingProductsPreviewColumnsJSON(w http.ResponseWriter
 		return
 	}
 
-	rawRows, err := spreadsheet.ReadRows(fileBytes)
+	rawRows, err := sheet.ReadRows(fileBytes, header.Filename)
 	if err != nil || len(rawRows) == 0 {
 		_ = json.NewEncoder(w).Encode(SavingProductsPreviewResponse{Success: false, Error: "تعذر قراءة أوراق العمل أو الجداول داخل الملف"})
 		return
@@ -475,7 +475,7 @@ func (h *UIHandler) VendorSavingProductsImportStartJSON(w http.ResponseWriter, r
 		return
 	}
 
-	rawRows, err := spreadsheet.ReadRows(fileBytes)
+	rawRows, err := sheet.ReadRows(fileBytes, fileHeader.Filename)
 	if err != nil || len(rawRows) <= 1 {
 		_ = json.NewEncoder(w).Encode(map[string]any{"success": false, "error": "الملف فارغ أو لا يحتوي على صفوف بيانات"})
 		return

@@ -413,8 +413,23 @@ func utf16ToUTF8(b []byte, little bool) []byte {
 	return []byte(string(utf16.Decode(units)))
 }
 
-// isBinary reports whether decoded content is not text. A NUL byte is decisive;
-// beyond that a run of control characters or invalid UTF-8 settles it.
+// binaryControlShare is the proportion of control bytes above which content is
+// judged binary rather than dirty text.
+//
+// A single NUL used to be decisive, and it was the wrong rule: the ERPs that
+// export a CSV by dumping fixed-width string records pad them with NUL, so a
+// perfectly readable price list was refused with "تعذر التعرف على نوع الملف"
+// and the vendor was told their file was corrupt.
+//
+// A tenth is generous on purpose, because every format that is genuinely binary
+// has already been excluded before this runs: Detect matches the ZIP and OLE2
+// magic numbers, the XML prolog and the HTML doctype first, so what reaches
+// here is either text or something renamed. A PDF or a JPEG is a third control
+// bytes; UTF-16 without a byte-order mark is half NUL; scattered padding in a
+// price list is under one in fifty.
+const binaryControlShare = 0.10
+
+// isBinary reports whether decoded content is not text.
 func isBinary(content []byte) bool {
 	head := content
 	if len(head) > 8192 {
@@ -423,16 +438,13 @@ func isBinary(content []byte) bool {
 	if len(head) == 0 {
 		return false
 	}
-	if bytes.IndexByte(head, 0) >= 0 {
-		return true
-	}
 	control := 0
 	for _, c := range head {
-		if c < 0x20 && c != '\t' && c != '\n' && c != '\r' {
+		if c == 0 || (c < 0x20 && c != '\t' && c != '\n' && c != '\r') {
 			control++
 		}
 	}
-	if control*100 > len(head) {
+	if float64(control) > float64(len(head))*binaryControlShare {
 		return true
 	}
 	// Truncating mid-rune at the 8 KB boundary would make valid UTF-8 look

@@ -16,7 +16,7 @@ import (
 	"github.com/muhiya/dawa24-store/internal/shared/apperr"
 	"github.com/muhiya/dawa24-store/internal/shared/arabic"
 	"github.com/muhiya/dawa24-store/internal/shared/money"
-	"github.com/muhiya/dawa24-store/internal/shared/spreadsheet"
+	"github.com/muhiya/dawa24-store/internal/shared/sheet"
 )
 
 // ClientInfo captures client environment details for session device cap tracking.
@@ -430,7 +430,7 @@ func (s *Service) UploadAndProcessCompareFile(
 	}
 
 	// 1. Read all rows from file using universal spreadsheet reader
-	allRows, err := spreadsheet.ReadRows(fileBytes)
+	allRows, err := sheet.ReadRows(fileBytes, originalFilename)
 	if err != nil || len(allRows) == 0 {
 		file.Status = FileFailed
 		file.ErrorMessage = "الملف فارغ أو تعذر قراءة الجداول بداخله"
@@ -623,7 +623,7 @@ func (s *Service) parseSpreadsheet(reader io.Reader, file *CompareFile) ([]*Comp
 		return nil, fmt.Errorf("read spreadsheet data: %w", err)
 	}
 
-	allRows, err := spreadsheet.ReadRows(data)
+	allRows, err := sheet.ReadRows(data, file.OriginalFilename)
 	if err != nil {
 		return nil, fmt.Errorf("read spreadsheet: %w", err)
 	}
@@ -824,5 +824,3 @@ func (s *Service) UpdateFile(ctx context.Context, f *CompareFile) error {
 func (s *Service) InsertFileRows(ctx context.Context, rows []*CompareFileRow) error {
 	return s.repo.InsertFileRows(ctx, rows)
 }
-
-

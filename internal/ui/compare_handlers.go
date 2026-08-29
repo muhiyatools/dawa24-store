@@ -21,7 +21,7 @@ import (
 	"github.com/muhiya/dawa24-store/internal/modules/compare"
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/platform/features"
-	"github.com/muhiya/dawa24-store/internal/shared/spreadsheet"
+	"github.com/muhiya/dawa24-store/internal/shared/sheet"
 	"github.com/muhiya/dawa24-store/internal/ui/pages"
 )
 
@@ -693,7 +693,7 @@ func (h *UIHandler) parseFilePreview(reader io.Reader, filename string) ([]strin
 	if err != nil {
 		return nil, nil, err
 	}
-	allRows, err := spreadsheet.ReadRows(data)
+	allRows, err := sheet.ReadRows(data, filename)
 	if err != nil || len(allRows) == 0 {
 		return nil, nil, fmt.Errorf("empty or unparseable spreadsheet: %w", err)
 	}
