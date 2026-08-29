@@ -61,19 +61,29 @@ func (h *UIHandler) JobsPage(w http.ResponseWriter, r *http.Request) {
 		})
 	}
 
-	// The post job button shows ONLY for vendors & staff, NEVER for pharmacy customers
-	canPost := isLoggedIn && (actor.IsVendor() || actor.IsStaff)
+	// The post job button shows for customers (pharmacies), vendors (suppliers), and staff
+	postJobURL := "/customer/jobs"
+	if isLoggedIn {
+		if actor.IsVendor() {
+			postJobURL = "/vendor/jobs"
+		} else if actor.IsStaff {
+			postJobURL = "/admin/jobs"
+		}
+	}
+	canPost := isLoggedIn && (actor.IsCustomer() || actor.IsVendor() || actor.IsStaff)
 
 	data := pages.JobsPageData{
-		Jobs:       jobItems,
-		TotalCount: len(jobItems),
-		Cities:     h.listCities(ctx),
-		Actor:      actor,
-		IsLoggedIn: isLoggedIn,
-		IsCustomer: isLoggedIn && actor.IsCustomer(),
-		IsVendor:   isLoggedIn && actor.IsVendor(),
-		IsAdmin:    isLoggedIn && actor.IsStaff,
-		CanPostJob: canPost,
+		Jobs:        jobItems,
+		TotalCount:  len(jobItems),
+		Cities:      h.listCities(ctx),
+		Actor:       actor,
+		IsLoggedIn:  isLoggedIn,
+		IsCustomer:  isLoggedIn && actor.IsCustomer(),
+		IsVendor:    isLoggedIn && actor.IsVendor(),
+		IsAdmin:     isLoggedIn && actor.IsStaff,
+		IsJobSeeker: isLoggedIn && actor.IsJobSeeker(),
+		CanPostJob:  canPost,
+		PostJobURL:  postJobURL,
 	}
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
@@ -127,6 +137,7 @@ func (h *UIHandler) JobDetailPage(w http.ResponseWriter, r *http.Request) {
 		IsCustomer:  isLoggedIn && actor.IsCustomer(),
 		IsVendor:    isLoggedIn && actor.IsVendor(),
 		IsAdmin:     isLoggedIn && actor.IsStaff,
+		IsJobSeeker: isLoggedIn && actor.IsJobSeeker(),
 		Submitted:   false,
 		UserEmail:   userEmail,
 		UserName:    userName,
@@ -139,7 +150,7 @@ func (h *UIHandler) JobDetailPage(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// JobApplySubmit records an application (requires logged-in user).
+// JobApplySubmit records an application (requires logged-in job seeker).
 func (h *UIHandler) JobApplySubmit(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	lang, dir := h.localeAndDir(r)
@@ -148,6 +159,11 @@ func (h *UIHandler) JobApplySubmit(w http.ResponseWriter, r *http.Request) {
 	actor, ok := authctx.From(ctx)
 	if !ok {
 		http.Redirect(w, r, fmt.Sprintf("/auth/login?redirect=/jobs/%d", offerID), http.StatusSeeOther)
+		return
+	}
+
+	if !actor.IsJobSeeker() && !actor.IsStaff {
+		h.redirectWithNotice(w, r, "/jobs/"+strconv.FormatInt(offerID, 10), "error", "التقديم على الشواغر الوظيفية متاح فقط لحسابات (باحث عن عمل).")
 		return
 	}
 

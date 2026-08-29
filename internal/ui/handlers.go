@@ -369,10 +369,16 @@ func (h *UIHandler) RegisterCustomerRoutes(r chi.Router) {
 	r.Post("/customer/employees/{id}/delete", h.CustomerEmployeeDeleteSubmit)
 	r.Post("/customer/employees/{id}/status", h.CustomerEmployeeStatusSubmit)
 
-	// Pharmacy Jobs & Careers (in-dashboard)
-	r.Get("/customer/jobs", h.JobsPage)
-	r.Get("/customer/jobs/{id}", h.JobDetailPage)
-	r.Post("/customer/jobs/{id}/apply", h.JobApplySubmit)
+	// Pharmacy Jobs & Recruitment Management
+	r.Get("/customer/jobs", h.CustomerJobsPage)
+	r.Post("/customer/jobs", h.CustomerJobCreateSubmit)
+	r.Post("/customer/jobs/{id}/edit", h.CustomerJobUpdateSubmit)
+	r.Post("/customer/jobs/{id}/update", h.CustomerJobUpdateSubmit)
+	r.Post("/customer/jobs/{id}/toggle", h.CustomerJobToggleSubmit)
+	r.Post("/customer/jobs/{id}/delete", h.CustomerJobDeleteSubmit)
+	r.Get("/customer/jobs/{id}/applications", h.CustomerJobApplicationsJSON)
+	r.Post("/customer/jobs/{id}/applications/{appId}/accept", h.CustomerJobApplicationAcceptSubmit)
+	r.Post("/customer/jobs/{id}/applications/{appId}/reject", h.CustomerJobApplicationRejectSubmit)
 
 	// Pharmacy AI Consumption Logs
 	r.Get("/customer/ai-logs", h.AIConsumptionLogsPage)
@@ -581,6 +587,8 @@ func (h *UIHandler) RegisterVendorRoutes(r chi.Router) {
 	r.Post("/vendor/jobs/{id}/toggle", h.VendorJobToggleSubmit)
 	r.Post("/vendor/jobs/{id}/delete", h.VendorJobDeleteSubmit)
 	r.Get("/vendor/jobs/{id}/applications", h.VendorJobApplicationsJSON)
+	r.Post("/vendor/jobs/{id}/applications/{appId}/accept", h.VendorJobApplicationAcceptSubmit)
+	r.Post("/vendor/jobs/{id}/applications/{appId}/reject", h.VendorJobApplicationRejectSubmit)
 	r.Get("/vendor/ai-logs", h.AIConsumptionLogsPage)
 	r.Get("/vendor/decision-memory", h.VendorDecisionMemoryPage)
 	r.Post("/vendor/decision-memory/add", h.VendorDecisionMemoryAddSubmit)

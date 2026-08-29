@@ -103,8 +103,16 @@ func (m *mockHRRepo) ListApplicationsByUser(_ context.Context, _ int64) ([]*hr.J
 	return nil, nil
 }
 
-func (m *mockHRRepo) UpdateApplicationStatus(_ context.Context, _ int64, _, _ string) error {
-	return nil
+func (m *mockHRRepo) GetApplicationByID(_ context.Context, id int64) (*hr.JobApplication, error) {
+	return &hr.JobApplication{ID: id, Status: "pending"}, nil
+}
+
+func (m *mockHRRepo) AcceptAndOnboardApplicant(_ context.Context, in hr.AcceptApplicantInput) (*hr.JobApplication, error) {
+	return &hr.JobApplication{ID: in.ApplicationID, Status: "accepted", AssignedRoleKey: in.RoleKey}, nil
+}
+
+func (m *mockHRRepo) RejectApplicant(_ context.Context, orgID, appID int64, notes string) (*hr.JobApplication, error) {
+	return &hr.JobApplication{ID: appID, Status: "rejected", Notes: notes}, nil
 }
 
 func (m *mockHRRepo) GetJobSeekerProfile(_ context.Context, userID int64) (*hr.JobSeekerProfile, error) {

@@ -3,19 +3,13 @@ package pages
 import (
 	"fmt"
 
-	"github.com/muhiya/dawa24-store/internal/modules/hr"
 	"github.com/muhiya/dawa24-store/internal/modules/org"
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/ui/components"
 	"github.com/muhiya/dawa24-store/internal/ui/layouts"
 )
 
-type VendorJobItem struct {
-	Job               *hr.JobOffer
-	ApplicationsCount int
-}
-
-type VendorJobsData struct {
+type CustomerJobsData struct {
 	Jobs              []*VendorJobItem
 	Branches          []*org.Branch
 	TotalCount        int
@@ -24,10 +18,11 @@ type VendorJobsData struct {
 	TotalApplications int
 	NoticeType        string
 	NoticeMsg         string
+	Permissions       []string
 }
 
-templ VendorJobs(lang, dir string, data VendorJobsData) {
-	@layouts.VendorShell("إدارة التوظيف والوظائف | دواء 24", "jobs", lang, dir) {
+templ CustomerJobs(lang, dir string, data CustomerJobsData) {
+	@layouts.CustomerShell("إدارة التوظيف والوظائف | دواء 24", "jobs", lang, dir, data.Permissions) {
 		<div style="max-width:1200px; margin:0 auto; display:flex; flex-direction:column; gap:1.75rem; padding-bottom:3.5rem;">
 			
 			<!-- Notice Toast -->
@@ -49,13 +44,13 @@ templ VendorJobs(lang, dir string, data VendorJobsData) {
 			<div class="card" style="padding:2rem; background:linear-gradient(135deg, var(--surface-raised) 0%, var(--surface-sunken) 100%); border-radius:var(--radius-2xl); border:1px solid var(--border); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1.25rem; box-shadow:0 4px 20px rgba(0,0,0,0.05);">
 				<div>
 					<div style="font-size:0.75rem; font-weight:800; text-transform:uppercase; letter-spacing:0.15em; color:var(--primary-600); margin-bottom:0.35rem; font-family:var(--font-mono, monospace);">
-						لوحة المورد المعتمد • إدارة الكوادر والتوظيف
+						لوحة الصيدلية • إدارة الكوادر والتوظيف
 					</div>
 					<h1 style="font-size:1.85rem; font-weight:900; color:var(--text); margin:0;">
-						الوظائف وفرص العمل
+						شواغر ووظائف الصيدلية
 					</h1>
 					<p style="font-size:0.9rem; color:var(--text-secondary); margin:0.35rem 0 0; line-height:1.6;">
-						نشر الوظائف الشاغرة لمنشأتك، متابعة المتقدمين واستعراض السير الذاتية وإدارة الشواغر بكل سهولة.
+						نشر الشواغر الوظيفية لفروع صيدليتك، استعراض المتقدمين والسير الذاتية، وتعيين الكوادر في الفروع مباشرة.
 					</p>
 				</div>
 				<button type="button" class="btn btn-primary" data-modal-open="add-job-modal" onclick="openAddJobModal()" style="font-weight:800; border-radius:var(--radius-full); padding:0.75rem 1.75rem; font-size:0.95rem; gap:0.5rem; box-shadow:0 6px 18px rgba(16,185,129,0.25);">
@@ -86,7 +81,7 @@ templ VendorJobs(lang, dir string, data VendorJobsData) {
 					</div>
 					<div>
 						<div class="text-sm fw-700 text-muted">الوظائف النشطة</div>
-						<div style="font-size:1.6rem; font-weight:900; color:var(--text); line-height:1.2;">
+						<div style="font-size:1.6rem; font-weight:900; color:var(--primary-700); line-height:1.2;">
 							{ fmt.Sprintf("%d", data.PublishedCount) }
 						</div>
 					</div>
@@ -94,12 +89,12 @@ templ VendorJobs(lang, dir string, data VendorJobsData) {
 
 				<!-- Card 3 -->
 				<div class="card" style="padding:1.25rem; background:var(--surface-raised); border-radius:var(--radius-xl); border:1px solid var(--border); display:flex; align-items:center; gap:1rem;">
-					<div style="width:48px; height:48px; border-radius:var(--radius-lg); background:rgba(148,163,184,0.15); color:var(--text-muted); display:flex; align-items:center; justify-content:center; font-size:1.5rem;">
+					<div style="width:48px; height:48px; border-radius:var(--radius-lg); background:rgba(100,116,139,0.12); color:#64748b; display:flex; align-items:center; justify-content:center; font-size:1.5rem;">
 						🔒
 					</div>
 					<div>
 						<div class="text-sm fw-700 text-muted">الوظائف المغلقة</div>
-						<div style="font-size:1.6rem; font-weight:900; color:var(--text); line-height:1.2;">
+						<div style="font-size:1.6rem; font-weight:900; color:var(--text-secondary); line-height:1.2;">
 							{ fmt.Sprintf("%d", data.ClosedCount) }
 						</div>
 					</div>
@@ -111,8 +106,8 @@ templ VendorJobs(lang, dir string, data VendorJobsData) {
 						👥
 					</div>
 					<div>
-						<div class="text-sm fw-700 text-muted">طلبات التقديم المستلمة</div>
-						<div style="font-size:1.6rem; font-weight:900; color:var(--text); line-height:1.2;">
+						<div class="text-sm fw-700 text-muted">إجمالي المتقدمين</div>
+						<div style="font-size:1.6rem; font-weight:900; color:#d97706; line-height:1.2;">
 							{ fmt.Sprintf("%d", data.TotalApplications) }
 						</div>
 					</div>
@@ -120,168 +115,138 @@ templ VendorJobs(lang, dir string, data VendorJobsData) {
 			</div>
 
 			<!-- Main Jobs Table Card -->
-			<div class="card" style="padding:1.5rem; background:var(--surface-raised); border-radius:var(--radius-2xl); border:1px solid var(--border); box-shadow:0 6px 24px rgba(0,0,0,0.04);">
-				
-				<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.25rem; flex-wrap:wrap; gap:1rem;">
-					<h2 style="font-size:1.2rem; font-weight:800; color:var(--text); margin:0; display:flex; align-items:center; gap:0.5rem;">
-						<span>قائمة الشواغر الوظيفية</span>
-						<span class="badge badge-slate text-xs">{ fmt.Sprintf("%d وظيفة", len(data.Jobs)) }</span>
-					</h2>
+			<div class="card" style="padding:0; border-radius:var(--radius-2xl); border:1px solid var(--border); overflow:hidden; background:var(--surface-raised); box-shadow:0 4px 16px rgba(0,0,0,0.03);">
+				<div style="padding:1.25rem 1.75rem; border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem;">
+					<h3 style="font-size:1.15rem; font-weight:800; color:var(--text); margin:0;">
+						قائمة الوظائف المنشورة
+					</h3>
 				</div>
 
 				if len(data.Jobs) == 0 {
-					<div style="text-align:center; padding:4rem 1rem; display:flex; flex-direction:column; align-items:center; gap:1rem;">
-						<div style="width:64px; height:64px; border-radius:var(--radius-2xl); background:var(--surface-sunken); display:flex; align-items:center; justify-content:center; font-size:2rem; border:1px solid var(--border);">
-							📋
-						</div>
-						<div>
-							<h3 class="text-lg fw-800 text-primary m-0">لم يتم نشر أي وظائف بعد</h3>
-							<p style="font-size:0.85rem; color:var(--text-muted); margin:0.25rem 0 0;">
-								ابدأ بنشر أول وظيفة شاغرة لاستقطاب الكفاءات والصيادلة لمؤسستك.
-							</p>
-						</div>
-						<button type="button" class="btn btn-primary btn-sm" onclick="openAddJobModal()" style="font-weight:700; margin-top:0.5rem;">
+					<div style="text-align:center; padding:4rem 1.5rem; color:var(--text-secondary);">
+						<div style="font-size:3.5rem; margin-bottom:1rem;">💼</div>
+						<h3 style="font-size:1.25rem; font-weight:800; color:var(--text); margin:0 0 0.5rem 0;">لم تقم بنشر أي وظائف حتى الآن</h3>
+						<p style="font-size:0.9rem; color:var(--text-muted); max-width:480px; margin:0 auto 1.5rem auto; line-height:1.6;">
+							يمكنك نشر وظيفة جديدة الآن لاستقبال طلبات الصيادلة ومساعدي الصيادلة وإدارة التعيينات بكل سهولة.
+						</p>
+						<button type="button" class="btn btn-primary" onclick="openAddJobModal()" style="font-weight:800; border-radius:var(--radius-full); padding:0.65rem 1.5rem;">
 							@components.IconPlus("icon-xs")
-							<span>نشر أول وظيفة الآن</span>
+							<span>نشر وظيفتك الأولى الآن</span>
 						</button>
 					</div>
 				} else {
-					<div class="table-container" style="border:1px solid var(--border); border-radius:var(--radius-xl); overflow:hidden;">
-						<table class="b2b-table" style="width:100%; border-collapse:collapse; text-align:start;">
+					<div class="table-responsive">
+						<table class="table" style="margin:0;">
 							<thead>
-								<tr style="background:var(--surface-sunken); border-bottom:1px solid var(--border); font-size:0.8rem; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.05em;">
-									<th style="padding:1rem 1.25rem; font-weight:800;">المسمى الوظيفي</th>
-									<th style="padding:1rem; font-weight:800;">الموقع</th>
-									<th style="padding:1rem; font-weight:800;">نطاق الراتب</th>
-									<th style="padding:1rem; font-weight:800; text-align:center;">المتقدمون</th>
-									<th style="padding:1rem; font-weight:800; text-align:center;">الحالة</th>
-									<th style="padding:1rem; font-weight:800;">تاريخ النشر</th>
-									<th style="padding:1rem 1.25rem; font-weight:800; text-align:end;">الإجراءات</th>
+								<tr style="background:var(--surface-sunken); border-bottom:1px solid var(--border);">
+									<th style="padding:1rem 1.5rem; font-size:0.8rem; font-weight:800; color:var(--text-secondary); text-transform:uppercase;">المسمى الوظيفي</th>
+									<th style="padding:1rem 1.25rem; font-size:0.8rem; font-weight:800; color:var(--text-secondary); text-transform:uppercase;">الموقع / الفرع</th>
+									<th style="padding:1rem 1.25rem; font-size:0.8rem; font-weight:800; color:var(--text-secondary); text-transform:uppercase;">الراتب المقترح</th>
+									<th style="padding:1rem 1.25rem; font-size:0.8rem; font-weight:800; color:var(--text-secondary); text-transform:uppercase; text-align:center;">المتقدمين</th>
+									<th style="padding:1rem 1.25rem; font-size:0.8rem; font-weight:800; color:var(--text-secondary); text-transform:uppercase; text-align:center;">الحالة</th>
+									<th style="padding:1rem 1.5rem; font-size:0.8rem; font-weight:800; color:var(--text-secondary); text-transform:uppercase; text-align:end;">الإجراءات</th>
 								</tr>
 							</thead>
-							<tbody class="text-sm">
+							<tbody>
 								for _, item := range data.Jobs {
-									<tr style="border-bottom:1px solid var(--border); transition:background 0.15s ease;" class="hover-row">
-										<!-- Title & Short Desc -->
-										<td style="padding:1.1rem 1.25rem;">
-											<div class="fw-800 text-primary text-base">
-												{ item.Job.Title.Get(i18n.Lang(lang)) }
+									<tr style="border-bottom:1px solid var(--border); transition:background 0.15s ease;">
+										<td style="padding:1.15rem 1.5rem;">
+											<div style="font-weight:800; font-size:0.95rem; color:var(--text);">
+												{ item.Job.Title.Get(i18n.ParseLang(lang)) }
 											</div>
-											if item.Job.Description != "" {
-												<div style="font-size:0.775rem; color:var(--text-muted); margin-top:0.25rem; max-width:320px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
-													{ item.Job.Description }
-												</div>
-											}
+											<div style="font-size:0.75rem; color:var(--text-muted); margin-top:0.2rem; font-family:var(--font-mono, monospace);">
+												{ item.Job.PublicID }
+											</div>
 										</td>
-
-										<!-- Location -->
-										<td style="padding:1rem; color:var(--text-secondary); font-weight:600;">
-											if item.Job.Location != "" {
-												<div class="row-center-xs">
-													<span>📍</span>
-													<span>{ item.Job.Location }</span>
-												</div>
-											} else {
-												<span class="text-muted text-sm">غير محدد</span>
-											}
-										</td>
-
-										<!-- Salary Range -->
-										<td style="padding:1rem; font-family:var(--font-mono, monospace); font-size:0.85rem;">
-											if item.Job.SalaryMin.IsPositive() || item.Job.SalaryMax.IsPositive() {
-												<span class="fw-700 text-primary">
-													if item.Job.SalaryMin.IsPositive() {
-														{ item.Job.SalaryMin.String() }
+										<td style="padding:1.15rem 1.25rem;">
+											<div style="display:flex; align-items:center; gap:0.4rem; font-size:0.85rem; color:var(--text-secondary);">
+												<span>📍</span>
+												<span>
+													if item.Job.Location != "" {
+														{ item.Job.Location }
+													} else {
+														الفرع الرئيسي
 													}
-													if item.Job.SalaryMin.IsPositive() && item.Job.SalaryMax.IsPositive() {
-														<span> - </span>
-													}
-													if item.Job.SalaryMax.IsPositive() {
-														{ item.Job.SalaryMax.String() }
-													}
-													<span class="text-xs text-muted"> ج.م</span>
 												</span>
-											} else {
-												<span class="text-muted text-sm">يحدد بالمقابلة</span>
-											}
+											</div>
 										</td>
-
-										<!-- Applicants Count -->
-										<td class="p-md text-center">
+										<td style="padding:1.15rem 1.25rem;">
+											<div style="font-size:0.85rem; font-weight:700; color:var(--text);">
+												if !item.Job.SalaryMin.IsZero() || !item.Job.SalaryMax.IsZero() {
+													@components.MoneyDisplay(components.MoneyDisplayProps{ Amount: item.Job.SalaryMin })
+													if !item.Job.SalaryMax.IsZero() {
+														<span> - </span>
+														@components.MoneyDisplay(components.MoneyDisplayProps{ Amount: item.Job.SalaryMax })
+													}
+												} else {
+													<span class="text-muted" style="font-weight:400;">يحدد بالمقابلة</span>
+												}
+											</div>
+										</td>
+										<td style="padding:1.15rem 1.25rem; text-align:center;">
 											<button
 												type="button"
-												onclick={ templ.ComponentScript{Call: fmt.Sprintf("viewApplicants(%d, '%s')", item.Job.ID, item.Job.Title.Get(i18n.Lang(lang)))} }
 												class="btn btn-secondary btn-sm"
-												style="padding:0.3rem 0.75rem; border-radius:var(--radius-full); font-size:0.8rem; font-weight:700; gap:0.35rem;"
+												onclick={ templ.ComponentScript{ Call: fmt.Sprintf("viewApplicants(%d, %q)", item.Job.ID, item.Job.Title.Get(i18n.ParseLang(lang))) } }
+												style="font-weight:800; border-radius:var(--radius-full); padding:0.35rem 0.85rem; font-size:0.8rem; gap:0.35rem;"
 											>
 												<span>👥</span>
 												<span>{ fmt.Sprintf("%d متقدم", item.ApplicationsCount) }</span>
 											</button>
 										</td>
-
-										<!-- Status -->
-										<td class="p-md text-center">
+										<td style="padding:1.15rem 1.25rem; text-align:center;">
 											if item.Job.Status == "published" {
-												<span class="badge badge-emerald" style="font-size:0.75rem; padding:0.3rem 0.65rem; font-weight:700;">
+												<span class="badge badge-emerald" style="font-weight:700; font-size:0.75rem; padding:0.25rem 0.75rem;">
 													منشورة ومتاحة
 												</span>
 											} else {
-												<span class="badge badge-slate" style="font-size:0.75rem; padding:0.3rem 0.65rem; font-weight:700;">
+												<span class="badge badge-slate" style="font-weight:700; font-size:0.75rem; padding:0.25rem 0.75rem;">
 													مغلقة
 												</span>
 											}
 										</td>
-
-										<!-- Date -->
-										<td style="padding:1rem; color:var(--text-muted); font-size:0.8rem; font-family:var(--font-mono, monospace);">
-											{ item.Job.CreatedAt.Format("2006-01-02") }
-										</td>
-
-										<!-- Actions -->
-										<td style="padding:1.1rem 1.25rem; text-align:end;">
-											<div style="display:flex; justify-content:flex-end; align-items:center; gap:0.5rem;">
-												
-												<!-- Edit Job Button -->
+										<td style="padding:1.15rem 1.5rem; text-align:end;">
+											<div style="display:flex; justify-content:flex-end; gap:0.5rem; align-items:center;">
+												<!-- Edit Button -->
 												<button
 													type="button"
-													class="btn btn-secondary btn-sm fw-700"
-													style="font-size:0.775rem; gap:0.35rem; color:var(--primary-700); padding:0.4rem 0.75rem;"
+													class="btn btn-secondary btn-sm btn-icon"
+													title="تعديل بيانات الوظيفة"
 													data-job-id={ fmt.Sprintf("%d", item.Job.ID) }
 													data-title-ar={ item.Job.Title.Get(i18n.AR) }
 													data-title-en={ item.Job.Title.Get(i18n.EN) }
 													data-location={ item.Job.Location }
-													data-sal-min={ item.Job.SalaryMin.String() }
-													data-sal-max={ item.Job.SalaryMax.String() }
+													data-sal-min={ fmt.Sprintf("%d", item.Job.SalaryMin.Minor()/100) }
+													data-sal-max={ fmt.Sprintf("%d", item.Job.SalaryMax.Minor()/100) }
 													data-status={ item.Job.Status }
 													data-desc={ item.Job.Description }
 													data-reqs={ item.Job.Requirements }
 													onclick="openEditJobModalFromBtn(this)"
-													title="تعديل بيانات وحالة الوظيفة"
 												>
-													@components.IconEdit("icon-xs")
-													<span>تعديل</span>
+													✏️
 												</button>
 
 												<!-- Toggle Status Form -->
-												<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/vendor/jobs/%d/toggle", item.Job.ID)) } class="m-0">
-													if item.Job.Status == "published" {
-														<button type="submit" class="btn btn-secondary btn-sm text-xs fw-700" title="إغلاق استقبال الطلبات">
-															إغلاق
-														</button>
-													} else {
-														<button type="submit" class="btn btn-secondary btn-sm" title="إعادة نشر الوظيفة" style="font-size:0.75rem; font-weight:700; color:var(--primary-600);">
-															إعادة النشر
-														</button>
-													}
-												</form>
-
-												<!-- Delete Form -->
-												<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/vendor/jobs/%d/delete", item.Job.ID)) } onsubmit="return confirm('هل أنت متأكد من رغبتك في حذف هذه الوظيفة نهائياً؟');" class="m-0">
-													<button type="submit" class="btn btn-secondary btn-sm btn-icon text-danger" title="حذف الوظيفة">
-														@components.IconTrash("icon-xs")
+												<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/customer/jobs/%d/toggle", item.Job.ID)) } style="margin:0;">
+													<button
+														type="submit"
+														class="btn btn-secondary btn-sm btn-icon"
+														title={ templ.EscapeString("تغيير حالة الوظيفة (نشر / إغلاق)") }
+													>
+														if item.Job.Status == "published" {
+															🔒
+														} else {
+															🟢
+														}
 													</button>
 												</form>
 
+												<!-- Delete Form -->
+												<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/customer/jobs/%d/delete", item.Job.ID)) } onsubmit="return confirm('هل أنت متأكد من رغبتك في حذف هذا الشاغر الوظيفي نهائياً؟');" style="margin:0;">
+													<button type="submit" class="btn btn-danger btn-sm btn-icon" title="حذف الوظيفة">
+														🗑️
+													</button>
+												</form>
 											</div>
 										</td>
 									</tr>
@@ -291,35 +256,25 @@ templ VendorJobs(lang, dir string, data VendorJobsData) {
 					</div>
 				}
 			</div>
-
 		</div>
 
-		<!-- MODAL: Add New Job Modal -->
-		<div id="add-job-modal" class="modal-overlay hidden">
-			<div class="card" style="max-width:680px; width:100%; max-height:90vh; overflow-y:auto; background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-2xl); padding:2rem; box-shadow:0 25px 50px -12px rgba(0,0,0,0.5);">
-				
-				<div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--border); padding-bottom:1.25rem; margin-bottom:1.5rem;">
-					<div class="row-center">
-						<div style="width:40px; height:40px; border-radius:var(--radius-lg); background:var(--primary-subtle); display:flex; align-items:center; justify-content:center; font-size:1.25rem;">
-							💼
-						</div>
-						<div>
-							<h3 style="font-size:1.3rem; font-weight:900; color:var(--text); margin:0;">
-								نشر شاغر وظيفي جديد
-							</h3>
-							<p style="font-size:0.8rem; color:var(--text-muted); margin:0.2rem 0 0;">
-								تحديد مواصفات الوظيفة، المتطلبات والراتب المتوقع
-							</p>
-						</div>
+		<!-- ================= ADD JOB MODAL ================= -->
+		<div id="add-job-modal" class="modal-backdrop hidden" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.6); z-index:9999; align-items:center; justify-content:center; padding:1.25rem;">
+			<div class="card" style="width:100%; max-width:620px; max-height:90vh; overflow-y:auto; padding:2rem; border-radius:var(--radius-2xl); background:var(--surface-raised); box-shadow:0 12px 36px rgba(0,0,0,0.25);">
+				<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; border-bottom:1px solid var(--border); padding-bottom:1rem;">
+					<div>
+						<h3 style="font-size:1.35rem; font-weight:900; color:var(--text); margin:0;">
+							نشر وظيفة / شاغر صيدلاني جديد
+						</h3>
+						<p style="font-size:0.8rem; color:var(--text-secondary); margin:0.25rem 0 0;">
+							أدخل تفاصيل الشاغر لاستقبال طلبات التقديم والسير الذاتية من الكوادر المعتمدة.
+						</p>
 					</div>
-					<button type="button" class="btn btn-secondary btn-sm btn-icon" onclick="closeAddJobModal()">
-						@components.IconClose("icon-xs")
-					</button>
+					<button type="button" class="btn btn-secondary btn-sm btn-icon" onclick="closeAddJobModal()">✕</button>
 				</div>
 
-				<form method="POST" action="/vendor/jobs" class="stack-lg">
-					
-					<!-- Titles -->
+				<form method="POST" action="/customer/jobs" style="display:flex; flex-direction:column; gap:1.15rem;">
+					<!-- Job Title Arabic & English -->
 					<div class="grid-2">
 						<div>
 							<label class="form-label">
@@ -330,7 +285,7 @@ templ VendorJobs(lang, dir string, data VendorJobsData) {
 								name="title_ar"
 								required
 								class="form-input"
-								placeholder="مثال: صيدلي أول / مندوب مبيعات"
+								placeholder="مثال: صيدلي أول / مساعد صيدلي"
 								style="height:44px; border-radius:var(--radius-lg);"
 							/>
 						</div>
@@ -343,55 +298,69 @@ templ VendorJobs(lang, dir string, data VendorJobsData) {
 								type="text"
 								name="title_en"
 								class="form-input"
-								placeholder="e.g. Senior Pharmacist"
-								dir="ltr"
+								placeholder="e.g. Pharmacist / Branch Manager"
 								style="height:44px; border-radius:var(--radius-lg);"
 							/>
 						</div>
 					</div>
 
-					<!-- Location -->
-					<div>
-						<label class="form-label">
-							مقر العمل / المحافظة أو المدينة <span class="text-danger">*</span>
-						</label>
-						<input
-							type="text"
-							name="location"
-							required
-							class="form-input"
-							placeholder="مثال: القاهرة - التجمع الخامس / بنها"
-							style="height:44px; border-radius:var(--radius-lg);"
-						/>
+					<!-- Location & Branch -->
+					<div class="grid-2">
+						<div>
+							<label class="form-label">
+								الفرع / الموقع المحدد
+							</label>
+							<input
+								type="text"
+								name="location"
+								class="form-input"
+								placeholder="مثال: فرع التجمع الخامس / فرع المعادي"
+								style="height:44px; border-radius:var(--radius-lg);"
+							/>
+						</div>
+
+						<div>
+							<label class="form-label">
+								حالة الوظيفة <span class="text-danger">*</span>
+							</label>
+							<select
+								name="status"
+								required
+								class="form-input"
+								style="height:44px; border-radius:var(--radius-lg); font-weight:700;"
+							>
+								<option value="published">🟢 منشورة ومتاحة للتقديم (Published)</option>
+								<option value="closed">🔒 مغلقة ومكتفية (Closed)</option>
+								<option value="draft">📝 مسودة غير معلنة (Draft)</option>
+							</select>
+						</div>
 					</div>
 
 					<!-- Salary Range -->
 					<div class="grid-2">
 						<div>
 							<label class="form-label">
-								الحد الأدنى للراتب (ج.م)
+								الحد الأدنى للراتب (اختياري)
 							</label>
 							<input
-								type="number"
-								step="100"
+								type="text"
 								name="salary_min"
 								class="form-input"
-								placeholder="5000"
-								style="height:44px; font-family:var(--font-mono, monospace); border-radius:var(--radius-lg);"
+								placeholder="مثال: 8000"
+								style="height:44px; border-radius:var(--radius-lg);"
 							/>
 						</div>
 
 						<div>
 							<label class="form-label">
-								الحد الأقصى للراتب (ج.م)
+								الحد الأقصى للراتب (اختياري)
 							</label>
 							<input
-								type="number"
-								step="100"
+								type="text"
 								name="salary_max"
 								class="form-input"
-								placeholder="12000"
-								style="height:44px; font-family:var(--font-mono, monospace); border-radius:var(--radius-lg);"
+								placeholder="مثال: 12000"
+								style="height:44px; border-radius:var(--radius-lg);"
 							/>
 						</div>
 					</div>
@@ -399,39 +368,39 @@ templ VendorJobs(lang, dir string, data VendorJobsData) {
 					<!-- Description -->
 					<div>
 						<label class="form-label">
-							الوصف الوظيفي والمهام والمسؤوليات <span class="text-danger">*</span>
+							الوصف الوظيفي والمسؤوليات
 						</label>
 						<textarea
 							name="description"
 							rows="4"
-							required
 							class="form-input"
-							style="border-radius:var(--radius-lg); padding:0.75rem; font-size:0.875rem;"
-							placeholder="اكتب نبذة عن الدور الوظيفي، المهام اليومية، وساعات العمل..."
+							placeholder="اكتب نبذة عن المسؤوليات اليومية، مواعيد الشفتات، وطبيعة العمل بالفرع..."
+							style="border-radius:var(--radius-lg); resize:vertical;"
 						></textarea>
 					</div>
 
 					<!-- Requirements -->
 					<div>
 						<label class="form-label">
-							المؤهلات والمتطلبات والشروط
+							المتطلبات والمؤهلات المطلوبة
 						</label>
 						<textarea
 							name="requirements"
 							rows="3"
 							class="form-input"
-							style="border-radius:var(--radius-lg); padding:0.75rem; font-size:0.875rem;"
-							placeholder="سنوات الخبرة المطلوبة، المؤهل العلمي، المهارات التقنية المطلوبة..."
+							placeholder="مثال: بكالوريوس صيدلة، ترخيص مزاولة المهنة، خبرة سنة على الأقل..."
+							style="border-radius:var(--radius-lg); resize:vertical;"
 						></textarea>
 					</div>
 
-					<!-- Form Footer -->
-					<div style="display:flex; justify-content:flex-end; gap:0.75rem; margin-top:1rem; border-top:1px solid var(--border); padding-top:1.25rem;">
+					<!-- Form Actions -->
+					<div style="display:flex; justify-content:flex-end; gap:0.75rem; border-top:1px solid var(--border); padding-top:1.25rem; margin-top:0.5rem;">
 						<button type="button" class="btn btn-secondary" onclick="closeAddJobModal()">
 							إلغاء
 						</button>
-						<button type="submit" class="btn btn-primary" style="font-weight:800; padding:0.6rem 1.75rem;">
-							نشر الوظيفة الآن 🚀
+						<button type="submit" class="btn btn-primary" style="font-weight:800; padding:0 1.75rem;">
+							@components.IconCheck("icon-xs")
+							<span>نشر الشاغر الوظيفي الآن</span>
 						</button>
 					</div>
 
@@ -439,55 +408,23 @@ templ VendorJobs(lang, dir string, data VendorJobsData) {
 			</div>
 		</div>
 
-		<!-- MODAL: Job Applicants Viewer -->
-		<div id="job-applicants-modal" class="modal-overlay hidden">
-			<div class="card" style="max-width:800px; width:100%; max-height:85vh; overflow-y:auto; background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-2xl); padding:1.75rem; box-shadow:0 25px 50px -12px rgba(0,0,0,0.5);">
-				<div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--border); padding-bottom:1rem; margin-bottom:1.25rem;">
+		<!-- ================= EDIT JOB MODAL ================= -->
+		<div id="edit-job-modal" class="modal-backdrop hidden" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.6); z-index:9999; align-items:center; justify-content:center; padding:1.25rem;">
+			<div class="card" style="width:100%; max-width:620px; max-height:90vh; overflow-y:auto; padding:2rem; border-radius:var(--radius-2xl); background:var(--surface-raised); box-shadow:0 12px 36px rgba(0,0,0,0.25);">
+				<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; border-bottom:1px solid var(--border); padding-bottom:1rem;">
 					<div>
-						<h3 id="applicants-modal-title" class="text-xl fw-900 text-primary m-0">
-							قائمة المتقدمين للوظيفة
+						<h3 style="font-size:1.35rem; font-weight:900; color:var(--text); margin:0;">
+							تعديل بيانات الشاغر الوظيفي
 						</h3>
-						<p id="applicants-modal-subtitle" style="color:var(--text-muted); font-size:0.85rem; margin:0.25rem 0 0 0;"></p>
+						<p style="font-size:0.8rem; color:var(--text-secondary); margin:0.25rem 0 0;">
+							تحديث متطلبات الوظيفة أو الراتب أو تغيير حالتها.
+						</p>
 					</div>
-					<button type="button" class="btn btn-secondary btn-sm btn-icon" onclick="closeApplicantsModal()">
-						@components.IconClose("icon-xs")
-					</button>
+					<button type="button" class="btn btn-secondary btn-sm btn-icon" onclick="closeEditJobModal()">✕</button>
 				</div>
 
-				<div id="applicants-modal-content">
-					<div style="padding:2rem; text-align:center; color:var(--text-muted);">
-						⏳ جاري تحميل المتقدمين...
-					</div>
-				</div>
-			</div>
-		</div>
-
-		<!-- MODAL: Edit Job Modal -->
-		<div id="edit-job-modal" class="modal-overlay hidden">
-			<div class="card" style="max-width:680px; width:100%; max-height:90vh; overflow-y:auto; background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-2xl); padding:2rem; box-shadow:0 25px 50px -12px rgba(0,0,0,0.5);">
-				
-				<div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--border); padding-bottom:1.25rem; margin-bottom:1.5rem;">
-					<div class="row-center">
-						<div style="width:40px; height:40px; border-radius:var(--radius-lg); background:var(--primary-subtle); display:flex; align-items:center; justify-content:center; font-size:1.25rem;">
-							✏️
-						</div>
-						<div>
-							<h3 style="font-size:1.3rem; font-weight:900; color:var(--text); margin:0;">
-								تعديل بيانات وحالة الشاغر الوظيفي
-							</h3>
-							<p style="font-size:0.8rem; color:var(--text-muted); margin:0.2rem 0 0;">
-								تحديث المسمى الوظيفي، المتطلبات، الراتب وحالة نشر الوظيفة
-							</p>
-						</div>
-					</div>
-					<button type="button" class="btn btn-secondary btn-sm btn-icon" onclick="closeEditJobModal()">
-						@components.IconClose("icon-xs")
-					</button>
-				</div>
-
-				<form id="edit-job-form" method="POST" action="" class="stack-lg">
-					
-					<!-- Titles -->
+				<form id="edit-job-form" method="POST" action="" style="display:flex; flex-direction:column; gap:1.15rem;">
+					<!-- Job Title Arabic & English -->
 					<div class="grid-2">
 						<div>
 							<label class="form-label">
@@ -499,7 +436,6 @@ templ VendorJobs(lang, dir string, data VendorJobsData) {
 								id="edit-job-title-ar"
 								required
 								class="form-input"
-								placeholder="مثال: صيدلي أول / مندوب مبيعات"
 								style="height:44px; border-radius:var(--radius-lg);"
 							/>
 						</div>
@@ -513,7 +449,6 @@ templ VendorJobs(lang, dir string, data VendorJobsData) {
 								name="title_en"
 								id="edit-job-title-en"
 								class="form-input"
-								placeholder="e.g. Senior Pharmacist / Sales Rep"
 								style="height:44px; border-radius:var(--radius-lg);"
 							/>
 						</div>
@@ -523,14 +458,13 @@ templ VendorJobs(lang, dir string, data VendorJobsData) {
 					<div class="grid-2">
 						<div>
 							<label class="form-label">
-								الموقع الجغرافي / الفرع
+								الفرع / الموقع الجغرافي
 							</label>
 							<input
 								type="text"
 								name="location"
 								id="edit-job-location"
 								class="form-input"
-								placeholder="مثال: القاهرة - التجمع الخامس / الإسكندرية"
 								style="height:44px; border-radius:var(--radius-lg);"
 							/>
 						</div>
@@ -557,28 +491,26 @@ templ VendorJobs(lang, dir string, data VendorJobsData) {
 					<div class="grid-2">
 						<div>
 							<label class="form-label">
-								الحد الأدنى للراتب (اختياري)
+								الحد الأدنى للراتب
 							</label>
 							<input
 								type="text"
 								name="salary_min"
 								id="edit-job-salary-min"
 								class="form-input"
-								placeholder="مثال: 8000"
 								style="height:44px; border-radius:var(--radius-lg);"
 							/>
 						</div>
 
 						<div>
 							<label class="form-label">
-								الحد الأقصى للراتب (اختياري)
+								الحد الأقصى للراتب
 							</label>
 							<input
 								type="text"
 								name="salary_max"
 								id="edit-job-salary-max"
 								class="form-input"
-								placeholder="مثال: 12000"
 								style="height:44px; border-radius:var(--radius-lg);"
 							/>
 						</div>
@@ -587,14 +519,13 @@ templ VendorJobs(lang, dir string, data VendorJobsData) {
 					<!-- Description -->
 					<div>
 						<label class="form-label">
-							الوصف الوظيفي والمهام المطلوبة
+							الوصف الوظيفي والمسؤوليات
 						</label>
 						<textarea
 							name="description"
 							id="edit-job-description"
 							rows="4"
 							class="form-input"
-							placeholder="اكتب نبذة عن المسؤوليات والمهام اليومية للوظيفة..."
 							style="border-radius:var(--radius-lg); resize:vertical;"
 						></textarea>
 					</div>
@@ -609,7 +540,6 @@ templ VendorJobs(lang, dir string, data VendorJobsData) {
 							id="edit-job-requirements"
 							rows="3"
 							class="form-input"
-							placeholder="مثال: بكالوريوس صيدلة، خبرة لا تقل عن سنتين، إجادة اللغة الإنجليزية..."
 							style="border-radius:var(--radius-lg); resize:vertical;"
 						></textarea>
 					</div>
@@ -629,7 +559,7 @@ templ VendorJobs(lang, dir string, data VendorJobsData) {
 			</div>
 		</div>
 
-		<!-- ================= APPLICANTS MODAL ================= -->
+		<!-- ================= APPLICANTS & ONBOARDING MODAL ================= -->
 		<div id="job-applicants-modal" class="modal-backdrop hidden" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.65); z-index:9999; align-items:center; justify-content:center; padding:1.25rem;">
 			<div class="card" style="width:100%; max-width:780px; max-height:90vh; overflow-y:auto; padding:2rem; border-radius:var(--radius-2xl); background:var(--surface-raised); box-shadow:0 16px 40px rgba(0,0,0,0.3);">
 				<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; border-bottom:1px solid var(--border); padding-bottom:1rem;">
@@ -673,11 +603,11 @@ templ VendorJobs(lang, dir string, data VendorJobsData) {
 					<!-- Branch Selection -->
 					<div>
 						<label class="form-label">
-							الفرع / المستودع المخصص للعمل <span class="text-danger">*</span>
+							الفرع المخصص للعمل <span class="text-danger">*</span>
 						</label>
 						<select id="onboard-branch-id" required class="form-input" style="height:44px; border-radius:var(--radius-lg); font-weight:700;">
 							if len(data.Branches) == 0 {
-								<option value="">المقر الرئيسي / المستودع الرئيسي</option>
+								<option value="">الفرع الرئيسي</option>
 							} else {
 								for _, b := range data.Branches {
 									<option value={ fmt.Sprintf("%d", b.ID) }>
@@ -697,12 +627,11 @@ templ VendorJobs(lang, dir string, data VendorJobsData) {
 							الدور الوظيفي والصلاحيات <span class="text-danger">*</span>
 						</label>
 						<select id="onboard-role-key" required class="form-input" style="height:44px; border-radius:var(--radius-lg); font-weight:700;">
-							<option value="org_sales_rep">💼 مندوب مبيعات / تسويق دوائي</option>
-							<option value="org_warehouse">📦 أمين مخزن / مسؤول مستودع</option>
-							<option value="org_manager">👑 مدير فرع / مسؤول تشغيل</option>
-							<option value="org_accountant">📊 محاسب مالي</option>
-							<option value="org_employee">👤 موظف تشغيل (صلاحيات أساسية)</option>
-							<option value="org_pharmacist">💊 صيدلي / مستشار علمي</option>
+							<option value="org_pharmacist">💊 صيدلي مسؤول (طلبات، فواتير، استلام)</option>
+							<option value="org_manager">👑 مدير فرع (صلاحيات كاملة للفرع)</option>
+							<option value="org_employee">👤 موظف / كاشير (صلاحيات أساسية)</option>
+							<option value="org_warehouse">📦 أمين مخزن (المخزون والاستلام)</option>
+							<option value="org_accountant">📊 محاسب (المالية والفواتير)</option>
 						</select>
 					</div>
 
@@ -716,7 +645,7 @@ templ VendorJobs(lang, dir string, data VendorJobsData) {
 							id="onboard-job-title"
 							required
 							class="form-input"
-							placeholder="مثال: مندوب مبيعات طبي / مدير مستودع"
+							placeholder="مثال: صيدلي أول / مدير شفت مسائي"
 							style="height:44px; border-radius:var(--radius-lg);"
 						/>
 					</div>
@@ -744,7 +673,7 @@ templ VendorJobs(lang, dir string, data VendorJobsData) {
 							id="onboard-notes"
 							rows="2"
 							class="form-input"
-							placeholder="ملاحظات حول موعد بدء العمل أو المستودع..."
+							placeholder="ملاحظات حول موعد بدء العمل أو الشفت..."
 							style="border-radius:var(--radius-lg); resize:vertical;"
 						></textarea>
 					</div>
@@ -796,7 +725,7 @@ templ VendorJobs(lang, dir string, data VendorJobsData) {
 				const reqs = btn.getAttribute('data-reqs') || '';
 
 				const form = document.getElementById('edit-job-form');
-				if (form) form.action = `/vendor/jobs/${jobId}/edit`;
+				if (form) form.action = `/customer/jobs/${jobId}/edit`;
 
 				const titleArInput = document.getElementById('edit-job-title-ar');
 				const titleEnInput = document.getElementById('edit-job-title-en');
@@ -880,7 +809,7 @@ templ VendorJobs(lang, dir string, data VendorJobsData) {
 				openApplicantsModal();
 
 				try {
-					const res = await fetch(`/vendor/jobs/${jobId}/applications`);
+					const res = await fetch(`/customer/jobs/${jobId}/applications`);
 					if (!res.ok) throw new Error('فشل في جلب البيانات');
 					const apps = await res.json();
 
@@ -912,7 +841,7 @@ templ VendorJobs(lang, dir string, data VendorJobsData) {
 						let actionButtons = '';
 
 						if (app.status === 'accepted' || app.status === 'hired') {
-							const branchText = app.branch_name ? `فرع: ${app.branch_name}` : 'المقر الرئيسي';
+							const branchText = app.branch_name ? `فرع: ${app.branch_name}` : 'الفرع الرئيسي';
 							statusBadge = `<span class="badge badge-emerald text-xs fw-700">✅ تم القبول والتعيين (${branchText})</span>`;
 						} else if (app.status === 'rejected') {
 							statusBadge = `<span class="badge badge-slate text-xs fw-700">❌ تم رفض الطلب</span>`;
@@ -978,7 +907,7 @@ templ VendorJobs(lang, dir string, data VendorJobsData) {
 				submitBtn.innerHTML = '<span>جاري التعيين...</span>';
 
 				try {
-					const res = await fetch(`/vendor/jobs/${jobId}/applications/${appId}/accept`, {
+					const res = await fetch(`/customer/jobs/${jobId}/applications/${appId}/accept`, {
 						method: 'POST',
 						headers: { 'Content-Type': 'application/json' },
 						body: JSON.stringify({
@@ -1006,7 +935,7 @@ templ VendorJobs(lang, dir string, data VendorJobsData) {
 			async function rejectApplicant(jobId, appId) {
 				if (!confirm('هل أنت متأكد من رفض هذا الطلب؟ سيتم إرسال إشعار اعتذار للمتقدم.')) return;
 				try {
-					const res = await fetch(`/vendor/jobs/${jobId}/applications/${appId}/reject`, {
+					const res = await fetch(`/customer/jobs/${jobId}/applications/${appId}/reject`, {
 						method: 'POST',
 						headers: { 'Content-Type': 'application/json' },
 						body: JSON.stringify({ notes: 'تمت المراجعة والاعتذار عن الطلب' })

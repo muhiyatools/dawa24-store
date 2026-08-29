@@ -108,13 +108,57 @@ func (r *Repository) CreateJobApplication(ctx context.Context, a *hr.JobApplicat
 	})
 }
 
+// GetApplicationByID fetches a single application.
+func (r *Repository) GetApplicationByID(ctx context.Context, id int64) (*hr.JobApplication, error) {
+	var a hr.JobApplication
+	err := r.db.InReadTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
+		const query = `
+			SELECT a.id, a.public_id, a.job_offer_id, a.organization_id, a.applicant_user_id,
+			       a.applicant_name, a.applicant_email, a.applicant_phone, a.cv_storage_key,
+			       a.status, a.notes, a.branch_id, COALESCE(b.name->>'ar', b.name->>'en', ''),
+			       COALESCE(a.assigned_role_key, ''), COALESCE(jo.title->>'ar', jo.title->>'en', ''),
+			       a.created_at, a.updated_at
+			FROM hr.job_applications a
+			LEFT JOIN hr.job_offers jo ON jo.id = a.job_offer_id
+			LEFT JOIN org.branches b ON b.id = a.branch_id
+			WHERE a.id = $1;
+		`
+		return tx.QueryRow(txCtx, query, id).Scan(
+			&a.ID, &a.PublicID, &a.JobOfferID, &a.OrganizationID, &a.ApplicantUserID,
+			&a.ApplicantName, &a.ApplicantEmail, &a.ApplicantPhone, &a.CVStorageKey,
+			&a.Status, &a.Notes, &a.BranchID, &a.BranchName,
+			&a.AssignedRoleKey, &a.JobTitle,
+			&a.CreatedAt, &a.UpdatedAt,
+		)
+	})
+	if err != nil {
+		if database.IsNotFound(err) {
+			return nil, apperr.NotFound("job_application")
+		}
+		return nil, err
+	}
+	return &a, nil
+}
+
 // ListApplicationsByOffer returns applications for a vacancy.
 func (r *Repository) ListApplicationsByOffer(ctx context.Context, offerID int64, limit, offset int) ([]*hr.JobApplication, error) {
 	var list []*hr.JobApplication
 	err := r.db.InReadTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
-		const query = `SELECT id, public_id, job_offer_id, organization_id, applicant_user_id, applicant_name, applicant_email, applicant_phone, cv_storage_key, status, notes, created_at, updated_at FROM hr.job_applications WHERE job_offer_id = $1 ORDER BY created_at DESC LIMIT $2 OFFSET $3;`
+		const query = `
+			SELECT a.id, a.public_id, a.job_offer_id, a.organization_id, a.applicant_user_id,
+			       a.applicant_name, a.applicant_email, a.applicant_phone, a.cv_storage_key,
+			       a.status, a.notes, a.branch_id, COALESCE(b.name->>'ar', b.name->>'en', ''),
+			       COALESCE(a.assigned_role_key, ''), COALESCE(jo.title->>'ar', jo.title->>'en', ''),
+			       a.created_at, a.updated_at
+			FROM hr.job_applications a
+			LEFT JOIN hr.job_offers jo ON jo.id = a.job_offer_id
+			LEFT JOIN org.branches b ON b.id = a.branch_id
+			WHERE a.job_offer_id = $1
+			ORDER BY a.created_at DESC
+			LIMIT $2 OFFSET $3;
+		`
 		if limit <= 0 || limit > 100 {
-			limit = 20
+			limit = 50
 		}
 		rows, err := tx.Query(txCtx, query, offerID, limit, offset)
 		if err != nil {
@@ -123,7 +167,13 @@ func (r *Repository) ListApplicationsByOffer(ctx context.Context, offerID int64,
 		defer rows.Close()
 		for rows.Next() {
 			var a hr.JobApplication
-			if err := rows.Scan(&a.ID, &a.PublicID, &a.JobOfferID, &a.OrganizationID, &a.ApplicantUserID, &a.ApplicantName, &a.ApplicantEmail, &a.ApplicantPhone, &a.CVStorageKey, &a.Status, &a.Notes, &a.CreatedAt, &a.UpdatedAt); err != nil {
+			if err := rows.Scan(
+				&a.ID, &a.PublicID, &a.JobOfferID, &a.OrganizationID, &a.ApplicantUserID,
+				&a.ApplicantName, &a.ApplicantEmail, &a.ApplicantPhone, &a.CVStorageKey,
+				&a.Status, &a.Notes, &a.BranchID, &a.BranchName,
+				&a.AssignedRoleKey, &a.JobTitle,
+				&a.CreatedAt, &a.UpdatedAt,
+			); err != nil {
 				return err
 			}
 			list = append(list, &a)
@@ -137,7 +187,18 @@ func (r *Repository) ListApplicationsByOffer(ctx context.Context, offerID int64,
 func (r *Repository) ListApplicationsByUser(ctx context.Context, userID int64) ([]*hr.JobApplication, error) {
 	var list []*hr.JobApplication
 	err := r.db.InReadTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
-		const query = `SELECT id, public_id, job_offer_id, organization_id, applicant_user_id, applicant_name, applicant_email, applicant_phone, cv_storage_key, status, notes, created_at, updated_at FROM hr.job_applications WHERE applicant_user_id = $1 ORDER BY created_at DESC;`
+		const query = `
+			SELECT a.id, a.public_id, a.job_offer_id, a.organization_id, a.applicant_user_id,
+			       a.applicant_name, a.applicant_email, a.applicant_phone, a.cv_storage_key,
+			       a.status, a.notes, a.branch_id, COALESCE(b.name->>'ar', b.name->>'en', ''),
+			       COALESCE(a.assigned_role_key, ''), COALESCE(jo.title->>'ar', jo.title->>'en', ''),
+			       a.created_at, a.updated_at
+			FROM hr.job_applications a
+			LEFT JOIN hr.job_offers jo ON jo.id = a.job_offer_id
+			LEFT JOIN org.branches b ON b.id = a.branch_id
+			WHERE a.applicant_user_id = $1
+			ORDER BY a.created_at DESC;
+		`
 		rows, err := tx.Query(txCtx, query, userID)
 		if err != nil {
 			return err
@@ -145,7 +206,13 @@ func (r *Repository) ListApplicationsByUser(ctx context.Context, userID int64) (
 		defer rows.Close()
 		for rows.Next() {
 			var a hr.JobApplication
-			if err := rows.Scan(&a.ID, &a.PublicID, &a.JobOfferID, &a.OrganizationID, &a.ApplicantUserID, &a.ApplicantName, &a.ApplicantEmail, &a.ApplicantPhone, &a.CVStorageKey, &a.Status, &a.Notes, &a.CreatedAt, &a.UpdatedAt); err != nil {
+			if err := rows.Scan(
+				&a.ID, &a.PublicID, &a.JobOfferID, &a.OrganizationID, &a.ApplicantUserID,
+				&a.ApplicantName, &a.ApplicantEmail, &a.ApplicantPhone, &a.CVStorageKey,
+				&a.Status, &a.Notes, &a.BranchID, &a.BranchName,
+				&a.AssignedRoleKey, &a.JobTitle,
+				&a.CreatedAt, &a.UpdatedAt,
+			); err != nil {
 				return err
 			}
 			list = append(list, &a)
@@ -155,13 +222,129 @@ func (r *Repository) ListApplicationsByUser(ctx context.Context, userID int64) (
 	return list, err
 }
 
-// UpdateApplicationStatus modifies an application status and notes.
-func (r *Repository) UpdateApplicationStatus(ctx context.Context, appID int64, status string, notes string) error {
-	return r.db.InTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
-		const query = `UPDATE hr.job_applications SET status = $1, notes = $2, updated_at = now() WHERE id = $3;`
-		_, err := tx.Exec(txCtx, query, status, notes, appID)
-		return err
+// AcceptAndOnboardApplicant accepts an application, links the user as an org member at the branch/role, and creates an employee record.
+func (r *Repository) AcceptAndOnboardApplicant(ctx context.Context, in hr.AcceptApplicantInput) (*hr.JobApplication, error) {
+	var app hr.JobApplication
+	err := r.db.InTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
+		// 1. Fetch and lock application
+		query := `
+			SELECT a.id, a.public_id, a.job_offer_id, a.organization_id, a.applicant_user_id,
+			       a.applicant_name, a.applicant_email, a.applicant_phone, a.cv_storage_key,
+			       a.status, a.notes, COALESCE(jo.title->>'ar', jo.title->>'en', '')
+			FROM hr.job_applications a
+			JOIN hr.job_offers jo ON jo.id = a.job_offer_id
+			WHERE a.id = $1 AND a.organization_id = $2
+			FOR UPDATE OF a;
+		`
+		var offerTitle string
+		err := tx.QueryRow(txCtx, query, in.ApplicationID, in.OrganizationID).Scan(
+			&app.ID, &app.PublicID, &app.JobOfferID, &app.OrganizationID, &app.ApplicantUserID,
+			&app.ApplicantName, &app.ApplicantEmail, &app.ApplicantPhone, &app.CVStorageKey,
+			&app.Status, &app.Notes, &offerTitle,
+		)
+		if err != nil {
+			if database.IsNotFound(err) {
+				return apperr.NotFound("job_application")
+			}
+			return err
+		}
+
+		app.JobTitle = offerTitle
+		if in.JobTitle != "" {
+			app.JobTitle = in.JobTitle
+		}
+
+		roleKey := in.RoleKey
+		if roleKey == "" {
+			roleKey = "org_employee"
+		}
+
+		// 2. Update job application to accepted / hired
+		updateAppQuery := `
+			UPDATE hr.job_applications
+			SET status = 'accepted', branch_id = $1, assigned_role_key = $2,
+			    notes = CASE WHEN $3 <> '' THEN $3 ELSE notes END,
+			    updated_at = now()
+			WHERE id = $4
+			RETURNING updated_at;
+		`
+		if err := tx.QueryRow(txCtx, updateAppQuery, in.BranchID, roleKey, in.Notes, in.ApplicationID).Scan(&app.UpdatedAt); err != nil {
+			return err
+		}
+		app.Status = "accepted"
+		app.BranchID = in.BranchID
+		app.AssignedRoleKey = roleKey
+
+		// 3. Onboard user into org.members if applicant has an account
+		if app.ApplicantUserID != nil && *app.ApplicantUserID > 0 {
+			uid := *app.ApplicantUserID
+
+			// Upsert org.members
+			memberQuery := `
+				INSERT INTO org.members (organization_id, user_id, branch_id, role_key, status, joined_at, updated_at)
+				VALUES ($1, $2, $3, $4, 'active', now(), now())
+				ON CONFLICT (organization_id, user_id)
+				DO UPDATE SET
+					branch_id = EXCLUDED.branch_id,
+					role_key = EXCLUDED.role_key,
+					status = 'active',
+					updated_at = now();
+			`
+			if _, err := tx.Exec(txCtx, memberQuery, in.OrganizationID, uid, in.BranchID, roleKey); err != nil {
+				return err
+			}
+
+			// Create or update employee record
+			empCode := "EMP-" + string(app.PublicID)
+			empQuery := `
+				INSERT INTO hr.employees (organization_id, user_id, employee_code, job_title, base_salary, status, hired_at, created_at, updated_at)
+				VALUES ($1, $2, $3, $4, $5, 'active', now(), now(), now())
+				ON CONFLICT (organization_id, user_id) DO UPDATE SET
+					job_title = EXCLUDED.job_title,
+					base_salary = CASE WHEN EXCLUDED.base_salary > 0 THEN EXCLUDED.base_salary ELSE hr.employees.base_salary END,
+					status = 'active',
+					updated_at = now();
+			`
+			salFloat := float64(in.BaseSalary.Minor()) / 100.0
+			_, _ = tx.Exec(txCtx, empQuery, in.OrganizationID, uid, empCode, app.JobTitle, salFloat)
+		}
+
+		return nil
 	})
+	if err != nil {
+		return nil, err
+	}
+	return &app, nil
+}
+
+// RejectApplicant sets the application status to rejected with optional notes.
+func (r *Repository) RejectApplicant(ctx context.Context, orgID, appID int64, notes string) (*hr.JobApplication, error) {
+	var app hr.JobApplication
+	err := r.db.InTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
+		query := `
+			UPDATE hr.job_applications
+			SET status = 'rejected',
+			    notes = CASE WHEN $1 <> '' THEN $1 ELSE notes END,
+			    updated_at = now()
+			WHERE id = $2 AND organization_id = $3
+			RETURNING id, public_id, job_offer_id, organization_id, applicant_user_id,
+			          applicant_name, applicant_email, applicant_phone, cv_storage_key,
+			          status, notes, branch_id, assigned_role_key, created_at, updated_at;
+		`
+		return tx.QueryRow(txCtx, query, notes, appID, orgID).Scan(
+			&app.ID, &app.PublicID, &app.JobOfferID, &app.OrganizationID, &app.ApplicantUserID,
+			&app.ApplicantName, &app.ApplicantEmail, &app.ApplicantPhone, &app.CVStorageKey,
+			&app.Status, &app.Notes, &app.BranchID, &app.AssignedRoleKey,
+			&app.CreatedAt, &app.UpdatedAt,
+		)
+	})
+	if err != nil {
+		if database.IsNotFound(err) {
+			return nil, apperr.NotFound("job_application")
+		}
+		return nil, err
+	}
+	return &app, nil
 }
 
 // UpdateJobOffer modifies job vacancy details.

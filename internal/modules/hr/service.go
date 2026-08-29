@@ -148,14 +148,42 @@ func (s *Service) ListApplicationsByUser(ctx context.Context, userID int64) ([]*
 	return s.repo.ListApplicationsByUser(ctx, userID)
 }
 
-// UpdateApplicationStatus updates application review status.
-func (s *Service) UpdateApplicationStatus(ctx context.Context, appID int64, status, notes string) error {
-	return s.repo.UpdateApplicationStatus(ctx, appID, status, notes)
-}
-
 // ListApplications returns applications for a vacancy.
 func (s *Service) ListApplications(ctx context.Context, offerID int64, limit, offset int) ([]*JobApplication, error) {
 	return s.repo.ListApplicationsByOffer(ctx, offerID, limit, offset)
+}
+
+// GetApplicationByID retrieves an application by ID.
+func (s *Service) GetApplicationByID(ctx context.Context, id int64) (*JobApplication, error) {
+	return s.repo.GetApplicationByID(ctx, id)
+}
+
+// AcceptAndOnboardApplicant accepts a job applicant and links them as an employee in the specified branch.
+func (s *Service) AcceptAndOnboardApplicant(ctx context.Context, in AcceptApplicantInput) (*JobApplication, error) {
+	if in.ApplicationID <= 0 || in.OrganizationID <= 0 {
+		return nil, apperr.Validation("hr.invalid_accept_input", "Application and Organization IDs are required.", nil)
+	}
+	app, err := s.repo.AcceptAndOnboardApplicant(ctx, in)
+	if err != nil {
+		return nil, err
+	}
+	s.log.InfoContext(ctx, "job applicant accepted and onboarded",
+		"application_id", in.ApplicationID, "org_id", in.OrganizationID,
+		"branch_id", in.BranchID, "role_key", in.RoleKey)
+	return app, nil
+}
+
+// RejectApplicant rejects a job application with optional review notes.
+func (s *Service) RejectApplicant(ctx context.Context, orgID, appID int64, notes string) (*JobApplication, error) {
+	if appID <= 0 || orgID <= 0 {
+		return nil, apperr.Validation("hr.invalid_reject_input", "Application and Organization IDs are required.", nil)
+	}
+	app, err := s.repo.RejectApplicant(ctx, orgID, appID, notes)
+	if err != nil {
+		return nil, err
+	}
+	s.log.InfoContext(ctx, "job applicant rejected", "application_id", appID, "org_id", orgID)
+	return app, nil
 }
 
 // GetJobSeekerProfile retrieves the seeker profile for a user.

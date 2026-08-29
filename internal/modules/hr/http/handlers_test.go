@@ -94,9 +94,17 @@ func (r stubRepo) ListApplicationsByUser(context.Context, int64) ([]*hr.JobAppli
 	r.fail("ListApplicationsByUser")
 	return nil, nil
 }
-func (r stubRepo) UpdateApplicationStatus(context.Context, int64, string, string) error {
-	r.fail("UpdateApplicationStatus")
-	return nil
+func (r stubRepo) GetApplicationByID(context.Context, int64) (*hr.JobApplication, error) {
+	r.fail("GetApplicationByID")
+	return nil, nil
+}
+func (r stubRepo) AcceptAndOnboardApplicant(context.Context, hr.AcceptApplicantInput) (*hr.JobApplication, error) {
+	r.fail("AcceptAndOnboardApplicant")
+	return nil, nil
+}
+func (r stubRepo) RejectApplicant(context.Context, int64, int64, string) (*hr.JobApplication, error) {
+	r.fail("RejectApplicant")
+	return nil, nil
 }
 func (r stubRepo) GetJobSeekerProfile(context.Context, int64) (*hr.JobSeekerProfile, error) {
 	r.fail("GetJobSeekerProfile")
@@ -161,8 +169,14 @@ func (happyRepo) CountApplicationsByOffer(ctx context.Context, offerID int64) (i
 func (happyRepo) ListApplicationsByUser(ctx context.Context, userID int64) ([]*hr.JobApplication, error) {
 	return []*hr.JobApplication{{ID: 1, ApplicantName: "أحمد", ApplicantEmail: "a@example.com"}}, nil
 }
-func (happyRepo) UpdateApplicationStatus(ctx context.Context, appID int64, status, notes string) error {
-	return nil
+func (happyRepo) GetApplicationByID(ctx context.Context, id int64) (*hr.JobApplication, error) {
+	return &hr.JobApplication{ID: id, Status: "pending"}, nil
+}
+func (happyRepo) AcceptAndOnboardApplicant(ctx context.Context, in hr.AcceptApplicantInput) (*hr.JobApplication, error) {
+	return &hr.JobApplication{ID: in.ApplicationID, Status: "accepted", AssignedRoleKey: in.RoleKey}, nil
+}
+func (happyRepo) RejectApplicant(ctx context.Context, orgID, appID int64, notes string) (*hr.JobApplication, error) {
+	return &hr.JobApplication{ID: appID, Status: "rejected", Notes: notes}, nil
 }
 func (happyRepo) GetJobSeekerProfile(ctx context.Context, userID int64) (*hr.JobSeekerProfile, error) {
 	return &hr.JobSeekerProfile{ID: 1, UserID: userID, Specialisation: "pharmacist"}, nil
