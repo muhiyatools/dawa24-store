@@ -37,7 +37,7 @@ import (
 // EnhancePromptVersion changes whenever the rendered input or the system prompt
 // changes. It is part of the decision cache key, so a prompt change orphans the
 // old answers instead of silently reusing answers to a different question.
-const EnhancePromptVersion = "sm-enh-v3"
+const EnhancePromptVersion = "sm-enh-v4"
 
 // CatalogEntry is one catalogue product as the model sees it.
 //
@@ -116,7 +116,7 @@ func enhanceSchema() map[string]any {
 					"items": map[string]any{
 						"type":                 "object",
 						"additionalProperties": false,
-						"required":             []string{"ref", "product_id", "confidence", "reason"},
+						"required":             []string{"ref", "product_id", "confidence"},
 						"properties": map[string]any{
 							"ref":        map[string]any{"type": "integer"},
 							"product_id": map[string]any{"type": []string{"integer", "null"}},
@@ -209,7 +209,7 @@ func (s *Service) EnhanceMatches(ctx context.Context, req EnhanceRequest) ([]Enh
 // large costs nothing, because the model stops when it stops. So this is
 // deliberately generous.
 func enhanceMaxTokens(items int) int {
-	n := items*80 + 1024
+	n := items*28 + 512
 	if n > 60000 {
 		n = 60000
 	}

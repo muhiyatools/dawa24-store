@@ -136,9 +136,9 @@ Null is a good answer. On a typical batch a third or more of the items have no c
 
 Return ONE JSON object and nothing else. No prose, no markdown fence, no explanation outside the JSON.
 
-{"results":[{"ref":<int>,"product_id":<int or null>,"confidence":<0.0-1.0>,"reason":"<short Arabic reason, at most 12 words>"}]}
+{"results":[{"ref":<int>,"product_id":<int or null>,"confidence":<0.0-1.0>}]}
 
-Return exactly one result object for EVERY ref you were given, in the order given. A missing ref is a failed response.`
+Return exactly one result object for EVERY ref you were given, in the order given. A missing ref is a failed response. Do not include a reason unless it is needed to explain an abstention.`
 
 // RenderEnhanceInput builds the user message.
 //

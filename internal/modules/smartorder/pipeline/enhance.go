@@ -44,7 +44,7 @@ import (
 // prompt, the rendered input, or the retrieval that fills it. It is part of the
 // cache key, so a change orphans old decisions rather than silently reusing
 // answers to a different question.
-const PromptVersion = "sm-enh-v3"
+const PromptVersion = "sm-enh-v4"
 
 // Ceilings bound what one run may do.
 //
@@ -223,8 +223,9 @@ type Enhancement struct {
 	// network, and it is called from several goroutines.
 	OnProgress func(done int)
 
-	mu    sync.Mutex
-	Stats EnhancementStats
+	mu        sync.Mutex
+	persistMu sync.Mutex
+	Stats     EnhancementStats
 }
 
 // NewEnhancement constructs the AI stage. A nil logger is allowed; refusals are
@@ -260,9 +261,8 @@ func (e *Enhancement) Run(ctx context.Context, reviews []Review) {
 	defer cancel()
 
 	// The cache answers first, so a remembered line never enters a request.
-	pending, toSave := e.applyCache(ctx, reviews)
+	pending := e.applyCache(ctx, reviews)
 	if len(pending) == 0 {
-		e.flush(ctx, toSave)
 		return
 	}
 
@@ -271,7 +271,6 @@ func (e *Enhancement) Run(ctx context.Context, reviews []Review) {
 	var (
 		wg    sync.WaitGroup
 		slots = make(chan struct{}, MaxConcurrent)
-		saveM sync.Mutex
 	)
 
 	for _, batch := range batches {
@@ -302,17 +301,13 @@ func (e *Enhancement) Run(ctx context.Context, reviews []Review) {
 			}
 
 			saved := e.apply(b, outcomes)
-			if len(saved) > 0 {
-				saveM.Lock()
-				toSave = append(toSave, saved...)
-				saveM.Unlock()
-			}
+			e.flush(runCtx, saved)
 		}(batch)
 	}
+
 	wg.Wait()
 
 	e.Stats.Requests = int(atomic.LoadInt64(&e.requests))
-	e.flush(ctx, toSave)
 }
 
 // report advances the progress callback by one batch.
