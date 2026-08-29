@@ -24,7 +24,6 @@ templ PublicShell(title string, lang string, dir string) {
 								<span class="brand-name">
 									دواء <span class="text-accent">24</span>
 								</span>
-								<span class="brand-badge-eda">EDA B2B</span>
 							</div>
 						</a>
 
@@ -86,7 +85,7 @@ templ PublicShell(title string, lang string, dir string) {
 									hx-target="#notif-dropdown-content"
 									hx-trigger="click"
 									hx-swap="innerHTML"
-									class="btn btn-secondary btn-icon has-indicator"
+									class="btn btn-secondary btn-icon btn-notification-wrap"
 								>
 									@components.IconBell("icon-md")
 									<span class="notification-indicator" hx-get="/notifications/unread-badge" hx-trigger="load, every 60s" hx-swap="innerHTML" hx-target="this"></span>
@@ -203,11 +202,23 @@ templ PublicShell(title string, lang string, dir string) {
 										</a>
 									}
 
-									<!-- 3. Profile & Settings -->
-									<a href="/settings" class="dropdown-item">
-										@components.IconSettings("icon-xs")
-										<span>الملف الشخصي والإعدادات</span>
-									</a>
+									<!-- 3. Profile & Settings (Vendor sees Organization profile, Pharmacy sees pharmacy settings) -->
+									if actor.IsVendor() {
+										<a href="/vendor/organization" class="dropdown-item">
+											@components.IconBuilding("icon-xs")
+											<span>بيانات المنشأة والتراخيص</span>
+										</a>
+									} else if actor.IsStaff {
+										<a href="/admin/settings" class="dropdown-item">
+											@components.IconSettings("icon-xs")
+											<span>إعدادات النظام</span>
+										</a>
+									} else {
+										<a href="/settings" class="dropdown-item">
+											@components.IconSettings("icon-xs")
+											<span>الملف الشخصي للصيدلية</span>
+										</a>
+									}
 
 									<div class="dropdown-divider"></div>
 
@@ -275,7 +286,6 @@ templ PublicShell(title string, lang string, dir string) {
 							<span class="brand-name">
 								دواء <span class="text-accent">24</span>
 							</span>
-							<span class="brand-badge-eda">EDA B2B</span>
 						</div>
 						<button
 							type="button"

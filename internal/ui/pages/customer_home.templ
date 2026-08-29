@@ -22,7 +22,7 @@ type HomeStats struct {
 templ CustomerHome(featured []*catalog.Product, categories []*catalog.Category, offers []*promo.Offer, stats HomeStats, lang, dir string) {
 	@layouts.PublicShell("دواء 24 — منصة التوريد والربط الدوائي المباشر في مصر", lang, dir) {
 		
-		<!-- 1. Masterpiece Hero Section with 2D/3D Live Dashboard Preview -->
+		<!-- 1. Masterpiece Hero Section with Hyper-Realistic Live Dashboard Preview -->
 		<section class="landing-hero-container">
 			<div class="landing-hero-header text-center">
 				<div class="hero-badge-pill">
@@ -30,7 +30,7 @@ templ CustomerHome(featured []*catalog.Product, categories []*catalog.Category, 
 					if stats.HeroBadge != "" {
 						<span>{ stats.HeroBadge }</span>
 					} else {
-						<span>المنظومة الرقمية المعتمدة لربط وتوريد الأدوية في مصر (EDA B2B)</span>
+						<span>منظومة التوريد والربط الدوائي المباشر في مصر</span>
 					}
 				</div>
 				
@@ -46,7 +46,7 @@ templ CustomerHome(featured []*catalog.Product, categories []*catalog.Category, 
 					if stats.HeroSubtitle != "" {
 						{ stats.HeroSubtitle }
 					} else {
-						اطلب طلبيتك الدوائية الموحدة من كبرى شركات التوزيع ومصانع الأدوية المرخصة مع خصومات حية، فواتير إلكترونية معتمدة من مصلحة الضرائب، وسلاسل شحن مبردة (Cold-Chain).
+						اطلب طلبيتك الدوائية الموحدة من كبرى شركات التوزيع والمستودعات المرخصة مع خصومات حية، أذون استلام موثقة، وسلاسل شحن مبردة (Cold-Chain).
 					}
 				</p>
 
@@ -98,7 +98,7 @@ templ CustomerHome(featured []*catalog.Product, categories []*catalog.Category, 
 				</div>
 			</div>
 
-			<!-- 2. Masterpiece 2D/3D Interactive Live Dashboard Showcase -->
+			<!-- 2. Masterpiece Hyper-Realistic Live Dashboard Preview Frame -->
 			<div class="hero-dashboard-preview-wrapper">
 				<div class="dashboard-preview-frame">
 					<!-- Top Window Header Controls -->
@@ -110,11 +110,55 @@ templ CustomerHome(featured []*catalog.Product, categories []*catalog.Category, 
 						</div>
 						<div class="preview-window-title">
 							@components.IconActivity("icon-xs")
-							<span>لوحة العمليات الحية — منصة دواء 24 (EDA Live Network)</span>
+							<span>مركز إدارة التوريد والعمليات المباشرة — دواء 24</span>
 						</div>
 						<div class="preview-window-status">
 							<span class="status-live-indicator"></span>
 							<span class="status-live-text">متصل حي</span>
+						</div>
+					</div>
+
+					<!-- Workspace App Bar Header -->
+					<div class="preview-workspace-bar">
+						<div class="preview-pharmacy-info">
+							<div class="preview-pharmacy-badge">
+								@components.IconBuilding("icon-xs")
+								<span>صيدلية النخبة المركزية — فرع الدقي</span>
+							</div>
+							<div class="preview-wallet-badge">
+								@components.IconWallet("icon-xs")
+								<span>الرصيد المتاح: <strong>18,450.00 ج.م</strong></span>
+							</div>
+						</div>
+						<div class="preview-tab-pills">
+							<span class="preview-tab-pill active">
+								@components.IconTruck("icon-xs")
+								<span>الطلبيات النشطة (3)</span>
+							</span>
+							<span class="preview-tab-pill">
+								@components.IconPercent("icon-xs")
+								<span>عروض الخصم المباشر</span>
+							</span>
+							<span class="preview-tab-pill hide-mobile">
+								@components.IconLayers("icon-xs")
+								<span>سجل الاستلام</span>
+							</span>
+						</div>
+					</div>
+
+					<!-- Active Order Tracking Banner -->
+					<div class="preview-order-tracker">
+						<div class="row-between-center flex-wrap gap-2">
+							<div class="row-center-sm">
+								<span class="badge badge-sky font-bold">أمر توريد #ORD-8924</span>
+								<span class="preview-order-supplier">مخزن الشرق الأوسط للتوزيع الدوائي</span>
+							</div>
+							<div class="row-center-xs">
+								<span class="status-badge badge-success-subtle">
+									<span class="badge-dot dot-emerald"></span>
+									<span>جاري الشحن والتسليم المبرد (4°C) — استلام متوقع خلال ساعتين</span>
+								</span>
+							</div>
 						</div>
 					</div>
 
@@ -177,10 +221,10 @@ templ CustomerHome(featured []*catalog.Product, categories []*catalog.Category, 
 								<tr>
 									<td>
 										<div class="preview-prod-title">أوجمنتين 1 جم أقراص (Augmentin 1g)</div>
-										<div class="preview-prod-sub font-mono" dir="ltr">Amoxicillin / Clavulanic acid</div>
+										<div class="preview-prod-sub font-mono" dir="ltr">Amoxicillin / Clavulanic acid - 14 Tabs</div>
 									</td>
 									<td>
-										<span class="preview-company-badge">GlaxoSmithKline</span>
+										<span class="preview-company-badge">GlaxoSmithKline (GSK)</span>
 									</td>
 									<td>
 										<span class="badge badge-emerald font-bold">خصم مباشر 22%</span>
@@ -189,7 +233,7 @@ templ CustomerHome(featured []*catalog.Product, categories []*catalog.Category, 
 									<td>
 										<span class="preview-doc-badge">
 											@components.IconCheckCircle("icon-xs")
-											<span>فاتورة ضريبية إلكترونية</span>
+											<span>أذون استلام معتمدة</span>
 										</span>
 									</td>
 									<td class="text-end">
@@ -202,7 +246,7 @@ templ CustomerHome(featured []*catalog.Product, categories []*catalog.Category, 
 								<tr>
 									<td>
 										<div class="preview-prod-title">أنسولين لانتوس سولوستار (Lantus Solostar)</div>
-										<div class="preview-prod-sub font-mono" dir="ltr">Insulin Glargine 100 IU/ml</div>
+										<div class="preview-prod-sub font-mono" dir="ltr">Insulin Glargine 100 IU/ml - 5 Pens</div>
 									</td>
 									<td>
 										<span class="preview-company-badge">Sanofi Aventis</span>
@@ -227,7 +271,7 @@ templ CustomerHome(featured []*catalog.Product, categories []*catalog.Category, 
 								<tr>
 									<td>
 										<div class="preview-prod-title">كتافلام 50 مجم أقراص (Cataflam 50mg)</div>
-										<div class="preview-prod-sub font-mono" dir="ltr">Diclofenac Potassium</div>
+										<div class="preview-prod-sub font-mono" dir="ltr">Diclofenac Potassium - 20 Tabs</div>
 									</td>
 									<td>
 										<span class="preview-company-badge">Novartis Pharma</span>
@@ -239,7 +283,7 @@ templ CustomerHome(featured []*catalog.Product, categories []*catalog.Category, 
 									<td>
 										<span class="preview-doc-badge">
 											@components.IconCheckCircle("icon-xs")
-											<span>سجل نقابي وتجاري موثق</span>
+											<span>بيان توريد موثق</span>
 										</span>
 									</td>
 									<td class="text-end">
@@ -261,7 +305,7 @@ templ CustomerHome(featured []*catalog.Product, categories []*catalog.Category, 
 						</div>
 						<div class="preview-highlight-pill">
 							@components.IconFileText("icon-xs")
-							<span>ربط وتوثيق إلكتروني مباشر مع مصلحة الضرائب المصرية</span>
+							<span>إشعارات تسليم وتوثيق استلام فوري لكافة الشحنات</span>
 						</div>
 						<div class="preview-highlight-pill">
 							@components.IconTruck("icon-xs")
@@ -287,7 +331,7 @@ templ CustomerHome(featured []*catalog.Product, categories []*catalog.Category, 
 								47
 							}
 						</div>
-						<div class="metric-strip-label">مورد ومصنع معتمد</div>
+						<div class="metric-strip-label">مورد ومستودع معتمد</div>
 					</div>
 				</div>
 				
@@ -334,8 +378,8 @@ templ CustomerHome(featured []*catalog.Product, categories []*catalog.Category, 
 						@components.IconFileText("icon-md")
 					</div>
 					<div>
-						<div class="metric-strip-number text-xl">فواتير إلكترونية</div>
-						<div class="metric-strip-label">متوافقة مع مصلحة الضرائب</div>
+						<div class="metric-strip-number text-xl">توثيق رسمي 100%</div>
+						<div class="metric-strip-label">مطابق لمعايير التوزيع الجيد (GDP)</div>
 					</div>
 				</div>
 			</div>
@@ -380,9 +424,9 @@ templ CustomerHome(featured []*catalog.Product, categories []*catalog.Category, 
 					<div class="step-card-icon">
 						@components.IconTruck("icon-md")
 					</div>
-					<h3 class="step-card-title">استلم بشحن مبرد وفاتورة معتمدة</h3>
+					<h3 class="step-card-title">استلم بشحن مبرد وبيان معتمد</h3>
 					<p class="step-card-text">
-						استلم الطلبية في صيدليتك مع الفاتورة الضريبية المعتمدة مع إمكانية الدفع عند الاستلام أو من رصيد المحفظة.
+						استلم الشحنة في صيدليتك مع أذون الاستلام الموثقة مع إمكانية الدفع عند الاستلام أو من رصيد المحفظة.
 					</p>
 				</div>
 			</div>
@@ -590,9 +634,9 @@ templ CustomerHome(featured []*catalog.Product, categories []*catalog.Category, 
 					<div class="guarantee-icon-box">
 						@components.IconShield("icon-md")
 					</div>
-					<h3 class="guarantee-title">موردون وشركات معتمدة (EDA)</h3>
+					<h3 class="guarantee-title">موردون ومستودعات معتمدة</h3>
 					<p class="guarantee-text">
-						تدقيق دوري للتراخيص والسجلات التجارية من هيئة الدواء ونقابة الصيادلة لضمان أصالة المصادر وجودة المنتجات وسلامة المنشآت.
+						تدقيق دوري للتراخيص والسجلات التجارية من نقابة الصيادلة والجهات المختصة لضمان أصالة المصادر وجودة المنتجات وسلامة المنشآت.
 					</p>
 				</div>
 
@@ -610,9 +654,9 @@ templ CustomerHome(featured []*catalog.Product, categories []*catalog.Category, 
 					<div class="guarantee-icon-box">
 						@components.IconFileText("icon-md")
 					</div>
-					<h3 class="guarantee-title">فواتير ضريبية إلكترونية معتمدة</h3>
+					<h3 class="guarantee-title">توثيق استلام ومطابقة التوريد (GDP)</h3>
 					<p class="guarantee-text">
-						ربط وتوثيق إلكتروني مباشر مع منظومة الفاتورة الإلكترونية بمصلحة الضرائب المصرية لتسوية المصروفات والامتثال المالي للصيدلية.
+						توثيق فوري لكافة أذون الاستلام وبيانات التوريد والشهادات التحليلية بما يضمن الدقة المالية والتنظيمية للصيدلية.
 					</p>
 				</div>
 

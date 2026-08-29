@@ -29,6 +29,10 @@ func (h *UIHandler) SettingsIndex(w http.ResponseWriter, r *http.Request) {
 		http.Redirect(w, r, "/auth/login?redirect=/settings", http.StatusSeeOther)
 		return
 	}
+	if actor.IsVendor() {
+		http.Redirect(w, r, "/vendor/organization", http.StatusSeeOther)
+		return
+	}
 
 	var user *identity.User
 	var sessions []*identity.Session

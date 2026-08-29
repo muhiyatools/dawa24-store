@@ -750,6 +750,39 @@
   gap: 0.65rem;
 }
 
+/* Centered Notification Button with Absolute Indicator */
+.btn-notification-wrap {
+  position: relative !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 0 !important;
+  width: 2.25rem !important;
+  height: 2.25rem !important;
+  box-sizing: border-box !important;
+}
+
+.btn-notification-wrap svg {
+  margin: 0 auto !important;
+  display: block !important;
+  width: 1.125rem !important;
+  height: 1.125rem !important;
+  flex-shrink: 0 !important;
+}
+
+.btn-notification-wrap .notification-indicator {
+  position: absolute !important;
+  top: 5px !important;
+  inset-inline-end: 5px !important;
+  width: 7px !important;
+  height: 7px !important;
+  background-color: #ef4444;
+  border-radius: 9999px;
+  pointer-events: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
 /* Mobile Slideover Navigation Drawer */
 .mobile-nav-backdrop {
   position: fixed;
@@ -1063,6 +1096,91 @@
 
 [data-theme="dark"] .status-live-text {
   color: #34d399;
+}
+
+/* Realistic Workspace Bar Header */
+.preview-workspace-bar {
+  background: var(--bg-surface-raised);
+  border-bottom: 1px solid var(--border-subtle);
+  padding: 0.85rem 1.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.preview-pharmacy-info {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.preview-pharmacy-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: var(--text-xs);
+  font-weight: 800;
+  color: var(--text-primary);
+  background: var(--bg-surface-sunken);
+  padding: 0.35rem 0.75rem;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-card);
+}
+
+.preview-wallet-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: var(--text-xs);
+  font-weight: 700;
+  color: var(--text-secondary);
+  background: var(--primary-subtle);
+  color: var(--primary);
+  padding: 0.35rem 0.75rem;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--primary-border);
+}
+
+.preview-tab-pills {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.preview-tab-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: var(--text-xs);
+  font-weight: 700;
+  color: var(--text-secondary);
+  padding: 0.35rem 0.75rem;
+  border-radius: var(--radius-lg);
+  background: var(--bg-surface-sunken);
+  border: 1px solid transparent;
+  cursor: default;
+}
+
+.preview-tab-pill.active {
+  background: var(--primary);
+  color: #ffffff;
+  font-weight: 800;
+}
+
+/* Active Order Tracking Banner */
+.preview-order-tracker {
+  background: linear-gradient(135deg, rgba(14, 165, 233, 0.06) 0%, rgba(2, 132, 199, 0.02) 100%);
+  border-bottom: 1px solid var(--border-subtle);
+  padding: 0.75rem 1.25rem;
+}
+
+.preview-order-supplier {
+  font-size: var(--text-xs);
+  font-weight: 700;
+  color: var(--text-secondary);
 }
 
 .preview-metrics-grid {
