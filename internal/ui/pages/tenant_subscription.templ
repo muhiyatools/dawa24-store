@@ -21,7 +21,7 @@ templ TenantSubscriptionPage(data TenantSubscriptionPageData, orgType string, la
 
 templ tenantSubscriptionBody(data TenantSubscriptionPageData, orgType string, lang string, dir string) {
 	<div
-		class="page-container"
+		class="d-flex flex-col gap-6 w-full"
 		x-data="{
 			isCheckoutOpen: false,
 			selectedPlanSlug: '',
@@ -34,8 +34,8 @@ templ tenantSubscriptionBody(data TenantSubscriptionPageData, orgType string, la
 			openCheckout(slug, name, monthMinor, yearMinor) {
 				this.selectedPlanSlug = slug;
 				this.selectedPlanName = name;
-				this.selectedPlanMonthMinor = monthMinor;
-				this.selectedPlanYearMinor = yearMinor;
+				this.selectedPlanMonthMinor = Number(monthMinor) || 0;
+				this.selectedPlanYearMinor = Number(yearMinor) || 0;
 				this.billingCycle = 'monthly';
 				this.autoRenew = true;
 				this.isCheckoutOpen = true;
@@ -278,34 +278,57 @@ templ tenantSubscriptionBody(data TenantSubscriptionPageData, orgType string, la
 									</div>
 								</div>
 
-								<!-- Vendor-Exclusive Features Breakdown -->
+								<!-- Features Breakdown based on Account Type -->
 								<div class="border-t pt-3 mb-4">
-									<div class="text-xs font-bold text-secondary mb-2">ميزات الموردين والتحليلات:</div>
-									<div class="d-flex flex-col gap-1.5 text-xs">
-										if p.HasFeature("feature_market_discounts") {
-											<div class="d-flex items-center gap-2">
-												<span class="text-emerald font-black">✓</span>
-												<span class="text-emerald font-bold">🛒 (للموردين) خصومات السوق العامة ومؤشرات الأسعار</span>
-											</div>
-										} else {
-											<div class="d-flex items-center gap-2 text-muted" style="opacity:0.6;">
-												<span>✕</span>
-												<span>خصومات السوق العامة (غير متضمنة)</span>
-											</div>
-										}
+									if orgType == "vendor" || orgType == "supplier" {
+										<div class="text-xs font-bold text-secondary mb-2">ميزات الموردين والتحليلات:</div>
+										<div class="d-flex flex-col gap-1.5 text-xs">
+											if p.HasFeature("feature_market_discounts") {
+												<div class="d-flex items-center gap-2">
+													<span class="text-emerald font-black">✓</span>
+													<span class="text-emerald font-bold">🛒 خصومات السوق العامة ومؤشرات الأسعار</span>
+												</div>
+											} else {
+												<div class="d-flex items-center gap-2 text-muted" style="opacity:0.6;">
+													<span>✕</span>
+													<span>خصومات السوق العامة (غير متضمنة)</span>
+												</div>
+											}
 
-										if p.HasFeature("feature_compare_tool") {
+											if p.HasFeature("feature_compare_tool") {
+												<div class="d-flex items-center gap-2">
+													<span class="text-emerald font-black">✓</span>
+													<span class="text-indigo font-bold">📊 أداة مقارنة الخصومات وتحليل العروض</span>
+												</div>
+											} else {
+												<div class="d-flex items-center gap-2 text-muted" style="opacity:0.6;">
+													<span>✕</span>
+													<span>أداة مقارنة الخصومات (غير متضمنة)</span>
+												</div>
+											}
+
 											<div class="d-flex items-center gap-2">
 												<span class="text-emerald font-black">✓</span>
-												<span class="text-indigo font-bold">📊 (للموردين) أداة مقارنة الخصومات وتحليل العروض</span>
+												<span class="text-primary font-bold">⚡ استيراد المخزون وإدارة فروع التوريد</span>
 											</div>
-										} else {
-											<div class="d-flex items-center gap-2 text-muted" style="opacity:0.6;">
-												<span>✕</span>
-												<span>أداة مقارنة الخصومات (غير متضمنة)</span>
+										</div>
+									} else {
+										<div class="text-xs font-bold text-secondary mb-2">ميزات منظومة الصيدلية:</div>
+										<div class="d-flex flex-col gap-1.5 text-xs">
+											<div class="d-flex items-center gap-2">
+												<span class="text-emerald font-black">✓</span>
+												<span class="text-emerald font-bold">⚡ الطلب الذكي ومطابقة نواقص الأدوية بالذكاء الاصطناعي</span>
 											</div>
-										}
-									</div>
+											<div class="d-flex items-center gap-2">
+												<span class="text-emerald font-black">✓</span>
+												<span class="text-primary font-bold">🛒 الاستفادة المباشرة من خصومات وعروض الموردين الحصرية</span>
+											</div>
+											<div class="d-flex items-center gap-2">
+												<span class="text-emerald font-black">✓</span>
+												<span class="text-brand font-bold">🏢 إدارة فروع الصيدلية والطلبيات المجمعة</span>
+											</div>
+										</div>
+									}
 								</div>
 							</div>
 

@@ -159,9 +159,21 @@ func (h *UIHandler) TenantSubscriptionPage(w http.ResponseWriter, r *http.Reques
 	sysCtx := database.AsSystem(ctx)
 
 	if h.billSvc != nil {
-		if plans, err := h.billSvc.ListPlans(sysCtx); err == nil {
+		if plans, err := h.billSvc.ListPlans(sysCtx); err == nil && len(plans) > 0 {
 			allPlans = plans
+		} else {
+			if err != nil {
+				h.log.ErrorContext(ctx, "failed to list billing plans", "error", err)
+			}
+			if adminPlans, aErr := h.billSvc.AdminListPlans(sysCtx); aErr == nil && len(adminPlans) > 0 {
+				for _, ap := range adminPlans {
+					if ap.IsActive {
+						allPlans = append(allPlans, ap)
+					}
+				}
+			}
 		}
+
 		if actor.OrganizationID > 0 {
 			if sub, _ := h.billSvc.GetActiveSubscriptionByOrg(sysCtx, actor.OrganizationID); sub != nil {
 				currentPlanID = sub.PlanID
@@ -171,8 +183,30 @@ func (h *UIHandler) TenantSubscriptionPage(w http.ResponseWriter, r *http.Reques
 				}
 			}
 		}
-		if w, err := h.billSvc.GetWallet(ctx, actor.UserID, "EGP"); err == nil && w != nil {
-			walletBal = w.Balance
+		if currentPlanID <= 0 && actor.UserID > 0 {
+			if sub, _ := h.billSvc.GetActiveSubscription(sysCtx, actor.UserID); sub != nil {
+				currentPlanID = sub.PlanID
+				autoRenew = sub.AutoRenew
+				if sub.BillingCycle != "" {
+					billingCycle = sub.BillingCycle
+				}
+			}
+		}
+
+		// Always ensure wallet exists for seamless in-app upgrades
+		if actor.UserID > 0 {
+			if w, err := h.billSvc.GetWallet(sysCtx, actor.UserID, "EGP"); err == nil && w != nil {
+				walletBal = w.Balance
+			}
+		}
+	}
+
+	orgType := actor.OrgType
+	if orgType == "" {
+		if actor.IsVendor() {
+			orgType = "vendor"
+		} else {
+			orgType = "customer"
 		}
 	}
 
@@ -188,7 +222,7 @@ func (h *UIHandler) TenantSubscriptionPage(w http.ResponseWriter, r *http.Reques
 	}
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	if err := pages.TenantSubscriptionPage(data, actor.OrgType, lang, dir).Render(ctx, w); err != nil {
+	if err := pages.TenantSubscriptionPage(data, orgType, lang, dir).Render(ctx, w); err != nil {
 		h.log.ErrorContext(ctx, "render subscription page", "error", err)
 	}
 }

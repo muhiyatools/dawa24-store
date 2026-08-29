@@ -1051,14 +1051,15 @@ function initMapPickers() {
     const canvas = container.querySelector('.map-canvas, .map-container, [data-map-canvas], .leaflet-map-canvas') || container;
     if (!canvas) return;
 
-    const latInput = container.querySelector('[data-map-lat], [data-map-input="lat"], input[name="latitude"], input[name="branch_lat"], input[name="city_lat"]') || document.querySelector('[data-map-input="lat"], input[name="latitude"], input[name="branch_lat"], input[name="city_lat"]');
-    const lonInput = container.querySelector('[data-map-lon], [data-map-input="lon"], input[name="longitude"], input[name="branch_lon"], input[name="city_lon"]') || document.querySelector('[data-map-input="lon"], input[name="longitude"], input[name="branch_lon"], input[name="city_lon"]');
-    const radiusInput = container.querySelector('[data-map-radius], [data-map-input="radius"], input[name="radius"]') || document.querySelector('[data-map-radius], [data-map-input="radius"]');
-    const gmapsInput = container.querySelector('[data-map-google-url], [data-map-input="google_url"], input[name="google_maps_url"], input[name="branch_google_maps_url"]') || document.querySelector('[data-map-input="google_url"], input[name="google_maps_url"], input[name="branch_google_maps_url"]');
-    const badge = container.querySelector('[data-map-badge], [data-map-coords-badge]');
+    const parentScope = container.closest('form') || container.closest('.modal-card') || container.closest('.glass-panel') || container.closest('.card') || document;
+    const latInput = container.querySelector('[data-map-lat], [data-map-input="lat"], input[name="latitude"], input[name="branch_lat"], input[name="city_lat"], input[name="gov_lat"]') || parentScope.querySelector('[data-map-input="lat"], input[name="latitude"], input[name="branch_lat"], input[name="city_lat"], input[name="gov_lat"]');
+    const lonInput = container.querySelector('[data-map-lon], [data-map-input="lon"], input[name="longitude"], input[name="branch_lon"], input[name="city_lon"], input[name="gov_lon"]') || parentScope.querySelector('[data-map-input="lon"], input[name="longitude"], input[name="branch_lon"], input[name="city_lon"], input[name="gov_lon"]');
+    const radiusInput = container.querySelector('[data-map-radius], [data-map-input="radius"], input[name="radius"]') || parentScope.querySelector('[data-map-radius], [data-map-input="radius"]');
+    const gmapsInput = container.querySelector('[data-map-google-url], [data-map-input="google_url"], input[name="google_maps_url"], input[name="branch_google_maps_url"]') || parentScope.querySelector('[data-map-input="google_url"], input[name="google_maps_url"], input[name="branch_google_maps_url"]');
+    const badge = container.querySelector('[data-map-badge], [data-map-coords-badge]') || parentScope.querySelector('[data-map-coords-badge]');
     const gmapsLinks = container.querySelectorAll('[data-google-maps-link]');
-    const citySelect = container.querySelector('[data-city-selector], [data-map-city], select[name="city_id"]') || document.querySelector('[data-map-city]');
-    const locateBtn = container.querySelector('[data-locate-me-btn], [data-map-locate], .btn-locate');
+    const citySelect = container.querySelector('[data-city-selector], [data-map-city], select[name="city_id"], select[name="governorate_id"]') || parentScope.querySelector('[data-map-city], select[name="governorate_id"]');
+    const locateBtn = container.querySelector('[data-locate-me-btn], [data-map-locate], .btn-locate') || parentScope.querySelector('[data-map-locate]');
 
     let initialLat = parseFloat(canvas.dataset.lat || container.dataset.defaultLat || (latInput ? latInput.value : '30.0444')) || 30.0444;
     let initialLon = parseFloat(canvas.dataset.lon || container.dataset.defaultLon || (lonInput ? lonInput.value : '31.2357')) || 31.2357;
@@ -1140,8 +1141,14 @@ function initMapPickers() {
         map.panTo([fixedLat, fixedLon], { animate: true });
       }
 
-      if (latInput) latInput.value = fixedLat.toFixed(6);
-      if (lonInput) lonInput.value = fixedLon.toFixed(6);
+      if (latInput) {
+        latInput.value = fixedLat.toFixed(6);
+        latInput.dispatchEvent(new Event('input', { bubbles: true }));
+      }
+      if (lonInput) {
+        lonInput.value = fixedLon.toFixed(6);
+        lonInput.dispatchEvent(new Event('input', { bubbles: true }));
+      }
 
       const gmapsUrl = `https://www.google.com/maps?q=${fixedLat},${fixedLon}`;
       if (gmapsInput) gmapsInput.value = gmapsUrl;
@@ -1154,6 +1161,9 @@ function initMapPickers() {
       // Auto-fetch detailed street/district address via Reverse Geocoding
       fetchDetailedAddressFromCoords(fixedLat, fixedLon);
     }
+
+    container._updateCoords = updateCoordinates;
+    canvas._updateCoords = updateCoordinates;
 
     // Map Click Handler
     map.on('click', (e) => {
@@ -1175,13 +1185,12 @@ function initMapPickers() {
           updateCoordinates(parsedLat, parsedLon, map.getZoom());
         }
       };
-      latInput.addEventListener('input', onManualInputChange);
-      lonInput.addEventListener('input', onManualInputChange);
+      latInput.addEventListener('change', onManualInputChange);
+      lonInput.addEventListener('change', onManualInputChange);
     }
 
     // Radius Input & City Preset & Dropdown Selector (Auto-Pan & Zoom)
-    const parentScope = container.closest('form') || container.closest('.modal-card') || container.closest('.card') || document;
-    const citySelectors = parentScope.querySelectorAll('select[name="city_id"], select[name="branch_city_id"], [data-city-selector], [data-map-city]');
+    const citySelectors = parentScope.querySelectorAll('select[name="city_id"], select[name="branch_city_id"], select[name="governorate_id"], [data-city-selector], [data-map-city], [data-gov-selector]');
     citySelectors.forEach((sel) => {
       sel.addEventListener('change', (e) => {
         const selEl = e.target;
@@ -1244,8 +1253,6 @@ function initMapPickers() {
       gmapsInput.addEventListener('paste', () => setTimeout(onGmapsUrlInput, 50));
     }
 
-
-
     // GPS Locate Me Button (High Accuracy)
     if (locateBtn) {
       locateBtn.addEventListener('click', (e) => {
@@ -1282,7 +1289,6 @@ function initMapPickers() {
         );
       });
     }
-
 
     // Auto Invalidate Size for Modals and Tabs
     const modalParent = container.closest('.modal-overlay, .modal-backdrop, dialog, .tab-pane');

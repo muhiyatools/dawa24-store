@@ -62,7 +62,7 @@ func AdminCities(data AdminCitiesData, lang string, dir string, isHTMX bool) tem
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"page-container\" x-data=\"{\n\t\t\t\tisEditOpen: false,\n\t\t\t\teditForm: {\n\t\t\t\t\tid: 0,\n\t\t\t\t\tgov_id: '',\n\t\t\t\t\tname_ar: '',\n\t\t\t\t\tname_en: '',\n\t\t\t\t\tlat: '',\n\t\t\t\t\tlon: '',\n\t\t\t\t\tis_capital: false,\n\t\t\t\t\tis_active: true,\n\t\t\t\t\tmap_link: '#'\n\t\t\t\t},\n\t\t\t\topenEdit(id, govId, nameAr, nameEn, lat, lon, isCapital, isActive) {\n\t\t\t\t\tthis.editForm = {\n\t\t\t\t\t\tid: id,\n\t\t\t\t\t\tgov_id: govId > 0 ? String(govId) : '',\n\t\t\t\t\t\tname_ar: nameAr || '',\n\t\t\t\t\t\tname_en: nameEn || '',\n\t\t\t\t\t\tlat: (lat && lat !== 0) ? lat : '',\n\t\t\t\t\t\tlon: (lon && lon !== 0) ? lon : '',\n\t\t\t\t\t\tis_capital: !!isCapital,\n\t\t\t\t\t\tis_active: !!isActive,\n\t\t\t\t\t\tmap_link: (lat && lon) ? 'https://www.google.com/maps?q=' + lat + ',' + lon : '#'\n\t\t\t\t\t};\n\t\t\t\t\tthis.isEditOpen = true;\n\t\t\t\t},\n\t\t\t\tcloseEdit() {\n\t\t\t\t\tthis.isEditOpen = false;\n\t\t\t\t}\n\t\t\t}\" @keydown.escape.window=\"closeEdit()\"><!-- Header --><div class=\"glass-panel p-6 mb-6\"><div class=\"flex-between items-center flex-wrap gap-4\"><div class=\"d-flex items-center gap-3\"><div class=\"user-avatar-badge text-xl\">🌍</div><div><h1 class=\"text-2xl font-black text-primary m-0\">المحافظات والمدن والمراكز الجغرافية</h1><p class=\"text-sm text-secondary m-0 mt-1 max-w-2xl\">منظومة التقسيم الهرمي للمحافظات والمدن والمراكز والأحياء المعتمدة في مصر مع الإحداثيات الجغرافية (GPS) لضبط نطاقات التغطية وعمليات الشحن والتوصيل.</p></div></div><div class=\"d-flex items-center gap-2 flex-wrap\"><a href=\"#new-gov-card\" class=\"btn btn-secondary btn-sm font-bold text-xs\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"page-container\" x-data=\"{\n\t\t\t\tisEditOpen: false,\n\t\t\t\tisGovEditOpen: false,\n\t\t\t\teditForm: {\n\t\t\t\t\tid: 0,\n\t\t\t\t\tgov_id: '',\n\t\t\t\t\tname_ar: '',\n\t\t\t\t\tname_en: '',\n\t\t\t\t\tlat: '',\n\t\t\t\t\tlon: '',\n\t\t\t\t\tis_capital: false,\n\t\t\t\t\tis_active: true,\n\t\t\t\t\tmap_link: '#'\n\t\t\t\t},\n\t\t\t\tgovEditForm: {\n\t\t\t\t\tid: 0,\n\t\t\t\t\tname_ar: '',\n\t\t\t\t\tname_en: '',\n\t\t\t\t\tlat: '',\n\t\t\t\t\tlon: '',\n\t\t\t\t\tis_active: true\n\t\t\t\t},\n\t\t\t\topenEdit(id, govId, nameAr, nameEn, lat, lon, isCapital, isActive) {\n\t\t\t\t\tthis.editForm = {\n\t\t\t\t\t\tid: id,\n\t\t\t\t\t\tgov_id: govId > 0 ? String(govId) : '',\n\t\t\t\t\t\tname_ar: nameAr || '',\n\t\t\t\t\t\tname_en: nameEn || '',\n\t\t\t\t\t\tlat: (lat && lat !== 0) ? String(lat) : '',\n\t\t\t\t\t\tlon: (lon && lon !== 0) ? String(lon) : '',\n\t\t\t\t\t\tis_capital: !!isCapital,\n\t\t\t\t\t\tis_active: !!isActive,\n\t\t\t\t\t\tmap_link: (lat && lon) ? 'https://www.google.com/maps?q=' + lat + ',' + lon : '#'\n\t\t\t\t\t};\n\t\t\t\t\tthis.isEditOpen = true;\n\t\t\t\t\tthis.$nextTick(() => {\n\t\t\t\t\t\tif (window.dawaSetMapLocation) {\n\t\t\t\t\t\t\twindow.dawaSetMapLocation('#edit-city-map-picker', lat || 30.0444, lon || 31.2357, 13);\n\t\t\t\t\t\t}\n\t\t\t\t\t});\n\t\t\t\t},\n\t\t\t\tcloseEdit() {\n\t\t\t\t\tthis.isEditOpen = false;\n\t\t\t\t},\n\t\t\t\topenGovEdit(id, nameAr, nameEn, lat, lon, isActive) {\n\t\t\t\t\tthis.govEditForm = {\n\t\t\t\t\t\tid: id,\n\t\t\t\t\t\tname_ar: nameAr || '',\n\t\t\t\t\t\tname_en: nameEn || '',\n\t\t\t\t\t\tlat: (lat && lat !== 0) ? String(lat) : '',\n\t\t\t\t\t\tlon: (lon && lon !== 0) ? String(lon) : '',\n\t\t\t\t\t\tis_active: !!isActive\n\t\t\t\t\t};\n\t\t\t\t\tthis.isGovEditOpen = true;\n\t\t\t\t\tthis.$nextTick(() => {\n\t\t\t\t\t\tif (window.dawaSetMapLocation) {\n\t\t\t\t\t\t\twindow.dawaSetMapLocation('#edit-gov-map-picker', lat || 30.0444, lon || 31.2357, 11);\n\t\t\t\t\t\t}\n\t\t\t\t\t});\n\t\t\t\t},\n\t\t\t\tcloseGovEdit() {\n\t\t\t\t\tthis.isGovEditOpen = false;\n\t\t\t\t}\n\t\t\t}\" @keydown.escape.window=\"closeEdit(); closeGovEdit();\"><!-- Header --><div class=\"glass-panel p-6 mb-6\"><div class=\"flex-between items-center flex-wrap gap-4\"><div class=\"d-flex items-center gap-3\"><div class=\"user-avatar-badge text-xl\">🌍</div><div><h1 class=\"text-2xl font-black text-primary m-0\">المحافظات والمدن والمراكز الجغرافية</h1><p class=\"text-sm text-secondary m-0 mt-1 max-w-2xl\">منظومة التقسيم الهرمي للمحافظات والمدن والمراكز والأحياء المعتمدة في مصر مع الإحداثيات الجغرافية (GPS) لضبط نطاقات التغطية وعمليات الشحن والتوصيل.</p></div></div><div class=\"d-flex items-center gap-2 flex-wrap\"><a href=\"#new-gov-card\" class=\"btn btn-secondary btn-sm font-bold text-xs\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -86,7 +86,7 @@ func AdminCities(data AdminCitiesData, lang string, dir string, isHTMX bool) tem
 				var templ_7745c5c3_Var3 string
 				templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", data.TotalGovernorates))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_cities.templ`, Line: 97, Col: 50}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_cities.templ`, Line: 130, Col: 50}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
 				if templ_7745c5c3_Err != nil {
@@ -96,7 +96,7 @@ func AdminCities(data AdminCitiesData, lang string, dir string, isHTMX bool) tem
 				var templ_7745c5c3_Var4 string
 				templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", len(data.Governorates)))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_cities.templ`, Line: 99, Col: 50}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_cities.templ`, Line: 132, Col: 50}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
 				if templ_7745c5c3_Err != nil {
@@ -111,7 +111,7 @@ func AdminCities(data AdminCitiesData, lang string, dir string, isHTMX bool) tem
 				var templ_7745c5c3_Var5 string
 				templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", data.TotalCities))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_cities.templ`, Line: 109, Col: 44}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_cities.templ`, Line: 142, Col: 44}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
 				if templ_7745c5c3_Err != nil {
@@ -121,7 +121,7 @@ func AdminCities(data AdminCitiesData, lang string, dir string, isHTMX bool) tem
 				var templ_7745c5c3_Var6 string
 				templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", len(data.Cities)))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_cities.templ`, Line: 111, Col: 44}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_cities.templ`, Line: 144, Col: 44}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
 				if templ_7745c5c3_Err != nil {
@@ -141,7 +141,7 @@ func AdminCities(data AdminCitiesData, lang string, dir string, isHTMX bool) tem
 					var templ_7745c5c3_Var7 string
 					templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%d", g.ID))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_cities.templ`, Line: 143, Col: 49}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_cities.templ`, Line: 176, Col: 49}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var7)
 					if templ_7745c5c3_Err != nil {
@@ -154,7 +154,7 @@ func AdminCities(data AdminCitiesData, lang string, dir string, isHTMX bool) tem
 					var templ_7745c5c3_Var8 string
 					templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(g.Name["ar"])
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_cities.templ`, Line: 144, Col: 25}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_cities.templ`, Line: 177, Col: 25}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var8))
 					if templ_7745c5c3_Err != nil {
@@ -167,7 +167,7 @@ func AdminCities(data AdminCitiesData, lang string, dir string, isHTMX bool) tem
 					var templ_7745c5c3_Var9 string
 					templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinStringErrs(g.Name["en"])
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_cities.templ`, Line: 144, Col: 43}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_cities.templ`, Line: 177, Col: 43}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var9))
 					if templ_7745c5c3_Err != nil {
@@ -180,7 +180,7 @@ func AdminCities(data AdminCitiesData, lang string, dir string, isHTMX bool) tem
 					var templ_7745c5c3_Var10 string
 					templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", g.CityCount))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_cities.templ`, Line: 144, Col: 81}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_cities.templ`, Line: 177, Col: 81}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var10))
 					if templ_7745c5c3_Err != nil {
@@ -198,7 +198,7 @@ func AdminCities(data AdminCitiesData, lang string, dir string, isHTMX bool) tem
 					var templ_7745c5c3_Var11 string
 					templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%d", g.ID))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_cities.templ`, Line: 147, Col: 49}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_cities.templ`, Line: 180, Col: 49}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var11)
 					if templ_7745c5c3_Err != nil {
@@ -211,7 +211,7 @@ func AdminCities(data AdminCitiesData, lang string, dir string, isHTMX bool) tem
 					var templ_7745c5c3_Var12 string
 					templ_7745c5c3_Var12, templ_7745c5c3_Err = templ.JoinStringErrs(g.Name["ar"])
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_cities.templ`, Line: 148, Col: 25}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_cities.templ`, Line: 181, Col: 25}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var12))
 					if templ_7745c5c3_Err != nil {
@@ -224,7 +224,7 @@ func AdminCities(data AdminCitiesData, lang string, dir string, isHTMX bool) tem
 					var templ_7745c5c3_Var13 string
 					templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.JoinStringErrs(g.Name["en"])
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_cities.templ`, Line: 148, Col: 43}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_cities.templ`, Line: 181, Col: 43}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var13))
 					if templ_7745c5c3_Err != nil {
@@ -237,7 +237,7 @@ func AdminCities(data AdminCitiesData, lang string, dir string, isHTMX bool) tem
 					var templ_7745c5c3_Var14 string
 					templ_7745c5c3_Var14, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", g.CityCount))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_cities.templ`, Line: 148, Col: 81}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_cities.templ`, Line: 181, Col: 81}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var14))
 					if templ_7745c5c3_Err != nil {
@@ -256,7 +256,7 @@ func AdminCities(data AdminCitiesData, lang string, dir string, isHTMX bool) tem
 			var templ_7745c5c3_Var15 string
 			templ_7745c5c3_Var15, templ_7745c5c3_Err = templ.ResolveAttributeValue(data.Query)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_cities.templ`, Line: 159, Col: 26}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_cities.templ`, Line: 192, Col: 26}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var15)
 			if templ_7745c5c3_Err != nil {
@@ -269,7 +269,7 @@ func AdminCities(data AdminCitiesData, lang string, dir string, isHTMX bool) tem
 			var templ_7745c5c3_Var16 string
 			templ_7745c5c3_Var16, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%d", data.Limit))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_cities.templ`, Line: 165, Col: 77}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_cities.templ`, Line: 198, Col: 77}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var16)
 			if templ_7745c5c3_Err != nil {
@@ -308,13 +308,13 @@ func AdminCities(data AdminCitiesData, lang string, dir string, isHTMX bool) tem
 			var templ_7745c5c3_Var17 string
 			templ_7745c5c3_Var17, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d مدينة", data.TotalFiltered))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_cities.templ`, Line: 183, Col: 57}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_cities.templ`, Line: 216, Col: 57}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var17))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, "</span></div></form></div><!-- Main Content Grid: Table on Left (2fr), Forms on Right (1fr) --><div style=\"display: grid; grid-template-columns: 2fr 1fr; gap: 1.5rem; align-items: start;\"><!-- Left: Cities Table --><div class=\"glass-panel p-0 mb-6 overflow-hidden\"><div class=\"p-4 border-b flex-between items-center flex-wrap gap-2\"><div><h3 class=\"text-base font-black text-primary m-0\">سجل المدن والمراكز المعتمدة</h3>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, "</span></div></form></div><!-- Main Content Grid: Table on Left (1.8fr), Forms on Right (1.2fr) --><div style=\"display: grid; grid-template-columns: 1.8fr 1.2fr; gap: 1.5rem; align-items: start;\" class=\"cities-layout-grid\"><!-- Left: Cities Table --><div class=\"glass-panel p-0 mb-6 overflow-hidden\"><div class=\"p-4 border-b flex-between items-center flex-wrap gap-2\"><div><h3 class=\"text-base font-black text-primary m-0\">سجل المدن والمراكز المعتمدة</h3>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -328,7 +328,7 @@ func AdminCities(data AdminCitiesData, lang string, dir string, isHTMX bool) tem
 						var templ_7745c5c3_Var18 string
 						templ_7745c5c3_Var18, templ_7745c5c3_Err = templ.JoinStringErrs(g.Name["ar"])
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_cities.templ`, Line: 203, Col: 53}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_cities.templ`, Line: 236, Col: 53}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var18))
 						if templ_7745c5c3_Err != nil {
@@ -341,7 +341,7 @@ func AdminCities(data AdminCitiesData, lang string, dir string, isHTMX bool) tem
 						var templ_7745c5c3_Var19 string
 						templ_7745c5c3_Var19, templ_7745c5c3_Err = templ.JoinStringErrs(g.Name["en"])
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_cities.templ`, Line: 203, Col: 71}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_cities.templ`, Line: 236, Col: 71}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var19))
 						if templ_7745c5c3_Err != nil {
@@ -361,7 +361,7 @@ func AdminCities(data AdminCitiesData, lang string, dir string, isHTMX bool) tem
 			var templ_7745c5c3_Var20 string
 			templ_7745c5c3_Var20, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d مدينة معروضة", len(data.Cities)))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_cities.templ`, Line: 210, Col: 133}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_cities.templ`, Line: 243, Col: 133}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var20))
 			if templ_7745c5c3_Err != nil {
@@ -396,7 +396,7 @@ func AdminCities(data AdminCitiesData, lang string, dir string, isHTMX bool) tem
 					var templ_7745c5c3_Var21 string
 					templ_7745c5c3_Var21, templ_7745c5c3_Err = templ.JoinStringErrs(c.Name["ar"])
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_cities.templ`, Line: 243, Col: 33}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_cities.templ`, Line: 276, Col: 33}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var21))
 					if templ_7745c5c3_Err != nil {
@@ -414,7 +414,7 @@ func AdminCities(data AdminCitiesData, lang string, dir string, isHTMX bool) tem
 					var templ_7745c5c3_Var22 string
 					templ_7745c5c3_Var22, templ_7745c5c3_Err = templ.JoinStringErrs(c.Name["en"])
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_cities.templ`, Line: 245, Col: 33}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_cities.templ`, Line: 278, Col: 33}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var22))
 					if templ_7745c5c3_Err != nil {
@@ -437,7 +437,7 @@ func AdminCities(data AdminCitiesData, lang string, dir string, isHTMX bool) tem
 					var templ_7745c5c3_Var23 string
 					templ_7745c5c3_Var23, templ_7745c5c3_Err = templ.JoinStringErrs(c.Name["en"])
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_cities.templ`, Line: 249, Col: 70}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_cities.templ`, Line: 282, Col: 70}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var23))
 					if templ_7745c5c3_Err != nil {
@@ -460,7 +460,7 @@ func AdminCities(data AdminCitiesData, lang string, dir string, isHTMX bool) tem
 					var templ_7745c5c3_Var24 string
 					templ_7745c5c3_Var24, templ_7745c5c3_Err = templ.JoinStringErrs((*c.GovernorateName)["ar"])
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_cities.templ`, Line: 255, Col: 41}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_cities.templ`, Line: 288, Col: 41}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var24))
 					if templ_7745c5c3_Err != nil {
@@ -488,7 +488,7 @@ func AdminCities(data AdminCitiesData, lang string, dir string, isHTMX bool) tem
 					var templ_7745c5c3_Var25 templ.SafeURL
 					templ_7745c5c3_Var25, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("https://www.google.com/maps?q=%.6f,%.6f", c.Latitude, c.Longitude)))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_cities.templ`, Line: 264, Col: 114}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_cities.templ`, Line: 297, Col: 114}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var25))
 					if templ_7745c5c3_Err != nil {
@@ -501,7 +501,7 @@ func AdminCities(data AdminCitiesData, lang string, dir string, isHTMX bool) tem
 					var templ_7745c5c3_Var26 string
 					templ_7745c5c3_Var26, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%.4f, %.4f", c.Latitude, c.Longitude))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_cities.templ`, Line: 270, Col: 76}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_cities.templ`, Line: 303, Col: 76}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var26))
 					if templ_7745c5c3_Err != nil {
@@ -548,7 +548,7 @@ func AdminCities(data AdminCitiesData, lang string, dir string, isHTMX bool) tem
 					c.IsActive,
 				))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_cities.templ`, Line: 297, Col: 14}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_cities.templ`, Line: 330, Col: 14}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var27)
 				if templ_7745c5c3_Err != nil {
@@ -561,7 +561,7 @@ func AdminCities(data AdminCitiesData, lang string, dir string, isHTMX bool) tem
 				var templ_7745c5c3_Var28 templ.SafeURL
 				templ_7745c5c3_Var28, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("/admin/cities/%d/toggle", c.ID)))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_cities.templ`, Line: 302, Col: 100}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_cities.templ`, Line: 335, Col: 100}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var28))
 				if templ_7745c5c3_Err != nil {
@@ -594,7 +594,7 @@ func AdminCities(data AdminCitiesData, lang string, dir string, isHTMX bool) tem
 			var templ_7745c5c3_Var29 string
 			templ_7745c5c3_Var29, templ_7745c5c3_Err = templ.ResolveAttributeValue(templ.SafeURL(fmt.Sprintf("/admin/cities?gov_id=%d&q=%s&limit=10&page=1", data.SelectedGovernorateID, data.Query)))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_cities.templ`, Line: 329, Col: 138}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_cities.templ`, Line: 362, Col: 138}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var29)
 			if templ_7745c5c3_Err != nil {
@@ -617,7 +617,7 @@ func AdminCities(data AdminCitiesData, lang string, dir string, isHTMX bool) tem
 			var templ_7745c5c3_Var30 string
 			templ_7745c5c3_Var30, templ_7745c5c3_Err = templ.ResolveAttributeValue(templ.SafeURL(fmt.Sprintf("/admin/cities?gov_id=%d&q=%s&limit=25&page=1", data.SelectedGovernorateID, data.Query)))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_cities.templ`, Line: 330, Col: 138}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_cities.templ`, Line: 363, Col: 138}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var30)
 			if templ_7745c5c3_Err != nil {
@@ -640,7 +640,7 @@ func AdminCities(data AdminCitiesData, lang string, dir string, isHTMX bool) tem
 			var templ_7745c5c3_Var31 string
 			templ_7745c5c3_Var31, templ_7745c5c3_Err = templ.ResolveAttributeValue(templ.SafeURL(fmt.Sprintf("/admin/cities?gov_id=%d&q=%s&limit=50&page=1", data.SelectedGovernorateID, data.Query)))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_cities.templ`, Line: 331, Col: 138}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_cities.templ`, Line: 364, Col: 138}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var31)
 			if templ_7745c5c3_Err != nil {
@@ -663,7 +663,7 @@ func AdminCities(data AdminCitiesData, lang string, dir string, isHTMX bool) tem
 			var templ_7745c5c3_Var32 string
 			templ_7745c5c3_Var32, templ_7745c5c3_Err = templ.ResolveAttributeValue(templ.SafeURL(fmt.Sprintf("/admin/cities?gov_id=%d&q=%s&limit=100&page=1", data.SelectedGovernorateID, data.Query)))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_cities.templ`, Line: 332, Col: 139}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_cities.templ`, Line: 365, Col: 139}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var32)
 			if templ_7745c5c3_Err != nil {
@@ -686,7 +686,7 @@ func AdminCities(data AdminCitiesData, lang string, dir string, isHTMX bool) tem
 			var templ_7745c5c3_Var33 string
 			templ_7745c5c3_Var33, templ_7745c5c3_Err = templ.ResolveAttributeValue(templ.SafeURL(fmt.Sprintf("/admin/cities?gov_id=%d&q=%s&limit=1000&page=1", data.SelectedGovernorateID, data.Query)))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_cities.templ`, Line: 333, Col: 140}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_cities.templ`, Line: 366, Col: 140}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var33)
 			if templ_7745c5c3_Err != nil {
@@ -709,7 +709,7 @@ func AdminCities(data AdminCitiesData, lang string, dir string, isHTMX bool) tem
 			var templ_7745c5c3_Var34 string
 			templ_7745c5c3_Var34, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", data.TotalFiltered))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_cities.templ`, Line: 333, Col: 225}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_cities.templ`, Line: 366, Col: 225}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var34))
 			if templ_7745c5c3_Err != nil {
@@ -722,7 +722,7 @@ func AdminCities(data AdminCitiesData, lang string, dir string, isHTMX bool) tem
 			var templ_7745c5c3_Var35 string
 			templ_7745c5c3_Var35, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d من %d", data.Page, data.TotalPages))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_cities.templ`, Line: 336, Col: 73}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_cities.templ`, Line: 369, Col: 73}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var35))
 			if templ_7745c5c3_Err != nil {
@@ -740,7 +740,7 @@ func AdminCities(data AdminCitiesData, lang string, dir string, isHTMX bool) tem
 				var templ_7745c5c3_Var36 templ.SafeURL
 				templ_7745c5c3_Var36, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("/admin/cities?gov_id=%d&q=%s&limit=%d&page=%d", data.SelectedGovernorateID, data.Query, data.Limit, data.Page-1)))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_cities.templ`, Line: 344, Col: 156}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_cities.templ`, Line: 377, Col: 156}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var36))
 				if templ_7745c5c3_Err != nil {
@@ -767,7 +767,7 @@ func AdminCities(data AdminCitiesData, lang string, dir string, isHTMX bool) tem
 				var templ_7745c5c3_Var37 templ.SafeURL
 				templ_7745c5c3_Var37, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("/admin/cities?gov_id=%d&q=%s&limit=%d&page=%d", data.SelectedGovernorateID, data.Query, data.Limit, data.Page+1)))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_cities.templ`, Line: 353, Col: 156}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_cities.templ`, Line: 386, Col: 156}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var37))
 				if templ_7745c5c3_Err != nil {
@@ -786,7 +786,7 @@ func AdminCities(data AdminCitiesData, lang string, dir string, isHTMX bool) tem
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 81, "</div></div></div><!-- Right Side: Creation Forms --><div class=\"d-flex flex-col gap-6\" style=\"position: sticky; top: calc(var(--header-height) + 1.5rem);\"><!-- Card 1: Add New City --><div id=\"new-city-card\" class=\"glass-panel p-5 mb-0\"><div class=\"d-flex items-center gap-2 pb-3 mb-4 border-b\"><div class=\"user-avatar-badge text-base\">🏙️</div><div><h3 class=\"text-sm font-black text-primary m-0\">إضافة مدينة / حي فرعي</h3><div class=\"text-xs text-secondary mt-0.5\">إدراج منطقة جديدة تحت محافظة معتمدة</div></div></div><form method=\"POST\" action=\"/admin/cities/new\" class=\"d-flex flex-col gap-3 m-0\"><div><label class=\"form-label text-xs font-bold mb-1\">المحافظة التابعة <span class=\"text-danger\">*</span></label> <select name=\"governorate_id\" required class=\"form-input text-xs w-full font-bold\"><option value=\"\">-- اختر المحافظة --</option> ")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 81, "</div></div></div><!-- Right Side: Creation Forms --><div class=\"d-flex flex-col gap-6\"><!-- Card 1: Add New City with Interactive Map & Smart Governorate Pan --><div id=\"new-city-card\" class=\"glass-panel p-5 mb-0\"><div class=\"d-flex items-center gap-2 pb-3 mb-4 border-b\"><div class=\"user-avatar-badge text-base\">🏙️</div><div><h3 class=\"text-sm font-black text-primary m-0\">إضافة مدينة / حي فرعي</h3><div class=\"text-xs text-secondary mt-0.5\">إدراج منطقة جديدة تحت محافظة معتمدة وتحديدها على الخريطة</div></div></div><form method=\"POST\" action=\"/admin/cities/new\" class=\"d-flex flex-col gap-3 m-0\"><div><label class=\"form-label text-xs font-bold mb-1\">المحافظة التابعة <span class=\"text-danger\">*</span> <span class=\"text-secondary font-normal\">(اختيار المحافظة ينقلك إليها تلقائياً على الخريطة)</span></label> <select name=\"governorate_id\" required class=\"form-input text-xs w-full font-bold\" data-gov-selector><option value=\"\" data-lat=\"30.0444\" data-lng=\"31.2357\">-- اختر المحافظة --</option> ")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -799,89 +799,141 @@ func AdminCities(data AdminCitiesData, lang string, dir string, isHTMX bool) tem
 					var templ_7745c5c3_Var38 string
 					templ_7745c5c3_Var38, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%d", g.ID))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_cities.templ`, Line: 390, Col: 50}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_cities.templ`, Line: 424, Col: 43}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var38)
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 83, "\" selected>")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 83, "\" data-lat=\"")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var39 string
-					templ_7745c5c3_Var39, templ_7745c5c3_Err = templ.JoinStringErrs(g.Name["ar"])
+					templ_7745c5c3_Var39, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%.6f", g.Latitude))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_cities.templ`, Line: 391, Col: 26}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_cities.templ`, Line: 425, Col: 54}
 					}
-					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var39))
+					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var39)
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 84, " (")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 84, "\" data-lng=\"")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var40 string
-					templ_7745c5c3_Var40, templ_7745c5c3_Err = templ.JoinStringErrs(g.Name["en"])
+					templ_7745c5c3_Var40, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%.6f", g.Longitude))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_cities.templ`, Line: 391, Col: 44}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_cities.templ`, Line: 426, Col: 55}
 					}
-					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var40))
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 85, ")</option>")
+					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var40)
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-				} else {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 86, "<option value=\"")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 85, "\" selected>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var41 string
-					templ_7745c5c3_Var41, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%d", g.ID))
+					templ_7745c5c3_Var41, templ_7745c5c3_Err = templ.JoinStringErrs(g.Name["ar"])
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_cities.templ`, Line: 394, Col: 50}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_cities.templ`, Line: 429, Col: 26}
 					}
-					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var41)
+					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var41))
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 87, "\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 86, " (")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var42 string
-					templ_7745c5c3_Var42, templ_7745c5c3_Err = templ.JoinStringErrs(g.Name["ar"])
+					templ_7745c5c3_Var42, templ_7745c5c3_Err = templ.JoinStringErrs(g.Name["en"])
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_cities.templ`, Line: 395, Col: 26}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_cities.templ`, Line: 429, Col: 44}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var42))
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 88, " (")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 87, ")</option>")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+				} else {
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 88, "<option value=\"")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var43 string
-					templ_7745c5c3_Var43, templ_7745c5c3_Err = templ.JoinStringErrs(g.Name["en"])
+					templ_7745c5c3_Var43, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%d", g.ID))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_cities.templ`, Line: 395, Col: 44}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_cities.templ`, Line: 433, Col: 43}
 					}
-					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var43))
+					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var43)
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 89, ")</option>")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 89, "\" data-lat=\"")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					var templ_7745c5c3_Var44 string
+					templ_7745c5c3_Var44, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%.6f", g.Latitude))
+					if templ_7745c5c3_Err != nil {
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_cities.templ`, Line: 434, Col: 54}
+					}
+					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var44)
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 90, "\" data-lng=\"")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					var templ_7745c5c3_Var45 string
+					templ_7745c5c3_Var45, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%.6f", g.Longitude))
+					if templ_7745c5c3_Err != nil {
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_cities.templ`, Line: 435, Col: 55}
+					}
+					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var45)
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 91, "\">")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					var templ_7745c5c3_Var46 string
+					templ_7745c5c3_Var46, templ_7745c5c3_Err = templ.JoinStringErrs(g.Name["ar"])
+					if templ_7745c5c3_Err != nil {
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_cities.templ`, Line: 437, Col: 26}
+					}
+					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var46))
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 92, " (")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					var templ_7745c5c3_Var47 string
+					templ_7745c5c3_Var47, templ_7745c5c3_Err = templ.JoinStringErrs(g.Name["en"])
+					if templ_7745c5c3_Err != nil {
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_cities.templ`, Line: 437, Col: 44}
+					}
+					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var47))
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 93, ")</option>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 90, "</select></div><div><label class=\"form-label text-xs font-bold mb-1\">اسم المدينة / الحي بالعربية <span class=\"text-danger\">*</span></label> <input type=\"text\" name=\"name_ar\" required placeholder=\"مثال: المنصورة الجديدة\" class=\"form-input text-xs w-full\"></div><div><label class=\"form-label text-xs font-bold mb-1\">اسم المدينة / الحي بالإنجليزية</label> <input type=\"text\" name=\"name_en\" placeholder=\"New Mansoura\" class=\"form-input text-xs w-full\"></div><div class=\"d-flex gap-2\"><div class=\"flex-1\"><label class=\"form-label text-xs font-bold mb-1\">خط العرض (Lat)</label> <input type=\"number\" step=\"any\" name=\"city_lat\" placeholder=\"30.0444\" class=\"form-input text-xs w-full font-mono\"></div><div class=\"flex-1\"><label class=\"form-label text-xs font-bold mb-1\">خط الطول (Lon)</label> <input type=\"number\" step=\"any\" name=\"city_lon\" placeholder=\"31.2357\" class=\"form-input text-xs w-full font-mono\"></div></div><button type=\"submit\" class=\"btn btn-primary btn-sm font-black text-xs w-full mt-2\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 94, "</select></div><div><label class=\"form-label text-xs font-bold mb-1\">اسم المدينة / الحي بالعربية <span class=\"text-danger\">*</span></label> <input type=\"text\" name=\"name_ar\" required placeholder=\"مثال: المنصورة الجديدة\" class=\"form-input text-xs w-full\"></div><div><label class=\"form-label text-xs font-bold mb-1\">اسم المدينة / الحي بالإنجليزية</label> <input type=\"text\" name=\"name_en\" placeholder=\"New Mansoura\" class=\"form-input text-xs w-full\"></div><!-- Interactive Map Picker for City --><div><label class=\"form-label text-xs font-bold mb-1 d-block\">الموقع الجغرافي والإحداثيات (GPS) <span class=\"text-secondary font-normal\">(اضغط على الخريطة لتحديد الموقع بدقة)</span></label><div data-map-picker data-default-lat=\"30.0444\" data-default-lon=\"31.2357\" class=\"rounded-xl overflow-hidden border bg-surface-sunken position-relative shadow-xs\"><div class=\"map-container map-canvas\" style=\"height:230px; width:100%; z-index:1;\"></div><div class=\"flex-between p-2 bg-surface-raised border-t text-xs flex-wrap gap-2\"><div class=\"d-flex items-center gap-1.5\"><span class=\"text-secondary font-bold\">📍 الإحداثيات:</span> <span data-map-coords-badge class=\"tabular-nums font-black text-primary\">30.0444, 31.2357</span></div><button type=\"button\" data-map-locate class=\"btn btn-secondary btn-xs font-bold gap-1\"><span>📍 موقعي الحالي</span></button></div></div></div><div class=\"d-flex gap-2\"><div class=\"flex-1\"><label class=\"form-label text-xs font-bold mb-1\">خط العرض (Lat)</label> <input type=\"number\" step=\"any\" name=\"city_lat\" data-map-input=\"lat\" placeholder=\"30.0444\" class=\"form-input text-xs w-full font-mono\"></div><div class=\"flex-1\"><label class=\"form-label text-xs font-bold mb-1\">خط الطول (Lon)</label> <input type=\"number\" step=\"any\" name=\"city_lon\" data-map-input=\"lon\" placeholder=\"31.2357\" class=\"form-input text-xs w-full font-mono\"></div></div><button type=\"submit\" class=\"btn btn-primary btn-sm font-black text-xs w-full mt-2\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -889,7 +941,7 @@ func AdminCities(data AdminCitiesData, lang string, dir string, isHTMX bool) tem
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 91, "<span>حفظ وإضافة المدينة</span></button></form></div><!-- Card 2: Add New Governorate --><div id=\"new-gov-card\" class=\"glass-panel p-5 mb-0\"><div class=\"d-flex items-center gap-2 pb-3 mb-4 border-b\"><div class=\"user-avatar-badge text-base\">🏛️</div><div><h3 class=\"text-sm font-black text-primary m-0\">إضافة محافظة رئيسية</h3><div class=\"text-xs text-secondary mt-0.5\">إدراج نطاق محافظة جديد بالجمهورية</div></div></div><form method=\"POST\" action=\"/admin/governorates/new\" class=\"d-flex flex-col gap-3 m-0\"><div><label class=\"form-label text-xs font-bold mb-1\">اسم المحافظة بالعربية <span class=\"text-danger\">*</span></label> <input type=\"text\" name=\"gov_name_ar\" required placeholder=\"مثال: مطروح\" class=\"form-input text-xs w-full\"></div><div><label class=\"form-label text-xs font-bold mb-1\">اسم المحافظة بالإنجليزية</label> <input type=\"text\" name=\"gov_name_en\" placeholder=\"Matrooh\" class=\"form-input text-xs w-full\"></div><div class=\"d-flex gap-2\"><div class=\"flex-1\"><label class=\"form-label text-xs font-bold mb-1\">خط العرض (Lat)</label> <input type=\"number\" step=\"any\" name=\"gov_lat\" placeholder=\"30.0444\" class=\"form-input text-xs w-full font-mono\"></div><div class=\"flex-1\"><label class=\"form-label text-xs font-bold mb-1\">خط الطول (Lon)</label> <input type=\"number\" step=\"any\" name=\"gov_lon\" placeholder=\"31.2357\" class=\"form-input text-xs w-full font-mono\"></div></div><button type=\"submit\" class=\"btn btn-secondary btn-sm font-black text-xs w-full mt-2\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 95, "<span>حفظ وإضافة المدينة</span></button></form></div><!-- Card 2: Add New Governorate with Interactive Map --><div id=\"new-gov-card\" class=\"glass-panel p-5 mb-0\"><div class=\"d-flex items-center gap-2 pb-3 mb-4 border-b\"><div class=\"user-avatar-badge text-base\">🏛️</div><div><h3 class=\"text-sm font-black text-primary m-0\">إضافة محافظة رئيسية</h3><div class=\"text-xs text-secondary mt-0.5\">إدراج نطاق محافظة جديد بالجمهورية مع موقعه على الخريطة</div></div></div><form method=\"POST\" action=\"/admin/governorates/new\" class=\"d-flex flex-col gap-3 m-0\"><div><label class=\"form-label text-xs font-bold mb-1\">اسم المحافظة بالعربية <span class=\"text-danger\">*</span></label> <input type=\"text\" name=\"gov_name_ar\" required placeholder=\"مثال: مطروح\" class=\"form-input text-xs w-full\"></div><div><label class=\"form-label text-xs font-bold mb-1\">اسم المحافظة بالإنجليزية</label> <input type=\"text\" name=\"gov_name_en\" placeholder=\"Matrooh\" class=\"form-input text-xs w-full\"></div><!-- Interactive Map Picker for Governorate --><div><label class=\"form-label text-xs font-bold mb-1 d-block\">الموقع الجغرافي لمركز المحافظة (GPS) <span class=\"text-secondary font-normal\">(حدد موقع ديوان/مركز المحافظة)</span></label><div data-map-picker data-default-lat=\"30.0444\" data-default-lon=\"31.2357\" class=\"rounded-xl overflow-hidden border bg-surface-sunken position-relative shadow-xs\"><div class=\"map-container map-canvas\" style=\"height:200px; width:100%; z-index:1;\"></div><div class=\"flex-between p-2 bg-surface-raised border-t text-xs flex-wrap gap-2\"><div class=\"d-flex items-center gap-1.5\"><span class=\"text-secondary font-bold\">📍 الإحداثيات:</span> <span data-map-coords-badge class=\"tabular-nums font-black text-primary\">30.0444, 31.2357</span></div><button type=\"button\" data-map-locate class=\"btn btn-secondary btn-xs font-bold gap-1\"><span>📍 موقعي</span></button></div></div></div><div class=\"d-flex gap-2\"><div class=\"flex-1\"><label class=\"form-label text-xs font-bold mb-1\">خط العرض (Lat)</label> <input type=\"number\" step=\"any\" name=\"gov_lat\" data-map-input=\"lat\" placeholder=\"30.0444\" class=\"form-input text-xs w-full font-mono\"></div><div class=\"flex-1\"><label class=\"form-label text-xs font-bold mb-1\">خط الطول (Lon)</label> <input type=\"number\" step=\"any\" name=\"gov_lon\" data-map-input=\"lon\" placeholder=\"31.2357\" class=\"form-input text-xs w-full font-mono\"></div></div><button type=\"submit\" class=\"btn btn-secondary btn-sm font-black text-xs w-full mt-2\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -897,136 +949,179 @@ func AdminCities(data AdminCitiesData, lang string, dir string, isHTMX bool) tem
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 92, "<span>حفظ وإضافة المحافظة</span></button></form></div><!-- Card 3: Governorates Quick Filter Pills --><div class=\"glass-panel p-5 mb-0\"><h4 class=\"text-xs font-black text-primary m-0 pb-2 mb-3 border-b\">المحافظات المعتمدة (")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 96, "<span>حفظ وإضافة المحافظة</span></button></form></div><!-- Card 3: Governorates Quick Filter Pills & Quick Management --><div class=\"glass-panel p-5 mb-0\"><div class=\"flex-between items-center pb-2 mb-3 border-b\"><h4 class=\"text-xs font-black text-primary m-0\">المحافظات المعتمدة (")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			var templ_7745c5c3_Var44 string
-			templ_7745c5c3_Var44, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", len(data.Governorates)))
+			var templ_7745c5c3_Var48 string
+			templ_7745c5c3_Var48, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", len(data.Governorates)))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_cities.templ`, Line: 484, Col: 87}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_cities.templ`, Line: 575, Col: 88}
 			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var44))
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 93, ")</h4><div class=\"d-flex flex-wrap gap-1.5\" style=\"max-height: 180px; overflow-y: auto;\">")
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var48))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			for _, g := range data.Governorates {
-				var templ_7745c5c3_Var45 = []any{"badge text-xs", templ.KV("badge-primary", data.SelectedGovernorateID == g.ID), templ.KV("badge-slate", data.SelectedGovernorateID != g.ID)}
-				templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var45...)
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 94, "<a href=\"")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				var templ_7745c5c3_Var46 templ.SafeURL
-				templ_7745c5c3_Var46, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("/admin/cities?gov_id=%d", g.ID)))
-				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_cities.templ`, Line: 489, Col: 75}
-				}
-				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var46))
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 95, "\" class=\"")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				var templ_7745c5c3_Var47 string
-				templ_7745c5c3_Var47, templ_7745c5c3_Err = templ.ResolveAttributeValue(templ.CSSClasses(templ_7745c5c3_Var45).String())
-				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_cities.templ`, Line: 1, Col: 0}
-				}
-				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var47)
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 96, "\" style=\"text-decoration: none; cursor: pointer; padding: 0.35rem 0.6rem;\"><span>")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				var templ_7745c5c3_Var48 string
-				templ_7745c5c3_Var48, templ_7745c5c3_Err = templ.JoinStringErrs(g.Name["ar"])
-				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_cities.templ`, Line: 493, Col: 29}
-				}
-				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var48))
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 97, "</span> <span class=\"tabular-nums opacity-75 font-mono\">(")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				var templ_7745c5c3_Var49 string
-				templ_7745c5c3_Var49, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", g.CityCount))
-				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_cities.templ`, Line: 494, Col: 90}
-				}
-				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var49))
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 98, ")</span></a>")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 99, "</div></div></div></div><!-- Dynamic Alpine Centered Edit City Modal --><div x-show=\"isEditOpen\" x-cloak class=\"modal-backdrop\" style=\"position: fixed; inset: 0; z-index: 9999; display: flex; align-items: center; justify-content: center; background: rgba(15, 23, 42, 0.7); backdrop-filter: blur(4px); padding: 1rem;\" @click.self=\"closeEdit()\"><div class=\"glass-panel p-6 w-full\" style=\"max-width: 520px; max-height: 90vh; overflow-y: auto; box-shadow: var(--shadow-2xl); border-radius: var(--radius-2xl);\" @click.stop><div class=\"flex-between items-center pb-3 mb-4 border-b\"><div class=\"d-flex items-center gap-2\"><div class=\"user-avatar-badge text-base\">✏️</div><div><h3 class=\"text-base font-black text-primary m-0\">تعديل بيانات المدينة / الحي</h3><div class=\"text-xs text-secondary mt-0.5\">تحديث الاسم والمحافظة والإحداثيات</div></div></div><button type=\"button\" @click=\"closeEdit()\" class=\"btn btn-secondary btn-xs btn-icon\">✕</button></div><form :action=\"'/admin/cities/' + editForm.id + '/edit'\" method=\"POST\" class=\"d-flex flex-col gap-3 m-0\"><div><label class=\"form-label text-xs font-bold mb-1\">المحافظة التابعة <span class=\"text-danger\">*</span></label> <select name=\"governorate_id\" x-model=\"editForm.gov_id\" required class=\"form-input text-xs w-full font-bold\"><option value=\"\">-- اختر المحافظة --</option> ")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 97, ")</h4></div><div class=\"d-flex flex-wrap gap-1.5\" style=\"max-height: 220px; overflow-y: auto;\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			for _, g := range data.Governorates {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 100, "<option value=\"")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 98, "<div class=\"d-inline-flex items-center gap-1 bg-surface-sunken p-1 rounded-lg border\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				var templ_7745c5c3_Var50 string
-				templ_7745c5c3_Var50, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%d", g.ID))
-				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_cities.templ`, Line: 541, Col: 48}
-				}
-				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var50)
+				var templ_7745c5c3_Var49 = []any{"badge text-xs", templ.KV("badge-primary", data.SelectedGovernorateID == g.ID), templ.KV("badge-slate", data.SelectedGovernorateID != g.ID)}
+				templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var49...)
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 101, "\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 99, "<a href=\"")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				var templ_7745c5c3_Var50 templ.SafeURL
+				templ_7745c5c3_Var50, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("/admin/cities?gov_id=%d", g.ID)))
+				if templ_7745c5c3_Err != nil {
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_cities.templ`, Line: 582, Col: 76}
+				}
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var50))
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 100, "\" class=\"")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var51 string
-				templ_7745c5c3_Var51, templ_7745c5c3_Err = templ.JoinStringErrs(g.Name["ar"])
+				templ_7745c5c3_Var51, templ_7745c5c3_Err = templ.ResolveAttributeValue(templ.CSSClasses(templ_7745c5c3_Var49).String())
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_cities.templ`, Line: 542, Col: 24}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_cities.templ`, Line: 1, Col: 0}
 				}
-				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var51))
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var51)
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 102, " (")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 101, "\" style=\"text-decoration: none; cursor: pointer; padding: 0.35rem 0.6rem;\"><span>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var52 string
-				templ_7745c5c3_Var52, templ_7745c5c3_Err = templ.JoinStringErrs(g.Name["en"])
+				templ_7745c5c3_Var52, templ_7745c5c3_Err = templ.JoinStringErrs(g.Name["ar"])
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_cities.templ`, Line: 542, Col: 42}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_cities.templ`, Line: 586, Col: 30}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var52))
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 103, ")</option>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 102, "</span> <span class=\"tabular-nums opacity-75 font-mono\">(")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				var templ_7745c5c3_Var53 string
+				templ_7745c5c3_Var53, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", g.CityCount))
+				if templ_7745c5c3_Err != nil {
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_cities.templ`, Line: 587, Col: 91}
+				}
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var53))
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 103, ")</span></a> <button type=\"button\" class=\"btn btn-ghost btn-2xs\" style=\"padding: 0.2rem 0.35rem; font-size: 0.7rem;\" title=\"تعديل المحافظة على الخريطة\" @click=\"")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				var templ_7745c5c3_Var54 string
+				templ_7745c5c3_Var54, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("openGovEdit(%d, %q, %q, %f, %f, %t)", g.ID, g.Name["ar"], g.Name["en"], g.Latitude, g.Longitude, g.IsActive))
+				if templ_7745c5c3_Err != nil {
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_cities.templ`, Line: 594, Col: 140}
+				}
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var54)
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 104, "\">✏️</button></div>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 104, "</select></div><div><label class=\"form-label text-xs font-bold mb-1\">اسم المدينة / الحي بالعربية <span class=\"text-danger\">*</span></label> <input type=\"text\" name=\"name_ar\" x-model=\"editForm.name_ar\" required placeholder=\"مثال: مدينة نصر\" class=\"form-input text-xs w-full\"></div><div><label class=\"form-label text-xs font-bold mb-1\">اسم المدينة / الحي بالإنجليزية</label> <input type=\"text\" name=\"name_en\" x-model=\"editForm.name_en\" placeholder=\"Nasr City\" class=\"form-input text-xs w-full\"></div><div class=\"d-flex gap-2\"><div class=\"flex-1\"><label class=\"form-label text-xs font-bold mb-1\">خط العرض (Lat)</label> <input type=\"number\" step=\"any\" name=\"city_lat\" x-model=\"editForm.lat\" placeholder=\"30.0444\" class=\"form-input text-xs w-full font-mono\"></div><div class=\"flex-1\"><label class=\"form-label text-xs font-bold mb-1\">خط الطول (Lon)</label> <input type=\"number\" step=\"any\" name=\"city_lon\" x-model=\"editForm.lon\" placeholder=\"31.2357\" class=\"form-input text-xs w-full font-mono\"></div></div><div class=\"p-3 bg-surface-sunken border rounded-lg d-flex items-center gap-2 text-xs\"><a :href=\"editForm.map_link\" target=\"_blank\" rel=\"noopener noreferrer\" class=\"text-brand font-bold text-decoration-none d-flex items-center gap-1\"><span>📍 معاينة الموقع على خرائط جوجل</span></a></div><div class=\"d-flex gap-4 p-3 bg-surface-sunken border rounded-lg\"><label class=\"d-flex items-center gap-2 cursor-pointer text-xs font-bold text-primary\"><input type=\"checkbox\" name=\"is_capital\" value=\"true\" x-model=\"editForm.is_capital\" class=\"form-checkbox\"> <span>عاصمة / مركز رئيسي</span></label> <label class=\"d-flex items-center gap-2 cursor-pointer text-xs font-bold text-primary\"><input type=\"checkbox\" name=\"is_active\" value=\"true\" x-model=\"editForm.is_active\" class=\"form-checkbox\"> <span>حالة التفعيل (نشطة)</span></label></div><div class=\"flex-between items-center pt-3 mt-2 border-t gap-3\"><button type=\"button\" @click=\"closeEdit()\" class=\"btn btn-secondary btn-sm font-bold text-xs flex-1\">إلغاء</button> <button type=\"submit\" class=\"btn btn-primary btn-sm font-black text-xs flex-1\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 105, "</div></div></div></div><!-- Dynamic Alpine Centered Edit City Modal with Leaflet Map --><div x-show=\"isEditOpen\" x-cloak class=\"modal-backdrop\" style=\"position: fixed; inset: 0; z-index: 9999; display: flex; align-items: center; justify-content: center; background: rgba(15, 23, 42, 0.7); backdrop-filter: blur(4px); padding: 1rem;\" @click.self=\"closeEdit()\"><div class=\"glass-panel p-6 w-full\" style=\"max-width: 540px; max-height: 90vh; overflow-y: auto; box-shadow: var(--shadow-2xl); border-radius: var(--radius-2xl);\" @click.stop><div class=\"flex-between items-center pb-3 mb-4 border-b\"><div class=\"d-flex items-center gap-2\"><div class=\"user-avatar-badge text-base\">✏️</div><div><h3 class=\"text-base font-black text-primary m-0\">تعديل بيانات المدينة / الحي</h3><div class=\"text-xs text-secondary mt-0.5\">تحديث الاسم والمحافظة والإحداثيات الجغرافية على الخريطة</div></div></div><button type=\"button\" @click=\"closeEdit()\" class=\"btn btn-secondary btn-xs btn-icon\">✕</button></div><form :action=\"'/admin/cities/' + editForm.id + '/edit'\" method=\"POST\" class=\"d-flex flex-col gap-3 m-0\"><div><label class=\"form-label text-xs font-bold mb-1\">المحافظة التابعة <span class=\"text-danger\">*</span></label> <select name=\"governorate_id\" x-model=\"editForm.gov_id\" required class=\"form-input text-xs w-full font-bold\" data-gov-selector><option value=\"\" data-lat=\"30.0444\" data-lng=\"31.2357\">-- اختر المحافظة --</option> ")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			for _, g := range data.Governorates {
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 106, "<option value=\"")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				var templ_7745c5c3_Var55 string
+				templ_7745c5c3_Var55, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%d", g.ID))
+				if templ_7745c5c3_Err != nil {
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_cities.templ`, Line: 645, Col: 41}
+				}
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var55)
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 107, "\" data-lat=\"")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				var templ_7745c5c3_Var56 string
+				templ_7745c5c3_Var56, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%.6f", g.Latitude))
+				if templ_7745c5c3_Err != nil {
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_cities.templ`, Line: 646, Col: 52}
+				}
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var56)
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 108, "\" data-lng=\"")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				var templ_7745c5c3_Var57 string
+				templ_7745c5c3_Var57, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%.6f", g.Longitude))
+				if templ_7745c5c3_Err != nil {
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_cities.templ`, Line: 647, Col: 53}
+				}
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var57)
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 109, "\">")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				var templ_7745c5c3_Var58 string
+				templ_7745c5c3_Var58, templ_7745c5c3_Err = templ.JoinStringErrs(g.Name["ar"])
+				if templ_7745c5c3_Err != nil {
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_cities.templ`, Line: 649, Col: 24}
+				}
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var58))
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 110, " (")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				var templ_7745c5c3_Var59 string
+				templ_7745c5c3_Var59, templ_7745c5c3_Err = templ.JoinStringErrs(g.Name["en"])
+				if templ_7745c5c3_Err != nil {
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_cities.templ`, Line: 649, Col: 42}
+				}
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var59))
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 111, ")</option>")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 112, "</select></div><div><label class=\"form-label text-xs font-bold mb-1\">اسم المدينة / الحي بالعربية <span class=\"text-danger\">*</span></label> <input type=\"text\" name=\"name_ar\" x-model=\"editForm.name_ar\" required placeholder=\"مثال: مدينة نصر\" class=\"form-input text-xs w-full\"></div><div><label class=\"form-label text-xs font-bold mb-1\">اسم المدينة / الحي بالإنجليزية</label> <input type=\"text\" name=\"name_en\" x-model=\"editForm.name_en\" placeholder=\"Nasr City\" class=\"form-input text-xs w-full\"></div><!-- Map Picker in City Edit Modal --><div><label class=\"form-label text-xs font-bold mb-1 d-block\">الموقع الجغرافي للمدينة على الخريطة <span class=\"text-secondary font-normal\">(حرك المؤشر أو اضغط على الموقع لتحديث الإحداثيات)</span></label><div id=\"edit-city-map-picker\" data-map-picker data-default-lat=\"30.0444\" data-default-lon=\"31.2357\" class=\"rounded-xl overflow-hidden border bg-surface-sunken position-relative shadow-xs mb-2\"><div class=\"map-container map-canvas\" style=\"height:220px; width:100%; z-index:1;\"></div><div class=\"flex-between p-2 bg-surface-raised border-t text-xs flex-wrap gap-2\"><div class=\"d-flex items-center gap-1.5\"><span class=\"text-secondary font-bold\">📍 الإحداثيات المحددة:</span> <span data-map-coords-badge class=\"tabular-nums font-black text-primary\" x-text=\"(editForm.lat || '30.0444') + ', ' + (editForm.lon || '31.2357')\"></span></div><button type=\"button\" data-map-locate class=\"btn btn-secondary btn-xs font-bold gap-1\"><span>📍 موقعي الحالي</span></button></div></div></div><div class=\"d-flex gap-2\"><div class=\"flex-1\"><label class=\"form-label text-xs font-bold mb-1\">خط العرض (Lat)</label> <input type=\"number\" step=\"any\" name=\"city_lat\" data-map-input=\"lat\" x-model=\"editForm.lat\" placeholder=\"30.0444\" class=\"form-input text-xs w-full font-mono\"></div><div class=\"flex-1\"><label class=\"form-label text-xs font-bold mb-1\">خط الطول (Lon)</label> <input type=\"number\" step=\"any\" name=\"city_lon\" data-map-input=\"lon\" x-model=\"editForm.lon\" placeholder=\"31.2357\" class=\"form-input text-xs w-full font-mono\"></div></div><div class=\"p-3 bg-surface-sunken border rounded-lg d-flex items-center gap-2 text-xs\"><a :href=\"editForm.map_link\" target=\"_blank\" rel=\"noopener noreferrer\" class=\"text-brand font-bold text-decoration-none d-flex items-center gap-1\"><span>📍 معاينة الموقع على خرائط جوجل</span></a></div><div class=\"d-flex gap-4 p-3 bg-surface-sunken border rounded-lg\"><label class=\"d-flex items-center gap-2 cursor-pointer text-xs font-bold text-primary\"><input type=\"checkbox\" name=\"is_capital\" value=\"true\" x-model=\"editForm.is_capital\" class=\"form-checkbox\"> <span>عاصمة / مركز رئيسي</span></label> <label class=\"d-flex items-center gap-2 cursor-pointer text-xs font-bold text-primary\"><input type=\"checkbox\" name=\"is_active\" value=\"true\" x-model=\"editForm.is_active\" class=\"form-checkbox\"> <span>حالة التفعيل (نشطة)</span></label></div><div class=\"flex-between items-center pt-3 mt-2 border-t gap-3\"><button type=\"button\" @click=\"closeEdit()\" class=\"btn btn-secondary btn-sm font-bold text-xs flex-1\">إلغاء</button> <button type=\"submit\" class=\"btn btn-primary btn-sm font-black text-xs flex-1\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -1034,7 +1129,15 @@ func AdminCities(data AdminCitiesData, lang string, dir string, isHTMX bool) tem
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 105, "<span>حفظ التعديلات</span></button></div></form></div></div></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 113, "<span>حفظ التعديلات</span></button></div></form></div></div><!-- Dynamic Alpine Centered Edit Governorate Modal with Leaflet Map --><div x-show=\"isGovEditOpen\" x-cloak class=\"modal-backdrop\" style=\"position: fixed; inset: 0; z-index: 9999; display: flex; align-items: center; justify-content: center; background: rgba(15, 23, 42, 0.7); backdrop-filter: blur(4px); padding: 1rem;\" @click.self=\"closeGovEdit()\"><div class=\"glass-panel p-6 w-full\" style=\"max-width: 540px; max-height: 90vh; overflow-y: auto; box-shadow: var(--shadow-2xl); border-radius: var(--radius-2xl);\" @click.stop><div class=\"flex-between items-center pb-3 mb-4 border-b\"><div class=\"d-flex items-center gap-2\"><div class=\"user-avatar-badge text-base\">🏛️</div><div><h3 class=\"text-base font-black text-primary m-0\">تعديل بيانات المحافظة والموقع الجغرافي</h3><div class=\"text-xs text-secondary mt-0.5\">تحديث الاسم والإحداثيات الجغرافية على الخريطة</div></div></div><button type=\"button\" @click=\"closeGovEdit()\" class=\"btn btn-secondary btn-xs btn-icon\">✕</button></div><form :action=\"'/admin/governorates/' + govEditForm.id + '/edit'\" method=\"POST\" class=\"d-flex flex-col gap-3 m-0\"><div><label class=\"form-label text-xs font-bold mb-1\">اسم المحافظة بالعربية <span class=\"text-danger\">*</span></label> <input type=\"text\" name=\"gov_name_ar\" x-model=\"govEditForm.name_ar\" required placeholder=\"مثال: الإسكندرية\" class=\"form-input text-xs w-full\"></div><div><label class=\"form-label text-xs font-bold mb-1\">اسم المحافظة بالإنجليزية</label> <input type=\"text\" name=\"gov_name_en\" x-model=\"govEditForm.name_en\" placeholder=\"Alexandria\" class=\"form-input text-xs w-full\"></div><div><label class=\"form-label text-xs font-bold mb-1 d-block\">الموقع الجغرافي لمركز المحافظة <span class=\"text-secondary font-normal\">(اضغط على الخريطة لتحديث المركز)</span></label><div id=\"edit-gov-map-picker\" data-map-picker data-default-lat=\"30.0444\" data-default-lon=\"31.2357\" class=\"rounded-xl overflow-hidden border bg-surface-sunken position-relative shadow-xs mb-2\"><div class=\"map-container map-canvas\" style=\"height:210px; width:100%; z-index:1;\"></div><div class=\"flex-between p-2 bg-surface-raised border-t text-xs flex-wrap gap-2\"><div class=\"d-flex items-center gap-1.5\"><span class=\"text-secondary font-bold\">📍 الإحداثيات:</span> <span data-map-coords-badge class=\"tabular-nums font-black text-primary\" x-text=\"(govEditForm.lat || '30.0444') + ', ' + (govEditForm.lon || '31.2357')\"></span></div><button type=\"button\" data-map-locate class=\"btn btn-secondary btn-xs font-bold gap-1\"><span>📍 موقعي الحالي</span></button></div></div></div><div class=\"d-flex gap-2\"><div class=\"flex-1\"><label class=\"form-label text-xs font-bold mb-1\">خط العرض (Lat)</label> <input type=\"number\" step=\"any\" name=\"gov_lat\" data-map-input=\"lat\" x-model=\"govEditForm.lat\" placeholder=\"30.0444\" class=\"form-input text-xs w-full font-mono\"></div><div class=\"flex-1\"><label class=\"form-label text-xs font-bold mb-1\">خط الطول (Lon)</label> <input type=\"number\" step=\"any\" name=\"gov_lon\" data-map-input=\"lon\" x-model=\"govEditForm.lon\" placeholder=\"31.2357\" class=\"form-input text-xs w-full font-mono\"></div></div><div class=\"d-flex gap-4 p-3 bg-surface-sunken border rounded-lg\"><label class=\"d-flex items-center gap-2 cursor-pointer text-xs font-bold text-primary\"><input type=\"checkbox\" name=\"is_active\" value=\"true\" x-model=\"govEditForm.is_active\" class=\"form-checkbox\"> <span>حالة التفعيل (نشطة ومعتمدة بالجمهورية)</span></label></div><div class=\"flex-between items-center pt-3 mt-2 border-t gap-3\"><button type=\"button\" @click=\"closeGovEdit()\" class=\"btn btn-secondary btn-sm font-bold text-xs flex-1\">إلغاء</button> <button type=\"submit\" class=\"btn btn-primary btn-sm font-black text-xs flex-1\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = components.IconCheck("icon-xs").Render(ctx, templ_7745c5c3_Buffer)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 114, "<span>حفظ تعديلات المحافظة</span></button></div></form></div></div></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

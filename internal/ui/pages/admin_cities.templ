@@ -27,6 +27,7 @@ templ AdminCities(data AdminCitiesData, lang string, dir string, isHTMX bool) {
 			class="page-container"
 			x-data="{
 				isEditOpen: false,
+				isGovEditOpen: false,
 				editForm: {
 					id: 0,
 					gov_id: '',
@@ -38,25 +39,57 @@ templ AdminCities(data AdminCitiesData, lang string, dir string, isHTMX bool) {
 					is_active: true,
 					map_link: '#'
 				},
+				govEditForm: {
+					id: 0,
+					name_ar: '',
+					name_en: '',
+					lat: '',
+					lon: '',
+					is_active: true
+				},
 				openEdit(id, govId, nameAr, nameEn, lat, lon, isCapital, isActive) {
 					this.editForm = {
 						id: id,
 						gov_id: govId > 0 ? String(govId) : '',
 						name_ar: nameAr || '',
 						name_en: nameEn || '',
-						lat: (lat && lat !== 0) ? lat : '',
-						lon: (lon && lon !== 0) ? lon : '',
+						lat: (lat && lat !== 0) ? String(lat) : '',
+						lon: (lon && lon !== 0) ? String(lon) : '',
 						is_capital: !!isCapital,
 						is_active: !!isActive,
 						map_link: (lat && lon) ? 'https://www.google.com/maps?q=' + lat + ',' + lon : '#'
 					};
 					this.isEditOpen = true;
+					this.$nextTick(() => {
+						if (window.dawaSetMapLocation) {
+							window.dawaSetMapLocation('#edit-city-map-picker', lat || 30.0444, lon || 31.2357, 13);
+						}
+					});
 				},
 				closeEdit() {
 					this.isEditOpen = false;
+				},
+				openGovEdit(id, nameAr, nameEn, lat, lon, isActive) {
+					this.govEditForm = {
+						id: id,
+						name_ar: nameAr || '',
+						name_en: nameEn || '',
+						lat: (lat && lat !== 0) ? String(lat) : '',
+						lon: (lon && lon !== 0) ? String(lon) : '',
+						is_active: !!isActive
+					};
+					this.isGovEditOpen = true;
+					this.$nextTick(() => {
+						if (window.dawaSetMapLocation) {
+							window.dawaSetMapLocation('#edit-gov-map-picker', lat || 30.0444, lon || 31.2357, 11);
+						}
+					});
+				},
+				closeGovEdit() {
+					this.isGovEditOpen = false;
 				}
 			}"
-			@keydown.escape.window="closeEdit()"
+			@keydown.escape.window="closeEdit(); closeGovEdit();"
 		>
 			<!-- Header -->
 			<div class="glass-panel p-6 mb-6">
@@ -186,8 +219,8 @@ templ AdminCities(data AdminCitiesData, lang string, dir string, isHTMX bool) {
 				</form>
 			</div>
 
-			<!-- Main Content Grid: Table on Left (2fr), Forms on Right (1fr) -->
-			<div style="display: grid; grid-template-columns: 2fr 1fr; gap: 1.5rem; align-items: start;">
+			<!-- Main Content Grid: Table on Left (1.8fr), Forms on Right (1.2fr) -->
+			<div style="display: grid; grid-template-columns: 1.8fr 1.2fr; gap: 1.5rem; align-items: start;" class="cities-layout-grid">
 				
 				<!-- Left: Cities Table -->
 				<div class="glass-panel p-0 mb-6 overflow-hidden">
@@ -362,9 +395,9 @@ templ AdminCities(data AdminCitiesData, lang string, dir string, isHTMX bool) {
 				</div>
 
 				<!-- Right Side: Creation Forms -->
-				<div class="d-flex flex-col gap-6" style="position: sticky; top: calc(var(--header-height) + 1.5rem);">
+				<div class="d-flex flex-col gap-6">
 					
-					<!-- Card 1: Add New City -->
+					<!-- Card 1: Add New City with Interactive Map & Smart Governorate Pan -->
 					<div id="new-city-card" class="glass-panel p-5 mb-0">
 						<div class="d-flex items-center gap-2 pb-3 mb-4 border-b">
 							<div class="user-avatar-badge text-base">
@@ -374,24 +407,33 @@ templ AdminCities(data AdminCitiesData, lang string, dir string, isHTMX bool) {
 								<h3 class="text-sm font-black text-primary m-0">
 									إضافة مدينة / حي فرعي
 								</h3>
-								<div class="text-xs text-secondary mt-0.5">إدراج منطقة جديدة تحت محافظة معتمدة</div>
+								<div class="text-xs text-secondary mt-0.5">إدراج منطقة جديدة تحت محافظة معتمدة وتحديدها على الخريطة</div>
 							</div>
 						</div>
 
 						<form method="POST" action="/admin/cities/new" class="d-flex flex-col gap-3 m-0">
 							<div>
 								<label class="form-label text-xs font-bold mb-1">
-									المحافظة التابعة <span class="text-danger">*</span>
+									المحافظة التابعة <span class="text-danger">*</span> <span class="text-secondary font-normal">(اختيار المحافظة ينقلك إليها تلقائياً على الخريطة)</span>
 								</label>
-								<select name="governorate_id" required class="form-input text-xs w-full font-bold">
-									<option value="">-- اختر المحافظة --</option>
+								<select name="governorate_id" required class="form-input text-xs w-full font-bold" data-gov-selector>
+									<option value="" data-lat="30.0444" data-lng="31.2357">-- اختر المحافظة --</option>
 									for _, g := range data.Governorates {
 										if data.SelectedGovernorateID == g.ID {
-											<option value={ fmt.Sprintf("%d", g.ID) } selected>
+											<option 
+												value={ fmt.Sprintf("%d", g.ID) } 
+												data-lat={ fmt.Sprintf("%.6f", g.Latitude) } 
+												data-lng={ fmt.Sprintf("%.6f", g.Longitude) }
+												selected
+											>
 												{ g.Name["ar"] } ({ g.Name["en"] })
 											</option>
 										} else {
-											<option value={ fmt.Sprintf("%d", g.ID) }>
+											<option 
+												value={ fmt.Sprintf("%d", g.ID) } 
+												data-lat={ fmt.Sprintf("%.6f", g.Latitude) } 
+												data-lng={ fmt.Sprintf("%.6f", g.Longitude) }
+											>
 												{ g.Name["ar"] } ({ g.Name["en"] })
 											</option>
 										}
@@ -413,14 +455,38 @@ templ AdminCities(data AdminCitiesData, lang string, dir string, isHTMX bool) {
 								<input type="text" name="name_en" placeholder="New Mansoura" class="form-input text-xs w-full"/>
 							</div>
 
+							<!-- Interactive Map Picker for City -->
+							<div>
+								<label class="form-label text-xs font-bold mb-1 d-block">
+									الموقع الجغرافي والإحداثيات (GPS) <span class="text-secondary font-normal">(اضغط على الخريطة لتحديد الموقع بدقة)</span>
+								</label>
+								<div
+									data-map-picker
+									data-default-lat="30.0444"
+									data-default-lon="31.2357"
+									class="rounded-xl overflow-hidden border bg-surface-sunken position-relative shadow-xs"
+								>
+									<div class="map-container map-canvas" style="height:230px; width:100%; z-index:1;"></div>
+									<div class="flex-between p-2 bg-surface-raised border-t text-xs flex-wrap gap-2">
+										<div class="d-flex items-center gap-1.5">
+											<span class="text-secondary font-bold">📍 الإحداثيات:</span>
+											<span data-map-coords-badge class="tabular-nums font-black text-primary">30.0444, 31.2357</span>
+										</div>
+										<button type="button" data-map-locate class="btn btn-secondary btn-xs font-bold gap-1">
+											<span>📍 موقعي الحالي</span>
+										</button>
+									</div>
+								</div>
+							</div>
+
 							<div class="d-flex gap-2">
 								<div class="flex-1">
 									<label class="form-label text-xs font-bold mb-1">خط العرض (Lat)</label>
-									<input type="number" step="any" name="city_lat" placeholder="30.0444" class="form-input text-xs w-full font-mono"/>
+									<input type="number" step="any" name="city_lat" data-map-input="lat" placeholder="30.0444" class="form-input text-xs w-full font-mono"/>
 								</div>
 								<div class="flex-1">
 									<label class="form-label text-xs font-bold mb-1">خط الطول (Lon)</label>
-									<input type="number" step="any" name="city_lon" placeholder="31.2357" class="form-input text-xs w-full font-mono"/>
+									<input type="number" step="any" name="city_lon" data-map-input="lon" placeholder="31.2357" class="form-input text-xs w-full font-mono"/>
 								</div>
 							</div>
 
@@ -431,7 +497,7 @@ templ AdminCities(data AdminCitiesData, lang string, dir string, isHTMX bool) {
 						</form>
 					</div>
 
-					<!-- Card 2: Add New Governorate -->
+					<!-- Card 2: Add New Governorate with Interactive Map -->
 					<div id="new-gov-card" class="glass-panel p-5 mb-0">
 						<div class="d-flex items-center gap-2 pb-3 mb-4 border-b">
 							<div class="user-avatar-badge text-base">
@@ -441,7 +507,7 @@ templ AdminCities(data AdminCitiesData, lang string, dir string, isHTMX bool) {
 								<h3 class="text-sm font-black text-primary m-0">
 									إضافة محافظة رئيسية
 								</h3>
-								<div class="text-xs text-secondary mt-0.5">إدراج نطاق محافظة جديد بالجمهورية</div>
+								<div class="text-xs text-secondary mt-0.5">إدراج نطاق محافظة جديد بالجمهورية مع موقعه على الخريطة</div>
 							</div>
 						</div>
 
@@ -460,14 +526,38 @@ templ AdminCities(data AdminCitiesData, lang string, dir string, isHTMX bool) {
 								<input type="text" name="gov_name_en" placeholder="Matrooh" class="form-input text-xs w-full"/>
 							</div>
 
+							<!-- Interactive Map Picker for Governorate -->
+							<div>
+								<label class="form-label text-xs font-bold mb-1 d-block">
+									الموقع الجغرافي لمركز المحافظة (GPS) <span class="text-secondary font-normal">(حدد موقع ديوان/مركز المحافظة)</span>
+								</label>
+								<div
+									data-map-picker
+									data-default-lat="30.0444"
+									data-default-lon="31.2357"
+									class="rounded-xl overflow-hidden border bg-surface-sunken position-relative shadow-xs"
+								>
+									<div class="map-container map-canvas" style="height:200px; width:100%; z-index:1;"></div>
+									<div class="flex-between p-2 bg-surface-raised border-t text-xs flex-wrap gap-2">
+										<div class="d-flex items-center gap-1.5">
+											<span class="text-secondary font-bold">📍 الإحداثيات:</span>
+											<span data-map-coords-badge class="tabular-nums font-black text-primary">30.0444, 31.2357</span>
+										</div>
+										<button type="button" data-map-locate class="btn btn-secondary btn-xs font-bold gap-1">
+											<span>📍 موقعي</span>
+										</button>
+									</div>
+								</div>
+							</div>
+
 							<div class="d-flex gap-2">
 								<div class="flex-1">
 									<label class="form-label text-xs font-bold mb-1">خط العرض (Lat)</label>
-									<input type="number" step="any" name="gov_lat" placeholder="30.0444" class="form-input text-xs w-full font-mono"/>
+									<input type="number" step="any" name="gov_lat" data-map-input="lat" placeholder="30.0444" class="form-input text-xs w-full font-mono"/>
 								</div>
 								<div class="flex-1">
 									<label class="form-label text-xs font-bold mb-1">خط الطول (Lon)</label>
-									<input type="number" step="any" name="gov_lon" placeholder="31.2357" class="form-input text-xs w-full font-mono"/>
+									<input type="number" step="any" name="gov_lon" data-map-input="lon" placeholder="31.2357" class="form-input text-xs w-full font-mono"/>
 								</div>
 							</div>
 
@@ -478,21 +568,34 @@ templ AdminCities(data AdminCitiesData, lang string, dir string, isHTMX bool) {
 						</form>
 					</div>
 
-					<!-- Card 3: Governorates Quick Filter Pills -->
+					<!-- Card 3: Governorates Quick Filter Pills & Quick Management -->
 					<div class="glass-panel p-5 mb-0">
-						<h4 class="text-xs font-black text-primary m-0 pb-2 mb-3 border-b">
-							المحافظات المعتمدة ({ fmt.Sprintf("%d", len(data.Governorates)) })
-						</h4>
-						<div class="d-flex flex-wrap gap-1.5" style="max-height: 180px; overflow-y: auto;">
+						<div class="flex-between items-center pb-2 mb-3 border-b">
+							<h4 class="text-xs font-black text-primary m-0">
+								المحافظات المعتمدة ({ fmt.Sprintf("%d", len(data.Governorates)) })
+							</h4>
+						</div>
+						<div class="d-flex flex-wrap gap-1.5" style="max-height: 220px; overflow-y: auto;">
 							for _, g := range data.Governorates {
-								<a
-									href={ templ.SafeURL(fmt.Sprintf("/admin/cities?gov_id=%d", g.ID)) }
-									class={ "badge text-xs", templ.KV("badge-primary", data.SelectedGovernorateID == g.ID), templ.KV("badge-slate", data.SelectedGovernorateID != g.ID) }
-									style="text-decoration: none; cursor: pointer; padding: 0.35rem 0.6rem;"
-								>
-									<span>{ g.Name["ar"] }</span>
-									<span class="tabular-nums opacity-75 font-mono">({ fmt.Sprintf("%d", g.CityCount) })</span>
-								</a>
+								<div class="d-inline-flex items-center gap-1 bg-surface-sunken p-1 rounded-lg border">
+									<a
+										href={ templ.SafeURL(fmt.Sprintf("/admin/cities?gov_id=%d", g.ID)) }
+										class={ "badge text-xs", templ.KV("badge-primary", data.SelectedGovernorateID == g.ID), templ.KV("badge-slate", data.SelectedGovernorateID != g.ID) }
+										style="text-decoration: none; cursor: pointer; padding: 0.35rem 0.6rem;"
+									>
+										<span>{ g.Name["ar"] }</span>
+										<span class="tabular-nums opacity-75 font-mono">({ fmt.Sprintf("%d", g.CityCount) })</span>
+									</a>
+									<button
+										type="button"
+										class="btn btn-ghost btn-2xs"
+										style="padding: 0.2rem 0.35rem; font-size: 0.7rem;"
+										title="تعديل المحافظة على الخريطة"
+										@click={ fmt.Sprintf("openGovEdit(%d, %q, %q, %f, %f, %t)", g.ID, g.Name["ar"], g.Name["en"], g.Latitude, g.Longitude, g.IsActive) }
+									>
+										✏️
+									</button>
+								</div>
 							}
 						</div>
 					</div>
@@ -500,7 +603,7 @@ templ AdminCities(data AdminCitiesData, lang string, dir string, isHTMX bool) {
 				</div>
 			</div>
 
-			<!-- Dynamic Alpine Centered Edit City Modal -->
+			<!-- Dynamic Alpine Centered Edit City Modal with Leaflet Map -->
 			<div
 				x-show="isEditOpen"
 				x-cloak
@@ -510,7 +613,7 @@ templ AdminCities(data AdminCitiesData, lang string, dir string, isHTMX bool) {
 			>
 				<div
 					class="glass-panel p-6 w-full"
-					style="max-width: 520px; max-height: 90vh; overflow-y: auto; box-shadow: var(--shadow-2xl); border-radius: var(--radius-2xl);"
+					style="max-width: 540px; max-height: 90vh; overflow-y: auto; box-shadow: var(--shadow-2xl); border-radius: var(--radius-2xl);"
 					@click.stop
 				>
 					<div class="flex-between items-center pb-3 mb-4 border-b">
@@ -522,7 +625,7 @@ templ AdminCities(data AdminCitiesData, lang string, dir string, isHTMX bool) {
 								<h3 class="text-base font-black text-primary m-0">
 									تعديل بيانات المدينة / الحي
 								</h3>
-								<div class="text-xs text-secondary mt-0.5">تحديث الاسم والمحافظة والإحداثيات</div>
+								<div class="text-xs text-secondary mt-0.5">تحديث الاسم والمحافظة والإحداثيات الجغرافية على الخريطة</div>
 							</div>
 						</div>
 						<button type="button" @click="closeEdit()" class="btn btn-secondary btn-xs btn-icon">
@@ -535,10 +638,14 @@ templ AdminCities(data AdminCitiesData, lang string, dir string, isHTMX bool) {
 							<label class="form-label text-xs font-bold mb-1">
 								المحافظة التابعة <span class="text-danger">*</span>
 							</label>
-							<select name="governorate_id" x-model="editForm.gov_id" required class="form-input text-xs w-full font-bold">
-								<option value="">-- اختر المحافظة --</option>
+							<select name="governorate_id" x-model="editForm.gov_id" required class="form-input text-xs w-full font-bold" data-gov-selector>
+								<option value="" data-lat="30.0444" data-lng="31.2357">-- اختر المحافظة --</option>
 								for _, g := range data.Governorates {
-									<option value={ fmt.Sprintf("%d", g.ID) }>
+									<option 
+										value={ fmt.Sprintf("%d", g.ID) } 
+										data-lat={ fmt.Sprintf("%.6f", g.Latitude) } 
+										data-lng={ fmt.Sprintf("%.6f", g.Longitude) }
+									>
 										{ g.Name["ar"] } ({ g.Name["en"] })
 									</option>
 								}
@@ -559,14 +666,39 @@ templ AdminCities(data AdminCitiesData, lang string, dir string, isHTMX bool) {
 							<input type="text" name="name_en" x-model="editForm.name_en" placeholder="Nasr City" class="form-input text-xs w-full"/>
 						</div>
 
+						<!-- Map Picker in City Edit Modal -->
+						<div>
+							<label class="form-label text-xs font-bold mb-1 d-block">
+								الموقع الجغرافي للمدينة على الخريطة <span class="text-secondary font-normal">(حرك المؤشر أو اضغط على الموقع لتحديث الإحداثيات)</span>
+							</label>
+							<div
+								id="edit-city-map-picker"
+								data-map-picker
+								data-default-lat="30.0444"
+								data-default-lon="31.2357"
+								class="rounded-xl overflow-hidden border bg-surface-sunken position-relative shadow-xs mb-2"
+							>
+								<div class="map-container map-canvas" style="height:220px; width:100%; z-index:1;"></div>
+								<div class="flex-between p-2 bg-surface-raised border-t text-xs flex-wrap gap-2">
+									<div class="d-flex items-center gap-1.5">
+										<span class="text-secondary font-bold">📍 الإحداثيات المحددة:</span>
+										<span data-map-coords-badge class="tabular-nums font-black text-primary" x-text="(editForm.lat || '30.0444') + ', ' + (editForm.lon || '31.2357')"></span>
+									</div>
+									<button type="button" data-map-locate class="btn btn-secondary btn-xs font-bold gap-1">
+										<span>📍 موقعي الحالي</span>
+									</button>
+								</div>
+							</div>
+						</div>
+
 						<div class="d-flex gap-2">
 							<div class="flex-1">
 								<label class="form-label text-xs font-bold mb-1">خط العرض (Lat)</label>
-								<input type="number" step="any" name="city_lat" x-model="editForm.lat" placeholder="30.0444" class="form-input text-xs w-full font-mono"/>
+								<input type="number" step="any" name="city_lat" data-map-input="lat" x-model="editForm.lat" placeholder="30.0444" class="form-input text-xs w-full font-mono"/>
 							</div>
 							<div class="flex-1">
 								<label class="form-label text-xs font-bold mb-1">خط الطول (Lon)</label>
-								<input type="number" step="any" name="city_lon" x-model="editForm.lon" placeholder="31.2357" class="form-input text-xs w-full font-mono"/>
+								<input type="number" step="any" name="city_lon" data-map-input="lon" x-model="editForm.lon" placeholder="31.2357" class="form-input text-xs w-full font-mono"/>
 							</div>
 						</div>
 
@@ -595,6 +727,106 @@ templ AdminCities(data AdminCitiesData, lang string, dir string, isHTMX bool) {
 							<button type="submit" class="btn btn-primary btn-sm font-black text-xs flex-1">
 								@components.IconCheck("icon-xs")
 								<span>حفظ التعديلات</span>
+							</button>
+						</div>
+					</form>
+				</div>
+			</div>
+
+			<!-- Dynamic Alpine Centered Edit Governorate Modal with Leaflet Map -->
+			<div
+				x-show="isGovEditOpen"
+				x-cloak
+				class="modal-backdrop"
+				style="position: fixed; inset: 0; z-index: 9999; display: flex; align-items: center; justify-content: center; background: rgba(15, 23, 42, 0.7); backdrop-filter: blur(4px); padding: 1rem;"
+				@click.self="closeGovEdit()"
+			>
+				<div
+					class="glass-panel p-6 w-full"
+					style="max-width: 540px; max-height: 90vh; overflow-y: auto; box-shadow: var(--shadow-2xl); border-radius: var(--radius-2xl);"
+					@click.stop
+				>
+					<div class="flex-between items-center pb-3 mb-4 border-b">
+						<div class="d-flex items-center gap-2">
+							<div class="user-avatar-badge text-base">
+								🏛️
+							</div>
+							<div>
+								<h3 class="text-base font-black text-primary m-0">
+									تعديل بيانات المحافظة والموقع الجغرافي
+								</h3>
+								<div class="text-xs text-secondary mt-0.5">تحديث الاسم والإحداثيات الجغرافية على الخريطة</div>
+							</div>
+						</div>
+						<button type="button" @click="closeGovEdit()" class="btn btn-secondary btn-xs btn-icon">
+							✕
+						</button>
+					</div>
+
+					<form :action="'/admin/governorates/' + govEditForm.id + '/edit'" method="POST" class="d-flex flex-col gap-3 m-0">
+						<div>
+							<label class="form-label text-xs font-bold mb-1">
+								اسم المحافظة بالعربية <span class="text-danger">*</span>
+							</label>
+							<input type="text" name="gov_name_ar" x-model="govEditForm.name_ar" required placeholder="مثال: الإسكندرية" class="form-input text-xs w-full"/>
+						</div>
+
+						<div>
+							<label class="form-label text-xs font-bold mb-1">
+								اسم المحافظة بالإنجليزية
+							</label>
+							<input type="text" name="gov_name_en" x-model="govEditForm.name_en" placeholder="Alexandria" class="form-input text-xs w-full"/>
+						</div>
+
+						<div>
+							<label class="form-label text-xs font-bold mb-1 d-block">
+								الموقع الجغرافي لمركز المحافظة <span class="text-secondary font-normal">(اضغط على الخريطة لتحديث المركز)</span>
+							</label>
+							<div
+								id="edit-gov-map-picker"
+								data-map-picker
+								data-default-lat="30.0444"
+								data-default-lon="31.2357"
+								class="rounded-xl overflow-hidden border bg-surface-sunken position-relative shadow-xs mb-2"
+							>
+								<div class="map-container map-canvas" style="height:210px; width:100%; z-index:1;"></div>
+								<div class="flex-between p-2 bg-surface-raised border-t text-xs flex-wrap gap-2">
+									<div class="d-flex items-center gap-1.5">
+										<span class="text-secondary font-bold">📍 الإحداثيات:</span>
+										<span data-map-coords-badge class="tabular-nums font-black text-primary" x-text="(govEditForm.lat || '30.0444') + ', ' + (govEditForm.lon || '31.2357')"></span>
+									</div>
+									<button type="button" data-map-locate class="btn btn-secondary btn-xs font-bold gap-1">
+										<span>📍 موقعي الحالي</span>
+									</button>
+								</div>
+							</div>
+						</div>
+
+						<div class="d-flex gap-2">
+							<div class="flex-1">
+								<label class="form-label text-xs font-bold mb-1">خط العرض (Lat)</label>
+								<input type="number" step="any" name="gov_lat" data-map-input="lat" x-model="govEditForm.lat" placeholder="30.0444" class="form-input text-xs w-full font-mono"/>
+							</div>
+							<div class="flex-1">
+								<label class="form-label text-xs font-bold mb-1">خط الطول (Lon)</label>
+								<input type="number" step="any" name="gov_lon" data-map-input="lon" x-model="govEditForm.lon" placeholder="31.2357" class="form-input text-xs w-full font-mono"/>
+							</div>
+						</div>
+
+						<div class="d-flex gap-4 p-3 bg-surface-sunken border rounded-lg">
+							<label class="d-flex items-center gap-2 cursor-pointer text-xs font-bold text-primary">
+								<input type="checkbox" name="is_active" value="true" x-model="govEditForm.is_active" class="form-checkbox"/>
+								<span>حالة التفعيل (نشطة ومعتمدة بالجمهورية)</span>
+							</label>
+						</div>
+
+						<div class="flex-between items-center pt-3 mt-2 border-t gap-3">
+							<button type="button" @click="closeGovEdit()" class="btn btn-secondary btn-sm font-bold text-xs flex-1">
+								إلغاء
+							</button>
+							<button type="submit" class="btn btn-primary btn-sm font-black text-xs flex-1">
+								@components.IconCheck("icon-xs")
+								<span>حفظ تعديلات المحافظة</span>
 							</button>
 						</div>
 					</form>

@@ -269,6 +269,7 @@ func (r *Repository) ListPlans(ctx context.Context) ([]*billing.Plan, error) {
 		if err != nil {
 			return err
 		}
+		defer rows.Close()
 		for rows.Next() {
 			var p billing.Plan
 			if err := rows.Scan(
@@ -277,13 +278,13 @@ func (r *Repository) ListPlans(ctx context.Context) ([]*billing.Plan, error) {
 				&p.MaxLoginSessions, &p.MaxDevices, &p.AIPlanID, &p.IsDefault,
 				&p.IsActive, &p.CreatedAt, &p.UpdatedAt,
 			); err != nil {
-				rows.Close()
 				return err
 			}
-			p.Features = loadPlanFeatures(txCtx, tx, p.ID)
 			plans = append(plans, &p)
 		}
-		rows.Close()
+		if rows.Err() != nil {
+			return rows.Err()
+		}
 
 		for _, p := range plans {
 			p.Features = loadPlanFeatures(txCtx, tx, p.ID)
