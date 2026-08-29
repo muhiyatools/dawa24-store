@@ -134,7 +134,7 @@ templ VendorDashboard(lang, dir string, data VendorDashboardData) {
 				@components.StatCard(components.StatCardProps{ Label: "أصناف تحت الحد الأدنى", Value: fmt.Sprintf("%d", data.LowStockCount), Tone: "danger" })
 			</div>
 
-			<div class="d-grid grid-auto-fit-md gap-4">
+			<div class="dashboard-grid-2col mb-6">
 				<div class="glass-panel p-4">
 					<div class="flex-between mb-3">
 						<h2 class="card-title m-0 text-base font-extrabold text-primary">شحنات بانتظار التنفيذ</h2>

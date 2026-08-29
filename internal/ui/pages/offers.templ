@@ -23,24 +23,24 @@ templ OffersPage(lang, dir string, offers []*promo.Offer) {
 }
 
 templ OffersContent(lang string, offers []*promo.Offer) {
-	<div style="display:flex; flex-direction:column; gap:var(--space-6);">
+	<div class="page-container">
 
 		<!-- Header Banner -->
-		<div class="card" style="background:linear-gradient(135deg, var(--accent-subtle) 0%, var(--surface-raised) 100%); border:1px solid var(--accent); margin-bottom:0; padding:var(--space-6);">
-			<div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:var(--space-4);">
+		<div class="glass-panel p-6">
+			<div class="flex-between flex-wrap gap-4">
 				<div>
-					<div style="display:flex; align-items:center; gap:var(--space-2); margin-bottom:var(--space-2);">
-						<span class="badge badge-emerald fw-700">عروض نشطة ومباشرة</span>
+					<div class="d-flex items-center gap-2 mb-2">
+						<span class="badge badge-emerald font-bold">عروض نشطة ومباشرة</span>
 						<span class="badge badge-sky">تغطية جغرافية معتمدة</span>
 					</div>
-					<h2 style="font-size:var(--text-2xl); font-weight:800; color:var(--text); margin:0 0 var(--space-2);">
+					<h2 class="text-2xl font-black text-primary mb-2">
 						العروض والتخفيضات المتاحة للتوريد الدوائي
 					</h2>
-					<p style="font-size:var(--text-sm); color:var(--text-secondary); max-width:620px; margin:0; line-height:1.6;">
+					<p class="text-xs text-secondary max-w-2xl m-0 leading-relaxed">
 						استفد من خصومات كبرى شركات الأدوية والموزعين المعتمدين في منطقتك، مع إمكانية الطلب المباشر وإصدار فواتير إلكترونية فورية.
 					</p>
 				</div>
-				<a href="/catalog" class="btn btn-primary fw-700">
+				<a href="/catalog" class="btn btn-primary font-bold">
 					@components.IconPackage("icon-xs")
 					<span>تصفح كافة الأصناف</span>
 				</a>
@@ -49,14 +49,14 @@ templ OffersContent(lang string, offers []*promo.Offer) {
 
 		<!-- Section 1: Featured Supplier Offers (عروض الموردين المباشرة) -->
 		<div>
-			<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:var(--space-4);">
-				<div style="display:flex; align-items:center; gap:var(--space-2);">
+			<div class="flex-between items-center mb-4">
+				<div class="d-flex items-center gap-2">
 					@components.IconTag("icon-sm")
-					<h3 style="font-size:var(--text-lg); font-weight:700; color:var(--text); margin:0;">
+					<h3 class="text-lg font-extrabold text-primary m-0">
 						عروض التوريد الحصرية والتخفيضات المعتمدة
 					</h3>
 				</div>
-				<span style="font-size:var(--text-xs); color:var(--text-muted); font-weight:600;">
+				<span class="text-xs text-muted font-bold">
 					{ fmt.Sprintf("%d عروض متاحة في نطاق تغطيتك", len(offers)) }
 				</span>
 			</div>
@@ -68,13 +68,13 @@ templ OffersContent(lang string, offers []*promo.Offer) {
 					ActionLabel: "تصفح كتالوج الأدوية",
 				})
 			} else {
-				<div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(300px, 1fr)); gap:var(--space-5);">
+				<div class="product-grid-wrapper">
 					for _, o := range offers {
-						<div class="card" style="margin-bottom:0; display:flex; flex-direction:column; justify-content:space-between; border:1px solid var(--border); border-radius:var(--radius-lg); background:var(--surface-raised); padding:var(--space-5); transition:border-color 150ms;">
+						<div class="glass-panel p-5 d-flex flex-col justify-between">
 							<div>
-								<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:var(--space-3);">
-									<span class="badge badge-emerald" style="font-weight:700; font-size:11px;">عرض سارٍ</span>
-									<span class="badge badge-rose" style="font-weight:800; font-size:12px; padding:2px 8px;">
+								<div class="flex-between items-center mb-3">
+									<span class="badge badge-emerald font-bold text-xs">عرض سارٍ</span>
+									<span class="badge badge-rose font-extrabold text-xs">
 										خصم { o.DiscountValue.String() }
 										if o.DiscountType == promo.DiscountPercentage {
 											{ "%" }
@@ -82,19 +82,19 @@ templ OffersContent(lang string, offers []*promo.Offer) {
 									</span>
 								</div>
 
-								<h4 style="font-size:var(--text-base); font-weight:700; color:var(--text); margin:0 0 var(--space-2); line-height:1.4;">
+								<h4 class="text-base font-bold text-primary mb-2 leading-snug">
 									{ o.Title.Get(i18n.Lang(lang)) }
 								</h4>
-								<p style="font-size:var(--text-xs); color:var(--text-secondary); margin:0 0 var(--space-4); line-height:1.6;">
+								<p class="text-xs text-secondary mb-4 leading-relaxed">
 									{ o.Description.Get(i18n.Lang(lang)) }
 								</p>
 							</div>
 
-							<div style="border-top:1px solid var(--border); padding-top:var(--space-3); margin-top:var(--space-2); display:flex; justify-content:space-between; align-items:center;">
-								<span style="font-size:var(--text-xs); color:var(--text-muted);">
+							<div class="border-t pt-3 mt-2 flex-between items-center">
+								<span class="text-xs text-muted">
 									ينتهي في: <strong class="tabular-nums text-primary">{ o.ExpiresAt.Format("2006-01-02") }</strong>
 								</span>
-								<a href={ templ.SafeURL(fmt.Sprintf("/offers/%d", o.ID)) } class="btn btn-primary btn-sm" style="font-weight:600; font-size:var(--text-xs); padding:0.35rem 0.85rem;">
+								<a href={ templ.SafeURL(fmt.Sprintf("/offers/%d", o.ID)) } class="btn btn-primary btn-sm font-semibold text-xs">
 									<span>تفاصيل العرض والطلب</span>
 								</a>
 							</div>
@@ -119,40 +119,40 @@ templ OfferDetail(lang, dir string, o *promo.Offer) {
 }
 
 templ OfferDetailContent(lang string, o *promo.Offer) {
-	<div style="max-width:680px; margin:0 auto;">
-		<div class="card" style="margin-bottom:0; background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-xl); padding:var(--space-6);">
-			<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:var(--space-4);">
-				<span class="badge badge-emerald fw-700">عرض معتمد ونشط</span>
-				<a href="/offers" style="font-size:var(--text-xs); color:var(--accent); text-decoration:none; font-weight:600;">← العودة لكافة العروض</a>
+	<div class="max-w-2xl mx-auto">
+		<div class="glass-panel p-6">
+			<div class="flex-between items-center mb-4">
+				<span class="badge badge-emerald font-bold">عرض معتمد ونشط</span>
+				<a href="/offers" class="text-xs text-brand text-decoration-none font-bold">← العودة لكافة العروض</a>
 			</div>
 
-			<h2 style="font-size:var(--text-2xl); font-weight:800; color:var(--text); margin:0 0 var(--space-3); line-height:1.3;">
+			<h2 class="text-2xl font-black text-primary mb-3 leading-tight">
 				{ o.Title.Get(i18n.Lang(lang)) }
 			</h2>
-			<p style="font-size:var(--text-sm); color:var(--text-secondary); line-height:1.7; margin-bottom:var(--space-5);">
+			<p class="text-sm text-secondary leading-relaxed mb-5">
 				{ o.Description.Get(i18n.Lang(lang)) }
 			</p>
 
-			<div style="display:grid; grid-template-columns:1fr 1fr; gap:var(--space-4); margin-bottom:var(--space-6);">
-				<div style="background:var(--surface-sunken); border:1px solid var(--border); border-radius:var(--radius-lg); padding:var(--space-4);">
-					<div style="font-size:var(--text-xs); color:var(--text-muted); margin-bottom:var(--space-1);">نسبة وقيمة الخصم</div>
-					<div style="font-size:var(--text-2xl); font-weight:800; color:var(--accent);" class="tabular-nums">
+			<div class="d-grid grid-cols-2 gap-4 mb-6">
+				<div class="bg-surface-sunken border rounded-lg p-4">
+					<div class="text-xs text-muted mb-1">نسبة وقيمة الخصم</div>
+					<div class="text-2xl font-black text-brand tabular-nums">
 						{ o.DiscountValue.String() }
 						if o.DiscountType == promo.DiscountPercentage {
 							{ "%" }
 						}
 					</div>
 				</div>
-				<div style="background:var(--surface-sunken); border:1px solid var(--border); border-radius:var(--radius-lg); padding:var(--space-4);">
-					<div style="font-size:var(--text-xs); color:var(--text-muted); margin-bottom:var(--space-1);">صلاحية العرض حتى</div>
-					<div style="font-size:var(--text-lg); font-weight:700; color:var(--text);" class="tabular-nums">
+				<div class="bg-surface-sunken border rounded-lg p-4">
+					<div class="text-xs text-muted mb-1">صلاحية العرض حتى</div>
+					<div class="text-lg font-bold text-primary tabular-nums">
 						{ o.ExpiresAt.Format("2006-01-02") }
 					</div>
 				</div>
 			</div>
 
-			<div style="display:flex; gap:var(--space-3);">
-				<a href="/catalog" class="btn btn-primary" style="flex:1; justify-content:center; font-weight:700; font-size:var(--text-sm); padding:0.65rem;">
+			<div class="d-flex gap-3">
+				<a href="/catalog" class="btn btn-primary flex-1 justify-center font-bold text-sm py-2">
 					@components.IconCart("icon-xs")
 					<span>تطبيق الخصم وبدء الطلب من الكتالوج</span>
 				</a>
