@@ -86,12 +86,12 @@ func OrganizationDocumentsContent(lang string, data *OrganizationDocumentsData) 
 			templ_7745c5c3_Var3 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"jobs-container\" style=\"max-width:1300px; margin:0 auto; padding-bottom:3.5rem; display:flex; flex-direction:column; gap:1.5rem;\"><!-- Header Banner --><div class=\"jobs-header\" style=\"margin-bottom:0; display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:1rem;\"><div><div style=\"display:flex; align-items:center; gap:0.75rem; margin-bottom:0.35rem;\"><div style=\"width:44px; height:44px; border-radius:var(--radius-xl); background:rgba(37, 99, 235, 0.1); color:var(--primary); display:flex; align-items:center; justify-content:center; font-size:1.4rem; border:1px solid rgba(37, 99, 235, 0.2);\">📑</div><div><h1 style=\"font-size:1.5rem; font-weight:900; color:var(--text); margin:0;\">المستندات والتراخيص الرسمية للمنشأة</h1><span style=\"font-size:0.775rem; color:var(--text-muted); font-weight:700;\">Legal Compliance & Official Licensing Records</span></div></div><p style=\"font-size:0.875rem; color:var(--text-secondary); margin:0; line-height:1.6; max-width:760px;\">إدارة وتوثيق التراخيص والسجلات القانونية لضمان مطابقة اشتراطات هيئة الدواء المصرية وبدء التداول والتعاملات الرسمية بأمان تام.</p></div><div style=\"display:flex; align-items:center; gap:0.6rem; flex-wrap:wrap;\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"page-container\"><!-- Header Banner --><div class=\"glass-panel p-6 mb-0\"><div class=\"flex-between items-center flex-wrap gap-4\"><div><div class=\"d-flex items-center gap-3 mb-1\"><div class=\"user-avatar-badge text-xl\">📑</div><div><h1 class=\"text-2xl font-black text-primary m-0\">المستندات والتراخيص الرسمية للمنشأة</h1><span class=\"text-xs text-muted font-bold\">Legal Compliance & Official Licensing Records</span></div></div><p class=\"text-sm text-secondary m-0 mt-2\">إدارة وتوثيق التراخيص والسجلات القانونية لضمان مطابقة اشتراطات هيئة الدواء المصرية وبدء التداول والتعاملات الرسمية بأمان تام.</p></div><div class=\"d-flex items-center gap-2 flex-wrap\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		if data != nil && data.VerifiedCount() > 0 && len(data.Missing) == 0 {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "<div class=\"badge badge-emerald\" style=\"padding:0.55rem 1rem; font-size:0.825rem; font-weight:800; gap:0.4rem;\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "<div class=\"badge badge-emerald text-xs font-bold gap-1 py-2 px-3\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -104,7 +104,7 @@ func OrganizationDocumentsContent(lang string, data *OrganizationDocumentsData) 
 				return templ_7745c5c3_Err
 			}
 		} else if data != nil && data.PendingCount() > 0 {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "<div class=\"badge badge-sky\" style=\"padding:0.55rem 1rem; font-size:0.825rem; font-weight:800; gap:0.4rem;\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "<div class=\"badge badge-sky text-xs font-bold gap-1 py-2 px-3\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -117,7 +117,7 @@ func OrganizationDocumentsContent(lang string, data *OrganizationDocumentsData) 
 				return templ_7745c5c3_Err
 			}
 		} else {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "<div class=\"badge badge-amber\" style=\"padding:0.55rem 1rem; font-size:0.825rem; font-weight:800; gap:0.4rem;\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "<div class=\"badge badge-amber text-xs font-bold gap-1 py-2 px-3\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -130,107 +130,107 @@ func OrganizationDocumentsContent(lang string, data *OrganizationDocumentsData) 
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "</div></div><!-- Executive Verification Strip (3-stat Grid) -->")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "</div></div></div><!-- Executive Verification Strip (3-stat Grid) -->")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		if data != nil {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "<div style=\"display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:1rem;\"><!-- Card 1: Completion Progress --><div class=\"card\" style=\"padding:1.25rem; background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-xl); display:flex; flex-direction:column; justify-content:space-between;\"><div><div style=\"display:flex; justify-content:space-between; align-items:center;\"><span style=\"font-size:0.825rem; font-weight:700; color:var(--text-secondary);\">نسبة اكتمال التوثيق</span> <span class=\"badge badge-sky text-xs fw-800 tabular-nums\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "<div class=\"dashboard-stat-grid cols-3 mb-0\"><!-- Card 1: Completion Progress --><div class=\"stat-card-3d d-flex flex-col justify-between\"><div><div class=\"flex-between items-center mb-1\"><span class=\"stat-card-label\">نسبة اكتمال التوثيق</span> <span class=\"badge badge-sky text-xs font-bold tabular-nums\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var4 string
 			templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d / %d", data.VerifiedCount(), data.TotalRequirementsCount()))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/organization_documents.templ`, Line: 70, Col: 142}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/organization_documents.templ`, Line: 72, Col: 145}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "</span></div><div class=\"tabular-nums\" style=\"font-size:2rem; font-weight:900; color:var(--primary); margin-top:0.35rem; line-height:1.2;\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "</span></div><div class=\"tabular-nums text-2xl font-black text-primary mt-1\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var5 string
 			templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d%%", data.CompletionPercentage()))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/organization_documents.templ`, Line: 73, Col: 57}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/organization_documents.templ`, Line: 75, Col: 57}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "</div><!-- Dynamic Progress Bar --><div style=\"width:100%; height:8px; background:var(--surface-sunken); border-radius:4px; margin-top:0.6rem; overflow:hidden; border:1px solid var(--border-subtle);\"><div style=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "</div><!-- Dynamic Progress Bar --><div class=\"progress-bar-container mt-2\"><div class=\"progress-bar-fill\" style=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var6 string
-			templ_7745c5c3_Var6, templ_7745c5c3_Err = templruntime.SanitizeStyleAttributeValues(fmt.Sprintf("height:100%%; width:%d%%; border-radius:4px; background:linear-gradient(90deg, var(--primary), #10b981); transition:width 0.4s ease;", data.CompletionPercentage()))
+			templ_7745c5c3_Var6, templ_7745c5c3_Err = templruntime.SanitizeStyleAttributeValues(fmt.Sprintf("width:%d%%;", data.CompletionPercentage()))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/organization_documents.templ`, Line: 77, Col: 196}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/organization_documents.templ`, Line: 79, Col: 101}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "\"></div></div></div><div style=\"font-size:0.775rem; color:var(--text-muted); margin-top:0.75rem; padding-top:0.5rem; border-top:1px solid var(--border);\"><span>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "\"></div></div></div><div class=\"text-xs text-muted mt-3 pt-2 border-t\"><span>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var7 string
 			templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d مستندات معتمدة ومطابقة", data.VerifiedCount()))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/organization_documents.templ`, Line: 81, Col: 96}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/organization_documents.templ`, Line: 83, Col: 96}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "</span></div></div><!-- Card 2: Legal Status --><div class=\"card\" style=\"padding:1.25rem; background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-xl); display:flex; flex-direction:column; justify-content:space-between;\"><div><span style=\"font-size:0.825rem; font-weight:700; color:var(--text-secondary);\">حالة الحساب والاعتماد</span><div style=\"margin-top:0.4rem; display:flex; align-items:center; gap:0.6rem;\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "</span></div></div><!-- Card 2: Legal Status --><div class=\"stat-card-3d d-flex flex-col justify-between\"><div><span class=\"stat-card-label\">حالة الحساب والاعتماد</span><div class=\"mt-2 d-flex items-center gap-2\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			if data.VerifiedCount() > 0 && len(data.Missing) == 0 {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "<span style=\"width:12px; height:12px; border-radius:50%; background:var(--emerald); display:inline-block; box-shadow:0 0 0 3px rgba(16,185,129,0.2);\"></span> <strong style=\"font-size:1.1rem; font-weight:900; color:var(--text);\">منشأة موثقة ومطابقة</strong>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "<span class=\"status-dot success\"></span> <strong class=\"text-base font-black text-primary\">منشأة موثقة ومطابقة</strong>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			} else if data.PendingCount() > 0 {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "<span style=\"width:12px; height:12px; border-radius:50%; background:var(--sky); display:inline-block; box-shadow:0 0 0 3px rgba(2,132,199,0.2);\"></span> <strong style=\"font-size:1.1rem; font-weight:900; color:var(--text);\">قيد التدقيق الإداري</strong>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "<span class=\"status-dot\"></span> <strong class=\"text-base font-black text-primary\">قيد التدقيق الإداري</strong>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			} else {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "<span style=\"width:12px; height:12px; border-radius:50%; background:var(--amber); display:inline-block; box-shadow:0 0 0 3px rgba(245,158,11,0.2);\"></span> <strong style=\"font-size:1.1rem; font-weight:900; color:var(--text);\">بانتظار استكمال المستندات</strong>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "<span class=\"status-dot warning\"></span> <strong class=\"text-base font-black text-primary\">بانتظار استكمال المستندات</strong>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "</div></div><div style=\"font-size:0.775rem; color:var(--text-muted); margin-top:0.75rem; padding-top:0.5rem; border-top:1px solid var(--border);\"><span>تتم مراجعة كافة المستندات الرسمية المرفوعة خلال 24 ساعة</span></div></div><!-- Card 3: Official Requests Status --><div class=\"card\" style=\"padding:1.25rem; background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-xl); display:flex; flex-direction:column; justify-content:space-between;\"><div><span style=\"font-size:0.825rem; font-weight:700; color:var(--text-secondary);\">طلبات الإدارة والمهل</span><div class=\"tabular-nums\" style=\"font-size:2rem; font-weight:900; color:var(--text); margin-top:0.35rem; line-height:1.2;\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "</div></div><div class=\"text-xs text-muted mt-3 pt-2 border-t\"><span>تتم مراجعة كافة المستندات المرفوعة خلال 24 ساعة</span></div></div><!-- Card 3: Official Requests Status --><div class=\"stat-card-3d d-flex flex-col justify-between\"><div><span class=\"stat-card-label\">طلبات الإدارة والمهل</span><div class=\"tabular-nums text-2xl font-black text-primary mt-1\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var8 string
 			templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", len(data.ActiveDocRequests())))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/organization_documents.templ`, Line: 112, Col: 57}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/organization_documents.templ`, Line: 114, Col: 57}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var8))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, " <span style=\"font-size:0.85rem; font-weight:700; color:var(--text-muted);\">طلبات معلقة</span></div></div><div style=\"font-size:0.775rem; color:var(--text-muted); margin-top:0.75rem; padding-top:0.5rem; border-top:1px solid var(--border);\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, " <span class=\"text-xs font-bold text-muted\">طلبات معلقة</span></div></div><div class=\"text-xs text-muted mt-3 pt-2 border-t\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			if len(data.ActiveDocRequests()) > 0 {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "<span class=\"text-amber fw-800\">⚠️ يوجد مستندات مطلوبة من إدارة المنصة</span>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "<span class=\"text-warning font-bold\">⚠️ يوجد مستندات مطلوبة من إدارة المنصة</span>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			} else {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, "<span class=\"text-emerald fw-800\">✓ لا توجد طلبات مستندات معلقة حالياً</span>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, "<span class=\"text-success font-bold\">✓ لا توجد طلبات مستندات معلقة حالياً</span>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -245,7 +245,7 @@ func OrganizationDocumentsContent(lang string, data *OrganizationDocumentsData) 
 			return templ_7745c5c3_Err
 		}
 		if data != nil && len(data.Missing) > 0 {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, "<div class=\"card\" style=\"margin:0; padding:1rem 1.25rem; background:rgba(239, 68, 68, 0.06); border:1px solid rgba(239, 68, 68, 0.25); border-radius:var(--radius-xl); display:flex; align-items:center; gap:0.85rem;\"><div style=\"color:var(--rose); flex-shrink:0; font-size:1.4rem;\">⚠️</div><div style=\"font-size:0.85rem; color:var(--rose-dark, #991b1b); line-height:1.5;\"><strong>تنبيه توثيق الحساب:</strong> يتطلب تفعيل الحساب وإتمام المعاملات اعتماد ")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, "<div class=\"alert alert-warning mb-0 p-4 d-flex items-center gap-3\"><span class=\"text-2xl\">⚠️</span><div class=\"text-xs text-warning leading-relaxed font-bold\"><strong>تنبيه توثيق الحساب:</strong> يتطلب تفعيل الحساب وإتمام المعاملات اعتماد ")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -268,7 +268,7 @@ func OrganizationDocumentsContent(lang string, data *OrganizationDocumentsData) 
 			return templ_7745c5c3_Err
 		}
 		if data != nil && data.Error != "" {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 26, "<div class=\"card\" style=\"margin:0; padding:1rem 1.25rem; background:rgba(239, 68, 68, 0.06); border:1px solid rgba(239, 68, 68, 0.25); border-radius:var(--radius-xl); color:var(--rose); font-size:0.875rem;\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 26, "<div class=\"alert alert-danger mb-0 p-4 text-xs\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -291,20 +291,20 @@ func OrganizationDocumentsContent(lang string, data *OrganizationDocumentsData) 
 			return templ_7745c5c3_Err
 		}
 		if data != nil && len(data.Requests) > 0 {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 29, "<div class=\"card\" style=\"margin:0; padding:1.35rem; border:1px solid rgba(245, 158, 11, 0.35); background:rgba(245, 158, 11, 0.04); border-radius:var(--radius-xl);\"><div style=\"display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem; flex-wrap:wrap; gap:0.5rem;\"><div style=\"display:flex; align-items:center; gap:0.6rem;\"><div style=\"color:#d97706; font-size:1.3rem;\">⏳</div><div><h3 style=\"font-size:1.05rem; font-weight:800; color:#b45309; margin:0;\">مستندات وتراخيص مطلوبة من إدارة المنصة</h3><p style=\"font-size:0.775rem; color:var(--text-secondary); margin:0.15rem 0 0 0;\">يرجى رفع المستندات المحددة أدناه خلال المهلة الزمنية المقررة لضمان استمرار تفعيل حساب المنشأة.</p></div></div></div><div style=\"display:flex; flex-direction:column; gap:0.75rem;\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 29, "<div class=\"glass-panel p-6 mb-0 border-warning\"><div class=\"flex-between items-center mb-4 pb-3 border-b flex-wrap gap-2\"><div class=\"d-flex items-center gap-2\"><span class=\"text-xl\">⏳</span><div><h2 class=\"text-base font-extrabold text-warning m-0\">مستندات وتراخيص مطلوبة من إدارة المنصة</h2><p class=\"text-xs text-secondary m-0 mt-1\">يرجى رفع المستندات المحددة أدناه خلال المهلة الزمنية المقررة لضمان استمرار تفعيل حساب المنشأة.</p></div></div></div><div class=\"d-flex flex-col gap-3\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			for _, req := range data.Requests {
 				if req != nil {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 30, "<div style=\"background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-lg); padding:1.1rem 1.25rem; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem; box-shadow:var(--shadow-xs);\"><div style=\"max-width:600px;\"><div style=\"display:flex; align-items:center; gap:0.5rem; flex-wrap:wrap;\"><strong style=\"font-size:0.95rem; color:var(--text);\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 30, "<div class=\"p-4 rounded-xl bg-surface-sunken border flex-between items-center flex-wrap gap-4\"><div style=\"max-width:600px;\"><div class=\"d-flex items-center gap-2 flex-wrap mb-1\"><strong class=\"text-sm font-extrabold text-primary\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var11 string
 					templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.JoinStringErrs(req.Title)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/organization_documents.templ`, Line: 171, Col: 75}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/organization_documents.templ`, Line: 169, Col: 73}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var11))
 					if templ_7745c5c3_Err != nil {
@@ -315,29 +315,29 @@ func OrganizationDocumentsContent(lang string, data *OrganizationDocumentsData) 
 						return templ_7745c5c3_Err
 					}
 					if req.Status == attachments.DocReqFulfilled {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 32, "<span class=\"badge badge-emerald text-xs fw-800\">معتمد ومطابق ✓</span>")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 32, "<span class=\"badge badge-emerald text-xs font-bold\">معتمد ومطابق ✓</span>")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
 					} else if req.Status == attachments.DocReqSubmitted {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 33, "<span class=\"badge badge-sky text-xs fw-800\">تم الرفع (قيد المراجعة)</span>")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 33, "<span class=\"badge badge-sky text-xs font-bold\">تم الرفع (قيد المراجعة)</span>")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
 					} else if req.IsOverdue() {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 34, "<span class=\"badge badge-rose text-xs fw-800\">انتهت المهلة ⚠️</span>")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 34, "<span class=\"badge badge-rose text-xs font-bold\">انتهت المهلة ⚠️</span>")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
 					} else {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 35, "<span class=\"badge badge-amber text-xs fw-800\">متبقي ")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 35, "<span class=\"badge badge-amber text-xs font-bold\">متبقي ")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
 						var templ_7745c5c3_Var12 string
 						templ_7745c5c3_Var12, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", req.DaysRemaining()))
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/organization_documents.templ`, Line: 179, Col: 109}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/organization_documents.templ`, Line: 177, Col: 112}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var12))
 						if templ_7745c5c3_Err != nil {
@@ -353,14 +353,14 @@ func OrganizationDocumentsContent(lang string, data *OrganizationDocumentsData) 
 						return templ_7745c5c3_Err
 					}
 					if req.Description != "" {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 38, "<div style=\"font-size:0.825rem; color:var(--text-secondary); margin-top:0.35rem; line-height:1.4;\">")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 38, "<div class=\"text-xs text-secondary leading-relaxed\">")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
 						var templ_7745c5c3_Var13 string
 						templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.JoinStringErrs(req.Description)
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/organization_documents.templ`, Line: 184, Col: 28}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/organization_documents.templ`, Line: 182, Col: 28}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var13))
 						if templ_7745c5c3_Err != nil {
@@ -371,14 +371,14 @@ func OrganizationDocumentsContent(lang string, data *OrganizationDocumentsData) 
 							return templ_7745c5c3_Err
 						}
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 40, "<div style=\"font-size:0.75rem; color:var(--text-muted); margin-top:0.4rem;\">الموعد النهائي: <strong class=\"tabular-nums text-primary\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 40, "<div class=\"text-xs text-muted mt-2 tabular-nums\">الموعد النهائي: <strong class=\"text-primary font-bold\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var14 string
 					templ_7745c5c3_Var14, templ_7745c5c3_Err = templ.JoinStringErrs(format.Date(req.DeadlineAt, "ar"))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/organization_documents.templ`, Line: 188, Col: 116}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/organization_documents.templ`, Line: 186, Col: 113}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var14))
 					if templ_7745c5c3_Err != nil {
@@ -389,14 +389,14 @@ func OrganizationDocumentsContent(lang string, data *OrganizationDocumentsData) 
 						return templ_7745c5c3_Err
 					}
 					if req.Status == attachments.DocReqPending {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 42, "<form action=\"/documents/upload\" method=\"POST\" enctype=\"multipart/form-data\" style=\"margin:0; display:flex; gap:0.5rem; align-items:center; flex-wrap:wrap;\"><input type=\"hidden\" name=\"request_id\" value=\"")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 42, "<form action=\"/documents/upload\" method=\"POST\" enctype=\"multipart/form-data\" class=\"d-flex gap-2 items-center flex-wrap m-0\"><input type=\"hidden\" name=\"request_id\" value=\"")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
 						var templ_7745c5c3_Var15 string
 						templ_7745c5c3_Var15, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", req.ID))
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/organization_documents.templ`, Line: 195, Col: 83}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/organization_documents.templ`, Line: 193, Col: 83}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var15))
 						if templ_7745c5c3_Err != nil {
@@ -409,13 +409,13 @@ func OrganizationDocumentsContent(lang string, data *OrganizationDocumentsData) 
 						var templ_7745c5c3_Var16 string
 						templ_7745c5c3_Var16, templ_7745c5c3_Err = templ.JoinStringErrs(string(req.DocumentType))
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/organization_documents.templ`, Line: 196, Col: 85}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/organization_documents.templ`, Line: 194, Col: 85}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var16))
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 44, "\"> <input type=\"file\" name=\"file\" accept=\".pdf,.png,.jpg,.jpeg,.webp\" required class=\"form-control\" style=\"max-width:220px; font-size:0.8rem; height:36px;\"> <button type=\"submit\" class=\"btn btn-primary btn-sm fw-800\" style=\"height:36px; padding:0 1rem;\">")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 44, "\"> <input type=\"file\" name=\"file\" accept=\".pdf,.png,.jpg,.jpeg,.webp\" required class=\"form-input text-xs\" style=\"max-width:220px;\"> <button type=\"submit\" class=\"btn btn-primary btn-sm font-bold text-xs gap-1\">")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
@@ -428,7 +428,7 @@ func OrganizationDocumentsContent(lang string, data *OrganizationDocumentsData) 
 							return templ_7745c5c3_Err
 						}
 					} else if req.Status == attachments.DocReqSubmitted {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 46, "<div style=\"display:flex; align-items:center; gap:0.4rem; font-size:0.825rem; font-weight:800; color:var(--primary);\">")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 46, "<div class=\"d-flex items-center gap-2 text-xs font-bold text-primary\">")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
@@ -452,7 +452,7 @@ func OrganizationDocumentsContent(lang string, data *OrganizationDocumentsData) 
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 50, "<!-- SECTION 2: Official Organization Documents Grid --><div class=\"card\" style=\"margin:0; padding:1.5rem; border-radius:var(--radius-xl); border:1px solid var(--border); background:var(--surface-raised); box-shadow:var(--shadow-xs);\"><div style=\"display:flex; justify-content:space-between; align-items:center; margin-bottom:1.25rem; flex-wrap:wrap; gap:0.75rem;\"><div><h3 style=\"font-size:1.15rem; font-weight:900; color:var(--text); margin:0 0 0.2rem 0;\">قائمة التراخيص والمستندات القانونية</h3><p style=\"font-size:0.8rem; color:var(--text-secondary); margin:0;\">يمكنك رفع المستندات بصيغة (PDF، PNG، JPG، WebP) بحد أقصى 20 ميجابايت للملف.</p></div></div>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 50, "<!-- SECTION 2: Official Organization Documents Grid --><div class=\"glass-panel p-6 mb-0\"><div class=\"flex-between items-center mb-6 pb-3 border-b flex-wrap gap-2\"><div><h2 class=\"text-base font-extrabold text-primary m-0\">قائمة التراخيص والمستندات القانونية</h2><p class=\"text-xs text-secondary m-0 mt-1\">يمكنك رفع المستندات بصيغة (PDF، PNG، JPG، WebP) بحد أقصى 20 ميجابايت للملف.</p></div></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -465,18 +465,18 @@ func OrganizationDocumentsContent(lang string, data *OrganizationDocumentsData) 
 				return templ_7745c5c3_Err
 			}
 		} else {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 51, "<div style=\"display:flex; flex-direction:column; gap:1rem;\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 51, "<div class=\"d-flex flex-col gap-4\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			for _, req := range data.Requirements {
 				doc := data.LatestFor(req.DocType)
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 52, "<div class=\"doc-requirement-card\" style=\"border:1px solid var(--border); border-radius:var(--radius-xl); padding:1.25rem 1.35rem; background:var(--surface); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1.25rem; transition:box-shadow 0.2s ease, border-color 0.2s ease;\"><!-- Document Info --><div style=\"display:flex; align-items:flex-start; gap:1rem; max-width:640px;\"><div style=\"width:44px; height:44px; border-radius:var(--radius-lg); background:var(--surface-sunken); border:1px solid var(--border); color:var(--primary); display:flex; align-items:center; justify-content:center; flex-shrink:0; font-size:1.3rem; margin-top:2px;\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 52, "<div class=\"p-4 rounded-xl bg-surface-sunken border flex-between items-center flex-wrap gap-4\"><!-- Document Info --><div class=\"d-flex items-start gap-3\" style=\"max-width:640px;\"><div class=\"user-avatar-badge text-lg mt-1\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				if doc != nil && doc.Status == attachments.StatusVerified {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 53, "<span style=\"color:var(--emerald);\">✓</span>")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 53, "<span class=\"text-success\">✓</span>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -486,30 +486,30 @@ func OrganizationDocumentsContent(lang string, data *OrganizationDocumentsData) 
 						return templ_7745c5c3_Err
 					}
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 55, "</div><div><div style=\"display:flex; align-items:center; gap:0.5rem; flex-wrap:wrap;\"><h4 style=\"font-size:0.975rem; font-weight:800; color:var(--text); margin:0;\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 55, "</div><div><div class=\"d-flex items-center gap-2 flex-wrap mb-1\"><h3 class=\"text-sm font-extrabold text-primary m-0\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var17 string
 				templ_7745c5c3_Var17, templ_7745c5c3_Err = templ.JoinStringErrs(req.TitleAr)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/organization_documents.templ`, Line: 255, Col: 24}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/organization_documents.templ`, Line: 250, Col: 24}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var17))
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 56, "</h4>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 56, "</h3>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				if req.Required {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 57, "<span class=\"badge badge-rose text-xs fw-800\">إلزامي</span>")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 57, "<span class=\"badge badge-rose text-xs font-bold\">إلزامي</span>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 				} else {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 58, "<span class=\"badge badge-slate text-xs fw-700\">اختياري</span>")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 58, "<span class=\"badge badge-slate text-xs font-bold\">اختياري</span>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -521,17 +521,17 @@ func OrganizationDocumentsContent(lang string, data *OrganizationDocumentsData) 
 				if doc != nil {
 					switch doc.Status {
 					case attachments.StatusVerified:
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 60, "<span class=\"badge badge-emerald text-xs fw-800\">معتمد ومطابق ✓</span>")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 60, "<span class=\"badge badge-emerald text-xs font-bold\">معتمد ومطابق ✓</span>")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
 					case attachments.StatusRejected:
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 61, "<span class=\"badge badge-rose text-xs fw-800\">مرفوض ✗</span>")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 61, "<span class=\"badge badge-rose text-xs font-bold\">مرفوض ✗</span>")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
 					default:
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 62, "<span class=\"badge badge-sky text-xs fw-800\">قيد التدقيق والمراجعة</span>")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 62, "<span class=\"badge badge-sky text-xs font-bold\">قيد التدقيق والمراجعة</span>")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
@@ -547,14 +547,14 @@ func OrganizationDocumentsContent(lang string, data *OrganizationDocumentsData) 
 					return templ_7745c5c3_Err
 				}
 				if req.Description != "" {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 65, "<p style=\"font-size:0.8rem; color:var(--text-secondary); margin:0.25rem 0 0 0; line-height:1.4;\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 65, "<p class=\"text-xs text-secondary leading-relaxed m-0 mt-1\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var18 string
 					templ_7745c5c3_Var18, templ_7745c5c3_Err = templ.JoinStringErrs(req.Description)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/organization_documents.templ`, Line: 280, Col: 28}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/organization_documents.templ`, Line: 275, Col: 28}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var18))
 					if templ_7745c5c3_Err != nil {
@@ -570,20 +570,20 @@ func OrganizationDocumentsContent(lang string, data *OrganizationDocumentsData) 
 					return templ_7745c5c3_Err
 				}
 				if doc != nil {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 68, "<div style=\"display:flex; align-items:center; gap:0.6rem; font-size:0.75rem; color:var(--text-muted); margin-top:0.4rem; flex-wrap:wrap;\"><span style=\"font-weight:700; color:var(--text);\" dir=\"ltr\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 68, "<div class=\"d-flex items-center gap-2 text-xs text-muted mt-2 flex-wrap\"><span class=\"font-bold text-primary font-mono\" dir=\"ltr\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var19 string
 					templ_7745c5c3_Var19, templ_7745c5c3_Err = templ.JoinStringErrs(doc.OriginalName)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/organization_documents.templ`, Line: 287, Col: 89}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/organization_documents.templ`, Line: 282, Col: 86}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var19))
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 69, "</span> <span style=\"color:var(--border-strong);\">•</span> ")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 69, "</span> <span>•</span> ")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -595,13 +595,13 @@ func OrganizationDocumentsContent(lang string, data *OrganizationDocumentsData) 
 						var templ_7745c5c3_Var20 string
 						templ_7745c5c3_Var20, templ_7745c5c3_Err = templ.JoinStringErrs(format.Bytes(doc.SizeBytes))
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/organization_documents.templ`, Line: 290, Col: 68}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/organization_documents.templ`, Line: 285, Col: 68}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var20))
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 71, "</span> <span style=\"color:var(--border-strong);\">•</span> ")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 71, "</span> <span>•</span> ")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
@@ -613,7 +613,7 @@ func OrganizationDocumentsContent(lang string, data *OrganizationDocumentsData) 
 					var templ_7745c5c3_Var21 string
 					templ_7745c5c3_Var21, templ_7745c5c3_Err = templ.JoinStringErrs(format.Date(doc.CreatedAt, "ar"))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/organization_documents.templ`, Line: 293, Col: 95}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/organization_documents.templ`, Line: 288, Col: 95}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var21))
 					if templ_7745c5c3_Err != nil {
@@ -624,14 +624,14 @@ func OrganizationDocumentsContent(lang string, data *OrganizationDocumentsData) 
 						return templ_7745c5c3_Err
 					}
 					if doc.Status == attachments.StatusRejected && doc.ReviewNotes != "" {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 74, "<div style=\"margin-top:0.4rem; padding:0.35rem 0.65rem; background:rgba(239, 68, 68, 0.08); border-radius:var(--radius-sm); border:1px solid rgba(239, 68, 68, 0.2); font-size:0.775rem; color:var(--rose);\"><strong>سبب الرفض:</strong> ")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 74, "<div class=\"mt-2 p-2 px-3 rounded bg-danger-subtle border text-xs text-danger\"><strong>سبب الرفض:</strong> ")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
 						var templ_7745c5c3_Var22 string
 						templ_7745c5c3_Var22, templ_7745c5c3_Err = templ.JoinStringErrs(doc.ReviewNotes)
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/organization_documents.templ`, Line: 298, Col: 65}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/organization_documents.templ`, Line: 293, Col: 65}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var22))
 						if templ_7745c5c3_Err != nil {
@@ -643,19 +643,19 @@ func OrganizationDocumentsContent(lang string, data *OrganizationDocumentsData) 
 						}
 					}
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 76, "</div></div><!-- Actions & Upload / Replace Buttons --><div style=\"display:flex; align-items:center; gap:0.6rem; flex-wrap:wrap;\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 76, "</div></div><!-- Actions & Upload / Replace Buttons --><div class=\"d-flex items-center gap-2 flex-wrap\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				if doc != nil {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 77, "<!-- View Button: Triggers Dynamic In-App Viewer Modal --> <button type=\"button\" class=\"btn btn-secondary btn-sm fw-700\" style=\"gap:0.35rem; height:34px;\" data-doc-id=\"")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 77, "<!-- View Button: Triggers Dynamic In-App Viewer Modal --> <button type=\"button\" class=\"btn btn-secondary btn-sm font-bold text-xs gap-1\" data-doc-id=\"")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var23 string
 					templ_7745c5c3_Var23, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", doc.ID))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/organization_documents.templ`, Line: 313, Col: 49}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/organization_documents.templ`, Line: 307, Col: 49}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var23))
 					if templ_7745c5c3_Err != nil {
@@ -668,7 +668,7 @@ func OrganizationDocumentsContent(lang string, data *OrganizationDocumentsData) 
 					var templ_7745c5c3_Var24 string
 					templ_7745c5c3_Var24, templ_7745c5c3_Err = templ.JoinStringErrs(req.TitleAr)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/organization_documents.templ`, Line: 314, Col: 34}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/organization_documents.templ`, Line: 308, Col: 34}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var24))
 					if templ_7745c5c3_Err != nil {
@@ -681,7 +681,7 @@ func OrganizationDocumentsContent(lang string, data *OrganizationDocumentsData) 
 					var templ_7745c5c3_Var25 string
 					templ_7745c5c3_Var25, templ_7745c5c3_Err = templ.JoinStringErrs(string(doc.DocumentType))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/organization_documents.templ`, Line: 315, Col: 49}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/organization_documents.templ`, Line: 309, Col: 49}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var25))
 					if templ_7745c5c3_Err != nil {
@@ -694,7 +694,7 @@ func OrganizationDocumentsContent(lang string, data *OrganizationDocumentsData) 
 					var templ_7745c5c3_Var26 string
 					templ_7745c5c3_Var26, templ_7745c5c3_Err = templ.JoinStringErrs(doc.OriginalName)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/organization_documents.templ`, Line: 316, Col: 38}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/organization_documents.templ`, Line: 310, Col: 38}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var26))
 					if templ_7745c5c3_Err != nil {
@@ -707,7 +707,7 @@ func OrganizationDocumentsContent(lang string, data *OrganizationDocumentsData) 
 					var templ_7745c5c3_Var27 string
 					templ_7745c5c3_Var27, templ_7745c5c3_Err = templ.JoinStringErrs(string(doc.Status))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/organization_documents.templ`, Line: 317, Col: 42}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/organization_documents.templ`, Line: 311, Col: 42}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var27))
 					if templ_7745c5c3_Err != nil {
@@ -720,7 +720,7 @@ func OrganizationDocumentsContent(lang string, data *OrganizationDocumentsData) 
 					var templ_7745c5c3_Var28 string
 					templ_7745c5c3_Var28, templ_7745c5c3_Err = templ.JoinStringErrs(doc.FileURL)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/organization_documents.templ`, Line: 318, Col: 32}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/organization_documents.templ`, Line: 312, Col: 32}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var28))
 					if templ_7745c5c3_Err != nil {
@@ -743,7 +743,7 @@ func OrganizationDocumentsContent(lang string, data *OrganizationDocumentsData) 
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 85, "\" class=\"btn btn-secondary btn-sm\" style=\"height:34px; display:inline-flex; align-items:center; justify-content:center;\" title=\"تحميل الملف إلى جهازك\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 85, "\" class=\"btn btn-secondary btn-icon btn-sm\" title=\"تحميل الملف إلى جهازك\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -751,14 +751,14 @@ func OrganizationDocumentsContent(lang string, data *OrganizationDocumentsData) 
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 86, "</a><!-- Replace Document Button (Opens Replacement Reason Modal) --> <button type=\"button\" class=\"btn btn-secondary btn-sm fw-700\" style=\"gap:0.35rem; height:34px;\" data-doc-id=\"")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 86, "</a><!-- Replace Document Button (Opens Replacement Reason Modal) --> <button type=\"button\" class=\"btn btn-secondary btn-sm font-bold text-xs gap-1\" data-doc-id=\"")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var30 string
 					templ_7745c5c3_Var30, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", doc.ID))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/organization_documents.templ`, Line: 340, Col: 49}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/organization_documents.templ`, Line: 332, Col: 49}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var30))
 					if templ_7745c5c3_Err != nil {
@@ -771,7 +771,7 @@ func OrganizationDocumentsContent(lang string, data *OrganizationDocumentsData) 
 					var templ_7745c5c3_Var31 string
 					templ_7745c5c3_Var31, templ_7745c5c3_Err = templ.JoinStringErrs(string(req.DocType))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/organization_documents.templ`, Line: 341, Col: 44}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/organization_documents.templ`, Line: 333, Col: 44}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var31))
 					if templ_7745c5c3_Err != nil {
@@ -784,7 +784,7 @@ func OrganizationDocumentsContent(lang string, data *OrganizationDocumentsData) 
 					var templ_7745c5c3_Var32 string
 					templ_7745c5c3_Var32, templ_7745c5c3_Err = templ.JoinStringErrs(req.TitleAr)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/organization_documents.templ`, Line: 342, Col: 34}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/organization_documents.templ`, Line: 334, Col: 34}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var32))
 					if templ_7745c5c3_Err != nil {
@@ -797,25 +797,25 @@ func OrganizationDocumentsContent(lang string, data *OrganizationDocumentsData) 
 					var templ_7745c5c3_Var33 string
 					templ_7745c5c3_Var33, templ_7745c5c3_Err = templ.JoinStringErrs(doc.OriginalName)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/organization_documents.templ`, Line: 343, Col: 38}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/organization_documents.templ`, Line: 335, Col: 38}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var33))
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 90, "\" onclick=\"openReplaceDocModalFromBtn(this)\" title=\"استبدال وتحديث هذا المستند\"><span>🔄 استبدال المستند</span></button>")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 90, "\" onclick=\"openReplaceDocModalFromBtn(this)\" title=\"استبدال وتحديث هذا المستند\"><span>🔄 استبدال</span></button>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 				} else {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 91, "<!-- Initial Upload Form (When doc is not uploaded yet) --> <form action=\"/documents/upload\" method=\"POST\" enctype=\"multipart/form-data\" style=\"margin:0; display:inline-flex; gap:0.4rem; align-items:center;\"><input type=\"hidden\" name=\"document_type\" value=\"")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 91, "<!-- Initial Upload Form (When doc is not uploaded yet) --> <form action=\"/documents/upload\" method=\"POST\" enctype=\"multipart/form-data\" class=\"d-flex gap-2 items-center m-0\"><input type=\"hidden\" name=\"document_type\" value=\"")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var34 string
 					templ_7745c5c3_Var34, templ_7745c5c3_Err = templ.JoinStringErrs(string(req.DocType))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/organization_documents.templ`, Line: 352, Col: 79}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/organization_documents.templ`, Line: 344, Col: 79}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var34))
 					if templ_7745c5c3_Err != nil {
@@ -828,13 +828,13 @@ func OrganizationDocumentsContent(lang string, data *OrganizationDocumentsData) 
 					var templ_7745c5c3_Var35 string
 					templ_7745c5c3_Var35, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("file-input-%s", req.DocType))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/organization_documents.templ`, Line: 356, Col: 57}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/organization_documents.templ`, Line: 348, Col: 57}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var35))
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 93, "\" accept=\".pdf,.png,.jpg,.jpeg,.webp\" required class=\"form-control\" style=\"padding:0.25rem 0.5rem; font-size:0.775rem; max-width:180px; height:34px;\"> <button type=\"submit\" class=\"btn btn-primary btn-sm fw-700\" style=\"height:34px;\"><span>رفع المستند</span></button></form>")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 93, "\" accept=\".pdf,.png,.jpg,.jpeg,.webp\" required class=\"form-input text-xs\" style=\"max-width:180px;\"> <button type=\"submit\" class=\"btn btn-primary btn-sm font-bold text-xs\"><span>رفع المستند</span></button></form>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
