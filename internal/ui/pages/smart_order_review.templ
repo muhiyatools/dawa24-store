@@ -120,11 +120,11 @@ templ SmartOrderReviewPage(lang, dir string, data SmartOrderReviewData) {
 
 			<!-- Summary Metrics Grid -->
 			<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(180px, 1fr)); gap:0.85rem;">
-				@statCard("إجمالي قيمة الطلب", data.Run.EstimatedTotal.String() + " ج.م", "var(--accent)")
-				@statCard("عدد الموردين", fmt.Sprintf("%d موردين", len(data.Groups)), "var(--text-secondary)")
-				@statCard("الأصناف الجاهزة للتوريد", fmt.Sprintf("%d صنف", totalOrderableItems(data.Groups)), "var(--emerald)")
-				@statCard("أصناف مستبعدة", fmt.Sprintf("%d صنف", len(data.Excluded)), "var(--rose)")
-				@statCard("فرع التسليم", data.BranchName, "var(--primary-700)")
+				@statCard("إجمالي قيمة الطلب", data.Run.EstimatedTotal.String() + " ج.م")
+				@statCard("عدد الموردين", fmt.Sprintf("%d موردين", len(data.Groups)))
+				@statCard("الأصناف الجاهزة للتوريد", fmt.Sprintf("%d صنف", totalOrderableItems(data.Groups)))
+				@statCard("أصناف مستبعدة", fmt.Sprintf("%d صنف", len(data.Excluded)))
+				@statCard("فرع التسليم", data.BranchName)
 			</div>
 
 			if data.Run.BudgetExceeded != nil && *data.Run.BudgetExceeded {

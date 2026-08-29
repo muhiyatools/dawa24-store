@@ -39,9 +39,9 @@ func (r *Repository) GetUserOrganizationByID(ctx context.Context, id int64) (*or
 	var status string
 	err := r.db.InReadTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
 		query := `
-			SELECT uo.id, uo.user_id, COALESCE(u.name, ''), COALESCE(u.email, ''),
-			       uo.customer_org_id, COALESCE(co.legal_name, ''),
-			       uo.vendor_org_id, COALESCE(vo.legal_name, ''), COALESCE(vo.type, 'vendor'),
+			SELECT uo.id, uo.user_id, COALESCE(u.name->>'ar', u.name->>'en', u.name::text, ''), COALESCE(u.email::text, ''),
+			       uo.customer_org_id, COALESCE(NULLIF(co.legal_name, ''), co.name->>'ar', co.name->>'en', ''),
+			       uo.vendor_org_id, COALESCE(NULLIF(vo.legal_name, ''), vo.name->>'ar', vo.name->>'en', ''), COALESCE(vo.type, 'vendor'),
 			       uo.organization_number, uo.status, uo.notes, uo.created_at, uo.updated_at
 			FROM org.user_organizations uo
 			LEFT JOIN identity.users u ON u.id = uo.user_id
@@ -112,9 +112,9 @@ func (r *Repository) ListUserOrganizationsByUser(ctx context.Context, userID int
 	var list []*org.UserOrganization
 	err := r.db.InReadTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
 		query := `
-			SELECT uo.id, uo.user_id, COALESCE(u.name, ''), COALESCE(u.email, ''),
-			       uo.customer_org_id, COALESCE(co.legal_name, ''),
-			       uo.vendor_org_id, COALESCE(vo.legal_name, ''), COALESCE(vo.type, 'vendor'),
+			SELECT uo.id, uo.user_id, COALESCE(u.name->>'ar', u.name->>'en', u.name::text, ''), COALESCE(u.email::text, ''),
+			       uo.customer_org_id, COALESCE(NULLIF(co.legal_name, ''), co.name->>'ar', co.name->>'en', ''),
+			       uo.vendor_org_id, COALESCE(NULLIF(vo.legal_name, ''), vo.name->>'ar', vo.name->>'en', ''), COALESCE(vo.type, 'vendor'),
 			       uo.organization_number, uo.status, uo.notes, uo.created_at, uo.updated_at
 			FROM org.user_organizations uo
 			LEFT JOIN identity.users u ON u.id = uo.user_id
@@ -153,9 +153,9 @@ func (r *Repository) ListUserOrganizationsByVendor(ctx context.Context, vendorOr
 	var list []*org.UserOrganization
 	err := r.db.InReadTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
 		baseQuery := `
-			SELECT uo.id, uo.user_id, COALESCE(u.name, ''), COALESCE(u.email, ''),
-			       uo.customer_org_id, COALESCE(co.legal_name, ''),
-			       uo.vendor_org_id, COALESCE(vo.legal_name, ''), COALESCE(vo.type, 'vendor'),
+			SELECT uo.id, uo.user_id, COALESCE(u.name->>'ar', u.name->>'en', u.name::text, ''), COALESCE(u.email::text, ''),
+			       uo.customer_org_id, COALESCE(NULLIF(co.legal_name, ''), co.name->>'ar', co.name->>'en', ''),
+			       uo.vendor_org_id, COALESCE(NULLIF(vo.legal_name, ''), vo.name->>'ar', vo.name->>'en', ''), COALESCE(vo.type, 'vendor'),
 			       uo.organization_number, uo.status, uo.notes, uo.created_at, uo.updated_at
 			FROM org.user_organizations uo
 			LEFT JOIN identity.users u ON u.id = uo.user_id
@@ -200,9 +200,9 @@ func (r *Repository) ListAllUserOrganizations(ctx context.Context, statusFilter 
 	var list []*org.UserOrganization
 	err := r.db.InReadTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
 		baseQuery := `
-			SELECT uo.id, uo.user_id, COALESCE(u.name, ''), COALESCE(u.email, ''),
-			       uo.customer_org_id, COALESCE(co.legal_name, ''),
-			       uo.vendor_org_id, COALESCE(vo.legal_name, ''), COALESCE(vo.type, 'vendor'),
+			SELECT uo.id, uo.user_id, COALESCE(u.name->>'ar', u.name->>'en', u.name::text, ''), COALESCE(u.email::text, ''),
+			       uo.customer_org_id, COALESCE(NULLIF(co.legal_name, ''), co.name->>'ar', co.name->>'en', ''),
+			       uo.vendor_org_id, COALESCE(NULLIF(vo.legal_name, ''), vo.name->>'ar', vo.name->>'en', ''), COALESCE(vo.type, 'vendor'),
 			       uo.organization_number, uo.status, uo.notes, uo.created_at, uo.updated_at
 			FROM org.user_organizations uo
 			LEFT JOIN identity.users u ON u.id = uo.user_id

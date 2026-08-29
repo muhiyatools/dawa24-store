@@ -219,23 +219,23 @@ func SmartOrderReviewPage(lang, dir string, data SmartOrderReviewData) templ.Com
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = statCard("إجمالي قيمة الطلب", data.Run.EstimatedTotal.String()+" ج.م", "var(--accent)").Render(ctx, templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = statCard("إجمالي قيمة الطلب", data.Run.EstimatedTotal.String()+" ج.م").Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = statCard("عدد الموردين", fmt.Sprintf("%d موردين", len(data.Groups)), "var(--text-secondary)").Render(ctx, templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = statCard("عدد الموردين", fmt.Sprintf("%d موردين", len(data.Groups))).Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = statCard("الأصناف الجاهزة للتوريد", fmt.Sprintf("%d صنف", totalOrderableItems(data.Groups)), "var(--emerald)").Render(ctx, templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = statCard("الأصناف الجاهزة للتوريد", fmt.Sprintf("%d صنف", totalOrderableItems(data.Groups))).Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = statCard("أصناف مستبعدة", fmt.Sprintf("%d صنف", len(data.Excluded)), "var(--rose)").Render(ctx, templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = statCard("أصناف مستبعدة", fmt.Sprintf("%d صنف", len(data.Excluded))).Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = statCard("فرع التسليم", data.BranchName, "var(--primary-700)").Render(ctx, templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = statCard("فرع التسليم", data.BranchName).Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
