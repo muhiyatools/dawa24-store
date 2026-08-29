@@ -13,36 +13,36 @@
       ]
     },
     "columns": [
+      "active_ingredient",
       "barcode",
       "category",
       "concentration",
+      "description",
       "discount_percent",
       "dosage_form",
-      "expiry_date",
       "manufacturer",
       "name",
-      "name_en",
       "net_price",
       "pack_size",
       "price",
       "public_price",
       "scientific_name",
-      "sku"
+      "sku",
+      "warehouse"
     ],
     "data_rows": 19996,
-    "parsed": 2125,
-    "rejected": 17871,
+    "parsed": 19996,
+    "rejected": 0,
     "duplicates": 0,
     "levels": {
-      "ambiguous": 45,
-      "barcode": 511,
-      "exact": 38,
-      "none": 178,
-      "review": 12,
-      "strong": 1341
+      "ambiguous": 65,
+      "barcode": 9176,
+      "exact": 2295,
+      "none": 1,
+      "strong": 8459
     },
-    "settled_pct": 88,
-    "matched_pct": 91
+    "settled_pct": 99,
+    "matched_pct": 99
   },
   {
     "entry": {
@@ -93,10 +93,9 @@
       ]
     },
     "columns": [
+      "manufacturer",
       "name",
-      "name_en",
-      "price",
-      "scientific_name"
+      "price"
     ],
     "data_rows": 3,
     "parsed": 3,
@@ -122,10 +121,9 @@
       ]
     },
     "columns": [
+      "manufacturer",
       "name",
-      "name_en",
-      "price",
-      "scientific_name"
+      "price"
     ],
     "data_rows": 3,
     "parsed": 3,
@@ -151,10 +149,9 @@
       ]
     },
     "columns": [
-      "discount_percent",
+      "manufacturer",
       "name",
-      "name_en",
-      "scientific_name"
+      "price"
     ],
     "data_rows": 1,
     "parsed": 1,
@@ -179,10 +176,9 @@
       ]
     },
     "columns": [
-      "discount_percent",
+      "manufacturer",
       "name",
-      "name_en",
-      "scientific_name"
+      "price"
     ],
     "data_rows": 1,
     "parsed": 1,
@@ -207,21 +203,20 @@
       ]
     },
     "columns": [
-      "discount_percent",
       "manufacturer",
       "name",
-      "name_en"
+      "price"
     ],
     "data_rows": 2,
     "parsed": 2,
     "rejected": 0,
     "duplicates": 0,
     "levels": {
-      "none": 1,
-      "review": 1
+      "ambiguous": 1,
+      "strong": 1
     },
-    "settled_pct": 0,
-    "matched_pct": 50
+    "settled_pct": 50,
+    "matched_pct": 100
   },
   {
     "entry": {
@@ -241,10 +236,9 @@
       ]
     },
     "columns": [
+      "manufacturer",
       "name",
-      "name_en",
-      "price",
-      "scientific_name"
+      "price"
     ],
     "data_rows": 3,
     "parsed": 3,
@@ -270,10 +264,9 @@
       ]
     },
     "columns": [
+      "manufacturer",
       "name",
-      "name_en",
-      "price",
-      "scientific_name"
+      "price"
     ],
     "data_rows": 3,
     "parsed": 3,
@@ -299,10 +292,9 @@
       ]
     },
     "columns": [
+      "manufacturer",
       "name",
-      "name_en",
-      "price",
-      "scientific_name"
+      "price"
     ],
     "data_rows": 3,
     "parsed": 3,
@@ -329,10 +321,9 @@
     },
     "columns": [
       "barcode",
-      "discount_percent",
+      "manufacturer",
       "name",
-      "name_en",
-      "scientific_name"
+      "public_price"
     ],
     "data_rows": 1,
     "parsed": 1,
@@ -356,20 +347,20 @@
       ]
     },
     "columns": [
-      "discount_percent",
       "manufacturer",
       "name",
-      "name_en"
+      "price"
     ],
     "data_rows": 30,
     "parsed": 30,
     "rejected": 0,
     "duplicates": 0,
     "levels": {
-      "none": 30
+      "none": 27,
+      "review": 3
     },
     "settled_pct": 0,
-    "matched_pct": 0
+    "matched_pct": 10
   },
   {
     "entry": {
@@ -386,10 +377,9 @@
       ]
     },
     "columns": [
+      "manufacturer",
       "name",
-      "name_en",
-      "price",
-      "scientific_name"
+      "price"
     ],
     "data_rows": 3,
     "parsed": 3,
@@ -417,10 +407,9 @@
       ]
     },
     "columns": [
+      "manufacturer",
       "name",
-      "name_en",
-      "price",
-      "scientific_name"
+      "price"
     ],
     "data_rows": 3,
     "parsed": 3,
@@ -448,10 +437,9 @@
       ]
     },
     "columns": [
+      "manufacturer",
       "name",
-      "name_en",
-      "price",
-      "scientific_name"
+      "price"
     ],
     "data_rows": 3,
     "parsed": 3,
@@ -480,10 +468,9 @@
       ]
     },
     "columns": [
+      "manufacturer",
       "name",
-      "name_en",
-      "price",
-      "scientific_name"
+      "price"
     ],
     "data_rows": 3,
     "parsed": 3,
@@ -505,11 +492,10 @@
       "rows": 7
     },
     "columns": [
-      "discount_percent",
       "dosage_form",
       "manufacturer",
       "name",
-      "name_en",
+      "price",
       "public_price"
     ],
     "data_rows": 6,
@@ -622,25 +608,14 @@
       "bytes": 155136,
       "rows": 1012
     },
-    "columns": [
-      "discount_percent",
-      "name",
-      "price",
-      "public_price"
-    ],
-    "data_rows": 1011,
-    "parsed": 276,
-    "rejected": 735,
+    "error": "تعذر قراءة هذا الملف بصيغة Excel 97-2003 (.xls) قراءة كاملة — جزء كبير من صفوفه غير مقروء. يرجى فتحه في Excel وحفظه بصيغة «مصنف Excel (.xlsx)» ثم إعادة الرفع.",
+    "data_rows": 0,
+    "parsed": 0,
+    "rejected": 0,
     "duplicates": 0,
-    "levels": {
-      "ambiguous": 29,
-      "exact": 110,
-      "none": 55,
-      "review": 1,
-      "strong": 81
-    },
-    "settled_pct": 69,
-    "matched_pct": 80
+    "levels": {},
+    "settled_pct": 0,
+    "matched_pct": 0
   },
   {
     "entry": {
