@@ -58,7 +58,7 @@ func VendorRoles(roles []*org.Role, memberCountMap map[string]int, lang, dir str
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div style=\"max-width:1160px; margin:0 auto 4rem auto; display:flex; flex-direction:column; gap:2rem;\"><!-- Header Action Bar --><div class=\"card\" style=\"margin-bottom:0; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1.25rem; padding:1.75rem 2rem; background:var(--surface-raised); border-radius:var(--radius-2xl); border:1px solid var(--border); box-shadow:var(--shadow-sm);\"><div><div class=\"row-center-sm mb-sm\"><div style=\"width:38px; height:38px; border-radius:var(--radius-md); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center;\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"page-container max-w-6xl\"><!-- Header Action Bar --><div class=\"glass-panel p-6 mb-0\"><div class=\"flex-between items-center flex-wrap gap-4\"><div><div class=\"d-flex items-center gap-3 mb-1\"><div class=\"user-avatar-badge text-xl\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -66,7 +66,7 @@ func VendorRoles(roles []*org.Role, memberCountMap map[string]int, lang, dir str
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</div><h1 class=\"text-2xl fw-800 text-primary m-0\">إدارة الأدوار ومصفوفة الصلاحيات</h1></div><p class=\"text-sm text-secondary m-0\">تحديد الصلاحيات الإدارية، العملياتية، والمالية لمدراء الفروع وموظفي التوريد والمبيعات</p></div><div style=\"display:flex; gap:0.75rem; align-items:center;\"><a href=\"/vendor/team\" class=\"btn btn-secondary fw-700\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</div><h1 class=\"text-2xl font-black text-primary m-0\">إدارة الأدوار ومصفوفة الصلاحيات</h1></div><p class=\"text-sm text-secondary m-0\">تحديد الصلاحيات الإدارية، العملياتية، والمالية لمدراء الفروع وموظفي التوريد والمبيعات</p></div><div class=\"d-flex items-center gap-2\"><a href=\"/vendor/team\" class=\"btn btn-secondary font-bold gap-2\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -74,7 +74,7 @@ func VendorRoles(roles []*org.Role, memberCountMap map[string]int, lang, dir str
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "<span>فريق العمل والموظفين</span></a></div></div><!-- Role Cards Grid --><div style=\"display:grid; grid-template-columns:repeat(auto-fit, minmax(340px, 1fr)); gap:1.25rem;\"><!-- Role 1: Owner / Super Admin --><div class=\"card\" style=\"margin-bottom:0; padding:1.75rem; background:var(--surface-raised); border-radius:var(--radius-xl); border:1px solid var(--border); display:flex; flex-direction:column; justify-content:space-between; gap:1.25rem;\"><div><div style=\"display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:0.75rem;\"><div><h3 class=\"text-lg fw-800 text-primary m-0\">مالك المنشأة (Owner)</h3><span style=\"font-size:0.775rem; color:var(--text-muted);\">أعلى مستوى صلاحيات للنظام</span></div><span class=\"badge badge-emerald\">كامل الصلاحيات</span></div><p style=\"font-size:0.85rem; color:var(--text-secondary); line-height:1.5; margin:0 0 1rem 0;\">إدارة شاملة لبيانات الشركة، الحساب البنكي، ترخيص المؤسسة، الاعتماد المالي، وتعيين كبار المدراء.</p><div style=\"display:flex; flex-direction:column; gap:0.35rem; font-size:0.8rem; color:var(--text);\"><div class=\"row-center-sm\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "<span>فريق العمل والموظفين</span></a></div></div></div><!-- Role Cards Grid --><div class=\"d-grid grid-cols-3 gap-4\"><!-- Role 1: Owner / Super Admin --><div class=\"glass-panel p-5 mb-0 d-flex flex-col justify-between gap-4\"><div><div class=\"flex-between items-start mb-3\"><div><h3 class=\"text-base font-extrabold text-primary m-0\">مالك المنشأة (Owner)</h3><span class=\"text-xs text-muted\">أعلى مستوى صلاحيات للنظام</span></div><span class=\"badge badge-emerald font-bold text-xs\">كامل الصلاحيات</span></div><p class=\"text-xs text-secondary leading-relaxed mb-4\">إدارة شاملة لبيانات الشركة، الحساب البنكي، ترخيص المؤسسة، الاعتماد المالي، وتعيين كبار المدراء.</p><div class=\"d-flex flex-col gap-2 text-xs text-primary\"><div class=\"d-flex items-center gap-2\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -82,7 +82,7 @@ func VendorRoles(roles []*org.Role, memberCountMap map[string]int, lang, dir str
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "<span>تعديل إعدادات المنشأة والمستندات الرسمية</span></div><div class=\"row-center-sm\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "<span>تعديل إعدادات المنشأة والمستندات الرسمية</span></div><div class=\"d-flex items-center gap-2\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -90,7 +90,7 @@ func VendorRoles(roles []*org.Role, memberCountMap map[string]int, lang, dir str
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "<span>إدارة الحسابات البنكية والمحفظة والتحويلات</span></div><div class=\"row-center-sm\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "<span>إدارة الحسابات البنكية والمحفظة والتحويلات</span></div><div class=\"d-flex items-center gap-2\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -98,20 +98,20 @@ func VendorRoles(roles []*org.Role, memberCountMap map[string]int, lang, dir str
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "<span>إضافة وحذف الفروع وتعيين المدراء</span></div></div></div><div style=\"border-top:1px solid var(--border); padding-top:0.75rem; display:flex; justify-content:space-between; align-items:center; font-size:0.8rem; color:var(--text-muted);\"><span>الموظفين المسندين: <strong class=\"text-primary\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "<span>إضافة وحذف الفروع وتعيين المدراء</span></div></div></div><div class=\"border-t pt-3 flex-between items-center text-xs text-muted\"><span>الموظفين المسندين: <strong class=\"text-primary tabular-nums font-bold\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var3 string
 			templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", memberCountMap["org_owner"]))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_roles.templ`, Line: 80, Col: 124}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_roles.templ`, Line: 82, Col: 147}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "</strong></span> <span style=\"color:var(--accent); font-weight:700;\">دور نظامي أساسي</span></div></div><!-- Role 2: Branch & Operations Manager --><div class=\"card\" style=\"margin-bottom:0; padding:1.75rem; background:var(--surface-raised); border-radius:var(--radius-xl); border:1px solid var(--border); display:flex; flex-direction:column; justify-content:space-between; gap:1.25rem;\"><div><div style=\"display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:0.75rem;\"><div><h3 class=\"text-lg fw-800 text-primary m-0\">مدير العمليات والتوريد (Manager)</h3><span style=\"font-size:0.775rem; color:var(--text-muted);\">إدارة الفروع والشحنات</span></div><span class=\"badge badge-sky\">إداري</span></div><p style=\"font-size:0.85rem; color:var(--text-secondary); line-height:1.5; margin:0 0 1rem 0;\">إدارة أوامر الشراء، التسعير، قبول طلبات الصيدليات، وجدولة تسليم الأدوية والشحنات المبردة.</p><div style=\"display:flex; flex-direction:column; gap:0.35rem; font-size:0.8rem; color:var(--text);\"><div class=\"row-center-sm\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "</strong></span> <span class=\"text-brand font-bold\">دور نظامي أساسي</span></div></div><!-- Role 2: Branch & Operations Manager --><div class=\"glass-panel p-5 mb-0 d-flex flex-col justify-between gap-4\"><div><div class=\"flex-between items-start mb-3\"><div><h3 class=\"text-base font-extrabold text-primary m-0\">مدير العمليات والتوريد (Manager)</h3><span class=\"text-xs text-muted\">إدارة الفروع والشحنات</span></div><span class=\"badge badge-sky font-bold text-xs\">إداري</span></div><p class=\"text-xs text-secondary leading-relaxed mb-4\">إدارة أوامر الشراء، التسعير، قبول طلبات الصيدليات، وجدولة تسليم الأدوية والشحنات المبردة.</p><div class=\"d-flex flex-col gap-2 text-xs text-primary\"><div class=\"d-flex items-center gap-2\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -119,7 +119,7 @@ func VendorRoles(roles []*org.Role, memberCountMap map[string]int, lang, dir str
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "<span>قبول ورفض وتحديث حالات أوامر التوريد</span></div><div class=\"row-center-sm\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "<span>قبول ورفض وتحديث حالات أوامر التوريد</span></div><div class=\"d-flex items-center gap-2\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -127,7 +127,7 @@ func VendorRoles(roles []*org.Role, memberCountMap map[string]int, lang, dir str
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "<span>تحديث عروض الأسعار ونطاقات التغطية الجغرافية</span></div><div class=\"row-center-sm\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "<span>تحديث عروض الأسعار ونطاقات التغطية الجغرافية</span></div><div class=\"d-flex items-center gap-2\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -135,20 +135,20 @@ func VendorRoles(roles []*org.Role, memberCountMap map[string]int, lang, dir str
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "<span>متابعة أداء الموظفين وإسناد الشحنات</span></div></div></div><div style=\"border-top:1px solid var(--border); padding-top:0.75rem; display:flex; justify-content:space-between; align-items:center; font-size:0.8rem; color:var(--text-muted);\"><span>الموظفين المسندين: <strong class=\"text-primary\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "<span>متابعة أداء الموظفين وإسناد الشحنات</span></div></div></div><div class=\"border-t pt-3 flex-between items-center text-xs text-muted\"><span>الموظفين المسندين: <strong class=\"text-primary tabular-nums font-bold\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var4 string
 			templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", memberCountMap["manager"]))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_roles.templ`, Line: 114, Col: 122}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_roles.templ`, Line: 116, Col: 145}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "</strong></span> <span style=\"color:var(--accent); font-weight:700;\">مفعل</span></div></div><!-- Role 3: Warehouse & Inventory Keeper --><div class=\"card\" style=\"margin-bottom:0; padding:1.75rem; background:var(--surface-raised); border-radius:var(--radius-xl); border:1px solid var(--border); display:flex; flex-direction:column; justify-content:space-between; gap:1.25rem;\"><div><div style=\"display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:0.75rem;\"><div><h3 class=\"text-lg fw-800 text-primary m-0\">أمين المخزن (Warehouse Keeper)</h3><span style=\"font-size:0.775rem; color:var(--text-muted);\">إدارة المخزون والتشغيلات</span></div><span class=\"badge badge-amber\">مخزني</span></div><p style=\"font-size:0.85rem; color:var(--text-secondary); line-height:1.5; margin:0 0 1rem 0;\">جرد المخازن، تسجيل الدفعات وتواريخ الصلاحية، واستيراد وتحديث ملفات الأرصدة.</p><div style=\"display:flex; flex-direction:column; gap:0.35rem; font-size:0.8rem; color:var(--text);\"><div class=\"row-center-sm\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "</strong></span> <span class=\"text-success font-bold\">مفعل</span></div></div><!-- Role 3: Warehouse & Inventory Keeper --><div class=\"glass-panel p-5 mb-0 d-flex flex-col justify-between gap-4\"><div><div class=\"flex-between items-start mb-3\"><div><h3 class=\"text-base font-extrabold text-primary m-0\">أمين المخزن (Warehouse Keeper)</h3><span class=\"text-xs text-muted\">إدارة المخزون والتشغيلات</span></div><span class=\"badge badge-amber font-bold text-xs\">مخزني</span></div><p class=\"text-xs text-secondary leading-relaxed mb-4\">جرد المخازن، تسجيل الدفعات وتواريخ الصلاحية، واستيراد وتحديث ملفات الأرصدة.</p><div class=\"d-flex flex-col gap-2 text-xs text-primary\"><div class=\"d-flex items-center gap-2\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -156,7 +156,7 @@ func VendorRoles(roles []*org.Role, memberCountMap map[string]int, lang, dir str
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "<span>تعديل وجرد الأرصدة والكميات المتاحة</span></div><div class=\"row-center-sm\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "<span>تعديل وجرد الأرصدة والكميات المتاحة</span></div><div class=\"d-flex items-center gap-2\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -164,7 +164,7 @@ func VendorRoles(roles []*org.Role, memberCountMap map[string]int, lang, dir str
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "<span>تسجيل أرقام التشغيلات وتواريخ انتهاء الصلاحية</span></div><div class=\"row-center-sm\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "<span>تسجيل أرقام التشغيلات وتواريخ انتهاء الصلاحية</span></div><div class=\"d-flex items-center gap-2\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -172,20 +172,20 @@ func VendorRoles(roles []*org.Role, memberCountMap map[string]int, lang, dir str
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "<span>إجراء التحويلات المخزنية بين مخازن الفروع</span></div></div></div><div style=\"border-top:1px solid var(--border); padding-top:0.75rem; display:flex; justify-content:space-between; align-items:center; font-size:0.8rem; color:var(--text-muted);\"><span>الموظفين المسندين: <strong class=\"text-primary\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "<span>إجراء التحويلات المخزنية بين مخازن الفروع</span></div></div></div><div class=\"border-t pt-3 flex-between items-center text-xs text-muted\"><span>الموظفين المسندين: <strong class=\"text-primary tabular-nums font-bold\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var5 string
 			templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", memberCountMap["warehouse"]))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_roles.templ`, Line: 148, Col: 124}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_roles.templ`, Line: 150, Col: 147}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "</strong></span> <span style=\"color:var(--accent); font-weight:700;\">مفعل</span></div></div><!-- Role 4: Financial Accountant --><div class=\"card\" style=\"margin-bottom:0; padding:1.75rem; background:var(--surface-raised); border-radius:var(--radius-xl); border:1px solid var(--border); display:flex; flex-direction:column; justify-content:space-between; gap:1.25rem;\"><div><div style=\"display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:0.75rem;\"><div><h3 class=\"text-lg fw-800 text-primary m-0\">المحاسب المالي (Accountant)</h3><span style=\"font-size:0.775rem; color:var(--text-muted);\">الفواتير والمحفظة</span></div><span class=\"badge badge-purple\">مالي</span></div><p style=\"font-size:0.85rem; color:var(--text-secondary); line-height:1.5; margin:0 0 1rem 0;\">إصدار وتدقيق الفواتير الإلكترونية، متابعة التحصيلات، كشوف الحسابات، وتسويات الأرصدة.</p><div style=\"display:flex; flex-direction:column; gap:0.35rem; font-size:0.8rem; color:var(--text);\"><div class=\"row-center-sm\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "</strong></span> <span class=\"text-success font-bold\">مفعل</span></div></div><!-- Role 4: Financial Accountant --><div class=\"glass-panel p-5 mb-0 d-flex flex-col justify-between gap-4\"><div><div class=\"flex-between items-start mb-3\"><div><h3 class=\"text-base font-extrabold text-primary m-0\">المحاسب المالي (Accountant)</h3><span class=\"text-xs text-muted\">الفواتير والمحفظة</span></div><span class=\"badge badge-indigo font-bold text-xs\">مالي</span></div><p class=\"text-xs text-secondary leading-relaxed mb-4\">إصدار وتدقيق الفواتير الإلكترونية، متابعة التحصيلات، كشوف الحسابات، وتسويات الأرصدة.</p><div class=\"d-flex flex-col gap-2 text-xs text-primary\"><div class=\"d-flex items-center gap-2\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -193,7 +193,7 @@ func VendorRoles(roles []*org.Role, memberCountMap map[string]int, lang, dir str
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "<span>تصدير الفواتير الإلكترونية المعتمدة للضرائب</span></div><div class=\"row-center-sm\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "<span>تصدير الفواتير الإلكترونية المعتمدة للضرائب</span></div><div class=\"d-flex items-center gap-2\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -201,7 +201,7 @@ func VendorRoles(roles []*org.Role, memberCountMap map[string]int, lang, dir str
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "<span>عرض كشوف العمليات المالية للمحفظة</span></div><div class=\"row-center-sm\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "<span>عرض كشوف العمليات المالية للمحفظة</span></div><div class=\"d-flex items-center gap-2\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -209,20 +209,20 @@ func VendorRoles(roles []*org.Role, memberCountMap map[string]int, lang, dir str
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "<span>متابعة مديونيات ودفعات الصيدليات</span></div></div></div><div style=\"border-top:1px solid var(--border); padding-top:0.75rem; display:flex; justify-content:space-between; align-items:center; font-size:0.8rem; color:var(--text-muted);\"><span>الموظفين المسندين: <strong class=\"text-primary\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "<span>متابعة مديونيات ودفعات الصيدليات</span></div></div></div><div class=\"border-t pt-3 flex-between items-center text-xs text-muted\"><span>الموظفين المسندين: <strong class=\"text-primary tabular-nums font-bold\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var6 string
 			templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", memberCountMap["accountant"]))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_roles.templ`, Line: 182, Col: 125}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_roles.templ`, Line: 184, Col: 148}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "</strong></span> <span style=\"color:var(--accent); font-weight:700;\">مفعل</span></div></div><!-- Role 5: Sales Representative --><div class=\"card\" style=\"margin-bottom:0; padding:1.75rem; background:var(--surface-raised); border-radius:var(--radius-xl); border:1px solid var(--border); display:flex; flex-direction:column; justify-content:space-between; gap:1.25rem;\"><div><div style=\"display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:0.75rem;\"><div><h3 class=\"text-lg fw-800 text-primary m-0\">مندوب مبيعات وتوريد (Sales Rep)</h3><span style=\"font-size:0.775rem; color:var(--text-muted);\">المبيعات والتواصل مع الصيدليات</span></div><span class=\"badge badge-slate\">مبيعات</span></div><p style=\"font-size:0.85rem; color:var(--text-secondary); line-height:1.5; margin:0 0 1rem 0;\">الرد على طلبات تسعير الصيدليات، التنسيق مع المناديب، ومتابعة تسليم وتوقيع إيصالات الشحنات.</p><div style=\"display:flex; flex-direction:column; gap:0.35rem; font-size:0.8rem; color:var(--text);\"><div class=\"row-center-sm\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "</strong></span> <span class=\"text-success font-bold\">مفعل</span></div></div><!-- Role 5: Sales Representative --><div class=\"glass-panel p-5 mb-0 d-flex flex-col justify-between gap-4\"><div><div class=\"flex-between items-start mb-3\"><div><h3 class=\"text-base font-extrabold text-primary m-0\">مندوب مبيعات وتوريد (Sales Rep)</h3><span class=\"text-xs text-muted\">المبيعات والتواصل مع الصيدليات</span></div><span class=\"badge badge-slate font-bold text-xs\">مبيعات</span></div><p class=\"text-xs text-secondary leading-relaxed mb-4\">الرد على طلبات تسعير الصيدليات، التنسيق مع المناديب، ومتابعة تسليم وتوقيع إيصالات الشحنات.</p><div class=\"d-flex flex-col gap-2 text-xs text-primary\"><div class=\"d-flex items-center gap-2\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -230,7 +230,7 @@ func VendorRoles(roles []*org.Role, memberCountMap map[string]int, lang, dir str
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, "<span>استقبال والرد على طلبات الصيدليات المباشرة</span></div><div class=\"row-center-sm\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, "<span>استقبال والرد على طلبات الصيدليات المباشرة</span></div><div class=\"d-flex items-center gap-2\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -238,7 +238,7 @@ func VendorRoles(roles []*org.Role, memberCountMap map[string]int, lang, dir str
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, "<span>تحديث خط سير ومواعيد تسليم الشحنة للصيدلية</span></div><div class=\"row-center-sm\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, "<span>تحديث خط سير ومواعيد تسليم الشحنة للصيدلية</span></div><div class=\"d-flex items-center gap-2\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -246,20 +246,20 @@ func VendorRoles(roles []*org.Role, memberCountMap map[string]int, lang, dir str
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, "<span>تسجيل إشعارات الاستلام الموقعة</span></div></div></div><div style=\"border-top:1px solid var(--border); padding-top:0.75rem; display:flex; justify-content:space-between; align-items:center; font-size:0.8rem; color:var(--text-muted);\"><span>الموظفين المسندين: <strong class=\"text-primary\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, "<span>تسجيل إشعارات الاستلام الموقعة</span></div></div></div><div class=\"border-t pt-3 flex-between items-center text-xs text-muted\"><span>الموظفين المسندين: <strong class=\"text-primary tabular-nums font-bold\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var7 string
 			templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", memberCountMap["employee"]))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_roles.templ`, Line: 216, Col: 123}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_roles.templ`, Line: 218, Col: 146}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, "</strong></span> <span style=\"color:var(--accent); font-weight:700;\">مفعل</span></div></div></div></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, "</strong></span> <span class=\"text-success font-bold\">مفعل</span></div></div></div></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

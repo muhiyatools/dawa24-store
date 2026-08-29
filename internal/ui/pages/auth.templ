@@ -12,18 +12,18 @@ import (
 
 templ LoginPage(lang, dir, errorMsg string) {
 	@layouts.Base("تسجيل الدخول", lang, dir) {
-		<div style="min-height:100vh; display:flex; align-items:center; justify-content:center; padding:2rem 1.5rem; background:radial-gradient(ellipse at top, var(--accent-subtle) 0%, var(--bg-app) 100%);">
-			<div class="card" style="width:100%; max-width:440px; margin-bottom:0; padding:2.5rem; box-shadow:var(--shadow-lg); border-radius:var(--radius-2xl); background:var(--surface-raised); border:1px solid var(--border);">
+		<div style="min-height:100vh; display:flex; align-items:center; justify-content:center; padding:2rem 1.5rem; background:radial-gradient(ellipse at top, var(--primary-subtle) 0%, var(--bg-app) 100%);">
+			<div class="glass-panel p-8" style="width:100%; max-width:440px; margin-bottom:0;">
 				<div style="text-align:center; margin-bottom:2rem;">
 					<a href="/" style="display:inline-block; margin-bottom:1.25rem;">
 						<img src="/static/img/logo.png" alt="DAWA24" style="height:54px; object-fit:contain;" />
 					</a>
-					<h1 style="font-size:1.65rem; font-weight:800; color:var(--text);">منصة دواء 24</h1>
+					<h1 style="font-size:1.65rem; font-weight:800; color:var(--text-primary); margin:0;">منصة دواء 24</h1>
 					<p style="color:var(--text-secondary); font-size:0.9rem; margin-top:0.35rem;">تسجيل الدخول إلى حسابك الصيدلي أو التجاري</p>
 				</div>
 
 				if errorMsg != "" {
-					<div style="background-color:var(--danger-bg); color:var(--danger); border:1px solid var(--danger-border); padding:0.75rem 1rem; border-radius:var(--radius-md); font-size:0.875rem; margin-bottom:1.25rem; display:flex; align-items:center; gap:0.5rem;">
+					<div class="alert alert-danger mb-4" style="display:flex; align-items:center; gap:0.5rem;">
 						@components.IconAlert("icon-xs")
 						<span>{ errorMsg }</span>
 					</div>
@@ -37,7 +37,7 @@ templ LoginPage(lang, dir, errorMsg string) {
 					<div class="form-group mb-0">
 						<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.35rem;">
 							<label class="form-label mb-0" for="password">كلمة المرور</label>
-							<a href="/auth/forgot" style="font-size:0.8rem; font-weight:700; color:var(--accent);">نسيت كلمة المرور؟</a>
+							<a href="/auth/forgot" style="font-size:0.8rem; font-weight:700; color:var(--primary);">نسيت كلمة المرور؟</a>
 						</div>
 						<input type="password" id="password" name="password" required class="form-input" placeholder="••••••••" />
 					</div>
@@ -47,8 +47,8 @@ templ LoginPage(lang, dir, errorMsg string) {
 					</button>
 				</form>
 
-				<div style="text-align:center; margin-top:1.75rem; font-size:0.875rem; color:var(--text-secondary); border-top:1px solid var(--border); padding-top:1.25rem;">
-					ليس لديك حساب؟ <a href="/auth/register" style="font-weight:800; color:var(--accent);">تسجيل حساب صيدلية جديد</a>
+				<div style="text-align:center; margin-top:1.75rem; font-size:0.875rem; color:var(--text-secondary); border-top:1px solid var(--border-subtle); padding-top:1.25rem;">
+					ليس لديك حساب؟ <a href="/auth/register" style="font-weight:800; color:var(--primary);">تسجيل حساب صيدلية جديد</a>
 				</div>
 			</div>
 		</div>
@@ -57,10 +57,10 @@ templ LoginPage(lang, dir, errorMsg string) {
 
 templ RegisterPage(lang, dir string, form RegisterFormData, cities []*platformadmin.City) {
 	@layouts.Base("إنشاء حساب جديد", lang, dir) {
-		<div style="min-height:100vh; display:flex; align-items:center; justify-content:center; padding:2rem 1.5rem; background:radial-gradient(ellipse at top, var(--accent-subtle) 0%, var(--bg-app) 100%);">
+		<div style="min-height:100vh; display:flex; align-items:center; justify-content:center; padding:2rem 1.5rem; background:radial-gradient(ellipse at top, var(--primary-subtle) 0%, var(--bg-app) 100%);">
 			<div
-				class="card"
-				style="width:100%; max-width:680px; margin-bottom:0; padding:2.25rem; box-shadow:var(--shadow-lg); border-radius:var(--radius-2xl); background:var(--surface-raised); border:1px solid var(--border);"
+				class="glass-panel p-8"
+				style="width:100%; max-width:680px; margin-bottom:0;"
 			>
 				<!-- Brand Header -->
 				<div style="text-align:center; margin-bottom:1.5rem;">

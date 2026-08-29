@@ -73,7 +73,7 @@ func (e *Enhancement) plan(rows []*openRow) []plannedBatch {
 	}
 
 	for _, r := range sorted {
-		if len(batches)+1 > MaxRequestsPerRun {
+		if len(batches)+1 > ceilings.MaxRequestsPerRun {
 			// Everything past the ceiling keeps its deterministic outcome and
 			// is reported honestly rather than silently dropped.
 			e.Stats.CeilingHit = true
@@ -81,9 +81,9 @@ func (e *Enhancement) plan(rows []*openRow) []plannedBatch {
 		}
 		cost := rowCost(r, cur.window)
 		if len(cur.request.Items) > 0 &&
-			(size+cost > MaxInputBytes || len(cur.request.Items) >= MaxItemsPerRequest) {
+			(size+cost > ceilings.MaxInputBytes || len(cur.request.Items) >= ceilings.MaxItemsPerRequest) {
 			flush()
-			if len(batches) >= MaxRequestsPerRun {
+			if len(batches) >= ceilings.MaxRequestsPerRun {
 				e.Stats.CeilingHit = true
 				break
 			}

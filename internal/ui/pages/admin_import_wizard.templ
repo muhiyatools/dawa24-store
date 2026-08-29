@@ -42,7 +42,7 @@ templ AdminProductsImportPage(lang, dir string, view ImportConfigureView) {
 			</div>
 
 			<div class="wizard">
-				@wizardRail(StepConfigure)
+				@WizardRail(ImportRail(StepFile))
 				if view.Fatal != "" {
 					@wizardFatal(view.Fatal, view.FatalDetail)
 				}
@@ -115,30 +115,6 @@ templ AdminProductsImportPage(lang, dir string, view ImportConfigureView) {
 	}
 }
 
-templ wizardRail(current ImportStep) {
-	<nav class="wiz-rail" aria-label="مراحل الاستيراد">
-		for i, step := range ImportSteps(current) {
-			if i > 0 {
-				<span class="wiz-sep" aria-hidden="true"></span>
-			}
-			<span
-				class={ "wiz-node", templ.KV("is-active", step.Active), templ.KV("is-done", step.Done) }
-				if step.Active {
-					aria-current="step"
-				}
-			>
-				<span class="wiz-bubble" aria-hidden="true">
-					if step.Done {
-						✓
-					} else {
-						{ step.Icon }
-					}
-				</span>
-				<span>{ fmt.Sprintf("%d. %s", step.Number, step.Title) }</span>
-			</span>
-		}
-	</nav>
-}
 
 templ wizardFatal(message, detail string) {
 	<div class="import-banner import-banner--error">

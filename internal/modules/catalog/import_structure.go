@@ -231,11 +231,15 @@ func truncateSample(s string) string {
 }
 
 // ConfidenceOf renders a binding score as a word the admin can act on.
+//
+// The bands are the shared resolver's, expressed on the 0..100 scale this
+// module reports: it is the same judgement, so it must read the same way here
+// as it does on the vendor's mapping screen.
 func ConfidenceOf(score int) string {
 	switch {
-	case score >= scoreExact:
+	case score >= scoreCertain:
 		return "مؤكد"
-	case score >= scoreStrong:
+	case score >= scoreLikely:
 		return "مرجّح"
 	default:
 		return "تخميني"

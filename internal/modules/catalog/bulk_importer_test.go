@@ -19,7 +19,7 @@ func TestDetectHeaderRow(t *testing.T) {
 		t.Fatalf("expected header index 1, got %d", headerIdx)
 	}
 
-	colMap := catalog.MapHeaderColumns(records[headerIdx])
+	colMap := catalog.MapHeaderColumns(records[headerIdx], nil)
 	if colMap["sku"] != 0 {
 		t.Errorf("expected sku col 0, got %d", colMap["sku"])
 	}

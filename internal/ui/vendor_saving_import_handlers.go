@@ -11,7 +11,8 @@ import (
 	"github.com/go-chi/chi/v5"
 
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
-	"github.com/muhiya/dawa24-store/internal/shared/spreadsheet"
+	"github.com/muhiya/dawa24-store/internal/shared/productmatch"
+	"github.com/muhiya/dawa24-store/internal/shared/sheet"
 	"github.com/muhiya/dawa24-store/internal/ui/pages"
 )
 
@@ -31,12 +32,14 @@ func (h *UIHandler) VendorSavingProductsImportPage(w http.ResponseWriter, r *htt
 	noticeMsg := r.URL.Query().Get("notice")
 
 	view := pages.SavingImportView{
-		Audience:   "vendor",
-		BaseURL:    "/vendor/saving-products",
-		ImportURL:  "/vendor/saving-products/import",
-		Sessions:   sessions,
-		NoticeType: noticeType,
-		NoticeMsg:  noticeMsg,
+		AIAvailable:         h.matchEnhancer != nil,
+		AIUnavailableReason: savingAIUnavailableReason(h.matchEnhancer),
+		Audience:            "vendor",
+		BaseURL:             "/vendor/saving-products",
+		ImportURL:           "/vendor/saving-products/import",
+		Sessions:            sessions,
+		NoticeType:          noticeType,
+		NoticeMsg:           noticeMsg,
 	}
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
@@ -78,22 +81,40 @@ func (h *UIHandler) VendorSavingProductsImportUploadSubmit(w http.ResponseWriter
 		return
 	}
 
-	rawRows, err := spreadsheet.ReadRows(fileBytes)
+	rawRows, err := sheet.ReadRows(fileBytes, fileHeader.Filename)
 	if err != nil || len(rawRows) < 2 {
 		h.log.WarnContext(ctx, "failed to parse spreadsheet", "error", err, "filename", fileHeader.Filename)
 		h.redirectWithNotice(w, r, "/vendor/saving-products/import", "error", "تعذر قراءة ملف البيانات المرفوع أو أن الملف لا يحتوي على صفوف بيانات.")
 		return
 	}
 
-	headers := rawRows[0]
-	var sampleRows [][]string
-	if len(rawRows) > 1 {
-		limit := 4
-		if len(rawRows)-1 < limit {
-			limit = len(rawRows) - 1
-		}
-		sampleRows = rawRows[1 : 1+limit]
+	layout, _ := productmatch.AnalyzeLayout(rawRows)
+	var headers []string
+	dataStart := 1
+	if layout.HeaderRow >= 0 && layout.HeaderRow < len(rawRows) {
+		headers = layout.Headers
+		dataStart = layout.FirstDataRow
+	} else if len(rawRows) > 0 {
+		headers = rawRows[0]
+		dataStart = 1
 	}
+
+	if dataStart > len(rawRows) {
+		dataStart = len(rawRows)
+	}
+
+	dataRows := rawRows[dataStart:]
+	if len(dataRows) == 0 {
+		h.redirectWithNotice(w, r, "/vendor/saving-products/import", "error", "لم يتم العثور على أي صفوف بيانات للأصناف بعد صف العناوين.")
+		return
+	}
+
+	var sampleRows [][]string
+	limit := 5
+	if len(dataRows) < limit {
+		limit = len(dataRows)
+	}
+	sampleRows = dataRows[:limit]
 
 	nameCol, skuCol, qtyCol, priceCol, productIDCol := detectSavingProductColumns(
 		headers,
@@ -101,11 +122,11 @@ func (h *UIHandler) VendorSavingProductsImportUploadSubmit(w http.ResponseWriter
 		"", "", "", "", "",
 	)
 
-	session := globalSavingImportSessionStore.NewSession(actor.OrganizationID, actor.UserID, fileHeader.Filename, len(rawRows)-1)
+	session := globalSavingImportSessionStore.NewSession(actor.OrganizationID, actor.UserID, fileHeader.Filename, len(dataRows))
 	session.Phase = SavingPhaseMapping
 	session.Headers = headers
 	session.SampleRows = sampleRows
-	session.RawDataRows = rawRows[1:]
+	session.RawDataRows = dataRows
 	session.DetectedCols = SavingDetectedCols{
 		NameCol:      nameCol,
 		SKUCol:       skuCol,
@@ -164,15 +185,17 @@ func (h *UIHandler) VendorSavingProductsImportSessionPage(w http.ResponseWriter,
 	noticeMsg := r.URL.Query().Get("notice")
 
 	view := pages.SavingImportView{
-		Audience:   "vendor",
-		BaseURL:    "/vendor/saving-products",
-		ImportURL:  "/vendor/saving-products/import",
-		Session:    session,
-		Filter:     filter,
-		Rows:       rows,
-		RowTotal:   total,
-		NoticeType: noticeType,
-		NoticeMsg:  noticeMsg,
+		AIAvailable:         h.matchEnhancer != nil,
+		AIUnavailableReason: savingAIUnavailableReason(h.matchEnhancer),
+		Audience:            "vendor",
+		BaseURL:             "/vendor/saving-products",
+		ImportURL:           "/vendor/saving-products/import",
+		Session:             session,
+		Filter:              filter,
+		Rows:                rows,
+		RowTotal:            total,
+		NoticeType:          noticeType,
+		NoticeMsg:           noticeMsg,
 	}
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")

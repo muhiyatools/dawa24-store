@@ -17,7 +17,7 @@ func TestPlanColumnsBarcodeDoesNotStealSKU(t *testing.T) {
 		"سعر البيع للجمهور", "الشركة المصنعة",
 	}
 
-	plan := catalog.PlanColumns(header)
+	plan := catalog.PlanColumns(header, nil)
 
 	want := map[string]int{
 		catalog.FieldNameAR:       0,
@@ -42,7 +42,7 @@ func TestPlanColumnsGivesEachColumnOneField(t *testing.T) {
 	// "اسم الصنف التجاري / الوصف" matches both the name and the description.
 	// Binding it to both — which the old mapper did — copied the product name
 	// into the description of every row of every such file.
-	plan := catalog.PlanColumns([]string{"اسم الصنف التجاري / الوصف", "السعر"})
+	plan := catalog.PlanColumns([]string{"اسم الصنف التجاري / الوصف", "السعر"}, nil)
 
 	if _, ok := plan.Columns[catalog.FieldDescriptionAR]; ok {
 		t.Error("the name column was also claimed as the description")
@@ -55,7 +55,7 @@ func TestPlanColumnsGivesEachColumnOneField(t *testing.T) {
 func TestPlanColumnsSeparatesPriceKinds(t *testing.T) {
 	// All three contain "سعر". Binding the cost price as the selling price would
 	// publish the pharmacy's margin to its customers.
-	plan := catalog.PlanColumns([]string{"سعر البيع", "سعر التكلفة", "سعر الجمهور", "نسبة الخصم"})
+	plan := catalog.PlanColumns([]string{"سعر البيع", "سعر التكلفة", "سعر الجمهور", "نسبة الخصم"}, nil)
 
 	checks := map[string]int{
 		catalog.FieldPrice:       0,
@@ -80,7 +80,7 @@ func TestPlanColumnsToleratesArabicSpellingVariants(t *testing.T) {
 		"الشَّرِكَة المُصَنِّعَة",
 	}
 	for _, header := range variants {
-		plan := catalog.PlanColumns([]string{"اسم الصنف", header})
+		plan := catalog.PlanColumns([]string{"اسم الصنف", header}, nil)
 		if got, ok := plan.Columns[catalog.FieldManufacturer]; !ok || got != 1 {
 			t.Errorf("%q did not map to manufacturer (got %d, ok=%v)", header, got, ok)
 		}
@@ -90,27 +90,49 @@ func TestPlanColumnsToleratesArabicSpellingVariants(t *testing.T) {
 func TestPlanColumnsHandlesEnglishAndReordering(t *testing.T) {
 	plan := catalog.PlanColumns([]string{
 		"Preferred Vendor", "Unit Price", "Item Description", "Item No.", "EAN13", "Dosage Form",
-	})
+	}, nil)
 
 	want := map[string]int{
 		catalog.FieldManufacturer: 0,
-		catalog.FieldPrice:        1,
 		catalog.FieldNameAR:       2,
 		catalog.FieldSKU:          3,
 		catalog.FieldBarcode:      4,
 		catalog.FieldDosageForm:   5,
 	}
 	for field, col := range want {
-		if got := plan.Columns[field]; got != col {
+		got, bound := plan.Columns[field]
+		if !bound {
+			t.Errorf("%s was not mapped at all", field)
+			continue
+		}
+		if got != col {
 			t.Errorf("%s mapped to column %d, want %d", field, got, col)
 		}
+	}
+
+	// "Unit Price" is the price, and which of the two price fields it lands in
+	// is not a fact about the file. The shared vocabulary reads an unqualified
+	// price as the public one, because in an Egyptian price list it is; this
+	// module has one price column and fills it from whichever field is bound.
+	// Asserting the label rather than the outcome made a naming choice look like
+	// a behaviour change.
+	_, hasPrice := plan.Columns[catalog.FieldPrice]
+	_, hasPublic := plan.Columns[catalog.FieldPublicPrice]
+	if !hasPrice && !hasPublic {
+		t.Error("the price column was not mapped to any price field")
+	}
+	if hasPrice && plan.Columns[catalog.FieldPrice] != 1 {
+		t.Errorf("price mapped to column %d, want 1", plan.Columns[catalog.FieldPrice])
+	}
+	if hasPublic && plan.Columns[catalog.FieldPublicPrice] != 1 {
+		t.Errorf("public price mapped to column %d, want 1", plan.Columns[catalog.FieldPublicPrice])
 	}
 }
 
 func TestPlanColumnsReportsUnmappedHeaders(t *testing.T) {
 	// Unmapped columns are surfaced, not dropped silently: an admin whose "سعر
 	// الجمهور" column went unread needs to know before trusting the catalogue.
-	plan := catalog.PlanColumns([]string{"اسم الصنف", "رقم التشغيلة", "تاريخ الصلاحية"})
+	plan := catalog.PlanColumns([]string{"اسم الصنف", "رقم التشغيلة", "تاريخ الصلاحية"}, nil)
 
 	if len(plan.Unmapped) != 2 {
 		t.Fatalf("expected 2 unmapped headers, got %v", plan.Unmapped)

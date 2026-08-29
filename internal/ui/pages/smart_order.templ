@@ -32,41 +32,18 @@ type SmartOrderNewData struct {
 	Error string
 }
 
-// stepBar renders the five-step indicator.
-templ stepBar(current int) {
-	<div class="so-stepbar">
-		for i, label := range []string{"استيراد الملف", "تعيين الأعمدة", "المطابقة", "النتائج", "مراجعة الطلب"} {
-			<div class={ stepClass(i+1, current) }>
-				<span class="so-step-number">{ fmt.Sprintf("%d", i+1) }</span>
-				<span>{ label }</span>
-			</div>
-		}
-	</div>
-}
-
-func stepClass(step, current int) string {
-	switch {
-	case step < current:
-		return "so-step so-step-done"
-	case step == current:
-		return "so-step so-step-active"
-	default:
-		return "so-step"
-	}
-}
-
 // SmartOrderNewPage is step 1: upload and configuration.
 templ SmartOrderNewPage(lang, dir string, data SmartOrderNewData) {
 	@layouts.CustomerShell("الطلب الذكي", "purchase-request", lang, dir, nil) {
-		<div class="container-fluid so-new-order-page">
+		<div class="page-container max-w-4xl so-new-order-page">
 			<h1 class="so-page-title">الطلب الذكي، استيراد ملف</h1>
-			@stepBar(1)
+			@WizardRail(OrderRail(StepFile))
 			if data.Error != "" {
 				<div class="so-alert so-alert-error">
 					{ data.Error }
 				</div>
 			}
-			<form method="POST" action="/customer/smart-order" enctype="multipart/form-data" class="card so-new-order-form">
+			<form method="POST" action="/customer/smart-order" enctype="multipart/form-data" class="glass-panel p-6 mb-0 so-new-order-form">
 				<div class="so-form-field">
 					<label class="so-field-label">ملف الأصناف المطلوبة</label>
 					<input type="file" name="file" accept=".xlsx,.xls,.csv" required class="so-file-input"/>

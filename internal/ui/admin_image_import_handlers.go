@@ -16,7 +16,7 @@ import (
 	"github.com/xuri/excelize/v2"
 
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
-	"github.com/muhiya/dawa24-store/internal/shared/spreadsheet"
+	"github.com/muhiya/dawa24-store/internal/shared/sheet"
 	"github.com/muhiya/dawa24-store/internal/ui/pages"
 )
 
@@ -82,7 +82,7 @@ func (h *UIHandler) AdminProductImagesUploadSubmit(w http.ResponseWriter, r *htt
 		return
 	}
 
-	rawRows, err := spreadsheet.ReadRows(data)
+	rawRows, err := sheet.ReadRows(data, header.Filename)
 	if err != nil || len(rawRows) < 2 {
 		h.redirectWithNotice(w, r, "/admin/products/images/import", "error", "لم يتم العثور على بيانات صالحة في الملف المرفوع.")
 		return

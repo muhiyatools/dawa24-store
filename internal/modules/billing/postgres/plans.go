@@ -120,6 +120,12 @@ func (r *Repository) GetDefaultPlan(ctx context.Context) (*billing.Plan, error) 
 		} else if err != nil {
 			return err
 		}
+<<<<<<< HEAD
+=======
+		if err != nil {
+			return err
+		}
+>>>>>>> c32273dd29cf05a8f216cda373a4a47c316ba190
 		p.Features = loadPlanFeatures(txCtx, tx, p.ID)
 		return nil
 	})
@@ -132,20 +138,36 @@ func (r *Repository) GetDefaultPlan(ctx context.Context) (*billing.Plan, error) 
 	return &p, nil
 }
 
+<<<<<<< HEAD
 // loadPlanFeatures fetches the feature map for a given plan ID.
 func loadPlanFeatures(ctx context.Context, tx pgx.Tx, planID int64) map[string]string {
 	features := make(map[string]string)
 	rows, err := tx.Query(ctx, `SELECT feature_key, value FROM billing.plan_features WHERE plan_id = $1`, planID)
+=======
+// loadPlanFeatures reads the feature key-value pairs for a plan from billing.plan_features.
+func loadPlanFeatures(ctx context.Context, tx pgx.Tx, planID int64) map[string]string {
+	features := make(map[string]string)
+	rows, err := tx.Query(ctx, `SELECT feature_key, value FROM billing.plan_features WHERE plan_id = $1;`, planID)
+>>>>>>> c32273dd29cf05a8f216cda373a4a47c316ba190
 	if err != nil {
 		return features
 	}
 	defer rows.Close()
 	for rows.Next() {
+<<<<<<< HEAD
 		var key, val string
 		if err := rows.Scan(&key, &val); err == nil {
 			features[key] = val
+=======
+		var k, v string
+		if err := rows.Scan(&k, &v); err == nil {
+			features[k] = v
+>>>>>>> c32273dd29cf05a8f216cda373a4a47c316ba190
 		}
 	}
 	return features
 }
+<<<<<<< HEAD
 
+=======
+>>>>>>> c32273dd29cf05a8f216cda373a4a47c316ba190

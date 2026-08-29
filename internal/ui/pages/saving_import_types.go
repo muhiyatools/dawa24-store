@@ -86,6 +86,11 @@ type SavingImportSession struct {
 	ColPrice      string              `json:"col_price,omitempty"`
 	ColProductID  string              `json:"col_product_id,omitempty"`
 	MatchStrategy string              `json:"match_strategy,omitempty"`
+	// UseAI is the same switch the other three importers offer, in the same
+	// group and the same position on the screen. Off by default: the
+	// deterministic tiers are what an import must be judged on, and a feature
+	// that spends money on a tenant's behalf is turned on deliberately.
+	UseAI bool `json:"use_ai,omitempty"`
 }
 
 // SavingRowFilter contains query parameters for filtering and sorting review table rows.
@@ -111,4 +116,36 @@ type SavingImportView struct {
 	NoticeType string
 	NoticeMsg  string
 	Fatal      string
+
+	// AIAvailable says whether the platform can actually run the AI stage. The
+	// switch renders disabled with a reason when it cannot, rather than
+	// offering a toggle that ticks and then does nothing — which is what the
+	// old strategy dropdown did, promising "ذكاء اصطناعي" from an engine that
+	// had none.
+	AIAvailable         bool
+	AIUnavailableReason string
+}
+
+// WizardStep maps the session's phase onto the shared, canonically numbered
+// step.
+//
+// This list has no settings screen — there is nothing to decide beyond the
+// mapping — so step 3 is rendered greyed rather than the review being
+// renumbered into its place. The number is what a user remembers, and it has to
+// mean the same thing in every wizard on the platform.
+func (v SavingImportView) WizardStep() Step {
+	phase := SavingPhaseUpload
+	if v.Session != nil && v.Session.Phase != "" {
+		phase = v.Session.Phase
+	}
+	switch phase {
+	case SavingPhaseMapping:
+		return StepColumns
+	case SavingPhaseReview:
+		return StepReview
+	case SavingPhaseCompleted:
+		return StepResults
+	default:
+		return StepFile
+	}
 }

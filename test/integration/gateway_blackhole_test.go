@@ -7,12 +7,12 @@ import (
 	"testing"
 	"time"
 
-	"github.com/muhiya/dawa24-store/internal/modules/catalog"
-	cataloggw "github.com/muhiya/dawa24-store/internal/modules/catalog/gateway"
+	"github.com/muhiya/dawa24-store/internal/modules/aicapabilities"
 	"github.com/muhiya/dawa24-store/internal/modules/ingest"
 	"github.com/muhiya/dawa24-store/internal/platform/config"
 	"github.com/muhiya/dawa24-store/internal/platform/gateway"
 	"github.com/muhiya/dawa24-store/internal/shared/apperr"
+	"github.com/muhiya/dawa24-store/internal/shared/matchflow"
 )
 
 type blackholeMockIngestRepo struct {
@@ -154,19 +154,24 @@ func TestGatewayBlackHoleVerifiesDeterministicFallback(t *testing.T) {
 	}
 }
 
-// gateway_test_adjudicate runs one adjudication through the real adapter.
+// gateway_test_adjudicate runs one adjudication through the real capability.
+//
+// It used to go through catalog/gateway's own adjudicator. That prompt is gone —
+// the administrator's import asks the same question as the other three, through
+// aicapabilities — so this now guards the path that actually runs, which is the
+// point of the test rather than a change to it.
 func gateway_test_adjudicate(
 	ctx context.Context, client gateway.Client, logger *slog.Logger,
-) ([]catalog.MatchAdjudicationResult, error) {
-	mapper := cataloggw.NewMapper(client, logger)
-	return mapper.AdjudicateMatches(ctx, catalog.MatchAdjudicationRequest{
-		OrganizationID: 42,
-		Items: []catalog.MatchAdjudicationItem{{
-			Ref:  1,
-			Text: "بنادول اكسترا 500 مجم",
-			Candidates: []catalog.MatchAdjudicationCandidate{
-				{ProductID: 1001, Name: "بنادول اكسترا 500 مجم اقراص"},
-			},
+) ([]matchflow.Decision, error) {
+	caps := aicapabilities.NewService(client, logger)
+	return caps.EnhanceMatches(ctx, matchflow.Batch{
+		Catalog: []matchflow.CatalogEntry{
+			{ProductID: 1001, NameAR: "بنادول اكسترا 500 مجم اقراص"},
+		},
+		Items: []matchflow.Item{{
+			Ref:     0,
+			Text:    "بنادول اكسترا 500 مجم",
+			Options: []int64{1001},
 		}},
 	})
 }

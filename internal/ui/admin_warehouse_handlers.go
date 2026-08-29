@@ -20,7 +20,7 @@ import (
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/platform/database"
 	"github.com/muhiya/dawa24-store/internal/shared/money"
-	"github.com/muhiya/dawa24-store/internal/shared/spreadsheet"
+	"github.com/muhiya/dawa24-store/internal/shared/sheet"
 	"github.com/muhiya/dawa24-store/internal/ui/pages"
 )
 
@@ -558,7 +558,7 @@ func (h *UIHandler) AdminTempWarehouseUploadSubmit(w http.ResponseWriter, r *htt
 		return
 	}
 
-	rawRows, err := spreadsheet.ReadRows(fileBytes)
+	rawRows, err := sheet.ReadRows(fileBytes, header.Filename)
 	if err != nil || len(rawRows) < 2 {
 		h.redirectWithNotice(w, r, "/admin/user/temparte-warehouses", "error", "فشل تحليل ملف الإكسيل أو الملف لا يحتوي على صفوف بيانات كافية.")
 		return
@@ -802,4 +802,3 @@ func parsePriceFloat(raw string) (float64, error) {
 	}
 	return strconv.ParseFloat(numStr.String(), 64)
 }
-

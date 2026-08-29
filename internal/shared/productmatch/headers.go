@@ -120,11 +120,33 @@ var headerSpecs = []headerSpec{
 		blocked: []string{},
 	},
 	{
+		// Matched on the header alone. Its values are integers indistinguishable
+		// from a quantity or an item code, so there is nothing for value
+		// evidence to add — and a wrong guess links a row to an arbitrary
+		// product, which is the most expensive mistake this column can make.
+		field:   FieldProductID,
+		exact:   []string{"معرف المنتج", "معرف الصنف", "معرف صنف", "product id", "productid", "product_id", "dawa id", "dawa24 id", "pid"},
+		strong:  []string{"معرف المنتج", "معرف الصنف", "product id", "dawa24 id", "رقم المنتج في المنصة", "رقم الصنف في المنصة"},
+		weak:    []string{"معرف", "product id", "pid"},
+		blocked: []string{"باركود", "barcode", "المورد", "supplier"},
+	},
+	{
 		field:   FieldScientific,
-		exact:   []string{"الاسم العلمي", "المادة الفعالة", "المادة النشطة", "الماده الفعاله", "علمي", "generic name", "generic", "scientific name", "scientific", "active ingredient", "active substance", "inn"},
-		strong:  []string{"الاسم العلمي", "المادة الفعالة", "المادة النشطة", "المكون الفعال", "generic name", "scientific name", "active ingredient"},
-		weak:    []string{"علمي", "generic", "scientific", "فعاله", "active", "ingredient"},
+		exact:   []string{"الاسم العلمي", "الاسم العلمى", "علمي", "generic name", "generic", "scientific name", "scientific", "inn"},
+		strong:  []string{"الاسم العلمي", "generic name", "scientific name"},
+		weak:    []string{"علمي", "generic", "scientific"},
 		blocked: []string{"سعر", "price"},
+	},
+	{
+		// Split from the scientific name rather than sharing its synonyms.
+		// catalog.products keeps both columns, and a master-catalogue file that
+		// carries both had them competing for one field: whichever column came
+		// first won and the other was left unmapped.
+		field:   FieldActiveIngredient,
+		exact:   []string{"المادة الفعالة", "المادة النشطة", "الماده الفعاله", "المكون الفعال", "active ingredient", "active substance", "active"},
+		strong:  []string{"المادة الفعالة", "المكون الفعال", "active ingredient", "active substance"},
+		weak:    []string{"فعاله", "ingredient"},
+		blocked: []string{"سعر", "price", "الحاله", "status"},
 	},
 	{
 		field: FieldManufacturer,
@@ -281,11 +303,21 @@ var headerSpecs = []headerSpec{
 		blocked: []string{"تاريخ", "date", "صلاحيه"},
 	},
 	{
-		field:   FieldExpiryDate,
-		exact:   []string{"تاريخ الصلاحية", "الصلاحية", "تاريخ الانتهاء", "انتهاء الصلاحية", "الانتهاء", "expiry", "expiry date", "exp", "exp date", "expiration", "expiration date", "best before"},
-		strong:  []string{"تاريخ الصلاحية", "تاريخ الانتهاء", "انتهاء الصلاحية", "expiry date", "expiration date"},
-		weak:    []string{"صلاحيه", "انتهاء", "expiry", "exp"},
-		blocked: []string{"الانتاج", "production", "تصنيع", "manufactur"},
+		field:  FieldExpiryDate,
+		exact:  []string{"تاريخ الصلاحية", "الصلاحية", "تاريخ الانتهاء", "انتهاء الصلاحية", "الانتهاء", "expiry", "expiry date", "exp", "exp date", "expiration", "expiration date", "best before"},
+		strong: []string{"تاريخ الصلاحية", "تاريخ الانتهاء", "انتهاء الصلاحية", "expiry date", "expiration date"},
+		weak:   []string{"صلاحيه", "انتهاء", "expiry", "exp"},
+		// A column stating when the *record* changed is not a column stating
+		// when the *medicine* expires, and binding one to the other is not a
+		// cosmetic error: RejectExpired then refused 17,871 of a real file's
+		// 19,996 rows and reported the import as successful. Every word an ERP
+		// uses for a bookkeeping timestamp is blocked here.
+		blocked: []string{
+			"الانتاج", "production", "تصنيع", "manufactur",
+			"updated", "update", "modified", "created", "entry", "added",
+			"تحديث", "التحديث", "اضافه", "الاضافة", "انشاء", "الإنشاء", "تسجيل",
+			"الطلب", "order", "invoice", "الفاتوره", "الفاتورة",
+		},
 	},
 	{
 		field:   FieldWarehouse,
@@ -328,6 +360,20 @@ var headerSpecs = []headerSpec{
 		strong:  []string{"ملاحظات", "notes", "remarks"},
 		weak:    []string{"ملاحظه", "notes", "remark", "comment"},
 		blocked: []string{"بيان الصنف", "item description"},
+	},
+	{
+		field:   FieldDescription,
+		exact:   []string{"الوصف", "وصف", "وصف الصنف", "وصف المنتج", "التفاصيل", "description", "desc", "details", "description ar"},
+		strong:  []string{"وصف الصنف", "وصف المنتج", "الوصف بالعربية", "description"},
+		weak:    []string{"وصف", "desc", "details"},
+		blocked: []string{"english", "بالانجليزية", "بالإنجليزية", "en"},
+	},
+	{
+		field:   FieldDescriptionEN,
+		exact:   []string{"الوصف بالإنجليزية", "الوصف بالانجليزية", "description en", "english description", "desc en", "description_en"},
+		strong:  []string{"الوصف بالإنجليزية", "english description", "description en"},
+		weak:    []string{"desc en"},
+		blocked: []string{},
 	},
 }
 

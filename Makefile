@@ -51,7 +51,7 @@ migrate-status: ## List migrations and show how many are pending
 # pipeline, so failures are found before a push rather than after one.
 
 .PHONY: check
-check: fmt-check vet lint test check-provider-isolation check-file-size check-inline-styles check-error-swallow ## Run every gate
+check: fmt-check vet lint test check-provider-isolation check-prompt-version check-file-size check-inline-styles check-error-swallow ## Run every gate
 
 .PHONY: check-error-swallow
 check-error-swallow: ## Fail if a service error is silently discarded
@@ -121,6 +121,12 @@ check-provider-isolation: ## Fail if an AI provider name leaks outside platform/
 	fi
 	@echo "  ok: no provider names outside the gateway package"
 
+.PHONY: check-prompt-version
+check-prompt-version: ## Fail if the match-prompt version is declared outside aicapabilities
+	@echo "checking prompt version isolation..."
+	@if grep -rn 'sm-enh-' --include='*.go' ./cmd ./internal 2>/dev/null 	     | grep -v '^./internal/shared/matchflow/' 	     | grep -v '_test.go'; then 	  echo ""; 	  echo "ERROR: the match-enhancement prompt version appears outside"; 	  echo "internal/shared/matchflow/. It is the decision-cache key: two copies"; 	  echo "drift, and a drifted key silently splits one cache in two."; 	  echo "Import matchflow.PromptVersion instead of restating it."; 	  exit 1; 	fi
+	@echo "  ok: one prompt version, declared once"
+
 .PHONY: check-file-size
 check-file-size: ## Fail on Go files over 400 lines
 	@echo "checking file sizes..."
@@ -151,4 +157,4 @@ docker: ## Build the container image
 
 check-inline-styles: ## Fail if inline style attributes grow past the current ceiling
 	@echo "==> checking inline styles"
-	@n=$$(grep -oh 'style="' internal/ui/pages/*.templ internal/ui/layouts/*.templ | wc -l | tr -d ' '); 	if [ "$$n" -gt 4228 ]; then 	  echo "FAIL: $$n inline style attributes (ceiling 4228)."; 	  echo ""; 	  echo "Inline styles bypass the tokens in app.css, which is why the design"; 	  echo "drifted: a fix on one page never generalises. Use a class from"; 	  echo "components.css, or add one there. Genuinely one-off positioning may"; 	  echo "stay inline, but must use var(--token) values, never literals."; 	  echo ""; 	  echo "This is a ratchet: lower the ceiling in the Makefile as it drops."; 	  exit 1; 	fi; 	echo "OK: $$n inline styles (ceiling 4228)"
+	@n=$$(grep -oh 'style="' internal/ui/pages/*.templ internal/ui/layouts/*.templ | wc -l | tr -d ' '); 	if [ "$$n" -gt 4127 ]; then 	  echo "FAIL: $$n inline style attributes (ceiling 4127)."; 	  echo ""; 	  echo "Inline styles bypass the tokens in app.css, which is why the design"; 	  echo "drifted: a fix on one page never generalises. Use a class from"; 	  echo "components.css, or add one there. Genuinely one-off positioning may"; 	  echo "stay inline, but must use var(--token) values, never literals."; 	  echo ""; 	  echo "This is a ratchet: lower the ceiling in the Makefile as it drops."; 	  exit 1; 	fi; 	echo "OK: $$n inline styles (ceiling 4127)"

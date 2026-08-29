@@ -13,10 +13,24 @@ import (
 
 	"github.com/muhiya/dawa24-store/internal/modules/aicapabilities"
 	"github.com/muhiya/dawa24-store/internal/modules/ingest"
+	"github.com/muhiya/dawa24-store/internal/shared/matchflow"
 )
 
 type ingestEnhanceAdapter struct {
 	caps *aicapabilities.Service
+}
+
+// Enhance satisfies matchflow.Enhancer, which is the shared shape every
+// importer's AI stage asks through.
+//
+// The conversions below are gone because the types are the same types now: the
+// batch, the window entry, the item and the decision are all declared once in
+// internal/shared/matchflow and aliased everywhere else. This method is the whole
+// adapter for any caller that speaks the shared contract.
+func (a *ingestEnhanceAdapter) Enhance(
+	ctx context.Context, batch matchflow.Batch,
+) ([]matchflow.Decision, error) {
+	return a.caps.EnhanceMatches(ctx, batch)
 }
 
 func (a *ingestEnhanceAdapter) EnhanceBatch(

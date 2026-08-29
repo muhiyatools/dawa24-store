@@ -3164,43 +3164,8 @@ dialog.modal::backdrop {
   color: var(--text-muted);
 }
 
-.so-stepbar {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-2);
-  margin-block-end: var(--space-8);
-}
-
-.so-step {
-  display: flex;
-  align-items: center;
-  flex: 1;
-  min-width: 8.125rem;
-  gap: var(--space-2);
-  padding: 0.65rem 0.9rem;
-  color: var(--text-secondary);
-  font-size: var(--text-sm);
-  background: var(--surface-sunken);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
-}
-
-.so-step-done {
-  color: var(--success-text);
-  background: var(--success-surface);
-  border-color: var(--success-border);
-}
-
-.so-step-active {
-  color: #ffffff;
-  background: var(--accent);
-  border-color: var(--accent);
-  font-weight: 700;
-}
-
-.so-step-number {
-  font-weight: 700;
-}
+/* The smart order's own step bar is gone: every wizard now renders .wiz-rail,
+   so a fix to the rail lands on all four instead of on one. */
 
 .so-new-order-page {
   width: min(100% - 2rem, 62.5rem);
@@ -3329,9 +3294,6 @@ dialog.modal::backdrop {
     padding: var(--space-5);
   }
 
-  .so-step {
-    min-width: calc(50% - var(--space-2));
-  }
 }
 
 @media (max-width: 700px) {
@@ -5130,3 +5092,12 @@ input:focus {
 
 
 
+
+/* Wizard rail — a step this importer does not offer ---------------------- */
+/*
+   Rendered rather than removed, so the numbering is identical in all four
+   wizards: "the settings are step 3" has to be true even where step 3 is not
+   offered, because the number is what people remember.
+*/
+.wiz-node.is-skipped { color: var(--text-muted); opacity: 0.45; }
+.wiz-node.is-skipped .wiz-bubble { border-style: dashed; background: transparent; }

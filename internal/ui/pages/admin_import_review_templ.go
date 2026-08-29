@@ -75,7 +75,7 @@ func AdminProductsImportReview(lang, dir string, view ImportReviewView) templ.Co
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = wizardRail(reviewStep(view)).Render(ctx, templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = WizardRail(ImportRail(reviewStep(view))).Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -144,9 +144,9 @@ func AdminProductsImportReview(lang, dir string, view ImportReviewView) templ.Co
 }
 
 // reviewStep shows the third node as reached once the session has committed.
-func reviewStep(view ImportReviewView) ImportStep {
+func reviewStep(view ImportReviewView) Step {
 	if view.Session != nil && view.Session.Status == catalog.SessionCommitted {
-		return StepDone
+		return StepResults
 	}
 	return StepReview
 }

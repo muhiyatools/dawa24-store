@@ -22,7 +22,10 @@ import (
 // TargetFields are the columns smart ordering can use.
 //
 // Deliberately fewer than the vendor importer's: a purchase list carries no
-// prices, because the prices are what the system is going to find.
+// prices, because the prices are what the system is going to find. The list is
+// the presentation order for the mapping screen; what the columns *mean* is
+// decided by productmatch.OrderFields, which is the same resolver every other
+// importer runs.
 var TargetFields = []struct {
 	Key      string
 	LabelAR  string
@@ -64,14 +67,28 @@ func Inspect(content []byte, filename string) (*ParsedFile, error) {
 		return nil, fmt.Errorf("the file has no rows")
 	}
 
-	headerRow, detected, confidence := detectHeaders(preview.Rows)
-	headers := preview.Rows[headerRow]
+	analysis, err := productmatch.AnalyzeWith(book, productmatch.AnalyzeOptions{
+		Fields: productmatch.OrderFields,
+	})
+	if err != nil {
+		return nil, fmt.Errorf("could not read the columns: %w", err)
+	}
+
+	headerRow := analysis.Layout.HeaderRow
+	if headerRow < 0 || headerRow >= len(preview.Rows) {
+		headerRow = 0
+	}
+	headers := analysis.Layout.Headers
+	if len(headers) == 0 {
+		headers = preview.Rows[headerRow]
+	}
 
 	body := preview.Rows[headerRow+1:]
 	if len(body) > 5 {
 		body = body[:5]
 	}
 
+	detected, confidence := translateMapping(analysis.Mapping)
 	return &ParsedFile{
 		Headers:    headers,
 		HeaderRow:  headerRow,
@@ -81,95 +98,35 @@ func Inspect(content []byte, filename string) (*ParsedFile, error) {
 	}, nil
 }
 
-// detectHeaders finds the real header row and maps the columns it recognises.
+// orderFieldKeys maps the shared engine's field names onto the keys smart
+// ordering has always persisted in smartorder.column_mappings.
 //
-// Uses the shared column vocabulary, so smart ordering recognises the same
-// Arabic and English aliases the vendor importer does — a pharmacy writing
-// "الصنف" or "العدد" is understood by both.
-func detectHeaders(rows [][]string) (int, map[int]string, map[string]float64) {
-	best := 0
-	bestScore := -1
-	var bestMapping map[int]string
-	var bestConfidence map[string]float64
-
-	// Scan the first few rows: a banner is rarely more than three or four deep.
-	limit := len(rows)
-	if limit > 8 {
-		limit = 8
-	}
-	for i := 0; i < limit; i++ {
-		mapping, confidence := matchHeaderRow(rows[i])
-		score := len(mapping)
-		if score > bestScore {
-			best, bestScore = i, score
-			bestMapping, bestConfidence = mapping, confidence
-		}
-	}
-	if bestMapping == nil {
-		bestMapping = map[int]string{}
-		bestConfidence = map[string]float64{}
-	}
-	return best, bestMapping, bestConfidence
+// The translation exists so replacing the private detector did not require a
+// migration: a run started before this change and resumed after it reads the
+// same mapping it was given.
+var orderFieldKeys = map[productmatch.Field]string{
+	productmatch.FieldName:     "product_name",
+	productmatch.FieldSKU:      "sku",
+	productmatch.FieldBarcode:  "barcode",
+	productmatch.FieldQuantity: "quantity",
 }
 
-// matchHeaderRow scores one candidate header row against the target fields.
-func matchHeaderRow(row []string) (map[int]string, map[string]float64) {
-	mapping := make(map[int]string)
-	confidence := make(map[string]float64)
-	taken := make(map[string]bool)
-
-	for col, raw := range row {
-		header := productmatch.NormalizeText(strings.TrimSpace(raw))
-		if header == "" {
-			continue
-		}
-		field, score := bestFieldFor(header)
-		if field == "" || taken[field] {
-			continue
-		}
-		// A weak guess is worse than none: it puts a confident-looking wrong
-		// answer in front of the buyer, which is the failure step 2 exists to
-		// prevent.
-		if score < 0.6 {
-			continue
-		}
-		mapping[col] = field
-		confidence[field] = score
-		taken[field] = true
+// translateMapping renders a resolved mapping in smart ordering's vocabulary.
+func translateMapping(m *productmatch.Mapping) (map[int]string, map[string]float64) {
+	detected := make(map[int]string, len(orderFieldKeys))
+	confidence := make(map[string]float64, len(orderFieldKeys))
+	if m == nil {
+		return detected, confidence
 	}
-	return mapping, confidence
-}
-
-// fieldAliases are the header spellings each target field answers to.
-var fieldAliases = []struct {
-	Field   string
-	Aliases []string
-}{
-	{"product_name", []string{"اسم الصنف", "الصنف", "اسم المنتج", "المنتج", "اسم الدواء", "الدواء",
-		"البيان", "product", "product name", "item", "item name", "description", "name"}},
-	{"sku", []string{"كود الصنف", "الكود", "كود المنتج", "رمز الصنف", "sku", "code", "item code",
-		"product code", "ref"}},
-	{"barcode", []string{"الباركود", "باركود", "barcode", "ean", "gtin", "upc"}},
-	{"quantity", []string{"الكمية", "العدد", "الكميه", "كمية", "quantity", "qty", "count", "units",
-		"required", "المطلوب"}},
-}
-
-// bestFieldFor picks the target field a header best matches.
-func bestFieldFor(header string) (string, float64) {
-	var bestField string
-	var bestScore float64
-	for _, candidate := range fieldAliases {
-		for _, alias := range candidate.Aliases {
-			if header == productmatch.NormalizeText(alias) {
-				return candidate.Field, 1
-			}
-			score := productmatch.TextSimilarity(header, productmatch.NormalizeText(alias))
-			if score > bestScore {
-				bestField, bestScore = candidate.Field, score
-			}
+	for _, c := range m.Columns {
+		key, ok := orderFieldKeys[c.Field]
+		if !ok {
+			continue
 		}
+		detected[c.Index] = key
+		confidence[key] = c.Score
 	}
-	return bestField, bestScore
+	return detected, confidence
 }
 
 // Stage reads the whole file through a confirmed mapping and returns the lines.

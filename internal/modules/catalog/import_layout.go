@@ -224,10 +224,34 @@ func buildBlocks(records [][]string, headerRows []int) []SheetBlock {
 			HeaderRow: headerRow,
 			FirstRow:  first,
 			LastRow:   last,
-			Plan:      PlanColumns(records[headerRow]),
+			// The block's own rows, not the sheet's: a file that stacks two
+			// differently shaped sections must have each section's columns
+			// judged on the values that section actually holds.
+			Plan: PlanColumns(records[headerRow], sampleRows(records, first, last)),
 		})
 	}
 	return blocks
+}
+
+// sampleRowsLimit is how many data rows are measured to profile a block.
+//
+// Two hundred is far past the point where another row changes a column's
+// profile, and it keeps layout analysis proportional to the number of blocks
+// rather than to the size of the file.
+const sampleRowsLimit = 200
+
+// sampleRows returns the head of a block's data rows, for value profiling.
+func sampleRows(records [][]string, first, last int) [][]string {
+	if first < 0 || first >= len(records) {
+		return nil
+	}
+	if last >= len(records) {
+		last = len(records) - 1
+	}
+	if last-first+1 > sampleRowsLimit {
+		last = first + sampleRowsLimit - 1
+	}
+	return records[first : last+1]
 }
 
 // samePlan reports whether two blocks bind the same fields to the same columns.
@@ -364,7 +388,7 @@ func overridePlan(plan ColumnPlan, columns map[string]int) ColumnPlan {
 			Index: col,
 			// An admin's own binding is certain by definition; it is not a guess
 			// the report should ask them to double-check.
-			Score:  scoreExact,
+			Score:  100,
 			Header: FieldLabels[field],
 		})
 	}

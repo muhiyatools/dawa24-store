@@ -290,14 +290,25 @@ func mountModuleRoutes(
 		// in batches of twenty-five against a shortlist the importer retrieved.
 		// Without it the import matched barcodes and identical spellings only,
 		// and staged everything else as a new product.
-		catSvcUI.SetMatchAdjudicator(mapper)
+		// The administrator's import asks the same question as the other three,
+		// so it asks it through the same capability rather than through a third
+		// prompt of its own. The mapper still answers the two questions that are
+		// genuinely its own — which column is which, and what a category word
+		// means — and those are asked once per file, not once per row.
+		catSvcUI.SetMatchAdjudicator(&catalogAdjudicateAdapter{caps: aiCapabilitiesSvc})
 		// The vendor import runs the smart order's enhancement stage: the same
 		// system prompt, the same shared catalogue window, the same guards, and
 		// the same decision cache in catalog.match_decisions — so an answer
 		// bought by a pharmacy's order is free to the vendor whose price list
 		// asks the same question, and there is one prompt to tune rather than
 		// two that drift.
-		ingSvcUI.SetEnhancer(ingest.NewGatewayEnhancer(&ingestEnhanceAdapter{caps: aiCapabilitiesSvc}))
+		enhancer := &ingestEnhanceAdapter{caps: aiCapabilitiesSvc}
+		ingSvcUI.SetEnhancer(ingest.NewGatewayEnhancer(enhancer))
+		// The saving-list import runs the same stage through the same adapter.
+		// It was the last of the four importers without one, and giving it a
+		// second implementation would have been the mistake this whole refactor
+		// exists to undo.
+		uiHandler.SetMatchEnhancer(enhancer)
 	}
 	if storageClient != nil {
 		compareSvcUI.SetStorage(storageClient)

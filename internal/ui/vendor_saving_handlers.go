@@ -17,7 +17,7 @@ import (
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/shared/money"
-	"github.com/muhiya/dawa24-store/internal/shared/spreadsheet"
+	"github.com/muhiya/dawa24-store/internal/shared/sheet"
 	"github.com/muhiya/dawa24-store/internal/ui/pages"
 )
 
@@ -260,7 +260,7 @@ func (h *UIHandler) VendorSavingProductsImportSubmit(w http.ResponseWriter, r *h
 		return
 	}
 
-	rawRows, err := spreadsheet.ReadRows(fileBytes)
+	rawRows, err := sheet.ReadRows(fileBytes, header.Filename)
 	if err != nil || len(rawRows) < 2 {
 		h.log.WarnContext(ctx, "failed to parse spreadsheet", "error", err, "filename", header.Filename)
 		h.redirectWithNotice(w, r, "/vendor/saving-products", "error", "تعذر قراءة ملف البيانات المرفوع أو أن الملف لا يحتوي على صفوف بيانات صالحة.")
@@ -297,7 +297,7 @@ func (h *UIHandler) VendorSavingProductsImportSubmit(w http.ResponseWriter, r *h
 
 	var matchEngine *SavingProductMatchEngine
 	if h.catSvc != nil {
-		if catalogSources, err := h.catSvc.ListAllMasterProductsForMatching(ctx); err == nil && len(catalogSources) > 0 {
+		if catalogSources, err := h.catSvc.ListMatchProducts(ctx); err == nil && len(catalogSources) > 0 {
 			matchEngine = NewSavingProductMatchEngine(catalogSources)
 		}
 	}
@@ -402,7 +402,7 @@ func (h *UIHandler) VendorSavingProductsPreviewColumnsJSON(w http.ResponseWriter
 		return
 	}
 
-	file, _, err := r.FormFile("file")
+	file, header, err := r.FormFile("file")
 	if err != nil {
 		_ = json.NewEncoder(w).Encode(SavingProductsPreviewResponse{Success: false, Error: "يرجى اختيار ملف Excel أو CSV صالح"})
 		return
@@ -415,7 +415,7 @@ func (h *UIHandler) VendorSavingProductsPreviewColumnsJSON(w http.ResponseWriter
 		return
 	}
 
-	rawRows, err := spreadsheet.ReadRows(fileBytes)
+	rawRows, err := sheet.ReadRows(fileBytes, header.Filename)
 	if err != nil || len(rawRows) == 0 {
 		_ = json.NewEncoder(w).Encode(SavingProductsPreviewResponse{Success: false, Error: "تعذر قراءة أوراق العمل أو الجداول داخل الملف"})
 		return
@@ -475,7 +475,7 @@ func (h *UIHandler) VendorSavingProductsImportStartJSON(w http.ResponseWriter, r
 		return
 	}
 
-	rawRows, err := spreadsheet.ReadRows(fileBytes)
+	rawRows, err := sheet.ReadRows(fileBytes, fileHeader.Filename)
 	if err != nil || len(rawRows) <= 1 {
 		_ = json.NewEncoder(w).Encode(map[string]any{"success": false, "error": "الملف فارغ أو لا يحتوي على صفوف بيانات"})
 		return
@@ -506,17 +506,22 @@ func (h *UIHandler) VendorSavingProductsImportStartJSON(w http.ResponseWriter, r
 		matchStrategy = StrategySmartAuto
 	}
 
+	// Read before the goroutine and passed in, not captured: the background
+	// worker must run under the choice the user made on the request that
+	// started it, not whatever the session happens to hold later.
+	useAI := r.FormValue("use_ai") == "1" || r.FormValue("use_ai") == "on"
+
 	session := globalSavingImportSessionStore.NewSession(actor.OrganizationID, actor.UserID, fileHeader.Filename, len(rawRows)-1)
 
 	// Launch async background processing
-	go func(sessID string, orgID, userID int64, dataRows [][]string, nCol, sCol, qCol, pCol, pidCol int, strat MatchStrategy) {
+	go func(sessID string, orgID, userID int64, dataRows [][]string, nCol, sCol, qCol, pCol, pidCol int, strat MatchStrategy, aiOn bool) {
 		bgCtx := context.Background()
 
 		globalSavingImportSessionStore.UpdateProgress(sessID, 15, "تحميل وفهرسة كتالوج الأدوية المعتمد", 0)
 
 		var matchEngine *SavingProductMatchEngine
 		if h.catSvc != nil {
-			if catalogSources, err := h.catSvc.ListAllMasterProductsForMatching(bgCtx); err == nil && len(catalogSources) > 0 {
+			if catalogSources, err := h.catSvc.ListMatchProducts(bgCtx); err == nil && len(catalogSources) > 0 {
 				matchEngine = NewSavingProductMatchEngine(catalogSources)
 			}
 		}
@@ -588,17 +593,7 @@ func (h *UIHandler) VendorSavingProductsImportStartJSON(w http.ResponseWriter, r
 			if productID != nil {
 				matchedCount++
 				if matchEngine != nil {
-					for _, cItem := range matchEngine.items {
-						if cItem.ID == *productID {
-							if cItem.NameAr != "" {
-								masterName = cItem.NameAr
-							} else {
-								masterName = cItem.NameEn
-							}
-							masterSKU = cItem.SKU
-							break
-						}
-					}
+					masterName, masterSKU = matchEngine.Describe(*productID)
 				}
 			} else {
 				unlinkedCount++
@@ -632,6 +627,16 @@ func (h *UIHandler) VendorSavingProductsImportStartJSON(w http.ResponseWriter, r
 			}
 		}
 
+		// The same AI stage the other three importers run. It was hooked into
+		// the mapping-submit path first and this one — the background path the
+		// upload screen actually drives — was missed, which meant the feature
+		// was wired in the flow nobody uses and absent from the flow everybody
+		// does.
+		if n := h.enhanceSaving(bgCtx, aiOn, matchEngine, stagedItems); n > 0 {
+			matchedCount += n
+			unlinkedCount -= n
+		}
+
 		globalSavingImportSessionStore.CompleteProcessing(
 			sessID,
 			stagedItems,
@@ -640,7 +645,7 @@ func (h *UIHandler) VendorSavingProductsImportStartJSON(w http.ResponseWriter, r
 			totalQty,
 			money.FromMinor(totalValMinor),
 		)
-	}(session.ID, actor.OrganizationID, actor.UserID, rawRows[1:], nameCol, skuCol, qtyCol, priceCol, productIDCol, matchStrategy)
+	}(session.ID, actor.OrganizationID, actor.UserID, rawRows[1:], nameCol, skuCol, qtyCol, priceCol, productIDCol, matchStrategy, useAI)
 
 	_ = json.NewEncoder(w).Encode(map[string]any{
 		"success":    true,

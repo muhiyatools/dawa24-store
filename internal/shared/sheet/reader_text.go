@@ -73,11 +73,65 @@ func (b *Book) openXLS() (err error) {
 	if best < 0 || bestCells == 0 {
 		return b.fallbackFromBinary(nil)
 	}
+	if corruptBIFF(grids[best]) {
+		return errors.New("تعذر قراءة هذا الملف بصيغة Excel 97-2003 (.xls) قراءة كاملة — " +
+			"جزء كبير من صفوفه غير مقروء. يرجى فتحه في Excel وحفظه بصيغة " +
+			"«مصنف Excel (.xlsx)» ثم إعادة الرفع.")
+	}
 	b.source.Sheets[best].Chosen = true
 	b.source.Sheet = b.source.Sheets[best].Name
 	b.rows = grids[best]
 	b.finishGrid()
 	return nil
+}
+
+// corruptBIFFShare is the proportion of a sheet's text that may sit inside
+// undecodable cells before the workbook is refused rather than partially
+// imported.
+//
+// Measured by length rather than by cell count, because the failure concentrates
+// rather than scatters: in the corpus file it glues 735 rows into nine cells, so
+// counting cells reports 0.35% corrupt while counting characters reports 94%.
+// One in twenty is far above anything a legitimate decode produces and far
+// below what this failure produces.
+const corruptBIFFShare = 0.05
+
+// corruptBIFF reports whether the BIFF decoder gave back raw record bytes
+// instead of strings.
+//
+// The library this package uses mis-handles Continue records past a certain
+// offset in some real files: from that row on, it returns one cell holding the
+// undecoded UTF-16 blob of many rows glued together with record separators.
+// Nothing downstream can tell that from a very long product name.
+//
+// A real distributor file in the corpus loses 735 of its 1,011 rows this way,
+// and every stage after it behaved perfectly: the columns resolved, 276 rows
+// matched at 69%, and the vendor was told the import succeeded. Two thirds of
+// their catalogue was simply not there.
+//
+// So the decode is checked for its own failure signature — a NUL byte, which a
+// decoded cell never contains — and a file that shows it is refused with the
+// one instruction that actually fixes it. A partial import reported as a whole
+// one is the worst outcome available here; an error the vendor can act on is
+// the best.
+func corruptBIFF(grid [][]string) bool {
+	total, corrupt := 0, 0
+	for _, row := range grid {
+		for _, cell := range row {
+			if cell == "" {
+				continue
+			}
+			n := len(cell)
+			total += n
+			if strings.ContainsRune(cell, 0) {
+				corrupt += n
+			}
+		}
+	}
+	if total == 0 {
+		return false
+	}
+	return float64(corrupt) > float64(total)*corruptBIFFShare
 }
 
 // xlsColumnProbe is how far right a BIFF row is searched for content when the
@@ -413,8 +467,23 @@ func utf16ToUTF8(b []byte, little bool) []byte {
 	return []byte(string(utf16.Decode(units)))
 }
 
-// isBinary reports whether decoded content is not text. A NUL byte is decisive;
-// beyond that a run of control characters or invalid UTF-8 settles it.
+// binaryControlShare is the proportion of control bytes above which content is
+// judged binary rather than dirty text.
+//
+// A single NUL used to be decisive, and it was the wrong rule: the ERPs that
+// export a CSV by dumping fixed-width string records pad them with NUL, so a
+// perfectly readable price list was refused with "تعذر التعرف على نوع الملف"
+// and the vendor was told their file was corrupt.
+//
+// A tenth is generous on purpose, because every format that is genuinely binary
+// has already been excluded before this runs: Detect matches the ZIP and OLE2
+// magic numbers, the XML prolog and the HTML doctype first, so what reaches
+// here is either text or something renamed. A PDF or a JPEG is a third control
+// bytes; UTF-16 without a byte-order mark is half NUL; scattered padding in a
+// price list is under one in fifty.
+const binaryControlShare = 0.10
+
+// isBinary reports whether decoded content is not text.
 func isBinary(content []byte) bool {
 	head := content
 	if len(head) > 8192 {
@@ -423,16 +492,13 @@ func isBinary(content []byte) bool {
 	if len(head) == 0 {
 		return false
 	}
-	if bytes.IndexByte(head, 0) >= 0 {
-		return true
-	}
 	control := 0
 	for _, c := range head {
-		if c < 0x20 && c != '\t' && c != '\n' && c != '\r' {
+		if c == 0 || (c < 0x20 && c != '\t' && c != '\n' && c != '\r') {
 			control++
 		}
 	}
-	if control*100 > len(head) {
+	if float64(control) > float64(len(head))*binaryControlShare {
 		return true
 	}
 	// Truncating mid-rune at the 8 KB boundary would make valid UTF-8 look

@@ -185,6 +185,15 @@ func (idx *Index) nameSimilarity(q *query, p *MasterProduct) float64 {
 			best = v
 		}
 	}
+
+	// The cross-script channel, discounted further still. It is the only one
+	// that can see an Arabic query and a Latin catalogue name as the same
+	// product, and it is also the loosest: a skeleton drops every vowel, so two
+	// different brands can reduce alike. Scored below trigrams so it only ever
+	// decides a comparison the other two could not.
+	if v := skeletonSimilarity(q.skeleton, p.skeleton) * 0.86; v > best {
+		best = v
+	}
 	return best
 }
 

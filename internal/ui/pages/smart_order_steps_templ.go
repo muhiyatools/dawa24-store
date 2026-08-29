@@ -84,11 +84,11 @@ func SmartOrderMappingPage(lang, dir string, data SmartOrderMappingData) templ.C
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"container-fluid so-mapping-page\"><h1 class=\"so-mapping-title\">تعيين أعمدة الملف</h1>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"page-container max-w-4xl so-mapping-page\"><h1 class=\"so-mapping-title\">تعيين أعمدة الملف</h1>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = stepBar(2).Render(ctx, templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = WizardRail(OrderRail(StepColumns)).Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -124,7 +124,7 @@ func SmartOrderMappingPage(lang, dir string, data SmartOrderMappingData) templ.C
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "\" class=\"card so-mapping-form\"><input type=\"hidden\" name=\"header_row\" value=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "\" class=\"glass-panel p-6 mb-0 so-mapping-form\"><input type=\"hidden\" name=\"header_row\" value=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -417,7 +417,7 @@ func SmartOrderProgressPage(lang, dir string, data SmartOrderProgressData) templ
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = stepBar(3).Render(ctx, templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = WizardRail(OrderRail(StepReview)).Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

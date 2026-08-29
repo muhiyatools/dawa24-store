@@ -1,76 +1,106 @@
 package pipeline
 
 import (
+	"strings"
 	"testing"
-
-	"github.com/muhiya/dawa24-store/internal/shared/productmatch"
 )
 
-func TestDetectHeadersFindsRowBeneathBanner(t *testing.T) {
+// csvOf renders rows as a UTF-8 CSV, which is what Inspect actually reads.
+//
+// These tests used to call the package's own header detector directly. It no
+// longer has one: column detection is productmatch's, the same resolver the
+// vendor and catalogue imports run, so the thing worth asserting is what the
+// buyer's mapping screen ends up showing. Going through Inspect tests that.
+func csvOf(rows [][]string) []byte {
+	var b strings.Builder
+	for _, r := range rows {
+		b.WriteString(strings.Join(r, ","))
+		b.WriteByte('\n')
+	}
+	return []byte(b.String())
+}
+
+func inspectRows(t *testing.T, rows [][]string) *ParsedFile {
+	t.Helper()
+	got, err := Inspect(csvOf(rows), "order.csv")
+	if err != nil {
+		t.Fatalf("Inspect: %v", err)
+	}
+	return got
+}
+
+func TestInspectFindsHeaderRowBeneathBanner(t *testing.T) {
 	// The layout the spec calls out: a title, a date, a blank, then the headers.
-	rows := [][]string{
+	got := inspectRows(t, [][]string{
 		{"صيدلية النور", "", "", ""},
 		{"طلب توريد 2026/08", "", "", ""},
 		{"", "", "", ""},
 		{"اسم الصنف", "كود الصنف", "الباركود", "العدد"},
-		{"بانادول", "P1", "622", "5"},
-	}
-	headerRow, mapping, confidence := detectHeaders(rows)
+		{"بانادول", "P1", "6221234567890", "5"},
+	})
 
-	if headerRow != 3 {
-		t.Fatalf("expected the header on row 3, got %d", headerRow)
+	if got.HeaderRow != 3 {
+		t.Fatalf("expected the header on row 3, got %d", got.HeaderRow)
 	}
-	if len(mapping) != 4 {
-		t.Fatalf("expected all four columns mapped, got %d: %v", len(mapping), mapping)
-	}
-	if mapping[0] != "product_name" {
-		t.Errorf("column 0 should be product_name, got %q", mapping[0])
+	if got.Detected[0] != "product_name" {
+		t.Errorf("column 0 should be product_name, got %q", got.Detected[0])
 	}
 	// "العدد" is the alias the spec names explicitly.
-	if mapping[3] != "quantity" {
-		t.Errorf("العدد should map to quantity, got %q", mapping[3])
+	if got.Detected[3] != "quantity" {
+		t.Errorf("العدد should map to quantity, got %q", got.Detected[3])
 	}
-	if confidence["product_name"] <= 0 {
+	if got.Confidence["product_name"] <= 0 {
 		t.Error("expected a confidence for product_name")
 	}
 }
 
-func TestDetectHeadersHandlesEnglishHeaders(t *testing.T) {
-	rows := [][]string{{"Item Name", "SKU", "Barcode", "Qty"}}
-	_, mapping, _ := detectHeaders(rows)
+func TestInspectHandlesEnglishHeaders(t *testing.T) {
+	got := inspectRows(t, [][]string{
+		{"Item Name", "SKU", "Barcode", "Qty"},
+		{"Panadol Extra", "PAN-24", "6221234567890", "5"},
+		{"Congestal", "CON-20", "6221234567891", "3"},
+	})
 
-	want := map[int]string{0: "product_name", 1: "sku", 2: "barcode", 3: "quantity"}
+	want := map[int]string{0: "product_name", 1: "sku", 3: "quantity"}
 	for col, field := range want {
-		if mapping[col] != field {
-			t.Errorf("column %d: expected %q, got %q", col, field, mapping[col])
+		if got.Detected[col] != field {
+			t.Errorf("column %d: expected %q, got %q", col, field, got.Detected[col])
 		}
+	}
+}
+
+// TestInspectOffersOnlyOrderFields is the guard that replacing the private
+// detector did not widen what smart ordering can conclude. A purchase list has
+// no prices — the prices are what the run goes and finds — so a column of money
+// must not arrive on the mapping screen bound to one.
+func TestInspectOffersOnlyOrderFields(t *testing.T) {
+	got := inspectRows(t, [][]string{
+		{"اسم الصنف", "سعر الجمهور", "الكمية"},
+		{"بانادول اكسترا 24 قرص", "48.50", "5"},
+		{"كونجستال 20 قرص", "29.00", "3"},
+	})
+
+	for col, field := range got.Detected {
+		switch field {
+		case "product_name", "sku", "barcode", "quantity":
+		default:
+			t.Errorf("column %d bound to %q, which smart ordering cannot use", col, field)
+		}
+	}
+	if got.Detected[2] != "quantity" {
+		t.Errorf("the quantity column should still be found, got %q", got.Detected[2])
 	}
 }
 
 func TestWeakHeaderGuessesAreNotOffered(t *testing.T) {
 	// A confident-looking wrong guess is worse than none: it is the failure the
 	// mapping screen exists to catch.
-	rows := [][]string{{"ملاحظات", "xyz123", "???"}}
-	_, mapping, _ := detectHeaders(rows)
-	for col, field := range mapping {
-		t.Errorf("column %d should not have been mapped, got %q", col, field)
-	}
-}
-
-func TestBestFieldForRecognisesArabicAliases(t *testing.T) {
-	cases := map[string]string{
-		"الصنف":     "product_name",
-		"المنتج":    "product_name",
-		"الكمية":    "quantity",
-		"العدد":     "quantity",
-		"الباركود":  "barcode",
-		"كود الصنف": "sku",
-	}
-	for header, want := range cases {
-		got, score := bestFieldFor(productmatch.NormalizeText(header))
-		if got != want {
-			t.Errorf("%q: expected %q, got %q (score %.2f)", header, want, got, score)
-		}
+	got := inspectRows(t, [][]string{
+		{"ملاحظات", "xyz123", "???"},
+		{"a", "b", "c"},
+	})
+	if field, bound := got.Detected[0]; bound {
+		t.Errorf("a notes column must not be offered as %q", field)
 	}
 }
 

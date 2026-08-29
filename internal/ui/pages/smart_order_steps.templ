@@ -45,9 +45,9 @@ func confidenceChip(c float64) string {
 // SmartOrderMappingPage is step 2: confirm or correct the column mapping.
 templ SmartOrderMappingPage(lang, dir string, data SmartOrderMappingData) {
 	@layouts.CustomerShell("تعيين الأعمدة", "purchase-request", lang, dir, nil) {
-		<div class="container-fluid so-mapping-page">
+		<div class="page-container max-w-4xl so-mapping-page">
 			<h1 class="so-mapping-title">تعيين أعمدة الملف</h1>
-			@stepBar(2)
+			@WizardRail(OrderRail(StepColumns))
 
 			if data.Error != "" {
 				<div class="so-alert so-alert-error">
@@ -59,7 +59,7 @@ templ SmartOrderMappingPage(lang, dir string, data SmartOrderMappingData) {
 				تعرّف النظام على الأعمدة تلقائيًا. راجع الاختيارات وصحّح أي عمود قبل بدء المطابقة — تعيين خاطئ ينتج طلبًا خاطئًا بثقة.
 			</p>
 
-			<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/customer/smart-order/%s/mapping", data.Run.PublicID)) } class="card so-mapping-form">
+			<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/customer/smart-order/%s/mapping", data.Run.PublicID)) } class="glass-panel p-6 mb-0 so-mapping-form">
 				<input type="hidden" name="header_row" value={ fmt.Sprintf("%d", data.HeaderRow) }/>
 				for _, f := range data.Fields {
 					<div class="so-field">
@@ -163,7 +163,7 @@ templ SmartOrderProgressPage(lang, dir string, data SmartOrderProgressData) {
 	@layouts.CustomerShell("جارٍ المطابقة", "purchase-request", lang, dir, nil) {
 		<div class="container-fluid so-progress-page">
 			<h1 class="so-progress-title">جارٍ تجهيز الطلب</h1>
-			@stepBar(3)
+			@WizardRail(OrderRail(StepReview))
 
 			if data.Failed {
 				<div class="so-progress-failed">

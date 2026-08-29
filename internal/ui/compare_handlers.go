@@ -21,7 +21,7 @@ import (
 	"github.com/muhiya/dawa24-store/internal/modules/compare"
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/platform/features"
-	"github.com/muhiya/dawa24-store/internal/shared/spreadsheet"
+	"github.com/muhiya/dawa24-store/internal/shared/sheet"
 	"github.com/muhiya/dawa24-store/internal/ui/pages"
 )
 
@@ -139,6 +139,26 @@ func (h *UIHandler) CompareToolPage(w http.ResponseWriter, r *http.Request) {
 
 	noticeType := r.URL.Query().Get("notice")
 	noticeMsg := r.URL.Query().Get("msg")
+
+	// Subscription Feature Gate Check
+	if !actor.IsStaff && h.billSvc != nil {
+		allowed, err := h.billSvc.CheckOrgEntitlement(ctx, actor.OrganizationID, actor.UserID, billing.FeatureCompareTool)
+		if err != nil || !allowed {
+			plans, _ := h.billSvc.ListPlans(ctx)
+			w.Header().Set("Content-Type", "text/html; charset=utf-8")
+			if err := pages.SubscriptionGatePage(lang, dir, pages.SubscriptionGateProps{
+				FeatureKey:   billing.FeatureCompareTool,
+				FeatureTitle: "أداة مقارنة الخصومات الخاصة (Private Comparison Tool)",
+				FeatureDesc:  "تتيح لك هذه الأداة رفع كشوف أسعار وخصومات الموردين وتحليل الفروقات واختيار أفضل العروض الدوائية لصيدليتك تلقائياً.",
+				FeatureIcon:  "📊",
+				Plans:        plans,
+				Actor:        actor,
+			}).Render(ctx, w); err != nil {
+				h.log.ErrorContext(ctx, "render subscription gate page", "error", err)
+			}
+			return
+		}
+	}
 
 	var files []*compare.CompareFile
 	if h.compareSvc != nil {
@@ -704,7 +724,7 @@ func (h *UIHandler) parseFilePreview(reader io.Reader, filename string) ([]strin
 	if err != nil {
 		return nil, nil, err
 	}
-	allRows, err := spreadsheet.ReadRows(data)
+	allRows, err := sheet.ReadRows(data, filename)
 	if err != nil || len(allRows) == 0 {
 		return nil, nil, fmt.Errorf("empty or unparseable spreadsheet: %w", err)
 	}

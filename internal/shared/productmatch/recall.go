@@ -71,6 +71,11 @@ type recallIndex struct {
 	once sync.Once
 	tri  map[string][]*MasterProduct
 	sci  map[string][]*MasterProduct
+	// skel maps a consonant-skeleton trigram to the products carrying it. It is
+	// what makes a cross-script query retrievable at all: an Arabic row shares
+	// no token and no within-script trigram with a Latin catalogue name, so
+	// without this the correct product is not in the pool to be scored.
+	skel map[string][]*MasterProduct
 	// makers is every word that appears in some product's manufacturer field.
 	// It is drawn from the catalogue rather than from a list, because the
 	// companies that matter are the ones this catalogue actually names.
@@ -81,6 +86,7 @@ func (idx *Index) recall() *recallIndex {
 	idx.tri.once.Do(func() {
 		tri := make(map[string][]*MasterProduct, idx.total*8)
 		sci := make(map[string][]*MasterProduct, idx.total)
+		skel := make(map[string][]*MasterProduct, idx.total*6)
 		makers := make(map[string]bool, 2048)
 		for _, p := range idx.products {
 			for _, tok := range coreTokens(p.Manufacturer) {
@@ -99,8 +105,11 @@ func (idx *Index) recall() *recallIndex {
 			for _, tok := range coreTokens(p.Scientific) {
 				sci[tok] = append(sci[tok], p)
 			}
+			for _, t := range sortedStringTrigrams(p.skeleton) {
+				skel[t] = append(skel[t], p)
+			}
 		}
-		idx.tri.tri, idx.tri.sci, idx.tri.makers = tri, sci, makers
+		idx.tri.tri, idx.tri.sci, idx.tri.skel, idx.tri.makers = tri, sci, skel, makers
 	})
 	return &idx.tri
 }
@@ -149,6 +158,24 @@ func (idx *Index) Recall(row *Row, opts RecallOptions) []MatchCandidate {
 			}
 			if len(pool) >= opts.PoolLimit {
 				break
+			}
+		}
+	}
+
+	// Strategy 4 — the consonant skeleton, for the rows written in the other
+	// alphabet. It runs last and only when the pool is thin, because it is the
+	// loosest net here: it drops every vowel, so it retrieves generously and
+	// relies on the scorer to sort out what it brought back.
+	if len(pool) < opts.PoolLimit/2 {
+		if sk := skeletonOf(coreTokens(row.Name + " " + row.NameEN)); sk != "" {
+			skel := idx.recall().skel
+			for _, t := range sortedStringTrigrams(sk) {
+				for _, p := range skel[t] {
+					pool[p.ID] = p
+				}
+				if len(pool) >= opts.PoolLimit {
+					break
+				}
 			}
 		}
 	}
