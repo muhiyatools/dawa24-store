@@ -132,14 +132,14 @@ templ CustomerOrderDetail(order *commerce.Order, history []*commerce.OrderStatus
 			</div>
 
 			<!-- Main 2-Column Responsive Grid -->
-			<div class="dashboard-workspace-grid mb-6">
+			<div class="order-detail-layout mb-6">
 				
 				<!-- Right Column: Primary Details -->
 				<div class="d-flex flex-col gap-6">
 					
 					<!-- 1. Order Progress Timeline Card -->
 					<div class="glass-panel p-6 mb-0">
-						<div class="flex-between items-center mb-6 pb-3 border-b">
+						<div class="flex-between items-center mb-6 pb-3 border-b flex-wrap gap-2">
 							<div class="d-flex items-center gap-2">
 								<span class="text-xl">🚚</span>
 								<h2 class="text-base font-extrabold text-primary m-0">
@@ -152,15 +152,15 @@ templ CustomerOrderDetail(order *commerce.Order, history []*commerce.OrderStatus
 						</div>
 
 						<!-- Steps Progress Bar -->
-						<div class="position-relative d-flex justify-between items-start mx-auto px-2">
+						<div class="order-progress-stepper">
 							<!-- Connecting track -->
-							<div style="position:absolute; top:18px; inset-inline-start:2.5rem; inset-inline-end:2.5rem; height:4px; background:var(--surface-sunken); z-index:1; border-radius:2px;">
-								<div style={ "height:100%; background:var(--accent); border-radius:2px; transition:width 0.4s ease; width:" + orderProgressWidth(order.Status) + ";" }></div>
+							<div class="order-progress-track">
+								<div class="order-progress-bar" style={ "width:" + orderProgressWidth(order.Status) + ";" }></div>
 							</div>
 
 							<!-- Step 1: Placed -->
-							<div class="position-relative d-flex flex-col items-center text-center flex-1" style="z-index:2;">
-								<div class="user-avatar-badge bg-brand text-white mb-2 text-sm font-black" style="width:36px; height:36px;">
+							<div class="order-step-item">
+								<div class="order-step-badge done">
 									✓
 								</div>
 								<div class="font-extrabold text-xs text-primary">تم استلام الطلب</div>
@@ -170,13 +170,13 @@ templ CustomerOrderDetail(order *commerce.Order, history []*commerce.OrderStatus
 							</div>
 
 							<!-- Step 2: Processing -->
-							<div class="position-relative d-flex flex-col items-center text-center flex-1" style="z-index:2;">
+							<div class="order-step-item">
 								if isStepDone(order.Status, 2) {
-									<div class="user-avatar-badge bg-brand text-white mb-2 text-sm font-black" style="width:36px; height:36px;">
+									<div class="order-step-badge done">
 										✓
 									</div>
 								} else {
-									<div class="user-avatar-badge bg-surface-sunken border text-muted mb-2 text-sm" style="width:36px; height:36px;">
+									<div class="order-step-badge pending">
 										📦
 									</div>
 								}
@@ -185,13 +185,13 @@ templ CustomerOrderDetail(order *commerce.Order, history []*commerce.OrderStatus
 							</div>
 
 							<!-- Step 3: Out for Delivery -->
-							<div class="position-relative d-flex flex-col items-center text-center flex-1" style="z-index:2;">
+							<div class="order-step-item">
 								if isStepDone(order.Status, 3) {
-									<div class="user-avatar-badge bg-brand text-white mb-2 text-sm font-black" style="width:36px; height:36px;">
+									<div class="order-step-badge done">
 										✓
 									</div>
 								} else {
-									<div class="user-avatar-badge bg-surface-sunken border text-muted mb-2 text-sm" style="width:36px; height:36px;">
+									<div class="order-step-badge pending">
 										🚚
 									</div>
 								}
@@ -200,13 +200,13 @@ templ CustomerOrderDetail(order *commerce.Order, history []*commerce.OrderStatus
 							</div>
 
 							<!-- Step 4: Delivered -->
-							<div class="position-relative d-flex flex-col items-center text-center flex-1" style="z-index:2;">
+							<div class="order-step-item">
 								if isStepDone(order.Status, 4) {
-									<div class="user-avatar-badge bg-emerald text-white mb-2 text-sm font-black" style="width:36px; height:36px;">
+									<div class="order-step-badge completed">
 										✓
 									</div>
 								} else {
-									<div class="user-avatar-badge bg-surface-sunken border text-muted mb-2 text-sm" style="width:36px; height:36px;">
+									<div class="order-step-badge pending">
 										🏥
 									</div>
 								}
@@ -566,29 +566,31 @@ templ CustomerOrderDetail(order *commerce.Order, history []*commerce.OrderStatus
 					</div>
 
 					<!-- 3. Status History Timeline Card -->
-					<div class="card" style="margin:0; padding:1.5rem; border-radius:var(--radius-xl); border:1px solid var(--border); background:var(--surface); box-shadow:var(--shadow-xs);">
-						<div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:1.25rem; border-bottom:1px solid var(--border); padding-bottom:0.75rem;">
-							<span style="font-size:1.1rem;">⏱</span>
-							<h2 style="font-size:1.05rem; font-weight:800; color:var(--text); margin:0;">
-								سجل التحديثات والمحطات
-							</h2>
+					<div class="glass-panel p-6 mb-0">
+						<div class="flex-between items-center mb-4 border-b pb-3">
+							<div class="d-flex items-center gap-2">
+								<span class="text-base">⏱</span>
+								<h2 class="text-base font-extrabold text-primary m-0">
+									سجل التحديثات والمحطات
+								</h2>
+							</div>
 						</div>
 
 						if len(history) == 0 {
-							<div style="font-size:0.875rem; color:var(--text-muted); text-align:center; padding:1.5rem 0;">
+							<div class="text-xs text-muted text-center py-6">
 								تم تسجيل أمر التوريد، وسيتم تدوين التحديثات اللحظية هنا فور انتقال الشحنة بين المحطات.
 							</div>
 						} else {
-							<div style="display:flex; flex-direction:column; gap:0.75rem;">
+							<div class="d-flex flex-col gap-3">
 								for _, h := range history {
-									<div style="display:flex; align-items:flex-start; gap:0.75rem; padding:0.75rem 1rem; border-radius:var(--radius-md); background:var(--surface-sunken); border:1px solid var(--border);">
-										<div style="width:8px; height:8px; border-radius:50%; background:var(--accent); margin-top:0.45rem; flex-shrink:0;"></div>
-										<div style="flex:1;">
-											<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.2rem;">
-												<span class="badge badge-sky text-xs fw-700">{ h.ToStatus }</span>
+									<div class="d-flex items-start gap-3 p-3 rounded-lg bg-surface-sunken border">
+										<div class="status-dot mt-1 flex-shrink-0"></div>
+										<div class="flex-1">
+											<div class="flex-between items-center mb-1">
+												<span class="badge badge-sky text-xs font-bold">{ h.ToStatus }</span>
 												<span class="tabular-nums text-xs text-muted">{ h.CreatedAt.Format("2006-01-02 15:04:05") }</span>
 											</div>
-											<div style="font-size:0.8125rem; color:var(--text-secondary);">
+											<div class="text-xs text-secondary">
 												if h.Notes != "" {
 													{ h.Notes }
 												} else {
@@ -605,7 +607,7 @@ templ CustomerOrderDetail(order *commerce.Order, history []*commerce.OrderStatus
 				</div>
 
 				<!-- Left Column: Summary & Delivery Context -->
-				<div style="display:flex; flex-direction:column; gap:1.5rem;">
+				<div class="d-flex flex-col gap-6">
 					
 					<!-- 1. Financial Breakdown Card -->
 					<div class="glass-panel p-6 mb-0">

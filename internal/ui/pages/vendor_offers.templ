@@ -16,109 +16,114 @@ type VendorSpecialOffersData struct {
 
 templ VendorSpecialOffersPage(data VendorSpecialOffersData, lang, dir string) {
 	@layouts.VendorShell("إدارة العروض الخاصة وتغطية الفروع | Special Offers", "offers", lang, dir) {
-		<div style="display:flex; flex-direction:column; gap:1.75rem;">
+		<div class="page-container">
 			
 			<!-- Header Action Bar -->
-			<div style="background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-2xl); padding:1.75rem; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1.25rem;">
-				<div style="display:flex; align-items:center; gap:1.25rem;">
-					<div style="width:56px; height:56px; border-radius:var(--radius-xl); background:var(--accent-subtle); border:1px solid var(--accent); color:var(--accent); display:flex; align-items:center; justify-content:center; font-size:1.6rem;">
-						🎁
-					</div>
+			<div class="glass-panel p-6 mb-0">
+				<div class="flex-between items-center flex-wrap gap-4">
 					<div>
-						<div style="font-size:0.75rem; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.15em; font-weight:700; margin-bottom:0.25rem;">
-							إدارة عروض المؤسسة
+						<div class="d-flex items-center gap-3 mb-1">
+							<div class="user-avatar-badge text-xl">
+								🎁
+							</div>
+							<h1 class="text-2xl font-black text-primary m-0">
+								العروض الخاصة والتغطية الجغرافية
+							</h1>
 						</div>
-						<h1 style="font-size:1.65rem; font-weight:800; color:var(--text); margin:0;">
-							العروض الخاصة والتغطية الجغرافية
-						</h1>
+						<p class="text-sm text-secondary m-0">
+							إدارة وتخصيص العروض الخاصة بالمنشأة، المنتجات المشمولة، ونطاقات التغطية وأيام التوصيل
+						</p>
 					</div>
-				</div>
 
-				<div class="row-center">
-					<a href="/vendor/offers/new" class="btn btn-primary" style="font-weight:800; padding:0.75rem 1.5rem;">
-						@components.IconPlus("icon-xs")
-						<span>إضافة عرض خاص جديد</span>
-					</a>
+					<div>
+						<a href="/vendor/offers/new" class="btn btn-primary font-bold text-xs px-4 py-2 gap-1">
+							@components.IconPlus("icon-xs")
+							<span>إضافة عرض خاص جديد</span>
+						</a>
+					</div>
 				</div>
 			</div>
 
 			<!-- Statistics Summary Cards (Clickable Filter Tabs) -->
-			<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:1rem;">
+			<div class="dashboard-stat-grid cols-4 mb-0">
 				<!-- Total Offers -->
-				<a href="/vendor/offers" style="text-decoration:none; background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-xl); padding:1.2rem 1.4rem; display:flex; align-items:center; justify-content:space-between;">
-					<div>
-						<div style="font-size:0.75rem; color:var(--text-muted); font-weight:700; text-transform:uppercase;">إجمالي العروض</div>
-						<div style="font-size:1.85rem; font-weight:800; color:var(--text); margin-top:0.25rem;" class="tabular-nums">
+				<a href="/vendor/offers" class="text-decoration-none">
+					<div class="stat-card-3d">
+						<div class="stat-card-label">إجمالي العروض</div>
+						<div class="stat-card-value text-primary tabular-nums">
 							{ fmt.Sprintf("%d", len(data.Offers)) }
 						</div>
 					</div>
-					<div style="font-size:1.5rem; opacity:0.8;">📊</div>
 				</a>
 
 				<!-- Active Offers -->
-				<a href="/vendor/offers?status=active" style="text-decoration:none; background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-xl); padding:1.2rem 1.4rem; display:flex; align-items:center; justify-content:space-between; border-inline-start:4px solid var(--success);">
-					<div>
-						<div style="font-size:0.75rem; color:var(--success); font-weight:700; text-transform:uppercase;">العروض النشطة</div>
-						<div style="font-size:1.85rem; font-weight:800; color:var(--success); margin-top:0.25rem;" class="tabular-nums">
+				<a href="/vendor/offers?status=active" class="text-decoration-none">
+					<div class="stat-card-3d">
+						<div class="stat-card-label text-success d-flex items-center gap-2">
+							<span class="status-dot success"></span>
+							<span>العروض النشطة</span>
+						</div>
+						<div class="stat-card-value text-success tabular-nums">
 							{ fmt.Sprintf("%d", countOffersByStatus(data.Offers, "active")) }
 						</div>
 					</div>
-					<div style="font-size:1.5rem; opacity:0.8;">🟢</div>
 				</a>
 
 				<!-- Pending Review -->
-				<a href="/vendor/offers?status=pending" style="text-decoration:none; background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-xl); padding:1.2rem 1.4rem; display:flex; align-items:center; justify-content:space-between; border-inline-start:4px solid var(--warning);">
-					<div>
-						<div style="font-size:0.75rem; color:var(--warning); font-weight:700; text-transform:uppercase;">قيد المراجعة</div>
-						<div style="font-size:1.85rem; font-weight:800; color:var(--warning); margin-top:0.25rem;" class="tabular-nums">
+				<a href="/vendor/offers?status=pending" class="text-decoration-none">
+					<div class="stat-card-3d">
+						<div class="stat-card-label text-warning d-flex items-center gap-2">
+							<span class="status-dot warning"></span>
+							<span>قيد المراجعة</span>
+						</div>
+						<div class="stat-card-value text-warning tabular-nums">
 							{ fmt.Sprintf("%d", countOffersByAdminStatus(data.Offers, "pending")) }
 						</div>
 					</div>
-					<div style="font-size:1.5rem; opacity:0.8;">⏳</div>
 				</a>
 
 				<!-- Drafts & Expired -->
-				<a href="/vendor/offers?status=draft" style="text-decoration:none; background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-xl); padding:1.2rem 1.4rem; display:flex; align-items:center; justify-content:space-between; border-inline-start:4px solid var(--secondary);">
-					<div>
-						<div style="font-size:0.75rem; color:var(--text-muted); font-weight:700; text-transform:uppercase;">المسودات والمنتهية</div>
-						<div style="font-size:1.85rem; font-weight:800; color:var(--text); margin-top:0.25rem;" class="tabular-nums">
+				<a href="/vendor/offers?status=draft" class="text-decoration-none">
+					<div class="stat-card-3d">
+						<div class="stat-card-label text-muted d-flex items-center gap-2">
+							<span class="status-dot"></span>
+							<span>المسودات والمنتهية</span>
+						</div>
+						<div class="stat-card-value text-muted tabular-nums">
 							{ fmt.Sprintf("%d", countOffersByStatus(data.Offers, "draft") + countOffersByStatus(data.Offers, "expired")) }
 						</div>
 					</div>
-					<div style="font-size:1.5rem; opacity:0.8;">📝</div>
 				</a>
 			</div>
 
 			<!-- Offers Grid List -->
 			if len(data.Offers) == 0 {
-				<div style="background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-2xl); padding:4rem 2rem; text-align:center;">
-					<div style="width:64px; height:64px; border-radius:50%; background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center; margin:0 auto 1rem auto; font-size:1.75rem;">
-						🎁
-					</div>
-					<h3 style="font-size:1.35rem; font-weight:800; color:var(--text); margin-bottom:0.4rem;">
+				<div class="glass-panel p-12 text-center empty-state-glass">
+					<div class="text-4xl mb-3">🎁</div>
+					<h3 class="text-lg font-black text-primary mb-2">
 						لا توجد عروض خاصة مضافة حتى الآن
 					</h3>
-					<p style="color:var(--text-muted); font-size:0.9rem; max-width:440px; margin:0 auto 1.5rem auto;">
+					<p class="text-sm text-secondary max-w-md mx-auto mb-6">
 						أنشئ عروضك الخاصة وخصص المنتجات المشمولة ونطاقات التغطية الجغرافية وأيام التوصيل للصيدليات.
 					</p>
-					<a href="/vendor/offers/new" class="btn btn-primary fw-700">
+					<a href="/vendor/offers/new" class="btn btn-primary font-bold text-xs gap-1">
 						@components.IconPlus("icon-xs")
 						<span>+ إنشاء أول عرض خاص الآن</span>
 					</a>
 				</div>
 			} else {
-				<div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(340px, 1fr)); gap:1.25rem;">
+				<div class="dashboard-grid-3col mb-0">
 					for _, o := range data.Offers {
-						<div style="background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-2xl); padding:1.5rem; display:flex; flex-direction:column; justify-content:space-between; gap:1.25rem; transition:border-color 150ms;">
+						<div class="glass-panel p-6 mb-0 d-flex flex-col justify-between">
 							<div>
 								<!-- Header Strip -->
-								<div style="display:flex; justify-content:space-between; align-items:flex-start; gap:0.5rem; margin-bottom:0.75rem;">
+								<div class="flex-between items-start gap-2 mb-3">
 									<div>
-										<h3 class="text-lg fw-800 text-primary m-0">
+										<h3 class="text-base font-extrabold text-primary m-0">
 											{ o.Title.Get(i18n.Lang(lang)) }
 										</h3>
 										if o.BranchName != "" {
-											<div style="font-size:0.75rem; color:var(--accent); margin-top:0.2rem;">
+											<div class="text-xs text-brand font-bold mt-1">
 												📍 الفرع: { o.BranchName }
 											</div>
 										}
@@ -126,65 +131,67 @@ templ VendorSpecialOffersPage(data VendorSpecialOffersData, lang, dir string) {
 
 									<div>
 										if o.Status == "active" {
-											<span class="badge badge-emerald" style="font-size:0.7rem; font-weight:800;">نشط</span>
+											<span class="badge badge-emerald text-xs font-bold">نشط</span>
 										} else if o.Status == "draft" {
-											<span class="badge badge-slate" style="font-size:0.7rem; font-weight:800;">مسودة</span>
+											<span class="badge badge-slate text-xs font-bold">مسودة</span>
 										} else {
-											<span class="badge badge-rose" style="font-size:0.7rem; font-weight:800;">{ o.Status }</span>
+											<span class="badge badge-rose text-xs font-bold">{ o.Status }</span>
 										}
 									</div>
 								</div>
 
 								if o.Description.Get(i18n.Lang(lang)) != "" {
-									<p style="font-size:0.825rem; color:var(--text-secondary); line-height:1.4; margin:0 0 1rem 0;">
+									<p class="text-xs text-secondary leading-relaxed mb-4" style="min-height:36px;">
 										{ o.Description.Get(i18n.Lang(lang)) }
 									</p>
 								}
 
 								<!-- Pricing & Products Summary Pill -->
-								<div style="display:grid; grid-template-columns:1fr 1fr; gap:0.75rem; background:var(--surface-sunken); padding:0.9rem; border-radius:var(--radius-xl); border:1px solid var(--border); margin-bottom:0.75rem;">
-									<div>
-										<div style="font-size:0.725rem; color:var(--text-muted); font-weight:700;">نسبة الخصم:</div>
-										<div style="font-size:1.1rem; font-weight:800; color:var(--accent);" class="tabular-nums">
-											{ fmt.Sprintf("%.0f%%", o.DiscountPercentage) }
+								<div class="p-3 rounded-lg bg-surface-sunken border mb-4">
+									<div class="flex-between items-baseline">
+										<div>
+											<span class="text-xs text-muted font-bold d-block">نسبة الخصم:</span>
+											<span class="text-lg font-black text-brand tabular-nums">
+												{ fmt.Sprintf("%.0f%%", o.DiscountPercentage) }
+											</span>
 										</div>
-									</div>
 
-									<div>
-										<div style="font-size:0.725rem; color:var(--text-muted); font-weight:700;">السعر الكلي:</div>
-										<div style="font-size:1.1rem; font-weight:800; color:var(--text);" class="tabular-nums">
-											if o.TotalPrice.Minor() > 0 {
-												{ o.TotalPrice.String() } <span class="text-xs">ج.م</span>
-											} else {
-												<span>حسب الصنف</span>
-											}
+										<div class="text-end">
+											<span class="text-xs text-muted font-bold d-block">السعر الكلي:</span>
+											<span class="text-base font-extrabold text-primary tabular-nums">
+												if o.TotalPrice.Minor() > 0 {
+													{ o.TotalPrice.String() } <span class="text-xs text-muted">ج.م</span>
+												} else {
+													<span>حسب الصنف</span>
+												}
+											</span>
 										</div>
 									</div>
 								</div>
 
 								<!-- Validity Dates & Location Cover Badge -->
-								<div style="font-size:0.775rem; color:var(--text-muted); display:flex; justify-content:space-between; align-items:center; margin-top:0.25rem;">
+								<div class="flex-between items-center text-xs text-muted">
 									if o.StartDate != nil && o.EndDate != nil {
 										<span>📅 { o.StartDate.Format("02/01/2006") } - { o.EndDate.Format("02/01/2006") }</span>
 									} else {
 										<span>📅 ساري المفعول</span>
 									}
 
-									<span style="color:var(--accent); font-weight:700;">
+									<span class="text-brand font-bold">
 										{ fmt.Sprintf("%d صنف مشمول", len(o.Products)) }
 									</span>
 								</div>
 							</div>
 
 							<!-- Action Buttons -->
-							<div style="border-top:1px solid var(--border); padding-top:0.9rem; display:flex; justify-content:space-between; align-items:center; gap:0.5rem;">
-								<a href={ templ.SafeURL(fmt.Sprintf("/vendor/offers/%d/locations", o.ID)) } class="btn btn-secondary btn-xs fw-700">
+							<div class="flex-between items-center border-t pt-4 mt-4">
+								<a href={ templ.SafeURL(fmt.Sprintf("/vendor/offers/%d/locations", o.ID)) } class="btn btn-secondary btn-sm font-bold text-xs gap-1">
 									<span>🗺️ نطاقات التغطية</span>
 								</a>
 
 								<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/vendor/offers/%d/delete", o.ID)) } class="m-0" onsubmit="return confirm('هل أنت متأكد من حذف هذا العرض الخاص؟');">
-									<button type="submit" class="btn btn-secondary btn-xs" style="color:var(--danger); border-color:rgba(255, 71, 87, 0.2);">
-										<span>حذف</span>
+									<button type="submit" class="btn btn-secondary btn-icon btn-sm text-danger" title="حذف هذا العرض">
+										✕
 									</button>
 								</form>
 							</div>

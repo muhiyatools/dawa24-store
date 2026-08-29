@@ -57,66 +57,71 @@ templ decisionMemoryContent(lang, dir string, data CustomerDecisionMemoryData) {
 		if data.IsVendor {
 			basePath = "/vendor/decision-memory"
 		}
-		titleText := "🧠 ذاكرة قرارات المطابقة للصيدلية (Decision Memory)"
-		subTitleText := "القرارات التي اعتمدتها صيدليتك ومحرك الذكاء الاصطناعي وتم حفظها في ذاكرتك الخاصة. يتم تطبيق هذه القرارات تلقائياً لتسريع استيراد الطلبيات القادمة دون الحاجة لمراجعتها مجدداً."
+		titleText := "ذاكرة قرارات المطابقة للصيدلية"
+		subTitleText := "القرارات التي اعتمدتها صيدليتك ومحرك الذكاء الاصطناعي وتم حفظها في ذاكرتك الخاصة. يتم تطبيق هذه القرارات تلقائياً لتسريع استيراد الطلبيات القادمة."
 		if data.IsVendor {
-			titleText = "🧠 ذاكرة قرارات المطابقة للمورد (Vendor Decision Memory)"
-			subTitleText = "القرارات التي اعتمدتها منشأتك ومحرك الذكاء الاصطناعي وتم حفظها في ذاكرتك الخاصة. يتم تطبيق هذه القرارات تلقائياً لتسريع مطابقة الكتالوج واستيراد الأصناف القادمة."
+			titleText = "ذاكرة قرارات المطابقة للمورد"
+			subTitleText = "القرارات التي اعتمدتها منشأتك ومحرك الذكاء الاصطناعي وتم حفظها في ذاكرتك الخاصة. يتم تطبيق هذه القرارات تلقائياً لتسريع مطابقة الكتالوج واستيراد الأصناف."
 		}
 	}}
 
-	<div class="container-fluid" style="max-width:1380px; margin:0 auto; padding:1.5rem 1rem; display:flex; flex-direction:column; gap:1.5rem;">
+	<div class="page-container">
 		
 		<!-- Header Banner -->
-		<div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:1rem; border-bottom:1px solid var(--border); padding-bottom:1.25rem;">
-			<div>
-				<div style="display:flex; align-items:center; gap:0.75rem; margin-bottom:0.4rem;">
-					<h1 style="font-size:1.5rem; font-weight:800; color:var(--text); margin:0;">
-						{ titleText }
-					</h1>
-					if data.IsEnabled {
-						<span class="badge badge-emerald" style="font-size:0.75rem; font-weight:800; padding:0.25rem 0.65rem;">
-							🟢 الذاكرة نشطة ومعزولة لمنشأتك
-						</span>
-					} else {
-						<span class="badge badge-rose" style="font-size:0.75rem; font-weight:800; padding:0.25rem 0.65rem;">
-							🔴 الذاكرة معطلة حالياً من إدارة المنصة
-						</span>
-					}
+		<div class="glass-panel p-6 mb-0">
+			<div class="flex-between items-center flex-wrap gap-4">
+				<div>
+					<div class="d-flex items-center gap-3 mb-1 flex-wrap">
+						<div class="user-avatar-badge text-xl">
+							🧠
+						</div>
+						<h1 class="text-2xl font-black text-primary m-0">
+							{ titleText }
+						</h1>
+						if data.IsEnabled {
+							<span class="badge badge-emerald text-xs font-bold">
+								🟢 الذاكرة نشطة ومعزولة لمنشأتك
+							</span>
+						} else {
+							<span class="badge badge-rose text-xs font-bold">
+								🔴 الذاكرة معطلة حالياً من إدارة المنصة
+							</span>
+						}
+					</div>
+					<p class="text-sm text-secondary m-0">
+						{ subTitleText }
+					</p>
 				</div>
-				<p style="font-size:0.875rem; color:var(--text-secondary); margin:0; line-height:1.5; max-width:850px;">
-					{ subTitleText }
-				</p>
-			</div>
-			<div style="display:flex; align-items:center; gap:0.75rem;">
-				<!-- Add Manual Decision Button -->
-				<button
-					type="button"
-					class="btn btn-primary btn-sm fw-700"
-					onclick="openAddDecisionModal()"
-					title="إضافة قرار مطابقة يدوي جديد">
-					➕ إضافة قرار يدوي للذاكرة
-				</button>
-
-				if data.Total > 0 {
+				<div class="d-flex items-center gap-2 flex-wrap">
+					<!-- Add Manual Decision Button -->
 					<button
 						type="button"
-						class="btn btn-outline-danger btn-sm fw-700"
-						onclick="confirmClearMyDecisions()"
-						title="مسح كافة القرارات المحفوظة">
-						🗑️ مسح الذاكرة
+						class="btn btn-primary btn-sm font-bold gap-1"
+						onclick="openAddDecisionModal()"
+						title="إضافة قرار مطابقة يدوي جديد">
+						<span>➕ إضافة قرار يدوي للذاكرة</span>
 					</button>
-				}
+
+					if data.Total > 0 {
+						<button
+							type="button"
+							class="btn btn-secondary btn-sm font-bold text-danger gap-1"
+							onclick="confirmClearMyDecisions()"
+							title="مسح كافة القرارات المحفوظة">
+							<span>🗑️ مسح الذاكرة</span>
+						</button>
+					}
+				</div>
 			</div>
 		</div>
 
 		<!-- Warning Alert if Disabled by Admin -->
 		if !data.IsEnabled {
-			<div class="card" style="padding:1rem 1.25rem; background:rgba(245, 158, 11, 0.08); border:1px solid rgba(245, 158, 11, 0.3); border-radius:var(--radius-xl); display:flex; align-items:center; gap:1rem;">
-				<div style="font-size:1.5rem;">⚠️</div>
-				<div style="flex:1;">
-					<div style="font-weight:800; color:var(--amber-700); font-size:0.95rem;">نظام ذاكرة القرارات معطل مؤقتاً على مستوى المنصة</div>
-					<div style="font-size:0.825rem; color:var(--text-secondary); margin-top:0.15rem;">
+			<div class="alert alert-warning mb-0 p-4 d-flex items-center gap-3">
+				<span class="text-2xl">⚠️</span>
+				<div>
+					<div class="font-extrabold text-sm text-warning">نظام ذاكرة القرارات معطل مؤقتاً على مستوى المنصة</div>
+					<div class="text-xs text-muted mt-1">
 						تم إيقاف استخدام ذاكرة القرارات مؤقتاً بواسطة إدارة المنصة. لن يتم تطبيق القرارات المخزنة خلال الاستيراد حتى يتم إعادة التفعيل من قبل الإدارة.
 					</div>
 				</div>
@@ -124,17 +129,16 @@ templ decisionMemoryContent(lang, dir string, data CustomerDecisionMemoryData) {
 		}
 
 		<!-- Stats Grid -->
-		<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:1rem;">
-			<div class="card" style="padding:1.25rem; background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-xl);">
-				<div style="font-size:1.75rem; font-weight:800; color:var(--primary-700);" class="tabular-nums">
+		<div class="dashboard-stat-grid cols-3 mb-0">
+			<div class="stat-card-3d">
+				<div class="stat-card-label">إجمالي القرارات في ذاكرتك</div>
+				<div class="stat-card-value text-primary tabular-nums">
 					{ fmt.Sprintf("%d", data.Total) }
 				</div>
-				<div style="font-size:0.825rem; font-weight:600; color:var(--text-secondary); margin-top:0.25rem;">
-					إجمالي القرارات المخزنة في ذاكرتك
-				</div>
 			</div>
-			<div class="card" style="padding:1.25rem; background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-xl);">
-				<div style="font-size:1.75rem; font-weight:800; color:var(--accent);" class="tabular-nums">
+			<div class="stat-card-3d">
+				<div class="stat-card-label">مرات إعادة الاستخدام بالصفحة</div>
+				<div class="stat-card-value text-brand tabular-nums">
 					{{
 						hitTotal := int64(0)
 						for _, d := range data.Decisions {
@@ -143,36 +147,30 @@ templ decisionMemoryContent(lang, dir string, data CustomerDecisionMemoryData) {
 					}}
 					{ fmt.Sprintf("%d", hitTotal) }
 				</div>
-				<div style="font-size:0.825rem; font-weight:600; color:var(--text-secondary); margin-top:0.25rem;">
-					مرات إعادة الاستخدام في هذه الصفحة
-				</div>
 			</div>
-			<div class="card" style="padding:1.25rem; background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-xl);">
-				<div style="font-size:1.25rem; font-weight:800; color:var(--emerald-600);">
-					🔒 عزل تام
-				</div>
-				<div style="font-size:0.825rem; font-weight:600; color:var(--text-secondary); margin-top:0.25rem;">
-					خاص بمنشأتك فقط ولا يشارَك مع غيرك
+			<div class="stat-card-3d">
+				<div class="stat-card-label">نطاق الحماية والخصوصية</div>
+				<div class="text-lg font-black text-success mt-1">
+					🔒 عزل تام ومؤمّن
 				</div>
 			</div>
 		</div>
 
 		<!-- Search & Rows-Per-Page Form -->
-		<div class="card" style="padding:1rem 1.25rem; background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-xl);">
-			<form method="GET" action={ templ.SafeURL(basePath) } style="display:flex; flex-wrap:wrap; align-items:center; gap:0.75rem; margin:0;">
-				<div style="flex:1; min-width:260px;">
+		<div class="glass-panel p-4 mb-0">
+			<form method="GET" action={ templ.SafeURL(basePath) } class="d-flex items-center gap-3 flex-wrap m-0">
+				<div class="flex-1 min-w-260">
 					<input
 						type="text"
 						name="q"
 						value={ data.Search }
 						placeholder="بحث باسم الصنف كما ورد بملف الطلب/الكتالوج، أو اسم الصنف المعتمد..."
-						class="form-control"
-						style="width:100%; height:38px; font-size:0.875rem;"
+						class="form-input text-xs w-full"
 					/>
 				</div>
 
 				<div style="min-width:130px;">
-					<select name="limit" onchange="this.form.submit()" class="form-select" style="height:38px; font-size:0.85rem; width:100%;">
+					<select name="limit" onchange="this.form.submit()" class="form-input text-xs w-full">
 						<option value="25" selected?={ data.PerPage == 25 }>25 عنصر</option>
 						<option value="50" selected?={ data.PerPage == 50 || data.PerPage == 0 }>50 عنصر</option>
 						<option value="100" selected?={ data.PerPage == 100 }>100 عنصر</option>
@@ -180,132 +178,132 @@ templ decisionMemoryContent(lang, dir string, data CustomerDecisionMemoryData) {
 					</select>
 				</div>
 
-				<button type="submit" class="btn btn-primary btn-sm fw-700" style="height:38px; padding:0 1.25rem;">
-					🔍 بحث
+				<button type="submit" class="btn btn-primary btn-sm font-bold text-xs px-4">
+					<span>🔍 بحث</span>
 				</button>
 
 				if data.Search != "" {
-					<a href={ templ.SafeURL(basePath) } class="btn btn-secondary btn-sm" style="height:38px;">
-						إلغاء البحث
+					<a href={ templ.SafeURL(basePath) } class="btn btn-secondary btn-sm text-xs">
+						<span>إلغاء</span>
 					</a>
 				}
 			</form>
 		</div>
 
 		<!-- Main Table Card -->
-		<div class="card" style="padding:0; overflow:hidden; background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-xl); box-shadow:var(--shadow-xs);">
-			<div class="table-responsive">
-				<table class="table" style="margin:0; width:100%; border-collapse:collapse;">
+		<div class="glass-panel p-0 mb-0 overflow-hidden">
+			<div class="table-container m-0">
+				<table class="data-table m-0">
 					<thead>
-						<tr style="background:var(--surface-sunken); border-bottom:1px solid var(--border); font-size:0.825rem; text-align:start;">
-							<th style="padding:0.85rem 0.75rem; width:65px; text-align:center;">#</th>
-							<th style="padding:0.85rem 1rem; min-width:240px;">اسم الصنف الوارد</th>
-							<th style="padding:0.85rem 1rem; min-width:280px;">الصنف المعتمد بالكتالوج المركزي</th>
-							<th style="padding:0.85rem 0.75rem; width:110px; text-align:center;">نسبة التطابق</th>
-							<th style="padding:0.85rem 0.75rem; width:95px; text-align:center;">الاستخدامات</th>
-							<th style="padding:0.85rem 1rem; min-width:220px;">السبب / الملاحظات</th>
-							<th style="padding:0.85rem 0.75rem; width:130px; text-align:center;">تاريخ الاستخدام</th>
-							<th style="padding:0.85rem 0.75rem; width:90px; text-align:center;">إجراءات</th>
+						<tr>
+							<th style="width:65px;" class="text-center">#</th>
+							<th style="min-width:240px;">اسم الصنف الوارد</th>
+							<th style="min-width:280px;">الصنف المعتمد بالكتالوج المركزي</th>
+							<th style="width:110px;" class="text-center">نسبة التطابق</th>
+							<th style="width:95px;" class="text-center">الاستخدامات</th>
+							<th style="min-width:220px;">السبب / الملاحظات</th>
+							<th style="width:130px;" class="text-center">تاريخ الاستخدام</th>
+							<th style="width:90px;" class="text-center">إجراءات</th>
 						</tr>
 					</thead>
 					<tbody>
 						if len(data.Decisions) == 0 {
 							<tr>
-								<td colspan="8" style="text-align:center; padding:3.5rem 1rem; color:var(--text-muted);">
-									<div style="font-size:2.5rem; margin-bottom:0.75rem;">🧠</div>
-									<div style="font-weight:700; font-size:1.05rem; color:var(--text);">لا توجد قرارات مطابقة مخزنة حالياً في ذاكرتك</div>
-									<div style="font-size:0.85rem; margin-top:0.35rem; max-width:500px; margin-left:auto; margin-right:auto;">
-										عند استخدام أدوات المنصة، تأكيد الأصناف، أو الضغط على زر "إضافة قرار يدوي"، سيتم حفظ القرارات هنا لتطبيقها فورياً وتوفير وقتك.
+								<td colspan="8" class="text-center py-12 text-muted">
+									<div class="text-4xl mb-3">🧠</div>
+									<div class="font-extrabold text-base text-primary">لا توجد قرارات مطابقة مخزنة حالياً في ذاكرتك</div>
+									<div class="text-xs text-secondary mt-1 max-w-md mx-auto">
+										عند استخدام أدوات المنصة، تأكيد الأصناف، أو الضغط على زر "إضافة قرار يدوي"، سيتم حفظ القرارات هنا لتطبيقها فورياً.
 									</div>
-									<div style="margin-top:1.25rem;">
-										<button type="button" class="btn btn-primary btn-sm fw-700" onclick="openAddDecisionModal()">
-											➕ إضافة أول قرار الآن
+									<div class="mt-4">
+										<button type="button" class="btn btn-primary btn-sm font-bold" onclick="openAddDecisionModal()">
+											<span>➕ إضافة أول قرار الآن</span>
 										</button>
 									</div>
 								</td>
 							</tr>
 						}
 						for _, d := range data.Decisions {
-							<tr style="border-bottom:1px solid var(--border);">
+							<tr>
 								<!-- ID -->
-								<td style="padding:0.85rem 0.75rem; text-align:center; font-weight:700; color:var(--text-muted); font-size:0.8rem;" class="tabular-nums">
+								<td class="text-center font-bold text-muted text-xs tabular-nums">
 									{ fmt.Sprintf("%d", d.ID) }
 								</td>
 
 								<!-- Norm Name -->
-								<td style="padding:0.85rem 1rem;">
-									<div style="font-weight:700; font-size:0.9rem; color:var(--text); line-height:1.4;">
+								<td>
+									<div class="font-extrabold text-xs text-primary">
 										{ d.NormName }
 									</div>
 								</td>
 
 								<!-- Chosen Product -->
-								<td style="padding:0.85rem 1rem;">
+								<td>
 									if d.ChosenProductID != nil && *d.ChosenProductID > 0 {
-										<div style="font-weight:700; font-size:0.875rem; color:var(--primary-700);">
+										<div class="font-extrabold text-xs text-brand">
 											if d.ChosenProductName != "" {
 												{ d.ChosenProductName }
 											} else {
 												صنف كتالوج #{ fmt.Sprintf("%d", *d.ChosenProductID) }
 											}
 										</div>
-										<div style="display:flex; align-items:center; gap:0.5rem; margin-top:0.2rem;">
-											<span style="font-size:0.725rem; color:var(--accent); font-family:monospace; font-weight:700;">
+										<div class="d-flex items-center gap-2 mt-1">
+											<span class="text-xs text-muted font-mono font-bold">
 												#{ fmt.Sprintf("%d", *d.ChosenProductID) }
 											</span>
 											if d.ChosenProductSKU != "" {
-												<span class="badge badge-slate" style="font-size:0.675rem;">
+												<span class="badge badge-slate text-xs font-mono">
 													كود: { d.ChosenProductSKU }
 												</span>
 											}
 										</div>
 									} else {
-										<span class="badge badge-rose" style="font-size:0.75rem; font-weight:700;">
+										<span class="badge badge-rose text-xs font-bold">
 											لا يوجد تطابق موثوق (Non-match)
 										</span>
 									}
 								</td>
 
-								<!-- Confidence Score (نسبة التطابق) -->
-								<td style="padding:0.85rem 0.75rem; text-align:center; font-weight:700; font-size:0.85rem;" class="tabular-nums">
+								<!-- Confidence Score -->
+								<td class="text-center tabular-nums">
 									if d.Confidence > 0 {
-										<span style="display:inline-block; padding:0.2rem 0.5rem; border-radius:var(--radius-full); background:rgba(16,185,129,0.12); color:var(--primary-700); font-size:0.8rem; font-weight:800;">
+										<span class="badge badge-emerald text-xs font-bold">
 											{ fmt.Sprintf("%.0f%%", d.Confidence*100) }
 										</span>
 									} else {
-										<span style="color:var(--text-muted); font-size:0.8rem;">0%</span>
+										<span class="text-xs text-muted">0%</span>
 									}
 								</td>
 
 								<!-- Hit Count -->
-								<td style="padding:0.85rem 0.75rem; text-align:center; font-weight:800; font-size:0.875rem;" class="tabular-nums">
-									<span class="badge badge-slate" style="font-size:0.75rem; padding:0.25rem 0.6rem;">
+								<td class="text-center tabular-nums font-bold text-xs text-primary">
+									<span class="badge badge-slate text-xs font-bold">
 										{ fmt.Sprintf("%d", d.HitCount) }
 									</span>
 								</td>
 
 								<!-- Reason -->
-								<td style="padding:0.85rem 1rem; font-size:0.825rem; color:var(--text-secondary); line-height:1.4;">
+								<td class="text-xs text-secondary">
 									if d.Reason != "" {
 										{ d.Reason }
 									} else {
-										<span style="color:var(--text-muted);">—</span>
+										<span class="text-muted">—</span>
 									}
 								</td>
 
 								<!-- Last Used At -->
-								<td style="padding:0.85rem 0.75rem; text-align:center; font-size:0.775rem; color:var(--text-muted);" class="tabular-nums">
+								<td class="text-center text-xs text-muted tabular-nums">
 									{ d.LastUsedAt.Format("2006-01-02 15:04") }
 								</td>
 
 								<!-- Actions -->
-								<td style="padding:0.85rem 0.75rem; text-align:center;">
-									<form method="POST" action={ templ.SafeURL(fmt.Sprintf("%s/%d/delete", basePath, d.ID)) } onsubmit="return confirm('هل أنت متأكد من حذف هذا القرار من ذاكرتك؟');" style="margin:0;">
+								<td class="text-center">
+									<form method="POST" action={ templ.SafeURL(fmt.Sprintf("%s/%d/delete", basePath, d.ID)) } onsubmit="return confirm('هل أنت متأكد من حذف هذا القرار من ذاكرتك؟');" class="m-0">
 										<input type="hidden" name="q" value={ data.Search } />
 										<input type="hidden" name="page" value={ fmt.Sprint(data.Page) } />
 										<input type="hidden" name="limit" value={ fmt.Sprint(data.PerPage) } />
-										<button type="submit" class="btn btn-outline-danger btn-xs" title="حذف هذا القرار من الذاكرة">
-											🗑️
+										<button type="submit" class="btn btn-secondary btn-icon btn-sm text-danger" title="حذف هذا القرار من الذاكرة">
+											✕
 										</button>
 									</form>
 								</td>
@@ -317,21 +315,21 @@ templ decisionMemoryContent(lang, dir string, data CustomerDecisionMemoryData) {
 
 			<!-- Pagination Bar -->
 			if data.Total > data.PerPage {
-				<div style="display:flex; justify-content:space-between; align-items:center; padding:0.85rem 1.25rem; border-top:1px solid var(--border); background:var(--surface-sunken); font-size:0.85rem;">
-					<div style="color:var(--text-secondary);">
-						إجمالي النتائج: <strong>{ fmt.Sprintf("%d", data.Total) }</strong>
+				<div class="flex-between items-center p-3 px-6 border-t bg-surface-sunken text-xs">
+					<div class="text-secondary">
+						إجمالي النتائج: <strong class="text-primary">{ fmt.Sprintf("%d", data.Total) }</strong>
 					</div>
-					<div style="display:flex; align-items:center; gap:0.5rem;">
+					<div class="d-flex items-center gap-2">
 						if data.Page > 1 {
-							<a href={ templ.SafeURL(buildCustomerDecisionMemoryURL(data.IsVendor, data.Search, data.Page-1, data.PerPage)) } class="btn btn-secondary btn-xs">
+							<a href={ templ.SafeURL(buildCustomerDecisionMemoryURL(data.IsVendor, data.Search, data.Page-1, data.PerPage)) } class="btn btn-secondary btn-sm text-xs">
 								السابق
 							</a>
 						}
-						<span style="font-weight:700; color:var(--text); padding:0 0.4rem;">
+						<span class="font-bold text-primary px-2">
 							صفحة { fmt.Sprintf("%d", data.Page) }
 						</span>
 						if data.Page * data.PerPage < data.Total {
-							<a href={ templ.SafeURL(buildCustomerDecisionMemoryURL(data.IsVendor, data.Search, data.Page+1, data.PerPage)) } class="btn btn-secondary btn-xs">
+							<a href={ templ.SafeURL(buildCustomerDecisionMemoryURL(data.IsVendor, data.Search, data.Page+1, data.PerPage)) } class="btn btn-secondary btn-sm text-xs">
 								التالي
 							</a>
 						}
@@ -342,27 +340,27 @@ templ decisionMemoryContent(lang, dir string, data CustomerDecisionMemoryData) {
 	</div>
 
 	<!-- Add Decision Modal -->
-	<div id="add-decision-modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.6); z-index:9999; align-items:center; justify-content:center; padding:1rem;">
-		<div style="background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-xl); width:100%; max-width:580px; box-shadow:var(--shadow-xl); overflow:hidden; display:flex; flex-direction:column;">
+	<div id="add-decision-modal" class="modal-overlay hidden" style="display:none; position:fixed; inset:0; background:rgba(15,23,42,0.65); backdrop-filter:blur(4px); z-index:9999; align-items:center; justify-content:center; padding:1rem;" onclick="if(event.target===this) closeAddDecisionModal();">
+		<div class="glass-panel p-0 max-w-lg w-full overflow-hidden d-flex flex-col">
 			<!-- Modal Header -->
-			<div style="padding:1.25rem 1.5rem; border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:center; background:var(--surface-sunken);">
-				<div style="display:flex; align-items:center; gap:0.5rem;">
-					<span style="font-size:1.25rem;">🧠</span>
-					<h2 style="font-size:1.1rem; font-weight:800; color:var(--text); margin:0;">
+			<div class="flex-between items-center p-4 px-6 border-b bg-surface-sunken">
+				<div class="d-flex items-center gap-2">
+					<span class="text-xl">🧠</span>
+					<h3 class="text-base font-extrabold text-primary m-0">
 						إضافة قرار مطابقة يدوي إلى الذاكرة
-					</h2>
+					</h3>
 				</div>
-				<button type="button" onclick="closeAddDecisionModal()" style="background:none; border:none; font-size:1.25rem; color:var(--text-muted); cursor:pointer;">
+				<button type="button" onclick="closeAddDecisionModal()" class="btn btn-secondary btn-icon btn-sm">
 					✕
 				</button>
 			</div>
 
 			<!-- Modal Body -->
-			<form method="POST" action={ templ.SafeURL(fmt.Sprintf("%s/add", basePath)) } style="padding:1.5rem; display:flex; flex-direction:column; gap:1.25rem; margin:0;">
+			<form method="POST" action={ templ.SafeURL(fmt.Sprintf("%s/add", basePath)) } class="p-6 d-flex flex-col gap-4 m-0">
 				<!-- Input 1: Raw Name -->
 				<div>
-					<label class="form-label" style="font-weight:700; font-size:0.875rem; margin-bottom:0.35rem; display:block;">
-						اسم الصنف الوارد (كما يظهر في ملف الطلبية أو الفاتورة) <span style="color:var(--rose-600);">*</span>
+					<label class="form-label text-xs font-bold mb-1 d-block text-primary">
+						اسم الصنف الوارد (كما يظهر في ملف الطلبية أو الفاتورة) <span class="text-danger">*</span>
 					</label>
 					<input
 						type="text"
@@ -370,18 +368,17 @@ templ decisionMemoryContent(lang, dir string, data CustomerDecisionMemoryData) {
 						id="add-decision-raw-name"
 						required
 						placeholder="مثال: Panadol Extra 500mg Tab أو بنادول اكسترا..."
-						class="form-control"
-						style="width:100%; font-size:0.875rem;"
+						class="form-input text-xs w-full"
 					/>
-					<span style="font-size:0.75rem; color:var(--text-muted); margin-top:0.25rem; display:block;">
+					<span class="text-xs text-muted mt-1 d-block">
 						النص الذي تريد من النظام التعرف عليه تلقائياً وربطه بالدواء المعتمد.
 					</span>
 				</div>
 
 				<!-- Input 2: Master Product Search & Link -->
-				<div style="position:relative;">
-					<label class="form-label" style="font-weight:700; font-size:0.875rem; margin-bottom:0.35rem; display:block;">
-						الدواء المعتمد بالكتالوج المركزي <span style="color:var(--rose-600);">*</span>
+				<div class="position-relative">
+					<label class="form-label text-xs font-bold mb-1 d-block text-primary">
+						الدواء المعتمد بالكتالوج المركزي <span class="text-danger">*</span>
 					</label>
 					<input
 						type="hidden"
@@ -395,18 +392,17 @@ templ decisionMemoryContent(lang, dir string, data CustomerDecisionMemoryData) {
 						autocomplete="off"
 						oninput="searchCatalogForDecision(this.value)"
 						placeholder="ابحث باسم الدواء بالكتالوج، المادة الفعالة، أو الكود..."
-						class="form-control"
-						style="width:100%; font-size:0.875rem;"
+						class="form-input text-xs w-full"
 					/>
 
 					<!-- Selected Product Preview -->
-					<div id="add-decision-selected-preview" style="display:none; margin-top:0.5rem; padding:0.75rem 1rem; background:rgba(16,185,129,0.08); border:1px solid rgba(16,185,129,0.25); border-radius:var(--radius-lg);">
-						<div style="display:flex; justify-content:space-between; align-items:center;">
+					<div id="add-decision-selected-preview" style="display:none;" class="mt-2 p-3 rounded-lg bg-surface-sunken border border-brand-subtle">
+						<div class="flex-between items-center">
 							<div>
-								<div id="selected-product-name" style="font-weight:800; color:var(--primary-700); font-size:0.9rem;"></div>
-								<div id="selected-product-sub" style="font-size:0.75rem; color:var(--text-muted); margin-top:2px;"></div>
+								<div id="selected-product-name" class="font-extrabold text-brand text-xs"></div>
+								<div id="selected-product-sub" class="text-xs text-muted mt-1"></div>
 							</div>
-							<button type="button" onclick="clearSelectedDecisionProduct()" class="btn btn-secondary btn-xs">
+							<button type="button" onclick="clearSelectedDecisionProduct()" class="btn btn-secondary btn-sm text-xs">
 								تغيير
 							</button>
 						</div>
@@ -415,30 +411,30 @@ templ decisionMemoryContent(lang, dir string, data CustomerDecisionMemoryData) {
 					<!-- Search Dropdown Results -->
 					<div
 						id="add-decision-dropdown"
-						style="display:none; position:absolute; top:100%; left:0; right:0; background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-md); box-shadow:var(--shadow-lg); max-height:220px; overflow-y:auto; z-index:10000; margin-top:4px;">
+						style="display:none; position:absolute; top:100%; inset-inline-start:0; inset-inline-end:0; max-height:220px; overflow-y:auto; z-index:10000; margin-top:4px;"
+						class="glass-panel p-2 shadow-lg">
 					</div>
 				</div>
 
 				<!-- Input 3: Optional Reason / Notes -->
 				<div>
-					<label class="form-label" style="font-weight:700; font-size:0.875rem; margin-bottom:0.35rem; display:block;">
+					<label class="form-label text-xs font-bold mb-1 d-block text-primary">
 						سبب القرار / ملاحظات توضيحية (اختياري)
 					</label>
 					<input
 						type="text"
 						name="reason"
 						placeholder="مثال: مطابقة مؤكدة من الصيدلي المسؤول"
-						class="form-control"
-						style="width:100%; font-size:0.875rem;"
+						class="form-input text-xs w-full"
 					/>
 				</div>
 
 				<!-- Modal Footer Actions -->
-				<div style="display:flex; justify-content:flex-end; gap:0.75rem; border-top:1px solid var(--border); padding-top:1rem; margin-top:0.5rem;">
-					<button type="button" onclick="closeAddDecisionModal()" class="btn btn-secondary btn-sm">
+				<div class="flex-between items-center border-t pt-4 mt-2">
+					<button type="button" onclick="closeAddDecisionModal()" class="btn btn-secondary btn-sm text-xs">
 						إلغاء
 					</button>
-					<button type="submit" class="btn btn-primary btn-sm fw-700" style="padding:0 1.5rem;">
+					<button type="submit" class="btn btn-primary btn-sm font-bold text-xs px-6">
 						💾 حفظ القرار في الذاكرة
 					</button>
 				</div>
