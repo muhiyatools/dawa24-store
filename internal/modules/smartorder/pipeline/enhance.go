@@ -37,76 +37,24 @@ import (
 	"time"
 
 	"github.com/muhiya/dawa24-store/internal/modules/smartorder"
+	"github.com/muhiya/dawa24-store/internal/shared/matchflow"
 	"github.com/muhiya/dawa24-store/internal/shared/productmatch"
 )
 
-// PromptVersion changes whenever the question being asked changes — the system
-// prompt, the rendered input, or the retrieval that fills it. It is part of the
-// cache key, so a change orphans old decisions rather than silently reusing
-// answers to a different question.
-const PromptVersion = "sm-enh-v4"
-
-// Ceilings bound what one run may do.
+// PromptVersion is the version of the question being asked, and it is part of
+// the decision-cache key.
 //
-// The Gateway enforces its own budget, but hitting that mid-run surfaces to the
-// buyer as an opaque failure. Stopping first, and saying so, is the difference
-// between "the system degraded and told me" and "the system broke".
-const (
-	// RecallLimit is how many catalogue products are retrieved per line.
-	//
-	// Sixteen rather than a dozen, because the model behind this now has a
-	// million-token context and charges three cents a million: the four extra
-	// rows cost nothing measurable and buy the cases where the correct product
-	// ranks eighth because the pharmacy misspelled the brand. Far above this the
-	// list stops being a shortlist and starts being a haystack.
-	RecallLimit = 16
+// It is the shared one. It used to be declared here, and it had drifted from
+// the copy the other importer declared — so the two filed answers to the same
+// question under different keys and neither ever read the other's. A build gate
+// now fails if the literal is restated outside internal/shared/matchflow.
+const PromptVersion = matchflow.PromptVersion
 
-	// MaxInputBytes caps one request's rendered input, in BYTES rather than
-	// characters — Arabic is two bytes per character in UTF-8, and conflating
-	// the two halves the budget without anyone noticing.
-	//
-	// Measured against the live Gateway, this mixture of Arabic, Latin and
-	// digits runs about two bytes to the token: a 290 KB request reported 145k
-	// input tokens. The default model's window is 262k tokens, so 400 KB is
-	// roughly 200k in — leaving the answer, the system prompt and any
-	// Gateway-side overhead a comfortable margin.
-	//
-	// It is a backstop rather than the binding constraint: the item ceiling
-	// below fills about 300 KB at its limit, so this only ever splits a batch
-	// whose catalogue window came out unusually wide. That is the right shape —
-	// a request should be sized by how many answers it can safely produce, not
-	// by how much text it can hold.
-	MaxInputBytes = 400_000
-
-	// MaxItemsPerRequest bounds the ANSWER, and that is what limits a batch.
-	// Sized at 120 so single request generation completes in ~15s, avoiding
-	// gateway timeouts, context cancellations, and huge blast radiuses.
-	MaxItemsPerRequest = 120
-
-	// MaxRequestsPerRun is the spend ceiling. 30 requests at 120 items covers
-	// up to 3,600 unresolved lines even if deterministic matching misses them.
-	MaxRequestsPerRun = 30
-
-	// MaxConcurrent determines how fast the stage clears. 6 parallel slots
-	// processes requests efficiently while staying safely within API rate limits.
-	MaxConcurrent = 6
-
-	// MaxWallClock bounds the stage.
-	MaxWallClock = 8 * time.Minute
-
-	// MinApplyConfidence is the floor below which an answer is recorded but not
-	// applied. The prompt instructs the model to answer null below the same
-	// figure; this enforces it, because an instruction is not a guarantee.
-	//
-	// Eight tenths, because the model's confidence turns out to be well
-	// calibrated and sharply bimodal: on a live 1,004-line residue it answered
-	// 0.95 for everything it was sure of, and the handful it scored in the
-	// seventies included "ابى ديرم كريم" matched to "هاي ديرم كريم" — two
-	// different products sharing only the category suffix ديرم, which no
-	// deterministic guard can tell from a brand. The model knew. Taking it at
-	// its word costs almost nothing and removes exactly that class of mistake.
-	MinApplyConfidence = 0.80
-)
+// ceilings are what one run may spend, from the shared table.
+//
+// They used to be a const block here and another in the other importer, with
+// every number documented as measured and no two of them agreeing.
+var ceilings = matchflow.For(matchflow.ProfileOrder)
 
 // Enhancer resolves a batch of review lines against a catalogue window.
 //
@@ -118,46 +66,16 @@ type Enhancer interface {
 
 // EnhanceBatch is one request: a de-duplicated catalogue window and the lines to
 // resolve against it.
-type EnhanceBatch struct {
-	Catalog []WindowProduct
-	Items   []ReviewLine
-}
+type EnhanceBatch = matchflow.Batch
 
 // WindowProduct is one catalogue product offered to the model.
-type WindowProduct struct {
-	ProductID     int64
-	NameAR        string
-	NameEN        string
-	Scientific    string
-	DosageForm    string
-	Concentration string
-	Manufacturer  string
-}
+type WindowProduct = matchflow.CatalogEntry
 
 // ReviewLine is one line needing a second opinion, as the model sees it.
-type ReviewLine struct {
-	Ref          int
-	Text         string
-	Brand        string
-	Strength     string
-	DosageForm   string
-	PackSize     int
-	Manufacturer string
-	Scientific   string
-	SKU          string
-	Barcode      string
-	CurrentGuess *int64
-	CurrentScore float64
-	Options      []int64
-}
+type ReviewLine = matchflow.Item
 
 // EnhanceOutcome is one decision, keyed by the request-local ref.
-type EnhanceOutcome struct {
-	Ref        int
-	ProductID  *int64
-	Confidence float64
-	Reason     string
-}
+type EnhanceOutcome = matchflow.Decision
 
 // Review is one line carried into the AI stage with its retrieval attached.
 type Review struct {
@@ -233,7 +151,7 @@ func (e *Enhancement) Run(ctx context.Context, reviews []Review) {
 		return
 	}
 
-	deadline := e.now().Add(MaxWallClock)
+	deadline := e.now().Add(ceilings.MaxWallClock)
 	// The wall clock is enforced on the calls themselves, not merely checked
 	// between them: a check in the dispatch loop passes for every batch and
 	// then lets slow requests run past the limit unbounded.
@@ -250,7 +168,7 @@ func (e *Enhancement) Run(ctx context.Context, reviews []Review) {
 
 	var (
 		wg    sync.WaitGroup
-		slots = make(chan struct{}, MaxConcurrent)
+		slots = make(chan struct{}, ceilings.MaxConcurrent)
 	)
 
 	for _, batch := range batches {

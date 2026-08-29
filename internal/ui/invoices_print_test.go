@@ -150,4 +150,3 @@ func TestInvoicePrintAndVendorInvoicesPages(t *testing.T) {
 		}
 	})
 }
-

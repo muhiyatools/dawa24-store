@@ -48,6 +48,7 @@ type Analysis struct {
 	Relation *Relation `json:"relation,omitempty"`
 
 	grid   NumericGrid
+	fields *FieldSet
 	shapes []*shape
 	pairs  []pair
 	vocab  *Vocabulary
@@ -55,12 +56,31 @@ type Analysis struct {
 
 // Analyze reads the head of an opened file and resolves its columns.
 func Analyze(book *sheet.Book, vocab *Vocabulary) (*Analysis, error) {
+	return AnalyzeWith(book, AnalyzeOptions{Vocabulary: vocab})
+}
+
+// AnalyzeOptions narrows what the analysis is allowed to conclude.
+type AnalyzeOptions struct {
+	// Vocabulary is the catalogue-derived value lists that make the mapping
+	// schema-aware rather than merely rule-based.
+	Vocabulary *Vocabulary
+	// Fields is the subset of the catalogue this importer can use. A nil set
+	// allows everything, which is what a vendor price list needs; a pharmacy's
+	// shopping list needs four fields and should never be offered the other
+	// twenty-five. See fieldset.go.
+	Fields *FieldSet
+}
+
+// AnalyzeWith runs the analysis under an explicit field set.
+func AnalyzeWith(book *sheet.Book, opts AnalyzeOptions) (*Analysis, error) {
 	if book == nil {
 		return nil, fmt.Errorf("لم يتم فتح أي ملف للتحليل")
 	}
+	vocab := opts.Vocabulary
 	if vocab == nil {
 		vocab = &Vocabulary{}
 	}
+	fields := opts.Fields
 
 	head, err := book.Peek(sheet.DefaultPeekRows)
 	if err != nil {
@@ -80,13 +100,14 @@ func Analyze(book *sheet.Book, vocab *Vocabulary) (*Analysis, error) {
 		return nil, err
 	}
 
-	a.Mapping = Resolve(layout.Headers, profiles, vocab)
+	a.Mapping = ResolveWith(layout.Headers, profiles, vocab, fields)
 	a.Mapping.Notes = append(a.Mapping.Notes, notes...)
 	a.shapes = make([]*shape, len(profiles))
 	for i, p := range profiles {
 		a.shapes[i] = newShape(p)
 	}
-	a.pairs, _ = scorePairs(layout.Headers, a.shapes, vocab)
+	a.fields = fields
+	a.pairs, _ = scorePairs(layout.Headers, a.shapes, vocab, fields)
 
 	if rel, ok := FindPriceRelation(a.grid, a.shapes); ok {
 		ApplyRelation(a.Mapping, rel)
@@ -305,7 +326,7 @@ func (a *Analysis) Revalidate() {
 	}
 	a.Mapping.Conflicts = kept
 	a.Mapping.Conflicts = append(a.Mapping.Conflicts, CheckOrdering(a.Mapping, a.grid)...)
-	a.Mapping.Conflicts = append(a.Mapping.Conflicts, CheckMissing(a.Mapping)...)
+	a.Mapping.Conflicts = append(a.Mapping.Conflicts, CheckMissingWith(a.Mapping, a.fields)...)
 }
 
 // Blocking reports the findings that must be resolved before the import can

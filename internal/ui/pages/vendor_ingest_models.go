@@ -56,40 +56,22 @@ func (v VendorImportView) Phase() ingest.Phase {
 // screen.
 func (v VendorImportView) Started() bool { return v.Session != nil }
 
-// VendorImportStep is one node on the progress rail.
-type VendorImportStep struct {
-	Number int
-	Title  string
-	Icon   string
-	Active bool
-	Done   bool
-}
-
-// VendorImportSteps renders the rail for the current phase.
-func VendorImportSteps(phase ingest.Phase) []VendorImportStep {
-	steps := []VendorImportStep{
-		{Number: 1, Title: "رفع الملف", Icon: "📤"},
-		{Number: 2, Title: "ربط الأعمدة والتحقق", Icon: "🔗"},
-		{Number: 3, Title: "إعدادات الاستيراد", Icon: "⚙️"},
-		{Number: 4, Title: "مراجعة الأصناف والمطابقة", Icon: "📋"},
-		{Number: 5, Title: "النتائج", Icon: "📊"},
-	}
-	current := 1
-	switch phase {
+// WizardStep maps the session's phase onto the shared, canonically numbered
+// step. The phase is the vendor import's own state machine and stays that way;
+// only what the rail shows is shared.
+func (v VendorImportView) WizardStep() Step {
+	switch v.Phase() {
 	case ingest.PhaseMapping:
-		current = 2
+		return StepColumns
 	case ingest.PhaseSettings:
-		current = 3
+		return StepSettings
 	case ingest.PhaseReview, ingest.PhaseConfirm, ingest.PhaseProcessing:
-		current = 4
+		return StepReview
 	case ingest.PhaseCompleted, ingest.PhaseFailed, ingest.PhaseCancelled:
-		current = 5
+		return StepResults
+	default:
+		return StepFile
 	}
-	for i := range steps {
-		steps[i].Active = steps[i].Number == current
-		steps[i].Done = steps[i].Number < current
-	}
-	return steps
 }
 
 // MappedColumns are the analysed columns, or the stored snapshot once the run

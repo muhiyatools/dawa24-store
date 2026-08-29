@@ -18,60 +18,6 @@ import (
 // rather than in the templates keeps the decisions testable and keeps the .templ
 // files to markup.
 
-// ImportStep identifies which screen is showing, for the progress rail.
-type ImportStep int
-
-const (
-	// StepConfigure is the upload screen: choose a file.
-	StepConfigure ImportStep = iota
-	// StepMapping is the column review: how the file will be read, what it
-	// yields, and the strategy to run it under. Nothing is staged until the
-	// admin leaves this screen deliberately.
-	StepMapping
-	// StepReview is the staged result: counts, per-row table, confirmation.
-	StepReview
-	// StepDone is the committed summary.
-	StepDone
-)
-
-// ImportStepInfo labels one node on the progress rail.
-type ImportStepInfo struct {
-	Step    ImportStep
-	Number  int
-	Icon    string
-	Title   string
-	Active  bool
-	Done    bool
-	Pending bool
-}
-
-// ImportSteps renders the rail for the step currently showing.
-func ImportSteps(current ImportStep) []ImportStepInfo {
-	labels := []struct {
-		icon, title string
-	}{
-		{"📤", "رفع الملف"},
-		{"🧭", "مراجعة الأعمدة"},
-		{"🔍", "مراجعة النتائج"},
-		{"✅", "الحفظ في الكتالوج"},
-	}
-
-	out := make([]ImportStepInfo, 0, len(labels))
-	for i, l := range labels {
-		step := ImportStep(i)
-		out = append(out, ImportStepInfo{
-			Step:    step,
-			Number:  i + 1,
-			Icon:    l.icon,
-			Title:   l.title,
-			Active:  step == current,
-			Done:    step < current,
-			Pending: step > current,
-		})
-	}
-	return out
-}
-
 // ImportToggle is one switch on the configuration screen.
 type ImportToggle struct {
 	Name        string

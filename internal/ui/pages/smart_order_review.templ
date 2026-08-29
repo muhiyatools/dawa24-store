@@ -94,7 +94,7 @@ templ SmartOrderReviewPage(lang, dir string, data SmartOrderReviewData) {
 				</div>
 			</div>
 
-			@stepBar(5)
+			@WizardRail(OrderRail(StepOrder))
 
 			if data.Error != "" {
 				<div style="padding:1rem 1.25rem; border-radius:var(--radius-xl); background:rgba(239,68,68,0.10); border:1px solid var(--danger); font-weight:700; color:var(--danger);">

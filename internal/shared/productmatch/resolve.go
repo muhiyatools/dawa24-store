@@ -191,6 +191,9 @@ type pair struct {
 	headerScore float64
 	valueScore  float64
 	hasValue    bool
+	// namedExactly marks a reading whose column header *is* this field's name,
+	// as opposed to merely containing a word associated with it.
+	namedExactly bool
 }
 
 // minPairScore is the floor below which a reading is not offered at all. It is
@@ -233,6 +236,19 @@ func combineScores(headerScore int, v verdict, hasDetector bool) (float64, []str
 		why = append(why, v.why)
 	}
 
+	// An exact header match is the file stating what the column is, in the
+	// field's own name, with nothing else plausible about it. The values may
+	// still veto it — that happens before this function is reached — but short
+	// of a veto there is nothing left to be uncertain about, and reporting such
+	// a binding as a guess is what made a perfectly named column ask for AI
+	// help and show "تخميني" on the review screen.
+	//
+	// Corroborating values raise it further; their absence does not lower it,
+	// because a header-only file has no values to disagree with.
+	if headerScore >= scoreExact {
+		return clamp(max(0.85, 0.85+0.15*v.score)), why
+	}
+
 	if !hasDetector {
 		// Nothing measurable distinguishes this field's values, so the header
 		// carries it alone — and is capped, because an uncorroborated header is
@@ -271,8 +287,15 @@ func confidenceOf(score float64) Confidence {
 	}
 }
 
-// Resolve reads a sheet's headers and profiled values into a mapping.
+// Resolve reads a sheet's headers and profiled values into a mapping, offering
+// every field in the catalogue.
 func Resolve(headers []string, profiles []*sheet.ColumnProfile, vocab *Vocabulary) *Mapping {
+	return ResolveWith(headers, profiles, vocab, nil)
+}
+
+// ResolveWith reads a sheet under an explicit field set. A nil set allows every
+// field, which is what Resolve passes.
+func ResolveWith(headers []string, profiles []*sheet.ColumnProfile, vocab *Vocabulary, fields *FieldSet) *Mapping {
 	if vocab == nil {
 		vocab = &Vocabulary{}
 	}
@@ -293,17 +316,21 @@ func Resolve(headers []string, profiles []*sheet.ColumnProfile, vocab *Vocabular
 		})
 	}
 
-	pairs, vetoes := scorePairs(headers, shapes, vocab)
+	pairs, vetoes := scorePairs(headers, shapes, vocab, fields)
 	assign(m, pairs)
+	// The one place value evidence may overturn a settled header binding. See
+	// identity_swap.go for why it is limited to this pair.
+	fixIdentitySwap(m, shapes, headers)
 	attachCandidates(m, pairs)
 	flagConflicts(m, pairs, vetoes, headers)
 	return m
 }
 
 // scorePairs evaluates every field against every column.
-func scorePairs(headers []string, shapes []*shape, vocab *Vocabulary) ([]pair, map[Field]map[int]string) {
+func scorePairs(headers []string, shapes []*shape, vocab *Vocabulary, fields *FieldSet) ([]pair, map[Field]map[int]string) {
 	vetoes := map[Field]map[int]string{}
 	var pairs []pair
+	named := map[int]bool{}
 
 	for col := range shapes {
 		header := ""
@@ -311,9 +338,18 @@ func scorePairs(headers []string, shapes []*shape, vocab *Vocabulary) ([]pair, m
 			header = headers[col]
 		}
 		evidence := headerEvidence(header)
+		for _, he := range evidence {
+			if he.Score >= scoreStrong && !he.Blocked {
+				named[col] = true
+				break
+			}
+		}
 
 		for _, spec := range Specs {
 			f := spec.Field
+			if !fields.Allows(f) {
+				continue
+			}
 			he := evidence[f]
 			if he.Blocked {
 				continue
@@ -324,21 +360,58 @@ func scorePairs(headers []string, shapes []*shape, vocab *Vocabulary) ([]pair, m
 					vetoes[f] = map[int]string{}
 				}
 				vetoes[f][col] = v.why
-				continue
+				// A veto unmaps the column — unless the header names this field
+				// outright, in which case the file has told us what the column
+				// is and the values are telling us some of its cells are wrong.
+				//
+				// Those are different problems with different remedies. A
+				// column headed "السعر" holding one "راجع الادارة" among four
+				// hundred prices is the price column with a bad cell, and the
+				// row parser already rejects that row by number and says why.
+				// Unmapping the column instead discards all four hundred prices
+				// and reports nothing an admin can act on, which on a real file
+				// is silent and total.
+				if he.Score < scoreExact {
+					continue
+				}
+				v = verdict{why: v.why}
 			}
 			_, hasDetector := detectors[f]
 			score, why := combineScores(he.Score, v, hasDetector)
 			if score < minPairScore {
 				continue
 			}
+			// A column whose header clearly names a field is not available to a
+			// field the header does not mention at all, however the values
+			// profile. Both halves matter: the named field may still lose to
+			// another field the header also suggests, because that is a genuine
+			// ambiguity for the values to settle — but a field with no header
+			// support whatsoever is not in that conversation.
+			//
+			// Two real files needed this. A column headed "كود الصنف" was bound
+			// to `price` because its codes carried a trailing ".00" and so
+			// profiled as money; the item code went unmapped and 453 rows whose
+			// name cell was blank were rejected as having no identity. And a
+			// column headed "معرف الصنف (ID)" was bound to `sku` because its
+			// ids are short unique integers — the platform's own product id has
+			// no value signature that distinguishes it from an item code, so
+			// its header is the only witness there will ever be.
+			//
+			// When the named field is itself vetoed on evidence, the right
+			// outcome is an unmapped column the user is asked about, not a
+			// confident wrong binding.
+			if named[col] && he.Score <= 0 {
+				continue
+			}
 			pairs = append(pairs, pair{
-				field:       f,
-				column:      col,
-				score:       score,
-				why:         why,
-				headerScore: clamp(float64(he.Score) / 130),
-				valueScore:  v.score,
-				hasValue:    hasDetector,
+				field:        f,
+				column:       col,
+				score:        score,
+				why:          why,
+				headerScore:  clamp(float64(he.Score) / 130),
+				valueScore:   v.score,
+				hasValue:     hasDetector,
+				namedExactly: he.Score >= scoreExact,
 			})
 		}
 	}

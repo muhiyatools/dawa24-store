@@ -20,7 +20,7 @@ import (
 	"github.com/muhiya/dawa24-store/internal/platform/database"
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/shared/money"
-	"github.com/muhiya/dawa24-store/internal/shared/spreadsheet"
+	"github.com/muhiya/dawa24-store/internal/shared/sheet"
 	"github.com/muhiya/dawa24-store/internal/ui/pages"
 )
 
@@ -269,7 +269,7 @@ func (h *UIHandler) CustomerSavingProductsImportSubmit(w http.ResponseWriter, r 
 		return
 	}
 
-	rawRows, err := spreadsheet.ReadRows(fileBytes)
+	rawRows, err := sheet.ReadRows(fileBytes, header.Filename)
 	if err != nil || len(rawRows) < 2 {
 		h.log.WarnContext(ctx, "failed to parse spreadsheet", "error", err, "filename", header.Filename)
 		h.redirectWithNotice(w, r, "/customer/saving-products", "error", "تعذر قراءة ملف البيانات المرفوع أو أن الملف لا يحتوي على صفوف بيانات صالحة.")
@@ -305,7 +305,7 @@ func (h *UIHandler) CustomerSavingProductsImportSubmit(w http.ResponseWriter, r 
 
 	var matchEngine *SavingProductMatchEngine
 	if h.catSvc != nil {
-		if catalogSources, err := h.catSvc.ListAllMasterProductsForMatching(ctx); err == nil && len(catalogSources) > 0 {
+		if catalogSources, err := h.catSvc.ListMatchProducts(ctx); err == nil && len(catalogSources) > 0 {
 			matchEngine = NewSavingProductMatchEngine(catalogSources)
 		}
 	}
@@ -417,7 +417,7 @@ func (h *UIHandler) CustomerSavingProductsPreviewColumnsJSON(w http.ResponseWrit
 		return
 	}
 
-	file, _, err := r.FormFile("file")
+	file, header, err := r.FormFile("file")
 	if err != nil {
 		_ = json.NewEncoder(w).Encode(SavingProductsPreviewResponse{Success: false, Error: "يرجى اختيار ملف Excel أو CSV صالح"})
 		return
@@ -430,7 +430,7 @@ func (h *UIHandler) CustomerSavingProductsPreviewColumnsJSON(w http.ResponseWrit
 		return
 	}
 
-	rawRows, err := spreadsheet.ReadRows(fileBytes)
+	rawRows, err := sheet.ReadRows(fileBytes, header.Filename)
 	if err != nil || len(rawRows) == 0 {
 		_ = json.NewEncoder(w).Encode(SavingProductsPreviewResponse{Success: false, Error: "تعذر قراءة أوراق العمل أو الجداول داخل الملف"})
 		return
@@ -490,7 +490,7 @@ func (h *UIHandler) CustomerSavingProductsImportStartJSON(w http.ResponseWriter,
 		return
 	}
 
-	rawRows, err := spreadsheet.ReadRows(fileBytes)
+	rawRows, err := sheet.ReadRows(fileBytes, fileHeader.Filename)
 	if err != nil || len(rawRows) <= 1 {
 		_ = json.NewEncoder(w).Encode(map[string]any{"success": false, "error": "الملف فارغ أو لا يحتوي على صفوف بيانات"})
 		return
@@ -531,7 +531,7 @@ func (h *UIHandler) CustomerSavingProductsImportStartJSON(w http.ResponseWriter,
 
 		var matchEngine *SavingProductMatchEngine
 		if h.catSvc != nil {
-			if catalogSources, err := h.catSvc.ListAllMasterProductsForMatching(bgCtx); err == nil && len(catalogSources) > 0 {
+			if catalogSources, err := h.catSvc.ListMatchProducts(bgCtx); err == nil && len(catalogSources) > 0 {
 				matchEngine = NewSavingProductMatchEngine(catalogSources)
 			}
 		}
@@ -603,17 +603,7 @@ func (h *UIHandler) CustomerSavingProductsImportStartJSON(w http.ResponseWriter,
 			if productID != nil {
 				matchedCount++
 				if matchEngine != nil {
-					for _, cItem := range matchEngine.items {
-						if cItem.ID == *productID {
-							if cItem.NameAr != "" {
-								masterName = cItem.NameAr
-							} else {
-								masterName = cItem.NameEn
-							}
-							masterSKU = cItem.SKU
-							break
-						}
-					}
+					masterName, masterSKU = matchEngine.Describe(*productID)
 				}
 			} else {
 				unlinkedCount++
@@ -906,164 +896,6 @@ func (h *UIHandler) GuestOrderTrackingPage(w http.ResponseWriter, r *http.Reques
 	if err := pages.GuestOrderTrackingPage(orderNumber, order, lang, dir).Render(ctx, w); err != nil {
 		h.log.ErrorContext(ctx, "render guest tracking", "error", err)
 	}
-}
-
-func parseColOverride(val string, numCols int) int {
-	if val == "" {
-		return -1
-	}
-	if idx, err := strconv.Atoi(val); err == nil && idx >= 0 && idx < numCols {
-		return idx
-	}
-	return -1
-}
-
-func detectSavingProductColumns(
-	headers []string,
-	sampleRows [][]string,
-	customName, customSKU, customQty, customPrice, customProductID string,
-) (nameCol, skuCol, qtyCol, priceCol, productIDCol int) {
-	numCols := len(headers)
-	nameCol = parseColOverride(customName, numCols)
-	skuCol = parseColOverride(customSKU, numCols)
-	qtyCol = parseColOverride(customQty, numCols)
-	priceCol = parseColOverride(customPrice, numCols)
-	productIDCol = parseColOverride(customProductID, numCols)
-
-	for idx, hName := range headers {
-		norm := strings.TrimSpace(strings.ToLower(hName))
-		norm = strings.ReplaceAll(norm, "_", "")
-		norm = strings.ReplaceAll(norm, "-", "")
-		norm = strings.ReplaceAll(norm, " ", "")
-
-		// 1. Product ID
-		if productIDCol == -1 && (strings.Contains(norm, "productid") || strings.Contains(norm, "معرفالمنتج") ||
-			strings.Contains(norm, "معرفالصنف") || strings.Contains(norm, "معرفصنف") ||
-			strings.Contains(norm, "رقمصنف") || strings.Contains(norm, "رقممنتج") ||
-			norm == "id" || norm == "pid") {
-			productIDCol = idx
-			continue
-		}
-
-		// 2. SKU / Barcode / Item Code
-		if skuCol == -1 && (strings.Contains(norm, "sku") || strings.Contains(norm, "كود") ||
-			strings.Contains(norm, "رمز") || strings.Contains(norm, "barcode") ||
-			strings.Contains(norm, "باركود") || strings.Contains(norm, "code")) {
-			skuCol = idx
-			continue
-		}
-
-		// 3. Product / Drug Name
-		if nameCol == -1 && (strings.Contains(norm, "name") || strings.Contains(norm, "اسم") ||
-			strings.Contains(norm, "صنف") || strings.Contains(norm, "منتج") ||
-			strings.Contains(norm, "دواء") || strings.Contains(norm, "مستحضر") ||
-			strings.Contains(norm, "item") || strings.Contains(norm, "description")) {
-			nameCol = idx
-			continue
-		}
-
-		// 4. Quantity
-		if qtyCol == -1 && (strings.Contains(norm, "qty") || strings.Contains(norm, "quantity") ||
-			strings.Contains(norm, "كمية") || strings.Contains(norm, "الكمية") ||
-			strings.Contains(norm, "stock") || strings.Contains(norm, "رصيد") ||
-			strings.Contains(norm, "الرصيد")) {
-			qtyCol = idx
-			continue
-		}
-
-		// 5. Price
-		if priceCol == -1 && (strings.Contains(norm, "price") || strings.Contains(norm, "سعر") ||
-			strings.Contains(norm, "السعر") || strings.Contains(norm, "cost") ||
-			strings.Contains(norm, "شراء") || strings.Contains(norm, "الشراء")) {
-			priceCol = idx
-			continue
-		}
-	}
-
-	// Positional fallbacks for missing columns
-	used := map[int]bool{}
-	if productIDCol >= 0 {
-		used[productIDCol] = true
-	}
-	if nameCol >= 0 {
-		used[nameCol] = true
-	}
-	if skuCol >= 0 {
-		used[skuCol] = true
-	}
-	if qtyCol >= 0 {
-		used[qtyCol] = true
-	}
-	if priceCol >= 0 {
-		used[priceCol] = true
-	}
-
-	if nameCol == -1 {
-		for i := 0; i < numCols; i++ {
-			if !used[i] {
-				nameCol = i
-				used[i] = true
-				break
-			}
-		}
-	}
-	if skuCol == -1 {
-		for i := 0; i < numCols; i++ {
-			if !used[i] {
-				skuCol = i
-				used[i] = true
-				break
-			}
-		}
-	}
-	if qtyCol == -1 {
-		for i := 0; i < numCols; i++ {
-			if !used[i] {
-				qtyCol = i
-				used[i] = true
-				break
-			}
-		}
-	}
-	if priceCol == -1 {
-		for i := 0; i < numCols; i++ {
-			if !used[i] {
-				priceCol = i
-				used[i] = true
-				break
-			}
-		}
-	}
-
-	// Heuristic content-based validation:
-	// If custom overrides were NOT specified, check if nameCol and skuCol were accidentally swapped
-	if customName == "" && customSKU == "" && nameCol >= 0 && skuCol >= 0 && nameCol < numCols && skuCol < numCols {
-		nameNumericCount := 0
-		skuArabicTextCount := 0
-		checkedRows := 0
-
-		for _, row := range sampleRows {
-			if len(row) <= nameCol || len(row) <= skuCol {
-				continue
-			}
-			checkedRows++
-			nameVal := strings.TrimSpace(row[nameCol])
-			skuVal := strings.TrimSpace(row[skuCol])
-
-			if isAllDigitsOrCode(nameVal) && len(nameVal) >= 4 {
-				nameNumericCount++
-			}
-			if isDescriptiveArabicText(skuVal) {
-				skuArabicTextCount++
-			}
-		}
-
-		if checkedRows > 0 && nameNumericCount >= (checkedRows+1)/2 && skuArabicTextCount >= (checkedRows+1)/2 {
-			nameCol, skuCol = skuCol, nameCol
-		}
-	}
-
-	return nameCol, skuCol, qtyCol, priceCol, productIDCol
 }
 
 func isAllDigitsOrCode(s string) bool {

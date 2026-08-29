@@ -86,7 +86,7 @@ func (e *Enhancement) apply(b plannedBatch, outcomes []EnhanceOutcome) []CachedD
 			e.Stats.Rejected += rows
 			continue
 
-		case out.Confidence < MinApplyConfidence:
+		case out.Confidence < ceilings.MinApplyConfidence:
 			// Recorded as an abstention, which is what it is: the model said it
 			// was not sure enough, and the rows keep their deterministic
 			// outcome.
@@ -190,7 +190,7 @@ func (e *Enhancement) applyCache(ctx context.Context, rows []*openRow) []*openRo
 			continue
 		}
 		e.Stats.CacheHits += len(r.sourceRows)
-		if d.ChosenProductID == nil || d.Confidence < MinApplyConfidence {
+		if d.ChosenProductID == nil || d.Confidence < ceilings.MinApplyConfidence {
 			continue
 		}
 		// The guard runs on a remembered answer too. The catalogue moves

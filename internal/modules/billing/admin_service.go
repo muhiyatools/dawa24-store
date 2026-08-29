@@ -78,4 +78,3 @@ func (s *Service) AdminRejectDeposit(ctx context.Context, depositID int64, revie
 	s.log.InfoContext(ctx, "admin rejected wallet deposit", "deposit_id", depositID, "reviewer_id", reviewerID, "reason", reason)
 	return dep, nil
 }
-

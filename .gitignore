@@ -26,3 +26,9 @@ coverage.html
 # NOTE: *_templ.go is deliberately NOT ignored. The Dockerfile does not run
 # `templ generate`, so the generated files must be committed or the container
 # build fails on missing symbols.
+
+# Test side effects. The compare and upload handlers write into the served data
+# directory, so running the suite leaves a randomly named artefact in the tree
+# and it gets committed with whatever change happened to be in flight.
+/internal/ui/data/uploads/compare/
+/internal/ui/data/orgs/

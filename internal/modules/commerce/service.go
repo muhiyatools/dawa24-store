@@ -71,17 +71,17 @@ type CheckoutLineItem struct {
 
 // CheckoutInput contains all details required to finalize a purchase.
 type CheckoutInput struct {
-	CustomerID     int64              `json:"customer_id"`
-	OfferID        int64              `json:"offer_id"`                   // the offer this order belongs to (063)
-	BranchID       *int64             `json:"branch_id,omitempty"`        // customer branch buying for
-	VendorBranchID *int64             `json:"vendor_branch_id,omitempty"` // fulfilling vendor branch
-	UserAddressID  *int64             `json:"user_address_id,omitempty"`  // delivery address (063)
-	PaymentMethod      string                      `json:"payment_method"`
-	ShippingFee        money.Amount                `json:"shipping_fee,omitempty"`
-	VendorShippingFees map[int64]money.Amount      `json:"vendor_shipping_fees,omitempty"` // distance delivery fee per vendor shipment
-	TaxAmount          money.Amount                `json:"tax_amount,omitempty"`
-	Notes              string                      `json:"notes,omitempty"`
-	Items              []CheckoutLineItem          `json:"items"`
+	CustomerID         int64                  `json:"customer_id"`
+	OfferID            int64                  `json:"offer_id"`                   // the offer this order belongs to (063)
+	BranchID           *int64                 `json:"branch_id,omitempty"`        // customer branch buying for
+	VendorBranchID     *int64                 `json:"vendor_branch_id,omitempty"` // fulfilling vendor branch
+	UserAddressID      *int64                 `json:"user_address_id,omitempty"`  // delivery address (063)
+	PaymentMethod      string                 `json:"payment_method"`
+	ShippingFee        money.Amount           `json:"shipping_fee,omitempty"`
+	VendorShippingFees map[int64]money.Amount `json:"vendor_shipping_fees,omitempty"` // distance delivery fee per vendor shipment
+	TaxAmount          money.Amount           `json:"tax_amount,omitempty"`
+	Notes              string                 `json:"notes,omitempty"`
+	Items              []CheckoutLineItem     `json:"items"`
 	// MinOrderAmount is the approved offer's minimum order amount. It is
 	// supplied by the caller (which owns the offer data) and enforced here so
 	// every checkout path is gated in one place.

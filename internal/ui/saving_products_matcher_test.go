@@ -7,34 +7,24 @@ import (
 )
 
 func TestSavingProductMatchEngine(t *testing.T) {
-	catalogItems := []*catalog.CatalogMatchSource{
+	catalogItems := []catalog.MatchProduct{
 		{
-			ID:      101,
-			SKU:     "PAN-24",
-			Barcode: "6221234567890",
-			NameAr:  "بانادول إكسترا 24 قرص",
-			NameEn:  "Panadol Extra 24 Tablets",
+			ID: 101, SKU: "PAN-24", Barcode: "6221234567890",
+			NameAR: "بانادول إكسترا 24 قرص", NameEN: "Panadol Extra 24 Tablets",
+			DosageForm: "أقراص",
 		},
 		{
-			ID:      102,
-			SKU:     "20203380",
-			Barcode: "20203380",
-			NameAr:  "ليدي سبيد ستيك مزيل عرق 65 جرام",
-			NameEn:  "Lady Speed Stick Deodorant 65g",
+			ID: 102, SKU: "20203380", Barcode: "20203380",
+			NameAR: "ليدي سبيد ستيك مزيل عرق 65 جرام", NameEN: "Lady Speed Stick Deodorant 65g",
 		},
 		{
-			ID:      103,
-			SKU:     "AUG-1G",
-			Barcode: "6229876543210",
-			NameAr:  "أوجمنتين 1 جم 14 قرص",
-			NameEn:  "Augmentin 1g 14 Tablets",
+			ID: 103, SKU: "AUG-1G", Barcode: "6229876543210",
+			NameAR: "أوجمنتين 1 جم 14 قرص", NameEN: "Augmentin 1g 14 Tablets",
+			DosageForm: "أقراص", Concentration: "1g",
 		},
 		{
-			ID:      104,
-			SKU:     "FEM-250",
-			Barcode: "5010724524221",
-			NameAr:  "فيم فريش غسول يومي للمناطق الحساسة 250 مل",
-			NameEn:  "Femfresh Daily Intimate Wash 250ml",
+			ID: 104, SKU: "FEM-250", Barcode: "5010724524221",
+			NameAR: "فيم فريش غسول يومي للمناطق الحساسة 250 مل", NameEN: "Femfresh Daily Intimate Wash 250ml",
 		},
 	}
 
@@ -55,8 +45,8 @@ func TestSavingProductMatchEngine(t *testing.T) {
 		if res.ProductID == nil || *res.ProductID != 101 {
 			t.Fatalf("expected product 101, got %v", res.ProductID)
 		}
-		if res.MatchType != "clean_sku" {
-			t.Errorf("expected clean_sku, got %s", res.MatchType)
+		if res.MatchType != "barcode" {
+			t.Errorf("expected barcode, got %s", res.MatchType)
 		}
 	})
 
@@ -77,8 +67,8 @@ func TestSavingProductMatchEngine(t *testing.T) {
 		if res.ProductID == nil || *res.ProductID != 103 {
 			t.Fatalf("expected product 103, got %v", res.ProductID)
 		}
-		if res.MatchType != "norm_name" {
-			t.Errorf("expected norm_name, got %s", res.MatchType)
+		if res.MatchType != "exact_name" {
+			t.Errorf("expected exact_name, got %s", res.MatchType)
 		}
 	})
 
@@ -105,8 +95,17 @@ func TestSavingProductMatchEngine(t *testing.T) {
 		if res.ProductID == nil || *res.ProductID != 104 {
 			t.Fatalf("expected product 104, got %v", res.ProductID)
 		}
-		if res.Confidence < 0.80 {
-			t.Errorf("expected confidence >= 0.80, got %f", res.Confidence)
+		// The old engine reported 0.75+ from a Levenshtein-and-token blend; this
+		// one reports the shared scorer's rarity-weighted score, and the two are
+		// not on the same scale. What is asserted is that the engine settled it
+		// — two of four distinctive words shared, with the concentration and the
+		// dosage form both corroborating — rather than a figure carried across
+		// from a different measurement.
+		if res.MatchType == "unlinked" {
+			t.Errorf("expected a settled match, got %s", res.MatchType)
+		}
+		if res.Confidence <= 0 {
+			t.Errorf("expected a positive confidence, got %f", res.Confidence)
 		}
 	})
 

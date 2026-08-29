@@ -92,7 +92,7 @@ func (e *Enhancement) plan(reviews []Review) []plannedBatch {
 
 	for _, group := range groups {
 		r := group[0]
-		if len(batches)+1 > MaxRequestsPerRun {
+		if len(batches)+1 > ceilings.MaxRequestsPerRun {
 			// Everything past the ceiling keeps its deterministic outcome and
 			// is reported honestly rather than silently dropped.
 			e.Stats.CeilingHit = true
@@ -100,9 +100,9 @@ func (e *Enhancement) plan(reviews []Review) []plannedBatch {
 		}
 		cost := reviewCost(r, cur.window)
 		if len(cur.request.Items) > 0 &&
-			(size+cost > MaxInputBytes || len(cur.request.Items) >= MaxItemsPerRequest) {
+			(size+cost > ceilings.MaxInputBytes || len(cur.request.Items) >= ceilings.MaxItemsPerRequest) {
 			flush()
-			if len(batches) >= MaxRequestsPerRun {
+			if len(batches) >= ceilings.MaxRequestsPerRun {
 				e.Stats.CeilingHit = true
 				break
 			}

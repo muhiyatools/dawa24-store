@@ -211,7 +211,7 @@ func ApplyColumnMap(result ColumnMapResult, plan ColumnPlan, width int) LayoutOv
 
 	certain := map[string]bool{}
 	for _, binding := range plan.Bindings {
-		if binding.Score >= scoreExact {
+		if binding.Score >= scoreCertain {
 			certain[binding.Field] = true
 		}
 	}

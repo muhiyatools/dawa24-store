@@ -61,7 +61,7 @@ func (h *UIHandler) VendorSavingProductsImportMapSubmit(w http.ResponseWriter, r
 
 	var matchEngine *SavingProductMatchEngine
 	if strat != "none" && h.catSvc != nil {
-		if catalogSources, err := h.catSvc.ListAllMasterProductsForMatching(ctx); err == nil && len(catalogSources) > 0 {
+		if catalogSources, err := h.catSvc.ListMatchProducts(ctx); err == nil && len(catalogSources) > 0 {
 			matchEngine = NewSavingProductMatchEngine(catalogSources)
 		}
 	}
@@ -120,17 +120,7 @@ func (h *UIHandler) VendorSavingProductsImportMapSubmit(w http.ResponseWriter, r
 				productID = res.ProductID
 				matchType = res.MatchType
 				confidence = res.Confidence
-				for _, cItem := range matchEngine.items {
-					if cItem.ID == *productID {
-						if cItem.NameAr != "" {
-							masterName = cItem.NameAr
-						} else {
-							masterName = cItem.NameEn
-						}
-						masterSKU = cItem.SKU
-						break
-					}
-				}
+				masterName, masterSKU = matchEngine.Describe(*productID)
 			}
 		}
 
@@ -158,6 +148,16 @@ func (h *UIHandler) VendorSavingProductsImportMapSubmit(w http.ResponseWriter, r
 			Confidence:        confidence,
 			Included:          true,
 		})
+	}
+
+	// The residue goes to the shared AI stage — the same prompt, the same
+	// ceilings and the same decision cache the vendor import and the smart order
+	// use. A row it cannot verify against the catalogue's own record keeps the
+	// deterministic outcome, and the whole stage is a no-op when the Gateway is
+	// unwired.
+	if n := enhanceSavingItems(ctx, h.matchEnhancer, matchEngine, stagedItems, h.log); n > 0 {
+		matchedCount += n
+		unlinkedCount -= n
 	}
 
 	globalSavingImportSessionStore.CompleteProcessing(

@@ -7,7 +7,7 @@ import (
 
 	"github.com/muhiya/dawa24-store/internal/platform/database"
 	"github.com/muhiya/dawa24-store/internal/shared/arabic"
-	"github.com/muhiya/dawa24-store/internal/shared/spreadsheet"
+	"github.com/muhiya/dawa24-store/internal/shared/sheet"
 )
 
 const DefaultBatchSize = 500
@@ -34,7 +34,7 @@ func (s *Service) ProcessSpreadsheetStream(
 		return 0, fmt.Errorf("read spreadsheet stream: %w", err)
 	}
 
-	allRows, err := spreadsheet.ReadRows(data)
+	allRows, err := sheet.ReadRows(data, filename)
 	if err != nil || len(allRows) == 0 {
 		return 0, fmt.Errorf("empty or unparseable spreadsheet: %w", err)
 	}

@@ -1175,4 +1175,3 @@ func TestEnhancedCrossSupplierProductMatching(t *testing.T) {
 		t.Errorf("expected 3 shared products in head-to-head, got %d", h2hRes.TotalShared)
 	}
 }
-

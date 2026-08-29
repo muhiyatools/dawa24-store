@@ -30,6 +30,9 @@ const (
 	FormatXLS  Format = "xls"
 	FormatCSV  Format = "csv"
 	FormatHTML Format = "html"
+	// FormatXML2003 is Microsoft Office XML Spreadsheet, which arrives named
+	// .xls and is neither BIFF nor HTML. See reader_xml2003.go.
+	FormatXML2003 Format = "xml2003"
 )
 
 // Label renders a format for the review screen.
@@ -41,6 +44,8 @@ func (f Format) Label() string {
 		return "Excel 97-2003 (.xls)"
 	case FormatHTML:
 		return "جدول HTML"
+	case FormatXML2003:
+		return "Excel XML 2003"
 	default:
 		return "نص مفصول (CSV)"
 	}
@@ -116,6 +121,10 @@ func Detect(content []byte) Format {
 		return FormatXLSX
 	case bytes.HasPrefix(content, magicOLE2):
 		return FormatXLS
+	// Tested before HTML: an XML Spreadsheet satisfies the HTML sniff too, and
+	// reading it as HTML yields a table with no rows rather than an error.
+	case looksLikeXML2003(content):
+		return FormatXML2003
 	case looksLikeHTML(content):
 		return FormatHTML
 	}
@@ -130,8 +139,6 @@ func looksLikeHTML(content []byte) bool {
 	switch {
 	case bytes.HasPrefix(head, []byte("<!doctype html")), bytes.HasPrefix(head, []byte("<html")):
 		return true
-	case bytes.HasPrefix(head, []byte("<?xml")) && bytes.Contains(head, []byte("<workbook")):
-		return true // Excel 2003 XML, which is an HTML-ish table to us
 	case bytes.HasPrefix(head, []byte("<table")):
 		return true
 	}
@@ -175,6 +182,8 @@ func Open(content []byte, filename string) (*Book, error) {
 		err = b.openXLS()
 	case FormatHTML:
 		err = b.openHTML()
+	case FormatXML2003:
+		err = b.openXML2003()
 	default:
 		err = b.openDelimited(filename)
 	}

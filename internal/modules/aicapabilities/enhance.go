@@ -32,12 +32,17 @@ import (
 
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/platform/gateway"
+	"github.com/muhiya/dawa24-store/internal/shared/matchflow"
 )
 
-// EnhancePromptVersion changes whenever the rendered input or the system prompt
-// changes. It is part of the decision cache key, so a prompt change orphans the
-// old answers instead of silently reusing answers to a different question.
-const EnhancePromptVersion = "sm-enh-v4"
+// EnhancePromptVersion is the version of the question this capability asks.
+//
+// It is declared once, in internal/shared/matchflow, and re-exported here for
+// call sites that already name it. It used to be declared here *and* in the
+// smart order pipeline *and* in the vendor import, and the three had drifted:
+// the vendor filed its answers under v3 while rendering the v4 prompt, so two
+// features maintained two disjoint caches for one question.
+const EnhancePromptVersion = matchflow.PromptVersion
 
 // CatalogEntry is one catalogue product as the model sees it.
 //
@@ -45,58 +50,18 @@ const EnhancePromptVersion = "sm-enh-v4"
 // catalogue is authored in. The English name is carried too and earns its
 // tokens: transliteration is where Arabic pharmacy matching actually fails, and
 // "ابليفاى" against "ابيليفاي" is obvious the moment both rows show `abilify`.
-type CatalogEntry struct {
-	ProductID     int64
-	NameAR        string
-	NameEN        string
-	Scientific    string
-	DosageForm    string
-	Concentration string
-	Manufacturer  string
-}
+type CatalogEntry = matchflow.CatalogEntry
 
 // EnhanceItem is one line the deterministic engine could not settle.
-type EnhanceItem struct {
-	// Ref identifies the item inside this request. It is the request-local
-	// index, not a database id: line ids are the caller's business and there is
-	// no reason to send them to a third party.
-	Ref int
-	// Text is exactly what the pharmacy typed, unedited. The model needs the
-	// noise — "س.ج 141ج" is a price, not a strength, and only the raw text says
-	// so.
-	Text string
-
-	// The remaining fields are what the deterministic decomposition extracted.
-	// They are hints, not constraints: the decomposition is sometimes wrong,
-	// which is part of why the line reached here at all.
-	Brand        string
-	Strength     string
-	DosageForm   string
-	PackSize     int
-	Manufacturer string
-	Scientific   string
-	SKU          string
-	Barcode      string
-	CurrentGuess *int64
-	CurrentScore float64
-	Options      []int64
-}
+type EnhanceItem = matchflow.Item
 
 // EnhanceRequest is one batch: a catalogue window and the lines to resolve
 // against it.
-type EnhanceRequest struct {
-	Catalog []CatalogEntry
-	Items   []EnhanceItem
-}
+type EnhanceRequest = matchflow.Batch
 
 // EnhanceDecision is one answer. A nil ProductID means "none of these", which is
 // a correct and useful answer and is recorded as such.
-type EnhanceDecision struct {
-	Ref        int     `json:"ref"`
-	ProductID  *int64  `json:"product_id"`
-	Confidence float64 `json:"confidence"`
-	Reason     string  `json:"reason,omitempty"`
-}
+type EnhanceDecision = matchflow.Decision
 
 // enhanceSchema constrains the response at the protocol level where the Gateway
 // supports it. It is a belt to the prompt's braces: the prompt still specifies

@@ -289,7 +289,15 @@ func CheckOrdering(m *Mapping, grid NumericGrid) []Conflict {
 //
 // A price list imported without a price is the failure this whole stage exists
 // to prevent, and it is silent unless something says so out loud.
-func CheckMissing(m *Mapping) []Conflict {
+func CheckMissing(m *Mapping) []Conflict { return CheckMissingWith(m, nil) }
+
+// CheckMissingWith reports only the absences that matter to this importer.
+//
+// A pharmacy's shopping list has no price column and never will; telling the
+// buyer their items "will be imported at zero and stay hidden" is a warning
+// about a field their file is not supposed to contain, and a wizard that cries
+// wolf on every run teaches people to click past the one warning that mattered.
+func CheckMissingWith(m *Mapping, fields *FieldSet) []Conflict {
 	var out []Conflict
 
 	if !m.Has(FieldName) && !m.Has(FieldSKU) && !m.Has(FieldBarcode) {
@@ -301,7 +309,8 @@ func CheckMissing(m *Mapping) []Conflict {
 				"بدون واحد منها على الأقل.",
 		})
 	}
-	if !m.Has(FieldPublicPrice) && !m.Has(FieldPrice) && !m.Has(FieldNetPrice) {
+	if fields.Allows(FieldPublicPrice) &&
+		!m.Has(FieldPublicPrice) && !m.Has(FieldPrice) && !m.Has(FieldNetPrice) {
 		out = append(out, Conflict{
 			Kind:     ConflictMissing,
 			Field:    FieldPublicPrice,
@@ -311,7 +320,7 @@ func CheckMissing(m *Mapping) []Conflict {
 				"ولن تظهر للصيدليات حتى تُسعّرها يدوياً.",
 		})
 	}
-	if !m.Has(FieldQuantity) {
+	if fields.Allows(FieldQuantity) && !m.Has(FieldQuantity) {
 		out = append(out, Conflict{
 			Kind:     ConflictMissing,
 			Field:    FieldQuantity,

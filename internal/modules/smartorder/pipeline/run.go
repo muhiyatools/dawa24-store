@@ -149,10 +149,15 @@ func (r *Runner) enhance(ctx context.Context, run *smartorder.Run, cfg *smartord
 	}
 
 	// Retrieval runs here rather than inside the fuzzy stage so that a run which
-	// never reaches AI never pays for it.
-	matcher.Retrieve(reviews)
+	// never reaches AI never pays for it. It also answers which of these lines
+	// the catalogue could plausibly settle at all; the rest keep the honest
+	// deterministic outcome and are never sent.
+	askable := matcher.Retrieve(reviews)
 
-	total := len(reviews)
+	total := len(askable)
+	if total == 0 {
+		return
+	}
 	enh := NewEnhancement(r.repo, r.ai, matcher.Index(), r.log)
 	// This is the stage that waits on a network, so it is the one that has to
 	// move the bar while it works. Reporting only on entry and exit left the
@@ -161,7 +166,7 @@ func (r *Runner) enhance(ctx context.Context, run *smartorder.Run, cfg *smartord
 		r.emit(ctx, run, smartorder.StageAIEnhance, done, total,
 			"الذكاء الاصطناعي يحسّن المطابقات غير المؤكدة", "AI is improving uncertain matches")
 	}
-	enh.Run(ctx, reviews)
+	enh.Run(ctx, askable)
 
 	run.AI.Calls = enh.Stats.Requests
 	run.AI.LinesReviewed = enh.Stats.Reviewed

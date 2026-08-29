@@ -105,6 +105,18 @@ type MatchOptions struct {
 	// numbering and coincides with a catalogue code by accident more often
 	// than by design.
 	TrustSupplierCode bool
+	// CodeIsAuthoritative accepts a code match without corroboration from the
+	// name.
+	//
+	// Off by default, and the default is right for a supplier file: a vendor's
+	// "951" collides with a catalogue code by accident more often than by
+	// design, so a bare numeric hit must be seconded by the name.
+	//
+	// On where the user has said the column *is* the catalogue's code — a
+	// pharmacy's own reference list is kept by the code they look products up
+	// by, and demanding the name agree as well refuses the exact rows the
+	// column was mapped for.
+	CodeIsAuthoritative bool
 	// PoolLimit caps how many catalogue products are scored per row.
 	PoolLimit int
 	// MaxCandidates is how many alternatives are kept for the review screen.
@@ -139,7 +151,7 @@ func (idx *Index) Match(row *Row, opts MatchOptions) MatchResult {
 		return res
 	}
 	if opts.TrustSupplierCode {
-		if res, ok := idx.matchByCode(row, q); ok {
+		if res, ok := idx.matchByCode(row, q, opts); ok {
 			return res
 		}
 	}
@@ -166,6 +178,7 @@ type query struct {
 	epoch int32
 
 	tri      []string
+	skeleton string
 	nums     []float64
 	nameKey  string
 	formKey  string
@@ -181,6 +194,7 @@ func (idx *Index) newQuery(row *Row) *query {
 	q := &query{
 		tokens:   coreTokens(full + " " + row.Scientific),
 		tri:      sortedTrigrams(nameTokens),
+		skeleton: skeletonOf(nameTokens),
 		nums:     numberSignature(full),
 		nameKey:  strings.Join(nameTokens, " "),
 		formKey:  formKeyOf(full + " " + row.DosageForm),
@@ -240,11 +254,13 @@ func (idx *Index) matchByBarcode(row *Row) (MatchResult, bool) {
 
 // matchByCode resolves a supplier code the catalogue also carries.
 //
-// It demands a corroborating name similarity, because a bare numeric code
-// colliding across two numbering schemes is common and the consequence — the
-// wrong medicine priced — is not recoverable by looking at the result.
-func (idx *Index) matchByCode(row *Row, q *query) (MatchResult, bool) {
-	key := sheet.NormalizeKey(row.SKU)
+// It demands a corroborating name similarity by default, because a bare numeric
+// code colliding across two numbering schemes is common and the consequence —
+// the wrong medicine priced — is not recoverable by looking at the result.
+// CodeIsAuthoritative lifts that where the user has stated the column holds the
+// catalogue's own code.
+func (idx *Index) matchByCode(row *Row, q *query, opts MatchOptions) (MatchResult, bool) {
+	key := sheet.NormalizeCode(row.SKU)
 	if len([]rune(key)) < 4 {
 		return MatchResult{}, false
 	}
@@ -253,7 +269,7 @@ func (idx *Index) matchByCode(row *Row, q *query) (MatchResult, bool) {
 		return MatchResult{}, false
 	}
 	p := hits[0]
-	if len(q.tokens) > 0 && idx.nameSimilarity(q, p) < 0.35 {
+	if !opts.CodeIsAuthoritative && len(q.tokens) > 0 && idx.nameSimilarity(q, p) < 0.35 {
 		return MatchResult{}, false
 	}
 	return MatchResult{

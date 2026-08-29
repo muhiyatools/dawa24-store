@@ -240,7 +240,7 @@ func needsColumnHelp(plan ColumnPlan) bool {
 func boundWithCertainty(plan ColumnPlan, field string, column int) bool {
 	for _, binding := range plan.Bindings {
 		if binding.Field == field && binding.Index == column {
-			return binding.Score >= scoreExact
+			return binding.Score >= scoreCertain
 		}
 	}
 	return false

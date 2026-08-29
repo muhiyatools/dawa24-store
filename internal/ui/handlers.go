@@ -32,6 +32,7 @@ import (
 	"github.com/muhiya/dawa24-store/internal/platform/gateway"
 	"github.com/muhiya/dawa24-store/internal/platform/storage"
 	"github.com/muhiya/dawa24-store/internal/shared/apperr"
+	"github.com/muhiya/dawa24-store/internal/shared/matchflow"
 	"github.com/muhiya/dawa24-store/internal/ui/components"
 	"github.com/muhiya/dawa24-store/internal/ui/pages"
 )
@@ -66,7 +67,17 @@ type UIHandler struct {
 	smartOrderEnqueue   SmartOrderEnqueueFunc
 	smartOrderFinalizer *smartorder.Finalizer
 	smartOrderStale     *smartOrderStaleStore
+
+	// matchEnhancer is the AI matching stage the saving-list import runs.
+	//
+	// Optional, like every other AI path here: unset, the import runs its
+	// deterministic tiers and reports what they settled. A pharmacy must be
+	// able to build its list when the Gateway is down (AGENTS.md R3).
+	matchEnhancer matchflow.Enhancer
 }
+
+// SetMatchEnhancer attaches the shared AI matching stage.
+func (h *UIHandler) SetMatchEnhancer(e matchflow.Enhancer) { h.matchEnhancer = e }
 
 // SetAssistantRepository attaches the Assistant database repository for auditing and history.
 func (h *UIHandler) SetAssistantRepository(repo assistant.Repository) {

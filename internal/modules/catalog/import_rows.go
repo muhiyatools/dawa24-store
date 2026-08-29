@@ -182,7 +182,7 @@ func scoreHeaderCandidate(row []string) int {
 	if len(row) == 0 {
 		return 0
 	}
-	plan := PlanColumns(row)
+	plan := PlanColumns(row, nil)
 	if len(plan.Bindings) == 0 {
 		return 0
 	}
@@ -522,11 +522,24 @@ func (c rowCursor) resolveNames() (nameAR, nameEN string, ok bool) {
 // is present but unusable. A missing price is normal — plenty of master
 // catalogue rows are priced per supplier later — and must not lose the product.
 func (c rowCursor) readPrices(prod *Product) bool {
-	price, ok := c.readAmount(FieldPrice, true)
+	// Whichever price column the file carries is the one that must be readable.
+	//
+	// catalog.products has one price. A file heading its column "سعر البيع"
+	// binds to price and one heading it "السعر" binds to the public price —
+	// the same column, named two ways, and both fill the same field. Validating
+	// only the first meant that a file of the second kind had its negative and
+	// unparseable prices merely warned about and then imported as zero, because
+	// the fallback below ran on a value nothing had checked.
+	primary := FieldPrice
+	if !c.plan.Has(FieldPrice) && c.plan.Has(FieldPublicPrice) {
+		primary = FieldPublicPrice
+	}
+
+	price, ok := c.readAmount(FieldPrice, primary == FieldPrice)
 	if !ok {
 		return false
 	}
-	public, ok := c.readAmount(FieldPublicPrice, false)
+	public, ok := c.readAmount(FieldPublicPrice, primary == FieldPublicPrice)
 	if !ok {
 		return false
 	}

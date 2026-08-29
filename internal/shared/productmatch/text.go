@@ -28,10 +28,24 @@ func NormalizeText(s string) string {
 	s = arabic.Normalize(s)
 	s = strings.ToLower(strings.TrimSpace(s))
 	var b strings.Builder
+	b.Grow(len(s))
 	for _, r := range s {
 		if unicode.IsLetter(r) || unicode.IsDigit(r) || unicode.IsSpace(r) {
 			b.WriteRune(r)
+			continue
 		}
+		// A dropped character becomes a space, not nothing.
+		//
+		// Deleting it glued the figures on either side into one: the pack-offer
+		// notation every Egyptian price list uses turned "1+1" into "11" and
+		// "2+1" into "21". Those are the strings this function produces as the
+		// identity key — smartorder.run_lines.norm_name and the decision
+		// cache's key are both this — so "بانادول 2+1" and "بانادول 21 قرص"
+		// normalised to the same thing and could be matched to each other.
+		//
+		// sheet.NormalizeName has always done it this way. The two normalisers
+		// both decide identity and must not disagree about it.
+		b.WriteRune(' ')
 	}
 	return strings.Join(strings.Fields(b.String()), " ")
 }

@@ -33,6 +33,17 @@ const (
 	FieldUnit          Field = "unit"
 	FieldPackSize      Field = "pack_size"
 	FieldCategory      Field = "category"
+	// FieldProductID is dawa24's own primary key for a catalogue product.
+	//
+	// It is not a property of the medicine — it is this platform's identifier,
+	// and only a file previously exported from dawa24 carries it. When it is
+	// present it settles the match outright, which is why it is worth
+	// recognising rather than leaving to be mistaken for an item code.
+	FieldProductID Field = "product_id"
+	// FieldActiveIngredient is the molecule as the master catalogue records it,
+	// which catalog.products keeps in its own column beside the scientific
+	// name. A supplier file rarely carries both; the master catalogue does.
+	FieldActiveIngredient Field = "active_ingredient"
 )
 
 // Commercial: what the vendor is charging. A file usually carries two of the
@@ -60,6 +71,11 @@ const (
 	FieldStatus       Field = "status"
 	FieldImage        Field = "image"
 	FieldNotes        Field = "notes"
+	// The two description columns belong to the master catalogue rather than to
+	// any supplier file: a distributor states a price, an administrator states
+	// what the product is.
+	FieldDescription   Field = "description"
+	FieldDescriptionEN Field = "description_en"
 )
 
 // Group buckets fields for the review screen, so a vendor confirming a mapping
@@ -144,6 +160,7 @@ type Spec struct {
 // name, code, public price, discount — are the first four rows a vendor sees.
 var Specs = []Spec{
 	{FieldName, "اسم الصنف", "الاسم التجاري كما يكتبه المورد؛ أهم عمود في المطابقة", GroupIdentity, KindText, NeedCore, "بانادول إكسترا 24 قرص"},
+	{FieldProductID, "معرف المنتج في دواء 24", "رقم الصنف في الكتالوج المركزي — يوجد فقط في ملف سبق تصديره من المنصة", GroupIdentity, KindCode, NeedOptional, "311352"},
 	{FieldSKU, "كود الصنف لدى المورد", "الكود الداخلي للمورد — يُستخدم للتعرف على الصنف عند إعادة الرفع", GroupIdentity, KindCode, NeedImportant, "12690"},
 	{FieldBarcode, "الباركود الدولي", "باركود GTIN/EAN المطبوع على العبوة", GroupIdentity, KindCode, NeedOptional, "6221234567890"},
 	{FieldNameEN, "الاسم بالإنجليزية", "اسم الصنف اللاتيني إن وُجد في عمود منفصل", GroupIdentity, KindText, NeedOptional, "Panadol Extra"},
@@ -154,6 +171,7 @@ var Specs = []Spec{
 	{FieldUnit, "الوحدة / العبوة", "وحدة البيع: علبة، شريط، زجاجة…", GroupIdentity, KindText, NeedOptional, "علبة"},
 	{FieldPackSize, "عدد الوحدات بالعبوة", "كم قرصاً أو أمبولاً داخل العبوة الواحدة", GroupIdentity, KindCount, NeedOptional, "24"},
 	{FieldCategory, "التصنيف", "قسم أو مجموعة الصنف في ملف المورد", GroupIdentity, KindText, NeedOptional, "مسكنات"},
+	{FieldActiveIngredient, "المادة الفعالة", "المادة الدوائية الفعالة كما يسجلها الكتالوج المركزي", GroupIdentity, KindText, NeedOptional, "باراسيتامول"},
 
 	{FieldPublicPrice, "سعر الجمهور", "السعر الرسمي المطبوع — الأساس الذي يُحسب عليه الخصم", GroupPricing, KindMoney, NeedImportant, "45.00"},
 	{FieldDiscountPct, "نسبة الخصم %", "الخصم الممنوح للصيدلية كنسبة مئوية", GroupPricing, KindPercent, NeedImportant, "32"},
@@ -175,6 +193,8 @@ var Specs = []Spec{
 	{FieldNegotiable, "قابل للتفاوض", "هل يقبل المورد التفاوض على سعر هذا الصنف", GroupAttribute, KindBool, NeedOptional, "نعم"},
 	{FieldImage, "رابط الصورة", "رابط مباشر لصورة المنتج", GroupAttribute, KindURL, NeedOptional, "https://…/panadol.jpg"},
 	{FieldNotes, "ملاحظات", "أي نص إضافي يُحفظ مع الصنف", GroupAttribute, KindText, NeedOptional, "توريد أسبوعي"},
+	{FieldDescription, "الوصف بالعربية", "وصف الصنف كما يظهر للصيدليات", GroupAttribute, KindText, NeedOptional, "مسكن للألم وخافض للحرارة"},
+	{FieldDescriptionEN, "الوصف بالإنجليزية", "الوصف اللاتيني إن وُجد", GroupAttribute, KindText, NeedOptional, "Pain reliever"},
 }
 
 // specIndex is the catalogue keyed by field, built once.
