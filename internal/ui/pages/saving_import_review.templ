@@ -121,18 +121,17 @@ templ savingReviewStage(view SavingImportView) {
 		const dropdown = row.querySelector('.saving-catalog-dropdown');
 		if (!dropdown) return;
 
-		// Close any other open dropdowns
 		document.querySelectorAll('.saving-catalog-dropdown').forEach(d => {
-			if (d !== dropdown) d.style.display = 'none';
+			if (d !== dropdown) d.classList.remove('is-open');
 		});
 
-		const isOpen = dropdown.style.display === 'block';
+		const isOpen = dropdown.classList.contains('is-open');
 		if (isOpen) {
-			dropdown.style.display = 'none';
+			dropdown.classList.remove('is-open');
 			return;
 		}
 
-		dropdown.style.display = 'block';
+		dropdown.classList.add('is-open');
 		const input = dropdown.querySelector('.saving-search-input');
 		if (input) {
 			input.focus();
@@ -192,7 +191,7 @@ templ savingReviewStage(view SavingImportView) {
 
 	document.addEventListener('click', function(e) {
 		if (!e.target.closest('.saving-catalog-cell')) {
-			document.querySelectorAll('.saving-catalog-dropdown').forEach(d => d.style.display = 'none');
+			document.querySelectorAll('.saving-catalog-dropdown').forEach(d => d.classList.remove('is-open'));
 		}
 	});
 	</script>

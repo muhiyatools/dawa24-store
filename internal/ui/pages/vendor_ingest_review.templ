@@ -195,17 +195,16 @@ templ importReviewStage(view VendorImportView) {
 			var dropdown = document.getElementById('catalog-dropdown-' + rowId);
 			if (!dropdown) return;
 
-			// Close any previously opened dropdown
 			if (activeDropdownRowId && activeDropdownRowId !== rowId) {
 				var prev = document.getElementById('catalog-dropdown-' + activeDropdownRowId);
-				if (prev) prev.style.display = 'none';
+				if (prev) prev.classList.remove('is-open');
 			}
 
-			if (dropdown.style.display === 'block') {
-				dropdown.style.display = 'none';
+			if (dropdown.classList.contains('is-open')) {
+				dropdown.classList.remove('is-open');
 				activeDropdownRowId = null;
 			} else {
-				dropdown.style.display = 'block';
+				dropdown.classList.add('is-open');
 				activeDropdownRowId = rowId;
 				var input = dropdown.querySelector('input[type="text"]');
 				if (input) {
@@ -221,7 +220,7 @@ templ importReviewStage(view VendorImportView) {
 		function closeAllCatalogDropdowns() {
 			if (activeDropdownRowId) {
 				var el = document.getElementById('catalog-dropdown-' + activeDropdownRowId);
-				if (el) el.style.display = 'none';
+				if (el) el.classList.remove('is-open');
 				activeDropdownRowId = null;
 			}
 		}
@@ -269,13 +268,7 @@ templ importReviewStage(view VendorImportView) {
 					resultsBox.innerHTML = '';
 					data.forEach(function(p) {
 						var item = document.createElement('div');
-						item.className = 'catalog-search-card';
-						item.style.background = 'var(--surface-sunken)';
-						item.style.border = '1px solid var(--border)';
-						item.style.borderRadius = 'var(--radius-md)';
-						item.style.padding = '0.55rem 0.75rem';
-						item.style.marginBottom = '0.4rem';
-						item.style.transition = 'all 0.15s ease';
+						item.className = 'catalog-search-card ingest-search-card';
 
 						var form = document.createElement('form');
 						form.method = 'POST';
@@ -289,24 +282,16 @@ templ importReviewStage(view VendorImportView) {
 
 						var btn = document.createElement('button');
 						btn.type = 'submit';
-						btn.className = 'btn btn-ghost btn-sm w-100 text-start';
-						btn.style.display = 'flex';
-						btn.style.justifyContent = 'space-between';
-						btn.style.alignItems = 'center';
-						btn.style.width = '100%';
-						btn.style.padding = '0';
-						btn.style.color = 'var(--text)';
+						btn.className = 'btn btn-ghost btn-sm w-100 text-start ingest-search-button';
 
 						var infoDiv = document.createElement('div');
 						var nameDiv = document.createElement('div');
-						nameDiv.className = 'fw-700 text-xs';
-						nameDiv.style.color = 'var(--text)';
+						nameDiv.className = 'fw-700 text-xs ingest-search-name';
 						nameDiv.textContent = p.name_ar || p.name_en || 'بدون اسم';
 						infoDiv.appendChild(nameDiv);
 
 						var metaDiv = document.createElement('div');
-						metaDiv.className = 'text-xs text-muted';
-						metaDiv.style.marginTop = '2px';
+						metaDiv.className = 'text-xs text-muted ingest-search-meta';
 						var metaText = '';
 						if (p.sku) metaText += 'SKU: ' + p.sku + ' ';
 						if (p.dosage_form) metaText += '· ' + p.dosage_form + ' ';
