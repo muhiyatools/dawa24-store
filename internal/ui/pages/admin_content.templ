@@ -43,75 +43,70 @@ func getPositionBadgeLabel(pos string) string {
 
 templ AdminContent(lang, dir string, blocks []*platformadmin.ContentBlock) {
 	@layouts.AdminShell("محتوى الصفحات والأقسام", "content", lang, dir) {
-		<div class="stack-lg" x-data="{ activeTab: 'all', searchQuery: '' }">
+		<div class="page-container" x-data="{ activeTab: 'all', searchQuery: '' }">
 			
 			<!-- Header Card -->
-			<div class="card mb-0">
-				<div style="display:flex; justify-content:space-between; align-items:center; gap:1rem; flex-wrap:wrap;">
-					<div class="row-center-sm">
-						@components.IconFileText("icon-lg")
+			<div class="glass-panel p-6 mb-6">
+				<div class="flex-between items-center flex-wrap gap-4">
+					<div class="d-flex items-center gap-3">
+						<div class="user-avatar-badge text-xl">
+							📄
+						</div>
 						<div>
-							<h2 class="card-title" style="margin:0; font-size:1.35rem;">
+							<h1 class="text-2xl font-black text-primary m-0">
 								محتوى الصفحات والأقسام الترويجية ({ fmt.Sprintf("%d", len(blocks)) })
-							</h2>
-							<p style="font-size:0.875rem; color:var(--neutral-500); margin-top:0.25rem; margin-bottom:0;">
-								التحكم الكامل في نصوص الصفحات الثابتة (من نحن، الأسئلة الشائعة، كيف يعمل)، والأقسام المميزة والبانرات الإعلانية في المنصة.
+							</h1>
+							<p class="text-sm text-secondary m-0 mt-1">
+								التحكم الكامل في نصوص الصفحات الثابتة (من نحن، الأسئلة الشائعة، كيف يعمل)، والأقسام المميزة والبانرات الإعلانية في المنصة
 							</p>
 						</div>
 					</div>
 
-					<div style="display:flex; gap:0.75rem; align-items:center;">
+					<div class="d-flex items-center gap-2">
 						<button
 							type="button"
-							class="btn btn-primary"
+							class="btn btn-primary font-bold text-xs px-3 py-2"
 							data-modal-open="create-content-modal"
-							style="font-weight:800; gap:0.4rem;"
 						>
 							@components.IconPlus("icon-xs")
 							<span>إضافة كتلة / قسم جديد +</span>
 						</button>
 					</div>
 				</div>
-			</div>
 
-			<!-- Filter Tabs and Search -->
-			<div class="card" style="margin-bottom:0; padding:0.85rem 1.25rem;">
-				<div style="display:flex; justify-content:space-between; align-items:center; gap:1rem; flex-wrap:wrap;">
+				<!-- Navigation Tabs and Search -->
+				<div class="flex-between items-center gap-4 flex-wrap mt-6 pt-4 border-t">
 					<!-- Tabs -->
-					<div style="display:flex; gap:0.5rem; flex-wrap:wrap;">
+					<div class="cb-tabs-nav m-0">
 						<button
 							type="button"
-							class="btn btn-sm"
-							:class="activeTab === 'all' ? 'btn-primary' : 'btn-secondary'"
+							class="cb-tab-btn"
+							:class="{ 'active': activeTab === 'all' }"
 							@click="activeTab = 'all'"
-							style="font-weight:700; font-size:0.825rem; border-radius:var(--radius-full); padding:0.35rem 0.9rem;"
 						>
 							الكل ({ fmt.Sprintf("%d", len(blocks)) })
 						</button>
 						<button
 							type="button"
-							class="btn btn-sm"
-							:class="activeTab === 'page' ? 'btn-primary' : 'btn-secondary'"
+							class="cb-tab-btn"
+							:class="{ 'active': activeTab === 'page' }"
 							@click="activeTab = 'page'"
-							style="font-weight:700; font-size:0.825rem; border-radius:var(--radius-full); padding:0.35rem 0.9rem;"
 						>
 							صفحات المنصة العامة (Pages)
 						</button>
 						<button
 							type="button"
-							class="btn btn-sm"
-							:class="activeTab === 'section' ? 'btn-primary' : 'btn-secondary'"
+							class="cb-tab-btn"
+							:class="{ 'active': activeTab === 'section' }"
 							@click="activeTab = 'section'"
-							style="font-weight:700; font-size:0.825rem; border-radius:var(--radius-full); padding:0.35rem 0.9rem;"
 						>
 							الأقسام المميزة والبانرات (Sections & Banners)
 						</button>
 						<button
 							type="button"
-							class="btn btn-sm"
-							:class="activeTab === 'custom' ? 'btn-primary' : 'btn-secondary'"
+							class="cb-tab-btn"
+							:class="{ 'active': activeTab === 'custom' }"
 							@click="activeTab = 'custom'"
-							style="font-weight:700; font-size:0.825rem; border-radius:var(--radius-full); padding:0.35rem 0.9rem;"
 						>
 							أخرى ومخصصة
 						</button>
@@ -122,24 +117,24 @@ templ AdminContent(lang, dir string, blocks []*platformadmin.ContentBlock) {
 						<input
 							type="text"
 							x-model="searchQuery"
-							class="form-input"
+							class="form-input text-xs w-full"
 							placeholder="بحث بالمفتاح أو العنوان..."
-							style="font-size:0.85rem; padding:0.4rem 0.75rem;"
 						/>
 					</div>
 				</div>
 			</div>
 
 			<!-- Content Blocks Table Card -->
-			<div class="card" style="margin-bottom:0; overflow:visible;">
+			<div class="glass-panel p-0 mb-6 overflow-hidden">
 				if len(blocks) == 0 {
-					@components.EmptyState(components.EmptyStateProps{
-						Title:   "لا توجد كتل محتوى مسجلة",
-						Message: "لم يتم إنشاء أي كتل محتوى أو أقسام بعد. اضغط على إضافة كتلة جديدة للبدء.",
-					})
+					<div class="p-8 text-center empty-state-glass">
+						<div class="text-4xl mb-3">📄</div>
+						<h3 class="text-lg font-black text-primary mb-2">لا توجد كتل محتوى مسجلة</h3>
+						<p class="text-sm text-secondary max-w-md mx-auto">لم يتم إنشاء أي كتل محتوى أو أقسام بعد. اضغط على إضافة كتلة جديدة للبدء.</p>
+					</div>
 				} else {
-					<div class="table-container overflow-visible">
-						<table class="b2b-table">
+					<div class="table-container m-0">
+						<table class="data-table m-0">
 							<thead>
 								<tr>
 									<th>#</th>

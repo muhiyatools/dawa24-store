@@ -16,38 +16,49 @@ import (
 // only the confirm button writes.
 templ AdminProductsImportReview(lang, dir string, view ImportReviewView) {
 	@layouts.AdminShell("مراجعة نتائج استيراد الكتالوج | Master Catalog Review", "import", lang, dir) {
-		<!-- Header -->
-		@components.PageHeader(components.PageHeaderProps{
-			Title:    "مراجعة وتحليل بيانات الكتالوج",
-			Subtitle: "فحص مطابقة الحقول، والتحقق من الأسماء والباركودات قبل الاعتماد النهائي في قاعدة البيانات المركزية",
-		}) {
-			<div class="row-center">
-				<a href="/admin/products/import" class="btn btn-secondary btn-sm fw-700">
-					@components.IconUpload("icon-xs")
-					<span>استيراد ملف جديد</span>
-				</a>
-				<a href="/admin/products" class="btn btn-ghost btn-sm fw-700">
-					@components.IconLayers("icon-xs")
-					<span>الكتالوج المعتمد</span>
-				</a>
-			</div>
-		}
+		<div class="page-container">
+			<!-- Header -->
+			<div class="glass-panel p-6 mb-6">
+				<div class="flex-between items-center flex-wrap gap-4">
+					<div class="d-flex items-center gap-3">
+						<div class="user-avatar-badge text-xl">
+							📊
+						</div>
+						<div>
+							<h1 class="text-2xl font-black text-primary m-0">مراجعة وتحليل بيانات الكتالوج</h1>
+							<p class="text-sm text-secondary m-0 mt-1">فحص مطابقة الحقول، والتحقق من الأسماء والباركودات قبل الاعتماد النهائي في قاعدة البيانات المركزية</p>
+						</div>
+					</div>
 
-		<div class="wizard">
-			@wizardRail(reviewStep(view))
-			if view.Working {
-				@importProgressCard(view)
-			} else {
-				@importReviewBanner(view)
-				@importReviewStats(view)
-				if view.Session.IsStaged() {
-					@importStructureCard(view)
-					@importRowsCard(view)
-					@importConfirmCard(view)
-				} else if view.Session.Status == catalog.SessionFailed {
-					@importFailedCard(view)
+					<div class="d-flex items-center gap-2">
+						<a href="/admin/products/import" class="btn btn-secondary btn-sm font-bold text-xs gap-1">
+							@components.IconUpload("icon-xs")
+							<span>استيراد ملف جديد</span>
+						</a>
+						<a href="/admin/products" class="btn btn-ghost btn-sm font-bold text-xs gap-1">
+							@components.IconLayers("icon-xs")
+							<span>الكتالوج المعتمد</span>
+						</a>
+					</div>
+				</div>
+			</div>
+
+			<div class="wizard">
+				@wizardRail(reviewStep(view))
+				if view.Working {
+					@importProgressCard(view)
+				} else {
+					@importReviewBanner(view)
+					@importReviewStats(view)
+					if view.Session.IsStaged() {
+						@importStructureCard(view)
+						@importRowsCard(view)
+						@importConfirmCard(view)
+					} else if view.Session.Status == catalog.SessionFailed {
+						@importFailedCard(view)
+					}
 				}
-			}
+			</div>
 		</div>
 	}
 }
@@ -154,15 +165,15 @@ templ wizStat(value, label, tone string) {
 // a second before a single row appeared, on every page of the table. The
 // mapping now has its own screen and this one reads a stored description.
 templ importStructureCard(view ImportReviewView) {
-	<div class="card mb-0">
+	<div class="glass-panel p-6 mb-6">
 		<h2 class="wiz-head">🧭 كيف تمت قراءة الملف</h2>
 		<p class="wiz-sub">
 			{ fmt.Sprintf("صف العناوين: %s · %d عمود مربوط بحقول المنتج",
 				headerRowLabel(view.Structure), len(view.Bindings)) }
 		</p>
 		if len(view.Bindings) > 0 {
-			<div class="table-container">
-				<table class="b2b-table">
+			<div class="table-container m-0">
+				<table class="data-table m-0">
 					<thead>
 						<tr>
 							<th>العمود</th>
@@ -243,7 +254,7 @@ func headerRowLabel(structure catalog.FileStructure) string {
 }
 
 templ importRowsCard(view ImportReviewView) {
-	<div class="card mb-0" id="import-rows-container">
+	<div class="glass-panel p-6 mb-6" id="import-rows-container">
 		<h2 class="wiz-head">
 			{ fmt.Sprintf("📋 الأصناف المستخرجة (%s)", FormatCount(view.Total)) }
 		</h2>
@@ -278,8 +289,8 @@ templ importRowsCard(view ImportReviewView) {
 				<button type="submit" class="wiz-chip">بحث</button>
 			</form>
 		</div>
-		<div class="table-container wiz-scroll">
-			<table class="b2b-table">
+		<div class="table-container m-0 mt-4 wiz-scroll">
+			<table class="data-table m-0">
 				<thead>
 					<tr>
 						<th style="width:70px; text-align:center;">الصف</th>

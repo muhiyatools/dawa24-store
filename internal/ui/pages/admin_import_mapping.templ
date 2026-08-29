@@ -17,30 +17,42 @@ import (
 // screen made that decision for them and only showed the result afterwards.
 templ AdminProductsImportMapping(lang, dir string, view ImportMappingView) {
 	@layouts.AdminShell("مراجعة أعمدة الملف | Import Column Mapping", "import", lang, dir) {
-		@components.PageHeader(components.PageHeaderProps{
-			Title:    "مراجعة الأعمدة قبل المعالجة",
-			Subtitle: "تأكد من أن كل عمود في الملف مربوط بالحقل الصحيح، وراجع عيّنة من الأصناف كما ستُقرأ فعلياً",
-		}) {
-			<div class="row-center">
-				<a href="/admin/products/import" class="btn btn-secondary btn-sm fw-700">
-					@components.IconUpload("icon-xs")
-					<span>رفع ملف آخر</span>
-				</a>
+		<div class="page-container">
+			<div class="glass-panel p-6 mb-6">
+				<div class="flex-between items-center flex-wrap gap-4">
+					<div class="d-flex items-center gap-3">
+						<div class="user-avatar-badge text-xl">
+							🧭
+						</div>
+						<div>
+							<h1 class="text-2xl font-black text-primary m-0">مراجعة الأعمدة قبل المعالجة</h1>
+							<p class="text-sm text-secondary m-0 mt-1">تأكد من أن كل عمود في الملف مربوط بالحقل الصحيح، وراجع عيّنة من الأصناف كما ستُقرأ فعلياً</p>
+						</div>
+					</div>
+
+					<div class="d-flex items-center gap-2">
+						<a href="/admin/products/import" class="btn btn-secondary btn-sm font-bold text-xs gap-1">
+							@components.IconUpload("icon-xs")
+							<span>رفع ملف آخر</span>
+						</a>
+					</div>
+				</div>
 			</div>
-		}
-		<div class="wizard">
-			@wizardRail(StepMapping)
-			if view.Notice != "" {
-				@importStepNotice(view.Notice, view.NoticeKind)
-			}
-			<form method="POST" hx-boost="false" id="mapping-form">
-				@importFileCard(view)
-				@importMappingCard(view)
-				@importPreviewCard(view)
-				@importModeCard(view.Modes, view.Session.Mode)
-				@importOptionsCard(view.Toggles, view.Categories, view.Session.Options.DefaultCategoryID, view.AIAvailable)
-				@importMappingActions(view)
-			</form>
+
+			<div class="wizard">
+				@wizardRail(StepMapping)
+				if view.Notice != "" {
+					@importStepNotice(view.Notice, view.NoticeKind)
+				}
+				<form method="POST" hx-boost="false" id="mapping-form">
+					@importFileCard(view)
+					@importMappingCard(view)
+					@importPreviewCard(view)
+					@importModeCard(view.Modes, view.Session.Mode)
+					@importOptionsCard(view.Toggles, view.Categories, view.Session.Options.DefaultCategoryID, view.AIAvailable)
+					@importMappingActions(view)
+				</form>
+			</div>
 		</div>
 	}
 }
@@ -57,7 +69,7 @@ templ importStepNotice(message, kind string) {
 
 // importFileCard states what was read, before anything about mapping.
 templ importFileCard(view ImportMappingView) {
-	<div class="card mb-0">
+	<div class="glass-panel p-6 mb-6">
 		<h2 class="wiz-head">📄 الملف المرفوع</h2>
 		<p class="wiz-sub">{ view.HeaderSummary() }</p>
 		<div class="wiz-stats">
@@ -92,7 +104,7 @@ templ importFileCard(view ImportMappingView) {
 // importMappingCard is the screen's centre: every field, the column it reads
 // from, and what that column contains.
 templ importMappingCard(view ImportMappingView) {
-	<div class="card mb-0">
+	<div class="glass-panel p-6 mb-6">
 		<h2 class="wiz-head">🧭 ربط الأعمدة بالحقول</h2>
 		<p class="wiz-sub">
 			اختر لكل حقل العمود الذي يقرأ منه. القائمة تعرض حرف العمود وعنوانه في الملف،
@@ -111,8 +123,8 @@ templ importMappingCard(view ImportMappingView) {
 			@wizMapNumber("first_data_row", "أول صف بيانات", "اتركه فارغاً للبدء بعد صف العناوين", view.Session.Overrides.FirstDataRow)
 			@wizMapNumber("last_data_row", "آخر صف بيانات", "لتجاهل صفوف الإجماليات في نهاية الملف", view.Session.Overrides.LastDataRow)
 		</div>
-		<div class="table-container mt-md">
-			<table class="b2b-table">
+		<div class="table-container m-0 mt-4">
+			<table class="data-table m-0">
 				<thead>
 					<tr>
 						<th>الحقل</th>
@@ -167,7 +179,7 @@ templ importFieldLine(view ImportMappingView, field ImportFieldRow) {
 // importPreviewCard shows the products this mapping produces. It is the answer
 // to "will this work", and it costs nothing to look at.
 templ importPreviewCard(view ImportMappingView) {
-	<div class="card mb-0">
+	<div class="glass-panel p-6 mb-6">
 		<h2 class="wiz-head">
 			{ fmt.Sprintf("👁 معاينة أول %d صنف", len(view.PreviewRows)) }
 		</h2>
@@ -182,8 +194,8 @@ templ importPreviewCard(view ImportMappingView) {
 				{ fmt.Sprintf("سيتم استخراج %s صنف من الملف. هذه أول الصفوف كما سيقرأها النظام.",
 					FormatCount(view.TotalProducts)) }
 			</p>
-			<div class="table-container">
-				<table class="b2b-table">
+			<div class="table-container m-0 mt-4">
+				<table class="data-table m-0">
 					<thead>
 						<tr>
 							<th>الصف</th>

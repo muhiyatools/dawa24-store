@@ -12,44 +12,57 @@ import (
 // VendorInstitutionalWorkPage renders vendor institutional memberships.
 templ VendorInstitutionalWorkPage(works []*org.InstitutionalWork, lang, dir string) {
 	@layouts.VendorShell("الأعمال المؤسسية للشركات والجهات", "institutional_work", lang, dir) {
-		<div class="card mb-0">
-			<div class="header-row">
-				<div>
-					<h2 class="card-title m-0">الأعمال والاتفاقيات المؤسسية للمنشأة ({ fmt.Sprintf("%d", len(works)) })</h2>
-					<p class="subtitle">إدارة عضويات الجهات الطبية، المجموعات الصيدلانية، وسلاسل التوريد الخاصة.</p>
+		<div class="page-container">
+			<div class="glass-panel p-6 mb-6">
+				<div class="flex-between items-center flex-wrap gap-4">
+					<div>
+						<div class="d-flex items-center gap-3 mb-1">
+							<div class="user-avatar-badge text-xl">
+								🏛️
+							</div>
+							<h1 class="text-2xl font-black text-primary m-0">الأعمال والاتفاقيات المؤسسية للمنشأة ({ fmt.Sprintf("%d", len(works)) })</h1>
+						</div>
+						<p class="text-sm text-secondary m-0">إدارة عضويات الجهات الطبية، المجموعات الصيدلانية، وسلاسل التوريد الخاصة</p>
+					</div>
 				</div>
 			</div>
 
 			if len(works) == 0 {
-				@components.EmptyState(components.EmptyStateProps{Title: "لا توجد أعمال مؤسسية معتمدة", Message: "تتيح الأعمال المؤسسية تقديم عروض حصرية لفئات محددة من الصيدليات والجهات الطبية."})
+				<div class="glass-panel p-8 text-center empty-state-glass">
+					<div class="text-4xl mb-3">🏛️</div>
+					<h3 class="text-lg font-black text-primary mb-2">لا توجد أعمال مؤسسية معتمدة</h3>
+					<p class="text-sm text-secondary m-0">تتيح الأعمال المؤسسية تقديم عروض حصرية لفئات محددة من الصيدليات والجهات الطبية.</p>
+				</div>
 			} else {
-				<div class="table-container">
-					<table class="b2b-table">
-						<thead>
-							<tr>
-								<th>اسم الهيكل المؤسسي</th>
-								<th>الوصف</th>
-								<th>نوع التسعير</th>
-								<th>الحالة</th>
-							</tr>
-						</thead>
-						<tbody>
-							for _, w := range works {
+				<div class="glass-panel p-0 mb-6 overflow-hidden">
+					<div class="table-container m-0">
+						<table class="data-table m-0">
+							<thead>
 								<tr>
-									<td><strong>{ w.Title.Get(i18n.Lang(lang)) }</strong></td>
-									<td>{ w.Description.Get(i18n.Lang(lang)) }</td>
-									<td><span class="badge badge-sky">{ string(w.PricingType) }</span></td>
-									<td>
-										if w.IsActive {
-											<span class="badge badge-emerald">نشط</span>
-										} else {
-											<span class="badge badge-secondary">غير نشط</span>
-										}
-									</td>
+									<th>اسم الهيكل المؤسسي</th>
+									<th>الوصف</th>
+									<th class="text-center">نوع التسعير</th>
+									<th class="text-center">الحالة</th>
 								</tr>
-							}
-						</tbody>
-					</table>
+							</thead>
+							<tbody>
+								for _, w := range works {
+									<tr>
+										<td class="font-extrabold text-primary text-sm">{ w.Title.Get(i18n.Lang(lang)) }</td>
+										<td class="text-xs text-secondary">{ w.Description.Get(i18n.Lang(lang)) }</td>
+										<td class="text-center"><span class="badge badge-sky text-xs font-bold">{ string(w.PricingType) }</span></td>
+										<td class="text-center">
+											if w.IsActive {
+												<span class="badge badge-emerald text-xs font-bold">نشط</span>
+											} else {
+												<span class="badge badge-slate text-xs font-bold">غير نشط</span>
+											}
+										</td>
+									</tr>
+								}
+							</tbody>
+						</table>
+					</div>
 				</div>
 			}
 		</div>
@@ -59,57 +72,68 @@ templ VendorInstitutionalWorkPage(works []*org.InstitutionalWork, lang, dir stri
 // VendorPharmacyCoveragePage renders pharmacies covered by vendor schedules.
 templ VendorPharmacyCoveragePage(data VendorPharmacyCoverageData, lang, dir string) {
 	@layouts.VendorShell("تغطية الصيدليات وشبكة التوزيع", "pharmacy_coverage", lang, dir) {
-		<div class="space-y-6">
+		<div class="page-container">
 			<!-- Header & Action Bar -->
-			<div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem; margin-bottom:1.5rem;">
-				<div>
-					<h1 class="text-2xl fw-800 text-primary m-0">الصيدليات المشمولة في نطاق التغطية الأسبوعية</h1>
-					<p style="font-size:0.875rem; color:var(--text-secondary); margin:0.25rem 0 0 0;">
-						استعراض شبكة الصيدليات الواقعة داخل نطاق تغطية فروعك ومخازنك حسب المحافظة والمدينة والمسافة الجغرافية.
-					</p>
-				</div>
-				<div style="display:flex; gap:0.75rem; flex-wrap:wrap;">
-					<a href="/vendor/coverage" class="btn btn-primary btn-sm">
-						@components.IconClock("icon-xs")
-						<span>إدارة جدول التغطية الأسبوعية</span>
-					</a>
+			<div class="glass-panel p-6 mb-6">
+				<div class="flex-between items-center flex-wrap gap-4">
+					<div>
+						<div class="d-flex items-center gap-3 mb-1">
+							<div class="user-avatar-badge text-xl">
+								🗺️
+							</div>
+							<h1 class="text-2xl font-black text-primary m-0">الصيدليات المشمولة في نطاق التغطية الأسبوعية</h1>
+						</div>
+						<p class="text-sm text-secondary m-0">
+							استعراض شبكة الصيدليات الواقعة داخل نطاق تغطية فروعك ومخازنك حسب المحافظة والمدينة والمسافة الجغرافية
+						</p>
+					</div>
+					<div class="d-flex gap-2 flex-wrap">
+						<a href="/vendor/coverage" class="btn btn-primary btn-sm font-bold gap-1">
+							@components.IconClock("icon-xs")
+							<span>إدارة جدول التغطية الأسبوعية</span>
+						</a>
+					</div>
 				</div>
 			</div>
 
 			<!-- KPI Stat Cards -->
-			<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:1rem; margin-bottom:1.5rem;">
-				<div class="card mb-0" style="padding:1.25rem; background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-xl);">
-					<div class="form-label">إجمالي الصيدليات المغطاة</div>
-					<div style="font-size:1.65rem; font-weight:900; color:var(--text);" class="tabular-nums">{ fmt.Sprintf("%d", data.TotalPharmacies) }</div>
+			<div class="dashboard-stat-grid mb-6">
+				<div class="stat-card-3d">
+					<div class="stat-card-label">إجمالي الصيدليات المغطاة</div>
+					<div class="stat-card-value text-primary tabular-nums">{ fmt.Sprintf("%d", data.TotalPharmacies) }</div>
+					<span class="text-xs text-secondary mt-1 d-block">صيدلية في نطاق الفروع</span>
 				</div>
 
-				<div class="card mb-0" style="padding:1.25rem; background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-xl);">
-					<div class="form-label">متاحة للتوصيل اليوم</div>
-					<div style="font-size:1.65rem; font-weight:900; color:var(--success-text);" class="tabular-nums">{ fmt.Sprintf("%d", data.CoveredTodayCount) }</div>
+				<div class="stat-card-3d">
+					<div class="stat-card-label text-success">متاحة للتوصيل اليوم</div>
+					<div class="stat-card-value text-success tabular-nums">{ fmt.Sprintf("%d", data.CoveredTodayCount) }</div>
+					<span class="text-xs text-secondary mt-1 d-block">ضمن جدول خطوط سير اليوم</span>
 				</div>
 
-				<div class="card mb-0" style="padding:1.25rem; background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-xl);">
-					<div class="form-label">المدن والمحافظات المغطاة</div>
-					<div style="font-size:1.65rem; font-weight:900; color:var(--accent);" class="tabular-nums">{ fmt.Sprintf("%d", len(data.CoveredCities)) }</div>
+				<div class="stat-card-3d">
+					<div class="stat-card-label text-brand">المدن والمحافظات المغطاة</div>
+					<div class="stat-card-value text-brand tabular-nums">{ fmt.Sprintf("%d", len(data.CoveredCities)) }</div>
+					<span class="text-xs text-secondary mt-1 d-block">نطاق جغرافي مشمول</span>
 				</div>
 
-				<div class="card mb-0" style="padding:1.25rem; background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-xl);">
-					<div class="form-label">فروع التوزيع المغذية</div>
-					<div style="font-size:1.65rem; font-weight:900; color:var(--text-secondary);" class="tabular-nums">{ fmt.Sprintf("%d", len(data.CoveredBranches)) }</div>
+				<div class="stat-card-3d">
+					<div class="stat-card-label text-secondary">فروع التوزيع المغذية</div>
+					<div class="stat-card-value text-secondary tabular-nums">{ fmt.Sprintf("%d", len(data.CoveredBranches)) }</div>
+					<span class="text-xs text-secondary mt-1 d-block">مراكز التوزيع النشطة</span>
 				</div>
 			</div>
 
 			<!-- Filter Bar -->
-			<div class="card mb-0" style="background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-xl); padding:1.25rem; margin-bottom:1.5rem;">
-				<form method="GET" action="/vendor/pharmacy-coverage" style="display:grid; grid-template-columns:2fr 1.2fr 1.2fr 1.2fr auto; gap:0.75rem; align-items:end;">
-					<div class="form-group mb-0">
-						<label class="form-label text-xs">البحث بالاسم أو العنوان أو الهاتف</label>
-						<input type="text" name="q" value={ data.SearchQuery } class="form-input" placeholder="اسم الصيدلية / الفرع / العنوان..." />
+			<div class="glass-panel p-4 mb-6">
+				<form method="GET" action="/vendor/pharmacy-coverage" class="d-grid gap-3 items-end" style="grid-template-columns:2fr 1.2fr 1.2fr 1.2fr auto;">
+					<div>
+						<label class="form-label text-xs font-bold text-secondary mb-1">البحث بالاسم أو العنوان أو الهاتف</label>
+						<input type="text" name="q" value={ data.SearchQuery } class="form-input text-xs w-full" placeholder="اسم الصيدلية / الفرع / العنوان..." />
 					</div>
 
-					<div class="form-group mb-0">
-						<label class="form-label text-xs">يوم التوصيل</label>
-						<select name="day" class="form-select">
+					<div>
+						<label class="form-label text-xs font-bold text-secondary mb-1">يوم التوصيل</label>
+						<select name="day" class="form-select text-xs w-full">
 							<option value="">كافة الأيام</option>
 							<option value="today" selected?={ data.FilterDay == "today" }>اليوم الحالي فقط</option>
 							<option value="0" selected?={ data.FilterDay == "0" }>الأحد</option>
@@ -122,9 +146,9 @@ templ VendorPharmacyCoveragePage(data VendorPharmacyCoverageData, lang, dir stri
 						</select>
 					</div>
 
-					<div class="form-group mb-0">
-						<label class="form-label text-xs">فرع التوزيع</label>
-						<select name="branch" class="form-select">
+					<div>
+						<label class="form-label text-xs font-bold text-secondary mb-1">فرع التوزيع</label>
+						<select name="branch" class="form-select text-xs w-full">
 							<option value="">كافة الفروع</option>
 							for _, b := range data.CoveredBranches {
 								<option value={ b } selected?={ data.FilterBranch == b }>{ b }</option>
@@ -132,9 +156,9 @@ templ VendorPharmacyCoveragePage(data VendorPharmacyCoverageData, lang, dir stri
 						</select>
 					</div>
 
-					<div class="form-group mb-0">
-						<label class="form-label text-xs">المدينة / المنطقة</label>
-						<select name="city" class="form-select">
+					<div>
+						<label class="form-label text-xs font-bold text-secondary mb-1">المدينة / المنطقة</label>
+						<select name="city" class="form-select text-xs w-full">
 							<option value="">كافة المدن</option>
 							for _, c := range data.CoveredCities {
 								<option value={ c } selected?={ data.FilterCity == c }>{ c }</option>
@@ -142,33 +166,34 @@ templ VendorPharmacyCoveragePage(data VendorPharmacyCoverageData, lang, dir stri
 						</select>
 					</div>
 
-					<div class="row-center-sm">
-						<button type="submit" class="btn btn-primary fw-700">تصفية</button>
+					<div class="d-flex items-center gap-2">
+						<button type="submit" class="btn btn-primary text-xs font-bold px-4">تصفية</button>
 						if data.SearchQuery != "" || data.FilterDay != "" || data.FilterBranch != "" || data.FilterCity != "" {
-							<a href="/vendor/pharmacy-coverage" class="btn btn-secondary" title="إعادة تعيين">✕</a>
+							<a href="/vendor/pharmacy-coverage" class="btn btn-secondary text-xs px-3" title="إعادة تعيين">✕</a>
 						}
 					</div>
 				</form>
 			</div>
 
 			<!-- Pharmacies Table / Directory -->
-			<div class="card mb-0" style="background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-xl); padding:1.5rem;">
+			<div class="glass-panel p-0 mb-6 overflow-hidden">
 				if len(data.Pharmacies) == 0 {
-					@components.EmptyState(components.EmptyStateProps{
-						Title:       "لا توجد صيدليات مطابقة لمعايير البحث",
-						Message:     "لم يتم العثور على صيدليات تقع ضمن نطاق التغطية المحدد. يمكنك تعديل فلاتر البحث أو توسيع نطاق جدول التغطية الأسبوعية لفروعك.",
-						ActionLabel: "تعديل جدول التغطية",
-					})
+					<div class="p-8 text-center empty-state-glass">
+						<div class="text-4xl mb-3">🔍</div>
+						<h3 class="text-lg font-black text-primary mb-2">لا توجد صيدليات مطابقة لمعايير البحث</h3>
+						<p class="text-sm text-secondary max-w-md mx-auto mb-4">لم يتم العثور على صيدليات تقع ضمن نطاق التغطية المحدد. يمكنك تعديل فلاتر البحث أو توسيع نطاق جدول التغطية الأسبوعية لفروعك.</p>
+						<a href="/vendor/coverage" class="btn btn-secondary btn-sm font-bold">تعديل جدول التغطية</a>
+					</div>
 				} else {
-					<div class="table-container">
-						<table class="b2b-table">
+					<div class="table-container m-0">
+						<table class="data-table m-0">
 							<thead>
 								<tr>
 									<th>الصيدلية والفرع</th>
 									<th>المدينة والعنوان</th>
 									<th>فرع التوزيع والمسافة</th>
 									<th>أيام ومواعيد التوصيل</th>
-									<th>حالة التغطية اليوم</th>
+									<th class="text-center">حالة التغطية اليوم</th>
 									<th class="text-end">التواصل</th>
 								</tr>
 							</thead>
@@ -176,18 +201,18 @@ templ VendorPharmacyCoveragePage(data VendorPharmacyCoverageData, lang, dir stri
 								for _, p := range data.Pharmacies {
 									<tr>
 										<td>
-											<div class="row-center-sm">
-												<div class="b2b-icon-box-sm">
-													@components.IconBuilding("icon-xs")
+											<div class="d-flex items-center gap-2">
+												<div class="user-avatar-badge text-xs font-black">
+													🏥
 												</div>
 												<div>
-													<strong style="color:var(--text); font-size:0.95rem;">
+													<div class="font-extrabold text-primary text-sm">
 														if p.PharmacyTradeName != "" {
 															{ p.PharmacyTradeName }
 														} else {
 															{ p.PharmacyName }
 														}
-													</strong>
+													</div>
 													<div class="text-xs text-muted">
 														<span>{ p.BranchName }</span>
 														if p.Phone != "" {
@@ -198,21 +223,21 @@ templ VendorPharmacyCoveragePage(data VendorPharmacyCoverageData, lang, dir stri
 											</div>
 										</td>
 										<td>
-											<div style="font-size:0.875rem; color:var(--text);">
+											<div class="text-xs text-primary font-bold">
 												if p.CityName != "" {
-													<span class="badge badge-sky" style="font-size:0.75rem; font-weight:700; margin-bottom:2px;">
+													<span class="badge badge-sky text-xs font-bold mb-1">
 														{ p.CityName }
 													</span>
 												}
 												if p.Address != "" {
-													<div style="font-size:0.775rem; color:var(--text-secondary); margin-top:2px;">{ p.Address }</div>
+													<div class="text-xs text-secondary mt-1">{ p.Address }</div>
 												}
 											</div>
 										</td>
 										<td>
 											<div>
-												<strong style="color:var(--text); font-size:0.875rem;">{ p.CoveringBranchName }</strong>
-												<div style="font-size:0.75rem; color:var(--accent); margin-top:2px; font-weight:600;">
+												<div class="font-bold text-primary text-xs">{ p.CoveringBranchName }</div>
+												<div class="text-xs text-brand font-bold mt-1">
 													if p.DistanceKM > 0 {
 														if p.DistanceMeters < 1000 {
 															<span>📍 تبعد { fmt.Sprintf("%d", p.DistanceMeters) } متر</span>
@@ -226,34 +251,34 @@ templ VendorPharmacyCoveragePage(data VendorPharmacyCoverageData, lang, dir stri
 											</div>
 										</td>
 										<td>
-											<div style="display:flex; flex-direction:column; gap:3px;">
-												<div style="display:flex; gap:3px; flex-wrap:wrap;">
+											<div class="d-flex flex-col gap-1">
+												<div class="d-flex gap-1 flex-wrap">
 													for _, dLabel := range p.CoveredDaysLabels {
-														<span class="badge badge-secondary" style="font-size:10px; font-weight:700; padding:1px 5px;">
+														<span class="badge badge-slate text-xs font-bold">
 															{ dLabel }
 														</span>
 													}
 												</div>
 												if p.TimeWindow != "" {
-													<div style="font-size:0.725rem; color:var(--text-muted);" class="tabular-nums">
+													<div class="text-xs text-muted tabular-nums">
 														⏰ { p.TimeWindow }
 													</div>
 												}
 											</div>
 										</td>
-										<td>
+										<td class="text-center">
 											if p.IsCoveredToday {
-												<span class="badge badge-emerald text-sm fw-700">
-													✓ توصيل متاح اليوم
+												<span class="badge badge-emerald text-xs font-bold">
+													✓ متاح اليوم
 												</span>
 											} else {
-												<span class="badge badge-secondary text-xs">
-													مجدول في أيام أخرى
+												<span class="badge badge-slate text-xs">
+													أيام أخرى
 												</span>
 											}
 										</td>
 										<td class="text-end">
-											<div style="display:flex; justify-content:flex-end; align-items:center; gap:0.4rem;">
+											<div class="d-flex items-center justify-end gap-2">
 												if p.Phone != "" {
 													<a href={ templ.SafeURL("tel:" + p.Phone) } class="btn btn-secondary btn-sm btn-icon" title="اتصال">
 														@components.IconPhone("icon-xs")
@@ -262,7 +287,7 @@ templ VendorPharmacyCoveragePage(data VendorPharmacyCoverageData, lang, dir stri
 														@components.IconWhatsApp("icon-xs")
 													</a>
 												}
-												<a href="/vendor/coverage" class="btn btn-secondary btn-sm" title="عرض جدول التغطية">
+												<a href="/vendor/coverage" class="btn btn-secondary btn-sm font-bold text-xs" title="عرض جدول التغطية">
 													التغطية
 												</a>
 											</div>

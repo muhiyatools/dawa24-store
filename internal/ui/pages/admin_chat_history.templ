@@ -21,65 +21,66 @@ type AdminChatHistoryData struct {
 // AdminChatHistoryPage renders conversation threads list for AI Assistant.
 templ AdminChatHistoryPage(data AdminChatHistoryData, lang, dir string) {
 	@layouts.AdminShell("سجلات محادثات المساعد الذكي كبسولة AI", "chat_history", lang, dir) {
-		<div class="card mb-0">
+		<div class="page-container">
 			
 			<!-- Header -->
-			<div class="header-row" style="margin-bottom:1.25rem;">
-				<div>
-					<h2 class="card-title" style="margin:0; font-size:1.4rem; font-weight:800; display:flex; align-items:center; gap:0.5rem;">
-						@components.IconSparkles("icon-sm")
-						<span>سجلات محادثات المساعد الذكي كبسولة AI</span>
-					</h2>
-					<p class="subtitle" style="margin:0.25rem 0 0 0;">مراقبة وتدقيق كافة جلسات ومحادثات الذكاء الاصطناعي مع المستخدمين (صيدليات وموردين) واستهلاك الرموز وتفاصيل الحوارات.</p>
+			<div class="glass-panel p-6 mb-6">
+				<div class="flex-between items-center flex-wrap gap-4">
+					<div class="d-flex items-center gap-3">
+						<div class="user-avatar-badge text-xl">
+							✨
+						</div>
+						<div>
+							<h1 class="text-2xl font-black text-primary m-0">سجلات محادثات المساعد الذكي كبسولة AI</h1>
+							<p class="text-sm text-secondary m-0 mt-1">مراقبة وتدقيق كافة جلسات ومحادثات الذكاء الاصطناعي مع المستخدمين (صيدليات وموردين) واستهلاك الرموز وتفاصيل الحوارات</p>
+						</div>
+					</div>
 				</div>
 			</div>
 
 			<!-- Stats Overview Cards -->
 			if data.Stats != nil {
-				<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:1rem; margin-bottom:1.5rem;">
-					<div style="background:var(--surface-sunken); border:1px solid var(--border); border-radius:var(--radius-lg); padding:1rem 1.25rem;">
-						<div style="font-size:0.775rem; font-weight:700; color:var(--text-muted); margin-bottom:0.25rem;">إجمالي الجلسات</div>
-						<div style="font-size:1.6rem; font-weight:900; color:var(--text);" class="tabular-nums">{ fmt.Sprintf("%d", data.Stats.TotalConversations) }</div>
+				<div class="dashboard-stat-grid mb-6">
+					<div class="stat-card-3d">
+						<div class="text-xs font-bold text-muted mb-1">إجمالي الجلسات</div>
+						<div class="text-2xl font-black text-primary tabular-nums">{ fmt.Sprintf("%d", data.Stats.TotalConversations) }</div>
 					</div>
-					<div style="background:var(--surface-sunken); border:1px solid var(--border); border-radius:var(--radius-lg); padding:1rem 1.25rem;">
-						<div style="font-size:0.775rem; font-weight:700; color:var(--text-muted); margin-bottom:0.25rem;">إجمالي الرسائل المتبادلة</div>
-						<div style="font-size:1.6rem; font-weight:900; color:var(--accent);" class="tabular-nums">{ fmt.Sprintf("%d", data.Stats.TotalMessages) }</div>
+					<div class="stat-card-3d">
+						<div class="text-xs font-bold text-muted mb-1">إجمالي الرسائل المتبادلة</div>
+						<div class="text-2xl font-black text-brand tabular-nums">{ fmt.Sprintf("%d", data.Stats.TotalMessages) }</div>
 					</div>
-					<div style="background:var(--surface-sunken); border:1px solid var(--border); border-radius:var(--radius-lg); padding:1rem 1.25rem;">
-						<div style="font-size:0.775rem; font-weight:700; color:var(--text-muted); margin-bottom:0.25rem;">المستخدمون النشطون</div>
-						<div style="font-size:1.6rem; font-weight:900; color:#10b981;" class="tabular-nums">{ fmt.Sprintf("%d", data.Stats.ActiveUsers) }</div>
+					<div class="stat-card-3d">
+						<div class="text-xs font-bold text-muted mb-1">المستخدمون النشطون</div>
+						<div class="text-2xl font-black text-success tabular-nums">{ fmt.Sprintf("%d", data.Stats.ActiveUsers) }</div>
 					</div>
-					<div style="background:var(--surface-sunken); border:1px solid var(--border); border-radius:var(--radius-lg); padding:1rem 1.25rem;">
-						<div style="font-size:0.775rem; font-weight:700; color:var(--text-muted); margin-bottom:0.25rem;">إجمالي الرموز (Tokens)</div>
-						<div style="font-size:1.25rem; font-weight:800; color:var(--text-secondary);" class="tabular-nums">
+					<div class="stat-card-3d">
+						<div class="text-xs font-bold text-muted mb-1">إجمالي الرموز (Tokens)</div>
+						<div class="text-xl font-black text-primary tabular-nums">
 							<span>{ fmt.Sprintf("%d", data.Stats.TotalInputTokens + data.Stats.TotalOutputTokens) }</span>
-							<span style="font-size:0.7rem; color:var(--text-muted);">({ fmt.Sprintf("إدخال %d / توليد %d", data.Stats.TotalInputTokens, data.Stats.TotalOutputTokens) })</span>
+							<span class="text-xs text-muted font-normal block mt-0.5">({ fmt.Sprintf("إدخال %d / توليد %d", data.Stats.TotalInputTokens, data.Stats.TotalOutputTokens) })</span>
 						</div>
 					</div>
 				</div>
 			}
 
 			<!-- Filter / Search Bar -->
-			<div style="margin-bottom:1.25rem; background:var(--surface-sunken); border:1px solid var(--border); border-radius:var(--radius-md); padding:0.75rem 1rem;">
-				<form method="GET" action="/admin/chat/history" style="display:flex; gap:0.75rem; align-items:center; flex-wrap:wrap;">
-					<div style="flex:1; min-width:240px; position:relative;">
+			<div class="glass-panel p-4 mb-6">
+				<form method="GET" action="/admin/chat/history" class="d-flex gap-3 items-center flex-wrap m-0">
+					<div class="flex-1" style="min-width:240px;">
 						<input
 							type="text"
 							name="q"
 							value={ data.SearchQuery }
 							placeholder="البحث باسم المستخدم، البريد الإلكتروني، الهاتف، اسم المنشأة، أو موضوع الجلسة..."
-							style="width:100%; background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-md); padding:0.5rem 2.25rem 0.5rem 0.85rem; font-size:0.85rem; color:var(--text); outline:none; box-sizing:border-box;"
+							class="form-input text-xs w-full"
 						/>
-						<div style="position:absolute; right:10px; top:50%; transform:translateY(-50%); color:var(--text-muted); pointer-events:none; display:flex; align-items:center;">
-							@components.IconSearch("icon-xs")
-						</div>
 					</div>
-					<button type="submit" class="btn btn-primary btn-sm" style="font-weight:700; gap:0.35rem;">
+					<button type="submit" class="btn btn-primary btn-sm font-bold text-xs px-3">
 						@components.IconSearch("icon-xs")
 						<span>بحث وتصفية</span>
 					</button>
 					if data.SearchQuery != "" {
-						<a href="/admin/chat/history" class="btn btn-secondary btn-sm">
+						<a href="/admin/chat/history" class="btn btn-secondary btn-sm text-xs">
 							@components.IconClose("icon-xs")
 							<span>إلغاء التصفية</span>
 						</a>
@@ -88,14 +89,16 @@ templ AdminChatHistoryPage(data AdminChatHistoryData, lang, dir string) {
 			</div>
 
 			<!-- AI Assistant Conversations Table -->
-			if len(data.AIConvs) == 0 {
-				@components.EmptyState(components.EmptyStateProps{
-					Title:   "لا توجد جلسات مطابقة",
-					Message: "لم يتم العثور على أي جلسات محادثة للذكاء الاصطناعي تطابق معايير البحث.",
-				})
-			} else {
-				<div class="table-container">
-					<table class="b2b-table">
+			<div class="glass-panel p-0 mb-6 overflow-hidden">
+				if len(data.AIConvs) == 0 {
+					<div class="p-8 text-center empty-state-glass">
+						<div class="text-4xl mb-3">✨</div>
+						<h3 class="text-lg font-black text-primary mb-2">لا توجد جلسات مطابقة</h3>
+						<p class="text-sm text-secondary max-w-md mx-auto">لم يتم العثور على أي جلسات محادثة للذكاء الاصطناعي تطابق معايير البحث.</p>
+					</div>
+				} else {
+					<div class="table-container m-0">
+						<table class="data-table m-0">
 						<thead>
 							<tr>
 								<th>#</th>

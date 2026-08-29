@@ -12,61 +12,74 @@ import (
 // AdminFullUserPage renders the categorized user list.
 templ AdminFullUserPage(users []*identity.User, activeFilter string, lang, dir string) {
 	@layouts.AdminShell("إدارة ودليل المستخدمين الشامل", "users", lang, dir) {
-		<div class="card mb-0">
-			<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; flex-wrap:wrap; gap:1rem;">
-				<div>
-					<h2 class="card-title m-0">دليل المستخدمين والحسابات ({ fmt.Sprintf("%d", len(users)) })</h2>
-					<p class="subtitle">متابعة حسابات العملاء، مسؤولي الصيدليات، والمشرفين عبر المنصة.</p>
+		<div class="page-container">
+			<div class="glass-panel p-6 mb-6">
+				<div class="flex-between items-center flex-wrap gap-4">
+					<div class="d-flex items-center gap-3">
+						<div class="user-avatar-badge text-xl">
+							👥
+						</div>
+						<div>
+							<h1 class="text-2xl font-black text-primary m-0">دليل المستخدمين والحسابات ({ fmt.Sprintf("%d", len(users)) })</h1>
+							<p class="text-sm text-secondary m-0 mt-1">متابعة حسابات العملاء، مسؤولي الصيدليات، والمشرفين عبر المنصة</p>
+						</div>
+					</div>
+				</div>
+
+				<!-- Filter Tabs -->
+				<div class="cb-tabs-nav m-0 mt-6 pt-4 border-t">
+					<a href="/admin/full-user" class={ "cb-tab-btn", templ.KV("active", activeFilter == "all") }>كافة المستخدمين</a>
+					<a href="/admin/customer-list" class={ "cb-tab-btn", templ.KV("active", activeFilter == "customers") }>الصيدليات والعملاء</a>
+					<a href="/admin/vendor-list" class={ "cb-tab-btn", templ.KV("active", activeFilter == "vendors") }>الموردون والشركات</a>
+					<a href="/admin/admin-list" class={ "cb-tab-btn", templ.KV("active", activeFilter == "staff") }>المشرفون والإداريون</a>
+					<a href="/admin/want-delete" class="cb-tab-btn text-danger">طلبات الحذف</a>
 				</div>
 			</div>
 
-			<!-- Filter Tabs -->
-			<div style="display:flex; gap:0.5rem; margin-bottom:1.5rem; flex-wrap:wrap; border-bottom:1px solid var(--border); padding-bottom:1rem;">
-				<a href="/admin/full-user" class={ "btn btn-sm", templ.KV("btn-primary", activeFilter == "all"), templ.KV("btn-secondary", activeFilter != "all") }>كافة المستخدمين</a>
-				<a href="/admin/customer-list" class={ "btn btn-sm", templ.KV("btn-primary", activeFilter == "customers"), templ.KV("btn-secondary", activeFilter != "customers") }>الصيدليات والعملاء</a>
-				<a href="/admin/vendor-list" class={ "btn btn-sm", templ.KV("btn-primary", activeFilter == "vendors"), templ.KV("btn-secondary", activeFilter != "vendors") }>الموردون والشركات</a>
-				<a href="/admin/admin-list" class={ "btn btn-sm", templ.KV("btn-primary", activeFilter == "staff"), templ.KV("btn-secondary", activeFilter != "staff") }>المشرفون والإداريون</a>
-				<a href="/admin/want-delete" class="btn btn-secondary btn-sm text-danger">طلبات الحذف</a>
-			</div>
-
-			if len(users) == 0 {
-				@components.EmptyState(components.EmptyStateProps{Title: "لا يوجد مستخدمون", Message: "لم يتم العثور على مستخدمين مسجلين في هذا القسم."})
-			} else {
-				<div class="table-container">
-					<table class="b2b-table">
-						<thead>
-							<tr>
-								<th>الاسم</th>
-								<th>البريد الإلكتروني</th>
-								<th>الهاتف</th>
-								<th>الدور</th>
-								<th>الحالة</th>
-								<th class="text-end">الإجراءات</th>
-							</tr>
-						</thead>
-						<tbody>
-							for _, u := range users {
+			<div class="glass-panel p-0 mb-6 overflow-hidden">
+				if len(users) == 0 {
+					<div class="p-8 text-center empty-state-glass">
+						<div class="text-4xl mb-3">👥</div>
+						<h3 class="text-lg font-black text-primary mb-2">لا يوجد مستخدمون</h3>
+						<p class="text-sm text-secondary max-w-md mx-auto">لم يتم العثور على مستخدمين مسجلين في هذا القسم.</p>
+					</div>
+				} else {
+					<div class="table-container m-0">
+						<table class="data-table m-0">
+							<thead>
 								<tr>
-									<td><strong>{ u.Name.Get("ar") }</strong></td>
-									<td class="tabular-nums">{ u.Email }</td>
-									<td class="tabular-nums">{ u.Phone }</td>
-									<td><span class="badge badge-secondary">{ u.Role }</span></td>
-									<td>
-										if u.Status == identity.StatusActive {
-											<span class="badge badge-emerald">نشط</span>
-										} else {
-											<span class="badge badge-rose">معطل</span>
-										}
-									</td>
-									<td class="text-end">
-										<a href={ templ.SafeURL(fmt.Sprintf("/admin/users/%d", u.ID)) } class="btn btn-secondary btn-sm">عرض الملف</a>
-									</td>
+									<th>الاسم</th>
+									<th>البريد الإلكتروني</th>
+									<th>الهاتف</th>
+									<th>الدور</th>
+									<th class="text-center">الحالة</th>
+									<th class="text-end">الإجراءات</th>
 								</tr>
-							}
-						</tbody>
-					</table>
-				</div>
-			}
+							</thead>
+							<tbody>
+								for _, u := range users {
+									<tr>
+										<td><strong class="text-primary text-xs">{ u.Name.Get("ar") }</strong></td>
+										<td class="tabular-nums text-xs font-mono">{ u.Email }</td>
+										<td class="tabular-nums text-xs">{ u.Phone }</td>
+										<td><span class="badge badge-secondary text-xs font-bold">{ u.Role }</span></td>
+										<td class="text-center">
+											if u.Status == identity.StatusActive {
+												<span class="badge badge-emerald text-xs font-bold">نشط</span>
+											} else {
+												<span class="badge badge-rose text-xs font-bold">معطل</span>
+											}
+										</td>
+										<td class="text-end">
+											<a href={ templ.SafeURL(fmt.Sprintf("/admin/users/%d", u.ID)) } class="btn btn-secondary btn-sm font-bold text-xs">عرض الملف</a>
+										</td>
+									</tr>
+								}
+							</tbody>
+						</table>
+					</div>
+				}
+			</div>
 		</div>
 	}
 }
@@ -74,32 +87,34 @@ templ AdminFullUserPage(users []*identity.User, activeFilter string, lang, dir s
 // AdminUserDetailPage renders a detailed view of a user.
 templ AdminUserDetailPage(u *identity.User, lang, dir string) {
 	@layouts.AdminShell(fmt.Sprintf("ملف المستخدم: %s", u.Name.Get("ar")), "users", lang, dir) {
-		<div class="card max-w-2xl mx-auto">
-			<div class="header-row">
-				<div>
-					<h2 class="card-title m-0">{ u.Name.Get("ar") }</h2>
-					<p class="subtitle">معرف #{ fmt.Sprintf("%d", u.ID) } | دور: { u.Role }</p>
+		<div class="page-container max-w-2xl mx-auto">
+			<div class="glass-panel p-6 mb-6">
+				<div class="flex-between items-center mb-4 pb-3 border-b">
+					<div>
+						<h2 class="text-xl font-black text-primary m-0">{ u.Name.Get("ar") }</h2>
+						<p class="text-xs text-secondary m-0 mt-1">معرف #{ fmt.Sprintf("%d", u.ID) } | دور: { u.Role }</p>
+					</div>
+					<a href="/admin/users" class="btn btn-secondary btn-sm font-bold text-xs">العودة لدليل المستخدمين</a>
 				</div>
-				<a href="/admin/users" class="btn btn-secondary btn-sm">العودة لدليل المستخدمين</a>
-			</div>
 
-			<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:1.5rem;">
-				<div>
-					<div class="text-sm text-secondary">البريد الإلكتروني</div>
-					<div class="tabular-nums" style="font-weight:700; margin-top:0.25rem;">{ u.Email }</div>
-				</div>
-				<div>
-					<div class="text-sm text-secondary">رقم الهاتف</div>
-					<div class="tabular-nums" style="font-weight:700; margin-top:0.25rem;">{ u.Phone }</div>
-				</div>
-				<div>
-					<div class="text-sm text-secondary">الحالة</div>
-					<div style="margin-top:0.25rem;">
-						if u.Status == identity.StatusActive {
-							<span class="badge badge-emerald">نشط</span>
-						} else {
-							<span class="badge badge-rose">معطل</span>
-						}
+				<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:1.5rem;">
+					<div>
+						<div class="text-xs text-secondary font-bold">البريد الإلكتروني</div>
+						<div class="tabular-nums text-sm font-bold text-primary mt-1 font-mono">{ u.Email }</div>
+					</div>
+					<div>
+						<div class="text-xs text-secondary font-bold">رقم الهاتف</div>
+						<div class="tabular-nums text-sm font-bold text-primary mt-1">{ u.Phone }</div>
+					</div>
+					<div>
+						<div class="text-xs text-secondary font-bold">الحالة</div>
+						<div class="mt-1">
+							if u.Status == identity.StatusActive {
+								<span class="badge badge-emerald text-xs font-bold">نشط</span>
+							} else {
+								<span class="badge badge-rose text-xs font-bold">معطل</span>
+							}
+						</div>
 					</div>
 				</div>
 			</div>
@@ -110,47 +125,64 @@ templ AdminUserDetailPage(u *identity.User, lang, dir string) {
 // AdminDeletionRequestsPage renders deletion requests.
 templ AdminDeletionRequestsPage(requests []*identity.AccountDeletionRequest, lang, dir string) {
 	@layouts.AdminShell("طلبات حذف الحسابات", "users", lang, dir) {
-		<div class="card mb-0">
-			<h2 class="card-title mb-lg">طلبات حذف الحسابات ({ fmt.Sprintf("%d", len(requests)) })</h2>
-			if len(requests) == 0 {
-				@components.EmptyState(components.EmptyStateProps{Title: "لا توجد طلبات حذف معلقة", Message: "لا توجد أي طلبات لحذف الحسابات حالياً."})
-			} else {
-				<div class="table-container">
-					<table class="b2b-table">
-						<thead>
-							<tr>
-								<th>#</th>
-								<th>معرف المستخدم</th>
-								<th>السبب</th>
-								<th>الحالة</th>
-								<th>تاريخ الطلب</th>
-								<th class="text-end">الإجراءات</th>
-							</tr>
-						</thead>
-						<tbody>
-							for _, r := range requests {
-								<tr>
-									<td class="tabular-nums">#{ fmt.Sprintf("%d", r.ID) }</td>
-									<td>مستخدم #{ fmt.Sprintf("%d", r.UserID) }</td>
-									<td>{ r.Reason }</td>
-									<td><span class="badge badge-amber">{ r.Status }</span></td>
-									<td>{ r.CreatedAt.Format("2006-01-02 15:04") }</td>
-									<td class="text-end">
-										<div style="display:flex; justify-content:flex-end; gap:0.5rem;">
-											<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/users/deletion/%d/approve", r.ID)) }>
-												<button type="submit" class="btn btn-secondary btn-sm text-danger">موافقة وحذف</button>
-											</form>
-											<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/users/deletion/%d/reject", r.ID)) }>
-												<button type="submit" class="btn btn-secondary btn-sm">رفض الطلب</button>
-											</form>
-										</div>
-									</td>
-								</tr>
-							}
-						</tbody>
-					</table>
+		<div class="page-container">
+			<div class="glass-panel p-6 mb-6">
+				<div class="d-flex items-center gap-3">
+					<div class="user-avatar-badge text-xl">
+						🗑️
+					</div>
+					<div>
+						<h1 class="text-2xl font-black text-primary m-0">طلبات حذف الحسابات ({ fmt.Sprintf("%d", len(requests)) })</h1>
+						<p class="text-sm text-secondary m-0 mt-1">مراجعة طلبات المستخدمين لحذف الحسابات نهائياً من المنصة</p>
+					</div>
 				</div>
-			}
+			</div>
+
+			<div class="glass-panel p-0 mb-6 overflow-hidden">
+				if len(requests) == 0 {
+					<div class="p-8 text-center empty-state-glass">
+						<div class="text-4xl mb-3">🗑️</div>
+						<h3 class="text-lg font-black text-primary mb-2">لا توجد طلبات حذف معلقة</h3>
+						<p class="text-sm text-secondary max-w-md mx-auto">لا توجد أي طلبات لحذف الحسابات حالياً.</p>
+					</div>
+				} else {
+					<div class="table-container m-0">
+						<table class="data-table m-0">
+							<thead>
+								<tr>
+									<th>#</th>
+									<th>معرف المستخدم</th>
+									<th>السبب</th>
+									<th class="text-center">الحالة</th>
+									<th>تاريخ الطلب</th>
+									<th class="text-end">الإجراءات</th>
+								</tr>
+							</thead>
+							<tbody>
+								for _, r := range requests {
+									<tr>
+										<td class="tabular-nums font-bold text-brand">#{ fmt.Sprintf("%d", r.ID) }</td>
+										<td class="text-xs">مستخدم #{ fmt.Sprintf("%d", r.UserID) }</td>
+										<td class="text-xs">{ r.Reason }</td>
+										<td class="text-center"><span class="badge badge-amber text-xs font-bold">{ r.Status }</span></td>
+										<td class="text-xs tabular-nums">{ r.CreatedAt.Format("2006-01-02 15:04") }</td>
+										<td class="text-end">
+											<div class="d-inline-flex gap-2">
+												<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/users/deletion/%d/approve", r.ID)) }>
+													<button type="submit" class="btn btn-ghost btn-sm text-danger font-bold">موافقة وحذف</button>
+												</form>
+												<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/users/deletion/%d/reject", r.ID)) }>
+													<button type="submit" class="btn btn-secondary btn-sm font-bold text-xs">رفض الطلب</button>
+												</form>
+											</div>
+										</td>
+									</tr>
+								}
+							</tbody>
+						</table>
+					</div>
+				}
+			</div>
 		</div>
 	}
 }
@@ -158,9 +190,15 @@ templ AdminDeletionRequestsPage(requests []*identity.AccountDeletionRequest, lan
 // AdminEmployeeActivitiesPage renders employee activity logs.
 templ AdminEmployeeActivitiesPage(activities []any, lang, dir string) {
 	@layouts.AdminShell("سجل نشاطات الموظفين والعمليات", "employee_activities", lang, dir) {
-		<div class="card mb-0">
-			<h2 class="card-title mb-lg">سجل نشاطات الموظفين بالمنشآت</h2>
-			@components.EmptyState(components.EmptyStateProps{Title: "سجل العمليات فارغ", Message: "يتم تسجيل عمليات الموظفين والموردين تلقائياً عند إجراء التعديلات على المنتجات والأسعار."})
+		<div class="page-container">
+			<div class="glass-panel p-6 mb-6">
+				<h1 class="text-2xl font-black text-primary m-0 mb-4">سجل نشاطات الموظفين بالمنشآت</h1>
+				<div class="p-8 text-center empty-state-glass">
+					<div class="text-4xl mb-3">📋</div>
+					<h3 class="text-lg font-black text-primary mb-2">سجل العمليات فارغ</h3>
+					<p class="text-sm text-secondary max-w-md mx-auto">يتم تسجيل عمليات الموظفين والموردين تلقائياً عند إجراء التعديلات على المنتجات والأسعار.</p>
+				</div>
+			</div>
 		</div>
 	}
 }
@@ -168,19 +206,29 @@ templ AdminEmployeeActivitiesPage(activities []any, lang, dir string) {
 // AdminRolesPage renders RBAC roles management.
 templ AdminRolesPage(roles []*org.Role, lang, dir string) {
 	@layouts.AdminShell("إدارة الأدوار والصلاحيات (RBAC)", "roles", lang, dir) {
-		<div class="card mb-0">
-			<div class="header-row">
-				<div>
-					<h2 class="card-title m-0">الأدوار والصلاحيات ({ fmt.Sprintf("%d", len(roles)) })</h2>
-					<p class="subtitle">تحديد صلاحيات الوصول والتعديل لمجموعات المستخدمين والموظفين.</p>
+		<div class="page-container">
+			<div class="glass-panel p-6 mb-6">
+				<div class="d-flex items-center gap-3">
+					<div class="user-avatar-badge text-xl">
+						🛡️
+					</div>
+					<div>
+						<h1 class="text-2xl font-black text-primary m-0">الأدوار والصلاحيات ({ fmt.Sprintf("%d", len(roles)) })</h1>
+						<p class="text-sm text-secondary m-0 mt-1">تحديد صلاحيات الوصول والتعديل لمجموعات المستخدمين والموظفين</p>
+					</div>
 				</div>
 			</div>
 
-			if len(roles) == 0 {
-				@components.EmptyState(components.EmptyStateProps{Title: "لا توجد أدوار مخصصة", Message: "يتم استخدام الأدوار القياسية للنظام."})
-			} else {
-				<div class="table-container">
-					<table class="b2b-table">
+			<div class="glass-panel p-0 mb-6 overflow-hidden">
+				if len(roles) == 0 {
+					<div class="p-8 text-center empty-state-glass">
+						<div class="text-4xl mb-3">🛡️</div>
+						<h3 class="text-lg font-black text-primary mb-2">لا توجد أدوار مخصصة</h3>
+						<p class="text-sm text-secondary max-w-md mx-auto">يتم استخدام الأدوار القياسية للنظام.</p>
+					</div>
+				} else {
+					<div class="table-container m-0">
+						<table class="data-table m-0">
 						<thead>
 							<tr>
 								<th>اسم الدور</th>

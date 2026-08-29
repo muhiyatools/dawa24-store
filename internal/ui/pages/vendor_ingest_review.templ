@@ -7,44 +7,46 @@ import (
 )
 
 templ importReviewStage(view VendorImportView) {
-	<div class="card">
-		<div class="b2b-page-header mb-lg">
-			<div class="b2b-page-header-info">
-				<div>
-					<h2 class="wiz-head mb-0">4. مراجعة الأصناف والمطابقة</h2>
-					<p class="wiz-sub mb-0">
-						راجع أصناف الملف، عدّل الأسماء، وافحص نسبة التطابق أو اربط الأصناف بالكتالوج المركزي مباشرة قبل الحفظ النهائي في قاعدة البيانات.
-					</p>
-				</div>
+	<div class="glass-panel p-6 mb-6">
+		<div class="flex-between items-center flex-wrap gap-4 mb-6">
+			<div>
+				<h2 class="text-2xl font-black text-primary m-0">4. مراجعة الأصناف والمطابقة</h2>
+				<p class="text-sm text-secondary m-0 mt-1">
+					راجع أصناف الملف، عدّل الأسماء، وافحص نسبة التطابق أو اربط الأصناف بالكتالوج المركزي مباشرة قبل الحفظ النهائي في قاعدة البيانات
+				</p>
 			</div>
-			<div class="row-center-sm">
+			<div class="d-flex items-center gap-2">
 				<form method="POST" action={ templ.SafeURL("/vendor/ingest/" + view.Session.PublicID + "/back-settings") }>
-					<button type="submit" class="btn btn-secondary btn-sm">⚙️ تعديل الإعدادات</button>
+					<button type="submit" class="btn btn-secondary btn-sm font-bold">⚙️ تعديل الإعدادات</button>
 				</form>
 				<form method="POST" action={ templ.SafeURL("/vendor/ingest/" + view.Session.PublicID + "/cancel") }
 					onsubmit="return confirm('هل أنت متأكد من إلغاء عملية الاستيراد وحذف البيانات المؤقتة؟');">
-					<button type="submit" class="btn btn-ghost btn-sm text-danger">✕ إلغاء</button>
+					<button type="submit" class="btn btn-ghost btn-sm text-danger font-bold">✕ إلغاء</button>
 				</form>
 			</div>
 		</div>
 
 		<!-- Summary Stats Grid -->
-		<div class="import-stats mb-lg">
-			<div class="import-stat">
-				<span class="import-stat-value">{ fmt.Sprint(view.Session.TotalRows) }</span>
-				<span class="import-stat-label">إجمالي الأصناف</span>
+		<div class="dashboard-stat-grid mb-6">
+			<div class="stat-card-3d">
+				<div class="stat-card-label">إجمالي الأصناف</div>
+				<div class="stat-card-value text-primary tabular-nums">{ fmt.Sprint(view.Session.TotalRows) }</div>
+				<span class="text-xs text-secondary mt-1 d-block">إجمالي سطور الملف</span>
 			</div>
-			<div class="import-stat import-stat--ok">
-				<span class="import-stat-value">{ fmt.Sprint(view.Session.MatchedRows) }</span>
-				<span class="import-stat-label">مطابق بالكتالوج</span>
+			<div class="stat-card-3d">
+				<div class="stat-card-label text-success">مطابق بالكتالوج</div>
+				<div class="stat-card-value text-success tabular-nums">{ fmt.Sprint(view.Session.MatchedRows) }</div>
+				<span class="text-xs text-secondary mt-1 d-block">جاهز للاستيراد فورياً</span>
 			</div>
-			<div class="import-stat import-stat--warn">
-				<span class="import-stat-value">{ fmt.Sprint(view.Session.ReviewRows) }</span>
-				<span class="import-stat-label">يحتاج مراجعة</span>
+			<div class="stat-card-3d">
+				<div class="stat-card-label text-warning">يحتاج مراجعة</div>
+				<div class="stat-card-value text-warning tabular-nums">{ fmt.Sprint(view.Session.ReviewRows) }</div>
+				<span class="text-xs text-secondary mt-1 d-block">تطابق مقترح أو غير مؤكد</span>
 			</div>
-			<div class="import-stat import-stat--error">
-				<span class="import-stat-value">{ fmt.Sprint(view.Session.UnmatchedRows) }</span>
-				<span class="import-stat-label">غير مطابق</span>
+			<div class="stat-card-3d">
+				<div class="stat-card-label text-danger">غير مطابق</div>
+				<div class="stat-card-value text-danger tabular-nums">{ fmt.Sprint(view.Session.UnmatchedRows) }</div>
+				<span class="text-xs text-secondary mt-1 d-block">بحاجة لربط يدوي</span>
 			</div>
 		</div>
 
@@ -52,15 +54,15 @@ templ importReviewStage(view VendorImportView) {
 		@aiPanel(view)
 
 		<!-- Filter Tabs and Search Bar -->
-		<div class="b2b-filter-bar mb-md">
-			<div class="row-center-sm flex-wrap gap-xs">
+		<div class="flex-between items-center flex-wrap gap-4 mb-4 mt-6">
+			<div class="cb-tabs-nav m-0">
 				@reviewFilterTab(view, "", "الكل (" + fmt.Sprint(view.Session.TotalRows) + ")")
 				@reviewFilterTab(view, "matched", "مطابق (" + fmt.Sprint(view.Session.MatchedRows) + ")")
 				@reviewFilterTab(view, "review", "يحتاج مراجعة (" + fmt.Sprint(view.Session.ReviewRows) + ")")
 				@reviewFilterTab(view, "unmatched", "غير مطابق (" + fmt.Sprint(view.Session.UnmatchedRows) + ")")
 			</div>
 
-			<form method="GET" action={ templ.SafeURL("/vendor/ingest/" + view.Session.PublicID) } class="row-center-sm ms-auto flex-wrap gap-xs">
+			<form method="GET" action={ templ.SafeURL("/vendor/ingest/" + view.Session.PublicID) } class="d-flex items-center gap-2 flex-wrap ms-auto">
 				if view.Filter.MatchLevel != "" {
 					<input type="hidden" name="match" value={ view.Filter.MatchLevel }/>
 				}
@@ -71,14 +73,14 @@ templ importReviewStage(view VendorImportView) {
 					<input type="hidden" name="order" value={ view.Filter.SortOrder }/>
 				}
 				<input type="text" name="q" value={ view.Filter.Search } placeholder="بحث بالاسم أو الكود..."
-					class="form-input" style="min-width: 220px; padding: 0.4rem 0.75rem; font-size: 0.85rem;"/>
-				<select name="limit" onchange="this.form.submit()" class="form-select" style="width: auto; padding: 0.4rem 0.75rem; font-size: 0.85rem;">
+					class="form-input text-xs" style="min-width: 200px;"/>
+				<select name="limit" onchange="this.form.submit()" class="form-select text-xs" style="width: auto;">
 					<option value="10" selected?={ view.PerPage == 10 }>10 صفوف</option>
 					<option value="25" selected?={ view.PerPage == 25 || view.PerPage == 0 }>25 صنف</option>
 					<option value="50" selected?={ view.PerPage == 50 }>50 صنف</option>
 					<option value="100" selected?={ view.PerPage == 100 }>100 صنف</option>
 				</select>
-				<button type="submit" class="btn btn-secondary btn-sm">بحث</button>
+				<button type="submit" class="btn btn-secondary btn-sm font-bold text-xs">بحث</button>
 				if view.Filter.Search != "" {
 					<a href={ templ.SafeURL(buildReviewURL(view.Session.PublicID, view.Filter.MatchLevel, view.Filter.SortBy, view.Filter.SortOrder, 1, view.PerPage, "")) } class="btn btn-ghost btn-sm text-xs">إلغاء</a>
 				}
@@ -86,20 +88,20 @@ templ importReviewStage(view VendorImportView) {
 		</div>
 
 		<!-- Batch Quantity Setter Card -->
-		<div class="card mb-md" style="background: var(--surface-sunken); border: 1px dashed var(--border-strong); padding: 0.75rem 1.25rem; border-radius: var(--radius-xl);">
+		<div class="glass-panel p-3 px-4 mb-4">
 			<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/vendor/ingest/%s/batch-quantity?match=%s&sort=%s&order=%s&page=%d&limit=%d&q=%s", view.Session.PublicID, view.Filter.MatchLevel, view.Filter.SortBy, view.Filter.SortOrder, view.Page, view.PerPage, view.Filter.Search)) }
-				class="row-center-sm flex-wrap gap-md justify-between"
+				class="flex-between items-center flex-wrap gap-3"
 				onsubmit="return confirm('هل تريد تطبيق هذه الكمية على جميع الأصناف في الملف؟');">
-				<div class="row-center-sm gap-xs">
-					<span style="font-size: 1.1rem;">📦</span>
-					<span class="fw-800 text-sm">تعيين كمية موحدة لكافة الأصناف في الملف:</span>
+				<div class="d-flex items-center gap-2">
+					<span class="text-base">📦</span>
+					<span class="font-extrabold text-xs text-primary">تعيين كمية موحدة لكافة الأصناف في الملف:</span>
 					<span class="text-xs text-muted">(مفيد في حال لم يحتوي ملفك على عمود للكمية)</span>
 				</div>
-				<div class="row-center-sm gap-xs">
+				<div class="d-flex items-center gap-2">
 					<input type="number" name="batch_quantity" min="0" placeholder="مثال: 50" required
-						class="form-input text-center tabular-nums fw-700"
-						style="width: 100px; height: 34px; padding: 0.2rem 0.5rem; font-size: 0.9rem; border-radius: var(--radius-md);"/>
-					<button type="submit" class="btn btn-primary btn-sm fw-700" style="height: 34px; padding: 0 1rem;">
+						class="form-input text-center tabular-nums font-bold text-xs"
+						style="width: 90px; height: 32px;"/>
+					<button type="submit" class="btn btn-primary btn-sm font-bold text-xs" style="height: 32px;">
 						تطبيق على جميع الأصناف
 					</button>
 				</div>
@@ -107,13 +109,13 @@ templ importReviewStage(view VendorImportView) {
 		</div>
 
 		<!-- Table -->
-		<div class="b2b-table-card">
-			<div class="b2b-table-container">
-				<table class="b2b-table">
+		<div class="glass-panel p-0 mb-6 overflow-hidden">
+			<div class="table-container m-0">
+				<table class="data-table m-0">
 					<thead>
 						<tr>
-							<th style="width: 48px; text-align: center;">استيراد</th>
-							<th style="width: 60px; text-align: center;">
+							<th style="width: 48px;" class="text-center">استيراد</th>
+							<th style="width: 60px;" class="text-center">
 								@reviewSortHeader(view, "row", "#")
 							</th>
 							<th style="min-width: 240px;">
@@ -122,19 +124,19 @@ templ importReviewStage(view VendorImportView) {
 							<th style="min-width: 280px;">
 								@reviewSortHeader(view, "catalog_name", "الصنف المطابق بالكتالوج المركزي")
 							</th>
-							<th style="width: 110px; text-align: center;">
+							<th style="width: 110px;" class="text-center">
 								@reviewSortHeader(view, "score", "نسبة التطابق")
 							</th>
-							<th style="width: 110px; text-align: center;">
+							<th style="width: 110px;" class="text-center">
 								@reviewSortHeader(view, "price", "سعر الجمهور")
 							</th>
-							<th style="width: 100px; text-align: center;">
+							<th style="width: 100px;" class="text-center">
 								@reviewSortHeader(view, "discount", "نسبة الخصم %")
 							</th>
-							<th style="width: 110px; text-align: center;">
+							<th style="width: 110px;" class="text-center">
 								السعر بعد الخصم
 							</th>
-							<th style="width: 85px; text-align: center;">
+							<th style="width: 85px;" class="text-center">
 								@reviewSortHeader(view, "quantity", "الكمية")
 							</th>
 						</tr>
@@ -142,8 +144,8 @@ templ importReviewStage(view VendorImportView) {
 					<tbody>
 						if len(view.Rows) == 0 {
 							<tr>
-								<td colspan="8" class="text-center p-lg text-muted">
-									<div class="fw-700 text-base">لا توجد أصناف مطابقة للتصفية الحالية</div>
+								<td colspan="9" class="text-center p-8 text-muted">
+									<div class="font-extrabold text-sm">لا توجد أصناف مطابقة للتصفية الحالية</div>
 									<div class="text-xs mt-1">جرّب تغيير التبويب أو إزالة كلمات البحث.</div>
 								</td>
 							</tr>
@@ -162,17 +164,17 @@ templ importReviewStage(view VendorImportView) {
 		</div>
 
 		<!-- Final Confirmation Footer -->
-		<div class="card mb-0 mt-lg">
-			<div class="wiz-actions">
+		<div class="glass-panel p-6 mb-0 mt-6">
+			<div class="flex-between items-center flex-wrap gap-4">
 				<div>
-					<div class="fw-800 text-base">اعتماد البيانات وحفظها</div>
-					<div class="text-xs text-muted">
+					<div class="font-black text-base text-primary">اعتماد البيانات وحفظها</div>
+					<div class="text-xs text-secondary mt-1">
 						سيتم تطبيق وحفظ الأصناف المعتمدة وإدخال كمياتها في المخزن المختار مباشرة في قاعدة البيانات.
 					</div>
 				</div>
 				<form method="POST" action={ templ.SafeURL("/vendor/ingest/" + view.Session.PublicID + "/commit") }
 					onsubmit="return confirm('تأكيد: هل أنت متأكد من حفظ جميع الأصناف المراجعة في قاعدة البيانات؟');">
-					<button type="submit" class="btn btn-primary btn-lg fw-700">
+					<button type="submit" class="btn btn-primary font-black px-6 py-2 text-sm">
 						✓ اعتماد وحفظ البيانات في قاعدة البيانات
 					</button>
 				</form>

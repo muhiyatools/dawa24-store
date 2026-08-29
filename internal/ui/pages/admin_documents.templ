@@ -10,147 +10,154 @@ import (
 
 templ AdminDocuments(docs []*attachments.Document, total int, filter attachments.DocumentFilter, lang, dir string) {
 	@layouts.AdminShell("إدارة وتدقيق المستندات الرسمية", "documents", lang, dir) {
-		<div class="card" style="margin-bottom:var(--space-6);">
-			<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:var(--space-5); gap:var(--space-4); flex-wrap:wrap;">
-				<div style="display:flex; align-items:center; gap:var(--space-3);">
-					@components.IconFile("icon-lg")
-					<div>
-
-						<h2 class="card-title" style="margin:0; font-size:var(--text-xl);">
-							سجل المستندات والتراخيص الرسمية
-						</h2>
-						<p style="font-size:var(--text-sm); color:var(--text-secondary); margin-top:2px;">
-							مراجعة وتدقيق السجلات التجارية، البطاقات الضريبية، تراخيص الصيادلة ومستندات الفحص (إجمالي: { format.Integer(int64(total), "ar") })
-						</p>
+		<div class="page-container">
+			<div class="glass-panel p-6 mb-6">
+				<div class="flex-between items-center flex-wrap gap-4">
+					<div class="d-flex items-center gap-3">
+						<div class="user-avatar-badge text-xl">
+							📄
+						</div>
+						<div>
+							<h1 class="text-2xl font-black text-primary m-0">
+								سجل المستندات والتراخيص الرسمية
+							</h1>
+							<p class="text-sm text-secondary m-0 mt-1">
+								مراجعة وتدقيق السجلات التجارية، البطاقات الضريبية، تراخيص الصيادلة ومستندات الفحص (إجمالي: { format.Integer(int64(total), "ar") })
+							</p>
+						</div>
 					</div>
-				</div>
 
-				<div style="display:flex; gap:var(--space-2); align-items:center;">
-					<a href="/admin/documents" class={ "btn btn-sm", templ.KV("btn-primary", filter.Status == nil), templ.KV("btn-secondary", filter.Status != nil) }>
-						<span>الكل</span>
-					</a>
-					<a href="/admin/documents?status=pending" class={ "btn btn-sm", templ.KV("btn-primary", filter.Status != nil && *filter.Status == attachments.StatusPending), templ.KV("btn-secondary", filter.Status == nil || *filter.Status != attachments.StatusPending) }>
-						<span>قيد المراجعة</span>
-					</a>
-					<a href="/admin/documents?status=verified" class={ "btn btn-sm", templ.KV("btn-primary", filter.Status != nil && *filter.Status == attachments.StatusVerified), templ.KV("btn-secondary", filter.Status == nil || *filter.Status != attachments.StatusVerified) }>
-						<span>تم التحقق</span>
-					</a>
-					<a href="/admin/documents?status=rejected" class={ "btn btn-sm", templ.KV("btn-primary", filter.Status != nil && *filter.Status == attachments.StatusRejected), templ.KV("btn-secondary", filter.Status == nil || *filter.Status != attachments.StatusRejected) }>
-						<span>مرفوضة</span>
-					</a>
+					<!-- Navigation Tabs -->
+					<div class="cb-tabs-nav m-0">
+						<a href="/admin/documents" class={ "cb-tab-btn", templ.KV("active", filter.Status == nil) }>
+							<span>الكل</span>
+						</a>
+						<a href="/admin/documents?status=pending" class={ "cb-tab-btn", templ.KV("active", filter.Status != nil && *filter.Status == attachments.StatusPending) }>
+							<span>قيد المراجعة</span>
+						</a>
+						<a href="/admin/documents?status=verified" class={ "cb-tab-btn", templ.KV("active", filter.Status != nil && *filter.Status == attachments.StatusVerified) }>
+							<span>تم التحقق</span>
+						</a>
+						<a href="/admin/documents?status=rejected" class={ "cb-tab-btn", templ.KV("active", filter.Status != nil && *filter.Status == attachments.StatusRejected) }>
+							<span>مرفوضة</span>
+						</a>
+					</div>
 				</div>
 			</div>
 
-			if len(docs) == 0 {
-				@components.EmptyState(components.EmptyStateProps{
-					Title:   "لا توجد مستندات مطابقة للبحث",
-					Message: "لم يتم العثور على أي ملفات أو تراخيص مرفوعة بالحالة المحددة.",
-				})
-			} else {
-				<div class="table-container" style="overflow-x:auto;">
-					<table class="b2b-table">
-						<thead>
-							<tr>
-								<th>المستند والملف</th>
-								<th>نوع المستند</th>
-								<th>المنشأة / المستخدم</th>
-								<th>الحجم</th>
-								<th>تاريخ الرفع</th>
-								<th>الحالة</th>
-								<th class="text-end">الإجراء</th>
-							</tr>
-						</thead>
-						<tbody>
-							for _, doc := range docs {
+			<div class="glass-panel p-0 mb-6 overflow-hidden">
+				if len(docs) == 0 {
+					<div class="p-8 text-center empty-state-glass">
+						<div class="text-4xl mb-3">📄</div>
+						<h3 class="text-lg font-black text-primary mb-2">لا توجد مستندات مطابقة للبحث</h3>
+						<p class="text-sm text-secondary max-w-md mx-auto">لم يتم العثور على أي ملفات أو تراخيص مرفوعة بالحالة المحددة.</p>
+					</div>
+				} else {
+					<div class="table-container m-0">
+						<table class="data-table m-0">
+							<thead>
 								<tr>
-									<td>
-										<div style="font-weight:600; color:var(--text); font-size:var(--text-sm);">
-											if doc.OriginalName != "" {
-												{ doc.OriginalName }
-											} else {
-												{ string(doc.DocumentType) }
-											}
-										</div>
-										<div class="text-xs" style="color:var(--text-muted); font-family:monospace; margin-top:2px;">
-											{ doc.PublicID.String()[:8] }...
-										</div>
-									</td>
-									<td>
-										<span class="badge badge-sky" style="font-size:var(--text-xs);">
-											switch doc.DocumentType {
-												case attachments.DocCommercialRegister:
-													السجل التجاري
-												case attachments.DocTaxCard:
-													البطاقة الضريبية
-												case attachments.DocPharmacistLicense:
-													ترخيص مزاولة المهنة
-												case attachments.DocPharmacyLicense:
-													ترخيص الصيدلية
-												case attachments.DocNationalID:
-													بطاقة الرقم القومي
-												case attachments.DocCV:
-													السيرة الذاتية (CV)
-												default:
-													{ string(doc.DocumentType) }
-											}
-										</span>
-									</td>
-									<td>
-										if doc.OrganizationID != nil {
-											<span style="font-size:var(--text-xs); color:var(--text-secondary);">منشأة رقم: { fmt.Sprintf("%d", *doc.OrganizationID) }</span>
-										} else if doc.UserID != nil {
-											<span style="font-size:var(--text-xs); color:var(--text-secondary);">مستخدم رقم: { fmt.Sprintf("%d", *doc.UserID) }</span>
-										}
-									</td>
-									<td style="font-variant-numeric:tabular-nums; font-size:var(--text-xs); color:var(--text-secondary);">
-										if doc.SizeBytes > 1024 * 1024 {
-											{ fmt.Sprintf("%.2f MB", float64(doc.SizeBytes)/(1024*1024)) }
-										} else if doc.SizeBytes > 1024 {
-											{ fmt.Sprintf("%.1f KB", float64(doc.SizeBytes)/1024) }
-										} else {
-											{ fmt.Sprintf("%d B", doc.SizeBytes) }
-										}
-									</td>
-									<td style="font-variant-numeric:tabular-nums; font-size:var(--text-xs); color:var(--text-secondary);">
-										{ format.Date(doc.CreatedAt, "ar") }
-									</td>
-									<td>
-										switch doc.Status {
-											case attachments.StatusVerified:
-												<span class="badge badge-emerald">معتمد ومطابق</span>
-											case attachments.StatusRejected:
-												<span class="badge badge-rose">مرفوض</span>
-											default:
-												<span class="badge badge-amber">قيد التدقيق</span>
-										}
-									</td>
-									<td class="text-end">
-										<div style="display:inline-flex; gap:var(--space-2);">
-											<a href={ templ.SafeURL(fmt.Sprintf("/documents/%d/view", doc.ID)) } target="_blank" class="btn btn-secondary btn-sm">
-												<span>معاينة ↗</span>
-											</a>
-											if doc.Status == attachments.StatusPending {
-												<button
-													class="btn btn-primary btn-sm"
-													onclick={ templ.ComponentScript{Call: fmt.Sprintf("verifyDoc(%d, 'verified')", doc.ID)} }
-												>
-													اعتماد
-												</button>
-												<button
-													class="btn btn-danger btn-sm"
-													onclick={ templ.ComponentScript{Call: fmt.Sprintf("verifyDoc(%d, 'rejected')", doc.ID)} }
-												>
-													رفض
-												</button>
-											}
-										</div>
-									</td>
+									<th>المستند والملف</th>
+									<th>نوع المستند</th>
+									<th>المنشأة / المستخدم</th>
+									<th>الحجم</th>
+									<th>تاريخ الرفع</th>
+									<th class="text-center">الحالة</th>
+									<th class="text-end">الإجراء</th>
 								</tr>
-							}
-						</tbody>
-					</table>
-				</div>
-			}
+							</thead>
+							<tbody>
+								for _, doc := range docs {
+									<tr>
+										<td>
+											<div class="font-extrabold text-primary text-xs">
+												if doc.OriginalName != "" {
+													{ doc.OriginalName }
+												} else {
+													{ string(doc.DocumentType) }
+												}
+											</div>
+											<div class="text-xs text-muted font-mono mt-0.5">
+												{ doc.PublicID.String()[:8] }...
+											</div>
+										</td>
+										<td>
+											<span class="badge badge-sky text-xs font-bold">
+												switch doc.DocumentType {
+													case attachments.DocCommercialRegister:
+														السجل التجاري
+													case attachments.DocTaxCard:
+														البطاقة الضريبية
+													case attachments.DocPharmacistLicense:
+														ترخيص مزاولة المهنة
+													case attachments.DocPharmacyLicense:
+														ترخيص الصيدلية
+													case attachments.DocNationalID:
+														بطاقة الرقم القومي
+													case attachments.DocCV:
+														السيرة الذاتية (CV)
+													default:
+														{ string(doc.DocumentType) }
+												}
+											</span>
+										</td>
+										<td>
+											if doc.OrganizationID != nil {
+												<span class="text-xs text-secondary">منشأة رقم: { fmt.Sprintf("%d", *doc.OrganizationID) }</span>
+											} else if doc.UserID != nil {
+												<span class="text-xs text-secondary">مستخدم رقم: { fmt.Sprintf("%d", *doc.UserID) }</span>
+											}
+										</td>
+										<td class="tabular-nums text-xs text-secondary">
+											if doc.SizeBytes > 1024 * 1024 {
+												{ fmt.Sprintf("%.2f MB", float64(doc.SizeBytes)/(1024*1024)) }
+											} else if doc.SizeBytes > 1024 {
+												{ fmt.Sprintf("%.1f KB", float64(doc.SizeBytes)/1024) }
+											} else {
+												{ fmt.Sprintf("%d B", doc.SizeBytes) }
+											}
+										</td>
+										<td class="tabular-nums text-xs text-secondary">
+											{ format.Date(doc.CreatedAt, "ar") }
+										</td>
+										<td class="text-center">
+											switch doc.Status {
+												case attachments.StatusVerified:
+													<span class="badge badge-emerald text-xs font-bold">معتمد ومطابق</span>
+												case attachments.StatusRejected:
+													<span class="badge badge-rose text-xs font-bold">مرفوض</span>
+												default:
+													<span class="badge badge-amber text-xs font-bold">قيد التدقيق</span>
+											}
+										</td>
+										<td class="text-end">
+											<div class="d-inline-flex gap-2">
+												<a href={ templ.SafeURL(fmt.Sprintf("/documents/%d/view", doc.ID)) } target="_blank" class="btn btn-secondary btn-sm font-bold text-xs">
+													<span>معاينة ↗</span>
+												</a>
+												if doc.Status == attachments.StatusPending {
+													<button
+														class="btn btn-primary btn-sm font-bold text-xs"
+														onclick={ templ.ComponentScript{Call: fmt.Sprintf("verifyDoc(%d, 'verified')", doc.ID)} }
+													>
+														اعتماد
+													</button>
+													<button
+														class="btn btn-danger btn-sm font-bold text-xs"
+														onclick={ templ.ComponentScript{Call: fmt.Sprintf("verifyDoc(%d, 'rejected')", doc.ID)} }
+													>
+														رفض
+													</button>
+												}
+											</div>
+										</td>
+									</tr>
+								}
+							</tbody>
+						</table>
+					</div>
+				}
+			</div>
 		</div>
 
 		<script>

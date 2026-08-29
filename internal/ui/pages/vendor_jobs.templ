@@ -28,168 +28,148 @@ type VendorJobsData struct {
 
 templ VendorJobs(lang, dir string, data VendorJobsData) {
 	@layouts.VendorShell("إدارة التوظيف والوظائف | دواء 24", "jobs", lang, dir) {
-		<div style="max-width:1200px; margin:0 auto; display:flex; flex-direction:column; gap:1.75rem; padding-bottom:3.5rem;">
+		<div class="page-container">
 			
 			<!-- Notice Toast -->
 			if data.NoticeMsg != "" {
-				if data.NoticeType == "error" {
-					<div class="alert alert-danger" style="display:flex; align-items:center; gap:0.75rem; padding:1rem 1.25rem; border-radius:var(--radius-xl); background:rgba(239,68,68,0.12); border:1px solid rgba(239,68,68,0.3); color:var(--danger-text); font-weight:700;">
-						<span class="text-xl">⚠️</span>
-						<span>{ data.NoticeMsg }</span>
-					</div>
-				} else {
-					<div class="alert alert-success" style="display:flex; align-items:center; gap:0.75rem; padding:1rem 1.25rem; border-radius:var(--radius-xl); background:rgba(16,185,129,0.12); border:1px solid rgba(16,185,129,0.3); color:var(--primary-700); font-weight:700;">
-						<span class="text-xl">✅</span>
-						<span>{ data.NoticeMsg }</span>
-					</div>
-				}
+				<div
+					class={ "alert mb-4",
+						templ.KV("alert-success", data.NoticeType != "error"),
+						templ.KV("alert-danger", data.NoticeType == "error") }
+					role="alert"
+				>
+					{ data.NoticeMsg }
+				</div>
 			}
 
 			<!-- Top Header Banner -->
-			<div class="card" style="padding:2rem; background:linear-gradient(135deg, var(--surface-raised) 0%, var(--surface-sunken) 100%); border-radius:var(--radius-2xl); border:1px solid var(--border); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1.25rem; box-shadow:0 4px 20px rgba(0,0,0,0.05);">
-				<div>
-					<div style="font-size:0.75rem; font-weight:800; text-transform:uppercase; letter-spacing:0.15em; color:var(--primary-600); margin-bottom:0.35rem; font-family:var(--font-mono, monospace);">
-						لوحة المورد المعتمد • إدارة الكوادر والتوظيف
+			<div class="glass-panel p-6 mb-6">
+				<div class="flex-between items-center flex-wrap gap-4">
+					<div>
+						<div class="d-flex items-center gap-3 mb-1">
+							<div class="user-avatar-badge text-xl">
+								💼
+							</div>
+							<h1 class="text-2xl font-black text-primary m-0">
+								الوظائف وفرص العمل
+							</h1>
+						</div>
+						<p class="text-sm text-secondary m-0">
+							نشر الوظائف الشاغرة لمنشأتك، متابعة المتقدمين واستعراض السير الذاتية وإدارة الشواغر بكل سهولة
+						</p>
 					</div>
-					<h1 style="font-size:1.85rem; font-weight:900; color:var(--text); margin:0;">
-						الوظائف وفرص العمل
-					</h1>
-					<p style="font-size:0.9rem; color:var(--text-secondary); margin:0.35rem 0 0; line-height:1.6;">
-						نشر الوظائف الشاغرة لمنشأتك، متابعة المتقدمين واستعراض السير الذاتية وإدارة الشواغر بكل سهولة.
-					</p>
+					<button type="button" class="btn btn-primary font-bold px-4 py-2" data-modal-open="add-job-modal" onclick="openAddJobModal()">
+						@components.IconPlus("icon-xs")
+						<span>نشر وظيفة جديدة</span>
+					</button>
 				</div>
-				<button type="button" class="btn btn-primary" data-modal-open="add-job-modal" onclick="openAddJobModal()" style="font-weight:800; border-radius:var(--radius-full); padding:0.75rem 1.75rem; font-size:0.95rem; gap:0.5rem; box-shadow:0 6px 18px rgba(16,185,129,0.25);">
-					@components.IconPlus("icon-sm")
-					<span>نشر وظيفة جديدة</span>
-				</button>
 			</div>
 
 			<!-- Metric Stats Cards -->
-			<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:1rem;">
+			<div class="dashboard-stat-grid mb-6">
 				<!-- Card 1 -->
-				<div class="card" style="padding:1.25rem; background:var(--surface-raised); border-radius:var(--radius-xl); border:1px solid var(--border); display:flex; align-items:center; gap:1rem;">
-					<div style="width:48px; height:48px; border-radius:var(--radius-lg); background:rgba(56,189,248,0.12); color:#0284c7; display:flex; align-items:center; justify-content:center; font-size:1.5rem;">
-						💼
+				<div class="stat-card-3d">
+					<div class="stat-card-label">إجمالي الوظائف</div>
+					<div class="stat-card-value text-primary tabular-nums">
+						{ fmt.Sprintf("%d", data.TotalCount) }
 					</div>
-					<div>
-						<div class="text-sm fw-700 text-muted">إجمالي الوظائف</div>
-						<div style="font-size:1.6rem; font-weight:900; color:var(--text); line-height:1.2;">
-							{ fmt.Sprintf("%d", data.TotalCount) }
-						</div>
-					</div>
+					<span class="text-xs text-secondary mt-1 d-block">كافة الشواغر المسجلة</span>
 				</div>
 
 				<!-- Card 2 -->
-				<div class="card" style="padding:1.25rem; background:var(--surface-raised); border-radius:var(--radius-xl); border:1px solid var(--border); display:flex; align-items:center; gap:1rem;">
-					<div style="width:48px; height:48px; border-radius:var(--radius-lg); background:rgba(16,185,129,0.12); color:var(--primary-600); display:flex; align-items:center; justify-content:center; font-size:1.5rem;">
-						🟢
+				<div class="stat-card-3d">
+					<div class="stat-card-label text-success">الوظائف النشطة</div>
+					<div class="stat-card-value text-success tabular-nums">
+						{ fmt.Sprintf("%d", data.PublishedCount) }
 					</div>
-					<div>
-						<div class="text-sm fw-700 text-muted">الوظائف النشطة</div>
-						<div style="font-size:1.6rem; font-weight:900; color:var(--text); line-height:1.2;">
-							{ fmt.Sprintf("%d", data.PublishedCount) }
-						</div>
-					</div>
+					<span class="text-xs text-secondary mt-1 d-block">متاحة لاستقبال المتقدمين</span>
 				</div>
 
 				<!-- Card 3 -->
-				<div class="card" style="padding:1.25rem; background:var(--surface-raised); border-radius:var(--radius-xl); border:1px solid var(--border); display:flex; align-items:center; gap:1rem;">
-					<div style="width:48px; height:48px; border-radius:var(--radius-lg); background:rgba(148,163,184,0.15); color:var(--text-muted); display:flex; align-items:center; justify-content:center; font-size:1.5rem;">
-						🔒
+				<div class="stat-card-3d">
+					<div class="stat-card-label text-muted">الوظائف المغلقة</div>
+					<div class="stat-card-value text-secondary tabular-nums">
+						{ fmt.Sprintf("%d", data.ClosedCount) }
 					</div>
-					<div>
-						<div class="text-sm fw-700 text-muted">الوظائف المغلقة</div>
-						<div style="font-size:1.6rem; font-weight:900; color:var(--text); line-height:1.2;">
-							{ fmt.Sprintf("%d", data.ClosedCount) }
-						</div>
-					</div>
+					<span class="text-xs text-secondary mt-1 d-block">شواغر مكتملة أو مؤرشفة</span>
 				</div>
 
 				<!-- Card 4 -->
-				<div class="card" style="padding:1.25rem; background:var(--surface-raised); border-radius:var(--radius-xl); border:1px solid var(--border); display:flex; align-items:center; gap:1rem;">
-					<div style="width:48px; height:48px; border-radius:var(--radius-lg); background:rgba(245,158,11,0.12); color:#d97706; display:flex; align-items:center; justify-content:center; font-size:1.5rem;">
-						👥
+				<div class="stat-card-3d">
+					<div class="stat-card-label text-warning">طلبات التقديم</div>
+					<div class="stat-card-value text-warning tabular-nums">
+						{ fmt.Sprintf("%d", data.TotalApplications) }
 					</div>
-					<div>
-						<div class="text-sm fw-700 text-muted">طلبات التقديم المستلمة</div>
-						<div style="font-size:1.6rem; font-weight:900; color:var(--text); line-height:1.2;">
-							{ fmt.Sprintf("%d", data.TotalApplications) }
-						</div>
-					</div>
+					<span class="text-xs text-secondary mt-1 d-block">سيرة ذاتية وطلب مستلم</span>
 				</div>
 			</div>
 
 			<!-- Main Jobs Table Card -->
-			<div class="card" style="padding:1.5rem; background:var(--surface-raised); border-radius:var(--radius-2xl); border:1px solid var(--border); box-shadow:0 6px 24px rgba(0,0,0,0.04);">
-				
-				<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.25rem; flex-wrap:wrap; gap:1rem;">
-					<h2 style="font-size:1.2rem; font-weight:800; color:var(--text); margin:0; display:flex; align-items:center; gap:0.5rem;">
+			<div class="glass-panel p-0 mb-6 overflow-hidden">
+				<div class="p-4 px-6 border-b flex-between items-center">
+					<h2 class="text-base font-extrabold text-primary m-0 d-flex items-center gap-2">
 						<span>قائمة الشواغر الوظيفية</span>
 						<span class="badge badge-slate text-xs">{ fmt.Sprintf("%d وظيفة", len(data.Jobs)) }</span>
 					</h2>
 				</div>
 
 				if len(data.Jobs) == 0 {
-					<div style="text-align:center; padding:4rem 1rem; display:flex; flex-direction:column; align-items:center; gap:1rem;">
-						<div style="width:64px; height:64px; border-radius:var(--radius-2xl); background:var(--surface-sunken); display:flex; align-items:center; justify-content:center; font-size:2rem; border:1px solid var(--border);">
-							📋
-						</div>
-						<div>
-							<h3 class="text-lg fw-800 text-primary m-0">لم يتم نشر أي وظائف بعد</h3>
-							<p style="font-size:0.85rem; color:var(--text-muted); margin:0.25rem 0 0;">
-								ابدأ بنشر أول وظيفة شاغرة لاستقطاب الكفاءات والصيادلة لمؤسستك.
-							</p>
-						</div>
-						<button type="button" class="btn btn-primary btn-sm" onclick="openAddJobModal()" style="font-weight:700; margin-top:0.5rem;">
+					<div class="p-8 text-center empty-state-glass">
+						<div class="text-4xl mb-3">📋</div>
+						<h3 class="text-lg font-black text-primary mb-2">لم يتم نشر أي وظائف بعد</h3>
+						<p class="text-sm text-secondary max-w-md mx-auto mb-4">
+							ابدأ بنشر أول وظيفة شاغرة لاستقطاب الكفاءات والصيادلة لمؤسستك.
+						</p>
+						<button type="button" class="btn btn-primary btn-sm font-bold" onclick="openAddJobModal()">
 							@components.IconPlus("icon-xs")
 							<span>نشر أول وظيفة الآن</span>
 						</button>
 					</div>
 				} else {
-					<div class="table-container" style="border:1px solid var(--border); border-radius:var(--radius-xl); overflow:hidden;">
-						<table class="b2b-table" style="width:100%; border-collapse:collapse; text-align:start;">
+					<div class="table-container m-0">
+						<table class="data-table m-0">
 							<thead>
-								<tr style="background:var(--surface-sunken); border-bottom:1px solid var(--border); font-size:0.8rem; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.05em;">
-									<th style="padding:1rem 1.25rem; font-weight:800;">المسمى الوظيفي</th>
-									<th style="padding:1rem; font-weight:800;">الموقع</th>
-									<th style="padding:1rem; font-weight:800;">نطاق الراتب</th>
-									<th style="padding:1rem; font-weight:800; text-align:center;">المتقدمون</th>
-									<th style="padding:1rem; font-weight:800; text-align:center;">الحالة</th>
-									<th style="padding:1rem; font-weight:800;">تاريخ النشر</th>
-									<th style="padding:1rem 1.25rem; font-weight:800; text-align:end;">الإجراءات</th>
+								<tr>
+									<th>المسمى الوظيفي</th>
+									<th>الموقع</th>
+									<th>نطاق الراتب</th>
+									<th class="text-center">المتقدمون</th>
+									<th class="text-center">الحالة</th>
+									<th>تاريخ النشر</th>
+									<th class="text-end">الإجراءات</th>
 								</tr>
 							</thead>
-							<tbody class="text-sm">
+							<tbody>
 								for _, item := range data.Jobs {
-									<tr style="border-bottom:1px solid var(--border); transition:background 0.15s ease;" class="hover-row">
+									<tr>
 										<!-- Title & Short Desc -->
-										<td style="padding:1.1rem 1.25rem;">
-											<div class="fw-800 text-primary text-base">
+										<td>
+											<div class="font-extrabold text-primary text-sm">
 												{ item.Job.Title.Get(i18n.Lang(lang)) }
 											</div>
 											if item.Job.Description != "" {
-												<div style="font-size:0.775rem; color:var(--text-muted); margin-top:0.25rem; max-width:320px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
+												<div class="text-xs text-muted mt-1 truncate" style="max-width:300px;">
 													{ item.Job.Description }
 												</div>
 											}
 										</td>
 
 										<!-- Location -->
-										<td style="padding:1rem; color:var(--text-secondary); font-weight:600;">
+										<td>
 											if item.Job.Location != "" {
-												<div class="row-center-xs">
+												<div class="d-flex items-center gap-1 text-xs text-secondary font-bold">
 													<span>📍</span>
 													<span>{ item.Job.Location }</span>
 												</div>
 											} else {
-												<span class="text-muted text-sm">غير محدد</span>
+												<span class="text-muted text-xs">غير محدد</span>
 											}
 										</td>
 
 										<!-- Salary Range -->
-										<td style="padding:1rem; font-family:var(--font-mono, monospace); font-size:0.85rem;">
+										<td class="tabular-nums text-xs font-mono">
 											if item.Job.SalaryMin.IsPositive() || item.Job.SalaryMax.IsPositive() {
-												<span class="fw-700 text-primary">
+												<span class="font-bold text-primary">
 													if item.Job.SalaryMin.IsPositive() {
 														{ item.Job.SalaryMin.String() }
 													}
@@ -202,17 +182,16 @@ templ VendorJobs(lang, dir string, data VendorJobsData) {
 													<span class="text-xs text-muted"> ج.م</span>
 												</span>
 											} else {
-												<span class="text-muted text-sm">يحدد بالمقابلة</span>
+												<span class="text-muted text-xs">يحدد بالمقابلة</span>
 											}
 										</td>
 
 										<!-- Applicants Count -->
-										<td class="p-md text-center">
+										<td class="text-center">
 											<button
 												type="button"
 												onclick={ templ.ComponentScript{Call: fmt.Sprintf("viewApplicants(%d, '%s')", item.Job.ID, item.Job.Title.Get(i18n.Lang(lang)))} }
-												class="btn btn-secondary btn-sm"
-												style="padding:0.3rem 0.75rem; border-radius:var(--radius-full); font-size:0.8rem; font-weight:700; gap:0.35rem;"
+												class="btn btn-secondary btn-sm text-xs font-bold px-3 py-1 gap-1"
 											>
 												<span>👥</span>
 												<span>{ fmt.Sprintf("%d متقدم", item.ApplicationsCount) }</span>
@@ -220,32 +199,31 @@ templ VendorJobs(lang, dir string, data VendorJobsData) {
 										</td>
 
 										<!-- Status -->
-										<td class="p-md text-center">
+										<td class="text-center">
 											if item.Job.Status == "published" {
-												<span class="badge badge-emerald" style="font-size:0.75rem; padding:0.3rem 0.65rem; font-weight:700;">
+												<span class="badge badge-emerald text-xs font-bold">
 													منشورة ومتاحة
 												</span>
 											} else {
-												<span class="badge badge-slate" style="font-size:0.75rem; padding:0.3rem 0.65rem; font-weight:700;">
+												<span class="badge badge-slate text-xs font-bold">
 													مغلقة
 												</span>
 											}
 										</td>
 
 										<!-- Date -->
-										<td style="padding:1rem; color:var(--text-muted); font-size:0.8rem; font-family:var(--font-mono, monospace);">
+										<td class="text-xs text-muted tabular-nums">
 											{ item.Job.CreatedAt.Format("2006-01-02") }
 										</td>
 
 										<!-- Actions -->
-										<td style="padding:1.1rem 1.25rem; text-align:end;">
-											<div style="display:flex; justify-content:flex-end; align-items:center; gap:0.5rem;">
+										<td class="text-end">
+											<div class="d-flex items-center justify-end gap-2">
 												
 												<!-- Edit Job Button -->
 												<button
 													type="button"
-													class="btn btn-secondary btn-sm fw-700"
-													style="font-size:0.775rem; gap:0.35rem; color:var(--primary-700); padding:0.4rem 0.75rem;"
+													class="btn btn-secondary btn-sm font-bold text-xs px-3"
 													data-job-id={ fmt.Sprintf("%d", item.Job.ID) }
 													data-title-ar={ item.Job.Title.Get(i18n.AR) }
 													data-title-en={ item.Job.Title.Get(i18n.EN) }
@@ -265,11 +243,11 @@ templ VendorJobs(lang, dir string, data VendorJobsData) {
 												<!-- Toggle Status Form -->
 												<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/vendor/jobs/%d/toggle", item.Job.ID)) } class="m-0">
 													if item.Job.Status == "published" {
-														<button type="submit" class="btn btn-secondary btn-sm text-xs fw-700" title="إغلاق استقبال الطلبات">
+														<button type="submit" class="btn btn-secondary btn-sm text-xs font-bold" title="إغلاق استقبال الطلبات">
 															إغلاق
 														</button>
 													} else {
-														<button type="submit" class="btn btn-secondary btn-sm" title="إعادة نشر الوظيفة" style="font-size:0.75rem; font-weight:700; color:var(--primary-600);">
+														<button type="submit" class="btn btn-secondary btn-sm text-xs font-bold text-brand" title="إعادة نشر الوظيفة">
 															إعادة النشر
 														</button>
 													}

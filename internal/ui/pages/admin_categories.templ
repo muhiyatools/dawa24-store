@@ -45,85 +45,88 @@ func buildAdminCategoriesPageURL(page, limit int, q, status string) string {
 
 templ AdminCategoriesPage(categories []CategoryViewItem, allCategories []*catalog.Category, totalCount, currentPage, pageSize int, searchQuery, statusFilter, lang, dir string) {
 	@layouts.AdminShell("فئات المنتجات", "categories", lang, dir) {
-		<div class="stack-lg">
+		<div class="page-container">
 			
 			<!-- Page Header -->
-			@components.PageHeader(components.PageHeaderProps{
-				Title:    "فئات المنتجات والتصنيفات المركزية",
-				Subtitle: "إدارة الشجرة التصنيفية للأصناف الدوائية والطبية، وتحديد الفئات الرئيسية والفرعية المعتمدة",
-				Count:    &totalCount,
-			}) {
-				<div class="row-center">
-					<button
-						type="button"
-						class="btn btn-primary fw-800"
-						data-modal-open="create-category-modal"
-					>
-						@components.IconPlus("icon-xs")
-						<span>إضافة فئة جديدة +</span>
-					</button>
-				</div>
-			}
+			<div class="glass-panel p-6 mb-6">
+				<div class="flex-between items-center flex-wrap gap-4">
+					<div class="d-flex items-center gap-3">
+						<div class="user-avatar-badge text-xl">
+							📁
+						</div>
+						<div>
+							<h1 class="text-2xl font-black text-primary m-0">فئات المنتجات والتصنيفات المركزية</h1>
+							<p class="text-sm text-secondary m-0 mt-1">إدارة الشجرة التصنيفية للأصناف الدوائية والطبية، وتحديد الفئات الرئيسية والفرعية المعتمدة ({ fmt.Sprintf("%d فئة", totalCount) })</p>
+						</div>
+					</div>
 
-			<!-- Search and Filter Bar -->
-			<form
-				method="GET"
-				action="/admin/categories"
-				style="margin-bottom:0; display:grid; grid-template-columns:2fr 1fr 1fr auto; gap:0.75rem; background:var(--surface-sunken); padding:0.85rem 1.25rem; border-radius:var(--radius-xl); border:1px solid var(--border); align-items:center;"
-			>
-				<div style="position:relative; width:100%;">
-					<input
-						type="text"
-						name="q"
-						value={ searchQuery }
-						placeholder="ابحث باسم الفئة بالعربية أو الإنجليزية..."
-						class="form-input"
-						style="padding-inline-start:2.25rem; font-size:0.875rem; background:var(--surface-raised);"
-					/>
-					<div style="position:absolute; inset-inline-start:0.75rem; top:50%; transform:translateY(-50%); color:var(--text-muted); pointer-events:none;">
-						@components.IconSearch("icon-xs")
+					<div class="d-flex items-center gap-2">
+						<button
+							type="button"
+							class="btn btn-primary font-bold text-xs px-3 py-2"
+							data-modal-open="create-category-modal"
+						>
+							@components.IconPlus("icon-xs")
+							<span>إضافة فئة جديدة +</span>
+						</button>
 					</div>
 				</div>
+			</div>
 
-				<div>
-					<select name="status" class="form-select" style="font-size:0.875rem; background:var(--surface-raised);" onchange="this.form.submit()">
-						<option value="all" selected?={ statusFilter == "" || statusFilter == "all" }>جميع الحالات</option>
-						<option value="active" selected?={ statusFilter == "active" }>نشط ومفعل (Active)</option>
-						<option value="inactive" selected?={ statusFilter == "inactive" }>معطل (Inactive)</option>
-					</select>
-				</div>
+			<div class="glass-panel p-6 mb-6">
+				<!-- Search and Filter Bar -->
+				<form
+					method="GET"
+					action="/admin/categories"
+					class="d-flex gap-3 items-center flex-wrap mb-6"
+				>
+					<div class="flex-1" style="min-width:220px;">
+						<input
+							type="text"
+							name="q"
+							value={ searchQuery }
+							placeholder="ابحث باسم الفئة بالعربية أو الإنجليزية..."
+							class="form-input text-xs w-full"
+						/>
+					</div>
 
-				<div>
-					<select name="limit" class="form-select" style="font-size:0.875rem; background:var(--surface-raised);" onchange="this.form.submit()">
-						<option value="25" selected?={ pageSize == 25 }>25 فئة لكل صفحة</option>
-						<option value="50" selected?={ pageSize == 50 }>50 فئة لكل صفحة</option>
-						<option value="100" selected?={ pageSize == 100 }>100 فئة لكل صفحة</option>
-						<option value="200" selected?={ pageSize == 200 }>200 فئة لكل صفحة</option>
-					</select>
-				</div>
+					<div style="min-width:140px;">
+						<select name="status" class="form-select text-xs w-full" onchange="this.form.submit()">
+							<option value="all" selected?={ statusFilter == "" || statusFilter == "all" }>جميع الحالات</option>
+							<option value="active" selected?={ statusFilter == "active" }>نشط ومفعل (Active)</option>
+							<option value="inactive" selected?={ statusFilter == "inactive" }>معطل (Inactive)</option>
+						</select>
+					</div>
 
-				<div class="row-center-sm">
-					<button type="submit" class="btn btn-primary fw-700" style="padding:0.5rem 1rem;">
+					<div style="min-width:140px;">
+						<select name="limit" class="form-select text-xs w-full" onchange="this.form.submit()">
+							<option value="25" selected?={ pageSize == 25 }>25 فئة لكل صفحة</option>
+							<option value="50" selected?={ pageSize == 50 }>50 فئة لكل صفحة</option>
+							<option value="100" selected?={ pageSize == 100 }>100 فئة لكل صفحة</option>
+							<option value="200" selected?={ pageSize == 200 }>200 فئة لكل صفحة</option>
+						</select>
+					</div>
+
+					<button type="submit" class="btn btn-primary btn-sm font-bold text-xs px-3">
 						تصفية
 					</button>
 					if searchQuery != "" || (statusFilter != "" && statusFilter != "all") {
-						<a href="/admin/categories" class="btn btn-secondary fw-700">
+						<a href="/admin/categories" class="btn btn-secondary btn-sm text-xs">
 							إعادة تعيين
 						</a>
 					}
-				</div>
-			</form>
+				</form>
 
-			<!-- Categories Table Card -->
-			<div class="card" style="margin-bottom:0; overflow:visible;">
+				<!-- Categories Table Card -->
 				if len(categories) == 0 {
-					@components.EmptyState(components.EmptyStateProps{
-						Title:   "لا توجد فئات مطابقة",
-						Message: "لم يتم العثور على أي نتائج وفق معايير البحث الحالية. اضغط على إضافة فئة جديدة للبدء.",
-					})
+					<div class="p-8 text-center empty-state-glass">
+						<div class="text-4xl mb-3">📁</div>
+						<h3 class="text-lg font-black text-primary mb-2">لا توجد فئات مطابقة</h3>
+						<p class="text-sm text-secondary max-w-md mx-auto">لم يتم العثور على أي نتائج وفق معايير البحث الحالية. اضغط على إضافة فئة جديدة للبدء.</p>
+					</div>
 				} else {
-					<div class="table-container overflow-visible">
-						<table class="b2b-table">
+					<div class="table-container m-0">
+						<table class="data-table m-0">
 							<thead>
 								<tr>
 									<th style="width:60px; text-align:center;">#</th>

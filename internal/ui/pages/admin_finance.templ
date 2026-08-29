@@ -42,7 +42,7 @@ type AdminFinanceData struct {
 templ AdminFinance(data AdminFinanceData, lang, dir string) {
 	@layouts.AdminShell("الإدارة المالية والمحافظ والتحصيل", "finance", lang, dir) {
 		<div
-			class="admin-finance-hub space-y-6"
+			class="page-container"
 			x-data="{
 				isRejectModalOpen: false,
 				rejectDepositID: 0,
@@ -63,114 +63,125 @@ templ AdminFinance(data AdminFinanceData, lang, dir string) {
 			}"
 		>
 			<!-- Header Title & Quick Export Row -->
-			@components.PageHeader(components.PageHeaderProps{
-				Title:    "المركز المالي والمحافظ والتحصيل",
-				Subtitle: "إدارة ومتابعة فواتير التوريد، تسويات بوابات الدفع، محافظ الصيدليات والموردين، وسجل القيود المحاسبية",
-			}) {
-				<button onclick="window.print()" class="btn btn-secondary" style="font-weight:600; gap:0.4rem;">
-					@components.IconFile("icon-xs")
-					<span>طباعة تقرير</span>
-				</button>
-				<a href="/admin/finance?tab=wallets" class="btn btn-primary" style="font-weight:700; gap:0.4rem;">
-					@components.IconWallet("icon-xs")
-					<span>محافظ المنشآت</span>
-				</a>
-			}
+			<div class="glass-panel p-6 mb-6">
+				<div class="flex-between items-center flex-wrap gap-4">
+					<div class="d-flex items-center gap-3">
+						<div class="user-avatar-badge text-xl">
+							💳
+						</div>
+						<div>
+							<h1 class="text-2xl font-black text-primary m-0">المركز المالي والمحافظ والتحصيل</h1>
+							<p class="text-sm text-secondary m-0 mt-1">إدارة ومتابعة فواتير التوريد، تسويات بوابات الدفع، محافظ الصيدليات والموردين، وسجل القيود المحاسبية</p>
+						</div>
+					</div>
+
+					<div class="d-flex items-center gap-2">
+						<button onclick="window.print()" class="btn btn-secondary btn-sm font-bold text-xs gap-1">
+							@components.IconFile("icon-xs")
+							<span>طباعة تقرير</span>
+						</button>
+						<a href="/admin/finance?tab=wallets" class="btn btn-primary btn-sm font-bold text-xs gap-1">
+							@components.IconWallet("icon-xs")
+							<span>محافظ المنشآت</span>
+						</a>
+					</div>
+				</div>
+			</div>
 
 			<!-- Live Financial KPIs Bar -->
-			<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:1rem; margin-bottom:1.5rem;">
-				<a href="/admin/finance?tab=payments" style="text-decoration:none;" class="card" style="margin:0; padding:1.25rem; background:var(--surface); border:1px solid var(--border); border-top:4px solid #10b981; border-radius:14px; transition:transform 0.2s;">
-					<div class="flex-between">
-						<span style="font-size:0.82rem; font-weight:600; color:var(--text-secondary);">إجمالي التحصيلات والمدفوعات</span>
-						<span style="color:#10b981;">@components.IconWallet("icon-sm")</span>
+			<div class="dashboard-stat-grid mb-6">
+				<a href="/admin/finance?tab=payments" style="text-decoration:none;" class="stat-card-3d">
+					<div class="flex-between items-center">
+						<span class="text-xs font-bold text-muted">إجمالي التحصيلات والمدفوعات</span>
+						<span class="text-success">@components.IconWallet("icon-sm")</span>
 					</div>
-					<div class="tabular-nums" style="font-size:1.5rem; font-weight:800; color:var(--text); margin-top:0.5rem;">
+					<div class="tabular-nums text-2xl font-black text-primary mt-2">
 						{ fmt.Sprintf("%s ج.م", data.TotalPaid.String()) }
 					</div>
-					<div style="font-size:0.75rem; color:var(--text-muted); margin-top:0.3rem;">
+					<div class="text-xs text-muted mt-1">
 						{ fmt.Sprintf("%d عملية دفع مسجلة", data.TotalPayments) }
 					</div>
 				</a>
 
-				<a href="/admin/finance?tab=invoices" style="text-decoration:none;" class="card" style="margin:0; padding:1.25rem; background:var(--surface); border:1px solid var(--border); border-top:4px solid var(--primary); border-radius:14px; transition:transform 0.2s;">
-					<div class="flex-between">
-						<span style="font-size:0.82rem; font-weight:600; color:var(--text-secondary);">إجمالي الفواتير الصادرة</span>
-						<span style="color:var(--primary);">@components.IconFile("icon-sm")</span>
+				<a href="/admin/finance?tab=invoices" style="text-decoration:none;" class="stat-card-3d">
+					<div class="flex-between items-center">
+						<span class="text-xs font-bold text-muted">إجمالي الفواتير الصادرة</span>
+						<span class="text-brand">@components.IconFile("icon-sm")</span>
 					</div>
-					<div class="tabular-nums" style="font-size:1.5rem; font-weight:800; color:var(--text); margin-top:0.5rem;">
+					<div class="tabular-nums text-2xl font-black text-primary mt-2">
 						{ fmt.Sprintf("%s ج.م", data.TotalRevenue.String()) }
 					</div>
-					<div style="font-size:0.75rem; color:var(--text-muted); margin-top:0.3rem;">
+					<div class="text-xs text-muted mt-1">
 						{ fmt.Sprintf("%d فاتورة ضريبية", data.TotalInvoices) }
 					</div>
 				</a>
 
-				<a href="/admin/finance?tab=wallets" style="text-decoration:none;" class="card" style="margin:0; padding:1.25rem; background:var(--surface); border:1px solid var(--border); border-top:4px solid #6366f1; border-radius:14px; transition:transform 0.2s;">
-					<div class="flex-between">
-						<span style="font-size:0.82rem; font-weight:600; color:var(--text-secondary);">أرصدة المحافظ المحتجزة</span>
-						<span style="color:#6366f1;">@components.IconLayers("icon-sm")</span>
+				<a href="/admin/finance?tab=wallets" style="text-decoration:none;" class="stat-card-3d">
+					<div class="flex-between items-center">
+						<span class="text-xs font-bold text-muted">أرصدة المحافظ المحتجزة</span>
+						<span class="text-indigo">@components.IconLayers("icon-sm")</span>
 					</div>
-					<div class="tabular-nums" style="font-size:1.5rem; font-weight:800; color:#6366f1; margin-top:0.5rem;">
+					<div class="tabular-nums text-2xl font-black text-primary mt-2">
 						{ fmt.Sprintf("%s ج.م", data.TotalHeld.String()) }
 					</div>
-					<div style="font-size:0.75rem; color:var(--text-muted); margin-top:0.3rem;">
+					<div class="text-xs text-muted mt-1">
 						{ fmt.Sprintf("%d محفظة نشطة في النظام", data.TotalWallets) }
 					</div>
 				</a>
 
-				<a href="/admin/finance?tab=earnings" style="text-decoration:none;" class="card" style="margin:0; padding:1.25rem; background:var(--surface); border:1px solid var(--border); border-top:4px solid #f59e0b; border-radius:14px; transition:transform 0.2s;">
-					<div class="flex-between">
-						<span style="font-size:0.82rem; font-weight:600; color:var(--text-secondary);">عمولة المنصة المقدرة</span>
-						<span style="color:#f59e0b;">@components.IconChart("icon-sm")</span>
+				<a href="/admin/finance?tab=earnings" style="text-decoration:none;" class="stat-card-3d">
+					<div class="flex-between items-center">
+						<span class="text-xs font-bold text-muted">عمولة المنصة المقدرة</span>
+						<span class="text-warning">@components.IconChart("icon-sm")</span>
 					</div>
-					<div class="tabular-nums" style="font-size:1.5rem; font-weight:800; color:#f59e0b; margin-top:0.5rem;">
+					<div class="tabular-nums text-2xl font-black text-warning mt-2">
 						{ fmt.Sprintf("%s ج.م", data.TotalCommission.String()) }
 					</div>
-					<div style="font-size:0.75rem; color:var(--text-muted); margin-top:0.3rem;">
-						نسبة 5% من حجم المعاملات المكتملة
+					<div class="text-xs text-muted mt-1">
+						نسبة 5% من حجم المعاملات
 					</div>
 				</a>
 			</div>
 
 			<!-- Unified Tabs Navigation -->
-			<div class="card mb-0" style="border:1px solid var(--border); border-radius:18px; padding:0; overflow:hidden; box-shadow:var(--shadow-sm);">
-				<div class="tab-header" style="display:flex; border-bottom:1px solid var(--border); background:var(--surface-sunken); padding:0 1rem; overflow-x:auto; gap:0.25rem;">
-					<a href="/admin/finance?tab=deposits" class={ "tab-btn", templ.KV("active", data.ActiveTab == "deposits" || data.ActiveTab == "") } style="padding:1rem 1.25rem; display:inline-flex; align-items:center; gap:0.5rem; font-weight:700; color:var(--text); text-decoration:none; border-bottom:3px solid transparent; white-space:nowrap;">
-						@components.IconWallet("icon-sm")
+			<div class="glass-panel p-6 mb-6">
+				<div class="cb-tabs-nav m-0 mb-6 pb-4 border-b">
+					<a href="/admin/finance?tab=deposits" class={ "cb-tab-btn", templ.KV("active", data.ActiveTab == "deposits" || data.ActiveTab == "") }>
+						@components.IconWallet("icon-xs")
 						<span>مراجعة طلبات شحن المحفظة</span>
 						if data.PendingDepositsCount > 0 {
-							<span class="badge badge-amber text-xs fw-800">{ fmt.Sprintf("%d قيد المراجعة", data.PendingDepositsCount) }</span>
+							<span class="badge badge-amber text-xs font-bold">{ fmt.Sprintf("%d قيد المراجعة", data.PendingDepositsCount) }</span>
 						} else {
 							<span class="badge badge-secondary text-xs">{ fmt.Sprintf("%d", data.TotalDeposits) }</span>
 						}
 					</a>
-					<a href="/admin/finance?tab=invoices" class={ "tab-btn", templ.KV("active", data.ActiveTab == "invoices") } style="padding:1rem 1.25rem; display:inline-flex; align-items:center; gap:0.5rem; font-weight:700; color:var(--text); text-decoration:none; border-bottom:3px solid transparent; white-space:nowrap;">
-						@components.IconFile("icon-sm")
+					<a href="/admin/finance?tab=invoices" class={ "cb-tab-btn", templ.KV("active", data.ActiveTab == "invoices") }>
+						@components.IconFile("icon-xs")
 						<span>الفواتير الضريبية والمطالبات</span>
 						<span class="badge badge-secondary text-xs">{ fmt.Sprintf("%d", data.TotalInvoices) }</span>
 					</a>
-					<a href="/admin/finance?tab=payments" class={ "tab-btn", templ.KV("active", data.ActiveTab == "payments") } style="padding:1rem 1.25rem; display:inline-flex; align-items:center; gap:0.5rem; font-weight:700; color:var(--text); text-decoration:none; border-bottom:3px solid transparent; white-space:nowrap;">
-						@components.IconWallet("icon-sm")
+					<a href="/admin/finance?tab=payments" class={ "cb-tab-btn", templ.KV("active", data.ActiveTab == "payments") }>
+						@components.IconWallet("icon-xs")
 						<span>سجل المدفوعات والتحصيلات</span>
 						<span class="badge badge-secondary text-xs">{ fmt.Sprintf("%d", data.TotalPayments) }</span>
 					</a>
-					<a href="/admin/finance?tab=wallets" class={ "tab-btn", templ.KV("active", data.ActiveTab == "wallets") } style="padding:1rem 1.25rem; display:inline-flex; align-items:center; gap:0.5rem; font-weight:700; color:var(--text); text-decoration:none; border-bottom:3px solid transparent; white-space:nowrap;">
-						@components.IconLayers("icon-sm")
+					<a href="/admin/finance?tab=wallets" class={ "cb-tab-btn", templ.KV("active", data.ActiveTab == "wallets") }>
+						@components.IconLayers("icon-xs")
 						<span>محافظ المنشآت والأرصدة</span>
-						<span class="badge badge-emerald text-xs">{ fmt.Sprintf("%d", data.TotalWallets) }</span>
+						<span class="badge badge-emerald text-xs font-bold">{ fmt.Sprintf("%d", data.TotalWallets) }</span>
 					</a>
-					<a href="/admin/finance?tab=transactions" class={ "tab-btn", templ.KV("active", data.ActiveTab == "transactions") } style="padding:1rem 1.25rem; display:inline-flex; align-items:center; gap:0.5rem; font-weight:700; color:var(--text); text-decoration:none; border-bottom:3px solid transparent; white-space:nowrap;">
-						@components.IconLayers("icon-sm")
+					<a href="/admin/finance?tab=transactions" class={ "cb-tab-btn", templ.KV("active", data.ActiveTab == "transactions") }>
+						@components.IconLayers("icon-xs")
 						<span>سجل حركات ومعاملات المحافظ</span>
 						<span class="badge badge-secondary text-xs">{ fmt.Sprintf("%d", data.TotalTransactions) }</span>
 					</a>
-					<a href="/admin/finance?tab=earnings" class={ "tab-btn", templ.KV("active", data.ActiveTab == "earnings") } style="padding:1rem 1.25rem; display:inline-flex; align-items:center; gap:0.5rem; font-weight:700; color:var(--text); text-decoration:none; border-bottom:3px solid transparent; white-space:nowrap;">
-						@components.IconChart("icon-sm")
+					<a href="/admin/finance?tab=earnings" class={ "cb-tab-btn", templ.KV("active", data.ActiveTab == "earnings") }>
+						@components.IconChart("icon-xs")
 						<span>تقرير الأرباح والعمولات</span>
 					</a>
 				</div>
 
-				<div class="p-card">
+				<div>
 					<!-- ══════════════════════════════════════════
 					     TAB 0: DEPOSIT REQUESTS REVIEW
 					══════════════════════════════════════════ -->
@@ -211,8 +222,8 @@ templ AdminFinance(data AdminFinanceData, lang, dir string) {
 							if len(data.Deposits) == 0 {
 								@components.EmptyState(components.EmptyStateProps{Title: "لا توجد طلبات إيداع مطابقة", Message: "لم يتم العثور على أي طلبات شحن محفظة تطابق معايير الفلترة المحددة."})
 							} else {
-								<div class="table-container" style="border:1px solid var(--border); border-radius:12px; overflow:hidden; background:var(--surface-raised);">
-									<table class="b2b-table" style="margin:0; width:100%;">
+								<div class="table-container m-0">
+									<table class="data-table m-0">
 										<thead>
 											<tr>
 												<th style="white-space:nowrap;"># الطلب</th>
@@ -380,8 +391,8 @@ templ AdminFinance(data AdminFinanceData, lang, dir string) {
 							if len(data.Invoices) == 0 {
 								@components.EmptyState(components.EmptyStateProps{Title: "لا توجد فواتير مطابقة", Message: "لم يتم إصدار فواتير ضريبية أو لم يتم العثور على نتائج تطابق معايير البحث."})
 							} else {
-								<div class="table-container" style="border:1px solid var(--border); border-radius:12px; overflow:hidden;">
-									<table class="b2b-table">
+								<div class="table-container m-0">
+									<table class="data-table m-0">
 										<thead>
 											<tr>
 												<th>رقم الفاتورة</th>
@@ -504,8 +515,8 @@ templ AdminFinance(data AdminFinanceData, lang, dir string) {
 							if len(data.Payments) == 0 {
 								@components.EmptyState(components.EmptyStateProps{Title: "لا توجد عمليات دفع مسجلة", Message: "تظهر عمليات التحصيل فور إتمام العميل للدفع الإلكتروني أو تأكيد التحويل."})
 							} else {
-								<div class="table-container" style="border:1px solid var(--border); border-radius:12px; overflow:hidden;">
-									<table class="b2b-table">
+								<div class="table-container m-0">
+									<table class="data-table m-0">
 										<thead>
 											<tr>
 												<th>رقم المعاملة / المرجع</th>
@@ -595,8 +606,8 @@ templ AdminFinance(data AdminFinanceData, lang, dir string) {
 							if len(data.Wallets) == 0 {
 								@components.EmptyState(components.EmptyStateProps{Title: "لا توجد محافظ مطابقة", Message: "تنشأ المحافظ الرقمية تلقائياً لجميع المنشآت والمستخدمين عند التسجيل في المنصة."})
 							} else {
-								<div class="table-container" style="border:1px solid var(--border); border-radius:12px; overflow:hidden;">
-									<table class="b2b-table">
+								<div class="table-container m-0">
+									<table class="data-table m-0">
 										<thead>
 											<tr>
 												<th>رقم المحفظة</th>
@@ -723,8 +734,8 @@ templ AdminFinance(data AdminFinanceData, lang, dir string) {
 							if len(data.Transactions) == 0 {
 								@components.EmptyState(components.EmptyStateProps{Title: "لا توجد معاملات مسجلة", Message: "تظهر جميع قيود الخصم والإيداع والتسويات في هذا السجل فور حدوثها."})
 							} else {
-								<div class="table-container" style="border:1px solid var(--border); border-radius:12px; overflow:hidden;">
-									<table class="b2b-table">
+								<div class="table-container m-0">
+									<table class="data-table m-0">
 										<thead>
 											<tr>
 												<th>رقم الحركة</th>
@@ -1025,8 +1036,8 @@ templ AdminOfferOrdersPage(orders []*commerce.Order, lang, dir string) {
 			if len(orders) == 0 {
 				@components.EmptyState(components.EmptyStateProps{Title: "لا توجد طلبات عروض", Message: "لم يتم إنشاء طلبات عروض أسعار بعد."})
 			} else {
-				<div class="table-container">
-					<table class="b2b-table">
+				<div class="table-container m-0">
+					<table class="data-table m-0">
 						<thead>
 							<tr>
 								<th>رقم الطلب</th>
@@ -1104,10 +1115,11 @@ templ AdminPlansInfoPage(plans []*billing.Plan, lang, dir string) {
 
 templ AdminPlansSubscriptionsPage(subs []*billing.Subscription, lang, dir string) {
 	@layouts.AdminShell("الاشتراكات وسجلات المشتركين", "plans", lang, dir) {
-		<div class="card">
-			<h2 class="card-title">الاشتراكات النشطة</h2>
-			<div class="table-container">
-				<table class="b2b-table">
+		<div class="page-container">
+			<div class="glass-panel p-6 mb-6">
+				<h1 class="text-2xl font-black text-primary m-0 mb-4">الاشتراكات النشطة</h1>
+				<div class="table-container m-0">
+					<table class="data-table m-0">
 					<thead>
 						<tr>
 							<th>#</th>

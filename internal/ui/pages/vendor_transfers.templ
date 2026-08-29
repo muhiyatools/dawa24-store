@@ -12,15 +12,25 @@ templ VendorTransfers(transfers []*inventory.WarehouseTransfer, lang, dir string
 		@VendorTransfersTable(transfers)
 	} else {
 		@layouts.VendorShell("التحويلات المخزنية | Stock Transfers", "transfers", lang, dir) {
-			<div class="header-row">
-				<div>
-					<h2 style="font-size:1.5rem; font-weight:800; color:var(--neutral-900);">سجل التحويلات بين المخازن</h2>
-					<p style="font-size:0.875rem; color:var(--neutral-500);">متابعة حركة نقل البضائع بين الفروع والمخازن</p>
+			<div class="page-container">
+				<!-- Header -->
+				<div class="glass-panel p-6 mb-6">
+					<div class="flex-between flex-wrap gap-4">
+						<div>
+							<div class="d-flex items-center gap-3 mb-1">
+								<div class="user-avatar-badge text-xl">
+									🔄
+								</div>
+								<h1 class="text-2xl font-black text-primary m-0">سجل التحويلات بين المخازن</h1>
+							</div>
+							<p class="text-sm text-secondary m-0">متابعة حركة نقل البضائع والأدوية بين الفروع والمخازن التوزيعية</p>
+						</div>
+					</div>
 				</div>
-			</div>
 
-			<div id="vendor-transfers-content">
-				@VendorTransfersTable(transfers)
+				<div id="vendor-transfers-content">
+					@VendorTransfersTable(transfers)
+				</div>
 			</div>
 		}
 	}
@@ -28,52 +38,55 @@ templ VendorTransfers(transfers []*inventory.WarehouseTransfer, lang, dir string
 
 templ VendorTransfersTable(transfers []*inventory.WarehouseTransfer) {
 	if len(transfers) == 0 {
-		@components.EmptyState(components.EmptyStateProps{
-			Title:   "لا توجد تحويلات مخزنية سابقة",
-			Message: "لم يتم إنشاء أي عمليات نقل بضائع بين المخازن حتى الآن.",
-		})
+		<div class="glass-panel p-8 text-center empty-state-glass">
+			<div class="text-4xl mb-3">📦</div>
+			<h3 class="text-lg font-black text-primary mb-2">لا توجد تحويلات مخزنية سابقة</h3>
+			<p class="text-sm text-secondary m-0">لم يتم إنشاء أي عمليات نقل بضائع بين المخازن حتى الآن.</p>
+		</div>
 	} else {
-		<div class="card" style="padding:0; overflow:hidden; margin-bottom:0;">
-			<table class="b2b-table">
-				<thead>
-					<tr>
-						<th>رقم التحويل</th>
-						<th>من مخزن</th>
-						<th>إلى مخزن</th>
-						<th>الكمية</th>
-						<th>الحالة</th>
-						<th>التاريخ</th>
-					</tr>
-				</thead>
-				<tbody>
-					for _, t := range transfers {
+		<div class="glass-panel p-0 mb-6 overflow-hidden">
+			<div class="table-container m-0">
+				<table class="data-table m-0">
+					<thead>
 						<tr>
-							<td style="font-weight:700; color:var(--primary-700);" class="tabular-nums">
-								#{ fmt.Sprintf("%d", t.ID) }
-							</td>
-							<td style="color:var(--neutral-600);">
-								Warehouse #{ fmt.Sprintf("%d", t.FromWarehouseID) }
-							</td>
-							<td style="color:var(--neutral-600);">
-								Warehouse #{ fmt.Sprintf("%d", t.ToWarehouseID) }
-							</td>
-							<td>
-								<span class="badge badge-slate tabular-nums" style="font-size:0.85rem; font-weight:700;">
-									{ fmt.Sprintf("%d", t.Quantity) } عبوة
-								</span>
-							</td>
-							<td>
-								<span class="badge badge-sky">
-									{ string(t.Status) }
-								</span>
-							</td>
-							<td style="color:var(--neutral-500);" class="tabular-nums">
-								{ t.CreatedAt.Format("2006-01-02 15:04") }
-							</td>
+							<th>رقم التحويل</th>
+							<th>من مخزن</th>
+							<th>إلى مخزن</th>
+							<th>الكمية</th>
+							<th class="text-center">الحالة</th>
+							<th class="text-end">التاريخ</th>
 						</tr>
-					}
-				</tbody>
-			</table>
+					</thead>
+					<tbody>
+						for _, t := range transfers {
+							<tr>
+								<td class="font-extrabold text-primary tabular-nums">
+									#{ fmt.Sprintf("%d", t.ID) }
+								</td>
+								<td class="text-secondary text-sm">
+									Warehouse #{ fmt.Sprintf("%d", t.FromWarehouseID) }
+								</td>
+								<td class="text-secondary text-sm">
+									Warehouse #{ fmt.Sprintf("%d", t.ToWarehouseID) }
+								</td>
+								<td>
+									<span class="badge badge-slate tabular-nums text-xs font-bold">
+										{ fmt.Sprintf("%d", t.Quantity) } عبوة
+									</span>
+								</td>
+								<td class="text-center">
+									<span class="badge badge-sky text-xs font-bold">
+										{ string(t.Status) }
+									</span>
+								</td>
+								<td class="text-end tabular-nums text-xs text-muted">
+									{ t.CreatedAt.Format("2006-01-02 15:04") }
+								</td>
+							</tr>
+						}
+					</tbody>
+				</table>
+			</div>
 		</div>
 	}
 }

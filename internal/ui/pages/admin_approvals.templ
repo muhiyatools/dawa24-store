@@ -11,29 +11,30 @@ import (
 
 templ AdminApprovals(data *AdminApprovalsData, lang, dir string) {
 	@layouts.AdminShell("اعتماد المنشآت والوثائق الرسمية", "approvals", lang, dir) {
-		<div class="stack-lg">
+		<div class="page-container">
 			
 			<!-- Top Header Banner & Actions -->
-			<div class="card mb-0">
-				<div style="display:flex; justify-content:space-between; align-items:center; gap:1rem; flex-wrap:wrap;">
-					<div class="row-center-sm">
-						@components.IconShield("icon-lg")
+			<div class="glass-panel p-6 mb-6">
+				<div class="flex-between items-center flex-wrap gap-4">
+					<div class="d-flex items-center gap-3">
+						<div class="user-avatar-badge text-xl">
+							🛡️
+						</div>
 						<div>
-							<h2 class="card-title" style="margin:0; font-size:1.35rem;">
+							<h1 class="text-2xl font-black text-primary m-0">
 								اعتماد المنشآت والوثائق الرسمية
-							</h2>
-							<p style="font-size:0.875rem; color:var(--neutral-500); margin-top:0.25rem; margin-bottom:0;">
-								تدقيق تراخيص التسجيل، اعتماد وثائق الصيدليات والموردين، وإصدار طلبات المستندات الرسمية مع المهل.
+							</h1>
+							<p class="text-sm text-secondary m-0 mt-1">
+								تدقيق تراخيص التسجيل، اعتماد وثائق الصيدليات والموردين، وإصدار طلبات المستندات الرسمية مع المهل
 							</p>
 						</div>
 					</div>
 
-					<div style="display:flex; gap:0.75rem; align-items:center;">
+					<div class="d-flex items-center gap-2 flex-wrap">
 						<button
 							type="button"
-							class="btn btn-primary"
+							class="btn btn-primary font-bold text-xs px-3 py-2"
 							data-modal-open="request-doc-modal"
-							style="font-weight:800; gap:0.4rem; padding:0.6rem 1.1rem;"
 						>
 							@components.IconFile("icon-xs")
 							<span>طلب مستند رسمي من منشأة +</span>
@@ -42,27 +43,24 @@ templ AdminApprovals(data *AdminApprovalsData, lang, dir string) {
 				</div>
 
 				<!-- Navigation Tabs -->
-				<div style="display:flex; gap:0.5rem; margin-top:1.25rem; border-top:1px solid var(--border); padding-top:1rem; overflow-x:auto;">
+				<div class="cb-tabs-nav m-0 mt-6 pt-4 border-t">
 					<a
 						href="/admin/approvals?tab=organizations"
-						class={ "btn btn-sm", templ.KV("btn-primary", data.ActiveTab == "" || data.ActiveTab == "organizations"), templ.KV("btn-secondary", data.ActiveTab != "" && data.ActiveTab != "organizations") }
-						class="fw-700"
+						class={ "cb-tab-btn", templ.KV("active", data.ActiveTab == "" || data.ActiveTab == "organizations") }
 					>
 						@components.IconBuilding("icon-xs")
 						<span>اعتماد المنشآت والتراخيص ({ fmt.Sprintf("%d", len(data.Organizations)) })</span>
 					</a>
 					<a
 						href="/admin/approvals?tab=documents"
-						class={ "btn btn-sm", templ.KV("btn-primary", data.ActiveTab == "documents"), templ.KV("btn-secondary", data.ActiveTab != "documents") }
-						class="fw-700"
+						class={ "cb-tab-btn", templ.KV("active", data.ActiveTab == "documents") }
 					>
 						@components.IconFile("icon-xs")
 						<span>تدقيق وثائق المنشآت المرفوعة ({ fmt.Sprintf("%d", len(data.UploadedDocs)) })</span>
 					</a>
 					<a
 						href="/admin/approvals?tab=requests"
-						class={ "btn btn-sm", templ.KV("btn-primary", data.ActiveTab == "requests"), templ.KV("btn-secondary", data.ActiveTab != "requests") }
-						class="fw-700"
+						class={ "cb-tab-btn", templ.KV("active", data.ActiveTab == "requests") }
 					>
 						@components.IconClock("icon-xs")
 						<span>المستندات المطلوبة والمتابعة ({ fmt.Sprintf("%d", len(data.DocRequests)) })</span>
@@ -71,7 +69,7 @@ templ AdminApprovals(data *AdminApprovalsData, lang, dir string) {
 			</div>
 
 			<!-- Tab Content Areas -->
-			<div class="card" style="margin-bottom:0; overflow:visible;">
+			<div class="glass-panel p-6 mb-6">
 				if data.ActiveTab == "" || data.ActiveTab == "organizations" {
 					@AdminApprovalsOrgTab(data)
 				} else if data.ActiveTab == "documents" {
@@ -197,8 +195,8 @@ templ AdminApprovalsTable(orgs []*org.Organization, orgDocs map[int64][]*attachm
 			Message: "تمت مراجعة جميع المستندات والتراخيص بالكامل، ولا توجد طلبات معلقة حالياً.",
 		})
 	} else {
-		<div class="table-container overflow-visible">
-			<table class="b2b-table">
+		<div class="table-container m-0">
+			<table class="data-table m-0">
 				<thead>
 					<tr>
 						<th>المنشأة والاسم التجاري</th>
@@ -479,8 +477,8 @@ templ AdminApprovalsDocsTab(data *AdminApprovalsData) {
 			Message: "لم تقم أي منشأة برفع مستندات إضافية حالياً.",
 		})
 	} else {
-		<div class="table-container overflow-visible">
-			<table class="b2b-table">
+		<div class="table-container m-0">
+			<table class="data-table m-0">
 				<thead>
 					<tr>
 						<th>نوع المستند</th>
@@ -775,8 +773,8 @@ templ AdminApprovalsRequestsTab(data *AdminApprovalsData) {
 			Message: "لم يتم إصدار طلبات مستندات رسمية للمنشآت بعد.",
 		})
 	} else {
-		<div class="table-container overflow-visible">
-			<table class="b2b-table">
+		<div class="table-container m-0">
+			<table class="data-table m-0">
 				<thead>
 					<tr>
 						<th>#</th>

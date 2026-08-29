@@ -39,6 +39,7 @@ func buildAdminBrandsPageURL(page, limit int, q, status string) string {
 templ AdminBrandsPage(brands []BrandViewItem, totalCount, currentPage, pageSize int, searchQuery, statusFilter, lang, dir string) {
 	@layouts.AdminShell("دليل الشركات المصنعة والماركات", "brands", lang, dir) {
 		<div
+			class="page-container"
 			x-data="{
 				isCreateModalOpen: false,
 				isEditModalOpen: false,
@@ -77,50 +78,54 @@ templ AdminBrandsPage(brands []BrandViewItem, totalCount, currentPage, pageSize 
 			}"
 		>
 			<!-- Page Header -->
-			@components.PageHeader(components.PageHeaderProps{
-				Title:    "دليل الشركات المصنعة والماركات",
-				Subtitle: "إدارة الشركات الدوائية المنتجة والمصنعة المعتمدة وربطها المباشر بالأصناف والمنتجات الأساسية",
-				Count:    &totalCount,
-			}) {
-				<div class="row-center">
-					<button type="button" @click="isCreateModalOpen = true" class="btn btn-primary fw-800">
-						@components.IconPlus("icon-xs")
-						<span>إضافة شركة مصنعة جديدة +</span>
-					</button>
-				</div>
-			}
+			<div class="glass-panel p-6 mb-6">
+				<div class="flex-between items-center flex-wrap gap-4">
+					<div class="d-flex items-center gap-3">
+						<div class="user-avatar-badge text-xl">
+							🏷️
+						</div>
+						<div>
+							<h1 class="text-2xl font-black text-primary m-0">دليل الشركات المصنعة والماركات</h1>
+							<p class="text-sm text-secondary m-0 mt-1">إدارة الشركات الدوائية المنتجة والمصنعة المعتمدة وربطها المباشر بالأصناف والمنتجات الأساسية ({ fmt.Sprintf("%d شركة", totalCount) })</p>
+						</div>
+					</div>
 
-			<div class="card mb-0 overflow-visible">
+					<div class="d-flex items-center gap-2">
+						<button type="button" @click="isCreateModalOpen = true" class="btn btn-primary font-bold text-xs px-3 py-2">
+							@components.IconPlus("icon-xs")
+							<span>إضافة شركة مصنعة جديدة +</span>
+						</button>
+					</div>
+				</div>
+			</div>
+
+			<div class="glass-panel p-6 mb-6">
 				<!-- Search and Filter Bar -->
 				<form
 					method="GET"
 					action="/admin/brands"
-					style="margin-bottom:1.25rem; display:grid; grid-template-columns:2fr 1fr 1fr auto; gap:0.75rem; background:var(--surface-sunken); padding:0.85rem 1.25rem; border-radius:var(--radius-xl); border:1px solid var(--border); align-items:center;"
+					class="d-flex gap-3 items-center flex-wrap mb-6"
 				>
-					<div style="position:relative; width:100%;">
+					<div class="flex-1" style="min-width:220px;">
 						<input
 							type="text"
 							name="q"
 							value={ searchQuery }
 							placeholder="ابحث باسم الشركة بالعربية أو الإنجليزية..."
-							class="form-input"
-							style="padding-inline-start:2.25rem; font-size:0.875rem; background:var(--surface-raised);"
+							class="form-input text-xs w-full"
 						/>
-						<div style="position:absolute; inset-inline-start:0.75rem; top:50%; transform:translateY(-50%); color:var(--text-muted); pointer-events:none;">
-							@components.IconSearch("icon-xs")
-						</div>
 					</div>
 
-					<div>
-						<select name="status" class="form-select" style="font-size:0.875rem; background:var(--surface-raised);" onchange="this.form.submit()">
+					<div style="min-width:140px;">
+						<select name="status" class="form-select text-xs w-full" onchange="this.form.submit()">
 							<option value="all" selected?={ statusFilter == "" || statusFilter == "all" }>جميع الحالات</option>
 							<option value="active" selected?={ statusFilter == "active" }>نشط ومفعل (Active)</option>
 							<option value="inactive" selected?={ statusFilter == "inactive" }>معطل (Inactive)</option>
 						</select>
 					</div>
 
-					<div>
-						<select name="limit" class="form-select" style="font-size:0.875rem; background:var(--surface-raised);" onchange="this.form.submit()">
+					<div style="min-width:140px;">
+						<select name="limit" class="form-select text-xs w-full" onchange="this.form.submit()">
 							<option value="25" selected?={ pageSize == 25 }>25 شركة لكل صفحة</option>
 							<option value="50" selected?={ pageSize == 50 }>50 شركة لكل صفحة</option>
 							<option value="100" selected?={ pageSize == 100 }>100 شركة لكل صفحة</option>
@@ -128,42 +133,41 @@ templ AdminBrandsPage(brands []BrandViewItem, totalCount, currentPage, pageSize 
 						</select>
 					</div>
 
-					<div class="row-center-sm">
-						<button type="submit" class="btn btn-primary fw-700" style="padding:0.5rem 1rem;">
-							تصفية
-						</button>
-						if searchQuery != "" || (statusFilter != "" && statusFilter != "all") {
-							<a href="/admin/brands" class="btn btn-secondary fw-700">
-								إعادة تعيين
-							</a>
-						}
-					</div>
+					<button type="submit" class="btn btn-primary btn-sm font-bold text-xs px-3">
+						تصفية
+					</button>
+					if searchQuery != "" || (statusFilter != "" && statusFilter != "all") {
+						<a href="/admin/brands" class="btn btn-secondary btn-sm text-xs">
+							إعادة تعيين
+						</a>
+					}
 				</form>
 
 				<!-- Brands Data Table -->
 				if len(brands) == 0 {
-					@components.EmptyState(components.EmptyStateProps{
-						Title:   "لا توجد شركات مصنعة مطابقة",
-						Message: "لم يتم العثور على أي نتائج وفق معايير البحث الحالية. يمكنك تعديل كلمات البحث أو إضافة شركة جديدة.",
-					})
+					<div class="p-8 text-center empty-state-glass">
+						<div class="text-4xl mb-3">🏷️</div>
+						<h3 class="text-lg font-black text-primary mb-2">لا توجد شركات مصنعة مطابقة</h3>
+						<p class="text-sm text-secondary max-w-md mx-auto">لم يتم العثور على أي نتائج وفق معايير البحث الحالية. يمكنك تعديل كلمات البحث أو إضافة شركة جديدة.</p>
+					</div>
 				} else {
-					<div class="table-container">
-						<table class="b2b-table">
+					<div class="table-container m-0">
+						<table class="data-table m-0">
 							<thead>
 								<tr>
-									<th style="width:64px; text-align:center;">الشعار</th>
-									<th style="width:26%; text-align:start;">اسم الشركة المصنعة</th>
-									<th style="width:30%; text-align:start;">الوصف ونبذة التعريف</th>
-									<th style="width:16%; text-align:center;">الأصناف المرتبطة</th>
-									<th style="width:12%; text-align:center;">الحالة</th>
-									<th style="width:16%; text-align:end;">الإجراءات</th>
+									<th style="width:64px;" class="text-center">الشعار</th>
+									<th style="width:26%;">اسم الشركة المصنعة</th>
+									<th style="width:30%;">الوصف ونبذة التعريف</th>
+									<th style="width:16%;" class="text-center">الأصناف المرتبطة</th>
+									<th style="width:12%;" class="text-center">الحالة</th>
+									<th style="width:16%;" class="text-end">الإجراءات</th>
 								</tr>
 							</thead>
 							<tbody>
 								for _, item := range brands {
 									<tr id={ fmt.Sprintf("brand-row-%d", item.Brand.ID) }>
-										<td style="text-align:center;">
-											<div style="width:42px; height:42px; border-radius:var(--radius-lg); background:var(--surface-sunken); border:1px solid var(--border); display:inline-flex; align-items:center; justify-content:center; overflow:hidden;">
+										<td class="text-center">
+											<div class="user-avatar-badge text-sm" style="width:40px; height:40px;">
 												if item.Brand.Image != "" {
 													<img src={ item.Brand.Image } alt={ item.Brand.Name.Get("ar") } style="width:100%; height:100%; object-fit:contain;" />
 												} else {

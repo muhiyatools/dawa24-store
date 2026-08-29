@@ -13,48 +13,62 @@ import (
 // VendorPaymentsPage renders payments history for the vendor.
 templ VendorPaymentsPage(payments []*billing.Payment, lang, dir string) {
 	@layouts.VendorShell("المدفوعات والمستحقات المالية", "payments", lang, dir) {
-		<div class="card mb-0">
-			<div class="header-row">
-				<div>
-					<h2 class="card-title m-0">سجل المدفوعات والتحويلات المالية ({ fmt.Sprintf("%d", len(payments)) })</h2>
-					<p class="subtitle">تتم تسوية المستحقات المالية وتحويلها إلى حساب المنشأة البنكي دورياً.</p>
+		<div class="page-container">
+			<!-- Header -->
+			<div class="glass-panel p-6 mb-6">
+				<div class="flex-between flex-wrap gap-4">
+					<div>
+						<div class="d-flex items-center gap-3 mb-1">
+							<div class="user-avatar-badge text-xl">
+								💳
+							</div>
+							<h1 class="text-2xl font-black text-primary m-0">سجل المدفوعات والتحويلات المالية ({ fmt.Sprintf("%d", len(payments)) })</h1>
+						</div>
+						<p class="text-sm text-secondary m-0">تتم تسوية المستحقات المالية وتحويلها إلى حساب المنشأة البنكي دورياً</p>
+					</div>
 				</div>
 			</div>
 
 			if len(payments) == 0 {
-				@components.EmptyState(components.EmptyStateProps{Title: "لا توجد دفعات مسجلة", Message: "ستظهر هنا الدفعات والتحويلات المالية فور تسويتها."})
+				<div class="glass-panel p-8 text-center empty-state-glass">
+					<div class="text-4xl mb-3">💳</div>
+					<h3 class="text-lg font-black text-primary mb-2">لا توجد دفعات مسجلة</h3>
+					<p class="text-sm text-secondary m-0">ستظهر هنا الدفعات والتحويلات المالية فور تسويتها.</p>
+				</div>
 			} else {
-				<div class="table-container">
-					<table class="b2b-table">
-						<thead>
-							<tr>
-								<th>رقم العملية / المرجع</th>
-								<th>المبلغ</th>
-								<th>طريقة الدفع</th>
-								<th>الحالة</th>
-								<th>التاريخ</th>
-							</tr>
-						</thead>
-						<tbody>
-							for _, p := range payments {
+				<div class="glass-panel p-0 mb-6 overflow-hidden">
+					<div class="table-container m-0">
+						<table class="data-table m-0">
+							<thead>
 								<tr>
-									<td class="tabular-nums">
-										if p.ReferenceNumber != "" {
-											<strong>{ p.ReferenceNumber }</strong>
-										} else if p.TransactionID != "" {
-											<strong>{ p.TransactionID }</strong>
-										} else {
-											<strong>{ fmt.Sprintf("PAY-%d", p.ID) }</strong>
-										}
-									</td>
-									<td class="tabular-nums" style="font-weight:700; color:var(--success-text);">{ fmt.Sprintf("%s ج.م", p.Amount.String()) }</td>
-									<td><span class="badge badge-secondary">{ p.Method }</span></td>
-									<td><span class="badge badge-emerald">{ string(p.Status) }</span></td>
-									<td class="tabular-nums">{ p.CreatedAt.Format("2006-01-02 15:04") }</td>
+									<th>رقم العملية / المرجع</th>
+									<th>المبلغ</th>
+									<th>طريقة الدفع</th>
+									<th class="text-center">الحالة</th>
+									<th class="text-end">التاريخ</th>
 								</tr>
-							}
-						</tbody>
-					</table>
+							</thead>
+							<tbody>
+								for _, p := range payments {
+									<tr>
+										<td class="tabular-nums font-bold">
+											if p.ReferenceNumber != "" {
+												<strong>{ p.ReferenceNumber }</strong>
+											} else if p.TransactionID != "" {
+												<strong>{ p.TransactionID }</strong>
+											} else {
+												<strong>{ fmt.Sprintf("PAY-%d", p.ID) }</strong>
+											}
+										</td>
+										<td class="tabular-nums font-extrabold text-success text-sm">{ fmt.Sprintf("%s ج.م", p.Amount.String()) }</td>
+										<td><span class="badge badge-slate text-xs font-bold">{ p.Method }</span></td>
+										<td class="text-center"><span class="badge badge-emerald text-xs font-bold">{ string(p.Status) }</span></td>
+										<td class="text-end tabular-nums text-xs text-muted">{ p.CreatedAt.Format("2006-01-02 15:04") }</td>
+									</tr>
+								}
+							</tbody>
+						</table>
+					</div>
 				</div>
 			}
 		</div>
@@ -64,11 +78,23 @@ templ VendorPaymentsPage(payments []*billing.Payment, lang, dir string) {
 // VendorEarningsOrderPage renders orders revenue report.
 templ VendorEarningsOrderPage(revenue money.Amount, lang, dir string) {
 	@layouts.VendorShell("أرباح ومبيعات الطلبات المباشرة", "earnings_order", lang, dir) {
-		<div class="card mb-0">
-			<h2 class="card-title mb-lg">أرباح ومبيعات الطلبات للشهر الحالي</h2>
-			<div style="background:var(--surface-sunken); padding:1.25rem; border-radius:var(--radius-md); max-width:300px;">
-				<div class="text-sm text-secondary">إجمالي مبيعات الشهر</div>
-				<div class="tabular-nums" style="font-size:1.5rem; font-weight:700; color:var(--success-text); margin-top:0.5rem;">{ fmt.Sprintf("%s ج.م", revenue.String()) }</div>
+		<div class="page-container">
+			<div class="glass-panel p-6 mb-6">
+				<div class="d-flex items-center gap-3 mb-1">
+					<div class="user-avatar-badge text-xl">
+						💰
+					</div>
+					<h1 class="text-2xl font-black text-primary m-0">أرباح ومبيعات الطلبات للشهر الحالي</h1>
+				</div>
+				<p class="text-sm text-secondary m-0">ملخص مبيعات الطلبات المباشرة والتوريدات المكتملة</p>
+			</div>
+
+			<div class="dashboard-stat-grid mb-6">
+				<div class="stat-card-3d">
+					<div class="stat-card-label text-success">إجمالي مبيعات الشهر</div>
+					<div class="stat-card-value text-success tabular-nums">{ fmt.Sprintf("%s ج.م", revenue.String()) }</div>
+					<span class="text-xs text-secondary mt-1 d-block">إجمالي القيمة المنفذة</span>
+				</div>
 			</div>
 		</div>
 	}
@@ -77,11 +103,23 @@ templ VendorEarningsOrderPage(revenue money.Amount, lang, dir string) {
 // VendorEarningsOffersPage renders offers revenue report.
 templ VendorEarningsOffersPage(revenue money.Amount, lang, dir string) {
 	@layouts.VendorShell("أرباح ومبيعات عروض التوفير", "earnings_offers", lang, dir) {
-		<div class="card mb-0">
-			<h2 class="card-title mb-lg">أرباح ومبيعات عروض التوفير والصفقات</h2>
-			<div style="background:var(--surface-sunken); padding:1.25rem; border-radius:var(--radius-md); max-width:300px;">
-				<div class="text-sm text-secondary">إجمالي مبيعات العروض</div>
-				<div class="tabular-nums" style="font-size:1.5rem; font-weight:700; color:var(--success-text); margin-top:0.5rem;">{ fmt.Sprintf("%s ج.م", revenue.String()) }</div>
+		<div class="page-container">
+			<div class="glass-panel p-6 mb-6">
+				<div class="d-flex items-center gap-3 mb-1">
+					<div class="user-avatar-badge text-xl">
+						🏷️
+					</div>
+					<h1 class="text-2xl font-black text-primary m-0">أرباح ومبيعات عروض التوفير والصفقات</h1>
+				</div>
+				<p class="text-sm text-secondary m-0">ملخص إيرادات العروض الخاصة والخصومات الكمية</p>
+			</div>
+
+			<div class="dashboard-stat-grid mb-6">
+				<div class="stat-card-3d">
+					<div class="stat-card-label text-success">إجمالي مبيعات العروض</div>
+					<div class="stat-card-value text-success tabular-nums">{ fmt.Sprintf("%s ج.م", revenue.String()) }</div>
+					<span class="text-xs text-secondary mt-1 d-block">مبيعات صفقات وعروض التوفير</span>
+				</div>
 			</div>
 		</div>
 	}
@@ -90,42 +128,55 @@ templ VendorEarningsOffersPage(revenue money.Amount, lang, dir string) {
 // VendorOfferOrdersPage renders vendor offer orders list.
 templ VendorOfferOrdersPage(shipments []*commerce.OrderShipment, lang, dir string) {
 	@layouts.VendorShell("طلبات عروض الأسعار والتوريد", "offer_orders", lang, dir) {
-		<div class="card mb-0">
-			<div class="header-row">
-				<div>
-					<h2 class="card-title m-0">طلبات عروض الأسعار الواردة ({ fmt.Sprintf("%d", len(shipments)) })</h2>
-					<p class="subtitle">متابعة الشحنات والطلبيات المرتبطة بعروض أسعار خاصة أو خصومات إضافية.</p>
+		<div class="page-container">
+			<div class="glass-panel p-6 mb-6">
+				<div class="flex-between flex-wrap gap-4">
+					<div>
+						<div class="d-flex items-center gap-3 mb-1">
+							<div class="user-avatar-badge text-xl">
+								📦
+							</div>
+							<h1 class="text-2xl font-black text-primary m-0">طلبات عروض الأسعار الواردة ({ fmt.Sprintf("%d", len(shipments)) })</h1>
+						</div>
+						<p class="text-sm text-secondary m-0">متابعة الشحنات والطلبيات المرتبطة بعروض أسعار خاصة أو خصومات إضافية</p>
+					</div>
 				</div>
 			</div>
 
 			if len(shipments) == 0 {
-				@components.EmptyState(components.EmptyStateProps{Title: "لا توجد طلبات عروض واردة", Message: "ستظهر هنا الشحنات الخاصة بالطلبيات المقدمة من الصيدليات."})
+				<div class="glass-panel p-8 text-center empty-state-glass">
+					<div class="text-4xl mb-3">📦</div>
+					<h3 class="text-lg font-black text-primary mb-2">لا توجد طلبات عروض واردة</h3>
+					<p class="text-sm text-secondary m-0">ستظهر هنا الشحنات الخاصة بالطلبيات المقدمة من الصيدليات.</p>
+				</div>
 			} else {
-				<div class="table-container">
-					<table class="b2b-table">
-						<thead>
-							<tr>
-								<th>رقم الشحنة</th>
-								<th>المبلغ</th>
-								<th>الحالة</th>
-								<th>التاريخ</th>
-								<th class="text-end">الإجراءات</th>
-							</tr>
-						</thead>
-						<tbody>
-							for _, s := range shipments {
+				<div class="glass-panel p-0 mb-6 overflow-hidden">
+					<div class="table-container m-0">
+						<table class="data-table m-0">
+							<thead>
 								<tr>
-									<td class="tabular-nums"><strong>{ s.ShipmentNumber }</strong></td>
-									<td class="tabular-nums">{ fmt.Sprintf("%s ج.م", s.TotalAmount.String()) }</td>
-									<td><span class="badge badge-sky">{ string(s.Status) }</span></td>
-									<td class="tabular-nums">{ s.CreatedAt.Format("2006-01-02") }</td>
-									<td class="text-end">
-										<a href={ templ.SafeURL(fmt.Sprintf("/vendor/orders/offers/%d", s.ID)) } class="btn btn-secondary btn-sm">عرض الشحنة</a>
-									</td>
+									<th>رقم الشحنة</th>
+									<th>المبلغ</th>
+									<th class="text-center">الحالة</th>
+									<th>التاريخ</th>
+									<th class="text-end">الإجراءات</th>
 								</tr>
-							}
-						</tbody>
-					</table>
+							</thead>
+							<tbody>
+								for _, s := range shipments {
+									<tr>
+										<td class="tabular-nums font-bold text-primary">#{ s.ShipmentNumber }</td>
+										<td class="tabular-nums font-extrabold text-success">{ fmt.Sprintf("%s ج.م", s.TotalAmount.String()) }</td>
+										<td class="text-center"><span class="badge badge-sky text-xs font-bold">{ string(s.Status) }</span></td>
+										<td class="tabular-nums text-xs text-muted">{ s.CreatedAt.Format("2006-01-02") }</td>
+										<td class="text-end">
+											<a href={ templ.SafeURL(fmt.Sprintf("/vendor/orders/offers/%d", s.ID)) } class="btn btn-secondary btn-sm font-bold text-xs">عرض الشحنة</a>
+										</td>
+									</tr>
+								}
+							</tbody>
+						</table>
+					</div>
 				</div>
 			}
 		</div>
@@ -135,12 +186,14 @@ templ VendorOfferOrdersPage(shipments []*commerce.OrderShipment, lang, dir strin
 // VendorOfferOrderDetailPage renders single offer order details.
 templ VendorOfferOrderDetailPage(id int64, lang, dir string) {
 	@layouts.VendorShell(fmt.Sprintf("طلب عروض #%d", id), "offer_orders", lang, dir) {
-		<div class="card max-w-2xl mx-auto">
-			<div class="header-row">
-				<div>
-					<h2 class="card-title m-0">طلب عروض #{ fmt.Sprintf("%d", id) }</h2>
+		<div class="page-container">
+			<div class="glass-panel p-6 max-w-2xl mx-auto">
+				<div class="flex-between items-center mb-4 pb-2 border-b">
+					<div>
+						<h1 class="text-xl font-black text-primary m-0">طلب عروض #{ fmt.Sprintf("%d", id) }</h1>
+					</div>
+					<a href="/vendor/orders/offers" class="btn btn-secondary btn-sm font-bold">العودة</a>
 				</div>
-				<a href="/vendor/orders/offers" class="btn btn-secondary btn-sm">العودة</a>
 			</div>
 		</div>
 	}

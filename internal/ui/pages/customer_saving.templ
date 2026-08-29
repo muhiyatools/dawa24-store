@@ -23,51 +23,43 @@ type CustomerSavingPageData struct {
 // CustomerSavingProductsPage renders customer saving products workspace and best supplier price delta tracker.
 templ CustomerSavingProductsPage(data CustomerSavingPageData, lang, dir string) {
 	@layouts.CustomerShell("منتجات التوفير وتتبع فروق الأسعار للصيدلية", "saving_products", lang, dir, nil) {
-		<div style="max-width:1440px; margin:0 auto; display:flex; flex-direction:column; gap:1.5rem;">
+		<div class="page-container">
 
 			<!-- Notice / Toast Banner -->
 			if data.NoticeMsg != "" {
-				if data.NoticeType == "error" {
-					<div class="alert alert-danger" style="display:flex; align-items:center; justify-content:space-between; padding:1.15rem 1.5rem; border-radius:var(--radius-xl); background:rgba(239, 68, 68, 0.12); border:1px solid rgba(239, 68, 68, 0.35); color:#ef4444; box-shadow:0 10px 25px rgba(0,0,0,0.15);">
-						<div style="display:flex; align-items:center; gap:0.75rem; font-weight:800; font-size:0.95rem;">
-							<span class="text-2xl">⚠️</span>
-							<span>{ data.NoticeMsg }</span>
-						</div>
-					</div>
-				} else {
-					<div class="alert alert-success" style="display:flex; align-items:center; justify-content:space-between; padding:1.15rem 1.5rem; border-radius:var(--radius-xl); background:rgba(16, 185, 129, 0.12); border:1px solid rgba(16, 185, 129, 0.35); color:#10b981; box-shadow:0 10px 25px rgba(0,0,0,0.15);">
-						<div style="display:flex; align-items:center; gap:0.75rem; font-weight:800; font-size:0.95rem;">
-							<span class="text-2xl">✅</span>
-							<span>{ data.NoticeMsg }</span>
-						</div>
-					</div>
-				}
+				<div
+					class={ "alert mb-4",
+						templ.KV("alert-success", data.NoticeType != "error"),
+						templ.KV("alert-danger", data.NoticeType == "error") }
+					role="alert"
+				>
+					{ data.NoticeMsg }
+				</div>
 			}
 
 			<!-- Top Header Banner -->
-			<div class="card" style="background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-2xl); padding:1.75rem; margin-bottom:0;">
-				<div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1.25rem;">
-					<div style="display:flex; align-items:center; gap:1rem;">
-						<div style="width:54px; height:54px; border-radius:var(--radius-xl); background:linear-gradient(135deg, #10b981 0%, #06b6d4 100%); color:#fff; display:flex; align-items:center; justify-content:center; font-size:1.75rem; box-shadow:0 8px 20px rgba(16,185,129,0.25);">
+			<div class="glass-panel p-6 mb-6">
+				<div class="flex-between items-center flex-wrap gap-4">
+					<div class="d-flex items-center gap-3">
+						<div class="user-avatar-badge text-xl">
 							💊
 						</div>
 						<div>
-							<h1 style="font-size:1.65rem; font-weight:900; color:var(--text); margin:0;">
+							<h1 class="text-2xl font-black text-primary m-0">
 								منتجات وأدوية التوفير للصيدلية
 							</h1>
-							<p style="color:var(--text-muted); font-size:0.875rem; margin:0.25rem 0 0 0;">
+							<p class="text-sm text-secondary m-0 mt-1">
 								تتبع أدوية الصيدلية ومقارنة عروض وخصومات الموردين المتاحة بالكتالوج بالأسعار الحية
 							</p>
 						</div>
 					</div>
 
 					<!-- Top Action Buttons -->
-					<div style="display:flex; align-items:center; gap:0.75rem; flex-wrap:wrap;">
+					<div class="d-flex items-center gap-2 flex-wrap">
 						<button
 							type="button"
-							class="btn btn-primary"
+							class="btn btn-primary font-bold text-xs px-3 py-2"
 							data-modal-open="pharmacy-saving-product-modal"
-							style="background:#10b981; border-color:#10b981; color:#fff; font-weight:800; font-size:0.9rem; padding:0.65rem 1.25rem; border-radius:var(--radius-lg);"
 							onclick="openPharmacyCreateModal()"
 						>
 							@components.IconPlus("icon-xs")
@@ -76,8 +68,7 @@ templ CustomerSavingProductsPage(data CustomerSavingPageData, lang, dir string) 
 
 						<a
 							href="/customer/saving-products/import"
-							class="btn btn-secondary"
-							style="font-weight:800; font-size:0.9rem; padding:0.65rem 1.25rem; border-radius:var(--radius-lg); text-decoration:none;"
+							class="btn btn-secondary font-bold text-xs px-3 py-2 text-decoration-none"
 						>
 							@components.IconUpload("icon-xs")
 							<span>استيراد قائمة الأدوية (Excel / CSV)</span>
@@ -85,8 +76,7 @@ templ CustomerSavingProductsPage(data CustomerSavingPageData, lang, dir string) 
 
 						<a
 							href="/customer/saving-products/export"
-							class="btn btn-secondary"
-							style="background:#0f766e; border-color:#0f766e; color:#fff; font-weight:800; font-size:0.9rem; padding:0.65rem 1.25rem; border-radius:var(--radius-lg); text-decoration:none;"
+							class="btn btn-secondary font-bold text-xs px-3 py-2 text-decoration-none"
 							download
 						>
 							@components.IconDownload("icon-xs")
@@ -97,127 +87,100 @@ templ CustomerSavingProductsPage(data CustomerSavingPageData, lang, dir string) 
 			</div>
 
 			<!-- 3 Status Metric Cards -->
-			<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(240px, 1fr)); gap:1.25rem;">
+			<div class="dashboard-stat-grid mb-6">
 				<a
 					href="/customer/saving-products?filter=all"
-					class="card"
-					style={ fmt.Sprintf("padding:1.5rem; margin:0; text-decoration:none; background:var(--surface-raised); border:2px solid %s; border-radius:var(--radius-2xl); display:flex; justify-content:space-between; align-items:center; transition:transform 0.2s;", savingFilterBorder(data.FilterStatus, "all")) }
+					class="stat-card-3d text-decoration-none"
 				>
-					<div>
-						<div style="font-size:0.875rem; font-weight:700; color:var(--text-muted); margin-bottom:0.35rem;">
-							جميع الأصناف المسجلة
-						</div>
-						<div style="font-size:2.2rem; font-weight:900; color:var(--text);" class="tabular-nums">
-							if data.Stats != nil {
-								{ fmt.Sprintf("%d", data.Stats.CountAll) }
-							} else {
-								0
-							}
-						</div>
+					<div class="stat-card-label">جميع الأصناف المسجلة</div>
+					<div class="stat-card-value text-primary tabular-nums">
+						if data.Stats != nil {
+							{ fmt.Sprintf("%d", data.Stats.CountAll) }
+						} else {
+							0
+						}
 					</div>
-					<div style="width:48px; height:48px; border-radius:var(--radius-xl); background:rgba(16, 185, 129, 0.12); color:#10b981; display:flex; align-items:center; justify-content:center; font-size:1.5rem;">
-						📋
-					</div>
+					<span class="text-xs text-secondary mt-1 d-block">إجمالي قائمة الأدوية</span>
 				</a>
 
 				<a
 					href="/customer/saving-products?filter=linked"
-					class="card"
-					style={ fmt.Sprintf("padding:1.5rem; margin:0; text-decoration:none; background:var(--surface-raised); border:2px solid %s; border-radius:var(--radius-2xl); display:flex; justify-content:space-between; align-items:center; transition:transform 0.2s;", savingFilterBorder(data.FilterStatus, "linked")) }
+					class="stat-card-3d text-decoration-none"
 				>
-					<div>
-						<div style="font-size:0.875rem; font-weight:700; color:var(--text-muted); margin-bottom:0.35rem;">
-							أصناف مرتبطة بالكتالوج
-						</div>
-						<div style="font-size:2.2rem; font-weight:900; color:#38bdf8;" class="tabular-nums">
-							if data.Stats != nil {
-								{ fmt.Sprintf("%d", data.Stats.CountLinked) }
-							} else {
-								0
-							}
-						</div>
+					<div class="stat-card-label text-sky">أصناف مرتبطة بالكتالوج</div>
+					<div class="stat-card-value text-sky tabular-nums">
+						if data.Stats != nil {
+							{ fmt.Sprintf("%d", data.Stats.CountLinked) }
+						} else {
+							0
+						}
 					</div>
-					<div style="width:48px; height:48px; border-radius:var(--radius-xl); background:rgba(56, 189, 248, 0.12); color:#38bdf8; display:flex; align-items:center; justify-content:center; font-size:1.5rem;">
-						🔗
-					</div>
+					<span class="text-xs text-secondary mt-1 d-block">مفعلة وتتتبع الأسعار حياً</span>
 				</a>
 
 				<a
 					href="/customer/saving-products?filter=unlinked"
-					class="card"
-					style={ fmt.Sprintf("padding:1.5rem; margin:0; text-decoration:none; background:var(--surface-raised); border:2px solid %s; border-radius:var(--radius-2xl); display:flex; justify-content:space-between; align-items:center; transition:transform 0.2s;", savingFilterBorder(data.FilterStatus, "unlinked")) }
+					class="stat-card-3d text-decoration-none"
 				>
-					<div>
-						<div style="font-size:0.875rem; font-weight:700; color:var(--text-muted); margin-bottom:0.35rem;">
-							أصناف بحاجة إلى ربط
-						</div>
-						<div style="font-size:2.2rem; font-weight:900; color:#f59e0b;" class="tabular-nums">
-							if data.Stats != nil {
-								{ fmt.Sprintf("%d", data.Stats.CountUnlinked) }
-							} else {
-								0
-							}
-						</div>
+					<div class="stat-card-label text-warning">أصناف بحاجة إلى ربط</div>
+					<div class="stat-card-value text-warning tabular-nums">
+						if data.Stats != nil {
+							{ fmt.Sprintf("%d", data.Stats.CountUnlinked) }
+						} else {
+							0
+						}
 					</div>
-					<div style="width:48px; height:48px; border-radius:var(--radius-xl); background:rgba(245, 158, 11, 0.12); color:#f59e0b; display:flex; align-items:center; justify-content:center; font-size:1.5rem;">
-						⚠️
-					</div>
+					<span class="text-xs text-secondary mt-1 d-block">غير مربوطة بصنف معتمد</span>
 				</a>
 			</div>
 
 			<!-- Search Filter Bar -->
-			<div class="card" style="padding:1rem 1.5rem; margin-bottom:0; background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-xl); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem;">
-				<div style="flex:1; min-width:280px; max-width:500px; position:relative;">
+			<div class="glass-panel p-4 mb-6 flex-between items-center flex-wrap gap-4">
+				<div class="position-relative" style="flex:1; min-width:260px; max-width:480px;">
 					<input
 						type="text"
 						id="pharmacy-saving-search-input"
 						value={ data.SearchQuery }
 						placeholder="ابحث باسم الدواء، الكود SKU، أو اسم الصنف بالكتالوج..."
-						class="form-input"
-						style="padding-inline-start:2.5rem; width:100%; border-radius:var(--radius-lg);"
+						class="form-input text-xs w-full"
 						oninput="filterPharmacySavingTable(this.value)"
 					/>
-					<div style="position:absolute; inset-inline-start:0.85rem; top:50%; transform:translateY(-50%); color:var(--text-muted); pointer-events:none;">
-						@components.IconSearch("icon-xs")
-					</div>
 				</div>
 
-				<div class="row-center-sm">
-					<span style="font-size:0.85rem; font-weight:700; color:var(--text-muted);">
-						عرض: { fmt.Sprintf("%d", len(data.Items)) } صنف
-					</span>
+				<div class="badge badge-slate text-xs font-bold tabular-nums">
+					عرض: { fmt.Sprintf("%d", len(data.Items)) } صنف
 				</div>
 			</div>
 
 			<!-- Saving Products Table Card -->
-			<div class="card" style="background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-2xl); padding:0; overflow:hidden;">
+			<div class="glass-panel p-0 mb-6 overflow-hidden">
 				if len(data.Items) == 0 {
-					<div style="padding:4rem 2rem; text-align:center;">
-						<div style="font-size:3.5rem; margin-bottom:1rem;">📦</div>
-						<h3 style="font-size:1.35rem; font-weight:800; color:var(--text); margin:0 0 0.5rem 0;">
+					<div class="p-8 text-center empty-state-glass">
+						<div class="text-4xl mb-3">📦</div>
+						<h3 class="text-lg font-black text-primary mb-2">
 							لا توجد أصناف مسجلة في قائمة التوفير حالياً
 						</h3>
-						<p style="color:var(--text-muted); max-width:520px; margin:0 auto 1.5rem auto; font-size:0.9rem; line-height:1.6;">
+						<p class="text-sm text-secondary max-w-md mx-auto mb-4">
 							أضف أدويتك الأكثر استهلاكاً أو ارفع ملف Excel لمتابعة خصومات الموردين واقتناص أفضل الأسعار.
 						</p>
-						<div style="display:flex; justify-content:center; gap:0.75rem; flex-wrap:wrap;">
-							<button type="button" class="btn btn-primary fw-800" onclick="openPharmacyCreateModal()">
+						<div class="d-flex justify-center gap-2 flex-wrap">
+							<button type="button" class="btn btn-primary font-bold text-xs px-4" onclick="openPharmacyCreateModal()">
 								@components.IconPlus("icon-xs")
 								<span>إضافة صنف جديد</span>
 							</button>
-							<button type="button" class="btn btn-secondary fw-800" onclick="openPharmacyImportModal()">
+							<button type="button" class="btn btn-secondary font-bold text-xs px-4" onclick="openPharmacyImportModal()">
 								@components.IconUpload("icon-xs")
 								<span>استيراد ملف Excel</span>
 							</button>
 						</div>
 					</div>
 				} else {
-					<div class="table-container" style="margin:0; overflow-x:auto;">
-						<table class="b2b-table" style="width:100%; border-collapse:collapse;">
+					<div class="table-container m-0">
+						<table class="data-table m-0">
 							<thead>
-								<tr style="background:var(--surface-sunken); border-bottom:2px solid var(--border); text-align:start; font-size:0.8rem; color:var(--text-muted);">
-									<th class="p-card-sm">اسم الصنف للصيدلية</th>
-									<th class="p-md">الربط بالكتالوج العام</th>
+								<tr>
+									<th>اسم الصنف للصيدلية</th>
+									<th>الربط بالكتالوج العام</th>
 									<th class="p-md text-center">الكمية</th>
 									<th class="p-md text-center">سعر الشراء</th>
 									<th class="p-md text-center">عروض الموردين</th>
@@ -639,8 +602,8 @@ templ CustomerSavingProductsPage(data CustomerSavingPageData, lang, dir string) 
 						</div>
 
 						<!-- Staged Items Table Container -->
-						<div class="table-container" style="max-height:260px; overflow-y:auto; border:1px solid var(--border); border-radius:var(--radius-xl);">
-							<table class="b2b-table" style="font-size:0.775rem; width:100%;">
+						<div class="table-container m-0" style="max-height:260px; overflow-y:auto;">
+							<table class="data-table m-0" style="font-size:0.775rem; width:100%;">
 								<thead style="position:sticky; top:0; background:var(--surface-sunken); z-index:10;">
 									<tr>
 										<th style="width:36px; text-align:center;">
@@ -953,7 +916,7 @@ templ CustomerSavingProductsPage(data CustomerSavingPageData, lang, dir string) 
 				html += '<span>👀 معاينة أعمدة الملف والبيانات الحقيقية:</span>';
 				html += '<span style="font-size:0.75rem; color:var(--text-muted);">أول ' + sampleRows.length + ' صفوف</span>';
 				html += '</div>';
-				html += '<div class="table-container" style="max-height:160px; overflow:auto; border-radius:var(--radius-md); border:1px solid var(--border);"><table class="b2b-table" style="font-size:0.75rem; width:100%;"><thead><tr>';
+				html += '<div class="table-container m-0" style="max-height:160px; overflow:auto;"><table class="data-table m-0" style="font-size:0.75rem; width:100%;"><thead><tr>';
 
 				headers.forEach((h, idx) => {
 					let tag = '';
@@ -1412,8 +1375,8 @@ templ CustomerOfferOrdersPage(orders []*commerce.Order, lang, dir string) {
 			if len(orders) == 0 {
 				@components.EmptyState(components.EmptyStateProps{Title: "لا توجد طلبات عروض مسجلة", Message: "تصفح قسم العروض واطلب الكميات المطلوبة للاستفادة من أعلى خصم متاح."})
 			} else {
-				<div class="table-container">
-					<table class="b2b-table">
+				<div class="table-container m-0">
+					<table class="data-table m-0">
 						<thead>
 							<tr>
 								<th>رقم الطلب</th>

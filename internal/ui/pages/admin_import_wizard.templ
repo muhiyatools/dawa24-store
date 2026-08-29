@@ -18,44 +18,55 @@ import (
 // AdminProductsImportPage is step one: the file, the strategy, and the switches.
 templ AdminProductsImportPage(lang, dir string, view ImportConfigureView) {
 	@layouts.AdminShell("استيراد وتحديث الكتالوج المعتمد | Master Catalog Ingestion Studio", "import", lang, dir) {
-		<!-- Header -->
-		@components.PageHeader(components.PageHeaderProps{
-			Title:    "استيراد وتحديث الكتالوج المركزي العام",
-			Subtitle: "معالجة ملفات Excel و CSV، التعرف الذكي على الأعمدة، واستكمال البيانات والأسماء العلمية بالذكاء الاصطناعي",
-		}) {
-			<div class="row-center">
-				<a href="/admin/products" class="btn btn-secondary btn-sm fw-700">
-					@components.IconLayers("icon-xs")
-					<span>العودة للأصناف المعتمدة</span>
-				</a>
-			</div>
-		}
-
-		<div class="wizard">
-			@wizardRail(StepConfigure)
-			if view.Fatal != "" {
-				@wizardFatal(view.Fatal, view.FatalDetail)
-			}
-			<form method="POST" action="/admin/products/import" enctype="multipart/form-data" hx-boost="false" id="import-form" onsubmit="handleImportSubmit()">
-				@importUploadCard()
-				<div class="card mb-0">
-					<div class="wiz-actions">
-						<span class="wiz-actions-note">
-							الخطوة التالية هي مراجعة أعمدة الملف ومعاينة الأصناف — لن يُحفظ أي صنف قبل تأكيدك.
-						</span>
-						<div class="row-center">
-							<a href="/admin/products" class="btn btn-ghost">إلغاء</a>
-							<button type="submit" id="import-submit-btn" class="btn btn-primary">
-								@components.IconUpload("icon-xs")
-								<span id="import-submit-text">قراءة الملف ومراجعة الأعمدة</span>
-							</button>
+		<div class="page-container">
+			<!-- Header -->
+			<div class="glass-panel p-6 mb-6">
+				<div class="flex-between items-center flex-wrap gap-4">
+					<div class="d-flex items-center gap-3">
+						<div class="user-avatar-badge text-xl">
+							📥
+						</div>
+						<div>
+							<h1 class="text-2xl font-black text-primary m-0">استيراد وتحديث الكتالوج المركزي العام</h1>
+							<p class="text-sm text-secondary m-0 mt-1">معالجة ملفات Excel و CSV، التعرف الذكي على الأعمدة، واستكمال البيانات والأسماء العلمية بالذكاء الاصطناعي</p>
 						</div>
 					</div>
+
+					<div class="d-flex items-center gap-2">
+						<a href="/admin/products" class="btn btn-secondary btn-sm font-bold text-xs gap-1">
+							@components.IconLayers("icon-xs")
+							<span>العودة للأصناف المعتمدة</span>
+						</a>
+					</div>
 				</div>
-			</form>
-			if len(view.Recent) > 0 {
-				@importHistoryCard(view.Recent)
-			}
+			</div>
+
+			<div class="wizard">
+				@wizardRail(StepConfigure)
+				if view.Fatal != "" {
+					@wizardFatal(view.Fatal, view.FatalDetail)
+				}
+				<form method="POST" action="/admin/products/import" enctype="multipart/form-data" hx-boost="false" id="import-form" onsubmit="handleImportSubmit()">
+					@importUploadCard()
+					<div class="glass-panel p-6 mb-6">
+						<div class="wiz-actions">
+							<span class="wiz-actions-note">
+								الخطوة التالية هي مراجعة أعمدة الملف ومعاينة الأصناف — لن يُحفظ أي صنف قبل تأكيدك.
+							</span>
+							<div class="row-center">
+								<a href="/admin/products" class="btn btn-ghost">إلغاء</a>
+								<button type="submit" id="import-submit-btn" class="btn btn-primary">
+									@components.IconUpload("icon-xs")
+									<span id="import-submit-text">قراءة الملف ومراجعة الأعمدة</span>
+								</button>
+							</div>
+						</div>
+					</div>
+				</form>
+				if len(view.Recent) > 0 {
+					@importHistoryCard(view.Recent)
+				}
+			</div>
 		</div>
 
 		<script>
@@ -259,10 +270,10 @@ templ importSwitch(toggle ImportToggle) {
 }
 
 templ importHistoryCard(sessions []*catalog.ImportSession) {
-	<div class="card mb-0">
+	<div class="glass-panel p-6 mb-6">
 		<h2 class="wiz-head">آخر عمليات الاستيراد</h2>
-		<div class="table-container">
-			<table class="b2b-table">
+		<div class="table-container m-0 mt-4">
+			<table class="data-table m-0">
 				<thead>
 					<tr>
 						<th>الملف</th>

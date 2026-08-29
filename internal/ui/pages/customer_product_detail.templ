@@ -10,87 +10,88 @@ import (
 
 templ CustomerProductDetail(product *catalog.Product, variants []*catalog.ProductVariant, offers []SupplierOffer, lang, dir string) {
 	@layouts.PublicShell(productTitle(product)+" | تفاصيل عرض التوريد", lang, dir) {
-		<div class="container" style="max-width:1240px; margin:1.5rem auto 4rem auto; display:flex; flex-direction:column; gap:1.75rem; padding:0 1rem;">
+		<div class="page-container">
 			
 			<!-- Breadcrumb Navigation -->
-			<nav style="display:flex; align-items:center; gap:0.5rem; font-size:0.85rem; color:var(--text-muted); flex-wrap:wrap;">
-				<a href="/" style="color:var(--text-secondary); text-decoration:none; font-weight:600;">الرئيسية</a>
+			<nav class="d-flex items-center gap-2 text-xs text-muted mb-4 flex-wrap">
+				<a href="/" class="text-secondary text-decoration-none font-bold">الرئيسية</a>
 				<span>/</span>
-				<a href="/catalog" style="color:var(--text-secondary); text-decoration:none; font-weight:600;">كتالوج عروض التوريد</a>
+				<a href="/catalog" class="text-secondary text-decoration-none font-bold">كتالوج عروض التوريد</a>
 				<span>/</span>
-				<span style="color:var(--text); font-weight:800;">{ productTitle(product) }</span>
+				<span class="text-primary font-black">{ productTitle(product) }</span>
 			</nav>
 
 			<!-- 1. Hero Variant Details Card -->
-			<div class="card" style="display:grid; grid-template-columns:320px 1fr 340px; gap:1.75rem; align-items:start; padding:2rem; background:var(--surface-raised); border-radius:var(--radius-2xl); border:1px solid var(--border); box-shadow:0 6px 24px rgba(0,0,0,0.04);">
+			<div class="glass-panel p-6 mb-6">
+				<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:2rem; align-items:start;">
 				
 				<!-- Col 1: Product Image Gallery -->
-				<div class="stack-md">
-					<div style="width:100%; height:290px; border-radius:var(--radius-xl); background:var(--surface-sunken); border:1px solid var(--border); display:flex; flex-direction:column; align-items:center; justify-content:center; position:relative; overflow:hidden; padding:1.5rem;">
-						<div style="position:absolute; top:12px; inset-inline-start:12px;">
-							<span class="badge badge-emerald" style="font-weight:800; font-size:0.725rem;">
+				<div class="d-flex flex-col gap-4">
+					<div class="p-6 rounded-2xl bg-surface-sunken border d-flex flex-col items-center justify-center position-relative overflow-hidden" style="height:280px;">
+						<div class="position-absolute" style="top:12px; inset-inline-start:12px;">
+							<span class="badge badge-emerald text-xs font-bold">
 								@components.IconCheck("icon-xs")
 								<span>صنف معتمد 100%</span>
 							</span>
 						</div>
 
 						if product.Image != "" {
-							<img src={ product.Image } alt={ productTitle(product) } style="max-height:220px; max-width:100%; object-fit:contain;" />
+							<img src={ product.Image } alt={ productTitle(product) } style="max-height:200px; max-width:100%; object-fit:contain;" />
 						} else {
-							<div style="width:90px; height:90px; border-radius:var(--radius-2xl); background:var(--primary-subtle); color:var(--primary-700); display:flex; align-items:center; justify-content:center; font-size:2.5rem; margin-bottom:0.75rem;">
+							<div class="user-avatar-badge text-3xl mb-3" style="width:80px; height:80px;">
 								💊
 							</div>
-							<div style="font-weight:800; font-size:0.95rem; color:var(--text);">العبوة الرسمية المسجلة</div>
+							<div class="font-extrabold text-sm text-primary">العبوة الرسمية المسجلة</div>
 							<span class="text-xs text-muted">مطابق لمعايير هيئة الدواء</span>
 						}
 					</div>
 				</div>
 
 				<!-- Col 2: Product & Variant Specifications -->
-				<div class="stack-lg">
+				<div class="d-flex flex-col gap-4">
 					<div>
 						<!-- Dosage Badge -->
 						if product.DosageForm != "" {
-							<span class="badge badge-sky" style="font-size:0.75rem; font-weight:800; margin-bottom:0.5rem; display:inline-block;">
+							<span class="badge badge-sky text-xs font-bold mb-2">
 								{ product.DosageForm }
 							</span>
 						}
 
-						<h1 style="font-size:1.65rem; font-weight:900; color:var(--text); margin:0 0 0.35rem; line-height:1.35;">
+						<h1 class="text-2xl font-black text-primary m-0 mb-1 leading-tight">
 							{ productTitle(product) }
 						</h1>
 						
 						if product.Name["en"] != "" && product.Name["en"] != product.Name["ar"] {
-							<div style="font-size:0.875rem; color:var(--text-muted); font-weight:600; margin-bottom:0.75rem;" dir="ltr">
+							<div class="text-sm text-muted font-mono mb-3" dir="ltr">
 								{ product.Name["en"] }
 							</div>
 						}
 					</div>
 
 					<!-- Master Attributes Grid -->
-					<div style="background:var(--surface-sunken); border:1px solid var(--border); border-radius:var(--radius-xl); padding:1.25rem; display:grid; grid-template-columns:1fr 1fr; gap:0.85rem; font-size:0.825rem;">
+					<div class="p-4 rounded-xl bg-surface-sunken border text-xs" style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
 						if product.ScientificName != "" {
 							<div>
-								<span style="color:var(--text-muted); display:block; font-size:0.75rem; margin-bottom:2px;">الاسم العلمي / التركيز:</span>
-								<strong class="text-primary">{ product.ScientificName }</strong>
+								<span class="text-muted d-block text-xs mb-1">الاسم العلمي / التركيز:</span>
+								<strong class="text-primary font-bold">{ product.ScientificName }</strong>
 							</div>
 						}
 						if product.Active != "" {
 							<div>
-								<span style="color:var(--text-muted); display:block; font-size:0.75rem; margin-bottom:2px;">المادة الفعالة:</span>
-								<strong class="text-primary">{ product.Active }</strong>
+								<span class="text-muted d-block text-xs mb-1">المادة الفعالة:</span>
+								<strong class="text-primary font-bold">{ product.Active }</strong>
 							</div>
 						}
 						if product.ManufacturingCompanies != "" {
 							<div>
-								<span style="color:var(--text-muted); display:block; font-size:0.75rem; margin-bottom:2px;">الشركة المصنعة:</span>
-								<strong class="text-primary">{ product.ManufacturingCompanies }</strong>
+								<span class="text-muted d-block text-xs mb-1">الشركة المصنعة:</span>
+								<strong class="text-primary font-bold">{ product.ManufacturingCompanies }</strong>
 							</div>
 						}
 						if product.Barcode != "" {
 							<div>
-								<span style="color:var(--text-muted); display:block; font-size:0.75rem; margin-bottom:2px;">الباركود الدولي:</span>
-								<strong style="color:var(--text); font-family:var(--font-mono, monospace);">{ product.Barcode }</strong>
+								<span class="text-muted d-block text-xs mb-1">الباركود الدولي:</span>
+								<strong class="text-primary font-mono">{ product.Barcode }</strong>
 							</div>
 						}
 					</div>
@@ -98,13 +99,13 @@ templ CustomerProductDetail(product *catalog.Product, variants []*catalog.Produc
 					<!-- Variants Packaging Strip -->
 					if len(variants) > 0 {
 						<div>
-							<label style="font-size:0.825rem; font-weight:800; color:var(--text); display:block; margin-bottom:0.5rem;">
+							<label class="text-xs font-extrabold text-primary d-block mb-2">
 								العبوات والتنويعات المسجلة:
 							</label>
-							<div style="display:flex; flex-wrap:wrap; gap:0.5rem;">
+							<div class="d-flex flex-wrap gap-2">
 								for _, v := range variants {
-									<div style="padding:0.5rem 0.85rem; border-radius:var(--radius-lg); background:var(--surface-sunken); border:1px solid var(--border); font-size:0.8rem; display:flex; align-items:center; gap:0.5rem;">
-										<span class="fw-700 text-primary">
+									<div class="p-2 px-3 rounded-lg bg-surface-sunken border text-xs d-flex items-center gap-2">
+										<span class="font-bold text-primary">
 											if v.Name["ar"] != "" {
 												{ v.Name["ar"] }
 											} else {
@@ -112,7 +113,7 @@ templ CustomerProductDetail(product *catalog.Product, variants []*catalog.Produc
 											}
 										</span>
 										if v.Price.IsPositive() {
-											<span style="color:var(--primary-600); font-weight:800; font-family:var(--font-mono, monospace);">
+											<span class="text-brand font-black tabular-nums font-mono">
 												{ v.Price.String() } ج.م
 											</span>
 										}
@@ -124,20 +125,20 @@ templ CustomerProductDetail(product *catalog.Product, variants []*catalog.Produc
 				</div>
 
 				<!-- Col 3: Primary Purchase Card (Best Offer) -->
-				<div style="background:var(--surface-sunken); border:1px solid var(--border); border-radius:var(--radius-xl); padding:1.5rem; display:flex; flex-direction:column; gap:1.25rem;">
+				<div class="p-5 rounded-2xl bg-surface-sunken border d-flex flex-col gap-4">
 					if len(offers) > 0 {
 						<!-- Supplier Info -->
-						<div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--border); padding-bottom:0.85rem;">
-							<div class="row-center-sm">
-								<div style="width:34px; height:34px; border-radius:var(--radius-md); background:rgba(16,185,129,0.12); color:var(--primary-700); display:flex; align-items:center; justify-content:center; font-size:1.1rem;">
+						<div class="flex-between items-center pb-3 border-b">
+							<div class="d-flex items-center gap-2">
+								<div class="user-avatar-badge text-sm">
 									🏢
 								</div>
 								<div>
-									<div style="font-size:0.875rem; font-weight:800; color:var(--text);">
+									<div class="text-xs font-extrabold text-primary">
 										{ offers[0].SupplierName }
 									</div>
 									if offers[0].BranchName != "" {
-										<div style="font-size:0.725rem; color:var(--text-muted);">
+										<div class="text-xs text-muted">
 											{ offers[0].BranchName }
 										</div>
 									}
@@ -145,30 +146,30 @@ templ CustomerProductDetail(product *catalog.Product, variants []*catalog.Produc
 							</div>
 
 							if offers[0].IsVerified {
-								<span class="badge badge-emerald" style="font-size:0.7rem; font-weight:700;">معتمد ✓</span>
+								<span class="badge badge-emerald text-xs font-bold">معتمد ✓</span>
 							}
 						</div>
 
 						<!-- Pricing Block -->
 						<div>
-							<div style="font-size:0.75rem; color:var(--text-muted); font-weight:700; margin-bottom:0.25rem;">
+							<div class="text-xs text-muted font-bold mb-1">
 								سعر التوريد للصيدلية:
 							</div>
-							<div style="display:flex; align-items:baseline; gap:0.5rem; flex-wrap:wrap;">
-								<span class="tabular-nums" style="font-size:1.75rem; font-weight:900; color:var(--primary-600); font-family:var(--font-mono, monospace);">
+							<div class="d-flex items-baseline gap-2 flex-wrap">
+								<span class="tabular-nums text-2xl font-black text-brand">
 									{ offers[0].Price.String() }
 								</span>
-								<span style="font-size:0.9rem; font-weight:700; color:var(--text-muted);">ج.م / عبوة</span>
+								<span class="text-xs font-bold text-secondary">ج.م / عبوة</span>
 
 								if offers[0].OldPrice.IsPositive() && offers[0].OldPrice.Minor() > offers[0].Price.Minor() {
-									<span style="font-size:0.85rem; color:var(--text-muted); text-decoration:line-through; font-family:var(--font-mono, monospace);">
+									<span class="text-xs text-muted text-decoration-line-through font-mono">
 										{ offers[0].OldPrice.String() } ج.م
 									</span>
 								}
 							</div>
 							if offers[0].DiscountBPS > 0 {
-								<div style="margin-top:0.35rem;">
-									<span class="badge badge-emerald" style="font-weight:800; font-size:0.725rem;">
+								<div class="mt-1">
+									<span class="badge badge-emerald text-xs font-extrabold">
 										{ fmt.Sprintf("وفرت %s (خصم %.1f%%)", offers[0].DiscountAmount.String(), float64(offers[0].DiscountBPS)/100.0) }
 									</span>
 								</div>
@@ -176,23 +177,23 @@ templ CustomerProductDetail(product *catalog.Product, variants []*catalog.Produc
 						</div>
 
 						<!-- Stock and Limits -->
-						<div style="font-size:0.8rem; display:flex; flex-direction:column; gap:0.4rem; border-top:1px solid var(--border); border-bottom:1px solid var(--border); padding:0.75rem 0;">
-							<div style="display:flex; justify-content:space-between;">
+						<div class="text-xs d-flex flex-col gap-2 py-3 border-t border-b">
+							<div class="flex-between">
 								<span class="text-muted">المخزون المتاح:</span>
 								if offers[0].AvailableStock > 0 {
-									<strong style="color:var(--primary-600);">{ fmt.Sprintf("%d عبوة", offers[0].AvailableStock) }</strong>
+									<strong class="text-brand font-bold">{ fmt.Sprintf("%d عبوة", offers[0].AvailableStock) }</strong>
 								} else {
-									<strong class="text-danger">غير متوفر</strong>
+									<strong class="text-danger font-bold">غير متوفر</strong>
 								}
 							</div>
-							<div style="display:flex; justify-content:space-between;">
+							<div class="flex-between">
 								<span class="text-muted">الحد الأدنى للطلب:</span>
-								<strong>{ fmt.Sprintf("%d عبوة", max(1, offers[0].MinOrderQty)) }</strong>
+								<strong class="text-primary font-bold">{ fmt.Sprintf("%d عبوة", max(1, offers[0].MinOrderQty)) }</strong>
 							</div>
 							if offers[0].ExpiryDate != "" {
-								<div style="display:flex; justify-content:space-between;">
+								<div class="flex-between">
 									<span class="text-muted">تاريخ الصلاحية:</span>
-									<strong style="font-family:var(--font-mono, monospace);">{ offers[0].ExpiryDate }</strong>
+									<strong class="font-mono text-primary">{ offers[0].ExpiryDate }</strong>
 								</div>
 							}
 						</div>
@@ -200,12 +201,12 @@ templ CustomerProductDetail(product *catalog.Product, variants []*catalog.Produc
 						<!-- Coverage Banner -->
 						<div>
 							if offers[0].IsCovered {
-								<div style="padding:0.6rem 0.75rem; border-radius:var(--radius-lg); background:rgba(16,185,129,0.1); border:1px solid rgba(16,185,129,0.25); color:var(--primary-700); font-size:0.8rem; font-weight:700; display:flex; align-items:center; gap:0.4rem;">
+								<div class="p-2 px-3 rounded-lg bg-emerald-subtle border border-emerald text-emerald text-xs font-bold d-flex items-center gap-2">
 									<span>🚚</span>
 									<span>مشمول بالتغطية والتوصيل لفرعك</span>
 								</div>
 							} else {
-								<div style="padding:0.6rem 0.75rem; border-radius:var(--radius-lg); background:rgba(239,68,68,0.1); border:1px solid rgba(239,68,68,0.25); color:var(--danger-text); font-size:0.8rem; font-weight:700; display:flex; align-items:center; gap:0.4rem;">
+								<div class="p-2 px-3 rounded-lg bg-danger-subtle border border-danger text-danger text-xs font-bold d-flex items-center gap-2">
 									<span>⚠️</span>
 									<span>
 										if offers[0].CoverageReason != "" {
@@ -220,79 +221,81 @@ templ CustomerProductDetail(product *catalog.Product, variants []*catalog.Produc
 
 						<!-- Add to Cart Form -->
 						if offers[0].CanAddToCart {
-							<form method="POST" action="/cart/add" style="display:flex; flex-direction:column; gap:0.75rem; margin:0;">
+							<form method="POST" action="/cart/add" class="d-flex flex-col gap-3">
 								<input type="hidden" name="variant_id" value={ fmt.Sprintf("%d", offers[0].VariantID) } />
 								<input type="hidden" name="product_id" value={ fmt.Sprintf("%d", product.ID) } />
 								<input type="hidden" name="organization_id" value={ fmt.Sprintf("%d", offers[0].SupplierID) } />
 								<input type="hidden" name="vendor_org_id" value={ fmt.Sprintf("%d", offers[0].SupplierID) } />
 								<input type="hidden" name="offer_price" value={ offers[0].Price.String() } />
 								
-								<div class="row-center-sm">
-									<label style="font-size:0.8rem; font-weight:700; color:var(--text);">الكمية:</label>
+								<div class="d-flex items-center gap-2">
+									<label class="text-xs font-bold text-secondary">الكمية:</label>
 									<input
 										type="number"
 										name="qty"
 										value={ fmt.Sprintf("%d", max(1, offers[0].MinOrderQty)) }
 										min={ fmt.Sprintf("%d", max(1, offers[0].MinOrderQty)) }
 										max={ fmt.Sprintf("%d", max(1, offers[0].AvailableStock)) }
-										class="form-input tabular-nums"
-										style="flex:1; height:42px; text-align:center; font-weight:800; font-family:var(--font-mono, monospace); border-radius:var(--radius-lg);"
+										class="form-input text-xs tabular-nums text-center font-bold font-mono flex-1"
 									/>
 								</div>
 
-								<button type="submit" class="btn btn-primary" style="width:100%; font-weight:800; height:44px; border-radius:var(--radius-lg); font-size:0.95rem; justify-content:center;">
+								<button type="submit" class="btn btn-primary font-bold text-xs w-full py-2 gap-1">
 									@components.IconPlus("icon-sm")
 									<span>أضف إلى سلة المشتريات</span>
 								</button>
 							</form>
 						} else {
-							<button type="button" disabled class="btn btn-secondary" style="width:100%; height:44px; border-radius:var(--radius-lg); font-weight:700; opacity:0.6; cursor:not-allowed; justify-content:center;">
+							<button type="button" disabled class="btn btn-secondary text-xs w-full py-2 font-bold cursor-not-allowed">
 								غير متاح للطلب المباشر
 							</button>
 						}
 					} else {
-						<div style="text-align:center; padding:2rem 1rem; color:var(--text-muted);">
-							<div style="font-size:2rem; margin-bottom:0.5rem;">📦</div>
-							<div class="fw-700 text-primary">لا توجد عروض توريد نشطة</div>
-							<p style="font-size:0.8rem; margin:0.25rem 0 0;">
+						<div class="text-center p-6 text-muted">
+							<div class="text-3xl mb-2">📦</div>
+							<div class="font-bold text-xs text-primary">لا توجد عروض توريد نشطة</div>
+							<p class="text-xs text-secondary mt-1">
 								لم يقم أي مورد بإدراج عروض لهذا الصنف حالياً.
 							</p>
 						</div>
 					}
 				</div>
 
+				</div>
 			</div>
 
 			<!-- 2. Other Supplier Offers Comparison Table -->
 			if len(offers) > 1 {
-				<div class="card" style="padding:1.75rem; background:var(--surface-raised); border-radius:var(--radius-2xl); border:1px solid var(--border); box-shadow:0 6px 24px rgba(0,0,0,0.03);">
-					<h3 style="font-size:1.25rem; font-weight:900; color:var(--text); margin:0 0 1.25rem; display:flex; align-items:center; gap:0.5rem;">
-						<span>عروض الموردين الآخرين لنفس الصنف</span>
-						<span class="badge badge-slate text-xs">{ fmt.Sprintf("%d موردين", len(offers)) }</span>
-					</h3>
+				<div class="glass-panel p-0 mb-6 overflow-hidden">
+					<div class="p-4 px-6 border-b flex-between items-center">
+						<h3 class="text-base font-extrabold text-primary m-0 d-flex items-center gap-2">
+							<span>عروض الموردين الآخرين لنفس الصنف</span>
+							<span class="badge badge-slate text-xs font-bold">{ fmt.Sprintf("%d موردين", len(offers)) }</span>
+						</h3>
+					</div>
 
-					<div class="table-container" style="border:1px solid var(--border); border-radius:var(--radius-xl); overflow:hidden;">
-						<table class="b2b-table" style="width:100%; border-collapse:collapse; text-align:start;">
+					<div class="table-container m-0">
+						<table class="data-table m-0">
 							<thead>
-								<tr style="background:var(--surface-sunken); border-bottom:1px solid var(--border); font-size:0.8rem; color:var(--text-muted); text-transform:uppercase;">
-									<th style="padding:1rem 1.25rem; font-weight:800;">المورد والفرع</th>
-									<th style="padding:1rem; font-weight:800;">سعر الجمهور</th>
-									<th style="padding:1rem; font-weight:800; text-align:center;">نسبة الخصم</th>
-									<th style="padding:1rem; font-weight:800;">السعر بعد الخصم</th>
-									<th style="padding:1rem; font-weight:800;">المخزون المتاح</th>
-									<th style="padding:1rem; font-weight:800;">حالة التغطية</th>
-									<th style="padding:1rem 1.25rem; font-weight:800; text-align:end;">الشراء</th>
+								<tr>
+									<th>المورد والفرع</th>
+									<th class="text-end">سعر الجمهور</th>
+									<th class="text-center">نسبة الخصم</th>
+									<th class="text-end">السعر بعد الخصم</th>
+									<th>المخزون المتاح</th>
+									<th class="text-center">حالة التغطية</th>
+									<th class="text-center">الشراء</th>
 								</tr>
 							</thead>
-							<tbody class="text-sm">
+							<tbody>
 								for _, off := range offers {
-									<tr style="border-bottom:1px solid var(--border);" class="hover-row">
+									<tr>
 										<!-- Supplier -->
-										<td class="p-card-sm">
-											<div class="fw-800 text-primary">
+										<td>
+											<div class="font-bold text-primary text-xs">
 												{ off.SupplierName }
 												if off.IsVerified {
-													<span style="color:var(--primary-600); font-size:0.75rem; margin-inline-start:0.25rem;">✓</span>
+													<span class="text-success ms-1">✓</span>
 												}
 											</div>
 											if off.BranchName != "" {
@@ -303,7 +306,7 @@ templ CustomerProductDetail(product *catalog.Product, variants []*catalog.Produc
 										</td>
 
 										<!-- Public Price (سعر الجمهور) -->
-										<td style="padding:1rem; font-weight:700; color:var(--text); font-family:var(--font-mono, monospace); font-size:0.95rem;">
+										<td class="text-end tabular-nums font-bold text-xs text-primary">
 											if off.OldPrice.IsPositive() {
 												{ off.OldPrice.String() } ج.م
 											} else {
@@ -312,9 +315,9 @@ templ CustomerProductDetail(product *catalog.Product, variants []*catalog.Produc
 										</td>
 
 										<!-- Discount Percentage (نسبة الخصم %) -->
-										<td class="p-md text-center">
+										<td class="text-center">
 											if off.DiscountBPS > 0 {
-												<span class="badge badge-emerald text-xs fw-800">
+												<span class="badge badge-emerald text-xs font-bold">
 													{ fmt.Sprintf("%.1f%%", float64(off.DiscountBPS)/100.0) }
 												</span>
 											} else {
@@ -323,30 +326,30 @@ templ CustomerProductDetail(product *catalog.Product, variants []*catalog.Produc
 										</td>
 
 										<!-- Net Price (السعر بعد الخصم) -->
-										<td style="padding:1rem; font-weight:900; color:var(--primary-600); font-family:var(--font-mono, monospace); font-size:1.05rem;">
+										<td class="text-end tabular-nums font-black text-brand text-xs">
 											{ off.Price.String() } ج.م
 										</td>
 
 										<!-- Stock -->
-										<td class="p-md">
+										<td class="text-xs">
 											if off.AvailableStock > 0 {
-												<span style="color:var(--primary-600); font-weight:700;">{ fmt.Sprintf("%d عبوة", off.AvailableStock) }</span>
+												<span class="text-brand font-bold">{ fmt.Sprintf("%d عبوة", off.AvailableStock) }</span>
 											} else {
-												<span style="color:var(--danger-text); font-weight:700;">نفد الرصيد</span>
+												<span class="text-danger font-bold">نفد الرصيد</span>
 											}
 										</td>
 
 										<!-- Coverage -->
-										<td class="p-md">
+										<td class="text-center">
 											if off.IsCovered {
-												<span class="badge badge-emerald" style="font-size:0.725rem; font-weight:700;">مشمول بالتغطية</span>
+												<span class="badge badge-emerald text-xs font-bold">مشمول بالتغطية</span>
 											} else {
-												<span class="badge badge-rose" style="font-size:0.725rem; font-weight:700;">خارج التغطية</span>
+												<span class="badge badge-rose text-xs font-bold">خارج التغطية</span>
 											}
 										</td>
 
 										<!-- Action -->
-										<td style="padding:1rem 1.25rem; text-align:end;">
+										<td class="text-center">
 											if off.CanAddToCart {
 												<form method="POST" action="/cart/add" style="display:inline-flex; gap:0.35rem; margin:0;">
 													<input type="hidden" name="variant_id" value={ fmt.Sprintf("%d", off.VariantID) } />

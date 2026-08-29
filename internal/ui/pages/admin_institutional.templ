@@ -94,105 +94,98 @@ templ AdminInstitutional(lang, dir string, items []*org.InstitutionalWork, allWo
 		>
 			
 			<!-- Top Header & Metrics Bar -->
-			<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; gap:1rem; flex-wrap:wrap;">
-				<div class="row-center">
-					<div style="width:46px; height:46px; border-radius:var(--radius-xl); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center;">
-						@components.IconBuilding("icon-md")
+			<div class="glass-panel p-6 mb-6">
+				<div class="flex-between items-center flex-wrap gap-4">
+					<div class="d-flex items-center gap-3">
+						<div class="user-avatar-badge text-xl">
+							🏛️
+						</div>
+						<div>
+							<h1 class="text-2xl font-black text-primary m-0">
+								الهيكل المؤسسي والأنشطة التجارية
+							</h1>
+							<p class="text-sm text-secondary m-0 mt-1">
+								إدارة الشجرة الهيكلية للكيانات (جملة، مصنع، صيدلية، خدمات) وتحديد شبكة الاتصالات والتبادل التجاري المسموح بها
+							</p>
+						</div>
 					</div>
-					<div>
-						<h2 class="card-title" style="margin:0; font-size:1.55rem; font-weight:800;">
-							الهيكل المؤسسي والأنشطة التجارية
-						</h2>
-						<p style="font-size:0.875rem; color:var(--text-secondary); margin:0.25rem 0 0 0;">
-							إدارة الشجرة الهيكلية للكيانات (جملة، مصنع، صيدلية، خدمات) وتحديد شبكة الاتصالات والتبادل التجاري المسموح بها
-						</p>
-					</div>
-				</div>
 
-				<div class="row-center">
-					<button type="button" @click="openNewModal()" class="btn btn-primary" style="font-weight:800; padding:0.65rem 1.25rem; gap:0.4rem;">
-						@components.IconPlus("icon-xs")
-						<span>إضافة كيان مؤسسي جديد</span>
-					</button>
+					<div class="row-center">
+						<button type="button" @click="openNewModal()" class="btn btn-primary font-bold text-xs gap-1">
+							@components.IconPlus("icon-xs")
+							<span>إضافة كيان مؤسسي جديد</span>
+						</button>
+					</div>
 				</div>
 			</div>
 
 			<!-- Summary Stats Strip -->
-			<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:1rem; margin-bottom:1.5rem;">
-				<div class="card" style="padding:1.25rem; background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-xl); margin-bottom:0;">
-					<div style="display:flex; align-items:center; justify-content:space-between;">
-						<span style="font-size:0.8rem; font-weight:700; color:var(--text-secondary);">إجمالي الكيانات المؤسسية</span>
-						<div style="width:32px; height:32px; border-radius:var(--radius-md); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center;">
-							@components.IconBuilding("icon-xs")
-						</div>
+			<div class="dashboard-stat-grid mb-6">
+				<div class="stat-card-3d">
+					<div class="flex-between items-center">
+						<span class="text-xs font-bold text-muted">إجمالي الكيانات المؤسسية</span>
+						<span class="text-brand">@components.IconBuilding("icon-sm")</span>
 					</div>
-					<div style="font-size:1.6rem; font-weight:900; color:var(--text); margin-top:0.5rem;">
+					<div class="tabular-nums text-2xl font-black text-primary mt-2">
 						{ fmt.Sprintf("%d", len(allWorks)) }
 					</div>
 				</div>
 
-				<div class="card" style="padding:1.25rem; background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-xl); margin-bottom:0;">
-					<div style="display:flex; align-items:center; justify-content:space-between;">
-						<span style="font-size:0.8rem; font-weight:700; color:var(--text-secondary);">الكيانات النشطة والمفعلة</span>
-						<div style="width:32px; height:32px; border-radius:var(--radius-md); background:rgba(46,204,113,0.12); color:#2ecc71; display:flex; align-items:center; justify-content:center;">
-							@components.IconCheck("icon-xs")
-						</div>
+				<div class="stat-card-3d">
+					<div class="flex-between items-center">
+						<span class="text-xs font-bold text-muted">الكيانات النشطة والمفعلة</span>
+						<span class="text-success">@components.IconCheck("icon-sm")</span>
 					</div>
-					<div style="font-size:1.6rem; font-weight:900; color:#2ecc71; margin-top:0.5rem;">
+					<div class="tabular-nums text-2xl font-black text-success mt-2">
 						{ fmt.Sprintf("%d", countActiveWorks(allWorks)) }
 					</div>
 				</div>
 
-				<div class="card" style="padding:1.25rem; background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-xl); margin-bottom:0;">
-					<div style="display:flex; align-items:center; justify-content:space-between;">
-						<span style="font-size:0.8rem; font-weight:700; color:var(--text-secondary);">الفئات والقطاعات الرئيسية</span>
-						<div style="width:32px; height:32px; border-radius:var(--radius-md); background:rgba(0,180,216,0.12); color:#00b4d8; display:flex; align-items:center; justify-content:center;">
-							@components.IconLayers("icon-xs")
-						</div>
+				<div class="stat-card-3d">
+					<div class="flex-between items-center">
+						<span class="text-xs font-bold text-muted">الفئات والقطاعات الرئيسية</span>
+						<span class="text-cyan">@components.IconLayers("icon-sm")</span>
 					</div>
-					<div style="font-size:1.6rem; font-weight:900; color:#00b4d8; margin-top:0.5rem;">
+					<div class="tabular-nums text-2xl font-black text-cyan mt-2">
 						{ fmt.Sprintf("%d", len(items)) }
 					</div>
 				</div>
 
-				<div class="card" style="padding:1.25rem; background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-xl); margin-bottom:0;">
-					<div style="display:flex; align-items:center; justify-content:space-between;">
-						<span style="font-size:0.8rem; font-weight:700; color:var(--text-secondary);">مسارات الاتصال التجاري</span>
-						<div style="width:32px; height:32px; border-radius:var(--radius-md); background:rgba(155,93,229,0.12); color:#9b5de5; display:flex; align-items:center; justify-content:center;">
-							@components.IconTruck("icon-xs")
-						</div>
+				<div class="stat-card-3d">
+					<div class="flex-between items-center">
+						<span class="text-xs font-bold text-muted">مسارات الاتصال التجاري</span>
+						<span class="text-purple">@components.IconTruck("icon-sm")</span>
 					</div>
-					<div style="font-size:1.6rem; font-weight:900; color:#9b5de5; margin-top:0.5rem;">
+					<div class="tabular-nums text-2xl font-black text-purple mt-2">
 						{ fmt.Sprintf("%d", countTotalConnections(allWorks)) }
 					</div>
 				</div>
 			</div>
 
 			<!-- Search & Filter Controls -->
-			<div class="card" style="padding:1rem 1.25rem; background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-xl); margin-bottom:1.25rem; display:flex; justify-content:space-between; align-items:center; gap:1rem; flex-wrap:wrap;">
-				<div style="display:flex; align-items:center; gap:0.75rem; flex:1; max-width:480px;">
+			<div class="glass-panel p-4 mb-6 flex-between items-center gap-4 flex-wrap">
+				<div class="d-flex items-center gap-3 flex-1" style="max-width:480px;">
 					<input
 						type="text"
 						x-model="searchQuery"
 						placeholder="بحث باسم الكيان أو النشاط (عربي / إنجليزي)..."
-						class="form-input"
-						style="padding:0.55rem 1rem;"
+						class="form-input text-xs"
 					/>
 				</div>
 
-				<div class="row-center-sm">
+				<div class="cb-tabs-nav m-0">
 					<button
 						type="button"
-						class="btn btn-sm"
-						:class="statusFilter === 'all' ? 'btn-primary' : 'btn-secondary'"
+						class="cb-tab-btn"
+						:class="{ 'active': statusFilter === 'all' }"
 						@click="statusFilter = 'all'"
 					>
 						الكل ({ fmt.Sprintf("%d", len(allWorks)) })
 					</button>
 					<button
 						type="button"
-						class="btn btn-sm"
-						:class="statusFilter === 'active' ? 'btn-primary' : 'btn-secondary'"
+						class="cb-tab-btn"
+						:class="{ 'active': statusFilter === 'active' }"
 						@click="statusFilter = 'active'"
 					>
 						النشطة فقط ({ fmt.Sprintf("%d", countActiveWorks(allWorks)) })
@@ -200,10 +193,10 @@ templ AdminInstitutional(lang, dir string, items []*org.InstitutionalWork, allWo
 				</div>
 			</div>
 
-			<!-- Main Hierarchy Table Panel (Simplified & De-cluttered) -->
-			<div class="card" style="padding:0; overflow:hidden; background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-2xl); box-shadow:var(--shadow-sm); margin-bottom:0;">
-				<div class="table-container">
-					<table class="b2b-table" style="width:100%; border-collapse:collapse;">
+			<!-- Main Hierarchy Table Panel -->
+			<div class="glass-panel p-0 mb-6 overflow-hidden">
+				<div class="table-container m-0">
+					<table class="data-table m-0">
 						<thead>
 							<tr style="background:var(--surface); border-bottom:1px solid var(--border); text-align:start;">
 								<th style="padding:1rem 1.25rem; font-size:0.8rem; font-weight:800; color:var(--text-secondary);">الكيان والنشاط التجاري</th>

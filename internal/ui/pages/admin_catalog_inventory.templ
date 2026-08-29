@@ -60,65 +60,65 @@ templ AdminProductDetailPage(p *catalog.Product, lang, dir string) {
 // AdminProductChildrenPage renders vendor variant listings with real database structure.
 templ AdminProductChildrenPage(data AdminProductChildrenData, lang, dir string) {
 	@layouts.AdminShell("أصناف الموردين وعروض التوريد", "product_child", lang, dir) {
-		<div class="stack-lg">
+		<div class="page-container">
 			
 			<!-- Header Card -->
-			<div class="card mb-0">
-				<div style="display:flex; justify-content:space-between; align-items:center; gap:1rem; flex-wrap:wrap;">
-					<div class="row-center-sm">
-						@components.IconLayers("icon-lg")
+			<div class="glass-panel p-6 mb-6">
+				<div class="flex-between items-center flex-wrap gap-4">
+					<div class="d-flex items-center gap-3">
+						<div class="user-avatar-badge text-xl">
+							📦
+						</div>
 						<div>
-							<h2 class="card-title" style="margin:0; font-size:1.35rem;">
+							<h1 class="text-2xl font-black text-primary m-0">
 								أصناف الموردين وعروض الفروع ({ fmt.Sprintf("%d", len(data.Items)) })
-							</h2>
-							<p style="font-size:0.875rem; color:var(--neutral-500); margin-top:0.25rem; margin-bottom:0;">
-								متابعة أصناف الموردين والشركات، الأسعار والخصومات، والمخزون الحي بالمخازن.
+							</h1>
+							<p class="text-sm text-secondary m-0 mt-1">
+								متابعة أصناف الموردين والشركات، الأسعار والخصومات، والمخزون الحي بالمخازن
 							</p>
 						</div>
 					</div>
 
-					<div style="display:flex; gap:0.5rem; align-items:center;">
-						<a href="/admin/product-child" class={ "btn btn-sm", templ.KV("btn-primary", data.StatusFilter == "" || data.StatusFilter == "all"), templ.KV("btn-secondary", data.StatusFilter != "" && data.StatusFilter != "all") }>
+					<div class="d-flex items-center gap-2">
+						<a href="/admin/product-child" class={ "btn btn-sm font-bold text-xs", templ.KV("btn-primary", data.StatusFilter == "" || data.StatusFilter == "all"), templ.KV("btn-secondary", data.StatusFilter != "" && data.StatusFilter != "all") }>
 							<span>الكل</span>
 						</a>
-						<a href="/admin/product-child?status=active" class={ "btn btn-sm", templ.KV("btn-primary", data.StatusFilter == "active"), templ.KV("btn-secondary", data.StatusFilter != "active") }>
+						<a href="/admin/product-child?status=active" class={ "btn btn-sm font-bold text-xs", templ.KV("btn-primary", data.StatusFilter == "active"), templ.KV("btn-secondary", data.StatusFilter != "active") }>
 							<span>النشطة</span>
 						</a>
-						<a href="/admin/product-child?status=inactive" class={ "btn btn-sm", templ.KV("btn-primary", data.StatusFilter == "inactive"), templ.KV("btn-secondary", data.StatusFilter != "inactive") }>
+						<a href="/admin/product-child?status=inactive" class={ "btn btn-sm font-bold text-xs", templ.KV("btn-primary", data.StatusFilter == "inactive"), templ.KV("btn-secondary", data.StatusFilter != "inactive") }>
 							<span>الموقوفة</span>
 						</a>
 					</div>
 				</div>
 
 				<!-- Search Toolbar -->
-				<form method="GET" action="/admin/product-child" style="margin-top:1rem; display:flex; gap:0.75rem;">
+				<form method="GET" action="/admin/product-child" class="d-flex gap-3 items-center flex-wrap mt-6 pt-4 border-t">
 					<input type="hidden" name="status" value={ data.StatusFilter } />
-					<div class="search-input-group flex-1">
-						<span class="search-icon">
-							@components.IconSearch("icon-sm")
-						</span>
+					<div class="flex-1" style="min-width:260px;">
 						<input
 							type="text"
 							name="q"
 							value={ data.SearchQuery }
-							class="form-input search-input"
+							class="form-input text-xs w-full"
 							placeholder="البحث باسم الصنف، SKU، الباركود، أو رقم التشغيلة..."
 						/>
 					</div>
-					<button type="submit" class="btn btn-primary fw-700">بحث</button>
+					<button type="submit" class="btn btn-primary btn-sm font-bold text-xs px-3">بحث</button>
 				</form>
 			</div>
 
 			<!-- Variants Table -->
-			<div class="card" style="margin-bottom:0; overflow:visible;">
+			<div class="glass-panel p-0 mb-6 overflow-hidden">
 				if len(data.Items) == 0 {
-					@components.EmptyState(components.EmptyStateProps{
-						Title:   "لا توجد أصناف موردين مسجلة",
-						Message: "لم يقم الموردون بتسجيل أصناف أو عروض توريد مطابقة لبحثك بعد.",
-					})
+					<div class="p-8 text-center empty-state-glass">
+						<div class="text-4xl mb-3">📦</div>
+						<h3 class="text-lg font-black text-primary mb-2">لا توجد أصناف موردين مسجلة</h3>
+						<p class="text-sm text-secondary max-w-md mx-auto">لم يقم الموردون بتسجيل أصناف أو عروض توريد مطابقة لبحثك بعد.</p>
+					</div>
 				} else {
-					<div class="table-container overflow-visible">
-						<table class="b2b-table">
+					<div class="table-container m-0">
+						<table class="data-table m-0">
 							<thead>
 								<tr>
 									<th style="width:50px;">الصورة</th>
@@ -293,36 +293,55 @@ templ AdminApisProductsPage(lang, dir string) {
 // AdminStocksPage renders inventory stocks across warehouses.
 templ AdminStocksPage(stocks []*inventory.Stock, lang, dir string) {
 	@layouts.AdminShell("إدارة الأرصدة والمخزون الحي", "stocks", lang, dir) {
-		<div class="card mb-0">
-			<h2 class="card-title mb-lg">أرصدة المخزون بالمنشآت والمخازن ({ fmt.Sprintf("%d", len(stocks)) })</h2>
-			if len(stocks) == 0 {
-				@components.EmptyState(components.EmptyStateProps{Title: "المخزون فارغ", Message: "لم يتم تسجيل أرصدة مخزون في المخازن بعد."})
-			} else {
-				<div class="table-container">
-					<table class="b2b-table">
-						<thead>
-							<tr>
-								<th>#</th>
-								<th>المنشأة</th>
-								<th>المخزن</th>
-								<th>الكمية الحالية</th>
-								<th>حد الأمان</th>
-							</tr>
-						</thead>
-						<tbody>
-							for _, s := range stocks {
-								<tr>
-									<td class="tabular-nums">#{ fmt.Sprintf("%d", s.ID) }</td>
-									<td>منشأة #{ fmt.Sprintf("%d", s.OrganizationID) }</td>
-									<td>مخزن #{ fmt.Sprintf("%d", s.WarehouseID) }</td>
-									<td class="tabular-nums"><strong>{ fmt.Sprintf("%d", s.Quantity) }</strong></td>
-									<td class="tabular-nums">{ fmt.Sprintf("%d", s.MinThreshold) }</td>
-								</tr>
-							}
-						</tbody>
-					</table>
+		<div class="page-container">
+			<div class="glass-panel p-6 mb-6">
+				<div class="flex-between items-center flex-wrap gap-4">
+					<div class="d-flex items-center gap-3">
+						<div class="user-avatar-badge text-xl">
+							📊
+						</div>
+						<div>
+							<h1 class="text-2xl font-black text-primary m-0">أرصدة المخزون بالمنشآت والمخازن ({ fmt.Sprintf("%d", len(stocks)) })</h1>
+							<p class="text-sm text-secondary m-0 mt-1">متابعة أرصدة المخزون الحي وحدود الأمان بالمستودعات</p>
+						</div>
+					</div>
 				</div>
-			}
+			</div>
+
+			<div class="glass-panel p-0 mb-6 overflow-hidden">
+				if len(stocks) == 0 {
+					<div class="p-8 text-center empty-state-glass">
+						<div class="text-4xl mb-3">📊</div>
+						<h3 class="text-lg font-black text-primary mb-2">المخزون فارغ</h3>
+						<p class="text-sm text-secondary max-w-md mx-auto">لم يتم تسجيل أرصدة مخزون في المخازن بعد.</p>
+					</div>
+				} else {
+					<div class="table-container m-0">
+						<table class="data-table m-0">
+							<thead>
+								<tr>
+									<th>#</th>
+									<th>المنشأة</th>
+									<th>المخزن</th>
+									<th>الكمية الحالية</th>
+									<th>حد الأمان</th>
+								</tr>
+							</thead>
+							<tbody>
+								for _, s := range stocks {
+									<tr>
+										<td class="tabular-nums font-bold text-brand">#{ fmt.Sprintf("%d", s.ID) }</td>
+										<td>منشأة #{ fmt.Sprintf("%d", s.OrganizationID) }</td>
+										<td>مخزن #{ fmt.Sprintf("%d", s.WarehouseID) }</td>
+										<td class="tabular-nums font-bold text-primary">{ fmt.Sprintf("%d", s.Quantity) }</td>
+										<td class="tabular-nums text-muted">{ fmt.Sprintf("%d", s.MinThreshold) }</td>
+									</tr>
+								}
+							</tbody>
+						</table>
+					</div>
+				}
+			</div>
 		</div>
 	}
 }
@@ -355,47 +374,44 @@ type AdminWarehouseDetailView struct {
 // AdminWarehousesPage renders permanent warehouses list.
 templ AdminWarehousesPage(warehouses []*AdminWarehouseRowView, lang, dir string) {
 	@layouts.AdminShell("إدارة المخازن ومراكز التوزيع", "warehouses", lang, dir) {
-		<div style="display:flex; flex-direction:column; gap:1.5rem; max-width:1400px; margin:0 auto 3rem auto;">
+		<div class="page-container">
 			<!-- Header Banner -->
-			<div class="card mb-0" style="border:1px solid var(--border); background:linear-gradient(135deg, var(--surface-raised) 0%, var(--surface-sunken) 100%); border-radius:var(--radius-xl); padding:1.75rem; box-shadow:0 4px 20px rgba(0,0,0,0.03);">
-				<div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1.25rem;">
-					<div>
-						<div style="display:flex; align-items:center; gap:0.75rem; margin-bottom:0.35rem;">
-							<div style="width:44px; height:44px; border-radius:var(--radius-lg); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center; font-size:1.3rem;">
-								🏬
-							</div>
-							<div>
-								<h1 style="font-size:1.4rem; font-weight:900; color:var(--text); margin:0;">دليل المخازن ومراكز التوزيع</h1>
-								<span style="font-size:0.75rem; font-weight:700; color:var(--accent); text-transform:uppercase;">Central Distribution & Storage Facilities</span>
-							</div>
+			<div class="glass-panel p-6 mb-6">
+				<div class="flex-between items-center flex-wrap gap-4">
+					<div class="d-flex items-center gap-3">
+						<div class="user-avatar-badge text-xl">
+							🏬
 						</div>
-						<p style="font-size:0.875rem; color:var(--text-secondary); margin:0.35rem 0 0 0; line-height:1.5;">استعراض المخازن التابعة لكافة الموردين مع إمكانية فحص وإدارة المخزون الداخلي بدقة عبر الصفحات المخصصة.</p>
+						<div>
+							<h1 class="text-2xl font-black text-primary m-0">دليل المخازن ومراكز التوزيع</h1>
+							<p class="text-sm text-secondary m-0 mt-1">استعراض المخازن التابعة لكافة الموردين مع إمكانية فحص وإدارة المخزون الداخلي بدقة عبر الصفحات المخصصة</p>
+						</div>
 					</div>
 
-					<div class="row-center">
-						<div class="badge badge-sky" style="font-size:0.85rem; font-weight:800; padding:0.4rem 0.85rem;">
-							{ fmt.Sprintf("إجمالي %d مخزن معتمد", len(warehouses)) }
-						</div>
+					<div class="badge badge-sky text-xs font-bold px-3 py-1.5">
+						{ fmt.Sprintf("إجمالي %d مخزن معتمد", len(warehouses)) }
 					</div>
 				</div>
 			</div>
 
 			<!-- Warehouses Table Card -->
-			<div class="card mb-0" style="border:1px solid var(--border); background:var(--surface-raised); border-radius:var(--radius-xl); overflow:hidden; box-shadow:0 4px 16px rgba(0,0,0,0.03);">
+			<div class="glass-panel p-0 mb-6 overflow-hidden">
 				if len(warehouses) == 0 {
-					<div style="padding:3rem 1.5rem;">
-						@components.EmptyState(components.EmptyStateProps{Title: "لا توجد مخازن", Message: "لم يتم تسجيل مخازن بالمنصة بعد."})
+					<div class="p-8 text-center empty-state-glass">
+						<div class="text-4xl mb-3">🏬</div>
+						<h3 class="text-lg font-black text-primary mb-2">لا توجد مخازن</h3>
+						<p class="text-sm text-secondary max-w-md mx-auto">لم يتم تسجيل مخازن بالمنصة بعد.</p>
 					</div>
 				} else {
-					<div class="table-container">
-						<table class="b2b-table">
+					<div class="table-container m-0">
+						<table class="data-table m-0">
 							<thead>
 								<tr>
 									<th>اسم المخزن</th>
 									<th>المنشأة التابع لها</th>
 									<th>العنوان وموقع التوزيع</th>
 									<th>الهاتف</th>
-									<th>الحالة</th>
+									<th class="text-center">الحالة</th>
 									<th class="text-end">مخزون المخزن</th>
 								</tr>
 							</thead>
@@ -683,8 +699,8 @@ templ AdminWarehouseDetailPage(data AdminWarehouseDetailView, lang, dir string) 
 						</a>
 					</div>
 				} else {
-					<div class="table-container">
-						<table class="b2b-table m-0">
+					<div class="table-container m-0">
+						<table class="data-table m-0">
 							<thead>
 								<tr>
 									<th style="width:50px;">#</th>
@@ -1159,7 +1175,7 @@ templ AdminTempWarehousesPage(data *AdminTempWarehousesData, lang, dir string) {
 					</div>
 				} else {
 					<div class="table-container m-0">
-						<table class="b2b-table m-0">
+						<table class="data-table m-0">
 							<thead>
 								<tr>
 									<th style="width:40px; text-align:center;">#</th>
@@ -1305,7 +1321,8 @@ templ AdminTempWarehousesPage(data *AdminTempWarehousesData, lang, dir string) {
 						</template>
 
 						<template x-if="!modalLoading && modalItems.length > 0">
-							<table class="b2b-table m-0">
+							<div class="table-container m-0">
+								<table class="data-table m-0">
 								<thead>
 									<tr>
 										<th style="min-width:120px;">الكود</th>
@@ -1350,6 +1367,7 @@ templ AdminTempWarehousesPage(data *AdminTempWarehousesData, lang, dir string) {
 									</template>
 								</tbody>
 							</table>
+							</div>
 						</template>
 					</div>
 
@@ -1694,8 +1712,8 @@ templ AdminSavingProductsPage(data AdminSavingProductsData, lang, dir string) {
 						<a href="/admin/saving-products" class="btn btn-secondary btn-sm">عرض كل منتجات التوفير</a>
 					</div>
 				} else {
-					<div class="table-container">
-						<table class="b2b-table m-0">
+					<div class="table-container m-0">
+						<table class="data-table m-0">
 							<thead>
 								<tr>
 									<th style="width:60px;">#</th>

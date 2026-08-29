@@ -71,77 +71,78 @@ func getAllOrderLines(order *commerce.Order) []*commerce.OrderLine {
 
 templ CustomerOrderDetail(order *commerce.Order, history []*commerce.OrderStatusHistory, noticeType, noticeMsg, lang, dir string) {
 	@layouts.CustomerShell(fmt.Sprintf("طلب توريد #%s", order.OrderNumber), "orders", lang, dir, nil) {
-		<div class="order-detail-page" style="max-width:100%;">
+		<div class="page-container">
 			
 			<!-- Notice Feedback Banner -->
 			if noticeMsg != "" {
-				if noticeType == "error" {
-					<div class="alert alert-danger" style="display:flex; align-items:center; gap:0.75rem; padding:1rem 1.25rem; border-radius:var(--radius-xl); background:rgba(239,68,68,0.12); border:1px solid rgba(239,68,68,0.3); color:var(--rose); font-weight:700; margin-bottom:1.25rem;">
-						<span style="font-size:1.25rem;">⚠️</span>
-						<span>{ noticeMsg }</span>
-					</div>
-				} else {
-					<div class="alert alert-success" style="display:flex; align-items:center; gap:0.75rem; padding:1rem 1.25rem; border-radius:var(--radius-xl); background:rgba(16,185,129,0.12); border:1px solid rgba(16,185,129,0.3); color:var(--emerald); font-weight:700; margin-bottom:1.25rem;">
-						<span style="font-size:1.25rem;">✅</span>
-						<span>{ noticeMsg }</span>
-					</div>
-				}
+				<div
+					class={ "alert mb-4",
+						templ.KV("alert-success", noticeType != "error"),
+						templ.KV("alert-danger", noticeType == "error") }
+					role="alert"
+				>
+					{ noticeMsg }
+				</div>
 			}
 
 			<!-- Breadcrumb & Quick Actions Header -->
-			<div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem; margin-bottom:1.5rem;">
-				<div>
-					<nav style="display:flex; align-items:center; gap:0.5rem; font-size:0.85rem; color:var(--text-muted); margin-bottom:0.4rem;">
-						<a href="/" style="color:var(--text-secondary); text-decoration:none;">الرئيسية</a>
-						<span>/</span>
-						<a href="/orders" style="color:var(--text-secondary); text-decoration:none;">طلبياتي</a>
-						<span>/</span>
-						<span style="color:var(--text); font-weight:700;">طلب #{ order.OrderNumber }</span>
-					</nav>
-					<div style="display:flex; align-items:center; gap:0.75rem; flex-wrap:wrap;">
-						<h1 style="font-size:1.6rem; font-weight:900; color:var(--text); margin:0;" class="tabular-nums">
-							طلب توريد #{ order.OrderNumber }
-						</h1>
-						@components.StatusBadge(string(order.Status))
-						if order.PaymentStatus == commerce.PaymentPaid {
-							<span class="badge badge-emerald text-xs fw-700">مدفوع بالكامل</span>
-						} else {
-							<span class="badge badge-amber text-xs fw-700">دفع عند الاستلام</span>
+			<div class="glass-panel p-6 mb-6">
+				<div class="flex-between items-center flex-wrap gap-4">
+					<div>
+						<nav class="d-flex items-center gap-2 text-xs text-muted mb-2">
+							<a href="/" class="text-secondary text-decoration-none">الرئيسية</a>
+							<span>/</span>
+							<a href="/orders" class="text-secondary text-decoration-none">طلبياتي</a>
+							<span>/</span>
+							<span class="text-primary font-bold">طلب #{ order.OrderNumber }</span>
+						</nav>
+						<div class="d-flex items-center gap-3 flex-wrap">
+							<div class="user-avatar-badge text-xl">
+								📦
+							</div>
+							<h1 class="text-2xl font-black text-primary m-0 tabular-nums">
+								طلب توريد #{ order.OrderNumber }
+							</h1>
+							@components.StatusBadge(string(order.Status))
+							if order.PaymentStatus == commerce.PaymentPaid {
+								<span class="badge badge-emerald text-xs font-bold">مدفوع بالكامل</span>
+							} else {
+								<span class="badge badge-amber text-xs font-bold">دفع عند الاستلام</span>
+							}
+						</div>
+					</div>
+
+					<div class="d-flex items-center gap-2 flex-wrap">
+						<a href="/orders" class="btn btn-secondary btn-sm font-bold">
+							<span>← العودة لطلبياتي</span>
+						</a>
+						if order.Status != commerce.StatusPending {
+							<a
+								href={ templ.SafeURL(fmt.Sprintf("/orders/%d/invoice/print", order.ID)) }
+								target="_blank"
+								class="btn btn-primary btn-sm font-bold gap-1"
+								title="طباعة الفاتورة أو إيصال الكاشير"
+							>
+								@components.IconPrinter("icon-xs")
+								<span>طباعة الفاتورة</span>
+							</a>
 						}
 					</div>
-				</div>
-
-				<div style="display:flex; align-items:center; gap:0.75rem; flex-wrap:wrap;">
-					<a href="/orders" class="btn btn-secondary btn-sm" style="font-weight:700;">
-						<span>← العودة لطلبياتي</span>
-					</a>
-					if order.Status != commerce.StatusPending {
-						<a
-							href={ templ.SafeURL(fmt.Sprintf("/orders/%d/invoice/print", order.ID)) }
-							target="_blank"
-							class="btn btn-primary btn-sm"
-							style="font-weight:700; gap:0.4rem; padding:0.5rem 1rem; border-radius:var(--radius-md);"
-							title="طباعة الفاتورة أو إيصال الكاشير"
-						>
-							@components.IconPrinter("icon-xs")
-							<span>طباعة الفاتورة</span>
-						</a>
-					}
 				</div>
 			</div>
 
 			<!-- Main 2-Column Responsive Grid -->
-			<div style="display:grid; grid-template-columns:minmax(0, 2fr) minmax(0, 1fr); gap:1.5rem; align-items:start;">
+			<div class="dashboard-workspace-grid mb-6">
 				
 				<!-- Right Column: Primary Details -->
-				<div style="display:flex; flex-direction:column; gap:1.5rem;">
+				<div class="d-flex flex-col gap-6">
 					
 					<!-- 1. Order Progress Timeline Card -->
-					<div class="card" style="margin:0; padding:1.5rem; border-radius:var(--radius-xl); border:1px solid var(--border); background:var(--surface); box-shadow:var(--shadow-xs);">
-						<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.75rem; border-bottom:1px solid var(--border); padding-bottom:0.75rem;">
-							<div class="row-center-sm">
-								<span style="font-size:1.1rem;">🚚</span>
-								<h2 style="font-size:1.05rem; font-weight:800; color:var(--text); margin:0;">
+					<div class="glass-panel p-6 mb-0">
+						<div class="flex-between items-center mb-6 pb-3 border-b">
+							<div class="d-flex items-center gap-2">
+								<span class="text-xl">🚚</span>
+								<h2 class="text-base font-extrabold text-primary m-0">
 									مسار ومراحل التوريد
 								</h2>
 							</div>
@@ -151,90 +152,90 @@ templ CustomerOrderDetail(order *commerce.Order, history []*commerce.OrderStatus
 						</div>
 
 						<!-- Steps Progress Bar -->
-						<div style="position:relative; display:flex; justify-content:space-between; align-items:flex-start; margin:0 auto; padding-inline:0.5rem;">
+						<div class="position-relative d-flex justify-between items-start mx-auto px-2">
 							<!-- Connecting track -->
-							<div style="position:absolute; top:18px; inset-inline-start:2.5rem; inset-inline-end:2.5rem; height:4px; background:var(--neutral-100); z-index:1; border-radius:2px;">
+							<div style="position:absolute; top:18px; inset-inline-start:2.5rem; inset-inline-end:2.5rem; height:4px; background:var(--surface-sunken); z-index:1; border-radius:2px;">
 								<div style={ "height:100%; background:var(--accent); border-radius:2px; transition:width 0.4s ease; width:" + orderProgressWidth(order.Status) + ";" }></div>
 							</div>
 
 							<!-- Step 1: Placed -->
-							<div style="position:relative; z-index:2; display:flex; flex-direction:column; align-items:center; text-align:center; flex:1;">
-								<div style="width:36px; height:36px; border-radius:var(--radius-full); background:var(--accent); color:#ffffff; display:flex; align-items:center; justify-content:center; margin-bottom:0.5rem; font-size:0.875rem; font-weight:800;">
+							<div class="position-relative d-flex flex-col items-center text-center flex-1" style="z-index:2;">
+								<div class="user-avatar-badge bg-brand text-white mb-2 text-sm font-black" style="width:36px; height:36px;">
 									✓
 								</div>
-								<div style="font-weight:800; font-size:0.875rem; color:var(--text);">تم استلام الطلب</div>
-								<div style="font-size:0.75rem; color:var(--text-muted); margin-top:0.15rem;" class="tabular-nums">
+								<div class="font-extrabold text-xs text-primary">تم استلام الطلب</div>
+								<div class="text-xs text-muted mt-1 tabular-nums">
 									{ order.CreatedAt.Format("15:04") }
 								</div>
 							</div>
 
 							<!-- Step 2: Processing -->
-							<div style="position:relative; z-index:2; display:flex; flex-direction:column; align-items:center; text-align:center; flex:1;">
+							<div class="position-relative d-flex flex-col items-center text-center flex-1" style="z-index:2;">
 								if isStepDone(order.Status, 2) {
-									<div style="width:36px; height:36px; border-radius:var(--radius-full); background:var(--accent); color:#ffffff; display:flex; align-items:center; justify-content:center; margin-bottom:0.5rem; font-size:0.875rem; font-weight:800;">
+									<div class="user-avatar-badge bg-brand text-white mb-2 text-sm font-black" style="width:36px; height:36px;">
 										✓
 									</div>
 								} else {
-									<div style="width:36px; height:36px; border-radius:var(--radius-full); background:var(--surface-sunken); border:2px solid var(--border); color:var(--text-muted); display:flex; align-items:center; justify-content:center; margin-bottom:0.5rem; font-size:0.875rem;">
+									<div class="user-avatar-badge bg-surface-sunken border text-muted mb-2 text-sm" style="width:36px; height:36px;">
 										📦
 									</div>
 								}
-								<div style="font-weight:800; font-size:0.875rem; color:var(--text);">التجهيز المخزني</div>
-								<div style="font-size:0.75rem; color:var(--text-muted); margin-top:0.15rem;">فحص التشغيلات والتبريد</div>
+								<div class="font-extrabold text-xs text-primary">التجهيز المخزني</div>
+								<div class="text-xs text-muted mt-1">فحص التشغيلات والتبريد</div>
 							</div>
 
 							<!-- Step 3: Out for Delivery -->
-							<div style="position:relative; z-index:2; display:flex; flex-direction:column; align-items:center; text-align:center; flex:1;">
+							<div class="position-relative d-flex flex-col items-center text-center flex-1" style="z-index:2;">
 								if isStepDone(order.Status, 3) {
-									<div style="width:36px; height:36px; border-radius:var(--radius-full); background:var(--accent); color:#ffffff; display:flex; align-items:center; justify-content:center; margin-bottom:0.5rem; font-size:0.875rem; font-weight:800;">
+									<div class="user-avatar-badge bg-brand text-white mb-2 text-sm font-black" style="width:36px; height:36px;">
 										✓
 									</div>
 								} else {
-									<div style="width:36px; height:36px; border-radius:var(--radius-full); background:var(--surface-sunken); border:2px solid var(--border); color:var(--text-muted); display:flex; align-items:center; justify-content:center; margin-bottom:0.5rem; font-size:0.875rem;">
+									<div class="user-avatar-badge bg-surface-sunken border text-muted mb-2 text-sm" style="width:36px; height:36px;">
 										🚚
 									</div>
 								}
-								<div style="font-weight:800; font-size:0.875rem; color:var(--text);">الشحن والتوصيل</div>
-								<div style="font-size:0.75rem; color:var(--text-muted); margin-top:0.15rem;">مع المندوب المبرد</div>
+								<div class="font-extrabold text-xs text-primary">الشحن والتوصيل</div>
+								<div class="text-xs text-muted mt-1">مع المندوب المبرد</div>
 							</div>
 
 							<!-- Step 4: Delivered -->
-							<div style="position:relative; z-index:2; display:flex; flex-direction:column; align-items:center; text-align:center; flex:1;">
+							<div class="position-relative d-flex flex-col items-center text-center flex-1" style="z-index:2;">
 								if isStepDone(order.Status, 4) {
-									<div style="width:36px; height:36px; border-radius:var(--radius-full); background:#10b981; color:#ffffff; display:flex; align-items:center; justify-content:center; margin-bottom:0.5rem; font-size:0.875rem; font-weight:800;">
+									<div class="user-avatar-badge bg-emerald text-white mb-2 text-sm font-black" style="width:36px; height:36px;">
 										✓
 									</div>
 								} else {
-									<div style="width:36px; height:36px; border-radius:var(--radius-full); background:var(--surface-sunken); border:2px solid var(--border); color:var(--text-muted); display:flex; align-items:center; justify-content:center; margin-bottom:0.5rem; font-size:0.875rem;">
+									<div class="user-avatar-badge bg-surface-sunken border text-muted mb-2 text-sm" style="width:36px; height:36px;">
 										🏥
 									</div>
 								}
-								<div style="font-weight:800; font-size:0.875rem; color:var(--text);">تم الاستلام</div>
-								<div style="font-size:0.75rem; color:var(--text-muted); margin-top:0.15rem;">تسليم الصيدلية الموثق</div>
+								<div class="font-extrabold text-xs text-primary">تم الاستلام</div>
+								<div class="text-xs text-muted mt-1">تسليم الصيدلية الموثق</div>
 							</div>
 						</div>
 					</div>
 
 					<!-- 2. Shipments & Line Items Table Card -->
-					<div class="card" style="margin:0; padding:1.5rem; border-radius:var(--radius-xl); border:1px solid var(--border); background:var(--surface); box-shadow:var(--shadow-xs);">
-						<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.25rem; flex-wrap:wrap; gap:0.75rem; border-bottom:1px solid var(--border); padding-bottom:0.75rem;">
-							<div class="row-center-sm">
-								<span style="font-size:1.1rem;">💊</span>
-								<h2 style="font-size:1.05rem; font-weight:800; color:var(--text); margin:0;">
+					<div class="glass-panel p-6 mb-0">
+						<div class="flex-between items-center mb-4 flex-wrap gap-3 pb-3 border-b">
+							<div class="d-flex items-center gap-2">
+								<span class="text-xl">💊</span>
+								<h2 class="text-base font-extrabold text-primary m-0">
 									الأصناف والشحنات الدوائية المطلوبة
 								</h2>
 							</div>
-							<div style="display:flex; align-items:center; gap:0.6rem; flex-wrap:wrap;">
+							<div class="d-flex items-center gap-2 flex-wrap">
 								if order.Status == commerce.StatusPending {
-									<span class="badge badge-amber text-xs fw-800" style="padding:0.35rem 0.75rem; gap:0.35rem;">
-										<span>✏️ تعديل الكميات متاح مباشرة (قيد المراجعة)</span>
+									<span class="badge badge-amber text-xs font-black">
+										<span>✏️ تعديل الكميات متاح مباشرة</span>
 									</span>
 								} else {
-									<span class="badge badge-slate text-xs fw-700" style="padding:0.35rem 0.75rem; gap:0.35rem;" title="لا يمكن تعديل الطلب بعد قبوله أو معالجته من المورد">
-										<span>🔒 الطلب مؤكد من المورد ولا يمكن تعديله</span>
+									<span class="badge badge-slate text-xs font-bold" title="لا يمكن تعديل الطلب بعد قبوله أو معالجته من المورد">
+										<span>🔒 الطلب مؤكد ولا يمكن تعديله</span>
 									</span>
 								}
-								<span class="badge badge-sky text-xs fw-700">
+								<span class="badge badge-sky text-xs font-bold">
 									<span>نقل دوائي مبرد معتمد (2-8°C)</span>
 								</span>
 							</div>
@@ -274,32 +275,32 @@ templ CustomerOrderDetail(order *commerce.Order, history []*commerce.OrderStatus
 													</div>
 
 													<!-- Shipment Lines Table -->
-													<div class="table-container" style="padding:0; margin:0; overflow-x:auto;">
-														<table class="b2b-table" style="margin:0; font-size:0.875rem;">
+													<div class="table-container m-0">
+														<table class="data-table m-0">
 															<thead>
 																<tr>
-																	<th style="padding:0.65rem 1rem;">الصنف الدوائي</th>
-																	<th style="padding:0.65rem 0.75rem; text-align:center; width:155px;">الكمية المطلوبة</th>
-																	<th style="padding:0.65rem 0.75rem;" class="td-numeric">سعر الجمهور</th>
-																	<th style="padding:0.65rem 0.75rem; text-align:center;">نسبة الخصم</th>
-																	<th style="padding:0.65rem 1rem;" class="td-numeric">السعر بعد الخصم (الإجمالي)</th>
-																	<th style="padding:0.65rem 0.5rem; text-align:center; width:45px;"></th>
+																	<th>الصنف الدوائي</th>
+																	<th style="width:155px;" class="text-center">الكمية المطلوبة</th>
+																	<th class="text-end">سعر الجمهور</th>
+																	<th class="text-center">نسبة الخصم</th>
+																	<th class="text-end">السعر بعد الخصم (الإجمالي)</th>
+																	<th style="width:45px;" class="text-center"></th>
 																</tr>
 															</thead>
 															<tbody>
 																for _, l := range sh.Lines {
 																	<tr class="order-table-row">
-																		<td style="padding:0.75rem 1rem;">
-																			<div style="font-weight:800; color:var(--text); font-size:0.925rem;">
+																		<td>
+																			<div class="font-extrabold text-primary text-xs">
 																				{ l.ProductName.Get(i18n.Lang(lang)) }
 																			</div>
 																			if l.VariantName.Get(i18n.Lang(lang)) != "" || l.SKU != "" {
-																				<div style="font-size:0.75rem; color:var(--text-muted); margin-top:0.15rem;">
+																				<div class="text-xs text-muted mt-1">
 																					if l.VariantName.Get(i18n.Lang(lang)) != "" {
 																						<span>{ l.VariantName.Get(i18n.Lang(lang)) }</span>
 																					}
 																					if l.SKU != "" {
-																						<span class="font-mono text-xs" style="margin-inline-start:0.4rem;">SKU: { l.SKU }</span>
+																						<span class="font-mono text-xs ms-1">SKU: { l.SKU }</span>
 																					}
 																				</div>
 																			}
@@ -309,27 +310,27 @@ templ CustomerOrderDetail(order *commerce.Order, history []*commerce.OrderStatus
 																			<input type="hidden" name="discount_amount[]" value={ l.DiscountAmount.String() } class="row-discount-input"/>
 																			<input type="hidden" name="is_deleted[]" value="0" class="row-deleted-input"/>
 																		</td>
-																		<td style="padding:0.75rem 0.75rem; text-align:center;">
+																		<td class="text-center">
 																			<!-- Direct Quantity Stepper: [ - ] 10 [ + ] -->
-																			<div style="display:flex; align-items:center; gap:0.25rem; justify-content:center;">
-																				<button type="button" class="btn btn-secondary btn-icon" style="width:28px; height:28px; font-weight:900; font-size:1.1rem; padding:0; line-height:1;" onclick="stepRowQty(this, -1)">−</button>
+																			<div class="d-flex items-center gap-1 justify-center">
+																				<button type="button" class="btn btn-secondary btn-icon btn-sm" onclick="stepRowQty(this, -1)">−</button>
 																				<input
 																					type="number"
 																					name="quantity[]"
 																					value={ fmt.Sprintf("%d", l.Quantity) }
 																					min="1"
 																					required
-																					class="form-input input-sm tabular-nums text-center row-qty-input"
-																					style="width:58px; font-weight:800; padding:0.25rem 0.35rem; font-size:0.925rem;"
+																					class="form-input text-xs tabular-nums text-center row-qty-input font-bold"
+																					style="width:58px;"
 																					oninput="recalcRowTotal(this)"
 																				/>
-																				<button type="button" class="btn btn-secondary btn-icon" style="width:28px; height:28px; font-weight:900; font-size:1.1rem; padding:0; line-height:1;" onclick="stepRowQty(this, 1)">+</button>
+																				<button type="button" class="btn btn-secondary btn-icon btn-sm" onclick="stepRowQty(this, 1)">+</button>
 																			</div>
 																		</td>
-																		<td style="padding:0.75rem 0.75rem;" class="td-numeric tabular-nums">
+																		<td class="text-end tabular-nums font-bold text-xs text-primary">
 																			{ l.UnitPrice.String() } ج.م
 																		</td>
-																		<td style="padding:0.75rem 0.75rem; text-align:center;" class="tabular-nums">
+																		<td class="text-center tabular-nums">
 																			{{
 																				discPct := 0.0
 																				if l.UnitPrice.IsPositive() && l.DiscountAmount.IsPositive() {
@@ -337,16 +338,16 @@ templ CustomerOrderDetail(order *commerce.Order, history []*commerce.OrderStatus
 																				}
 																			}}
 																			if discPct > 0 {
-																				<span class="badge badge-emerald tabular-nums" style="font-weight:800; font-size:0.8rem;">{ fmt.Sprintf("%.1f%%", discPct) }</span>
+																				<span class="badge badge-emerald text-xs font-bold tabular-nums">{ fmt.Sprintf("%.1f%%", discPct) }</span>
 																			} else {
 																				<span class="text-xs text-muted">0%</span>
 																			}
 																		</td>
-																		<td style="padding:0.75rem 1rem; font-weight:800; color:var(--text);" class="td-numeric tabular-nums">
+																		<td class="text-end tabular-nums font-black text-brand text-xs">
 																			<span class="row-total-display">{ l.TotalPrice.String() } ج.م</span>
 																		</td>
-																		<td style="padding:0.75rem 0.5rem; text-align:center;">
-																			<button type="button" class="btn btn-secondary btn-xs" style="color:var(--danger); border-color:rgba(239,68,68,0.25); padding:0.2rem 0.45rem; font-size:0.75rem;" onclick="deleteRowLine(this)" title="حذف الصنف من الطلب">
+																		<td class="text-center">
+																			<button type="button" class="btn btn-secondary btn-icon btn-sm text-danger" onclick="deleteRowLine(this)" title="حذف الصنف من الطلب">
 																				✕
 																			</button>
 																		</td>
@@ -360,32 +361,32 @@ templ CustomerOrderDetail(order *commerce.Order, history []*commerce.OrderStatus
 										</div>
 									} else {
 										<!-- Direct Flat Lines Table -->
-										<div class="table-container" style="padding:0; margin:0; border:1px solid var(--border); border-radius:var(--radius-lg); overflow:hidden; overflow-x:auto;">
-											<table class="b2b-table" style="margin:0; font-size:0.875rem;">
+										<div class="table-container m-0">
+											<table class="data-table m-0">
 												<thead>
 													<tr>
-														<th style="padding:0.65rem 1rem;">الصنف الدوائي</th>
-														<th style="padding:0.65rem 0.75rem; text-align:center; width:155px;">الكمية المطلوبة</th>
-														<th style="padding:0.65rem 0.75rem;" class="td-numeric">سعر الجمهور</th>
-														<th style="padding:0.65rem 0.75rem; text-align:center;">نسبة الخصم</th>
-														<th style="padding:0.65rem 1rem;" class="td-numeric">السعر بعد الخصم (الإجمالي)</th>
-														<th style="padding:0.65rem 0.5rem; text-align:center; width:45px;"></th>
+														<th>الصنف الدوائي</th>
+														<th style="width:155px;" class="text-center">الكمية المطلوبة</th>
+														<th class="text-end">سعر الجمهور</th>
+														<th class="text-center">نسبة الخصم</th>
+														<th class="text-end">السعر بعد الخصم (الإجمالي)</th>
+														<th style="width:45px;" class="text-center"></th>
 													</tr>
 												</thead>
 												<tbody>
 													for _, l := range order.Lines {
 														<tr class="order-table-row">
-															<td style="padding:0.75rem 1rem;">
-																<div style="font-weight:800; color:var(--text); font-size:0.925rem;">
+															<td>
+																<div class="font-extrabold text-primary text-xs">
 																	{ l.ProductName.Get(i18n.Lang(lang)) }
 																</div>
 																if l.VariantName.Get(i18n.Lang(lang)) != "" || l.SKU != "" {
-																	<div style="font-size:0.75rem; color:var(--text-muted); margin-top:0.15rem;">
+																	<div class="text-xs text-muted mt-1">
 																		if l.VariantName.Get(i18n.Lang(lang)) != "" {
 																			<span>{ l.VariantName.Get(i18n.Lang(lang)) }</span>
 																		}
 																		if l.SKU != "" {
-																			<span class="font-mono text-xs" style="margin-inline-start:0.4rem;">SKU: { l.SKU }</span>
+																			<span class="font-mono text-xs ms-1">SKU: { l.SKU }</span>
 																		}
 																	</div>
 																}
@@ -395,27 +396,27 @@ templ CustomerOrderDetail(order *commerce.Order, history []*commerce.OrderStatus
 																<input type="hidden" name="discount_amount[]" value={ l.DiscountAmount.String() } class="row-discount-input"/>
 																<input type="hidden" name="is_deleted[]" value="0" class="row-deleted-input"/>
 															</td>
-															<td style="padding:0.75rem 0.75rem; text-align:center;">
+															<td class="text-center">
 																<!-- Direct Quantity Stepper: [ - ] 10 [ + ] -->
-																<div style="display:flex; align-items:center; gap:0.25rem; justify-content:center;">
-																	<button type="button" class="btn btn-secondary btn-icon" style="width:28px; height:28px; font-weight:900; font-size:1.1rem; padding:0; line-height:1;" onclick="stepRowQty(this, -1)">−</button>
+																<div class="d-flex items-center gap-1 justify-center">
+																	<button type="button" class="btn btn-secondary btn-icon btn-sm" onclick="stepRowQty(this, -1)">−</button>
 																	<input
 																		type="number"
 																		name="quantity[]"
 																		value={ fmt.Sprintf("%d", l.Quantity) }
 																		min="1"
 																		required
-																		class="form-input input-sm tabular-nums text-center row-qty-input"
-																		style="width:58px; font-weight:800; padding:0.25rem 0.35rem; font-size:0.925rem;"
+																		class="form-input text-xs tabular-nums text-center row-qty-input font-bold"
+																		style="width:58px;"
 																		oninput="recalcRowTotal(this)"
 																	/>
-																	<button type="button" class="btn btn-secondary btn-icon" style="width:28px; height:28px; font-weight:900; font-size:1.1rem; padding:0; line-height:1;" onclick="stepRowQty(this, 1)">+</button>
+																	<button type="button" class="btn btn-secondary btn-icon btn-sm" onclick="stepRowQty(this, 1)">+</button>
 																</div>
 															</td>
-															<td style="padding:0.75rem 0.75rem;" class="td-numeric tabular-nums">
+															<td class="text-end tabular-nums font-bold text-xs text-primary">
 																{ l.UnitPrice.String() } ج.م
 															</td>
-															<td style="padding:0.75rem 0.75rem; text-align:center;" class="tabular-nums">
+															<td class="text-center tabular-nums">
 																{{
 																	discPct := 0.0
 																	if l.UnitPrice.IsPositive() && l.DiscountAmount.IsPositive() {
@@ -423,16 +424,16 @@ templ CustomerOrderDetail(order *commerce.Order, history []*commerce.OrderStatus
 																	}
 																}}
 																if discPct > 0 {
-																	<span class="badge badge-emerald tabular-nums" style="font-weight:800; font-size:0.8rem;">{ fmt.Sprintf("%.1f%%", discPct) }</span>
+																	<span class="badge badge-emerald text-xs font-bold tabular-nums">{ fmt.Sprintf("%.1f%%", discPct) }</span>
 																} else {
 																	<span class="text-xs text-muted">0%</span>
 																}
 															</td>
-															<td style="padding:0.75rem 1rem; font-weight:800; color:var(--text);" class="td-numeric tabular-nums">
+															<td class="text-end tabular-nums font-black text-brand text-xs">
 																<span class="row-total-display">{ l.TotalPrice.String() } ج.م</span>
 															</td>
-															<td style="padding:0.75rem 0.5rem; text-align:center;">
-																<button type="button" class="btn btn-secondary btn-xs" style="color:var(--danger); border-color:rgba(239,68,68,0.25); padding:0.2rem 0.45rem; font-size:0.75rem;" onclick="deleteRowLine(this)" title="حذف الصنف من الطلب">
+															<td class="text-center">
+																<button type="button" class="btn btn-secondary btn-icon btn-sm text-danger" onclick="deleteRowLine(this)" title="حذف الصنف من الطلب">
 																	✕
 																</button>
 															</td>
@@ -444,12 +445,12 @@ templ CustomerOrderDetail(order *commerce.Order, history []*commerce.OrderStatus
 									}
 
 									<!-- Save Edits Action Bar -->
-									<div style="display:flex; justify-content:space-between; align-items:center; padding:1.1rem 1.35rem; background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-xl); margin-top:1.25rem; flex-wrap:wrap; gap:1rem; box-shadow:var(--shadow-xs);">
-										<div style="display:flex; align-items:center; gap:0.5rem; font-size:0.85rem; color:var(--text-secondary);">
-											<span style="color:#d97706; font-size:1.1rem;">⚠️</span>
+									<div class="glass-panel p-4 flex-between items-center mt-4 flex-wrap gap-3">
+										<div class="d-flex items-center gap-2 text-xs text-secondary">
+											<span class="text-warning text-base">⚠️</span>
 											<span>الطلب في حالة <strong>قيد المراجعة</strong>: يمكنك تعديل الكميات مباشرة قبل تأكيد المورد.</span>
 										</div>
-										<button type="submit" class="btn btn-primary btn-md fw-800" style="gap:0.4rem; padding:0.65rem 1.85rem; box-shadow:var(--shadow-sm); font-size:0.9rem;">
+										<button type="submit" class="btn btn-primary font-bold text-xs px-4 py-2 gap-1">
 											@components.IconCheck("icon-xs")
 											<span>💾 حفظ تعديلات الكميات وتحديث الإجماليات</span>
 										</button>
@@ -458,54 +459,54 @@ templ CustomerOrderDetail(order *commerce.Order, history []*commerce.OrderStatus
 							} else {
 								<!-- Read-Only Locked Table for Confirmed / Processed Orders -->
 								if len(order.Shipments) > 0 {
-									<div style="display:flex; flex-direction:column; gap:1.25rem;">
+									<div class="d-flex flex-col gap-4">
 										for idx, sh := range order.Shipments {
-											<div style="border:1px solid var(--border); border-radius:var(--radius-lg); background:var(--surface-sunken); overflow:hidden;">
-												<div style="display:flex; justify-content:space-between; align-items:center; padding:0.85rem 1.15rem; background:var(--surface-raised); border-bottom:1px solid var(--border); flex-wrap:wrap; gap:0.75rem;">
-													<div style="display:flex; align-items:center; gap:0.6rem;">
-														<span class="badge badge-primary text-xs fw-800 tabular-nums">طرد { fmt.Sprintf("%d", idx+1) }</span>
-														<strong style="font-size:0.95rem; color:var(--text); font-weight:800;">
+											<div class="glass-panel p-0 mb-0 overflow-hidden">
+												<div class="flex-between items-center p-3 px-4 bg-surface-sunken border-b flex-wrap gap-2">
+													<div class="d-flex items-center gap-2">
+														<span class="badge badge-primary text-xs font-bold tabular-nums">طرد { fmt.Sprintf("%d", idx+1) }</span>
+														<strong class="text-xs font-extrabold text-primary">
 															{ sh.VendorName.Get(i18n.Lang(lang)) }
 														</strong>
 													</div>
-													<div style="display:flex; align-items:center; gap:0.5rem;">
+													<div class="d-flex items-center gap-2">
 														if sh.TrackingNumber != "" {
 															<span class="badge badge-slate text-xs font-mono">بوليصة: { sh.TrackingNumber }</span>
 														}
 														@components.StatusBadge(string(sh.Status))
 													</div>
 												</div>
-												<div class="table-container" style="padding:0; margin:0; overflow-x:auto;">
-													<table class="b2b-table" style="margin:0; font-size:0.875rem;">
+												<div class="table-container m-0">
+													<table class="data-table m-0">
 														<thead>
 															<tr>
-																<th style="padding:0.65rem 1rem;">الصنف الدوائي</th>
-																<th style="padding:0.65rem 0.75rem; text-align:center;">الكمية</th>
-																<th style="padding:0.65rem 0.75rem;" class="td-numeric">السعر</th>
-																<th style="padding:0.65rem 0.75rem;" class="td-numeric">الخصم</th>
-																<th style="padding:0.65rem 1rem;" class="td-numeric">الإجمالي</th>
+																<th>الصنف الدوائي</th>
+																<th class="text-center">الكمية</th>
+																<th class="text-end">السعر</th>
+																<th class="text-end">الخصم</th>
+																<th class="text-end">الإجمالي</th>
 															</tr>
 														</thead>
 														<tbody>
 															for _, l := range sh.Lines {
 																<tr>
-																	<td style="padding:0.75rem 1rem;">
-																		<div style="font-weight:800; color:var(--text); font-size:0.925rem;">
+																	<td>
+																		<div class="font-extrabold text-primary text-xs">
 																			{ l.ProductName.Get(i18n.Lang(lang)) }
 																		</div>
 																	</td>
-																	<td style="padding:0.75rem 0.75rem; text-align:center;">
-																		<span class="tabular-nums fw-700" style="background:var(--surface); padding:0.2rem 0.55rem; border-radius:var(--radius-sm); border:1px solid var(--border);">
+																	<td class="text-center">
+																		<span class="tabular-nums font-bold text-xs p-1 px-2 rounded bg-surface border">
 																			{ fmt.Sprintf("%d", l.Quantity) }
 																		</span>
 																	</td>
-																	<td style="padding:0.75rem 0.75rem;" class="td-numeric tabular-nums">
+																	<td class="text-end tabular-nums text-xs text-primary font-bold">
 																		{ l.UnitPrice.String() } ج.م
 																	</td>
-																	<td style="padding:0.75rem 0.75rem;" class="td-numeric tabular-nums text-emerald">
+																	<td class="text-end tabular-nums text-xs text-success font-bold">
 																		{ l.DiscountAmount.String() } ج.م
 																	</td>
-																	<td style="padding:0.75rem 1rem; font-weight:800; color:var(--text);" class="td-numeric tabular-nums">
+																	<td class="text-end tabular-nums font-black text-brand text-xs">
 																		{ l.TotalPrice.String() } ج.م
 																	</td>
 																</tr>
@@ -517,37 +518,37 @@ templ CustomerOrderDetail(order *commerce.Order, history []*commerce.OrderStatus
 										}
 									</div>
 								} else {
-									<div class="table-container" style="padding:0; margin:0; border:1px solid var(--border); border-radius:var(--radius-lg); overflow:hidden; overflow-x:auto;">
-										<table class="b2b-table" style="margin:0; font-size:0.875rem;">
+									<div class="table-container m-0">
+										<table class="data-table m-0">
 											<thead>
 												<tr>
-													<th style="padding:0.65rem 1rem;">الصنف الدوائي</th>
-													<th style="padding:0.65rem 0.75rem; text-align:center;">الكمية</th>
-													<th style="padding:0.65rem 0.75rem;" class="td-numeric">السعر</th>
-													<th style="padding:0.65rem 0.75rem;" class="td-numeric">الخصم</th>
-													<th style="padding:0.65rem 1rem;" class="td-numeric">الإجمالي</th>
+													<th>الصنف الدوائي</th>
+													<th class="text-center">الكمية</th>
+													<th class="text-end">السعر</th>
+													<th class="text-end">الخصم</th>
+													<th class="text-end">الإجمالي</th>
 												</tr>
 											</thead>
 											<tbody>
 												for _, l := range order.Lines {
 													<tr>
-														<td style="padding:0.75rem 1rem;">
-															<div style="font-weight:800; color:var(--text); font-size:0.925rem;">
+														<td>
+															<div class="font-extrabold text-primary text-xs">
 																{ l.ProductName.Get(i18n.Lang(lang)) }
 															</div>
 														</td>
-														<td style="padding:0.75rem 0.75rem; text-align:center;">
-															<span class="tabular-nums fw-700" style="background:var(--surface); padding:0.2rem 0.55rem; border-radius:var(--radius-sm); border:1px solid var(--border);">
+														<td class="text-center">
+															<span class="tabular-nums font-bold text-xs p-1 px-2 rounded bg-surface border">
 																{ fmt.Sprintf("%d", l.Quantity) }
 															</span>
 														</td>
-														<td style="padding:0.75rem 0.75rem;" class="td-numeric tabular-nums">
+														<td class="text-end tabular-nums text-xs text-primary font-bold">
 															{ l.UnitPrice.String() } ج.م
 														</td>
-														<td style="padding:0.75rem 0.75rem;" class="td-numeric tabular-nums text-emerald">
+														<td class="text-end tabular-nums text-xs text-success font-bold">
 															{ l.DiscountAmount.String() } ج.م
 														</td>
-														<td style="padding:0.75rem 1rem; font-weight:800; color:var(--text);" class="td-numeric tabular-nums">
+														<td class="text-end tabular-nums font-black text-brand text-xs">
 															{ l.TotalPrice.String() } ج.م
 														</td>
 													</tr>
@@ -556,7 +557,7 @@ templ CustomerOrderDetail(order *commerce.Order, history []*commerce.OrderStatus
 										</table>
 									</div>
 								}
-								<div style="display:flex; align-items:center; gap:0.5rem; padding:0.75rem 1rem; border-radius:var(--radius-lg); background:var(--surface-sunken); border:1px solid var(--border); font-size:0.825rem; color:var(--text-secondary); margin-top:1rem;">
+								<div class="p-3 rounded-lg bg-surface-sunken border text-xs text-secondary d-flex items-center gap-2 mt-4">
 									<span>🔒</span>
 									<span>تم تأكيد هذا الطلب أو بدء تجهيزه من قِبل المورد (حالة الطلب: <strong>{ string(order.Status) }</strong>). لا يمكن تعديل الكميات بعد بدء التنفيذ.</span>
 								</div>
@@ -607,18 +608,18 @@ templ CustomerOrderDetail(order *commerce.Order, history []*commerce.OrderStatus
 				<div style="display:flex; flex-direction:column; gap:1.5rem;">
 					
 					<!-- 1. Financial Breakdown Card -->
-					<div class="card" style="margin:0; padding:1.5rem; border-radius:var(--radius-xl); border:1px solid var(--border); background:var(--surface); box-shadow:var(--shadow-xs);">
-						<div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:1.25rem; border-bottom:1px solid var(--border); padding-bottom:0.75rem;">
-							<span style="font-size:1.1rem;">🧾</span>
-							<h2 style="font-size:1.05rem; font-weight:800; color:var(--text); margin:0;">
+					<div class="glass-panel p-6 mb-0">
+						<div class="d-flex items-center gap-2 mb-4 pb-3 border-b">
+							<span class="text-xl">🧾</span>
+							<h2 class="text-base font-extrabold text-primary m-0">
 								الملخص المالي للفاتورة
 							</h2>
 						</div>
 
-						<div style="display:flex; flex-direction:column; gap:0.75rem; font-size:0.875rem;">
-							<div style="display:flex; justify-content:space-between; align-items:center;">
-								<span style="color:var(--text-secondary);">إجمالي الأصناف:</span>
-								<span class="tabular-nums fw-700" style="color:var(--text);">
+						<div class="d-flex flex-col gap-3 text-xs">
+							<div class="flex-between items-center">
+								<span class="text-secondary">إجمالي الأصناف:</span>
+								<span class="tabular-nums font-bold text-primary">
 									if order.Subtotal.Minor() > 0 {
 										{ order.Subtotal.String() } ج.م
 									} else {
@@ -628,9 +629,9 @@ templ CustomerOrderDetail(order *commerce.Order, history []*commerce.OrderStatus
 							</div>
 
 							if order.DiscountAmount.Minor() > 0 || order.TotalDiscount.Minor() > 0 {
-								<div style="display:flex; justify-content:space-between; align-items:center; color:var(--emerald);">
+								<div class="flex-between items-center text-success">
 									<span>إجمالي الخصم الممنوح:</span>
-									<span class="tabular-nums fw-700">
+									<span class="tabular-nums font-bold">
 										if order.TotalDiscount.Minor() > 0 {
 											- { order.TotalDiscount.String() } ج.م
 										} else {
@@ -640,9 +641,9 @@ templ CustomerOrderDetail(order *commerce.Order, history []*commerce.OrderStatus
 								</div>
 							}
 
-							<div style="display:flex; justify-content:space-between; align-items:center;">
-								<span style="color:var(--text-secondary);">مصاريف الشحن والتوصيل:</span>
-								<span class="tabular-nums fw-700" style="color:var(--text);">
+							<div class="flex-between items-center">
+								<span class="text-secondary">مصاريف الشحن والتوصيل:</span>
+								<span class="tabular-nums font-bold text-primary">
 									if order.ShippingFee.Minor() > 0 {
 										{ order.ShippingFee.String() } ج.م
 									} else {
@@ -652,26 +653,26 @@ templ CustomerOrderDetail(order *commerce.Order, history []*commerce.OrderStatus
 							</div>
 
 							if order.TaxAmount.Minor() > 0 {
-								<div style="display:flex; justify-content:space-between; align-items:center;">
-									<span style="color:var(--text-secondary);">ضريبة القيمة المضافة:</span>
-									<span class="tabular-nums fw-700" style="color:var(--text);">{ order.TaxAmount.String() } ج.م</span>
+								<div class="flex-between items-center">
+									<span class="text-secondary">ضريبة القيمة المضافة:</span>
+									<span class="tabular-nums font-bold text-primary">{ order.TaxAmount.String() } ج.م</span>
 								</div>
 							}
 
-							<div style="height:1px; background:var(--border); margin:0.35rem 0;"></div>
+							<div class="border-t my-1"></div>
 
-							<div style="display:flex; justify-content:space-between; align-items:baseline;">
-								<span style="font-size:0.95rem; font-weight:800; color:var(--text);">المبلغ الصافي المستحق:</span>
-								<div style="font-size:1.5rem; font-weight:900; color:var(--accent); line-height:1.2;" class="tabular-nums">
-									{ order.TotalAmount.String() } <span style="font-size:0.85rem; font-weight:700; color:var(--text-secondary);">ج.م</span>
+							<div class="flex-between items-baseline">
+								<span class="font-extrabold text-primary text-sm">المبلغ الصافي المستحق:</span>
+								<div class="text-2xl font-black text-brand tabular-nums">
+									{ order.TotalAmount.String() } <span class="text-xs font-bold text-secondary">ج.م</span>
 								</div>
 							</div>
 
 							<!-- Payment method pill -->
-							<div style="margin-top:0.5rem; padding:0.75rem; border-radius:var(--radius-lg); background:var(--surface-sunken); border:1px solid var(--border); font-size:0.8125rem;">
-								<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.25rem;">
-									<span style="color:var(--text-muted);">طريقة الدفع:</span>
-									<span style="font-weight:700; color:var(--text);">
+							<div class="mt-2 p-3 rounded-lg bg-surface-sunken border text-xs">
+								<div class="flex-between items-center mb-1">
+									<span class="text-muted">طريقة الدفع:</span>
+									<span class="font-bold text-primary">
 										if order.PaymentMethod == "cod" || order.PaymentMethod == "" {
 											<span>دفع عند الاستلام (COD)</span>
 										} else {
@@ -679,30 +680,29 @@ templ CustomerOrderDetail(order *commerce.Order, history []*commerce.OrderStatus
 										}
 									</span>
 								</div>
-								<div style="display:flex; justify-content:space-between; align-items:center;">
-									<span style="color:var(--text-muted);">حالة السداد:</span>
+								<div class="flex-between items-center">
+									<span class="text-muted">حالة السداد:</span>
 									if order.PaymentStatus == commerce.PaymentPaid {
-										<span class="text-emerald fw-700">✓ مدفوع بالكامل</span>
+										<span class="text-emerald font-bold">✓ مدفوع بالكامل</span>
 									} else {
-										<span class="text-amber fw-700">مستحق عند الاستلام</span>
+										<span class="text-amber font-bold">مستحق عند الاستلام</span>
 									}
 								</div>
 							</div>
 
 							<!-- Print invoice button CTA -->
-							<div style="margin-top:0.5rem;">
+							<div class="mt-2">
 								if order.Status != commerce.StatusPending {
 									<a
 										href={ templ.SafeURL(fmt.Sprintf("/orders/%d/invoice/print", order.ID)) }
 										target="_blank"
-										class="btn btn-primary"
-										style="width:100%; justify-content:center; font-weight:800; padding:0.65rem 1rem; border-radius:var(--radius-lg); gap:0.4rem;"
+										class="btn btn-primary w-full justify-center font-bold text-xs py-2 gap-1"
 									>
 										@components.IconPrinter("icon-xs")
 										<span>طباعة الفاتورة</span>
 									</a>
 								} else {
-									<div style="background:var(--surface-sunken); border:1px dashed var(--border); border-radius:var(--radius-lg); padding:0.75rem; text-align:center; font-size:0.8rem; color:var(--text-muted);">
+									<div class="bg-surface-sunken border border-dashed rounded-lg p-3 text-center text-xs text-muted">
 										<span>🔒 تتاح طباعة الفاتورة فور تأكيد وقبول المورد للطلب</span>
 									</div>
 								}
@@ -711,18 +711,18 @@ templ CustomerOrderDetail(order *commerce.Order, history []*commerce.OrderStatus
 					</div>
 
 					<!-- 2. Pharmacy Receiving Branch Card -->
-					<div class="card" style="margin:0; padding:1.5rem; border-radius:var(--radius-xl); border:1px solid var(--border); background:var(--surface); box-shadow:var(--shadow-xs);">
-						<div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:1.25rem; border-bottom:1px solid var(--border); padding-bottom:0.75rem;">
-							<span style="font-size:1.1rem;">🏥</span>
-							<h2 style="font-size:1.05rem; font-weight:800; color:var(--text); margin:0;">
+					<div class="glass-panel p-6 mb-0">
+						<div class="d-flex items-center gap-2 mb-4 pb-3 border-b">
+							<span class="text-xl">🏥</span>
+							<h2 class="text-base font-extrabold text-primary m-0">
 								بيانات فرع الاستلام
 							</h2>
 						</div>
 
-						<div style="display:flex; flex-direction:column; gap:0.75rem; font-size:0.875rem;">
+						<div class="d-flex flex-col gap-3 text-xs">
 							<div>
-								<div style="font-size:0.75rem; color:var(--text-muted); font-weight:600; margin-bottom:0.15rem;">فرع الصيدلية:</div>
-								<div style="font-weight:800; color:var(--text); font-size:0.95rem;">
+								<div class="text-muted font-bold mb-1">فرع الصيدلية:</div>
+								<div class="font-extrabold text-primary text-sm">
 									if order.CustomerBranchName.Get(i18n.Lang(lang)) != "" {
 										{ order.CustomerBranchName.Get(i18n.Lang(lang)) }
 									} else {
@@ -733,21 +733,21 @@ templ CustomerOrderDetail(order *commerce.Order, history []*commerce.OrderStatus
 
 							if order.CustomerManagerName != "" {
 								<div>
-									<div style="font-size:0.75rem; color:var(--text-muted); font-weight:600; margin-bottom:0.15rem;">الصيدلي المسؤول:</div>
-									<div style="color:var(--text); font-weight:600;">{ order.CustomerManagerName }</div>
+									<div class="text-muted font-bold mb-1">الصيدلي المسؤول:</div>
+									<div class="text-primary font-bold">{ order.CustomerManagerName }</div>
 								</div>
 							}
 
 							if order.CustomerBranchPhone != "" {
 								<div>
-									<div style="font-size:0.75rem; color:var(--text-muted); font-weight:600; margin-bottom:0.15rem;">هاتف الفرع:</div>
-									<div style="color:var(--text); font-weight:700; direction:ltr; text-align:right;" class="tabular-nums font-mono">{ order.CustomerBranchPhone }</div>
+									<div class="text-muted font-bold mb-1">هاتف الفرع:</div>
+									<div class="text-primary font-bold tabular-nums font-mono">{ order.CustomerBranchPhone }</div>
 								</div>
 							}
 
 							<div>
-								<div style="font-size:0.75rem; color:var(--text-muted); font-weight:600; margin-bottom:0.15rem;">عنوان التوصيل المسجل:</div>
-								<div style="color:var(--text); line-height:1.4;">
+								<div class="text-muted font-bold mb-1">عنوان التوصيل المسجل:</div>
+								<div class="text-secondary leading-relaxed">
 									if order.CustomerBranchAddress != "" {
 										{ order.CustomerBranchAddress }
 									} else {
@@ -757,21 +757,21 @@ templ CustomerOrderDetail(order *commerce.Order, history []*commerce.OrderStatus
 							</div>
 
 							if order.Notes != "" {
-								<div style="margin-top:0.25rem; padding:0.65rem 0.85rem; border-radius:var(--radius-md); background:var(--surface-sunken); border:1px solid var(--border);">
-									<div style="font-size:0.75rem; color:var(--text-muted); font-weight:600; margin-bottom:0.15rem;">ملاحظات خاصة بالتسليم:</div>
-									<div style="color:var(--text); font-size:0.8125rem;">{ order.Notes }</div>
+								<div class="mt-1 p-3 rounded-lg bg-surface-sunken border">
+									<div class="text-muted font-bold mb-1">ملاحظات خاصة بالتسليم:</div>
+									<div class="text-primary text-xs">{ order.Notes }</div>
 								</div>
 							}
 						</div>
 					</div>
 
 					<!-- 3. Quality & Cold-Chain Badge Card -->
-					<div class="card" style="margin:0; padding:1.25rem 1.35rem; border-radius:var(--radius-xl); border:1px solid rgba(59, 130, 246, 0.2); background:rgba(59, 130, 246, 0.04); font-size:0.8125rem; display:flex; flex-direction:column; gap:0.6rem;">
-						<div style="display:flex; align-items:center; gap:0.45rem; font-weight:800; color:var(--primary);">
+					<div class="glass-panel p-4 mb-0 text-xs d-flex flex-col gap-2 border-brand-subtle">
+						<div class="d-flex items-center gap-2 font-black text-brand">
 							<span>❄️</span>
 							<span>معايير النقل المبرد المعتمد</span>
 						</div>
-						<p style="margin:0; color:var(--text-secondary); line-height:1.5;">
+						<p class="m-0 text-secondary leading-relaxed">
 							تخضع كافة الشحنات لرقابة درجات الحرارة وسلسلة التبريد الموثقة لضمان فاعلية ومأمونية الأصناف الدوائية.
 						</p>
 					</div>
@@ -783,66 +783,66 @@ templ CustomerOrderDetail(order *commerce.Order, history []*commerce.OrderStatus
 			<!-- Edit Order Modal (Only rendered/available when order is pending) -->
 			if order.Status == commerce.StatusPending {
 				<div id="order-edit-modal" class="modal-overlay hidden" style="position:fixed; inset:0; z-index:99999; background:rgba(15,23,42,0.65); backdrop-filter:blur(4px); display:none; align-items:center; justify-content:center; padding:1rem;" onclick="if(event.target===this) window.closeOrderEditModal();">
-					<div class="modal-card" style="background:var(--surface-raised); border-radius:var(--radius-2xl); border:1px solid var(--border); box-shadow:var(--shadow-xl); width:100%; max-width:860px; max-height:90vh; display:flex; flex-direction:column; overflow:hidden;">
+					<div class="glass-panel p-0 max-w-4xl w-full max-h-90vh d-flex flex-col overflow-hidden">
 						<!-- Header -->
-						<div style="display:flex; justify-content:space-between; align-items:center; padding:1.25rem 1.5rem; border-bottom:1px solid var(--border); background:var(--surface);">
-							<div style="display:flex; align-items:center; gap:0.6rem;">
-								<span style="font-size:1.35rem;">✏️</span>
+						<div class="flex-between items-center p-6 border-b">
+							<div class="d-flex items-center gap-3">
+								<span class="text-2xl">✏️</span>
 								<div>
-									<h3 style="font-size:1.15rem; font-weight:900; color:var(--text); margin:0;">
+									<h3 class="text-lg font-black text-primary m-0">
 										تعديل أصناف وكميات الطلب #{ order.OrderNumber }
 									</h3>
-									<p style="font-size:0.75rem; color:var(--text-muted); margin:0.15rem 0 0 0;">
-										يمكنك تعديل كميات الأصناف أو إضافة صنف جديد يدوياً، وسيقوم النظام بتحديث الفاتورة فوراً.
+									<p class="text-xs text-secondary m-0 mt-1">
+										يمكنك تعديل كميات الأصناف أو إضافة صنف جديد يدوياً، وسيقوم النظام بتحديث الفاتورة فوراً
 									</p>
 								</div>
 							</div>
-							<button type="button" class="btn btn-secondary btn-icon" onclick="window.closeOrderEditModal()" style="border:none; cursor:pointer;">
+							<button type="button" class="btn btn-secondary btn-icon" onclick="window.closeOrderEditModal()">
 								@components.IconClose("icon-sm")
 							</button>
 						</div>
 
 						<!-- Form -->
-						<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/orders/%d/edit", order.ID)) } id="order-edit-form" style="display:flex; flex-direction:column; overflow-y:auto; padding:1.5rem; gap:1.25rem;">
+						<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/orders/%d/edit", order.ID)) } id="order-edit-form" class="d-flex flex-col overflow-y-auto p-6 gap-4">
 							<!-- Table of lines -->
-							<div class="table-container" style="margin:0; border:1px solid var(--border); border-radius:var(--radius-lg); overflow:hidden;">
-								<table class="b2b-table" style="margin:0; font-size:0.875rem;" id="edit-lines-table">
-									<thead style="background:var(--surface-sunken);">
+							<div class="table-container m-0">
+								<table class="data-table m-0" id="edit-lines-table">
+									<thead>
 										<tr>
-											<th style="padding:0.65rem 0.85rem;">الصنف الدوائي</th>
-											<th style="padding:0.65rem 0.75rem; width:135px; text-align:center;">الكمية</th>
-											<th style="padding:0.65rem 0.75rem; width:110px;" class="td-numeric">سعر الوحدة</th>
-											<th style="padding:0.65rem 0.75rem; width:95px;" class="td-numeric">الخصم</th>
-											<th style="padding:0.65rem 0.85rem; width:110px;" class="td-numeric">الإجمالي</th>
-											<th style="padding:0.65rem 0.5rem; width:45px; text-align:center;"></th>
+											<th>الصنف الدوائي</th>
+											<th style="width:135px;" class="text-center">الكمية</th>
+											<th style="width:110px;" class="text-end">سعر الوحدة</th>
+											<th style="width:95px;" class="text-end">الخصم</th>
+											<th style="width:110px;" class="text-end">الإجمالي</th>
+											<th style="width:45px;" class="text-center"></th>
 										</tr>
 									</thead>
 									<tbody id="edit-lines-tbody">
 										for _, line := range getAllOrderLines(order) {
 											<tr class="edit-line-row">
-												<td style="padding:0.65rem 0.85rem;">
+												<td>
 													<input type="hidden" name="line_id[]" value={ fmt.Sprintf("%d", line.ID) }/>
 													<input type="hidden" name="is_deleted[]" value="0" class="line-deleted-input"/>
-													<input type="text" name="product_name[]" value={ line.ProductName.Get(i18n.Lang(lang)) } required class="form-input input-sm w-full fw-700" style="font-size:0.875rem;"/>
+													<input type="text" name="product_name[]" value={ line.ProductName.Get(i18n.Lang(lang)) } required class="form-input text-xs w-full font-bold"/>
 												</td>
-												<td style="padding:0.65rem 0.75rem;">
-													<div style="display:flex; align-items:center; gap:0.25rem; justify-content:center;">
-														<button type="button" class="btn btn-secondary btn-icon" style="width:26px; height:26px; padding:0; font-size:0.9rem;" onclick="window.stepQty(this, -1)">-</button>
-														<input type="number" name="quantity[]" value={ fmt.Sprintf("%d", line.Quantity) } min="1" required class="form-input input-sm tabular-nums text-center line-qty-input" style="width:55px; font-weight:800; padding:0.25rem 0.35rem;" oninput="window.recalcEditOrder()"/>
-														<button type="button" class="btn btn-secondary btn-icon" style="width:26px; height:26px; padding:0; font-size:0.9rem;" onclick="window.stepQty(this, 1)">+</button>
+												<td>
+													<div class="d-flex items-center gap-1 justify-center">
+														<button type="button" class="btn btn-secondary btn-icon btn-sm" onclick="window.stepQty(this, -1)">-</button>
+														<input type="number" name="quantity[]" value={ fmt.Sprintf("%d", line.Quantity) } min="1" required class="form-input text-xs tabular-nums text-center line-qty-input font-bold" style="width:55px;" oninput="window.recalcEditOrder()"/>
+														<button type="button" class="btn btn-secondary btn-icon btn-sm" onclick="window.stepQty(this, 1)">+</button>
 													</div>
 												</td>
-												<td style="padding:0.65rem 0.75rem;" class="td-numeric">
-													<input type="text" name="unit_price[]" value={ line.UnitPrice.String() } required class="form-input input-sm tabular-nums line-unit-price text-right" style="width:100%; font-weight:700;" oninput="window.recalcEditOrder()"/>
+												<td class="text-end">
+													<input type="text" name="unit_price[]" value={ line.UnitPrice.String() } required class="form-input text-xs tabular-nums line-unit-price text-end font-bold" style="width:100%;" oninput="window.recalcEditOrder()"/>
 												</td>
-												<td style="padding:0.65rem 0.75rem;" class="td-numeric">
-													<input type="text" name="discount_amount[]" value={ line.DiscountAmount.String() } class="form-input input-sm tabular-nums line-disc-amount text-right" style="width:100%;" oninput="window.recalcEditOrder()"/>
+												<td class="text-end">
+													<input type="text" name="discount_amount[]" value={ line.DiscountAmount.String() } class="form-input text-xs tabular-nums line-disc-amount text-end" style="width:100%;" oninput="window.recalcEditOrder()"/>
 												</td>
-												<td style="padding:0.65rem 0.85rem;" class="td-numeric">
-													<span class="line-total-cell tabular-nums fw-800 text-primary">{ line.TotalPrice.String() }</span>
+												<td class="text-end tabular-nums font-black text-brand text-xs">
+													<span class="line-total-cell">{ line.TotalPrice.String() }</span>
 												</td>
-												<td style="padding:0.65rem 0.5rem; text-align:center;">
-													<button type="button" class="btn btn-secondary btn-icon" title="حذف الصنف" onclick="window.deleteEditRow(this)" style="width:28px; height:28px; padding:0; border-radius:var(--radius-md); color:var(--rose);">
+												<td class="text-center">
+													<button type="button" class="btn btn-secondary btn-icon btn-sm text-danger" title="حذف الصنف" onclick="window.deleteEditRow(this)">
 														🗑️
 													</button>
 												</td>
@@ -853,41 +853,41 @@ templ CustomerOrderDetail(order *commerce.Order, history []*commerce.OrderStatus
 							</div>
 
 							<!-- Button to add new line row -->
-							<div style="display:flex; justify-content:flex-start;">
-								<button type="button" class="btn btn-secondary btn-sm fw-700" onclick="window.addNewEditRow()" style="gap:0.4rem; border-style:dashed;">
+							<div class="d-flex justify-start">
+								<button type="button" class="btn btn-secondary btn-sm font-bold gap-1 border-dashed" onclick="window.addNewEditRow()">
 									<span>➕ إضافة صنف جديد يدوياً للطلب</span>
 								</button>
 							</div>
 
 							<!-- Notes -->
 							<div>
-								<label class="form-label" style="font-size:0.8rem; font-weight:700;">ملاحظات الصيدلية بخصوص التعديل (اختياري)</label>
-								<input type="text" name="notes" placeholder="اكتب توضيح للمورد بخصوص تعديل الكميات أو الأصناف..." class="form-input input-sm w-full"/>
+								<label class="form-label text-xs font-bold text-secondary mb-1">ملاحظات الصيدلية بخصوص التعديل (اختياري)</label>
+								<input type="text" name="notes" placeholder="اكتب توضيح للمورد بخصوص تعديل الكميات أو الأصناف..." class="form-input text-xs w-full"/>
 							</div>
 
 							<!-- Summary Box -->
-							<div style="background:var(--surface-sunken); padding:1rem 1.25rem; border-radius:var(--radius-xl); border:1px solid var(--border); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem;">
-								<div style="display:flex; gap:1.5rem; flex-wrap:wrap; font-size:0.875rem;">
+							<div class="glass-panel p-4 flex-between items-center flex-wrap gap-3">
+								<div class="d-flex gap-4 flex-wrap text-xs">
 									<div>
-										<span style="color:var(--text-secondary);">إجمالي الأصناف:</span>
-										<strong id="edit-subtotal-val" class="tabular-nums" style="margin-inline-start:0.35rem;">{ order.Subtotal.String() }</strong> ج.م
+										<span class="text-secondary">إجمالي الأصناف:</span>
+										<strong id="edit-subtotal-val" class="tabular-nums text-primary ms-1">{ order.Subtotal.String() }</strong> ج.م
 									</div>
 									<div>
-										<span style="color:var(--emerald);">إجمالي الخصم:</span>
-										<strong id="edit-discount-val" class="tabular-nums text-emerald" style="margin-inline-start:0.35rem;">-{ order.DiscountAmount.String() }</strong> ج.م
+										<span class="text-success">إجمالي الخصم:</span>
+										<strong id="edit-discount-val" class="tabular-nums text-success ms-1">-{ order.DiscountAmount.String() }</strong> ج.م
 									</div>
 								</div>
-								<div style="display:flex; align-items:baseline; gap:0.5rem;">
-									<span style="font-weight:800; font-size:0.95rem; color:var(--text);">المبلغ الصافي الجديد:</span>
-									<span id="edit-grandtotal-val" class="tabular-nums" style="font-size:1.4rem; font-weight:900; color:var(--accent);">{ order.TotalAmount.String() }</span>
-									<span style="font-size:0.85rem; font-weight:700; color:var(--text-muted);">ج.م</span>
+								<div class="d-flex items-baseline gap-2">
+									<span class="font-extrabold text-xs text-primary">المبلغ الصافي الجديد:</span>
+									<span id="edit-grandtotal-val" class="tabular-nums text-xl font-black text-brand">{ order.TotalAmount.String() }</span>
+									<span class="text-xs text-secondary font-bold">ج.م</span>
 								</div>
 							</div>
 
 							<!-- Modal Footer Actions -->
-							<div style="display:flex; justify-content:flex-end; gap:0.75rem; border-top:1px solid var(--border); padding-top:1rem;">
-								<button type="button" class="btn btn-secondary btn-sm" onclick="window.closeOrderEditModal()">إلغاء</button>
-								<button type="submit" class="btn btn-primary btn-sm fw-800" style="padding:0.55rem 1.5rem; gap:0.4rem;">
+							<div class="d-flex justify-end gap-3 pt-3 border-t">
+								<button type="button" class="btn btn-secondary text-xs" onclick="window.closeOrderEditModal()">إلغاء</button>
+								<button type="submit" class="btn btn-primary text-xs font-bold px-4 gap-1">
 									@components.IconCheck("icon-xs")
 									<span>حفظ وتحديث الطلب</span>
 								</button>

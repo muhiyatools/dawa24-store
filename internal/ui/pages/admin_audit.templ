@@ -18,38 +18,46 @@ type AdminAuditValues struct {
 
 templ AdminAuditPage(values AdminAuditValues, lang, dir string) {
 	@layouts.AdminShell("سجل العمليات والتدقيق الأمني | Audit Logs", "audit", lang, dir) {
-		<div class="stack-lg" x-data="adminAuditManager()">
+		<div class="page-container" x-data="adminAuditManager()">
 			
 			{{ totalEntries := len(values.Entries) }}
 			<!-- Page Header -->
-			@components.PageHeader(components.PageHeaderProps{
-				Title:      "سجل العمليات والتدقيق الأمني",
-				Subtitle:   "سجل موثق ومتزامن لكافة العمليات الإدارية، التراخيص، تعديلات الأدوية، وحركات الحسابات",
-				Count:      &totalEntries,
-				CountLabel: "عملية مسجلة",
-			}) {
-				<a href="/admin/audit" class="btn btn-secondary fw-700">
-					@components.IconRefresh("icon-xs")
-					<span>تحديث السجل</span>
-				</a>
-			}
+			<div class="glass-panel p-6 mb-6">
+				<div class="flex-between items-center flex-wrap gap-4">
+					<div class="d-flex items-center gap-3">
+						<div class="user-avatar-badge text-xl">
+							📜
+						</div>
+						<div>
+							<h1 class="text-2xl font-black text-primary m-0">سجل العمليات والتدقيق الأمني</h1>
+							<p class="text-sm text-secondary m-0 mt-1">سجل موثق ومتزامن لكافة العمليات الإدارية، التراخيص، تعديلات الأدوية، وحركات الحسابات ({ fmt.Sprintf("%d عملية", totalEntries) })</p>
+						</div>
+					</div>
+
+					<div class="d-flex items-center gap-2">
+						<a href="/admin/audit" class="btn btn-secondary btn-sm font-bold text-xs gap-1">
+							@components.IconRefresh("icon-xs")
+							<span>تحديث السجل</span>
+						</a>
+					</div>
+				</div>
+			</div>
 
 			<!-- Filter Strip -->
-			<div class="card mb-0" style="padding:0.85rem 1.25rem;">
-				<form method="GET" action="/admin/audit" style="display:flex; gap:0.75rem; align-items:center; flex-wrap:wrap; margin:0;">
-					<div style="flex:1; min-width:220px;">
+			<div class="glass-panel p-4 mb-6">
+				<form method="GET" action="/admin/audit" class="d-flex gap-3 items-center flex-wrap m-0">
+					<div class="flex-1" style="min-width:220px;">
 						<input
 							type="text"
 							name="q"
 							value={ values.SelectedActor }
 							placeholder="بحث بالمستخدم، المنظمة، أو الإجراء..."
-							class="form-input"
-							style="padding:0.45rem 0.75rem; font-size:0.85rem;"
+							class="form-input text-xs w-full"
 						/>
 					</div>
 
 					<div style="min-width:160px;">
-						<select name="severity" class="form-select" style="padding:0.45rem 0.75rem; font-size:0.85rem;">
+						<select name="severity" class="form-select text-xs w-full">
 							<option value="">كافة درجات الأهمية</option>
 							<option value="info" selected?={ values.Severity == "info" }>عادي (Info)</option>
 							<option value="warning" selected?={ values.Severity == "warning" }>متوسط (Warning)</option>
@@ -58,7 +66,7 @@ templ AdminAuditPage(values AdminAuditValues, lang, dir string) {
 					</div>
 
 					<div style="min-width:170px;">
-						<select name="action" class="form-select" style="padding:0.45rem 0.75rem; font-size:0.85rem;">
+						<select name="action" class="form-select text-xs w-full">
 							<option value="">كافة الأقسام والعمليات</option>
 							<option value="user" selected?={ values.ActionFilter == "user" }>المستخدمين والصلاحيات</option>
 							<option value="org" selected?={ values.ActionFilter == "org" }>المنشآت والتراخيص</option>
@@ -67,13 +75,13 @@ templ AdminAuditPage(values AdminAuditValues, lang, dir string) {
 						</select>
 					</div>
 
-					<button type="submit" class="btn btn-primary btn-sm fw-700">
+					<button type="submit" class="btn btn-primary btn-sm font-bold text-xs px-3">
 						@components.IconSearch("icon-xs")
 						<span>تصفية</span>
 					</button>
 
 					if values.SelectedActor != "" || values.Severity != "" || values.ActionFilter != "" {
-						<a href="/admin/audit" class="btn btn-secondary btn-sm text-muted">
+						<a href="/admin/audit" class="btn btn-secondary btn-sm text-xs">
 							إلغاء التصفية
 						</a>
 					}
@@ -81,23 +89,24 @@ templ AdminAuditPage(values AdminAuditValues, lang, dir string) {
 			</div>
 
 			<!-- Audit Log Table Card -->
-			<div class="card mb-0 overflow-visible">
+			<div class="glass-panel p-0 mb-6 overflow-hidden">
 				if len(values.Entries) == 0 {
-					@components.EmptyState(components.EmptyStateProps{
-						Title:   "لا توجد عمليات مسجلة",
-						Message: "لم يتم تسجيل أي عمليات تطابق معايير البحث الحالية في سجل النظام.",
-					})
+					<div class="p-8 text-center empty-state-glass">
+						<div class="text-4xl mb-3">📜</div>
+						<h3 class="text-lg font-black text-primary mb-2">لا توجد عمليات مسجلة</h3>
+						<p class="text-sm text-secondary max-w-md mx-auto">لم يتم تسجيل أي عمليات تطابق معايير البحث الحالية في سجل النظام.</p>
+					</div>
 				} else {
-					<div class="table-container" style="overflow-x:auto;">
-						<table class="b2b-table" style="min-width:1150px; width:100%; border-collapse:collapse;">
+					<div class="table-container m-0">
+						<table class="data-table m-0" style="min-width:1100px;">
 							<thead>
 								<tr>
-									<th style="width:6%; text-align:center;">المعرف</th>
-									<th style="width:11%; text-align:start;">التوقيت</th>
-									<th style="width:15%; text-align:start;">المستخدم</th>
-									<th style="width:12%; text-align:start;">المنظمة</th>
-									<th style="width:16%; text-align:start;">القسم والإجراء</th>
-									<th style="width:22%; text-align:start;">العنوان والوصف</th>
+									<th style="width:6%;" class="text-center">المعرف</th>
+									<th style="width:11%;">التوقيت</th>
+									<th style="width:15%;">المستخدم</th>
+									<th style="width:12%;">المنظمة</th>
+									<th style="width:16%;">القسم والإجراء</th>
+									<th style="width:22%;">العنوان والوصف</th>
 									<th style="width:8%; text-align:center;">الأهمية</th>
 									<th style="width:10%; text-align:start;">عنوان IP</th>
 									<th style="width:6%; text-align:center;">الإجراءات</th>

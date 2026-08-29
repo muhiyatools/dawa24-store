@@ -28,66 +28,64 @@ type AdminDevelopersValues struct {
 
 templ AdminDevelopersPage(values AdminDevelopersValues, lang, dir string) {
 	@layouts.AdminShell("أدوات المطورين وتشخيص النظام | Developer Tools & Diagnostics", "developers", lang, dir) {
-		<div style="max-width:1180px; margin:0 auto;" x-data={ fmt.Sprintf("adminDevelopersManager(%q)", values.ActiveTab) }>
+		<div class="page-container" x-data={ fmt.Sprintf("adminDevelopersManager(%q)", values.ActiveTab) }>
 			
 			<!-- Header -->
-			<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; gap:1rem; flex-wrap:wrap;">
-				<div class="row-center">
-					<div style="width:46px; height:46px; border-radius:var(--radius-xl); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center;">
-						@components.IconTerminal("icon-md")
-					</div>
-					<div>
-						<h2 class="card-title" style="margin:0; font-size:1.55rem; font-weight:800;">
-							أدوات المطورين وتشخيص النظام
-						</h2>
-						<p style="font-size:0.875rem; color:var(--text-secondary); margin:0.2rem 0 0 0;">
-							وحدة استعلامات SQL، بوابة الذكاء الاصطناعي، نظام مراقبة الأخطاء المتقدم، وسجلات التدقيق
-						</p>
+			<div class="glass-panel p-6 mb-6">
+				<div class="flex-between items-center flex-wrap gap-4">
+					<div class="d-flex items-center gap-3">
+						<div class="user-avatar-badge text-xl">
+							💻
+						</div>
+						<div>
+							<h1 class="text-2xl font-black text-primary m-0">أدوات المطورين وتشخيص النظام</h1>
+							<p class="text-sm text-secondary m-0 mt-1">وحدة استعلامات SQL، بوابة الذكاء الاصطناعي، نظام مراقبة الأخطاء المتقدم، وسجلات التدقيق</p>
+						</div>
 					</div>
 				</div>
-			</div>
 
-			<!-- Main Persistent Tabs Bar -->
-			<div style="display:flex; gap:0.5rem; border-bottom:2px solid var(--border); margin-bottom:1.75rem; flex-wrap:wrap;">
-				<button
-					type="button"
-					class="btn"
-					:class="activeTab === 'sql' ? 'btn-primary tab-btn-header' : 'btn-secondary tab-btn-header'"
-					@click="setTab('sql')"
-				>
-					@components.IconDatabase("icon-xs")
-					<span>1. وحدة استعلامات SQL</span>
-				</button>
+				<!-- Main Persistent Tabs Bar -->
+				<div class="cb-tabs-nav m-0 mt-6 pt-4 border-t">
+					<button
+						type="button"
+						class="cb-tab-btn"
+						:class="{ 'active': activeTab === 'sql' }"
+						@click="setTab('sql')"
+					>
+						@components.IconDatabase("icon-xs")
+						<span>1. وحدة استعلامات SQL</span>
+					</button>
 
-				<button
-					type="button"
-					class="btn"
-					:class="activeTab === 'ai' ? 'btn-primary tab-btn-header' : 'btn-secondary tab-btn-header'"
-					@click="setTab('ai')"
-				>
-					@components.IconSparkles("icon-xs")
-					<span>2. بوابة الذكاء الاصطناعي</span>
-				</button>
+					<button
+						type="button"
+						class="cb-tab-btn"
+						:class="{ 'active': activeTab === 'ai' }"
+						@click="setTab('ai')"
+					>
+						@components.IconSparkles("icon-xs")
+						<span>2. بوابة الذكاء الاصطناعي</span>
+					</button>
 
-				<button
-					type="button"
-					class="btn"
-					:class="activeTab === 'errors' ? 'btn-primary tab-btn-header' : 'btn-secondary tab-btn-header'"
-					@click="setTab('errors')"
-				>
-					@components.IconBug("icon-xs")
-					<span>3. سجلات وتشخيص الأخطاء</span>
-				</button>
+					<button
+						type="button"
+						class="cb-tab-btn"
+						:class="{ 'active': activeTab === 'errors' }"
+						@click="setTab('errors')"
+					>
+						@components.IconBug("icon-xs")
+						<span>3. سجلات وتشخيص الأخطاء</span>
+					</button>
 
-				<button
-					type="button"
-					class="btn"
-					:class="activeTab === 'audit' ? 'btn-primary tab-btn-header' : 'btn-secondary tab-btn-header'"
-					@click="setTab('audit')"
-				>
-					@components.IconClock("icon-xs")
-					<span>4. سجلات الأنشطة والتدقيق</span>
-				</button>
+					<button
+						type="button"
+						class="cb-tab-btn"
+						:class="{ 'active': activeTab === 'audit' }"
+						@click="setTab('audit')"
+					>
+						@components.IconClock("icon-xs")
+						<span>4. سجلات الأنشطة والتدقيق</span>
+					</button>
+				</div>
 			</div>
 
 			<!-- ========================================== -->
@@ -166,20 +164,20 @@ templ AdminDevelopersPage(values AdminDevelopersValues, lang, dir string) {
 
 						<!-- Results Table -->
 						<template x-if="!queryResult.error && queryResult.columns && queryResult.columns.length > 0">
-							<div class="table-container" style="max-height:400px; overflow-y:auto; border:1px solid var(--border); border-radius:var(--radius-lg);">
-								<table class="b2b-table" style="width:100%; border-collapse:collapse; font-family:monospace; font-size:0.8rem;">
+							<div class="table-container m-0" style="max-height:400px; overflow-y:auto;">
+								<table class="data-table m-0" style="font-family:monospace; font-size:0.8rem;">
 									<thead>
-										<tr style="background:var(--surface-sunken); position:sticky; top:0; z-index:1;">
+										<tr style="position:sticky; top:0; z-index:1;">
 											<template x-for="col in queryResult.columns" :key="col">
-												<th style="padding:0.6rem 0.85rem; text-align:start;" x-text="col"></th>
+												<th x-text="col"></th>
 											</template>
 										</tr>
 									</thead>
 									<tbody>
 										<template x-for="(row, rIdx) in queryResult.rows" :key="rIdx">
-											<tr style="border-bottom:1px solid var(--border);">
+											<tr>
 												<template x-for="(cell, cIdx) in row" :key="cIdx">
-													<td style="padding:0.5rem 0.85rem; max-width:280px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;" x-text="cell"></td>
+													<td style="max-width:280px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;" x-text="cell"></td>
 												</template>
 											</tr>
 										</template>
@@ -192,28 +190,28 @@ templ AdminDevelopersPage(values AdminDevelopersValues, lang, dir string) {
 				</div>
 
 				<!-- SQL Execution History Table -->
-				<div class="card mb-0">
-					<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem; border-bottom:1px solid var(--border); padding-bottom:0.75rem;">
-						<h4 style="font-size:0.95rem; font-weight:800; color:var(--text); margin:0;">
+				<div class="glass-panel p-6 mb-6">
+					<div class="flex-between items-center mb-4 pb-3 border-b">
+						<h4 class="text-sm font-black text-primary m-0">
 							سجل الاستعلامات السابقة (Query Execution History)
 						</h4>
-						<span class="badge badge-slate">{ fmt.Sprintf("%d استعلام مسجل", len(values.SQLLogs)) }</span>
+						<span class="badge badge-slate text-xs">{ fmt.Sprintf("%d استعلام مسجل", len(values.SQLLogs)) }</span>
 					</div>
 
 					if len(values.SQLLogs) == 0 {
-						<div style="text-align:center; padding:1.5rem; color:var(--text-muted); font-size:0.85rem;">
+						<div class="p-6 text-center text-muted text-xs">
 							لم يتم تنفيذ أي استعلامات بعد.
 						</div>
 					} else {
-						<div class="table-container" style="overflow-x:auto;">
-							<table class="b2b-table" style="width:100%; border-collapse:collapse; font-size:0.8rem;">
+						<div class="table-container m-0">
+							<table class="data-table m-0" style="font-size:0.8rem;">
 								<thead>
 									<tr>
-										<th style="width:18%; text-align:start;">التوقيت والمستخدم</th>
-										<th style="width:52%; text-align:start;">نص الاستعلام (SQL Query)</th>
-										<th style="width:10%; text-align:center;">المدة (ms)</th>
-										<th style="width:10%; text-align:center;">الصفوف</th>
-										<th style="width:10%; text-align:center;">الحالة</th>
+										<th style="width:18%;">التوقيت والمستخدم</th>
+										<th style="width:52%;">نص الاستعلام (SQL Query)</th>
+										<th style="width:10%;" class="text-center">المدة (ms)</th>
+										<th style="width:10%;" class="text-center">الصفوف</th>
+										<th style="width:10%;" class="text-center">الحالة</th>
 									</tr>
 								</thead>
 								<tbody>
@@ -541,13 +539,14 @@ templ AdminDevelopersPage(values AdminDevelopersValues, lang, dir string) {
 
 				<!-- Error Diagnostics Table -->
 				if len(values.ErrorLogs) == 0 {
-					@components.EmptyState(components.EmptyStateProps{
-						Title:   "لا توجد أخطاء مسجلة",
-						Message: "النظام يعمل بكفاءة واستقرار تام. لم يتم تسجيل أي أخطاء أو استثناءات تطابق التصفية الحالية.",
-					})
+					<div class="p-8 text-center empty-state-glass">
+						<div class="text-4xl mb-3">🐛</div>
+						<h3 class="text-lg font-black text-primary mb-2">لا توجد أخطاء مسجلة</h3>
+						<p class="text-sm text-secondary max-w-md mx-auto">النظام يعمل بكفاءة واستقرار تام. لم يتم تسجيل أي أخطاء أو استثناءات تطابق التصفية الحالية.</p>
+					</div>
 				} else {
-					<div class="table-container" style="overflow-x:auto; background:var(--surface-raised); border-radius:var(--radius-xl); border:1px solid var(--border);">
-						<table class="b2b-table" style="min-width:1000px; width:100%; border-collapse:collapse; font-size:0.825rem;">
+					<div class="table-container m-0">
+						<table class="data-table m-0" style="min-width:1000px; font-size:0.825rem;">
 							<thead>
 								<tr style="background:var(--surface-sunken); border-bottom:1px solid var(--border);">
 									<th style="width:7%; text-align:center;">المعرف</th>
@@ -753,13 +752,14 @@ templ AdminDevelopersPage(values AdminDevelopersValues, lang, dir string) {
 					</div>
 
 					if len(values.AuditEntries) == 0 {
-						@components.EmptyState(components.EmptyStateProps{
-							Title:   "لا توجد عمليات مسجلة",
-							Message: "لم يتم تسجيل أي عمليات تطابق معايير البحث الحالية في سجل النظام.",
-						})
+						<div class="p-8 text-center empty-state-glass">
+							<div class="text-4xl mb-3">📜</div>
+							<h3 class="text-lg font-black text-primary mb-2">لا توجد عمليات مسجلة</h3>
+							<p class="text-sm text-secondary max-w-md mx-auto">لم يتم تسجيل أي عمليات تطابق معايير البحث الحالية في سجل النظام.</p>
+						</div>
 					} else {
-						<div class="table-container" style="overflow-x:auto;">
-							<table class="b2b-table" style="min-width:1000px; width:100%; border-collapse:collapse; font-size:0.825rem;">
+						<div class="table-container m-0">
+							<table class="data-table m-0" style="min-width:1000px; font-size:0.825rem;">
 								<thead>
 									<tr style="background:var(--surface-sunken); border-bottom:1px solid var(--border);">
 										<th style="width:6%; text-align:center;">المعرف</th>
