@@ -18,7 +18,7 @@ import (
 func (h *UIHandler) VendorUserSearchJSON(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	actor, ok := authctx.From(ctx)
-	if !ok || (!actor.IsVendor() && !actor.IsStaff()) {
+	if !ok || (!actor.IsVendor() && !actor.IsStaff) {
 		http.Error(w, `{"error":"unauthorized"}`, http.StatusUnauthorized)
 		return
 	}
