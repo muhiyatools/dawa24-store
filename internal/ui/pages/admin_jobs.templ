@@ -19,22 +19,31 @@ func intPtr(n int) *int { return &n }
 
 templ AdminJobs(lang, dir string, jobs []*AdminJobView) {
 	@layouts.AdminShell("إدارة فرص التوظيف وإعلانات العمل", "jobs", lang, dir) {
-		<div class="stack-lg">
-			@components.PageHeader(components.PageHeaderProps{
-				Title:       "فرص التوظيف والوظائف المنشورة",
-				Subtitle:    "متابعة إعلانات التوظيف والوظائف الشاغرة الصادرة من الصيدليات والشركات الموردة.",
-				Count:       intPtr(len(jobs)),
-			})
+		<div class="page-container">
+			<div class="glass-panel p-6 mb-6">
+				<div class="flex-between items-center flex-wrap gap-4">
+					<div class="d-flex items-center gap-3">
+						<div class="user-avatar-badge text-xl">
+							💼
+						</div>
+						<div>
+							<h1 class="text-2xl font-black text-primary m-0">فرص التوظيف والوظائف المنشورة</h1>
+							<p class="text-sm text-secondary m-0 mt-1">متابعة إعلانات التوظيف والوظائف الشاغرة الصادرة من الصيدليات والشركات الموردة (إجمالي: { fmt.Sprintf("%d", len(jobs)) })</p>
+						</div>
+					</div>
+				</div>
+			</div>
 
-			<div class="card mb-0">
+			<div class="glass-panel p-0 mb-6 overflow-hidden">
 				if len(jobs) == 0 {
-					@components.EmptyState(components.EmptyStateProps{
-						Title:   "لا توجد فرص توظيف معلنة",
-						Message: "لم تقم أي صيدلية أو شركة بنشر وظائف شاغرة حتى الآن.",
-					})
+					<div class="p-8 text-center empty-state-glass">
+						<div class="text-4xl mb-3">💼</div>
+						<h3 class="text-lg font-black text-primary mb-2">لا توجد فرص توظيف معلنة</h3>
+						<p class="text-sm text-secondary max-w-md mx-auto">لم تقم أي صيدلية أو شركة بنشر وظائف شاغرة حتى الآن.</p>
+					</div>
 				} else {
-					<div class="table-container">
-						<table class="b2b-table">
+					<div class="table-container m-0">
+						<table class="data-table m-0">
 							<thead>
 								<tr>
 									<th>المسمى الوظيفي</th>
@@ -42,7 +51,7 @@ templ AdminJobs(lang, dir string, jobs []*AdminJobView) {
 									<th>الموقع والمحافظة</th>
 									<th>الراتب / المكافأة</th>
 									<th>تاريخ النشر</th>
-									<th>الحالة</th>
+									<th class="text-center">الحالة</th>
 									<th class="text-end">الإجراءات</th>
 								</tr>
 							</thead>
@@ -50,37 +59,37 @@ templ AdminJobs(lang, dir string, jobs []*AdminJobView) {
 								for _, j := range jobs {
 									<tr>
 										<td>
-											<div style="font-weight:800; color:var(--text); font-size:0.95rem;">{ j.Job.Title.Get(i18n.Lang(lang)) }</div>
-											<div style="font-size:0.75rem; color:var(--text-muted); margin-top:0.15rem;">معرف الإعلان: #{ fmt.Sprintf("%d", j.Job.ID) }</div>
+											<div class="font-extrabold text-primary text-xs">{ j.Job.Title.Get(i18n.Lang(lang)) }</div>
+											<div class="text-xs text-muted mt-0.5">معرف الإعلان: #{ fmt.Sprintf("%d", j.Job.ID) }</div>
 										</td>
 										<td>
-											<div style="font-weight:700; color:var(--accent); font-size:0.9rem;">{ j.CompanyName }</div>
-											<span class="badge badge-slate" style="font-size:0.75rem; margin-top:0.15rem;">{ orgTypeAr(j.CompanyType) }</span>
+											<div class="font-bold text-brand text-xs">{ j.CompanyName }</div>
+											<span class="badge badge-slate text-xs mt-0.5">{ orgTypeAr(j.CompanyType) }</span>
 										</td>
 										<td>
-											<div style="font-size:0.875rem; color:var(--text); font-weight:600;">{ j.Job.Location }</div>
+											<div class="text-xs text-primary font-bold">{ j.Job.Location }</div>
 										</td>
 										<td>
 											if !j.Job.SalaryMin.IsZero() {
-												<div style="font-size:0.875rem; font-weight:800; color:var(--emerald);" class="tabular-nums">
+												<div class="tabular-nums font-bold text-success text-xs">
 													@components.MoneyDisplay(components.MoneyDisplayProps{ Amount: j.Job.SalaryMin })
 												</div>
 											} else {
-												<span style="color:var(--text-muted); font-size:0.8rem;">يحدد بالمقابلة</span>
+												<span class="text-muted text-xs">يحدد بالمقابلة</span>
 											}
 										</td>
-										<td style="font-size:0.825rem; color:var(--text-secondary);" class="tabular-nums">
+										<td class="text-xs text-secondary tabular-nums">
 											{ j.Job.CreatedAt.Format("2006-01-02") }
 										</td>
-										<td>
+										<td class="text-center">
 											if j.Job.Status == "published" {
-												<span class="badge badge-emerald">معلن ونشط</span>
+												<span class="badge badge-emerald text-xs font-bold">معلن ونشط</span>
 											} else {
-												<span class="badge badge-slate">{ j.Job.Status }</span>
+												<span class="badge badge-slate text-xs">{ j.Job.Status }</span>
 											}
 										</td>
 										<td class="text-end">
-											<a href={ templ.SafeURL(fmt.Sprintf("/jobs/%d", j.Job.ID)) } target="_blank" class="btn btn-secondary btn-sm fw-700">
+											<a href={ templ.SafeURL(fmt.Sprintf("/jobs/%d", j.Job.ID)) } target="_blank" class="btn btn-secondary btn-sm font-bold text-xs">
 												@components.IconExternalLink("icon-xs")
 												<span>عرض الإعلان</span>
 											</a>

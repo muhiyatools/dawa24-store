@@ -39,89 +39,72 @@ func calcTotalActive(models []ModelMetaEntry) int {
 // AdminTrashListPage renders trash overview across models.
 templ AdminTrashListPage(models []ModelMetaEntry, lang, dir string) {
 	@layouts.AdminShell("سلة المحذوفات المركزية واسترجاع البيانات", "trash", lang, dir) {
-		<div class="stack-lg">
-			@components.PageHeader(components.PageHeaderProps{
-				Title:       "سلة المحذوفات واسترجاع البيانات",
-				Subtitle:    "إدارة واسترجاع السجلات المحذوفة مؤقتاً (Soft-Deleted) عبر كافة أقسام المنظومة، مع إمكانية الاستعادة الفورية أو الحذف النهائي الموثق أمنياً.",
-				Count:       intPtr(len(models)),
-			})
-
-			<!-- KPI Summary Strip -->
-			<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(240px, 1fr)); gap:1.25rem;">
-				<div class="card mb-0" style="padding:1.25rem; display:flex; align-items:center; gap:1rem;">
-					<div class="b2b-icon-box" style="background:var(--rose-subtle); color:var(--danger);">
-						@components.IconTrash("icon-md")
-					</div>
-					<div>
-						<div class="tabular-nums" style="font-size:1.6rem; font-weight:900; color:var(--text); line-height:1.1;">
-							{ fmt.Sprintf("%d", calcTotalTrashed(models)) }
-						</div>
-						<div style="font-size:0.8rem; font-weight:700; color:var(--text-secondary); margin-top:2px;">إجمالي السجلات في السلة</div>
-					</div>
-				</div>
-
-				<div class="card mb-0" style="padding:1.25rem; display:flex; align-items:center; gap:1rem;">
-					<div class="b2b-icon-box" style="background:var(--emerald-subtle); color:var(--emerald);">
-						@components.IconCheckCircle("icon-md")
-					</div>
-					<div>
-						<div class="tabular-nums" style="font-size:1.6rem; font-weight:900; color:var(--text); line-height:1.1;">
-							{ fmt.Sprintf("%d", calcTotalActive(models)) }
-						</div>
-						<div style="font-size:0.8rem; font-weight:700; color:var(--text-secondary); margin-top:2px;">السجلات النشطة بالنظام</div>
-					</div>
-				</div>
-
-				<div class="card mb-0" style="padding:1.25rem; display:flex; align-items:center; gap:1rem;">
-					<div class="b2b-icon-box" style="background:var(--sky-subtle); color:var(--sky);">
-						@components.IconShield("icon-md")
-					</div>
-					<div>
-						<div class="tabular-nums" style="font-size:1.6rem; font-weight:900; color:var(--text); line-height:1.1;">
-							{ fmt.Sprintf("%d", len(models)) }
-						</div>
-						<div style="font-size:0.8rem; font-weight:700; color:var(--text-secondary); margin-top:2px;">أقسام محمية بحذف آمن</div>
-					</div>
-				</div>
-			</div>
-
-			<!-- Guidance Box -->
-			<div class="card mb-0" style="background:var(--surface-raised); border:1px solid var(--border); padding:1.25rem 1.5rem;">
-				<div style="display:flex; align-items:flex-start; gap:1rem;">
-					<div class="b2b-icon-box" style="flex-shrink:0;">
-						@components.IconInfo("icon-sm")
-					</div>
-					<div style="font-size:0.85rem; color:var(--text-secondary); line-height:1.7;">
-						<div style="font-weight:800; color:var(--text); font-size:0.95rem; margin-bottom:0.35rem;">
-							كيف يعمل نظام سلة المحذوفات والاسترجاع؟
+		<div class="page-container">
+			<div class="glass-panel p-6 mb-6">
+				<div class="flex-between items-center flex-wrap gap-4">
+					<div class="d-flex items-center gap-3">
+						<div class="user-avatar-badge text-xl">
+							🗑️
 						</div>
 						<div>
-							• <strong>الحذف المؤقت (Soft Delete)</strong>: عند حذف أي صنف، منشأة، طلب أو مستخدم، لا يُحذف السجل نهائياً بل يتم وضع وسم وتاريخ الحذف ونقله للسلة فوراً لمنع فقدان البيانات.<br/>
-							• <strong>الاسترجاع الفوري (Restore)</strong>: يمكنك في أي وقت استعادة السجل المحذوف ليعود إلى حالته النشطة بكافة تفاصيله وعلاقاته.<br/>
-							• <strong>الحذف النهائي (Purge)</strong>: إجراء قطعي لا يمكن التراجع عنه يقوم بإزالة السجل نهائياً من قاعدة البيانات، ويتم تلقائياً توثيق لقطة كاملة (Snapshot) للسجل في سجل التدقيق الأمني (Audit Log).
+							<h1 class="text-2xl font-black text-primary m-0">سلة المحذوفات واسترجاع البيانات</h1>
+							<p class="text-sm text-secondary m-0 mt-1">إدارة واسترجاع السجلات المحذوفة مؤقتاً (Soft-Deleted) عبر كافة أقسام المنظومة، مع إمكانية الاستعادة الفورية أو الحذف النهائي الموثق أمنياً</p>
 						</div>
 					</div>
 				</div>
 			</div>
 
-			<!-- Table of Models -->
-			<div class="card mb-0">
-				<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.25rem; border-bottom:1px solid var(--border); padding-bottom:0.75rem;">
-					<h3 class="card-title m-0" style="font-size:1.1rem;">
-						جداول ونماذج البيانات المشمولة بالسلة ({ fmt.Sprintf("%d", len(models)) })
-					</h3>
-					<span class="badge badge-sky text-xs">كشف تلقائي من قاعدة البيانات</span>
+			<!-- KPI Summary Strip -->
+			<div class="dashboard-stat-grid mb-6">
+				<div class="stat-card-3d">
+					<div class="flex-between items-center">
+						<span class="text-xs font-bold text-muted">إجمالي السجلات في السلة</span>
+						<span class="text-danger">@components.IconTrash("icon-sm")</span>
+					</div>
+					<div class="tabular-nums text-2xl font-black text-danger mt-2">
+						{ fmt.Sprintf("%d", calcTotalTrashed(models)) }
+					</div>
 				</div>
 
-				<div class="table-container">
-					<table class="b2b-table">
+				<div class="stat-card-3d">
+					<div class="flex-between items-center">
+						<span class="text-xs font-bold text-muted">السجلات النشطة بالنظام</span>
+						<span class="text-success">@components.IconCheckCircle("icon-sm")</span>
+					</div>
+					<div class="tabular-nums text-2xl font-black text-success mt-2">
+						{ fmt.Sprintf("%d", calcTotalActive(models)) }
+					</div>
+				</div>
+
+				<div class="stat-card-3d">
+					<div class="flex-between items-center">
+						<span class="text-xs font-bold text-muted">أقسام محمية بحذف آمن</span>
+						<span class="text-brand">@components.IconShield("icon-sm")</span>
+					</div>
+					<div class="tabular-nums text-2xl font-black text-primary mt-2">
+						{ fmt.Sprintf("%d", len(models)) }
+					</div>
+				</div>
+			</div>
+
+			<!-- Tables Overview Card -->
+			<div class="glass-panel p-0 mb-6 overflow-hidden">
+				<div class="p-4 border-b flex-between items-center">
+					<h3 class="text-sm font-black text-primary m-0">
+						جداول ونماذج البيانات المشمولة بالسلة ({ fmt.Sprintf("%d", len(models)) })
+					</h3>
+					<span class="badge badge-sky text-xs font-bold">كشف تلقائي من قاعدة البيانات</span>
+				</div>
+
+				<div class="table-container m-0">
+					<table class="data-table m-0">
 						<thead>
 							<tr>
 								<th>القسم / النموذج في المنظومة</th>
 								<th>الجدول البرمجي</th>
 								<th>السجلات النشطة</th>
 								<th>السجلات في السلة</th>
-								<th>الحالة</th>
+								<th class="text-center">الحالة</th>
 								<th class="text-end">الإجراءات</th>
 							</tr>
 						</thead>
@@ -129,33 +112,33 @@ templ AdminTrashListPage(models []ModelMetaEntry, lang, dir string) {
 							for _, m := range models {
 								<tr>
 									<td>
-										<div style="font-weight:800; color:var(--text); font-size:0.95rem;">{ m.NameAr }</div>
-										<div style="font-size:0.75rem; color:var(--text-muted); direction:ltr; text-align:start;">{ m.NameEn }</div>
+										<div class="font-extrabold text-primary text-xs">{ m.NameAr }</div>
+										<div class="text-xs text-muted font-mono mt-0.5">{ m.NameEn }</div>
 									</td>
 									<td>
-										<code style="font-size:0.8rem; background:var(--surface-sunken); padding:0.2rem 0.5rem; border-radius:var(--radius-sm); border:1px solid var(--border);">{ m.SchemaTable }</code>
+										<code class="text-xs font-mono">{ m.SchemaTable }</code>
 									</td>
-									<td class="tabular-nums" style="font-weight:700; color:var(--text);">
+									<td class="tabular-nums text-xs font-bold text-primary">
 										{ fmt.Sprintf("%d", m.TotalCount - m.TrashedCount) }
 									</td>
 									<td class="tabular-nums">
 										if m.TrashedCount > 0 {
-											<span class="badge badge-rose" style="font-weight:800;">{ fmt.Sprintf("%d محذوف", m.TrashedCount) }</span>
+											<span class="badge badge-rose text-xs font-bold">{ fmt.Sprintf("%d محذوف", m.TrashedCount) }</span>
 										} else {
-											<span class="badge badge-emerald">فارغ (0)</span>
+											<span class="badge badge-emerald text-xs font-bold">فارغ (0)</span>
 										}
 									</td>
-									<td>
+									<td class="text-center">
 										if m.TrashedCount > 0 {
-											<span class="badge badge-amber text-xs">تتطلب مراجعة أو استرجاع</span>
+											<span class="badge badge-amber text-xs font-bold">تتطلب مراجعة أو استرجاع</span>
 										} else {
 											<span class="badge badge-slate text-xs">سليمة بالكامل</span>
 										}
 									</td>
 									<td class="text-end">
-										<a href={ templ.SafeURL(fmt.Sprintf("/admin/trash-list/%s", m.Key)) } class="btn btn-secondary btn-sm fw-700">
+										<a href={ templ.SafeURL(fmt.Sprintf("/admin/trash-list/%s", m.Key)) } class="btn btn-secondary btn-sm font-bold text-xs">
 											@components.IconFolderOpen("icon-xs")
-											<span>معاينة واسترجاع السجلات ({ fmt.Sprintf("%d", m.TrashedCount) })</span>
+											<span>معاينة واسترجاع ({ fmt.Sprintf("%d", m.TrashedCount) })</span>
 										</a>
 									</td>
 								</tr>
@@ -178,27 +161,38 @@ type TrashRowView struct {
 // AdminTrashListModelPage lists the deleted rows of one table, with restore and purge actions.
 templ AdminTrashListModelPage(modelKey string, rows []TrashRowView, lang, dir string) {
 	@layouts.AdminShell(fmt.Sprintf("سلة محذوفات: %s", modelKey), "trash", lang, dir) {
-		<div class="stack-lg">
-			@components.PageHeader(components.PageHeaderProps{
-				Title:    fmt.Sprintf("سلة محذوفات: %s", modelKey),
-				Subtitle: "استعراض كافة السجلات المحذوفة مؤقتاً في هذا القسم، مع خيارات الاسترجاع الفوري أو الحذف النهائي الموثق.",
-				Count:    intPtr(len(rows)),
-			}) {
-				<a href="/admin/trash-list" class="btn btn-secondary btn-sm fw-700">
-					@components.IconArrowRight("icon-xs")
-					<span>العودة لسلة المحذوفات</span>
-				</a>
-			}
+		<div class="page-container">
+			<div class="glass-panel p-6 mb-6">
+				<div class="flex-between items-center flex-wrap gap-4">
+					<div class="d-flex items-center gap-3">
+						<div class="user-avatar-badge text-xl">
+							🗑️
+						</div>
+						<div>
+							<h1 class="text-2xl font-black text-primary m-0">سلة محذوفات: { modelKey } ({ fmt.Sprintf("%d", len(rows)) })</h1>
+							<p class="text-sm text-secondary m-0 mt-1">استعراض كافة السجلات المحذوفة مؤقتاً في هذا القسم، مع خيارات الاسترجاع الفوري أو الحذف النهائي الموثق</p>
+						</div>
+					</div>
 
-			<div class="card mb-0">
+					<div class="d-flex items-center gap-2">
+						<a href="/admin/trash-list" class="btn btn-secondary btn-sm font-bold text-xs gap-1">
+							@components.IconArrowRight("icon-xs")
+							<span>العودة لسلة المحذوفات</span>
+						</a>
+					</div>
+				</div>
+			</div>
+
+			<div class="glass-panel p-0 mb-6 overflow-hidden">
 				if len(rows) == 0 {
-					@components.EmptyState(components.EmptyStateProps{
-						Title:   "سلة هذا القسم فارغة تماماً",
-						Message: "لا توجد سجلات محذوفة مؤقتاً في هذا النموذج حالياً.",
-					})
+					<div class="p-8 text-center empty-state-glass">
+						<div class="text-4xl mb-3">🗑️</div>
+						<h3 class="text-lg font-black text-primary mb-2">سلة هذا القسم فارغة تماماً</h3>
+						<p class="text-sm text-secondary max-w-md mx-auto">لا توجد سجلات محذوفة مؤقتاً في هذا النموذج حالياً.</p>
+					</div>
 				} else {
-					<div class="table-container">
-						<table class="b2b-table">
+					<div class="table-container m-0">
+						<table class="data-table m-0">
 							<thead>
 								<tr>
 									<th style="width:100px;">المعرف (ID)</th>
@@ -210,11 +204,11 @@ templ AdminTrashListModelPage(modelKey string, rows []TrashRowView, lang, dir st
 							<tbody>
 								for _, row := range rows {
 									<tr>
-										<td class="tabular-nums" style="font-weight:800; color:var(--text-muted);">
+										<td class="tabular-nums font-bold text-brand">
 											#{ fmt.Sprintf("%d", row.ID) }
 										</td>
 										<td>
-											<div style="font-weight:800; color:var(--text); font-size:0.95rem;">
+											<div class="font-bold text-primary text-xs">
 												if row.Label != "" {
 													{ row.Label }
 												} else {
@@ -222,13 +216,13 @@ templ AdminTrashListModelPage(modelKey string, rows []TrashRowView, lang, dir st
 												}
 											</div>
 										</td>
-										<td class="tabular-nums" style="font-size:0.85rem; color:var(--text-secondary);">
+										<td class="tabular-nums text-xs text-secondary">
 											{ row.DeletedAt }
 										</td>
-										<td style="text-align:end;">
-											<div class="row-center-xs" style="justify-content:flex-end;">
+										<td class="text-end">
+											<div class="d-inline-flex gap-2">
 												<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/trash-list/%s/%d/restore", modelKey, row.ID)) } class="m-0">
-													<button type="submit" class="btn btn-secondary btn-sm fw-700" title="استرجاع السجل للنظام">
+													<button type="submit" class="btn btn-secondary btn-sm font-bold text-xs" title="استرجاع السجل للنظام">
 														@components.IconRefresh("icon-xs")
 														<span>استرجاع</span>
 													</button>
@@ -239,7 +233,7 @@ templ AdminTrashListModelPage(modelKey string, rows []TrashRowView, lang, dir st
 													class="m-0"
 													onsubmit="return confirm('تنبيه أمني: هذا الحذف نهائي وقطعي ولا يمكن التراجع عنه. سيتم حفظ لقطة أمنية في سجل التدقيق. هل أنت متأكد؟');"
 												>
-													<button type="submit" class="btn btn-danger btn-sm fw-700" title="حذف نهائي من قاعدة البيانات">
+													<button type="submit" class="btn btn-danger btn-sm font-bold text-xs" title="حذف نهائي من قاعدة البيانات">
 														@components.IconTrash("icon-xs")
 														<span>حذف نهائي</span>
 													</button>

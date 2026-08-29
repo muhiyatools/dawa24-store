@@ -572,8 +572,8 @@ templ AdminOrganizations(data AdminEnterpriseHubData, lang, dir string) {
 							</div>
 						</div>
 
-						<div class="table-container">
-							<table class="b2b-table">
+						<div class="table-container m-0">
+							<table class="data-table m-0">
 								<thead>
 									<tr>
 										<th>المستخدم</th>
@@ -671,8 +671,8 @@ templ AdminOrganizationDetail(o *org.Organization, branches []*org.Branch, emplo
 					if len(employees) == 0 {
 						@components.EmptyState(components.EmptyStateProps{Title: "لا يوجد أعضاء مسجلين", Message: "لم يتم إضافة موظفين لهذه المنشأة بعد."})
 					} else {
-						<div class="table-container">
-							<table class="b2b-table">
+						<div class="table-container m-0">
+							<table class="data-table m-0">
 								<thead>
 									<tr>
 										<th>الاسم</th>
@@ -706,8 +706,8 @@ templ AdminOrganizationDetail(o *org.Organization, branches []*org.Branch, emplo
 					if len(branches) == 0 {
 						@components.EmptyState(components.EmptyStateProps{Title: "لا توجد فروع مسجلة", Message: "لم يتم إضافة فروع أو مخازن لهذه المنشأة بعد."})
 					} else {
-						<div class="table-container">
-							<table class="b2b-table">
+						<div class="table-container m-0">
+							<table class="data-table m-0">
 								<thead>
 									<tr>
 										<th>اسم الفرع</th>
@@ -776,8 +776,8 @@ templ AdminBranchesPage(branches []*org.Branch, lang, dir string) {
 			if len(branches) == 0 {
 				@components.EmptyState(components.EmptyStateProps{Title: "لا توجد فروع مسجلة", Message: "لم يتم العثور على فروع أو مخازن مسجلة حالياً."})
 			} else {
-				<div class="table-container">
-					<table class="b2b-table">
+				<div class="table-container m-0">
+					<table class="data-table m-0">
 						<thead>
 							<tr>
 								<th>اسم الفرع</th>
@@ -942,8 +942,8 @@ templ AdminWeeklyCoveragesPage(data AdminWeeklyCoveragesData, lang, dir string) 
 						})
 					</div>
 				} else {
-					<div class="table-container">
-						<table class="b2b-table">
+					<div class="table-container m-0">
+						<table class="data-table m-0">
 							<thead>
 								<tr>
 									<th>يوم التوصيل</th>

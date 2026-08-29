@@ -49,100 +49,103 @@ func countAdminSpecialOffers(offers []*promo.SpecialOffer, status string) int {
 
 templ AdminOffers(data AdminOffersData, lang, dir string) {
 	@layouts.AdminShell("إدارة العروض وباقات الموردين الخاصة", "offers", lang, dir) {
-		<div class="stack-lg">
-			@components.PageHeader(components.PageHeaderProps{
-				Title:    "العروض وباقات الموردين الخاصة",
-				Subtitle: "مراجعة واعتماد عروض وباقات الأدوية المجمعة المقدمة من الموردين، وإدارة التغطية الجغرافية وأسعار الباقات.",
-				Count:    intPtr(len(data.Offers)),
-			})
+		<div class="page-container">
+			<div class="glass-panel p-6 mb-6">
+				<div class="flex-between items-center flex-wrap gap-4">
+					<div class="d-flex items-center gap-3">
+						<div class="user-avatar-badge text-xl">
+							🎁
+						</div>
+						<div>
+							<h1 class="text-2xl font-black text-primary m-0">العروض وباقات الموردين الخاصة</h1>
+							<p class="text-sm text-secondary m-0 mt-1">مراجعة واعتماد عروض وباقات الأدوية المجمعة المقدمة من الموردين، وإدارة التغطية الجغرافية وأسعار الباقات</p>
+						</div>
+					</div>
+				</div>
+			</div>
 
 			<!-- KPI Summary Strip -->
-			<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:1.25rem;">
-				<div class="card mb-0" style="padding:1.25rem; display:flex; align-items:center; gap:1rem;">
-					<div class="b2b-icon-box" style="background:var(--accent-subtle); color:var(--accent);">
-						@components.IconShoppingBag("icon-md")
+			<div class="dashboard-stat-grid mb-6">
+				<div class="stat-card-3d">
+					<div class="flex-between items-center">
+						<span class="text-xs font-bold text-muted">إجمالي الباقات والعروض</span>
+						<span class="text-brand">@components.IconShoppingBag("icon-sm")</span>
 					</div>
-					<div>
-						<div class="tabular-nums" style="font-size:1.6rem; font-weight:900; color:var(--text); line-height:1.1;">
-							{ fmt.Sprintf("%d", len(data.Offers)) }
-						</div>
-						<div style="font-size:0.8rem; font-weight:700; color:var(--text-secondary); margin-top:2px;">إجمالي الباقات والعروض</div>
+					<div class="tabular-nums text-2xl font-black text-primary mt-2">
+						{ fmt.Sprintf("%d", len(data.Offers)) }
 					</div>
 				</div>
 
-				<div class="card mb-0" style="padding:1.25rem; display:flex; align-items:center; gap:1rem;">
-					<div class="b2b-icon-box" style="background:var(--emerald-subtle); color:var(--emerald);">
-						@components.IconCheckCircle("icon-md")
+				<div class="stat-card-3d">
+					<div class="flex-between items-center">
+						<span class="text-xs font-bold text-muted">العروض المعتمدة والنشطة</span>
+						<span class="text-success">@components.IconCheckCircle("icon-sm")</span>
 					</div>
-					<div>
-						<div class="tabular-nums" style="font-size:1.6rem; font-weight:900; color:var(--text); line-height:1.1;">
-							{ fmt.Sprintf("%d", countAdminSpecialOffers(data.Offers, "active")) }
-						</div>
-						<div style="font-size:0.8rem; font-weight:700; color:var(--text-secondary); margin-top:2px;">العروض المعتمدة والنشطة</div>
+					<div class="tabular-nums text-2xl font-black text-success mt-2">
+						{ fmt.Sprintf("%d", countAdminSpecialOffers(data.Offers, "active")) }
 					</div>
 				</div>
 
-				<div class="card mb-0" style="padding:1.25rem; display:flex; align-items:center; gap:1rem;">
-					<div class="b2b-icon-box" style="background:var(--amber-subtle); color:var(--amber);">
-						@components.IconClock("icon-md")
+				<div class="stat-card-3d">
+					<div class="flex-between items-center">
+						<span class="text-xs font-bold text-muted">بانتظار المراجعة والاعتماد</span>
+						<span class="text-warning">@components.IconClock("icon-sm")</span>
 					</div>
-					<div>
-						<div class="tabular-nums" style="font-size:1.6rem; font-weight:900; color:var(--text); line-height:1.1;">
-							{ fmt.Sprintf("%d", countAdminSpecialOffers(data.Offers, "pending")) }
-						</div>
-						<div style="font-size:0.8rem; font-weight:700; color:var(--text-secondary); margin-top:2px;">بانتظار المراجعة والاعتماد</div>
+					<div class="tabular-nums text-2xl font-black text-warning mt-2">
+						{ fmt.Sprintf("%d", countAdminSpecialOffers(data.Offers, "pending")) }
 					</div>
 				</div>
 
-				<div class="card mb-0" style="padding:1.25rem; display:flex; align-items:center; gap:1rem;">
-					<div class="b2b-icon-box" style="background:var(--sky-subtle); color:var(--sky);">
-						@components.IconMapPin("icon-md")
+				<div class="stat-card-3d">
+					<div class="flex-between items-center">
+						<span class="text-xs font-bold text-muted">عروض ذات تغطية جغرافية</span>
+						<span class="text-cyan">@components.IconMapPin("icon-sm")</span>
 					</div>
-					<div>
-						<div class="tabular-nums" style="font-size:1.6rem; font-weight:900; color:var(--text); line-height:1.1;">
-							{ fmt.Sprintf("%d", countAdminSpecialOffers(data.Offers, "coverage")) }
-						</div>
-						<div style="font-size:0.8rem; font-weight:700; color:var(--text-secondary); margin-top:2px;">عروض ذات تغطية جغرافية</div>
+					<div class="tabular-nums text-2xl font-black text-cyan mt-2">
+						{ fmt.Sprintf("%d", countAdminSpecialOffers(data.Offers, "coverage")) }
 					</div>
 				</div>
 			</div>
 
 			<!-- Status Filter Tabs -->
-			<div class="tab-bar">
-				<a href="/admin/offers" class={ "tab-btn", templ.KV("active", data.FilterStatus == "" || data.FilterStatus == "all") }>
-					<span>كافة العروض</span>
-					<span class="badge badge-slate tabular-nums">{ fmt.Sprintf("%d", len(data.Offers)) }</span>
-				</a>
-				<a href="/admin/offers?status=pending" class={ "tab-btn", templ.KV("active", data.FilterStatus == "pending") }>
-					<span>بانتظار الاعتماد</span>
-					if pendingCount := countAdminSpecialOffers(data.Offers, "pending"); pendingCount > 0 {
-						<span class="badge badge-amber tabular-nums">{ fmt.Sprintf("%d", pendingCount) }</span>
-					}
-				</a>
-				<a href="/admin/offers?status=active" class={ "tab-btn", templ.KV("active", data.FilterStatus == "active") }>
-					<span>المعتمدة والنشطة</span>
-					<span class="badge badge-emerald tabular-nums">{ fmt.Sprintf("%d", countAdminSpecialOffers(data.Offers, "active")) }</span>
-				</a>
-				<a href="/admin/offers?status=draft" class={ "tab-btn", templ.KV("active", data.FilterStatus == "draft") }>
-					<span>المسودات والمعطلة</span>
-					<span class="badge badge-slate tabular-nums">{ fmt.Sprintf("%d", countAdminSpecialOffers(data.Offers, "draft")) }</span>
-				</a>
-				<a href="/admin/offers?status=rejected" class={ "tab-btn", templ.KV("active", data.FilterStatus == "rejected") }>
-					<span>المرفوضة</span>
-					<span class="badge badge-rose tabular-nums">{ fmt.Sprintf("%d", countAdminSpecialOffers(data.Offers, "rejected")) }</span>
-				</a>
+			<div class="glass-panel p-6 mb-6">
+				<div class="cb-tabs-nav m-0">
+					<a href="/admin/offers" class={ "cb-tab-btn", templ.KV("active", data.FilterStatus == "" || data.FilterStatus == "all") }>
+						<span>كافة العروض</span>
+						<span class="badge badge-slate text-xs font-bold tabular-nums">{ fmt.Sprintf("%d", len(data.Offers)) }</span>
+					</a>
+					<a href="/admin/offers?status=pending" class={ "cb-tab-btn", templ.KV("active", data.FilterStatus == "pending") }>
+						<span>بانتظار الاعتماد</span>
+						if pendingCount := countAdminSpecialOffers(data.Offers, "pending"); pendingCount > 0 {
+							<span class="badge badge-amber text-xs font-bold tabular-nums">{ fmt.Sprintf("%d", pendingCount) }</span>
+						}
+					</a>
+					<a href="/admin/offers?status=active" class={ "cb-tab-btn", templ.KV("active", data.FilterStatus == "active") }>
+						<span>المعتمدة والنشطة</span>
+						<span class="badge badge-emerald text-xs font-bold tabular-nums">{ fmt.Sprintf("%d", countAdminSpecialOffers(data.Offers, "active")) }</span>
+					</a>
+					<a href="/admin/offers?status=draft" class={ "cb-tab-btn", templ.KV("active", data.FilterStatus == "draft") }>
+						<span>المسودات والمعطلة</span>
+						<span class="badge badge-slate text-xs font-bold tabular-nums">{ fmt.Sprintf("%d", countAdminSpecialOffers(data.Offers, "draft")) }</span>
+					</a>
+					<a href="/admin/offers?status=rejected" class={ "cb-tab-btn", templ.KV("active", data.FilterStatus == "rejected") }>
+						<span>المرفوضة</span>
+						<span class="badge badge-rose text-xs font-bold tabular-nums">{ fmt.Sprintf("%d", countAdminSpecialOffers(data.Offers, "rejected")) }</span>
+					</a>
+				</div>
 			</div>
 
 			<!-- Main Offers Table Card -->
-			<div class="card mb-0">
+			<div class="glass-panel p-0 mb-6 overflow-hidden">
 				if len(data.Offers) == 0 {
-					@components.EmptyState(components.EmptyStateProps{
-						Title:   "لا توجد عروض وباقات موردين",
-						Message: "لم يقم أي مورد بإدراج عروض خاصة حتى الآن.",
-					})
+					<div class="p-8 text-center empty-state-glass">
+						<div class="text-4xl mb-3">🎁</div>
+						<h3 class="text-lg font-black text-primary mb-2">لا توجد عروض وباقات موردين</h3>
+						<p class="text-sm text-secondary max-w-md mx-auto">لم يقم أي مورد بإدراج عروض خاصة حتى الآن.</p>
+					</div>
 				} else {
-					<div class="table-container">
-						<table class="b2b-table">
+					<div class="table-container m-0">
+						<table class="data-table m-0">
 							<thead>
 								<tr>
 									<th>العرض / باقة الأدوية</th>
@@ -152,7 +155,7 @@ templ AdminOffers(data AdminOffersData, lang, dir string) {
 									<th>الخصم</th>
 									<th>الحد الأدنى</th>
 									<th>نطاق التغطية والمدن</th>
-									<th>حالة الاعتماد والنشر</th>
+									<th class="text-center">حالة الاعتماد والنشر</th>
 									<th class="text-end">الإجراءات</th>
 								</tr>
 							</thead>

@@ -26,44 +26,45 @@ templ AdminPlans(lang, dir string, plans []*billing.Plan) {
 
 templ AdminPlansHub(data AdminPlansData, lang, dir string) {
 	@layouts.AdminShell("باقات وخطط الاشتراك الموحدة", "plans", lang, dir) {
-		<div x-data="adminPlansManager()" class="stack-lg">
+		<div x-data="adminPlansManager()" class="page-container">
 			
 			<!-- Top KPI & Overview Header -->
-			<div class="card mb-0" style="border:1px solid var(--border); padding:1.25rem 1.5rem;">
-				<div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1.25rem;">
+			<div class="glass-panel p-6 mb-6">
+				<div class="flex-between items-center flex-wrap gap-4">
 					<div>
-						<div class="row-center-sm">
-							<h1 class="card-title" style="margin:0; font-size:1.4rem; font-weight:800; color:var(--text);">
-								باقات واشتراكات المنظومة الموحدة
-							</h1>
-							<span class="badge badge-primary text-sm fw-700">
-								{ fmt.Sprintf("%d باقات", len(data.Plans)) }
-							</span>
+						<div class="d-flex items-center gap-3">
+							<div class="user-avatar-badge text-xl">
+								🏷️
+							</div>
+							<div>
+								<h1 class="text-2xl font-black text-primary m-0">
+									باقات واشتراكات المنظومة الموحدة
+								</h1>
+								<p class="text-sm text-secondary m-0 mt-1">
+									إدارة مركزية لخطط الاشتراكات، حدود الجلسات المتزامنة المطبقة على المنشأة بالكامل، وحصص بوابة الذكاء الاصطناعي (AI Gateway)
+								</p>
+							</div>
 						</div>
-						<p class="subtitle" style="margin:0.35rem 0 0; font-size:0.875rem; color:var(--text-secondary);">
-							إدارة مركزية لخطط الاشتراكات، حدود الجلسات المتزامنة المطبقة على المنشأة بالكامل، وحصص بوابة الذكاء الاصطناعي (AI Gateway).
-						</p>
 					</div>
 
-					<div style="display:flex; align-items:center; gap:0.75rem; flex-wrap:wrap;">
+					<div class="d-flex items-center gap-3 flex-wrap">
 						<!-- AI Gateway Connection Status Indicator -->
-						<div style="display:inline-flex; align-items:center; gap:0.5rem; background:var(--surface-sunken); border:1px solid var(--border); padding:0.45rem 0.9rem; border-radius:var(--radius-full); font-size:0.8rem;">
-							<span style="font-size:0.9rem;">🤖</span>
-							<span style="color:var(--text-secondary); font-weight:600;">بوابة الذكاء الاصطناعي:</span>
+						<div class="d-inline-flex items-center gap-2 px-3 py-1.5 rounded-full border text-xs" style="background:var(--surface-sunken);">
+							<span>🤖</span>
+							<span class="text-secondary font-bold">بوابة الذكاء الاصطناعي:</span>
 							if data.GatewayOnline {
-								<span class="badge badge-emerald" style="padding:0.2rem 0.5rem; font-size:0.75rem;">متصلة ومزامنة</span>
+								<span class="badge badge-emerald text-xs font-bold">متصلة ومزامنة</span>
 							} else {
-								<span class="badge badge-amber" style="padding:0.2rem 0.5rem; font-size:0.75rem;" title="جاري الاتصال بـ Endpoint">جاهزة للربط</span>
+								<span class="badge badge-amber text-xs font-bold" title="جاري الاتصال بـ Endpoint">جاهزة للربط</span>
 							}
-							<code dir="ltr" class="text-xs text-muted">{ data.GatewayURL }</code>
+							<code dir="ltr" class="text-xs text-muted font-mono">{ data.GatewayURL }</code>
 						</div>
 
 						<!-- Add New Plan Action -->
 						<button
 							type="button"
-							class="btn btn-primary"
+							class="btn btn-primary btn-sm font-bold text-xs gap-1"
 							@click="openCreateModal()"
-							style="font-weight:800; padding:0.55rem 1.25rem; display:inline-flex; align-items:center; gap:0.4rem;"
 						>
 							@components.IconPlus("icon-xs")
 							<span>إضافة باقة جديدة</span>
@@ -73,38 +74,37 @@ templ AdminPlansHub(data AdminPlansData, lang, dir string) {
 			</div>
 
 			<!-- Main Container with Tabs -->
-			<div class="card mb-0" style="border:1px solid var(--border); padding:0; overflow:hidden;">
+			<div class="glass-panel p-6 mb-6">
 				<!-- Tab Navigation -->
-				<div class="tab-header" style="display:flex; border-bottom:1px solid var(--border); background:var(--surface-sunken); padding:0 1.25rem; overflow-x:auto;">
+				<div class="cb-tabs-nav m-0 mb-6 pb-4 border-b">
 					<a
 						href="/admin/plans?tab=plans"
-						class={ "tab-btn", templ.KV("active", data.ActiveTab == "plans" || data.ActiveTab == "") }
-						style="padding:1rem 1.5rem; display:inline-flex; align-items:center; gap:0.5rem; font-weight:700; color:var(--text); text-decoration:none; border-bottom:3px solid transparent;"
+						class={ "cb-tab-btn", templ.KV("active", data.ActiveTab == "plans" || data.ActiveTab == "") }
 					>
-						@components.IconTag("icon-sm")
+						@components.IconTag("icon-xs")
 						<span>دليل باقات الاشتراك الموحدة ({ fmt.Sprintf("%d", len(data.Plans)) })</span>
 					</a>
 					<a
 						href="/admin/plans?tab=subscriptions"
-						class={ "tab-btn", templ.KV("active", data.ActiveTab == "subscriptions") }
-						style="padding:1rem 1.5rem; display:inline-flex; align-items:center; gap:0.5rem; font-weight:700; color:var(--text); text-decoration:none; border-bottom:3px solid transparent;"
+						class={ "cb-tab-btn", templ.KV("active", data.ActiveTab == "subscriptions") }
 					>
-						@components.IconWallet("icon-sm")
+						@components.IconWallet("icon-xs")
 						<span>سجلات المشتركين والمنشآت ({ fmt.Sprintf("%d", len(data.Subscriptions)) })</span>
 					</a>
 				</div>
 
-				<div class="p-card">
+				<div>
 					if data.ActiveTab == "subscriptions" {
 						<!-- TAB 2: Subscriptions Table -->
 						if len(data.Subscriptions) == 0 {
-							@components.EmptyState(components.EmptyStateProps{
-								Title:   "لا توجد اشتراكات مسجلة حالياً",
-								Message: "ستظهر هنا سجلات اشتراكات المنشآت فور اعتمادها وتفعيل حساباتها.",
-							})
+							<div class="p-8 text-center empty-state-glass">
+								<div class="text-4xl mb-3">🏷️</div>
+								<h3 class="text-lg font-black text-primary mb-2">لا توجد اشتراكات مسجلة حالياً</h3>
+								<p class="text-sm text-secondary max-w-md mx-auto">ستظهر هنا سجلات اشتراكات المنشآت فور اعتمادها وتفعيل حساباتها.</p>
+							</div>
 						} else {
-							<div class="table-container">
-								<table class="b2b-table">
+							<div class="table-container m-0">
+								<table class="data-table m-0">
 									<thead>
 										<tr>
 											<th>رقم الاشتراك</th>

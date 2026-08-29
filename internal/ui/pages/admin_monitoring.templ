@@ -11,54 +11,67 @@ import (
 // AdminFullErrorLogsPage renders error logs directory.
 templ AdminFullErrorLogsPage(logs []*platformadmin.ErrorLog, total int, activeStatus, activeSeverity string, lang, dir string) {
 	@layouts.AdminShell("سجلات الأخطاء والتشخيص (Full Error Logs)", "developers", lang, dir) {
-		<div class="card mb-0">
-			<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; flex-wrap:wrap; gap:1rem;">
-				<div>
-					<h2 class="card-title m-0">سجلات تشخيص واستثناءات النظام ({ fmt.Sprintf("%d", len(logs)) })</h2>
-					<p class="subtitle">مراقبة الأخطاء البرمجية، استثناءات قاعدة البيانات، واستجابات 5xx.</p>
+		<div class="page-container">
+			<div class="glass-panel p-6 mb-6">
+				<div class="flex-between items-center flex-wrap gap-4">
+					<div class="d-flex items-center gap-3">
+						<div class="user-avatar-badge text-xl">
+							🩺
+						</div>
+						<div>
+							<h1 class="text-2xl font-black text-primary m-0">سجلات تشخيص واستثناءات النظام ({ fmt.Sprintf("%d", len(logs)) })</h1>
+							<p class="text-sm text-secondary m-0 mt-1">مراقبة الأخطاء البرمجية، استثناءات قاعدة البيانات، واستجابات 5xx</p>
+						</div>
+					</div>
 				</div>
 			</div>
 
-			if len(logs) == 0 {
-				@components.EmptyState(components.EmptyStateProps{Title: "لا توجد أخطاء مسجلة", Message: "النظام يعمل بكفاءة عالية دون أي استثناءات حالياً."})
-			} else {
-				<div class="table-container">
-					<table class="b2b-table">
-						<thead>
-							<tr>
-								<th>#</th>
-								<th>الرسالة</th>
-								<th>المسار / Route</th>
-								<th>مستوى الخطورة</th>
-								<th>الحالة</th>
-								<th>التاريخ</th>
-								<th class="text-end">الإجراءات</th>
-							</tr>
-						</thead>
-						<tbody>
-							for _, l := range logs {
+			<div class="glass-panel p-0 mb-6 overflow-hidden">
+				if len(logs) == 0 {
+					<div class="p-8 text-center empty-state-glass">
+						<div class="text-4xl mb-3">🩺</div>
+						<h3 class="text-lg font-black text-primary mb-2">لا توجد أخطاء مسجلة</h3>
+						<p class="text-sm text-secondary max-w-md mx-auto">النظام يعمل بكفاءة عالية دون أي استثناءات حالياً.</p>
+					</div>
+				} else {
+					<div class="table-container m-0">
+						<table class="data-table m-0">
+							<thead>
 								<tr>
-									<td class="tabular-nums">#{ fmt.Sprintf("%d", l.ID) }</td>
-									<td><strong>{ l.ErrorMessage }</strong></td>
-									<td><code>{ l.URLPath }</code></td>
-									<td>
-										if l.ErrorLevel == "CRITICAL" || l.ErrorLevel == "ERROR" {
-											<span class="badge badge-rose">{ l.ErrorLevel }</span>
-										} else {
-											<span class="badge badge-amber">{ l.ErrorLevel }</span>
-										}
-									</td>
-									<td><span class="badge badge-sky">{ l.Status }</span></td>
-									<td class="tabular-nums">{ l.CreatedAt.Format("2006-01-02 15:04:05") }</td>
-									<td class="text-end">
-										<a href={ templ.SafeURL(fmt.Sprintf("/admin/full-error-logs/%d", l.ID)) } class="btn btn-secondary btn-sm">عرض التفاصيل</a>
-									</td>
+									<th>#</th>
+									<th>الرسالة</th>
+									<th>المسار / Route</th>
+									<th class="text-center">مستوى الخطورة</th>
+									<th class="text-center">الحالة</th>
+									<th>التاريخ</th>
+									<th class="text-end">الإجراءات</th>
 								</tr>
-							}
-						</tbody>
-					</table>
-				</div>
-			}
+							</thead>
+							<tbody>
+								for _, l := range logs {
+									<tr>
+										<td class="tabular-nums font-bold text-brand">#{ fmt.Sprintf("%d", l.ID) }</td>
+										<td><strong class="text-xs text-primary">{ l.ErrorMessage }</strong></td>
+										<td><code class="text-xs">{ l.URLPath }</code></td>
+										<td class="text-center">
+											if l.ErrorLevel == "CRITICAL" || l.ErrorLevel == "ERROR" {
+												<span class="badge badge-rose text-xs font-bold">{ l.ErrorLevel }</span>
+											} else {
+												<span class="badge badge-amber text-xs font-bold">{ l.ErrorLevel }</span>
+											}
+										</td>
+										<td class="text-center"><span class="badge badge-sky text-xs font-bold">{ l.Status }</span></td>
+										<td class="tabular-nums text-xs text-secondary">{ l.CreatedAt.Format("2006-01-02 15:04:05") }</td>
+										<td class="text-end">
+											<a href={ templ.SafeURL(fmt.Sprintf("/admin/full-error-logs/%d", l.ID)) } class="btn btn-secondary btn-sm font-bold text-xs">عرض التفاصيل</a>
+										</td>
+									</tr>
+								}
+							</tbody>
+						</table>
+					</div>
+				}
+			</div>
 		</div>
 	}
 }

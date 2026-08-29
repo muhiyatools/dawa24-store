@@ -13,22 +13,24 @@ import (
 // (PLAN_V7 Task 2.3).
 templ AdminPoliciesPanel(lang, dir string, currentKey string, policies []*platformadmin.Policy) {
 	{{ _ = dir }}
-	<div class="card" style="margin-bottom:0; overflow:visible;">
-		<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; gap:1rem; flex-wrap:wrap;">
-			<div class="row-center-sm">
-				@components.IconFile("icon-md")
+	<div class="glass-panel p-6 mb-6">
+		<div class="flex-between items-center flex-wrap gap-4 mb-6">
+			<div class="d-flex items-center gap-3">
+				<div class="user-avatar-badge text-xl">
+					📜
+				</div>
 				<div>
-					<h2 class="card-title m-0">
+					<h2 class="text-xl font-black text-primary m-0">
 						إدارة إصدارات السياسات والوثائق القانونية
 					</h2>
-					<p style="font-size:0.85rem; color:var(--neutral-500); margin-top:0.2rem;">
-						تعديل ونشر الإصدارات المحدثة لشروط الاستخدام، سياسة الخصوصية، والاتفاقيات التجارية باللغتين العربية والإنجليزية.
+					<p class="text-xs text-secondary m-0 mt-1">
+						تعديل ونشر الإصدارات المحدثة لشروط الاستخدام، سياسة الخصوصية، والاتفاقيات التجارية باللغتين العربية والإنجليزية
 					</p>
 				</div>
 			</div>
 
-			<div style="display:flex; gap:0.75rem; align-items:center;">
-				@components.ModalTrigger("create-policy-version-modal", "btn btn-primary") {
+			<div class="d-flex items-center gap-2">
+				@components.ModalTrigger("create-policy-version-modal", "btn btn-primary btn-sm font-bold text-xs gap-1") {
 					@components.IconPlus("icon-xs")
 					<span>إنشاء إصدار جديد من سياسة</span>
 				}
@@ -36,39 +38,40 @@ templ AdminPoliciesPanel(lang, dir string, currentKey string, policies []*platfo
 		</div>
 
 		<!-- Filter by Policy Type -->
-		<div style="display:flex; gap:0.5rem; margin-bottom:1.5rem; flex-wrap:wrap; border-bottom:1px solid var(--neutral-200); padding-bottom:1rem;">
-			<a href="/admin/policies" class={ "btn btn-sm", templ.KV("btn-primary", currentKey == ""), templ.KV("btn-secondary", currentKey != "") }>
+		<div class="cb-tabs-nav m-0 mb-6 pb-4 border-b">
+			<a href="/admin/policies" class={ "cb-tab-btn", templ.KV("active", currentKey == "") }>
 				<span>كافة السياسات ({ fmt.Sprintf("%d", len(policies)) })</span>
 			</a>
-			<a href="/admin/policies?key=terms" class={ "btn btn-sm", templ.KV("btn-primary", currentKey == "terms"), templ.KV("btn-secondary", currentKey != "terms") }>
+			<a href="/admin/policies?key=terms" class={ "cb-tab-btn", templ.KV("active", currentKey == "terms") }>
 				<span>شروط الاستخدام (Terms)</span>
 			</a>
-			<a href="/admin/policies?key=privacy" class={ "btn btn-sm", templ.KV("btn-primary", currentKey == "privacy"), templ.KV("btn-secondary", currentKey != "privacy") }>
+			<a href="/admin/policies?key=privacy" class={ "cb-tab-btn", templ.KV("active", currentKey == "privacy") }>
 				<span>سياسة الخصوصية (Privacy)</span>
 			</a>
-			<a href="/admin/policies?key=refund" class={ "btn btn-sm", templ.KV("btn-primary", currentKey == "refund"), templ.KV("btn-secondary", currentKey != "refund") }>
+			<a href="/admin/policies?key=refund" class={ "cb-tab-btn", templ.KV("active", currentKey == "refund") }>
 				<span>المرتجعات والتسويات (Refund)</span>
 			</a>
-			<a href="/admin/policies?key=vendor_agreement" class={ "btn btn-sm", templ.KV("btn-primary", currentKey == "vendor_agreement"), templ.KV("btn-secondary", currentKey != "vendor_agreement") }>
+			<a href="/admin/policies?key=vendor_agreement" class={ "cb-tab-btn", templ.KV("active", currentKey == "vendor_agreement") }>
 				<span>اتفاقية التوريد (Vendor Agreement)</span>
 			</a>
 		</div>
 
 		if len(policies) == 0 {
-			@components.EmptyState(components.EmptyStateProps{
-				Title:   "لا توجد إصدارات مسجلة",
-				Message: "يمكنك إنشاء إصدار جديد لأي سياسة من سياسات المنصة.",
-			})
+			<div class="p-8 text-center empty-state-glass">
+				<div class="text-4xl mb-3">📜</div>
+				<h3 class="text-lg font-black text-primary mb-2">لا توجد إصدارات مسجلة</h3>
+				<p class="text-sm text-secondary max-w-md mx-auto">يمكنك إنشاء إصدار جديد لأي سياسة من سياسات المنصة.</p>
+			</div>
 		} else {
-			<div class="table-container overflow-visible">
-				<table class="b2b-table">
+			<div class="table-container m-0">
+				<table class="data-table m-0">
 					<thead>
 						<tr>
 							<th>السياسة القانونية</th>
 							<th>رقم الإصدار</th>
 							<th>العنوان (عربي / English)</th>
 							<th>ملخص التعديلات</th>
-							<th>حالة النشر</th>
+							<th class="text-center">حالة النشر</th>
 							<th>تاريخ التحديث</th>
 							<th class="text-end">الإجراءات</th>
 						</tr>

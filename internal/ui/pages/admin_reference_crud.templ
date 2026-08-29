@@ -19,58 +19,71 @@ type ReferenceItem struct {
 // AdminReferenceCRUDPage renders a reusable, high-craft CRUD table and toolbar for reference data.
 templ AdminReferenceCRUDPage(title string, sectionKey string, itemLabel string, items []ReferenceItem, activeNav string, lang, dir string) {
 	@layouts.AdminShell(title, activeNav, lang, dir) {
-		<div class="card mb-0">
-			<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; flex-wrap:wrap; gap:1rem;">
-				<div>
-					<h2 class="card-title m-0">{ title } ({ fmt.Sprintf("%d", len(items)) })</h2>
-					<p class="subtitle">إدارة وتحديث البيانات المرجعية الأساسية للمنصة.</p>
+		<div class="page-container">
+			<div class="glass-panel p-6 mb-6">
+				<div class="flex-between items-center flex-wrap gap-4">
+					<div class="d-flex items-center gap-3">
+						<div class="user-avatar-badge text-xl">
+							📑
+						</div>
+						<div>
+							<h1 class="text-2xl font-black text-primary m-0">{ title } ({ fmt.Sprintf("%d", len(items)) })</h1>
+							<p class="text-sm text-secondary m-0 mt-1">إدارة وتحديث البيانات المرجعية الأساسية للمنصة</p>
+						</div>
+					</div>
+					<button type="button" class="btn btn-primary btn-sm font-bold text-xs gap-1" onclick="alert('جاري فتح نموذج الإضافة')">
+						@components.IconPlus("icon-xs")
+						<span>إضافة { itemLabel } جديد</span>
+					</button>
 				</div>
-				<button type="button" class="btn btn-primary btn-sm" onclick="alert('جاري فتح نموذج الإضافة')">
-					@components.IconPlus("icon-xs")
-					<span>إضافة { itemLabel } جديد</span>
-				</button>
 			</div>
 
-			if len(items) == 0 {
-				@components.EmptyState(components.EmptyStateProps{Title: fmt.Sprintf("لا توجد سجلات %s", itemLabel), Message: "لم يتم تسجيل أي بيانات بعد."})
-			} else {
-				<div class="table-container">
-					<table class="b2b-table">
-						<thead>
-							<tr>
-								<th>#</th>
-								<th>الاسم / العنوان</th>
-								<th>الوصف / التفاصيل</th>
-								<th>معلومات إضافية</th>
-								<th>الحالة</th>
-								<th class="text-end">الإجراءات</th>
-							</tr>
-						</thead>
-						<tbody>
-							for _, it := range items {
+			<div class="glass-panel p-0 mb-6 overflow-hidden">
+				if len(items) == 0 {
+					<div class="p-8 text-center empty-state-glass">
+						<div class="text-4xl mb-3">📑</div>
+						<h3 class="text-lg font-black text-primary mb-2">لا توجد سجلات { itemLabel }</h3>
+						<p class="text-sm text-secondary max-w-md mx-auto">لم يتم تسجيل أي بيانات بعد.</p>
+					</div>
+				} else {
+					<div class="table-container m-0">
+						<table class="data-table m-0">
+							<thead>
 								<tr>
-									<td class="tabular-nums">#{ fmt.Sprintf("%d", it.ID) }</td>
-									<td><strong>{ it.Name }</strong></td>
-									<td>{ it.Description }</td>
-									<td>{ it.Extra }</td>
-									<td>
-										if it.Status == "active" || it.Status == "" {
-											<span class="badge badge-emerald">نشط</span>
-										} else {
-											<span class="badge badge-rose">معطل</span>
-										}
-									</td>
-									<td class="text-end">
-										<div style="display:flex; justify-content:flex-end; gap:0.5rem;">
-											<button type="button" class="btn btn-secondary btn-sm">تعديل</button>
-										</div>
-									</td>
+									<th>#</th>
+									<th>الاسم / العنوان</th>
+									<th>الوصف / التفاصيل</th>
+									<th>معلومات إضافية</th>
+									<th class="text-center">الحالة</th>
+									<th class="text-end">الإجراءات</th>
 								</tr>
-							}
-						</tbody>
-					</table>
-				</div>
-			}
+							</thead>
+							<tbody>
+								for _, it := range items {
+									<tr>
+										<td class="tabular-nums font-bold text-brand">#{ fmt.Sprintf("%d", it.ID) }</td>
+										<td><strong class="text-xs text-primary">{ it.Name }</strong></td>
+										<td class="text-xs text-secondary">{ it.Description }</td>
+										<td class="text-xs text-muted">{ it.Extra }</td>
+										<td class="text-center">
+											if it.Status == "active" || it.Status == "" {
+												<span class="badge badge-emerald text-xs font-bold">نشط</span>
+											} else {
+												<span class="badge badge-rose text-xs font-bold">معطل</span>
+											}
+										</td>
+										<td class="text-end">
+											<div class="d-inline-flex gap-2">
+												<button type="button" class="btn btn-secondary btn-sm font-bold text-xs">تعديل</button>
+											</div>
+										</td>
+									</tr>
+								}
+							</tbody>
+						</table>
+					</div>
+				}
+			</div>
 		</div>
 	}
 }

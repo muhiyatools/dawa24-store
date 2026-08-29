@@ -9,27 +9,36 @@ import (
 
 templ AdminProductImagesImportPage(view AdminProductImagesImportView, lang, dir string) {
 	@layouts.AdminShell("استرداد صور المنتجات أو الكتالوج الرسمي | Dawa24", "product_images_import", lang, dir) {
-		<div class="stack-lg">
+		<div class="page-container">
 			<!-- Header -->
-			@components.PageHeader(components.PageHeaderProps{
-				Title:    "استرداد صور المنتجات أو الكتالوج الرسمي",
-				Subtitle: "ارفع ملف Excel أو CSV يحتوي على كود الصنف (SKU) ورابط الصورة لتحميلها وربطها بالكتالوج المعتمد تلقائياً",
-			}) {
-				<div class="row-center" style="gap:0.5rem; flex-wrap:wrap;">
-					<a href="/admin/products/images/import/sample.xlsx" class="btn btn-secondary btn-sm fw-700">
-						@components.IconDownload("icon-xs")
-						<span>نموذج Excel</span>
-					</a>
-					<a href="/admin/products/images/import/sample.csv" class="btn btn-secondary btn-sm fw-700">
-						@components.IconDownload("icon-xs")
-						<span>نموذج CSV</span>
-					</a>
-					<a href="/admin/products" class="btn btn-secondary btn-sm fw-700">
-						@components.IconPackage("icon-xs")
-						<span>كتالوج الأدوية المعتمدة</span>
-					</a>
+			<div class="glass-panel p-6 mb-6">
+				<div class="flex-between items-center flex-wrap gap-4">
+					<div class="d-flex items-center gap-3">
+						<div class="user-avatar-badge text-xl">
+							🖼️
+						</div>
+						<div>
+							<h1 class="text-2xl font-black text-primary m-0">استرداد صور المنتجات أو الكتالوج الرسمي</h1>
+							<p class="text-sm text-secondary m-0 mt-1">ارفع ملف Excel أو CSV يحتوي على كود الصنف (SKU) ورابط الصورة لتحميلها وربطها بالكتالوج المعتمد تلقائياً</p>
+						</div>
+					</div>
+
+					<div class="d-flex items-center gap-2 flex-wrap">
+						<a href="/admin/products/images/import/sample.xlsx" class="btn btn-secondary btn-sm font-bold text-xs gap-1">
+							@components.IconDownload("icon-xs")
+							<span>نموذج Excel</span>
+						</a>
+						<a href="/admin/products/images/import/sample.csv" class="btn btn-secondary btn-sm font-bold text-xs gap-1">
+							@components.IconDownload("icon-xs")
+							<span>نموذج CSV</span>
+						</a>
+						<a href="/admin/products" class="btn btn-primary btn-sm font-bold text-xs gap-1">
+							@components.IconPackage("icon-xs")
+							<span>كتالوج الأدوية المعتمدة</span>
+						</a>
+					</div>
 				</div>
-			}
+			</div>
 
 			<!-- Flash Notices -->
 			if view.NoticeMsg != "" {
@@ -60,16 +69,16 @@ templ AdminProductImagesImportPage(view AdminProductImagesImportView, lang, dir 
 }
 
 templ adminImageUploadStage(view AdminProductImagesImportView) {
-	<div class="stack-lg">
+	<div>
 		<!-- Upload Dropzone Card -->
-		<div class="card" style="padding:2rem;">
+		<div class="glass-panel p-6 mb-6">
 			<form method="POST" action="/admin/products/images/import/upload" enctype="multipart/form-data" class="stack-md">
-				<div style="text-align:center; padding:2.5rem 1.5rem; border:2px dashed var(--border-subtle); border-radius:var(--radius-xl); background:var(--bg-surface-sunken); display:flex; flex-direction:column; align-items:center; justify-content:center; gap:1rem;">
-					<div style="width:64px; height:64px; border-radius:var(--radius-full); background:var(--brand-surface); color:var(--brand-primary); display:flex; align-items:center; justify-content:center;">
+				<div style="text-align:center; padding:2.5rem 1.5rem; border:2px dashed var(--border); border-radius:var(--radius-xl); background:var(--surface-sunken); display:flex; flex-direction:column; align-items:center; justify-content:center; gap:1rem;">
+					<div style="width:64px; height:64px; border-radius:var(--radius-full); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center;">
 						@components.IconImage("icon-lg")
 					</div>
 					<div>
-						<h3 style="font-size:1.15rem; font-weight:800; color:var(--text-primary); margin-bottom:0.25rem;">
+						<h3 style="font-size:1.15rem; font-weight:800; color:var(--text); margin-bottom:0.25rem;">
 							اختر ملف Excel أو CSV لصور المنتجات
 						</h3>
 						<p style="font-size:0.875rem; color:var(--text-muted);">
@@ -77,7 +86,7 @@ templ adminImageUploadStage(view AdminProductImagesImportView) {
 						</p>
 					</div>
 					<input type="file" name="file" accept=".xlsx,.xls,.csv" required class="form-input" style="max-width:360px;" />
-					<button type="submit" class="btn btn-primary btn-md fw-700" style="min-width:220px;">
+					<button type="submit" class="btn btn-primary btn-md font-bold" style="min-width:220px;">
 						@components.IconUpload("icon-sm")
 						<span>رفع الملف وبدء المطابقة ←</span>
 					</button>
@@ -87,13 +96,13 @@ templ adminImageUploadStage(view AdminProductImagesImportView) {
 
 		<!-- Sessions History -->
 		if len(view.Sessions) > 0 {
-			<div class="card">
-				<div class="card-header" style="padding:1rem 1.25rem; border-bottom:1px solid var(--border-subtle); display:flex; justify-content:space-between; align-items:center;">
-					<h3 style="font-size:1rem; font-weight:800; color:var(--text-primary);">سجل جلسات استرداد الصور</h3>
-					<span class="badge badge-neutral">{ fmt.Sprintf("%d جلسة", len(view.Sessions)) }</span>
+			<div class="glass-panel p-0 mb-6 overflow-hidden">
+				<div class="p-4 border-b flex-between items-center">
+					<h3 class="text-sm font-black text-primary m-0">سجل جلسات استرداد الصور</h3>
+					<span class="badge badge-neutral text-xs">{ fmt.Sprintf("%d جلسة", len(view.Sessions)) }</span>
 				</div>
-				<div class="table-responsive">
-					<table class="b2b-table">
+				<div class="table-container m-0">
+					<table class="data-table m-0">
 						<thead>
 							<tr>
 								<th>الملف</th>
@@ -185,9 +194,9 @@ templ adminImageMappingStage(view AdminProductImagesImportView) {
 			<!-- Sample Preview Table -->
 			if len(view.Session.SampleRows) > 0 {
 				<div>
-					<h4 style="font-size:0.9rem; font-weight:700; color:var(--text-secondary); margin-bottom:0.5rem;">معاينة لأول 5 صفوف من الملف:</h4>
-					<div class="table-responsive">
-						<table class="b2b-table">
+					<h4 class="text-xs font-bold text-secondary mb-2">معاينة لأول 5 صفوف من الملف:</h4>
+					<div class="table-container m-0">
+						<table class="data-table m-0">
 							<thead>
 								<tr>
 									for _, h := range view.Session.Headers {
@@ -313,8 +322,8 @@ templ adminImageCompletedStage(view AdminProductImagesImportView) {
 				</div>
 			</div>
 
-			<div class="table-responsive">
-				<table class="b2b-table">
+			<div class="table-container m-0">
+				<table class="data-table m-0">
 					<thead>
 						<tr>
 							<th style="width:40px;">#</th>
