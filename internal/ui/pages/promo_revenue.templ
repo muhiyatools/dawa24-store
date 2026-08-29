@@ -3,9 +3,20 @@ package pages
 import (
 	"fmt"
 
+	"github.com/muhiya/dawa24-store/internal/modules/promo"
 	"github.com/muhiya/dawa24-store/internal/ui/components"
 	"github.com/muhiya/dawa24-store/internal/ui/layouts"
 )
+
+// SponsorshipRequestsData holds the vendor's sponsorship packages, purchases,
+// active purchases (with remaining credits), and submitted requests.
+type SponsorshipRequestsData struct {
+	Packages        []*promo.OfferPackage
+	Purchases        []*promo.SponsorshipPurchase
+	ActivePurchases  []*promo.SponsorshipPurchase
+	Requests        []*promo.SponsorshipRequest
+	OrgID           int64
+}
 
 // AdminOffersPackagesHubPage renders monetization hub.
 templ AdminOffersPackagesHubPage(lang, dir string) {
@@ -68,17 +79,88 @@ templ AdminOfferPackageDetailPage(pkgID int64, lang, dir string) {
 	}
 }
 
-// AdminOfferSponsorshipsPage renders sponsorships.
-templ AdminOfferSponsorshipsPage(lang, dir string) {
+// AdminOfferSponsorshipsPage renders sponsorships and pending requests for admin review.
+templ AdminOfferSponsorshipsPage(lang, dir string, requests []*promo.SponsorshipRequest) {
 	@layouts.AdminShell("الرعايات الرسمية للعروض", "offers_packages", lang, dir) {
 		<div class="card mb-0">
 			<div class="header-row">
 				<div>
-					<h2 class="card-title m-0">الرعايات الرسمية للعروض</h2>
+					<h2 class="card-title m-0">مراجعة طلبات الرعاية</h2>
+					<p class="subtitle">اعتمد أو ارفض طلبات الرعاية المُقدّمة من الموردين. عند الاعتماد، يظهر العنصر في صدارة الكتالوج مع وسم "مُموف".</p>
 				</div>
 				<a href="/admin/offers-packages" class="btn btn-secondary btn-sm">العودة</a>
 			</div>
-			@components.EmptyState(components.EmptyStateProps{Title: "سجل الرعايات", Message: "تظهر هنا طلبات واشتراكات الرعاية النشطة للموردين."})
+			if len(requests) == 0 {
+				@components.EmptyState(components.EmptyStateProps{Title: "لا توجد طلبات", Message: "لا توجد طلبات رعاية قيد المراجعة حالياً."})
+			} else {
+				<div class="table-wrapper">
+					<table class="table">
+						<thead>
+							<tr>
+								<th>المورد</th>
+								<th>النوع</th>
+								<th>العنصر</th>
+								<th>الباقة</th>
+								<th>المستوى</th>
+								<th>الحالة</th>
+								<th>تاريخ</th>
+								<th>إجراءات</th>
+							</tr>
+						</thead>
+						<tbody>
+							for _, req := range requests {
+								if req != nil {
+									<tr>
+										<td class="tabular-nums">{ fmt.Sprintf("#%d", req.OrganizationID) }</td>
+										<td>
+											if req.ItemType == "product" {
+												<span>منتج</span>
+											} else {
+												<span>عرض</span>
+											}
+										</td>
+										<td class="tabular-nums">{ fmt.Sprintf("#%d", req.ItemID) }</td>
+										<td class="tabular-nums">{ fmt.Sprintf("#%d", req.PackageID) }</td>
+										<td>
+											if req.Package != nil {
+												<span class="badge badge-amber font-bold text-xs" style="background:#fef3c7; color:#92400e; border:1px solid #fcd34d;">
+													{ fmt.Sprintf("%d", req.Package.TierLevel) }
+												</span>
+											} else {
+												<span class="text-muted text-xs">—</span>
+											}
+										</td>
+										<td>
+											if req.AdminStatus == "pending" {
+												<span class="badge badge-sky font-bold text-xs">قيد المراجعة</span>
+											} else if req.AdminStatus == "approved" {
+												<span class="badge badge-emerald font-bold text-xs">معتمد ✓</span>
+											} else {
+												<span class="badge badge-rose font-bold text-xs">مرفوض ✗</span>
+											}
+										</td>
+										<td class="text-xs tabular-nums">{ req.CreatedAt.Format("2006-01-02 15:04") }</td>
+										<td>
+											if req.AdminStatus == "pending" {
+												<div style="display:flex; gap:0.5rem;">
+													<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/offers-packages/sponsorships/%d/approve", req.ID)) } style="display:inline;">
+														<button type="submit" class="btn btn-primary btn-xs font-bold">اعتماد</button>
+													</form>
+													<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/offers-packages/sponsorships/%d/reject", req.ID)) } style="display:inline;">
+														<button type="submit" class="btn btn-secondary btn-xs" onclick="return confirm('هل أنت متأكد من رفض هذا الطلب؟')">رفض</button>
+													</form>
+												</div>
+											} else {
+												<span class="text-muted text-xs">—</span>
+											}
+										</td>
+									</tr>
+								}
+							}
+						</tbody>
+					</table>
+				</div>
+			}
 		</div>
 	}
 }
@@ -98,18 +180,86 @@ templ AdminOfferPromotionsPage(lang, dir string) {
 	}
 }
 
-// AdminAdsListPage renders advertisements table.
-templ AdminAdsListPage(lang, dir string) {
+// AdminAdsListPage renders advertisements table with approval actions.
+templ AdminAdsListPage(lang, dir string, ads []*promo.Ad) {
 	@layouts.AdminShell("إدارة الإعلانات والبنرات (Ads)", "ads", lang, dir) {
 		<div class="card mb-0">
 			<div class="header-row">
 				<div>
-					<h2 class="card-title m-0">الإعلانات والبنرات الترويجية في المنصة</h2>
+					<h2 class="card-title m-0">الإعلانات والبنرات الترويجية</h2>
 					<p class="subtitle">مراجعة واعتماد بنرات الموردين والشركات على الصفحة الرئيسية وصفحات الأقسام.</p>
 				</div>
 				<a href="/admin/ad-plan" class="btn btn-secondary btn-sm">خطط الإعلانات</a>
 			</div>
-			@components.EmptyState(components.EmptyStateProps{Title: "سجل الإعلانات", Message: "يتم فحص واعتماد وتفعيل الإعلانات المعروضة هنا."})
+			if len(ads) == 0 {
+				@components.EmptyState(components.EmptyStateProps{Title: "لا توجد إعلانات", Message: "لا توجد إعلانات قيد المراجعة حالياً."})
+			} else {
+				<div class="table-wrapper">
+					<table class="table">
+						<thead>
+							<tr>
+								<th>العنوان</th>
+								<th>المورد</th>
+								<th>الوسائط</th>
+								<th>المشاهدات</th>
+								<th>النقرات</th>
+								<th>CTR</th>
+								<th>الحالة</th>
+								<th>إجراءات</th>
+							</tr>
+						</thead>
+						<tbody>
+							for _, ad := range ads {
+								if ad != nil {
+									<tr>
+										<td>{ ad.DisplayTitle(lang) }</td>
+										<td class="tabular-nums">
+											if ad.OrganizationID != nil {
+												{ fmt.Sprintf("#%d", *ad.OrganizationID) }
+											} else {
+												<span class="text-muted">—</span>
+											}
+										</td>
+										<td>
+											if ad.MediaType == "video" {
+												<span class="badge badge-sky text-xs">فيديو</span>
+											} else {
+												<span class="badge badge-slate text-xs">صورة</span>
+											}
+										</td>
+										<td class="tabular-nums">{ fmt.Sprintf("%d", ad.Impressions) }</td>
+										<td class="tabular-nums">{ fmt.Sprintf("%d", ad.Clicks) }</td>
+										<td class="tabular-nums">{ fmt.Sprintf("%.1f%%", ad.CTR) }</td>
+										<td>
+											if ad.AdminStatus == "pending" {
+												<span class="badge badge-sky font-bold text-xs">قيد المراجعة</span>
+											} else if ad.AdminStatus == "approved" {
+												<span class="badge badge-emerald font-bold text-xs">معتمد ✓</span>
+											} else {
+												<span class="badge badge-rose font-bold text-xs">مرفوض ✗</span>
+											}
+										</td>
+										<td>
+											if ad.AdminStatus == "pending" {
+												<div style="display:flex; gap:0.5rem;">
+													<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/ads/%d/approve", ad.ID)) } style="display:inline;">
+														<button type="submit" class="btn btn-primary btn-xs font-bold">اعتماد</button>
+													</form>
+													<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/ads/%d/reject", ad.ID)) } style="display:inline;">
+														<button type="submit" class="btn btn-secondary btn-xs">رفض</button>
+													</form>
+												</div>
+											} else {
+												<span class="text-muted text-xs">—</span>
+											}
+										</td>
+									</tr>
+								}
+							}
+						</tbody>
+					</table>
+				</div>
+			}
 		</div>
 	}
 }
@@ -159,7 +309,56 @@ templ AdminOfferLocationsPage(lang, dir string) {
 	}
 }
 
-// VendorOffersPackagesPage renders vendor's available packages.
+// VendorOffersPackagesPage renders vendor's available packages with purchase data.
+templ VendorOffersPackagesPageWithData(lang, dir string, data SponsorshipRequestsData) {
+	@layouts.VendorShell("باقات العروض والاشتراكات", "offers_packages", lang, dir) {
+		<div class="card mb-0">
+			<div class="header-row">
+				<div>
+					<h2 class="card-title m-0">باقات العروض الترويجية المتاحة لمنشأتك</h2>
+					<p class="subtitle">اختر الباقة المناسبة لزيادة عدد العروض الترويجية المنشورة وتثبيتها في صدارة البحث.</p>
+				</div>
+				<a href="/vendor/sponsorship-requests" class="btn btn-primary btn-sm">طلبات الرعاية</a>
+			</div>
+			if len(data.Packages) > 0 {
+				<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:1.25rem;">
+					for _, pkg := range data.Packages {
+						if pkg != nil {
+							<div style="padding:1.5rem; border-radius:0.875rem; border:2px solid var(--border); background:var(--surface);">
+								<div style="display:flex; justify-content:space-between; align-items:start; margin-bottom:0.75rem;">
+									<div>
+										<h4 style="font-weight:800; font-size:1.05rem; margin:0 0 0.25rem 0;">{ pkg.Name.Get("ar") }</h4>
+										if pkg.TierLevel > 0 {
+											<span class="badge badge-amber font-bold text-xs" style="background:#fef3c7; color:#92400e; border:1px solid #fcd34d;">
+												المستوى { fmt.Sprintf("%d", pkg.TierLevel) }
+											</span>
+										}
+									</div>
+									<div style="text-align:left;">
+										<div style="font-weight:900; font-size:1.5rem; color:var(--brand);">{ pkg.Price.String() } ج.م</div>
+										<div style="font-size:0.7rem; color:var(--text-secondary);">لمدة { fmt.Sprintf("%d", pkg.DurationDays) } يوماً</div>
+									</div>
+								</div>
+								<div style="font-size:0.85rem; color:var(--text-secondary); margin-bottom:1rem; line-height:1.5;">
+									{ fmt.Sprintf("%d", pkg.Credits) } رعاية متاحة · تثبيت في صدارة النتائج
+								</div>
+								<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/vendor/sponsorship-packages/%d/purchase", pkg.ID)) } class="m-0">
+									<button type="submit" class="btn btn-primary w-full font-bold text-sm">
+										شراء الباقة
+									</button>
+								</form>
+							</div>
+						}
+					}
+				</div>
+			} else {
+				@components.EmptyState(components.EmptyStateProps{Title: "لا توجد باقات متاحة", Message: "لا توجد باقات رعاية متاحة حالياً. يرجى المحاولة لاحقاً."})
+			}
+		</div>
+	}
+}
+
+// VendorOffersPackagesPage renders vendor's available packages (legacy compat).
 templ VendorOffersPackagesPage(lang, dir string) {
 	@layouts.VendorShell("باقات العروض والاشتراكات", "offers_packages", lang, dir) {
 		<div class="card mb-0">
@@ -204,17 +403,127 @@ templ VendorOffersPackagesPromotionsPage(lang, dir string) {
 	}
 }
 
-// VendorAdsPage renders vendor ads.
-templ VendorAdsPage(lang, dir string) {
+// VendorAdsPage renders vendor's ads with statistics and a creation form.
+templ VendorAdsPage(lang, dir string, ads []*promo.Ad) {
 	@layouts.VendorShell("الإعلانات والبنرات الترويجية", "ads", lang, dir) {
 		<div class="card mb-0">
 			<div class="header-row">
 				<div>
 					<h2 class="card-title m-0">إعلانات وبنرات المنشأة</h2>
-					<p class="subtitle">إدارة البنرات الإعلانية المنشورة في واجهة المنصة وتتبع عدد النقرات والمشاهدات.</p>
+					<p class="subtitle">أنشئ إعلاناً بصورة أو فيديو ونص ثنائي اللغة. يتم مراجعة كل إعلان من قبل الإدارة قبل نشره.</p>
 				</div>
 			</div>
-			@components.EmptyState(components.EmptyStateProps{Title: "لا توجد إعلانات نشطة", Message: "تواصل مع الإدارة أو اختر خطة إعلانية لنشر بنر ترويجي لمنشأتك."})
+
+			<!-- Create Ad Form -->
+			<div style="background:var(--surface-sunken); padding:1.5rem; border-radius:0.75rem; margin-bottom:1.5rem;">
+				<h3 style="font-size:1.05rem; font-weight:700; margin-bottom:1rem;">إنشاء إعلان جديد</h3>
+				<form method="POST" action="/vendor/ads/new" class="space-y-4">
+					<div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
+						<div class="form-group">
+							<label class="form-label">العنوان (عربي)</label>
+							<input type="text" name="title_ar" class="form-input" required placeholder="عنوان الإعلان بالعربية" />
+						</div>
+						<div class="form-group">
+							<label class="form-label">العنوان (إنجليزي)</label>
+							<input type="text" name="title_en" class="form-input" placeholder="Ad title in English" />
+						</div>
+					</div>
+					<div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
+						<div class="form-group">
+							<label class="form-label">النص الإعلاني (عربي)</label>
+							<textarea name="ad_text_ar" class="form-input" rows="3" placeholder="النص الإعلاني بالعربية"></textarea>
+						</div>
+						<div class="form-group">
+							<label class="form-label">النص الإعلاني (إنجليزي)</label>
+							<textarea name="ad_text_en" class="form-input" rows="3" placeholder="Advertising text in English"></textarea>
+						</div>
+					</div>
+					<div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
+						<div class="form-group">
+							<label class="form-label">رابط الوسائط (صورة/فيديو)</label>
+							<input type="url" name="media_url" class="form-input" required placeholder="https://..." />
+						</div>
+						<div class="form-group">
+							<label class="form-label">نوع الوسائط</label>
+							<select name="media_type" class="form-input">
+								<option value="image">صورة</option>
+								<option value="video">فيديو</option>
+							</select>
+						</div>
+					</div>
+					<div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
+						<div class="form-group">
+							<label class="form-label">وجهة النقر</label>
+							<select name="click_target_type" class="form-input">
+								<option value="vendor_page">صفحة المورد</option>
+								<option value="offer">عرض محدد</option>
+								<option value="external_url">رابط خارجي</option>
+							</select>
+						</div>
+						<div class="form-group">
+							<label class="form-label">معرف الوجهة (إن وجد)</label>
+							<input type="number" name="click_target_id" class="form-input" placeholder="معرف العرض" />
+						</div>
+					</div>
+					<button type="submit" class="btn btn-primary font-bold">
+						إنشاء الإعلان
+					</button>
+				</form>
+			</div>
+
+			<!-- Ads List with Statistics -->
+			if len(ads) > 0 {
+				<div class="table-wrapper">
+					<table class="table">
+						<thead>
+							<tr>
+								<th>العنوان</th>
+								<th>الوسائط</th>
+								<th>المشاهدات</th>
+								<th>النقرات</th>
+								<th>CTR</th>
+								<th>الحالة</th>
+								<th>إجراءات</th>
+							</tr>
+						</thead>
+						<tbody>
+							for _, ad := range ads {
+								if ad != nil {
+									<tr>
+										<td>{ ad.DisplayTitle(lang) }</td>
+										<td>
+											if ad.MediaType == "video" {
+												<span class="badge badge-sky text-xs">فيديو</span>
+											} else {
+												<span class="badge badge-slate text-xs">صورة</span>
+											}
+										</td>
+										<td class="tabular-nums">{ fmt.Sprintf("%d", ad.Impressions) }</td>
+										<td class="tabular-nums">{ fmt.Sprintf("%d", ad.Clicks) }</td>
+										<td class="tabular-nums">{ fmt.Sprintf("%.1f%%", ad.CTR) }</td>
+										<td>
+											if ad.AdminStatus == "pending" {
+												<span class="badge badge-sky font-bold text-xs">قيد المراجعة</span>
+											} else if ad.AdminStatus == "approved" {
+												<span class="badge badge-emerald font-bold text-xs">معتمد ✓</span>
+											} else {
+												<span class="badge badge-rose font-bold text-xs">مرفوض ✗</span>
+											}
+										</td>
+										<td>
+											<a href={ templ.SafeURL(fmt.Sprintf("/vendor/ads/%d/edit", ad.ID)) } class="btn btn-secondary btn-xs">
+												تعديل
+											</a>
+										</td>
+									</tr>
+								}
+							}
+						</tbody>
+					</table>
+				</div>
+			} else {
+				@components.EmptyState(components.EmptyStateProps{Title: "لا توجد إعلانات", Message: "أنشئ إعلانك الأول باستخدام النموذج أعلاه."})
+			}
 		</div>
 	}
 }
@@ -230,6 +539,192 @@ templ VendorOffersLocationsPage(lang, dir string) {
 				<a href="/vendor/offers" class="btn btn-secondary btn-sm">العودة للعروض</a>
 			</div>
 			@components.EmptyState(components.EmptyStateProps{Title: "التغطية الجغرافية", Message: "حدد المحافظات والمدن التي تتاح فيها عروضك الترويجية."})
+		</div>
+	}
+}
+
+// VendorSponsorshipRequestsPage renders the vendor's sponsorship management page.
+// Shows available packages, active purchases with credits, the request form, and
+// the status of all submitted sponsorship requests.
+templ VendorSponsorshipRequestsPage(lang, dir string, data SponsorshipRequestsData) {
+	@layouts.VendorShell("طلبات الرعاية والباقات", "sponsorship_requests", lang, dir) {
+		<div class="sponsorship-page">
+			<!-- Header -->
+			<div class="card mb-0 mb-lg">
+				<div class="header-row">
+					<div>
+						<h2 class="card-title m-0">طلبات الرعاية وباقات الترويج</h2>
+						<p class="subtitle">اشترِ باقة رعاية للحصول على رصيد من الرعايات، ثم قدّم طلبات رعاية لمنتجاتك أو عروضك. تظهر العناصر المُرعية في صدارة الكتالوج والعروض مع وسم "مُمول".</p>
+					</div>
+				</div>
+			</div>
+
+			<!-- Active Purchases & Credits -->
+			if len(data.ActivePurchases) > 0 {
+				<div class="card mb-lg">
+					<h3 class="card-title mb-md">رصيد الرعايات النشط</h3>
+					<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(240px, 1fr)); gap:1rem;">
+						for _, p := range data.ActivePurchases {
+							if p != nil {
+								<div style="background:var(--surface-sunken); padding:1.25rem; border-radius:0.75rem; border:1px solid var(--border);">
+									<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.5rem;">
+										<span style="font-weight:700; font-size:0.95rem;">باقة #{ fmt.Sprintf("%d", p.PackageID) }</span>
+										<span class="badge badge-emerald font-bold text-xs tabular-nums">
+											{ fmt.Sprintf("%d / %d", p.CreditsRemaining, p.CreditsTotal) } رعاية
+										</span>
+									</div>
+									<div style="font-size:0.8rem; color:var(--text-secondary);">تنتهي في: { p.ExpiresAt.Format("2006-01-02") }</div>
+								</div>
+							}
+						}
+					</div>
+				</div>
+			}
+
+			<!-- Available Packages -->
+			if len(data.Packages) > 0 {
+				<div class="card mb-lg">
+					<h3 class="card-title mb-md">الباقات المتاحة للشراء</h3>
+					<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:1.25rem;">
+						for _, pkg := range data.Packages {
+							if pkg != nil {
+								<div style="padding:1.5rem; border-radius:0.875rem; border:2px solid var(--border); background:var(--surface);">
+									<div style="display:flex; justify-content:space-between; align-items:start; margin-bottom:0.75rem;">
+										<div>
+											<h4 style="font-weight:800; font-size:1.05rem; margin:0 0 0.25rem 0;">
+												{ pkg.Name.Get("ar") }
+											</h4>
+											if pkg.TierLevel > 0 {
+												<span class="badge badge-amber font-bold text-xs" style="background:#fef3c7; color:#92400e; border:1px solid #fcd34d;">
+													المستوى { fmt.Sprintf("%d", pkg.TierLevel) }
+												</span>
+											}
+										</div>
+										<div style="text-align:left;">
+											<div style="font-weight:900; font-size:1.5rem; color:var(--brand);">{ pkg.Price.String() } ج.م</div>
+											<div style="font-size:0.7rem; color:var(--text-secondary);">لمدة { fmt.Sprintf("%d", pkg.DurationDays) } يوماً</div>
+										</div>
+									</div>
+									<div style="font-size:0.85rem; color:var(--text-secondary); margin-bottom:1rem; line-height:1.5;">
+										{ fmt.Sprintf("%d", pkg.Credits) } رعاية متاحة · تثبيت في صدارة النتائج
+									</div>
+									<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/vendor/sponsorship-packages/%d/purchase", pkg.ID)) } class="m-0">
+										<button type="submit" class="btn btn-primary w-full font-bold text-sm">
+											شراء الباقة
+										</button>
+									</form>
+								</div>
+							}
+						}
+					</div>
+				</div>
+			}
+
+			<!-- Submit New Request -->
+			<div class="card mb-lg">
+				<h3 class="card-title mb-md">تقديم طلب رعاية جديد</h3>
+				<form method="POST" action="/vendor/sponsorship-requests/new" class="space-y-4">
+					<div class="form-group">
+						<label class="form-label">نوع العنصر</label>
+						<select name="item_type" class="form-input">
+							<option value="product">منتج</option>
+							<option value="offer">عرض ترويجي</option>
+						</select>
+					</div>
+					<div class="form-group">
+						<label class="form-label">معرف العنصر</label>
+						<input type="number" name="item_id" class="form-input" required min="1" placeholder="أدخل معرف المنتج أو العرض" />
+					</div>
+					<div class="form-group">
+						<label class="form-label">الباقة</label>
+						<select name="package_id" class="form-input" required>
+							if len(data.ActivePurchases) > 0 {
+								for _, p := range data.ActivePurchases {
+									if p != nil {
+										<option value={ fmt.Sprintf("%d", p.PackageID) }>
+											باقة #{ fmt.Sprintf("%d", p.PackageID) } — { fmt.Sprintf("%d رعاية متاحة", p.CreditsRemaining) }
+										</option>
+									}
+								}
+							} else {
+								<option value="" disabled>لا يوجد رصيد متاح — اشترِ باقة أولاً</option>
+							}
+						</select>
+					</div>
+					<button type="submit" class="btn btn-primary font-bold" disabled={ len(data.ActivePurchases) == 0 }>
+						تقديم طلب الرعاية
+					</button>
+				</form>
+			</div>
+
+			<!-- Requests List -->
+			<div class="card mb-0">
+				<h3 class="card-title mb-md">طلبات الرعاية المُقدّمة</h3>
+				if len(data.Requests) == 0 {
+					@components.EmptyState(components.EmptyStateProps{Title: "لا توجد طلبات", Message: "لم تقم بتقديم أي طلبات رعاية بعد."})
+				} else {
+					<div class="table-wrapper">
+						<table class="table">
+							<thead>
+								<tr>
+									<th>النوع</th>
+									<th>المعرف</th>
+									<th>الباقة</th>
+									<th>الحالة</th>
+									<th>المراجعة</th>
+									<th>تاريخ الانتهاء</th>
+									<th>إجراءات</th>
+								</tr>
+							</thead>
+							<tbody>
+								for _, req := range data.Requests {
+									if req != nil {
+										<tr>
+											<td>
+												if req.ItemType == "product" {
+													<span>منتج</span>
+												} else {
+													<span>عرض</span>
+												}
+											</td>
+											<td class="tabular-nums">{ fmt.Sprintf("#%d", req.ItemID) }</td>
+											<td class="tabular-nums">{ fmt.Sprintf("#%d", req.PackageID) }</td>
+											<td>
+												if req.AdminStatus == "pending" {
+													<span class="badge badge-sky font-bold text-xs">قيد المراجعة</span>
+												} else if req.AdminStatus == "approved" {
+													<span class="badge badge-emerald font-bold text-xs">معتمد ✓</span>
+												} else if req.AdminStatus == "rejected" {
+													<span class="badge badge-rose font-bold text-xs">مرفوض ✗</span>
+												}
+											</td>
+											<td>
+												if req.AdminStatus == "pending" {
+													<span class="text-muted text-xs">—</span>
+												} else {
+													<span class="text-xs tabular-nums">{ req.ReviewedAt.Format("2006-01-02") }</span>
+												}
+											</td>
+											<td class="text-xs tabular-nums">{ req.ExpiresAt.Format("2006-01-02") }</td>
+											<td>
+												if req.AdminStatus == "pending" {
+													<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/vendor/sponsorship-requests/%d/cancel", req.ID)) } class="m-0" style="display:inline;">
+														<button type="submit" class="btn btn-secondary btn-xs" onclick="return confirm('هل أنت متأكد من إلغاء هذا الطلب؟')">
+											إلغاء
+										</button>
+													</form>
+												} else {
+													<span class="text-muted text-xs">—</span>
+												}
+											</td>
+										</tr>
+									}
+								}
+							</tbody>
+						</table>
+					</div>
+				}
+			</div>
 		</div>
 	}
 }

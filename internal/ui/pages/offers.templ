@@ -29,6 +29,7 @@ type OfferCardData struct {
 	ExpiresAt          time.Time
 	ProductsCount      int
 	Image              string
+	IsSponsored        bool
 }
 
 type OfferDetailPageData struct {
@@ -117,6 +118,11 @@ templ OffersContent(lang string, offers []*OfferCardData) {
 								<!-- Header Badges -->
 								<div class="flex-between items-start gap-2 mb-3">
 									<div class="d-flex items-center gap-2 flex-wrap">
+										if o.IsSponsored {
+											<span class="badge badge-amber font-bold text-xs" style="background:#fef3c7; color:#92400e; border:1px solid #fcd34d;">
+												★ ممول — رعاية
+											</span>
+										}
 										<span class="badge badge-emerald font-bold text-xs">✓ سارٍ حالياً</span>
 										if o.DiscountPercentage > 0 {
 											<span class="badge badge-rose font-black text-xs tabular-nums">

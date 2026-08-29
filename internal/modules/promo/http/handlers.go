@@ -38,6 +38,7 @@ func (h *Handler) RegisterRoutes(r chi.Router) {
 	r.Post("/api/v1/promo/highlights", h.CreateHighlight)
 
 	h.RegisterAdminRoutes(r)
+	h.RegisterVendorSponsorshipRoutes(r)
 }
 
 // ListOffers returns all currently active promotions.

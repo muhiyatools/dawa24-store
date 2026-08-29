@@ -86,43 +86,130 @@ type OfferPackage struct {
 	ID           int64        `json:"id"`
 	PublicID     string       `json:"public_id"`
 	Name         i18n.Text    `json:"name"`
+	Description  i18n.Text    `json:"description,omitempty"`
 	Price        money.Amount `json:"price"`
 	DurationDays int          `json:"duration_days"`
 	MaxOffers    int          `json:"max_offers"`
+	Credits      int          `json:"credits"`       // number of sponsorships included per purchase
+	TierLevel    int          `json:"tier_level"`    // higher ranks above lower in sponsored ranking
+	SortOrder    int          `json:"sort_order"`
+	IsFeatured   bool         `json:"is_featured"`
+	BadgeColor   string       `json:"badge_color,omitempty"`
 	IsActive     bool         `json:"is_active"`
 	CreatedAt    time.Time    `json:"created_at"`
 	UpdatedAt    time.Time    `json:"updated_at"`
 }
 
-// OfferSponsorship represents an active sponsored campaign for an offer.
-type OfferSponsorship struct {
-	ID             int64     `json:"id"`
-	PublicID       string    `json:"public_id"`
-	OrganizationID int64     `json:"organization_id"`
-	OfferID        int64     `json:"offer_id"`
-	PackageID      int64     `json:"package_id"`
-	StartsAt       time.Time `json:"starts_at"`
-	ExpiresAt      time.Time `json:"expires_at"`
-	Status         string    `json:"status"`
-	CreatedAt      time.Time `json:"created_at"`
+// RankedSponsorship carries the ranking signal for a sponsored product or offer.
+// Higher TierLevel sorts above lower; ties are broken randomly by the caller.
+type RankedSponsorship struct {
+	ItemType      SponsorshipItemType
+	ItemID        int64
+	OrganizationID int64
+	PackageID     int64
+	TierLevel     int
+	ExpiresAt     time.Time
 }
 
-// Ad represents a display banner advertisement.
+// OfferSponsorship represents an active sponsored campaign for an offer or product.
+type OfferSponsorship struct {
+	ID                    int64                `json:"id"`
+	PublicID              string               `json:"public_id"`
+	OrganizationID        int64                `json:"organization_id"`
+	OfferID               int64                `json:"offer_id"`
+	PackageID             int64                `json:"package_id"`
+	StartsAt              time.Time            `json:"starts_at"`
+	ExpiresAt             time.Time            `json:"expires_at"`
+	Status                string               `json:"status"`
+	ItemType              SponsorshipItemType  `json:"item_type"`
+	ItemID                int64                `json:"item_id"`
+	CreditsUsed           int                  `json:"credits_used"`
+	AdminStatus           AdminStatus          `json:"admin_status"`
+	AdminNotes            string               `json:"admin_notes,omitempty"`
+	ReviewedBy            *int64               `json:"reviewed_by,omitempty"`
+	ReviewedAt            *time.Time           `json:"reviewed_at,omitempty"`
+	SponsorshipRequestID  *int64               `json:"sponsorship_request_id,omitempty"`
+	CreatedAt             time.Time            `json:"created_at"`
+}
+
+// Ad represents a display banner advertisement with bilingual content,
+// media (image or video), a click target, admin approval, and engagement stats.
 type Ad struct {
-	ID             int64     `json:"id"`
-	PublicID       string    `json:"public_id"`
-	OrganizationID *int64    `json:"organization_id,omitempty"`
-	Title          string    `json:"title"`
-	ImageURL       string    `json:"image_url"`
-	TargetURL      string    `json:"target_url"`
-	Position       string    `json:"position"`
-	IsActive       bool      `json:"is_active"`
-	StartsAt       time.Time `json:"starts_at"`
-	ExpiresAt      time.Time `json:"expires_at"`
-	Impressions    int64     `json:"impressions"`
-	Clicks         int64     `json:"clicks"`
-	CreatedAt      time.Time `json:"created_at"`
-	UpdatedAt      time.Time `json:"updated_at"`
+	ID               int64        `json:"id"`
+	PublicID         string       `json:"public_id"`
+	OrganizationID   *int64       `json:"organization_id,omitempty"`
+	Title            string       `json:"title"`
+	TitleAr          string       `json:"title_ar,omitempty"`
+	TitleEn          string       `json:"title_en,omitempty"`
+	AdTextAr         string       `json:"ad_text_ar,omitempty"`
+	AdTextEn         string       `json:"ad_text_en,omitempty"`
+	ImageURL         string       `json:"image_url"`       // legacy, kept for backward compat
+	MediaType        AdMediaType  `json:"media_type"`
+	MediaURL         string       `json:"media_url"`
+	ThumbnailURL     string       `json:"thumbnail_url,omitempty"`
+	TargetURL        string       `json:"target_url"`
+	ClickTargetType  AdClickTarget `json:"click_target_type"`
+	ClickTargetID    *int64       `json:"click_target_id,omitempty"`
+	Position         string       `json:"position"`
+	IsActive         bool         `json:"is_active"`
+	AdminStatus      AdminStatus  `json:"admin_status"`
+	AdminNotes       string       `json:"admin_notes,omitempty"`
+	ReviewedBy       *int64       `json:"reviewed_by,omitempty"`
+	ReviewedAt       *time.Time   `json:"reviewed_at,omitempty"`
+	AdPlanID         *int64       `json:"ad_plan_id,omitempty"`
+	DurationDays     int          `json:"duration_days"`
+	StartsAt         time.Time    `json:"starts_at"`
+	ExpiresAt        time.Time    `json:"expires_at"`
+	Impressions      int64        `json:"impressions"`
+	Clicks           int64        `json:"clicks"`
+	CTR              float64      `json:"ctr,omitempty"`
+	CreatedAt        time.Time    `json:"created_at"`
+	UpdatedAt        time.Time    `json:"updated_at"`
+}
+
+// IsApproved reports whether the admin cleared this ad for display.
+func (a *Ad) IsApproved() bool { return a.AdminStatus == AdminApproved }
+
+// DisplayTitle returns the title in the requested language, falling back to the
+// legacy single-language Title field.
+func (a *Ad) DisplayTitle(lang string) string {
+	if lang == "en" {
+		if a.TitleEn != "" {
+			return a.TitleEn
+		}
+	}
+	if a.TitleAr != "" {
+		return a.TitleAr
+	}
+	return a.Title
+}
+
+// DisplayText returns the advertising copy in the requested language.
+func (a *Ad) DisplayText(lang string) string {
+	if lang == "en" && a.AdTextEn != "" {
+		return a.AdTextEn
+	}
+	return a.AdTextAr
+}
+
+// ResolveClickURL builds the destination URL based on the click target type.
+func (a *Ad) ResolveClickURL() string {
+	if a.TargetURL != "" {
+		return a.TargetURL
+	}
+	switch a.ClickTargetType {
+	case ClickTargetOffer:
+		if a.ClickTargetID != nil {
+			return "/offers/" + fmtInt64(*a.ClickTargetID)
+		}
+	case ClickTargetExternal:
+		return a.TargetURL
+	default:
+		if a.OrganizationID != nil {
+			return "/suppliers/" + fmtInt64(*a.OrganizationID)
+		}
+	}
+	return "/"
 }
 
 // CalculateDiscount computes the discount amount for a given order subtotal.

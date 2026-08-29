@@ -58,6 +58,10 @@ func (h *UIHandler) HomePage(w http.ResponseWriter, r *http.Request) {
 			offers = activeOffers
 			stats.TotalOffers = len(activeOffers)
 		}
+		// Fetch approved ads for the landing page advertising gallery.
+		if ads, err := h.promoSvc.ListActiveAds(ctx, "home_banner"); err == nil {
+			stats.Ads = ads
+		}
 	}
 
 	if h.orgSvc != nil {

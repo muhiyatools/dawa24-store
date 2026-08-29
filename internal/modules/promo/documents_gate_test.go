@@ -48,6 +48,79 @@ func (s *stubPromoRepo) ListActiveAds(context.Context, string) ([]*Ad, error)   
 func (s *stubPromoRepo) RecordAdClick(context.Context, int64, *int64, string, string) error {
 	return nil
 }
+func (s *stubPromoRepo) UpdatePackage(context.Context, *OfferPackage) error { return nil }
+func (s *stubPromoRepo) GetPackageByID(context.Context, int64) (*OfferPackage, error) {
+	return nil, nil
+}
+func (s *stubPromoRepo) AdminListPackages(context.Context) ([]*OfferPackage, error) {
+	return nil, nil
+}
+func (s *stubPromoRepo) TogglePackageActive(context.Context, int64, bool) error { return nil }
+func (s *stubPromoRepo) CreateSponsorshipPurchase(context.Context, *SponsorshipPurchase) error {
+	return nil
+}
+func (s *stubPromoRepo) GetSponsorshipPurchaseByID(context.Context, int64) (*SponsorshipPurchase, error) {
+	return nil, nil
+}
+func (s *stubPromoRepo) ListSponsorshipPurchasesByOrg(context.Context, int64) ([]*SponsorshipPurchase, error) {
+	return nil, nil
+}
+func (s *stubPromoRepo) ListActiveSponsorshipPurchasesByOrg(context.Context, int64) ([]*SponsorshipPurchase, error) {
+	return nil, nil
+}
+func (s *stubPromoRepo) IncrementSponsorshipPurchaseCreditsUsed(context.Context, int64, int) error {
+	return nil
+}
+func (s *stubPromoRepo) ExpireSponsorshipPurchases(context.Context) (int64, error) { return 0, nil }
+func (s *stubPromoRepo) CreateSponsorshipRequest(context.Context, *SponsorshipRequest) error {
+	return nil
+}
+func (s *stubPromoRepo) GetSponsorshipRequestByID(context.Context, int64) (*SponsorshipRequest, error) {
+	return nil, nil
+}
+func (s *stubPromoRepo) ListSponsorshipRequestsByOrg(context.Context, int64, int, int) ([]*SponsorshipRequest, error) {
+	return nil, nil
+}
+func (s *stubPromoRepo) ListAllSponsorshipRequests(context.Context, int, int) ([]*SponsorshipRequest, error) {
+	return nil, nil
+}
+func (s *stubPromoRepo) ListPendingSponsorshipRequests(context.Context, int, int) ([]*SponsorshipRequest, error) {
+	return nil, nil
+}
+func (s *stubPromoRepo) UpdateSponsorshipRequestAdminStatus(context.Context, int64, AdminStatus, string, int64) error {
+	return nil
+}
+func (s *stubPromoRepo) ActivateSponsorshipRequest(context.Context, int64, int64) (*SponsorshipRequest, error) {
+	return nil, nil
+}
+func (s *stubPromoRepo) CancelSponsorshipRequest(context.Context, int64, int64) error { return nil }
+func (s *stubPromoRepo) ExpireSponsorshipRequests(context.Context) (int64, error) { return 0, nil }
+func (s *stubPromoRepo) RankedSponsorshipsForProducts(context.Context, []int64) ([]*RankedSponsorship, error) {
+	return nil, nil
+}
+func (s *stubPromoRepo) RankedSponsorshipsForOffers(context.Context, []int64) ([]*RankedSponsorship, error) {
+	return nil, nil
+}
+func (s *stubPromoRepo) IsSponsored(context.Context, SponsorshipItemType, int64) (*RankedSponsorship, error) {
+	return nil, nil
+}
+func (s *stubPromoRepo) CreateAd(context.Context, *Ad) error { return nil }
+func (s *stubPromoRepo) UpdateAd(context.Context, *Ad) error { return nil }
+func (s *stubPromoRepo) GetAdByID(context.Context, int64) (*Ad, error) {
+	return nil, nil
+}
+func (s *stubPromoRepo) ListAdsByOrg(context.Context, int64, int, int) ([]*Ad, error) {
+	return nil, nil
+}
+func (s *stubPromoRepo) ListAllAds(context.Context, int, int) ([]*Ad, error) {
+	return nil, nil
+}
+func (s *stubPromoRepo) UpdateAdAdminStatus(context.Context, int64, AdminStatus, string, int64) error {
+	return nil
+}
+func (s *stubPromoRepo) RecordAdImpression(context.Context, int64, *int64, string, string) error {
+	return nil
+}
 func (s *stubPromoRepo) CreateHighlightSection(context.Context, *HighlightSection) error {
 	return nil
 }

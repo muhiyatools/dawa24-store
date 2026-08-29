@@ -46,9 +46,8 @@ type SupplierVariantCard struct {
 	CoverageReason  string
 	CanAddToCart    bool
 	IsNegotiable    bool
+	IsSponsored     bool // promoted via sponsorship package
 }
-
-// SupplierOffer represents one real vendor offer line shown on the storefront.
 type SupplierOffer struct {
 	OfferID          int64
 	VariantID        int64
@@ -77,6 +76,7 @@ type SupplierOffer struct {
 	CoverageReason   string // e.g. "مفيش فرع بيوصل لموقعك للمنتج ده"
 	CanAddToCart     bool
 	IsNegotiable     bool
+	IsSponsored      bool // promoted via sponsorship package
 }
 
 // VariantDetailPageData contains full data for the dedicated Product Variant Details page.
@@ -132,6 +132,7 @@ type CatalogPageData struct {
 	EndItem        int
 	ActiveCategory string
 	ActiveBrand    string
+	SponsoredProductIDs map[int64]bool // products promoted via sponsorship (shown with "Sponsored" tag, ranked first)
 }
 
 // CatalogFilterParams encapsulates filter inputs for the catalog page.

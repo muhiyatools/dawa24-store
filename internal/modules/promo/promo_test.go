@@ -174,6 +174,85 @@ func (m *mockPromoRepo) RecordAdClick(_ context.Context, adID int64, userID *int
 	}
 	return nil
 }
+func (m *mockPromoRepo) UpdatePackage(_ context.Context, _ *OfferPackage) error { return nil }
+func (m *mockPromoRepo) GetPackageByID(_ context.Context, _ int64) (*OfferPackage, error) {
+	return nil, nil
+}
+func (m *mockPromoRepo) AdminListPackages(_ context.Context) ([]*OfferPackage, error) {
+	return nil, nil
+}
+func (m *mockPromoRepo) TogglePackageActive(_ context.Context, _ int64, _ bool) error {
+	return nil
+}
+func (m *mockPromoRepo) CreateSponsorshipPurchase(_ context.Context, _ *SponsorshipPurchase) error {
+	return nil
+}
+func (m *mockPromoRepo) GetSponsorshipPurchaseByID(_ context.Context, _ int64) (*SponsorshipPurchase, error) {
+	return nil, nil
+}
+func (m *mockPromoRepo) ListSponsorshipPurchasesByOrg(_ context.Context, _ int64) ([]*SponsorshipPurchase, error) {
+	return nil, nil
+}
+func (m *mockPromoRepo) ListActiveSponsorshipPurchasesByOrg(_ context.Context, _ int64) ([]*SponsorshipPurchase, error) {
+	return nil, nil
+}
+func (m *mockPromoRepo) IncrementSponsorshipPurchaseCreditsUsed(_ context.Context, _ int64, _ int) error {
+	return nil
+}
+func (m *mockPromoRepo) ExpireSponsorshipPurchases(_ context.Context) (int64, error) {
+	return 0, nil
+}
+func (m *mockPromoRepo) CreateSponsorshipRequest(_ context.Context, _ *SponsorshipRequest) error {
+	return nil
+}
+func (m *mockPromoRepo) GetSponsorshipRequestByID(_ context.Context, _ int64) (*SponsorshipRequest, error) {
+	return nil, nil
+}
+func (m *mockPromoRepo) ListSponsorshipRequestsByOrg(_ context.Context, _ int64, _, _ int) ([]*SponsorshipRequest, error) {
+	return nil, nil
+}
+func (m *mockPromoRepo) ListAllSponsorshipRequests(_ context.Context, _, _ int) ([]*SponsorshipRequest, error) {
+	return nil, nil
+}
+func (m *mockPromoRepo) ListPendingSponsorshipRequests(_ context.Context, _, _ int) ([]*SponsorshipRequest, error) {
+	return nil, nil
+}
+func (m *mockPromoRepo) UpdateSponsorshipRequestAdminStatus(_ context.Context, _ int64, _ AdminStatus, _ string, _ int64) error {
+	return nil
+}
+func (m *mockPromoRepo) ActivateSponsorshipRequest(_ context.Context, _ int64, _ int64) (*SponsorshipRequest, error) {
+	return nil, nil
+}
+func (m *mockPromoRepo) CancelSponsorshipRequest(_ context.Context, _, _ int64) error { return nil }
+func (m *mockPromoRepo) ExpireSponsorshipRequests(_ context.Context) (int64, error) {
+	return 0, nil
+}
+func (m *mockPromoRepo) RankedSponsorshipsForProducts(_ context.Context, _ []int64) ([]*RankedSponsorship, error) {
+	return nil, nil
+}
+func (m *mockPromoRepo) RankedSponsorshipsForOffers(_ context.Context, _ []int64) ([]*RankedSponsorship, error) {
+	return nil, nil
+}
+func (m *mockPromoRepo) IsSponsored(_ context.Context, _ SponsorshipItemType, _ int64) (*RankedSponsorship, error) {
+	return nil, nil
+}
+func (m *mockPromoRepo) CreateAd(_ context.Context, _ *Ad) error { return nil }
+func (m *mockPromoRepo) UpdateAd(_ context.Context, _ *Ad) error { return nil }
+func (m *mockPromoRepo) GetAdByID(_ context.Context, _ int64) (*Ad, error) {
+	return nil, nil
+}
+func (m *mockPromoRepo) ListAdsByOrg(_ context.Context, _ int64, _, _ int) ([]*Ad, error) {
+	return nil, nil
+}
+func (m *mockPromoRepo) ListAllAds(_ context.Context, _, _ int) ([]*Ad, error) {
+	return nil, nil
+}
+func (m *mockPromoRepo) UpdateAdAdminStatus(_ context.Context, _ int64, _ AdminStatus, _ string, _ int64) error {
+	return nil
+}
+func (m *mockPromoRepo) RecordAdImpression(_ context.Context, _ int64, _ *int64, _, _ string) error {
+	return nil
+}
 
 func (m *mockPromoRepo) CreateHighlightSection(_ context.Context, h *HighlightSection) error {
 	h.ID = m.nextID

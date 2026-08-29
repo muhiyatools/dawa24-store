@@ -523,6 +523,11 @@ templ CustomerCatalogGrid(variants []*SupplierVariantCard, lang string) {
 
 						<!-- Floating Badges -->
 						<div class="product-card-badges-floating position-absolute top-2 start-2 d-flex flex-col gap-1 z-10">
+							if v.IsSponsored {
+								<span class="badge font-black text-xs shadow-xs" style="background:#fef3c7; color:#92400e; border:1px solid #fcd34d;">
+									★ ممول
+								</span>
+							}
 							if v.DiscountPercent > 0 {
 								<span class="badge badge-emerald font-black text-xs shadow-xs">
 									خصم { fmt.Sprintf("%d%%", v.DiscountPercent) }
@@ -766,6 +771,11 @@ templ CustomerCatalogTable(variants []*SupplierVariantCard, lang string) {
 										</div>
 									}
 								</a>
+								if v.IsSponsored {
+									<span class="badge font-black text-xs mt-1" style="background:#fef3c7; color:#92400e; border:1px solid #fcd34d;">
+										★ ممول — رعاية
+									</span>
+								}
 							</td>
 							<td class="py-3">
 								<div class="font-bold text-primary">

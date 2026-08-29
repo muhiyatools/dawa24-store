@@ -16,8 +16,9 @@ type Service struct {
 	repo Repository
 	log  *slog.Logger
 
-	reqDocs  RequiredDocsChecker
-	instGate InstitutionalGate
+	reqDocs     RequiredDocsChecker
+	instGate    InstitutionalGate
+	walletDebit WalletDebiter
 }
 
 // RequiredDocsChecker is injected from composition root (Rebuild V2 §4.2): it

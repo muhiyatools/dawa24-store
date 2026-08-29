@@ -319,8 +319,34 @@ func (h *UIHandler) CustomerCatalogPage(w http.ResponseWriter, r *http.Request) 
 		}
 	}
 
-	// 3. Prioritize variant cards: In-Stock & Covered first, then Proximity to Client, then user sort
+	// Sponsorship ranking: fetch which products are sponsored and their tier.
+	// Sponsored products appear at the top with a "Sponsored" tag, ranked by
+	// package tier level (highest first). Ties at the same tier are randomized.
+	sponsoredProductIDs := make(map[int64]bool)
+	if h.promoSvc != nil && len(productIDs) > 0 {
+		rankings, err := h.promoSvc.RankedSponsorshipsForProducts(ctx, productIDs)
+		if err == nil {
+			for _, rs := range rankings {
+				if rs != nil {
+					sponsoredProductIDs[rs.ItemID] = true
+				}
+			}
+		}
+	}
+	for _, vc := range variantCards {
+		if vc != nil && sponsoredProductIDs[vc.ProductID] {
+			vc.IsSponsored = true
+		}
+	}
+
+	// 3. Prioritize variant cards: Sponsored first, then In-Stock & Covered, then Proximity
 	sort.SliceStable(variantCards, func(i, j int) bool {
+		if variantCards[i].IsSponsored != variantCards[j].IsSponsored {
+			return variantCards[i].IsSponsored
+		}
+		if variantCards[i].IsSponsored && variantCards[j].IsSponsored {
+			return variantCards[i].ProductID < variantCards[j].ProductID
+		}
 		// Tier 1: Actionable (In-stock & Covered)
 		if variantCards[i].CanAddToCart != variantCards[j].CanAddToCart {
 			return variantCards[i].CanAddToCart
@@ -414,6 +440,7 @@ func (h *UIHandler) CustomerCatalogPage(w http.ResponseWriter, r *http.Request) 
 		EndItem:        endItem,
 		ActiveCategory: activeCatName,
 		ActiveBrand:    activeBrandName,
+		SponsoredProductIDs: sponsoredProductIDs,
 	}
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")

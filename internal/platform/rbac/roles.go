@@ -173,6 +173,8 @@ var orgRoleGrants = map[Scope]map[string][]string{
 			"vendor.inventory.view", "vendor.inventory.adjust",
 			"vendor.warehouse.view", "vendor.warehouse.manage",
 			"vendor.offer.view", "vendor.offer.manage",
+			"vendor.offer_package.view", "vendor.offer_package.manage",
+			"vendor.ad.view", "vendor.ad.manage",
 			"vendor.storefront.view", "vendor.storefront.manage",
 			"vendor.order.view", "vendor.order.update", "vendor.order.negotiate",
 			"vendor.purchase_request.view", "vendor.purchase_request.respond",

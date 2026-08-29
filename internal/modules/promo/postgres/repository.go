@@ -146,87 +146,151 @@ func (r *Repository) IncrementOfferEngagement(ctx context.Context, offerID int64
 func (r *Repository) CreatePackage(ctx context.Context, p *promo.OfferPackage) error {
 	return r.db.InTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
 		query := `
-			INSERT INTO promo.offer_packages (name, price, duration_days, max_offers, is_active)
-			VALUES ($1, $2, $3, $4, $5)
+			INSERT INTO promo.offer_packages (name, description, price, duration_days, max_offers, credits, tier_level, sort_order, is_featured, badge_color, is_active)
+			VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
 			RETURNING id, public_id, created_at, updated_at;
 		`
-		return tx.QueryRow(txCtx, query, p.Name, p.Price, p.DurationDays, p.MaxOffers, p.IsActive).Scan(
-			&p.ID, &p.PublicID, &p.CreatedAt, &p.UpdatedAt,
-		)
+		if p.Credits <= 0 {
+			p.Credits = p.MaxOffers
+		}
+		if p.TierLevel <= 0 {
+			p.TierLevel = 1
+		}
+		if p.BadgeColor == "" {
+			p.BadgeColor = "#0284c7"
+		}
+		return tx.QueryRow(txCtx, query,
+			p.Name, p.Description, p.Price, p.DurationDays, p.MaxOffers, p.Credits,
+			p.TierLevel, p.SortOrder, p.IsFeatured, p.BadgeColor, p.IsActive,
+		).Scan(&p.ID, &p.PublicID, &p.CreatedAt, &p.UpdatedAt)
 	})
+}
+
+// UpdatePackage updates a sponsorship package.
+func (r *Repository) UpdatePackage(ctx context.Context, p *promo.OfferPackage) error {
+	return r.db.InTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
+		query := `
+			UPDATE promo.offer_packages SET
+				name = $2, description = $3, price = $4, duration_days = $5, max_offers = $6,
+				credits = $7, tier_level = $8, sort_order = $9, is_featured = $10,
+				badge_color = $11, is_active = $12, updated_at = now()
+			WHERE id = $1;
+		`
+		tag, err := tx.Exec(txCtx, query,
+			p.ID, p.Name, p.Description, p.Price, p.DurationDays, p.MaxOffers,
+			p.Credits, p.TierLevel, p.SortOrder, p.IsFeatured, p.BadgeColor, p.IsActive,
+		)
+		if err != nil {
+			return err
+		}
+		if tag.RowsAffected() == 0 {
+			return apperr.NotFound("offer_package")
+		}
+		return nil
+	})
+}
+
+// GetPackageByID retrieves a sponsorship package by ID.
+func (r *Repository) GetPackageByID(ctx context.Context, id int64) (*promo.OfferPackage, error) {
+	var p promo.OfferPackage
+	err := r.db.InReadTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
+		return scanPackage(tx.QueryRow(txCtx, packageColumns+` WHERE id = $1;`, id), &p)
+	})
+	if err != nil {
+		if database.IsNotFound(err) {
+			return nil, apperr.NotFound("offer_package")
+		}
+		return nil, err
+	}
+	return &p, nil
 }
 
 // ListPackages returns all active packages.
 func (r *Repository) ListPackages(ctx context.Context) ([]*promo.OfferPackage, error) {
-	var packages []*promo.OfferPackage
-	err := r.db.InReadTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
-		query := `SELECT id, public_id, name, price, duration_days, max_offers, is_active, created_at, updated_at FROM promo.offer_packages WHERE is_active = true ORDER BY id ASC;`
+	return r.listPackages(ctx, true)
+}
+
+// AdminListPackages returns all packages (active and inactive) for admin management.
+func (r *Repository) AdminListPackages(ctx context.Context) ([]*promo.OfferPackage, error) {
+	return r.listPackages(database.AsSystem(ctx), false)
+}
+
+func (r *Repository) listPackages(ctx context.Context, activeOnly bool) ([]*promo.OfferPackage, error) {
+	var list []*promo.OfferPackage
+	err := r.db.InReadTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
+		query := `SELECT ` + packageColumns + ` FROM promo.offer_packages`
+		if activeOnly {
+			query += ` WHERE is_active = true`
+		}
+		query += ` ORDER BY tier_level DESC, sort_order ASC, id ASC;`
 		rows, err := tx.Query(txCtx, query)
 		if err != nil {
 			return err
 		}
 		defer rows.Close()
-
 		for rows.Next() {
 			var p promo.OfferPackage
-			if err := rows.Scan(
-				&p.ID, &p.PublicID, &p.Name, &p.Price, &p.DurationDays, &p.MaxOffers, &p.IsActive, &p.CreatedAt, &p.UpdatedAt,
-			); err != nil {
+			if err := scanPackage(rows, &p); err != nil {
 				return err
 			}
-			packages = append(packages, &p)
+			list = append(list, &p)
 		}
 		return rows.Err()
 	})
-	return packages, err
+	return list, err
+}
+
+// TogglePackageActive activates or deactivates a package.
+func (r *Repository) TogglePackageActive(ctx context.Context, id int64, active bool) error {
+	return r.db.InTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
+		tag, err := tx.Exec(txCtx, `UPDATE promo.offer_packages SET is_active = $2, updated_at = now() WHERE id = $1;`, id, active)
+		if err != nil {
+			return err
+		}
+		if tag.RowsAffected() == 0 {
+			return apperr.NotFound("offer_package")
+		}
+		return nil
+	})
+}
+
+const packageColumns = `id, public_id, name, description, price, duration_days, max_offers, credits, tier_level, sort_order, is_featured, badge_color, is_active, created_at, updated_at`
+
+func scanPackage(row pgx.Row, p *promo.OfferPackage) error {
+	return row.Scan(
+		&p.ID, &p.PublicID, &p.Name, &p.Description, &p.Price, &p.DurationDays, &p.MaxOffers,
+		&p.Credits, &p.TierLevel, &p.SortOrder, &p.IsFeatured, &p.BadgeColor, &p.IsActive, &p.CreatedAt, &p.UpdatedAt,
+	)
 }
 
 // CreateSponsorship links an offer to a paid package.
 func (r *Repository) CreateSponsorship(ctx context.Context, s *promo.OfferSponsorship) error {
 	return r.db.InTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
+		itemType := string(s.ItemType)
+		if itemType == "" {
+			itemType = "offer"
+		}
+		itemID := s.ItemID
+		if itemID == 0 {
+			itemID = s.OfferID
+		}
 		query := `
-			INSERT INTO promo.offer_sponsorships (organization_id, offer_id, package_id, starts_at, expires_at, status)
-			VALUES ($1, $2, $3, $4, $5, $6)
+			INSERT INTO promo.offer_sponsorships (organization_id, offer_id, package_id, starts_at, expires_at, status, item_type, item_id, credits_used, admin_status)
+			VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
 			RETURNING id, public_id, created_at;
 		`
-		return tx.QueryRow(txCtx, query, s.OrganizationID, s.OfferID, s.PackageID, s.StartsAt, s.ExpiresAt, s.Status).Scan(
-			&s.ID, &s.PublicID, &s.CreatedAt,
-		)
+		adminStatus := string(s.AdminStatus)
+		if adminStatus == "" {
+			adminStatus = "approved"
+		}
+		return tx.QueryRow(txCtx, query,
+			s.OrganizationID, s.OfferID, s.PackageID, s.StartsAt, s.ExpiresAt, s.Status,
+			itemType, itemID, s.CreditsUsed, adminStatus,
+		).Scan(&s.ID, &s.PublicID, &s.CreatedAt)
 	})
 }
 
-// ListActiveAds returns display ads by screen position.
-func (r *Repository) ListActiveAds(ctx context.Context, position string) ([]*promo.Ad, error) {
-	var ads []*promo.Ad
-	err := r.db.InReadTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
-		query := `
-			SELECT id, public_id, organization_id, title, image_url, target_url,
-			       position, is_active, starts_at, expires_at, impressions, clicks, created_at, updated_at
-			FROM promo.ads
-			WHERE is_active = true AND starts_at <= now() AND expires_at >= now()
-			  AND ($1 = '' OR position = $1)
-			ORDER BY id DESC;
-		`
-		rows, err := tx.Query(txCtx, query, position)
-		if err != nil {
-			return err
-		}
-		defer rows.Close()
-
-		for rows.Next() {
-			var a promo.Ad
-			if err := rows.Scan(
-				&a.ID, &a.PublicID, &a.OrganizationID, &a.Title, &a.ImageURL, &a.TargetURL,
-				&a.Position, &a.IsActive, &a.StartsAt, &a.ExpiresAt, &a.Impressions, &a.Clicks, &a.CreatedAt, &a.UpdatedAt,
-			); err != nil {
-				return err
-			}
-			ads = append(ads, &a)
-		}
-		return rows.Err()
-	})
-	return ads, err
-}
+// ListActiveAds is implemented in ads.go.
 
 // RecordAdClick logs click analytics and increments counters.
 func (r *Repository) RecordAdClick(ctx context.Context, adID int64, userID *int64, ip, ua string) error {

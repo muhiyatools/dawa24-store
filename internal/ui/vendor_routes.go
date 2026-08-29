@@ -198,6 +198,10 @@ func (h *UIHandler) registerVendorPromoRoutes(r chi.Router) {
 		g.Get("/vendor/offers-packages/sponsorships", h.VendorOffersPackagesSponsorshipsPage)
 		g.Get("/vendor/offers-packages/sponsorships/{id}", h.VendorOffersPackagesSponsorshipsPage)
 		g.Get("/vendor/offers-packages/promotions", h.VendorOffersPackagesPromotionsPage)
+		g.Get("/vendor/sponsorship-requests", h.VendorSponsorshipRequestsPage)
+		g.Post("/vendor/sponsorship-requests/new", h.VendorSponsorshipRequestSubmit)
+		g.Post("/vendor/sponsorship-requests/{id}/cancel", h.VendorSponsorshipRequestCancelSubmit)
+		g.Post("/vendor/sponsorship-packages/{id}/purchase", h.VendorSponsorshipPackagePurchaseSubmit)
 	})
 
 	r.Group(func(g chi.Router) {
@@ -206,6 +210,11 @@ func (h *UIHandler) registerVendorPromoRoutes(r chi.Router) {
 		g.Get("/vendor/ads/add", h.VendorAdsPage)
 		g.Get("/vendor/ads/{id}", h.VendorAdsPage)
 		g.Get("/vendor/ads/{id}/edit", h.VendorAdsPage)
+	})
+	r.Group(func(g chi.Router) {
+		g.Use(authctx.RequireTenantPagePermission("vendor.ad.manage"))
+		g.Post("/vendor/ads/new", h.VendorAdCreateSubmit)
+		g.Post("/vendor/ads/{id}/edit", h.VendorAdUpdateSubmit)
 	})
 
 	r.Group(func(g chi.Router) {

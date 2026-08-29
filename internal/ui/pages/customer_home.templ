@@ -17,6 +17,7 @@ type HomeStats struct {
 	HeroTitle      string
 	HeroSubtitle   string
 	HeroBadge      string
+	Ads            []*promo.Ad
 }
 
 templ CustomerHome(featured []*catalog.Product, categories []*catalog.Category, offers []*promo.Offer, stats HomeStats, lang, dir string) {
@@ -315,6 +316,63 @@ templ CustomerHome(featured []*catalog.Product, categories []*catalog.Category, 
 				</div>
 			</div>
 		</section>
+
+		<!-- 2a. Advertising Gallery — modern, high-quality vendor ad showcase -->
+		if len(stats.Ads) > 0 {
+			<section class="landing-ad-gallery">
+				<div class="ad-gallery-header">
+					<h2 class="ad-gallery-title">إعلانات الموردين والشركات</h2>
+					<p class="ad-gallery-subtitle">عروض ترويجية مميزة من كبرى الموردين والمصانع المعتمدة</p>
+				</div>
+				<div class="ad-gallery-grid">
+					for _, ad := range stats.Ads {
+						if ad != nil {
+							<a
+								href={ templ.SafeURL(ad.ResolveClickURL()) }
+								class="ad-gallery-card"
+								data-ad-id={ fmt.Sprintf("%d", ad.ID) }
+							>
+								if ad.MediaType == "video" && ad.MediaURL != "" {
+									<div class="ad-gallery-media ad-gallery-media-video">
+										<video
+											src={ ad.MediaURL }
+											poster={ ad.ThumbnailURL }
+											controls
+											muted
+											playsinline
+											class="ad-gallery-video"
+										></video>
+										<span class="ad-gallery-media-badge">
+											@components.IconImage("icon-xs")
+											<span>فيديو</span>
+										</span>
+									</div>
+								} else if ad.MediaURL != "" {
+									<div class="ad-gallery-media">
+										<img
+											src={ ad.MediaURL }
+											alt={ ad.DisplayTitle(lang) }
+											loading="lazy"
+											class="ad-gallery-image"
+										/>
+									</div>
+								}
+								<div class="ad-gallery-content">
+									<h3 class="ad-gallery-card-title">{ ad.DisplayTitle(lang) }</h3>
+									if ad.DisplayText(lang) != "" {
+										<p class="ad-gallery-card-text">{ ad.DisplayText(lang) }</p>
+									}
+									<span class="ad-gallery-cta">
+										<span>تفاصيل</span>
+										@components.IconArrowLeft("icon-xs")
+									</span>
+								</div>
+							</a>
+						}
+					}
+				</div>
+			</section>
+		}
 
 		<!-- 3. Real Live Platform Metrics Strip -->
 		<section class="landing-section-block">

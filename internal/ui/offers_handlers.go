@@ -2,6 +2,7 @@ package ui
 
 import (
 	"net/http"
+	"sort"
 	"strconv"
 
 	"github.com/go-chi/chi/v5"
@@ -30,6 +31,24 @@ func (h *UIHandler) OffersPage(w http.ResponseWriter, r *http.Request) {
 		offers, err := h.promoSvc.ListActiveOffers(ctx, 100, 0)
 		if err != nil {
 			h.log.WarnContext(ctx, "offers page: list active offers", "error", err)
+		}
+
+		// Sponsorship ranking: check which offers are sponsored.
+		var offerIDs []int64
+		for _, o := range offers {
+			if o != nil {
+				offerIDs = append(offerIDs, o.ID)
+			}
+		}
+		sponsoredOfferIDs := make(map[int64]bool)
+		if len(offerIDs) > 0 {
+			if rankings, rErr := h.promoSvc.RankedSponsorshipsForOffers(ctx, offerIDs); rErr == nil {
+				for _, rs := range rankings {
+					if rs != nil {
+						sponsoredOfferIDs[rs.ItemID] = true
+					}
+				}
+			}
 		}
 
 		for _, o := range offers {
@@ -82,8 +101,17 @@ func (h *UIHandler) OffersPage(w http.ResponseWriter, r *http.Request) {
 				StartsAt:           o.StartsAt,
 				ExpiresAt:          o.ExpiresAt,
 				ProductsCount:      prodCount,
+				IsSponsored:        sponsoredOfferIDs[o.ID],
 			})
 		}
+
+		// Sort: sponsored offers first, then by discount percentage.
+		sort.SliceStable(offerCards, func(i, j int) bool {
+			if offerCards[i].IsSponsored != offerCards[j].IsSponsored {
+				return offerCards[i].IsSponsored
+			}
+			return offerCards[i].DiscountPercentage > offerCards[j].DiscountPercentage
+		})
 	}
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")

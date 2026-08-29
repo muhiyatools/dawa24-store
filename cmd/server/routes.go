@@ -68,6 +68,7 @@ import (
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/platform/rbac"
 	"github.com/muhiya/dawa24-store/internal/shared/apperr"
+	"github.com/muhiya/dawa24-store/internal/shared/money"
 )
 
 // mountModuleRoutes registers domain handlers across all platform bounded contexts.
@@ -192,6 +193,27 @@ func mountModuleRoutes(
 
 	promoSvcUI := promo.NewService(promoRepoUI, log)
 	promoSvcUI.SetRequiredDocsChecker(docsGate)
+	// Wallet debiter for UI-driven sponsorship purchases.
+	billSvcUIForPromo := billing.NewService(billRepoUI, log)
+	promoSvcUI.SetWalletDebiter(func(ctx context.Context, orgID int64, amount money.Amount, description string) (*int64, error) {
+		uid, _ := authctx.UserID(ctx)
+		if uid <= 0 {
+			return nil, apperr.Validation("auth.required", "يجب تسجيل الدخول لشراء الباقة.", nil)
+		}
+		wallet, err := billSvcUIForPromo.GetWallet(ctx, uid, "EGP")
+		if err != nil {
+			return nil, err
+		}
+		if wallet.Balance.Minor() < amount.Minor() {
+			return nil, apperr.Conflict("wallet.insufficient_funds", "رصيد المحفظة غير كافٍ. يرجى شحن المحفظة أولاً.")
+		}
+		tx, err := billSvcUIForPromo.Withdraw(ctx, uid, "EGP", amount, "sponsorship_package", nil, description)
+		if err != nil {
+			return nil, err
+		}
+		txID := tx.ID
+		return &txID, nil
+	})
 	promoSvcUI.SetInstitutionalGate(promo.InstitutionalGateFunc(func(ctx context.Context, userID int64, mode int) ([]int64, error) {
 		return orgSvcUI.AllowedWorkIDs(ctx, userID, org.InstitutionalFilterMode(mode))
 	}))
@@ -447,6 +469,31 @@ func mountAuthenticatedModules(
 	promoRepo := promoPostgres.NewRepository(db)
 	promoSvc := promo.NewService(promoRepo, log)
 	promoSvc.SetRequiredDocsChecker(promo.RequiredDocsChecker(docsGate))
+	// Wallet debiter: charges the vendor's wallet for a sponsorship package
+	// purchase. Composed here because promo must not import billing (ADR 0002).
+	billSvcForPromo := billing.NewService(billRepo, log)
+	promoSvc.SetWalletDebiter(func(ctx context.Context, orgID int64, amount money.Amount, description string) (*int64, error) {
+		// Find the wallet for the org's first member (owner).
+		// The billing service's GetOrCreateWallet is user-scoped; we resolve
+		// the org's owner user from the tenant context.
+		uid, _ := authctx.UserID(ctx)
+		if uid <= 0 {
+			return nil, apperr.Validation("auth.required", "يجب تسجيل الدخول لشراء الباقة.", nil)
+		}
+		wallet, err := billSvcForPromo.GetWallet(ctx, uid, "EGP")
+		if err != nil {
+			return nil, err
+		}
+		if wallet.Balance.Minor() < amount.Minor() {
+			return nil, apperr.Conflict("wallet.insufficient_funds", "رصيد المحفظة غير كافٍ. يرجى شحن المحفظة أولاً.")
+		}
+		tx, err := billSvcForPromo.Withdraw(ctx, uid, "EGP", amount, "sponsorship_package", nil, description)
+		if err != nil {
+			return nil, err
+		}
+		txID := tx.ID
+		return &txID, nil
+	})
 	promoHttp.NewHandler(promoSvc, log).RegisterRoutes(r)
 
 	// 8. Workflow

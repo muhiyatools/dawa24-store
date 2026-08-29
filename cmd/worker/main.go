@@ -264,7 +264,7 @@ func (w *ingestBatchWorker) Work(ctx context.Context, job *river.Job[queue.Inges
 	})
 }
 
-// expirePromotionsWorker marks expired promotional offers and sponsorships.
+// expirePromotionsWorker marks expired promotional offers, sponsorships, and ads.
 type expirePromotionsWorker struct {
 	river.WorkerDefaults[queue.ExpirePromotionsArgs]
 	db  *database.DB
@@ -273,15 +273,27 @@ type expirePromotionsWorker struct {
 
 func (w *expirePromotionsWorker) Work(ctx context.Context, job *river.Job[queue.ExpirePromotionsArgs]) error {
 	return w.db.InTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
-		_, err1 := tx.Exec(txCtx, `UPDATE promo.offers SET is_active = false, updated_at = now() WHERE is_active = true AND expires_at < now();`)
-		_, err2 := tx.Exec(txCtx, `UPDATE promo.offer_sponsorships SET status = 'expired' WHERE status = 'active' AND expires_at < now();`)
-		_, err3 := tx.Exec(txCtx, `UPDATE promo.ads SET is_active = false, updated_at = now() WHERE is_active = true AND expires_at < now();`)
-		if err1 != nil {
-			return err1
+		// Expire promotional offers.
+		if _, err := tx.Exec(txCtx, `UPDATE promo.offers SET is_active = false, updated_at = now() WHERE is_active = true AND expires_at < now();`); err != nil {
+			return err
 		}
-		if err2 != nil {
-			return err2
+		// Expire legacy offer sponsorships.
+		if _, err := tx.Exec(txCtx, `UPDATE promo.offer_sponsorships SET status = 'expired' WHERE status = 'active' AND expires_at < now();`); err != nil {
+			return err
 		}
-		return err3
+		// Expire sponsorship purchases — credits no longer usable.
+		if _, err := tx.Exec(txCtx, `UPDATE promo.sponsorship_purchases SET status = 'expired', updated_at = now() WHERE status = 'active' AND expires_at < now();`); err != nil {
+			return err
+		}
+		// Expire sponsorship requests past their window.
+		if _, err := tx.Exec(txCtx, `UPDATE promo.sponsorship_requests SET status = 'expired', updated_at = now() WHERE status = 'active' AND expires_at < now();`); err != nil {
+			return err
+		}
+		// Deactivate expired ads (only approved ones that were active).
+		if _, err := tx.Exec(txCtx, `UPDATE promo.ads SET is_active = false, updated_at = now() WHERE is_active = true AND expires_at < now();`); err != nil {
+			return err
+		}
+		w.log.InfoContext(ctx, "promotions expiry sweep completed", "job_id", job.ID)
+		return nil
 	})
 }
