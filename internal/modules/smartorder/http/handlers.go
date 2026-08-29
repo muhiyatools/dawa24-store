@@ -231,11 +231,12 @@ func (h *Handler) Results(w http.ResponseWriter, r *http.Request) {
 	}
 
 	lines, total, err := h.svc.Results(r.Context(), run, smartorder.LineFilter{
-		Outcome: q.Get("outcome"),
-		Method:  q.Get("method"),
-		Search:  q.Get("q"),
-		Limit:   limit,
-		Offset:  (page - 1) * limit,
+		MatchGroup: q.Get("match"),
+		Outcome:    q.Get("outcome"),
+		Method:     q.Get("method"),
+		Search:     q.Get("q"),
+		Limit:      limit,
+		Offset:     (page - 1) * limit,
 	})
 	if err != nil {
 		h.fail(w, r, err)

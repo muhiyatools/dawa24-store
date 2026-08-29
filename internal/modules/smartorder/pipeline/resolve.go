@@ -138,19 +138,29 @@ func isStandardBarcode(b string) bool {
 }
 
 func (r *Resolver) applyCodes(ctx context.Context, lines []*smartorder.Line) error {
-	var barcodes []string
+	var skus, barcodes []string
+	seenSKU := make(map[string]bool)
+	seenBarcode := make(map[string]bool)
 	for _, l := range lines {
 		if l.Matched() {
 			continue
 		}
+		if sku := strings.ToLower(strings.TrimSpace(l.RawSKU)); sku != "" && !seenSKU[sku] {
+			seenSKU[sku] = true
+			skus = append(skus, sku)
+		}
 		if b := strings.ToLower(strings.TrimSpace(l.RawBarcode)); b != "" && isStandardBarcode(b) {
+			if seenBarcode[b] {
+				continue
+			}
+			seenBarcode[b] = true
 			barcodes = append(barcodes, b)
 		}
 	}
-	if len(barcodes) == 0 {
+	if len(skus) == 0 && len(barcodes) == 0 {
 		return nil
 	}
-	hits, err := r.repo.ResolveByCodes(ctx, nil, barcodes)
+	hits, err := r.repo.ResolveByCodes(ctx, skus, barcodes)
 	if err != nil {
 		return err
 	}
@@ -158,6 +168,12 @@ func (r *Resolver) applyCodes(ctx context.Context, lines []*smartorder.Line) err
 	for _, l := range lines {
 		if l.Matched() {
 			continue
+		}
+		if sku := strings.ToLower(strings.TrimSpace(l.RawSKU)); sku != "" {
+			if id, ok := hits[sku]; ok {
+				setMatch(l, id, smartorder.MethodSKU, confSKU)
+				continue
+			}
 		}
 		if b := strings.ToLower(strings.TrimSpace(l.RawBarcode)); b != "" && isStandardBarcode(b) {
 			if id, ok := hits[b]; ok {
