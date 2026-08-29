@@ -28,12 +28,9 @@ package ingest
 
 import (
 	"context"
-	"crypto/sha256"
-	"encoding/hex"
-	"sort"
-	"strconv"
 	"strings"
 
+	"github.com/muhiya/dawa24-store/internal/shared/matchflow"
 	"github.com/muhiya/dawa24-store/internal/shared/productmatch"
 )
 
@@ -252,18 +249,15 @@ func decisionKey(r *openRow) string {
 	for _, c := range r.candidates {
 		ids = append(ids, c.ProductID)
 	}
-	sort.Slice(ids, func(i, j int) bool { return ids[i] < ids[j] })
+	return matchflow.DecisionKey(r.normName, ids)
+}
 
-	var b strings.Builder
-	b.WriteString(r.normName)
-	b.WriteByte('\x1f')
-	for _, id := range ids {
-		b.WriteString(strconv.FormatInt(id, 10))
-		b.WriteByte(',')
-	}
-	b.WriteByte('\x1f')
-	b.WriteString(PromptVersion)
-
-	sum := sha256.Sum256([]byte(b.String()))
-	return hex.EncodeToString(sum[:])
+// DebugDecisionKey exposes the cache key for the cross-module test that asserts
+// this importer and the smart order hash the same question identically.
+//
+// Exported for that test alone: the two modules may not import one another, so
+// the only place the equality can be checked is a package that imports both, and
+// a test that recomputed the key itself would prove nothing.
+func DebugDecisionKey(normName string, candidateIDs []int64) string {
+	return matchflow.DecisionKey(normName, candidateIDs)
 }
