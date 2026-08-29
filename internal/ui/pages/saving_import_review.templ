@@ -113,89 +113,6 @@ templ savingReviewStage(view SavingImportView) {
 			@savingPagination(view)
 		</div>
 	</div>
-
-	<script>
-	function openSavingCatalogSearch(btn, rowIndex, searchURL, actionURL) {
-		const row = document.getElementById('saving-row-' + rowIndex);
-		if (!row) return;
-		const dropdown = row.querySelector('.saving-catalog-dropdown');
-		if (!dropdown) return;
-
-		// Close any other open dropdowns
-		document.querySelectorAll('.saving-catalog-dropdown').forEach(d => {
-			if (d !== dropdown) d.style.display = 'none';
-		});
-
-		const isOpen = dropdown.style.display === 'block';
-		if (isOpen) {
-			dropdown.style.display = 'none';
-			return;
-		}
-
-		dropdown.style.display = 'block';
-		const input = dropdown.querySelector('.saving-search-input');
-		if (input) {
-			input.focus();
-			if (!input.dataset.initialized) {
-				input.dataset.initialized = 'true';
-				let debounceTimer = null;
-				input.addEventListener('input', function() {
-					clearTimeout(debounceTimer);
-					debounceTimer = setTimeout(() => {
-						fetchSavingCatalogResults(dropdown, input.value, searchURL, actionURL);
-					}, 250);
-				});
-				fetchSavingCatalogResults(dropdown, input.value, searchURL, actionURL);
-			}
-		}
-	}
-
-	function fetchSavingCatalogResults(dropdown, query, searchURL, actionURL) {
-		var resultsContainer = dropdown.querySelector('.saving-search-results');
-		if (!resultsContainer) return;
-		resultsContainer.innerHTML = '<div style="padding:0.75rem; text-align:center; color:var(--text-muted); font-size:0.8rem;">جاري البحث في الكتالوج المركزي...</div>';
-
-		fetch(searchURL + '?q=' + encodeURIComponent(query))
-			.then(function(res) { return res.json(); })
-			.then(function(data) {
-				var items = data.items || data.products || data || [];
-				if (!items || items.length === 0) {
-					resultsContainer.innerHTML = '<div style="padding:0.75rem; text-align:center; color:var(--text-muted); font-size:0.8rem;">لم يتم العثور على أي صنف مطابق.</div>';
-					return;
-				}
-				var html = '';
-				items.forEach(function(item) {
-					var name = item.name_ar || item.name_en || item.name || '';
-					var sku = item.sku || '';
-					var id = item.id;
-					var skuHtml = sku ? '<div style="font-size:0.75rem; color:var(--text-muted); font-family:monospace;">' + escapeHtml(sku) + '</div>' : '';
-					html += '<form method="POST" action="' + actionURL + '" style="margin:0;">' +
-						'<input type="hidden" name="product_id" value="' + id + '" />' +
-						'<input type="hidden" name="master_name" value="' + escapeHtml(name) + '" />' +
-						'<input type="hidden" name="master_sku" value="' + escapeHtml(sku) + '" />' +
-						'<button type="submit" class="saving-combobox-item" style="width:100%; text-align:inherit; display:flex; justify-content:space-between; align-items:center; padding:0.5rem 0.75rem; border:none; background:none; cursor:pointer; font-size:0.85rem; border-bottom:1px solid var(--border-subtle);">' +
-						'<div><div style="font-weight:700; color:var(--text-primary);">' + escapeHtml(name) + '</div>' + skuHtml + '</div>' +
-						'<span style="font-size:0.75rem; color:var(--brand-primary); font-weight:700;">ربط ✓</span>' +
-						'</button></form>';
-				});
-				resultsContainer.innerHTML = html;
-			})
-			.catch(function(err) {
-				resultsContainer.innerHTML = '<div style="padding:0.75rem; text-align:center; color:var(--danger); font-size:0.8rem;">حدث خطأ أثناء البحث.</div>';
-			});
-	}
-
-	function escapeHtml(str) {
-		if (!str) return '';
-		return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
-	}
-
-	document.addEventListener('click', function(e) {
-		if (!e.target.closest('.saving-catalog-cell')) {
-			document.querySelectorAll('.saving-catalog-dropdown').forEach(d => d.style.display = 'none');
-		}
-	});
-	</script>
 }
 
 templ savingThSort(view SavingImportView, colKey, label string) {
@@ -261,7 +178,7 @@ templ savingProductRow(view SavingImportView, row *StagedSavingItem) {
 			</form>
 		</td>
 
-		<td class="align-middle saving-catalog-cell position-relative">
+		<td class="align-middle saving-catalog-cell">
 			<div class="row-center-sm gap-xs">
 				if row.ProductID != nil && *row.ProductID > 0 {
 					<div class="stack-2xs flex-1">
@@ -270,35 +187,16 @@ templ savingProductRow(view SavingImportView, row *StagedSavingItem) {
 							<span class="text-2xs text-muted font-mono">{ row.MasterProductSKU }</span>
 						}
 					</div>
-					<button type="button" class="btn btn-secondary btn-xs"
-						onclick={ templ.ComponentScript{Call: fmt.Sprintf("openSavingCatalogSearch(this, %d, '%s', '%s')", row.Index, searchURL, actionBase+"/match"+querySuffix)} }>
+					<button type="button" class="btn btn-secondary btn-xs font-bold"
+						onclick={ templ.ComponentScript{Call: fmt.Sprintf("openSavingCatalogModal(%d, '%s', '%s', '%s', true)", row.Index, searchURL, actionBase+"/match"+querySuffix, row.NameProduct)} }>
 						تغيير
 					</button>
 				} else {
-					<button type="button" class="btn btn-outline-warning btn-xs fw-700"
-						onclick={ templ.ComponentScript{Call: fmt.Sprintf("openSavingCatalogSearch(this, %d, '%s', '%s')", row.Index, searchURL, actionBase+"/match"+querySuffix)} }>
-						@components.IconPlus("icon-xs")
+					<button type="button" class="btn btn-primary btn-xs font-bold d-inline-flex items-center gap-1"
+						onclick={ templ.ComponentScript{Call: fmt.Sprintf("openSavingCatalogModal(%d, '%s', '%s', '%s', false)", row.Index, searchURL, actionBase+"/match"+querySuffix, row.NameProduct)} }>
+						@components.IconPlus("icon-xxs")
 						<span>ربط بالكتالوج</span>
 					</button>
-				}
-			</div>
-
-			<div class="saving-catalog-dropdown combobox-menu shadow-lg"
-				style="display:none; position:absolute; z-index:50; top:100%; start:0; width:340px; background:var(--bg-surface); border:1px solid var(--border-subtle); border-radius:var(--radius-md); padding:0.5rem; margin-top:0.25rem;">
-				<div class="p-xs">
-					<input type="text" class="form-input saving-search-input w-100" placeholder="ابحث في الكتالوج المركزي باسم الدواء..."
-						value={ row.NameProduct } style="padding:0.4rem 0.6rem; font-size:0.85rem;" />
-				</div>
-				<div class="saving-search-results max-h-60 overflow-y-auto mt-xs"></div>
-				if row.ProductID != nil && *row.ProductID > 0 {
-					<div class="pt-xs mt-xs border-top" style="border-color: var(--border-subtle);">
-						<form method="POST" action={ templ.SafeURL(actionBase + "/match" + querySuffix) }>
-							<input type="hidden" name="product_id" value="0"/>
-							<button type="submit" class="btn btn-ghost btn-xs text-danger w-100 text-start">
-								✕ إلغاء الربط (جعله غير مرتبط)
-							</button>
-						</form>
-					</div>
 				}
 			</div>
 		</td>
@@ -351,26 +249,155 @@ templ savingPagination(view SavingImportView) {
 			currPage = 1
 		}
 	}}
-	<div class="b2b-pagination">
-		<div class="b2b-pagination-info">
-			عرض <strong>{ fmt.Sprint(len(view.Rows)) }</strong> من إجمالي <strong>{ fmt.Sprint(view.RowTotal) }</strong> صنف
+	<div class="b2b-pagination p-4 border-t flex-between items-center flex-wrap gap-3">
+		<div class="b2b-pagination-info text-xs text-secondary">
+			عرض <strong class="text-primary tabular-nums font-bold">{ fmt.Sprint(len(view.Rows)) }</strong> من إجمالي <strong class="text-primary tabular-nums font-bold">{ fmt.Sprint(view.RowTotal) }</strong> صنف
 		</div>
 		if totalPages > 1 {
-			<div class="b2b-pagination-controls">
+			<div class="b2b-pagination-controls d-flex items-center gap-2">
 				if currPage > 1 {
 					<a href={ templ.SafeURL(buildSavingURL(view.ImportURL, view.Session.ID, view.Filter.MatchFilter, view.Filter.SortBy, view.Filter.SortOrder, currPage-1, limit, view.Filter.Search)) }
-						class="b2b-pagination-btn">
+						class="btn btn-secondary btn-xs font-bold">
 						السابق
 					</a>
 				}
-				<span class="text-xs px-2">صفحة { fmt.Sprint(currPage) } من { fmt.Sprint(totalPages) }</span>
+				<span class="text-xs text-secondary px-2 tabular-nums">صفحة <strong class="text-primary font-bold">{ fmt.Sprint(currPage) }</strong> من <strong class="text-primary font-bold">{ fmt.Sprint(totalPages) }</strong></span>
 				if currPage < totalPages {
 					<a href={ templ.SafeURL(buildSavingURL(view.ImportURL, view.Session.ID, view.Filter.MatchFilter, view.Filter.SortBy, view.Filter.SortOrder, currPage+1, limit, view.Filter.Search)) }
-						class="b2b-pagination-btn">
+						class="btn btn-secondary btn-xs font-bold">
 						التالي
 					</a>
 				}
 			</div>
 		}
 	</div>
+
+	<!-- Centered Modal for Linking Saving Product to Master Catalog -->
+	<div id="saving-catalog-match-modal" class="modal-backdrop" style="display:none; position:fixed; top:0; left:0; right:0; bottom:0; width:100vw; height:100vh; margin:0; background:rgba(4,8,16,0.85); backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px); z-index:var(--z-modal); align-items:center; justify-content:center; padding:1.25rem;">
+		<div class="glass-panel p-6" style="margin:auto; width:100%; max-width:540px; max-height:90vh; display:flex; flex-direction:column; overflow:hidden;">
+			<div class="flex-between items-center pb-3 border-b mb-3">
+				<div>
+					<h3 class="text-lg font-black text-primary m-0">الربط بالكتالوج المركزي</h3>
+					<p class="text-xs text-secondary m-0 mt-0.5" id="saving-modal-item-name"></p>
+				</div>
+				<button type="button" class="btn btn-icon btn-xs" onclick="closeSavingCatalogModal()">
+					@components.IconX("icon-xs")
+				</button>
+			</div>
+
+			<div class="mb-3">
+				<input type="text" id="saving-modal-search-input" class="form-input text-sm w-100" placeholder="ابحث باسم الدواء، الكود، أو المادة الفعالة..." autocomplete="off" />
+			</div>
+
+			<div id="saving-modal-results" class="flex-1 overflow-y-auto pr-1 d-flex flex-col gap-2" style="min-height:220px; max-height:360px;">
+				<div class="p-6 text-center text-muted text-xs">اكتب للبحث في الكتالوج المركزي...</div>
+			</div>
+
+			<div id="saving-modal-unlink-section" class="pt-3 border-t mt-3 flex-between items-center" style="display:none;">
+				<form id="saving-modal-unlink-form" method="POST" action="" class="m-0">
+					<input type="hidden" name="product_id" value="0" />
+					<button type="submit" class="btn btn-ghost btn-xs text-danger font-bold">
+						✕ إلغاء الربط (جعله غير مرتبط)
+					</button>
+				</form>
+				<button type="button" class="btn btn-secondary btn-xs font-bold" onclick="closeSavingCatalogModal()">إغلاق</button>
+			</div>
+		</div>
+	</div>
+
+	<script>
+	var currentSavingSearchURL = '';
+	var currentSavingActionURL = '';
+	var savingSearchDebounceTimer = null;
+
+	function openSavingCatalogModal(rowIndex, searchURL, actionURL, itemName, isLinked) {
+		currentSavingSearchURL = searchURL;
+		currentSavingActionURL = actionURL;
+
+		var modal = document.getElementById('saving-catalog-match-modal');
+		var titleEl = document.getElementById('saving-modal-item-name');
+		var inputEl = document.getElementById('saving-modal-search-input');
+		var unlinkSec = document.getElementById('saving-modal-unlink-section');
+		var unlinkForm = document.getElementById('saving-modal-unlink-form');
+
+		if (titleEl) titleEl.textContent = 'الصنف بالملف: ' + itemName;
+		if (inputEl) {
+			inputEl.value = itemName;
+			inputEl.oninput = function() {
+				clearTimeout(savingSearchDebounceTimer);
+				savingSearchDebounceTimer = setTimeout(function() {
+					fetchSavingModalResults(inputEl.value);
+				}, 200);
+			};
+		}
+		if (unlinkSec && unlinkForm) {
+			unlinkSec.style.display = isLinked ? 'flex' : 'none';
+			unlinkForm.action = actionURL;
+		}
+
+		modal.style.display = 'flex';
+		setTimeout(function() {
+			if (inputEl) {
+				inputEl.focus();
+				inputEl.select();
+			}
+			fetchSavingModalResults(itemName);
+		}, 50);
+	}
+
+	function closeSavingCatalogModal() {
+		var modal = document.getElementById('saving-catalog-match-modal');
+		if (modal) modal.style.display = 'none';
+	}
+
+	function fetchSavingModalResults(query) {
+		var resultsEl = document.getElementById('saving-modal-results');
+		if (!resultsEl) return;
+		resultsEl.innerHTML = '<div class="p-6 text-center text-muted text-xs">جاري البحث في الكتالوج المركزي...</div>';
+
+		fetch(currentSavingSearchURL + '?q=' + encodeURIComponent(query))
+			.then(function(res) { return res.json(); })
+			.then(function(data) {
+				var items = data.items || data.products || data || [];
+				if (!items || items.length === 0) {
+					resultsEl.innerHTML = '<div class="p-6 text-center text-muted text-xs">لم يتم العثور على أي صنف مطابق في الكتالوج.</div>';
+					return;
+				}
+				var html = '';
+				items.forEach(function(item) {
+					var name = item.name_ar || item.name_en || item.name || '';
+					var sku = item.sku || '';
+					var id = item.id;
+					var price = item.public_price || item.price || '';
+					var priceStr = price ? '<span class="badge badge-slate text-xs tabular-nums">' + price + ' ج.م</span>' : '';
+					var skuStr = sku ? '<span class="text-xs text-muted font-mono">' + escapeSavingHtml(sku) + '</span>' : '';
+
+					html += '<form method="POST" action="' + currentSavingActionURL + '" class="m-0">' +
+						'<input type="hidden" name="product_id" value="' + id + '" />' +
+						'<input type="hidden" name="master_name" value="' + escapeSavingHtml(name) + '" />' +
+						'<input type="hidden" name="master_sku" value="' + escapeSavingHtml(sku) + '" />' +
+						'<button type="submit" class="glass-panel p-3 w-100 text-start flex-between items-center gap-3 border hover-lift cursor-pointer" style="margin-bottom:0; background:var(--bg-surface-raised);">' +
+						'<div><div class="text-sm font-extrabold text-primary">' + escapeSavingHtml(name) + '</div>' +
+						'<div class="d-flex items-center gap-2 mt-1">' + skuStr + priceStr + '</div></div>' +
+						'<span class="badge badge-emerald text-xs font-bold">ربط ✓</span>' +
+						'</button></form>';
+				});
+				resultsEl.innerHTML = html;
+			})
+			.catch(function(err) {
+				resultsEl.innerHTML = '<div class="p-6 text-center text-danger text-xs">تعذر إجراء البحث في الكتالوج.</div>';
+			});
+	}
+
+	function escapeSavingHtml(str) {
+		if (!str) return '';
+		return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+	}
+
+	document.addEventListener('keydown', function(e) {
+		if (e.key === 'Escape') {
+			closeSavingCatalogModal();
+		}
+	});
+	</script>
 }

@@ -91,9 +91,68 @@ type ImportMappingView struct {
 
 // criticalFields are the ones the screen highlights when unbound.
 var criticalFields = map[string]bool{
-	catalog.FieldNameAR: true,
-	catalog.FieldSKU:    true,
-	catalog.FieldPrice:  true,
+	catalog.FieldNameAR:      true,
+	catalog.FieldSKU:         true,
+	catalog.FieldPrice:       true,
+	catalog.FieldPublicPrice: true,
+}
+
+// CoreFields returns the essential product identification fields.
+func (v ImportMappingView) CoreFields() []ImportFieldRow {
+	var out []ImportFieldRow
+	coreSet := map[string]bool{
+		catalog.FieldNameAR:      true,
+		catalog.FieldSKU:         true,
+		catalog.FieldBarcode:     true,
+		catalog.FieldPublicPrice: true,
+		catalog.FieldPrice:       true,
+	}
+	for _, f := range v.Fields {
+		if coreSet[f.Field] {
+			out = append(out, f)
+		}
+	}
+	return out
+}
+
+// PharmaFields returns pharmaceutical, active ingredient and specification fields.
+func (v ImportMappingView) PharmaFields() []ImportFieldRow {
+	var out []ImportFieldRow
+	pharmaSet := map[string]bool{
+		catalog.FieldNameEN:        true,
+		catalog.FieldGenericName:   true,
+		catalog.FieldActive:        true,
+		catalog.FieldDosageForm:    true,
+		catalog.FieldConcentration: true,
+		catalog.FieldUnit:          true,
+		catalog.FieldManufacturer:  true,
+	}
+	for _, f := range v.Fields {
+		if pharmaSet[f.Field] {
+			out = append(out, f)
+		}
+	}
+	return out
+}
+
+// PricingTaxonomyFields returns extra pricing, inventory and description fields.
+func (v ImportMappingView) PricingTaxonomyFields() []ImportFieldRow {
+	var out []ImportFieldRow
+	pricingSet := map[string]bool{
+		catalog.FieldCostPrice:     true,
+		catalog.FieldDiscount:      true,
+		catalog.FieldQuantity:      true,
+		catalog.FieldCategory:      true,
+		catalog.FieldDescriptionAR: true,
+		catalog.FieldDescriptionEN: true,
+		catalog.FieldStatus:        true,
+	}
+	for _, f := range v.Fields {
+		if pricingSet[f.Field] {
+			out = append(out, f)
+		}
+	}
+	return out
 }
 
 // NewImportMappingView assembles the column-review screen from a preview run.

@@ -105,40 +105,121 @@ templ importFileCard(view ImportMappingView) {
 // from, and what that column contains.
 templ importMappingCard(view ImportMappingView) {
 	<div class="glass-panel p-6 mb-6">
-		<h2 class="wiz-head">🧭 ربط الأعمدة بالحقول</h2>
-		<p class="wiz-sub">
-			اختر لكل حقل العمود الذي يقرأ منه. القائمة تعرض حرف العمود وعنوانه في الملف،
-			وتحته أول القيم الموجودة فيه — إن لم تكن القيمة منطقية فالعمود خاطئ.
-		</p>
-		if len(view.Missing) > 0 {
-			<div class="import-banner import-banner--error mb-md">
-				<p class="import-banner-text">
-					{ fmt.Sprintf("حقول أساسية غير مربوطة: %s. لا يمكن بدء المعالجة قبل ربطها.",
-						joinList(view.Missing)) }
+		<div class="flex-between items-center flex-wrap gap-3 mb-4 pb-3 border-b">
+			<div>
+				<h2 class="text-xl font-black text-primary m-0">🧭 ربط وتعيين أعمدة الملف</h2>
+				<p class="text-xs text-secondary m-0 mt-1">
+					تم تقسيم الحقول إلى 3 أقسام منظمة لتسهيل المراجعة: الحقول الأساسية، المواصفات الدوائية، وبيانات الأسعار والمخزون.
 				</p>
 			</div>
+		</div>
+
+		if len(view.Missing) > 0 {
+			<div class="alert alert-danger mb-4 p-4 flex-between">
+				<div class="d-flex items-center gap-3 font-bold text-xs">
+					<span class="text-xl">⚠️</span>
+					<span>{ fmt.Sprintf("حقول أساسية غير مربوطة: %s. يرجى تحديد الأعمدة الخاصة بها للمتابعة.", joinList(view.Missing)) }</span>
+				</div>
+			</div>
 		}
-		<div class="wiz-map">
+
+		<div class="wiz-map mb-6">
 			@wizMapNumber("header_row", "صف العناوين", "رقم الصف الذي يحتوي على أسماء الأعمدة", view.Session.Overrides.HeaderRow)
 			@wizMapNumber("first_data_row", "أول صف بيانات", "اتركه فارغاً للبدء بعد صف العناوين", view.Session.Overrides.FirstDataRow)
 			@wizMapNumber("last_data_row", "آخر صف بيانات", "لتجاهل صفوف الإجماليات في نهاية الملف", view.Session.Overrides.LastDataRow)
 		</div>
-		<div class="table-container m-0 mt-4">
-			<table class="data-table m-0">
-				<thead>
-					<tr>
-						<th>الحقل</th>
-						<th>العمود في الملف</th>
-						<th>عيّنة من القيم</th>
-						<th>الثقة</th>
-					</tr>
-				</thead>
-				<tbody>
-					for _, field := range view.Fields {
-						@importFieldLine(view, field)
-					}
-				</tbody>
-			</table>
+
+		<!-- Section 1: Core Required Fields -->
+		{{ coreFields := view.CoreFields() }}
+		<div class="glass-panel p-4 mb-4" style="background:var(--bg-surface-raised); border:1px solid var(--border-subtle);">
+			<div class="flex-between items-center mb-3">
+				<div class="d-flex items-center gap-2">
+					<span class="text-base">⭐</span>
+					<h3 class="text-sm font-black text-primary m-0">الحقول الأساسية لتعريف الصنف (Core Fields)</h3>
+				</div>
+				<span class="badge badge-emerald text-xs font-bold">
+					{ fmt.Sprintf("%d حقول أساسية", len(coreFields)) }
+				</span>
+			</div>
+			<div class="table-container m-0">
+				<table class="data-table m-0">
+					<thead>
+						<tr>
+							<th style="width:220px;">الحقل المطلوب</th>
+							<th style="width:280px;">العمود في الملف</th>
+							<th>عيّنة من القيم</th>
+							<th style="width:100px; text-align:center;">دقة المطابقة</th>
+						</tr>
+					</thead>
+					<tbody>
+						for _, field := range coreFields {
+							@importFieldLine(view, field)
+						}
+					</tbody>
+				</table>
+			</div>
+		</div>
+
+		<!-- Section 2: Pharmaceutical & Clinical Specs -->
+		{{ pharmaFields := view.PharmaFields() }}
+		<div class="glass-panel p-4 mb-4" style="background:var(--bg-surface-raised); border:1px solid var(--border-subtle);">
+			<div class="flex-between items-center mb-3">
+				<div class="d-flex items-center gap-2">
+					<span class="text-base">💊</span>
+					<h3 class="text-sm font-black text-primary m-0">المواصفات الدوائية والصيدلانية (Pharmaceutical Specs)</h3>
+				</div>
+				<span class="badge badge-sky text-xs font-bold">
+					{ fmt.Sprintf("%d حقول دوائية", len(pharmaFields)) }
+				</span>
+			</div>
+			<div class="table-container m-0">
+				<table class="data-table m-0">
+					<thead>
+						<tr>
+							<th style="width:220px;">الحقل المطلوب</th>
+							<th style="width:280px;">العمود في الملف</th>
+							<th>عيّنة من القيم</th>
+							<th style="width:100px; text-align:center;">دقة المطابقة</th>
+						</tr>
+					</thead>
+					<tbody>
+						for _, field := range pharmaFields {
+							@importFieldLine(view, field)
+						}
+					</tbody>
+				</table>
+			</div>
+		</div>
+
+		<!-- Section 3: Pricing, Inventory & Taxonomy -->
+		{{ pricingFields := view.PricingTaxonomyFields() }}
+		<div class="glass-panel p-4 mb-0" style="background:var(--bg-surface-raised); border:1px solid var(--border-subtle);">
+			<div class="flex-between items-center mb-3">
+				<div class="d-flex items-center gap-2">
+					<span class="text-base">🏷️</span>
+					<h3 class="text-sm font-black text-primary m-0">بيانات الأسعار الإضافية، المخزون، والتصنيف (Pricing & Details)</h3>
+				</div>
+				<span class="badge badge-slate text-xs font-bold">
+					{ fmt.Sprintf("%d حقول إضافية", len(pricingFields)) }
+				</span>
+			</div>
+			<div class="table-container m-0">
+				<table class="data-table m-0">
+					<thead>
+						<tr>
+							<th style="width:220px;">الحقل المطلوب</th>
+							<th style="width:280px;">العمود في الملف</th>
+							<th>عيّنة من القيم</th>
+							<th style="width:100px; text-align:center;">دقة المطابقة</th>
+						</tr>
+					</thead>
+					<tbody>
+						for _, field := range pricingFields {
+							@importFieldLine(view, field)
+						}
+					</tbody>
+				</table>
+			</div>
 		</div>
 	</div>
 }
@@ -146,13 +227,17 @@ templ importMappingCard(view ImportMappingView) {
 templ importFieldLine(view ImportMappingView, field ImportFieldRow) {
 	<tr>
 		<td>
-			<span class="fw-700">{ field.Label }</span>
-			if field.Critical {
-				<span class="badge badge-amber">أساسي</span>
-			}
+			<div class="d-flex items-center gap-2">
+				<span class="font-extrabold text-xs text-primary">{ field.Label }</span>
+				if field.Critical {
+					<span class="badge badge-amber text-xs font-bold">أساسي</span>
+				} else {
+					<span class="badge badge-slate text-xs text-muted">اختياري</span>
+				}
+			</div>
 		</td>
 		<td>
-			<select name={ fieldSelectName(field.Field) } class="form-select">
+			<select name={ fieldSelectName(field.Field) } class="form-select text-xs w-full">
 				<option value="0" selected?={ field.Column == 0 }>— لا تقرأ هذا الحقل —</option>
 				for _, option := range view.Options {
 					<option value={ fmt.Sprintf("%d", option.Value) } selected?={ option.Value == field.Column }>
@@ -161,16 +246,20 @@ templ importFieldLine(view ImportMappingView, field ImportFieldRow) {
 				}
 			</select>
 		</td>
-		<td class="text-muted">
+		<td class="text-xs text-secondary font-mono">
 			if field.Bound() {
 				{ field.Sample }
+			} else {
+				<span class="text-muted text-xs">—</span>
 			}
 		</td>
-		<td>
+		<td class="text-center">
 			if field.Bound() && field.Confidence != "" {
-				<span class={ "badge", importConfidenceBadge(field.Confidence) }>{ field.Confidence }</span>
+				<span class={ "badge text-xs font-bold", importConfidenceBadge(field.Confidence) }>{ field.Confidence }</span>
 			} else if field.Bound() {
-				<span class="badge badge-slate">يدوي</span>
+				<span class="badge badge-slate text-xs font-bold">يدوي</span>
+			} else {
+				<span class="badge badge-slate text-xs opacity-50">غير مربوط</span>
 			}
 		</td>
 	</tr>
