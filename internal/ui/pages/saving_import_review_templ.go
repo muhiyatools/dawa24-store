@@ -238,7 +238,7 @@ func savingReviewStage(view SavingImportView) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "\" placeholder=\"بحث بالاسم أو الكود...\" class=\"form-input\" style=\"min-width: 220px; padding: 0.4rem 0.75rem; font-size: 0.85rem;\"> <select name=\"limit\" onchange=\"this.form.submit()\" class=\"form-select\" style=\"width: auto; padding: 0.4rem 0.75rem; font-size: 0.85rem;\"><option value=\"10\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "\" placeholder=\"بحث بالاسم أو الكود...\" class=\"form-input saving-filter-search\"> <select name=\"limit\" onchange=\"this.form.submit()\" class=\"form-select saving-filter-limit\"><option value=\"10\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -301,7 +301,7 @@ func savingReviewStage(view SavingImportView) templ.Component {
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 30, "</form></div><div class=\"b2b-table-card\"><div class=\"table-responsive\"><table class=\"b2b-table\"><thead><tr><th style=\"width: 40px;\" class=\"text-center\">#</th>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 30, "</form></div><div class=\"b2b-table-card\"><div class=\"table-responsive\"><table class=\"b2b-table\"><thead><tr><th class=\"saving-review-col-index text-center\">#</th>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -309,7 +309,7 @@ func savingReviewStage(view SavingImportView) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 31, "<th style=\"min-width: 280px;\">الصنف المطابق بالكتالوج المركزي</th>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 31, "<th class=\"saving-review-col-product\">الصنف المطابق بالكتالوج المركزي</th>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

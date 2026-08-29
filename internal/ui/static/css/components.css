@@ -478,6 +478,18 @@ dialog.modal::backdrop {
 .saving-col-status { width: 120px; text-align: center; }
 .saving-col-actions { width: 180px; text-align: center; }
 .saving-delete-form { display: inline; }
+.saving-filter-search {
+  min-width: 220px;
+  padding: 0.4rem 0.75rem;
+  font-size: 0.85rem;
+}
+.saving-filter-limit {
+  width: auto;
+  padding: 0.4rem 0.75rem;
+  font-size: 0.85rem;
+}
+.saving-review-col-index { width: 40px; }
+.saving-review-col-product { min-width: 280px; }
 
 .progress-track {
   width: 100%;
