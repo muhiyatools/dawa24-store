@@ -581,22 +581,32 @@ func TestCompare_PharmacyAccessible(t *testing.T) {
 	)
 
 	pharmacyActor := authctx.Actor{UserID: 100, OrganizationID: 200, OrgType: "customer"}
+	vendorActor := authctx.Actor{UserID: 101, OrganizationID: 201, OrgType: "vendor"}
 
-	// 1. Compare Tool Page should render for pharmacy
+	// 1. Compare Tool Page should NOT be accessible for pharmacy (redirects to dashboard)
 	reqTool := httptest.NewRequest("GET", "/compare/tool", nil)
 	reqTool = reqTool.WithContext(authctx.WithActor(reqTool.Context(), pharmacyActor))
 	recTool := httptest.NewRecorder()
 	h.CompareToolPage(recTool, reqTool)
-	if recTool.Code != http.StatusOK {
-		t.Errorf("expected 200 OK for pharmacy on compare tool, got %d", recTool.Code)
+	if recTool.Code != http.StatusSeeOther {
+		t.Errorf("expected 303 SeeOther for pharmacy on compare tool, got %d", recTool.Code)
 	}
 
-	// 2. Market Discounts Page should be accessible for pharmacy/customer accounts
+	// 2. Market Discounts Page should NOT be accessible for pharmacy (redirects to dashboard)
 	reqMarket := httptest.NewRequest("GET", "/market-discounts", nil)
 	reqMarket = reqMarket.WithContext(authctx.WithActor(reqMarket.Context(), pharmacyActor))
 	recMarket := httptest.NewRecorder()
 	h.MarketDiscountsPage(recMarket, reqMarket)
-	if recMarket.Code != http.StatusOK {
-		t.Errorf("expected 200 OK for pharmacy on market discounts, got %d", recMarket.Code)
+	if recMarket.Code != http.StatusSeeOther {
+		t.Errorf("expected 303 SeeOther for pharmacy on market discounts, got %d", recMarket.Code)
+	}
+
+	// 3. Compare Tool and Market Discounts should be accessible for vendor
+	reqVendorTool := httptest.NewRequest("GET", "/compare/tool", nil)
+	reqVendorTool = reqVendorTool.WithContext(authctx.WithActor(reqVendorTool.Context(), vendorActor))
+	recVendorTool := httptest.NewRecorder()
+	h.CompareToolPage(recVendorTool, reqVendorTool)
+	if recVendorTool.Code != http.StatusOK {
+		t.Errorf("expected 200 OK for vendor on compare tool, got %d", recVendorTool.Code)
 	}
 }

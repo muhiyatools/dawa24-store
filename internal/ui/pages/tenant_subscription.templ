@@ -54,7 +54,14 @@ templ tenantSubscriptionBody(data TenantSubscriptionPageData, orgType string, la
 				return rem.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' ج.م';
 			}
 		}"
-		x-init={ fmt.Sprintf("walletBalanceMinor = %d;", data.WalletBalance.Minor()) }
+		x-init={ fmt.Sprintf(`
+			walletBalanceMinor = %d;
+			const upSlug = new URLSearchParams(window.location.search).get('upgrade');
+			if (upSlug) {
+				const btn = document.querySelector('[data-plan-slug=\"' + upSlug + '\"]');
+				if (btn) btn.click();
+			}
+		`, data.WalletBalance.Minor()) }
 	>
 		<!-- Toast Notices -->
 		if data.NoticeMsg != "" {
@@ -72,7 +79,7 @@ templ tenantSubscriptionBody(data TenantSubscriptionPageData, orgType string, la
 		}
 
 		<!-- Header -->
-		<div class="glass-panel p-6 mb-0">
+		<div class="glass-panel p-6 mb-4">
 			<div class="flex-between items-center flex-wrap gap-4">
 				<div>
 					<div class="d-flex items-center gap-3 mb-1">
@@ -104,7 +111,7 @@ templ tenantSubscriptionBody(data TenantSubscriptionPageData, orgType string, la
 
 		<!-- Current Active Subscription & AI Quotas -->
 		if data.Subscription != nil {
-			<div class="glass-panel p-6 mb-0">
+			<div class="glass-panel p-6 mb-4">
 				<div class="flex-between items-center flex-wrap gap-3 mb-6 pb-3 border-b">
 					<div class="d-flex items-center gap-2">
 						<span class="text-xl">🏢</span>
@@ -195,7 +202,7 @@ templ tenantSubscriptionBody(data TenantSubscriptionPageData, orgType string, la
 		}
 
 		<!-- All Available System Plans -->
-		<div class="glass-panel p-6 mb-0">
+		<div class="glass-panel p-6 mb-4">
 			<div class="mb-6 pb-3 border-b">
 				<h2 class="text-base font-extrabold text-primary m-0">
 					باقات وعضويات المنظومة المتاحة
@@ -205,87 +212,124 @@ templ tenantSubscriptionBody(data TenantSubscriptionPageData, orgType string, la
 				</p>
 			</div>
 
-			<div class="dashboard-grid-3col mb-0">
-				for _, p := range data.Plans {
-					<div class="glass-panel p-6 mb-0 d-flex flex-col justify-between">
-						<div>
-							<!-- Plan Header -->
-							<div class="flex-between items-start mb-3">
-								<div>
-									<h3 class="text-base font-extrabold text-primary m-0">
-										{ p.Name.Get("ar") }
-									</h3>
-									<span class="text-xs text-muted font-mono d-block mt-1">
-										{ p.Slug }
-									</span>
-								</div>
-								if data.CurrentPlanID == p.ID || (data.CurrentPlanID <= 0 && p.IsDefault) {
-									<span class="badge badge-emerald text-xs font-bold">✓ باقتك الحالية</span>
-								} else if p.IsDefault {
-									<span class="badge badge-slate text-xs font-bold">الافتراضية</span>
-								}
-							</div>
-
-							<!-- Description -->
-							<p class="text-xs text-secondary leading-relaxed mb-4" style="min-height:36px;">
-								{ p.Description.Get("ar") }
-							</p>
-
-							<!-- Pricing Box -->
-							<div class="p-3 rounded-lg bg-surface-sunken border mb-4">
-								<div class="flex-between items-baseline">
+			if len(data.Plans) == 0 {
+				<div class="p-8 text-center text-muted text-sm border rounded-xl" style="background:rgba(255,255,255,0.02);">
+					جاري تجهيز بيانات الباقات من النظام...
+				</div>
+			} else {
+				<div class="dashboard-grid-3col mb-0" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:1.25rem;">
+					for _, p := range data.Plans {
+						<div class="glass-panel p-6 mb-0 d-flex flex-col justify-between" style="border-radius:var(--radius-xl); border:1px solid rgba(255,255,255,0.08);">
+							<div>
+								<!-- Plan Header -->
+								<div class="flex-between items-start mb-3">
 									<div>
-										<span class="text-xl font-black text-primary tabular-nums">
-											@components.MoneyDisplay(components.MoneyDisplayProps{ Amount: p.PriceMonth })
+										<h3 class="text-base font-extrabold text-primary m-0">
+											{ p.Name.Get("ar") }
+										</h3>
+										<span class="text-xs text-muted font-mono d-block mt-1">
+											{ p.Slug }
 										</span>
-										<span class="text-xs text-muted ms-1">/ شهرياً</span>
 									</div>
-									<div class="text-xs text-secondary">
-										<span class="tabular-nums font-bold">@components.MoneyDisplay(components.MoneyDisplayProps{ Amount: p.PriceYear })</span>
-										<span class="text-xs text-muted ms-1">/ سنوياً</span>
+									if data.CurrentPlanID == p.ID || (data.CurrentPlanID <= 0 && p.IsDefault) {
+										<span class="badge badge-emerald text-xs font-bold">✓ باقتك الحالية</span>
+									} else if p.IsDefault {
+										<span class="badge badge-slate text-xs font-bold">الافتراضية</span>
+									}
+								</div>
+
+								<!-- Description -->
+								<p class="text-xs text-secondary leading-relaxed mb-4" style="min-height:36px;">
+									{ p.Description.Get("ar") }
+								</p>
+
+								<!-- Pricing Box -->
+								<div class="p-3 rounded-lg bg-surface-sunken border mb-4">
+									<div class="flex-between items-baseline">
+										<div>
+											<span class="text-xl font-black text-primary tabular-nums">
+												@components.MoneyDisplay(components.MoneyDisplayProps{ Amount: p.PriceMonth })
+											</span>
+											<span class="text-xs text-muted ms-1">/ شهرياً</span>
+										</div>
+										<div class="text-xs text-secondary">
+											<span class="tabular-nums font-bold">@components.MoneyDisplay(components.MoneyDisplayProps{ Amount: p.PriceYear })</span>
+											<span class="text-xs text-muted ms-1">/ سنوياً</span>
+										</div>
+									</div>
+								</div>
+
+								<!-- General Limits -->
+								<div class="d-flex flex-col gap-2 mb-4 text-xs">
+									<div class="d-flex items-center gap-2 text-primary">
+										<span class="text-brand font-bold">👥</span>
+										<span>الجلسات المتزامنة:</span>
+										<strong class="text-brand tabular-nums font-bold">{ fmt.Sprintf("%d جلسات", p.MaxLoginSessions) }</strong>
+									</div>
+									<div class="d-flex items-center gap-2 text-primary">
+										<span class="text-brand font-bold">💻</span>
+										<span>حد الأجهزة المصرح بها:</span>
+										<strong class="tabular-nums font-bold">{ fmt.Sprintf("%d أجهزة", p.MaxDevices) }</strong>
+									</div>
+									<div class="d-flex items-center gap-2 text-primary">
+										<span class="text-accent font-bold">🤖</span>
+										<span>بوابة الذكاء الاصطناعي:</span>
+										<code dir="ltr" class="text-xs font-bold font-mono">{ p.AIPlanID }</code>
+									</div>
+								</div>
+
+								<!-- Vendor-Exclusive Features Breakdown -->
+								<div class="border-t pt-3 mb-4">
+									<div class="text-xs font-bold text-secondary mb-2">ميزات الموردين والتحليلات:</div>
+									<div class="d-flex flex-col gap-1.5 text-xs">
+										if p.HasFeature("feature_market_discounts") {
+											<div class="d-flex items-center gap-2">
+												<span class="text-emerald font-black">✓</span>
+												<span class="text-emerald font-bold">🛒 (للموردين) خصومات السوق العامة ومؤشرات الأسعار</span>
+											</div>
+										} else {
+											<div class="d-flex items-center gap-2 text-muted" style="opacity:0.6;">
+												<span>✕</span>
+												<span>خصومات السوق العامة (غير متضمنة)</span>
+											</div>
+										}
+
+										if p.HasFeature("feature_compare_tool") {
+											<div class="d-flex items-center gap-2">
+												<span class="text-emerald font-black">✓</span>
+												<span class="text-indigo font-bold">📊 (للموردين) أداة مقارنة الخصومات وتحليل العروض</span>
+											</div>
+										} else {
+											<div class="d-flex items-center gap-2 text-muted" style="opacity:0.6;">
+												<span>✕</span>
+												<span>أداة مقارنة الخصومات (غير متضمنة)</span>
+											</div>
+										}
 									</div>
 								</div>
 							</div>
 
-							<!-- Enterprise Limits -->
-							<div class="d-flex flex-col gap-2 mb-6 text-xs">
-								<div class="d-flex items-center gap-2 text-primary">
-									<span class="text-brand font-bold">👥</span>
-									<span>الجلسات المتزامنة:</span>
-									<strong class="text-brand tabular-nums font-bold">{ fmt.Sprintf("%d جلسات", p.MaxLoginSessions) }</strong>
-								</div>
-								<div class="d-flex items-center gap-2 text-primary">
-									<span class="text-brand font-bold">💻</span>
-									<span>حد الأجهزة المصرح بها:</span>
-									<strong class="tabular-nums font-bold">{ fmt.Sprintf("%d أجهزة", p.MaxDevices) }</strong>
-								</div>
-								<div class="d-flex items-center gap-2 text-primary">
-									<span class="text-accent font-bold">🤖</span>
-									<span>بوابة الذكاء الاصطناعي:</span>
-									<code dir="ltr" class="text-xs font-bold font-mono">{ p.AIPlanID }</code>
-								</div>
+							<!-- Action CTA Button opening Checkout Modal -->
+							<div class="border-t pt-4">
+								<button
+									type="button"
+									data-plan-slug={ p.Slug }
+									class={ "btn w-full justify-center font-bold text-xs gap-1", templ.KV("btn-secondary", data.CurrentPlanID == p.ID || (data.CurrentPlanID <= 0 && p.IsDefault)), templ.KV("btn-primary", !(data.CurrentPlanID == p.ID || (data.CurrentPlanID <= 0 && p.IsDefault))) }
+									onclick={ templ.ComponentScript{ Call: fmt.Sprintf("openCheckout(%q, %q, %d, %d)", p.Slug, p.Name.Get("ar"), p.PriceMonth.Minor(), p.PriceYear.Minor()) } }
+								>
+									@components.IconSparkles("icon-xs")
+									if data.CurrentPlanID == p.ID || (data.CurrentPlanID <= 0 && p.IsDefault) {
+										<span>تجديد أو تعديل باقتك الحالية</span>
+									} else {
+										<span>الاشتراك والترقية لهذه الباقة</span>
+									}
+								</button>
 							</div>
-						</div>
 
-						<!-- Action CTA Button opening Checkout Modal -->
-						<div class="border-t pt-4">
-							<button
-								type="button"
-								class={ "btn w-full justify-center font-bold text-xs gap-1", templ.KV("btn-secondary", data.CurrentPlanID == p.ID || (data.CurrentPlanID <= 0 && p.IsDefault)), templ.KV("btn-primary", !(data.CurrentPlanID == p.ID || (data.CurrentPlanID <= 0 && p.IsDefault))) }
-								onclick={ templ.ComponentScript{ Call: fmt.Sprintf("openCheckout(%q, %q, %d, %d)", p.Slug, p.Name.Get("ar"), p.PriceMonth.Minor(), p.PriceYear.Minor()) } }
-							>
-								@components.IconSparkles("icon-xs")
-								if data.CurrentPlanID == p.ID || (data.CurrentPlanID <= 0 && p.IsDefault) {
-									<span>تجديد أو تعديل باقتك الحالية</span>
-								} else {
-									<span>الاشتراك والترقية لهذه الباقة</span>
-								}
-							</button>
 						</div>
-
-					</div>
-				}
-			</div>
+					}
+				</div>
+			}
 		</div>
 
 		<!-- In-App Wallet Checkout Modal -->

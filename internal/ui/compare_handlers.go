@@ -125,6 +125,17 @@ func (h *UIHandler) CompareToolPage(w http.ResponseWriter, r *http.Request) {
 		http.Redirect(w, r, "/auth/login?redirect=/compare/tool", http.StatusSeeOther)
 		return
 	}
+	if actor.IsCustomer() {
+		h.redirectWithNotice(w, r, "/customer/dashboard", "error", "أداة مقارنة الخصومات مخصصة لحسابات الموردين فقط.")
+		return
+	}
+	if !actor.IsStaff && h.billSvc != nil {
+		allowed, err := h.billSvc.CheckOrgEntitlement(ctx, actor.OrganizationID, actor.UserID, billing.FeatureCompareTool)
+		if err != nil || !allowed {
+			h.redirectWithNotice(w, r, "/vendor/subscription?upgrade=pro", "error", "يتطلب استخدام أداة مقارنة الخصومات ترقية باقة اشتراك المنشأة لتشمل هذه الميزة.")
+			return
+		}
+	}
 
 	noticeType := r.URL.Query().Get("notice")
 	noticeMsg := r.URL.Query().Get("msg")

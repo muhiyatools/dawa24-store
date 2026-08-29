@@ -593,3 +593,8 @@ func (s *Service) DeletePlatformPaymentMethod(ctx context.Context, id string) er
 func (s *Service) ListPayments(ctx context.Context, orgID int64, limit, offset int) ([]*Payment, error) {
 	return s.repo.ListPaymentsByOrg(ctx, orgID, limit, offset)
 }
+
+// CheckOrgEntitlement checks whether the organization or user has entitlement for a given feature key.
+func (s *Service) CheckOrgEntitlement(ctx context.Context, orgID, userID int64, featureKey string) (bool, error) {
+	return s.repo.CheckOrgEntitlement(ctx, orgID, userID, featureKey)
+}

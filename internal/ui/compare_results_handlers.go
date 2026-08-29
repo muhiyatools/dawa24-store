@@ -6,6 +6,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/muhiya/dawa24-store/internal/modules/billing"
 	"github.com/muhiya/dawa24-store/internal/modules/compare"
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/platform/database"
@@ -346,6 +347,17 @@ func (h *UIHandler) CompareMarketIntelligencePage(w http.ResponseWriter, r *http
 		http.Redirect(w, r, "/auth/login?redirect=/compare/market-intelligence", http.StatusSeeOther)
 		return
 	}
+	if actor.IsCustomer() {
+		h.redirectWithNotice(w, r, "/customer/dashboard", "error", "مؤشرات السوق والتحليلات مخصصة لحسابات الموردين فقط.")
+		return
+	}
+	if !actor.IsStaff && h.billSvc != nil {
+		allowed, err := h.billSvc.CheckOrgEntitlement(ctx, actor.OrganizationID, actor.UserID, billing.FeatureMarketDiscounts)
+		if err != nil || !allowed {
+			h.redirectWithNotice(w, r, "/vendor/subscription?upgrade=pro", "error", "يتطلب الوصول إلى مؤشرات وخصومات السوق ترقية باقة اشتراك المنشأة لتشمل هذه الميزة.")
+			return
+		}
+	}
 
 	var report *compare.MarketIntelligenceReport
 	if h.compareSvc != nil {
@@ -373,9 +385,21 @@ func (h *UIHandler) MarketDiscountsPage(w http.ResponseWriter, r *http.Request) 
 	ctx := r.Context()
 	lang, dir := h.localeAndDir(r)
 
-	var actor authctx.Actor
-	if a, ok := authctx.From(ctx); ok {
-		actor = a
+	actor, ok := authctx.From(ctx)
+	if !ok {
+		http.Redirect(w, r, "/auth/login?redirect=/market-discounts", http.StatusSeeOther)
+		return
+	}
+	if actor.IsCustomer() {
+		h.redirectWithNotice(w, r, "/customer/dashboard", "error", "قسم خصومات السوق مخصص لحسابات الموردين فقط.")
+		return
+	}
+	if !actor.IsStaff && h.billSvc != nil {
+		allowed, err := h.billSvc.CheckOrgEntitlement(ctx, actor.OrganizationID, actor.UserID, billing.FeatureMarketDiscounts)
+		if err != nil || !allowed {
+			h.redirectWithNotice(w, r, "/vendor/subscription?upgrade=pro", "error", "يتطلب تصفح خصومات السوق ترقية باقة اشتراك المنشأة لتشمل هذه الميزة.")
+			return
+		}
 	}
 
 	query := strings.TrimSpace(r.URL.Query().Get("q"))

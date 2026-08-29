@@ -260,6 +260,38 @@ templ AdminPlansHub(data AdminPlansData, lang, dir string) {
 													</div>
 												</div>
 											</div>
+
+											<!-- Vendor Features Badges -->
+											<div style="background:rgba(255,255,255,0.02); border:1px solid var(--border); border-radius:var(--radius-lg); padding:0.75rem 1rem; margin-bottom:1.25rem;">
+												<div style="font-size:0.75rem; font-weight:700; color:var(--text-secondary); margin-bottom:0.5rem;">
+													صلاحيات الموردين (Vendor Features):
+												</div>
+												<div style="display:flex; flex-direction:column; gap:0.4rem; font-size:0.8rem;">
+													if p.HasFeature("feature_market_discounts") {
+														<div class="d-flex items-center gap-2 text-emerald font-bold">
+															<span>✓</span>
+															<span>🛒 (للموردين) خصومات السوق العامة</span>
+														</div>
+													} else {
+														<div class="d-flex items-center gap-2 text-muted" style="opacity:0.6;">
+															<span>✕</span>
+															<span>خصومات السوق العامة (معطلة)</span>
+														</div>
+													}
+
+													if p.HasFeature("feature_compare_tool") {
+														<div class="d-flex items-center gap-2 text-indigo font-bold">
+															<span>✓</span>
+															<span>📊 (للموردين) أداة مقارنة الخصومات</span>
+														</div>
+													} else {
+														<div class="d-flex items-center gap-2 text-muted" style="opacity:0.6;">
+															<span>✕</span>
+															<span>أداة مقارنة الخصومات (معطلة)</span>
+														</div>
+													}
+												</div>
+											</div>
 										</div>
 
 										<!-- Card Bottom Action -->
@@ -268,8 +300,8 @@ templ AdminPlansHub(data AdminPlansData, lang, dir string) {
 												type="button"
 												class="btn btn-secondary btn-sm"
 												style="font-weight:700; width:100%; justify-content:center; gap:0.4rem;"
-												@click={ fmt.Sprintf("openEditModal({id:%d, slug:'%s', name_ar:'%s', name_en:'%s', desc_ar:'%s', price_month:'%s', price_year:'%s', duration:%d, sessions:%d, devices:%d, ai_plan:'%s', is_default:%t, is_active:%t})",
-													p.ID, p.Slug, p.Name.Get("ar"), p.Name.Get("en"), p.Description.Get("ar"), p.PriceMonth.String(), p.PriceYear.String(), p.DurationDays, p.MaxLoginSessions, p.MaxDevices, p.AIPlanID, p.IsDefault, p.IsActive) }
+												@click={ fmt.Sprintf("openEditModal({id:%d, slug:'%s', name_ar:'%s', name_en:'%s', desc_ar:'%s', price_month:'%s', price_year:'%s', duration:%d, sessions:%d, devices:%d, ai_plan:'%s', is_default:%t, is_active:%t, feat_market:%t, feat_compare:%t})",
+													p.ID, p.Slug, p.Name.Get("ar"), p.Name.Get("en"), p.Description.Get("ar"), p.PriceMonth.String(), p.PriceYear.String(), p.DurationDays, p.MaxLoginSessions, p.MaxDevices, p.AIPlanID, p.IsDefault, p.IsActive, p.HasFeature("feature_market_discounts"), p.HasFeature("feature_compare_tool")) }
 											>
 												@components.IconEdit("icon-xs")
 												<span>تعديل إعدادات وحدود الباقة</span>
@@ -379,6 +411,30 @@ templ AdminPlansHub(data AdminPlansData, lang, dir string) {
 							</div>
 						</div>
 
+						<!-- Vendor Features Access Control Section -->
+						<div style="display:flex; flex-direction:column; gap:0.75rem; font-size:0.875rem; border-top:1px solid var(--border); padding-top:0.9rem;">
+							<div style="font-size:0.8rem; font-weight:800; color:var(--primary); display:flex; align-items:center; gap:0.4rem;">
+								<span>🏢</span>
+								<span>صلاحيات وميزات الموردين المتضمنة (Vendor Entitlements):</span>
+							</div>
+
+							<label style="display:flex; gap:0.6rem; align-items:center; cursor:pointer; background:rgba(16, 185, 129, 0.05); padding:0.6rem 0.85rem; border-radius:var(--radius-md); border:1px solid rgba(16, 185, 129, 0.2);">
+								<input type="checkbox" name="feature_market_discounts" value="1" x-model="form.feat_market" />
+								<div>
+									<strong style="color:var(--text); display:block;">🛒 (خاص بالموردين) إتاحة الوصول إلى: خصومات السوق العامة ومؤشرات الأسعار</strong>
+									<span class="text-xs text-secondary">تمكين المورد من استعراض خصومات السوق الحية والتحليلات المقارنة</span>
+								</div>
+							</label>
+
+							<label style="display:flex; gap:0.6rem; align-items:center; cursor:pointer; background:rgba(99, 102, 241, 0.05); padding:0.6rem 0.85rem; border-radius:var(--radius-md); border:1px solid rgba(99, 102, 241, 0.2);">
+								<input type="checkbox" name="feature_compare_tool" value="1" x-model="form.feat_compare" />
+								<div>
+									<strong style="color:var(--text); display:block;">📊 (خاص بالموردين) إتاحة الوصول إلى: أداة مقارنة الخصومات الخاصة وتحليل العروض</strong>
+									<span class="text-xs text-secondary">تمكين المورد من تشغيل أداة المقارنة المتقدمة للملفات وخصومات الموردين</span>
+								</div>
+							</label>
+						</div>
+
 						<!-- Default & Status Checkboxes -->
 						<div style="display:flex; flex-direction:column; gap:0.6rem; font-size:0.875rem; border-top:1px solid var(--border); padding-top:0.9rem;">
 							<label style="display:flex; gap:0.6rem; align-items:center; cursor:pointer; background:rgba(16, 185, 129, 0.06); padding:0.6rem 0.85rem; border-radius:var(--radius-md); border:1px solid rgba(16, 185, 129, 0.2);">
@@ -430,7 +486,9 @@ templ AdminPlansHub(data AdminPlansData, lang, dir string) {
 						devices: 3,
 						ai_plan: 'plan-dev',
 						is_default: false,
-						is_active: true
+						is_active: true,
+						feat_market: false,
+						feat_compare: false
 					},
 					openCreateModal() {
 						this.isEdit = false;
@@ -448,7 +506,9 @@ templ AdminPlansHub(data AdminPlansData, lang, dir string) {
 							devices: 3,
 							ai_plan: 'plan-dev',
 							is_default: false,
-							is_active: true
+							is_active: true,
+							feat_market: false,
+							feat_compare: false
 						};
 						this.showModal = true;
 					},
@@ -468,7 +528,9 @@ templ AdminPlansHub(data AdminPlansData, lang, dir string) {
 							devices: p.devices,
 							ai_plan: p.ai_plan,
 							is_default: p.is_default,
-							is_active: p.is_active
+							is_active: p.is_active,
+							feat_market: !!p.feat_market,
+							feat_compare: !!p.feat_compare
 						};
 						this.showModal = true;
 					}

@@ -12,6 +12,7 @@ import (
 	"text/tabwriter"
 
 	dbfs "github.com/muhiya/dawa24-store/db"
+	billingPostgres "github.com/muhiya/dawa24-store/internal/modules/billing/postgres"
 	catalogPostgres "github.com/muhiya/dawa24-store/internal/modules/catalog/postgres"
 	"github.com/muhiya/dawa24-store/internal/modules/org"
 	orgPG "github.com/muhiya/dawa24-store/internal/modules/org/postgres"
@@ -160,6 +161,19 @@ func run() error {
 			return err
 		}
 		fmt.Println("database: ok")
+		return nil
+
+	case "dump-plans":
+		billRepo := billingPostgres.NewRepository(db)
+		plans, err := billRepo.ListPlans(ctx)
+		if err != nil {
+			return fmt.Errorf("list plans: %w", err)
+		}
+		fmt.Printf("found %d plans:\n", len(plans))
+		for _, p := range plans {
+			fmt.Printf("- ID:%d Slug:%s NameAr:%s PriceMonth:%s PriceYear:%s IsDefault:%t IsActive:%t Features:%v\n",
+				p.ID, p.Slug, p.Name.Get("ar"), p.PriceMonth.String(), p.PriceYear.String(), p.IsDefault, p.IsActive, p.Features)
+		}
 		return nil
 
 	default:

@@ -248,6 +248,10 @@ func (r stubRepo) AdminApproveDepositRequest(ctx context.Context, depositID int6
 	r.fail("AdminApproveDepositRequest")
 	return nil, nil, nil
 }
+func (r stubRepo) CheckOrgEntitlement(ctx context.Context, orgID, userID int64, featureKey string) (bool, error) {
+	r.fail("CheckOrgEntitlement")
+	return false, nil
+}
 func (r stubRepo) AdminRejectDepositRequest(ctx context.Context, depositID int64, reviewerID int64, reason string) (*billing.WalletDeposit, error) {
 	r.fail("AdminRejectDepositRequest")
 	return nil, nil
@@ -315,6 +319,9 @@ func (happyRepo) RenewSubscription(ctx context.Context, subID int64, walletID in
 }
 func (happyRepo) CheckEntitlement(ctx context.Context, userID int64, featureKey string) (bool, string, error) {
 	return true, "unlimited", nil
+}
+func (happyRepo) CheckOrgEntitlement(ctx context.Context, orgID, userID int64, featureKey string) (bool, error) {
+	return true, nil
 }
 func (happyRepo) CreateInvoice(ctx context.Context, inv *billing.Invoice) error {
 	inv.ID = 1

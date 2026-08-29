@@ -109,14 +109,19 @@ func (r *Repository) GetDefaultPlan(ctx context.Context) (*billing.Plan, error) 
 				ORDER BY id ASC
 				LIMIT 1;
 			`
-			return tx.QueryRow(txCtx, fallbackQuery).Scan(
+			if err := tx.QueryRow(txCtx, fallbackQuery).Scan(
 				&p.ID, &p.PublicID, &p.Slug, &p.Name, &p.Description,
 				&p.PriceMonth, &p.PriceYear, &p.DurationDays, &p.MaxUsers,
 				&p.MaxLoginSessions, &p.MaxDevices, &p.AIPlanID, &p.IsDefault,
 				&p.IsActive, &p.CreatedAt, &p.UpdatedAt,
-			)
+			); err != nil {
+				return err
+			}
+		} else if err != nil {
+			return err
 		}
-		return err
+		p.Features = loadPlanFeatures(txCtx, tx, p.ID)
+		return nil
 	})
 	if err != nil {
 		if database.IsNotFound(err) {
@@ -126,3 +131,21 @@ func (r *Repository) GetDefaultPlan(ctx context.Context) (*billing.Plan, error) 
 	}
 	return &p, nil
 }
+
+// loadPlanFeatures fetches the feature map for a given plan ID.
+func loadPlanFeatures(ctx context.Context, tx pgx.Tx, planID int64) map[string]string {
+	features := make(map[string]string)
+	rows, err := tx.Query(ctx, `SELECT feature_key, value FROM billing.plan_features WHERE plan_id = $1`, planID)
+	if err != nil {
+		return features
+	}
+	defer rows.Close()
+	for rows.Next() {
+		var key, val string
+		if err := rows.Scan(&key, &val); err == nil {
+			features[key] = val
+		}
+	}
+	return features
+}
+
