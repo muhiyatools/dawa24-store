@@ -40,7 +40,6 @@ type SmartOrderNewData struct {
 	Error string
 }
 
-// stepBar renders the five-step indicator.
 // SmartOrderNewPage is step 1: upload and configuration.
 func SmartOrderNewPage(lang, dir string, data SmartOrderNewData) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
@@ -91,7 +90,7 @@ func SmartOrderNewPage(lang, dir string, data SmartOrderNewData) templ.Component
 				var templ_7745c5c3_Var3 string
 				templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(data.Error)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `smart_order.templ`, Line: 44, Col: 17}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `smart_order.templ`, Line: 43, Col: 17}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
 				if templ_7745c5c3_Err != nil {
@@ -114,7 +113,7 @@ func SmartOrderNewPage(lang, dir string, data SmartOrderNewData) templ.Component
 				var templ_7745c5c3_Var4 string
 				templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%d", b.ID))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `smart_order.templ`, Line: 60, Col: 46}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `smart_order.templ`, Line: 59, Col: 46}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var4)
 				if templ_7745c5c3_Err != nil {
@@ -137,7 +136,7 @@ func SmartOrderNewPage(lang, dir string, data SmartOrderNewData) templ.Component
 				var templ_7745c5c3_Var5 string
 				templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(b.Name)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `smart_order.templ`, Line: 61, Col: 16}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `smart_order.templ`, Line: 60, Col: 16}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
 				if templ_7745c5c3_Err != nil {
@@ -151,7 +150,7 @@ func SmartOrderNewPage(lang, dir string, data SmartOrderNewData) templ.Component
 					var templ_7745c5c3_Var6 string
 					templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(" — " + b.City)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `smart_order.templ`, Line: 63, Col: 27}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `smart_order.templ`, Line: 62, Col: 27}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
 					if templ_7745c5c3_Err != nil {
@@ -179,7 +178,7 @@ func SmartOrderNewPage(lang, dir string, data SmartOrderNewData) templ.Component
 				var templ_7745c5c3_Var7 string
 				templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.ResolveAttributeValue(c.Key)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `smart_order.templ`, Line: 84, Col: 59}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `smart_order.templ`, Line: 83, Col: 59}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var7)
 				if templ_7745c5c3_Err != nil {
@@ -192,7 +191,7 @@ func SmartOrderNewPage(lang, dir string, data SmartOrderNewData) templ.Component
 				var templ_7745c5c3_Var8 string
 				templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(c.Label)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `smart_order.templ`, Line: 85, Col: 48}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `smart_order.templ`, Line: 84, Col: 48}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var8))
 				if templ_7745c5c3_Err != nil {
@@ -205,7 +204,7 @@ func SmartOrderNewPage(lang, dir string, data SmartOrderNewData) templ.Component
 				var templ_7745c5c3_Var9 string
 				templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.ResolveAttributeValue("priority_" + c.Key)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `smart_order.templ`, Line: 86, Col: 54}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `smart_order.templ`, Line: 85, Col: 54}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var9)
 				if templ_7745c5c3_Err != nil {
@@ -218,7 +217,7 @@ func SmartOrderNewPage(lang, dir string, data SmartOrderNewData) templ.Component
 				var templ_7745c5c3_Var10 string
 				templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%d", i+1))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `smart_order.templ`, Line: 86, Col: 87}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `smart_order.templ`, Line: 85, Col: 87}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var10)
 				if templ_7745c5c3_Err != nil {
@@ -267,7 +266,7 @@ func SmartOrderNewPage(lang, dir string, data SmartOrderNewData) templ.Component
 				var templ_7745c5c3_Var11 string
 				templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.JoinStringErrs(data.AIUnavailableReason)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `smart_order.templ`, Line: 129, Col: 33}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `smart_order.templ`, Line: 128, Col: 33}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var11))
 				if templ_7745c5c3_Err != nil {

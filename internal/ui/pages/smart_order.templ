@@ -32,7 +32,6 @@ type SmartOrderNewData struct {
 	Error string
 }
 
-// stepBar renders the five-step indicator.
 // SmartOrderNewPage is step 1: upload and configuration.
 templ SmartOrderNewPage(lang, dir string, data SmartOrderNewData) {
 	@layouts.CustomerShell("الطلب الذكي", "purchase-request", lang, dir, nil) {

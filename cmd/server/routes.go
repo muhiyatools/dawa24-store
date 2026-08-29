@@ -290,7 +290,12 @@ func mountModuleRoutes(
 		// in batches of twenty-five against a shortlist the importer retrieved.
 		// Without it the import matched barcodes and identical spellings only,
 		// and staged everything else as a new product.
-		catSvcUI.SetMatchAdjudicator(mapper)
+		// The administrator's import asks the same question as the other three,
+		// so it asks it through the same capability rather than through a third
+		// prompt of its own. The mapper still answers the two questions that are
+		// genuinely its own — which column is which, and what a category word
+		// means — and those are asked once per file, not once per row.
+		catSvcUI.SetMatchAdjudicator(&catalogAdjudicateAdapter{caps: aiCapabilitiesSvc})
 		// The vendor import runs the smart order's enhancement stage: the same
 		// system prompt, the same shared catalogue window, the same guards, and
 		// the same decision cache in catalog.match_decisions — so an answer
