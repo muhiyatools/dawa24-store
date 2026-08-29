@@ -23,9 +23,9 @@ templ LoginPage(lang, dir, errorMsg string) {
 				</div>
 
 				if errorMsg != "" {
-					<div class="alert alert-danger mb-4" style="display:flex; align-items:center; gap:0.5rem;">
-						@components.IconAlert("icon-xs")
-						<span>{ errorMsg }</span>
+					<div class="alert alert-danger mb-4" style="display:flex; align-items:flex-start; gap:0.65rem; padding:0.85rem 1rem; border-radius:var(--radius-lg); font-size:0.875rem; line-height:1.5;">
+						<div style="flex-shrink:0; margin-top:2px;">@components.IconAlert("icon-xs")</div>
+						<div style="flex:1;">{ errorMsg }</div>
 					</div>
 				}
 
@@ -41,7 +41,13 @@ templ LoginPage(lang, dir, errorMsg string) {
 						</div>
 						<input type="password" id="password" name="password" required class="form-input" placeholder="••••••••" />
 					</div>
-					<button type="submit" class="btn btn-primary" style="width:100%; padding:0.75rem; font-size:0.95rem; margin-top:0.5rem; justify-content:center;">
+					<div style="display:flex; align-items:center; gap:0.5rem; margin-top:-0.25rem;">
+						<input type="checkbox" id="remember_me" name="remember_me" value="1" checked class="form-checkbox" style="width:1.05rem; height:1.05rem; accent-color:var(--primary); cursor:pointer;" />
+						<label for="remember_me" style="font-size:0.85rem; color:var(--text-secondary); cursor:pointer; user-select:none; margin:0;">
+							تذكرني على هذا الجهاز
+						</label>
+					</div>
+					<button type="submit" class="btn btn-primary" style="width:100%; padding:0.75rem; font-size:0.95rem; margin-top:0.25rem; justify-content:center;">
 						@components.IconCheck("icon-xs")
 						<span>دخول للنظام</span>
 					</button>

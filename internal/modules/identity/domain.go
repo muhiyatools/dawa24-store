@@ -358,3 +358,89 @@ type SessionPlan struct {
 	CreatedAt        time.Time    `json:"created_at"`
 	UpdatedAt        time.Time    `json:"updated_at"`
 }
+
+// DeviceDetails contains parsed client hardware and software environment.
+type DeviceDetails struct {
+	DeviceName string `json:"device_name"` // e.g. "كمبيوتر (Windows - Google Chrome)"
+	DeviceType string `json:"device_type"` // "desktop", "mobile", "tablet", "unknown"
+	Browser    string `json:"browser"`     // "Chrome", "Safari", "Firefox", "Edge", etc.
+	OS         string `json:"os"`          // "Windows", "macOS", "iOS", "Android", "Linux"
+	Icon       string `json:"icon"`        // "💻", "📱", "📟"
+}
+
+// ErrSessionEvictedConcurrentLimit indicates the session was terminated because the organization exceeded its concurrent session limit.
+var ErrSessionEvictedConcurrentLimit = apperr.New(apperr.KindUnauthorized, "session.evicted_concurrent_limit", "تم تسجيل خروجك لتجاوز الحد الأقصى للجلسات المتزامنة المصرح بها في باقة اشتراك المنشأة.")
+
+// ParseUserAgentDevice analyzes a User-Agent string to produce human-readable Arabic device metadata.
+func ParseUserAgentDevice(ua, ip string) DeviceDetails {
+	uaLower := strings.ToLower(ua)
+	det := DeviceDetails{
+		DeviceType: "desktop",
+		Browser:    "متصفح ويب",
+		OS:         "نظام تشغيل",
+		Icon:       "💻",
+	}
+
+	if strings.TrimSpace(ua) == "" {
+		det.DeviceName = "جهاز غير محدد"
+		return det
+	}
+
+	// 1. Detect OS
+	if strings.Contains(uaLower, "windows") {
+		det.OS = "Windows"
+		det.DeviceType = "desktop"
+		det.Icon = "💻"
+	} else if strings.Contains(uaLower, "iphone") {
+		det.OS = "iOS (iPhone)"
+		det.DeviceType = "mobile"
+		det.Icon = "📱"
+	} else if strings.Contains(uaLower, "ipad") {
+		det.OS = "iPadOS"
+		det.DeviceType = "tablet"
+		det.Icon = "📟"
+	} else if strings.Contains(uaLower, "android") {
+		det.OS = "Android"
+		if strings.Contains(uaLower, "mobile") {
+			det.DeviceType = "mobile"
+			det.Icon = "📱"
+		} else {
+			det.DeviceType = "tablet"
+			det.Icon = "📟"
+		}
+	} else if strings.Contains(uaLower, "macintosh") || strings.Contains(uaLower, "mac os") {
+		det.OS = "macOS"
+		det.DeviceType = "desktop"
+		det.Icon = "💻"
+	} else if strings.Contains(uaLower, "linux") {
+		det.OS = "Linux"
+		det.DeviceType = "desktop"
+		det.Icon = "💻"
+	}
+
+	// 2. Detect Browser
+	if strings.Contains(uaLower, "edg/") || strings.Contains(uaLower, "edge/") {
+		det.Browser = "Edge"
+	} else if strings.Contains(uaLower, "samsungbrowser") {
+		det.Browser = "Samsung Internet"
+	} else if strings.Contains(uaLower, "chrome") || strings.Contains(uaLower, "crios") {
+		det.Browser = "Chrome"
+	} else if strings.Contains(uaLower, "firefox") || strings.Contains(uaLower, "fxios") {
+		det.Browser = "Firefox"
+	} else if strings.Contains(uaLower, "safari") && !strings.Contains(uaLower, "chrome") {
+		det.Browser = "Safari"
+	} else if strings.Contains(uaLower, "opera") || strings.Contains(uaLower, "opr/") {
+		det.Browser = "Opera"
+	}
+
+	// 3. Compose Friendly Name
+	typeLabel := "كمبيوتر مكتبي"
+	if det.DeviceType == "mobile" {
+		typeLabel = "هاتف ذكي"
+	} else if det.DeviceType == "tablet" {
+		typeLabel = "جهاز لوحي"
+	}
+
+	det.DeviceName = typeLabel + " (" + det.OS + " - " + det.Browser + ")"
+	return det
+}

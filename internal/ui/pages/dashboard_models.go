@@ -51,18 +51,22 @@ type TenantSubscriptionPageData struct {
 
 // VendorDashboardData is the supplier dashboard view model.
 type VendorDashboardData struct {
-	ActiveProducts     int
-	PendingShipments   int
-	MonthSales         money.Amount
-	WalletBalance      money.Amount
-	HasWallet          bool
-	LowStockCount      int
-	Shipments          []*commerce.OrderShipment
-	LowStock           []*inventory.Stock
-	Offers             []*promo.Offer
-	UnreadQuotes       int
-	PendingDocRequests []*attachments.DocumentRequest
-	Subscription       *OrgSubscriptionView
+	ActiveProducts        int
+	PendingShipments      int
+	DeliveredShipments    int
+	TotalShipmentsCount   int
+	PendingOrdersTotal    money.Amount
+	MonthSales            money.Amount
+	WalletBalance         money.Amount
+	HasWallet             bool
+	LowStockCount         int
+	ActiveWarehousesCount int
+	Shipments             []*commerce.OrderShipment
+	LowStock              []*inventory.Stock
+	Offers                []*promo.Offer
+	UnreadQuotes          int
+	PendingDocRequests    []*attachments.DocumentRequest
+	Subscription          *OrgSubscriptionView
 }
 
 // AIPercentage returns the percentage of AI usage (0 - 100).

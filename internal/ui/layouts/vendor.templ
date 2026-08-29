@@ -179,6 +179,25 @@ templ VendorShell(title string, activeNav string, lang string, dir string) {
 						</a>
 					</div>
 
+					<!-- Group 7: الحساب والأمان -->
+					<div class="sidebar-group">
+						<div class="sidebar-section-header">
+							<span>الحساب والأمان</span>
+						</div>
+						<a href="/vendor/subscription" class={ "sidebar-link", templ.KV("active", activeNav == "subscription") }>
+							@components.IconSparkles("icon-sm")
+							<span>باقة الاشتراك والترقية</span>
+						</a>
+						<a href="/vendor/sessions" class={ "sidebar-link", templ.KV("active", activeNav == "sessions") }>
+							@components.IconShield("icon-sm")
+							<span>الأجهزة والجلسات النشطة</span>
+						</a>
+						<a href="/settings/profile" class={ "sidebar-link", templ.KV("active", activeNav == "profile" || activeNav == "settings") }>
+							@components.IconUser("icon-sm")
+							<span>الملف الشخصي والإعدادات</span>
+						</a>
+					</div>
+
 				</nav>
 			</aside>
 

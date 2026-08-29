@@ -369,3 +369,8 @@ func (m *mockRepo) GetSessionPlanByID(_ context.Context, _ int64) (*SessionPlan,
 func (m *mockRepo) SetMaxLoginSessions(_ context.Context, _ int64, _ int) error {
 	return nil
 }
+
+func (m *mockRepo) GetOrgPlanLimits(_ context.Context, _ int64) (int, int, string, error) {
+	return 3, 3, "الباقة الأساسية", nil
+}
+

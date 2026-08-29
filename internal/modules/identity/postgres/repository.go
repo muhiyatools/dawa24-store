@@ -404,3 +404,62 @@ func (r *Repository) ListUserOrganizations(ctx context.Context, userID int64) ([
 	})
 	return list, err
 }
+
+// GetOrgPlanLimits retrieves the active subscription's concurrent session & device limits for an organization.
+func (r *Repository) GetOrgPlanLimits(ctx context.Context, orgID int64) (maxSessions int, maxDevices int, planName string, err error) {
+	maxSessions = 3
+	maxDevices = 3
+	planName = "الباقة الأساسية"
+
+	err = r.db.InReadTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
+		if orgID > 0 {
+			// 1. Try active subscription for this organization
+			querySub := `
+				SELECT COALESCE(p.max_login_sessions, 3), COALESCE(p.max_devices, 3), COALESCE(p.name->>'ar', 'باقة اشتراك')
+				FROM billing.subscriptions s
+				JOIN billing.plans p ON s.plan_id = p.id
+				WHERE s.organization_id = $1 AND s.status = 'active' AND s.expires_at > now()
+				ORDER BY s.expires_at DESC
+				LIMIT 1;
+			`
+			var sMax, dMax int
+			var pName string
+			if qErr := tx.QueryRow(txCtx, querySub, orgID).Scan(&sMax, &dMax, &pName); qErr == nil {
+				if sMax > 0 {
+					maxSessions = sMax
+				}
+				if dMax > 0 {
+					maxDevices = dMax
+				}
+				if pName != "" {
+					planName = pName
+				}
+				return nil
+			}
+		}
+
+		// 2. Fallback to system default plan
+		queryDef := `
+			SELECT COALESCE(max_login_sessions, 3), COALESCE(max_devices, 3), COALESCE(name->>'ar', 'الباقة الأساسية')
+			FROM billing.plans
+			WHERE is_default = true AND is_active = true
+			ORDER BY id ASC
+			LIMIT 1;
+		`
+		var sMax, dMax int
+		var pName string
+		if qErr := tx.QueryRow(txCtx, queryDef).Scan(&sMax, &dMax, &pName); qErr == nil {
+			if sMax > 0 {
+				maxSessions = sMax
+			}
+			if dMax > 0 {
+				maxDevices = dMax
+			}
+			if pName != "" {
+				planName = pName
+			}
+		}
+		return nil
+	})
+	return maxSessions, maxDevices, planName, err
+}

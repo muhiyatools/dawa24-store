@@ -206,17 +206,6 @@ templ UnifiedSettingsPage(data UnifiedSettingsData, lang, dir string) {
 				<button
 					type="button"
 					class="tab-btn"
-					:class="{ 'active': activeTab === 'security' }"
-					@click="activeTab = 'security'; history.replaceState(null, null, '#security')"
-					data-tab-target="security"
-				>
-					@components.IconSettings("icon-xs")
-					<span>الأمان والجلسات</span>
-				</button>
-
-				<button
-					type="button"
-					class="tab-btn"
 					:class="{ 'active': activeTab === 'preferences' }"
 					@click="activeTab = 'preferences'; history.replaceState(null, null, '#preferences')"
 					data-tab-target="preferences"
@@ -337,6 +326,30 @@ templ UnifiedSettingsPage(data UnifiedSettingsData, lang, dir string) {
 						</button>
 					</div>
 				</form>
+
+				<!-- Danger Zone: Account Deletion Request -->
+				<div style="border-top:1px solid var(--danger-border); margin-top:2.5rem; padding-top:1.75rem;">
+					<div style="background:var(--danger-surface); border:1px solid var(--danger-border); border-radius:var(--radius-xl); padding:1.5rem; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1.25rem;">
+						<div>
+							<div style="display:flex; align-items:center; gap:0.5rem; color:var(--danger-text); font-weight:800; font-size:1.05rem;">
+								@components.IconTrash("icon-xs")
+								<span>طلب حذف الحساب وإنهاء النشاط</span>
+							</div>
+							<p style="font-size:0.85rem; color:var(--text-secondary); margin:0.35rem 0 0 0; line-height:1.5; max-width:620px;">
+								يمكنك تقديم طلب رسمي لإلغاء الحساب وحذف البيانات. ستتم مراجعة الطلب من إدارة المنصة والتحقق من تسوية المستحقات المالية وأوامر التوريد قبل إتمام الحذف.
+							</p>
+						</div>
+						<button
+							type="button"
+							class="btn btn-danger"
+							style="font-weight:800; padding:0.65rem 1.5rem;"
+							@click="isDeleteAccountModalOpen = true"
+						>
+							@components.IconTrash("icon-xs")
+							<span>تقديم طلب حذف الحساب</span>
+						</button>
+					</div>
+				</div>
 			</div>
 
 			<!-- Tab 2: Live United Wallet Section -->
@@ -1091,138 +1104,6 @@ templ UnifiedSettingsPage(data UnifiedSettingsData, lang, dir string) {
 					<div class="text-success">@components.IconCheckCircle("icon-sm")</div>
 					<div style="color:var(--success-text); font-weight:700; font-size:0.9rem;">
 						حساب المؤسسة موثق ومعتمد رسمياً للتوريد والشراء المباشر عبر منظومة دواء 24.
-					</div>
-				</div>
-			</div>
-
-			<!-- Tab 5: Security & Sessions -->
-			<div
-				id="tab-security"
-				class="tab-pane card"
-				:class="{ 'active': activeTab === 'security' }"
-				x-show="activeTab === 'security'"
-				style="padding:2.25rem;"
-			>
-				<h3 style="font-size:1.25rem; font-weight:800; color:var(--text); margin-bottom:1.5rem;">
-					الأمان وكلمة المرور والجلسات النشطة
-				</h3>
-
-				<div style="max-width:680px; margin-bottom:2.5rem; text-align:start;">
-					<h4 style="font-size:1.05rem; font-weight:800; color:var(--text); margin-bottom:1rem;">تحديث كلمة المرور</h4>
-					<form action="/settings/password" method="POST" class="stack">
-						<div class="form-group mb-0">
-							<label class="form-label">كلمة المرور الحالية</label>
-							<input type="password" name="current_password" required class="form-input" placeholder="••••••••" />
-						</div>
-
-						<div class="form-grid-2">
-							<div class="form-group mb-0">
-								<label class="form-label">كلمة المرور الجديدة</label>
-								<input type="password" name="new_password" required minlength="8" class="form-input" placeholder="••••••••" />
-							</div>
-							<div class="form-group mb-0">
-								<label class="form-label">تأكيد كلمة المرور الجديدة</label>
-								<input type="password" name="confirm_password" required minlength="8" class="form-input" placeholder="••••••••" />
-							</div>
-						</div>
-
-						<div style="margin-top:0.5rem;">
-							<button type="submit" class="btn btn-primary fw-800">
-								@components.IconCheck("icon-xs")
-								<span>تحديث كلمة المرور</span>
-							</button>
-						</div>
-					</form>
-				</div>
-
-				<div style="border-top:1px solid var(--border); padding-top:1.5rem;">
-					<h4 style="font-size:1.05rem; font-weight:800; color:var(--text); margin-bottom:1rem;">
-						الأجهزة والجلسات المتصلة حالياً
-					</h4>
-					<div style="display:flex; flex-direction:column; gap:0.75rem;">
-						for _, sess := range data.Sessions {
-							<div style="display:flex; justify-content:space-between; align-items:center; padding:1rem 1.25rem; border:1px solid var(--border); border-radius:var(--radius-lg); background:var(--surface-sunken);">
-								<div class="row-center">
-									<div class="b2b-icon-box-sm">
-										@components.IconSettings("icon-xs")
-									</div>
-									<div>
-										<div style="font-weight:700; font-size:0.9rem; color:var(--text);">{ sess.UserAgent }</div>
-										<div class="text-sm text-muted tabular-nums">
-											IP: { sess.IP } • متصل منذ { sess.CreatedAt.Format("2006-01-02 15:04") }
-										</div>
-									</div>
-								</div>
-								<form action="/settings/sessions/revoke" method="POST" class="m-0">
-									<input type="hidden" name="token" value={ sess.Token } />
-									<button type="submit" class="btn btn-danger btn-sm">إنهاء الجلسة</button>
-								</form>
-							</div>
-						}
-					</div>
-				</div>
-
-				<!-- Concurrent session cap. Merged in from the retired
-				     /settings/security page (PLAN_V7 Task 2.1). -->
-				<div style="border-top:1px solid var(--border); margin-top:1.75rem; padding-top:1.5rem;">
-					<h4 style="font-size:1.05rem; font-weight:800; color:var(--text); margin-bottom:0.35rem;">
-						الحد الأقصى للجلسات المتزامنة
-					</h4>
-					<p style="font-size:0.85rem; color:var(--text-secondary); margin:0 0 1rem 0; line-height:1.5;">
-						يحدد عدد الأجهزة التي يمكنها تسجيل الدخول لحسابك في نفس الوقت. عند تجاوز الحد يتم إنهاء أقدم جلسة.
-					</p>
-					if len(data.SessionPlans) == 0 {
-						@components.EmptyState(components.EmptyStateProps{
-							Title:   "لا توجد خطط جلسات متاحة",
-							Message: "لم تقم إدارة المنصة بتفعيل خطط الجلسات المتزامنة بعد.",
-						})
-					} else {
-						<div style="display:flex; flex-direction:column; gap:0.75rem;">
-							for _, plan := range data.SessionPlans {
-								<div style="display:flex; justify-content:space-between; align-items:center; gap:1rem; padding:1rem 1.25rem; border:1px solid var(--border); border-radius:var(--radius-lg); background:var(--surface-sunken);">
-									<div>
-										<div style="font-weight:700; font-size:0.9rem; color:var(--text);">{ plan.Name.Get(i18n.Lang(lang)) }</div>
-										<div class="text-sm text-muted tabular-nums">
-											{ fmt.Sprintf("%d", plan.MaxLoginSessions) } جلسة متزامنة
-										</div>
-									</div>
-									<form action={ templ.SafeURL(fmt.Sprintf("/settings/security/plan/%d", plan.ID)) } method="POST" class="m-0">
-										<button type="submit" class="btn btn-primary btn-sm">
-											if plan.IsFree {
-												تفعيل مجاناً
-											} else {
-												<span>اشترك · </span>
-												@components.MoneyDisplay(components.MoneyDisplayProps{Amount: plan.Price})
-											}
-										</button>
-									</form>
-								</div>
-							}
-						</div>
-					}
-				</div>
-
-				<!-- Danger Zone: Account Deletion Request -->
-				<div style="border-top:1px solid var(--danger-border); margin-top:2.5rem; padding-top:1.75rem;">
-					<div style="background:var(--danger-surface); border:1px solid var(--danger-border); border-radius:var(--radius-xl); padding:1.5rem; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1.25rem;">
-						<div>
-							<div style="display:flex; align-items:center; gap:0.5rem; color:var(--danger-text); font-weight:800; font-size:1.05rem;">
-								@components.IconTrash("icon-xs")
-								<span>طلب حذف الحساب وإنهاء النشاط</span>
-							</div>
-							<p style="font-size:0.85rem; color:var(--text-secondary); margin:0.35rem 0 0 0; line-height:1.5; max-width:620px;">
-								يمكنك تقديم طلب رسمي لإلغاء الحساب وحذف البيانات. ستتم مراجعة الطلب من إدارة المنصة والتحقق من تسوية المستحقات المالية وأوامر التوريد قبل إتمام الحذف.
-							</p>
-						</div>
-						<button
-							type="button"
-							class="btn btn-danger"
-							style="font-weight:800; padding:0.65rem 1.5rem;"
-							@click="isDeleteAccountModalOpen = true"
-						>
-							@components.IconTrash("icon-xs")
-							<span>تقديم طلب حذف الحساب</span>
-						</button>
 					</div>
 				</div>
 			</div>

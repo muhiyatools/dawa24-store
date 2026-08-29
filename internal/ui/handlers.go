@@ -433,6 +433,12 @@ func (h *UIHandler) RegisterCustomerRoutes(r chi.Router) {
 		http.Redirect(w, r, "/customer/subscription", http.StatusMovedPermanently)
 	})
 
+	// Sessions & Device Security
+	r.Get("/customer/sessions", h.TenantSessionsPage)
+	r.Post("/customer/sessions/revoke", h.TenantSessionRevokeSubmit)
+	r.Post("/customer/sessions/revoke-all", h.TenantSessionRevokeAllSubmit)
+	r.Post("/customer/password", h.TenantPasswordChangeSubmit)
+
 	// Decision Memory (ذاكرة قرارات المطابقة - التوليد آلي فقط)
 	r.Get("/customer/decision-memory", h.CustomerDecisionMemoryPage)
 	r.Post("/customer/decision-memory/{id}/delete", h.CustomerDecisionMemoryDeleteSubmit)
@@ -445,6 +451,13 @@ func (h *UIHandler) RegisterVendorRoutes(r chi.Router) {
 	r.Get("/vendor/dashboard", h.VendorDashboardPage)
 	r.Get("/vendor/subscription", h.TenantSubscriptionPage)
 	r.Post("/vendor/subscription/checkout", h.TenantSubscriptionCheckoutSubmit)
+
+	// Sessions & Device Security
+	r.Get("/vendor/sessions", h.TenantSessionsPage)
+	r.Post("/vendor/sessions/revoke", h.TenantSessionRevokeSubmit)
+	r.Post("/vendor/sessions/revoke-all", h.TenantSessionRevokeAllSubmit)
+	r.Post("/vendor/password", h.TenantPasswordChangeSubmit)
+
 	r.Get("/vendor/organization", h.VendorOrganizationPage)
 	r.Post("/vendor/organization", h.VendorOrganizationSubmit)
 	r.Get("/vendor/settings/organization", h.VendorOrganizationPage)

@@ -131,6 +131,9 @@ func (r stubRepo) ReviewAccountDeletionRequest(context.Context, int64, int64, bo
 	r.fail("ReviewAccountDeletionRequest")
 	return nil
 }
+func (r stubRepo) GetOrgPlanLimits(context.Context, int64) (int, int, string, error) {
+	return 3, 3, "الباقة الأساسية", nil
+}
 
 type happyRepo struct{}
 
@@ -269,6 +272,9 @@ func (happyRepo) ListAccountDeletionRequests(ctx context.Context, status string)
 }
 func (happyRepo) ReviewAccountDeletionRequest(ctx context.Context, requestID, reviewerID int64, approve bool, adminNotes string) error {
 	return nil
+}
+func (happyRepo) GetOrgPlanLimits(ctx context.Context, orgID int64) (int, int, string, error) {
+	return 3, 3, "الباقة الأساسية", nil
 }
 
 const testCookieName = "dawa24_session"

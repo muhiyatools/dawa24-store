@@ -78,7 +78,22 @@ func (h *UIHandler) LoginPage(w http.ResponseWriter, r *http.Request) {
 	}
 
 	lang, dir := h.localeAndDir(r)
-	errorMsg := r.URL.Query().Get("error")
+	errorKey := r.URL.Query().Get("error")
+	var errorMsg string
+	switch errorKey {
+	case "concurrent_limit", "session_evicted":
+		errorMsg = "تم إنهاء جلستك تلقائياً نظراً لتسجيل الدخول من جهاز آخر وتجاوز الحد الأقصى للجلسات المتزامنة المصرح بها في باقة المنشأة. يمكنك تسجيل الدخول مجدداً أو ترقية باقة الاشتراك لزيادة عدد الأجهزة."
+	case "invalid_credentials":
+		errorMsg = "البريد الإلكتروني أو كلمة المرور غير صحيحة."
+	case "locked":
+		errorMsg = "الحساب مقفل مؤقتاً بسبب تكرار محاولات الدخول الخاطئة."
+	case "mfa_unavailable":
+		errorMsg = "المصادقة الثنائية غير متاحة حالياً."
+	case "auth_service_unavailable":
+		errorMsg = "خدمة تسجيل الدخول غير متاحة حالياً."
+	default:
+		errorMsg = errorKey
+	}
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 	if err := pages.LoginPage(lang, dir, errorMsg).Render(ctx, w); err != nil {
@@ -153,6 +168,7 @@ func (h *UIHandler) LoginSubmit(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	email := r.PostFormValue("email")
 	password := r.PostFormValue("password")
+	rememberMe := r.PostFormValue("remember_me")
 	redirectURL := r.URL.Query().Get("redirect")
 
 	if h.idSvc == nil {
@@ -185,6 +201,11 @@ func (h *UIHandler) LoginSubmit(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	maxAge := 86400 * 30 // Default remember-me: 30 days
+	if rememberMe == "0" || rememberMe == "false" {
+		maxAge = 86400 // 1 day session
+	}
+
 	if res.Session != nil {
 		http.SetCookie(w, &http.Cookie{
 			Name:     "dawa24_session",
@@ -192,7 +213,7 @@ func (h *UIHandler) LoginSubmit(w http.ResponseWriter, r *http.Request) {
 			Path:     "/",
 			HttpOnly: true,
 			SameSite: http.SameSiteLaxMode,
-			MaxAge:   86400 * 30,
+			MaxAge:   maxAge,
 		})
 
 		if res.Session.ActiveOrgID > 0 {

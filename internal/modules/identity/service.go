@@ -214,6 +214,16 @@ func (s *Service) Login(ctx context.Context, input LoginInput) (*LoginResult, er
 		permissions = []string{}
 	}
 
+	// Resolve dynamic plan concurrency limit:
+	maxSessions := 3
+	if maxS, _, _, err := s.repo.GetOrgPlanLimits(ctx, orgID); err == nil && maxS > 0 {
+		maxSessions = maxS
+	} else if sec.MaxLoginSessions != nil && *sec.MaxLoginSessions > 0 {
+		maxSessions = *sec.MaxLoginSessions
+	}
+
+	dev := ParseUserAgentDevice(input.UserAgent, input.IP)
+
 	sess := &Session{
 		UserID:           user.ID,
 		PublicID:         user.PublicID,
@@ -225,7 +235,12 @@ func (s *Service) Login(ctx context.Context, input LoginInput) (*LoginResult, er
 		Permissions:      permissions,
 		IP:               input.IP,
 		UserAgent:        input.UserAgent,
-		MaxLoginSessions: sec.MaxLoginSessions,
+		DeviceName:       dev.DeviceName,
+		DeviceType:       dev.DeviceType,
+		Browser:          dev.Browser,
+		OS:               dev.OS,
+		Icon:             dev.Icon,
+		MaxLoginSessions: &maxSessions,
 	}
 
 	if s.sessionStore != nil {
@@ -234,7 +249,7 @@ func (s *Service) Login(ctx context.Context, input LoginInput) (*LoginResult, er
 		}
 	}
 
-	s.log.InfoContext(ctx, "user logged in", "user_id", user.ID, "active_org", orgID)
+	s.log.InfoContext(ctx, "user logged in", "user_id", user.ID, "active_org", orgID, "device", dev.DeviceName, "max_sessions", maxSessions)
 	return &LoginResult{
 		User:    user,
 		Session: sess,
@@ -287,6 +302,14 @@ func (s *Service) ListSessions(ctx context.Context, userID int64) ([]*Session, e
 	return s.sessionStore.ListForUser(ctx, userID)
 }
 
+// ListOrgSessions returns all active sessions across an entire organization, newest first.
+func (s *Service) ListOrgSessions(ctx context.Context, orgID int64) ([]*Session, error) {
+	if s.sessionStore == nil {
+		return nil, nil
+	}
+	return s.sessionStore.ListForOrg(ctx, orgID)
+}
+
 // RevokeSession invalidates one of the user's own sessions.
 func (s *Service) RevokeSession(ctx context.Context, token string, userID int64) error {
 	if s.sessionStore == nil {
@@ -300,6 +323,42 @@ func (s *Service) RevokeSession(ctx context.Context, token string, userID int64)
 		return apperr.Forbidden("session.not_owner", "You can only revoke your own sessions.")
 	}
 	return s.sessionStore.Delete(ctx, token)
+}
+
+// RevokeOrgSession invalidates a session belonging to an organization.
+func (s *Service) RevokeOrgSession(ctx context.Context, orgID int64, token string) error {
+	if s.sessionStore == nil {
+		return nil
+	}
+	sess, err := s.sessionStore.Get(ctx, token)
+	if err != nil {
+		return err
+	}
+	if sess.ActiveOrgID != orgID {
+		return apperr.Forbidden("session.not_org_member", "You can only revoke sessions belonging to your organization.")
+	}
+	return s.sessionStore.Delete(ctx, token)
+}
+
+// RevokeAllOtherOrgSessions revokes all sessions belonging to the organization EXCEPT the current token.
+func (s *Service) RevokeAllOtherOrgSessions(ctx context.Context, orgID int64, currentToken string) error {
+	if s.sessionStore == nil {
+		return nil
+	}
+	return s.sessionStore.DeleteAllOtherForOrg(ctx, orgID, currentToken)
+}
+
+// RevokeAllOtherUserSessions revokes all sessions belonging to the user EXCEPT the current token.
+func (s *Service) RevokeAllOtherUserSessions(ctx context.Context, userID int64, currentToken string) error {
+	if s.sessionStore == nil {
+		return nil
+	}
+	return s.sessionStore.DeleteAllOtherForUser(ctx, userID, currentToken)
+}
+
+// GetOrgPlanLimits returns the concurrent session and device quotas for an organization.
+func (s *Service) GetOrgPlanLimits(ctx context.Context, orgID int64) (maxSessions int, maxDevices int, planName string, err error) {
+	return s.repo.GetOrgPlanLimits(ctx, orgID)
 }
 
 // ValidateSession verifies a session token.

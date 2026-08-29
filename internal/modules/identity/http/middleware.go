@@ -2,6 +2,7 @@ package http
 
 import (
 	"context"
+	"errors"
 	"log/slog"
 	"net/http"
 	"net/url"
@@ -53,6 +54,10 @@ func RequireAuth(service *identity.Service, cookieName string, log *slog.Logger)
 				if r.Method == http.MethodGet && strings.Contains(r.Header.Get("Accept"), "text/html") {
 					q := url.Values{}
 					q.Set("redirect", r.URL.RequestURI())
+					var appErr *apperr.Error
+					if errors.Is(err, identity.ErrSessionEvictedConcurrentLimit) || (errors.As(err, &appErr) && appErr.Code == "session.evicted_concurrent_limit") {
+						q.Set("error", "concurrent_limit")
+					}
 					http.Redirect(w, r, "/auth/login?"+q.Encode(), http.StatusSeeOther)
 					return
 				}

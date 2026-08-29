@@ -20,19 +20,25 @@ import (
 
 // Session holds the active user session stored in Redis.
 type Session struct {
-	Token       string    `json:"token"`
-	UserID      int64     `json:"user_id"`
-	PublicID    string    `json:"public_id"`
-	Email       string    `json:"email"`
-	Role        string    `json:"role"`
-	ActiveOrgID int64     `json:"active_org_id,omitempty"`
-	OrgType     string    `json:"org_type,omitempty"`
-	OrgStatus   string    `json:"org_status,omitempty"`
-	Permissions []string  `json:"permissions"`
-	CreatedAt   time.Time `json:"created_at"`
-	ExpiresAt   time.Time `json:"expires_at"`
-	IP          string    `json:"ip,omitempty"`
-	UserAgent   string    `json:"user_agent,omitempty"`
+	Token            string    `json:"token"`
+	UserID           int64     `json:"user_id"`
+	PublicID         string    `json:"public_id"`
+	Email            string    `json:"email"`
+	Role             string    `json:"role"`
+	ActiveOrgID      int64     `json:"active_org_id,omitempty"`
+	OrgType          string    `json:"org_type,omitempty"`
+	OrgStatus        string    `json:"org_status,omitempty"`
+	Permissions      []string  `json:"permissions"`
+	CreatedAt        time.Time `json:"created_at"`
+	ExpiresAt        time.Time `json:"expires_at"`
+	IP               string    `json:"ip,omitempty"`
+	UserAgent        string    `json:"user_agent,omitempty"`
+	DeviceName       string    `json:"device_name,omitempty"`
+	DeviceType       string    `json:"device_type,omitempty"`
+	Browser          string    `json:"browser,omitempty"`
+	OS               string    `json:"os,omitempty"`
+	Icon             string    `json:"icon,omitempty"`
+	LastActiveAt     time.Time `json:"last_active_at,omitempty"`
 	// MaxLoginSessions, when set, is the concurrent-sign-in limit enforced by
 	// SessionStore.Create (evicting the oldest session beyond the limit).
 	MaxLoginSessions *int `json:"max_login_sessions,omitempty"`
@@ -81,6 +87,10 @@ func sessionKey(token string) string {
 	return fmt.Sprintf("session:%s", token)
 }
 
+func sessionEvictedKey(token string) string {
+	return fmt.Sprintf("session_evicted:%s", token)
+}
+
 func userSessionsKey(userID int64) string {
 	return fmt.Sprintf("user_sessions:%d", userID)
 }
@@ -100,6 +110,7 @@ func (s *SessionStore) Create(ctx context.Context, sess *Session) error {
 	}
 
 	sess.CreatedAt = time.Now().UTC()
+	sess.LastActiveAt = sess.CreatedAt
 	sess.ExpiresAt = sess.CreatedAt.Add(s.ttl)
 
 	data, err := json.Marshal(sess)
@@ -168,9 +179,11 @@ func (s *SessionStore) enforceOrgLimit(ctx context.Context, orgID int64, max int
 
 	toEvict := len(sessions) - max
 	for i := 0; i < toEvict && i < len(sessions); i++ {
-		_ = rdb.SRem(ctx, orgSessionsKey(orgID), sessions[i].token)
-		_ = rdb.SRem(ctx, userSessionsKey(sessions[i].userID), sessions[i].token)
-		_ = rdb.Del(ctx, sessionKey(sessions[i].token))
+		tok := sessions[i].token
+		_ = rdb.Set(ctx, sessionEvictedKey(tok), "concurrent_limit", 24*time.Hour).Err()
+		_ = rdb.SRem(ctx, orgSessionsKey(orgID), tok)
+		_ = rdb.SRem(ctx, userSessionsKey(sessions[i].userID), tok)
+		_ = rdb.Del(ctx, sessionKey(tok))
 	}
 	return nil
 }
@@ -201,8 +214,10 @@ func (s *SessionStore) enforceLimit(ctx context.Context, userID int64, max int) 
 
 	toEvict := len(sessions) - max
 	for i := 0; i < toEvict && i < len(sessions); i++ {
-		_ = rdb.SRem(ctx, userSessionsKey(userID), sessions[i].token)
-		_ = rdb.Del(ctx, sessionKey(sessions[i].token))
+		tok := sessions[i].token
+		_ = rdb.Set(ctx, sessionEvictedKey(tok), "concurrent_limit", 24*time.Hour).Err()
+		_ = rdb.SRem(ctx, userSessionsKey(userID), tok)
+		_ = rdb.Del(ctx, sessionKey(tok))
 	}
 	return nil
 }
@@ -214,6 +229,26 @@ func (s *SessionStore) ListForUser(ctx context.Context, userID int64) ([]*Sessio
 		return nil, err
 	}
 	tokens, err := rdb.SMembers(ctx, userSessionsKey(userID)).Result()
+	if err != nil && !errors.Is(err, redis.Nil) {
+		return nil, apperr.Unavailable("redis", err)
+	}
+	var list []*Session
+	for _, tok := range tokens {
+		if sess, err := s.Get(ctx, tok); err == nil && sess != nil {
+			list = append(list, sess)
+		}
+	}
+	sort.Slice(list, func(i, j int) bool { return list[i].CreatedAt.After(list[j].CreatedAt) })
+	return list, nil
+}
+
+// ListForOrg returns all live sessions across an entire organization, newest first.
+func (s *SessionStore) ListForOrg(ctx context.Context, orgID int64) ([]*Session, error) {
+	rdb, err := s.client()
+	if err != nil {
+		return nil, err
+	}
+	tokens, err := rdb.SMembers(ctx, orgSessionsKey(orgID)).Result()
 	if err != nil && !errors.Is(err, redis.Nil) {
 		return nil, apperr.Unavailable("redis", err)
 	}
@@ -240,6 +275,10 @@ func (s *SessionStore) Get(ctx context.Context, token string) (*Session, error) 
 	val, err := rdb.Get(ctx, sessionKey(token)).Bytes()
 	if err != nil {
 		if errors.Is(err, redis.Nil) {
+			// Check if this token was evicted due to concurrent session limit
+			if reason, evErr := rdb.Get(ctx, sessionEvictedKey(token)).Result(); evErr == nil && reason == "concurrent_limit" {
+				return nil, ErrSessionEvictedConcurrentLimit
+			}
 			return nil, apperr.Unauthorized()
 		}
 		return nil, apperr.Unavailable("redis", err)
@@ -297,6 +336,44 @@ func (s *SessionStore) DeleteAllForUser(ctx context.Context, userID int64) error
 		keys = append(keys, userSessionsKey(userID))
 		if err := rdb.Del(ctx, keys...).Err(); err != nil {
 			return apperr.Unavailable("redis", err)
+		}
+	}
+	return nil
+}
+
+// DeleteAllOtherForOrg revokes all active sessions for an organization EXCEPT the given current token.
+func (s *SessionStore) DeleteAllOtherForOrg(ctx context.Context, orgID int64, currentToken string) error {
+	rdb, err := s.client()
+	if err != nil {
+		return err
+	}
+	tokens, err := rdb.SMembers(ctx, orgSessionsKey(orgID)).Result()
+	if err != nil && !errors.Is(err, redis.Nil) {
+		return apperr.Unavailable("redis", err)
+	}
+
+	for _, tok := range tokens {
+		if tok != currentToken && tok != "" {
+			_ = s.Delete(ctx, tok)
+		}
+	}
+	return nil
+}
+
+// DeleteAllOtherForUser revokes all active sessions for a user EXCEPT the given current token.
+func (s *SessionStore) DeleteAllOtherForUser(ctx context.Context, userID int64, currentToken string) error {
+	rdb, err := s.client()
+	if err != nil {
+		return err
+	}
+	tokens, err := rdb.SMembers(ctx, userSessionsKey(userID)).Result()
+	if err != nil && !errors.Is(err, redis.Nil) {
+		return apperr.Unavailable("redis", err)
+	}
+
+	for _, tok := range tokens {
+		if tok != currentToken && tok != "" {
+			_ = s.Delete(ctx, tok)
 		}
 	}
 	return nil

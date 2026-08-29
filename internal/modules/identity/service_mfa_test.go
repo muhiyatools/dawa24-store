@@ -221,3 +221,54 @@ func TestSessionStore_Unit(t *testing.T) {
 		t.Errorf("expected unavailable error on DeleteAllForUser with nil cache, got %v", err)
 	}
 }
+
+func TestParseUserAgentDevice(t *testing.T) {
+	cases := []struct {
+		ua       string
+		wantType string
+		wantOS   string
+		wantBr   string
+	}{
+		{
+			ua:       "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+			wantType: "desktop",
+			wantOS:   "Windows",
+			wantBr:   "Chrome",
+		},
+		{
+			ua:       "Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile/15E148 Safari/604.1",
+			wantType: "mobile",
+			wantOS:   "iOS (iPhone)",
+			wantBr:   "Safari",
+		},
+		{
+			ua:       "Mozilla/5.0 (Linux; Android 14; SM-S918B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36",
+			wantType: "mobile",
+			wantOS:   "Android",
+			wantBr:   "Chrome",
+		},
+		{
+			ua:       "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.0 Safari/605.1.15",
+			wantType: "desktop",
+			wantOS:   "macOS",
+			wantBr:   "Safari",
+		},
+	}
+
+	for _, tc := range cases {
+		det := ParseUserAgentDevice(tc.ua, "127.0.0.1")
+		if det.DeviceType != tc.wantType {
+			t.Errorf("ua=%q: got type %s, want %s", tc.ua, det.DeviceType, tc.wantType)
+		}
+		if det.OS != tc.wantOS {
+			t.Errorf("ua=%q: got os %s, want %s", tc.ua, det.OS, tc.wantOS)
+		}
+		if det.Browser != tc.wantBr {
+			t.Errorf("ua=%q: got browser %s, want %s", tc.ua, det.Browser, tc.wantBr)
+		}
+		if det.DeviceName == "" {
+			t.Errorf("ua=%q: expected non-empty device name", tc.ua)
+		}
+	}
+}
+

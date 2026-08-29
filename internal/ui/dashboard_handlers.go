@@ -242,6 +242,16 @@ func (h *UIHandler) VendorDashboardPage(w http.ResponseWriter, r *http.Request) 
 		Subscription: h.loadOrgSubscriptionView(ctx, actor, lang),
 	}
 
+	if h.orgSvc != nil && actor.OrganizationID > 0 {
+		if branches, err := h.orgSvc.ListBranches(ctx, actor.OrganizationID); err == nil {
+			for _, b := range branches {
+				if b != nil && (b.Status == "active" || b.Status == "") {
+					data.ActiveWarehousesCount++
+				}
+			}
+		}
+	}
+
 	if h.attSvc != nil && actor.OrganizationID > 0 {
 		if reqs, err := h.attSvc.ListDocumentRequests(ctx, actor, &actor.OrganizationID); err == nil {
 			for _, reqItem := range reqs {
@@ -253,8 +263,6 @@ func (h *UIHandler) VendorDashboardPage(w http.ResponseWriter, r *http.Request) 
 	}
 
 	if h.catSvc != nil {
-		// A COUNT, not the length of a page. Counting a page capped at 100 rows
-		// reports the cap once a supplier passes it, and reads as a real figure.
 		if n, err := h.catSvc.CountProductsByOrg(ctx, actor.OrganizationID, string(catalog.StatusActive)); err != nil {
 			h.log.ErrorContext(ctx, "vendor dashboard: count products", "error", err)
 		} else {
@@ -263,22 +271,24 @@ func (h *UIHandler) VendorDashboardPage(w http.ResponseWriter, r *http.Request) 
 	}
 
 	if h.commSvc != nil {
-		// The total is counted; the panel below shows only the newest ten, so
-		// the list stays a page while the figure stays a figure.
-		if n, err := h.commSvc.CountVendorShipmentsByStatus(ctx, actor.OrganizationID,
-			[]string{string(commerce.StatusPending), string(commerce.StatusConfirmed)}); err != nil {
-			h.log.ErrorContext(ctx, "vendor dashboard: count shipments", "error", err)
-		} else {
-			data.PendingShipments = n
-		}
-		if shipments, err := h.commSvc.ListVendorShipments(ctx, actor.OrganizationID, 10, 0); err != nil {
+		if shipments, err := h.commSvc.ListVendorShipments(ctx, actor.OrganizationID, 150, 0); err != nil {
 			h.log.WarnContext(ctx, "vendor dashboard: list shipments", "error", err)
 		} else {
+			data.TotalShipmentsCount = len(shipments)
 			for _, sh := range shipments {
-				if sh.Status == commerce.StatusPending || sh.Status == commerce.StatusConfirmed {
-					data.Shipments = append(data.Shipments, sh)
+				if sh == nil {
+					continue
+				}
+				if sh.Status == commerce.StatusDelivered || sh.Status == commerce.StatusCompleted {
+					data.DeliveredShipments++
+				} else if sh.Status == commerce.StatusPending || sh.Status == commerce.StatusConfirmed || sh.Status == commerce.StatusProcessing {
+					data.PendingOrdersTotal, _ = data.PendingOrdersTotal.Add(sh.TotalAmount)
+					if len(data.Shipments) < 12 {
+						data.Shipments = append(data.Shipments, sh)
+					}
 				}
 			}
+			data.PendingShipments = len(data.Shipments)
 		}
 		if total, err := h.commSvc.MonthSalesByVendor(ctx, actor.OrganizationID); err != nil {
 			h.log.WarnContext(ctx, "vendor dashboard: month sales", "error", err)
@@ -315,7 +325,6 @@ func (h *UIHandler) VendorDashboardPage(w http.ResponseWriter, r *http.Request) 
 
 	if h.billSvc != nil {
 		if wallet, err := h.billSvc.GetWallet(ctx, actor.UserID, "EGP"); err != nil {
-			// Wallet lookup error (e.g. no wallet created yet) is logged as debug
 			h.log.DebugContext(ctx, "vendor dashboard: get wallet optional", "error", err)
 		} else if wallet != nil {
 			data.WalletBalance = wallet.Balance
