@@ -173,7 +173,7 @@ templ AdminPlansHub(data AdminPlansData, lang, dir string) {
 											<div style="display:flex; justify-content:space-between; align-items:flex-start; gap:0.5rem; margin-bottom:0.75rem;">
 												<div style="display:flex; flex-direction:column; gap:0.25rem;">
 													<div style="display:flex; align-items:center; gap:0.5rem; flex-wrap:wrap;">
-														<h3 style="font-size:1.25rem; font-weight:800; margin:0; color:var(--text);">
+														<h3 style="margin:0; font-size:1.15rem; font-weight:800; color:var(--text);">
 															{ p.Name.Get(i18n.Lang(lang)) }
 														</h3>
 														if p.IsDefault {
@@ -258,23 +258,6 @@ templ AdminPlansHub(data AdminPlansData, lang, dir string) {
 															{ p.AIPlanID }
 														</span>
 													</div>
-
-													<!-- Gated Feature Entitlements -->
-													<div style="border-top:1px dashed var(--border); padding-top:0.5rem; margin-top:0.25rem; display:flex; flex-direction:column; gap:0.4rem;">
-														<span style="color:var(--text-secondary); font-size:0.75rem; font-weight:700;">صلاحيات وميزات الباقة:</span>
-														<div style="display:flex; flex-wrap:wrap; gap:0.35rem;">
-															if p.HasFeature("feature_market_discounts") {
-																<span class="badge badge-emerald text-xs font-bold">🛒 خصومات السوق العامة ✓</span>
-															} else {
-																<span class="badge badge-secondary text-xs" style="opacity:0.55;">بدون خصومات السوق</span>
-															}
-															if p.HasFeature("feature_compare_tool") || p.HasFeature("compare") {
-																<span class="badge badge-indigo text-xs font-bold">📊 أداة مقارنة الخصومات ✓</span>
-															} else {
-																<span class="badge badge-secondary text-xs" style="opacity:0.55;">بدون أداة المقارنة</span>
-															}
-														</div>
-													</div>
 												</div>
 											</div>
 
@@ -296,7 +279,7 @@ templ AdminPlansHub(data AdminPlansData, lang, dir string) {
 														</div>
 													}
 
-													if p.HasFeature("feature_compare_tool") {
+													if p.HasFeature("feature_compare_tool") || p.HasFeature("compare") {
 														<div class="d-flex items-center gap-2 text-indigo font-bold">
 															<span>✓</span>
 															<span>📊 (للموردين) أداة مقارنة الخصومات</span>
@@ -318,11 +301,7 @@ templ AdminPlansHub(data AdminPlansData, lang, dir string) {
 												class="btn btn-secondary btn-sm"
 												style="font-weight:700; width:100%; justify-content:center; gap:0.4rem;"
 												@click={ fmt.Sprintf("openEditModal({id:%d, slug:'%s', name_ar:'%s', name_en:'%s', desc_ar:'%s', price_month:'%s', price_year:'%s', duration:%d, sessions:%d, devices:%d, ai_plan:'%s', is_default:%t, is_active:%t, feat_market:%t, feat_compare:%t})",
-<<<<<<< HEAD
-													p.ID, p.Slug, p.Name.Get("ar"), p.Name.Get("en"), p.Description.Get("ar"), p.PriceMonth.String(), p.PriceYear.String(), p.DurationDays, p.MaxLoginSessions, p.MaxDevices, p.AIPlanID, p.IsDefault, p.IsActive, p.HasFeature("feature_market_discounts"), p.HasFeature("feature_compare_tool")) }
-=======
 													p.ID, p.Slug, p.Name.Get("ar"), p.Name.Get("en"), p.Description.Get("ar"), p.PriceMonth.String(), p.PriceYear.String(), p.DurationDays, p.MaxLoginSessions, p.MaxDevices, p.AIPlanID, p.IsDefault, p.IsActive, p.HasFeature("feature_market_discounts"), p.HasFeature("feature_compare_tool") || p.HasFeature("compare")) }
->>>>>>> c32273dd29cf05a8f216cda373a4a47c316ba190
 											>
 												@components.IconEdit("icon-xs")
 												<span>تعديل إعدادات وصلاحيات الباقة</span>
@@ -437,7 +416,6 @@ templ AdminPlansHub(data AdminPlansData, lang, dir string) {
 							</div>
 						</div>
 
-<<<<<<< HEAD
 						<!-- Vendor Features Access Control Section -->
 						<div style="display:flex; flex-direction:column; gap:0.75rem; font-size:0.875rem; border-top:1px solid var(--border); padding-top:0.9rem;">
 							<div style="font-size:0.8rem; font-weight:800; color:var(--primary); display:flex; align-items:center; gap:0.4rem;">
@@ -458,28 +436,6 @@ templ AdminPlansHub(data AdminPlansData, lang, dir string) {
 								<div>
 									<strong style="color:var(--text); display:block;">📊 (خاص بالموردين) إتاحة الوصول إلى: أداة مقارنة الخصومات الخاصة وتحليل العروض</strong>
 									<span class="text-xs text-secondary">تمكين المورد من تشغيل أداة المقارنة المتقدمة للملفات وخصومات الموردين</span>
-=======
-						<!-- Feature Gating Section -->
-						<div style="background:rgba(59, 130, 246, 0.05); border:1px solid rgba(59, 130, 246, 0.25); border-radius:var(--radius-lg); padding:1rem; display:flex; flex-direction:column; gap:0.75rem;">
-							<div style="font-size:0.85rem; font-weight:800; color:var(--primary); display:flex; align-items:center; gap:0.4rem;">
-								<span>🔐</span>
-								<span>صلاحيات الوصول للأقسام والميزات المتقدمة</span>
-							</div>
-
-							<label style="display:flex; gap:0.6rem; align-items:flex-start; cursor:pointer; background:var(--surface); padding:0.6rem 0.85rem; border-radius:var(--radius-md); border:1px solid var(--border);">
-								<input type="checkbox" name="feature_market_discounts" value="1" x-model="form.feat_market" style="margin-top:0.2rem;" />
-								<div>
-									<strong style="color:var(--text); font-size:0.85rem; display:block;">🛒 إتاحة الوصول إلى: خصومات السوق العامة (Public Market Discounts)</strong>
-									<span class="text-xs text-secondary">تمكين المشتركين في هذه الباقة من تصفح عروض وخصومات السوق العامة ومؤشرات الأسعار الحية</span>
-								</div>
-							</label>
-
-							<label style="display:flex; gap:0.6rem; align-items:flex-start; cursor:pointer; background:var(--surface); padding:0.6rem 0.85rem; border-radius:var(--radius-md); border:1px solid var(--border);">
-								<input type="checkbox" name="feature_compare_tool" value="1" x-model="form.feat_compare" style="margin-top:0.2rem;" />
-								<div>
-									<strong style="color:var(--text); font-size:0.85rem; display:block;">📊 إتاحة الوصول إلى: أداة مقارنة الخصومات الخاصة (Private Comparison Tool)</strong>
-									<span class="text-xs text-secondary">تمكين المشتركين من رفع ملفات الخصومات ومقارنة أسعار الموردين تلقائياً عبر الأداة الثلاثية</span>
->>>>>>> c32273dd29cf05a8f216cda373a4a47c316ba190
 								</div>
 							</label>
 						</div>

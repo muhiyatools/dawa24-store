@@ -164,7 +164,6 @@ func run() error {
 		fmt.Println("database: ok")
 		return nil
 
-<<<<<<< HEAD
 	case "dump-plans":
 		billRepo := billingPostgres.NewRepository(db)
 		plans, err := billRepo.ListPlans(ctx)
@@ -177,10 +176,9 @@ func run() error {
 				p.ID, p.Slug, p.Name.Get("ar"), p.PriceMonth.String(), p.PriceYear.String(), p.IsDefault, p.IsActive, p.Features)
 		}
 		return nil
-=======
+
 	case "corpus-export":
 		return exportCorpus(ctx, db)
->>>>>>> c32273dd29cf05a8f216cda373a4a47c316ba190
 
 	default:
 		fmt.Print(usage())

@@ -353,51 +353,6 @@ func (r *Repository) GetPlanBySlug(ctx context.Context, slug string) (*billing.P
 	return &p, nil
 }
 
-// CheckOrgEntitlement verifies whether an active subscription belonging to the organization or user grants access to featureKey.
-func (r *Repository) CheckOrgEntitlement(ctx context.Context, orgID, userID int64, featureKey string) (bool, error) {
-	var allowed bool
-	err := r.db.InReadTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
-		// 1. First check explicit active subscription for the org / user
-		query := `
-			SELECT EXISTS (
-				SELECT 1
-				FROM billing.subscriptions s
-				JOIN billing.plan_features pf ON pf.plan_id = s.plan_id
-				WHERE (
-					($1 > 0 AND s.organization_id = $1)
-					OR ($2 > 0 AND s.user_id = $2)
-				)
-				AND s.status = 'active'
-				AND s.starts_at <= now()
-				AND s.expires_at > now()
-				AND pf.feature_key = $3
-				AND pf.value IN ('true', '1', 'enabled')
-			);
-		`
-		if err := tx.QueryRow(txCtx, query, orgID, userID, featureKey).Scan(&allowed); err != nil {
-			return err
-		}
-		if allowed {
-			return nil
-		}
-
-		// 2. Fallback to default active plan features if no custom subscription was found
-		defaultPlanQuery := `
-			SELECT EXISTS (
-				SELECT 1
-				FROM billing.plans p
-				JOIN billing.plan_features pf ON pf.plan_id = p.id
-				WHERE p.is_default = true
-				AND p.is_active = true
-				AND pf.feature_key = $1
-				AND pf.value IN ('true', '1', 'enabled')
-			);
-		`
-		return tx.QueryRow(txCtx, defaultPlanQuery, featureKey).Scan(&allowed)
-	})
-	return allowed, err
-}
-
 // CreateSubscription activates a subscription for a user/org.
 func (r *Repository) CreateSubscription(ctx context.Context, sub *billing.Subscription) error {
 	return r.db.InTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {

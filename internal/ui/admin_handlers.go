@@ -1849,22 +1849,15 @@ func (h *UIHandler) AdminPlanSubmit(w http.ResponseWriter, r *http.Request) {
 
 	features := map[string]string{}
 	if r.PostFormValue("feature_market_discounts") == "1" || r.PostFormValue("feature_market_discounts") == "true" {
-<<<<<<< HEAD
 		features[billing.FeatureMarketDiscounts] = "true"
+	} else {
+		features[billing.FeatureMarketDiscounts] = "false"
 	}
 	if r.PostFormValue("feature_compare_tool") == "1" || r.PostFormValue("feature_compare_tool") == "true" || r.PostFormValue("is_compare") == "1" {
 		features[billing.FeatureCompareTool] = "true"
-=======
-		features["feature_market_discounts"] = "true"
-	} else {
-		features["feature_market_discounts"] = "false"
-	}
-	if r.PostFormValue("feature_compare_tool") == "1" || r.PostFormValue("feature_compare_tool") == "true" || r.PostFormValue("is_compare") == "1" {
-		features["feature_compare_tool"] = "true"
 		features["compare"] = "true"
 	} else {
-		features["feature_compare_tool"] = "false"
->>>>>>> c32273dd29cf05a8f216cda373a4a47c316ba190
+		features[billing.FeatureCompareTool] = "false"
 	}
 	if r.PostFormValue("feature_bulk_import") == "1" {
 		features["bulk_import"] = "true"
