@@ -91,10 +91,12 @@ func (r *Repository) CreateRun(ctx context.Context, run *smartorder.Run, cfg *sm
 		_, err = tx.Exec(txCtx, `
 			INSERT INTO smartorder.run_config (
 				run_id, organization_id, criteria, tolerance_pct, default_quantity,
-				max_budget, use_saving_products, use_ai_matching, criteria_defaulted
-			) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9);`,
+				max_budget, use_saving_products, use_ai_matching, criteria_defaulted,
+				match_language
+			) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10);`,
 			cfg.RunID, cfg.OrganizationID, criteria, cfg.TolerancePct, cfg.DefaultQuantity,
-			cfg.MaxBudget, cfg.UseSavingProducts, cfg.UseAIMatching, cfg.CriteriaDefaulted)
+			cfg.MaxBudget, cfg.UseSavingProducts, cfg.UseAIMatching, cfg.CriteriaDefaulted,
+			cfg.MatchLanguage)
 		if err != nil {
 			return fmt.Errorf("insert run config: %w", err)
 		}

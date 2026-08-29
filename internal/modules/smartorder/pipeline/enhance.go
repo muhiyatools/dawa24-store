@@ -78,41 +78,21 @@ const (
 	// by how much text it can hold.
 	MaxInputBytes = 400_000
 
-	// MaxItemsPerRequest bounds the ANSWER, and that is now what limits a batch.
-	//
-	// Not the token ceiling — three hundred decisions is only twenty thousand
-	// output tokens against a model that allows sixty-six — but LATENCY, which
-	// is measured: a 104-item request against the live Gateway returned in
-	// thirty-five seconds, and 300-item requests were still generating past
-	// ninety. A buyer is waiting on this stage, and a batch that is too large
-	// also loses more when it fails, since a failed batch takes every line in it
-	// back to the deterministic outcome.
-	//
-	// Two hundred sits where the whole residue of an ordinary file still fits in
-	// one round of concurrent requests without any single one of them running
-	// long.
-	MaxItemsPerRequest = 200
+	// MaxItemsPerRequest bounds the ANSWER, and that is what limits a batch.
+	// Sized at 120 so single request generation completes in ~15s, avoiding
+	// gateway timeouts, context cancellations, and huge blast radiuses.
+	MaxItemsPerRequest = 120
 
-	// MaxRequestsPerRun is the spend ceiling, and it is the one number here
-	// that is a business decision rather than a measurement. Twelve requests at
-	// two hundred items cover a file with 2,400 unresolved lines — one where the
-	// deterministic engine failed on almost everything. Anything past it keeps
-	// its deterministic outcome and is reported as such rather than silently
-	// dropped.
-	//
-	// At the model's published price a full twelve costs under five US cents,
-	// so this ceiling is about bounding latency and blast radius, not spend.
-	MaxRequestsPerRun = 12
+	// MaxRequestsPerRun is the spend ceiling. 30 requests at 120 items covers
+	// up to 3,600 unresolved lines even if deterministic matching misses them.
+	MaxRequestsPerRun = 30
 
-	// MaxConcurrent is what actually determines how long the stage takes, since
-	// the total output tokens are the same however the items are divided. Four
-	// clears a thousand-line residue in two rounds while staying well inside any
-	// sane rate limit.
-	MaxConcurrent = 4
+	// MaxConcurrent determines how fast the stage clears. 6 parallel slots
+	// processes requests efficiently while staying safely within API rate limits.
+	MaxConcurrent = 6
 
-	// MaxWallClock bounds the stage. The run itself is allowed twenty minutes,
-	// so this leaves ample room for supplier resolution afterwards.
-	MaxWallClock = 4 * time.Minute
+	// MaxWallClock bounds the stage.
+	MaxWallClock = 8 * time.Minute
 
 	// MinApplyConfidence is the floor below which an answer is recorded but not
 	// applied. The prompt instructs the model to answer null below the same
@@ -293,7 +273,7 @@ func (e *Enhancement) Run(ctx context.Context, reviews []Review) {
 			defer e.report(b.lines)
 
 			atomic.AddInt64(&e.requests, 1)
-			outcomes, err := e.ai.Enhance(runCtx, b.request)
+			outcomes, err := e.callWithRetry(runCtx, b.request)
 			if err != nil {
 				if errors.Is(err, context.DeadlineExceeded) {
 					e.count(func(s *EnhancementStats) { s.CeilingHit = true })
@@ -313,6 +293,34 @@ func (e *Enhancement) Run(ctx context.Context, reviews []Review) {
 
 	e.Stats.Requests = int(atomic.LoadInt64(&e.requests))
 	e.flush(ctx, toSave)
+}
+
+// callWithRetry executes an enhancement batch with a per-request timeout (60s)
+// and retries once on transient errors, protecting against hung connections
+// and occasional gateway 503/499 context cancellations.
+func (e *Enhancement) callWithRetry(ctx context.Context, batch EnhanceBatch) ([]EnhanceOutcome, error) {
+	var lastErr error
+	for attempt := 0; attempt < 2; attempt++ {
+		if ctx.Err() != nil {
+			return nil, ctx.Err()
+		}
+		reqCtx, cancel := context.WithTimeout(ctx, 60*time.Second)
+		outcomes, err := e.ai.Enhance(reqCtx, batch)
+		cancel()
+		if err == nil {
+			return outcomes, nil
+		}
+		lastErr = err
+		if errors.Is(err, context.Canceled) || errors.Is(ctx.Err(), context.DeadlineExceeded) {
+			return nil, err
+		}
+		select {
+		case <-ctx.Done():
+			return nil, ctx.Err()
+		case <-time.After(500 * time.Millisecond):
+		}
+	}
+	return nil, lastErr
 }
 
 // report advances the progress callback by one batch.

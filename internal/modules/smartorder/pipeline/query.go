@@ -45,37 +45,39 @@ import (
 // leftmost-first branch: "مل" ahead of "مللي" would match two letters and leave
 // "لي" behind as a stray token.
 var strengthPattern = regexp.MustCompile(
-	`(?i)(\d+(?:[.,]\d+)?)\s*(ميكروجرام|مليجرام|ملجرام|مجم|ملجم|مكجم|محم|جرام|مللي|وحدة|وحده|ملل|ملي|مغ|مج|جم|مل|mcg|mg|gm|ml|iu|g)(?:$|[^\p{L}])`)
+	`(?i)(\d+(?:[.,]\d+)?)\s*(ميكروجرام|مليجرام|ملجرام|مجم|ملجم|مكجم|محم|جرام|مللي|وحدة|وحده|ملل|ملي|مغ|مج|جم|مل|mcg|mg|gm|ml|iu|g|kg|l|%)(?:$|[^\p{L}])`)
 
-// packPattern captures a pack count: "20 قرص", "24قرص", "20 tabs". Same
-// terminator, for the same reason.
+// packPattern captures a pack count: "20 قرص", "24قرص", "17ق", "20 tabs", "10 sachets".
 var packPattern = regexp.MustCompile(
-	`(?i)(\d+)\s*(كبسولات|كبسولة|أقراص|اقراص|كبسول|أمبول|امبول|قرص|capsule|tabs|caps|tab)(?:$|[^\p{L}])`)
+	`(?i)(\d+)\s*(كبسولات|كبسولة|أقراص|اقراص|كبسول|أمبول|امبول|قرص|قروص|اكياس|أكياس|كيس|ق|قطعة|قطعه|capsules|capsule|tablets|tablet|tabs|caps|tab|cap|sachets|sachet|vials|vial|amps|amp|pcs|pc)(?:$|[^\p{L}])`)
 
 // formWords map a dosage form written in a line onto a canonical term.
-//
-// Kept small and specific. A form word left in the name is not merely useless —
-// it is actively harmful, because it is common enough to pull in every product
-// that happens to share it.
 var formWords = map[string]string{
 	"أقراص": "أقراص", "اقراص": "أقراص", "قرص": "أقراص", "قروص": "أقراص",
 	"كبسول": "كبسولات", "كبسولة": "كبسولات", "كبسولات": "كبسولات",
 	"شراب": "شراب", "شرب": "شراب",
-	"حقن": "حقن", "امبول": "حقن", "أمبول": "حقن", "حقنة": "حقن",
+	"حقن": "حقن", "امبول": "حقن", "أمبول": "حقن", "حقنة": "حقن", "فيال": "حقن",
 	"بخاخ": "بخاخ", "سبراى": "بخاخ", "سبراي": "بخاخ",
 	"كريم": "كريم", "مرهم": "مرهم", "جل": "جل",
 	"نقط": "نقط", "قطرة": "نقط", "قطره": "نقط",
 	"لبوس": "لبوس", "تحاميل": "لبوس",
-	"tab": "أقراص", "tabs": "أقراص", "capsule": "كبسولات", "caps": "كبسولات",
-	"syrup": "شراب", "cream": "كريم", "gel": "جل", "drops": "نقط",
+	"أكياس": "أكياس", "اكياس": "أكياس", "كيس": "أكياس",
+	"بلسم": "بلسم", "شامبو": "شامبو", "سيروم": "سيروم", "سيرم": "سيروم",
+	"صابونة": "صابون", "صابون": "صابون", "لوشن": "لوشن", "زيت": "زيت",
+	"ماسك": "ماسك", "ستيك": "ستيك", "بلاستر": "بلاستر", "غسول": "غسول",
+	"فوم": "فوم", "رول": "رول", "بودرة": "بودرة", "باودر": "بودرة",
+	"tab": "أقراص", "tabs": "أقراص", "tablet": "أقراص", "tablets": "أقراص",
+	"capsule": "كبسولات", "caps": "كبسولات", "capsules": "كبسولات",
+	"syrup": "شراب", "syr": "شراب", "suspension": "شراب", "susp": "شراب",
+	"cream": "كريم", "crm": "كريم", "gel": "جل", "ointment": "مرهم", "oint": "مرهم",
+	"drops": "نقط", "drop": "نقط", "spray": "بخاخ", "lotion": "لوشن", "shampoo": "شامبو",
+	"soap": "صابون", "serum": "سيروم", "oil": "زيت", "mask": "ماسك", "balm": "بلسم",
+	"vial": "حقن", "amp": "حقن", "ampoule": "حقن", "ampoules": "حقن", "injection": "حقن", "inj": "حقن",
+	"supp": "لبوس", "suppository": "لبوس", "sachet": "أكياس", "sachets": "أكياس",
+	"stick": "ستيك", "plaster": "بلاستر",
 }
 
-// therapeuticFiller is prose that describes what a medicine *does*.
-//
-// A pharmacist writes it for their own benefit; the catalogue never carries it.
-// Every one of these words was observed poisoning a real match on the live
-// catalogue — "مسكن" and "سريع" together are what matched a painkiller to a
-// toothbrush advertising fast relief.
+// therapeuticFiller is prose that describes what a medicine or cosmetic does.
 var therapeutic = map[string]bool{
 	"مسكن": true, "مسكنة": true, "مضاد": true, "مضادة": true, "للالتهاب": true,
 	"التهاب": true, "الالتهاب": true, "للبرد": true, "برد": true, "والاحتقان": true,
@@ -85,7 +87,11 @@ var therapeutic = map[string]bool{
 	"خافض": true, "للحرارة": true, "حرارة": true, "فيتامين": true, "مكمل": true,
 	"غذائي": true, "غذائى": true, "تجريبي": true, "تجريبى": true, "جديد": true,
 	"توفير": true, "عرض": true, "خصم": true,
+	"للشعر": true, "لتساقط": true, "تساقط": true, "الشعر": true,
+	"للبشرة": true, "للبشره": true, "بشرة": true, "بشره": true,
+	"تفتيح": true, "ترطيب": true, "حريمي": true, "حريمى": true, "رجالي": true, "رجالى": true,
 	"and": true, "for": true, "with": true, "the": true,
+	"hair": true, "skin": true, "loss": true, "care": true, "new": true, "free": true,
 }
 
 // BuildRow turns an imported line into the row the matcher scores.

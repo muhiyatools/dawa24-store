@@ -17,10 +17,12 @@ func (r *Repository) GetConfig(ctx context.Context, runID int64) (*smartorder.Co
 		var criteria []byte
 		err := tx.QueryRow(txCtx, `
 			SELECT run_id, organization_id, criteria, tolerance_pct, default_quantity,
-			       max_budget, use_saving_products, use_ai_matching, criteria_defaulted
+			       max_budget, use_saving_products, use_ai_matching, criteria_defaulted,
+			       COALESCE(match_language, '')
 			FROM smartorder.run_config WHERE run_id = $1;`, runID).Scan(
 			&cfg.RunID, &cfg.OrganizationID, &criteria, &cfg.TolerancePct, &cfg.DefaultQuantity,
-			&cfg.MaxBudget, &cfg.UseSavingProducts, &cfg.UseAIMatching, &cfg.CriteriaDefaulted)
+			&cfg.MaxBudget, &cfg.UseSavingProducts, &cfg.UseAIMatching, &cfg.CriteriaDefaulted,
+			&cfg.MatchLanguage)
 		if err == pgx.ErrNoRows {
 			return apperr.NotFound("smart_order_config")
 		}
@@ -51,10 +53,12 @@ func (r *Repository) GetProfile(ctx context.Context, orgID int64) (*smartorder.P
 		var criteria []byte
 		err := tx.QueryRow(txCtx, `
 			SELECT criteria, tolerance_pct, default_quantity,
-			       use_saving_products, use_ai_matching, last_branch_id
+			       use_saving_products, use_ai_matching, last_branch_id,
+			       COALESCE(match_language, '')
 			FROM smartorder.criteria_profiles WHERE organization_id = $1;`, orgID).Scan(
 			&criteria, &p.TolerancePct, &p.DefaultQuantity,
-			&p.UseSavingProducts, &p.UseAIMatching, &p.LastBranchID)
+			&p.UseSavingProducts, &p.UseAIMatching, &p.LastBranchID,
+			&p.MatchLanguage)
 		if err == pgx.ErrNoRows {
 			return nil // first run: platform defaults stand
 		}
@@ -82,8 +86,8 @@ func (r *Repository) SaveProfile(ctx context.Context, p *smartorder.Profile) err
 		_, err = tx.Exec(txCtx, `
 			INSERT INTO smartorder.criteria_profiles (
 				organization_id, criteria, tolerance_pct, default_quantity,
-				use_saving_products, use_ai_matching, last_branch_id
-			) VALUES ($1,$2,$3,$4,$5,$6,$7)
+				use_saving_products, use_ai_matching, last_branch_id, match_language
+			) VALUES ($1,$2,$3,$4,$5,$6,$7,$8)
 			ON CONFLICT (organization_id) DO UPDATE SET
 				criteria = EXCLUDED.criteria,
 				tolerance_pct = EXCLUDED.tolerance_pct,
@@ -91,9 +95,10 @@ func (r *Repository) SaveProfile(ctx context.Context, p *smartorder.Profile) err
 				use_saving_products = EXCLUDED.use_saving_products,
 				use_ai_matching = EXCLUDED.use_ai_matching,
 				last_branch_id = EXCLUDED.last_branch_id,
+				match_language = EXCLUDED.match_language,
 				updated_at = now();`,
 			p.OrganizationID, criteria, p.TolerancePct, p.DefaultQuantity,
-			p.UseSavingProducts, p.UseAIMatching, p.LastBranchID)
+			p.UseSavingProducts, p.UseAIMatching, p.LastBranchID, p.MatchLanguage)
 		return err
 	})
 }

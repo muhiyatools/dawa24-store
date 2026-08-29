@@ -40,6 +40,7 @@ type Config struct {
 	MaxBudget         *money.Amount `json:"max_budget,omitempty"`
 	UseSavingProducts bool          `json:"use_saving_products"`
 	UseAIMatching     bool          `json:"use_ai_matching"`
+	MatchLanguage     string        `json:"match_language,omitempty"`
 
 	// CriteriaDefaulted records that the buyer enabled nothing and DefaultCriteria
 	// was applied, so the results screen can say so rather than implying the
@@ -55,6 +56,7 @@ type Profile struct {
 	DefaultQuantity   int         `json:"default_quantity"`
 	UseSavingProducts bool        `json:"use_saving_products"`
 	UseAIMatching     bool        `json:"use_ai_matching"`
+	MatchLanguage     string      `json:"match_language,omitempty"`
 	LastBranchID      *int64      `json:"last_branch_id,omitempty"`
 }
 
@@ -70,6 +72,7 @@ func NewConfig(runID, orgID int64, p Profile, maxBudget *money.Amount) (*Config,
 		MaxBudget:         maxBudget,
 		UseSavingProducts: p.UseSavingProducts,
 		UseAIMatching:     p.UseAIMatching,
+		MatchLanguage:     p.MatchLanguage,
 	}
 	if len(c.Criteria) == 0 {
 		c.Criteria = append([]Criterion(nil), DefaultCriteria...)
@@ -113,6 +116,10 @@ func (c *Config) Validate() error {
 	if c.MaxBudget != nil && !c.MaxBudget.IsPositive() {
 		return apperr.Validation("smartorder.budget_not_positive",
 			"maximum budget must be greater than zero", nil)
+	}
+	if c.MatchLanguage != "" && c.MatchLanguage != "ar" && c.MatchLanguage != "en" {
+		return apperr.Validation("smartorder.invalid_match_language",
+			"match language must be 'ar', 'en' or empty", nil)
 	}
 	return nil
 }

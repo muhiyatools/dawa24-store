@@ -69,6 +69,20 @@ type Repository interface {
 	ResolveByLearned(ctx context.Context, orgID int64, names []string) (map[string]int64, error)
 	// ResolveByAlias applies aliases confirmed against the shared catalogue.
 	ResolveByAlias(ctx context.Context, names []string) (map[string]int64, error)
+	// ResolveByExactName matches normalised names directly against the
+	// catalogue's Arabic and English product names, prioritizing the configured
+	// language preference. This is the tier that answers "the pharmacy typed the
+	// same name the catalogue has" — the most common case.
+	ResolveByExactName(ctx context.Context, names []string, matchLang string) (map[string]int64, error)
+	// ResolveByFuzzyDB uses PostgreSQL's pg_trgm similarity to match names
+	// that share no exact word but have similar character sequences. This
+	// catches transliteration variants and typos that the token-based
+	// in-memory scorer misses entirely.
+	ResolveByFuzzyDB(ctx context.Context, names []string, matchLang string) (map[string]int64, error)
+	// ResolveByContains matches lines where the line's name is contained within
+	// the catalogue name (or vice versa), provided the name is sufficiently
+	// specific and matches uniquely to one product.
+	ResolveByContains(ctx context.Context, names []string, matchLang string) (map[string]int64, error)
 
 	// LoadMatchIndex loads the catalogue projection the in-memory matcher scores
 	// against. Roughly 30k rows and a few megabytes; see productmatch.Index.
