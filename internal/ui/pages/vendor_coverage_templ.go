@@ -242,59 +242,59 @@ func VendorCoveragePage(data VendorCoverageData, lang, dir string) templ.Compone
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "<!-- Hero Header --><div class=\"card\" style=\"padding:1.5rem 1.75rem; border-radius:1rem; background:linear-gradient(135deg, var(--color-surface) 0%, rgba(59,130,246,0.06) 100%); border:1px solid var(--color-border); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem;\"><div><div style=\"display:flex; align-items:center; gap:0.75rem;\"><span style=\"font-size:1.75rem;\">🚚</span><h1 style=\"font-size:1.5rem; font-weight:800; margin:0; color:var(--color-text-heading);\">نطاق التغطية والتوزيع الأسبوعي المتنقل</h1></div><p style=\"margin:0.4rem 0 0 0; color:var(--color-text-muted); font-size:0.9rem; max-width:700px; line-height:1.5;\">حدد المحافظات والمدن والمراكز التي يتنقل إليها أسطول التوزيع الخاص بك على مدار أيام الأسبوع، مع تخصيص المواعيد ونصف قطر التغطية لكل مدينة على حدة بالسير من إحداثيات مركزها الجغرافي.</p></div><a href=\"#builder-section\" class=\"btn btn-primary\" style=\"display:inline-flex; align-items:center; gap:0.5rem; padding:0.75rem 1.25rem; font-weight:700; border-radius:0.75rem; box-shadow:0 4px 12px rgba(37,99,235,0.25);\"><span>+</span> <span>إضافة نطاق تغطية جديد</span></a></div><!-- Quick KPI Stats --><div style=\"display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:1rem;\"><div class=\"card\" style=\"padding:1.25rem; border-radius:0.875rem; display:flex; align-items:center; gap:1rem;\"><div style=\"width:48px; height:48px; border-radius:0.75rem; background:rgba(59,130,246,0.12); color:#2563eb; display:flex; align-items:center; justify-content:center; font-size:1.35rem;\">📍</div><div><div style=\"font-size:0.8rem; color:var(--color-text-muted); font-weight:600;\">إجمالي نطاقات التغطية</div><div style=\"font-size:1.5rem; font-weight:800; color:var(--color-text-heading);\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "<!-- Hero Header --><div class=\"glass-panel p-6 mb-6 flex-between flex-wrap gap-4\"><div><div class=\"d-flex items-center gap-3 mb-1\"><div class=\"user-avatar-badge text-xl\">🚚</div><h1 class=\"text-2xl font-black text-primary m-0\">نطاق التغطية والتوزيع الأسبوعي المتنقل</h1></div><p class=\"text-sm text-secondary m-0 max-w-2xl\">حدد المحافظات والمدن والمراكز التي يتنقل إليها أسطول التوزيع الخاص بك على مدار أيام الأسبوع، مع تخصيص المواعيد ونصف قطر التغطية لكل مدينة على حدة بالسير من إحداثيات مركزها الجغرافي.</p></div><a href=\"#builder-section\" class=\"btn btn-primary font-bold gap-2\"><span>+</span> <span>إضافة نطاق تغطية جديد</span></a></div><!-- Quick KPI Stats --><div class=\"dashboard-stat-grid mb-6\"><div class=\"stat-card-3d\"><div class=\"stat-card-label\">إجمالي نطاقات التغطية</div><div class=\"stat-card-value text-primary tabular-nums\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var6 string
 			templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", len(data.Coverages)))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_coverage.templ`, Line: 351, Col: 127}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_coverage.templ`, Line: 349, Col: 100}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "</div></div></div><div class=\"card\" style=\"padding:1.25rem; border-radius:0.875rem; display:flex; align-items:center; gap:1rem;\"><div style=\"width:48px; height:48px; border-radius:0.75rem; background:rgba(16,185,129,0.12); color:#059669; display:flex; align-items:center; justify-content:center; font-size:1.35rem;\">🏛️</div><div><div style=\"font-size:0.8rem; color:var(--color-text-muted); font-weight:600;\">المحافظات المشمولة</div><div style=\"font-size:1.5rem; font-weight:800; color:var(--color-text-heading);\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "</div></div><div class=\"stat-card-3d\"><div class=\"stat-card-label\">المحافظات المشمولة</div><div class=\"stat-card-value text-brand tabular-nums\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var7 string
 			templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", countCoveredGovernorates(data.Coverages)))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_coverage.templ`, Line: 361, Col: 148}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_coverage.templ`, Line: 354, Col: 119}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "</div></div></div><div class=\"card\" style=\"padding:1.25rem; border-radius:0.875rem; display:flex; align-items:center; gap:1rem;\"><div style=\"width:48px; height:48px; border-radius:0.75rem; background:rgba(139,92,246,0.12); color:#7c3aed; display:flex; align-items:center; justify-content:center; font-size:1.35rem;\">🏙️</div><div><div style=\"font-size:0.8rem; color:var(--color-text-muted); font-weight:600;\">المدن والمراكز النشطة</div><div style=\"font-size:1.5rem; font-weight:800; color:var(--color-text-heading);\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "</div></div><div class=\"stat-card-3d\"><div class=\"stat-card-label\">المدن والمراكز النشطة</div><div class=\"stat-card-value text-sky tabular-nums\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var8 string
 			templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", countVendorCoveredCities(data.Coverages)))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_coverage.templ`, Line: 371, Col: 148}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_coverage.templ`, Line: 359, Col: 117}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var8))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "</div></div></div><div class=\"card\" style=\"padding:1.25rem; border-radius:0.875rem; display:flex; align-items:center; gap:1rem;\"><div style=\"width:48px; height:48px; border-radius:0.75rem; background:rgba(245,158,11,0.12); color:#d97706; display:flex; align-items:center; justify-content:center; font-size:1.35rem;\">📅</div><div><div style=\"font-size:0.8rem; color:var(--color-text-muted); font-weight:600;\">أيام العمل الأسبوعية</div><div style=\"font-size:1.5rem; font-weight:800; color:var(--color-text-heading);\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "</div></div><div class=\"stat-card-3d\"><div class=\"stat-card-label\">أيام العمل الأسبوعية</div><div class=\"stat-card-value text-success tabular-nums\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var9 string
 			templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d / 7", countActiveDays(data.Coverages)))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_coverage.templ`, Line: 381, Col: 143}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_coverage.templ`, Line: 364, Col: 116}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var9))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "</div></div></div></div><!-- Interactive Coverage Builder (The Core Enhancement) --><div id=\"builder-section\" class=\"card\" style=\"padding:1.75rem; border-radius:1rem; border:1px solid var(--color-border);\"><div style=\"display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; padding-bottom:1rem; border-bottom:1px solid var(--color-border);\"><div><h2 style=\"font-size:1.25rem; font-weight:800; margin:0; display:flex; align-items:center; gap:0.5rem; color:var(--color-text-heading);\"><span>🗺️</span> <span>منشئ التغطية الأسبوعية الهرمية (المحافظات والمدن)</span></h2><p style=\"margin:0.25rem 0 0 0; color:var(--color-text-muted); font-size:0.875rem;\">اختر أيام الأسبوع، ثم حدد المحافظة والمدن المستهدفة لتخصيص المواعيد ونصف القطر بالمتر لكل مدينة على حدة.</p></div></div><form method=\"POST\" action=\"/vendor/coverage\" style=\"display:flex; flex-direction:column; gap:1.5rem;\"><!-- CSRF & Hidden Inputs --><input type=\"hidden\" name=\"gorilla.csrf.Token\" value=\"\"><!-- Step 1: Branch Selection & Governorate Selection --><div style=\"display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:1.25rem;\"><div><label style=\"display:block; font-size:0.875rem; font-weight:700; margin-bottom:0.5rem; color:var(--color-text-heading);\">🏢 الفرع / وحدة التوزيع المسؤولة <span style=\"color:#ef4444;\">*</span></label> <select name=\"branch_id\" class=\"form-control\" style=\"width:100%; border-radius:0.625rem; padding:0.65rem 0.85rem;\" required>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "</div></div></div><!-- Interactive Coverage Builder (The Core Enhancement) --><div id=\"builder-section\" class=\"glass-panel p-6 mb-6\"><div class=\"flex-between items-center mb-6 pb-4 border-b\"><div><h2 class=\"text-lg font-black text-primary m-0 d-flex items-center gap-2\"><span>🗺️</span> <span>منشئ التغطية الأسبوعية الهرمية (المحافظات والمدن)</span></h2><p class=\"text-xs text-muted mt-1 m-0\">اختر أيام الأسبوع، ثم حدد المحافظة والمدن المستهدفة لتخصيص المواعيد ونصف القطر بالمتر لكل مدينة على حدة.</p></div></div><form method=\"POST\" action=\"/vendor/coverage\" class=\"d-flex flex-col gap-6\"><!-- CSRF & Hidden Inputs --><input type=\"hidden\" name=\"gorilla.csrf.Token\" value=\"\"><!-- Step 1: Branch Selection & Governorate Selection --><div class=\"d-grid gap-4\" style=\"grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));\"><div><label class=\"d-block text-xs font-bold mb-2 text-primary\">🏢 الفرع / وحدة التوزيع المسؤولة <span class=\"text-danger\">*</span></label> <select name=\"branch_id\" class=\"form-control\" required>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -306,7 +306,7 @@ func VendorCoveragePage(data VendorCoverageData, lang, dir string) templ.Compone
 				var templ_7745c5c3_Var10 string
 				templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", b.ID))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_coverage.templ`, Line: 412, Col: 48}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_coverage.templ`, Line: 394, Col: 48}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var10))
 				if templ_7745c5c3_Err != nil {
@@ -321,7 +321,7 @@ func VendorCoveragePage(data VendorCoverageData, lang, dir string) templ.Compone
 					return b.Name.Get("ar")
 				}())
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_coverage.templ`, Line: 415, Col: 13}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_coverage.templ`, Line: 397, Col: 13}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var11))
 				if templ_7745c5c3_Err != nil {
@@ -348,7 +348,7 @@ func VendorCoveragePage(data VendorCoverageData, lang, dir string) templ.Compone
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "</select></div><div><label style=\"display:block; font-size:0.875rem; font-weight:700; margin-bottom:0.5rem; color:var(--color-text-heading);\">🌍 المحافظة المستهدفة <span style=\"color:#ef4444;\">*</span></label> <select name=\"governorate_id\" x-model=\"selectedGovId\" @change=\"onGovChange()\" class=\"form-control\" style=\"width:100%; border-radius:0.625rem; padding:0.65rem 0.85rem; font-weight:600;\" required><option value=\"\">-- اختر المحافظة أولاً (27 محافظة) --</option> ")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "</select></div><div><label class=\"d-block text-xs font-bold mb-2 text-primary\">🌍 المحافظة المستهدفة <span class=\"text-danger\">*</span></label> <select name=\"governorate_id\" x-model=\"selectedGovId\" @change=\"onGovChange()\" class=\"form-control font-bold\" required><option value=\"\">-- اختر المحافظة أولاً (27 محافظة) --</option> ")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -360,7 +360,7 @@ func VendorCoveragePage(data VendorCoverageData, lang, dir string) templ.Compone
 				var templ_7745c5c3_Var12 string
 				templ_7745c5c3_Var12, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", g.ID))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_coverage.templ`, Line: 434, Col: 48}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_coverage.templ`, Line: 416, Col: 48}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var12))
 				if templ_7745c5c3_Err != nil {
@@ -378,7 +378,7 @@ func VendorCoveragePage(data VendorCoverageData, lang, dir string) templ.Compone
 					return fmt.Sprintf("محافظة %d", g.ID)
 				}())
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_coverage.templ`, Line: 440, Col: 13}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_coverage.templ`, Line: 422, Col: 13}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var13))
 				if templ_7745c5c3_Err != nil {
@@ -389,30 +389,30 @@ func VendorCoveragePage(data VendorCoverageData, lang, dir string) templ.Compone
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, "</select></div></div><!-- Step 2: Multi-Days Selector --><div style=\"background:var(--color-bg-subtle, rgba(0,0,0,0.02)); padding:1.25rem; border-radius:0.875rem; border:1px solid var(--color-border);\"><div style=\"display:flex; justify-content:space-between; align-items:center; margin-bottom:0.75rem; flex-wrap:wrap; gap:0.5rem;\"><label style=\"font-size:0.9rem; font-weight:700; margin:0; color:var(--color-text-heading); display:flex; align-items:center; gap:0.5rem;\"><span>📅</span> <span>أيام التغطية والتوصيل الأسبوعية (اختر يوماً أو أكثر)</span> <span style=\"color:#ef4444;\">*</span></label><div style=\"display:flex; gap:0.5rem;\"><button type=\"button\" @click=\"selectAllDays()\" class=\"btn btn-sm btn-secondary\" style=\"font-size:0.75rem; padding:0.25rem 0.6rem; border-radius:0.5rem;\">تحديد كل الأيام</button> <button type=\"button\" @click=\"clearDays()\" class=\"btn btn-sm btn-secondary\" style=\"font-size:0.75rem; padding:0.25rem 0.6rem; border-radius:0.5rem;\">مسح التحديد</button></div></div><div style=\"display:grid; grid-template-columns:repeat(auto-fit, minmax(110px, 1fr)); gap:0.6rem;\"><!-- Saturday (6) --><label :class=\"selectedDays.includes(6) ? &#39;btn-primary&#39; : &#39;btn-secondary&#39;\" class=\"btn\" style=\"cursor:pointer; display:flex; align-items:center; justify-content:center; gap:0.4rem; padding:0.6rem; border-radius:0.625rem; font-weight:700; font-size:0.875rem; transition:all 0.15s ease;\"><input type=\"checkbox\" name=\"days_of_week\" value=\"6\" :checked=\"selectedDays.includes(6)\" @change=\"toggleDay(6)\" style=\"display:none;\"> <span>السبت</span> <span x-show=\"selectedDays.includes(6)\" style=\"font-size:0.75rem;\">✓</span></label><!-- Sunday (0) --><label :class=\"selectedDays.includes(0) ? &#39;btn-primary&#39; : &#39;btn-secondary&#39;\" class=\"btn\" style=\"cursor:pointer; display:flex; align-items:center; justify-content:center; gap:0.4rem; padding:0.6rem; border-radius:0.625rem; font-weight:700; font-size:0.875rem; transition:all 0.15s ease;\"><input type=\"checkbox\" name=\"days_of_week\" value=\"0\" :checked=\"selectedDays.includes(0)\" @change=\"toggleDay(0)\" style=\"display:none;\"> <span>الأحد</span> <span x-show=\"selectedDays.includes(0)\" style=\"font-size:0.75rem;\">✓</span></label><!-- Monday (1) --><label :class=\"selectedDays.includes(1) ? &#39;btn-primary&#39; : &#39;btn-secondary&#39;\" class=\"btn\" style=\"cursor:pointer; display:flex; align-items:center; justify-content:center; gap:0.4rem; padding:0.6rem; border-radius:0.625rem; font-weight:700; font-size:0.875rem; transition:all 0.15s ease;\"><input type=\"checkbox\" name=\"days_of_week\" value=\"1\" :checked=\"selectedDays.includes(1)\" @change=\"toggleDay(1)\" style=\"display:none;\"> <span>الاثنين</span> <span x-show=\"selectedDays.includes(1)\" style=\"font-size:0.75rem;\">✓</span></label><!-- Tuesday (2) --><label :class=\"selectedDays.includes(2) ? &#39;btn-primary&#39; : &#39;btn-secondary&#39;\" class=\"btn\" style=\"cursor:pointer; display:flex; align-items:center; justify-content:center; gap:0.4rem; padding:0.6rem; border-radius:0.625rem; font-weight:700; font-size:0.875rem; transition:all 0.15s ease;\"><input type=\"checkbox\" name=\"days_of_week\" value=\"2\" :checked=\"selectedDays.includes(2)\" @change=\"toggleDay(2)\" style=\"display:none;\"> <span>الثلاثاء</span> <span x-show=\"selectedDays.includes(2)\" style=\"font-size:0.75rem;\">✓</span></label><!-- Wednesday (3) --><label :class=\"selectedDays.includes(3) ? &#39;btn-primary&#39; : &#39;btn-secondary&#39;\" class=\"btn\" style=\"cursor:pointer; display:flex; align-items:center; justify-content:center; gap:0.4rem; padding:0.6rem; border-radius:0.625rem; font-weight:700; font-size:0.875rem; transition:all 0.15s ease;\"><input type=\"checkbox\" name=\"days_of_week\" value=\"3\" :checked=\"selectedDays.includes(3)\" @change=\"toggleDay(3)\" style=\"display:none;\"> <span>الأربعاء</span> <span x-show=\"selectedDays.includes(3)\" style=\"font-size:0.75rem;\">✓</span></label><!-- Thursday (4) --><label :class=\"selectedDays.includes(4) ? &#39;btn-primary&#39; : &#39;btn-secondary&#39;\" class=\"btn\" style=\"cursor:pointer; display:flex; align-items:center; justify-content:center; gap:0.4rem; padding:0.6rem; border-radius:0.625rem; font-weight:700; font-size:0.875rem; transition:all 0.15s ease;\"><input type=\"checkbox\" name=\"days_of_week\" value=\"4\" :checked=\"selectedDays.includes(4)\" @change=\"toggleDay(4)\" style=\"display:none;\"> <span>الخميس</span> <span x-show=\"selectedDays.includes(4)\" style=\"font-size:0.75rem;\">✓</span></label><!-- Friday (5) --><label :class=\"selectedDays.includes(5) ? &#39;btn-primary&#39; : &#39;btn-secondary&#39;\" class=\"btn\" style=\"cursor:pointer; display:flex; align-items:center; justify-content:center; gap:0.4rem; padding:0.6rem; border-radius:0.625rem; font-weight:700; font-size:0.875rem; transition:all 0.15s ease;\"><input type=\"checkbox\" name=\"days_of_week\" value=\"5\" :checked=\"selectedDays.includes(5)\" @change=\"toggleDay(5)\" style=\"display:none;\"> <span>الجمعة</span> <span x-show=\"selectedDays.includes(5)\" style=\"font-size:0.75rem;\">✓</span></label></div></div><!-- Step 3: Subgovernorates / Cities Selection (Dynamic) --><div x-show=\"selectedGovId\" style=\"display:flex; flex-direction:column; gap:0.75rem; background:rgba(59,130,246,0.03); padding:1.25rem; border-radius:0.875rem; border:1px solid rgba(59,130,246,0.2);\"><div style=\"display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.75rem;\"><div><label style=\"font-size:0.9rem; font-weight:800; margin:0; color:var(--color-text-heading); display:flex; align-items:center; gap:0.5rem;\"><span>🏙️</span> <span>المدن والمراكز المستهدفة بالمحافظة</span> <span class=\"badge badge-primary\" style=\"font-size:0.75rem;\" x-text=\"selectedCities.length + &#39; مدينة محددة&#39;\"></span></label></div><div style=\"display:flex; align-items:center; gap:0.75rem;\"><input type=\"text\" x-model=\"citySearch\" placeholder=\"بحث باسم المدينة أو الحي...\" class=\"form-control\" style=\"width:200px; padding:0.35rem 0.65rem; font-size:0.825rem; border-radius:0.5rem;\"> <button type=\"button\" @click=\"toggleSelectAllCities()\" class=\"btn btn-sm btn-primary\" style=\"font-weight:700; font-size:0.8rem; padding:0.35rem 0.75rem; border-radius:0.5rem;\"><span x-text=\"allCitiesInGov ? &#39;إلغاء تحديد كل المدن&#39; : &#39;تحديد كل مدن المحافظة&#39;\"></span></button></div></div><!-- Hidden input for all_cities_in_gov --><input type=\"hidden\" name=\"all_cities_in_gov\" :value=\"allCitiesInGov ? &#39;true&#39; : &#39;false&#39;\"><!-- Grid of cities under governorate --><div style=\"display:grid; grid-template-columns:repeat(auto-fill, minmax(210px, 1fr)); gap:0.6rem; max-height:220px; overflow-y:auto; padding:0.5rem; background:var(--color-surface); border-radius:0.625rem; border:1px solid var(--color-border);\"><template x-for=\"c in filteredCities\" :key=\"c.id\"><label :class=\"selectedCities.includes(String(c.id)) ? &#39;bg-blue-50 border-blue-500 text-blue-700 shadow-sm&#39; : &#39;border-gray-200&#39;\" style=\"cursor:pointer; display:flex; align-items:center; gap:0.5rem; padding:0.5rem 0.75rem; border-radius:0.5rem; border:1.5px solid; transition:all 0.15s ease;\"><input type=\"checkbox\" name=\"city_ids\" :value=\"c.id\" :checked=\"selectedCities.includes(String(c.id))\" @change=\"toggleCity(c.id)\" style=\"width:16px; height:16px; cursor:pointer; accent-color:#2563eb;\"><div style=\"flex:1; min-width:0;\"><div style=\"font-weight:700; font-size:0.875rem;\" x-text=\"c.name_ar\"></div><div style=\"font-size:0.75rem; color:var(--color-text-muted);\" x-text=\"c.name_en\"></div></div><span x-show=\"c.is_capital\" class=\"badge badge-amber\" style=\"font-size:0.65rem; padding:0.15rem 0.35rem;\">عاصمة</span></label></template><div x-show=\"filteredCities.length === 0\" style=\"grid-column:1/-1; text-align:center; padding:1.5rem; color:var(--color-text-muted); font-size:0.875rem;\">لم يتم العثور على مدن تطابق البحث.</div></div></div><!-- Step 4: General Radius & Timing Configurations --><div style=\"display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:1.25rem;\"><!-- Radius in Meters --><div style=\"background:var(--color-bg-subtle, rgba(0,0,0,0.02)); padding:1.25rem; border-radius:0.875rem; border:1px solid var(--color-border);\"><label style=\"display:block; font-size:0.875rem; font-weight:700; margin-bottom:0.5rem; color:var(--color-text-heading);\">📡 نصف قطر التغطية الافتراضي (بالمتر)</label><div style=\"display:flex; align-items:center; gap:0.5rem; margin-bottom:0.75rem;\"><input type=\"number\" name=\"distance_meters\" x-model=\"distanceMeters\" min=\"100\" max=\"500000\" step=\"500\" class=\"form-control\" style=\"font-weight:700; font-size:1.1rem; border-radius:0.625rem; padding:0.5rem 0.75rem; width:150px;\" required> <span style=\"font-weight:700; color:var(--color-text-muted);\">متر</span> <span class=\"badge badge-primary\" style=\"font-size:0.85rem; padding:0.35rem 0.65rem;\" x-text=\"(distanceMeters / 1000).toFixed(1) + &#39; كم&#39;\"></span></div><!-- Quick Presets --><div style=\"display:flex; flex-wrap:wrap; gap:0.35rem;\"><button type=\"button\" @click=\"setDistance(1000)\" class=\"btn btn-sm btn-secondary\" style=\"font-size:0.75rem; padding:0.25rem 0.5rem; border-radius:0.375rem;\">1 كم</button> <button type=\"button\" @click=\"setDistance(3000)\" class=\"btn btn-sm btn-secondary\" style=\"font-size:0.75rem; padding:0.25rem 0.5rem; border-radius:0.375rem;\">3 كم</button> <button type=\"button\" @click=\"setDistance(5000)\" class=\"btn btn-sm btn-secondary\" style=\"font-size:0.75rem; padding:0.25rem 0.5rem; border-radius:0.375rem;\">5 كم (قياسي)</button> <button type=\"button\" @click=\"setDistance(10000)\" class=\"btn btn-sm btn-secondary\" style=\"font-size:0.75rem; padding:0.25rem 0.5rem; border-radius:0.375rem;\">10 كم</button> <button type=\"button\" @click=\"setDistance(25000)\" class=\"btn btn-sm btn-secondary\" style=\"font-size:0.75rem; padding:0.25rem 0.5rem; border-radius:0.375rem;\">25 كم</button> <button type=\"button\" @click=\"setDistance(50000)\" class=\"btn btn-sm btn-secondary\" style=\"font-size:0.75rem; padding:0.25rem 0.5rem; border-radius:0.375rem;\">50 كم</button></div></div><!-- Time Window --><div style=\"background:var(--color-bg-subtle, rgba(0,0,0,0.02)); padding:1.25rem; border-radius:0.875rem; border:1px solid var(--color-border);\"><label style=\"display:block; font-size:0.875rem; font-weight:700; margin-bottom:0.5rem; color:var(--color-text-heading);\">⏰ مواعيد وساعات العمل والتوصيل الافتراضية</label><div style=\"display:grid; grid-template-columns:1fr 1fr; gap:0.75rem; margin-bottom:0.75rem;\"><div><span style=\"font-size:0.75rem; color:var(--color-text-muted);\">من (وقت البدء):</span> <input type=\"time\" name=\"coverage_from\" x-model=\"coverageFrom\" class=\"form-control\" style=\"width:100%; border-radius:0.5rem; padding:0.45rem;\"></div><div><span style=\"font-size:0.75rem; color:var(--color-text-muted);\">إلى (وقت الانتهاء):</span> <input type=\"time\" name=\"coverage_to\" x-model=\"coverageTo\" class=\"form-control\" style=\"width:100%; border-radius:0.5rem; padding:0.45rem;\"></div></div><!-- Time Presets --><div style=\"display:flex; flex-wrap:wrap; gap:0.35rem;\"><button type=\"button\" @click=\"setTimePreset(&#39;09:00&#39;, &#39;17:00&#39;)\" class=\"btn btn-sm btn-secondary\" style=\"font-size:0.75rem; padding:0.25rem 0.5rem; border-radius:0.375rem;\">دوام كامل (9 ص - 5 م)</button> <button type=\"button\" @click=\"setTimePreset(&#39;16:00&#39;, &#39;23:00&#39;)\" class=\"btn btn-sm btn-secondary\" style=\"font-size:0.75rem; padding:0.25rem 0.5rem; border-radius:0.375rem;\">فترة مسائية</button> <button type=\"button\" @click=\"setTimePreset(&#39;&#39;, &#39;&#39;)\" class=\"btn btn-sm btn-secondary\" style=\"font-size:0.75rem; padding:0.25rem 0.5rem; border-radius:0.375rem;\">طوال اليوم (24 ساعة)</button></div></div></div><!-- Step 5: Per-City Timing & Radius Customization Grid --><div x-show=\"selectedCities.length &gt; 0\" style=\"display:flex; flex-direction:column; gap:1rem; background:rgba(37,99,235,0.03); padding:1.25rem; border-radius:0.875rem; border:1px solid rgba(37,99,235,0.2);\"><div style=\"display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.75rem;\"><div><h3 style=\"font-size:1rem; font-weight:800; margin:0; color:var(--color-text-heading); display:flex; align-items:center; gap:0.5rem;\"><span>⏱️</span> <span>تخصيص مواعيد وساعات التوصيل ونصف القطر لكل مدينة محددة على حدة</span></h3><p style=\"margin:0.2rem 0 0 0; font-size:0.8rem; color:var(--color-text-muted);\">يمكنك تعديل مواعيد العمل ونطاق التغطية لكل مدينة مستقلة، أو تطبيق الإعدادات العامة عليها بضغطة زر.</p></div><button type=\"button\" @click=\"applyDefaultsToAllCities()\" class=\"btn btn-sm btn-secondary\" style=\"font-weight:700; font-size:0.8rem; padding:0.4rem 0.85rem; border-radius:0.5rem;\">⚡ تطبيق الإعدادات العامة على كل المدن</button></div><div style=\"display:grid; grid-template-columns:repeat(auto-fit, minmax(310px, 1fr)); gap:0.85rem;\"><template x-for=\"c in getSelectedCityDetails()\" :key=\"c.id\"><div style=\"background:var(--color-surface); padding:1rem; border-radius:0.75rem; border:1px solid var(--color-border); box-shadow:0 1px 3px rgba(0,0,0,0.05); display:flex; flex-direction:column; gap:0.75rem;\"><div style=\"display:flex; justify-content:space-between; align-items:flex-start;\"><div><div style=\"font-weight:800; font-size:0.95rem; color:#2563eb;\" x-text=\"c.name_ar\"></div><div style=\"font-size:0.75rem; color:var(--color-text-muted);\" x-text=\"c.name_en + (c.lat ? &#39; (&#39; + c.lat.toFixed(4) + &#39;, &#39; + c.lon.toFixed(4) + &#39;)&#39; : &#39;&#39;)\"></div></div><button type=\"button\" @click=\"toggleCity(c.id)\" style=\"background:none; border:none; color:#ef4444; font-size:1rem; cursor:pointer;\" title=\"إزالة هذه المدينة\">✕</button></div><div style=\"display:grid; grid-template-columns:1fr 1fr; gap:0.5rem;\"><div><label style=\"display:block; font-size:0.75rem; font-weight:700; color:var(--color-text-muted); margin-bottom:0.25rem;\">من (ساعة البدء):</label> <input type=\"time\" :name=\"&#39;coverage_from_&#39; + c.id\" x-model=\"initCityConfig(String(c.id)).from\" class=\"form-control\" style=\"width:100%; border-radius:0.5rem; padding:0.35rem 0.5rem; font-size:0.85rem;\"></div><div><label style=\"display:block; font-size:0.75rem; font-weight:700; color:var(--color-text-muted); margin-bottom:0.25rem;\">إلى (ساعة الانتهاء):</label> <input type=\"time\" :name=\"&#39;coverage_to_&#39; + c.id\" x-model=\"initCityConfig(String(c.id)).to\" class=\"form-control\" style=\"width:100%; border-radius:0.5rem; padding:0.35rem 0.5rem; font-size:0.85rem;\"></div></div><div><label style=\"display:block; font-size:0.75rem; font-weight:700; color:var(--color-text-muted); margin-bottom:0.25rem;\">نصف قطر التغطية (بالمتر من مركز المدينة):</label><div style=\"display:flex; align-items:center; gap:0.5rem;\"><input type=\"number\" :name=\"&#39;distance_meters_&#39; + c.id\" x-model=\"initCityConfig(String(c.id)).distance\" min=\"100\" max=\"500000\" step=\"500\" class=\"form-control\" style=\"flex:1; border-radius:0.5rem; padding:0.35rem 0.5rem; font-size:0.85rem; font-weight:700;\"> <span class=\"badge badge-primary\" style=\"font-size:0.75rem; padding:0.3rem 0.5rem;\" x-text=\"((initCityConfig(String(c.id)).distance || 5000) / 1000).toFixed(1) + &#39; كم&#39;\"></span></div></div></div></template></div></div><!-- Live Impact Summary & Submit Button --><div style=\"display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem; padding:1.25rem; background:linear-gradient(135deg, rgba(37,99,235,0.08) 0%, rgba(16,185,129,0.08) 100%); border-radius:0.875rem; border:1px solid rgba(37,99,235,0.2);\"><div style=\"display:flex; align-items:center; gap:0.75rem;\"><span style=\"font-size:1.5rem;\">⚡</span><div><div style=\"font-weight:800; color:var(--color-text-heading); font-size:0.95rem;\">ملخص العملية: <span x-text=\"selectedDays.length\"></span> أيام × <span x-text=\"selectedCities.length &gt; 0 ? selectedCities.length : &#39;1&#39;\"></span> مدينة = <span style=\"color:#2563eb;\" x-text=\"(selectedDays.length * (selectedCities.length &gt; 0 ? selectedCities.length : 1)) + &#39; نطاق تغطية أسبوعية&#39;\"></span></div><div style=\"font-size:0.8rem; color:var(--color-text-muted);\">سيتم تطبيق نصف القطر والمواعيد المخصصة لكل مدينة من مركز إحداثياتها الجغرافية.</div></div></div><button type=\"submit\" :disabled=\"selectedDays.length === 0 || !selectedGovId\" class=\"btn btn-primary\" style=\"font-size:1rem; font-weight:800; padding:0.75rem 2rem; border-radius:0.75rem; box-shadow:0 4px 12px rgba(37,99,235,0.3);\">🚀 حفظ وتفعيل نطاقات التغطية</button></div></form></div><!-- Active Weekly Coverages Table & Filters --><div class=\"card\" style=\"padding:1.75rem; border-radius:1rem; border:1px solid var(--color-border);\"><div style=\"display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; flex-wrap:wrap; gap:1rem;\"><div><h2 style=\"font-size:1.25rem; font-weight:800; margin:0; display:flex; align-items:center; gap:0.5rem; color:var(--color-text-heading);\"><span>📋</span> <span>سجل نطاقات التغطية والتوزيع المسجلة (")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, "</select></div></div><!-- Step 2: Multi-Days Selector --><div class=\"bg-surface-sunken p-5 rounded-xl border\"><div class=\"flex-between items-center mb-3 flex-wrap gap-2\"><label class=\"text-sm font-bold m-0 text-primary d-flex items-center gap-2\"><span>📅</span> <span>أيام التغطية والتوصيل الأسبوعية (اختر يوماً أو أكثر)</span> <span class=\"text-danger\">*</span></label><div class=\"d-flex gap-2\"><button type=\"button\" @click=\"selectAllDays()\" class=\"btn btn-xs btn-secondary\">تحديد كل الأيام</button> <button type=\"button\" @click=\"clearDays()\" class=\"btn btn-xs btn-secondary\">مسح التحديد</button></div></div><div class=\"d-grid gap-2\" style=\"grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));\"><!-- Saturday (6) --><label :class=\"{ &#39;is-active&#39;: selectedDays.includes(6) }\" class=\"day-pill-toggle\"><input type=\"checkbox\" name=\"days_of_week\" value=\"6\" :checked=\"selectedDays.includes(6)\" @change=\"toggleDay(6)\" style=\"display:none;\"> <span>السبت</span> <span x-show=\"selectedDays.includes(6)\" class=\"text-xs\">✓</span></label><!-- Sunday (0) --><label :class=\"{ &#39;is-active&#39;: selectedDays.includes(0) }\" class=\"day-pill-toggle\"><input type=\"checkbox\" name=\"days_of_week\" value=\"0\" :checked=\"selectedDays.includes(0)\" @change=\"toggleDay(0)\" style=\"display:none;\"> <span>الأحد</span> <span x-show=\"selectedDays.includes(0)\" class=\"text-xs\">✓</span></label><!-- Monday (1) --><label :class=\"{ &#39;is-active&#39;: selectedDays.includes(1) }\" class=\"day-pill-toggle\"><input type=\"checkbox\" name=\"days_of_week\" value=\"1\" :checked=\"selectedDays.includes(1)\" @change=\"toggleDay(1)\" style=\"display:none;\"> <span>الاثنين</span> <span x-show=\"selectedDays.includes(1)\" class=\"text-xs\">✓</span></label><!-- Tuesday (2) --><label :class=\"{ &#39;is-active&#39;: selectedDays.includes(2) }\" class=\"day-pill-toggle\"><input type=\"checkbox\" name=\"days_of_week\" value=\"2\" :checked=\"selectedDays.includes(2)\" @change=\"toggleDay(2)\" style=\"display:none;\"> <span>الثلاثاء</span> <span x-show=\"selectedDays.includes(2)\" class=\"text-xs\">✓</span></label><!-- Wednesday (3) --><label :class=\"{ &#39;is-active&#39;: selectedDays.includes(3) }\" class=\"day-pill-toggle\"><input type=\"checkbox\" name=\"days_of_week\" value=\"3\" :checked=\"selectedDays.includes(3)\" @change=\"toggleDay(3)\" style=\"display:none;\"> <span>الأربعاء</span> <span x-show=\"selectedDays.includes(3)\" class=\"text-xs\">✓</span></label><!-- Thursday (4) --><label :class=\"{ &#39;is-active&#39;: selectedDays.includes(4) }\" class=\"day-pill-toggle\"><input type=\"checkbox\" name=\"days_of_week\" value=\"4\" :checked=\"selectedDays.includes(4)\" @change=\"toggleDay(4)\" style=\"display:none;\"> <span>الخميس</span> <span x-show=\"selectedDays.includes(4)\" class=\"text-xs\">✓</span></label><!-- Friday (5) --><label :class=\"{ &#39;is-active&#39;: selectedDays.includes(5) }\" class=\"day-pill-toggle\"><input type=\"checkbox\" name=\"days_of_week\" value=\"5\" :checked=\"selectedDays.includes(5)\" @change=\"toggleDay(5)\" style=\"display:none;\"> <span>الجمعة</span> <span x-show=\"selectedDays.includes(5)\" class=\"text-xs\">✓</span></label></div></div><!-- Step 3: Subgovernorates / Cities Selection (Dynamic) --><div x-show=\"selectedGovId\" class=\"bg-surface-sunken p-5 rounded-xl border d-flex flex-col gap-3\"><div style=\"display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.75rem;\"><div><label style=\"font-size:0.9rem; font-weight:800; margin:0; color:var(--color-text-heading); display:flex; align-items:center; gap:0.5rem;\"><span>🏙️</span> <span>المدن والمراكز المستهدفة بالمحافظة</span> <span class=\"badge badge-primary\" style=\"font-size:0.75rem;\" x-text=\"selectedCities.length + &#39; مدينة محددة&#39;\"></span></label></div><div style=\"display:flex; align-items:center; gap:0.75rem;\"><input type=\"text\" x-model=\"citySearch\" placeholder=\"بحث باسم المدينة أو الحي...\" class=\"form-control\" style=\"width:200px; padding:0.35rem 0.65rem; font-size:0.825rem; border-radius:0.5rem;\"> <button type=\"button\" @click=\"toggleSelectAllCities()\" class=\"btn btn-sm btn-primary\" style=\"font-weight:700; font-size:0.8rem; padding:0.35rem 0.75rem; border-radius:0.5rem;\"><span x-text=\"allCitiesInGov ? &#39;إلغاء تحديد كل المدن&#39; : &#39;تحديد كل مدن المحافظة&#39;\"></span></button></div></div><!-- Hidden input for all_cities_in_gov --><input type=\"hidden\" name=\"all_cities_in_gov\" :value=\"allCitiesInGov ? &#39;true&#39; : &#39;false&#39;\"><!-- Grid of cities under governorate --><div class=\"d-grid gap-2 max-h-56 overflow-y-auto p-2 bg-surface rounded-lg border\" style=\"grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));\"><template x-for=\"c in filteredCities\" :key=\"c.id\"><label :class=\"selectedCities.includes(String(c.id)) ? &#39;badge-primary&#39; : &#39;bg-surface-sunken&#39;\" class=\"p-2 rounded-lg border d-flex items-center gap-2 cursor-pointer transition\"><input type=\"checkbox\" name=\"city_ids\" :value=\"c.id\" :checked=\"selectedCities.includes(String(c.id))\" @change=\"toggleCity(c.id)\" class=\"w-4 h-4 cursor-pointer\"><div class=\"flex-1 min-w-0\"><div class=\"font-bold text-sm text-primary\" x-text=\"c.name_ar\"></div><div class=\"text-xs text-muted\" x-text=\"c.name_en\"></div></div><span x-show=\"c.is_capital\" class=\"badge badge-amber badge-compact\">عاصمة</span></label></template><div x-show=\"filteredCities.length === 0\" class=\"text-center py-6 text-muted text-xs col-span-full\">لم يتم العثور على مدن تطابق البحث.</div></div></div><!-- Step 4: General Radius & Timing Configurations --><div class=\"d-grid gap-4\" style=\"grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));\"><!-- Radius in Meters --><div class=\"bg-surface-sunken p-5 rounded-xl border\"><label class=\"d-block text-xs font-bold mb-2 text-primary\">📡 نصف قطر التغطية الافتراضي (بالمتر)</label><div class=\"d-flex items-center gap-2 mb-3\"><input type=\"number\" name=\"distance_meters\" x-model=\"distanceMeters\" min=\"100\" max=\"500000\" step=\"500\" class=\"form-control font-bold text-md w-36\" required> <span class=\"font-bold text-xs text-muted\">متر</span> <span class=\"badge badge-primary text-xs\" x-text=\"(distanceMeters / 1000).toFixed(1) + &#39; كم&#39;\"></span></div><!-- Quick Presets --><div class=\"d-flex flex-wrap gap-1\"><button type=\"button\" @click=\"setDistance(1000)\" class=\"btn btn-2xs btn-secondary\">1 كم</button> <button type=\"button\" @click=\"setDistance(3000)\" class=\"btn btn-2xs btn-secondary\">3 كم</button> <button type=\"button\" @click=\"setDistance(5000)\" class=\"btn btn-2xs btn-secondary\">5 كم (قياسي)</button> <button type=\"button\" @click=\"setDistance(10000)\" class=\"btn btn-2xs btn-secondary\">10 كم</button> <button type=\"button\" @click=\"setDistance(25000)\" class=\"btn btn-2xs btn-secondary\">25 كم</button> <button type=\"button\" @click=\"setDistance(50000)\" class=\"btn btn-2xs btn-secondary\">50 كم</button></div></div><!-- Time Window --><div class=\"bg-surface-sunken p-5 rounded-xl border\"><label class=\"d-block text-xs font-bold mb-2 text-primary\">⏰ مواعيد وساعات العمل والتوصيل الافتراضية</label><div class=\"d-grid gap-3 mb-3\" style=\"grid-template-columns: 1fr 1fr;\"><div><span class=\"text-xs text-muted font-semibold d-block mb-1\">من (وقت البدء):</span> <input type=\"time\" name=\"coverage_from\" x-model=\"coverageFrom\" class=\"form-control text-xs\"></div><div><span class=\"text-xs text-muted font-semibold d-block mb-1\">إلى (وقت الانتهاء):</span> <input type=\"time\" name=\"coverage_to\" x-model=\"coverageTo\" class=\"form-control text-xs\"></div></div><!-- Time Presets --><div class=\"d-flex flex-wrap gap-1\"><button type=\"button\" @click=\"setTimePreset(&#39;09:00&#39;, &#39;17:00&#39;)\" class=\"btn btn-2xs btn-secondary\">دوام كامل (9 ص - 5 م)</button> <button type=\"button\" @click=\"setTimePreset(&#39;16:00&#39;, &#39;23:00&#39;)\" class=\"btn btn-2xs btn-secondary\">فترة مسائية</button> <button type=\"button\" @click=\"setTimePreset(&#39;&#39;, &#39;&#39;)\" class=\"btn btn-2xs btn-secondary\">طوال اليوم (24 ساعة)</button></div></div></div><!-- Step 5: Per-City Timing & Radius Customization Grid --><div x-show=\"selectedCities.length &gt; 0\" class=\"bg-surface-sunken p-5 rounded-xl border d-flex flex-col gap-4\"><div class=\"flex-between items-center flex-wrap gap-3\"><div><h3 class=\"text-sm font-extrabold text-primary m-0 d-flex items-center gap-2\"><span>⏱️</span> <span>تخصيص مواعيد وساعات التوصيل ونصف القطر لكل مدينة محددة على حدة</span></h3><p class=\"text-xs text-muted m-0 mt-1\">يمكنك تعديل مواعيد العمل ونطاق التغطية لكل مدينة مستقلة، أو تطبيق الإعدادات العامة عليها بضغطة زر.</p></div><button type=\"button\" @click=\"applyDefaultsToAllCities()\" class=\"btn btn-xs btn-secondary font-bold\">⚡ تطبيق الإعدادات العامة على كل المدن</button></div><div class=\"d-grid gap-3\" style=\"grid-template-columns: repeat(auto-fit, minmax(310px, 1fr));\"><template x-for=\"c in getSelectedCityDetails()\" :key=\"c.id\"><div class=\"bg-surface-raised p-4 rounded-xl border d-flex flex-col gap-3 shadow-xs\"><div class=\"flex-between items-start\"><div><div class=\"font-extrabold text-sm text-brand\" x-text=\"c.name_ar\"></div><div class=\"text-xs text-muted\" x-text=\"c.name_en + (c.lat ? &#39; (&#39; + c.lat.toFixed(4) + &#39;, &#39; + c.lon.toFixed(4) + &#39;)&#39; : &#39;&#39;)\"></div></div><button type=\"button\" @click=\"toggleCity(c.id)\" class=\"btn btn-icon btn-2xs text-danger\" title=\"إزالة هذه المدينة\">✕</button></div><div class=\"d-grid gap-2\" style=\"grid-template-columns: 1fr 1fr;\"><div><label class=\"d-block text-xs font-semibold text-muted mb-1\">من (ساعة البدء):</label> <input type=\"time\" :name=\"&#39;coverage_from_&#39; + c.id\" x-model=\"initCityConfig(String(c.id)).from\" class=\"form-control text-xs\"></div><div><label class=\"d-block text-xs font-semibold text-muted mb-1\">إلى (ساعة الانتهاء):</label> <input type=\"time\" :name=\"&#39;coverage_to_&#39; + c.id\" x-model=\"initCityConfig(String(c.id)).to\" class=\"form-control text-xs\"></div></div><div><label class=\"d-block text-xs font-semibold text-muted mb-1\">نصف قطر التغطية (بالمتر من مركز المدينة):</label><div class=\"d-flex items-center gap-2\"><input type=\"number\" :name=\"&#39;distance_meters_&#39; + c.id\" x-model=\"initCityConfig(String(c.id)).distance\" min=\"100\" max=\"500000\" step=\"500\" class=\"form-control text-xs font-bold flex-1\"> <span class=\"badge badge-primary text-xs\" x-text=\"((initCityConfig(String(c.id)).distance || 5000) / 1000).toFixed(1) + &#39; كم&#39;\"></span></div></div></div></template></div></div><!-- Live Impact Summary & Submit Button --><div class=\"glass-panel p-5 flex-between items-center flex-wrap gap-4 border\"><div class=\"d-flex items-center gap-3\"><span class=\"text-2xl\">⚡</span><div><div class=\"font-extrabold text-primary text-sm\">ملخص العملية: <span x-text=\"selectedDays.length\" class=\"text-brand\"></span> أيام × <span x-text=\"selectedCities.length &gt; 0 ? selectedCities.length : &#39;1&#39;\" class=\"text-brand\"></span> مدينة = <span class=\"text-brand font-black\" x-text=\"(selectedDays.length * (selectedCities.length &gt; 0 ? selectedCities.length : 1)) + &#39; نطاق تغطية أسبوعية&#39;\"></span></div><div class=\"text-xs text-secondary mt-1\">سيتم إنشاء / تحديث جدول التوزيع ومواعيد التوصيل تلقائياً وفورياً لجميع الصيدليات ضمن هذه النطاقات.</div></div></div><button type=\"submit\" :disabled=\"selectedDays.length === 0 || !selectedGovId\" class=\"btn btn-primary px-8 font-extrabold text-sm shadow-md\"><span>حفظ وجدولة التغطية الأسبوعية</span> <span>←</span></button></div></form></div><!-- Active Weekly Coverages Table & Filters --><div class=\"glass-panel p-6 mb-6\"><div class=\"flex-between items-center mb-6 pb-4 border-b flex-wrap gap-4\"><div><h2 class=\"text-lg font-black text-primary m-0 d-flex items-center gap-2\"><span>📋</span> <span>سجل نطاقات التغطية والتوزيع المسجلة (")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var14 string
 			templ_7745c5c3_Var14, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", len(data.Coverages)))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_coverage.templ`, Line: 688, Col: 121}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_coverage.templ`, Line: 671, Col: 121}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var14))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, ")</span></h2><p style=\"margin:0.25rem 0 0 0; color:var(--color-text-muted); font-size:0.875rem;\">استعرض وعدل جداول التوزيع الخاصة بأسطولك حسب اليوم والمحافظة والمدينة.</p></div><!-- Filter Controls --><div style=\"display:flex; align-items:center; gap:0.75rem; flex-wrap:wrap;\"><!-- Filter Day --><select x-model=\"filterDay\" class=\"form-control\" style=\"font-size:0.85rem; padding:0.45rem 0.75rem; border-radius:0.5rem; font-weight:600;\"><option value=\"all\">كل الأيام</option> <option value=\"6\">السبت</option> <option value=\"0\">الأحد</option> <option value=\"1\">الاثنين</option> <option value=\"2\">الثلاثاء</option> <option value=\"3\">الأربعاء</option> <option value=\"4\">الخميس</option> <option value=\"5\">الجمعة</option></select><!-- Search query --><input type=\"text\" x-model=\"searchQuery\" placeholder=\"بحث بالمدينة أو المحافظة...\" class=\"form-control\" style=\"font-size:0.85rem; padding:0.45rem 0.75rem; border-radius:0.5rem; width:180px;\"></div></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, ")</span></h2><p class=\"text-xs text-muted mt-1 m-0\">استعرض وعدل جداول التوزيع الخاصة بأسطولك حسب اليوم والمحافظة والمدينة.</p></div><!-- Filter Controls --><div class=\"d-flex items-center gap-3 flex-wrap\"><!-- Filter Day --><select x-model=\"filterDay\" class=\"form-control text-xs font-bold w-36\"><option value=\"all\">كل الأيام</option> <option value=\"6\">السبت</option> <option value=\"0\">الأحد</option> <option value=\"1\">الاثنين</option> <option value=\"2\">الثلاثاء</option> <option value=\"3\">الأربعاء</option> <option value=\"4\">الخميس</option> <option value=\"5\">الجمعة</option></select><!-- Search query --><input type=\"text\" x-model=\"searchQuery\" placeholder=\"بحث بالمدينة أو المحافظة...\" class=\"form-control text-xs w-48\"></div></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			if len(data.Coverages) == 0 {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 25, "<div style=\"text-align:center; padding:3rem 1rem; background:var(--color-bg-subtle, rgba(0,0,0,0.02)); border-radius:0.875rem; border:1px dashed var(--color-border);\"><div style=\"font-size:2.5rem; margin-bottom:0.75rem;\">🗺️</div><h3 style=\"font-size:1.1rem; font-weight:700; margin:0 0 0.5rem 0; color:var(--color-text-heading);\">لا توجد نطاقات تغطية مضافة حتى الآن</h3><p style=\"color:var(--color-text-muted); font-size:0.875rem; max-width:450px; margin:0 auto 1.25rem auto;\">قم بإنشاء جدول التغطية الأسبوعية لفرعك ومندوبيك لتتمكن الصيدليات الواقعة في نطاق مدنك من رؤية منتجاتك وطلبها.</p><a href=\"#builder-section\" class=\"btn btn-primary\" style=\"font-weight:700; border-radius:0.625rem;\">+ إنشاء أول نطاق تغطية</a></div>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 25, "<div class=\"empty-state-glass p-8 text-center\"><div class=\"empty-state-icon-wrapper mx-auto mb-3\"><span class=\"text-3xl\">🗺️</span></div><h3 class=\"text-lg font-black text-primary mb-1\">لا توجد نطاقات تغطية مضافة حتى الآن</h3><p class=\"text-sm text-muted mb-4 max-w-md mx-auto\">قم بإنشاء جدول التغطية الأسبوعية لفرعك ومندوبيك لتتمكن الصيدليات الواقعة في نطاق مدنك من رؤية منتجاتك وطلبها.</p><a href=\"#builder-section\" class=\"btn btn-primary font-bold\">+ إنشاء أول نطاق تغطية</a></div>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			} else {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 26, "<div class=\"table-responsive\" style=\"overflow-x:auto;\"><table class=\"table\" style=\"width:100%; border-collapse:collapse;\"><thead><tr style=\"background:var(--color-bg-subtle, rgba(0,0,0,0.02)); border-bottom:2px solid var(--color-border); text-align:right;\"><th style=\"padding:0.85rem 1rem; font-size:0.8rem; font-weight:700; color:var(--color-text-muted);\">يوم التغطية</th><th style=\"padding:0.85rem 1rem; font-size:0.8rem; font-weight:700; color:var(--color-text-muted);\">المحافظة والمدينة</th><th style=\"padding:0.85rem 1rem; font-size:0.8rem; font-weight:700; color:var(--color-text-muted);\">الإحداثيات الجغرافية (GPS)</th><th style=\"padding:0.85rem 1rem; font-size:0.8rem; font-weight:700; color:var(--color-text-muted);\">نصف القطر (المدى)</th><th style=\"padding:0.85rem 1rem; font-size:0.8rem; font-weight:700; color:var(--color-text-muted);\">مواعيد العمل</th><th style=\"padding:0.85rem 1rem; font-size:0.8rem; font-weight:700; color:var(--color-text-muted);\">الفرع</th><th style=\"padding:0.85rem 1rem; font-size:0.8rem; font-weight:700; color:var(--color-text-muted);\">الحالة</th><th style=\"padding:0.85rem 1rem; font-size:0.8rem; font-weight:700; color:var(--color-text-muted); text-align:center;\">الإجراءات</th></tr></thead> <tbody>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 26, "<div class=\"table-container m-0\"><table class=\"data-table m-0\"><thead><tr><th>يوم التغطية</th><th>المحافظة والمدينة</th><th>الإحداثيات الجغرافية (GPS)</th><th>نصف القطر (المدى)</th><th>مواعيد العمل</th><th>الفرع</th><th>الحالة</th><th class=\"text-center\">الإجراءات</th></tr></thead> <tbody>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -424,13 +424,13 @@ func VendorCoveragePage(data VendorCoverageData, lang, dir string) templ.Compone
 					var templ_7745c5c3_Var15 string
 					templ_7745c5c3_Var15, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("(filterDay === 'all' || filterDay === '%d') && (!searchQuery || '%s'.toLowerCase().includes(searchQuery.toLowerCase()) || '%s'.toLowerCase().includes(searchQuery.toLowerCase()))", c.DayOfWeek, c.GovernorateNameAr, c.CityNameAr))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_coverage.templ`, Line: 740, Col: 262}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_coverage.templ`, Line: 725, Col: 262}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var15))
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 28, "\" style=\"border-bottom:1px solid var(--color-border); transition:background 0.15s ease;\"><!-- Day Badge --><td style=\"padding:0.85rem 1rem; white-space:nowrap;\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 28, "\"><!-- Day Badge --><td>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -452,20 +452,20 @@ func VendorCoveragePage(data VendorCoverageData, lang, dir string) templ.Compone
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 30, "\" style=\"font-weight:700; font-size:0.825rem; padding:0.35rem 0.65rem;\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 30, "\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var18 string
 					templ_7745c5c3_Var18, templ_7745c5c3_Err = templ.JoinStringErrs(dayNameArabic(c.DayOfWeek))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_coverage.templ`, Line: 744, Col: 40}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_coverage.templ`, Line: 729, Col: 40}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var18))
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 31, "</span></td><!-- Governorate & City --><td style=\"padding:0.85rem 1rem;\"><div style=\"font-weight:800; color:var(--color-text-heading); font-size:0.95rem;\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 31, "</span></td><!-- Governorate & City --><td><div class=\"font-extrabold text-sm text-primary\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -473,7 +473,7 @@ func VendorCoveragePage(data VendorCoverageData, lang, dir string) templ.Compone
 						var templ_7745c5c3_Var19 string
 						templ_7745c5c3_Var19, templ_7745c5c3_Err = templ.JoinStringErrs(c.GovernorateNameAr)
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_coverage.templ`, Line: 752, Col: 34}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_coverage.templ`, Line: 737, Col: 34}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var19))
 						if templ_7745c5c3_Err != nil {
@@ -487,7 +487,7 @@ func VendorCoveragePage(data VendorCoverageData, lang, dir string) templ.Compone
 						var templ_7745c5c3_Var20 string
 						templ_7745c5c3_Var20, templ_7745c5c3_Err = templ.JoinStringErrs(c.GovernorateName)
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_coverage.templ`, Line: 754, Col: 32}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_coverage.templ`, Line: 739, Col: 32}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var20))
 						if templ_7745c5c3_Err != nil {
@@ -504,7 +504,7 @@ func VendorCoveragePage(data VendorCoverageData, lang, dir string) templ.Compone
 						}
 					}
 					if c.CityNameAr != "" || c.CityName != "" {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 35, "<span style=\"color:var(--color-text-muted); margin:0 0.35rem;\">›</span> <span style=\"color:#2563eb;\">")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 35, "<span class=\"text-muted mx-1\">›</span> <span class=\"text-brand\">")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
@@ -512,7 +512,7 @@ func VendorCoveragePage(data VendorCoverageData, lang, dir string) templ.Compone
 							var templ_7745c5c3_Var21 string
 							templ_7745c5c3_Var21, templ_7745c5c3_Err = templ.JoinStringErrs(c.CityNameAr)
 							if templ_7745c5c3_Err != nil {
-								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_coverage.templ`, Line: 762, Col: 29}
+								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_coverage.templ`, Line: 747, Col: 29}
 							}
 							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var21))
 							if templ_7745c5c3_Err != nil {
@@ -522,7 +522,7 @@ func VendorCoveragePage(data VendorCoverageData, lang, dir string) templ.Compone
 							var templ_7745c5c3_Var22 string
 							templ_7745c5c3_Var22, templ_7745c5c3_Err = templ.JoinStringErrs(c.CityName)
 							if templ_7745c5c3_Err != nil {
-								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_coverage.templ`, Line: 764, Col: 27}
+								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_coverage.templ`, Line: 749, Col: 27}
 							}
 							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var22))
 							if templ_7745c5c3_Err != nil {
@@ -539,14 +539,14 @@ func VendorCoveragePage(data VendorCoverageData, lang, dir string) templ.Compone
 						return templ_7745c5c3_Err
 					}
 					if c.Address != "" && c.Address != c.CityNameAr {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 38, "<div style=\"font-size:0.75rem; color:var(--color-text-muted); margin-top:0.15rem;\">📍 ")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 38, "<div class=\"text-xs text-muted mt-1\">📍 ")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
 						var templ_7745c5c3_Var23 string
 						templ_7745c5c3_Var23, templ_7745c5c3_Err = templ.JoinStringErrs(c.Address)
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_coverage.templ`, Line: 771, Col: 29}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_coverage.templ`, Line: 756, Col: 29}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var23))
 						if templ_7745c5c3_Err != nil {
@@ -557,19 +557,19 @@ func VendorCoveragePage(data VendorCoverageData, lang, dir string) templ.Compone
 							return templ_7745c5c3_Err
 						}
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 40, "</td><!-- GPS Coordinates & Map Link --><td style=\"padding:0.85rem 1rem; font-family:monospace; font-size:0.825rem;\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 40, "</td><!-- GPS Coordinates & Map Link --><td class=\"font-mono text-xs\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 					if c.Latitude != nil && c.Longitude != nil {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 41, "<div style=\"display:flex; align-items:center; gap:0.4rem;\"><span>")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 41, "<div class=\"d-flex items-center gap-2\"><span>")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
 						var templ_7745c5c3_Var24 string
 						templ_7745c5c3_Var24, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%.4f, %.4f", *c.Latitude, *c.Longitude))
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_coverage.templ`, Line: 780, Col: 73}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_coverage.templ`, Line: 765, Col: 73}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var24))
 						if templ_7745c5c3_Err != nil {
@@ -584,42 +584,42 @@ func VendorCoveragePage(data VendorCoverageData, lang, dir string) templ.Compone
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 43, "\" target=\"_blank\" title=\"معاينة على خرائط جوجل\" style=\"text-decoration:none; font-size:0.9rem;\">🗺️</a></div>")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 43, "\" target=\"_blank\" title=\"معاينة على خرائط جوجل\" class=\"text-decoration-none\">🗺️</a></div>")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
 					} else {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 44, "<span style=\"color:var(--color-text-muted); font-size:0.75rem;\">إحداثيات مركز الفرع</span>")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 44, "<span class=\"text-muted text-xs\">إحداثيات مركز الفرع</span>")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 45, "</td><!-- Radius Distance --><td style=\"padding:0.85rem 1rem; white-space:nowrap;\"><span class=\"badge badge-primary\" style=\"font-weight:700; font-size:0.825rem; padding:0.35rem 0.6rem;\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 45, "</td><!-- Radius Distance --><td><span class=\"badge badge-primary\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var26 string
 					templ_7745c5c3_Var26, templ_7745c5c3_Err = templ.JoinStringErrs(formatDistanceKM(c.DistanceMeters))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_coverage.templ`, Line: 793, Col: 48}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_coverage.templ`, Line: 778, Col: 48}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var26))
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 46, "</span></td><!-- Coverage Time Window --><td style=\"padding:0.85rem 1rem; white-space:nowrap; font-size:0.85rem;\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 46, "</span></td><!-- Coverage Time Window --><td>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 					if c.CoverageFrom != nil && c.CoverageTo != nil && *c.CoverageFrom != "" {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 47, "<span class=\"badge badge-secondary\" style=\"font-weight:600;\">🕒 ")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 47, "<span class=\"badge badge-secondary font-bold\">🕒 ")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
 						var templ_7745c5c3_Var27 string
 						templ_7745c5c3_Var27, templ_7745c5c3_Err = templ.JoinStringErrs(*c.CoverageFrom)
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_coverage.templ`, Line: 801, Col: 35}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_coverage.templ`, Line: 786, Col: 35}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var27))
 						if templ_7745c5c3_Err != nil {
@@ -632,7 +632,7 @@ func VendorCoveragePage(data VendorCoverageData, lang, dir string) templ.Compone
 						var templ_7745c5c3_Var28 string
 						templ_7745c5c3_Var28, templ_7745c5c3_Err = templ.JoinStringErrs(*c.CoverageTo)
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_coverage.templ`, Line: 801, Col: 55}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_coverage.templ`, Line: 786, Col: 55}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var28))
 						if templ_7745c5c3_Err != nil {
@@ -643,25 +643,25 @@ func VendorCoveragePage(data VendorCoverageData, lang, dir string) templ.Compone
 							return templ_7745c5c3_Err
 						}
 					} else {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 50, "<span style=\"color:var(--color-text-muted); font-size:0.8rem;\">طوال اليوم</span>")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 50, "<span class=\"text-muted text-xs\">طوال اليوم</span>")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 51, "</td><!-- Branch --><td style=\"padding:0.85rem 1rem; white-space:nowrap; font-size:0.85rem; color:var(--color-text-heading);\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 51, "</td><!-- Branch --><td class=\"text-sm font-semibold text-primary\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var29 string
 					templ_7745c5c3_Var29, templ_7745c5c3_Err = templ.JoinStringErrs(c.BranchName)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_coverage.templ`, Line: 810, Col: 25}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_coverage.templ`, Line: 795, Col: 25}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var29))
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 52, "</td><!-- Status Toggle --><td style=\"padding:0.85rem 1rem; white-space:nowrap;\"><form method=\"POST\" action=\"")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 52, "</td><!-- Status Toggle --><td><form method=\"POST\" action=\"")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -670,14 +670,14 @@ func VendorCoveragePage(data VendorCoverageData, lang, dir string) templ.Compone
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 53, "\" style=\"display:inline;\"><input type=\"hidden\" name=\"gorilla.csrf.Token\" value=\"\"> <input type=\"hidden\" name=\"id\" value=\"")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 53, "\" class=\"d-inline\"><input type=\"hidden\" name=\"gorilla.csrf.Token\" value=\"\"> <input type=\"hidden\" name=\"id\" value=\"")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var31 string
 					templ_7745c5c3_Var31, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", c.ID))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_coverage.templ`, Line: 817, Col: 74}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_coverage.templ`, Line: 802, Col: 74}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var31))
 					if templ_7745c5c3_Err != nil {
@@ -688,17 +688,17 @@ func VendorCoveragePage(data VendorCoverageData, lang, dir string) templ.Compone
 						return templ_7745c5c3_Err
 					}
 					if c.IsActive {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 55, "<button type=\"submit\" class=\"badge badge-emerald\" style=\"border:none; cursor:pointer; padding:0.35rem 0.65rem; font-weight:700; font-size:0.8rem;\" title=\"اضغط للتعطيل\">● نشط ومتاح</button>")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 55, "<button type=\"submit\" class=\"badge badge-emerald border-0 cursor-pointer font-bold\" title=\"اضغط للتعطيل\">● نشط ومتاح</button>")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
 					} else {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 56, "<button type=\"submit\" class=\"badge badge-secondary\" style=\"border:none; cursor:pointer; padding:0.35rem 0.65rem; font-weight:700; font-size:0.8rem;\" title=\"اضغط للتفعيل\">○ معطل مؤقتاً</button>")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 56, "<button type=\"submit\" class=\"badge badge-secondary border-0 cursor-pointer font-bold\" title=\"اضغط للتفعيل\">○ معطل مؤقتاً</button>")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 57, "</form></td><!-- Actions --><td style=\"padding:0.85rem 1rem; text-align:center; white-space:nowrap;\"><div style=\"display:inline-flex; align-items:center; gap:0.4rem;\"><button type=\"button\" @click=\"")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 57, "</form></td><!-- Actions --><td class=\"text-center\"><div class=\"d-inline-flex items-center gap-2\"><button type=\"button\" @click=\"")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -754,13 +754,13 @@ func VendorCoveragePage(data VendorCoverageData, lang, dir string) templ.Compone
 						c.IsActive,
 					))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_coverage.templ`, Line: 846, Col: 13}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_coverage.templ`, Line: 831, Col: 13}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var32))
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 58, "\" class=\"btn btn-sm btn-secondary\" style=\"padding:0.3rem 0.6rem; font-size:0.75rem; border-radius:0.375rem;\" title=\"تعديل النطاق\">✏️</button><form method=\"POST\" action=\"")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 58, "\" class=\"btn btn-2xs btn-secondary\" title=\"تعديل النطاق\">✏️</button><form method=\"POST\" action=\"")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -769,20 +769,20 @@ func VendorCoveragePage(data VendorCoverageData, lang, dir string) templ.Compone
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 59, "\" onsubmit=\"return confirm(&#39;هل أنت متأكد من حذف نطاق التغطية هذا؟&#39;);\" style=\"display:inline;\"><input type=\"hidden\" name=\"gorilla.csrf.Token\" value=\"\"> <input type=\"hidden\" name=\"id\" value=\"")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 59, "\" onsubmit=\"return confirm(&#39;هل أنت متأكد من حذف نطاق التغطية هذا؟&#39;);\" class=\"d-inline\"><input type=\"hidden\" name=\"gorilla.csrf.Token\" value=\"\"> <input type=\"hidden\" name=\"id\" value=\"")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var34 string
 					templ_7745c5c3_Var34, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", c.ID))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_coverage.templ`, Line: 852, Col: 75}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_coverage.templ`, Line: 837, Col: 75}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var34))
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 60, "\"> <button type=\"submit\" class=\"btn btn-sm btn-danger\" style=\"padding:0.3rem 0.6rem; font-size:0.75rem; border-radius:0.375rem;\" title=\"حذف النطاق\">🗑️</button></form></div></td></tr>")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 60, "\"> <button type=\"submit\" class=\"btn btn-2xs btn-danger\" title=\"حذف النطاق\">🗑️</button></form></div></td></tr>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -792,42 +792,42 @@ func VendorCoveragePage(data VendorCoverageData, lang, dir string) templ.Compone
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 62, "</div><!-- Delivery Distance Pricing Bands (شرائح ورسوم التوصيل حسب المسافة بالمتر) --><div class=\"card\" style=\"padding:1.75rem; border-radius:1rem; border:1px solid var(--color-border);\"><div style=\"display:flex; justify-content:space-between; align-items:center; margin-bottom:1.25rem; flex-wrap:wrap; gap:0.75rem;\"><div><h2 style=\"font-size:1.15rem; font-weight:800; margin:0; display:flex; align-items:center; gap:0.5rem; color:var(--color-text-heading);\"><span>💵</span> <span>شرائح ورسوم التوصيل حسب المسافة (Delivery Distance Bands)</span></h2><p style=\"margin:0.25rem 0 0 0; color:var(--color-text-muted); font-size:0.85rem;\">تحديد تكلفة الشحن الإضافية للطلبات بناءً على بُعد الصيدلية بالمتر (أو الكيلومتر) عن مركز التغطية ونقطة التوزيع. (1000 متر = 1 كم).</p></div></div><div style=\"display:grid; grid-template-columns:repeat(auto-fit, minmax(320px, 1fr)); gap:1.5rem;\"><!-- Add Delivery Band Form --><form method=\"POST\" action=\"/vendor/delivery-bands/create\" style=\"background:var(--color-bg-subtle, rgba(0,0,0,0.02)); padding:1.25rem; border-radius:0.875rem; border:1px solid var(--color-border); display:flex; flex-direction:column; gap:1rem;\"><input type=\"hidden\" name=\"gorilla.csrf.Token\" value=\"\"><div style=\"font-weight:800; font-size:0.9rem; color:var(--color-text-heading); display:flex; align-items:center; gap:0.35rem;\"><span>➕</span> <span>إضافة شريحة تسعير جديدة بالمتر</span></div><div style=\"display:grid; grid-template-columns:1fr 1fr 1fr; gap:0.5rem;\"><div><span style=\"font-size:0.75rem; font-weight:700; color:var(--color-text-heading);\">من (متر):</span> <input type=\"number\" name=\"from_meters\" min=\"0\" step=\"100\" value=\"0\" class=\"form-control\" style=\"width:100%; padding:0.45rem; border-radius:0.5rem; font-weight:700;\" placeholder=\"0 م\" required></div><div><span style=\"font-size:0.75rem; font-weight:700; color:var(--color-text-heading);\">إلى (متر):</span> <input type=\"number\" name=\"to_meters\" min=\"100\" step=\"100\" value=\"5000\" class=\"form-control\" style=\"width:100%; padding:0.45rem; border-radius:0.5rem; font-weight:700;\" placeholder=\"5000 م\" required></div><div><span style=\"font-size:0.75rem; font-weight:700; color:var(--color-text-heading);\">الرسوم (")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 62, "</div><!-- Delivery Distance Pricing Bands --><div class=\"glass-panel p-6 mb-6\"><div class=\"flex-between items-center mb-6 pb-4 border-b flex-wrap gap-3\"><div><h2 class=\"text-lg font-black text-primary m-0 d-flex items-center gap-2\"><span>💵</span> <span>شرائح ورسوم التوصيل حسب المسافة (Delivery Distance Bands)</span></h2><p class=\"text-xs text-muted mt-1 m-0\">تحديد تكلفة الشحن الإضافية للطلبات بناءً على بُعد الصيدلية بالمتر (أو الكيلومتر) عن مركز التغطية ونقطة التوزيع. (1000 متر = 1 كم).</p></div></div><div class=\"d-grid gap-6\" style=\"grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));\"><!-- Add Delivery Band Form --><form method=\"POST\" action=\"/vendor/delivery-bands/create\" class=\"bg-surface-sunken p-5 rounded-xl border d-flex flex-col gap-4\"><input type=\"hidden\" name=\"gorilla.csrf.Token\" value=\"\"><div class=\"font-extrabold text-sm text-primary d-flex items-center gap-2\"><span>➕</span> <span>إضافة شريحة تسعير جديدة بالمتر</span></div><div class=\"d-grid gap-3\" style=\"grid-template-columns: 1fr 1fr 1fr;\"><div><span class=\"text-xs font-bold text-primary d-block mb-1\">من (متر):</span> <input type=\"number\" name=\"from_meters\" min=\"0\" step=\"100\" value=\"0\" class=\"form-control font-bold\" placeholder=\"0 م\" required></div><div><span class=\"text-xs font-bold text-primary d-block mb-1\">إلى (متر):</span> <input type=\"number\" name=\"to_meters\" min=\"100\" step=\"100\" value=\"5000\" class=\"form-control font-bold\" placeholder=\"5000 م\" required></div><div><span class=\"text-xs font-bold text-primary d-block mb-1\">الرسوم (")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var35 string
 			templ_7745c5c3_Var35, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(lang, "common.currency_egp"))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_coverage.templ`, Line: 899, Col: 142}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_coverage.templ`, Line: 884, Col: 117}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var35))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 63, "):</span> <input type=\"number\" step=\"0.5\" name=\"delivery_fee\" min=\"0\" value=\"30\" class=\"form-control\" style=\"width:100%; padding:0.45rem; border-radius:0.5rem; font-weight:700;\" placeholder=\"30\" required></div></div><button type=\"submit\" class=\"btn btn-primary\" style=\"font-weight:700; font-size:0.85rem; padding:0.55rem 1.25rem; border-radius:0.5rem; align-self:flex-start; box-shadow:0 2px 6px rgba(37,99,235,0.2);\">💾 حفظ الشريحة</button></form><!-- List of Existing Bands --><div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 63, "):</span> <input type=\"number\" step=\"0.5\" name=\"delivery_fee\" min=\"0\" value=\"30\" class=\"form-control font-bold\" placeholder=\"30\" required></div></div><button type=\"submit\" class=\"btn btn-primary btn-sm font-bold align-self-start shadow-xs\">💾 حفظ الشريحة</button></form><!-- List of Existing Bands --><div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			if len(data.Bands) == 0 {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 64, "<div style=\"padding:1.75rem 1rem; text-align:center; color:var(--color-text-muted); font-size:0.875rem; background:var(--color-bg-subtle, rgba(0,0,0,0.02)); border-radius:0.875rem; border:1px dashed var(--color-border);\">لا توجد شرائح تسعير مخصصة حالياً (يتم تطبيق التوصيل المجاني أو السعر الأساسي الافتراضي).</div>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 64, "<div class=\"p-8 text-center text-muted text-sm bg-surface-sunken rounded-xl border border-dashed\">لا توجد شرائح تسعير مخصصة حالياً (يتم تطبيق التوصيل المجاني أو السعر الأساسي الافتراضي).</div>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			} else {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 65, "<div style=\"display:flex; flex-direction:column; gap:0.5rem;\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 65, "<div class=\"d-flex flex-col gap-2\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				for _, band := range data.Bands {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 66, "<div style=\"display:flex; justify-content:space-between; align-items:center; padding:0.75rem 1rem; background:var(--color-surface); border:1px solid var(--color-border); border-radius:0.625rem; box-shadow:0 1px 3px rgba(0,0,0,0.03);\"><div><div style=\"font-weight:800; font-size:0.9rem; color:var(--color-text-heading);\" class=\"tabular-nums\">من ")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 66, "<div class=\"flex-between items-center p-3 bg-surface-raised border rounded-xl shadow-xs\"><div><div class=\"font-extrabold text-sm text-primary tabular-nums\">من ")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var36 string
 					templ_7745c5c3_Var36, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", band.FromMeters))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_coverage.templ`, Line: 920, Col: 53}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_coverage.templ`, Line: 905, Col: 53}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var36))
 					if templ_7745c5c3_Err != nil {
@@ -840,20 +840,20 @@ func VendorCoveragePage(data VendorCoverageData, lang, dir string) templ.Compone
 					var templ_7745c5c3_Var37 string
 					templ_7745c5c3_Var37, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", band.ToMeters))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_coverage.templ`, Line: 920, Col: 100}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_coverage.templ`, Line: 905, Col: 100}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var37))
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 68, " م</div><div style=\"font-size:0.75rem; color:var(--color-text-muted); margin-top:2px;\">(يعادل ")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 68, " م</div><div class=\"text-xs text-muted mt-1\">(يعادل ")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var38 string
 					templ_7745c5c3_Var38, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%.1f", float64(band.FromMeters)/1000.0))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_coverage.templ`, Line: 923, Col: 78}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_coverage.templ`, Line: 908, Col: 78}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var38))
 					if templ_7745c5c3_Err != nil {
@@ -866,20 +866,20 @@ func VendorCoveragePage(data VendorCoverageData, lang, dir string) templ.Compone
 					var templ_7745c5c3_Var39 string
 					templ_7745c5c3_Var39, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%.1f", float64(band.ToMeters)/1000.0))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_coverage.templ`, Line: 923, Col: 145}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_coverage.templ`, Line: 908, Col: 145}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var39))
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 70, " كم)</div></div><div style=\"display:flex; align-items:center; gap:0.75rem;\"><span class=\"badge badge-primary\" style=\"font-weight:800; font-size:0.875rem; padding:0.35rem 0.65rem;\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 70, " كم)</div></div><div class=\"d-flex items-center gap-3\"><span class=\"badge badge-primary font-bold\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var40 string
 					templ_7745c5c3_Var40, templ_7745c5c3_Err = templ.JoinStringErrs(band.Fee.String() + " " + i18n.T(lang, "common.currency_egp"))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_coverage.templ`, Line: 928, Col: 75}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_coverage.templ`, Line: 913, Col: 75}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var40))
 					if templ_7745c5c3_Err != nil {
@@ -894,7 +894,7 @@ func VendorCoveragePage(data VendorCoverageData, lang, dir string) templ.Compone
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 72, "\" onsubmit=\"return confirm(&#39;هل أنت متأكد من حذف شريحة التوصيل هذه؟&#39;);\" style=\"display:inline;\"><input type=\"hidden\" name=\"gorilla.csrf.Token\" value=\"\"> <button type=\"submit\" class=\"btn btn-sm btn-danger\" style=\"padding:0.25rem 0.55rem; font-size:0.75rem; border-radius:0.375rem;\" title=\"حذف الشريحة\">🗑️</button></form></div></div>")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 72, "\" onsubmit=\"return confirm(&#39;هل أنت متأكد من حذف شريحة التوصيل هذه؟&#39;);\" class=\"d-inline\"><input type=\"hidden\" name=\"gorilla.csrf.Token\" value=\"\"> <button type=\"submit\" class=\"btn btn-2xs btn-danger\" title=\"حذف الشريحة\">🗑️</button></form></div></div>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -904,19 +904,19 @@ func VendorCoveragePage(data VendorCoverageData, lang, dir string) templ.Compone
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 74, "</div></div></div><!-- Edit Coverage Modal --><div x-show=\"editModalOpen\" x-cloak style=\"position:fixed; inset:0; z-index:9999; background:rgba(0,0,0,0.6); backdrop-filter:blur(4px); display:flex; align-items:center; justify-content:center; padding:1rem;\"><div class=\"card\" @click.away=\"closeEdit()\" style=\"width:100%; max-width:550px; border-radius:1rem; padding:1.75rem; max-height:90vh; overflow-y:auto; box-shadow:0 20px 25px -5px rgba(0,0,0,0.3);\"><div style=\"display:flex; justify-content:space-between; align-items:center; margin-bottom:1.25rem; border-bottom:1px solid var(--color-border); padding-bottom:0.75rem;\"><h3 style=\"font-size:1.15rem; font-weight:800; margin:0; display:flex; align-items:center; gap:0.5rem; color:var(--color-text-heading);\"><span>✏️</span> <span>تعديل نطاق التغطية الأسبوعية</span></h3><button type=\"button\" @click=\"closeEdit()\" style=\"background:none; border:none; font-size:1.25rem; cursor:pointer; color:var(--color-text-muted);\">✕</button></div><form :action=\"&#39;/vendor/coverage/&#39; + editCov.id + &#39;/update&#39;\" method=\"POST\" style=\"display:flex; flex-direction:column; gap:1rem;\"><input type=\"hidden\" name=\"gorilla.csrf.Token\" value=\"\"> <input type=\"hidden\" name=\"id\" :value=\"editCov.id\"> <input type=\"hidden\" name=\"coverage_id\" :value=\"editCov.id\"><div><label style=\"display:block; font-size:0.8rem; font-weight:700; margin-bottom:0.35rem;\">يوم الأسبوع</label> <select name=\"day_of_week\" x-model=\"editCov.day_of_week\" class=\"form-control\" style=\"width:100%; border-radius:0.5rem; padding:0.5rem;\"><option value=\"6\">السبت</option> <option value=\"0\">الأحد</option> <option value=\"1\">الاثنين</option> <option value=\"2\">الثلاثاء</option> <option value=\"3\">الأربعاء</option> <option value=\"4\">الخميس</option> <option value=\"5\">الجمعة</option></select></div><div style=\"display:grid; grid-template-columns:1fr 1fr; gap:0.75rem;\"><div><label style=\"display:block; font-size:0.8rem; font-weight:700; margin-bottom:0.35rem;\">المحافظة</label> <select name=\"governorate_id\" x-model=\"editCov.governorate_id\" class=\"form-control\" style=\"width:100%; border-radius:0.5rem; padding:0.5rem;\"><option value=\"\">-- المحافظة --</option> ")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 74, "</div></div></div><!-- Edit Coverage Modal --><div x-show=\"editModalOpen\" x-cloak class=\"modal-overlay\"><div class=\"modal-box modal-md\" @click.away=\"closeEdit()\"><div class=\"modal-header\"><h3 class=\"modal-title d-flex items-center gap-2\"><span>✏️</span> <span>تعديل نطاق التغطية الأسبوعية</span></h3><button type=\"button\" @click=\"closeEdit()\" class=\"modal-close\">✕</button></div><form :action=\"&#39;/vendor/coverage/&#39; + editCov.id + &#39;/update&#39;\" method=\"POST\" class=\"d-flex flex-col flex-1 overflow-hidden\"><div class=\"modal-body d-flex flex-col gap-4\"><input type=\"hidden\" name=\"gorilla.csrf.Token\" value=\"\"> <input type=\"hidden\" name=\"id\" :value=\"editCov.id\"> <input type=\"hidden\" name=\"coverage_id\" :value=\"editCov.id\"><div><label class=\"d-block text-xs font-bold mb-1 text-primary\">يوم الأسبوع</label> <select name=\"day_of_week\" x-model=\"editCov.day_of_week\" class=\"form-control font-bold\"><option value=\"6\">السبت</option> <option value=\"0\">الأحد</option> <option value=\"1\">الاثنين</option> <option value=\"2\">الثلاثاء</option> <option value=\"3\">الأربعاء</option> <option value=\"4\">الخميس</option> <option value=\"5\">الجمعة</option></select></div><div><label class=\"d-block text-xs font-bold mb-1 text-primary\">الفرع المسؤول</label> <select name=\"branch_id\" x-model=\"editCov.branch_id\" class=\"form-control\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			for _, g := range data.Governorates {
+			for _, b := range data.Branches {
 				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 75, "<option value=\"")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var42 string
-				templ_7745c5c3_Var42, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", g.ID))
+				templ_7745c5c3_Var42, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", b.ID))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_coverage.templ`, Line: 978, Col: 49}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_coverage.templ`, Line: 962, Col: 49}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var42))
 				if templ_7745c5c3_Err != nil {
@@ -927,15 +927,9 @@ func VendorCoveragePage(data VendorCoverageData, lang, dir string) templ.Compone
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var43 string
-				templ_7745c5c3_Var43, templ_7745c5c3_Err = templ.JoinStringErrs(func() string {
-					if g.Name != nil {
-						return g.Name.Get("ar")
-					} else {
-						return ""
-					}
-				}())
+				templ_7745c5c3_Var43, templ_7745c5c3_Err = templ.JoinStringErrs(b.Name.Get("ar"))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_coverage.templ`, Line: 979, Col: 96}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_coverage.templ`, Line: 963, Col: 29}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var43))
 				if templ_7745c5c3_Err != nil {
@@ -946,7 +940,7 @@ func VendorCoveragePage(data VendorCoverageData, lang, dir string) templ.Compone
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 78, "</select></div><div><label style=\"display:block; font-size:0.8rem; font-weight:700; margin-bottom:0.35rem;\">المدينة / المركز</label> <select name=\"city_id\" x-model=\"editCov.city_id\" class=\"form-control\" style=\"width:100%; border-radius:0.5rem; padding:0.5rem;\"><option value=\"\">-- المدينة --</option> ")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 78, "</select></div><div><label class=\"d-block text-xs font-bold mb-1 text-primary\">المدينة / المركز</label> <select name=\"city_id\" x-model=\"editCov.city_id\" class=\"form-control\"><option value=\"\">-- المدينة --</option> ")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -958,7 +952,7 @@ func VendorCoveragePage(data VendorCoverageData, lang, dir string) templ.Compone
 				var templ_7745c5c3_Var44 string
 				templ_7745c5c3_Var44, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", c.ID))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_coverage.templ`, Line: 990, Col: 49}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_coverage.templ`, Line: 974, Col: 49}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var44))
 				if templ_7745c5c3_Err != nil {
@@ -971,7 +965,7 @@ func VendorCoveragePage(data VendorCoverageData, lang, dir string) templ.Compone
 				var templ_7745c5c3_Var45 string
 				templ_7745c5c3_Var45, templ_7745c5c3_Err = templ.JoinStringErrs(c.Name.Get("ar"))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_coverage.templ`, Line: 991, Col: 29}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_coverage.templ`, Line: 975, Col: 29}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var45))
 				if templ_7745c5c3_Err != nil {
@@ -982,7 +976,7 @@ func VendorCoveragePage(data VendorCoverageData, lang, dir string) templ.Compone
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 82, "</select></div></div><div><label style=\"display:block; font-size:0.8rem; font-weight:700; margin-bottom:0.35rem;\">نصف القطر (بالمتر)</label> <input type=\"number\" name=\"distance_meters\" x-model=\"editCov.distance_meters\" min=\"100\" max=\"500000\" class=\"form-control\" style=\"width:100%; border-radius:0.5rem; padding:0.5rem; font-weight:700;\" required></div><div style=\"display:grid; grid-template-columns:1fr 1fr; gap:0.75rem;\"><div><label style=\"display:block; font-size:0.8rem; font-weight:700; margin-bottom:0.35rem;\">من (وقت البدء)</label> <input type=\"time\" name=\"coverage_from\" x-model=\"editCov.coverage_from\" class=\"form-control\" style=\"width:100%; border-radius:0.5rem; padding:0.5rem;\"></div><div><label style=\"display:block; font-size:0.8rem; font-weight:700; margin-bottom:0.35rem;\">إلى (وقت النهاية)</label> <input type=\"time\" name=\"coverage_to\" x-model=\"editCov.coverage_to\" class=\"form-control\" style=\"width:100%; border-radius:0.5rem; padding:0.5rem;\"></div></div><div style=\"display:flex; align-items:center; gap:0.5rem; margin-top:0.5rem;\"><input type=\"checkbox\" name=\"is_active\" value=\"true\" :checked=\"editCov.is_active\" id=\"edit_is_active\" style=\"width:18px; height:18px; cursor:pointer; accent-color:#2563eb;\"> <label for=\"edit_is_active\" style=\"font-weight:700; font-size:0.875rem; cursor:pointer;\">تفعيل هذا النطاق وجعله متاحاً للطلبات</label></div><div style=\"display:flex; justify-content:flex-end; gap:0.75rem; margin-top:1rem; border-top:1px solid var(--color-border); padding-top:1rem;\"><button type=\"button\" @click=\"closeEdit()\" class=\"btn btn-secondary\" style=\"border-radius:0.5rem;\">إلغاء</button> <button type=\"submit\" class=\"btn btn-primary\" style=\"font-weight:700; border-radius:0.5rem;\">حفظ التعديلات</button></div></form></div></div></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 82, "</select></div><div class=\"d-grid gap-3\" style=\"grid-template-columns: 1fr 1fr;\"><div><label class=\"d-block text-xs font-bold mb-1 text-primary\">من (وقت البدء)</label> <input type=\"time\" name=\"coverage_from\" x-model=\"editCov.coverage_from\" class=\"form-control text-xs\"></div><div><label class=\"d-block text-xs font-bold mb-1 text-primary\">إلى (وقت النهاية)</label> <input type=\"time\" name=\"coverage_to\" x-model=\"editCov.coverage_to\" class=\"form-control text-xs\"></div></div><div><label class=\"d-block text-xs font-bold mb-1 text-primary\">نصف القطر (بالمتر)</label><div class=\"d-flex items-center gap-2\"><input type=\"number\" name=\"distance_meters\" x-model=\"editCov.distance_meters\" min=\"100\" max=\"500000\" step=\"500\" class=\"form-control text-xs font-bold flex-1\" required> <span class=\"badge badge-primary text-xs\" x-text=\"((editCov.distance_meters || 5000) / 1000).toFixed(1) + &#39; كم&#39;\"></span></div></div><div><label class=\"d-block text-xs font-bold mb-1 text-primary\">العنوان أو الوصف الميداني (اختياري)</label> <input type=\"text\" name=\"address\" x-model=\"editCov.address\" placeholder=\"مثال: قطاع شمال المدينة حتى الطريق الدائري\" class=\"form-control text-xs\"></div><div class=\"d-flex items-center gap-2 mt-2\"><input type=\"checkbox\" name=\"is_active\" value=\"true\" :checked=\"editCov.is_active\" id=\"edit_is_active\" class=\"w-4 h-4\"> <label for=\"edit_is_active\" class=\"text-xs font-bold text-primary cursor-pointer\">تفعيل هذا النطاق وجعله متاحاً للطلبات</label></div></div><div class=\"modal-footer\"><button type=\"button\" @click=\"closeEdit()\" class=\"btn btn-secondary btn-sm font-bold\">إلغاء</button> <button type=\"submit\" class=\"btn btn-primary btn-sm font-extrabold px-6\">حفظ التعديلات</button></div></form></div></div></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

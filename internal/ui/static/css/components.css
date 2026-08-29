@@ -4661,6 +4661,292 @@ select.form-control:focus-visible {
   gap: 1rem;
 }
 
+/* ==========================================================================
+   DAWA 24 DESIGN SYSTEM — DATA TABLE & CARD SYSTEM
+   ========================================================================== */
+
+.table-container,
+.table-card {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  background: var(--bg-surface-raised, #ffffff);
+  border: 1px solid var(--border-card, #e2e8f0);
+  border-radius: var(--radius-xl, 1rem);
+  box-shadow: var(--shadow-xs);
+  margin-bottom: 1.5rem;
+}
+
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  border-spacing: 0;
+  text-align: start;
+  font-size: var(--text-sm, 0.8125rem);
+}
+
+.data-table thead {
+  background: var(--bg-surface-sunken, #f8fafc);
+  border-bottom: 1px solid var(--border-card, #e2e8f0);
+}
+
+.data-table th {
+  padding: 0.85rem 1.15rem;
+  font-size: var(--text-xs, 0.75rem);
+  font-weight: 800;
+  color: var(--text-muted, #64748b);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  white-space: nowrap;
+  vertical-align: middle;
+  border-bottom: 1px solid var(--border-card, #e2e8f0);
+}
+
+.data-table tbody tr {
+  border-bottom: 1px solid var(--border-subtle, rgba(203, 213, 225, 0.5));
+  transition: background-color var(--duration-fast, 120ms) ease;
+}
+
+.data-table tbody tr:last-child {
+  border-bottom: none;
+}
+
+.data-table tbody tr:hover,
+.data-table tbody tr.comparison-row:hover {
+  background-color: var(--bg-surface-sunken, #f8fafc);
+}
+
+.data-table td {
+  padding: 0.95rem 1.15rem;
+  vertical-align: middle;
+  color: var(--text-primary, #0f172a);
+  font-size: var(--text-sm, 0.8125rem);
+}
+
+.data-table td strong {
+  color: var(--text-primary, #0f172a);
+}
+
+/* Compact Table Variant */
+.data-table.table-compact th { padding: 0.6rem 0.85rem; font-size: var(--text-xs); }
+.data-table.table-compact td { padding: 0.65rem 0.85rem; font-size: var(--text-xs); }
+
+.data-table td.text-center,
+.data-table th.text-center { text-align: center !important; }
+
+.data-table td.text-end,
+.data-table th.text-end { text-align: end !important; }
+
+/* ==========================================================================
+   DAWA 24 DESIGN SYSTEM — BADGE & PILL SYSTEM
+   ========================================================================== */
+
+.badge {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 0.35rem;
+  font-size: var(--text-xs, 0.75rem);
+  font-weight: 700;
+  line-height: 1.2;
+  padding: 0.25rem 0.65rem;
+  border-radius: var(--radius-full, 9999px);
+  border: 1px solid transparent;
+  white-space: nowrap;
+}
+
+.badge-compact, .badge-xs {
+  font-size: 0.70rem;
+  padding: 0.15rem 0.45rem;
+}
+
+.badge-sm {
+  font-size: var(--text-xs);
+  padding: 0.2rem 0.55rem;
+}
+
+.badge-lg {
+  font-size: var(--text-sm);
+  padding: 0.35rem 0.85rem;
+}
+
+/* Badge Color Themes */
+.badge-primary {
+  background: var(--primary-subtle, #f0f7ff) !important;
+  color: var(--primary, #0284c7) !important;
+  border-color: var(--primary-border, #bae0fd) !important;
+}
+
+.badge-secondary {
+  background: var(--bg-surface-sunken, #f1f5f9) !important;
+  color: var(--text-secondary, #334155) !important;
+  border-color: var(--border-card, #e2e8f0) !important;
+}
+
+.badge-emerald, .badge-success {
+  background: rgba(16, 185, 129, 0.12) !important;
+  color: #059669 !important;
+  border-color: rgba(16, 185, 129, 0.25) !important;
+}
+[data-theme="dark"] .badge-emerald, [data-theme="dark"] .badge-success {
+  color: #34d399 !important;
+  background: rgba(16, 185, 129, 0.18) !important;
+  border-color: rgba(52, 211, 153, 0.3) !important;
+}
+
+.badge-amber, .badge-warning {
+  background: rgba(245, 158, 11, 0.12) !important;
+  color: #d97706 !important;
+  border-color: rgba(245, 158, 11, 0.25) !important;
+}
+[data-theme="dark"] .badge-amber, [data-theme="dark"] .badge-warning {
+  color: #fbbf24 !important;
+  background: rgba(245, 158, 11, 0.18) !important;
+  border-color: rgba(251, 191, 36, 0.3) !important;
+}
+
+.badge-rose, .badge-danger, .badge-red {
+  background: rgba(244, 63, 94, 0.12) !important;
+  color: #e11d48 !important;
+  border-color: rgba(244, 63, 94, 0.25) !important;
+}
+[data-theme="dark"] .badge-rose, [data-theme="dark"] .badge-danger {
+  color: #fb7185 !important;
+  background: rgba(244, 63, 94, 0.18) !important;
+  border-color: rgba(251, 113, 133, 0.3) !important;
+}
+
+.badge-sky, .badge-info, .badge-cyan {
+  background: rgba(14, 165, 233, 0.12) !important;
+  color: #0284c7 !important;
+  border-color: rgba(14, 165, 233, 0.25) !important;
+}
+[data-theme="dark"] .badge-sky, [data-theme="dark"] .badge-info {
+  color: #38bdf8 !important;
+  background: rgba(56, 189, 248, 0.18) !important;
+  border-color: rgba(56, 189, 248, 0.3) !important;
+}
+
+.badge-indigo, .badge-violet, .badge-purple {
+  background: rgba(139, 92, 246, 0.12) !important;
+  color: #7c3aed !important;
+  border-color: rgba(139, 92, 246, 0.25) !important;
+}
+[data-theme="dark"] .badge-indigo, [data-theme="dark"] .badge-violet {
+  color: #a78bfa !important;
+  background: rgba(139, 92, 246, 0.18) !important;
+  border-color: rgba(167, 139, 250, 0.3) !important;
+}
+
+.badge-slate {
+  background: var(--bg-surface-sunken, #f1f5f9) !important;
+  color: var(--text-muted, #64748b) !important;
+  border-color: var(--border-card, #e2e8f0) !important;
+}
+
+/* ==========================================================================
+   DAWA 24 DESIGN SYSTEM — FORM CONTROLS & TABS
+   ========================================================================== */
+
+.form-input,
+.form-control,
+input[type="text"],
+input[type="search"],
+input[type="password"],
+input[type="email"],
+input[type="number"],
+input[type="tel"] {
+  width: 100%;
+  padding: 0.6rem 0.85rem;
+  font-family: inherit;
+  font-size: var(--text-sm, 0.8125rem);
+  font-weight: 600;
+  line-height: 1.4;
+  color: var(--text-primary, #0f172a);
+  background-color: var(--bg-surface-raised, #ffffff);
+  border: 1px solid var(--border-card, #cbd5e1);
+  border-radius: var(--radius-lg, 0.5rem);
+  transition: border-color var(--duration-fast) ease, box-shadow var(--duration-fast) ease;
+  box-shadow: var(--shadow-xs);
+}
+
+.form-input:focus,
+.form-control:focus,
+input:focus {
+  outline: none;
+  border-color: var(--primary, #0284c7);
+  box-shadow: 0 0 0 3px var(--primary-subtle, rgba(2, 132, 199, 0.18));
+}
+
+.cb-tabs-nav {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  overflow-x: auto;
+  padding-bottom: 2px;
+}
+
+.cb-tab-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.55rem 1rem;
+  border-radius: var(--radius-lg);
+  font-size: var(--text-sm);
+  font-weight: 700;
+  color: var(--text-secondary);
+  text-decoration: none;
+  background: transparent;
+  border: 1px solid transparent;
+  white-space: nowrap;
+  transition: all var(--duration-fast) ease;
+}
+
+.cb-tab-btn:hover {
+  background: var(--bg-surface-sunken);
+  color: var(--text-primary);
+}
+
+.cb-tab-btn.active {
+  background: var(--primary-subtle);
+  color: var(--primary);
+  border-color: var(--primary-border);
+  font-weight: 800;
+}
+
+/* Day Pill Selector */
+.day-pill-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  padding: 0.6rem 0.75rem;
+  border-radius: var(--radius-lg);
+  font-weight: 700;
+  font-size: var(--text-sm);
+  cursor: pointer;
+  background: var(--bg-surface-raised);
+  border: 1.5px solid var(--border-card);
+  color: var(--text-secondary);
+  transition: all var(--duration-fast) ease;
+  user-select: none;
+}
+
+.day-pill-toggle:hover {
+  border-color: var(--primary-border);
+  background: var(--bg-surface-sunken);
+  color: var(--text-primary);
+}
+
+.day-pill-toggle.is-active {
+  background: var(--primary-subtle) !important;
+  color: var(--primary) !important;
+  border-color: var(--primary) !important;
+  box-shadow: 0 0 0 2px var(--accent-glow);
+}
+
+
+
 
 
 
