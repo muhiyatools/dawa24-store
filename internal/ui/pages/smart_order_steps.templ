@@ -32,48 +32,47 @@ type SmartOrderMappingData struct {
 // Shown per field rather than as one overall score, because the buyer needs to
 // know *which* column to check, not that something somewhere is uncertain.
 func confidenceChip(c float64) string {
-	base := "display:inline-block; padding:0.15rem 0.5rem; border-radius:999px; font-size:0.72rem; font-weight:700; margin-inline-start:0.5rem;"
 	switch {
 	case c >= 0.85:
-		return base + "background:rgba(16,185,129,0.14); color:var(--primary-700);"
+		return "confidence-chip confidence-chip-high"
 	case c >= 0.6:
-		return base + "background:rgba(245,158,11,0.14); color:var(--warning);"
+		return "confidence-chip confidence-chip-medium"
 	default:
-		return base + "background:rgba(239,68,68,0.10); color:var(--danger);"
+		return "confidence-chip confidence-chip-low"
 	}
 }
 
 // SmartOrderMappingPage is step 2: confirm or correct the column mapping.
 templ SmartOrderMappingPage(lang, dir string, data SmartOrderMappingData) {
 	@layouts.CustomerShell("تعيين الأعمدة", "purchase-request", lang, dir, nil) {
-		<div class="container-fluid" style="max-width:1100px; margin:0 auto; padding:1.5rem 1rem;">
-			<h1 style="font-size:1.6rem; font-weight:800; margin:0 0 1.5rem 0;">تعيين أعمدة الملف</h1>
+		<div class="container-fluid so-mapping-page">
+			<h1 class="so-mapping-title">تعيين أعمدة الملف</h1>
 			@stepBar(2)
 
 			if data.Error != "" {
-				<div style="padding:1rem 1.25rem; border-radius:var(--radius-lg); background:rgba(239,68,68,0.10); border:1px solid var(--danger); margin-bottom:1.5rem;">
+				<div class="so-alert so-alert-error">
 					{ data.Error }
 				</div>
 			}
 
-			<p style="color:var(--text-secondary); font-size:0.9rem; margin-bottom:1.5rem;">
+			<p class="so-mapping-intro">
 				تعرّف النظام على الأعمدة تلقائيًا. راجع الاختيارات وصحّح أي عمود قبل بدء المطابقة — تعيين خاطئ ينتج طلبًا خاطئًا بثقة.
 			</p>
 
-			<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/customer/smart-order/%s/mapping", data.Run.PublicID)) } class="card" style="padding:2rem; display:grid; gap:1.25rem;">
+			<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/customer/smart-order/%s/mapping", data.Run.PublicID)) } class="card so-mapping-form">
 				<input type="hidden" name="header_row" value={ fmt.Sprintf("%d", data.HeaderRow) }/>
 				for _, f := range data.Fields {
-					<div>
-						<label style="display:block; font-weight:700; margin-bottom:0.4rem;">
+					<div class="so-field">
+						<label class="so-field-label">
 							{ f.Label }
 							if f.Required {
-								<span style="color:var(--danger);">*</span>
+								<span class="required-mark">*</span>
 							}
 							if f.Assigned {
-								<span style={ confidenceChip(f.Confidence) }>{ fmt.Sprintf("%.0f%%", f.Confidence*100) }</span>
+								<span class={ confidenceChip(f.Confidence) }>{ fmt.Sprintf("%.0f%%", f.Confidence*100) }</span>
 							}
 						</label>
-						<select name={ "mapping_" + f.Key } style="width:100%; padding:0.6rem; border:1px solid var(--border); border-radius:var(--radius-lg);">
+						<select name={ "mapping_" + f.Key } class="form-select so-mapping-select">
 							<option value="">— بدون —</option>
 							for i, h := range data.Headers {
 								<option value={ fmt.Sprintf("%d", i) } selected?={ f.Assigned && f.Column == i }>
@@ -84,22 +83,22 @@ templ SmartOrderMappingPage(lang, dir string, data SmartOrderMappingData) {
 					</div>
 				}
 
-				<div>
-					<strong style="display:block; margin-bottom:0.6rem;">معاينة أول الصفوف</strong>
-					<div style="overflow-x:auto; border:1px solid var(--border); border-radius:var(--radius-lg);">
-						<table style="width:100%; border-collapse:collapse; font-size:0.82rem;">
+				<div class="so-preview">
+					<strong class="so-preview-title">معاينة أول الصفوف</strong>
+					<div class="table-responsive so-preview-table">
+						<table class="table">
 							<thead>
-								<tr style="background:var(--surface-sunken);">
+								<tr class="so-preview-head">
 									for i, h := range data.Headers {
-										<th style="padding:0.5rem; text-align:start; white-space:nowrap;">{ fmt.Sprintf("%d: %s", i+1, h) }</th>
+										<th>{ fmt.Sprintf("%d: %s", i+1, h) }</th>
 									}
 								</tr>
 							</thead>
 							<tbody>
 								for _, row := range data.Preview {
-									<tr style="border-top:1px solid var(--border);">
+									<tr>
 										for _, cell := range row {
-											<td style="padding:0.5rem; white-space:nowrap;">{ cell }</td>
+											<td>{ cell }</td>
 										}
 									</tr>
 								}
@@ -108,7 +107,7 @@ templ SmartOrderMappingPage(lang, dir string, data SmartOrderMappingData) {
 					</div>
 				</div>
 
-				<button type="submit" class="btn btn-primary" style="justify-content:center; font-weight:700; padding:0.85rem;">
+				<button type="submit" class="btn btn-primary so-mapping-submit">
 					حفظ التعيين وبدء المطابقة
 				</button>
 			</form>

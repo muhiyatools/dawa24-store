@@ -86,14 +86,14 @@ func Base(title string, lang string, dir string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "</title><style>\n\t\t\t\t\t[x-cloak] { display: none !important; }\n\t\t\t\t\tdialog:not([open]) { display: none !important; }\n\t\t\t\t</style><script>\n\t\t\t\t\t(function() {\n\t\t\t\t\t\tvar t = localStorage.getItem('dawa24-theme') || 'system';\n\t\t\t\t\t\tvar isDark = t === 'dark' || (t === 'system' && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);\n\t\t\t\t\t\tif (isDark) document.documentElement.setAttribute('data-theme', 'dark');\n\t\t\t\t\t\telse document.documentElement.setAttribute('data-theme', 'light');\n\n\t\t\t\t\t\t// Immediate early scroll restoration\n\t\t\t\t\t\ttry {\n\t\t\t\t\t\t\tvar raw = sessionStorage.getItem('dawa24_scroll_pos');\n\t\t\t\t\t\t\tif (raw) {\n\t\t\t\t\t\t\t\tvar data = JSON.parse(raw);\n\t\t\t\t\t\t\t\tif (data && typeof data.y === 'number' && (Date.now() - data.time < 20000)) {\n\t\t\t\t\t\t\t\t\twindow.scrollTo(0, data.y);\n\t\t\t\t\t\t\t\t}\n\t\t\t\t\t\t\t}\n\t\t\t\t\t\t} catch(e) {}\n\t\t\t\t\t})();\n\t\t\t\t</script><link rel=\"icon\" type=\"image/png\" href=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "</title><script>\n\t\t\t\t\t(function() {\n\t\t\t\t\t\tvar t = localStorage.getItem('dawa24-theme') || 'system';\n\t\t\t\t\t\tvar isDark = t === 'dark' || (t === 'system' && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);\n\t\t\t\t\t\tif (isDark) document.documentElement.setAttribute('data-theme', 'dark');\n\t\t\t\t\t\telse document.documentElement.setAttribute('data-theme', 'light');\n\n\t\t\t\t\t\t// Immediate early scroll restoration\n\t\t\t\t\t\ttry {\n\t\t\t\t\t\t\tvar raw = sessionStorage.getItem('dawa24_scroll_pos');\n\t\t\t\t\t\t\tif (raw) {\n\t\t\t\t\t\t\t\tvar data = JSON.parse(raw);\n\t\t\t\t\t\t\t\tif (data && typeof data.y === 'number' && (Date.now() - data.time < 20000)) {\n\t\t\t\t\t\t\t\t\twindow.scrollTo(0, data.y);\n\t\t\t\t\t\t\t\t}\n\t\t\t\t\t\t\t}\n\t\t\t\t\t\t} catch(e) {}\n\t\t\t\t\t})();\n\t\t\t\t</script><link rel=\"icon\" type=\"image/png\" href=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var6 templ.SafeURL
 			templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinURLErrs(site.FaviconURL)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/layouts/base.templ`, Line: 39, Col: 60}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/layouts/base.templ`, Line: 35, Col: 60}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
 			if templ_7745c5c3_Err != nil {
@@ -106,13 +106,13 @@ func Base(title string, lang string, dir string) templ.Component {
 			var templ_7745c5c3_Var7 templ.SafeURL
 			templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinURLErrs(site.FaviconURL)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/layouts/base.templ`, Line: 40, Col: 69}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/layouts/base.templ`, Line: 36, Col: 69}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "\"><link rel=\"dns-prefetch\" href=\"//fonts.googleapis.com\"><link rel=\"dns-prefetch\" href=\"//fonts.gstatic.com\"><link rel=\"dns-prefetch\" href=\"//cdnjs.cloudflare.com\"><link rel=\"dns-prefetch\" href=\"//unpkg.com\"><link rel=\"preconnect\" href=\"https://fonts.googleapis.com\"><link rel=\"preconnect\" href=\"https://fonts.gstatic.com\" crossorigin><link rel=\"stylesheet\" href=\"https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap\"><link rel=\"stylesheet\" href=\"/static/css/app.css?v=2026081711\"><link rel=\"stylesheet\" href=\"/static/css/components.css?v=2026081711\"><link rel=\"stylesheet\" href=\"https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css\"><script defer src=\"https://unpkg.com/htmx.org@1.9.10\" integrity=\"sha384-D1Kt99CQMDuVetoL1lrYwg5t+9QdHe7NLX/SoJYkXDFfX37iInKRy5xLSi8nO7UC\" crossorigin=\"anonymous\"></script><script defer src=\"https://unpkg.com/alpinejs@3.13.5/dist/cdn.min.js\"></script><script defer src=\"https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js\"></script><script defer src=\"/static/js/app.js?v=2026081711\"></script></head><body>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "\"><link rel=\"dns-prefetch\" href=\"//fonts.googleapis.com\"><link rel=\"dns-prefetch\" href=\"//fonts.gstatic.com\"><link rel=\"dns-prefetch\" href=\"//cdnjs.cloudflare.com\"><link rel=\"dns-prefetch\" href=\"//unpkg.com\"><link rel=\"preconnect\" href=\"https://fonts.googleapis.com\"><link rel=\"preconnect\" href=\"https://fonts.gstatic.com\" crossorigin><link rel=\"stylesheet\" href=\"https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap\"><link rel=\"stylesheet\" href=\"/static/css/app.css?v=2026082901\"><link rel=\"stylesheet\" href=\"/static/css/components.css?v=2026082901\"><link rel=\"stylesheet\" href=\"https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css\"><script defer src=\"https://unpkg.com/htmx.org@1.9.10\" integrity=\"sha384-D1Kt99CQMDuVetoL1lrYwg5t+9QdHe7NLX/SoJYkXDFfX37iInKRy5xLSi8nO7UC\" crossorigin=\"anonymous\"></script><script defer src=\"https://unpkg.com/alpinejs@3.13.5/dist/cdn.min.js\"></script><script defer src=\"https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js\"></script><script defer src=\"/static/js/app.js?v=2026082901\"></script></head><body>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
