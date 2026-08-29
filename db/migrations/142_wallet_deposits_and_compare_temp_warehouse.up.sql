@@ -25,12 +25,17 @@ CREATE TABLE IF NOT EXISTS billing.wallet_deposits (
     reviewed_at         TIMESTAMPTZ,
     transaction_id      BIGINT REFERENCES billing.wallet_transactions(id) ON DELETE SET NULL,
     created_at          TIMESTAMPTZ NOT NULL DEFAULT now(),
-    updated_at          TIMESTAMPTZ NOT NULL DEFAULT now(),
-    deleted_at          TIMESTAMPTZ
+    updated_at          TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
-CREATE INDEX IF NOT EXISTS idx_wallet_deposits_user ON billing.wallet_deposits (user_id, status) WHERE deleted_at IS NULL;
-CREATE INDEX IF NOT EXISTS idx_wallet_deposits_wallet ON billing.wallet_deposits (wallet_id, status) WHERE deleted_at IS NULL;
-CREATE INDEX IF NOT EXISTS idx_wallet_deposits_org ON billing.wallet_deposits (organization_id) WHERE deleted_at IS NULL;
+ALTER TABLE billing.wallet_deposits ADD COLUMN IF NOT EXISTS organization_id BIGINT REFERENCES org.organizations(id) ON DELETE SET NULL;
+ALTER TABLE billing.wallet_deposits ADD COLUMN IF NOT EXISTS rejection_reason TEXT;
+ALTER TABLE billing.wallet_deposits ADD COLUMN IF NOT EXISTS reviewed_by BIGINT REFERENCES identity.users(id) ON DELETE SET NULL;
+ALTER TABLE billing.wallet_deposits ADD COLUMN IF NOT EXISTS reviewed_at TIMESTAMPTZ;
+ALTER TABLE billing.wallet_deposits ADD COLUMN IF NOT EXISTS transaction_id BIGINT REFERENCES billing.wallet_transactions(id) ON DELETE SET NULL;
+
+CREATE INDEX IF NOT EXISTS idx_wallet_deposits_user ON billing.wallet_deposits (user_id, status);
+CREATE INDEX IF NOT EXISTS idx_wallet_deposits_wallet ON billing.wallet_deposits (wallet_id, status);
+CREATE INDEX IF NOT EXISTS idx_wallet_deposits_org ON billing.wallet_deposits (organization_id);
 
 COMMIT;

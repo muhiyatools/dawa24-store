@@ -55,7 +55,7 @@ templ MessagesContent(lang, dir string, data MessagesData) {
 							</div>
 						}
 					</div>
-					<form method="POST" action={ fmt.Sprintf("/messages/%d/send", data.Active.ID) } style="display:flex; gap:0.75rem; padding:0.75rem 1rem; border-top:1px solid var(--neutral-100); margin:0;">
+					<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/messages/%d/send", data.Active.ID)) } style="display:flex; gap:0.75rem; padding:0.75rem 1rem; border-top:1px solid var(--neutral-100); margin:0;">
 						<input type="text" name="body" required class="form-input flex-1" placeholder="اكتب رسالتك…" />
 						<button type="submit" class="btn btn-primary">إرسال</button>
 					</form>

@@ -86,11 +86,11 @@ templ RequestsContent(lang, statusFilter string, data RequestsData) {
 									<td><span class="badge badge-amber">{ reqStatusLabel(q.Status) }</span></td>
 									<td>
 										if q.ToOrgID == data.CurrentOrgID && q.Status == "pending" {
-											<form method="POST" action={ fmt.Sprintf("/requests/%d/respond", q.ID) } style="display:inline; margin:0;">
+											<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/requests/%d/respond", q.ID)) } style="display:inline; margin:0;">
 												<input type="hidden" name="status" value="accepted" />
 												<button type="submit" class="btn btn-primary btn-sm">قبول</button>
 											</form>
-											<form method="POST" action={ fmt.Sprintf("/requests/%d/respond", q.ID) } style="display:inline; margin:0;">
+											<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/requests/%d/respond", q.ID)) } style="display:inline; margin:0;">
 												<input type="hidden" name="status" value="declined" />
 												<button type="submit" class="btn btn-secondary btn-sm text-danger">رفض</button>
 											</form>

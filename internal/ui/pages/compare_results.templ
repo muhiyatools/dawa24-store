@@ -18,35 +18,34 @@ func formatRowsCount(res *compare.ComparisonResultSet) string {
 
 templ CompareResultsPage(lang, dir string, result *compare.ComparisonResultSet, activeFilter string) {
 	@layouts.VendorShell("نتائج تحليل ومقارنة الخصومات", "compare", lang, dir) {
-		<div class="max-w-4xl mx-auto stack-lg">
+		<div class="page-container">
 			
 			<!-- Header Banner -->
-			<div class="card" style="background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-2xl); padding:1.5rem 1.75rem;">
-				<div class="flex-between flex-wrap gap-md">
+			<div class="glass-panel p-6 mb-6">
+				<div class="flex-between flex-wrap gap-4">
 					<div>
-						<div style="display:flex; align-items:center; gap:0.6rem; margin-bottom:0.25rem;">
-							<div style="width:42px; height:42px; border-radius:var(--radius-lg); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center; font-size:1.3rem;">
+						<div class="d-flex items-center gap-3 mb-1">
+							<div class="user-avatar-badge text-xl">
 								📈
 							</div>
-							<h1 style="font-size:1.45rem; font-weight:900; color:var(--text); margin:0;">
+							<h1 class="text-2xl font-black text-primary m-0">
 								تقرير تحليل ومقارنة عروض الموردين
 							</h1>
 						</div>
-						<p style="color:var(--text-muted); font-size:0.875rem; margin:0;">
+						<p class="text-sm text-secondary m-0">
 							مقارنة تفصيلية ذكية لأسعار وخصومات الأصناف بين كشوف الموردين واستخراج أفضل فرص الشراء وفجوات التغطية والنواقص.
 						</p>
 					</div>
 
-					<div style="display:flex; align-items:center; gap:0.75rem; flex-wrap:wrap;">
-						<a href="/compare/tool" class="btn btn-secondary fw-700">
+					<div class="d-flex items-center gap-3 flex-wrap">
+						<a href="/compare/tool" class="btn btn-secondary font-bold gap-2">
 							@components.IconArrowLeft("icon-xs")
 							<span>مركز الملفات</span>
 						</a>
 						<button
 							type="button"
-							class="btn btn-primary fw-800"
+							class="btn btn-primary font-bold gap-2"
 							onclick="exportComparisonTableToCSV()"
-						
 						>
 							@components.IconDownload("icon-xs")
 							<span>تصدير تقرير Excel / CSV</span>
@@ -55,39 +54,35 @@ templ CompareResultsPage(lang, dir string, result *compare.ComparisonResultSet, 
 				</div>
 
 				<!-- Navigation Subtabs for all 4 Analysis Modes -->
-				<div style="display:flex; gap:0.5rem; margin-top:1.25rem; padding-top:1rem; border-top:1px solid var(--border); flex-wrap:wrap;">
-					<a href="/compare/results" class="btn btn-primary btn-sm" style="font-weight:800; border-radius:var(--radius-lg);">
+				<div class="cb-tabs-nav mt-4 pt-3 border-t">
+					<a href="/compare/results" class="cb-tab-btn active">
 						📊 المقارنة المجمعة بين الموردين
 					</a>
-					<a href="/compare/head-to-head" class="btn btn-secondary btn-sm" style="font-weight:700; border-radius:var(--radius-lg);">
+					<a href="/compare/head-to-head" class="cb-tab-btn">
 						🏢 مقارنة مورد بمورد
 					</a>
-					<a href="/compare/market-benchmark" class="btn btn-secondary btn-sm" style="font-weight:700; border-radius:var(--radius-lg);">
+					<a href="/compare/market-benchmark" class="cb-tab-btn">
 						🧠 مقارنة مع موردين السوق
 					</a>
-					<a href="/compare/market-intelligence" class="btn btn-secondary btn-sm" style="font-weight:700; border-radius:var(--radius-lg);">
+					<a href="/compare/market-intelligence" class="cb-tab-btn">
 						🧠 تقرير ذكاء السوق
 					</a>
 				</div>
 			</div>
 
 			<!-- KPI Summary Metric Cards -->
-			<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:1rem;">
-				
+			<div class="dashboard-stat-grid mb-6">
 				<!-- Total Compared -->
-				<div class="card" style="background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-xl); padding:1.25rem;">
-					<div class="flex-between mb-sm">
-						<span style="font-size:0.85rem; font-weight:700; color:var(--text-muted);">إجمالي الأصناف المقارنة</span>
-						<span class="text-xl">📦</span>
-					</div>
-					<div style="font-size:1.75rem; font-weight:900; color:var(--text);" class="tabular-nums">
+				<div class="stat-card-3d">
+					<div class="stat-card-label">إجمالي الأصناف المقارنة</div>
+					<div class="stat-card-value text-primary tabular-nums">
 						if result != nil {
 							{ fmt.Sprintf("%d", result.Summary.TotalProducts) }
 						} else {
 							0
 						}
 					</div>
-					<span class="text-xs text-secondary">
+					<span class="text-xs text-secondary mt-1 d-block">
 						if result != nil {
 							{ fmt.Sprintf("عبر %d موردين", result.Summary.TotalSuppliers) }
 						}
@@ -95,129 +90,117 @@ templ CompareResultsPage(lang, dir string, result *compare.ComparisonResultSet, 
 				</div>
 
 				<!-- Average Discount -->
-				<div class="card" style="background:var(--surface-raised); border:1px solid var(--success-border); border-radius:var(--radius-xl); padding:1.25rem;">
-					<div class="flex-between mb-sm">
-						<span style="font-size:0.85rem; font-weight:700; color:var(--success-text);">متوسط الخصم في السوق</span>
-						<span class="text-xl">🔥</span>
-					</div>
-					<div style="font-size:1.75rem; font-weight:900; color:var(--success-text);" class="tabular-nums">
+				<div class="stat-card-3d">
+					<div class="stat-card-label">متوسط الخصم في السوق</div>
+					<div class="stat-card-value text-success tabular-nums">
 						if result != nil {
 							{ fmt.Sprintf("%.1f%%", result.Summary.AverageDiscount) }
 						} else {
 							0%
 						}
 					</div>
-					<span class="text-xs text-secondary">أفضل فرصة شراء وتوفير</span>
+					<span class="text-xs text-secondary mt-1 d-block">أفضل فرصة شراء وتوفير</span>
 				</div>
 
 				<!-- Suppliers Analyzed -->
-				<div class="card" style="background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-xl); padding:1.25rem;">
-					<div class="flex-between mb-sm">
-						<span style="font-size:0.85rem; font-weight:700; color:var(--text-muted);">الموردون المشمولون</span>
-						<span class="text-xl">🏢</span>
-					</div>
-					<div style="font-size:1.75rem; font-weight:900; color:var(--accent);" class="tabular-nums">
+				<div class="stat-card-3d">
+					<div class="stat-card-label">الموردون المشمولون</div>
+					<div class="stat-card-value text-brand tabular-nums">
 						if result != nil {
 							{ fmt.Sprintf("%d", result.Summary.TotalSuppliers) }
 						} else {
 							0
 						}
 					</div>
-					<span class="text-xs text-secondary">كشوف أسعار نشطة ومطابقة</span>
+					<span class="text-xs text-secondary mt-1 d-block">كشوف أسعار نشطة ومطابقة</span>
 				</div>
-
 			</div>
 
 			<!-- Filter Bar & Search -->
-			<div class="card" style="background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-2xl); padding:1.25rem 1.5rem; display:flex; flex-direction:column; gap:1.25rem;">
-				
-				<div class="flex-between flex-wrap gap-md">
+			<div class="glass-panel p-6 d-flex flex-col gap-4">
+				<div class="flex-between flex-wrap gap-3">
 					<!-- Quick Filter Tabs -->
-					<div style="display:flex; align-items:center; gap:0.5rem; flex-wrap:wrap;">
+					<div class="d-flex items-center gap-2 flex-wrap">
 						<button
 							type="button"
-							class="btn btn-primary btn-sm filter-tab active"
+							class="btn btn-primary btn-sm filter-tab active font-bold"
 							data-filter="all"
 							onclick="applyTableFilter('all', this)"
-							style="font-weight:700; border-radius:var(--radius-full);"
 						>
 							<span>الكل ({ formatRowsCount(result) })</span>
 						</button>
 
 						<button
 							type="button"
-							class="btn btn-secondary btn-sm filter-tab"
+							class="btn btn-secondary btn-sm filter-tab font-bold"
 							data-filter="best-discount"
 							onclick="applyTableFilter('best-discount', this)"
-							style="font-weight:700; border-radius:var(--radius-full);"
 						>
 							<span>🔥 خصم أعلى من 15%</span>
 						</button>
 
 						<button
 							type="button"
-							class="btn btn-secondary btn-sm filter-tab"
+							class="btn btn-secondary btn-sm filter-tab font-bold"
 							data-filter="multi-offer"
 							onclick="applyTableFilter('multi-offer', this)"
-							style="font-weight:700; border-radius:var(--radius-full);"
 						>
 							<span>⚖️ متوفر لدى أكثر من مورد</span>
 						</button>
 
 						<button
 							type="button"
-							class="btn btn-secondary btn-sm filter-tab"
+							class="btn btn-secondary btn-sm filter-tab font-bold"
 							data-filter="single-offer"
 							onclick="applyTableFilter('single-offer', this)"
-							style="font-weight:700; border-radius:var(--radius-full);"
 						>
 							<span>⭐ أصناف حصرية لمورد واحد</span>
 						</button>
 
 						<button
 							type="button"
-							class="btn btn-secondary btn-sm filter-tab"
+							class="btn btn-secondary btn-sm filter-tab font-bold"
 							data-filter="coverage-gap"
 							onclick="applyTableFilter('coverage-gap', this)"
-							style="font-weight:700; border-radius:var(--radius-full);"
 						>
 							<span>فجوات ونواقص موردين</span>
 						</button>
 					</div>
 
 					<!-- Instant Search Filter -->
-					<div style="position:relative; min-width:280px;">
+					<div class="min-w-280">
 						<input
 							type="text"
 							id="comparison-table-search"
 							placeholder="بحث باسم الصنف، الكود، أو المورد..."
-							class="form-input"
+							class="form-input text-xs"
 							oninput="filterTableBySearch(this.value)"
-							style="width:100%; padding:0.5rem 0.85rem; border-radius:var(--radius-full); font-size:0.85rem;"
 						/>
 					</div>
 				</div>
 
 				<!-- Comparison Table -->
 				if result == nil || len(result.Rows) == 0 {
-					<div style="padding:3.5rem 1rem; text-align:center; background:var(--surface-sunken); border-radius:var(--radius-xl);">
-						<div style="font-size:2.5rem; margin-bottom:0.5rem;">📊</div>
-						<h3 style="font-size:1.15rem; font-weight:800; color:var(--text); margin:0 0 0.35rem;">لا توجد أصناف مستخرجة في الكشوف المختارة</h3>
-						<p style="color:var(--text-muted); font-size:0.85rem; margin:0 0 1rem 0;">تأكد من ضبط تعيين الأعمدة للملفات عبر أيقونة الترس ⚙️ في مركز الملفات.</p>
-						<a href="/compare/tool" class="btn btn-primary fw-700">
+					<div class="empty-state-glass p-8 text-center">
+						<div class="empty-state-icon-wrapper mx-auto mb-3">
+							<span class="text-3xl">📊</span>
+						</div>
+						<h3 class="text-lg font-black text-primary mb-1">لا توجد أصناف مستخرجة في الكشوف المختارة</h3>
+						<p class="text-sm text-muted mb-4">تأكد من ضبط تعيين الأعمدة للملفات عبر أيقونة الترس ⚙️ في مركز الملفات.</p>
+						<a href="/compare/tool" class="btn btn-primary font-bold">
 							العودة لمركز ملفات الموردين
 						</a>
 					</div>
 				} else {
-					<div style="overflow-x:auto;">
-						<table class="table" id="comparison-results-table" style="width:100%; border-collapse:collapse;">
+					<div class="table-container m-0">
+						<table class="data-table m-0" id="comparison-results-table">
 							<thead>
-								<tr style="border-bottom:2px solid var(--border); text-align:start; font-size:0.85rem; color:var(--text-muted);">
-									<th style="padding:0.75rem 1rem; font-weight:800;">الصنف وحالة الكتالوج</th>
-									<th style="padding:0.75rem 1rem; font-weight:800;">السعر قبل الخصم</th>
-									<th style="padding:0.75rem 1rem; font-weight:800;">أعلى نسبة خصم</th>
-									<th style="padding:0.75rem 1rem; font-weight:800;">المورد الفائز بالصفقة</th>
-									<th style="padding:0.75rem 1rem; font-weight:800;">عروض الموردين وفجوات النواقص</th>
+								<tr>
+									<th>الصنف وحالة الكتالوج</th>
+									<th class="tabular-nums">السعر قبل الخصم</th>
+									<th class="tabular-nums">أعلى نسبة خصم</th>
+									<th>المورد الفائز بالصفقة</th>
+									<th>عروض الموردين وفجوات النواقص</th>
 								</tr>
 							</thead>
 							<tbody>
@@ -228,16 +211,15 @@ templ CompareResultsPage(lang, dir string, result *compare.ComparisonResultSet, 
 										data-suppliers={ fmt.Sprintf("%d", row.TotalSuppliers) }
 										data-gaps={ fmt.Sprintf("%d", len(row.MissingSuppliers)) }
 										data-search={ row.ProductName + " " + row.SKU + " " + row.BestSupplier + " " + strings.Join(row.MissingSuppliers, " ") }
-										style="border-bottom:1px solid var(--border); font-size:0.875rem;"
 									>
 										<!-- Product Name & Catalog Verification -->
-										<td class="p-sm">
-											<div style="display:flex; align-items:center; gap:0.4rem; flex-wrap:wrap; margin-bottom:0.2rem;">
-												<strong style="color:var(--text); font-size:0.925rem;">{ row.ProductName }</strong>
+										<td>
+											<div class="d-flex items-center gap-2 flex-wrap mb-1">
+												<strong class="text-sm font-extrabold text-primary">{ row.ProductName }</strong>
 												if row.InCatalog {
-													<span class="badge badge-emerald" style="font-size:0.68rem; font-weight:700;">🟢 معتمد بالكتالوج</span>
+													<span class="badge badge-emerald text-xs font-bold">🟢 معتمد</span>
 												} else {
-													<span class="badge badge-amber" style="font-size:0.68rem; font-weight:700;">🟡 كشف مورد</span>
+													<span class="badge badge-amber text-xs font-bold">🟡 كشف مورد</span>
 												}
 											</div>
 											if row.SKU != "" {
@@ -246,7 +228,7 @@ templ CompareResultsPage(lang, dir string, result *compare.ComparisonResultSet, 
 										</td>
 
 										<!-- Best Price -->
-										<td class="p-sm tabular-nums">
+										<td class="tabular-nums font-bold text-secondary">
 											if row.BestPrice.IsPositive() {
 												<span>{ row.BestPrice.String() } ج.م</span>
 											} else {
@@ -255,25 +237,25 @@ templ CompareResultsPage(lang, dir string, result *compare.ComparisonResultSet, 
 										</td>
 
 										<!-- Best Discount -->
-										<td class="p-sm">
-											<span class="badge badge-emerald" style="font-weight:800; font-size:0.85rem;">
+										<td>
+											<span class="badge badge-emerald text-xs font-extrabold tabular-nums">
 												{ fmt.Sprintf("%.1f%%", row.BestDiscount) }
 											</span>
 										</td>
 
 										<!-- Best Supplier -->
-										<td class="p-sm">
-											<span class="badge badge-sky" style="font-weight:700; font-size:0.8rem;">
+										<td>
+											<span class="badge badge-sky text-xs font-bold">
 												👑 { row.BestSupplier }
 											</span>
 										</td>
 
 										<!-- Detailed Offers & Gaps Breakdown -->
-										<td class="p-sm">
-											<div style="display:flex; flex-wrap:wrap; gap:0.35rem; margin-bottom:0.25rem;">
+										<td>
+											<div class="d-flex flex-wrap gap-1 mb-1">
 												for supName, off := range row.Offers {
 													if supName == row.BestSupplier {
-														<span class="badge badge-emerald" style="font-size:0.725rem; font-weight:700;" title={ fmt.Sprintf("السعر الصافي: %s ج.م", off.PriceAfterDiscount.String()) }>
+														<span class="badge badge-emerald text-xs font-bold" title={ fmt.Sprintf("السعر الصافي: %s ج.م", off.PriceAfterDiscount.String()) }>
 															✓ { supName }: { fmt.Sprintf("%.1f%%", off.Discount) } ({ off.PriceAfterDiscount.String() } ج.م)
 														</span>
 													} else {
@@ -284,7 +266,7 @@ templ CompareResultsPage(lang, dir string, result *compare.ComparisonResultSet, 
 												}
 											</div>
 											if len(row.MissingSuppliers) > 0 {
-												<div style="font-size:0.7rem; color:var(--danger-text);">
+												<div class="text-xs text-danger font-semibold">
 													❌ غير مدرج لدى: <strong>{ strings.Join(row.MissingSuppliers, "، ") }</strong>
 												</div>
 											}

@@ -65,29 +65,29 @@ templ CustomerBranchFormPage(data CustomerBranchFormData, lang string, dir strin
 		}
 	}}
 	@layouts.CustomerShell(pageTitle, "branches", lang, dir, perms) {
-		<div class="container-fluid" style="max-width:960px; margin:0 auto; padding:0.5rem 0 3rem 0;">
+		<div class="page-container max-w-4xl mx-auto py-4">
 			
 			<!-- Breadcrumb & Top Exit / Navigation Bar -->
-			<div class="card" style="margin-bottom:1.5rem; padding:1.15rem 1.5rem; border-radius:var(--radius-xl); border:1px solid var(--border); background:var(--surface-raised); box-shadow:var(--shadow-xs);">
-				<div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem;">
+			<div class="glass-panel p-4 px-6 mb-6">
+				<div class="flex-between flex-wrap gap-4">
 					<div>
 						<!-- Breadcrumbs -->
-						<div style="display:flex; align-items:center; gap:0.5rem; font-size:0.8rem; color:var(--text-secondary); margin-bottom:0.35rem;">
-							<a href="/customer/branches" style="color:var(--text-secondary); text-decoration:none; font-weight:600;">إدارة الفروع</a>
+						<div class="d-flex items-center gap-2 text-xs text-secondary mb-1">
+							<a href="/customer/branches" class="text-secondary text-none font-semibold">إدارة الفروع</a>
 							<span>/</span>
 							if data.IsEdit {
-								<span style="color:var(--text); font-weight:700;">تعديل بيانات الفرع</span>
+								<span class="text-primary font-bold">تعديل بيانات الفرع</span>
 							} else {
-								<span style="color:var(--text); font-weight:700;">إضافة فرع جديد</span>
+								<span class="text-primary font-bold">إضافة فرع جديد</span>
 							}
 						</div>
-						<h1 style="font-size:1.35rem; font-weight:800; color:var(--text); margin:0;">
+						<h1 class="text-xl font-black text-primary m-0">
 							{ pageTitle }
 						</h1>
 					</div>
 
 					<!-- Prominent Exit Button (No Save) -->
-					<a href="/customer/branches" class="btn btn-secondary btn-sm" style="font-weight:700; gap:0.4rem; border-color:var(--border);">
+					<a href="/customer/branches" class="btn btn-secondary btn-sm font-bold gap-2">
 						@components.IconArrowRight("icon-xs")
 						<span>إلغاء والعودة لقائمة الفروع</span>
 					</a>
@@ -97,33 +97,37 @@ templ CustomerBranchFormPage(data CustomerBranchFormData, lang string, dir strin
 			<!-- Notice Alert Banner (if any) -->
 			if data.NoticeMsg != "" {
 				if data.NoticeType == "error" {
-					<div class="alert alert-danger" style="display:flex; align-items:center; gap:0.75rem; padding:1rem 1.25rem; border-radius:var(--radius-xl); background:rgba(239,68,68,0.12); border:1px solid rgba(239,68,68,0.3); color:var(--rose); font-weight:700; margin-bottom:1.5rem;">
-						<span style="font-size:1.25rem;">⚠️</span>
-						<span>{ data.NoticeMsg }</span>
+					<div class="alert alert-danger mb-6 p-4 flex-between">
+						<div class="d-flex items-center gap-3 font-bold text-sm">
+							<span class="text-2xl">⚠️</span>
+							<span>{ data.NoticeMsg }</span>
+						</div>
 					</div>
 				} else {
-					<div class="alert alert-success" style="display:flex; align-items:center; gap:0.75rem; padding:1rem 1.25rem; border-radius:var(--radius-xl); background:rgba(16,185,129,0.12); border:1px solid rgba(16,185,129,0.3); color:var(--emerald); font-weight:700; margin-bottom:1.5rem;">
-						<span style="font-size:1.25rem;">✅</span>
-						<span>{ data.NoticeMsg }</span>
+					<div class="alert alert-success mb-6 p-4 flex-between">
+						<div class="d-flex items-center gap-3 font-bold text-sm">
+							<span class="text-2xl">✅</span>
+							<span>{ data.NoticeMsg }</span>
+						</div>
 					</div>
 				}
 			}
 
 			<!-- Full-Page Branch Form Card -->
-			<div class="card" style="padding:2rem; border-radius:var(--radius-2xl); background:var(--surface-raised); border:1px solid var(--border); box-shadow:var(--shadow-xs);">
-				<form method="POST" action={ templ.SafeURL(formAction) } style="display:flex; flex-direction:column; gap:2rem;">
+			<div class="glass-panel p-8">
+				<form method="POST" action={ templ.SafeURL(formAction) } class="d-flex flex-col gap-6">
 					
 					<!-- Section 1: Basic Identity -->
 					<div>
-						<div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:1.25rem; padding-bottom:0.6rem; border-bottom:1px solid var(--border);">
-							<span style="color:var(--primary);">@components.IconBuilding("icon-sm")</span>
-							<h2 style="font-size:1.1rem; font-weight:800; color:var(--text); margin:0;">1. البيانات الأساسية للفرع</h2>
+						<div class="d-flex items-center gap-2 mb-4 pb-2 border-b">
+							<span class="text-brand">@components.IconBuilding("icon-sm")</span>
+							<h2 class="text-base font-extrabold text-primary m-0">1. البيانات الأساسية للفرع</h2>
 						</div>
 
-						<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(260px, 1fr)); gap:1.25rem;">
+						<div class="d-grid gap-4" style="grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));">
 							<div>
-								<label class="form-label" style="font-size:0.85rem; font-weight:700; color:var(--text); margin-bottom:0.35rem; display:block;">
-									اسم الفرع بالعربية <span style="color:#ef4444;">*</span>
+								<label class="form-label text-xs font-bold text-primary mb-1 d-block">
+									اسم الفرع بالعربية <span class="text-danger">*</span>
 								</label>
 								<input
 									type="text"
@@ -132,13 +136,12 @@ templ CustomerBranchFormPage(data CustomerBranchFormData, lang string, dir strin
 									required
 									placeholder="مثال: صيدلية الأمل - فرع المعادي"
 									class="form-input w-full"
-									style="font-size:0.9rem;"
 								/>
-								<span style="font-size:0.75rem; color:var(--text-muted); margin-top:0.25rem; display:block;">الاسم الرسمي الذي يظهر في فواتير الشراء وأذون الاستلام</span>
+								<span class="text-xs text-muted mt-1 d-block">الاسم الرسمي الذي يظهر في فواتير الشراء وأذون الاستلام</span>
 							</div>
 
 							<div>
-								<label class="form-label" style="font-size:0.85rem; font-weight:700; color:var(--text); margin-bottom:0.35rem; display:block;">
+								<label class="form-label text-xs font-bold text-primary mb-1 d-block">
 									اسم الفرع بالإنجليزية (اختياري)
 								</label>
 								<input
@@ -147,12 +150,11 @@ templ CustomerBranchFormPage(data CustomerBranchFormData, lang string, dir strin
 									value={ nameEn }
 									placeholder="e.g. Al-Amal Pharmacy - Maadi"
 									class="form-input w-full"
-									style="font-size:0.9rem;"
 								/>
 							</div>
 
 							<div>
-								<label class="form-label" style="font-size:0.85rem; font-weight:700; color:var(--text); margin-bottom:0.35rem; display:block;">
+								<label class="form-label text-xs font-bold text-primary mb-1 d-block">
 									كود الفرع الداخلي
 								</label>
 								<input
@@ -161,16 +163,15 @@ templ CustomerBranchFormPage(data CustomerBranchFormData, lang string, dir strin
 									value={ code }
 									placeholder="مثال: BR-CAI-01"
 									class="form-input tabular-nums w-full"
-									style="font-size:0.9rem;"
 								/>
-								<span style="font-size:0.75rem; color:var(--text-muted); margin-top:0.25rem; display:block;">كود مرجعي خاص بصيدليتك لربط الفروع بنظام ERP</span>
+								<span class="text-xs text-muted mt-1 d-block">كود مرجعي خاص بصيدليتك لربط الفروع بنظام ERP</span>
 							</div>
 
 							<div>
-								<label class="form-label" style="font-size:0.85rem; font-weight:700; color:var(--text); margin-bottom:0.35rem; display:block;">
-									المدينة / المحافظة <span style="color:#ef4444;">*</span>
+								<label class="form-label text-xs font-bold text-primary mb-1 d-block">
+									المدينة / المحافظة <span class="text-danger">*</span>
 								</label>
-								<select name="city_id" required class="form-input w-full" style="font-size:0.9rem;">
+								<select name="city_id" required class="form-select w-full">
 									<option value="">-- اختر المدينة / المحافظة --</option>
 									for _, c := range data.Cities {
 										<option
@@ -193,15 +194,15 @@ templ CustomerBranchFormPage(data CustomerBranchFormData, lang string, dir strin
 
 					<!-- Section 2: Address & Contact -->
 					<div>
-						<div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:1.25rem; padding-bottom:0.6rem; border-bottom:1px solid var(--border);">
-							<span style="color:var(--primary);">@components.IconLocation("icon-sm")</span>
-							<h2 style="font-size:1.1rem; font-weight:800; color:var(--text); margin:0;">2. العنوان وبيانات الاتصال</h2>
+						<div class="d-flex items-center gap-2 mb-4 pb-2 border-b">
+							<span class="text-brand">@components.IconLocation("icon-sm")</span>
+							<h2 class="text-base font-extrabold text-primary m-0">2. العنوان وبيانات الاتصال</h2>
 						</div>
 
-						<div style="display:grid; grid-template-columns:1fr; gap:1.25rem; margin-bottom:1.25rem;">
+						<div class="d-grid gap-4 mb-4">
 							<div>
-								<label class="form-label" style="font-size:0.85rem; font-weight:700; color:var(--text); margin-bottom:0.35rem; display:block;">
-									العنوان التفصيلي وموقع الاستلام <span style="color:#ef4444;">*</span>
+								<label class="form-label text-xs font-bold text-primary mb-1 d-block">
+									العنوان التفصيلي وموقع الاستلام <span class="text-danger">*</span>
 								</label>
 								<input
 									type="text"
@@ -210,15 +211,14 @@ templ CustomerBranchFormPage(data CustomerBranchFormData, lang string, dir strin
 									required
 									placeholder="مثال: شارع النصر الرئيسي، برج النور، بجوار مستشفى المعادي"
 									class="form-input w-full"
-									style="font-size:0.9rem;"
 								/>
-								<span style="font-size:0.75rem; color:var(--text-muted); margin-top:0.25rem; display:block;">العنوان الدقيق لسائقي ومندوبي التوصيل التابعين لشركات التوزيع</span>
+								<span class="text-xs text-muted mt-1 d-block">العنوان الدقيق لسائقي ومندوبي التوصيل التابعين لشركات التوزيع</span>
 							</div>
 						</div>
 
-						<div style="display:grid; grid-template-columns:1fr; gap:1.25rem;">
+						<div class="d-grid gap-4">
 							<div>
-								<label class="form-label" style="font-size:0.85rem; font-weight:700; color:var(--text); margin-bottom:0.35rem; display:block;">
+								<label class="form-label text-xs font-bold text-primary mb-1 d-block">
 									رقم هاتف / محمول الفرع
 								</label>
 								<input
@@ -227,7 +227,6 @@ templ CustomerBranchFormPage(data CustomerBranchFormData, lang string, dir strin
 									value={ phone }
 									placeholder="مثال: 01012345678"
 									class="form-input tabular-nums w-full"
-									style="font-size:0.9rem;"
 								/>
 							</div>
 						</div>
@@ -235,13 +234,13 @@ templ CustomerBranchFormPage(data CustomerBranchFormData, lang string, dir strin
 
 					<!-- Section 3: Interactive Map & Coordinates -->
 					<div>
-						<div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:1.25rem; padding-bottom:0.6rem; border-bottom:1px solid var(--border);">
-							<span style="color:var(--primary);">@components.IconLocation("icon-sm")</span>
-							<h2 style="font-size:1.1rem; font-weight:800; color:var(--text); margin:0;">3. الموقع الجغرافي على الخريطة</h2>
+						<div class="d-flex items-center gap-2 mb-4 pb-2 border-b">
+							<span class="text-brand">@components.IconLocation("icon-sm")</span>
+							<h2 class="text-base font-extrabold text-primary m-0">3. الموقع الجغرافي على الخريطة</h2>
 						</div>
 
-						<div class="stack-xs" style="margin-bottom:1.25rem;">
-							<div style="font-size:0.85rem; font-weight:700; color:var(--text); margin-bottom:0.4rem;">
+						<div class="stack-xs mb-4">
+							<div class="text-xs font-bold text-primary mb-2">
 								حدد موقع الفرع بدقة بالضغط على الخريطة أو استخدم زر "موقعي":
 							</div>
 							
@@ -249,15 +248,15 @@ templ CustomerBranchFormPage(data CustomerBranchFormData, lang string, dir strin
 								data-map-picker
 								data-default-lat={ defaultLat }
 								data-default-lon={ defaultLon }
-								style="border-radius:var(--radius-xl); overflow:hidden; border:1px solid var(--border); background:var(--surface-sunken); position:relative;"
+								class="rounded-xl overflow-hidden border bg-surface-sunken position-relative"
 							>
 								<div class="map-container map-canvas" style="height:280px; width:100%; z-index:1;"></div>
-								<div style="display:flex; justify-content:space-between; align-items:center; padding:0.6rem 1rem; background:var(--surface-raised); border-top:1px solid var(--border); font-size:0.825rem; flex-wrap:wrap; gap:0.5rem;">
-									<div style="display:flex; align-items:center; gap:0.5rem;">
-										<span style="color:var(--text-secondary); font-weight:700;">📍 الإحداثيات المحددة:</span>
-										<span data-map-coords-badge class="tabular-nums fw-800 text-primary">{ defaultLat }, { defaultLon }</span>
+								<div class="flex-between p-3 bg-surface-raised border-t text-xs flex-wrap gap-2">
+									<div class="d-flex items-center gap-2">
+										<span class="text-secondary font-bold">📍 الإحداثيات المحددة:</span>
+										<span data-map-coords-badge class="tabular-nums font-black text-primary">{ defaultLat }, { defaultLon }</span>
 									</div>
-									<button type="button" data-map-locate class="btn btn-secondary btn-xs fw-700" style="gap:0.35rem;">
+									<button type="button" data-map-locate class="btn btn-secondary btn-xs font-bold gap-1">
 										<span>📍 تحديد موقعي الحالي GPS</span>
 									</button>
 								</div>
@@ -267,7 +266,7 @@ templ CustomerBranchFormPage(data CustomerBranchFormData, lang string, dir strin
 						</div>
 
 						<div>
-							<label class="form-label" style="font-size:0.85rem; font-weight:700; color:var(--text); margin-bottom:0.35rem; display:block;">
+							<label class="form-label text-xs font-bold text-primary mb-1 d-block">
 								🔗 رابط خرائط Google (Google Maps URL)
 							</label>
 							<input
@@ -276,62 +275,61 @@ templ CustomerBranchFormPage(data CustomerBranchFormData, lang string, dir strin
 								data-map-google-url
 								value={ gmapsURL }
 								placeholder={ fmt.Sprintf("https://maps.google.com/?q=%s,%s", defaultLat, defaultLon) }
-								class="form-input w-full"
-								style="font-size:0.85rem;"
+								class="form-input text-xs w-full"
 							/>
 						</div>
 					</div>
 
 					<!-- Section 4: Storage & Branch Attributes -->
 					<div>
-						<div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:1.25rem; padding-bottom:0.6rem; border-bottom:1px solid var(--border);">
-							<span style="color:var(--primary);">@components.IconTag("icon-sm")</span>
-							<h2 style="font-size:1.1rem; font-weight:800; color:var(--text); margin:0;">4. خصائص الفرع وحالة التشغيل</h2>
+						<div class="d-flex items-center gap-2 mb-4 pb-2 border-b">
+							<span class="text-brand">@components.IconTag("icon-sm")</span>
+							<h2 class="text-base font-extrabold text-primary m-0">4. خصائص الفرع وحالة التشغيل</h2>
 						</div>
 
-						<div style="display:flex; flex-direction:column; gap:0.85rem; background:var(--surface-sunken); padding:1.25rem; border-radius:var(--radius-xl); border:1px solid var(--border);">
-							<label style="display:flex; align-items:flex-start; gap:0.65rem; cursor:pointer; font-size:0.875rem; font-weight:700; color:var(--text);">
+						<div class="d-flex flex-col gap-3 bg-surface-sunken p-4 rounded-xl border">
+							<label class="d-flex items-start gap-2 cursor-pointer text-sm font-bold text-primary">
 								<input
 									type="checkbox"
 									name="has_cold_storage"
 									value="true"
 									checked?={ hasColdStorage }
-									style="width:18px; height:18px; margin-top:2px; accent-color:var(--accent);"
+									class="mt-1"
 								/>
 								<div>
 									<span>❄️ تتوفر ثلاجة لحفظ وتبريد الأدوية (2-8°C)</span>
-									<span style="display:block; font-size:0.75rem; font-weight:500; color:var(--text-secondary); margin-top:0.2rem;">
+									<span class="d-block text-xs font-normal text-secondary mt-1">
 										يتيح هذا الخيار للموردين توريد الأدوية الحيوية والأنسولين واللقاحات التي تتطلب سلسلة تبريد.
 									</span>
 								</div>
 							</label>
 
-							<label style="display:flex; align-items:flex-start; gap:0.65rem; cursor:pointer; font-size:0.875rem; font-weight:700; color:var(--text);">
+							<label class="d-flex items-start gap-2 cursor-pointer text-sm font-bold text-primary">
 								<input
 									type="checkbox"
 									name="is_main"
 									value="true"
 									checked?={ isMain }
-									style="width:18px; height:18px; margin-top:2px; accent-color:var(--accent);"
+									class="mt-1"
 								/>
 								<div>
 									<span>🏢 تعيين كفرع رئيسي لاستلام طلبيات الصيدلية</span>
-									<span style="display:block; font-size:0.75rem; font-weight:500; color:var(--text-secondary); margin-top:0.2rem;">
+									<span class="d-block text-xs font-normal text-secondary mt-1">
 										سيتم تعيين هذا الفرع كفرع افتراضي عند إنشاء الطلبيات وعمليات الطلب الذكي.
 									</span>
 								</div>
 							</label>
 
 							if data.IsEdit {
-								<div style="padding-top:0.75rem; border-top:1px dashed var(--border); display:flex; align-items:center; gap:1.5rem; flex-wrap:wrap;">
-									<span style="font-size:0.85rem; font-weight:700; color:var(--text);">حالة تشغيل الفرع:</span>
-									<label style="display:flex; align-items:center; gap:0.4rem; font-size:0.85rem; font-weight:700; cursor:pointer;">
-										<input type="radio" name="status" value="active" checked?={ status != "inactive" } style="accent-color:var(--accent);" />
-										<span class="badge badge-emerald">نشط وجاهز للاستلام</span>
+								<div class="pt-3 border-t d-flex items-center gap-4 flex-wrap">
+									<span class="text-xs font-bold text-primary">حالة تشغيل الفرع:</span>
+									<label class="d-flex items-center gap-1 text-xs font-bold cursor-pointer">
+										<input type="radio" name="status" value="active" checked?={ status != "inactive" } />
+										<span class="badge badge-emerald text-xs font-bold">نشط وجاهز للاستلام</span>
 									</label>
-									<label style="display:flex; align-items:center; gap:0.4rem; font-size:0.85rem; font-weight:700; cursor:pointer;">
-										<input type="radio" name="status" value="inactive" checked?={ status == "inactive" } style="accent-color:var(--accent);" />
-										<span class="badge badge-slate">معطل مؤقتاً</span>
+									<label class="d-flex items-center gap-1 text-xs font-bold cursor-pointer">
+										<input type="radio" name="status" value="inactive" checked?={ status == "inactive" } />
+										<span class="badge badge-slate text-xs font-bold">معطل مؤقتاً</span>
 									</label>
 								</div>
 							}
@@ -339,12 +337,12 @@ templ CustomerBranchFormPage(data CustomerBranchFormData, lang string, dir strin
 					</div>
 
 					<!-- Bottom Action Footer -->
-					<div style="display:flex; justify-content:space-between; align-items:center; padding-top:1.5rem; border-top:1px solid var(--border); flex-wrap:wrap; gap:1rem;">
-						<a href="/customer/branches" class="btn btn-secondary btn-md" style="font-weight:700;">
+					<div class="flex-between items-center pt-4 border-t flex-wrap gap-3">
+						<a href="/customer/branches" class="btn btn-secondary font-bold">
 							إلغاء والعودة بدون حفظ
 						</a>
 
-						<button type="submit" class="btn btn-primary btn-md" style="font-weight:800; padding:0.75rem 2rem; font-size:0.95rem; gap:0.5rem; box-shadow:var(--shadow-sm);">
+						<button type="submit" class="btn btn-primary font-black px-6 py-2 gap-2">
 							@components.IconCheck("icon-xs")
 							if data.IsEdit {
 								<span>💾 حفظ تحديثات الفرع</span>

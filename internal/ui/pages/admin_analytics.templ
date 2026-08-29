@@ -10,258 +10,273 @@ import (
 
 templ AdminAnalytics(lang, dir string, a *platformadmin.VisitorAnalytics) {
 	@layouts.AdminShell("التحليلات والمؤشرات الحية | Platform Analytics", "analytics", lang, dir) {
-		
-		<!-- Header -->
-		@components.PageHeader(components.PageHeaderProps{
-			Title:    "التحليلات والمؤشرات الحية",
-			Subtitle: "تحليل جغرافي وتوزيع للأجهزة وحركة الزيارات وأداء التوريد الحقيقي من قاعدة البيانات",
-		}) {
-			<span class="badge badge-emerald" style="font-weight:700; padding:0.45rem 0.9rem; font-size:0.8rem; gap:0.4rem;">
-				@components.IconCheck("icon-xs")
-				<span>بيانات حية ومتزامنة</span>
-			</span>
-		}
+		<div class="page-container">
+			<!-- Header -->
+			<div class="glass-panel p-6 mb-6">
+				<div class="flex-between flex-wrap gap-4">
+					<div>
+						<div class="d-flex items-center gap-3 mb-1">
+							<div class="user-avatar-badge text-xl">
+								📈
+							</div>
+							<h1 class="text-2xl font-black text-primary m-0">
+								التحليلات والمؤشرات الحية
+							</h1>
+						</div>
+						<p class="text-sm text-secondary m-0">
+							تحليل جغرافي وتوزيع للأجهزة وحركة الزيارات وأداء التوريد الحقيقي من قاعدة البيانات
+						</p>
+					</div>
+					<div class="d-flex items-center gap-3">
+						<span class="badge badge-emerald text-xs font-bold gap-2 p-2 px-3">
+							@components.IconCheck("icon-xs")
+							<span>بيانات حية ومتزامنة</span>
+						</span>
+					</div>
+				</div>
+			</div>
 
-		<!-- 1. Live KPI Summary Cards (Unified StatCards) -->
-		<div class="b2b-metric-grid" style="margin-bottom:1.75rem;">
-			@components.StatCard(components.StatCardProps{
-				Label:     "إجمالي الزيارات",
-				Value:     fmt.Sprintf("%d", a.Total),
-				Subtitle:  "زيارات موثقة تراكمياً",
-				Tone:      "primary",
-			})
-			@components.StatCard(components.StatCardProps{
-				Label:     "زيارات اليوم",
-				Value:     fmt.Sprintf("%d", a.Today),
-				Subtitle:  "خلال الـ 24 ساعة الحالية",
-				Tone:      "primary",
-			})
-			@components.StatCard(components.StatCardProps{
-				Label:     "الصيدليات المسجلة",
-				Value:     fmt.Sprintf("%d", a.TotalPharmacies),
-				Subtitle:  "صيدليات معتمدة بالنظام",
-				Tone:      "info",
-			})
-			@components.StatCard(components.StatCardProps{
-				Label:     "الموردين المعتمدين",
-				Value:     fmt.Sprintf("%d", a.TotalSuppliers),
-				Subtitle:  "شركات ومخازن توزيع",
-				Tone:      "info",
-			})
-			@components.StatCard(components.StatCardProps{
-				Label:     "أوامر التوريد",
-				Value:     fmt.Sprintf("%d", a.TotalOrders),
-				Subtitle:  "إجمالي عمليات الشراء",
-				Tone:      "warning",
-			})
-			@components.StatCard(components.StatCardProps{
-				Label:     "حجم التداولات",
-				Value:     a.TotalGMV,
-				Subtitle:  "قيمة أوامر التوريد المنفذة",
-				Tone:      "primary",
-			})
-		</div>
-
-		<!-- 2. Geographic & Devices Distribution -->
-		<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(320px, 1fr)); gap:1.25rem; margin-bottom:1.5rem;">
-			
-			<!-- Countries Breakdown -->
-			<div class="card mb-0">
-				<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem; border-bottom:1px solid var(--border); padding-bottom:0.75rem;">
-					<h3 class="card-title" style="margin:0; font-size:1.05rem; display:flex; align-items:center; gap:0.5rem;">
-						@components.IconGlobe("icon-xs")
-						<span>توزيع الزوار حسب الدول</span>
-					</h3>
-					<span class="badge badge-slate text-xs">تتبع مباشر</span>
+			<!-- 1. Live KPI Summary Cards -->
+			<div class="dashboard-stat-grid mb-6">
+				<div class="stat-card-3d">
+					<div class="stat-card-label">إجمالي الزيارات</div>
+					<div class="stat-card-value text-primary tabular-nums">{ fmt.Sprintf("%d", a.Total) }</div>
+					<span class="text-xs text-secondary mt-1 d-block">زيارات موثقة تراكمياً</span>
 				</div>
 
-				if len(a.ByCountry) == 0 {
-					<div style="padding:1.5rem 0; text-align:center; color:var(--text-muted); font-size:0.875rem;">
-						جاري تجميع البيانات الجغرافية...
+				<div class="stat-card-3d">
+					<div class="stat-card-label text-brand">زيارات اليوم</div>
+					<div class="stat-card-value text-brand tabular-nums">{ fmt.Sprintf("%d", a.Today) }</div>
+					<span class="text-xs text-secondary mt-1 d-block">خلال الـ 24 ساعة الحالية</span>
+				</div>
+
+				<div class="stat-card-3d">
+					<div class="stat-card-label text-sky">الصيدليات المسجلة</div>
+					<div class="stat-card-value text-sky tabular-nums">{ fmt.Sprintf("%d", a.TotalPharmacies) }</div>
+					<span class="text-xs text-secondary mt-1 d-block">صيدليات معتمدة بالنظام</span>
+				</div>
+
+				<div class="stat-card-3d">
+					<div class="stat-card-label text-accent">الموردين المعتمدين</div>
+					<div class="stat-card-value text-accent tabular-nums">{ fmt.Sprintf("%d", a.TotalSuppliers) }</div>
+					<span class="text-xs text-secondary mt-1 d-block">شركات ومخازن توزيع</span>
+				</div>
+
+				<div class="stat-card-3d">
+					<div class="stat-card-label text-warning">أوامر التوريد</div>
+					<div class="stat-card-value text-warning tabular-nums">{ fmt.Sprintf("%d", a.TotalOrders) }</div>
+					<span class="text-xs text-secondary mt-1 d-block">إجمالي عمليات الشراء</span>
+				</div>
+
+				<div class="stat-card-3d">
+					<div class="stat-card-label text-success">حجم التداولات</div>
+					<div class="stat-card-value text-success tabular-nums">{ a.TotalGMV }</div>
+					<span class="text-xs text-secondary mt-1 d-block">قيمة أوامر التوريد المنفذة</span>
+				</div>
+			</div>
+
+			<!-- 2. Geographic & Devices Distribution -->
+			<div class="dashboard-workspace-grid mb-6">
+				
+				<!-- Countries Breakdown -->
+				<div class="glass-panel p-6 mb-0">
+					<div class="flex-between items-center mb-4 pb-3 border-b">
+						<h3 class="text-base font-extrabold text-primary m-0 d-flex items-center gap-2">
+							@components.IconGlobe("icon-xs")
+							<span>توزيع الزوار حسب الدول</span>
+						</h3>
+						<span class="badge badge-slate text-xs font-bold">تتبع مباشر</span>
+					</div>
+
+					if len(a.ByCountry) == 0 {
+						<div class="py-6 text-center text-muted text-xs">
+							جاري تجميع البيانات الجغرافية...
+						</div>
+					} else {
+						<div class="d-flex flex-col gap-3">
+							for country, count := range a.ByCountry {
+								<div class="d-flex flex-col gap-1">
+									<div class="flex-between text-xs font-bold">
+										<span class="text-primary">{ country }</span>
+										<span class="tabular-nums text-brand">{ fmt.Sprintf("%d زيارة", count) }</span>
+									</div>
+									<div class="w-full h-2 rounded-full overflow-hidden bg-surface-sunken border">
+										<div class="h-full bg-brand rounded-full" style={ fmt.Sprintf("width: %d%%", calcPercent(count, a.Total)) }></div>
+									</div>
+								</div>
+							}
+						</div>
+					}
+				</div>
+
+				<!-- Cities Breakdown -->
+				<div class="glass-panel p-6 mb-0">
+					<div class="flex-between items-center mb-4 pb-3 border-b">
+						<h3 class="text-base font-extrabold text-primary m-0 d-flex items-center gap-2">
+							@components.IconMapPin("icon-xs")
+							<span>أكثر المدن والمحافظات نشاطاً</span>
+						</h3>
+						<span class="badge badge-slate text-xs font-bold">المناطق والمدن</span>
+					</div>
+
+					if len(a.ByCity) == 0 {
+						<div class="py-6 text-center text-muted text-xs">
+							جاري رصد بيانات المدن والمناطق...
+						</div>
+					} else {
+						<div class="d-flex flex-col gap-2">
+							for city, count := range a.ByCity {
+								<div class="flex-between items-center p-3 bg-surface-sunken rounded-lg border text-xs">
+									<span class="font-bold text-primary">{ city }</span>
+									<span class="badge badge-sky text-xs font-black">{ fmt.Sprintf("%d", count) }</span>
+								</div>
+							}
+						</div>
+					}
+				</div>
+
+				<!-- Devices, OS & Browsers -->
+				<div class="glass-panel p-6 mb-0">
+					<div class="flex-between items-center mb-4 pb-3 border-b">
+						<h3 class="text-base font-extrabold text-primary m-0 d-flex items-center gap-2">
+							@components.IconMonitor("icon-xs")
+							<span>الأجهزة والمتصفحات</span>
+						</h3>
+					</div>
+
+					<div class="d-flex flex-col gap-4 text-xs">
+						<!-- Device -->
+						<div>
+							<div class="text-muted font-bold mb-2">نوع الجهاز:</div>
+							<div class="d-flex gap-2 flex-wrap">
+								for d, count := range a.ByDevice {
+									<span class="badge badge-slate text-xs font-bold">
+										{ d }: <strong class="tabular-nums">{ fmt.Sprintf("%d", count) }</strong>
+									</span>
+								}
+							</div>
+						</div>
+
+						<!-- OS -->
+						<div>
+							<div class="text-muted font-bold mb-2">نظام التشغيل:</div>
+							<div class="d-flex gap-2 flex-wrap">
+								for os, count := range a.ByOS {
+									<span class="badge badge-purple text-xs font-bold">
+										{ os }: <strong class="tabular-nums">{ fmt.Sprintf("%d", count) }</strong>
+									</span>
+								}
+							</div>
+						</div>
+
+						<!-- Browser -->
+						<div>
+							<div class="text-muted font-bold mb-2">المتصفح:</div>
+							<div class="d-flex gap-2 flex-wrap">
+								for b, count := range a.ByBrowser {
+									<span class="badge badge-emerald text-xs font-bold">
+										{ b }: <strong class="tabular-nums">{ fmt.Sprintf("%d", count) }</strong>
+									</span>
+								}
+							</div>
+						</div>
+					</div>
+				</div>
+
+			</div>
+
+			<!-- 3. Recent Visits Table -->
+			<div class="glass-panel p-0 mb-6 overflow-hidden">
+				<div class="p-4 px-6 border-b flex-between items-center">
+					<div>
+						<h3 class="text-base font-extrabold text-primary m-0">
+							أحدث الزيارات المسجلة على المنصة
+						</h3>
+						<p class="text-xs text-secondary m-0 mt-1">
+							سجل حي لزيارات منصة التوريد الدوائي والمتصفحات ونقاط الدخول
+						</p>
+					</div>
+					<span class="badge badge-emerald text-xs font-bold">محدّث لحظياً</span>
+				</div>
+
+				if len(a.Recent) == 0 {
+					<div class="p-8 text-center empty-state-glass">
+						<div class="text-4xl mb-3">🌐</div>
+						<h3 class="text-lg font-black text-primary mb-2">لا توجد زيارات مسجلة</h3>
+						<p class="text-sm text-secondary m-0">سيتم تسجيل الزيارات فور استخدام المنصة.</p>
 					</div>
 				} else {
-					<div style="display:flex; flex-direction:column; gap:0.75rem;">
-						for country, count := range a.ByCountry {
-							<div style="display:flex; flex-direction:column; gap:0.25rem;">
-								<div style="display:flex; justify-content:space-between; font-size:0.875rem;">
-									<span class="fw-700 text-primary">{ country }</span>
-									<span style="font-weight:800; color:var(--accent);" class="tabular-nums">{ fmt.Sprintf("%d زيارة", count) }</span>
-								</div>
-								<div style="width:100%; height:6px; background:var(--surface-sunken); border-radius:var(--radius-full); overflow:hidden; border:1px solid var(--border);">
-									<div style={ "width:" + fmt.Sprintf("%d", calcPercent(count, a.Total)) + "%; height:100%; background:var(--accent); border-radius:var(--radius-full);" }></div>
-								</div>
-							</div>
-						}
-					</div>
-				}
-			</div>
-
-			<!-- Cities Breakdown -->
-			<div class="card mb-0">
-				<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem; border-bottom:1px solid var(--border); padding-bottom:0.75rem;">
-					<h3 class="card-title" style="margin:0; font-size:1.05rem; display:flex; align-items:center; gap:0.5rem;">
-						@components.IconMapPin("icon-xs")
-						<span>أكثر المدن والمحافظات نشاطاً</span>
-					</h3>
-					<span class="badge badge-slate text-xs">المناطق والمدن</span>
-				</div>
-
-				if len(a.ByCity) == 0 {
-					<div style="padding:1.5rem 0; text-align:center; color:var(--text-muted); font-size:0.875rem;">
-						جاري رصد بيانات المدن والمناطق...
-					</div>
-				} else {
-					<div style="display:flex; flex-direction:column; gap:0.6rem;">
-						for city, count := range a.ByCity {
-							<div style="display:flex; justify-content:space-between; align-items:center; padding:0.5rem 0.85rem; background:var(--surface-sunken); border-radius:var(--radius-md); border:1px solid var(--border);">
-								<span style="font-weight:700; font-size:0.875rem; color:var(--text);">{ city }</span>
-								<span class="badge badge-sky" style="font-weight:800; font-size:0.8rem;">{ fmt.Sprintf("%d", count) }</span>
-							</div>
-						}
-					</div>
-				}
-			</div>
-
-			<!-- Devices, OS & Browsers -->
-			<div class="card mb-0">
-				<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem; border-bottom:1px solid var(--border); padding-bottom:0.75rem;">
-					<h3 class="card-title" style="margin:0; font-size:1.05rem; display:flex; align-items:center; gap:0.5rem;">
-						@components.IconMonitor("icon-xs")
-						<span>الأجهزة والمتصفحات</span>
-					</h3>
-				</div>
-
-				<div style="display:flex; flex-direction:column; gap:0.85rem;">
-					<!-- Device -->
-					<div>
-						<div style="font-size:0.75rem; color:var(--text-muted); font-weight:700; margin-bottom:0.35rem;">نوع الجهاز:</div>
-						<div style="display:flex; gap:0.4rem; flex-wrap:wrap;">
-							for d, count := range a.ByDevice {
-								<span class="badge badge-slate text-xs">
-									{ d }: <strong>{ fmt.Sprintf("%d", count) }</strong>
-								</span>
-							}
-						</div>
-					</div>
-
-					<!-- OS -->
-					<div>
-						<div style="font-size:0.75rem; color:var(--text-muted); font-weight:700; margin-bottom:0.35rem;">نظام التشغيل:</div>
-						<div style="display:flex; gap:0.4rem; flex-wrap:wrap;">
-							for os, count := range a.ByOS {
-								<span class="badge badge-purple text-xs">
-									{ os }: <strong>{ fmt.Sprintf("%d", count) }</strong>
-								</span>
-							}
-						</div>
-					</div>
-
-					<!-- Browser -->
-					<div>
-						<div style="font-size:0.75rem; color:var(--text-muted); font-weight:700; margin-bottom:0.35rem;">المتصفح:</div>
-						<div style="display:flex; gap:0.4rem; flex-wrap:wrap;">
-							for b, count := range a.ByBrowser {
-								<span class="badge badge-emerald text-xs">
-									{ b }: <strong>{ fmt.Sprintf("%d", count) }</strong>
-								</span>
-							}
-						</div>
-					</div>
-				</div>
-			</div>
-
-		</div>
-
-		<!-- 3. Recent Visits Table (Fixed RTL Column Alignment) -->
-		<div class="card mb-0">
-			<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.25rem; border-bottom:1px solid var(--border); padding-bottom:0.85rem;">
-				<div>
-					<h3 class="card-title" style="margin:0; font-size:1.15rem; font-weight:800;">
-						أحدث الزيارات المسجلة على المنصة
-					</h3>
-					<p style="font-size:0.8rem; color:var(--text-secondary); margin:0.15rem 0 0 0;">
-						سجل حي لزيارات منصة التوريد الدوائي والمتصفحات ونقاط الدخول
-					</p>
-				</div>
-				<span class="badge badge-emerald text-xs">محدّث لحظياً</span>
-			</div>
-
-			if len(a.Recent) == 0 {
-				@components.EmptyState(components.EmptyStateProps{
-					Title:   "لا توجد زيارات مسجلة",
-					Message: "سيتم تسجيل الزيارات فور استخدام المنصة.",
-				})
-			} else {
-				<div class="table-container" style="overflow-x:auto;">
-					<table class="b2b-table" style="min-width:1000px; width:100%; border-collapse:collapse;">
-						<thead>
-							<tr>
-								<th style="width:18%; text-align:start;">التاريخ والوقت</th>
-								<th style="width:22%; text-align:start;">الدولة والمدينة</th>
-								<th style="width:18%; text-align:center;">عنوان IP (المحمي)</th>
-								<th style="width:14%; text-align:center;">نوع الجهاز</th>
-								<th style="width:14%; text-align:center;">المتصفح</th>
-								<th style="width:14%; text-align:center;">نظام التشغيل</th>
-							</tr>
-						</thead>
-						<tbody>
-							for _, v := range a.Recent {
+					<div class="table-container m-0">
+						<table class="data-table m-0">
+							<thead>
 								<tr>
-									<!-- 1. Timestamp (Start Aligned) -->
-									<td class="text-start">
-										<div class="tabular-nums fw-700 text-primary text-sm">
-											{ v.VisitedAt.Format("2006-01-02") }
-										</div>
-										<div class="tabular-nums text-xs text-muted">
-											{ v.CreatedAt.Format("15:04:05") }
-										</div>
-									</td>
-
-									<!-- 2. Country & City (Start Aligned) -->
-									<td class="text-start">
-										<div class="text-sm fw-700 text-primary">
-											{ v.Country }
-										</div>
-										<div style="font-size:0.775rem; color:var(--text-muted); margin-top:2px;">
-											{ v.City }
-										</div>
-									</td>
-
-									<!-- 3. IP (Center Aligned) -->
-									<td class="text-center">
-										<span class="badge badge-slate tabular-nums" style="font-family:monospace; font-size:0.775rem; direction:ltr;">
-											{ v.IP }
-										</span>
-									</td>
-
-									<!-- 4. Device (Center Aligned) -->
-									<td class="text-center">
-										<span class="badge badge-sky" style="font-size:0.75rem; text-transform:capitalize;">
-											{ v.Device }
-										</span>
-									</td>
-
-									<!-- 5. Browser (Center Aligned) -->
-									<td class="text-center">
-										<span class="badge badge-purple" style="font-size:0.75rem; text-transform:capitalize;">
-											{ v.Browser }
-										</span>
-									</td>
-
-									<!-- 6. OS (Center Aligned) -->
-									<td class="text-center">
-										<span class="badge badge-slate" style="font-size:0.75rem; text-transform:capitalize;">
-											{ v.OS }
-										</span>
-									</td>
+									<th>التاريخ والوقت</th>
+									<th>الدولة والمدينة</th>
+									<th class="text-center">عنوان IP (المحمي)</th>
+									<th class="text-center">نوع الجهاز</th>
+									<th class="text-center">المتصفح</th>
+									<th class="text-center">نظام التشغيل</th>
 								</tr>
-							}
-						</tbody>
-					</table>
-				</div>
-			}
-		</div>
+							</thead>
+							<tbody>
+								for _, v := range a.Recent {
+									<tr>
+										<!-- 1. Timestamp -->
+										<td>
+											<div class="tabular-nums font-bold text-primary text-xs">
+												{ v.VisitedAt.Format("2006-01-02") }
+											</div>
+											<div class="tabular-nums text-xs text-muted">
+												{ v.CreatedAt.Format("15:04:05") }
+											</div>
+										</td>
 
+										<!-- 2. Country & City -->
+										<td>
+											<div class="text-xs font-extrabold text-primary">
+												{ v.Country }
+											</div>
+											<div class="text-xs text-muted">
+												{ v.City }
+											</div>
+										</td>
+
+										<!-- 3. IP -->
+										<td class="text-center">
+											<span class="badge badge-slate tabular-nums text-xs font-mono">
+												{ v.IP }
+											</span>
+										</td>
+
+										<!-- 4. Device -->
+										<td class="text-center">
+											<span class="badge badge-sky text-xs font-bold capitalize">
+												{ v.Device }
+											</span>
+										</td>
+
+										<!-- 5. Browser -->
+										<td class="text-center">
+											<span class="badge badge-purple text-xs font-bold capitalize">
+												{ v.Browser }
+											</span>
+										</td>
+
+										<!-- 6. OS -->
+										<td class="text-center">
+											<span class="badge badge-slate text-xs font-bold capitalize">
+												{ v.OS }
+											</span>
+										</td>
+									</tr>
+								}
+							</tbody>
+						</table>
+					</div>
+				}
+			</div>
+
+		</div>
 	}
 }
 

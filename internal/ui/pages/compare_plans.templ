@@ -32,7 +32,7 @@ templ ComparePlansPage(lang, dir string, plans []*billing.Plan) {
 							<div style="font-size:0.9rem; color:var(--neutral-600); margin-top:0.25rem;">@components.MoneyDisplay(components.MoneyDisplayProps{ Amount: p.PriceYear })<span style="font-size:0.8rem; color:var(--neutral-500);"> / سنوياً</span></div>
 						</div>
 						<div style="margin-top:1.25rem; border-top:1px solid var(--neutral-100); padding-top:0.875rem;">
-							<form method="POST" action={ fmt.Sprintf("/compare/subscribe?plan=%s", p.Slug) } class="m-0">
+							<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/compare/subscribe?plan=%s", p.Slug)) } class="m-0">
 								<button type="submit" class="btn btn-primary" style="width:100%; justify-content:center;">اشترك الآن</button>
 							</form>
 						</div>

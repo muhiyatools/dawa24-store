@@ -97,61 +97,67 @@ func cbRoleBadgeClass(key string) string {
 
 templ CustomerBranches(data CustomerBranchesData, lang string, dir string, perms []string) {
 	@layouts.CustomerShell(i18n.T(lang, "nav.pharmacy_branches"), "branches", lang, dir, perms) {
-		<div class="cb-container">
+		<div class="page-container">
 			
 			<!-- Notice Feedback Banner -->
 			if data.NoticeMsg != "" {
 				if data.NoticeType == "error" {
-					<div class="alert alert-danger" style="display:flex; align-items:center; gap:0.75rem; padding:1rem 1.25rem; border-radius:var(--radius-xl); background:rgba(239,68,68,0.12); border:1px solid rgba(239,68,68,0.3); color:var(--rose); font-weight:700; margin-bottom:1rem;">
-						<span style="font-size:1.25rem;">⚠️</span>
-						<span>{ data.NoticeMsg }</span>
+					<div class="alert alert-danger mb-4 p-4 flex-between">
+						<div class="d-flex items-center gap-3 font-extrabold text-sm">
+							<span class="text-2xl">⚠️</span>
+							<span>{ data.NoticeMsg }</span>
+						</div>
 					</div>
 				} else {
-					<div class="alert alert-success" style="display:flex; align-items:center; gap:0.75rem; padding:1rem 1.25rem; border-radius:var(--radius-xl); background:rgba(16,185,129,0.12); border:1px solid rgba(16,185,129,0.3); color:var(--emerald); font-weight:700; margin-bottom:1rem;">
-						<span style="font-size:1.25rem;">✅</span>
-						<span>{ data.NoticeMsg }</span>
+					<div class="alert alert-success mb-4 p-4 flex-between">
+						<div class="d-flex items-center gap-3 font-extrabold text-sm">
+							<span class="text-2xl">✅</span>
+							<span>{ data.NoticeMsg }</span>
+						</div>
 					</div>
 				}
 			}
 			
 			<!-- Header Banner -->
-			<div class="cb-header">
-				<div>
-					<h2 style="font-size:1.45rem; font-weight:800; color:var(--text); margin:0 0 0.4rem 0;">
-						إدارة الفروع ومستخدمي الصيدلية
-					</h2>
-					<p style="font-size:0.875rem; color:var(--text-secondary); margin:0; max-width:680px; line-height:1.6;">
-						إدارة شبكة الفروع ومواقع الاستلام الجغرافية، وتعيين الموظفين والصيادلة لكل فرع وتحديد أدوارهم وصلاحياتهم.
-					</p>
-				</div>
-				<div style="display:flex; align-items:center; gap:0.6rem; flex-wrap:wrap;">
-					<button type="button" class="btn btn-secondary btn-sm fw-700" onclick="openAddEmployeeModal()" data-modal-open="add-employee-modal">
-						@components.IconUser("icon-xs")
-						<span>+ إضافة مستخدم / موظف</span>
-					</button>
-					<a href="#new-branch-form" class="btn btn-primary btn-sm fw-700" onclick="switchCustomerBranchTab('branches')">
-						@components.IconPlus("icon-xs")
-						<span>+ إضافة فرع جديد</span>
-					</a>
+			<div class="glass-panel p-6 mb-6">
+				<div class="flex-between flex-wrap gap-4">
+					<div>
+						<h2 class="text-2xl font-black text-primary m-0 mb-1">
+							إدارة الفروع ومستخدمي الصيدلية
+						</h2>
+						<p class="text-sm text-secondary m-0 max-w-2xl leading-relaxed">
+							إدارة شبكة الفروع ومواقع الاستلام الجغرافية، وتعيين الموظفين والصيادلة لكل فرع وتحديد أدوارهم وصلاحياتهم.
+						</p>
+					</div>
+					<div class="d-flex items-center gap-3 flex-wrap">
+						<button type="button" class="btn btn-secondary btn-sm font-bold gap-2" onclick="openAddEmployeeModal()" data-modal-open="add-employee-modal">
+							@components.IconUser("icon-xs")
+							<span>+ إضافة مستخدم / موظف</span>
+						</button>
+						<a href="#new-branch-form" class="btn btn-primary btn-sm font-bold gap-2" onclick="switchCustomerBranchTab('branches')">
+							@components.IconPlus("icon-xs")
+							<span>+ إضافة فرع جديد</span>
+						</a>
+					</div>
 				</div>
 			</div>
 
 			<!-- Metrics Strip -->
-			<div class="cb-metrics-grid">
-				<div class="cb-metric-card">
-					<div style="font-size:0.8rem; font-weight:600; color:var(--text-muted);">
+			<div class="dashboard-stat-grid mb-6">
+				<div class="stat-card-3d">
+					<div class="stat-card-label">
 						إجمالي الفروع المسجلة
 					</div>
-					<div style="font-size:1.75rem; font-weight:800; color:var(--text);" class="tabular-nums">
-						{ fmt.Sprintf("%d", len(data.Branches)) } <span style="font-size:0.85rem; font-weight:600; color:var(--text-secondary);">فروع</span>
+					<div class="stat-card-value text-primary tabular-nums">
+						{ fmt.Sprintf("%d", len(data.Branches)) } <span class="text-xs font-semibold text-secondary">فروع</span>
 					</div>
 				</div>
 
-				<div class="cb-metric-card">
-					<div style="font-size:0.8rem; font-weight:600; color:var(--text-muted);">
+				<div class="stat-card-3d">
+					<div class="stat-card-label">
 						الفرع الرئيسي للاستلام
 					</div>
-					<div style="font-size:1.15rem; font-weight:800; color:var(--accent);">
+					<div class="text-lg font-black text-brand truncate mt-1">
 						if mb := data.GetMainBranch(); mb != nil {
 							<span>{ mb.Name.Get(i18n.ParseLang(lang)) }</span>
 						} else {
@@ -160,21 +166,21 @@ templ CustomerBranches(data CustomerBranchesData, lang string, dir string, perms
 					</div>
 				</div>
 
-				<div class="cb-metric-card">
-					<div style="font-size:0.8rem; font-weight:600; color:var(--text-muted);">
+				<div class="stat-card-3d">
+					<div class="stat-card-label">
 						الموظفون والصيادلة
 					</div>
-					<div style="font-size:1.75rem; font-weight:800; color:var(--primary-600);" class="tabular-nums">
-						{ fmt.Sprintf("%d", len(data.Employees)) } <span style="font-size:0.85rem; font-weight:600; color:var(--text-secondary);">مستخدمين</span>
+					<div class="stat-card-value text-primary tabular-nums">
+						{ fmt.Sprintf("%d", len(data.Employees)) } <span class="text-xs font-semibold text-secondary">مستخدمين</span>
 					</div>
 				</div>
 
-				<div class="cb-metric-card">
-					<div style="font-size:0.8rem; font-weight:600; color:var(--text-muted);">
+				<div class="stat-card-3d">
+					<div class="stat-card-label">
 						حالة التغطية والشحن
 					</div>
-					<div style="display:flex; align-items:center; gap:0.4rem; margin-top:0.25rem;">
-						<span class="badge badge-emerald text-xs fw-700">
+					<div class="d-flex items-center gap-2 mt-2">
+						<span class="badge badge-emerald text-xs font-bold gap-1">
 							@components.IconCheckCircle("icon-xs")
 							<span>جاهز لتلقي طلبيات التوريد</span>
 						</span>
@@ -183,7 +189,7 @@ templ CustomerBranches(data CustomerBranchesData, lang string, dir string, perms
 			</div>
 
 			<!-- Navigation Tabs -->
-			<div class="cb-tabs-nav">
+			<div class="cb-tabs-nav mb-6">
 				<button
 					type="button"
 					id="cb-tab-btn-branches"
@@ -502,15 +508,16 @@ templ CustomerBranches(data CustomerBranchesData, lang string, dir string, perms
 				</div>
 
 				if len(data.Employees) == 0 {
-					<div class="card" style="padding:3.5rem 1.5rem; text-align:center; background:var(--surface-raised); border-radius:var(--radius-xl); border:1px solid var(--border);">
-						@components.IconUser("icon-lg")
-						<h3 style="font-size:1.1rem; font-weight:800; color:var(--text); margin:0.85rem 0 0.35rem 0;">لم يتم تسجيل موظفين بعد</h3>
+					<div class="empty-state-glass p-8 text-center">
+						<div class="empty-state-icon-wrapper mx-auto mb-3">
+							@components.IconUser("icon-lg")
+						</div>
+						<h3 class="text-lg font-black text-primary mb-1">لم يتم تسجيل موظفين بعد</h3>
 						<p class="text-sm text-muted m-0">أضف موظفي وصيادلة الفروع وقم بتعيين أدوارهم وصلاحياتهم لإدارة الطلبيات والمخزون.</p>
 					</div>
 				} else {
-					<!-- High-Density Swiss B2B Employees Table -->
-					<div class="cb-emp-table-wrap">
-						<table class="sp-table" id="customer-employees-table">
+					<div class="table-container">
+						<table class="data-table" id="customer-employees-table">
 							<thead>
 								<tr>
 									<th>الموظف والبيانات الشخصية</th>
@@ -518,7 +525,7 @@ templ CustomerBranches(data CustomerBranchesData, lang string, dir string, perms
 									<th>المسمى الوظيفي</th>
 									<th>الدور والصلاحيات</th>
 									<th>الحالة</th>
-									<th style="text-align:center;">الإجراءات</th>
+									<th class="text-center">الإجراءات</th>
 								</tr>
 							</thead>
 							<tbody>

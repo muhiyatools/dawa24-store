@@ -18,7 +18,7 @@ type AdminUsersData struct {
 templ AdminUsers(data AdminUsersData, lang, dir string) {
 	@layouts.AdminShell("إدارة المستخدمين والصلاحيات | Users", "users", lang, dir) {
 		<div
-			style="max-width:1200px; margin:0 auto; display:flex; flex-direction:column; gap:1.5rem;"
+			class="page-container"
 			x-data="{
 				activeTab: 'all',
 				searchQuery: '',
@@ -55,104 +55,105 @@ templ AdminUsers(data AdminUsersData, lang, dir string) {
 		>
 			
 			<!-- Header -->
-			<div style="display:flex; justify-content:space-between; align-items:center; gap:1rem; flex-wrap:wrap;">
-				<div class="row-center">
-					<div style="width:46px; height:46px; border-radius:var(--radius-xl); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center;">
-						@components.IconUser("icon-md")
-					</div>
+			<div class="glass-panel p-6 mb-6">
+				<div class="flex-between flex-wrap gap-4">
 					<div>
-						<h2 class="card-title" style="margin:0; font-size:1.55rem; font-weight:800;">
-							إدارة المستخدمين والحسابات ({ fmt.Sprintf("%d", len(data.Users)) })
-						</h2>
-						<p style="font-size:0.875rem; color:var(--text-secondary); margin:0.2rem 0 0 0;">
+						<div class="d-flex items-center gap-3 mb-1">
+							<div class="user-avatar-badge text-xl">
+								👥
+							</div>
+							<h1 class="text-2xl font-black text-primary m-0">
+								إدارة المستخدمين والحسابات ({ fmt.Sprintf("%d", len(data.Users)) })
+							</h1>
+						</div>
+						<p class="text-sm text-secondary m-0">
 							التحكم في صلاحيات الحسابات، تعليق وتفعيل المستخدمين، وإدارة طلبات حذف الحسابات
 						</p>
 					</div>
 				</div>
-			</div>
 
-			<!-- Tabs Navigation Bar -->
-			<div style="display:flex; gap:0.5rem; border-bottom:2px solid var(--border); flex-wrap:wrap;">
-				<button
-					type="button"
-					class="btn"
-					:class="activeTab === 'all' ? 'btn-primary' : 'btn-secondary' tab-btn-header"
-					@click="setTab('all')"
-				>
-					@components.IconUser("icon-xs")
-					<span>جميع المستخدمين ({ fmt.Sprintf("%d", len(data.Users)) })</span>
-				</button>
+				<!-- Tabs Navigation Bar -->
+				<div class="cb-tabs-nav mt-4 pt-3 border-t">
+					<button
+						type="button"
+						class="cb-tab-btn"
+						:class="activeTab === 'all' ? 'active' : ''"
+						@click="setTab('all')"
+					>
+						@components.IconUser("icon-xs")
+						<span>جميع المستخدمين ({ fmt.Sprintf("%d", len(data.Users)) })</span>
+					</button>
 
-				<button
-					type="button"
-					class="btn"
-					:class="activeTab === 'pharmacies' ? 'btn-primary' : 'btn-secondary' tab-btn-header"
-					@click="setTab('pharmacies')"
-				>
-					@components.IconBuilding("icon-xs")
-					<span>الصيدليات والعملاء ({ fmt.Sprintf("%d", countUsersByGroup(data.Users, "pharmacy")) })</span>
-				</button>
+					<button
+						type="button"
+						class="cb-tab-btn"
+						:class="activeTab === 'pharmacies' ? 'active' : ''"
+						@click="setTab('pharmacies')"
+					>
+						@components.IconBuilding("icon-xs")
+						<span>الصيدليات والعملاء ({ fmt.Sprintf("%d", countUsersByGroup(data.Users, "pharmacy")) })</span>
+					</button>
 
-				<button
-					type="button"
-					class="btn"
-					:class="activeTab === 'suppliers' ? 'btn-primary' : 'btn-secondary' tab-btn-header"
-					@click="setTab('suppliers')"
-				>
-					@components.IconTruck("icon-xs")
-					<span>الموردين والمخازن ({ fmt.Sprintf("%d", countUsersByGroup(data.Users, "supplier")) })</span>
-				</button>
+					<button
+						type="button"
+						class="cb-tab-btn"
+						:class="activeTab === 'suppliers' ? 'active' : ''"
+						@click="setTab('suppliers')"
+					>
+						@components.IconTruck("icon-xs")
+						<span>الموردين والمخازن ({ fmt.Sprintf("%d", countUsersByGroup(data.Users, "supplier")) })</span>
+					</button>
 
-				<button
-					type="button"
-					class="btn"
-					:class="activeTab === 'staff' ? 'btn-primary' : 'btn-secondary' tab-btn-header"
-					@click="setTab('staff')"
-				>
-					@components.IconShield("icon-xs")
-					<span>فريق الإدارة والمنصة ({ fmt.Sprintf("%d", countUsersByGroup(data.Users, "staff")) })</span>
-				</button>
+					<button
+						type="button"
+						class="cb-tab-btn"
+						:class="activeTab === 'staff' ? 'active' : ''"
+						@click="setTab('staff')"
+					>
+						@components.IconShield("icon-xs")
+						<span>فريق الإدارة والمنصة ({ fmt.Sprintf("%d", countUsersByGroup(data.Users, "staff")) })</span>
+					</button>
 
-				<button
-					type="button"
-					class="btn"
-					:class="activeTab === 'deletion_requests' ? 'btn-primary' : 'btn-secondary'"
-					style="font-weight:800; border-radius:var(--radius-lg) var(--radius-lg) 0 0; padding:0.65rem 1.25rem; position:relative;"
-					@click="setTab('deletion_requests')"
-				>
-					@components.IconTrash("icon-xs")
-					<span>طلبات حذف الحسابات</span>
-					if countPendingDeletions(data.DeletionRequests) > 0 {
-						<span class="badge badge-rose" style="font-size:0.7rem; font-weight:800; padding:0.15rem 0.45rem;">
-							{ fmt.Sprintf("%d", countPendingDeletions(data.DeletionRequests)) }
-						</span>
-					} else {
-						<span class="badge badge-slate text-xs">
-							{ fmt.Sprintf("%d", len(data.DeletionRequests)) }
-						</span>
-					}
-				</button>
+					<button
+						type="button"
+						class="cb-tab-btn d-flex items-center gap-2"
+						:class="activeTab === 'deletion_requests' ? 'active' : ''"
+						@click="setTab('deletion_requests')"
+					>
+						@components.IconTrash("icon-xs")
+						<span>طلبات حذف الحسابات</span>
+						if countPendingDeletions(data.DeletionRequests) > 0 {
+							<span class="badge badge-rose text-xs font-black">
+								{ fmt.Sprintf("%d", countPendingDeletions(data.DeletionRequests)) }
+							</span>
+						} else {
+							<span class="badge badge-slate text-xs">
+								{ fmt.Sprintf("%d", len(data.DeletionRequests)) }
+							</span>
+						}
+					</button>
+				</div>
 			</div>
 
 			<!-- ========================================== -->
 			<!-- TABS 1-4: Users Tables with Live Filter   -->
 			<!-- ========================================== -->
-			<div x-show="activeTab !== 'deletion_requests'" class="stack-lg">
+			<div x-show="activeTab !== 'deletion_requests'" class="d-flex flex-col gap-6">
 				
 				<!-- Search and Filter Toolstrip -->
-				<div class="card" style="padding:1rem 1.25rem; margin-bottom:0; background:var(--surface-sunken); border:1px solid var(--border); border-radius:var(--radius-xl);">
-					<div style="display:grid; grid-template-columns:2fr 1fr 1fr; gap:0.75rem; align-items:center;">
-						<div class="form-group m-0">
+				<div class="glass-panel p-4 mb-0">
+					<div class="d-grid gap-3 items-center" style="grid-template-columns: 2fr 1fr 1fr;">
+						<div>
 							<input
 								type="text"
 								x-model="searchQuery"
 								placeholder="البحث بالاسم، البريد الإلكتروني، أو الدور..."
-								class="form-input text-sm"
+								class="form-input text-xs w-full"
 							/>
 						</div>
 
-						<div class="form-group m-0">
-							<select x-model="statusFilter" class="form-select text-sm">
+						<div>
+							<select x-model="statusFilter" class="form-select text-xs w-full">
 								<option value="all">جميع الحالات (All Status)</option>
 								<option value="active">نشط (Active)</option>
 								<option value="suspended">موقوف / معلق (Suspended)</option>
@@ -160,8 +161,8 @@ templ AdminUsers(data AdminUsersData, lang, dir string) {
 							</select>
 						</div>
 
-						<div class="form-group m-0">
-							<select x-model="roleFilter" class="form-select text-sm">
+						<div>
+							<select x-model="roleFilter" class="form-select text-xs w-full">
 								<option value="all">جميع الصلاحيات (All Roles)</option>
 								<option value="super_admin">مدير نظام عام (Super Admin)</option>
 								<option value="admin">مدير (Admin)</option>
@@ -175,24 +176,23 @@ templ AdminUsers(data AdminUsersData, lang, dir string) {
 				</div>
 
 				<!-- Users Data Card -->
-				<div class="card" style="padding:0; overflow:visible; margin-bottom:0;">
+				<div class="glass-panel p-0 mb-6 overflow-hidden">
 					if len(data.Users) == 0 {
-						<div class="p-modal">
-							@components.EmptyState(components.EmptyStateProps{
-								Title:   "لا يوجد مستخدمين مسجلين",
-								Message: "لم يتم العثور على أي حسابات مستخدمين مطابقة.",
-							})
+						<div class="p-8 text-center empty-state-glass">
+							<div class="text-4xl mb-3">👥</div>
+							<h3 class="text-lg font-black text-primary mb-2">لا يوجد مستخدمين مسجلين</h3>
+							<p class="text-sm text-secondary m-0">لم يتم العثور على أي حسابات مستخدمين مطابقة.</p>
 						</div>
 					} else {
-						<div class="table-container" style="overflow-x:auto;">
-							<table class="b2b-table" style="width:100%; border-collapse:collapse; font-size:0.875rem;">
+						<div class="table-container m-0">
+							<table class="data-table m-0">
 								<thead>
 									<tr>
-										<th style="width:25%; text-align:start;">الاسم وبيانات المستخدم</th>
-										<th style="width:25%; text-align:start;">البريد الإلكتروني</th>
-										<th style="width:15%; text-align:start;">الدور / الصلاحية</th>
-										<th style="width:15%; text-align:center;">الحالة</th>
-										<th style="width:20%; text-align:end;">الإجراءات</th>
+										<th>الاسم وبيانات المستخدم</th>
+										<th>البريد الإلكتروني</th>
+										<th>الدور / الصلاحية</th>
+										<th class="text-center">الحالة</th>
+										<th class="text-end">الإجراءات</th>
 									</tr>
 								</thead>
 								<tbody>
@@ -208,47 +208,47 @@ templ AdminUsers(data AdminUsersData, lang, dir string) {
 												string(u.Status),
 											) }
 										>
-											<td class="text-start">
-												<div class="fw-700 text-primary">
+											<td>
+												<div class="font-extrabold text-primary text-sm">
 													{ userDisplayName(u) }
 												</div>
 												if u.Phone != "" {
-													<div style="font-size:0.75rem; color:var(--text-muted); direction:ltr; text-align:start;" class="tabular-nums">
+													<div class="text-xs text-muted tabular-nums">
 														{ u.Phone }
 													</div>
 												}
 											</td>
-											<td class="text-start">
-												<span style="color:var(--text-secondary); direction:ltr; display:inline-block;" class="tabular-nums">
+											<td>
+												<span class="text-secondary text-xs tabular-nums">
 													{ u.Email }
 												</span>
 											</td>
-											<td class="text-start">
-												<span class={ "badge", roleBadgeClass(u.Role) } style="font-weight:700; font-size:0.75rem;">
+											<td>
+												<span class={ "badge text-xs font-bold", roleBadgeClass(u.Role) }>
 													{ roleDisplayAr(u.Role) }
 												</span>
 											</td>
 											<td class="text-center">
 												if u.Status == identity.StatusActive {
-													<span class="badge badge-emerald">نشط ومفعل</span>
+													<span class="badge badge-emerald text-xs font-bold">نشط ومفعل</span>
 												} else if u.Status == identity.StatusSuspended {
-													<span class="badge badge-rose">موقوف</span>
+													<span class="badge badge-rose text-xs font-bold">موقوف</span>
 												} else {
-													<span class="badge badge-amber">قيد المراجعة</span>
+													<span class="badge badge-amber text-xs font-bold">قيد المراجعة</span>
 												}
 											</td>
 											<td class="text-end">
-												<div class="table-actions" style="justify-content:flex-end; gap:0.4rem;">
+												<div class="d-flex items-center justify-end gap-2">
 													if u.Status == identity.StatusActive {
 														<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/users/%d/suspend", u.ID)) } class="m-0" onsubmit="return confirm('هل أنت متأكد من تعليق هذا الحساب وإنهاء جلساته؟');">
-															<button type="submit" class="btn btn-secondary btn-sm" style="color:var(--danger); font-size:0.75rem; font-weight:700;">
+															<button type="submit" class="btn btn-secondary btn-sm font-bold text-danger text-xs px-3">
 																@components.IconMinus("icon-xs")
 																<span>تعليق الحساب</span>
 															</button>
 														</form>
 													} else {
 														<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/users/%d/reactivate", u.ID)) } class="m-0">
-															<button type="submit" class="btn btn-primary btn-sm text-xs fw-700">
+															<button type="submit" class="btn btn-primary btn-sm text-xs font-bold px-3">
 																@components.IconCheck("icon-xs")
 																<span>إعادة التفعيل</span>
 															</button>
@@ -256,7 +256,7 @@ templ AdminUsers(data AdminUsersData, lang, dir string) {
 													}
 
 													<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/users/%d/reset-mfa", u.ID)) } class="m-0" onsubmit="return confirm('إعادة ضبط التحقق الثنائي MFA لهذا الحساب؟');">
-														<button type="submit" class="btn btn-secondary btn-icon" style="width:30px; height:30px;" title="إعادة ضبط MFA">
+														<button type="submit" class="btn btn-secondary btn-icon btn-sm" title="إعادة ضبط MFA">
 															@components.IconRefresh("icon-xs")
 														</button>
 													</form>
@@ -275,86 +275,85 @@ templ AdminUsers(data AdminUsersData, lang, dir string) {
 			<!-- ========================================== -->
 			<!-- TAB 5: Account Deletion Requests           -->
 			<!-- ========================================== -->
-			<div x-show="activeTab === 'deletion_requests'" class="stack-lg">
+			<div x-show="activeTab === 'deletion_requests'" class="d-flex flex-col gap-6">
 				
-				<div class="card" style="padding:0; overflow:visible; margin-bottom:0;">
-					<div style="padding:1.25rem 1.5rem; border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem;">
+				<div class="glass-panel p-0 mb-6 overflow-hidden">
+					<div class="p-4 px-6 border-b flex-between items-center flex-wrap gap-2">
 						<div>
-							<h3 class="card-title" style="margin:0; font-size:1.15rem; font-weight:800;">
+							<h3 class="text-base font-extrabold text-primary m-0">
 								طلبات حذف الحسابات المقدمة من الصيدليات والموردين ({ fmt.Sprintf("%d", len(data.DeletionRequests)) })
 							</h3>
-							<p style="font-size:0.8rem; color:var(--text-secondary); margin:0.15rem 0 0 0;">
+							<p class="text-xs text-secondary m-0 mt-1">
 								مراجعة طلبات الحذف، والتحقق من عدم وجود أوامر شراء أو مطالبات مالية معلقة قبل اتخاذ القرار
 							</p>
 						</div>
 					</div>
 
 					if len(data.DeletionRequests) == 0 {
-						<div style="padding:2.5rem;">
-							@components.EmptyState(components.EmptyStateProps{
-								Title:   "لا توجد طلبات حذف معلقة",
-								Message: "لم يتم تقديم أي طلبات حذف حسابات جديدة من الصيدليات أو الموردين.",
-							})
+						<div class="p-8 text-center empty-state-glass">
+							<div class="text-4xl mb-3">🗑️</div>
+							<h3 class="text-lg font-black text-primary mb-2">لا توجد طلبات حذف معلقة</h3>
+							<p class="text-sm text-secondary m-0">لم يتم تقديم أي طلبات حذف حسابات جديدة من الصيدليات أو الموردين.</p>
 						</div>
 					} else {
-						<div class="table-container" style="overflow-x:auto;">
-							<table class="b2b-table" style="width:100%; border-collapse:collapse; font-size:0.875rem;">
+						<div class="table-container m-0">
+							<table class="data-table m-0">
 								<thead>
 									<tr>
-										<th style="width:20%; text-align:start;">المستخدم</th>
-										<th style="width:15%; text-align:start;">نوع الحساب / المنشأة</th>
-										<th style="width:25%; text-align:start;">سبب طلب الحذف</th>
-										<th style="width:15%; text-align:start;">تاريخ الطلب</th>
-										<th style="width:10%; text-align:center;">الحالة</th>
-										<th style="width:15%; text-align:end;">الإجراء</th>
+										<th>المستخدم</th>
+										<th>نوع الحساب / المنشأة</th>
+										<th>سبب طلب الحذف</th>
+										<th>تاريخ الطلب</th>
+										<th class="text-center">الحالة</th>
+										<th class="text-end">الإجراء</th>
 									</tr>
 								</thead>
 								<tbody>
 									for _, req := range data.DeletionRequests {
 										<tr>
-											<td class="text-start">
-												<div class="fw-700 text-primary">{ req.UserName }</div>
-												<div style="font-size:0.75rem; color:var(--text-muted); direction:ltr; text-align:start;" class="tabular-nums">{ req.UserEmail }</div>
+											<td>
+												<div class="font-extrabold text-primary text-sm">{ req.UserName }</div>
+												<div class="text-xs text-muted tabular-nums">{ req.UserEmail }</div>
 											</td>
-											<td class="text-start">
-												<span class={ "badge", roleBadgeClass(req.UserRole) } style="font-size:0.725rem; font-weight:700;">
+											<td>
+												<span class={ "badge text-xs font-bold", roleBadgeClass(req.UserRole) }>
 													{ roleDisplayAr(req.UserRole) }
 												</span>
 												if req.OrganizationName != "" {
-													<div style="font-size:0.75rem; color:var(--text-secondary); margin-top:2px;">{ req.OrganizationName }</div>
+													<div class="text-xs text-secondary mt-1">{ req.OrganizationName }</div>
 												}
 											</td>
-											<td class="text-start">
+											<td>
 												if req.Reason != "" {
-													<div style="font-size:0.825rem; color:var(--text); line-height:1.4;">{ req.Reason }</div>
+													<div class="text-xs text-primary leading-normal">{ req.Reason }</div>
 												} else {
-													<span style="font-size:0.8rem; color:var(--text-muted); font-style:italic;">لم يذكر سبب محدد</span>
+													<span class="text-xs text-muted italic">لم يذكر سبب محدد</span>
 												}
 											</td>
-											<td class="text-start tabular-nums">
-												<span style="color:var(--text-secondary); font-size:0.8rem;">{ req.CreatedAt.Format("2006-01-02 15:04") }</span>
+											<td class="tabular-nums">
+												<span class="text-secondary text-xs">{ req.CreatedAt.Format("2006-01-02 15:04") }</span>
 											</td>
 											<td class="text-center">
 												if req.Status == "pending" {
-													<span class="badge badge-amber fw-800">قيد المراجعة</span>
+													<span class="badge badge-amber text-xs font-black">قيد المراجعة</span>
 												} else if req.Status == "approved" {
-													<span class="badge badge-emerald fw-800">تم الحذف</span>
+													<span class="badge badge-emerald text-xs font-black">تم الحذف</span>
 												} else {
-													<span class="badge badge-danger fw-800">مرفوض</span>
+													<span class="badge badge-rose text-xs font-black">مرفوض</span>
 												}
 											</td>
 											<td class="text-end">
 												if req.Status == "pending" {
-													<div class="table-actions" style="justify-content:flex-end; gap:0.4rem;">
+													<div class="d-flex items-center justify-end gap-2">
 														<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/users/deletion/%d/approve", req.ID)) } class="m-0" onsubmit="return confirm('تأكيد الموافقة على حذف الحساب وتعليقه فورياً؟');">
-															<button type="submit" class="btn btn-danger btn-sm" style="font-size:0.725rem; font-weight:800; padding:0.35rem 0.65rem;">
+															<button type="submit" class="btn btn-danger btn-sm text-xs font-black px-3 py-1 gap-1">
 																@components.IconTrash("icon-xs")
 																<span>قبول وحذف</span>
 															</button>
 														</form>
 
 														<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/users/deletion/%d/reject", req.ID)) } class="m-0">
-															<button type="submit" class="btn btn-secondary btn-sm" style="font-size:0.725rem; font-weight:700; padding:0.35rem 0.65rem;">
+															<button type="submit" class="btn btn-secondary btn-sm text-xs font-bold px-3 py-1">
 																<span>رفض</span>
 															</button>
 														</form>

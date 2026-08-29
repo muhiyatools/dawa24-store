@@ -57,34 +57,34 @@ func buildHeadToHeadURL(sourceID, targetID int64, q, minP, maxP, minD, maxD, tab
 }
 
 templ CompareHeadToHeadContent(data HeadToHeadPageData) {
-	<div class="max-w-4xl mx-auto stack-lg">
+	<div class="page-container">
 		
 		<!-- Header Banner -->
-		<div class="card" style="background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-2xl); padding:1.5rem 1.75rem;">
-			<div class="flex-between flex-wrap gap-md">
+		<div class="glass-panel p-6 mb-6">
+			<div class="flex-between flex-wrap gap-4">
 				<div>
-					<div style="display:flex; align-items:center; gap:0.6rem; margin-bottom:0.25rem;">
-						<div style="width:42px; height:42px; border-radius:var(--radius-lg); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center; font-size:1.3rem;">
+					<div class="d-flex items-center gap-3 mb-1">
+						<div class="user-avatar-badge text-xl">
 							🏢
 						</div>
-						<h1 style="font-size:1.45rem; font-weight:900; color:var(--text); margin:0;">
+						<h1 class="text-2xl font-black text-primary m-0">
 							مقارنة مورد بمورد (رأس برأس)
 						</h1>
 					</div>
-					<p style="color:var(--text-muted); font-size:0.875rem; margin:0;">
+					<p class="text-sm text-secondary m-0">
 						تحليل مقارن مباشر ودقيق لأسعار وخصومات الأصناف بين موردين اثنين مع تحديد نقاط التفوق والضعف والتوفير الصافي.
 					</p>
 				</div>
 
-				<div style="display:flex; align-items:center; gap:0.75rem; flex-wrap:wrap;">
-					<a href="/compare/tool" class="btn btn-secondary fw-700">
+				<div class="d-flex items-center gap-3 flex-wrap">
+					<a href="/compare/tool" class="btn btn-secondary font-bold gap-2">
 						@components.IconArrowLeft("icon-xs")
 						<span>مركز الملفات</span>
 					</a>
 					if data.Result != nil && len(data.Result.Rows) > 0 {
 						<button
 							type="button"
-							class="btn btn-primary fw-800"
+							class="btn btn-primary font-bold gap-2"
 							onclick="exportHeadToHeadToCSV()"
 						>
 							@components.IconDownload("icon-xs")
@@ -95,30 +95,30 @@ templ CompareHeadToHeadContent(data HeadToHeadPageData) {
 			</div>
 
 			<!-- Navigation Subtabs for all 4 Analysis Modes -->
-			<div style="display:flex; gap:0.5rem; margin-top:1.25rem; padding-top:1rem; border-top:1px solid var(--border); flex-wrap:wrap;">
-				<a href="/compare/results" class="btn btn-secondary btn-sm" style="font-weight:700; border-radius:var(--radius-lg);">
+			<div class="cb-tabs-nav mt-4 pt-3 border-t">
+				<a href="/compare/results" class="cb-tab-btn">
 					📊 المقارنة المجمعة بين الموردين
 				</a>
-				<a href="/compare/head-to-head" class="btn btn-primary btn-sm" style="font-weight:800; border-radius:var(--radius-lg);">
+				<a href="/compare/head-to-head" class="cb-tab-btn active">
 					🏢 مقارنة مورد بمورد
 				</a>
-				<a href="/compare/market-benchmark" class="btn btn-secondary btn-sm" style="font-weight:700; border-radius:var(--radius-lg);">
+				<a href="/compare/market-benchmark" class="cb-tab-btn">
 					🧠 مقارنة مع موردين السوق
 				</a>
-				<a href="/compare/market-intelligence" class="btn btn-secondary btn-sm" style="font-weight:700; border-radius:var(--radius-lg);">
+				<a href="/compare/market-intelligence" class="cb-tab-btn">
 					🧠 تقرير ذكاء السوق
 				</a>
 			</div>
 		</div>
 
 		<!-- Supplier Selector Form -->
-		<div class="card" style="background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-2xl); padding:1.25rem 1.5rem;">
-			<form method="GET" action="/compare/head-to-head" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(240px, 1fr)) auto; gap:1rem; align-items:end; margin:0;">
+		<div class="glass-panel p-6 mb-6">
+			<form method="GET" action="/compare/head-to-head" class="d-grid gap-4 items-end m-0" style="grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)) auto;">
 				<div>
-					<label class="form-label" style="font-weight:700; font-size:0.85rem; color:var(--text); margin-bottom:0.35rem; display:block;">
+					<label class="form-label font-bold text-xs text-primary mb-1 d-block">
 						المورد الأساسي (كشفك / المصدر)
 					</label>
-					<select name="source" class="form-select" style="width:100%; height:40px; font-size:0.875rem;" required>
+					<select name="source" class="form-select text-xs w-full" required>
 						<option value="">-- اختر المورد الأساسي --</option>
 						for _, f := range data.Files {
 							<option value={ fmt.Sprintf("%d", f.ID) } selected?={ f.ID == data.SourceFileID }>
@@ -129,10 +129,10 @@ templ CompareHeadToHeadContent(data HeadToHeadPageData) {
 				</div>
 
 				<div>
-					<label class="form-label" style="font-weight:700; font-size:0.85rem; color:var(--text); margin-bottom:0.35rem; display:block;">
+					<label class="form-label font-bold text-xs text-primary mb-1 d-block">
 						المورد المقارن به (المنافس / الهدف)
 					</label>
-					<select name="target" class="form-select" style="width:100%; height:40px; font-size:0.875rem;" required>
+					<select name="target" class="form-select text-xs w-full" required>
 						<option value="">-- اختر المورد المقارن به --</option>
 						for _, f := range data.Files {
 							<option value={ fmt.Sprintf("%d", f.ID) } selected?={ f.ID == data.TargetFileID }>
@@ -142,7 +142,7 @@ templ CompareHeadToHeadContent(data HeadToHeadPageData) {
 					</select>
 				</div>
 
-				<button type="submit" class="btn btn-primary fw-800" style="height:40px; padding:0 1.5rem;">
+				<button type="submit" class="btn btn-primary font-bold px-6">
 					⚡ بدء المقارنة
 				</button>
 			</form>
@@ -150,28 +150,23 @@ templ CompareHeadToHeadContent(data HeadToHeadPageData) {
 
 		if data.Result != nil {
 			<!-- KPI Summary Metric Cards -->
-			<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(180px, 1fr)); gap:0.85rem;">
-				
+			<div class="dashboard-stat-grid mb-6">
 				<!-- Shared Products -->
-				<div class="card" style="background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-xl); padding:1rem 1.25rem;">
-					<div style="font-size:0.8rem; font-weight:700; color:var(--text-muted); margin-bottom:0.25rem;">
-						الأصناف المشتركة
-					</div>
-					<div style="font-size:1.6rem; font-weight:900; color:var(--text);" class="tabular-nums">
+				<div class="stat-card-3d">
+					<div class="stat-card-label">الأصناف المشتركة</div>
+					<div class="stat-card-value text-primary tabular-nums">
 						{ fmt.Sprintf("%d", data.Result.TotalShared) }
 					</div>
-					<span style="font-size:0.75rem; color:var(--text-secondary);">صنف متطابق بين الكشفين</span>
+					<span class="text-xs text-secondary mt-1 d-block">صنف متطابق بين الكشفين</span>
 				</div>
 
 				<!-- Your Better (خصمك أفضل منهم) -->
-				<div class="card" style="background:var(--surface-raised); border:1px solid rgba(16,185,129,0.3); border-radius:var(--radius-xl); padding:1rem 1.25rem;">
-					<div style="font-size:0.8rem; font-weight:700; color:#10b981; margin-bottom:0.25rem;">
-						🟢 خصمك أفضل منهم
-					</div>
-					<div style="font-size:1.6rem; font-weight:900; color:#10b981;" class="tabular-nums">
+				<div class="stat-card-3d">
+					<div class="stat-card-label text-success">🟢 خصمك أفضل منهم</div>
+					<div class="stat-card-value text-success tabular-nums">
 						{ fmt.Sprintf("%d", data.Result.YourBetterCount) }
 					</div>
-					<span style="font-size:0.75rem; color:var(--text-secondary);">
+					<span class="text-xs text-secondary mt-1 d-block">
 						if data.Result.TotalShared > 0 {
 							{ fmt.Sprintf("%.1f%% من الأصناف", float64(data.Result.YourBetterCount)/float64(data.Result.TotalShared)*100.0) }
 						}
@@ -179,14 +174,12 @@ templ CompareHeadToHeadContent(data HeadToHeadPageData) {
 				</div>
 
 				<!-- Equal Discount (نفس الخصم) -->
-				<div class="card" style="background:var(--surface-raised); border:1px solid rgba(59,130,246,0.3); border-radius:var(--radius-xl); padding:1rem 1.25rem;">
-					<div style="font-size:0.8rem; font-weight:700; color:#3b82f6; margin-bottom:0.25rem;">
-						🔵 نفس الخصم
-					</div>
-					<div style="font-size:1.6rem; font-weight:900; color:#3b82f6;" class="tabular-nums">
+				<div class="stat-card-3d">
+					<div class="stat-card-label text-brand">🔵 نفس الخصم</div>
+					<div class="stat-card-value text-brand tabular-nums">
 						{ fmt.Sprintf("%d", data.Result.EqualCount) }
 					</div>
-					<span style="font-size:0.75rem; color:var(--text-secondary);">
+					<span class="text-xs text-secondary mt-1 d-block">
 						if data.Result.TotalShared > 0 {
 							{ fmt.Sprintf("%.1f%% من الأصناف", float64(data.Result.EqualCount)/float64(data.Result.TotalShared)*100.0) }
 						}
@@ -194,14 +187,12 @@ templ CompareHeadToHeadContent(data HeadToHeadPageData) {
 				</div>
 
 				<!-- Competitor Better (خصم أفضل منك) -->
-				<div class="card" style="background:var(--surface-raised); border:1px solid rgba(239,68,68,0.3); border-radius:var(--radius-xl); padding:1rem 1.25rem;">
-					<div style="font-size:0.8rem; font-weight:700; color:#ef4444; margin-bottom:0.25rem;">
-						🔴 خصم أفضل منك
-					</div>
-					<div style="font-size:1.6rem; font-weight:900; color:#ef4444;" class="tabular-nums">
+				<div class="stat-card-3d">
+					<div class="stat-card-label text-danger">🔴 خصم أفضل منك</div>
+					<div class="stat-card-value text-danger tabular-nums">
 						{ fmt.Sprintf("%d", data.Result.CompetitorBetter) }
 					</div>
-					<span style="font-size:0.75rem; color:var(--text-secondary);">
+					<span class="text-xs text-secondary mt-1 d-block">
 						if data.Result.TotalShared > 0 {
 							{ fmt.Sprintf("%.1f%% من الأصناف", float64(data.Result.CompetitorBetter)/float64(data.Result.TotalShared)*100.0) }
 						}
@@ -209,31 +200,26 @@ templ CompareHeadToHeadContent(data HeadToHeadPageData) {
 				</div>
 
 				<!-- Competitive Win Rate -->
-				<div class="card" style="background:var(--surface-raised); border:1px solid var(--accent-subtle); border-radius:var(--radius-xl); padding:1rem 1.25rem;">
-					<div style="font-size:0.8rem; font-weight:700; color:var(--accent); margin-bottom:0.25rem;">
-						معدل التفوق التنافسي
-					</div>
-					<div style="font-size:1.6rem; font-weight:900; color:var(--accent);" class="tabular-nums">
+				<div class="stat-card-3d">
+					<div class="stat-card-label">معدل التفوق التنافسي</div>
+					<div class="stat-card-value text-brand tabular-nums">
 						{ fmt.Sprintf("%.1f%%", data.Result.WinRatePercent) }
 					</div>
-					<span style="font-size:0.75rem; color:var(--text-secondary);">نسبة تفوقك أو تطابقك</span>
+					<span class="text-xs text-secondary mt-1 d-block">نسبة تفوقك أو تطابقك</span>
 				</div>
-
 			</div>
 
-			<!-- Filter Bar (Matching Image 1: Price and Discount Range Inputs) -->
-			<div class="card" style="background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-2xl); padding:1.25rem 1.5rem; display:flex; flex-direction:column; gap:1rem;">
-				
-				<form method="GET" action="/compare/head-to-head" style="margin:0;">
+			<!-- Filter Bar -->
+			<div class="glass-panel p-6 mb-6 d-flex flex-col gap-4">
+				<form method="GET" action="/compare/head-to-head" class="m-0">
 					<input type="hidden" name="source" value={ fmt.Sprintf("%d", data.SourceFileID) } />
 					<input type="hidden" name="target" value={ fmt.Sprintf("%d", data.TargetFileID) } />
 					<input type="hidden" name="tab" value={ data.ActiveTab } />
 
-					<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(170px, 1fr)) 1.5fr auto; gap:0.75rem; align-items:end;">
-						
+					<div class="d-grid gap-3 items-end" style="grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)) 1.5fr auto;">
 						<!-- الحد الأدنى للسعر -->
 						<div>
-							<label style="font-size:0.8rem; font-weight:700; color:var(--text-muted); margin-bottom:0.3rem; display:block;">
+							<label class="text-xs font-bold text-muted mb-1 d-block">
 								الحد الأدنى للسعر
 							</label>
 							<input
@@ -242,14 +228,13 @@ templ CompareHeadToHeadContent(data HeadToHeadPageData) {
 								name="min_price"
 								value={ data.MinPrice }
 								placeholder="0.00"
-								class="form-control"
-								style="height:38px; font-size:0.875rem;"
+								class="form-input text-xs"
 							/>
 						</div>
 
 						<!-- الحد الأقصى للسعر -->
 						<div>
-							<label style="font-size:0.8rem; font-weight:700; color:var(--text-muted); margin-bottom:0.3rem; display:block;">
+							<label class="text-xs font-bold text-muted mb-1 d-block">
 								الحد الأقصى للسعر
 							</label>
 							<input
@@ -258,14 +243,13 @@ templ CompareHeadToHeadContent(data HeadToHeadPageData) {
 								name="max_price"
 								value={ data.MaxPrice }
 								placeholder="1000.00"
-								class="form-control"
-								style="height:38px; font-size:0.875rem;"
+								class="form-input text-xs"
 							/>
 						</div>
 
 						<!-- الحد الأدنى للخصم -->
 						<div>
-							<label style="font-size:0.8rem; font-weight:700; color:var(--text-muted); margin-bottom:0.3rem; display:block;">
+							<label class="text-xs font-bold text-muted mb-1 d-block">
 								الحد الأدنى للخصم
 							</label>
 							<input
@@ -274,14 +258,13 @@ templ CompareHeadToHeadContent(data HeadToHeadPageData) {
 								name="min_discount"
 								value={ data.MinDiscount }
 								placeholder="0%"
-								class="form-control"
-								style="height:38px; font-size:0.875rem;"
+								class="form-input text-xs"
 							/>
 						</div>
 
 						<!-- الحد الأقصى للخصم -->
 						<div>
-							<label style="font-size:0.8rem; font-weight:700; color:var(--text-muted); margin-bottom:0.3rem; display:block;">
+							<label class="text-xs font-bold text-muted mb-1 d-block">
 								الحد الأقصى للخصم
 							</label>
 							<input
@@ -290,14 +273,13 @@ templ CompareHeadToHeadContent(data HeadToHeadPageData) {
 								name="max_discount"
 								value={ data.MaxDiscount }
 								placeholder="50%"
-								class="form-control"
-								style="height:38px; font-size:0.875rem;"
+								class="form-input text-xs"
 							/>
 						</div>
 
 						<!-- بحث بالاسم -->
 						<div>
-							<label style="font-size:0.8rem; font-weight:700; color:var(--text-muted); margin-bottom:0.3rem; display:block;">
+							<label class="text-xs font-bold text-muted mb-1 d-block">
 								بحث باسم الصنف أو الكود
 							</label>
 							<input
@@ -305,84 +287,77 @@ templ CompareHeadToHeadContent(data HeadToHeadPageData) {
 								name="q"
 								value={ data.Query }
 								placeholder="اسم الصنف..."
-								class="form-control"
-								style="height:38px; font-size:0.875rem;"
+								class="form-input text-xs"
 							/>
 						</div>
 
-						<button type="submit" class="btn btn-primary fw-800" style="height:38px; padding:0 1.25rem;">
+						<button type="submit" class="btn btn-primary font-bold px-4">
 							تطبيق الفلتر
 						</button>
-
 					</div>
 				</form>
 
 				<!-- Quick Filter Tabs -->
-				<div style="display:flex; align-items:center; gap:0.5rem; border-top:1px solid var(--border); padding-top:0.85rem; flex-wrap:wrap;">
+				<div class="d-flex items-center gap-2 pt-3 border-t flex-wrap">
 					<a
 						href={ templ.SafeURL(buildHeadToHeadURL(data.SourceFileID, data.TargetFileID, data.Query, data.MinPrice, data.MaxPrice, data.MinDiscount, data.MaxDiscount, "all")) }
-						class={ "btn btn-sm", templ.KV("btn-primary", data.ActiveTab == "all" || data.ActiveTab == ""), templ.KV("btn-secondary", data.ActiveTab != "all" && data.ActiveTab != "") }
-						style="font-weight:700; border-radius:var(--radius-full);"
+						class={ "btn btn-sm font-bold", templ.KV("btn-primary", data.ActiveTab == "all" || data.ActiveTab == ""), templ.KV("btn-secondary", data.ActiveTab != "all" && data.ActiveTab != "") }
 					>
 						الكل ({ fmt.Sprintf("%d", len(data.Result.Rows)) })
 					</a>
 
 					<a
 						href={ templ.SafeURL(buildHeadToHeadURL(data.SourceFileID, data.TargetFileID, data.Query, data.MinPrice, data.MaxPrice, data.MinDiscount, data.MaxDiscount, "your_better")) }
-						class={ "btn btn-sm", templ.KV("btn-primary", data.ActiveTab == "your_better"), templ.KV("btn-secondary", data.ActiveTab != "your_better") }
-						style="font-weight:700; border-radius:var(--radius-full);"
+						class={ "btn btn-sm font-bold", templ.KV("btn-primary", data.ActiveTab == "your_better"), templ.KV("btn-secondary", data.ActiveTab != "your_better") }
 					>
 						🟢 خصمك أفضل منهم ({ fmt.Sprintf("%d", data.Result.YourBetterCount) })
 					</a>
 
 					<a
 						href={ templ.SafeURL(buildHeadToHeadURL(data.SourceFileID, data.TargetFileID, data.Query, data.MinPrice, data.MaxPrice, data.MinDiscount, data.MaxDiscount, "equal")) }
-						class={ "btn btn-sm", templ.KV("btn-primary", data.ActiveTab == "equal"), templ.KV("btn-secondary", data.ActiveTab != "equal") }
-						style="font-weight:700; border-radius:var(--radius-full);"
+						class={ "btn btn-sm font-bold", templ.KV("btn-primary", data.ActiveTab == "equal"), templ.KV("btn-secondary", data.ActiveTab != "equal") }
 					>
 						🔵 نفس الخصم ({ fmt.Sprintf("%d", data.Result.EqualCount) })
 					</a>
 
 					<a
 						href={ templ.SafeURL(buildHeadToHeadURL(data.SourceFileID, data.TargetFileID, data.Query, data.MinPrice, data.MaxPrice, data.MinDiscount, data.MaxDiscount, "competitor_better")) }
-						class={ "btn btn-sm", templ.KV("btn-primary", data.ActiveTab == "competitor_better"), templ.KV("btn-secondary", data.ActiveTab != "competitor_better") }
-						style="font-weight:700; border-radius:var(--radius-full);"
+						class={ "btn btn-sm font-bold", templ.KV("btn-primary", data.ActiveTab == "competitor_better"), templ.KV("btn-secondary", data.ActiveTab != "competitor_better") }
 					>
 						🔴 خصم أفضل منك ({ fmt.Sprintf("%d", data.Result.CompetitorBetter) })
 					</a>
 				</div>
-
 			</div>
 
 			<!-- Main Comparison Table Matching Image 1 Exactly -->
-			<div class="card" style="padding:0; overflow:hidden; background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-2xl); box-shadow:var(--shadow-sm);">
-				<div class="table-responsive">
-					<table class="table" id="head-to-head-table" style="margin:0; width:100%; border-collapse:collapse; font-size:0.875rem;">
+			<div class="glass-panel p-0 mb-0 overflow-hidden">
+				<div class="table-container m-0">
+					<table class="data-table m-0" id="head-to-head-table">
 						<thead>
-							<tr style="background:var(--surface-sunken); border-bottom:2px solid var(--border); font-size:0.825rem; text-align:start;">
+							<tr>
 								<!-- 1. المنتج -->
-								<th style="padding:0.9rem 1rem; min-width:260px;">المنتج</th>
+								<th>المنتج</th>
 								
 								<!-- 2. سعر الجمهور -->
-								<th style="padding:0.9rem 0.85rem; width:120px; text-align:center;">سعر الجمهور</th>
+								<th class="text-center tabular-nums">سعر الجمهور</th>
 								
 								<!-- 3. نسبة الخصم -->
-								<th style="padding:0.9rem 0.85rem; width:100px; text-align:center;">
+								<th class="text-center tabular-nums">
 									نسبة الخصم ({ data.Result.SourceSupplierName })
 								</th>
 								
 								<!-- 4. خصم أفضل منك -->
-								<th style="padding:0.9rem 1rem; min-width:140px; text-align:center; color:#ef4444;">
+								<th class="text-center text-danger">
 									خصم أفضل منك
 								</th>
 								
 								<!-- 5. نفس الخصم -->
-								<th style="padding:0.9rem 0.85rem; width:110px; text-align:center; color:#3b82f6;">
+								<th class="text-center text-brand">
 									نفس الخصم
 								</th>
 								
 								<!-- 6. خصمك أفضل منهم -->
-								<th style="padding:0.9rem 1rem; min-width:140px; text-align:center; color:#10b981;">
+								<th class="text-center text-success">
 									خصمك أفضل منهم
 								</th>
 							</tr>
@@ -390,87 +365,85 @@ templ CompareHeadToHeadContent(data HeadToHeadPageData) {
 						<tbody>
 							if len(data.Result.Rows) == 0 {
 								<tr>
-									<td colspan="6" style="text-align:center; padding:3rem 1rem; color:var(--text-muted);">
-										<div style="font-size:2rem; margin-bottom:0.5rem;">🔍</div>
-										<div style="font-weight:700; font-size:1rem; color:var(--text);">لا توجد نتائج تطابق خيارات الفلترة المحددة</div>
-										<div style="font-size:0.85rem; margin-top:0.25rem;">جرب تعديل نطاق الأسعار أو نسب الخصم أو اختيار موردين آخرين.</div>
+									<td colspan="6" class="text-center p-8 text-muted">
+										<div class="text-3xl mb-2">🔍</div>
+										<div class="font-extrabold text-base text-primary">لا توجد نتائج تطابق خيارات الفلترة المحددة</div>
+										<div class="text-xs text-muted mt-1">جرب تعديل نطاق الأسعار أو نسب الخصم أو اختيار موردين آخرين.</div>
 									</td>
 								</tr>
 							}
 							for _, r := range data.Result.Rows {
-								<tr style="border-bottom:1px solid var(--border);">
-									
+								<tr>
 									<!-- 1. المنتج -->
-									<td style="padding:0.85rem 1rem;">
-										<div style="font-weight:700; color:var(--text); line-height:1.4;">
+									<td>
+										<div class="font-extrabold text-primary text-sm">
 											{ r.ProductName }
 										</div>
 										if r.SKU != "" {
-											<span style="font-size:0.725rem; color:var(--text-muted); font-family:monospace;">
+											<span class="text-xs text-muted tabular-nums">
 												كود: { r.SKU }
 											</span>
 										}
 									</td>
 
 									<!-- 2. السعر -->
-									<td style="padding:0.85rem 0.85rem; text-align:center; font-weight:700; color:var(--text);" class="tabular-nums">
+									<td class="text-center font-bold text-secondary tabular-nums">
 										{ r.Price.String() } ج.م
 									</td>
 
 									<!-- 3. الخصم -->
-									<td style="padding:0.85rem 0.85rem; text-align:center; font-weight:800; font-size:0.9rem;" class="tabular-nums">
+									<td class="text-center font-extrabold text-primary tabular-nums">
 										if r.YourDiscount > 0 {
-											<span class="badge badge-slate" style="font-size:0.8rem; padding:0.25rem 0.5rem;">
+											<span class="badge badge-slate text-xs">
 												{ fmt.Sprintf("%.1f%%", r.YourDiscount) }
 											</span>
 										} else {
-											<span style="color:var(--text-muted);">0%</span>
+											<span class="text-muted">0%</span>
 										}
 									</td>
 
 									<!-- 4. خصم أفضل منك -->
-									<td style="padding:0.85rem 1rem; text-align:center;" class="tabular-nums">
+									<td class="text-center tabular-nums">
 										if r.Outcome == compare.OutcomeCompetitorBetter {
-											<div style="display:inline-flex; flex-direction:column; align-items:center; gap:0.15rem; background:rgba(239,68,68,0.1); border:1px solid rgba(239,68,68,0.25); border-radius:var(--radius-md); padding:0.25rem 0.6rem;">
-												<span style="font-weight:900; color:#ef4444; font-size:0.85rem;">
+											<div class="d-inline-flex flex-col items-center gap-1 p-1 px-2 bg-danger-subtle border border-danger rounded-lg">
+												<span class="font-extrabold text-danger text-xs">
 													{ fmt.Sprintf("%.1f%%", r.CompetitorDiscount) }
 												</span>
-												<span style="font-size:0.7rem; color:#ef4444; font-weight:700;">
+												<span class="text-xs text-danger font-bold">
 													(+{ fmt.Sprintf("%.1f%%", r.CompetitorDiff) } للمنافس)
 												</span>
 											</div>
 										} else {
-											<span style="color:var(--text-muted);">—</span>
+											<span class="text-muted">—</span>
 										}
 									</td>
 
 									<!-- 5. نفس الخصم -->
-									<td style="padding:0.85rem 0.85rem; text-align:center;" class="tabular-nums">
+									<td class="text-center tabular-nums">
 										if r.Outcome == compare.OutcomeEqual {
-											<span style="display:inline-block; padding:0.2rem 0.5rem; border-radius:var(--radius-full); background:rgba(59,130,246,0.12); color:#3b82f6; font-weight:800; font-size:0.8rem;">
+											<span class="badge badge-sky text-xs font-bold">
 												{ fmt.Sprintf("%.1f%%", r.YourDiscount) }
 											</span>
 										} else {
-											<span style="color:var(--text-muted);">—</span>
+											<span class="text-muted">—</span>
 										}
 									</td>
 
 									<!-- 6. خصمك أفضل منهم -->
-									<td style="padding:0.85rem 1rem; text-align:center;" class="tabular-nums">
+									<td class="text-center tabular-nums">
 										if r.Outcome == compare.OutcomeYourBetter {
-											<div style="display:inline-flex; flex-direction:column; align-items:center; gap:0.15rem; background:rgba(16,185,129,0.1); border:1px solid rgba(16,185,129,0.25); border-radius:var(--radius-md); padding:0.25rem 0.6rem;">
-												<span style="font-weight:900; color:#10b981; font-size:0.85rem;">
+											<div class="d-inline-flex flex-col items-center gap-1 p-1 px-2 bg-emerald-subtle border border-emerald rounded-lg">
+												<span class="font-extrabold text-success text-xs">
 													{ fmt.Sprintf("%.1f%%", r.YourDiscount) }
 												</span>
-												<span style="font-size:0.7rem; color:#10b981; font-weight:700;">
+												<span class="text-xs text-success font-bold">
 													(+{ fmt.Sprintf("%.1f%%", r.BetterDiff) } أفضلية لك)
 												</span>
 											</div>
 										} else {
-											<span style="color:var(--text-muted);">—</span>
+											<span class="text-muted">—</span>
 										}
 									</td>
-
 								</tr>
 							}
 						</tbody>
@@ -478,7 +451,6 @@ templ CompareHeadToHeadContent(data HeadToHeadPageData) {
 				</div>
 			</div>
 		}
-
 	</div>
 
 	<!-- Export Table to CSV Script -->

@@ -14,41 +14,48 @@ templ VendorInventory(stocks []*inventory.Stock, warehouses []*inventory.Warehou
 		@VendorInventoryTable(stocks, warehouses, variants)
 	} else {
 		@layouts.VendorShell("المخزون والأرصدة | Inventory & Stock", "inventory", lang, dir) {
-			<div class="space-y-6" x-data="{ adjustModal: false, selectedStock: { id: 0, variantName: '', currentQty: 0 } }">
+			<div class="page-container" x-data="{ adjustModal: false, selectedStock: { id: 0, variantName: '', currentQty: 0 } }">
 				<!-- Header -->
-				<div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem; margin-bottom:1.5rem;">
-					<div>
-						<h1 class="text-2xl fw-800 text-primary m-0">أرصدة المخازن والتشغيلات</h1>
-						<p style="font-size:0.875rem; color:var(--text-secondary); margin:0.25rem 0 0 0;">
-							مراقبة الكميات المتاحة في المخازن، إدارة التشغيلات، وتسوية الأرصدة في الوقت الفعلي.
-						</p>
-					</div>
-					<div style="display:flex; gap:0.75rem; flex-wrap:wrap;">
-						<a href="/vendor/warehouses" class="btn btn-secondary btn-sm">
-							@components.IconBuilding("icon-xs")
-							<span>مخازن المنشأة</span>
-						</a>
-						<a href="/vendor/transfers" class="btn btn-secondary btn-sm">
-							@components.IconRefresh("icon-xs")
-							<span>تحويل بين المخازن</span>
-						</a>
-						<a href="/vendor/saving-products" class="btn btn-primary btn-sm">
-							@components.IconPlus("icon-xs")
-							<span>إدارة أصناف المورد</span>
-						</a>
+				<div class="glass-panel p-6 mb-6">
+					<div class="flex-between flex-wrap gap-4">
+						<div>
+							<div class="d-flex items-center gap-3 mb-1">
+								<div class="user-avatar-badge text-xl">
+									📊
+								</div>
+								<h1 class="text-2xl font-black text-primary m-0">أرصدة المخازن والتشغيلات</h1>
+							</div>
+							<p class="text-sm text-secondary m-0">
+								مراقبة الكميات المتاحة في المخازن، إدارة التشغيلات، وتسوية الأرصدة في الوقت الفعلي.
+							</p>
+						</div>
+						<div class="d-flex items-center gap-3 flex-wrap">
+							<a href="/vendor/warehouses" class="btn btn-secondary font-bold gap-2">
+								@components.IconBuilding("icon-xs")
+								<span>مخازن المنشأة</span>
+							</a>
+							<a href="/vendor/transfers" class="btn btn-secondary font-bold gap-2">
+								@components.IconRefresh("icon-xs")
+								<span>تحويل بين المخازن</span>
+							</a>
+							<a href="/vendor/saving-products" class="btn btn-primary font-bold gap-2">
+								@components.IconPlus("icon-xs")
+								<span>إدارة أصناف المورد</span>
+							</a>
+						</div>
 					</div>
 				</div>
 
 				<!-- Inventory Metrics -->
-				<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:1rem; margin-bottom:1.5rem;">
-					<div class="card mb-0" style="padding:1.25rem; background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-xl);">
-						<div class="form-label">إجمالي الأصناف بالمخزن</div>
-						<div style="font-size:1.65rem; font-weight:900; color:var(--text);" class="tabular-nums">{ fmt.Sprintf("%d", len(stocks)) }</div>
+				<div class="dashboard-stat-grid mb-6">
+					<div class="stat-card-3d">
+						<div class="stat-card-label">إجمالي الأصناف بالمخزن</div>
+						<div class="stat-card-value text-primary tabular-nums">{ fmt.Sprintf("%d", len(stocks)) }</div>
 					</div>
 
-					<div class="card mb-0" style="padding:1.25rem; background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-xl);">
-						<div class="form-label">إجمالي العبوات المتوفرة</div>
-						<div style="font-size:1.65rem; font-weight:900; color:var(--success-text);" class="tabular-nums">
+					<div class="stat-card-3d">
+						<div class="stat-card-label text-success">إجمالي العبوات المتوفرة</div>
+						<div class="stat-card-value text-success tabular-nums">
 							{ fmt.Sprintf("%d", func() int {
 								total := 0
 								for _, s := range stocks {
@@ -59,9 +66,9 @@ templ VendorInventory(stocks []*inventory.Stock, warehouses []*inventory.Warehou
 						</div>
 					</div>
 
-					<div class="card mb-0" style="padding:1.25rem; background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-xl);">
-						<div class="form-label">تنبيهات انخفاض المخزون</div>
-						<div style="font-size:1.65rem; font-weight:900; color:var(--warning-text);" class="tabular-nums">
+					<div class="stat-card-3d">
+						<div class="stat-card-label text-warning">تنبيهات انخفاض المخزون</div>
+						<div class="stat-card-value text-warning tabular-nums">
 							{ fmt.Sprintf("%d", func() int {
 								low := 0
 								for _, s := range stocks {
@@ -74,14 +81,14 @@ templ VendorInventory(stocks []*inventory.Stock, warehouses []*inventory.Warehou
 						</div>
 					</div>
 
-					<div class="card mb-0" style="padding:1.25rem; background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-xl);">
-						<div class="form-label">المخازن المغذية</div>
-						<div style="font-size:1.65rem; font-weight:900; color:var(--accent);" class="tabular-nums">{ fmt.Sprintf("%d", len(warehouses)) }</div>
+					<div class="stat-card-3d">
+						<div class="stat-card-label text-brand">المخازن المغذية</div>
+						<div class="stat-card-value text-brand tabular-nums">{ fmt.Sprintf("%d", len(warehouses)) }</div>
 					</div>
 				</div>
 
 				<!-- Inventory Table Card -->
-				<div class="card mb-0" style="background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-xl); padding:1.5rem;">
+				<div class="glass-panel p-0 mb-6 overflow-hidden">
 					<div id="vendor-inventory-content">
 						@VendorInventoryTable(stocks, warehouses, variants)
 					</div>
@@ -90,37 +97,37 @@ templ VendorInventory(stocks []*inventory.Stock, warehouses []*inventory.Warehou
 				<!-- Stock Adjustment Modal -->
 				<div
 					x-show="adjustModal"
-					style="position:fixed; inset:0; z-index:9999; background:rgba(0,0,0,0.6); display:flex; align-items:center; justify-content:center; padding:1rem;"
+					class="position-fixed inset-0 z-50 d-flex items-center justify-center p-4"
+					style="background: rgba(0,0,0,0.65); backdrop-filter: blur(4px);"
 					x-cloak
 					@keydown.escape.window="adjustModal = false"
 				>
 					<div
 						@click.away="adjustModal = false"
-						class="card mb-0"
-						style="max-width:480px; width:100%; padding:1.75rem; background:var(--surface-raised); border-radius:var(--radius-2xl); border:1px solid var(--border);"
+						class="glass-panel p-6 w-full max-w-md"
 					>
-						<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.25rem;">
-							<h3 class="text-lg fw-800 text-primary m-0">تسوية وتعديل رصيد المخزن</h3>
+						<div class="flex-between items-center mb-4">
+							<h3 class="text-lg font-black text-primary m-0">تسوية وتعديل رصيد المخزن</h3>
 							<button type="button" @click="adjustModal = false" class="btn btn-secondary btn-icon btn-sm">&times;</button>
 						</div>
 
-						<div style="background:var(--surface-sunken); border:1px solid var(--border); border-radius:var(--radius-md); padding:0.75rem; margin-bottom:1.25rem; font-size:0.85rem;">
-							<div class="fw-700 text-primary" x-text="selectedStock.variantName"></div>
-							<div style="color:var(--text-muted); margin-top:0.25rem;">
-								الرصيد الحالي بالمخزن: <strong class="tabular-nums text-accent" x-text="selectedStock.currentQty + ' عبوة'"></strong>
+						<div class="bg-surface-sunken border rounded-xl p-3 mb-4 text-xs">
+							<div class="font-extrabold text-primary" x-text="selectedStock.variantName"></div>
+							<div class="text-muted mt-1">
+								الرصيد الحالي بالمخزن: <strong class="tabular-nums text-brand font-black" x-text="selectedStock.currentQty + ' عبوة'"></strong>
 							</div>
 						</div>
 
-						<form :action="'/vendor/inventory/' + selectedStock.id + '/adjust'" method="POST" class="stack-lg">
-							<div class="form-group mb-0">
-								<label class="form-label">الكمية المراد إضافتها أو خصمها (+/-) <span class="text-danger">*</span></label>
-								<input type="number" name="delta" required class="form-input tabular-nums" placeholder="+50 (إضافة) أو -10 (خصم)" />
-								<small style="color:var(--text-muted); font-size:0.75rem;">اكتب رقم موجب للإيداع أو رقم سالب للخصم والتسوية.</small>
+						<form :action="'/vendor/inventory/' + selectedStock.id + '/adjust'" method="POST" class="d-flex flex-col gap-4">
+							<div>
+								<label class="form-label text-xs font-bold text-primary mb-1 d-block">الكمية المراد إضافتها أو خصمها (+/-) <span class="text-danger">*</span></label>
+								<input type="number" name="delta" required class="form-input tabular-nums w-full" placeholder="+50 (إضافة) أو -10 (خصم)" />
+								<span class="text-xs text-muted mt-1 d-block">اكتب رقم موجب للإيداع أو رقم سالب للخصم والتسوية.</span>
 							</div>
 
-							<div class="form-group mb-0">
-								<label class="form-label">سبب التعديل</label>
-								<select name="reason" class="form-select">
+							<div>
+								<label class="form-label text-xs font-bold text-primary mb-1 d-block">سبب التعديل</label>
+								<select name="reason" class="form-select text-xs w-full">
 									<option value="تسوية جرد دوري">تسوية جرد دوري</option>
 									<option value="استلام شحنة جديدة من المصنع">استلام شحنة جديدة من المصنع</option>
 									<option value="تالف / كسر / انتهاء صلاحية">تالف / كسر / انتهاء صلاحية</option>
@@ -129,9 +136,9 @@ templ VendorInventory(stocks []*inventory.Stock, warehouses []*inventory.Warehou
 								</select>
 							</div>
 
-							<div style="display:flex; justify-content:flex-end; gap:0.75rem; margin-top:0.5rem;">
-								<button type="button" class="btn btn-secondary" @click="adjustModal = false">إلغاء</button>
-								<button type="submit" class="btn btn-primary">تأكيد تعديل الرصيد</button>
+							<div class="flex-between items-center gap-3 pt-3 border-t">
+								<button type="button" class="btn btn-secondary font-bold" @click="adjustModal = false">إلغاء</button>
+								<button type="submit" class="btn btn-primary font-black px-6">تأكيد تعديل الرصيد</button>
 							</div>
 						</form>
 					</div>
@@ -143,14 +150,14 @@ templ VendorInventory(stocks []*inventory.Stock, warehouses []*inventory.Warehou
 
 templ VendorInventoryTable(stocks []*inventory.Stock, warehouses []*inventory.Warehouse, variants []*catalog.ProductVariant) {
 	if len(stocks) == 0 {
-		@components.EmptyState(components.EmptyStateProps{
-			Title:       "لا توجد أرصدة مسجلة بالمخزن",
-			Message:     "لم يتم تسجيل أي تشغيلات أو كميات مخزون بعد. يمكنك إضافة أصناف وتحديد كمياتها الأولية.",
-			ActionLabel: "إضافة أصناف المورد",
-		})
+		<div class="glass-panel p-12 text-center empty-state-glass">
+			<div class="text-4xl mb-3">📦</div>
+			<h3 class="text-lg font-black text-primary mb-2">لا توجد أرصدة مسجلة بالمخزن</h3>
+			<p class="text-sm text-secondary m-0">لم يتم تسجيل أي تشغيلات أو كميات مخزون بعد. يمكنك إضافة أصناف وتحديد كمياتها الأولية.</p>
+		</div>
 	} else {
-		<div class="table-container">
-			<table class="b2b-table">
+		<div class="table-container m-0">
+			<table class="data-table m-0">
 				<thead>
 					<tr>
 						<th>الصنف والتشغيلة</th>
@@ -165,15 +172,15 @@ templ VendorInventoryTable(stocks []*inventory.Stock, warehouses []*inventory.Wa
 					for _, s := range stocks {
 						<tr>
 							<td>
-								<div class="row-center-sm">
-									<div style="width:32px; height:32px; border-radius:var(--radius-md); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center;">
+								<div class="d-flex items-center gap-3">
+									<div class="user-avatar-badge">
 										@components.IconPackage("icon-xs")
 									</div>
 									<div>
-										<strong style="color:var(--text); font-size:0.925rem;">
+										<strong class="text-primary text-sm font-extrabold d-block">
 											{ resolveVariantName(s.ProductVariantID, variants) }
 										</strong>
-										<div class="text-xs text-muted">
+										<div class="text-xs text-muted tabular-nums">
 											<span>Variant #{ fmt.Sprintf("%d", s.ProductVariantID) }</span>
 											{ resolveVariantMeta(s.ProductVariantID, variants) }
 										</div>
@@ -181,42 +188,42 @@ templ VendorInventoryTable(stocks []*inventory.Stock, warehouses []*inventory.Wa
 								</div>
 							</td>
 							<td>
-								<div style="font-weight:600; color:var(--text); font-size:0.875rem;">
+								<div class="font-bold text-primary text-xs">
 									{ resolveWarehouseName(s.WarehouseID, warehouses) }
 								</div>
-								<div class="text-xs text-muted">WH #{ fmt.Sprintf("%d", s.WarehouseID) }</div>
+								<div class="text-xs text-muted tabular-nums">WH #{ fmt.Sprintf("%d", s.WarehouseID) }</div>
 							</td>
 							<td>
 								if s.Quantity > s.MinThreshold {
-									<span class="badge badge-emerald tabular-nums text-sm fw-800">
+									<span class="badge badge-emerald tabular-nums text-xs font-black">
 										{ fmt.Sprintf("%d", s.Quantity) } عبوة
 									</span>
 								} else if s.Quantity > 0 {
-									<span class="badge badge-amber tabular-nums text-sm fw-800">
+									<span class="badge badge-amber tabular-nums text-xs font-black">
 										{ fmt.Sprintf("%d", s.Quantity) } عبوة (منخفض)
 									</span>
 								} else {
-									<span class="badge badge-rose tabular-nums text-sm fw-800">
+									<span class="badge badge-rose tabular-nums text-xs font-black">
 										نفد الرصيد
 									</span>
 								}
 							</td>
 							<td class="tabular-nums">
-								<span class="text-sm text-secondary">
+								<span class="text-xs text-secondary font-bold">
 									{ fmt.Sprintf("%d", s.MinThreshold) } عبوة
 								</span>
 							</td>
 							<td>
 								if s.Quantity > 0 {
-									<span class="badge badge-emerald">جاهز للبيع</span>
+									<span class="badge badge-emerald text-xs font-bold">جاهز للبيع</span>
 								} else {
-									<span class="badge badge-rose">غير متوفر</span>
+									<span class="badge badge-rose text-xs font-bold">غير متوفر</span>
 								}
 							</td>
 							<td class="text-end">
 								<button
 									type="button"
-									class="btn btn-secondary btn-sm"
+									class="btn btn-secondary btn-sm font-bold gap-1"
 									@click={ fmt.Sprintf("selectedStock = { id: %d, variantName: %q, currentQty: %d }; adjustModal = true;", s.ID, resolveVariantName(s.ProductVariantID, variants), s.Quantity) }
 								>
 									@components.IconRefresh("icon-xs")

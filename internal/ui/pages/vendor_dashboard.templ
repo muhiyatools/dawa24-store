@@ -223,7 +223,7 @@ templ VendorDashboard(lang, dir string, data VendorDashboardData) {
 
 		for _, s := range data.Shipments {
 			@components.Modal(components.ModalProps{ ID: fmt.Sprintf("dispatch-%d", s.ID), Title: "تنفيذ الشحنة", Size: "sm" }) {
-				<form method="POST" action={ fmt.Sprintf("/vendor/orders/%d/status", s.ID) } class="stack">
+				<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/vendor/orders/%d/status", s.ID)) } class="stack">
 					<input type="hidden" name="status" value="shipped" />
 					<div class="form-group mb-0">
 						<label class="form-label" for={ fmt.Sprintf("c-%d", s.ID) }>شركة الشحن</label>

@@ -57,7 +57,7 @@ func dayOfWeekAr(day int) string {
 templ AdminOrganizations(data AdminEnterpriseHubData, lang, dir string) {
 	@layouts.AdminShell("إدارة المنشآت والفروع والمستخدمين", "organizations", lang, dir) {
 		<div
-			style="max-width:1400px; margin:0 auto 3rem auto; display:flex; flex-direction:column; gap:1.25rem;"
+			class="page-container"
 			x-data={ fmt.Sprintf(`{
 				activeTab: '%s',
 				orgFilter: '%s',
@@ -85,30 +85,30 @@ templ AdminOrganizations(data AdminEnterpriseHubData, lang, dir string) {
 			}`, data.ActiveTab, data.CurrentType, data.ActiveTab) }
 		>
 			<!-- Header Card -->
-			<div class="card mb-0" style="background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-xl); padding:1.75rem;">
-				<div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1.25rem;">
-					<div class="row-center">
-						<div class="b2b-icon-box-lg">
+			<div class="glass-panel p-6 mb-6">
+				<div class="flex-between flex-wrap gap-4">
+					<div class="d-flex items-center gap-3">
+						<div class="user-avatar-badge">
 							@components.IconBuilding("icon-lg")
 						</div>
 						<div>
-							<h1 style="font-size:1.45rem; font-weight:900; color:var(--text); margin:0;">
+							<h1 class="text-2xl font-black text-primary m-0">
 								إدارة المنشآت والفروع والمستخدمين
 							</h1>
-							<p style="font-size:0.875rem; color:var(--text-secondary); margin:0.25rem 0 0 0;">
+							<p class="text-sm text-secondary m-0 mt-1">
 								المنظومة المركزية الشاملة لإدارة المنشآت الطبية والتوريدية، شبكة الفروع والمخازن، وحسابات الكوادر والمشرفين.
 							</p>
 						</div>
 					</div>
 
-					<div style="display:flex; align-items:center; gap:0.75rem; flex-wrap:wrap;">
-						<span class="badge badge-sky" style="font-weight:700; font-size:0.85rem; padding:0.4rem 0.8rem;">
+					<div class="d-flex items-center gap-2 flex-wrap">
+						<span class="badge badge-sky text-xs font-bold px-3 py-1">
 							{ fmt.Sprintf("%d", len(data.Organizations)) } منشأة
 						</span>
-						<span class="badge badge-emerald" style="font-weight:700; font-size:0.85rem; padding:0.4rem 0.8rem;">
+						<span class="badge badge-emerald text-xs font-bold px-3 py-1">
 							{ fmt.Sprintf("%d", len(data.Branches)) } فرع ومخزن
 						</span>
-						<span class="badge badge-indigo" style="font-weight:700; font-size:0.85rem; padding:0.4rem 0.8rem;">
+						<span class="badge badge-indigo text-xs font-bold px-3 py-1">
 							{ fmt.Sprintf("%d", len(data.Users)) } مستخدم
 						</span>
 					</div>
@@ -116,12 +116,11 @@ templ AdminOrganizations(data AdminEnterpriseHubData, lang, dir string) {
 			</div>
 
 			<!-- Main Top-Level Navigation Tabs -->
-			<div style="display:flex; gap:0.5rem; border-bottom:2px solid var(--border); flex-wrap:wrap;">
+			<div class="cb-tabs-nav mb-6">
 				<button
 					type="button"
-					class="btn"
-					:class="activeTab === 'organizations' ? 'btn-primary' : 'btn-secondary'"
-					style="font-weight:800; border-radius:var(--radius-lg) var(--radius-lg) 0 0; padding:0.7rem 1.35rem; font-size:0.9rem;"
+					class="cb-tab-btn"
+					:class="activeTab === 'organizations' ? 'active' : ''"
 					@click="setTab('organizations')"
 				>
 					@components.IconBuilding("icon-xs")
@@ -130,9 +129,8 @@ templ AdminOrganizations(data AdminEnterpriseHubData, lang, dir string) {
 
 				<button
 					type="button"
-					class="btn"
-					:class="activeTab === 'branches' ? 'btn-primary' : 'btn-secondary'"
-					style="font-weight:800; border-radius:var(--radius-lg) var(--radius-lg) 0 0; padding:0.7rem 1.35rem; font-size:0.9rem;"
+					class="cb-tab-btn"
+					:class="activeTab === 'branches' ? 'active' : ''"
 					@click="setTab('branches')"
 				>
 					@components.IconLayers("icon-xs")
@@ -141,9 +139,8 @@ templ AdminOrganizations(data AdminEnterpriseHubData, lang, dir string) {
 
 				<button
 					type="button"
-					class="btn"
-					:class="activeTab === 'users' ? 'btn-primary' : 'btn-secondary'"
-					style="font-weight:800; border-radius:var(--radius-lg) var(--radius-lg) 0 0; padding:0.7rem 1.35rem; font-size:0.9rem;"
+					class="cb-tab-btn"
+					:class="activeTab === 'users' ? 'active' : ''"
 					@click="setTab('users')"
 				>
 					@components.IconUsers("icon-xs")
@@ -153,9 +150,8 @@ templ AdminOrganizations(data AdminEnterpriseHubData, lang, dir string) {
 				if len(data.DeletionRequests) > 0 {
 					<button
 						type="button"
-						class="btn"
-						:class="activeTab === 'deletion_requests' ? 'btn-danger' : 'btn-secondary'"
-						style="font-weight:800; border-radius:var(--radius-lg) var(--radius-lg) 0 0; padding:0.7rem 1.35rem; font-size:0.9rem;"
+						class="cb-tab-btn text-danger"
+						:class="activeTab === 'deletion_requests' ? 'active' : ''"
 						@click="setTab('deletion_requests')"
 					>
 						@components.IconTrash("icon-xs")
@@ -165,60 +161,56 @@ templ AdminOrganizations(data AdminEnterpriseHubData, lang, dir string) {
 			</div>
 
 			<!-- TAB 1: Organizations -->
-			<div x-show="activeTab === 'organizations'" class="stack-lg">
-				<div class="card mb-0" style="padding:0.9rem 1.25rem;">
-					<div style="display:flex; justify-content:space-between; align-items:center; gap:1rem; flex-wrap:wrap;">
-						<div style="display:flex; gap:0.5rem; flex-wrap:wrap;">
+			<div x-show="activeTab === 'organizations'" class="d-flex flex-col gap-4">
+				<div class="glass-panel p-4 mb-0">
+					<div class="flex-between flex-wrap gap-3">
+						<div class="d-flex gap-2 flex-wrap">
 							<button
 								type="button"
-								class="btn btn-sm"
+								class="btn btn-sm font-bold"
 								:class="orgFilter === '' ? 'btn-primary' : 'btn-secondary'"
 								@click="orgFilter = ''"
-								style="font-weight:700; border-radius:var(--radius-full); padding:0.35rem 0.9rem;"
 							>
 								كافة المنشآت ({ fmt.Sprintf("%d", len(data.Organizations)) })
 							</button>
 							<button
 								type="button"
-								class="btn btn-sm"
+								class="btn btn-sm font-bold"
 								:class="orgFilter === 'vendor' ? 'btn-primary' : 'btn-secondary'"
 								@click="orgFilter = 'vendor'"
-								style="font-weight:700; border-radius:var(--radius-full); padding:0.35rem 0.9rem;"
 							>
 								الموردون وشركات الأدوية (Vendors)
 							</button>
 							<button
 								type="button"
-								class="btn btn-sm"
+								class="btn btn-sm font-bold"
 								:class="orgFilter === 'customer' ? 'btn-primary' : 'btn-secondary'"
 								@click="orgFilter = 'customer'"
-								style="font-weight:700; border-radius:var(--radius-full); padding:0.35rem 0.9rem;"
 							>
 								الصيدليات والمراكز الطبية (Customers)
 							</button>
 						</div>
 
-						<div style="min-width:260px;">
+						<div class="min-w-260">
 							<input
 								type="text"
 								x-model="searchQuery"
-								class="form-input"
+								class="form-input text-xs"
 								placeholder="بحث باسم المنشأة، السجل، أو الترخيص..."
-								style="font-size:0.85rem; padding:0.4rem 0.75rem;"
 							/>
 						</div>
 					</div>
 				</div>
 
-				<div class="card mb-0 overflow-visible">
+				<div class="glass-panel p-0 mb-0 overflow-hidden">
 					if len(data.Organizations) == 0 {
 						@components.EmptyState(components.EmptyStateProps{
 							Title:   "لا توجد منشآت مسجلة",
 							Message: "لم يتم العثور على منشآت مسجلة في هذا القسم حالياً.",
 						})
 					} else {
-						<div class="table-container">
-							<table class="b2b-table">
+						<div class="table-container m-0">
+							<table class="data-table m-0">
 								<thead>
 									<tr>
 										<th>الاسم والبيانات التجارية</th>
@@ -304,13 +296,13 @@ templ AdminOrganizations(data AdminEnterpriseHubData, lang, dir string) {
 			</div>
 
 			<!-- TAB 2: Branches -->
-			<div x-show="activeTab === 'branches'" class="stack-lg">
-				<div class="card mb-0" style="padding:0.9rem 1.25rem;">
-					<div style="display:flex; justify-content:space-between; align-items:center; gap:1rem; flex-wrap:wrap;">
-						<div style="display:flex; gap:0.75rem; flex-wrap:wrap; align-items:center;">
-							<div class="row-center-sm">
-								<label style="font-size:0.825rem; font-weight:700; color:var(--text-secondary);">تصفية بالمنشأة:</label>
-								<select x-model="branchOrgFilter" class="form-select" style="font-size:0.825rem; padding:0.35rem 0.75rem; max-width:240px;">
+			<div x-show="activeTab === 'branches'" class="d-flex flex-col gap-4">
+				<div class="glass-panel p-4 mb-0">
+					<div class="flex-between flex-wrap gap-3">
+						<div class="d-flex gap-3 flex-wrap items-center">
+							<div class="d-flex items-center gap-2">
+								<label class="text-xs font-bold text-secondary">تصفية بالمنشأة:</label>
+								<select x-model="branchOrgFilter" class="form-select text-xs max-w-240">
 									<option value="all">كافة المنشآت والشركات</option>
 									for _, o := range data.Organizations {
 										<option value={ fmt.Sprintf("%d", o.ID) }>{ o.LegalName }</option>
@@ -318,9 +310,9 @@ templ AdminOrganizations(data AdminEnterpriseHubData, lang, dir string) {
 								</select>
 							</div>
 
-							<div class="row-center-sm">
-								<label style="font-size:0.825rem; font-weight:700; color:var(--text-secondary);">النوع:</label>
-								<select x-model="branchTypeFilter" class="form-select" style="font-size:0.825rem; padding:0.35rem 0.75rem;">
+							<div class="d-flex items-center gap-2">
+								<label class="text-xs font-bold text-secondary">النوع:</label>
+								<select x-model="branchTypeFilter" class="form-select text-xs">
 									<option value="all">كافة الأنواع</option>
 									<option value="warehouse">مخزن أدوية مركزي (Warehouse)</option>
 									<option value="fast_hub">نقطة توزيع سريعة (Fast Hub)</option>
@@ -331,36 +323,34 @@ templ AdminOrganizations(data AdminEnterpriseHubData, lang, dir string) {
 
 							<button
 								type="button"
-								class="btn btn-secondary btn-sm text-sm"
+								class="btn btn-secondary btn-sm text-xs font-bold"
 								x-show="branchOrgFilter !== 'all' || branchTypeFilter !== 'all'"
 								@click="branchOrgFilter = 'all'; branchTypeFilter = 'all';"
-							
 							>
 								إلغاء التصفية
 							</button>
 						</div>
 
-						<div style="min-width:260px;">
+						<div class="min-w-260">
 							<input
 								type="text"
 								x-model="searchQuery"
-								class="form-input"
+								class="form-input text-xs"
 								placeholder="بحث باسم الفرع، الكود، أو العنوان..."
-								style="font-size:0.85rem; padding:0.4rem 0.75rem;"
 							/>
 						</div>
 					</div>
 				</div>
 
-				<div class="card mb-0">
+				<div class="glass-panel p-0 mb-0 overflow-hidden">
 					if len(data.Branches) == 0 {
 						@components.EmptyState(components.EmptyStateProps{
 							Title:   "لا توجد فروع مسجلة",
 							Message: "لم يتم العثور على فروع أو مخازن مسجلة حالياً.",
 						})
 					} else {
-						<div class="table-container">
-							<table class="b2b-table">
+						<div class="table-container m-0">
+							<table class="data-table m-0">
 								<thead>
 									<tr>
 										<th>اسم الفرع والكود</th>
@@ -377,25 +367,25 @@ templ AdminOrganizations(data AdminEnterpriseHubData, lang, dir string) {
 											x-show={ fmt.Sprintf("(branchOrgFilter === 'all' || branchOrgFilter === '%d') && ('%s'.toLowerCase().includes(searchQuery.toLowerCase()) || '%s'.toLowerCase().includes(searchQuery.toLowerCase()) || '%s'.toLowerCase().includes(searchQuery.toLowerCase()))", b.OrganizationID, b.Name.Get("ar"), b.Code, b.Address) }
 										>
 											<td>
-												<div class="fw-800 text-primary text-base">{ b.Name.Get("ar") }</div>
+												<div class="font-extrabold text-primary text-sm">{ b.Name.Get("ar") }</div>
 												if b.Code != "" {
-													<div style="font-size:0.8rem; color:var(--text-secondary); margin-top:0.15rem;" dir="ltr">
-														<code class="fw-700">{ b.Code }</code>
+													<div class="text-xs text-secondary mt-1" dir="ltr">
+														<code class="font-bold">{ b.Code }</code>
 													</div>
 												}
 											</td>
 											<td>
-												<div style="font-weight:700; color:var(--text); font-size:0.9rem;">
+												<div class="font-bold text-primary text-sm">
 													{ getOrgLegalName(b.OrganizationID, data.OrgNames) }
 												</div>
-												<div style="margin-top:0.15rem;">
+												<div class="mt-1">
 													<span class="badge badge-slate text-xs">
 														{ getOrgTypeBadge(b.OrganizationID, data.OrgTypes) }
 													</span>
 												</div>
 											</td>
 											<td>
-												<span class="badge badge-sky fw-700">
+												<span class="badge badge-sky text-xs font-bold">
 													if b.WarehouseType != "" {
 														{ b.WarehouseType }
 													} else {
@@ -404,22 +394,22 @@ templ AdminOrganizations(data AdminEnterpriseHubData, lang, dir string) {
 												</span>
 											</td>
 											<td>
-												<div style="font-size:0.85rem; color:var(--text);">{ b.Address }</div>
+												<div class="text-xs text-primary">{ b.Address }</div>
 												if b.Phone != "" {
-													<div style="font-size:0.8rem; color:var(--text-secondary); margin-top:0.15rem;" class="tabular-nums">
+													<div class="text-xs text-muted mt-1 tabular-nums">
 														📞 { b.Phone }
 													</div>
 												}
 											</td>
 											<td>
 												if b.Status == "active" {
-													<span class="badge badge-emerald">نشط</span>
+													<span class="badge badge-emerald text-xs font-bold">نشط</span>
 												} else {
-													<span class="badge badge-rose">معطل</span>
+													<span class="badge badge-rose text-xs font-bold">معطل</span>
 												}
 											</td>
 											<td class="text-end">
-												<a href={ templ.SafeURL(fmt.Sprintf("/admin/branches/%d", b.ID)) } class="btn btn-secondary btn-sm fw-700">
+												<a href={ templ.SafeURL(fmt.Sprintf("/admin/branches/%d", b.ID)) } class="btn btn-secondary btn-sm font-bold">
 													<span>عرض التفاصيل</span>
 												</a>
 											</td>
@@ -433,69 +423,64 @@ templ AdminOrganizations(data AdminEnterpriseHubData, lang, dir string) {
 			</div>
 
 			<!-- TAB 3: Users -->
-			<div x-show="activeTab === 'users'" class="stack-lg">
-				<div class="card mb-0" style="padding:0.9rem 1.25rem;">
-					<div style="display:flex; justify-content:space-between; align-items:center; gap:1rem; flex-wrap:wrap;">
-						<div style="display:flex; gap:0.5rem; flex-wrap:wrap;">
+			<div x-show="activeTab === 'users'" class="d-flex flex-col gap-4">
+				<div class="glass-panel p-4 mb-0">
+					<div class="flex-between flex-wrap gap-3">
+						<div class="d-flex gap-2 flex-wrap">
 							<button
 								type="button"
-								class="btn btn-sm"
+								class="btn btn-sm font-bold"
 								:class="userGroupFilter === 'all' ? 'btn-primary' : 'btn-secondary'"
 								@click="userGroupFilter = 'all'"
-								style="font-weight:700; border-radius:var(--radius-full); padding:0.35rem 0.9rem;"
 							>
 								جميع المستخدمين ({ fmt.Sprintf("%d", len(data.Users)) })
 							</button>
 							<button
 								type="button"
-								class="btn btn-sm"
+								class="btn btn-sm font-bold"
 								:class="userGroupFilter === 'pharmacy' ? 'btn-primary' : 'btn-secondary'"
 								@click="userGroupFilter = 'pharmacy'"
-								style="font-weight:700; border-radius:var(--radius-full); padding:0.35rem 0.9rem;"
 							>
 								الصيدليات والعملاء ({ fmt.Sprintf("%d", countUsersByGroup(data.Users, "pharmacy")) })
 							</button>
 							<button
 								type="button"
-								class="btn btn-sm"
+								class="btn btn-sm font-bold"
 								:class="userGroupFilter === 'supplier' ? 'btn-primary' : 'btn-secondary'"
 								@click="userGroupFilter = 'supplier'"
-								style="font-weight:700; border-radius:var(--radius-full); padding:0.35rem 0.9rem;"
 							>
 								الموردون والشركات ({ fmt.Sprintf("%d", countUsersByGroup(data.Users, "supplier")) })
 							</button>
 							<button
 								type="button"
-								class="btn btn-sm"
+								class="btn btn-sm font-bold"
 								:class="userGroupFilter === 'staff' ? 'btn-primary' : 'btn-secondary'"
 								@click="userGroupFilter = 'staff'"
-								style="font-weight:700; border-radius:var(--radius-full); padding:0.35rem 0.9rem;"
 							>
 								إدارة ومشرفو المنصة ({ fmt.Sprintf("%d", countUsersByGroup(data.Users, "staff")) })
 							</button>
 						</div>
 
-						<div style="min-width:260px;">
+						<div class="min-w-260">
 							<input
 								type="text"
 								x-model="searchQuery"
-								class="form-input"
+								class="form-input text-xs"
 								placeholder="بحث بالاسم، البريد، أو الهاتف..."
-								style="font-size:0.85rem; padding:0.4rem 0.75rem;"
 							/>
 						</div>
 					</div>
 				</div>
 
-				<div class="card mb-0">
+				<div class="glass-panel p-0 mb-0 overflow-hidden">
 					if len(data.Users) == 0 {
 						@components.EmptyState(components.EmptyStateProps{
 							Title:   "لا يوجد مستخدمون",
 							Message: "لم يتم العثور على أي مستخدمين مسجلين في هذا القسم.",
 						})
 					} else {
-						<div class="table-container">
-							<table class="b2b-table">
+						<div class="table-container m-0">
+							<table class="data-table m-0">
 								<thead>
 									<tr>
 										<th>المستخدم</th>
@@ -513,8 +498,8 @@ templ AdminOrganizations(data AdminEnterpriseHubData, lang, dir string) {
 											x-show="(userGroupFilter === 'all' || $el.getAttribute('data-group') === userGroupFilter) && (!searchQuery || $el.getAttribute('data-search').includes(searchQuery.toLowerCase()))"
 										>
 											<td>
-												<div class="row-center-sm">
-													<div style="width:34px; height:34px; border-radius:var(--radius-full); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center; font-weight:800; font-size:0.825rem;">
+												<div class="d-flex items-center gap-3">
+													<div class="user-avatar-badge">
 														if len(userDisplayName(u)) > 0 {
 															{ string([]rune(userDisplayName(u))[0]) }
 														} else {
@@ -522,41 +507,41 @@ templ AdminOrganizations(data AdminEnterpriseHubData, lang, dir string) {
 														}
 													</div>
 													<div>
-														<div class="fw-800 text-primary text-base">{ userDisplayName(u) }</div>
+														<div class="font-extrabold text-primary text-sm">{ userDisplayName(u) }</div>
 														if u.Phone != "" {
-															<div style="font-size:0.75rem; color:var(--neutral-500); margin-top:0.05rem;" class="tabular-nums">📞 { u.Phone }</div>
+															<div class="text-xs text-muted mt-1 tabular-nums">📞 { u.Phone }</div>
 														}
 													</div>
 												</div>
 											</td>
 											<td>
-												<div class="text-sm text-secondary tabular-nums" dir="ltr">{ u.Email }</div>
+												<div class="text-xs text-secondary tabular-nums" dir="ltr">{ u.Email }</div>
 											</td>
 											<td>
-												<span class={ "badge", roleBadgeClass(u.Role) } class="fw-700">
+												<span class={ "badge text-xs font-bold", roleBadgeClass(u.Role) }>
 													{ roleDisplayAr(u.Role) }
 												</span>
 											</td>
 											<td>
 												if u.Status == identity.StatusActive {
-													<span class="badge badge-emerald">نشط ومفعل</span>
+													<span class="badge badge-emerald text-xs font-bold">نشط ومفعل</span>
 												} else if u.Status == identity.StatusSuspended {
-													<span class="badge badge-rose">موقوف / معلق</span>
+													<span class="badge badge-rose text-xs font-bold">موقوف / معلق</span>
 												} else {
-													<span class="badge badge-amber">قيد المراجعة</span>
+													<span class="badge badge-amber text-xs font-bold">قيد المراجعة</span>
 												}
 											</td>
 											<td class="text-end">
-												<div class="table-actions" style="justify-content:flex-end; gap:0.35rem;">
+												<div class="d-flex items-center justify-end gap-1">
 													if u.Status == identity.StatusActive {
-														<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/users/%d/suspend", u.ID)) } class="m-0 inline" onsubmit="return confirm('تأكيد تعليق هذا الحساب؟');">
-															<button type="submit" class="btn btn-secondary btn-sm" style="color:var(--danger); font-weight:700;">
+														<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/users/%d/suspend", u.ID)) } class="m-0 d-inline" onsubmit="return confirm('تأكيد تعليق هذا الحساب؟');">
+															<button type="submit" class="btn btn-secondary btn-sm font-bold text-danger">
 																تعليق الحساب
 															</button>
 														</form>
 													} else {
-														<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/users/%d/reactivate", u.ID)) } class="m-0 inline">
-															<button type="submit" class="btn btn-primary btn-sm fw-700">
+														<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/users/%d/reactivate", u.ID)) } class="m-0 d-inline">
+															<button type="submit" class="btn btn-primary btn-sm font-bold">
 																إعادة التفعيل
 															</button>
 														</form>

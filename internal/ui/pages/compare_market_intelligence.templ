@@ -14,27 +14,27 @@ type MarketIntelligencePageData struct {
 }
 
 templ CompareMarketIntelligenceContent(data MarketIntelligencePageData) {
-	<div class="max-w-4xl mx-auto stack-lg">
+	<div class="page-container">
 		
 		<!-- Header Banner -->
-		<div class="card" style="background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-2xl); padding:1.5rem 1.75rem;">
-			<div class="flex-between flex-wrap gap-md">
+		<div class="glass-panel p-6 mb-6">
+			<div class="flex-between flex-wrap gap-4">
 				<div>
-					<div style="display:flex; align-items:center; gap:0.6rem; margin-bottom:0.25rem;">
-						<div style="width:42px; height:42px; border-radius:var(--radius-lg); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center; font-size:1.3rem;">
+					<div class="d-flex items-center gap-3 mb-1">
+						<div class="user-avatar-badge text-xl">
 							🧠
 						</div>
-						<h1 style="font-size:1.45rem; font-weight:900; color:var(--text); margin:0;">
+						<h1 class="text-2xl font-black text-primary m-0">
 							تقرير ذكاء واستخبارات السوق (Market Intelligence)
 						</h1>
 					</div>
-					<p style="color:var(--text-muted); font-size:0.875rem; margin:0;">
+					<p class="text-sm text-secondary m-0">
 						رؤية تحليلية شاملة لحركة الخصومات والأسعار وفرص التوفير والوفر التنافسي ونواقص السوق عبر كافة الموردين.
 					</p>
 				</div>
 
-				<div style="display:flex; align-items:center; gap:0.75rem; flex-wrap:wrap;">
-					<a href="/compare/tool" class="btn btn-secondary fw-700">
+				<div class="d-flex items-center gap-3 flex-wrap">
+					<a href="/compare/tool" class="btn btn-secondary font-bold gap-2">
 						@components.IconArrowLeft("icon-xs")
 						<span>مركز الملفات</span>
 					</a>
@@ -42,17 +42,17 @@ templ CompareMarketIntelligenceContent(data MarketIntelligencePageData) {
 			</div>
 
 			<!-- Navigation Subtabs for all 4 Analysis Modes -->
-			<div style="display:flex; gap:0.5rem; margin-top:1.25rem; padding-top:1rem; border-top:1px solid var(--border); flex-wrap:wrap;">
-				<a href="/compare/results" class="btn btn-secondary btn-sm" style="font-weight:700; border-radius:var(--radius-lg);">
+			<div class="cb-tabs-nav mt-4 pt-3 border-t">
+				<a href="/compare/results" class="cb-tab-btn">
 					📊 المقارنة المجمعة بين الموردين
 				</a>
-				<a href="/compare/head-to-head" class="btn btn-secondary btn-sm" style="font-weight:700; border-radius:var(--radius-lg);">
+				<a href="/compare/head-to-head" class="cb-tab-btn">
 					🏢 مقارنة مورد بمورد
 				</a>
-				<a href="/compare/market-benchmark" class="btn btn-secondary btn-sm" style="font-weight:700; border-radius:var(--radius-lg);">
+				<a href="/compare/market-benchmark" class="cb-tab-btn">
 					🧠 مقارنة مع موردين السوق
 				</a>
-				<a href="/compare/market-intelligence" class="btn btn-primary btn-sm" style="font-weight:800; border-radius:var(--radius-lg);">
+				<a href="/compare/market-intelligence" class="cb-tab-btn active">
 					🧠 تقرير ذكاء السوق
 				</a>
 			</div>
@@ -60,60 +60,50 @@ templ CompareMarketIntelligenceContent(data MarketIntelligencePageData) {
 
 		if data.Report != nil {
 			<!-- 1. Market Vital KPIs -->
-			<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:1rem;">
-				
-				<div class="card" style="background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-xl); padding:1.25rem;">
-					<div style="font-size:0.825rem; font-weight:700; color:var(--text-muted); margin-bottom:0.25rem;">
-						إجمالي الأصناف المرصودة
-					</div>
-					<div style="font-size:1.75rem; font-weight:900; color:var(--text);" class="tabular-nums">
+			<div class="dashboard-stat-grid mb-6">
+				<div class="stat-card-3d">
+					<div class="stat-card-label">إجمالي الأصناف المرصودة</div>
+					<div class="stat-card-value text-primary tabular-nums">
 						{ fmt.Sprintf("%d", data.Report.KPIs.TotalTrackedProducts) }
 					</div>
-					<span style="font-size:0.75rem; color:var(--text-secondary);">عبر { fmt.Sprintf("%d", data.Report.KPIs.TotalActiveSuppliers) } موردين نشطين</span>
+					<span class="text-xs text-secondary mt-1 d-block">عبر { fmt.Sprintf("%d", data.Report.KPIs.TotalActiveSuppliers) } موردين نشطين</span>
 				</div>
 
-				<div class="card" style="background:var(--surface-raised); border:1px solid rgba(16,185,129,0.3); border-radius:var(--radius-xl); padding:1.25rem;">
-					<div style="font-size:0.825rem; font-weight:700; color:#10b981; margin-bottom:0.25rem;">
-						متوسط خصم السوق العام
-					</div>
-					<div style="font-size:1.75rem; font-weight:900; color:#10b981;" class="tabular-nums">
+				<div class="stat-card-3d">
+					<div class="stat-card-label text-success">متوسط خصم السوق العام</div>
+					<div class="stat-card-value text-success tabular-nums">
 						{ fmt.Sprintf("%.1f%%", data.Report.KPIs.OverallAvgDiscount) }
 					</div>
-					<span style="font-size:0.75rem; color:var(--text-secondary);">مؤشر الخصم المرجعي للمنصة</span>
+					<span class="text-xs text-secondary mt-1 d-block">مؤشر الخصم المرجعي للمنصة</span>
 				</div>
 
-				<div class="card" style="background:var(--surface-raised); border:1px solid rgba(245,158,11,0.3); border-radius:var(--radius-xl); padding:1.25rem;">
-					<div style="font-size:0.825rem; font-weight:700; color:#f59e0b; margin-bottom:0.25rem;">
-						أعلى خصم متاح بالسوق
-					</div>
-					<div style="font-size:1.75rem; font-weight:900; color:#f59e0b;" class="tabular-nums">
+				<div class="stat-card-3d">
+					<div class="stat-card-label text-warning">أعلى خصم متاح بالسوق</div>
+					<div class="stat-card-value text-warning tabular-nums">
 						{ fmt.Sprintf("%.1f%%", data.Report.KPIs.HighestMarketDisc) }
 					</div>
-					<span style="font-size:0.75rem; color:var(--text-secondary);">أفضل عروض التوفير الحالية</span>
+					<span class="text-xs text-secondary mt-1 d-block">أفضل عروض التوفير الحالية</span>
 				</div>
 
-				<div class="card" style="background:var(--surface-raised); border:1px solid var(--accent-subtle); border-radius:var(--radius-xl); padding:1.25rem;">
-					<div style="font-size:0.825rem; font-weight:700; color:var(--accent); margin-bottom:0.25rem;">
-						فرص التوفير الكبرى (Arbitrage)
-					</div>
-					<div style="font-size:1.75rem; font-weight:900; color:var(--accent);" class="tabular-nums">
+				<div class="stat-card-3d">
+					<div class="stat-card-label text-brand">فرص التوفير الكبرى (Arbitrage)</div>
+					<div class="stat-card-value text-brand tabular-nums">
 						{ fmt.Sprintf("%d", data.Report.KPIs.TotalArbitrageDeals) }
 					</div>
-					<span style="font-size:0.75rem; color:var(--text-secondary);">فارق خصم يتجاوز 3% بين الموردين</span>
+					<span class="text-xs text-secondary mt-1 d-block">فارق خصم يتجاوز 3% بين الموردين</span>
 				</div>
-
 			</div>
 
 			<!-- 2. Actionable Smart Recommendations -->
 			if len(data.Report.Recommendations) > 0 {
-				<div class="card" style="background:linear-gradient(135deg, rgba(37,99,235,0.06), rgba(16,185,129,0.06)); border:1px solid var(--accent-subtle); border-radius:var(--radius-2xl); padding:1.25rem 1.5rem;">
-					<div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:0.75rem;">
-						<span style="font-size:1.25rem;">💡</span>
-						<h3 style="font-size:1rem; font-weight:800; color:var(--text); margin:0;">
+				<div class="glass-panel p-6 mb-6">
+					<div class="d-flex items-center gap-2 mb-3">
+						<span class="text-xl">💡</span>
+						<h3 class="text-base font-extrabold text-primary m-0">
 							توصيات الذكاء الاستراتيجي للمشتريات والتسعير
 						</h3>
 					</div>
-					<ul style="margin:0; padding-inline-start:1.25rem; display:flex; flex-direction:column; gap:0.4rem; font-size:0.875rem; color:var(--text); line-height:1.5;">
+					<ul class="d-flex flex-col gap-2 ps-4 m-0 text-sm text-secondary leading-relaxed">
 						for _, rec := range data.Report.Recommendations {
 							<li>{ rec }</li>
 						}
@@ -121,62 +111,62 @@ templ CompareMarketIntelligenceContent(data MarketIntelligencePageData) {
 				</div>
 			}
 
-			<!-- 3. Top Arbitrage Opportunities Table (فرص التوفير والشراء الذهبية) -->
-			<div class="card" style="padding:0; overflow:hidden; background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-2xl); box-shadow:var(--shadow-sm);">
-				<div style="padding:1.25rem 1.5rem; border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.5rem;">
-					<div class="row-center-sm">
-						<span style="font-size:1.2rem;">💎</span>
-						<h3 class="text-base fw-800 text-primary m-0">
+			<!-- 3. Top Arbitrage Opportunities Table -->
+			<div class="glass-panel p-0 mb-6 overflow-hidden">
+				<div class="p-4 px-6 border-b flex-between flex-wrap gap-2">
+					<div class="d-flex items-center gap-2">
+						<span class="text-xl">💎</span>
+						<h3 class="text-base font-extrabold text-primary m-0">
 							أفضل فرص الوفر والشراء الذهبية (Highest Discount Spreads)
 						</h3>
 					</div>
-					<span class="badge badge-emerald" style="font-size:0.75rem;">فروق خصومات حقيقية بين الموردين</span>
+					<span class="badge badge-emerald text-xs font-bold">فروق خصومات حقيقية بين الموردين</span>
 				</div>
 
-				<div class="table-responsive">
-					<table class="table" style="margin:0; width:100%; border-collapse:collapse; font-size:0.875rem;">
+				<div class="table-container m-0">
+					<table class="data-table m-0">
 						<thead>
-							<tr style="background:var(--surface-sunken); border-bottom:1px solid var(--border); font-size:0.825rem; text-align:start;">
-								<th style="padding:0.85rem 1rem; min-width:240px;">اسم الصنف</th>
-								<th style="padding:0.85rem 1rem; min-width:180px;">المورد الأفضل (أعلى خصم)</th>
-								<th style="padding:0.85rem 1rem; min-width:180px;">المورد الأقل خصماً</th>
-								<th style="padding:0.85rem 0.85rem; width:120px; text-align:center;">فارق الخصم</th>
-								<th style="padding:0.85rem 0.85rem; width:120px; text-align:center;">الوفر لكل عبوة</th>
+							<tr>
+								<th>اسم الصنف</th>
+								<th>المورد الأفضل (أعلى خصم)</th>
+								<th>المورد الأقل خصماً</th>
+								<th class="text-center tabular-nums">فارق الخصم</th>
+								<th class="text-center tabular-nums">الوفر لكل عبوة</th>
 							</tr>
 						</thead>
 						<tbody>
 							if len(data.Report.TopArbitrage) == 0 {
 								<tr>
-									<td colspan="5" style="text-align:center; padding:2rem; color:var(--text-muted);">
+									<td colspan="5" class="text-center p-8 text-muted">
 										لا توجد فروق خصومات كبيرة مرصودة حالياً.
 									</td>
 								</tr>
 							}
 							for _, deal := range data.Report.TopArbitrage {
-								<tr style="border-bottom:1px solid var(--border);">
+								<tr>
 									<!-- الصنف -->
-									<td style="padding:0.85rem 1rem;">
-										<div style="font-weight:700; color:var(--text);">
+									<td>
+										<div class="font-extrabold text-primary text-sm">
 											{ deal.ProductName }
 										</div>
 										if deal.SKU != "" {
-											<span style="font-size:0.725rem; color:var(--text-muted); font-family:monospace;">
+											<span class="text-xs text-muted tabular-nums">
 												كود: { deal.SKU }
 											</span>
 										}
 									</td>
 
 									<!-- المورد الأفضل -->
-									<td style="padding:0.85rem 1rem;">
-										<div style="display:flex; align-items:center; gap:0.5rem;">
-											<span class="badge badge-emerald" style="font-weight:800; font-size:0.8rem;">
+									<td>
+										<div class="d-flex items-center gap-2">
+											<span class="badge badge-emerald text-xs font-extrabold">
 												{ fmt.Sprintf("%.1f%%", deal.BestDiscount) }
 											</span>
 											<div>
-												<div style="font-weight:700; font-size:0.85rem; color:var(--text);">
+												<div class="font-bold text-xs text-primary">
 													{ deal.BestSupplier }
 												</div>
-												<div style="font-size:0.75rem; color:var(--text-muted);">
+												<div class="text-xs text-muted tabular-nums">
 													صافي: { deal.BestNetPrice.String() } ج.م
 												</div>
 											</div>
@@ -184,16 +174,16 @@ templ CompareMarketIntelligenceContent(data MarketIntelligencePageData) {
 									</td>
 
 									<!-- المورد الأقل -->
-									<td style="padding:0.85rem 1rem;">
-										<div style="display:flex; align-items:center; gap:0.5rem;">
-											<span class="badge badge-slate" style="font-size:0.8rem;">
+									<td>
+										<div class="d-flex items-center gap-2">
+											<span class="badge badge-slate text-xs">
 												{ fmt.Sprintf("%.1f%%", deal.WorstDiscount) }
 											</span>
 											<div>
-												<div style="font-weight:600; font-size:0.85rem; color:var(--text-muted);">
+												<div class="font-bold text-xs text-muted">
 													{ deal.WorstSupplier }
 												</div>
-												<div style="font-size:0.75rem; color:var(--text-muted);">
+												<div class="text-xs text-muted tabular-nums">
 													صافي: { deal.WorstNetPrice.String() } ج.م
 												</div>
 											</div>
@@ -201,14 +191,14 @@ templ CompareMarketIntelligenceContent(data MarketIntelligencePageData) {
 									</td>
 
 									<!-- فارق الخصم -->
-									<td style="padding:0.85rem 0.85rem; text-align:center;" class="tabular-nums">
-										<span style="display:inline-block; padding:0.25rem 0.6rem; border-radius:var(--radius-full); background:rgba(16,185,129,0.12); color:#10b981; font-weight:800; font-size:0.85rem;">
+									<td class="text-center tabular-nums">
+										<span class="badge badge-emerald text-xs font-extrabold">
 											+{ fmt.Sprintf("%.1f%%", deal.DiscountSpread) }
 										</span>
 									</td>
 
 									<!-- الوفر للعبوة -->
-									<td style="padding:0.85rem 0.85rem; text-align:center; font-weight:800; color:var(--primary-700);" class="tabular-nums">
+									<td class="text-center font-extrabold text-primary text-sm tabular-nums">
 										{ deal.UnitSavings.String() } ج.م
 									</td>
 								</tr>
@@ -219,50 +209,50 @@ templ CompareMarketIntelligenceContent(data MarketIntelligencePageData) {
 			</div>
 
 			<!-- 4. Manufacturer / Brand Breakdown & Market Gaps (Two-column grid) -->
-			<div style="display:grid; grid-template-columns:1fr 1fr; gap:1.25rem;" class="market-intelligence-grid">
+			<div class="dashboard-workspace-grid mb-6">
 				
 				<!-- Brand Discount Stats -->
-				<div class="card" style="padding:0; overflow:hidden; background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-2xl);">
-					<div style="padding:1.15rem 1.25rem; border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:center;">
-						<div class="row-center-sm">
-							<span style="font-size:1.1rem;">🏭</span>
-							<h3 class="text-base fw-800 text-primary m-0">
+				<div class="glass-panel p-0 mb-0 overflow-hidden">
+					<div class="p-4 px-6 border-b flex-between items-center">
+						<div class="d-flex items-center gap-2">
+							<span class="text-lg">🏭</span>
+							<h3 class="text-base font-extrabold text-primary m-0">
 								متوسط خصومات الشركات المصنعة
 							</h3>
 						</div>
 					</div>
 
-					<div class="table-responsive" style="max-height:360px; overflow-y:auto;">
-						<table class="table" style="margin:0; width:100%; border-collapse:collapse; font-size:0.85rem;">
+					<div class="table-container m-0 max-h-360 overflow-y-auto">
+						<table class="data-table m-0">
 							<thead>
-								<tr style="background:var(--surface-sunken); border-bottom:1px solid var(--border);">
-									<th style="padding:0.75rem 1rem;">الشركة المصنعة</th>
-									<th style="padding:0.75rem 0.75rem; text-align:center;">الأصناف</th>
-									<th style="padding:0.75rem 0.75rem; text-align:center;">متوسط الخصم</th>
-									<th style="padding:0.75rem 0.75rem; text-align:center;">أعلى خصم</th>
+								<tr>
+									<th>الشركة المصنعة</th>
+									<th class="text-center tabular-nums">الأصناف</th>
+									<th class="text-center tabular-nums">متوسط الخصم</th>
+									<th class="text-center tabular-nums">أعلى خصم</th>
 								</tr>
 							</thead>
 							<tbody>
 								if len(data.Report.BrandStats) == 0 {
 									<tr>
-										<td colspan="4" style="text-align:center; padding:1.5rem; color:var(--text-muted);">
+										<td colspan="4" class="text-center p-6 text-muted">
 											لا تتوفر إحصائيات شركات مصنعة حالياً.
 										</td>
 									</tr>
 								}
 								for _, b := range data.Report.BrandStats {
-									<tr style="border-bottom:1px solid var(--border);">
-										<td style="padding:0.75rem 1rem; font-weight:700; color:var(--text);">
+									<tr>
+										<td class="font-bold text-primary text-xs">
 											{ b.BrandName }
 										</td>
-										<td style="padding:0.75rem 0.75rem; text-align:center; color:var(--text-muted);" class="tabular-nums">
+										<td class="text-center text-muted text-xs tabular-nums">
 											{ fmt.Sprintf("%d", b.ProductCount) }
 										</td>
-										<td style="padding:0.75rem 0.75rem; text-align:center; font-weight:800; color:var(--primary-700);" class="tabular-nums">
+										<td class="text-center font-extrabold text-primary text-xs tabular-nums">
 											{ fmt.Sprintf("%.1f%%", b.AvgDiscount) }
 										</td>
-										<td style="padding:0.75rem 0.75rem; text-align:center;" class="tabular-nums">
-											<span class="badge badge-emerald" style="font-size:0.75rem;">
+										<td class="text-center tabular-nums">
+											<span class="badge badge-emerald text-xs font-bold">
 												{ fmt.Sprintf("%.1f%%", b.MaxDiscount) }
 											</span>
 										</td>
@@ -274,44 +264,44 @@ templ CompareMarketIntelligenceContent(data MarketIntelligencePageData) {
 				</div>
 
 				<!-- Market Gaps / Exclusive Offerings -->
-				<div class="card" style="padding:0; overflow:hidden; background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-2xl);">
-					<div style="padding:1.15rem 1.25rem; border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:center;">
-						<div class="row-center-sm">
-							<span style="font-size:1.1rem;">⭐</span>
-							<h3 class="text-base fw-800 text-primary m-0">
+				<div class="glass-panel p-0 mb-0 overflow-hidden">
+					<div class="p-4 px-6 border-b flex-between items-center">
+						<div class="d-flex items-center gap-2">
+							<span class="text-lg">⭐</span>
+							<h3 class="text-base font-extrabold text-primary m-0">
 								حصريات الموردين ونواقص السوق
 							</h3>
 						</div>
-						<span class="badge badge-amber" style="font-size:0.7rem;">متوفر لدى مورد واحد</span>
+						<span class="badge badge-amber text-xs font-bold">متوفر لدى مورد واحد</span>
 					</div>
 
-					<div class="table-responsive" style="max-height:360px; overflow-y:auto;">
-						<table class="table" style="margin:0; width:100%; border-collapse:collapse; font-size:0.85rem;">
+					<div class="table-container m-0 max-h-360 overflow-y-auto">
+						<table class="data-table m-0">
 							<thead>
-								<tr style="background:var(--surface-sunken); border-bottom:1px solid var(--border);">
-									<th style="padding:0.75rem 1rem;">اسم الصنف</th>
-									<th style="padding:0.75rem 1rem;">المورد الحصري</th>
-									<th style="padding:0.75rem 0.75rem; text-align:center;">الخصم</th>
+								<tr>
+									<th>اسم الصنف</th>
+									<th>المورد الحصري</th>
+									<th class="text-center tabular-nums">الخصم</th>
 								</tr>
 							</thead>
 							<tbody>
 								if len(data.Report.MarketGaps) == 0 {
 									<tr>
-										<td colspan="3" style="text-align:center; padding:1.5rem; color:var(--text-muted);">
+										<td colspan="3" class="text-center p-6 text-muted">
 											لا توجد أصناف حصرية أحادية المورد حالياً.
 										</td>
 									</tr>
 								}
 								for _, gap := range data.Report.MarketGaps {
-									<tr style="border-bottom:1px solid var(--border);">
-										<td style="padding:0.75rem 1rem; font-weight:700; color:var(--text);">
+									<tr>
+										<td class="font-bold text-primary text-xs">
 											{ gap.ProductName }
 										</td>
-										<td style="padding:0.75rem 1rem; color:var(--text-secondary); font-size:0.8rem;">
+										<td class="text-secondary text-xs">
 											{ gap.SoleSupplier }
 										</td>
-										<td style="padding:0.75rem 0.75rem; text-align:center;" class="tabular-nums">
-											<span class="badge badge-slate" style="font-size:0.75rem;">
+										<td class="text-center tabular-nums">
+											<span class="badge badge-slate text-xs font-bold">
 												{ fmt.Sprintf("%.1f%%", gap.Discount) }
 											</span>
 										</td>

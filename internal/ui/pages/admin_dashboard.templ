@@ -16,9 +16,9 @@ type AdminDashboardStats struct {
 
 templ AdminDashboard(stats AdminDashboardStats, pendingOrgs []*org.Organization, lang, dir string) {
 	@layouts.AdminShell("لوحة التحكم والمؤشرات الرئيسية", "dashboard", lang, dir) {
-		<div class="stack-lg">
+		<div class="page-container">
 			<!-- 1. KPI Stats Cards -->
-			<div class="b2b-metric-grid">
+			<div class="dashboard-stat-grid mb-6">
 				@components.StatCard(components.StatCardProps{
 					Label:    "المستخدمين المسجلين",
 					Value:    fmt.Sprintf("%d مستخدم", stats.TotalUsers),
@@ -46,63 +46,63 @@ templ AdminDashboard(stats AdminDashboardStats, pendingOrgs []*org.Organization,
 			</div>
 
 			<!-- 2. Quick Actions & Management Links -->
-			<div style="display:grid; grid-template-columns:2fr 1fr; gap:1.5rem; align-items:start;">
+			<div class="dashboard-workspace-grid">
 				<!-- Approvals & Operations Card -->
-				<div class="card" style="margin-bottom:0; padding:2rem; background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-xl);">
-					<div class="header-row">
+				<div class="glass-panel p-6">
+					<div class="flex-between mb-4 flex-wrap gap-2">
 						<div>
-							<h3 style="font-size:1.2rem; font-weight:800; color:var(--text); margin:0;">
+							<h3 class="text-lg font-extrabold text-primary m-0">
 								العمليات الرقابية والتحقق
 							</h3>
-							<p style="font-size:0.85rem; color:var(--text-secondary); margin-top:0.25rem;">
+							<p class="text-xs text-muted mt-1 m-0">
 								التحقق من التراخيص الصيدلية، السجلات التجارية، وتوثيق الكيانات
 							</p>
 						</div>
 
-						<a href="/admin/approvals" class="btn btn-primary btn-sm">
+						<a href="/admin/approvals" class="btn btn-primary btn-sm font-bold gap-1">
 							<span>عرض قائمة المراجعة</span>
 							@components.IconArrowLeft("icon-xs")
 						</a>
 					</div>
 					if len(pendingOrgs) == 0 {
-						<div style="display:flex; align-items:center; gap:0.75rem; padding:1.25rem; background:var(--surface-sunken); border:1px solid var(--border); border-radius:var(--radius-lg);">
-							<div style="width:36px; height:36px; border-radius:var(--radius-md); background:var(--emerald-50, #ecfdf5); color:var(--emerald-600, #10b981); display:flex; align-items:center; justify-content:center;">
+						<div class="d-flex items-center gap-3 p-4 bg-surface-sunken border rounded-xl">
+							<div class="user-avatar-badge text-success">
 								@components.IconCheck("icon-xs")
 							</div>
 							<div>
-								<div style="font-weight:800; font-size:0.925rem; color:var(--text);">تم تدقيق واعتماد كافة تراخيص المنشآت بالكامل</div>
-								<div style="font-size:0.8rem; color:var(--text-muted); margin-top:0.15rem;">لا توجد طلبات تسجيل أو تراخيص جديدة معلقة بانتظار الفحص حالياً.</div>
+								<div class="font-extrabold text-sm text-primary">تم تدقيق واعتماد كافة تراخيص المنشآت بالكامل</div>
+								<div class="text-xs text-muted mt-1">لا توجد طلبات تسجيل أو تراخيص جديدة معلقة بانتظار الفحص حالياً.</div>
 							</div>
 						</div>
 					} else {
-						<div class="stack">
+						<div class="d-flex flex-col gap-3">
 							for _, po := range pendingOrgs {
-								<div style="display:flex; justify-content:space-between; align-items:center; padding:1rem 1.25rem; background:var(--surface-sunken); border:1px solid var(--border); border-radius:var(--radius-lg);">
-									<div class="row-center">
-										<div class="b2b-icon-box-sm">
+								<div class="flex-between p-3 bg-surface-sunken border rounded-xl flex-wrap gap-2">
+									<div class="d-flex items-center gap-3">
+										<div class="user-avatar-badge">
 											@components.IconBuilding("icon-xs")
 										</div>
 										<div>
-											<div class="row-center-sm">
-												<span style="font-weight:800; font-size:0.925rem; color:var(--text);">{ po.LegalName }</span>
+											<div class="d-flex items-center gap-2">
+												<span class="font-extrabold text-sm text-primary">{ po.LegalName }</span>
 												if string(po.Type) == "vendor" {
 													<span class="badge badge-sky text-xs">مورد أدوية</span>
 												} else {
 													<span class="badge badge-emerald text-xs">صيدلية</span>
 												}
 											</div>
-											<div style="font-size:0.8rem; color:var(--text-muted); margin-top:0.15rem;">
+											<div class="text-xs text-muted mt-1 tabular-nums">
 												if po.CommercialRegister != "" {
-													<span>سجل تجاري: <strong class="tabular-nums">{ po.CommercialRegister }</strong></span>
+													<span>سجل تجاري: <strong>{ po.CommercialRegister }</strong></span>
 												}
 												if po.PharmacistLicense != "" {
-													<span style="margin-inline-start:0.5rem;">• ترخيص: <strong class="tabular-nums">{ po.PharmacistLicense }</strong></span>
+													<span class="ms-2">• ترخيص: <strong>{ po.PharmacistLicense }</strong></span>
 												}
 											</div>
 										</div>
 									</div>
-									<div class="row-center-sm">
-										<a href="/admin/approvals" class="btn btn-primary btn-sm fw-700">فحص واعتماد</a>
+									<div class="d-flex items-center">
+										<a href="/admin/approvals" class="btn btn-primary btn-sm font-bold">فحص واعتماد</a>
 									</div>
 								</div>
 							}
@@ -111,27 +111,27 @@ templ AdminDashboard(stats AdminDashboardStats, pendingOrgs []*org.Organization,
 				</div>
 
 				<!-- System Health Card -->
-				<div class="card" style="margin-bottom:0; padding:2rem; background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-xl);">
-					<h3 style="font-size:1.2rem; font-weight:800; color:var(--text); margin-bottom:1.25rem;">
+				<div class="glass-panel p-6">
+					<h3 class="text-lg font-extrabold text-primary m-0 mb-4">
 						جاهزية البنية التحتية
 					</h3>
 
-					<div style="display:flex; flex-direction:column; gap:1rem; margin-bottom:1.5rem;">
-						<div style="display:flex; justify-content:space-between; align-items:center; font-size:0.875rem;">
+					<div class="d-flex flex-col gap-3 mb-6 text-sm">
+						<div class="flex-between">
 							<span class="text-secondary">قاعدة البيانات PostgreSQL:</span>
-							<span class="badge badge-emerald">متصلة وتعمل بكفاءة</span>
+							<span class="badge badge-emerald text-xs">متصلة وتعمل بكفاءة</span>
 						</div>
-						<div style="display:flex; justify-content:space-between; align-items:center; font-size:0.875rem;">
+						<div class="flex-between">
 							<span class="text-secondary">خادم التخزين المؤقت Redis:</span>
-							<span class="badge badge-emerald">يعمل بكفاءة</span>
+							<span class="badge badge-emerald text-xs">يعمل بكفاءة</span>
 						</div>
-						<div style="display:flex; justify-content:space-between; align-items:center; font-size:0.875rem;">
+						<div class="flex-between">
 							<span class="text-secondary">طوابير المهام River Queue:</span>
-							<span class="badge badge-emerald">معالجة نشطة</span>
+							<span class="badge badge-emerald text-xs">معالجة نشطة</span>
 						</div>
 					</div>
 
-					<a href="/ready" target="_blank" class="btn btn-secondary" style="width:100%; justify-content:center; font-weight:700;">
+					<a href="/ready" target="_blank" class="btn btn-secondary w-full justify-center font-bold gap-2">
 						@components.IconRefresh("icon-xs")
 						<span>فحص فوري لنقطة /ready</span>
 					</a>
