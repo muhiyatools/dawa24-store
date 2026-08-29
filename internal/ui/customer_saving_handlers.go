@@ -305,7 +305,7 @@ func (h *UIHandler) CustomerSavingProductsImportSubmit(w http.ResponseWriter, r 
 
 	var matchEngine *SavingProductMatchEngine
 	if h.catSvc != nil {
-		if catalogSources, err := h.catSvc.ListAllMasterProductsForMatching(ctx); err == nil && len(catalogSources) > 0 {
+		if catalogSources, err := h.catSvc.ListMatchProducts(ctx); err == nil && len(catalogSources) > 0 {
 			matchEngine = NewSavingProductMatchEngine(catalogSources)
 		}
 	}
@@ -531,7 +531,7 @@ func (h *UIHandler) CustomerSavingProductsImportStartJSON(w http.ResponseWriter,
 
 		var matchEngine *SavingProductMatchEngine
 		if h.catSvc != nil {
-			if catalogSources, err := h.catSvc.ListAllMasterProductsForMatching(bgCtx); err == nil && len(catalogSources) > 0 {
+			if catalogSources, err := h.catSvc.ListMatchProducts(bgCtx); err == nil && len(catalogSources) > 0 {
 				matchEngine = NewSavingProductMatchEngine(catalogSources)
 			}
 		}
@@ -603,17 +603,7 @@ func (h *UIHandler) CustomerSavingProductsImportStartJSON(w http.ResponseWriter,
 			if productID != nil {
 				matchedCount++
 				if matchEngine != nil {
-					for _, cItem := range matchEngine.items {
-						if cItem.ID == *productID {
-							if cItem.NameAr != "" {
-								masterName = cItem.NameAr
-							} else {
-								masterName = cItem.NameEn
-							}
-							masterSKU = cItem.SKU
-							break
-						}
-					}
+					masterName, masterSKU = matchEngine.Describe(*productID)
 				}
 			} else {
 				unlinkedCount++

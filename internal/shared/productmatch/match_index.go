@@ -109,7 +109,7 @@ func NewIndex(products []MasterProduct) *Index {
 		if code := sheet.DigitsOnly(p.Barcode); code != "" {
 			idx.byBarcode[code] = append(idx.byBarcode[code], p)
 		}
-		if key := sheet.NormalizeKey(p.SKU); key != "" {
+		if key := sheet.NormalizeCode(p.SKU); key != "" {
 			idx.bySKU[key] = append(idx.bySKU[key], p)
 		}
 		if p.nameKey != "" {

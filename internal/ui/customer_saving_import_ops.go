@@ -61,7 +61,7 @@ func (h *UIHandler) CustomerSavingProductsImportMapSubmit(w http.ResponseWriter,
 
 	var matchEngine *SavingProductMatchEngine
 	if strat != "none" && h.catSvc != nil {
-		if catalogSources, err := h.catSvc.ListAllMasterProductsForMatching(ctx); err == nil && len(catalogSources) > 0 {
+		if catalogSources, err := h.catSvc.ListMatchProducts(ctx); err == nil && len(catalogSources) > 0 {
 			matchEngine = NewSavingProductMatchEngine(catalogSources)
 		}
 	}
@@ -120,17 +120,7 @@ func (h *UIHandler) CustomerSavingProductsImportMapSubmit(w http.ResponseWriter,
 				productID = res.ProductID
 				matchType = res.MatchType
 				confidence = res.Confidence
-				for _, cItem := range matchEngine.items {
-					if cItem.ID == *productID {
-						if cItem.NameAr != "" {
-							masterName = cItem.NameAr
-						} else {
-							masterName = cItem.NameEn
-						}
-						masterSKU = cItem.SKU
-						break
-					}
-				}
+				masterName, masterSKU = matchEngine.Describe(*productID)
 			}
 		}
 

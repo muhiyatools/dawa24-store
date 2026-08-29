@@ -2,6 +2,7 @@ package sheet
 
 import (
 	"errors"
+	"regexp"
 	"strconv"
 	"strings"
 )
@@ -271,6 +272,7 @@ func isDigits(s string) bool {
 // DigitsOnly returns the ASCII digits of s, which is how a barcode typed with
 // spaces or a leading apostrophe is recovered.
 func DigitsOnly(s string) string {
+	s = undoSpreadsheetNumber(s)
 	var b strings.Builder
 	b.Grow(len(s))
 	for _, r := range NormalizeDigits(s) {
@@ -279,6 +281,39 @@ func DigitsOnly(s string) string {
 		}
 	}
 	return b.String()
+}
+
+// scientificCode matches a code Excel has rendered in scientific notation.
+var scientificCode = regexp.MustCompile(`^[0-9]+(\.[0-9]+)?[eE]\+?[0-9]+$`)
+
+// undoSpreadsheetNumber reverses what a spreadsheet does to a long code.
+//
+// Excel decides a column of digits is numeric and then renders it as a number:
+// a thirteen-digit barcode comes back as "6.22123E+12", and an item code comes
+// back as "20203380.0". Both are the cell's rendering rather than its content.
+//
+// Left alone, the fraction's digits are read as part of the code — "20203380.0"
+// yields 202033800, a nine-digit number matching nothing — and the exponent form
+// yields a six-digit fragment. Neither fails loudly; both simply never match,
+// which is indistinguishable from a product the catalogue does not carry.
+func undoSpreadsheetNumber(s string) string {
+	s = strings.TrimSpace(NormalizeDigits(s))
+	if s == "" {
+		return s
+	}
+	if scientificCode.MatchString(s) {
+		if f, err := strconv.ParseFloat(s, 64); err == nil && f > 0 && f < 1e18 {
+			return strconv.FormatFloat(f, 'f', 0, 64)
+		}
+	}
+	// A trailing ".0" (or ".00") is the float rendering of a whole number. A
+	// fraction with any non-zero digit is a real decimal and is left alone.
+	if i := strings.IndexByte(s, '.'); i >= 0 {
+		if frac := s[i+1:]; frac != "" && strings.Trim(frac, "0") == "" {
+			return s[:i]
+		}
+	}
+	return s
 }
 
 // ValidGTIN reports whether digits is a GTIN-8/12/13/14 whose check digit is
@@ -306,4 +341,33 @@ func ValidGTIN(digits string) bool {
 	}
 	check := (10 - sum%10) % 10
 	return check == int(digits[len(digits)-1]-'0')
+}
+
+// NormalizeCode folds an identifier for comparison: spreadsheet rendering undone
+// first, then case, separators and leading zeros.
+//
+// Separate from NormalizeKey, which folds a *header* and must keep Arabic
+// letters intact. A code is compared against another code, and the ways one
+// system writes "PAN-24" and another writes "pan 24" are noise on both sides.
+func NormalizeCode(s string) string {
+	s = strings.ToLower(strings.TrimSpace(undoSpreadsheetNumber(s)))
+	var b strings.Builder
+	b.Grow(len(s))
+	for _, r := range s {
+		switch r {
+		case '-', '_', '/', ' ', '.', '\\':
+			continue
+		}
+		b.WriteRune(r)
+	}
+	out := b.String()
+	// Leading zeros are padding an ERP added to align a column, not part of the
+	// code — but only where the code is entirely digits, since "0X12" is a code
+	// whose first character happens to be a zero.
+	if isDigits(out) {
+		if trimmed := strings.TrimLeft(out, "0"); trimmed != "" {
+			return trimmed
+		}
+	}
+	return out
 }
