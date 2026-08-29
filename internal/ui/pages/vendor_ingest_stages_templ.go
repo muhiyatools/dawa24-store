@@ -178,7 +178,7 @@ func importMappingStage(view VendorImportView) templ.Component {
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "</tbody></table></div></div><!-- Section 3: Manual / Default Stock Quantity Setting --><div class=\"card\"><div class=\"row-center-sm gap-sm mb-2\"><div style=\"width:36px; height:36px; border-radius:var(--radius-lg); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center; font-size:1.2rem;\">📦</div><div><h2 class=\"wiz-head mb-0\">3. تعيين كمية افتراضية للمخزون (في حال عدم وجود عمود للكمية في ملفك)</h2><p class=\"wiz-sub mb-0\">إذا كان ملفك يحتوي فقط على أسماء الأصناف والأسعار دون عمود للكمية، يمكنك كتابة كمية افتراضية هنا ليتم تطبيقها على كافة الأصناف تلقائياً، مع إمكانية تعديل كمية أي صنف يدوياً لاحقاً في مرحلة المراجعة.</p></div></div><div class=\"row-center-sm gap-md flex-wrap mt-3\" style=\"background:var(--surface-sunken); padding:1.25rem; border-radius:var(--radius-xl); border:1px solid var(--border);\"><label class=\"form-label mb-0 fw-800 text-sm\">الكمية الافتراضية لكل صنف:</label> <input type=\"number\" name=\"default_quantity\" min=\"0\" placeholder=\"مثال: 50 أو 100\" value=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "</tbody></table></div></div><!-- Section 3: Manual / Default Stock Quantity Setting --><div class=\"card\"><div class=\"row-center-sm gap-sm mb-2\"><div class=\"ingest-section-mark\" aria-hidden=\"true\">📦</div><div><h2 class=\"wiz-head mb-0\">3. تعيين كمية افتراضية للمخزون (في حال عدم وجود عمود للكمية في ملفك)</h2><p class=\"wiz-sub mb-0\">إذا كان ملفك يحتوي فقط على أسماء الأصناف والأسعار دون عمود للكمية، يمكنك كتابة كمية افتراضية هنا ليتم تطبيقها على كافة الأصناف تلقائياً، مع إمكانية تعديل كمية أي صنف يدوياً لاحقاً في مرحلة المراجعة.</p></div></div><div class=\"row-center-sm gap-md flex-wrap mt-3 ingest-default-quantity\"><label class=\"form-label mb-0 fw-800 text-sm\">الكمية الافتراضية لكل صنف:</label> <input type=\"number\" name=\"default_quantity\" min=\"0\" placeholder=\"مثال: 50 أو 100\" value=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -191,7 +191,7 @@ func importMappingStage(view VendorImportView) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, "\" class=\"form-input tabular-nums fw-700 text-center\" style=\"width:140px; height:42px; font-size:1rem; border-radius:var(--radius-lg);\"> <span class=\"text-xs text-muted\">(عبوة / وحدة لكل صنف مستورد) — ستُسجَّل تلقائياً في رصيد المخزن المختار.</span></div></div><div class=\"card mb-0\"><div class=\"wiz-actions\"><span class=\"wiz-actions-note\">لن يُكتب أي صنف بعد — الخطوة التالية هي تحديد المخزن والإعدادات.</span><div class=\"row-center\"><form method=\"POST\" action=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, "\" class=\"form-input tabular-nums fw-700 text-center\" class=\"form-input tabular-nums fw-700 text-center ingest-default-quantity-input\"> <span class=\"text-xs text-muted\">(عبوة / وحدة لكل صنف مستورد) — ستُسجَّل تلقائياً في رصيد المخزن المختار.</span></div></div><div class=\"card mb-0\"><div class=\"wiz-actions\"><span class=\"wiz-actions-note\">لن يُكتب أي صنف بعد — الخطوة التالية هي تحديد المخزن والإعدادات.</span><div class=\"row-center\"><form method=\"POST\" action=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -912,7 +912,7 @@ func importSettingsStage(view VendorImportView) templ.Component {
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 88, "</div><ul class=\"wiz-notes text-xs text-muted\" style=\"margin: 0.75rem 0 0; padding-inline-start: 1.1rem;\"><li>تُراجَع ذاكرة القرارات المشتركة أولاً؛ ما سبق حسمه — في ملفك أو في ملف غيرك — لا يُرسل ولا يُحتسب.</li><li>الأسطر المكررة والمرشحون المشتركون يُدمجون في طلب واحد، فالملف كاملاً بضعة طلبات مهما طال.</li><li>يُعاد فحص كل اقتراح أمام الكتالوج، ويُرفض ما اختلف تركيزه أو شكله الصيدلي أو إضافته التجارية.</li></ul></div><div class=\"card\"><h3 class=\"wiz-head\">خيارات دقيقة</h3><div class=\"wiz-switches\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 88, "</div><ul class=\"wiz-notes text-xs text-muted ingest-notes\"><li>تُراجَع ذاكرة القرارات المشتركة أولاً؛ ما سبق حسمه — في ملفك أو في ملف غيرك — لا يُرسل ولا يُحتسب.</li><li>الأسطر المكررة والمرشحون المشتركون يُدمجون في طلب واحد، فالملف كاملاً بضعة طلبات مهما طال.</li><li>يُعاد فحص كل اقتراح أمام الكتالوج، ويُرفض ما اختلف تركيزه أو شكله الصيدلي أو إضافته التجارية.</li></ul></div><div class=\"card\"><h3 class=\"wiz-head\">خيارات دقيقة</h3><div class=\"wiz-switches\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

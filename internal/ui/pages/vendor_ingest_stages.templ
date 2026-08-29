@@ -109,7 +109,7 @@ templ importMappingStage(view VendorImportView) {
 			<!-- Section 3: Manual / Default Stock Quantity Setting -->
 			<div class="card">
 				<div class="row-center-sm gap-sm mb-2">
-					<div style="width:36px; height:36px; border-radius:var(--radius-lg); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center; font-size:1.2rem;">
+					<div class="ingest-section-mark" aria-hidden="true">
 						📦
 					</div>
 					<div>
@@ -120,14 +120,14 @@ templ importMappingStage(view VendorImportView) {
 					</div>
 				</div>
 
-				<div class="row-center-sm gap-md flex-wrap mt-3" style="background:var(--surface-sunken); padding:1.25rem; border-radius:var(--radius-xl); border:1px solid var(--border);">
+				<div class="row-center-sm gap-md flex-wrap mt-3 ingest-default-quantity">
 					<label class="form-label mb-0 fw-800 text-sm">
 						الكمية الافتراضية لكل صنف:
 					</label>
 					<input type="number" name="default_quantity" min="0" placeholder="مثال: 50 أو 100"
 						value={ defaultQuantityDisplay(view.Session) }
 						class="form-input tabular-nums fw-700 text-center"
-						style="width:140px; height:42px; font-size:1rem; border-radius:var(--radius-lg);"/>
+						class="form-input tabular-nums fw-700 text-center ingest-default-quantity-input"/>
 					<span class="text-xs text-muted">
 						(عبوة / وحدة لكل صنف مستورد) — ستُسجَّل تلقائياً في رصيد المخزن المختار.
 					</span>
@@ -318,7 +318,7 @@ templ importSettingsStage(view VendorImportView) {
 						view.AIUnavailableReason)
 				}
 			</div>
-			<ul class="wiz-notes text-xs text-muted" style="margin: 0.75rem 0 0; padding-inline-start: 1.1rem;">
+			<ul class="wiz-notes text-xs text-muted ingest-notes">
 				<li>تُراجَع ذاكرة القرارات المشتركة أولاً؛ ما سبق حسمه — في ملفك أو في ملف غيرك — لا يُرسل ولا يُحتسب.</li>
 				<li>الأسطر المكررة والمرشحون المشتركون يُدمجون في طلب واحد، فالملف كاملاً بضعة طلبات مهما طال.</li>
 				<li>يُعاد فحص كل اقتراح أمام الكتالوج، ويُرفض ما اختلف تركيزه أو شكله الصيدلي أو إضافته التجارية.</li>

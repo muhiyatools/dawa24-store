@@ -490,6 +490,66 @@ dialog.modal::backdrop {
 }
 .saving-review-col-index { width: 40px; }
 .saving-review-col-product { min-width: 280px; }
+.ingest-section-mark {
+  display: inline-grid;
+  width: 36px;
+  height: 36px;
+  place-items: center;
+  flex: 0 0 auto;
+  border-radius: var(--radius-lg);
+  background: var(--accent-subtle);
+  color: var(--accent);
+  font-size: 1.2rem;
+}
+.ingest-section-mark::before { content: "□"; }
+.ingest-section-mark-sm { width: 1.1rem; height: 1.1rem; font-size: 1rem; }
+.ingest-default-quantity,
+.ingest-batch-quantity {
+  background: var(--surface-sunken);
+  border: 1px dashed var(--border-strong);
+  border-radius: var(--radius-xl);
+}
+.ingest-default-quantity {
+  padding: 1.25rem;
+  border-style: solid;
+}
+.ingest-default-quantity-input { width: 140px; height: 42px; font-size: 1rem; border-radius: var(--radius-lg); }
+.ingest-notes { margin: 0.75rem 0 0; padding-inline-start: 1.1rem; }
+.ingest-filter-search { min-width: 220px; padding: 0.4rem 0.75rem; font-size: 0.85rem; }
+.ingest-filter-limit { width: auto; padding: 0.4rem 0.75rem; font-size: 0.85rem; }
+.ingest-batch-quantity { padding: 0.75rem 1.25rem; }
+.ingest-batch-quantity-input { width: 100px; height: 34px; padding: 0.2rem 0.5rem; font-size: 0.9rem; border-radius: var(--radius-md); }
+.ingest-batch-quantity-submit { height: 34px; padding-inline: 1rem; }
+.ingest-col-import { width: 48px; text-align: center; }
+.ingest-col-row { width: 60px; text-align: center; }
+.ingest-col-source { min-width: 240px; }
+.ingest-col-catalog { min-width: 280px; }
+.ingest-col-score,
+.ingest-col-price { width: 120px; text-align: center; }
+.ingest-col-discount { width: 110px; text-align: center; }
+.ingest-col-quantity { width: 90px; text-align: center; }
+.ingest-sort-link {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.35rem;
+  color: inherit;
+  font-weight: inherit;
+  text-decoration: none;
+}
+.ingest-sort-icon { opacity: 0.75; font-size: 0.7rem; }
+.ingest-row-checkbox { width: 16px; height: 16px; cursor: pointer; }
+.ingest-name-input { max-width: 250px; padding: 0.35rem 0.6rem; font-size: 0.85rem; }
+.ingest-catalog-cell { position: relative; }
+.ingest-ai-badge { border-color: var(--primary); color: var(--primary); }
+.ingest-catalog-search { width: 100%; padding: 0.4rem 0.65rem; font-size: 0.85rem; }
+.ingest-catalog-results { max-height: 200px; overflow-y: auto; }
+.ingest-unlink-section { border-top: 1px solid var(--border); padding-top: 0.4rem; margin-top: 0.4rem; text-align: start; }
+.ingest-inline-form { justify-content: center; }
+.ingest-price-input,
+.ingest-discount-input { width: 78px; height: 32px; padding: 0.2rem 0.35rem; font-size: 0.85rem; border-radius: var(--radius-md); }
+.ingest-quantity-input { width: 70px; height: 32px; padding: 0.2rem 0.35rem; font-size: 0.85rem; border-radius: var(--radius-md); }
+.ingest-inline-save { height: 32px; padding-inline: 0.45rem; }
 
 .progress-track {
   width: 100%;
