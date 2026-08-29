@@ -2318,12 +2318,53 @@ func (h *UIHandler) AdminCitiesPage(w http.ResponseWriter, r *http.Request) {
 		filteredCities = append(filteredCities, c)
 	}
 
+	limit, _ := strconv.Atoi(r.URL.Query().Get("limit"))
+	if limit <= 0 {
+		limit = 25
+	}
+	page, _ := strconv.Atoi(r.URL.Query().Get("page"))
+	if page <= 0 {
+		page = 1
+	}
+
+	totalFiltered := len(filteredCities)
+	var paginatedCities []*platformadmin.City
+	var totalPages int = 1
+
+	if limit >= 1000 {
+		paginatedCities = filteredCities
+		totalPages = 1
+	} else {
+		totalPages = (totalFiltered + limit - 1) / limit
+		if totalPages < 1 {
+			totalPages = 1
+		}
+		if page > totalPages {
+			page = totalPages
+		}
+		start := (page - 1) * limit
+		if start < 0 {
+			start = 0
+		}
+		end := start + limit
+		if end > totalFiltered {
+			end = totalFiltered
+		}
+		if start < totalFiltered {
+			paginatedCities = filteredCities[start:end]
+		}
+	}
+
 	data := pages.AdminCitiesData{
 		Governorates:          governorates,
-		Cities:                filteredCities,
+		Cities:                paginatedCities,
 		SelectedGovernorateID: selectedGovID,
 		TotalCities:           len(allCities),
 		TotalGovernorates:     len(governorates),
+		TotalFiltered:         totalFiltered,
+		Page:                  page,
+		Limit:                 limit,
+		TotalPages:            totalPages,
 		Query:                 query,
 	}
 

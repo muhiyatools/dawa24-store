@@ -1,7 +1,9 @@
 package pages
 
 import (
+	"encoding/json"
 	"fmt"
+
 	"github.com/muhiya/dawa24-store/internal/modules/catalog"
 	"github.com/muhiya/dawa24-store/internal/modules/org"
 	"github.com/muhiya/dawa24-store/internal/modules/promo"
@@ -10,80 +12,160 @@ import (
 	"github.com/muhiya/dawa24-store/internal/ui/layouts"
 )
 
+type VendorOfferItemOption struct {
+	VariantID      int64   `json:"variant_id"`
+	NameAr         string  `json:"name_ar"`
+	NameEn         string  `json:"name_en"`
+	SKU            string  `json:"sku"`
+	BatchNumber    string  `json:"batch_number"`
+	ExpiryDate     string  `json:"expiry_date"`
+	Price          string  `json:"price"`
+	PriceFloat     float64 `json:"price_float"`
+	WarehouseName  string  `json:"warehouse_name"`
+	AvailableStock int     `json:"available_stock"`
+}
+
 type VendorOfferFormData struct {
-	Offer    *promo.SpecialOffer
-	Branches []*org.Branch
-	Variants []*catalog.ProductVariant
-	IsEdit   bool
+	Offer       *promo.SpecialOffer
+	Branches    []*org.Branch
+	Variants    []*catalog.ProductVariant
+	ItemOptions []VendorOfferItemOption
+	IsEdit      bool
+}
+
+func itemsToJSON(items []VendorOfferItemOption) string {
+	b, err := json.Marshal(items)
+	if err != nil {
+		return "[]"
+	}
+	return string(b)
 }
 
 templ VendorOfferFormPage(data VendorOfferFormData, lang, dir string) {
 	@layouts.VendorShell("إنشاء وتخصيص عرض خاص | Special Offer", "offers", lang, dir) {
-		<div style="display:flex; flex-direction:column; gap:1.75rem; max-width:1100px; margin:0 auto;">
+		<div
+			class="page-container"
+			style="max-width: 1100px; margin: 0 auto;"
+			x-data={ fmt.Sprintf(`{
+				availableItems: %s,
+				selectedItems: [],
+				searchQuery: '',
+				showDropdown: false,
+				get filteredItems() {
+					if (!this.searchQuery.trim()) return this.availableItems.slice(0, 20);
+					const q = this.searchQuery.toLowerCase();
+					return this.availableItems.filter(i => 
+						(i.name_ar && i.name_ar.toLowerCase().includes(q)) ||
+						(i.name_en && i.name_en.toLowerCase().includes(q)) ||
+						(i.sku && i.sku.toLowerCase().includes(q)) ||
+						(i.batch_number && i.batch_number.toLowerCase().includes(q))
+					).slice(0, 30);
+				},
+				addItem(item) {
+					if (!this.selectedItems.find(i => i.variant_id === item.variant_id)) {
+						this.selectedItems.push({
+							variant_id: item.variant_id,
+							name: item.name_ar || item.name_en || item.sku,
+							sku: item.sku,
+							batch: item.batch_number,
+							expiry: item.expiry_date,
+							warehouse: item.warehouse_name,
+							stock: item.available_stock,
+							original_price: item.price_float,
+							original_price_str: item.price,
+							qty: 1,
+							discount_pct: 0,
+							custom_price: item.price_float
+						});
+					}
+					this.searchQuery = '';
+					this.showDropdown = false;
+				},
+				removeItem(idx) {
+					this.selectedItems.splice(idx, 1);
+				},
+				onDiscountChange(item) {
+					if (item.original_price > 0 && item.discount_pct >= 0) {
+						item.custom_price = Math.max(0, +(item.original_price * (1 - (item.discount_pct / 100))).toFixed(2));
+					}
+				},
+				onPriceChange(item) {
+					if (item.original_price > 0 && item.custom_price >= 0) {
+						const d = ((1 - (item.custom_price / item.original_price)) * 100);
+						item.discount_pct = Math.max(0, +d.toFixed(1));
+					}
+				}
+			}`, itemsToJSON(data.ItemOptions)) }
+		>
 			
 			<!-- Header -->
-			<div style="background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-2xl); padding:1.75rem; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem;">
-				<div style="display:flex; align-items:center; gap:1rem;">
-					<div style="width:50px; height:50px; border-radius:var(--radius-xl); background:var(--accent-subtle); border:1px solid var(--accent); color:var(--accent); display:flex; align-items:center; justify-content:center; font-size:1.5rem;">
-						🎁
-					</div>
-					<div>
-						<div style="font-size:0.75rem; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.15em; font-weight:700; margin-bottom:0.2rem;">
-							إدارة عروض المورد
+			<div class="glass-panel p-6 mb-0">
+				<div class="flex-between items-center flex-wrap gap-4">
+					<div class="d-flex items-center gap-3">
+						<div class="user-avatar-badge text-2xl">
+							🎁
 						</div>
-						<h1 class="text-2xl fw-800 text-primary m-0">
-							if data.IsEdit {
-								تعديل بيانات العرض الخاص
-							} else {
-								إنشاء عرض خاص وتخصيص المنتجات
-							}
-						</h1>
+						<div>
+							<div class="text-xs text-muted font-extrabold uppercase mb-1">
+								إدارة عروض المورد
+							</div>
+							<h1 class="text-2xl font-black text-primary m-0">
+								if data.IsEdit {
+									تعديل بيانات العرض الخاص
+								} else {
+									إنشاء عرض خاص وتخصيص المنتجات
+								}
+							</h1>
+						</div>
 					</div>
-				</div>
 
-				<a href="/vendor/offers" class="btn btn-secondary btn-sm fw-700">
-					<span>← العودة لجميع العروض</span>
-				</a>
+					<a href="/vendor/offers" class="btn btn-secondary btn-sm font-bold text-xs">
+						<span>← العودة لكافة العروض</span>
+					</a>
+				</div>
 			</div>
 
-			<form action="/vendor/offers/new" method="POST" style="display:flex; flex-direction:column; gap:1.75rem;">
+			<form action="/vendor/offers/new" method="POST" class="d-flex flex-col gap-6 m-0">
 				
 				<!-- Grid 1: Basic Info & Pricing Details -->
-				<div style="display:grid; grid-template-columns:1fr 1fr; gap:1.5rem;" class="offer-form-grid">
+				<div class="d-grid grid-cols-2 gap-6 offer-form-grid">
 					
 					<!-- Card 1: Basic Details -->
-					<div style="background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-2xl); padding:1.75rem; display:flex; flex-direction:column; gap:1.2rem;">
-						<h3 style="font-size:1.15rem; font-weight:800; color:var(--text); margin:0; border-bottom:1px solid var(--border); padding-bottom:0.75rem;">
-							البيانات الأساسية للعرض
-						</h3>
+					<div class="glass-panel p-6 d-flex flex-col gap-4">
+						<div class="d-flex items-center gap-2 pb-3 border-b">
+							<span class="text-lg">📋</span>
+							<h3 class="text-base font-black text-primary m-0">
+								البيانات الأساسية للعرض
+							</h3>
+						</div>
 
 						<div>
-							<label class="form-label">
+							<label class="form-label text-xs font-bold text-primary mb-1 d-block">
 								عنوان العرض (بالعربية) <span class="text-danger">*</span>
 							</label>
-							<input type="text" name="title_ar" required placeholder="مثال: خصم 20% على أدوية ومستلزمات الموسم" class="form-input w-full"/>
+							<input type="text" name="title_ar" required placeholder="مثال: خصم 20% على أدوية ومستلزمات الموسم" class="form-input text-xs w-full"/>
 						</div>
 
 						<div>
-							<label class="form-label">
-								عنوان العرض (بالإنجليزية) <span class="text-danger">*</span>
+							<label class="form-label text-xs font-bold text-primary mb-1 d-block">
+								عنوان العرض (بالإنجليزية)
 							</label>
-							<input type="text" name="title_en" placeholder="e.g. 20% Off Seasonal Medicines" class="form-input w-full"/>
+							<input type="text" name="title_en" placeholder="e.g. 20% Off Seasonal Medicines" class="form-input text-xs w-full"/>
 						</div>
 
 						<div>
-							<label class="form-label">
+							<label class="form-label text-xs font-bold text-primary mb-1 d-block">
 								وصف تفاصيل العرض
 							</label>
-							<textarea name="description_ar" rows="3" placeholder="اكتب تفاصيل وشروط الاستفادة من العرض..." class="form-input" style="width:100%; resize:vertical;"></textarea>
+							<textarea name="description_ar" rows="3" placeholder="اكتب تفاصيل وشروط الاستفادة من العرض..." class="form-input text-xs w-full" style="resize:vertical;"></textarea>
 						</div>
 
-						<div style="display:grid; grid-template-columns:1fr 1fr; gap:0.9rem;">
+						<div class="d-grid grid-cols-2 gap-3">
 							<div>
-								<label class="form-label">
+								<label class="form-label text-xs font-bold text-primary mb-1 d-block">
 									الفرع المستهدف
 								</label>
-								<select name="branch_id" class="form-input w-full">
+								<select name="branch_id" class="form-input text-xs w-full">
 									<option value="">كافة الفروع</option>
 									for _, b := range data.Branches {
 										<option value={ fmt.Sprintf("%d", b.ID) }>
@@ -94,10 +176,10 @@ templ VendorOfferFormPage(data VendorOfferFormData, lang, dir string) {
 							</div>
 
 							<div>
-								<label class="form-label">
+								<label class="form-label text-xs font-bold text-primary mb-1 d-block">
 									حالة العرض <span class="text-danger">*</span>
 								</label>
-								<select name="status" class="form-input w-full">
+								<select name="status" class="form-input text-xs w-full">
 									<option value="active">نشط (Active)</option>
 									<option value="draft">مسودة (Draft)</option>
 									<option value="inactive">غير نشط (Inactive)</option>
@@ -107,121 +189,247 @@ templ VendorOfferFormPage(data VendorOfferFormData, lang, dir string) {
 					</div>
 
 					<!-- Card 2: Pricing, Dates & Image -->
-					<div style="background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-2xl); padding:1.75rem; display:flex; flex-direction:column; gap:1.2rem;">
-						<h3 style="font-size:1.15rem; font-weight:800; color:var(--text); margin:0; border-bottom:1px solid var(--border); padding-bottom:0.75rem;">
-							التسعير، التواريخ والصورة
-						</h3>
+					<div class="glass-panel p-6 d-flex flex-col gap-4">
+						<div class="d-flex items-center gap-2 pb-3 border-b">
+							<span class="text-lg">💰</span>
+							<h3 class="text-base font-black text-primary m-0">
+								التسعير العام والتواريخ
+							</h3>
+						</div>
 
-						<div style="display:grid; grid-template-columns:1fr 1fr; gap:0.9rem;">
+						<div class="d-grid grid-cols-2 gap-3">
 							<div>
-								<label class="form-label">
+								<label class="form-label text-xs font-bold text-primary mb-1 d-block">
 									نسبة الخصم العامة %
 								</label>
-								<input type="number" step="0.01" name="discount_percentage" placeholder="15.00" class="form-input tabular-nums w-full"/>
+								<input type="number" step="0.01" name="discount_percentage" placeholder="15.00" class="form-input text-xs tabular-nums w-full"/>
 							</div>
 
 							<div>
-								<label class="form-label">
+								<label class="form-label text-xs font-bold text-primary mb-1 d-block">
 									السعر الإجمالي الكلي (ج.م)
 								</label>
-								<input type="number" step="0.01" name="total_price" placeholder="250.00" class="form-input tabular-nums w-full"/>
+								<input type="number" step="0.01" name="total_price" placeholder="250.00" class="form-input text-xs tabular-nums w-full"/>
 							</div>
 						</div>
 
-						<div style="display:grid; grid-template-columns:1fr 1fr; gap:0.9rem;">
+						<div class="d-grid grid-cols-2 gap-3">
 							<div>
-								<label class="form-label">
+								<label class="form-label text-xs font-bold text-primary mb-1 d-block">
 									تاريخ بدء العرض
 								</label>
-								<input type="date" name="start_date" class="form-input" style="width:100%; color-scheme:dark;"/>
+								<input type="date" name="start_date" class="form-input text-xs w-full" style="color-scheme:dark;"/>
 							</div>
 
 							<div>
-								<label class="form-label">
+								<label class="form-label text-xs font-bold text-primary mb-1 d-block">
 									تاريخ انتهاء العرض
 								</label>
-								<input type="date" name="end_date" class="form-input" style="width:100%; color-scheme:dark;"/>
+								<input type="date" name="end_date" class="form-input text-xs w-full" style="color-scheme:dark;"/>
 							</div>
 						</div>
 
 						<div>
-							<label class="form-label">
+							<label class="form-label text-xs font-bold text-primary mb-1 d-block">
 								الحد الأدنى للطلب (ج.م)
 							</label>
-							<input type="number" step="0.01" name="min_order_amount" placeholder="500.00" class="form-input tabular-nums w-full"/>
+							<input type="number" step="0.01" name="min_order_amount" placeholder="500.00" class="form-input text-xs tabular-nums w-full"/>
 						</div>
 
 						<div>
-							<label class="form-label">
-								صورة البانر الترويجي للعرض
+							<label class="form-label text-xs font-bold text-primary mb-1 d-block">
+								صورة أو بانر ترويجي للعرض
 							</label>
-							<input type="text" name="image" placeholder="رابط الصورة أو مسار البانر..." class="form-input w-full"/>
+							<input type="text" name="image" placeholder="رابط الصورة أو مسار البانر..." class="form-input text-xs w-full"/>
 						</div>
 					</div>
 				</div>
 
 				<!-- Section 2: Products Selection & Custom Offer Pricing -->
-				<div style="background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-2xl); padding:1.75rem; display:flex; flex-direction:column; gap:1.25rem;">
-					<div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem; border-bottom:1px solid var(--border); padding-bottom:1rem;">
+				<div class="glass-panel p-6 d-flex flex-col gap-4">
+					<div class="flex-between items-center flex-wrap gap-4 pb-3 border-b">
 						<div>
-							<h3 style="font-size:1.2rem; font-weight:800; color:var(--text); margin:0;">
-								تخصيص منتجات العرض (Offer Products)
-							</h3>
-							<p style="font-size:0.8rem; color:var(--text-muted); margin:0.2rem 0 0 0;">
-								حدد أصناف الأدوية المشمولة في العرض مع تحديد الكميات والأسعار الخاصة بكل صنف
+							<div class="d-flex items-center gap-2">
+								<span class="text-xl">💊</span>
+								<h3 class="text-lg font-black text-primary m-0">
+									تخصيص منتجات العرض من المخازن (Offer Products)
+								</h3>
+							</div>
+							<p class="text-xs text-secondary mt-1 mb-0">
+								اختر أدوية وتوريدات حقيقية من مخازنك، وحدد الكمية المعروضة والخصم الخاص بكل صنف.
 							</p>
+						</div>
+						
+						<div class="text-xs font-bold text-brand bg-surface-sunken p-2 px-3 rounded-lg border">
+							<span>الأصناف المضافة للعرض: </span>
+							<strong class="tabular-nums font-black" x-text="selectedItems.length"></strong>
 						</div>
 					</div>
 
-					if len(data.Variants) == 0 {
-						<div style="padding:2rem; text-align:center; color:var(--text-muted); font-size:0.875rem;">
-							لا توجد أصناف في الكتالوج حالياً. أضف عروض توريد في الكتالوج أولاً ليتم شمولها في العروض الخاصة.
+					<!-- Product Search & Picker Box -->
+					<div class="position-relative">
+						<label class="form-label text-xs font-bold text-primary mb-1 d-block">
+							🔍 ابحث وأضف منتج من المخازن إلى العرض:
+						</label>
+						<div class="d-flex gap-2">
+							<input
+								type="text"
+								x-model="searchQuery"
+								@focus="showDropdown = true"
+								@input="showDropdown = true"
+								placeholder="اكتب اسم الدواء، الباركود، كود التشغيلة، أو SKU..."
+								class="form-input text-xs flex-1"
+							/>
+							<button type="button" @click="showDropdown = !showDropdown" class="btn btn-secondary btn-sm text-xs font-bold px-3">
+								<span x-text="showDropdown ? 'إغلاق القائمة ▲' : 'استعراض الأصناف ▼'"></span>
+							</button>
 						</div>
-					} else {
-						<div style="overflow-x:auto;">
-							<table style="width:100%; border-collapse:collapse; text-align:start; font-size:0.875rem;">
-								<thead>
-									<tr style="border-bottom:1px solid var(--border); color:var(--text-muted); font-size:0.75rem; text-transform:uppercase;">
-										<th style="padding:0.75rem; width:50px;">شمول</th>
-										<th class="p-sm">الصنف الدوائي</th>
-										<th class="p-sm">السعر قبل الخصم</th>
-										<th class="p-sm">الكمية (Qty)</th>
-										<th class="p-sm">خصم % مخصص</th>
-										<th class="p-sm">سعر العرض المخصص</th>
-									</tr>
-								</thead>
-								<tbody>
-									for _, v := range data.Variants {
-										<tr style="border-bottom:1px solid var(--border);">
-											<td class="p-sm text-center">
-												<input type="checkbox" name="selected_variants" value={ fmt.Sprintf("%d", v.ID) } style="width:17px; height:17px; accent-color:var(--accent);"/>
-											</td>
-											<td class="p-sm">
-												<div class="fw-700 text-primary">{ v.SKU }</div>
-												<div class="text-xs text-muted">رقم التشغيلة: { v.BatchNumber }</div>
-											</td>
-											<td style="padding:0.75rem; font-family:monospace; font-weight:700; color:var(--text);" class="tabular-nums">
-												{ v.Price.String() } ج.م
-											</td>
-											<td class="p-sm">
-												<input type="number" name={ fmt.Sprintf("qty_%d", v.ID) } value="1" min="1" class="form-input tabular-nums" style="width:80px; padding:0.4rem 0.6rem; font-size:0.825rem; text-align:center;"/>
-											</td>
-											<td class="p-sm">
-												<input type="number" step="0.01" name={ fmt.Sprintf("discount_pct_%d", v.ID) } placeholder="0%" class="form-input tabular-nums" style="width:90px; padding:0.4rem 0.6rem; font-size:0.825rem; text-align:center;"/>
-											</td>
-											<td class="p-sm">
-												<input type="number" step="0.01" name={ fmt.Sprintf("custom_price_%d", v.ID) } placeholder="ج.م" class="form-input tabular-nums" style="width:110px; padding:0.4rem 0.6rem; font-size:0.825rem; text-align:center;"/>
-											</td>
-										</tr>
-									}
-								</tbody>
-							</table>
-						</div>
-					}
 
-					<div style="display:flex; justify-content:flex-end; gap:1rem; margin-top:1rem; border-top:1px solid var(--border); padding-top:1.25rem;">
-						<a href="/vendor/offers" class="btn btn-secondary fw-700">إلغاء</a>
-						<button type="submit" class="btn btn-primary btn-lg" style="font-weight:800; padding:0.8rem 2.5rem;">
+						<!-- Autocomplete Results Dropdown -->
+						<div
+							x-show="showDropdown"
+							@click.outside="showDropdown = false"
+							class="position-absolute z-50 w-full bg-surface-raised border rounded-xl shadow-2xl p-2 mt-1 overflow-y-auto"
+							style="max-height: 280px; left: 0; right: 0;"
+							x-cloak
+						>
+							<template x-for="item in filteredItems" :key="item.variant_id">
+								<div
+									@click="addItem(item)"
+									class="p-2 rounded-lg cursor-pointer hover:bg-surface-sunken d-flex items-center justify-between gap-3 border-b text-xs transition-colors"
+								>
+									<div class="d-flex items-center gap-2">
+										<span class="text-base">📦</span>
+										<div>
+											<strong class="text-primary font-bold d-block" x-text="item.name_ar || item.name_en || item.sku"></strong>
+											<div class="text-muted text-xs tabular-nums">
+												<span x-text="'SKU: ' + item.sku"></span>
+												<span x-show="item.batch_number" x-text="' • تشغيلة: ' + item.batch_number"></span>
+												<span x-show="item.warehouse_name" x-text="' • مخزن: ' + item.warehouse_name"></span>
+											</div>
+										</div>
+									</div>
+									<div class="text-end">
+										<span class="badge badge-emerald text-xs tabular-nums font-bold" x-text="item.available_stock + ' عبوة متاحة'"></span>
+										<div class="text-primary font-extrabold tabular-nums mt-1" x-text="item.price + ' ج.م'"></div>
+									</div>
+								</div>
+							</template>
+							<div x-show="filteredItems.length === 0" class="p-4 text-center text-xs text-muted">
+								لا توجد أصناف مطابقة للبحث في المخازن الحالية.
+							</div>
+						</div>
+					</div>
+
+					<!-- Selected Items Table -->
+					<div class="table-container m-0 border rounded-xl overflow-hidden mt-2">
+						<table class="data-table m-0">
+							<thead>
+								<tr>
+									<th style="width: 40px;" class="text-center">#</th>
+									<th>الصنف الدوائي والتشغيلة</th>
+									<th>المخزن والرصيد المتاح</th>
+									<th style="width: 110px;">الكمية (QTY)</th>
+									<th style="width: 120px;">السعر قبل الخصم</th>
+									<th style="width: 120px;">خصم % مخصص</th>
+									<th style="width: 130px;">سعر العرض المخصص</th>
+									<th style="width: 60px;" class="text-center">حذف</th>
+								</tr>
+							</thead>
+							<tbody>
+								<template x-for="(item, idx) in selectedItems" :key="item.variant_id">
+									<tr>
+										<!-- Row Hidden Inputs for Form Submit -->
+										<td class="d-none">
+											<input type="hidden" name="selected_variants" :value="item.variant_id"/>
+											<input type="hidden" :name="'qty_' + item.variant_id" :value="item.qty"/>
+											<input type="hidden" :name="'discount_pct_' + item.variant_id" :value="item.discount_pct"/>
+											<input type="hidden" :name="'custom_price_' + item.variant_id" :value="item.custom_price"/>
+										</td>
+
+										<td class="text-center text-xs text-muted tabular-nums font-bold" x-text="idx + 1"></td>
+										
+										<td>
+											<strong class="text-primary text-xs font-black d-block" x-text="item.name"></strong>
+											<div class="text-xs text-muted tabular-nums mt-0.5">
+												<span x-text="'SKU: ' + item.sku"></span>
+												<span x-show="item.batch" x-text="' • تشغيلة: ' + item.batch"></span>
+											</div>
+										</td>
+
+										<td>
+											<div class="text-xs font-bold text-primary" x-text="item.warehouse || 'المخزن الرئيسي'"></div>
+											<span class="badge badge-emerald text-xs tabular-nums font-bold mt-1" x-text="item.stock + ' عبوة متوفرة'"></span>
+										</td>
+
+										<td>
+											<input
+												type="number"
+												x-model.number="item.qty"
+												min="1"
+												:max="item.stock || 9999"
+												class="form-input text-xs tabular-nums text-center w-full"
+											/>
+										</td>
+
+										<td class="tabular-nums font-bold text-xs text-secondary" x-text="item.original_price_str + ' ج.م'"></td>
+
+										<td>
+											<div class="position-relative">
+												<input
+													type="number"
+													step="0.1"
+													min="0"
+													max="100"
+													x-model.number="item.discount_pct"
+													@input="onDiscountChange(item)"
+													placeholder="0%"
+													class="form-input text-xs tabular-nums text-center w-full"
+												/>
+											</div>
+										</td>
+
+										<td>
+											<div class="position-relative">
+												<input
+													type="number"
+													step="0.01"
+													min="0"
+													x-model.number="item.custom_price"
+													@input="onPriceChange(item)"
+													placeholder="ج.م"
+													class="form-input text-xs tabular-nums text-center w-full font-bold text-brand"
+												/>
+											</div>
+										</td>
+
+										<td class="text-center">
+											<button
+												type="button"
+												@click="removeItem(idx)"
+												class="btn btn-secondary btn-icon btn-sm text-danger"
+												title="إزالة من العرض"
+											>
+												✕
+											</button>
+										</td>
+									</tr>
+								</template>
+
+								<tr x-show="selectedItems.length === 0">
+									<td colspan="8" class="p-8 text-center text-muted text-xs">
+										<div class="text-2xl mb-2">🎁</div>
+										<p class="m-0 font-bold">لم تقم بإضافة أي أصناف للعرض بعد.</p>
+										<span class="text-xs text-secondary">استخدم مربع البحث أعلاه لاختيار وإضافة أدوية من مخازنك.</span>
+									</td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+
+					<div class="flex-between items-center gap-3 pt-4 border-t mt-3">
+						<a href="/vendor/offers" class="btn btn-secondary font-bold text-xs px-5">إلغاء</a>
+						<button type="submit" class="btn btn-primary font-black text-sm px-8 py-2.5">
 							@components.IconCheck("icon-xs")
 							<span>حفظ ونشر العرض الخاص</span>
 						</button>

@@ -3,56 +3,316 @@ package pages
 import (
 	"fmt"
 	"net/url"
+	"strings"
 	"time"
 
 	"github.com/muhiya/dawa24-store/internal/modules/catalog"
 	"github.com/muhiya/dawa24-store/internal/modules/inventory"
+	"github.com/muhiya/dawa24-store/internal/shared/money"
 	"github.com/muhiya/dawa24-store/internal/ui/components"
 	"github.com/muhiya/dawa24-store/internal/ui/layouts"
 )
 
-// AdminProductDetailPage renders master product view.
-templ AdminProductDetailPage(p *catalog.Product, lang, dir string) {
-	@layouts.AdminShell(fmt.Sprintf("تفاصيل المنتج: %s", p.Name.Get("ar")), "products", lang, dir) {
-		<div class="card max-w-2xl mx-auto">
-			<div class="header-row">
-				<div>
-					<h2 class="card-title m-0">{ p.Name.Get("ar") }</h2>
-					<p class="subtitle">SKU: { p.SKU } | باركود: { p.Barcode }</p>
+func formatVariantDiscount(price, discount money.Amount) string {
+	if discount.Minor() == 0 {
+		return "0%"
+	}
+	if price.Minor() > 0 && discount.Minor() < price.Minor() {
+		pct := (float64(discount.Minor()) / float64(price.Minor())) * 100
+		return fmt.Sprintf("%.1f%%", pct)
+	}
+	return fmt.Sprintf("%s%%", discount.String())
+}
+
+// AdminProductDetailPage renders master product view with full specifications and supplier offerings.
+templ AdminProductDetailPage(p *catalog.Product, variants []*catalog.ProductVariant, lang, dir string) {
+	@layouts.AdminShell(fmt.Sprintf("تفاصيل الصنف: %s", p.Name.Get("ar")), "products", lang, dir) {
+		<div class="page-container" style="max-width: 1100px; margin: 0 auto;">
+			
+			<!-- Header Card -->
+			<div class="glass-panel p-6 mb-6">
+				<div class="flex-between items-start flex-wrap gap-4">
+					<div class="d-flex items-start gap-4">
+						<div style="width: 80px; height: 80px; border-radius: var(--radius-xl); overflow: hidden; background: var(--surface-sunken); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+							if p.Image != "" {
+								<img src={ p.Image } alt={ p.Name.Get("ar") } class="w-full h-full object-contain p-1" />
+							} else {
+								<span class="text-3xl">💊</span>
+							}
+						</div>
+
+						<div>
+							<div class="d-flex items-center gap-2 mb-1">
+								if p.Status == catalog.StatusActive {
+									<span class="badge badge-emerald text-xs font-bold">نشط ومتاح في السوق</span>
+								} else {
+									<span class="badge badge-rose text-xs font-bold">موقوف / معطل</span>
+								}
+								if p.IsFeatured {
+									<span class="badge badge-sky text-xs font-bold">مميز ⭐</span>
+								}
+								<span class="text-xs text-muted tabular-nums font-mono">ID: #{ fmt.Sprintf("%d", p.ID) }</span>
+							</div>
+
+							<h1 class="text-2xl font-black text-primary m-0 mb-1">
+								{ p.Name.Get("ar") }
+							</h1>
+
+							if p.Name.Get("en") != "" {
+								<div class="text-sm text-secondary font-medium mb-2" dir="ltr">
+									{ p.Name.Get("en") }
+								</div>
+							}
+
+							<div class="d-flex items-center gap-4 flex-wrap text-xs text-muted">
+								if p.SKU != "" {
+									<div>🏷️ SKU: <strong class="text-primary tabular-nums font-mono">{ p.SKU }</strong></div>
+								}
+								if p.Barcode != "" {
+									<div>📊 باركود: <strong class="text-primary tabular-nums font-mono">{ p.Barcode }</strong></div>
+								}
+								if p.ManufacturingCompanies != "" {
+									<div>🏭 الشركة: <strong class="text-primary">{ p.ManufacturingCompanies }</strong></div>
+								}
+							</div>
+						</div>
+					</div>
+
+					<div class="d-flex items-center gap-2">
+						<a href="/admin/products" class="btn btn-secondary btn-sm font-bold text-xs">
+							@components.IconArrowRight("icon-xs")
+							<span>العودة لقائمة المنتجات</span>
+						</a>
+						<a href={ templ.SafeURL(fmt.Sprintf("/catalog?q=%s", url.QueryEscape(p.Name.Get("ar")))) } target="_blank" class="btn btn-primary btn-sm font-bold text-xs">
+							@components.IconExternalLink("icon-xs")
+							<span>معاينة في المتجر</span>
+						</a>
+					</div>
 				</div>
-				<a href="/admin/products" class="btn btn-secondary btn-sm">العودة للمنتجات</a>
 			</div>
 
-			<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:1.5rem;">
-				<div>
-					<div class="text-sm text-secondary">الاسم العلمي</div>
-					<div style="font-weight:700; margin-top:0.25rem;">{ p.ScientificName }</div>
+			<!-- Stats Strip -->
+			<div class="dashboard-stat-grid mb-6">
+				<div class="stat-card-3d">
+					<div class="stat-card-label text-xs">سعر الجمهور الرسمي</div>
+					<div class="stat-card-value text-primary tabular-nums text-2xl font-black">
+						{ p.Price.String() } <span class="text-xs font-normal">ج.م</span>
+					</div>
+					<div class="stat-card-sub text-muted text-xs mt-1">السعر المعتمد للصيدليات</div>
 				</div>
-				<div>
-					<div class="text-sm text-secondary">الشركة المصنعة / الماركة</div>
-					<div style="font-weight:700; margin-top:0.25rem; color:var(--accent);">
-						if p.ManufacturingCompanies != "" {
-							{ p.ManufacturingCompanies }
+
+				<div class="stat-card-3d">
+					<div class="stat-card-label text-xs">السعر القديم / الخصم</div>
+					<div class="stat-card-value text-brand tabular-nums text-2xl font-black">
+						if p.OldPrice.IsPositive() {
+							{ p.OldPrice.String() } <span class="text-xs font-normal">ج.م</span>
 						} else {
-							<span class="text-muted">غير محدد</span>
+							<span class="text-muted text-base font-normal">—</span>
+						}
+					</div>
+					<div class="stat-card-sub text-muted text-xs mt-1">
+						if p.Discount.IsPositive() {
+							{ fmt.Sprintf("خصم %s ج.م", p.Discount.String()) }
+						} else {
+							<span>لا يوجد خصم مباشر</span>
 						}
 					</div>
 				</div>
-				<div>
-					<div class="text-sm text-secondary">سعر الجمهور القياسي</div>
-					<div class="tabular-nums" style="font-weight:700; margin-top:0.25rem;">{ fmt.Sprintf("%s ج.م", p.Price.String()) }</div>
-				</div>
-				<div>
-					<div class="text-sm text-secondary">الحالة</div>
-					<div style="margin-top:0.25rem;">
-						if p.Status == catalog.StatusActive {
-							<span class="badge badge-emerald">نشط ومتاح</span>
-						} else {
-							<span class="badge badge-rose">معطل</span>
-						}
+
+				<div class="stat-card-3d">
+					<div class="stat-card-label text-xs">مرات الطلب والبيع</div>
+					<div class="stat-card-value text-success tabular-nums text-2xl font-black">
+						{ fmt.Sprintf("%d", p.SoldTimes) }
 					</div>
+					<div class="stat-card-sub text-muted text-xs mt-1">عملية شراء مكتملة</div>
+				</div>
+
+				<div class="stat-card-3d">
+					<div class="stat-card-label text-xs">عروض الموردين الحية</div>
+					<div class="stat-card-value text-sky tabular-nums text-2xl font-black">
+						{ fmt.Sprintf("%d", len(variants)) }
+					</div>
+					<div class="stat-card-sub text-muted text-xs mt-1">عرض توريد مسجل</div>
 				</div>
 			</div>
+
+			<!-- Specifications Grid & Info -->
+			<div class="glass-panel p-6 mb-6">
+				<div class="flex-between items-center pb-3 mb-4 border-b">
+					<div class="d-flex items-center gap-2">
+						<span class="text-lg">📋</span>
+						<h2 class="text-base font-black text-primary m-0">
+							المواصفات والبيانات الدوائية المعتمدة
+						</h2>
+					</div>
+				</div>
+
+				<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1rem;">
+					<div class="p-3 bg-surface-sunken border rounded-lg">
+						<div class="text-xs text-muted mb-1">الاسم العلمي (Scientific Name)</div>
+						<div class="text-xs font-bold text-primary font-mono">
+							if p.ScientificName != "" {
+								{ p.ScientificName }
+							} else {
+								<span class="text-muted">—</span>
+							}
+						</div>
+					</div>
+
+					<div class="p-3 bg-surface-sunken border rounded-lg">
+						<div class="text-xs text-muted mb-1">المادة الفعالة (Active Ingredient)</div>
+						<div class="text-xs font-bold text-primary">
+							if p.Active != "" {
+								{ p.Active }
+							} else {
+								<span class="text-muted">—</span>
+							}
+						</div>
+					</div>
+
+					<div class="p-3 bg-surface-sunken border rounded-lg">
+						<div class="text-xs text-muted mb-1">الشكل الصيدلي (Dosage Form)</div>
+						<div class="text-xs font-bold text-primary">
+							if p.DosageForm != "" {
+								{ p.DosageForm }
+							} else {
+								<span class="text-muted">—</span>
+							}
+						</div>
+					</div>
+
+					<div class="p-3 bg-surface-sunken border rounded-lg">
+						<div class="text-xs text-muted mb-1">التركيز الدوائي (Concentration)</div>
+						<div class="text-xs font-bold text-primary">
+							if p.Concentration != "" {
+								{ p.Concentration }
+							} else {
+								<span class="text-muted">—</span>
+							}
+						</div>
+					</div>
+
+					<div class="p-3 bg-surface-sunken border rounded-lg">
+						<div class="text-xs text-muted mb-1">وحدة التعبئة (Unit)</div>
+						<div class="text-xs font-bold text-primary">
+							if p.Unit != "" {
+								{ p.Unit }
+							} else {
+								<span class="text-muted">—</span>
+							}
+						</div>
+					</div>
+
+					<div class="p-3 bg-surface-sunken border rounded-lg">
+						<div class="text-xs text-muted mb-1">التصنيف الدوائي (Pharmacology)</div>
+						<div class="text-xs font-bold text-primary">
+							if p.Pharmacology != "" {
+								{ p.Pharmacology }
+							} else {
+								<span class="text-muted">—</span>
+							}
+						</div>
+					</div>
+				</div>
+
+				if p.Description.Get("ar") != "" || p.Description.Get("en") != "" {
+					<div class="mt-4 pt-4 border-t">
+						<div class="text-xs font-bold text-muted mb-1">الوصف ودواعي الاستعمال:</div>
+						<div class="text-xs text-primary leading-relaxed">
+							if p.Description.Get("ar") != "" {
+								{ p.Description.Get("ar") }
+							} else {
+								{ p.Description.Get("en") }
+							}
+						</div>
+					</div>
+				}
+			</div>
+
+			<!-- Linked Vendor Offers / Variants -->
+			<div class="glass-panel p-0 mb-6 overflow-hidden">
+				<div class="p-4 border-b flex-between items-center flex-wrap gap-2">
+					<div class="d-flex items-center gap-2">
+						<span class="text-lg">🏢</span>
+						<h3 class="text-base font-black text-primary m-0">
+							عروض التوريد المسجلة من الموردين لهذا الصنف ({ fmt.Sprintf("%d", len(variants)) })
+						</h3>
+					</div>
+				</div>
+
+				if len(variants) == 0 {
+					<div class="p-8 text-center empty-state-glass">
+						<div class="text-3xl mb-2">📦</div>
+						<h4 class="text-base font-bold text-primary mb-1">لا توجد عروض توريد مسجلة حالياً</h4>
+						<p class="text-xs text-secondary max-w-md mx-auto">لم يقم أي مورد بإدراج كميات أو عروض أسعار لهذا الصنف الدوائي بعد.</p>
+					</div>
+				} else {
+					<div class="table-container m-0">
+						<table class="data-table m-0">
+							<thead>
+								<tr>
+									<th>اسم العرض / التشغيلة</th>
+									<th>المورد</th>
+									<th>سعر الجمهور</th>
+									<th>نسبة الخصم</th>
+									<th>المخزون المتوفر</th>
+									<th>تاريخ الصلاحية</th>
+									<th>الحالة</th>
+								</tr>
+							</thead>
+							<tbody>
+								for _, v := range variants {
+									<tr>
+										<td>
+											<div class="font-bold text-xs text-primary">
+												if v.Name.Get("ar") != "" {
+													{ v.Name.Get("ar") }
+												} else {
+													<span>عرض قياسي</span>
+												}
+											</div>
+											if v.BatchNumber != "" {
+												<div class="text-xs text-muted font-mono">تشغيلة: { v.BatchNumber }</div>
+											}
+										</td>
+										<td>
+											<span class="badge badge-sky text-xs font-mono">منشأة #{ fmt.Sprintf("%d", v.OrganizationID) }</span>
+										</td>
+										<td class="tabular-nums font-bold text-xs text-primary">
+											{ v.Price.String() } ج.م
+										</td>
+										<td class="tabular-nums font-bold text-xs text-brand">
+											{ formatVariantDiscount(v.Price, v.Discount) }
+										</td>
+										<td class="tabular-nums font-bold text-xs">
+											if v.StockQty > 0 {
+												<span class="badge badge-emerald text-xs">{ fmt.Sprintf("%d وحدة", v.StockQty) }</span>
+											} else {
+												<span class="badge badge-slate text-xs">0 وحدة</span>
+											}
+										</td>
+										<td class="text-xs text-muted tabular-nums">
+											if v.ExpiryDate != nil {
+												{ v.ExpiryDate.Format("2006-01-02") }
+											} else {
+												<span>—</span>
+											}
+										</td>
+										<td>
+											if string(v.Status) == "active" {
+												<span class="badge badge-emerald text-xs">نشط</span>
+											} else {
+												<span class="badge badge-slate text-xs">معطل</span>
+											}
+										</td>
+									</tr>
+								}
+							</tbody>
+						</table>
+					</div>
+				}
+			</div>
+
 		</div>
 	}
 }
@@ -124,11 +384,10 @@ templ AdminProductChildrenPage(data AdminProductChildrenData, lang, dir string) 
 									<th style="width:50px;">الصورة</th>
 									<th>المنتج / SKU</th>
 									<th>المنظمة (المورد)</th>
-									<th>السعر قبل الخصم</th>
-									<th>الخصم</th>
+									<th>سعر الجمهور</th>
+									<th>نسبة الخصم</th>
 									<th>المخزون</th>
 									<th>حالة المنتج</th>
-									<th>حالة الصورة</th>
 									<th class="text-end">الإجراءات</th>
 								</tr>
 							</thead>
@@ -189,21 +448,21 @@ templ AdminProductChildrenPage(data AdminProductChildrenData, lang, dir string) 
 											</div>
 										</td>
 
-										<!-- 4. السعر قبل الخصم -->
+										<!-- 4. سعر الجمهور -->
 										<td>
 											<div class="tabular-nums fw-800 text-primary text-base">
 												@components.MoneyDisplay(components.MoneyDisplayProps{ Amount: v.Price })
 											</div>
 										</td>
 
-										<!-- 5. الخصم -->
+										<!-- 5. نسبة الخصم -->
 										<td>
-											<div class="tabular-nums fw-800 text-base">
-												@components.MoneyDisplay(components.MoneyDisplayProps{ Amount: v.Discount })
+											<div class="tabular-nums fw-800 text-brand text-base">
+												{ formatVariantDiscount(v.Price, v.Discount) }
 											</div>
 										</td>
 
-										<!-- 5. المخزون -->
+										<!-- 6. المخزون -->
 										<td>
 											if v.StockQty > 0 {
 												<span class="badge badge-emerald tabular-nums" style="font-size:0.825rem; font-weight:800;">
@@ -221,23 +480,12 @@ templ AdminProductChildrenPage(data AdminProductChildrenData, lang, dir string) 
 											}
 										</td>
 
-										<!-- 6. حالة المنتج -->
+										<!-- 7. حالة المنتج -->
 										<td>
 											if string(v.Status) == "active" {
 												<span class="badge badge-emerald">نشط ومعروض</span>
 											} else {
 												<span class="badge badge-slate">موقوف / معطل</span>
-											}
-										</td>
-
-										<!-- 7. حالة الصورة -->
-										<td>
-											if v.Image != "" {
-												<span class="badge badge-emerald" style="font-size:11px; font-weight:700;">خاصة بالصنف ✓</span>
-											} else if item.IsParentImage {
-												<span class="badge badge-sky" style="font-size:11px; font-weight:700;" title="تم استخدام صورة الصنف الأساسي المعتمد">من الصنف الأساسي ⮞</span>
-											} else {
-												<span class="badge badge-amber" style="font-size:11px; font-weight:700;">غير متوفرة ⚠️</span>
 											}
 										</td>
 
@@ -707,8 +955,8 @@ templ AdminWarehouseDetailPage(data AdminWarehouseDetailView, lang, dir string) 
 									<th>اسم الدواء والصنف</th>
 									<th>كود SKU والباركود</th>
 									<th>رقم التشغيلة والصلاحية</th>
-									<th>سعر التوريد قبل الخصم</th>
-									<th>الخصم</th>
+									<th>سعر الجمهور</th>
+									<th>نسبة الخصم</th>
 									<th>قابل للتفاوض</th>
 									<th>الرصيد المتاح</th>
 									<th>حد الأمان</th>
@@ -775,10 +1023,14 @@ templ AdminWarehouseDetailPage(data AdminWarehouseDetailView, lang, dir string) 
 											}
 										</td>
 										<td class="tabular-nums" style="font-weight:700; color:var(--emerald); font-size:0.9rem;">
-											if st.DiscountStr != "" && st.DiscountStr != "0.00" {
-												{ st.DiscountStr } <span style="font-size:0.75rem; font-weight:600; color:var(--text-secondary);">ج.م</span>
+											if st.DiscountStr != "" && st.DiscountStr != "0.00" && st.DiscountStr != "0" {
+												if strings.HasSuffix(st.DiscountStr, "%") {
+													{ st.DiscountStr }
+												} else {
+													{ st.DiscountStr }%
+												}
 											} else {
-												<span style="color:var(--text-muted); font-size:0.8rem;">0.00 ج.م</span>
+												<span style="color:var(--text-muted); font-size:0.8rem;">0%</span>
 											}
 										</td>
 										<td>
@@ -1264,14 +1516,14 @@ templ AdminTempWarehousesPage(data *AdminTempWarehousesData, lang, dir string) {
 			<!-- 5. Warehouse Items Modal (Matching Image 3) -->
 			<div
 				x-show="itemsModal"
-				style="position:fixed; inset:0; z-index:99999; background:rgba(15,23,42,0.75); backdrop-filter:blur(6px); display:flex; align-items:center; justify-content:center; padding:1.25rem;"
+				style="position:fixed; top:0; left:0; right:0; bottom:0; width:100vw; height:100vh; z-index:99999; background:rgba(15,23,42,0.75); backdrop-filter:blur(4px); display:flex; align-items:center; justify-content:center; padding:1.25rem; margin:0; box-sizing:border-box;"
 				x-cloak
 				@keydown.escape.window="itemsModal = false"
 				@click.self="itemsModal = false"
 			>
 				<div
 					class="card mb-0"
-					style="max-width:920px; width:100%; max-height:92vh; display:flex; flex-direction:column; overflow:hidden; padding:0; background:var(--surface-raised); border-radius:var(--radius-2xl); border:1px solid var(--border); box-shadow:var(--shadow-2xl);"
+					style="max-width:920px; width:100%; max-height:90vh; display:flex; flex-direction:column; overflow:hidden; padding:0; background:var(--surface-raised); border-radius:var(--radius-2xl); border:1px solid var(--border); box-shadow:var(--shadow-2xl); margin:auto;"
 				>
 					<!-- Modal Top Header (Image 3) -->
 					<div style="padding:1.25rem 1.75rem; border-bottom:1px solid var(--border-subtle); display:flex; justify-content:space-between; align-items:center; background:var(--surface);">
@@ -1327,8 +1579,8 @@ templ AdminTempWarehousesPage(data *AdminTempWarehousesData, lang, dir string) {
 									<tr>
 										<th style="min-width:120px;">الكود</th>
 										<th style="min-width:320px;">اسم المنتج</th>
-										<th style="min-width:130px;">السعر (سعر الجمهور)</th>
-										<th style="min-width:110px;">الخصم</th>
+										<th style="min-width:130px;">سعر الجمهور</th>
+										<th style="min-width:110px;">نسبة الخصم</th>
 										<th style="width:60px; text-align:center;">حذف</th>
 									</tr>
 								</thead>
@@ -1344,7 +1596,7 @@ templ AdminTempWarehousesPage(data *AdminTempWarehousesData, lang, dir string) {
 											</td>
 
 											<!-- Public Price -->
-											<td class="tabular-nums font-bold" style="font-size:0.95rem; color:var(--text);" x-text="row.price + ' EGP'"></td>
+											<td class="tabular-nums font-bold" style="font-size:0.95rem; color:var(--text);" x-text="row.price + ' ج.م'"></td>
 
 											<!-- Discount -->
 											<td class="tabular-nums">
@@ -1418,13 +1670,14 @@ templ AdminTempWarehousesPage(data *AdminTempWarehousesData, lang, dir string) {
 			<!-- 6. Upload & Column Mapping Modal with Auto-Guessing -->
 			<div
 				x-show="uploadModal"
-				style="position:fixed; inset:0; z-index:99999; background:rgba(15,23,42,0.75); backdrop-filter:blur(6px); display:flex; align-items:center; justify-content:center; padding:1.25rem;"
+				style="position:fixed; top:0; left:0; right:0; bottom:0; width:100vw; height:100vh; z-index:99999; background:rgba(15,23,42,0.75); backdrop-filter:blur(4px); display:flex; align-items:center; justify-content:center; padding:1.25rem; margin:0; box-sizing:border-box;"
 				x-cloak
 				@keydown.escape.window="uploadModal = false"
+				@click.self="uploadModal = false"
 			>
 				<div
 					class="card mb-0"
-					style="max-width:620px; width:100%; max-height:92vh; overflow-y:auto; padding:1.75rem; background:var(--surface-raised); border-radius:var(--radius-2xl); border:1px solid var(--border); box-shadow:var(--shadow-2xl);"
+					style="max-width:620px; width:100%; max-height:90vh; overflow-y:auto; padding:1.75rem; background:var(--surface-raised); border-radius:var(--radius-2xl); border:1px solid var(--border); box-shadow:var(--shadow-2xl); margin:auto;"
 				>
 					<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.25rem;">
 						<div>
@@ -1560,24 +1813,27 @@ type AdminSavingProductsData struct {
 // AdminSavingProductsPage renders the full platform-wide saving products manager for admins.
 templ AdminSavingProductsPage(data AdminSavingProductsData, lang, dir string) {
 	@layouts.AdminShell("إدارة منتجات التوفير للمستخدمين (Saving Products)", "saving_products", lang, dir) {
-		<div style="display:flex; flex-direction:column; gap:1.5rem; max-width:1400px; margin:0 auto 3rem auto;">
+		<div class="page-container">
 			
 			<!-- Header Banner -->
-			<div class="card mb-0" style="border:1px solid var(--border); background:var(--surface-raised); border-radius:var(--radius-xl); padding:1.75rem;">
-				<div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1.25rem;">
-					<div>
-						<div style="display:flex; align-items:center; gap:0.75rem; margin-bottom:0.35rem;">
-							<div class="b2b-icon-box">
-								@components.IconTag("icon-md")
-							</div>
-							<h1 class="text-xl fw-800 text-primary m-0">منتجات التوفير لجميع مستخدمي المنصة</h1>
+			<div class="glass-panel p-6 mb-6">
+				<div class="flex-between items-center flex-wrap gap-4">
+					<div class="d-flex items-center gap-3">
+						<div class="user-avatar-badge text-xl">
+							🏷️
 						</div>
-						<p class="text-sm text-secondary m-0">
-							متابعة ورصد قوائم منتجات التوفير والأسعار المستهدفة المسجلة من قبل الصيدليات والعملاء بالمنظومة.
-						</p>
+						<div>
+							<h1 class="text-2xl font-black text-primary m-0">
+								منتجات التوفير لجميع مستخدمي المنصة
+							</h1>
+							<p class="text-sm text-secondary m-0 mt-1">
+								متابعة ورصد قوائم منتجات التوفير والأسعار المستهدفة المسجلة من قبل الصيدليات والعملاء بالمنظومة
+							</p>
+						</div>
 					</div>
-					<div class="row-center">
-						<a href="/admin/saving-products" class="btn btn-secondary btn-sm row-center-sm">
+
+					<div class="d-flex items-center gap-2">
+						<a href="/admin/saving-products" class="btn btn-secondary btn-sm font-bold text-xs">
 							@components.IconRefresh("icon-xs")
 							<span>تحديث البيانات</span>
 						</a>
@@ -1587,45 +1843,51 @@ templ AdminSavingProductsPage(data AdminSavingProductsData, lang, dir string) {
 
 			<!-- Stats KPI Cards -->
 			if data.Stats != nil {
-				<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:1rem;">
-					<div class="card mb-0" style="padding:1.25rem; border:1px solid var(--border); border-radius:var(--radius-lg); background:var(--surface);">
-						<div style="font-size:0.825rem; font-weight:600; color:var(--text-secondary); margin-bottom:0.35rem;">إجمالي منتجات التوفير</div>
-						<div class="tabular-nums" style="font-size:1.75rem; font-weight:800; color:var(--text);">{ fmt.Sprintf("%d", data.Stats.TotalProducts) }</div>
-						<div style="font-size:0.75rem; color:var(--text-muted); margin-top:0.25rem;">منتج مسجل عبر المنصة</div>
-					</div>
-
-					<div class="card mb-0" style="padding:1.25rem; border:1px solid var(--border); border-radius:var(--radius-lg); background:var(--surface);">
-						<div style="font-size:0.825rem; font-weight:600; color:var(--text-secondary); margin-bottom:0.35rem;">المستخدمون والمنشآت</div>
-						<div class="tabular-nums" style="font-size:1.75rem; font-weight:800; color:var(--accent);">{ fmt.Sprintf("%d", data.Stats.TotalUsers) } <span style="font-size:1rem; font-weight:600; color:var(--text-secondary);">مستخدم / { fmt.Sprintf("%d", data.Stats.TotalOrganizations) } منشأة</span></div>
-						<div style="font-size:0.75rem; color:var(--text-muted); margin-top:0.25rem;">أصحاب طلبات التوفير</div>
-					</div>
-
-					<div class="card mb-0" style="padding:1.25rem; border:1px solid var(--border); border-radius:var(--radius-lg); background:var(--surface);">
-						<div style="font-size:0.825rem; font-weight:600; color:var(--text-secondary); margin-bottom:0.35rem;">إجمالي الكميات المطلوبة</div>
-						<div class="tabular-nums" style="font-size:1.75rem; font-weight:800; color:var(--success);">{ fmt.Sprintf("%.0f", data.Stats.TotalQuantity) }</div>
-						<div style="font-size:0.75rem; color:var(--text-muted); margin-top:0.25rem;">وحدة / عبوة دوائية</div>
-					</div>
-
-					<div class="card mb-0" style="padding:1.25rem; border:1px solid var(--border); border-radius:var(--radius-lg); background:var(--surface);">
-						<div style="font-size:0.825rem; font-weight:600; color:var(--text-secondary); margin-bottom:0.35rem;">حالة الربط بالكتالوج</div>
-						<div style="display:flex; align-items:center; gap:0.5rem; margin-top:0.25rem;">
-							<span class="badge badge-emerald" style="font-size:0.825rem; padding:0.3rem 0.6rem;">{ fmt.Sprintf("%d", data.Stats.CountLinked) } مربوط</span>
-							<span class="badge badge-amber" style="font-size:0.825rem; padding:0.3rem 0.6rem;">{ fmt.Sprintf("%d", data.Stats.CountUnlinked) } غير مربوط</span>
+				<div class="dashboard-stat-grid mb-6">
+					<div class="stat-card-3d">
+						<div class="stat-card-label text-xs">إجمالي منتجات التوفير</div>
+						<div class="stat-card-value text-primary tabular-nums text-2xl font-black">
+							{ fmt.Sprintf("%d", data.Stats.TotalProducts) }
 						</div>
-						<div style="font-size:0.75rem; color:var(--text-muted); margin-top:0.35rem;">ربط مع الأدوية المعتمدة</div>
+						<div class="stat-card-sub text-muted text-xs mt-1">منتج مسجل عبر المنصة</div>
+					</div>
+
+					<div class="stat-card-3d">
+						<div class="stat-card-label text-xs">المستخدمون والمنشآت</div>
+						<div class="stat-card-value text-brand tabular-nums text-2xl font-black">
+							{ fmt.Sprintf("%d", data.Stats.TotalUsers) } <span class="text-xs font-normal text-secondary">مستخدم / { fmt.Sprintf("%d", data.Stats.TotalOrganizations) } منشأة</span>
+						</div>
+						<div class="stat-card-sub text-muted text-xs mt-1">أصحاب طلبات التوفير</div>
+					</div>
+
+					<div class="stat-card-3d">
+						<div class="stat-card-label text-xs">إجمالي الكميات المطلوبة</div>
+						<div class="stat-card-value text-success tabular-nums text-2xl font-black">
+							{ fmt.Sprintf("%.0f", data.Stats.TotalQuantity) }
+						</div>
+						<div class="stat-card-sub text-muted text-xs mt-1">وحدة / عبوة دوائية</div>
+					</div>
+
+					<div class="stat-card-3d">
+						<div class="stat-card-label text-xs">حالة الربط بالكتالوج</div>
+						<div class="d-flex items-center gap-2 mt-1">
+							<span class="badge badge-emerald text-xs font-bold">{ fmt.Sprintf("%d", data.Stats.CountLinked) } مربوط</span>
+							<span class="badge badge-amber text-xs font-bold">{ fmt.Sprintf("%d", data.Stats.CountUnlinked) } غير مربوط</span>
+						</div>
+						<div class="stat-card-sub text-muted text-xs mt-1">ربط مع الأدوية المعتمدة</div>
 					</div>
 				</div>
 			}
 
 			<!-- Filter & Search Toolbar -->
-			<div class="card mb-0" style="border:1px solid var(--border); border-radius:var(--radius-lg); padding:1.25rem; background:var(--surface);">
+			<div class="glass-panel p-5 mb-6">
 				<form method="GET" action="/admin/saving-products" class="stack-md">
-					<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:1rem; align-items:flex-end;">
+					<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:1rem; align-items:flex-end;">
 						
 						<!-- Org Selector -->
 						<div class="form-group mb-0">
-							<label class="form-label" style="font-size:0.825rem; font-weight:700; color:var(--text-secondary); margin-bottom:0.35rem;">المنشأة / الصيدلية</label>
-							<select name="org_id" class="form-input" style="font-size:0.875rem; height:42px;">
+							<label class="form-label text-xs font-bold text-secondary mb-1">المنشأة / الصيدلية</label>
+							<select name="org_id" class="form-input text-xs w-full">
 								<option value="">-- كل المنشآت ({ fmt.Sprintf("%d", len(data.Organizations)) }) --</option>
 								for _, o := range data.Organizations {
 									<option value={ fmt.Sprintf("%d", o.ID) } selected?={ data.SelectedOrgID == o.ID }>
@@ -1637,8 +1899,8 @@ templ AdminSavingProductsPage(data AdminSavingProductsData, lang, dir string) {
 
 						<!-- User Selector -->
 						<div class="form-group mb-0">
-							<label class="form-label" style="font-size:0.825rem; font-weight:700; color:var(--text-secondary); margin-bottom:0.35rem;">المستخدم / الصيدلي</label>
-							<select name="user_id" class="form-input" style="font-size:0.875rem; height:42px;">
+							<label class="form-label text-xs font-bold text-secondary mb-1">المستخدم / الصيدلي</label>
+							<select name="user_id" class="form-input text-xs w-full">
 								<option value="">-- كل المستخدمين ({ fmt.Sprintf("%d", len(data.Users)) }) --</option>
 								for _, u := range data.Users {
 									<option value={ fmt.Sprintf("%d", u.ID) } selected?={ data.SelectedUserID == u.ID }>
@@ -1650,8 +1912,8 @@ templ AdminSavingProductsPage(data AdminSavingProductsData, lang, dir string) {
 
 						<!-- Linking Filter -->
 						<div class="form-group mb-0">
-							<label class="form-label" style="font-size:0.825rem; font-weight:700; color:var(--text-secondary); margin-bottom:0.35rem;">حالة الربط بالكتالوج</label>
-							<select name="filter" class="form-input" style="font-size:0.875rem; height:42px;">
+							<label class="form-label text-xs font-bold text-secondary mb-1">حالة الربط بالكتالوج</label>
+							<select name="filter" class="form-input text-xs w-full">
 								<option value="all" selected?={ data.ActiveFilter == "all" || data.ActiveFilter == "" }>جميع الحالات</option>
 								<option value="linked" selected?={ data.ActiveFilter == "linked" }>مربوط بكتالوج المنصة فقط</option>
 								<option value="unlinked" selected?={ data.ActiveFilter == "unlinked" }>غير مربوط (يحتاج مطابقة)</option>
@@ -1660,31 +1922,27 @@ templ AdminSavingProductsPage(data AdminSavingProductsData, lang, dir string) {
 
 						<!-- Search Query -->
 						<div class="form-group mb-0">
-							<label class="form-label" style="font-size:0.825rem; font-weight:700; color:var(--text-secondary); margin-bottom:0.35rem;">بحث بالاسم أو الكود</label>
-							<div style="position:relative;">
-								<input 
-									type="text" 
-									name="q" 
-									value={ data.SearchQuery } 
-									placeholder="اسم الدواء، SKU، اسم المستخدم..." 
-									class="form-input" 
-									style="padding-inline-start:2.25rem; font-size:0.875rem; height:42px;"
-								/>
-								<div style="position:absolute; inset-inline-start:0.75rem; top:50%; transform:translateY(-50%); color:var(--text-muted); pointer-events:none;">
-									@components.IconSearch("icon-xs")
-								</div>
-							</div>
+							<label class="form-label text-xs font-bold text-secondary mb-1">بحث بالاسم أو الكود</label>
+							<input 
+								type="text" 
+								name="q" 
+								value={ data.SearchQuery } 
+								placeholder="اسم الدواء، SKU، اسم المستخدم..." 
+								class="form-input text-xs w-full"
+							/>
 						</div>
 					</div>
 
 					<!-- Filter Actions -->
-					<div style="display:flex; justify-content:flex-end; gap:0.75rem; align-items:center; border-top:1px solid var(--border-subtle); padding-top:0.75rem;">
-						if data.SelectedOrgID > 0 || data.SelectedUserID > 0 || data.SearchQuery != "" || (data.ActiveFilter != "all" && data.ActiveFilter != "") {
-							<a href="/admin/saving-products" class="btn btn-ghost btn-sm text-muted">
-								إلغاء التصفية
-							</a>
-						}
-						<button type="submit" class="btn btn-primary btn-sm" style="display:flex; align-items:center; gap:0.4rem; padding:0.5rem 1.25rem;">
+					<div class="flex-between items-center pt-3 border-t mt-3 flex-wrap gap-2">
+						<div>
+							if data.SelectedOrgID > 0 || data.SelectedUserID > 0 || data.SearchQuery != "" || (data.ActiveFilter != "all" && data.ActiveFilter != "") {
+								<a href="/admin/saving-products" class="btn btn-ghost btn-sm font-bold text-xs text-muted">
+									إلغاء التصفية
+								</a>
+							}
+						</div>
+						<button type="submit" class="btn btn-primary btn-sm font-bold text-xs px-4">
 							@components.IconSearch("icon-xs")
 							<span>تطبيق الفلترة والبحث</span>
 						</button>
@@ -1693,23 +1951,21 @@ templ AdminSavingProductsPage(data AdminSavingProductsData, lang, dir string) {
 			</div>
 
 			<!-- Saving Products Table -->
-			<div class="card mb-0" style="border:1px solid var(--border); border-radius:var(--radius-xl); padding:0; overflow:hidden; background:var(--surface);">
-				<div style="padding:1.25rem 1.5rem; border-bottom:1px solid var(--border-subtle); display:flex; justify-content:space-between; align-items:center;">
-					<div style="font-weight:700; font-size:1rem; color:var(--text);">
+			<div class="glass-panel p-0 mb-6 overflow-hidden">
+				<div class="p-4 border-b flex-between items-center">
+					<div class="text-sm font-black text-primary">
 						سجلات منتجات التوفير ({ fmt.Sprintf("%d", len(data.Items)) })
 					</div>
 				</div>
 
 				if len(data.Items) == 0 {
-					<div style="padding:4rem 2rem; text-align:center;">
-						<div style="width:54px; height:54px; border-radius:var(--radius-full); background:var(--surface-raised); color:var(--text-muted); display:flex; align-items:center; justify-content:center; margin:0 auto 1rem auto;">
-							@components.IconTag("icon-md")
-						</div>
-						<h3 style="font-size:1.1rem; font-weight:700; color:var(--text); margin:0 0 0.5rem 0;">لا توجد نتائج مطابقة</h3>
-						<p style="font-size:0.875rem; color:var(--text-secondary); max-width:420px; margin:0 auto 1.5rem auto;">
+					<div class="p-8 text-center empty-state-glass">
+						<div class="text-4xl mb-3">🏷️</div>
+						<h3 class="text-base font-black text-primary mb-2">لا توجد نتائج مطابقة</h3>
+						<p class="text-xs text-secondary max-w-md mx-auto mb-4">
 							لم يتم العثور على منتجات توفير تطابق معايير الفلترة المحددة. جرب تغيير خيارات البحث أو إعادة ضبط التصفية.
 						</p>
-						<a href="/admin/saving-products" class="btn btn-secondary btn-sm">عرض كل منتجات التوفير</a>
+						<a href="/admin/saving-products" class="btn btn-secondary btn-sm font-bold text-xs">عرض كل منتجات التوفير</a>
 					</div>
 				} else {
 					<div class="table-container m-0">
@@ -1730,71 +1986,71 @@ templ AdminSavingProductsPage(data AdminSavingProductsData, lang, dir string) {
 							<tbody>
 								for _, item := range data.Items {
 									<tr>
-										<td class="tabular-nums text-muted text-sm">
+										<td class="tabular-nums text-muted text-xs font-mono">
 											#{ fmt.Sprintf("%d", item.ID) }
 										</td>
 										<td>
-											<div class="fw-700 text-primary">{ item.NameProduct }</div>
+											<div class="font-bold text-xs text-primary">{ item.NameProduct }</div>
 											if item.SKU != "" {
-												<div style="font-size:0.75rem; color:var(--text-muted); font-family:monospace; margin-top:2px;">
+												<div class="text-xs text-muted font-mono mt-0.5">
 													SKU: { item.SKU }
 												</div>
 											}
 										</td>
 										<td>
-											<div style="display:flex; flex-direction:column; gap:2px;">
-												<div style="font-weight:600; color:var(--text); font-size:0.875rem;">
-													{ item.UserName }
-												</div>
-												<div style="display:flex; align-items:center; gap:0.4rem; font-size:0.75rem; color:var(--text-secondary);">
-													<span class="badge badge-secondary" style="font-size:0.7rem; padding:1px 6px;">
-														{ item.OrganizationName }
-													</span>
-													if item.UserPhone != "" {
-														<span dir="ltr" class="tabular-nums">{ item.UserPhone }</span>
-													}
-												</div>
+											<div class="font-bold text-xs text-primary">
+												{ item.UserName }
+											</div>
+											<div class="d-flex items-center gap-1 text-xs text-secondary mt-0.5">
+												<span class="badge badge-sky text-xs font-mono">
+													{ item.OrganizationName }
+												</span>
+												if item.UserPhone != "" {
+													<span dir="ltr" class="tabular-nums text-muted">{ item.UserPhone }</span>
+												}
 											</div>
 										</td>
 										<td>
 											if item.ProductID != nil && *item.ProductID > 0 {
 												<div>
-													<span class="badge badge-emerald" style="font-size:0.75rem; padding:2px 8px; display:inline-flex; align-items:center; gap:4px; margin-bottom:3px;">
-														@components.IconCheck("icon-xs")
+													<span class="badge badge-emerald text-xs font-bold mb-1">
+														@components.IconCheck("icon-xxs")
 														<span>مربوط: #{ fmt.Sprintf("%d", *item.ProductID) }</span>
 													</span>
-													<div style="font-size:0.8rem; color:var(--text-secondary); font-weight:600;">
+													<div class="text-xs text-secondary font-medium">
 														{ item.MasterProductName }
 													</div>
 												</div>
 											} else {
-												<span class="badge badge-amber" style="font-size:0.75rem; padding:2px 8px;">
+												<span class="badge badge-amber text-xs font-bold">
 													غير مربوط بكتالوج
 												</span>
 											}
 										</td>
-										<td class="tabular-nums fw-700 text-primary">
+										<td class="tabular-nums font-bold text-xs text-primary">
 											{ fmt.Sprintf("%.0f", item.Quantity) }
 										</td>
-										<td class="tabular-nums" style="font-weight:700; color:var(--accent);">
+										<td class="tabular-nums font-bold text-xs text-brand">
 											{ fmt.Sprintf("%s ج.م", item.Price.String()) }
 										</td>
-										<td class="tabular-nums" style="font-weight:700; color:var(--success);">
+										<td class="tabular-nums font-bold text-xs text-success">
 											{ fmt.Sprintf("%s ج.م", item.TotalValue.String()) }
 										</td>
-										<td style="font-size:0.8rem; color:var(--text-muted); white-space:nowrap;">
+										<td class="text-xs text-muted tabular-nums whitespace-nowrap">
 											{ item.CreatedAt.Format("2006-01-02 15:04") }
 										</td>
 										<td class="text-end">
-											if item.ProductID != nil && *item.ProductID > 0 {
-												<a href={ templ.SafeURL(fmt.Sprintf("/admin/products/%d", *item.ProductID)) } class="btn btn-secondary btn-sm" title="عرض تفاصيل الصنف بالكتالوج">
-													عرض الصنف
-												</a>
-											} else {
-												<a href={ templ.SafeURL(fmt.Sprintf("/admin/products?q=%s", item.NameProduct)) } class="btn btn-ghost btn-sm" title="بحث في الكتالوج للمطابقة">
-													مطابقة
-												</a>
-											}
+											<div class="d-flex justify-end gap-1">
+												if item.ProductID != nil && *item.ProductID > 0 {
+													<a href={ templ.SafeURL(fmt.Sprintf("/admin/products/%d", *item.ProductID)) } class="btn btn-secondary btn-xs font-bold" title="عرض تفاصيل الصنف بالكتالوج">
+														عرض الصنف
+													</a>
+												} else {
+													<a href={ templ.SafeURL(fmt.Sprintf("/admin/products?q=%s", url.QueryEscape(item.NameProduct))) } class="btn btn-ghost btn-xs font-bold text-brand" title="بحث في الكتالوج للمطابقة">
+														مطابقة
+													</a>
+												}
+											</div>
 										</td>
 									</tr>
 								}

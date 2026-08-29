@@ -2,6 +2,8 @@ package pages
 
 import (
 	"fmt"
+	"net/url"
+	"strconv"
 
 	"github.com/muhiya/dawa24-store/internal/modules/catalog"
 	"github.com/muhiya/dawa24-store/internal/modules/inventory"
@@ -9,15 +11,65 @@ import (
 	"github.com/muhiya/dawa24-store/internal/ui/layouts"
 )
 
-templ VendorInventory(stocks []*inventory.Stock, warehouses []*inventory.Warehouse, variants []*catalog.ProductVariant, lang, dir string, isPartial bool) {
+type VendorInventoryData struct {
+	Stocks      []*inventory.Stock
+	AllStocks   []*inventory.Stock
+	Warehouses  []*inventory.Warehouse
+	Variants    []*catalog.ProductVariant
+	Total       int
+	Page        int
+	PerPage     int
+	TotalPages  int
+	Query       string
+	WarehouseID int64
+	NoticeType  string
+	NoticeMsg   string
+}
+
+func buildInventoryURL(query string, whID int64, page, limit int) string {
+	u, _ := url.Parse("/vendor/inventory")
+	q := u.Query()
+	if query != "" {
+		q.Set("q", query)
+	}
+	if whID > 0 {
+		q.Set("warehouse_id", strconv.FormatInt(whID, 10))
+	}
+	if page > 1 {
+		q.Set("page", strconv.Itoa(page))
+	}
+	if limit > 0 && limit != 25 {
+		q.Set("limit", strconv.Itoa(limit))
+	}
+	u.RawQuery = q.Encode()
+	return u.String()
+}
+
+templ VendorInventory(data VendorInventoryData, lang, dir string, isPartial bool) {
 	if isPartial {
-		@VendorInventoryTable(stocks, warehouses, variants)
+		@VendorInventoryTable(data)
 	} else {
 		@layouts.VendorShell("المخزون والأرصدة | Inventory & Stock", "inventory", lang, dir) {
 			<div class="page-container" x-data="{ adjustModal: false, selectedStock: { id: 0, variantName: '', currentQty: 0 } }">
+				
+				<!-- Notices -->
+				if data.NoticeMsg != "" {
+					if data.NoticeType == "error" {
+						<div class="alert alert-danger mb-4 d-flex items-center gap-3 p-4">
+							<span class="text-xl">⚠️</span>
+							<span class="font-bold text-sm">{ data.NoticeMsg }</span>
+						</div>
+					} else {
+						<div class="alert alert-success mb-4 d-flex items-center gap-3 p-4">
+							<span class="text-xl">✅</span>
+							<span class="font-bold text-sm">{ data.NoticeMsg }</span>
+						</div>
+					}
+				}
+
 				<!-- Header -->
-				<div class="glass-panel p-6 mb-6">
-					<div class="flex-between flex-wrap gap-4">
+				<div class="glass-panel p-6 mb-0">
+					<div class="flex-between items-center flex-wrap gap-4">
 						<div>
 							<div class="d-flex items-center gap-3 mb-1">
 								<div class="user-avatar-badge text-xl">
@@ -47,10 +99,10 @@ templ VendorInventory(stocks []*inventory.Stock, warehouses []*inventory.Warehou
 				</div>
 
 				<!-- Inventory Metrics -->
-				<div class="dashboard-stat-grid mb-6">
+				<div class="dashboard-stat-grid cols-4 mb-0">
 					<div class="stat-card-3d">
 						<div class="stat-card-label">إجمالي الأصناف بالمخزن</div>
-						<div class="stat-card-value text-primary tabular-nums">{ fmt.Sprintf("%d", len(stocks)) }</div>
+						<div class="stat-card-value text-primary tabular-nums">{ fmt.Sprintf("%d", data.Total) }</div>
 					</div>
 
 					<div class="stat-card-3d">
@@ -58,7 +110,7 @@ templ VendorInventory(stocks []*inventory.Stock, warehouses []*inventory.Warehou
 						<div class="stat-card-value text-success tabular-nums">
 							{ fmt.Sprintf("%d", func() int {
 								total := 0
-								for _, s := range stocks {
+								for _, s := range data.AllStocks {
 									total += s.Quantity
 								}
 								return total
@@ -71,7 +123,7 @@ templ VendorInventory(stocks []*inventory.Stock, warehouses []*inventory.Warehou
 						<div class="stat-card-value text-warning tabular-nums">
 							{ fmt.Sprintf("%d", func() int {
 								low := 0
-								for _, s := range stocks {
+								for _, s := range data.AllStocks {
 									if s.Quantity <= s.MinThreshold {
 										low++
 									}
@@ -83,42 +135,91 @@ templ VendorInventory(stocks []*inventory.Stock, warehouses []*inventory.Warehou
 
 					<div class="stat-card-3d">
 						<div class="stat-card-label text-brand">المخازن المغذية</div>
-						<div class="stat-card-value text-brand tabular-nums">{ fmt.Sprintf("%d", len(warehouses)) }</div>
+						<div class="stat-card-value text-brand tabular-nums">{ fmt.Sprintf("%d", len(data.Warehouses)) }</div>
 					</div>
+				</div>
+
+				<!-- Filter & Rows-Per-Page Form -->
+				<div class="glass-panel p-4 mb-0">
+					<form method="GET" action="/vendor/inventory" class="d-flex items-center gap-3 flex-wrap m-0">
+						<div class="flex-1" style="min-width:260px;">
+							<input
+								type="text"
+								name="q"
+								value={ data.Query }
+								placeholder="بحث باسم الصنف، كود التشغيلة، أو رقم الباركود..."
+								class="form-input text-xs w-full"
+							/>
+						</div>
+
+						<div style="min-width:200px;">
+							<select name="warehouse_id" onchange="this.form.submit()" class="form-input text-xs w-full">
+								<option value="">كافة المخازن ({ fmt.Sprintf("%d", len(data.Warehouses)) })</option>
+								for _, wh := range data.Warehouses {
+									<option value={ fmt.Sprintf("%d", wh.ID) } selected?={ data.WarehouseID == wh.ID }>
+										{ wh.Name }
+									</option>
+								}
+							</select>
+						</div>
+
+						<div style="min-width:130px;">
+							<select name="limit" onchange="this.form.submit()" class="form-input text-xs w-full">
+								<option value="10" selected?={ data.PerPage == 10 }>10 عناصر</option>
+								<option value="25" selected?={ data.PerPage == 25 || data.PerPage == 0 }>25 عنصر</option>
+								<option value="50" selected?={ data.PerPage == 50 }>50 عنصر</option>
+								<option value="100" selected?={ data.PerPage == 100 }>100 عنصر</option>
+							</select>
+						</div>
+
+						<button type="submit" class="btn btn-primary btn-sm font-bold text-xs px-4">
+							<span>🔍 بحث</span>
+						</button>
+
+						if data.Query != "" || data.WarehouseID > 0 {
+							<a href="/vendor/inventory" class="btn btn-secondary btn-sm text-xs">
+								<span>إلغاء</span>
+							</a>
+						}
+					</form>
 				</div>
 
 				<!-- Inventory Table Card -->
-				<div class="glass-panel p-0 mb-6 overflow-hidden">
+				<div class="glass-panel p-0 mb-0 overflow-hidden">
 					<div id="vendor-inventory-content">
-						@VendorInventoryTable(stocks, warehouses, variants)
+						@VendorInventoryTable(data)
 					</div>
 				</div>
 
-				<!-- Stock Adjustment Modal -->
+				<!-- Stock Adjustment Modal (True Fixed Centered Overlay) -->
 				<div
 					x-show="adjustModal"
-					class="position-fixed inset-0 z-50 d-flex items-center justify-center p-4"
-					style="background: rgba(0,0,0,0.65); backdrop-filter: blur(4px);"
 					x-cloak
+					x-transition.opacity
+					style="position: fixed; inset: 0; z-index: 99999; display: flex; align-items: center; justify-content: center; background: rgba(15, 23, 42, 0.75); backdrop-filter: blur(8px); padding: 1.5rem;"
 					@keydown.escape.window="adjustModal = false"
 				>
 					<div
-						@click.away="adjustModal = false"
-						class="glass-panel p-6 w-full max-w-md"
+						@click.outside="adjustModal = false"
+						class="glass-panel p-6 w-full"
+						style="max-width: 480px;"
 					>
-						<div class="flex-between items-center mb-4">
-							<h3 class="text-lg font-black text-primary m-0">تسوية وتعديل رصيد المخزن</h3>
-							<button type="button" @click="adjustModal = false" class="btn btn-secondary btn-icon btn-sm">&times;</button>
+						<div class="flex-between items-center mb-4 pb-3 border-b">
+							<div class="d-flex items-center gap-2">
+								<span class="text-xl">🔄</span>
+								<h3 class="text-lg font-black text-primary m-0">تسوية وتعديل رصيد المخزن</h3>
+							</div>
+							<button type="button" @click="adjustModal = false" class="btn btn-secondary btn-icon btn-sm">✕</button>
 						</div>
 
 						<div class="bg-surface-sunken border rounded-xl p-3 mb-4 text-xs">
-							<div class="font-extrabold text-primary" x-text="selectedStock.variantName"></div>
-							<div class="text-muted mt-1">
+							<div class="font-extrabold text-primary text-sm" x-text="selectedStock.variantName"></div>
+							<div class="text-secondary mt-1">
 								الرصيد الحالي بالمخزن: <strong class="tabular-nums text-brand font-black" x-text="selectedStock.currentQty + ' عبوة'"></strong>
 							</div>
 						</div>
 
-						<form :action="'/vendor/inventory/' + selectedStock.id + '/adjust'" method="POST" class="d-flex flex-col gap-4">
+						<form :action="'/vendor/inventory/' + selectedStock.id + '/adjust'" method="POST" class="d-flex flex-col gap-4 m-0">
 							<div>
 								<label class="form-label text-xs font-bold text-primary mb-1 d-block">الكمية المراد إضافتها أو خصمها (+/-) <span class="text-danger">*</span></label>
 								<input type="number" name="delta" required class="form-input tabular-nums w-full" placeholder="+50 (إضافة) أو -10 (خصم)" />
@@ -127,7 +228,7 @@ templ VendorInventory(stocks []*inventory.Stock, warehouses []*inventory.Warehou
 
 							<div>
 								<label class="form-label text-xs font-bold text-primary mb-1 d-block">سبب التعديل</label>
-								<select name="reason" class="form-select text-xs w-full">
+								<select name="reason" class="form-input text-xs w-full">
 									<option value="تسوية جرد دوري">تسوية جرد دوري</option>
 									<option value="استلام شحنة جديدة من المصنع">استلام شحنة جديدة من المصنع</option>
 									<option value="تالف / كسر / انتهاء صلاحية">تالف / كسر / انتهاء صلاحية</option>
@@ -136,24 +237,25 @@ templ VendorInventory(stocks []*inventory.Stock, warehouses []*inventory.Warehou
 								</select>
 							</div>
 
-							<div class="flex-between items-center gap-3 pt-3 border-t">
-								<button type="button" class="btn btn-secondary font-bold" @click="adjustModal = false">إلغاء</button>
-								<button type="submit" class="btn btn-primary font-black px-6">تأكيد تعديل الرصيد</button>
+							<div class="flex-between items-center gap-3 pt-3 border-t mt-2">
+								<button type="button" class="btn btn-secondary font-bold text-xs" @click="adjustModal = false">إلغاء</button>
+								<button type="submit" class="btn btn-primary font-black text-xs px-6">تأكيد تعديل الرصيد</button>
 							</div>
 						</form>
 					</div>
 				</div>
+
 			</div>
 		}
 	}
 }
 
-templ VendorInventoryTable(stocks []*inventory.Stock, warehouses []*inventory.Warehouse, variants []*catalog.ProductVariant) {
-	if len(stocks) == 0 {
-		<div class="glass-panel p-12 text-center empty-state-glass">
+templ VendorInventoryTable(data VendorInventoryData) {
+	if len(data.Stocks) == 0 {
+		<div class="p-12 text-center empty-state-glass">
 			<div class="text-4xl mb-3">📦</div>
-			<h3 class="text-lg font-black text-primary mb-2">لا توجد أرصدة مسجلة بالمخزن</h3>
-			<p class="text-sm text-secondary m-0">لم يتم تسجيل أي تشغيلات أو كميات مخزون بعد. يمكنك إضافة أصناف وتحديد كمياتها الأولية.</p>
+			<h3 class="text-lg font-black text-primary mb-2">لا توجد أصناف تطابق البحث</h3>
+			<p class="text-sm text-secondary m-0">لم يتم العثور على أي تشغيلات أو كميات مخزون مطابقة لمعايير البحث المحددة.</p>
 		</div>
 	} else {
 		<div class="table-container m-0">
@@ -169,7 +271,7 @@ templ VendorInventoryTable(stocks []*inventory.Stock, warehouses []*inventory.Wa
 					</tr>
 				</thead>
 				<tbody>
-					for _, s := range stocks {
+					for _, s := range data.Stocks {
 						<tr>
 							<td>
 								<div class="d-flex items-center gap-3">
@@ -178,18 +280,18 @@ templ VendorInventoryTable(stocks []*inventory.Stock, warehouses []*inventory.Wa
 									</div>
 									<div>
 										<strong class="text-primary text-sm font-extrabold d-block">
-											{ resolveVariantName(s.ProductVariantID, variants) }
+											{ resolveVariantName(s.ProductVariantID, data.Variants) }
 										</strong>
 										<div class="text-xs text-muted tabular-nums">
 											<span>Variant #{ fmt.Sprintf("%d", s.ProductVariantID) }</span>
-											{ resolveVariantMeta(s.ProductVariantID, variants) }
+											{ resolveVariantMeta(s.ProductVariantID, data.Variants) }
 										</div>
 									</div>
 								</div>
 							</td>
 							<td>
 								<div class="font-bold text-primary text-xs">
-									{ resolveWarehouseName(s.WarehouseID, warehouses) }
+									{ resolveWarehouseName(s.WarehouseID, data.Warehouses) }
 								</div>
 								<div class="text-xs text-muted tabular-nums">WH #{ fmt.Sprintf("%d", s.WarehouseID) }</div>
 							</td>
@@ -223,8 +325,8 @@ templ VendorInventoryTable(stocks []*inventory.Stock, warehouses []*inventory.Wa
 							<td class="text-end">
 								<button
 									type="button"
-									class="btn btn-secondary btn-sm font-bold gap-1"
-									@click={ fmt.Sprintf("selectedStock = { id: %d, variantName: %q, currentQty: %d }; adjustModal = true;", s.ID, resolveVariantName(s.ProductVariantID, variants), s.Quantity) }
+									class="btn btn-secondary btn-sm font-bold gap-1 text-xs"
+									@click={ fmt.Sprintf("selectedStock = { id: %d, variantName: %q, currentQty: %d }; adjustModal = true;", s.ID, resolveVariantName(s.ProductVariantID, data.Variants), s.Quantity) }
 								>
 									@components.IconRefresh("icon-xs")
 									<span>تعديل الرصيد</span>
@@ -235,6 +337,37 @@ templ VendorInventoryTable(stocks []*inventory.Stock, warehouses []*inventory.Wa
 				</tbody>
 			</table>
 		</div>
+
+		<!-- Pagination Footer -->
+		if data.TotalPages > 1 {
+			<div class="flex-between items-center p-4 border-t flex-wrap gap-3 bg-surface-sunken">
+				<div class="text-xs text-secondary">
+					عرض الصفحة <strong class="text-primary tabular-nums">{ fmt.Sprintf("%d", data.Page) }</strong> من إجمالي <strong class="text-primary tabular-nums">{ fmt.Sprintf("%d", data.TotalPages) }</strong> صفحات ({ fmt.Sprintf("%d", data.Total) } صنف مسجل)
+				</div>
+				<div class="d-flex items-center gap-1">
+					if data.Page > 1 {
+						<a href={ templ.SafeURL(buildInventoryURL(data.Query, data.WarehouseID, data.Page-1, data.PerPage)) } class="btn btn-secondary btn-sm text-xs font-bold">
+							السابق
+						</a>
+					}
+					for p := 1; p <= data.TotalPages; p++ {
+						if p == 1 || p == data.TotalPages || (p >= data.Page-2 && p <= data.Page+2) {
+							<a
+								href={ templ.SafeURL(buildInventoryURL(data.Query, data.WarehouseID, p, data.PerPage)) }
+								class={ "btn btn-sm text-xs font-bold", templ.KV("btn-primary", p == data.Page), templ.KV("btn-secondary", p != data.Page) }
+							>
+								{ fmt.Sprintf("%d", p) }
+							</a>
+						}
+					}
+					if data.Page < data.TotalPages {
+						<a href={ templ.SafeURL(buildInventoryURL(data.Query, data.WarehouseID, data.Page+1, data.PerPage)) } class="btn btn-secondary btn-sm text-xs font-bold">
+							التالي
+						</a>
+					}
+				</div>
+			</div>
+		}
 	}
 }
 
@@ -279,4 +412,3 @@ func resolveVariantMeta(variantID int64, variants []*catalog.ProductVariant) str
 	}
 	return ""
 }
-

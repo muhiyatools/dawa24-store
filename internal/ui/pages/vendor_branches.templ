@@ -37,168 +37,177 @@ var institutionalWorkCategories = []struct {
 
 templ VendorBranchesPage(data VendorBranchesData, lang, dir string) {
 	@layouts.VendorShell("إدارة الفروع ونقاط التوزيع اللوجستية", "branches", lang, dir) {
-		<div style="display:flex; flex-direction:column; gap:1.75rem;">
+		<div class="page-container">
 			
 			<!-- Header Action Bar -->
-			<div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem; padding-bottom:0.5rem; border-bottom:1px solid var(--border);">
-				<div style="display:flex; align-items:center; gap:1rem;">
-					<div style="width:52px; height:52px; border-radius:var(--radius-xl); background:var(--accent-subtle); border:1px solid var(--accent); color:var(--accent); display:flex; align-items:center; justify-content:center; font-size:1.5rem;">
-						📍
+			<div class="glass-panel p-6 mb-0">
+				<div class="flex-between items-center flex-wrap gap-4">
+					<div class="d-flex items-center gap-3">
+						<div class="user-avatar-badge text-2xl">
+							📍
+						</div>
+						<div>
+							<h1 class="text-2xl font-black text-primary m-0">
+								شبكة الفروع والمخازن المركزية
+							</h1>
+							<p class="text-xs text-secondary mt-1 mb-0">
+								إدارة مواقع الفروع، إحداثيات GPS، الأعمال المؤسسية، وسلاسل التبريد الدوائية
+							</p>
+						</div>
 					</div>
-					<div>
-						<h1 class="text-2xl fw-800 text-primary m-0">
-							شبكة الفروع والمخازن المركزية
-						</h1>
-						<p style="color:var(--text-muted); font-size:0.875rem; margin:0.2rem 0 0 0;">
-							إدارة مواقع الفروع، إحداثيات GPS، الأعمال المؤسسية، وسلاسل التبريد الدوائية
-						</p>
-					</div>
-				</div>
 
-				<div class="row-center">
-					<a href="#branch-form-panel" class="btn btn-primary fw-700">
-						@components.IconPlus("icon-xs")
-						<span>إضافة فرع جديد</span>
-					</a>
+					<div>
+						<a href="#branch-form-panel" class="btn btn-primary font-bold text-xs px-4 py-2 gap-2">
+							@components.IconPlus("icon-xs")
+							<span>إضافة فرع جديد</span>
+						</a>
+					</div>
 				</div>
 			</div>
 
 			<!-- Quick Logistics Metrics -->
-			<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:1rem;">
-				<div style="background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-xl); padding:1.2rem 1.4rem; border-inline-start:4px solid var(--accent);">
-					<div class="text-sm fw-700 text-muted">إجمالي الفروع المسجلة</div>
-					<div style="font-size:1.75rem; font-weight:800; color:var(--text); margin-top:0.25rem;" class="tabular-nums">
+			<div class="dashboard-stat-grid cols-3 mb-0">
+				<div class="stat-card-3d">
+					<div class="stat-card-label">إجمالي الفروع المسجلة</div>
+					<div class="stat-card-value text-primary tabular-nums">
 						{ fmt.Sprintf("%d", len(data.Branches)) }
 					</div>
-					<div style="font-size:0.75rem; color:var(--text-muted); margin-top:0.2rem;">فروع ومخازن نشطة</div>
+					<div class="text-xs text-muted mt-1">فروع ومخازن نشطة</div>
 				</div>
 
-				<div style="background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-xl); padding:1.2rem 1.4rem; border-inline-start:4px solid var(--success);">
-					<div class="text-sm fw-700 text-muted">سلاسل تبريد دوائية</div>
-					<div style="font-size:1.75rem; font-weight:800; color:var(--success); margin-top:0.25rem;" class="tabular-nums">
+				<div class="stat-card-3d">
+					<div class="stat-card-label text-success">سلاسل تبريد دوائية</div>
+					<div class="stat-card-value text-success tabular-nums">
 						{ fmt.Sprintf("%d", countColdStorageBranches(data.Branches)) }
 					</div>
-					<div style="font-size:0.75rem; color:var(--text-muted); margin-top:0.2rem;">مخازن مجهزة (2° - 8° مئوية)</div>
+					<div class="text-xs text-muted mt-1">مخازن مجهزة (2° - 8° مئوية)</div>
 				</div>
 
-				<div style="background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-xl); padding:1.2rem 1.4rem; border-inline-start:4px solid var(--secondary);">
-					<div class="text-sm fw-700 text-muted">المساحة التخزينية الكلية</div>
-					<div style="font-size:1.75rem; font-weight:800; color:var(--text); margin-top:0.25rem;" class="tabular-nums">
+				<div class="stat-card-3d">
+					<div class="stat-card-label text-brand">المساحة التخزينية الكلية</div>
+					<div class="stat-card-value text-brand tabular-nums">
 						{ fmt.Sprintf("%.0f م²", totalCapacitySQM(data.Branches)) }
 					</div>
-					<div style="font-size:0.75rem; color:var(--text-muted); margin-top:0.2rem;">سعة تخزين الأدوية المتاحة</div>
+					<div class="text-xs text-muted mt-1">سعة تخزين الأدوية المتاحة</div>
 				</div>
 			</div>
 
 			<!-- Split Screen Main Layout: Left = Branch List, Right = Sticky Form Panel -->
-			<div style="display:grid; grid-template-columns:1.15fr 0.85fr; gap:1.75rem; align-items:start;" class="branch-split-layout">
+			<div class="catalog-main-layout">
 				
 				<!-- Left Column: Branch Cards List -->
-				<div class="stack-lg">
+				<div class="d-flex flex-col gap-4">
 					
-					<!-- Search & Notice -->
-					<div style="background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-xl); padding:1rem 1.25rem; display:flex; align-items:center; gap:0.75rem;">
-						@components.IconSearch("icon-sm")
-						<input type="text" id="branch-search-input" placeholder="بحث في الفروع والمخازن حسب الاسم، الكود، أو المدينة..." style="background:transparent; border:none; color:var(--text); width:100%; outline:none; font-size:0.9rem;" oninput="filterBranchesList(this.value)"/>
+					<!-- Search Input -->
+					<div class="glass-panel p-3">
+						<input
+							type="text"
+							id="branch-search-input"
+							placeholder="🔍 بحث في الفروع والمخازن حسب الاسم، الكود، أو العنوان..."
+							class="form-input text-xs w-full"
+							oninput="filterBranchesList(this.value)"
+						/>
 					</div>
 
-					<div style="background:rgba(232, 255, 71, 0.05); border:1px solid rgba(232, 255, 71, 0.25); border-radius:var(--radius-xl); padding:1rem 1.25rem; display:flex; align-items:flex-start; gap:0.75rem;">
-						<span class="text-xl">⚠️</span>
-						<div style="font-size:0.825rem; color:var(--text); line-height:1.5;">
-							<strong class="text-accent">تنبيه هام لإعدادات الفرع:</strong> لكي تظهر منتجات الفرع للعملاء في البحث والتغطية الجغرافية بدقة، يجب اختيار <strong>الأعمال المؤسسية</strong> المناسبة وتحديد الإحداثيات الجغرافية بدقة.
-						</div>
+					<div class="alert alert-warning p-3 d-flex items-center gap-2 text-xs">
+						<span class="text-base">💡</span>
+						<span>
+							لظهور منتجات الفرع في التغطية الجغرافية بدقة، تأكد من تعيين <strong>الأعمال المؤسسية</strong> والإحداثيات الجغرافية.
+						</span>
 					</div>
 
 					<!-- Branch List Items -->
 					if len(data.Branches) == 0 {
-						<div style="background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-2xl); padding:3.5rem 2rem; text-align:center;">
-							<div style="width:56px; height:56px; border-radius:50%; background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center; margin:0 auto 1rem auto; font-size:1.5rem;">
-								📍
-							</div>
-							<h3 style="font-size:1.2rem; font-weight:800; color:var(--text); margin-bottom:0.4rem;">
+						<div class="glass-panel p-12 text-center empty-state-glass">
+							<div class="text-4xl mb-3">📍</div>
+							<h3 class="text-lg font-black text-primary mb-2">
 								لا توجد فروع مسجلة حتى الآن
 							</h3>
-							<p style="color:var(--text-muted); font-size:0.875rem; max-width:420px; margin:0 auto 1.25rem auto;">
+							<p class="text-xs text-secondary max-w-md mx-auto mb-4">
 								أضف فرعك الرئيسي أو مخزنك المركزي عبر اللوحة المجاورة ليتمكن الصيادلة من معرفة نطاق التغطية والاستلام.
 							</p>
-							<a href="#branch-form-panel" class="btn btn-primary btn-sm fw-700">
+							<a href="#branch-form-panel" class="btn btn-primary btn-sm font-bold text-xs">
 								@components.IconPlus("icon-xs")
 								<span>بدء تعبئة بيانات الفرع الأول</span>
 							</a>
 						</div>
 					} else {
-						<div id="branches-container" class="stack">
+						<div id="branches-container" class="d-flex flex-col gap-3">
 							for _, b := range data.Branches {
-								<div class="branch-card" data-name={ b.Name.Get(i18n.Lang(lang)) } data-code={ b.Code } style="background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-xl); padding:1.4rem; display:flex; flex-direction:column; gap:0.9rem; transition:border-color 150ms;">
+								<div
+									class="branch-card glass-panel p-5 d-flex flex-col gap-3"
+									data-name={ b.Name.Get(i18n.Lang(lang)) }
+									data-code={ b.Code }
+								>
 									<!-- Card Header -->
-									<div style="display:flex; justify-content:space-between; align-items:flex-start; gap:0.75rem; flex-wrap:wrap;">
+									<div class="flex-between items-start gap-3 flex-wrap">
 										<div>
-											<div class="row-center-sm">
-												<h3 class="text-lg fw-800 text-primary m-0">
+											<div class="d-flex items-center gap-2">
+												<h3 class="text-base font-black text-primary m-0">
 													{ b.Name.Get(i18n.Lang(lang)) }
 												</h3>
 												if b.IsMain {
-													<span class="badge badge-sky" style="font-size:0.7rem; font-weight:800;">الفرع الرئيسي</span>
+													<span class="badge badge-sky text-xs font-black">الفرع الرئيسي</span>
 												}
 												if b.Status == "active" {
-													<span class="badge badge-emerald" style="font-size:0.7rem; font-weight:800;">نشط</span>
+													<span class="badge badge-emerald text-xs font-bold">نشط</span>
 												} else {
-													<span class="badge badge-slate" style="font-size:0.7rem; font-weight:800;">غير نشط</span>
+													<span class="badge badge-rose text-xs font-bold">معطل</span>
 												}
 											</div>
 											if b.Code != "" {
-												<div style="font-size:0.775rem; color:var(--accent); font-weight:700; margin-top:0.2rem;" class="tabular-nums">
+												<div class="text-xs text-brand font-bold mt-1 tabular-nums">
 													كود الفرع: { b.Code }
 												</div>
 											}
 										</div>
 
-										<div class="row-center-sm">
+										<div class="d-flex items-center gap-2">
 											if b.GoogleMapsURL != "" {
-												<a href={ templ.SafeURL(b.GoogleMapsURL) } target="_blank" rel="noopener noreferrer" class="btn btn-secondary btn-xs" title="فتح في Google Maps">
+												<a href={ templ.SafeURL(b.GoogleMapsURL) } target="_blank" rel="noopener noreferrer" class="btn btn-secondary btn-sm font-bold text-xs" title="فتح في Google Maps">
 													<span>🗺️ خرائط Google</span>
 												</a>
 											}
 										</div>
 									</div>
 
-									<!-- Card Details -->
-									<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(180px, 1fr)); gap:0.6rem; font-size:0.825rem; color:var(--text-secondary); background:var(--surface-sunken); padding:0.8rem 1rem; border-radius:var(--radius-lg); border:1px solid var(--border);">
+									<!-- Card Details Grid -->
+									<div class="d-grid grid-cols-2 gap-2 text-xs bg-surface-sunken p-3 rounded-xl border">
 										<div>
-											<strong style="color:var(--text-muted); display:block; font-size:0.725rem; margin-bottom:0.15rem;">العنوان والمقر:</strong>
-											<span>{ b.Address }</span>
+											<strong class="text-muted d-block text-xs mb-0.5">العنوان والمقر:</strong>
+											<span class="text-primary font-bold">{ b.Address }</span>
 										</div>
 										<div>
-											<strong style="color:var(--text-muted); display:block; font-size:0.725rem; margin-bottom:0.15rem;">مدير الفرع المسؤول:</strong>
+											<strong class="text-muted d-block text-xs mb-0.5">مدير الفرع:</strong>
 											if b.ManagerName != "" {
-												<span style="color:var(--accent); font-weight:700;">👤 { b.ManagerName }</span>
+												<span class="text-brand font-bold">👤 { b.ManagerName }</span>
 											} else {
 												<span class="text-muted">غير محدد</span>
 											}
 										</div>
 										<div>
-											<strong style="color:var(--text-muted); display:block; font-size:0.725rem; margin-bottom:0.15rem;">سلسلة التبريد:</strong>
+											<strong class="text-muted d-block text-xs mb-0.5">سلسلة التبريد:</strong>
 											if b.HasColdStorage {
-												<span style="color:var(--success); font-weight:700;">❄️ مبرد (2° - 8° مئوية)</span>
+												<span class="badge badge-emerald text-xs font-bold">❄️ مبرد (2° - 8° مئوية)</span>
 											} else {
-												<span>🌡️ تخزين جاف عادي</span>
+												<span class="text-secondary">🌡️ تخزين جاف عادي</span>
 											}
 										</div>
 										<div>
-											<strong style="color:var(--text-muted); display:block; font-size:0.725rem; margin-bottom:0.15rem;">المساحة التخزينية:</strong>
-											<span class="tabular-nums">{ fmt.Sprintf("%.0f م²", b.CapacitySQM) }</span>
+											<strong class="text-muted d-block text-xs mb-0.5">المساحة التخزينية:</strong>
+											<span class="tabular-nums font-bold text-primary">{ fmt.Sprintf("%.0f م²", b.CapacitySQM) }</span>
 										</div>
 									</div>
 
 									<!-- Institutional Works Tags -->
 									if len(b.InstitutionalWorks) > 0 {
 										<div>
-											<div style="font-size:0.725rem; font-weight:700; color:var(--text-muted); text-transform:uppercase; margin-bottom:0.35rem;">
-												الأعمال المؤسسية المغطاة (Institutional Works):
+											<div class="text-xs font-bold text-muted uppercase mb-1">
+												الأعمال المؤسسية المغطاة:
 											</div>
-											<div style="display:flex; flex-wrap:wrap; gap:0.35rem;">
+											<div class="d-flex flex-wrap gap-1">
 												for _, cat := range b.InstitutionalWorks {
-													<span style="font-size:0.725rem; padding:0.2rem 0.55rem; border-radius:var(--radius-md); background:var(--surface-raised); border:1px solid var(--border); color:var(--text); font-weight:600;">
+													<span class="badge badge-slate text-xs font-bold">
 														{ formatInstitutionalWorkLabel(cat) }
 													</span>
 												}
@@ -207,27 +216,25 @@ templ VendorBranchesPage(data VendorBranchesData, lang, dir string) {
 									}
 
 									<!-- Card Actions -->
-									<div style="display:flex; justify-content:space-between; align-items:center; border-top:1px solid var(--border); padding-top:0.75rem; margin-top:0.25rem;">
+									<div class="flex-between items-center border-t pt-3 mt-1">
 										<div class="text-xs text-muted tabular-nums">
 											if b.Latitude != nil && b.Longitude != nil {
 												<span>📍 { fmt.Sprintf("%.4f, %.4f", *b.Latitude, *b.Longitude) }</span>
 											}
 										</div>
 
-										<div class="row-center-sm" style="gap:0.5rem;">
+										<div class="d-flex items-center gap-2">
 											<a
 												href={ templ.SafeURL(fmt.Sprintf("/vendor/branches/%d/edit", b.ID)) }
-												class="btn btn-secondary btn-xs fw-700"
-												style="gap:0.35rem;"
+												class="btn btn-secondary btn-sm font-bold text-xs gap-1"
 											>
 												@components.IconEdit("icon-xs")
-												<span>تعديل الفرع</span>
+												<span>تعديل</span>
 											</a>
 
-											<form action={ templ.SafeURL(fmt.Sprintf("/vendor/branches/%d/delete", b.ID)) } method="POST" onsubmit="return confirm('هل أنت متأكد من حذف هذا الفرع؟');" style="margin:0;">
-												<button type="submit" class="btn btn-secondary btn-xs" style="color:var(--danger); border-color:rgba(255, 71, 87, 0.2);">
+											<form action={ templ.SafeURL(fmt.Sprintf("/vendor/branches/%d/delete", b.ID)) } method="POST" onsubmit="return confirm('هل أنت متأكد من حذف هذا الفرع؟');" class="m-0">
+												<button type="submit" class="btn btn-secondary btn-sm btn-icon text-danger" title="حذف الفرع">
 													@components.IconTrash("icon-xs")
-													<span>حذف</span>
 												</button>
 											</form>
 										</div>
@@ -238,58 +245,51 @@ templ VendorBranchesPage(data VendorBranchesData, lang, dir string) {
 					}
 				</div>
 
-				<!-- Right Column: Persistent In-Page Sticky Form Panel -->
-				<div id="branch-form-panel" style="position:sticky; top:24px; background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-2xl); padding:1.75rem; display:flex; flex-direction:column; gap:1.4rem; box-shadow:0 8px 32px rgba(0,0,0,0.25);">
+				<!-- Right Column: Sticky Form Panel -->
+				<div id="branch-form-panel" class="glass-panel p-6 d-flex flex-col gap-4 sticky top-6">
 					
 					<!-- Form Header -->
-					<div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--border); padding-bottom:1rem;">
-						<div class="row-center">
-							<div style="width:38px; height:38px; border-radius:var(--radius-lg); background:var(--accent-subtle); border:1px solid var(--accent); color:var(--accent); display:flex; align-items:center; justify-content:center; font-size:1.1rem;">
-								🏢
-							</div>
-							<div>
-								<h2 class="text-xl fw-800 text-primary m-0">
-									إضافة فرع / مخزن جديد
-								</h2>
-								<p style="font-size:0.775rem; color:var(--text-muted); margin:0.15rem 0 0 0;">
-									البيانات الأساسية، تحديد الموقع، والأعمال المؤسسية
-								</p>
-							</div>
+					<div class="flex-between items-center pb-3 border-b">
+						<div class="d-flex items-center gap-2">
+							<span class="text-xl">🏢</span>
+							<h2 class="text-base font-black text-primary m-0">
+								إضافة فرع / مخزن جديد
+							</h2>
 						</div>
 					</div>
 
-					<form action="/vendor/branches/new" method="POST" class="stack-lg">
+					<form action="/vendor/branches/new" method="POST" class="d-flex flex-col gap-3 m-0">
 						
 						<!-- Section 1: Names & Code -->
-						<div style="display:grid; grid-template-columns:1fr 1fr; gap:0.9rem;">
+						<div class="d-grid grid-cols-2 gap-3">
 							<div>
-								<label class="form-label">
+								<label class="form-label text-xs font-bold text-primary mb-1 d-block">
 									اسم الفرع (بالعربية) <span class="text-danger">*</span>
 								</label>
-								<input type="text" name="name_ar" required placeholder="مثال: الفرع الرئيسي - القاهرة" class="form-input w-full"/>
+								<input type="text" name="name_ar" required placeholder="مثال: الفرع الرئيسي - القاهرة" class="form-input text-xs w-full"/>
 							</div>
 
 							<div>
-								<label class="form-label">
+								<label class="form-label text-xs font-bold text-primary mb-1 d-block">
 									اسم الفرع (بالإنجليزية) <span class="text-danger">*</span>
 								</label>
-								<input type="text" name="name_en" placeholder="e.g. Main Branch - Cairo" class="form-input w-full"/>
+								<input type="text" name="name_en" placeholder="e.g. Main Branch - Cairo" class="form-input text-xs w-full" dir="ltr"/>
 							</div>
 						</div>
 
-						<div style="display:grid; grid-template-columns:1fr 1fr; gap:0.9rem;">
+						<div class="d-grid grid-cols-2 gap-3">
 							<div>
-								<label class="form-label">
+								<label class="form-label text-xs font-bold text-primary mb-1 d-block">
 									كود الفرع (Branch Code)
 								</label>
-								<input type="text" name="code" placeholder="مثال: BR-CAI-01" class="form-input tabular-nums w-full"/>
+								<input type="text" name="code" placeholder="مثال: BR-CAI-01" class="form-input text-xs tabular-nums w-full"/>
 							</div>
 
 							<div>
-								<label class="form-label">
+								<label class="form-label text-xs font-bold text-primary mb-1 d-block">
 									نوع المنشأة اللوجستية <span class="text-danger">*</span>
 								</label>
-								<select name="warehouse_type" class="form-input w-full">
+								<select name="warehouse_type" class="form-input text-xs w-full">
 									<option value="warehouse">مخزن أدوية مركزي (Warehouse)</option>
 									<option value="fast_hub">نقطة توزيع سريعة (Fast Hub)</option>
 									<option value="cold_depot">مخزن تبريد مخصص (Cold Depot)</option>
@@ -299,50 +299,41 @@ templ VendorBranchesPage(data VendorBranchesData, lang, dir string) {
 						</div>
 
 						<!-- Section 2: Interactive Location Map & GPS -->
-						<div style="display:flex; flex-direction:column; gap:0.6rem;">
-							<label style="display:block; font-size:0.8rem; font-weight:700; color:var(--text-secondary);">
+						<div class="d-flex flex-col gap-1">
+							<label class="form-label text-xs font-bold text-secondary mb-1 d-block">
 								🗺️ موقع الفرع الجغرافي وخريطة OpenStreetMap
 							</label>
 
-							<div data-map-picker data-default-lat="30.0444" data-default-lon="31.2357" style="border-radius:var(--radius-xl); overflow:hidden; border:1px solid var(--border); background:var(--surface-sunken); position:relative;">
-								<div class="map-container map-canvas" style="height:230px; width:100%; z-index:1;"></div>
-
+							<div data-map-picker data-default-lat="30.0444" data-default-lon="31.2357" class="border rounded-xl overflow-hidden bg-surface-sunken position-relative">
+								<div class="map-container map-canvas" style="height: 180px; width: 100%; z-index: 1;"></div>
 								
-								<div style="display:flex; justify-content:space-between; align-items:center; padding:0.6rem 0.9rem; background:var(--surface-raised); border-top:1px solid var(--border); font-size:0.775rem;">
-									<div class="row-center-sm">
-										<span data-map-coords-badge class="tabular-nums" style="font-weight:700; color:var(--accent);">30.0444, 31.2357</span>
-									</div>
-									<button type="button" data-map-locate class="btn btn-secondary btn-xs fw-700">
+								<div class="flex-between items-center p-2 bg-surface-raised border-t text-xs">
+									<span data-map-coords-badge class="tabular-nums font-bold text-brand">30.0444, 31.2357</span>
+									<button type="button" data-map-locate class="btn btn-secondary btn-xs font-bold">
 										<span>📍 موقعي الحالي</span>
 									</button>
 								</div>
 
-								<!-- Hidden inputs for coordinates sync -->
 								<input type="hidden" name="latitude" data-map-input="lat" value="30.0444"/>
 								<input type="hidden" name="longitude" data-map-input="lon" value="31.2357"/>
 							</div>
 						</div>
 
-						<!-- Google Maps URL Input (Auto-Extracts Coordinates on Paste) -->
+						<!-- Google Maps URL Input -->
 						<div>
-							<label class="form-label">
+							<label class="form-label text-xs font-bold text-primary mb-1 d-block">
 								🔗 رابط خرائط Google (Google Maps URL)
 							</label>
-							<div style="position:relative;">
-								<input type="text" name="google_maps_url" data-map-input="google_url" placeholder="الصق أي رابط من Google Maps لاستخراج الإحداثيات فوراً..." class="form-input" style="width:100%; font-size:0.825rem;"/>
-							</div>
-							<p style="font-size:0.725rem; color:var(--text-muted); margin:0.25rem 0 0 0;">
-								💡 بمجرد لصق رابط خرائط جوجل سيتم استخراج الإحداثيات وتحريك مؤشر الخريطة تلقائياً.
-							</p>
+							<input type="text" name="google_maps_url" data-map-input="google_url" placeholder="الصق أي رابط من Google Maps لاستخراج الإحداثيات فوراً..." class="form-input text-xs w-full"/>
 						</div>
 
 						<!-- Section 3: City, Address, Manager -->
-						<div style="display:grid; grid-template-columns:1fr 1fr; gap:0.9rem;">
+						<div class="d-grid grid-cols-2 gap-3">
 							<div>
-								<label class="form-label">
+								<label class="form-label text-xs font-bold text-primary mb-1 d-block">
 									المدينة / المحافظة <span class="text-danger">*</span>
 								</label>
-								<select name="city_id" data-map-city class="form-input w-full">
+								<select name="city_id" data-map-city class="form-input text-xs w-full">
 									<option value="">-- اختر المدينة --</option>
 									for _, c := range data.Cities {
 										<option
@@ -354,15 +345,14 @@ templ VendorBranchesPage(data VendorBranchesData, lang, dir string) {
 										</option>
 									}
 								</select>
-
 							</div>
 
 							<div>
-								<label class="form-label">
-									مدير الفرع المسؤول (من الموظفين)
+								<label class="form-label text-xs font-bold text-primary mb-1 d-block">
+									مدير الفرع المسؤول
 								</label>
-								<select name="manager_id" class="form-input w-full">
-									<option value="">-- تعيين مدير من موظفي المنشأة --</option>
+								<select name="manager_id" class="form-input text-xs w-full">
+									<option value="">-- تعيين مدير من الموظفين --</option>
 									for _, emp := range data.Employees {
 										if emp.Member != nil {
 											<option value={ fmt.Sprintf("%d", emp.Member.UserID) }>
@@ -375,67 +365,60 @@ templ VendorBranchesPage(data VendorBranchesData, lang, dir string) {
 						</div>
 
 						<div>
-							<label class="form-label">
+							<label class="form-label text-xs font-bold text-primary mb-1 d-block">
 								العنوان التفصيلي <span class="text-danger">*</span>
 							</label>
-							<input type="text" name="address" required placeholder="مثال: المنطقة الصناعية الثانية، قطعة 42، بجوار شركة توزيع الأدوية" class="form-input w-full"/>
+							<input type="text" name="address" required placeholder="مثال: المنطقة الصناعية الثانية، قطعة 42" class="form-input text-xs w-full"/>
 						</div>
 
-						<div style="display:grid; grid-template-columns:1fr 1fr; gap:0.9rem;">
+						<div class="d-grid grid-cols-2 gap-3">
 							<div>
-								<label class="form-label">
+								<label class="form-label text-xs font-bold text-primary mb-1 d-block">
 									رقم هاتف الفرع
 								</label>
-								<input type="tel" name="phone" placeholder="010XXXXXXXX" class="form-input tabular-nums w-full"/>
+								<input type="tel" name="phone" placeholder="010XXXXXXXX" class="form-input text-xs tabular-nums w-full"/>
 							</div>
 
 							<div>
-								<label class="form-label">
+								<label class="form-label text-xs font-bold text-primary mb-1 d-block">
 									المساحة التخزينية (م²)
 								</label>
-								<input type="number" name="capacity_sqm" placeholder="500" class="form-input tabular-nums w-full"/>
+								<input type="number" name="capacity_sqm" placeholder="500" class="form-input text-xs tabular-nums w-full"/>
 							</div>
 						</div>
 
-						<!-- Section 4: Institutional Works (الـ 12 فئة) -->
-						<div style="display:flex; flex-direction:column; gap:0.6rem; background:var(--surface-sunken); padding:1rem; border-radius:var(--radius-xl); border:1px solid var(--border);">
-							<div class="flex-between">
-								<label style="font-size:0.825rem; font-weight:800; color:var(--text); margin:0;">
-									🏛️ الأعمال المؤسسية المغطاة (Institutional Works)
-								</label>
-								<span style="font-size:0.7rem; color:var(--accent); font-weight:700;">12 فئة معتمدة</span>
-							</div>
+						<!-- Section 4: Institutional Works (12 Categories) -->
+						<div class="bg-surface-sunken p-3 rounded-xl border d-flex flex-col gap-2">
+							<label class="text-xs font-black text-primary m-0 d-block">
+								🏛️ الأعمال المؤسسية المغطاة (Institutional Works)
+							</label>
 
-							<p style="font-size:0.75rem; color:var(--text-muted); margin:0; line-height:1.4;">
-								حدد مجالات العمل المؤسسي التي يخدمها هذا الفرع لضمان شموله في نتائج البحث والتوريد:
-							</p>
-
-							<div style="display:grid; grid-template-columns:1fr 1fr; gap:0.5rem; margin-top:0.4rem;">
+							<div class="d-grid grid-cols-2 gap-1.5 mt-1" style="max-height: 140px; overflow-y: auto;">
 								for _, cat := range institutionalWorkCategories {
-									<label style="display:flex; align-items:center; gap:0.5rem; font-size:0.775rem; color:var(--text-secondary); cursor:pointer; padding:0.4rem 0.6rem; border-radius:var(--radius-md); background:var(--surface-raised); border:1px solid var(--border);">
-										<input type="checkbox" name="institutional_works" value={ cat.Key } style="accent-color:var(--accent); width:15px; height:15px;"/>
+									<label class="d-flex items-center gap-1.5 text-xs text-secondary cursor-pointer p-1 rounded hover:bg-surface-raised">
+										<input type="checkbox" name="institutional_works" value={ cat.Key } class="form-checkbox"/>
 										<span>{ cat.Icon } { cat.LabelAr }</span>
 									</label>
 								}
 							</div>
 						</div>
 
-						<!-- Section 5: Checkboxes (Cold Storage & Main Branch) -->
-						<div style="display:grid; grid-template-columns:1fr 1fr; gap:0.75rem;">
-							<label style="display:flex; align-items:center; gap:0.6rem; font-size:0.825rem; color:var(--text); cursor:pointer; padding:0.6rem 0.8rem; border-radius:var(--radius-lg); background:var(--surface-sunken); border:1px solid var(--border);">
-								<input type="checkbox" name="has_cold_storage" value="true" style="accent-color:var(--success); width:16px; height:16px;"/>
+						<!-- Section 5: Checkboxes -->
+						<div class="d-grid grid-cols-2 gap-3 py-1">
+							<label class="d-flex items-center gap-2 text-xs font-bold text-primary cursor-pointer p-2 rounded-lg bg-surface-sunken border">
+								<input type="checkbox" name="has_cold_storage" value="true" class="form-checkbox"/>
 								<span>❄️ سلسلة تبريد (2° - 8°)</span>
 							</label>
 
-							<label style="display:flex; align-items:center; gap:0.6rem; font-size:0.825rem; color:var(--text); cursor:pointer; padding:0.6rem 0.8rem; border-radius:var(--radius-lg); background:var(--surface-sunken); border:1px solid var(--border);">
-								<input type="checkbox" name="is_main" value="true" style="accent-color:var(--accent); width:16px; height:16px;"/>
+							<label class="d-flex items-center gap-2 text-xs font-bold text-primary cursor-pointer p-2 rounded-lg bg-surface-sunken border">
+								<input type="checkbox" name="is_main" value="true" class="form-checkbox"/>
 								<span>⭐ تعيين كفرع رئيسي</span>
 							</label>
 						</div>
 
 						<!-- Submit Button -->
-						<button type="submit" class="btn btn-primary btn-lg" style="width:100%; font-weight:800; justify-content:center; margin-top:0.5rem;">
-							@components.IconPlus("icon-sm")
+						<button type="submit" class="btn btn-primary btn-sm font-black w-full justify-center py-2.5 mt-2">
+							@components.IconPlus("icon-xs")
 							<span>حفظ وإضافة الفرع الآن</span>
 						</button>
 					</form>

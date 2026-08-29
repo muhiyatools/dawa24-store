@@ -13,187 +13,231 @@ type AdminCitiesData struct {
 	SelectedGovernorateID int64
 	TotalCities           int
 	TotalGovernorates     int
+	TotalFiltered         int
+	Page                  int
+	Limit                 int
+	TotalPages            int
 	Query                 string
 	ActiveTab             string
 }
 
 templ AdminCities(data AdminCitiesData, lang string, dir string, isHTMX bool) {
 	@layouts.AdminShell("إدارة المحافظات والمدن الجغرافية", "cities", lang, dir) {
-		<div style="display:flex; flex-direction:column; gap:1.75rem;">
+		<div
+			class="page-container"
+			x-data="{
+				isEditOpen: false,
+				editForm: {
+					id: 0,
+					gov_id: '',
+					name_ar: '',
+					name_en: '',
+					lat: '',
+					lon: '',
+					is_capital: false,
+					is_active: true,
+					map_link: '#'
+				},
+				openEdit(id, govId, nameAr, nameEn, lat, lon, isCapital, isActive) {
+					this.editForm = {
+						id: id,
+						gov_id: govId > 0 ? String(govId) : '',
+						name_ar: nameAr || '',
+						name_en: nameEn || '',
+						lat: (lat && lat !== 0) ? lat : '',
+						lon: (lon && lon !== 0) ? lon : '',
+						is_capital: !!isCapital,
+						is_active: !!isActive,
+						map_link: (lat && lon) ? 'https://www.google.com/maps?q=' + lat + ',' + lon : '#'
+					};
+					this.isEditOpen = true;
+				},
+				closeEdit() {
+					this.isEditOpen = false;
+				}
+			}"
+			@keydown.escape.window="closeEdit()"
+		>
 			<!-- Header -->
-			<div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:1rem; border-bottom:1px solid var(--border); padding-bottom:1.25rem;">
-				<div>
-					<div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:0.35rem;">
-						<span style="font-size:1.5rem;">🌍</span>
-						<h2 style="font-size:1.45rem; font-weight:800; color:var(--text); margin:0;">
-							المحافظات والمدن والمراكز الجغرافية
-						</h2>
+			<div class="glass-panel p-6 mb-6">
+				<div class="flex-between items-center flex-wrap gap-4">
+					<div class="d-flex items-center gap-3">
+						<div class="user-avatar-badge text-xl">
+							🌍
+						</div>
+						<div>
+							<h1 class="text-2xl font-black text-primary m-0">
+								المحافظات والمدن والمراكز الجغرافية
+							</h1>
+							<p class="text-sm text-secondary m-0 mt-1 max-w-2xl">
+								منظومة التقسيم الهرمي للمحافظات والمدن والمراكز والأحياء المعتمدة في مصر مع الإحداثيات الجغرافية (GPS) لضبط نطاقات التغطية وعمليات الشحن والتوصيل.
+							</p>
+						</div>
 					</div>
-					<p style="font-size:0.875rem; color:var(--text-secondary); margin:0; max-width:720px; line-height:1.6;">
-						منظومة التقسيم الهرمي للمحافظات والمدن والمراكز والأحياء المعتمدة في جمهورية مصر العربية مع الإحداثيات الجغرافية المكانية (GPS) لضبط نطاقات التغطية وعمليات الشحن والتوصيل.
-					</p>
-				</div>
 
-				<div style="display:flex; align-items:center; gap:0.6rem; flex-wrap:wrap;">
-					<a href="#new-gov-card" class="btn btn-secondary btn-sm fw-700">
-						@components.IconPlus("icon-xs")
-						<span>+ إضافة محافظة</span>
-					</a>
-					<a href="#new-city-card" class="btn btn-primary btn-sm fw-700">
-						@components.IconPlus("icon-xs")
-						<span>+ إضافة مدينة / حي</span>
-					</a>
+					<div class="d-flex items-center gap-2 flex-wrap">
+						<a href="#new-gov-card" class="btn btn-secondary btn-sm font-bold text-xs">
+							@components.IconPlus("icon-xs")
+							<span>إضافة محافظة جديدة</span>
+						</a>
+						<a href="#new-city-card" class="btn btn-primary btn-sm font-bold text-xs">
+							@components.IconPlus("icon-xs")
+							<span>إضافة مدينة / حي</span>
+						</a>
+					</div>
 				</div>
 			</div>
 
 			<!-- Metrics -->
-			<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:1rem;">
-				<div class="card" style="padding:1.25rem; background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-xl);">
-					<div style="font-size:0.8rem; font-weight:600; color:var(--text-muted); margin-bottom:0.25rem;">المحافظات الرئيسية</div>
-					<div style="font-size:1.85rem; font-weight:800; color:var(--accent);" class="tabular-nums">
+			<div class="dashboard-stat-grid mb-6">
+				<div class="stat-card-3d">
+					<div class="stat-card-label text-xs">المحافظات الرئيسية</div>
+					<div class="stat-card-value text-primary tabular-nums text-2xl font-black">
 						if data.TotalGovernorates > 0 {
 							{ fmt.Sprintf("%d", data.TotalGovernorates) }
 						} else {
 							{ fmt.Sprintf("%d", len(data.Governorates)) }
 						}
 					</div>
-					<div style="font-size:0.75rem; color:var(--text-muted); margin-top:0.2rem;">محافظة معتمدة بجمهورية مصر العربية</div>
+					<div class="stat-card-sub text-muted text-xs mt-1">محافظة مسجلة ومعتمدة</div>
 				</div>
 
-				<div class="card" style="padding:1.25rem; background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-xl);">
-					<div style="font-size:0.8rem; font-weight:600; color:var(--text-muted); margin-bottom:0.25rem;">المدن والمراكز والأحياء</div>
-					<div style="font-size:1.85rem; font-weight:800; color:var(--text);" class="tabular-nums">
+				<div class="stat-card-3d">
+					<div class="stat-card-label text-xs">المدن والمراكز والأحياء</div>
+					<div class="stat-card-value text-brand tabular-nums text-2xl font-black">
 						if data.TotalCities > 0 {
 							{ fmt.Sprintf("%d", data.TotalCities) }
 						} else {
 							{ fmt.Sprintf("%d", len(data.Cities)) }
 						}
 					</div>
-					<div style="font-size:0.75rem; color:var(--text-muted); margin-top:0.2rem;">مدينة / حي / مركز فرعي مسجل</div>
+					<div class="stat-card-sub text-muted text-xs mt-1">مدينة وحي مسجل بالمنظومة</div>
 				</div>
 
-				<div class="card" style="padding:1.25rem; background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-xl);">
-					<div style="font-size:0.8rem; font-weight:600; color:var(--text-muted); margin-bottom:0.25rem;">جاهزية الإحداثيات المكانية</div>
-					<div style="margin-top:0.35rem;">
-						<span class="badge badge-emerald" style="font-size:0.8rem; font-weight:700;">100% إحداثيات GPS دقيقة</span>
+				<div class="stat-card-3d">
+					<div class="stat-card-label text-xs">جاهزية الإحداثيات المكانية</div>
+					<div class="mt-2">
+						<span class="badge badge-emerald text-xs font-bold">100% إحداثيات GPS دقيقة</span>
 					</div>
-					<div style="font-size:0.75rem; color:var(--text-muted); margin-top:0.4rem;">حساب مسافات التوصيل بالخرائط التفاعلية</div>
+					<div class="stat-card-sub text-muted text-xs mt-1">حساب مسافات التوصيل بالخرائط التفاعلية</div>
 				</div>
 
-				<div class="card" style="padding:1.25rem; background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-xl);">
-					<div style="font-size:0.8rem; font-weight:600; color:var(--text-muted); margin-bottom:0.25rem;">حالة النطاق الجغرافي</div>
-					<div style="margin-top:0.35rem;">
-						<span class="badge badge-sky" style="font-size:0.8rem; font-weight:700;">تغطية شاملة لجميع المحافظات</span>
+				<div class="stat-card-3d">
+					<div class="stat-card-label text-xs">حالة النطاق الجغرافي</div>
+					<div class="mt-2">
+						<span class="badge badge-sky text-xs font-bold">تغطية شاملة للمحافظات</span>
 					</div>
-					<div style="font-size:0.75rem; color:var(--text-muted); margin-top:0.4rem;">محدثة ومطابقة للمخطط الإداري</div>
+					<div class="stat-card-sub text-muted text-xs mt-1">محدثة ومطابقة للمخطط الإداري</div>
 				</div>
 			</div>
 
 			<!-- Filter Bar -->
-			<div style="background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-xl); padding:1rem; display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:1rem;">
-				<form method="GET" action="/admin/cities" style="display:flex; flex-wrap:wrap; align-items:center; gap:0.75rem; flex:1; max-width:800px; margin:0;">
-					<div style="min-width:220px; flex:1;">
-						<select name="gov_id" onchange="this.form.submit()" class="form-input w-full" style="font-weight:600; font-size:0.875rem;">
-							<option value="0">🌍 كل المحافظات (عرض جميع المدن)</option>
-							for _, g := range data.Governorates {
-								if data.SelectedGovernorateID == g.ID {
-									<option value={ fmt.Sprintf("%d", g.ID) } selected>
-										{ g.Name["ar"] } ({ g.Name["en"] }) - { fmt.Sprintf("%d", g.CityCount) } مدينة
-									</option>
-								} else {
-									<option value={ fmt.Sprintf("%d", g.ID) }>
-										{ g.Name["ar"] } ({ g.Name["en"] }) - { fmt.Sprintf("%d", g.CityCount) } مدينة
-									</option>
+			<div class="glass-panel p-4 mb-6">
+				<form method="GET" action="/admin/cities" class="d-flex flex-wrap items-center justify-between gap-3 m-0">
+					<div class="d-flex flex-wrap items-center gap-3 flex-1" style="min-width: 280px;">
+						<div style="min-width: 200px; flex: 1;">
+							<select name="gov_id" onchange="this.form.submit()" class="form-input text-xs w-full font-bold">
+								<option value="0">🌍 كل المحافظات (عرض جميع المدن)</option>
+								for _, g := range data.Governorates {
+									if data.SelectedGovernorateID == g.ID {
+										<option value={ fmt.Sprintf("%d", g.ID) } selected>
+											{ g.Name["ar"] } ({ g.Name["en"] }) - { fmt.Sprintf("%d", g.CityCount) } مدينة
+										</option>
+									} else {
+										<option value={ fmt.Sprintf("%d", g.ID) }>
+											{ g.Name["ar"] } ({ g.Name["en"] }) - { fmt.Sprintf("%d", g.CityCount) } مدينة
+										</option>
+									}
 								}
-							}
-						</select>
+							</select>
+						</div>
+
+						<div style="min-width: 220px; flex: 1.5;">
+							<input
+								type="text"
+								name="q"
+								value={ data.Query }
+								placeholder="بحث باسم المدينة أو المحافظة..."
+								class="form-input text-xs w-full"
+							/>
+						</div>
+
+						<input type="hidden" name="limit" value={ fmt.Sprintf("%d", data.Limit) }/>
+
+						<button type="submit" class="btn btn-primary btn-sm font-bold text-xs px-3">
+							@components.IconSearch("icon-xs")
+							<span>بحث</span>
+						</button>
+
+						if data.Query != "" || data.SelectedGovernorateID > 0 {
+							<a href="/admin/cities" class="btn btn-secondary btn-sm text-xs">
+								@components.IconClose("icon-xs")
+								<span>إعادة ضبط</span>
+							</a>
+						}
 					</div>
 
-					<div style="min-width:220px; flex:1; position:relative;">
-						<input
-							type="text"
-							name="q"
-							value={ data.Query }
-							placeholder="بحث باسم المدينة أو المحافظة..."
-							class="form-input w-full"
-							style="padding-inline-start:2rem; font-size:0.875rem;"
-						/>
-						<span style="position:absolute; inset-inline-start:0.65rem; top:50%; transform:translateY(-50%); color:var(--text-muted); pointer-events:none;">
-							🔍
+					<div class="d-flex items-center gap-3">
+						<span class="text-xs text-muted font-bold">إجمالي المطابق:</span>
+						<span class="badge badge-sky tabular-nums text-xs font-bold">
+							{ fmt.Sprintf("%d مدينة", data.TotalFiltered) }
 						</span>
 					</div>
-
-					<button type="submit" class="btn btn-secondary btn-sm fw-700">
-						بحث وفلترة
-					</button>
-
-					if data.Query != "" || data.SelectedGovernorateID > 0 {
-						<a href="/admin/cities" class="btn btn-ghost btn-sm text-muted">
-							إعادة ضبط
-						</a>
-					}
 				</form>
-
-				<div style="display:flex; align-items:center; gap:0.5rem;">
-					<span style="font-size:0.8rem; color:var(--text-muted); font-weight:600;">
-						عدد النتائج المعروضة:
-					</span>
-					<span class="badge badge-sky tabular-nums fw-700" style="font-size:0.825rem;">
-						{ fmt.Sprintf("%d", len(data.Cities)) } مدينة
-					</span>
-				</div>
 			</div>
 
-			<!-- Main Content Grid -->
-			<div style="display:grid; grid-template-columns:1.5fr 1fr; gap:1.75rem; align-items:start;">
+			<!-- Main Content Grid: Table on Left (2fr), Forms on Right (1fr) -->
+			<div style="display: grid; grid-template-columns: 2fr 1fr; gap: 1.5rem; align-items: start;">
 				
 				<!-- Left: Cities Table -->
-				<div style="background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-2xl); padding:1.5rem; display:flex; flex-direction:column; gap:1.25rem;">
-					<div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.75rem; border-bottom:1px solid var(--border); padding-bottom:0.75rem;">
+				<div class="glass-panel p-0 mb-6 overflow-hidden">
+					<div class="p-4 border-b flex-between items-center flex-wrap gap-2">
 						<div>
-							<h3 class="text-lg fw-800 text-primary m-0">
+							<h3 class="text-base font-black text-primary m-0">
 								سجل المدن والمراكز المعتمدة
 							</h3>
 							if data.SelectedGovernorateID > 0 {
 								for _, g := range data.Governorates {
 									if g.ID == data.SelectedGovernorateID {
-										<div style="font-size:0.8rem; color:var(--accent); font-weight:700; margin-top:0.2rem;">
+										<div class="text-xs text-brand font-bold mt-1">
 											عرض مدن محافظة: { g.Name["ar"] } ({ g.Name["en"] })
 										</div>
 									}
 								}
 							}
 						</div>
-						<span class="badge badge-emerald tabular-nums fw-700">{ fmt.Sprintf("%d", len(data.Cities)) } مدينة مفعلة</span>
+						<div class="d-flex items-center gap-2">
+							<span class="badge badge-emerald tabular-nums text-xs font-bold">{ fmt.Sprintf("%d مدينة معروضة", len(data.Cities)) }</span>
+						</div>
 					</div>
 
-					<div style="overflow-x:auto;">
-						<table style="width:100%; text-align:start; border-collapse:collapse; font-size:0.85rem;">
+					<div class="table-container m-0">
+						<table class="data-table m-0">
 							<thead>
-								<tr style="border-bottom:1px solid var(--border); color:var(--text-muted); font-size:0.75rem; text-transform:uppercase;">
-									<th style="padding:0.6rem 0.75rem;">المدينة / الحي</th>
-									<th style="padding:0.6rem 0.75rem;">المحافظة التابعة</th>
-									<th style="padding:0.6rem 0.75rem;">الإحداثيات الجغرافية (GPS)</th>
-									<th style="padding:0.6rem 0.75rem;">الحالة</th>
-									<th style="padding:0.6rem 0.75rem; text-align:end;">الإجراءات</th>
+								<tr>
+									<th>المدينة / الحي</th>
+									<th>المحافظة التابعة</th>
+									<th>الإحداثيات الجغرافية (GPS)</th>
+									<th>الحالة</th>
+									<th class="text-end">الإجراءات</th>
 								</tr>
 							</thead>
-							<tbody style="divide-y:1px solid var(--border);">
+							<tbody>
 								if len(data.Cities) == 0 {
 									<tr>
-										<td colspan="5" style="padding:3rem 1rem; text-align:center; color:var(--text-muted);">
-											<div style="font-size:2rem; margin-bottom:0.5rem;">🔍</div>
-											<div style="font-weight:700; font-size:1rem; color:var(--text);">لم يتم العثور على أي مدن تطابق شروط البحث</div>
-											<div style="font-size:0.85rem; margin-top:0.25rem;">جرب تغيير المحافظة أو عبارة البحث في الأعلى.</div>
+										<td colspan="5" class="p-8 text-center text-muted">
+											<div class="text-3xl mb-2">🔍</div>
+											<div class="font-bold text-sm text-primary">لم يتم العثور على أي مدن تطابق شروط البحث</div>
+											<div class="text-xs text-secondary mt-1">جرب تغيير المحافظة أو عبارة البحث في الأعلى.</div>
 										</td>
 									</tr>
 								}
 								for _, c := range data.Cities {
-									<tr style="border-bottom:1px solid var(--border); transition:background-color 0.15s ease;">
-										<td class="p-sm">
-											<div class="fw-800 text-primary" style="display:flex; align-items:center; gap:0.35rem;">
+									<tr>
+										<td>
+											<div class="font-black text-primary d-flex items-center gap-1">
 												if c.IsCapital {
-													<span title="عاصمة / مركز رئيسي" style="font-size:0.85rem;">⭐</span>
+													<span title="عاصمة / مركز رئيسي" class="text-xs">⭐</span>
 												}
 												if c.Name["ar"] != "" {
 													<span>{ c.Name["ar"] }</span>
@@ -202,59 +246,60 @@ templ AdminCities(data AdminCitiesData, lang string, dir string, isHTMX bool) {
 												}
 											</div>
 											if c.Name["en"] != "" && c.Name["ar"] != "" {
-												<div style="font-size:0.75rem; color:var(--text-muted); font-weight:500;">{ c.Name["en"] }</div>
+												<div class="text-xs text-muted font-normal">{ c.Name["en"] }</div>
 											}
 										</td>
-										<td style="padding:0.6rem 0.75rem;">
+										<td>
 											if c.GovernorateName != nil && (*c.GovernorateName)["ar"] != "" {
-												<span class="badge badge-sky" style="font-size:0.75rem; font-weight:700;">
+												<span class="badge badge-sky text-xs font-bold">
 													{ (*c.GovernorateName)["ar"] }
 												</span>
 											} else {
-												<span class="badge badge-gray text-xs">غير محدد</span>
+												<span class="badge badge-slate text-xs">غير محدد</span>
 											}
 										</td>
-										<td style="padding:0.6rem 0.75rem; font-family:monospace; font-size:0.775rem;" class="tabular-nums">
-											<a
-												href={ templ.SafeURL(fmt.Sprintf("https://www.google.com/maps?q=%.6f,%.6f", c.Latitude, c.Longitude)) }
-												target="_blank"
-												rel="noopener noreferrer"
-												title="فتح الموقع على خرائط جوجل"
-												style="display:inline-flex; align-items:center; gap:0.25rem; color:var(--accent); text-decoration:none;"
-											>
-												<span>📍 { fmt.Sprintf("%.4f, %.4f", c.Latitude, c.Longitude) }</span>
-											</a>
+										<td class="font-mono text-xs tabular-nums">
+											if c.Latitude != 0 && c.Longitude != 0 {
+												<a
+													href={ templ.SafeURL(fmt.Sprintf("https://www.google.com/maps?q=%.6f,%.6f", c.Latitude, c.Longitude)) }
+													target="_blank"
+													rel="noopener noreferrer"
+													title="فتح الموقع على خرائط جوجل"
+													class="text-brand text-xs font-bold text-decoration-none d-inline-flex items-center gap-1"
+												>
+													<span>📍 { fmt.Sprintf("%.4f, %.4f", c.Latitude, c.Longitude) }</span>
+												</a>
+											} else {
+												<span class="text-muted text-xs">غير محدد</span>
+											}
 										</td>
-										<td class="p-sm">
+										<td>
 											if c.IsActive {
 												<span class="badge badge-emerald text-xs">مفعلة</span>
 											} else {
-												<span class="badge badge-gray text-xs">معطلة</span>
+												<span class="badge badge-slate text-xs">معطلة</span>
 											}
 										</td>
-										<td style="padding:0.6rem 0.75rem; text-align:end;">
-											<div style="display:inline-flex; align-items:center; gap:0.35rem;">
+										<td class="text-end">
+											<div class="d-inline-flex items-center gap-1">
 												<button
 													type="button"
-													class="btn btn-ghost btn-xs text-xs"
-													style="color:var(--accent); font-weight:700; border:1px solid var(--border);"
-													onclick={ templ.ComponentScript{
-														Call: fmt.Sprintf("openEditCityModal(%d, %d, %q, %q, %f, %f, %t, %t)",
-															c.ID,
-															govIDOrDefault(c.GovernorateID),
-															c.Name["ar"],
-															c.Name["en"],
-															c.Latitude,
-															c.Longitude,
-															c.IsCapital,
-															c.IsActive,
-														),
-													} }
+													class="btn btn-secondary btn-xs font-bold text-xs"
+													@click={ fmt.Sprintf("openEdit(%d, %d, %q, %q, %f, %f, %t, %t)",
+														c.ID,
+														govIDOrDefault(c.GovernorateID),
+														c.Name["ar"],
+														c.Name["en"],
+														c.Latitude,
+														c.Longitude,
+														c.IsCapital,
+														c.IsActive,
+													) }
 												>
-													✏️ تعديل
+													<span>✏️ تعديل</span>
 												</button>
 
-												<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/cities/%d/toggle", c.ID)) } class="m-0 inline">
+												<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/cities/%d/toggle", c.ID)) } class="m-0 d-inline">
 													<button type="submit" class="btn btn-secondary btn-xs text-xs">
 														if c.IsActive {
 															<span>تعطيل</span>
@@ -270,31 +315,75 @@ templ AdminCities(data AdminCitiesData, lang string, dir string, isHTMX bool) {
 							</tbody>
 						</table>
 					</div>
+
+					<!-- Pagination Strip -->
+					<div class="p-4 border-t flex-between items-center flex-wrap gap-3 bg-surface-sunken">
+						<!-- Rows Per Page -->
+						<div class="d-flex items-center gap-2 text-xs text-secondary">
+							<span>صفوف لكل صفحة:</span>
+							<select
+								class="form-input text-xs py-1 px-2"
+								style="width: auto;"
+								onchange="location.href=this.value"
+							>
+								<option value={ templ.SafeURL(fmt.Sprintf("/admin/cities?gov_id=%d&q=%s&limit=10&page=1", data.SelectedGovernorateID, data.Query)) } selected?={ data.Limit == 10 }>10</option>
+								<option value={ templ.SafeURL(fmt.Sprintf("/admin/cities?gov_id=%d&q=%s&limit=25&page=1", data.SelectedGovernorateID, data.Query)) } selected?={ data.Limit == 25 }>25</option>
+								<option value={ templ.SafeURL(fmt.Sprintf("/admin/cities?gov_id=%d&q=%s&limit=50&page=1", data.SelectedGovernorateID, data.Query)) } selected?={ data.Limit == 50 }>50</option>
+								<option value={ templ.SafeURL(fmt.Sprintf("/admin/cities?gov_id=%d&q=%s&limit=100&page=1", data.SelectedGovernorateID, data.Query)) } selected?={ data.Limit == 100 }>100</option>
+								<option value={ templ.SafeURL(fmt.Sprintf("/admin/cities?gov_id=%d&q=%s&limit=1000&page=1", data.SelectedGovernorateID, data.Query)) } selected?={ data.Limit >= 1000 }>الكل ({ fmt.Sprintf("%d", data.TotalFiltered) })</option>
+							</select>
+							<span class="tabular-nums font-bold">
+								(صفحة { fmt.Sprintf("%d من %d", data.Page, data.TotalPages) })
+							</span>
+						</div>
+
+						<!-- Page Nav -->
+						<div class="d-flex items-center gap-2">
+							if data.Page > 1 {
+								<a
+									href={ templ.SafeURL(fmt.Sprintf("/admin/cities?gov_id=%d&q=%s&limit=%d&page=%d", data.SelectedGovernorateID, data.Query, data.Limit, data.Page-1)) }
+									class="btn btn-secondary btn-xs font-bold text-xs"
+								>
+									@components.IconArrowRight("icon-xs")
+									<span>السابق</span>
+								</a>
+							}
+							if data.Page < data.TotalPages {
+								<a
+									href={ templ.SafeURL(fmt.Sprintf("/admin/cities?gov_id=%d&q=%s&limit=%d&page=%d", data.SelectedGovernorateID, data.Query, data.Limit, data.Page+1)) }
+									class="btn btn-secondary btn-xs font-bold text-xs"
+								>
+									<span>التالي</span>
+									@components.IconArrowLeft("icon-xs")
+								</a>
+							}
+						</div>
+					</div>
 				</div>
 
-				<!-- Right Side: Forms Container -->
-				<div style="display:flex; flex-direction:column; gap:1.5rem; position:sticky; top:calc(var(--header-height) + 1.5rem);">
+				<!-- Right Side: Creation Forms -->
+				<div class="d-flex flex-col gap-6" style="position: sticky; top: calc(var(--header-height) + 1.5rem);">
 					
-					<!-- Card 1: Add New City / Subgovernorate -->
-					<div id="new-city-card" style="background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-2xl); padding:1.5rem;">
-						<div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:1rem; border-bottom:1px solid var(--border); padding-bottom:0.75rem;">
-							<div style="width:32px; height:32px; border-radius:var(--radius-md); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center;">
-								@components.IconPlus("icon-xs")
+					<!-- Card 1: Add New City -->
+					<div id="new-city-card" class="glass-panel p-5 mb-0">
+						<div class="d-flex items-center gap-2 pb-3 mb-4 border-b">
+							<div class="user-avatar-badge text-base">
+								🏙️
 							</div>
 							<div>
-								<h3 style="font-size:1.05rem; font-weight:800; color:var(--text); margin:0;">
+								<h3 class="text-sm font-black text-primary m-0">
 									إضافة مدينة / حي فرعي
 								</h3>
-								<div style="font-size:0.75rem; color:var(--text-muted);">إدراج منطقة جديدة تحت محافظة معتمدة</div>
+								<div class="text-xs text-secondary mt-0.5">إدراج منطقة جديدة تحت محافظة معتمدة</div>
 							</div>
 						</div>
 
-						<form method="POST" action="/admin/cities/new" class="stack" style="gap:1rem;">
+						<form method="POST" action="/admin/cities/new" class="d-flex flex-col gap-3 m-0">
 							<div>
-								<label class="form-label" style="font-size:0.825rem; font-weight:700;">
+								<label class="form-label text-xs font-bold mb-1">
 									المحافظة التابعة <span class="text-danger">*</span>
 								</label>
-								<select name="governorate_id" required class="form-input w-full" style="font-size:0.875rem;">
+								<select name="governorate_id" required class="form-input text-xs w-full font-bold">
 									<option value="">-- اختر المحافظة --</option>
 									for _, g := range data.Governorates {
 										if data.SelectedGovernorateID == g.ID {
@@ -311,28 +400,31 @@ templ AdminCities(data AdminCitiesData, lang string, dir string, isHTMX bool) {
 							</div>
 
 							<div>
-								<label class="form-label" style="font-size:0.825rem; font-weight:700;">
+								<label class="form-label text-xs font-bold mb-1">
 									اسم المدينة / الحي بالعربية <span class="text-danger">*</span>
 								</label>
-								<input type="text" name="name_ar" required placeholder="مثال: المنصورة الجديدة" class="form-input w-full" style="font-size:0.875rem;"/>
+								<input type="text" name="name_ar" required placeholder="مثال: المنصورة الجديدة" class="form-input text-xs w-full"/>
 							</div>
 
 							<div>
-								<label class="form-label" style="font-size:0.825rem; font-weight:700;">
+								<label class="form-label text-xs font-bold mb-1">
 									اسم المدينة / الحي بالإنجليزية
 								</label>
-								<input type="text" name="name_en" placeholder="New Mansoura" class="form-input w-full" style="font-size:0.875rem;"/>
+								<input type="text" name="name_en" placeholder="New Mansoura" class="form-input text-xs w-full"/>
 							</div>
 
-							<div>
-								@components.MapPicker(components.MapPickerProps{
-									NamePrefix: "city",
-									Label:      "تحديد الموقع الجغرافي للمدينة / المركز (GPS)",
-									Height:     "200px",
-								})
+							<div class="d-flex gap-2">
+								<div class="flex-1">
+									<label class="form-label text-xs font-bold mb-1">خط العرض (Lat)</label>
+									<input type="number" step="any" name="city_lat" placeholder="30.0444" class="form-input text-xs w-full font-mono"/>
+								</div>
+								<div class="flex-1">
+									<label class="form-label text-xs font-bold mb-1">خط الطول (Lon)</label>
+									<input type="number" step="any" name="city_lon" placeholder="31.2357" class="form-input text-xs w-full font-mono"/>
+								</div>
 							</div>
 
-							<button type="submit" class="btn btn-primary" style="font-weight:800; padding:0.65rem; width:100%; justify-content:center;">
+							<button type="submit" class="btn btn-primary btn-sm font-black text-xs w-full mt-2">
 								@components.IconCheck("icon-xs")
 								<span>حفظ وإضافة المدينة</span>
 							</button>
@@ -340,66 +432,66 @@ templ AdminCities(data AdminCitiesData, lang string, dir string, isHTMX bool) {
 					</div>
 
 					<!-- Card 2: Add New Governorate -->
-					<div id="new-gov-card" style="background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-2xl); padding:1.5rem;">
-						<div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:1rem; border-bottom:1px solid var(--border); padding-bottom:0.75rem;">
-							<div style="width:32px; height:32px; border-radius:var(--radius-md); background:var(--sky-subtle); color:var(--sky); display:flex; align-items:center; justify-content:center;">
-								@components.IconPlus("icon-xs")
+					<div id="new-gov-card" class="glass-panel p-5 mb-0">
+						<div class="d-flex items-center gap-2 pb-3 mb-4 border-b">
+							<div class="user-avatar-badge text-base">
+								🏛️
 							</div>
 							<div>
-								<h3 style="font-size:1.05rem; font-weight:800; color:var(--text); margin:0;">
-									إضافة محافظة رئيسية جديدة
+								<h3 class="text-sm font-black text-primary m-0">
+									إضافة محافظة رئيسية
 								</h3>
-								<div style="font-size:0.75rem; color:var(--text-muted);">إدراج نطاق محافظة جديد بالجمهورية</div>
+								<div class="text-xs text-secondary mt-0.5">إدراج نطاق محافظة جديد بالجمهورية</div>
 							</div>
 						</div>
 
-						<form method="POST" action="/admin/governorates/new" class="stack" style="gap:1rem;">
+						<form method="POST" action="/admin/governorates/new" class="d-flex flex-col gap-3 m-0">
 							<div>
-								<label class="form-label" style="font-size:0.825rem; font-weight:700;">
+								<label class="form-label text-xs font-bold mb-1">
 									اسم المحافظة بالعربية <span class="text-danger">*</span>
 								</label>
-								<input type="text" name="gov_name_ar" required placeholder="مثال: مطروح" class="form-input w-full" style="font-size:0.875rem;"/>
+								<input type="text" name="gov_name_ar" required placeholder="مثال: مطروح" class="form-input text-xs w-full"/>
 							</div>
 
 							<div>
-								<label class="form-label" style="font-size:0.825rem; font-weight:700;">
+								<label class="form-label text-xs font-bold mb-1">
 									اسم المحافظة بالإنجليزية
 								</label>
-								<input type="text" name="gov_name_en" placeholder="Matrooh" class="form-input w-full" style="font-size:0.875rem;"/>
+								<input type="text" name="gov_name_en" placeholder="Matrooh" class="form-input text-xs w-full"/>
 							</div>
 
-							<div style="display:grid; grid-template-columns:1fr 1fr; gap:0.5rem;">
-								<div>
-									<label class="form-label" style="font-size:0.75rem;">خط العرض (Lat)</label>
-									<input type="number" step="any" name="gov_lat" placeholder="30.0444" class="form-input w-full" style="font-size:0.825rem;"/>
+							<div class="d-flex gap-2">
+								<div class="flex-1">
+									<label class="form-label text-xs font-bold mb-1">خط العرض (Lat)</label>
+									<input type="number" step="any" name="gov_lat" placeholder="30.0444" class="form-input text-xs w-full font-mono"/>
 								</div>
-								<div>
-									<label class="form-label" style="font-size:0.75rem;">خط الطول (Lon)</label>
-									<input type="number" step="any" name="gov_lon" placeholder="31.2357" class="form-input w-full" style="font-size:0.825rem;"/>
+								<div class="flex-1">
+									<label class="form-label text-xs font-bold mb-1">خط الطول (Lon)</label>
+									<input type="number" step="any" name="gov_lon" placeholder="31.2357" class="form-input text-xs w-full font-mono"/>
 								</div>
 							</div>
 
-							<button type="submit" class="btn btn-secondary" style="font-weight:800; padding:0.65rem; width:100%; justify-content:center;">
+							<button type="submit" class="btn btn-secondary btn-sm font-black text-xs w-full mt-2">
 								@components.IconCheck("icon-xs")
 								<span>حفظ وإضافة المحافظة</span>
 							</button>
 						</form>
 					</div>
 
-					<!-- Card 3: Governorates Summary List -->
-					<div style="background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-2xl); padding:1.25rem;">
-						<h4 style="font-size:0.925rem; font-weight:800; color:var(--text); margin:0 0 0.75rem 0; border-bottom:1px solid var(--border); padding-bottom:0.5rem;">
-							قائمة المحافظات المعتمدة ({ fmt.Sprintf("%d", len(data.Governorates)) })
+					<!-- Card 3: Governorates Quick Filter Pills -->
+					<div class="glass-panel p-5 mb-0">
+						<h4 class="text-xs font-black text-primary m-0 pb-2 mb-3 border-b">
+							المحافظات المعتمدة ({ fmt.Sprintf("%d", len(data.Governorates)) })
 						</h4>
-						<div style="display:flex; flex-wrap:wrap; gap:0.4rem; max-height:220px; overflow-y:auto; padding-inline-end:0.25rem;">
+						<div class="d-flex flex-wrap gap-1.5" style="max-height: 180px; overflow-y: auto;">
 							for _, g := range data.Governorates {
 								<a
 									href={ templ.SafeURL(fmt.Sprintf("/admin/cities?gov_id=%d", g.ID)) }
-									class={ "badge", templ.KV("badge-primary", data.SelectedGovernorateID == g.ID), templ.KV("badge-gray", data.SelectedGovernorateID != g.ID) }
-									style="text-decoration:none; cursor:pointer; font-size:0.75rem; padding:0.35rem 0.55rem;"
+									class={ "badge text-xs", templ.KV("badge-primary", data.SelectedGovernorateID == g.ID), templ.KV("badge-slate", data.SelectedGovernorateID != g.ID) }
+									style="text-decoration: none; cursor: pointer; padding: 0.35rem 0.6rem;"
 								>
 									<span>{ g.Name["ar"] }</span>
-									<span style="opacity:0.75; font-size:0.7rem;">({ fmt.Sprintf("%d", g.CityCount) })</span>
+									<span class="tabular-nums opacity-75 font-mono">({ fmt.Sprintf("%d", g.CityCount) })</span>
 								</a>
 							}
 						</div>
@@ -407,142 +499,109 @@ templ AdminCities(data AdminCitiesData, lang string, dir string, isHTMX bool) {
 
 				</div>
 			</div>
-		</div>
 
-		<!-- Edit City Modal -->
-		<div
-			id="edit-city-modal"
-			style="display:none; position:fixed; inset:0; z-index:9999; background:rgba(0,0,0,0.6); backdrop-filter:blur(4px); align-items:center; justify-content:center; padding:1rem;"
-			onclick="if(event.target === this) closeEditCityModal()"
-		>
+			<!-- Dynamic Alpine Centered Edit City Modal -->
 			<div
-				style="background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-2xl); max-width:540px; width:100%; max-height:90vh; overflow-y:auto; box-shadow:var(--shadow-2xl); padding:1.75rem;"
-				class="stack"
+				x-show="isEditOpen"
+				x-cloak
+				class="modal-backdrop"
+				style="position: fixed; inset: 0; z-index: 9999; display: flex; align-items: center; justify-content: center; background: rgba(15, 23, 42, 0.7); backdrop-filter: blur(4px); padding: 1rem;"
+				@click.self="closeEdit()"
 			>
-				<div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--border); padding-bottom:1rem; margin-bottom:0.5rem;">
-					<div style="display:flex; align-items:center; gap:0.6rem;">
-						<div style="width:36px; height:36px; border-radius:var(--radius-md); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center; font-size:1.1rem;">
-							✏️
+				<div
+					class="glass-panel p-6 w-full"
+					style="max-width: 520px; max-height: 90vh; overflow-y: auto; box-shadow: var(--shadow-2xl); border-radius: var(--radius-2xl);"
+					@click.stop
+				>
+					<div class="flex-between items-center pb-3 mb-4 border-b">
+						<div class="d-flex items-center gap-2">
+							<div class="user-avatar-badge text-base">
+								✏️
+							</div>
+							<div>
+								<h3 class="text-base font-black text-primary m-0">
+									تعديل بيانات المدينة / الحي
+								</h3>
+								<div class="text-xs text-secondary mt-0.5">تحديث الاسم والمحافظة والإحداثيات</div>
+							</div>
 						</div>
-						<div>
-							<h3 style="font-size:1.15rem; font-weight:800; color:var(--text); margin:0;">
-								تعديل بيانات المدينة / الحي
-							</h3>
-							<div style="font-size:0.75rem; color:var(--text-muted);">تحديث الاسم، المحافظة التابعة، والإحداثيات الجغرافية</div>
-						</div>
+						<button type="button" @click="closeEdit()" class="btn btn-secondary btn-xs btn-icon">
+							✕
+						</button>
 					</div>
-					<button type="button" onclick="closeEditCityModal()" class="btn btn-ghost btn-xs text-lg text-muted" style="cursor:pointer; padding:0.25rem 0.5rem;">
-						✕
-					</button>
+
+					<form :action="'/admin/cities/' + editForm.id + '/edit'" method="POST" class="d-flex flex-col gap-3 m-0">
+						<div>
+							<label class="form-label text-xs font-bold mb-1">
+								المحافظة التابعة <span class="text-danger">*</span>
+							</label>
+							<select name="governorate_id" x-model="editForm.gov_id" required class="form-input text-xs w-full font-bold">
+								<option value="">-- اختر المحافظة --</option>
+								for _, g := range data.Governorates {
+									<option value={ fmt.Sprintf("%d", g.ID) }>
+										{ g.Name["ar"] } ({ g.Name["en"] })
+									</option>
+								}
+							</select>
+						</div>
+
+						<div>
+							<label class="form-label text-xs font-bold mb-1">
+								اسم المدينة / الحي بالعربية <span class="text-danger">*</span>
+							</label>
+							<input type="text" name="name_ar" x-model="editForm.name_ar" required placeholder="مثال: مدينة نصر" class="form-input text-xs w-full"/>
+						</div>
+
+						<div>
+							<label class="form-label text-xs font-bold mb-1">
+								اسم المدينة / الحي بالإنجليزية
+							</label>
+							<input type="text" name="name_en" x-model="editForm.name_en" placeholder="Nasr City" class="form-input text-xs w-full"/>
+						</div>
+
+						<div class="d-flex gap-2">
+							<div class="flex-1">
+								<label class="form-label text-xs font-bold mb-1">خط العرض (Lat)</label>
+								<input type="number" step="any" name="city_lat" x-model="editForm.lat" placeholder="30.0444" class="form-input text-xs w-full font-mono"/>
+							</div>
+							<div class="flex-1">
+								<label class="form-label text-xs font-bold mb-1">خط الطول (Lon)</label>
+								<input type="number" step="any" name="city_lon" x-model="editForm.lon" placeholder="31.2357" class="form-input text-xs w-full font-mono"/>
+							</div>
+						</div>
+
+						<div class="p-3 bg-surface-sunken border rounded-lg d-flex items-center gap-2 text-xs">
+							<a :href="editForm.map_link" target="_blank" rel="noopener noreferrer" class="text-brand font-bold text-decoration-none d-flex items-center gap-1">
+								<span>📍 معاينة الموقع على خرائط جوجل</span>
+							</a>
+						</div>
+
+						<div class="d-flex gap-4 p-3 bg-surface-sunken border rounded-lg">
+							<label class="d-flex items-center gap-2 cursor-pointer text-xs font-bold text-primary">
+								<input type="checkbox" name="is_capital" value="true" x-model="editForm.is_capital" class="form-checkbox"/>
+								<span>عاصمة / مركز رئيسي</span>
+							</label>
+
+							<label class="d-flex items-center gap-2 cursor-pointer text-xs font-bold text-primary">
+								<input type="checkbox" name="is_active" value="true" x-model="editForm.is_active" class="form-checkbox"/>
+								<span>حالة التفعيل (نشطة)</span>
+							</label>
+						</div>
+
+						<div class="flex-between items-center pt-3 mt-2 border-t gap-3">
+							<button type="button" @click="closeEdit()" class="btn btn-secondary btn-sm font-bold text-xs flex-1">
+								إلغاء
+							</button>
+							<button type="submit" class="btn btn-primary btn-sm font-black text-xs flex-1">
+								@components.IconCheck("icon-xs")
+								<span>حفظ التعديلات</span>
+							</button>
+						</div>
+					</form>
 				</div>
-
-				<form id="edit-city-form" method="POST" action="" class="stack" style="gap:1rem;">
-					<div>
-						<label class="form-label" style="font-size:0.825rem; font-weight:700;">
-							المحافظة التابعة <span class="text-danger">*</span>
-						</label>
-						<select id="edit-city-gov" name="governorate_id" required class="form-input w-full" style="font-size:0.875rem;">
-							<option value="">-- اختر المحافظة --</option>
-							for _, g := range data.Governorates {
-								<option value={ fmt.Sprintf("%d", g.ID) }>
-									{ g.Name["ar"] } ({ g.Name["en"] })
-								</option>
-							}
-						</select>
-					</div>
-
-					<div>
-						<label class="form-label" style="font-size:0.825rem; font-weight:700;">
-							اسم المدينة / الحي بالعربية <span class="text-danger">*</span>
-						</label>
-						<input type="text" id="edit-city-name-ar" name="name_ar" required placeholder="مثال: مدينة نصر" class="form-input w-full" style="font-size:0.875rem;"/>
-					</div>
-
-					<div>
-						<label class="form-label" style="font-size:0.825rem; font-weight:700;">
-							اسم المدينة / الحي بالإنجليزية
-						</label>
-						<input type="text" id="edit-city-name-en" name="name_en" placeholder="Nasr City" class="form-input w-full" style="font-size:0.875rem;"/>
-					</div>
-
-					<div style="display:grid; grid-template-columns:1fr 1fr; gap:0.75rem;">
-						<div>
-							<label class="form-label" style="font-size:0.8rem; font-weight:700;">خط العرض (Latitude)</label>
-							<input type="number" step="any" id="edit-city-lat" name="city_lat" placeholder="30.0444" class="form-input w-full" style="font-size:0.85rem; font-family:monospace;"/>
-						</div>
-						<div>
-							<label class="form-label" style="font-size:0.8rem; font-weight:700;">خط الطول (Longitude)</label>
-							<input type="number" step="any" id="edit-city-lon" name="city_lon" placeholder="31.2357" class="form-input w-full" style="font-size:0.85rem; font-family:monospace;"/>
-						</div>
-					</div>
-
-					<div style="display:flex; align-items:center; gap:0.5rem; background:var(--surface-raised); padding:0.6rem 0.85rem; border-radius:var(--radius-lg); border:1px solid var(--border);">
-						<a id="edit-city-map-link" href="#" target="_blank" rel="noopener noreferrer" style="display:inline-flex; align-items:center; gap:0.35rem; color:var(--accent); font-size:0.8rem; font-weight:600; text-decoration:none;">
-							📍 <span>معاينة الموقع على خرائط جوجل</span>
-						</a>
-					</div>
-
-					<div style="display:grid; grid-template-columns:1fr 1fr; gap:0.75rem; background:var(--surface-raised); padding:0.75rem; border-radius:var(--radius-lg); border:1px solid var(--border);">
-						<label style="display:flex; align-items:center; gap:0.4rem; cursor:pointer; font-size:0.825rem; font-weight:600; color:var(--text);">
-							<input type="checkbox" id="edit-city-is-capital" name="is_capital" value="true" class="form-checkbox"/>
-							<span>عاصمة / مركز رئيسي</span>
-						</label>
-
-						<label style="display:flex; align-items:center; gap:0.4rem; cursor:pointer; font-size:0.825rem; font-weight:600; color:var(--text);">
-							<input type="checkbox" id="edit-city-is-active" name="is_active" value="true" class="form-checkbox"/>
-							<span>حالة التفعيل (نشطة)</span>
-						</label>
-					</div>
-
-					<div style="display:flex; justify-content:flex-end; gap:0.75rem; margin-top:0.5rem; border-top:1px solid var(--border); padding-top:1rem;">
-						<button type="button" onclick="closeEditCityModal()" class="btn btn-secondary btn-sm" style="font-weight:700;">
-							إلغاء
-						</button>
-						<button type="submit" class="btn btn-primary btn-sm" style="font-weight:800; min-width:140px; justify-content:center;">
-							@components.IconCheck("icon-xs")
-							<span>حفظ التعديلات</span>
-						</button>
-					</div>
-				</form>
 			</div>
+
 		</div>
-
-		<script>
-			function openEditCityModal(id, govId, nameAr, nameEn, lat, lon, isCapital, isActive) {
-				const modal = document.getElementById('edit-city-modal');
-				const form = document.getElementById('edit-city-form');
-				if (!modal || !form) return;
-
-				form.action = '/admin/cities/' + id + '/edit';
-				document.getElementById('edit-city-gov').value = govId ? String(govId) : '';
-				document.getElementById('edit-city-name-ar').value = nameAr || '';
-				document.getElementById('edit-city-name-en').value = nameEn || '';
-				document.getElementById('edit-city-lat').value = (lat && lat !== 0) ? lat : '';
-				document.getElementById('edit-city-lon').value = (lon && lon !== 0) ? lon : '';
-				document.getElementById('edit-city-is-capital').checked = !!isCapital;
-				document.getElementById('edit-city-is-active').checked = !!isActive;
-
-				const mapLink = document.getElementById('edit-city-map-link');
-				if (mapLink && lat && lon) {
-					mapLink.href = 'https://www.google.com/maps?q=' + lat + ',' + lon;
-				}
-
-				modal.style.display = 'flex';
-			}
-
-			function closeEditCityModal() {
-				const modal = document.getElementById('edit-city-modal');
-				if (modal) {
-					modal.style.display = 'none';
-				}
-			}
-
-			document.addEventListener('keydown', function(e) {
-				if (e.key === 'Escape') {
-					closeEditCityModal();
-				}
-			});
-		</script>
 	}
 }
 

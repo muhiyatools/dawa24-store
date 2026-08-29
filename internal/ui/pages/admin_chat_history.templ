@@ -186,33 +186,33 @@ templ AdminChatHistoryPage(data AdminChatHistoryData, lang, dir string) {
 // AdminAIChatDetailPage renders full messages transcript for an AI assistant conversation.
 templ AdminAIChatDetailPage(summary *assistant.ConversationSummary, msgs []*assistant.Message, lang, dir string) {
 	@layouts.AdminShell(fmt.Sprintf("محادثة ذكاء اصطناعي #%d", summary.ID), "chat_history", lang, dir) {
-		<div style="max-width:960px; margin:0 auto; display:flex; flex-direction:column; gap:1.25rem;">
+		<div class="page-container" style="max-width: 1050px; margin: 0 auto;">
 			
 			<!-- Header Card -->
-			<div class="card mb-0">
-				<div style="display:flex; justify-content:space-between; align-items:flex-start; gap:1rem; flex-wrap:wrap;">
+			<div class="glass-panel p-6 mb-0">
+				<div class="flex-between items-center flex-wrap gap-4">
 					<div>
-						<div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:0.25rem;">
-							<span class="badge badge-emerald">جلسة مساعد كبسولة AI</span>
-							<span class="tabular-nums" style="font-weight:800; color:var(--text); font-size:1.15rem;">#{ fmt.Sprintf("%d", summary.ID) }</span>
+						<div class="d-flex items-center gap-2 mb-1">
+							<span class="badge badge-sky text-xs font-black">جلسة كبسولة AI</span>
+							<strong class="text-primary text-base tabular-nums font-mono font-black">#{ fmt.Sprintf("%d", summary.ID) }</strong>
 						</div>
-						<h2 style="font-size:1.35rem; font-weight:800; margin:0.25rem 0; color:var(--text);">
+						<h1 class="text-xl font-black text-primary m-0 mb-2">
 							if summary.Title != "" {
 								{ summary.Title }
 							} else {
-								<span>محادثة كبسولة</span>
+								<span>محادثة استشارية دوائية</span>
 							}
-						</h2>
-						<div style="font-size:0.825rem; color:var(--text-secondary); margin-top:0.4rem; display:flex; gap:1.25rem; flex-wrap:wrap;">
-							<div>👤 <strong>المستخدم:</strong> { summary.UserName } ({ summary.UserEmail })</div>
-							<div>🏢 <strong>المنشأة:</strong> { summary.OrganizationName } (#{ fmt.Sprintf("%d", summary.OrganizationID) })</div>
-							<div>📅 <strong>تاريخ البدء:</strong> { summary.CreatedAt.Format("2006-01-02 15:04") }</div>
-							<div>⏱️ <strong>آخر نشاط:</strong> { summary.UpdatedAt.Format("2006-01-02 15:04") }</div>
+						</h1>
+						<div class="d-flex items-center gap-3 flex-wrap text-xs text-secondary">
+							<div>👤 <strong>المستخدم:</strong> { summary.UserName } <span class="tabular-nums" dir="ltr">({ summary.UserEmail })</span></div>
+							<div>🏢 <strong>المنشأة:</strong> { summary.OrganizationName } <span class="tabular-nums">(#{ fmt.Sprintf("%d", summary.OrganizationID) })</span></div>
+							<div>📅 <strong>البدء:</strong> <span class="tabular-nums">{ summary.CreatedAt.Format("2006-01-02 15:04") }</span></div>
+							<div>⏱️ <strong>آخر نشاط:</strong> <span class="tabular-nums">{ summary.UpdatedAt.Format("2006-01-02 15:04") }</span></div>
 						</div>
 					</div>
 
-					<div class="row-center-sm">
-						<a href="/admin/chat/history" class="btn btn-secondary btn-sm" style="font-weight:700; gap:0.35rem;">
+					<div>
+						<a href="/admin/chat/history" class="btn btn-secondary btn-sm font-bold text-xs gap-1">
 							@components.IconArrowRight("icon-xs")
 							<span>العودة لقائمة السجلات</span>
 						</a>
@@ -220,62 +220,75 @@ templ AdminAIChatDetailPage(summary *assistant.ConversationSummary, msgs []*assi
 				</div>
 
 				<!-- Stats Strip -->
-				<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(150px, 1fr)); gap:0.75rem; margin-top:1rem; padding-top:1rem; border-top:1px solid var(--border);">
-					<div style="background:var(--surface-sunken); padding:0.6rem 0.85rem; border-radius:var(--radius-md);">
-						<div style="font-size:0.725rem; color:var(--text-muted);">إجمالي الرسائل</div>
-						<div style="font-size:1.15rem; font-weight:800; color:var(--text);" class="tabular-nums">{ fmt.Sprintf("%d", len(msgs)) }</div>
+				<div class="dashboard-stat-grid cols-3 mt-4 pt-4 border-t mb-0">
+					<div class="stat-card-3d p-3">
+						<div class="stat-card-label text-xs">إجمالي الرسائل</div>
+						<div class="stat-card-value text-primary tabular-nums text-lg">{ fmt.Sprintf("%d", len(msgs)) }</div>
 					</div>
-					<div style="background:var(--surface-sunken); padding:0.6rem 0.85rem; border-radius:var(--radius-md);">
-						<div style="font-size:0.725rem; color:var(--text-muted);">رموز الإدخال (Input)</div>
-						<div style="font-size:1.15rem; font-weight:800; color:var(--text);" class="tabular-nums">{ fmt.Sprintf("%d", summary.TotalInputTokens) }</div>
+					<div class="stat-card-3d p-3">
+						<div class="stat-card-label text-brand text-xs">رموز الإدخال (Input)</div>
+						<div class="stat-card-value text-brand tabular-nums text-lg">{ fmt.Sprintf("%d", summary.TotalInputTokens) }</div>
 					</div>
-					<div style="background:var(--surface-sunken); padding:0.6rem 0.85rem; border-radius:var(--radius-md);">
-						<div style="font-size:0.725rem; color:var(--text-muted);">رموز التوليد (Output)</div>
-						<div style="font-size:1.15rem; font-weight:800; color:var(--text);" class="tabular-nums">{ fmt.Sprintf("%d", summary.TotalOutputTokens) }</div>
+					<div class="stat-card-3d p-3">
+						<div class="stat-card-label text-success text-xs">رموز التوليد (Output)</div>
+						<div class="stat-card-value text-success tabular-nums text-lg">{ fmt.Sprintf("%d", summary.TotalOutputTokens) }</div>
 					</div>
 				</div>
 			</div>
 
 			<!-- Transcript -->
-			<div class="card mb-0 p-card">
-				<h3 style="font-size:1.05rem; font-weight:800; margin:0 0 1.25rem 0; border-bottom:1px solid var(--border); padding-bottom:0.5rem; display:flex; align-items:center; gap:0.4rem;">
-					@components.IconFileText("icon-xs")
-					<span>سجل الحوار والرسائل الكامل (Full Transcript)</span>
-				</h3>
+			<div class="glass-panel p-6 mb-0">
+				<div class="flex-between items-center pb-3 mb-4 border-b">
+					<div class="d-flex items-center gap-2">
+						<span class="text-lg">📜</span>
+						<h2 class="text-base font-black text-primary m-0">
+							سجل الحوار والرسائل الكامل (Full Transcript)
+						</h2>
+					</div>
+					<span class="badge badge-slate text-xs font-bold tabular-nums">{ fmt.Sprintf("%d رسالة", len(msgs)) }</span>
+				</div>
 
 				if len(msgs) == 0 {
-					@components.EmptyState(components.EmptyStateProps{Title: "لا توجد رسائل مسجلة", Message: "هذه الجلسة لا تحتوي على رسائل."})
+					<div class="p-12 text-center empty-state-glass">
+						<div class="text-4xl mb-3">💬</div>
+						<h3 class="text-lg font-black text-primary mb-2">لا توجد رسائل مسجلة</h3>
+						<p class="text-xs text-secondary max-w-md mx-auto">هذه الجلسة لا تحتوي على رسائل مسجلة.</p>
+					</div>
 				} else {
-					<div class="stack-lg">
+					<div class="d-flex flex-col gap-4">
 						for _, m := range msgs {
 							if m.Role == "user" {
 								<!-- User Bubble -->
-								<div style="display:flex; justify-content:flex-start;">
-									<div style="max-width:85%; background:var(--surface-sunken); border:1px solid var(--border); border-radius:18px 18px 4px 18px; padding:0.85rem 1.15rem;">
-										<div style="display:flex; justify-content:space-between; align-items:center; gap:1rem; margin-bottom:0.35rem; font-size:0.75rem; color:var(--text-muted);">
-											<span style="font-weight:700; color:var(--accent);">👤 { summary.UserName }</span>
-											<span class="tabular-nums">{ m.CreatedAt.Format("15:04:05") }</span>
+								<div class="d-flex justify-start">
+									<div class="p-4 bg-surface-sunken border rounded-2xl" style="max-width: 85%;">
+										<div class="flex-between items-center gap-4 mb-2 pb-1 border-b text-xs text-muted">
+											<div class="d-flex items-center gap-1.5 font-extrabold text-primary">
+												<span>👤</span>
+												<span>{ summary.UserName }</span>
+											</div>
+											<span class="tabular-nums font-mono">{ m.CreatedAt.Format("15:04:05") }</span>
 										</div>
-										<div style="font-size:0.9rem; line-height:1.6; color:var(--text); white-space:pre-wrap;" dir="auto">{ m.Content }</div>
+										<div class="text-xs text-primary leading-relaxed" style="white-space: pre-wrap; word-break: break-word;" dir="auto">{ m.Content }</div>
 										if len(m.Attachments) > 0 {
-											<div style="margin-top:0.75rem; display:flex; flex-wrap:wrap; gap:0.6rem;">
+											<div class="d-flex flex-wrap gap-2 mt-3 pt-2 border-t">
 												for _, att := range m.Attachments {
-													<div style="border:1px solid var(--border); border-radius:var(--radius-md); overflow:hidden; background:var(--surface); max-width:260px;">
+													<div class="border rounded-lg overflow-hidden bg-surface-raised" style="max-width: 240px;">
 														if strings.HasPrefix(att.MIMEType, "image/") || strings.HasPrefix(att.DataURL, "data:image/") {
 															<a href={ templ.SafeURL(att.DataURL) } target="_blank" title="عرض الصورة بالحجم الكامل">
 																<img 
 																	src={ att.DataURL } 
 																	alt={ att.Filename } 
-																	style="width:100%; max-height:160px; object-fit:cover; display:block; cursor:pointer; background:var(--surface-sunken);" 
+																	class="w-full object-cover d-block" 
+																	style="height: 120px;" 
 																/>
 															</a>
 														}
-														<div style="padding:0.35rem 0.55rem; font-size:0.75rem; color:var(--text-secondary); display:flex; justify-content:space-between; align-items:center; gap:0.5rem;">
-															<span style="font-weight:600; text-overflow:ellipsis; overflow:hidden; white-space:nowrap;" title={ att.Filename }>
+														<div class="p-2 text-xs text-secondary flex-between gap-2">
+															<span class="font-bold truncate" title={ att.Filename }>
 																📎 { att.Filename }
 															</span>
 															if att.SizeMB > 0 {
-																<span style="color:var(--text-muted); font-size:0.7rem;" class="tabular-nums">{ fmt.Sprintf("%.2f MB", att.SizeMB) }</span>
+																<span class="text-muted tabular-nums font-mono">{ fmt.Sprintf("%.2f MB", att.SizeMB) }</span>
 															}
 														</div>
 													</div>
@@ -286,19 +299,21 @@ templ AdminAIChatDetailPage(summary *assistant.ConversationSummary, msgs []*assi
 								</div>
 							} else if m.Role == "assistant" {
 								<!-- Assistant Bubble -->
-								<div style="display:flex; justify-content:flex-start;">
-									<div style="width:100%; background:var(--surface-raised); border:1px solid var(--border); border-radius:18px 18px 18px 4px; padding:1rem 1.25rem;">
-										<div style="display:flex; justify-content:space-between; align-items:center; gap:1rem; margin-bottom:0.5rem; font-size:0.75rem; color:var(--text-muted);">
-											<span style="font-weight:700; color:#0284c7; display:flex; align-items:center; gap:0.3rem;">
-												@components.IconSparkles("icon-xxs")
-												<span>المساعد كبسولة AI</span>
+								<div class="d-flex justify-start">
+									<div class="p-4 bg-surface-raised border rounded-2xl w-full">
+										<div class="flex-between items-center gap-4 mb-2 pb-2 border-b text-xs">
+											<div class="d-flex items-center gap-2">
+												<span class="badge badge-sky text-xs font-black">🤖 كبسولة AI</span>
 												if m.ModelRole != "" {
-													<code style="font-size:0.7rem; background:var(--surface-sunken); padding:0.1rem 0.3rem; border-radius:3px;">{ m.ModelRole }</code>
+													<span class="badge badge-slate text-xs font-mono">{ m.ModelRole }</span>
 												}
-											</span>
-											<span class="tabular-nums">{ m.CreatedAt.Format("15:04:05") } ({ fmt.Sprintf("%d tokens", m.OutputTokens) })</span>
+											</div>
+											<div class="d-flex items-center gap-2 text-muted tabular-nums text-xs">
+												<span>{ m.CreatedAt.Format("15:04:05") }</span>
+												<span class="badge badge-slate text-xs font-mono font-bold">{ fmt.Sprintf("%d tokens", m.OutputTokens) }</span>
+											</div>
 										</div>
-										<div style="font-size:0.9rem; line-height:1.65; color:var(--text); white-space:pre-wrap;" dir="auto">{ m.Content }</div>
+										<div class="text-xs text-primary leading-relaxed" style="white-space: pre-wrap; word-break: break-word;" dir="auto">{ m.Content }</div>
 									</div>
 								</div>
 							}

@@ -26,8 +26,9 @@ func (h *UIHandler) AdminProductDetailPage(w http.ResponseWriter, r *http.Reques
 	}
 
 	var prod *catalog.Product
+	var variants []*catalog.ProductVariant
 	if h.catSvc != nil {
-		prod, _, _ = h.catSvc.GetProduct(database.AsSystem(ctx), prodID)
+		prod, variants, _ = h.catSvc.GetProduct(database.AsSystem(ctx), prodID)
 	}
 
 	if prod == nil {
@@ -36,7 +37,7 @@ func (h *UIHandler) AdminProductDetailPage(w http.ResponseWriter, r *http.Reques
 	}
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	if err := pages.AdminProductDetailPage(prod, lang, dir).Render(ctx, w); err != nil {
+	if err := pages.AdminProductDetailPage(prod, variants, lang, dir).Render(ctx, w); err != nil {
 		h.log.ErrorContext(ctx, "render admin product detail", "error", err)
 	}
 }

@@ -63,167 +63,131 @@ func sectionTypeIcon(t string) string {
 
 templ VendorStorefront(lang, dir string, sections []*promo.HighlightSection) {
 	@layouts.VendorShell("الأقسام المميزة وواجهة المتجر", "storefront", lang, dir) {
-		<div style="max-width:1100px; margin:0 auto; display:flex; flex-direction:column; gap:1.75rem;">
+		<div
+			class="page-container"
+			style="max-width: 1100px; margin: 0 auto;"
+			x-data="{
+				isModalOpen: false,
+				modalMode: 'add',
+				currentSection: {
+					id: 0,
+					title_ar: '',
+					title_en: '',
+					description_ar: '',
+					description_en: '',
+					display_order: 0,
+					color: '#0284c7',
+					is_active: true,
+					show_in_header: true
+				},
+				openAddModal() {
+					this.modalMode = 'add';
+					this.currentSection = {
+						id: 0,
+						title_ar: '',
+						title_en: '',
+						description_ar: '',
+						description_en: '',
+						display_order: 0,
+						color: '#0284c7',
+						is_active: true,
+						show_in_header: true
+					};
+					this.isModalOpen = true;
+				}
+			}"
+		>
 			
 			<!-- Header Card -->
-			<div class="card" style="background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-2xl); padding:1.75rem;">
-				<div class="flex-between flex-wrap gap-md">
+			<div class="glass-panel p-6 mb-0">
+				<div class="flex-between items-center flex-wrap gap-4">
 					<div>
-						<div class="row-center-sm mb-sm">
-							<div style="width:40px; height:40px; border-radius:var(--radius-lg); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center; font-size:1.25rem;">
+						<div class="d-flex items-center gap-3 mb-1">
+							<div class="user-avatar-badge text-xl">
 								🌟
 							</div>
-							<h1 style="font-size:1.5rem; font-weight:900; color:var(--text); margin:0;">
+							<h1 class="text-2xl font-black text-primary m-0">
 								الأقسام المميزة ونبذة المنشأة
 							</h1>
 						</div>
-						<p style="color:var(--text-muted); font-size:0.875rem; margin:0;">
+						<p class="text-xs text-secondary m-0">
 							تخصيص الأقسام التعريفية (رؤيتنا، أهدافنا، حولنا، الشهادات، والمميزات) التي تظهر على بروفايلك العام للمنشأة أمام الصيدليات.
 						</p>
 					</div>
 
-					<a href="#new-section-card" class="btn btn-primary fw-700">
+					<button type="button" @click="openAddModal()" class="btn btn-primary font-bold text-xs px-4 py-2 gap-2">
 						@components.IconPlus("icon-xs")
 						<span>إضافة قسم تعريفي جديد</span>
-					</a>
-				</div>
-			</div>
-
-			<!-- Add New Section Card -->
-			<div id="new-section-card" class="card" style="background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-2xl); padding:1.75rem;">
-				<div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:1.25rem; border-bottom:1px solid var(--border); padding-bottom:0.85rem;">
-					@components.IconPlus("icon-xs")
-					<h2 class="text-lg fw-800 text-primary m-0">
-						إضافة قسم مميز جديد للبروفايل
-					</h2>
-				</div>
-
-				<form method="POST" action="/vendor/storefront/section" class="stack-lg">
-					<!-- Row 1: Titles -->
-					<div class="grid-2 form-grid-2">
-						<div class="form-group mb-0">
-							<label class="form-label fw-700 text-primary">العنوان (بالعربية) <span class="text-danger">*</span></label>
-							<input type="text" name="title_ar" required placeholder="مثال: رؤيتنا للتميز الدوائي" class="form-input" style="width:100%; border-radius:var(--radius-lg);" />
-						</div>
-						<div class="form-group mb-0">
-							<label class="form-label fw-700 text-primary">العنوان (بالإنجليزية)</label>
-							<input type="text" name="title_en" placeholder="e.g. Our Vision" class="form-input" dir="ltr" style="width:100%; border-radius:var(--radius-lg);" />
-						</div>
-					</div>
-
-					<!-- Row 2: Order & Color -->
-					<input type="hidden" name="section_type" value="about" />
-					<div class="grid-2 form-grid-2">
-						<div class="form-group mb-0">
-							<label class="form-label fw-700 text-primary">ترتيب العرض</label>
-							<input type="number" name="display_order" value="0" min="0" class="form-input" style="width:100%; border-radius:var(--radius-lg);" />
-						</div>
-
-						<div class="form-group mb-0">
-							<label class="form-label fw-700 text-primary">اللون المميز</label>
-							<select name="color" class="form-input" style="width:100%; border-radius:var(--radius-lg);">
-								<option value="#0284c7" selected>أزرق سماوي (Sky Blue)</option>
-								<option value="#10b981">أخضر زمردي (Emerald Green)</option>
-								<option value="#6366f1">نيلي موحد (Indigo)</option>
-								<option value="#8b5cf6">بنفسجي ملكي (Purple)</option>
-								<option value="#f59e0b">كهرماني (Amber)</option>
-								<option value="#ec4899">وردي عصري (Pink)</option>
-							</select>
-						</div>
-					</div>
-
-					<!-- Row 3: Rich Content / Descriptions -->
-					<div class="grid-2 form-grid-2">
-						<div class="form-group mb-0">
-							<label class="form-label fw-700 text-primary">المحتوى والوصف التفصيلي (بالعربية) <span class="text-danger">*</span></label>
-							<textarea name="description_ar" rows="4" required placeholder="اكتب نبذة مفصلة عن رؤية الشركة، معايير التخزين، شهادات الجودة، أو أي معلومات تود إبرازها للصيدليات..." class="form-input" style="width:100%; border-radius:var(--radius-lg); resize:vertical;"></textarea>
-						</div>
-						<div class="form-group mb-0">
-							<label class="form-label fw-700 text-primary">المحتوى والوصف التفصيلي (بالإنجليزية)</label>
-							<textarea name="description_en" rows="4" placeholder="Detailed content and description in English..." class="form-input" dir="ltr" style="width:100%; border-radius:var(--radius-lg); resize:vertical;"></textarea>
-						</div>
-					</div>
-
-					<!-- Row 4: Toggles -->
-					<div style="display:flex; align-items:center; gap:2rem; padding:0.5rem 0;">
-						<label style="display:flex; align-items:center; gap:0.5rem; cursor:pointer; font-weight:700; color:var(--text); font-size:0.9rem;">
-							<input type="checkbox" name="is_active" value="true" checked style="width:18px; height:18px; accent-color:var(--accent);" />
-							<span>القسم نشط ومفعل</span>
-						</label>
-
-						<label style="display:flex; align-items:center; gap:0.5rem; cursor:pointer; font-weight:700; color:var(--text); font-size:0.9rem;">
-							<input type="checkbox" name="show_in_header" value="true" checked style="width:18px; height:18px; accent-color:var(--accent);" />
-							<span>إظهار في رأس بروفايل المورد العام</span>
-						</label>
-					</div>
-
-					<button type="submit" class="btn btn-primary" style="align-self:flex-start; padding:0.75rem 2rem; font-weight:800; font-size:0.95rem;">
-						@components.IconCheck("icon-xs")
-						<span>حفظ ونشر القسم المميز</span>
 					</button>
-				</form>
+				</div>
 			</div>
 
 			<!-- List of Current Sections -->
-			<div class="card" style="background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-2xl); padding:1.75rem;">
-				<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.25rem; border-bottom:1px solid var(--border); padding-bottom:0.85rem;">
-					<h2 class="text-lg fw-800 text-primary m-0">
-						الأقسام المميزة الحالية بالمنشأة
-					</h2>
-					<span class="badge badge-secondary text-sm">{ fmt.Sprintf("%d أقسام مسجلة", len(sections)) }</span>
+			<div class="glass-panel p-6 mb-0">
+				<div class="flex-between items-center pb-3 mb-4 border-b">
+					<div class="d-flex items-center gap-2">
+						<span class="text-lg">📑</span>
+						<h2 class="text-base font-black text-primary m-0">
+							الأقسام المميزة الحالية بالمنشأة
+						</h2>
+					</div>
+					<span class="badge badge-sky text-xs font-bold tabular-nums">{ fmt.Sprintf("%d أقسام مسجلة", len(sections)) }</span>
 				</div>
 
 				if len(sections) == 0 {
-					<div style="padding:3rem 1.5rem; text-align:center; background:var(--surface-sunken); border:1px dashed var(--border); border-radius:var(--radius-xl);">
-						<div style="font-size:2.5rem; margin-bottom:0.75rem;">📋</div>
-						<h3 style="font-size:1.05rem; font-weight:800; color:var(--text); margin:0 0 0.35rem 0;">لا توجد أقسام مميزة بعد</h3>
-						<p style="color:var(--text-muted); font-size:0.85rem; max-width:420px; margin:0 auto 1.25rem auto;">
+					<div class="p-12 text-center empty-state-glass">
+						<div class="text-4xl mb-3">📋</div>
+						<h3 class="text-lg font-black text-primary mb-2">لا توجد أقسام مميزة بعد</h3>
+						<p class="text-xs text-secondary max-w-md mx-auto mb-4">
 							قم بإضافة أقسام تعريفية كـ "رؤيتنا"، "شهادات الاعتماد"، أو "خدماتنا" لتظهر بأزرار تفاعلية أنيقة على بروفايلك العام أمام الصيدليات.
 						</p>
+						<button type="button" @click="openAddModal()" class="btn btn-primary btn-sm font-bold text-xs">
+							@components.IconPlus("icon-xs")
+							<span>إضافة أول قسم الآن</span>
+						</button>
 					</div>
 				} else {
-					<div class="stack-md">
+					<div class="d-flex flex-col gap-3">
 						for _, s := range sections {
-							<div style="padding:1.25rem; background:var(--surface-sunken); border:1px solid var(--border); border-radius:var(--radius-xl); display:flex; flex-direction:column; gap:0.85rem;">
-								<div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.75rem;">
-									<div class="row-center">
+							<div class="p-4 bg-surface-sunken border rounded-xl d-flex flex-col gap-3">
+								<div class="flex-between items-center flex-wrap gap-3">
+									<div class="d-flex items-center gap-3">
 										<span class="text-2xl">{ sectionTypeIcon(s.SectionType) }</span>
 										<div>
-											<div style="display:flex; align-items:center; gap:0.5rem; flex-wrap:wrap;">
-												<strong style="font-size:1.1rem; color:var(--text);">
+											<div class="d-flex items-center gap-2 flex-wrap">
+												<strong class="text-primary text-sm font-extrabold">
 													{ s.Title.Get(i18n.Lang(lang)) }
 												</strong>
 												if s.IsActive {
-													<span class="badge badge-emerald text-xs">نشط ومعروض</span>
+													<span class="badge badge-emerald text-xs font-bold">نشط ومعروض</span>
 												} else {
-													<span class="badge badge-secondary text-xs">معطل</span>
+													<span class="badge badge-rose text-xs font-bold">معطل</span>
 												}
 											</div>
-											<div style="font-size:0.775rem; color:var(--text-muted); margin-top:0.2rem;" class="tabular-nums">
+											<div class="text-xs text-muted tabular-nums mt-0.5">
 												الترتيب: { fmt.Sprintf("%d", s.DisplayOrder) }
 												if s.ShowInHeader {
-													<span> • معروض في بروفايل الصيدليات</span>
+													<span> • معروض في ترويسة البروفايل</span>
 												}
 											</div>
 										</div>
 									</div>
 
 									<!-- Action Buttons -->
-									<div class="row-center-sm">
+									<div class="d-flex items-center gap-2">
 										<!-- Edit Modal Trigger Button -->
 										<button
 											type="button"
-											class="btn btn-secondary btn-sm fw-700"
-											data-modal-open={ fmt.Sprintf("edit-section-modal-%d", s.ID) }
-										
+											class="btn btn-secondary btn-sm font-bold text-xs gap-1"
+											@click={ fmt.Sprintf("modalMode = 'edit'; currentSection = { id: %d, title_ar: %q, title_en: %q, description_ar: %q, description_en: %q, display_order: %d, color: %q, is_active: %t, show_in_header: %t }; isModalOpen = true;", s.ID, s.Title.Get(i18n.AR), s.Title.Get(i18n.EN), s.Description.Get(i18n.AR), s.Description.Get(i18n.EN), s.DisplayOrder, s.Color, s.IsActive, s.ShowInHeader) }
 										>
 											@components.IconEdit("icon-xs")
 											<span>تعديل</span>
 										</button>
 
 										<!-- Toggle Status Form -->
-										<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/vendor/storefront/section/%d/toggle", s.ID)) } class="m-0 inline">
-											<button type="submit" class="btn btn-secondary btn-sm fw-700">
+										<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/vendor/storefront/section/%d/toggle", s.ID)) } class="m-0">
+											<button type="submit" class="btn btn-secondary btn-sm font-bold text-xs">
 												if s.IsActive {
 													<span>تعطيل</span>
 												} else {
@@ -233,8 +197,8 @@ templ VendorStorefront(lang, dir string, sections []*promo.HighlightSection) {
 										</form>
 
 										<!-- Delete Form -->
-										<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/vendor/storefront/section/%d/delete", s.ID)) } class="m-0 inline" onsubmit="return confirm('هل أنت متأكد من حذف هذا القسم المميز؟');">
-											<button type="submit" class="btn btn-secondary btn-sm btn-icon" style="color:var(--danger-text); border-color:var(--danger-border);" title="حذف القسم">
+										<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/vendor/storefront/section/%d/delete", s.ID)) } class="m-0" onsubmit="return confirm('هل أنت متأكد من حذف هذا القسم المميز؟');">
+											<button type="submit" class="btn btn-secondary btn-sm btn-icon text-danger" title="حذف القسم">
 												@components.IconTrash("icon-xs")
 											</button>
 										</form>
@@ -243,111 +207,105 @@ templ VendorStorefront(lang, dir string, sections []*promo.HighlightSection) {
 
 								<!-- Content Snippet Preview -->
 								if s.Description.Get(i18n.Lang(lang)) != "" {
-									<div style="font-size:0.875rem; color:var(--text-secondary); line-height:1.6; background:var(--surface-raised); padding:0.85rem 1rem; border-radius:var(--radius-lg); border:1px solid var(--border);">
+									<div class="text-xs text-secondary p-3 bg-surface-raised border rounded-lg line-clamp-3">
 										{ s.Description.Get(i18n.Lang(lang)) }
 									</div>
 								}
-							</div>
-
-							<!-- Edit Section Modal -->
-							<div
-								id={ fmt.Sprintf("edit-section-modal-%d", s.ID) }
-								class="modal-overlay"
-								style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.7); backdrop-filter:blur(4px); z-index:9999; align-items:center; justify-content:center; padding:1rem;"
-							>
-								<div style="background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-2xl); width:100%; max-width:680px; max-height:90vh; overflow-y:auto; padding:2rem; box-shadow:0 20px 40px rgba(0,0,0,0.5);">
-									<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; border-bottom:1px solid var(--border); padding-bottom:1rem;">
-										<div class="row-center-sm">
-											<span class="text-2xl">{ sectionTypeIcon(s.SectionType) }</span>
-											<h3 class="text-xl fw-800 text-primary m-0">
-												تعديل القسم: { s.Title.Get(i18n.Lang(lang)) }
-											</h3>
-										</div>
-										<button
-											type="button"
-											data-modal-close={ fmt.Sprintf("edit-section-modal-%d", s.ID) }
-											class="btn-icon"
-											style="border:none; background:transparent; color:var(--text-muted); cursor:pointer; font-size:1.25rem;"
-										>
-											✕
-										</button>
-									</div>
-
-									<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/vendor/storefront/section/%d/update", s.ID)) } class="stack-lg">
-										<input type="hidden" name="section_type" value={ s.SectionType } />
-										<div class="grid-2">
-											<div class="form-group mb-0">
-												<label class="form-label fw-700 text-primary">العنوان (بالعربية) <span class="text-danger">*</span></label>
-												<input type="text" name="title_ar" required value={ s.Title.Get("ar") } class="form-input" style="width:100%; border-radius:var(--radius-lg);" />
-											</div>
-											<div class="form-group mb-0">
-												<label class="form-label fw-700 text-primary">العنوان (بالإنجليزية)</label>
-												<input type="text" name="title_en" value={ s.Title.Get("en") } class="form-input" dir="ltr" style="width:100%; border-radius:var(--radius-lg);" />
-											</div>
-										</div>
-
-										<div class="grid-2">
-											<div class="form-group mb-0">
-												<label class="form-label fw-700 text-primary">ترتيب العرض</label>
-												<input type="number" name="display_order" value={ fmt.Sprintf("%d", s.DisplayOrder) } min="0" class="form-input" style="width:100%; border-radius:var(--radius-lg);" />
-											</div>
-
-											<div class="form-group mb-0">
-												<label class="form-label fw-700 text-primary">اللون المميز</label>
-												<select name="color" class="form-input" style="width:100%; border-radius:var(--radius-lg);">
-													<option value="#0284c7" selected?={ s.Color == "#0284c7" || s.Color == "" }>أزرق سماوي</option>
-													<option value="#10b981" selected?={ s.Color == "#10b981" }>أخضر زمردي</option>
-													<option value="#6366f1" selected?={ s.Color == "#6366f1" }>نيلي موحد</option>
-													<option value="#8b5cf6" selected?={ s.Color == "#8b5cf6" }>بنفسجي ملكي</option>
-													<option value="#f59e0b" selected?={ s.Color == "#f59e0b" }>كهرماني</option>
-													<option value="#ec4899" selected?={ s.Color == "#ec4899" }>وردي عصري</option>
-												</select>
-											</div>
-										</div>
-
-										<div class="grid-2">
-											<div class="form-group mb-0">
-												<label class="form-label fw-700 text-primary">المحتوى (بالعربية) <span class="text-danger">*</span></label>
-												<textarea name="description_ar" rows="4" required class="form-input" style="width:100%; border-radius:var(--radius-lg); resize:vertical;">{ s.Description.Get("ar") }</textarea>
-											</div>
-											<div class="form-group mb-0">
-												<label class="form-label fw-700 text-primary">المحتوى (بالإنجليزية)</label>
-												<textarea name="description_en" rows="4" class="form-input" dir="ltr" style="width:100%; border-radius:var(--radius-lg); resize:vertical;">{ s.Description.Get("en") }</textarea>
-											</div>
-										</div>
-
-										<div style="display:flex; align-items:center; gap:2rem; padding:0.5rem 0;">
-											<label style="display:flex; align-items:center; gap:0.5rem; cursor:pointer; font-weight:700; color:var(--text); font-size:0.9rem;">
-												<input type="checkbox" name="is_active" value="true" checked?={ s.IsActive } style="width:18px; height:18px; accent-color:var(--accent);" />
-												<span>القسم نشط ومفعل</span>
-											</label>
-
-											<label style="display:flex; align-items:center; gap:0.5rem; cursor:pointer; font-weight:700; color:var(--text); font-size:0.9rem;">
-												<input type="checkbox" name="show_in_header" value="true" checked?={ s.ShowInHeader } style="width:18px; height:18px; accent-color:var(--accent);" />
-												<span>إظهار في رأس بروفايل المورد</span>
-											</label>
-										</div>
-
-										<div style="display:flex; justify-content:flex-end; gap:0.75rem; border-top:1px solid var(--border); padding-top:1rem; margin-top:0.5rem;">
-											<button
-												type="button"
-												data-modal-close={ fmt.Sprintf("edit-section-modal-%d", s.ID) }
-												class="btn btn-secondary fw-700"
-											>
-												إلغاء
-											</button>
-											<button type="submit" class="btn btn-primary fw-800">
-												@components.IconCheck("icon-xs")
-												<span>حفظ التعديلات</span>
-											</button>
-										</div>
-									</form>
-								</div>
 							</div>
 						}
 					</div>
 				}
 			</div>
+
+			<!-- Unified Add / Edit Section Modal (Fixed Centered Overlay) -->
+			<div
+				x-show="isModalOpen"
+				x-cloak
+				x-transition.opacity
+				style="position: fixed; inset: 0; z-index: 99999; display: flex; align-items: center; justify-content: center; background: rgba(15, 23, 42, 0.75); backdrop-filter: blur(8px); padding: 1.5rem;"
+				@keydown.escape.window="isModalOpen = false"
+			>
+				<div
+					@click.outside="isModalOpen = false"
+					class="glass-panel p-6 w-full"
+					style="max-width: 620px; max-height: 90vh; overflow-y: auto;"
+				>
+					<div class="flex-between items-center mb-4 pb-3 border-b">
+						<div class="d-flex items-center gap-2">
+							<span class="text-xl">🌟</span>
+							<h3 class="text-lg font-black text-primary m-0" x-text="modalMode === 'add' ? 'إضافة قسم مميز جديد للبروفايل' : 'تعديل بيانات القسم المميز'"></h3>
+						</div>
+						<button type="button" @click="isModalOpen = false" class="btn btn-secondary btn-icon btn-sm">✕</button>
+					</div>
+
+					<form :action="modalMode === 'add' ? '/vendor/storefront/section' : '/vendor/storefront/section/' + currentSection.id" method="POST" class="d-flex flex-col gap-4 m-0">
+						<input type="hidden" name="section_type" value="about" />
+
+						<!-- Titles -->
+						<div class="d-grid grid-cols-2 gap-3">
+							<div>
+								<label class="form-label text-xs font-bold text-primary mb-1 d-block">العنوان (بالعربية) <span class="text-danger">*</span></label>
+								<input type="text" name="title_ar" x-model="currentSection.title_ar" required placeholder="مثال: رؤيتنا للتميز الدوائي" class="form-input text-xs w-full" />
+							</div>
+							<div>
+								<label class="form-label text-xs font-bold text-primary mb-1 d-block">العنوان (بالإنجليزية)</label>
+								<input type="text" name="title_en" x-model="currentSection.title_en" placeholder="e.g. Our Vision" class="form-input text-xs w-full" dir="ltr" />
+							</div>
+						</div>
+
+						<!-- Order & Color -->
+						<div class="d-grid grid-cols-2 gap-3">
+							<div>
+								<label class="form-label text-xs font-bold text-primary mb-1 d-block">ترتيب العرض</label>
+								<input type="number" name="display_order" x-model.number="currentSection.display_order" min="0" class="form-input text-xs tabular-nums w-full" />
+							</div>
+
+							<div>
+								<label class="form-label text-xs font-bold text-primary mb-1 d-block">اللون المميز</label>
+								<select name="color" x-model="currentSection.color" class="form-input text-xs w-full">
+									<option value="#0284c7">أزرق سماوي (Sky Blue)</option>
+									<option value="#10b981">أخضر زمردي (Emerald Green)</option>
+									<option value="#6366f1">نيلي موحد (Indigo)</option>
+									<option value="#8b5cf6">بنفسجي ملكي (Purple)</option>
+									<option value="#f59e0b">كهرماني (Amber)</option>
+									<option value="#ec4899">وردي عصري (Pink)</option>
+								</select>
+							</div>
+						</div>
+
+						<!-- Descriptions -->
+						<div class="d-grid grid-cols-2 gap-3">
+							<div>
+								<label class="form-label text-xs font-bold text-primary mb-1 d-block">المحتوى والوصف (بالعربية) <span class="text-danger">*</span></label>
+								<textarea name="description_ar" x-model="currentSection.description_ar" rows="4" required placeholder="اكتب نبذة مفصلة عن رؤية الشركة، معايير التخزين، شهادات الجودة..." class="form-input text-xs w-full" style="resize:vertical;"></textarea>
+							</div>
+							<div>
+								<label class="form-label text-xs font-bold text-primary mb-1 d-block">المحتوى والوصف (بالإنجليزية)</label>
+								<textarea name="description_en" x-model="currentSection.description_en" rows="4" placeholder="Detailed content and description in English..." class="form-input text-xs w-full" dir="ltr" style="resize:vertical;"></textarea>
+							</div>
+						</div>
+
+						<!-- Toggles -->
+						<div class="d-flex items-center gap-4 py-1 flex-wrap">
+							<label class="d-flex items-center gap-2 cursor-pointer text-xs font-bold text-primary">
+								<input type="checkbox" name="is_active" value="true" x-model="currentSection.is_active" class="form-checkbox" />
+								<span>القسم نشط ومفعل</span>
+							</label>
+
+							<label class="d-flex items-center gap-2 cursor-pointer text-xs font-bold text-primary">
+								<input type="checkbox" name="show_in_header" value="true" x-model="currentSection.show_in_header" class="form-checkbox" />
+								<span>إظهار في رأس بروفايل المورد العام</span>
+							</label>
+						</div>
+
+						<div class="flex-between items-center gap-3 pt-3 border-t mt-2">
+							<button type="button" class="btn btn-secondary text-xs font-bold" @click="isModalOpen = false">إلغاء</button>
+							<button type="submit" class="btn btn-primary text-xs font-black px-6" x-text="modalMode === 'add' ? 'حفظ ونشر القسم المميز' : 'تحديث وحفظ التعديلات'"></button>
+						</div>
+					</form>
+				</div>
+			</div>
+
 		</div>
 	}
 }

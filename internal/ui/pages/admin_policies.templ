@@ -13,7 +13,10 @@ import (
 // (PLAN_V7 Task 2.3).
 templ AdminPoliciesPanel(lang, dir string, currentKey string, policies []*platformadmin.Policy) {
 	{{ _ = dir }}
-	<div class="glass-panel p-6 mb-6">
+	<div
+		class="glass-panel p-6 mb-6"
+		x-data="{ policyFilter: 'all' }"
+	>
 		<div class="flex-between items-center flex-wrap gap-4 mb-6">
 			<div class="d-flex items-center gap-3">
 				<div class="user-avatar-badge text-xl">
@@ -39,21 +42,46 @@ templ AdminPoliciesPanel(lang, dir string, currentKey string, policies []*platfo
 
 		<!-- Filter by Policy Type -->
 		<div class="cb-tabs-nav m-0 mb-6 pb-4 border-b">
-			<a href="/admin/policies" class={ "cb-tab-btn", templ.KV("active", currentKey == "") }>
+			<button
+				type="button"
+				class="cb-tab-btn"
+				:class="policyFilter === 'all' ? 'active' : ''"
+				@click="policyFilter = 'all'"
+			>
 				<span>كافة السياسات ({ fmt.Sprintf("%d", len(policies)) })</span>
-			</a>
-			<a href="/admin/policies?key=terms" class={ "cb-tab-btn", templ.KV("active", currentKey == "terms") }>
+			</button>
+			<button
+				type="button"
+				class="cb-tab-btn"
+				:class="policyFilter === 'terms' ? 'active' : ''"
+				@click="policyFilter = 'terms'"
+			>
 				<span>شروط الاستخدام (Terms)</span>
-			</a>
-			<a href="/admin/policies?key=privacy" class={ "cb-tab-btn", templ.KV("active", currentKey == "privacy") }>
+			</button>
+			<button
+				type="button"
+				class="cb-tab-btn"
+				:class="policyFilter === 'privacy' ? 'active' : ''"
+				@click="policyFilter = 'privacy'"
+			>
 				<span>سياسة الخصوصية (Privacy)</span>
-			</a>
-			<a href="/admin/policies?key=refund" class={ "cb-tab-btn", templ.KV("active", currentKey == "refund") }>
+			</button>
+			<button
+				type="button"
+				class="cb-tab-btn"
+				:class="policyFilter === 'refund' ? 'active' : ''"
+				@click="policyFilter = 'refund'"
+			>
 				<span>المرتجعات والتسويات (Refund)</span>
-			</a>
-			<a href="/admin/policies?key=vendor_agreement" class={ "cb-tab-btn", templ.KV("active", currentKey == "vendor_agreement") }>
+			</button>
+			<button
+				type="button"
+				class="cb-tab-btn"
+				:class="policyFilter === 'vendor_agreement' ? 'active' : ''"
+				@click="policyFilter = 'vendor_agreement'"
+			>
 				<span>اتفاقية التوريد (Vendor Agreement)</span>
-			</a>
+			</button>
 		</div>
 
 		if len(policies) == 0 {
@@ -78,7 +106,7 @@ templ AdminPoliciesPanel(lang, dir string, currentKey string, policies []*platfo
 					</thead>
 					<tbody>
 						for _, p := range policies {
-							<tr>
+							<tr x-show={ fmt.Sprintf("policyFilter === 'all' || policyFilter === '%s'", p.PolicyKey) }>
 								<td>
 									<span class="badge badge-slate fw-700">{ policyKeyAr(p.PolicyKey) }</span>
 								</td>

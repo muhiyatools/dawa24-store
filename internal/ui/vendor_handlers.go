@@ -1027,8 +1027,7 @@ func (h *UIHandler) VendorRolesPage(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// VendorInventoryPage renders the inventory stock view.
-
+// VendorInventoryPage renders the inventory stock view with search, warehouse filtering, and pagination.
 func (h *UIHandler) VendorInventoryPage(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	lang, dir := h.localeAndDir(r)
@@ -1039,22 +1038,106 @@ func (h *UIHandler) VendorInventoryPage(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	var stocks []*inventory.Stock
+	var allStocks []*inventory.Stock
 	var warehouses []*inventory.Warehouse
 	if h.invSvc != nil {
-		stocks, _ = h.invSvc.ListStocksByOrg(ctx, actor.OrganizationID)
+		allStocks, _ = h.invSvc.ListStocksByOrg(ctx, actor.OrganizationID)
 		warehouses, _ = h.invSvc.ListWarehouses(ctx)
 	}
 
 	var variants []*catalog.ProductVariant
+	variantMap := make(map[int64]*catalog.ProductVariant)
 	if h.catSvc != nil {
-		variants, _, _ = h.catSvc.ListVariantsByOrganization(ctx, actor.OrganizationID, catalog.VariantSearchParams{
-			Limit: 500,
+		vars, _, _ := h.catSvc.ListVariantsByOrganization(ctx, actor.OrganizationID, catalog.VariantSearchParams{
+			Limit: 1000,
 		})
+		variants = vars
+		for _, v := range vars {
+			if v != nil {
+				variantMap[v.ID] = v
+			}
+		}
+	}
+
+	// Filter stocks by query and warehouse_id
+	q := strings.ToLower(strings.TrimSpace(r.URL.Query().Get("q")))
+	whID, _ := strconv.ParseInt(r.URL.Query().Get("warehouse_id"), 10, 64)
+
+	var filteredStocks []*inventory.Stock
+	for _, s := range allStocks {
+		if s == nil {
+			continue
+		}
+		if whID > 0 && s.WarehouseID != whID {
+			continue
+		}
+		if q != "" {
+			match := false
+			if v, ok := variantMap[s.ProductVariantID]; ok && v != nil {
+				if strings.Contains(strings.ToLower(v.Name["ar"]), q) ||
+					strings.Contains(strings.ToLower(v.Name["en"]), q) ||
+					strings.Contains(strings.ToLower(v.SKU), q) ||
+					strings.Contains(strings.ToLower(v.BatchNumber), q) ||
+					strings.Contains(strings.ToLower(v.Barcode), q) {
+					match = true
+				}
+			}
+			if !match {
+				continue
+			}
+		}
+		filteredStocks = append(filteredStocks, s)
+	}
+
+	// Pagination
+	page, _ := strconv.Atoi(r.URL.Query().Get("page"))
+	if page < 1 {
+		page = 1
+	}
+	limit, _ := strconv.Atoi(r.URL.Query().Get("limit"))
+	if limit <= 0 {
+		limit = 25
+	}
+	if limit > 100 {
+		limit = 100
+	}
+
+	total := len(filteredStocks)
+	totalPages := (total + limit - 1) / limit
+	if totalPages < 1 {
+		totalPages = 1
+	}
+	if page > totalPages {
+		page = totalPages
+	}
+
+	start := (page - 1) * limit
+	end := start + limit
+	if start > total {
+		start = total
+	}
+	if end > total {
+		end = total
+	}
+	pagedStocks := filteredStocks[start:end]
+
+	data := pages.VendorInventoryData{
+		Stocks:      pagedStocks,
+		AllStocks:   allStocks,
+		Warehouses:  warehouses,
+		Variants:    variants,
+		Total:       total,
+		Page:        page,
+		PerPage:     limit,
+		TotalPages:  totalPages,
+		Query:       r.URL.Query().Get("q"),
+		WarehouseID: whID,
+		NoticeType:  r.URL.Query().Get("notice_type"),
+		NoticeMsg:   r.URL.Query().Get("notice"),
 	}
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	if err := pages.VendorInventory(stocks, warehouses, variants, lang, dir, h.isHTMX(r)).Render(ctx, w); err != nil {
+	if err := pages.VendorInventory(data, lang, dir, h.isHTMX(r)).Render(ctx, w); err != nil {
 		h.log.ErrorContext(ctx, "render vendor inventory page", "error", err)
 	}
 }
@@ -1340,26 +1423,83 @@ func (h *UIHandler) VendorOfferNewPage(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var variants []*catalog.ProductVariant
-	if h.catSvc != nil {
-		products, err := h.catSvc.Search(ctx, catalog.SearchParams{Limit: 100})
-		if err != nil {
-			h.log.WarnContext(ctx, "vendor offer new: search catalog", "error", err)
-		} else {
-			for _, p := range products {
-				pVars, _ := h.catSvc.ListVariantsByProduct(ctx, p.ID)
-				for _, v := range pVars {
-					if v.OrganizationID == actor.OrganizationID || v.OrganizationID == 0 {
-						variants = append(variants, v)
-					}
-				}
+	var itemOptions []pages.VendorOfferItemOption
+
+	var warehouses []*inventory.Warehouse
+	var stocks []*inventory.Stock
+	whNameMap := make(map[int64]string)
+	stockMap := make(map[int64]*inventory.Stock)
+
+	if h.invSvc != nil && actor.OrganizationID > 0 {
+		warehouses, _ = h.invSvc.ListWarehouses(ctx)
+		stocks, _ = h.invSvc.ListStocksByOrg(ctx, actor.OrganizationID)
+		for _, wh := range warehouses {
+			if wh != nil {
+				whNameMap[wh.ID] = wh.Name
+			}
+		}
+		for _, s := range stocks {
+			if s != nil {
+				stockMap[s.ProductVariantID] = s
 			}
 		}
 	}
 
+	if h.catSvc != nil {
+		vars, _, err := h.catSvc.ListVariantsByOrganization(ctx, actor.OrganizationID, catalog.VariantSearchParams{Limit: 500})
+		if err == nil {
+			variants = vars
+		}
+		if len(variants) == 0 {
+			products, err := h.catSvc.Search(ctx, catalog.SearchParams{Limit: 100})
+			if err == nil {
+				for _, p := range products {
+					pVars, _ := h.catSvc.ListVariantsByProduct(ctx, p.ID)
+					for _, v := range pVars {
+						if v.OrganizationID == actor.OrganizationID || v.OrganizationID == 0 {
+							variants = append(variants, v)
+						}
+					}
+				}
+			}
+		}
+
+		for _, v := range variants {
+			if v == nil {
+				continue
+			}
+			whName := ""
+			stockQty := v.StockQty
+			if s, ok := stockMap[v.ID]; ok && s != nil {
+				stockQty = s.Quantity
+				if n, exists := whNameMap[s.WarehouseID]; exists {
+					whName = n
+				}
+			}
+			expStr := ""
+			if v.ExpiryDate != nil {
+				expStr = v.ExpiryDate.Format("2006-01-02")
+			}
+			itemOptions = append(itemOptions, pages.VendorOfferItemOption{
+				VariantID:      v.ID,
+				NameAr:         v.Name["ar"],
+				NameEn:         v.Name["en"],
+				SKU:            v.SKU,
+				BatchNumber:    v.BatchNumber,
+				ExpiryDate:     expStr,
+				Price:          v.Price.String(),
+				PriceFloat:     float64(v.Price.Minor()) / 100.0,
+				WarehouseName:  whName,
+				AvailableStock: stockQty,
+			})
+		}
+	}
+
 	data := pages.VendorOfferFormData{
-		Branches: branches,
-		Variants: variants,
-		IsEdit:   false,
+		Branches:    branches,
+		Variants:    variants,
+		ItemOptions: itemOptions,
+		IsEdit:      false,
 	}
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")

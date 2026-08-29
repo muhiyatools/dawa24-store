@@ -54,6 +54,13 @@ func dayOfWeekAr(day int) string {
 	return "—"
 }
 
+func getInitialOrgTab(tab string) string {
+	if tab == "" || (tab != "organizations" && tab != "branches" && tab != "users" && tab != "deletion_requests") {
+		return "organizations"
+	}
+	return tab
+}
+
 templ AdminOrganizations(data AdminEnterpriseHubData, lang, dir string) {
 	@layouts.AdminShell("إدارة المنشآت والفروع والمستخدمين", "organizations", lang, dir) {
 		<div
@@ -82,7 +89,7 @@ templ AdminOrganizations(data AdminEnterpriseHubData, lang, dir string) {
 					u.searchParams.set('tab', tab);
 					window.history.replaceState({}, '', u);
 				}
-			}`, data.ActiveTab, data.CurrentType, data.ActiveTab) }
+			}`, getInitialOrgTab(data.ActiveTab), data.CurrentType, getInitialOrgTab(data.ActiveTab)) }
 		>
 			<!-- Header Card -->
 			<div class="glass-panel p-6 mb-6">
@@ -161,7 +168,7 @@ templ AdminOrganizations(data AdminEnterpriseHubData, lang, dir string) {
 			</div>
 
 			<!-- TAB 1: Organizations -->
-			<div x-show="activeTab === 'organizations'" class="d-flex flex-col gap-4">
+			<div x-show="activeTab === 'organizations'" x-cloak class="d-flex flex-col gap-4">
 				<div class="glass-panel p-4 mb-0">
 					<div class="flex-between flex-wrap gap-3">
 						<div class="d-flex gap-2 flex-wrap">
@@ -296,7 +303,7 @@ templ AdminOrganizations(data AdminEnterpriseHubData, lang, dir string) {
 			</div>
 
 			<!-- TAB 2: Branches -->
-			<div x-show="activeTab === 'branches'" class="d-flex flex-col gap-4">
+			<div x-show="activeTab === 'branches'" x-cloak class="d-flex flex-col gap-4">
 				<div class="glass-panel p-4 mb-0">
 					<div class="flex-between flex-wrap gap-3">
 						<div class="d-flex gap-3 flex-wrap items-center">
@@ -423,7 +430,7 @@ templ AdminOrganizations(data AdminEnterpriseHubData, lang, dir string) {
 			</div>
 
 			<!-- TAB 3: Users -->
-			<div x-show="activeTab === 'users'" class="d-flex flex-col gap-4">
+			<div x-show="activeTab === 'users'" x-cloak class="d-flex flex-col gap-4">
 				<div class="glass-panel p-4 mb-0">
 					<div class="flex-between flex-wrap gap-3">
 						<div class="d-flex gap-2 flex-wrap">
@@ -559,7 +566,7 @@ templ AdminOrganizations(data AdminEnterpriseHubData, lang, dir string) {
 
 			<!-- TAB 4: Deletions -->
 			if len(data.DeletionRequests) > 0 {
-				<div x-show="activeTab === 'deletion_requests'" class="stack-lg">
+				<div x-show="activeTab === 'deletion_requests'" x-cloak class="stack-lg">
 					<div class="card mb-0">
 						<div class="header-row mb-md">
 							<div>

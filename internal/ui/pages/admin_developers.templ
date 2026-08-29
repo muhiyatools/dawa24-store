@@ -91,7 +91,7 @@ templ AdminDevelopersPage(values AdminDevelopersValues, lang, dir string) {
 			<!-- ========================================== -->
 			<!-- TAB 1: SQL Console & Query Log             -->
 			<!-- ========================================== -->
-			<div x-show="activeTab === 'sql'" class="stack-lg" x-data="adminSQLManager()">
+			<div x-show="activeTab === 'sql'" class="stack-lg" x-data="adminSQLManager()" x-cloak>
 				
 				<div class="card mb-0">
 					<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem; border-bottom:1px solid var(--border); padding-bottom:0.75rem; flex-wrap:wrap; gap:0.5rem;">
@@ -254,6 +254,7 @@ templ AdminDevelopersPage(values AdminDevelopersValues, lang, dir string) {
 				x-show="activeTab === 'ai'"
 				class="stack-lg"
 				x-data={ fmt.Sprintf("adminAIManager(%q, %q)", values.GatewaySettings.EndpointURL, values.GatewaySettings.APIKey) }
+				x-cloak
 			>
 				
 				<div class="card mb-0">
@@ -458,7 +459,7 @@ templ AdminDevelopersPage(values AdminDevelopersValues, lang, dir string) {
 			<!-- ========================================== -->
 			<!-- TAB 3: Advanced Error Diagnostics          -->
 			<!-- ========================================== -->
-			<div x-show="activeTab === 'errors'" class="stack-lg" x-data="adminErrorsManager()">
+			<div x-show="activeTab === 'errors'" class="stack-lg" x-data="adminErrorsManager()" x-cloak>
 				
 				<!-- Diagnostics Header Strip & Metrics -->
 				<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:1rem;">
@@ -737,7 +738,7 @@ templ AdminDevelopersPage(values AdminDevelopersValues, lang, dir string) {
 			<!-- ========================================== -->
 			<!-- TAB 4: Audit Logs & Diffs (Moved here)     -->
 			<!-- ========================================== -->
-			<div x-show="activeTab === 'audit'" class="stack-lg" x-data="adminAuditManager()">
+			<div x-show="activeTab === 'audit'" class="stack-lg" x-data="adminAuditManager()" x-cloak>
 				
 				<div class="card mb-0">
 					<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem; border-bottom:1px solid var(--border); padding-bottom:0.75rem;">

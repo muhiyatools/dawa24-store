@@ -171,34 +171,38 @@ templ VendorWarehousesPage(warehouses []*inventory.Warehouse, branches []*org.Br
 			<!-- Add Warehouse Modal -->
 			<div
 				x-show="showAddModal"
-				style="position:fixed; inset:0; z-index:9999; background:rgba(0,0,0,0.6); display:flex; align-items:center; justify-content:center; padding:1rem;"
 				x-cloak
+				x-transition.opacity
+				style="position: fixed; inset: 0; z-index: 99999; display: flex; align-items: center; justify-content: center; background: rgba(15, 23, 42, 0.75); backdrop-filter: blur(8px); padding: 1.5rem;"
 				@keydown.escape.window="showAddModal = false"
 			>
 				<div
-					@click.away="showAddModal = false"
-					class="glass-panel p-6"
-					style="max-width:560px; width:100%; max-height:90vh; overflow-y:auto;"
+					@click.outside="showAddModal = false"
+					class="glass-panel p-6 w-full"
+					style="max-width: 560px; max-height: 90vh; overflow-y: auto;"
 				>
 					<div class="flex-between items-center mb-4 pb-2 border-b">
-						<h3 class="text-lg font-black text-primary m-0">إضافة مخزن / مركز تخزين جديد</h3>
-						<button type="button" @click="showAddModal = false" class="btn btn-secondary btn-icon btn-sm">&times;</button>
+						<div class="d-flex items-center gap-2">
+							<span class="text-xl">🏢</span>
+							<h3 class="text-lg font-black text-primary m-0">إضافة مخزن / مركز تخزين جديد</h3>
+						</div>
+						<button type="button" @click="showAddModal = false" class="btn btn-secondary btn-icon btn-sm">✕</button>
 					</div>
 
-					<form method="POST" action="/vendor/warehouses" class="d-flex flex-col gap-4">
+					<form method="POST" action="/vendor/warehouses" class="d-flex flex-col gap-4 m-0">
 						<div>
-							<label class="form-label text-xs font-bold">اسم المخزن <span class="text-danger">*</span></label>
+							<label class="form-label text-xs font-bold text-primary mb-1 d-block">اسم المخزن <span class="text-danger">*</span></label>
 							<input type="text" name="name" required class="form-input text-xs w-full" placeholder="مثلاً: مخزن القاهرة الرئيسي / مخزن مدينة نصر" />
 						</div>
 
 						<div>
-							<label class="form-label text-xs font-bold">كود المخزن (اختياري)</label>
+							<label class="form-label text-xs font-bold text-primary mb-1 d-block">كود المخزن (اختياري)</label>
 							<input type="text" name="code" class="form-input text-xs w-full" placeholder="WH-01" />
 						</div>
 
 						<div>
-							<label class="form-label text-xs font-bold">الفرع التوزيعي المرتبط</label>
-							<select name="branch_id" class="form-select text-xs w-full">
+							<label class="form-label text-xs font-bold text-primary mb-1 d-block">الفرع التوزيعي المرتبط</label>
+							<select name="branch_id" class="form-input text-xs w-full">
 								<option value="">بدون فرع محدد (مخزن رئيسي)</option>
 								for _, b := range branches {
 									<option value={ fmt.Sprintf("%d", b.ID) }>
@@ -214,18 +218,18 @@ templ VendorWarehousesPage(warehouses []*inventory.Warehouse, branches []*org.Br
 						</div>
 
 						<div>
-							<label class="form-label text-xs font-bold">العنوان بالتفصيل</label>
+							<label class="form-label text-xs font-bold text-primary mb-1 d-block">العنوان بالتفصيل</label>
 							<input type="text" name="address" class="form-input text-xs w-full" placeholder="المنطقة الصناعية، القطعة 14، القاهرة" />
 						</div>
 
 						<div>
-							<label class="form-label text-xs font-bold">رقم الهاتف والتواصل</label>
+							<label class="form-label text-xs font-bold text-primary mb-1 d-block">رقم الهاتف والتواصل</label>
 							<input type="text" name="phone" class="form-input text-xs w-full" placeholder="01012345678" />
 						</div>
 
-						<div class="d-flex items-center justify-end gap-3 mt-2">
-							<button type="button" class="btn btn-secondary text-xs" @click="showAddModal = false">إلغاء</button>
-							<button type="submit" class="btn btn-primary text-xs font-bold">حفظ وتفعيل المخزن</button>
+						<div class="flex-between items-center gap-3 mt-2 pt-3 border-t">
+							<button type="button" class="btn btn-secondary text-xs font-bold" @click="showAddModal = false">إلغاء</button>
+							<button type="submit" class="btn btn-primary text-xs font-bold px-6">حفظ وتفعيل المخزن</button>
 						</div>
 					</form>
 				</div>
@@ -234,34 +238,38 @@ templ VendorWarehousesPage(warehouses []*inventory.Warehouse, branches []*org.Br
 			<!-- Edit Warehouse Modal -->
 			<div
 				x-show="editModal"
-				style="position:fixed; inset:0; z-index:9999; background:rgba(0,0,0,0.6); display:flex; align-items:center; justify-content:center; padding:1rem;"
 				x-cloak
+				x-transition.opacity
+				style="position: fixed; inset: 0; z-index: 99999; display: flex; align-items: center; justify-content: center; background: rgba(15, 23, 42, 0.75); backdrop-filter: blur(8px); padding: 1.5rem;"
 				@keydown.escape.window="editModal = false"
 			>
 				<div
-					@click.away="editModal = false"
-					class="glass-panel p-6"
-					style="max-width:560px; width:100%; max-height:90vh; overflow-y:auto;"
+					@click.outside="editModal = false"
+					class="glass-panel p-6 w-full"
+					style="max-width: 560px; max-height: 90vh; overflow-y: auto;"
 				>
 					<div class="flex-between items-center mb-4 pb-2 border-b">
-						<h3 class="text-lg font-black text-primary m-0">تعديل بيانات المخزن</h3>
-						<button type="button" @click="editModal = false" class="btn btn-secondary btn-icon btn-sm">&times;</button>
+						<div class="d-flex items-center gap-2">
+							<span class="text-xl">🏢</span>
+							<h3 class="text-lg font-black text-primary m-0">تعديل بيانات المخزن</h3>
+						</div>
+						<button type="button" @click="editModal = false" class="btn btn-secondary btn-icon btn-sm">✕</button>
 					</div>
 
-					<form :action="'/vendor/warehouses/' + editWh.id" method="POST" class="d-flex flex-col gap-4">
+					<form :action="'/vendor/warehouses/' + editWh.id" method="POST" class="d-flex flex-col gap-4 m-0">
 						<div>
-							<label class="form-label text-xs font-bold">اسم المخزن <span class="text-danger">*</span></label>
+							<label class="form-label text-xs font-bold text-primary mb-1 d-block">اسم المخزن <span class="text-danger">*</span></label>
 							<input type="text" name="name" x-model="editWh.name" required class="form-input text-xs w-full" />
 						</div>
 
 						<div>
-							<label class="form-label text-xs font-bold">كود المخزن</label>
+							<label class="form-label text-xs font-bold text-primary mb-1 d-block">كود المخزن</label>
 							<input type="text" name="code" x-model="editWh.code" class="form-input text-xs w-full" />
 						</div>
 
 						<div>
-							<label class="form-label text-xs font-bold">الفرع التوزيعي المرتبط</label>
-							<select name="branch_id" x-model="editWh.branch_id" class="form-select text-xs w-full">
+							<label class="form-label text-xs font-bold text-primary mb-1 d-block">الفرع التوزيعي المرتبط</label>
+							<select name="branch_id" x-model="editWh.branch_id" class="form-input text-xs w-full">
 								<option value="0">بدون فرع محدد (مخزن رئيسي)</option>
 								for _, b := range branches {
 									<option value={ fmt.Sprintf("%d", b.ID) }>
@@ -277,12 +285,12 @@ templ VendorWarehousesPage(warehouses []*inventory.Warehouse, branches []*org.Br
 						</div>
 
 						<div>
-							<label class="form-label text-xs font-bold">العنوان بالتفصيل</label>
+							<label class="form-label text-xs font-bold text-primary mb-1 d-block">العنوان بالتفصيل</label>
 							<input type="text" name="address" x-model="editWh.address" class="form-input text-xs w-full" />
 						</div>
 
 						<div>
-							<label class="form-label text-xs font-bold">رقم الهاتف والتواصل</label>
+							<label class="form-label text-xs font-bold text-primary mb-1 d-block">رقم الهاتف والتواصل</label>
 							<input type="text" name="phone" x-model="editWh.phone" class="form-input text-xs w-full" />
 						</div>
 
@@ -293,9 +301,9 @@ templ VendorWarehousesPage(warehouses []*inventory.Warehouse, branches []*org.Br
 							</label>
 						</div>
 
-						<div class="d-flex items-center justify-end gap-3 mt-2">
-							<button type="button" class="btn btn-secondary text-xs" @click="editModal = false">إلغاء</button>
-							<button type="submit" class="btn btn-primary text-xs font-bold">حفظ التغييرات</button>
+						<div class="flex-between items-center gap-3 mt-2 pt-3 border-t">
+							<button type="button" class="btn btn-secondary text-xs font-bold" @click="editModal = false">إلغاء</button>
+							<button type="submit" class="btn btn-primary text-xs font-bold px-6">حفظ التغييرات</button>
 						</div>
 					</form>
 				</div>

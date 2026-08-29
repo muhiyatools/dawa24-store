@@ -184,10 +184,10 @@ templ CustomerCatalog(data CatalogPageData, lang, dir string, isPartial bool) {
 								<label class="form-label text-xs font-bold mb-1 text-primary d-block">
 									التصنيف الدوائي
 								</label>
-								<div class="d-flex flex-col gap-1 overflow-y-auto" style="max-height: 180px;">
+								<div class="d-flex flex-col gap-1 overflow-y-auto border rounded-xl p-1.5 bg-surface-sunken" style="max-height: 180px;">
 									<a
 										href={ templ.SafeURL(buildCatalogURL(CatalogPageData{Query: data.Query, BrandID: data.BrandID, MinPrice: data.MinPrice, MaxPrice: data.MaxPrice, DosageForm: data.DosageForm, InStock: data.InStock, HasDiscount: data.HasDiscount, PageSize: data.PageSize, ViewMode: data.ViewMode}, 1, data.PageSize, data.Sort, data.ViewMode)) }
-										class={ "sidebar-link p-2 text-xs", templ.KV("active", data.CategoryID == nil) }
+										class={ "sidebar-link p-2 text-xs rounded-lg", templ.KV("active", data.CategoryID == nil) }
 									>
 										<span>جميع التصنيفات</span>
 										<span class="badge badge-slate text-xs">الكل</span>
@@ -196,7 +196,7 @@ templ CustomerCatalog(data CatalogPageData, lang, dir string, isPartial bool) {
 									for _, cat := range data.Categories {
 										<a
 											href={ templ.SafeURL(buildCatalogURL(CatalogPageData{Query: data.Query, CategoryID: &cat.ID, BrandID: data.BrandID, MinPrice: data.MinPrice, MaxPrice: data.MaxPrice, DosageForm: data.DosageForm, InStock: data.InStock, HasDiscount: data.HasDiscount, PageSize: data.PageSize, ViewMode: data.ViewMode}, 1, data.PageSize, data.Sort, data.ViewMode)) }
-											class={ "sidebar-link p-2 text-xs", templ.KV("active", data.CategoryID != nil && *data.CategoryID == cat.ID) }
+											class={ "sidebar-link p-2 text-xs rounded-lg", templ.KV("active", data.CategoryID != nil && *data.CategoryID == cat.ID) }
 										>
 											<span class="text-truncate">
 												if cat.Name["ar"] != "" {
@@ -218,7 +218,7 @@ templ CustomerCatalog(data CatalogPageData, lang, dir string, isPartial bool) {
 									</label>
 									<select
 										name="brand_id"
-										class="form-input text-xs"
+										class="form-input text-xs w-full"
 										onchange="document.getElementById('catalog-filter-form').submit()"
 									>
 										<option value="">كافة الشركات والمصانع</option>

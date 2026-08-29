@@ -139,11 +139,11 @@ templ AdminSettings(values AdminSettingsValues, lang, dir string) {
 			</div>
 
 			<!-- Main Persistent Tabs Bar -->
-			<div style="display:flex; gap:0.5rem; border-bottom:2px solid var(--border); margin-bottom:1.75rem; flex-wrap:wrap;">
+			<div class="cb-tabs-nav mb-6">
 				<button
 					type="button"
-					class="btn"
-					:class="activeTab === 'features' ? 'btn-primary' : 'btn-secondary' tab-btn-header"
+					class="cb-tab-btn"
+					:class="activeTab === 'features' ? 'active' : ''"
 					@click="setTab('features')"
 				>
 					@components.IconShield("icon-xs")
@@ -152,8 +152,8 @@ templ AdminSettings(values AdminSettingsValues, lang, dir string) {
 
 				<button
 					type="button"
-					class="btn"
-					:class="activeTab === 'site' ? 'btn-primary' : 'btn-secondary' tab-btn-header"
+					class="cb-tab-btn"
+					:class="activeTab === 'site' ? 'active' : ''"
 					@click="setTab('site')"
 				>
 					@components.IconBuilding("icon-xs")
@@ -162,18 +162,18 @@ templ AdminSettings(values AdminSettingsValues, lang, dir string) {
 
 				<button
 					type="button"
-					class="btn"
-					:class="activeTab === 'policies' ? 'btn-primary' : 'btn-secondary' tab-btn-header"
+					class="cb-tab-btn"
+					:class="activeTab === 'policies' ? 'active' : ''"
 					@click="setTab('policies')"
 				>
-					@components.IconFile("icon-xs")
+					@components.IconFileText("icon-xs")
 					<span>3. السياسات والشروط القانونية</span>
 				</button>
 
 				<button
 					type="button"
-					class="btn"
-					:class="activeTab === 'payment_methods' ? 'btn-primary' : 'btn-secondary' tab-btn-header"
+					class="cb-tab-btn"
+					:class="activeTab === 'payment_methods' ? 'active' : ''"
 					@click="setTab('payment_methods')"
 				>
 					@components.IconWallet("icon-xs")
@@ -184,7 +184,7 @@ templ AdminSettings(values AdminSettingsValues, lang, dir string) {
 			<!-- ========================================== -->
 			<!-- TAB 1: Platform & Features                 -->
 			<!-- ========================================== -->
-			<div x-show="activeTab === 'features'" class="stack-lg">
+			<div x-show="activeTab === 'features'" x-cloak class="stack-lg">
 				
 				<!-- Feature Flags -->
 				<div class="card mb-0">
@@ -302,7 +302,7 @@ templ AdminSettings(values AdminSettingsValues, lang, dir string) {
 			<!-- ========================================== -->
 			<!-- TAB 2: Site Info & Visual Identity         -->
 			<!-- ========================================== -->
-			<div x-show="activeTab === 'site'" class="stack-lg">
+			<div x-show="activeTab === 'site'" x-cloak class="stack-lg">
 				
 				<div class="card mb-0" x-data="{ siteSubTab: 'contact' }">
 					
@@ -520,7 +520,7 @@ templ AdminSettings(values AdminSettingsValues, lang, dir string) {
 			<!-- ========================================== -->
 			<!-- TAB 3: Policies & Legal Documents          -->
 			<!-- ========================================== -->
-			<div x-show="activeTab === 'policies'" class="stack-lg">
+			<div x-show="activeTab === 'policies'" x-cloak class="stack-lg">
 				<!-- The full editor, not a link to one. There used to be a
 				     separate /admin/policies page plus an inline editor here,
 				     both writing platform_admin.policies through different
@@ -531,7 +531,7 @@ templ AdminSettings(values AdminSettingsValues, lang, dir string) {
 			<!-- ========================================== -->
 			<!-- TAB 4: Platform Payment Methods & Banking  -->
 			<!-- ========================================== -->
-			<div x-show="activeTab === 'payment_methods'" class="stack-lg">
+			<div x-show="activeTab === 'payment_methods'" x-cloak class="stack-lg">
 				
 				<div class="card mb-0">
 					<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; border-bottom:1px solid var(--border); padding-bottom:1rem; flex-wrap:wrap; gap:1rem;">
