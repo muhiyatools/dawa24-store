@@ -51,7 +51,7 @@ migrate-status: ## List migrations and show how many are pending
 # pipeline, so failures are found before a push rather than after one.
 
 .PHONY: check
-check: fmt-check vet lint test check-provider-isolation check-file-size check-inline-styles check-error-swallow ## Run every gate
+check: fmt-check vet lint test check-provider-isolation check-prompt-version check-file-size check-inline-styles check-error-swallow ## Run every gate
 
 .PHONY: check-error-swallow
 check-error-swallow: ## Fail if a service error is silently discarded
@@ -120,6 +120,12 @@ check-provider-isolation: ## Fail if an AI provider name leaks outside platform/
 	  exit 1; \
 	fi
 	@echo "  ok: no provider names outside the gateway package"
+
+.PHONY: check-prompt-version
+check-prompt-version: ## Fail if the match-prompt version is declared outside aicapabilities
+	@echo "checking prompt version isolation..."
+	@if grep -rn 'sm-enh-' --include='*.go' ./cmd ./internal 2>/dev/null 	     | grep -v '^./internal/modules/aicapabilities/' 	     | grep -v '_test.go'; then 	  echo ""; 	  echo "ERROR: the match-enhancement prompt version appears outside"; 	  echo "internal/modules/aicapabilities/. It is the decision-cache key: two"; 	  echo "copies drift, and a drifted key silently splits one cache in two."; 	  echo "Import aicapabilities.EnhancePromptVersion instead of restating it."; 	  exit 1; 	fi
+	@echo "  ok: one prompt version, declared once"
 
 .PHONY: check-file-size
 check-file-size: ## Fail on Go files over 400 lines
