@@ -112,3 +112,20 @@ func TestCellIsSafeForShortRows(t *testing.T) {
 		t.Errorf("an unmapped column should be empty, got %q", got)
 	}
 }
+
+func TestIsRepeatedHeader(t *testing.T) {
+	headers := []string{"Item No.", "Item Description", "Preferred Vendor", "Qty"}
+	repeated := []string{"Item No.", "Item Description", "Preferred Vendor", "Qty"}
+	repeatedCase := []string{"item no.", "item description", "Preferred Vendor", ""}
+	dataRow := []string{"10104677", "سيروبايب بلسم للشعر 300 مل", "Parkville", "10"}
+
+	if !isRepeatedHeader(repeated, headers) {
+		t.Errorf("exact repeated header row should be detected")
+	}
+	if !isRepeatedHeader(repeatedCase, headers) {
+		t.Errorf("case-insensitive repeated header row should be detected")
+	}
+	if isRepeatedHeader(dataRow, headers) {
+		t.Errorf("data row must not be treated as repeated header")
+	}
+}

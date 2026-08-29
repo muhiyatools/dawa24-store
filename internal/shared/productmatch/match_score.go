@@ -20,7 +20,14 @@ func (idx *Index) rate(q *query, p *MasterProduct) (scoredProduct, bool) {
 		return scoredProduct{}, false
 	}
 
-	score := name * 0.72
+	weight := 0.75
+	if !q.strength.known() && !p.strength.known() {
+		// When neither side states a strength (cosmetics, OTC, supplies, devices),
+		// the product name carries the full identity. Weighting it appropriately
+		// prevents certain non-pharmaceutical matches from falling below the cutoff.
+		weight = 0.88
+	}
+	score := name * weight
 	reasons := make([]string, 0, 4)
 	reasons = append(reasons, "تشابه الاسم "+percent(name))
 
@@ -100,11 +107,14 @@ func (idx *Index) rate(q *query, p *MasterProduct) (scoredProduct, bool) {
 		}
 	}
 
-	exact := name >= 0.995 && numsAgree &&
-		(!q.strength.known() || !p.strength.known() || sameStrength(q.strength, p.strength)) &&
+	noConflict := (!q.strength.known() || !p.strength.known() || sameStrength(q.strength, p.strength)) &&
 		(q.formKey == "" || p.formKey == "" || q.formKey == p.formKey)
+
+	exact := (name >= 0.98 || (name >= 0.90 && weight == 0.88)) && numsAgree && noConflict
 	if exact {
 		score = maxF(score, 0.97)
+	} else if name >= 0.88 && numsAgree && noConflict {
+		score = maxF(score, name*0.95)
 	}
 
 	return scoredProduct{

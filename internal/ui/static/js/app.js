@@ -556,6 +556,7 @@ function initRegistrationStepper() {
 
       if (badgeLabel) {
         if (type === 'supplier' || type === 'vendor') badgeLabel.textContent = 'نوع الحساب: مورّد / شركة ومستودع أدوية';
+        else if (type === 'job_seeker') badgeLabel.textContent = 'نوع الحساب: باحث عن عمل / كادر طبي وصيدلاني';
         else badgeLabel.textContent = 'نوع الحساب: صيدلية / منشأة طبية مرخصة';
       }
 

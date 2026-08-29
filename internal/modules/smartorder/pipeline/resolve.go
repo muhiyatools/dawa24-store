@@ -39,7 +39,9 @@ const (
 	confBarcode        = 1.000
 	confSKU            = 1.000
 	confExactName      = 0.980
+	confFuzzyDB        = 0.960
 	confAlias          = 0.950
+	confContains       = 0.930
 )
 
 // Resolver holds what the deterministic tiers need.
@@ -87,6 +89,15 @@ func (r *Resolver) Resolve(ctx context.Context, lines []*smartorder.Line) error 
 
 	// Tiers 2 and 3 — barcode and SKU, one query covering both.
 	if err := r.applyCodes(ctx, lines); err != nil {
+		return err
+	}
+
+	// Tier 4 — exact names. Matches the normalised name directly against the
+	// catalogue's Arabic and English product names. This is the tier that was
+	// previously missing: a pharmacy typing the same name the catalogue carries
+	// would fall through to the scorer, and from there to AI or to "unmatched".
+	// On a typical pharmacy file it resolves the bulk of the residue.
+	if err := r.applyExactNames(ctx, lines); err != nil {
 		return err
 	}
 
@@ -181,6 +192,51 @@ func (r *Resolver) applyCodes(ctx context.Context, lines []*smartorder.Line) err
 			}
 		}
 	}
+	return nil
+}
+
+func (r *Resolver) applyExactNames(ctx context.Context, lines []*smartorder.Line) error {
+	names, _ := unresolvedKeys(lines)
+	if len(names) == 0 {
+		return nil
+	}
+	hits, err := r.repo.ResolveByExactName(ctx, names, r.cfg.MatchLanguage)
+	if err != nil {
+		return err
+	}
+	assign(lines, hits, smartorder.MethodExactName, confExactName, func(l *smartorder.Line) []string {
+		return []string{l.NormName}
+	})
+	return nil
+}
+
+func (r *Resolver) applyFuzzyDB(ctx context.Context, lines []*smartorder.Line) error {
+	names, _ := unresolvedKeys(lines)
+	if len(names) == 0 {
+		return nil
+	}
+	hits, err := r.repo.ResolveByFuzzyDB(ctx, names, r.cfg.MatchLanguage)
+	if err != nil {
+		return err
+	}
+	assign(lines, hits, smartorder.MethodFuzzy, confFuzzyDB, func(l *smartorder.Line) []string {
+		return []string{l.NormName}
+	})
+	return nil
+}
+
+func (r *Resolver) applyContains(ctx context.Context, lines []*smartorder.Line) error {
+	names, _ := unresolvedKeys(lines)
+	if len(names) == 0 {
+		return nil
+	}
+	hits, err := r.repo.ResolveByContains(ctx, names, r.cfg.MatchLanguage)
+	if err != nil {
+		return err
+	}
+	assign(lines, hits, smartorder.MethodFuzzy, confContains, func(l *smartorder.Line) []string {
+		return []string{l.NormName}
+	})
 	return nil
 }
 

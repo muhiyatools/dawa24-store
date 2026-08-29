@@ -21,12 +21,15 @@ import (
 // countingRepo records how many times each bulk method is called.
 type countingRepo struct {
 	smartorder.Repository
-	codes   int
-	saving  int
-	learned int
-	alias   int
-	offers  int
-	index   int
+	codes     int
+	saving    int
+	learned   int
+	exactName int
+	fuzzyDB   int
+	contains  int
+	alias     int
+	offers    int
+	index     int
 }
 
 func (c *countingRepo) ResolveByCodes(context.Context, []string, []string) (map[string]int64, error) {
@@ -41,6 +44,21 @@ func (c *countingRepo) ResolveBySaving(context.Context, int64, []string, []strin
 
 func (c *countingRepo) ResolveByLearned(context.Context, int64, []string) (map[string]int64, error) {
 	c.learned++
+	return map[string]int64{}, nil
+}
+
+func (c *countingRepo) ResolveByExactName(context.Context, []string, string) (map[string]int64, error) {
+	c.exactName++
+	return map[string]int64{}, nil
+}
+
+func (c *countingRepo) ResolveByFuzzyDB(context.Context, []string, string) (map[string]int64, error) {
+	c.fuzzyDB++
+	return map[string]int64{}, nil
+}
+
+func (c *countingRepo) ResolveByContains(context.Context, []string, string) (map[string]int64, error) {
+	c.contains++
 	return map[string]int64{}, nil
 }
 
@@ -60,7 +78,7 @@ func (c *countingRepo) LoadMatchIndex(context.Context) ([]smartorder.IndexedProd
 }
 
 func (c *countingRepo) total() int {
-	return c.codes + c.saving + c.learned + c.alias + c.offers + c.index
+	return c.codes + c.saving + c.learned + c.exactName + c.fuzzyDB + c.contains + c.alias + c.offers + c.index
 }
 
 func linesFor(n int) []*smartorder.Line {
@@ -98,8 +116,8 @@ func TestResolveQueryCountIsIndependentOfRowCount(t *testing.T) {
 			t.Fatalf("query count changed with row count: %v — a per-row lookup has crept in (case %d)", counts, i)
 		}
 	}
-	// Four tiers, four queries, whatever the file size.
-	if counts[0] > 6 {
+	// Five tiers, five queries, whatever the file size.
+	if counts[0] > 7 {
 		t.Fatalf("expected a handful of queries for the whole file, got %d", counts[0])
 	}
 }

@@ -1,7 +1,10 @@
 package pages
 
 import (
-	"github.com/muhiya/dawa24-store/internal/modules/platform_admin"
+	"fmt"
+
+	platformadmin "github.com/muhiya/dawa24-store/internal/modules/platform_admin"
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/ui/components"
 	"github.com/muhiya/dawa24-store/internal/ui/layouts"
 )
@@ -140,15 +143,35 @@ templ RegisterPage(lang, dir string, form RegisterFormData, cities []*platformad
 									@components.IconCheck("icon-xs")
 								</div>
 							</div>
+
+							<!-- Option 3: Job Seeker / Medical & Pharma Professional -->
+							<div
+								class="type-card hover-lift"
+								data-account-type="job_seeker"
+								style="display:flex; gap:1rem; align-items:center; padding:1.15rem 1.25rem; border:2px solid var(--border); border-radius:var(--radius-xl); background:var(--surface-raised); cursor:pointer; transition:all 0.15s ease;"
+							>
+								<div class="type-icon" style="width:46px; height:46px; border-radius:var(--radius-lg); background:var(--surface-sunken); color:var(--text-secondary); display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+									@components.IconUser("icon-sm")
+								</div>
+								<div class="flex-1">
+									<div style="font-weight:800; color:var(--text); font-size:1.05rem;">باحث عن عمل / كادر طبي وصيدلاني</div>
+									<div style="font-size:0.85rem; color:var(--text-secondary); margin-top:0.2rem; line-height:1.4;">
+										للصيادلة ومساعدي الصيادلة ومسؤولي المبيعات للتقديم على الشواغر الوظيفية والانضمام لمنظومة العمل.
+									</div>
+								</div>
+								<div class="type-check" style="width:24px; height:24px; border-radius:50%; border:2px solid var(--border); color:transparent; display:flex; align-items:center; justify-content:center;">
+									@components.IconCheck("icon-xs")
+								</div>
+							</div>
 						</div>
 
 						<button type="button" id="reg-goto-step-2" class="btn btn-primary" style="width:100%; padding:0.85rem; font-size:1rem; font-weight:800; margin-top:0.75rem; justify-content:center;">
-							<span>المتابعة إلى بيانات المنشأة والموقع</span>
+							<span>المتابعة إلى الخطوة التالية</span>
 							@components.IconArrowLeft("icon-xs")
 						</button>
 					</section>
 
-					<!-- ================= STEP 2: Facility & Location ================= -->
+					<!-- ================= STEP 2: Facility / Seeker Profile & Location ================= -->
 					<section id="reg-step-2" class="form-step" style="display:none; flex-direction:column; gap:1.15rem;">
 						<div style="display:flex; justify-content:space-between; align-items:center; padding-bottom:0.75rem; border-bottom:1px solid var(--border);">
 							<span id="reg-selected-badge" class="badge badge-sky" style="font-size:0.825rem; font-weight:700;">نوع الحساب: صيدلية / منشأة طبية مرخصة</span>
@@ -158,6 +181,57 @@ templ RegisterPage(lang, dir string, form RegisterFormData, cities []*platformad
 							</button>
 						</div>
 
+						<!-- JOB SEEKER ONLY FIELDS -->
+						<div class="form-grid-2" data-type-visibility="job_seeker" style="display:none;">
+							<div class="form-group mb-0">
+								<label class="form-label" for="reg-specialisation">التخصص المهني *</label>
+								<select id="reg-specialisation" name="specialisation" class="form-input">
+									<option value="pharmacist">صيدلي / دكتور صيدلي (Pharmacist)</option>
+									<option value="assistant_pharmacist">مساعد صيدلي (Assistant Pharmacist)</option>
+									<option value="branch_manager">مدير فرع صيدلية (Branch Manager)</option>
+									<option value="sales_rep">مندوب مبيعات وتسويق دوائي (Medical Rep)</option>
+									<option value="warehouse_keeper">أمين مخزن أدوية (Warehouse Keeper)</option>
+									<option value="accountant">محاسب صيدليات (Accountant)</option>
+								</select>
+							</div>
+							<div class="form-group mb-0">
+								<label class="form-label" for="reg-years-exp">سنوات الخبرة *</label>
+								<input type="number" id="reg-years-exp" name="years_experience" min="0" max="40" class="form-input tabular-nums" placeholder="مثال: 3" value={ form.YearsExperience } />
+							</div>
+						</div>
+
+						<div class="form-grid-2" data-type-visibility="job_seeker" style="display:none;">
+							<div class="form-group mb-0">
+								<label class="form-label" for="reg-city-id">المدينة / المحافظة المفضلة للعمل *</label>
+								<select id="reg-city-id" name="city_id" class="form-input">
+									<option value="">اختر المدينة...</option>
+									for _, c := range cities {
+										<option value={ fmt.Sprintf("%d", c.ID) } selected?={ form.CitySelected(c.ID) }>
+											{ c.Name.Get(i18n.ParseLang(lang)) }
+										</option>
+									}
+								</select>
+							</div>
+							<div class="form-group mb-0">
+								<label class="form-label" for="reg-expected-salary">الراتب المتوقع (ج.م / اختياري)</label>
+								<input type="text" id="reg-expected-salary" name="expected_salary" class="form-input tabular-nums" placeholder="مثال: 9000" value={ form.ExpectedSalary } />
+							</div>
+						</div>
+
+						<div class="form-group mb-0" data-type-visibility="job_seeker" style="display:none;">
+							<label class="form-label flex-between" for="reg-cv-file">
+								<span>إرفاق السيرة الذاتية (CV / اختياري)</span>
+								<span class="text-xs text-muted">PDF, DOC, DOCX حتى 10 ميجابايت</span>
+							</label>
+							<input type="file" id="reg-cv-file" name="cv_file" accept=".pdf,.doc,.docx" class="form-input" style="padding:0.45rem;" />
+						</div>
+
+						<div class="form-group mb-0" data-type-visibility="job_seeker" style="display:none;">
+							<label class="form-label" for="reg-bio">نبذة مهنية وموجز الخبرات</label>
+							<textarea id="reg-bio" name="bio" rows="3" class="form-input" placeholder="اكتب نبذة مختصرة عن مؤهلاتك وخبراتك السابقة وأهم المهارات...">{ form.Bio }</textarea>
+						</div>
+
+						<!-- BUSINESS ONLY FIELDS (Vendor & Customer) -->
 						<div class="form-group mb-0" data-type-visibility="vendor customer">
 							<label class="form-label" for="reg-legal-name">الاسم القانوني للمنشأة (مطابق للسجل التجاري) *</label>
 							<input type="text" id="reg-legal-name" name="legal_name" class="form-input" placeholder="صيدلية الأمل الحديثة ش.م.م" value={ form.LegalName } />
@@ -203,7 +277,7 @@ templ RegisterPage(lang, dir string, form RegisterFormData, cities []*platformad
 						</div>
 
 						<!-- Interactive Map with GPS Location & Live Reverse Geocoding -->
-						<div class="form-group mb-0">
+						<div class="form-group mb-0" data-type-visibility="vendor customer">
 							@components.MapPicker(components.MapPickerProps{
 								NamePrefix: "branch",
 								Label:      "تحديد الموقع الجغرافي والإحداثيات للفرع الرئيسي (GPS) *",
@@ -211,7 +285,7 @@ templ RegisterPage(lang, dir string, form RegisterFormData, cities []*platformad
 							})
 						</div>
 
-						<div class="form-group mb-0">
+						<div class="form-group mb-0" data-type-visibility="vendor customer">
 							<label class="form-label flex-between" for="reg-address">
 								<span>العنوان التفصيلي للمقر / الصيدلية *</span>
 								<span style="font-size:0.75rem; color:var(--accent);" id="reg-address-hint">📍 يُملأ تلقائياً عند تحديد الموقع على الخريطة</span>

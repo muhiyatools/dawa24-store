@@ -33,6 +33,7 @@ const (
 	RoleEmployer   = "employer"
 	RoleIndividual = "individual"
 	RoleCustomer   = "customer"
+	RoleJobSeeker  = "job_seeker"
 )
 
 // MaxFailedLoginsBeforeLockout defines when an account is temporarily locked.

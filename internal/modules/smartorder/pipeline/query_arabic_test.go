@@ -56,6 +56,22 @@ func TestArabicLinesAreDecomposed(t *testing.T) {
 			form:     "",
 			pack:     0,
 		},
+		{
+			// Cosmetics/OTC with Egyptian pack abbreviation 17ق
+			raw:      "كيور ايد بلاستر كالو 17ق",
+			name:     "كيور ايد كالو",
+			strength: "",
+			form:     "بلاستر",
+			pack:     17,
+		},
+		{
+			// Hair care / cosmetics product
+			raw:      "سيروبايب بلسم للشعر 300 مل",
+			name:     "سيروبايب",
+			strength: "300 مل",
+			form:     "بلسم",
+			pack:     0,
+		},
 	}
 
 	for _, tc := range tests {

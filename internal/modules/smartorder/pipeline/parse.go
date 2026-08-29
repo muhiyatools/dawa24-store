@@ -192,11 +192,20 @@ func Stage(content []byte, filename string, m *smartorder.Mapping,
 	qtyCol, hasQty := m.Column("quantity")
 
 	var lines []*smartorder.Line
+	var headers []string
 	rowNumber := 0
 
 	err = book.Walk(func(index int, row []string) error {
-		if index <= m.HeaderRow {
-			return nil // banner and header
+		if index == m.HeaderRow {
+			headers = make([]string, len(row))
+			copy(headers, row)
+			return nil // header row itself
+		}
+		if index < m.HeaderRow {
+			return nil // banner
+		}
+		if isRepeatedHeader(row, headers) {
+			return nil // repeated header row inside the data
 		}
 		name := cell(row, nameCol, hasName)
 		sku := cell(row, skuCol, hasSKU)
@@ -252,4 +261,29 @@ func rawOf(row []string) map[string]string {
 		}
 	}
 	return out
+}
+
+// isRepeatedHeader detects rows that are a duplicate copy of the file's header.
+//
+// Pharmacy exports with multiple sheets or sections repeat the header at each
+// section boundary. Left in, these become lines whose raw_name is "Item
+// Description" or "اسم الصنف", which the matcher dutifully tries to resolve.
+// They dilute the stats, waste an AI slot, and confuse the buyer's review.
+func isRepeatedHeader(row []string, headers []string) bool {
+	if len(headers) == 0 || len(row) == 0 {
+		return false
+	}
+	matches := 0
+	checked := 0
+	for i, h := range headers {
+		h = strings.TrimSpace(h)
+		if h == "" {
+			continue
+		}
+		checked++
+		if i < len(row) && strings.EqualFold(strings.TrimSpace(row[i]), h) {
+			matches++
+		}
+	}
+	return checked > 0 && matches >= 2
 }

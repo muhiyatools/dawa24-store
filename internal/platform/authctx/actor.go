@@ -53,6 +53,11 @@ func (a Actor) IsVendor() bool {
 	return !a.IsStaff && (a.OrgType == "vendor" || a.OrgType == "supplier")
 }
 
+// IsJobSeeker reports whether the actor has the job_seeker platform role.
+func (a Actor) IsJobSeeker() bool {
+	return a.Role == "job_seeker"
+}
+
 // DisplayName returns a user-friendly name to display in the navbar.
 func (a Actor) DisplayName() string {
 	if a.Name != "" {
@@ -68,6 +73,9 @@ func (a Actor) DisplayName() string {
 	}
 	if a.IsStaff {
 		return "مدير المنصة"
+	}
+	if a.Role == "job_seeker" {
+		return "باحث عن عمل"
 	}
 	if a.OrgType == "vendor" {
 		return "مورّد أدوية"

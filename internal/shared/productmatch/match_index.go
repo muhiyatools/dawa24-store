@@ -111,6 +111,9 @@ func NewIndex(products []MasterProduct) *Index {
 		if p.nameKey != "" {
 			idx.byName[p.nameKey] = append(idx.byName[p.nameKey], p)
 		}
+		if enKey := strings.Join(p.coreEN, " "); enKey != "" && enKey != p.nameKey {
+			idx.byName[enKey] = append(idx.byName[enKey], p)
+		}
 
 		seen := map[string]bool{}
 		for _, tok := range append(append([]string{}, p.coreAR...), p.coreEN...) {

@@ -9,7 +9,10 @@ import "github.com/a-h/templ"
 import templruntime "github.com/a-h/templ/runtime"
 
 import (
-	"github.com/muhiya/dawa24-store/internal/modules/platform_admin"
+	"fmt"
+
+	platformadmin "github.com/muhiya/dawa24-store/internal/modules/platform_admin"
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/ui/components"
 	"github.com/muhiya/dawa24-store/internal/ui/layouts"
 )
@@ -67,7 +70,7 @@ func LoginPage(lang, dir, errorMsg string) templ.Component {
 				var templ_7745c5c3_Var3 string
 				templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(errorMsg)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/auth.templ`, Line: 25, Col: 22}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/auth.templ`, Line: 28, Col: 22}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
 				if templ_7745c5c3_Err != nil {
@@ -153,7 +156,7 @@ func RegisterPage(lang, dir string, form RegisterFormData, cities []*platformadm
 				var templ_7745c5c3_Var6 string
 				templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(form.Error)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/auth.templ`, Line: 90, Col: 24}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/auth.templ`, Line: 93, Col: 24}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
 				if templ_7745c5c3_Err != nil {
@@ -196,7 +199,23 @@ func RegisterPage(lang, dir string, form RegisterFormData, cities []*platformadm
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "</div></div></div><button type=\"button\" id=\"reg-goto-step-2\" class=\"btn btn-primary\" style=\"width:100%; padding:0.85rem; font-size:1rem; font-weight:800; margin-top:0.75rem; justify-content:center;\"><span>المتابعة إلى بيانات المنشأة والموقع</span>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "</div></div><!-- Option 3: Job Seeker / Medical & Pharma Professional --><div class=\"type-card hover-lift\" data-account-type=\"job_seeker\" style=\"display:flex; gap:1rem; align-items:center; padding:1.15rem 1.25rem; border:2px solid var(--border); border-radius:var(--radius-xl); background:var(--surface-raised); cursor:pointer; transition:all 0.15s ease;\"><div class=\"type-icon\" style=\"width:46px; height:46px; border-radius:var(--radius-lg); background:var(--surface-sunken); color:var(--text-secondary); display:flex; align-items:center; justify-content:center; flex-shrink:0;\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = components.IconUser("icon-sm").Render(ctx, templ_7745c5c3_Buffer)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "</div><div class=\"flex-1\"><div style=\"font-weight:800; color:var(--text); font-size:1.05rem;\">باحث عن عمل / كادر طبي وصيدلاني</div><div style=\"font-size:0.85rem; color:var(--text-secondary); margin-top:0.2rem; line-height:1.4;\">للصيادلة ومساعدي الصيادلة ومسؤولي المبيعات للتقديم على الشواغر الوظيفية والانضمام لمنظومة العمل.</div></div><div class=\"type-check\" style=\"width:24px; height:24px; border-radius:50%; border:2px solid var(--border); color:transparent; display:flex; align-items:center; justify-content:center;\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = components.IconCheck("icon-xs").Render(ctx, templ_7745c5c3_Buffer)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "</div></div></div><button type=\"button\" id=\"reg-goto-step-2\" class=\"btn btn-primary\" style=\"width:100%; padding:0.85rem; font-size:1rem; font-weight:800; margin-top:0.75rem; justify-content:center;\"><span>المتابعة إلى الخطوة التالية</span>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -204,7 +223,7 @@ func RegisterPage(lang, dir string, form RegisterFormData, cities []*platformadm
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "</button></section><!-- ================= STEP 2: Facility & Location ================= --><section id=\"reg-step-2\" class=\"form-step\" style=\"display:none; flex-direction:column; gap:1.15rem;\"><div style=\"display:flex; justify-content:space-between; align-items:center; padding-bottom:0.75rem; border-bottom:1px solid var(--border);\"><span id=\"reg-selected-badge\" class=\"badge badge-sky\" style=\"font-size:0.825rem; font-weight:700;\">نوع الحساب: صيدلية / منشأة طبية مرخصة</span> <button type=\"button\" id=\"reg-back-to-step-1\" class=\"btn btn-secondary btn-sm fw-700\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "</button></section><!-- ================= STEP 2: Facility / Seeker Profile & Location ================= --><section id=\"reg-step-2\" class=\"form-step\" style=\"display:none; flex-direction:column; gap:1.15rem;\"><div style=\"display:flex; justify-content:space-between; align-items:center; padding-bottom:0.75rem; border-bottom:1px solid var(--border);\"><span id=\"reg-selected-badge\" class=\"badge badge-sky\" style=\"font-size:0.825rem; font-weight:700;\">نوع الحساب: صيدلية / منشأة طبية مرخصة</span> <button type=\"button\" id=\"reg-back-to-step-1\" class=\"btn btn-secondary btn-sm fw-700\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -212,85 +231,170 @@ func RegisterPage(lang, dir string, form RegisterFormData, cities []*platformadm
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "<span>تغيير النوع</span></button></div><div class=\"form-group mb-0\" data-type-visibility=\"vendor customer\"><label class=\"form-label\" for=\"reg-legal-name\">الاسم القانوني للمنشأة (مطابق للسجل التجاري) *</label> <input type=\"text\" id=\"reg-legal-name\" name=\"legal_name\" class=\"form-input\" placeholder=\"صيدلية الأمل الحديثة ش.م.م\" value=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "<span>تغيير النوع</span></button></div><!-- JOB SEEKER ONLY FIELDS --><div class=\"form-grid-2\" data-type-visibility=\"job_seeker\" style=\"display:none;\"><div class=\"form-group mb-0\"><label class=\"form-label\" for=\"reg-specialisation\">التخصص المهني *</label> <select id=\"reg-specialisation\" name=\"specialisation\" class=\"form-input\"><option value=\"pharmacist\">صيدلي / دكتور صيدلي (Pharmacist)</option> <option value=\"assistant_pharmacist\">مساعد صيدلي (Assistant Pharmacist)</option> <option value=\"branch_manager\">مدير فرع صيدلية (Branch Manager)</option> <option value=\"sales_rep\">مندوب مبيعات وتسويق دوائي (Medical Rep)</option> <option value=\"warehouse_keeper\">أمين مخزن أدوية (Warehouse Keeper)</option> <option value=\"accountant\">محاسب صيدليات (Accountant)</option></select></div><div class=\"form-group mb-0\"><label class=\"form-label\" for=\"reg-years-exp\">سنوات الخبرة *</label> <input type=\"number\" id=\"reg-years-exp\" name=\"years_experience\" min=\"0\" max=\"40\" class=\"form-input tabular-nums\" placeholder=\"مثال: 3\" value=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var7 string
-			templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.ResolveAttributeValue(form.LegalName)
+			templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.ResolveAttributeValue(form.YearsExperience)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/auth.templ`, Line: 163, Col: 167}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/auth.templ`, Line: 199, Col: 175}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var7)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "\"></div><div class=\"form-grid-2\" data-type-visibility=\"vendor customer\"><div class=\"form-group mb-0\"><label class=\"form-label\" for=\"reg-trade-ar\">الاسم التجاري (عربي) *</label> <input type=\"text\" id=\"reg-trade-ar\" name=\"trade_name_ar\" class=\"form-input\" value=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, "\"></div></div><div class=\"form-grid-2\" data-type-visibility=\"job_seeker\" style=\"display:none;\"><div class=\"form-group mb-0\"><label class=\"form-label\" for=\"reg-city-id\">المدينة / المحافظة المفضلة للعمل *</label> <select id=\"reg-city-id\" name=\"city_id\" class=\"form-input\"><option value=\"\">اختر المدينة...</option> ")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			var templ_7745c5c3_Var8 string
-			templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.ResolveAttributeValue(form.TradeNameAr)
-			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/auth.templ`, Line: 169, Col: 109}
+			for _, c := range cities {
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, "<option value=\"")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				var templ_7745c5c3_Var8 string
+				templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%d", c.ID))
+				if templ_7745c5c3_Err != nil {
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/auth.templ`, Line: 209, Col: 49}
+				}
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var8)
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, "\"")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				if form.CitySelected(c.ID) {
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, " selected")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+				}
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, ">")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				var templ_7745c5c3_Var9 string
+				templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinStringErrs(c.Name.Get(i18n.ParseLang(lang)))
+				if templ_7745c5c3_Err != nil {
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/auth.templ`, Line: 210, Col: 45}
+				}
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var9))
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 25, "</option>")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
 			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var8)
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "\" placeholder=\"صيدلية الأمل\"></div><div class=\"form-group mb-0\"><label class=\"form-label\" for=\"reg-trade-en\">الاسم التجاري (إنجليزي)</label> <input type=\"text\" id=\"reg-trade-en\" name=\"trade_name_en\" class=\"form-input\" dir=\"ltr\" value=\"")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			var templ_7745c5c3_Var9 string
-			templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.ResolveAttributeValue(form.TradeNameEn)
-			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/auth.templ`, Line: 173, Col: 119}
-			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var9)
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, "\" placeholder=\"Al Amal Pharmacy\"></div></div><div class=\"form-grid-2\" data-type-visibility=\"vendor customer\"><div class=\"form-group mb-0\"><label class=\"form-label\" for=\"reg-cr\">رقم السجل التجاري *</label> <input type=\"text\" id=\"reg-cr\" name=\"commercial_register\" class=\"form-input tabular-nums\" value=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 26, "</select></div><div class=\"form-group mb-0\"><label class=\"form-label\" for=\"reg-expected-salary\">الراتب المتوقع (ج.م / اختياري)</label> <input type=\"text\" id=\"reg-expected-salary\" name=\"expected_salary\" class=\"form-input tabular-nums\" placeholder=\"مثال: 9000\" value=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var10 string
-			templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.ResolveAttributeValue(form.CommercialRegister)
+			templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.ResolveAttributeValue(form.ExpectedSalary)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/auth.templ`, Line: 180, Col: 129}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/auth.templ`, Line: 217, Col: 163}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var10)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, "\" placeholder=\"CR-94819\"></div><div class=\"form-group mb-0\"><label class=\"form-label\" for=\"reg-tax\">الرقم الضريبي (الفاتورة الإلكترونية)</label> <input type=\"text\" id=\"reg-tax\" name=\"tax_number\" class=\"form-input tabular-nums\" value=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 27, "\"></div></div><div class=\"form-group mb-0\" data-type-visibility=\"job_seeker\" style=\"display:none;\"><label class=\"form-label flex-between\" for=\"reg-cv-file\"><span>إرفاق السيرة الذاتية (CV / اختياري)</span> <span class=\"text-xs text-muted\">PDF, DOC, DOCX حتى 10 ميجابايت</span></label> <input type=\"file\" id=\"reg-cv-file\" name=\"cv_file\" accept=\".pdf,.doc,.docx\" class=\"form-input\" style=\"padding:0.45rem;\"></div><div class=\"form-group mb-0\" data-type-visibility=\"job_seeker\" style=\"display:none;\"><label class=\"form-label\" for=\"reg-bio\">نبذة مهنية وموجز الخبرات</label> <textarea id=\"reg-bio\" name=\"bio\" rows=\"3\" class=\"form-input\" placeholder=\"اكتب نبذة مختصرة عن مؤهلاتك وخبراتك السابقة وأهم المهارات...\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var11 string
-			templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.ResolveAttributeValue(form.TaxNumber)
+			templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.JoinStringErrs(form.Bio)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/auth.templ`, Line: 184, Col: 112}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/auth.templ`, Line: 231, Col: 203}
 			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var11)
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var11))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, "\" placeholder=\"984-210-941\"></div></div><div class=\"form-group mb-0\" data-type-visibility=\"customer\"><label class=\"form-label\" for=\"reg-license\">رقم ترخيص المؤسسة الصيدلية (نقابة الصيادلة / هيئة الدواء)</label> <input type=\"text\" id=\"reg-license\" name=\"pharmacist_license\" class=\"form-input tabular-nums\" value=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 28, "</textarea></div><!-- BUSINESS ONLY FIELDS (Vendor & Customer) --><div class=\"form-group mb-0\" data-type-visibility=\"vendor customer\"><label class=\"form-label\" for=\"reg-legal-name\">الاسم القانوني للمنشأة (مطابق للسجل التجاري) *</label> <input type=\"text\" id=\"reg-legal-name\" name=\"legal_name\" class=\"form-input\" placeholder=\"صيدلية الأمل الحديثة ش.م.م\" value=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var12 string
-			templ_7745c5c3_Var12, templ_7745c5c3_Err = templ.ResolveAttributeValue(form.PharmacistLicense)
+			templ_7745c5c3_Var12, templ_7745c5c3_Err = templ.ResolveAttributeValue(form.LegalName)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/auth.templ`, Line: 190, Col: 131}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/auth.templ`, Line: 237, Col: 167}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var12)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, "\" placeholder=\"EDA-LIC-2024-884\"></div><!-- Official Operating License / CR File Attachment --><div class=\"form-group mb-0\" data-type-visibility=\"vendor customer\"><label class=\"form-label flex-between\" for=\"reg-license-file\"><span>إرفاق صورة الترخيص / السجل التجاري الرسمي</span> <span class=\"text-xs text-muted\">PDF, PNG, JPG حتى 20 ميجابايت</span></label> <input type=\"file\" id=\"reg-license-file\" name=\"license_file\" accept=\".pdf,.png,.jpg,.jpeg\" class=\"form-input\" style=\"padding:0.45rem;\"><p style=\"font-size:0.75rem; color:var(--text-muted); margin-top:0.25rem;\">يتم مراجعة الملف واعتماد ترخيص المنشأة من إدارة المنصة خلال 24 ساعة للبدء في عمليات التوريد والشراء.</p></div><!-- Interactive Map with GPS Location & Live Reverse Geocoding --><div class=\"form-group mb-0\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 29, "\"></div><div class=\"form-grid-2\" data-type-visibility=\"vendor customer\"><div class=\"form-group mb-0\"><label class=\"form-label\" for=\"reg-trade-ar\">الاسم التجاري (عربي) *</label> <input type=\"text\" id=\"reg-trade-ar\" name=\"trade_name_ar\" class=\"form-input\" value=\"")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var13 string
+			templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.ResolveAttributeValue(form.TradeNameAr)
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/auth.templ`, Line: 243, Col: 109}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var13)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 30, "\" placeholder=\"صيدلية الأمل\"></div><div class=\"form-group mb-0\"><label class=\"form-label\" for=\"reg-trade-en\">الاسم التجاري (إنجليزي)</label> <input type=\"text\" id=\"reg-trade-en\" name=\"trade_name_en\" class=\"form-input\" dir=\"ltr\" value=\"")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var14 string
+			templ_7745c5c3_Var14, templ_7745c5c3_Err = templ.ResolveAttributeValue(form.TradeNameEn)
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/auth.templ`, Line: 247, Col: 119}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var14)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 31, "\" placeholder=\"Al Amal Pharmacy\"></div></div><div class=\"form-grid-2\" data-type-visibility=\"vendor customer\"><div class=\"form-group mb-0\"><label class=\"form-label\" for=\"reg-cr\">رقم السجل التجاري *</label> <input type=\"text\" id=\"reg-cr\" name=\"commercial_register\" class=\"form-input tabular-nums\" value=\"")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var15 string
+			templ_7745c5c3_Var15, templ_7745c5c3_Err = templ.ResolveAttributeValue(form.CommercialRegister)
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/auth.templ`, Line: 254, Col: 129}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var15)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 32, "\" placeholder=\"CR-94819\"></div><div class=\"form-group mb-0\"><label class=\"form-label\" for=\"reg-tax\">الرقم الضريبي (الفاتورة الإلكترونية)</label> <input type=\"text\" id=\"reg-tax\" name=\"tax_number\" class=\"form-input tabular-nums\" value=\"")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var16 string
+			templ_7745c5c3_Var16, templ_7745c5c3_Err = templ.ResolveAttributeValue(form.TaxNumber)
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/auth.templ`, Line: 258, Col: 112}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var16)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 33, "\" placeholder=\"984-210-941\"></div></div><div class=\"form-group mb-0\" data-type-visibility=\"customer\"><label class=\"form-label\" for=\"reg-license\">رقم ترخيص المؤسسة الصيدلية (نقابة الصيادلة / هيئة الدواء)</label> <input type=\"text\" id=\"reg-license\" name=\"pharmacist_license\" class=\"form-input tabular-nums\" value=\"")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var17 string
+			templ_7745c5c3_Var17, templ_7745c5c3_Err = templ.ResolveAttributeValue(form.PharmacistLicense)
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/auth.templ`, Line: 264, Col: 131}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var17)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 34, "\" placeholder=\"EDA-LIC-2024-884\"></div><!-- Official Operating License / CR File Attachment --><div class=\"form-group mb-0\" data-type-visibility=\"vendor customer\"><label class=\"form-label flex-between\" for=\"reg-license-file\"><span>إرفاق صورة الترخيص / السجل التجاري الرسمي</span> <span class=\"text-xs text-muted\">PDF, PNG, JPG حتى 20 ميجابايت</span></label> <input type=\"file\" id=\"reg-license-file\" name=\"license_file\" accept=\".pdf,.png,.jpg,.jpeg\" class=\"form-input\" style=\"padding:0.45rem;\"><p style=\"font-size:0.75rem; color:var(--text-muted); margin-top:0.25rem;\">يتم مراجعة الملف واعتماد ترخيص المنشأة من إدارة المنصة خلال 24 ساعة للبدء في عمليات التوريد والشراء.</p></div><!-- Interactive Map with GPS Location & Live Reverse Geocoding --><div class=\"form-group mb-0\" data-type-visibility=\"vendor customer\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -302,20 +406,20 @@ func RegisterPage(lang, dir string, form RegisterFormData, cities []*platformadm
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, "</div><div class=\"form-group mb-0\"><label class=\"form-label flex-between\" for=\"reg-address\"><span>العنوان التفصيلي للمقر / الصيدلية *</span> <span style=\"font-size:0.75rem; color:var(--accent);\" id=\"reg-address-hint\">📍 يُملأ تلقائياً عند تحديد الموقع على الخريطة</span></label> <input type=\"text\" id=\"reg-address\" name=\"address\" class=\"form-input\" placeholder=\"اسم الشارع، رقم العقار، الحي، بجوار...\" value=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 35, "</div><div class=\"form-group mb-0\" data-type-visibility=\"vendor customer\"><label class=\"form-label flex-between\" for=\"reg-address\"><span>العنوان التفصيلي للمقر / الصيدلية *</span> <span style=\"font-size:0.75rem; color:var(--accent);\" id=\"reg-address-hint\">📍 يُملأ تلقائياً عند تحديد الموقع على الخريطة</span></label> <input type=\"text\" id=\"reg-address\" name=\"address\" class=\"form-input\" placeholder=\"اسم الشارع، رقم العقار، الحي، بجوار...\" value=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			var templ_7745c5c3_Var13 string
-			templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.ResolveAttributeValue(form.Address)
+			var templ_7745c5c3_Var18 string
+			templ_7745c5c3_Var18, templ_7745c5c3_Err = templ.ResolveAttributeValue(form.Address)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/auth.templ`, Line: 219, Col: 180}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/auth.templ`, Line: 293, Col: 180}
 			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var13)
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var18)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 25, "\"></div><div style=\"display:grid; grid-template-columns:1fr 1fr; gap:0.75rem; margin-top:0.75rem;\"><button type=\"button\" id=\"reg-step-2-back\" class=\"btn btn-secondary\" style=\"padding:0.85rem; font-weight:700; justify-content:center;\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 36, "\"></div><div style=\"display:grid; grid-template-columns:1fr 1fr; gap:0.75rem; margin-top:0.75rem;\"><button type=\"button\" id=\"reg-step-2-back\" class=\"btn btn-secondary\" style=\"padding:0.85rem; font-weight:700; justify-content:center;\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -323,7 +427,7 @@ func RegisterPage(lang, dir string, form RegisterFormData, cities []*platformadm
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 26, "<span>السابق</span></button> <button type=\"button\" id=\"reg-goto-step-3\" class=\"btn btn-primary\" style=\"padding:0.85rem; font-weight:800; justify-content:center;\"><span>المتابعة لبيانات الحساب</span>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 37, "<span>السابق</span></button> <button type=\"button\" id=\"reg-goto-step-3\" class=\"btn btn-primary\" style=\"padding:0.85rem; font-weight:800; justify-content:center;\"><span>المتابعة لبيانات الحساب</span>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -331,7 +435,7 @@ func RegisterPage(lang, dir string, form RegisterFormData, cities []*platformadm
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 27, "</button></div></section><!-- ================= STEP 3: Account Credentials & Security ================= --><section id=\"reg-step-3\" class=\"form-step\" style=\"display:none; flex-direction:column; gap:1.15rem;\"><div style=\"display:flex; justify-content:space-between; align-items:center; padding-bottom:0.75rem; border-bottom:1px solid var(--border);\"><span class=\"badge badge-teal\" style=\"font-size:0.825rem; font-weight:700;\">الخطوة الأخيرة: بيانات تسجيل الدخول والأمان</span> <button type=\"button\" id=\"reg-step-3-back\" class=\"btn btn-secondary btn-sm fw-700\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 38, "</button></div></section><!-- ================= STEP 3: Account Credentials & Security ================= --><section id=\"reg-step-3\" class=\"form-step\" style=\"display:none; flex-direction:column; gap:1.15rem;\"><div style=\"display:flex; justify-content:space-between; align-items:center; padding-bottom:0.75rem; border-bottom:1px solid var(--border);\"><span class=\"badge badge-teal\" style=\"font-size:0.825rem; font-weight:700;\">الخطوة الأخيرة: بيانات تسجيل الدخول والأمان</span> <button type=\"button\" id=\"reg-step-3-back\" class=\"btn btn-secondary btn-sm fw-700\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -339,46 +443,46 @@ func RegisterPage(lang, dir string, form RegisterFormData, cities []*platformadm
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 28, "<span>بيانات المنشأة</span></button></div><div class=\"form-group mb-0\"><label class=\"form-label\" for=\"reg-name\">اسم المسؤول / الصيدلي المسؤول *</label> <input type=\"text\" id=\"reg-name\" name=\"name\" class=\"form-input\" placeholder=\"د. أحمد محمود\" value=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 39, "<span>بيانات المنشأة</span></button></div><div class=\"form-group mb-0\"><label class=\"form-label\" for=\"reg-name\">اسم المسؤول / الصيدلي المسؤول *</label> <input type=\"text\" id=\"reg-name\" name=\"name\" class=\"form-input\" placeholder=\"د. أحمد محمود\" value=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			var templ_7745c5c3_Var14 string
-			templ_7745c5c3_Var14, templ_7745c5c3_Err = templ.ResolveAttributeValue(form.Name)
+			var templ_7745c5c3_Var19 string
+			templ_7745c5c3_Var19, templ_7745c5c3_Err = templ.ResolveAttributeValue(form.Name)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/auth.templ`, Line: 246, Col: 126}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/auth.templ`, Line: 320, Col: 126}
 			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var14)
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 29, "\"></div><div class=\"form-grid-2\"><div class=\"form-group mb-0\"><label class=\"form-label\" for=\"reg-email\">البريد الإلكتروني الرسمي *</label> <input type=\"email\" id=\"reg-email\" name=\"email\" class=\"form-input tabular-nums\" placeholder=\"pharmacy@dawa24.eg\" value=\"")
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var19)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			var templ_7745c5c3_Var15 string
-			templ_7745c5c3_Var15, templ_7745c5c3_Err = templ.ResolveAttributeValue(form.Email)
-			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/auth.templ`, Line: 252, Col: 139}
-			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var15)
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 40, "\"></div><div class=\"form-grid-2\"><div class=\"form-group mb-0\"><label class=\"form-label\" for=\"reg-email\">البريد الإلكتروني الرسمي *</label> <input type=\"email\" id=\"reg-email\" name=\"email\" class=\"form-input tabular-nums\" placeholder=\"pharmacy@dawa24.eg\" value=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 30, "\"></div><div class=\"form-group mb-0\"><label class=\"form-label\" for=\"reg-phone\">رقم الهاتف / الواتساب *</label> <input type=\"tel\" id=\"reg-phone\" name=\"phone\" class=\"form-input tabular-nums\" placeholder=\"01012345678\" value=\"")
+			var templ_7745c5c3_Var20 string
+			templ_7745c5c3_Var20, templ_7745c5c3_Err = templ.ResolveAttributeValue(form.Email)
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/auth.templ`, Line: 326, Col: 139}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var20)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			var templ_7745c5c3_Var16 string
-			templ_7745c5c3_Var16, templ_7745c5c3_Err = templ.ResolveAttributeValue(form.Phone)
-			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/auth.templ`, Line: 256, Col: 130}
-			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var16)
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 41, "\"></div><div class=\"form-group mb-0\"><label class=\"form-label\" for=\"reg-phone\">رقم الهاتف / الواتساب *</label> <input type=\"tel\" id=\"reg-phone\" name=\"phone\" class=\"form-input tabular-nums\" placeholder=\"01012345678\" value=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 31, "\"></div></div><!-- Password Field with Modern Live Strength Meter --><div class=\"form-group mb-0\"><div style=\"display:flex; justify-content:space-between; align-items:center; margin-bottom:0.35rem;\"><label class=\"form-label mb-0\" for=\"reg-password\">كلمة المرور *</label> <span id=\"pass-strength-label\" style=\"font-size:0.75rem; font-weight:700; color:var(--text-muted);\">أدخل كلمة المرور</span></div><div style=\"position:relative;\"><input type=\"password\" id=\"reg-password\" name=\"password\" class=\"form-input\" placeholder=\"••••••••\" style=\"padding-inline-end:2.5rem;\"> <button type=\"button\" id=\"reg-toggle-pwd\" style=\"position:absolute; inset-inline-end:0.75rem; top:50%; transform:translateY(-50%); background:none; border:none; color:var(--text-muted); cursor:pointer; padding:0; display:flex; align-items:center;\">👁️</button></div><!-- Strength Progress Bars --><div style=\"display:grid; grid-template-columns:repeat(4, 1fr); gap:4px; margin-top:0.5rem;\" id=\"pwd-strength-bars\"><div class=\"strength-bar-seg\" style=\"height:4px; border-radius:2px; background:var(--border); transition:background 0.25s ease;\"></div><div class=\"strength-bar-seg\" style=\"height:4px; border-radius:2px; background:var(--border); transition:background 0.25s ease;\"></div><div class=\"strength-bar-seg\" style=\"height:4px; border-radius:2px; background:var(--border); transition:background 0.25s ease;\"></div><div class=\"strength-bar-seg\" style=\"height:4px; border-radius:2px; background:var(--border); transition:background 0.25s ease;\"></div></div><!-- Real-Time Password Checklist --><div style=\"display:grid; grid-template-columns:1fr 1fr; gap:0.4rem; margin-top:0.6rem; font-size:0.75rem; color:var(--text-secondary);\" id=\"pwd-checklist\"><div id=\"rule-length\" class=\"row-center-xs\"><span class=\"rule-icon text-muted\">●</span> 8 أحرف على الأقل</div><div id=\"rule-casing\" class=\"row-center-xs\"><span class=\"rule-icon text-muted\">●</span> حرف كبير (A-Z) وصغير (a-z)</div><div id=\"rule-number\" class=\"row-center-xs\"><span class=\"rule-icon text-muted\">●</span> رقم واحد على الأقل (0-9)</div><div id=\"rule-special\" class=\"row-center-xs\"><span class=\"rule-icon text-muted\">●</span> رمز خاص (@, $, !, %, *, #)</div></div></div><div style=\"display:grid; grid-template-columns:1fr 2fr; gap:0.75rem; margin-top:0.75rem;\"><button type=\"button\" id=\"reg-step-3-back-btn\" class=\"btn btn-secondary\" style=\"padding:0.85rem; font-weight:700; justify-content:center;\">")
+			var templ_7745c5c3_Var21 string
+			templ_7745c5c3_Var21, templ_7745c5c3_Err = templ.ResolveAttributeValue(form.Phone)
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/auth.templ`, Line: 330, Col: 130}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var21)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 42, "\"></div></div><!-- Password Field with Modern Live Strength Meter --><div class=\"form-group mb-0\"><div style=\"display:flex; justify-content:space-between; align-items:center; margin-bottom:0.35rem;\"><label class=\"form-label mb-0\" for=\"reg-password\">كلمة المرور *</label> <span id=\"pass-strength-label\" style=\"font-size:0.75rem; font-weight:700; color:var(--text-muted);\">أدخل كلمة المرور</span></div><div style=\"position:relative;\"><input type=\"password\" id=\"reg-password\" name=\"password\" class=\"form-input\" placeholder=\"••••••••\" style=\"padding-inline-end:2.5rem;\"> <button type=\"button\" id=\"reg-toggle-pwd\" style=\"position:absolute; inset-inline-end:0.75rem; top:50%; transform:translateY(-50%); background:none; border:none; color:var(--text-muted); cursor:pointer; padding:0; display:flex; align-items:center;\">👁️</button></div><!-- Strength Progress Bars --><div style=\"display:grid; grid-template-columns:repeat(4, 1fr); gap:4px; margin-top:0.5rem;\" id=\"pwd-strength-bars\"><div class=\"strength-bar-seg\" style=\"height:4px; border-radius:2px; background:var(--border); transition:background 0.25s ease;\"></div><div class=\"strength-bar-seg\" style=\"height:4px; border-radius:2px; background:var(--border); transition:background 0.25s ease;\"></div><div class=\"strength-bar-seg\" style=\"height:4px; border-radius:2px; background:var(--border); transition:background 0.25s ease;\"></div><div class=\"strength-bar-seg\" style=\"height:4px; border-radius:2px; background:var(--border); transition:background 0.25s ease;\"></div></div><!-- Real-Time Password Checklist --><div style=\"display:grid; grid-template-columns:1fr 1fr; gap:0.4rem; margin-top:0.6rem; font-size:0.75rem; color:var(--text-secondary);\" id=\"pwd-checklist\"><div id=\"rule-length\" class=\"row-center-xs\"><span class=\"rule-icon text-muted\">●</span> 8 أحرف على الأقل</div><div id=\"rule-casing\" class=\"row-center-xs\"><span class=\"rule-icon text-muted\">●</span> حرف كبير (A-Z) وصغير (a-z)</div><div id=\"rule-number\" class=\"row-center-xs\"><span class=\"rule-icon text-muted\">●</span> رقم واحد على الأقل (0-9)</div><div id=\"rule-special\" class=\"row-center-xs\"><span class=\"rule-icon text-muted\">●</span> رمز خاص (@, $, !, %, *, #)</div></div></div><div style=\"display:grid; grid-template-columns:1fr 2fr; gap:0.75rem; margin-top:0.75rem;\"><button type=\"button\" id=\"reg-step-3-back-btn\" class=\"btn btn-secondary\" style=\"padding:0.85rem; font-weight:700; justify-content:center;\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -386,7 +490,7 @@ func RegisterPage(lang, dir string, form RegisterFormData, cities []*platformadm
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 32, "<span>السابق</span></button> <button type=\"submit\" id=\"reg-submit-btn\" class=\"btn btn-primary\" style=\"padding:0.85rem; font-size:1rem; font-weight:800; justify-content:center;\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 43, "<span>السابق</span></button> <button type=\"submit\" id=\"reg-submit-btn\" class=\"btn btn-primary\" style=\"padding:0.85rem; font-size:1rem; font-weight:800; justify-content:center;\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -394,7 +498,7 @@ func RegisterPage(lang, dir string, form RegisterFormData, cities []*platformadm
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 33, "<span>إنشاء الحساب وبدء التفعيل</span></button></div></section></form><div style=\"text-align:center; margin-top:1.75rem; font-size:0.875rem; color:var(--text-secondary); border-top:1px solid var(--border); padding-top:1.25rem;\">لديك حساب بالفعل؟ <a href=\"/auth/login\" style=\"font-weight:800; color:var(--accent);\">تسجيل الدخول</a></div></div></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 44, "<span>إنشاء الحساب وبدء التفعيل</span></button></div></section></form><div style=\"text-align:center; margin-top:1.75rem; font-size:0.875rem; color:var(--text-secondary); border-top:1px solid var(--border); padding-top:1.25rem;\">لديك حساب بالفعل؟ <a href=\"/auth/login\" style=\"font-weight:800; color:var(--accent);\">تسجيل الدخول</a></div></div></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -424,12 +528,12 @@ func ForgotPasswordPage(lang, dir string) templ.Component {
 			}()
 		}
 		ctx = templ.InitializeContext(ctx)
-		templ_7745c5c3_Var17 := templ.GetChildren(ctx)
-		if templ_7745c5c3_Var17 == nil {
-			templ_7745c5c3_Var17 = templ.NopComponent
+		templ_7745c5c3_Var22 := templ.GetChildren(ctx)
+		if templ_7745c5c3_Var22 == nil {
+			templ_7745c5c3_Var22 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Var18 := templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
+		templ_7745c5c3_Var23 := templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 			templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 			templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templruntime.GetBuffer(templ_7745c5c3_W)
 			if !templ_7745c5c3_IsBuffer {
@@ -441,7 +545,7 @@ func ForgotPasswordPage(lang, dir string) templ.Component {
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 34, "<div style=\"min-height:100vh; display:flex; align-items:center; justify-content:center; padding:2rem 1.5rem; background:radial-gradient(ellipse at top, var(--accent-subtle) 0%, var(--bg-app) 100%);\"><div class=\"card\" style=\"width:100%; max-width:440px; margin-bottom:0; padding:2.5rem; box-shadow:var(--shadow-lg); border-radius:var(--radius-2xl); background:var(--surface-raised); border:1px solid var(--border);\"><div style=\"text-align:center; margin-bottom:2rem;\"><a href=\"/\" style=\"display:inline-block; margin-bottom:1.25rem;\"><img src=\"/static/img/logo.png\" alt=\"DAWA24\" style=\"height:54px; object-fit:contain;\"></a><h1 style=\"font-size:1.5rem; font-weight:800; color:var(--text);\">استعادة كلمة المرور</h1><p style=\"color:var(--text-secondary); font-size:0.875rem; margin-top:0.35rem;\">أدخل بريدك الإلكتروني المسجل لإرسال رابط إعادة التعيين</p></div><form method=\"POST\" action=\"/auth/forgot\" style=\"display:flex; flex-direction:column; gap:1.15rem;\"><div class=\"form-group mb-0\"><label class=\"form-label\" for=\"forgot-email\">البريد الإلكتروني</label> <input type=\"email\" id=\"forgot-email\" name=\"email\" required class=\"form-input tabular-nums\" placeholder=\"pharmacist@dawa24.eg\"></div><button type=\"submit\" class=\"btn btn-primary\" style=\"width:100%; padding:0.75rem; justify-content:center;\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 45, "<div style=\"min-height:100vh; display:flex; align-items:center; justify-content:center; padding:2rem 1.5rem; background:radial-gradient(ellipse at top, var(--accent-subtle) 0%, var(--bg-app) 100%);\"><div class=\"card\" style=\"width:100%; max-width:440px; margin-bottom:0; padding:2.5rem; box-shadow:var(--shadow-lg); border-radius:var(--radius-2xl); background:var(--surface-raised); border:1px solid var(--border);\"><div style=\"text-align:center; margin-bottom:2rem;\"><a href=\"/\" style=\"display:inline-block; margin-bottom:1.25rem;\"><img src=\"/static/img/logo.png\" alt=\"DAWA24\" style=\"height:54px; object-fit:contain;\"></a><h1 style=\"font-size:1.5rem; font-weight:800; color:var(--text);\">استعادة كلمة المرور</h1><p style=\"color:var(--text-secondary); font-size:0.875rem; margin-top:0.35rem;\">أدخل بريدك الإلكتروني المسجل لإرسال رابط إعادة التعيين</p></div><form method=\"POST\" action=\"/auth/forgot\" style=\"display:flex; flex-direction:column; gap:1.15rem;\"><div class=\"form-group mb-0\"><label class=\"form-label\" for=\"forgot-email\">البريد الإلكتروني</label> <input type=\"email\" id=\"forgot-email\" name=\"email\" required class=\"form-input tabular-nums\" placeholder=\"pharmacist@dawa24.eg\"></div><button type=\"submit\" class=\"btn btn-primary\" style=\"width:100%; padding:0.75rem; justify-content:center;\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -449,13 +553,13 @@ func ForgotPasswordPage(lang, dir string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 35, "<span>إرسال رابط الاستعادة</span></button></form><div style=\"text-align:center; margin-top:1.5rem; font-size:0.875rem;\"><a href=\"/auth/login\" style=\"font-weight:700; color:var(--accent);\">العودة لتسجيل الدخول</a></div></div></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 46, "<span>إرسال رابط الاستعادة</span></button></form><div style=\"text-align:center; margin-top:1.5rem; font-size:0.875rem;\"><a href=\"/auth/login\" style=\"font-weight:700; color:var(--accent);\">العودة لتسجيل الدخول</a></div></div></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			return nil
 		})
-		templ_7745c5c3_Err = layouts.Base("استعادة كلمة المرور", lang, dir).Render(templ.WithChildren(ctx, templ_7745c5c3_Var18), templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = layouts.Base("استعادة كلمة المرور", lang, dir).Render(templ.WithChildren(ctx, templ_7745c5c3_Var23), templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -479,12 +583,12 @@ func ResetPasswordPage(lang, dir, token string) templ.Component {
 			}()
 		}
 		ctx = templ.InitializeContext(ctx)
-		templ_7745c5c3_Var19 := templ.GetChildren(ctx)
-		if templ_7745c5c3_Var19 == nil {
-			templ_7745c5c3_Var19 = templ.NopComponent
+		templ_7745c5c3_Var24 := templ.GetChildren(ctx)
+		if templ_7745c5c3_Var24 == nil {
+			templ_7745c5c3_Var24 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Var20 := templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
+		templ_7745c5c3_Var25 := templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 			templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 			templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templruntime.GetBuffer(templ_7745c5c3_W)
 			if !templ_7745c5c3_IsBuffer {
@@ -496,20 +600,20 @@ func ResetPasswordPage(lang, dir, token string) templ.Component {
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 36, "<div style=\"min-height:100vh; display:flex; align-items:center; justify-content:center; padding:2rem 1.5rem; background:radial-gradient(ellipse at top, var(--accent-subtle) 0%, var(--bg-app) 100%);\"><div class=\"card\" style=\"width:100%; max-width:440px; margin-bottom:0; padding:2.5rem; box-shadow:var(--shadow-lg); border-radius:var(--radius-2xl); background:var(--surface-raised); border:1px solid var(--border);\"><div style=\"text-align:center; margin-bottom:2rem;\"><a href=\"/\" style=\"display:inline-block; margin-bottom:1.25rem;\"><img src=\"/static/img/logo.png\" alt=\"DAWA24\" style=\"height:54px; object-fit:contain;\"></a><h1 style=\"font-size:1.5rem; font-weight:800; color:var(--text);\">تعيين كلمة المرور</h1></div><form method=\"POST\" action=\"/auth/reset\" style=\"display:flex; flex-direction:column; gap:1.15rem;\"><input type=\"hidden\" name=\"token\" value=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 47, "<div style=\"min-height:100vh; display:flex; align-items:center; justify-content:center; padding:2rem 1.5rem; background:radial-gradient(ellipse at top, var(--accent-subtle) 0%, var(--bg-app) 100%);\"><div class=\"card\" style=\"width:100%; max-width:440px; margin-bottom:0; padding:2.5rem; box-shadow:var(--shadow-lg); border-radius:var(--radius-2xl); background:var(--surface-raised); border:1px solid var(--border);\"><div style=\"text-align:center; margin-bottom:2rem;\"><a href=\"/\" style=\"display:inline-block; margin-bottom:1.25rem;\"><img src=\"/static/img/logo.png\" alt=\"DAWA24\" style=\"height:54px; object-fit:contain;\"></a><h1 style=\"font-size:1.5rem; font-weight:800; color:var(--text);\">تعيين كلمة المرور</h1></div><form method=\"POST\" action=\"/auth/reset\" style=\"display:flex; flex-direction:column; gap:1.15rem;\"><input type=\"hidden\" name=\"token\" value=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			var templ_7745c5c3_Var21 string
-			templ_7745c5c3_Var21, templ_7745c5c3_Err = templ.ResolveAttributeValue(token)
+			var templ_7745c5c3_Var26 string
+			templ_7745c5c3_Var26, templ_7745c5c3_Err = templ.ResolveAttributeValue(token)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/auth.templ`, Line: 362, Col: 52}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/auth.templ`, Line: 436, Col: 52}
 			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var21)
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var26)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 37, "\"><div class=\"form-group mb-0\"><label class=\"form-label\" for=\"reset-pass\">كلمة المرور الجديدة</label> <input type=\"password\" id=\"reset-pass\" name=\"password\" required minlength=\"8\" class=\"form-input\" placeholder=\"••••••••\"></div><button type=\"submit\" class=\"btn btn-primary\" style=\"width:100%; padding:0.75rem; justify-content:center;\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 48, "\"><div class=\"form-group mb-0\"><label class=\"form-label\" for=\"reset-pass\">كلمة المرور الجديدة</label> <input type=\"password\" id=\"reset-pass\" name=\"password\" required minlength=\"8\" class=\"form-input\" placeholder=\"••••••••\"></div><button type=\"submit\" class=\"btn btn-primary\" style=\"width:100%; padding:0.75rem; justify-content:center;\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -517,13 +621,13 @@ func ResetPasswordPage(lang, dir, token string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 38, "<span>تحديث كلمة المرور والدخول</span></button></form></div></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 49, "<span>تحديث كلمة المرور والدخول</span></button></form></div></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			return nil
 		})
-		templ_7745c5c3_Err = layouts.Base("تعيين كلمة المرور الجديدة", lang, dir).Render(templ.WithChildren(ctx, templ_7745c5c3_Var20), templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = layouts.Base("تعيين كلمة المرور الجديدة", lang, dir).Render(templ.WithChildren(ctx, templ_7745c5c3_Var25), templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

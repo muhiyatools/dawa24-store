@@ -89,10 +89,25 @@ type JobApplication struct {
 	ApplicantEmail  string    `json:"applicant_email"`
 	ApplicantPhone  string    `json:"applicant_phone"`
 	CVStorageKey    string    `json:"cv_storage_key"`
-	Status          string    `json:"status"` // pending, reviewed, hired, rejected
+	Status          string    `json:"status"` // pending, reviewed, hired, accepted, rejected
 	Notes           string    `json:"notes"`
+	BranchID        *int64    `json:"branch_id,omitempty"`
+	BranchName      string    `json:"branch_name,omitempty"`
+	AssignedRoleKey string    `json:"assigned_role_key,omitempty"`
+	JobTitle        string    `json:"job_title,omitempty"`
 	CreatedAt       time.Time `json:"created_at"`
 	UpdatedAt       time.Time `json:"updated_at"`
+}
+
+// AcceptApplicantInput captures parameters for accepting an applicant and onboarding them as an employee.
+type AcceptApplicantInput struct {
+	ApplicationID  int64        `json:"application_id"`
+	OrganizationID int64        `json:"organization_id"`
+	BranchID       *int64       `json:"branch_id,omitempty"`
+	RoleKey        string       `json:"role_key"`
+	JobTitle       string       `json:"job_title"`
+	BaseSalary     money.Amount `json:"base_salary"`
+	Notes          string       `json:"notes"`
 }
 
 // JobSeekerProfile represents an individual professional seeking pharmacy/medical employment.

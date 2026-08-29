@@ -27,6 +27,11 @@ type RegisterFormData struct {
 	Latitude           string
 	Longitude          string
 	GoogleMapsURL      string
+	Specialisation     string
+	YearsExperience    string
+	Bio                string
+	ExpectedSalary     string
+	CVStorageKey       string
 	Error              string
 }
 

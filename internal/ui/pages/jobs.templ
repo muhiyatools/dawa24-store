@@ -22,15 +22,17 @@ type JobItemView struct {
 }
 
 type JobsPageData struct {
-	Jobs       []*JobItemView
-	TotalCount int
-	Cities     []*platformadmin.City
-	Actor      authctx.Actor
-	IsLoggedIn bool
-	IsCustomer bool
-	IsVendor   bool
-	IsAdmin    bool
-	CanPostJob bool
+	Jobs        []*JobItemView
+	TotalCount  int
+	Cities      []*platformadmin.City
+	Actor       authctx.Actor
+	IsLoggedIn  bool
+	IsCustomer  bool
+	IsVendor    bool
+	IsAdmin     bool
+	IsJobSeeker bool
+	CanPostJob  bool
+	PostJobURL  string
 }
 
 type JobDetailData struct {
@@ -42,6 +44,7 @@ type JobDetailData struct {
 	IsCustomer  bool
 	IsVendor    bool
 	IsAdmin     bool
+	IsJobSeeker bool
 	Submitted   bool
 	UserEmail   string
 	UserName    string
@@ -76,10 +79,10 @@ templ JobsContent(data JobsPageData, lang, dir string) {
 				</p>
 			</div>
 
-			<!-- Post Job Button (Shown ONLY for Vendors & Admins, NEVER for Pharmacy Customers) -->
+			<!-- Post Job Button (Shown for Pharmacies, Vendors & Admins) -->
 			if data.CanPostJob {
 				<div style="display:flex; align-items:center; gap:0.5rem;">
-					<a href="/vendor/jobs" class="btn btn-primary btn-sm fw-700" style="gap:0.4rem;">
+					<a href={ templ.SafeURL(data.PostJobURL) } class="btn btn-primary btn-sm fw-700" style="gap:0.4rem;">
 						@components.IconPlus("icon-xs")
 						<span>نشر وظيفة جديدة</span>
 					</a>
@@ -485,19 +488,32 @@ templ JobDetailContent(data JobDetailData, lang, dir string) {
 								@components.IconUser("icon-xs")
 							</div>
 							<h4 style="font-weight:800; font-size:0.95rem; color:var(--text); margin:0 0 0.25rem 0;">
-								يتطلب التقديم تسجيل الدخول
+								التقديم متاح لحسابات (باحث عن عمل)
 							</h4>
 							<p style="font-size:0.8rem; color:var(--text-secondary); margin:0 0 1rem 0; line-height:1.5;">
-								يرجى تسجيل الدخول بحسابك على المنصة لإرفاق سيرتك الذاتية ومتابعة طلبك.
+								يرجى تسجيل الدخول بحساب باحث عن عمل لإرسال سيرتك الذاتية ومتابعة طلبك.
 							</p>
 							<div style="display:flex; flex-direction:column; gap:0.4rem;">
 								<a href={ templ.SafeURL(fmt.Sprintf("/auth/login?redirect=/jobs/%d", data.Job.ID)) } class="btn btn-primary btn-sm fw-700" style="justify-content:center;">
-									<span>تسجيل الدخول للتقديم</span>
+									<span>تسجيل الدخول كباحث عن عمل</span>
 								</a>
 								<a href="/auth/register" class="btn btn-secondary btn-sm" style="justify-content:center;">
-									<span>إنشاء حساب جديد</span>
+									<span>إنشاء حساب باحث عن عمل</span>
 								</a>
 							</div>
+						</div>
+					} else if !data.IsJobSeeker {
+						<div style="text-align:center; padding:1.25rem; background:rgba(245,158,11,0.08); border:1px solid rgba(245,158,11,0.3); border-radius:var(--radius-lg);">
+							<div style="font-size:1.5rem; margin-bottom:0.4rem;">⚠️</div>
+							<h4 style="font-weight:800; font-size:0.95rem; color:var(--text); margin:0 0 0.35rem 0;">
+								التقديم متاح فقط لحسابات (باحث عن عمل)
+							</h4>
+							<p style="font-size:0.8rem; color:var(--text-secondary); margin:0 0 0.85rem 0; line-height:1.5;">
+								أنت مسجل حالياً بحساب منشأة. للتقديم على الوظائف الشاغرة كصيدلي أو كادر طبي، يرجى استخدام حساب باحث عن عمل.
+							</p>
+							<a href="/auth/register" class="btn btn-secondary btn-sm" style="justify-content:center; width:100%;">
+								<span>إنشاء حساب باحث عن عمل جديد</span>
+							</a>
 						</div>
 					} else {
 						<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/jobs/%d/apply", data.Job.ID)) } enctype="multipart/form-data" style="display:flex; flex-direction:column; gap:0.85rem;">
