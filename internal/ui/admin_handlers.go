@@ -46,6 +46,7 @@ func (h *UIHandler) AdminDashboardPage(w http.ResponseWriter, r *http.Request) {
 		TopLocations: make(map[string]int),
 	}
 	var pendingOrgs []*org.Organization
+	var recentOrganizations []*org.Organization
 
 	if h.idSvc != nil {
 		if n, err := h.idSvc.AdminCountUsers(ctx); err == nil {
@@ -71,6 +72,9 @@ func (h *UIHandler) AdminDashboardPage(w http.ResponseWriter, r *http.Request) {
 		if list, err := h.orgSvc.ListOrganizations(ctx, nil, &pending, 6, 0); err == nil {
 			pendingOrgs = list
 		}
+		if recentList, err := h.orgSvc.ListOrganizations(ctx, nil, nil, 6, 0); err == nil {
+			recentOrganizations = recentList
+		}
 		if branches, err := h.orgSvc.ListBranches(sysCtx, 0); err == nil {
 			stats.TotalBranches = len(branches)
 		}
@@ -79,8 +83,32 @@ func (h *UIHandler) AdminDashboardPage(w http.ResponseWriter, r *http.Request) {
 		if n, err := h.commSvc.CountOrders(ctx); err == nil {
 			stats.TotalOrders = n
 		}
-		if recent, err := h.commSvc.AdminSearchOrders(ctx, "", 5, 0); err == nil {
+		if recent, err := h.commSvc.AdminSearchOrders(ctx, "", 8, 0); err == nil {
 			stats.RecentOrders = recent
+			for _, o := range recent {
+				if o.Status == commerce.StatusDelivered || o.Status == commerce.StatusCompleted {
+					stats.CompletedOrdersCount++
+				} else if o.Status != commerce.StatusCancelled && o.Status != commerce.StatusFailed {
+					stats.ActiveOrdersCount++
+				}
+			}
+		}
+	}
+	if h.billSvc != nil {
+		if deps, total, err := h.billSvc.AdminListDetailedDeposits(sysCtx, billing.DepositFilter{Status: "pending", Limit: 50}); err == nil {
+			stats.PendingDepositsCount = total
+			var depTotal money.Amount
+			for _, d := range deps {
+				depTotal, _ = depTotal.Add(d.Amount)
+			}
+			stats.PendingDepositsAmount = fmt.Sprintf("%s ج.م", depTotal.String())
+		}
+		if wallets, _, err := h.billSvc.AdminListDetailedWallets(sysCtx, billing.WalletFilter{Limit: 100}); err == nil {
+			var totalHeldMinor int64
+			for _, w := range wallets {
+				totalHeldMinor += w.Balance.Minor()
+			}
+			stats.TotalHeldInWallets = fmt.Sprintf("%s ج.م", money.FromMinor(totalHeldMinor).String())
 		}
 	}
 	if h.catSvc != nil {
@@ -101,9 +129,15 @@ func (h *UIHandler) AdminDashboardPage(w http.ResponseWriter, r *http.Request) {
 			}
 		}
 	}
+	if stats.TotalGMV != "" && stats.TotalGMV != "0.00 ج.م" {
+		stats.TotalCommission = "5% عمولة"
+	} else {
+		stats.TotalCommission = "0.00 ج.م"
+	}
 	if gwAdmin, _, ok := h.getGatewayAdminClient(ctx); ok && gwAdmin != nil {
 		stats.GatewayOnline = true
 	}
+	stats.RecentOrganizations = recentOrganizations
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 	if err := pages.AdminDashboard(stats, pendingOrgs, lang, dir).Render(ctx, w); err != nil {
