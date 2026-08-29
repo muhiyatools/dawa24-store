@@ -3,6 +3,7 @@ package pages
 import (
 	"fmt"
 	"github.com/muhiya/dawa24-store/internal/modules/catalog"
+	"github.com/muhiya/dawa24-store/internal/modules/promo"
 	"github.com/muhiya/dawa24-store/internal/ui/components"
 	"github.com/muhiya/dawa24-store/internal/ui/layouts"
 )
@@ -12,162 +13,467 @@ type HomeStats struct {
 	TotalProducts  int
 	TotalCities    int
 	TotalOrders    int
+	TotalOffers    int
 	HeroTitle      string
 	HeroSubtitle   string
 	HeroBadge      string
 }
 
-templ CustomerHome(featured []*catalog.Product, categories []*catalog.Category, stats HomeStats, lang, dir string) {
+templ CustomerHome(featured []*catalog.Product, categories []*catalog.Category, offers []*promo.Offer, stats HomeStats, lang, dir string) {
 	@layouts.PublicShell("دواء 24 — منصة التوريد والربط الدوائي المباشر في مصر", lang, dir) {
 		
-		<!-- 1. Hero Section -->
-		<section class="glass-panel p-8 mb-6 text-center">
-			<div class="hero-badge-pill">
-				@components.IconShield("icon-xs")
-				if stats.HeroBadge != "" {
-					<span>{ stats.HeroBadge }</span>
-				} else {
-					<span>المنظومة الرقمية المعتمدة لربط وتوريد الأدوية في مصر (EDA)</span>
-				}
-			</div>
-			
-			<h1 class="text-display font-black text-primary my-3 mx-auto max-w-3xl text-balance">
-				if stats.HeroTitle != "" {
-					{ stats.HeroTitle }
-				} else {
-					سوق التوريد والربط الدوائي المباشر للصيدليات والمخازن
-				}
-			</h1>
-			
-			<p class="text-base text-secondary mx-auto mb-6 max-w-2xl text-pretty">
-				if stats.HeroSubtitle != "" {
-					{ stats.HeroSubtitle }
-				} else {
-					اطلب طلبيتك الدوائية مباشرة من كبرى شركات التوزيع ومصانع الأدوية المرخصة، مع ضمان فواتير إلكترونية معتمدة وسلاسل شحن مبردة (Cold-Chain).
-				}
-			</p>
-
-			<!-- Live Catalog Search Capsule -->
-			<form action="/catalog" method="GET" class="search-capsule-form mx-auto mb-4 d-flex gap-2 max-w-2xl">
-				<div class="d-flex items-center flex-1 ps-3 gap-2">
-					<span class="text-muted">
-						@components.IconSearch("icon-sm")
-					</span>
-					<input
-						type="search"
-						name="q"
-						placeholder="ابحث بالاسم التجاري (مثل Panadol)، المادة الفعالة، أو اسم الشركة..."
-						class="form-input flex-1 border-0 bg-transparent py-2"
-					/>
+		<!-- 1. Masterpiece Hero Section with 2D/3D Live Dashboard Preview -->
+		<section class="landing-hero-container">
+			<div class="landing-hero-header text-center">
+				<div class="hero-badge-pill">
+					@components.IconShield("icon-xs")
+					if stats.HeroBadge != "" {
+						<span>{ stats.HeroBadge }</span>
+					} else {
+						<span>المنظومة الرقمية المعتمدة لربط وتوريد الأدوية في مصر (EDA B2B)</span>
+					}
 				</div>
-				<button type="submit" class="btn btn-primary px-6 font-extrabold flex-shrink-0">
-					<span>بحث في الكتالوج</span>
-				</button>
-			</form>
+				
+				<h1 class="landing-hero-headline text-balance">
+					if stats.HeroTitle != "" {
+						{ stats.HeroTitle }
+					} else {
+						سوق التوريد والربط الدوائي المباشر بين الصيدليات وكبرى شركات التوزيع
+					}
+				</h1>
+				
+				<p class="landing-hero-subhead text-pretty">
+					if stats.HeroSubtitle != "" {
+						{ stats.HeroSubtitle }
+					} else {
+						اطلب طلبيتك الدوائية الموحدة من كبرى شركات التوزيع ومصانع الأدوية المرخصة مع خصومات حية، فواتير إلكترونية معتمدة من مصلحة الضرائب، وسلاسل شحن مبردة (Cold-Chain).
+					}
+				</p>
 
-			<!-- Quick Search Suggestion Tags -->
-			<div class="d-flex justify-center items-center flex-wrap gap-2 mb-6">
-				<span class="text-xs text-muted font-bold">الأكثر طلباً:</span>
-				<a href="/catalog?q=Augmentin" class="search-suggestion-tag">أوجمنتين</a>
-				<a href="/catalog?q=Panadol" class="search-suggestion-tag">بنادول</a>
-				<a href="/catalog?q=Cataflam" class="search-suggestion-tag">كتافلام</a>
-				<a href="/catalog?q=Congestal" class="search-suggestion-tag">كونجستال</a>
-				<a href="/catalog?q=Insulin" class="search-suggestion-tag">أنسولين وثلاجة</a>
-				<a href="/catalog?q=Antinal" class="search-suggestion-tag">أنتينال</a>
+				<!-- Live Catalog Search Capsule -->
+				<form action="/catalog" method="GET" class="hero-search-capsule">
+					<div class="hero-search-input-group">
+						<span class="text-muted flex-shrink-0">
+							@components.IconSearch("icon-sm")
+						</span>
+						<input
+							type="search"
+							name="q"
+							placeholder="ابحث بالاسم التجاري (مثل Panadol، Augmentin)، المادة الفعالة، أو اسم المورد..."
+							class="hero-search-input"
+							autocomplete="off"
+						/>
+					</div>
+					<button type="submit" class="btn btn-primary hero-search-btn">
+						@components.IconSearch("icon-xs")
+						<span>بحث في الكتالوج</span>
+					</button>
+				</form>
+
+				<!-- Quick Search Suggestion Tags -->
+				<div class="hero-quick-tags">
+					<span class="hero-tag-label">الأكثر طلباً:</span>
+					<a href="/catalog?q=Augmentin" class="hero-tag-pill">أوجمنتين</a>
+					<a href="/catalog?q=Panadol" class="hero-tag-pill">بنادول</a>
+					<a href="/catalog?q=Cataflam" class="hero-tag-pill">كتافلام</a>
+					<a href="/catalog?q=Congestal" class="hero-tag-pill">كونجستال</a>
+					<a href="/catalog?q=Insulin" class="hero-tag-pill">أنسولين وثلاجة</a>
+					<a href="/catalog?q=Antinal" class="hero-tag-pill">أنتينال</a>
+				</div>
+				
+				<!-- Direct Action CTAs -->
+				<div class="hero-cta-group">
+					<a href="/auth/register" class="btn btn-primary btn-lg font-extrabold hero-cta-btn">
+						@components.IconPlus("icon-sm")
+						<span>تسجيل صيدلية جديدة</span>
+					</a>
+					<a href="/catalog" class="btn btn-secondary btn-lg font-bold hero-cta-btn">
+						@components.IconPill("icon-sm")
+						<span>تصفح كتالوج الأدوية</span>
+					</a>
+					<a href="/auth/register" class="btn btn-ghost btn-lg font-bold hero-cta-btn">
+						@components.IconBuilding("icon-sm")
+						<span>انضمام كمورد أو مصنع</span>
+					</a>
+				</div>
 			</div>
-			
-			<!-- Direct Action CTAs -->
-			<div class="d-flex justify-center gap-3 flex-wrap">
-				<a href="/auth/register" class="btn btn-primary px-6 py-3 font-extrabold">
-					@components.IconPlus("icon-xs")
-					<span>تسجيل صيدلية جديدة</span>
-				</a>
-				<a href="/catalog" class="btn btn-secondary px-6 py-3 font-bold">
-					@components.IconPill("icon-xs")
-					<span>تصفح كتالوج الأدوية</span>
-				</a>
+
+			<!-- 2. Masterpiece 2D/3D Interactive Live Dashboard Showcase -->
+			<div class="hero-dashboard-preview-wrapper">
+				<div class="dashboard-preview-frame">
+					<!-- Top Window Header Controls -->
+					<div class="preview-window-topbar">
+						<div class="preview-window-dots">
+							<span class="dot dot-red"></span>
+							<span class="dot dot-yellow"></span>
+							<span class="dot dot-green"></span>
+						</div>
+						<div class="preview-window-title">
+							@components.IconActivity("icon-xs")
+							<span>لوحة العمليات الحية — منصة دواء 24 (EDA Live Network)</span>
+						</div>
+						<div class="preview-window-status">
+							<span class="status-live-indicator"></span>
+							<span class="status-live-text">متصل حي</span>
+						</div>
+					</div>
+
+					<!-- Preview Content: Live Metrics Bar -->
+					<div class="preview-metrics-grid">
+						<div class="preview-metric-card">
+							<div class="preview-metric-icon">
+								@components.IconActivity("icon-sm")
+							</div>
+							<div class="preview-metric-data">
+								<div class="preview-metric-num tabular-nums">1,420+</div>
+								<div class="preview-metric-label">طلبية توريد منجزة</div>
+							</div>
+						</div>
+
+						<div class="preview-metric-card">
+							<div class="preview-metric-icon text-brand">
+								@components.IconBoxes("icon-sm")
+							</div>
+							<div class="preview-metric-data">
+								<div class="preview-metric-num tabular-nums">8,340</div>
+								<div class="preview-metric-label">صنف بالأرصدة الحية</div>
+							</div>
+						</div>
+
+						<div class="preview-metric-card">
+							<div class="preview-metric-icon text-emerald">
+								@components.IconPercent("icon-sm")
+							</div>
+							<div class="preview-metric-data">
+								<div class="preview-metric-num tabular-nums">28.4%</div>
+								<div class="preview-metric-label">متوسط التوفير المباشر</div>
+							</div>
+						</div>
+
+						<div class="preview-metric-card">
+							<div class="preview-metric-icon text-sky">
+								@components.IconShield("icon-sm")
+							</div>
+							<div class="preview-metric-data">
+								<div class="preview-metric-num tabular-nums">2°C – 8°C</div>
+								<div class="preview-metric-label">سلاسل تبريد موثقة</div>
+							</div>
+						</div>
+					</div>
+
+					<!-- Preview Content: Live Operations Snapshot Table -->
+					<div class="preview-table-container">
+						<table class="preview-data-table">
+							<thead>
+								<tr>
+									<th>الصنف الدوائي والمواصفة</th>
+									<th>الشركة المصنعة</th>
+									<th>حالة التوريد والخصم</th>
+									<th>الامتثال والضمان</th>
+									<th class="text-end">الإجراء</th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr>
+									<td>
+										<div class="preview-prod-title">أوجمنتين 1 جم أقراص (Augmentin 1g)</div>
+										<div class="preview-prod-sub font-mono" dir="ltr">Amoxicillin / Clavulanic acid</div>
+									</td>
+									<td>
+										<span class="preview-company-badge">GlaxoSmithKline</span>
+									</td>
+									<td>
+										<span class="badge badge-emerald font-bold">خصم مباشر 22%</span>
+										<span class="badge badge-slate text-xs ms-1">رصيد متوفر: 450 عبوة</span>
+									</td>
+									<td>
+										<span class="preview-doc-badge">
+											@components.IconCheckCircle("icon-xs")
+											<span>فاتورة ضريبية إلكترونية</span>
+										</span>
+									</td>
+									<td class="text-end">
+										<a href="/catalog" class="btn btn-primary btn-xs font-bold">
+											@components.IconCart("icon-xs")
+											<span>توريد فوري</span>
+										</a>
+									</td>
+								</tr>
+								<tr>
+									<td>
+										<div class="preview-prod-title">أنسولين لانتوس سولوستار (Lantus Solostar)</div>
+										<div class="preview-prod-sub font-mono" dir="ltr">Insulin Glargine 100 IU/ml</div>
+									</td>
+									<td>
+										<span class="preview-company-badge">Sanofi Aventis</span>
+									</td>
+									<td>
+										<span class="badge badge-sky font-bold">شحن مبرد 4°C</span>
+										<span class="badge badge-slate text-xs ms-1">3 مستودعات معتمدة</span>
+									</td>
+									<td>
+										<span class="preview-doc-badge">
+											@components.IconShield("icon-xs")
+											<span>سلسلة تبريد بمجسات حية</span>
+										</span>
+									</td>
+									<td class="text-end">
+										<a href="/catalog" class="btn btn-primary btn-xs font-bold">
+											@components.IconCart("icon-xs")
+											<span>توريد فوري</span>
+										</a>
+									</td>
+								</tr>
+								<tr>
+									<td>
+										<div class="preview-prod-title">كتافلام 50 مجم أقراص (Cataflam 50mg)</div>
+										<div class="preview-prod-sub font-mono" dir="ltr">Diclofenac Potassium</div>
+									</td>
+									<td>
+										<span class="preview-company-badge">Novartis Pharma</span>
+									</td>
+									<td>
+										<span class="badge badge-emerald font-bold">خصم تجاري 25%</span>
+										<span class="badge badge-slate text-xs ms-1">تسليم خلال ساعتين</span>
+									</td>
+									<td>
+										<span class="preview-doc-badge">
+											@components.IconCheckCircle("icon-xs")
+											<span>سجل نقابي وتجاري موثق</span>
+										</span>
+									</td>
+									<td class="text-end">
+										<a href="/catalog" class="btn btn-primary btn-xs font-bold">
+											@components.IconCart("icon-xs")
+											<span>توريد فوري</span>
+										</a>
+									</td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+
+					<!-- Bottom Preview Highlight Badges -->
+					<div class="preview-bottom-highlights">
+						<div class="preview-highlight-pill">
+							@components.IconZap("icon-xs")
+							<span>تجميع وإرسال آلي لطلبيات الموردين في ثوانٍ</span>
+						</div>
+						<div class="preview-highlight-pill">
+							@components.IconFileText("icon-xs")
+							<span>ربط وتوثيق إلكتروني مباشر مع مصلحة الضرائب المصرية</span>
+						</div>
+						<div class="preview-highlight-pill">
+							@components.IconTruck("icon-xs")
+							<span>تغطية لوجستية معتمدة لكافة محافظات الجمهورية</span>
+						</div>
+					</div>
+				</div>
 			</div>
 		</section>
 
-		<!-- 2. Trust Metrics Strip -->
-		<section class="glass-panel p-6 mb-8 flex-between justify-around flex-wrap gap-4">
-			<div class="d-flex items-center gap-3">
-				<div class="b2b-icon-box">
-					@components.IconBuilding("icon-sm")
-				</div>
-				<div>
-					<div class="tabular-nums font-black text-2xl text-primary leading-tight">
-						if stats.TotalSuppliers > 0 {
-							{ fmt.Sprintf("%d", stats.TotalSuppliers) }
-						} else {
-							47
-						}
+		<!-- 3. Real Live Platform Metrics Strip -->
+		<section class="landing-section-block">
+			<div class="platform-metrics-strip">
+				<div class="metric-strip-item">
+					<div class="metric-strip-icon-box">
+						@components.IconBuilding("icon-md")
 					</div>
-					<div class="font-semibold text-secondary text-xs mt-1">مورد ومصنع معتمد</div>
-				</div>
-			</div>
-			
-			<div class="border-inline-start h-8 hide-mobile"></div>
-			
-			<div class="d-flex items-center gap-3">
-				<div class="b2b-icon-box">
-					@components.IconPill("icon-sm")
-				</div>
-				<div>
-					<div class="tabular-nums font-black text-2xl text-primary leading-tight">
-						if stats.TotalProducts > 0 {
-							{ fmt.Sprintf("%d", stats.TotalProducts) }
-						} else {
-							8,340
-						}
+					<div>
+						<div class="metric-strip-number tabular-nums">
+							if stats.TotalSuppliers > 0 {
+								{ fmt.Sprintf("%d", stats.TotalSuppliers) }
+							} else {
+								47
+							}
+						</div>
+						<div class="metric-strip-label">مورد ومصنع معتمد</div>
 					</div>
-					<div class="font-semibold text-secondary text-xs mt-1">صنف دوائي مسجل</div>
 				</div>
-			</div>
-			
-			<div class="border-inline-start h-8 hide-mobile"></div>
-			
-			<div class="d-flex items-center gap-3">
-				<div class="b2b-icon-box">
-					@components.IconTruck("icon-sm")
-				</div>
-				<div>
-					<div class="tabular-nums font-black text-2xl text-primary leading-tight">
-						if stats.TotalCities > 0 {
-							{ fmt.Sprintf("%d", stats.TotalCities) }
-						} else {
-							86
-						}
+				
+				<div class="metric-strip-divider hide-mobile"></div>
+				
+				<div class="metric-strip-item">
+					<div class="metric-strip-icon-box">
+						@components.IconPill("icon-md")
 					</div>
-					<div class="font-semibold text-secondary text-xs mt-1">مدينة ومنطقة مغطاة</div>
+					<div>
+						<div class="metric-strip-number tabular-nums">
+							if stats.TotalProducts > 0 {
+								{ fmt.Sprintf("%d", stats.TotalProducts) }
+							} else {
+								8,340
+							}
+						</div>
+						<div class="metric-strip-label">صنف دوائي مسجل</div>
+					</div>
 				</div>
-			</div>
+				
+				<div class="metric-strip-divider hide-mobile"></div>
+				
+				<div class="metric-strip-item">
+					<div class="metric-strip-icon-box">
+						@components.IconTruck("icon-md")
+					</div>
+					<div>
+						<div class="metric-strip-number tabular-nums">
+							if stats.TotalCities > 0 {
+								{ fmt.Sprintf("%d", stats.TotalCities) }
+							} else {
+								86
+							}
+						</div>
+						<div class="metric-strip-label">مدينة ومنطقة مغطاة</div>
+					</div>
+				</div>
 
-			<div class="border-inline-start h-8 hide-mobile"></div>
+				<div class="metric-strip-divider hide-mobile"></div>
 
-			<div class="d-flex items-center gap-3">
-				<div class="b2b-icon-box">
-					@components.IconCheckCircle("icon-sm")
-				</div>
-				<div>
-					<div class="font-black text-xl text-primary leading-tight">فواتير إلكترونية</div>
-					<div class="font-semibold text-secondary text-xs mt-1">متوافقة مع مصلحة الضرائب</div>
+				<div class="metric-strip-item">
+					<div class="metric-strip-icon-box">
+						@components.IconFileText("icon-md")
+					</div>
+					<div>
+						<div class="metric-strip-number text-xl">فواتير إلكترونية</div>
+						<div class="metric-strip-label">متوافقة مع مصلحة الضرائب</div>
+					</div>
 				</div>
 			</div>
 		</section>
 
-		<!-- 3. Featured Products for Direct Procurement -->
-		<section class="mb-8">
-			<div class="flex-between mb-4 border-b pb-3 flex-wrap gap-3">
+		<!-- 4. Smart Procurement Cycle in 3 Steps -->
+		<section class="landing-section-block">
+			<div class="section-title-wrap text-center">
+				<h2 class="section-main-title">
+					كيف تعمل منظومة التوريد الذكية للصيدليات
+				</h2>
+				<p class="section-main-subtitle">
+					خطوات رقمية ميسرة تختصر ساعات البحث وتوفر أعلى نسب ربحية للصيدلية مباشرة من المصادر المعتمدة
+				</p>
+			</div>
+
+			<div class="procurement-steps-grid">
+				<div class="procurement-step-card">
+					<div class="step-card-badge">01</div>
+					<div class="step-card-icon">
+						@components.IconSearch("icon-md")
+					</div>
+					<h3 class="step-card-title">ابحث وقارن العروض الحية</h3>
+					<p class="step-card-text">
+						ابحث بالاسم التجاري أو الباركود وقارن عروض الأسعار ونسب الخصم والكميات المتاحة لدى الموردين والمخازن في محافظتك.
+					</p>
+				</div>
+
+				<div class="procurement-step-card">
+					<div class="step-card-badge">02</div>
+					<div class="step-card-icon">
+						@components.IconZap("icon-md")
+					</div>
+					<h3 class="step-card-title">اطلب بضغطة زر واحدة</h3>
+					<p class="step-card-text">
+						اجمع أصنافك من موردين متعددين في طلبية واحدة موحدة يتم تجزئتها وتوجيهها آلياً لكل مورد في غضون ثوانٍ.
+					</p>
+				</div>
+
+				<div class="procurement-step-card">
+					<div class="step-card-badge">03</div>
+					<div class="step-card-icon">
+						@components.IconTruck("icon-md")
+					</div>
+					<h3 class="step-card-title">استلم بشحن مبرد وفاتورة معتمدة</h3>
+					<p class="step-card-text">
+						استلم الطلبية في صيدليتك مع الفاتورة الضريبية المعتمدة مع إمكانية الدفع عند الاستلام أو من رصيد المحفظة.
+					</p>
+				</div>
+			</div>
+		</section>
+
+		<!-- 5. Active Live Special Offers & Promotions (If available in DB) -->
+		if len(offers) > 0 {
+			<section class="landing-section-block">
+				<div class="section-header-flex">
+					<div>
+						<div class="row-center-xs mb-1">
+							<span class="badge badge-emerald font-bold">
+								@components.IconPercent("icon-xs")
+								<span>عروض حية نشطة</span>
+							</span>
+						</div>
+						<h2 class="section-main-title">
+							أقوى عروض وخصومات الموردين المباشرة
+						</h2>
+						<p class="section-main-subtitle">
+							صفقات وباقات حصرية بأسعار تفضيلية مقدمة من كبار الموردين والموزعين المعتمدين
+						</p>
+					</div>
+					<a href="/offers" class="btn btn-secondary btn-sm font-bold">
+						<span>عرض جميع العروض ({ fmt.Sprintf("%d", len(offers)) })</span>
+						@components.IconArrowLeft("icon-xs")
+					</a>
+				</div>
+
+				<div class="offers-grid-wrapper">
+					for _, off := range offers {
+						<div class="offer-card-glass">
+							<div class="offer-card-top">
+								<span class="badge badge-emerald font-bold">
+									if off.DiscountType == "percentage" {
+										{ fmt.Sprintf("خصم %s%%", off.DiscountValue.String()) }
+									} else {
+										{ fmt.Sprintf("خصم %s ج.م", off.DiscountValue.String()) }
+									}
+								</span>
+								<span class="badge badge-slate text-xs">عرض حصري</span>
+							</div>
+
+							<h3 class="offer-card-title">
+								if off.Title["ar"] != "" {
+									{ off.Title["ar"] }
+								} else {
+									{ off.Title["en"] }
+								}
+							</h3>
+
+							if off.Description["ar"] != "" {
+								<p class="offer-card-desc">
+									{ off.Description["ar"] }
+								</p>
+							}
+
+							<div class="offer-card-footer">
+								<div>
+									<div class="text-xs text-muted">الحد الأدنى للطلب</div>
+									<div class="font-extrabold text-sm text-primary">
+										if off.MinOrderAmount.IsPositive() {
+											{ off.MinOrderAmount.String() } ج.م
+										} else {
+											لا يوجد حد أدنى
+										}
+									</div>
+								</div>
+								<a href={ templ.SafeURL(fmt.Sprintf("/offers/%d", off.ID)) } class="btn btn-primary btn-sm font-bold">
+									@components.IconCart("icon-xs")
+									<span>طلب العرض</span>
+								</a>
+							</div>
+						</div>
+					}
+				</div>
+			</section>
+		}
+
+		<!-- 6. Featured Catalog Products for Direct Procurement -->
+		<section class="landing-section-block">
+			<div class="section-header-flex">
 				<div>
-					<h2 class="text-xl font-black text-primary m-0">
+					<h2 class="section-main-title">
 						أصناف دوائية متوفرة للتوريد الفوري
 					</h2>
-					<p class="text-xs text-muted m-0 mt-1">
+					<p class="section-main-subtitle">
 						أدوية ومستلزمات صيدلانية معتمدة متوفرة بأرصدة حية لدى كبار الموردين والموزعين
 					</p>
 				</div>
-				<a href="/catalog" class="btn btn-secondary btn-sm font-bold gap-1">
+				<a href="/catalog" class="btn btn-secondary btn-sm font-bold">
 					<span>عرض الكتالوج الشامل</span>
 					@components.IconArrowLeft("icon-xs")
 				</a>
@@ -237,25 +543,25 @@ templ CustomerHome(featured []*catalog.Product, categories []*catalog.Category, 
 			}
 		</section>
 
-		<!-- 4. Therapeutic Categories -->
+		<!-- 7. Therapeutic Categories Grid -->
 		if len(categories) > 0 {
-			<section class="mb-8">
-				<div class="mb-4 border-b pb-3">
-					<h2 class="text-xl font-black text-primary m-0">
+			<section class="landing-section-block">
+				<div class="section-title-wrap">
+					<h2 class="section-main-title">
 						الأقسام والمجموعات العلاجية
 					</h2>
-					<p class="text-xs text-muted m-0 mt-1">
+					<p class="section-main-subtitle">
 						تغطية شاملة لكافة التخصصات الدوائية والمستلزمات الصيدلانية المعتمدة
 					</p>
 				</div>
 
-				<div class="d-grid grid-auto-fit-xs gap-3">
+				<div class="categories-grid-wrapper">
 					for _, cat := range categories {
 						<a href={ templ.SafeURL(fmt.Sprintf("/catalog?category_id=%d", cat.ID)) } class="category-tile-card">
-							<div class="b2b-icon-box">
+							<div class="category-tile-icon-box">
 								@components.IconPill("icon-sm")
 							</div>
-							<div class="text-xs font-extrabold text-primary">
+							<div class="category-tile-title">
 								if cat.Name["ar"] != "" {
 									{ cat.Name["ar"] }
 								} else {
@@ -268,119 +574,83 @@ templ CustomerHome(featured []*catalog.Product, categories []*catalog.Category, 
 			</section>
 		}
 
-		<!-- 5. Core Platform Guarantees -->
-		<section class="mb-8">
-			<div class="text-center mb-6">
-				<h2 class="text-2xl font-black text-primary mb-1">
+		<!-- 8. Core Platform & Institutional Guarantees -->
+		<section class="landing-section-block">
+			<div class="section-title-wrap text-center">
+				<h2 class="section-main-title">
 					لماذا تعتمد الصيدليات على منصة دواء 24
 				</h2>
-				<p class="text-xs text-muted m-0">
+				<p class="section-main-subtitle">
 					منظومة متكاملة صُممت لتسهيل التوريد الدوائي وحماية الصيدلي والمنشآت الطبية
 				</p>
 			</div>
 
-			<div class="dashboard-stat-grid cols-4">
-				<div class="feature-benefit-card">
-					<div class="b2b-icon-box-lg">
+			<div class="guarantees-grid">
+				<div class="guarantee-card">
+					<div class="guarantee-icon-box">
 						@components.IconShield("icon-md")
 					</div>
-					<h3 class="text-base font-extrabold text-primary m-0">موردون وشركات معتمدة</h3>
-					<p class="text-xs text-secondary leading-relaxed m-0">
-						تدقيق دوري للتراخيص والسجلات التجارية من هيئة الدواء ونقابة الصيادلة لضمان أصالة المصادر وجودة المنتجات.
+					<h3 class="guarantee-title">موردون وشركات معتمدة (EDA)</h3>
+					<p class="guarantee-text">
+						تدقيق دوري للتراخيص والسجلات التجارية من هيئة الدواء ونقابة الصيادلة لضمان أصالة المصادر وجودة المنتجات وسلامة المنشآت.
 					</p>
 				</div>
 
-				<div class="feature-benefit-card">
-					<div class="b2b-icon-box-lg">
+				<div class="guarantee-card">
+					<div class="guarantee-icon-box">
 						@components.IconTruck("icon-md")
 					</div>
-					<h3 class="text-base font-extrabold text-primary m-0">شحن وسلسلة تبريد مجهزة</h3>
-					<p class="text-xs text-secondary leading-relaxed m-0">
-						سيارات مجهزة بحاويات تبريد ومجسات حرارية لنقل الأنسولين والأمصال والأدوية الحيوية بأمان تام.
+					<h3 class="guarantee-title">شحن وسلسلة تبريد مجهزة (Cold-Chain)</h3>
+					<p class="guarantee-text">
+						سيارات مجهزة بحاويات تبريد ومجسات حرارية لنقل الأنسولين والأمصال والأدوية الحيوية بدرجة حرارة محكومة (2°C - 8°C).
 					</p>
 				</div>
 
-				<div class="feature-benefit-card">
-					<div class="b2b-icon-box-lg">
+				<div class="guarantee-card">
+					<div class="guarantee-icon-box">
 						@components.IconFileText("icon-md")
 					</div>
-					<h3 class="text-base font-extrabold text-primary m-0">فواتير ضريبية إلكترونية</h3>
-					<p class="text-xs text-secondary leading-relaxed m-0">
-						إصدار وتوثيق مباشر مع مصلحة الضرائب المصرية لتسوية المصروفات والامتثال المالي للصيدلية بدون تعقيد.
+					<h3 class="guarantee-title">فواتير ضريبية إلكترونية معتمدة</h3>
+					<p class="guarantee-text">
+						ربط وتوثيق إلكتروني مباشر مع منظومة الفاتورة الإلكترونية بمصلحة الضرائب المصرية لتسوية المصروفات والامتثال المالي للصيدلية.
 					</p>
 				</div>
 
-				<div class="feature-benefit-card">
-					<div class="b2b-icon-box-lg">
+				<div class="guarantee-card">
+					<div class="guarantee-icon-box">
 						@components.IconPhone("icon-md")
 					</div>
-					<h3 class="text-base font-extrabold text-primary m-0">دعم صيدلي مباشر 24/7</h3>
-					<p class="text-xs text-secondary leading-relaxed m-0">
-						فريق دعم متخصص من الصيادلة لمساعدتك في تتبع الشحنات، حل أي نواقص دوائية، والإجابة عن الاستفسارات.
+					<h3 class="guarantee-title">دعم صيدلي وتقني متواصل 24/7</h3>
+					<p class="guarantee-text">
+						فريق دعم متخصص من الصيادلة والتقنيين لمساعدتك في تتبع الشحنات، حل أي نواقص دوائية، والإجابة عن كافة الاستفسارات.
 					</p>
 				</div>
 			</div>
 		</section>
 
-		<!-- 6. How Procurement Works -->
-		<section class="glass-panel p-8 mb-8 text-center">
-			<h2 class="text-2xl font-black text-primary mb-1">
-				كيف تتم عملية التوريد عبر المنصة
-			</h2>
-			<p class="text-xs text-muted mx-auto mb-6 max-w-lg">
-				خطوات رقمية مبسطة تختصر الوقت وتوفر أفضل أسعار الشراء للصيدلية مباشرة من المصدر
-			</p>
-
-			<div class="dashboard-stat-grid cols-3 text-center">
-				<div class="p-3">
-					<div class="user-avatar-badge text-lg mx-auto mb-3 font-black">
-						1
-					</div>
-					<h4 class="text-sm font-extrabold text-primary mb-1">ابحث وقارن العروض</h4>
-					<p class="text-xs text-secondary leading-relaxed m-0">
-						ابحث بالاسم أو الباركود وقارن عروض الأسعار ونسب الخصم والكميات المتاحة لدى الموردين والمخازن.
-					</p>
+		<!-- 9. Masterpiece Call To Action Section -->
+		<section class="landing-cta-banner">
+			<div class="landing-cta-content">
+				<div class="hero-badge-pill mb-3">
+					@components.IconCheckCircle("icon-xs")
+					<span>انضمام فوري وآمن للصيدليات والموردين</span>
 				</div>
-
-				<div class="p-3">
-					<div class="user-avatar-badge text-lg mx-auto mb-3 font-black">
-						2
-					</div>
-					<h4 class="text-sm font-extrabold text-primary mb-1">اطلب بضغطة زر واحدة</h4>
-					<p class="text-xs text-secondary leading-relaxed m-0">
-						اجمع أصنافك من موردين متعددين في طلبية واحدة موحدة يتم تجزئتها وتوجيهها آلياً لكل مورد.
-					</p>
+				<h2 class="landing-cta-title text-balance">
+					انضم إلى مستقبل التوريد الدوائي الذكي في مصر اليوم
+				</h2>
+				<p class="landing-cta-desc text-pretty">
+					سجل حساب صيدليتك الآن للاستفادة من أفضل عروض التوريد والخصومات المباشرة وسلاسل الإمداد الموثقة مع تجربة إدارة طلبات فورية وشفافة.
+				</p>
+				<div class="landing-cta-actions">
+					<a href="/auth/register" class="btn btn-primary btn-lg font-extrabold px-8 py-3">
+						@components.IconCheck("icon-sm")
+						<span>تسجيل صيدلية الآن</span>
+					</a>
+					<a href="/auth/register" class="btn btn-secondary btn-lg font-bold px-8 py-3">
+						@components.IconBuilding("icon-sm")
+						<span>انضمام كمورد أو موزع</span>
+					</a>
 				</div>
-
-				<div class="p-3">
-					<div class="user-avatar-badge text-lg mx-auto mb-3 font-black">
-						3
-					</div>
-					<h4 class="text-sm font-extrabold text-primary mb-1">استلم وتتبع الشحنة</h4>
-					<p class="text-xs text-secondary leading-relaxed m-0">
-						استلم الطلبية في صيدليتك مع الفاتورة الضريبية المعتمدة مع إمكانية الدفع عند الاستلام أو بالائتمان.
-					</p>
-				</div>
-			</div>
-		</section>
-
-		<!-- 7. Call To Action Banner -->
-		<section class="glass-panel p-8 mb-6 text-center">
-			<h2 class="text-2xl font-black text-primary mb-2">
-				انضم إلى مستقبل التوريد الدوائي الذكي الآن
-			</h2>
-			<p class="text-sm text-secondary max-w-xl mx-auto mb-6 leading-relaxed">
-				سجل حساب صيدليتك الآن للاستفادة من أفضل عروض التوريد والخصومات المباشرة وسلاسل الإمداد الموثقة في جمهورية مصر العربية.
-			</p>
-			<div class="d-flex justify-center gap-3 flex-wrap">
-				<a href="/auth/register" class="btn btn-primary px-6 py-3 font-extrabold">
-					@components.IconCheck("icon-xs")
-					<span>تسجيل صيدلية الآن</span>
-				</a>
-				<a href="/auth/register" class="btn btn-secondary px-6 py-3 font-bold">
-					@components.IconBuilding("icon-xs")
-					<span>انضمام كمورد أو موزع</span>
-				</a>
 			</div>
 		</section>
 	}

@@ -329,11 +329,12 @@ templ VendorOfferFormPage(data VendorOfferFormData, lang, dir string) {
 									<th style="width: 40px;" class="text-center">#</th>
 									<th>الصنف الدوائي والتشغيلة</th>
 									<th>المخزن والرصيد المتاح</th>
-									<th style="width: 110px;">الكمية (QTY)</th>
-									<th style="width: 120px;">السعر قبل الخصم</th>
-									<th style="width: 120px;">خصم % مخصص</th>
-									<th style="width: 130px;">سعر العرض المخصص</th>
-									<th style="width: 60px;" class="text-center">حذف</th>
+									<th style="width: 100px;" class="text-center">الكمية (QTY)</th>
+									<th style="width: 120px;" class="text-end">سعر الجمهور</th>
+									<th style="width: 110px;" class="text-center">نسبة الخصم</th>
+									<th style="width: 130px;" class="text-end">السعر بعد الخصم</th>
+									<th style="width: 130px;" class="text-end">الإجمالي الصافي</th>
+									<th style="width: 50px;" class="text-center">حذف</th>
 								</tr>
 							</thead>
 							<tbody>
@@ -372,7 +373,7 @@ templ VendorOfferFormPage(data VendorOfferFormData, lang, dir string) {
 											/>
 										</td>
 
-										<td class="tabular-nums font-bold text-xs text-secondary" x-text="item.original_price_str + ' ج.م'"></td>
+										<td class="text-end tabular-nums font-bold text-xs text-primary" x-text="item.original_price_str + ' ج.م'"></td>
 
 										<td>
 											<div class="position-relative">
@@ -403,6 +404,8 @@ templ VendorOfferFormPage(data VendorOfferFormData, lang, dir string) {
 											</div>
 										</td>
 
+										<td class="text-end tabular-nums font-black text-xs text-primary" x-text="((item.qty || 1) * (item.custom_price || 0)).toFixed(2) + ' ج.م'"></td>
+
 										<td class="text-center">
 											<button
 												type="button"
@@ -417,7 +420,7 @@ templ VendorOfferFormPage(data VendorOfferFormData, lang, dir string) {
 								</template>
 
 								<tr x-show="selectedItems.length === 0">
-									<td colspan="8" class="p-8 text-center text-muted text-xs">
+									<td colspan="9" class="p-8 text-center text-muted text-xs">
 										<div class="text-2xl mb-2">🎁</div>
 										<p class="m-0 font-bold">لم تقم بإضافة أي أصناف للعرض بعد.</p>
 										<span class="text-xs text-secondary">استخدم مربع البحث أعلاه لاختيار وإضافة أدوية من مخازنك.</span>

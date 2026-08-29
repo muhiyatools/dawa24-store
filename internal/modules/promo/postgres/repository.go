@@ -3,12 +3,14 @@ package postgres
 import (
 	"context"
 	"fmt"
+	"math"
 
 	"github.com/jackc/pgx/v5"
 
 	"github.com/muhiya/dawa24-store/internal/modules/promo"
 	"github.com/muhiya/dawa24-store/internal/platform/database"
 	"github.com/muhiya/dawa24-store/internal/shared/apperr"
+	"github.com/muhiya/dawa24-store/internal/shared/money"
 )
 
 // Repository implements promo.Repository using PostgreSQL.
@@ -316,6 +318,13 @@ func (r *Repository) ExpirePromotions(ctx context.Context) (int64, error) {
 // active -> is_active, anything else -> inactive.
 func (r *Repository) CreateSpecialOffer(ctx context.Context, o *promo.SpecialOffer) error {
 	return r.db.InTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
+		discType := "percentage"
+		discVal := money.FromMinor(int64(math.Round(o.DiscountPercentage * 100)))
+		if o.DiscountAmount.IsPositive() {
+			discType = "fixed"
+			discVal = o.DiscountAmount
+		}
+
 		query := `
 			INSERT INTO promo.offers (
 				organization_id, branch_id, title, description,
@@ -323,9 +332,7 @@ func (r *Repository) CreateSpecialOffer(ctx context.Context, o *promo.SpecialOff
 				starts_at, expires_at, is_active, is_draft, admin_status, image, source
 			) VALUES (
 				$1, $2, $3, $4,
-				CASE WHEN $5 > 0 THEN 'fixed'::text ELSE 'percentage'::text END,
-				CASE WHEN $5 > 0 THEN $5 ELSE $6 END,
-				$7, $8, 
+				$5, $6, $7, $8, 
 				COALESCE($9, now()), 
 				COALESCE($10, now() + interval '1 year'),
 				COALESCE($11, 'active') = 'active',
@@ -336,7 +343,7 @@ func (r *Repository) CreateSpecialOffer(ctx context.Context, o *promo.SpecialOff
 		`
 		err := tx.QueryRow(txCtx, query,
 			o.OrganizationID, o.BranchID, o.Title, o.Description,
-			o.DiscountAmount, o.DiscountPercentage,
+			discType, discVal,
 			o.MinOrderAmount, o.TotalPrice, o.StartDate, o.EndDate,
 			o.Status, o.AdminStatus, o.Image,
 		).Scan(&o.ID, &o.PublicID, &o.CreatedAt, &o.UpdatedAt)

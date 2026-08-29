@@ -308,10 +308,11 @@ templ OfferDetailContent(lang string, data OfferDetailPageData) {
 							<thead>
 								<tr>
 									<th>اسم الصنف / الدواء</th>
-									<th class="text-center">الكمية بالعرض</th>
-									<th class="text-center">السعر الأصلي</th>
-									<th class="text-center">سعر العرض المخفض</th>
-									<th class="text-end">الإجمالي</th>
+									<th style="width:120px;" class="text-center">الكمية بالعرض</th>
+									<th style="width:130px;" class="text-end">سعر الجمهور</th>
+									<th style="width:120px;" class="text-center">نسبة الخصم</th>
+									<th style="width:140px;" class="text-end">السعر بعد الخصم</th>
+									<th style="width:140px;" class="text-end">الإجمالي الصافي</th>
 									<th style="width:130px;" class="text-center">الطلب</th>
 								</tr>
 							</thead>
@@ -332,22 +333,34 @@ templ OfferDetailContent(lang string, data OfferDetailPageData) {
 												{ fmt.Sprintf("%d", p.Quantity) } عبوة
 											</span>
 										</td>
-										<td class="text-center text-muted tabular-nums text-xs">
+										<td class="text-end tabular-nums font-bold text-xs text-primary">
 											if p.OriginalPrice.IsPositive() {
-												<span style="text-decoration:line-through;">{ p.OriginalPrice.String() } ج.م</span>
+												{ p.OriginalPrice.String() } ج.م
+											} else if p.CustomPrice.IsPositive() {
+												{ p.CustomPrice.String() } ج.م
 											} else {
-												<span>-</span>
+												<span class="text-muted">-</span>
 											}
 										</td>
 										<td class="text-center tabular-nums">
-											<strong class="text-brand font-black text-sm">{ p.CustomPrice.String() } ج.م</strong>
-											if p.DiscountPercentage > 0 {
-												<span class="badge badge-rose text-xs font-bold ms-1 tabular-nums">
-													-{ fmt.Sprintf("%.0f%%", p.DiscountPercentage) }
+											{{
+												discPct := p.DiscountPercentage
+												if discPct <= 0 && p.OriginalPrice.IsPositive() && p.CustomPrice.IsPositive() && p.OriginalPrice.Minor() > p.CustomPrice.Minor() {
+													discPct = (float64(p.OriginalPrice.Minor() - p.CustomPrice.Minor()) / float64(p.OriginalPrice.Minor())) * 100.0
+												}
+											}}
+											if discPct > 0 {
+												<span class="badge badge-emerald text-xs font-bold tabular-nums">
+													{ fmt.Sprintf("%.1f%%", discPct) }
 												</span>
+											} else {
+												<span class="text-xs text-muted">0%</span>
 											}
 										</td>
-										<td class="text-end tabular-nums font-black text-primary text-sm">
+										<td class="text-end tabular-nums font-black text-brand text-xs">
+											{ p.CustomPrice.String() } ج.م
+										</td>
+										<td class="text-end tabular-nums font-black text-primary text-xs">
 											{{
 												lineTotal := money.FromMinor(p.CustomPrice.Minor() * int64(p.Quantity))
 											}}
@@ -375,6 +388,56 @@ templ OfferDetailContent(lang string, data OfferDetailPageData) {
 									</tr>
 								}
 							</tbody>
+							if len(data.Products) > 1 {
+								{{
+									totalPublicMinor := int64(0)
+									totalNetMinor := int64(0)
+									for _, p := range data.Products {
+										if p.OriginalPrice.IsPositive() {
+											totalPublicMinor += p.OriginalPrice.Minor() * int64(p.Quantity)
+										} else {
+											totalPublicMinor += p.CustomPrice.Minor() * int64(p.Quantity)
+										}
+										totalNetMinor += p.CustomPrice.Minor() * int64(p.Quantity)
+									}
+									totalDiscountMinor := totalPublicMinor - totalNetMinor
+									if totalDiscountMinor < 0 {
+										totalDiscountMinor = 0
+									}
+								}}
+								<tfoot>
+									<tr style="background:var(--surface-sunken); font-weight:800; border-top:2px solid var(--border);">
+										<td colspan="2" class="text-primary font-black text-xs">
+											إجمالي الباقة ({ fmt.Sprintf("%d", len(data.Products)) } صنف):
+										</td>
+										<td class="text-end tabular-nums font-bold text-xs text-muted">
+											{ money.FromMinor(totalPublicMinor).String() } ج.م
+										</td>
+										<td class="text-center tabular-nums">
+											{{
+												avgDisc := 0.0
+												if totalPublicMinor > 0 {
+													avgDisc = (float64(totalDiscountMinor) / float64(totalPublicMinor)) * 100.0
+												}
+											}}
+											if avgDisc > 0 {
+												<span class="badge badge-emerald text-xs font-bold tabular-nums">
+													{ fmt.Sprintf("%.1f%%", avgDisc) }
+												</span>
+											} else {
+												<span class="text-xs text-muted">0%</span>
+											}
+										</td>
+										<td class="text-end tabular-nums text-muted text-xs">
+											-
+										</td>
+										<td class="text-end tabular-nums font-black text-brand text-sm">
+											{ money.FromMinor(totalNetMinor).String() } ج.م
+										</td>
+										<td></td>
+									</tr>
+								</tfoot>
+							}
 						</table>
 					</div>
 				}

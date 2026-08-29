@@ -12,206 +12,352 @@ import (
 templ PublicShell(title string, lang string, dir string) {
 	if site := GetSiteSettings(ctx); site != nil {
 		@Base(title, lang, dir) {
-			<header class="top-navbar public-navbar">
-				<div class="top-navbar-brand">
-					<a href="/" class="brand-lockup">
-						<img class="brand-logo" src={ site.LogoURL } alt={ site.SiteName } />
-						<span class="brand-name">
-							دواء <span class="text-accent">24</span>
-						</span>
-					</a>
+			<div x-data="{ mobileNav: false }" class="public-shell-root">
+				<!-- Top Modern Navbar -->
+				<header class="top-navbar public-navbar">
+					<div class="top-navbar-brand">
+						<a href="/" class="brand-lockup" title="دواء 24 — الصفحة الرئيسية">
+							if site.LogoURL != "" {
+								<img class="brand-logo" src={ site.LogoURL } alt={ site.SiteName } />
+							}
+							<div class="brand-text-lockup">
+								<span class="brand-name">
+									دواء <span class="text-accent">24</span>
+								</span>
+								<span class="brand-badge-eda">EDA B2B</span>
+							</div>
+						</a>
 
-					<nav class="nav-links">
-						<a href="/catalog">كتالوج الأدوية</a>
-						if features.Enabled(ctx, "offers.enabled") {
-							<a href="/offers">العروض والتخفيضات</a>
-						}
-						<a href="/compare/results">مقارنة الخصومات</a>
-						<a href="/suppliers">دليل الموردين</a>
-						if features.Enabled(ctx, "jobs.enabled") {
-							<a href="/jobs">وظائف وصيادلة</a>
-						}
-					</nav>
-				</div>
-
-				<div class="top-navbar-actions">
-					if actor, ok := authctx.From(ctx); ok && actor.IsCustomer() {
-						@PharmacyBranchSelector(ctx)
-					}
-					@components.LanguageToggle(lang)
-					@components.ThemeToggle()
-					if actor, ok := authctx.From(ctx); ok {
-						<!-- Cart Button: customer-only surface -->
-						if actor.IsCustomer() {
-							<a href="/cart" class="btn btn-secondary btn-icon" title="سلة المشتريات">
-								@components.IconCart("icon-md")
+						<nav class="nav-links hide-mobile">
+							<a href="/catalog" class="nav-item-link">
+								@components.IconPill("icon-xs")
+								<span>كتالوج الأدوية</span>
 							</a>
+							if features.Enabled(ctx, "offers.enabled") {
+								<a href="/offers" class="nav-item-link">
+									@components.IconPercent("icon-xs")
+									<span>العروض والتخفيضات</span>
+								</a>
+							}
+							<a href="/compare/results" class="nav-item-link">
+								@components.IconSliders("icon-xs")
+								<span>مقارنة الخصومات</span>
+							</a>
+							<a href="/suppliers" class="nav-item-link">
+								@components.IconBuilding("icon-xs")
+								<span>دليل الموردين</span>
+							</a>
+							if features.Enabled(ctx, "jobs.enabled") {
+								<a href="/jobs" class="nav-item-link">
+									@components.IconBriefcase("icon-xs")
+									<span>وظائف وصيادلة</span>
+								</a>
+							}
+						</nav>
+					</div>
+
+					<div class="top-navbar-actions">
+						if actor, ok := authctx.From(ctx); ok && actor.IsCustomer() {
+							<div class="hide-mobile">
+								@PharmacyBranchSelector(ctx)
+							</div>
 						}
+						
+						<div class="hide-mobile">
+							@components.LanguageToggle(lang)
+						</div>
+						@components.ThemeToggle()
 
-						<!-- Notifications Popover -->
-						<div class="dropdown" x-data="{ open: false }" @click.outside="open = false" @keydown.escape.window="open = false">
-							<button
-								type="button"
-								title="الإشعارات"
-								@click="open = !open"
-								hx-get="/notifications/dropdown"
-								hx-target="#notif-dropdown-content"
-								hx-trigger="click"
-								hx-swap="innerHTML"
-								class="btn btn-secondary btn-icon has-indicator"
-							>
-								@components.IconBell("icon-md")
-								<span class="notification-indicator" hx-get="/notifications/unread-badge" hx-trigger="load, every 60s" hx-swap="innerHTML" hx-target="this"></span>
-							</button>
+						if actor, ok := authctx.From(ctx); ok {
+							<!-- Cart Button: customer-only surface -->
+							if actor.IsCustomer() {
+								<a href="/cart" class="btn btn-secondary btn-icon" title="سلة المشتريات">
+									@components.IconCart("icon-md")
+								</a>
+							}
 
-							<div
-								class="dropdown-menu notification-menu"
-								id="notif-dropdown-content"
-								x-show="open"
-								x-cloak
-								x-transition.origin.top.duration.150ms
-							>
-								<div class="notification-panel">
-									<div class="notification-header">
-										<div class="row-center-sm">
-											@components.IconBell("icon-xs")
-											<span class="notification-title">الإشعارات</span>
+							<!-- Notifications Popover -->
+							<div class="dropdown" x-data="{ open: false }" @click.outside="open = false" @keydown.escape.window="open = false">
+								<button
+									type="button"
+									title="الإشعارات"
+									@click="open = !open"
+									hx-get="/notifications/dropdown"
+									hx-target="#notif-dropdown-content"
+									hx-trigger="click"
+									hx-swap="innerHTML"
+									class="btn btn-secondary btn-icon has-indicator"
+								>
+									@components.IconBell("icon-md")
+									<span class="notification-indicator" hx-get="/notifications/unread-badge" hx-trigger="load, every 60s" hx-swap="innerHTML" hx-target="this"></span>
+								</button>
+
+								<div
+									class="dropdown-menu notification-menu"
+									id="notif-dropdown-content"
+									x-show="open"
+									x-cloak
+									x-transition.origin.top.duration.150ms
+								>
+									<div class="notification-panel">
+										<div class="notification-header">
+											<div class="row-center-sm">
+												@components.IconBell("icon-xs")
+												<span class="notification-title">الإشعارات</span>
+											</div>
 										</div>
-									</div>
-									<div class="notification-empty">
-										<div class="notification-empty-icon">
-											@components.IconBell("icon-sm")
+										<div class="notification-empty">
+											<div class="notification-empty-icon">
+												@components.IconBell("icon-sm")
+											</div>
+											<div>لا توجد إشعارات جديدة</div>
 										</div>
-										<div>لا توجد إشعارات جديدة</div>
-									</div>
-									<div class="notification-footer">
-										<a href="/notifications" class="notification-footer-link">عرض كل الإشعارات</a>
+										<div class="notification-footer">
+											<a href="/notifications" class="notification-footer-link">عرض كل الإشعارات</a>
+										</div>
 									</div>
 								</div>
 							</div>
-						</div>
 
-						<!-- User Avatar Dropdown -->
-						<div class="dropdown" x-data="{ open: false }" @click.outside="open = false" @keydown.escape.window="open = false">
-							<button
-								type="button"
-								@click="open = !open"
-								class="btn btn-secondary account-trigger"
-							>
-								<div class="account-avatar">
-									@components.IconUser("icon-xs")
-								</div>
-								<span class="account-name">
-									{ actor.DisplayName() }
-								</span>
-								@components.IconChevronDown("icon-xs")
-							</button>
+							<!-- User Avatar Dropdown -->
+							<div class="dropdown" x-data="{ open: false }" @click.outside="open = false" @keydown.escape.window="open = false">
+								<button
+									type="button"
+									@click="open = !open"
+									class="btn btn-secondary account-trigger"
+								>
+									<div class="account-avatar">
+										@components.IconUser("icon-xs")
+									</div>
+									<span class="account-name">
+										{ actor.DisplayName() }
+									</span>
+									@components.IconChevronDown("icon-xs")
+								</button>
 
-							<div
-								class="dropdown-menu account-menu"
-								x-show="open"
-								x-cloak
-								x-transition.origin.top.duration.150ms
-							>
-								<!-- User Header Card -->
-								<div class="account-header">
-									<div class="row-center">
-										<div class="account-avatar account-avatar-lg">
-											@components.IconUser("icon-sm")
-										</div>
-										<div class="account-details">
-											<div class="account-name account-name-lg">
-												{ actor.DisplayName() }
+								<div
+									class="dropdown-menu account-menu"
+									x-show="open"
+									x-cloak
+									x-transition.origin.top.duration.150ms
+								>
+									<!-- User Header Card -->
+									<div class="account-header">
+										<div class="row-center">
+											<div class="account-avatar account-avatar-lg">
+												@components.IconUser("icon-sm")
 											</div>
-											<div class="account-role">
-												if actor.IsStaff {
-													<span class="badge badge-sky badge-compact">فريق المنصة</span>
-												} else if actor.IsVendor() {
-													<span class="badge badge-emerald badge-compact">مورد معتمد</span>
-												} else {
-													<span class="badge badge-slate badge-compact">صيدلية معتمدة</span>
-												}
+											<div class="account-details">
+												<div class="account-name account-name-lg">
+													{ actor.DisplayName() }
+												</div>
+												<div class="account-role">
+													if actor.IsStaff {
+														<span class="badge badge-sky badge-compact">فريق المنصة</span>
+													} else if actor.IsVendor() {
+														<span class="badge badge-emerald badge-compact">مورد معتمد</span>
+													} else {
+														<span class="badge badge-slate badge-compact">صيدلية معتمدة</span>
+													}
+												</div>
 											</div>
 										</div>
 									</div>
-								</div>
 
-								<!-- 1. Wallet Balance Snapshot (staff have their own surface) -->
-								if !actor.IsStaff {
-									if actor.IsVendor() {
-										<a href="/vendor/wallet" class="dropdown-item wallet-item">
-											<div class="row-center-sm">
-												@components.IconWallet("icon-xs")
-												<span class="wallet-label">المحفظة</span>
-											</div>
-											<span class="dropdown-item-arrow">←</span>
+									<!-- 1. Wallet Balance Snapshot -->
+									if !actor.IsStaff {
+										if actor.IsVendor() {
+											<a href="/vendor/wallet" class="dropdown-item wallet-item">
+												<div class="row-center-sm">
+													@components.IconWallet("icon-xs")
+													<span class="wallet-label">المحفظة</span>
+												</div>
+												<span class="dropdown-item-arrow">←</span>
+											</a>
+										} else {
+											<a href="/customer/wallet" class="dropdown-item wallet-item">
+												<div class="row-center-sm">
+													@components.IconWallet("icon-xs")
+													<span class="wallet-label">المحفظة</span>
+												</div>
+												<span class="dropdown-item-arrow">←</span>
+											</a>
+										}
+									}
+
+									<!-- 2. Dashboard -->
+									if actor.IsStaff {
+										<a href="/admin/dashboard" class="dropdown-item fw-600">
+											@components.IconChart("icon-xs")
+											<span>لوحة التحكم الرئيسية</span>
+										</a>
+									} else if actor.IsVendor() {
+										<a href="/vendor/dashboard" class="dropdown-item fw-600">
+											@components.IconChart("icon-xs")
+											<span>لوحة تحكم المورد</span>
 										</a>
 									} else {
-										<a href="/customer/wallet" class="dropdown-item wallet-item">
-											<div class="row-center-sm">
-												@components.IconWallet("icon-xs")
-												<span class="wallet-label">المحفظة</span>
-											</div>
-											<span class="dropdown-item-arrow">←</span>
+										<a href="/customer/dashboard" class="dropdown-item fw-600">
+											@components.IconHome("icon-xs")
+											<span>لوحة تحكم الصيدلية</span>
 										</a>
 									}
-								}
 
-								<!-- 2. Dashboard -->
+									<!-- 3. Profile & Settings -->
+									<a href="/settings" class="dropdown-item">
+										@components.IconSettings("icon-xs")
+										<span>الملف الشخصي والإعدادات</span>
+									</a>
+
+									<div class="dropdown-divider"></div>
+
+									<!-- 4. Sign Out -->
+									<form action="/auth/logout" method="POST" class="logout-form">
+										<button type="submit" class="dropdown-item text-danger dropdown-action">
+											@components.IconLogout("icon-xs")
+											<span>تسجيل الخروج</span>
+										</button>
+									</form>
+								</div>
+							</div>
+						} else {
+							<div class="row-center-xs hide-mobile">
+								<a href="/auth/login" class="btn btn-secondary btn-sm fw-700 navbar-auth-link">
+									@components.IconUser("icon-xs")
+									<span>تسجيل الدخول</span>
+								</a>
+								<a href="/auth/register" class="btn btn-primary btn-sm fw-800 navbar-auth-link">
+									@components.IconPlus("icon-xs")
+									<span>انضمام للمنصة</span>
+								</a>
+							</div>
+						}
+
+						<!-- Mobile Menu Toggle Button -->
+						<button
+							type="button"
+							@click="mobileNav = !mobileNav"
+							class="btn btn-secondary btn-icon show-mobile-only"
+							aria-label="القائمة الرئيسية"
+						>
+							@components.IconMenu("icon-sm")
+						</button>
+					</div>
+				</header>
+
+				<!-- Mobile Slideover Navigation Drawer -->
+				<div
+					class="mobile-nav-backdrop"
+					x-show="mobileNav"
+					x-cloak
+					x-transition:enter="ease-out duration-200"
+					x-transition:enter-start="opacity-0"
+					x-transition:enter-end="opacity-100"
+					x-transition:leave="ease-in duration-150"
+					x-transition:leave-start="opacity-100"
+					x-transition:leave-end="opacity-0"
+					@click="mobileNav = false"
+				></div>
+
+				<div
+					class="mobile-nav-drawer"
+					x-show="mobileNav"
+					x-cloak
+					x-transition:enter="transform transition ease-in-out duration-300"
+					x-transition:enter-start="translate-x-full"
+					x-transition:enter-end="translate-x-0"
+					x-transition:leave="transform transition ease-in-out duration-200"
+					x-transition:leave-start="translate-x-0"
+					x-transition:leave-end="translate-x-full"
+				>
+					<div class="mobile-nav-header">
+						<div class="brand-lockup">
+							<span class="brand-name">
+								دواء <span class="text-accent">24</span>
+							</span>
+							<span class="brand-badge-eda">EDA B2B</span>
+						</div>
+						<button
+							type="button"
+							@click="mobileNav = false"
+							class="btn btn-ghost btn-icon btn-sm"
+							aria-label="إغلاق القائمة"
+						>
+							@components.IconX("icon-sm")
+						</button>
+					</div>
+
+					<div class="mobile-nav-body">
+						<nav class="mobile-nav-links">
+							<a href="/catalog" class="mobile-nav-link" @click="mobileNav = false">
+								@components.IconPill("icon-sm")
+								<span>كتالوج الأدوية الموحد</span>
+							</a>
+							if features.Enabled(ctx, "offers.enabled") {
+								<a href="/offers" class="mobile-nav-link" @click="mobileNav = false">
+									@components.IconPercent("icon-sm")
+									<span>عروض وتخفيضات الموردين</span>
+								</a>
+							}
+							<a href="/compare/results" class="mobile-nav-link" @click="mobileNav = false">
+								@components.IconSliders("icon-sm")
+								<span>مقارنة الخصومات الفورية</span>
+							</a>
+							<a href="/suppliers" class="mobile-nav-link" @click="mobileNav = false">
+								@components.IconBuilding("icon-sm")
+								<span>دليل الموردين والمصانع</span>
+							</a>
+							if features.Enabled(ctx, "jobs.enabled") {
+								<a href="/jobs" class="mobile-nav-link" @click="mobileNav = false">
+									@components.IconBriefcase("icon-sm")
+									<span>وظائف التوظيف الصيدلي</span>
+								</a>
+							}
+						</nav>
+
+						<div class="mobile-nav-divider"></div>
+
+						if actor, ok := authctx.From(ctx); ok {
+							<div class="mobile-nav-user-box">
+								<div class="account-name-lg">{ actor.DisplayName() }</div>
 								if actor.IsStaff {
-									<a href="/admin/dashboard" class="dropdown-item fw-600">
+									<a href="/admin/dashboard" class="btn btn-primary btn-sm w-full mt-2">
 										@components.IconChart("icon-xs")
 										<span>لوحة التحكم الرئيسية</span>
 									</a>
 								} else if actor.IsVendor() {
-									<a href="/vendor/dashboard" class="dropdown-item fw-600">
+									<a href="/vendor/dashboard" class="btn btn-primary btn-sm w-full mt-2">
 										@components.IconChart("icon-xs")
 										<span>لوحة تحكم المورد</span>
 									</a>
 								} else {
-									<a href="/customer/dashboard" class="dropdown-item fw-600">
+									<a href="/customer/dashboard" class="btn btn-primary btn-sm w-full mt-2">
 										@components.IconHome("icon-xs")
 										<span>لوحة تحكم الصيدلية</span>
 									</a>
 								}
-
-								<!-- 3. Profile & Settings -->
-								<a href="/settings" class="dropdown-item">
-									@components.IconSettings("icon-xs")
-									<span>الملف الشخصي والإعدادات</span>
-								</a>
-
-								<div class="dropdown-divider"></div>
-
-								<!-- 4. Sign Out -->
-								<form action="/auth/logout" method="POST" class="logout-form">
-									<button type="submit" class="dropdown-item text-danger dropdown-action">
-										@components.IconLogout("icon-xs")
-										<span>تسجيل الخروج</span>
-									</button>
-								</form>
 							</div>
-						</div>
-					} else {
-						<div class="row-center-xs">
-							<a href="/auth/login" class="btn btn-secondary btn-sm fw-700 navbar-auth-link">
-								@components.IconUser("icon-xs")
-								<span>تسجيل الدخول</span>
-							</a>
-							<a href="/auth/register" class="btn btn-primary btn-sm fw-800 navbar-auth-link">
-								@components.IconPlus("icon-xs")
-								<span>تسجيل حساب</span>
-							</a>
-						</div>
-					}
+						} else {
+							<div class="mobile-nav-auth-stack">
+								<a href="/auth/login" class="btn btn-secondary w-full" @click="mobileNav = false">
+									@components.IconUser("icon-xs")
+									<span>تسجيل الدخول</span>
+								</a>
+								<a href="/auth/register" class="btn btn-primary w-full" @click="mobileNav = false">
+									@components.IconPlus("icon-xs")
+									<span>انضمام للمنصة</span>
+								</a>
+							</div>
+						}
+					</div>
 				</div>
-			</header>
 
-			<main class="page-body">
-				<div class="page-container">
-					{ children... }
-				</div>
-			</main>
+				<main class="page-body">
+					<div class="page-container">
+						{ children... }
+					</div>
+				</main>
+			</div>
 
 			<footer class="site-footer">
 				<div class="footer-content">

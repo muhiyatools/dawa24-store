@@ -285,4 +285,61 @@ func TestPromoRepository(t *testing.T) {
 		}
 		_ = offers
 	})
+
+	t.Run("CreateSpecialOffer_PercentageAndFixedDiscounts", func(t *testing.T) {
+		// Test creating special offer with 15% discount (DiscountAmount is 0.00)
+		start := time.Now()
+		end := time.Now().Add(30 * 24 * time.Hour)
+		sp := &promo.SpecialOffer{
+			OrganizationID:     testOrgID,
+			Title:              i18n.Text{"ar": "عرض خاص خصم 15%", "en": "Special Offer 15%"},
+			Description:        i18n.Text{"ar": "وصف العرض", "en": "Offer Description"},
+			DiscountPercentage: 15.0,
+			DiscountAmount:     money.Zero, // 0.00 minor units
+			TotalPrice:         money.FromMajor(100),
+			MinOrderAmount:     money.FromMajor(50),
+			StartDate:          &start,
+			EndDate:            &end,
+			Status:             "active",
+			AdminStatus:        "approved",
+		}
+
+		err := repo.CreateSpecialOffer(ctx, sp)
+		if err != nil {
+			t.Fatalf("CreateSpecialOffer with percentage discount failed: %v", err)
+		}
+		if sp.ID <= 0 {
+			t.Fatalf("expected positive offer ID, got %d", sp.ID)
+		}
+
+		loaded, err := repo.GetSpecialOfferByID(ctx, sp.ID)
+		if err != nil {
+			t.Fatalf("GetSpecialOfferByID failed: %v", err)
+		}
+		if loaded.DiscountPercentage != 15.0 {
+			t.Errorf("expected 15.0 discount percentage, got %f", loaded.DiscountPercentage)
+		}
+
+		// Test creating special offer with fixed discount amount (e.g. 25 EGP)
+		spFixed := &promo.SpecialOffer{
+			OrganizationID:     testOrgID,
+			Title:              i18n.Text{"ar": "عرض خاص خصم 25 ج.م", "en": "Special Offer 25 EGP"},
+			DiscountPercentage: 0,
+			DiscountAmount:     money.FromMajor(25),
+			TotalPrice:         money.FromMajor(150),
+			MinOrderAmount:     money.FromMajor(50),
+			StartDate:          &start,
+			EndDate:            &end,
+			Status:             "active",
+			AdminStatus:        "approved",
+		}
+
+		err = repo.CreateSpecialOffer(ctx, spFixed)
+		if err != nil {
+			t.Fatalf("CreateSpecialOffer with fixed discount failed: %v", err)
+		}
+		if spFixed.ID <= 0 {
+			t.Fatalf("expected positive offer ID, got %d", spFixed.ID)
+		}
+	})
 }
