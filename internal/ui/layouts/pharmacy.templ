@@ -19,20 +19,20 @@ templ CustomerShell(title string, activeNav string, lang string, dir string, per
 			<div class="app-shell">
 				<!-- Sidebar -->
 				<aside class="sidebar">
-					<div class="sidebar-header" style="padding:1.25rem 1.25rem; display:flex; align-items:center; justify-content:space-between; border-bottom:1px solid rgba(255,255,255,0.08);">
-						<div style="display:flex; align-items:center; gap:0.75rem; overflow:hidden;">
-							<img src={ site.LogoURL } alt={ site.SiteName } style="height:46px; max-height:48px; object-fit:contain;" />
-							<div style="display:flex; flex-direction:column;">
-								<span style="font-weight:700; font-size:1.15rem; color:#ffffff; line-height:1.2;">{ site.SiteName }</span>
-								<span style="font-size:0.75rem; color:var(--neutral-400); font-weight:700;">بوابة الصيدلية المعتمدة</span>
+					<div class="sidebar-header">
+						<div class="sidebar-brand">
+							<img class="sidebar-logo" src={ site.LogoURL } alt={ site.SiteName } />
+							<div class="sidebar-brand-copy">
+								<span class="sidebar-brand-name">{ site.SiteName }</span>
+								<span class="sidebar-brand-subtitle">بوابة الصيدلية المعتمدة</span>
 							</div>
 						</div>
-					<button type="button" class="btn btn-icon" data-sidebar-toggle style="background:rgba(255,255,255,0.08); color:#ffffff; width:34px; height:34px; border:none; border-radius:var(--radius-md); flex-shrink:0;" title="طي/توسيع القائمة">
+					<button type="button" class="btn btn-icon sidebar-toggle" data-sidebar-toggle title="طي/توسيع القائمة">
 						@components.IconMenu("icon-xs")
 					</button>
 				</div>
 
-				<nav class="sidebar-nav" style="padding:0.75rem 0.65rem; display:flex; flex-direction:column; gap:0.5rem; overflow-y:auto;">
+				<nav class="sidebar-nav">
 					
 					<!-- Group 1: الرئيسية والطلبات -->
 					<div class="sidebar-group">
@@ -120,8 +120,8 @@ templ CustomerShell(title string, activeNav string, lang string, dir string, per
 					</div>
 				</nav>
 
-				<div style="border-top:1px solid rgba(255,255,255,0.08); padding:0.75rem; display:flex; flex-direction:column; gap:0.5rem; margin-top:auto;">
-					<a href="/cart" class="btn sidebar-footer-btn" style="width:100%; justify-content:center; font-weight:600; padding:0.6rem 0.75rem; color:#ffffff; background:var(--accent); border:none; border-radius:var(--radius-md);" title={ i18n.T(lang, "nav.cart") }>
+				<div class="sidebar-footer">
+					<a href="/cart" class="btn sidebar-footer-btn" title={ i18n.T(lang, "nav.cart") }>
 						@components.IconCart("icon-sm")
 						<span>{ i18n.T(lang, "nav.cart_and_supply") }</span>
 					</a>
@@ -131,7 +131,7 @@ templ CustomerShell(title string, activeNav string, lang string, dir string, per
 			<!-- Main Content -->
 			<main class="main-content">
 				<!-- Top Bar with Branch Selector -->
-				<header class="top-navbar" style="border-bottom:1px solid var(--border); background:var(--surface-raised); padding:0 var(--space-6); height:var(--header-height); display:flex; align-items:center; justify-content:space-between; position:sticky; top:0; z-index:var(--z-sticky);">
+				<header class="top-navbar">
 					<div style="display:flex; align-items:center; gap:var(--space-4);">
 						<h1 style="font-size:var(--text-lg); font-weight:700; color:var(--text); margin:0;">{ title }</h1>
 						@PharmacyBranchSelector(ctx)
