@@ -18,11 +18,15 @@ type Repository interface {
 	GetPaymentByID(ctx context.Context, id int64) (*Payment, error)
 
 	ListPlans(ctx context.Context) ([]*Plan, error)
+	AdminListPlans(ctx context.Context) ([]*Plan, error)
 	GetPlanByID(ctx context.Context, id int64) (*Plan, error)
 	GetPlanBySlug(ctx context.Context, slug string) (*Plan, error)
 	GetDefaultPlan(ctx context.Context) (*Plan, error)
 	CreatePlan(ctx context.Context, p *Plan) error
 	UpdatePlan(ctx context.Context, p *Plan) error
+	TogglePlanActive(ctx context.Context, id int64) error
+	SetDefaultPlan(ctx context.Context, id int64) error
+	DeletePlan(ctx context.Context, id int64) error
 	CreateSubscription(ctx context.Context, sub *Subscription) error
 	GetActiveSubscription(ctx context.Context, userID int64) (*Subscription, error)
 	GetActiveSubscriptionByOrg(ctx context.Context, orgID int64) (*Subscription, error)

@@ -80,6 +80,9 @@ func (h *UIHandler) registerAdminCommerceRoutes(r chi.Router) {
 		g.Use(authctx.RequirePagePermission("billing.subscription_plan.update", h.log))
 		g.Post("/admin/plans", h.AdminPlanSubmit)
 		g.Post("/admin/plans/{id}/update", h.AdminPlanUpdateSubmit)
+		g.Post("/admin/plans/{id}/toggle", h.AdminPlanToggleSubmit)
+		g.Post("/admin/plans/{id}/set-default", h.AdminPlanSetDefaultSubmit)
+		g.Post("/admin/plans/{id}/delete", h.AdminPlanDeleteSubmit)
 	})
 
 	// Phase 8: Offer Packages, Sponsorships, Promotions, Ads, Analytics, Locations

@@ -60,6 +60,10 @@ func (r stubRepo) ListPlans(ctx context.Context) ([]*billing.Plan, error) {
 	r.fail("ListPlans")
 	return nil, nil
 }
+func (r stubRepo) AdminListPlans(ctx context.Context) ([]*billing.Plan, error) {
+	r.fail("AdminListPlans")
+	return nil, nil
+}
 
 func (r stubRepo) CreatePlan(ctx context.Context, p *billing.Plan) error {
 	r.fail("CreatePlan")
@@ -79,6 +83,18 @@ func (r stubRepo) GetDefaultPlan(ctx context.Context) (*billing.Plan, error) {
 }
 func (r stubRepo) UpdatePlan(ctx context.Context, p *billing.Plan) error {
 	r.fail("UpdatePlan")
+	return nil
+}
+func (r stubRepo) TogglePlanActive(ctx context.Context, id int64) error {
+	r.fail("TogglePlanActive")
+	return nil
+}
+func (r stubRepo) SetDefaultPlan(ctx context.Context, id int64) error {
+	r.fail("SetDefaultPlan")
+	return nil
+}
+func (r stubRepo) DeletePlan(ctx context.Context, id int64) error {
+	r.fail("DeletePlan")
 	return nil
 }
 func (r stubRepo) CreateSubscription(ctx context.Context, sub *billing.Subscription) error {
@@ -281,6 +297,9 @@ func (happyRepo) GetPaymentByID(ctx context.Context, id int64) (*billing.Payment
 func (happyRepo) ListPlans(ctx context.Context) ([]*billing.Plan, error) {
 	return []*billing.Plan{{ID: 1, Slug: "basic", Name: i18n.Text{"en": "Basic"}}}, nil
 }
+func (happyRepo) AdminListPlans(ctx context.Context) ([]*billing.Plan, error) {
+	return []*billing.Plan{{ID: 1, Slug: "basic", Name: i18n.Text{"en": "Basic"}}}, nil
+}
 func (happyRepo) GetPlanBySlug(ctx context.Context, slug string) (*billing.Plan, error) {
 	return &billing.Plan{ID: 1, Slug: slug, Name: i18n.Text{"en": "Basic"}}, nil
 }
@@ -296,6 +315,15 @@ func (happyRepo) GetDefaultPlan(ctx context.Context) (*billing.Plan, error) {
 	return &billing.Plan{ID: 1, Slug: "basic", Name: i18n.Text{"en": "Basic"}, IsDefault: true}, nil
 }
 func (happyRepo) UpdatePlan(ctx context.Context, p *billing.Plan) error {
+	return nil
+}
+func (happyRepo) TogglePlanActive(ctx context.Context, id int64) error {
+	return nil
+}
+func (happyRepo) SetDefaultPlan(ctx context.Context, id int64) error {
+	return nil
+}
+func (happyRepo) DeletePlan(ctx context.Context, id int64) error {
 	return nil
 }
 func (happyRepo) CreateSubscription(ctx context.Context, sub *billing.Subscription) error {

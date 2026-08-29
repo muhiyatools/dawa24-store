@@ -28,7 +28,7 @@ templ CustomerShell(title string, activeNav string, lang string, dir string, per
 							</div>
 						</div>
 					<button type="button" class="btn btn-icon sidebar-toggle" data-sidebar-toggle title="طي/توسيع القائمة">
-						@components.IconMenu("icon-xs")
+						@components.IconSidebarToggle("icon-xs")
 					</button>
 				</div>
 
@@ -159,7 +159,7 @@ templ CustomerShell(title string, activeNav string, lang string, dir string, per
 					</div>
 				</header>
 
-				<div class="page-container p-modal">
+				<div class="page-container">
 					{ children... }
 				</div>
 			</main>

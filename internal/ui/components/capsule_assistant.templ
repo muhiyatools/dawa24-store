@@ -81,46 +81,42 @@ templ CapsuleAssistant() {
 					</div>
 				</div>
 
-				<!-- Header Action Buttons -->
-				<div style="display:flex; align-items:center; gap:0.4rem;">
+				<!-- Header Action Buttons (Icon-Only, Clean & Minimalist) -->
+				<div style="display:flex; align-items:center; gap:0.25rem;">
 					<!-- New Chat Button -->
 					<button
 						type="button"
 						@click="startNewConversation()"
-						class="capsule-hdr-btn"
-						title="بدء محادثة جديدة"
+						class="capsule-hdr-icon-btn"
+						title="محادثة جديدة"
 					>
-						@IconPlus("icon-xxs")
-						<span style="font-size:0.75rem;">جديدة</span>
+						@IconPlus("icon-xs")
 					</button>
 
 					<!-- History / Sessions Button -->
 					<button
 						type="button"
 						@click="toggleSessionsDrawer()"
-						class="capsule-hdr-btn"
+						class="capsule-hdr-icon-btn"
 						:class="{ 'active': showSessionsDrawer }"
-						title="سجل المحادثات السابقة"
+						title="سجل المحادثات"
 					>
-						@IconClock("icon-xxs")
-						<span style="font-size:0.75rem;">السجل</span>
+						@IconClock("icon-xs")
 					</button>
 
 					<!-- Close Button -->
 					<button
 						type="button"
 						@click="closeAssistant()"
-						style="background:none; border:none; color:var(--text-muted); width:28px; height:28px; border-radius:var(--radius-md); cursor:pointer; display:flex; align-items:center; justify-content:center; transition:all 120ms;"
-						onmouseover="this.style.background='var(--surface-sunken)'; this.style.color='var(--text)';"
-						onmouseout="this.style.background='none'; this.style.color='var(--text-muted)';"
-						title="إغلاق"
+						class="capsule-hdr-icon-btn"
+						title="إغلاق النافذة"
 					>
 						@IconClose("icon-xs")
 					</button>
 				</div>
 			</div>
 
-			<!-- Sessions Drawer Overlay -->
+			<!-- Sessions Drawer Overlay (Full Height Slide-over) -->
 			<div
 				x-show="showSessionsDrawer"
 				x-cloak
@@ -141,7 +137,7 @@ templ CapsuleAssistant() {
 					<button
 						type="button"
 						@click="showSessionsDrawer = false"
-						style="background:none; border:none; color:var(--text-muted); cursor:pointer; padding:4px; display:flex; align-items:center; justify-content:center; border-radius:4px;"
+						class="capsule-hdr-icon-btn"
 						title="إغلاق السجل"
 					>
 						@IconClose("icon-xs")
@@ -203,7 +199,7 @@ templ CapsuleAssistant() {
 						>
 							<div style="flex:1; min-width:0;">
 								<div style="display:flex; align-items:center; gap:0.35rem; margin-bottom:0.15rem;">
-									<span style="font-size:0.8rem; font-weight:700; color:var(--text); overflow:hidden; text-overflow:ellipsis; white-space:nowrap;" x-text="conv.title || 'محادثة كبسولة'"></span>
+									<span style="font-size:0.8rem; font-weight:700; color:var(--text); overflow:hidden; text-overflow:ellipsis; white-space:nowrap;" x-text="conv.title || 'محادثة سابقة'"></span>
 									<template x-if="conversationID === conv.id">
 										<span style="font-size:0.65rem; background:var(--accent); color:#fff; padding:0.1rem 0.35rem; border-radius:4px; font-weight:700;">نشطة</span>
 									</template>
@@ -213,9 +209,7 @@ templ CapsuleAssistant() {
 							<button
 								type="button"
 								@click.stop="deleteSession(conv.id)"
-								style="background:none; border:none; color:var(--text-muted); cursor:pointer; padding:4px; border-radius:4px; display:flex; align-items:center; justify-content:center; transition:all 120ms;"
-								onmouseover="this.style.color='#ef4444'; this.style.background='rgba(239,68,68,0.1)';"
-								onmouseout="this.style.color='var(--text-muted)'; this.style.background='none';"
+								class="capsule-icon-delete-btn"
 								title="حذف المحادثة"
 							>
 								@IconTrash("icon-xxs")
@@ -231,16 +225,44 @@ templ CapsuleAssistant() {
 				class="capsule-messages-scroll"
 				style="flex:1 1 0%; min-height:0; overflow-y:auto; overflow-x:hidden; padding:1rem; display:flex; flex-direction:column; gap:1rem; background:var(--surface-raised); overscroll-behavior:contain; -webkit-overflow-scrolling:touch;"
 			>
-				<!-- Empty State / Clean Start Session -->
-				<div x-show="messages.length === 0" style="display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; padding:2.5rem 1rem; gap:0.75rem; margin:auto; width:100%; box-sizing:border-box;">
+				<!-- Empty State / Clean Start Session with Quick Prompts -->
+				<div x-show="messages.length === 0" style="display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; padding:1.5rem 1rem 1rem 1rem; gap:0.65rem; margin:auto; width:100%; box-sizing:border-box;">
 					<div style="width:48px; height:48px; border-radius:14px; background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center; border:1px solid rgba(2, 132, 199, 0.2); margin:0 auto; flex-shrink:0;">
 						@IconSparkles("icon-md")
 					</div>
 					<div style="display:flex; flex-direction:column; align-items:center; text-align:center; width:100%;">
-						<h4 style="margin:0 0 0.35rem 0; font-size:1rem; font-weight:800; color:var(--text); text-align:center;">كبسولة — المستشار الصيدلي</h4>
-						<p style="margin:0 auto; font-size:0.8rem; color:var(--text-muted); line-height:1.6; max-width:280px; text-align:center;">
+						<h4 style="margin:0 0 0.35rem 0; font-size:0.95rem; font-weight:800; color:var(--text); text-align:center;">المستشار الصيدلي الذكي</h4>
+						<p style="margin:0 auto; font-size:0.775rem; color:var(--text-muted); line-height:1.5; max-width:290px; text-align:center;">
 							اطرح استفسارك، قارن عروض الموردين، أو أرفق صورة روشتة أو دواء لفحصها ومطابقتها فورياً.
 						</p>
+					</div>
+
+					<!-- Interactive Quick Prompts -->
+					<div style="display:flex; flex-direction:column; gap:0.4rem; width:100%; max-width:320px; margin-top:0.4rem;">
+						<button
+							type="button"
+							class="capsule-chip-btn"
+							@click="askChip('ما هي أفضل بدائل التوفير المتاحة لأشهر أدوية الضغط والسكر؟')"
+						>
+							<span style="font-size:0.85rem;">💊</span>
+							<span>اقتراح بدائل التوفير للأدوية المزمنة</span>
+						</button>
+						<button
+							type="button"
+							class="capsule-chip-btn"
+							@click="askChip('كيف أقوم بمقارنة خصومات الموردين على طلبيات النواقص؟')"
+						>
+							<span style="font-size:0.85rem;">📊</span>
+							<span>مقارنة خصومات الموردين وسرعة الشحن</span>
+						</button>
+						<button
+							type="button"
+							class="capsule-chip-btn"
+							@click="askChip('فحص التداخلات الدوائية والجرعات المصرح بها')"
+						>
+							<span style="font-size:0.85rem;">🔍</span>
+							<span>فحص التداخلات الدوائية والجرعات</span>
+						</button>
 					</div>
 				</div>
 
@@ -833,6 +855,45 @@ templ CapsuleAssistant() {
 				background: #ef4444;
 			}
 			/* Sessions Overlay and Header Buttons */
+			.capsule-hdr-icon-btn {
+				background: transparent;
+				border: 1px solid transparent;
+				color: var(--text-muted);
+				width: 32px;
+				height: 32px;
+				border-radius: var(--radius-md);
+				cursor: pointer;
+				display: inline-flex;
+				align-items: center;
+				justify-content: center;
+				transition: all 120ms ease;
+			}
+			.capsule-hdr-icon-btn:hover {
+				background: var(--surface-sunken);
+				border-color: var(--border);
+				color: var(--text);
+			}
+			.capsule-hdr-icon-btn.active {
+				background: var(--accent-subtle);
+				border-color: var(--accent);
+				color: var(--accent);
+			}
+			.capsule-icon-delete-btn {
+				background: transparent;
+				border: none;
+				color: var(--text-muted);
+				cursor: pointer;
+				padding: 6px;
+				border-radius: 6px;
+				display: inline-flex;
+				align-items: center;
+				justify-content: center;
+				transition: all 120ms ease;
+			}
+			.capsule-icon-delete-btn:hover {
+				color: #ef4444;
+				background: rgba(239, 68, 68, 0.12);
+			}
 			.capsule-hdr-btn {
 				background: var(--surface-sunken);
 				border: 1px solid var(--border);

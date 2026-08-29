@@ -178,6 +178,61 @@ func TestAdminFinanceRoutes(t *testing.T) {
 			},
 			wantStatus: http.StatusMovedPermanently,
 		},
+		{
+			name:   "Super admin POST /admin/plans returns redirect",
+			path:   "/admin/plans",
+			method: "POST",
+			actor: &authctx.Actor{
+				UserID:  1,
+				IsStaff: true,
+				Role:    "super_admin",
+			},
+			wantStatus: http.StatusSeeOther,
+		},
+		{
+			name:   "Super admin POST /admin/plans/1/update returns redirect",
+			path:   "/admin/plans/1/update",
+			method: "POST",
+			actor: &authctx.Actor{
+				UserID:  1,
+				IsStaff: true,
+				Role:    "super_admin",
+			},
+			wantStatus: http.StatusSeeOther,
+		},
+		{
+			name:   "Super admin POST /admin/plans/1/toggle returns redirect",
+			path:   "/admin/plans/1/toggle",
+			method: "POST",
+			actor: &authctx.Actor{
+				UserID:  1,
+				IsStaff: true,
+				Role:    "super_admin",
+			},
+			wantStatus: http.StatusSeeOther,
+		},
+		{
+			name:   "Super admin POST /admin/plans/1/set-default returns redirect",
+			path:   "/admin/plans/1/set-default",
+			method: "POST",
+			actor: &authctx.Actor{
+				UserID:  1,
+				IsStaff: true,
+				Role:    "super_admin",
+			},
+			wantStatus: http.StatusSeeOther,
+		},
+		{
+			name:   "Super admin POST /admin/plans/1/delete returns redirect",
+			path:   "/admin/plans/1/delete",
+			method: "POST",
+			actor: &authctx.Actor{
+				UserID:  1,
+				IsStaff: true,
+				Role:    "super_admin",
+			},
+			wantStatus: http.StatusSeeOther,
+		},
 	}
 
 	for _, tt := range tests {

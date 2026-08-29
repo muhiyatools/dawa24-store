@@ -623,14 +623,49 @@ func (h *UIHandler) AIConsumptionLogsPage(w http.ResponseWriter, r *http.Request
 		}
 	}
 
-	// 2. If Gateway has no recorded logs for this tenant, fallback to tenant-scoped activity
-	if len(logViews) == 0 {
-		logViews = h.generateRelationalAILogs(ctx, actor, isVendor, subView)
-		for _, item := range logViews {
-			totalReqs++
-			totalTokens += item.TotalTokens
-			totalCost += item.CostUSD
-			featureCounts[item.FeatureKey]++
+	// 2. Query real database assistant messages if available to ensure all tenant activity is accounted for
+	if h.assistantRepo != nil && actor.OrganizationID > 0 {
+		if convs, err := h.assistantRepo.ListConversations(ctx, actor.OrganizationID, 0, 20, 0); err == nil && len(convs) > 0 {
+			existingIDs := make(map[string]bool)
+			for _, lv := range logViews {
+				existingIDs[lv.ID] = true
+			}
+			for _, c := range convs {
+				if msgs, err := h.assistantRepo.ListMessages(ctx, c.ID, 20); err == nil {
+					for _, m := range msgs {
+						if m.Role != "assistant" || (m.InputTokens == 0 && m.OutputTokens == 0) {
+							continue
+						}
+						idStr := fmt.Sprintf("ast-msg-%d", m.ID)
+						if existingIDs[idStr] {
+							continue
+						}
+						totTok := m.InputTokens + m.OutputTokens
+						cost := (float64(m.InputTokens) * 0.0000008) + (float64(m.OutputTokens) * 0.000002)
+						item := &pages.AILogItemView{
+							ID:            idStr,
+							Timestamp:     m.CreatedAt.Format("2006-01-02 15:04:05"),
+							TimeFormatted: m.CreatedAt.Format("2006-01-02 15:04"),
+							FeatureName:   "المساعد الصيدلاني الذكي (كبسولة)",
+							FeatureKey:    "assistant",
+							ModelAlias:    "qwen3.7-flash",
+							ModelTier:     "fast",
+							InputTokens:   m.InputTokens,
+							OutputTokens:  m.OutputTokens,
+							TotalTokens:   totTok,
+							CostUSD:       cost,
+							DurationMs:    280,
+							Status:        "success",
+							StatusLabel:   "ناجح",
+						}
+						logViews = append(logViews, item)
+						totalReqs++
+						totalTokens += totTok
+						totalCost += cost
+						featureCounts["assistant"]++
+					}
+				}
+			}
 		}
 	}
 
@@ -733,153 +768,4 @@ func mapGatewayCapabilityToName(cap, feat string, isVendor bool) (string, string
 		}
 		return "الطلب الذكي وتحسين المطابقة", "smart_order"
 	}
-}
-
-func (h *UIHandler) generateRelationalAILogs(ctx context.Context, actor authctx.Actor, isVendor bool, subView *pages.OrgSubscriptionView) []*pages.AILogItemView {
-	var logs []*pages.AILogItemView
-	now := time.Now()
-
-	if isVendor {
-		// Vendor AI request telemetry: Product Variants Import, Savings Import, Column Detect, Assistant
-		logs = append(logs, &pages.AILogItemView{
-			ID:            fmt.Sprintf("req-ai-vnd-%d01", actor.OrganizationID),
-			Timestamp:     now.Add(-2 * time.Hour).Format("2006-01-02 15:04:05"),
-			TimeFormatted: now.Add(-2 * time.Hour).Format("2006-01-02 15:04"),
-			FeatureName:   "استيراد ومطابقة الأصناف والبدائل (Variants Match)",
-			FeatureKey:    "variant_match",
-			ModelAlias:    "qwen3.7-flash",
-			ModelTier:     "fast",
-			InputTokens:   3420,
-			OutputTokens:  480,
-			TotalTokens:   3900,
-			CostUSD:       0.0312,
-			DurationMs:    320,
-			Status:        "success",
-			StatusLabel:   "ناجح",
-			SourceContext: "استيراد ملف كتالوج المورد",
-		})
-		logs = append(logs, &pages.AILogItemView{
-			ID:            fmt.Sprintf("req-ai-vnd-%d02", actor.OrganizationID),
-			Timestamp:     now.Add(-18 * time.Hour).Format("2006-01-02 15:04:05"),
-			TimeFormatted: now.Add(-18 * time.Hour).Format("2006-01-02 15:04"),
-			FeatureName:   "استيراد وتوليد منتجات التوفير (Savings Match)",
-			FeatureKey:    "savings_import",
-			ModelAlias:    "qwen3.7-flash",
-			ModelTier:     "fast",
-			InputTokens:   2150,
-			OutputTokens:  320,
-			TotalTokens:   2470,
-			CostUSD:       0.0198,
-			DurationMs:    240,
-			Status:        "success",
-			StatusLabel:   "ناجح",
-			SourceContext: "مطابقة بدائل التوفير المتاحة",
-		})
-		logs = append(logs, &pages.AILogItemView{
-			ID:            fmt.Sprintf("req-ai-vnd-%d03", actor.OrganizationID),
-			Timestamp:     now.Add(-2 * 24 * time.Hour).Format("2006-01-02 15:04:05"),
-			TimeFormatted: now.Add(-2 * 24 * time.Hour).Format("2006-01-02 15:04"),
-			FeatureName:   "التعرف الذكي على أعمدة ملفات Excel/CSV",
-			FeatureKey:    "column_detect",
-			ModelAlias:    "qwen3.7-flash",
-			ModelTier:     "fast",
-			InputTokens:   520,
-			OutputTokens:  95,
-			TotalTokens:   615,
-			CostUSD:       0.0049,
-			DurationMs:    110,
-			Status:        "success",
-			StatusLabel:   "ناجح",
-			SourceContext: "فحص أوتوماتيكي للهيكل",
-		})
-		logs = append(logs, &pages.AILogItemView{
-			ID:            fmt.Sprintf("req-ai-vnd-%d04", actor.OrganizationID),
-			Timestamp:     now.Add(-3 * 24 * time.Hour).Format("2006-01-02 15:04:05"),
-			TimeFormatted: now.Add(-3 * 24 * time.Hour).Format("2006-01-02 15:04"),
-			FeatureName:   "مطابقة أصناف سريعة من الذاكرة (Decision Cache)",
-			FeatureKey:    "variant_match",
-			ModelAlias:    "cache-match-engine",
-			ModelTier:     "fast",
-			InputTokens:   840,
-			OutputTokens:  0,
-			TotalTokens:   840,
-			CostUSD:       0.0000,
-			DurationMs:    15,
-			Status:        "cached",
-			StatusLabel:   "من الذاكرة (مجاني)",
-			SourceContext: "ذاكرة المطابقة المعتمدة",
-		})
-	} else {
-		// Pharmacy / Customer AI request telemetry: Smart Order, AI Assistant, Savings Matcher, Voice & OCR
-		logs = append(logs, &pages.AILogItemView{
-			ID:            fmt.Sprintf("req-ai-phm-%d01", actor.OrganizationID),
-			Timestamp:     now.Add(-1 * time.Hour).Format("2006-01-02 15:04:05"),
-			TimeFormatted: now.Add(-1 * time.Hour).Format("2006-01-02 15:04"),
-			FeatureName:   "الطلب الذكي وتحسين مطابقة النواقص (Smart Order AI)",
-			FeatureKey:    "smart_order",
-			ModelAlias:    "qwen3.7-flash",
-			ModelTier:     "fast",
-			InputTokens:   2890,
-			OutputTokens:  340,
-			TotalTokens:   3230,
-			CostUSD:       0.0258,
-			DurationMs:    280,
-			Status:        "success",
-			StatusLabel:   "ناجح",
-			SourceContext: "تحليل طلبية النواقص والكميات",
-		})
-		logs = append(logs, &pages.AILogItemView{
-			ID:            fmt.Sprintf("req-ai-phm-%d02", actor.OrganizationID),
-			Timestamp:     now.Add(-6 * time.Hour).Format("2006-01-02 15:04:05"),
-			TimeFormatted: now.Add(-6 * time.Hour).Format("2006-01-02 15:04"),
-			FeatureName:   "المساعد الصيدلاني الذكي (Pharmacy AI Assistant)",
-			FeatureKey:    "assistant",
-			ModelAlias:    "qwen3.7-flash",
-			ModelTier:     "quality",
-			InputTokens:   1120,
-			OutputTokens:  390,
-			TotalTokens:   1510,
-			CostUSD:       0.0121,
-			DurationMs:    390,
-			Status:        "success",
-			StatusLabel:   "ناجح",
-			SourceContext: "استفسار عن جرعات وتداخلات دوائية",
-		})
-		logs = append(logs, &pages.AILogItemView{
-			ID:            fmt.Sprintf("req-ai-phm-%d03", actor.OrganizationID),
-			Timestamp:     now.Add(-1 * 24 * time.Hour).Format("2006-01-02 15:04:05"),
-			TimeFormatted: now.Add(-1 * 24 * time.Hour).Format("2006-01-02 15:04"),
-			FeatureName:   "مطابقة واقتراح بدائل التوفير (Savings Products)",
-			FeatureKey:    "savings",
-			ModelAlias:    "qwen3.7-flash",
-			ModelTier:     "fast",
-			InputTokens:   1650,
-			OutputTokens:  210,
-			TotalTokens:   1860,
-			CostUSD:       0.0149,
-			DurationMs:    190,
-			Status:        "success",
-			StatusLabel:   "ناجح",
-			SourceContext: "مقارنة أفضل أسعار وبدائل الخصم",
-		})
-		logs = append(logs, &pages.AILogItemView{
-			ID:            fmt.Sprintf("req-ai-phm-%d04", actor.OrganizationID),
-			Timestamp:     now.Add(-2 * 24 * time.Hour).Format("2006-01-02 15:04:05"),
-			TimeFormatted: now.Add(-2 * 24 * time.Hour).Format("2006-01-02 15:04"),
-			FeatureName:   "مطابقة فورية من ذاكرة قرارات الصيدلية",
-			FeatureKey:    "smart_order",
-			ModelAlias:    "cache-match-engine",
-			ModelTier:     "fast",
-			InputTokens:   750,
-			OutputTokens:  0,
-			TotalTokens:   750,
-			CostUSD:       0.0000,
-			DurationMs:    12,
-			Status:        "cached",
-			StatusLabel:   "من الذاكرة (مجاني)",
-			SourceContext: "ذاكرة قرارات المطابقة",
-		})
-	}
-
-	return logs
 }

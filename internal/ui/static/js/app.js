@@ -299,6 +299,20 @@ function initSidebarToggle() {
     sidebar.classList.add('collapsed');
   }
 
+  let backdrop = document.querySelector('.sidebar-backdrop');
+  if (!backdrop) {
+    backdrop = document.createElement('div');
+    backdrop.className = 'sidebar-backdrop';
+    document.body.appendChild(backdrop);
+    backdrop.addEventListener('click', () => {
+      const sb = document.querySelector('.sidebar');
+      if (sb) {
+        sb.classList.remove('mobile-open');
+        backdrop.classList.remove('active');
+      }
+    });
+  }
+
   document.addEventListener('click', (e) => {
     const toggleBtn = e.target.closest('[data-sidebar-toggle]');
     if (toggleBtn) {
@@ -306,7 +320,10 @@ function initSidebarToggle() {
       const sb = document.querySelector('.sidebar');
       if (sb) {
         if (isMobile()) {
-          sb.classList.toggle('mobile-open');
+          const isOpen = sb.classList.toggle('mobile-open');
+          if (backdrop) {
+            backdrop.classList.toggle('active', isOpen);
+          }
         } else {
           const collapsed = sb.classList.toggle('collapsed');
           localStorage.setItem('dawa_sidebar_collapsed', collapsed ? 'true' : 'false');

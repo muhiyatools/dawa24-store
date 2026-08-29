@@ -137,12 +137,13 @@ func (h *Handler) AssistantStream(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
+	oid := actor.OrgID
+	if oid <= 0 {
+		oid = actor.OrganizationID
+	}
+
 	var virtualKey string
-	if h.keyResolver != nil {
-		oid := actor.OrgID
-		if oid <= 0 {
-			oid = actor.OrganizationID
-		}
+	if h.keyResolver != nil && oid > 0 {
 		if vk, err := h.keyResolver(ctx, oid); err == nil && vk != "" {
 			virtualKey = vk
 		}
@@ -153,7 +154,7 @@ func (h *Handler) AssistantStream(w http.ResponseWriter, r *http.Request) {
 		Messages:    chatMsgs,
 		MaxTokens:   2048,
 		Temperature: 0.7,
-		OrgID:       actor.OrgID,
+		OrgID:       oid,
 		UserID:      actor.UserID,
 		VirtualKey:  virtualKey,
 	}
@@ -196,7 +197,7 @@ func (h *Handler) AssistantStream(w http.ResponseWriter, r *http.Request) {
 			if h.repo != nil {
 				if convID <= 0 {
 					conv := &assistant.Conversation{
-						OrganizationID: actor.OrgID,
+						OrganizationID: oid,
 						UserID:         actor.UserID,
 						Title:          payload.Text,
 					}
@@ -209,7 +210,7 @@ func (h *Handler) AssistantStream(w http.ResponseWriter, r *http.Request) {
 
 				_ = h.repo.SaveMessage(ctx, &assistant.Message{
 					ConversationID: convID,
-					OrganizationID: actor.OrgID,
+					OrganizationID: oid,
 					Role:           "user",
 					Content:        payload.Text,
 					Attachments:    resolvedAtts,
@@ -224,7 +225,7 @@ func (h *Handler) AssistantStream(w http.ResponseWriter, r *http.Request) {
 				}
 				_ = h.repo.SaveMessage(ctx, &assistant.Message{
 					ConversationID: convID,
-					OrganizationID: actor.OrgID,
+					OrganizationID: oid,
 					Role:           "assistant",
 					Content:        fullAnswer.String(),
 					PromptVersion:  assistant.SystemPromptVersion,

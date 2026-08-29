@@ -19,7 +19,7 @@ templ VendorShell(title string, activeNav string, lang string, dir string) {
 							</div>
 						</div>
 					<button type="button" class="btn btn-icon sidebar-toggle" data-sidebar-toggle title="طي/توسيع القائمة">
-						@components.IconMenu("icon-xs")
+						@components.IconSidebarToggle("icon-xs")
 					</button>
 				</div>
 
@@ -180,13 +180,6 @@ templ VendorShell(title string, activeNav string, lang string, dir string) {
 					</div>
 
 				</nav>
-
-				<div class="sidebar-bottom-actions">
-					<a href="/catalog" class="btn sidebar-footer-btn" title="كتالوج المنتجات">
-						@components.IconPackage("icon-sm")
-						<span>كتالوج المنتجات</span>
-					</a>
-				</div>
 			</aside>
 
 			<!-- Main Content -->
@@ -212,7 +205,7 @@ templ VendorShell(title string, activeNav string, lang string, dir string) {
 					</div>
 				</header>
 
-				<div class="page-container p-modal">
+				<div class="page-container">
 					{ children... }
 				</div>
 			</main>

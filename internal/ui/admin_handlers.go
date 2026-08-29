@@ -1784,7 +1784,7 @@ func (h *UIHandler) AdminPlansPage(w http.ResponseWriter, r *http.Request) {
 	var plans []*billing.Plan
 	var subs []*billing.Subscription
 	if h.billSvc != nil {
-		plans, _ = h.billSvc.ListPlans(ctx)
+		plans, _ = h.billSvc.AdminListPlans(ctx)
 		subs, _ = h.billSvc.AdminListSubscriptions(ctx, 100, 0)
 	}
 
@@ -1827,6 +1827,17 @@ func (h *UIHandler) AdminPlanSubmit(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	nameAr := strings.TrimSpace(r.PostFormValue("name_ar"))
+	nameEn := strings.TrimSpace(r.PostFormValue("name_en"))
+	slug := strings.TrimSpace(strings.ToLower(r.PostFormValue("slug")))
+	if slug == "" {
+		if nameEn != "" {
+			slug = strings.ReplaceAll(strings.ToLower(nameEn), " ", "-")
+		} else {
+			slug = fmt.Sprintf("plan-%d", time.Now().Unix())
+		}
+	}
+
 	priceMonth, _ := money.Parse(r.PostFormValue("price_month"))
 	priceYear, _ := money.Parse(r.PostFormValue("price_year"))
 	durationDays, _ := strconv.Atoi(r.PostFormValue("duration_days"))
@@ -1846,6 +1857,7 @@ func (h *UIHandler) AdminPlanSubmit(w http.ResponseWriter, r *http.Request) {
 		aiPlanID = "plan-basic"
 	}
 	isDefault := r.PostFormValue("is_default") == "1" || r.PostFormValue("is_default") == "true"
+	isActive := r.PostFormValue("is_active") != "0"
 
 	features := map[string]string{}
 	if r.PostFormValue("feature_market_discounts") == "1" || r.PostFormValue("feature_market_discounts") == "true" {
@@ -1859,17 +1871,17 @@ func (h *UIHandler) AdminPlanSubmit(w http.ResponseWriter, r *http.Request) {
 	} else {
 		features[billing.FeatureCompareTool] = "false"
 	}
-	if r.PostFormValue("feature_bulk_import") == "1" {
+	if r.PostFormValue("feature_bulk_import") == "1" || r.PostFormValue("feature_bulk_import") == "true" {
 		features["bulk_import"] = "true"
 	}
-	if r.PostFormValue("feature_analytics") == "1" {
+	if r.PostFormValue("feature_analytics") == "1" || r.PostFormValue("feature_analytics") == "true" {
 		features["analytics"] = "true"
 	}
 
 	p := &billing.Plan{
-		Slug:             r.PostFormValue("slug"),
-		Name:             i18n.New(r.PostFormValue("name_ar"), r.PostFormValue("name_en")),
-		Description:      i18n.New(r.PostFormValue("description_ar"), r.PostFormValue("description_en")),
+		Slug:             slug,
+		Name:             i18n.New(nameAr, nameEn),
+		Description:      i18n.New(strings.TrimSpace(r.PostFormValue("description_ar")), strings.TrimSpace(r.PostFormValue("description_en"))),
 		PriceMonth:       priceMonth,
 		PriceYear:        priceYear,
 		DurationDays:     durationDays,
@@ -1877,7 +1889,7 @@ func (h *UIHandler) AdminPlanSubmit(w http.ResponseWriter, r *http.Request) {
 		MaxDevices:       maxDevices,
 		AIPlanID:         aiPlanID,
 		IsDefault:        isDefault,
-		IsActive:         true,
+		IsActive:         isActive,
 		Features:         features,
 	}
 	if _, err := h.billSvc.CreatePlan(ctx, p); err != nil {
@@ -1955,7 +1967,52 @@ features[billing.FeatureMarketDiscounts] = "true"
 		h.redirectWithNotice(w, r, "/admin/plans", "error", h.safeMessage(err, langOf(r)))
 		return
 	}
-	h.redirectWithNotice(w, r, "/admin/plans", "success", "تم تحديث باقة الاشتراك بنجاح.")
+	h.redirectWithNotice(w, r, "/admin/plans", "success", "تم حفظ وتحديث بيانات باقة الاشتراك بنجاح.")
+}
+
+// AdminPlanToggleSubmit toggles the active/inactive state of a subscription plan.
+func (h *UIHandler) AdminPlanToggleSubmit(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	id, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
+	if err != nil || id <= 0 || h.billSvc == nil {
+		h.redirectWithNotice(w, r, "/admin/plans", "error", "معرف الخطة غير صالح.")
+		return
+	}
+	if err := h.billSvc.TogglePlanActive(ctx, id); err != nil {
+		h.redirectWithNotice(w, r, "/admin/plans", "error", h.safeMessage(err, langOf(r)))
+		return
+	}
+	h.redirectWithNotice(w, r, "/admin/plans", "success", "تم تغيير حالة تفعيل باقة الاشتراك بنجاح.")
+}
+
+// AdminPlanSetDefaultSubmit designates a plan as the system default tier.
+func (h *UIHandler) AdminPlanSetDefaultSubmit(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	id, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
+	if err != nil || id <= 0 || h.billSvc == nil {
+		h.redirectWithNotice(w, r, "/admin/plans", "error", "معرف الخطة غير صالح.")
+		return
+	}
+	if err := h.billSvc.SetDefaultPlan(ctx, id); err != nil {
+		h.redirectWithNotice(w, r, "/admin/plans", "error", h.safeMessage(err, langOf(r)))
+		return
+	}
+	h.redirectWithNotice(w, r, "/admin/plans", "success", "تم تعيين الباقة المحددة كباقة افتراضية للمنظومة بنجاح.")
+}
+
+// AdminPlanDeleteSubmit deletes a subscription plan if it's safe.
+func (h *UIHandler) AdminPlanDeleteSubmit(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	id, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
+	if err != nil || id <= 0 || h.billSvc == nil {
+		h.redirectWithNotice(w, r, "/admin/plans", "error", "معرف الخطة غير صالح.")
+		return
+	}
+	if err := h.billSvc.DeletePlan(ctx, id); err != nil {
+		h.redirectWithNotice(w, r, "/admin/plans", "error", h.safeMessage(err, langOf(r)))
+		return
+	}
+	h.redirectWithNotice(w, r, "/admin/plans", "success", "تم حذف باقة الاشتراك بنجاح.")
 }
 
 // AdminPolicyCreateSubmit creates a new draft version of a legal policy document.

@@ -28,6 +28,29 @@ type AdminPlansData struct {
 	GatewayOnline bool
 }
 
+func countActivePlans(plans []*billing.Plan) int {
+	c := 0
+	for _, p := range plans {
+		if p.IsActive {
+			c++
+		}
+	}
+	return c
+}
+
+func getDefaultPlanName(plans []*billing.Plan, lang string) string {
+	for _, p := range plans {
+		if p.IsDefault {
+			name := p.Name.Get(i18n.Lang(lang))
+			if name == "" {
+				name = p.Slug
+			}
+			return name
+		}
+	}
+	return "غير محدد"
+}
+
 func AdminPlans(lang, dir string, plans []*billing.Plan) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
@@ -90,7 +113,7 @@ func AdminPlansHub(data AdminPlansData, lang, dir string) templ.Component {
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div x-data=\"adminPlansManager()\" class=\"page-container\"><!-- Top KPI & Overview Header --><div class=\"glass-panel p-6 mb-6\"><div class=\"flex-between items-center flex-wrap gap-4\"><div><div class=\"d-flex items-center gap-3\"><div class=\"user-avatar-badge text-xl\">🏷️</div><div><h1 class=\"text-2xl font-black text-primary m-0\">باقات واشتراكات المنظومة الموحدة</h1><p class=\"text-sm text-secondary m-0 mt-1\">إدارة مركزية لخطط الاشتراكات، حدود الجلسات المتزامنة المطبقة على المنشأة بالكامل، وحصص بوابة الذكاء الاصطناعي (AI Gateway)</p></div></div></div><div class=\"d-flex items-center gap-3 flex-wrap\"><!-- AI Gateway Connection Status Indicator --><div class=\"d-inline-flex items-center gap-2 px-3 py-1.5 rounded-full border text-xs\" style=\"background:var(--surface-sunken);\"><span>🤖</span> <span class=\"text-secondary font-bold\">بوابة الذكاء الاصطناعي:</span> ")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div x-data=\"adminPlansManager()\" class=\"page-container\"><!-- Top Header & Actions --><div class=\"glass-panel p-6 mb-6\"><div class=\"flex-between items-center flex-wrap gap-4\"><div><div class=\"d-flex items-center gap-3\"><div class=\"user-avatar-badge text-xl\">🏷️</div><div><h1 class=\"text-2xl font-black text-primary m-0\">باقات واشتراكات المنظومة الموحدة</h1><p class=\"text-sm text-secondary m-0 mt-1\">إدارة مركزية لخطط الاشتراكات، حدود الجلسات المتزامنة، وحصص بوابة الذكاء الاصطناعي (AI Gateway)</p></div></div></div><div class=\"d-flex items-center gap-3 flex-wrap\"><!-- AI Gateway Connection Status Indicator --><div class=\"d-inline-flex items-center gap-2 px-3 py-1.5 rounded-full border text-xs\" style=\"background:var(--surface-sunken);\"><span>🤖</span> <span class=\"text-secondary font-bold\">بوابة الذكاء الاصطناعي:</span> ")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -105,20 +128,26 @@ func AdminPlansHub(data AdminPlansData, lang, dir string) templ.Component {
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "<code dir=\"ltr\" class=\"text-xs text-muted font-mono\">")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
+			if data.GatewayURL != "" {
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "<code dir=\"ltr\" class=\"text-xs text-muted font-mono\">")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				var templ_7745c5c3_Var4 string
+				templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(data.GatewayURL)
+				if templ_7745c5c3_Err != nil {
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_plans.templ`, Line: 84, Col: 78}
+				}
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "</code>")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
 			}
-			var templ_7745c5c3_Var4 string
-			templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(data.GatewayURL)
-			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_plans.templ`, Line: 60, Col: 77}
-			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "</code></div><!-- Add New Plan Action --><button type=\"button\" class=\"btn btn-primary btn-sm font-bold text-xs gap-1\" @click=\"openCreateModal()\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "</div><!-- Add New Plan Action --><button type=\"button\" class=\"btn btn-primary btn-sm font-bold text-xs gap-1\" @click=\"openCreateModal()\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -126,29 +155,120 @@ func AdminPlansHub(data AdminPlansData, lang, dir string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "<span>إضافة باقة جديدة</span></button></div></div></div><!-- Main Container with Tabs --><div class=\"glass-panel p-6 mb-6\"><!-- Tab Navigation --><div class=\"cb-tabs-nav m-0 mb-6 pb-4 border-b\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "<span>إضافة باقة جديدة</span></button></div></div></div><!-- KPI Summary Metrics (4-grid) --><div class=\"grid-4 mb-6\"><!-- KPI 1: Total Plans --><div class=\"stat-card-3d\"><div class=\"flex-between items-center\"><span class=\"text-xs font-bold text-muted\">إجمالي الباقات</span> <span class=\"text-brand\">🏷️</span></div><div class=\"tabular-nums text-2xl font-black text-primary mt-2\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			var templ_7745c5c3_Var5 = []any{"cb-tab-btn", templ.KV("active", data.ActiveTab == "plans" || data.ActiveTab == "")}
-			templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var5...)
+			var templ_7745c5c3_Var5 string
+			templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", len(data.Plans)))
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_plans.templ`, Line: 110, Col: 42}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "<a href=\"/admin/plans?tab=plans\" class=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, " <span class=\"text-xs text-muted font-normal\">باقة</span></div><div class=\"text-xs text-muted mt-2 pt-2 border-t flex-between\"><span>النشطة: <strong class=\"text-emerald\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var6 string
-			templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.ResolveAttributeValue(templ.CSSClasses(templ_7745c5c3_Var5).String())
+			templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", countActivePlans(data.Plans)))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_plans.templ`, Line: 1, Col: 0}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_plans.templ`, Line: 113, Col: 104}
 			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var6)
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "</strong></span> <span>المعطلة: <strong class=\"text-secondary\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var7 string
+			templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", len(data.Plans)-countActivePlans(data.Plans)))
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_plans.templ`, Line: 114, Col: 126}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "</strong></span></div></div><!-- KPI 2: Default System Plan --><div class=\"stat-card-3d\"><div class=\"flex-between items-center\"><span class=\"text-xs font-bold text-muted\">الباقة الافتراضية</span> <span class=\"text-amber\">★</span></div><div class=\"text-lg font-black text-primary mt-2 text-truncate\" title=\"")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var8 string
+			templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.ResolveAttributeValue(getDefaultPlanName(data.Plans, lang))
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_plans.templ`, Line: 124, Col: 113}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var8)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var9 string
+			templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinStringErrs(getDefaultPlanName(data.Plans, lang))
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_plans.templ`, Line: 125, Col: 44}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var9))
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "</div><div class=\"text-xs text-muted mt-2 pt-2 border-t\">تُمنح تلقائياً لأي منشأة جديدة مسجلة</div></div><!-- KPI 3: Total Active Subscriptions --><div class=\"stat-card-3d\"><div class=\"flex-between items-center\"><span class=\"text-xs font-bold text-muted\">المشتركون النشطون</span> <span class=\"text-emerald\">👥</span></div><div class=\"tabular-nums text-2xl font-black text-emerald mt-2\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var10 string
+			templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", len(data.Subscriptions)))
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_plans.templ`, Line: 139, Col: 50}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var10))
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, " <span class=\"text-xs text-muted font-normal\">منشأة</span></div><div class=\"text-xs text-muted mt-2 pt-2 border-t\">اشتراكات سارية ومفعلة بالكامل</div></div><!-- KPI 4: AI Gateway Tiers Available --><div class=\"stat-card-3d\"><div class=\"flex-between items-center\"><span class=\"text-xs font-bold text-muted\">باقات الـ AI Gateway</span> <span class=\"text-purple\">🔮</span></div><div class=\"tabular-nums text-2xl font-black text-purple mt-2\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var11 string
+			templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", len(data.GatewayPlans)))
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_plans.templ`, Line: 153, Col: 49}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var11))
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, " <span class=\"text-xs text-muted font-normal\">باقة</span></div><div class=\"text-xs text-muted mt-2 pt-2 border-t\">حصص الكوتا وتوليد الـ Virtual Keys</div></div></div><!-- Main Content Panel with Tabs --><div class=\"glass-panel p-6 mb-6\"><!-- Tab Navigation --><div class=\"cb-tabs-nav m-0 mb-6 pb-4 border-b\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var12 = []any{"cb-tab-btn", templ.KV("active", data.ActiveTab == "plans" || data.ActiveTab == "")}
+			templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var12...)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "<a href=\"/admin/plans?tab=plans\" class=\"")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var13 string
+			templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.ResolveAttributeValue(templ.CSSClasses(templ_7745c5c3_Var12).String())
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_plans.templ`, Line: 1, Col: 0}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var13)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -156,42 +276,42 @@ func AdminPlansHub(data AdminPlansData, lang, dir string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "<span>دليل باقات الاشتراك الموحدة (")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "<span>دليل باقات الاشتراك الموحدة (")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			var templ_7745c5c3_Var7 string
-			templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", len(data.Plans)))
+			var templ_7745c5c3_Var14 string
+			templ_7745c5c3_Var14, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", len(data.Plans)))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_plans.templ`, Line: 85, Col: 101}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_plans.templ`, Line: 170, Col: 101}
 			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, ")</span></a> ")
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var14))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			var templ_7745c5c3_Var8 = []any{"cb-tab-btn", templ.KV("active", data.ActiveTab == "subscriptions")}
-			templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var8...)
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, ")</span></a> ")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "<a href=\"/admin/plans?tab=subscriptions\" class=\"")
+			var templ_7745c5c3_Var15 = []any{"cb-tab-btn", templ.KV("active", data.ActiveTab == "subscriptions")}
+			templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var15...)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			var templ_7745c5c3_Var9 string
-			templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.ResolveAttributeValue(templ.CSSClasses(templ_7745c5c3_Var8).String())
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "<a href=\"/admin/plans?tab=subscriptions\" class=\"")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var16 string
+			templ_7745c5c3_Var16, templ_7745c5c3_Err = templ.ResolveAttributeValue(templ.CSSClasses(templ_7745c5c3_Var15).String())
 			if templ_7745c5c3_Err != nil {
 				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_plans.templ`, Line: 1, Col: 0}
 			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var9)
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var16)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, "\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -199,431 +319,723 @@ func AdminPlansHub(data AdminPlansData, lang, dir string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "<span>سجلات المشتركين والمنشآت (")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, "<span>سجلات المشتركين والمنشآت (")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			var templ_7745c5c3_Var10 string
-			templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", len(data.Subscriptions)))
+			var templ_7745c5c3_Var17 string
+			templ_7745c5c3_Var17, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", len(data.Subscriptions)))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_plans.templ`, Line: 92, Col: 104}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_plans.templ`, Line: 177, Col: 104}
 			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var10))
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var17))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, ")</span></a></div><div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, ")</span></a></div><div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			if data.ActiveTab == "subscriptions" {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "<!-- TAB 2: Subscriptions Table --> ")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, "<!-- TAB 2: Subscriptions Table --> ")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				if len(data.Subscriptions) == 0 {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "<div class=\"p-8 text-center empty-state-glass\"><div class=\"text-4xl mb-3\">🏷️</div><h3 class=\"text-lg font-black text-primary mb-2\">لا توجد اشتراكات مسجلة حالياً</h3><p class=\"text-sm text-secondary max-w-md mx-auto\">ستظهر هنا سجلات اشتراكات المنشآت فور اعتمادها وتفعيل حساباتها.</p></div>")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, "<div class=\"p-8 text-center empty-state-glass\"><div class=\"text-4xl mb-3\">🏷️</div><h3 class=\"text-lg font-black text-primary mb-2\">لا توجد اشتراكات مسجلة حالياً</h3><p class=\"text-sm text-secondary max-w-md mx-auto\">ستظهر هنا سجلات اشتراكات المنشآت فور اعتمادها وتفعيل حساباتها.</p></div>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 				} else {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "<div class=\"table-container m-0\"><table class=\"data-table m-0\"><thead><tr><th>رقم الاشتراك</th><th>المنشأة / المستفيد</th><th>باقة الاشتراك</th><th>الحالة</th><th>نظام التفعيل</th><th>تاريخ البدء</th><th>تاريخ الانتهاء</th></tr></thead> <tbody>")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 25, "<div class=\"table-container m-0\"><table class=\"data-table m-0\"><thead><tr><th>رقم الاشتراك</th><th>المنشأة / المستفيد</th><th>باقة الاشتراك</th><th>الحالة</th><th>دورة الفوترة</th><th>تاريخ البدء</th><th>تاريخ الانتهاء</th></tr></thead> <tbody>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 					for _, s := range data.Subscriptions {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "<tr><td class=\"tabular-nums\"><strong>")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 26, "<tr><td class=\"tabular-nums\"><strong>")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
-						var templ_7745c5c3_Var11 string
-						templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("SUB-%d", s.ID))
+						var templ_7745c5c3_Var18 string
+						templ_7745c5c3_Var18, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("SUB-%d", s.ID))
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_plans.templ`, Line: 122, Col: 74}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_plans.templ`, Line: 207, Col: 74}
 						}
-						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var11))
+						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var18))
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "</strong></td><td>")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 27, "</strong></td><td>")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
 						if s.OrganizationID != nil && *s.OrganizationID > 0 {
-							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, "<span class=\"badge badge-primary fw-700\">منشأة #")
+							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 28, "<span class=\"badge badge-primary fw-700\">منشأة #")
 							if templ_7745c5c3_Err != nil {
 								return templ_7745c5c3_Err
 							}
-							var templ_7745c5c3_Var12 string
-							templ_7745c5c3_Var12, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", *s.OrganizationID))
+							var templ_7745c5c3_Var19 string
+							templ_7745c5c3_Var19, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", *s.OrganizationID))
 							if templ_7745c5c3_Err != nil {
-								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_plans.templ`, Line: 125, Col: 105}
+								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_plans.templ`, Line: 210, Col: 105}
 							}
-							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var12))
+							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var19))
 							if templ_7745c5c3_Err != nil {
 								return templ_7745c5c3_Err
 							}
-							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, "</span>")
+							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 29, "</span>")
 							if templ_7745c5c3_Err != nil {
 								return templ_7745c5c3_Err
 							}
 						} else {
-							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, "<span class=\"badge badge-secondary\">مستخدم #")
+							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 30, "<span class=\"badge badge-secondary\">مستخدم #")
 							if templ_7745c5c3_Err != nil {
 								return templ_7745c5c3_Err
 							}
-							var templ_7745c5c3_Var13 string
-							templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", s.UserID))
+							var templ_7745c5c3_Var20 string
+							templ_7745c5c3_Var20, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", s.UserID))
 							if templ_7745c5c3_Err != nil {
-								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_plans.templ`, Line: 127, Col: 93}
+								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_plans.templ`, Line: 212, Col: 93}
 							}
-							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var13))
+							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var20))
 							if templ_7745c5c3_Err != nil {
 								return templ_7745c5c3_Err
 							}
-							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, "</span>")
+							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 31, "</span>")
 							if templ_7745c5c3_Err != nil {
 								return templ_7745c5c3_Err
 							}
 						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, "</td><td>")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 32, "</td><td>")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
 						for _, p := range data.Plans {
 							if p.ID == s.PlanID {
-								templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 25, "<div class=\"fw-800 text-primary\">")
+								templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 33, "<div class=\"fw-800 text-primary\">")
 								if templ_7745c5c3_Err != nil {
 									return templ_7745c5c3_Err
 								}
-								var templ_7745c5c3_Var14 string
-								templ_7745c5c3_Var14, templ_7745c5c3_Err = templ.JoinStringErrs(p.Name.Get(i18n.Lang(lang)))
+								var templ_7745c5c3_Var21 string
+								templ_7745c5c3_Var21, templ_7745c5c3_Err = templ.JoinStringErrs(p.Name.Get(i18n.Lang(lang)))
 								if templ_7745c5c3_Err != nil {
-									return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_plans.templ`, Line: 133, Col: 77}
+									return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_plans.templ`, Line: 218, Col: 77}
 								}
-								_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var14))
-								if templ_7745c5c3_Err != nil {
-									return templ_7745c5c3_Err
-								}
-								templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 26, "</div><span class=\"text-xs text-muted\" dir=\"ltr\"><code>")
+								_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var21))
 								if templ_7745c5c3_Err != nil {
 									return templ_7745c5c3_Err
 								}
-								var templ_7745c5c3_Var15 string
-								templ_7745c5c3_Var15, templ_7745c5c3_Err = templ.JoinStringErrs(p.Slug)
-								if templ_7745c5c3_Err != nil {
-									return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_plans.templ`, Line: 134, Col: 72}
-								}
-								_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var15))
+								templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 34, "</div><span class=\"text-xs text-muted\" dir=\"ltr\"><code>")
 								if templ_7745c5c3_Err != nil {
 									return templ_7745c5c3_Err
 								}
-								templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 27, "</code></span> ")
+								var templ_7745c5c3_Var22 string
+								templ_7745c5c3_Var22, templ_7745c5c3_Err = templ.JoinStringErrs(p.Slug)
+								if templ_7745c5c3_Err != nil {
+									return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_plans.templ`, Line: 219, Col: 72}
+								}
+								_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var22))
+								if templ_7745c5c3_Err != nil {
+									return templ_7745c5c3_Err
+								}
+								templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 35, "</code></span> ")
 								if templ_7745c5c3_Err != nil {
 									return templ_7745c5c3_Err
 								}
 							}
 						}
 						if s.PlanID > 0 {
-							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 28, "<span style=\"font-size:0.75rem; color:var(--text-muted); display:none;\">(خطة #")
-							if templ_7745c5c3_Err != nil {
-								return templ_7745c5c3_Err
-							}
-							var templ_7745c5c3_Var16 string
-							templ_7745c5c3_Var16, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", s.PlanID))
-							if templ_7745c5c3_Err != nil {
-								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_plans.templ`, Line: 138, Col: 124}
-							}
-							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var16))
-							if templ_7745c5c3_Err != nil {
-								return templ_7745c5c3_Err
-							}
-							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 29, ")</span>")
-							if templ_7745c5c3_Err != nil {
-								return templ_7745c5c3_Err
-							}
-						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 30, "</td><td>")
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-						if s.Status == "active" {
-							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 31, "<span class=\"badge badge-emerald\">ساري وفعال</span>")
-							if templ_7745c5c3_Err != nil {
-								return templ_7745c5c3_Err
-							}
-						} else {
-							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 32, "<span class=\"badge badge-secondary\">")
-							if templ_7745c5c3_Err != nil {
-								return templ_7745c5c3_Err
-							}
-							var templ_7745c5c3_Var17 string
-							templ_7745c5c3_Var17, templ_7745c5c3_Err = templ.JoinStringErrs(string(s.Status))
-							if templ_7745c5c3_Err != nil {
-								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_plans.templ`, Line: 145, Col: 68}
-							}
-							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var17))
-							if templ_7745c5c3_Err != nil {
-								return templ_7745c5c3_Err
-							}
-							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 33, "</span>")
-							if templ_7745c5c3_Err != nil {
-								return templ_7745c5c3_Err
-							}
-						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 34, "</td><td><span class=\"text-sm text-secondary\">")
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-						var templ_7745c5c3_Var18 string
-						templ_7745c5c3_Var18, templ_7745c5c3_Err = templ.JoinStringErrs(s.SourceSystem)
-						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_plans.templ`, Line: 148, Col: 69}
-						}
-						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var18))
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 35, "</span></td><td class=\"tabular-nums\">")
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-						var templ_7745c5c3_Var19 string
-						templ_7745c5c3_Var19, templ_7745c5c3_Err = templ.JoinStringErrs(s.StartsAt.Format("2006-01-02"))
-						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_plans.templ`, Line: 149, Col: 70}
-						}
-						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var19))
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 36, "</td><td class=\"tabular-nums\">")
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-						var templ_7745c5c3_Var20 string
-						templ_7745c5c3_Var20, templ_7745c5c3_Err = templ.JoinStringErrs(s.ExpiresAt.Format("2006-01-02"))
-						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_plans.templ`, Line: 150, Col: 71}
-						}
-						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var20))
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 37, "</td></tr>")
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 38, "</tbody></table></div>")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-				}
-			} else {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 39, "<!-- TAB 1: Unified Plans Cards Grid --> ")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				if len(data.Plans) == 0 {
-					templ_7745c5c3_Err = components.EmptyState(components.EmptyStateProps{
-						Title:   "لا توجد باقات معرفة",
-						Message: "قم بإنشاء باقة اشتراك موحدة جديدة لربط المنشآت وحصص الذكاء الاصطناعي.",
-					}).Render(ctx, templ_7745c5c3_Buffer)
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-				} else {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 40, "<div style=\"display:grid; grid-template-columns:repeat(auto-fit, minmax(340px, 1fr)); gap:1.5rem; align-items:stretch;\">")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					for _, p := range data.Plans {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 41, "<div class=\"card mb-0\" style=\"display:flex; flex-direction:column; justify-content:space-between; border:1px solid var(--border); background:var(--surface); border-radius:var(--radius-xl); padding:1.5rem; position:relative; box-shadow:0 4px 20px rgba(0,0,0,0.15);\"><!-- Card Top: Badges & Title --><div><div style=\"display:flex; justify-content:space-between; align-items:flex-start; gap:0.5rem; margin-bottom:0.75rem;\"><div style=\"display:flex; flex-direction:column; gap:0.25rem;\"><div style=\"display:flex; align-items:center; gap:0.5rem; flex-wrap:wrap;\"><h3 style=\"margin:0; font-size:1.15rem; font-weight:800; color:var(--text);\">")
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-						var templ_7745c5c3_Var21 string
-						templ_7745c5c3_Var21, templ_7745c5c3_Err = templ.JoinStringErrs(p.Name.Get(i18n.Lang(lang)))
-						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_plans.templ`, Line: 177, Col: 44}
-						}
-						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var21))
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 42, "</h3>")
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-						if p.IsDefault {
-							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 43, "<span class=\"badge badge-primary\" style=\"font-weight:800; font-size:0.75rem;\">★ الباقة الافتراضية</span>")
-							if templ_7745c5c3_Err != nil {
-								return templ_7745c5c3_Err
-							}
-						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 44, "</div><div dir=\"ltr\" class=\"text-sm text-muted\"><code>")
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-						var templ_7745c5c3_Var22 string
-						templ_7745c5c3_Var22, templ_7745c5c3_Err = templ.JoinStringErrs(p.Slug)
-						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_plans.templ`, Line: 186, Col: 28}
-						}
-						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var22))
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 45, "</code></div></div>")
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-						if p.IsActive {
-							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 46, "<span class=\"badge badge-emerald\">نشطة</span>")
-							if templ_7745c5c3_Err != nil {
-								return templ_7745c5c3_Err
-							}
-						} else {
-							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 47, "<span class=\"badge badge-secondary\">معطلة</span>")
-							if templ_7745c5c3_Err != nil {
-								return templ_7745c5c3_Err
-							}
-						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 48, "</div>")
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-						if p.Description.Get(i18n.Lang(lang)) != "" {
-							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 49, "<p style=\"font-size:0.85rem; color:var(--text-secondary); margin:0 0 1.25rem 0; line-height:1.5;\">")
+							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 36, "<span style=\"font-size:0.75rem; color:var(--text-muted); display:none;\">(خطة #")
 							if templ_7745c5c3_Err != nil {
 								return templ_7745c5c3_Err
 							}
 							var templ_7745c5c3_Var23 string
-							templ_7745c5c3_Var23, templ_7745c5c3_Err = templ.JoinStringErrs(p.Description.Get(i18n.Lang(lang)))
+							templ_7745c5c3_Var23, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", s.PlanID))
 							if templ_7745c5c3_Err != nil {
-								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_plans.templ`, Line: 199, Col: 49}
+								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_plans.templ`, Line: 223, Col: 124}
 							}
 							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var23))
 							if templ_7745c5c3_Err != nil {
 								return templ_7745c5c3_Err
 							}
-							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 50, "</p>")
+							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 37, ")</span>")
+							if templ_7745c5c3_Err != nil {
+								return templ_7745c5c3_Err
+							}
+						}
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 38, "</td><td>")
+						if templ_7745c5c3_Err != nil {
+							return templ_7745c5c3_Err
+						}
+						if s.Status == "active" {
+							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 39, "<span class=\"badge badge-emerald\">ساري وفعال</span>")
 							if templ_7745c5c3_Err != nil {
 								return templ_7745c5c3_Err
 							}
 						} else {
-							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 51, "<div class=\"mb-md\"></div>")
+							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 40, "<span class=\"badge badge-secondary\">")
+							if templ_7745c5c3_Err != nil {
+								return templ_7745c5c3_Err
+							}
+							var templ_7745c5c3_Var24 string
+							templ_7745c5c3_Var24, templ_7745c5c3_Err = templ.JoinStringErrs(string(s.Status))
+							if templ_7745c5c3_Err != nil {
+								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_plans.templ`, Line: 230, Col: 68}
+							}
+							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var24))
+							if templ_7745c5c3_Err != nil {
+								return templ_7745c5c3_Err
+							}
+							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 41, "</span>")
 							if templ_7745c5c3_Err != nil {
 								return templ_7745c5c3_Err
 							}
 						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 52, "<!-- Pricing Display Strip --><div style=\"background:var(--surface-sunken); border:1px solid var(--border); border-radius:var(--radius-lg); padding:0.9rem 1.1rem; margin-bottom:1.25rem; display:flex; justify-content:space-between; align-items:center;\"><div><div style=\"font-size:0.75rem; color:var(--text-secondary); font-weight:600;\">الاشتراك الشهري</div><div style=\"font-size:1.35rem; font-weight:900; color:var(--primary);\" class=\"tabular-nums\">")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 42, "</td><td>")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
-						var templ_7745c5c3_Var24 string
-						templ_7745c5c3_Var24, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%s ج.م", p.PriceMonth.String()))
-						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_plans.templ`, Line: 210, Col: 62}
+						if s.BillingCycle == "annual" {
+							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 43, "<span class=\"badge badge-sky font-bold text-xs\">سنوي</span>")
+							if templ_7745c5c3_Err != nil {
+								return templ_7745c5c3_Err
+							}
+						} else {
+							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 44, "<span class=\"badge badge-slate text-xs\">شهري</span>")
+							if templ_7745c5c3_Err != nil {
+								return templ_7745c5c3_Err
+							}
 						}
-						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var24))
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 53, "</div></div><div style=\"text-align:end; border-inline-start:1px solid var(--border); padding-inline-start:1rem;\"><div style=\"font-size:0.75rem; color:var(--text-secondary); font-weight:600;\">الاشتراك السنوي</div><div style=\"font-size:1.05rem; font-weight:800; color:var(--text);\" class=\"tabular-nums\">")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 45, "</td><td class=\"tabular-nums\">")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
 						var templ_7745c5c3_Var25 string
-						templ_7745c5c3_Var25, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%s ج.م", p.PriceYear.String()))
+						templ_7745c5c3_Var25, templ_7745c5c3_Err = templ.JoinStringErrs(s.StartsAt.Format("2006-01-02"))
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_plans.templ`, Line: 216, Col: 61}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_plans.templ`, Line: 240, Col: 70}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var25))
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 54, "</div></div></div><!-- Quotas & Limits Box --><div style=\"background:rgba(56, 189, 248, 0.04); border:1px solid rgba(56, 189, 248, 0.2); border-radius:var(--radius-lg); padding:1rem; margin-bottom:1.25rem;\"><div style=\"font-size:0.8rem; font-weight:800; color:var(--primary); margin-bottom:0.75rem; display:flex; align-items:center; gap:0.4rem;\"><span>⚙️</span> <span>حدود المنشأة والحصص (Enterprise Limits)</span></div><div style=\"display:flex; flex-direction:column; gap:0.6rem; font-size:0.85rem;\"><!-- Concurrent Sessions Limit --><div class=\"flex-between\"><span style=\"color:var(--text-secondary); display:flex; align-items:center; gap:0.35rem;\"><span>👥</span> <span>الجلسات المتزامنة:</span></span> <strong class=\"text-primary tabular-nums\">")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 46, "</td><td class=\"tabular-nums\">")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
 						var templ_7745c5c3_Var26 string
-						templ_7745c5c3_Var26, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d جلسات (إجمالي المنشأة)", p.MaxLoginSessions))
+						templ_7745c5c3_Var26, templ_7745c5c3_Err = templ.JoinStringErrs(s.ExpiresAt.Format("2006-01-02"))
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_plans.templ`, Line: 236, Col: 95}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_plans.templ`, Line: 241, Col: 71}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var26))
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 55, "</strong></div><!-- Max Devices Limit --><div class=\"flex-between\"><span style=\"color:var(--text-secondary); display:flex; align-items:center; gap:0.35rem;\"><span>💻</span> <span>الأجهزة المسموح بها:</span></span> <strong class=\"text-primary tabular-nums\">")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 47, "</td></tr>")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
-						var templ_7745c5c3_Var27 string
-						templ_7745c5c3_Var27, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d أجهزة", p.MaxDevices))
-						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_plans.templ`, Line: 247, Col: 59}
-						}
-						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var27))
+					}
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 48, "</tbody></table></div>")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+				}
+			} else {
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 49, "<!-- TAB 1: Unified Plans Cards Grid --> ")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				if len(data.Plans) == 0 {
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 50, "<div class=\"p-8 text-center empty-state-glass\"><div class=\"text-4xl mb-3\">📦</div><h3 class=\"text-lg font-black text-primary mb-2\">لا توجد باقات اشتراك معرفة بالمنظومة</h3><p class=\"text-sm text-secondary max-w-md mx-auto mb-4\">قم بإنشاء باقة اشتراك جديدة لتحديد الأسعار وحدود الجلسات وصلاحيات الذكاء الاصطناعي.</p><button type=\"button\" class=\"btn btn-primary btn-sm font-bold\" @click=\"openCreateModal()\">")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					templ_7745c5c3_Err = components.IconPlus("icon-xs").Render(ctx, templ_7745c5c3_Buffer)
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 51, "<span>إنشاء الباقة الأولى</span></button></div>")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+				} else {
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 52, "<div style=\"display:grid; grid-template-columns:repeat(auto-fit, minmax(360px, 1fr)); gap:1.5rem; align-items:stretch;\">")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					for _, p := range data.Plans {
+						var templ_7745c5c3_Var27 = []any{"card mb-0 plan-card-container", templ.KV("border-brand shadow-sm", p.IsDefault)}
+						templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var27...)
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 56, "</strong></div><!-- AI Gateway Plan --><div style=\"display:flex; justify-content:space-between; align-items:center; border-top:1px dashed var(--border); padding-top:0.5rem; margin-top:0.25rem;\"><span style=\"color:var(--text-secondary); display:flex; align-items:center; gap:0.35rem;\"><span>🤖</span> <span>باقة الـ AI Gateway:</span></span> <span class=\"badge badge-info\" dir=\"ltr\" style=\"font-weight:700; font-size:0.75rem;\">")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 53, "<div class=\"")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
 						var templ_7745c5c3_Var28 string
-						templ_7745c5c3_Var28, templ_7745c5c3_Err = templ.JoinStringErrs(p.AIPlanID)
+						templ_7745c5c3_Var28, templ_7745c5c3_Err = templ.ResolveAttributeValue(templ.CSSClasses(templ_7745c5c3_Var27).String())
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_plans.templ`, Line: 258, Col: 27}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_plans.templ`, Line: 1, Col: 0}
 						}
-						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var28))
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 57, "</span></div></div></div><!-- Vendor Features Badges --><div style=\"background:rgba(255,255,255,0.02); border:1px solid var(--border); border-radius:var(--radius-lg); padding:0.75rem 1rem; margin-bottom:1.25rem;\"><div style=\"font-size:0.75rem; font-weight:700; color:var(--text-secondary); margin-bottom:0.5rem;\">صلاحيات الموردين (Vendor Features):</div><div style=\"display:flex; flex-direction:column; gap:0.4rem; font-size:0.8rem;\">")
+						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var28)
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
-						if p.HasFeature("feature_market_discounts") {
-							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 58, "<div class=\"d-flex items-center gap-2 text-emerald font-bold\"><span>✓</span> <span>🛒 (للموردين) خصومات السوق العامة</span></div>")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 54, "\" style=\"display:flex; flex-direction:column; justify-content:space-between; border:1px solid var(--border); background:var(--surface); border-radius:var(--radius-xl); padding:1.5rem; position:relative;\"><!-- Card Top: Badges & Title --><div><!-- Header Badges --><div style=\"display:flex; justify-content:space-between; align-items:flex-start; gap:0.5rem; margin-bottom:0.75rem;\"><div style=\"display:flex; flex-direction:column; gap:0.25rem;\"><div style=\"display:flex; align-items:center; gap:0.5rem; flex-wrap:wrap;\"><h3 style=\"margin:0; font-size:1.2rem; font-weight:900; color:var(--text);\">")
+						if templ_7745c5c3_Err != nil {
+							return templ_7745c5c3_Err
+						}
+						var templ_7745c5c3_Var29 string
+						templ_7745c5c3_Var29, templ_7745c5c3_Err = templ.JoinStringErrs(p.Name.Get(i18n.Lang(lang)))
+						if templ_7745c5c3_Err != nil {
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_plans.templ`, Line: 274, Col: 44}
+						}
+						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var29))
+						if templ_7745c5c3_Err != nil {
+							return templ_7745c5c3_Err
+						}
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 55, "</h3>")
+						if templ_7745c5c3_Err != nil {
+							return templ_7745c5c3_Err
+						}
+						if p.IsDefault {
+							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 56, "<span class=\"badge badge-primary font-bold text-xs\" style=\"padding:0.2rem 0.6rem;\">★ الباقة الافتراضية</span>")
+							if templ_7745c5c3_Err != nil {
+								return templ_7745c5c3_Err
+							}
+						}
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 57, "</div><div dir=\"ltr\" class=\"text-xs text-muted\"><code>")
+						if templ_7745c5c3_Err != nil {
+							return templ_7745c5c3_Err
+						}
+						var templ_7745c5c3_Var30 string
+						templ_7745c5c3_Var30, templ_7745c5c3_Err = templ.JoinStringErrs(p.Slug)
+						if templ_7745c5c3_Err != nil {
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_plans.templ`, Line: 283, Col: 28}
+						}
+						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var30))
+						if templ_7745c5c3_Err != nil {
+							return templ_7745c5c3_Err
+						}
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 58, "</code></div></div><div class=\"d-flex items-center gap-1\">")
+						if templ_7745c5c3_Err != nil {
+							return templ_7745c5c3_Err
+						}
+						if p.IsActive {
+							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 59, "<span class=\"badge badge-emerald font-bold text-xs\">● نشطة</span>")
 							if templ_7745c5c3_Err != nil {
 								return templ_7745c5c3_Err
 							}
 						} else {
-							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 59, "<div class=\"d-flex items-center gap-2 text-muted\" style=\"opacity:0.6;\"><span>✕</span> <span>خصومات السوق العامة (معطلة)</span></div>")
+							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 60, "<span class=\"badge badge-secondary text-xs\">○ معطلة</span>")
+							if templ_7745c5c3_Err != nil {
+								return templ_7745c5c3_Err
+							}
+						}
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 61, "</div></div><!-- Description -->")
+						if templ_7745c5c3_Err != nil {
+							return templ_7745c5c3_Err
+						}
+						if p.Description.Get(i18n.Lang(lang)) != "" {
+							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 62, "<p style=\"font-size:0.85rem; color:var(--text-secondary); margin:0 0 1.25rem 0; line-height:1.6;\">")
+							if templ_7745c5c3_Err != nil {
+								return templ_7745c5c3_Err
+							}
+							var templ_7745c5c3_Var31 string
+							templ_7745c5c3_Var31, templ_7745c5c3_Err = templ.JoinStringErrs(p.Description.Get(i18n.Lang(lang)))
+							if templ_7745c5c3_Err != nil {
+								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_plans.templ`, Line: 299, Col: 49}
+							}
+							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var31))
+							if templ_7745c5c3_Err != nil {
+								return templ_7745c5c3_Err
+							}
+							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 63, "</p>")
+							if templ_7745c5c3_Err != nil {
+								return templ_7745c5c3_Err
+							}
+						} else {
+							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 64, "<p style=\"font-size:0.85rem; color:var(--text-muted); margin:0 0 1.25rem 0; font-style:italic;\">لا يوجد وصف محدد للباقة</p>")
+							if templ_7745c5c3_Err != nil {
+								return templ_7745c5c3_Err
+							}
+						}
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 65, "<!-- Pricing Display Strip --><div style=\"background:var(--surface-sunken); border:1px solid var(--border); border-radius:var(--radius-lg); padding:0.9rem 1.1rem; margin-bottom:1.25rem; display:flex; justify-content:space-between; align-items:center;\"><div><div style=\"font-size:0.75rem; color:var(--text-secondary); font-weight:700;\">الاشتراك الشهري</div><div style=\"font-size:1.35rem; font-weight:900; color:var(--primary);\" class=\"tabular-nums\">")
+						if templ_7745c5c3_Err != nil {
+							return templ_7745c5c3_Err
+						}
+						if p.PriceMonth.IsPositive() {
+							var templ_7745c5c3_Var32 string
+							templ_7745c5c3_Var32, templ_7745c5c3_Err = templ.JoinStringErrs(p.PriceMonth.String())
+							if templ_7745c5c3_Err != nil {
+								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_plans.templ`, Line: 313, Col: 38}
+							}
+							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var32))
+							if templ_7745c5c3_Err != nil {
+								return templ_7745c5c3_Err
+							}
+							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 66, " <span style=\"font-size:0.8rem; font-weight:600;\">ج.م</span>")
+							if templ_7745c5c3_Err != nil {
+								return templ_7745c5c3_Err
+							}
+						} else {
+							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 67, "<span class=\"text-emerald\">مجاني (0.00)</span>")
+							if templ_7745c5c3_Err != nil {
+								return templ_7745c5c3_Err
+							}
+						}
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 68, "</div></div><div style=\"text-align:end; border-inline-start:1px solid var(--border); padding-inline-start:1rem;\"><div style=\"font-size:0.75rem; color:var(--text-secondary); font-weight:700;\">الاشتراك السنوي</div><div style=\"font-size:1.1rem; font-weight:800; color:var(--text);\" class=\"tabular-nums\">")
+						if templ_7745c5c3_Err != nil {
+							return templ_7745c5c3_Err
+						}
+						if p.PriceYear.IsPositive() {
+							var templ_7745c5c3_Var33 string
+							templ_7745c5c3_Var33, templ_7745c5c3_Err = templ.JoinStringErrs(p.PriceYear.String())
+							if templ_7745c5c3_Err != nil {
+								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_plans.templ`, Line: 323, Col: 37}
+							}
+							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var33))
+							if templ_7745c5c3_Err != nil {
+								return templ_7745c5c3_Err
+							}
+							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 69, " <span style=\"font-size:0.75rem; font-weight:600;\">ج.م</span>")
+							if templ_7745c5c3_Err != nil {
+								return templ_7745c5c3_Err
+							}
+						} else {
+							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 70, "<span class=\"text-emerald\">مجاني (0.00)</span>")
+							if templ_7745c5c3_Err != nil {
+								return templ_7745c5c3_Err
+							}
+						}
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 71, "</div></div><div style=\"text-align:end; border-inline-start:1px solid var(--border); padding-inline-start:1rem;\"><div style=\"font-size:0.75rem; color:var(--text-secondary); font-weight:700;\">الصلاحية</div><div style=\"font-size:0.9rem; font-weight:800; color:var(--text-secondary);\" class=\"tabular-nums\">")
+						if templ_7745c5c3_Err != nil {
+							return templ_7745c5c3_Err
+						}
+						var templ_7745c5c3_Var34 string
+						templ_7745c5c3_Var34, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d يوم", p.DurationDays))
+						if templ_7745c5c3_Err != nil {
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_plans.templ`, Line: 332, Col: 56}
+						}
+						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var34))
+						if templ_7745c5c3_Err != nil {
+							return templ_7745c5c3_Err
+						}
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 72, "</div></div></div><!-- Quotas & Limits Box --><div style=\"background:rgba(56, 189, 248, 0.04); border:1px solid rgba(56, 189, 248, 0.2); border-radius:var(--radius-lg); padding:1rem; margin-bottom:1.25rem;\"><div style=\"font-size:0.8rem; font-weight:800; color:var(--primary); margin-bottom:0.75rem; display:flex; align-items:center; gap:0.4rem;\"><span>⚙️</span> <span>حدود الأمان والجلسات المطبقة على إجمالي المنشأة</span></div><div style=\"display:flex; flex-direction:column; gap:0.6rem; font-size:0.85rem;\"><!-- Concurrent Sessions Limit --><div class=\"flex-between\"><span style=\"color:var(--text-secondary); display:flex; align-items:center; gap:0.35rem;\"><span>👥</span> <span>الجلسات المتزامنة:</span></span> <strong class=\"text-primary tabular-nums\">")
+						if templ_7745c5c3_Err != nil {
+							return templ_7745c5c3_Err
+						}
+						var templ_7745c5c3_Var35 string
+						templ_7745c5c3_Var35, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d جلسات (إجمالي المنشأة)", p.MaxLoginSessions))
+						if templ_7745c5c3_Err != nil {
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_plans.templ`, Line: 352, Col: 95}
+						}
+						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var35))
+						if templ_7745c5c3_Err != nil {
+							return templ_7745c5c3_Err
+						}
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 73, "</strong></div><!-- Max Devices Limit --><div class=\"flex-between\"><span style=\"color:var(--text-secondary); display:flex; align-items:center; gap:0.35rem;\"><span>💻</span> <span>الأجهزة المسموح بها:</span></span> <strong class=\"text-primary tabular-nums\">")
+						if templ_7745c5c3_Err != nil {
+							return templ_7745c5c3_Err
+						}
+						var templ_7745c5c3_Var36 string
+						templ_7745c5c3_Var36, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d أجهزة", p.MaxDevices))
+						if templ_7745c5c3_Err != nil {
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_plans.templ`, Line: 363, Col: 59}
+						}
+						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var36))
+						if templ_7745c5c3_Err != nil {
+							return templ_7745c5c3_Err
+						}
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 74, "</strong></div><!-- AI Gateway Plan --><div style=\"display:flex; justify-content:space-between; align-items:center; border-top:1px dashed var(--border); padding-top:0.5rem; margin-top:0.25rem;\"><span style=\"color:var(--text-secondary); display:flex; align-items:center; gap:0.35rem;\"><span>🤖</span> <span>باقة الـ AI Gateway:</span></span> <span class=\"badge badge-info\" dir=\"ltr\" style=\"font-weight:700; font-size:0.75rem;\">")
+						if templ_7745c5c3_Err != nil {
+							return templ_7745c5c3_Err
+						}
+						var templ_7745c5c3_Var37 string
+						templ_7745c5c3_Var37, templ_7745c5c3_Err = templ.JoinStringErrs(p.AIPlanID)
+						if templ_7745c5c3_Err != nil {
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_plans.templ`, Line: 374, Col: 27}
+						}
+						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var37))
+						if templ_7745c5c3_Err != nil {
+							return templ_7745c5c3_Err
+						}
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 75, "</span></div></div></div><!-- Vendor Features Badges --><div style=\"background:var(--surface-sunken); border:1px solid var(--border); border-radius:var(--radius-lg); padding:0.75rem 1rem; margin-bottom:1.25rem;\"><div style=\"font-size:0.75rem; font-weight:700; color:var(--text-secondary); margin-bottom:0.5rem;\">صلاحيات وميزات المنظومة المتضمنة:</div><div style=\"display:flex; flex-direction:column; gap:0.4rem; font-size:0.8rem;\">")
+						if templ_7745c5c3_Err != nil {
+							return templ_7745c5c3_Err
+						}
+						if p.HasFeature("feature_market_discounts") {
+							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 76, "<div class=\"d-flex items-center gap-2 text-emerald font-bold\"><span>✓</span> <span>🛒 (للموردين) خصومات السوق العامة ومؤشرات الأسعار</span></div>")
+							if templ_7745c5c3_Err != nil {
+								return templ_7745c5c3_Err
+							}
+						} else {
+							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 77, "<div class=\"d-flex items-center gap-2 text-muted\" style=\"opacity:0.6;\"><span>✕</span> <span>خصومات السوق العامة (معطلة)</span></div>")
 							if templ_7745c5c3_Err != nil {
 								return templ_7745c5c3_Err
 							}
 						}
 						if p.HasFeature("feature_compare_tool") || p.HasFeature("compare") {
-							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 60, "<div class=\"d-flex items-center gap-2 text-indigo font-bold\"><span>✓</span> <span>📊 (للموردين) أداة مقارنة الخصومات</span></div>")
+							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 78, "<div class=\"d-flex items-center gap-2 text-indigo font-bold\"><span>✓</span> <span>📊 (للموردين) أداة مقارنة الخصومات وتحليل العروض</span></div>")
 							if templ_7745c5c3_Err != nil {
 								return templ_7745c5c3_Err
 							}
 						} else {
-							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 61, "<div class=\"d-flex items-center gap-2 text-muted\" style=\"opacity:0.6;\"><span>✕</span> <span>أداة مقارنة الخصومات (معطلة)</span></div>")
+							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 79, "<div class=\"d-flex items-center gap-2 text-muted\" style=\"opacity:0.6;\"><span>✕</span> <span>أداة مقارنة الخصومات (معطلة)</span></div>")
 							if templ_7745c5c3_Err != nil {
 								return templ_7745c5c3_Err
 							}
 						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 62, "</div></div></div><!-- Card Bottom Action --><div style=\"border-top:1px solid var(--border); padding-top:1rem; margin-top:0.5rem; display:flex; justify-content:flex-end;\"><button type=\"button\" class=\"btn btn-secondary btn-sm\" style=\"font-weight:700; width:100%; justify-content:center; gap:0.4rem;\" @click=\"")
+						if p.HasFeature("bulk_import") {
+							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 80, "<div class=\"d-flex items-center gap-2 text-sky font-bold\"><span>✓</span> <span>📦 استيراد وتحديث الكتالوجات بالجملة</span></div>")
+							if templ_7745c5c3_Err != nil {
+								return templ_7745c5c3_Err
+							}
+						}
+						if p.HasFeature("analytics") {
+							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 81, "<div class=\"d-flex items-center gap-2 text-purple font-bold\"><span>✓</span> <span>📈 لوحة التحليلات المتقدمة والتقارير</span></div>")
+							if templ_7745c5c3_Err != nil {
+								return templ_7745c5c3_Err
+							}
+						}
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 82, "</div></div></div><!-- Card Bottom Action Toolbar --><div style=\"border-top:1px solid var(--border); padding-top:1rem; margin-top:0.5rem; display:flex; flex-direction:column; gap:0.5rem;\"><!-- Edit Action --><button type=\"button\" class=\"btn btn-secondary btn-sm edit-plan-trigger-btn\" style=\"font-weight:800; width:100%; justify-content:center; gap:0.4rem;\" data-id=\"")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
-						var templ_7745c5c3_Var29 string
-						templ_7745c5c3_Var29, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("openEditModal({id:%d, slug:'%s', name_ar:'%s', name_en:'%s', desc_ar:'%s', price_month:'%s', price_year:'%s', duration:%d, sessions:%d, devices:%d, ai_plan:'%s', is_default:%t, is_active:%t, feat_market:%t, feat_compare:%t})",
-							p.ID, p.Slug, p.Name.Get("ar"), p.Name.Get("en"), p.Description.Get("ar"), p.PriceMonth.String(), p.PriceYear.String(), p.DurationDays, p.MaxLoginSessions, p.MaxDevices, p.AIPlanID, p.IsDefault, p.IsActive, p.HasFeature("feature_market_discounts"), p.HasFeature("feature_compare_tool") || p.HasFeature("compare")))
+						var templ_7745c5c3_Var38 string
+						templ_7745c5c3_Var38, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%d", p.ID))
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_plans.templ`, Line: 304, Col: 326}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_plans.templ`, Line: 435, Col: 45}
 						}
-						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var29)
+						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var38)
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 63, "\">")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 83, "\" data-slug=\"")
+						if templ_7745c5c3_Err != nil {
+							return templ_7745c5c3_Err
+						}
+						var templ_7745c5c3_Var39 string
+						templ_7745c5c3_Var39, templ_7745c5c3_Err = templ.ResolveAttributeValue(p.Slug)
+						if templ_7745c5c3_Err != nil {
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_plans.templ`, Line: 436, Col: 30}
+						}
+						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var39)
+						if templ_7745c5c3_Err != nil {
+							return templ_7745c5c3_Err
+						}
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 84, "\" data-name-ar=\"")
+						if templ_7745c5c3_Err != nil {
+							return templ_7745c5c3_Err
+						}
+						var templ_7745c5c3_Var40 string
+						templ_7745c5c3_Var40, templ_7745c5c3_Err = templ.ResolveAttributeValue(p.Name.Get("ar"))
+						if templ_7745c5c3_Err != nil {
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_plans.templ`, Line: 437, Col: 43}
+						}
+						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var40)
+						if templ_7745c5c3_Err != nil {
+							return templ_7745c5c3_Err
+						}
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 85, "\" data-name-en=\"")
+						if templ_7745c5c3_Err != nil {
+							return templ_7745c5c3_Err
+						}
+						var templ_7745c5c3_Var41 string
+						templ_7745c5c3_Var41, templ_7745c5c3_Err = templ.ResolveAttributeValue(p.Name.Get("en"))
+						if templ_7745c5c3_Err != nil {
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_plans.templ`, Line: 438, Col: 43}
+						}
+						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var41)
+						if templ_7745c5c3_Err != nil {
+							return templ_7745c5c3_Err
+						}
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 86, "\" data-desc-ar=\"")
+						if templ_7745c5c3_Err != nil {
+							return templ_7745c5c3_Err
+						}
+						var templ_7745c5c3_Var42 string
+						templ_7745c5c3_Var42, templ_7745c5c3_Err = templ.ResolveAttributeValue(p.Description.Get("ar"))
+						if templ_7745c5c3_Err != nil {
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_plans.templ`, Line: 439, Col: 50}
+						}
+						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var42)
+						if templ_7745c5c3_Err != nil {
+							return templ_7745c5c3_Err
+						}
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 87, "\" data-desc-en=\"")
+						if templ_7745c5c3_Err != nil {
+							return templ_7745c5c3_Err
+						}
+						var templ_7745c5c3_Var43 string
+						templ_7745c5c3_Var43, templ_7745c5c3_Err = templ.ResolveAttributeValue(p.Description.Get("en"))
+						if templ_7745c5c3_Err != nil {
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_plans.templ`, Line: 440, Col: 50}
+						}
+						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var43)
+						if templ_7745c5c3_Err != nil {
+							return templ_7745c5c3_Err
+						}
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 88, "\" data-price-month=\"")
+						if templ_7745c5c3_Err != nil {
+							return templ_7745c5c3_Err
+						}
+						var templ_7745c5c3_Var44 string
+						templ_7745c5c3_Var44, templ_7745c5c3_Err = templ.ResolveAttributeValue(p.PriceMonth.String())
+						if templ_7745c5c3_Err != nil {
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_plans.templ`, Line: 441, Col: 52}
+						}
+						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var44)
+						if templ_7745c5c3_Err != nil {
+							return templ_7745c5c3_Err
+						}
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 89, "\" data-price-year=\"")
+						if templ_7745c5c3_Err != nil {
+							return templ_7745c5c3_Err
+						}
+						var templ_7745c5c3_Var45 string
+						templ_7745c5c3_Var45, templ_7745c5c3_Err = templ.ResolveAttributeValue(p.PriceYear.String())
+						if templ_7745c5c3_Err != nil {
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_plans.templ`, Line: 442, Col: 50}
+						}
+						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var45)
+						if templ_7745c5c3_Err != nil {
+							return templ_7745c5c3_Err
+						}
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 90, "\" data-duration=\"")
+						if templ_7745c5c3_Err != nil {
+							return templ_7745c5c3_Err
+						}
+						var templ_7745c5c3_Var46 string
+						templ_7745c5c3_Var46, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%d", p.DurationDays))
+						if templ_7745c5c3_Err != nil {
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_plans.templ`, Line: 443, Col: 61}
+						}
+						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var46)
+						if templ_7745c5c3_Err != nil {
+							return templ_7745c5c3_Err
+						}
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 91, "\" data-sessions=\"")
+						if templ_7745c5c3_Err != nil {
+							return templ_7745c5c3_Err
+						}
+						var templ_7745c5c3_Var47 string
+						templ_7745c5c3_Var47, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%d", p.MaxLoginSessions))
+						if templ_7745c5c3_Err != nil {
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_plans.templ`, Line: 444, Col: 65}
+						}
+						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var47)
+						if templ_7745c5c3_Err != nil {
+							return templ_7745c5c3_Err
+						}
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 92, "\" data-devices=\"")
+						if templ_7745c5c3_Err != nil {
+							return templ_7745c5c3_Err
+						}
+						var templ_7745c5c3_Var48 string
+						templ_7745c5c3_Var48, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%d", p.MaxDevices))
+						if templ_7745c5c3_Err != nil {
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_plans.templ`, Line: 445, Col: 58}
+						}
+						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var48)
+						if templ_7745c5c3_Err != nil {
+							return templ_7745c5c3_Err
+						}
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 93, "\" data-ai-plan=\"")
+						if templ_7745c5c3_Err != nil {
+							return templ_7745c5c3_Err
+						}
+						var templ_7745c5c3_Var49 string
+						templ_7745c5c3_Var49, templ_7745c5c3_Err = templ.ResolveAttributeValue(p.AIPlanID)
+						if templ_7745c5c3_Err != nil {
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_plans.templ`, Line: 446, Col: 37}
+						}
+						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var49)
+						if templ_7745c5c3_Err != nil {
+							return templ_7745c5c3_Err
+						}
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 94, "\" data-is-default=\"")
+						if templ_7745c5c3_Err != nil {
+							return templ_7745c5c3_Err
+						}
+						var templ_7745c5c3_Var50 string
+						templ_7745c5c3_Var50, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%t", p.IsDefault))
+						if templ_7745c5c3_Err != nil {
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_plans.templ`, Line: 447, Col: 60}
+						}
+						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var50)
+						if templ_7745c5c3_Err != nil {
+							return templ_7745c5c3_Err
+						}
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 95, "\" data-is-active=\"")
+						if templ_7745c5c3_Err != nil {
+							return templ_7745c5c3_Err
+						}
+						var templ_7745c5c3_Var51 string
+						templ_7745c5c3_Var51, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%t", p.IsActive))
+						if templ_7745c5c3_Err != nil {
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_plans.templ`, Line: 448, Col: 58}
+						}
+						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var51)
+						if templ_7745c5c3_Err != nil {
+							return templ_7745c5c3_Err
+						}
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 96, "\" data-feat-market=\"")
+						if templ_7745c5c3_Err != nil {
+							return templ_7745c5c3_Err
+						}
+						var templ_7745c5c3_Var52 string
+						templ_7745c5c3_Var52, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%t", p.HasFeature("feature_market_discounts")))
+						if templ_7745c5c3_Err != nil {
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_plans.templ`, Line: 449, Col: 90}
+						}
+						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var52)
+						if templ_7745c5c3_Err != nil {
+							return templ_7745c5c3_Err
+						}
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 97, "\" data-feat-compare=\"")
+						if templ_7745c5c3_Err != nil {
+							return templ_7745c5c3_Err
+						}
+						var templ_7745c5c3_Var53 string
+						templ_7745c5c3_Var53, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%t", p.HasFeature("feature_compare_tool") || p.HasFeature("compare")))
+						if templ_7745c5c3_Err != nil {
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_plans.templ`, Line: 450, Col: 114}
+						}
+						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var53)
+						if templ_7745c5c3_Err != nil {
+							return templ_7745c5c3_Err
+						}
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 98, "\" data-feat-import=\"")
+						if templ_7745c5c3_Err != nil {
+							return templ_7745c5c3_Err
+						}
+						var templ_7745c5c3_Var54 string
+						templ_7745c5c3_Var54, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%t", p.HasFeature("bulk_import")))
+						if templ_7745c5c3_Err != nil {
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_plans.templ`, Line: 451, Col: 77}
+						}
+						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var54)
+						if templ_7745c5c3_Err != nil {
+							return templ_7745c5c3_Err
+						}
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 99, "\" data-feat-analytics=\"")
+						if templ_7745c5c3_Err != nil {
+							return templ_7745c5c3_Err
+						}
+						var templ_7745c5c3_Var55 string
+						templ_7745c5c3_Var55, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%t", p.HasFeature("analytics")))
+						if templ_7745c5c3_Err != nil {
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_plans.templ`, Line: 452, Col: 78}
+						}
+						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var55)
+						if templ_7745c5c3_Err != nil {
+							return templ_7745c5c3_Err
+						}
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 100, "\" @click=\"openEditFromDataset($el)\">")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
@@ -631,93 +1043,177 @@ func AdminPlansHub(data AdminPlansData, lang, dir string) templ.Component {
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 64, "<span>تعديل إعدادات وصلاحيات الباقة</span></button></div></div>")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 101, "<span>تعديل إعدادات وصلاحيات الباقة</span></button><!-- Secondary Action Strip: Quick Toggle, Set Default, Delete --><div class=\"d-flex items-center gap-2 pt-1\"><!-- Quick Toggle Active Status --><form method=\"POST\" action=\"")
+						if templ_7745c5c3_Err != nil {
+							return templ_7745c5c3_Err
+						}
+						var templ_7745c5c3_Var56 templ.SafeURL
+						templ_7745c5c3_Var56, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("/admin/plans/%d/toggle", p.ID)))
+						if templ_7745c5c3_Err != nil {
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_plans.templ`, Line: 462, Col: 99}
+						}
+						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var56))
+						if templ_7745c5c3_Err != nil {
+							return templ_7745c5c3_Err
+						}
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 102, "\" style=\"flex:1; margin:0;\">")
+						if templ_7745c5c3_Err != nil {
+							return templ_7745c5c3_Err
+						}
+						if p.IsActive {
+							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 103, "<button type=\"submit\" class=\"btn btn-outline-secondary btn-xs w-full\" title=\"تعطيل الباقة مؤقتاً\"><span>إيقاف الباقة</span></button>")
+							if templ_7745c5c3_Err != nil {
+								return templ_7745c5c3_Err
+							}
+						} else {
+							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 104, "<button type=\"submit\" class=\"btn btn-outline-success btn-xs w-full font-bold\" title=\"تفعيل الباقة\"><span>تفعيل الباقة</span></button>")
+							if templ_7745c5c3_Err != nil {
+								return templ_7745c5c3_Err
+							}
+						}
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 105, "</form><!-- Set Default Plan -->")
+						if templ_7745c5c3_Err != nil {
+							return templ_7745c5c3_Err
+						}
+						if !p.IsDefault {
+							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 106, "<form method=\"POST\" action=\"")
+							if templ_7745c5c3_Err != nil {
+								return templ_7745c5c3_Err
+							}
+							var templ_7745c5c3_Var57 templ.SafeURL
+							templ_7745c5c3_Var57, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("/admin/plans/%d/set-default", p.ID)))
+							if templ_7745c5c3_Err != nil {
+								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_plans.templ`, Line: 476, Col: 105}
+							}
+							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var57))
+							if templ_7745c5c3_Err != nil {
+								return templ_7745c5c3_Err
+							}
+							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 107, "\" style=\"flex:1; margin:0;\"><button type=\"submit\" class=\"btn btn-outline-amber btn-xs w-full\" title=\"جعلها الباقة الافتراضية\"><span>★ تعيين كافتراضية</span></button></form>")
+							if templ_7745c5c3_Err != nil {
+								return templ_7745c5c3_Err
+							}
+						}
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 108, "<!-- Delete Plan (if not default) -->")
+						if templ_7745c5c3_Err != nil {
+							return templ_7745c5c3_Err
+						}
+						if !p.IsDefault {
+							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 109, "<form method=\"POST\" action=\"")
+							if templ_7745c5c3_Err != nil {
+								return templ_7745c5c3_Err
+							}
+							var templ_7745c5c3_Var58 templ.SafeURL
+							templ_7745c5c3_Var58, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("/admin/plans/%d/delete", p.ID)))
+							if templ_7745c5c3_Err != nil {
+								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_plans.templ`, Line: 485, Col: 100}
+							}
+							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var58))
+							if templ_7745c5c3_Err != nil {
+								return templ_7745c5c3_Err
+							}
+							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 110, "\" style=\"margin:0;\" onsubmit=\"return confirm('هل أنت متأكد من حذف هذه الباقة نهائياً؟');\"><button type=\"submit\" class=\"btn btn-outline-danger btn-xs btn-icon\" title=\"حذف الباقة\"><span>🗑️</span></button></form>")
+							if templ_7745c5c3_Err != nil {
+								return templ_7745c5c3_Err
+							}
+						}
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 111, "</div></div></div>")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 65, "</div>")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 112, "</div>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 66, "</div></div><!-- ========================================== --><!-- Create / Edit Plan Modal                   --><!-- ========================================== --><div x-show=\"showModal\" x-cloak class=\"modal-overlay\"><div @click.away=\"showModal = false\" class=\"card\" style=\"width:100%; max-width:640px; max-height:90vh; overflow-y:auto; margin:0; background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-xl); box-shadow:0 20px 40px rgba(0,0,0,0.5); padding:1.75rem;\"><div style=\"display:flex; justify-content:space-between; align-items:center; margin-bottom:1.25rem; border-bottom:1px solid var(--border); padding-bottom:1rem;\"><div><h3 style=\"margin:0; font-size:1.2rem; font-weight:800; color:var(--text);\" x-text=\"isEdit ? 'تعديل باقة الاشتراك الموحدة' : 'إضافة باقة اشتراك جديدة'\"></h3><p style=\"margin:0.25rem 0 0; font-size:0.8rem; color:var(--text-secondary);\">تحديد الأسعار، حدود الجلسات المتزامنة، وصلاحيات الوصول لخصومات السوق ومقارنة الأسعار.</p></div><button type=\"button\" @click=\"showModal = false\" class=\"btn btn-secondary btn-xs\" style=\"border-radius:var(--radius-full); width:32px; height:32px; padding:0; justify-content:center;\">✕</button></div><form :action=\"formAction\" method=\"POST\" style=\"display:flex; flex-direction:column; gap:1.2rem;\"><!-- Row 1: Slug & Name --><div class=\"form-grid-2\"><div class=\"form-group m-0\"><label class=\"form-label\">المعرّف الفريد (Slug) *</label> <input type=\"text\" name=\"slug\" x-model=\"form.slug\" required class=\"form-input\" placeholder=\"e.g. basic, pro, enterprise\" dir=\"ltr\"></div><div class=\"form-group m-0\"><label class=\"form-label\">اسم الباقة (عربي) *</label> <input type=\"text\" name=\"name_ar\" x-model=\"form.name_ar\" required class=\"form-input\" placeholder=\"مثال: الباقة الاحترافية\"></div></div><div class=\"form-group m-0\"><label class=\"form-label\">اسم الباقة (إنجليزي)</label> <input type=\"text\" name=\"name_en\" x-model=\"form.name_en\" class=\"form-input\" placeholder=\"e.g. Professional Plan\" dir=\"ltr\"></div><div class=\"form-group m-0\"><label class=\"form-label\">وصف الباقة ومزاياها للمشتركين</label> <textarea name=\"description_ar\" x-model=\"form.desc_ar\" rows=\"2\" class=\"form-input\" placeholder=\"اكتب نبذة توضيحية عن ميزات الباقة...\"></textarea></div><!-- Pricing Row --><div style=\"display:grid; grid-template-columns:1fr 1fr 1fr; gap:0.75rem;\"><div class=\"form-group m-0\"><label class=\"form-label\">السعر الشهري (ج.م) *</label> <input type=\"number\" step=\"0.01\" name=\"price_month\" x-model=\"form.price_month\" class=\"form-input tabular-nums\" required></div><div class=\"form-group m-0\"><label class=\"form-label\">السعر السنوي (ج.م) *</label> <input type=\"number\" step=\"0.01\" name=\"price_year\" x-model=\"form.price_year\" class=\"form-input tabular-nums\" required></div><div class=\"form-group m-0\"><label class=\"form-label\">فترة الصلاحية (أيام) *</label> <input type=\"number\" name=\"duration_days\" x-model=\"form.duration\" class=\"form-input tabular-nums\" min=\"1\" required></div></div><!-- Limits & AI Gateway Plan Section --><div style=\"background:var(--surface-sunken); border:1px solid var(--border); border-radius:var(--radius-lg); padding:1rem; display:flex; flex-direction:column; gap:0.85rem;\"><div style=\"font-size:0.85rem; font-weight:800; color:var(--text); display:flex; align-items:center; gap:0.4rem;\"><span>🛡️</span> <span>حدود الأمان والجلسات المطبقة على إجمالي المنشأة</span></div><div style=\"display:grid; grid-template-columns:1fr 1fr; gap:0.75rem;\"><div class=\"form-group m-0\"><label class=\"form-label\">الجلسات المتزامنة (إجمالي المنشأة) *</label> <input type=\"number\" name=\"max_login_sessions\" x-model=\"form.sessions\" class=\"form-input tabular-nums\" min=\"1\" max=\"500\" required> <span style=\"font-size:0.75rem; color:var(--text-secondary); margin-top:0.2rem; display:block;\">مطبقة على إجمالي مستخدمي المنشأة</span></div><div class=\"form-group m-0\"><label class=\"form-label\">حد الأجهزة المسموح بها *</label> <input type=\"number\" name=\"max_devices\" x-model=\"form.devices\" class=\"form-input tabular-nums\" min=\"1\" max=\"500\" required> <span style=\"font-size:0.75rem; color:var(--text-secondary); margin-top:0.2rem; display:block;\">أقصى أجهزة مسجلة</span></div></div><div class=\"form-group m-0\"><div style=\"display:flex; justify-content:space-between; align-items:center; margin-bottom:0.35rem;\"><label class=\"form-label m-0\">باقة بوابة الذكاء الاصطناعي (AI Gateway Plan) *</label> <span style=\"font-size:0.75rem; color:var(--primary); font-weight:600;\">(مزامنة من ")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 113, "</div></div><!-- ========================================== --><!-- Create / Edit Plan Modal                   --><!-- ========================================== --><div x-show=\"showModal\" x-cloak class=\"modal-overlay\"><div @click.away=\"showModal = false\" class=\"card\" style=\"width:100%; max-width:680px; max-height:92vh; overflow-y:auto; margin:0; background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-xl); box-shadow:0 24px 48px rgba(0,0,0,0.6); padding:1.75rem;\"><!-- Modal Header --><div style=\"display:flex; justify-content:space-between; align-items:center; margin-bottom:1.25rem; border-bottom:1px solid var(--border); padding-bottom:1rem;\"><div><h3 style=\"margin:0; font-size:1.25rem; font-weight:900; color:var(--text);\" x-text=\"isEdit ? 'تعديل باقة الاشتراك الموحدة' : 'إضافة باقة اشتراك جديدة'\"></h3><p style=\"margin:0.25rem 0 0; font-size:0.8rem; color:var(--text-secondary);\">تحديد الأسعار، حدود الجلسات المتزامنة، وصلاحيات الوصول لحصص الذكاء الاصطناعي وخصومات السوق.</p></div><button type=\"button\" @click=\"showModal = false\" class=\"btn btn-secondary btn-xs\" style=\"border-radius:var(--radius-full); width:32px; height:32px; padding:0; justify-content:center;\">✕</button></div><form :action=\"formAction\" method=\"POST\" style=\"display:flex; flex-direction:column; gap:1.2rem;\"><!-- Section 1: Identity & Names --><div class=\"form-grid-2\"><div class=\"form-group m-0\"><label class=\"form-label font-bold text-xs\">المعرّف الفريد (Slug) <span class=\"text-danger\">*</span></label> <input type=\"text\" name=\"slug\" x-model=\"form.slug\" required class=\"form-input text-xs\" placeholder=\"e.g. basic, pro, enterprise\" dir=\"ltr\"></div><div class=\"form-group m-0\"><label class=\"form-label font-bold text-xs\">اسم الباقة (عربي) <span class=\"text-danger\">*</span></label> <input type=\"text\" name=\"name_ar\" x-model=\"form.name_ar\" required class=\"form-input text-xs\" placeholder=\"مثال: الباقة الاحترافية\"></div></div><div class=\"form-grid-2\"><div class=\"form-group m-0\"><label class=\"form-label font-bold text-xs\">اسم الباقة (إنجليزي)</label> <input type=\"text\" name=\"name_en\" x-model=\"form.name_en\" class=\"form-input text-xs\" placeholder=\"e.g. Professional Plan\" dir=\"ltr\"></div><div class=\"form-group m-0\"><label class=\"form-label font-bold text-xs\">فترة الصلاحية (أيام) <span class=\"text-danger\">*</span></label> <input type=\"number\" name=\"duration_days\" x-model=\"form.duration\" class=\"form-input tabular-nums text-xs\" min=\"1\" required></div></div><div class=\"form-group m-0\"><label class=\"form-label font-bold text-xs\">وصف الباقة ومزاياها للمشتركين</label> <textarea name=\"description_ar\" x-model=\"form.desc_ar\" rows=\"2\" class=\"form-input text-xs\" placeholder=\"اكتب نبذة توضيحية عن ميزات الباقة...\"></textarea></div><!-- Section 2: Pricing (Monthly & Yearly) --><div style=\"background:var(--surface-sunken); border:1px solid var(--border); border-radius:var(--radius-lg); padding:1rem;\"><div style=\"font-size:0.825rem; font-weight:800; color:var(--text); margin-bottom:0.75rem; display:flex; align-items:center; gap:0.4rem;\"><span>💰</span> <span>تسعير الباقة (شهري وسنوي)</span></div><div style=\"display:grid; grid-template-columns:1fr 1fr; gap:0.75rem;\"><div class=\"form-group m-0\"><label class=\"form-label font-bold text-xs\">السعر الشهري (ج.م) <span class=\"text-danger\">*</span></label> <input type=\"number\" step=\"0.01\" min=\"0\" name=\"price_month\" x-model=\"form.price_month\" class=\"form-input tabular-nums text-xs\" placeholder=\"0.00\" required> <span class=\"text-xs text-muted mt-1 d-block\">ضع 0 للباقات المجانية</span></div><div class=\"form-group m-0\"><label class=\"form-label font-bold text-xs\">السعر السنوي (ج.م) <span class=\"text-danger\">*</span></label> <input type=\"number\" step=\"0.01\" min=\"0\" name=\"price_year\" x-model=\"form.price_year\" class=\"form-input tabular-nums text-xs\" placeholder=\"0.00\" required> <span class=\"text-xs text-muted mt-1 d-block\">سعر الدفع السنوي المجمع</span></div></div></div><!-- Section 3: Limits & AI Gateway Plan --><div style=\"background:var(--surface-sunken); border:1px solid var(--border); border-radius:var(--radius-lg); padding:1rem; display:flex; flex-direction:column; gap:0.85rem;\"><div style=\"font-size:0.825rem; font-weight:800; color:var(--text); display:flex; align-items:center; gap:0.4rem;\"><span>🛡️</span> <span>حدود الأمان والجلسات المطبقة على إجمالي المنشأة</span></div><div style=\"display:grid; grid-template-columns:1fr 1fr; gap:0.75rem;\"><div class=\"form-group m-0\"><label class=\"form-label font-bold text-xs\">الجلسات المتزامنة (إجمالي المنشأة) <span class=\"text-danger\">*</span></label> <input type=\"number\" name=\"max_login_sessions\" x-model=\"form.sessions\" class=\"form-input tabular-nums text-xs\" min=\"1\" max=\"500\" required> <span style=\"font-size:0.75rem; color:var(--text-secondary); margin-top:0.2rem; display:block;\">مطبقة على إجمالي مستخدمي المنشأة</span></div><div class=\"form-group m-0\"><label class=\"form-label font-bold text-xs\">حد الأجهزة المسموح بها <span class=\"text-danger\">*</span></label> <input type=\"number\" name=\"max_devices\" x-model=\"form.devices\" class=\"form-input tabular-nums text-xs\" min=\"1\" max=\"500\" required> <span style=\"font-size:0.75rem; color:var(--text-secondary); margin-top:0.2rem; display:block;\">أقصى أجهزة مسجلة</span></div></div><div class=\"form-group m-0 pt-2 border-t\"><div style=\"display:flex; justify-content:space-between; align-items:center; margin-bottom:0.35rem;\"><label class=\"form-label m-0 font-bold text-xs\">باقة بوابة الذكاء الاصطناعي (AI Gateway Plan) <span class=\"text-danger\">*</span></label> ")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			var templ_7745c5c3_Var30 string
-			templ_7745c5c3_Var30, templ_7745c5c3_Err = templ.JoinStringErrs(data.GatewayURL)
-			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_plans.templ`, Line: 404, Col: 117}
+			if data.GatewayURL != "" {
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 114, "<span style=\"font-size:0.75rem; color:var(--primary); font-weight:600;\">(مزامنة من ")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				var templ_7745c5c3_Var59 string
+				templ_7745c5c3_Var59, templ_7745c5c3_Err = templ.JoinStringErrs(data.GatewayURL)
+				if templ_7745c5c3_Err != nil {
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_plans.templ`, Line: 601, Col: 118}
+				}
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var59))
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 115, ")</span>")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
 			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var30))
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 67, ")</span></div><select name=\"ai_plan_id\" x-model=\"form.ai_plan\" class=\"form-input\" style=\"background:var(--surface);\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 116, "</div><select name=\"ai_plan_id\" x-model=\"form.ai_plan\" class=\"form-input text-xs\" style=\"background:var(--surface);\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			for _, gp := range data.GatewayPlans {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 68, "<option value=\"")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 117, "<option value=\"")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				var templ_7745c5c3_Var31 string
-				templ_7745c5c3_Var31, templ_7745c5c3_Err = templ.ResolveAttributeValue(gp.ID)
+				var templ_7745c5c3_Var60 string
+				templ_7745c5c3_Var60, templ_7745c5c3_Err = templ.ResolveAttributeValue(gp.ID)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_plans.templ`, Line: 408, Col: 31}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_plans.templ`, Line: 606, Col: 31}
 				}
-				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var31)
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 69, "\">")
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var60)
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				var templ_7745c5c3_Var32 string
-				templ_7745c5c3_Var32, templ_7745c5c3_Err = templ.JoinStringErrs(gp.Name)
-				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_plans.templ`, Line: 409, Col: 20}
-				}
-				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var32))
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 118, "\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 70, " (")
+				var templ_7745c5c3_Var61 string
+				templ_7745c5c3_Var61, templ_7745c5c3_Err = templ.JoinStringErrs(gp.Name)
+				if templ_7745c5c3_Err != nil {
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_plans.templ`, Line: 607, Col: 20}
+				}
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var61))
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				var templ_7745c5c3_Var33 string
-				templ_7745c5c3_Var33, templ_7745c5c3_Err = templ.JoinStringErrs(gp.ID)
-				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_plans.templ`, Line: 409, Col: 31}
-				}
-				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var33))
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 119, " (")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 71, ") — ")
+				var templ_7745c5c3_Var62 string
+				templ_7745c5c3_Var62, templ_7745c5c3_Err = templ.JoinStringErrs(gp.ID)
+				if templ_7745c5c3_Err != nil {
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_plans.templ`, Line: 607, Col: 31}
+				}
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var62))
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				var templ_7745c5c3_Var34 string
-				templ_7745c5c3_Var34, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d RPM / %d TPM", gp.RPMLimit, gp.TPMLimit))
-				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_plans.templ`, Line: 409, Col: 97}
-				}
-				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var34))
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 120, ") — ")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 72, "</option>")
+				var templ_7745c5c3_Var63 string
+				templ_7745c5c3_Var63, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d RPM / %d TPM", gp.RPMLimit, gp.TPMLimit))
+				if templ_7745c5c3_Err != nil {
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_plans.templ`, Line: 607, Col: 97}
+				}
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var63))
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 121, "</option>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 73, "</select> <span style=\"font-size:0.75rem; color:var(--text-secondary); margin-top:0.25rem; display:block;\">الربط التلقائي وتحديد حصة الكوتا في الـ AI Gateway وتوليد المفتاح الافتراضي (Virtual Key) تلقائياً للمنشأة.</span></div></div><!-- Vendor Features Access Control Section --><div style=\"display:flex; flex-direction:column; gap:0.75rem; font-size:0.875rem; border-top:1px solid var(--border); padding-top:0.9rem;\"><div style=\"font-size:0.8rem; font-weight:800; color:var(--primary); display:flex; align-items:center; gap:0.4rem;\"><span>🏢</span> <span>صلاحيات وميزات الموردين المتضمنة (Vendor Entitlements):</span></div><label style=\"display:flex; gap:0.6rem; align-items:center; cursor:pointer; background:rgba(16, 185, 129, 0.05); padding:0.6rem 0.85rem; border-radius:var(--radius-md); border:1px solid rgba(16, 185, 129, 0.2);\"><input type=\"checkbox\" name=\"feature_market_discounts\" value=\"1\" x-model=\"form.feat_market\"><div><strong style=\"color:var(--text); display:block;\">🛒 (خاص بالموردين) إتاحة الوصول إلى: خصومات السوق العامة ومؤشرات الأسعار</strong> <span class=\"text-xs text-secondary\">تمكين المورد من استعراض خصومات السوق الحية والتحليلات المقارنة</span></div></label> <label style=\"display:flex; gap:0.6rem; align-items:center; cursor:pointer; background:rgba(99, 102, 241, 0.05); padding:0.6rem 0.85rem; border-radius:var(--radius-md); border:1px solid rgba(99, 102, 241, 0.2);\"><input type=\"checkbox\" name=\"feature_compare_tool\" value=\"1\" x-model=\"form.feat_compare\"><div><strong style=\"color:var(--text); display:block;\">📊 (خاص بالموردين) إتاحة الوصول إلى: أداة مقارنة الخصومات الخاصة وتحليل العروض</strong> <span class=\"text-xs text-secondary\">تمكين المورد من تشغيل أداة المقارنة المتقدمة للملفات وخصومات الموردين</span></div></label></div><!-- Default & Status Checkboxes --><div style=\"display:flex; flex-direction:column; gap:0.6rem; font-size:0.875rem; border-top:1px solid var(--border); padding-top:0.9rem;\"><label style=\"display:flex; gap:0.6rem; align-items:center; cursor:pointer; background:rgba(16, 185, 129, 0.06); padding:0.6rem 0.85rem; border-radius:var(--radius-md); border:1px solid rgba(16, 185, 129, 0.2);\"><input type=\"checkbox\" name=\"is_default\" value=\"1\" x-model=\"form.is_default\"><div><strong style=\"color:var(--text); display:block;\">تعيين كباقة افتراضية للمنظومة (Default Plan)</strong> <span class=\"text-xs text-secondary\">تُمنح تلقائياً ومجاناً لأي منشأة جديدة فور تسجيلها واعتمادها من الإدارة</span></div></label><template x-if=\"isEdit\"><label style=\"display:flex; gap:0.5rem; align-items:center; cursor:pointer; padding:0.25rem 0.5rem;\"><input type=\"checkbox\" name=\"is_active\" value=\"1\" x-model=\"form.is_active\"> <span>الباقة نشطة ومتاحة للاشتراك</span></label></template></div><!-- Modal Actions --><div style=\"display:flex; justify-content:flex-end; gap:0.75rem; border-top:1px solid var(--border); padding-top:1.25rem; margin-top:0.5rem;\"><button type=\"button\" class=\"btn btn-secondary\" @click=\"showModal = false\">إلغاء</button> <button type=\"submit\" class=\"btn btn-primary\" style=\"font-weight:800; padding:0.6rem 2rem;\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 122, "</select> <span style=\"font-size:0.75rem; color:var(--text-secondary); margin-top:0.25rem; display:block;\">الربط التلقائي وتحديد حصة الكوتا في الـ AI Gateway وتوليد المفتاح الافتراضي (Virtual Key) تلقائياً للمنشأة.</span></div></div><!-- Section 4: Entitlements & Features Checklist --><div style=\"display:flex; flex-direction:column; gap:0.75rem; font-size:0.875rem; border-top:1px solid var(--border); padding-top:0.9rem;\"><div style=\"font-size:0.8rem; font-weight:800; color:var(--primary); display:flex; align-items:center; gap:0.4rem;\"><span>🏢</span> <span>صلاحيات وميزات المنظومة المتضمنة (Feature Entitlements):</span></div><label style=\"display:flex; gap:0.6rem; align-items:center; cursor:pointer; background:rgba(16, 185, 129, 0.05); padding:0.6rem 0.85rem; border-radius:var(--radius-md); border:1px solid rgba(16, 185, 129, 0.2);\"><input type=\"checkbox\" name=\"feature_market_discounts\" value=\"1\" x-model=\"form.feat_market\"><div><strong style=\"color:var(--text); display:block; font-size:0.825rem;\">🛒 (خاص بالموردين) إتاحة الوصول إلى: خصومات السوق العامة ومؤشرات الأسعار</strong> <span class=\"text-xs text-secondary\">تمكين المورد من استعراض خصومات السوق الحية والتحليلات المقارنة</span></div></label> <label style=\"display:flex; gap:0.6rem; align-items:center; cursor:pointer; background:rgba(99, 102, 241, 0.05); padding:0.6rem 0.85rem; border-radius:var(--radius-md); border:1px solid rgba(99, 102, 241, 0.2);\"><input type=\"checkbox\" name=\"feature_compare_tool\" value=\"1\" x-model=\"form.feat_compare\"><div><strong style=\"color:var(--text); display:block; font-size:0.825rem;\">📊 (خاص بالموردين) إتاحة الوصول إلى: أداة مقارنة الخصومات وتحليل العروض</strong> <span class=\"text-xs text-secondary\">تمكين المورد من تشغيل أداة المقارنة المتقدمة للملفات وخصومات الموردين</span></div></label> <label style=\"display:flex; gap:0.6rem; align-items:center; cursor:pointer; background:rgba(14, 165, 233, 0.05); padding:0.6rem 0.85rem; border-radius:var(--radius-md); border:1px solid rgba(14, 165, 233, 0.2);\"><input type=\"checkbox\" name=\"feature_bulk_import\" value=\"1\" x-model=\"form.feat_import\"><div><strong style=\"color:var(--text); display:block; font-size:0.825rem;\">📦 إتاحة استيراد وتحديث الكتالوجات بالجملة (Bulk Ingest)</strong> <span class=\"text-xs text-secondary\">معالجة وتحديث كميات وأسعار الأصناف من ملفات Excel و CSV</span></div></label> <label style=\"display:flex; gap:0.6rem; align-items:center; cursor:pointer; background:rgba(168, 85, 247, 0.05); padding:0.6rem 0.85rem; border-radius:var(--radius-md); border:1px solid rgba(168, 85, 247, 0.2);\"><input type=\"checkbox\" name=\"feature_analytics\" value=\"1\" x-model=\"form.feat_analytics\"><div><strong style=\"color:var(--text); display:block; font-size:0.825rem;\">📈 إتاحة لوحة التحليلات المتقدمة والتقارير المالية</strong> <span class=\"text-xs text-secondary\">إحصائيات تفصيلية ومؤشرات الأداء للأعمال والمبيعات</span></div></label></div><!-- Section 5: Default & Status Switches --><div style=\"display:flex; flex-direction:column; gap:0.6rem; font-size:0.875rem; border-top:1px solid var(--border); padding-top:0.9rem;\"><label style=\"display:flex; gap:0.6rem; align-items:center; cursor:pointer; background:rgba(245, 158, 11, 0.06); padding:0.6rem 0.85rem; border-radius:var(--radius-md); border:1px solid rgba(245, 158, 11, 0.25);\"><input type=\"checkbox\" name=\"is_default\" value=\"1\" x-model=\"form.is_default\"><div><strong style=\"color:var(--text); display:block; font-size:0.825rem;\">تعيين كباقة افتراضية للمنظومة (Default Plan)</strong> <span class=\"text-xs text-secondary\">تُمنح تلقائياً ومجاناً لأي منشأة جديدة فور تسجيلها واعتمادها من الإدارة</span></div></label> <label style=\"display:flex; gap:0.6rem; align-items:center; cursor:pointer; background:var(--surface-sunken); padding:0.6rem 0.85rem; border-radius:var(--radius-md); border:1px solid var(--border);\"><input type=\"checkbox\" name=\"is_active\" value=\"1\" x-model=\"form.is_active\"><div><strong style=\"color:var(--text); display:block; font-size:0.825rem;\">الباقة نشطة ومتاحة للاشتراك والتجديد</strong> <span class=\"text-xs text-secondary\">عند التعطيل لن يتمكن المشتركون الجدد من اختيار هذه الباقة</span></div></label></div><!-- Modal Actions --><div style=\"display:flex; justify-content:flex-end; gap:0.75rem; border-top:1px solid var(--border); padding-top:1.25rem; margin-top:0.5rem;\"><button type=\"button\" class=\"btn btn-secondary\" @click=\"showModal = false\">إلغاء</button> <button type=\"submit\" class=\"btn btn-primary\" style=\"font-weight:800; padding:0.6rem 2rem;\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -725,7 +1221,7 @@ func AdminPlansHub(data AdminPlansData, lang, dir string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 74, "<span x-text=\"isEdit ? 'حفظ التحديثات' : 'إضافة وتفعيل الباقة'\"></span></button></div></form></div></div></div><script>\n\t\t\tfunction adminPlansManager() {\n\t\t\t\treturn {\n\t\t\t\t\tshowModal: false,\n\t\t\t\t\tisEdit: false,\n\t\t\t\t\tformAction: '/admin/plans',\n\t\t\t\t\tform: {\n\t\t\t\t\t\tid: 0,\n\t\t\t\t\t\tslug: '',\n\t\t\t\t\t\tname_ar: '',\n\t\t\t\t\t\tname_en: '',\n\t\t\t\t\t\tdesc_ar: '',\n\t\t\t\t\t\tprice_month: '0.00',\n\t\t\t\t\t\tprice_year: '0.00',\n\t\t\t\t\t\tduration: 30,\n\t\t\t\t\t\tsessions: 3,\n\t\t\t\t\t\tdevices: 3,\n\t\t\t\t\t\tai_plan: 'plan-dev',\n\t\t\t\t\t\tis_default: false,\n\t\t\t\t\t\tis_active: true,\n\t\t\t\t\t\tfeat_market: false,\n\t\t\t\t\t\tfeat_compare: false\n\t\t\t\t\t},\n\t\t\t\t\topenCreateModal() {\n\t\t\t\t\t\tthis.isEdit = false;\n\t\t\t\t\t\tthis.formAction = '/admin/plans';\n\t\t\t\t\t\tthis.form = {\n\t\t\t\t\t\t\tid: 0,\n\t\t\t\t\t\t\tslug: '',\n\t\t\t\t\t\t\tname_ar: '',\n\t\t\t\t\t\t\tname_en: '',\n\t\t\t\t\t\t\tdesc_ar: '',\n\t\t\t\t\t\t\tprice_month: '0.00',\n\t\t\t\t\t\t\tprice_year: '0.00',\n\t\t\t\t\t\t\tduration: 30,\n\t\t\t\t\t\t\tsessions: 3,\n\t\t\t\t\t\t\tdevices: 3,\n\t\t\t\t\t\t\tai_plan: 'plan-dev',\n\t\t\t\t\t\t\tis_default: false,\n\t\t\t\t\t\t\tis_active: true,\n\t\t\t\t\t\t\tfeat_market: false,\n\t\t\t\t\t\t\tfeat_compare: false\n\t\t\t\t\t\t};\n\t\t\t\t\t\tthis.showModal = true;\n\t\t\t\t\t},\n\t\t\t\t\topenEditModal(p) {\n\t\t\t\t\t\tthis.isEdit = true;\n\t\t\t\t\t\tthis.formAction = '/admin/plans/' + p.id + '/update';\n\t\t\t\t\t\tthis.form = {\n\t\t\t\t\t\t\tid: p.id,\n\t\t\t\t\t\t\tslug: p.slug,\n\t\t\t\t\t\t\tname_ar: p.name_ar,\n\t\t\t\t\t\t\tname_en: p.name_en,\n\t\t\t\t\t\t\tdesc_ar: p.desc_ar,\n\t\t\t\t\t\t\tprice_month: p.price_month,\n\t\t\t\t\t\t\tprice_year: p.price_year,\n\t\t\t\t\t\t\tduration: p.duration,\n\t\t\t\t\t\t\tsessions: p.sessions,\n\t\t\t\t\t\t\tdevices: p.devices,\n\t\t\t\t\t\t\tai_plan: p.ai_plan,\n\t\t\t\t\t\t\tis_default: p.is_default,\n\t\t\t\t\t\t\tis_active: p.is_active,\n\t\t\t\t\t\t\tfeat_market: !!p.feat_market,\n\t\t\t\t\t\t\tfeat_compare: !!p.feat_compare\n\t\t\t\t\t\t};\n\t\t\t\t\t\tthis.showModal = true;\n\t\t\t\t\t}\n\t\t\t\t}\n\t\t\t}\n\t\t</script>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 123, "<span x-text=\"isEdit ? 'حفظ التحديثات' : 'إضافة وتفعيل الباقة'\"></span></button></div></form></div></div></div><!-- Clean Client-Side State Manager without inline string interpolation bugs --> <script>\n\t\t\tfunction adminPlansManager() {\n\t\t\t\treturn {\n\t\t\t\t\tshowModal: false,\n\t\t\t\t\tisEdit: false,\n\t\t\t\t\tformAction: '/admin/plans',\n\t\t\t\t\tform: {\n\t\t\t\t\t\tid: 0,\n\t\t\t\t\t\tslug: '',\n\t\t\t\t\t\tname_ar: '',\n\t\t\t\t\t\tname_en: '',\n\t\t\t\t\t\tdesc_ar: '',\n\t\t\t\t\t\tdesc_en: '',\n\t\t\t\t\t\tprice_month: '0.00',\n\t\t\t\t\t\tprice_year: '0.00',\n\t\t\t\t\t\tduration: 30,\n\t\t\t\t\t\tsessions: 3,\n\t\t\t\t\t\tdevices: 3,\n\t\t\t\t\t\tai_plan: 'plan-dev',\n\t\t\t\t\t\tis_default: false,\n\t\t\t\t\t\tis_active: true,\n\t\t\t\t\t\tfeat_market: false,\n\t\t\t\t\t\tfeat_compare: false,\n\t\t\t\t\t\tfeat_import: false,\n\t\t\t\t\t\tfeat_analytics: false\n\t\t\t\t\t},\n\t\t\t\t\topenCreateModal() {\n\t\t\t\t\t\tthis.isEdit = false;\n\t\t\t\t\t\tthis.formAction = '/admin/plans';\n\t\t\t\t\t\tthis.form = {\n\t\t\t\t\t\t\tid: 0,\n\t\t\t\t\t\t\tslug: '',\n\t\t\t\t\t\t\tname_ar: '',\n\t\t\t\t\t\t\tname_en: '',\n\t\t\t\t\t\t\tdesc_ar: '',\n\t\t\t\t\t\t\tdesc_en: '',\n\t\t\t\t\t\t\tprice_month: '0.00',\n\t\t\t\t\t\t\tprice_year: '0.00',\n\t\t\t\t\t\t\tduration: 30,\n\t\t\t\t\t\t\tsessions: 3,\n\t\t\t\t\t\t\tdevices: 3,\n\t\t\t\t\t\t\tai_plan: 'plan-dev',\n\t\t\t\t\t\t\tis_default: false,\n\t\t\t\t\t\t\tis_active: true,\n\t\t\t\t\t\t\tfeat_market: false,\n\t\t\t\t\t\t\tfeat_compare: false,\n\t\t\t\t\t\t\tfeat_import: false,\n\t\t\t\t\t\t\tfeat_analytics: false\n\t\t\t\t\t\t};\n\t\t\t\t\t\tthis.showModal = true;\n\t\t\t\t\t},\n\t\t\t\t\topenEditFromDataset(btnEl) {\n\t\t\t\t\t\tif (!btnEl || !btnEl.dataset) return;\n\t\t\t\t\t\tconst ds = btnEl.dataset;\n\t\t\t\t\t\tthis.isEdit = true;\n\t\t\t\t\t\tthis.formAction = '/admin/plans/' + ds.id + '/update';\n\t\t\t\t\t\tthis.form = {\n\t\t\t\t\t\t\tid: parseInt(ds.id, 10) || 0,\n\t\t\t\t\t\t\tslug: ds.slug || '',\n\t\t\t\t\t\t\tname_ar: ds.nameAr || '',\n\t\t\t\t\t\t\tname_en: ds.nameEn || '',\n\t\t\t\t\t\t\tdesc_ar: ds.descAr || '',\n\t\t\t\t\t\t\tdesc_en: ds.descEn || '',\n\t\t\t\t\t\t\tprice_month: ds.priceMonth || '0.00',\n\t\t\t\t\t\t\tprice_year: ds.priceYear || '0.00',\n\t\t\t\t\t\t\tduration: parseInt(ds.duration, 10) || 30,\n\t\t\t\t\t\t\tsessions: parseInt(ds.sessions, 10) || 3,\n\t\t\t\t\t\t\tdevices: parseInt(ds.devices, 10) || 3,\n\t\t\t\t\t\t\tai_plan: ds.aiPlan || 'plan-dev',\n\t\t\t\t\t\t\tis_default: ds.isDefault === 'true',\n\t\t\t\t\t\t\tis_active: ds.isActive === 'true',\n\t\t\t\t\t\t\tfeat_market: ds.featMarket === 'true',\n\t\t\t\t\t\t\tfeat_compare: ds.featCompare === 'true',\n\t\t\t\t\t\t\tfeat_import: ds.featImport === 'true',\n\t\t\t\t\t\t\tfeat_analytics: ds.featAnalytics === 'true'\n\t\t\t\t\t\t};\n\t\t\t\t\t\tthis.showModal = true;\n\t\t\t\t\t}\n\t\t\t\t}\n\t\t\t}\n\t\t</script>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

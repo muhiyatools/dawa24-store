@@ -100,7 +100,7 @@ func AdminShell(title string, activeNav string, lang string, dir string) templ.C
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = components.IconMenu("icon-xs").Render(ctx, templ_7745c5c3_Buffer)
+				templ_7745c5c3_Err = components.IconSidebarToggle("icon-xs").Render(ctx, templ_7745c5c3_Buffer)
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -1318,28 +1318,20 @@ func AdminShell(title string, activeNav string, lang string, dir string) templ.C
 						return templ_7745c5c3_Err
 					}
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 125, "</div></nav><div class=\"sidebar-bottom-actions\"><a href=\"/catalog\" class=\"btn sidebar-footer-btn\" title=\"كتالوج المنتجات\">")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				templ_7745c5c3_Err = components.IconPackage("icon-sm").Render(ctx, templ_7745c5c3_Buffer)
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 126, "<span>كتالوج المنتجات</span></a></div></aside><script>\n\t\t\t\t\t(function() {\n\t\t\t\t\t\ttry {\n\t\t\t\t\t\t\tvar nav = document.querySelector('.sidebar-nav');\n\t\t\t\t\t\t\tif (!nav) return;\n\t\t\t\t\t\t\tvar currentPath = window.location.pathname;\n\t\t\t\t\t\t\tvar links = Array.from(nav.querySelectorAll('.sidebar-link'));\n\t\t\t\t\t\t\tvar hasActive = links.some(function(l) { return l.classList.contains('active'); });\n\t\t\t\t\t\t\tif (!hasActive && links.length > 0) {\n\t\t\t\t\t\t\t\tvar sorted = links.slice().sort(function(a, b) { return (b.getAttribute('href') || '').length - (a.getAttribute('href') || '').length; });\n\t\t\t\t\t\t\t\tfor (var i = 0; i < sorted.length; i++) {\n\t\t\t\t\t\t\t\t\tvar href = sorted[i].getAttribute('href');\n\t\t\t\t\t\t\t\t\tif (href && (currentPath === href || (href !== '/admin/dashboard' && currentPath.indexOf(href) === 0))) {\n\t\t\t\t\t\t\t\t\t\tsorted[i].classList.add('active');\n\t\t\t\t\t\t\t\t\t\tbreak;\n\t\t\t\t\t\t\t\t\t}\n\t\t\t\t\t\t\t\t}\n\t\t\t\t\t\t\t}\n\t\t\t\t\t\t\tvar saved = sessionStorage.getItem('dawa_sidebar_scroll_top');\n\t\t\t\t\t\t\tif (saved !== null) {\n\t\t\t\t\t\t\t\tnav.scrollTop = parseInt(saved, 10);\n\t\t\t\t\t\t\t} else {\n\t\t\t\t\t\t\t\tvar act = nav.querySelector('.sidebar-link.active');\n\t\t\t\t\t\t\t\tif (act) {\n\t\t\t\t\t\t\t\t\tact.scrollIntoView({ block: 'nearest' });\n\t\t\t\t\t\t\t\t}\n\t\t\t\t\t\t\t}\n\t\t\t\t\t\t} catch (e) {}\n\t\t\t\t\t})();\n\t\t\t\t</script><!-- Main Admin Content Area --><main class=\"main-content\"><!-- Top Admin Header --><header class=\"top-navbar\"><div class=\"top-navbar-start\"><h1 class=\"top-navbar-title\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 125, "</div></nav></aside><script>\n\t\t\t\t\t(function() {\n\t\t\t\t\t\ttry {\n\t\t\t\t\t\t\tvar nav = document.querySelector('.sidebar-nav');\n\t\t\t\t\t\t\tif (!nav) return;\n\t\t\t\t\t\t\tvar currentPath = window.location.pathname;\n\t\t\t\t\t\t\tvar links = Array.from(nav.querySelectorAll('.sidebar-link'));\n\t\t\t\t\t\t\tvar hasActive = links.some(function(l) { return l.classList.contains('active'); });\n\t\t\t\t\t\t\tif (!hasActive && links.length > 0) {\n\t\t\t\t\t\t\t\tvar sorted = links.slice().sort(function(a, b) { return (b.getAttribute('href') || '').length - (a.getAttribute('href') || '').length; });\n\t\t\t\t\t\t\t\tfor (var i = 0; i < sorted.length; i++) {\n\t\t\t\t\t\t\t\t\tvar href = sorted[i].getAttribute('href');\n\t\t\t\t\t\t\t\t\tif (href && (currentPath === href || (href !== '/admin/dashboard' && currentPath.indexOf(href) === 0))) {\n\t\t\t\t\t\t\t\t\t\tsorted[i].classList.add('active');\n\t\t\t\t\t\t\t\t\t\tbreak;\n\t\t\t\t\t\t\t\t\t}\n\t\t\t\t\t\t\t\t}\n\t\t\t\t\t\t\t}\n\t\t\t\t\t\t\tvar saved = sessionStorage.getItem('dawa_sidebar_scroll_top');\n\t\t\t\t\t\t\tif (saved !== null) {\n\t\t\t\t\t\t\t\tnav.scrollTop = parseInt(saved, 10);\n\t\t\t\t\t\t\t} else {\n\t\t\t\t\t\t\t\tvar act = nav.querySelector('.sidebar-link.active');\n\t\t\t\t\t\t\t\tif (act) {\n\t\t\t\t\t\t\t\t\tact.scrollIntoView({ block: 'nearest' });\n\t\t\t\t\t\t\t\t}\n\t\t\t\t\t\t\t}\n\t\t\t\t\t\t} catch (e) {}\n\t\t\t\t\t})();\n\t\t\t\t</script><!-- Main Admin Content Area --><main class=\"main-content\"><!-- Top Admin Header --><header class=\"top-navbar\"><div class=\"top-navbar-start\"><h1 class=\"top-navbar-title\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var80 string
 				templ_7745c5c3_Var80, templ_7745c5c3_Err = templ.JoinStringErrs(title)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/layouts/admin.templ`, Line: 363, Col: 43}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/layouts/admin.templ`, Line: 356, Col: 43}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var80))
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 127, "</h1></div><div class=\"top-navbar-end\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 126, "</h1></div><div class=\"top-navbar-end\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -1351,7 +1343,7 @@ func AdminShell(title string, activeNav string, lang string, dir string) templ.C
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 128, "<div class=\"top-navbar-user-chip\"><div class=\"user-avatar-badge\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 127, "<div class=\"top-navbar-user-chip\"><div class=\"user-avatar-badge\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -1359,7 +1351,7 @@ func AdminShell(title string, activeNav string, lang string, dir string) templ.C
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 129, "</div><div class=\"user-avatar-info\"><span class=\"user-avatar-name\">مدير النظام العام</span> <span class=\"user-avatar-role\">Super Admin</span></div><form action=\"/auth/logout\" method=\"POST\" class=\"m-0 ms-1\"><button type=\"submit\" class=\"btn btn-secondary btn-sm btn-logout\" title=\"تسجيل الخروج\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 128, "</div><div class=\"user-avatar-info\"><span class=\"user-avatar-name\">مدير النظام العام</span> <span class=\"user-avatar-role\">Super Admin</span></div><form action=\"/auth/logout\" method=\"POST\" class=\"m-0 ms-1\"><button type=\"submit\" class=\"btn btn-secondary btn-sm btn-logout\" title=\"تسجيل الخروج\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -1367,7 +1359,7 @@ func AdminShell(title string, activeNav string, lang string, dir string) templ.C
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 130, "<span>خروج</span></button></form></div></div></header><!-- Page Container --><div class=\"page-container p-modal\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 129, "<span>خروج</span></button></form></div></div></header><!-- Page Container --><div class=\"page-container\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -1375,7 +1367,7 @@ func AdminShell(title string, activeNav string, lang string, dir string) templ.C
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 131, "</div></main></div>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 130, "</div></main></div>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}

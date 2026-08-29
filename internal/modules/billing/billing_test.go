@@ -113,6 +113,14 @@ func (m *mockBillingRepo) ListPlans(_ context.Context) ([]*Plan, error) {
 	return list, nil
 }
 
+func (m *mockBillingRepo) AdminListPlans(_ context.Context) ([]*Plan, error) {
+	var list []*Plan
+	for _, p := range m.plans {
+		list = append(list, p)
+	}
+	return list, nil
+}
+
 func (m *mockBillingRepo) CreatePlan(_ context.Context, p *Plan) error {
 	p.ID = 1
 	return nil
@@ -141,6 +149,33 @@ func (m *mockBillingRepo) GetDefaultPlan(_ context.Context) (*Plan, error) {
 
 func (m *mockBillingRepo) UpdatePlan(_ context.Context, p *Plan) error {
 	m.plans[p.Slug] = p
+	return nil
+}
+
+func (m *mockBillingRepo) TogglePlanActive(_ context.Context, id int64) error {
+	for _, p := range m.plans {
+		if p.ID == id {
+			p.IsActive = !p.IsActive
+			return nil
+		}
+	}
+	return nil
+}
+
+func (m *mockBillingRepo) SetDefaultPlan(_ context.Context, id int64) error {
+	for _, p := range m.plans {
+		p.IsDefault = (p.ID == id)
+	}
+	return nil
+}
+
+func (m *mockBillingRepo) DeletePlan(_ context.Context, id int64) error {
+	for k, p := range m.plans {
+		if p.ID == id {
+			delete(m.plans, k)
+			return nil
+		}
+	}
 	return nil
 }
 

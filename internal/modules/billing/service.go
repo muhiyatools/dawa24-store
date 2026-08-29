@@ -204,6 +204,11 @@ func (s *Service) ListPlans(ctx context.Context) ([]*Plan, error) {
 	return s.repo.ListPlans(ctx)
 }
 
+// AdminListPlans returns all subscription plans (both active and inactive) for administrative management.
+func (s *Service) AdminListPlans(ctx context.Context) ([]*Plan, error) {
+	return s.repo.AdminListPlans(ctx)
+}
+
 // GetPlanByID retrieves a plan by ID.
 func (s *Service) GetPlanByID(ctx context.Context, id int64) (*Plan, error) {
 	return s.repo.GetPlanByID(ctx, id)
@@ -239,6 +244,30 @@ func (s *Service) UpdatePlan(ctx context.Context, p *Plan) (*Plan, error) {
 		return nil, err
 	}
 	return p, nil
+}
+
+// TogglePlanActive toggles the active state of a plan.
+func (s *Service) TogglePlanActive(ctx context.Context, id int64) error {
+	if id <= 0 {
+		return apperr.Validation("plan.invalid", "Plan ID is required.", nil)
+	}
+	return s.repo.TogglePlanActive(ctx, id)
+}
+
+// SetDefaultPlan designates a plan as the system default tier.
+func (s *Service) SetDefaultPlan(ctx context.Context, id int64) error {
+	if id <= 0 {
+		return apperr.Validation("plan.invalid", "Plan ID is required.", nil)
+	}
+	return s.repo.SetDefaultPlan(ctx, id)
+}
+
+// DeletePlan removes a plan from the system.
+func (s *Service) DeletePlan(ctx context.Context, id int64) error {
+	if id <= 0 {
+		return apperr.Validation("plan.invalid", "Plan ID is required.", nil)
+	}
+	return s.repo.DeletePlan(ctx, id)
 }
 
 // GetActiveSubscription returns active subscription for a user.
