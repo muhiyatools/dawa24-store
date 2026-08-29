@@ -1547,6 +1547,10 @@ func (h *UIHandler) VendorOfferNewSubmit(w http.ResponseWriter, r *http.Request)
 			h.redirectWithNotice(w, r, "/vendor/offers/new", "error", h.safeMessage(err, langOf(r)))
 			return
 		}
+
+		go h.dispatchInAppNotification(context.Background(), actor.UserID, &actor.OrganizationID,
+			"تم إنشاء ونشر العرض الخاص",
+			fmt.Sprintf("تم نشر وتفعيل العرض الخاص «%s» بنجاح وأصبح متاحاً للطلب من الصيدليات.", titleAr))
 	}
 
 	h.redirectWithNotice(w, r, "/vendor/offers", "success", "تم إنشاء ونشر العرض الخاص بنجاح.")
@@ -1683,6 +1687,14 @@ func (h *UIHandler) VendorOrderStatusSubmit(w http.ResponseWriter, r *http.Reque
 		if carrier := r.PostFormValue("carrier"); carrier != "" || r.PostFormValue("tracking") != "" {
 			_ = h.commSvc.SetShipmentTracking(ctx, shipmentID, carrier, r.PostFormValue("tracking"))
 		}
+
+		// Dispatch live notification to customer
+		if shipment, sErr := h.commSvc.GetShipment(database.AsSystem(ctx), shipmentID); sErr == nil && shipment != nil {
+			if order, oErr := h.commSvc.GetOrder(database.AsSystem(ctx), shipment.OrderID); oErr == nil && order != nil {
+				vendorName := h.resolveOrgName(ctx, actor.OrganizationID)
+				go h.notifyOrderStatusChanged(context.Background(), order, shipmentID, commerce.OrderStatus(toStatus), vendorName, notes)
+			}
+		}
 	}
 
 	h.redirectWithNotice(w, r, "/vendor/orders", "success", "تم تحديث حالة الشحنة بنجاح.")
@@ -1723,6 +1735,16 @@ func (h *UIHandler) VendorNegotiationAcceptSubmit(w http.ResponseWriter, r *http
 			h.redirectWithNotice(w, r, "/vendor/orders", "error", "تعذر قبول التفاوض: "+h.safeMessage(err, langOf(r)))
 			return
 		}
+
+		// Dispatch notification to customer
+		vendorName := h.resolveOrgName(ctx, actor.OrganizationID)
+		orderNum := order.OrderNumber
+		if orderNum == "" {
+			orderNum = fmt.Sprintf("ORD-%d", order.ID)
+		}
+		go h.dispatchInAppNotification(context.Background(), order.CustomerID, nil,
+			fmt.Sprintf("تم قبول السعر المتفاوض عليه للطلب #%s", orderNum),
+			fmt.Sprintf("قام %s بقبول السعر واعتماد طلب التوريد بنجاح.", vendorName))
 	}
 
 	h.redirectWithNotice(w, r, "/vendor/orders", "success", "تم قبول السعر المتفاوض عليه واعتماد الطلب بنجاح.")
@@ -1769,6 +1791,16 @@ func (h *UIHandler) VendorNegotiationRejectSubmit(w http.ResponseWriter, r *http
 			h.redirectWithNotice(w, r, "/vendor/orders", "error", "تعذر رفض التفاوض: "+h.safeMessage(err, langOf(r)))
 			return
 		}
+
+		// Dispatch notification to customer
+		vendorName := h.resolveOrgName(ctx, actor.OrganizationID)
+		orderNum := order.OrderNumber
+		if orderNum == "" {
+			orderNum = fmt.Sprintf("ORD-%d", order.ID)
+		}
+		go h.dispatchInAppNotification(context.Background(), order.CustomerID, nil,
+			fmt.Sprintf("تم رفض السعر المقترح للطلب #%s", orderNum),
+			fmt.Sprintf("تم رفض السعر المقترح من قِبل %s. السبب: %s", vendorName, reason))
 	}
 
 	h.redirectWithNotice(w, r, "/vendor/orders", "success", "تم رفض طلب التفاوض وإلغاء الطلب.")

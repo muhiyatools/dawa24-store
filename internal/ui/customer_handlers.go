@@ -1,6 +1,7 @@
 package ui
 
 import (
+	"context"
 	"crypto/rand"
 	"encoding/hex"
 	"encoding/json"
@@ -132,6 +133,7 @@ func (h *UIHandler) CustomerCatalogPage(w http.ResponseWriter, r *http.Request) 
 		Query:      query,
 		CategoryID: categoryID,
 		BrandID:    brandID,
+		DosageForm: dosageForm,
 		Sort:       sortBy,
 		MinPrice:   minPrice,
 		MaxPrice:   maxPrice,
@@ -762,6 +764,21 @@ func (h *UIHandler) CustomerOrderEditSubmit(w http.ResponseWriter, r *http.Reque
 		return
 	}
 
+	if updatedOrder != nil {
+		pharmacyName := h.resolveOrgName(ctx, actor.OrganizationID)
+		orderNum := updatedOrder.OrderNumber
+		if orderNum == "" {
+			orderNum = fmt.Sprintf("ORD-%d", updatedOrder.ID)
+		}
+		for _, sh := range updatedOrder.Shipments {
+			if sh != nil && sh.OrganizationID > 0 {
+				go h.dispatchOrgNotification(context.Background(), sh.OrganizationID,
+					fmt.Sprintf("تعديل على الطلب #%s", orderNum),
+					fmt.Sprintf("قامت صيدلية %s بتعديل كميات وأصناف الطلب #%s بقيمة جديدة %s ج.م.", pharmacyName, orderNum, updatedOrder.TotalAmount.String()))
+			}
+		}
+	}
+
 	if r.Header.Get("X-Requested-With") == "XMLHttpRequest" || strings.Contains(r.Header.Get("Accept"), "application/json") {
 		w.Header().Set("Content-Type", "application/json; charset=utf-8")
 		_ = json.NewEncoder(w).Encode(map[string]any{
@@ -1095,6 +1112,7 @@ func (h *UIHandler) UpdateCartQuantitySubmit(w http.ResponseWriter, r *http.Requ
 
 func (h *UIHandler) CheckoutSubmit(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
+	actor, _ := authctx.From(ctx)
 	userID, err := authctx.UserID(ctx)
 	if err != nil {
 		http.Redirect(w, r, "/auth/login?redirect=/checkout", http.StatusSeeOther)
@@ -1260,6 +1278,10 @@ func (h *UIHandler) CheckoutSubmit(w http.ResponseWriter, r *http.Request) {
 		h.renderError(w, r, err)
 		return
 	}
+
+	// Dispatch real-time in-app notifications to pharmacy and fulfilling vendors
+	pharmacyName := h.resolveOrgName(ctx, actor.OrganizationID)
+	go h.notifyOrderPlaced(context.Background(), order, pharmacyName)
 
 	_ = h.commSvc.ClearCart(ctx, userID)
 	http.Redirect(w, r, "/orders/"+strconv.FormatInt(order.ID, 10), http.StatusSeeOther)

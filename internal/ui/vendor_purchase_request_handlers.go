@@ -1,6 +1,7 @@
 package ui
 
 import (
+	"context"
 	"net/http"
 	"strconv"
 	"strings"
@@ -115,6 +116,14 @@ func (h *UIHandler) VendorPurchaseRequestRespondSubmit(w http.ResponseWriter, r 
 			h.redirectWithNotice(w, r, "/vendor/purchase-requests/"+reqIDStr, "error", h.safeMessage(err, langOf(r)))
 			return
 		}
+
+		// Dispatch notification to pharmacy customer
+		vendorName := h.resolveOrgName(ctx, actor.OrganizationID)
+		var custOrgID int64
+		if req.OrganizationID != nil {
+			custOrgID = *req.OrganizationID
+		}
+		go h.notifyPurchaseRequestResponded(context.Background(), req.CustomerID, custOrgID, vendorName, reqID)
 	}
 
 	h.redirectWithNotice(w, r, "/vendor/purchase-requests/"+reqIDStr, "success", "تم تحديث حالة طلب الشراء بنجاح.")

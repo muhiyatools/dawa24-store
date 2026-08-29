@@ -1,6 +1,7 @@
 package ui
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 	"strconv"
@@ -130,6 +131,9 @@ func (h *UIHandler) TenantWalletDepositSubmit(w http.ResponseWriter, r *http.Req
 		h.redirectWithNotice(w, r, dest, "error", h.safeMessage(err, langOf(r)))
 		return
 	}
+
+	// Dispatch in-app notification
+	go h.notifyWalletDeposit(context.Background(), actor.UserID, actor.OrganizationID, amt, "pending")
 
 	h.redirectWithNotice(w, r, dest, "success", "تم تسجيل طلب شحن الرصيد بنجاح، والعملية قيد مراجعة وتدقيق الإدارة المالية.")
 }
