@@ -174,6 +174,18 @@ func (h *UIHandler) VendorProductAddFromCatalogSubmit(w http.ResponseWriter, r *
 	var branchID *int64
 	if branchIDVal > 0 {
 		branchID = &branchIDVal
+	} else if h.orgSvc != nil {
+		if branches, err := h.orgSvc.ListBranches(ctx, actor.OrganizationID); err == nil && len(branches) > 0 {
+			for _, b := range branches {
+				if b.IsMain {
+					branchID = &b.ID
+					break
+				}
+			}
+			if branchID == nil {
+				branchID = &branches[0].ID
+			}
+		}
 	}
 
 	var expiryDate *time.Time
@@ -293,8 +305,19 @@ func (h *UIHandler) VendorVariantUpdateSubmit(w http.ResponseWriter, r *http.Req
 	if bStr := strings.TrimSpace(r.FormValue("branch_id")); bStr != "" {
 		if bID, err := strconv.ParseInt(bStr, 10, 64); err == nil && bID > 0 {
 			existing.BranchID = &bID
-		} else {
-			existing.BranchID = nil
+		}
+	}
+	if existing.BranchID == nil && h.orgSvc != nil {
+		if branches, err := h.orgSvc.ListBranches(ctx, actor.OrganizationID); err == nil && len(branches) > 0 {
+			for _, b := range branches {
+				if b.IsMain {
+					existing.BranchID = &b.ID
+					break
+				}
+			}
+			if existing.BranchID == nil {
+				existing.BranchID = &branches[0].ID
+			}
 		}
 	}
 

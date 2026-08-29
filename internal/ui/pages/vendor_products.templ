@@ -486,9 +486,13 @@ templ VendorProducts(data VendorVariantsData, lang, dir string, isPartial bool) 
 											مخزن / فرع الشحن
 										</label>
 										<select name="branch_id" id="cat-field-branch" class="form-input" style="width:100%; border-radius:var(--radius-lg);">
-											<option value="">المخزن الرئيسي الافتراضي</option>
 											for _, b := range data.Branches {
-												<option value={ fmt.Sprintf("%d", b.ID) }>{ b.Name }</option>
+												<option value={ fmt.Sprintf("%d", b.ID) } selected?={ b.IsMain }>
+													{ b.Name }
+													if b.IsMain {
+														<span> (الفرع الرئيسي)</span>
+													}
+												</option>
 											}
 										</select>
 									</div>
@@ -646,9 +650,13 @@ templ VendorProducts(data VendorVariantsData, lang, dir string, isPartial bool) 
 										مخزن / فرع الشحن
 									</label>
 									<select name="branch_id" id="edit-form-branch" class="form-input" style="width:100%; border-radius:var(--radius-lg);">
-										<option value="">المخزن الرئيسي الافتراضي</option>
 										for _, b := range data.Branches {
-											<option value={ fmt.Sprintf("%d", b.ID) }>{ b.Name }</option>
+											<option value={ fmt.Sprintf("%d", b.ID) } selected?={ b.IsMain }>
+												{ b.Name }
+												if b.IsMain {
+													<span> (الفرع الرئيسي)</span>
+												}
+											</option>
 										}
 									</select>
 								</div>
@@ -810,9 +818,13 @@ templ VendorProducts(data VendorVariantsData, lang, dir string, isPartial bool) 
 									مخزن / فرع الشحن
 								</label>
 								<select name="branch_id" class="form-input" style="width:100%; border-radius:var(--radius-lg);">
-									<option value="">المخزن الرئيسي الافتراضي</option>
 									for _, b := range data.Branches {
-										<option value={ fmt.Sprintf("%d", b.ID) }>{ b.Name }</option>
+										<option value={ fmt.Sprintf("%d", b.ID) } selected?={ b.IsMain }>
+											{ b.Name }
+											if b.IsMain {
+												<span> (الفرع الرئيسي)</span>
+											}
+										</option>
 									}
 								</select>
 							</div>
@@ -898,7 +910,12 @@ templ VendorProducts(data VendorVariantsData, lang, dir string, isPartial bool) 
 					
 					const branchSelect = document.getElementById('edit-form-branch');
 					if (branchSelect) {
-						branchSelect.value = row.dataset.branchId || '';
+						if (row.dataset.branchId && row.dataset.branchId !== '' && row.dataset.branchId !== '0') {
+							branchSelect.value = row.dataset.branchId;
+						}
+						if (!branchSelect.value && branchSelect.options.length > 0) {
+							branchSelect.selectedIndex = 0;
+						}
 					}
 
 					if (window.openModal) {

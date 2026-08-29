@@ -365,7 +365,7 @@ func UnifiedSettingsPage(data UnifiedSettingsData, lang, dir string) templ.Compo
 					return templ_7745c5c3_Err
 				}
 			} else {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 32, "<div class=\"table-container\" style=\"margin:0; border:none;\"><table class=\"b2b-table m-0\"><thead><tr><th># الطلب</th><th>المبلغ</th><th>طريقة التحويل</th><th>الرقم المرجعي</th><th>إشعار التحويل</th><th>تاريخ الطلب</th><th>حالة الطلب والمراجعة</th><th class=\"text-end\">الإجراء</th></tr></thead> <tbody>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 32, "<div class=\"table-container m-0\"><table class=\"data-table m-0\"><thead><tr><th># الطلب</th><th>المبلغ</th><th>طريقة التحويل</th><th>الرقم المرجعي</th><th>إشعار التحويل</th><th>تاريخ الطلب</th><th>حالة الطلب والمراجعة</th><th class=\"text-end\">الإجراء</th></tr></thead> <tbody>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -632,7 +632,7 @@ func UnifiedSettingsPage(data UnifiedSettingsData, lang, dir string) templ.Compo
 					return templ_7745c5c3_Err
 				}
 			} else {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 66, "<div class=\"table-container\" style=\"margin:0; border:none;\"><table class=\"b2b-table m-0\"><thead><tr><th>رقم المعاملة</th><th>نوع العملية</th><th>البيان والتفاصيل</th><th>المبلغ</th><th>الرصيد بعدها</th><th>التاريخ والوقت</th><th>الحالة</th></tr></thead> <tbody>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 66, "<div class=\"table-container m-0\"><table class=\"data-table m-0\"><thead><tr><th>رقم المعاملة</th><th>نوع العملية</th><th>البيان والتفاصيل</th><th>المبلغ</th><th>الرصيد بعدها</th><th>التاريخ والوقت</th><th>الحالة</th></tr></thead> <tbody>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}

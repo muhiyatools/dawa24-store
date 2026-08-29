@@ -111,10 +111,12 @@ templ VendorProductEditor(data VendorVariantEditorData, lang, dir string) {
 					<div>
 						<label class="form-label" for="var-branch">مخزن أو فرع الشحن المعتمد *</label>
 						<select id="var-branch" name="branch_id" class="form-select">
-							<option value="">المخزن الرئيسي الافتراضي</option>
 							for _, b := range data.Branches {
-								<option value={ fmt.Sprintf("%d", b.ID) }>
+								<option value={ fmt.Sprintf("%d", b.ID) } selected?={ b.IsMain }>
 									{ b.Name.Get(i18n.Lang(lang)) }
+									if b.IsMain {
+										<span> (الفرع الرئيسي)</span>
+									}
 									if b.Code != "" {
 										({ b.Code })
 									}

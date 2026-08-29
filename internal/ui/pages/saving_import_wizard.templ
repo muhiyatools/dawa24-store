@@ -20,18 +20,26 @@ templ SavingImportPage(view SavingImportView, lang, dir string) {
 }
 
 templ savingImportContent(view SavingImportView) {
-	<div class="stack-lg">
-		@components.PageHeader(components.PageHeaderProps{
-			Title:    "استيراد قائمة أصناف التوفير والنواقص",
-			Subtitle: "ارفع ملف الأدوية، وافحص المطابقة التفاعلية مع الكتالوج المركزي، وراجع الكميات والأسعار قبل الحفظ النهائي",
-		}) {
-			<div class="row-center">
-				<a href={ templ.SafeURL(view.BaseURL) } class="btn btn-secondary btn-sm fw-700">
-					@components.IconPackage("icon-xs")
-					<span>العودة لقائمة التوفير</span>
-				</a>
+	<div class="page-container">
+		<div class="glass-panel p-6 mb-6">
+			<div class="flex-between items-center flex-wrap gap-4">
+				<div class="d-flex items-center gap-3">
+					<div class="user-avatar-badge text-xl">
+						📦
+					</div>
+					<div>
+						<h1 class="text-2xl font-black text-primary m-0">استيراد قائمة أصناف التوفير والنواقص</h1>
+						<p class="text-sm text-secondary m-0 mt-1">ارفع ملف الأدوية، وافحص المطابقة التفاعلية مع الكتالوج المركزي، وراجع الكميات والأسعار قبل الحفظ النهائي</p>
+					</div>
+				</div>
+				<div class="d-flex items-center gap-2">
+					<a href={ templ.SafeURL(view.BaseURL) } class="btn btn-secondary btn-sm font-bold text-xs gap-1">
+						@components.IconPackage("icon-xs")
+						<span>العودة لقائمة التوفير</span>
+					</a>
+				</div>
 			</div>
-		}
+		</div>
 
 		<div class="wizard">
 			@savingImportRail(view)
@@ -43,7 +51,7 @@ templ savingImportContent(view SavingImportView) {
 			}
 
 			if view.Fatal != "" {
-				<div class="card">
+				<div class="glass-panel p-6 mb-6">
 					<h2 class="wiz-head text-danger">تعذر إكمال العملية</h2>
 					<p class="wiz-sub">{ view.Fatal }</p>
 					<div class="row-center">
@@ -173,17 +181,16 @@ templ savingUploadStage(view SavingImportView) {
 }
 
 templ savingSessionsHistoryCard(view SavingImportView) {
-	<div class="card">
-		<div class="flex-between items-center mb-md">
+	<div class="glass-panel p-0 mb-6 overflow-hidden">
+		<div class="p-4 border-b flex-between items-center">
 			<div>
-				<h3 class="wiz-head mb-0 text-base">سجل جلسات الاستيراد السابقة والنشطة</h3>
-				<p class="wiz-sub mb-0 text-xs">يمكنك استئناف مراجعة أي جلسة قيد الانتظار أو مراجعة نتائج الجلسات المكتملة</p>
+				<h3 class="text-sm font-black text-primary m-0">سجل جلسات الاستيراد السابقة والنشطة</h3>
+				<p class="text-xs text-secondary m-0 mt-0.5">يمكنك استئناف مراجعة أي جلسة قيد الانتظار أو مراجعة نتائج الجلسات المكتملة</p>
 			</div>
 		</div>
 
-		<div class="b2b-table-card">
-			<div class="b2b-table-container">
-				<table class="b2b-table">
+		<div class="table-container m-0">
+			<table class="data-table m-0">
 					<thead>
 						<tr>
 							<th>اسم الملف</th>

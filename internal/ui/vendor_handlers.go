@@ -247,6 +247,18 @@ func (h *UIHandler) VendorVariantNewSubmit(w http.ResponseWriter, r *http.Reques
 	var branchID *int64
 	if branchIDVal > 0 {
 		branchID = &branchIDVal
+	} else if h.orgSvc != nil {
+		if branches, err := h.orgSvc.ListBranches(ctx, actor.OrganizationID); err == nil && len(branches) > 0 {
+			for _, b := range branches {
+				if b.IsMain {
+					branchID = &b.ID
+					break
+				}
+			}
+			if branchID == nil {
+				branchID = &branches[0].ID
+			}
+		}
 	}
 
 	var expiryDate *time.Time

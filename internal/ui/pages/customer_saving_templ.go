@@ -62,50 +62,50 @@ func CustomerSavingProductsPage(data CustomerSavingPageData, lang, dir string) t
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div style=\"max-width:1440px; margin:0 auto; display:flex; flex-direction:column; gap:1.5rem;\"><!-- Notice / Toast Banner -->")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"page-container\"><!-- Notice / Toast Banner -->")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			if data.NoticeMsg != "" {
-				if data.NoticeType == "error" {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "<div class=\"alert alert-danger\" style=\"display:flex; align-items:center; justify-content:space-between; padding:1.15rem 1.5rem; border-radius:var(--radius-xl); background:rgba(239, 68, 68, 0.12); border:1px solid rgba(239, 68, 68, 0.35); color:#ef4444; box-shadow:0 10px 25px rgba(0,0,0,0.15);\"><div style=\"display:flex; align-items:center; gap:0.75rem; font-weight:800; font-size:0.95rem;\"><span class=\"text-2xl\">⚠️</span> <span>")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					var templ_7745c5c3_Var3 string
-					templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(data.NoticeMsg)
-					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_saving.templ`, Line: 34, Col: 29}
-					}
-					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "</span></div></div>")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-				} else {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "<div class=\"alert alert-success\" style=\"display:flex; align-items:center; justify-content:space-between; padding:1.15rem 1.5rem; border-radius:var(--radius-xl); background:rgba(16, 185, 129, 0.12); border:1px solid rgba(16, 185, 129, 0.35); color:#10b981; box-shadow:0 10px 25px rgba(0,0,0,0.15);\"><div style=\"display:flex; align-items:center; gap:0.75rem; font-weight:800; font-size:0.95rem;\"><span class=\"text-2xl\">✅</span> <span>")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					var templ_7745c5c3_Var4 string
-					templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(data.NoticeMsg)
-					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_saving.templ`, Line: 41, Col: 29}
-					}
-					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "</span></div></div>")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
+				var templ_7745c5c3_Var3 = []any{"alert mb-4",
+					templ.KV("alert-success", data.NoticeType != "error"),
+					templ.KV("alert-danger", data.NoticeType == "error")}
+				templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var3...)
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "<div class=\"")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				var templ_7745c5c3_Var4 string
+				templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(templ.CSSClasses(templ_7745c5c3_Var3).String())
+				if templ_7745c5c3_Err != nil {
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_saving.templ`, Line: 1, Col: 0}
+				}
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "\" role=\"alert\">")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				var templ_7745c5c3_Var5 string
+				templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(data.NoticeMsg)
+				if templ_7745c5c3_Err != nil {
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_saving.templ`, Line: 36, Col: 21}
+				}
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "</div>")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "<!-- Top Header Banner --><div class=\"card\" style=\"background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-2xl); padding:1.75rem; margin-bottom:0;\"><div style=\"display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1.25rem;\"><div style=\"display:flex; align-items:center; gap:1rem;\"><div style=\"width:54px; height:54px; border-radius:var(--radius-xl); background:linear-gradient(135deg, #10b981 0%, #06b6d4 100%); color:#fff; display:flex; align-items:center; justify-content:center; font-size:1.75rem; box-shadow:0 8px 20px rgba(16,185,129,0.25);\">💊</div><div><h1 style=\"font-size:1.65rem; font-weight:900; color:var(--text); margin:0;\">منتجات وأدوية التوفير للصيدلية</h1><p style=\"color:var(--text-muted); font-size:0.875rem; margin:0.25rem 0 0 0;\">تتبع أدوية الصيدلية ومقارنة عروض وخصومات الموردين المتاحة بالكتالوج بالأسعار الحية</p></div></div><!-- Top Action Buttons --><div style=\"display:flex; align-items:center; gap:0.75rem; flex-wrap:wrap;\"><button type=\"button\" class=\"btn btn-primary\" data-modal-open=\"pharmacy-saving-product-modal\" style=\"background:#10b981; border-color:#10b981; color:#fff; font-weight:800; font-size:0.9rem; padding:0.65rem 1.25rem; border-radius:var(--radius-lg);\" onclick=\"openPharmacyCreateModal()\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "<!-- Top Header Banner --><div class=\"glass-panel p-6 mb-6\"><div class=\"flex-between items-center flex-wrap gap-4\"><div class=\"d-flex items-center gap-3\"><div class=\"user-avatar-badge text-xl\">💊</div><div><h1 class=\"text-2xl font-black text-primary m-0\">منتجات وأدوية التوفير للصيدلية</h1><p class=\"text-sm text-secondary m-0 mt-1\">تتبع أدوية الصيدلية ومقارنة عروض وخصومات الموردين المتاحة بالكتالوج بالأسعار الحية</p></div></div><!-- Top Action Buttons --><div class=\"d-flex items-center gap-2 flex-wrap\"><button type=\"button\" class=\"btn btn-primary font-bold text-xs px-3 py-2\" data-modal-open=\"pharmacy-saving-product-modal\" onclick=\"openPharmacyCreateModal()\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -113,7 +113,7 @@ func CustomerSavingProductsPage(data CustomerSavingPageData, lang, dir string) t
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "<span>إضافة صنف توفير جديد</span></button> <a href=\"/customer/saving-products/import\" class=\"btn btn-secondary\" style=\"font-weight:800; font-size:0.9rem; padding:0.65rem 1.25rem; border-radius:var(--radius-lg); text-decoration:none;\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "<span>إضافة صنف توفير جديد</span></button> <a href=\"/customer/saving-products/import\" class=\"btn btn-secondary font-bold text-xs px-3 py-2 text-decoration-none\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -121,7 +121,7 @@ func CustomerSavingProductsPage(data CustomerSavingPageData, lang, dir string) t
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "<span>استيراد قائمة الأدوية (Excel / CSV)</span></a> <a href=\"/customer/saving-products/export\" class=\"btn btn-secondary\" style=\"background:#0f766e; border-color:#0f766e; color:#fff; font-weight:800; font-size:0.9rem; padding:0.65rem 1.25rem; border-radius:var(--radius-lg); text-decoration:none;\" download>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "<span>استيراد قائمة الأدوية (Excel / CSV)</span></a> <a href=\"/customer/saving-products/export\" class=\"btn btn-secondary font-bold text-xs px-3 py-2 text-decoration-none\" download>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -129,20 +129,7 @@ func CustomerSavingProductsPage(data CustomerSavingPageData, lang, dir string) t
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "<span>تصدير Excel 📊</span></a></div></div></div><!-- 3 Status Metric Cards --><div style=\"display:grid; grid-template-columns:repeat(auto-fit, minmax(240px, 1fr)); gap:1.25rem;\"><a href=\"/customer/saving-products?filter=all\" class=\"card\" style=\"")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			var templ_7745c5c3_Var5 string
-			templ_7745c5c3_Var5, templ_7745c5c3_Err = templruntime.SanitizeStyleAttributeValues(fmt.Sprintf("padding:1.5rem; margin:0; text-decoration:none; background:var(--surface-raised); border:2px solid %s; border-radius:var(--radius-2xl); display:flex; justify-content:space-between; align-items:center; transition:transform 0.2s;", savingFilterBorder(data.FilterStatus, "all")))
-			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_saving.templ`, Line: 104, Col: 301}
-			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "\"><div><div style=\"font-size:0.875rem; font-weight:700; color:var(--text-muted); margin-bottom:0.35rem;\">جميع الأصناف المسجلة</div><div style=\"font-size:2.2rem; font-weight:900; color:var(--text);\" class=\"tabular-nums\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "<span>تصدير Excel 📊</span></a></div></div></div><!-- 3 Status Metric Cards --><div class=\"dashboard-stat-grid mb-6\"><a href=\"/customer/saving-products?filter=all\" class=\"stat-card-3d text-decoration-none\"><div class=\"stat-card-label\">جميع الأصناف المسجلة</div><div class=\"stat-card-value text-primary tabular-nums\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -150,9 +137,29 @@ func CustomerSavingProductsPage(data CustomerSavingPageData, lang, dir string) t
 				var templ_7745c5c3_Var6 string
 				templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", data.Stats.CountAll))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_saving.templ`, Line: 112, Col: 48}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_saving.templ`, Line: 98, Col: 47}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+			} else {
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "0")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "</div><span class=\"text-xs text-secondary mt-1 d-block\">إجمالي قائمة الأدوية</span></a> <a href=\"/customer/saving-products?filter=linked\" class=\"stat-card-3d text-decoration-none\"><div class=\"stat-card-label text-sky\">أصناف مرتبطة بالكتالوج</div><div class=\"stat-card-value text-sky tabular-nums\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			if data.Stats != nil {
+				var templ_7745c5c3_Var7 string
+				templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", data.Stats.CountLinked))
+				if templ_7745c5c3_Err != nil {
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_saving.templ`, Line: 113, Col: 50}
+				}
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -162,112 +169,58 @@ func CustomerSavingProductsPage(data CustomerSavingPageData, lang, dir string) t
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "</div></div><div style=\"width:48px; height:48px; border-radius:var(--radius-xl); background:rgba(16, 185, 129, 0.12); color:#10b981; display:flex; align-items:center; justify-content:center; font-size:1.5rem;\">📋</div></a> <a href=\"/customer/saving-products?filter=linked\" class=\"card\" style=\"")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			var templ_7745c5c3_Var7 string
-			templ_7745c5c3_Var7, templ_7745c5c3_Err = templruntime.SanitizeStyleAttributeValues(fmt.Sprintf("padding:1.5rem; margin:0; text-decoration:none; background:var(--surface-raised); border:2px solid %s; border-radius:var(--radius-2xl); display:flex; justify-content:space-between; align-items:center; transition:transform 0.2s;", savingFilterBorder(data.FilterStatus, "linked")))
-			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_saving.templ`, Line: 126, Col: 304}
-			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "\"><div><div style=\"font-size:0.875rem; font-weight:700; color:var(--text-muted); margin-bottom:0.35rem;\">أصناف مرتبطة بالكتالوج</div><div style=\"font-size:2.2rem; font-weight:900; color:#38bdf8;\" class=\"tabular-nums\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "</div><span class=\"text-xs text-secondary mt-1 d-block\">مفعلة وتتتبع الأسعار حياً</span></a> <a href=\"/customer/saving-products?filter=unlinked\" class=\"stat-card-3d text-decoration-none\"><div class=\"stat-card-label text-warning\">أصناف بحاجة إلى ربط</div><div class=\"stat-card-value text-warning tabular-nums\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			if data.Stats != nil {
 				var templ_7745c5c3_Var8 string
-				templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", data.Stats.CountLinked))
+				templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", data.Stats.CountUnlinked))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_saving.templ`, Line: 134, Col: 51}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_saving.templ`, Line: 128, Col: 52}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var8))
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			} else {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "0")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "0")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "</div></div><div style=\"width:48px; height:48px; border-radius:var(--radius-xl); background:rgba(56, 189, 248, 0.12); color:#38bdf8; display:flex; align-items:center; justify-content:center; font-size:1.5rem;\">🔗</div></a> <a href=\"/customer/saving-products?filter=unlinked\" class=\"card\" style=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "</div><span class=\"text-xs text-secondary mt-1 d-block\">غير مربوطة بصنف معتمد</span></a></div><!-- Search Filter Bar --><div class=\"glass-panel p-4 mb-6 flex-between items-center flex-wrap gap-4\"><div class=\"position-relative\" style=\"flex:1; min-width:260px; max-width:480px;\"><input type=\"text\" id=\"pharmacy-saving-search-input\" value=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var9 string
-			templ_7745c5c3_Var9, templ_7745c5c3_Err = templruntime.SanitizeStyleAttributeValues(fmt.Sprintf("padding:1.5rem; margin:0; text-decoration:none; background:var(--surface-raised); border:2px solid %s; border-radius:var(--radius-2xl); display:flex; justify-content:space-between; align-items:center; transition:transform 0.2s;", savingFilterBorder(data.FilterStatus, "unlinked")))
+			templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinStringErrs(data.SearchQuery)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_saving.templ`, Line: 148, Col: 306}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_saving.templ`, Line: 143, Col: 30}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var9))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "\"><div><div style=\"font-size:0.875rem; font-weight:700; color:var(--text-muted); margin-bottom:0.35rem;\">أصناف بحاجة إلى ربط</div><div style=\"font-size:2.2rem; font-weight:900; color:#f59e0b;\" class=\"tabular-nums\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "\" placeholder=\"ابحث باسم الدواء، الكود SKU، أو اسم الصنف بالكتالوج...\" class=\"form-input text-xs w-full\" oninput=\"filterPharmacySavingTable(this.value)\"></div><div class=\"badge badge-slate text-xs font-bold tabular-nums\">عرض: ")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			if data.Stats != nil {
-				var templ_7745c5c3_Var10 string
-				templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", data.Stats.CountUnlinked))
-				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_saving.templ`, Line: 156, Col: 53}
-				}
-				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var10))
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-			} else {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "0")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
+			var templ_7745c5c3_Var10 string
+			templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", len(data.Items)))
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_saving.templ`, Line: 151, Col: 49}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "</div></div><div style=\"width:48px; height:48px; border-radius:var(--radius-xl); background:rgba(245, 158, 11, 0.12); color:#f59e0b; display:flex; align-items:center; justify-content:center; font-size:1.5rem;\">⚠️</div></a></div><!-- Search Filter Bar --><div class=\"card\" style=\"padding:1rem 1.5rem; margin-bottom:0; background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-xl); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem;\"><div style=\"flex:1; min-width:280px; max-width:500px; position:relative;\"><input type=\"text\" id=\"pharmacy-saving-search-input\" value=\"")
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var10))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			var templ_7745c5c3_Var11 string
-			templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.JoinStringErrs(data.SearchQuery)
-			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_saving.templ`, Line: 174, Col: 30}
-			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var11))
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "\" placeholder=\"ابحث باسم الدواء، الكود SKU، أو اسم الصنف بالكتالوج...\" class=\"form-input\" style=\"padding-inline-start:2.5rem; width:100%; border-radius:var(--radius-lg);\" oninput=\"filterPharmacySavingTable(this.value)\"><div style=\"position:absolute; inset-inline-start:0.85rem; top:50%; transform:translateY(-50%); color:var(--text-muted); pointer-events:none;\">")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = components.IconSearch("icon-xs").Render(ctx, templ_7745c5c3_Buffer)
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, "</div></div><div class=\"row-center-sm\"><span style=\"font-size:0.85rem; font-weight:700; color:var(--text-muted);\">عرض: ")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			var templ_7745c5c3_Var12 string
-			templ_7745c5c3_Var12, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", len(data.Items)))
-			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_saving.templ`, Line: 187, Col: 50}
-			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var12))
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, " صنف</span></div></div><!-- Saving Products Table Card --><div class=\"card\" style=\"background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-2xl); padding:0; overflow:hidden;\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, " صنف</div></div><!-- Saving Products Table Card --><div class=\"glass-panel p-0 mb-6 overflow-hidden\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			if len(data.Items) == 0 {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, "<div style=\"padding:4rem 2rem; text-align:center;\"><div style=\"font-size:3.5rem; margin-bottom:1rem;\">📦</div><h3 style=\"font-size:1.35rem; font-weight:800; color:var(--text); margin:0 0 0.5rem 0;\">لا توجد أصناف مسجلة في قائمة التوفير حالياً</h3><p style=\"color:var(--text-muted); max-width:520px; margin:0 auto 1.5rem auto; font-size:0.9rem; line-height:1.6;\">أضف أدويتك الأكثر استهلاكاً أو ارفع ملف Excel لمتابعة خصومات الموردين واقتناص أفضل الأسعار.</p><div style=\"display:flex; justify-content:center; gap:0.75rem; flex-wrap:wrap;\"><button type=\"button\" class=\"btn btn-primary fw-800\" onclick=\"openPharmacyCreateModal()\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "<div class=\"p-8 text-center empty-state-glass\"><div class=\"text-4xl mb-3\">📦</div><h3 class=\"text-lg font-black text-primary mb-2\">لا توجد أصناف مسجلة في قائمة التوفير حالياً</h3><p class=\"text-sm text-secondary max-w-md mx-auto mb-4\">أضف أدويتك الأكثر استهلاكاً أو ارفع ملف Excel لمتابعة خصومات الموردين واقتناص أفضل الأسعار.</p><div class=\"d-flex justify-center gap-2 flex-wrap\"><button type=\"button\" class=\"btn btn-primary font-bold text-xs px-4\" onclick=\"openPharmacyCreateModal()\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -275,7 +228,7 @@ func CustomerSavingProductsPage(data CustomerSavingPageData, lang, dir string) t
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, "<span>إضافة صنف جديد</span></button> <button type=\"button\" class=\"btn btn-secondary fw-800\" onclick=\"openPharmacyImportModal()\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "<span>إضافة صنف جديد</span></button> <button type=\"button\" class=\"btn btn-secondary font-bold text-xs px-4\" onclick=\"openPharmacyImportModal()\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -283,171 +236,171 @@ func CustomerSavingProductsPage(data CustomerSavingPageData, lang, dir string) t
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, "<span>استيراد ملف Excel</span></button></div></div>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "<span>استيراد ملف Excel</span></button></div></div>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			} else {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 25, "<div class=\"table-container\" style=\"margin:0; overflow-x:auto;\"><table class=\"b2b-table\" style=\"width:100%; border-collapse:collapse;\"><thead><tr style=\"background:var(--surface-sunken); border-bottom:2px solid var(--border); text-align:start; font-size:0.8rem; color:var(--text-muted);\"><th class=\"p-card-sm\">اسم الصنف للصيدلية</th><th class=\"p-md\">الربط بالكتالوج العام</th><th class=\"p-md text-center\">الكمية</th><th class=\"p-md text-center\">سعر الشراء</th><th class=\"p-md text-center\">عروض الموردين</th><th style=\"padding:1rem 1.25rem; text-align:center;\">الإجراءات</th></tr></thead> <tbody>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, "<div class=\"table-container m-0\"><table class=\"data-table m-0\"><thead><tr><th>اسم الصنف للصيدلية</th><th>الربط بالكتالوج العام</th><th class=\"p-md text-center\">الكمية</th><th class=\"p-md text-center\">سعر الشراء</th><th class=\"p-md text-center\">عروض الموردين</th><th style=\"padding:1rem 1.25rem; text-align:center;\">الإجراءات</th></tr></thead> <tbody>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				for _, it := range data.Items {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 26, "<tr class=\"pharmacy-saving-row\" data-id=\"")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, "<tr class=\"pharmacy-saving-row\" data-id=\"")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					var templ_7745c5c3_Var11 string
+					templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", it.ID))
+					if templ_7745c5c3_Err != nil {
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_saving.templ`, Line: 194, Col: 44}
+					}
+					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var11))
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, "\" data-name=\"")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					var templ_7745c5c3_Var12 string
+					templ_7745c5c3_Var12, templ_7745c5c3_Err = templ.JoinStringErrs(it.NameProduct)
+					if templ_7745c5c3_Err != nil {
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_saving.templ`, Line: 195, Col: 36}
+					}
+					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var12))
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, "\" data-sku=\"")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var13 string
-					templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", it.ID))
+					templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.JoinStringErrs(it.SKU)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_saving.templ`, Line: 231, Col: 44}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_saving.templ`, Line: 196, Col: 27}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var13))
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 27, "\" data-name=\"")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, "\" data-qty=\"")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var14 string
-					templ_7745c5c3_Var14, templ_7745c5c3_Err = templ.JoinStringErrs(it.NameProduct)
+					templ_7745c5c3_Var14, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%v", it.Quantity))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_saving.templ`, Line: 232, Col: 36}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_saving.templ`, Line: 197, Col: 51}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var14))
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 28, "\" data-sku=\"")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 25, "\" data-price=\"")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var15 string
-					templ_7745c5c3_Var15, templ_7745c5c3_Err = templ.JoinStringErrs(it.SKU)
+					templ_7745c5c3_Var15, templ_7745c5c3_Err = templ.JoinStringErrs(it.Price.String())
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_saving.templ`, Line: 233, Col: 27}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_saving.templ`, Line: 198, Col: 40}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var15))
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 29, "\" data-qty=\"")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 26, "\" data-product-id=\"")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var16 string
-					templ_7745c5c3_Var16, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%v", it.Quantity))
+					templ_7745c5c3_Var16, templ_7745c5c3_Err = templ.JoinStringErrs(savingProductIDStr(it.ProductID))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_saving.templ`, Line: 234, Col: 51}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_saving.templ`, Line: 199, Col: 60}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var16))
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 30, "\" data-price=\"")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 27, "\" data-product-name=\"")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var17 string
-					templ_7745c5c3_Var17, templ_7745c5c3_Err = templ.JoinStringErrs(it.Price.String())
+					templ_7745c5c3_Var17, templ_7745c5c3_Err = templ.JoinStringErrs(it.LinkedProductName.Get(i18n.AR))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_saving.templ`, Line: 235, Col: 40}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_saving.templ`, Line: 200, Col: 63}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var17))
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 31, "\" data-product-id=\"")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 28, "\" style=\"border-bottom:1px solid var(--border); transition:background 0.15s;\"><!-- Name & SKU --><td class=\"p-card-sm\"><div class=\"fw-800 text-primary text-base\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var18 string
-					templ_7745c5c3_Var18, templ_7745c5c3_Err = templ.JoinStringErrs(savingProductIDStr(it.ProductID))
+					templ_7745c5c3_Var18, templ_7745c5c3_Err = templ.JoinStringErrs(it.NameProduct)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_saving.templ`, Line: 236, Col: 60}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_saving.templ`, Line: 206, Col: 28}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var18))
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 32, "\" data-product-name=\"")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					var templ_7745c5c3_Var19 string
-					templ_7745c5c3_Var19, templ_7745c5c3_Err = templ.JoinStringErrs(it.LinkedProductName.Get(i18n.AR))
-					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_saving.templ`, Line: 237, Col: 63}
-					}
-					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var19))
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 33, "\" style=\"border-bottom:1px solid var(--border); transition:background 0.15s;\"><!-- Name & SKU --><td class=\"p-card-sm\"><div class=\"fw-800 text-primary text-base\">")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					var templ_7745c5c3_Var20 string
-					templ_7745c5c3_Var20, templ_7745c5c3_Err = templ.JoinStringErrs(it.NameProduct)
-					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_saving.templ`, Line: 243, Col: 28}
-					}
-					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var20))
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 34, "</div>")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 29, "</div>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 					if it.SKU != "" {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 35, "<div style=\"font-size:0.75rem; color:var(--text-muted); margin-top:2px;\"><code>")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 30, "<div style=\"font-size:0.75rem; color:var(--text-muted); margin-top:2px;\"><code>")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
-						var templ_7745c5c3_Var21 string
-						templ_7745c5c3_Var21, templ_7745c5c3_Err = templ.JoinStringErrs(it.SKU)
+						var templ_7745c5c3_Var19 string
+						templ_7745c5c3_Var19, templ_7745c5c3_Err = templ.JoinStringErrs(it.SKU)
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_saving.templ`, Line: 247, Col: 27}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_saving.templ`, Line: 210, Col: 27}
 						}
-						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var21))
+						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var19))
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 36, "</code></div>")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 31, "</code></div>")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 37, "</td><!-- Linked Product --><td class=\"p-md\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 32, "</td><!-- Linked Product --><td class=\"p-md\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 					if it.ProductID != nil && *it.ProductID > 0 {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 38, "<div class=\"row-center-sm\"><span class=\"badge badge-emerald text-xs fw-800\">🔗 ")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 33, "<div class=\"row-center-sm\"><span class=\"badge badge-emerald text-xs fw-800\">🔗 ")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
-						var templ_7745c5c3_Var22 string
-						templ_7745c5c3_Var22, templ_7745c5c3_Err = templ.JoinStringErrs(it.LinkedProductName.Get(i18n.AR))
+						var templ_7745c5c3_Var20 string
+						templ_7745c5c3_Var20, templ_7745c5c3_Err = templ.JoinStringErrs(it.LinkedProductName.Get(i18n.AR))
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_saving.templ`, Line: 257, Col: 54}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_saving.templ`, Line: 220, Col: 54}
 						}
-						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var22))
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 39, "</span> <a href=\"")
+						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var20))
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
-						var templ_7745c5c3_Var23 templ.SafeURL = templ.SafeURL(fmt.Sprintf("/catalog/%d", *it.ProductID))
-						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(string(templ_7745c5c3_Var23)))
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 34, "</span> <a href=\"")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 40, "\" target=\"_blank\" class=\"btn btn-secondary btn-icon\" style=\"width:26px; height:26px;\" title=\"عرض بالكتالوج\">")
+						var templ_7745c5c3_Var21 templ.SafeURL = templ.SafeURL(fmt.Sprintf("/catalog/%d", *it.ProductID))
+						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(string(templ_7745c5c3_Var21)))
+						if templ_7745c5c3_Err != nil {
+							return templ_7745c5c3_Err
+						}
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 35, "\" target=\"_blank\" class=\"btn btn-secondary btn-icon\" style=\"width:26px; height:26px;\" title=\"عرض بالكتالوج\">")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
@@ -455,43 +408,43 @@ func CustomerSavingProductsPage(data CustomerSavingPageData, lang, dir string) t
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 41, "</a></div>")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 36, "</a></div>")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
 					} else {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 42, "<span class=\"badge badge-amber text-xs fw-700\">غير مرتبط</span>")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 37, "<span class=\"badge badge-amber text-xs fw-700\">غير مرتبط</span>")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 43, "</td><!-- Quantity --><td class=\"p-md text-center tabular-nums\"><strong>")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 38, "</td><!-- Quantity --><td class=\"p-md text-center tabular-nums\"><strong>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					var templ_7745c5c3_Var24 string
-					templ_7745c5c3_Var24, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%v", it.Quantity))
+					var templ_7745c5c3_Var22 string
+					templ_7745c5c3_Var22, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%v", it.Quantity))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_saving.templ`, Line: 272, Col: 51}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_saving.templ`, Line: 235, Col: 51}
 					}
-					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var24))
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 44, "</strong></td><!-- Price --><td class=\"p-md text-center tabular-nums\"><strong class=\"text-primary\">")
+					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var22))
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					var templ_7745c5c3_Var25 string
-					templ_7745c5c3_Var25, templ_7745c5c3_Err = templ.JoinStringErrs(it.Price.String())
-					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_saving.templ`, Line: 277, Col: 59}
-					}
-					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var25))
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 39, "</strong></td><!-- Price --><td class=\"p-md text-center tabular-nums\"><strong class=\"text-primary\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 45, " ج.م</strong></td><!-- Providers & Market Offers --><td class=\"p-md text-center\">")
+					var templ_7745c5c3_Var23 string
+					templ_7745c5c3_Var23, templ_7745c5c3_Err = templ.JoinStringErrs(it.Price.String())
+					if templ_7745c5c3_Err != nil {
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_saving.templ`, Line: 240, Col: 59}
+					}
+					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var23))
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 40, " ج.م</strong></td><!-- Providers & Market Offers --><td class=\"p-md text-center\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -500,65 +453,65 @@ func CustomerSavingProductsPage(data CustomerSavingPageData, lang, dir string) t
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 46, "<button type=\"button\" class=\"btn btn-secondary btn-sm\" style=\"font-size:0.78rem; font-weight:800; gap:0.35rem; color:var(--accent); cursor:pointer;\" data-open-providers-id=\"")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 41, "<button type=\"button\" class=\"btn btn-secondary btn-sm\" style=\"font-size:0.78rem; font-weight:800; gap:0.35rem; color:var(--accent); cursor:pointer;\" data-open-providers-id=\"")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
-						var templ_7745c5c3_Var26 string
-						templ_7745c5c3_Var26, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", *it.ProductID))
+						var templ_7745c5c3_Var24 string
+						templ_7745c5c3_Var24, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", *it.ProductID))
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_saving.templ`, Line: 287, Col: 70}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_saving.templ`, Line: 250, Col: 70}
 						}
-						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var26))
+						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var24))
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 47, "\" data-open-providers-name=\"")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 42, "\" data-open-providers-name=\"")
+						if templ_7745c5c3_Err != nil {
+							return templ_7745c5c3_Err
+						}
+						var templ_7745c5c3_Var25 string
+						templ_7745c5c3_Var25, templ_7745c5c3_Err = templ.JoinStringErrs(it.NameProduct)
+						if templ_7745c5c3_Err != nil {
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_saving.templ`, Line: 251, Col: 54}
+						}
+						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var25))
+						if templ_7745c5c3_Err != nil {
+							return templ_7745c5c3_Err
+						}
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 43, "\" onclick=\"")
+						if templ_7745c5c3_Err != nil {
+							return templ_7745c5c3_Err
+						}
+						var templ_7745c5c3_Var26 templ.ComponentScript = templ.ComponentScript{Call: fmt.Sprintf("openPharmacyProvidersModal(%d, %q)", *it.ProductID, it.NameProduct)}
+						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var26.Call)
+						if templ_7745c5c3_Err != nil {
+							return templ_7745c5c3_Err
+						}
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 44, "\"><span>")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
 						var templ_7745c5c3_Var27 string
-						templ_7745c5c3_Var27, templ_7745c5c3_Err = templ.JoinStringErrs(it.NameProduct)
+						templ_7745c5c3_Var27, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d موردين", it.ProvidingOrgsCount))
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_saving.templ`, Line: 288, Col: 54}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_saving.templ`, Line: 254, Col: 74}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var27))
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 48, "\" onclick=\"")
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-						var templ_7745c5c3_Var28 templ.ComponentScript = templ.ComponentScript{Call: fmt.Sprintf("openPharmacyProvidersModal(%d, %q)", *it.ProductID, it.NameProduct)}
-						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var28.Call)
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 49, "\"><span>")
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-						var templ_7745c5c3_Var29 string
-						templ_7745c5c3_Var29, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d موردين", it.ProvidingOrgsCount))
-						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_saving.templ`, Line: 291, Col: 74}
-						}
-						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var29))
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 50, "</span></button>")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 45, "</span></button>")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
 					} else {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 51, "<span class=\"text-xs text-muted\">-</span>")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 46, "<span class=\"text-xs text-muted\">-</span>")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 52, "</td><!-- Actions --><td style=\"padding:1rem 1.25rem; text-align:center;\"><div style=\"display:flex; align-items:center; justify-content:center; gap:0.4rem;\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 47, "</td><!-- Actions --><td style=\"padding:1rem 1.25rem; text-align:center;\"><div style=\"display:flex; align-items:center; justify-content:center; gap:0.4rem;\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -566,16 +519,16 @@ func CustomerSavingProductsPage(data CustomerSavingPageData, lang, dir string) t
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 53, "<button type=\"button\" class=\"btn btn-secondary btn-icon size-8\" title=\"تعديل الصنف والربط\" onclick=\"")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 48, "<button type=\"button\" class=\"btn btn-secondary btn-icon size-8\" title=\"تعديل الصنف والربط\" onclick=\"")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					var templ_7745c5c3_Var30 templ.ComponentScript = templ.ComponentScript{Call: fmt.Sprintf("openPharmacyEditModalFromRow(%d)", it.ID)}
-					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var30.Call)
+					var templ_7745c5c3_Var28 templ.ComponentScript = templ.ComponentScript{Call: fmt.Sprintf("openPharmacyEditModalFromRow(%d)", it.ID)}
+					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var28.Call)
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 54, "\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 49, "\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -583,7 +536,7 @@ func CustomerSavingProductsPage(data CustomerSavingPageData, lang, dir string) t
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 55, "</button> ")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 50, "</button> ")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -591,16 +544,16 @@ func CustomerSavingProductsPage(data CustomerSavingPageData, lang, dir string) t
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 56, "<button type=\"button\" class=\"btn btn-secondary btn-icon\" style=\"width:32px; height:32px; color:var(--danger-text);\" title=\"حذف من قائمة التوفير\" onclick=\"")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 51, "<button type=\"button\" class=\"btn btn-secondary btn-icon\" style=\"width:32px; height:32px; color:var(--danger-text);\" title=\"حذف من قائمة التوفير\" onclick=\"")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					var templ_7745c5c3_Var31 templ.ComponentScript = templ.ComponentScript{Call: fmt.Sprintf("confirmPharmacyDeleteSavingProduct(%d)", it.ID)}
-					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var31.Call)
+					var templ_7745c5c3_Var29 templ.ComponentScript = templ.ComponentScript{Call: fmt.Sprintf("confirmPharmacyDeleteSavingProduct(%d)", it.ID)}
+					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var29.Call)
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 57, "\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 52, "\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -608,17 +561,17 @@ func CustomerSavingProductsPage(data CustomerSavingPageData, lang, dir string) t
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 58, "</button></div></td></tr>")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 53, "</button></div></td></tr>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 59, "</tbody></table></div>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 54, "</tbody></table></div>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 60, "</div></div><!-- MODAL 1: Create / Edit Saving Product Modal --> <div id=\"pharmacy-saving-product-modal\" class=\"modal-overlay hidden\"><div class=\"card\" style=\"max-width:620px; width:100%; background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-2xl); padding:1.75rem; box-shadow:0 25px 50px -12px rgba(0,0,0,0.5);\"><div style=\"display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--border); padding-bottom:1rem; margin-bottom:1.25rem;\"><h3 id=\"pharmacy-modal-title\" class=\"text-xl fw-900 text-primary m-0\">إضافة صنف توفير جديد</h3><button type=\"button\" class=\"btn btn-secondary btn-sm btn-icon\" onclick=\"closePharmacyCreateModal()\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 55, "</div></div><!-- MODAL 1: Create / Edit Saving Product Modal --> <div id=\"pharmacy-saving-product-modal\" class=\"modal-overlay hidden\"><div class=\"card\" style=\"max-width:620px; width:100%; background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-2xl); padding:1.75rem; box-shadow:0 25px 50px -12px rgba(0,0,0,0.5);\"><div style=\"display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--border); padding-bottom:1rem; margin-bottom:1.25rem;\"><h3 id=\"pharmacy-modal-title\" class=\"text-xl fw-900 text-primary m-0\">إضافة صنف توفير جديد</h3><button type=\"button\" class=\"btn btn-secondary btn-sm btn-icon\" onclick=\"closePharmacyCreateModal()\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -626,7 +579,7 @@ func CustomerSavingProductsPage(data CustomerSavingPageData, lang, dir string) t
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 61, "</button></div><form method=\"POST\" id=\"pharmacy-saving-product-form\" action=\"/customer/saving-products\"><input type=\"hidden\" id=\"pharmacy-form-saving-id\" name=\"id\" value=\"\"><div class=\"stack-md\"><div><label class=\"form-label text-sm fw-700 text-primary\">اسم الصنف الدوائي بالصيدلية <span class=\"text-danger\">*</span></label> <input type=\"text\" id=\"pharmacy-form-name-product\" name=\"name_product\" required placeholder=\"مثال: أوجمنتين 1 جم 14 قرص\" class=\"form-input\" style=\"width:100%; border-radius:var(--radius-lg);\"></div><div class=\"grid-2\"><div><label class=\"form-label text-sm fw-700 text-primary\">رمز SKU (اختياري)</label> <input type=\"text\" id=\"pharmacy-form-sku\" name=\"sku\" placeholder=\"كود الصنف...\" class=\"form-input\" style=\"width:100%; border-radius:var(--radius-lg);\"></div><div><label class=\"form-label text-sm fw-700 text-primary\">الكمية المطلوبة</label> <input type=\"number\" step=\"any\" id=\"pharmacy-form-qty\" name=\"qty\" placeholder=\"0\" class=\"form-input\" style=\"width:100%; border-radius:var(--radius-lg);\"></div></div><div><label class=\"form-label text-sm fw-700 text-primary\">سعر الشراء الحالي / المستهدف (ج.م)</label> <input type=\"number\" step=\"0.01\" id=\"pharmacy-form-price\" name=\"price\" placeholder=\"0.00\" class=\"form-input\" style=\"width:100%; border-radius:var(--radius-lg);\"></div><div style=\"background:var(--surface-sunken); padding:1rem; border-radius:var(--radius-xl); border:1px solid var(--border); display:flex; flex-direction:column; gap:0.5rem;\"><label style=\"font-weight:800; color:var(--text); font-size:0.875rem;\">🔗 ربط الصنف بالكتالوج المركزي العام</label> <input type=\"hidden\" id=\"pharmacy-form-product-id\" name=\"product_id\" value=\"\"><div id=\"pharmacy-selected-product-box\" style=\"display:none; justify-content:space-between; align-items:center; background:var(--surface-raised); padding:0.6rem 0.85rem; border-radius:var(--radius-lg); border:1px solid var(--border);\"><span id=\"pharmacy-selected-product-label\" style=\"font-weight:800; color:var(--accent); font-size:0.9rem;\"></span> <button type=\"button\" class=\"btn btn-secondary btn-sm\" onclick=\"clearPharmacySelectedProduct()\" style=\"font-size:0.75rem; color:var(--danger-text);\">إلغاء الربط ✕</button></div><div id=\"pharmacy-search-product-container\" style=\"position:relative;\"><input type=\"text\" id=\"pharmacy-product-search-input\" placeholder=\"ابحث بالاسم أو SKU لربط الصنف بالكتالوج...\" class=\"form-input\" style=\"width:100%; border-radius:var(--radius-lg); font-size:0.85rem;\" oninput=\"searchPharmacyCatalogProductsLive(this.value)\"><div id=\"pharmacy-product-search-dropdown\" style=\"display:none; position:absolute; top:100%; left:0; right:0; z-index:100; max-height:200px; overflow-y:auto; background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-lg); box-shadow:0 10px 25px rgba(0,0,0,0.3); margin-top:0.25rem;\"></div></div></div></div><div class=\"modal-footer-standard\"><button type=\"button\" class=\"btn btn-secondary\" onclick=\"closePharmacyCreateModal()\">إلغاء</button> <button type=\"submit\" class=\"btn btn-primary\" style=\"font-weight:800; padding:0.6rem 1.5rem;\">حفظ وتثبيت البيانات</button></div></form></div></div><!-- MODAL 2: Bulk Import Modal --> <!-- MODAL 2: Bulk Import & Staged Review Wizard Modal --> <div id=\"pharmacy-saving-import-modal\" class=\"modal-overlay hidden\" style=\"display:none; position:fixed; inset:0; z-index:9999; background:rgba(0,0,0,0.7); backdrop-filter:blur(4px); align-items:center; justify-content:center; padding:1rem;\"><div class=\"card\" style=\"max-width:920px; width:100%; max-height:88vh; display:flex; flex-direction:column; background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-2xl); box-shadow:0 25px 50px -12px rgba(0,0,0,0.5); overflow:hidden; margin:0;\"><!-- Fixed Header --><div style=\"flex-shrink:0; display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--border); padding:1.25rem 1.5rem; background:var(--surface-raised);\"><div class=\"row-center-sm\"><span class=\"text-2xl\" id=\"pharmacy-import-modal-icon\">📥</span><div><h3 id=\"pharmacy-import-modal-title\" class=\"text-xl fw-900 text-primary m-0\">معالج استيراد ومطابقة أدوية التوفير</h3><p id=\"pharmacy-import-modal-subtitle\" style=\"font-size:0.75rem; color:var(--text-muted); margin:2px 0 0 0;\">الخطوة 1 من 3: اختيار الملف وتعيين الأعمدة</p></div></div><button type=\"button\" class=\"btn btn-secondary btn-sm btn-icon\" onclick=\"closePharmacyImportModal()\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 56, "</button></div><form method=\"POST\" id=\"pharmacy-saving-product-form\" action=\"/customer/saving-products\"><input type=\"hidden\" id=\"pharmacy-form-saving-id\" name=\"id\" value=\"\"><div class=\"stack-md\"><div><label class=\"form-label text-sm fw-700 text-primary\">اسم الصنف الدوائي بالصيدلية <span class=\"text-danger\">*</span></label> <input type=\"text\" id=\"pharmacy-form-name-product\" name=\"name_product\" required placeholder=\"مثال: أوجمنتين 1 جم 14 قرص\" class=\"form-input\" style=\"width:100%; border-radius:var(--radius-lg);\"></div><div class=\"grid-2\"><div><label class=\"form-label text-sm fw-700 text-primary\">رمز SKU (اختياري)</label> <input type=\"text\" id=\"pharmacy-form-sku\" name=\"sku\" placeholder=\"كود الصنف...\" class=\"form-input\" style=\"width:100%; border-radius:var(--radius-lg);\"></div><div><label class=\"form-label text-sm fw-700 text-primary\">الكمية المطلوبة</label> <input type=\"number\" step=\"any\" id=\"pharmacy-form-qty\" name=\"qty\" placeholder=\"0\" class=\"form-input\" style=\"width:100%; border-radius:var(--radius-lg);\"></div></div><div><label class=\"form-label text-sm fw-700 text-primary\">سعر الشراء الحالي / المستهدف (ج.م)</label> <input type=\"number\" step=\"0.01\" id=\"pharmacy-form-price\" name=\"price\" placeholder=\"0.00\" class=\"form-input\" style=\"width:100%; border-radius:var(--radius-lg);\"></div><div style=\"background:var(--surface-sunken); padding:1rem; border-radius:var(--radius-xl); border:1px solid var(--border); display:flex; flex-direction:column; gap:0.5rem;\"><label style=\"font-weight:800; color:var(--text); font-size:0.875rem;\">🔗 ربط الصنف بالكتالوج المركزي العام</label> <input type=\"hidden\" id=\"pharmacy-form-product-id\" name=\"product_id\" value=\"\"><div id=\"pharmacy-selected-product-box\" style=\"display:none; justify-content:space-between; align-items:center; background:var(--surface-raised); padding:0.6rem 0.85rem; border-radius:var(--radius-lg); border:1px solid var(--border);\"><span id=\"pharmacy-selected-product-label\" style=\"font-weight:800; color:var(--accent); font-size:0.9rem;\"></span> <button type=\"button\" class=\"btn btn-secondary btn-sm\" onclick=\"clearPharmacySelectedProduct()\" style=\"font-size:0.75rem; color:var(--danger-text);\">إلغاء الربط ✕</button></div><div id=\"pharmacy-search-product-container\" style=\"position:relative;\"><input type=\"text\" id=\"pharmacy-product-search-input\" placeholder=\"ابحث بالاسم أو SKU لربط الصنف بالكتالوج...\" class=\"form-input\" style=\"width:100%; border-radius:var(--radius-lg); font-size:0.85rem;\" oninput=\"searchPharmacyCatalogProductsLive(this.value)\"><div id=\"pharmacy-product-search-dropdown\" style=\"display:none; position:absolute; top:100%; left:0; right:0; z-index:100; max-height:200px; overflow-y:auto; background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-lg); box-shadow:0 10px 25px rgba(0,0,0,0.3); margin-top:0.25rem;\"></div></div></div></div><div class=\"modal-footer-standard\"><button type=\"button\" class=\"btn btn-secondary\" onclick=\"closePharmacyCreateModal()\">إلغاء</button> <button type=\"submit\" class=\"btn btn-primary\" style=\"font-weight:800; padding:0.6rem 1.5rem;\">حفظ وتثبيت البيانات</button></div></form></div></div><!-- MODAL 2: Bulk Import Modal --> <!-- MODAL 2: Bulk Import & Staged Review Wizard Modal --> <div id=\"pharmacy-saving-import-modal\" class=\"modal-overlay hidden\" style=\"display:none; position:fixed; inset:0; z-index:9999; background:rgba(0,0,0,0.7); backdrop-filter:blur(4px); align-items:center; justify-content:center; padding:1rem;\"><div class=\"card\" style=\"max-width:920px; width:100%; max-height:88vh; display:flex; flex-direction:column; background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-2xl); box-shadow:0 25px 50px -12px rgba(0,0,0,0.5); overflow:hidden; margin:0;\"><!-- Fixed Header --><div style=\"flex-shrink:0; display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--border); padding:1.25rem 1.5rem; background:var(--surface-raised);\"><div class=\"row-center-sm\"><span class=\"text-2xl\" id=\"pharmacy-import-modal-icon\">📥</span><div><h3 id=\"pharmacy-import-modal-title\" class=\"text-xl fw-900 text-primary m-0\">معالج استيراد ومطابقة أدوية التوفير</h3><p id=\"pharmacy-import-modal-subtitle\" style=\"font-size:0.75rem; color:var(--text-muted); margin:2px 0 0 0;\">الخطوة 1 من 3: اختيار الملف وتعيين الأعمدة</p></div></div><button type=\"button\" class=\"btn btn-secondary btn-sm btn-icon\" onclick=\"closePharmacyImportModal()\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -634,7 +587,7 @@ func CustomerSavingProductsPage(data CustomerSavingPageData, lang, dir string) t
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 62, "</button></div><!-- Scrollable Body --><div style=\"flex:1 1 auto; overflow-y:auto; padding:1.25rem 1.5rem;\"><!-- STEP 1: Upload & Configuration --><div id=\"pharmacy-import-step-config\" class=\"stack-lg\"><div id=\"pharmacy-import-dropzone\" style=\"border:2px dashed var(--accent); background:var(--surface-sunken); border-radius:var(--radius-xl); padding:2rem 1rem; text-align:center; cursor:pointer;\" onclick=\"document.getElementById(&#39;pharmacy-import-file-input&#39;).click()\"><div style=\"font-size:2.8rem; margin-bottom:0.5rem;\">📊</div><strong style=\"color:var(--text); font-size:1rem; display:block; margin-bottom:0.25rem;\">انقر هنا لاختيار الملف أو اسحبه هنا</strong><p class=\"text-sm text-muted m-0\">يدعم ملفات Excel (.xlsx, .xls) وكشوف CSV (.csv) بحد أقصى 32 ميجابايت</p><div id=\"pharmacy-import-filename-preview\" style=\"margin-top:0.75rem; font-weight:800; color:var(--accent); font-size:0.85rem;\"></div><input type=\"file\" id=\"pharmacy-import-file-input\" name=\"file\" accept=\".xlsx,.xls,.csv\" required style=\"display:none;\" onchange=\"handlePharmacyImportFileSelect(this)\"></div><div id=\"pharmacy-import-columns-panel\" style=\"display:none; background:var(--surface-sunken); border:1px solid var(--border); border-radius:var(--radius-xl); padding:1.25rem;\"><div style=\"font-weight:800; font-size:0.9rem; color:var(--text); margin-bottom:0.75rem; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:0.5rem;\"><div class=\"row-center-sm\"><span>⚙️</span> <span>تحديد وتعيين أعمدة الملف:</span></div><span class=\"badge badge-emerald\" style=\"font-size:10px;\">تم التحديد الذكي تلقائياً ✓</span></div><div id=\"pharmacy-import-columns-loading\" style=\"display:none; text-align:center; padding:1.5rem; color:var(--accent); font-weight:700;\">⏳ جاري قراءة أعمدة الملف وتحليل البيانات...</div><div id=\"pharmacy-import-columns-grid\" style=\"display:grid; grid-template-columns:1fr 1fr; gap:0.75rem;\"><div><label class=\"form-label\" style=\"font-size:0.775rem; font-weight:700; color:var(--text); margin-bottom:0.25rem;\">عمود اسم الصنف / الدواء <span class=\"text-danger\">*</span></label> <select name=\"col_name\" id=\"pharmacy-col-name\" class=\"form-input\" style=\"width:100%; border-radius:var(--radius-md); font-size:0.8rem; padding:0.4rem 0.6rem;\"><option value=\"\">تلقائي (التعرف الذكي)</option></select></div><div><label class=\"form-label\" style=\"font-size:0.775rem; font-weight:700; color:var(--text); margin-bottom:0.25rem;\">عمود كود الصنف / SKU / الباركود</label> <select name=\"col_sku\" id=\"pharmacy-col-sku\" class=\"form-input\" style=\"width:100%; border-radius:var(--radius-md); font-size:0.8rem; padding:0.4rem 0.6rem;\"><option value=\"\">تلقائي (التعرف الذكي)</option></select></div><div><label class=\"form-label\" style=\"font-size:0.775rem; font-weight:700; color:var(--text); margin-bottom:0.25rem;\">عمود الكمية المطلوبة</label> <select name=\"col_qty\" id=\"pharmacy-col-qty\" class=\"form-input\" style=\"width:100%; border-radius:var(--radius-md); font-size:0.8rem; padding:0.4rem 0.6rem;\"><option value=\"\">تلقائي (التعرف الذكي)</option></select></div><div><label class=\"form-label\" style=\"font-size:0.775rem; font-weight:700; color:var(--text); margin-bottom:0.25rem;\">عمود سعر الشراء المسجل (ج.م)</label> <select name=\"col_price\" id=\"pharmacy-col-price\" class=\"form-input\" style=\"width:100%; border-radius:var(--radius-md); font-size:0.8rem; padding:0.4rem 0.6rem;\"><option value=\"\">تلقائي (التعرف الذكي)</option></select></div></div><!-- Live Sample Preview Container --><div id=\"pharmacy-import-preview-table-container\"></div></div><!-- Match Strategy Selection --><div style=\"background:var(--surface-sunken); padding:1rem; border-radius:var(--radius-xl); border:1px solid var(--border);\"><label style=\"font-weight:800; color:var(--text); font-size:0.875rem; display:block; margin-bottom:0.6rem;\">🎯 طريقة مطابقة وربط الأصناف مع كتالوج الأدوية المعتمد:</label><div style=\"display:flex; flex-direction:column; gap:0.6rem;\"><label style=\"display:flex; align-items:flex-start; gap:0.6rem; font-size:0.825rem; color:var(--text); cursor:pointer;\"><input type=\"radio\" name=\"pharmacy_match_strategy\" value=\"smart_auto\" checked style=\"accent-color:var(--accent); margin-top:2px;\"><div><strong style=\"color:var(--text);\">مطابقة ذكية شاملة (موصى بها)</strong> <span style=\"display:block; color:var(--text-muted); font-size:0.75rem; margin-top:2px;\">الربط بكود SKU / الباركود أولاً، ثم الاسم بالتنظيف اللغوي وتصحيح الهمزات والتطابق الصيدلاني.</span></div></label> <label style=\"display:flex; align-items:flex-start; gap:0.6rem; font-size:0.825rem; color:var(--text); cursor:pointer;\"><input type=\"radio\" name=\"pharmacy_match_strategy\" value=\"sku_only\" style=\"accent-color:var(--accent); margin-top:2px;\"><div><strong style=\"color:var(--text);\">مطابقة عبر كود SKU / الباركود فقط</strong> <span style=\"display:block; color:var(--text-muted); font-size:0.75rem; margin-top:2px;\">المطابقة الحصرية عبر كود الباركود / SKU؛ الأصناف غير المتطابقة برمجياً لن ترتبط.</span></div></label> <label style=\"display:flex; align-items:flex-start; gap:0.6rem; font-size:0.825rem; color:var(--text); cursor:pointer;\"><input type=\"radio\" name=\"pharmacy_match_strategy\" value=\"name_only\" style=\"accent-color:var(--accent); margin-top:2px;\"><div><strong style=\"color:var(--text);\">مطابقة عبر اسم الصنف فقط (تجاهل كود الصيدلية الداخلي)</strong> <span style=\"display:block; color:var(--text-muted); font-size:0.75rem; margin-top:2px;\">مثالي إذا كانت الصيدلية تستخدم أكواد كاشير داخلية خاصة تختلف عن أكواد الكتالوج العام.</span></div></label></div></div><div style=\"font-size:0.8rem; color:var(--text-muted); line-height:1.5; background:rgba(56, 189, 248, 0.08); border:1px solid rgba(56, 189, 248, 0.2); padding:0.75rem 1rem; border-radius:var(--radius-lg);\">ℹ️ <strong>معالجة آمنة في الخلفية:</strong> لن يتم حفظ أو تعديل أي صنف في قاعدة البيانات مباشرة؛ ستظهر لك نتائج المطابقة كاملة في الخطوة التالية لمراجعتها والموافقة عليها.</div></div><!-- STEP 2: Real-time Background Progress --><div id=\"pharmacy-import-step-progress\" style=\"display:none; text-align:center; padding:2.5rem 1.5rem;\"><div style=\"font-size:3.5rem; margin-bottom:1rem;\">⚡</div><h4 id=\"pharmacy-progress-phase\" style=\"font-size:1.15rem; font-weight:900; color:var(--text); margin-bottom:0.5rem;\">جاري قراءة وفك تشفير ملف الإكسيل...</h4><p id=\"pharmacy-progress-sub\" style=\"font-size:0.85rem; color:var(--text-muted); margin-bottom:1.75rem;\">تتم المعالجة والمطابقة الصيدلانية في الخلفية دون تجميد المتصفح</p><div style=\"width:100%; max-width:520px; margin:0 auto; background:var(--surface-sunken); border-radius:999px; height:12px; overflow:hidden; border:1px solid var(--border);\"><div id=\"pharmacy-progress-bar\" style=\"width:10%; height:100%; background:linear-gradient(90deg, var(--accent), #10b981); transition:width 0.3s ease;\"></div></div><div style=\"display:flex; justify-content:space-between; max-width:520px; margin:0.6rem auto 0 auto; font-size:0.8rem; font-weight:700; color:var(--text-muted);\"><span id=\"pharmacy-progress-percent\">10%</span> <span id=\"pharmacy-progress-counter\">0 / 0 صنف</span></div></div><!-- STEP 3: Staged Review & Confirmation --><div id=\"pharmacy-import-step-review\" style=\"display:none;\" class=\"stack-md\"><!-- Stats Summary Grid --><div style=\"display:grid; grid-template-columns:repeat(auto-fit, minmax(160px, 1fr)); gap:0.75rem;\"><div style=\"background:var(--surface-sunken); border:1px solid var(--border); border-radius:var(--radius-lg); padding:0.75rem 1rem; text-align:center;\"><div style=\"font-size:0.725rem; color:var(--text-muted);\">إجمالي الأصناف بالملف</div><div id=\"pharmacy-review-total-count\" style=\"font-size:1.35rem; font-weight:900; color:var(--text);\">0</div></div><div style=\"background:rgba(16,185,129,0.08); border:1px solid rgba(16,185,129,0.3); border-radius:var(--radius-lg); padding:0.75rem 1rem; text-align:center;\"><div style=\"font-size:0.725rem; color:var(--emerald-600);\">تم ربطها بالكتالوج</div><div id=\"pharmacy-review-matched-count\" style=\"font-size:1.35rem; font-weight:900; color:var(--emerald-600);\">0</div></div><div style=\"background:rgba(245,158,11,0.08); border:1px solid rgba(245,158,11,0.3); border-radius:var(--radius-lg); padding:0.75rem 1rem; text-align:center;\"><div style=\"font-size:0.725rem; color:var(--amber-600);\">أصناف غير مرتبطة / جديدة</div><div id=\"pharmacy-review-unlinked-count\" style=\"font-size:1.35rem; font-weight:900; color:var(--amber-600);\">0</div></div><div style=\"background:var(--surface-sunken); border:1px solid var(--border); border-radius:var(--radius-lg); padding:0.75rem 1rem; text-align:center;\"><div style=\"font-size:0.725rem; color:var(--text-muted);\">إجمالي الكمية المطلوبة</div><div id=\"pharmacy-review-total-qty\" style=\"font-size:1.35rem; font-weight:900; color:var(--accent);\">0</div></div></div><!-- Filter Tabs & Quick Search --><div style=\"display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.5rem;\"><div class=\"row-center-sm\" style=\"background:var(--surface-sunken); padding:3px; border-radius:var(--radius-lg); border:1px solid var(--border);\"><button type=\"button\" class=\"btn btn-sm btn-ghost\" id=\"pharmacy-tab-all\" onclick=\"filterPharmacyReviewTable(&#39;all&#39;)\" style=\"font-size:0.75rem; font-weight:800; background:var(--surface-raised);\">الكل (<span id=\"pharmacy-badge-all\">0</span>)</button> <button type=\"button\" class=\"btn btn-sm btn-ghost\" id=\"pharmacy-tab-matched\" onclick=\"filterPharmacyReviewTable(&#39;matched&#39;)\" style=\"font-size:0.75rem; font-weight:800;\">المتطابق فقط (<span id=\"pharmacy-badge-matched\">0</span>)</button> <button type=\"button\" class=\"btn btn-sm btn-ghost\" id=\"pharmacy-tab-unlinked\" onclick=\"filterPharmacyReviewTable(&#39;unlinked&#39;)\" style=\"font-size:0.75rem; font-weight:800;\">غير المرتبط (<span id=\"pharmacy-badge-unlinked\">0</span>)</button></div><input type=\"text\" id=\"pharmacy-review-search\" class=\"form-input\" placeholder=\"🔍 بحث سريع في المسودة...\" style=\"max-width:240px; font-size:0.8rem; padding:0.35rem 0.65rem;\" oninput=\"searchPharmacyReviewTable(this.value)\"></div><!-- Staged Items Table Container --><div class=\"table-container\" style=\"max-height:260px; overflow-y:auto; border:1px solid var(--border); border-radius:var(--radius-xl);\"><table class=\"b2b-table\" style=\"font-size:0.775rem; width:100%;\"><thead style=\"position:sticky; top:0; background:var(--surface-sunken); z-index:10;\"><tr><th style=\"width:36px; text-align:center;\"><input type=\"checkbox\" id=\"pharmacy-select-all\" checked onchange=\"toggleAllPharmacyStagedRows(this.checked)\"></th><th>اسم الصنف في الملف</th><th>كود SKU</th><th>الصنف المطابق بالكتالوج العام</th><th class=\"text-center\">حالة المطابقة</th><th class=\"text-center\">الكمية</th><th class=\"text-end\">سعر الشراء</th></tr></thead> <tbody id=\"pharmacy-review-table-body\"></tbody></table></div><div style=\"font-size:0.775rem; color:var(--text-muted); display:flex; justify-content:space-between; align-items:center;\"><span>⚠️ لم يتم حفظ أي صنف في قاعدة البيانات بعد. اضغط \"تأكيد الاستيراد والحفظ\" لاعتماد البيانات.</span> <span>الأصناف المحددة: <strong id=\"pharmacy-selected-count\" style=\"color:var(--accent);\">0</strong></span></div></div></div><!-- Fixed Sticky Footer --><div id=\"pharmacy-import-footer\" style=\"flex-shrink:0; display:flex; justify-content:space-between; align-items:center; border-top:1px solid var(--border); padding:1rem 1.5rem; background:var(--surface-raised);\"><div id=\"pharmacy-footer-left\"><button type=\"button\" id=\"pharmacy-cancel-btn\" class=\"btn btn-secondary\" onclick=\"handlePharmacyImportCancelClick()\">إلغاء</button></div><div id=\"pharmacy-footer-right\" class=\"row-center-sm\"><button type=\"button\" id=\"pharmacy-back-btn\" class=\"btn btn-secondary\" style=\"display:none;\" onclick=\"backToPharmacyImportConfig()\">← الرجوع لضبط الأعمدة</button> <button type=\"button\" id=\"pharmacy-start-btn\" class=\"btn btn-primary\" style=\"font-weight:800; padding:0.6rem 1.5rem;\" onclick=\"startPharmacyAsyncImport()\">بدء المعالجة والمطابقة الذكية 🚀</button> <button type=\"button\" id=\"pharmacy-commit-btn\" class=\"btn btn-primary\" style=\"display:none; font-weight:800; padding:0.6rem 1.75rem; background:#10b981; border-color:#10b981;\" onclick=\"commitPharmacyStagedImport()\">💾 تأكيد الاستيراد والحفظ النهائي في قائمة التوفير</button></div></div></div></div><!-- MODAL 3: Providing Organizations & Offers Modal --> <div id=\"pharmacy-providers-modal\" class=\"modal-overlay hidden\"><div class=\"card\" style=\"max-width:860px; width:100%; max-height:85vh; overflow-y:auto; background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-2xl); padding:1.75rem; box-shadow:0 25px 50px -12px rgba(0,0,0,0.5);\"><div style=\"display:flex; justify-content:space-between; align-items:flex-start; border-bottom:1px solid var(--border); padding-bottom:1rem; margin-bottom:1.25rem;\"><div><h3 id=\"pharmacy-providers-modal-title\" class=\"text-xl fw-900 text-primary m-0\">عروض الموردين المتاحة بالكتالوج</h3><p id=\"pharmacy-providers-modal-subtitle\" style=\"color:var(--text-muted); font-size:0.85rem; margin:0.25rem 0 0 0;\"></p></div><button type=\"button\" class=\"btn btn-secondary btn-sm btn-icon\" onclick=\"closePharmacyProvidersModal()\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 57, "</button></div><!-- Scrollable Body --><div style=\"flex:1 1 auto; overflow-y:auto; padding:1.25rem 1.5rem;\"><!-- STEP 1: Upload & Configuration --><div id=\"pharmacy-import-step-config\" class=\"stack-lg\"><div id=\"pharmacy-import-dropzone\" style=\"border:2px dashed var(--accent); background:var(--surface-sunken); border-radius:var(--radius-xl); padding:2rem 1rem; text-align:center; cursor:pointer;\" onclick=\"document.getElementById(&#39;pharmacy-import-file-input&#39;).click()\"><div style=\"font-size:2.8rem; margin-bottom:0.5rem;\">📊</div><strong style=\"color:var(--text); font-size:1rem; display:block; margin-bottom:0.25rem;\">انقر هنا لاختيار الملف أو اسحبه هنا</strong><p class=\"text-sm text-muted m-0\">يدعم ملفات Excel (.xlsx, .xls) وكشوف CSV (.csv) بحد أقصى 32 ميجابايت</p><div id=\"pharmacy-import-filename-preview\" style=\"margin-top:0.75rem; font-weight:800; color:var(--accent); font-size:0.85rem;\"></div><input type=\"file\" id=\"pharmacy-import-file-input\" name=\"file\" accept=\".xlsx,.xls,.csv\" required style=\"display:none;\" onchange=\"handlePharmacyImportFileSelect(this)\"></div><div id=\"pharmacy-import-columns-panel\" style=\"display:none; background:var(--surface-sunken); border:1px solid var(--border); border-radius:var(--radius-xl); padding:1.25rem;\"><div style=\"font-weight:800; font-size:0.9rem; color:var(--text); margin-bottom:0.75rem; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:0.5rem;\"><div class=\"row-center-sm\"><span>⚙️</span> <span>تحديد وتعيين أعمدة الملف:</span></div><span class=\"badge badge-emerald\" style=\"font-size:10px;\">تم التحديد الذكي تلقائياً ✓</span></div><div id=\"pharmacy-import-columns-loading\" style=\"display:none; text-align:center; padding:1.5rem; color:var(--accent); font-weight:700;\">⏳ جاري قراءة أعمدة الملف وتحليل البيانات...</div><div id=\"pharmacy-import-columns-grid\" style=\"display:grid; grid-template-columns:1fr 1fr; gap:0.75rem;\"><div><label class=\"form-label\" style=\"font-size:0.775rem; font-weight:700; color:var(--text); margin-bottom:0.25rem;\">عمود اسم الصنف / الدواء <span class=\"text-danger\">*</span></label> <select name=\"col_name\" id=\"pharmacy-col-name\" class=\"form-input\" style=\"width:100%; border-radius:var(--radius-md); font-size:0.8rem; padding:0.4rem 0.6rem;\"><option value=\"\">تلقائي (التعرف الذكي)</option></select></div><div><label class=\"form-label\" style=\"font-size:0.775rem; font-weight:700; color:var(--text); margin-bottom:0.25rem;\">عمود كود الصنف / SKU / الباركود</label> <select name=\"col_sku\" id=\"pharmacy-col-sku\" class=\"form-input\" style=\"width:100%; border-radius:var(--radius-md); font-size:0.8rem; padding:0.4rem 0.6rem;\"><option value=\"\">تلقائي (التعرف الذكي)</option></select></div><div><label class=\"form-label\" style=\"font-size:0.775rem; font-weight:700; color:var(--text); margin-bottom:0.25rem;\">عمود الكمية المطلوبة</label> <select name=\"col_qty\" id=\"pharmacy-col-qty\" class=\"form-input\" style=\"width:100%; border-radius:var(--radius-md); font-size:0.8rem; padding:0.4rem 0.6rem;\"><option value=\"\">تلقائي (التعرف الذكي)</option></select></div><div><label class=\"form-label\" style=\"font-size:0.775rem; font-weight:700; color:var(--text); margin-bottom:0.25rem;\">عمود سعر الشراء المسجل (ج.م)</label> <select name=\"col_price\" id=\"pharmacy-col-price\" class=\"form-input\" style=\"width:100%; border-radius:var(--radius-md); font-size:0.8rem; padding:0.4rem 0.6rem;\"><option value=\"\">تلقائي (التعرف الذكي)</option></select></div></div><!-- Live Sample Preview Container --><div id=\"pharmacy-import-preview-table-container\"></div></div><!-- Match Strategy Selection --><div style=\"background:var(--surface-sunken); padding:1rem; border-radius:var(--radius-xl); border:1px solid var(--border);\"><label style=\"font-weight:800; color:var(--text); font-size:0.875rem; display:block; margin-bottom:0.6rem;\">🎯 طريقة مطابقة وربط الأصناف مع كتالوج الأدوية المعتمد:</label><div style=\"display:flex; flex-direction:column; gap:0.6rem;\"><label style=\"display:flex; align-items:flex-start; gap:0.6rem; font-size:0.825rem; color:var(--text); cursor:pointer;\"><input type=\"radio\" name=\"pharmacy_match_strategy\" value=\"smart_auto\" checked style=\"accent-color:var(--accent); margin-top:2px;\"><div><strong style=\"color:var(--text);\">مطابقة ذكية شاملة (موصى بها)</strong> <span style=\"display:block; color:var(--text-muted); font-size:0.75rem; margin-top:2px;\">الربط بكود SKU / الباركود أولاً، ثم الاسم بالتنظيف اللغوي وتصحيح الهمزات والتطابق الصيدلاني.</span></div></label> <label style=\"display:flex; align-items:flex-start; gap:0.6rem; font-size:0.825rem; color:var(--text); cursor:pointer;\"><input type=\"radio\" name=\"pharmacy_match_strategy\" value=\"sku_only\" style=\"accent-color:var(--accent); margin-top:2px;\"><div><strong style=\"color:var(--text);\">مطابقة عبر كود SKU / الباركود فقط</strong> <span style=\"display:block; color:var(--text-muted); font-size:0.75rem; margin-top:2px;\">المطابقة الحصرية عبر كود الباركود / SKU؛ الأصناف غير المتطابقة برمجياً لن ترتبط.</span></div></label> <label style=\"display:flex; align-items:flex-start; gap:0.6rem; font-size:0.825rem; color:var(--text); cursor:pointer;\"><input type=\"radio\" name=\"pharmacy_match_strategy\" value=\"name_only\" style=\"accent-color:var(--accent); margin-top:2px;\"><div><strong style=\"color:var(--text);\">مطابقة عبر اسم الصنف فقط (تجاهل كود الصيدلية الداخلي)</strong> <span style=\"display:block; color:var(--text-muted); font-size:0.75rem; margin-top:2px;\">مثالي إذا كانت الصيدلية تستخدم أكواد كاشير داخلية خاصة تختلف عن أكواد الكتالوج العام.</span></div></label></div></div><div style=\"font-size:0.8rem; color:var(--text-muted); line-height:1.5; background:rgba(56, 189, 248, 0.08); border:1px solid rgba(56, 189, 248, 0.2); padding:0.75rem 1rem; border-radius:var(--radius-lg);\">ℹ️ <strong>معالجة آمنة في الخلفية:</strong> لن يتم حفظ أو تعديل أي صنف في قاعدة البيانات مباشرة؛ ستظهر لك نتائج المطابقة كاملة في الخطوة التالية لمراجعتها والموافقة عليها.</div></div><!-- STEP 2: Real-time Background Progress --><div id=\"pharmacy-import-step-progress\" style=\"display:none; text-align:center; padding:2.5rem 1.5rem;\"><div style=\"font-size:3.5rem; margin-bottom:1rem;\">⚡</div><h4 id=\"pharmacy-progress-phase\" style=\"font-size:1.15rem; font-weight:900; color:var(--text); margin-bottom:0.5rem;\">جاري قراءة وفك تشفير ملف الإكسيل...</h4><p id=\"pharmacy-progress-sub\" style=\"font-size:0.85rem; color:var(--text-muted); margin-bottom:1.75rem;\">تتم المعالجة والمطابقة الصيدلانية في الخلفية دون تجميد المتصفح</p><div style=\"width:100%; max-width:520px; margin:0 auto; background:var(--surface-sunken); border-radius:999px; height:12px; overflow:hidden; border:1px solid var(--border);\"><div id=\"pharmacy-progress-bar\" style=\"width:10%; height:100%; background:linear-gradient(90deg, var(--accent), #10b981); transition:width 0.3s ease;\"></div></div><div style=\"display:flex; justify-content:space-between; max-width:520px; margin:0.6rem auto 0 auto; font-size:0.8rem; font-weight:700; color:var(--text-muted);\"><span id=\"pharmacy-progress-percent\">10%</span> <span id=\"pharmacy-progress-counter\">0 / 0 صنف</span></div></div><!-- STEP 3: Staged Review & Confirmation --><div id=\"pharmacy-import-step-review\" style=\"display:none;\" class=\"stack-md\"><!-- Stats Summary Grid --><div style=\"display:grid; grid-template-columns:repeat(auto-fit, minmax(160px, 1fr)); gap:0.75rem;\"><div style=\"background:var(--surface-sunken); border:1px solid var(--border); border-radius:var(--radius-lg); padding:0.75rem 1rem; text-align:center;\"><div style=\"font-size:0.725rem; color:var(--text-muted);\">إجمالي الأصناف بالملف</div><div id=\"pharmacy-review-total-count\" style=\"font-size:1.35rem; font-weight:900; color:var(--text);\">0</div></div><div style=\"background:rgba(16,185,129,0.08); border:1px solid rgba(16,185,129,0.3); border-radius:var(--radius-lg); padding:0.75rem 1rem; text-align:center;\"><div style=\"font-size:0.725rem; color:var(--emerald-600);\">تم ربطها بالكتالوج</div><div id=\"pharmacy-review-matched-count\" style=\"font-size:1.35rem; font-weight:900; color:var(--emerald-600);\">0</div></div><div style=\"background:rgba(245,158,11,0.08); border:1px solid rgba(245,158,11,0.3); border-radius:var(--radius-lg); padding:0.75rem 1rem; text-align:center;\"><div style=\"font-size:0.725rem; color:var(--amber-600);\">أصناف غير مرتبطة / جديدة</div><div id=\"pharmacy-review-unlinked-count\" style=\"font-size:1.35rem; font-weight:900; color:var(--amber-600);\">0</div></div><div style=\"background:var(--surface-sunken); border:1px solid var(--border); border-radius:var(--radius-lg); padding:0.75rem 1rem; text-align:center;\"><div style=\"font-size:0.725rem; color:var(--text-muted);\">إجمالي الكمية المطلوبة</div><div id=\"pharmacy-review-total-qty\" style=\"font-size:1.35rem; font-weight:900; color:var(--accent);\">0</div></div></div><!-- Filter Tabs & Quick Search --><div style=\"display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.5rem;\"><div class=\"row-center-sm\" style=\"background:var(--surface-sunken); padding:3px; border-radius:var(--radius-lg); border:1px solid var(--border);\"><button type=\"button\" class=\"btn btn-sm btn-ghost\" id=\"pharmacy-tab-all\" onclick=\"filterPharmacyReviewTable(&#39;all&#39;)\" style=\"font-size:0.75rem; font-weight:800; background:var(--surface-raised);\">الكل (<span id=\"pharmacy-badge-all\">0</span>)</button> <button type=\"button\" class=\"btn btn-sm btn-ghost\" id=\"pharmacy-tab-matched\" onclick=\"filterPharmacyReviewTable(&#39;matched&#39;)\" style=\"font-size:0.75rem; font-weight:800;\">المتطابق فقط (<span id=\"pharmacy-badge-matched\">0</span>)</button> <button type=\"button\" class=\"btn btn-sm btn-ghost\" id=\"pharmacy-tab-unlinked\" onclick=\"filterPharmacyReviewTable(&#39;unlinked&#39;)\" style=\"font-size:0.75rem; font-weight:800;\">غير المرتبط (<span id=\"pharmacy-badge-unlinked\">0</span>)</button></div><input type=\"text\" id=\"pharmacy-review-search\" class=\"form-input\" placeholder=\"🔍 بحث سريع في المسودة...\" style=\"max-width:240px; font-size:0.8rem; padding:0.35rem 0.65rem;\" oninput=\"searchPharmacyReviewTable(this.value)\"></div><!-- Staged Items Table Container --><div class=\"table-container m-0\" style=\"max-height:260px; overflow-y:auto;\"><table class=\"data-table m-0\" style=\"font-size:0.775rem; width:100%;\"><thead style=\"position:sticky; top:0; background:var(--surface-sunken); z-index:10;\"><tr><th style=\"width:36px; text-align:center;\"><input type=\"checkbox\" id=\"pharmacy-select-all\" checked onchange=\"toggleAllPharmacyStagedRows(this.checked)\"></th><th>اسم الصنف في الملف</th><th>كود SKU</th><th>الصنف المطابق بالكتالوج العام</th><th class=\"text-center\">حالة المطابقة</th><th class=\"text-center\">الكمية</th><th class=\"text-end\">سعر الشراء</th></tr></thead> <tbody id=\"pharmacy-review-table-body\"></tbody></table></div><div style=\"font-size:0.775rem; color:var(--text-muted); display:flex; justify-content:space-between; align-items:center;\"><span>⚠️ لم يتم حفظ أي صنف في قاعدة البيانات بعد. اضغط \"تأكيد الاستيراد والحفظ\" لاعتماد البيانات.</span> <span>الأصناف المحددة: <strong id=\"pharmacy-selected-count\" style=\"color:var(--accent);\">0</strong></span></div></div></div><!-- Fixed Sticky Footer --><div id=\"pharmacy-import-footer\" style=\"flex-shrink:0; display:flex; justify-content:space-between; align-items:center; border-top:1px solid var(--border); padding:1rem 1.5rem; background:var(--surface-raised);\"><div id=\"pharmacy-footer-left\"><button type=\"button\" id=\"pharmacy-cancel-btn\" class=\"btn btn-secondary\" onclick=\"handlePharmacyImportCancelClick()\">إلغاء</button></div><div id=\"pharmacy-footer-right\" class=\"row-center-sm\"><button type=\"button\" id=\"pharmacy-back-btn\" class=\"btn btn-secondary\" style=\"display:none;\" onclick=\"backToPharmacyImportConfig()\">← الرجوع لضبط الأعمدة</button> <button type=\"button\" id=\"pharmacy-start-btn\" class=\"btn btn-primary\" style=\"font-weight:800; padding:0.6rem 1.5rem;\" onclick=\"startPharmacyAsyncImport()\">بدء المعالجة والمطابقة الذكية 🚀</button> <button type=\"button\" id=\"pharmacy-commit-btn\" class=\"btn btn-primary\" style=\"display:none; font-weight:800; padding:0.6rem 1.75rem; background:#10b981; border-color:#10b981;\" onclick=\"commitPharmacyStagedImport()\">💾 تأكيد الاستيراد والحفظ النهائي في قائمة التوفير</button></div></div></div></div><!-- MODAL 3: Providing Organizations & Offers Modal --> <div id=\"pharmacy-providers-modal\" class=\"modal-overlay hidden\"><div class=\"card\" style=\"max-width:860px; width:100%; max-height:85vh; overflow-y:auto; background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-2xl); padding:1.75rem; box-shadow:0 25px 50px -12px rgba(0,0,0,0.5);\"><div style=\"display:flex; justify-content:space-between; align-items:flex-start; border-bottom:1px solid var(--border); padding-bottom:1rem; margin-bottom:1.25rem;\"><div><h3 id=\"pharmacy-providers-modal-title\" class=\"text-xl fw-900 text-primary m-0\">عروض الموردين المتاحة بالكتالوج</h3><p id=\"pharmacy-providers-modal-subtitle\" style=\"color:var(--text-muted); font-size:0.85rem; margin:0.25rem 0 0 0;\"></p></div><button type=\"button\" class=\"btn btn-secondary btn-sm btn-icon\" onclick=\"closePharmacyProvidersModal()\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -642,7 +595,7 @@ func CustomerSavingProductsPage(data CustomerSavingPageData, lang, dir string) t
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 63, "</button></div><div id=\"pharmacy-providers-modal-content\"><div style=\"padding:2rem; text-align:center; color:var(--text-muted);\">⏳ جاري استرجاع عروض الموردين والأسعار المتاحة...</div></div></div></div><script>\n\t\t\tfunction openPharmacyCreateModal() {\n\t\t\t\tdocument.getElementById('pharmacy-modal-title').textContent = 'إضافة صنف توفير جديد';\n\t\t\t\tdocument.getElementById('pharmacy-saving-product-form').action = '/customer/saving-products';\n\t\t\t\tdocument.getElementById('pharmacy-form-saving-id').value = '';\n\t\t\t\tdocument.getElementById('pharmacy-form-name-product').value = '';\n\t\t\t\tdocument.getElementById('pharmacy-form-sku').value = '';\n\t\t\t\tdocument.getElementById('pharmacy-form-qty').value = '';\n\t\t\t\tdocument.getElementById('pharmacy-form-price').value = '';\n\t\t\t\tclearPharmacySelectedProduct();\n\t\t\t\tif (window.openModal) {\n\t\t\t\t\twindow.openModal('pharmacy-saving-product-modal');\n\t\t\t\t} else {\n\t\t\t\t\tconst el = document.getElementById('pharmacy-saving-product-modal');\n\t\t\t\t\tif (el) {\n\t\t\t\t\t\tel.classList.remove('hidden');\n\t\t\t\t\t\tel.style.display = 'flex';\n\t\t\t\t\t}\n\t\t\t\t}\n\t\t\t}\n\n\t\t\tfunction openPharmacyEditModalFromRow(id) {\n\t\t\t\tconst row = document.querySelector(`.pharmacy-saving-row[data-id=\"${id}\"]`);\n\t\t\t\tif (!row) return;\n\n\t\t\t\tdocument.getElementById('pharmacy-modal-title').textContent = 'تعديل صنف التوفير وتعيين الربط';\n\t\t\t\tdocument.getElementById('pharmacy-saving-product-form').action = `/customer/saving-products/${id}/update`;\n\t\t\t\tdocument.getElementById('pharmacy-form-saving-id').value = id;\n\t\t\t\tdocument.getElementById('pharmacy-form-name-product').value = row.dataset.name || '';\n\t\t\t\tdocument.getElementById('pharmacy-form-sku').value = row.dataset.sku || '';\n\t\t\t\tdocument.getElementById('pharmacy-form-qty').value = row.dataset.qty || '';\n\t\t\t\tdocument.getElementById('pharmacy-form-price').value = row.dataset.price || '';\n\n\t\t\t\tconst prodId = row.dataset.productId;\n\t\t\t\tconst prodName = row.dataset.productName;\n\t\t\t\tif (prodId && prodId !== '') {\n\t\t\t\t\tselectPharmacyCatalogProduct(prodId, prodName);\n\t\t\t\t} else {\n\t\t\t\t\tclearPharmacySelectedProduct();\n\t\t\t\t}\n\n\t\t\t\tif (window.openModal) {\n\t\t\t\t\twindow.openModal('pharmacy-saving-product-modal');\n\t\t\t\t} else {\n\t\t\t\t\tconst el = document.getElementById('pharmacy-saving-product-modal');\n\t\t\t\t\tif (el) {\n\t\t\t\t\t\tel.classList.remove('hidden');\n\t\t\t\t\t\tel.style.display = 'flex';\n\t\t\t\t\t}\n\t\t\t\t}\n\t\t\t}\n\n\t\t\tfunction closePharmacyCreateModal() {\n\t\t\t\tif (window.closeModal) {\n\t\t\t\t\twindow.closeModal('pharmacy-saving-product-modal');\n\t\t\t\t} else {\n\t\t\t\t\tconst el = document.getElementById('pharmacy-saving-product-modal');\n\t\t\t\t\tif (el) {\n\t\t\t\t\t\tel.classList.add('hidden');\n\t\t\t\t\t\tel.style.display = 'none';\n\t\t\t\t\t}\n\t\t\t\t}\n\t\t\t}\n\n\t\t\tfunction selectPharmacyCatalogProduct(id, name) {\n\t\t\t\tdocument.getElementById('pharmacy-form-product-id').value = id;\n\t\t\t\tdocument.getElementById('pharmacy-selected-product-label').textContent = `🔗 ${name}`;\n\t\t\t\tdocument.getElementById('pharmacy-selected-product-box').style.display = 'flex';\n\t\t\t\tdocument.getElementById('pharmacy-search-product-container').style.display = 'none';\n\t\t\t\tdocument.getElementById('pharmacy-product-search-dropdown').style.display = 'none';\n\t\t\t\tdocument.getElementById('pharmacy-product-search-input').value = '';\n\t\t\t}\n\n\t\t\tfunction clearPharmacySelectedProduct() {\n\t\t\t\tdocument.getElementById('pharmacy-form-product-id').value = '';\n\t\t\t\tdocument.getElementById('pharmacy-selected-product-label').textContent = '';\n\t\t\t\tdocument.getElementById('pharmacy-selected-product-box').style.display = 'none';\n\t\t\t\tdocument.getElementById('pharmacy-search-product-container').style.display = 'block';\n\t\t\t}\n\n\t\t\tlet pharmacySearchDebounce = null;\n\t\t\tfunction searchPharmacyCatalogProductsLive(query) {\n\t\t\t\tclearTimeout(pharmacySearchDebounce);\n\t\t\t\tconst dropdown = document.getElementById('pharmacy-product-search-dropdown');\n\t\t\t\tif (!query || query.trim().length < 2) {\n\t\t\t\t\tdropdown.style.display = 'none';\n\t\t\t\t\treturn;\n\t\t\t\t}\n\n\t\t\t\tpharmacySearchDebounce = setTimeout(() => {\n\t\t\t\t\tfetch('/customer/saving-products/search-products?q=' + encodeURIComponent(query.trim()))\n\t\t\t\t\t\t.then(r => r.json())\n\t\t\t\t\t\t.then(items => {\n\t\t\t\t\t\t\tif (!items || items.length === 0) {\n\t\t\t\t\t\t\t\tdropdown.innerHTML = '<div style=\"padding:0.75rem 1rem; color:var(--text-muted); font-size:0.8rem; text-align:center;\">لم يتم العثور على نتائج بالكتالوج</div>';\n\t\t\t\t\t\t\t\tdropdown.style.display = 'block';\n\t\t\t\t\t\t\t\treturn;\n\t\t\t\t\t\t\t}\n\n\t\t\t\t\t\t\tlet html = '';\n\t\t\t\t\t\t\titems.forEach(it => {\n\t\t\t\t\t\t\t\tconst skuText = it.sku ? ('<span style=\"font-size:0.75rem; color:var(--text-muted); margin-inline-start:0.5rem;\">(' + it.sku + ')</span>') : '';\n\t\t\t\t\t\t\t\tconst safeName = (it.name || '').replace(/'/g, \"\\\\'\");\n\t\t\t\t\t\t\t\thtml += '<div style=\"padding:0.6rem 0.85rem; border-bottom:1px solid var(--border); cursor:pointer; display:flex; justify-content:space-between; align-items:center; transition:background 0.15s;\" ' +\n\t\t\t\t\t\t\t\t\t'onmouseover=\"this.style.background=\\'var(--surface-sunken)\\'\" onmouseout=\"this.style.background=\\'\\'\" ' +\n\t\t\t\t\t\t\t\t\t'onclick=\"selectPharmacyCatalogProduct(\\'' + it.id + '\\', \\'' + safeName + '\\')\">' +\n\t\t\t\t\t\t\t\t\t'<div><strong style=\"color:var(--text); font-size:0.85rem;\">' + it.name + '</strong>' + skuText + '</div>' +\n\t\t\t\t\t\t\t\t\t'<span class=\"badge badge-emerald text-xs\">اختيار</span></div>';\n\t\t\t\t\t\t\t});\n\t\t\t\t\t\t\tdropdown.innerHTML = html;\n\t\t\t\t\t\t\tdropdown.style.display = 'block';\n\t\t\t\t\t\t})\n\t\t\t\t\t\t.catch(() => {\n\t\t\t\t\t\t\tdropdown.style.display = 'none';\n\t\t\t\t\t\t});\n\t\t\t\t}, 200);\n\t\t\t}\n\n\t\t\tfunction confirmPharmacyDeleteSavingProduct(id) {\n\t\t\t\tif (confirm(\"هل أنت متأكد من حذف هذا الصنف من قائمة أدوية التوفير؟\")) {\n\t\t\t\t\tconst form = document.createElement('form');\n\t\t\t\t\tform.method = 'POST';\n\t\t\t\t\tform.action = '/customer/saving-products/' + id + '/delete';\n\t\t\t\t\tdocument.body.appendChild(form);\n\t\t\t\t\tform.submit();\n\t\t\t\t}\n\t\t\t}\n\n\t\t\tfunction openPharmacyImportModal() {\n\t\t\t\tdocument.getElementById('pharmacy-import-filename-preview').innerHTML = '';\n\t\t\t\tdocument.getElementById('pharmacy-import-file-input').value = '';\n\t\t\t\tif (window.openModal) {\n\t\t\t\t\twindow.openModal('pharmacy-saving-import-modal');\n\t\t\t\t} else {\n\t\t\t\t\tconst el = document.getElementById('pharmacy-saving-import-modal');\n\t\t\t\t\tif (el) {\n\t\t\t\t\t\tel.classList.remove('hidden');\n\t\t\t\t\t\tel.style.display = 'flex';\n\t\t\t\t\t}\n\t\t\t\t}\n\t\t\t}\n\n\t\t\tfunction closePharmacyImportModal() {\n\t\t\t\tif (window.closeModal) {\n\t\t\t\t\twindow.closeModal('pharmacy-saving-import-modal');\n\t\t\t\t} else {\n\t\t\t\t\tconst el = document.getElementById('pharmacy-saving-import-modal');\n\t\t\t\t\tif (el) {\n\t\t\t\t\t\tel.classList.add('hidden');\n\t\t\t\t\t\tel.style.display = 'none';\n\t\t\t\t\t}\n\t\t\t\t}\n\t\t\t}\n\n\t\t\tfunction handlePharmacyImportFileSelect(input) {\n\t\t\t\tif (!input.files || !input.files[0]) return;\n\t\t\t\tconst f = input.files[0];\n\t\t\t\tconst size = (f.size / 1024 / 1024).toFixed(2);\n\t\t\t\tdocument.getElementById('pharmacy-import-filename-preview').innerHTML = '✓ تم اختيار: ' + f.name + ' (' + size + ' MB)';\n\n\t\t\t\tconst panel = document.getElementById('pharmacy-import-columns-panel');\n\t\t\t\tconst loadingEl = document.getElementById('pharmacy-import-columns-loading');\n\t\t\t\tconst formGrid = document.getElementById('pharmacy-import-columns-grid');\n\t\t\t\tconst previewTableEl = document.getElementById('pharmacy-import-preview-table-container');\n\n\t\t\t\tif (panel) panel.style.display = 'block';\n\t\t\t\tif (loadingEl) loadingEl.style.display = 'block';\n\t\t\t\tif (formGrid) formGrid.style.display = 'none';\n\t\t\t\tif (previewTableEl) previewTableEl.innerHTML = '';\n\n\t\t\t\tconst formData = new FormData();\n\t\t\t\tformData.append('file', f);\n\n\t\t\t\tfetch('/customer/saving-products/preview-columns', {\n\t\t\t\t\tmethod: 'POST',\n\t\t\t\t\tbody: formData,\n\t\t\t\t})\n\t\t\t\t.then(r => r.json())\n\t\t\t\t.then(data => {\n\t\t\t\t\tif (loadingEl) loadingEl.style.display = 'none';\n\t\t\t\t\tif (!data || !data.success || !data.headers || data.headers.length === 0) {\n\t\t\t\t\t\tif (formGrid) formGrid.style.display = 'none';\n\t\t\t\t\t\talert(data.error || 'تعذر قراءة أعمدة الملف المرفوع. تأكد من سلامة ملف Excel.');\n\t\t\t\t\t\treturn;\n\t\t\t\t\t}\n\n\t\t\t\t\tif (formGrid) formGrid.style.display = 'grid';\n\t\t\t\t\trenderImportColumnDropdowns('pharmacy', data.headers, data.detected);\n\t\t\t\t\trenderImportSamplePreview('pharmacy', data.headers, data.sample_rows, data.detected);\n\t\t\t\t})\n\t\t\t\t.catch(err => {\n\t\t\t\t\tif (loadingEl) loadingEl.style.display = 'none';\n\t\t\t\t\tconsole.error('preview error', err);\n\t\t\t\t});\n\t\t\t}\n\n\t\t\tfunction renderImportColumnDropdowns(prefix, headers, detected) {\n\t\t\t\tconst selects = [\n\t\t\t\t\t{ id: prefix + '-col-name', selected: detected.name_col },\n\t\t\t\t\t{ id: prefix + '-col-sku', selected: detected.sku_col },\n\t\t\t\t\t{ id: prefix + '-col-qty', selected: detected.qty_col },\n\t\t\t\t\t{ id: prefix + '-col-price', selected: detected.price_col }\n\t\t\t\t];\n\n\t\t\t\tselects.forEach(s => {\n\t\t\t\t\tconst el = document.getElementById(s.id);\n\t\t\t\t\tif (!el) return;\n\t\t\t\t\tel.innerHTML = '<option value=\"-1\">-- غير محدد (تجاهل) --</option>';\n\t\t\t\t\theaders.forEach((h, idx) => {\n\t\t\t\t\t\tconst colLetter = String.fromCharCode(65 + idx);\n\t\t\t\t\t\tconst opt = document.createElement('option');\n\t\t\t\t\t\topt.value = idx;\n\t\t\t\t\t\topt.textContent = `العمود ${colLetter}: [${h}]`;\n\t\t\t\t\t\tif (idx === s.selected) {\n\t\t\t\t\t\t\topt.selected = true;\n\t\t\t\t\t\t}\n\t\t\t\t\t\tel.appendChild(opt);\n\t\t\t\t\t});\n\n\t\t\t\t\tel.onchange = function() {\n\t\t\t\t\t\tconst curDetected = {\n\t\t\t\t\t\t\tname_col: parseInt(document.getElementById(prefix + '-col-name')?.value || -1),\n\t\t\t\t\t\t\tsku_col: parseInt(document.getElementById(prefix + '-col-sku')?.value || -1),\n\t\t\t\t\t\t\tqty_col: parseInt(document.getElementById(prefix + '-col-qty')?.value || -1),\n\t\t\t\t\t\t\tprice_col: parseInt(document.getElementById(prefix + '-col-price')?.value || -1)\n\t\t\t\t\t\t};\n\t\t\t\t\t\tif (window[prefix + '_last_sample_rows']) {\n\t\t\t\t\t\t\trenderImportSamplePreview(prefix, headers, window[prefix + '_last_sample_rows'], curDetected);\n\t\t\t\t\t\t}\n\t\t\t\t\t};\n\t\t\t\t});\n\t\t\t}\n\n\t\t\tfunction renderImportSamplePreview(prefix, headers, sampleRows, detected) {\n\t\t\t\twindow[prefix + '_last_sample_rows'] = sampleRows;\n\t\t\t\tconst container = document.getElementById(prefix + '-import-preview-table-container');\n\t\t\t\tif (!container || !sampleRows || sampleRows.length === 0) return;\n\n\t\t\t\tlet html = '<div style=\"margin-top:1rem; border-top:1px solid var(--border); padding-top:0.75rem;\">';\n\t\t\t\thtml += '<div style=\"font-size:0.8rem; font-weight:800; color:var(--text); margin-bottom:0.5rem; display:flex; justify-content:space-between; align-items:center;\">';\n\t\t\t\thtml += '<span>👀 معاينة أعمدة الملف والبيانات الحقيقية:</span>';\n\t\t\t\thtml += '<span style=\"font-size:0.75rem; color:var(--text-muted);\">أول ' + sampleRows.length + ' صفوف</span>';\n\t\t\t\thtml += '</div>';\n\t\t\t\thtml += '<div class=\"table-container\" style=\"max-height:160px; overflow:auto; border-radius:var(--radius-md); border:1px solid var(--border);\"><table class=\"b2b-table\" style=\"font-size:0.75rem; width:100%;\"><thead><tr>';\n\n\t\t\t\theaders.forEach((h, idx) => {\n\t\t\t\t\tlet tag = '';\n\t\t\t\t\tif (idx === detected.name_col) tag = ' <span class=\"badge badge-emerald\" style=\"font-size:9px; margin-inline-start:3px;\">اسم الصنف ✓</span>';\n\t\t\t\t\telse if (idx === detected.sku_col) tag = ' <span class=\"badge badge-sky\" style=\"font-size:9px; margin-inline-start:3px;\">كود SKU ✓</span>';\n\t\t\t\t\telse if (idx === detected.qty_col) tag = ' <span class=\"badge badge-amber\" style=\"font-size:9px; margin-inline-start:3px;\">الكمية ✓</span>';\n\t\t\t\t\telse if (idx === detected.price_col) tag = ' <span class=\"badge badge-purple\" style=\"font-size:9px; margin-inline-start:3px;\">السعر ✓</span>';\n\t\t\t\t\tconst colLetter = String.fromCharCode(65 + idx);\n\t\t\t\t\thtml += `<th style=\"padding:0.4rem 0.6rem; white-space:nowrap;\">${colLetter}: ${h}${tag}</th>`;\n\t\t\t\t});\n\t\t\t\thtml += '</tr></thead><tbody>';\n\n\t\t\t\tsampleRows.forEach(row => {\n\t\t\t\t\thtml += '<tr>';\n\t\t\t\t\theaders.forEach((_, idx) => {\n\t\t\t\t\t\tconst cellVal = (idx < row.length) ? row[idx] : '';\n\t\t\t\t\t\tlet cellStyle = 'padding:0.4rem 0.6rem; max-width:180px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;';\n\t\t\t\t\t\tif (idx === detected.name_col) cellStyle += ' font-weight:700; color:var(--text);';\n\t\t\t\t\t\thtml += `<td style=\"${cellStyle}\">${cellVal}</td>`;\n\t\t\t\t\t});\n\t\t\t\t\thtml += '</tr>';\n\t\t\t\t});\n\n\t\t\t\thtml += '</tbody></table></div></div>';\n\t\t\t\tcontainer.innerHTML = html;\n\t\t\t}\n\n\t\t\tlet pharmacyActiveSessionId = null;\n\t\t\tlet pharmacyStagedData = null;\n\t\t\tlet pharmacyCurrentTab = 'all';\n\t\t\tlet pharmacyPollInterval = null;\n\n\t\t\tfunction startPharmacyAsyncImport() {\n\t\t\t\tconst input = document.getElementById('pharmacy-import-file-input');\n\t\t\t\tif (!input.files || input.files.length === 0) {\n\t\t\t\t\talert(\"يرجى اختيار ملف Excel أو CSV أولاً.\");\n\t\t\t\t\treturn;\n\t\t\t\t}\n\n\t\t\t\tconst file = input.files[0];\n\t\t\t\tconst formData = new FormData();\n\t\t\t\tformData.append('file', file);\n\n\t\t\t\tconst colName = document.getElementById('pharmacy-col-name')?.value || '';\n\t\t\t\tconst colSKU = document.getElementById('pharmacy-col-sku')?.value || '';\n\t\t\t\tconst colQty = document.getElementById('pharmacy-col-qty')?.value || '';\n\t\t\t\tconst colPrice = document.getElementById('pharmacy-col-price')?.value || '';\n\t\t\t\tconst strat = document.querySelector('input[name=\"pharmacy_match_strategy\"]:checked')?.value || 'smart_auto';\n\n\t\t\t\tformData.append('col_name', colName);\n\t\t\t\tformData.append('col_sku', colSKU);\n\t\t\t\tformData.append('col_qty', colQty);\n\t\t\t\tformData.append('col_price', colPrice);\n\t\t\t\tformData.append('match_strategy', strat);\n\n\t\t\t\t// Switch UI to Step 2: Progress\n\t\t\t\tshowPharmacyImportStep('progress');\n\t\t\t\tdocument.getElementById('pharmacy-progress-bar').style.width = '10%';\n\t\t\t\tdocument.getElementById('pharmacy-progress-percent').textContent = '10%';\n\t\t\t\tdocument.getElementById('pharmacy-progress-counter').textContent = '0 / ...';\n\t\t\t\tdocument.getElementById('pharmacy-progress-phase').textContent = 'جاري رفع الملف وبدء المعالجة الذكية على السيرفر...';\n\n\t\t\t\tfetch('/customer/saving-products/import/start', {\n\t\t\t\t\tmethod: 'POST',\n\t\t\t\t\tbody: formData,\n\t\t\t\t})\n\t\t\t\t.then(r => r.json())\n\t\t\t\t.then(res => {\n\t\t\t\t\tif (!res.success) {\n\t\t\t\t\t\talert(res.error || 'حدث خطأ أثناء بدء المعالجة.');\n\t\t\t\t\t\tshowPharmacyImportStep('config');\n\t\t\t\t\t\treturn;\n\t\t\t\t\t}\n\t\t\t\t\tpharmacyActiveSessionId = res.session_id;\n\t\t\t\t\tpollPharmacyImportProgress(res.session_id);\n\t\t\t\t})\n\t\t\t\t.catch(err => {\n\t\t\t\t\tconsole.error('start import error', err);\n\t\t\t\t\talert('حدث خطأ في الاتصال بالسيرفر أثناء بدء الاستيراد.');\n\t\t\t\t\tshowPharmacyImportStep('config');\n\t\t\t\t});\n\t\t\t}\n\n\t\t\tfunction pollPharmacyImportProgress(sessionId) {\n\t\t\t\tif (pharmacyPollInterval) clearInterval(pharmacyPollInterval);\n\n\t\t\t\tpharmacyPollInterval = setInterval(() => {\n\t\t\t\t\tfetch('/customer/saving-products/import/session/' + sessionId + '/progress')\n\t\t\t\t\t.then(r => r.json())\n\t\t\t\t\t.then(sess => {\n\t\t\t\t\t\tif (!sess || !sess.success) {\n\t\t\t\t\t\t\tclearInterval(pharmacyPollInterval);\n\t\t\t\t\t\t\talert(sess.error || 'فشلت معالجة الجلسة.');\n\t\t\t\t\t\t\tshowPharmacyImportStep('config');\n\t\t\t\t\t\t\treturn;\n\t\t\t\t\t\t}\n\n\t\t\t\t\t\tif (sess.status === 'failed') {\n\t\t\t\t\t\t\tclearInterval(pharmacyPollInterval);\n\t\t\t\t\t\t\talert('فشلت المعالجة: ' + (sess.error_message || 'خطأ غير معروف'));\n\t\t\t\t\t\t\tshowPharmacyImportStep('config');\n\t\t\t\t\t\t\treturn;\n\t\t\t\t\t\t}\n\n\t\t\t\t\t\t// Update progress UI\n\t\t\t\t\t\tconst pct = Math.max(10, Math.min(100, sess.progress || 10));\n\t\t\t\t\t\tdocument.getElementById('pharmacy-progress-bar').style.width = pct + '%';\n\t\t\t\t\t\tdocument.getElementById('pharmacy-progress-percent').textContent = pct + '%';\n\t\t\t\t\t\tdocument.getElementById('pharmacy-progress-counter').textContent = (sess.processed_rows || 0) + ' / ' + (sess.total_rows || 0) + ' صنف';\n\t\t\t\t\t\tif (sess.progress_phase) {\n\t\t\t\t\t\t\tdocument.getElementById('pharmacy-progress-phase').textContent = sess.progress_phase;\n\t\t\t\t\t\t}\n\n\t\t\t\t\t\tif (sess.status === 'ready') {\n\t\t\t\t\t\t\tclearInterval(pharmacyPollInterval);\n\t\t\t\t\t\t\tpharmacyStagedData = sess;\n\t\t\t\t\t\t\trenderPharmacyStagedReview(sess);\n\t\t\t\t\t\t}\n\t\t\t\t\t})\n\t\t\t\t\t.catch(err => {\n\t\t\t\t\t\tconsole.error('poll progress error', err);\n\t\t\t\t\t});\n\t\t\t\t}, 450);\n\t\t\t}\n\n\t\t\tfunction showPharmacyImportStep(step) {\n\t\t\t\tconst configStep = document.getElementById('pharmacy-import-step-config');\n\t\t\t\tconst progressStep = document.getElementById('pharmacy-import-step-progress');\n\t\t\t\tconst reviewStep = document.getElementById('pharmacy-import-step-review');\n\n\t\t\t\tconst subtitle = document.getElementById('pharmacy-import-modal-subtitle');\n\t\t\t\tconst icon = document.getElementById('pharmacy-import-modal-icon');\n\n\t\t\t\tconst startBtn = document.getElementById('pharmacy-start-btn');\n\t\t\t\tconst commitBtn = document.getElementById('pharmacy-commit-btn');\n\t\t\t\tconst backBtn = document.getElementById('pharmacy-back-btn');\n\t\t\t\tconst cancelBtn = document.getElementById('pharmacy-cancel-btn');\n\n\t\t\t\tconfigStep.style.display = (step === 'config') ? 'block' : 'none';\n\t\t\t\tprogressStep.style.display = (step === 'progress') ? 'block' : 'none';\n\t\t\t\treviewStep.style.display = (step === 'review') ? 'block' : 'none';\n\n\t\t\t\tif (step === 'config') {\n\t\t\t\t\tsubtitle.textContent = 'الخطوة 1 من 3: اختيار الملف وتعيين الأعمدة';\n\t\t\t\t\ticon.textContent = '📥';\n\t\t\t\t\tstartBtn.style.display = 'inline-flex';\n\t\t\t\t\tcommitBtn.style.display = 'none';\n\t\t\t\t\tbackBtn.style.display = 'none';\n\t\t\t\t\tcancelBtn.textContent = 'إلغاء';\n\t\t\t\t} else if (step === 'progress') {\n\t\t\t\t\tsubtitle.textContent = 'الخطوة 2 من 3: المعالجة والمطابقة في الخلفية';\n\t\t\t\t\ticon.textContent = '⚡';\n\t\t\t\t\tstartBtn.style.display = 'none';\n\t\t\t\t\tcommitBtn.style.display = 'none';\n\t\t\t\t\tbackBtn.style.display = 'none';\n\t\t\t\t\tcancelBtn.textContent = 'إلغاء المعالجة';\n\t\t\t\t} else if (step === 'review') {\n\t\t\t\t\tsubtitle.textContent = 'الخطوة 3 من 3: مراجعة المسودة وتأكيد الحفظ النهائي';\n\t\t\t\t\ticon.textContent = '📋';\n\t\t\t\t\tstartBtn.style.display = 'none';\n\t\t\t\t\tcommitBtn.style.display = 'inline-flex';\n\t\t\t\t\tbackBtn.style.display = 'inline-flex';\n\t\t\t\t\tcancelBtn.textContent = 'تفريغ وإلغاء المسودة';\n\t\t\t\t}\n\t\t\t}\n\n\t\t\tfunction renderPharmacyStagedReview(sess) {\n\t\t\t\tshowPharmacyImportStep('review');\n\n\t\t\t\tdocument.getElementById('pharmacy-review-total-count').textContent = sess.total_rows || (sess.items ? sess.items.length : 0);\n\t\t\t\tdocument.getElementById('pharmacy-review-matched-count').textContent = sess.matched_rows || 0;\n\t\t\t\tdocument.getElementById('pharmacy-review-unlinked-count').textContent = sess.unlinked_rows || 0;\n\t\t\t\tdocument.getElementById('pharmacy-review-total-qty').textContent = Number(sess.total_quantity || 0).toLocaleString();\n\n\t\t\t\tdocument.getElementById('pharmacy-badge-all').textContent = sess.items ? sess.items.length : 0;\n\t\t\t\tdocument.getElementById('pharmacy-badge-matched').textContent = sess.matched_rows || 0;\n\t\t\t\tdocument.getElementById('pharmacy-badge-unlinked').textContent = sess.unlinked_rows || 0;\n\n\t\t\t\trenderPharmacyReviewRows(sess.items || []);\n\t\t\t}\n\n\t\t\tfunction renderPharmacyReviewRows(items) {\n\t\t\t\tconst tbody = document.getElementById('pharmacy-review-table-body');\n\t\t\t\tif (!tbody) return;\n\n\t\t\t\tconst searchVal = (document.getElementById('pharmacy-review-search')?.value || '').trim().toLowerCase();\n\n\t\t\t\tlet html = '';\n\t\t\t\tlet selectedCount = 0;\n\n\t\t\t\titems.forEach((item, idx) => {\n\t\t\t\t\tconst isMatched = !!item.product_id;\n\t\t\t\t\tif (pharmacyCurrentTab === 'matched' && !isMatched) return;\n\t\t\t\t\tif (pharmacyCurrentTab === 'unlinked' && isMatched) return;\n\n\t\t\t\t\tif (searchVal) {\n\t\t\t\t\t\tconst n = (item.name_product || '').toLowerCase();\n\t\t\t\t\t\tconst s = (item.sku || '').toLowerCase();\n\t\t\t\t\t\tconst m = (item.master_product_name || '').toLowerCase();\n\t\t\t\t\t\tif (!n.includes(searchVal) && !s.includes(searchVal) && !m.includes(searchVal)) {\n\t\t\t\t\t\t\treturn;\n\t\t\t\t\t\t}\n\t\t\t\t\t}\n\n\t\t\t\t\tif (item.included !== false) selectedCount++;\n\n\t\t\t\t\tlet matchBadge = '<span class=\"badge badge-amber\" style=\"font-size:10px;\">غير مرتبط (جديد)</span>';\n\t\t\t\t\tif (isMatched) {\n\t\t\t\t\t\tif (item.match_type === 'exact_sku' || item.match_type === 'clean_sku') {\n\t\t\t\t\t\t\tmatchBadge = '<span class=\"badge badge-emerald\" style=\"font-size:10px;\">كود SKU ✓</span>';\n\t\t\t\t\t\t} else if (item.match_type === 'exact_name' || item.match_type === 'norm_name') {\n\t\t\t\t\t\t\tmatchBadge = '<span class=\"badge badge-emerald\" style=\"font-size:10px;\">اسم متطابق ✓</span>';\n\t\t\t\t\t\t} else if (item.match_type === 'core_name') {\n\t\t\t\t\t\t\tmatchBadge = '<span class=\"badge badge-sky\" style=\"font-size:10px;\">اسم مجرد ✓</span>';\n\t\t\t\t\t\t} else {\n\t\t\t\t\t\t\tconst conf = Math.round((item.confidence || 0) * 100);\n\t\t\t\t\t\t\tmatchBadge = '<span class=\"badge badge-purple\" style=\"font-size:10px;\">تشابه ' + conf + '% ✓</span>';\n\t\t\t\t\t\t}\n\t\t\t\t\t}\n\n\t\t\t\t\tconst masterDisplay = item.master_product_name ? \n\t\t\t\t\t\t('<strong style=\"color:var(--emerald-600);\">' + item.master_product_name + '</strong>' + (item.master_product_sku ? ' <code class=\"text-xs text-muted\">(' + item.master_product_sku + ')</code>' : '')) : \n\t\t\t\t\t\t'<span style=\"color:var(--text-muted); font-size:0.75rem;\">— صنف حر غير مقيد —</span>';\n\n\t\t\t\t\tconst checkedAttr = (item.included !== false) ? 'checked' : '';\n\n\t\t\t\t\thtml += '<tr style=\"border-bottom:1px solid var(--border);\">' +\n\t\t\t\t\t\t'<td style=\"text-align:center;\">' +\n\t\t\t\t\t\t\t'<input type=\"checkbox\" class=\"pharmacy-staged-row-cb\" data-idx=\"' + idx + '\" ' + checkedAttr + ' onchange=\"updatePharmacyRowInclusion(' + idx + ', this.checked)\" />' +\n\t\t\t\t\t\t'</td>' +\n\t\t\t\t\t\t'<td><strong style=\"color:var(--text);\">' + (item.name_product || '') + '</strong></td>' +\n\t\t\t\t\t\t'<td><code class=\"text-xs\">' + (item.sku || '—') + '</code></td>' +\n\t\t\t\t\t\t'<td>' + masterDisplay + '</td>' +\n\t\t\t\t\t\t'<td class=\"text-center\">' + matchBadge + '</td>' +\n\t\t\t\t\t\t'<td class=\"text-center tabular-nums font-bold\">' + (item.quantity || 0) + '</td>' +\n\t\t\t\t\t\t'<td class=\"text-end tabular-nums font-bold\" style=\"color:var(--accent);\">' + (item.price || '0.00') + ' ج.م</td>' +\n\t\t\t\t\t\t'</tr>';\n\t\t\t\t});\n\n\t\t\t\tif (!html) {\n\t\t\t\t\thtml = '<tr><td colspan=\"7\" style=\"text-align:center; padding:2rem; color:var(--text-muted);\">لا توجد أصناف تطابق الفلتر الحالي.</td></tr>';\n\t\t\t\t}\n\n\t\t\t\ttbody.innerHTML = html;\n\t\t\t\tdocument.getElementById('pharmacy-selected-count').textContent = selectedCount;\n\t\t\t}\n\n\t\t\tfunction updatePharmacyRowInclusion(idx, included) {\n\t\t\t\tif (pharmacyStagedData && pharmacyStagedData.items && pharmacyStagedData.items[idx]) {\n\t\t\t\t\tpharmacyStagedData.items[idx].included = included;\n\t\t\t\t}\n\t\t\t\tlet count = 0;\n\t\t\t\tif (pharmacyStagedData && pharmacyStagedData.items) {\n\t\t\t\t\tpharmacyStagedData.items.forEach(it => { if (it.included !== false) count++; });\n\t\t\t\t}\n\t\t\t\tdocument.getElementById('pharmacy-selected-count').textContent = count;\n\t\t\t}\n\n\t\t\tfunction toggleAllPharmacyStagedRows(checked) {\n\t\t\t\tif (pharmacyStagedData && pharmacyStagedData.items) {\n\t\t\t\t\tpharmacyStagedData.items.forEach(it => { it.included = checked; });\n\t\t\t\t}\n\t\t\t\tconst cbs = document.querySelectorAll('.pharmacy-staged-row-cb');\n\t\t\t\tcbs.forEach(cb => cb.checked = checked);\n\t\t\t\tdocument.getElementById('pharmacy-selected-count').textContent = checked && pharmacyStagedData && pharmacyStagedData.items ? pharmacyStagedData.items.length : 0;\n\t\t\t}\n\n\t\t\tfunction filterPharmacyReviewTable(tab) {\n\t\t\t\tpharmacyCurrentTab = tab;\n\t\t\t\t['all', 'matched', 'unlinked'].forEach(t => {\n\t\t\t\t\tconst btn = document.getElementById('pharmacy-tab-' + t);\n\t\t\t\t\tif (btn) {\n\t\t\t\t\t\tif (t === tab) {\n\t\t\t\t\t\t\tbtn.style.background = 'var(--surface-raised)';\n\t\t\t\t\t\t\tbtn.style.color = 'var(--accent)';\n\t\t\t\t\t\t} else {\n\t\t\t\t\t\t\tbtn.style.background = 'transparent';\n\t\t\t\t\t\t\tbtn.style.color = 'var(--text-muted)';\n\t\t\t\t\t\t}\n\t\t\t\t\t}\n\t\t\t\t});\n\t\t\t\tif (pharmacyStagedData && pharmacyStagedData.items) {\n\t\t\t\t\trenderPharmacyReviewRows(pharmacyStagedData.items);\n\t\t\t\t}\n\t\t\t}\n\n\t\t\tfunction searchPharmacyReviewTable(val) {\n\t\t\t\tif (pharmacyStagedData && pharmacyStagedData.items) {\n\t\t\t\t\trenderPharmacyReviewRows(pharmacyStagedData.items);\n\t\t\t\t}\n\t\t\t}\n\n\t\t\tfunction commitPharmacyStagedImport() {\n\t\t\t\tif (!pharmacyActiveSessionId) return;\n\n\t\t\t\tconst btn = document.getElementById('pharmacy-commit-btn');\n\t\t\t\tbtn.disabled = true;\n\t\t\t\tbtn.textContent = '⏳ جاري الحفظ النهائي في قاعدة البيانات...';\n\n\t\t\t\tfetch('/customer/saving-products/import/session/' + pharmacyActiveSessionId + '/commit', {\n\t\t\t\t\tmethod: 'POST',\n\t\t\t\t})\n\t\t\t\t.then(r => r.json())\n\t\t\t\t.then(res => {\n\t\t\t\t\tif (!res.success) {\n\t\t\t\t\t\talert(res.error || 'فشل حفظ الأصناف.');\n\t\t\t\t\t\tbtn.disabled = false;\n\t\t\t\t\t\tbtn.textContent = '💾 تأكيد الاستيراد والحفظ النهائي في قائمة التوفير';\n\t\t\t\t\t\treturn;\n\t\t\t\t\t}\n\t\t\t\t\talert(res.message || 'تم استيراد وحفظ الأصناف بنجاح!');\n\t\t\t\t\twindow.location.reload();\n\t\t\t\t})\n\t\t\t\t.catch(err => {\n\t\t\t\t\tconsole.error('commit error', err);\n\t\t\t\t\talert('حدث خطأ في الاتصال أثناء تأكيد الحفظ.');\n\t\t\t\t\tbtn.disabled = false;\n\t\t\t\t\tbtn.textContent = '💾 تأكيد الاستيراد والحفظ النهائي في قائمة التوفير';\n\t\t\t\t});\n\t\t\t}\n\n\t\t\tfunction handlePharmacyImportCancelClick() {\n\t\t\t\tif (pharmacyPollInterval) clearInterval(pharmacyPollInterval);\n\n\t\t\t\tif (pharmacyActiveSessionId) {\n\t\t\t\t\tfetch('/customer/saving-products/import/session/' + pharmacyActiveSessionId + '/cancel', { method: 'POST' }).catch(() => {});\n\t\t\t\t\tpharmacyActiveSessionId = null;\n\t\t\t\t\tpharmacyStagedData = null;\n\t\t\t\t}\n\t\t\t\tclosePharmacyImportModal();\n\t\t\t}\n\n\t\t\tfunction backToPharmacyImportConfig() {\n\t\t\t\tif (pharmacyPollInterval) clearInterval(pharmacyPollInterval);\n\t\t\t\tshowPharmacyImportStep('config');\n\t\t\t}\n\n\t\t\tfunction openPharmacyProvidersModal(productId, productName) {\n\t\t\t\tconst subtitleEl = document.getElementById('pharmacy-providers-modal-subtitle');\n\t\t\t\tif (subtitleEl) subtitleEl.textContent = 'الصنف: ' + productName;\n\t\t\t\tconst contentEl = document.getElementById('pharmacy-providers-modal-content');\n\t\t\t\tif (contentEl) contentEl.innerHTML = '<div style=\"padding:2rem; text-align:center; color:var(--text-muted);\">⏳ جاري استرجاع عروض الموردين والأسعار...</div>';\n\t\t\t\t\n\t\t\t\tconst modalEl = document.getElementById('pharmacy-providers-modal');\n\t\t\t\tif (modalEl) {\n\t\t\t\t\tmodalEl.classList.remove('hidden');\n\t\t\t\t\tmodalEl.style.display = 'flex';\n\t\t\t\t}\n\t\t\t\tif (window.openModal) {\n\t\t\t\t\twindow.openModal('pharmacy-providers-modal');\n\t\t\t\t}\n\n\t\t\t\tfetch('/customer/saving-products/providers/' + productId)\n\t\t\t\t\t.then(r => r.json())\n\t\t\t\t\t.then(providers => {\n\t\t\t\t\t\tif (!providers || providers.length === 0) {\n\t\t\t\t\t\t\tif (contentEl) contentEl.innerHTML = '<div style=\"padding:2.5rem; text-align:center; color:var(--text-muted); font-size:0.9rem;\">لا توجد عروض موردين مسجلة لهذا الصنف حالياً في الكتالوج.<br><a href=\"/catalog\" class=\"btn btn-secondary btn-sm\" style=\"margin-top:1rem;\">تصفح كتالوج الأدوية العام</a></div>';\n\t\t\t\t\t\t\treturn;\n\t\t\t\t\t\t}\n\n\t\t\t\t\t\tlet html = '<div style=\"overflow-x:auto;\"><table class=\"table\" style=\"width:100%; border-collapse:collapse; font-size:0.875rem;\"><thead><tr style=\"background:var(--surface-sunken); border-bottom:2px solid var(--border); text-align:start; font-size:0.775rem; color:var(--text-muted);\"><th class=\"p-sm\">المورد / المخزن</th><th class=\"p-sm\">العبوة / المواصفات</th><th class=\"p-sm text-center\">المخزون</th><th class=\"p-sm text-center\">سعر الجمهور</th><th class=\"p-sm text-center\">نسبة الخصم</th><th class=\"p-sm text-center\">السعر بعد الخصم</th><th class=\"p-sm text-center\">طلب توريد</th></tr></thead><tbody>';\n\n\t\t\t\t\t\tproviders.forEach(p => {\n\t\t\t\t\t\t\tconst branchText = p.branch_name ? ('<div style=\"font-size:0.725rem; color:var(--text-muted); margin-top:2px;\">' + p.branch_name + '</div>') : '';\n\t\t\t\t\t\t\tconst skuText = p.sku ? ('<code class=\"text-xs\">' + p.sku + '</code>') : '';\n\t\t\t\t\t\t\tconst stockBadge = p.stock_quantity > 0 ? 'badge-emerald' : 'badge-secondary';\n\t\t\t\t\t\t\tconst orgDisplayName = (typeof p.org_name === 'object' && p.org_name) ? (p.org_name.ar || p.org_name.en || 'مورد معتمد') : (p.org_name || 'مورد معتمد');\n\t\t\t\t\t\t\tconst varDisplayName = (typeof p.variant_name === 'object' && p.variant_name) ? (p.variant_name.ar || p.variant_name.en || 'العبوة القياسية') : (p.variant_name || 'العبوة القياسية');\n\t\t\t\t\t\t\t\n\t\t\t\t\t\t\tconst publicPrice = p.public_price || p.cost_price || p.price;\n\t\t\t\t\t\t\tconst discountPct = p.discount_percentage ? (p.discount_percentage + '%') : (p.discount ? (p.discount + '%') : '0%');\n\t\t\t\t\t\t\tconst netPrice = p.price_after_discount || p.price;\n\n\t\t\t\t\t\t\tconst addCartAction = (p.stock_quantity > 0 && p.variant_id) ?\n\t\t\t\t\t\t\t\t('<form method=\"POST\" action=\"/cart/add\" style=\"margin:0; display:inline-flex; gap:0.25rem;\">' +\n\t\t\t\t\t\t\t\t\t'<input type=\"hidden\" name=\"variant_id\" value=\"' + p.variant_id + '\" />' +\n\t\t\t\t\t\t\t\t\t'<input type=\"hidden\" name=\"product_id\" value=\"' + productId + '\" />' +\n\t\t\t\t\t\t\t\t\t'<input type=\"hidden\" name=\"organization_id\" value=\"' + (p.organization_id || '') + '\" />' +\n\t\t\t\t\t\t\t\t\t'<input type=\"hidden\" name=\"vendor_org_id\" value=\"' + (p.organization_id || '') + '\" />' +\n\t\t\t\t\t\t\t\t\t'<input type=\"hidden\" name=\"offer_price\" value=\"' + netPrice + '\" />' +\n\t\t\t\t\t\t\t\t\t'<input type=\"hidden\" name=\"qty\" value=\"1\" />' +\n\t\t\t\t\t\t\t\t\t'<button type=\"submit\" class=\"btn btn-primary btn-sm\" style=\"font-size:0.75rem; font-weight:800; padding:0.25rem 0.65rem;\">+ أضف للسلة</button>' +\n\t\t\t\t\t\t\t\t'</form>') :\n\t\t\t\t\t\t\t\t'<span class=\"text-xs text-muted\">غير متوفر</span>';\n\n\t\t\t\t\t\t\thtml += '<tr style=\"border-bottom:1px solid var(--border);\">' +\n\t\t\t\t\t\t\t\t'<td class=\"p-sm\"><strong style=\"color:var(--text); font-size:0.875rem;\">' + orgDisplayName + '</strong>' + branchText + '</td>' +\n\t\t\t\t\t\t\t\t'<td class=\"p-sm\"><div>' + varDisplayName + '</div>' + skuText + '</td>' +\n\t\t\t\t\t\t\t\t'<td class=\"p-sm text-center tabular-nums\"><span class=\"badge ' + stockBadge + '\">' + p.stock_quantity + ' عبوة</span></td>' +\n\t\t\t\t\t\t\t\t'<td class=\"p-sm text-center tabular-nums\">' + publicPrice + ' ج.م</td>' +\n\t\t\t\t\t\t\t\t'<td class=\"p-sm text-center tabular-nums\"><span class=\"badge badge-emerald\">' + discountPct + '</span></td>' +\n\t\t\t\t\t\t\t\t'<td class=\"p-sm text-center tabular-nums\"><strong class=\"text-primary tabular-nums\">' + netPrice + ' ج.م</strong></td>' +\n\t\t\t\t\t\t\t\t'<td class=\"p-sm text-center\">' + addCartAction + '</td>' +\n\t\t\t\t\t\t\t\t'</tr>';\n\t\t\t\t\t\t});\n\n\t\t\t\t\t\thtml += '</tbody></table></div>';\n\t\t\t\t\t\tif (contentEl) contentEl.innerHTML = html;\n\t\t\t\t\t})\n\t\t\t\t\t.catch(() => {\n\t\t\t\t\t\tif (contentEl) contentEl.innerHTML = '<div style=\"padding:2rem; text-align:center; color:var(--danger-text);\">حدث خطأ أثناء تحميل عروض الموردين.</div>';\n\t\t\t\t\t});\n\t\t\t}\n\n\t\t\tfunction closePharmacyProvidersModal() {\n\t\t\t\tconst el = document.getElementById('pharmacy-providers-modal');\n\t\t\t\tif (el) {\n\t\t\t\t\tel.classList.add('hidden');\n\t\t\t\t\tel.style.display = 'none';\n\t\t\t\t}\n\t\t\t\tif (window.closeModal) {\n\t\t\t\t\twindow.closeModal('pharmacy-providers-modal');\n\t\t\t\t}\n\t\t\t}\n\n\t\t\t// Delegated click handler for providers modal trigger\n\t\t\tdocument.addEventListener('click', function(e) {\n\t\t\t\tconst btn = e.target.closest('[data-open-providers-id]');\n\t\t\t\tif (btn) {\n\t\t\t\t\te.preventDefault();\n\t\t\t\t\tconst pId = btn.getAttribute('data-open-providers-id');\n\t\t\t\t\tconst pName = btn.getAttribute('data-open-providers-name') || '';\n\t\t\t\t\topenPharmacyProvidersModal(pId, pName);\n\t\t\t\t}\n\t\t\t});\n\n\t\t\tfunction filterPharmacySavingTable(query) {\n\t\t\t\tconst term = (query || '').trim().toLowerCase();\n\t\t\t\tconst rows = document.querySelectorAll('.pharmacy-saving-row');\n\t\t\t\trows.forEach(row => {\n\t\t\t\t\tconst name = (row.dataset.name || '').toLowerCase();\n\t\t\t\t\tconst sku = (row.dataset.sku || '').toLowerCase();\n\t\t\t\t\tconst pName = (row.dataset.productName || '').toLowerCase();\n\t\t\t\t\tif (term === '' || name.includes(term) || sku.includes(term) || pName.includes(term)) {\n\t\t\t\t\t\trow.style.display = '';\n\t\t\t\t\t} else {\n\t\t\t\t\t\trow.style.display = 'none';\n\t\t\t\t\t}\n\t\t\t\t});\n\t\t\t}\n\t\t</script>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 58, "</button></div><div id=\"pharmacy-providers-modal-content\"><div style=\"padding:2rem; text-align:center; color:var(--text-muted);\">⏳ جاري استرجاع عروض الموردين والأسعار المتاحة...</div></div></div></div><script>\n\t\t\tfunction openPharmacyCreateModal() {\n\t\t\t\tdocument.getElementById('pharmacy-modal-title').textContent = 'إضافة صنف توفير جديد';\n\t\t\t\tdocument.getElementById('pharmacy-saving-product-form').action = '/customer/saving-products';\n\t\t\t\tdocument.getElementById('pharmacy-form-saving-id').value = '';\n\t\t\t\tdocument.getElementById('pharmacy-form-name-product').value = '';\n\t\t\t\tdocument.getElementById('pharmacy-form-sku').value = '';\n\t\t\t\tdocument.getElementById('pharmacy-form-qty').value = '';\n\t\t\t\tdocument.getElementById('pharmacy-form-price').value = '';\n\t\t\t\tclearPharmacySelectedProduct();\n\t\t\t\tif (window.openModal) {\n\t\t\t\t\twindow.openModal('pharmacy-saving-product-modal');\n\t\t\t\t} else {\n\t\t\t\t\tconst el = document.getElementById('pharmacy-saving-product-modal');\n\t\t\t\t\tif (el) {\n\t\t\t\t\t\tel.classList.remove('hidden');\n\t\t\t\t\t\tel.style.display = 'flex';\n\t\t\t\t\t}\n\t\t\t\t}\n\t\t\t}\n\n\t\t\tfunction openPharmacyEditModalFromRow(id) {\n\t\t\t\tconst row = document.querySelector(`.pharmacy-saving-row[data-id=\"${id}\"]`);\n\t\t\t\tif (!row) return;\n\n\t\t\t\tdocument.getElementById('pharmacy-modal-title').textContent = 'تعديل صنف التوفير وتعيين الربط';\n\t\t\t\tdocument.getElementById('pharmacy-saving-product-form').action = `/customer/saving-products/${id}/update`;\n\t\t\t\tdocument.getElementById('pharmacy-form-saving-id').value = id;\n\t\t\t\tdocument.getElementById('pharmacy-form-name-product').value = row.dataset.name || '';\n\t\t\t\tdocument.getElementById('pharmacy-form-sku').value = row.dataset.sku || '';\n\t\t\t\tdocument.getElementById('pharmacy-form-qty').value = row.dataset.qty || '';\n\t\t\t\tdocument.getElementById('pharmacy-form-price').value = row.dataset.price || '';\n\n\t\t\t\tconst prodId = row.dataset.productId;\n\t\t\t\tconst prodName = row.dataset.productName;\n\t\t\t\tif (prodId && prodId !== '') {\n\t\t\t\t\tselectPharmacyCatalogProduct(prodId, prodName);\n\t\t\t\t} else {\n\t\t\t\t\tclearPharmacySelectedProduct();\n\t\t\t\t}\n\n\t\t\t\tif (window.openModal) {\n\t\t\t\t\twindow.openModal('pharmacy-saving-product-modal');\n\t\t\t\t} else {\n\t\t\t\t\tconst el = document.getElementById('pharmacy-saving-product-modal');\n\t\t\t\t\tif (el) {\n\t\t\t\t\t\tel.classList.remove('hidden');\n\t\t\t\t\t\tel.style.display = 'flex';\n\t\t\t\t\t}\n\t\t\t\t}\n\t\t\t}\n\n\t\t\tfunction closePharmacyCreateModal() {\n\t\t\t\tif (window.closeModal) {\n\t\t\t\t\twindow.closeModal('pharmacy-saving-product-modal');\n\t\t\t\t} else {\n\t\t\t\t\tconst el = document.getElementById('pharmacy-saving-product-modal');\n\t\t\t\t\tif (el) {\n\t\t\t\t\t\tel.classList.add('hidden');\n\t\t\t\t\t\tel.style.display = 'none';\n\t\t\t\t\t}\n\t\t\t\t}\n\t\t\t}\n\n\t\t\tfunction selectPharmacyCatalogProduct(id, name) {\n\t\t\t\tdocument.getElementById('pharmacy-form-product-id').value = id;\n\t\t\t\tdocument.getElementById('pharmacy-selected-product-label').textContent = `🔗 ${name}`;\n\t\t\t\tdocument.getElementById('pharmacy-selected-product-box').style.display = 'flex';\n\t\t\t\tdocument.getElementById('pharmacy-search-product-container').style.display = 'none';\n\t\t\t\tdocument.getElementById('pharmacy-product-search-dropdown').style.display = 'none';\n\t\t\t\tdocument.getElementById('pharmacy-product-search-input').value = '';\n\t\t\t}\n\n\t\t\tfunction clearPharmacySelectedProduct() {\n\t\t\t\tdocument.getElementById('pharmacy-form-product-id').value = '';\n\t\t\t\tdocument.getElementById('pharmacy-selected-product-label').textContent = '';\n\t\t\t\tdocument.getElementById('pharmacy-selected-product-box').style.display = 'none';\n\t\t\t\tdocument.getElementById('pharmacy-search-product-container').style.display = 'block';\n\t\t\t}\n\n\t\t\tlet pharmacySearchDebounce = null;\n\t\t\tfunction searchPharmacyCatalogProductsLive(query) {\n\t\t\t\tclearTimeout(pharmacySearchDebounce);\n\t\t\t\tconst dropdown = document.getElementById('pharmacy-product-search-dropdown');\n\t\t\t\tif (!query || query.trim().length < 2) {\n\t\t\t\t\tdropdown.style.display = 'none';\n\t\t\t\t\treturn;\n\t\t\t\t}\n\n\t\t\t\tpharmacySearchDebounce = setTimeout(() => {\n\t\t\t\t\tfetch('/customer/saving-products/search-products?q=' + encodeURIComponent(query.trim()))\n\t\t\t\t\t\t.then(r => r.json())\n\t\t\t\t\t\t.then(items => {\n\t\t\t\t\t\t\tif (!items || items.length === 0) {\n\t\t\t\t\t\t\t\tdropdown.innerHTML = '<div style=\"padding:0.75rem 1rem; color:var(--text-muted); font-size:0.8rem; text-align:center;\">لم يتم العثور على نتائج بالكتالوج</div>';\n\t\t\t\t\t\t\t\tdropdown.style.display = 'block';\n\t\t\t\t\t\t\t\treturn;\n\t\t\t\t\t\t\t}\n\n\t\t\t\t\t\t\tlet html = '';\n\t\t\t\t\t\t\titems.forEach(it => {\n\t\t\t\t\t\t\t\tconst skuText = it.sku ? ('<span style=\"font-size:0.75rem; color:var(--text-muted); margin-inline-start:0.5rem;\">(' + it.sku + ')</span>') : '';\n\t\t\t\t\t\t\t\tconst safeName = (it.name || '').replace(/'/g, \"\\\\'\");\n\t\t\t\t\t\t\t\thtml += '<div style=\"padding:0.6rem 0.85rem; border-bottom:1px solid var(--border); cursor:pointer; display:flex; justify-content:space-between; align-items:center; transition:background 0.15s;\" ' +\n\t\t\t\t\t\t\t\t\t'onmouseover=\"this.style.background=\\'var(--surface-sunken)\\'\" onmouseout=\"this.style.background=\\'\\'\" ' +\n\t\t\t\t\t\t\t\t\t'onclick=\"selectPharmacyCatalogProduct(\\'' + it.id + '\\', \\'' + safeName + '\\')\">' +\n\t\t\t\t\t\t\t\t\t'<div><strong style=\"color:var(--text); font-size:0.85rem;\">' + it.name + '</strong>' + skuText + '</div>' +\n\t\t\t\t\t\t\t\t\t'<span class=\"badge badge-emerald text-xs\">اختيار</span></div>';\n\t\t\t\t\t\t\t});\n\t\t\t\t\t\t\tdropdown.innerHTML = html;\n\t\t\t\t\t\t\tdropdown.style.display = 'block';\n\t\t\t\t\t\t})\n\t\t\t\t\t\t.catch(() => {\n\t\t\t\t\t\t\tdropdown.style.display = 'none';\n\t\t\t\t\t\t});\n\t\t\t\t}, 200);\n\t\t\t}\n\n\t\t\tfunction confirmPharmacyDeleteSavingProduct(id) {\n\t\t\t\tif (confirm(\"هل أنت متأكد من حذف هذا الصنف من قائمة أدوية التوفير؟\")) {\n\t\t\t\t\tconst form = document.createElement('form');\n\t\t\t\t\tform.method = 'POST';\n\t\t\t\t\tform.action = '/customer/saving-products/' + id + '/delete';\n\t\t\t\t\tdocument.body.appendChild(form);\n\t\t\t\t\tform.submit();\n\t\t\t\t}\n\t\t\t}\n\n\t\t\tfunction openPharmacyImportModal() {\n\t\t\t\tdocument.getElementById('pharmacy-import-filename-preview').innerHTML = '';\n\t\t\t\tdocument.getElementById('pharmacy-import-file-input').value = '';\n\t\t\t\tif (window.openModal) {\n\t\t\t\t\twindow.openModal('pharmacy-saving-import-modal');\n\t\t\t\t} else {\n\t\t\t\t\tconst el = document.getElementById('pharmacy-saving-import-modal');\n\t\t\t\t\tif (el) {\n\t\t\t\t\t\tel.classList.remove('hidden');\n\t\t\t\t\t\tel.style.display = 'flex';\n\t\t\t\t\t}\n\t\t\t\t}\n\t\t\t}\n\n\t\t\tfunction closePharmacyImportModal() {\n\t\t\t\tif (window.closeModal) {\n\t\t\t\t\twindow.closeModal('pharmacy-saving-import-modal');\n\t\t\t\t} else {\n\t\t\t\t\tconst el = document.getElementById('pharmacy-saving-import-modal');\n\t\t\t\t\tif (el) {\n\t\t\t\t\t\tel.classList.add('hidden');\n\t\t\t\t\t\tel.style.display = 'none';\n\t\t\t\t\t}\n\t\t\t\t}\n\t\t\t}\n\n\t\t\tfunction handlePharmacyImportFileSelect(input) {\n\t\t\t\tif (!input.files || !input.files[0]) return;\n\t\t\t\tconst f = input.files[0];\n\t\t\t\tconst size = (f.size / 1024 / 1024).toFixed(2);\n\t\t\t\tdocument.getElementById('pharmacy-import-filename-preview').innerHTML = '✓ تم اختيار: ' + f.name + ' (' + size + ' MB)';\n\n\t\t\t\tconst panel = document.getElementById('pharmacy-import-columns-panel');\n\t\t\t\tconst loadingEl = document.getElementById('pharmacy-import-columns-loading');\n\t\t\t\tconst formGrid = document.getElementById('pharmacy-import-columns-grid');\n\t\t\t\tconst previewTableEl = document.getElementById('pharmacy-import-preview-table-container');\n\n\t\t\t\tif (panel) panel.style.display = 'block';\n\t\t\t\tif (loadingEl) loadingEl.style.display = 'block';\n\t\t\t\tif (formGrid) formGrid.style.display = 'none';\n\t\t\t\tif (previewTableEl) previewTableEl.innerHTML = '';\n\n\t\t\t\tconst formData = new FormData();\n\t\t\t\tformData.append('file', f);\n\n\t\t\t\tfetch('/customer/saving-products/preview-columns', {\n\t\t\t\t\tmethod: 'POST',\n\t\t\t\t\tbody: formData,\n\t\t\t\t})\n\t\t\t\t.then(r => r.json())\n\t\t\t\t.then(data => {\n\t\t\t\t\tif (loadingEl) loadingEl.style.display = 'none';\n\t\t\t\t\tif (!data || !data.success || !data.headers || data.headers.length === 0) {\n\t\t\t\t\t\tif (formGrid) formGrid.style.display = 'none';\n\t\t\t\t\t\talert(data.error || 'تعذر قراءة أعمدة الملف المرفوع. تأكد من سلامة ملف Excel.');\n\t\t\t\t\t\treturn;\n\t\t\t\t\t}\n\n\t\t\t\t\tif (formGrid) formGrid.style.display = 'grid';\n\t\t\t\t\trenderImportColumnDropdowns('pharmacy', data.headers, data.detected);\n\t\t\t\t\trenderImportSamplePreview('pharmacy', data.headers, data.sample_rows, data.detected);\n\t\t\t\t})\n\t\t\t\t.catch(err => {\n\t\t\t\t\tif (loadingEl) loadingEl.style.display = 'none';\n\t\t\t\t\tconsole.error('preview error', err);\n\t\t\t\t});\n\t\t\t}\n\n\t\t\tfunction renderImportColumnDropdowns(prefix, headers, detected) {\n\t\t\t\tconst selects = [\n\t\t\t\t\t{ id: prefix + '-col-name', selected: detected.name_col },\n\t\t\t\t\t{ id: prefix + '-col-sku', selected: detected.sku_col },\n\t\t\t\t\t{ id: prefix + '-col-qty', selected: detected.qty_col },\n\t\t\t\t\t{ id: prefix + '-col-price', selected: detected.price_col }\n\t\t\t\t];\n\n\t\t\t\tselects.forEach(s => {\n\t\t\t\t\tconst el = document.getElementById(s.id);\n\t\t\t\t\tif (!el) return;\n\t\t\t\t\tel.innerHTML = '<option value=\"-1\">-- غير محدد (تجاهل) --</option>';\n\t\t\t\t\theaders.forEach((h, idx) => {\n\t\t\t\t\t\tconst colLetter = String.fromCharCode(65 + idx);\n\t\t\t\t\t\tconst opt = document.createElement('option');\n\t\t\t\t\t\topt.value = idx;\n\t\t\t\t\t\topt.textContent = `العمود ${colLetter}: [${h}]`;\n\t\t\t\t\t\tif (idx === s.selected) {\n\t\t\t\t\t\t\topt.selected = true;\n\t\t\t\t\t\t}\n\t\t\t\t\t\tel.appendChild(opt);\n\t\t\t\t\t});\n\n\t\t\t\t\tel.onchange = function() {\n\t\t\t\t\t\tconst curDetected = {\n\t\t\t\t\t\t\tname_col: parseInt(document.getElementById(prefix + '-col-name')?.value || -1),\n\t\t\t\t\t\t\tsku_col: parseInt(document.getElementById(prefix + '-col-sku')?.value || -1),\n\t\t\t\t\t\t\tqty_col: parseInt(document.getElementById(prefix + '-col-qty')?.value || -1),\n\t\t\t\t\t\t\tprice_col: parseInt(document.getElementById(prefix + '-col-price')?.value || -1)\n\t\t\t\t\t\t};\n\t\t\t\t\t\tif (window[prefix + '_last_sample_rows']) {\n\t\t\t\t\t\t\trenderImportSamplePreview(prefix, headers, window[prefix + '_last_sample_rows'], curDetected);\n\t\t\t\t\t\t}\n\t\t\t\t\t};\n\t\t\t\t});\n\t\t\t}\n\n\t\t\tfunction renderImportSamplePreview(prefix, headers, sampleRows, detected) {\n\t\t\t\twindow[prefix + '_last_sample_rows'] = sampleRows;\n\t\t\t\tconst container = document.getElementById(prefix + '-import-preview-table-container');\n\t\t\t\tif (!container || !sampleRows || sampleRows.length === 0) return;\n\n\t\t\t\tlet html = '<div style=\"margin-top:1rem; border-top:1px solid var(--border); padding-top:0.75rem;\">';\n\t\t\t\thtml += '<div style=\"font-size:0.8rem; font-weight:800; color:var(--text); margin-bottom:0.5rem; display:flex; justify-content:space-between; align-items:center;\">';\n\t\t\t\thtml += '<span>👀 معاينة أعمدة الملف والبيانات الحقيقية:</span>';\n\t\t\t\thtml += '<span style=\"font-size:0.75rem; color:var(--text-muted);\">أول ' + sampleRows.length + ' صفوف</span>';\n\t\t\t\thtml += '</div>';\n\t\t\t\thtml += '<div class=\"table-container m-0\" style=\"max-height:160px; overflow:auto;\"><table class=\"data-table m-0\" style=\"font-size:0.75rem; width:100%;\"><thead><tr>';\n\n\t\t\t\theaders.forEach((h, idx) => {\n\t\t\t\t\tlet tag = '';\n\t\t\t\t\tif (idx === detected.name_col) tag = ' <span class=\"badge badge-emerald\" style=\"font-size:9px; margin-inline-start:3px;\">اسم الصنف ✓</span>';\n\t\t\t\t\telse if (idx === detected.sku_col) tag = ' <span class=\"badge badge-sky\" style=\"font-size:9px; margin-inline-start:3px;\">كود SKU ✓</span>';\n\t\t\t\t\telse if (idx === detected.qty_col) tag = ' <span class=\"badge badge-amber\" style=\"font-size:9px; margin-inline-start:3px;\">الكمية ✓</span>';\n\t\t\t\t\telse if (idx === detected.price_col) tag = ' <span class=\"badge badge-purple\" style=\"font-size:9px; margin-inline-start:3px;\">السعر ✓</span>';\n\t\t\t\t\tconst colLetter = String.fromCharCode(65 + idx);\n\t\t\t\t\thtml += `<th style=\"padding:0.4rem 0.6rem; white-space:nowrap;\">${colLetter}: ${h}${tag}</th>`;\n\t\t\t\t});\n\t\t\t\thtml += '</tr></thead><tbody>';\n\n\t\t\t\tsampleRows.forEach(row => {\n\t\t\t\t\thtml += '<tr>';\n\t\t\t\t\theaders.forEach((_, idx) => {\n\t\t\t\t\t\tconst cellVal = (idx < row.length) ? row[idx] : '';\n\t\t\t\t\t\tlet cellStyle = 'padding:0.4rem 0.6rem; max-width:180px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;';\n\t\t\t\t\t\tif (idx === detected.name_col) cellStyle += ' font-weight:700; color:var(--text);';\n\t\t\t\t\t\thtml += `<td style=\"${cellStyle}\">${cellVal}</td>`;\n\t\t\t\t\t});\n\t\t\t\t\thtml += '</tr>';\n\t\t\t\t});\n\n\t\t\t\thtml += '</tbody></table></div></div>';\n\t\t\t\tcontainer.innerHTML = html;\n\t\t\t}\n\n\t\t\tlet pharmacyActiveSessionId = null;\n\t\t\tlet pharmacyStagedData = null;\n\t\t\tlet pharmacyCurrentTab = 'all';\n\t\t\tlet pharmacyPollInterval = null;\n\n\t\t\tfunction startPharmacyAsyncImport() {\n\t\t\t\tconst input = document.getElementById('pharmacy-import-file-input');\n\t\t\t\tif (!input.files || input.files.length === 0) {\n\t\t\t\t\talert(\"يرجى اختيار ملف Excel أو CSV أولاً.\");\n\t\t\t\t\treturn;\n\t\t\t\t}\n\n\t\t\t\tconst file = input.files[0];\n\t\t\t\tconst formData = new FormData();\n\t\t\t\tformData.append('file', file);\n\n\t\t\t\tconst colName = document.getElementById('pharmacy-col-name')?.value || '';\n\t\t\t\tconst colSKU = document.getElementById('pharmacy-col-sku')?.value || '';\n\t\t\t\tconst colQty = document.getElementById('pharmacy-col-qty')?.value || '';\n\t\t\t\tconst colPrice = document.getElementById('pharmacy-col-price')?.value || '';\n\t\t\t\tconst strat = document.querySelector('input[name=\"pharmacy_match_strategy\"]:checked')?.value || 'smart_auto';\n\n\t\t\t\tformData.append('col_name', colName);\n\t\t\t\tformData.append('col_sku', colSKU);\n\t\t\t\tformData.append('col_qty', colQty);\n\t\t\t\tformData.append('col_price', colPrice);\n\t\t\t\tformData.append('match_strategy', strat);\n\n\t\t\t\t// Switch UI to Step 2: Progress\n\t\t\t\tshowPharmacyImportStep('progress');\n\t\t\t\tdocument.getElementById('pharmacy-progress-bar').style.width = '10%';\n\t\t\t\tdocument.getElementById('pharmacy-progress-percent').textContent = '10%';\n\t\t\t\tdocument.getElementById('pharmacy-progress-counter').textContent = '0 / ...';\n\t\t\t\tdocument.getElementById('pharmacy-progress-phase').textContent = 'جاري رفع الملف وبدء المعالجة الذكية على السيرفر...';\n\n\t\t\t\tfetch('/customer/saving-products/import/start', {\n\t\t\t\t\tmethod: 'POST',\n\t\t\t\t\tbody: formData,\n\t\t\t\t})\n\t\t\t\t.then(r => r.json())\n\t\t\t\t.then(res => {\n\t\t\t\t\tif (!res.success) {\n\t\t\t\t\t\talert(res.error || 'حدث خطأ أثناء بدء المعالجة.');\n\t\t\t\t\t\tshowPharmacyImportStep('config');\n\t\t\t\t\t\treturn;\n\t\t\t\t\t}\n\t\t\t\t\tpharmacyActiveSessionId = res.session_id;\n\t\t\t\t\tpollPharmacyImportProgress(res.session_id);\n\t\t\t\t})\n\t\t\t\t.catch(err => {\n\t\t\t\t\tconsole.error('start import error', err);\n\t\t\t\t\talert('حدث خطأ في الاتصال بالسيرفر أثناء بدء الاستيراد.');\n\t\t\t\t\tshowPharmacyImportStep('config');\n\t\t\t\t});\n\t\t\t}\n\n\t\t\tfunction pollPharmacyImportProgress(sessionId) {\n\t\t\t\tif (pharmacyPollInterval) clearInterval(pharmacyPollInterval);\n\n\t\t\t\tpharmacyPollInterval = setInterval(() => {\n\t\t\t\t\tfetch('/customer/saving-products/import/session/' + sessionId + '/progress')\n\t\t\t\t\t.then(r => r.json())\n\t\t\t\t\t.then(sess => {\n\t\t\t\t\t\tif (!sess || !sess.success) {\n\t\t\t\t\t\t\tclearInterval(pharmacyPollInterval);\n\t\t\t\t\t\t\talert(sess.error || 'فشلت معالجة الجلسة.');\n\t\t\t\t\t\t\tshowPharmacyImportStep('config');\n\t\t\t\t\t\t\treturn;\n\t\t\t\t\t\t}\n\n\t\t\t\t\t\tif (sess.status === 'failed') {\n\t\t\t\t\t\t\tclearInterval(pharmacyPollInterval);\n\t\t\t\t\t\t\talert('فشلت المعالجة: ' + (sess.error_message || 'خطأ غير معروف'));\n\t\t\t\t\t\t\tshowPharmacyImportStep('config');\n\t\t\t\t\t\t\treturn;\n\t\t\t\t\t\t}\n\n\t\t\t\t\t\t// Update progress UI\n\t\t\t\t\t\tconst pct = Math.max(10, Math.min(100, sess.progress || 10));\n\t\t\t\t\t\tdocument.getElementById('pharmacy-progress-bar').style.width = pct + '%';\n\t\t\t\t\t\tdocument.getElementById('pharmacy-progress-percent').textContent = pct + '%';\n\t\t\t\t\t\tdocument.getElementById('pharmacy-progress-counter').textContent = (sess.processed_rows || 0) + ' / ' + (sess.total_rows || 0) + ' صنف';\n\t\t\t\t\t\tif (sess.progress_phase) {\n\t\t\t\t\t\t\tdocument.getElementById('pharmacy-progress-phase').textContent = sess.progress_phase;\n\t\t\t\t\t\t}\n\n\t\t\t\t\t\tif (sess.status === 'ready') {\n\t\t\t\t\t\t\tclearInterval(pharmacyPollInterval);\n\t\t\t\t\t\t\tpharmacyStagedData = sess;\n\t\t\t\t\t\t\trenderPharmacyStagedReview(sess);\n\t\t\t\t\t\t}\n\t\t\t\t\t})\n\t\t\t\t\t.catch(err => {\n\t\t\t\t\t\tconsole.error('poll progress error', err);\n\t\t\t\t\t});\n\t\t\t\t}, 450);\n\t\t\t}\n\n\t\t\tfunction showPharmacyImportStep(step) {\n\t\t\t\tconst configStep = document.getElementById('pharmacy-import-step-config');\n\t\t\t\tconst progressStep = document.getElementById('pharmacy-import-step-progress');\n\t\t\t\tconst reviewStep = document.getElementById('pharmacy-import-step-review');\n\n\t\t\t\tconst subtitle = document.getElementById('pharmacy-import-modal-subtitle');\n\t\t\t\tconst icon = document.getElementById('pharmacy-import-modal-icon');\n\n\t\t\t\tconst startBtn = document.getElementById('pharmacy-start-btn');\n\t\t\t\tconst commitBtn = document.getElementById('pharmacy-commit-btn');\n\t\t\t\tconst backBtn = document.getElementById('pharmacy-back-btn');\n\t\t\t\tconst cancelBtn = document.getElementById('pharmacy-cancel-btn');\n\n\t\t\t\tconfigStep.style.display = (step === 'config') ? 'block' : 'none';\n\t\t\t\tprogressStep.style.display = (step === 'progress') ? 'block' : 'none';\n\t\t\t\treviewStep.style.display = (step === 'review') ? 'block' : 'none';\n\n\t\t\t\tif (step === 'config') {\n\t\t\t\t\tsubtitle.textContent = 'الخطوة 1 من 3: اختيار الملف وتعيين الأعمدة';\n\t\t\t\t\ticon.textContent = '📥';\n\t\t\t\t\tstartBtn.style.display = 'inline-flex';\n\t\t\t\t\tcommitBtn.style.display = 'none';\n\t\t\t\t\tbackBtn.style.display = 'none';\n\t\t\t\t\tcancelBtn.textContent = 'إلغاء';\n\t\t\t\t} else if (step === 'progress') {\n\t\t\t\t\tsubtitle.textContent = 'الخطوة 2 من 3: المعالجة والمطابقة في الخلفية';\n\t\t\t\t\ticon.textContent = '⚡';\n\t\t\t\t\tstartBtn.style.display = 'none';\n\t\t\t\t\tcommitBtn.style.display = 'none';\n\t\t\t\t\tbackBtn.style.display = 'none';\n\t\t\t\t\tcancelBtn.textContent = 'إلغاء المعالجة';\n\t\t\t\t} else if (step === 'review') {\n\t\t\t\t\tsubtitle.textContent = 'الخطوة 3 من 3: مراجعة المسودة وتأكيد الحفظ النهائي';\n\t\t\t\t\ticon.textContent = '📋';\n\t\t\t\t\tstartBtn.style.display = 'none';\n\t\t\t\t\tcommitBtn.style.display = 'inline-flex';\n\t\t\t\t\tbackBtn.style.display = 'inline-flex';\n\t\t\t\t\tcancelBtn.textContent = 'تفريغ وإلغاء المسودة';\n\t\t\t\t}\n\t\t\t}\n\n\t\t\tfunction renderPharmacyStagedReview(sess) {\n\t\t\t\tshowPharmacyImportStep('review');\n\n\t\t\t\tdocument.getElementById('pharmacy-review-total-count').textContent = sess.total_rows || (sess.items ? sess.items.length : 0);\n\t\t\t\tdocument.getElementById('pharmacy-review-matched-count').textContent = sess.matched_rows || 0;\n\t\t\t\tdocument.getElementById('pharmacy-review-unlinked-count').textContent = sess.unlinked_rows || 0;\n\t\t\t\tdocument.getElementById('pharmacy-review-total-qty').textContent = Number(sess.total_quantity || 0).toLocaleString();\n\n\t\t\t\tdocument.getElementById('pharmacy-badge-all').textContent = sess.items ? sess.items.length : 0;\n\t\t\t\tdocument.getElementById('pharmacy-badge-matched').textContent = sess.matched_rows || 0;\n\t\t\t\tdocument.getElementById('pharmacy-badge-unlinked').textContent = sess.unlinked_rows || 0;\n\n\t\t\t\trenderPharmacyReviewRows(sess.items || []);\n\t\t\t}\n\n\t\t\tfunction renderPharmacyReviewRows(items) {\n\t\t\t\tconst tbody = document.getElementById('pharmacy-review-table-body');\n\t\t\t\tif (!tbody) return;\n\n\t\t\t\tconst searchVal = (document.getElementById('pharmacy-review-search')?.value || '').trim().toLowerCase();\n\n\t\t\t\tlet html = '';\n\t\t\t\tlet selectedCount = 0;\n\n\t\t\t\titems.forEach((item, idx) => {\n\t\t\t\t\tconst isMatched = !!item.product_id;\n\t\t\t\t\tif (pharmacyCurrentTab === 'matched' && !isMatched) return;\n\t\t\t\t\tif (pharmacyCurrentTab === 'unlinked' && isMatched) return;\n\n\t\t\t\t\tif (searchVal) {\n\t\t\t\t\t\tconst n = (item.name_product || '').toLowerCase();\n\t\t\t\t\t\tconst s = (item.sku || '').toLowerCase();\n\t\t\t\t\t\tconst m = (item.master_product_name || '').toLowerCase();\n\t\t\t\t\t\tif (!n.includes(searchVal) && !s.includes(searchVal) && !m.includes(searchVal)) {\n\t\t\t\t\t\t\treturn;\n\t\t\t\t\t\t}\n\t\t\t\t\t}\n\n\t\t\t\t\tif (item.included !== false) selectedCount++;\n\n\t\t\t\t\tlet matchBadge = '<span class=\"badge badge-amber\" style=\"font-size:10px;\">غير مرتبط (جديد)</span>';\n\t\t\t\t\tif (isMatched) {\n\t\t\t\t\t\tif (item.match_type === 'exact_sku' || item.match_type === 'clean_sku') {\n\t\t\t\t\t\t\tmatchBadge = '<span class=\"badge badge-emerald\" style=\"font-size:10px;\">كود SKU ✓</span>';\n\t\t\t\t\t\t} else if (item.match_type === 'exact_name' || item.match_type === 'norm_name') {\n\t\t\t\t\t\t\tmatchBadge = '<span class=\"badge badge-emerald\" style=\"font-size:10px;\">اسم متطابق ✓</span>';\n\t\t\t\t\t\t} else if (item.match_type === 'core_name') {\n\t\t\t\t\t\t\tmatchBadge = '<span class=\"badge badge-sky\" style=\"font-size:10px;\">اسم مجرد ✓</span>';\n\t\t\t\t\t\t} else {\n\t\t\t\t\t\t\tconst conf = Math.round((item.confidence || 0) * 100);\n\t\t\t\t\t\t\tmatchBadge = '<span class=\"badge badge-purple\" style=\"font-size:10px;\">تشابه ' + conf + '% ✓</span>';\n\t\t\t\t\t\t}\n\t\t\t\t\t}\n\n\t\t\t\t\tconst masterDisplay = item.master_product_name ? \n\t\t\t\t\t\t('<strong style=\"color:var(--emerald-600);\">' + item.master_product_name + '</strong>' + (item.master_product_sku ? ' <code class=\"text-xs text-muted\">(' + item.master_product_sku + ')</code>' : '')) : \n\t\t\t\t\t\t'<span style=\"color:var(--text-muted); font-size:0.75rem;\">— صنف حر غير مقيد —</span>';\n\n\t\t\t\t\tconst checkedAttr = (item.included !== false) ? 'checked' : '';\n\n\t\t\t\t\thtml += '<tr style=\"border-bottom:1px solid var(--border);\">' +\n\t\t\t\t\t\t'<td style=\"text-align:center;\">' +\n\t\t\t\t\t\t\t'<input type=\"checkbox\" class=\"pharmacy-staged-row-cb\" data-idx=\"' + idx + '\" ' + checkedAttr + ' onchange=\"updatePharmacyRowInclusion(' + idx + ', this.checked)\" />' +\n\t\t\t\t\t\t'</td>' +\n\t\t\t\t\t\t'<td><strong style=\"color:var(--text);\">' + (item.name_product || '') + '</strong></td>' +\n\t\t\t\t\t\t'<td><code class=\"text-xs\">' + (item.sku || '—') + '</code></td>' +\n\t\t\t\t\t\t'<td>' + masterDisplay + '</td>' +\n\t\t\t\t\t\t'<td class=\"text-center\">' + matchBadge + '</td>' +\n\t\t\t\t\t\t'<td class=\"text-center tabular-nums font-bold\">' + (item.quantity || 0) + '</td>' +\n\t\t\t\t\t\t'<td class=\"text-end tabular-nums font-bold\" style=\"color:var(--accent);\">' + (item.price || '0.00') + ' ج.م</td>' +\n\t\t\t\t\t\t'</tr>';\n\t\t\t\t});\n\n\t\t\t\tif (!html) {\n\t\t\t\t\thtml = '<tr><td colspan=\"7\" style=\"text-align:center; padding:2rem; color:var(--text-muted);\">لا توجد أصناف تطابق الفلتر الحالي.</td></tr>';\n\t\t\t\t}\n\n\t\t\t\ttbody.innerHTML = html;\n\t\t\t\tdocument.getElementById('pharmacy-selected-count').textContent = selectedCount;\n\t\t\t}\n\n\t\t\tfunction updatePharmacyRowInclusion(idx, included) {\n\t\t\t\tif (pharmacyStagedData && pharmacyStagedData.items && pharmacyStagedData.items[idx]) {\n\t\t\t\t\tpharmacyStagedData.items[idx].included = included;\n\t\t\t\t}\n\t\t\t\tlet count = 0;\n\t\t\t\tif (pharmacyStagedData && pharmacyStagedData.items) {\n\t\t\t\t\tpharmacyStagedData.items.forEach(it => { if (it.included !== false) count++; });\n\t\t\t\t}\n\t\t\t\tdocument.getElementById('pharmacy-selected-count').textContent = count;\n\t\t\t}\n\n\t\t\tfunction toggleAllPharmacyStagedRows(checked) {\n\t\t\t\tif (pharmacyStagedData && pharmacyStagedData.items) {\n\t\t\t\t\tpharmacyStagedData.items.forEach(it => { it.included = checked; });\n\t\t\t\t}\n\t\t\t\tconst cbs = document.querySelectorAll('.pharmacy-staged-row-cb');\n\t\t\t\tcbs.forEach(cb => cb.checked = checked);\n\t\t\t\tdocument.getElementById('pharmacy-selected-count').textContent = checked && pharmacyStagedData && pharmacyStagedData.items ? pharmacyStagedData.items.length : 0;\n\t\t\t}\n\n\t\t\tfunction filterPharmacyReviewTable(tab) {\n\t\t\t\tpharmacyCurrentTab = tab;\n\t\t\t\t['all', 'matched', 'unlinked'].forEach(t => {\n\t\t\t\t\tconst btn = document.getElementById('pharmacy-tab-' + t);\n\t\t\t\t\tif (btn) {\n\t\t\t\t\t\tif (t === tab) {\n\t\t\t\t\t\t\tbtn.style.background = 'var(--surface-raised)';\n\t\t\t\t\t\t\tbtn.style.color = 'var(--accent)';\n\t\t\t\t\t\t} else {\n\t\t\t\t\t\t\tbtn.style.background = 'transparent';\n\t\t\t\t\t\t\tbtn.style.color = 'var(--text-muted)';\n\t\t\t\t\t\t}\n\t\t\t\t\t}\n\t\t\t\t});\n\t\t\t\tif (pharmacyStagedData && pharmacyStagedData.items) {\n\t\t\t\t\trenderPharmacyReviewRows(pharmacyStagedData.items);\n\t\t\t\t}\n\t\t\t}\n\n\t\t\tfunction searchPharmacyReviewTable(val) {\n\t\t\t\tif (pharmacyStagedData && pharmacyStagedData.items) {\n\t\t\t\t\trenderPharmacyReviewRows(pharmacyStagedData.items);\n\t\t\t\t}\n\t\t\t}\n\n\t\t\tfunction commitPharmacyStagedImport() {\n\t\t\t\tif (!pharmacyActiveSessionId) return;\n\n\t\t\t\tconst btn = document.getElementById('pharmacy-commit-btn');\n\t\t\t\tbtn.disabled = true;\n\t\t\t\tbtn.textContent = '⏳ جاري الحفظ النهائي في قاعدة البيانات...';\n\n\t\t\t\tfetch('/customer/saving-products/import/session/' + pharmacyActiveSessionId + '/commit', {\n\t\t\t\t\tmethod: 'POST',\n\t\t\t\t})\n\t\t\t\t.then(r => r.json())\n\t\t\t\t.then(res => {\n\t\t\t\t\tif (!res.success) {\n\t\t\t\t\t\talert(res.error || 'فشل حفظ الأصناف.');\n\t\t\t\t\t\tbtn.disabled = false;\n\t\t\t\t\t\tbtn.textContent = '💾 تأكيد الاستيراد والحفظ النهائي في قائمة التوفير';\n\t\t\t\t\t\treturn;\n\t\t\t\t\t}\n\t\t\t\t\talert(res.message || 'تم استيراد وحفظ الأصناف بنجاح!');\n\t\t\t\t\twindow.location.reload();\n\t\t\t\t})\n\t\t\t\t.catch(err => {\n\t\t\t\t\tconsole.error('commit error', err);\n\t\t\t\t\talert('حدث خطأ في الاتصال أثناء تأكيد الحفظ.');\n\t\t\t\t\tbtn.disabled = false;\n\t\t\t\t\tbtn.textContent = '💾 تأكيد الاستيراد والحفظ النهائي في قائمة التوفير';\n\t\t\t\t});\n\t\t\t}\n\n\t\t\tfunction handlePharmacyImportCancelClick() {\n\t\t\t\tif (pharmacyPollInterval) clearInterval(pharmacyPollInterval);\n\n\t\t\t\tif (pharmacyActiveSessionId) {\n\t\t\t\t\tfetch('/customer/saving-products/import/session/' + pharmacyActiveSessionId + '/cancel', { method: 'POST' }).catch(() => {});\n\t\t\t\t\tpharmacyActiveSessionId = null;\n\t\t\t\t\tpharmacyStagedData = null;\n\t\t\t\t}\n\t\t\t\tclosePharmacyImportModal();\n\t\t\t}\n\n\t\t\tfunction backToPharmacyImportConfig() {\n\t\t\t\tif (pharmacyPollInterval) clearInterval(pharmacyPollInterval);\n\t\t\t\tshowPharmacyImportStep('config');\n\t\t\t}\n\n\t\t\tfunction openPharmacyProvidersModal(productId, productName) {\n\t\t\t\tconst subtitleEl = document.getElementById('pharmacy-providers-modal-subtitle');\n\t\t\t\tif (subtitleEl) subtitleEl.textContent = 'الصنف: ' + productName;\n\t\t\t\tconst contentEl = document.getElementById('pharmacy-providers-modal-content');\n\t\t\t\tif (contentEl) contentEl.innerHTML = '<div style=\"padding:2rem; text-align:center; color:var(--text-muted);\">⏳ جاري استرجاع عروض الموردين والأسعار...</div>';\n\t\t\t\t\n\t\t\t\tconst modalEl = document.getElementById('pharmacy-providers-modal');\n\t\t\t\tif (modalEl) {\n\t\t\t\t\tmodalEl.classList.remove('hidden');\n\t\t\t\t\tmodalEl.style.display = 'flex';\n\t\t\t\t}\n\t\t\t\tif (window.openModal) {\n\t\t\t\t\twindow.openModal('pharmacy-providers-modal');\n\t\t\t\t}\n\n\t\t\t\tfetch('/customer/saving-products/providers/' + productId)\n\t\t\t\t\t.then(r => r.json())\n\t\t\t\t\t.then(providers => {\n\t\t\t\t\t\tif (!providers || providers.length === 0) {\n\t\t\t\t\t\t\tif (contentEl) contentEl.innerHTML = '<div style=\"padding:2.5rem; text-align:center; color:var(--text-muted); font-size:0.9rem;\">لا توجد عروض موردين مسجلة لهذا الصنف حالياً في الكتالوج.<br><a href=\"/catalog\" class=\"btn btn-secondary btn-sm\" style=\"margin-top:1rem;\">تصفح كتالوج الأدوية العام</a></div>';\n\t\t\t\t\t\t\treturn;\n\t\t\t\t\t\t}\n\n\t\t\t\t\t\tlet html = '<div style=\"overflow-x:auto;\"><table class=\"table\" style=\"width:100%; border-collapse:collapse; font-size:0.875rem;\"><thead><tr style=\"background:var(--surface-sunken); border-bottom:2px solid var(--border); text-align:start; font-size:0.775rem; color:var(--text-muted);\"><th class=\"p-sm\">المورد / المخزن</th><th class=\"p-sm\">العبوة / المواصفات</th><th class=\"p-sm text-center\">المخزون</th><th class=\"p-sm text-center\">سعر الجمهور</th><th class=\"p-sm text-center\">نسبة الخصم</th><th class=\"p-sm text-center\">السعر بعد الخصم</th><th class=\"p-sm text-center\">طلب توريد</th></tr></thead><tbody>';\n\n\t\t\t\t\t\tproviders.forEach(p => {\n\t\t\t\t\t\t\tconst branchText = p.branch_name ? ('<div style=\"font-size:0.725rem; color:var(--text-muted); margin-top:2px;\">' + p.branch_name + '</div>') : '';\n\t\t\t\t\t\t\tconst skuText = p.sku ? ('<code class=\"text-xs\">' + p.sku + '</code>') : '';\n\t\t\t\t\t\t\tconst stockBadge = p.stock_quantity > 0 ? 'badge-emerald' : 'badge-secondary';\n\t\t\t\t\t\t\tconst orgDisplayName = (typeof p.org_name === 'object' && p.org_name) ? (p.org_name.ar || p.org_name.en || 'مورد معتمد') : (p.org_name || 'مورد معتمد');\n\t\t\t\t\t\t\tconst varDisplayName = (typeof p.variant_name === 'object' && p.variant_name) ? (p.variant_name.ar || p.variant_name.en || 'العبوة القياسية') : (p.variant_name || 'العبوة القياسية');\n\t\t\t\t\t\t\t\n\t\t\t\t\t\t\tconst publicPrice = p.public_price || p.cost_price || p.price;\n\t\t\t\t\t\t\tconst discountPct = p.discount_percentage ? (p.discount_percentage + '%') : (p.discount ? (p.discount + '%') : '0%');\n\t\t\t\t\t\t\tconst netPrice = p.price_after_discount || p.price;\n\n\t\t\t\t\t\t\tconst addCartAction = (p.stock_quantity > 0 && p.variant_id) ?\n\t\t\t\t\t\t\t\t('<form method=\"POST\" action=\"/cart/add\" style=\"margin:0; display:inline-flex; gap:0.25rem;\">' +\n\t\t\t\t\t\t\t\t\t'<input type=\"hidden\" name=\"variant_id\" value=\"' + p.variant_id + '\" />' +\n\t\t\t\t\t\t\t\t\t'<input type=\"hidden\" name=\"product_id\" value=\"' + productId + '\" />' +\n\t\t\t\t\t\t\t\t\t'<input type=\"hidden\" name=\"organization_id\" value=\"' + (p.organization_id || '') + '\" />' +\n\t\t\t\t\t\t\t\t\t'<input type=\"hidden\" name=\"vendor_org_id\" value=\"' + (p.organization_id || '') + '\" />' +\n\t\t\t\t\t\t\t\t\t'<input type=\"hidden\" name=\"offer_price\" value=\"' + netPrice + '\" />' +\n\t\t\t\t\t\t\t\t\t'<input type=\"hidden\" name=\"qty\" value=\"1\" />' +\n\t\t\t\t\t\t\t\t\t'<button type=\"submit\" class=\"btn btn-primary btn-sm\" style=\"font-size:0.75rem; font-weight:800; padding:0.25rem 0.65rem;\">+ أضف للسلة</button>' +\n\t\t\t\t\t\t\t\t'</form>') :\n\t\t\t\t\t\t\t\t'<span class=\"text-xs text-muted\">غير متوفر</span>';\n\n\t\t\t\t\t\t\thtml += '<tr style=\"border-bottom:1px solid var(--border);\">' +\n\t\t\t\t\t\t\t\t'<td class=\"p-sm\"><strong style=\"color:var(--text); font-size:0.875rem;\">' + orgDisplayName + '</strong>' + branchText + '</td>' +\n\t\t\t\t\t\t\t\t'<td class=\"p-sm\"><div>' + varDisplayName + '</div>' + skuText + '</td>' +\n\t\t\t\t\t\t\t\t'<td class=\"p-sm text-center tabular-nums\"><span class=\"badge ' + stockBadge + '\">' + p.stock_quantity + ' عبوة</span></td>' +\n\t\t\t\t\t\t\t\t'<td class=\"p-sm text-center tabular-nums\">' + publicPrice + ' ج.م</td>' +\n\t\t\t\t\t\t\t\t'<td class=\"p-sm text-center tabular-nums\"><span class=\"badge badge-emerald\">' + discountPct + '</span></td>' +\n\t\t\t\t\t\t\t\t'<td class=\"p-sm text-center tabular-nums\"><strong class=\"text-primary tabular-nums\">' + netPrice + ' ج.م</strong></td>' +\n\t\t\t\t\t\t\t\t'<td class=\"p-sm text-center\">' + addCartAction + '</td>' +\n\t\t\t\t\t\t\t\t'</tr>';\n\t\t\t\t\t\t});\n\n\t\t\t\t\t\thtml += '</tbody></table></div>';\n\t\t\t\t\t\tif (contentEl) contentEl.innerHTML = html;\n\t\t\t\t\t})\n\t\t\t\t\t.catch(() => {\n\t\t\t\t\t\tif (contentEl) contentEl.innerHTML = '<div style=\"padding:2rem; text-align:center; color:var(--danger-text);\">حدث خطأ أثناء تحميل عروض الموردين.</div>';\n\t\t\t\t\t});\n\t\t\t}\n\n\t\t\tfunction closePharmacyProvidersModal() {\n\t\t\t\tconst el = document.getElementById('pharmacy-providers-modal');\n\t\t\t\tif (el) {\n\t\t\t\t\tel.classList.add('hidden');\n\t\t\t\t\tel.style.display = 'none';\n\t\t\t\t}\n\t\t\t\tif (window.closeModal) {\n\t\t\t\t\twindow.closeModal('pharmacy-providers-modal');\n\t\t\t\t}\n\t\t\t}\n\n\t\t\t// Delegated click handler for providers modal trigger\n\t\t\tdocument.addEventListener('click', function(e) {\n\t\t\t\tconst btn = e.target.closest('[data-open-providers-id]');\n\t\t\t\tif (btn) {\n\t\t\t\t\te.preventDefault();\n\t\t\t\t\tconst pId = btn.getAttribute('data-open-providers-id');\n\t\t\t\t\tconst pName = btn.getAttribute('data-open-providers-name') || '';\n\t\t\t\t\topenPharmacyProvidersModal(pId, pName);\n\t\t\t\t}\n\t\t\t});\n\n\t\t\tfunction filterPharmacySavingTable(query) {\n\t\t\t\tconst term = (query || '').trim().toLowerCase();\n\t\t\t\tconst rows = document.querySelectorAll('.pharmacy-saving-row');\n\t\t\t\trows.forEach(row => {\n\t\t\t\t\tconst name = (row.dataset.name || '').toLowerCase();\n\t\t\t\t\tconst sku = (row.dataset.sku || '').toLowerCase();\n\t\t\t\t\tconst pName = (row.dataset.productName || '').toLowerCase();\n\t\t\t\t\tif (term === '' || name.includes(term) || sku.includes(term) || pName.includes(term)) {\n\t\t\t\t\t\trow.style.display = '';\n\t\t\t\t\t} else {\n\t\t\t\t\t\trow.style.display = 'none';\n\t\t\t\t\t}\n\t\t\t\t});\n\t\t\t}\n\t\t</script>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -673,12 +626,12 @@ func CustomerOfferOrdersPage(orders []*commerce.Order, lang, dir string) templ.C
 			}()
 		}
 		ctx = templ.InitializeContext(ctx)
-		templ_7745c5c3_Var32 := templ.GetChildren(ctx)
-		if templ_7745c5c3_Var32 == nil {
-			templ_7745c5c3_Var32 = templ.NopComponent
+		templ_7745c5c3_Var30 := templ.GetChildren(ctx)
+		if templ_7745c5c3_Var30 == nil {
+			templ_7745c5c3_Var30 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Var33 := templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
+		templ_7745c5c3_Var31 := templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 			templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 			templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templruntime.GetBuffer(templ_7745c5c3_W)
 			if !templ_7745c5c3_IsBuffer {
@@ -690,20 +643,20 @@ func CustomerOfferOrdersPage(orders []*commerce.Order, lang, dir string) templ.C
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 64, "<div class=\"card mb-0\"><div class=\"header-row\"><div><h2 class=\"card-title m-0\">طلبات العروض والصفقات الخاصة (")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 59, "<div class=\"card mb-0\"><div class=\"header-row\"><div><h2 class=\"card-title m-0\">طلبات العروض والصفقات الخاصة (")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			var templ_7745c5c3_Var34 string
-			templ_7745c5c3_Var34, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", len(orders)))
+			var templ_7745c5c3_Var32 string
+			templ_7745c5c3_Var32, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", len(orders)))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_saving.templ`, Line: 1407, Col: 119}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_saving.templ`, Line: 1370, Col: 119}
 			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var34))
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var32))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 65, ")</h2><p class=\"subtitle\">أوامر الشراء المشتملة على عروض ترويجية وباقات خصومات خاصة.</p></div></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 60, ")</h2><p class=\"subtitle\">أوامر الشراء المشتملة على عروض ترويجية وباقات خصومات خاصة.</p></div></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -713,89 +666,89 @@ func CustomerOfferOrdersPage(orders []*commerce.Order, lang, dir string) templ.C
 					return templ_7745c5c3_Err
 				}
 			} else {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 66, "<div class=\"table-container\"><table class=\"b2b-table\"><thead><tr><th>رقم الطلب</th><th>الإجمالي</th><th>الخصم</th><th>الحالة</th><th class=\"text-end\">الإجراءات</th></tr></thead> <tbody>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 61, "<div class=\"table-container m-0\"><table class=\"data-table m-0\"><thead><tr><th>رقم الطلب</th><th>الإجمالي</th><th>الخصم</th><th>الحالة</th><th class=\"text-end\">الإجراءات</th></tr></thead> <tbody>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				for _, o := range orders {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 67, "<tr><td class=\"tabular-nums\"><strong>")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 62, "<tr><td class=\"tabular-nums\"><strong>")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					var templ_7745c5c3_Var33 string
+					templ_7745c5c3_Var33, templ_7745c5c3_Err = templ.JoinStringErrs(o.OrderNumber)
+					if templ_7745c5c3_Err != nil {
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_saving.templ`, Line: 1392, Col: 57}
+					}
+					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var33))
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 63, "</strong></td><td class=\"tabular-nums\">")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					var templ_7745c5c3_Var34 string
+					templ_7745c5c3_Var34, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%s ج.م", o.TotalAmount.String()))
+					if templ_7745c5c3_Err != nil {
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_saving.templ`, Line: 1393, Col: 83}
+					}
+					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var34))
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 64, "</td><td class=\"tabular-nums\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var35 string
-					templ_7745c5c3_Var35, templ_7745c5c3_Err = templ.JoinStringErrs(o.OrderNumber)
+					templ_7745c5c3_Var35, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%s ج.م", o.TotalDiscount.String()))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_saving.templ`, Line: 1429, Col: 57}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_saving.templ`, Line: 1394, Col: 85}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var35))
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 68, "</strong></td><td class=\"tabular-nums\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 65, "</td><td><span class=\"badge badge-sky\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var36 string
-					templ_7745c5c3_Var36, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%s ج.م", o.TotalAmount.String()))
+					templ_7745c5c3_Var36, templ_7745c5c3_Err = templ.JoinStringErrs(string(o.Status))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_saving.templ`, Line: 1430, Col: 83}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_saving.templ`, Line: 1395, Col: 61}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var36))
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 69, "</td><td class=\"tabular-nums\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 66, "</span></td><td class=\"text-end\"><a href=\"")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					var templ_7745c5c3_Var37 string
-					templ_7745c5c3_Var37, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%s ج.م", o.TotalDiscount.String()))
-					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_saving.templ`, Line: 1431, Col: 85}
-					}
-					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var37))
+					var templ_7745c5c3_Var37 templ.SafeURL = templ.SafeURL(fmt.Sprintf("/orders/%d", o.ID))
+					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(string(templ_7745c5c3_Var37)))
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 70, "</td><td><span class=\"badge badge-sky\">")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					var templ_7745c5c3_Var38 string
-					templ_7745c5c3_Var38, templ_7745c5c3_Err = templ.JoinStringErrs(string(o.Status))
-					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_saving.templ`, Line: 1432, Col: 61}
-					}
-					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var38))
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 71, "</span></td><td class=\"text-end\"><a href=\"")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					var templ_7745c5c3_Var39 templ.SafeURL = templ.SafeURL(fmt.Sprintf("/orders/%d", o.ID))
-					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(string(templ_7745c5c3_Var39)))
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 72, "\" class=\"btn btn-secondary btn-sm\">عرض الطلب</a></td></tr>")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 67, "\" class=\"btn btn-secondary btn-sm\">عرض الطلب</a></td></tr>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 73, "</tbody></table></div>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 68, "</tbody></table></div>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 74, "</div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 69, "</div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			return nil
 		})
-		templ_7745c5c3_Err = layouts.CustomerShell("طلبات العروض والصفقات", "orders_offers", lang, dir, nil).Render(templ.WithChildren(ctx, templ_7745c5c3_Var33), templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = layouts.CustomerShell("طلبات العروض والصفقات", "orders_offers", lang, dir, nil).Render(templ.WithChildren(ctx, templ_7745c5c3_Var31), templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -820,12 +773,12 @@ func CustomerOfferCheckoutPage(offer *promo.Offer, lang, dir string) templ.Compo
 			}()
 		}
 		ctx = templ.InitializeContext(ctx)
-		templ_7745c5c3_Var40 := templ.GetChildren(ctx)
-		if templ_7745c5c3_Var40 == nil {
-			templ_7745c5c3_Var40 = templ.NopComponent
+		templ_7745c5c3_Var38 := templ.GetChildren(ctx)
+		if templ_7745c5c3_Var38 == nil {
+			templ_7745c5c3_Var38 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Var41 := templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
+		templ_7745c5c3_Var39 := templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 			templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 			templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templruntime.GetBuffer(templ_7745c5c3_W)
 			if !templ_7745c5c3_IsBuffer {
@@ -837,52 +790,52 @@ func CustomerOfferCheckoutPage(offer *promo.Offer, lang, dir string) templ.Compo
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 75, "<div class=\"card max-w-2xl mx-auto\"><div class=\"header-row\"><div><h2 class=\"card-title m-0\">إتمام شراء العرض: ")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 70, "<div class=\"card max-w-2xl mx-auto\"><div class=\"header-row\"><div><h2 class=\"card-title m-0\">إتمام شراء العرض: ")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var40 string
+			templ_7745c5c3_Var40, templ_7745c5c3_Err = templ.JoinStringErrs(offer.Title.Get("ar"))
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_saving.templ`, Line: 1415, Col: 87}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var40))
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 71, "</h2><p class=\"subtitle\">قيمة الخصم: ")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var41 string
+			templ_7745c5c3_Var41, templ_7745c5c3_Err = templ.JoinStringErrs(offer.DiscountValue.String())
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_saving.templ`, Line: 1416, Col: 76}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var41))
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 72, "</p></div><a href=\"/offers\" class=\"btn btn-secondary btn-sm\">إلغاء والعودة</a></div><form method=\"POST\" action=\"/checkout\"><input type=\"hidden\" name=\"offer_id\" value=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var42 string
-			templ_7745c5c3_Var42, templ_7745c5c3_Err = templ.JoinStringErrs(offer.Title.Get("ar"))
+			templ_7745c5c3_Var42, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", offer.ID))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_saving.templ`, Line: 1452, Col: 87}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_saving.templ`, Line: 1422, Col: 76}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var42))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 76, "</h2><p class=\"subtitle\">قيمة الخصم: ")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			var templ_7745c5c3_Var43 string
-			templ_7745c5c3_Var43, templ_7745c5c3_Err = templ.JoinStringErrs(offer.DiscountValue.String())
-			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_saving.templ`, Line: 1453, Col: 76}
-			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var43))
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 77, "</p></div><a href=\"/offers\" class=\"btn btn-secondary btn-sm\">إلغاء والعودة</a></div><form method=\"POST\" action=\"/checkout\"><input type=\"hidden\" name=\"offer_id\" value=\"")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			var templ_7745c5c3_Var44 string
-			templ_7745c5c3_Var44, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", offer.ID))
-			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_saving.templ`, Line: 1459, Col: 76}
-			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var44))
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 78, "\"><div style=\"background:var(--surface-sunken); padding:1.25rem; border-radius:var(--radius-md); margin-bottom:1.5rem;\"><h3 style=\"font-size:0.95rem; font-weight:700; margin-bottom:0.75rem;\">بيانات التسليم والفرع</h3><div class=\"stack\"><div><label class=\"form-label\">فرع الاستلام</label> <select name=\"branch_id\" class=\"form-input\" required><option value=\"1\">الفرع الرئيسي للصيدلية</option></select></div><div><label class=\"form-label\">ملاحظات التوصيل</label> <textarea name=\"notes\" class=\"form-input\" rows=\"2\" placeholder=\"مواعيد التسليم أو تعليمات الشحن...\"></textarea></div></div></div><div class=\"flex justify-end\"><button type=\"submit\" class=\"btn btn-primary\">تأكيد وإرسال أمر الشراء</button></div></form></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 73, "\"><div style=\"background:var(--surface-sunken); padding:1.25rem; border-radius:var(--radius-md); margin-bottom:1.5rem;\"><h3 style=\"font-size:0.95rem; font-weight:700; margin-bottom:0.75rem;\">بيانات التسليم والفرع</h3><div class=\"stack\"><div><label class=\"form-label\">فرع الاستلام</label> <select name=\"branch_id\" class=\"form-input\" required><option value=\"1\">الفرع الرئيسي للصيدلية</option></select></div><div><label class=\"form-label\">ملاحظات التوصيل</label> <textarea name=\"notes\" class=\"form-input\" rows=\"2\" placeholder=\"مواعيد التسليم أو تعليمات الشحن...\"></textarea></div></div></div><div class=\"flex justify-end\"><button type=\"submit\" class=\"btn btn-primary\">تأكيد وإرسال أمر الشراء</button></div></form></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			return nil
 		})
-		templ_7745c5c3_Err = layouts.CustomerShell(fmt.Sprintf("إتمام طلب العرض: %s", offer.Title.Get("ar")), "offers", lang, dir, nil).Render(templ.WithChildren(ctx, templ_7745c5c3_Var41), templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = layouts.CustomerShell(fmt.Sprintf("إتمام طلب العرض: %s", offer.Title.Get("ar")), "offers", lang, dir, nil).Render(templ.WithChildren(ctx, templ_7745c5c3_Var39), templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -892,6 +845,62 @@ func CustomerOfferCheckoutPage(offer *promo.Offer, lang, dir string) templ.Compo
 
 // CustomerAddOrderPage renders manual order form.
 func CustomerAddOrderPage(lang, dir string) templ.Component {
+	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
+		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
+		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
+			return templ_7745c5c3_CtxErr
+		}
+		templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templruntime.GetBuffer(templ_7745c5c3_W)
+		if !templ_7745c5c3_IsBuffer {
+			defer func() {
+				templ_7745c5c3_BufErr := templruntime.ReleaseBuffer(templ_7745c5c3_Buffer)
+				if templ_7745c5c3_Err == nil {
+					templ_7745c5c3_Err = templ_7745c5c3_BufErr
+				}
+			}()
+		}
+		ctx = templ.InitializeContext(ctx)
+		templ_7745c5c3_Var43 := templ.GetChildren(ctx)
+		if templ_7745c5c3_Var43 == nil {
+			templ_7745c5c3_Var43 = templ.NopComponent
+		}
+		ctx = templ.ClearChildren(ctx)
+		templ_7745c5c3_Var44 := templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
+			templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
+			templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templruntime.GetBuffer(templ_7745c5c3_W)
+			if !templ_7745c5c3_IsBuffer {
+				defer func() {
+					templ_7745c5c3_BufErr := templruntime.ReleaseBuffer(templ_7745c5c3_Buffer)
+					if templ_7745c5c3_Err == nil {
+						templ_7745c5c3_Err = templ_7745c5c3_BufErr
+					}
+				}()
+			}
+			ctx = templ.InitializeContext(ctx)
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 74, "<div class=\"card max-w-2xl mx-auto\"><h2 class=\"card-title mb-lg\">إضافة أمر شراء يدوي سريع</h2>")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = components.EmptyState(components.EmptyStateProps{Title: "الطلب اليدوي", Message: "يمكنك إضافة الأصناف والكميات مباشرة لإرسالها لأقرب مورد معتمد."}).Render(ctx, templ_7745c5c3_Buffer)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 75, "</div>")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			return nil
+		})
+		templ_7745c5c3_Err = layouts.CustomerShell("طلب شراء سريع", "orders", lang, dir, nil).Render(templ.WithChildren(ctx, templ_7745c5c3_Var44), templ_7745c5c3_Buffer)
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		return nil
+	})
+}
+
+// GuestOrderTrackingPage renders public tracking screen.
+func GuestOrderTrackingPage(orderNumber string, order *commerce.Order, lang, dir string) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -924,121 +933,65 @@ func CustomerAddOrderPage(lang, dir string) templ.Component {
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 79, "<div class=\"card max-w-2xl mx-auto\"><h2 class=\"card-title mb-lg\">إضافة أمر شراء يدوي سريع</h2>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 76, "<div class=\"container\" style=\"max-width:700px; padding:3rem 1rem; margin:0 auto;\"><div class=\"card\"><h2 class=\"card-title\" style=\"text-align:center; margin-bottom:0.5rem;\">تتبع شحنات وطلبات دواء 24</h2><p style=\"text-align:center; color:var(--text-secondary); font-size:0.9rem; margin-bottom:1.5rem;\">أدخل رقم الطلب لمعرفة حالة التجهيز والشحن دون الحاجة لتسجيل الدخول.</p><form method=\"GET\" action=\"/tracking\" style=\"display:flex; gap:0.5rem; margin-bottom:2rem;\"><input type=\"text\" name=\"order_number\" value=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = components.EmptyState(components.EmptyStateProps{Title: "الطلب اليدوي", Message: "يمكنك إضافة الأصناف والكميات مباشرة لإرسالها لأقرب مورد معتمد."}).Render(ctx, templ_7745c5c3_Buffer)
+			var templ_7745c5c3_Var47 string
+			templ_7745c5c3_Var47, templ_7745c5c3_Err = templ.JoinStringErrs(orderNumber)
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_saving.templ`, Line: 1466, Col: 63}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var47))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 80, "</div>")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			return nil
-		})
-		templ_7745c5c3_Err = layouts.CustomerShell("طلب شراء سريع", "orders", lang, dir, nil).Render(templ.WithChildren(ctx, templ_7745c5c3_Var46), templ_7745c5c3_Buffer)
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		return nil
-	})
-}
-
-// GuestOrderTrackingPage renders public tracking screen.
-func GuestOrderTrackingPage(orderNumber string, order *commerce.Order, lang, dir string) templ.Component {
-	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
-		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
-		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
-			return templ_7745c5c3_CtxErr
-		}
-		templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templruntime.GetBuffer(templ_7745c5c3_W)
-		if !templ_7745c5c3_IsBuffer {
-			defer func() {
-				templ_7745c5c3_BufErr := templruntime.ReleaseBuffer(templ_7745c5c3_Buffer)
-				if templ_7745c5c3_Err == nil {
-					templ_7745c5c3_Err = templ_7745c5c3_BufErr
-				}
-			}()
-		}
-		ctx = templ.InitializeContext(ctx)
-		templ_7745c5c3_Var47 := templ.GetChildren(ctx)
-		if templ_7745c5c3_Var47 == nil {
-			templ_7745c5c3_Var47 = templ.NopComponent
-		}
-		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Var48 := templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
-			templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
-			templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templruntime.GetBuffer(templ_7745c5c3_W)
-			if !templ_7745c5c3_IsBuffer {
-				defer func() {
-					templ_7745c5c3_BufErr := templruntime.ReleaseBuffer(templ_7745c5c3_Buffer)
-					if templ_7745c5c3_Err == nil {
-						templ_7745c5c3_Err = templ_7745c5c3_BufErr
-					}
-				}()
-			}
-			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 81, "<div class=\"container\" style=\"max-width:700px; padding:3rem 1rem; margin:0 auto;\"><div class=\"card\"><h2 class=\"card-title\" style=\"text-align:center; margin-bottom:0.5rem;\">تتبع شحنات وطلبات دواء 24</h2><p style=\"text-align:center; color:var(--text-secondary); font-size:0.9rem; margin-bottom:1.5rem;\">أدخل رقم الطلب لمعرفة حالة التجهيز والشحن دون الحاجة لتسجيل الدخول.</p><form method=\"GET\" action=\"/tracking\" style=\"display:flex; gap:0.5rem; margin-bottom:2rem;\"><input type=\"text\" name=\"order_number\" value=\"")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			var templ_7745c5c3_Var49 string
-			templ_7745c5c3_Var49, templ_7745c5c3_Err = templ.JoinStringErrs(orderNumber)
-			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_saving.templ`, Line: 1503, Col: 63}
-			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var49))
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 82, "\" placeholder=\"مثال: ORD-20260819-XXXXXX\" class=\"form-input flex-1\" required> <button type=\"submit\" class=\"btn btn-primary\">تتبع الآن</button></form>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 77, "\" placeholder=\"مثال: ORD-20260819-XXXXXX\" class=\"form-input flex-1\" required> <button type=\"submit\" class=\"btn btn-primary\">تتبع الآن</button></form>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			if orderNumber != "" {
 				if order != nil {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 83, "<div style=\"background:var(--surface-sunken); padding:1.5rem; border-radius:var(--radius-md);\"><div class=\"flex-between mb-md\"><div><div class=\"text-sm text-secondary\">رقم الطلب</div><div style=\"font-size:1.15rem; font-weight:700; color:var(--text);\"><code>")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 78, "<div style=\"background:var(--surface-sunken); padding:1.5rem; border-radius:var(--radius-md);\"><div class=\"flex-between mb-md\"><div><div class=\"text-sm text-secondary\">رقم الطلب</div><div style=\"font-size:1.15rem; font-weight:700; color:var(--text);\"><code>")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					var templ_7745c5c3_Var48 string
+					templ_7745c5c3_Var48, templ_7745c5c3_Err = templ.JoinStringErrs(order.OrderNumber)
+					if templ_7745c5c3_Err != nil {
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_saving.templ`, Line: 1476, Col: 102}
+					}
+					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var48))
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 79, "</code></div></div><span class=\"badge badge-sky\" style=\"font-size:0.9rem; padding:0.4rem 0.8rem;\">")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					var templ_7745c5c3_Var49 string
+					templ_7745c5c3_Var49, templ_7745c5c3_Err = templ.JoinStringErrs(string(order.Status))
+					if templ_7745c5c3_Err != nil {
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_saving.templ`, Line: 1478, Col: 109}
+					}
+					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var49))
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 80, "</span></div><div class=\"text-sm text-secondary\">تاريخ الإنشاء: <span class=\"tabular-nums\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var50 string
-					templ_7745c5c3_Var50, templ_7745c5c3_Err = templ.JoinStringErrs(order.OrderNumber)
+					templ_7745c5c3_Var50, templ_7745c5c3_Err = templ.JoinStringErrs(order.CreatedAt.Format("2006-01-02 15:04"))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_saving.templ`, Line: 1513, Col: 102}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_saving.templ`, Line: 1481, Col: 106}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var50))
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 84, "</code></div></div><span class=\"badge badge-sky\" style=\"font-size:0.9rem; padding:0.4rem 0.8rem;\">")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					var templ_7745c5c3_Var51 string
-					templ_7745c5c3_Var51, templ_7745c5c3_Err = templ.JoinStringErrs(string(order.Status))
-					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_saving.templ`, Line: 1515, Col: 109}
-					}
-					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var51))
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 85, "</span></div><div class=\"text-sm text-secondary\">تاريخ الإنشاء: <span class=\"tabular-nums\">")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					var templ_7745c5c3_Var52 string
-					templ_7745c5c3_Var52, templ_7745c5c3_Err = templ.JoinStringErrs(order.CreatedAt.Format("2006-01-02 15:04"))
-					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_saving.templ`, Line: 1518, Col: 106}
-					}
-					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var52))
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 86, "</span></div></div>")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 81, "</span></div></div>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -1049,13 +1002,13 @@ func GuestOrderTrackingPage(orderNumber string, order *commerce.Order, lang, dir
 					}
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 87, "</div></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 82, "</div></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			return nil
 		})
-		templ_7745c5c3_Err = layouts.PublicShell("تتبع حالة الطلب والشحنة", lang, dir).Render(templ.WithChildren(ctx, templ_7745c5c3_Var48), templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = layouts.PublicShell("تتبع حالة الطلب والشحنة", lang, dir).Render(templ.WithChildren(ctx, templ_7745c5c3_Var46), templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

@@ -178,12 +178,9 @@ templ AdminChatHistoryPage(data AdminChatHistoryData, lang, dir string) {
 					</table>
 				</div>
 
-				<!-- Footer Summary -->
-				<div style="display:flex; justify-content:space-between; align-items:center; margin-top:1rem; font-size:0.85rem; color:var(--text-muted);">
-					<div>إجمالي الجلسات: <strong>{ fmt.Sprintf("%d", data.TotalCount) }</strong></div>
-					<div>عرض الصفحة { fmt.Sprintf("%d", data.Page) }</div>
 				</div>
 			}
+			</div>
 
 		</div>
 	}

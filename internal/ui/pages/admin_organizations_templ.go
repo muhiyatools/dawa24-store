@@ -999,7 +999,7 @@ func AdminOrganizations(data AdminEnterpriseHubData, lang, dir string) templ.Com
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 98, ")</h2><p class=\"subtitle\" style=\"margin:0.2rem 0 0 0;\">مراجعة طلبات المستخدمين لحذف حساباتهم بموجب لوائح الخصوصية وحماية البيانات.</p></div></div><div class=\"table-container\"><table class=\"b2b-table\"><thead><tr><th>المستخدم</th><th>البريد الإلكتروني</th><th>سبب الحذف</th><th>تاريخ الطلب</th><th>الحالة</th><th class=\"text-end\">الإجراءات</th></tr></thead> <tbody>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 98, ")</h2><p class=\"subtitle\" style=\"margin:0.2rem 0 0 0;\">مراجعة طلبات المستخدمين لحذف حساباتهم بموجب لوائح الخصوصية وحماية البيانات.</p></div></div><div class=\"table-container m-0\"><table class=\"data-table m-0\"><thead><tr><th>المستخدم</th><th>البريد الإلكتروني</th><th>سبب الحذف</th><th>تاريخ الطلب</th><th>الحالة</th><th class=\"text-end\">الإجراءات</th></tr></thead> <tbody>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -1394,7 +1394,7 @@ func AdminOrganizationDetail(o *org.Organization, branches []*org.Branch, employ
 						return templ_7745c5c3_Err
 					}
 				} else {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 138, "<div class=\"table-container\"><table class=\"b2b-table\"><thead><tr><th>الاسم</th><th>البريد الإلكتروني</th><th>الدور الوظيفي</th><th>الحالة</th></tr></thead> <tbody>")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 138, "<div class=\"table-container m-0\"><table class=\"data-table m-0\"><thead><tr><th>الاسم</th><th>البريد الإلكتروني</th><th>الدور الوظيفي</th><th>الحالة</th></tr></thead> <tbody>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -1475,7 +1475,7 @@ func AdminOrganizationDetail(o *org.Organization, branches []*org.Branch, employ
 						return templ_7745c5c3_Err
 					}
 				} else {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 148, "<div class=\"table-container\"><table class=\"b2b-table\"><thead><tr><th>اسم الفرع</th><th>الكود</th><th>العنوان</th><th>الحالة</th></tr></thead> <tbody>")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 148, "<div class=\"table-container m-0\"><table class=\"data-table m-0\"><thead><tr><th>اسم الفرع</th><th>الكود</th><th>العنوان</th><th>الحالة</th></tr></thead> <tbody>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -1674,7 +1674,7 @@ func AdminBranchesPage(branches []*org.Branch, lang, dir string) templ.Component
 					return templ_7745c5c3_Err
 				}
 			} else {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 165, "<div class=\"table-container\"><table class=\"b2b-table\"><thead><tr><th>اسم الفرع</th><th>الكود</th><th>المنشأة التابع لها</th><th>العنوان</th><th>الحالة</th><th class=\"text-end\">الإجراءات</th></tr></thead> <tbody>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 165, "<div class=\"table-container m-0\"><table class=\"data-table m-0\"><thead><tr><th>اسم الفرع</th><th>الكود</th><th>المنشأة التابع لها</th><th>العنوان</th><th>الحالة</th><th class=\"text-end\">الإجراءات</th></tr></thead> <tbody>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -2084,7 +2084,7 @@ func AdminWeeklyCoveragesPage(data AdminWeeklyCoveragesData, lang, dir string) t
 					return templ_7745c5c3_Err
 				}
 			} else {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 198, "<div class=\"table-container\"><table class=\"b2b-table\"><thead><tr><th>يوم التوصيل</th><th>المنشأة / المورد</th><th>المدينة / المحافظة</th><th>الفرع أو المخزن المنفذ</th><th>نطاق التغطية</th><th>مواعيد التوصيل</th><th>حالة التغطية</th><th class=\"text-end\">الإجراءات والتحكم</th></tr></thead> <tbody>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 198, "<div class=\"table-container m-0\"><table class=\"data-table m-0\"><thead><tr><th>يوم التوصيل</th><th>المنشأة / المورد</th><th>المدينة / المحافظة</th><th>الفرع أو المخزن المنفذ</th><th>نطاق التغطية</th><th>مواعيد التوصيل</th><th>حالة التغطية</th><th class=\"text-end\">الإجراءات والتحكم</th></tr></thead> <tbody>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}

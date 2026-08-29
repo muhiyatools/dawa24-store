@@ -285,7 +285,7 @@ func savingReviewStage(view SavingImportView) templ.Component {
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 30, "</form></div><div class=\"b2b-table-card\"><div class=\"table-responsive\"><table class=\"b2b-table\"><thead><tr><th class=\"saving-review-col-index text-center\">#</th>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 30, "</form></div><div class=\"glass-panel p-0 mb-6 overflow-hidden\"><div class=\"table-container m-0\"><table class=\"data-table m-0\"><thead><tr><th class=\"saving-review-col-index text-center\">#</th>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

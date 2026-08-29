@@ -85,7 +85,7 @@ func RequestsContent(lang, statusFilter string, data RequestsData) templ.Compone
 			templ_7745c5c3_Var3 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div style=\"display:flex; justify-content:space-between; align-items:center; margin-bottom:1.25rem;\"><h2 style=\"font-size:1.25rem; font-weight:800; color:var(--neutral-900); margin:0;\">طلبات المستندات والإجراءات</h2></div><div class=\"card\" style=\"margin-bottom:1.25rem;\"><h3 class=\"card-title\" style=\"margin:0 0 0.75rem;\">طلب جديد</h3><form method=\"POST\" action=\"/requests\" style=\"display:flex; flex-direction:column; gap:0.9rem;\"><div class=\"form-grid-2\"><div class=\"form-group mb-0\"><label class=\"form-label\" for=\"r-type\">النوع</label> <select id=\"r-type\" name=\"type\" class=\"form-input\"><option value=\"document\">مستند</option> <option value=\"action\">إجراء</option> <option value=\"approval\">اعتماد</option></select></div><div class=\"form-group mb-0\"><label class=\"form-label\" for=\"r-to\">إلى (المؤسسة)</label> <select id=\"r-to\" name=\"to_org_id\" required class=\"form-input\"><option value=\"\" disabled selected>اختر المؤسسة</option> ")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"page-container\"><div class=\"glass-panel p-6 mb-6\"><div class=\"d-flex items-center gap-3\"><div class=\"user-avatar-badge text-xl\">📥</div><div><h1 class=\"text-2xl font-black text-primary m-0\">طلبات المستندات والإجراءات</h1><p class=\"text-sm text-secondary m-0 mt-1\">إرسال واستقبال طلبات المستندات، التراخيص، والاعتمادات الرسمية بين المنشآت</p></div></div></div><div class=\"glass-panel p-6 mb-6\"><h3 class=\"text-base font-black text-primary m-0 mb-4\">طلب جديد</h3><form method=\"POST\" action=\"/requests\" style=\"display:flex; flex-direction:column; gap:0.9rem;\"><div class=\"form-grid-2\"><div class=\"form-group mb-0\"><label class=\"form-label\" for=\"r-type\">النوع</label> <select id=\"r-type\" name=\"type\" class=\"form-input text-xs\"><option value=\"document\">مستند</option> <option value=\"action\">إجراء</option> <option value=\"approval\">اعتماد</option></select></div><div class=\"form-group mb-0\"><label class=\"form-label\" for=\"r-to\">إلى (المؤسسة)</label> <select id=\"r-to\" name=\"to_org_id\" required class=\"form-input text-xs\"><option value=\"\" disabled selected>اختر المؤسسة</option> ")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -97,7 +97,7 @@ func RequestsContent(lang, statusFilter string, data RequestsData) templ.Compone
 			var templ_7745c5c3_Var4 string
 			templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", s.ID))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/requests.templ`, Line: 41, Col: 47}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/requests.templ`, Line: 50, Col: 47}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
 			if templ_7745c5c3_Err != nil {
@@ -110,7 +110,7 @@ func RequestsContent(lang, statusFilter string, data RequestsData) templ.Compone
 			var templ_7745c5c3_Var5 string
 			templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(s.TradeName.Get(i18n.Lang(lang)))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/requests.templ`, Line: 41, Col: 84}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/requests.templ`, Line: 50, Col: 84}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
 			if templ_7745c5c3_Err != nil {
@@ -121,19 +121,19 @@ func RequestsContent(lang, statusFilter string, data RequestsData) templ.Compone
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "</select></div></div><div class=\"form-group mb-0\"><label class=\"form-label\" for=\"r-title\">العنوان</label> <input type=\"text\" id=\"r-title\" name=\"title\" required class=\"form-input\"></div><div class=\"form-group mb-0\"><label class=\"form-label\" for=\"r-desc\">الوصف</label> <textarea id=\"r-desc\" name=\"description\" rows=\"3\" class=\"form-textarea\"></textarea></div><button type=\"submit\" class=\"btn btn-primary\" style=\"justify-content:center;\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "</select></div></div><div class=\"form-group mb-0\"><label class=\"form-label\" for=\"r-title\">العنوان</label> <input type=\"text\" id=\"r-title\" name=\"title\" required class=\"form-input text-xs\"></div><div class=\"form-group mb-0\"><label class=\"form-label\" for=\"r-desc\">الوصف</label> <textarea id=\"r-desc\" name=\"description\" rows=\"3\" class=\"form-textarea text-xs\"></textarea></div><div><button type=\"submit\" class=\"btn btn-primary font-bold text-xs gap-1\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = components.IconPlus("icon-sm").Render(ctx, templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = components.IconPlus("icon-xs").Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "<span>إرسال الطلب</span></button></form></div><div class=\"card\"><div style=\"display:flex; gap:0.5rem; margin-bottom:0.75rem;\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "<span>إرسال الطلب</span></button></div></form></div><div class=\"glass-panel p-6 mb-6\"><div class=\"cb-tabs-nav m-0 mb-6 pb-4 border-b\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		var templ_7745c5c3_Var6 = []any{TabClass(statusFilter, "")}
+		var templ_7745c5c3_Var6 = []any{"cb-tab-btn", templ.KV("active", statusFilter == "")}
 		templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var6...)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
@@ -155,7 +155,7 @@ func RequestsContent(lang, statusFilter string, data RequestsData) templ.Compone
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		var templ_7745c5c3_Var8 = []any{TabClass(statusFilter, "pending")}
+		var templ_7745c5c3_Var8 = []any{"cb-tab-btn", templ.KV("active", statusFilter == "pending")}
 		templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var8...)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
@@ -177,7 +177,7 @@ func RequestsContent(lang, statusFilter string, data RequestsData) templ.Compone
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		var templ_7745c5c3_Var10 = []any{TabClass(statusFilter, "accepted")}
+		var templ_7745c5c3_Var10 = []any{"cb-tab-btn", templ.KV("active", statusFilter == "accepted")}
 		templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var10...)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
@@ -199,7 +199,7 @@ func RequestsContent(lang, statusFilter string, data RequestsData) templ.Compone
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		var templ_7745c5c3_Var12 = []any{TabClass(statusFilter, "declined")}
+		var templ_7745c5c3_Var12 = []any{"cb-tab-btn", templ.KV("active", statusFilter == "declined")}
 		templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var12...)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
@@ -222,76 +222,76 @@ func RequestsContent(lang, statusFilter string, data RequestsData) templ.Compone
 			return templ_7745c5c3_Err
 		}
 		if len(data.Requests) == 0 {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "<p style=\"color:var(--neutral-500); font-size:0.9rem;\">لا توجد طلبات.</p>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "<div class=\"p-8 text-center empty-state-glass\"><div class=\"text-4xl mb-3\">📥</div><h3 class=\"text-lg font-black text-primary mb-2\">لا توجد طلبات</h3><p class=\"text-sm text-secondary max-w-md mx-auto\">لم يتم العثور على أي طلبات في هذه الحالة.</p></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 		} else {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "<div class=\"table-container\"><table class=\"b2b-table\"><thead><tr><th>العنوان</th><th>النوع</th><th>الاتجاه</th><th>الحالة</th><th></th></tr></thead> <tbody>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "<div class=\"table-container m-0\"><table class=\"data-table m-0\"><thead><tr><th>العنوان</th><th>النوع</th><th>الاتجاه</th><th class=\"text-center\">الحالة</th><th class=\"text-end\">الإجراءات</th></tr></thead> <tbody>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			for _, q := range data.Requests {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "<tr><td>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "<tr><td><strong class=\"text-xs text-primary\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var14 string
 				templ_7745c5c3_Var14, templ_7745c5c3_Err = templ.JoinStringErrs(q.Title.Get(i18n.Lang(lang)))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/requests.templ`, Line: 77, Col: 43}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/requests.templ`, Line: 100, Col: 80}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var14))
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "</td><td>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "</strong></td><td><span class=\"badge badge-slate text-xs font-bold\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var15 string
 				templ_7745c5c3_Var15, templ_7745c5c3_Err = templ.JoinStringErrs(reqTypeLabel(q.Type))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/requests.templ`, Line: 78, Col: 35}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/requests.templ`, Line: 101, Col: 85}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var15))
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "</td><td>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "</span></td><td class=\"text-xs\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				if q.FromOrgID == data.CurrentOrgID {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, "صادر")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, "<span class=\"badge badge-sky text-xs\">صادر</span>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 				} else {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, "وارد")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, "<span class=\"badge badge-indigo text-xs\">وارد</span>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, "</td><td><span class=\"badge badge-amber\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, "</td><td class=\"text-center\"><span class=\"badge badge-amber text-xs font-bold\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var16 string
 				templ_7745c5c3_Var16, templ_7745c5c3_Err = templ.JoinStringErrs(reqStatusLabel(q.Status))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/requests.templ`, Line: 86, Col: 71}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/requests.templ`, Line: 109, Col: 109}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var16))
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, "</span></td><td>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, "</span></td><td class=\"text-end\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				if q.ToOrgID == data.CurrentOrgID && q.Status == "pending" {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, "<form method=\"POST\" action=\"")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, "<div class=\"d-inline-flex gap-2\"><form method=\"POST\" action=\"")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -300,7 +300,7 @@ func RequestsContent(lang, statusFilter string, data RequestsData) templ.Compone
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 25, "\" style=\"display:inline; margin:0;\"><input type=\"hidden\" name=\"status\" value=\"accepted\"> <button type=\"submit\" class=\"btn btn-primary btn-sm\">قبول</button></form><form method=\"POST\" action=\"")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 25, "\" style=\"display:inline; margin:0;\"><input type=\"hidden\" name=\"status\" value=\"accepted\"> <button type=\"submit\" class=\"btn btn-primary btn-sm font-bold text-xs\">قبول</button></form><form method=\"POST\" action=\"")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -309,7 +309,7 @@ func RequestsContent(lang, statusFilter string, data RequestsData) templ.Compone
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 26, "\" style=\"display:inline; margin:0;\"><input type=\"hidden\" name=\"status\" value=\"declined\"> <button type=\"submit\" class=\"btn btn-secondary btn-sm text-danger\">رفض</button></form>")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 26, "\" style=\"display:inline; margin:0;\"><input type=\"hidden\" name=\"status\" value=\"declined\"> <button type=\"submit\" class=\"btn btn-secondary btn-sm font-bold text-xs text-danger\">رفض</button></form></div>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -324,7 +324,7 @@ func RequestsContent(lang, statusFilter string, data RequestsData) templ.Compone
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 29, "</div>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 29, "</div></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
