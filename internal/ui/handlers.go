@@ -348,6 +348,7 @@ func (h *UIHandler) RegisterCustomerRoutes(r chi.Router) {
 
 	// Customer Pharmacy User Organization Connections
 	r.Get("/customer/user-organization", h.CustomerUserOrganizationsPage)
+	r.Get("/customer/api/vendors/search", h.CustomerVendorSearchJSON)
 	r.Post("/customer/user-organization/new", h.CustomerUserOrganizationCreateSubmit)
 	r.Post("/customer/user-organization/{id}/edit", h.CustomerUserOrganizationUpdateSubmit)
 	r.Post("/customer/user-organization/{id}/delete", h.CustomerUserOrganizationDeleteSubmit)
@@ -516,6 +517,9 @@ func (h *UIHandler) RegisterVendorRoutes(r chi.Router) {
 	r.Post("/vendor/coverage/{id}/edit", h.VendorCoverageUpdateSubmit)
 	r.Post("/vendor/coverage/{id}/delete", h.VendorCoverageDeleteSubmit)
 	r.Post("/vendor/coverage/{id}/toggle", h.VendorCoverageToggleSubmit)
+	r.Post("/vendor/delivery-bands", h.VendorDeliveryBandCreateSubmit)
+	r.Post("/vendor/delivery-bands/create", h.VendorDeliveryBandCreateSubmit)
+	r.Post("/vendor/delivery-bands/{id}/delete", h.VendorDeliveryBandDeleteSubmit)
 	r.Get("/vendor/coverage/branch/{branchID}", h.VendorBranchCoveragePage)
 	r.Get("/vendor/pharmacy-coverage", h.VendorPharmacyCoveragePage)
 	r.Get("/vendor/pharmacy-coverage/{id}", h.VendorPharmacyCoverageDetailPage)

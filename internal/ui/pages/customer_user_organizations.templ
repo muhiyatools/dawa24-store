@@ -5,7 +5,6 @@ import (
 
 	"github.com/muhiya/dawa24-store/internal/modules/org"
 	"github.com/muhiya/dawa24-store/internal/shared/format"
-	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/ui/components"
 	"github.com/muhiya/dawa24-store/internal/ui/layouts"
 )
@@ -78,31 +77,51 @@ templ CustomerUserOrganizationsPage(lang, dir string, data *CustomerUserOrgData,
 				Size:  "md",
 			}) {
 				<form method="POST" action="/customer/user-organization/new" style="display:flex; flex-direction:column; gap:1.2rem; text-align:start; margin:0;">
-					<div class="form-group m-0">
-						<label class="form-label" for="add-uo-vendor">
+					<!-- Live AJAX Vendor Search with Debouncing -->
+					<div class="form-group m-0" style="position:relative;">
+						<label class="form-label" for="customer-uo-vendor-search">
 							المورد أو المنشأة المستهدفة *
 						</label>
-						<select id="add-uo-vendor" name="vendor_org_id" required class="form-select fw-700">
-							<option value="">-- اختر المورد / الشركة --</option>
-							if data != nil {
-								for _, v := range data.Vendors {
-									if v != nil {
-										<option value={ fmt.Sprintf("%d", v.ID) }>
-											if v.LegalName != "" {
-												{ v.LegalName }
-											} else if v.TradeName.Get(i18n.Lang(lang)) != "" {
-												{ v.TradeName.Get(i18n.Lang(lang)) }
-											} else {
-												مورد #{ fmt.Sprintf("%d", v.ID) }
-											}
-											if v.OrganizationNumber != "" {
-												({ v.OrganizationNumber })
-											}
-										</option>
-									}
-								}
-							}
-						</select>
+						
+						<!-- Hidden Input holding the selected Vendor Organization ID -->
+						<input type="hidden" id="customer-selected-vendor-id" name="vendor_org_id" required value="" />
+
+						<!-- Selected Vendor Chip Card (shown once a vendor is chosen) -->
+						<div id="customer-selected-vendor-chip" style="display:none; padding:0.75rem 1rem; border-radius:var(--radius-lg); background:rgba(16,185,129,0.08); border:1px solid rgba(16,185,129,0.3); margin-bottom:0.5rem; justify-content:space-between; align-items:center;">
+							<div style="display:flex; align-items:center; gap:0.6rem;">
+								<span style="font-size:1.2rem;">🏢</span>
+								<div>
+									<strong id="customer-selected-vendor-name" style="color:var(--text); font-size:0.9rem;"></strong>
+									<div id="customer-selected-vendor-details" style="font-size:0.75rem; color:var(--text-muted);" dir="ltr"></div>
+								</div>
+							</div>
+							<button type="button" class="btn btn-ghost btn-xs text-danger" onclick="clearCustomerSelectedVendor()" style="font-weight:700;">
+								✕ تغيير
+							</button>
+						</div>
+
+						<!-- Search Input Field -->
+						<div id="customer-vendor-search-input-wrapper" style="position:relative;">
+							<input
+								type="text"
+								id="customer-uo-vendor-search"
+								placeholder="ابحث باسم المورد، الشركة، أو رقم السجل..."
+								autocomplete="off"
+								class="form-control fw-700"
+								style="font-size:0.9rem; padding-inline-end:2.2rem;"
+								oninput="handleCustomerVendorSearch(this.value)"
+								onfocus="handleCustomerVendorSearch(this.value)"
+							/>
+							<div id="customer-vendor-search-spinner" style="position:absolute; inset-inline-end:10px; top:50%; transform:translateY(-50%); display:none; font-size:0.8rem;">
+								⏳
+							</div>
+						</div>
+
+						<!-- Autocomplete Results Dropdown -->
+						<div
+							id="customer-vendor-search-dropdown"
+							style="display:none; position:absolute; top:100%; inset-inline-start:0; inset-inline-end:0; z-index:1050; max-height:220px; overflow-y:auto; background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-lg); box-shadow:0 10px 25px rgba(0,0,0,0.15); margin-top:4px;"
+						></div>
 					</div>
 
 					<div class="form-group m-0">
@@ -296,5 +315,112 @@ templ CustomerUserOrganizationsPage(lang, dir string, data *CustomerUserOrgData,
 			}
 
 		</div>
+
+		<script>
+			let customerVendorSearchTimer = null;
+
+			function handleCustomerVendorSearch(val) {
+				clearTimeout(customerVendorSearchTimer);
+				const dropdown = document.getElementById('customer-vendor-search-dropdown');
+				const spinner = document.getElementById('customer-vendor-search-spinner');
+				if (!dropdown) return;
+
+				const query = (val || '').trim();
+				if (!query) {
+					dropdown.style.display = 'none';
+					dropdown.innerHTML = '';
+					if (spinner) spinner.style.display = 'none';
+					return;
+				}
+
+				if (spinner) spinner.style.display = 'block';
+
+				customerVendorSearchTimer = setTimeout(() => {
+					fetch('/customer/api/vendors/search?q=' + encodeURIComponent(query))
+						.then(res => res.json())
+						.then(vendors => {
+							if (spinner) spinner.style.display = 'none';
+							if (!vendors || vendors.length === 0) {
+								dropdown.innerHTML = '<div style="padding:0.75rem 1rem; color:var(--text-muted); font-size:0.85rem; text-align:center;">لا توجد شركات أو موردين مطابقين</div>';
+								dropdown.style.display = 'block';
+								return;
+							}
+
+							let html = '';
+							vendors.forEach(v => {
+								const safeName = (v.name || 'مورد').replace(/'/g, "\\'");
+								const safeLegal = (v.legal_name || '').replace(/'/g, "\\'");
+								const safeOrgNum = (v.organization_number || '').replace(/'/g, "\\'");
+								const safeTax = (v.tax_number || '').replace(/'/g, "\\'");
+								html += `
+									<div
+										onclick="selectCustomerVendor(${v.id}, '${safeName}', '${safeLegal}', '${safeOrgNum}', '${safeTax}')"
+										style="padding:0.65rem 0.9rem; border-bottom:1px solid var(--border); cursor:pointer; display:flex; align-items:center; justify-content:space-between; gap:0.5rem; transition:background 0.15s;"
+										onmouseenter="this.style.background='var(--surface-sunken)'"
+										onmouseleave="this.style.background='transparent'"
+									>
+										<div>
+											<strong style="font-size:0.875rem; color:var(--text);">${v.name}</strong>
+											<div style="font-size:0.75rem; color:var(--text-muted);" dir="ltr">${v.organization_number ? 'كود: ' + v.organization_number + ' • ' : ''}${v.tax_number ? 'ب.ض: ' + v.tax_number : ''}</div>
+										</div>
+										<span class="badge badge-sky text-xs">#${v.id}</span>
+									</div>
+								`;
+							});
+							dropdown.innerHTML = html;
+							dropdown.style.display = 'block';
+						})
+						.catch(err => {
+							if (spinner) spinner.style.display = 'none';
+							dropdown.innerHTML = '<div style="padding:0.75rem 1rem; color:var(--danger); font-size:0.85rem; text-align:center;">حدث خطأ أثناء البحث</div>';
+							dropdown.style.display = 'block';
+						});
+				}, 250);
+			}
+
+			function selectCustomerVendor(id, name, legal, orgNum, taxNum) {
+				const hiddenInput = document.getElementById('customer-selected-vendor-id');
+				const chip = document.getElementById('customer-selected-vendor-chip');
+				const chipName = document.getElementById('customer-selected-vendor-name');
+				const chipDetails = document.getElementById('customer-selected-vendor-details');
+				const searchWrapper = document.getElementById('customer-vendor-search-input-wrapper');
+				const dropdown = document.getElementById('customer-vendor-search-dropdown');
+				const searchInput = document.getElementById('customer-uo-vendor-search');
+
+				if (hiddenInput) hiddenInput.value = id;
+				if (chipName) chipName.textContent = name;
+				if (chipDetails) chipDetails.textContent = (orgNum ? 'كود: ' + orgNum + ' • ' : '') + 'ID: #' + id;
+				if (chip) chip.style.display = 'flex';
+				if (searchWrapper) searchWrapper.style.display = 'none';
+				if (dropdown) {
+					dropdown.style.display = 'none';
+					dropdown.innerHTML = '';
+				}
+				if (searchInput) searchInput.value = '';
+			}
+
+			function clearCustomerSelectedVendor() {
+				const hiddenInput = document.getElementById('customer-selected-vendor-id');
+				const chip = document.getElementById('customer-selected-vendor-chip');
+				const searchWrapper = document.getElementById('customer-vendor-search-input-wrapper');
+				const searchInput = document.getElementById('customer-uo-vendor-search');
+
+				if (hiddenInput) hiddenInput.value = '';
+				if (chip) chip.style.display = 'none';
+				if (searchWrapper) searchWrapper.style.display = 'block';
+				if (searchInput) {
+					searchInput.value = '';
+					searchInput.focus();
+				}
+			}
+
+			document.addEventListener('click', (e) => {
+				const dropdown = document.getElementById('customer-vendor-search-dropdown');
+				const searchInput = document.getElementById('customer-uo-vendor-search');
+				if (dropdown && !dropdown.contains(e.target) && e.target !== searchInput) {
+					dropdown.style.display = 'none';
+				}
+			});
+		</script>
 	}
 }

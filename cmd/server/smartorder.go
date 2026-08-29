@@ -52,7 +52,7 @@ func wireSmartOrder(
 	if commSvc != nil {
 		uiHandler.SetFinalizer(smartorder.NewFinalizer(
 			repo,
-			placeSmartOrder(commSvc, orgSvc, log),
+			placeSmartOrder(commSvc, orgSvc, wfCoverage, log),
 			&reverifier{wfCoverage: wfCoverage, orgSvc: orgSvc},
 		))
 	}
@@ -66,7 +66,7 @@ func wireSmartOrder(
 // documents gate are identical (FR-048). A separate order-creation path would
 // drift from the one the rest of the platform uses, and the drift would only
 // show up in an invoice.
-func placeSmartOrder(commSvc *commerce.Service, orgSvc *org.Service, log *slog.Logger) smartorder.PlaceOrderFunc {
+func placeSmartOrder(commSvc *commerce.Service, orgSvc *org.Service, wfCoverage *workflow.CoverageService, log *slog.Logger) smartorder.PlaceOrderFunc {
 	return func(ctx context.Context, req smartorder.PlaceOrderRequest) (int64, error) {
 		items := make([]commerce.CheckoutLineItem, 0, len(req.Lines))
 		for _, l := range req.Lines {
@@ -116,15 +116,45 @@ func placeSmartOrder(commSvc *commerce.Service, orgSvc *org.Service, log *slog.L
 			}
 		}
 
+		// Calculate dynamic distance-based delivery fees per vendor
+		vendorShippingFees := make(map[int64]money.Amount)
+		if orgSvc != nil {
+			var custLat, custLon *float64
+			if branchID > 0 {
+				if cb, err := orgSvc.GetBranch(database.AsSystem(ctx), branchID); err == nil && cb != nil {
+					custLat = cb.Latitude
+					custLon = cb.Longitude
+				}
+			}
+
+			for _, it := range items {
+				if it.VendorOrgID > 0 {
+					if _, exists := vendorShippingFees[it.VendorOrgID]; !exists {
+						distMeters := 5000
+						if custLat != nil && custLon != nil && wfCoverage != nil {
+							if _, actualMeters, err := wfCoverage.ServesPoint(ctx, it.VendorOrgID, time.Now().Weekday(), workflow.Coord{Lat: *custLat, Lon: *custLon}); err == nil && actualMeters > 0 {
+								distMeters = actualMeters
+							}
+						}
+						fee, matched, err := orgSvc.CalculateDeliveryFee(database.AsSystem(ctx), it.VendorOrgID, distMeters)
+						if err == nil && matched {
+							vendorShippingFees[it.VendorOrgID] = fee
+						}
+					}
+				}
+			}
+		}
+
 		log.InfoContext(ctx, "placing smart order",
 			"run_id", req.SourceRunID, "lines", len(items), "branch_id", branchID, "total", req.Total.String())
 
 		order, err := commSvc.Checkout(ctx, commerce.CheckoutInput{
-			CustomerID:    req.UserID,
-			CustomerOrgID: req.OrganizationID,
-			BranchID:      &branchID,
-			Items:         items,
-			Notes:         "طلب ذكي",
+			CustomerID:         req.UserID,
+			CustomerOrgID:      req.OrganizationID,
+			BranchID:           &branchID,
+			Items:              items,
+			VendorShippingFees: vendorShippingFees,
+			Notes:              "طلب ذكي",
 		})
 		if err != nil {
 			return 0, err

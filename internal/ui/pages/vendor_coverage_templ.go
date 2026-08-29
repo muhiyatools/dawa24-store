@@ -804,25 +804,25 @@ func VendorCoveragePage(data VendorCoverageData, lang, dir string) templ.Compone
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 62, "</div><!-- Delivery Distance Pricing Bands (شرائح تسعير التوصيل حسب المسافة) --><div class=\"card\" style=\"padding:1.75rem; border-radius:1rem; border:1px solid var(--color-border);\"><div style=\"display:flex; justify-content:space-between; align-items:center; margin-bottom:1.25rem; flex-wrap:wrap; gap:0.75rem;\"><div><h2 style=\"font-size:1.15rem; font-weight:800; margin:0; display:flex; align-items:center; gap:0.5rem; color:var(--color-text-heading);\"><span>💵</span> <span>شرائح ورسوم التوصيل حسب المسافة (Delivery Distance Bands)</span></h2><p style=\"margin:0.25rem 0 0 0; color:var(--color-text-muted); font-size:0.85rem;\">تحديد تكلفة الشحن الإضافية بناءً على بُعد الصيدلية بالكيلومتر عن مركز التغطية.</p></div></div><div style=\"display:grid; grid-template-columns:repeat(auto-fit, minmax(300px, 1fr)); gap:1.5rem;\"><!-- Add Delivery Band Form --><form method=\"POST\" action=\"/vendor/delivery-bands/create\" style=\"background:var(--color-bg-subtle, rgba(0,0,0,0.02)); padding:1.25rem; border-radius:0.875rem; border:1px solid var(--color-border); display:flex; flex-direction:column; gap:1rem;\"><input type=\"hidden\" name=\"gorilla.csrf.Token\" value=\"\"><div style=\"font-weight:700; font-size:0.9rem; color:var(--color-text-heading);\">+ إضافة شريحة تسعير جديدة</div><div style=\"display:grid; grid-template-columns:1fr 1fr 1fr; gap:0.5rem;\"><div><span style=\"font-size:0.75rem; color:var(--color-text-muted);\">من (كم):</span> <input type=\"number\" name=\"min_distance_km\" min=\"0\" value=\"0\" class=\"form-control\" style=\"width:100%; padding:0.45rem; border-radius:0.5rem;\" required></div><div><span style=\"font-size:0.75rem; color:var(--color-text-muted);\">إلى (كم):</span> <input type=\"number\" name=\"max_distance_km\" min=\"1\" value=\"10\" class=\"form-control\" style=\"width:100%; padding:0.45rem; border-radius:0.5rem;\" required></div><div><span style=\"font-size:0.75rem; color:var(--color-text-muted);\">الرسوم (")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 62, "</div><!-- Delivery Distance Pricing Bands (شرائح ورسوم التوصيل حسب المسافة بالمتر) --><div class=\"card\" style=\"padding:1.75rem; border-radius:1rem; border:1px solid var(--color-border);\"><div style=\"display:flex; justify-content:space-between; align-items:center; margin-bottom:1.25rem; flex-wrap:wrap; gap:0.75rem;\"><div><h2 style=\"font-size:1.15rem; font-weight:800; margin:0; display:flex; align-items:center; gap:0.5rem; color:var(--color-text-heading);\"><span>💵</span> <span>شرائح ورسوم التوصيل حسب المسافة (Delivery Distance Bands)</span></h2><p style=\"margin:0.25rem 0 0 0; color:var(--color-text-muted); font-size:0.85rem;\">تحديد تكلفة الشحن الإضافية للطلبات بناءً على بُعد الصيدلية بالمتر (أو الكيلومتر) عن مركز التغطية ونقطة التوزيع. (1000 متر = 1 كم).</p></div></div><div style=\"display:grid; grid-template-columns:repeat(auto-fit, minmax(320px, 1fr)); gap:1.5rem;\"><!-- Add Delivery Band Form --><form method=\"POST\" action=\"/vendor/delivery-bands/create\" style=\"background:var(--color-bg-subtle, rgba(0,0,0,0.02)); padding:1.25rem; border-radius:0.875rem; border:1px solid var(--color-border); display:flex; flex-direction:column; gap:1rem;\"><input type=\"hidden\" name=\"gorilla.csrf.Token\" value=\"\"><div style=\"font-weight:800; font-size:0.9rem; color:var(--color-text-heading); display:flex; align-items:center; gap:0.35rem;\"><span>➕</span> <span>إضافة شريحة تسعير جديدة بالمتر</span></div><div style=\"display:grid; grid-template-columns:1fr 1fr 1fr; gap:0.5rem;\"><div><span style=\"font-size:0.75rem; font-weight:700; color:var(--color-text-heading);\">من (متر):</span> <input type=\"number\" name=\"from_meters\" min=\"0\" step=\"100\" value=\"0\" class=\"form-control\" style=\"width:100%; padding:0.45rem; border-radius:0.5rem; font-weight:700;\" placeholder=\"0 م\" required></div><div><span style=\"font-size:0.75rem; font-weight:700; color:var(--color-text-heading);\">إلى (متر):</span> <input type=\"number\" name=\"to_meters\" min=\"100\" step=\"100\" value=\"5000\" class=\"form-control\" style=\"width:100%; padding:0.45rem; border-radius:0.5rem; font-weight:700;\" placeholder=\"5000 م\" required></div><div><span style=\"font-size:0.75rem; font-weight:700; color:var(--color-text-heading);\">الرسوم (")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var35 string
 			templ_7745c5c3_Var35, templ_7745c5c3_Err = templ.JoinStringErrs(i18n.T(lang, "common.currency_egp"))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_coverage.templ`, Line: 896, Col: 123}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_coverage.templ`, Line: 899, Col: 142}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var35))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 63, "):</span> <input type=\"number\" step=\"0.5\" name=\"delivery_fee\" min=\"0\" value=\"30\" class=\"form-control\" style=\"width:100%; padding:0.45rem; border-radius:0.5rem;\" required></div></div><button type=\"submit\" class=\"btn btn-secondary\" style=\"font-weight:700; font-size:0.85rem; padding:0.5rem 1rem; border-radius:0.5rem; align-self:flex-start;\">حفظ الشريحة</button></form><!-- List of Existing Bands --><div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 63, "):</span> <input type=\"number\" step=\"0.5\" name=\"delivery_fee\" min=\"0\" value=\"30\" class=\"form-control\" style=\"width:100%; padding:0.45rem; border-radius:0.5rem; font-weight:700;\" placeholder=\"30\" required></div></div><button type=\"submit\" class=\"btn btn-primary\" style=\"font-weight:700; font-size:0.85rem; padding:0.55rem 1.25rem; border-radius:0.5rem; align-self:flex-start; box-shadow:0 2px 6px rgba(37,99,235,0.2);\">💾 حفظ الشريحة</button></form><!-- List of Existing Bands --><div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			if len(data.Bands) == 0 {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 64, "<div style=\"padding:1.5rem; text-align:center; color:var(--color-text-muted); font-size:0.875rem; background:var(--color-bg-subtle, rgba(0,0,0,0.02)); border-radius:0.875rem;\">لا توجد شرائح تسعير مخصصة (يتم تطبيق السعر الموحد أو التوصيل المجاني).</div>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 64, "<div style=\"padding:1.75rem 1rem; text-align:center; color:var(--color-text-muted); font-size:0.875rem; background:var(--color-bg-subtle, rgba(0,0,0,0.02)); border-radius:0.875rem; border:1px dashed var(--color-border);\">لا توجد شرائح تسعير مخصصة حالياً (يتم تطبيق التوصيل المجاني أو السعر الأساسي الافتراضي).</div>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -832,92 +832,118 @@ func VendorCoveragePage(data VendorCoverageData, lang, dir string) templ.Compone
 					return templ_7745c5c3_Err
 				}
 				for _, band := range data.Bands {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 66, "<div style=\"display:flex; justify-content:space-between; align-items:center; padding:0.75rem 1rem; background:var(--color-surface); border:1px solid var(--color-border); border-radius:0.625rem;\"><div><span style=\"font-weight:700; font-size:0.9rem;\">من ")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 66, "<div style=\"display:flex; justify-content:space-between; align-items:center; padding:0.75rem 1rem; background:var(--color-surface); border:1px solid var(--color-border); border-radius:0.625rem; box-shadow:0 1px 3px rgba(0,0,0,0.03);\"><div><div style=\"font-weight:800; font-size:0.9rem; color:var(--color-text-heading);\" class=\"tabular-nums\">من ")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var36 string
-					templ_7745c5c3_Var36, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", band.FromMeters/1000))
+					templ_7745c5c3_Var36, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", band.FromMeters))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_coverage.templ`, Line: 916, Col: 108}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_coverage.templ`, Line: 920, Col: 53}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var36))
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 67, " كم إلى ")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 67, " م إلى ")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var37 string
-					templ_7745c5c3_Var37, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", band.ToMeters/1000))
+					templ_7745c5c3_Var37, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", band.ToMeters))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_coverage.templ`, Line: 916, Col: 164}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_coverage.templ`, Line: 920, Col: 100}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var37))
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 68, " كم</span></div><div style=\"display:flex; align-items:center; gap:0.75rem;\"><span class=\"badge badge-primary\" style=\"font-weight:700; font-size:0.85rem;\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 68, " م</div><div style=\"font-size:0.75rem; color:var(--color-text-muted); margin-top:2px;\">(يعادل ")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var38 string
-					templ_7745c5c3_Var38, templ_7745c5c3_Err = templ.JoinStringErrs(band.Fee.String() + " " + i18n.T(lang, "common.currency_egp"))
+					templ_7745c5c3_Var38, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%.1f", float64(band.FromMeters)/1000.0))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_coverage.templ`, Line: 920, Col: 75}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_coverage.templ`, Line: 923, Col: 78}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var38))
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 69, "</span><form method=\"POST\" action=\"")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 69, " كم إلى ")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					var templ_7745c5c3_Var39 templ.SafeURL
-					templ_7745c5c3_Var39, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("/vendor/delivery-bands/%d/delete", band.ID)))
+					var templ_7745c5c3_Var39 string
+					templ_7745c5c3_Var39, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%.1f", float64(band.ToMeters)/1000.0))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_coverage.templ`, Line: 922, Col: 111}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_coverage.templ`, Line: 923, Col: 145}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var39))
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 70, "\" style=\"display:inline;\"><input type=\"hidden\" name=\"gorilla.csrf.Token\" value=\"\"> <button type=\"submit\" class=\"btn btn-sm btn-danger\" style=\"padding:0.2rem 0.5rem; font-size:0.75rem; border-radius:0.375rem;\" title=\"حذف\">✕</button></form></div></div>")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 70, " كم)</div></div><div style=\"display:flex; align-items:center; gap:0.75rem;\"><span class=\"badge badge-primary\" style=\"font-weight:800; font-size:0.875rem; padding:0.35rem 0.65rem;\">")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					var templ_7745c5c3_Var40 string
+					templ_7745c5c3_Var40, templ_7745c5c3_Err = templ.JoinStringErrs(band.Fee.String() + " " + i18n.T(lang, "common.currency_egp"))
+					if templ_7745c5c3_Err != nil {
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_coverage.templ`, Line: 928, Col: 75}
+					}
+					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var40))
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 71, "</span><form method=\"POST\" action=\"")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					var templ_7745c5c3_Var41 templ.SafeURL
+					templ_7745c5c3_Var41, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("/vendor/delivery-bands/%d/delete", band.ID)))
+					if templ_7745c5c3_Err != nil {
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_coverage.templ`, Line: 930, Col: 111}
+					}
+					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var41))
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 72, "\" onsubmit=\"return confirm('هل أنت متأكد من حذف شريحة التوصيل هذه؟');\" style=\"display:inline;\"><input type=\"hidden\" name=\"gorilla.csrf.Token\" value=\"\"> <button type=\"submit\" class=\"btn btn-sm btn-danger\" style=\"padding:0.25rem 0.55rem; font-size:0.75rem; border-radius:0.375rem;\" title=\"حذف الشريحة\">🗑️</button></form></div></div>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 71, "</div>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 73, "</div>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 72, "</div></div></div><!-- Edit Coverage Modal --><div x-show=\"editModalOpen\" x-cloak style=\"position:fixed; inset:0; z-index:9999; background:rgba(0,0,0,0.6); backdrop-filter:blur(4px); display:flex; align-items:center; justify-content:center; padding:1rem;\"><div class=\"card\" @click.away=\"closeEdit()\" style=\"width:100%; max-width:550px; border-radius:1rem; padding:1.75rem; max-height:90vh; overflow-y:auto; box-shadow:0 20px 25px -5px rgba(0,0,0,0.3);\"><div style=\"display:flex; justify-content:space-between; align-items:center; margin-bottom:1.25rem; border-bottom:1px solid var(--color-border); padding-bottom:0.75rem;\"><h3 style=\"font-size:1.15rem; font-weight:800; margin:0; display:flex; align-items:center; gap:0.5rem; color:var(--color-text-heading);\"><span>✏️</span> <span>تعديل نطاق التغطية الأسبوعية</span></h3><button type=\"button\" @click=\"closeEdit()\" style=\"background:none; border:none; font-size:1.25rem; cursor:pointer; color:var(--color-text-muted);\">✕</button></div><form :action=\"'/vendor/coverage/' + editCov.id + '/update'\" method=\"POST\" style=\"display:flex; flex-direction:column; gap:1rem;\"><input type=\"hidden\" name=\"gorilla.csrf.Token\" value=\"\"> <input type=\"hidden\" name=\"id\" :value=\"editCov.id\"> <input type=\"hidden\" name=\"coverage_id\" :value=\"editCov.id\"><div><label style=\"display:block; font-size:0.8rem; font-weight:700; margin-bottom:0.35rem;\">يوم الأسبوع</label> <select name=\"day_of_week\" x-model=\"editCov.day_of_week\" class=\"form-control\" style=\"width:100%; border-radius:0.5rem; padding:0.5rem;\"><option value=\"6\">السبت</option> <option value=\"0\">الأحد</option> <option value=\"1\">الاثنين</option> <option value=\"2\">الثلاثاء</option> <option value=\"3\">الأربعاء</option> <option value=\"4\">الخميس</option> <option value=\"5\">الجمعة</option></select></div><div style=\"display:grid; grid-template-columns:1fr 1fr; gap:0.75rem;\"><div><label style=\"display:block; font-size:0.8rem; font-weight:700; margin-bottom:0.35rem;\">المحافظة</label> <select name=\"governorate_id\" x-model=\"editCov.governorate_id\" class=\"form-control\" style=\"width:100%; border-radius:0.5rem; padding:0.5rem;\"><option value=\"\">-- المحافظة --</option> ")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 74, "</div></div></div><!-- Edit Coverage Modal --><div x-show=\"editModalOpen\" x-cloak style=\"position:fixed; inset:0; z-index:9999; background:rgba(0,0,0,0.6); backdrop-filter:blur(4px); display:flex; align-items:center; justify-content:center; padding:1rem;\"><div class=\"card\" @click.away=\"closeEdit()\" style=\"width:100%; max-width:550px; border-radius:1rem; padding:1.75rem; max-height:90vh; overflow-y:auto; box-shadow:0 20px 25px -5px rgba(0,0,0,0.3);\"><div style=\"display:flex; justify-content:space-between; align-items:center; margin-bottom:1.25rem; border-bottom:1px solid var(--color-border); padding-bottom:0.75rem;\"><h3 style=\"font-size:1.15rem; font-weight:800; margin:0; display:flex; align-items:center; gap:0.5rem; color:var(--color-text-heading);\"><span>✏️</span> <span>تعديل نطاق التغطية الأسبوعية</span></h3><button type=\"button\" @click=\"closeEdit()\" style=\"background:none; border:none; font-size:1.25rem; cursor:pointer; color:var(--color-text-muted);\">✕</button></div><form :action=\"'/vendor/coverage/' + editCov.id + '/update'\" method=\"POST\" style=\"display:flex; flex-direction:column; gap:1rem;\"><input type=\"hidden\" name=\"gorilla.csrf.Token\" value=\"\"> <input type=\"hidden\" name=\"id\" :value=\"editCov.id\"> <input type=\"hidden\" name=\"coverage_id\" :value=\"editCov.id\"><div><label style=\"display:block; font-size:0.8rem; font-weight:700; margin-bottom:0.35rem;\">يوم الأسبوع</label> <select name=\"day_of_week\" x-model=\"editCov.day_of_week\" class=\"form-control\" style=\"width:100%; border-radius:0.5rem; padding:0.5rem;\"><option value=\"6\">السبت</option> <option value=\"0\">الأحد</option> <option value=\"1\">الاثنين</option> <option value=\"2\">الثلاثاء</option> <option value=\"3\">الأربعاء</option> <option value=\"4\">الخميس</option> <option value=\"5\">الجمعة</option></select></div><div style=\"display:grid; grid-template-columns:1fr 1fr; gap:0.75rem;\"><div><label style=\"display:block; font-size:0.8rem; font-weight:700; margin-bottom:0.35rem;\">المحافظة</label> <select name=\"governorate_id\" x-model=\"editCov.governorate_id\" class=\"form-control\" style=\"width:100%; border-radius:0.5rem; padding:0.5rem;\"><option value=\"\">-- المحافظة --</option> ")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			for _, g := range data.Governorates {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 73, "<option value=\"")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 75, "<option value=\"")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				var templ_7745c5c3_Var40 string
-				templ_7745c5c3_Var40, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%d", g.ID))
+				var templ_7745c5c3_Var42 string
+				templ_7745c5c3_Var42, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%d", g.ID))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_coverage.templ`, Line: 970, Col: 49}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_coverage.templ`, Line: 978, Col: 49}
 				}
-				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var40)
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 74, "\">")
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var42)
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				var templ_7745c5c3_Var41 string
-				templ_7745c5c3_Var41, templ_7745c5c3_Err = templ.JoinStringErrs(func() string {
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 76, "\">")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				var templ_7745c5c3_Var43 string
+				templ_7745c5c3_Var43, templ_7745c5c3_Err = templ.JoinStringErrs(func() string {
 					if g.Name != nil {
 						return g.Name.Get("ar")
 					} else {
@@ -925,54 +951,54 @@ func VendorCoveragePage(data VendorCoverageData, lang, dir string) templ.Compone
 					}
 				}())
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_coverage.templ`, Line: 971, Col: 96}
-				}
-				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var41))
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 75, "</option>")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 76, "</select></div><div><label style=\"display:block; font-size:0.8rem; font-weight:700; margin-bottom:0.35rem;\">المدينة / المركز</label> <select name=\"city_id\" x-model=\"editCov.city_id\" class=\"form-control\" style=\"width:100%; border-radius:0.5rem; padding:0.5rem;\"><option value=\"\">-- المدينة --</option> ")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			for _, c := range data.Cities {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 77, "<option value=\"")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				var templ_7745c5c3_Var42 string
-				templ_7745c5c3_Var42, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%d", c.ID))
-				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_coverage.templ`, Line: 982, Col: 49}
-				}
-				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var42)
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 78, "\">")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				var templ_7745c5c3_Var43 string
-				templ_7745c5c3_Var43, templ_7745c5c3_Err = templ.JoinStringErrs(c.Name.Get("ar"))
-				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_coverage.templ`, Line: 983, Col: 29}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_coverage.templ`, Line: 979, Col: 96}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var43))
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 79, "</option>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 77, "</option>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 80, "</select></div></div><div><label style=\"display:block; font-size:0.8rem; font-weight:700; margin-bottom:0.35rem;\">نصف القطر (بالمتر)</label> <input type=\"number\" name=\"distance_meters\" x-model=\"editCov.distance_meters\" min=\"100\" max=\"500000\" class=\"form-control\" style=\"width:100%; border-radius:0.5rem; padding:0.5rem; font-weight:700;\" required></div><div style=\"display:grid; grid-template-columns:1fr 1fr; gap:0.75rem;\"><div><label style=\"display:block; font-size:0.8rem; font-weight:700; margin-bottom:0.35rem;\">من (وقت البدء)</label> <input type=\"time\" name=\"coverage_from\" x-model=\"editCov.coverage_from\" class=\"form-control\" style=\"width:100%; border-radius:0.5rem; padding:0.5rem;\"></div><div><label style=\"display:block; font-size:0.8rem; font-weight:700; margin-bottom:0.35rem;\">إلى (وقت النهاية)</label> <input type=\"time\" name=\"coverage_to\" x-model=\"editCov.coverage_to\" class=\"form-control\" style=\"width:100%; border-radius:0.5rem; padding:0.5rem;\"></div></div><div style=\"display:flex; align-items:center; gap:0.5rem; margin-top:0.5rem;\"><input type=\"checkbox\" name=\"is_active\" value=\"true\" :checked=\"editCov.is_active\" id=\"edit_is_active\" style=\"width:18px; height:18px; cursor:pointer; accent-color:#2563eb;\"> <label for=\"edit_is_active\" style=\"font-weight:700; font-size:0.875rem; cursor:pointer;\">تفعيل هذا النطاق وجعله متاحاً للطلبات</label></div><div style=\"display:flex; justify-content:flex-end; gap:0.75rem; margin-top:1rem; border-top:1px solid var(--color-border); padding-top:1rem;\"><button type=\"button\" @click=\"closeEdit()\" class=\"btn btn-secondary\" style=\"border-radius:0.5rem;\">إلغاء</button> <button type=\"submit\" class=\"btn btn-primary\" style=\"font-weight:700; border-radius:0.5rem;\">حفظ التعديلات</button></div></form></div></div></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 78, "</select></div><div><label style=\"display:block; font-size:0.8rem; font-weight:700; margin-bottom:0.35rem;\">المدينة / المركز</label> <select name=\"city_id\" x-model=\"editCov.city_id\" class=\"form-control\" style=\"width:100%; border-radius:0.5rem; padding:0.5rem;\"><option value=\"\">-- المدينة --</option> ")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			for _, c := range data.Cities {
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 79, "<option value=\"")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				var templ_7745c5c3_Var44 string
+				templ_7745c5c3_Var44, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%d", c.ID))
+				if templ_7745c5c3_Err != nil {
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_coverage.templ`, Line: 990, Col: 49}
+				}
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var44)
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 80, "\">")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				var templ_7745c5c3_Var45 string
+				templ_7745c5c3_Var45, templ_7745c5c3_Err = templ.JoinStringErrs(c.Name.Get("ar"))
+				if templ_7745c5c3_Err != nil {
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_coverage.templ`, Line: 991, Col: 29}
+				}
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var45))
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 81, "</option>")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 82, "</select></div></div><div><label style=\"display:block; font-size:0.8rem; font-weight:700; margin-bottom:0.35rem;\">نصف القطر (بالمتر)</label> <input type=\"number\" name=\"distance_meters\" x-model=\"editCov.distance_meters\" min=\"100\" max=\"500000\" class=\"form-control\" style=\"width:100%; border-radius:0.5rem; padding:0.5rem; font-weight:700;\" required></div><div style=\"display:grid; grid-template-columns:1fr 1fr; gap:0.75rem;\"><div><label style=\"display:block; font-size:0.8rem; font-weight:700; margin-bottom:0.35rem;\">من (وقت البدء)</label> <input type=\"time\" name=\"coverage_from\" x-model=\"editCov.coverage_from\" class=\"form-control\" style=\"width:100%; border-radius:0.5rem; padding:0.5rem;\"></div><div><label style=\"display:block; font-size:0.8rem; font-weight:700; margin-bottom:0.35rem;\">إلى (وقت النهاية)</label> <input type=\"time\" name=\"coverage_to\" x-model=\"editCov.coverage_to\" class=\"form-control\" style=\"width:100%; border-radius:0.5rem; padding:0.5rem;\"></div></div><div style=\"display:flex; align-items:center; gap:0.5rem; margin-top:0.5rem;\"><input type=\"checkbox\" name=\"is_active\" value=\"true\" :checked=\"editCov.is_active\" id=\"edit_is_active\" style=\"width:18px; height:18px; cursor:pointer; accent-color:#2563eb;\"> <label for=\"edit_is_active\" style=\"font-weight:700; font-size:0.875rem; cursor:pointer;\">تفعيل هذا النطاق وجعله متاحاً للطلبات</label></div><div style=\"display:flex; justify-content:flex-end; gap:0.75rem; margin-top:1rem; border-top:1px solid var(--color-border); padding-top:1rem;\"><button type=\"button\" @click=\"closeEdit()\" class=\"btn btn-secondary\" style=\"border-radius:0.5rem;\">إلغاء</button> <button type=\"submit\" class=\"btn btn-primary\" style=\"font-weight:700; border-radius:0.5rem;\">حفظ التعديلات</button></div></form></div></div></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

@@ -415,6 +415,9 @@ func (h *UIHandler) buildPrintableInvoiceData(ctx context.Context, invoice *bill
 		cOrg, _ := h.orgSvc.GetOrganization(ctx, *custOrgID)
 		if cOrg != nil {
 			custInfo.OrganizationID = cOrg.ID
+			if cOrg.OrganizationNumber != "" {
+				custInfo.OrganizationNumber = cOrg.OrganizationNumber
+			}
 			if cOrg.LegalName != "" {
 				custInfo.LegalName = cOrg.LegalName
 				custInfo.DisplayName = cOrg.LegalName
@@ -430,6 +433,18 @@ func (h *UIHandler) buildPrintableInvoiceData(ctx context.Context, invoice *bill
 			}
 			if cOrg.PharmacistLicense != "" {
 				custInfo.PharmacistLicense = cOrg.PharmacistLicense
+			}
+		}
+
+		// Also check user_organizations link for this customer with the vendor
+		if invoice != nil && invoice.OrganizationID > 0 {
+			if links, err := h.orgSvc.ListUserOrganizationsByVendor(ctx, invoice.OrganizationID, "approved"); err == nil {
+				for _, link := range links {
+					if link != nil && link.CustomerOrgID != nil && *link.CustomerOrgID == *custOrgID && link.OrganizationNumber != "" {
+						custInfo.OrganizationNumber = link.OrganizationNumber
+						break
+					}
+				}
 			}
 		}
 	}

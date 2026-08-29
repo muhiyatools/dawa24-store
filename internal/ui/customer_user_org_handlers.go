@@ -1,6 +1,8 @@
 package ui
 
 import (
+	"encoding/json"
+	"fmt"
 	"net/http"
 	"net/url"
 	"strconv"
@@ -12,6 +14,82 @@ import (
 	"github.com/muhiya/dawa24-store/internal/platform/database"
 	"github.com/muhiya/dawa24-store/internal/ui/pages"
 )
+
+// CustomerVendorSearchJSON provides live AJAX vendor search for customers/pharmacies to link to vendors.
+func (h *UIHandler) CustomerVendorSearchJSON(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	actor, ok := authctx.From(ctx)
+	if !ok || actor.UserID <= 0 {
+		http.Error(w, `{"error":"unauthorized"}`, http.StatusUnauthorized)
+		return
+	}
+
+	q := strings.TrimSpace(r.URL.Query().Get("q"))
+	sysCtx := database.AsSystem(ctx)
+
+	type VendorSearchResult struct {
+		ID                 int64  `json:"id"`
+		Name               string `json:"name"`
+		LegalName          string `json:"legal_name"`
+		OrganizationNumber string `json:"organization_number"`
+		TaxNumber          string `json:"tax_number"`
+	}
+
+	var results []VendorSearchResult
+	if h.orgSvc != nil {
+		vType := org.TypeVendor
+		vendors, err := h.orgSvc.ListOrganizations(sysCtx, &vType, nil, 200, 0)
+		if err == nil {
+			qLower := strings.ToLower(q)
+			for _, v := range vendors {
+				if v == nil {
+					continue
+				}
+				nameAr := v.TradeName.Get("ar")
+				nameEn := v.TradeName.Get("en")
+				legal := v.LegalName
+				name := legal
+				if name == "" {
+					name = nameAr
+				}
+				if name == "" {
+					name = nameEn
+				}
+				if name == "" {
+					name = fmt.Sprintf("مورد #%d", v.ID)
+				}
+
+				if q != "" {
+					matches := strings.Contains(strings.ToLower(name), qLower) ||
+						strings.Contains(strings.ToLower(legal), qLower) ||
+						strings.Contains(strings.ToLower(nameAr), qLower) ||
+						strings.Contains(strings.ToLower(nameEn), qLower) ||
+						strings.Contains(strings.ToLower(v.TaxNumber), qLower) ||
+						strings.Contains(strings.ToLower(v.CommercialRegister), qLower) ||
+						strings.Contains(strings.ToLower(v.OrganizationNumber), qLower) ||
+						strconv.FormatInt(v.ID, 10) == q
+					if !matches {
+						continue
+					}
+				}
+
+				results = append(results, VendorSearchResult{
+					ID:                 v.ID,
+					Name:               name,
+					LegalName:          legal,
+					OrganizationNumber: v.OrganizationNumber,
+					TaxNumber:          v.TaxNumber,
+				})
+				if len(results) >= 20 {
+					break
+				}
+			}
+		}
+	}
+
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	_ = json.NewEncoder(w).Encode(results)
+}
 
 // CustomerUserOrganizationsPage renders the customer pharmacy organization connections view.
 func (h *UIHandler) CustomerUserOrganizationsPage(w http.ResponseWriter, r *http.Request) {

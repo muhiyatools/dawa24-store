@@ -239,15 +239,33 @@ func readXLSX(data []byte) ([][]string, error) {
 	return nil, errors.New("workbook contains no data in any sheet")
 }
 
-func readXLS(data []byte) ([][]string, error) {
+func readXLS(data []byte) (rows [][]string, err error) {
+	// Defend against panics in third-party legacy XLS binary parser
+	defer func() {
+		if r := recover(); r != nil {
+			if xmlRows, xmlErr := readXMLSpreadsheet2003(data); xmlErr == nil && len(xmlRows) > 0 {
+				rows = xmlRows
+				err = nil
+			} else if htmlRows, htmlErr := readHTMLTable(data); htmlErr == nil && len(htmlRows) > 0 {
+				rows = htmlRows
+				err = nil
+			} else if csvRows, csvErr := readCSV(data); csvErr == nil && len(csvRows) > 0 {
+				rows = csvRows
+				err = nil
+			} else {
+				err = fmt.Errorf("failed to parse XLS workbook: %v", r)
+			}
+		}
+	}()
+
 	// Try UTF-8 first
-	wb, err := xls.OpenReader(bytes.NewReader(data), "utf-8")
-	if err != nil {
+	wb, openErr := xls.OpenReader(bytes.NewReader(data), "utf-8")
+	if openErr != nil || wb == nil {
 		// Try Windows-1256 Arabic encoding
-		wb, err = xls.OpenReader(bytes.NewReader(data), "windows-1256")
+		wb, openErr = xls.OpenReader(bytes.NewReader(data), "windows-1256")
 	}
 
-	if err != nil {
+	if openErr != nil || wb == nil {
 		// Fallback to XML Spreadsheet 2003 or HTML or CSV
 		if xmlRows, xmlErr := readXMLSpreadsheet2003(data); xmlErr == nil && len(xmlRows) > 0 {
 			return xmlRows, nil
@@ -258,42 +276,56 @@ func readXLS(data []byte) ([][]string, error) {
 		if csvRows, csvErr := readCSV(data); csvErr == nil && len(csvRows) > 0 {
 			return csvRows, nil
 		}
-		return nil, fmt.Errorf("failed to open legacy XLS workbook: %w", err)
+		return nil, fmt.Errorf("failed to open legacy XLS workbook: %w", openErr)
 	}
 
-	sheet := wb.GetSheet(0)
-	if sheet == nil {
+	// Search all worksheets for the densest sheet
+	numSheets := wb.NumSheets()
+	if numSheets == 0 {
 		return nil, errors.New("legacy XLS workbook has no sheets")
 	}
 
-	result := make([][]string, 0, sheet.MaxRow+1)
-	for i := 0; i <= int(sheet.MaxRow); i++ {
-		row := sheet.Row(i)
-		if row == nil {
+	var bestSheetRows [][]string
+	for sIdx := 0; sIdx < numSheets; sIdx++ {
+		sheet := wb.GetSheet(sIdx)
+		if sheet == nil {
 			continue
 		}
-		var rowVals []string
-		lastCol := row.LastCol()
-		for c := 0; c < lastCol; c++ {
-			val := row.Col(c)
-			rowVals = append(rowVals, strings.TrimSpace(val))
+		var currentSheetRows [][]string
+		for i := 0; i <= int(sheet.MaxRow); i++ {
+			row := sheet.Row(i)
+			if row == nil {
+				continue
+			}
+			var rowVals []string
+			lastCol := row.LastCol()
+			for c := 0; c < lastCol; c++ {
+				val := row.Col(c)
+				rowVals = append(rowVals, ScrubCell(val))
+			}
+			if !isRowEmpty(rowVals) {
+				currentSheetRows = append(currentSheetRows, sanitizeRow(rowVals))
+			}
 		}
-		if !isRowEmpty(rowVals) {
-			result = append(result, sanitizeRow(rowVals))
+		if len(currentSheetRows) > len(bestSheetRows) {
+			bestSheetRows = currentSheetRows
 		}
 	}
 
-	if len(result) == 0 {
-		// If binary reader returned empty rows, attempt XML/HTML parsing
+	if len(bestSheetRows) == 0 {
+		// If binary reader returned empty rows, attempt XML/HTML/CSV parsing
 		if xmlRows, xmlErr := readXMLSpreadsheet2003(data); xmlErr == nil && len(xmlRows) > 0 {
 			return xmlRows, nil
 		}
 		if htmlRows, htmlErr := readHTMLTable(data); htmlErr == nil && len(htmlRows) > 0 {
 			return htmlRows, nil
 		}
+		if csvRows, csvErr := readCSV(data); csvErr == nil && len(csvRows) > 0 {
+			return csvRows, nil
+		}
 	}
 
-	return result, nil
+	return bestSheetRows, nil
 }
 
 // readXMLSpreadsheet2003 parses Microsoft Office XML Spreadsheet 2003 files (common in older Egyptian ERPs).

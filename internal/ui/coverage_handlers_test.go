@@ -164,8 +164,11 @@ func (mockOrgCoverageRepo) ListBranchesByOrg(_ context.Context, orgID int64) ([]
 }
 func (mockOrgCoverageRepo) GetDeliveryBands(_ context.Context, orgID int64) ([]*org.DeliveryBand, error) {
 	return []*org.DeliveryBand{
-		{ID: 1, OrganizationID: orgID, FromMeters: 0, ToMeters: 10000, Fee: money.FromMinor(3000)},
+		{ID: 1, OrganizationID: orgID, FromMeters: 0, ToMeters: 10000, Fee: money.FromMinor(3000), IsActive: true},
 	}, nil
+}
+func (mockOrgCoverageRepo) SaveDeliveryBands(_ context.Context, orgID int64, bands []*org.DeliveryBand) error {
+	return nil
 }
 
 func newTestCoverageRouter(actor *authctx.Actor, wfRepo workflow.Repository, orgRepo org.Repository) http.Handler {
@@ -387,6 +390,34 @@ func TestVendorCoverageRoutes(t *testing.T) {
 		}
 		if _, exists := wfRepo.coverages[1]; exists {
 			t.Errorf("expected coverage 1 to be deleted")
+		}
+	})
+
+	// T7: Vendor POST /vendor/delivery-bands/create saves band with meters
+	t.Run("Vendor POST /vendor/delivery-bands/create with meters", func(t *testing.T) {
+		form := url.Values{
+			"from_meters":  {"0"},
+			"to_meters":    {"5000"},
+			"delivery_fee": {"35.5"},
+		}
+		req := httptest.NewRequest("POST", "/vendor/delivery-bands/create", strings.NewReader(form.Encode()))
+		req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+		rec := httptest.NewRecorder()
+		vendorRouter.ServeHTTP(rec, req)
+
+		if rec.Code != http.StatusSeeOther {
+			t.Errorf("want 303 redirect, got %d", rec.Code)
+		}
+	})
+
+	// T8: Vendor POST /vendor/delivery-bands/{id}/delete removes band
+	t.Run("Vendor POST /vendor/delivery-bands/1/delete", func(t *testing.T) {
+		req := httptest.NewRequest("POST", "/vendor/delivery-bands/1/delete", nil)
+		rec := httptest.NewRecorder()
+		vendorRouter.ServeHTTP(rec, req)
+
+		if rec.Code != http.StatusSeeOther {
+			t.Errorf("want 303 redirect, got %d", rec.Code)
 		}
 	})
 }

@@ -27,8 +27,17 @@ import (
 // The previous importer refused these outright and told the vendor to re-save.
 // Roughly a fifth of the files real Egyptian distributors send are BIFF, and
 // telling a supplier to convert their file is how an import never happens.
-func (b *Book) openXLS() error {
+func (b *Book) openXLS() (err error) {
+	defer func() {
+		if r := recover(); r != nil {
+			err = b.fallbackFromBinary(fmt.Errorf("panic in XLS parser: %v", r))
+		}
+	}()
+
 	wb, err := xls.OpenReader(bytes.NewReader(b.content), "utf-8")
+	if err != nil || wb == nil {
+		wb, err = xls.OpenReader(bytes.NewReader(b.content), "windows-1256")
+	}
 	if err != nil || wb == nil {
 		return b.fallbackFromBinary(err)
 	}
@@ -77,9 +86,14 @@ func (b *Book) openXLS() error {
 const xlsColumnProbe = 64
 
 // xlsSheetRows materialises one BIFF worksheet, keeping row positions intact.
-func xlsSheetRows(s *xls.WorkSheet) [][]string {
+func xlsSheetRows(s *xls.WorkSheet) (grid [][]string) {
+	defer func() {
+		if r := recover(); r != nil {
+			// keep whatever rows were collected before panic
+		}
+	}()
 	width := xlsSheetWidth(s)
-	grid := make([][]string, 0, int(s.MaxRow)+1)
+	grid = make([][]string, 0, int(s.MaxRow)+1)
 	for i := 0; i <= int(s.MaxRow); i++ {
 		row := s.Row(i)
 		if row == nil {

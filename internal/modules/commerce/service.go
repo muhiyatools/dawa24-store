@@ -76,11 +76,12 @@ type CheckoutInput struct {
 	BranchID       *int64             `json:"branch_id,omitempty"`        // customer branch buying for
 	VendorBranchID *int64             `json:"vendor_branch_id,omitempty"` // fulfilling vendor branch
 	UserAddressID  *int64             `json:"user_address_id,omitempty"`  // delivery address (063)
-	PaymentMethod  string             `json:"payment_method"`
-	ShippingFee    money.Amount       `json:"shipping_fee,omitempty"`
-	TaxAmount      money.Amount       `json:"tax_amount,omitempty"`
-	Notes          string             `json:"notes,omitempty"`
-	Items          []CheckoutLineItem `json:"items"`
+	PaymentMethod      string                      `json:"payment_method"`
+	ShippingFee        money.Amount                `json:"shipping_fee,omitempty"`
+	VendorShippingFees map[int64]money.Amount      `json:"vendor_shipping_fees,omitempty"` // distance delivery fee per vendor shipment
+	TaxAmount          money.Amount                `json:"tax_amount,omitempty"`
+	Notes              string                      `json:"notes,omitempty"`
+	Items              []CheckoutLineItem          `json:"items"`
 	// MinOrderAmount is the approved offer's minimum order amount. It is
 	// supplied by the caller (which owns the offer data) and enforced here so
 	// every checkout path is gated in one place.
@@ -190,6 +191,7 @@ func (s *Service) Checkout(ctx context.Context, input CheckoutInput) (*Order, er
 
 	var shipments []*OrderShipment
 	var allLines []*OrderLine
+	var calculatedShippingFee money.Amount
 
 	for vendorOrgID, lines := range vendorMap {
 		var shipmentSubtotal money.Amount
@@ -202,15 +204,36 @@ func (s *Service) Checkout(ctx context.Context, input CheckoutInput) (*Order, er
 			allLines = append(allLines, line)
 		}
 
+		shipmentShippingFee := money.Zero
+		if input.VendorShippingFees != nil {
+			if f, ok := input.VendorShippingFees[vendorOrgID]; ok && f.IsPositive() {
+				shipmentShippingFee = f
+			}
+		}
+
+		shipmentTotal := shipmentSubtotal
+		if shipmentShippingFee.IsPositive() {
+			shipmentTotal, _ = shipmentTotal.Add(shipmentShippingFee)
+			calculatedShippingFee, _ = calculatedShippingFee.Add(shipmentShippingFee)
+		}
+
 		shipments = append(shipments, &OrderShipment{
 			OrganizationID: vendorOrgID,
 			BranchID:       input.VendorBranchID,
 			Status:         StatusPending,
 			Subtotal:       shipmentSubtotal,
-			ShippingFee:    money.Zero,
-			TotalAmount:    shipmentSubtotal,
+			ShippingFee:    shipmentShippingFee,
+			TotalAmount:    shipmentTotal,
 			Lines:          lines,
 		})
+	}
+
+	// Calculate overall shipping fee (combines vendor shipping fees if provided)
+	shippingFee := input.ShippingFee
+	if !shippingFee.IsPositive() && calculatedShippingFee.IsPositive() {
+		shippingFee = calculatedShippingFee
+	} else if input.VendorShippingFees != nil && calculatedShippingFee.IsPositive() {
+		shippingFee = calculatedShippingFee
 	}
 
 	// Offer discounts over the lines (063): the offer's TotalDiscount reproduces
@@ -227,8 +250,8 @@ func (s *Service) Checkout(ctx context.Context, input CheckoutInput) (*Order, er
 	// reproduces the invoice's discount total (063); FinalPrice is what the
 	// customer pays: the net total plus freight and tax.
 	finalPrice := orderSubtotal
-	if input.ShippingFee.IsPositive() {
-		finalPrice, _ = finalPrice.Add(input.ShippingFee)
+	if shippingFee.IsPositive() {
+		finalPrice, _ = finalPrice.Add(shippingFee)
 	}
 	if input.TaxAmount.IsPositive() {
 		finalPrice, _ = finalPrice.Add(input.TaxAmount)
@@ -256,7 +279,7 @@ func (s *Service) Checkout(ctx context.Context, input CheckoutInput) (*Order, er
 		Subtotal:          orderSubtotal,
 		DiscountAmount:    money.Zero,
 		TotalDiscount:     totalDiscount,
-		ShippingFee:       input.ShippingFee,
+		ShippingFee:       shippingFee,
 		TaxAmount:         input.TaxAmount,
 		TotalAmount:       finalPrice,
 		FinalPrice:        finalPrice,

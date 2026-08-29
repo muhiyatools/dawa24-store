@@ -1119,6 +1119,18 @@ func (h *UIHandler) CheckoutSubmit(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
+	// Calculate dynamic delivery fees based on vendor distance delivery bands
+	vendorShippingFees := make(map[int64]money.Amount)
+	for _, it := range items {
+		if it.VendorOrgID > 0 {
+			if _, exists := vendorShippingFees[it.VendorOrgID]; !exists {
+				fee := h.ResolveVendorShippingFee(ctx, it.VendorOrgID, input.VendorBranchID, input.BranchID)
+				vendorShippingFees[it.VendorOrgID] = fee
+			}
+		}
+	}
+	input.VendorShippingFees = vendorShippingFees
+
 	order, err := h.commSvc.Checkout(ctx, input)
 	if err != nil {
 		h.log.ErrorContext(ctx, "checkout failed", "error", err)

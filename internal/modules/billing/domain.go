@@ -399,6 +399,7 @@ type PaymentFilter struct {
 // PrintableOrgInfo holds commercial and tax registration details of a party on an invoice.
 type PrintableOrgInfo struct {
 	OrganizationID     int64  `json:"organization_id"`
+	OrganizationNumber string `json:"organization_number,omitempty"` // رقم المنظمة (كود الحساب المسجل لدى المورد)
 	DisplayName        string `json:"display_name"`
 	LegalName          string `json:"legal_name"`
 	LogoURL            string `json:"logo_url,omitempty"`
