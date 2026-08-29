@@ -461,6 +461,11 @@ func (s *Service) CheckEntitlement(ctx context.Context, userID int64, featureKey
 	return s.repo.CheckEntitlement(ctx, userID, featureKey)
 }
 
+// CheckOrgEntitlement resolves whether an organization/user has active access to featureKey.
+func (s *Service) CheckOrgEntitlement(ctx context.Context, orgID, userID int64, featureKey string) (bool, error) {
+	return s.repo.CheckOrgEntitlement(ctx, orgID, userID, featureKey)
+}
+
 // CreateInvoice generates a new B2B invoice.
 func (s *Service) CreateInvoice(ctx context.Context, inv *Invoice) (*Invoice, error) {
 	if inv.OrganizationID <= 0 {

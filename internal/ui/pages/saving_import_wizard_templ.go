@@ -55,7 +55,7 @@ func SavingImportPage(view SavingImportView, lang, dir string) templ.Component {
 				}
 				return nil
 			})
-			templ_7745c5c3_Err = layouts.VendorShell("استيراد قائمة أصناف التوفير | Dawa24", "saving-products", lang, dir).Render(templ.WithChildren(ctx, templ_7745c5c3_Var2), templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = layouts.VendorShell("استيراد قائمة أصناف التوفير | Dawa24", "saving_products", lang, dir).Render(templ.WithChildren(ctx, templ_7745c5c3_Var2), templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -78,7 +78,7 @@ func SavingImportPage(view SavingImportView, lang, dir string) templ.Component {
 				}
 				return nil
 			})
-			templ_7745c5c3_Err = layouts.CustomerShell("استيراد قائمة أصناف التوفير | Dawa24", "saving-products", lang, dir, nil).Render(templ.WithChildren(ctx, templ_7745c5c3_Var3), templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = layouts.CustomerShell("استيراد قائمة أصناف التوفير | Dawa24", "saving_products", lang, dir, nil).Render(templ.WithChildren(ctx, templ_7745c5c3_Var3), templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

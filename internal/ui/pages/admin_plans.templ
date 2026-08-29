@@ -258,6 +258,23 @@ templ AdminPlansHub(data AdminPlansData, lang, dir string) {
 															{ p.AIPlanID }
 														</span>
 													</div>
+
+													<!-- Gated Feature Entitlements -->
+													<div style="border-top:1px dashed var(--border); padding-top:0.5rem; margin-top:0.25rem; display:flex; flex-direction:column; gap:0.4rem;">
+														<span style="color:var(--text-secondary); font-size:0.75rem; font-weight:700;">صلاحيات وميزات الباقة:</span>
+														<div style="display:flex; flex-wrap:wrap; gap:0.35rem;">
+															if p.HasFeature("feature_market_discounts") {
+																<span class="badge badge-emerald text-xs font-bold">🛒 خصومات السوق العامة ✓</span>
+															} else {
+																<span class="badge badge-secondary text-xs" style="opacity:0.55;">بدون خصومات السوق</span>
+															}
+															if p.HasFeature("feature_compare_tool") || p.HasFeature("compare") {
+																<span class="badge badge-indigo text-xs font-bold">📊 أداة مقارنة الخصومات ✓</span>
+															} else {
+																<span class="badge badge-secondary text-xs" style="opacity:0.55;">بدون أداة المقارنة</span>
+															}
+														</div>
+													</div>
 												</div>
 											</div>
 										</div>
@@ -268,11 +285,11 @@ templ AdminPlansHub(data AdminPlansData, lang, dir string) {
 												type="button"
 												class="btn btn-secondary btn-sm"
 												style="font-weight:700; width:100%; justify-content:center; gap:0.4rem;"
-												@click={ fmt.Sprintf("openEditModal({id:%d, slug:'%s', name_ar:'%s', name_en:'%s', desc_ar:'%s', price_month:'%s', price_year:'%s', duration:%d, sessions:%d, devices:%d, ai_plan:'%s', is_default:%t, is_active:%t})",
-													p.ID, p.Slug, p.Name.Get("ar"), p.Name.Get("en"), p.Description.Get("ar"), p.PriceMonth.String(), p.PriceYear.String(), p.DurationDays, p.MaxLoginSessions, p.MaxDevices, p.AIPlanID, p.IsDefault, p.IsActive) }
+												@click={ fmt.Sprintf("openEditModal({id:%d, slug:'%s', name_ar:'%s', name_en:'%s', desc_ar:'%s', price_month:'%s', price_year:'%s', duration:%d, sessions:%d, devices:%d, ai_plan:'%s', is_default:%t, is_active:%t, feat_market:%t, feat_compare:%t})",
+													p.ID, p.Slug, p.Name.Get("ar"), p.Name.Get("en"), p.Description.Get("ar"), p.PriceMonth.String(), p.PriceYear.String(), p.DurationDays, p.MaxLoginSessions, p.MaxDevices, p.AIPlanID, p.IsDefault, p.IsActive, p.HasFeature("feature_market_discounts"), p.HasFeature("feature_compare_tool") || p.HasFeature("compare")) }
 											>
 												@components.IconEdit("icon-xs")
-												<span>تعديل إعدادات وحدود الباقة</span>
+												<span>تعديل إعدادات وصلاحيات الباقة</span>
 											</button>
 										</div>
 									</div>
@@ -300,7 +317,7 @@ templ AdminPlansHub(data AdminPlansData, lang, dir string) {
 						<div>
 							<h3 style="margin:0; font-size:1.2rem; font-weight:800; color:var(--text);" x-text="isEdit ? 'تعديل باقة الاشتراك الموحدة' : 'إضافة باقة اشتراك جديدة'"></h3>
 							<p style="margin:0.25rem 0 0; font-size:0.8rem; color:var(--text-secondary);">
-								تحديد الأسعار، حدود الجلسات المتزامنة للمنشأة، وربط باقة الـ AI Gateway.
+								تحديد الأسعار، حدود الجلسات المتزامنة، وصلاحيات الوصول لخصومات السوق ومقارنة الأسعار.
 							</p>
 						</div>
 						<button type="button" @click="showModal = false" class="btn btn-secondary btn-xs" style="border-radius:var(--radius-full); width:32px; height:32px; padding:0; justify-content:center;">✕</button>
@@ -321,31 +338,36 @@ templ AdminPlansHub(data AdminPlansData, lang, dir string) {
 						</div>
 
 						<div class="form-group m-0">
-							<label class="form-label">وصف الباقة</label>
-							<textarea name="description_ar" x-model="form.desc_ar" rows="2" class="form-input" placeholder="وصف موجز للباقة وخطة العمل..."></textarea>
+							<label class="form-label">اسم الباقة (إنجليزي)</label>
+							<input type="text" name="name_en" x-model="form.name_en" class="form-input" placeholder="e.g. Professional Plan" dir="ltr" />
 						</div>
 
-						<!-- Row 2: Pricing and Duration -->
+						<div class="form-group m-0">
+							<label class="form-label">وصف الباقة ومزاياها للمشتركين</label>
+							<textarea name="description_ar" x-model="form.desc_ar" rows="2" class="form-input" placeholder="اكتب نبذة توضيحية عن ميزات الباقة..."></textarea>
+						</div>
+
+						<!-- Pricing Row -->
 						<div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:0.75rem;">
 							<div class="form-group m-0">
-								<label class="form-label">السعر الشهري (ج.م)</label>
-								<input type="text" name="price_month" x-model="form.price_month" class="form-input tabular-nums" />
+								<label class="form-label">السعر الشهري (ج.م) *</label>
+								<input type="number" step="0.01" name="price_month" x-model="form.price_month" class="form-input tabular-nums" required />
 							</div>
 							<div class="form-group m-0">
-								<label class="form-label">السعر السنوي (ج.م)</label>
-								<input type="text" name="price_year" x-model="form.price_year" class="form-input tabular-nums" />
+								<label class="form-label">السعر السنوي (ج.م) *</label>
+								<input type="number" step="0.01" name="price_year" x-model="form.price_year" class="form-input tabular-nums" required />
 							</div>
 							<div class="form-group m-0">
-								<label class="form-label">المدة (أيام)</label>
-								<input type="number" name="duration_days" x-model="form.duration" class="form-input tabular-nums" />
+								<label class="form-label">فترة الصلاحية (أيام) *</label>
+								<input type="number" name="duration_days" x-model="form.duration" class="form-input tabular-nums" min="1" required />
 							</div>
 						</div>
 
-						<!-- Row 3: Unified Enterprise Limits & AI Plan Binding Box -->
-						<div style="background:var(--surface-sunken); border:1px solid var(--border); border-radius:var(--radius-lg); padding:1.1rem; display:flex; flex-direction:column; gap:0.9rem;">
-							<div style="font-size:0.9rem; font-weight:800; color:var(--text); display:flex; align-items:center; gap:0.4rem;">
-								<span>⚙️</span>
-								<span>حدود وحصص المنشأة بالكامل (Enterprise Quotas)</span>
+						<!-- Limits & AI Gateway Plan Section -->
+						<div style="background:var(--surface-sunken); border:1px solid var(--border); border-radius:var(--radius-lg); padding:1rem; display:flex; flex-direction:column; gap:0.85rem;">
+							<div style="font-size:0.85rem; font-weight:800; color:var(--text); display:flex; align-items:center; gap:0.4rem;">
+								<span>🛡️</span>
+								<span>حدود الأمان والجلسات المطبقة على إجمالي المنشأة</span>
 							</div>
 
 							<div style="display:grid; grid-template-columns:1fr 1fr; gap:0.75rem;">
@@ -377,6 +399,30 @@ templ AdminPlansHub(data AdminPlansData, lang, dir string) {
 									الربط التلقائي وتحديد حصة الكوتا في الـ AI Gateway وتوليد المفتاح الافتراضي (Virtual Key) تلقائياً للمنشأة.
 								</span>
 							</div>
+						</div>
+
+						<!-- Feature Gating Section -->
+						<div style="background:rgba(59, 130, 246, 0.05); border:1px solid rgba(59, 130, 246, 0.25); border-radius:var(--radius-lg); padding:1rem; display:flex; flex-direction:column; gap:0.75rem;">
+							<div style="font-size:0.85rem; font-weight:800; color:var(--primary); display:flex; align-items:center; gap:0.4rem;">
+								<span>🔐</span>
+								<span>صلاحيات الوصول للأقسام والميزات المتقدمة</span>
+							</div>
+
+							<label style="display:flex; gap:0.6rem; align-items:flex-start; cursor:pointer; background:var(--surface); padding:0.6rem 0.85rem; border-radius:var(--radius-md); border:1px solid var(--border);">
+								<input type="checkbox" name="feature_market_discounts" value="1" x-model="form.feat_market" style="margin-top:0.2rem;" />
+								<div>
+									<strong style="color:var(--text); font-size:0.85rem; display:block;">🛒 إتاحة الوصول إلى: خصومات السوق العامة (Public Market Discounts)</strong>
+									<span class="text-xs text-secondary">تمكين المشتركين في هذه الباقة من تصفح عروض وخصومات السوق العامة ومؤشرات الأسعار الحية</span>
+								</div>
+							</label>
+
+							<label style="display:flex; gap:0.6rem; align-items:flex-start; cursor:pointer; background:var(--surface); padding:0.6rem 0.85rem; border-radius:var(--radius-md); border:1px solid var(--border);">
+								<input type="checkbox" name="feature_compare_tool" value="1" x-model="form.feat_compare" style="margin-top:0.2rem;" />
+								<div>
+									<strong style="color:var(--text); font-size:0.85rem; display:block;">📊 إتاحة الوصول إلى: أداة مقارنة الخصومات الخاصة (Private Comparison Tool)</strong>
+									<span class="text-xs text-secondary">تمكين المشتركين من رفع ملفات الخصومات ومقارنة أسعار الموردين تلقائياً عبر الأداة الثلاثية</span>
+								</div>
+							</label>
 						</div>
 
 						<!-- Default & Status Checkboxes -->
@@ -430,7 +476,9 @@ templ AdminPlansHub(data AdminPlansData, lang, dir string) {
 						devices: 3,
 						ai_plan: 'plan-dev',
 						is_default: false,
-						is_active: true
+						is_active: true,
+						feat_market: false,
+						feat_compare: false
 					},
 					openCreateModal() {
 						this.isEdit = false;
@@ -448,7 +496,9 @@ templ AdminPlansHub(data AdminPlansData, lang, dir string) {
 							devices: 3,
 							ai_plan: 'plan-dev',
 							is_default: false,
-							is_active: true
+							is_active: true,
+							feat_market: false,
+							feat_compare: false
 						};
 						this.showModal = true;
 					},
@@ -468,7 +518,9 @@ templ AdminPlansHub(data AdminPlansData, lang, dir string) {
 							devices: p.devices,
 							ai_plan: p.ai_plan,
 							is_default: p.is_default,
-							is_active: p.is_active
+							is_active: p.is_active,
+							feat_market: !!p.feat_market,
+							feat_compare: !!p.feat_compare
 						};
 						this.showModal = true;
 					}

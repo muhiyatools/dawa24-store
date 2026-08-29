@@ -1,0 +1,164 @@
+package pages
+
+import (
+	"fmt"
+
+	"github.com/muhiya/dawa24-store/internal/modules/billing"
+	"github.com/muhiya/dawa24-store/internal/platform/authctx"
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
+	"github.com/muhiya/dawa24-store/internal/ui/components"
+	"github.com/muhiya/dawa24-store/internal/ui/layouts"
+)
+
+// SubscriptionGateProps defines the context for a feature-gated upgrade screen.
+type SubscriptionGateProps struct {
+	FeatureKey   string // "feature_market_discounts" or "feature_compare_tool"
+	FeatureTitle string
+	FeatureDesc  string
+	FeatureIcon  string
+	Plans        []*billing.Plan
+	Actor        authctx.Actor
+}
+
+templ SubscriptionGatePage(lang, dir string, props SubscriptionGateProps) {
+	if props.Actor.IsVendor() {
+		@layouts.VendorShell(props.FeatureTitle, "subscription", lang, dir) {
+			@subscriptionGateContent(lang, dir, props)
+		}
+	} else if props.Actor.IsCustomer() {
+		@layouts.CustomerShell(props.FeatureTitle, "subscription", lang, dir, props.Actor.Permissions) {
+			@subscriptionGateContent(lang, dir, props)
+		}
+	} else {
+		@layouts.PublicShell(props.FeatureTitle, lang, dir) {
+			@subscriptionGateContent(lang, dir, props)
+		}
+	}
+}
+
+templ subscriptionGateContent(lang, dir string, props SubscriptionGateProps) {
+	<div class="page-container" style="max-width:1100px; margin:0 auto; padding:2rem 1rem;">
+		
+		<!-- Hero Gating Banner -->
+		<div class="glass-panel text-center p-8 mb-8" style="background:linear-gradient(135deg, rgba(59, 130, 246, 0.08) 0%, rgba(99, 102, 241, 0.05) 100%); border:1px solid rgba(59, 130, 246, 0.25); border-radius:var(--radius-2xl);">
+			<div class="d-inline-flex items-center justify-center mb-4 text-4xl" style="width:72px; height:72px; background:rgba(59, 130, 246, 0.12); border:1px solid rgba(59, 130, 246, 0.3); border-radius:var(--radius-full);">
+				if props.FeatureIcon != "" {
+					<span>{ props.FeatureIcon }</span>
+				} else {
+					<span>🔒</span>
+				}
+			</div>
+			
+			<div class="d-inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold mb-3" style="background:rgba(239, 68, 68, 0.1); color:#ef4444; border:1px solid rgba(239, 68, 68, 0.25);">
+				<span>🔒 ميزة حصرية تتطلب ترقية الباقة</span>
+			</div>
+
+			<h1 class="text-2xl md:text-3xl font-black text-primary mb-3">
+				{ props.FeatureTitle }
+			</h1>
+			
+			<p class="text-sm md:text-base text-secondary max-w-2xl mx-auto mb-6" style="line-height:1.6;">
+				{ props.FeatureDesc }
+			</p>
+
+			<div class="d-flex items-center justify-center gap-3 flex-wrap">
+				<a href="/customer/subscription" class="btn btn-primary font-bold text-sm px-6 py-2.5 shadow-lg">
+					@components.IconSparkles("icon-xs")
+					<span>عرض تفاصيل الاشتراك الحالي والترقية</span>
+				</a>
+				<a href="/catalog" class="btn btn-secondary font-semibold text-sm px-5 py-2.5">
+					<span>العودة للكتالوج</span>
+				</a>
+			</div>
+		</div>
+
+		<!-- Eligible Plans Offering Grid -->
+		if len(props.Plans) > 0 {
+			<div class="mb-6">
+				<div class="text-center mb-6">
+					<h2 class="text-xl font-extrabold text-primary mb-1">
+						الباقات المتاحة التي تتضمن هذه الميزة
+					</h2>
+					<p class="text-xs text-secondary">
+						اختر الباقة المناسبة لمنشأتك للوصول الفوري لكافة الصلاحيات والأدوات المتقدمة
+					</p>
+				</div>
+
+				<div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+					for _, p := range props.Plans {
+						<div class={ "glass-panel p-6 d-flex flex-col justify-between hover-lift", templ.KV("border-primary", p.HasFeature(props.FeatureKey)) } style="border-radius:var(--radius-xl); position:relative;">
+							
+							if p.Slug == "pro" {
+								<div class="badge badge-primary font-bold text-xs" style="position:absolute; top:-10px; left:50%; transform:translateX(-50%);">
+									★ الخيار الأكثر شيوعاً
+								</div>
+							}
+
+							<div>
+								<div class="flex-between items-center mb-3">
+									<h3 class="text-lg font-black text-primary m-0">
+										{ p.Name.Get(i18n.Lang(lang)) }
+									</h3>
+									<span class="text-xs text-muted font-mono" dir="ltr"><code>{ p.Slug }</code></span>
+								</div>
+
+								<p class="text-xs text-secondary mb-4" style="min-height:36px; line-height:1.4;">
+									{ p.Description.Get(i18n.Lang(lang)) }
+								</p>
+
+								<!-- Price display -->
+								<div class="p-4 rounded-xl mb-4" style="background:var(--surface-sunken); border:1px solid var(--border);">
+									<div class="text-xs text-secondary font-bold mb-1">قيمة الاشتراك</div>
+									<div class="text-2xl font-black text-primary tabular-nums">
+										{ fmt.Sprintf("%s ج.م", p.PriceMonth.String()) }
+										<span class="text-xs text-muted font-normal">/ شهرياً</span>
+									</div>
+									<div class="text-xs text-muted mt-1 tabular-nums">
+										{ fmt.Sprintf("%s ج.م / سنوياً", p.PriceYear.String()) }
+									</div>
+								</div>
+
+								<!-- Features Checklist -->
+								<div class="space-y-2 mb-6 text-xs text-secondary">
+									<div class="d-flex items-center gap-2">
+										<span class="text-emerald">✓</span>
+										<span>الجلسات المتزامنة: <strong>{ fmt.Sprintf("%d جلسات", p.MaxLoginSessions) }</strong></span>
+									</div>
+									<div class="d-flex items-center gap-2">
+										<span class="text-emerald">✓</span>
+										<span>الأجهزة المسجلة: <strong>{ fmt.Sprintf("%d أجهزة", p.MaxDevices) }</strong></span>
+									</div>
+									<div class="d-flex items-center gap-2">
+										if p.HasFeature("feature_market_discounts") {
+											<span class="text-emerald">✓</span>
+											<strong class="text-emerald">خصومات السوق العامة</strong>
+										} else {
+											<span class="text-muted">✕</span>
+											<span class="text-muted">خصومات السوق العامة</span>
+										}
+									</div>
+									<div class="d-flex items-center gap-2">
+										if p.HasFeature("feature_compare_tool") || p.HasFeature("compare") {
+											<span class="text-emerald">✓</span>
+											<strong class="text-indigo">أداة مقارنة الخصومات الخاصة</strong>
+										} else {
+											<span class="text-muted">✕</span>
+											<span class="text-muted">أداة مقارنة الخصومات الخاصة</span>
+										}
+									</div>
+								</div>
+							</div>
+
+							<div>
+								<a href={ templ.SafeURL(fmt.Sprintf("/customer/subscription?upgrade=%s", p.Slug)) } class="btn btn-primary w-full text-center font-bold text-xs py-2.5">
+									<span>الترقية إلى هذه الباقة</span>
+									<span>←</span>
+								</a>
+							</div>
+						</div>
+					}
+				</div>
+			</div>
+		}
+	</div>
+}

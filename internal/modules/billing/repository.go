@@ -30,6 +30,7 @@ type Repository interface {
 	UpdateSubscriptionStatus(ctx context.Context, id int64, status SubscriptionStatus, renewalAttempts int) error
 	RenewSubscription(ctx context.Context, subID int64, walletID int64, cost money.Amount, newExpiresAt time.Time, details string) error
 	CheckEntitlement(ctx context.Context, userID int64, featureKey string) (bool, string, error)
+	CheckOrgEntitlement(ctx context.Context, orgID, userID int64, featureKey string) (bool, error)
 
 	CreateInvoice(ctx context.Context, inv *Invoice) error
 	GetInvoiceByID(ctx context.Context, id int64) (*Invoice, error)

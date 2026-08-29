@@ -226,6 +226,20 @@ func (m *mockBillingRepo) CheckEntitlement(_ context.Context, userID int64, feat
 	return false, "", nil
 }
 
+func (m *mockBillingRepo) CheckOrgEntitlement(_ context.Context, orgID, userID int64, featureKey string) (bool, error) {
+	for _, sub := range m.subscriptions {
+		if (sub.UserID == userID || (sub.OrganizationID != nil && *sub.OrganizationID == orgID)) && sub.Status == SubActive {
+			for _, plan := range m.plans {
+				if plan.ID == sub.PlanID {
+					return plan.HasFeature(featureKey), nil
+				}
+			}
+			return true, nil
+		}
+	}
+	return false, nil
+}
+
 func (m *mockBillingRepo) CreateInvoice(_ context.Context, inv *Invoice) error {
 	inv.ID = m.nextID
 	m.nextID++
