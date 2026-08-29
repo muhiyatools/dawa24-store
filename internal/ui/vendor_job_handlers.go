@@ -494,12 +494,12 @@ func (h *UIHandler) handleJobApplicationAccept(w http.ResponseWriter, r *http.Re
 		}
 
 		_, notifErr := h.notifSvc.Send(ctx, notifications.SendInput{
-			UserID:       *app.ApplicantUserID,
+			UserID:         *app.ApplicantUserID,
 			OrganizationID: &actor.OrganizationID,
-			Channel:      notifications.ChannelInApp,
-			Recipient:    app.ApplicantEmail,
-			Title:        "🎉 تهانينا! تم قبول طلبك للوظيفة",
-			Body:         fmt.Sprintf("تم قبول طلب انضمامك لوظيفة \"%s\" لدى \"%s\" في فرع \"%s\". تم تعيينك وتفعيل لوحة التحكم لتبدأ مهامك مباشرة.", jobTitle, orgName, branchName),
+			Channel:        notifications.ChannelInApp,
+			Recipient:      app.ApplicantEmail,
+			Title:          "🎉 تهانينا! تم قبول طلبك للوظيفة",
+			Body:           fmt.Sprintf("تم قبول طلب انضمامك لوظيفة \"%s\" لدى \"%s\" في فرع \"%s\". تم تعيينك وتفعيل لوحة التحكم لتبدأ مهامك مباشرة.", jobTitle, orgName, branchName),
 		})
 		if notifErr != nil {
 			h.log.WarnContext(ctx, "failed to send acceptance notification to seeker", "user_id", *app.ApplicantUserID, "error", notifErr)
