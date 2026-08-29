@@ -466,16 +466,16 @@ func SmartOrderProgressPage(lang, dir string, data SmartOrderProgressData) templ
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 35, "\"><svg class=\"so-ring-svg\" viewBox=\"0 0 120 120\" aria-hidden=\"true\"><circle class=\"so-ring-track\" cx=\"60\" cy=\"60\" r=\"52\"></circle> <circle class=\"so-ring-value\" cx=\"60\" cy=\"60\" r=\"52\" style=\"")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 35, "\"><svg class=\"so-ring-svg\" viewBox=\"0 0 120 120\" aria-hidden=\"true\"><circle class=\"so-ring-track\" cx=\"60\" cy=\"60\" r=\"52\"></circle> <circle class=\"so-ring-value\" cx=\"60\" cy=\"60\" r=\"52\" stroke-dashoffset=\"")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var20 string
-				templ_7745c5c3_Var20, templ_7745c5c3_Err = templruntime.SanitizeStyleAttributeValues("stroke-dashoffset:" + data.ringOffset())
+				templ_7745c5c3_Var20, templ_7745c5c3_Err = templ.ResolveAttributeValue(data.ringOffset())
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/smart_order_steps.templ`, Line: 185, Col: 56}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/smart_order_steps.templ`, Line: 185, Col: 45}
 				}
-				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var20))
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var20)
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
