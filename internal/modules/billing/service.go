@@ -283,6 +283,28 @@ func (s *Service) GetActiveSubscriptionByOrg(ctx context.Context, orgID int64) (
 	return s.repo.GetActiveSubscriptionByOrg(ctx, orgID)
 }
 
+// GetEffectivePlan resolves the active plan for an organization or user, falling back to the system default plan.
+func (s *Service) GetEffectivePlan(ctx context.Context, userID int64, orgID *int64) (*Plan, error) {
+	if orgID != nil && *orgID > 0 {
+		if sub, err := s.repo.GetActiveSubscriptionByOrg(ctx, *orgID); err == nil && sub != nil {
+			if plan, err := s.repo.GetPlanByID(ctx, sub.PlanID); err == nil && plan != nil {
+				return plan, nil
+			}
+		}
+	}
+	if userID > 0 {
+		if sub, err := s.repo.GetActiveSubscription(ctx, userID); err == nil && sub != nil {
+			if plan, err := s.repo.GetPlanByID(ctx, sub.PlanID); err == nil && plan != nil {
+				return plan, nil
+			}
+		}
+	}
+	if plan, err := s.repo.GetDefaultPlan(ctx); err == nil && plan != nil {
+		return plan, nil
+	}
+	return s.repo.GetPlanBySlug(ctx, "basic")
+}
+
 // AssignDefaultSubscription guarantees an organization or user has an active basic subscription.
 func (s *Service) AssignDefaultSubscription(ctx context.Context, userID int64, orgID *int64) (*Subscription, error) {
 	if orgID != nil && *orgID > 0 {

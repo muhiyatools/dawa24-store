@@ -362,6 +362,21 @@ templ AdminPlansHub(data AdminPlansData, lang, dir string) {
 														</strong>
 													</div>
 
+													<!-- Max Compare Files Limit -->
+													<div class="flex-between">
+														<span class="text-secondary d-flex items-center gap-1.5 font-medium">
+															@components.IconBoxes("icon-2xs text-muted")
+															<span>كشوف الموردين للمقارنة:</span>
+														</span>
+														<strong class="text-primary tabular-nums font-bold">
+															if p.GetMaxCompareFiles() == 0 {
+																<span>غير محدود</span>
+															} else {
+																{ fmt.Sprintf("%d كشوف", p.GetMaxCompareFiles()) }
+															}
+														</strong>
+													</div>
+
 													<!-- AI Gateway Plan -->
 													<div class="flex-between border-t border-dashed border-slate-200 pt-2 mt-1">
 														<span class="text-secondary d-flex items-center gap-1.5 font-medium">
@@ -428,6 +443,7 @@ templ AdminPlansHub(data AdminPlansData, lang, dir string) {
 												data-duration={ fmt.Sprintf("%d", p.DurationDays) }
 												data-sessions={ fmt.Sprintf("%d", p.MaxLoginSessions) }
 												data-devices={ fmt.Sprintf("%d", p.MaxDevices) }
+												data-max-compare-files={ fmt.Sprintf("%d", p.GetMaxCompareFiles()) }
 												data-ai-plan={ p.AIPlanID }
 												data-is-default={ fmt.Sprintf("%t", p.IsDefault) }
 												data-is-active={ fmt.Sprintf("%t", p.IsActive) }
@@ -569,16 +585,21 @@ templ AdminPlansHub(data AdminPlansData, lang, dir string) {
 								<span>حدود الأمان والجلسات المطبقة على إجمالي المنشأة</span>
 							</div>
 
-							<div class="d-grid grid-cols-1 md:grid-cols-2 gap-3">
+							<div class="d-grid grid-cols-1 md:grid-cols-3 gap-3">
 								<div>
 									<label class="form-label font-bold text-xs d-block mb-1">الجلسات المتزامنة <span class="text-danger">*</span></label>
 									<input type="number" name="max_login_sessions" x-model="form.sessions" class="form-input tabular-nums text-xs" min="1" max="500" required />
-									<span class="text-2xs text-secondary mt-1 d-block font-medium">مطبقة على إجمالي مستخدمي المنشأة</span>
+									<span class="text-2xs text-secondary mt-1 d-block font-medium">مطبقة على إجمالي المنشأة</span>
 								</div>
 								<div>
-									<label class="form-label font-bold text-xs d-block mb-1">حد الأجهزة المسموح بها <span class="text-danger">*</span></label>
+									<label class="form-label font-bold text-xs d-block mb-1">الأجهزة المسموح بها <span class="text-danger">*</span></label>
 									<input type="number" name="max_devices" x-model="form.devices" class="form-input tabular-nums text-xs" min="1" max="500" required />
 									<span class="text-2xs text-secondary mt-1 d-block font-medium">أقصى أجهزة مسجلة</span>
+								</div>
+								<div>
+									<label class="form-label font-bold text-xs d-block mb-1">كشوف المقارنة المسموحة <span class="text-danger">*</span></label>
+									<input type="number" name="max_compare_files" x-model="form.max_compare_files" class="form-input tabular-nums text-xs font-bold" min="0" max="500" required />
+									<span class="text-2xs text-secondary mt-1 d-block font-medium">أقصى كشوف موردين (0 لغير محدود)</span>
 								</div>
 							</div>
 
@@ -691,6 +712,7 @@ templ AdminPlansHub(data AdminPlansData, lang, dir string) {
 						duration: 30,
 						sessions: 3,
 						devices: 3,
+						max_compare_files: 10,
 						ai_plan: 'plan-dev',
 						is_default: false,
 						is_active: true,
@@ -714,6 +736,7 @@ templ AdminPlansHub(data AdminPlansData, lang, dir string) {
 							duration: 30,
 							sessions: 3,
 							devices: 3,
+							max_compare_files: 10,
 							ai_plan: 'plan-dev',
 							is_default: false,
 							is_active: true,
@@ -741,6 +764,7 @@ templ AdminPlansHub(data AdminPlansData, lang, dir string) {
 							duration: parseInt(ds.duration, 10) || 30,
 							sessions: parseInt(ds.sessions, 10) || 3,
 							devices: parseInt(ds.devices, 10) || 3,
+							max_compare_files: typeof ds.maxCompareFiles !== 'undefined' ? parseInt(ds.maxCompareFiles, 10) : 10,
 							ai_plan: ds.aiPlan || 'plan-dev',
 							is_default: ds.isDefault === 'true',
 							is_active: ds.isActive === 'true',

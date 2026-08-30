@@ -4,8 +4,10 @@ import (
 	"fmt"
 
 	"github.com/muhiya/dawa24-store/internal/modules/identity"
+	"github.com/muhiya/dawa24-store/internal/ui/components"
 	"github.com/muhiya/dawa24-store/internal/ui/layouts"
 )
+
 
 // AdminFullUserPage renders the categorized user list.
 templ AdminFullUserPage(users []*identity.User, activeFilter string, lang, dir string) {
@@ -14,8 +16,8 @@ templ AdminFullUserPage(users []*identity.User, activeFilter string, lang, dir s
 			<div class="glass-panel p-6 mb-6">
 				<div class="flex-between items-center flex-wrap gap-4">
 					<div class="d-flex items-center gap-3">
-						<div class="user-avatar-badge text-xl">
-							👥
+						<div class="w-11 h-11 rounded-xl bg-indigo-50 text-indigo-600 d-flex items-center justify-center border border-indigo-200/60 shadow-2xs">
+							@components.IconUsers("icon-sm")
 						</div>
 						<div>
 							<h1 class="text-2xl font-black text-primary m-0">دليل المستخدمين والحسابات ({ fmt.Sprintf("%d", len(users)) })</h1>
@@ -26,18 +28,19 @@ templ AdminFullUserPage(users []*identity.User, activeFilter string, lang, dir s
 
 				<!-- Filter Tabs -->
 				<div class="cb-tabs-nav m-0 mt-6 pt-4 border-t">
-					<a href="/admin/full-user" class={ "cb-tab-btn", templ.KV("active", activeFilter == "all") }>كافة المستخدمين</a>
-					<a href="/admin/customer-list" class={ "cb-tab-btn", templ.KV("active", activeFilter == "customers") }>الصيدليات والعملاء</a>
-					<a href="/admin/vendor-list" class={ "cb-tab-btn", templ.KV("active", activeFilter == "vendors") }>الموردون والشركات</a>
-					<a href="/admin/admin-list" class={ "cb-tab-btn", templ.KV("active", activeFilter == "staff") }>المشرفون والإداريون</a>
-					<a href="/admin/want-delete" class="cb-tab-btn text-danger">طلبات الحذف</a>
+					<a href="/admin/users" class={ "cb-tab-btn", templ.KV("active", activeFilter == "all") }>كافة المستخدمين</a>
+					<a href="/admin/users?type=customer" class={ "cb-tab-btn", templ.KV("active", activeFilter == "customers") }>الصيدليات والعملاء</a>
+					<a href="/admin/users?type=vendor" class={ "cb-tab-btn", templ.KV("active", activeFilter == "vendors") }>الموردون والشركات</a>
+					<a href="/admin/users?type=staff" class={ "cb-tab-btn", templ.KV("active", activeFilter == "staff") }>المشرفون والإداريون</a>
 				</div>
 			</div>
 
-			<div class="glass-panel p-0 mb-6 overflow-hidden">
+			<div class="glass-panel p-0 mb-6 overflow-hidden border border-slate-200/80 rounded-2xl shadow-xs">
 				if len(users) == 0 {
 					<div class="p-8 text-center empty-state-glass">
-						<div class="text-4xl mb-3">👥</div>
+						<div class="w-12 h-12 rounded-full bg-slate-100 text-slate-400 d-flex items-center justify-center mx-auto mb-3">
+							@components.IconUsers("icon-md")
+						</div>
 						<h3 class="text-lg font-black text-primary mb-2">لا يوجد مستخدمون</h3>
 						<p class="text-sm text-secondary max-w-md mx-auto">لم يتم العثور على مستخدمين مسجلين في هذا القسم.</p>
 					</div>

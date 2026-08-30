@@ -1020,14 +1020,31 @@ function showToast(message, type = 'info') {
 
   const toast = document.createElement('div');
   toast.className = `toast toast-${type}`;
-  toast.textContent = message;
+  
+  const text = document.createElement('span');
+  text.textContent = message;
+  text.style.flex = '1';
+  toast.appendChild(text);
+
+  const closeBtn = document.createElement('button');
+  closeBtn.type = 'button';
+  closeBtn.className = 'toast-close';
+  closeBtn.innerHTML = '&times;';
+  closeBtn.onclick = () => {
+    toast.remove();
+  };
+  toast.appendChild(closeBtn);
+
   container.appendChild(toast);
 
   setTimeout(() => {
-    toast.classList.add('fade-out');
+    toast.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
+    toast.style.opacity = '0';
+    toast.style.transform = 'translateY(-10px)';
     setTimeout(() => toast.remove(), 300);
-  }, 4000);
+  }, 4500);
 }
+
 
 // Scroll Reveal: IntersectionObserver for .reveal elements
 function initScrollReveal() {

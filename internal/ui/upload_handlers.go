@@ -19,23 +19,51 @@ const (
 	MaxUploadBytes = 50 * 1024 * 1024 // 50 MB
 )
 
+// GetUploadBaseDir returns the configured uploads directory, respecting UPLOAD_DIR / DATA_DIR env vars.
+func GetUploadBaseDir() string {
+	if dir := os.Getenv("UPLOAD_DIR"); strings.TrimSpace(dir) != "" {
+		return strings.TrimSpace(dir)
+	}
+	if dataDir := os.Getenv("DATA_DIR"); strings.TrimSpace(dataDir) != "" {
+		return filepath.Join(strings.TrimSpace(dataDir), "uploads")
+	}
+	return UploadBaseDir
+}
+
+
 // RegisterUploadRoutes registers the public static file server for uploaded documents & media.
 func RegisterUploadRoutes(r chi.Router) {
-	_ = os.MkdirAll(UploadBaseDir, 0755)
-	_ = os.MkdirAll(filepath.Join(UploadBaseDir, "licenses"), 0755)
-	_ = os.MkdirAll(filepath.Join(UploadBaseDir, "avatars"), 0755)
-	_ = os.MkdirAll(filepath.Join(UploadBaseDir, "resumes"), 0755)
-	_ = os.MkdirAll(filepath.Join(UploadBaseDir, "products"), 0755)
-	_ = os.MkdirAll(filepath.Join(UploadBaseDir, "documents"), 0755)
-	_ = os.MkdirAll(filepath.Join(UploadBaseDir, "brands"), 0755)
-	_ = os.MkdirAll(filepath.Join(UploadBaseDir, "compare"), 0755)
-	_ = os.MkdirAll(filepath.Join(UploadBaseDir, "imports"), 0755)
-	_ = os.MkdirAll(filepath.Join(UploadBaseDir, "receipts"), 0755)
+	baseDir := GetUploadBaseDir()
+	_ = os.MkdirAll(baseDir, 0755)
+	_ = os.MkdirAll("data/uploads", 0755)
+	for cat := range allowedUploadCategories {
+		_ = os.MkdirAll(filepath.Join(baseDir, cat), 0755)
+		_ = os.MkdirAll(filepath.Join("data/uploads", cat), 0755)
+	}
 
-	fs := http.FileServer(http.Dir(UploadBaseDir))
 	r.Get("/uploads/*", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Cache-Control", "public, max-age=86400")
-		http.StripPrefix("/uploads", fs).ServeHTTP(w, r)
+		rctx := chi.RouteContext(r.Context())
+		path := rctx.URLParam("*")
+		cleanPath := filepath.Clean(filepath.FromSlash(path))
+		if strings.Contains(cleanPath, "..") {
+			http.Error(w, "Forbidden", http.StatusForbidden)
+			return
+		}
+		fullPath := filepath.Join(baseDir, cleanPath)
+		if _, err := os.Stat(fullPath); err == nil {
+			http.ServeFile(w, r, fullPath)
+			return
+		}
+		// Resilient fallback check in default relative directory
+		if baseDir != "data/uploads" {
+			fallbackPath := filepath.Join("data/uploads", cleanPath)
+			if _, err := os.Stat(fallbackPath); err == nil {
+				http.ServeFile(w, r, fallbackPath)
+				return
+			}
+		}
+		http.NotFound(w, r)
 	})
 }
 
@@ -76,8 +104,9 @@ func saveUploadedFile(r *http.Request, fieldName, category string) (string, erro
 	}
 
 	category = sanitizeCategory(category)
+	baseDir := GetUploadBaseDir()
 
-	destDir := filepath.Join(UploadBaseDir, category)
+	destDir := filepath.Join(baseDir, category)
 	if err := os.MkdirAll(destDir, 0755); err != nil {
 		return "", fmt.Errorf("failed to create upload directory: %w", err)
 	}
@@ -102,6 +131,19 @@ func saveUploadedFile(r *http.Request, fieldName, category string) (string, erro
 		return "", fmt.Errorf("failed to save uploaded file: %w", err)
 	}
 
+	// Dual-write to default data/uploads if custom path is configured
+	if baseDir != "data/uploads" {
+		fallbackDir := filepath.Join("data/uploads", category)
+		_ = os.MkdirAll(fallbackDir, 0755)
+		if fSrc, err := os.Open(targetPath); err == nil {
+			if fDst, err := os.Create(filepath.Join(fallbackDir, uniqueName)); err == nil {
+				_, _ = io.Copy(fDst, fSrc)
+				fDst.Close()
+			}
+			fSrc.Close()
+		}
+	}
+
 	// Return public URL path
 	return fmt.Sprintf("/uploads/%s/%s", category, uniqueName), nil
 }
@@ -113,6 +155,7 @@ func saveUploadedBytes(data []byte, originalFilename, category string) (string, 
 	}
 
 	category = sanitizeCategory(category)
+	baseDir := GetUploadBaseDir()
 
 	ext := strings.ToLower(filepath.Ext(originalFilename))
 	if ext == "" {
@@ -123,7 +166,7 @@ func saveUploadedBytes(data []byte, originalFilename, category string) (string, 
 	_, _ = rand.Read(randomBytes)
 	safeFilename := fmt.Sprintf("%s_%s%s", category, hex.EncodeToString(randomBytes), ext)
 
-	targetDir := filepath.Join(UploadBaseDir, category)
+	targetDir := filepath.Join(baseDir, category)
 	_ = os.MkdirAll(targetDir, 0755)
 
 	targetPath := filepath.Join(targetDir, safeFilename)
@@ -131,8 +174,16 @@ func saveUploadedBytes(data []byte, originalFilename, category string) (string, 
 		return "", fmt.Errorf("failed to save file: %w", err)
 	}
 
+	// Dual-write to default data/uploads if custom base directory is configured
+	if baseDir != "data/uploads" {
+		fallbackDir := filepath.Join("data/uploads", category)
+		_ = os.MkdirAll(fallbackDir, 0755)
+		_ = os.WriteFile(filepath.Join(fallbackDir, safeFilename), data, 0644)
+	}
+
 	return fmt.Sprintf("/uploads/%s/%s", category, safeFilename), nil
 }
+
 
 // UploadAPISubmit allows asynchronous HTMX or JavaScript file uploads.
 func (h *UIHandler) UploadAPISubmit(w http.ResponseWriter, r *http.Request) {

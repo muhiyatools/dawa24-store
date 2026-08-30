@@ -3,6 +3,7 @@
 package billing
 
 import (
+	"strconv"
 	"time"
 
 	"github.com/muhiya/dawa24-store/internal/shared/apperr"
@@ -142,6 +143,7 @@ const (
 	FeatureCompareTool     = "feature_compare_tool"
 	FeatureBulkImport      = "bulk_import"
 	FeatureAnalytics       = "analytics"
+	FeatureMaxCompareFiles = "max_compare_files"
 )
 
 // HasFeature reports whether the plan grants access to the specified feature key.
@@ -154,6 +156,25 @@ func (p *Plan) HasFeature(key string) bool {
 		return false
 	}
 	return v == "true" || v == "1" || v == "enabled"
+}
+
+// GetMaxCompareFiles returns the max active supplier files allowed for price comparison.
+// Default is 10 if not set. 0 means unlimited.
+func (p *Plan) GetMaxCompareFiles() int {
+	if p == nil || p.Features == nil {
+		return 10
+	}
+	if v, ok := p.Features[FeatureMaxCompareFiles]; ok && v != "" {
+		if n, err := strconv.Atoi(v); err == nil && n >= 0 {
+			return n
+		}
+	}
+	if v, ok := p.Features["max_compare_files"]; ok && v != "" {
+		if n, err := strconv.Atoi(v); err == nil && n >= 0 {
+			return n
+		}
+	}
+	return 10
 }
 
 // Subscription represents an active plan subscription (unifying legacy D7 systems).

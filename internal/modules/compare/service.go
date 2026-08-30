@@ -810,6 +810,11 @@ func (s *Service) DeleteFileRow(ctx context.Context, rowID int64) error {
 	return s.repo.DeleteFileRow(ctx, rowID)
 }
 
+// DeleteFileRows deletes all rows for a compare/warehouse file.
+func (s *Service) DeleteFileRows(ctx context.Context, fileID int64) error {
+	return s.repo.DeleteFileRows(ctx, fileID)
+}
+
 // CreateFile creates a new compare/warehouse file record.
 func (s *Service) CreateFile(ctx context.Context, f *CompareFile) error {
 	return s.repo.CreateFile(ctx, f)

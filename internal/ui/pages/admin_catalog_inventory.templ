@@ -1194,6 +1194,20 @@ templ AdminTempWarehousesPage(data *AdminTempWarehousesData, lang, dir string) {
 			x-data="{
 				uploadModal: false,
 				itemsModal: false,
+				mappingModal: false,
+				mappingLoading: false,
+				mappingSubmitting: false,
+				mappingFile: { id: 0, supplier_name: '', original_filename: '', row_count: 0 },
+				mappingHeaders: [],
+				mappingPreview: [],
+				mappingCode: 0,
+				mappingName: 1,
+				mappingPrice: 2,
+				mappingDiscount: 3,
+				mappingQueue: [],
+				mappingStep: 1,
+				mappingTotal: 1,
+				autoLaunchSetup: true,
 				selectedWarehouse: { id: 0, name: '', total: 0 },
 				modalItems: [],
 				modalPage: 1,
@@ -1212,6 +1226,17 @@ templ AdminTempWarehousesPage(data *AdminTempWarehousesData, lang, dir string) {
 				uploadStatusText: '',
 				selectedFiles: [],
 				bulkUploadResults: null,
+				init() {
+					const urlParams = new URLSearchParams(window.location.search);
+					const setupFile = urlParams.get('setup_file');
+					const setupQueue = urlParams.get('setup_queue');
+					if (setupFile) {
+						const queue = setupQueue ? setupQueue.split(',').filter(x => x.trim().length > 0) : [];
+						const step = parseInt(urlParams.get('setup_step'), 10) || 1;
+						const total = parseInt(urlParams.get('setup_total'), 10) || (queue.length + 1);
+						this.openMapping(parseInt(setupFile, 10), queue, step, total);
+					}
+				},
 				async openItems(id, name, total) {
 					this.selectedWarehouse = { id: id, name: name, total: total };
 					this.modalPage = 1;
@@ -1263,6 +1288,97 @@ templ AdminTempWarehousesPage(data *AdminTempWarehousesData, lang, dir string) {
 					} catch(e) {
 						alert('فشل الاتصال بالخادم');
 					}
+				},
+				async openMapping(id, queue, step, total) {
+					if (!id || id <= 0) return;
+					this.mappingLoading = true;
+					this.mappingModal = true;
+					this.mappingQueue = queue || [];
+					this.mappingStep = step || 1;
+					this.mappingTotal = total || (this.mappingQueue.length + 1);
+					try {
+						const res = await fetch('/admin/temporary-warehouses/' + id + '/mapping-json');
+						const json = await res.json();
+						if (json.success) {
+							this.mappingFile = {
+								id: json.id,
+								supplier_name: json.supplier_name,
+								original_filename: json.original_filename,
+								row_count: json.row_count
+							};
+							this.mappingHeaders = json.headers || [];
+							this.mappingPreview = json.preview || [];
+							this.mappingCode = json.code_col >= 0 ? json.code_col : 0;
+							this.mappingName = json.name_col >= 0 ? json.name_col : 1;
+							this.mappingPrice = json.price_col >= 0 ? json.price_col : 2;
+							this.mappingDiscount = json.discount_col >= 0 ? json.discount_col : 3;
+						} else {
+							alert(json.error || 'تعذر تحميل بيانات أعمدة المستودع');
+							this.mappingModal = false;
+						}
+					} catch(e) {
+						console.error('Mapping load error:', e);
+						alert('فشل الاتصال بالخادم لتحميل تفاصيل الأعمدة');
+						this.mappingModal = false;
+					} finally {
+						this.mappingLoading = false;
+					}
+				},
+				async submitMapping(form) {
+					if (!this.mappingFile || !this.mappingFile.id) return;
+					this.mappingSubmitting = true;
+					try {
+						const formData = new FormData();
+						formData.append('supplier_name', this.mappingFile.supplier_name || '');
+						formData.append('col_code', this.mappingCode);
+						formData.append('col_name', this.mappingName);
+						formData.append('col_price', this.mappingPrice);
+						formData.append('col_discount', this.mappingDiscount);
+						formData.append('setup_queue', this.mappingQueue.join(','));
+						formData.append('step', this.mappingStep);
+						formData.append('total', this.mappingTotal);
+
+						const res = await fetch('/admin/temporary-warehouses/' + this.mappingFile.id + '/mapping', {
+							method: 'POST',
+							body: formData,
+							headers: {
+								'Accept': 'application/json',
+								'X-Requested-With': 'XMLHttpRequest'
+							}
+						});
+						const json = await res.json();
+						if (json.success) {
+							if (this.mappingQueue && this.mappingQueue.length > 0) {
+								const nextId = parseInt(this.mappingQueue[0], 10);
+								const nextQueue = this.mappingQueue.slice(1);
+								await this.openMapping(nextId, nextQueue, this.mappingStep + 1, this.mappingTotal);
+							} else {
+								this.mappingModal = false;
+								window.location.reload();
+							}
+						} else {
+							alert(json.error || 'فشل حفظ وضبط الأعمدة');
+						}
+					} catch(e) {
+						console.error('Mapping submit error:', e);
+						alert('حدث خطأ أثناء حفظ الإعدادات');
+					} finally {
+						this.mappingSubmitting = false;
+					}
+				},
+				async skipMapping() {
+					if (this.mappingQueue && this.mappingQueue.length > 0) {
+						const nextId = parseInt(this.mappingQueue[0], 10);
+						const nextQueue = this.mappingQueue.slice(1);
+						await this.openMapping(nextId, nextQueue, this.mappingStep + 1, this.mappingTotal);
+					} else {
+						this.mappingModal = false;
+						window.location.reload();
+					}
+				},
+				skipAllMapping() {
+					this.mappingModal = false;
+					window.location.reload();
 				},
 				handleFilesSelect(event) {
 					const files = Array.from(event.target.files || []);
@@ -1407,9 +1523,21 @@ templ AdminTempWarehousesPage(data *AdminTempWarehousesData, lang, dir string) {
 						if (result && result.success) {
 							this.bulkUploadResults = result;
 							this.uploadStatusText = result.message || 'تم الرفع والمعالجة بنجاح!';
-							setTimeout(() => {
-								window.location.reload();
-							}, 2000);
+							
+							if (this.autoLaunchSetup && result.uploaded_ids && result.uploaded_ids.length > 0) {
+								setTimeout(() => {
+									this.isBulkUploading = false;
+									this.uploadModal = false;
+									this.clearSelectedFiles();
+									const firstId = parseInt(result.uploaded_ids[0], 10);
+									const queue = result.uploaded_ids.slice(1);
+									this.openMapping(firstId, queue, 1, result.uploaded_ids.length);
+								}, 800);
+							} else {
+								setTimeout(() => {
+									window.location.reload();
+								}, 1500);
+							}
 						} else {
 							alert((result && result.error) || 'حدث خطأ أثناء معالجة الملفات');
 							this.isBulkUploading = false;
@@ -1419,7 +1547,7 @@ templ AdminTempWarehousesPage(data *AdminTempWarehousesData, lang, dir string) {
 						this.uploadStatusText = 'تم إرسال الملفات بنجاح، جاري تحديث الصفحة...';
 						setTimeout(() => {
 							window.location.reload();
-						}, 2500);
+						}, 2000);
 					}
 				}
 			}"
@@ -1666,6 +1794,17 @@ templ AdminTempWarehousesPage(data *AdminTempWarehousesData, lang, dir string) {
 													<span>👁️ الأصناف</span>
 												</button>
 
+												<!-- Column Mapping Button -->
+												<button
+													type="button"
+													@click={ fmt.Sprintf("openMapping(%d, [], 1, 1)", item.ID) }
+													class="btn btn-secondary btn-sm fw-800"
+													style="padding:0.35rem 0.65rem; font-size:0.8rem; border-radius:var(--radius-md); color:var(--text);"
+													title="ضبط وتعديل وتأكيد تعيين أعمدة المستودع"
+												>
+													<span>⚙️ ضبط الأعمدة</span>
+												</button>
+
 												<!-- Download XLSX -->
 												<a
 													href={ templ.SafeURL(fmt.Sprintf("/admin/temporary-warehouses/%d/export", item.ID)) }
@@ -1859,7 +1998,7 @@ templ AdminTempWarehousesPage(data *AdminTempWarehousesData, lang, dir string) {
 				</div>
 			</div>
 
-			<!-- 6. Upload & Column Mapping Modal with Auto-Guessing & 60+ Bulk Files Support -->
+			<!-- 6. Upload Modal with 100 Files Bulk Support & Auto-Naming -->
 			<div
 				x-show="uploadModal"
 				style="position:fixed; top:0; left:0; right:0; bottom:0; width:100vw; height:100vh; z-index:99999; background:rgba(15,23,42,0.75); backdrop-filter:blur(4px); display:flex; align-items:center; justify-content:center; padding:1.25rem; margin:0; box-sizing:border-box;"
@@ -1869,16 +2008,16 @@ templ AdminTempWarehousesPage(data *AdminTempWarehousesData, lang, dir string) {
 			>
 				<div
 					class="card mb-0"
-					style="max-width:720px; width:100%; max-height:92vh; overflow-y:auto; padding:1.75rem; background:var(--surface-raised); border-radius:var(--radius-2xl); border:1px solid var(--border); box-shadow:var(--shadow-2xl); margin:auto;"
+					style="max-width:760px; width:100%; max-height:92vh; overflow-y:auto; padding:1.75rem; background:var(--surface-raised); border-radius:var(--radius-2xl); border:1px solid var(--border); box-shadow:var(--shadow-2xl); margin:auto;"
 				>
 					<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.25rem; border-bottom:1px solid var(--border); padding-bottom:1rem;">
 						<div>
 							<h3 style="font-size:1.3rem; font-weight:900; color:var(--text); margin:0; display:flex; align-items:center; gap:0.5rem;">
 								<span>⚡</span>
-								<span>رفع كشوف المستودعات (يدعم الرفع الجماعي لأكثر من 60 ملفاً)</span>
+								<span>رفع كشوف المستودعات المجمّع (حتى 100 ملف دفعة واحدة)</span>
 							</h3>
 							<p style="font-size:0.8rem; color:var(--text-muted); margin:0.25rem 0 0 0;">
-								رفع ملفات الإكسيل و CSV لمعالجة واستخراج الأسعار والخصومات بالتوازي فائق السرعة
+								يدعم كافة أنواع الملفات (.xlsx, .xls, .csv, .txt) مع تسمية تلقائية ومعالجة متوازية فائقة السرعة
 							</p>
 						</div>
 						<button
@@ -1907,7 +2046,7 @@ templ AdminTempWarehousesPage(data *AdminTempWarehousesData, lang, dir string) {
 								></div>
 							</div>
 							<div class="d-flex justify-between items-center text-xs text-muted font-bold tabular-nums">
-								<span x-text="'عدد الملفات: ' + selectedFiles.length"></span>
+								<span x-text="'عدد الملفات المرفوعة: ' + selectedFiles.length"></span>
 								<span x-text="uploadProgress + '%'"></span>
 							</div>
 						</div>
@@ -1922,7 +2061,7 @@ templ AdminTempWarehousesPage(data *AdminTempWarehousesData, lang, dir string) {
 						@submit.prevent="submitBulkUpload($event.target)"
 						class="stack-lg"
 					>
-						<!-- Drag & Drop Bulk Zone -->
+						<!-- Drag & Drop Bulk Zone (up to 100 files) -->
 						<div
 							@dragover.prevent="isDragging = true"
 							@dragleave.prevent="isDragging = false"
@@ -1942,10 +2081,10 @@ templ AdminTempWarehousesPage(data *AdminTempWarehousesData, lang, dir string) {
 							/>
 							<div style="font-size:2.5rem; margin-bottom:0.5rem;">📂</div>
 							<div style="font-size:0.95rem; font-weight:800; color:var(--text); margin-bottom:0.25rem;">
-								اسحب وأفلت الملفات هنا، أو انقر لاختيار ملفات من جهازك
+								اسحب وأفلت الملفات هنا، أو انقر لاختيار مجموعة ملفات من جهازك
 							</div>
 							<div style="font-size:0.75rem; color:var(--text-muted);">
-								يدعم اختيار ورفع أكثر من 60 ملفاً دفعة واحدة بصيغ (XLSX, XLS, CSV)
+								يدعم رفع حتى 100 ملف دفعة واحدة بكافة الصيغ (.xlsx, .xls, .csv, .txt)
 							</div>
 						</div>
 
@@ -1957,7 +2096,7 @@ templ AdminTempWarehousesPage(data *AdminTempWarehousesData, lang, dir string) {
 										<span class="badge badge-emerald fw-800 text-xs tabular-nums">
 											✓ تم اختيار <strong x-text="selectedFiles.length"></strong> ملف
 										</span>
-										<span class="text-xs text-muted tabular-nums" x-text="'(الحجم: ' + totalSelectedSize() + ')'"></span>
+										<span class="text-xs text-muted tabular-nums" x-text="'(الحجم الإجمالي: ' + totalSelectedSize() + ')'"></span>
 									</div>
 									<button
 										type="button"
@@ -1994,7 +2133,7 @@ templ AdminTempWarehousesPage(data *AdminTempWarehousesData, lang, dir string) {
 							</div>
 						</template>
 
-						<!-- Case 1: Single File Options -->
+						<!-- Case 1: Single File Custom Options -->
 						<template x-if="selectedFiles.length === 1">
 							<div class="stack-md">
 								<div class="form-group mb-0">
@@ -2010,72 +2149,26 @@ templ AdminTempWarehousesPage(data *AdminTempWarehousesData, lang, dir string) {
 										style="height:42px; border-radius:var(--radius-lg);"
 									/>
 								</div>
-
-								<!-- Single File Column Mapping Deck -->
-								<div style="background:var(--surface-sunken); padding:1rem; border-radius:var(--radius-xl); border:1px solid var(--border);">
-									<div style="font-size:0.8rem; font-weight:800; color:var(--text); margin-bottom:0.2rem;">
-										⚙️ تعيين الأعمدة الذكي (Column Mapping)
-									</div>
-									<div style="display:grid; grid-template-columns:1fr 1fr; gap:0.75rem; margin-top:0.5rem;">
-										<!-- Code Column -->
-										<div class="form-group mb-0">
-											<label class="form-label text-xs fw-700">عمود كود الصنف (SKU)</label>
-											<select name="col_code" class="form-input text-xs" style="height:36px; border-radius:var(--radius-md);" x-model="detectedCode">
-												<template x-for="(h, idx) in fileHeaders" :key="idx">
-													<option :value="idx" x-text="'عمود ' + (idx+1) + ': ' + h"></option>
-												</template>
-												<option value="0" x-show="fileHeaders.length === 0">العمود 1 (تلقائي)</option>
-											</select>
-										</div>
-
-										<!-- Name Column -->
-										<div class="form-group mb-0">
-											<label class="form-label text-xs fw-700">عمود اسم الصنف</label>
-											<select name="col_name" class="form-input text-xs" style="height:36px; border-radius:var(--radius-md);" x-model="detectedName">
-												<template x-for="(h, idx) in fileHeaders" :key="idx">
-													<option :value="idx" x-text="'عمود ' + (idx+1) + ': ' + h"></option>
-												</template>
-												<option value="1" x-show="fileHeaders.length === 0">العمود 2 (تلقائي)</option>
-											</select>
-										</div>
-
-										<!-- Price Column -->
-										<div class="form-group mb-0">
-											<label class="form-label text-xs fw-700">عمود سعر الجمهور</label>
-											<select name="col_price" class="form-input text-xs" style="height:36px; border-radius:var(--radius-md);" x-model="detectedPrice">
-												<template x-for="(h, idx) in fileHeaders" :key="idx">
-													<option :value="idx" x-text="'عمود ' + (idx+1) + ': ' + h"></option>
-												</template>
-												<option value="2" x-show="fileHeaders.length === 0">العمود 3 (تلقائي)</option>
-											</select>
-										</div>
-
-										<!-- Discount Column -->
-										<div class="form-group mb-0">
-											<label class="form-label text-xs fw-700">عمود نسبة الخصم (%)</label>
-											<select name="col_discount" class="form-input text-xs" style="height:36px; border-radius:var(--radius-md);" x-model="detectedDiscount">
-												<template x-for="(h, idx) in fileHeaders" :key="idx">
-													<option :value="idx" x-text="'عمود ' + (idx+1) + ': ' + h"></option>
-												</template>
-												<option value="3" x-show="fileHeaders.length === 0">العمود 4 (تلقائي)</option>
-											</select>
-										</div>
-									</div>
-								</div>
 							</div>
 						</template>
 
-						<!-- Case 2: Multi-File Bulk Processing Notice -->
-						<template x-if="selectedFiles.length > 1">
-							<div style="background:linear-gradient(135deg, rgba(16,185,129,0.08) 0%, rgba(14,165,233,0.08) 100%); border:1px solid var(--emerald); border-radius:var(--radius-xl); padding:1rem;">
-								<div style="display:flex; align-items:center; gap:0.5rem; color:var(--emerald); font-weight:800; font-size:0.875rem; margin-bottom:0.35rem;">
-									<span>🚀 محرك الرفع المتوازي فائق السرعة (Parallel Bulk Engine)</span>
-								</div>
-								<p style="font-size:0.775rem; color:var(--text-secondary); margin:0; line-height:1.5;">
-									سيقوم النظام بمعالجة كافة الملفات (<strong x-text="selectedFiles.length"></strong> ملف) بالتوازي عبر مسارات متعددة، مع التعرف التلقائي الذكي على أعمدة كل ملف وإنشاء مستودع مستقل لكل كشف أسعار.
-								</p>
-							</div>
-						</template>
+						<!-- Setup Experience Option Checkbox -->
+						<div style="background:linear-gradient(135deg, rgba(16,185,129,0.06) 0%, rgba(14,165,233,0.06) 100%); border:1px solid var(--border); border-radius:var(--radius-xl); padding:1rem; display:flex; align-items:center; gap:0.75rem;">
+							<input
+								type="checkbox"
+								id="auto_setup_check"
+								x-model="autoLaunchSetup"
+								style="width:18px; height:18px; cursor:pointer;"
+							/>
+							<label for="auto_setup_check" style="cursor:pointer; margin:0;">
+								<strong class="text-primary d-block text-xs font-extrabold">
+									⚙️ بدء معالج ضبط وتأكيد أعمدة الملفات بعد الرفع (Setup Experience)
+								</strong>
+								<span class="text-2xs text-secondary font-medium d-block mt-0.5">
+									يتيح لك مراجعة الأعمدة ومعاينة بيانات كل كشف مستودع بالتتابع وتعديل الربط بسهولة
+								</span>
+							</label>
+						</div>
 
 						<!-- Action Buttons -->
 						<div style="display:flex; justify-content:flex-end; gap:0.75rem; margin-top:0.75rem; border-top:1px solid var(--border); pt-3;">
@@ -2094,6 +2187,267 @@ templ AdminTempWarehousesPage(data *AdminTempWarehousesData, lang, dir string) {
 								<span x-show="selectedFiles.length <= 1">تأكيد ورفع المستودع ↗</span>
 								<span x-show="selectedFiles.length > 1" x-text="'تأكيد ورفع ' + selectedFiles.length + ' مستودع الآن ⚡'"></span>
 							</button>
+						</div>
+					</form>
+				</div>
+			</div>
+
+			<!-- 7. Warehouse Column Mapping & Setup Wizard Modal -->
+			<div
+				x-show="mappingModal"
+				style="position:fixed; top:0; left:0; right:0; bottom:0; width:100vw; height:100vh; z-index:99999; background:rgba(15,23,42,0.8); backdrop-filter:blur(6px); display:flex; align-items:center; justify-content:center; padding:1.25rem; margin:0; box-sizing:border-box;"
+				x-cloak
+				@keydown.escape.window="if(!mappingSubmitting) mappingModal = false"
+				@click.self="if(!mappingSubmitting) mappingModal = false"
+			>
+				<div
+					class="card mb-0"
+					style="max-width:940px; width:100%; max-height:92vh; overflow-y:auto; padding:1.75rem; background:var(--surface-raised); border-radius:var(--radius-2xl); border:1px solid var(--border); box-shadow:var(--shadow-2xl); margin:auto;"
+				>
+					<!-- Modal Header & Queue Stepper -->
+					<div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:1rem; border-bottom:1px solid var(--border); padding-bottom:1rem; gap:1rem;">
+						<div style="display:flex; align-items:center; gap:0.75rem;">
+							<div style="width:44px; height:44px; border-radius:var(--radius-xl); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center; font-size:1.3rem;">
+								⚙️
+							</div>
+							<div>
+								<div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:0.25rem;">
+									<span class="badge badge-emerald fw-800 text-xs">
+										معالج ضبط وتأكيد أعمدة المستودع
+									</span>
+									<template x-if="mappingTotal > 1">
+										<span class="badge badge-sky fw-800 text-xs tabular-nums" x-text="'ملف ' + mappingStep + ' من ' + mappingTotal"></span>
+									</template>
+								</div>
+								<h3 style="font-size:1.25rem; font-weight:900; color:var(--text); margin:0;">
+									<span x-text="mappingFile.supplier_name || 'ضبط الأعمدة'"></span>
+								</h3>
+								<p style="font-size:0.8rem; color:var(--text-muted); margin:0.2rem 0 0 0;">
+									الملف المصدري: <strong class="text-primary font-mono" x-text="mappingFile.original_filename"></strong>
+									<span class="tabular-nums" x-text="' • (' + (mappingFile.row_count || 0) + ' صنف مسجل)'"></span>
+								</p>
+							</div>
+						</div>
+
+						<button
+							type="button"
+							@click="mappingModal = false"
+							:disabled="mappingSubmitting"
+							class="btn btn-secondary btn-sm"
+							style="border-radius:var(--radius-full); width:32px; height:32px; padding:0; display:flex; align-items:center; justify-content:center; font-size:1.1rem;"
+						>&times;</button>
+					</div>
+
+					<!-- Progress Bar if in Multi-File Queue -->
+					<template x-if="mappingTotal > 1">
+						<div style="margin-bottom:1.25rem;">
+							<div style="display:flex; justify-content:space-between; align-items:center; font-size:0.75rem; color:var(--text-muted); font-weight:700; margin-bottom:0.35rem;">
+								<span>إنجاز مراجعة الملفات المرفوعة</span>
+								<span class="tabular-nums" x-text="Math.round((mappingStep / mappingTotal) * 100) + '%'"></span>
+							</div>
+							<div style="width:100%; height:6px; background:var(--surface-sunken); border-radius:var(--radius-full); overflow:hidden; border:1px solid var(--border);">
+								<div
+									style="height:100%; background:linear-gradient(90deg, var(--accent) 0%, var(--emerald, #10b981) 100%); transition:width 0.3s ease;"
+									:style="'width: ' + ((mappingStep / mappingTotal) * 100) + '%'"
+								></div>
+							</div>
+						</div>
+					</template>
+
+					<!-- Loading State -->
+					<template x-if="mappingLoading">
+						<div style="padding:3rem 1.5rem; text-align:center;">
+							<div class="spinner-border text-primary" style="width:2.5rem; height:2.5rem; margin-bottom:1rem;" role="status"></div>
+							<div style="font-weight:700; color:var(--text-secondary); font-size:0.9rem;">
+								جاري قراءة وتحليل أعمدة المستودع...
+							</div>
+						</div>
+					</template>
+
+					<!-- Mapping Form Content -->
+					<form
+						x-show="!mappingLoading"
+						@submit.prevent="submitMapping($event.target)"
+						class="stack-lg"
+					>
+						<!-- Supplier Name Edit Strip -->
+						<div style="background:var(--surface-sunken); border:1px solid var(--border); border-radius:var(--radius-xl); padding:0.85rem 1.15rem; display:flex; align-items:center; gap:1rem; flex-wrap:wrap;">
+							<div style="font-size:1.3rem;">🏢</div>
+							<div style="flex:1; min-width:240px;">
+								<label class="form-label text-xs fw-800" style="margin-bottom:0.25rem; color:var(--text);">
+									اسم المورد / المستودع المعروض في المنظومة
+								</label>
+								<input
+									type="text"
+									name="supplier_name"
+									x-model="mappingFile.supplier_name"
+									class="form-input text-xs font-bold"
+									style="height:38px; border-radius:var(--radius-md);"
+									required
+								/>
+							</div>
+						</div>
+
+						<!-- Column Selectors Grid (4 key columns) -->
+						<div style="background:var(--surface-sunken); border:1px solid var(--border); border-radius:var(--radius-xl); padding:1.15rem;">
+							<div style="font-size:0.85rem; font-weight:800; color:var(--text); margin-bottom:0.6rem; display:flex; align-items:center; gap:0.4rem;">
+								<span>🎯</span>
+								<span>تعيين وتوجيه الأعمدة لاستخراج البيانات بدقة:</span>
+							</div>
+
+							<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:0.75rem;">
+								<!-- Code Col -->
+								<div>
+									<label class="form-label text-xs fw-800" style="margin-bottom:0.25rem;">
+										كود الصنف (SKU / Barcode)
+									</label>
+									<select name="col_code" x-model="mappingCode" class="form-input text-xs" style="height:38px; border-radius:var(--radius-md);">
+										<option value="-1">-- غير محدد --</option>
+										<template x-for="(h, idx) in mappingHeaders" :key="idx">
+											<option :value="idx" x-text="'عمود ' + (idx+1) + ': ' + h" :selected="mappingCode == idx"></option>
+										</template>
+									</select>
+								</div>
+
+								<!-- Name Col -->
+								<div>
+									<label class="form-label text-xs fw-800" style="margin-bottom:0.25rem;">
+										اسم المنتج / الصنف <span style="color:#dc2626;">*</span>
+									</label>
+									<select name="col_name" x-model="mappingName" class="form-input text-xs font-bold" style="height:38px; border-radius:var(--radius-md);" required>
+										<option value="-1">-- يرجى الاختيار --</option>
+										<template x-for="(h, idx) in mappingHeaders" :key="idx">
+											<option :value="idx" x-text="'عمود ' + (idx+1) + ': ' + h" :selected="mappingName == idx"></option>
+										</template>
+									</select>
+								</div>
+
+								<!-- Price Col -->
+								<div>
+									<label class="form-label text-xs fw-800" style="margin-bottom:0.25rem;">
+										سعر الجمهور (الرسمي)
+									</label>
+									<select name="col_price" x-model="mappingPrice" class="form-input text-xs" style="height:38px; border-radius:var(--radius-md);">
+										<option value="-1">-- غير محدد --</option>
+										<template x-for="(h, idx) in mappingHeaders" :key="idx">
+											<option :value="idx" x-text="'عمود ' + (idx+1) + ': ' + h" :selected="mappingPrice == idx"></option>
+										</template>
+									</select>
+								</div>
+
+								<!-- Discount Col -->
+								<div>
+									<label class="form-label text-xs fw-800" style="margin-bottom:0.25rem;">
+										نسبة الخصم (%)
+									</label>
+									<select name="col_discount" x-model="mappingDiscount" class="form-input text-xs" style="height:38px; border-radius:var(--radius-md);">
+										<option value="-1">-- غير محدد --</option>
+										<template x-for="(h, idx) in mappingHeaders" :key="idx">
+											<option :value="idx" x-text="'عمود ' + (idx+1) + ': ' + h" :selected="mappingDiscount == idx"></option>
+										</template>
+									</select>
+								</div>
+							</div>
+						</div>
+
+						<!-- Live Spreadsheet Data Preview Table -->
+						<template x-if="mappingPreview.length > 0">
+							<div style="background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-xl); overflow:hidden;">
+								<div style="padding:0.6rem 1rem; background:var(--surface-sunken); border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:center;">
+									<span style="font-size:0.775rem; font-weight:800; color:var(--text-secondary);">
+										معاينة حية لأول 5 صفوف من ملف الإكسيل:
+									</span>
+									<span class="badge badge-slate text-xs tabular-nums" x-text="mappingPreview.length + ' صفوف'"></span>
+								</div>
+								<div style="overflow-x:auto; max-height:220px;">
+									<table class="data-table m-0" style="font-size:0.75rem;">
+										<thead>
+											<tr>
+												<th style="width:36px; text-align:center;">#</th>
+												<template x-for="(h, colIdx) in mappingHeaders" :key="colIdx">
+													<th style="white-space:nowrap;" :style="colIdx == mappingName ? 'color:var(--accent); font-weight:900;' : (colIdx == mappingPrice ? 'color:var(--emerald); font-weight:900;' : '')">
+														<span x-text="h"></span>
+														<template x-if="colIdx == mappingCode">
+															<span class="badge badge-slate text-2xs" style="margin-inline-start:4px;">كود</span>
+														</template>
+														<template x-if="colIdx == mappingName">
+															<span class="badge badge-sky text-2xs" style="margin-inline-start:4px;">اسم</span>
+														</template>
+														<template x-if="colIdx == mappingPrice">
+															<span class="badge badge-emerald text-2xs" style="margin-inline-start:4px;">سعر</span>
+														</template>
+														<template x-if="colIdx == mappingDiscount">
+															<span class="badge badge-amber text-2xs" style="margin-inline-start:4px;">خصم %</span>
+														</template>
+													</th>
+												</template>
+											</tr>
+										</thead>
+										<tbody>
+											<template x-for="(row, rIdx) in mappingPreview" :key="rIdx">
+												<tr>
+													<td class="text-muted tabular-nums" style="text-align:center;" x-text="rIdx+1"></td>
+													<template x-for="(cell, cIdx) in row" :key="cIdx">
+														<td :style="cIdx == mappingName ? 'font-weight:700;' : ''" x-text="cell"></td>
+													</template>
+												</tr>
+											</template>
+										</tbody>
+									</table>
+								</div>
+							</div>
+						</template>
+
+						<!-- Modal Footer Actions -->
+						<div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.75rem; border-top:1px solid var(--border); padding-top:1rem;">
+							<div>
+								<template x-if="mappingQueue.length > 0">
+									<button
+										type="button"
+										class="btn btn-secondary btn-sm fw-800"
+										@click="skipAllMapping()"
+										:disabled="mappingSubmitting"
+										style="border-radius:var(--radius-lg); font-size:0.8rem;"
+									>
+										✓ تخطي باقي الملفات واعتماد الضبط التلقائي
+									</button>
+								</template>
+							</div>
+
+							<div style="display:flex; align-items:center; gap:0.6rem;">
+								<button
+									type="button"
+									class="btn btn-secondary btn-sm"
+									style="border-radius:var(--radius-lg); font-weight:700;"
+									@click="mappingModal = false"
+									:disabled="mappingSubmitting"
+								>
+									إغلاق
+								</button>
+
+								<template x-if="mappingQueue.length > 0">
+									<button
+										type="button"
+										class="btn btn-secondary btn-sm fw-800"
+										@click="skipMapping()"
+										:disabled="mappingSubmitting"
+										style="border-radius:var(--radius-lg);"
+									>
+										تخطي للملف التالي ⏩
+									</button>
+								</template>
+
+								<button
+									type="submit"
+									class="btn btn-primary fw-900 btn-sm"
+									style="border-radius:var(--radius-lg); padding:0.5rem 1.5rem;"
+									:disabled="mappingSubmitting || mappingLoading"
+								>
+									<span x-show="!mappingSubmitting && mappingQueue.length === 0">حفظ وتأكيد الأعمدة 💾</span>
+									<span x-show="!mappingSubmitting && mappingQueue.length > 0">حفظ والانتقال للملف التالي ⬅️</span>
+									<span x-show="mappingSubmitting">جاري الحفظ والمعالجة...</span>
+								</button>
+							</div>
 						</div>
 					</form>
 				</div>

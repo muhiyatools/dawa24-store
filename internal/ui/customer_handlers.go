@@ -20,6 +20,7 @@ import (
 	"github.com/muhiya/dawa24-store/internal/modules/commerce"
 	"github.com/muhiya/dawa24-store/internal/modules/identity"
 	"github.com/muhiya/dawa24-store/internal/modules/org"
+	"github.com/muhiya/dawa24-store/internal/modules/promo"
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/platform/database"
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
@@ -939,12 +940,21 @@ func (h *UIHandler) AddToCartSubmit(w http.ResponseWriter, r *http.Request) {
 		Quantity:         qty,
 	}
 
-	// Keep the offer identity
+	// Keep the offer identity and custom offer price
 	if offerID, err := strconv.ParseInt(r.PostFormValue("offer_id"), 10, 64); err == nil && offerID > 0 {
 		item.OfferID = &offerID
 	}
+	if offerPriceStr := strings.TrimSpace(r.PostFormValue("offer_price")); offerPriceStr != "" {
+		if amt, err := money.Parse(offerPriceStr); err == nil && amt.IsPositive() {
+			item.UnitPrice = amt
+		}
+	} else if customPriceStr := strings.TrimSpace(r.PostFormValue("custom_price")); customPriceStr != "" {
+		if amt, err := money.Parse(customPriceStr); err == nil && amt.IsPositive() {
+			item.UnitPrice = amt
+		}
+	}
 
-	// Authoritative catalog price lookup
+	// Authoritative catalog price lookup if unit price is not set
 	if item.UnitPrice.IsZero() && h.catSvc != nil {
 		if variantID > 0 {
 			if v, err := h.catSvc.GetVariant(database.AsSystem(ctx), variantID); err == nil && v != nil && !v.Price.IsZero() {
@@ -991,6 +1001,150 @@ func (h *UIHandler) AddToCartSubmit(w http.ResponseWriter, r *http.Request) {
 
 	http.Redirect(w, r, "/cart", http.StatusSeeOther)
 }
+
+// AddOfferToCartSubmit adds an entire special offer bundle to the cart for a pharmacy.
+func (h *UIHandler) AddOfferToCartSubmit(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	actor, ok := authctx.From(ctx)
+	if !ok {
+		if h.isHTMX(r) {
+			w.Header().Set("HX-Redirect", "/auth/login?redirect=/offers")
+			w.Header().Set("HX-Trigger", `{"showToast":{"message":"يرجى تسجيل الدخول كصيدلية مرخصة للشراء","type":"error"}}`)
+			w.WriteHeader(http.StatusUnauthorized)
+			return
+		}
+		http.Redirect(w, r, "/auth/login?redirect=/offers", http.StatusSeeOther)
+		return
+	}
+
+	if !actor.IsCustomer() {
+		if h.isHTMX(r) {
+			w.Header().Set("HX-Trigger", `{"showToast":{"message":"عذراً، شراء باقات العروض متاح حصرياً لحسابات الصيدليات المرخصة","type":"error"}}`)
+			w.WriteHeader(http.StatusForbidden)
+			return
+		}
+		h.redirectWithNotice(w, r, "/offers", "error", "عذراً، شراء باقات العروض متاح حصرياً للصيدليات المرخصة.")
+		return
+	}
+
+	userID := actor.UserID
+	if h.commSvc == nil || h.promoSvc == nil {
+		if h.isHTMX(r) {
+			w.Header().Set("HX-Trigger", `{"showToast":{"message":"خدمة السلة غير متوفرة حالياً","type":"error"}}`)
+			w.WriteHeader(http.StatusServiceUnavailable)
+			return
+		}
+		http.Redirect(w, r, "/cart", http.StatusSeeOther)
+		return
+	}
+
+	offerID, _ := strconv.ParseInt(r.PostFormValue("offer_id"), 10, 64)
+	if offerID <= 0 {
+		h.redirectWithNotice(w, r, "/offers", "error", "معرف العرض غير صالح.")
+		return
+	}
+
+	bundleMultiplier, _ := strconv.Atoi(r.PostFormValue("quantity"))
+	if bundleMultiplier <= 0 {
+		bundleMultiplier, _ = strconv.Atoi(r.PostFormValue("qty"))
+	}
+	if bundleMultiplier <= 0 {
+		bundleMultiplier = 1
+	}
+
+	sp, err := h.promoSvc.GetSpecialOffer(ctx, offerID)
+	if err != nil || sp == nil {
+		o, oErr := h.promoSvc.GetOffer(ctx, offerID)
+		if oErr != nil || o == nil {
+			h.redirectWithNotice(w, r, "/offers", "error", "العرض المطلوب غير موجود أو انتهت صلاحيته.")
+			return
+		}
+		sp = &promo.SpecialOffer{
+			ID:                 o.ID,
+			OrganizationID:     o.OrganizationID,
+			Title:              o.Title,
+			DiscountPercentage: float64(o.DiscountValue.Minor()) / 100.0,
+		}
+	}
+
+	addedItemsCount := 0
+	if len(sp.Products) > 0 {
+		for _, p := range sp.Products {
+			if p == nil || p.VariantID <= 0 {
+				continue
+			}
+			qty := p.Quantity * bundleMultiplier
+			if qty <= 0 {
+				qty = bundleMultiplier
+			}
+
+			prodID := int64(0)
+			unitPrice := p.CustomPrice
+			if unitPrice.IsZero() && p.OriginalPrice.IsPositive() {
+				if sp.DiscountPercentage > 0 {
+					discMinor := int64(float64(p.OriginalPrice.Minor()) * (sp.DiscountPercentage / 100.0))
+					unitPrice = money.FromMinor(p.OriginalPrice.Minor() - discMinor)
+				} else {
+					unitPrice = p.OriginalPrice
+				}
+			}
+
+			if h.catSvc != nil {
+				if v, vErr := h.catSvc.GetVariant(database.AsSystem(ctx), p.VariantID); vErr == nil && v != nil {
+					prodID = v.ProductID
+					if unitPrice.IsZero() {
+						unitPrice = v.Price
+					}
+				}
+			}
+
+			item := &commerce.CartItem{
+				ProductID:        prodID,
+				ProductVariantID: p.VariantID,
+				OrganizationID:   sp.OrganizationID,
+				Quantity:         qty,
+				UnitPrice:        unitPrice,
+				OfferID:          &offerID,
+			}
+
+			if _, aErr := h.commSvc.AddToCart(ctx, userID, item); aErr == nil {
+				addedItemsCount++
+			} else {
+				h.log.WarnContext(ctx, "add offer item to cart error", "error", aErr, "variant_id", p.VariantID)
+			}
+		}
+	}
+
+
+	// Record offer conversion / click
+	_ = h.promoSvc.RecordOfferClick(ctx, offerID)
+
+	if addedItemsCount == 0 && len(sp.Products) > 0 {
+		if h.isHTMX(r) {
+			w.Header().Set("HX-Trigger", `{"showToast":{"message":"تعذر إضافة أصناف العرض إلى السلة، يرجى المحاولة لاحقاً","type":"error"}}`)
+			w.WriteHeader(http.StatusBadRequest)
+			return
+		}
+		h.redirectWithNotice(w, r, fmt.Sprintf("/offers/%d", offerID), "error", "تعذر إضافة أصناف العرض إلى السلة.")
+		return
+	}
+
+	if h.isHTMX(r) {
+		cart, _ := h.commSvc.GetCart(ctx, userID)
+		totalCount := 0
+		if cart != nil {
+			for _, ci := range cart.Items {
+				totalCount += ci.Quantity
+			}
+		}
+		w.Header().Set("HX-Trigger", fmt.Sprintf(`{"showToast":{"message":"تمت إضافة باقة العرض بالكامل إلى سلة المشتريات بنجاح","type":"success"},"cartUpdated":{"count":%d}}`, totalCount))
+		w.WriteHeader(http.StatusOK)
+		return
+	}
+
+	h.redirectWithNotice(w, r, "/cart", "success", "تمت إضافة باقة العرض بالكامل إلى سلة المشتريات بنجاح.")
+}
+
 
 // assertCartLineAvailable runs the availability rule and, when it refuses,
 // redirects with the reason. It returns false when the caller must stop.

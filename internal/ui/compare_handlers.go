@@ -285,6 +285,35 @@ func (h *UIHandler) CompareUploadSubmit(w http.ResponseWriter, r *http.Request) 
 		orgPtr = &actor.OrganizationID
 	}
 
+	// Enforce compare files quota based on user's active subscription plan
+	maxAllowedFiles := 10
+	if h.billSvc != nil {
+		if plan, err := h.billSvc.GetEffectivePlan(ctx, actor.UserID, orgPtr); err == nil && plan != nil {
+			maxAllowedFiles = plan.GetMaxCompareFiles()
+		}
+	}
+
+	if maxAllowedFiles > 0 {
+		activeFiles, err := h.compareSvc.ListFiles(ctx, actor.UserID, orgPtr, nil)
+		if err == nil {
+			activeCount := 0
+			for _, f := range activeFiles {
+				if f.Status != compare.FileArchived && f.DeletedAt == nil && !f.IsTempWarehouse {
+					activeCount++
+				}
+			}
+			if activeCount >= maxAllowedFiles {
+				h.redirectWithNotice(w, r, "/compare/tool", "error", fmt.Sprintf("لقد استنفدت الحد الأقصى المسموح به لكشوف الموردين في باقتك الحالية (%d كشوف). يرجى ترقية باقة الاشتراك أو أرشفة/حذف الكشوف القديمة للمتابعة.", maxAllowedFiles))
+				return
+			}
+			if activeCount+len(fileHeaders) > maxAllowedFiles {
+				remaining := maxAllowedFiles - activeCount
+				h.redirectWithNotice(w, r, "/compare/tool", "error", fmt.Sprintf("عدد الملفات المحددة للرفع (%d) يتجاوز السعة المتبقية في باقتك (%d كشوف متبقية من أصل %d). يرجى تقليل عدد الملفات أو ترقية الباقة.", len(fileHeaders), remaining, maxAllowedFiles))
+				return
+			}
+		}
+	}
+
 	type fileItem struct {
 		index        int
 		filename     string

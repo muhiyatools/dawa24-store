@@ -6,6 +6,8 @@ import (
 	"log/slog"
 	"net/http"
 	"net/http/httptest"
+	"net/url"
+	"strings"
 	"testing"
 	"time"
 
@@ -255,6 +257,8 @@ func TestOffersWorkflowAndRendering(t *testing.T) {
 
 	r := chi.NewRouter()
 	handler.RegisterPublicRoutes(r)
+	r.Post("/cart/add-offer", handler.AddOfferToCartSubmit)
+
 
 	// 1. Test GET /offers (Public Offers Listing)
 	req := httptest.NewRequest(http.MethodGet, "/offers", nil)
@@ -303,10 +307,31 @@ func TestOffersWorkflowAndRendering(t *testing.T) {
 		t.Fatalf("expected status 200 for /offers/101 as customer, got %d", recAuth.Code)
 	}
 	bodyAuth := recAuth.Body.String()
-	if !containsStr(bodyAuth, "action=\"/cart/add\"") {
-		t.Fatalf("expected /offers/101 for customer to render /cart/add form")
+	if !containsStr(bodyAuth, "action=\"/cart/add-offer\"") {
+		t.Fatalf("expected /offers/101 for customer to render /cart/add-offer form")
+	}
+
+	// 4. Test POST /cart/add-offer
+	formOffer := url.Values{}
+	formOffer.Set("offer_id", "101")
+	formOffer.Set("quantity", "1")
+	reqPostOffer := httptest.NewRequest(http.MethodPost, "/cart/add-offer", strings.NewReader(formOffer.Encode()))
+	reqPostOffer.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+	reqPostOffer = reqPostOffer.WithContext(authctx.WithActor(reqPostOffer.Context(), authctx.Actor{
+		UserID:         5,
+		OrganizationID: 12,
+		OrgType:        string(org.TypeCustomer),
+		Role:           "customer",
+		Permissions:    []string{"pharmacy.cart.use"},
+	}))
+	recPostOffer := httptest.NewRecorder()
+	r.ServeHTTP(recPostOffer, reqPostOffer)
+	if recPostOffer.Code != http.StatusSeeOther && recPostOffer.Code != http.StatusOK {
+		t.Fatalf("expected status 303 or 200 for POST /cart/add-offer, got %d", recPostOffer.Code)
 	}
 }
+
+
 
 func containsStr(s, substr string) bool {
 	return len(s) > 0 && len(substr) > 0 && (s == substr || len(s) >= len(substr) && stringContains(s, substr))

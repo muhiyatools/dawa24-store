@@ -172,6 +172,10 @@ func (h *UIHandler) AdminUsersPage(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
+	if roleFilter == "" {
+		roleFilter = strings.TrimSpace(r.URL.Query().Get("type"))
+	}
+
 	if h.idSvc != nil {
 		allUsers, _ := h.idSvc.AdminListUsers(sysCtx, "", "")
 		for _, u := range allUsers {
@@ -179,9 +183,10 @@ func (h *UIHandler) AdminUsersPage(w http.ResponseWriter, r *http.Request) {
 				continue
 			}
 			totalUsers++
-			if u.Role == "super_admin" || u.Role == "admin" || u.Role == "staff" {
+			rLower := strings.ToLower(u.Role)
+			if rLower == "super_admin" || rLower == "admin" || rLower == "staff" || rLower == "support" || rLower == "developer" || rLower == "finance" || rLower == "auditor" || rLower == "employer" {
 				staffUsers++
-			} else if u.Role == "vendor" {
+			} else if rLower == "vendor" || rLower == "supplier" || rLower == "warehouse_keeper" || rLower == "sales_rep" || rLower == "driver" {
 				vendorUsers++
 			} else {
 				customerUsers++
@@ -193,19 +198,63 @@ func (h *UIHandler) AdminUsersPage(w http.ResponseWriter, r *http.Request) {
 			}
 		}
 
-		list, _ := h.idSvc.AdminListUsers(sysCtx, roleFilter, searchQuery)
-		for _, u := range list {
+		for _, u := range allUsers {
 			if u == nil {
 				continue
 			}
 			if statusFilter != "" && string(u.Status) != statusFilter {
 				continue
 			}
+			if roleFilter != "" {
+				rLower := strings.ToLower(u.Role)
+				switch strings.ToLower(roleFilter) {
+				case "customer", "pharmacy", "pharmacies":
+					if rLower != "customer" && rLower != "pharmacy" && rLower != "individual" && rLower != "pharmacist" && rLower != "buyer" && rLower != "pharmacist_assistant" {
+						continue
+					}
+				case "vendor", "supplier", "suppliers", "vendors":
+					if rLower != "vendor" && rLower != "supplier" && rLower != "warehouse_keeper" && rLower != "sales_rep" && rLower != "driver" {
+						continue
+					}
+				case "staff", "admin", "admins", "super_admin":
+					if rLower != "super_admin" && rLower != "admin" && rLower != "staff" && rLower != "support" && rLower != "developer" && rLower != "finance" && rLower != "auditor" && rLower != "employer" {
+						continue
+					}
+				case "new":
+					if time.Since(u.CreatedAt) > 30*24*time.Hour {
+						continue
+					}
+				default:
+					if !strings.EqualFold(u.Role, roleFilter) {
+						continue
+					}
+				}
+			}
+			if searchQuery != "" {
+				qLower := strings.ToLower(searchQuery)
+				nameAr := strings.ToLower(u.Name.Get("ar"))
+				nameEn := strings.ToLower(u.Name.Get("en"))
+				email := strings.ToLower(u.Email)
+				phone := strings.ToLower(u.Phone)
+				role := strings.ToLower(u.Role)
+				idStr := fmt.Sprintf("%d", u.ID)
+				usrStr := fmt.Sprintf("usr-%d", u.ID)
+				if !strings.Contains(nameAr, qLower) &&
+					!strings.Contains(nameEn, qLower) &&
+					!strings.Contains(email, qLower) &&
+					!strings.Contains(phone, qLower) &&
+					!strings.Contains(role, qLower) &&
+					!strings.Contains(idStr, qLower) &&
+					!strings.Contains(usrStr, qLower) {
+					continue
+				}
+			}
 			users = append(users, u)
 		}
 
 		deletionRequests, _ = h.idSvc.AdminListDeletionRequests(sysCtx, "")
 	}
+
 
 	data := pages.AdminUsersPageData{
 		Users:            users,
@@ -1957,6 +2006,12 @@ func (h *UIHandler) AdminPlanSubmit(w http.ResponseWriter, r *http.Request) {
 	if r.PostFormValue("feature_analytics") == "1" || r.PostFormValue("feature_analytics") == "true" {
 		features["analytics"] = "true"
 	}
+	maxCompareFiles := strings.TrimSpace(r.PostFormValue("max_compare_files"))
+	if maxCompareFiles != "" {
+		features[billing.FeatureMaxCompareFiles] = maxCompareFiles
+	} else {
+		features[billing.FeatureMaxCompareFiles] = "10"
+	}
 
 	p := &billing.Plan{
 		Slug:             slug,
@@ -2026,6 +2081,12 @@ func (h *UIHandler) AdminPlanUpdateSubmit(w http.ResponseWriter, r *http.Request
 	}
 	if r.PostFormValue("feature_analytics") == "1" {
 		features["analytics"] = "true"
+	}
+	maxCompareFilesUpdate := strings.TrimSpace(r.PostFormValue("max_compare_files"))
+	if maxCompareFilesUpdate != "" {
+		features[billing.FeatureMaxCompareFiles] = maxCompareFilesUpdate
+	} else {
+		features[billing.FeatureMaxCompareFiles] = "10"
 	}
 
 	p := &billing.Plan{

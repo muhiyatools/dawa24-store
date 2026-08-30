@@ -125,6 +125,7 @@ func (h *UIHandler) registerAdminWarehouseRoutes(r chi.Router) {
 		g.Use(authctx.RequirePagePermission("inventory.temp_warehouse.view"))
 		g.Get("/admin/temporary-warehouses", h.AdminTempWarehousesPage)
 		g.Get("/admin/temporary-warehouses/{id}/items-json", h.AdminTempWarehouseItemsJSON)
+		g.Get("/admin/temporary-warehouses/{id}/mapping-json", h.AdminTempWarehouseMappingJSON)
 		g.Get("/admin/temporary-warehouses/{id}/export", h.AdminTempWarehouseExportXLSX)
 		g.Get("/admin/user/temparte-warehouses", h.AdminTempWarehousesPage)
 		g.Get("/admin/user/temparte-warehouses/{id}", h.AdminTempWarehousesPage)
@@ -139,6 +140,7 @@ func (h *UIHandler) registerAdminWarehouseRoutes(r chi.Router) {
 		g.Use(authctx.RequirePagePermission("inventory.warehouse.update"))
 		g.Post("/admin/temporary-warehouses/upload", h.AdminTempWarehouseUploadSubmit)
 		g.Post("/admin/user/temparte-warehouses/upload", h.AdminTempWarehouseUploadSubmit)
+		g.Post("/admin/temporary-warehouses/{id}/mapping", h.AdminTempWarehouseMappingSubmit)
 		g.Post("/admin/temporary-warehouses/{id}/toggle-archive", h.AdminTempWarehouseToggleArchiveSubmit)
 	})
 

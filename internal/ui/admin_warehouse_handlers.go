@@ -8,6 +8,8 @@ import (
 	"math"
 	"mime/multipart"
 	"net/http"
+	"net/url"
+	"os"
 	"path/filepath"
 	"runtime"
 	"strconv"
@@ -548,11 +550,29 @@ func cleanSupplierNameFromFilename(filename string) string {
 }
 
 type tempWarehouseUploadResult struct {
+	ID           int64  `json:"id"`
 	Filename     string `json:"filename"`
 	SupplierName string `json:"supplier_name"`
 	RowCount     int    `json:"row_count"`
 	Success      bool   `json:"success"`
 	Error        string `json:"error,omitempty"`
+}
+
+func resolveStoragePath(storageKey, category string) string {
+	cleanKey := strings.TrimPrefix(filepath.FromSlash(storageKey), string(filepath.Separator))
+	candidates := []string{
+		storageKey,
+		filepath.Join(UploadBaseDir, category, filepath.Base(storageKey)),
+		filepath.Join(UploadBaseDir, filepath.FromSlash(strings.TrimPrefix(storageKey, "/uploads/"))),
+		filepath.Join("data", "uploads", category, filepath.Base(storageKey)),
+		filepath.Join("data", cleanKey),
+	}
+	for _, c := range candidates {
+		if _, err := os.Stat(c); err == nil {
+			return c
+		}
+	}
+	return ""
 }
 
 // processSingleTempWarehouseFile handles parsing and inserting a single file in memory.
@@ -588,12 +608,19 @@ func (h *UIHandler) processSingleTempWarehouseFile(
 		supplierName = cleanSupplierNameFromFilename(fh.Filename)
 	}
 
+	// Persist uploaded bytes to disk so mapping can be readjusted anytime
+	localURL, _ := saveUploadedBytes(fileBytes, fh.Filename, "temp_warehouses")
+	storageKey := localURL
+	if storageKey == "" {
+		storageKey = fmt.Sprintf("temp_warehouses/%d_%s", time.Now().UnixNano(), filepath.Base(fh.Filename))
+	}
+
 	compareFile := &compare.CompareFile{
 		UserID:           userID,
 		OrganizationID:   orgID,
 		SupplierName:     supplierName,
 		OriginalFilename: fh.Filename,
-		StorageKey:       fmt.Sprintf("temp_warehouses/%d_%s", time.Now().UnixNano(), filepath.Base(fh.Filename)),
+		StorageKey:       storageKey,
 		MIMEType:         "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
 		SizeBytes:        int64(len(fileBytes)),
 		Status:           compare.FileReady,
@@ -673,6 +700,7 @@ func (h *UIHandler) processSingleTempWarehouseFile(
 	_ = h.compareSvc.UpdateFile(database.AsSystem(ctx), compareFile)
 
 	return tempWarehouseUploadResult{
+		ID:           compareFile.ID,
 		Filename:     fh.Filename,
 		SupplierName: supplierName,
 		RowCount:     len(fileRows),
@@ -680,7 +708,7 @@ func (h *UIHandler) processSingleTempWarehouseFile(
 	}
 }
 
-// AdminTempWarehouseUploadSubmit handles bulk and single file upload (optimized for 60+ files in parallel).
+// AdminTempWarehouseUploadSubmit handles bulk and single file upload (optimized for 60-100+ files in parallel).
 func (h *UIHandler) AdminTempWarehouseUploadSubmit(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
@@ -802,11 +830,15 @@ func (h *UIHandler) AdminTempWarehouseUploadSubmit(w http.ResponseWriter, r *htt
 	failCount := 0
 	totalRows := int64(0)
 	var errorMessages []string
+	var uploadedIDs []string
 
 	for _, res := range results {
 		if res.Success {
 			successCount++
 			totalRows += int64(res.RowCount)
+			if res.ID > 0 {
+				uploadedIDs = append(uploadedIDs, strconv.FormatInt(res.ID, 10))
+			}
 		} else {
 			failCount++
 			if res.Error != "" {
@@ -823,6 +855,8 @@ func (h *UIHandler) AdminTempWarehouseUploadSubmit(w http.ResponseWriter, r *htt
 			"successful_files": successCount,
 			"failed_files":     failCount,
 			"total_items":      totalRows,
+			"uploaded_ids":     uploadedIDs,
+			"setup_queue":      strings.Join(uploadedIDs, ","),
 			"results":          results,
 			"errors":           errorMessages,
 			"message":          fmt.Sprintf("تم بنجاح رفع ومعالجة %d من أصل %d ملف مستودع بإجمالي %d صنف متاح في خصومات ومقارنات السوق.", successCount, len(fileHeaders), totalRows),
@@ -840,6 +874,242 @@ func (h *UIHandler) AdminTempWarehouseUploadSubmit(w http.ResponseWriter, r *htt
 		successMsg += fmt.Sprintf(" (فشل %d ملف)", failCount)
 	}
 	h.redirectWithNotice(w, r, "/admin/user/temparte-warehouses", "success", successMsg)
+}
+
+// AdminTempWarehouseMappingJSON returns headers and preview rows for a temporary warehouse file.
+func (h *UIHandler) AdminTempWarehouseMappingJSON(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	idStr := chi.URLParam(r, "id")
+	fileID, err := strconv.ParseInt(idStr, 10, 64)
+	if err != nil || fileID <= 0 {
+		w.Header().Set("Content-Type", "application/json; charset=utf-8")
+		w.WriteHeader(http.StatusBadRequest)
+		_ = json.NewEncoder(w).Encode(map[string]any{"success": false, "error": "معرف المستودع غير صحيح"})
+		return
+	}
+
+	file, err := h.compareSvc.GetFile(database.AsSystem(ctx), fileID)
+	if err != nil || file == nil {
+		w.Header().Set("Content-Type", "application/json; charset=utf-8")
+		w.WriteHeader(http.StatusNotFound)
+		_ = json.NewEncoder(w).Encode(map[string]any{"success": false, "error": "المستودع غير موجود"})
+		return
+	}
+
+	headers, preview := h.loadFileHeadersAndPreview(database.AsSystem(ctx), file)
+	codeCol := -1
+	if file.MappingConfig.CodeCol != nil {
+		codeCol = *file.MappingConfig.CodeCol
+	}
+	nameCol := -1
+	if file.MappingConfig.NameCol != nil {
+		nameCol = *file.MappingConfig.NameCol
+	}
+	priceCol := -1
+	if file.MappingConfig.PriceCol != nil {
+		priceCol = *file.MappingConfig.PriceCol
+	}
+	discountCol := -1
+	if file.MappingConfig.DiscountCol != nil {
+		discountCol = *file.MappingConfig.DiscountCol
+	}
+
+	if (codeCol < 0 || nameCol < 0 || priceCol < 0 || discountCol < 0) && len(headers) > 0 {
+		c, n, p, d := detectTempWarehouseCols(headers, "", "", "", "")
+		if codeCol < 0 {
+			codeCol = c
+		}
+		if nameCol < 0 {
+			nameCol = n
+		}
+		if priceCol < 0 {
+			priceCol = p
+		}
+		if discountCol < 0 {
+			discountCol = d
+		}
+	}
+
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	_ = json.NewEncoder(w).Encode(map[string]any{
+		"success":           true,
+		"id":                file.ID,
+		"supplier_name":     file.SupplierName,
+		"original_filename": file.OriginalFilename,
+		"row_count":         file.RowCount,
+		"headers":           headers,
+		"preview":           preview,
+		"code_col":          codeCol,
+		"name_col":          nameCol,
+		"price_col":         priceCol,
+		"discount_col":      discountCol,
+	})
+}
+
+// AdminTempWarehouseMappingSubmit updates column mappings and reparses rows for a warehouse file.
+func (h *UIHandler) AdminTempWarehouseMappingSubmit(w http.ResponseWriter, r *http.Request) {
+	ctx := database.AsSystem(r.Context())
+	idStr := chi.URLParam(r, "id")
+	fileID, err := strconv.ParseInt(idStr, 10, 64)
+	if err != nil || fileID <= 0 {
+		if isJSONOrAJAX(r) {
+			w.Header().Set("Content-Type", "application/json; charset=utf-8")
+			w.WriteHeader(http.StatusBadRequest)
+			_ = json.NewEncoder(w).Encode(map[string]any{"success": false, "error": "معرف المستودع غير صحيح"})
+			return
+		}
+		h.redirectWithNotice(w, r, "/admin/user/temparte-warehouses", "error", "معرف المستودع غير صحيح.")
+		return
+	}
+
+	f, err := h.compareSvc.GetFile(ctx, fileID)
+	if err != nil || f == nil {
+		if isJSONOrAJAX(r) {
+			w.Header().Set("Content-Type", "application/json; charset=utf-8")
+			w.WriteHeader(http.StatusNotFound)
+			_ = json.NewEncoder(w).Encode(map[string]any{"success": false, "error": "المستودع غير موجود"})
+			return
+		}
+		h.redirectWithNotice(w, r, "/admin/user/temparte-warehouses", "error", "المستودع غير موجود.")
+		return
+	}
+
+	if newName := strings.TrimSpace(r.FormValue("supplier_name")); newName != "" && newName != f.SupplierName {
+		_ = h.compareSvc.RenameFile(ctx, fileID, newName)
+		f.SupplierName = newName
+	}
+
+	codeCol, nameCol, priceCol, discountCol := -1, -1, -1, -1
+	if s := r.FormValue("col_code"); s != "" {
+		if idx, err := strconv.Atoi(s); err == nil && idx >= 0 {
+			codeCol = idx
+			f.MappingConfig.CodeCol = &codeCol
+		}
+	}
+	if s := r.FormValue("col_name"); s != "" {
+		if idx, err := strconv.Atoi(s); err == nil && idx >= 0 {
+			nameCol = idx
+			f.MappingConfig.NameCol = &nameCol
+		}
+	}
+	if s := r.FormValue("col_price"); s != "" {
+		if idx, err := strconv.Atoi(s); err == nil && idx >= 0 {
+			priceCol = idx
+			f.MappingConfig.PriceCol = &priceCol
+		}
+	}
+	if s := r.FormValue("col_discount"); s != "" {
+		if idx, err := strconv.Atoi(s); err == nil && idx >= 0 {
+			discountCol = idx
+			f.MappingConfig.DiscountCol = &discountCol
+		}
+	}
+
+	// Try reading spreadsheet from storage path or upload candidates
+	var fileBytes []byte
+	storagePath := resolveStoragePath(f.StorageKey, "temp_warehouses")
+	if storagePath != "" {
+		fileBytes, _ = os.ReadFile(storagePath)
+	}
+
+	if len(fileBytes) > 0 {
+		rawRows, err := sheet.ReadRows(fileBytes, f.OriginalFilename)
+		if err == nil && len(rawRows) > 1 {
+			_ = h.compareSvc.DeleteFileRows(ctx, fileID)
+
+			fileRows := make([]*compare.CompareFileRow, 0, len(rawRows)-1)
+			for idx, row := range rawRows[1:] {
+				if len(row) == 0 {
+					continue
+				}
+				rawName := ""
+				if nameCol >= 0 && nameCol < len(row) {
+					rawName = strings.TrimSpace(row[nameCol])
+				}
+				if rawName == "" {
+					continue
+				}
+				sku := ""
+				if codeCol >= 0 && codeCol < len(row) {
+					sku = strings.TrimSpace(row[codeCol])
+				}
+				priceMinor := int64(0)
+				if priceCol >= 0 && priceCol < len(row) {
+					if p, err := parsePriceFloat(row[priceCol]); err == nil && p > 0 {
+						priceMinor = int64(math.Round(p * 100))
+					}
+				}
+				discountPct := 0.0
+				if discountCol >= 0 && discountCol < len(row) {
+					if d, err := parsePriceFloat(row[discountCol]); err == nil && d >= 0 {
+						discountPct = d
+						if discountPct > 100 {
+							discountPct = 100
+						}
+					}
+				}
+				priceMoney := money.FromMinor(priceMinor)
+				priceAfterMinor := int64(math.Round(float64(priceMinor) * (1.0 - (discountPct / 100.0))))
+				priceAfterMoney := money.FromMinor(priceAfterMinor)
+
+				fileRows = append(fileRows, &compare.CompareFileRow{
+					FileID:             f.ID,
+					OrganizationID:     f.OrganizationID,
+					RowNumber:          idx + 2,
+					RawName:            rawName,
+					NormalizedName:     strings.ToLower(rawName),
+					SKU:                sku,
+					Price:              priceMoney,
+					Discount:           discountPct,
+					PriceAfterDiscount: priceAfterMoney,
+				})
+			}
+			if len(fileRows) > 0 {
+				_ = h.compareSvc.InsertFileRows(ctx, fileRows)
+			}
+			f.RowCount = len(fileRows)
+		}
+	}
+
+	_ = h.compareSvc.UpdateFile(ctx, f)
+
+	queue := strings.TrimSpace(r.FormValue("setup_queue"))
+	step, _ := strconv.Atoi(r.FormValue("step"))
+	total, _ := strconv.Atoi(r.FormValue("total"))
+
+	var nextFileID int64
+	var nextQueue string
+	if queue != "" {
+		parts := strings.Split(queue, ",")
+		if len(parts) > 0 {
+			nextFileID, _ = strconv.ParseInt(strings.TrimSpace(parts[0]), 10, 64)
+			if len(parts) > 1 {
+				nextQueue = strings.Join(parts[1:], ",")
+			}
+		}
+	}
+
+	if isJSONOrAJAX(r) {
+		w.Header().Set("Content-Type", "application/json; charset=utf-8")
+		_ = json.NewEncoder(w).Encode(map[string]any{
+			"success":         true,
+			"row_count":       f.RowCount,
+			"next_file_id":    nextFileID,
+			"remaining_queue": nextQueue,
+			"step":            step + 1,
+			"total":           total,
+			"message":         fmt.Sprintf("تم تحديث أعمدة المستودع [%s] بنجاح (إجمالي %d صنف).", f.SupplierName, f.RowCount),
+		})
+		return
+	}
+
+	if nextFileID > 0 {
+		redirectURL := fmt.Sprintf("/admin/user/temparte-warehouses?setup_file=%d&setup_queue=%s&setup_step=%d&setup_total=%d&notice=success", nextFileID, url.QueryEscape(nextQueue), step+1, total)
+		http.Redirect(w, r, redirectURL, http.StatusSeeOther)
+		return
+	}
+
+	h.redirectWithNotice(w, r, "/admin/user/temparte-warehouses", "success", fmt.Sprintf("تم تحديث وتأكيد أعمدة المستودع [%s] بنجاح.", f.SupplierName))
 }
 
 func isJSONOrAJAX(r *http.Request) bool {
