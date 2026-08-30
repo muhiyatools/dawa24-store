@@ -417,6 +417,7 @@ func (h *UIHandler) AdminOrgReviewSubmit(w http.ResponseWriter, r *http.Request)
 				_ = h.attSvc.VerifyDocumentWithType(sysCtx, actor, d.ID, docTypeVal, attachments.StatusVerified, notes)
 			}
 		}
+		go h.provisionOrgAIAndSubscription(context.Background(), id)
 	}
 
 	msg := "تم اعتماد وتفعيل ترخيص المنشأة وتوثيق المستندات المرفقة بنجاح."
@@ -1074,6 +1075,11 @@ func (h *UIHandler) adminApprovalAction(
 		return
 	}
 
+	if !h.isHTMX(r) {
+		h.redirectWithNotice(w, r, "/admin/approvals", "success", "تم تحديث حالة المنشأة وتفعيل صلاحياتها بنجاح.")
+		return
+	}
+
 	pendingStatus := org.StatusPending
 	pending, err := h.orgSvc.ListOrganizations(ctx, nil, &pendingStatus, 50, 0)
 	if err != nil {
@@ -1309,7 +1315,7 @@ func (h *UIHandler) AdminOrgApproveSubmit(w http.ResponseWriter, r *http.Request
 		_ = h.orgSvc.ApproveOrganization(ctx, id)
 		go h.provisionOrgAIAndSubscription(context.Background(), id)
 	}
-	http.Redirect(w, r, "/admin/organizations", http.StatusSeeOther)
+	h.redirectWithNotice(w, r, "/admin/organizations", "success", "تم اعتماد وتفعيل حساب المنشأة بنجاح.")
 }
 
 func (h *UIHandler) getGatewayAdminClient(ctx context.Context) (*gateway.AdminClient, string, bool) {
@@ -1355,7 +1361,12 @@ func (h *UIHandler) provisionOrgAIAndSubscription(ctx context.Context, orgID int
 	}
 	sysCtx := database.AsSystem(ctx)
 
-	// The subscription comes first: it is what decides which Gateway plan — and
+	// 1. Ensure company starter roles & RBAC permissions are populated
+	if o, err := h.orgSvc.GetOrganization(sysCtx, orgID); err == nil && o != nil {
+		h.ensureCompanyRoles(sysCtx, orgID, string(o.Type))
+	}
+
+	// 2. The subscription comes first: it is what decides which Gateway plan — and
 	// therefore which quota — the identity below is created under.
 	if h.billSvc != nil {
 		if _, err := h.billSvc.AssignDefaultSubscription(sysCtx, 0, &orgID); err != nil {
@@ -1364,12 +1375,17 @@ func (h *UIHandler) provisionOrgAIAndSubscription(ctx context.Context, orgID int
 		}
 	}
 
-	if h.tenantKeys == nil {
-		return
+	// 3. AI Gateway key
+	if h.tenantKeys != nil {
+		if key := h.tenantKeys.Key(sysCtx, orgID); key == "" {
+			h.log.WarnContext(ctx, "organisation approved without a gateway identity",
+				"org_id", orgID)
+		}
 	}
-	if key := h.tenantKeys.Key(sysCtx, orgID); key == "" {
-		h.log.WarnContext(ctx, "organisation approved without a gateway identity",
-			"org_id", orgID)
+
+	// 4. Invalidate resolver cached grants so active sessions immediately see approval
+	if h.resolver != nil {
+		h.resolver.InvalidateAll()
 	}
 }
 

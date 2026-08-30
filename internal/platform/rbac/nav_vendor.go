@@ -137,8 +137,11 @@ func vendorNav() []NavSection {
 			},
 		},
 		{
-			Key: "account", NameAr: "الحساب والأمان", NameEn: "Account & Security",
+			Key: "account", NameAr: "الحساب والتنبيهات", NameEn: "Account & Notifications",
 			Items: []NavItem{
+				{Key: "notifications", Href: "/notifications", Icon: "bell",
+					NameAr: "مركز الإشعارات والتنبيهات", NameEn: "Notifications",
+					Perm: "vendor.dashboard.view"},
 				{Key: "sessions", Href: "/vendor/sessions", Icon: "shield",
 					NameAr: "الأجهزة والجلسات النشطة", NameEn: "Active sessions",
 					Perm: "vendor.session.view"},

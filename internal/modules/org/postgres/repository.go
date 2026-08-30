@@ -2,6 +2,7 @@ package postgres
 
 import (
 	"context"
+	"fmt"
 	"math"
 
 	"github.com/jackc/pgx/v5"
@@ -171,13 +172,36 @@ func (r *Repository) UpdateSupplierProfile(ctx context.Context, p *org.SupplierO
 // UpdateOrganizationStatus modifies organization approval state.
 func (r *Repository) UpdateOrganizationStatus(ctx context.Context, id int64, status org.OrganizationStatus) error {
 	return r.db.InTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
-		query := `UPDATE org.organizations SET status = $1, updated_at = now() WHERE id = $2;`
+		query := `UPDATE org.organizations SET status = $1, approved_at = CASE WHEN $1 = 'approved' THEN NOW() ELSE approved_at END, updated_at = now() WHERE id = $2;`
 		tag, err := tx.Exec(txCtx, query, string(status), id)
 		if err != nil {
 			return err
 		}
 		if tag.RowsAffected() == 0 {
 			return apperr.NotFound("organization")
+		}
+
+		if status == org.StatusApproved {
+			_, _ = tx.Exec(txCtx, `
+				UPDATE identity.users u
+				SET status = 'active', updated_at = now()
+				FROM org.members m
+				WHERE m.user_id = u.id AND m.organization_id = $1 AND u.status != 'active';
+			`, id)
+
+			_, _ = tx.Exec(txCtx, `
+				UPDATE org.members
+				SET status = 'active', is_active = true, updated_at = now()
+				WHERE organization_id = $1 AND (status != 'active' OR is_active = false);
+			`, id)
+
+			_, _ = tx.Exec(txCtx, `
+				UPDATE platform_admin.documents
+				SET status = 'verified', updated_at = now()
+				WHERE organization_id = $1 AND status = 'pending';
+			`, id)
+
+			_, _ = tx.Exec(txCtx, `SELECT identity.bump_rbac_version($1);`, fmt.Sprintf("org:%d", id))
 		}
 		return nil
 	})
@@ -223,6 +247,29 @@ func (r *Repository) ReviewOrganization(ctx context.Context, id int64, status or
 		}
 		if tag.RowsAffected() == 0 {
 			return apperr.NotFound("organization")
+		}
+
+		if status == org.StatusApproved {
+			_, _ = tx.Exec(txCtx, `
+				UPDATE identity.users u
+				SET status = 'active', updated_at = now()
+				FROM org.members m
+				WHERE m.user_id = u.id AND m.organization_id = $1 AND u.status != 'active';
+			`, id)
+
+			_, _ = tx.Exec(txCtx, `
+				UPDATE org.members
+				SET status = 'active', is_active = true, updated_at = now()
+				WHERE organization_id = $1 AND (status != 'active' OR is_active = false);
+			`, id)
+
+			_, _ = tx.Exec(txCtx, `
+				UPDATE platform_admin.documents
+				SET status = 'verified', updated_at = now()
+				WHERE organization_id = $1 AND status = 'pending';
+			`, id)
+
+			_, _ = tx.Exec(txCtx, `SELECT identity.bump_rbac_version($1);`, fmt.Sprintf("org:%d", id))
 		}
 		return nil
 	})

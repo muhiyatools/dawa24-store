@@ -122,15 +122,17 @@ func loadPlatformSide(ctx context.Context, tx pgx.Tx, g *Grant) error {
 // role is the correct answer for them.
 func loadMembership(ctx context.Context, tx pgx.Tx, g *Grant) error {
 	var (
-		roleID   *int64
-		roleKey  string
-		roleName []byte
-		isOwner  bool
-		orgType  string
+		roleID    *int64
+		roleKey   string
+		roleName  []byte
+		isOwner   bool
+		orgType   string
+		orgStatus string
 	)
 	err := tx.QueryRow(ctx, `
 		SELECT m.role_key,
 		       o.type,
+		       o.status,
 		       r.id, r.name, r.is_owner
 		  FROM org.members m
 		  JOIN org.organizations o ON o.id = m.organization_id
@@ -149,7 +151,7 @@ func loadMembership(ctx context.Context, tx pgx.Tx, g *Grant) error {
 		   AND m.status = 'active'
 		   AND m.is_active = true
 		   AND o.deleted_at IS NULL;
-	`, g.UserID, g.OrganizationID).Scan(&roleKey, &orgType, &roleID, &roleName, &isOwner)
+	`, g.UserID, g.OrganizationID).Scan(&roleKey, &orgType, &orgStatus, &roleID, &roleName, &isOwner)
 	if err == pgx.ErrNoRows {
 		// Not a member of the organization they asked about. Nothing is
 		// granted for it — including to a staff user, whose authority over a
@@ -165,6 +167,7 @@ func loadMembership(ctx context.Context, tx pgx.Tx, g *Grant) error {
 	// undid the normalization login performs, and every consumer that compares
 	// against "vendor" then silently took the wrong branch.
 	g.OrgType = NormalizeOrgType(orgType)
+	g.OrgStatus = orgStatus
 	g.MemberRoleKey = roleKey
 	if scope, ok := TenantScopeFor(orgType); ok {
 		g.Scope = scope

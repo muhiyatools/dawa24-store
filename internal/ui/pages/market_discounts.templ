@@ -150,7 +150,7 @@ templ MarketDiscountsPage(lang, dir string, actor authctx.Actor, result *compare
 					</div>
 
 					<!-- Collapsible Advanced Range Filters -->
-					<div x-show="showMoreFilters" x-cloak x-transition.opacity class="pt-3 border-t d-grid grid-cols-2 gap-4">
+					<div x-show="showMoreFilters" x-cloak x-transition.opacity class="pt-3 border-t" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1rem;">
 						<!-- Price Range -->
 						<div>
 							<label class="form-label text-xs font-bold text-secondary mb-1 d-block">
@@ -222,7 +222,7 @@ templ MarketDiscountsPage(lang, dir string, actor authctx.Actor, result *compare
 				</div>
 			} else {
 				<!-- 1. LIST VIEW -->
-				<div x-show="currentView === 'list'" class="d-flex flex-col gap-3">
+				<div x-show="currentView === 'list'" x-cloak style="display: flex; flex-direction: column; gap: 0.75rem;">
 					for _, item := range result.Items {
 						<div class="glass-panel p-4 flex-between items-center flex-wrap gap-4">
 							<!-- Right: Product Name & SKU -->
@@ -310,7 +310,7 @@ templ MarketDiscountsPage(lang, dir string, actor authctx.Actor, result *compare
 				</div>
 
 				<!-- 2. GRID VIEW -->
-				<div x-show="currentView === 'grid'" class="d-grid grid-auto-fit gap-4">
+				<div x-show="currentView === 'grid'" x-cloak style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1rem;">
 					for _, item := range result.Items {
 						<div class="glass-panel p-5 d-flex flex-col justify-between gap-4">
 							<div>

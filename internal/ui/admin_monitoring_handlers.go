@@ -75,8 +75,21 @@ func (h *UIHandler) AdminFullNotificationsPage(w http.ResponseWriter, r *http.Re
 	ctx := r.Context()
 	lang, dir := h.localeAndDir(r)
 
+	userID, err := authctx.UserID(ctx)
+	if err != nil {
+		http.Redirect(w, r, "/auth/login?redirect=/admin/notifications", http.StatusSeeOther)
+		return
+	}
+
+	var logs []*notifications.NotificationLog
+	unread := 0
+	if h.notifSvc != nil {
+		logs, _ = h.notifSvc.ListUserNotifications(ctx, userID, 50, 0)
+		unread, _ = h.notifSvc.GetUnreadCount(ctx, userID)
+	}
+
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	if err := pages.AdminNotificationsPage(lang, dir).Render(ctx, w); err != nil {
+	if err := pages.Notifications(logs, unread, lang, dir, false).Render(ctx, w); err != nil {
 		h.log.ErrorContext(ctx, "render admin notifications", "error", err)
 	}
 }

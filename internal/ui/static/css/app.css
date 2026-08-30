@@ -16,11 +16,13 @@
 [x-cloak] *,
 .modal-overlay[x-cloak],
 .modal[x-cloak],
-.modal-backdrop[x-cloak] {
+.modal-backdrop[x-cloak],
+[style*="display: none"],
+[style*="display:none"],
+[hidden] {
   display: none !important;
-  opacity: 0 !important;
-  visibility: hidden !important;
-  pointer-events: none !important;
+  opacity: 0;
+  visibility: hidden;
 }
 
 dialog:not([open]) { display: none !important; }

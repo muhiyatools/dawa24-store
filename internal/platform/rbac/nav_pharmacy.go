@@ -74,8 +74,11 @@ func pharmacyNav() []NavSection {
 			},
 		},
 		{
-			Key: "account", NameAr: "الحساب والأمان", NameEn: "Account & Security",
+			Key: "account", NameAr: "الحساب والتنبيهات", NameEn: "Account & Notifications",
 			Items: []NavItem{
+				{Key: "notifications", Href: "/notifications", Icon: "bell",
+					NameAr: "مركز الإشعارات والتنبيهات", NameEn: "Notifications",
+					Perm: "pharmacy.dashboard.view"},
 				{Key: "ai_logs", Href: "/customer/ai-logs", Icon: "sparkles",
 					NameAr: "سجل استهلاك الذكاء الاصطناعي", NameEn: "AI usage log",
 					Perm: "pharmacy.ai_log.view"},

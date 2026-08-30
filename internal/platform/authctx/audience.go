@@ -160,10 +160,10 @@ func RequireApproved(log *slog.Logger) func(http.Handler) http.Handler {
 				return
 			}
 			switch actor.OrgStatus {
-			case "approved":
+			case "approved", "active", "verified":
 				next.ServeHTTP(w, r)
 				return
-			case "pending":
+			case "pending", "under_review":
 				http.Redirect(w, r, "/onboarding/pending", http.StatusFound)
 				return
 			case "rejected":

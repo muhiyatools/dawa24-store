@@ -541,8 +541,18 @@ func (h *UIHandler) PharmacyDashboardPage(w http.ResponseWriter, r *http.Request
 // OnboardingPendingPage renders the approval gate for pending/rejected orgs.
 func (h *UIHandler) OnboardingPendingPage(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
+	if actor, ok := authctx.From(ctx); ok {
+		if actor.IsStaff {
+			http.Redirect(w, r, "/admin/dashboard", http.StatusSeeOther)
+			return
+		}
+		if actor.OrgStatus == "approved" || actor.OrgStatus == "active" || actor.OrgStatus == "verified" {
+			http.Redirect(w, r, landingPathForActor(actor), http.StatusSeeOther)
+			return
+		}
+	}
 	lang, dir := h.localeAndDir(r)
-	rejected := r.URL.Query().Get("rejected") == "1"
+	rejected := r.URL.Query().Get("rejected") == "1" || r.URL.Query().Get("state") == "rejected"
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 	if err := pages.OnboardingPending(lang, dir, rejected).Render(ctx, w); err != nil {

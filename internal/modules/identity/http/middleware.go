@@ -139,6 +139,9 @@ func actorFor(ctx context.Context, resolver *rbac.Resolver, sess *identity.Sessi
 	if grant.OrgType != "" {
 		actor.OrgType = grant.OrgType
 	}
+	if grant.OrgStatus != "" {
+		actor.OrgStatus = grant.OrgStatus
+	}
 	actor.Grants(grant.Keys)
 	return actor
 }

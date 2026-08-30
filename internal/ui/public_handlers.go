@@ -447,7 +447,7 @@ func (h *UIHandler) RegisterSubmit(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// 2. Organization Registration (Customer / Pharmacy or Vendor / Supplier)
-	_, sess, _, err := h.idSvc.RegisterOrganization(ctx, identity.RegisterOrganizationInput{
+	_, sess, regResult, err := h.idSvc.RegisterOrganization(ctx, identity.RegisterOrganizationInput{
 		Email:    form.Email,
 		Password: password,
 		NameAr:   form.Name,
@@ -479,6 +479,10 @@ func (h *UIHandler) RegisterSubmit(w http.ResponseWriter, r *http.Request) {
 			h.log.ErrorContext(ctx, "render register page after error", "error", rerr)
 		}
 		return
+	}
+
+	if regResult != nil && regResult.OrganizationID > 0 {
+		h.ensureCompanyRoles(database.AsSystem(ctx), regResult.OrganizationID, form.AccountType)
 	}
 
 	if sess != nil {
@@ -536,9 +540,7 @@ func (h *UIHandler) OrgSwitchSubmit(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, landingPathForSession(sess), http.StatusSeeOther)
 }
 
-// landingPathForSession routes a fresh session to the right surface: the
-// platform admin dashboard for platform staff, the approval gate for a pending
-// or rejected organization, and the type's own dashboard otherwise.
+// landingPathForSession routes an authenticated session to their home surface.
 func landingPathForSession(sess *identity.Session) string {
 	if sess == nil {
 		return "/catalog"
@@ -548,10 +550,12 @@ func landingPathForSession(sess *identity.Session) string {
 	}
 
 	switch sess.OrgStatus {
-	case "pending":
+	case "pending", "under_review":
 		return "/onboarding/pending"
 	case "rejected":
 		return "/onboarding/pending?rejected=1"
+	case "suspended":
+		return "/onboarding/pending?state=suspended"
 	}
 	switch sess.OrgType {
 	case "vendor":
@@ -568,10 +572,12 @@ func landingPathForActor(actor authctx.Actor) string {
 		return "/admin/dashboard"
 	}
 	switch actor.OrgStatus {
-	case "pending":
+	case "pending", "under_review":
 		return "/onboarding/pending"
 	case "rejected":
 		return "/onboarding/pending?rejected=1"
+	case "suspended":
+		return "/onboarding/pending?state=suspended"
 	}
 	switch actor.OrgType {
 	case "vendor":

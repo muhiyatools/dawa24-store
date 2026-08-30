@@ -27,6 +27,8 @@ type Grant struct {
 	Scope Scope
 	// OrgType is the organization's type, empty for staff with no membership.
 	OrgType string
+	// OrgStatus is the organization's current approval status (pending, approved, suspended, rejected).
+	OrgStatus string
 	// MemberRoleKey and MemberRoleName describe the company role held.
 	MemberRoleKey  string
 	MemberRoleName string
