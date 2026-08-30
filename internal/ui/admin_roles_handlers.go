@@ -41,8 +41,8 @@ func (h *UIHandler) AdminRolesPage(w http.ResponseWriter, r *http.Request) {
 	view := pages.RolesView{
 		Scope:      rbac.ScopeAdmin,
 		BasePath:   "/admin/roles",
-		Title:      "الأدوار والصلاحيات",
-		Subtitle:   "أدوار مشرفي المنصة: ما الذي يراه كل مشرف وما الذي يستطيع تغييره.",
+		Title:      i18n.T(lang, "admin.roles.title"),
+		Subtitle:   i18n.T(lang, "admin.roles.subtitle"),
 		CanCreate:  actor.Can("identity.admin_role.update"),
 		CanEdit:    actor.Can("identity.admin_role.update"),
 		CanDelete:  actor.Can("identity.admin_role.delete"),
@@ -56,7 +56,7 @@ func (h *UIHandler) AdminRolesPage(w http.ResponseWriter, r *http.Request) {
 			Description: role.Description,
 			IsSystem:    role.IsSystem,
 			IsOwner:     role.IsOwner,
-			Badge:       staffBadge(role),
+			Badge:       staffBadge(role, lang),
 			GrantCount:  len(role.Permissions),
 			MemberCount: role.UserCount,
 		})
@@ -73,12 +73,12 @@ func (h *UIHandler) AdminRoleDetailPage(w http.ResponseWriter, r *http.Request) 
 	key := chi.URLParam(r, "key")
 
 	if h.idSvc == nil {
-		h.redirectWithNotice(w, r, "/admin/roles", "error", "خدمة الهوية غير متوفرة.")
+		h.redirectWithNotice(w, r, "/admin/roles", "error", i18n.T(lang, "admin.roles.id_service_unavailable"))
 		return
 	}
 	role, err := h.idSvc.GetPlatformRole(ctx, key)
 	if err != nil {
-		h.redirectWithNotice(w, r, "/admin/roles", "error", "الدور غير موجود.")
+		h.redirectWithNotice(w, r, "/admin/roles", "error", i18n.T(lang, "admin.roles.not_found"))
 		return
 	}
 
