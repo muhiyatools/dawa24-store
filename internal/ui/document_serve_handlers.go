@@ -14,6 +14,7 @@ import (
 	"github.com/muhiya/dawa24-store/internal/modules/attachments"
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/platform/database"
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/ui/pages"
 )
 
@@ -33,7 +34,7 @@ func (h *UIHandler) serveDocumentFile(w http.ResponseWriter, r *http.Request, do
 	lang, dir := h.localeAndDir(r)
 	actor, ok := authctx.From(ctx)
 	if !ok {
-		http.Error(w, "يجب تسجيل الدخول لعرض المستند", http.StatusUnauthorized)
+		http.Error(w, i18n.T(lang, "docs.serve.auth_required"), http.StatusUnauthorized)
 		return
 	}
 
@@ -43,19 +44,19 @@ func (h *UIHandler) serveDocumentFile(w http.ResponseWriter, r *http.Request, do
 	}
 	id, err := strconv.ParseInt(idStr, 10, 64)
 	if err != nil || id <= 0 {
-		http.Error(w, "معرف المستند غير صالح", http.StatusBadRequest)
+		http.Error(w, i18n.T(lang, "docs.serve.invalid_id"), http.StatusBadRequest)
 		return
 	}
 
 	if h.attSvc == nil {
-		http.Error(w, "خدمة المستندات غير متاحة", http.StatusServiceUnavailable)
+		http.Error(w, i18n.T(lang, "docs.serve.service_unavailable"), http.StatusServiceUnavailable)
 		return
 	}
 
 	sysCtx := database.AsSystem(ctx)
 	doc, err := h.attSvc.GetByIDAdmin(sysCtx, id)
 	if err != nil || doc == nil {
-		h.renderMissingDocError(w, r, nil, "المستند المطلوب غير مسجل بالنظام أو تم حذفه.", lang, dir)
+		h.renderMissingDocError(w, r, nil, i18n.T(lang, "docs.serve.not_found"), lang, dir)
 		return
 	}
 
@@ -73,7 +74,7 @@ func (h *UIHandler) serveDocumentFile(w http.ResponseWriter, r *http.Request, do
 			hasAccess = true
 		}
 		if !hasAccess {
-			http.Error(w, "ليس لديك صلاحية لعرض هذا المستند", http.StatusForbidden)
+			http.Error(w, i18n.T(lang, "docs.serve.access_forbidden"), http.StatusForbidden)
 			return
 		}
 	}
@@ -99,11 +100,6 @@ func (h *UIHandler) serveDocumentFile(w http.ResponseWriter, r *http.Request, do
 		}
 	}
 
-	// If it's a genuine public external URL (and NOT an internal localhost endpoint), redirect safely
-	if !isInternalURL && (strings.HasPrefix(rawURL, "http://") || strings.HasPrefix(rawURL, "https://")) {
-		http.Redirect(w, r, rawURL, http.StatusTemporaryRedirect)
-		return
-	}
 
 	for strings.HasPrefix(cleanKey, "/") {
 		cleanKey = strings.TrimPrefix(cleanKey, "/")
