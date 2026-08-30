@@ -164,6 +164,10 @@ func (h *UIHandler) VendorProductAddFromCatalogSubmit(w http.ResponseWriter, r *
 
 	priceStr := strings.TrimSpace(r.FormValue("price"))
 	costStr := strings.TrimSpace(r.FormValue("cost_price"))
+	costDiscStr := strings.TrimSpace(r.FormValue("cost_discount_percentage"))
+	if costDiscStr == "" {
+		costDiscStr = strings.TrimSpace(r.FormValue("cost_discount"))
+	}
 	discountStr := strings.TrimSpace(r.FormValue("discount"))
 	stockQty, _ := strconv.Atoi(strings.TrimSpace(r.FormValue("stock_qty")))
 	minQty, _ := strconv.Atoi(strings.TrimSpace(r.FormValue("min_order_qty")))
@@ -197,27 +201,40 @@ func (h *UIHandler) VendorProductAddFromCatalogSubmit(w http.ResponseWriter, r *
 	}
 
 	price, _ := money.Parse(priceStr)
-	cost, _ := money.Parse(costStr)
+	var cost *money.Amount
+	if costStr != "" {
+		if c, err := money.Parse(costStr); err == nil && c.IsPositive() {
+			cost = &c
+		}
+	}
+	costDiscount, _ := strconv.ParseFloat(costDiscStr, 64)
+	if costDiscount < 0 {
+		costDiscount = 0
+	} else if costDiscount > 100 {
+		costDiscount = 100
+	}
+
 	discount, _ := money.Parse(discountStr)
 	isNegotiable := r.FormValue("is_negotiable") == "true" || r.FormValue("is_negotiable") == "1"
 
 	variant := &catalog.ProductVariant{
-		OrganizationID: actor.OrganizationID,
-		ProductID:      productID,
-		Name:           i18n.New(nameAr, nameEn),
-		BatchNumber:    batch,
-		ExpiryDate:     expiryDate,
-		Price:          price,
-		CostPrice:      cost,
-		Discount:       discount,
-		StockQty:       stockQty,
-		MinOrderQty:    minQty,
-		BranchID:       branchID,
-		SKU:            sku,
-		Barcode:        barcode,
-		Unit:           unit,
-		IsNegotiable:   isNegotiable,
-		Status:         catalog.StatusActive,
+		OrganizationID:         actor.OrganizationID,
+		ProductID:              productID,
+		Name:                   i18n.New(nameAr, nameEn),
+		BatchNumber:            batch,
+		ExpiryDate:             expiryDate,
+		Price:                  price,
+		CostPrice:              cost,
+		CostDiscountPercentage: costDiscount,
+		Discount:               discount,
+		StockQty:               stockQty,
+		MinOrderQty:            minQty,
+		BranchID:               branchID,
+		SKU:                    sku,
+		Barcode:                barcode,
+		Unit:                   unit,
+		IsNegotiable:           isNegotiable,
+		Status:                 catalog.StatusActive,
 	}
 
 	if h.catSvc == nil {
@@ -294,9 +311,29 @@ func (h *UIHandler) VendorVariantUpdateSubmit(w http.ResponseWriter, r *http.Req
 		}
 	}
 	if cStr := strings.TrimSpace(r.FormValue("cost_price")); cStr != "" {
-		if c, err := money.Parse(cStr); err == nil {
-			existing.CostPrice = c
+		if c, err := money.Parse(cStr); err == nil && c.IsPositive() {
+			existing.CostPrice = &c
+		} else {
+			existing.CostPrice = nil
 		}
+	} else {
+		existing.CostPrice = nil
+	}
+	if cdStr := strings.TrimSpace(r.FormValue("cost_discount_percentage")); cdStr != "" {
+		if cd, err := strconv.ParseFloat(cdStr, 64); err == nil {
+			if cd < 0 {
+				cd = 0
+			} else if cd > 100 {
+				cd = 100
+			}
+			existing.CostDiscountPercentage = cd
+		}
+	} else if cdStr := strings.TrimSpace(r.FormValue("cost_discount")); cdStr != "" {
+		if cd, err := strconv.ParseFloat(cdStr, 64); err == nil {
+			existing.CostDiscountPercentage = cd
+		}
+	} else {
+		existing.CostDiscountPercentage = 0
 	}
 
 	if minQ, err := strconv.Atoi(strings.TrimSpace(r.FormValue("min_order_qty"))); err == nil && minQ > 0 {

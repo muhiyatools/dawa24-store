@@ -395,5 +395,13 @@ func (h *UIHandler) CustomerNegotiateOrderSubmit(w http.ResponseWriter, r *http.
 		return
 	}
 
+	if order != nil {
+		custOrgName := ""
+		if actor.OrganizationID > 0 {
+			custOrgName = h.resolveOrgName(ctx, actor.OrganizationID)
+		}
+		go h.notifyNegotiationOffer(context.Background(), vendorOrgID, custOrgName, order.OrderNumber, proposedPrice)
+	}
+
 	h.redirectWithNotice(w, r, fmt.Sprintf("/orders/%d", order.ID), "success", i18n.T(langOf(r), "customer.order.negotiate_success"))
 }

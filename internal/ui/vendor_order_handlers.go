@@ -160,9 +160,11 @@ func (h *UIHandler) VendorNegotiationAcceptSubmit(w http.ResponseWriter, r *http
 		if orderNum == "" {
 			orderNum = fmt.Sprintf("ORD-%d", order.ID)
 		}
-		go h.dispatchInAppNotification(context.Background(), order.CustomerID, nil,
-			fmt.Sprintf(i18n.T("ar", "vendor.orders.negotiation_accepted_title"), orderNum),
-			fmt.Sprintf(i18n.T("ar", "vendor.orders.negotiation_accepted_body"), vendorName))
+		var custOrgID int64
+		if order.OrganizationID != nil {
+			custOrgID = *order.OrganizationID
+		}
+		go h.notifyNegotiationDecision(context.Background(), order.CustomerID, custOrgID, vendorName, orderNum, true, "")
 	}
 
 	h.redirectWithNotice(w, r, "/vendor/orders", "success", i18n.T(langOf(r), "vendor.orders.negotiation_accepted_success"))
@@ -216,9 +218,11 @@ func (h *UIHandler) VendorNegotiationRejectSubmit(w http.ResponseWriter, r *http
 		if orderNum == "" {
 			orderNum = fmt.Sprintf("ORD-%d", order.ID)
 		}
-		go h.dispatchInAppNotification(context.Background(), order.CustomerID, nil,
-			fmt.Sprintf(i18n.T("ar", "vendor.orders.negotiation_rejected_title"), orderNum),
-			fmt.Sprintf(i18n.T("ar", "vendor.orders.negotiation_rejected_body"), vendorName, reason))
+		var custOrgID int64
+		if order.OrganizationID != nil {
+			custOrgID = *order.OrganizationID
+		}
+		go h.notifyNegotiationDecision(context.Background(), order.CustomerID, custOrgID, vendorName, orderNum, false, reason)
 	}
 
 	h.redirectWithNotice(w, r, "/vendor/orders", "success", i18n.T(langOf(r), "vendor.orders.negotiation_rejected_success"))

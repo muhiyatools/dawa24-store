@@ -52,21 +52,23 @@ func NewService(repo Repository, log *slog.Logger) *Service {
 
 // CheckoutLineItem represents an item to be purchased in an order.
 type CheckoutLineItem struct {
-	VendorOrgID       int64        `json:"vendor_org_id"`
-	ProductID         *int64       `json:"product_id,omitempty"`
-	ProductVariantID  *int64       `json:"product_variant_id,omitempty"`
-	ProductName       i18n.Text    `json:"product_name"`
-	VariantName       i18n.Text    `json:"variant_name,omitempty"`
-	SKU               string       `json:"sku,omitempty"`
-	OfferProductID    *int64       `json:"offer_product_id,omitempty"` // offer_product line sold under (063)
-	UnitPrice         money.Amount `json:"unit_price"`
-	Quantity          int          `json:"quantity"`
-	DiscountAmount    money.Amount `json:"discount_amount"`
-	ListPrice         money.Amount `json:"list_price,omitempty"`        // pre-discount strike price (063)
-	OriginalPrice     money.Amount `json:"original_price,omitempty"`    // legacy price snapshot (063)
-	OriginalDiscount  money.Amount `json:"original_discount,omitempty"` // legacy discount snapshot (063)
-	IsNegotiated      bool         `json:"is_negotiated"`
-	ProposedUnitPrice money.Amount `json:"proposed_unit_price,omitempty"`
+	VendorOrgID            int64         `json:"vendor_org_id"`
+	ProductID              *int64        `json:"product_id,omitempty"`
+	ProductVariantID       *int64        `json:"product_variant_id,omitempty"`
+	ProductName            i18n.Text     `json:"product_name"`
+	VariantName            i18n.Text     `json:"variant_name,omitempty"`
+	SKU                    string        `json:"sku,omitempty"`
+	OfferProductID         *int64        `json:"offer_product_id,omitempty"` // offer_product line sold under (063)
+	UnitPrice              money.Amount  `json:"unit_price"`
+	Quantity               int           `json:"quantity"`
+	DiscountAmount         money.Amount  `json:"discount_amount"`
+	CostPrice              *money.Amount `json:"cost_price,omitempty"`
+	CostDiscountPercentage float64       `json:"cost_discount_percentage"`
+	ListPrice              money.Amount  `json:"list_price,omitempty"`        // pre-discount strike price (063)
+	OriginalPrice          money.Amount  `json:"original_price,omitempty"`    // legacy price snapshot (063)
+	OriginalDiscount       money.Amount  `json:"original_discount,omitempty"` // legacy discount snapshot (063)
+	IsNegotiated           bool          `json:"is_negotiated"`
+	ProposedUnitPrice      money.Amount  `json:"proposed_unit_price,omitempty"`
 }
 
 // CheckoutInput contains all details required to finalize a purchase.
@@ -152,22 +154,24 @@ func (s *Service) Checkout(ctx context.Context, input CheckoutInput) (*Order, er
 		}
 
 		line := &OrderLine{
-			OrganizationID:    item.VendorOrgID,
-			ProductID:         item.ProductID,
-			ProductVariantID:  item.ProductVariantID,
-			ProductName:       item.ProductName,
-			VariantName:       item.VariantName,
-			SKU:               item.SKU,
-			OfferProductID:    item.OfferProductID,
-			UnitPrice:         item.UnitPrice,
-			Quantity:          item.Quantity,
-			DiscountAmount:    item.DiscountAmount,
-			TotalPrice:        lineTotal,
-			ListPrice:         item.ListPrice,
-			OriginalPrice:     item.OriginalPrice,
-			OriginalDiscount:  item.OriginalDiscount,
-			IsNegotiated:      item.IsNegotiated,
-			ProposedUnitPrice: item.ProposedUnitPrice,
+			OrganizationID:         item.VendorOrgID,
+			ProductID:              item.ProductID,
+			ProductVariantID:       item.ProductVariantID,
+			ProductName:            item.ProductName,
+			VariantName:            item.VariantName,
+			SKU:                    item.SKU,
+			OfferProductID:         item.OfferProductID,
+			UnitPrice:              item.UnitPrice,
+			Quantity:               item.Quantity,
+			DiscountAmount:         item.DiscountAmount,
+			TotalPrice:             lineTotal,
+			CostPrice:              item.CostPrice,
+			CostDiscountPercentage: item.CostDiscountPercentage,
+			ListPrice:              item.ListPrice,
+			OriginalPrice:          item.OriginalPrice,
+			OriginalDiscount:       item.OriginalDiscount,
+			IsNegotiated:           item.IsNegotiated,
+			ProposedUnitPrice:      item.ProposedUnitPrice,
 		}
 
 		vendorMap[item.VendorOrgID] = append(vendorMap[item.VendorOrgID], line)

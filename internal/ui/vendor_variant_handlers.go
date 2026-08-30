@@ -219,6 +219,10 @@ func (h *UIHandler) VendorVariantNewSubmit(w http.ResponseWriter, r *http.Reques
 	batch := r.PostFormValue("batch_number")
 	priceStr := r.PostFormValue("price")
 	costStr := r.PostFormValue("cost_price")
+	costDiscStr := r.PostFormValue("cost_discount_percentage")
+	if costDiscStr == "" {
+		costDiscStr = r.PostFormValue("cost_discount")
+	}
 	discountStr := r.PostFormValue("discount")
 	stockQty, _ := strconv.Atoi(r.PostFormValue("stock_qty"))
 	minQty, _ := strconv.Atoi(r.PostFormValue("min_order_qty"))
@@ -254,25 +258,38 @@ func (h *UIHandler) VendorVariantNewSubmit(w http.ResponseWriter, r *http.Reques
 	}
 
 	price, _ := money.Parse(priceStr)
-	cost, _ := money.Parse(costStr)
+	var cost *money.Amount
+	if costStr != "" {
+		if c, err := money.Parse(costStr); err == nil && c.IsPositive() {
+			cost = &c
+		}
+	}
+	costDiscount, _ := strconv.ParseFloat(costDiscStr, 64)
+	if costDiscount < 0 {
+		costDiscount = 0
+	} else if costDiscount > 100 {
+		costDiscount = 100
+	}
+
 	discount, _ := money.Parse(discountStr)
 	isNegotiable := r.PostFormValue("is_negotiable") == "true" || r.PostFormValue("is_negotiable") == "1"
 
 	variant := &catalog.ProductVariant{
-		OrganizationID: actor.OrganizationID,
-		ProductID:      prodID,
-		Name:           i18n.New(nameAr, nameEn),
-		BatchNumber:    batch,
-		ExpiryDate:     expiryDate,
-		Price:          price,
-		CostPrice:      cost,
-		Discount:       discount,
-		StockQty:       stockQty,
-		MinOrderQty:    minQty,
-		BranchID:       branchID,
-		SKU:            sku,
-		IsNegotiable:   isNegotiable,
-		Status:         catalog.StatusActive,
+		OrganizationID:         actor.OrganizationID,
+		ProductID:              prodID,
+		Name:                   i18n.New(nameAr, nameEn),
+		BatchNumber:            batch,
+		ExpiryDate:             expiryDate,
+		Price:                  price,
+		CostPrice:              cost,
+		CostDiscountPercentage: costDiscount,
+		Discount:               discount,
+		StockQty:               stockQty,
+		MinOrderQty:            minQty,
+		BranchID:               branchID,
+		SKU:                    sku,
+		IsNegotiable:           isNegotiable,
+		Status:                 catalog.StatusActive,
 	}
 
 	if h.catSvc == nil {

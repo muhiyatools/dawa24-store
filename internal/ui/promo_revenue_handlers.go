@@ -371,17 +371,6 @@ func (h *UIHandler) AdminAdRejectSubmit(w http.ResponseWriter, r *http.Request) 
 		go h.notifyAdStatus(context.Background(), ad.OrganizationID, adTitle, false, notes)
 	}
 	h.redirectWithNotice(w, r, "/admin/offers-packages?tab=ads", "success", i18n.T(langOf(r), "admin.promo.ad_rejected_success"))
-	if err != nil || id <= 0 {
-		http.Redirect(w, r, "/admin/offers-packages?tab=ads", http.StatusSeeOther)
-		return
-	}
-	sysCtx := database.AsSystem(ctx)
-	notes := r.PostFormValue("notes")
-	if err := h.promoSvc.AdminRejectAd(sysCtx, id, notes); err != nil {
-		h.redirectWithNotice(w, r, "/admin/offers-packages?tab=ads", "error", h.safeMessage(err, langOf(r)))
-		return
-	}
-	h.redirectWithNotice(w, r, "/admin/offers-packages?tab=ads", "success", i18n.T(langOf(r), "admin.promo.ad_rejected_success"))
 }
 
 // AdminOfferPackageCreateSubmit creates a new monetization / sponsorship package.
