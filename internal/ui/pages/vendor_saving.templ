@@ -16,6 +16,7 @@ type VendorSavingPageData struct {
 	FilterStatus string
 	NoticeType   string
 	NoticeMsg    string
+	Pagination   components.PaginationProps
 }
 
 func savingFilterBorder(current, target string) string {
@@ -358,6 +359,9 @@ templ VendorSavingProductsPage(data VendorSavingPageData, lang, dir string) {
 							</tbody>
 						</table>
 					</div>
+					if data.Pagination.TotalCount > 0 {
+						@components.B2BPagination(data.Pagination)
+					}
 				}
 			</div>
 

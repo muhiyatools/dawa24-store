@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 )
 
 // Whether the vendor import may offer its AI switch.
@@ -16,26 +17,26 @@ import (
 // None of the checks calls the Gateway. Rendering a settings page must not wait
 // on a network round trip to the service that may itself be the thing that is
 // down.
-func (h *UIHandler) vendorImportAIState(ctx context.Context) (bool, string) {
+func (h *UIHandler) vendorImportAIState(ctx context.Context, lang string) (bool, string) {
 	if h.ingSvc == nil || !h.ingSvc.AIAvailable() {
-		return false, "المطابقة الذكية غير مفعّلة على هذه المنصة."
+		return false, i18n.T(lang, "vendor.ingest.ai_not_enabled")
 	}
 	if h.aiClient == nil || !h.aiClient.Enabled() {
-		return false, "بوابة الذكاء الاصطناعي متوقفة حالياً. ستعمل المطابقة الحتمية وحدها."
+		return false, i18n.T(lang, "vendor.ingest.ai_gateway_down")
 	}
 	actor, ok := authctx.From(ctx)
 	if !ok || actor.OrganizationID <= 0 {
-		return false, "المطابقة الذكية متاحة لأعضاء المؤسسات فقط."
+		return false, i18n.T(lang, "vendor.ingest.ai_members_only")
 	}
 	if h.orgSvc == nil {
-		return false, "تعذّر التحقق من اشتراك مؤسستك في خدمات الذكاء الاصطناعي."
+		return false, i18n.T(lang, "vendor.ingest.ai_check_failed")
 	}
 	org, err := h.orgSvc.GetOrganization(ctx, actor.OrganizationID)
 	if err != nil || org == nil {
-		return false, "تعذّر التحقق من اشتراك مؤسستك في خدمات الذكاء الاصطناعي."
+		return false, i18n.T(lang, "vendor.ingest.ai_check_failed")
 	}
 	if org.AIVirtualKey == "" {
-		return false, "لم يتم تفعيل الذكاء الاصطناعي لمؤسستك بعد. تواصل مع الإدارة لتفعيله."
+		return false, i18n.T(lang, "vendor.ingest.ai_not_activated")
 	}
 	return true, ""
 }

@@ -18,6 +18,7 @@ type CustomerSavingPageData struct {
 	FilterStatus string
 	NoticeType   string
 	NoticeMsg    string
+	Pagination   components.PaginationProps
 }
 
 // CustomerSavingProductsPage renders customer saving products workspace and best supplier price delta tracker.
@@ -303,6 +304,9 @@ templ CustomerSavingProductsPage(data CustomerSavingPageData, lang, dir string) 
 							</tbody>
 						</table>
 					</div>
+					if data.Pagination.TotalCount > 0 {
+						@components.B2BPagination(data.Pagination)
+					}
 				}
 			</div>
 

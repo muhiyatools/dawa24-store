@@ -13,6 +13,7 @@ import (
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/shared/money"
+	"github.com/muhiya/dawa24-store/internal/ui/components"
 	"github.com/muhiya/dawa24-store/internal/ui/pages"
 )
 
@@ -39,8 +40,15 @@ func (h *UIHandler) CustomerSavingProductsPage(w http.ResponseWriter, r *http.Re
 	var items []*catalog.SavingProductEnriched
 	var stats *catalog.SavingProductStats
 
+	limit := h.pageLimit(r)
+	page, _ := strconv.Atoi(r.URL.Query().Get("page"))
+	if page < 1 {
+		page = 1
+	}
+	offset := (page - 1) * limit
+
 	if h.catSvc != nil {
-		it, st, err := h.catSvc.ListSavingProductsEnriched(ctx, actor.OrganizationID, search, filter, 500, 0)
+		it, st, err := h.catSvc.ListSavingProductsEnriched(ctx, actor.OrganizationID, search, filter, limit, offset)
 		if err == nil {
 			items = it
 			stats = st
@@ -63,6 +71,13 @@ func (h *UIHandler) CustomerSavingProductsPage(w http.ResponseWriter, r *http.Re
 		FilterStatus: filter,
 		NoticeType:   noticeType,
 		NoticeMsg:    noticeMsg,
+		Pagination: components.PaginationProps{
+			CurrentPage: page,
+			PageSize:    limit,
+			TotalCount:  stats.CountAll,
+			BaseURL:     "/customer/saving-products",
+			QueryValues: r.URL.Query(),
+		},
 	}
 
 	h.renderPage(ctx, w, "render customer saving products", pages.CustomerSavingProductsPage(pageData, lang, dir))

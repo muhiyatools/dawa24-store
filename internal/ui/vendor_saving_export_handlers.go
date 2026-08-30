@@ -18,6 +18,7 @@ import (
 // VendorSavingProductsExport streams an Excel spreadsheet of all saving products.
 func (h *UIHandler) VendorSavingProductsExport(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
+	lang, _ := h.localeAndDir(r)
 	actor, ok := authctx.From(ctx)
 	if !ok || actor.OrganizationID <= 0 {
 		http.Redirect(w, r, "/auth/login?redirect=/vendor/saving-products", http.StatusSeeOther)
@@ -42,15 +43,15 @@ func (h *UIHandler) VendorSavingProductsExport(w http.ResponseWriter, r *http.Re
 	})
 
 	headers := []string{
-		"معرف الصنف (ID)",
-		"اسم صنف المنظمة",
-		"كود SKU",
-		"الكمية",
-		"سعر الوحدة (ج.م)",
-		"القيمة الإجمالية (ج.م)",
-		"معرف صنف الكتالوج (ProductID)",
-		"اسم الصنف المرتبط بالكتالوج",
-		"عدد المنظمات الموفرة",
+		i18n.T(lang, "customer.saving.export_col_id"),
+		i18n.T(lang, "vendor.saving.export_col_name"),
+		i18n.T(lang, "customer.saving.export_col_sku"),
+		i18n.T(lang, "customer.saving.export_col_qty"),
+		i18n.T(lang, "vendor.saving.export_col_price"),
+		i18n.T(lang, "customer.saving.export_col_total"),
+		i18n.T(lang, "customer.saving.export_col_product_id"),
+		i18n.T(lang, "customer.saving.export_col_linked_name"),
+		i18n.T(lang, "vendor.saving.export_col_orgs"),
 	}
 
 	for colIdx, header := range headers {
@@ -69,11 +70,11 @@ func (h *UIHandler) VendorSavingProductsExport(w http.ResponseWriter, r *http.Re
 
 		if it.ProductID != nil && *it.ProductID > 0 {
 			_ = f.SetCellValue(sheet, fmt.Sprintf("G%d", rNum), *it.ProductID)
-			_ = f.SetCellValue(sheet, fmt.Sprintf("H%d", rNum), it.LinkedProductName.Get(i18n.AR))
+			_ = f.SetCellValue(sheet, fmt.Sprintf("H%d", rNum), it.LinkedProductName.Get(i18n.ParseLang(lang)))
 			_ = f.SetCellValue(sheet, fmt.Sprintf("I%d", rNum), it.ProvidingOrgsCount)
 		} else {
 			_ = f.SetCellValue(sheet, fmt.Sprintf("G%d", rNum), "")
-			_ = f.SetCellValue(sheet, fmt.Sprintf("H%d", rNum), "غير مرتبط")
+			_ = f.SetCellValue(sheet, fmt.Sprintf("H%d", rNum), i18n.T(lang, "customer.saving.not_linked"))
 			_ = f.SetCellValue(sheet, fmt.Sprintf("I%d", rNum), 0)
 		}
 	}
@@ -127,15 +128,15 @@ func (h *UIHandler) VendorSavingProductProvidersJSON(w http.ResponseWriter, r *h
 	for _, p := range providers {
 		res = append(res, jsonProvider{
 			OrgID:              p.OrgID,
-			OrgName:            p.OrgName.Get(i18n.AR),
-			VariantName:        p.VariantName.Get(i18n.AR),
+			OrgName:            p.OrgName.Get(i18n.ParseLang(langOf(r))),
+			VariantName:        p.VariantName.Get(i18n.ParseLang(langOf(r))),
 			SKU:                p.SKU,
 			Unit:               p.Unit,
 			Price:              p.Price.String(),
 			Discount:           p.Discount.String(),
 			PriceAfterDiscount: p.PriceAfterDiscount.String(),
 			StockQuantity:      p.StockQuantity,
-			BranchName:         p.BranchName.Get(i18n.AR),
+			BranchName:         p.BranchName.Get(i18n.ParseLang(langOf(r))),
 		})
 	}
 
@@ -173,7 +174,7 @@ func (h *UIHandler) VendorSavingProductSearchJSON(w http.ResponseWriter, r *http
 		})
 		if err == nil {
 			for _, p := range products {
-				name := p.Name.Get(i18n.AR)
+				name := p.Name.Get(i18n.ParseLang(langOf(r)))
 				if name == "" {
 					name = p.Name.Get(i18n.EN)
 				}

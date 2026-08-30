@@ -73,7 +73,7 @@ func (h *UIHandler) VendorIngestSessionPage(w http.ResponseWriter, r *http.Reque
 		NoticeType:    r.URL.Query().Get("notice"),
 		NoticeMessage: r.URL.Query().Get("msg"),
 	}
-	view.AIAvailable, view.AIUnavailableReason = h.vendorImportAIState(ctx)
+	view.AIAvailable, view.AIUnavailableReason = h.vendorImportAIState(ctx, langOf(r))
 
 	switch {
 	case session.Phase.Terminal():

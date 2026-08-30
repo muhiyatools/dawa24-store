@@ -151,7 +151,7 @@ func (h *UIHandler) VendorBranchNewSubmit(w http.ResponseWriter, r *http.Request
 		}
 	}
 
-	h.redirectWithNotice(w, r, "/vendor/branches", "success", "تم إضافة الفرع ونقطة التوزيع بنجاح.")
+	h.redirectWithNotice(w, r, "/vendor/branches", "success", i18n.T(langOf(r), "vendor.branch.create_success"))
 }
 
 // VendorBranchEditPage redirects to the unified vendor branches page with edit mode preloaded.
@@ -175,18 +175,18 @@ func (h *UIHandler) VendorBranchEditSubmit(w http.ResponseWriter, r *http.Reques
 
 	branchID, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
 	if err != nil || branchID <= 0 {
-		h.redirectWithNotice(w, r, "/vendor/branches", "error", "معرف فرع غير صالح.")
+		h.redirectWithNotice(w, r, "/vendor/branches", "error", i18n.T(langOf(r), "vendor.branch.invalid_id"))
 		return
 	}
 
 	if h.orgSvc == nil {
-		h.redirectWithNotice(w, r, "/vendor/branches", "error", "خدمة المنظمة غير متوفرة.")
+		h.redirectWithNotice(w, r, "/vendor/branches", "error", i18n.T(langOf(r), "vendor.branch.org_service_unavailable"))
 		return
 	}
 
 	existing, err := h.orgSvc.GetBranch(ctx, branchID)
 	if err != nil || existing == nil || existing.OrganizationID != actor.OrganizationID {
-		h.redirectWithNotice(w, r, "/vendor/branches", "error", "الفرع غير موجود أو غير مصرح لك بتعديله.")
+		h.redirectWithNotice(w, r, "/vendor/branches", "error", i18n.T(langOf(r), "vendor.branch.not_found_edit"))
 		return
 	}
 
@@ -197,7 +197,7 @@ func (h *UIHandler) VendorBranchEditSubmit(w http.ResponseWriter, r *http.Reques
 	nameAr := strings.TrimSpace(r.PostFormValue("name_ar"))
 	nameEn := strings.TrimSpace(r.PostFormValue("name_en"))
 	if nameAr == "" {
-		h.redirectWithNotice(w, r, fmt.Sprintf("/vendor/branches/%d/edit", branchID), "error", "اسم الفرع بالعربية مطلوب.")
+		h.redirectWithNotice(w, r, fmt.Sprintf("/vendor/branches/%d/edit", branchID), "error", i18n.T(langOf(r), "vendor.branch.name_ar_required"))
 		return
 	}
 	if nameEn == "" {
@@ -298,7 +298,7 @@ func (h *UIHandler) VendorBranchEditSubmit(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	h.redirectWithNotice(w, r, "/vendor/branches", "success", "تم تحديث وحفظ بيانات الفرع بنجاح.")
+	h.redirectWithNotice(w, r, "/vendor/branches", "success", i18n.T(langOf(r), "vendor.branch.update_success"))
 }
 
 // VendorBranchDeleteSubmit deletes a branch scoped to the vendor organization.
@@ -311,11 +311,11 @@ func (h *UIHandler) VendorBranchDeleteSubmit(w http.ResponseWriter, r *http.Requ
 	}
 	id, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
 	if err != nil || id <= 0 {
-		h.redirectWithNotice(w, r, "/vendor/branches", "error", "معرف الفرع غير صالح.")
+		h.redirectWithNotice(w, r, "/vendor/branches", "error", i18n.T(langOf(r), "vendor.branch.invalid_id_alt"))
 		return
 	}
 	if h.orgSvc == nil {
-		h.redirectWithNotice(w, r, "/vendor/branches", "error", "خدمة المؤسسات غير متوفرة.")
+		h.redirectWithNotice(w, r, "/vendor/branches", "error", i18n.T(langOf(r), "vendor.branch.orgs_service_unavailable"))
 		return
 	}
 	if err := h.orgSvc.DeleteBranch(ctx, id, actor.OrganizationID); err != nil {
@@ -323,5 +323,5 @@ func (h *UIHandler) VendorBranchDeleteSubmit(w http.ResponseWriter, r *http.Requ
 		h.redirectWithNotice(w, r, "/vendor/branches", "error", h.safeMessage(err, langOf(r)))
 		return
 	}
-	h.redirectWithNotice(w, r, "/vendor/branches", "success", "تم حذف الفرع بنجاح.")
+	h.redirectWithNotice(w, r, "/vendor/branches", "success", i18n.T(langOf(r), "customer.branch.delete_success"))
 }

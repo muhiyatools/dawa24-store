@@ -173,6 +173,23 @@ func loadFrontendUIKeys(e *engine) {
 	addKey(e, "vendor.saving.export_col_price", "vendor", "سعر الوحدة (ج.م)", "Unit Price (EGP)", "Export column header")
 	addKey(e, "vendor.saving.export_col_orgs", "vendor", "عدد المنظمات الموفرة", "Saving Organizations Count", "Export column header")
 
+	// --- Vendor: Branches ---
+	addKey(e, "vendor.branch.create_success", "vendor", "تم إضافة الفرع ونقطة التوزيع بنجاح.", "Branch and distribution point added successfully.", "Vendor branch created")
+	addKey(e, "vendor.branch.invalid_id", "vendor", "معرف فرع غير صالح.", "Invalid branch ID.", "Vendor branch ID validation")
+	addKey(e, "vendor.branch.invalid_id_alt", "vendor", "معرف الفرع غير صالح.", "Invalid branch ID.", "Vendor branch ID validation alt")
+	addKey(e, "vendor.branch.org_service_unavailable", "vendor", "خدمة المنظمة غير متوفرة.", "Organization service is unavailable.", "Org service unavailable")
+	addKey(e, "vendor.branch.not_found_edit", "vendor", "الفرع غير موجود أو غير مصرح لك بتعديله.", "Branch not found or you are not authorized to edit it.", "Branch not found for edit")
+	addKey(e, "vendor.branch.name_ar_required", "vendor", "اسم الفرع بالعربية مطلوب.", "Arabic branch name is required.", "Arabic name validation")
+	addKey(e, "vendor.branch.update_success", "vendor", "تم تحديث وحفظ بيانات الفرع بنجاح.", "Branch data updated and saved successfully.", "Vendor branch updated")
+	addKey(e, "vendor.branch.orgs_service_unavailable", "vendor", "خدمة المؤسسات غير متوفرة.", "Organizations service is unavailable.", "Orgs service unavailable")
+
+	// --- Vendor: Ingest AI State ---
+	addKey(e, "vendor.ingest.ai_not_enabled", "vendor", "المطابقة الذكية غير مفعّلة على هذه المنصة.", "Smart matching is not enabled on this platform.", "AI not enabled")
+	addKey(e, "vendor.ingest.ai_gateway_down", "vendor", "بوابة الذكاء الاصطناعي متوقفة حالياً. ستعمل المطابقة الحتمية وحدها.", "AI gateway is currently down. Deterministic matching will work alone.", "AI gateway down")
+	addKey(e, "vendor.ingest.ai_members_only", "vendor", "المطابقة الذكية متاحة لأعضاء المؤسسات فقط.", "Smart matching is available for organization members only.", "AI members only")
+	addKey(e, "vendor.ingest.ai_check_failed", "vendor", "تعذّر التحقق من اشتراك مؤسستك في خدمات الذكاء الاصطناعي.", "Could not verify your organization's AI subscription.", "AI check failed")
+	addKey(e, "vendor.ingest.ai_not_activated", "vendor", "لم يتم تفعيل الذكاء الاصطناعي لمؤسستك بعد. تواصل مع الإدارة لتفعيله.", "AI has not been enabled for your organization yet. Contact administration to enable it.", "AI not activated")
+
 	// --- Customer: Orders ---
 	addKey(e, "customer.order.invalid_id", "customer", "معرف الطلب غير صالح.", "Invalid order ID.", "Order ID validation")
 	addKey(e, "customer.order.service_unavailable", "customer", "خدمة إدارة الطلبات غير متوفرة حالياً.", "Order management service is currently unavailable.", "Service unavailable")

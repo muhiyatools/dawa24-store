@@ -62,13 +62,13 @@ func (h *UIHandler) VendorTeamImportUploadSubmit(w http.ResponseWriter, r *http.
 	}
 
 	if err := r.ParseMultipartForm(32 << 20); err != nil {
-		h.redirectWithNotice(w, r, "/vendor/team/import", "error", "الملف المرفوع كبير جداً أو غير صالح.")
+		h.redirectWithNotice(w, r, "/vendor/team/import", "error", i18n.T(langOf(r), "customer.saving.import.file_too_large_short"))
 		return
 	}
 
 	file, fileHeader, err := r.FormFile("file")
 	if err != nil {
-		h.redirectWithNotice(w, r, "/vendor/team/import", "error", "يرجى اختيار ملف Excel أو CSV صالح.")
+		h.redirectWithNotice(w, r, "/vendor/team/import", "error", i18n.T(langOf(r), "customer.saving.import.select_file"))
 		return
 	}
 	defer file.Close()
@@ -80,14 +80,14 @@ func (h *UIHandler) VendorTeamImportUploadSubmit(w http.ResponseWriter, r *http.
 
 	fileBytes, err := io.ReadAll(file)
 	if err != nil || len(fileBytes) == 0 {
-		h.redirectWithNotice(w, r, "/vendor/team/import", "error", "الملف فارغ أو تعذر قراءته.")
+		h.redirectWithNotice(w, r, "/vendor/team/import", "error", i18n.T(langOf(r), "customer.saving.import.file_empty"))
 		return
 	}
 
 	rawRows, err := sheet.ReadRows(fileBytes, fileHeader.Filename)
 	if err != nil || len(rawRows) < 2 {
 		h.log.WarnContext(ctx, "failed to parse spreadsheet", "error", err, "filename", fileHeader.Filename)
-		h.redirectWithNotice(w, r, "/vendor/team/import", "error", "تعذر قراءة ملف البيانات المرفوع أو أن الملف لا يحتوي على صفوف بيانات.")
+		h.redirectWithNotice(w, r, "/vendor/team/import", "error", i18n.T(langOf(r), "customer.saving.import.parse_error_short"))
 		return
 	}
 
@@ -108,7 +108,7 @@ func (h *UIHandler) VendorTeamImportUploadSubmit(w http.ResponseWriter, r *http.
 
 	dataRows := rawRows[dataStart:]
 	if len(dataRows) == 0 {
-		h.redirectWithNotice(w, r, "/vendor/team/import", "error", "لم يتم العثور على أي صفوف بيانات للموظفين بعد صف العناوين.")
+		h.redirectWithNotice(w, r, "/vendor/team/import", "error", i18n.T(langOf(r), "customer.team.import.no_employee_rows"))
 		return
 	}
 
@@ -206,7 +206,7 @@ func (h *UIHandler) VendorTeamImportSessionPage(w http.ResponseWriter, r *http.R
 	sessionID := chi.URLParam(r, "id")
 	session, ok := globalTeamImportSessionStore.GetSession(sessionID, actor.OrganizationID)
 	if !ok {
-		h.redirectWithNotice(w, r, "/vendor/team/import", "error", "جلسة الاستيراد غير موجودة أو انتهت صلاحيتها.")
+		h.redirectWithNotice(w, r, "/vendor/team/import", "error", i18n.T(langOf(r), "customer.saving.import.session_not_found"))
 		return
 	}
 
@@ -240,12 +240,12 @@ func (h *UIHandler) VendorTeamImportMapSubmit(w http.ResponseWriter, r *http.Req
 	sessionID := chi.URLParam(r, "id")
 	session, ok := globalTeamImportSessionStore.GetSession(sessionID, actor.OrganizationID)
 	if !ok {
-		h.redirectWithNotice(w, r, "/vendor/team/import", "error", "جلسة الاستيراد غير موجودة أو انتهت صلاحيتها.")
+		h.redirectWithNotice(w, r, "/vendor/team/import", "error", i18n.T(langOf(r), "customer.saving.import.session_not_found"))
 		return
 	}
 
 	if err := r.ParseForm(); err != nil {
-		h.redirectWithNotice(w, r, fmt.Sprintf("/vendor/team/import/%s", sessionID), "error", "البيانات المرسلة غير صالحة.")
+		h.redirectWithNotice(w, r, fmt.Sprintf("/vendor/team/import/%s", sessionID), "error", i18n.T(langOf(r), "customer.team.import.data_invalid"))
 		return
 	}
 
@@ -267,7 +267,7 @@ func (h *UIHandler) VendorTeamImportMapSubmit(w http.ResponseWriter, r *http.Req
 	}
 
 	if session.DetectedCols.NameCol == -1 || session.DetectedCols.EmailCol == -1 {
-		h.redirectWithNotice(w, r, fmt.Sprintf("/vendor/team/import/%s", sessionID), "error", "يرجى تحديد عمود اسم الموظف وعمود البريد الإلكتروني على الأقل.")
+		h.redirectWithNotice(w, r, fmt.Sprintf("/vendor/team/import/%s", sessionID), "error", i18n.T(langOf(r), "customer.team.import.columns_required"))
 		return
 	}
 
@@ -326,12 +326,12 @@ func (h *UIHandler) VendorTeamImportCommitSubmit(w http.ResponseWriter, r *http.
 	sessionID := chi.URLParam(r, "id")
 	session, ok := globalTeamImportSessionStore.GetSession(sessionID, actor.OrganizationID)
 	if !ok || session.Phase != pages.TeamPhaseReview {
-		h.redirectWithNotice(w, r, "/vendor/team/import", "error", "جلسة الاستيراد غير صالحة أو غير جاهزة للتأكيد.")
+		h.redirectWithNotice(w, r, "/vendor/team/import", "error", i18n.T(langOf(r), "customer.team.import.session_invalid"))
 		return
 	}
 
 	if h.idSvc == nil || h.orgSvc == nil {
-		h.redirectWithNotice(w, r, fmt.Sprintf("/vendor/team/import/%s", sessionID), "error", "خدمة المنظومة غير متاحة حالياً.")
+		h.redirectWithNotice(w, r, fmt.Sprintf("/vendor/team/import/%s", sessionID), "error", i18n.T(langOf(r), "customer.team.import.system_unavailable"))
 		return
 	}
 
@@ -424,7 +424,7 @@ func (h *UIHandler) VendorTeamImportCancelSubmit(w http.ResponseWriter, r *http.
 
 	sessionID := chi.URLParam(r, "id")
 	globalTeamImportSessionStore.DeleteSession(sessionID, actor.OrganizationID)
-	h.redirectWithNotice(w, r, "/vendor/team/import", "info", "تم إلغاء جلسة الاستيراد.")
+	h.redirectWithNotice(w, r, "/vendor/team/import", "info", i18n.T(langOf(r), "customer.team.import.cancelled"))
 }
 
 // VendorTeamFastAddPage renders fast add form for single employee account.

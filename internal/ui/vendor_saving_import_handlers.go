@@ -55,13 +55,13 @@ func (h *UIHandler) VendorSavingProductsImportUploadSubmit(w http.ResponseWriter
 	}
 
 	if err := r.ParseMultipartForm(32 << 20); err != nil {
-		h.redirectWithNotice(w, r, "/vendor/saving-products/import", "error", "الملف المرفوع كبير جداً أو غير صالح.")
+		h.redirectWithNotice(w, r, "/vendor/saving-products/import", "error", i18n.T(langOf(r), "customer.saving.import.file_too_large_short"))
 		return
 	}
 
 	file, fileHeader, err := r.FormFile("file")
 	if err != nil {
-		h.redirectWithNotice(w, r, "/vendor/saving-products/import", "error", "يرجى اختيار ملف Excel أو CSV صالح.")
+		h.redirectWithNotice(w, r, "/vendor/saving-products/import", "error", i18n.T(langOf(r), "customer.saving.import.select_file"))
 		return
 	}
 	defer file.Close()
@@ -73,14 +73,14 @@ func (h *UIHandler) VendorSavingProductsImportUploadSubmit(w http.ResponseWriter
 
 	fileBytes, err := io.ReadAll(file)
 	if err != nil || len(fileBytes) == 0 {
-		h.redirectWithNotice(w, r, "/vendor/saving-products/import", "error", "الملف فارغ أو تعذر قراءته.")
+		h.redirectWithNotice(w, r, "/vendor/saving-products/import", "error", i18n.T(langOf(r), "customer.saving.import.file_empty"))
 		return
 	}
 
 	rawRows, err := sheet.ReadRows(fileBytes, fileHeader.Filename)
 	if err != nil || len(rawRows) < 2 {
 		h.log.WarnContext(ctx, "failed to parse spreadsheet", "error", err, "filename", fileHeader.Filename)
-		h.redirectWithNotice(w, r, "/vendor/saving-products/import", "error", "تعذر قراءة ملف البيانات المرفوع أو أن الملف لا يحتوي على صفوف بيانات.")
+		h.redirectWithNotice(w, r, "/vendor/saving-products/import", "error", i18n.T(langOf(r), "customer.saving.import.parse_error_short"))
 		return
 	}
 
@@ -101,7 +101,7 @@ func (h *UIHandler) VendorSavingProductsImportUploadSubmit(w http.ResponseWriter
 
 	dataRows := rawRows[dataStart:]
 	if len(dataRows) == 0 {
-		h.redirectWithNotice(w, r, "/vendor/saving-products/import", "error", "لم يتم العثور على أي صفوف بيانات للأصناف بعد صف العناوين.")
+		h.redirectWithNotice(w, r, "/vendor/saving-products/import", "error", i18n.T(langOf(r), "customer.saving.import.no_data_rows"))
 		return
 	}
 
@@ -148,7 +148,7 @@ func (h *UIHandler) VendorSavingProductsImportSessionPage(w http.ResponseWriter,
 	sessionID := chi.URLParam(r, "id")
 	session, ok := globalSavingImportSessionStore.GetSession(sessionID, actor.OrganizationID)
 	if !ok {
-		h.redirectWithNotice(w, r, "/vendor/saving-products/import", "error", "جلسة الاستيراد غير موجودة أو انتهت صلاحيتها.")
+		h.redirectWithNotice(w, r, "/vendor/saving-products/import", "error", i18n.T(langOf(r), "customer.saving.import.session_not_found"))
 		return
 	}
 
