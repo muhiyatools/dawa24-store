@@ -16,6 +16,7 @@ import (
 // AdminPlatformPaymentMethodSubmit creates or updates a platform supported payment channel.
 func (h *UIHandler) AdminPlatformPaymentMethodSubmit(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
+	lang := langOf(r)
 	actor, ok := authctx.From(ctx)
 	if !ok || (!actor.IsStaff && !actor.IsPlatformAdmin()) {
 		http.Redirect(w, r, "/auth/login?redirect=/admin/settings?tab=payment_methods", http.StatusSeeOther)
@@ -25,7 +26,7 @@ func (h *UIHandler) AdminPlatformPaymentMethodSubmit(w http.ResponseWriter, r *h
 	_ = r.ParseForm()
 	id := strings.TrimSpace(strings.ToLower(r.PostFormValue("id")))
 	if id == "" {
-		h.redirectWithNotice(w, r, "/admin/settings?tab=payment_methods", "error", "المعرف الفريد لوسيلة الدفع مطلوب.")
+		h.redirectWithNotice(w, r, "/admin/settings?tab=payment_methods", "error", i18n.T(lang, "admin.pm.id_required"))
 		return
 	}
 
@@ -35,7 +36,7 @@ func (h *UIHandler) AdminPlatformPaymentMethodSubmit(w http.ResponseWriter, r *h
 		nameEn = nameAr
 	}
 	if nameAr == "" {
-		h.redirectWithNotice(w, r, "/admin/settings?tab=payment_methods", "error", "اسم وسيلة الدفع بالعربية مطلوب.")
+		h.redirectWithNotice(w, r, "/admin/settings?tab=payment_methods", "error", i18n.T(lang, "admin.pm.name_ar_required"))
 		return
 	}
 
@@ -68,17 +69,18 @@ func (h *UIHandler) AdminPlatformPaymentMethodSubmit(w http.ResponseWriter, r *h
 	if h.billSvc != nil {
 		if err := h.billSvc.SavePlatformPaymentMethod(ctx, pm); err != nil {
 			h.log.ErrorContext(ctx, "failed to save platform payment method", "error", err, "id", id)
-			h.redirectWithNotice(w, r, "/admin/settings?tab=payment_methods", "error", h.safeMessage(err, langOf(r)))
+			h.redirectWithNotice(w, r, "/admin/settings?tab=payment_methods", "error", h.safeMessage(err, lang))
 			return
 		}
 	}
 
-	h.redirectWithNotice(w, r, "/admin/settings?tab=payment_methods", "success", "تم حفظ وتحديث وسيلة وقناة الدفع بنجاح.")
+	h.redirectWithNotice(w, r, "/admin/settings?tab=payment_methods", "success", i18n.T(lang, "admin.pm.saved_success"))
 }
 
 // AdminPlatformPaymentMethodToggleSubmit toggles the active state of a platform payment channel.
 func (h *UIHandler) AdminPlatformPaymentMethodToggleSubmit(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
+	lang := langOf(r)
 	actor, ok := authctx.From(ctx)
 	if !ok || (!actor.IsStaff && !actor.IsPlatformAdmin()) {
 		http.Redirect(w, r, "/auth/login?redirect=/admin/settings?tab=payment_methods", http.StatusSeeOther)
@@ -92,14 +94,14 @@ func (h *UIHandler) AdminPlatformPaymentMethodToggleSubmit(w http.ResponseWriter
 	if h.billSvc != nil && id != "" {
 		if err := h.billSvc.TogglePlatformPaymentMethod(ctx, id, enabled); err != nil {
 			h.log.ErrorContext(ctx, "failed to toggle platform payment method", "error", err, "id", id)
-			h.redirectWithNotice(w, r, "/admin/settings?tab=payment_methods", "error", "فشل تحديث حالة وسيلة الدفع.")
+			h.redirectWithNotice(w, r, "/admin/settings?tab=payment_methods", "error", i18n.T(lang, "admin.pm.toggle_failed"))
 			return
 		}
 	}
 
-	msg := "تم تعطيل وسيلة الدفع مؤقتاً."
+	msg := i18n.T(lang, "admin.pm.disabled_notice")
 	if enabled {
-		msg = "تم تفعيل وسيلة الدفع بنجاح."
+		msg = i18n.T(lang, "admin.pm.enabled_notice")
 	}
 	h.redirectWithNotice(w, r, "/admin/settings?tab=payment_methods", "success", msg)
 }
@@ -107,6 +109,7 @@ func (h *UIHandler) AdminPlatformPaymentMethodToggleSubmit(w http.ResponseWriter
 // AdminPlatformPaymentMethodDeleteSubmit deletes a platform payment channel.
 func (h *UIHandler) AdminPlatformPaymentMethodDeleteSubmit(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
+	lang := langOf(r)
 	actor, ok := authctx.From(ctx)
 	if !ok || (!actor.IsStaff && !actor.IsPlatformAdmin()) {
 		http.Redirect(w, r, "/auth/login?redirect=/admin/settings?tab=payment_methods", http.StatusSeeOther)
@@ -117,10 +120,10 @@ func (h *UIHandler) AdminPlatformPaymentMethodDeleteSubmit(w http.ResponseWriter
 	if h.billSvc != nil && id != "" {
 		if err := h.billSvc.DeletePlatformPaymentMethod(ctx, id); err != nil {
 			h.log.ErrorContext(ctx, "failed to delete platform payment method", "error", err, "id", id)
-			h.redirectWithNotice(w, r, "/admin/settings?tab=payment_methods", "error", "فشل حذف وسيلة الدفع.")
+			h.redirectWithNotice(w, r, "/admin/settings?tab=payment_methods", "error", i18n.T(lang, "admin.pm.delete_failed"))
 			return
 		}
 	}
 
-	h.redirectWithNotice(w, r, "/admin/settings?tab=payment_methods", "success", "تم حذف وسيلة الدفع بنجاح.")
+	h.redirectWithNotice(w, r, "/admin/settings?tab=payment_methods", "success", i18n.T(lang, "admin.pm.deleted_success"))
 }

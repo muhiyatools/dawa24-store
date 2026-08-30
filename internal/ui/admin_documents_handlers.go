@@ -10,6 +10,7 @@ import (
 	"github.com/muhiya/dawa24-store/internal/modules/attachments"
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/platform/database"
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 )
 
 // AdminDocumentsPage redirects to the unified documents & approvals audit registry.
@@ -20,11 +21,12 @@ func (h *UIHandler) AdminDocumentsPage(w http.ResponseWriter, r *http.Request) {
 // AdminCreateDocumentRequestSubmit issues an administrative document request to an organization.
 func (h *UIHandler) AdminCreateDocumentRequestSubmit(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
+	lang := langOf(r)
 	actor, _ := authctx.From(ctx)
 
 	orgID, err := strconv.ParseInt(r.PostFormValue("organization_id"), 10, 64)
 	if err != nil || orgID <= 0 {
-		h.redirectWithNotice(w, r, "/admin/approvals?tab=requests", "error", "يرجى اختيار منشأة صالحة من القائمة.")
+		h.redirectWithNotice(w, r, "/admin/approvals?tab=requests", "error", i18n.T(lang, "admin.docs.select_valid_org"))
 		return
 	}
 
@@ -37,32 +39,33 @@ func (h *UIHandler) AdminCreateDocumentRequestSubmit(w http.ResponseWriter, r *h
 	}
 
 	if title == "" {
-		h.redirectWithNotice(w, r, "/admin/approvals?tab=requests", "error", "عنوان المستند المطلوب إلزامي.")
+		h.redirectWithNotice(w, r, "/admin/approvals?tab=requests", "error", i18n.T(lang, "admin.docs.title_required"))
 		return
 	}
 
 	if h.attSvc == nil {
-		h.redirectWithNotice(w, r, "/admin/approvals?tab=requests", "error", "خدمة المستندات غير متاحة.")
+		h.redirectWithNotice(w, r, "/admin/approvals?tab=requests", "error", i18n.T(lang, "admin.docs.service_unavailable"))
 		return
 	}
 
 	sysCtx := database.AsSystem(ctx)
 	if _, err := h.attSvc.CreateDocumentRequest(sysCtx, actor, orgID, docType, title, description, deadlineDays); err != nil {
-		h.redirectWithNotice(w, r, "/admin/approvals?tab=requests", "error", h.safeMessage(err, langOf(r)))
+		h.redirectWithNotice(w, r, "/admin/approvals?tab=requests", "error", h.safeMessage(err, lang))
 		return
 	}
 
-	h.redirectWithNotice(w, r, "/admin/approvals?tab=requests", "success", "تم إصدار طلب المستند الرسمي للمنشأة مع التنبيه والمهلة المحددة بنجاح.")
+	h.redirectWithNotice(w, r, "/admin/approvals?tab=requests", "success", i18n.T(lang, "admin.docs.request_created_success"))
 }
 
 // AdminCancelDocumentRequestSubmit cancels an active document request.
 func (h *UIHandler) AdminCancelDocumentRequestSubmit(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
+	lang := langOf(r)
 	actor, _ := authctx.From(ctx)
 
 	id, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
 	if err != nil || id <= 0 {
-		h.redirectWithNotice(w, r, "/admin/approvals?tab=requests", "error", "معرف الطلب غير صالح.")
+		h.redirectWithNotice(w, r, "/admin/approvals?tab=requests", "error", i18n.T(lang, "admin.docs.invalid_request_id"))
 		return
 	}
 
@@ -71,17 +74,18 @@ func (h *UIHandler) AdminCancelDocumentRequestSubmit(w http.ResponseWriter, r *h
 		_ = h.attSvc.CancelDocumentRequest(sysCtx, actor, id)
 	}
 
-	h.redirectWithNotice(w, r, "/admin/approvals?tab=requests", "success", "تم إلغاء طلب المستند.")
+	h.redirectWithNotice(w, r, "/admin/approvals?tab=requests", "success", i18n.T(lang, "admin.docs.request_cancelled_success"))
 }
 
 // AdminVerifyUploadedDocSubmit audits, categorizes, and approves/rejects an uploaded document.
 func (h *UIHandler) AdminVerifyUploadedDocSubmit(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
+	lang := langOf(r)
 	actor, _ := authctx.From(ctx)
 
 	id, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
 	if err != nil || id <= 0 {
-		h.redirectWithNotice(w, r, "/admin/approvals?tab=documents", "error", "معرف المستند غير صالح.")
+		h.redirectWithNotice(w, r, "/admin/approvals?tab=documents", "error", i18n.T(lang, "admin.docs.invalid_doc_id"))
 		return
 	}
 
@@ -96,14 +100,14 @@ func (h *UIHandler) AdminVerifyUploadedDocSubmit(w http.ResponseWriter, r *http.
 	if h.attSvc != nil {
 		sysCtx := database.AsSystem(ctx)
 		if err := h.attSvc.VerifyDocumentWithType(sysCtx, actor, id, docType, status, notes); err != nil {
-			h.redirectWithNotice(w, r, "/admin/approvals?tab=documents", "error", h.safeMessage(err, langOf(r)))
+			h.redirectWithNotice(w, r, "/admin/approvals?tab=documents", "error", h.safeMessage(err, lang))
 			return
 		}
 	}
 
-	msg := "تم اعتماد وتوثيق المستند وتحديث ملف المنشأة بنجاح."
+	msg := i18n.T(lang, "admin.docs.verified_success")
 	if status == attachments.StatusRejected {
-		msg = "تم رفض المستند وحفظ الملاحظات."
+		msg = i18n.T(lang, "admin.docs.rejected_success")
 	}
 	h.redirectWithNotice(w, r, "/admin/approvals?tab=documents", "success", msg)
 }

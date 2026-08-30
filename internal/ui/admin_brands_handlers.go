@@ -97,8 +97,9 @@ func (h *UIHandler) AdminBrandsPage(w http.ResponseWriter, r *http.Request) {
 // AdminBrandCreateSubmit creates a new pharmaceutical brand / manufacturer in the database.
 func (h *UIHandler) AdminBrandCreateSubmit(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
+	lang := langOf(r)
 	if h.catSvc == nil {
-		h.redirectWithNotice(w, r, "/admin/brands", "error", "خدمة الكتالوج غير متاحة.")
+		h.redirectWithNotice(w, r, "/admin/brands", "error", i18n.T(lang, "admin.categories.service_unavailable"))
 		return
 	}
 
@@ -107,7 +108,7 @@ func (h *UIHandler) AdminBrandCreateSubmit(w http.ResponseWriter, r *http.Reques
 	nameAr := strings.TrimSpace(r.FormValue("name_ar"))
 	nameEn := strings.TrimSpace(r.FormValue("name_en"))
 	if nameAr == "" && nameEn == "" {
-		h.redirectWithNotice(w, r, "/admin/brands", "error", "يرجى كتابة اسم الشركة المصنعة بالعربية أو الإنجليزية.")
+		h.redirectWithNotice(w, r, "/admin/brands", "error", i18n.T(lang, "admin.brands.name_required"))
 		return
 	}
 	if nameAr == "" {
@@ -136,25 +137,26 @@ func (h *UIHandler) AdminBrandCreateSubmit(w http.ResponseWriter, r *http.Reques
 
 	if _, err := h.catSvc.CreateBrand(database.AsSystem(ctx), brand); err != nil {
 		h.log.ErrorContext(ctx, "admin create brand failed", "error", err)
-		h.redirectWithNotice(w, r, "/admin/brands", "error", h.safeMessage(err, langOf(r)))
+		h.redirectWithNotice(w, r, "/admin/brands", "error", h.safeMessage(err, lang))
 		return
 	}
 
-	h.redirectWithNotice(w, r, "/admin/brands", "success", "تمت إضافة الشركة المصنعة بنجاح.")
+	h.redirectWithNotice(w, r, "/admin/brands", "success", i18n.T(lang, "admin.brands.created_success"))
 }
 
 // AdminBrandEditSubmit updates an existing brand / manufacturer in the database.
 func (h *UIHandler) AdminBrandEditSubmit(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
+	lang := langOf(r)
 	if h.catSvc == nil {
-		h.redirectWithNotice(w, r, "/admin/brands", "error", "خدمة الكتالوج غير متاحة.")
+		h.redirectWithNotice(w, r, "/admin/brands", "error", i18n.T(lang, "admin.categories.service_unavailable"))
 		return
 	}
 
 	idStr := chi.URLParam(r, "id")
 	brandID, err := strconv.ParseInt(idStr, 10, 64)
 	if err != nil || brandID <= 0 {
-		h.redirectWithNotice(w, r, "/admin/brands", "error", "معرف الشركة غير صالح.")
+		h.redirectWithNotice(w, r, "/admin/brands", "error", i18n.T(lang, "admin.brands.invalid_id"))
 		return
 	}
 
@@ -162,14 +164,14 @@ func (h *UIHandler) AdminBrandEditSubmit(w http.ResponseWriter, r *http.Request)
 
 	brand, err := h.catSvc.GetBrand(database.AsSystem(ctx), brandID)
 	if err != nil || brand == nil {
-		h.redirectWithNotice(w, r, "/admin/brands", "error", "الشركة المصنعة غير موجودة.")
+		h.redirectWithNotice(w, r, "/admin/brands", "error", i18n.T(lang, "admin.brands.not_found"))
 		return
 	}
 
 	nameAr := strings.TrimSpace(r.FormValue("name_ar"))
 	nameEn := strings.TrimSpace(r.FormValue("name_en"))
 	if nameAr == "" && nameEn == "" {
-		h.redirectWithNotice(w, r, "/admin/brands", "error", "يرجى كتابة اسم الشركة المصنعة بالعربية أو الإنجليزية.")
+		h.redirectWithNotice(w, r, "/admin/brands", "error", i18n.T(lang, "admin.brands.name_required"))
 		return
 	}
 	if nameAr == "" {
@@ -199,11 +201,11 @@ func (h *UIHandler) AdminBrandEditSubmit(w http.ResponseWriter, r *http.Request)
 
 	if err := h.catSvc.UpdateBrand(database.AsSystem(ctx), brand); err != nil {
 		h.log.ErrorContext(ctx, "admin update brand failed", "error", err)
-		h.redirectWithNotice(w, r, "/admin/brands", "error", h.safeMessage(err, langOf(r)))
+		h.redirectWithNotice(w, r, "/admin/brands", "error", h.safeMessage(err, lang))
 		return
 	}
 
-	h.redirectWithNotice(w, r, "/admin/brands", "success", "تم تحديث بيانات الشركة المصنعة بنجاح.")
+	h.redirectWithNotice(w, r, "/admin/brands", "success", i18n.T(lang, "admin.brands.updated_success"))
 }
 
 // AdminBrandStatusSubmit toggles a brand's active status.
@@ -232,23 +234,24 @@ func (h *UIHandler) AdminBrandStatusSubmit(w http.ResponseWriter, r *http.Reques
 // AdminBrandDeleteSubmit deletes a brand if no products are linked to it.
 func (h *UIHandler) AdminBrandDeleteSubmit(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
+	lang := langOf(r)
 	if h.catSvc == nil {
-		h.redirectWithNotice(w, r, "/admin/brands", "error", "خدمة الكتالوج غير متاحة.")
+		h.redirectWithNotice(w, r, "/admin/brands", "error", i18n.T(lang, "admin.categories.service_unavailable"))
 		return
 	}
 
 	idStr := chi.URLParam(r, "id")
 	brandID, err := strconv.ParseInt(idStr, 10, 64)
 	if err != nil || brandID <= 0 {
-		h.redirectWithNotice(w, r, "/admin/brands", "error", "معرف الشركة غير صالح.")
+		h.redirectWithNotice(w, r, "/admin/brands", "error", i18n.T(lang, "admin.brands.invalid_id"))
 		return
 	}
 
 	if err := h.catSvc.DeleteBrand(database.AsSystem(ctx), brandID); err != nil {
 		h.log.WarnContext(ctx, "admin delete brand failed", "error", err)
-		h.redirectWithNotice(w, r, "/admin/brands", "error", h.safeMessage(err, langOf(r)))
+		h.redirectWithNotice(w, r, "/admin/brands", "error", h.safeMessage(err, lang))
 		return
 	}
 
-	h.redirectWithNotice(w, r, "/admin/brands", "success", "تم حذف الشركة المصنعة بنجاح.")
+	h.redirectWithNotice(w, r, "/admin/brands", "success", i18n.T(lang, "admin.brands.deleted_success"))
 }

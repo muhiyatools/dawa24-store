@@ -92,43 +92,45 @@ func (h *UIHandler) AdminOffersPage(w http.ResponseWriter, r *http.Request) {
 // AdminOfferApproveSubmit approves a supplier special offer for marketplace publishing.
 func (h *UIHandler) AdminOfferApproveSubmit(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
+	lang := langOf(r)
 	id, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
 	if err != nil || id <= 0 {
-		h.redirectWithNotice(w, r, "/admin/offers", "error", "معرف العرض غير صالح.")
+		h.redirectWithNotice(w, r, "/admin/offers", "error", i18n.T(lang, "admin.commerce.invalid_offer_id"))
 		return
 	}
 
 	actor, _ := authctx.From(ctx)
 	if h.promoSvc != nil {
-		if err := h.promoSvc.UpdateSpecialOfferAdminStatus(ctx, id, "approved", "تم الاعتماد من الإدارة", actor.UserID); err != nil {
-			h.redirectWithNotice(w, r, "/admin/offers", "error", h.safeMessage(err, langOf(r)))
+		if err := h.promoSvc.UpdateSpecialOfferAdminStatus(ctx, id, "approved", i18n.T(lang, "admin.commerce.approved_by_admin"), actor.UserID); err != nil {
+			h.redirectWithNotice(w, r, "/admin/offers", "error", h.safeMessage(err, lang))
 			return
 		}
 		_ = h.promoSvc.ToggleSpecialOfferStatus(ctx, id, true)
 	}
 
-	h.redirectWithNotice(w, r, "/admin/offers", "success", "تم اعتماد وتفعيل العرض الخاص وباقة الأدوية بنجاح.")
+	h.redirectWithNotice(w, r, "/admin/offers", "success", i18n.T(lang, "admin.commerce.offer_approved_success"))
 }
 
 // AdminOfferRejectSubmit rejects a supplier special offer.
 func (h *UIHandler) AdminOfferRejectSubmit(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
+	lang := langOf(r)
 	id, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
 	if err != nil || id <= 0 {
-		h.redirectWithNotice(w, r, "/admin/offers", "error", "معرف العرض غير صالح.")
+		h.redirectWithNotice(w, r, "/admin/offers", "error", i18n.T(lang, "admin.commerce.invalid_offer_id"))
 		return
 	}
 
 	actor, _ := authctx.From(ctx)
 	if h.promoSvc != nil {
-		if err := h.promoSvc.UpdateSpecialOfferAdminStatus(ctx, id, "rejected", "تم رفض العرض من الإدارة", actor.UserID); err != nil {
-			h.redirectWithNotice(w, r, "/admin/offers", "error", h.safeMessage(err, langOf(r)))
+		if err := h.promoSvc.UpdateSpecialOfferAdminStatus(ctx, id, "rejected", i18n.T(lang, "admin.commerce.rejected_by_admin"), actor.UserID); err != nil {
+			h.redirectWithNotice(w, r, "/admin/offers", "error", h.safeMessage(err, lang))
 			return
 		}
 		_ = h.promoSvc.ToggleSpecialOfferStatus(ctx, id, false)
 	}
 
-	h.redirectWithNotice(w, r, "/admin/offers", "success", "تم رفض العرض الخاص وحفظ الملاحظات.")
+	h.redirectWithNotice(w, r, "/admin/offers", "success", i18n.T(lang, "admin.commerce.offer_rejected_success"))
 }
 
 // AdminOfferStatusSubmit activates or deactivates an offer.
@@ -139,7 +141,7 @@ func (h *UIHandler) AdminOfferStatusSubmit(w http.ResponseWriter, r *http.Reques
 		isActive := r.PostFormValue("active") == "true"
 		_ = h.promoSvc.ToggleSpecialOfferStatus(ctx, id, isActive)
 	}
-	h.redirectWithNotice(w, r, "/admin/offers", "success", "تم تحديث حالة تفعيل العرض بنجاح.")
+	h.redirectWithNotice(w, r, "/admin/offers", "success", i18n.T(langOf(r), "admin.commerce.offer_status_toggled_success"))
 }
 
 // AdminJobsPage renders all job vacancies across the platform showing owning companies.
@@ -198,10 +200,11 @@ func (h *UIHandler) AdminJobsPage(w http.ResponseWriter, r *http.Request) {
 // AdminPolicyCreateSubmit creates a new draft version of a legal policy document.
 func (h *UIHandler) AdminPolicyCreateSubmit(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
+	lang := langOf(r)
 	actor, _ := authctx.From(ctx)
 
 	if h.adminSvc == nil {
-		h.redirectWithNotice(w, r, "/admin/settings?tab=policies", "error", "خدمة السياسات غير متاحة.")
+		h.redirectWithNotice(w, r, "/admin/settings?tab=policies", "error", i18n.T(lang, "admin.commerce.policy_service_unavailable"))
 		return
 	}
 
@@ -216,31 +219,32 @@ func (h *UIHandler) AdminPolicyCreateSubmit(w http.ResponseWriter, r *http.Reque
 	}
 
 	if err := h.adminSvc.CreatePolicyVersion(ctx, p); err != nil {
-		h.redirectWithNotice(w, r, "/admin/settings?tab=policies", "error", h.safeMessage(err, langOf(r)))
+		h.redirectWithNotice(w, r, "/admin/settings?tab=policies", "error", h.safeMessage(err, lang))
 		return
 	}
 
-	h.redirectWithNotice(w, r, "/admin/settings?tab=policies&key="+p.PolicyKey, "success", "تم حفظ إصدار السياسة بنجاح.")
+	h.redirectWithNotice(w, r, "/admin/settings?tab=policies&key="+p.PolicyKey, "success", i18n.T(lang, "admin.commerce.policy_saved_success"))
 }
 
 // AdminPolicyPublishSubmit activates a specific policy version.
 func (h *UIHandler) AdminPolicyPublishSubmit(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
+	lang := langOf(r)
 	id, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
 	if err != nil || id <= 0 {
-		h.redirectWithNotice(w, r, "/admin/settings?tab=policies", "error", "معرف السياسة غير صالح.")
+		h.redirectWithNotice(w, r, "/admin/settings?tab=policies", "error", i18n.T(lang, "admin.commerce.invalid_policy_id"))
 		return
 	}
 
 	if h.adminSvc == nil {
-		h.redirectWithNotice(w, r, "/admin/settings?tab=policies", "error", "خدمة السياسات غير متاحة.")
+		h.redirectWithNotice(w, r, "/admin/settings?tab=policies", "error", i18n.T(lang, "admin.commerce.policy_service_unavailable"))
 		return
 	}
 
 	if err := h.adminSvc.PublishPolicyVersion(ctx, id); err != nil {
-		h.redirectWithNotice(w, r, "/admin/settings?tab=policies", "error", h.safeMessage(err, langOf(r)))
+		h.redirectWithNotice(w, r, "/admin/settings?tab=policies", "error", h.safeMessage(err, lang))
 		return
 	}
 
-	h.redirectWithNotice(w, r, "/admin/settings?tab=policies", "success", "تم نشر الإصدار وتفعيله للجمهور.")
+	h.redirectWithNotice(w, r, "/admin/settings?tab=policies", "success", i18n.T(lang, "admin.commerce.policy_published_success"))
 }

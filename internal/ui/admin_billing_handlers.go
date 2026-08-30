@@ -44,9 +44,9 @@ func (h *UIHandler) AdminPlansPage(w http.ResponseWriter, r *http.Request) {
 	} else {
 		// Standard MuhiyaLLM Gateway defaults
 		gwPlans = []gateway.GatewayPlan{
-			{ID: "plan-dev", Name: "MuhiyaCode Free (plan-dev)", RPMLimit: 30, TPMLimit: 300000, Description: "باقة التطوير والتشغيل المجانية"},
-			{ID: "yalla", Name: "MuhiyaCode Yalla (yalla)", RPMLimit: 60, TPMLimit: 1200000, Description: "باقة الأعمال والنمو المتوسطة"},
-			{ID: "max", Name: "MuhiyaCode Max (max)", RPMLimit: 100, TPMLimit: 2500000, Description: "باقة المؤسسات والشركات الكبرى"},
+			{ID: "plan-dev", Name: "MuhiyaCode Free (plan-dev)", RPMLimit: 30, TPMLimit: 300000, Description: i18n.T(lang, "admin.billing.gw_plan_dev_desc")},
+			{ID: "yalla", Name: "MuhiyaCode Yalla (yalla)", RPMLimit: 60, TPMLimit: 1200000, Description: i18n.T(lang, "admin.billing.gw_plan_yalla_desc")},
+			{ID: "max", Name: "MuhiyaCode Max (max)", RPMLimit: 100, TPMLimit: 2500000, Description: i18n.T(lang, "admin.billing.gw_plan_max_desc")},
 		}
 	}
 
@@ -65,8 +65,9 @@ func (h *UIHandler) AdminPlansPage(w http.ResponseWriter, r *http.Request) {
 // AdminPlanSubmit creates a subscription plan.
 func (h *UIHandler) AdminPlanSubmit(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
+	lang := langOf(r)
 	if h.billSvc == nil {
-		h.redirectWithNotice(w, r, "/admin/plans", "error", "الخدمة غير متاحة حالياً.")
+		h.redirectWithNotice(w, r, "/admin/plans", "error", i18n.T(lang, "admin.billing.service_unavailable"))
 		return
 	}
 
@@ -148,18 +149,19 @@ func (h *UIHandler) AdminPlanSubmit(w http.ResponseWriter, r *http.Request) {
 		Features:         features,
 	}
 	if _, err := h.billSvc.CreatePlan(ctx, p); err != nil {
-		h.redirectWithNotice(w, r, "/admin/plans", "error", h.safeMessage(err, langOf(r)))
+		h.redirectWithNotice(w, r, "/admin/plans", "error", h.safeMessage(err, lang))
 		return
 	}
-	h.redirectWithNotice(w, r, "/admin/plans", "success", "تمت إضافة وتفعيل باقة الاشتراك الموحدة بنجاح.")
+	h.redirectWithNotice(w, r, "/admin/plans", "success", i18n.T(lang, "admin.billing.plan_created_success"))
 }
 
 // AdminPlanUpdateSubmit updates an existing subscription plan.
 func (h *UIHandler) AdminPlanUpdateSubmit(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
+	lang := langOf(r)
 	id, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
 	if err != nil || id <= 0 || h.billSvc == nil {
-		h.redirectWithNotice(w, r, "/admin/plans", "error", "معرف الخطة غير صالح.")
+		h.redirectWithNotice(w, r, "/admin/plans", "error", i18n.T(lang, "admin.billing.invalid_plan_id"))
 		return
 	}
 
@@ -231,53 +233,56 @@ func (h *UIHandler) AdminPlanUpdateSubmit(w http.ResponseWriter, r *http.Request
 		Features:         features,
 	}
 	if _, err := h.billSvc.UpdatePlan(ctx, p); err != nil {
-		h.redirectWithNotice(w, r, "/admin/plans", "error", h.safeMessage(err, langOf(r)))
+		h.redirectWithNotice(w, r, "/admin/plans", "error", h.safeMessage(err, lang))
 		return
 	}
-	h.redirectWithNotice(w, r, "/admin/plans", "success", "تم حفظ وتحديث بيانات باقة الاشتراك بنجاح.")
+	h.redirectWithNotice(w, r, "/admin/plans", "success", i18n.T(lang, "admin.billing.plan_updated_success"))
 }
 
 // AdminPlanToggleSubmit toggles the active/inactive state of a subscription plan.
 func (h *UIHandler) AdminPlanToggleSubmit(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
+	lang := langOf(r)
 	id, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
 	if err != nil || id <= 0 || h.billSvc == nil {
-		h.redirectWithNotice(w, r, "/admin/plans", "error", "معرف الخطة غير صالح.")
+		h.redirectWithNotice(w, r, "/admin/plans", "error", i18n.T(lang, "admin.billing.invalid_plan_id"))
 		return
 	}
 	if err := h.billSvc.TogglePlanActive(ctx, id); err != nil {
-		h.redirectWithNotice(w, r, "/admin/plans", "error", h.safeMessage(err, langOf(r)))
+		h.redirectWithNotice(w, r, "/admin/plans", "error", h.safeMessage(err, lang))
 		return
 	}
-	h.redirectWithNotice(w, r, "/admin/plans", "success", "تم تغيير حالة تفعيل باقة الاشتراك بنجاح.")
+	h.redirectWithNotice(w, r, "/admin/plans", "success", i18n.T(lang, "admin.billing.plan_status_toggled_success"))
 }
 
 // AdminPlanSetDefaultSubmit designates a plan as the system default tier.
 func (h *UIHandler) AdminPlanSetDefaultSubmit(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
+	lang := langOf(r)
 	id, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
 	if err != nil || id <= 0 || h.billSvc == nil {
-		h.redirectWithNotice(w, r, "/admin/plans", "error", "معرف الخطة غير صالح.")
+		h.redirectWithNotice(w, r, "/admin/plans", "error", i18n.T(lang, "admin.billing.invalid_plan_id"))
 		return
 	}
 	if err := h.billSvc.SetDefaultPlan(ctx, id); err != nil {
-		h.redirectWithNotice(w, r, "/admin/plans", "error", h.safeMessage(err, langOf(r)))
+		h.redirectWithNotice(w, r, "/admin/plans", "error", h.safeMessage(err, lang))
 		return
 	}
-	h.redirectWithNotice(w, r, "/admin/plans", "success", "تم تعيين الباقة المحددة كباقة افتراضية للمنظومة بنجاح.")
+	h.redirectWithNotice(w, r, "/admin/plans", "success", i18n.T(lang, "admin.billing.plan_sort_updated_success"))
 }
 
 // AdminPlanDeleteSubmit deletes a subscription plan if it's safe.
 func (h *UIHandler) AdminPlanDeleteSubmit(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
+	lang := langOf(r)
 	id, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
 	if err != nil || id <= 0 || h.billSvc == nil {
-		h.redirectWithNotice(w, r, "/admin/plans", "error", "معرف الخطة غير صالح.")
+		h.redirectWithNotice(w, r, "/admin/plans", "error", i18n.T(lang, "admin.billing.invalid_plan_id"))
 		return
 	}
 	if err := h.billSvc.DeletePlan(ctx, id); err != nil {
-		h.redirectWithNotice(w, r, "/admin/plans", "error", h.safeMessage(err, langOf(r)))
+		h.redirectWithNotice(w, r, "/admin/plans", "error", h.safeMessage(err, lang))
 		return
 	}
-	h.redirectWithNotice(w, r, "/admin/plans", "success", "تم حذف باقة الاشتراك بنجاح.")
+	h.redirectWithNotice(w, r, "/admin/plans", "success", i18n.T(lang, "admin.billing.plan_deleted_success"))
 }

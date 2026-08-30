@@ -113,8 +113,9 @@ func (h *UIHandler) AdminProductStatusSubmit(w http.ResponseWriter, r *http.Requ
 // AdminProductCreateSubmit creates a new master product from Super Admin dashboard.
 func (h *UIHandler) AdminProductCreateSubmit(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
+	lang := langOf(r)
 	if h.catSvc == nil {
-		h.redirectWithNotice(w, r, "/admin/products", "error", "خدمة المنتجات غير متاحة حالياً.")
+		h.redirectWithNotice(w, r, "/admin/products", "error", i18n.T(lang, "admin.products.service_unavailable"))
 		return
 	}
 
@@ -123,7 +124,7 @@ func (h *UIHandler) AdminProductCreateSubmit(w http.ResponseWriter, r *http.Requ
 	nameAr := strings.TrimSpace(r.FormValue("name_ar"))
 	nameEn := strings.TrimSpace(r.FormValue("name_en"))
 	if nameAr == "" && nameEn == "" {
-		h.redirectWithNotice(w, r, "/admin/products", "error", "يرجى كتابة اسم الصنف الدوائي بالعربية أو الإنجليزية.")
+		h.redirectWithNotice(w, r, "/admin/products", "error", i18n.T(lang, "admin.products.name_required"))
 		return
 	}
 	if nameAr == "" {
@@ -179,24 +180,25 @@ func (h *UIHandler) AdminProductCreateSubmit(w http.ResponseWriter, r *http.Requ
 
 	if _, err := h.catSvc.CreateProduct(database.AsSystem(ctx), prod); err != nil {
 		h.log.ErrorContext(ctx, "admin create product failed", "error", err)
-		h.redirectWithNotice(w, r, "/admin/products", "error", h.safeMessage(err, langOf(r)))
+		h.redirectWithNotice(w, r, "/admin/products", "error", h.safeMessage(err, lang))
 		return
 	}
 
-	h.redirectWithNotice(w, r, "/admin/products", "success", "تمت إضافة الصنف الدوائي الأساسي بنجاح إلى الدليل المعتمد.")
+	h.redirectWithNotice(w, r, "/admin/products", "success", i18n.T(lang, "admin.products.created_success"))
 }
 
 // AdminProductEditSubmit updates an existing master medicine in the catalog.
 func (h *UIHandler) AdminProductEditSubmit(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
+	lang := langOf(r)
 	if h.catSvc == nil {
-		h.redirectWithNotice(w, r, "/admin/products", "error", "خدمة المنتجات غير متاحة حالياً.")
+		h.redirectWithNotice(w, r, "/admin/products", "error", i18n.T(lang, "admin.products.service_unavailable"))
 		return
 	}
 
 	id, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
 	if err != nil || id <= 0 {
-		h.redirectWithNotice(w, r, "/admin/products", "error", "معرف الدواء غير صالح.")
+		h.redirectWithNotice(w, r, "/admin/products", "error", i18n.T(lang, "admin.products.invalid_id"))
 		return
 	}
 
@@ -204,14 +206,14 @@ func (h *UIHandler) AdminProductEditSubmit(w http.ResponseWriter, r *http.Reques
 
 	prod, _, err := h.catSvc.GetProduct(database.AsSystem(ctx), id)
 	if err != nil || prod == nil {
-		h.redirectWithNotice(w, r, "/admin/products", "error", "الصنف الدوائي غير موجود.")
+		h.redirectWithNotice(w, r, "/admin/products", "error", i18n.T(lang, "admin.products.not_found"))
 		return
 	}
 
 	nameAr := strings.TrimSpace(r.FormValue("name_ar"))
 	nameEn := strings.TrimSpace(r.FormValue("name_en"))
 	if nameAr == "" && nameEn == "" {
-		h.redirectWithNotice(w, r, "/admin/products", "error", "يرجى كتابة اسم الصنف الدوائي بالعربية أو الإنجليزية.")
+		h.redirectWithNotice(w, r, "/admin/products", "error", i18n.T(lang, "admin.products.name_required"))
 		return
 	}
 	if nameAr == "" {
@@ -273,25 +275,26 @@ func (h *UIHandler) AdminProductEditSubmit(w http.ResponseWriter, r *http.Reques
 
 	if err := h.catSvc.UpdateProduct(database.AsSystem(ctx), prod); err != nil {
 		h.log.ErrorContext(ctx, "admin update product failed", "error", err, "id", id)
-		h.redirectWithNotice(w, r, "/admin/products", "error", h.safeMessage(err, langOf(r)))
+		h.redirectWithNotice(w, r, "/admin/products", "error", h.safeMessage(err, lang))
 		return
 	}
 
-	h.redirectWithNotice(w, r, "/admin/products", "success", "تم تحديث بيانات الصنف الدوائي بنجاح.")
+	h.redirectWithNotice(w, r, "/admin/products", "success", i18n.T(lang, "admin.products.updated_success"))
 }
 
 // AdminProductDeleteSubmit deletes a master medicine from the catalog.
 func (h *UIHandler) AdminProductDeleteSubmit(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
+	lang := langOf(r)
 	id, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
 	if err == nil && h.catSvc != nil {
 		if err := h.catSvc.DeleteProduct(database.AsSystem(ctx), id); err != nil {
 			h.log.ErrorContext(ctx, "admin delete product failed", "error", err, "id", id)
-			h.redirectWithNotice(w, r, "/admin/products", "error", h.safeMessage(err, langOf(r)))
+			h.redirectWithNotice(w, r, "/admin/products", "error", h.safeMessage(err, lang))
 			return
 		}
 	}
-	h.redirectWithNotice(w, r, "/admin/products", "success", "تم حذف الصنف الدوائي من الكتالوج المعتمد.")
+	h.redirectWithNotice(w, r, "/admin/products", "success", i18n.T(lang, "admin.products.deleted_success"))
 }
 
 // AdminProductsSampleCSV streams a UTF-8 BOM CSV template with sample pharmaceutical products.

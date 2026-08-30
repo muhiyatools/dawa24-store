@@ -108,6 +108,7 @@ func (h *UIHandler) AdminTranslationsPage(w http.ResponseWriter, r *http.Request
 
 func (h *UIHandler) AdminTranslationUpdateSubmit(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
+	lang := langOf(r)
 	_ = r.ParseForm()
 
 	key := strings.TrimSpace(r.PostFormValue("key"))
@@ -116,61 +117,63 @@ func (h *UIHandler) AdminTranslationUpdateSubmit(w http.ResponseWriter, r *http.
 	desc := strings.TrimSpace(r.PostFormValue("description"))
 
 	if key == "" || (textAR == "" && textEN == "") {
-		h.redirectWithNotice(w, r, "/admin/translations", "error", "يرجى ملء مفتاح الترجمة والنص العربي أو الإنجليزي.")
+		h.redirectWithNotice(w, r, "/admin/translations", "error", i18n.T(lang, "admin.translations.key_and_text_required"))
 		return
 	}
 
 	if h.adminSvc == nil {
-		h.redirectWithNotice(w, r, "/admin/translations", "error", "خدمة الإدارة العامة غير متوفرة.")
+		h.redirectWithNotice(w, r, "/admin/translations", "error", i18n.T(lang, "admin.translations.admin_service_unavailable"))
 		return
 	}
 
 	if err := h.adminSvc.UpdateTranslation(ctx, key, textAR, textEN, desc); err != nil {
 		h.log.ErrorContext(ctx, "admin update translation failed", "error", err)
-		h.redirectWithNotice(w, r, "/admin/translations", "error", "فشل حفظ التعديل: "+err.Error())
+		h.redirectWithNotice(w, r, "/admin/translations", "error", h.safeMessage(err, lang))
 		return
 	}
 
-	h.redirectWithNotice(w, r, "/admin/translations", "success", "تم تحديث الترجمة وتطبيقها بنجاح في كامل المنصة.")
+	h.redirectWithNotice(w, r, "/admin/translations", "success", i18n.T(lang, "admin.translations.updated_success"))
 }
 
 func (h *UIHandler) AdminTranslationResetSubmit(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
+	lang := langOf(r)
 	_ = r.ParseForm()
 
 	key := strings.TrimSpace(r.PostFormValue("key"))
 	if key == "" {
-		h.redirectWithNotice(w, r, "/admin/translations", "error", "مفتاح الترجمة غير صالح.")
+		h.redirectWithNotice(w, r, "/admin/translations", "error", i18n.T(lang, "admin.translations.invalid_key"))
 		return
 	}
 
 	if h.adminSvc == nil {
-		h.redirectWithNotice(w, r, "/admin/translations", "error", "خدمة الإدارة العامة غير متوفرة.")
+		h.redirectWithNotice(w, r, "/admin/translations", "error", i18n.T(lang, "admin.translations.admin_service_unavailable"))
 		return
 	}
 
 	if err := h.adminSvc.ResetTranslation(ctx, key); err != nil {
 		h.log.ErrorContext(ctx, "admin reset translation failed", "error", err)
-		h.redirectWithNotice(w, r, "/admin/translations", "error", "فشل استعادة الترجمة الافتراضية: "+err.Error())
+		h.redirectWithNotice(w, r, "/admin/translations", "error", h.safeMessage(err, lang))
 		return
 	}
 
-	h.redirectWithNotice(w, r, "/admin/translations", "success", "تمت استعادة الترجمة الافتراضية بنجاح.")
+	h.redirectWithNotice(w, r, "/admin/translations", "success", i18n.T(lang, "admin.translations.reset_success"))
 }
 
 func (h *UIHandler) AdminTranslationsSyncSubmit(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
+	lang := langOf(r)
 
 	if h.adminSvc == nil {
-		h.redirectWithNotice(w, r, "/admin/translations", "error", "خدمة الإدارة العامة غير متوفرة.")
+		h.redirectWithNotice(w, r, "/admin/translations", "error", i18n.T(lang, "admin.translations.admin_service_unavailable"))
 		return
 	}
 
 	if err := h.adminSvc.SyncAllDefaultTranslations(ctx); err != nil {
 		h.log.ErrorContext(ctx, "admin sync translations failed", "error", err)
-		h.redirectWithNotice(w, r, "/admin/translations", "error", "فشل مزامنة المفاتيح الافتراضية: "+err.Error())
+		h.redirectWithNotice(w, r, "/admin/translations", "error", h.safeMessage(err, lang))
 		return
 	}
 
-	h.redirectWithNotice(w, r, "/admin/translations", "success", "تمت مزامنة كافة مفاتيح النظام الافتراضية مع قاعدة البيانات بنجاح.")
+	h.redirectWithNotice(w, r, "/admin/translations", "success", i18n.T(lang, "admin.translations.synced_success"))
 }

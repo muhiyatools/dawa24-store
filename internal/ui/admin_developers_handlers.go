@@ -13,7 +13,7 @@ import (
 	platformadmin "github.com/muhiya/dawa24-store/internal/modules/platform_admin"
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/platform/gateway"
-
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/ui/pages"
 )
 
@@ -141,16 +141,17 @@ func (h *UIHandler) AdminDevelopersPage(w http.ResponseWriter, r *http.Request) 
 // AdminSQLExecuteSubmit executes a SQL query from the Developer SQL Console and returns JSON.
 func (h *UIHandler) AdminSQLExecuteSubmit(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
+	lang := langOf(r)
 	w.Header().Set("Content-Type", "application/json")
 
 	if h.adminSvc == nil {
-		_ = json.NewEncoder(w).Encode(map[string]any{"error": "خدمة إدارة المنظومة غير متاحة."})
+		_ = json.NewEncoder(w).Encode(map[string]any{"error": i18n.T(lang, "admin.dev.admin_service_unavailable")})
 		return
 	}
 
 	query := strings.TrimSpace(r.FormValue("query"))
 	if query == "" {
-		_ = json.NewEncoder(w).Encode(map[string]any{"error": "استعلام SQL فارغ."})
+		_ = json.NewEncoder(w).Encode(map[string]any{"error": i18n.T(lang, "admin.dev.empty_sql_query")})
 		return
 	}
 
@@ -176,8 +177,9 @@ func (h *UIHandler) AdminSQLExecuteSubmit(w http.ResponseWriter, r *http.Request
 // AdminDeveloperAISettingsSubmit updates AI Gateway settings from the Developer section.
 func (h *UIHandler) AdminDeveloperAISettingsSubmit(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
+	lang := langOf(r)
 	if h.adminSvc == nil {
-		h.redirectWithNotice(w, r, "/admin/developers?tab=ai", "error", "خدمة إدارة المنظومة غير متاحة.")
+		h.redirectWithNotice(w, r, "/admin/developers?tab=ai", "error", i18n.T(lang, "admin.dev.admin_service_unavailable"))
 		return
 	}
 
@@ -242,7 +244,7 @@ func (h *UIHandler) AdminDeveloperAISettingsSubmit(w http.ResponseWriter, r *htt
 	}
 
 	if err := h.adminSvc.SaveGatewaySettings(ctx, gw); err != nil {
-		h.redirectWithNotice(w, r, "/admin/developers?tab=ai", "error", h.safeMessage(err, langOf(r)))
+		h.redirectWithNotice(w, r, "/admin/developers?tab=ai", "error", h.safeMessage(err, lang))
 		return
 	}
 	if h.gatewayKeys != nil {
@@ -262,7 +264,7 @@ func (h *UIHandler) AdminDeveloperAISettingsSubmit(w http.ResponseWriter, r *htt
 	}
 	_ = h.adminSvc.SaveAISettings(ctx, ai)
 
-	h.redirectWithNotice(w, r, "/admin/developers?tab=ai", "success", "تم حفظ إعدادات بوابة الذكاء الاصطناعي بنجاح.")
+	h.redirectWithNotice(w, r, "/admin/developers?tab=ai", "success", i18n.T(lang, "admin.dev.saved_ai_settings_success"))
 }
 
 // AdminAIFetchModelsAPI contacts the AI gateway to list available models live.
@@ -278,6 +280,7 @@ func (h *UIHandler) AdminAIFetchModelsAPI(w http.ResponseWriter, r *http.Request
 // AdminGatewayTestConnection probes Gateway readiness live.
 func (h *UIHandler) AdminGatewayTestConnection(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
+	lang := langOf(r)
 	w.Header().Set("Content-Type", "application/json")
 
 	_ = r.ParseForm()
@@ -308,9 +311,9 @@ func (h *UIHandler) AdminGatewayTestConnection(w http.ResponseWriter, r *http.Re
 	plans, err := adminClient.ListPlans(ctx)
 	if err != nil {
 		w.WriteHeader(http.StatusOK)
-		msg := fmt.Sprintf("تعذر الاتصال بـ %s (%v)", endpoint, err)
+		msg := fmt.Sprintf(i18n.T(lang, "admin.dev.connection_failed_format"), endpoint, err)
 		if strings.Contains(err.Error(), "401") || strings.Contains(err.Error(), "Unauthorized") {
-			msg = fmt.Sprintf("خطأ في المصادقة (401 Unauthorized): كلمة مرور أو بيانات اعتماد المدير غير صحيحة لبوابة %s. يرجى كتابة كلمة المرور المحددة في ADMIN_PASSWORD الخاصة بالبوابة والضغط على حفظ.", endpoint)
+			msg = fmt.Sprintf(i18n.T(lang, "admin.dev.unauthorized_format"), endpoint)
 		}
 		_ = json.NewEncoder(w).Encode(map[string]any{
 			"status":  "unreachable",
@@ -322,7 +325,7 @@ func (h *UIHandler) AdminGatewayTestConnection(w http.ResponseWriter, r *http.Re
 
 	_ = json.NewEncoder(w).Encode(map[string]any{
 		"status":  "healthy",
-		"message": fmt.Sprintf("الاتصال بـ %s نشط بنجاح — تم جلب %d باقات ذكاء اصطناعي حية من البوابة", endpoint, len(plans)),
+		"message": fmt.Sprintf(i18n.T(lang, "admin.dev.connection_healthy_format"), endpoint, len(plans)),
 		"count":   len(plans),
 	})
 }
@@ -330,9 +333,10 @@ func (h *UIHandler) AdminGatewayTestConnection(w http.ResponseWriter, r *http.Re
 // AdminErrorLogStatusSubmit updates the status of an error record.
 func (h *UIHandler) AdminErrorLogStatusSubmit(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
+	lang := langOf(r)
 	id, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
 	if err != nil || id <= 0 {
-		h.redirectWithNotice(w, r, "/admin/developers?tab=errors", "error", "معرف السجل غير صالح.")
+		h.redirectWithNotice(w, r, "/admin/developers?tab=errors", "error", i18n.T(lang, "admin.dev.invalid_log_id"))
 		return
 	}
 
@@ -342,14 +346,14 @@ func (h *UIHandler) AdminErrorLogStatusSubmit(w http.ResponseWriter, r *http.Req
 	}
 
 	if h.adminSvc == nil {
-		h.redirectWithNotice(w, r, "/admin/developers?tab=errors", "error", "خدمة إدارة المنظومة غير متاحة.")
+		h.redirectWithNotice(w, r, "/admin/developers?tab=errors", "error", i18n.T(lang, "admin.dev.admin_service_unavailable"))
 		return
 	}
 
 	if err := h.adminSvc.UpdateErrorLogStatus(ctx, id, status); err != nil {
-		h.redirectWithNotice(w, r, "/admin/developers?tab=errors", "error", h.safeMessage(err, langOf(r)))
+		h.redirectWithNotice(w, r, "/admin/developers?tab=errors", "error", h.safeMessage(err, lang))
 		return
 	}
 
-	h.redirectWithNotice(w, r, "/admin/developers?tab=errors", "success", "تم تحديث حالة الخطأ بنجاح.")
+	h.redirectWithNotice(w, r, "/admin/developers?tab=errors", "success", i18n.T(lang, "admin.dev.error_status_updated_success"))
 }

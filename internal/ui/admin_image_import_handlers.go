@@ -16,6 +16,7 @@ import (
 	"github.com/xuri/excelize/v2"
 
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/shared/sheet"
 	"github.com/muhiya/dawa24-store/internal/ui/pages"
 )
@@ -49,6 +50,7 @@ func (h *UIHandler) AdminProductImagesImportPage(w http.ResponseWriter, r *http.
 // AdminProductImagesUploadSubmit handles spreadsheet file upload and opens a new image recovery session.
 func (h *UIHandler) AdminProductImagesUploadSubmit(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
+	lang := langOf(r)
 	actor, ok := authctx.From(ctx)
 	if !ok {
 		http.Redirect(w, r, "/auth/login?redirect=/admin/products/images/import", http.StatusSeeOther)
@@ -56,13 +58,13 @@ func (h *UIHandler) AdminProductImagesUploadSubmit(w http.ResponseWriter, r *htt
 	}
 
 	if err := r.ParseMultipartForm(MaxUploadBytes); err != nil {
-		h.redirectWithNotice(w, r, "/admin/products/images/import", "error", "حجم الملف كبير جداً أو تعذر قراءته.")
+		h.redirectWithNotice(w, r, "/admin/products/images/import", "error", i18n.T(lang, "admin.image_import.file_too_large"))
 		return
 	}
 
 	file, header, err := r.FormFile("file")
 	if err != nil {
-		h.redirectWithNotice(w, r, "/admin/products/images/import", "error", "يرجى اختيار ملف Excel أو CSV صالح.")
+		h.redirectWithNotice(w, r, "/admin/products/images/import", "error", i18n.T(lang, "admin.image_import.select_valid_file"))
 		return
 	}
 	defer file.Close()
@@ -77,13 +79,13 @@ func (h *UIHandler) AdminProductImagesUploadSubmit(w http.ResponseWriter, r *htt
 	case ".xlsx", ".xls", ".xlsm", ".csv", ".txt", ".tsv", ".htm", ".html", ".xml", "":
 	default:
 		h.redirectWithNotice(w, r, "/admin/products/images/import", "error",
-			"صيغة الملف غير مدعومة. يرجى رفع ملف Excel (.xlsx أو .xls) أو ملف نصي (.csv).")
+			i18n.T(lang, "admin.image_import.unsupported_format"))
 		return
 	}
 
 	data, err := io.ReadAll(file)
 	if err != nil || len(data) == 0 {
-		h.redirectWithNotice(w, r, "/admin/products/images/import", "error", "الملف المرفوع فارغ أو تالف.")
+		h.redirectWithNotice(w, r, "/admin/products/images/import", "error", i18n.T(lang, "admin.image_import.file_empty"))
 		return
 	}
 
@@ -97,7 +99,7 @@ func (h *UIHandler) AdminProductImagesUploadSubmit(w http.ResponseWriter, r *htt
 	}
 	if len(rawRows) < 2 {
 		h.redirectWithNotice(w, r, "/admin/products/images/import", "error",
-			"الملف يحتوي على صف العناوين فقط ولا يوجد به أي بيانات.")
+			i18n.T(lang, "admin.image_import.header_only"))
 		return
 	}
 
@@ -160,7 +162,7 @@ func (h *UIHandler) AdminProductImagesSessionPage(w http.ResponseWriter, r *http
 	sessionID := chi.URLParam(r, "id")
 	session, ok := globalAdminImageImportSessionStore.GetSession(sessionID)
 	if !ok {
-		h.redirectWithNotice(w, r, "/admin/products/images/import", "error", "جلسة استرداد الصور غير موجودة أو انتهت صلاحيتها.")
+		h.redirectWithNotice(w, r, "/admin/products/images/import", "error", i18n.T(lang, "admin.image_import.session_not_found"))
 		return
 	}
 
@@ -180,15 +182,16 @@ func (h *UIHandler) AdminProductImagesSessionPage(w http.ResponseWriter, r *http
 
 // AdminProductImagesMappingSubmit confirms column selection and launches image downloading in the background.
 func (h *UIHandler) AdminProductImagesMappingSubmit(w http.ResponseWriter, r *http.Request) {
+	lang := langOf(r)
 	sessionID := chi.URLParam(r, "id")
 	session, ok := globalAdminImageImportSessionStore.GetSession(sessionID)
 	if !ok {
-		h.redirectWithNotice(w, r, "/admin/products/images/import", "error", "جلسة استرداد الصور غير موجودة أو انتهت صلاحيتها.")
+		h.redirectWithNotice(w, r, "/admin/products/images/import", "error", i18n.T(lang, "admin.image_import.session_not_found"))
 		return
 	}
 
 	if err := r.ParseForm(); err != nil {
-		h.redirectWithNotice(w, r, fmt.Sprintf("/admin/products/images/import/%s", sessionID), "error", "تعذر قراءة النموذج.")
+		h.redirectWithNotice(w, r, fmt.Sprintf("/admin/products/images/import/%s", sessionID), "error", h.safeMessage(err, lang))
 		return
 	}
 
@@ -196,7 +199,7 @@ func (h *UIHandler) AdminProductImagesMappingSubmit(w http.ResponseWriter, r *ht
 	urlCol, _ := strconv.Atoi(r.PostFormValue("url_col"))
 
 	if skuCol < 0 || urlCol < 0 || skuCol == urlCol {
-		h.redirectWithNotice(w, r, fmt.Sprintf("/admin/products/images/import/%s", sessionID), "error", "يرجى تحديد عمود كود الصنف (SKU) وعمود رابط الصورة (Image URL) بشكل صحيح ومستقل.")
+		h.redirectWithNotice(w, r, fmt.Sprintf("/admin/products/images/import/%s", sessionID), "error", i18n.T(lang, "admin.image_import.select_columns_required"))
 		return
 	}
 
@@ -217,7 +220,7 @@ func (h *UIHandler) AdminProductImagesProgressJSON(w http.ResponseWriter, r *htt
 	sessionID := chi.URLParam(r, "id")
 	session, ok := globalAdminImageImportSessionStore.GetSession(sessionID)
 	if !ok {
-		_ = json.NewEncoder(w).Encode(map[string]any{"success": false, "error": "الجلسة غير موجودة"})
+		_ = json.NewEncoder(w).Encode(map[string]any{"success": false, "error": i18n.T(langOf(r), "admin.image_import.session_not_found")})
 		return
 	}
 
@@ -237,7 +240,7 @@ func (h *UIHandler) AdminProductImagesProgressJSON(w http.ResponseWriter, r *htt
 func (h *UIHandler) AdminProductImagesCancelSubmit(w http.ResponseWriter, r *http.Request) {
 	sessionID := chi.URLParam(r, "id")
 	globalAdminImageImportSessionStore.DeleteSession(sessionID)
-	h.redirectWithNotice(w, r, "/admin/products/images/import", "success", "تم حذف جلسة استرداد الصور بنجاح.")
+	h.redirectWithNotice(w, r, "/admin/products/images/import", "success", i18n.T(langOf(r), "admin.image_import.session_deleted_success"))
 }
 
 // AdminProductImagesSampleXLSX streams download of a clean Excel template.

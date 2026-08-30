@@ -108,8 +108,9 @@ func (h *UIHandler) AdminRoleDetailPage(w http.ResponseWriter, r *http.Request) 
 func (h *UIHandler) AdminRoleCreateSubmit(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	actor := authctx.FromContext(ctx)
+	lang := langOf(r)
 	if h.idSvc == nil {
-		h.redirectWithNotice(w, r, "/admin/roles", "error", "خدمة الهوية غير متوفرة.")
+		h.redirectWithNotice(w, r, "/admin/roles", "error", i18n.T(lang, "admin.roles.id_service_unavailable"))
 		return
 	}
 	_ = r.ParseForm()
@@ -123,20 +124,21 @@ func (h *UIHandler) AdminRoleCreateSubmit(w http.ResponseWriter, r *http.Request
 		ActorID:     actor.UserID,
 	})
 	if err != nil {
-		h.redirectWithNotice(w, r, "/admin/roles", "error", h.safeMessage(err, langOf(r)))
+		h.redirectWithNotice(w, r, "/admin/roles", "error", h.safeMessage(err, lang))
 		return
 	}
 	h.invalidatePermissions(actor.UserID, 0)
-	h.redirectWithNotice(w, r, "/admin/roles/"+role.Key, "success", "تم إنشاء الدور. حدّد صلاحياته الآن.")
+	h.redirectWithNotice(w, r, "/admin/roles/"+role.Key, "success", i18n.T(lang, "admin.roles.created_success"))
 }
 
 // AdminRoleUpdateSubmit saves a role's label, staff flag and permissions.
 func (h *UIHandler) AdminRoleUpdateSubmit(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	actor := authctx.FromContext(ctx)
+	lang := langOf(r)
 	key := chi.URLParam(r, "key")
 	if h.idSvc == nil {
-		h.redirectWithNotice(w, r, "/admin/roles", "error", "خدمة الهوية غير متوفرة.")
+		h.redirectWithNotice(w, r, "/admin/roles", "error", i18n.T(lang, "admin.roles.id_service_unavailable"))
 		return
 	}
 	_ = r.ParseForm()
@@ -148,58 +150,60 @@ func (h *UIHandler) AdminRoleUpdateSubmit(w http.ResponseWriter, r *http.Request
 		Permissions: r.Form["permissions"],
 		ActorID:     actor.UserID,
 	}); err != nil {
-		h.redirectWithNotice(w, r, "/admin/roles/"+key, "error", h.safeMessage(err, langOf(r)))
+		h.redirectWithNotice(w, r, "/admin/roles/"+key, "error", h.safeMessage(err, lang))
 		return
 	}
 	// The editing administrator may have just changed their own role. Dropping
 	// the cached grant here means the very next page they open reflects it,
 	// rather than the version counter's few seconds later.
 	h.invalidatePermissions(actor.UserID, 0)
-	h.redirectWithNotice(w, r, "/admin/roles/"+key, "success", "تم حفظ صلاحيات الدور.")
+	h.redirectWithNotice(w, r, "/admin/roles/"+key, "success", i18n.T(lang, "admin.roles.permissions_saved_success"))
 }
 
 // AdminRoleDeleteSubmit removes a custom role.
 func (h *UIHandler) AdminRoleDeleteSubmit(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	actor := authctx.FromContext(ctx)
+	lang := langOf(r)
 	key := chi.URLParam(r, "key")
 	if h.idSvc == nil {
-		h.redirectWithNotice(w, r, "/admin/roles", "error", "خدمة الهوية غير متوفرة.")
+		h.redirectWithNotice(w, r, "/admin/roles", "error", i18n.T(lang, "admin.roles.id_service_unavailable"))
 		return
 	}
 	if err := h.idSvc.DeletePlatformRole(ctx, key, actor.UserID); err != nil {
-		h.redirectWithNotice(w, r, "/admin/roles", "error", h.safeMessage(err, langOf(r)))
+		h.redirectWithNotice(w, r, "/admin/roles", "error", h.safeMessage(err, lang))
 		return
 	}
 	h.invalidatePermissions(actor.UserID, 0)
-	h.redirectWithNotice(w, r, "/admin/roles", "success", "تم حذف الدور.")
+	h.redirectWithNotice(w, r, "/admin/roles", "success", i18n.T(lang, "admin.roles.deleted_success"))
 }
 
 // AdminUserRoleAssignSubmit puts a user account into a platform role.
 func (h *UIHandler) AdminUserRoleAssignSubmit(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	actor := authctx.FromContext(ctx)
+	lang := langOf(r)
 	userID, _ := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
 	target := "/admin/users/" + chi.URLParam(r, "id")
 
 	if h.idSvc == nil || userID <= 0 {
-		h.redirectWithNotice(w, r, target, "error", "طلب غير صالح.")
+		h.redirectWithNotice(w, r, target, "error", i18n.T(lang, "admin.roles.invalid_request"))
 		return
 	}
 	// An administrator changing their own role could hand themselves the owner
 	// role, or strip their own access with no way back. Both are refused; a
 	// second administrator makes the change.
 	if userID == actor.UserID {
-		h.redirectWithNotice(w, r, target, "error", "لا يمكنك تغيير دور حسابك بنفسك.")
+		h.redirectWithNotice(w, r, target, "error", i18n.T(lang, "admin.roles.cannot_change_own_role"))
 		return
 	}
 	key := strings.TrimSpace(r.PostFormValue("role"))
 	if err := h.idSvc.AssignPlatformRole(ctx, userID, key, actor.UserID); err != nil {
-		h.redirectWithNotice(w, r, target, "error", h.safeMessage(err, langOf(r)))
+		h.redirectWithNotice(w, r, target, "error", h.safeMessage(err, lang))
 		return
 	}
 	h.invalidatePermissions(userID, 0)
-	h.redirectWithNotice(w, r, target, "success", "تم تحديث دور المستخدم وإنهاء جلساته.")
+	h.redirectWithNotice(w, r, target, "success", i18n.T(lang, "admin.roles.user_role_updated_success"))
 }
 
 // invalidatePermissions drops one caller's cached grant in this process. The
@@ -223,14 +227,14 @@ func formName(r *http.Request) i18n.Text {
 	return i18n.New(ar, en)
 }
 
-func staffBadge(role *identity.PlatformRole) string {
+func staffBadge(role *identity.PlatformRole, lang any) string {
 	if role.IsOwner {
-		return "كامل الصلاحيات"
+		return i18n.T(lang, "admin.roles.badge_full_access")
 	}
 	if role.IsStaff {
-		return "لوحة الإدارة"
+		return i18n.T(lang, "admin.roles.badge_staff")
 	}
-	return "حساب عادي"
+	return i18n.T(lang, "admin.roles.badge_regular")
 }
 
 // AdminStaffCreateSubmit creates a moderator or administrator account from
@@ -242,14 +246,15 @@ func staffBadge(role *identity.PlatformRole) string {
 func (h *UIHandler) AdminStaffCreateSubmit(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	actor := authctx.FromContext(ctx)
+	lang := langOf(r)
 	const target = "/admin/users?tab=staff"
 
 	if h.idSvc == nil {
-		h.redirectWithNotice(w, r, target, "error", "خدمة الهوية غير متوفرة.")
+		h.redirectWithNotice(w, r, target, "error", i18n.T(lang, "admin.roles.id_service_unavailable"))
 		return
 	}
 	if err := r.ParseForm(); err != nil {
-		h.redirectWithNotice(w, r, target, "error", "بيانات النموذج غير صالحة.")
+		h.redirectWithNotice(w, r, target, "error", i18n.T(lang, "admin.roles.invalid_form"))
 		return
 	}
 
@@ -263,9 +268,9 @@ func (h *UIHandler) AdminStaffCreateSubmit(w http.ResponseWriter, r *http.Reques
 		ActorID:  actor.UserID,
 	})
 	if err != nil {
-		h.redirectWithNotice(w, r, target, "error", h.safeMessage(err, langOf(r)))
+		h.redirectWithNotice(w, r, target, "error", h.safeMessage(err, lang))
 		return
 	}
 	h.redirectWithNotice(w, r, fmt.Sprintf("/admin/users/%d", user.ID),
-		"success", "تم إنشاء حساب المشرف وإسناد دوره.")
+		"success", i18n.T(lang, "admin.roles.staff_created_success"))
 }

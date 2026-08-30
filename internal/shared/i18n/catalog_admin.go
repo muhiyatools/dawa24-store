@@ -157,6 +157,10 @@ func loadAdminKeys(e *engine) {
 	addKey(e, "admin.temp_wh.not_found", "admin", "المستودع غير موجود.", "Temporary warehouse not found.", "Not found error")
 	addKey(e, "admin.temp_wh.mapping_updated_msg", "admin", "تم تحديث أعمدة المستودع [%s] بنجاح (إجمالي %d صنف).", "Warehouse columns [%s] updated successfully (total %d items).", "Success message")
 	addKey(e, "admin.temp_wh.mapping_applied_msg", "admin", "تم تحديث وتأكيد أعمدة المستودع [%s] بنجاح.", "Warehouse columns [%s] updated and confirmed successfully.", "Success notice")
+	addKey(e, "admin.temp_wh.deleted_success", "admin", "تم حذف المستودع وكافة أصنافه بنجاح.", "Temporary warehouse and all items deleted successfully.", "Success notice")
+	addKey(e, "admin.temp_wh.unarchived_success", "admin", "تم تفعيل المستودع وإتاحته بالخصومات بنجاح.", "Warehouse unarchived and enabled for discounts.", "Success notice")
+	addKey(e, "admin.temp_wh.manual_archive_reason", "admin", "أرشفة يدوية من لوحة المشرف", "Manual archive from admin portal", "Archive reason")
+	addKey(e, "admin.temp_wh.archived_success", "admin", "تم أرشفة المستودع بنجاح.", "Warehouse archived successfully.", "Success notice")
 
 	// --- Categories & Reference ---
 	addKey(e, "admin.categories.service_unavailable", "catalog", "خدمة الكتالوج غير متاحة.", "Catalogue service is currently unavailable.", "Service error")
@@ -196,4 +200,134 @@ func loadAdminKeys(e *engine) {
 	addKey(e, "admin.roles.user_role_updated_success", "identity", "تم تحديث دور المستخدم وإنهاء جلساته.", "User role updated and active sessions terminated.", "Success notice")
 	addKey(e, "admin.roles.invalid_form", "identity", "بيانات النموذج غير صالحة.", "Invalid form data.", "Validation error")
 	addKey(e, "admin.roles.staff_created_success", "identity", "تم إنشاء حساب المشرف وإسناد دوره.", "Staff account created and role assigned successfully.", "Success notice")
+
+	// --- Product Images Import ---
+	addKey(e, "admin.image_import.file_too_large", "catalog", "حجم الملف كبير جداً أو تعذر قراءته.", "File size is too large or could not be read.", "Upload error")
+	addKey(e, "admin.image_import.select_valid_file", "catalog", "يرجى اختيار ملف Excel أو CSV صالح.", "Please select a valid Excel or CSV file.", "Validation error")
+	addKey(e, "admin.image_import.unsupported_format", "catalog", "صيغة الملف غير مدعومة. يرجى رفع ملف Excel (.xlsx أو .xls) أو ملف نصي (.csv).", "Unsupported file format. Please upload an Excel (.xlsx or .xls) or CSV (.csv) file.", "Format error")
+	addKey(e, "admin.image_import.file_empty", "catalog", "الملف المرفوع فارغ أو تالف.", "The uploaded file is empty or corrupted.", "Validation error")
+	addKey(e, "admin.image_import.header_only", "catalog", "الملف يحتوي على صف العناوين فقط ولا يوجد به أي بيانات.", "File contains headers only and has no data rows.", "Validation error")
+	addKey(e, "admin.image_import.session_not_found", "catalog", "جلسة المعالجة منتهية الصلاحية أو غير موجودة.", "Processing session expired or not found.", "Not found error")
+	addKey(e, "admin.image_import.catalog_service_unavailable", "catalog", "خدمة الكتالوج معطلة.", "Catalogue service is disabled.", "Service error")
+	addKey(e, "admin.image_import.select_columns_required", "catalog", "يرجى تحديد عمود كود الصنف (SKU) وعمود رابط الصورة (Image URL) للبدء بربط الصور.", "Please select the SKU column and the Image URL column to begin linking images.", "Validation error")
+	addKey(e, "admin.image_import.session_deleted_success", "catalog", "تم حذف جلسة استيراد الصور بنجاح.", "Image import session deleted successfully.", "Success notice")
+
+	// --- Geography & Locations ---
+	addKey(e, "admin.geo.city_name_ar_required", "admin", "اسم المدينة بالعربية مطلوب.", "City Arabic name is required.", "Validation error")
+	addKey(e, "admin.geo.city_created_success", "admin", "تم حفظ وإضافة المدينة الفرعية بنجاح في قاعدة البيانات.", "City/district added and saved successfully.", "Success notice")
+	addKey(e, "admin.geo.city_invalid_id", "admin", "معرف المدينة غير صالح.", "Invalid city ID.", "Validation error")
+	addKey(e, "admin.geo.city_status_updated_success", "admin", "تم تحديث حالة تفعيل المدينة بنجاح.", "City status updated successfully.", "Success notice")
+	addKey(e, "admin.geo.city_updated_success", "admin", "تم تحديث وحفظ بيانات المدينة بنجاح.", "City data updated and saved successfully.", "Success notice")
+	addKey(e, "admin.geo.gov_name_ar_required", "admin", "اسم المحافظة بالعربية مطلوب.", "Governorate Arabic name is required.", "Validation error")
+	addKey(e, "admin.geo.gov_created_success", "admin", "تم حفظ وإضافة المحافظة الرئيسية بنجاح.", "Main governorate added and saved successfully.", "Success notice")
+	addKey(e, "admin.geo.gov_invalid_id", "admin", "معرف المحافظة غير صالح.", "Invalid governorate ID.", "Validation error")
+	addKey(e, "admin.geo.gov_updated_success", "admin", "تم تحديث بيانات المحافظة بنجاح.", "Governorate data updated successfully.", "Success notice")
+	addKey(e, "admin.geo.gov_status_updated_success", "admin", "تم تحديث حالة تفعيل المحافظة بنجاح.", "Governorate status updated successfully.", "Success notice")
+
+	// --- Platform Settings ---
+	addKey(e, "admin.settings.invalid_feature_key", "admin", "مفتاح الميزة غير صالح.", "Invalid feature key.", "Validation error")
+	addKey(e, "admin.settings.feature_save_failed", "admin", "فشل حفظ حالة الميزة.", "Failed to save feature state.", "Save error")
+	addKey(e, "admin.settings.feature_enabled_success", "admin", "تم تفعيل الميزة بنجاح.", "Feature enabled successfully.", "Success notice")
+	addKey(e, "admin.settings.feature_disabled_success", "admin", "تم إيقاف الميزة بنجاح.", "Feature disabled successfully.", "Success notice")
+	addKey(e, "admin.settings.service_unavailable", "admin", "خدمة الإعدادات غير متاحة حالياً.", "Settings service is currently unavailable.", "Service error")
+	addKey(e, "admin.settings.invalid_email", "admin", "البريد الإلكتروني غير صالح.", "Invalid email address.", "Validation error")
+	addKey(e, "admin.settings.invalid_commission", "admin", "نسبة العمولة يجب أن تكون بين 0 و 100.", "Commission rate must be between 0 and 100.", "Validation error")
+	addKey(e, "admin.settings.saved_general_success", "admin", "تم حفظ البيانات العامة بنجاح.", "General settings saved successfully.", "Success notice")
+	addKey(e, "admin.settings.saved_ai_success", "admin", "تم حفظ إعدادات الذكاء الاصطناعي بنجاح.", "AI settings saved successfully.", "Success notice")
+	addKey(e, "admin.settings.saved_system_prompt_success", "admin", "تم حفظ وتطبيق التوجيه العام لذكاء كبسولة الاصطناعي بنجاح.", "AI system prompt saved and applied successfully.", "Success notice")
+
+	// --- Platform Finance & Billing ---
+	addKey(e, "admin.finance.invalid_deposit_id", "billing", "معرف طلب الإيداع غير صالح.", "Invalid deposit request ID.", "Validation error")
+	addKey(e, "admin.finance.service_unavailable", "billing", "خدمة المدفوعات والمحفظة غير متاحة.", "Billing and wallet service is unavailable.", "Service error")
+	addKey(e, "admin.finance.deposit_approved_success_format", "billing", "تم اعتماد طلب الإيداع بنجاح وإضافة %s ج.م إلى محفظة المستخدم (معاملة #TX-%d).", "Deposit request approved successfully and %s EGP added to user wallet (Tx #TX-%d).", "Success notice")
+	addKey(e, "admin.finance.default_deposit_rejection_reason", "billing", "تم رفض طلب الإيداع لعدم تطابق بيانات أو إشعار التحويل البنكي.", "Deposit rejected due to unmatched bank transfer receipt details.", "Default rejection reason")
+	addKey(e, "admin.finance.deposit_rejected_success", "billing", "تم رفض طلب الإيداع وإشعار صاحب الحساب بحيثيات الرفض.", "Deposit rejected and user notified with reason.", "Success notice")
+	addKey(e, "admin.finance.invalid_wallet_id", "billing", "معرف المحفظة غير صحيح.", "Invalid wallet ID.", "Validation error")
+	addKey(e, "admin.finance.invalid_amount", "billing", "يرجى تحديد مبلغ صالح أكبر من الصفر.", "Please specify a valid amount greater than zero.", "Validation error")
+	addKey(e, "admin.finance.default_adjustment_reason", "billing", "تعديل إداري مباشر للرصيد", "Direct manual administrative adjustment", "Default adjustment reason")
+	addKey(e, "admin.finance.wallet_adjusted_success", "billing", "تم قيد وتحديث رصيد المحفظة بنجاح وتسجيل المعاملة في السجل.", "Wallet balance updated and transaction logged successfully.", "Success notice")
+	addKey(e, "admin.finance.plan_types_title", "billing", "أنواع وتصنيفات خطط الاشتراك", "Subscription Plan Types & Categories", "Page title")
+	addKey(e, "admin.finance.plan_type", "billing", "نوع خطة", "Plan Type", "Entity singular")
+	addKey(e, "admin.finance.plan_features_title", "billing", "ميزات ومحددات باقات الاشتراك", "Subscription Plan Features & Limits", "Page title")
+	addKey(e, "admin.finance.plan_feature", "billing", "ميزة", "Feature", "Entity singular")
+
+	// --- Platform Subscription Plans ---
+	addKey(e, "admin.billing.gw_plan_dev_desc", "billing", "باقة التطوير والتشغيل المجانية", "Free development & operational tier", "Plan description")
+	addKey(e, "admin.billing.gw_plan_yalla_desc", "billing", "باقة الأعمال والنمو المتوسطة", "Mid-tier business and growth plan", "Plan description")
+	addKey(e, "admin.billing.gw_plan_max_desc", "billing", "باقة المؤسسات والشركات الكبرى", "Enterprise tier for large organizations", "Plan description")
+	addKey(e, "admin.billing.service_unavailable", "billing", "الخدمة غير متاحة حالياً.", "Service is currently unavailable.", "Service error")
+	addKey(e, "admin.billing.plan_created_success", "billing", "تمت إضافة وحفظ باقة الاشتراك الجديدة بنجاح.", "New subscription plan added successfully.", "Success notice")
+	addKey(e, "admin.billing.invalid_plan_id", "billing", "معرف الخطة غير صالح.", "Invalid plan ID.", "Validation error")
+	addKey(e, "admin.billing.plan_updated_success", "billing", "تم حفظ وتحديث بيانات باقة الاشتراك بنجاح.", "Subscription plan updated successfully.", "Success notice")
+	addKey(e, "admin.billing.plan_status_toggled_success", "billing", "تم تحديث حالة تفعيل باقة الاشتراك بنجاح.", "Subscription plan status updated successfully.", "Success notice")
+	addKey(e, "admin.billing.plan_sort_updated_success", "billing", "تم تعيين وتحديث الترتيب لعرض الباقة بالصفحة الرئيسية.", "Plan display order updated successfully.", "Success notice")
+	addKey(e, "admin.billing.plan_deleted_success", "billing", "تم حذف باقة الاشتراك بنجاح.", "Subscription plan deleted successfully.", "Success notice")
+
+	// --- Platform Commerce & Policies ---
+	addKey(e, "admin.commerce.invalid_offer_id", "promo", "معرف العرض غير صالح.", "Invalid offer ID.", "Validation error")
+	addKey(e, "admin.commerce.approved_by_admin", "promo", "تم الاعتماد من الإدارة", "Approved by administration", "Approval status comment")
+	addKey(e, "admin.commerce.offer_approved_success", "promo", "تم اعتماد وتفعيل العرض الخاص وباقة الأدوية بنجاح.", "Special bundle offer approved and activated successfully.", "Success notice")
+	addKey(e, "admin.commerce.rejected_by_admin", "promo", "تم رفض العرض من الإدارة", "Rejected by administration", "Rejection status comment")
+	addKey(e, "admin.commerce.offer_rejected_success", "promo", "تم رفض العرض الخاص وحفظ الملاحظات.", "Special offer rejected and notes recorded.", "Success notice")
+	addKey(e, "admin.commerce.offer_status_toggled_success", "promo", "تم تحديث حالة تفعيل العرض بنجاح.", "Offer status updated successfully.", "Success notice")
+	addKey(e, "admin.commerce.policy_service_unavailable", "admin", "خدمة السياسات غير متاحة.", "Policy service is unavailable.", "Service error")
+	addKey(e, "admin.commerce.policy_saved_success", "admin", "تم حفظ إصدار السياسة بنجاح.", "Policy version saved successfully.", "Success notice")
+	addKey(e, "admin.commerce.invalid_policy_id", "admin", "معرف السياسة غير صالح.", "Invalid policy ID.", "Validation error")
+	addKey(e, "admin.commerce.policy_published_success", "admin", "تم نشر الإصدار وتفعيله للجمهور.", "Policy version published and made active for public.", "Success notice")
+
+	// --- Platform Translation Management ---
+	addKey(e, "admin.translations.key_and_text_required", "admin", "يرجى ملء مفتاح الترجمة والنص العربي أو الإنجليزي.", "Please fill in the translation key and Arabic or English text.", "Validation error")
+	addKey(e, "admin.translations.admin_service_unavailable", "admin", "خدمة الإدارة العامة غير متوفرة.", "Platform administration service is unavailable.", "Service error")
+	addKey(e, "admin.translations.updated_success", "admin", "تم تحديث الترجمة وتطبيقها بنجاح في كامل المنصة.", "Translation updated and applied platform-wide.", "Success notice")
+	addKey(e, "admin.translations.invalid_key", "admin", "مفتاح الترجمة غير صالح.", "Invalid translation key.", "Validation error")
+	addKey(e, "admin.translations.reset_success", "admin", "تمت استعادة الترجمة الافتراضية بنجاح.", "Default translation restored successfully.", "Success notice")
+	addKey(e, "admin.translations.synced_success", "admin", "تمت مزامنة كافة مفاتيح النظام الافتراضية مع قاعدة البيانات بنجاح.", "All default system translation keys synchronized successfully.", "Success notice")
+
+	// --- Manufacturers & Brands ---
+	addKey(e, "admin.brands.name_required", "catalog", "يرجى كتابة اسم الشركة المصنعة بالعربية أو الإنجليزية.", "Please enter manufacturer/brand name in Arabic or English.", "Validation error")
+	addKey(e, "admin.brands.created_success", "catalog", "تمت إضافة الشركة المصنعة بنجاح.", "Manufacturer/brand added successfully.", "Success notice")
+	addKey(e, "admin.brands.invalid_id", "catalog", "معرف الشركة غير صالح.", "Invalid manufacturer/brand ID.", "Validation error")
+	addKey(e, "admin.brands.not_found", "catalog", "الشركة المصنعة غير موجودة.", "Manufacturer/brand not found.", "Not found error")
+	addKey(e, "admin.brands.updated_success", "catalog", "تم تحديث بيانات الشركة المصنعة بنجاح.", "Manufacturer/brand updated successfully.", "Success notice")
+	addKey(e, "admin.brands.deleted_success", "catalog", "تم حذف الشركة المصنعة بنجاح.", "Manufacturer/brand deleted successfully.", "Success notice")
+
+	// --- Developer & Diagnostics ---
+	addKey(e, "admin.dev.admin_service_unavailable", "developers", "خدمة إدارة المنظومة غير متاحة.", "Platform administration service is unavailable.", "Service error")
+	addKey(e, "admin.dev.empty_sql_query", "developers", "استعلام SQL فارغ.", "Empty SQL query.", "Validation error")
+	addKey(e, "admin.dev.saved_ai_settings_success", "developers", "تم حفظ إعدادات بوابة الذكاء الاصطناعي بنجاح.", "AI Gateway settings saved successfully.", "Success notice")
+	addKey(e, "admin.dev.connection_failed_format", "developers", "تعذر الاتصال بـ %s (%v)", "Could not connect to %s (%v)", "Connection error")
+	addKey(e, "admin.dev.unauthorized_format", "developers", "خطأ في المصادقة (401 Unauthorized): كلمة مرور أو بيانات اعتماد المدير غير صحيحة لبوابة %s. يرجى كتابة كلمة المرور المحددة في ADMIN_PASSWORD الخاصة بالبوابة والضغط على حفظ.", "Authentication error (401 Unauthorized): invalid admin credentials for %s. Please configure ADMIN_PASSWORD correctly.", "Auth error")
+	addKey(e, "admin.dev.connection_healthy_format", "developers", "الاتصال بـ %s نشط بنجاح — تم جلب %d باقات ذكاء اصطناعي حية من البوابة", "Connection to %s is active — retrieved %d live AI plans from gateway", "Success notice")
+	addKey(e, "admin.dev.invalid_log_id", "developers", "معرف السجل غير صالح.", "Invalid log ID.", "Validation error")
+	addKey(e, "admin.dev.error_status_updated_success", "developers", "تم تحديث حالة الخطأ بنجاح.", "Error log status updated successfully.", "Success notice")
+
+	// --- Document Management & Verification ---
+	addKey(e, "admin.docs.select_valid_org", "attachments", "يرجى اختيار منشأة صالحة من القائمة.", "Please select a valid organization from the list.", "Validation error")
+	addKey(e, "admin.docs.title_required", "attachments", "عنوان المستند المطلوب إلزامي.", "Requested document title is required.", "Validation error")
+	addKey(e, "admin.docs.service_unavailable", "attachments", "خدمة المستندات غير متاحة.", "Document service is unavailable.", "Service error")
+	addKey(e, "admin.docs.request_created_success", "attachments", "تم إصدار طلب المستند الرسمي للمنشأة مع التنبيه والمهلة المحددة بنجاح.", "Document request issued to organization with deadline successfully.", "Success notice")
+	addKey(e, "admin.docs.invalid_request_id", "attachments", "معرف الطلب غير صالح.", "Invalid request ID.", "Validation error")
+	addKey(e, "admin.docs.request_cancelled_success", "attachments", "تم إلغاء طلب المستند.", "Document request cancelled.", "Success notice")
+	addKey(e, "admin.docs.invalid_doc_id", "attachments", "معرف المستند غير صالح.", "Invalid document ID.", "Validation error")
+	addKey(e, "admin.docs.verified_success", "attachments", "تم اعتماد وتوثيق المستند وتحديث ملف المنشأة بنجاح.", "Document verified and organization profile updated successfully.", "Success notice")
+	addKey(e, "admin.docs.rejected_success", "attachments", "تم رفض المستند وحفظ الملاحظات.", "Document rejected and notes recorded.", "Success notice")
+
+	// --- Products Management ---
+	addKey(e, "admin.products.service_unavailable", "catalog", "خدمة المنتجات غير متاحة حالياً.", "Products service is currently unavailable.", "Service error")
+	addKey(e, "admin.products.name_required", "catalog", "يرجى كتابة اسم الصنف الدوائي بالعربية أو الإنجليزية.", "Please enter medicine product name in Arabic or English.", "Validation error")
+	addKey(e, "admin.products.created_success", "catalog", "تمت إضافة الصنف الدوائي الأساسي بنجاح إلى الدليل المعتمد.", "Master pharmaceutical product added to certified catalog successfully.", "Success notice")
+	addKey(e, "admin.products.invalid_id", "catalog", "معرف الدواء غير صالح.", "Invalid medicine product ID.", "Validation error")
+	addKey(e, "admin.products.not_found", "catalog", "الصنف الدوائي غير موجود.", "Medicine product not found.", "Not found error")
+	addKey(e, "admin.products.updated_success", "catalog", "تم تحديث بيانات الصنف الدوائي بنجاح.", "Medicine product updated successfully.", "Success notice")
+	addKey(e, "admin.products.deleted_success", "catalog", "تم حذف الصنف الدوائي من الكتالوج المعتمد.", "Medicine product deleted from certified catalog.", "Success notice")
+
+	// --- Platform Payment Methods ---
+	addKey(e, "admin.pm.id_required", "billing", "المعرف الفريد لوسيلة الدفع مطلوب.", "Payment method ID is required.", "Validation error")
+	addKey(e, "admin.pm.name_ar_required", "billing", "اسم وسيلة الدفع بالعربية مطلوب.", "Payment method Arabic name is required.", "Validation error")
+	addKey(e, "admin.pm.saved_success", "billing", "تم حفظ وتحديث وسيلة وقناة الدفع بنجاح.", "Payment method and channel saved successfully.", "Success notice")
+	addKey(e, "admin.pm.toggle_failed", "billing", "فشل تحديث حالة وسيلة الدفع.", "Failed to update payment method status.", "Error notice")
+	addKey(e, "admin.pm.disabled_notice", "billing", "تم تعطيل وسيلة الدفع مؤقتاً.", "Payment method disabled temporarily.", "Notice")
+	addKey(e, "admin.pm.enabled_notice", "billing", "تم تفعيل وسيلة الدفع بنجاح.", "Payment method enabled successfully.", "Success notice")
+	addKey(e, "admin.pm.delete_failed", "billing", "فشل حذف وسيلة الدفع.", "Failed to delete payment method.", "Error notice")
+	addKey(e, "admin.pm.deleted_success", "billing", "تم حذف وسيلة الدفع بنجاح.", "Payment method deleted successfully.", "Success notice")
 }

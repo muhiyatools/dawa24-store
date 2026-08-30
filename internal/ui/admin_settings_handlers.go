@@ -8,7 +8,7 @@ import (
 	platformadmin "github.com/muhiya/dawa24-store/internal/modules/platform_admin"
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/platform/features"
-
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/ui/pages"
 )
 
@@ -66,7 +66,7 @@ func (h *UIHandler) AdminSettingsPage(w http.ResponseWriter, r *http.Request) {
 	}
 	if values.SiteSettings == nil {
 		values.SiteSettings = &platformadmin.SiteSettings{
-			SiteName:    "دواء 24",
+			SiteName:    "Dawa24",
 			SocialLinks: make(map[string]string),
 		}
 	} else if values.SiteSettings.SocialLinks == nil {
@@ -83,6 +83,7 @@ func (h *UIHandler) AdminSettingsPage(w http.ResponseWriter, r *http.Request) {
 // AdminFeatureToggleSubmit toggles a platform feature flag in real-time.
 func (h *UIHandler) AdminFeatureToggleSubmit(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
+	lang := langOf(r)
 	actor, ok := authctx.From(ctx)
 	if !ok || (!actor.IsStaff && !actor.IsPlatformAdmin()) {
 		http.Redirect(w, r, "/auth/login?redirect=/admin/settings", http.StatusSeeOther)
@@ -94,19 +95,19 @@ func (h *UIHandler) AdminFeatureToggleSubmit(w http.ResponseWriter, r *http.Requ
 	enabled := enabledStr == "true" || enabledStr == "1"
 
 	if key == "" {
-		h.redirectWithNotice(w, r, "/admin/settings?tab=features", "error", "مفتاح الميزة غير صالح.")
+		h.redirectWithNotice(w, r, "/admin/settings?tab=features", "error", i18n.T(lang, "admin.settings.invalid_feature_key"))
 		return
 	}
 
 	if err := features.GetEngine().Set(ctx, key, enabled, actor.UserID); err != nil {
 		h.log.ErrorContext(ctx, "failed to toggle feature flag", "key", key, "error", err)
-		h.redirectWithNotice(w, r, "/admin/settings?tab=features", "error", "فشل تحديث حالة الميزة.")
+		h.redirectWithNotice(w, r, "/admin/settings?tab=features", "error", i18n.T(lang, "admin.settings.feature_save_failed"))
 		return
 	}
 
-	msg := "تم تعطيل الميزة بنجاح."
+	msg := i18n.T(lang, "admin.settings.feature_disabled_success")
 	if enabled {
-		msg = "تم تفعيل الميزة بنجاح."
+		msg = i18n.T(lang, "admin.settings.feature_enabled_success")
 	}
 	h.redirectWithNotice(w, r, "/admin/settings?tab=features", "success", msg)
 }
@@ -114,8 +115,9 @@ func (h *UIHandler) AdminFeatureToggleSubmit(w http.ResponseWriter, r *http.Requ
 // AdminSettingsSubmit persists the general platform settings.
 func (h *UIHandler) AdminSettingsSubmit(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
+	lang := langOf(r)
 	if h.adminSvc == nil {
-		h.redirectWithNotice(w, r, "/admin/settings?tab=features", "error", "خدمة الإعدادات غير متاحة حالياً.")
+		h.redirectWithNotice(w, r, "/admin/settings?tab=features", "error", i18n.T(lang, "admin.settings.service_unavailable"))
 		return
 	}
 
@@ -123,12 +125,12 @@ func (h *UIHandler) AdminSettingsSubmit(w http.ResponseWriter, r *http.Request) 
 	commissionRate := strings.TrimSpace(r.PostFormValue("commission_rate"))
 
 	if supportEmail == "" || !strings.Contains(supportEmail, "@") {
-		h.redirectWithNotice(w, r, "/admin/settings?tab=features", "error", "بريد الدعم الفني غير صالح.")
+		h.redirectWithNotice(w, r, "/admin/settings?tab=features", "error", i18n.T(lang, "admin.settings.invalid_email"))
 		return
 	}
 	rate, err := strconv.ParseFloat(commissionRate, 64)
 	if err != nil || rate < 0 || rate > 100 {
-		h.redirectWithNotice(w, r, "/admin/settings?tab=features", "error", "نسبة العمولة يجب أن تكون بين 0 و 100.")
+		h.redirectWithNotice(w, r, "/admin/settings?tab=features", "error", i18n.T(lang, "admin.settings.invalid_commission"))
 		return
 	}
 
@@ -149,20 +151,21 @@ func (h *UIHandler) AdminSettingsSubmit(w http.ResponseWriter, r *http.Request) 
 	for _, s := range settings {
 		if err := h.adminSvc.SetSetting(ctx, s); err != nil {
 			h.log.ErrorContext(ctx, "save platform setting", "error", err, "key", s.Key)
-			h.redirectWithNotice(w, r, "/admin/settings?tab=features", "error", h.safeMessage(err, langOf(r)))
+			h.redirectWithNotice(w, r, "/admin/settings?tab=features", "error", h.safeMessage(err, lang))
 			return
 		}
 	}
 
 	h.log.InfoContext(ctx, "platform settings updated", "support_email", supportEmail, "commission_rate", commissionRate)
-	h.redirectWithNotice(w, r, "/admin/settings?tab=features", "success", "تم حفظ إعدادات المنصة بنجاح.")
+	h.redirectWithNotice(w, r, "/admin/settings?tab=features", "success", i18n.T(lang, "admin.settings.saved_general_success"))
 }
 
 // AdminAISettingsSubmit updates AI assistant parameters.
 func (h *UIHandler) AdminAISettingsSubmit(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
+	lang := langOf(r)
 	if h.adminSvc == nil {
-		h.redirectWithNotice(w, r, "/admin/settings?tab=ai", "error", "خدمة الذكاء الاصطناعي غير متاحة.")
+		h.redirectWithNotice(w, r, "/admin/settings?tab=ai", "error", i18n.T(lang, "admin.settings.service_unavailable"))
 		return
 	}
 
@@ -182,18 +185,19 @@ func (h *UIHandler) AdminAISettingsSubmit(w http.ResponseWriter, r *http.Request
 	}
 
 	if err := h.adminSvc.SaveAISettings(ctx, ai); err != nil {
-		h.redirectWithNotice(w, r, "/admin/settings?tab=ai", "error", h.safeMessage(err, langOf(r)))
+		h.redirectWithNotice(w, r, "/admin/settings?tab=ai", "error", h.safeMessage(err, lang))
 		return
 	}
 
-	h.redirectWithNotice(w, r, "/admin/settings?tab=ai", "success", "تم حفظ إعدادات الذكاء الاصطناعي بنجاح.")
+	h.redirectWithNotice(w, r, "/admin/settings?tab=ai", "success", i18n.T(lang, "admin.settings.saved_ai_success"))
 }
 
 // AdminGatewaySettingsSubmit updates AI Gateway endpoints and parameters.
 func (h *UIHandler) AdminGatewaySettingsSubmit(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
+	lang := langOf(r)
 	if h.adminSvc == nil {
-		h.redirectWithNotice(w, r, "/admin/settings?tab=ai", "error", "خدمة البوابة غير متاحة.")
+		h.redirectWithNotice(w, r, "/admin/settings?tab=ai", "error", i18n.T(lang, "admin.settings.service_unavailable"))
 		return
 	}
 
@@ -214,7 +218,7 @@ func (h *UIHandler) AdminGatewaySettingsSubmit(w http.ResponseWriter, r *http.Re
 	}
 
 	if err := h.adminSvc.SaveGatewaySettings(ctx, gw); err != nil {
-		h.redirectWithNotice(w, r, "/admin/settings?tab=ai", "error", h.safeMessage(err, langOf(r)))
+		h.redirectWithNotice(w, r, "/admin/settings?tab=ai", "error", h.safeMessage(err, lang))
 		return
 	}
 
@@ -228,5 +232,5 @@ func (h *UIHandler) AdminGatewaySettingsSubmit(w http.ResponseWriter, r *http.Re
 	}
 	_ = h.adminSvc.SaveAISettings(ctx, ai)
 
-	h.redirectWithNotice(w, r, "/admin/settings?tab=ai", "success", "تم حفظ وتحديث إعدادات بوابة الذكاء الاصطناعي بنجاح.")
+	h.redirectWithNotice(w, r, "/admin/settings?tab=ai", "success", i18n.T(lang, "admin.settings.saved_system_prompt_success"))
 }

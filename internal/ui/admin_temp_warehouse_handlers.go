@@ -14,6 +14,7 @@ import (
 
 	"github.com/muhiya/dawa24-store/internal/modules/compare"
 	"github.com/muhiya/dawa24-store/internal/platform/database"
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/ui/pages"
 )
 
@@ -179,50 +180,52 @@ func (h *UIHandler) AdminTempWarehouseItemDeleteSubmit(w http.ResponseWriter, r 
 // AdminTempWarehouseDeleteSubmit deletes an entire temporary warehouse and all its rows.
 func (h *UIHandler) AdminTempWarehouseDeleteSubmit(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
+	lang := langOf(r)
 	idStr := chi.URLParam(r, "id")
 	fileID, err := strconv.ParseInt(idStr, 10, 64)
 	if err != nil || fileID <= 0 {
-		h.redirectWithNotice(w, r, "/admin/user/temparte-warehouses", "error", "رقم المستودع غير صحيح.")
+		h.redirectWithNotice(w, r, "/admin/user/temparte-warehouses", "error", i18n.T(lang, "admin.temp_wh.invalid_id"))
 		return
 	}
 
 	if err := h.compareSvc.DeleteFile(database.AsSystem(ctx), fileID); err != nil {
 		h.log.ErrorContext(ctx, "delete temp warehouse", "error", err, "file_id", fileID)
-		h.redirectWithNotice(w, r, "/admin/user/temparte-warehouses", "error", "فشل حذف المستودع: "+err.Error())
+		h.redirectWithNotice(w, r, "/admin/user/temparte-warehouses", "error", h.safeMessage(err, lang))
 		return
 	}
 
-	h.redirectWithNotice(w, r, "/admin/user/temparte-warehouses", "success", "تم حذف المستودع وكافة أصنافه بنجاح.")
+	h.redirectWithNotice(w, r, "/admin/user/temparte-warehouses", "success", i18n.T(lang, "admin.temp_wh.deleted_success"))
 }
 
 // AdminTempWarehouseToggleArchiveSubmit toggles warehouse archive status.
 func (h *UIHandler) AdminTempWarehouseToggleArchiveSubmit(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
+	lang := langOf(r)
 	idStr := chi.URLParam(r, "id")
 	fileID, err := strconv.ParseInt(idStr, 10, 64)
 	if err != nil || fileID <= 0 {
-		h.redirectWithNotice(w, r, "/admin/user/temparte-warehouses", "error", "رقم المستودع غير صحيح.")
+		h.redirectWithNotice(w, r, "/admin/user/temparte-warehouses", "error", i18n.T(lang, "admin.temp_wh.invalid_id"))
 		return
 	}
 
 	f, err := h.compareSvc.GetFile(database.AsSystem(ctx), fileID)
 	if err != nil || f == nil {
-		h.redirectWithNotice(w, r, "/admin/user/temparte-warehouses", "error", "لم يتم العثور على المستودع المطلوب.")
+		h.redirectWithNotice(w, r, "/admin/user/temparte-warehouses", "error", i18n.T(lang, "admin.temp_wh.not_found"))
 		return
 	}
 
 	if f.Status == compare.FileArchived {
 		if err := h.compareSvc.UnarchiveFile(database.AsSystem(ctx), fileID); err != nil {
-			h.redirectWithNotice(w, r, "/admin/user/temparte-warehouses", "error", "فشل تفعيل المستودع: "+err.Error())
+			h.redirectWithNotice(w, r, "/admin/user/temparte-warehouses", "error", h.safeMessage(err, lang))
 			return
 		}
-		h.redirectWithNotice(w, r, "/admin/user/temparte-warehouses", "success", "تم تفعيل المستودع وإتاحته بالخصومات بنجاح.")
+		h.redirectWithNotice(w, r, "/admin/user/temparte-warehouses", "success", i18n.T(lang, "admin.temp_wh.unarchived_success"))
 	} else {
-		if err := h.compareSvc.ArchiveFile(database.AsSystem(ctx), fileID, "أرشفة يدوية من لوحة المشرف"); err != nil {
-			h.redirectWithNotice(w, r, "/admin/user/temparte-warehouses", "error", "فشل أرشفة المستودع: "+err.Error())
+		if err := h.compareSvc.ArchiveFile(database.AsSystem(ctx), fileID, i18n.T(lang, "admin.temp_wh.manual_archive_reason")); err != nil {
+			h.redirectWithNotice(w, r, "/admin/user/temparte-warehouses", "error", h.safeMessage(err, lang))
 			return
 		}
-		h.redirectWithNotice(w, r, "/admin/user/temparte-warehouses", "success", "تم أرشفة المستودع بنجاح.")
+		h.redirectWithNotice(w, r, "/admin/user/temparte-warehouses", "success", i18n.T(lang, "admin.temp_wh.archived_success"))
 	}
 }
 
