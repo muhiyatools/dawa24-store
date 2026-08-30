@@ -345,4 +345,12 @@ func loadFrontendUIKeys(e *engine) {
 	addKey(e, "docs.serve.status_pending", "docs", "قيد التدقيق", "Under Review", "Document status")
 	addKey(e, "docs.serve.doc_unregistered", "docs", "مستند غير مسجل", "Unregistered Document", "Document label")
 	addKey(e, "docs.serve.file_unavailable", "docs", "الملف غير متوفر", "File Unavailable", "Document label")
+
+	// --- Additional Wallet & Subscription ---
+	addKey(e, "wallet.deposit.invalid_id", "wallet", "معرف عملية الإيداع غير صالح.", "Invalid deposit operation ID.", "Validation error")
+	addKey(e, "wallet.deposit.updated_success", "wallet", "تم تحديث بيانات طلب شحن الرصيد بنجاح.", "Top-up request details updated successfully.", "Success notice")
+	addKey(e, "wallet.invalid_data", "wallet", "بيانات غير صالحة.", "Invalid data.", "Validation error")
+	addKey(e, "subscription.plan_required", "billing", "يرجى اختيار باقة صالحة.", "Please select a valid subscription plan.", "Validation error")
+	addKey(e, "subscription.service_unavailable", "billing", "خدمة الاشتراكات غير متوفرة حالياً.", "Subscription service is currently unavailable.", "Service error")
+	addKey(e, "subscription.activated_success", "billing", "تم تفعيل باقة الاشتراك وخصم القيمة من محفظتك بنجاح.", "Subscription plan activated and deducted from your wallet successfully.", "Success notice")
 }

@@ -19,11 +19,13 @@ import (
 
 	"github.com/muhiya/dawa24-store/internal/modules/compare"
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 )
 
 // CompareFileMatchSubmit matches one file's rows against the shared catalogue.
 func (h *UIHandler) CompareFileMatchSubmit(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
+	lang := langOf(r)
 	back := "/compare/tool"
 
 	actor, ok := authctx.From(ctx)
@@ -32,17 +34,17 @@ func (h *UIHandler) CompareFileMatchSubmit(w http.ResponseWriter, r *http.Reques
 		return
 	}
 	if h.compareSvc == nil {
-		h.redirectWithNotice(w, r, back, "error", "خدمة المقارنة غير متاحة حالياً.")
+		h.redirectWithNotice(w, r, back, "error", i18n.T(lang, "compare.match.service_unavailable"))
 		return
 	}
 
 	fileID, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
 	if err != nil || fileID <= 0 {
-		h.redirectWithNotice(w, r, back, "error", "معرف ملف غير صالح.")
+		h.redirectWithNotice(w, r, back, "error", i18n.T(lang, "compare.file.invalid_id"))
 		return
 	}
 	if err := r.ParseForm(); err != nil {
-		h.redirectWithNotice(w, r, back, "error", "تعذر قراءة النموذج المرسل.")
+		h.redirectWithNotice(w, r, back, "error", i18n.T(lang, "compare.match.form_error"))
 		return
 	}
 
@@ -60,37 +62,37 @@ func (h *UIHandler) CompareFileMatchSubmit(w http.ResponseWriter, r *http.Reques
 
 	stats, err := h.compareSvc.MatchFileRows(ctx, fileID, useAI, orgPtr)
 	if err != nil {
-		h.redirectWithNotice(w, r, back, "error", h.safeMessage(err, langOf(r)))
+		h.redirectWithNotice(w, r, back, "error", h.safeMessage(err, lang))
 		return
 	}
 
-	h.redirectWithNotice(w, r, back, "success", compareMatchNotice(stats, useAI))
+	h.redirectWithNotice(w, r, back, "success", compareMatchNotice(stats, useAI, lang))
 }
 
 // compareMatchNotice says what the run resolved, in the order the user cares
 // about: how many rows are now tied to the catalogue, then what it cost.
-func compareMatchNotice(s compare.MatchStats, useAI bool) string {
+func compareMatchNotice(s compare.MatchStats, useAI bool, lang any) string {
 	parts := []string{
-		fmt.Sprintf("تمت مطابقة %d صنف من أصل %d بالكتالوج المركزي", s.Matched(), s.Rows),
+		fmt.Sprintf(i18n.T(lang, "compare.match.matched_summary"), s.Matched(), s.Rows),
 	}
 	if s.Saved > 0 {
-		parts = append(parts, fmt.Sprintf("%d من ربط سابق محفوظ", s.Saved))
+		parts = append(parts, fmt.Sprintf(i18n.T(lang, "compare.match.from_saved"), s.Saved))
 	}
 	if s.AI > 0 {
-		parts = append(parts, fmt.Sprintf("%d بالذكاء الاصطناعي", s.AI))
+		parts = append(parts, fmt.Sprintf(i18n.T(lang, "compare.match.by_ai"), s.AI))
 	}
 	if s.CacheHits > 0 {
-		parts = append(parts, fmt.Sprintf("%d من ذاكرة القرارات بلا تكلفة", s.CacheHits))
+		parts = append(parts, fmt.Sprintf(i18n.T(lang, "compare.match.cache_hits"), s.CacheHits))
 	}
 	if left := s.Rows - s.Matched(); left > 0 {
-		parts = append(parts, fmt.Sprintf("%d صنف بقي بلا مطابقة ويمكن ربطه يدوياً", left))
+		parts = append(parts, fmt.Sprintf(i18n.T(lang, "compare.match.unmatched_left"), left))
 	}
 	if s.CeilingHit {
 		parts = append(parts,
-			"توقفت المراجعة الذكية عند حدّ العملية الواحدة واحتفظت بقية الأصناف بنتيجة المطابقة الحتمية")
+			i18n.T(lang, "compare.match.ceiling_hit"))
 	}
 	if useAI && s.Requests == 0 && s.AI == 0 && s.CacheHits == 0 {
-		parts = append(parts, "لم تُرسل أي طلبات ذكاء اصطناعي: لا يوجد في الكتالوج ما يقارب الأصناف المتبقية")
+		parts = append(parts, i18n.T(lang, "compare.match.no_ai_candidates"))
 	}
 	return strings.Join(parts, " · ") + "."
 }

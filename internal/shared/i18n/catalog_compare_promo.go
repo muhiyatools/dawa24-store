@@ -121,4 +121,24 @@ func loadCompareAndPromoKeys(e *engine) {
 	addKey(e, "compare.mapping.invalid_row_id", "compare", "معرف سطر غير صالح.", "Invalid row ID.", "Validation error")
 	addKey(e, "compare.mapping.valid_product_required", "compare", "يرجى اختيار صنف صحيح للربط.", "Please select a valid product to match.", "Validation error")
 	addKey(e, "compare.mapping.match_confirmed_success", "compare", "تم حفظ وتثبيت المطابقة بنجاح.", "Match confirmed and saved successfully.", "Success notice")
+
+	// --- Compare Catalogue Matching ---
+	addKey(e, "compare.match.service_unavailable", "compare", "خدمة المقارنة غير متاحة حالياً.", "Comparison service is currently unavailable.", "Service error")
+	addKey(e, "compare.match.form_error", "compare", "تعذر قراءة النموذج المرسل.", "Unable to read submitted form.", "Form error")
+	addKey(e, "compare.match.matched_summary", "compare", "تمت مطابقة %d صنف من أصل %d بالكتالوج المركزي", "Matched %d of %d items with the central catalogue", "Match summary")
+	addKey(e, "compare.match.from_saved", "compare", "%d من ربط سابق محفوظ", "%d from saved previous links", "Saved matches count")
+	addKey(e, "compare.match.by_ai", "compare", "%d بالذكاء الاصطناعي", "%d by AI", "AI matches count")
+	addKey(e, "compare.match.cache_hits", "compare", "%d من ذاكرة القرارات بلا تكلفة", "%d from decision memory at no cost", "Decision cache count")
+	addKey(e, "compare.match.unmatched_left", "compare", "%d صنف بقي بلا مطابقة ويمكن ربطه يدوياً", "%d items remain unmatched and can be linked manually", "Unmatched count")
+	addKey(e, "compare.match.ceiling_hit", "compare", "توقفت المراجعة الذكية عند حدّ العملية الواحدة واحتفظت بقية الأصناف بنتيجة المطابقة الحتمية", "AI review reached the per-operation limit; remaining items retained deterministic match results", "Limit notice")
+	addKey(e, "compare.match.no_ai_candidates", "compare", "لم تُرسل أي طلبات ذكاء اصطناعي: لا يوجد في الكتالوج ما يقارب الأصناف المتبقية", "No AI requests sent: no close catalogue candidates for remaining items", "No AI notice")
+
+	// --- Compare Plans & Tool ---
+	addKey(e, "compare.plans.vendors_only", "compare", "هذه الصفحة مخصصة لحسابات الموردين فقط.", "This page is for vendor accounts only.", "Permission error")
+	addKey(e, "compare.plans.subscribe_failed", "compare", "تعذر الاشتراك.", "Unable to subscribe.", "Subscription error")
+	addKey(e, "compare.plans.subscribed_success", "compare", "تم تفعيل اشتراكك بنجاح في محرك المقارنة.", "Your subscription to the comparison engine was activated successfully.", "Success notice")
+	addKey(e, "compare.tool.vendors_only", "compare", "أداة مقارنة الخصومات مخصصة لحسابات الموردين فقط.", "Discount comparison tool is for vendor accounts only.", "Permission error")
+	addKey(e, "compare.tool.upgrade_required", "compare", "يتطلب استخدام أداة مقارنة الخصومات ترقية باقة اشتراك المنشأة لتشمل هذه الميزة.", "Using the discount comparison tool requires upgrading the organization's subscription plan.", "Upgrade required error")
+	addKey(e, "compare.tool.gate_title", "compare", "أداة مقارنة الخصومات الخاصة (Private Comparison Tool)", "Private Comparison Tool", "Feature title")
+	addKey(e, "compare.tool.gate_desc", "compare", "تتيح لك هذه الأداة رفع كشوف أسعار وخصومات الموردين وتحليل الفروقات واختيار أفضل العروض الدوائية لصيدليتك تلقائياً.", "This tool allows you to upload supplier price lists, analyze discounts, and automatically select the best pharmaceutical offers.", "Feature description")
 }
