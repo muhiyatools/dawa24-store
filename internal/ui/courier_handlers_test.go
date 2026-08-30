@@ -35,7 +35,15 @@ func (m *courierMockCommerceRepo) SetCartItemQuantity(_ context.Context, _, _ in
 	return nil
 }
 func (m *courierMockCommerceRepo) RemoveCartItem(_ context.Context, _, _ int64) error { return nil }
-func (m *courierMockCommerceRepo) ClearCart(_ context.Context, _ int64) error         { return nil }
+
+func (m *courierMockCommerceRepo) RemoveCartItemByID(_ context.Context, _, _ int64) error {
+	return nil
+}
+
+func (m *courierMockCommerceRepo) SetCartItemQuantityByID(_ context.Context, _, _ int64, _ int) error {
+	return nil
+}
+func (m *courierMockCommerceRepo) ClearCart(_ context.Context, _ int64) error { return nil }
 func (m *courierMockCommerceRepo) CreateOrder(_ context.Context, _ *commerce.Order, _ []*commerce.OrderShipment, _ []*commerce.OrderLine) error {
 	return nil
 }

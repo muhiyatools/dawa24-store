@@ -209,6 +209,14 @@ func (m *mockCommerceRepoForSupplierCartTest) RemoveCartItem(ctx context.Context
 	m.cartItems[cartID] = kept
 	return nil
 }
+
+func (m *mockCommerceRepoForSupplierCartTest) RemoveCartItemByID(_ context.Context, _, _ int64) error {
+	return nil
+}
+
+func (m *mockCommerceRepoForSupplierCartTest) SetCartItemQuantityByID(_ context.Context, _, _ int64, _ int) error {
+	return nil
+}
 func (m *mockCommerceRepoForSupplierCartTest) ClearCart(ctx context.Context, cartID int64) error {
 	delete(m.cartItems, cartID)
 	return nil

@@ -29,7 +29,13 @@ func (m *deliveryMockRepo) SetCartItemQuantity(_ context.Context, _, _ int64, _ 
 	return nil
 }
 func (m *deliveryMockRepo) RemoveCartItem(_ context.Context, _, _ int64) error { return nil }
-func (m *deliveryMockRepo) ClearCart(_ context.Context, _ int64) error         { return nil }
+
+func (m *deliveryMockRepo) RemoveCartItemByID(_ context.Context, _, _ int64) error { return nil }
+
+func (m *deliveryMockRepo) SetCartItemQuantityByID(_ context.Context, _, _ int64, _ int) error {
+	return nil
+}
+func (m *deliveryMockRepo) ClearCart(_ context.Context, _ int64) error { return nil }
 func (m *deliveryMockRepo) CreateOrder(_ context.Context, _ *commerce.Order, _ []*commerce.OrderShipment, _ []*commerce.OrderLine) error {
 	return nil
 }

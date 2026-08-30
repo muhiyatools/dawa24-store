@@ -7,12 +7,14 @@ package httpx
 import (
 	"crypto/rand"
 	"encoding/hex"
+	"fmt"
 	"log/slog"
 	"net/http"
 	"runtime/debug"
 	"strings"
 	"time"
 
+	"github.com/muhiya/dawa24-store/internal/platform/errtrack"
 	"github.com/muhiya/dawa24-store/internal/platform/observability"
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 )
@@ -58,12 +60,26 @@ func Recover(log *slog.Logger) func(http.Handler) http.Handler {
 				if rec == http.ErrAbortHandler {
 					panic(rec)
 				}
+				stack := string(debug.Stack())
 				log.ErrorContext(r.Context(), "panic recovered",
 					"panic", rec,
 					"path", r.URL.Path,
 					"method", r.Method,
-					"stack", string(debug.Stack()),
+					"stack", stack,
 				)
+
+				// A panic is the most serious thing that can happen to a
+				// request and the least likely to be noticed in a log, so it
+				// is recorded with its stack and at CRITICAL.
+				event := errtrack.FromRequest(r, errtrack.Event{
+					Level:          errtrack.LevelCritical,
+					Message:        fmt.Sprintf("panic: %v", rec),
+					ExceptionClass: errtrack.PanicClass(rec),
+					StackTrace:     stack,
+					StatusCode:     http.StatusInternalServerError,
+				})
+				event.FilePath, event.LineNumber = errtrack.PanicOrigin(stack)
+				errtrack.ReportWithActor(r.Context(), event)
 				if !headersSent(w) {
 					http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 				}

@@ -86,6 +86,11 @@ func run() error {
 	adminRepo := platformadminPostgres.NewRepository(deps.Handle())
 	adminSvc := platformadmin.NewService(adminRepo, log)
 
+	// Error capture starts as early as the service it writes through, so a
+	// failure during the rest of start-up is recorded rather than only logged.
+	stopErrorTracking := installErrorTracking(adminSvc, log)
+	defer stopErrorTracking()
+
 	// Sync custom database translations into the runtime i18n engine in background
 	go func() {
 		for i := 0; i < 30; i++ {

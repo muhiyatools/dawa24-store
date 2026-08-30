@@ -191,3 +191,56 @@ func GetNamespaces() []string {
 	sort.Strings(list)
 	return list
 }
+
+// Translate resolves a key whose name is chosen at runtime.
+//
+// T is treated as a printf-style function by go vet -- it forwards its
+// arguments to a formatter -- so passing a non-constant key trips the printf
+// check even when there are no arguments at all. Callers that select a key from
+// a fixed set at runtime use this instead: same lookup, no format arguments,
+// and no reason for vet to inspect it.
+func Translate(lang any, key string) string {
+	var l Lang
+	switch v := lang.(type) {
+	case Lang:
+		l = v
+	case string:
+		l = ParseLang(v)
+	default:
+		l = Default
+	}
+	return globalEngine.resolve(l, key)
+}
+
+// resolve looks a key up without the variadic formatting path.
+//
+// It is the same lookup translate performs -- override, then compiled default,
+// then the key itself -- minus the argument substitution. Going through
+// translate would put a non-constant string in a variadic call that go vet
+// reads as a printf format, which is the whole reason Translate exists.
+func (e *engine) resolve(lang Lang, key string) string {
+	e.mu.RLock()
+	ov, hasOverride := e.overrides[key]
+	e.mu.RUnlock()
+	if hasOverride {
+		if val := ov.Get(lang); val != "" {
+			return val
+		}
+	}
+
+	e.mu.RLock()
+	def, ok := e.defaults[key]
+	e.mu.RUnlock()
+	if ok {
+		if lang == EN && def.TextEN != "" {
+			return def.TextEN
+		}
+		if def.TextAR != "" {
+			return def.TextAR
+		}
+		if def.TextEN != "" {
+			return def.TextEN
+		}
+	}
+	return key
+}

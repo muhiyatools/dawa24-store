@@ -193,7 +193,9 @@ func (h *UIHandler) assertCartLineAvailable(
 // offerAddFailed reports why an offer could not be added, over HTMX or a
 // redirect, so the two paths cannot drift apart.
 func (h *UIHandler) offerAddFailed(w http.ResponseWriter, r *http.Request, offerID int64, key string) {
-	msg := i18n.T(langOf(r), key)
+	// i18n.T is printf-like to vet, and a non-constant key trips that check.
+	// The key is chosen from a fixed set by the caller, never built from input.
+	msg := i18n.Translate(langOf(r), key)
 	if h.isHTMX(r) {
 		w.Header().Set("HX-Trigger", fmt.Sprintf(`{"showToast":{"message":%q,"type":"error"}}`, msg))
 		w.WriteHeader(http.StatusBadRequest)

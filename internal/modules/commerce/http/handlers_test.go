@@ -45,6 +45,16 @@ func (r stubRepo) SetCartItemQuantity(ctx context.Context, cartID int64, variant
 	r.fail("SetCartItemQuantity")
 	return nil
 }
+func (r stubRepo) RemoveCartItemByID(ctx context.Context, cartID, itemID int64) error {
+	r.fail("RemoveCartItemByID")
+	return nil
+}
+
+func (r stubRepo) SetCartItemQuantityByID(ctx context.Context, cartID, itemID int64, qty int) error {
+	r.fail("SetCartItemQuantityByID")
+	return nil
+}
+
 func (r stubRepo) RemoveCartItem(ctx context.Context, cartID int64, variantID int64) error {
 	r.fail("RemoveCartItem")
 	return nil
@@ -200,6 +210,12 @@ func (happyRepo) AddToCartItem(ctx context.Context, cartID int64, item *commerce
 func (happyRepo) SetCartItemQuantity(ctx context.Context, cartID int64, variantID int64, quantity int) error {
 	return nil
 }
+func (happyRepo) RemoveCartItemByID(ctx context.Context, cartID, itemID int64) error { return nil }
+
+func (happyRepo) SetCartItemQuantityByID(ctx context.Context, cartID, itemID int64, qty int) error {
+	return nil
+}
+
 func (happyRepo) RemoveCartItem(ctx context.Context, cartID int64, variantID int64) error {
 	return nil
 }

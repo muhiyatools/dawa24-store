@@ -47,6 +47,12 @@ func (m *mockCommerceRepo) GetCartWithItems(_ context.Context, cartID int64) (*C
 func (m *mockCommerceRepo) AddToCartItem(_ context.Context, cartID int64, item *CartItem) error {
 	return nil
 }
+func (m *mockCommerceRepo) RemoveCartItemByID(_ context.Context, _, _ int64) error { return nil }
+
+func (m *mockCommerceRepo) SetCartItemQuantityByID(_ context.Context, _, _ int64, _ int) error {
+	return nil
+}
+
 func (m *mockCommerceRepo) RemoveCartItem(_ context.Context, cartID int64, variantID int64) error {
 	return nil
 }

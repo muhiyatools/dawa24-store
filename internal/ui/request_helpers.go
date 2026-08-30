@@ -10,6 +10,7 @@ import (
 	"github.com/go-chi/chi/v5"
 
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
+	"github.com/muhiya/dawa24-store/internal/platform/errtrack"
 	"github.com/muhiya/dawa24-store/internal/shared/apperr"
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/ui/components"
@@ -24,6 +25,14 @@ func (h *UIHandler) SiteSettingsMiddleware(next http.Handler) http.Handler {
 func (h *UIHandler) renderError(w http.ResponseWriter, r *http.Request, err error) {
 	ctx := r.Context()
 	h.log.ErrorContext(ctx, "ui error rendering page", "error", err, "path", r.URL.Path)
+
+	// Most of what a user actually hits arrives here rather than through
+	// httpx.Error: this is the error page for every server-rendered screen.
+	// Only genuine faults are recorded -- a validation refusal or a missing
+	// record is the system working, and recording those would bury the faults.
+	if status := statusForError(err); status >= 500 {
+		errtrack.ReportRequest(ctx, r, err, errtrack.LevelError, status)
+	}
 
 	lang, dir := h.localeAndDir(r)
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")

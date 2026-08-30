@@ -7,6 +7,7 @@ import (
 	"log/slog"
 	"net/http"
 
+	"github.com/muhiya/dawa24-store/internal/platform/errtrack"
 	"github.com/muhiya/dawa24-store/internal/platform/observability"
 	"github.com/muhiya/dawa24-store/internal/shared/apperr"
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
@@ -69,6 +70,17 @@ func Error(w http.ResponseWriter, r *http.Request, log *slog.Logger, err error) 
 	} else {
 		log.WarnContext(r.Context(), "request rejected",
 			"error", err, "code", appError.Code, "path", r.URL.Path)
+	}
+
+	// The admin error screen is meant to show what users actually hit, so this
+	// records the same failures the log line above describes.
+	//
+	// Below 500 the request was refused on purpose -- a validation failure, a
+	// missing record, a permission the caller does not hold -- and those are
+	// the normal traffic of a working system, not defects. Recording them would
+	// bury the real faults under thousands of rows. Only 5xx is captured.
+	if status >= 500 {
+		errtrack.ReportRequest(r.Context(), r, err, errtrack.LevelError, status)
 	}
 
 	var body ErrorBody
