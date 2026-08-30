@@ -173,37 +173,45 @@ templ VendorWarehousesPage(warehouses []*inventory.Warehouse, branches []*org.Br
 				x-show="showAddModal"
 				x-cloak
 				x-transition.opacity
-				style="position: fixed; inset: 0; z-index: 99999; display: flex; align-items: center; justify-content: center; background: rgba(15, 23, 42, 0.75); backdrop-filter: blur(8px); padding: 1.5rem;"
+				class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs"
+				style="position: fixed; inset: 0; z-index: 99999; display: flex; align-items: center; justify-content: center; background: rgba(15, 23, 42, 0.75); backdrop-filter: blur(8px); padding: 1.5rem; margin: 0;"
 				@keydown.escape.window="showAddModal = false"
 			>
 				<div
 					@click.outside="showAddModal = false"
-					class="glass-panel p-6 w-full"
-					style="max-width: 560px; max-height: 90vh; overflow-y: auto;"
+					class="glass-panel p-6 w-full max-w-lg bg-white rounded-2xl shadow-2xl border border-slate-200 overflow-hidden relative mx-auto my-auto"
+					style="max-width: 560px; max-height: 90vh; overflow-y: auto; margin: auto;"
 				>
-					<div class="flex-between items-center mb-4 pb-2 border-b">
-						<div class="d-flex items-center gap-2">
-							<span class="text-xl">🏢</span>
-							<h3 class="text-lg font-black text-primary m-0">إضافة مخزن / مركز تخزين جديد</h3>
+					<div class="flex-between items-center mb-4 pb-3 border-b border-slate-100">
+						<div class="d-flex items-center gap-2.5">
+							<div class="w-9 h-9 rounded-xl bg-brand-50 text-brand-600 d-flex items-center justify-center border border-brand-200/60 shadow-2xs">
+								@components.IconBuilding("icon-sm")
+							</div>
+							<div>
+								<h3 class="text-base font-black text-primary m-0">إضافة مخزن / مركز تخزين جديد</h3>
+								<p class="text-2xs text-secondary m-0 mt-0.5 font-medium">تسجيل موقع تخزين جديد لربطه بالفروع والمخزون</p>
+							</div>
 						</div>
-						<button type="button" @click="showAddModal = false" class="btn btn-secondary btn-icon btn-sm">✕</button>
+						<button type="button" @click="showAddModal = false" class="btn btn-secondary btn-icon btn-sm">
+							@components.IconClose("icon-xs")
+						</button>
 					</div>
 
 					<form method="POST" action="/vendor/warehouses" class="d-flex flex-col gap-4 m-0">
 						<div>
-							<label class="form-label text-xs font-bold text-primary mb-1 d-block">اسم المخزن <span class="text-danger">*</span></label>
-							<input type="text" name="name" required class="form-input text-xs w-full" placeholder="مثلاً: مخزن القاهرة الرئيسي / مخزن مدينة نصر" />
+							<label class="form-label text-xs font-bold text-primary mb-1.5 d-block">اسم المخزن <span class="text-danger">*</span></label>
+							<input type="text" name="name" required class="form-input text-xs font-semibold w-full" placeholder="مثلاً: مخزن القاهرة الرئيسي / مخزن مدينة نصر" />
 						</div>
 
 						<div>
-							<label class="form-label text-xs font-bold text-primary mb-1 d-block">كود المخزن (اختياري)</label>
-							<input type="text" name="code" class="form-input text-xs w-full" placeholder="WH-01" />
+							<label class="form-label text-xs font-bold text-primary mb-1.5 d-block">كود المخزن (اختياري)</label>
+							<input type="text" name="code" class="form-input text-xs font-mono w-full" placeholder="WH-01" />
 						</div>
 
 						<div>
-							<label class="form-label text-xs font-bold text-primary mb-1 d-block">الفرع التوزيعي المرتبط</label>
-							<select name="branch_id" class="form-input text-xs w-full">
-								<option value="">بدون فرع محدد (مخزن رئيسي)</option>
+							<label class="form-label text-xs font-bold text-primary mb-1.5 d-block">الفرع التوزيعي المرتبط</label>
+							<select name="branch_id" class="form-input text-xs font-semibold w-full">
+								<option value="">بدون فرع محدد (مخزن عام رئيسي)</option>
 								for _, b := range branches {
 									<option value={ fmt.Sprintf("%d", b.ID) }>
 										if b.Name["ar"] != "" {
@@ -218,18 +226,18 @@ templ VendorWarehousesPage(warehouses []*inventory.Warehouse, branches []*org.Br
 						</div>
 
 						<div>
-							<label class="form-label text-xs font-bold text-primary mb-1 d-block">العنوان بالتفصيل</label>
+							<label class="form-label text-xs font-bold text-primary mb-1.5 d-block">العنوان بالتفصيل</label>
 							<input type="text" name="address" class="form-input text-xs w-full" placeholder="المنطقة الصناعية، القطعة 14، القاهرة" />
 						</div>
 
 						<div>
-							<label class="form-label text-xs font-bold text-primary mb-1 d-block">رقم الهاتف والتواصل</label>
-							<input type="text" name="phone" class="form-input text-xs w-full" placeholder="01012345678" />
+							<label class="form-label text-xs font-bold text-primary mb-1.5 d-block">رقم الهاتف والتواصل</label>
+							<input type="text" name="phone" class="form-input text-xs tabular-nums w-full" placeholder="01012345678" />
 						</div>
 
-						<div class="flex-between items-center gap-3 mt-2 pt-3 border-t">
+						<div class="flex-between items-center gap-3 mt-2 pt-3 border-t border-slate-100">
 							<button type="button" class="btn btn-secondary text-xs font-bold" @click="showAddModal = false">إلغاء</button>
-							<button type="submit" class="btn btn-primary text-xs font-bold px-6">حفظ وتفعيل المخزن</button>
+							<button type="submit" class="btn btn-primary text-xs font-bold px-6 shadow-sm">حفظ وتفعيل المخزن</button>
 						</div>
 					</form>
 				</div>
@@ -240,36 +248,44 @@ templ VendorWarehousesPage(warehouses []*inventory.Warehouse, branches []*org.Br
 				x-show="editModal"
 				x-cloak
 				x-transition.opacity
-				style="position: fixed; inset: 0; z-index: 99999; display: flex; align-items: center; justify-content: center; background: rgba(15, 23, 42, 0.75); backdrop-filter: blur(8px); padding: 1.5rem;"
+				class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs"
+				style="position: fixed; inset: 0; z-index: 99999; display: flex; align-items: center; justify-content: center; background: rgba(15, 23, 42, 0.75); backdrop-filter: blur(8px); padding: 1.5rem; margin: 0;"
 				@keydown.escape.window="editModal = false"
 			>
 				<div
 					@click.outside="editModal = false"
-					class="glass-panel p-6 w-full"
-					style="max-width: 560px; max-height: 90vh; overflow-y: auto;"
+					class="glass-panel p-6 w-full max-w-lg bg-white rounded-2xl shadow-2xl border border-slate-200 overflow-hidden relative mx-auto my-auto"
+					style="max-width: 560px; max-height: 90vh; overflow-y: auto; margin: auto;"
 				>
-					<div class="flex-between items-center mb-4 pb-2 border-b">
-						<div class="d-flex items-center gap-2">
-							<span class="text-xl">🏢</span>
-							<h3 class="text-lg font-black text-primary m-0">تعديل بيانات المخزن</h3>
+					<div class="flex-between items-center mb-4 pb-3 border-b border-slate-100">
+						<div class="d-flex items-center gap-2.5">
+							<div class="w-9 h-9 rounded-xl bg-amber-50 text-amber-600 d-flex items-center justify-center border border-amber-200/60 shadow-2xs">
+								@components.IconEdit("icon-sm")
+							</div>
+							<div>
+								<h3 class="text-base font-black text-primary m-0">تعديل بيانات المخزن</h3>
+								<p class="text-2xs text-secondary m-0 mt-0.5 font-medium">تحديث معلومات وبيانات موقع التخزين</p>
+							</div>
 						</div>
-						<button type="button" @click="editModal = false" class="btn btn-secondary btn-icon btn-sm">✕</button>
+						<button type="button" @click="editModal = false" class="btn btn-secondary btn-icon btn-sm">
+							@components.IconClose("icon-xs")
+						</button>
 					</div>
 
 					<form :action="'/vendor/warehouses/' + editWh.id" method="POST" class="d-flex flex-col gap-4 m-0">
 						<div>
-							<label class="form-label text-xs font-bold text-primary mb-1 d-block">اسم المخزن <span class="text-danger">*</span></label>
-							<input type="text" name="name" x-model="editWh.name" required class="form-input text-xs w-full" />
+							<label class="form-label text-xs font-bold text-primary mb-1.5 d-block">اسم المخزن <span class="text-danger">*</span></label>
+							<input type="text" name="name" x-model="editWh.name" required class="form-input text-xs font-semibold w-full" />
 						</div>
 
 						<div>
-							<label class="form-label text-xs font-bold text-primary mb-1 d-block">كود المخزن</label>
-							<input type="text" name="code" x-model="editWh.code" class="form-input text-xs w-full" />
+							<label class="form-label text-xs font-bold text-primary mb-1.5 d-block">كود المخزن</label>
+							<input type="text" name="code" x-model="editWh.code" class="form-input text-xs font-mono w-full" />
 						</div>
 
 						<div>
-							<label class="form-label text-xs font-bold text-primary mb-1 d-block">الفرع التوزيعي المرتبط</label>
-							<select name="branch_id" x-model="editWh.branch_id" class="form-input text-xs w-full">
+							<label class="form-label text-xs font-bold text-primary mb-1.5 d-block">الفرع التوزيعي المرتبط</label>
+							<select name="branch_id" x-model="editWh.branch_id" class="form-input text-xs font-semibold w-full">
 								<option value="0">بدون فرع محدد (مخزن رئيسي)</option>
 								for _, b := range branches {
 									<option value={ fmt.Sprintf("%d", b.ID) }>
@@ -285,13 +301,13 @@ templ VendorWarehousesPage(warehouses []*inventory.Warehouse, branches []*org.Br
 						</div>
 
 						<div>
-							<label class="form-label text-xs font-bold text-primary mb-1 d-block">العنوان بالتفصيل</label>
+							<label class="form-label text-xs font-bold text-primary mb-1.5 d-block">العنوان بالتفصيل</label>
 							<input type="text" name="address" x-model="editWh.address" class="form-input text-xs w-full" />
 						</div>
 
 						<div>
-							<label class="form-label text-xs font-bold text-primary mb-1 d-block">رقم الهاتف والتواصل</label>
-							<input type="text" name="phone" x-model="editWh.phone" class="form-input text-xs w-full" />
+							<label class="form-label text-xs font-bold text-primary mb-1.5 d-block">رقم الهاتف والتواصل</label>
+							<input type="text" name="phone" x-model="editWh.phone" class="form-input text-xs tabular-nums w-full" />
 						</div>
 
 						<div>
@@ -301,9 +317,9 @@ templ VendorWarehousesPage(warehouses []*inventory.Warehouse, branches []*org.Br
 							</label>
 						</div>
 
-						<div class="flex-between items-center gap-3 mt-2 pt-3 border-t">
+						<div class="flex-between items-center gap-3 mt-2 pt-3 border-t border-slate-100">
 							<button type="button" class="btn btn-secondary text-xs font-bold" @click="editModal = false">إلغاء</button>
-							<button type="submit" class="btn btn-primary text-xs font-bold px-6">حفظ التغييرات</button>
+							<button type="submit" class="btn btn-primary text-xs font-bold px-6 shadow-sm">حفظ التغييرات</button>
 						</div>
 					</form>
 				</div>

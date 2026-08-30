@@ -1151,9 +1151,21 @@ func (h *UIHandler) AdminAuditPage(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	lang, dir := h.localeAndDir(r)
 
+	q := strings.TrimSpace(r.URL.Query().Get("q"))
+	action := strings.TrimSpace(r.URL.Query().Get("action"))
+	severity := strings.TrimSpace(r.URL.Query().Get("severity"))
+
+	filter := platformadmin.AuditLogFilter{
+		Action: action,
+		Search: q,
+		Limit:  100,
+		Offset: 0,
+	}
+
 	var entries []*platformadmin.AuditEntry
+	var total int
 	if h.adminSvc != nil {
-		list, err := h.adminSvc.ListAuditLog(ctx, 100, 0)
+		list, tot, err := h.adminSvc.ListAuditLogWithFilter(ctx, filter)
 		if err != nil {
 			h.log.WarnContext(ctx, "admin audit: list audit log", "error", err)
 		} else {
@@ -1161,12 +1173,16 @@ func (h *UIHandler) AdminAuditPage(w http.ResponseWriter, r *http.Request) {
 				localizeAuditEntry(e)
 			}
 			entries = list
+			total = tot
 		}
 	}
 
 	values := pages.AdminAuditValues{
-		Entries:    entries,
-		TotalCount: len(entries),
+		Entries:       entries,
+		TotalCount:    total,
+		SelectedActor: q,
+		ActionFilter:  action,
+		Severity:      severity,
 	}
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")

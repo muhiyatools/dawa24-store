@@ -175,6 +175,17 @@ type AuditEntry struct {
 	CreatedAt        time.Time      `json:"created_at"`
 }
 
+// AuditLogFilter defines search and filter options for platform audit logs.
+type AuditLogFilter struct {
+	OrganizationID *int64
+	ActorUserID    *int64
+	Action         string
+	EntityType     string
+	Search         string
+	Limit          int
+	Offset         int
+}
+
 // AISettings defines configuration for artificial intelligence assistant parameters.
 type AISettings struct {
 	APIKey       string  `json:"api_key"`       // API secret key

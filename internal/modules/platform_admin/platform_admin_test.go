@@ -174,6 +174,10 @@ func (m *mockPlatformAdminRepo) ListAuditLog(_ context.Context, _, _ int) ([]*Au
 	return nil, nil
 }
 
+func (m *mockPlatformAdminRepo) ListAuditLogWithFilter(_ context.Context, _ AuditLogFilter) ([]*AuditEntry, int, error) {
+	return nil, 0, nil
+}
+
 func (m *mockPlatformAdminRepo) QueueStats(_ context.Context) (map[string]int, error) {
 	return nil, nil
 }

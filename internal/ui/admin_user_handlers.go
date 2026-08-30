@@ -8,6 +8,7 @@ import (
 	"github.com/go-chi/chi/v5"
 
 	"github.com/muhiya/dawa24-store/internal/modules/identity"
+	platformadmin "github.com/muhiya/dawa24-store/internal/modules/platform_admin"
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/platform/database"
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
@@ -204,13 +205,78 @@ func (h *UIHandler) AdminWantDeletePage(w http.ResponseWriter, r *http.Request) 
 	}
 }
 
-// AdminEmployeeActivitiesPage renders employee audit trail.
+// AdminEmployeeActivitiesPage renders employee audit trail with rich filters.
 func (h *UIHandler) AdminEmployeeActivitiesPage(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	lang, dir := h.localeAndDir(r)
 
+	q := strings.TrimSpace(r.URL.Query().Get("q"))
+	action := strings.TrimSpace(r.URL.Query().Get("action"))
+	orgIDStr := strings.TrimSpace(r.URL.Query().Get("org_id"))
+	userIDStr := strings.TrimSpace(r.URL.Query().Get("user_id"))
+	pageStr := strings.TrimSpace(r.URL.Query().Get("page"))
+
+	page := 1
+	if p, err := strconv.Atoi(pageStr); err == nil && p > 0 {
+		page = p
+	}
+	perPage := 50
+	offset := (page - 1) * perPage
+
+	var orgID *int64
+	if o, err := strconv.ParseInt(orgIDStr, 10, 64); err == nil && o > 0 {
+		orgID = &o
+	}
+
+	var userID *int64
+	if u, err := strconv.ParseInt(userIDStr, 10, 64); err == nil && u > 0 {
+		userID = &u
+	}
+
+	filter := platformadmin.AuditLogFilter{
+		OrganizationID: orgID,
+		ActorUserID:    userID,
+		Action:         action,
+		Search:         q,
+		Limit:          perPage,
+		Offset:         offset,
+	}
+
+	data := pages.AdminEmployeeActivitiesData{
+		Page:           page,
+		PerPage:        perPage,
+		SearchQuery:    q,
+		SelectedAction: action,
+	}
+	if orgID != nil {
+		data.SelectedOrgID = *orgID
+	}
+	if userID != nil {
+		data.SelectedUserID = *userID
+	}
+
+	if h.adminSvc != nil {
+		entries, total, err := h.adminSvc.ListAuditLogWithFilter(ctx, filter)
+		if err == nil {
+			data.Entries = entries
+			data.TotalCount = total
+			data.TotalPages = (total + perPage - 1) / perPage
+		}
+	}
+
+	sysCtx := database.AsSystem(ctx)
+	if h.orgSvc != nil {
+		orgs, _ := h.orgSvc.ListOrganizations(sysCtx, nil, nil, 100, 0)
+		data.Organizations = orgs
+	}
+
+	if h.idSvc != nil {
+		users, _ := h.idSvc.AdminListUsers(sysCtx, "", "")
+		data.Users = users
+	}
+
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	if err := pages.AdminEmployeeActivitiesPage(nil, lang, dir).Render(ctx, w); err != nil {
+	if err := pages.AdminEmployeeActivitiesPage(data, lang, dir).Render(ctx, w); err != nil {
 		h.log.ErrorContext(ctx, "render employee activities", "error", err)
 	}
 }

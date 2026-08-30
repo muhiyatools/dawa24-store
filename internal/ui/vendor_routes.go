@@ -133,6 +133,8 @@ func (h *UIHandler) registerVendorTeamRoutes(r chi.Router) {
 		g.Use(authctx.RequireTenantPagePermission("vendor.team.view"))
 		g.Get("/vendor/team", h.VendorTeamPage)
 		g.Get("/vendor/team/import", h.VendorTeamImportPage)
+		g.Get("/vendor/team/import/sample.xlsx", h.VendorTeamImportSampleDownload)
+		g.Get("/vendor/team/import/{id}", h.VendorTeamImportSessionPage)
 		g.Get("/vendor/team/fast-add", h.VendorTeamFastAddPage)
 		g.Get("/vendor/team/{id}", h.VendorTeamUserDetailPage)
 		g.Get("/vendor/team/{id}/info", h.VendorTeamUserInfoPage)
@@ -140,6 +142,10 @@ func (h *UIHandler) registerVendorTeamRoutes(r chi.Router) {
 	r.Group(func(g chi.Router) {
 		g.Use(authctx.RequireTenantPagePermission("vendor.team.create"))
 		g.Post("/vendor/team/new", h.VendorTeamNewSubmit)
+		g.Post("/vendor/team/import/upload", h.VendorTeamImportUploadSubmit)
+		g.Post("/vendor/team/import/{id}/map", h.VendorTeamImportMapSubmit)
+		g.Post("/vendor/team/import/{id}/commit", h.VendorTeamImportCommitSubmit)
+		g.Post("/vendor/team/import/{id}/cancel", h.VendorTeamImportCancelSubmit)
 	})
 	r.Group(func(g chi.Router) {
 		g.Use(authctx.RequireTenantPagePermission("vendor.team.update"))

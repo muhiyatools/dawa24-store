@@ -300,10 +300,17 @@ func (h *UIHandler) registerCustomerTeamRoutes(r chi.Router) {
 	r.Group(func(g chi.Router) {
 		g.Use(authctx.RequireTenantPagePermission("pharmacy.team.view"))
 		g.Get("/customer/team", h.CustomerTeamPage)
+		g.Get("/customer/team/import", h.CustomerTeamImportPage)
+		g.Get("/customer/team/import/sample.xlsx", h.CustomerTeamImportSampleDownload)
+		g.Get("/customer/team/import/{id}", h.CustomerTeamImportSessionPage)
 	})
 	r.Group(func(g chi.Router) {
 		g.Use(authctx.RequireTenantPagePermission("pharmacy.team.create"))
 		g.Post("/customer/employees/new", h.CustomerEmployeeCreateSubmit)
+		g.Post("/customer/team/import/upload", h.CustomerTeamImportUploadSubmit)
+		g.Post("/customer/team/import/{id}/map", h.CustomerTeamImportMapSubmit)
+		g.Post("/customer/team/import/{id}/commit", h.CustomerTeamImportCommitSubmit)
+		g.Post("/customer/team/import/{id}/cancel", h.CustomerTeamImportCancelSubmit)
 	})
 	r.Group(func(g chi.Router) {
 		g.Use(authctx.RequireTenantPagePermission("pharmacy.team.update"))

@@ -71,12 +71,16 @@ templ TenantTeamPage(v TenantTeamView, lang, dir string) {
 							{ fmt.Sprintf("%d عضو في المنشأة. الدور المسند لكل عضو يحدد ما يراه وما يستطيع تنفيذه.", len(v.Members)) }
 						</p>
 					</div>
-					<div class="d-flex items-center gap-2">
+					<div class="d-flex items-center gap-2 flex-wrap">
 						<a href={ templ.SafeURL(v.RolesPath) } class="btn btn-secondary font-bold gap-2">
 							@components.IconShield("icon-xs")
 							<span>الأدوار والصلاحيات</span>
 						</a>
 						if v.CanCreate {
+							<a href="/customer/team/import" class="btn btn-secondary font-bold gap-2">
+								@components.IconUpload("icon-xs")
+								<span>استيراد موظفين (Excel)</span>
+							</a>
 							<button type="button" class="btn btn-primary font-bold gap-2" @click="showAdd = !showAdd">
 								@components.IconPlus("icon-xs")
 								<span>إضافة موظف</span>

@@ -2,6 +2,8 @@ package postgres
 
 import (
 	"context"
+	"fmt"
+	"strings"
 
 	"github.com/jackc/pgx/v5"
 
@@ -191,6 +193,117 @@ func (r *Repository) ListAuditLogByOrg(ctx context.Context, orgID int64, limit, 
 		return rows.Err()
 	})
 	return list, err
+}
+
+// ListAuditLogWithFilter returns filtered audit log entries and total count matching the criteria.
+func (r *Repository) ListAuditLogWithFilter(ctx context.Context, filter platformadmin.AuditLogFilter) ([]*platformadmin.AuditEntry, int, error) {
+	if filter.Limit <= 0 || filter.Limit > 100 {
+		filter.Limit = 50
+	}
+	if filter.Offset < 0 {
+		filter.Offset = 0
+	}
+
+	var list []*platformadmin.AuditEntry
+	var total int
+
+	err := r.db.InReadTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
+		var conditions []string
+		var args []any
+		argIdx := 1
+
+		if filter.OrganizationID != nil && *filter.OrganizationID > 0 {
+			conditions = append(conditions, fmt.Sprintf("a.organization_id = $%d", argIdx))
+			args = append(args, *filter.OrganizationID)
+			argIdx++
+		}
+
+		if filter.ActorUserID != nil && *filter.ActorUserID > 0 {
+			conditions = append(conditions, fmt.Sprintf("a.actor_user_id = $%d", argIdx))
+			args = append(args, *filter.ActorUserID)
+			argIdx++
+		}
+
+		if strings.TrimSpace(filter.Action) != "" {
+			conditions = append(conditions, fmt.Sprintf("(a.action ILIKE '%%' || $%d || '%%' OR a.entity_type ILIKE '%%' || $%d || '%%')", argIdx, argIdx))
+			args = append(args, strings.TrimSpace(filter.Action))
+			argIdx++
+		}
+
+		if strings.TrimSpace(filter.EntityType) != "" {
+			conditions = append(conditions, fmt.Sprintf("a.entity_type = $%d", argIdx))
+			args = append(args, strings.TrimSpace(filter.EntityType))
+			argIdx++
+		}
+
+		if strings.TrimSpace(filter.Search) != "" {
+			s := strings.TrimSpace(filter.Search)
+			conditions = append(conditions, fmt.Sprintf("(u.name->>'ar' ILIKE '%%' || $%d || '%%' OR u.name->>'en' ILIKE '%%' || $%d || '%%' OR u.email ILIKE '%%' || $%d || '%%' OR o.trade_name->>'ar' ILIKE '%%' || $%d || '%%' OR a.action ILIKE '%%' || $%d || '%%' OR a.entity_id ILIKE '%%' || $%d || '%%')", argIdx, argIdx, argIdx, argIdx, argIdx, argIdx))
+			args = append(args, s)
+			argIdx++
+		}
+
+		whereClause := ""
+		if len(conditions) > 0 {
+			whereClause = "WHERE " + strings.Join(conditions, " AND ")
+		}
+
+		countQuery := fmt.Sprintf(`
+			SELECT COUNT(*)
+			FROM platform.audit_log a
+			LEFT JOIN identity.users u ON a.actor_user_id = u.id
+			LEFT JOIN org.organizations o ON a.organization_id = o.id
+			%s;
+		`, whereClause)
+
+		if err := tx.QueryRow(txCtx, countQuery, args...).Scan(&total); err != nil {
+			return err
+		}
+
+		query := fmt.Sprintf(`
+			SELECT a.id, a.organization_id,
+			       COALESCE(NULLIF(o.trade_name->>'ar', ''), NULLIF(o.legal_name, ''), 'المنصة الرئيسية') AS org_name,
+			       a.actor_user_id,
+			       COALESCE(NULLIF(u.name->>'ar', ''), NULLIF(u.name->>'en', ''), u.email, 'النظام / System') AS actor_name,
+			       COALESCE(u.email, '') AS actor_email,
+			       a.action, a.entity_type, a.entity_id,
+			       COALESCE(HOST(a.ip), '') AS ip_addr,
+			       COALESCE(a.request_id, '') AS req_id,
+			       a.before, a.after, a.created_at
+			FROM platform.audit_log a
+			LEFT JOIN identity.users u ON a.actor_user_id = u.id
+			LEFT JOIN org.organizations o ON a.organization_id = o.id
+			%s
+			ORDER BY a.created_at DESC
+			LIMIT $%d OFFSET $%d;
+		`, whereClause, argIdx, argIdx+1)
+
+		args = append(args, filter.Limit, filter.Offset)
+
+		rows, err := tx.Query(txCtx, query, args...)
+		if err != nil {
+			return err
+		}
+		defer rows.Close()
+
+		for rows.Next() {
+			var e platformadmin.AuditEntry
+			var ipAddr, reqID string
+			if err := rows.Scan(
+				&e.ID, &e.OrganizationID, &e.OrganizationName, &e.ActorUserID,
+				&e.ActorName, &e.ActorEmail, &e.Action, &e.EntityType, &e.EntityID,
+				&ipAddr, &reqID, &e.Before, &e.After, &e.CreatedAt,
+			); err != nil {
+				return err
+			}
+			e.IPAddress = ipAddr
+			e.Route = reqID
+			list = append(list, &e)
+		}
+		return rows.Err()
+	})
+
+	return list, total, err
 }
 
 // QueueStats returns River job counts grouped by state.

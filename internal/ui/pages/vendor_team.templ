@@ -109,6 +109,10 @@ templ VendorTeamPage(data VendorTeamData, lang, dir string) {
 							@components.IconSettings("icon-xs")
 							<span>الأدوار والصلاحيات</span>
 						</a>
+						<a href="/vendor/team/import" class="btn btn-secondary font-bold text-xs px-4 py-2 gap-2">
+							@components.IconUpload("icon-xs")
+							<span>استيراد موظفين (Excel)</span>
+						</a>
 						<button
 							type="button"
 							@click="showAddModal = true"

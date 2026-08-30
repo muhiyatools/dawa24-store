@@ -72,6 +72,7 @@ func (h *UIHandler) AdminFullActivityLogDetailPage(w http.ResponseWriter, r *htt
 	h.AdminAuditPage(w, r)
 }
 
+
 // AdminFullNotificationsPage renders admin notifications oversight.
 func (h *UIHandler) AdminFullNotificationsPage(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
