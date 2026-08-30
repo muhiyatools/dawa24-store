@@ -108,35 +108,42 @@ templ importReviewStage(view VendorImportView) {
 			</form>
 		</div>
 
+		@reviewBulkBar(view)
+
 		<!-- Table -->
-		<div class="glass-panel p-0 mb-6 overflow-hidden">
-			<div class="table-container m-0">
-				<table class="data-table m-0">
+		<div class="glass-panel p-0 mb-6 review-table-shell">
+			<div class="review-table-scroll">
+				<table class="data-table review-table m-0">
 					<thead>
 						<tr>
-							<th style="width: 48px;" class="text-center">استيراد</th>
-							<th style="width: 60px;" class="text-center">
+							<th class="text-center review-col-pick">
+								<input type="checkbox" class="review-pick-all"
+									onchange="reviewToggleAll(this)"
+									title="تحديد كل الأصناف المعروضة في هذه الصفحة"/>
+							</th>
+							<th class="text-center review-col-flag">استيراد</th>
+							<th class="text-center review-col-num">
 								@reviewSortHeader(view, "row", "#")
 							</th>
-							<th style="min-width: 240px;">
+							<th class="review-col-name">
 								@reviewSortHeader(view, "name", "الصنف في الملف (قابل للتعديل)")
 							</th>
-							<th style="min-width: 280px;">
+							<th class="review-col-catalog">
 								@reviewSortHeader(view, "catalog_name", "الصنف المطابق بالكتالوج المركزي")
 							</th>
-							<th style="width: 110px;" class="text-center">
+							<th class="text-center review-col-score">
 								@reviewSortHeader(view, "score", "نسبة التطابق")
 							</th>
-							<th style="width: 110px;" class="text-center">
+							<th class="text-center review-col-money">
 								@reviewSortHeader(view, "price", "سعر الجمهور")
 							</th>
-							<th style="width: 100px;" class="text-center">
+							<th class="text-center review-col-money">
 								@reviewSortHeader(view, "discount", "نسبة الخصم %")
 							</th>
-							<th style="width: 110px;" class="text-center">
+							<th class="text-center review-col-money">
 								السعر بعد الخصم
 							</th>
-							<th style="width: 85px;" class="text-center">
+							<th class="text-center review-col-qty">
 								@reviewSortHeader(view, "quantity", "الكمية")
 							</th>
 						</tr>
@@ -144,7 +151,7 @@ templ importReviewStage(view VendorImportView) {
 					<tbody>
 						if len(view.Rows) == 0 {
 							<tr>
-								<td colspan="9" class="text-center p-8 text-muted">
+								<td colspan="10" class="text-center p-8 text-muted">
 									<div class="font-extrabold text-sm">لا توجد أصناف مطابقة للتصفية الحالية</div>
 									<div class="text-xs mt-1">جرّب تغيير التبويب أو إزالة كلمات البحث.</div>
 								</td>
@@ -164,26 +171,87 @@ templ importReviewStage(view VendorImportView) {
 		</div>
 
 		<!-- Final Confirmation Footer -->
+		{{ held := view.Session.ReviewRows + view.Session.UnmatchedRows }}
 		<div class="glass-panel p-6 mb-0 mt-6">
 			<div class="flex-between items-center flex-wrap gap-4">
 				<div>
 					<div class="font-black text-base text-primary">اعتماد البيانات وحفظها</div>
 					<div class="text-xs text-secondary mt-1">
-						سيتم تطبيق وحفظ الأصناف المعتمدة وإدخال كمياتها في المخزن المختار مباشرة في قاعدة البيانات.
+						سيتم حفظ الأصناف <strong>المطابقة فقط</strong> ({ fmt.Sprint(view.Session.MatchedRows) } صنف) وإدخال كمياتها في المخزن المختار.
 					</div>
+					if held > 0 {
+						<div class="text-xs mt-2 review-gate-note">
+							⚠️ { fmt.Sprint(held) } صنف لن يُستورد لأنه ما زال «يحتاج مراجعة» أو «غير مطابق».
+							اعتمدها من التبويبات أعلاه — أو اتركها، فلن يُكتب منها شيء.
+						</div>
+					}
 				</div>
 				<form method="POST" action={ templ.SafeURL("/vendor/ingest/" + view.Session.PublicID + "/commit") }
-					onsubmit="return confirm('تأكيد: هل أنت متأكد من حفظ جميع الأصناف المراجعة في قاعدة البيانات؟');">
-					<button type="submit" class="btn btn-primary font-black px-6 py-2 text-sm">
-						✓ اعتماد وحفظ البيانات في قاعدة البيانات
+					data-matched={ fmt.Sprint(view.Session.MatchedRows) }
+					data-held={ fmt.Sprint(held) }
+					onsubmit="return confirmReviewCommit(this)">
+					<button type="submit" class="btn btn-primary font-black px-6 py-2 text-sm"
+						disabled?={ view.Session.MatchedRows == 0 }>
+						✓ اعتماد وحفظ الأصناف المطابقة
 					</button>
 				</form>
 			</div>
 		</div>
 	</div>
 
-	<!-- Dropdown Manager Script -->
+	<!-- Review interaction script -->
 	<script>
+		// Bulk selection. Every checkbox belongs to the toolbar's form through
+		// the form attribute, so "select all" is a query over the document
+		// rather than over a container.
+		function reviewPickBoxes() {
+			return Array.prototype.slice.call(
+				document.querySelectorAll('input.review-pick[form="review-bulk"]'));
+		}
+
+		function reviewToggleAll(source) {
+			var on = !!source.checked;
+			reviewPickBoxes().forEach(function (box) { box.checked = on; });
+			document.querySelectorAll('.review-pick-all, .review-bulk-pickall input')
+				.forEach(function (box) { if (box !== source) box.checked = on; });
+			reviewUpdateCount();
+		}
+
+		function reviewUpdateCount() {
+			var label = document.getElementById('review-bulk-count');
+			if (!label) return;
+			var n = reviewPickBoxes().filter(function (b) { return b.checked; }).length;
+			label.textContent = n === 0
+				? 'لم يتم تحديد أي صنف'
+				: ('تم تحديد ' + n + ' صنف');
+		}
+
+		document.addEventListener('change', function (e) {
+			if (e.target && e.target.classList && e.target.classList.contains('review-pick')) {
+				reviewUpdateCount();
+			}
+		});
+
+		// A commit that would silently drop rows says so first. The count comes
+		// from the server-rendered figures, not from the page's checkboxes.
+		function confirmReviewCommit(form) {
+			var matched = parseInt(form.getAttribute('data-matched'), 10) || 0;
+			var held = parseInt(form.getAttribute('data-held'), 10) || 0;
+			if (matched <= 0) {
+				alert('لا يوجد أي صنف مطابق لحفظه. اعتمد الأصناف من تبويب «يحتاج مراجعة» أولاً.');
+				return false;
+			}
+			var msg = 'سيتم حفظ ' + matched + ' صنف مطابق في قاعدة البيانات.';
+			if (held > 0) {
+				msg += '
+
+' + held + ' صنف لن يُستورد لأنه ما زال يحتاج مراجعة أو غير مطابق.';
+			}
+			return confirm(msg + '
+
+هل تريد المتابعة؟');
+		}
+
 		var activeDropdownRowId = null;
 		var catalogSearchTimer = null;
 
@@ -340,6 +408,78 @@ templ importReviewStage(view VendorImportView) {
 	</script>
 }
 
+// reviewBulkBar is the review screen's actual unit of work.
+//
+// The per-row controls below it are for correcting one line: a price, a
+// quantity, a name. They are the wrong shape for the decision that blocks an
+// import, which is the same decision repeated over a page of suggestions — and
+// a vendor with nine thousand rows will not make it forty times, so before this
+// existed they either imported everything unreviewed or gave up.
+//
+// The form lives here and the row checkboxes join it through the HTML form
+// attribute, because the table's cells are already full of forms and a form
+// cannot contain another.
+templ reviewBulkBar(view VendorImportView) {
+	{{ scope := view.Filter.MatchLevel }}
+	<form id="review-bulk" method="POST"
+		action={ templ.SafeURL(fmt.Sprintf("/vendor/ingest/%s/rows/bulk?match=%s&sort=%s&order=%s&page=%d&limit=%d&q=%s", view.Session.PublicID, view.Filter.MatchLevel, view.Filter.SortBy, view.Filter.SortOrder, view.Page, view.PerPage, view.Filter.Search)) }
+		class="glass-panel p-3 px-4 mb-4 review-bulk-bar">
+		<!-- The filter is posted with the action so "everything matching the
+		     current view" is resolved on the server from the same predicates
+		     that rendered the page. -->
+		<input type="hidden" name="f_match" value={ view.Filter.MatchLevel }/>
+		<input type="hidden" name="f_outcome" value={ view.Filter.Outcome }/>
+		<input type="hidden" name="f_q" value={ view.Filter.Search }/>
+
+		<div class="review-bulk-row">
+			<label class="review-bulk-pickall">
+				<input type="checkbox" onchange="reviewToggleAll(this)"/>
+				<span class="font-extrabold text-xs">تحديد كل الأصناف المعروضة</span>
+			</label>
+			<span class="text-xs text-muted review-bulk-count" id="review-bulk-count">لم يتم تحديد أي صنف</span>
+
+			<label class="review-bulk-scope">
+				<input type="checkbox" name="select_scope" value="filter"/>
+				<span class="text-xs">
+					طبّق على كل الأصناف في التبويب الحالي ({ fmt.Sprint(view.RowTotal) }) وليس هذه الصفحة فقط
+				</span>
+			</label>
+
+			<div class="review-bulk-actions">
+				if scope != "matched" {
+					<button type="submit" name="bulk_action" value="confirm"
+						class="btn btn-primary btn-sm font-extrabold text-xs"
+						title="اعتماد الصنف المقترح لكل صف محدد ونقله إلى «مطابق» ليُستورد">
+						✓ اعتماد المحدد كمطابق
+					</button>
+				}
+				<button type="submit" name="bulk_action" value="unlink"
+					class="btn btn-secondary btn-sm font-bold text-xs"
+					title="إلغاء الربط بالكتالوج عن الصفوف المحددة">
+					⛓ إلغاء الربط
+				</button>
+				<button type="submit" name="bulk_action" value="exclude"
+					class="btn btn-ghost btn-sm font-bold text-xs text-danger"
+					title="استبعاد الصفوف المحددة من الاستيراد">
+					✕ استبعاد المحدد
+				</button>
+				<button type="submit" name="bulk_action" value="include"
+					class="btn btn-ghost btn-sm font-bold text-xs"
+					title="إعادة الصفوف المحددة إلى الاستيراد">
+					↺ إعادة المحدد
+				</button>
+			</div>
+		</div>
+
+		if scope == "review" || scope == "unmatched" {
+			<div class="review-bulk-hint text-xs">
+				الأصناف في هذا التبويب <strong>لن تُستورد</strong> حتى تعتمدها. راجع الصنف المقترح لكل صف،
+				ألغِ تحديد الصفوف الخاطئة، ثم اضغط «اعتماد المحدد كمطابق» — أو اربط الصف يدوياً بزر «🔍 ربط».
+			</div>
+		}
+	</form>
+}
+
 templ reviewFilterTab(view VendorImportView, matchKey, label string) {
 	{{
 		active := (matchKey == "" && view.Filter.MatchLevel == "") || view.Filter.MatchLevel == matchKey
@@ -380,6 +520,15 @@ templ reviewSortHeader(view VendorImportView, colKey, label string) {
 
 templ reviewTableRow(view VendorImportView, row *ingest.RowOutcome) {
 	<tr id={ fmt.Sprintf("row-%d", row.ID) } class={ templ.KV("opacity-50", row.IsExcluded) }>
+		<!-- Bulk selection. The input belongs to the toolbar's form through the
+		     form attribute, because a form cannot be nested inside the per-row
+		     forms this table is built from. -->
+		<td class="text-center align-middle">
+			<input type="checkbox" name="row_ids" value={ fmt.Sprint(row.ID) }
+				form="review-bulk" class="review-pick"
+				title="تحديد هذا الصنف للإجراءات الجماعية"/>
+		</td>
+
 		<!-- Checkbox Exclude/Include -->
 		<td class="text-center align-middle">
 			<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/vendor/ingest/%s/rows/%d/toggle?match=%s&sort=%s&order=%s&page=%d&limit=%d&q=%s", view.Session.PublicID, row.ID, view.Filter.MatchLevel, view.Filter.SortBy, view.Filter.SortOrder, view.Page, view.PerPage, view.Filter.Search)) }>
@@ -469,8 +618,33 @@ templ reviewTableRow(view VendorImportView, row *ingest.RowOutcome) {
 						oninput="handleDropdownSearchInput(this)"/>
 				</div>
 
+				<!-- The engine's own shortlist, rendered with the page.
+				     It is what the row was scored against, so it is both the
+				     likeliest answer and free: a vendor accepting a suggestion
+				     should not have to type a search to find the product the
+				     matcher already retrieved for them. -->
+				if len(row.Candidates) > 0 {
+					<div class="review-suggestions">
+						<div class="text-xs fw-800 mb-1">اقتراحات المطابقة</div>
+						for _, c := range row.Candidates {
+							<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/vendor/ingest/%s/rows/%d/match?match=%s&sort=%s&order=%s&page=%d&limit=%d&q=%s", view.Session.PublicID, row.ID, view.Filter.MatchLevel, view.Filter.SortBy, view.Filter.SortOrder, view.Page, view.PerPage, view.Filter.Search)) }>
+								<input type="hidden" name="product_id" value={ fmt.Sprint(c.ProductID) }/>
+								<button type="submit" class="review-suggestion" title={ c.Reason }>
+									<span class={ "badge text-xs fw-800", matchScoreBadgeTone(c.Score) }>
+										{ PercentText(c.Score) }
+									</span>
+									<span class="review-suggestion-name">{ c.Name }</span>
+									if c.Concentration != "" || c.DosageForm != "" {
+										<span class="review-suggestion-meta">{ c.Concentration } { c.DosageForm }</span>
+									}
+								</button>
+							</form>
+						}
+					</div>
+				}
+
 				<div id={ fmt.Sprintf("dropdown-results-%d", row.ID) } style="max-height: 200px; overflow-y: auto;">
-					<div class="text-center text-muted p-sm text-xs">جارٍ البحث...</div>
+					<div class="text-center text-muted p-sm text-xs">اكتب للبحث في الكتالوج المركزي…</div>
 				</div>
 
 				if row.ProductID != nil && *row.ProductID > 0 {
@@ -499,6 +673,9 @@ templ reviewTableRow(view VendorImportView, row *ingest.RowOutcome) {
 				</span>
 			} else {
 				<span class="badge badge-rose text-xs">0%</span>
+			}
+			if !reviewRowWillImport(row) {
+				<div class="text-xs text-muted mt-1">لن يُستورد</div>
 			}
 		</td>
 
@@ -701,13 +878,38 @@ func matchLevelText(level string) string {
 	}
 }
 
+// matchScoreBadgeTone colours a score by what will actually happen to the row.
+//
+// The bands are the engine's own thresholds rather than round numbers, which is
+// the point: green means "this will be imported", amber means "this is a
+// suggestion you must accept", red means "there is nothing here". A palette
+// that disagreed with the gate — green at 70%, amber down to 30%, while the
+// applied threshold sat at 40% — described a different system from the one
+// deciding.
 func matchScoreBadgeTone(score float64) string {
 	switch {
-	case score >= 0.70:
+	case score >= productmatch.DefaultMinStrong:
 		return "badge-emerald"
-	case score >= 0.30:
+	case score >= productmatch.DefaultMinReview:
 		return "badge-amber"
 	default:
 		return "badge-rose"
 	}
+}
+
+// reviewRowWillImport reports whether the commit would write this row.
+//
+// It restates, in the template, the exact predicate StagedRowsForCommit uses.
+// That duplication is deliberate and is the lesser evil: the alternative is a
+// screen that shows a product name beside a row the commit will silently drop,
+// which is the failure this whole change is about. If the two ever disagree the
+// answer is to fix the predicate, not to stop showing it.
+func reviewRowWillImport(row *ingest.RowOutcome) bool {
+	if row == nil || row.IsExcluded || row.ProductID == nil || *row.ProductID <= 0 {
+		return false
+	}
+	if row.IsManuallyMatched {
+		return true
+	}
+	return productmatch.MatchLevel(row.MatchLevel).Settled()
 }

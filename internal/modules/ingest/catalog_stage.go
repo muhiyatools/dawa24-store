@@ -164,9 +164,12 @@ func stagingMatchOptions(settings Settings, mapped productmatch.MappedColumns) p
 	opts := productmatch.DefaultMatchOptions()
 	opts.MinStrong = settings.MinMatchScore
 	if opts.MinStrong <= 0 {
-		opts.MinStrong = 0.30
+		opts.MinStrong = productmatch.DefaultMinStrong
 	}
-	opts.MinReview = min(opts.MinStrong*0.5, 0.20)
+	// Never below the shared review floor. Halving the applied threshold used
+	// to put it at 0.15, which is where the sixteen-per-cent suggestions came
+	// from: a band wide enough to hold every coincidence in the catalogue.
+	opts.MinReview = max(productmatch.DefaultMinReview, min(opts.MinStrong*0.7, 0.35))
 	return opts.WithIdentifiers(mapped, settings.identifierChoices())
 }
 

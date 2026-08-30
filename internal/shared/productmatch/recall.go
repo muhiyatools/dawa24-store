@@ -76,10 +76,6 @@ type recallIndex struct {
 	// no token and no within-script trigram with a Latin catalogue name, so
 	// without this the correct product is not in the pool to be scored.
 	skel map[trigram][]*MasterProduct
-	// makers is every word that appears in some product's manufacturer field.
-	// It is drawn from the catalogue rather than from a list, because the
-	// companies that matter are the ones this catalogue actually names.
-	makers map[string]bool
 }
 
 func (idx *Index) recall() *recallIndex {
@@ -87,11 +83,7 @@ func (idx *Index) recall() *recallIndex {
 		tri := make(map[trigram][]*MasterProduct, idx.total*8)
 		sci := make(map[string][]*MasterProduct, idx.total)
 		skel := make(map[trigram][]*MasterProduct, idx.total*6)
-		makers := make(map[string]bool, 2048)
 		for _, p := range idx.products {
-			for _, tok := range coreTokens(p.Manufacturer) {
-				makers[tok] = true
-			}
 			seen := make(map[trigram]bool, len(p.triAR)+len(p.triEN))
 			for _, set := range [][]trigram{p.triAR, p.triEN} {
 				for _, t := range set {
@@ -109,7 +101,7 @@ func (idx *Index) recall() *recallIndex {
 				skel[t] = append(skel[t], p)
 			}
 		}
-		idx.tri.tri, idx.tri.sci, idx.tri.skel, idx.tri.makers = tri, sci, skel, makers
+		idx.tri.tri, idx.tri.sci, idx.tri.skel = tri, sci, skel
 	})
 	return &idx.tri
 }
@@ -249,8 +241,13 @@ func (idx *Index) rateForRecall(q *query, p *MasterProduct) scoredProduct {
 	name := idx.nameSimilarity(q, p)
 	score := name
 
-	if q.strength.known() && p.strength.known() {
-		if sameStrength(q.strength, p.strength) {
+	// Per unit and over every dose each side states, the same comparison the
+	// scorer makes. Comparing first-against-first demoted correct candidates
+	// for measuring different things — a tube size against a concentration —
+	// and retrieval is the one place that costs an answer outright: a candidate
+	// pushed below the recall floor is never offered to the model at all.
+	if agree, comparable := compareStrengths(q.strengths, p.strengths); comparable {
+		if agree {
 			score += 0.12
 		} else {
 			score -= 0.10

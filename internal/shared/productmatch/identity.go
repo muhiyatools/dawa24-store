@@ -107,23 +107,31 @@ func strengthsConflict(rowText, prodText string) bool {
 		return false
 	}
 
-	conflicted := false
+	agree, comparable := compareStrengths(rowDoses, prodDoses)
+	return comparable && !agree
+}
+
+// compareStrengths relates two dose sets on the units they have in common.
+//
+// comparable is false when no unit appears on both sides, which is missing
+// information rather than agreement OR disagreement: a row stating a 120 ml
+// bottle and a product stating 200 mg have not contradicted each other, and
+// scoring that as a conflict cost a long list of correct matches half a point
+// each. agree is true as soon as any shared unit matches, because a combination
+// product states several doses and one of them agreeing is what identifies it.
+func compareStrengths(rowDoses, prodDoses []strength) (agree, comparable bool) {
 	for _, a := range rowDoses {
-		shared := false
 		for _, b := range prodDoses {
 			if a.unit != b.unit {
 				continue
 			}
-			shared = true
+			comparable = true
 			if sameStrength(a, b) {
-				return false
+				return true, true
 			}
 		}
-		if shared {
-			conflicted = true
-		}
 	}
-	return conflicted
+	return false, comparable
 }
 
 // modifierConflict compares the line-extension words that separate one product
@@ -142,9 +150,27 @@ func strengthsConflict(rowText, prodText string) bool {
 func modifierConflict(row *Row, p *MasterProduct) (string, bool) {
 	rowText := row.Name + " " + row.NameEN
 	prodText := p.NameAR + " " + p.NameEN
-	rowMods := modifiersIn(rowText)
-	prodMods := modifiersIn(prodText)
+	return modifierSetsDiffer(modifiersIn(rowText), p.modifiers(), rowText, prodText)
+}
 
+// modifierSetsConflict is the same comparison for callers that already hold
+// both sets, which the scorer does: it derives the row's once per row and the
+// catalogue's once per product, rather than re-tokenising two names inside a
+// loop that runs three million times on a large file.
+func modifierSetsConflict(rowMods, prodMods map[string]struct{}, rowText, prodText string) bool {
+	_, differ := modifierSetsDiffer(rowMods, prodMods, rowText, prodText)
+	return differ
+}
+
+// modifierSetsDiffer is the set comparison itself, and the texts are carried
+// only so a missing modifier can be looked for unspaced before it is called a
+// conflict. See modifierGlued.
+func modifierSetsDiffer(
+	rowMods, prodMods map[string]struct{}, rowText, prodText string,
+) (string, bool) {
+	if len(rowMods) == 0 && len(prodMods) == 0 {
+		return "", false
+	}
 	for m := range rowMods {
 		if _, both := prodMods[m]; !both && !modifierGlued(prodText, m) {
 			return m, true
@@ -157,6 +183,11 @@ func modifierConflict(row *Row, p *MasterProduct) (string, bool) {
 	}
 	return "", false
 }
+
+// modifiers is the catalogue product's line-extension keys, derived at index
+// time. A nil map is a product whose name carries none, which is the common
+// case and costs nothing to compare against.
+func (p *MasterProduct) modifiers() map[string]struct{} { return p.mods }
 
 // modifierGlued asks whether a modifier is present without a space around it.
 //

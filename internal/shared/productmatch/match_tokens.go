@@ -170,6 +170,15 @@ var noiseWords = map[string]bool{
 	"عرض": true, "خصم": true, "مجانا": true, "توفير": true, "بديل": true,
 	"مستورد": true, "باكو": true, "جدبد": true, "الجديد": true,
 	"new": true, "price": true, "offer": true, "free": true, "imported": true,
+	// The rest of the marketing furniture a distributor appends. Every one of
+	// these turned up in live price lists as a whole token beside the brand,
+	// and every one of them is carried by enough products to outvote it.
+	"الجديده": true, "الجديدة": true, "سعرجديد": true, "سعرالجديد": true,
+	"تخفيض": true, "بونس": true, "هديه": true, "هدية": true, "اوفر": true,
+	"خاص": true, "الاصلي": true, "الاصل": true, "اصلي": true, "جمله": true,
+	"جملة": true, "نص": true, "بسعر": true, "قديم": true, "القديم": true,
+	"bonus": true, "gift": true, "promo": true, "special": true, "sale": true,
+	"original": true, "orig": true, "old": true, "discount": true,
 }
 
 // formKeyOf collapses the many ways a form is written onto one token, so

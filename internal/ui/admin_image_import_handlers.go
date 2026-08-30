@@ -70,9 +70,17 @@ func (h *UIHandler) AdminProductImagesUploadSubmit(w http.ResponseWriter, r *htt
 	}
 	defer file.Close()
 
+	// The extension is checked to catch an obvious mistake early — a PDF, an
+	// image — and nothing more. What the file actually IS, is decided by its
+	// bytes: suppliers and admins rename files freely, and a .xls that is
+	// really an HTML table or a .xlsx that is really a CSV are both ordinary
+	// here. The shared reader sniffs the real container.
 	ext := strings.ToLower(filepath.Ext(header.Filename))
-	if ext != ".xlsx" && ext != ".xls" && ext != ".csv" {
-		h.redirectWithNotice(w, r, "/admin/products/images/import", "error", "صيغة الملف غير مدعومة. يرجى رفع ملف بصيغة .xlsx أو .xls أو .csv.")
+	switch ext {
+	case ".xlsx", ".xls", ".xlsm", ".csv", ".txt", ".tsv", ".htm", ".html", ".xml", "":
+	default:
+		h.redirectWithNotice(w, r, "/admin/products/images/import", "error",
+			"صيغة الملف غير مدعومة. يرجى رفع ملف Excel (.xlsx أو .xls) أو ملف نصي (.csv).")
 		return
 	}
 
@@ -83,8 +91,16 @@ func (h *UIHandler) AdminProductImagesUploadSubmit(w http.ResponseWriter, r *htt
 	}
 
 	rawRows, err := sheet.ReadRows(data, header.Filename)
-	if err != nil || len(rawRows) < 2 {
-		h.redirectWithNotice(w, r, "/admin/products/images/import", "error", "لم يتم العثور على بيانات صالحة في الملف المرفوع.")
+	if err != nil {
+		// The reader's own message names the actual problem — a password, a
+		// damaged BIFF workbook, an unrecognised container — and is far more
+		// use than "no valid data".
+		h.redirectWithNotice(w, r, "/admin/products/images/import", "error", err.Error())
+		return
+	}
+	if len(rawRows) < 2 {
+		h.redirectWithNotice(w, r, "/admin/products/images/import", "error",
+			"الملف يحتوي على صف العناوين فقط ولا يوجد به أي بيانات.")
 		return
 	}
 

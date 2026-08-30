@@ -138,6 +138,23 @@ templ SmartOrderReviewPage(lang, dir string, data SmartOrderReviewData) {
 			}
 
 			<!-- Main Supplier Groups Review Tables -->
+			if len(data.Groups) > 0 {
+				<div class="so-review-lead">
+					<strong class="so-review-lead-title">
+						{ fmt.Sprintf("%d صنف جاهز للتوريد من %d مورد", totalOrderableItems(data.Groups), len(data.Groups)) }
+					</strong>
+					<span class="so-review-lead-hint">
+						هذه هي الأصناف التي ستُطلب فعلياً. راجع الكميات والموردين، ثم اعتمد الطلب من الأسفل.
+					</span>
+				</div>
+			} else {
+				<div class="so-review-lead">
+					<strong class="so-review-lead-title">لا يوجد أي صنف جاهز للتوريد في هذا الطلب</strong>
+					<span class="so-review-lead-hint">
+						راجع الأصناف المستبعدة أدناه واربط غير المطابق منها بالكتالوج، أو عد إلى شاشة نتائج المطابقة.
+					</span>
+				</div>
+			}
 			for _, g := range data.Groups {
 				<div class="card" style="padding:0; overflow:hidden; background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-2xl); box-shadow:var(--shadow-xs);">
 					
@@ -321,22 +338,26 @@ templ SmartOrderReviewPage(lang, dir string, data SmartOrderReviewData) {
 				</div>
 			}
 
-			<!-- Excluded Items Section (if any) -->
+			<!-- Everything that will not be ordered, folded away.
+
+			     It is shown rather than omitted (FR-045) and closed rather than
+			     shown open: the buyer is on this screen to place an order, and
+			     a list of what failed sitting between them and the button reads
+			     as a wall of problems on a tool they chose for its speed. The
+			     count is on the closed summary, so nothing is a surprise. -->
 			if len(data.Excluded) > 0 {
-				<div class="card" style="padding:1.25rem 1.5rem; background:var(--surface-raised); border:1px dashed var(--border); border-radius:var(--radius-2xl);">
-					<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
-						<div style="display:flex; align-items:center; gap:0.5rem;">
-							<span style="font-size:1.15rem;">⚠️</span>
-							<div>
-								<h3 style="font-size:0.95rem; font-weight:800; color:var(--text); margin:0;">
-									أصناف مستبعدة ولن تُطلب تلقائياً ({ fmt.Sprintf("%d", len(data.Excluded)) } صنف)
-								</h3>
-								<div style="font-size:0.775rem; color:var(--text-secondary); margin-top:2px;">
-									هذه الأصناف لم تكتمل شروط توريدها (بسبب عدم التطابق أو عدم توفر مورد أو نفاد المخزون).
-								</div>
-							</div>
-						</div>
-						<a href={ templ.SafeURL(fmt.Sprintf("/customer/smart-order/%s/results?match=unmatched", data.Run.PublicID)) } class="btn btn-secondary btn-xs fw-700">
+				<details class="so-blocked-panel">
+					<summary class="so-blocked-summary">
+						<span class="so-blocked-title">
+							⚠️ { fmt.Sprintf("%d صنف مستبعد ولن يُطلب", len(data.Excluded)) }
+						</span>
+						<span class="so-blocked-hint">
+							لم تكتمل شروط توريدها. اضغط لمراجعتها ومعالجتها قبل الاعتماد.
+						</span>
+					</summary>
+					<div style="padding:1rem 1.25rem;">
+					<div style="display:flex; justify-content:flex-end; margin-bottom:0.75rem;">
+						<a href={ templ.SafeURL(fmt.Sprintf("/customer/smart-order/%s/results?match=blocked", data.Run.PublicID)) } class="btn btn-secondary btn-xs fw-700">
 							معالجة الأصناف ←
 						</a>
 					</div>
@@ -383,7 +404,8 @@ templ SmartOrderReviewPage(lang, dir string, data SmartOrderReviewData) {
 							</tbody>
 						</table>
 					</div>
-				</div>
+					</div>
+				</details>
 			}
 
 			<!-- Bottom Sticky Placement Action Bar -->

@@ -11,7 +11,7 @@ import (
 	"github.com/muhiya/dawa24-store/internal/shared/apperr"
 )
 
-const sessionColumns = `id, public_id, subscription_user_id, user_id, session_id, device_uuid, is_active, device_name, device_type, platform, platform_version, browser, browser_version, ip_address::text, user_agent, country, city, logged_in_at, last_activity_at, logged_out_at, created_at, updated_at`
+const sessionColumns = `id, public_id, subscription_user_id, user_id, session_id, COALESCE(device_uuid, ''), is_active, COALESCE(device_name, ''), COALESCE(device_type, ''), COALESCE(platform, ''), COALESCE(platform_version, ''), COALESCE(browser, ''), COALESCE(browser_version, ''), ip_address::text, COALESCE(user_agent, ''), COALESCE(country, ''), COALESCE(city, ''), logged_in_at, last_activity_at, logged_out_at, created_at, updated_at`
 
 func scanUserSession(row pgx.Row) (*compare.UserSession, error) {
 	var s compare.UserSession

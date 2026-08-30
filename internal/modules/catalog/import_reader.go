@@ -11,6 +11,8 @@ import (
 	"unicode/utf8"
 
 	"github.com/xuri/excelize/v2"
+
+	"github.com/muhiya/dawa24-store/internal/shared/sheet"
 )
 
 // File decoding for spreadsheet import.
@@ -45,8 +47,16 @@ var (
 	magicOLE2 = []byte{0xD0, 0xCF, 0x11, 0xE0, 0xA1, 0xB1, 0x1A, 0xE1}
 )
 
-// ErrLegacyXLS is returned for a real BIFF .xls workbook. It is a distinct
-// error because the fix is specific and the admin can act on it immediately.
+// ErrLegacyXLS used to be returned for a real BIFF .xls workbook, which this
+// importer refused outright.
+//
+// It is kept only so a caller that still tests for it compiles, and it is no
+// longer produced by anything: legacy .xls is read. A workbook so damaged that
+// the decoder cannot recover it returns a plain message naming that, because
+// "re-save it as .xlsx" is now advice about a broken file rather than about an
+// unsupported format.
+//
+// Deprecated: legacy .xls is supported. Nothing returns this.
 var ErrLegacyXLS = errors.New("catalog: legacy .xls workbook")
 
 // ReadSpreadsheet decodes an uploaded file into rows.
@@ -64,19 +74,66 @@ func ReadSpreadsheet(content []byte, filename string) (*SheetData, error) {
 	case bytes.HasPrefix(content, magicZIP):
 		return readExcel(content)
 
-	case bytes.HasPrefix(content, magicOLE2):
-		return nil, fmt.Errorf("%w: هذا الملف بصيغة Excel 97-2003 القديمة (.xls) وهي غير مدعومة. "+
-			"يرجى فتحه في Excel ثم اختيار «حفظ باسم» وتحديد صيغة «مصنف Excel (.xlsx)» أو «CSV UTF-8» وإعادة الرفع", ErrLegacyXLS)
-
-	case looksLikeHTML(content):
-		return nil, errors.New("هذا الملف صفحة HTML وليس جدول بيانات (بعض برامج الحسابات تصدّر بهذه الصيغة باسم .xls). " +
-			"يرجى فتحه في Excel وحفظه بصيغة .xlsx أو CSV ثم إعادة الرفع")
-
 	case bytes.HasPrefix(content, []byte("%PDF")):
 		return nil, errors.New("لا يمكن استيراد ملفات PDF. يرجى رفع ملف Excel (.xlsx) أو CSV")
+
+	case bytes.HasPrefix(content, magicOLE2), looksLikeHTML(content):
+		// Legacy BIFF .xls, and the HTML table a decade-old ERP writes and
+		// names .xls. Both used to be refused outright with an instruction to
+		// re-save the file, and roughly a fifth of what Egyptian distributors
+		// actually send is one or the other — telling a supplier to convert
+		// their file is how an import never happens.
+		//
+		// internal/shared/sheet has decoded both for the vendor import and the
+		// smart order all along. This importer had its own reader and its own
+		// refusal, which is precisely the drift a shared reader exists to stop:
+		// the same file was importable through one screen and rejected by
+		// another.
+		return readViaSheet(content, filename)
 	}
 
 	return readDelimited(content, filename)
+}
+
+// readViaSheet decodes through the shared sniffing reader.
+//
+// It returns the same SheetData the local decoders do, so nothing downstream
+// needs to know which reader ran — the row parser, the column mapper and the
+// review screen all see one shape.
+func readViaSheet(content []byte, filename string) (*SheetData, error) {
+	book, err := sheet.Open(content, filename)
+	if err != nil {
+		return nil, err
+	}
+	defer func() { _ = book.Close() }()
+
+	src := book.Source()
+	data := &SheetData{Sheet: src.Sheet, Format: string(src.Format), Delimiter: src.Delimiter}
+	for _, info := range src.Sheets {
+		if !info.Chosen && info.Cells > 0 {
+			data.SheetsSkipped = append(data.SheetsSkipped, info.Name)
+		}
+	}
+
+	err = book.Walk(func(_ int, row []string) error {
+		if len(data.Rows) >= maxSheetRows {
+			return errSheetTooLarge
+		}
+		out := make([]string, len(row))
+		for i, cell := range row {
+			out[i] = sheet.CleanCell(cell)
+		}
+		data.Rows = append(data.Rows, out)
+		return nil
+	})
+	if err != nil {
+		return nil, err
+	}
+	if len(data.Rows) == 0 {
+		return nil, errors.New("لا يحتوي الملف على أي صفوف قابلة للقراءة")
+	}
+	normalizeWidth(data)
+	return data, nil
 }
 
 func looksLikeHTML(content []byte) bool {

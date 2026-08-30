@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"github.com/muhiya/dawa24-store/internal/shared/matchflow"
 	"log/slog"
 	"time"
 
@@ -35,6 +36,9 @@ type Service struct {
 	// exactly the same way: unset means the tier is skipped and the import
 	// keeps its deterministic answer.
 	adjudicator MatchAdjudicator
+	// matchMemory is the shared decision cache. Nil means every question is
+	// paid for again, which is slower and dearer but never wrong.
+	matchMemory matchflow.Memory
 	// progress tracks background preparation runs so the review screen can show
 	// the admin what a long import is doing.
 	progress *ProgressTracker

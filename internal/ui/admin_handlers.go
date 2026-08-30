@@ -2012,6 +2012,12 @@ func (h *UIHandler) AdminPlanSubmit(w http.ResponseWriter, r *http.Request) {
 	} else {
 		features[billing.FeatureMaxCompareFiles] = "10"
 	}
+	retentionDays := strings.TrimSpace(r.PostFormValue("compare_file_retention_days"))
+	if retentionDays != "" {
+		features[billing.FeatureCompareRetentionDays] = retentionDays
+	} else {
+		features[billing.FeatureCompareRetentionDays] = "30"
+	}
 
 	p := &billing.Plan{
 		Slug:             slug,
@@ -2087,6 +2093,12 @@ func (h *UIHandler) AdminPlanUpdateSubmit(w http.ResponseWriter, r *http.Request
 		features[billing.FeatureMaxCompareFiles] = maxCompareFilesUpdate
 	} else {
 		features[billing.FeatureMaxCompareFiles] = "10"
+	}
+	retentionDaysUpdate := strings.TrimSpace(r.PostFormValue("compare_file_retention_days"))
+	if retentionDaysUpdate != "" {
+		features[billing.FeatureCompareRetentionDays] = retentionDaysUpdate
+	} else {
+		features[billing.FeatureCompareRetentionDays] = "30"
 	}
 
 	p := &billing.Plan{

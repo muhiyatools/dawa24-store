@@ -145,6 +145,31 @@ type FilterCounts struct {
 	ReadyToOrder    int `json:"ready_to_order"`
 }
 
+// BlockedCounts is the run's lines that will NOT be ordered, split by why.
+//
+// It exists because "not ready" is not one problem. A line with no supplier is
+// a sourcing question, a line out of stock is a timing question, and a line
+// nothing matched is a data question — and they are answered by different
+// people at different moments. Lumping them into one number told a buyer only
+// that something was wrong.
+type BlockedCounts struct {
+	Unmatched            int `json:"unmatched"`
+	NoSupplier           int `json:"no_supplier"`
+	CoverageBlocked      int `json:"coverage_blocked"`
+	InstitutionalBlocked int `json:"institutional_blocked"`
+	OutOfStock           int `json:"out_of_stock"`
+	BelowMinQty          int `json:"below_min_qty"`
+	ZeroQty              int `json:"zero_qty"`
+	Removed              int `json:"removed"`
+}
+
+// Total is every line that will not be ordered, excluding the ones the buyer
+// removed on purpose — those are not a problem to be solved.
+func (b BlockedCounts) Total() int {
+	return b.Unmatched + b.NoSupplier + b.CoverageBlocked + b.InstitutionalBlocked +
+		b.OutOfStock + b.BelowMinQty + b.ZeroQty
+}
+
 // AIUsage is telemetry, not commerce.
 //
 // CostEstimate is USD with six decimals and deliberately not money.Amount:

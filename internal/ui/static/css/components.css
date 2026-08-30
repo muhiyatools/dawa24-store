@@ -5105,3 +5105,275 @@ input:focus {
 */
 .wiz-node.is-skipped { color: var(--text-muted); opacity: 0.45; }
 .wiz-node.is-skipped .wiz-bubble { border-style: dashed; background: transparent; }
+
+/* ==========================================================================
+   VENDOR IMPORT REVIEW TABLE
+   --------------------------------------------------------------------------
+   The review table carries ten columns of controls — two editable prices, a
+   quantity, a catalogue picker and two checkboxes — and it was laid out with
+   per-column min-widths that added up to more than any laptop viewport. The
+   panel around it clipped the overflow, so the last columns were simply not
+   reachable: the vendor could see a discount they could not edit.
+
+   The fix is to stop pretending it fits. The table declares the width it
+   actually needs and the shell scrolls horizontally, with the two identity
+   columns pinned so a row stays readable while the money columns are reached.
+   ========================================================================== */
+
+.review-table-shell {
+  overflow: hidden;
+  padding: 0;
+}
+
+.review-table-scroll {
+  width: 100%;
+  overflow-x: auto;
+  overflow-y: visible;
+  -webkit-overflow-scrolling: touch;
+}
+
+.review-table {
+  min-width: 1220px;
+}
+
+.review-table th,
+.review-table td {
+  padding: 0.55rem 0.7rem;
+}
+
+.review-col-pick { width: 42px; }
+.review-col-flag { width: 60px; }
+.review-col-num { width: 58px; }
+.review-col-name { min-width: 270px; }
+.review-col-catalog { min-width: 300px; }
+.review-col-score { width: 104px; }
+.review-col-money { width: 120px; }
+.review-col-qty { width: 100px; }
+
+.review-table input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+  accent-color: var(--primary);
+}
+
+/* The bulk toolbar: the review screen's actual unit of work. */
+.review-bulk-bar {
+  border: 1px solid var(--border-strong, var(--border));
+  background: var(--surface-sunken, var(--bg-surface-sunken));
+}
+
+.review-bulk-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.review-bulk-pickall,
+.review-bulk-scope {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  cursor: pointer;
+  user-select: none;
+}
+
+.review-bulk-scope span { color: var(--text-secondary); }
+
+.review-bulk-count {
+  font-weight: 700;
+  color: var(--text-secondary);
+}
+
+.review-bulk-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+  margin-inline-start: auto;
+}
+
+.review-bulk-hint {
+  margin-top: 0.6rem;
+  padding-top: 0.6rem;
+  border-top: 1px dashed var(--border);
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
+
+.review-gate-note {
+  color: var(--warning-fg, var(--text-secondary));
+  font-weight: 700;
+  line-height: 1.6;
+}
+
+@media (max-width: 900px) {
+  .review-bulk-actions { margin-inline-start: 0; width: 100%; }
+}
+
+/* The compare tool's catalogue matching control. */
+.compare-match-panel {
+  background: var(--surface-sunken, var(--bg-surface-sunken));
+  border: 1px solid var(--border-card, var(--border));
+  border-radius: var(--radius-xl);
+  padding: 0.85rem 1rem;
+  margin-bottom: 0.75rem;
+}
+
+/* ==========================================================================
+   SMART ORDER — WHAT IS NOT BEING ORDERED
+   --------------------------------------------------------------------------
+   The results screen leads with the lines the pharmacist can actually order.
+   Everything blocked lives in this panel, closed, grouped by reason: a line
+   with no supplier, a line out of stock and a line nothing matched are three
+   different jobs, and listing them flat between the good rows was why a tool
+   chosen for its speed felt like an audit.
+   ========================================================================== */
+
+.so-blocked-panel {
+  border: 1px solid var(--border-card, var(--border));
+  border-radius: var(--radius-xl);
+  background: var(--surface-sunken, var(--bg-surface-sunken));
+  margin-bottom: 1rem;
+  overflow: hidden;
+}
+
+.so-blocked-summary {
+  display: flex;
+  align-items: baseline;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  padding: 0.85rem 1.1rem;
+  cursor: pointer;
+  list-style: none;
+  user-select: none;
+}
+
+.so-blocked-summary::-webkit-details-marker { display: none; }
+
+.so-blocked-summary::after {
+  content: "▾";
+  margin-inline-start: auto;
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  transition: transform 150ms ease;
+}
+
+.so-blocked-panel[open] .so-blocked-summary::after { transform: rotate(180deg); }
+
+.so-blocked-title {
+  font-weight: 800;
+  font-size: 0.9rem;
+  color: var(--text);
+}
+
+.so-blocked-hint {
+  font-size: 0.775rem;
+  color: var(--text-secondary);
+}
+
+.so-blocked-body {
+  border-top: 1px solid var(--border);
+  padding: 0.35rem 0.5rem 0.6rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.so-blocked-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.5rem 0.65rem;
+  border-radius: var(--radius-md);
+  text-decoration: none;
+  color: var(--text);
+  transition: background-color 120ms ease;
+}
+
+.so-blocked-row:hover { background: var(--surface-raised, rgba(127, 127, 127, 0.08)); }
+
+.so-blocked-count {
+  min-width: 3.2rem;
+  font-weight: 900;
+  font-size: 0.95rem;
+  text-align: center;
+  color: var(--warning-fg, var(--text));
+}
+
+.so-blocked-label {
+  font-weight: 700;
+  font-size: 0.825rem;
+  min-width: 12rem;
+}
+
+.so-blocked-detail {
+  font-size: 0.775rem;
+  color: var(--text-secondary);
+  flex: 1 1 auto;
+}
+
+.so-blocked-go {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--accent, var(--primary));
+  white-space: nowrap;
+}
+
+@media (max-width: 720px) {
+  .so-blocked-row { flex-wrap: wrap; }
+  .so-blocked-detail { flex-basis: 100%; }
+}
+
+/* The engine's own shortlist, offered inside the review row's picker.
+   A vendor accepting a suggestion should not have to type a search for the
+   product the matcher already retrieved for them. */
+.review-suggestions {
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 0.45rem;
+  margin-bottom: 0.45rem;
+  max-height: 190px;
+  overflow-y: auto;
+}
+
+.review-suggestion {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+  text-align: start;
+  padding: 0.4rem 0.5rem;
+  margin-bottom: 0.25rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--surface-sunken, transparent);
+  color: var(--text);
+  cursor: pointer;
+  font-size: 0.8rem;
+}
+
+.review-suggestion:hover { border-color: var(--primary); }
+
+.review-suggestion-name { font-weight: 700; flex: 1 1 auto; }
+
+.review-suggestion-meta {
+  font-size: 0.7rem;
+  color: var(--text-secondary);
+  white-space: nowrap;
+}
+
+/* The review screen's lead-in: what is actually going to be ordered. */
+.so-review-lead {
+  display: flex;
+  align-items: baseline;
+  gap: 0.65rem;
+  flex-wrap: wrap;
+  padding: 0.75rem 1rem;
+  border-inline-start: 3px solid var(--accent, var(--primary));
+  border-radius: var(--radius-md);
+  background: var(--surface-sunken, var(--bg-surface-sunken));
+}
+
+.so-review-lead-title { font-size: 0.95rem; color: var(--text); }
+.so-review-lead-hint { font-size: 0.8rem; color: var(--text-secondary); }

@@ -16,6 +16,8 @@ import (
 	"github.com/muhiya/dawa24-store/internal/modules/billing"
 	billingPostgres "github.com/muhiya/dawa24-store/internal/modules/billing/postgres"
 	catalogJobs "github.com/muhiya/dawa24-store/internal/modules/catalog/jobs"
+	"github.com/muhiya/dawa24-store/internal/modules/compare"
+	comparePostgres "github.com/muhiya/dawa24-store/internal/modules/compare/postgres"
 	ingestPostgres "github.com/muhiya/dawa24-store/internal/modules/ingest/postgres"
 	"github.com/muhiya/dawa24-store/internal/platform/aiusage"
 	aiusagePostgres "github.com/muhiya/dawa24-store/internal/platform/aiusage/postgres"
@@ -156,6 +158,39 @@ func run() error {
 					log.Error("daily subscription renewal pass failed", "error", err)
 				} else {
 					log.Info("daily subscription renewal pass completed", "renewed", r, "failed", f)
+				}
+			}
+		}
+	}()
+
+	// Daily Compare Files Retention Cleanup Scheduler (Runs once every 24 hours)
+	go func() {
+		compareRepo := comparePostgres.NewRepository(db)
+		compareSvc := compare.NewService(compareRepo, log)
+
+		select {
+		case <-ctx.Done():
+			return
+		case <-time.After(20 * time.Second):
+			if count, err := compareSvc.PurgeExpiredFiles(ctx, 30); err != nil {
+				log.Error("initial compare files retention pass failed", "error", err)
+			} else if count > 0 {
+				log.Info("initial compare files retention pass completed", "purged_files", count)
+			}
+		}
+
+		ticker := time.NewTicker(24 * time.Hour)
+		defer ticker.Stop()
+
+		for {
+			select {
+			case <-ctx.Done():
+				return
+			case <-ticker.C:
+				if count, err := compareSvc.PurgeExpiredFiles(ctx, 30); err != nil {
+					log.Error("daily compare files retention pass failed", "error", err)
+				} else if count > 0 {
+					log.Info("daily compare files retention pass completed", "purged_files", count)
 				}
 			}
 		}

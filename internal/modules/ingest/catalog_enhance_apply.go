@@ -98,7 +98,13 @@ func (e *Enhancement) apply(b plannedBatch, outcomes []EnhanceOutcome) []CachedD
 			e.resolve(r, *out.ProductID, out.Confidence, out.Reason)
 		}
 
-		saved = append(saved, decision)
+		// A hesitant answer is used but not remembered. See
+		// matchflow.MinMemoryConfidence: the cache is shared and long-lived, and
+		// an entry written from a 0.2 answer answers the same question for
+		// months without anyone being told it was a guess.
+		if out.Confidence >= matchflow.MinMemoryConfidence {
+			saved = append(saved, decision)
+		}
 	}
 	return saved
 }

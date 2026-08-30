@@ -160,6 +160,9 @@ func (m *mockCompareRepoE2E) ArchiveFile(ctx context.Context, id int64, reason s
 }
 func (m *mockCompareRepoE2E) UnarchiveFile(ctx context.Context, id int64) error { return nil }
 func (m *mockCompareRepoE2E) DeleteFile(ctx context.Context, id int64) error    { return nil }
+func (m *mockCompareRepoE2E) PurgeExpiredCompareFiles(ctx context.Context, defaultRetentionDays int) (int64, error) {
+	return 0, nil
+}
 func (m *mockCompareRepoE2E) InsertFileRows(ctx context.Context, rows []*compare.CompareFileRow) error {
 	for _, r := range rows {
 		m.fileRows[r.FileID] = append(m.fileRows[r.FileID], r)
@@ -209,6 +212,10 @@ func (m *mockCompareRepoE2E) TouchUserSession(ctx context.Context, sessionID str
 func (m *mockCompareRepoE2E) ListActiveUserSessions(ctx context.Context, userID int64) ([]*compare.UserSession, error) {
 	return nil, nil
 }
+func (m *mockCompareRepoE2E) BulkUpdateFileRowMatches(ctx context.Context, fileID int64, matches []compare.RowMatch) error {
+	return nil
+}
+
 func (m *mockCompareRepoE2E) UpdateFileRowMatch(ctx context.Context, rowID int64, matchedProductID *int64, method compare.MatchMethod, confidence float64) error {
 	return nil
 }

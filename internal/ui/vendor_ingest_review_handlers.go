@@ -259,6 +259,10 @@ func (h *UIHandler) VendorIngestCommitSubmit(w http.ResponseWriter, r *http.Requ
 	}
 
 	msg := fmt.Sprintf("تم بنجاح حفظ %d صنفاً في الكتالوج والمخزن.", session.InsertedRows+session.UpdatedRows)
+	if session.SkippedRows > 0 {
+		msg += fmt.Sprintf(" ولم يُحفظ %d صنف لأنه ما زال يحتاج مراجعة أو غير مطابق — يمكنك اعتماده من شاشة المراجعة.",
+			session.SkippedRows)
+	}
 	h.redirectWithNotice(w, r, "/vendor/ingest/"+publicID, "success", msg)
 }
 

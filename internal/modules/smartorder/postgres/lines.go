@@ -147,6 +147,11 @@ func (r *Repository) ListLines(ctx context.Context, runID int64, f smartorder.Li
 				where = append(where, "(outcome = 'ordered')")
 			case "review":
 				where = append(where, "(outcome IN ('no_supplier', 'coverage_blocked', 'institutional_blocked', 'out_of_stock', 'below_min_qty', 'zero_qty'))")
+			case "blocked":
+				// Everything the buyer is not getting, whatever the reason —
+				// what the collapsed section on the results screen holds.
+				// 'removed' is excluded: that is a decision, not a problem.
+				where = append(where, "(outcome NOT IN ('ordered', 'removed'))")
 			}
 		}
 
@@ -317,6 +322,28 @@ func (r *Repository) UpdateLineQuantity(ctx context.Context, orgID, lineID int64
 		}
 		return nil
 	})
+}
+
+// BlockedCounts tallies the lines that will not be ordered, by reason.
+func (r *Repository) BlockedCounts(ctx context.Context, runID int64) (smartorder.BlockedCounts, error) {
+	var bc smartorder.BlockedCounts
+	err := r.db.InReadTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
+		return tx.QueryRow(txCtx, `
+			SELECT
+				COUNT(*) FILTER (WHERE outcome = 'unmatched'),
+				COUNT(*) FILTER (WHERE outcome = 'no_supplier'),
+				COUNT(*) FILTER (WHERE outcome = 'coverage_blocked'),
+				COUNT(*) FILTER (WHERE outcome = 'institutional_blocked'),
+				COUNT(*) FILTER (WHERE outcome = 'out_of_stock'),
+				COUNT(*) FILTER (WHERE outcome = 'below_min_qty'),
+				COUNT(*) FILTER (WHERE outcome = 'zero_qty'),
+				COUNT(*) FILTER (WHERE outcome = 'removed')
+			FROM smartorder.run_lines
+			WHERE run_id = $1;`, runID).Scan(
+			&bc.Unmatched, &bc.NoSupplier, &bc.CoverageBlocked, &bc.InstitutionalBlocked,
+			&bc.OutOfStock, &bc.BelowMinQty, &bc.ZeroQty, &bc.Removed)
+	})
+	return bc, err
 }
 
 // FilterCounts returns exact row counts for each independent smart order filter tab.

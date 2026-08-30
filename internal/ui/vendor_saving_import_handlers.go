@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"io"
 	"net/http"
-	"path/filepath"
 	"strconv"
 	"strings"
 
@@ -69,9 +68,8 @@ func (h *UIHandler) VendorSavingProductsImportUploadSubmit(w http.ResponseWriter
 	}
 	defer file.Close()
 
-	ext := strings.ToLower(filepath.Ext(fileHeader.Filename))
-	if ext != ".xlsx" && ext != ".xls" && ext != ".csv" {
-		h.redirectWithNotice(w, r, "/vendor/saving-products/import", "error", "صيغة الملف غير مدعومة. يرجى رفع ملف بصيغة xlsx أو xls أو csv.")
+	if !SupportedUploadName(fileHeader.Filename) {
+		h.redirectWithNotice(w, r, "/vendor/saving-products/import", "error", unsupportedUploadMessage)
 		return
 	}
 

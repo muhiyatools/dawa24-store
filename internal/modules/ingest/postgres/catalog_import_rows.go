@@ -94,30 +94,7 @@ func (r *Repository) Rows(
 	if filter.Limit <= 0 || filter.Limit > 500 {
 		filter.Limit = 50
 	}
-	where := []string{"r.import_id = $1"}
-	args := []any{importID}
-	if filter.Outcome != "" {
-		args = append(args, filter.Outcome)
-		where = append(where, fmt.Sprintf("r.outcome = $%d", len(args)))
-	}
-	switch filter.MatchLevel {
-	case "matched":
-		where = append(where, "((r.is_manually_matched = true OR r.match_level IN ('barcode', 'code', 'exact', 'strong')) AND r.product_id IS NOT NULL AND r.product_id > 0)")
-	case "review":
-		where = append(where, "(NOT r.is_manually_matched AND r.match_level IN ('review', 'ambiguous'))")
-	case "unmatched":
-		where = append(where, "(NOT r.is_manually_matched AND (r.product_id IS NULL OR r.product_id = 0 OR r.match_level IN ('none', 'unmatched', '')) AND r.match_level NOT IN ('review', 'ambiguous', 'barcode', 'code', 'exact', 'strong'))")
-	case "":
-		// no match filter
-	default:
-		args = append(args, filter.MatchLevel)
-		where = append(where, fmt.Sprintf("r.match_level = $%d", len(args)))
-	}
-	if q := strings.TrimSpace(filter.Search); q != "" {
-		args = append(args, "%"+q+"%")
-		where = append(where, fmt.Sprintf("(r.display_name ILIKE $%d OR r.source_code ILIKE $%d OR r.custom_variant_name ILIKE $%d OR COALESCE(p.name->>'ar', p.name->>'en', '') ILIKE $%d OR p.sku ILIKE $%d)", len(args), len(args), len(args), len(args), len(args)))
-	}
-	clause := strings.Join(where, " AND ")
+	clause, args := rowsWhere(importID, filter)
 
 	var out []*ingest.RowOutcome
 	var total int
@@ -394,7 +371,17 @@ func (r *Repository) ToggleRowExclude(ctx context.Context, importID, rowID int64
 	return next, err
 }
 
-// StagedRowsForCommit returns all non-excluded rows ready to be written to catalog and inventory.
+// StagedRowsForCommit returns the rows the vendor has actually confirmed.
+//
+// Three conditions, and the third is the one that changed. A row must be
+// included, must carry a catalogue product, AND must be a match the engine
+// settled or the vendor made by hand. A row sitting at 31% with a suggested
+// product used to satisfy the first two and was written on commit exactly like
+// a barcode hit — which is how a review queue became an import.
+//
+// The filter is here rather than in the commit loop on purpose: this is the
+// only query that feeds the writer, so there is one place a row can enter the
+// catalogue from and one predicate deciding it.
 func (r *Repository) StagedRowsForCommit(ctx context.Context, importID int64) ([]*ingest.RowOutcome, error) {
 	var out []*ingest.RowOutcome
 	err := r.db.InReadTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
@@ -405,7 +392,11 @@ func (r *Repository) StagedRowsForCommit(ctx context.Context, importID int64) ([
 			       r.is_excluded, r.is_manually_matched, r.payload, r.candidates, r.issues, r.message
 			FROM ingest.catalog_import_rows r
 			LEFT JOIN catalog.products p ON p.id = r.product_id
-			WHERE r.import_id = $1 AND r.is_excluded = false AND r.product_id IS NOT NULL AND r.product_id > 0
+			WHERE r.import_id = $1
+			  AND r.is_excluded = false
+			  AND r.product_id IS NOT NULL AND r.product_id > 0
+			  AND (r.is_manually_matched
+			       OR r.match_level IN ('barcode', 'code', 'exact', 'strong'))
 			ORDER BY r.source_row`, importID)
 		if err != nil {
 			return err

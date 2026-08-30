@@ -3,7 +3,6 @@ package productmatch
 import (
 	"fmt"
 	"sort"
-	"strings"
 
 	"github.com/muhiya/dawa24-store/internal/shared/sheet"
 )
@@ -138,6 +137,30 @@ type MatchOptions struct {
 	MaxCandidates int
 }
 
+// The thresholds every tool starts on.
+//
+// DefaultMinStrong is stated once, here, because four screens print it and two
+// importers compare against it, and a figure that lives in six places is a
+// figure that means six things by the end of the year.
+//
+// Forty per cent rather than thirty, at the client's direction and for a reason
+// the live data supports: on a real supplier file the band between the two was
+// almost entirely line extensions and coincidences — the same brand at another
+// dose, or two products agreeing on a category word — and applying those
+// silently is what a vendor discovers three weeks later in their own catalogue.
+// Everything below it is still shown, still scored, and still one click from
+// being accepted; it is simply not accepted FOR them.
+const (
+	DefaultMinStrong = 0.40
+	// DefaultMinReview is the floor below which nothing is offered at all.
+	//
+	// It used to be 0.15, which is how a review screen came to be full of
+	// sixteen-per-cent suggestions. A score that low is not a weak opinion, it
+	// is the absence of one, and printing a product name beside it invites a
+	// reviewer to accept something the engine never believed.
+	DefaultMinReview = 0.25
+)
+
 // DefaultMatchOptions are the thresholds the wizard starts on.
 //
 // Every identifier tier is off. That is deliberate and it is the important part
@@ -147,8 +170,8 @@ type MatchOptions struct {
 // WithIdentifiers once the column is mapped and the user has chosen it.
 func DefaultMatchOptions() MatchOptions {
 	return MatchOptions{
-		MinStrong:     0.30,
-		MinReview:     0.15,
+		MinStrong:     DefaultMinStrong,
+		MinReview:     DefaultMinReview,
 		PoolLimit:     400,
 		MaxCandidates: 5,
 	}
@@ -184,114 +207,6 @@ func (idx *Index) Match(row *Row, opts MatchOptions) MatchResult {
 		return MatchResult{Level: MatchNone, Reason: "لم يتم العثور على صنف مشابه في الكتالوج المركزي"}
 	}
 	return decide(scored, opts)
-}
-
-// query is one row reduced to its matching signals, with the scratch space the
-// scorer reuses across every candidate so a comparison allocates nothing.
-type query struct {
-	tokens []string
-	// weights is the inverse document frequency of each distinct query token,
-	// parallel to tokens; pos indexes back into both.
-	weights     []float64
-	pos         map[string]int
-	totalWeight float64
-	// keyPos maps a token's VARIANT key onto the same weight slot its exact
-	// spelling occupies, so a candidate carrying another spelling of the word
-	// is credited through the primary channel rather than falling through to a
-	// discounted one. See variants.go.
-	//
-	// A key that two different query tokens fold onto is dropped rather than
-	// pointing at one of them arbitrarily: crediting the weight of the wrong
-	// word is worse than crediting nothing.
-	keyPos map[string]int
-	// stamp and epoch mark the tokens consumed by the candidate under
-	// comparison, so the map never has to be cleared between candidates.
-	stamp []int32
-	epoch int32
-
-	// keys are the query tokens' variant keys, used for retrieval. The
-	// comparison-side map is keyPos above; this is the list retrieval walks.
-	keys     []string
-	tri      []trigram
-	skeleton string
-	nums     []float64
-	nameKey  string
-	formKey  string
-	strength strength
-	packSize int
-	makerKey string
-	sciKey   string
-}
-
-func (idx *Index) newQuery(row *Row) *query {
-	full := row.Name + " " + row.NameEN
-	nameTokens := coreTokens(full)
-	q := &query{
-		tokens:   coreTokens(full + " " + row.Scientific),
-		tri:      sortedTrigrams(nameTokens),
-		skeleton: skeletonOf(nameTokens),
-		nums:     numberSignature(full),
-		nameKey:  strings.Join(nameTokens, " "),
-		formKey:  formKeyOf(full + " " + row.DosageForm),
-		strength: parseStrength(full + " " + row.Concentration),
-		packSize: row.PackSize,
-		makerKey: sheet.NormalizeKey(row.Manufacturer),
-		sciKey:   sheet.NormalizeKey(row.Scientific),
-	}
-	if q.packSize == 0 {
-		q.packSize = InferPackSize(full)
-	}
-
-	q.pos = make(map[string]int, len(q.tokens))
-	for _, t := range q.tokens {
-		if _, dup := q.pos[t]; dup {
-			continue
-		}
-		w := idx.idf(t)
-		if w <= 0 {
-			// A word the catalogue has never seen is the MOST distinctive word
-			// in the query, not the least: it is usually the brand, spelled the
-			// way this supplier spells it. Weighting it 0.5 — well under the
-			// ~2.4 an ordinary "مجم" earns — inverted the whole point of rarity
-			// weighting and let the boilerplate outvote the brand. It gets the
-			// ceiling instead, so a candidate that lacks it is scored down hard.
-			w = idx.maxIDF()
-		}
-		q.pos[t] = len(q.weights)
-		q.weights = append(q.weights, w)
-		q.totalWeight += w
-	}
-	q.stamp = make([]int32, len(q.weights))
-	q.keyPos = buildKeyPos(q.pos)
-	q.keys = variantKeys(q.tokens)
-	return q
-}
-
-// buildKeyPos maps each query token's variant key onto that token's weight slot.
-//
-// A key two different query tokens fold onto is left out entirely rather than
-// pointing at whichever was seen first: crediting one word's weight to another
-// word's spelling is a wrong answer, and no answer is better than a wrong one
-// in the channel that decides most matches.
-func buildKeyPos(pos map[string]int) map[string]int {
-	keyPos := make(map[string]int, len(pos))
-	shared := make(map[string]struct{})
-	for token, slot := range pos {
-		key := variantKeyOf(token)
-		if key == "" || key == token {
-			continue
-		}
-		if _, dup := shared[key]; dup {
-			continue
-		}
-		if existing, taken := keyPos[key]; taken && existing != slot {
-			delete(keyPos, key)
-			shared[key] = struct{}{}
-			continue
-		}
-		keyPos[key] = slot
-	}
-	return keyPos
 }
 
 // matchByBarcode resolves the one identifier that means the same package.

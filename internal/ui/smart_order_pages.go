@@ -77,16 +77,25 @@ func (h *UIHandler) SmartOrderResultsPage(w http.ResponseWriter, r *http.Request
 
 	q := r.URL.Query()
 
-	// Default filter is "unmatched" as requested, unless explicitly overridden
+	// The screen opens on what the buyer can actually order.
+	//
+	// It used to open on "unmatched", which is the opposite of how the tool is
+	// used: a pharmacist runs a smart order because it is fast, and the first
+	// thing they were shown was the pile of rows that had failed. Everything
+	// that failed is still one click away and its counts are on the page — it
+	// is simply not the first thing, and it is not mixed in with the lines that
+	// are ready.
 	match := strings.TrimSpace(q.Get("match"))
-	if match == "" && q.Get("outcome") != "" {
+	switch {
+	case match == "all":
+		match = ""
+	case match != "":
+	case q.Get("outcome") != "":
 		match = q.Get("outcome")
-	} else if match == "" && q.Has("all") {
+	case q.Has("all"):
 		match = ""
-	} else if match == "" && !q.Has("match") && !q.Has("outcome") {
-		match = "unmatched"
-	} else if match == "all" {
-		match = ""
+	default:
+		match = "ready_to_order"
 	}
 
 	page, _ := strconv.Atoi(q.Get("page"))
@@ -103,6 +112,10 @@ func (h *UIHandler) SmartOrderResultsPage(w http.ResponseWriter, r *http.Request
 	sortOrder := strings.TrimSpace(q.Get("order"))
 	search := strings.TrimSpace(q.Get("q"))
 
+	// A tab may name a match GROUP ("unmatched", "ready_to_order") or a single
+	// OUTCOME ("out_of_stock", "coverage_blocked"). The collapsed panel links
+	// by outcome, because "why is this line not ordered" is a question the
+	// outcome answers exactly and a group only approximately.
 	filter := smartorder.LineFilter{
 		MatchGroup: match,
 		SortBy:     sortBy,
@@ -111,6 +124,10 @@ func (h *UIHandler) SmartOrderResultsPage(w http.ResponseWriter, r *http.Request
 		Limit:      limit,
 		Offset:     (page - 1) * limit,
 		All:        limit == -1,
+	}
+	if isLineOutcome(match) {
+		filter.MatchGroup = ""
+		filter.Outcome = match
 	}
 
 	filterCounts, err := h.smartOrderSvc.FilterCounts(ctx, run.ID)
@@ -127,10 +144,18 @@ func (h *UIHandler) SmartOrderResultsPage(w http.ResponseWriter, r *http.Request
 		return
 	}
 
+	// What the run will not order, split by why, for the collapsed section.
+	// A failure here costs a panel, not the page.
+	blocked, err := h.smartOrderSvc.BlockedCounts(ctx, run.ID)
+	if err != nil {
+		h.log.WarnContext(ctx, "load smart order blocked counts", "run_id", run.ID, "error", err)
+	}
+
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 	if err := pages.SmartOrderResultsPage(lang, dir, pages.SmartOrderResultsData{
 		Run:       run,
 		Counts:    filterCounts,
+		Blocked:   blocked,
 		Lines:     lines,
 		Total:     total,
 		Page:      page,
@@ -142,6 +167,21 @@ func (h *UIHandler) SmartOrderResultsPage(w http.ResponseWriter, r *http.Request
 	}).Render(ctx, w); err != nil {
 		h.log.ErrorContext(ctx, "render smart order results page", "error", err)
 	}
+}
+
+// isLineOutcome reports whether a tab key names one of the run's own outcomes.
+//
+// Listed rather than derived so an unknown value from a hand-edited URL selects
+// nothing rather than being passed to the query as a filter it cannot satisfy.
+func isLineOutcome(key string) bool {
+	switch smartorder.Outcome(key) {
+	case smartorder.OutcomeNoSupplier, smartorder.OutcomeCoverageBlocked,
+		smartorder.OutcomeInstitutionalBlocked, smartorder.OutcomeOutOfStock,
+		smartorder.OutcomeBelowMinQty, smartorder.OutcomeZeroQty,
+		smartorder.OutcomeRemoved:
+		return true
+	}
+	return false
 }
 
 // SmartOrderReviewPage renders step 5: the dedicated review cart.

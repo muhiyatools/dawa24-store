@@ -3,6 +3,7 @@ package compare_test
 import (
 	"bytes"
 	"context"
+	"fmt"
 	"io"
 	"log/slog"
 	"sort"
@@ -338,9 +339,15 @@ func (m *mockCompareRepo) DeactivateUserSession(ctx context.Context, sessionID s
 
 // Compare files mock store
 func (m *mockCompareRepo) CreateFile(ctx context.Context, f *compare.CompareFile) error {
-	m.nextID++
-	f.ID = m.nextID
-	f.PublicID = "pub-file-" + string(rune(m.nextID))
+	if f.ID == 0 {
+		m.nextID++
+		f.ID = m.nextID
+	} else if f.ID >= m.nextID {
+		m.nextID = f.ID + 1
+	}
+	if f.PublicID == "" {
+		f.PublicID = fmt.Sprintf("pub-file-%d", f.ID)
+	}
 	m.files[f.ID] = f
 	return nil
 }
@@ -466,6 +473,19 @@ func (m *mockCompareRepo) DeleteFile(ctx context.Context, id int64) error {
 	return nil
 }
 
+func (m *mockCompareRepo) PurgeExpiredCompareFiles(ctx context.Context, defaultRetentionDays int) (int64, error) {
+	var count int64
+	cutoff := time.Now().AddDate(0, 0, -defaultRetentionDays)
+	for id, f := range m.files {
+		if !f.IsTempWarehouse && f.DeletedAt == nil && f.CreatedAt.Before(cutoff) {
+			delete(m.files, id)
+			delete(m.fileRows, id)
+			count++
+		}
+	}
+	return count, nil
+}
+
 func (m *mockCompareRepo) InsertFileRows(ctx context.Context, rows []*compare.CompareFileRow) error {
 	for _, r := range rows {
 		m.nextID++
@@ -496,6 +516,15 @@ func (m *mockCompareRepo) DeleteFileRow(ctx context.Context, rowID int64) error 
 				m.fileRows[fileID] = append(rows[:i], rows[i+1:]...)
 				return nil
 			}
+		}
+	}
+	return nil
+}
+
+func (m *mockCompareRepo) BulkUpdateFileRowMatches(ctx context.Context, fileID int64, matches []compare.RowMatch) error {
+	for _, match := range matches {
+		if err := m.UpdateFileRowMatch(ctx, match.RowID, match.ProductID, match.Method, match.Confidence); err != nil {
+			return err
 		}
 	}
 	return nil
@@ -1173,5 +1202,49 @@ func TestEnhancedCrossSupplierProductMatching(t *testing.T) {
 
 	if h2hRes.TotalShared != 3 {
 		t.Errorf("expected 3 shared products in head-to-head, got %d", h2hRes.TotalShared)
+	}
+}
+
+func TestCompare_RetentionAndPurge(t *testing.T) {
+	repo := newMockCompareRepo()
+	svc := compare.NewService(repo, slog.Default())
+	ctx := context.Background()
+
+	// 1. Create older file (created 40 days ago)
+	fOld := &compare.CompareFile{
+		ID:           201,
+		UserID:       1,
+		SupplierName: "مورد قديم",
+		Status:       compare.FileReady,
+		CreatedAt:    time.Now().AddDate(0, 0, -40),
+	}
+	_ = repo.CreateFile(ctx, fOld)
+	_ = repo.InsertFileRows(ctx, []*compare.CompareFileRow{
+		{FileID: fOld.ID, RowNumber: 1, RawName: "صنف تجريبي", SKU: ""},
+	})
+
+	// 2. Create fresh file (created 2 days ago)
+	fFresh := &compare.CompareFile{
+		ID:           202,
+		UserID:       1,
+		SupplierName: "مورد جديد",
+		Status:       compare.FileReady,
+		CreatedAt:    time.Now().AddDate(0, 0, -2),
+	}
+	_ = repo.CreateFile(ctx, fFresh)
+
+	// 3. Run Purge with 30 days retention
+	purged, err := svc.PurgeExpiredFiles(ctx, 30)
+	if err != nil {
+		t.Fatalf("PurgeExpiredFiles failed: %v", err)
+	}
+	if purged != 1 {
+		t.Errorf("expected 1 file purged, got %d", purged)
+	}
+
+	// 4. Verify old file is gone and fresh file remains
+	files, _ := svc.ListFiles(ctx, 1, nil, nil)
+	if len(files) != 1 || files[0].ID != 202 {
+		t.Errorf("expected only fresh file (202) to remain, got %d files", len(files))
 	}
 }

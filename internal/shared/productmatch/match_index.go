@@ -20,58 +20,6 @@ import (
 // catalogue products could plausibly be it. The scoring that follows decides
 // which one, and — as importantly — when it should refuse to decide.
 
-// MasterProduct is the catalogue side of a match, projected down to the fields
-// matching actually reads. Holding thirty thousand of these costs a few
-// megabytes; holding thirty thousand full products would not.
-type MasterProduct struct {
-	ID            int64
-	NameAR        string
-	NameEN        string
-	SKU           string
-	Barcode       string
-	Scientific    string
-	DosageForm    string
-	Concentration string
-	Unit          string
-	Manufacturer  string
-	PublicPrice   string
-
-	// Derived once at index time. Everything the scorer needs is precomputed
-	// here rather than per comparison: a nine-thousand-row file scores three
-	// million pairs, and recomputing one product's trigrams inside that loop is
-	// the difference between two seconds and forty.
-	coreAR []string
-	coreEN []string
-	// keysAR and keysEN are the variant keys of the core tokens: the fold that
-	// makes "ابيكوبريد" and "ابيكوبرايد" the same word, and that lets an Arabic
-	// query token meet a Latin catalogue token in the primary channel rather
-	// than in a discounted one at the end. See variants.go.
-	keysAR   []string
-	keysEN   []string
-	triAR    []trigram
-	triEN    []trigram
-	nums     []float64
-	nameKey  string
-	formKey  string
-	strength strength
-	packSize int
-	makerKey string
-	sciKey   string
-	// skeleton is the consonant reduction both scripts fold into, which is the
-	// only channel on which an Arabic query and a Latin catalogue name can
-	// agree at all. See translit.go.
-	skeleton string
-}
-
-// strength is a parsed dose: a number and the unit it was written in, converted
-// to a common base so 1g and 1000mg compare equal.
-type strength struct {
-	value float64
-	unit  string
-}
-
-func (s strength) known() bool { return s.value > 0 }
-
 // Index is the in-memory catalogue, keyed several ways.
 type Index struct {
 	products  []*MasterProduct
@@ -91,8 +39,27 @@ type Index struct {
 	keyTokens map[string][]*MasterProduct
 	// df is the document frequency of each token, which is what makes a rare
 	// brand name count for more than the word "شراب".
-	df    map[string]int
-	total int
+	df map[string]int
+	// makers is every word that appears in some product's manufacturer field.
+	//
+	// It is drawn from the catalogue rather than from a list, because the
+	// companies that matter are the ones this catalogue actually names. It is
+	// built eagerly, unlike the retrieval indexes, because the SCORER reads it
+	// on every row: Egyptian price lists write the agent after a slash —
+	// "اوركابريد قطرة/اوركيديا", "ديبوبن امبول/المهن" — and a company name
+	// carried by one side and not the other is not a difference between two
+	// products. Counting it as one is how a correct match arrived at 0.39.
+	makers map[string]bool
+	// makerKeys is the same vocabulary folded onto its consonant skeleton.
+	//
+	// It is what makes the company check work at all on this catalogue: the
+	// manufacturer column is written in Latin ("orchidia", "hikma") and the
+	// price list writes the same company in Arabic ("اوركيديا", "هيكما"). Two
+	// spellings, one company, and no exact word in common — so a set of the raw
+	// words recognised nothing. The skeleton folds both scripts onto one key,
+	// which is the same mechanism the scorer's variant channel uses.
+	makerKeys map[string]bool
+	total     int
 	// tri holds the trigram and scientific-name posting lists that only Recall
 	// needs, built lazily. Most runs never reach the AI stage, and an index
 	// nothing reads should not be paid for on every import.
@@ -109,6 +76,8 @@ func NewIndex(products []MasterProduct) *Index {
 		tokens:    make(map[string][]*MasterProduct, len(products)),
 		keyTokens: make(map[string][]*MasterProduct, len(products)),
 		df:        make(map[string]int, len(products)),
+		makers:    make(map[string]bool, 2048),
+		makerKeys: make(map[string]bool, 2048),
 	}
 
 	// One scratch buffer for the whole build, reused per product.
@@ -120,6 +89,12 @@ func NewIndex(products []MasterProduct) *Index {
 			continue
 		}
 		prepare(p)
+		for _, tok := range p.makerTokens {
+			idx.makers[tok] = true
+			if key := variantKeyOf(tok); key != "" {
+				idx.makerKeys[key] = true
+			}
+		}
 		idx.products = append(idx.products, p)
 		idx.byID[p.ID] = p
 		idx.total++
@@ -170,7 +145,58 @@ func NewIndex(products []MasterProduct) *Index {
 			idx.keyTokens[key] = append(idx.keyTokens[key], p)
 		}
 	}
+
+	// Token weights are a second pass because they are inverse document
+	// frequencies: no product's weights are knowable until every product has
+	// been counted.
+	for _, p := range idx.products {
+		p.wAR, p.totAR = idx.tokenWeights(p.coreAR)
+		p.wEN, p.totEN = idx.tokenWeights(p.coreEN)
+	}
 	return idx
+}
+
+// tokenWeights is the rarity weight of each token in a name, with a repeated
+// token weighted once so a name that says the same word twice is not counted
+// twice for it.
+func (idx *Index) tokenWeights(tokens []string) ([]float64, float64) {
+	if len(tokens) == 0 {
+		return nil, 0
+	}
+	out := make([]float64, len(tokens))
+	var total float64
+	for i, t := range tokens {
+		duplicate := false
+		for j := 0; j < i; j++ {
+			if tokens[j] == t {
+				duplicate = true
+				break
+			}
+		}
+		if duplicate {
+			continue
+		}
+		w := idx.idf(t)
+		if w <= 0 {
+			w = idx.maxIDF()
+		}
+		out[i] = w
+		total += w
+	}
+	return out, total
+}
+
+// isCompanyWord reports whether a word names a manufacturer this catalogue
+// knows, in either script.
+func (idx *Index) isCompanyWord(token string) bool {
+	if idx == nil || token == "" {
+		return false
+	}
+	if idx.makers[token] {
+		return true
+	}
+	key := variantKeyOf(token)
+	return key != "" && idx.makerKeys[key]
 }
 
 // appendUnique adds a token if the short list does not already carry it.
@@ -213,31 +239,6 @@ func (idx *Index) Lookup(id int64) (*MasterProduct, bool) {
 	}
 	p, ok := idx.byID[id]
 	return p, ok
-}
-
-// prepare derives a product's matching keys.
-func prepare(p *MasterProduct) {
-	p.coreAR = coreTokens(p.NameAR)
-	p.coreEN = coreTokens(p.NameEN)
-	p.keysAR = variantKeys(p.coreAR)
-	p.keysEN = variantKeys(p.coreEN)
-	p.triAR = sortedTrigrams(p.coreAR)
-	p.triEN = sortedTrigrams(p.coreEN)
-	p.nums = numberSignature(p.NameAR + " " + p.NameEN)
-	p.nameKey = strings.Join(p.coreAR, " ")
-	if p.nameKey == "" {
-		p.nameKey = strings.Join(p.coreEN, " ")
-	}
-	full := p.NameAR + " " + p.NameEN + " " + p.DosageForm
-	p.formKey = formKeyOf(full)
-	p.strength = parseStrength(p.NameAR + " " + p.NameEN + " " + p.Concentration)
-	p.packSize = InferPackSize(p.NameAR + " " + p.NameEN)
-	p.makerKey = sheet.NormalizeKey(p.Manufacturer)
-	p.sciKey = sheet.NormalizeKey(p.Scientific)
-	// Built from whichever name the catalogue actually holds — both, where it
-	// holds both — because the query may be written in either script and the
-	// skeleton is the same either way.
-	p.skeleton = skeletonOf(append(append([]string{}, p.coreAR...), p.coreEN...))
 }
 
 // maxIDF is the weight of a token no catalogue product carries — the ceiling

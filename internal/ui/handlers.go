@@ -87,6 +87,9 @@ type UIHandler struct {
 	// deterministic tiers and reports what they settled. A pharmacy must be
 	// able to build its list when the Gateway is down (AGENTS.md R3).
 	matchEnhancer matchflow.Enhancer
+	// matchMemory is the shared decision cache. Nil is allowed and simply means
+	// every question is paid for again.
+	matchMemory matchflow.Memory
 }
 
 // RoleSeederFunc provisions the starter roles for one company.
@@ -102,6 +105,11 @@ func (h *UIHandler) SetPermissionResolver(r *rbac.Resolver) { h.resolver = r }
 
 // SetMatchEnhancer attaches the shared AI matching stage.
 func (h *UIHandler) SetMatchEnhancer(e matchflow.Enhancer) { h.matchEnhancer = e }
+
+// SetMatchMemory attaches the shared decision cache, so the saving-list import
+// reads and writes the same catalog.match_decisions rows the vendor import and
+// the smart order do.
+func (h *UIHandler) SetMatchMemory(m matchflow.Memory) { h.matchMemory = m }
 
 // SetAssistantRepository attaches the Assistant database repository for auditing and history.
 func (h *UIHandler) SetAssistantRepository(repo assistant.Repository) {
@@ -301,6 +309,8 @@ func (h *UIHandler) RegisterPublicRoutes(r chi.Router) {
 		pub.Post("/compare/files/{id}/mapping", h.CompareFileMappingSubmit)
 		pub.Post("/compare/file/{id}/mapping", h.CompareFileMappingSubmit)
 		pub.Post("/compare/rows/{id}/match", h.CompareRowManualMatchSubmit)
+		pub.Post("/compare/files/{id}/match", h.CompareFileMatchSubmit)
+		pub.Post("/compare/file/{id}/match", h.CompareFileMatchSubmit)
 		pub.Post("/compare/run", h.CompareRunSubmit)
 		pub.Get("/compare/results", h.CompareResultsPage)
 		pub.Get("/compare/head-to-head", h.CompareHeadToHeadPage)

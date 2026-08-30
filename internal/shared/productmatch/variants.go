@@ -100,6 +100,31 @@ func variantKeys(tokens []string) []string {
 	return out
 }
 
+// tokenVariantKeys folds a token list KEEPING the alignment, so a caller
+// holding token i can reach its key at index i.
+//
+// The opposite of variantKeys, and both are wanted: retrieval walks a
+// de-duplicated key set, while comparison needs the key belonging to the
+// particular word it is looking at. Returns nil when no token folds, so a
+// product whose every word is short costs nothing to store.
+func tokenVariantKeys(tokens []string) []string {
+	if len(tokens) == 0 {
+		return nil
+	}
+	out := make([]string, len(tokens))
+	any := false
+	for i, t := range tokens {
+		out[i] = variantKeyOf(t)
+		if out[i] != "" {
+			any = true
+		}
+	}
+	if !any {
+		return nil
+	}
+	return out
+}
+
 // DebugVariantKey exposes one token's fold, for diagnostics and for the tests
 // that pin the Egyptian spelling pairs this exists to resolve.
 func DebugVariantKey(token string) string { return variantKeyOf(token) }

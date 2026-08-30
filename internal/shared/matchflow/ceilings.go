@@ -84,6 +84,27 @@ type Ceilings struct {
 	MinPlausible float64
 }
 
+// MinMemoryConfidence is the confidence below which an answer is used but not
+// remembered.
+//
+// The decision cache is per organisation and long-lived: an entry written today
+// answers the same question for months, for every tool that asks it, without
+// anybody being shown that it was a guess. That is exactly right for a
+// confident answer and wrong for a hesitant one — a model that said 0.2 was
+// telling us it did not know, and freezing "did not know, chose this anyway"
+// into shared memory turns one weak guess into a standing fact.
+//
+// Forty-five per cent, at the client's direction. It sits between the
+// deterministic review floor and the apply floor on purpose: everything at or
+// above it was worth an opinion, and everything below it is re-asked next time,
+// when the catalogue may have grown the product that was missing.
+//
+// Answers at or above it are remembered whatever they SAID, including "none of
+// these" — a confident refusal is as reusable as a confident match, and it is
+// what stops the next upload of the same price list paying to be told the same
+// thing.
+const MinMemoryConfidence = 0.45
+
 // Profile names the kind of file a run is processing.
 type Profile string
 
@@ -115,12 +136,27 @@ func For(p Profile) Ceilings {
 
 	switch p {
 	case ProfileVendor:
-		// A supplier file is long and its rows repeat, so more per request and
-		// fewer requests. Staging is allowed thirty minutes, so the wall clock
-		// leaves ample room for writing the rows afterwards.
+		// A supplier file is long and its rows repeat, so more per request.
+		//
+		// The request ceiling used to be twenty, which with two hundred items
+		// apiece capped one run at four thousand distinct questions. A real
+		// Egyptian distributor's list is nine thousand rows of which seven or
+		// eight thousand are distinct after de-duplication, so the ceiling was
+		// reached on the file this whole flow exists for — and the screen told
+		// the vendor their column mapping was probably wrong, which it was not.
+		//
+		// Sixty requests of two hundred is twelve thousand questions, which
+		// covers the largest file anyone has uploaded to this system with room
+		// over. The cost is bounded by the plausibility gate long before it is
+		// bounded by this: rows the catalogue cannot plausibly answer are never
+		// sent, and on a live file that is most of the residue.
 		base.MaxItemsPerRequest = 200
-		base.MaxRequestsPerRun = 20
-		base.MaxConcurrent = 4
+		base.MaxRequestsPerRun = 60
+		base.MaxConcurrent = 6
+		// Six concurrent requests of two hundred items finish sixty requests in
+		// well under this; the deadline exists so a Gateway that has stopped
+		// answering ends the stage rather than the import.
+		base.MaxWallClock = 20 * time.Minute
 
 	case ProfileCatalog:
 		// The master catalogue is the one place a wrong match is not

@@ -82,17 +82,15 @@ const (
 // must still find "بانادول". Exact, near-exact by edit distance, or a strong
 // trigram overlap all count.
 func (idx *Index) sharedProductWord(row *Row, p *MasterProduct) bool {
-	makers := idx.recall().makers
-
 	rowWords := withCompounds(coreTokens(row.Name + " " + row.NameEN))
 	candWords := withCompounds(append(append([]string{}, p.coreAR...), p.coreEN...))
 
 	for _, rw := range rowWords {
-		if len([]rune(rw)) < minLinkRunes || makers[rw] {
+		if len([]rune(rw)) < minLinkRunes || idx.isCompanyWord(rw) {
 			continue
 		}
 		for _, cw := range candWords {
-			if len([]rune(cw)) < minLinkRunes || makers[cw] {
+			if len([]rune(cw)) < minLinkRunes || idx.isCompanyWord(cw) {
 				continue
 			}
 			// The catalogue side is the one whose frequency is measured, since

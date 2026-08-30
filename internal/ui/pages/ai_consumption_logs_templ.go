@@ -117,7 +117,7 @@ func aiConsumptionLogsBody(data AIConsumptionLogsPageData, lang, dir string) tem
 		var templ_7745c5c3_Var5 string
 		templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(data.AIUserID)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/ai_consumption_logs.templ`, Line: 47, Col: 76}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `ai_consumption_logs.templ`, Line: 47, Col: 76}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
 		if templ_7745c5c3_Err != nil {
@@ -135,7 +135,7 @@ func aiConsumptionLogsBody(data AIConsumptionLogsPageData, lang, dir string) tem
 			return "/customer/subscription"
 		}()))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/ai_consumption_logs.templ`, Line: 49, Col: 133}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `ai_consumption_logs.templ`, Line: 49, Col: 133}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
 		if templ_7745c5c3_Err != nil {
@@ -156,7 +156,7 @@ func aiConsumptionLogsBody(data AIConsumptionLogsPageData, lang, dir string) tem
 		var templ_7745c5c3_Var7 string
 		templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(data.AIPlanID)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/ai_consumption_logs.templ`, Line: 64, Col: 78}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `ai_consumption_logs.templ`, Line: 64, Col: 78}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
 		if templ_7745c5c3_Err != nil {
@@ -169,7 +169,7 @@ func aiConsumptionLogsBody(data AIConsumptionLogsPageData, lang, dir string) tem
 		var templ_7745c5c3_Var8 string
 		templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(data.QuotaText())
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/ai_consumption_logs.templ`, Line: 68, Col: 23}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `ai_consumption_logs.templ`, Line: 68, Col: 23}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var8))
 		if templ_7745c5c3_Err != nil {
@@ -187,7 +187,7 @@ func aiConsumptionLogsBody(data AIConsumptionLogsPageData, lang, dir string) tem
 			var templ_7745c5c3_Var9 string
 			templ_7745c5c3_Var9, templ_7745c5c3_Err = templruntime.SanitizeStyleAttributeValues(fmt.Sprintf("height:100%%; width:%d%%; border-radius:4px; background:linear-gradient(90deg, var(--brand-primary, #0ea5e9), #8b5cf6); transition:width 0.4s ease;", data.UsagePercentage))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/ai_consumption_logs.templ`, Line: 73, Col: 203}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `ai_consumption_logs.templ`, Line: 73, Col: 203}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var9))
 			if templ_7745c5c3_Err != nil {
@@ -210,7 +210,7 @@ func aiConsumptionLogsBody(data AIConsumptionLogsPageData, lang, dir string) tem
 			var templ_7745c5c3_Var10 string
 			templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d%%", 100-data.UsagePercentage))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/ai_consumption_logs.templ`, Line: 79, Col: 100}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `ai_consumption_logs.templ`, Line: 79, Col: 100}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var10))
 			if templ_7745c5c3_Err != nil {
@@ -233,7 +233,7 @@ func aiConsumptionLogsBody(data AIConsumptionLogsPageData, lang, dir string) tem
 		var templ_7745c5c3_Var11 string
 		templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.JoinStringErrs(data.ResetCountdown())
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/ai_consumption_logs.templ`, Line: 83, Col: 79}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `ai_consumption_logs.templ`, Line: 83, Col: 79}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var11))
 		if templ_7745c5c3_Err != nil {
@@ -246,7 +246,7 @@ func aiConsumptionLogsBody(data AIConsumptionLogsPageData, lang, dir string) tem
 		var templ_7745c5c3_Var12 string
 		templ_7745c5c3_Var12, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", data.TotalRequests))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/ai_consumption_logs.templ`, Line: 94, Col: 44}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `ai_consumption_logs.templ`, Line: 94, Col: 44}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var12))
 		if templ_7745c5c3_Err != nil {
@@ -259,7 +259,7 @@ func aiConsumptionLogsBody(data AIConsumptionLogsPageData, lang, dir string) tem
 		var templ_7745c5c3_Var13 string
 		templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", data.TotalTokens))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/ai_consumption_logs.templ`, Line: 108, Col: 42}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `ai_consumption_logs.templ`, Line: 108, Col: 42}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var13))
 		if templ_7745c5c3_Err != nil {
@@ -318,7 +318,7 @@ func aiConsumptionLogsBody(data AIConsumptionLogsPageData, lang, dir string) tem
 					var templ_7745c5c3_Var14 string
 					templ_7745c5c3_Var14, templ_7745c5c3_Err = templ.ResolveAttributeValue(strings.ToLower(log.ID))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/ai_consumption_logs.templ`, Line: 188, Col: 46}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `ai_consumption_logs.templ`, Line: 188, Col: 46}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var14)
 					if templ_7745c5c3_Err != nil {
@@ -331,7 +331,7 @@ func aiConsumptionLogsBody(data AIConsumptionLogsPageData, lang, dir string) tem
 					var templ_7745c5c3_Var15 string
 					templ_7745c5c3_Var15, templ_7745c5c3_Err = templ.ResolveAttributeValue(strings.ToLower(log.FeatureKey + " " + log.FeatureName + " " + log.SourceContext))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/ai_consumption_logs.templ`, Line: 189, Col: 109}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `ai_consumption_logs.templ`, Line: 189, Col: 109}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var15)
 					if templ_7745c5c3_Err != nil {
@@ -344,7 +344,7 @@ func aiConsumptionLogsBody(data AIConsumptionLogsPageData, lang, dir string) tem
 					var templ_7745c5c3_Var16 string
 					templ_7745c5c3_Var16, templ_7745c5c3_Err = templ.ResolveAttributeValue(strings.ToLower(log.ModelAlias))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/ai_consumption_logs.templ`, Line: 190, Col: 57}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `ai_consumption_logs.templ`, Line: 190, Col: 57}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var16)
 					if templ_7745c5c3_Err != nil {
@@ -357,7 +357,7 @@ func aiConsumptionLogsBody(data AIConsumptionLogsPageData, lang, dir string) tem
 					var templ_7745c5c3_Var17 string
 					templ_7745c5c3_Var17, templ_7745c5c3_Err = templ.ResolveAttributeValue(log.Status)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/ai_consumption_logs.templ`, Line: 191, Col: 37}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `ai_consumption_logs.templ`, Line: 191, Col: 37}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var17)
 					if templ_7745c5c3_Err != nil {
@@ -370,7 +370,7 @@ func aiConsumptionLogsBody(data AIConsumptionLogsPageData, lang, dir string) tem
 					var templ_7745c5c3_Var18 string
 					templ_7745c5c3_Var18, templ_7745c5c3_Err = templ.JoinStringErrs(log.ID)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/ai_consumption_logs.templ`, Line: 197, Col: 100}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `ai_consumption_logs.templ`, Line: 197, Col: 100}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var18))
 					if templ_7745c5c3_Err != nil {
@@ -383,7 +383,7 @@ func aiConsumptionLogsBody(data AIConsumptionLogsPageData, lang, dir string) tem
 					var templ_7745c5c3_Var19 string
 					templ_7745c5c3_Var19, templ_7745c5c3_Err = templ.JoinStringErrs(log.TimeFormatted)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/ai_consumption_logs.templ`, Line: 198, Col: 76}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `ai_consumption_logs.templ`, Line: 198, Col: 76}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var19))
 					if templ_7745c5c3_Err != nil {
@@ -396,7 +396,7 @@ func aiConsumptionLogsBody(data AIConsumptionLogsPageData, lang, dir string) tem
 					var templ_7745c5c3_Var20 string
 					templ_7745c5c3_Var20, templ_7745c5c3_Err = templ.JoinStringErrs(log.FeatureName)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/ai_consumption_logs.templ`, Line: 205, Col: 83}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `ai_consumption_logs.templ`, Line: 205, Col: 83}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var20))
 					if templ_7745c5c3_Err != nil {
@@ -414,7 +414,7 @@ func aiConsumptionLogsBody(data AIConsumptionLogsPageData, lang, dir string) tem
 						var templ_7745c5c3_Var21 string
 						templ_7745c5c3_Var21, templ_7745c5c3_Err = templ.JoinStringErrs(log.SourceContext)
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/ai_consumption_logs.templ`, Line: 209, Col: 38}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `ai_consumption_logs.templ`, Line: 209, Col: 38}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var21))
 						if templ_7745c5c3_Err != nil {
@@ -432,7 +432,7 @@ func aiConsumptionLogsBody(data AIConsumptionLogsPageData, lang, dir string) tem
 					var templ_7745c5c3_Var22 string
 					templ_7745c5c3_Var22, templ_7745c5c3_Err = templ.JoinStringErrs(log.ModelText())
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/ai_consumption_logs.templ`, Line: 218, Col: 197}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `ai_consumption_logs.templ`, Line: 218, Col: 197}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var22))
 					if templ_7745c5c3_Err != nil {
@@ -460,7 +460,7 @@ func aiConsumptionLogsBody(data AIConsumptionLogsPageData, lang, dir string) tem
 					var templ_7745c5c3_Var23 string
 					templ_7745c5c3_Var23, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", log.InputTokens))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/ai_consumption_logs.templ`, Line: 230, Col: 51}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `ai_consumption_logs.templ`, Line: 230, Col: 51}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var23))
 					if templ_7745c5c3_Err != nil {
@@ -473,7 +473,7 @@ func aiConsumptionLogsBody(data AIConsumptionLogsPageData, lang, dir string) tem
 					var templ_7745c5c3_Var24 string
 					templ_7745c5c3_Var24, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", log.OutputTokens))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/ai_consumption_logs.templ`, Line: 230, Col: 99}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `ai_consumption_logs.templ`, Line: 230, Col: 99}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var24))
 					if templ_7745c5c3_Err != nil {
@@ -486,7 +486,7 @@ func aiConsumptionLogsBody(data AIConsumptionLogsPageData, lang, dir string) tem
 					var templ_7745c5c3_Var25 string
 					templ_7745c5c3_Var25, templ_7745c5c3_Err = templ.JoinStringErrs(log.DurationText())
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/ai_consumption_logs.templ`, Line: 237, Col: 31}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `ai_consumption_logs.templ`, Line: 237, Col: 31}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var25))
 					if templ_7745c5c3_Err != nil {
@@ -512,7 +512,7 @@ func aiConsumptionLogsBody(data AIConsumptionLogsPageData, lang, dir string) tem
 						var templ_7745c5c3_Var26 string
 						templ_7745c5c3_Var26, templ_7745c5c3_Err = templ.JoinStringErrs(log.StatusLabel)
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/ai_consumption_logs.templ`, Line: 246, Col: 35}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `ai_consumption_logs.templ`, Line: 246, Col: 35}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var26))
 						if templ_7745c5c3_Err != nil {
@@ -543,7 +543,7 @@ func aiConsumptionLogsBody(data AIConsumptionLogsPageData, lang, dir string) tem
 						var templ_7745c5c3_Var27 string
 						templ_7745c5c3_Var27, templ_7745c5c3_Err = templ.JoinStringErrs(log.StatusLabel)
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/ai_consumption_logs.templ`, Line: 255, Col: 35}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `ai_consumption_logs.templ`, Line: 255, Col: 35}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var27))
 						if templ_7745c5c3_Err != nil {

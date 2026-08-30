@@ -147,6 +147,14 @@ func (s *Service) FilterCounts(ctx context.Context, runID int64) (FilterCounts, 
 	return s.repo.FilterCounts(ctx, runID)
 }
 
+// BlockedCounts is what the run will not order, split by why.
+func (s *Service) BlockedCounts(ctx context.Context, runID int64) (BlockedCounts, error) {
+	if s.repo == nil {
+		return BlockedCounts{}, nil
+	}
+	return s.repo.BlockedCounts(ctx, runID)
+}
+
 // attachProductNames fills in the display name of each matched product.
 //
 // A failure here is never fatal: the page still renders, the ids are still

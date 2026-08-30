@@ -135,7 +135,7 @@ func tenantSessionsContent(lang, dir string, data TenantSessionsViewData) templ.
 		var templ_7745c5c3_Var5 string
 		templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(data.PlanName)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/tenant_sessions.templ`, Line: 45, Col: 131}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `tenant_sessions.templ`, Line: 45, Col: 131}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
 		if templ_7745c5c3_Err != nil {
@@ -193,7 +193,7 @@ func tenantSessionsContent(lang, dir string, data TenantSessionsViewData) templ.
 				var templ_7745c5c3_Var6 string
 				templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(data.NoticeMessage)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/tenant_sessions.templ`, Line: 69, Col: 31}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `tenant_sessions.templ`, Line: 69, Col: 31}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
 				if templ_7745c5c3_Err != nil {
@@ -219,7 +219,7 @@ func tenantSessionsContent(lang, dir string, data TenantSessionsViewData) templ.
 				var templ_7745c5c3_Var7 string
 				templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(data.NoticeMessage)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/tenant_sessions.templ`, Line: 74, Col: 31}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `tenant_sessions.templ`, Line: 74, Col: 31}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
 				if templ_7745c5c3_Err != nil {
@@ -238,7 +238,7 @@ func tenantSessionsContent(lang, dir string, data TenantSessionsViewData) templ.
 		var templ_7745c5c3_Var8 string
 		templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", len(data.Sessions)))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/tenant_sessions.templ`, Line: 85, Col: 45}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `tenant_sessions.templ`, Line: 85, Col: 45}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var8))
 		if templ_7745c5c3_Err != nil {
@@ -251,7 +251,7 @@ func tenantSessionsContent(lang, dir string, data TenantSessionsViewData) templ.
 		var templ_7745c5c3_Var9 string
 		templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", data.MaxLoginSessions))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/tenant_sessions.templ`, Line: 85, Col: 171}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `tenant_sessions.templ`, Line: 85, Col: 171}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var9))
 		if templ_7745c5c3_Err != nil {
@@ -279,7 +279,7 @@ func tenantSessionsContent(lang, dir string, data TenantSessionsViewData) templ.
 		var templ_7745c5c3_Var10 string
 		templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", data.MaxDevices))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/tenant_sessions.templ`, Line: 103, Col: 42}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `tenant_sessions.templ`, Line: 103, Col: 42}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var10))
 		if templ_7745c5c3_Err != nil {
@@ -292,7 +292,7 @@ func tenantSessionsContent(lang, dir string, data TenantSessionsViewData) templ.
 		var templ_7745c5c3_Var11 string
 		templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.JoinStringErrs(data.PlanName)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/tenant_sessions.templ`, Line: 110, Col: 21}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `tenant_sessions.templ`, Line: 110, Col: 21}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var11))
 		if templ_7745c5c3_Err != nil {
@@ -305,7 +305,7 @@ func tenantSessionsContent(lang, dir string, data TenantSessionsViewData) templ.
 		var templ_7745c5c3_Var12 string
 		templ_7745c5c3_Var12, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", len(data.Sessions)))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/tenant_sessions.templ`, Line: 120, Col: 88}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `tenant_sessions.templ`, Line: 120, Col: 88}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var12))
 		if templ_7745c5c3_Err != nil {
@@ -323,7 +323,7 @@ func tenantSessionsContent(lang, dir string, data TenantSessionsViewData) templ.
 			var templ_7745c5c3_Var13 templ.SafeURL
 			templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(ternary(data.IsVendor, "/vendor/sessions/revoke-all", "/customer/sessions/revoke-all")))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/tenant_sessions.templ`, Line: 124, Col: 121}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `tenant_sessions.templ`, Line: 124, Col: 121}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var13))
 			if templ_7745c5c3_Err != nil {
@@ -336,7 +336,7 @@ func tenantSessionsContent(lang, dir string, data TenantSessionsViewData) templ.
 			var templ_7745c5c3_Var14 string
 			templ_7745c5c3_Var14, templ_7745c5c3_Err = templ.ResolveAttributeValue(data.CurrentToken)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/tenant_sessions.templ`, Line: 125, Col: 73}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `tenant_sessions.templ`, Line: 125, Col: 73}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var14)
 			if templ_7745c5c3_Err != nil {
@@ -382,7 +382,7 @@ func tenantSessionsContent(lang, dir string, data TenantSessionsViewData) templ.
 					ternary(sess.Token == data.CurrentToken, "var(--primary-subtle)", "var(--border)"),
 					ternary(sess.Token == data.CurrentToken, "var(--primary-subtle)", "var(--surface-sunken)")))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/tenant_sessions.templ`, Line: 145, Col: 99}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `tenant_sessions.templ`, Line: 145, Col: 99}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var15))
 				if templ_7745c5c3_Err != nil {
@@ -396,7 +396,7 @@ func tenantSessionsContent(lang, dir string, data TenantSessionsViewData) templ.
 					var templ_7745c5c3_Var16 string
 					templ_7745c5c3_Var16, templ_7745c5c3_Err = templ.JoinStringErrs(sess.Icon)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/tenant_sessions.templ`, Line: 150, Col: 21}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `tenant_sessions.templ`, Line: 150, Col: 21}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var16))
 					if templ_7745c5c3_Err != nil {
@@ -416,7 +416,7 @@ func tenantSessionsContent(lang, dir string, data TenantSessionsViewData) templ.
 					var templ_7745c5c3_Var17 string
 					templ_7745c5c3_Var17, templ_7745c5c3_Err = templ.JoinStringErrs(sess.DeviceName)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/tenant_sessions.templ`, Line: 159, Col: 29}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `tenant_sessions.templ`, Line: 159, Col: 29}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var17))
 					if templ_7745c5c3_Err != nil {
@@ -445,7 +445,7 @@ func tenantSessionsContent(lang, dir string, data TenantSessionsViewData) templ.
 				var templ_7745c5c3_Var18 string
 				templ_7745c5c3_Var18, templ_7745c5c3_Err = templ.JoinStringErrs(sess.Email)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/tenant_sessions.templ`, Line: 171, Col: 28}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `tenant_sessions.templ`, Line: 171, Col: 28}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var18))
 				if templ_7745c5c3_Err != nil {
@@ -463,7 +463,7 @@ func tenantSessionsContent(lang, dir string, data TenantSessionsViewData) templ.
 					var templ_7745c5c3_Var19 string
 					templ_7745c5c3_Var19, templ_7745c5c3_Err = templ.JoinStringErrs(sess.IP)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/tenant_sessions.templ`, Line: 173, Col: 30}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `tenant_sessions.templ`, Line: 173, Col: 30}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var19))
 					if templ_7745c5c3_Err != nil {
@@ -481,7 +481,7 @@ func tenantSessionsContent(lang, dir string, data TenantSessionsViewData) templ.
 				var templ_7745c5c3_Var20 string
 				templ_7745c5c3_Var20, templ_7745c5c3_Err = templ.JoinStringErrs(sess.CreatedAt.Format("2006-01-02 15:04"))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/tenant_sessions.templ`, Line: 175, Col: 63}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `tenant_sessions.templ`, Line: 175, Col: 63}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var20))
 				if templ_7745c5c3_Err != nil {
@@ -504,7 +504,7 @@ func tenantSessionsContent(lang, dir string, data TenantSessionsViewData) templ.
 					var templ_7745c5c3_Var21 templ.SafeURL
 					templ_7745c5c3_Var21, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(ternary(data.IsVendor, "/vendor/sessions/revoke", "/customer/sessions/revoke")))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/tenant_sessions.templ`, Line: 188, Col: 117}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `tenant_sessions.templ`, Line: 188, Col: 117}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var21))
 					if templ_7745c5c3_Err != nil {
@@ -517,7 +517,7 @@ func tenantSessionsContent(lang, dir string, data TenantSessionsViewData) templ.
 					var templ_7745c5c3_Var22 string
 					templ_7745c5c3_Var22, templ_7745c5c3_Err = templ.ResolveAttributeValue(sess.Token)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/tenant_sessions.templ`, Line: 189, Col: 62}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `tenant_sessions.templ`, Line: 189, Col: 62}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var22)
 					if templ_7745c5c3_Err != nil {
@@ -545,7 +545,7 @@ func tenantSessionsContent(lang, dir string, data TenantSessionsViewData) templ.
 		var templ_7745c5c3_Var23 templ.SafeURL
 		templ_7745c5c3_Var23, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(ternary(data.IsVendor, "/vendor/password", "/customer/password")))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/tenant_sessions.templ`, Line: 213, Col: 97}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `tenant_sessions.templ`, Line: 213, Col: 97}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var23))
 		if templ_7745c5c3_Err != nil {

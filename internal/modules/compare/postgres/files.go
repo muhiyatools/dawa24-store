@@ -16,7 +16,7 @@ import (
 	"github.com/muhiya/dawa24-store/internal/shared/money"
 )
 
-const fileColumns = `id, public_id, organization_id, user_id, supplier_name, original_filename, storage_key, mime_type, size_bytes, row_count, status, mapping_config, archived_at, archive_reason, error_message, is_temp_warehouse, created_at, updated_at, deleted_at`
+const fileColumns = `id, public_id, organization_id, user_id, supplier_name, original_filename, COALESCE(storage_key, ''), COALESCE(mime_type, ''), size_bytes, row_count, status, COALESCE(mapping_config, '{}'::jsonb), archived_at, COALESCE(archive_reason, ''), COALESCE(error_message, ''), is_temp_warehouse, created_at, updated_at, deleted_at`
 
 func scanFile(row pgx.Row) (*compare.CompareFile, error) {
 	var f compare.CompareFile
@@ -324,7 +324,7 @@ func (r *Repository) DeleteFile(ctx context.Context, id int64) error {
 // File Rows
 // ---------------------------------------------------------------------------
 
-const rowColumns = `id, file_id, organization_id, row_number, raw_name, normalized_name, sku, price, discount, price_after_discount, matched_product_id, match_confidence, match_method, meta, created_at`
+const rowColumns = `id, file_id, organization_id, row_number, raw_name, normalized_name, COALESCE(sku, ''), price, discount, price_after_discount, matched_product_id, match_confidence, match_method, COALESCE(meta, '{}'::jsonb), created_at`
 
 func toDBMatchMethod(m compare.MatchMethod) string {
 	switch string(m) {
@@ -901,4 +901,45 @@ func (r *Repository) ListMarketDiscounts(ctx context.Context, filter compare.Mar
 	result.AvailableSuppliers = suppliers
 
 	return result, err
+}
+
+// PurgeExpiredCompareFiles soft-deletes compare files that have exceeded their retention period.
+// It checks both the user's/org's subscription plan retention limit and the fallback defaultRetentionDays.
+func (r *Repository) PurgeExpiredCompareFiles(ctx context.Context, defaultRetentionDays int) (int64, error) {
+	if defaultRetentionDays <= 0 {
+		defaultRetentionDays = 30
+	}
+	var purgedCount int64
+	err := r.db.InTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
+		query := `
+			WITH target_files AS (
+				SELECT f.id, f.storage_key
+				FROM compare.files f
+				LEFT JOIN billing.subscriptions s ON s.organization_id = f.organization_id AND s.status = 'active'
+				LEFT JOIN billing.plans p ON p.id = s.plan_id
+				WHERE f.deleted_at IS NULL
+				  AND f.is_temp_warehouse = false
+				  AND (
+				      (COALESCE(NULLIF(p.features->>'compare_file_retention_days', ''), '0')::int > 0 
+				       AND f.created_at < (now() - (COALESCE(NULLIF(p.features->>'compare_file_retention_days', ''), '0')::int || ' days')::interval))
+				      OR
+				      ($1::int > 0 AND (COALESCE(NULLIF(p.features->>'compare_file_retention_days', ''), '0')::int <= 0)
+				       AND f.created_at < (now() - ($1::int || ' days')::interval))
+				  )
+			),
+			deleted_rows AS (
+				DELETE FROM compare.file_rows
+				WHERE file_id IN (SELECT id FROM target_files)
+			),
+			updated_files AS (
+				UPDATE compare.files
+				SET deleted_at = now(), updated_at = now()
+				WHERE id IN (SELECT id FROM target_files)
+				RETURNING id
+			)
+			SELECT COUNT(*) FROM updated_files;
+		`
+		return tx.QueryRow(txCtx, query, defaultRetentionDays).Scan(&purgedCount)
+	})
+	return purgedCount, err
 }

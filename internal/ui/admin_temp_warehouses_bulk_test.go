@@ -129,6 +129,10 @@ func (m *mockBulkCompareRepo) UnarchiveFile(ctx context.Context, id int64) error
 	return nil
 }
 
+func (m *mockBulkCompareRepo) PurgeExpiredCompareFiles(ctx context.Context, defaultRetentionDays int) (int64, error) {
+	return 0, nil
+}
+
 func TestAdminTempWarehouse_BulkUpload_65Files_HighSpeed(t *testing.T) {
 	mockRepo := newMockBulkCompareRepo()
 	logger := slog.New(slog.NewTextHandler(io.Discard, nil))

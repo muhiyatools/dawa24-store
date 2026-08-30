@@ -60,6 +60,7 @@ type Repository interface {
 	ArchiveFile(ctx context.Context, id int64, reason string) error
 	UnarchiveFile(ctx context.Context, id int64) error
 	DeleteFile(ctx context.Context, id int64) error
+	PurgeExpiredCompareFiles(ctx context.Context, defaultRetentionDays int) (int64, error)
 
 	// Compare File Rows
 	InsertFileRows(ctx context.Context, rows []*CompareFileRow) error
@@ -68,6 +69,10 @@ type Repository interface {
 	DeleteFileRows(ctx context.Context, fileID int64) error
 	DeleteFileRow(ctx context.Context, rowID int64) error
 	UpdateFileRowMatch(ctx context.Context, rowID int64, matchedProductID *int64, method MatchMethod, confidence float64) error
+	// BulkUpdateFileRowMatches writes a whole matching run in one statement.
+	// A price list is tens of thousands of rows; a round trip per row would
+	// move the bottleneck rather than remove it.
+	BulkUpdateFileRowMatches(ctx context.Context, fileID int64, matches []RowMatch) error
 
 	// Deterministic Product Matching & Saved Mappings (Plan V5 Phase 2 §2.4)
 	SaveCustomerProductMapping(ctx context.Context, orgID *int64, rawName string, productID int64, source string) error

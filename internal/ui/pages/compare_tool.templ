@@ -8,7 +8,18 @@ import (
 	"github.com/muhiya/dawa24-store/internal/ui/layouts"
 )
 
-templ CompareToolPage(lang, dir string, files []*compare.CompareFile, noticeType, noticeMsg string) {
+// CompareMatchOptions says what the catalogue matching stage can do on this
+// deployment, so the screen offers a control only where it would work.
+//
+// A button that ticks and then does nothing is worse than a missing button: the
+// AI switch on this tool used to be exactly that — an entitlement flag named
+// AIMatchingEnabled, with no matching stage behind it at all.
+type CompareMatchOptions struct {
+	Available   bool
+	AIAvailable bool
+}
+
+templ CompareToolPage(lang, dir string, files []*compare.CompareFile, maxAllowedFiles int, matching CompareMatchOptions, noticeType, noticeMsg string) {
 	@layouts.VendorShell("محرك مقارنة الخصومات والأسعار", "compare", lang, dir) {
 		<div class="page-container max-w-5xl">
 
@@ -59,7 +70,11 @@ templ CompareToolPage(lang, dir string, files []*compare.CompareFile, noticeType
 							<span>تحميل نموذج تجريبي (Excel)</span>
 						</a>
 						<span class="badge badge-secondary text-xs px-3 py-2">
-							{ fmt.Sprintf("%d ملفات موردين مسجلة", len(files)) }
+							if maxAllowedFiles == 0 {
+								{ fmt.Sprintf("%d ملفات موردين مسجلة (غير محدود)", len(files)) }
+							} else {
+								{ fmt.Sprintf("ملفات الموردين: %d / %d", len(files), maxAllowedFiles) }
+							}
 						</span>
 					</div>
 				</div>
@@ -93,8 +108,22 @@ templ CompareToolPage(lang, dir string, files []*compare.CompareFile, noticeType
 								مركز ملفات الموردين
 							</h2>
 						</div>
-						<span class="badge badge-sky text-xs">{ fmt.Sprintf("%d ملف", len(files)) }</span>
+						<div class="d-flex items-center gap-1.5">
+							if maxAllowedFiles > 0 {
+								if len(files) >= maxAllowedFiles {
+									<span class="badge badge-amber text-xs font-bold">{ fmt.Sprintf("الاستهلاك: %d / %d (الحد الأقصى)", len(files), maxAllowedFiles) }</span>
+								} else {
+									<span class="badge badge-sky text-xs font-bold">{ fmt.Sprintf("الاستهلاك: %d / %d ملف", len(files), maxAllowedFiles) }</span>
+								}
+							} else {
+								<span class="badge badge-sky text-xs font-bold">{ fmt.Sprintf("%d ملف (غير محدود)", len(files)) }</span>
+							}
+						</div>
 					</div>
+
+					if matching.Available {
+						@compareMatchPanel(matching)
+					}
 
 					<form method="POST" action="/compare/run" id="compare-run-form" class="d-flex flex-col gap-3 m-0" onsubmit="return validateCompareSelection(event)">
 						<!-- Action Controls: Select All + Start Analysis -->
@@ -155,8 +184,22 @@ templ CompareToolPage(lang, dir string, files []*compare.CompareFile, noticeType
 											</div>
 										</div>
 
-										<!-- Actions (Map / Rename / Delete) -->
+										<!-- Actions (Match / Map / Rename / Delete) -->
 										<div class="d-flex items-center gap-1 flex-shrink-0">
+											if matching.Available {
+												<!-- The button belongs to the matching form above through the
+												     form attribute, because this file card sits inside the
+												     comparison form and a form cannot contain another. -->
+												<button
+													type="submit"
+													form="compare-match-form"
+													formaction={ templ.SafeURL(fmt.Sprintf("/compare/files/%d/match", f.ID)) }
+													class="btn btn-secondary btn-sm btn-icon text-brand"
+													title="مطابقة أصناف هذا الملف بالكتالوج المركزي"
+												>
+													🔗
+												</button>
+											}
 											<button
 												type="button"
 												class="btn btn-secondary btn-sm btn-icon text-brand"
@@ -202,6 +245,21 @@ templ CompareToolPage(lang, dir string, files []*compare.CompareFile, noticeType
 						</div>
 					</div>
 
+					<!-- Quota Notice if limit reached -->
+					if maxAllowedFiles > 0 && len(files) >= maxAllowedFiles {
+						<div class="alert alert-warning p-3 mb-3 d-flex items-start gap-2.5 rounded-xl border border-amber-300/80 bg-amber-50/80 text-xs">
+							<span class="text-base">⚠️</span>
+							<div>
+								<strong class="d-block font-extrabold text-amber-900 mb-0.5">
+									بلغت الحد الأقصى لكشوف الموردين في باقتك ({ fmt.Sprintf("%d / %d", len(files), maxAllowedFiles) })
+								</strong>
+								<span class="text-secondary leading-relaxed">
+									يرجى حذف أو أرشفة ملفات قديمة من القائمة لإتاحة مساحة، أو ترقية باقة الاشتراك لإضافة المزيد من الموردين.
+								</span>
+							</div>
+						</div>
+					}
+
 					<form
 						method="POST"
 						action="/compare/upload"
@@ -215,6 +273,8 @@ templ CompareToolPage(lang, dir string, files []*compare.CompareFile, noticeType
 							id="drop-zone-box"
 							class="empty-state-glass p-6 text-center cursor-pointer position-relative"
 							onclick="triggerFileInput()"
+							data-current-count={ fmt.Sprintf("%d", len(files)) }
+							data-max-limit={ fmt.Sprintf("%d", maxAllowedFiles) }
 						>
 							<div class="text-3xl mb-2">📁</div>
 							<strong class="text-primary text-sm d-block mb-1">
@@ -394,6 +454,7 @@ templ CompareToolPage(lang, dir string, files []*compare.CompareFile, noticeType
 
 			function handleUploadSubmit(event) {
 				const fileInput = document.getElementById('file-upload-input');
+				const dropZone = document.getElementById('drop-zone-box');
 
 				if (!fileInput || !fileInput.files || fileInput.files.length === 0) {
 					alert("يرجى اختيار ملف Excel أو CSV واحد على الأقل للرفع والمعالجة.");
@@ -403,6 +464,17 @@ templ CompareToolPage(lang, dir string, files []*compare.CompareFile, noticeType
 				}
 
 				const count = fileInput.files.length;
+
+				if (dropZone) {
+					const currentCount = parseInt(dropZone.dataset.currentCount || '0', 10);
+					const maxLimit = parseInt(dropZone.dataset.maxLimit || '0', 10);
+					if (maxLimit > 0 && (currentCount + count > maxLimit)) {
+						alert(`عذراً، باقة اشتراكك الحالية تسمح بحد أقصى ${maxLimit} ملفات موردين.\nلديك حالياً ${currentCount} ملفات، ومحاولة رفع ${count} ملفات إضافية ستتجاوز الحد المسموح (${currentCount + count} / ${maxLimit}).\nيرجى تقليل عدد الملفات المرفوعة، أو حذف/أرشفة ملفات قديمة، أو ترقية باقتك.`);
+						event.preventDefault();
+						return false;
+					}
+				}
+
 				const btn = document.getElementById('upload-submit-btn');
 				const btnText = document.getElementById('upload-btn-text');
 				if (btn && btnText) {
@@ -754,4 +826,38 @@ templ CompareToolPage(lang, dir string, files []*compare.CompareFile, noticeType
 		<!-- Root container for dynamically injected mapping modal -->
 		<div id="mapping-modal-root"></div>
 	}
+}
+
+// compareMatchPanel is the catalogue matching control and its AI switch.
+//
+// It is a form of its own, sitting outside the comparison form, and every
+// per-file match button joins it through the HTML form attribute. That is what
+// lets one switch govern every file's run without repeating the checkbox on
+// each card.
+templ compareMatchPanel(matching CompareMatchOptions) {
+	<form method="POST" action="/compare/tool" id="compare-match-form"
+		class="compare-match-panel">
+		<div class="d-flex items-center gap-2 mb-1">
+			<span class="text-base">🔗</span>
+			<strong class="text-xs font-extrabold text-primary">مطابقة الأصناف بالكتالوج المركزي</strong>
+		</div>
+		<p class="text-xs text-muted m-0 mb-2 leading-relaxed">
+			اضغط 🔗 بجوار أي ملف لربط أصنافه بالكتالوج المركزي. المقارنة بين الموردين تصبح على مستوى
+			الصنف نفسه بدل الاعتماد على تشابه الأسماء، وتُحفظ الروابط لاستخدامها في المرات القادمة.
+		</p>
+		if matching.AIAvailable {
+			<label class="d-flex items-center gap-2 cursor-pointer text-xs font-bold">
+				<input type="checkbox" name="use_ai" value="1" class="form-checkbox" checked/>
+				<span>🤖 استخدام الذكاء الاصطناعي للأصناف التي تعذّرت مطابقتها حتمياً</span>
+			</label>
+			<div class="text-xs text-muted mt-1">
+				يعمل فقط على الأصناف التي لم تُحسم حسابياً، ويستخدم ذاكرة القرارات المشتركة أولاً بلا تكلفة.
+				أوقفه لتشغيل المطابقة الحتمية وحدها بلا أي استهلاك.
+			</div>
+		} else {
+			<div class="text-xs text-muted">
+				🤖 خدمة الذكاء الاصطناعي غير مهيّأة على هذا الخادم؛ تعمل المطابقة الحتمية وحدها.
+			</div>
+		}
+	</form>
 }

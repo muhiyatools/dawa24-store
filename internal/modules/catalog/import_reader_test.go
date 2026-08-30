@@ -1,7 +1,8 @@
 package catalog_test
 
 import (
-	"errors"
+	"os"
+	"path/filepath"
 	"strings"
 	"testing"
 
@@ -102,13 +103,35 @@ func TestReadSpreadsheetRejectsUnusableFiles(t *testing.T) {
 	}
 }
 
-func TestReadSpreadsheetNamesLegacyXLS(t *testing.T) {
-	// The distinct error lets a caller offer the specific fix — resave as .xlsx
-	// — rather than a generic "invalid format".
+func TestReadSpreadsheetReadsLegacyXLS(t *testing.T) {
+	// A real Excel 97-2003 workbook. Roughly a fifth of what Egyptian
+	// distributors send is one of these, and this importer used to refuse them
+	// outright while the vendor import — reading the same file through the
+	// shared decoder — accepted them. The same file must not be importable
+	// through one screen and rejected by another.
+	content, err := os.ReadFile(filepath.Join("..", "..", "..", "test", "corpus", "files", "vendor-40.xls"))
+	if err != nil {
+		t.Skip("corpus not exported; run `go run ./cmd/cli corpus-export`")
+	}
+	data, err := catalog.ReadSpreadsheet(content, "old.xls")
+	if err != nil {
+		t.Fatalf("legacy .xls refused: %v", err)
+	}
+	if len(data.Rows) == 0 {
+		t.Fatal("legacy .xls decoded to no rows")
+	}
+	if data.Format != "xls" {
+		t.Errorf("format reported as %q, want \"xls\"", data.Format)
+	}
+}
+
+func TestReadSpreadsheetRefusesUnreadableXLS(t *testing.T) {
+	// A file claiming to be BIFF and carrying nothing decodable. The refusal
+	// must name the actual problem rather than the format.
 	_, err := catalog.ReadSpreadsheet(
 		append([]byte{0xD0, 0xCF, 0x11, 0xE0, 0xA1, 0xB1, 0x1A, 0xE1}, make([]byte, 64)...), "old.xls")
-	if !errors.Is(err, catalog.ErrLegacyXLS) {
-		t.Fatalf("expected ErrLegacyXLS, got %v", err)
+	if err == nil {
+		t.Fatal("a corrupt .xls was accepted")
 	}
 }
 

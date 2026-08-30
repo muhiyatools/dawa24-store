@@ -54,7 +54,7 @@ func TestSavingAILinksAnAnswerItCanVerify(t *testing.T) {
 		return []matchflow.Decision{{Ref: b.Items[0].Ref, ProductID: &id, Confidence: 0.95}}, nil
 	}}
 
-	if got := enhanceSavingItems(context.Background(), ai, engine, items, nil); got != 1 {
+	if got := enhanceSavingItems(context.Background(), ai, nil, engine, items, nil); got != 1 {
 		t.Fatalf("improved = %d, want 1", got)
 	}
 	if ai.calls != 1 {
@@ -95,7 +95,7 @@ func TestSavingAIRefusesAnAnswerTheCatalogueContradicts(t *testing.T) {
 		return []matchflow.Decision{{Ref: b.Items[0].Ref, ProductID: &wrongStrength, Confidence: 0.99}}, nil
 	}}
 
-	if got := enhanceSavingItems(context.Background(), ai, engine, items, nil); got != 0 {
+	if got := enhanceSavingItems(context.Background(), ai, nil, engine, items, nil); got != 0 {
 		t.Fatalf("improved = %d, want 0 — a contradicted answer must be refused", got)
 	}
 	if items[0].ProductID != nil {
@@ -114,7 +114,7 @@ func TestSavingAIRefusesAProductItWasNotOffered(t *testing.T) {
 		return []matchflow.Decision{{Ref: b.Items[0].Ref, ProductID: &invented, Confidence: 1.0}}, nil
 	}}
 
-	if got := enhanceSavingItems(context.Background(), ai, engine, items, nil); got != 0 {
+	if got := enhanceSavingItems(context.Background(), ai, nil, engine, items, nil); got != 0 {
 		t.Fatalf("improved = %d, want 0", got)
 	}
 }
@@ -129,7 +129,7 @@ func TestSavingAIRefusesLowConfidence(t *testing.T) {
 		return []matchflow.Decision{{Ref: b.Items[0].Ref, ProductID: &id, Confidence: 0.4}}, nil
 	}}
 
-	if got := enhanceSavingItems(context.Background(), ai, engine, items, nil); got != 0 {
+	if got := enhanceSavingItems(context.Background(), ai, nil, engine, items, nil); got != 0 {
 		t.Fatalf("improved = %d, want 0", got)
 	}
 }
@@ -144,7 +144,7 @@ func TestSavingAISkipsRowsTheCatalogueCannotAnswer(t *testing.T) {
 	}
 
 	ai := &fakeEnhancer{}
-	if got := enhanceSavingItems(context.Background(), ai, engine, items, nil); got != 0 {
+	if got := enhanceSavingItems(context.Background(), ai, nil, engine, items, nil); got != 0 {
 		t.Fatalf("improved = %d, want 0", got)
 	}
 	if ai.calls != 0 {
@@ -167,7 +167,7 @@ func TestSavingAINeverTouchesAlreadyLinkedRows(t *testing.T) {
 		return []matchflow.Decision{{Ref: 0, ProductID: &other, Confidence: 1.0}}, nil
 	}}
 
-	_ = enhanceSavingItems(context.Background(), ai, engine, items, nil)
+	_ = enhanceSavingItems(context.Background(), ai, nil, engine, items, nil)
 	if ai.calls != 0 {
 		t.Errorf("a settled row was sent for adjudication")
 	}
@@ -186,7 +186,7 @@ func TestSavingAIDegradesWhenTheGatewayFails(t *testing.T) {
 		return nil, errors.New("gateway unavailable")
 	}}
 
-	if got := enhanceSavingItems(context.Background(), ai, engine, items, nil); got != 0 {
+	if got := enhanceSavingItems(context.Background(), ai, nil, engine, items, nil); got != 0 {
 		t.Fatalf("improved = %d, want 0", got)
 	}
 	if items[0].MatchType != "unlinked" {

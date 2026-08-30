@@ -17,8 +17,11 @@ import (
 )
 
 type SmartOrderResultsData struct {
-	Run       *smartorder.Run
-	Counts    smartorder.FilterCounts
+	Run    *smartorder.Run
+	Counts smartorder.FilterCounts
+	// Blocked is what will not be ordered, split by reason. It fills the
+	// collapsed section rather than being mixed into the main table.
+	Blocked   smartorder.BlockedCounts
 	Lines     []*smartorder.Line
 	Total     int
 	Page      int
@@ -163,7 +166,7 @@ func statCard(label string, value string) templ.Component {
 		var templ_7745c5c3_Var2 string
 		templ_7745c5c3_Var2, templ_7745c5c3_Err = templ.JoinStringErrs(value)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/smart_order_results.templ`, Line: 132, Col: 49}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `smart_order_results.templ`, Line: 135, Col: 49}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var2))
 		if templ_7745c5c3_Err != nil {
@@ -176,7 +179,7 @@ func statCard(label string, value string) templ.Component {
 		var templ_7745c5c3_Var3 string
 		templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(label)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/smart_order_results.templ`, Line: 133, Col: 36}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `smart_order_results.templ`, Line: 136, Col: 36}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
 		if templ_7745c5c3_Err != nil {
@@ -233,7 +236,7 @@ func soSortHeader(data SmartOrderResultsData, colKey, label string) templ.Compon
 		var templ_7745c5c3_Var5 templ.SafeURL
 		templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(href))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/smart_order_results.templ`, Line: 155, Col: 30}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `smart_order_results.templ`, Line: 158, Col: 30}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
 		if templ_7745c5c3_Err != nil {
@@ -246,7 +249,7 @@ func soSortHeader(data SmartOrderResultsData, colKey, label string) templ.Compon
 		var templ_7745c5c3_Var6 string
 		templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("ترتيب حسب %s", label))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/smart_order_results.templ`, Line: 157, Col: 52}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `smart_order_results.templ`, Line: 160, Col: 52}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var6)
 		if templ_7745c5c3_Err != nil {
@@ -259,7 +262,7 @@ func soSortHeader(data SmartOrderResultsData, colKey, label string) templ.Compon
 		var templ_7745c5c3_Var7 string
 		templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(label)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/smart_order_results.templ`, Line: 158, Col: 15}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `smart_order_results.templ`, Line: 161, Col: 15}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
 		if templ_7745c5c3_Err != nil {
@@ -272,7 +275,7 @@ func soSortHeader(data SmartOrderResultsData, colKey, label string) templ.Compon
 		var templ_7745c5c3_Var8 string
 		templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(icon)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/smart_order_results.templ`, Line: 159, Col: 35}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `smart_order_results.templ`, Line: 162, Col: 35}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var8))
 		if templ_7745c5c3_Err != nil {
@@ -321,7 +324,7 @@ func soFilterTab(data SmartOrderResultsData, matchKey, label string, count int) 
 		var templ_7745c5c3_Var11 templ.SafeURL
 		templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(href))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/smart_order_results.templ`, Line: 168, Col: 30}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `smart_order_results.templ`, Line: 171, Col: 30}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var11))
 		if templ_7745c5c3_Err != nil {
@@ -334,7 +337,7 @@ func soFilterTab(data SmartOrderResultsData, matchKey, label string, count int) 
 		var templ_7745c5c3_Var12 string
 		templ_7745c5c3_Var12, templ_7745c5c3_Err = templ.ResolveAttributeValue(templ.CSSClasses(templ_7745c5c3_Var10).String())
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/smart_order_results.templ`, Line: 1, Col: 0}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `smart_order_results.templ`, Line: 1, Col: 0}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var12)
 		if templ_7745c5c3_Err != nil {
@@ -347,7 +350,7 @@ func soFilterTab(data SmartOrderResultsData, matchKey, label string, count int) 
 		var templ_7745c5c3_Var13 string
 		templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.JoinStringErrs(label)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/smart_order_results.templ`, Line: 170, Col: 15}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `smart_order_results.templ`, Line: 173, Col: 15}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var13))
 		if templ_7745c5c3_Err != nil {
@@ -360,7 +363,7 @@ func soFilterTab(data SmartOrderResultsData, matchKey, label string, count int) 
 		var templ_7745c5c3_Var14 string
 		templ_7745c5c3_Var14, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", count))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/smart_order_results.templ`, Line: 171, Col: 61}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `smart_order_results.templ`, Line: 174, Col: 61}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var14))
 		if templ_7745c5c3_Err != nil {
@@ -414,7 +417,7 @@ func SmartOrderResultsPage(lang, dir string, data SmartOrderResultsData) templ.C
 			var templ_7745c5c3_Var17 string
 			templ_7745c5c3_Var17, templ_7745c5c3_Err = templ.JoinStringErrs(data.Run.RunNumber)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/smart_order_results.templ`, Line: 183, Col: 69}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `smart_order_results.templ`, Line: 186, Col: 69}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var17))
 			if templ_7745c5c3_Err != nil {
@@ -427,7 +430,7 @@ func SmartOrderResultsPage(lang, dir string, data SmartOrderResultsData) templ.C
 			var templ_7745c5c3_Var18 templ.SafeURL
 			templ_7745c5c3_Var18, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("/customer/smart-order/%s/export", data.Run.PublicID)))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/smart_order_results.templ`, Line: 190, Col: 95}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `smart_order_results.templ`, Line: 193, Col: 95}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var18))
 			if templ_7745c5c3_Err != nil {
@@ -440,7 +443,7 @@ func SmartOrderResultsPage(lang, dir string, data SmartOrderResultsData) templ.C
 			var templ_7745c5c3_Var19 templ.SafeURL
 			templ_7745c5c3_Var19, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("/customer/smart-order/%s/review", data.Run.PublicID)))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/smart_order_results.templ`, Line: 193, Col: 95}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `smart_order_results.templ`, Line: 196, Col: 95}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var19))
 			if templ_7745c5c3_Err != nil {
@@ -507,7 +510,7 @@ func SmartOrderResultsPage(lang, dir string, data SmartOrderResultsData) templ.C
 					var templ_7745c5c3_Var20 string
 					templ_7745c5c3_Var20, templ_7745c5c3_Err = templ.JoinStringErrs(data.Run.BudgetOverage.String())
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/smart_order_results.templ`, Line: 217, Col: 63}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `smart_order_results.templ`, Line: 220, Col: 63}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var20))
 					if templ_7745c5c3_Err != nil {
@@ -531,7 +534,7 @@ func SmartOrderResultsPage(lang, dir string, data SmartOrderResultsData) templ.C
 				var templ_7745c5c3_Var21 string
 				templ_7745c5c3_Var21, templ_7745c5c3_Err = templ.JoinStringErrs(aiSummary(data.Run.AI))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/smart_order_results.templ`, Line: 229, Col: 30}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `smart_order_results.templ`, Line: 232, Col: 30}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var21))
 				if templ_7745c5c3_Err != nil {
@@ -542,7 +545,19 @@ func SmartOrderResultsPage(lang, dir string, data SmartOrderResultsData) templ.C
 					return templ_7745c5c3_Err
 				}
 			}
+			templ_7745c5c3_Err = soBlockedPanel(data).Render(ctx, templ_7745c5c3_Buffer)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
 			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 26, "<!-- Filter Tabs Bar & Search Toolbar --><div class=\"card so-filter-card\"><!-- Tabs: 6 Independent Statuses + Unmatched + All --><div class=\"so-filter-tabs\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = soFilterTab(data, "ready_to_order", "جاهز للطلب", data.Counts.ReadyToOrder).Render(ctx, templ_7745c5c3_Buffer)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = soFilterTab(data, "blocked", "غير جاهز", data.Blocked.Total()).Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -574,10 +589,6 @@ func SmartOrderResultsPage(lang, dir string, data SmartOrderResultsData) templ.C
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = soFilterTab(data, "ready_to_order", "جاهز للطلب", data.Counts.ReadyToOrder).Render(ctx, templ_7745c5c3_Buffer)
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
 			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 27, "</div><!-- Search & Rows-Per-Page Form --><form method=\"GET\" action=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
@@ -585,7 +596,7 @@ func SmartOrderResultsPage(lang, dir string, data SmartOrderResultsData) templ.C
 			var templ_7745c5c3_Var22 templ.SafeURL
 			templ_7745c5c3_Var22, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("/customer/smart-order/%s/results", data.Run.PublicID)))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/smart_order_results.templ`, Line: 250, Col: 113}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `smart_order_results.templ`, Line: 256, Col: 113}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var22))
 			if templ_7745c5c3_Err != nil {
@@ -603,7 +614,7 @@ func SmartOrderResultsPage(lang, dir string, data SmartOrderResultsData) templ.C
 				var templ_7745c5c3_Var23 string
 				templ_7745c5c3_Var23, templ_7745c5c3_Err = templ.ResolveAttributeValue(data.Match)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/smart_order_results.templ`, Line: 252, Col: 58}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `smart_order_results.templ`, Line: 258, Col: 58}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var23)
 				if templ_7745c5c3_Err != nil {
@@ -622,7 +633,7 @@ func SmartOrderResultsPage(lang, dir string, data SmartOrderResultsData) templ.C
 				var templ_7745c5c3_Var24 string
 				templ_7745c5c3_Var24, templ_7745c5c3_Err = templ.ResolveAttributeValue(data.SortBy)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/smart_order_results.templ`, Line: 255, Col: 58}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `smart_order_results.templ`, Line: 261, Col: 58}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var24)
 				if templ_7745c5c3_Err != nil {
@@ -641,7 +652,7 @@ func SmartOrderResultsPage(lang, dir string, data SmartOrderResultsData) templ.C
 				var templ_7745c5c3_Var25 string
 				templ_7745c5c3_Var25, templ_7745c5c3_Err = templ.ResolveAttributeValue(data.SortOrder)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/smart_order_results.templ`, Line: 258, Col: 62}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `smart_order_results.templ`, Line: 264, Col: 62}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var25)
 				if templ_7745c5c3_Err != nil {
@@ -659,7 +670,7 @@ func SmartOrderResultsPage(lang, dir string, data SmartOrderResultsData) templ.C
 			var templ_7745c5c3_Var26 string
 			templ_7745c5c3_Var26, templ_7745c5c3_Err = templ.ResolveAttributeValue(data.Search)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/smart_order_results.templ`, Line: 265, Col: 26}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `smart_order_results.templ`, Line: 271, Col: 26}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var26)
 			if templ_7745c5c3_Err != nil {
@@ -727,7 +738,7 @@ func SmartOrderResultsPage(lang, dir string, data SmartOrderResultsData) templ.C
 				var templ_7745c5c3_Var27 templ.SafeURL
 				templ_7745c5c3_Var27, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(buildSmartOrderResultsURL(data.Run.PublicID, data.Match, data.SortBy, data.SortOrder, 1, data.PerPage, "")))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/smart_order_results.templ`, Line: 287, Col: 137}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `smart_order_results.templ`, Line: 293, Col: 137}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var27))
 				if templ_7745c5c3_Err != nil {
@@ -832,7 +843,7 @@ func SmartOrderResultsPage(lang, dir string, data SmartOrderResultsData) templ.C
 				var templ_7745c5c3_Var28 string
 				templ_7745c5c3_Var28, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d - %d", startItem, endItem))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/smart_order_results.templ`, Line: 355, Col: 66}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `smart_order_results.templ`, Line: 361, Col: 66}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var28))
 				if templ_7745c5c3_Err != nil {
@@ -845,7 +856,7 @@ func SmartOrderResultsPage(lang, dir string, data SmartOrderResultsData) templ.C
 				var templ_7745c5c3_Var29 string
 				templ_7745c5c3_Var29, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", data.Total))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/smart_order_results.templ`, Line: 355, Col: 135}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `smart_order_results.templ`, Line: 361, Col: 135}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var29))
 				if templ_7745c5c3_Err != nil {
@@ -863,7 +874,7 @@ func SmartOrderResultsPage(lang, dir string, data SmartOrderResultsData) templ.C
 					var templ_7745c5c3_Var30 templ.SafeURL
 					templ_7745c5c3_Var30, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(buildSmartOrderResultsURL(data.Run.PublicID, data.Match, data.SortBy, data.SortOrder, 1, data.PerPage, data.Search)))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/smart_order_results.templ`, Line: 360, Col: 148}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `smart_order_results.templ`, Line: 366, Col: 148}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var30))
 					if templ_7745c5c3_Err != nil {
@@ -876,7 +887,7 @@ func SmartOrderResultsPage(lang, dir string, data SmartOrderResultsData) templ.C
 					var templ_7745c5c3_Var31 templ.SafeURL
 					templ_7745c5c3_Var31, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(buildSmartOrderResultsURL(data.Run.PublicID, data.Match, data.SortBy, data.SortOrder, data.Page-1, data.PerPage, data.Search)))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/smart_order_results.templ`, Line: 361, Col: 158}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `smart_order_results.templ`, Line: 367, Col: 158}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var31))
 					if templ_7745c5c3_Err != nil {
@@ -899,7 +910,7 @@ func SmartOrderResultsPage(lang, dir string, data SmartOrderResultsData) templ.C
 				var templ_7745c5c3_Var32 string
 				templ_7745c5c3_Var32, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("صفحة %d من %d", data.Page, totalP))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/smart_order_results.templ`, Line: 368, Col: 63}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `smart_order_results.templ`, Line: 374, Col: 63}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var32))
 				if templ_7745c5c3_Err != nil {
@@ -917,7 +928,7 @@ func SmartOrderResultsPage(lang, dir string, data SmartOrderResultsData) templ.C
 					var templ_7745c5c3_Var33 templ.SafeURL
 					templ_7745c5c3_Var33, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(buildSmartOrderResultsURL(data.Run.PublicID, data.Match, data.SortBy, data.SortOrder, data.Page+1, data.PerPage, data.Search)))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/smart_order_results.templ`, Line: 372, Col: 158}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `smart_order_results.templ`, Line: 378, Col: 158}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var33))
 					if templ_7745c5c3_Err != nil {
@@ -930,7 +941,7 @@ func SmartOrderResultsPage(lang, dir string, data SmartOrderResultsData) templ.C
 					var templ_7745c5c3_Var34 templ.SafeURL
 					templ_7745c5c3_Var34, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(buildSmartOrderResultsURL(data.Run.PublicID, data.Match, data.SortBy, data.SortOrder, totalP, data.PerPage, data.Search)))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/smart_order_results.templ`, Line: 373, Col: 153}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `smart_order_results.templ`, Line: 379, Col: 153}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var34))
 					if templ_7745c5c3_Err != nil {
@@ -958,7 +969,7 @@ func SmartOrderResultsPage(lang, dir string, data SmartOrderResultsData) templ.C
 			var templ_7745c5c3_Var35 templ.SafeURL
 			templ_7745c5c3_Var35, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("/customer/smart-order/%s/export", data.Run.PublicID)))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/smart_order_results.templ`, Line: 385, Col: 94}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `smart_order_results.templ`, Line: 391, Col: 94}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var35))
 			if templ_7745c5c3_Err != nil {
@@ -971,7 +982,7 @@ func SmartOrderResultsPage(lang, dir string, data SmartOrderResultsData) templ.C
 			var templ_7745c5c3_Var36 templ.SafeURL
 			templ_7745c5c3_Var36, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("/customer/smart-order/%s/review", data.Run.PublicID)))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/smart_order_results.templ`, Line: 388, Col: 94}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `smart_order_results.templ`, Line: 394, Col: 94}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var36))
 			if templ_7745c5c3_Err != nil {
@@ -990,6 +1001,185 @@ func SmartOrderResultsPage(lang, dir string, data SmartOrderResultsData) templ.C
 		templ_7745c5c3_Err = layouts.CustomerShell("نتائج الطلب الذكي والمطابقة", "purchase-request", lang, dir, nil).Render(templ.WithChildren(ctx, templ_7745c5c3_Var16), templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
+		}
+		return nil
+	})
+}
+
+// soBlockedPanel is everything the run will not order, folded away.
+//
+// The screen leads with the lines that are ready because that is what the
+// pharmacist came for. What failed is not hidden — the counts are visible on
+// the closed summary, and each reason opens the table filtered to it — but it
+// does not sit between the buyer and their order, and it is not interleaved
+// with the rows that are fine.
+//
+// Closed by default, and grouped by reason rather than listed flat, because
+// "no supplier", "out of stock" and "nothing matched" are three different jobs
+// for three different moments.
+func soBlockedPanel(data SmartOrderResultsData) templ.Component {
+	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
+		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
+		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
+			return templ_7745c5c3_CtxErr
+		}
+		templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templruntime.GetBuffer(templ_7745c5c3_W)
+		if !templ_7745c5c3_IsBuffer {
+			defer func() {
+				templ_7745c5c3_BufErr := templruntime.ReleaseBuffer(templ_7745c5c3_Buffer)
+				if templ_7745c5c3_Err == nil {
+					templ_7745c5c3_Err = templ_7745c5c3_BufErr
+				}
+			}()
+		}
+		ctx = templ.InitializeContext(ctx)
+		templ_7745c5c3_Var37 := templ.GetChildren(ctx)
+		if templ_7745c5c3_Var37 == nil {
+			templ_7745c5c3_Var37 = templ.NopComponent
+		}
+		ctx = templ.ClearChildren(ctx)
+		blocked := data.Blocked
+		if blocked.Total() > 0 {
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 76, "<details class=\"so-blocked-panel\"><summary class=\"so-blocked-summary\"><span class=\"so-blocked-title\">⚠️ ")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var38 string
+			templ_7745c5c3_Var38, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d صنف غير جاهز للطلب", blocked.Total()))
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `smart_order_results.templ`, Line: 421, Col: 82}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var38))
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 77, "</span> <span class=\"so-blocked-hint\">لن تُطلب هذه الأصناف. اضغط لعرض أسبابها ومعالجتها.</span></summary><div class=\"so-blocked-body\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = soBlockedRow(data, "unmatched", "لم يُطابَق بالكتالوج", blocked.Unmatched,
+				"اربط الصنف يدوياً بالكتالوج المركزي ليصبح قابلاً للطلب.").Render(ctx, templ_7745c5c3_Buffer)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = soBlockedRow(data, "no_supplier", "لا يوجد مورد", blocked.NoSupplier,
+				"الصنف مطابق لكن لا يعرضه أي مورد حالياً.").Render(ctx, templ_7745c5c3_Buffer)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = soBlockedRow(data, "out_of_stock", "غير متوفر بالمخزون", blocked.OutOfStock,
+				"العرض موجود لكن رصيده صفر لدى المورد.").Render(ctx, templ_7745c5c3_Buffer)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = soBlockedRow(data, "coverage_blocked", "خارج نطاق التغطية", blocked.CoverageBlocked,
+				"المورد لا يغطي فرع التسليم المختار.").Render(ctx, templ_7745c5c3_Buffer)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = soBlockedRow(data, "institutional_blocked", "غير متاح مؤسسياً", blocked.InstitutionalBlocked,
+				"العرض مقيّد باتفاقية لا تشمل منشأتك.").Render(ctx, templ_7745c5c3_Buffer)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = soBlockedRow(data, "below_min_qty", "أقل من الحد الأدنى للطلب", blocked.BelowMinQty,
+				"ارفع الكمية إلى الحد الأدنى الذي يشترطه المورد.").Render(ctx, templ_7745c5c3_Buffer)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = soBlockedRow(data, "zero_qty", "الكمية صفر", blocked.ZeroQty,
+				"لم يُقرأ للصنف كمية من الملف؛ أدخلها يدوياً.").Render(ctx, templ_7745c5c3_Buffer)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 78, "</div></details>")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+		}
+		return nil
+	})
+}
+
+// soBlockedRow is one reason, with a link that opens the table filtered to it.
+func soBlockedRow(data SmartOrderResultsData, outcome, label string, count int, hint string) templ.Component {
+	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
+		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
+		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
+			return templ_7745c5c3_CtxErr
+		}
+		templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templruntime.GetBuffer(templ_7745c5c3_W)
+		if !templ_7745c5c3_IsBuffer {
+			defer func() {
+				templ_7745c5c3_BufErr := templruntime.ReleaseBuffer(templ_7745c5c3_Buffer)
+				if templ_7745c5c3_Err == nil {
+					templ_7745c5c3_Err = templ_7745c5c3_BufErr
+				}
+			}()
+		}
+		ctx = templ.InitializeContext(ctx)
+		templ_7745c5c3_Var39 := templ.GetChildren(ctx)
+		if templ_7745c5c3_Var39 == nil {
+			templ_7745c5c3_Var39 = templ.NopComponent
+		}
+		ctx = templ.ClearChildren(ctx)
+		if count > 0 {
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 79, "<a class=\"so-blocked-row\" href=\"")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var40 templ.SafeURL
+			templ_7745c5c3_Var40, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("/customer/smart-order/%s/results?match=%s", data.Run.PublicID, outcome)))
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `smart_order_results.templ`, Line: 451, Col: 109}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var40))
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 80, "\"><span class=\"so-blocked-count tabular-nums\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var41 string
+			templ_7745c5c3_Var41, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", count))
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `smart_order_results.templ`, Line: 452, Col: 73}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var41))
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 81, "</span> <span class=\"so-blocked-label\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var42 string
+			templ_7745c5c3_Var42, templ_7745c5c3_Err = templ.JoinStringErrs(label)
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `smart_order_results.templ`, Line: 453, Col: 41}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var42))
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 82, "</span> <span class=\"so-blocked-detail\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var43 string
+			templ_7745c5c3_Var43, templ_7745c5c3_Err = templ.JoinStringErrs(hint)
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `smart_order_results.templ`, Line: 454, Col: 41}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var43))
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 83, "</span> <span class=\"so-blocked-go\">معالجة ←</span></a>")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
 		}
 		return nil
 	})

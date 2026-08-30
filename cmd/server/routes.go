@@ -239,6 +239,12 @@ func mountModuleRoutes(
 	// with the smart order, on purpose: both ask the same question through the
 	// same prompt, so an answer either bought is free to the other.
 	ingSvcUI.SetMatchMemory(ingRepoUI)
+	// The same cache, in the shared vocabulary, for the two import paths that
+	// had none: the saving-list import and the administrator's master-catalogue
+	// import. Four tools, one table, one key — an answer bought by any of them
+	// is free to the other three.
+	sharedMatchMemory := newMatchMemory(ingRepoUI)
+	catSvcUI.SetMatchMemory(sharedMatchMemory)
 	ingSvcUI.SetCatalogPort(catSvcUI)
 	ingSvcUI.SetInventoryPort(invSvcUI)
 
@@ -277,6 +283,10 @@ func mountModuleRoutes(
 		return tenantKeys.Key(ctx, orgID), nil
 	}
 
+	// The saving-list import reaches the shared cache through the handler,
+	// because that is where its staging runs.
+	uiHandler.SetMatchMemory(sharedMatchMemory)
+
 	compareRepoUI := comparePostgres.NewRepository(db)
 	compareSvcUI := compare.NewService(compareRepoUI, log)
 	if ai != nil {
@@ -291,6 +301,12 @@ func mountModuleRoutes(
 		aiCapabilitiesSvc := aicapabilities.NewService(ai, log)
 		aiCapabilitiesSvc.SetKeyResolver(keyResolverUI)
 		compareSvcUI.SetAIMatcher(aiCapabilitiesSvc)
+		// The compare tool now runs the same catalogue matching stage as every
+		// other importer, so it gets the same enhancer and the same decision
+		// cache. Before this it had a matched_product_id column that nothing
+		// ever wrote, and its comparisons joined supplier lines to each other
+		// on a normalised string instead of to the catalogue.
+		compareSvcUI.SetMatchEnhancer(&ingestEnhanceAdapter{caps: aiCapabilitiesSvc})
 
 		// The catalogue import's three mapping calls: which column is which
 		// field, and which existing category and pharmaceutical form each of the
@@ -327,6 +343,8 @@ func mountModuleRoutes(
 	if storageClient != nil {
 		compareSvcUI.SetStorage(storageClient)
 	}
+	compareSvcUI.SetCatalogSource(newCompareCatalog(catSvcUI))
+	compareSvcUI.SetMatchMemory(sharedMatchMemory)
 	uiHandler.SetCompareService(compareSvcUI)
 
 	if storageClient != nil {

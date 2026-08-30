@@ -161,19 +161,31 @@ func (h *UIHandler) CompareToolPage(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var files []*compare.CompareFile
+	var orgPtr *int64
+	if actor.OrganizationID > 0 {
+		orgPtr = &actor.OrganizationID
+	}
 	if h.compareSvc != nil {
-		var orgPtr *int64
-		if actor.OrganizationID > 0 {
-			orgPtr = &actor.OrganizationID
-		}
 		files, _ = h.compareSvc.ListFiles(ctx, actor.UserID, orgPtr, nil)
 		if len(files) == 0 && (actor.IsPlatformAdmin() || actor.IsStaff) {
 			files, _ = h.compareSvc.ListAllFiles(ctx, "", nil)
 		}
 	}
 
+	maxAllowedFiles := 10
+	if h.billSvc != nil {
+		if plan, pErr := h.billSvc.GetEffectivePlan(ctx, actor.UserID, orgPtr); pErr == nil && plan != nil {
+			maxAllowedFiles = plan.GetMaxCompareFiles()
+		}
+	}
+
+	matching := pages.CompareMatchOptions{
+		Available:   h.compareSvc.MatchingAvailable(),
+		AIAvailable: h.compareSvc.AIMatchingAvailable(),
+	}
+
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	if err := pages.CompareToolPage(lang, dir, files, noticeType, noticeMsg).Render(ctx, w); err != nil {
+	if err := pages.CompareToolPage(lang, dir, files, maxAllowedFiles, matching, noticeType, noticeMsg).Render(ctx, w); err != nil {
 		h.log.ErrorContext(ctx, "render compare tool", "error", err)
 	}
 }
@@ -337,8 +349,7 @@ func (h *UIHandler) CompareUploadSubmit(w http.ResponseWriter, r *http.Request) 
 	var errorFiles []string
 
 	for idx, header := range fileHeaders {
-		ext := strings.ToLower(filepath.Ext(header.Filename))
-		if ext != ".xlsx" && ext != ".xls" && ext != ".csv" {
+		if !SupportedUploadName(header.Filename) {
 			errorFiles = append(errorFiles, header.Filename+" (صيغة غير مدعومة)")
 			continue
 		}
@@ -358,7 +369,8 @@ func (h *UIHandler) CompareUploadSubmit(w http.ResponseWriter, r *http.Request) 
 
 		supplierName := strings.TrimSpace(r.FormValue("supplier_name"))
 		if supplierName == "" || len(fileHeaders) > 1 {
-			supplierName = strings.TrimSpace(strings.TrimSuffix(header.Filename, ext))
+			supplierName = strings.TrimSpace(strings.TrimSuffix(header.Filename,
+				filepath.Ext(header.Filename)))
 			supplierName = strings.ReplaceAll(supplierName, "_", " ")
 			supplierName = strings.ReplaceAll(supplierName, "-", " ")
 		}

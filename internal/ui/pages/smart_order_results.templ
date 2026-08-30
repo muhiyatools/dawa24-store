@@ -9,8 +9,11 @@ import (
 )
 
 type SmartOrderResultsData struct {
-	Run       *smartorder.Run
-	Counts    smartorder.FilterCounts
+	Run    *smartorder.Run
+	Counts smartorder.FilterCounts
+	// Blocked is what will not be ordered, split by reason. It fills the
+	// collapsed section rather than being mixed into the main table.
+	Blocked   smartorder.BlockedCounts
 	Lines     []*smartorder.Line
 	Total     int
 	Page      int
@@ -231,11 +234,15 @@ templ SmartOrderResultsPage(lang, dir string, data SmartOrderResultsData) {
 				</div>
 			}
 
+			@soBlockedPanel(data)
+
 			<!-- Filter Tabs Bar & Search Toolbar -->
 			<div class="card so-filter-card">
 				
 				<!-- Tabs: 6 Independent Statuses + Unmatched + All -->
 				<div class="so-filter-tabs">
+					@soFilterTab(data, "ready_to_order", "جاهز للطلب", data.Counts.ReadyToOrder)
+					@soFilterTab(data, "blocked", "غير جاهز", data.Blocked.Total())
 					@soFilterTab(data, "all", "الكل", data.Counts.Total)
 					@soFilterTab(data, "unmatched", "غير مطابق", data.Counts.Unmatched)
 					@soFilterTab(data, "matched_product", "مطابق للصنف", data.Counts.MatchedProduct)
@@ -243,7 +250,6 @@ templ SmartOrderResultsPage(lang, dir string, data SmartOrderResultsData) {
 					@soFilterTab(data, "available_stock", "متوفر بالمخزون", data.Counts.AvailableStock)
 					@soFilterTab(data, "covered_branch", "مشمول بالتغطية", data.Counts.CoveredBranch)
 					@soFilterTab(data, "price_available", "السعر متوفر", data.Counts.PriceAvailable)
-					@soFilterTab(data, "ready_to_order", "جاهز للطلب", data.Counts.ReadyToOrder)
 				</div>
 
 				<!-- Search & Rows-Per-Page Form -->
@@ -392,5 +398,61 @@ templ SmartOrderResultsPage(lang, dir string, data SmartOrderResultsData) {
 		</div>
 
 		@smartOrderScript()
+	}
+}
+
+// soBlockedPanel is everything the run will not order, folded away.
+//
+// The screen leads with the lines that are ready because that is what the
+// pharmacist came for. What failed is not hidden — the counts are visible on
+// the closed summary, and each reason opens the table filtered to it — but it
+// does not sit between the buyer and their order, and it is not interleaved
+// with the rows that are fine.
+//
+// Closed by default, and grouped by reason rather than listed flat, because
+// "no supplier", "out of stock" and "nothing matched" are three different jobs
+// for three different moments.
+templ soBlockedPanel(data SmartOrderResultsData) {
+	{{ blocked := data.Blocked }}
+	if blocked.Total() > 0 {
+		<details class="so-blocked-panel">
+			<summary class="so-blocked-summary">
+				<span class="so-blocked-title">
+					⚠️ { fmt.Sprintf("%d صنف غير جاهز للطلب", blocked.Total()) }
+				</span>
+				<span class="so-blocked-hint">
+					لن تُطلب هذه الأصناف. اضغط لعرض أسبابها ومعالجتها.
+				</span>
+			</summary>
+			<div class="so-blocked-body">
+				@soBlockedRow(data, "unmatched", "لم يُطابَق بالكتالوج", blocked.Unmatched,
+					"اربط الصنف يدوياً بالكتالوج المركزي ليصبح قابلاً للطلب.")
+				@soBlockedRow(data, "no_supplier", "لا يوجد مورد", blocked.NoSupplier,
+					"الصنف مطابق لكن لا يعرضه أي مورد حالياً.")
+				@soBlockedRow(data, "out_of_stock", "غير متوفر بالمخزون", blocked.OutOfStock,
+					"العرض موجود لكن رصيده صفر لدى المورد.")
+				@soBlockedRow(data, "coverage_blocked", "خارج نطاق التغطية", blocked.CoverageBlocked,
+					"المورد لا يغطي فرع التسليم المختار.")
+				@soBlockedRow(data, "institutional_blocked", "غير متاح مؤسسياً", blocked.InstitutionalBlocked,
+					"العرض مقيّد باتفاقية لا تشمل منشأتك.")
+				@soBlockedRow(data, "below_min_qty", "أقل من الحد الأدنى للطلب", blocked.BelowMinQty,
+					"ارفع الكمية إلى الحد الأدنى الذي يشترطه المورد.")
+				@soBlockedRow(data, "zero_qty", "الكمية صفر", blocked.ZeroQty,
+					"لم يُقرأ للصنف كمية من الملف؛ أدخلها يدوياً.")
+			</div>
+		</details>
+	}
+}
+
+// soBlockedRow is one reason, with a link that opens the table filtered to it.
+templ soBlockedRow(data SmartOrderResultsData, outcome, label string, count int, hint string) {
+	if count > 0 {
+		<a class="so-blocked-row"
+			href={ templ.SafeURL(fmt.Sprintf("/customer/smart-order/%s/results?match=%s", data.Run.PublicID, outcome)) }>
+			<span class="so-blocked-count tabular-nums">{ fmt.Sprintf("%d", count) }</span>
+			<span class="so-blocked-label">{ label }</span>
+			<span class="so-blocked-detail">{ hint }</span>
+			<span class="so-blocked-go">معالجة ←</span>
+		</a>
 	}
 }

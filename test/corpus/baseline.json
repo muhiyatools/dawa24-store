@@ -35,11 +35,10 @@
     "rejected": 0,
     "duplicates": 0,
     "levels": {
-      "ambiguous": 65,
-      "barcode": 9176,
-      "exact": 2295,
+      "ambiguous": 26,
+      "exact": 3708,
       "none": 1,
-      "strong": 8459
+      "strong": 16261
     },
     "settled_pct": 99,
     "matched_pct": 99
@@ -66,14 +65,14 @@
     "rejected": 0,
     "duplicates": 0,
     "levels": {
-      "ambiguous": 880,
-      "exact": 22,
-      "none": 6212,
-      "review": 523,
-      "strong": 1153
+      "ambiguous": 308,
+      "exact": 32,
+      "none": 7622,
+      "review": 352,
+      "strong": 476
     },
-    "settled_pct": 13,
-    "matched_pct": 29
+    "settled_pct": 5,
+    "matched_pct": 13
   },
   {
     "entry": {
@@ -103,11 +102,11 @@
     "rejected": 0,
     "duplicates": 0,
     "levels": {
-      "ambiguous": 1,
+      "none": 1,
       "strong": 2
     },
     "settled_pct": 66,
-    "matched_pct": 100
+    "matched_pct": 66
   },
   {
     "entry": {
@@ -132,11 +131,11 @@
     "rejected": 0,
     "duplicates": 0,
     "levels": {
-      "ambiguous": 1,
+      "none": 1,
       "strong": 2
     },
     "settled_pct": 66,
-    "matched_pct": 100
+    "matched_pct": 66
   },
   {
     "entry": {
@@ -161,10 +160,10 @@
     "rejected": 0,
     "duplicates": 0,
     "levels": {
-      "ambiguous": 1
+      "none": 1
     },
     "settled_pct": 0,
-    "matched_pct": 100
+    "matched_pct": 0
   },
   {
     "entry": {
@@ -189,10 +188,10 @@
     "rejected": 0,
     "duplicates": 0,
     "levels": {
-      "ambiguous": 1
+      "none": 1
     },
     "settled_pct": 0,
-    "matched_pct": 100
+    "matched_pct": 0
   },
   {
     "entry": {
@@ -217,11 +216,11 @@
     "rejected": 0,
     "duplicates": 0,
     "levels": {
-      "ambiguous": 1,
+      "none": 1,
       "strong": 1
     },
     "settled_pct": 50,
-    "matched_pct": 100
+    "matched_pct": 50
   },
   {
     "entry": {
@@ -251,11 +250,11 @@
     "rejected": 0,
     "duplicates": 0,
     "levels": {
-      "ambiguous": 1,
+      "none": 1,
       "strong": 2
     },
     "settled_pct": 66,
-    "matched_pct": 100
+    "matched_pct": 66
   },
   {
     "entry": {
@@ -280,11 +279,11 @@
     "rejected": 0,
     "duplicates": 0,
     "levels": {
-      "ambiguous": 1,
+      "none": 1,
       "strong": 2
     },
     "settled_pct": 66,
-    "matched_pct": 100
+    "matched_pct": 66
   },
   {
     "entry": {
@@ -309,11 +308,11 @@
     "rejected": 0,
     "duplicates": 0,
     "levels": {
-      "ambiguous": 1,
+      "none": 1,
       "strong": 2
     },
     "settled_pct": 66,
-    "matched_pct": 100
+    "matched_pct": 66
   },
   {
     "entry": {
@@ -366,11 +365,10 @@
     "rejected": 0,
     "duplicates": 0,
     "levels": {
-      "none": 27,
-      "review": 3
+      "none": 30
     },
     "settled_pct": 0,
-    "matched_pct": 10
+    "matched_pct": 0
   },
   {
     "entry": {
@@ -397,11 +395,11 @@
     "rejected": 0,
     "duplicates": 0,
     "levels": {
-      "ambiguous": 1,
+      "none": 1,
       "strong": 2
     },
     "settled_pct": 66,
-    "matched_pct": 100
+    "matched_pct": 66
   },
   {
     "entry": {
@@ -428,11 +426,11 @@
     "rejected": 0,
     "duplicates": 0,
     "levels": {
-      "ambiguous": 1,
+      "none": 1,
       "strong": 2
     },
     "settled_pct": 66,
-    "matched_pct": 100
+    "matched_pct": 66
   },
   {
     "entry": {
@@ -459,11 +457,11 @@
     "rejected": 0,
     "duplicates": 0,
     "levels": {
-      "ambiguous": 1,
+      "none": 1,
       "strong": 2
     },
     "settled_pct": 66,
-    "matched_pct": 100
+    "matched_pct": 66
   },
   {
     "entry": {
@@ -491,11 +489,11 @@
     "rejected": 0,
     "duplicates": 0,
     "levels": {
-      "ambiguous": 1,
+      "none": 1,
       "strong": 2
     },
     "settled_pct": 66,
-    "matched_pct": 100
+    "matched_pct": 66
   },
   {
     "entry": {
@@ -542,14 +540,14 @@
     "rejected": 0,
     "duplicates": 0,
     "levels": {
-      "ambiguous": 82,
-      "exact": 96,
-      "none": 73,
-      "review": 17,
-      "strong": 200
+      "ambiguous": 75,
+      "exact": 105,
+      "none": 47,
+      "review": 28,
+      "strong": 213
     },
-    "settled_pct": 63,
-    "matched_pct": 84
+    "settled_pct": 67,
+    "matched_pct": 89
   },
   {
     "entry": {
@@ -575,14 +573,14 @@
     "rejected": 0,
     "duplicates": 0,
     "levels": {
-      "ambiguous": 134,
-      "exact": 366,
-      "none": 179,
-      "review": 30,
-      "strong": 485
+      "ambiguous": 106,
+      "exact": 413,
+      "none": 138,
+      "review": 78,
+      "strong": 459
     },
-    "settled_pct": 71,
-    "matched_pct": 85
+    "settled_pct": 73,
+    "matched_pct": 88
   },
   {
     "entry": {
@@ -606,14 +604,14 @@
     "rejected": 0,
     "duplicates": 0,
     "levels": {
-      "ambiguous": 46,
-      "exact": 123,
-      "none": 55,
-      "review": 4,
-      "strong": 134
+      "ambiguous": 40,
+      "exact": 137,
+      "none": 41,
+      "review": 22,
+      "strong": 122
     },
-    "settled_pct": 70,
-    "matched_pct": 84
+    "settled_pct": 71,
+    "matched_pct": 88
   },
   {
     "entry": {
@@ -650,14 +648,14 @@
     "rejected": 0,
     "duplicates": 0,
     "levels": {
-      "ambiguous": 66,
-      "exact": 84,
-      "none": 56,
-      "review": 12,
-      "strong": 163
+      "ambiguous": 51,
+      "exact": 93,
+      "none": 59,
+      "review": 29,
+      "strong": 149
     },
-    "settled_pct": 64,
-    "matched_pct": 85
+    "settled_pct": 63,
+    "matched_pct": 84
   },
   {
     "entry": {
@@ -678,14 +676,14 @@
     "rejected": 0,
     "duplicates": 0,
     "levels": {
-      "ambiguous": 78,
-      "exact": 247,
-      "none": 560,
-      "review": 6,
-      "strong": 243
+      "ambiguous": 55,
+      "exact": 292,
+      "none": 525,
+      "review": 23,
+      "strong": 239
     },
-    "settled_pct": 43,
-    "matched_pct": 50
+    "settled_pct": 46,
+    "matched_pct": 53
   },
   {
     "entry": {
@@ -707,13 +705,13 @@
     "rejected": 0,
     "duplicates": 0,
     "levels": {
-      "ambiguous": 298,
-      "exact": 153,
-      "none": 384,
-      "review": 251,
-      "strong": 557
+      "ambiguous": 274,
+      "exact": 209,
+      "none": 278,
+      "review": 93,
+      "strong": 789
     },
-    "settled_pct": 43,
-    "matched_pct": 76
+    "settled_pct": 60,
+    "matched_pct": 83
   }
 ]

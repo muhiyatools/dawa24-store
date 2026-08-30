@@ -64,6 +64,14 @@ var unitWords = keySet([]string{
 	"علبة", "علبه", "شريط", "زجاجة", "زجاجه", "كيس", "أمبول", "امبول", "عبوة", "عبوه",
 	"قطعة", "قطعه", "برطمان", "أنبوبة", "انبوبه", "تيوب", "باكو", "دستة", "دسته",
 	"كرتونة", "كرتونه", "فيال", "لفة", "طبة", "وحدة", "وحده", "جرام", "مللي", "لتر",
+	// The pack nouns Egyptian price lists actually type, and the reason a
+	// whole screen of wrong matches was possible: "باكت" is carried by
+	// thousands of lines, and two products whose only shared word was that
+	// scored as relatives. A word that names the packaging is not a word that
+	// names the medicine.
+	"باكت", "باكيت", "بكت", "باكتة", "باكته", "بوكس", "كرتون", "درزن", "درزينة",
+	"ظرف", "اظرف", "أظرف", "طبق", "اطباق", "أطباق", "شرائط", "علب", "قطع",
+	"حبة", "حبه", "حبات", "كجم", "جم", "سم", "cc", "kg", "لفه", "عبوات",
 	// Dose units left loose in a name are not identifying words: "مجم" is
 	// carried by half the catalogue, so counting it as vocabulary dilutes the
 	// brand it sits next to. The strength itself is parsed separately and

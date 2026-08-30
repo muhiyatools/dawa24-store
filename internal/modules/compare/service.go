@@ -15,6 +15,7 @@ import (
 	"github.com/muhiya/dawa24-store/internal/platform/storage"
 	"github.com/muhiya/dawa24-store/internal/shared/apperr"
 	"github.com/muhiya/dawa24-store/internal/shared/arabic"
+	"github.com/muhiya/dawa24-store/internal/shared/matchflow"
 	"github.com/muhiya/dawa24-store/internal/shared/money"
 	"github.com/muhiya/dawa24-store/internal/shared/sheet"
 )
@@ -41,6 +42,14 @@ type Service struct {
 	log       *slog.Logger
 	aiMatcher AIMatcher
 	storage   *storage.Client
+
+	// The catalogue matching stage, which this tool did not have. See
+	// catalog_match.go: every row carried a matched_product_id and nothing
+	// ever set it, so a price comparison was built by joining supplier lines
+	// to each other on a normalised string.
+	catalog  CatalogSource
+	enhancer matchflow.Enhancer
+	memory   matchflow.Memory
 }
 
 // NewService creates a new compare service.
@@ -828,4 +837,9 @@ func (s *Service) UpdateFile(ctx context.Context, f *CompareFile) error {
 // InsertFileRows inserts rows for a compare/warehouse file.
 func (s *Service) InsertFileRows(ctx context.Context, rows []*CompareFileRow) error {
 	return s.repo.InsertFileRows(ctx, rows)
+}
+
+// PurgeExpiredFiles runs the retention cleanup pass for expired compare files.
+func (s *Service) PurgeExpiredFiles(ctx context.Context, defaultRetentionDays int) (int64, error) {
+	return s.repo.PurgeExpiredCompareFiles(ctx, defaultRetentionDays)
 }

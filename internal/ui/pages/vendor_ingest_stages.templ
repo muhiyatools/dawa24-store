@@ -374,10 +374,15 @@ templ importSettingsStage(view VendorImportView) {
 						value={ fmt.Sprint(view.Session.Settings.DefaultMinThreshold) }/>
 				</div>
 				<div class="wiz-map-item">
-					<span class="wiz-map-label">أقل نسبة مطابقة مقبولة (%)</span>
-					<input class="wiz-map-input" type="number" name="min_match_score" min="5" max="100"
+					<span class="wiz-map-label">أقل نسبة مطابقة تُعتمد تلقائياً (%)</span>
+					<input class="wiz-map-input" type="number" name="min_match_score"
+						min={ fmt.Sprint(int(productmatch.DefaultMinReview*100)) } max="100"
 						value={ fmt.Sprint(int(view.Session.Settings.MinMatchScore*100)) }/>
-					<span class="wiz-map-hint">الافتراضي 30% — يمكنك تحديد أي نسبة تفضلها (حتى أقل من 50%). ما دونها يُعرض للمراجعة اليدوية.</span>
+					<span class="wiz-map-hint">
+						الافتراضي { fmt.Sprint(int(productmatch.DefaultMinStrong*100)) }%. ما فوقها يُعتمد تلقائياً كـ«مطابق»
+						ويُستورد؛ ما دونها يُعرض في «يحتاج مراجعة» ولا يُستورد إلا بعد اعتمادك له.
+						لا يمكن النزول تحت { fmt.Sprint(int(productmatch.DefaultMinReview*100)) }% لأن ما دون ذلك ليس رأياً ضعيفاً بل غياب رأي.
+					</span>
 				</div>
 			</div>
 			<input type="hidden" name="duplicates" value={ string(view.Session.Settings.Duplicates) }/>

@@ -67,6 +67,26 @@ type ImportStore interface {
 	AssignRowMatch(ctx context.Context, importID, rowID, productID int64, productName, productSKU string) error
 	// ToggleRowExclude flips the is_excluded flag of a staged row.
 	ToggleRowExclude(ctx context.Context, importID, rowID int64) (bool, error)
+
+	// The bulk review actions. A review screen's unit of work is a decision
+	// repeated over a page of rows, and doing that one form post at a time is
+	// how a nine-thousand-row import goes unreviewed.
+
+	// ConfirmRowMatches records the vendor accepting the engine's suggestion on
+	// each row, which is what makes those rows importable. It returns how many
+	// actually carried a product to confirm.
+	ConfirmRowMatches(ctx context.Context, importID int64, rowIDs []int64) (int, error)
+	// ClearRowMatches unlinks a list of rows.
+	ClearRowMatches(ctx context.Context, importID int64, rowIDs []int64) (int, error)
+	// SetRowsExcluded includes or excludes a list of rows.
+	SetRowsExcluded(ctx context.Context, importID int64, rowIDs []int64, excluded bool) (int, error)
+	// PendingRowIDs lists the included rows a commit would refuse, and how many
+	// there are in total.
+	PendingRowIDs(ctx context.Context, importID int64, limit int) ([]int64, int, error)
+	// RowIDsForFilter lists the ids of every row the review screen's current
+	// filter selects, so "apply to everything matching this filter" means the
+	// same rows the vendor is reading.
+	RowIDsForFilter(ctx context.Context, importID int64, filter RowFilter, limit int) ([]int64, error)
 	// StagedRowsForCommit returns all non-excluded rows ready to be written to catalog and inventory.
 	StagedRowsForCommit(ctx context.Context, importID int64) ([]*RowOutcome, error)
 	// UpdateCommittedRows updates rows after final execution.

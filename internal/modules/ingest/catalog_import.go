@@ -191,8 +191,10 @@ type Settings struct {
 	Duplicates productmatch.DuplicatePolicy `json:"duplicates"`
 
 	// MinMatchScore is the similarity at or above which a match is applied
-	// without asking. Below it the row is recorded for review and, depending on
-	// the unmatched policy, either skipped or given a new catalogue product.
+	// without asking. Below it the row is held for review and is NOT written by
+	// the commit, however well it scored — a suggestion the engine would not
+	// stand behind is the vendor's to accept, one row at a time or in bulk from
+	// the review screen, and never by default.
 	MinMatchScore float64 `json:"min_match_score"`
 	// UseAI lets a model settle the rows the deterministic engine could not.
 	//
@@ -251,7 +253,7 @@ func DefaultSettings() Settings {
 		Mode:                ModeUpsert,
 		StockMode:           inventory.StockReplace,
 		Duplicates:          productmatch.DuplicateLastWins,
-		MinMatchScore:       0.30,
+		MinMatchScore:       productmatch.DefaultMinStrong,
 		UseAI:               true,
 		BlankQuantityIsZero: false,
 		InferDosageForm:     false,
@@ -276,9 +278,13 @@ func (s Settings) Normalize() Settings {
 		s.Duplicates = productmatch.DuplicateLastWins
 	}
 	if s.MinMatchScore <= 0 {
-		s.MinMatchScore = 0.30
+		s.MinMatchScore = productmatch.DefaultMinStrong
 	} else {
-		s.MinMatchScore = min(max(s.MinMatchScore, 0.05), 1)
+		// The floor is the shared review floor rather than an arbitrary 0.05.
+		// A vendor may widen what counts as a confident match, but not below
+		// the point at which the engine stops believing its own answer — that
+		// is not a preference, it is a way of importing the review queue.
+		s.MinMatchScore = min(max(s.MinMatchScore, productmatch.DefaultMinReview), 1)
 	}
 	if s.DefaultQuantity < 0 {
 		s.DefaultQuantity = 0

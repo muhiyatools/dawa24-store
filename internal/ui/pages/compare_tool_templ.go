@@ -16,7 +16,18 @@ import (
 	"github.com/muhiya/dawa24-store/internal/ui/layouts"
 )
 
-func CompareToolPage(lang, dir string, files []*compare.CompareFile, noticeType, noticeMsg string) templ.Component {
+// CompareMatchOptions says what the catalogue matching stage can do on this
+// deployment, so the screen offers a control only where it would work.
+//
+// A button that ticks and then does nothing is worse than a missing button: the
+// AI switch on this tool used to be exactly that — an entitlement flag named
+// AIMatchingEnabled, with no matching stage behind it at all.
+type CompareMatchOptions struct {
+	Available   bool
+	AIAvailable bool
+}
+
+func CompareToolPage(lang, dir string, files []*compare.CompareFile, maxAllowedFiles int, matching CompareMatchOptions, noticeType, noticeMsg string) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -62,7 +73,7 @@ func CompareToolPage(lang, dir string, files []*compare.CompareFile, noticeType,
 					var templ_7745c5c3_Var3 string
 					templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(noticeMsg)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/compare_tool.templ`, Line: 21, Col: 24}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `compare_tool.templ`, Line: 32, Col: 24}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
 					if templ_7745c5c3_Err != nil {
@@ -80,7 +91,7 @@ func CompareToolPage(lang, dir string, files []*compare.CompareFile, noticeType,
 					var templ_7745c5c3_Var4 string
 					templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(noticeMsg)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/compare_tool.templ`, Line: 28, Col: 24}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `compare_tool.templ`, Line: 39, Col: 24}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
 					if templ_7745c5c3_Err != nil {
@@ -104,141 +115,230 @@ func CompareToolPage(lang, dir string, files []*compare.CompareFile, noticeType,
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			var templ_7745c5c3_Var5 string
-			templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d ملفات موردين مسجلة", len(files)))
-			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/compare_tool.templ`, Line: 62, Col: 73}
-			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "</span></div></div><!-- Navigation Subtabs for all 4 Analysis Modes --><div class=\"d-flex gap-2 mt-4 pt-4 border-t flex-wrap\"><a href=\"/compare/results\" class=\"btn btn-secondary btn-sm font-bold\">📊 المقارنة المجمعة بين الموردين</a> <a href=\"/compare/head-to-head\" class=\"btn btn-secondary btn-sm font-bold\">🏢 مقارنة مورد بمورد</a> <a href=\"/compare/market-benchmark\" class=\"btn btn-secondary btn-sm font-bold\">🧠 مقارنة مع موردين السوق</a> <a href=\"/compare/market-intelligence\" class=\"btn btn-secondary btn-sm font-bold\">🧠 تقرير ذكاء السوق</a></div></div><!-- 3-Column Workspace --><div class=\"compare-workspace-grid\"><!-- Column 1: Supplier File Center --><div class=\"compare-col-card\"><div class=\"flex-between border-b pb-3\"><div class=\"d-flex items-center gap-2\"><span class=\"text-lg\">📁</span><h2 class=\"text-base font-extrabold text-primary m-0\">مركز ملفات الموردين</h2></div><span class=\"badge badge-sky text-xs\">")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			var templ_7745c5c3_Var6 string
-			templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d ملف", len(files)))
-			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/compare_tool.templ`, Line: 96, Col: 82}
-			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "</span></div><form method=\"POST\" action=\"/compare/run\" id=\"compare-run-form\" class=\"d-flex flex-col gap-3 m-0\" onsubmit=\"return validateCompareSelection(event)\"><!-- Action Controls: Select All + Start Analysis --><div class=\"flex-between bg-surface-sunken p-3 rounded-xl border\"><label class=\"d-flex items-center gap-2 cursor-pointer font-bold text-xs text-primary\"><input type=\"checkbox\" id=\"select-all-files\" onchange=\"toggleSelectAll(this)\" checked class=\"form-checkbox\"> <span>تحديد الكل</span></label> <button type=\"submit\" class=\"btn btn-primary font-bold text-xs px-4\"><span>بدء التحليل والمقارنة</span></button></div><!-- Files List -->")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			if len(files) == 0 {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "<div class=\"empty-state-glass p-6 text-center\"><div class=\"text-2xl mb-2\">📂</div><strong class=\"text-primary text-sm d-block mb-1\">لا توجد ملفات مرفوعة بعد</strong><p class=\"text-xs text-muted m-0 mb-3\">استخدم نموذج الرفع المجاور أو حمل النموذج التجريبي لاختبار المقارنة فوراً.</p><a href=\"/compare/sample\" class=\"btn btn-secondary btn-sm font-bold\">تحميل النموذج التجريبي</a></div>")
+			if maxAllowedFiles == 0 {
+				var templ_7745c5c3_Var5 string
+				templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d ملفات موردين مسجلة (غير محدود)", len(files)))
+				if templ_7745c5c3_Err != nil {
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `compare_tool.templ`, Line: 74, Col: 94}
+				}
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			} else {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "<div class=\"d-flex flex-col gap-2 max-h-96 overflow-y-auto pe-1\">")
+				var templ_7745c5c3_Var6 string
+				templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("ملفات الموردين: %d / %d", len(files), maxAllowedFiles))
+				if templ_7745c5c3_Err != nil {
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `compare_tool.templ`, Line: 76, Col: 90}
+				}
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				for _, f := range files {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "<div class=\"bg-surface-sunken border rounded-xl p-3 flex-between gap-3\"><div class=\"d-flex items-center gap-3 min-w-0\"><input type=\"checkbox\" name=\"supplier_ids\" value=\"")
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "</span></div></div><!-- Navigation Subtabs for all 4 Analysis Modes --><div class=\"d-flex gap-2 mt-4 pt-4 border-t flex-wrap\"><a href=\"/compare/results\" class=\"btn btn-secondary btn-sm font-bold\">📊 المقارنة المجمعة بين الموردين</a> <a href=\"/compare/head-to-head\" class=\"btn btn-secondary btn-sm font-bold\">🏢 مقارنة مورد بمورد</a> <a href=\"/compare/market-benchmark\" class=\"btn btn-secondary btn-sm font-bold\">🧠 مقارنة مع موردين السوق</a> <a href=\"/compare/market-intelligence\" class=\"btn btn-secondary btn-sm font-bold\">🧠 تقرير ذكاء السوق</a></div></div><!-- 3-Column Workspace --><div class=\"compare-workspace-grid\"><!-- Column 1: Supplier File Center --><div class=\"compare-col-card\"><div class=\"flex-between border-b pb-3\"><div class=\"d-flex items-center gap-2\"><span class=\"text-lg\">📁</span><h2 class=\"text-base font-extrabold text-primary m-0\">مركز ملفات الموردين</h2></div><div class=\"d-flex items-center gap-1.5\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			if maxAllowedFiles > 0 {
+				if len(files) >= maxAllowedFiles {
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "<span class=\"badge badge-amber text-xs font-bold\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var7 string
-					templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%d", f.ID))
+					templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("الاستهلاك: %d / %d (الحد الأقصى)", len(files), maxAllowedFiles))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/compare_tool.templ`, Line: 133, Col: 43}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `compare_tool.templ`, Line: 114, Col: 156}
 					}
-					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var7)
+					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "\" class=\"file-checkbox form-checkbox flex-shrink-0\" checked><div class=\"min-w-0\"><div class=\"d-flex items-center gap-2 flex-wrap\"><strong class=\"text-sm text-primary text-truncate\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "</span>")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+				} else {
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "<span class=\"badge badge-sky text-xs font-bold\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var8 string
-					templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(f.SupplierName)
+					templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("الاستهلاك: %d / %d ملف", len(files), maxAllowedFiles))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/compare_tool.templ`, Line: 140, Col: 30}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `compare_tool.templ`, Line: 116, Col: 137}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var8))
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "</strong> ")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "</span>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					if f.RowCount > 0 {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "<span class=\"badge badge-emerald text-xs\">")
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-						var templ_7745c5c3_Var9 string
-						templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d صنف جاهز", f.RowCount))
-						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/compare_tool.templ`, Line: 144, Col: 62}
-						}
-						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var9))
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "</span>")
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-					} else {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "<span class=\"badge badge-secondary text-xs\">جاهز للتحليل</span>")
-						if templ_7745c5c3_Err != nil {
-							return templ_7745c5c3_Err
-						}
-					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "</div><div class=\"text-xs text-muted mt-1 tabular-nums\">")
+				}
+			} else {
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "<span class=\"badge badge-sky text-xs font-bold\">")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				var templ_7745c5c3_Var9 string
+				templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d ملف (غير محدود)", len(files)))
+				if templ_7745c5c3_Err != nil {
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `compare_tool.templ`, Line: 119, Col: 114}
+				}
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var9))
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "</span>")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "</div></div>")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			if matching.Available {
+				templ_7745c5c3_Err = compareMatchPanel(matching).Render(ctx, templ_7745c5c3_Buffer)
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "<form method=\"POST\" action=\"/compare/run\" id=\"compare-run-form\" class=\"d-flex flex-col gap-3 m-0\" onsubmit=\"return validateCompareSelection(event)\"><!-- Action Controls: Select All + Start Analysis --><div class=\"flex-between bg-surface-sunken p-3 rounded-xl border\"><label class=\"d-flex items-center gap-2 cursor-pointer font-bold text-xs text-primary\"><input type=\"checkbox\" id=\"select-all-files\" onchange=\"toggleSelectAll(this)\" checked class=\"form-checkbox\"> <span>تحديد الكل</span></label> <button type=\"submit\" class=\"btn btn-primary font-bold text-xs px-4\"><span>بدء التحليل والمقارنة</span></button></div><!-- Files List -->")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			if len(files) == 0 {
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "<div class=\"empty-state-glass p-6 text-center\"><div class=\"text-2xl mb-2\">📂</div><strong class=\"text-primary text-sm d-block mb-1\">لا توجد ملفات مرفوعة بعد</strong><p class=\"text-xs text-muted m-0 mb-3\">استخدم نموذج الرفع المجاور أو حمل النموذج التجريبي لاختبار المقارنة فوراً.</p><a href=\"/compare/sample\" class=\"btn btn-secondary btn-sm font-bold\">تحميل النموذج التجريبي</a></div>")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+			} else {
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "<div class=\"d-flex flex-col gap-2 max-h-96 overflow-y-auto pe-1\">")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				for _, f := range files {
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "<div class=\"bg-surface-sunken border rounded-xl p-3 flex-between gap-3\"><div class=\"d-flex items-center gap-3 min-w-0\"><input type=\"checkbox\" name=\"supplier_ids\" value=\"")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var10 string
-					templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.JoinStringErrs(f.OriginalFilename)
+					templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%d", f.ID))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/compare_tool.templ`, Line: 153, Col: 33}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `compare_tool.templ`, Line: 162, Col: 43}
 					}
-					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var10))
+					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var10)
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, " • ")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, "\" class=\"file-checkbox form-checkbox flex-shrink-0\" checked><div class=\"min-w-0\"><div class=\"d-flex items-center gap-2 flex-wrap\"><strong class=\"text-sm text-primary text-truncate\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var11 string
-					templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.JoinStringErrs(f.CreatedAt.Format("2006-01-02"))
+					templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.JoinStringErrs(f.SupplierName)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/compare_tool.templ`, Line: 153, Col: 74}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `compare_tool.templ`, Line: 169, Col: 30}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var11))
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, "</div></div></div><!-- Actions (Map / Rename / Delete) --><div class=\"d-flex items-center gap-1 flex-shrink-0\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, "</strong> ")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
+					}
+					if f.RowCount > 0 {
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, "<span class=\"badge badge-emerald text-xs\">")
+						if templ_7745c5c3_Err != nil {
+							return templ_7745c5c3_Err
+						}
+						var templ_7745c5c3_Var12 string
+						templ_7745c5c3_Var12, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d صنف جاهز", f.RowCount))
+						if templ_7745c5c3_Err != nil {
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `compare_tool.templ`, Line: 173, Col: 62}
+						}
+						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var12))
+						if templ_7745c5c3_Err != nil {
+							return templ_7745c5c3_Err
+						}
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, "</span>")
+						if templ_7745c5c3_Err != nil {
+							return templ_7745c5c3_Err
+						}
+					} else {
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, "<span class=\"badge badge-secondary text-xs\">جاهز للتحليل</span>")
+						if templ_7745c5c3_Err != nil {
+							return templ_7745c5c3_Err
+						}
+					}
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 25, "</div><div class=\"text-xs text-muted mt-1 tabular-nums\">")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					var templ_7745c5c3_Var13 string
+					templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.JoinStringErrs(f.OriginalFilename)
+					if templ_7745c5c3_Err != nil {
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `compare_tool.templ`, Line: 182, Col: 33}
+					}
+					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var13))
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 26, " • ")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					var templ_7745c5c3_Var14 string
+					templ_7745c5c3_Var14, templ_7745c5c3_Err = templ.JoinStringErrs(f.CreatedAt.Format("2006-01-02"))
+					if templ_7745c5c3_Err != nil {
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `compare_tool.templ`, Line: 182, Col: 74}
+					}
+					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var14))
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 27, "</div></div></div><!-- Actions (Match / Map / Rename / Delete) --><div class=\"d-flex items-center gap-1 flex-shrink-0\">")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					if matching.Available {
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 28, "<!-- The button belongs to the matching form above through the\n\t\t\t\t\t\t\t\t\t\t\t\t     form attribute, because this file card sits inside the\n\t\t\t\t\t\t\t\t\t\t\t\t     comparison form and a form cannot contain another. --> <button type=\"submit\" form=\"compare-match-form\" formaction=\"")
+						if templ_7745c5c3_Err != nil {
+							return templ_7745c5c3_Err
+						}
+						var templ_7745c5c3_Var15 string
+						templ_7745c5c3_Var15, templ_7745c5c3_Err = templ.ResolveAttributeValue(templ.SafeURL(fmt.Sprintf("/compare/files/%d/match", f.ID)))
+						if templ_7745c5c3_Err != nil {
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `compare_tool.templ`, Line: 196, Col: 85}
+						}
+						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var15)
+						if templ_7745c5c3_Err != nil {
+							return templ_7745c5c3_Err
+						}
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 29, "\" class=\"btn btn-secondary btn-sm btn-icon text-brand\" title=\"مطابقة أصناف هذا الملف بالكتالوج المركزي\">🔗</button> ")
+						if templ_7745c5c3_Err != nil {
+							return templ_7745c5c3_Err
+						}
 					}
 					templ_7745c5c3_Err = templ.RenderScriptItems(ctx, templ_7745c5c3_Buffer, templ.ComponentScript{Call: fmt.Sprintf("openMappingModal(%d)", f.ID)})
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, "<button type=\"button\" class=\"btn btn-secondary btn-sm btn-icon text-brand\" title=\"تعديل تعيين الأعمدة\" onclick=\"")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 30, "<button type=\"button\" class=\"btn btn-secondary btn-sm btn-icon text-brand\" title=\"تعديل تعيين الأعمدة\" onclick=\"")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					var templ_7745c5c3_Var12 templ.ComponentScript = templ.ComponentScript{Call: fmt.Sprintf("openMappingModal(%d)", f.ID)}
-					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var12.Call)
+					var templ_7745c5c3_Var16 templ.ComponentScript = templ.ComponentScript{Call: fmt.Sprintf("openMappingModal(%d)", f.ID)}
+					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var16.Call)
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, "\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 31, "\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -246,7 +346,7 @@ func CompareToolPage(lang, dir string, files []*compare.CompareFile, noticeType,
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, "</button> ")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 32, "</button> ")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -254,16 +354,16 @@ func CompareToolPage(lang, dir string, files []*compare.CompareFile, noticeType,
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, "<button type=\"button\" class=\"btn btn-secondary btn-sm btn-icon\" title=\"تعديل اسم المورد\" onclick=\"")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 33, "<button type=\"button\" class=\"btn btn-secondary btn-sm btn-icon\" title=\"تعديل اسم المورد\" onclick=\"")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					var templ_7745c5c3_Var13 templ.ComponentScript = templ.ComponentScript{Call: fmt.Sprintf("promptRenameFile(%d, '%s')", f.ID, f.SupplierName)}
-					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var13.Call)
+					var templ_7745c5c3_Var17 templ.ComponentScript = templ.ComponentScript{Call: fmt.Sprintf("promptRenameFile(%d, '%s')", f.ID, f.SupplierName)}
+					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var17.Call)
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 25, "\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 34, "\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -271,7 +371,7 @@ func CompareToolPage(lang, dir string, files []*compare.CompareFile, noticeType,
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 26, "</button> ")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 35, "</button> ")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -279,16 +379,16 @@ func CompareToolPage(lang, dir string, files []*compare.CompareFile, noticeType,
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 27, "<button type=\"button\" class=\"btn btn-secondary btn-sm btn-icon text-danger\" title=\"حذف الملف\" onclick=\"")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 36, "<button type=\"button\" class=\"btn btn-secondary btn-sm btn-icon text-danger\" title=\"حذف الملف\" onclick=\"")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					var templ_7745c5c3_Var14 templ.ComponentScript = templ.ComponentScript{Call: fmt.Sprintf("deleteFileConfirm(%d)", f.ID)}
-					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var14.Call)
+					var templ_7745c5c3_Var18 templ.ComponentScript = templ.ComponentScript{Call: fmt.Sprintf("deleteFileConfirm(%d)", f.ID)}
+					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var18.Call)
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 28, "\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 37, "\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -296,17 +396,66 @@ func CompareToolPage(lang, dir string, files []*compare.CompareFile, noticeType,
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 29, "</button></div></div>")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 38, "</button></div></div>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 30, "</div>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 39, "</div>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 31, "</form></div><!-- Column 2: Upload Zone --><div class=\"compare-col-card\"><div class=\"flex-between border-b pb-3\"><div class=\"d-flex items-center gap-2\"><span class=\"text-lg\">📤</span><h2 class=\"text-base font-extrabold text-primary m-0\">رفع ملفات الموردين (استيراد مجمّع)</h2></div></div><form method=\"POST\" action=\"/compare/upload\" id=\"compare-upload-form\" enctype=\"multipart/form-data\" class=\"d-flex flex-col gap-3\" onsubmit=\"return handleUploadSubmit(event)\"><!-- Drag and drop box with Multi-File support --><div id=\"drop-zone-box\" class=\"empty-state-glass p-6 text-center cursor-pointer position-relative\" onclick=\"triggerFileInput()\"><div class=\"text-3xl mb-2\">📁</div><strong class=\"text-primary text-sm d-block mb-1\">انقر هنا لاختيار ملفات الموردين أو اسحبها هنا دفعة واحدة</strong><p class=\"text-xs text-muted m-0 leading-relaxed\">يدعم رفع عدة ملفات Excel (.xlsx, .xls) و CSV معاً.<br><span class=\"text-brand font-bold\">يتم تسمية كل مورد تلقائياً من اسم الملف الخاص به</span></p><div id=\"file-name-preview\" class=\"mt-2 text-xs\"></div><input type=\"file\" id=\"file-upload-input\" name=\"compare_files\" multiple accept=\".xlsx,.xls,.csv\" class=\"position-absolute opacity-0 pointer-events-none\" onchange=\"handleFileSelect(this)\"></div><!-- Template Download helper card --><div class=\"bg-surface-sunken border rounded-xl p-3 flex-between gap-2\"><div class=\"text-xs text-muted\">هل تحتاج كشف أسعار للتجربة؟</div><a href=\"/compare/sample\" class=\"btn btn-secondary btn-sm text-brand font-extrabold text-xs px-3\" download=\"dawa24_supplier_template.xlsx\">تحميل نموذج Excel</a></div><button type=\"submit\" id=\"upload-submit-btn\" class=\"btn btn-primary w-full justify-center font-extrabold text-sm p-3\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 40, "</form></div><!-- Column 2: Upload Zone --><div class=\"compare-col-card\"><div class=\"flex-between border-b pb-3\"><div class=\"d-flex items-center gap-2\"><span class=\"text-lg\">📤</span><h2 class=\"text-base font-extrabold text-primary m-0\">رفع ملفات الموردين (استيراد مجمّع)</h2></div></div><!-- Quota Notice if limit reached -->")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			if maxAllowedFiles > 0 && len(files) >= maxAllowedFiles {
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 41, "<div class=\"alert alert-warning p-3 mb-3 d-flex items-start gap-2.5 rounded-xl border border-amber-300/80 bg-amber-50/80 text-xs\"><span class=\"text-base\">⚠️</span><div><strong class=\"d-block font-extrabold text-amber-900 mb-0.5\">بلغت الحد الأقصى لكشوف الموردين في باقتك (")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				var templ_7745c5c3_Var19 string
+				templ_7745c5c3_Var19, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d / %d", len(files), maxAllowedFiles))
+				if templ_7745c5c3_Err != nil {
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `compare_tool.templ`, Line: 254, Col: 138}
+				}
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var19))
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 42, ")</strong> <span class=\"text-secondary leading-relaxed\">يرجى حذف أو أرشفة ملفات قديمة من القائمة لإتاحة مساحة، أو ترقية باقة الاشتراك لإضافة المزيد من الموردين.</span></div></div>")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 43, "<form method=\"POST\" action=\"/compare/upload\" id=\"compare-upload-form\" enctype=\"multipart/form-data\" class=\"d-flex flex-col gap-3\" onsubmit=\"return handleUploadSubmit(event)\"><!-- Drag and drop box with Multi-File support --><div id=\"drop-zone-box\" class=\"empty-state-glass p-6 text-center cursor-pointer position-relative\" onclick=\"triggerFileInput()\" data-current-count=\"")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var20 string
+			templ_7745c5c3_Var20, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%d", len(files)))
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `compare_tool.templ`, Line: 276, Col: 57}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var20)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 44, "\" data-max-limit=\"")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var21 string
+			templ_7745c5c3_Var21, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%d", maxAllowedFiles))
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `compare_tool.templ`, Line: 277, Col: 58}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var21)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 45, "\"><div class=\"text-3xl mb-2\">📁</div><strong class=\"text-primary text-sm d-block mb-1\">انقر هنا لاختيار ملفات الموردين أو اسحبها هنا دفعة واحدة</strong><p class=\"text-xs text-muted m-0 leading-relaxed\">يدعم رفع عدة ملفات Excel (.xlsx, .xls) و CSV معاً.<br><span class=\"text-brand font-bold\">يتم تسمية كل مورد تلقائياً من اسم الملف الخاص به</span></p><div id=\"file-name-preview\" class=\"mt-2 text-xs\"></div><input type=\"file\" id=\"file-upload-input\" name=\"compare_files\" multiple accept=\".xlsx,.xls,.csv\" class=\"position-absolute opacity-0 pointer-events-none\" onchange=\"handleFileSelect(this)\"></div><!-- Template Download helper card --><div class=\"bg-surface-sunken border rounded-xl p-3 flex-between gap-2\"><div class=\"text-xs text-muted\">هل تحتاج كشف أسعار للتجربة؟</div><a href=\"/compare/sample\" class=\"btn btn-secondary btn-sm text-brand font-extrabold text-xs px-3\" download=\"dawa24_supplier_template.xlsx\">تحميل نموذج Excel</a></div><button type=\"submit\" id=\"upload-submit-btn\" class=\"btn btn-primary w-full justify-center font-extrabold text-sm p-3\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -314,7 +463,7 @@ func CompareToolPage(lang, dir string, files []*compare.CompareFile, noticeType,
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 32, "<span id=\"upload-btn-text\">رفع ومعالجة الملفات المختارة فورياً</span></button></form></div><!-- Column 3: Instant Search Box --><div class=\"compare-col-card\"><div class=\"d-flex items-center gap-2 border-b pb-3\"><span class=\"text-lg\">🔍</span><h2 class=\"text-base font-extrabold text-primary m-0\">البحث السريع والفوري</h2></div><div class=\"position-relative\"><input type=\"text\" name=\"q\" id=\"instant-search-input\" placeholder=\"ابحث عن دواء، مادة فعالة، كود...\" class=\"form-input ps-8\" oninput=\"filterSearchLocal(this.value)\"><div class=\"position-absolute start-3 top-half translate-middle-y text-muted pointer-events-none\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 46, "<span id=\"upload-btn-text\">رفع ومعالجة الملفات المختارة فورياً</span></button></form></div><!-- Column 3: Instant Search Box --><div class=\"compare-col-card\"><div class=\"d-flex items-center gap-2 border-b pb-3\"><span class=\"text-lg\">🔍</span><h2 class=\"text-base font-extrabold text-primary m-0\">البحث السريع والفوري</h2></div><div class=\"position-relative\"><input type=\"text\" name=\"q\" id=\"instant-search-input\" placeholder=\"ابحث عن دواء، مادة فعالة، كود...\" class=\"form-input ps-8\" oninput=\"filterSearchLocal(this.value)\"><div class=\"position-absolute start-3 top-half translate-middle-y text-muted pointer-events-none\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -322,13 +471,63 @@ func CompareToolPage(lang, dir string, files []*compare.CompareFile, noticeType,
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 33, "</div></div><!-- Search Results Area --><div id=\"instant-search-results\" class=\"d-flex flex-col gap-2 max-h-96 overflow-y-auto\"><div class=\"bg-surface-sunken rounded-xl p-6 text-center text-muted text-xs leading-relaxed\">اكتب اسم الصنف للبحث المباشر عبر جميع كشوف الموردين المرفوعة ومقارنة الخصومات فورياً.</div></div></div></div></div><!-- Scripts for compare tool interactions --> <script>\n\t\t\tfunction toggleSelectAll(masterCheckbox) {\n\t\t\t\tconst checkboxes = document.querySelectorAll('.file-checkbox');\n\t\t\t\tcheckboxes.forEach(cb => cb.checked = masterCheckbox.checked);\n\t\t\t}\n\n\t\t\tfunction validateCompareSelection(event) {\n\t\t\t\tconst checked = document.querySelectorAll('.file-checkbox:checked');\n\t\t\t\tif (checked.length === 0) {\n\t\t\t\t\tconst all = document.querySelectorAll('.file-checkbox');\n\t\t\t\t\tif (all.length > 0) {\n\t\t\t\t\t\tall.forEach(cb => cb.checked = true);\n\t\t\t\t\t\treturn true;\n\t\t\t\t\t}\n\t\t\t\t\talert(\"يرجى رفع ملف كشف أسعار واحد على الأقل للمقارنة.\");\n\t\t\t\t\tevent.preventDefault();\n\t\t\t\t\treturn false;\n\t\t\t\t}\n\t\t\t\treturn true;\n\t\t\t}\n\n\t\t\tfunction triggerFileInput() {\n\t\t\t\tconst input = document.getElementById('file-upload-input');\n\t\t\t\tif (input) {\n\t\t\t\t\tinput.click();\n\t\t\t\t}\n\t\t\t}\n\n\t\t\tfunction handleFileSelect(input) {\n\t\t\t\tconst previewEl = document.getElementById('file-name-preview');\n\t\t\t\tif (!previewEl) return;\n\n\t\t\t\tif (input.files && input.files.length > 0) {\n\t\t\t\t\tif (input.files.length === 1) {\n\t\t\t\t\t\tconst file = input.files[0];\n\t\t\t\t\t\tconst size = (file.size / 1024 / 1024).toFixed(2);\n\t\t\t\t\t\tpreviewEl.innerHTML = `<span style=\"color:var(--accent); font-weight:800;\">✓ تم اختيار ملف:</span> <strong class=\"text-primary\">${file.name}</strong> (${size} MB)`;\n\t\t\t\t\t} else {\n\t\t\t\t\t\tlet fileNames = [];\n\t\t\t\t\t\tlet totalSize = 0;\n\t\t\t\t\t\tfor (let i = 0; i < input.files.length; i++) {\n\t\t\t\t\t\t\tfileNames.push(input.files[i].name);\n\t\t\t\t\t\t\ttotalSize += input.files[i].size;\n\t\t\t\t\t\t}\n\t\t\t\t\t\tconst totalMb = (totalSize / 1024 / 1024).toFixed(2);\n\t\t\t\t\t\tpreviewEl.innerHTML = `\n\t\t\t\t\t\t\t<div style=\"background:var(--surface-raised); padding:0.6rem 0.85rem; border-radius:var(--radius-lg); border:1px solid var(--border); text-align:start;\">\n\t\t\t\t\t\t\t\t<div style=\"color:var(--accent); font-weight:800; margin-bottom:0.25rem;\">✓ تم اختيار (${input.files.length}) ملفات موردين (الإجمالي: ${totalMb} MB):</div>\n\t\t\t\t\t\t\t\t<div style=\"font-size:0.775rem; color:var(--text-secondary); max-height:80px; overflow-y:auto;\">\n\t\t\t\t\t\t\t\t\t${fileNames.map(n => `• ${n}`).join('<br/>')}\n\t\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t`;\n\t\t\t\t\t}\n\t\t\t\t} else {\n\t\t\t\t\tpreviewEl.innerHTML = '';\n\t\t\t\t}\n\t\t\t}\n\n\t\t\t// Setup drag and drop on drop zone box\n\t\t\t(function setupDropZone() {\n\t\t\t\twindow.addEventListener('DOMContentLoaded', () => {\n\t\t\t\t\tconst dropZone = document.getElementById('drop-zone-box');\n\t\t\t\t\tconst fileInput = document.getElementById('file-upload-input');\n\t\t\t\t\tif (!dropZone || !fileInput) return;\n\n\t\t\t\t\t['dragenter', 'dragover'].forEach(eventName => {\n\t\t\t\t\t\tdropZone.addEventListener(eventName, (e) => {\n\t\t\t\t\t\t\te.preventDefault();\n\t\t\t\t\t\t\te.stopPropagation();\n\t\t\t\t\t\t\tdropZone.style.borderColor = 'var(--accent)';\n\t\t\t\t\t\t\tdropZone.style.background = 'var(--surface-raised)';\n\t\t\t\t\t\t}, false);\n\t\t\t\t\t});\n\n\t\t\t\t\t['dragleave', 'drop'].forEach(eventName => {\n\t\t\t\t\t\tdropZone.addEventListener(eventName, (e) => {\n\t\t\t\t\t\t\te.preventDefault();\n\t\t\t\t\t\t\te.stopPropagation();\n\t\t\t\t\t\t\tdropZone.style.borderColor = '';\n\t\t\t\t\t\t\tdropZone.style.background = '';\n\t\t\t\t\t\t}, false);\n\t\t\t\t\t});\n\n\t\t\t\t\tdropZone.addEventListener('drop', (e) => {\n\t\t\t\t\t\tconst dt = e.dataTransfer;\n\t\t\t\t\t\tconst files = dt.files;\n\t\t\t\t\t\tif (files && files.length > 0) {\n\t\t\t\t\t\t\tfileInput.files = files;\n\t\t\t\t\t\t\thandleFileSelect(fileInput);\n\t\t\t\t\t\t}\n\t\t\t\t\t}, false);\n\t\t\t\t});\n\t\t\t})();\n\n\t\t\tfunction handleUploadSubmit(event) {\n\t\t\t\tconst fileInput = document.getElementById('file-upload-input');\n\n\t\t\t\tif (!fileInput || !fileInput.files || fileInput.files.length === 0) {\n\t\t\t\t\talert(\"يرجى اختيار ملف Excel أو CSV واحد على الأقل للرفع والمعالجة.\");\n\t\t\t\t\tevent.preventDefault();\n\t\t\t\t\ttriggerFileInput();\n\t\t\t\t\treturn false;\n\t\t\t\t}\n\n\t\t\t\tconst count = fileInput.files.length;\n\t\t\t\tconst btn = document.getElementById('upload-submit-btn');\n\t\t\t\tconst btnText = document.getElementById('upload-btn-text');\n\t\t\t\tif (btn && btnText) {\n\t\t\t\t\tbtn.disabled = true;\n\t\t\t\t\tbtn.style.opacity = '0.75';\n\t\t\t\t\tbtnText.textContent = `⏳ جاري رفع ومعالجة (${count}) كشوف موردين...`;\n\t\t\t\t}\n\n\t\t\t\t// Allow normal form POST to proceed\n\t\t\t\treturn true;\n\t\t\t}\n\n\t\t\tfunction promptRenameFile(id, currentName) {\n\t\t\t\tconst newName = prompt(\"أدخل الاسم الجديد للمورد / الملف:\", currentName);\n\t\t\t\tif (newName && newName.trim() !== \"\" && newName !== currentName) {\n\t\t\t\t\tconst form = document.createElement('form');\n\t\t\t\t\tform.method = 'POST';\n\t\t\t\t\tform.action = `/compare/files/${id}/rename`;\n\t\t\t\t\tconst input = document.createElement('input');\n\t\t\t\t\tinput.type = 'hidden';\n\t\t\t\t\tinput.name = 'supplier_name';\n\t\t\t\t\tinput.value = newName.trim();\n\t\t\t\t\tform.appendChild(input);\n\t\t\t\t\tdocument.body.appendChild(form);\n\t\t\t\t\tform.submit();\n\t\t\t\t}\n\t\t\t}\n\n\t\t\tfunction deleteFileConfirm(id) {\n\t\t\t\tif (confirm(\"هل أنت متأكد من حذف هذا الملف نهائياً من مركز الملفات؟\")) {\n\t\t\t\t\tconst form = document.createElement('form');\n\t\t\t\t\tform.method = 'POST';\n\t\t\t\t\tform.action = `/compare/files/${id}/delete`;\n\t\t\t\t\tdocument.body.appendChild(form);\n\t\t\t\t\tform.submit();\n\t\t\t\t}\n\t\t\t}\n\n\t\t\tlet searchTimeout = null;\n\t\t\tfunction filterSearchLocal(query) {\n\t\t\t\tclearTimeout(searchTimeout);\n\t\t\t\tconst resultsContainer = document.getElementById('instant-search-results');\n\t\t\t\tif (!query || query.trim().length < 2) {\n\t\t\t\t\tresultsContainer.innerHTML = `\n\t\t\t\t\t\t<div style=\"padding:2rem 1rem; text-align:center; background:var(--surface-sunken); border-radius:var(--radius-xl); color:var(--text-muted); font-size:0.85rem;\">\n\t\t\t\t\t\t\tاكتب اسم الصنف للبحث المباشر عبر جميع كشوف الموردين المرفوعة ومقارنة الخصومات فورياً.\n\t\t\t\t\t\t</div>\n\t\t\t\t\t`;\n\t\t\t\t\treturn;\n\t\t\t\t}\n\n\t\t\t\tresultsContainer.innerHTML = `\n\t\t\t\t\t<div style=\"padding:1.5rem 1rem; text-align:center; color:var(--text-muted); font-size:0.85rem;\">\n\t\t\t\t\t\t⏳ جاري البحث عبر الكتالوج وكشوف الموردين...\n\t\t\t\t\t</div>\n\t\t\t\t`;\n\n\t\t\t\tsearchTimeout = setTimeout(() => {\n\t\t\t\t\tfetch(`/compare/search?q=${encodeURIComponent(query.trim())}`, {\n\t\t\t\t\t\theaders: { 'Accept': 'application/json' }\n\t\t\t\t\t})\n\t\t\t\t\t.then(r => {\n\t\t\t\t\t\tif (!r.ok) throw new Error('Search failed');\n\t\t\t\t\t\treturn r.json();\n\t\t\t\t\t})\n\t\t\t\t\t.then(data => {\n\t\t\t\t\t\tconst items = data.items || [];\n\t\t\t\t\t\tif (items.length === 0) {\n\t\t\t\t\t\t\tresultsContainer.innerHTML = `\n\t\t\t\t\t\t\t\t<div style=\"padding:1.5rem 1rem; text-align:center; background:var(--surface-sunken); border-radius:var(--radius-xl); color:var(--text-muted); font-size:0.85rem;\">\n\t\t\t\t\t\t\t\t\tلم يتم العثور على أصناف مطابقة لـ \"${query}\".\n\t\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t\t`;\n\t\t\t\t\t\t\treturn;\n\t\t\t\t\t\t}\n\n\t\t\t\t\t\tlet html = `\n\t\t\t\t\t\t\t<div style=\"display:flex; justify-content:space-between; align-items:center; padding:0.25rem 0.5rem; font-size:0.775rem; color:var(--text-muted); border-bottom:1px solid var(--border); margin-bottom:0.35rem;\">\n\t\t\t\t\t\t\t\t<span>تم العثور على <strong>${items.length}</strong> صنف</span>\n\t\t\t\t\t\t\t\t<span>🟢 بالكتالوج: ${data.in_catalog_count || 0} | 🟡 أصناف موردين: ${data.custom_items_count || 0}</span>\n\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t`;\n\n\t\t\t\t\t\titems.slice(0, 15).forEach(item => {\n\t\t\t\t\t\t\t// 3-way status badge\n\t\t\t\t\t\t\tlet statusBadge = '';\n\t\t\t\t\t\t\tif (item.catalog_status === 'catalog_and_suppliers') {\n\t\t\t\t\t\t\t\tstatusBadge = '<span class=\"badge badge-emerald\" style=\"font-size:0.68rem; font-weight:700;\">🟢 معتمد بالكتالوج ومتوفر</span>';\n\t\t\t\t\t\t\t} else if (item.catalog_status === 'catalog_only') {\n\t\t\t\t\t\t\t\tstatusBadge = '<span class=\"badge badge-sky\" style=\"font-size:0.68rem; font-weight:700;\">🔵 مسجل بالكتالوج (غير متوفر بالكشوف)</span>';\n\t\t\t\t\t\t\t} else {\n\t\t\t\t\t\t\t\tstatusBadge = '<span class=\"badge badge-amber\" style=\"font-size:0.68rem; font-weight:700;\">🟡 صنف خاص بكشف المورد</span>';\n\t\t\t\t\t\t\t}\n\n\t\t\t\t\t\t\t// Best price and supplier pill\n\t\t\t\t\t\t\tlet bestPriceHtml = '';\n\t\t\t\t\t\t\tif (item.best_net_price && parseFloat(item.best_net_price) > 0) {\n\t\t\t\t\t\t\t\tbestPriceHtml = `\n\t\t\t\t\t\t\t\t\t<div class=\"text-end\">\n\t\t\t\t\t\t\t\t\t\t<div style=\"font-weight:900; color:var(--accent); font-size:0.95rem;\" class=\"tabular-nums\">\n\t\t\t\t\t\t\t\t\t\t\t${item.best_net_price} ج.م\n\t\t\t\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t\t\t\t\t<div style=\"font-size:0.725rem; color:var(--success-text); font-weight:700;\">\n\t\t\t\t\t\t\t\t\t\t\t👑 ${item.best_supplier || 'أفضل سعر'} (${item.best_discount || 0}%)\n\t\t\t\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t\t\t`;\n\t\t\t\t\t\t\t} else {\n\t\t\t\t\t\t\t\tbestPriceHtml = `\n\t\t\t\t\t\t\t\t\t<div style=\"text-align:end; font-size:0.75rem; color:var(--text-muted);\">\n\t\t\t\t\t\t\t\t\t\tلا توجد عروض أسعار مرفوعة\n\t\t\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t\t\t`;\n\t\t\t\t\t\t\t}\n\n\t\t\t\t\t\t\t// Offers pill list\n\t\t\t\t\t\t\tlet offersHtml = '';\n\t\t\t\t\t\t\tif (item.offers && Object.keys(item.offers).length > 0) {\n\t\t\t\t\t\t\t\toffersHtml = '<div style=\"display:flex; flex-wrap:wrap; gap:0.25rem; margin-top:0.4rem;\">';\n\t\t\t\t\t\t\t\tfor (const [sup, off] of Object.entries(item.offers)) {\n\t\t\t\t\t\t\t\t\tconst isBest = (sup === item.best_supplier);\n\t\t\t\t\t\t\t\t\tconst badgeClass = isBest ? 'badge-emerald' : 'badge-secondary';\n\t\t\t\t\t\t\t\t\toffersHtml += `\n\t\t\t\t\t\t\t\t\t\t<span class=\"badge ${badgeClass}\" style=\"font-size:0.7rem; font-weight:600;\">\n\t\t\t\t\t\t\t\t\t\t\t${sup}: ${off.discount || 0}% (${off.price_after_discount || '--'} ج.م)\n\t\t\t\t\t\t\t\t\t\t</span>\n\t\t\t\t\t\t\t\t\t`;\n\t\t\t\t\t\t\t\t}\n\t\t\t\t\t\t\t\toffersHtml += '</div>';\n\t\t\t\t\t\t\t}\n\n\t\t\t\t\t\t\tlet missingHtml = '';\n\t\t\t\t\t\t\tif (item.missing_from_suppliers && item.missing_from_suppliers.length > 0 && Object.keys(item.offers || {}).length > 0) {\n\t\t\t\t\t\t\t\tmissingHtml = '<div style=\"font-size:0.7rem; color:var(--danger-text); margin-top:0.3rem;\">' +\n\t\t\t\t\t\t\t\t\t'❌ غير مدرج لدى: <strong>' + item.missing_from_suppliers.join('، ') + '</strong>' +\n\t\t\t\t\t\t\t\t'</div>';\n\t\t\t\t\t\t\t}\n\n\t\t\t\t\t\t\tconst skuHtml = item.sku ? ('<span style=\"font-size:0.725rem; color:var(--text-muted);\" class=\"tabular-nums\">كود: ' + item.sku + '</span>') : '';\n\t\t\t\t\t\t\thtml += '<div style=\"padding:0.75rem 0.85rem; background:var(--surface-sunken); border:1px solid var(--border); border-radius:var(--radius-lg); display:flex; flex-direction:column; gap:0.25rem; transition:border-color 0.2s ease;\">' +\n\t\t\t\t\t\t\t\t'<div style=\"display:flex; justify-content:space-between; align-items:flex-start; gap:0.5rem;\">' +\n\t\t\t\t\t\t\t\t\t'<div>' +\n\t\t\t\t\t\t\t\t\t\t'<div style=\"display:flex; align-items:center; gap:0.4rem; flex-wrap:wrap; margin-bottom:0.2rem;\">' +\n\t\t\t\t\t\t\t\t\t\t\t'<strong style=\"color:var(--text); font-size:0.875rem;\">' + (item.product_name || 'صنف دوائي') + '</strong>' +\n\t\t\t\t\t\t\t\t\t\t\tstatusBadge +\n\t\t\t\t\t\t\t\t\t\t'</div>' +\n\t\t\t\t\t\t\t\t\t\tskuHtml +\n\t\t\t\t\t\t\t\t\t'</div>' +\n\t\t\t\t\t\t\t\t\tbestPriceHtml +\n\t\t\t\t\t\t\t\t'</div>' +\n\t\t\t\t\t\t\t\toffersHtml +\n\t\t\t\t\t\t\t\tmissingHtml +\n\t\t\t\t\t\t\t'</div>';\n\t\t\t\t\t\t});\n\n\t\t\t\t\t\tresultsContainer.innerHTML = html;\n\t\t\t\t\t})\n\t\t\t\t\t.catch(err => {\n\t\t\t\t\t\tresultsContainer.innerHTML = '<div style=\"padding:1.5rem 1rem; text-align:center; background:var(--surface-sunken); border-radius:var(--radius-xl); color:var(--danger-text); font-size:0.85rem;\">حدث خطأ أثناء البحث. يرجى المحاولة بكلمة بحث أخرى.</div>';\n\t\t\t\t\t});\n\t\t\t\t}, 250);\n\t\t\t}\n\n\t\t\tlet isModalLoading = false;\n\n\t\t\tfunction openSetupModal(fileId, queue, step, total) {\n\t\t\t\tif (isModalLoading) return;\n\t\t\t\tconst root = document.getElementById('mapping-modal-root');\n\t\t\t\tif (!root) return;\n\n\t\t\t\tisModalLoading = true;\n\t\t\t\tstep = step || 1;\n\t\t\t\ttotal = total || 1;\n\t\t\t\tqueue = queue || '';\n\n\t\t\t\troot.innerHTML = `\n\t\t\t\t\t<div style=\"position:fixed; inset:0; z-index:10000; display:flex; align-items:center; justify-content:center; background:rgba(15,23,42,0.75); backdrop-filter:blur(8px);\">\n\t\t\t\t\t\t<div class=\"card\" style=\"background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-2xl); padding:2rem; color:var(--text); font-weight:800; text-align:center; display:flex; flex-direction:column; align-items:center; gap:0.75rem; box-shadow:0 25px 50px -12px rgba(0,0,0,0.5);\">\n\t\t\t\t\t\t\t<div style=\"font-size:2.2rem;\">⚙️</div>\n\t\t\t\t\t\t\t<div style=\"font-size:1.05rem;\">معالج ضبط الأعمدة (ملف ${step} من ${total})...</div>\n\t\t\t\t\t\t\t<div style=\"font-size:0.8rem; color:var(--text-muted); font-weight:600;\">جاري قراءة البيانات وإعداد المعاينة الذكية</div>\n\t\t\t\t\t\t</div>\n\t\t\t\t\t</div>\n\t\t\t\t`;\n\n\t\t\t\tfetch(`/compare/files/${fileId}/mapping-modal?setup=1&queue=${encodeURIComponent(queue)}&step=${step}&total=${total}`)\n\t\t\t\t\t.then(res => {\n\t\t\t\t\t\tif (!res.ok) throw new Error('فشل فتح معالج ضبط الأعمدة');\n\t\t\t\t\t\treturn res.text();\n\t\t\t\t\t})\n\t\t\t\t\t.then(html => {\n\t\t\t\t\t\tisModalLoading = false;\n\t\t\t\t\t\troot.innerHTML = html;\n\t\t\t\t\t})\n\t\t\t\t\t.catch(err => {\n\t\t\t\t\t\tisModalLoading = false;\n\t\t\t\t\t\talert('تعذر فتح معالج ضبط الأعمدة: ' + err.message);\n\t\t\t\t\t\troot.innerHTML = '';\n\t\t\t\t\t});\n\t\t\t}\n\n\t\t\tfunction openMappingModal(fileId) {\n\t\t\t\tif (isModalLoading) return;\n\t\t\t\tconst root = document.getElementById('mapping-modal-root');\n\t\t\t\tif (!root) return;\n\n\t\t\t\tisModalLoading = true;\n\t\t\t\troot.innerHTML = `\n\t\t\t\t\t<div style=\"position:fixed; inset:0; z-index:10000; display:flex; align-items:center; justify-content:center; background:rgba(15,23,42,0.75); backdrop-filter:blur(8px);\">\n\t\t\t\t\t\t<div class=\"card\" style=\"background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-2xl); padding:2rem; color:var(--text); font-weight:800; text-align:center; display:flex; flex-direction:column; align-items:center; gap:0.75rem; box-shadow:0 25px 50px -12px rgba(0,0,0,0.5);\">\n\t\t\t\t\t\t\t<div style=\"font-size:2rem;\">⏳</div>\n\t\t\t\t\t\t\t<div>جاري قراءة أعمدة الملف ومعاينتها...</div>\n\t\t\t\t\t\t</div>\n\t\t\t\t\t</div>\n\t\t\t\t`;\n\n\t\t\t\tfetch(`/compare/files/${fileId}/mapping-modal`)\n\t\t\t\t\t.then(res => {\n\t\t\t\t\t\tif (!res.ok) throw new Error('فشل جلب نافذة تعيين الأعمدة');\n\t\t\t\t\t\treturn res.text();\n\t\t\t\t\t})\n\t\t\t\t\t.then(html => {\n\t\t\t\t\t\tisModalLoading = false;\n\t\t\t\t\t\troot.innerHTML = html;\n\t\t\t\t\t})\n\t\t\t\t\t.catch(err => {\n\t\t\t\t\t\tisModalLoading = false;\n\t\t\t\t\t\talert('تعذر فتح نافذة تعيين الأعمدة: ' + err.message);\n\t\t\t\t\t\troot.innerHTML = '';\n\t\t\t\t\t});\n\t\t\t}\n\n\t\t\tfunction submitMappingFormAsync(event) {\n\t\t\t\tevent.preventDefault();\n\t\t\t\tconst form = event.target;\n\t\t\t\tconst submitBtn = document.getElementById('mapping-submit-btn');\n\t\t\t\tif (submitBtn) {\n\t\t\t\t\tsubmitBtn.disabled = true;\n\t\t\t\t\tsubmitBtn.style.opacity = '0.7';\n\t\t\t\t\tsubmitBtn.innerHTML = '⏳ جاري الحفظ والمعالجة...';\n\t\t\t\t}\n\n\t\t\t\tconst formData = new FormData(form);\n\n\t\t\t\tfetch(form.action, {\n\t\t\t\t\tmethod: 'POST',\n\t\t\t\t\tbody: formData,\n\t\t\t\t\theaders: {\n\t\t\t\t\t\t'Accept': 'application/json'\n\t\t\t\t\t}\n\t\t\t\t})\n\t\t\t\t.then(res => {\n\t\t\t\t\tif (!res.ok) throw new Error('حدث خطأ أثناء حفظ تعيين الأعمدة.');\n\t\t\t\t\treturn res.json();\n\t\t\t\t})\n\t\t\t\t.then(data => {\n\t\t\t\t\tif (data.next_file_id && data.next_file_id > 0) {\n\t\t\t\t\t\topenSetupModal(data.next_file_id, data.remaining_queue, data.step, data.total);\n\t\t\t\t\t} else {\n\t\t\t\t\t\tcloseMappingModal();\n\t\t\t\t\t\twindow.location.href = '/compare/tool?notice=success&msg=' + encodeURIComponent('تم حفظ وتطبيق ضبط أعمدة كافة ملفات الموردين بنجاح.');\n\t\t\t\t\t}\n\t\t\t\t})\n\t\t\t\t.catch(err => {\n\t\t\t\t\talert(err.message || 'تعذر حفظ تعيين الأعمدة.');\n\t\t\t\t\tif (submitBtn) {\n\t\t\t\t\t\tsubmitBtn.disabled = false;\n\t\t\t\t\t\tsubmitBtn.style.opacity = '1';\n\t\t\t\t\t\tsubmitBtn.innerHTML = 'حفظ وإعادة المحاولة';\n\t\t\t\t\t}\n\t\t\t\t});\n\n\t\t\t\treturn false;\n\t\t\t}\n\n\t\t\tfunction handleSetupSkip(fileId, remainingQueue, step, total) {\n\t\t\t\tif (!confirm('هل أنت متأكد من تخطي هذا الملف؟ سيتم حذفه من المقارنة والانتقال للملف التالي.')) {\n\t\t\t\t\treturn;\n\t\t\t\t}\n\n\t\t\t\tconst root = document.getElementById('mapping-modal-root');\n\t\t\t\tif (root) {\n\t\t\t\t\troot.innerHTML = `\n\t\t\t\t\t\t<div style=\"position:fixed; inset:0; z-index:10000; display:flex; align-items:center; justify-content:center; background:rgba(15,23,42,0.75); backdrop-filter:blur(8px);\">\n\t\t\t\t\t\t\t<div class=\"card\" style=\"background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-2xl); padding:2rem; color:var(--text); font-weight:800; text-align:center; display:flex; flex-direction:column; align-items:center; gap:0.75rem;\">\n\t\t\t\t\t\t\t\t<div style=\"font-size:2rem;\">⏩</div>\n\t\t\t\t\t\t\t\t<div>جاري تخطي الملف والانتقال للملف التالي...</div>\n\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t</div>\n\t\t\t\t\t`;\n\t\t\t\t}\n\n\t\t\t\tconst formData = new FormData();\n\t\t\t\tformData.append('setup_queue', remainingQueue);\n\t\t\t\tformData.append('step', step);\n\t\t\t\tformData.append('total', total);\n\n\t\t\t\tfetch(`/compare/files/${fileId}/skip`, {\n\t\t\t\t\tmethod: 'POST',\n\t\t\t\t\tbody: formData,\n\t\t\t\t\theaders: {\n\t\t\t\t\t\t'Accept': 'application/json'\n\t\t\t\t\t}\n\t\t\t\t})\n\t\t\t\t.then(res => {\n\t\t\t\t\tif (!res.ok) throw new Error('فشل تخطي الملف.');\n\t\t\t\t\treturn res.json();\n\t\t\t\t})\n\t\t\t\t.then(data => {\n\t\t\t\t\tif (data.next_file_id && data.next_file_id > 0) {\n\t\t\t\t\t\topenSetupModal(data.next_file_id, data.remaining_queue, data.step, data.total);\n\t\t\t\t\t} else {\n\t\t\t\t\t\tcloseMappingModal();\n\t\t\t\t\t\twindow.location.href = '/compare/tool?notice=success&msg=' + encodeURIComponent('تم تخطي الملف والانتهاء من معالج الإعداد.');\n\t\t\t\t\t}\n\t\t\t\t})\n\t\t\t\t.catch(err => {\n\t\t\t\t\talert(err.message || 'تعذر تخطي الملف.');\n\t\t\t\t\tcloseMappingModal();\n\t\t\t\t});\n\t\t\t}\n\n\t\t\tfunction closeMappingModal() {\n\t\t\t\tconst root = document.getElementById('mapping-modal-root');\n\t\t\t\tif (root) {\n\t\t\t\t\troot.innerHTML = '';\n\t\t\t\t}\n\t\t\t}\n\n\t\t\t// Auto open Setup Modal or Mapping Modal on page load if query param is set\n\t\t\twindow.addEventListener('DOMContentLoaded', () => {\n\t\t\t\tconst params = new URLSearchParams(window.location.search);\n\t\t\t\tconst setupFile = params.get('setup_file');\n\t\t\t\tconst setupQueue = params.get('setup_queue');\n\t\t\t\tconst setupStep = parseInt(params.get('setup_step') || '1', 10);\n\t\t\t\tconst setupTotal = parseInt(params.get('setup_total') || '1', 10);\n\n\t\t\t\tif (setupFile) {\n\t\t\t\t\topenSetupModal(setupFile, setupQueue, setupStep, setupTotal);\n\t\t\t\t} else {\n\t\t\t\t\tconst openFileId = params.get('open_mapping') || params.get('mapping_file');\n\t\t\t\t\tif (openFileId) {\n\t\t\t\t\t\topenMappingModal(openFileId);\n\t\t\t\t\t}\n\t\t\t\t}\n\t\t\t});\n\t\t</script> <!-- Root container for dynamically injected mapping modal --> <div id=\"mapping-modal-root\"></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 47, "</div></div><!-- Search Results Area --><div id=\"instant-search-results\" class=\"d-flex flex-col gap-2 max-h-96 overflow-y-auto\"><div class=\"bg-surface-sunken rounded-xl p-6 text-center text-muted text-xs leading-relaxed\">اكتب اسم الصنف للبحث المباشر عبر جميع كشوف الموردين المرفوعة ومقارنة الخصومات فورياً.</div></div></div></div></div><!-- Scripts for compare tool interactions --> <script>\n\t\t\tfunction toggleSelectAll(masterCheckbox) {\n\t\t\t\tconst checkboxes = document.querySelectorAll('.file-checkbox');\n\t\t\t\tcheckboxes.forEach(cb => cb.checked = masterCheckbox.checked);\n\t\t\t}\n\n\t\t\tfunction validateCompareSelection(event) {\n\t\t\t\tconst checked = document.querySelectorAll('.file-checkbox:checked');\n\t\t\t\tif (checked.length === 0) {\n\t\t\t\t\tconst all = document.querySelectorAll('.file-checkbox');\n\t\t\t\t\tif (all.length > 0) {\n\t\t\t\t\t\tall.forEach(cb => cb.checked = true);\n\t\t\t\t\t\treturn true;\n\t\t\t\t\t}\n\t\t\t\t\talert(\"يرجى رفع ملف كشف أسعار واحد على الأقل للمقارنة.\");\n\t\t\t\t\tevent.preventDefault();\n\t\t\t\t\treturn false;\n\t\t\t\t}\n\t\t\t\treturn true;\n\t\t\t}\n\n\t\t\tfunction triggerFileInput() {\n\t\t\t\tconst input = document.getElementById('file-upload-input');\n\t\t\t\tif (input) {\n\t\t\t\t\tinput.click();\n\t\t\t\t}\n\t\t\t}\n\n\t\t\tfunction handleFileSelect(input) {\n\t\t\t\tconst previewEl = document.getElementById('file-name-preview');\n\t\t\t\tif (!previewEl) return;\n\n\t\t\t\tif (input.files && input.files.length > 0) {\n\t\t\t\t\tif (input.files.length === 1) {\n\t\t\t\t\t\tconst file = input.files[0];\n\t\t\t\t\t\tconst size = (file.size / 1024 / 1024).toFixed(2);\n\t\t\t\t\t\tpreviewEl.innerHTML = `<span style=\"color:var(--accent); font-weight:800;\">✓ تم اختيار ملف:</span> <strong class=\"text-primary\">${file.name}</strong> (${size} MB)`;\n\t\t\t\t\t} else {\n\t\t\t\t\t\tlet fileNames = [];\n\t\t\t\t\t\tlet totalSize = 0;\n\t\t\t\t\t\tfor (let i = 0; i < input.files.length; i++) {\n\t\t\t\t\t\t\tfileNames.push(input.files[i].name);\n\t\t\t\t\t\t\ttotalSize += input.files[i].size;\n\t\t\t\t\t\t}\n\t\t\t\t\t\tconst totalMb = (totalSize / 1024 / 1024).toFixed(2);\n\t\t\t\t\t\tpreviewEl.innerHTML = `\n\t\t\t\t\t\t\t<div style=\"background:var(--surface-raised); padding:0.6rem 0.85rem; border-radius:var(--radius-lg); border:1px solid var(--border); text-align:start;\">\n\t\t\t\t\t\t\t\t<div style=\"color:var(--accent); font-weight:800; margin-bottom:0.25rem;\">✓ تم اختيار (${input.files.length}) ملفات موردين (الإجمالي: ${totalMb} MB):</div>\n\t\t\t\t\t\t\t\t<div style=\"font-size:0.775rem; color:var(--text-secondary); max-height:80px; overflow-y:auto;\">\n\t\t\t\t\t\t\t\t\t${fileNames.map(n => `• ${n}`).join('<br/>')}\n\t\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t`;\n\t\t\t\t\t}\n\t\t\t\t} else {\n\t\t\t\t\tpreviewEl.innerHTML = '';\n\t\t\t\t}\n\t\t\t}\n\n\t\t\t// Setup drag and drop on drop zone box\n\t\t\t(function setupDropZone() {\n\t\t\t\twindow.addEventListener('DOMContentLoaded', () => {\n\t\t\t\t\tconst dropZone = document.getElementById('drop-zone-box');\n\t\t\t\t\tconst fileInput = document.getElementById('file-upload-input');\n\t\t\t\t\tif (!dropZone || !fileInput) return;\n\n\t\t\t\t\t['dragenter', 'dragover'].forEach(eventName => {\n\t\t\t\t\t\tdropZone.addEventListener(eventName, (e) => {\n\t\t\t\t\t\t\te.preventDefault();\n\t\t\t\t\t\t\te.stopPropagation();\n\t\t\t\t\t\t\tdropZone.style.borderColor = 'var(--accent)';\n\t\t\t\t\t\t\tdropZone.style.background = 'var(--surface-raised)';\n\t\t\t\t\t\t}, false);\n\t\t\t\t\t});\n\n\t\t\t\t\t['dragleave', 'drop'].forEach(eventName => {\n\t\t\t\t\t\tdropZone.addEventListener(eventName, (e) => {\n\t\t\t\t\t\t\te.preventDefault();\n\t\t\t\t\t\t\te.stopPropagation();\n\t\t\t\t\t\t\tdropZone.style.borderColor = '';\n\t\t\t\t\t\t\tdropZone.style.background = '';\n\t\t\t\t\t\t}, false);\n\t\t\t\t\t});\n\n\t\t\t\t\tdropZone.addEventListener('drop', (e) => {\n\t\t\t\t\t\tconst dt = e.dataTransfer;\n\t\t\t\t\t\tconst files = dt.files;\n\t\t\t\t\t\tif (files && files.length > 0) {\n\t\t\t\t\t\t\tfileInput.files = files;\n\t\t\t\t\t\t\thandleFileSelect(fileInput);\n\t\t\t\t\t\t}\n\t\t\t\t\t}, false);\n\t\t\t\t});\n\t\t\t})();\n\n\t\t\tfunction handleUploadSubmit(event) {\n\t\t\t\tconst fileInput = document.getElementById('file-upload-input');\n\t\t\t\tconst dropZone = document.getElementById('drop-zone-box');\n\n\t\t\t\tif (!fileInput || !fileInput.files || fileInput.files.length === 0) {\n\t\t\t\t\talert(\"يرجى اختيار ملف Excel أو CSV واحد على الأقل للرفع والمعالجة.\");\n\t\t\t\t\tevent.preventDefault();\n\t\t\t\t\ttriggerFileInput();\n\t\t\t\t\treturn false;\n\t\t\t\t}\n\n\t\t\t\tconst count = fileInput.files.length;\n\n\t\t\t\tif (dropZone) {\n\t\t\t\t\tconst currentCount = parseInt(dropZone.dataset.currentCount || '0', 10);\n\t\t\t\t\tconst maxLimit = parseInt(dropZone.dataset.maxLimit || '0', 10);\n\t\t\t\t\tif (maxLimit > 0 && (currentCount + count > maxLimit)) {\n\t\t\t\t\t\talert(`عذراً، باقة اشتراكك الحالية تسمح بحد أقصى ${maxLimit} ملفات موردين.\\nلديك حالياً ${currentCount} ملفات، ومحاولة رفع ${count} ملفات إضافية ستتجاوز الحد المسموح (${currentCount + count} / ${maxLimit}).\\nيرجى تقليل عدد الملفات المرفوعة، أو حذف/أرشفة ملفات قديمة، أو ترقية باقتك.`);\n\t\t\t\t\t\tevent.preventDefault();\n\t\t\t\t\t\treturn false;\n\t\t\t\t\t}\n\t\t\t\t}\n\n\t\t\t\tconst btn = document.getElementById('upload-submit-btn');\n\t\t\t\tconst btnText = document.getElementById('upload-btn-text');\n\t\t\t\tif (btn && btnText) {\n\t\t\t\t\tbtn.disabled = true;\n\t\t\t\t\tbtn.style.opacity = '0.75';\n\t\t\t\t\tbtnText.textContent = `⏳ جاري رفع ومعالجة (${count}) كشوف موردين...`;\n\t\t\t\t}\n\n\t\t\t\t// Allow normal form POST to proceed\n\t\t\t\treturn true;\n\t\t\t}\n\n\t\t\tfunction promptRenameFile(id, currentName) {\n\t\t\t\tconst newName = prompt(\"أدخل الاسم الجديد للمورد / الملف:\", currentName);\n\t\t\t\tif (newName && newName.trim() !== \"\" && newName !== currentName) {\n\t\t\t\t\tconst form = document.createElement('form');\n\t\t\t\t\tform.method = 'POST';\n\t\t\t\t\tform.action = `/compare/files/${id}/rename`;\n\t\t\t\t\tconst input = document.createElement('input');\n\t\t\t\t\tinput.type = 'hidden';\n\t\t\t\t\tinput.name = 'supplier_name';\n\t\t\t\t\tinput.value = newName.trim();\n\t\t\t\t\tform.appendChild(input);\n\t\t\t\t\tdocument.body.appendChild(form);\n\t\t\t\t\tform.submit();\n\t\t\t\t}\n\t\t\t}\n\n\t\t\tfunction deleteFileConfirm(id) {\n\t\t\t\tif (confirm(\"هل أنت متأكد من حذف هذا الملف نهائياً من مركز الملفات؟\")) {\n\t\t\t\t\tconst form = document.createElement('form');\n\t\t\t\t\tform.method = 'POST';\n\t\t\t\t\tform.action = `/compare/files/${id}/delete`;\n\t\t\t\t\tdocument.body.appendChild(form);\n\t\t\t\t\tform.submit();\n\t\t\t\t}\n\t\t\t}\n\n\t\t\tlet searchTimeout = null;\n\t\t\tfunction filterSearchLocal(query) {\n\t\t\t\tclearTimeout(searchTimeout);\n\t\t\t\tconst resultsContainer = document.getElementById('instant-search-results');\n\t\t\t\tif (!query || query.trim().length < 2) {\n\t\t\t\t\tresultsContainer.innerHTML = `\n\t\t\t\t\t\t<div style=\"padding:2rem 1rem; text-align:center; background:var(--surface-sunken); border-radius:var(--radius-xl); color:var(--text-muted); font-size:0.85rem;\">\n\t\t\t\t\t\t\tاكتب اسم الصنف للبحث المباشر عبر جميع كشوف الموردين المرفوعة ومقارنة الخصومات فورياً.\n\t\t\t\t\t\t</div>\n\t\t\t\t\t`;\n\t\t\t\t\treturn;\n\t\t\t\t}\n\n\t\t\t\tresultsContainer.innerHTML = `\n\t\t\t\t\t<div style=\"padding:1.5rem 1rem; text-align:center; color:var(--text-muted); font-size:0.85rem;\">\n\t\t\t\t\t\t⏳ جاري البحث عبر الكتالوج وكشوف الموردين...\n\t\t\t\t\t</div>\n\t\t\t\t`;\n\n\t\t\t\tsearchTimeout = setTimeout(() => {\n\t\t\t\t\tfetch(`/compare/search?q=${encodeURIComponent(query.trim())}`, {\n\t\t\t\t\t\theaders: { 'Accept': 'application/json' }\n\t\t\t\t\t})\n\t\t\t\t\t.then(r => {\n\t\t\t\t\t\tif (!r.ok) throw new Error('Search failed');\n\t\t\t\t\t\treturn r.json();\n\t\t\t\t\t})\n\t\t\t\t\t.then(data => {\n\t\t\t\t\t\tconst items = data.items || [];\n\t\t\t\t\t\tif (items.length === 0) {\n\t\t\t\t\t\t\tresultsContainer.innerHTML = `\n\t\t\t\t\t\t\t\t<div style=\"padding:1.5rem 1rem; text-align:center; background:var(--surface-sunken); border-radius:var(--radius-xl); color:var(--text-muted); font-size:0.85rem;\">\n\t\t\t\t\t\t\t\t\tلم يتم العثور على أصناف مطابقة لـ \"${query}\".\n\t\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t\t`;\n\t\t\t\t\t\t\treturn;\n\t\t\t\t\t\t}\n\n\t\t\t\t\t\tlet html = `\n\t\t\t\t\t\t\t<div style=\"display:flex; justify-content:space-between; align-items:center; padding:0.25rem 0.5rem; font-size:0.775rem; color:var(--text-muted); border-bottom:1px solid var(--border); margin-bottom:0.35rem;\">\n\t\t\t\t\t\t\t\t<span>تم العثور على <strong>${items.length}</strong> صنف</span>\n\t\t\t\t\t\t\t\t<span>🟢 بالكتالوج: ${data.in_catalog_count || 0} | 🟡 أصناف موردين: ${data.custom_items_count || 0}</span>\n\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t`;\n\n\t\t\t\t\t\titems.slice(0, 15).forEach(item => {\n\t\t\t\t\t\t\t// 3-way status badge\n\t\t\t\t\t\t\tlet statusBadge = '';\n\t\t\t\t\t\t\tif (item.catalog_status === 'catalog_and_suppliers') {\n\t\t\t\t\t\t\t\tstatusBadge = '<span class=\"badge badge-emerald\" style=\"font-size:0.68rem; font-weight:700;\">🟢 معتمد بالكتالوج ومتوفر</span>';\n\t\t\t\t\t\t\t} else if (item.catalog_status === 'catalog_only') {\n\t\t\t\t\t\t\t\tstatusBadge = '<span class=\"badge badge-sky\" style=\"font-size:0.68rem; font-weight:700;\">🔵 مسجل بالكتالوج (غير متوفر بالكشوف)</span>';\n\t\t\t\t\t\t\t} else {\n\t\t\t\t\t\t\t\tstatusBadge = '<span class=\"badge badge-amber\" style=\"font-size:0.68rem; font-weight:700;\">🟡 صنف خاص بكشف المورد</span>';\n\t\t\t\t\t\t\t}\n\n\t\t\t\t\t\t\t// Best price and supplier pill\n\t\t\t\t\t\t\tlet bestPriceHtml = '';\n\t\t\t\t\t\t\tif (item.best_net_price && parseFloat(item.best_net_price) > 0) {\n\t\t\t\t\t\t\t\tbestPriceHtml = `\n\t\t\t\t\t\t\t\t\t<div class=\"text-end\">\n\t\t\t\t\t\t\t\t\t\t<div style=\"font-weight:900; color:var(--accent); font-size:0.95rem;\" class=\"tabular-nums\">\n\t\t\t\t\t\t\t\t\t\t\t${item.best_net_price} ج.م\n\t\t\t\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t\t\t\t\t<div style=\"font-size:0.725rem; color:var(--success-text); font-weight:700;\">\n\t\t\t\t\t\t\t\t\t\t\t👑 ${item.best_supplier || 'أفضل سعر'} (${item.best_discount || 0}%)\n\t\t\t\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t\t\t`;\n\t\t\t\t\t\t\t} else {\n\t\t\t\t\t\t\t\tbestPriceHtml = `\n\t\t\t\t\t\t\t\t\t<div style=\"text-align:end; font-size:0.75rem; color:var(--text-muted);\">\n\t\t\t\t\t\t\t\t\t\tلا توجد عروض أسعار مرفوعة\n\t\t\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t\t\t`;\n\t\t\t\t\t\t\t}\n\n\t\t\t\t\t\t\t// Offers pill list\n\t\t\t\t\t\t\tlet offersHtml = '';\n\t\t\t\t\t\t\tif (item.offers && Object.keys(item.offers).length > 0) {\n\t\t\t\t\t\t\t\toffersHtml = '<div style=\"display:flex; flex-wrap:wrap; gap:0.25rem; margin-top:0.4rem;\">';\n\t\t\t\t\t\t\t\tfor (const [sup, off] of Object.entries(item.offers)) {\n\t\t\t\t\t\t\t\t\tconst isBest = (sup === item.best_supplier);\n\t\t\t\t\t\t\t\t\tconst badgeClass = isBest ? 'badge-emerald' : 'badge-secondary';\n\t\t\t\t\t\t\t\t\toffersHtml += `\n\t\t\t\t\t\t\t\t\t\t<span class=\"badge ${badgeClass}\" style=\"font-size:0.7rem; font-weight:600;\">\n\t\t\t\t\t\t\t\t\t\t\t${sup}: ${off.discount || 0}% (${off.price_after_discount || '--'} ج.م)\n\t\t\t\t\t\t\t\t\t\t</span>\n\t\t\t\t\t\t\t\t\t`;\n\t\t\t\t\t\t\t\t}\n\t\t\t\t\t\t\t\toffersHtml += '</div>';\n\t\t\t\t\t\t\t}\n\n\t\t\t\t\t\t\tlet missingHtml = '';\n\t\t\t\t\t\t\tif (item.missing_from_suppliers && item.missing_from_suppliers.length > 0 && Object.keys(item.offers || {}).length > 0) {\n\t\t\t\t\t\t\t\tmissingHtml = '<div style=\"font-size:0.7rem; color:var(--danger-text); margin-top:0.3rem;\">' +\n\t\t\t\t\t\t\t\t\t'❌ غير مدرج لدى: <strong>' + item.missing_from_suppliers.join('، ') + '</strong>' +\n\t\t\t\t\t\t\t\t'</div>';\n\t\t\t\t\t\t\t}\n\n\t\t\t\t\t\t\tconst skuHtml = item.sku ? ('<span style=\"font-size:0.725rem; color:var(--text-muted);\" class=\"tabular-nums\">كود: ' + item.sku + '</span>') : '';\n\t\t\t\t\t\t\thtml += '<div style=\"padding:0.75rem 0.85rem; background:var(--surface-sunken); border:1px solid var(--border); border-radius:var(--radius-lg); display:flex; flex-direction:column; gap:0.25rem; transition:border-color 0.2s ease;\">' +\n\t\t\t\t\t\t\t\t'<div style=\"display:flex; justify-content:space-between; align-items:flex-start; gap:0.5rem;\">' +\n\t\t\t\t\t\t\t\t\t'<div>' +\n\t\t\t\t\t\t\t\t\t\t'<div style=\"display:flex; align-items:center; gap:0.4rem; flex-wrap:wrap; margin-bottom:0.2rem;\">' +\n\t\t\t\t\t\t\t\t\t\t\t'<strong style=\"color:var(--text); font-size:0.875rem;\">' + (item.product_name || 'صنف دوائي') + '</strong>' +\n\t\t\t\t\t\t\t\t\t\t\tstatusBadge +\n\t\t\t\t\t\t\t\t\t\t'</div>' +\n\t\t\t\t\t\t\t\t\t\tskuHtml +\n\t\t\t\t\t\t\t\t\t'</div>' +\n\t\t\t\t\t\t\t\t\tbestPriceHtml +\n\t\t\t\t\t\t\t\t'</div>' +\n\t\t\t\t\t\t\t\toffersHtml +\n\t\t\t\t\t\t\t\tmissingHtml +\n\t\t\t\t\t\t\t'</div>';\n\t\t\t\t\t\t});\n\n\t\t\t\t\t\tresultsContainer.innerHTML = html;\n\t\t\t\t\t})\n\t\t\t\t\t.catch(err => {\n\t\t\t\t\t\tresultsContainer.innerHTML = '<div style=\"padding:1.5rem 1rem; text-align:center; background:var(--surface-sunken); border-radius:var(--radius-xl); color:var(--danger-text); font-size:0.85rem;\">حدث خطأ أثناء البحث. يرجى المحاولة بكلمة بحث أخرى.</div>';\n\t\t\t\t\t});\n\t\t\t\t}, 250);\n\t\t\t}\n\n\t\t\tlet isModalLoading = false;\n\n\t\t\tfunction openSetupModal(fileId, queue, step, total) {\n\t\t\t\tif (isModalLoading) return;\n\t\t\t\tconst root = document.getElementById('mapping-modal-root');\n\t\t\t\tif (!root) return;\n\n\t\t\t\tisModalLoading = true;\n\t\t\t\tstep = step || 1;\n\t\t\t\ttotal = total || 1;\n\t\t\t\tqueue = queue || '';\n\n\t\t\t\troot.innerHTML = `\n\t\t\t\t\t<div style=\"position:fixed; inset:0; z-index:10000; display:flex; align-items:center; justify-content:center; background:rgba(15,23,42,0.75); backdrop-filter:blur(8px);\">\n\t\t\t\t\t\t<div class=\"card\" style=\"background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-2xl); padding:2rem; color:var(--text); font-weight:800; text-align:center; display:flex; flex-direction:column; align-items:center; gap:0.75rem; box-shadow:0 25px 50px -12px rgba(0,0,0,0.5);\">\n\t\t\t\t\t\t\t<div style=\"font-size:2.2rem;\">⚙️</div>\n\t\t\t\t\t\t\t<div style=\"font-size:1.05rem;\">معالج ضبط الأعمدة (ملف ${step} من ${total})...</div>\n\t\t\t\t\t\t\t<div style=\"font-size:0.8rem; color:var(--text-muted); font-weight:600;\">جاري قراءة البيانات وإعداد المعاينة الذكية</div>\n\t\t\t\t\t\t</div>\n\t\t\t\t\t</div>\n\t\t\t\t`;\n\n\t\t\t\tfetch(`/compare/files/${fileId}/mapping-modal?setup=1&queue=${encodeURIComponent(queue)}&step=${step}&total=${total}`)\n\t\t\t\t\t.then(res => {\n\t\t\t\t\t\tif (!res.ok) throw new Error('فشل فتح معالج ضبط الأعمدة');\n\t\t\t\t\t\treturn res.text();\n\t\t\t\t\t})\n\t\t\t\t\t.then(html => {\n\t\t\t\t\t\tisModalLoading = false;\n\t\t\t\t\t\troot.innerHTML = html;\n\t\t\t\t\t})\n\t\t\t\t\t.catch(err => {\n\t\t\t\t\t\tisModalLoading = false;\n\t\t\t\t\t\talert('تعذر فتح معالج ضبط الأعمدة: ' + err.message);\n\t\t\t\t\t\troot.innerHTML = '';\n\t\t\t\t\t});\n\t\t\t}\n\n\t\t\tfunction openMappingModal(fileId) {\n\t\t\t\tif (isModalLoading) return;\n\t\t\t\tconst root = document.getElementById('mapping-modal-root');\n\t\t\t\tif (!root) return;\n\n\t\t\t\tisModalLoading = true;\n\t\t\t\troot.innerHTML = `\n\t\t\t\t\t<div style=\"position:fixed; inset:0; z-index:10000; display:flex; align-items:center; justify-content:center; background:rgba(15,23,42,0.75); backdrop-filter:blur(8px);\">\n\t\t\t\t\t\t<div class=\"card\" style=\"background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-2xl); padding:2rem; color:var(--text); font-weight:800; text-align:center; display:flex; flex-direction:column; align-items:center; gap:0.75rem; box-shadow:0 25px 50px -12px rgba(0,0,0,0.5);\">\n\t\t\t\t\t\t\t<div style=\"font-size:2rem;\">⏳</div>\n\t\t\t\t\t\t\t<div>جاري قراءة أعمدة الملف ومعاينتها...</div>\n\t\t\t\t\t\t</div>\n\t\t\t\t\t</div>\n\t\t\t\t`;\n\n\t\t\t\tfetch(`/compare/files/${fileId}/mapping-modal`)\n\t\t\t\t\t.then(res => {\n\t\t\t\t\t\tif (!res.ok) throw new Error('فشل جلب نافذة تعيين الأعمدة');\n\t\t\t\t\t\treturn res.text();\n\t\t\t\t\t})\n\t\t\t\t\t.then(html => {\n\t\t\t\t\t\tisModalLoading = false;\n\t\t\t\t\t\troot.innerHTML = html;\n\t\t\t\t\t})\n\t\t\t\t\t.catch(err => {\n\t\t\t\t\t\tisModalLoading = false;\n\t\t\t\t\t\talert('تعذر فتح نافذة تعيين الأعمدة: ' + err.message);\n\t\t\t\t\t\troot.innerHTML = '';\n\t\t\t\t\t});\n\t\t\t}\n\n\t\t\tfunction submitMappingFormAsync(event) {\n\t\t\t\tevent.preventDefault();\n\t\t\t\tconst form = event.target;\n\t\t\t\tconst submitBtn = document.getElementById('mapping-submit-btn');\n\t\t\t\tif (submitBtn) {\n\t\t\t\t\tsubmitBtn.disabled = true;\n\t\t\t\t\tsubmitBtn.style.opacity = '0.7';\n\t\t\t\t\tsubmitBtn.innerHTML = '⏳ جاري الحفظ والمعالجة...';\n\t\t\t\t}\n\n\t\t\t\tconst formData = new FormData(form);\n\n\t\t\t\tfetch(form.action, {\n\t\t\t\t\tmethod: 'POST',\n\t\t\t\t\tbody: formData,\n\t\t\t\t\theaders: {\n\t\t\t\t\t\t'Accept': 'application/json'\n\t\t\t\t\t}\n\t\t\t\t})\n\t\t\t\t.then(res => {\n\t\t\t\t\tif (!res.ok) throw new Error('حدث خطأ أثناء حفظ تعيين الأعمدة.');\n\t\t\t\t\treturn res.json();\n\t\t\t\t})\n\t\t\t\t.then(data => {\n\t\t\t\t\tif (data.next_file_id && data.next_file_id > 0) {\n\t\t\t\t\t\topenSetupModal(data.next_file_id, data.remaining_queue, data.step, data.total);\n\t\t\t\t\t} else {\n\t\t\t\t\t\tcloseMappingModal();\n\t\t\t\t\t\twindow.location.href = '/compare/tool?notice=success&msg=' + encodeURIComponent('تم حفظ وتطبيق ضبط أعمدة كافة ملفات الموردين بنجاح.');\n\t\t\t\t\t}\n\t\t\t\t})\n\t\t\t\t.catch(err => {\n\t\t\t\t\talert(err.message || 'تعذر حفظ تعيين الأعمدة.');\n\t\t\t\t\tif (submitBtn) {\n\t\t\t\t\t\tsubmitBtn.disabled = false;\n\t\t\t\t\t\tsubmitBtn.style.opacity = '1';\n\t\t\t\t\t\tsubmitBtn.innerHTML = 'حفظ وإعادة المحاولة';\n\t\t\t\t\t}\n\t\t\t\t});\n\n\t\t\t\treturn false;\n\t\t\t}\n\n\t\t\tfunction handleSetupSkip(fileId, remainingQueue, step, total) {\n\t\t\t\tif (!confirm('هل أنت متأكد من تخطي هذا الملف؟ سيتم حذفه من المقارنة والانتقال للملف التالي.')) {\n\t\t\t\t\treturn;\n\t\t\t\t}\n\n\t\t\t\tconst root = document.getElementById('mapping-modal-root');\n\t\t\t\tif (root) {\n\t\t\t\t\troot.innerHTML = `\n\t\t\t\t\t\t<div style=\"position:fixed; inset:0; z-index:10000; display:flex; align-items:center; justify-content:center; background:rgba(15,23,42,0.75); backdrop-filter:blur(8px);\">\n\t\t\t\t\t\t\t<div class=\"card\" style=\"background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-2xl); padding:2rem; color:var(--text); font-weight:800; text-align:center; display:flex; flex-direction:column; align-items:center; gap:0.75rem;\">\n\t\t\t\t\t\t\t\t<div style=\"font-size:2rem;\">⏩</div>\n\t\t\t\t\t\t\t\t<div>جاري تخطي الملف والانتقال للملف التالي...</div>\n\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t</div>\n\t\t\t\t\t`;\n\t\t\t\t}\n\n\t\t\t\tconst formData = new FormData();\n\t\t\t\tformData.append('setup_queue', remainingQueue);\n\t\t\t\tformData.append('step', step);\n\t\t\t\tformData.append('total', total);\n\n\t\t\t\tfetch(`/compare/files/${fileId}/skip`, {\n\t\t\t\t\tmethod: 'POST',\n\t\t\t\t\tbody: formData,\n\t\t\t\t\theaders: {\n\t\t\t\t\t\t'Accept': 'application/json'\n\t\t\t\t\t}\n\t\t\t\t})\n\t\t\t\t.then(res => {\n\t\t\t\t\tif (!res.ok) throw new Error('فشل تخطي الملف.');\n\t\t\t\t\treturn res.json();\n\t\t\t\t})\n\t\t\t\t.then(data => {\n\t\t\t\t\tif (data.next_file_id && data.next_file_id > 0) {\n\t\t\t\t\t\topenSetupModal(data.next_file_id, data.remaining_queue, data.step, data.total);\n\t\t\t\t\t} else {\n\t\t\t\t\t\tcloseMappingModal();\n\t\t\t\t\t\twindow.location.href = '/compare/tool?notice=success&msg=' + encodeURIComponent('تم تخطي الملف والانتهاء من معالج الإعداد.');\n\t\t\t\t\t}\n\t\t\t\t})\n\t\t\t\t.catch(err => {\n\t\t\t\t\talert(err.message || 'تعذر تخطي الملف.');\n\t\t\t\t\tcloseMappingModal();\n\t\t\t\t});\n\t\t\t}\n\n\t\t\tfunction closeMappingModal() {\n\t\t\t\tconst root = document.getElementById('mapping-modal-root');\n\t\t\t\tif (root) {\n\t\t\t\t\troot.innerHTML = '';\n\t\t\t\t}\n\t\t\t}\n\n\t\t\t// Auto open Setup Modal or Mapping Modal on page load if query param is set\n\t\t\twindow.addEventListener('DOMContentLoaded', () => {\n\t\t\t\tconst params = new URLSearchParams(window.location.search);\n\t\t\t\tconst setupFile = params.get('setup_file');\n\t\t\t\tconst setupQueue = params.get('setup_queue');\n\t\t\t\tconst setupStep = parseInt(params.get('setup_step') || '1', 10);\n\t\t\t\tconst setupTotal = parseInt(params.get('setup_total') || '1', 10);\n\n\t\t\t\tif (setupFile) {\n\t\t\t\t\topenSetupModal(setupFile, setupQueue, setupStep, setupTotal);\n\t\t\t\t} else {\n\t\t\t\t\tconst openFileId = params.get('open_mapping') || params.get('mapping_file');\n\t\t\t\t\tif (openFileId) {\n\t\t\t\t\t\topenMappingModal(openFileId);\n\t\t\t\t\t}\n\t\t\t\t}\n\t\t\t});\n\t\t</script> <!-- Root container for dynamically injected mapping modal --> <div id=\"mapping-modal-root\"></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			return nil
 		})
 		templ_7745c5c3_Err = layouts.VendorShell("محرك مقارنة الخصومات والأسعار", "compare", lang, dir).Render(templ.WithChildren(ctx, templ_7745c5c3_Var2), templ_7745c5c3_Buffer)
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		return nil
+	})
+}
+
+// compareMatchPanel is the catalogue matching control and its AI switch.
+//
+// It is a form of its own, sitting outside the comparison form, and every
+// per-file match button joins it through the HTML form attribute. That is what
+// lets one switch govern every file's run without repeating the checkbox on
+// each card.
+func compareMatchPanel(matching CompareMatchOptions) templ.Component {
+	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
+		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
+		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
+			return templ_7745c5c3_CtxErr
+		}
+		templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templruntime.GetBuffer(templ_7745c5c3_W)
+		if !templ_7745c5c3_IsBuffer {
+			defer func() {
+				templ_7745c5c3_BufErr := templruntime.ReleaseBuffer(templ_7745c5c3_Buffer)
+				if templ_7745c5c3_Err == nil {
+					templ_7745c5c3_Err = templ_7745c5c3_BufErr
+				}
+			}()
+		}
+		ctx = templ.InitializeContext(ctx)
+		templ_7745c5c3_Var22 := templ.GetChildren(ctx)
+		if templ_7745c5c3_Var22 == nil {
+			templ_7745c5c3_Var22 = templ.NopComponent
+		}
+		ctx = templ.ClearChildren(ctx)
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 48, "<form method=\"POST\" action=\"/compare/tool\" id=\"compare-match-form\" class=\"compare-match-panel\"><div class=\"d-flex items-center gap-2 mb-1\"><span class=\"text-base\">🔗</span> <strong class=\"text-xs font-extrabold text-primary\">مطابقة الأصناف بالكتالوج المركزي</strong></div><p class=\"text-xs text-muted m-0 mb-2 leading-relaxed\">اضغط 🔗 بجوار أي ملف لربط أصنافه بالكتالوج المركزي. المقارنة بين الموردين تصبح على مستوى الصنف نفسه بدل الاعتماد على تشابه الأسماء، وتُحفظ الروابط لاستخدامها في المرات القادمة.</p>")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		if matching.AIAvailable {
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 49, "<label class=\"d-flex items-center gap-2 cursor-pointer text-xs font-bold\"><input type=\"checkbox\" name=\"use_ai\" value=\"1\" class=\"form-checkbox\" checked> <span>🤖 استخدام الذكاء الاصطناعي للأصناف التي تعذّرت مطابقتها حتمياً</span></label><div class=\"text-xs text-muted mt-1\">يعمل فقط على الأصناف التي لم تُحسم حسابياً، ويستخدم ذاكرة القرارات المشتركة أولاً بلا تكلفة. أوقفه لتشغيل المطابقة الحتمية وحدها بلا أي استهلاك.</div>")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+		} else {
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 50, "<div class=\"text-xs text-muted\">🤖 خدمة الذكاء الاصطناعي غير مهيّأة على هذا الخادم؛ تعمل المطابقة الحتمية وحدها.</div>")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 51, "</form>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

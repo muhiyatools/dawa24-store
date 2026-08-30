@@ -98,7 +98,7 @@ func FavoritesPage(lang, dir string, products []*catalog.Product) templ.Componen
 					var templ_7745c5c3_Var3 string
 					templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(p.DosageForm)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/favorites.templ`, Line: 47, Col: 30}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `favorites.templ`, Line: 47, Col: 30}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
 					if templ_7745c5c3_Err != nil {
@@ -111,7 +111,7 @@ func FavoritesPage(lang, dir string, products []*catalog.Product) templ.Componen
 					var templ_7745c5c3_Var4 templ.SafeURL
 					templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("/favorites/%d/remove", p.ID)))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/favorites.templ`, Line: 49, Col: 94}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `favorites.templ`, Line: 49, Col: 94}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
 					if templ_7745c5c3_Err != nil {
@@ -133,7 +133,7 @@ func FavoritesPage(lang, dir string, products []*catalog.Product) templ.Componen
 						var templ_7745c5c3_Var5 string
 						templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(p.Name["ar"])
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/favorites.templ`, Line: 58, Col: 24}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `favorites.templ`, Line: 58, Col: 24}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
 						if templ_7745c5c3_Err != nil {
@@ -143,7 +143,7 @@ func FavoritesPage(lang, dir string, products []*catalog.Product) templ.Componen
 						var templ_7745c5c3_Var6 string
 						templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(p.Name["en"])
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/favorites.templ`, Line: 60, Col: 24}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `favorites.templ`, Line: 60, Col: 24}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
 						if templ_7745c5c3_Err != nil {
@@ -162,7 +162,7 @@ func FavoritesPage(lang, dir string, products []*catalog.Product) templ.Componen
 						var templ_7745c5c3_Var7 string
 						templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(p.ScientificName)
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/favorites.templ`, Line: 66, Col: 28}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `favorites.templ`, Line: 66, Col: 28}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
 						if templ_7745c5c3_Err != nil {
@@ -181,7 +181,7 @@ func FavoritesPage(lang, dir string, products []*catalog.Product) templ.Componen
 						var templ_7745c5c3_Var8 string
 						templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(p.ManufacturingCompanies)
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/favorites.templ`, Line: 71, Col: 50}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `favorites.templ`, Line: 71, Col: 50}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var8))
 						if templ_7745c5c3_Err != nil {
@@ -199,7 +199,7 @@ func FavoritesPage(lang, dir string, products []*catalog.Product) templ.Componen
 					var templ_7745c5c3_Var9 templ.SafeURL
 					templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("/catalog/%d", p.ID)))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/favorites.templ`, Line: 77, Col: 65}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `favorites.templ`, Line: 77, Col: 65}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var9))
 					if templ_7745c5c3_Err != nil {

@@ -105,6 +105,9 @@ const (
 	FeatureSavingsImport = "savings_import"
 	FeatureAssistant     = "assistant"
 	FeatureColumnDetect  = "column_detect"
+	// FeatureCompareTool is the private price-comparison tool, which had no
+	// catalogue matching stage at all until it was given the shared one.
+	FeatureCompareTool = "compare_match"
 )
 
 // Decision is one answer, keyed by the request-local ref.

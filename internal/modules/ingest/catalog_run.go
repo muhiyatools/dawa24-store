@@ -113,7 +113,11 @@ func (s *Service) prepareWriter(ctx context.Context, session *Session) (*importW
 	}
 
 	matchOpts := productmatch.DefaultMatchOptions()
-	matchOpts.MinStrong = session.Settings.MinMatchScore
+	if session.Settings.MinMatchScore > 0 {
+		matchOpts.MinStrong = session.Settings.MinMatchScore
+		matchOpts.MinReview = max(productmatch.DefaultMinReview,
+			min(matchOpts.MinStrong*0.7, 0.35))
+	}
 	matchOpts = matchOpts.WithIdentifiers(
 		session.Mapping.MappedIdentifiers(), session.Settings.identifierChoices())
 

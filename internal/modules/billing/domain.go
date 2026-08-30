@@ -144,6 +144,7 @@ const (
 	FeatureBulkImport      = "bulk_import"
 	FeatureAnalytics       = "analytics"
 	FeatureMaxCompareFiles = "max_compare_files"
+	FeatureCompareRetentionDays = "compare_file_retention_days"
 )
 
 // HasFeature reports whether the plan grants access to the specified feature key.
@@ -175,6 +176,25 @@ func (p *Plan) GetMaxCompareFiles() int {
 		}
 	}
 	return 10
+}
+
+// GetCompareRetentionDays returns the number of days compare files are retained before auto-deletion.
+// Default is 30 days if not set. 0 means unlimited (files are never auto-deleted).
+func (p *Plan) GetCompareRetentionDays() int {
+	if p == nil || p.Features == nil {
+		return 30
+	}
+	if v, ok := p.Features[FeatureCompareRetentionDays]; ok && v != "" {
+		if n, err := strconv.Atoi(v); err == nil && n >= 0 {
+			return n
+		}
+	}
+	if v, ok := p.Features["compare_file_retention_days"]; ok && v != "" {
+		if n, err := strconv.Atoi(v); err == nil && n >= 0 {
+			return n
+		}
+	}
+	return 30
 }
 
 // Subscription represents an active plan subscription (unifying legacy D7 systems).

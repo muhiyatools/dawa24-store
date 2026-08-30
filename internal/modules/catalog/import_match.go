@@ -162,6 +162,10 @@ type MatchStats struct {
 	AI         int `json:"ai"`
 	Unmatched  int `json:"unmatched"`
 	AIRequests int `json:"ai_requests"`
+	// CacheHits counts rows answered from the shared decision cache without a
+	// request. Reported because it is the difference between an import that
+	// cost money and one that did not.
+	CacheHits int `json:"cache_hits"`
 	// CeilingHit means the AI tier stopped early and some rows kept their
 	// deterministic outcome. Reported so a low match rate on a huge file is not
 	// mistaken for a bad catalogue.
@@ -245,13 +249,24 @@ func (s *Service) resolveSimilarMatches(
 	if len(forAI) == 0 {
 		return stats
 	}
-	if !session.Options.UseAI || s.adjudicator == nil {
+	if !session.Options.UseAI {
 		stats.Unmatched += len(forAI)
 		return stats
 	}
 
+	// The cache answers first. An administrator re-uploading the same registry
+	// extract used to pay for the whole residue again, asking the model
+	// questions the vendor import and the smart order had already bought
+	// answers to and filed in the very same table.
+	asked := len(forAI)
+	forAI = s.applyMatchMemory(ctx, index, prods, matches, forAI, &stats)
+
+	if s.adjudicator == nil {
+		stats.Unmatched += asked - stats.AI
+		return stats
+	}
 	s.adjudicateMatches(ctx, session, prods, matches, forAI, &stats)
-	stats.Unmatched += len(forAI) - stats.AI
+	stats.Unmatched += asked - stats.AI
 	return stats
 }
 
@@ -306,79 +321,6 @@ func (s *Service) catalogueIndex(ctx context.Context, session *ImportSession) (*
 		})
 	}
 	return productmatch.NewIndex(masters), true
-}
-
-// adjudicateMatches asks the model about the rows similarity could not settle,
-// in batches, and applies only the answers that name a candidate it was given.
-func (s *Service) adjudicateMatches(
-	ctx context.Context,
-	session *ImportSession,
-	prods []*Product,
-	matches map[int]ExistingMatch,
-	forAI []pendingMatch,
-	stats *MatchStats,
-) {
-	items := make([]MatchAdjudicationItem, 0, len(forAI))
-	byRef := make(map[int64]pendingMatch, len(forAI))
-	for _, p := range forAI {
-		ref := int64(p.index)
-		byRef[ref] = p
-		items = append(items, MatchAdjudicationItem{
-			Ref:        ref,
-			Text:       adjudicationText(prods[p.index]),
-			Candidates: summarizeCandidates(p.candidates),
-		})
-	}
-
-	decided := map[int64]bool{}
-	for start := 0; start < len(items); start += aiBatchSize {
-		if stats.AIRequests >= maxAIAdjudicationBatches {
-			stats.CeilingHit = true
-			return
-		}
-		end := start + aiBatchSize
-		if end > len(items) {
-			end = len(items)
-		}
-
-		stats.AIRequests++
-		session.AICalls++
-		req := MatchAdjudicationRequest{
-			Items:          items[start:end],
-			OrganizationID: session.OrganizationID,
-		}
-		if session.CreatedBy != nil {
-			req.UserID = *session.CreatedBy
-		}
-		results, err := s.adjudicator.AdjudicateMatches(ctx, req)
-		if err != nil {
-			// One failed batch is not a failed import: those rows keep the
-			// deterministic outcome, which is "this is a new product".
-			session.AIFallback = true
-			s.log.WarnContext(ctx, "match adjudication batch failed; deterministic outcome stands",
-				"session", session.PublicID, "items", end-start, "error", err)
-			continue
-		}
-		for _, res := range results {
-			p, known := byRef[res.Ref]
-			if !known || decided[res.Ref] {
-				continue
-			}
-			decided[res.Ref] = true
-			if res.ProductID == nil || res.Confidence < aiFloor {
-				continue
-			}
-			// A product that was not on the shortlist for that row is rejected
-			// outright. This is the guard that stops an invented id becoming an
-			// update to a real catalogue entry.
-			if !inShortlist(p.candidates, *res.ProductID) {
-				continue
-			}
-			matches[p.index] = ExistingMatch{ProductID: *res.ProductID, Reason: MatchAI}
-			stats.AI++
-			session.AIApplied++
-		}
-	}
 }
 
 // matchRowFor projects an imported product onto the row shape the shared

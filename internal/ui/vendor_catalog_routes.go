@@ -96,6 +96,7 @@ func (h *UIHandler) registerVendorIngestRoutes(r chi.Router) {
 		g.Post("/vendor/ingest/{id}/rows/{rowID}/match", h.VendorIngestRowMatchSubmit)
 		g.Post("/vendor/ingest/{id}/rows/{rowID}/toggle", h.VendorIngestRowToggleSubmit)
 		g.Post("/vendor/ingest/{id}/batch-quantity", h.VendorIngestBatchQuantitySubmit)
+		g.Post("/vendor/ingest/{id}/rows/bulk", h.VendorIngestBulkSubmit)
 		g.Post("/vendor/ingest/{id}/confirm", h.VendorIngestConfirmSubmit)
 		g.Post("/vendor/ingest/{id}/commit", h.VendorIngestCommitSubmit)
 		g.Post("/vendor/ingest/{id}/cancel", h.VendorIngestCancelSubmit)

@@ -45,6 +45,16 @@ func (s *Service) CommitImport(ctx context.Context, publicID string) (*Session, 
 		return nil, fmt.Errorf("load staged rows for commit: %w", err)
 	}
 
+	// Rows the vendor never confirmed are not written, and the count of them is
+	// carried into the outcome rather than left out of it. A commit that writes
+	// four hundred rows out of nine thousand and reports only the four hundred
+	// is telling the truth about what it did and nothing about what it did not.
+	_, held, err := s.imports.PendingRowIDs(ctx, session.ID, 1)
+	if err != nil {
+		s.log.WarnContext(ctx, "pending row count unavailable at commit",
+			"import", session.PublicID, "error", err)
+	}
+
 	keys, err := s.catalog.ListVariantKeys(ctx, session.OrganizationID)
 	if err != nil {
 		return nil, fmt.Errorf("load existing variants: %w", err)
@@ -200,7 +210,7 @@ func (s *Service) CommitImport(ctx context.Context, publicID string) (*Session, 
 
 	session.InsertedRows = insertedCount
 	session.UpdatedRows = updatedCount
-	session.SkippedRows = skippedCount
+	session.SkippedRows = skippedCount + held
 	session.ErrorRows = errorCount
 	session.Phase = PhaseCompleted
 	if err := s.imports.Finish(ctx, session); err != nil {

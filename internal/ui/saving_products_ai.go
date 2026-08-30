@@ -38,7 +38,7 @@ func (h *UIHandler) enhanceSaving(
 	if !useAI {
 		return 0
 	}
-	return enhanceSavingItems(ctx, h.matchEnhancer, engine, items, h.log)
+	return enhanceSavingItems(ctx, h.matchEnhancer, h.matchMemory, engine, items, h.log)
 }
 
 // savingAIUnavailableReason explains a disabled switch.
@@ -69,6 +69,7 @@ var savingAICeilings = matchflow.For(matchflow.ProfileOrder)
 func enhanceSavingItems(
 	ctx context.Context,
 	enhancer matchflow.Enhancer,
+	memory matchflow.Memory,
 	engine *SavingProductMatchEngine,
 	items []*StagedSavingItem,
 	log *slog.Logger,
@@ -81,6 +82,14 @@ func enhanceSavingItems(
 	if len(questions) == 0 {
 		return 0
 	}
+
+	// The cache answers first, and this is the tier that was missing: a
+	// pharmacy re-uploads its saving list every few weeks with a handful of
+	// rows changed, and every one of those uploads used to be paid for in full
+	// — asking the same model, through the same prompt, the questions the
+	// vendor import and the smart order had already bought answers to.
+	var remembered []matchflow.Remembered
+	questions, improved = applySavingMemory(ctx, memory, engine, questions)
 
 	batches := chunkSaving(questions, savingAICeilings.MaxItemsPerRequest,
 		savingAICeilings.MaxRequestsPerRun)
@@ -129,8 +138,99 @@ func enhanceSavingItems(
 			q.target.MasterProductName, q.target.MasterProductSKU = engine.Describe(id)
 			improved++
 		}
+
+		// Only what the model was confident about is remembered, and only what
+		// it actually decided — an answer the identity guard overruled is not
+		// cached, because a cached wrong premise outlives the run that made it.
+		for _, d := range decisions {
+			if d.Ref < 0 || d.Ref >= len(batch) || d.Confidence < matchflow.MinMemoryConfidence {
+				continue
+			}
+			q := batch[d.Ref]
+			remembered = append(remembered, matchflow.Remembered{
+				Key:             savingDecisionKey(q),
+				NormName:        productmatch.NormalizeText(q.target.NameProduct),
+				ChosenProductID: d.ProductID,
+				Confidence:      d.Confidence,
+				Reason:          d.Reason,
+				PromptVersion:   matchflow.PromptVersion,
+			})
+		}
 	}
+
+	saveSavingMemory(ctx, memory, remembered)
 	return improved
+}
+
+// applySavingMemory resolves what the shared cache already knows and returns
+// the questions still worth asking.
+//
+// A remembered answer is re-checked against the catalogue's own record before
+// it is applied, exactly as a fresh one is: the catalogue moves between
+// imports, and a decision that was sound in March can conflict in June.
+func applySavingMemory(
+	ctx context.Context, memory matchflow.Memory,
+	engine *SavingProductMatchEngine, questions []savingQuestion,
+) (pending []savingQuestion, improved int) {
+	if memory == nil {
+		return questions, 0
+	}
+	keys := make([]string, 0, len(questions))
+	for _, q := range questions {
+		keys = append(keys, savingDecisionKey(q))
+	}
+	known := matchflow.Recall(ctx, memory, keys)
+	if len(known) == 0 {
+		return questions, 0
+	}
+
+	pending = make([]savingQuestion, 0, len(questions))
+	for _, q := range questions {
+		d, ok := known[savingDecisionKey(q)]
+		if !ok {
+			pending = append(pending, q)
+			continue
+		}
+		if d.ChosenProductID == nil || d.Confidence < savingAICeilings.MinApplyConfidence {
+			continue
+		}
+		id := *d.ChosenProductID
+		if !engine.known[id] || !engine.index.IdentityConflict(q.row, id).None() {
+			continue
+		}
+		q.target.ProductID = &id
+		q.target.MatchType = "ai"
+		q.target.Confidence = d.Confidence
+		q.target.MasterProductName, q.target.MasterProductSKU = engine.Describe(id)
+		improved++
+	}
+	return pending, improved
+}
+
+// saveSavingMemory writes the run's decisions and the aliases they imply,
+// without letting either failure fail the import.
+func saveSavingMemory(ctx context.Context, memory matchflow.Memory, decisions []matchflow.Remembered) {
+	if memory == nil || len(decisions) == 0 {
+		return
+	}
+	_ = memory.Save(ctx, decisions)
+	for _, d := range decisions {
+		if d.ChosenProductID == nil || d.NormName == "" {
+			continue
+		}
+		_ = memory.SaveAlias(ctx, *d.ChosenProductID, d.NormName, "ai_confirmed", d.Confidence)
+	}
+}
+
+// savingDecisionKey identifies the exact question this row asks.
+//
+// Byte-identical to the key the vendor import and the smart order compute for
+// the same question, which is the whole point: the three tools file into and
+// read from one table, so an answer bought once is reused wherever the same
+// product is written the same way against the same shortlist.
+func savingDecisionKey(q savingQuestion) string {
+	return matchflow.DecisionKey(
+		productmatch.NormalizeText(q.target.NameProduct), q.item.Options)
 }
 
 // savingQuestion is one unlinked row with the retrieval that justifies asking.
