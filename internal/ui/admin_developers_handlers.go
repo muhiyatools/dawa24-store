@@ -20,31 +20,34 @@ import (
 func (h *UIHandler) getGatewayAdminClient(ctx context.Context) (*gateway.AdminClient, string, bool) {
 	var endpointURL, secretKey string
 	if h.adminSvc != nil {
-		if aiSets, err := h.adminSvc.GetAISettings(ctx); err == nil && aiSets != nil {
-			if aiSets.EndpointURL != "" {
-				endpointURL = aiSets.EndpointURL
+		// gateway_configuration is the authority for the administrator
+		// credential and is read first. ai_configuration is only a mirror of
+		// it, and on the live database that mirror was found holding the
+		// production PostgreSQL superuser credential — which this function
+		// previously preferred and sent as Basic auth to the Gateway host on
+		// every management call. Both sources now pass through the same shape
+		// check, so neither can carry a database password out of the process.
+		if gwSets, err := h.adminSvc.GetGatewaySettings(ctx); err == nil && gwSets != nil {
+			if gwSets.EndpointURL != "" {
+				endpointURL = gwSets.EndpointURL
 			}
-			if aiSets.APIKey != "" {
-				secretKey = aiSets.APIKey
+			// Not gwSets.APIKey directly: AdminCredentials refuses to hand back
+			// a value that does not look like a Gateway credential.
+			if user, pass := gwSets.AdminCredentials(); pass != "" {
+				if user != "" && user != "admin" {
+					secretKey = user + ":" + pass
+				} else {
+					secretKey = pass
+				}
 			}
 		}
 		if endpointURL == "" || secretKey == "" {
-			if gwSets, err := h.adminSvc.GetGatewaySettings(ctx); err == nil && gwSets != nil {
-				if endpointURL == "" && gwSets.EndpointURL != "" {
-					endpointURL = gwSets.EndpointURL
+			if aiSets, err := h.adminSvc.GetAISettings(ctx); err == nil && aiSets != nil {
+				if endpointURL == "" && aiSets.EndpointURL != "" {
+					endpointURL = aiSets.EndpointURL
 				}
-				if secretKey == "" && gwSets.APIKey != "" {
-					// Not gwSets.APIKey directly: AdminCredentials refuses to
-					// hand back a value that does not look like a Gateway
-					// credential, which is what stops a database password
-					// stored in this field from being sent to the Gateway host.
-					if user, pass := gwSets.AdminCredentials(); pass != "" {
-						if user != "" && user != "admin" {
-							secretKey = user + ":" + pass
-						} else {
-							secretKey = pass
-						}
-					}
+				if secretKey == "" && platformadmin.ValidateAdminCredential(aiSets.APIKey) == nil {
+					secretKey = strings.TrimSpace(aiSets.APIKey)
 				}
 			}
 		}
@@ -192,15 +195,29 @@ func (h *UIHandler) AdminDeveloperAISettingsSubmit(w http.ResponseWriter, r *htt
 	isActive := r.FormValue("is_active") == "true"
 	systemPrompt := strings.TrimSpace(r.FormValue("system_prompt"))
 
-	// If apiKey is empty in the submission, preserve existing saved key
+	// The password field renders blank on every load, so an operator who edits
+	// only the endpoint or the models must not have the credential wiped. An
+	// empty submission therefore means "keep what is stored".
+	//
+	// Only a value that still passes the shape check is carried forward. The
+	// old fallback adopted ai_configuration.api_key unconditionally, and on the
+	// live database that field holds the PostgreSQL superuser credential: every
+	// save then rebuilt the gateway credential out of it, SaveGatewaySettings
+	// rejected the result, and the administrator credential was left empty and
+	// unsettable — which is why newly approved organisations stopped getting a
+	// Gateway identity at all.
 	if apiKey == "" {
-		if existingGW, _ := h.adminSvc.GetGatewaySettings(ctx); existingGW != nil && existingGW.APIKey != "" {
-			apiKey = existingGW.APIKey
+		if existingGW, _ := h.adminSvc.GetGatewaySettings(ctx); existingGW != nil {
+			if _, pass := existingGW.AdminCredentials(); pass != "" {
+				apiKey = strings.TrimSpace(existingGW.APIKey)
+			}
 		}
 	}
 	if apiKey == "" {
-		if existingAI, _ := h.adminSvc.GetAISettings(ctx); existingAI != nil && existingAI.APIKey != "" {
-			apiKey = existingAI.APIKey
+		if existingAI, _ := h.adminSvc.GetAISettings(ctx); existingAI != nil &&
+			strings.TrimSpace(existingAI.APIKey) != "" &&
+			platformadmin.ValidateAdminCredential(existingAI.APIKey) == nil {
+			apiKey = strings.TrimSpace(existingAI.APIKey)
 		}
 	}
 
@@ -251,13 +268,22 @@ func (h *UIHandler) AdminDeveloperAISettingsSubmit(w http.ResponseWriter, r *htt
 		h.gatewayKeys.Invalidate()
 	}
 
-	// Also sync to AISettings
+	// Also sync to AISettings.
+	//
+	// The credential is mirrored only when it is one the gateway settings would
+	// itself accept. A rejected value must not be copied into a second row and
+	// resurrected from there on the next save, which is exactly how the
+	// database credential outlived being removed from gateway_configuration.
 	ai, _ := h.adminSvc.GetAISettings(ctx)
 	if ai == nil {
 		ai = &platformadmin.AISettings{}
 	}
 	ai.EndpointURL = endpoint
-	ai.APIKey = combinedKey
+	if platformadmin.ValidateAdminCredential(combinedKey) == nil {
+		ai.APIKey = combinedKey
+	} else {
+		ai.APIKey = ""
+	}
 	ai.IsActive = isActive
 	if systemPrompt != "" {
 		ai.SystemPrompt = systemPrompt

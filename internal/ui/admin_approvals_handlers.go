@@ -10,6 +10,7 @@ import (
 
 	"github.com/muhiya/dawa24-store/internal/modules/attachments"
 	"github.com/muhiya/dawa24-store/internal/modules/org"
+	platformadmin "github.com/muhiya/dawa24-store/internal/modules/platform_admin"
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/platform/database"
 	"github.com/muhiya/dawa24-store/internal/shared/apperr"
@@ -261,24 +262,51 @@ func (h *UIHandler) provisionOrgAIAndSubscription(ctx context.Context, orgID int
 	sysCtx := database.AsSystem(ctx)
 
 	// 1. Ensure company starter roles & RBAC permissions are populated
-	if o, err := h.orgSvc.GetOrganization(sysCtx, orgID); err == nil && o != nil {
+	o, err := h.orgSvc.GetOrganization(sysCtx, orgID)
+	if err == nil && o != nil {
 		h.ensureCompanyRoles(sysCtx, orgID, string(o.Type))
 	}
 
 	// 2. The subscription comes first: it is what decides which Gateway plan — and
 	// therefore which quota — the identity below is created under.
-	if h.billSvc != nil {
-		if _, err := h.billSvc.AssignDefaultSubscription(sysCtx, 0, &orgID); err != nil {
-			h.log.WarnContext(ctx, "could not assign default subscription on approval",
-				"org_id", orgID, "error", err)
+	//
+	// It is booked against the منشأة's owner. billing.subscriptions.user_id is
+	// NOT NULL and carries a foreign key to identity.users, so the previous
+	// literal 0 here made every single insert fail on that constraint — which
+	// is why approved organisations had neither a subscription nor, therefore,
+	// a Gateway plan to be provisioned under. The error was swallowed into a
+	// WARN line, so approval kept reporting success.
+	switch {
+	case h.billSvc == nil:
+	case o == nil || o.OwnerID <= 0:
+		h.recordProvisioningFailure(ctx, orgID,
+			"تعذّر إنشاء اشتراك للمنشأة المعتمدة: لا يوجد مالك (owner_id) مرتبط بها.")
+	default:
+		if _, err := h.billSvc.AssignDefaultSubscription(sysCtx, o.OwnerID, &orgID); err != nil {
+			h.recordProvisioningFailure(ctx, orgID,
+				"تعذّر إنشاء اشتراك افتراضي للمنشأة المعتمدة: "+err.Error())
 		}
 	}
 
-	// 3. AI Gateway key
-	if h.tenantKeys != nil {
+	// 3. AI Gateway key.
+	//
+	// A failure here used to be a WARN line in the process log and nothing
+	// else: the administrator saw "تم التفعيل", the منشأة had no Gateway user
+	// and no key, and every AI call its staff made was silently billed to the
+	// platform's own identity. Four approved organisations on the live database
+	// were in that state before anyone noticed. It is recorded where an
+	// operator actually looks — تشخيص الأخطاء — so the missing configuration
+	// names itself instead of being discovered from the outside.
+	switch {
+	case h.tenantKeys == nil:
+		h.recordProvisioningFailure(ctx, orgID,
+			"منشأة معتمدة بدون هوية على بوابة الذكاء الاصطناعي: مزوّد المفاتيح غير مُهيّأ في هذا الخادم.")
+	default:
 		if key := h.tenantKeys.Key(sysCtx, orgID); key == "" {
-			h.log.WarnContext(ctx, "organisation approved without a gateway identity",
-				"org_id", orgID)
+			h.recordProvisioningFailure(ctx, orgID,
+				"تعذّر إنشاء مستخدم ومفتاح الذكاء الاصطناعي للمنشأة المعتمدة. "+
+					"تأكد من إدخال اسم مستخدم وكلمة مرور مدير البوابة في إعدادات المطوّرين ← بوابة الذكاء الاصطناعي، "+
+					"ثم أعد المحاولة عبر الأمر: dawa24 ai-identities --apply")
 		}
 	}
 
@@ -286,6 +314,33 @@ func (h *UIHandler) provisionOrgAIAndSubscription(ctx context.Context, orgID int
 	if h.resolver != nil {
 		h.resolver.InvalidateAll()
 	}
+}
+
+// recordProvisioningFailure writes an approval that did not finish to the
+// diagnostics log, alongside the process log.
+//
+// It is deliberately best-effort: an organisation is still approved when this
+// cannot be written, and the goroutine that calls it has no response to fail.
+func (h *UIHandler) recordProvisioningFailure(ctx context.Context, orgID int64, message string) {
+	h.log.WarnContext(ctx, "organisation approved without a gateway identity",
+		"org_id", orgID, "detail", message)
+	if h.adminSvc == nil {
+		return
+	}
+	orgName := ""
+	if o, err := h.orgSvc.GetOrganization(database.AsSystem(ctx), orgID); err == nil && o != nil {
+		orgName = o.LegalName
+	}
+	_ = h.adminSvc.LogError(database.AsSystem(ctx), &platformadmin.ErrorLog{
+		OrganizationName: orgName,
+		ErrorLevel:       "ERROR",
+		ErrorMessage:     message,
+		ExceptionClass:   "gateway.provisioning_failed",
+		FilePath:         "internal/ui/admin_approvals_handlers.go",
+		URLPath:          "/admin/approvals",
+		Status:           "NEW",
+		RequestPayload:   map[string]any{"organization_id": orgID},
+	})
 }
 
 // AdminOrgRejectSubmit rejects an organization.

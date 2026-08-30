@@ -52,16 +52,25 @@ func aiIdentities(ctx context.Context, db *database.DB, log *slog.Logger, args [
 	if err != nil {
 		return fmt.Errorf("read gateway settings: %w", err)
 	}
-	if gw == nil || !gw.CanProvision() {
-		return fmt.Errorf("gateway administrator credentials are not configured in إعدادات النظام")
-	}
-	username, password := gw.AdminCredentials()
-	client := gateway.NewAdminClient(gw.EndpointURL, username, password)
 
-	// Fail on bad credentials here rather than after touching half the table,
-	// so the output names the real problem.
-	if err := client.Ping(sysCtx); err != nil {
-		return fmt.Errorf("gateway administrator credentials rejected: %w", err)
+	// Missing Gateway credentials stop the identity half of the repair, not the
+	// whole command. A منشأة approved before the subscription was assigned on
+	// approval has no plan row either, and that half needs nothing but the
+	// database — refusing to run it because a third-party credential is absent
+	// would leave the tenant broken in a second way for no reason.
+	var client *gateway.AdminClient
+	if gw != nil && gw.CanProvision() {
+		username, password := gw.AdminCredentials()
+		client = gateway.NewAdminClient(gw.EndpointURL, username, password)
+
+		// Fail on bad credentials here rather than after touching half the
+		// table, so the output names the real problem.
+		if err := client.Ping(sysCtx); err != nil {
+			return fmt.Errorf("gateway administrator credentials rejected: %w", err)
+		}
+	} else {
+		fmt.Println("  ! بيانات اعتماد مدير البوابة غير مُهيّأة — سيتم إصلاح الاشتراكات فقط،")
+		fmt.Println("    وتخطّي إنشاء مستخدم ومفتاح الذكاء الاصطناعي. أدخلها في إعدادات المطوّرين ثم أعد التشغيل.")
 	}
 
 	orgs, err := orgSvc.ListOrganizations(sysCtx, nil, nil, 10000, 0)
@@ -78,13 +87,40 @@ func aiIdentities(ctx context.Context, db *database.DB, log *slog.Logger, args [
 			continue
 		}
 
+		// The subscription comes first: it decides which Gateway plan, and so
+		// which quota, the identity below is created under.
+		subscribed := true
+		if sub, err := billSvc.GetActiveSubscriptionByOrg(sysCtx, o.ID); err != nil || sub == nil {
+			subscribed = false
+			// Booked against the owner: billing.subscriptions.user_id is NOT
+			// NULL and references identity.users, so an org-scoped row still
+			// has to name a person.
+			if *apply && o.Status == org.StatusApproved && o.OwnerID > 0 {
+				orgID := o.ID
+				if _, err := billSvc.AssignDefaultSubscription(sysCtx, o.OwnerID, &orgID); err != nil {
+					fmt.Printf("  org %-7d subscription FAILED: %v\n", o.ID, err)
+				} else {
+					fmt.Printf("  org %-7d default subscription assigned\n", o.ID)
+					subscribed = true
+				}
+			}
+		}
+
 		planID := aiPlanFor(sysCtx, billSvc, o.ID)
 		if !*apply {
 			state := "has key"
 			if o.AIVirtualKey == "" {
 				state = "NO KEY"
 			}
-			fmt.Printf("  org %-7d %-28s plan=%-16s %s\n", o.ID, truncate(o.LegalName, 28), planID, state)
+			if !subscribed {
+				state += ", NO SUBSCRIPTION"
+			}
+			fmt.Printf("  org %-7d %-28s %-10s plan=%-16s %s\n",
+				o.ID, truncate(o.LegalName, 28), o.Status, planID, state)
+			continue
+		}
+
+		if client == nil {
 			continue
 		}
 

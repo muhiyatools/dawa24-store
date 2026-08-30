@@ -289,6 +289,7 @@ func (r *Repository) ListOrganizations(
 			       COALESCE(pharmacist_license, ''),
 			       COALESCE(verification_notes, ''), COALESCE(rejection_reason, ''),
 			       COALESCE(owner_id, 0), approved_at, approved_by,
+			       COALESCE(ai_virtual_key, ''), COALESCE(ai_user_id, ''),
 			       type, status, credit_limit, payment_terms_days, created_at, updated_at
 			FROM org.organizations
 
@@ -306,8 +307,17 @@ func (r *Repository) ListOrganizations(
 			s := string(*status)
 			statusStr = &s
 		}
-		if limit <= 0 || limit > 100 {
+		// An over-large request is clamped to the ceiling, not collapsed to a
+		// default page. The old rule turned anything above 100 into 20 rows, so
+		// the approvals screen asking for 500 and the AI backfill asking for
+		// 10000 both silently saw only the twenty newest organisations — which
+		// is how approved منشآت went years-of-page-views without anyone seeing
+		// that they had no Gateway identity.
+		if limit <= 0 {
 			limit = 20
+		}
+		if limit > 1000 {
+			limit = 1000
 		}
 		rows, err := tx.Query(txCtx, query, typeStr, statusStr, limit, offset)
 		if err != nil {
@@ -322,6 +332,7 @@ func (r *Repository) ListOrganizations(
 				&o.ID, &o.PublicID, &o.LegalName, &o.TradeName, &o.TaxNumber, &o.CommercialRegister,
 				&o.PharmacistLicense, &o.VerificationNotes, &o.RejectionReason,
 				&o.OwnerID, &o.ApprovedAt, &o.ApprovedBy,
+				&o.AIVirtualKey, &o.AIUserID,
 				&tStr, &sStr, &o.CreditLimit, &o.PaymentTermsDays, &o.CreatedAt, &o.UpdatedAt,
 			); err != nil {
 				return err

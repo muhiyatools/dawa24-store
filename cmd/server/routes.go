@@ -287,6 +287,13 @@ func mountModuleRoutes(
 	// because that is where its staging runs.
 	uiHandler.SetMatchMemory(sharedMatchMemory)
 
+	// Tenant key resolution is wired unconditionally, outside the `ai != nil`
+	// block below. Approving a منشأة provisions its Gateway identity through
+	// this port, and that has to keep working on a deployment where the
+	// completion client is absent — otherwise approval silently skips
+	// provisioning and the tenant is left with no user and no key.
+	uiHandler.SetTenantGatewayKeys(tenantKeys)
+
 	compareRepoUI := comparePostgres.NewRepository(db)
 	compareSvcUI := compare.NewService(compareRepoUI, log)
 	if ai != nil {
@@ -294,7 +301,6 @@ func mountModuleRoutes(
 		// The settings screen resets this when an operator changes the Gateway
 		// credentials the admin panel's key was issued from.
 		uiHandler.SetGatewayKeyCache(adminKeys)
-		uiHandler.SetTenantGatewayKeys(tenantKeys)
 		// The usage screens read the local ledger rather than calling the
 		// Gateway on every render.
 		uiHandler.SetAIUsage(aiusagePostgres.NewRepository(db))
