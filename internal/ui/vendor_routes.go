@@ -246,6 +246,13 @@ func (h *UIHandler) registerVendorCommerceRoutes(r chi.Router) {
 		g.Get("/vendor/orders/offers/{id}", func(w http.ResponseWriter, r *http.Request) {
 			http.Redirect(w, r, "/vendor/orders", http.StatusMovedPermanently)
 		})
+		// Legacy purchase requests on vendor side redirect to orders
+		g.Get("/vendor/purchase-requests", func(w http.ResponseWriter, r *http.Request) {
+			http.Redirect(w, r, "/vendor/orders", http.StatusMovedPermanently)
+		})
+		g.Get("/vendor/purchase-requests/*", func(w http.ResponseWriter, r *http.Request) {
+			http.Redirect(w, r, "/vendor/orders", http.StatusMovedPermanently)
+		})
 	})
 	r.Group(func(g chi.Router) {
 		g.Use(authctx.RequireTenantPagePermission("vendor.order.update"))
@@ -255,14 +262,6 @@ func (h *UIHandler) registerVendorCommerceRoutes(r chi.Router) {
 		g.Use(authctx.RequireTenantPagePermission("vendor.order.negotiate"))
 		g.Post("/vendor/orders/{id}/negotiation/accept", h.VendorNegotiationAcceptSubmit)
 		g.Post("/vendor/orders/{id}/negotiation/reject", h.VendorNegotiationRejectSubmit)
-	})
-
-	// Legacy purchase requests on vendor side redirect to orders
-	r.Get("/vendor/purchase-requests", func(w http.ResponseWriter, r *http.Request) {
-		http.Redirect(w, r, "/vendor/orders", http.StatusMovedPermanently)
-	})
-	r.Get("/vendor/purchase-requests/*", func(w http.ResponseWriter, r *http.Request) {
-		http.Redirect(w, r, "/vendor/orders", http.StatusMovedPermanently)
 	})
 
 	r.Group(func(g chi.Router) {
