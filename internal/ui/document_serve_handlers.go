@@ -86,13 +86,11 @@ func (h *UIHandler) serveDocumentFile(w http.ResponseWriter, r *http.Request, do
 
 	// 1. Sanitize the URL / Storage Key (NEVER redirect to localhost / private network endpoints)
 	cleanKey := rawURL
-	isInternalURL := false
 	if strings.Contains(cleanKey, "://") {
 		if u, parseErr := url.Parse(cleanKey); parseErr == nil {
 			host := strings.ToLower(u.Hostname())
 			if host == "localhost" || host == "127.0.0.1" || host == "minio" || host == "0.0.0.0" ||
 				strings.HasPrefix(host, "192.168.") || strings.HasPrefix(host, "10.") || strings.HasPrefix(host, "172.") {
-				isInternalURL = true
 				p := u.Path
 				p = strings.TrimPrefix(p, "/dawa24")
 				cleanKey = p
@@ -246,7 +244,7 @@ func (h *UIHandler) serveDocumentFile(w http.ResponseWriter, r *http.Request, do
 	}
 
 	// 4. If file is unavailable anywhere, render the clear, polished Document Unavailable Error Page
-	h.renderMissingDocError(w, r, doc, "لم يتم العثور على الملف الرقمي الفعلي للمستند في وسائط التخزين السحابي.", lang, dir)
+	h.renderMissingDocError(w, r, doc, i18n.T(lang, "docs.serve.file_missing"), lang, dir)
 }
 
 func (h *UIHandler) renderMissingDocError(w http.ResponseWriter, r *http.Request, doc *attachments.Document, reason, lang, dir string) {
@@ -280,20 +278,20 @@ func (h *UIHandler) renderMissingDocError(w http.ResponseWriter, r *http.Request
 				}
 			}
 			if view.OrgName == "" {
-				view.OrgName = fmt.Sprintf("منشأة #%d", *doc.OrganizationID)
+				view.OrgName = fmt.Sprintf(i18n.T(lang, "docs.serve.org_fallback"), *doc.OrganizationID)
 			}
 		}
 		switch doc.Status {
 		case attachments.StatusVerified:
-			view.StatusLabel = "معتمد ومطابق"
+			view.StatusLabel = i18n.T(lang, "docs.serve.status_verified")
 		case attachments.StatusRejected:
-			view.StatusLabel = "مرفوض"
+			view.StatusLabel = i18n.T(lang, "docs.serve.status_rejected")
 		default:
-			view.StatusLabel = "قيد التدقيق"
+			view.StatusLabel = i18n.T(lang, "docs.serve.status_pending")
 		}
 	} else {
-		view.DocTypeLabel = "مستند غير مسجل"
-		view.OriginalName = "الملف غير متوفر"
+		view.DocTypeLabel = i18n.T(lang, "docs.serve.doc_unregistered")
+		view.OriginalName = i18n.T(lang, "docs.serve.file_unavailable")
 	}
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
