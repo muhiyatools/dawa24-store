@@ -164,6 +164,7 @@ templ CustomerCartContent(cart *commerce.Cart, lang string) {
 										<!-- Horizontal Stepper -->
 										<div class="cart-stepper-control">
 											<form action="/cart/update-quantity" method="POST" hx-post="/cart/update-quantity" hx-target="#cart-content" hx-swap="innerHTML" class="m-0 d-inline">
+												<input type="hidden" name="item_id" value={ fmt.Sprintf("%d", item.ID) } />
 												<input type="hidden" name="variant_id" value={ fmt.Sprintf("%d", item.ProductVariantID) } />
 												<input type="hidden" name="quantity" value={ fmt.Sprintf("%d", item.Quantity - 1) } />
 												<button
@@ -180,6 +181,7 @@ templ CustomerCartContent(cart *commerce.Cart, lang string) {
 											</span>
 
 											<form action="/cart/update-quantity" method="POST" hx-post="/cart/update-quantity" hx-target="#cart-content" hx-swap="innerHTML" class="m-0 d-inline">
+												<input type="hidden" name="item_id" value={ fmt.Sprintf("%d", item.ID) } />
 												<input type="hidden" name="variant_id" value={ fmt.Sprintf("%d", item.ProductVariantID) } />
 												<input type="hidden" name="quantity" value={ fmt.Sprintf("%d", item.Quantity + 1) } />
 												<button
@@ -200,7 +202,8 @@ templ CustomerCartContent(cart *commerce.Cart, lang string) {
 
 										<!-- Remove Button -->
 										<form action="/cart/remove" method="POST" hx-post="/cart/remove" hx-target="#cart-content" hx-swap="innerHTML" class="m-0 d-inline">
-											<input type="hidden" name="variant_id" value={ fmt.Sprintf("%d", item.ProductVariantID) } />
+											<input type="hidden" name="item_id" value={ fmt.Sprintf("%d", item.ID) } />
+												<input type="hidden" name="variant_id" value={ fmt.Sprintf("%d", item.ProductVariantID) } />
 											<button
 												type="submit"
 												class="btn btn-secondary btn-icon text-danger"

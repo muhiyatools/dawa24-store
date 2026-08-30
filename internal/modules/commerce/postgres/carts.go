@@ -46,7 +46,7 @@ func (r *Repository) GetCartWithItems(ctx context.Context, cartID int64) (*comme
 		}
 
 		queryItems := `
-			SELECT ci.id, ci.cart_id, ci.product_id, ci.product_variant_id, ci.quantity, ci.unit_price,
+			SELECT ci.id, ci.cart_id, COALESCE(ci.product_id, 0), COALESCE(ci.product_variant_id, 0), ci.quantity, ci.unit_price,
 			       ci.offer_id, ci.created_at, ci.updated_at,
 			       COALESCE(
 			           po.organization_id,
@@ -60,7 +60,7 @@ func (r *Repository) GetCartWithItems(ctx context.Context, cartID int64) (*comme
 			           ),
 			           0
 			       ),
-			       COALESCE(p.name, '{"ar":"","en":""}'::jsonb),
+			       COALESCE(p.name, po.title, '{"ar":"","en":""}'::jsonb),
 			       COALESCE(o.name, '{"ar":"","en":""}'::jsonb),
 			       COALESCE(o.min_order_price, 10.00),
 			       COALESCE((
@@ -126,6 +126,27 @@ func (r *Repository) AddToCartItem(ctx context.Context, cartID int64, item *comm
 				offer_id = COALESCE(EXCLUDED.offer_id, commerce.cart_items.offer_id),
 				updated_at = now();
 		`
+
+		// An offer is bought as a unit, so its line carries no product
+		// reference at all. Two NULLs are distinct in Postgres, which means the
+		// product upsert target above can never match an offer line -- adding
+		// the same offer twice would insert a second row rather than raise the
+		// quantity. Offer lines conflict on their own partial unique index
+		// instead (migration 155).
+		if item.IsOfferLine() {
+			const offerQuery = `
+				INSERT INTO commerce.cart_items (cart_id, product_id, product_variant_id, quantity, unit_price, offer_id)
+				VALUES ($1, NULL, NULL, $2, $3, $4)
+				ON CONFLICT (cart_id, offer_id) WHERE offer_id IS NOT NULL AND product_variant_id IS NULL
+				DO UPDATE SET
+					quantity = commerce.cart_items.quantity + EXCLUDED.quantity,
+					unit_price = EXCLUDED.unit_price,
+					updated_at = now();
+			`
+			_, err := tx.Exec(txCtx, offerQuery, cartID, item.Quantity, item.UnitPrice, item.OfferID)
+			return err
+		}
+
 		_, err := tx.Exec(txCtx, query, cartID, item.ProductID, item.ProductVariantID, item.Quantity, item.UnitPrice, item.OfferID)
 		return err
 	})
@@ -136,6 +157,36 @@ func (r *Repository) RemoveCartItem(ctx context.Context, cartID int64, variantID
 	return r.db.InTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
 		query := `DELETE FROM commerce.cart_items WHERE cart_id = $1 AND product_variant_id = $2;`
 		_, err := tx.Exec(txCtx, query, cartID, variantID)
+		return err
+	})
+}
+
+// RemoveCartItemByID deletes one line by its own id.
+//
+// An offer line carries no product_variant_id, so the variant-keyed delete
+// above cannot reach it. The line id is the only identifier both shapes share.
+// The cart id is still in the predicate: it is what stops one pharmacy deleting
+// a line out of another's cart by guessing an id.
+func (r *Repository) RemoveCartItemByID(ctx context.Context, cartID, itemID int64) error {
+	return r.db.InTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
+		_, err := tx.Exec(txCtx,
+			`DELETE FROM commerce.cart_items WHERE cart_id = $1 AND id = $2;`, cartID, itemID)
+		return err
+	})
+}
+
+// SetCartItemQuantityByID sets an absolute quantity on one line, removing it
+// when the quantity reaches zero.
+func (r *Repository) SetCartItemQuantityByID(ctx context.Context, cartID, itemID int64, qty int) error {
+	return r.db.InTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
+		if qty <= 0 {
+			_, err := tx.Exec(txCtx,
+				`DELETE FROM commerce.cart_items WHERE cart_id = $1 AND id = $2;`, cartID, itemID)
+			return err
+		}
+		_, err := tx.Exec(txCtx,
+			`UPDATE commerce.cart_items SET quantity = $3, updated_at = now()
+			  WHERE cart_id = $1 AND id = $2;`, cartID, itemID, qty)
 		return err
 	})
 }

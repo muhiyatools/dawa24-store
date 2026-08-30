@@ -17,6 +17,8 @@ type Repository interface {
 	// silently reprice the basket under the customer.
 	SetCartItemQuantity(ctx context.Context, cartID int64, variantID int64, quantity int) error
 	RemoveCartItem(ctx context.Context, cartID int64, variantID int64) error
+	RemoveCartItemByID(ctx context.Context, cartID, itemID int64) error
+	SetCartItemQuantityByID(ctx context.Context, cartID, itemID int64, qty int) error
 	ClearCart(ctx context.Context, cartID int64) error
 
 	CreateOrder(ctx context.Context, order *Order, shipments []*OrderShipment, lines []*OrderLine) error

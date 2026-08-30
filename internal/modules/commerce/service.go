@@ -462,6 +462,33 @@ func (s *Service) RemoveFromCart(ctx context.Context, userID int64, variantID in
 	return s.repo.GetCartWithItems(ctx, cart.ID)
 }
 
+// RemoveCartLine removes one cart line by its own id.
+//
+// Offer lines have no variant to key off, so RemoveFromCart cannot reach them.
+func (s *Service) RemoveCartLine(ctx context.Context, userID, itemID int64) (*Cart, error) {
+	cart, err := s.repo.GetOrCreateCart(ctx, userID)
+	if err != nil {
+		return nil, err
+	}
+	if err := s.repo.RemoveCartItemByID(ctx, cart.ID, itemID); err != nil {
+		return nil, err
+	}
+	return s.repo.GetCartWithItems(ctx, cart.ID)
+}
+
+// SetCartLineQuantity sets an absolute quantity on one cart line, removing the
+// line when the quantity reaches zero.
+func (s *Service) SetCartLineQuantity(ctx context.Context, userID, itemID int64, qty int) (*Cart, error) {
+	cart, err := s.repo.GetOrCreateCart(ctx, userID)
+	if err != nil {
+		return nil, err
+	}
+	if err := s.repo.SetCartItemQuantityByID(ctx, cart.ID, itemID, qty); err != nil {
+		return nil, err
+	}
+	return s.repo.GetCartWithItems(ctx, cart.ID)
+}
+
 // ClearCart empties the cart.
 func (s *Service) ClearCart(ctx context.Context, userID int64) error {
 	cart, err := s.repo.GetOrCreateCart(ctx, userID)

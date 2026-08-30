@@ -76,6 +76,19 @@ type CartItem struct {
 	UpdatedAt        time.Time    `json:"updated_at"`
 }
 
+// IsOfferLine reports whether this line is an offer bought as a unit rather
+// than a catalogue item.
+//
+// An offer is sold at its own price for whatever it contains; the products
+// listed against it are a manifest, not separately purchasable lines. Such a
+// line therefore carries an offer and no product reference at all, which is the
+// shape migration 155 added to commerce.cart_items and which the check
+// constraint there enforces.
+func (i *CartItem) IsOfferLine() bool {
+	return i != nil && i.OfferID != nil && *i.OfferID > 0 &&
+		i.ProductID == 0 && i.ProductVariantID == 0
+}
+
 // Order represents a master customer order placed against one offer
 // (main_orders parity, Rebuild V2 §3.3).
 type Order struct {
@@ -175,8 +188,8 @@ type OrderLine struct {
 	Quantity               int           `json:"quantity"`
 	DiscountAmount         money.Amount  `json:"discount_amount"`
 	TotalPrice             money.Amount  `json:"total_price"`
-	CostPrice              *money.Amount `json:"cost_price,omitempty"`     // Optional snapshot of cost price at purchase
-	CostDiscountPercentage float64       `json:"cost_discount_percentage"` // Snapshot of cost discount %
+	CostPrice              *money.Amount `json:"cost_price,omitempty"`        // Optional snapshot of cost price at purchase
+	CostDiscountPercentage float64       `json:"cost_discount_percentage"`    // Snapshot of cost discount %
 	ListPrice              money.Amount  `json:"list_price,omitempty"`        // pre-discount strike price (063)
 	OriginalPrice          money.Amount  `json:"original_price,omitempty"`    // legacy price snapshot (063)
 	OriginalDiscount       money.Amount  `json:"original_discount,omitempty"` // legacy discount snapshot (063)

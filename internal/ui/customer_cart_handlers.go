@@ -230,8 +230,18 @@ func (h *UIHandler) RemoveFromCartSubmit(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	variantID, _ := strconv.ParseInt(r.PostFormValue("variant_id"), 10, 64)
-	_, _ = h.commSvc.RemoveFromCart(ctx, userID, variantID)
+	// item_id addresses any line, including an offer line, which has no
+	// variant to key off. variant_id remains for markup not yet updated.
+	if itemID, _ := strconv.ParseInt(r.PostFormValue("item_id"), 10, 64); itemID > 0 {
+		if _, rErr := h.commSvc.RemoveCartLine(ctx, userID, itemID); rErr != nil {
+			h.log.ErrorContext(ctx, "remove cart line", "error", rErr, "item_id", itemID)
+		}
+	} else {
+		variantID, _ := strconv.ParseInt(r.PostFormValue("variant_id"), 10, 64)
+		if _, rErr := h.commSvc.RemoveFromCart(ctx, userID, variantID); rErr != nil {
+			h.log.ErrorContext(ctx, "remove cart item", "error", rErr, "variant_id", variantID)
+		}
+	}
 
 	if h.isHTMX(r) {
 		cart, _ := h.commSvc.GetCart(ctx, userID)
@@ -257,9 +267,30 @@ func (h *UIHandler) UpdateCartQuantitySubmit(w http.ResponseWriter, r *http.Requ
 	}
 
 	variantID, _ := strconv.ParseInt(r.PostFormValue("variant_id"), 10, 64)
+	itemID, _ := strconv.ParseInt(r.PostFormValue("item_id"), 10, 64)
 	qty, _ := strconv.Atoi(r.PostFormValue("quantity"))
 	if qty < 0 {
 		qty = 0
+	}
+
+	// An offer line has no variant, so it is addressed by its own id and skips
+	// the stock check below: an offer is sold as a unit by its supplier, and
+	// there is no variant whose stock could answer the question.
+	if itemID > 0 && variantID <= 0 {
+		if _, err := h.commSvc.SetCartLineQuantity(ctx, userID, itemID, qty); err != nil {
+			h.log.ErrorContext(ctx, "set cart line quantity", "error", err,
+				"user", userID, "item", itemID, "qty", qty)
+			h.redirectWithNotice(w, r, "/cart", "error", h.safeMessage(err, langOf(r)))
+			return
+		}
+		if h.isHTMX(r) {
+			cart, _ := h.commSvc.GetCart(ctx, userID)
+			lang, _ := h.localeAndDir(r)
+			h.renderPage(ctx, w, "render customer cart content", pages.CustomerCartContent(cart, lang))
+			return
+		}
+		http.Redirect(w, r, "/cart", http.StatusSeeOther)
+		return
 	}
 
 	// Raising a quantity is a purchase decision and gets the same check as
