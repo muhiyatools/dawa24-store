@@ -58,4 +58,49 @@ func loadBillingAndHRKeys(e *engine) {
 	addKey(e, "hr.suspend_account", "hr", "تعليق الحساب مؤقتاً", "Suspend Account", "Suspend account action")
 	addKey(e, "hr.activate_account", "hr", "تفعيل الحساب", "Activate Account", "Activate account action")
 	addKey(e, "hr.delete_employee", "hr", "حذف الموظف", "Delete Employee", "Delete employee action")
+
+	// --- Team and Role names ---
+	addKey(e, "role.org_owner", "role", "مالك المنشأة", "Organization Owner", "Owner role name")
+	addKey(e, "role.org_manager", "role", "مدير عمليات", "Operations Manager", "Operations manager role name")
+	addKey(e, "role.org_warehouse", "role", "أمين مخزن", "Warehouse Keeper", "Warehouse keeper role name")
+	addKey(e, "role.org_accountant", "role", "محاسب مالي", "Financial Accountant", "Accountant role name")
+	addKey(e, "role.org_employee", "role", "موظف مبيعات وتوريد", "Sales & Supply Employee", "Sales employee role name")
+	addKey(e, "role.team_member", "role", "عضو فريق العمل", "Team Member", "Generic team member")
+	addKey(e, "role.branch_manager", "role", "مدير فرع / عمليات", "Branch / Operations Manager", "Branch manager role name")
+	addKey(e, "role.employee", "role", "موظف", "Employee", "Generic employee")
+
+	// --- Vendor Team Handlers Notices ---
+	addKey(e, "common.invalid_form_data", "common", "بيانات النموذج غير صالحة.", "Invalid form data.", "Form error")
+	addKey(e, "common.service_unavailable", "common", "خدمة المنظومة غير متاحة حالياً.", "System service is currently unavailable.", "Service error")
+	addKey(e, "common.org_service_unavailable", "common", "خدمة المؤسسات غير متوفرة.", "Organization service is currently unavailable.", "Org service error")
+	addKey(e, "vendor.team.enter_full_name", "vendor", "يرجى إدخال اسم الموظف بالكامل.", "Please enter the employee's full name.", "Validation notice")
+	addKey(e, "vendor.team.enter_valid_email", "vendor", "يرجى إدخال بريد إلكتروني صحيح للدخول.", "Please enter a valid login email address.", "Validation notice")
+	addKey(e, "vendor.team.register_failed_prefix", "vendor", "فشل في إنشاء حساب الموظف: ", "Failed to create employee account: ", "Registration error prefix")
+	addKey(e, "vendor.team.link_failed_prefix", "vendor", "فشل في ربط الموظف بالمنشأة: ", "Failed to link employee to organization: ", "Link error prefix")
+	addKey(e, "vendor.team.employee_added_success", "vendor", "تمت إضافة الموظف '%s' بنجاح وتفعيل صلاحياته على المنشأة.", "Employee '%s' was added successfully and granted organization access.", "Success notice")
+	addKey(e, "vendor.team.invalid_employee_id", "vendor", "معرف الموظف غير صالح.", "Invalid employee ID.", "Validation error")
+	addKey(e, "vendor.team.status_updated_success", "vendor", "تم تحديث حالة حساب الموظف بنجاح.", "Employee account status updated successfully.", "Success notice")
+	addKey(e, "vendor.team.deleted_success", "vendor", "تم حذف الموظف من المنشأة بنجاح.", "Employee removed from organization successfully.", "Success notice")
+
+	// --- Vendor Customer Connections (User Org) ---
+	addKey(e, "vendor.user_org.select_valid_user", "vendor", "يجب اختيار مستخدم صالح.", "A valid user must be selected.", "Validation error")
+	addKey(e, "vendor.user_org.org_number_required", "vendor", "رقم المنظمة مطلوب.", "Organization number is required.", "Validation error")
+	addKey(e, "vendor.user_org.linked_approved_success", "vendor", "تم ربط واعتماد المستخدم بنجاح.", "User linked and approved successfully.", "Success notice")
+	addKey(e, "vendor.user_org.invalid_id", "vendor", "معرف غير صالح.", "Invalid ID.", "Validation error")
+	addKey(e, "vendor.user_org.approved_success", "vendor", "تم اعتماد وقبول المستخدم بنجاح.", "User approved and accepted successfully.", "Success notice")
+	addKey(e, "vendor.user_org.rejected_success", "vendor", "تم رفض طلب الربط.", "Link request rejected.", "Success notice")
+	addKey(e, "vendor.user_org.updated_success", "vendor", "تم تحديث بيانات المستخدم بنجاح.", "User details updated successfully.", "Success notice")
+	addKey(e, "vendor.user_org.deleted_success", "vendor", "تم حذف المستخدم بنجاح.", "User removed successfully.", "Success notice")
+
+	// --- Vendor Policies & Social Media ---
+	addKey(e, "vendor.policy.shipping_title", "vendor", "سياسة الشحن والتسليم", "Shipping & Delivery Policy", "Policy title")
+	addKey(e, "vendor.policy.returns_title", "vendor", "سياسة المرتجعات والتوالف", "Returns & Damaged Goods Policy", "Policy title")
+	addKey(e, "vendor.policy.terms_title", "vendor", "شروط السداد والدفع الآجل", "Payment & Credit Terms", "Policy title")
+	addKey(e, "vendor.policy.saved_success", "vendor", "تم حفظ سياسات المنشأة بنجاح.", "Organization policies saved successfully.", "Success notice")
+	addKey(e, "vendor.social.saved_success", "vendor", "تم حفظ قنوات التواصل الاجتماعي بنجاح.", "Social media channels saved successfully.", "Success notice")
+
+	// --- Vendor Profile / Organization ---
+	addKey(e, "vendor.org.max_price_invalid", "vendor", "الحد الأقصى لسعر الطلب يجب أن يكون أكبر من أو يساوي الحد الأدنى.", "Maximum order price must be greater than or equal to minimum order price.", "Validation error")
+	addKey(e, "vendor.org.save_error_prefix", "vendor", "حدث خطأ أثناء حفظ التعديلات: ", "An error occurred while saving changes: ", "Error prefix")
+	addKey(e, "vendor.org.saved_success", "vendor", "تم حفظ وتحديث بيانات المنشأة والهوية التجارية بنجاح.", "Organization details and commercial brand updated successfully.", "Success notice")
 }

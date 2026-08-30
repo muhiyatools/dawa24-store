@@ -13,6 +13,7 @@ import (
 	"github.com/muhiya/dawa24-store/internal/modules/ingest"
 	"github.com/muhiya/dawa24-store/internal/modules/inventory"
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/shared/productmatch"
 	"github.com/muhiya/dawa24-store/internal/ui/pages"
 )
@@ -38,6 +39,7 @@ func (h *UIHandler) VendorIngestPage(w http.ResponseWriter, r *http.Request) {
 	}
 
 	view := pages.VendorImportView{
+		Lang:          langOf(r),
 		NoticeType:    r.URL.Query().Get("notice"),
 		NoticeMessage: r.URL.Query().Get("msg"),
 	}
@@ -57,7 +59,7 @@ func (h *UIHandler) VendorIngestSessionPage(w http.ResponseWriter, r *http.Reque
 	ctx := r.Context()
 	publicID := chi.URLParam(r, "id")
 	if h.ingSvc == nil {
-		h.redirectWithNotice(w, r, "/vendor/ingest", "error", "خدمة الاستيراد غير متاحة حالياً.")
+		h.redirectWithNotice(w, r, "/vendor/ingest", "error", i18n.T(langOf(r), "common.import_service_unavailable"))
 		return
 	}
 
@@ -68,6 +70,7 @@ func (h *UIHandler) VendorIngestSessionPage(w http.ResponseWriter, r *http.Reque
 	}
 
 	view := pages.VendorImportView{
+		Lang:          langOf(r),
 		Session:       session,
 		Warehouses:    h.vendorWarehouses(r),
 		NoticeType:    r.URL.Query().Get("notice"),
@@ -102,27 +105,27 @@ func (h *UIHandler) VendorIngestUploadSubmit(w http.ResponseWriter, r *http.Requ
 		return
 	}
 	if h.ingSvc == nil {
-		h.redirectWithNotice(w, r, "/vendor/ingest", "error", "خدمة الاستيراد غير متاحة حالياً.")
+		h.redirectWithNotice(w, r, "/vendor/ingest", "error", i18n.T(langOf(r), "common.import_service_unavailable"))
 		return
 	}
 
 	r.Body = http.MaxBytesReader(w, r.Body, maxImportUpload)
 	if err := r.ParseMultipartForm(8 << 20); err != nil {
 		h.redirectWithNotice(w, r, "/vendor/ingest", "error",
-			"تعذر قراءة الملف المرفوع — قد يتجاوز حجمه الحد المسموح (25 ميجابايت).")
+			i18n.T(langOf(r), "vendor.ingest.file_too_large"))
 		return
 	}
 	file, header, err := r.FormFile("file")
 	if err != nil {
 		h.redirectWithNotice(w, r, "/vendor/ingest", "error",
-			"يرجى اختيار ملف صالح للاستيراد (.xlsx أو .xls أو CSV).")
+			i18n.T(langOf(r), "vendor.ingest.invalid_file_format"))
 		return
 	}
 	defer func() { _ = file.Close() }()
 
 	content, err := io.ReadAll(file)
 	if err != nil {
-		h.redirectWithNotice(w, r, "/vendor/ingest", "error", "تعذر قراءة محتوى الملف.")
+		h.redirectWithNotice(w, r, "/vendor/ingest", "error", i18n.T(langOf(r), "vendor.ingest.read_file_error"))
 		return
 	}
 
@@ -139,11 +142,11 @@ func (h *UIHandler) VendorIngestMappingSubmit(w http.ResponseWriter, r *http.Req
 	ctx := r.Context()
 	publicID := chi.URLParam(r, "id")
 	if h.ingSvc == nil {
-		h.redirectWithNotice(w, r, "/vendor/ingest", "error", "خدمة الاستيراد غير متاحة حالياً.")
+		h.redirectWithNotice(w, r, "/vendor/ingest", "error", i18n.T(langOf(r), "common.import_service_unavailable"))
 		return
 	}
 	if err := r.ParseForm(); err != nil {
-		h.redirectWithNotice(w, r, "/vendor/ingest/"+publicID, "error", "تعذر قراءة النموذج المرسل.")
+		h.redirectWithNotice(w, r, "/vendor/ingest/"+publicID, "error", i18n.T(langOf(r), "common.invalid_form_data"))
 		return
 	}
 
@@ -190,11 +193,11 @@ func (h *UIHandler) VendorIngestSettingsSubmit(w http.ResponseWriter, r *http.Re
 	ctx := r.Context()
 	publicID := chi.URLParam(r, "id")
 	if h.ingSvc == nil {
-		h.redirectWithNotice(w, r, "/vendor/ingest", "error", "خدمة الاستيراد غير متاحة حالياً.")
+		h.redirectWithNotice(w, r, "/vendor/ingest", "error", i18n.T(langOf(r), "common.import_service_unavailable"))
 		return
 	}
 	if err := r.ParseForm(); err != nil {
-		h.redirectWithNotice(w, r, "/vendor/ingest/"+publicID, "error", "تعذر قراءة النموذج المرسل.")
+		h.redirectWithNotice(w, r, "/vendor/ingest/"+publicID, "error", i18n.T(langOf(r), "common.invalid_form_data"))
 		return
 	}
 
@@ -237,7 +240,7 @@ func (h *UIHandler) VendorIngestSettingsSubmit(w http.ResponseWriter, r *http.Re
 			newWh := &inventory.Warehouse{
 				OrganizationID: actor.OrganizationID,
 				BranchID:       settings.BranchID,
-				Name:           "المخزن الرئيسي",
+				Name:           i18n.T(langOf(r), "vendor.ingest.main_warehouse"),
 				Code:           "WH-MAIN",
 				IsActive:       true,
 			}
@@ -305,7 +308,7 @@ func (h *UIHandler) VendorIngestBackSubmit(w http.ResponseWriter, r *http.Reques
 func (h *UIHandler) VendorIngestConfirmSubmit(w http.ResponseWriter, r *http.Request) {
 	publicID := chi.URLParam(r, "id")
 	if h.ingSvc == nil {
-		h.redirectWithNotice(w, r, "/vendor/ingest", "error", "خدمة الاستيراد غير متاحة حالياً.")
+		h.redirectWithNotice(w, r, "/vendor/ingest", "error", i18n.T(langOf(r), "common.import_service_unavailable"))
 		return
 	}
 	if _, err := h.ingSvc.ConfirmImport(r.Context(), publicID); err != nil {
@@ -324,7 +327,7 @@ func (h *UIHandler) VendorIngestCancelSubmit(w http.ResponseWriter, r *http.Requ
 			return
 		}
 	}
-	h.redirectWithNotice(w, r, "/vendor/ingest", "info", "تم إلغاء عملية الاستيراد.")
+	h.redirectWithNotice(w, r, "/vendor/ingest", "info", i18n.T(langOf(r), "vendor.ingest.cancelled_notice"))
 }
 
 // VendorIngestProgress reports a running import, for the progress screen's poll.
@@ -368,6 +371,7 @@ func (h *UIHandler) VendorIngestProgress(w http.ResponseWriter, r *http.Request)
 // the ledger of one run, filtered to whatever the results screen was showing.
 func (h *UIHandler) VendorIngestRowsExport(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
+	lang := langOf(r)
 	publicID := chi.URLParam(r, "id")
 	if h.ingSvc == nil {
 		http.Error(w, "unavailable", http.StatusServiceUnavailable)
@@ -390,7 +394,15 @@ func (h *UIHandler) VendorIngestRowsExport(w http.ResponseWriter, r *http.Reques
 
 	out := csv.NewWriter(w)
 	defer out.Flush()
-	_ = out.Write([]string{"رقم الصف", "اسم الصنف في الملف", "الصنف المطابق المعتمد بالكتالوج", "كود الصنف بالملف", "النتيجة", "درجة المطابقة", "الملاحظة"})
+	_ = out.Write([]string{
+		i18n.T(lang, "ingest.csv.row_number"),
+		i18n.T(lang, "ingest.csv.item_name"),
+		i18n.T(lang, "ingest.csv.matched_catalog_item"),
+		i18n.T(lang, "ingest.csv.item_code"),
+		i18n.T(lang, "ingest.csv.outcome"),
+		i18n.T(lang, "ingest.csv.match_score"),
+		i18n.T(lang, "ingest.csv.notes"),
+	})
 
 	for offset := 0; offset < 20000; offset += filter.Limit {
 		filter.Offset = offset
@@ -401,7 +413,7 @@ func (h *UIHandler) VendorIngestRowsExport(w http.ResponseWriter, r *http.Reques
 		for _, row := range rows {
 			_ = out.Write([]string{
 				strconv.Itoa(row.SourceRow), row.DisplayName, row.MatchedCatalogName(), row.SourceCode,
-				pages.OutcomeLabel(row.Outcome), pages.PercentText(row.MatchScore), row.Message,
+				pages.OutcomeLabel(row.Outcome, lang), pages.PercentText(row.MatchScore), row.Message,
 			})
 		}
 		out.Flush()

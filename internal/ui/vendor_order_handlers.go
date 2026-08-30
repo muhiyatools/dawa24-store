@@ -12,6 +12,7 @@ import (
 
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/platform/database"
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/ui/pages"
 )
 
@@ -92,7 +93,7 @@ func (h *UIHandler) VendorOrderStatusSubmit(w http.ResponseWriter, r *http.Reque
 		_, err := h.commSvc.TransitionShipmentStatus(ctx, shipmentID, commerce.OrderStatus(toStatus), &actor.UserID, notes)
 		if err != nil {
 			h.log.ErrorContext(ctx, "vendor transition shipment status failed", "error", err, "shipment", shipmentID, "to", toStatus)
-			h.redirectWithNotice(w, r, "/vendor/orders", "error", "تعذر تحديث حالة الشحنة: "+h.safeMessage(err, langOf(r)))
+			h.redirectWithNotice(w, r, "/vendor/orders", "error", i18n.T(langOf(r), "vendor.orders.update_shipment_status_error_prefix")+h.safeMessage(err, langOf(r)))
 			return
 		}
 		if carrier := r.PostFormValue("carrier"); carrier != "" || r.PostFormValue("tracking") != "" {
@@ -108,7 +109,7 @@ func (h *UIHandler) VendorOrderStatusSubmit(w http.ResponseWriter, r *http.Reque
 		}
 	}
 
-	h.redirectWithNotice(w, r, "/vendor/orders", "success", "تم تحديث حالة الشحنة بنجاح.")
+	h.redirectWithNotice(w, r, "/vendor/orders", "success", i18n.T(langOf(r), "vendor.orders.shipment_status_updated_success"))
 }
 
 // VendorNegotiationAcceptSubmit accepts a customer's proposed negotiated price and confirms the order.
@@ -124,7 +125,7 @@ func (h *UIHandler) VendorNegotiationAcceptSubmit(w http.ResponseWriter, r *http
 	if h.commSvc != nil && orderID > 0 {
 		order, err := h.commSvc.GetOrder(ctx, orderID)
 		if err != nil || order == nil {
-			h.redirectWithNotice(w, r, "/vendor/orders", "error", "الطلب غير موجود.")
+			h.redirectWithNotice(w, r, "/vendor/orders", "error", i18n.T(langOf(r), "vendor.orders.order_not_found"))
 			return
 		}
 		if !actor.IsStaff && !actor.Can("commerce.admin") {
@@ -136,14 +137,14 @@ func (h *UIHandler) VendorNegotiationAcceptSubmit(w http.ResponseWriter, r *http
 				}
 			}
 			if !isVendorOrder {
-				h.redirectWithNotice(w, r, "/vendor/orders", "error", "غير مصرح لك بإدارة هذا الطلب.")
+				h.redirectWithNotice(w, r, "/vendor/orders", "error", i18n.T(langOf(r), "vendor.orders.unauthorized_order_management"))
 				return
 			}
 		}
 
 		if err := h.commSvc.AcceptNegotiation(ctx, orderID, actor.UserID); err != nil {
 			h.log.ErrorContext(ctx, "vendor accept negotiation failed", "error", err, "order_id", orderID)
-			h.redirectWithNotice(w, r, "/vendor/orders", "error", "تعذر قبول التفاوض: "+h.safeMessage(err, langOf(r)))
+			h.redirectWithNotice(w, r, "/vendor/orders", "error", i18n.T(langOf(r), "vendor.orders.accept_negotiation_error_prefix")+h.safeMessage(err, langOf(r)))
 			return
 		}
 
@@ -154,11 +155,11 @@ func (h *UIHandler) VendorNegotiationAcceptSubmit(w http.ResponseWriter, r *http
 			orderNum = fmt.Sprintf("ORD-%d", order.ID)
 		}
 		go h.dispatchInAppNotification(context.Background(), order.CustomerID, nil,
-			fmt.Sprintf("تم قبول السعر المتفاوض عليه للطلب #%s", orderNum),
-			fmt.Sprintf("قام %s بقبول السعر واعتماد طلب التوريد بنجاح.", vendorName))
+			fmt.Sprintf(i18n.T("ar", "vendor.orders.negotiation_accepted_title"), orderNum),
+			fmt.Sprintf(i18n.T("ar", "vendor.orders.negotiation_accepted_body"), vendorName))
 	}
 
-	h.redirectWithNotice(w, r, "/vendor/orders", "success", "تم قبول السعر المتفاوض عليه واعتماد الطلب بنجاح.")
+	h.redirectWithNotice(w, r, "/vendor/orders", "success", i18n.T(langOf(r), "vendor.orders.negotiation_accepted_success"))
 }
 
 // VendorNegotiationRejectSubmit rejects a customer's proposed negotiated price and cancels the order.
@@ -174,13 +175,13 @@ func (h *UIHandler) VendorNegotiationRejectSubmit(w http.ResponseWriter, r *http
 	_ = r.ParseForm()
 	reason := r.PostFormValue("reason")
 	if reason == "" {
-		reason = "تم رفض السعر المقترح من قبل إدارة المبيعات"
+		reason = i18n.T(langOf(r), "vendor.orders.negotiation_default_reject_reason")
 	}
 
 	if h.commSvc != nil && orderID > 0 {
 		order, err := h.commSvc.GetOrder(ctx, orderID)
 		if err != nil || order == nil {
-			h.redirectWithNotice(w, r, "/vendor/orders", "error", "الطلب غير موجود.")
+			h.redirectWithNotice(w, r, "/vendor/orders", "error", i18n.T(langOf(r), "vendor.orders.order_not_found"))
 			return
 		}
 		if !actor.IsStaff && !actor.Can("commerce.admin") {
@@ -192,14 +193,14 @@ func (h *UIHandler) VendorNegotiationRejectSubmit(w http.ResponseWriter, r *http
 				}
 			}
 			if !isVendorOrder {
-				h.redirectWithNotice(w, r, "/vendor/orders", "error", "غير مصرح لك بإدارة هذا الطلب.")
+				h.redirectWithNotice(w, r, "/vendor/orders", "error", i18n.T(langOf(r), "vendor.orders.unauthorized_order_management"))
 				return
 			}
 		}
 
 		if err := h.commSvc.RejectNegotiation(ctx, orderID, reason, actor.UserID); err != nil {
 			h.log.ErrorContext(ctx, "vendor reject negotiation failed", "error", err, "order_id", orderID)
-			h.redirectWithNotice(w, r, "/vendor/orders", "error", "تعذر رفض التفاوض: "+h.safeMessage(err, langOf(r)))
+			h.redirectWithNotice(w, r, "/vendor/orders", "error", i18n.T(langOf(r), "vendor.orders.reject_negotiation_error_prefix")+h.safeMessage(err, langOf(r)))
 			return
 		}
 
@@ -210,9 +211,9 @@ func (h *UIHandler) VendorNegotiationRejectSubmit(w http.ResponseWriter, r *http
 			orderNum = fmt.Sprintf("ORD-%d", order.ID)
 		}
 		go h.dispatchInAppNotification(context.Background(), order.CustomerID, nil,
-			fmt.Sprintf("تم رفض السعر المقترح للطلب #%s", orderNum),
-			fmt.Sprintf("تم رفض السعر المقترح من قِبل %s. السبب: %s", vendorName, reason))
+			fmt.Sprintf(i18n.T("ar", "vendor.orders.negotiation_rejected_title"), orderNum),
+			fmt.Sprintf(i18n.T("ar", "vendor.orders.negotiation_rejected_body"), vendorName, reason))
 	}
 
-	h.redirectWithNotice(w, r, "/vendor/orders", "success", "تم رفض طلب التفاوض وإلغاء الطلب.")
+	h.redirectWithNotice(w, r, "/vendor/orders", "success", i18n.T(langOf(r), "vendor.orders.negotiation_rejected_success"))
 }

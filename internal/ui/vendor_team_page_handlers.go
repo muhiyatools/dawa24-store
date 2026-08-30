@@ -46,22 +46,22 @@ func (h *UIHandler) VendorTeamPage(w http.ResponseWriter, r *http.Request) {
 				roleName := emp.RoleName
 				switch emp.Member.RoleKey {
 				case "org_owner":
-					roleName = "مالك المنشأة"
+					roleName = i18n.T(lang, "role.org_owner")
 				case "org_manager":
-					roleName = "مدير عمليات"
+					roleName = i18n.T(lang, "role.org_manager")
 				case "org_warehouse":
-					roleName = "أمين مخزن"
+					roleName = i18n.T(lang, "role.org_warehouse")
 				case "org_accountant":
-					roleName = "محاسب مالي"
+					roleName = i18n.T(lang, "role.org_accountant")
 				case "org_employee":
-					roleName = "موظف مبيعات وتوريد"
+					roleName = i18n.T(lang, "role.org_employee")
 				default:
 					if roleName == "" {
-						roleName = "عضو فريق العمل"
+						roleName = i18n.T(lang, "role.team_member")
 					}
 				}
 				if emp.IsManager && emp.Member.RoleKey != "org_owner" {
-					roleName = "مدير فرع / عمليات"
+					roleName = i18n.T(lang, "role.branch_manager")
 				}
 
 				name := emp.UserName
@@ -89,7 +89,7 @@ func (h *UIHandler) VendorTeamPage(w http.ResponseWriter, r *http.Request) {
 			// Fallback to ListMembers if ListEmployees returns empty
 			members, _ := h.orgSvc.ListMembers(ctx, actor.OrganizationID)
 			for _, m := range members {
-				name := "موظف"
+				name := i18n.T(lang, "role.employee")
 				email := ""
 				phone := ""
 				if h.idSvc != nil {
@@ -105,18 +105,18 @@ func (h *UIHandler) VendorTeamPage(w http.ResponseWriter, r *http.Request) {
 						phone = u.Phone
 					}
 				}
-				roleName := "موظف مبيعات وتوريد"
+				roleName := i18n.T(lang, "role.org_employee")
 				switch m.RoleKey {
 				case "org_owner":
-					roleName = "مالك المنشأة"
+					roleName = i18n.T(lang, "role.org_owner")
 				case "org_manager":
-					roleName = "مدير عمليات"
+					roleName = i18n.T(lang, "role.org_manager")
 				case "org_warehouse":
-					roleName = "أمين مخزن"
+					roleName = i18n.T(lang, "role.org_warehouse")
 				case "org_accountant":
-					roleName = "محاسب مالي"
+					roleName = i18n.T(lang, "role.org_accountant")
 				case "org_employee":
-					roleName = "موظف مبيعات وتوريد"
+					roleName = i18n.T(lang, "role.org_employee")
 				}
 				memberViews = append(memberViews, &pages.TeamMemberView{
 					ID:           m.ID,
@@ -195,7 +195,7 @@ func (h *UIHandler) VendorTeamNewSubmit(w http.ResponseWriter, r *http.Request) 
 	}
 
 	if err := r.ParseForm(); err != nil {
-		h.redirectWithNotice(w, r, "/vendor/team", "error", "بيانات النموذج غير صالحة.")
+		h.redirectWithNotice(w, r, "/vendor/team", "error", i18n.T(langOf(r), "common.invalid_form_data"))
 		return
 	}
 
@@ -208,11 +208,11 @@ func (h *UIHandler) VendorTeamNewSubmit(w http.ResponseWriter, r *http.Request) 
 	employeeCode := strings.TrimSpace(r.PostFormValue("employee_code"))
 
 	if name == "" {
-		h.redirectWithNotice(w, r, "/vendor/team", "error", "يرجى إدخال اسم الموظف بالكامل.")
+		h.redirectWithNotice(w, r, "/vendor/team", "error", i18n.T(langOf(r), "vendor.team.enter_full_name"))
 		return
 	}
 	if email == "" || !strings.Contains(email, "@") {
-		h.redirectWithNotice(w, r, "/vendor/team", "error", "يرجى إدخال بريد إلكتروني صحيح للدخول.")
+		h.redirectWithNotice(w, r, "/vendor/team", "error", i18n.T(langOf(r), "vendor.team.enter_valid_email"))
 		return
 	}
 	if roleKey == "" {
@@ -230,7 +230,7 @@ func (h *UIHandler) VendorTeamNewSubmit(w http.ResponseWriter, r *http.Request) 
 	}
 
 	if h.idSvc == nil || h.orgSvc == nil {
-		h.redirectWithNotice(w, r, "/vendor/team", "error", "خدمة المنظومة غير متاحة حالياً.")
+		h.redirectWithNotice(w, r, "/vendor/team", "error", i18n.T(langOf(r), "common.service_unavailable"))
 		return
 	}
 
@@ -250,7 +250,7 @@ func (h *UIHandler) VendorTeamNewSubmit(w http.ResponseWriter, r *http.Request) 
 		})
 		if regErr != nil {
 			h.log.ErrorContext(ctx, "failed to register employee user", "email", email, "error", regErr)
-			h.redirectWithNotice(w, r, "/vendor/team", "error", "فشل في إنشاء حساب الموظف: "+h.safeMessage(regErr, langOf(r)))
+			h.redirectWithNotice(w, r, "/vendor/team", "error", i18n.T(langOf(r), "vendor.team.register_failed_prefix")+h.safeMessage(regErr, langOf(r)))
 			return
 		}
 		targetUserID = newUser.ID
@@ -273,11 +273,11 @@ func (h *UIHandler) VendorTeamNewSubmit(w http.ResponseWriter, r *http.Request) 
 
 	if err := h.orgSvc.AddMemberDirect(ctx, member); err != nil {
 		h.log.ErrorContext(ctx, "failed to add org member", "error", err, "org_id", actor.OrganizationID, "user_id", targetUserID)
-		h.redirectWithNotice(w, r, "/vendor/team", "error", "فشل في ربط الموظف بالمنشأة: "+err.Error())
+		h.redirectWithNotice(w, r, "/vendor/team", "error", i18n.T(langOf(r), "vendor.team.link_failed_prefix")+err.Error())
 		return
 	}
 
-	h.redirectWithNotice(w, r, "/vendor/team", "success", fmt.Sprintf("تمت إضافة الموظف '%s' بنجاح وتفعيل صلاحياته على المنشأة.", name))
+	h.redirectWithNotice(w, r, "/vendor/team", "success", fmt.Sprintf(i18n.T(langOf(r), "vendor.team.employee_added_success"), name))
 }
 
 // VendorTeamToggleSubmit toggles a member's active status.
@@ -290,11 +290,11 @@ func (h *UIHandler) VendorTeamToggleSubmit(w http.ResponseWriter, r *http.Reques
 	}
 	id, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
 	if err != nil || id <= 0 {
-		h.redirectWithNotice(w, r, "/vendor/team", "error", "معرف الموظف غير صالح.")
+		h.redirectWithNotice(w, r, "/vendor/team", "error", i18n.T(langOf(r), "vendor.team.invalid_employee_id"))
 		return
 	}
 	if h.orgSvc == nil {
-		h.redirectWithNotice(w, r, "/vendor/team", "error", "خدمة المؤسسات غير متوفرة.")
+		h.redirectWithNotice(w, r, "/vendor/team", "error", i18n.T(langOf(r), "common.org_service_unavailable"))
 		return
 	}
 	if err := h.orgSvc.ToggleMemberStatus(ctx, actor.OrganizationID, id); err != nil {
@@ -302,7 +302,7 @@ func (h *UIHandler) VendorTeamToggleSubmit(w http.ResponseWriter, r *http.Reques
 		h.redirectWithNotice(w, r, "/vendor/team", "error", h.safeMessage(err, langOf(r)))
 		return
 	}
-	h.redirectWithNotice(w, r, "/vendor/team", "success", "تم تحديث حالة حساب الموظف بنجاح.")
+	h.redirectWithNotice(w, r, "/vendor/team", "success", i18n.T(langOf(r), "vendor.team.status_updated_success"))
 }
 
 // VendorTeamDeleteSubmit removes an employee member from the organization.
@@ -315,11 +315,11 @@ func (h *UIHandler) VendorTeamDeleteSubmit(w http.ResponseWriter, r *http.Reques
 	}
 	id, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
 	if err != nil || id <= 0 {
-		h.redirectWithNotice(w, r, "/vendor/team", "error", "معرف الموظف غير صالح.")
+		h.redirectWithNotice(w, r, "/vendor/team", "error", i18n.T(langOf(r), "vendor.team.invalid_employee_id"))
 		return
 	}
 	if h.orgSvc == nil {
-		h.redirectWithNotice(w, r, "/vendor/team", "error", "خدمة المؤسسات غير متوفرة.")
+		h.redirectWithNotice(w, r, "/vendor/team", "error", i18n.T(langOf(r), "common.org_service_unavailable"))
 		return
 	}
 	if err := h.orgSvc.RemoveMember(ctx, actor.OrganizationID, id); err != nil {
@@ -327,7 +327,7 @@ func (h *UIHandler) VendorTeamDeleteSubmit(w http.ResponseWriter, r *http.Reques
 		h.redirectWithNotice(w, r, "/vendor/team", "error", h.safeMessage(err, langOf(r)))
 		return
 	}
-	h.redirectWithNotice(w, r, "/vendor/team", "success", "تم حذف الموظف من المنشأة بنجاح.")
+	h.redirectWithNotice(w, r, "/vendor/team", "success", i18n.T(langOf(r), "vendor.team.deleted_success"))
 }
 
 // derefRoleID unwraps the optional custom-role link on a membership. Zero

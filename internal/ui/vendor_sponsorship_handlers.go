@@ -9,11 +9,12 @@ import (
 
 	"github.com/muhiya/dawa24-store/internal/modules/promo"
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/ui/pages"
 )
 
 // VendorSponsorshipRequestsPage renders the vendor's sponsorship requests list
-// and the package purchase form. This is the "طلبات الرعاية" sidebar item.
+// and the package purchase form.
 func (h *UIHandler) VendorSponsorshipRequestsPage(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	lang, dir := h.localeAndDir(r)
@@ -59,7 +60,7 @@ func (h *UIHandler) VendorSponsorshipRequestSubmit(w http.ResponseWriter, r *htt
 	}
 
 	if h.promoSvc == nil {
-		h.redirectWithNotice(w, r, "/vendor/sponsorship-requests", "error", "الخدمة غير متاحة حالياً.")
+		h.redirectWithNotice(w, r, "/vendor/sponsorship-requests", "error", i18n.T(lang, "common.service_unavailable"))
 		return
 	}
 
@@ -70,13 +71,13 @@ func (h *UIHandler) VendorSponsorshipRequestSubmit(w http.ResponseWriter, r *htt
 
 	itemID, err := strconv.ParseInt(r.PostFormValue("item_id"), 10, 64)
 	if err != nil || itemID <= 0 {
-		h.redirectWithNotice(w, r, "/vendor/sponsorship-requests", "error", "يرجى اختيار العنصر المراد رعايته.")
+		h.redirectWithNotice(w, r, "/vendor/sponsorship-requests", "error", i18n.T(lang, "vendor.sponsorship.select_item"))
 		return
 	}
 
 	packageID, err := strconv.ParseInt(r.PostFormValue("package_id"), 10, 64)
 	if err != nil || packageID <= 0 {
-		h.redirectWithNotice(w, r, "/vendor/sponsorship-requests", "error", "يرجى اختيار الباقة المناسبة.")
+		h.redirectWithNotice(w, r, "/vendor/sponsorship-requests", "error", i18n.T(lang, "vendor.sponsorship.select_package"))
 		return
 	}
 
@@ -85,12 +86,13 @@ func (h *UIHandler) VendorSponsorshipRequestSubmit(w http.ResponseWriter, r *htt
 		h.redirectWithNotice(w, r, "/vendor/sponsorship-requests", "error", h.safeMessage(err, lang))
 		return
 	}
-	h.redirectWithNotice(w, r, "/vendor/sponsorship-requests", "success", "تم تقديم طلب الرعاية بنجاح. سيتم مراجعته من قبل الإدارة.")
+	h.redirectWithNotice(w, r, "/vendor/sponsorship-requests", "success", i18n.T(lang, "vendor.sponsorship.request_submitted_success"))
 }
 
 // VendorSponsorshipRequestCancelSubmit cancels a pending sponsorship request.
 func (h *UIHandler) VendorSponsorshipRequestCancelSubmit(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
+	lang := h.localeAndDirLang(r)
 
 	actor, ok := authctx.From(ctx)
 	if !ok || actor.OrganizationID <= 0 {
@@ -99,26 +101,27 @@ func (h *UIHandler) VendorSponsorshipRequestCancelSubmit(w http.ResponseWriter, 
 	}
 
 	if h.promoSvc == nil {
-		h.redirectWithNotice(w, r, "/vendor/sponsorship-requests", "error", "الخدمة غير متاحة.")
+		h.redirectWithNotice(w, r, "/vendor/sponsorship-requests", "error", i18n.T(lang, "common.service_unavailable"))
 		return
 	}
 
 	id, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
 	if err != nil || id <= 0 {
-		h.redirectWithNotice(w, r, "/vendor/sponsorship-requests", "error", "معرف الطلب غير صحيح.")
+		h.redirectWithNotice(w, r, "/vendor/sponsorship-requests", "error", i18n.T(lang, "vendor.sponsorship.invalid_request_id"))
 		return
 	}
 
 	if err := h.promoSvc.CancelSponsorshipRequest(ctx, id); err != nil {
-		h.redirectWithNotice(w, r, "/vendor/sponsorship-requests", "error", h.safeMessage(err, h.localeAndDirLang(r)))
+		h.redirectWithNotice(w, r, "/vendor/sponsorship-requests", "error", h.safeMessage(err, lang))
 		return
 	}
-	h.redirectWithNotice(w, r, "/vendor/sponsorship-requests", "success", "تم إلغاء طلب الرعاية.")
+	h.redirectWithNotice(w, r, "/vendor/sponsorship-requests", "success", i18n.T(lang, "vendor.sponsorship.request_cancelled_success"))
 }
 
 // VendorSponsorshipPackagePurchaseSubmit handles the purchase of a sponsorship package.
 func (h *UIHandler) VendorSponsorshipPackagePurchaseSubmit(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
+	lang := h.localeAndDirLang(r)
 
 	actor, ok := authctx.From(ctx)
 	if !ok || actor.OrganizationID <= 0 {
@@ -127,13 +130,13 @@ func (h *UIHandler) VendorSponsorshipPackagePurchaseSubmit(w http.ResponseWriter
 	}
 
 	if h.promoSvc == nil {
-		h.redirectWithNotice(w, r, "/vendor/sponsorship-requests", "error", "الخدمة غير متاحة.")
+		h.redirectWithNotice(w, r, "/vendor/sponsorship-requests", "error", i18n.T(lang, "common.service_unavailable"))
 		return
 	}
 
 	packageID, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
 	if err != nil || packageID <= 0 {
-		h.redirectWithNotice(w, r, "/vendor/sponsorship-requests", "error", "معرف الباقة غير صحيح.")
+		h.redirectWithNotice(w, r, "/vendor/sponsorship-requests", "error", i18n.T(lang, "vendor.sponsorship.invalid_package_id"))
 		return
 	}
 
@@ -145,10 +148,10 @@ func (h *UIHandler) VendorSponsorshipPackagePurchaseSubmit(w http.ResponseWriter
 
 	_, err = h.promoSvc.PurchaseSponsorshipPackage(ctx, packageID, autoRenew, billingCycle)
 	if err != nil {
-		h.redirectWithNotice(w, r, "/vendor/sponsorship-requests", "error", h.safeMessage(err, h.localeAndDirLang(r)))
+		h.redirectWithNotice(w, r, "/vendor/sponsorship-requests", "error", h.safeMessage(err, lang))
 		return
 	}
-	h.redirectWithNotice(w, r, "/vendor/sponsorship-requests", "success", "تم شراء الباقة بنجاح. يمكنك الآن تقديم طلبات الرعاية.")
+	h.redirectWithNotice(w, r, "/vendor/sponsorship-requests", "success", i18n.T(lang, "vendor.sponsorship.package_purchased_success"))
 }
 
 // VendorAdCreateSubmit handles the creation of a new advertisement.
@@ -163,7 +166,7 @@ func (h *UIHandler) VendorAdCreateSubmit(w http.ResponseWriter, r *http.Request)
 	}
 
 	if h.promoSvc == nil {
-		h.redirectWithNotice(w, r, "/vendor/ads", "error", "الخدمة غير متاحة.")
+		h.redirectWithNotice(w, r, "/vendor/ads", "error", i18n.T(lang, "common.service_unavailable"))
 		return
 	}
 
@@ -173,7 +176,7 @@ func (h *UIHandler) VendorAdCreateSubmit(w http.ResponseWriter, r *http.Request)
 		h.redirectWithNotice(w, r, "/vendor/ads", "error", h.safeMessage(err, lang))
 		return
 	}
-	h.redirectWithNotice(w, r, "/vendor/ads/"+strconv.FormatInt(created.ID, 10)+"/edit", "success", "تم إنشاء الإعلان وسيتم مراجعته من قبل الإدارة.")
+	h.redirectWithNotice(w, r, "/vendor/ads/"+strconv.FormatInt(created.ID, 10)+"/edit", "success", i18n.T(lang, "vendor.ads.created_success"))
 }
 
 // VendorAdUpdateSubmit handles the update of an existing advertisement.
@@ -188,13 +191,13 @@ func (h *UIHandler) VendorAdUpdateSubmit(w http.ResponseWriter, r *http.Request)
 	}
 
 	if h.promoSvc == nil {
-		h.redirectWithNotice(w, r, "/vendor/ads", "error", "الخدمة غير متاحة.")
+		h.redirectWithNotice(w, r, "/vendor/ads", "error", i18n.T(lang, "common.service_unavailable"))
 		return
 	}
 
 	id, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
 	if err != nil || id <= 0 {
-		h.redirectWithNotice(w, r, "/vendor/ads", "error", "معرف الإعلان غير صحيح.")
+		h.redirectWithNotice(w, r, "/vendor/ads", "error", i18n.T(lang, "vendor.ads.invalid_ad_id"))
 		return
 	}
 
@@ -204,7 +207,7 @@ func (h *UIHandler) VendorAdUpdateSubmit(w http.ResponseWriter, r *http.Request)
 		h.redirectWithNotice(w, r, "/vendor/ads", "error", h.safeMessage(err, lang))
 		return
 	}
-	h.redirectWithNotice(w, r, "/vendor/ads/"+strconv.FormatInt(id, 10)+"/edit", "success", "تم تحديث الإعلان بنجاح.")
+	h.redirectWithNotice(w, r, "/vendor/ads/"+strconv.FormatInt(id, 10)+"/edit", "success", i18n.T(lang, "vendor.ads.updated_success"))
 }
 
 func (h *UIHandler) parseAdForm(r *http.Request, orgID int64) *promo.Ad {

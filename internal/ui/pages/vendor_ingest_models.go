@@ -5,6 +5,7 @@ import (
 
 	"github.com/muhiya/dawa24-store/internal/modules/ingest"
 	"github.com/muhiya/dawa24-store/internal/modules/inventory"
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/shared/productmatch"
 )
 
@@ -16,6 +17,7 @@ import (
 
 // VendorImportView is everything the import screen renders.
 type VendorImportView struct {
+	Lang     string
 	Session  *ingest.Session
 	Analysis *productmatch.Analysis
 
@@ -113,46 +115,95 @@ type CoreFieldStatus struct {
 
 // CoreFieldsStatus inspects all mapped columns and reports status for every essential field.
 func (v VendorImportView) CoreFieldsStatus() []CoreFieldStatus {
-	defs := []struct {
-		f   productmatch.Field
-		l   string
-		d   string
-		req bool
-	}{
-		{productmatch.FieldName, "اسم الصنف", "الاسم التجاري أو الوصف في الملف", true},
-		{productmatch.FieldPrice, "سعر الجمهور", "سعر الجمهور الرسمي للصنف", true},
-		{productmatch.FieldQuantity, "الكمية (رصيد المخزون)", "الكمية المتوفرة لتسجيلها في المستودع المحدد", true},
-		{productmatch.FieldSKU, "كود الصنف (SKU)", "رمز الصنف الداخلي لديك", false},
-		{productmatch.FieldBarcode, "الباركود الدولي", "رقم الباركود للمطابقة التلقائية الفورية", false},
-		{productmatch.FieldExpiryDate, "تاريخ الصلاحية", "تاريخ انتهاء صلاحية التشغيلة", false},
-		{productmatch.FieldDiscountPct, "نسبة الخصم %", "نسبة الخصم الممنوحة على الصنف", false},
+	lang := v.Lang
+	if lang == "" {
+		lang = "ar"
 	}
 
 	cols := v.MappedColumns()
-	res := make([]CoreFieldStatus, 0, len(defs))
-	for _, d := range defs {
-		st := CoreFieldStatus{
-			Field:       d.f,
-			Label:       d.l,
-			Description: d.d,
-			Required:    d.req,
-			ColumnIndex: -1,
-			ColumnName:  "",
+	colMap := make(map[productmatch.Field]*productmatch.Column)
+	for _, c := range cols {
+		if !c.Ignored {
+			colMap[c.Field] = c
 		}
-		for _, c := range cols {
-			if c.Field == d.f && !c.Ignored {
-				st.ColumnIndex = c.Index
-				if c.Header != "" {
-					st.ColumnName = c.Header
-				} else {
-					st.ColumnName = fmt.Sprintf("العمود %d", c.Index+1)
-				}
-				break
-			}
-		}
-		res = append(res, st)
 	}
-	return res
+
+	colName := func(f productmatch.Field) (int, string) {
+		if c, ok := colMap[f]; ok {
+			if c.Header != "" {
+				return c.Index, c.Header
+			}
+			return c.Index, fmt.Sprintf(i18n.T(lang, "ingest.field.column_n"), c.Index+1)
+		}
+		return -1, ""
+	}
+
+	idxName, nameName := colName(productmatch.FieldName)
+	idxPrice, namePrice := colName(productmatch.FieldPrice)
+	idxQty, nameQty := colName(productmatch.FieldQuantity)
+	idxSKU, nameSKU := colName(productmatch.FieldSKU)
+	idxBar, nameBar := colName(productmatch.FieldBarcode)
+	idxExp, nameExp := colName(productmatch.FieldExpiryDate)
+	idxDisc, nameDisc := colName(productmatch.FieldDiscountPct)
+
+	return []CoreFieldStatus{
+		{
+			Field:       productmatch.FieldName,
+			Label:       i18n.T(lang, "ingest.field.name"),
+			Description: i18n.T(lang, "ingest.field.name_desc"),
+			Required:    true,
+			ColumnIndex: idxName,
+			ColumnName:  nameName,
+		},
+		{
+			Field:       productmatch.FieldPrice,
+			Label:       i18n.T(lang, "ingest.field.price"),
+			Description: i18n.T(lang, "ingest.field.price_desc"),
+			Required:    true,
+			ColumnIndex: idxPrice,
+			ColumnName:  namePrice,
+		},
+		{
+			Field:       productmatch.FieldQuantity,
+			Label:       i18n.T(lang, "ingest.field.quantity"),
+			Description: i18n.T(lang, "ingest.field.quantity_desc"),
+			Required:    true,
+			ColumnIndex: idxQty,
+			ColumnName:  nameQty,
+		},
+		{
+			Field:       productmatch.FieldSKU,
+			Label:       i18n.T(lang, "ingest.field.sku"),
+			Description: i18n.T(lang, "ingest.field.sku_desc"),
+			Required:    false,
+			ColumnIndex: idxSKU,
+			ColumnName:  nameSKU,
+		},
+		{
+			Field:       productmatch.FieldBarcode,
+			Label:       i18n.T(lang, "ingest.field.barcode"),
+			Description: i18n.T(lang, "ingest.field.barcode_desc"),
+			Required:    false,
+			ColumnIndex: idxBar,
+			ColumnName:  nameBar,
+		},
+		{
+			Field:       productmatch.FieldExpiryDate,
+			Label:       i18n.T(lang, "ingest.field.expiry"),
+			Description: i18n.T(lang, "ingest.field.expiry_desc"),
+			Required:    false,
+			ColumnIndex: idxExp,
+			ColumnName:  nameExp,
+		},
+		{
+			Field:       productmatch.FieldDiscountPct,
+			Label:       i18n.T(lang, "ingest.field.discount"),
+			Description: i18n.T(lang, "ingest.field.discount_desc"),
+			Required:    false,
+			ColumnIndex: idxDisc,
+			ColumnName:  nameDisc,
+		},
+	}
 }
 
 // FieldChoices lists the fields a column may be bound to, grouped for the
@@ -201,17 +252,21 @@ func OutcomeTone(outcome string) string {
 	return "badge-slate"
 }
 
-// OutcomeLabel renders a row outcome in Arabic.
-func OutcomeLabel(outcome string) string {
+// OutcomeLabel renders a row outcome in the given language (defaults to Arabic).
+func OutcomeLabel(outcome string, langOpt ...string) string {
+	lang := "ar"
+	if len(langOpt) > 0 && langOpt[0] != "" {
+		lang = langOpt[0]
+	}
 	switch outcome {
 	case ingest.OutcomeInserted:
-		return "تمت الإضافة"
+		return i18n.T(lang, "ingest.outcome.inserted")
 	case ingest.OutcomeUpdated:
-		return "تم التحديث"
+		return i18n.T(lang, "ingest.outcome.updated")
 	case ingest.OutcomeError:
-		return "خطأ"
+		return i18n.T(lang, "ingest.outcome.error")
 	}
-	return "تم التخطي"
+	return i18n.T(lang, "ingest.outcome.skipped")
 }
 
 // MatchLevelLabel renders a match level in Arabic.
@@ -239,14 +294,18 @@ func PercentText(score float64) string {
 }
 
 // FileSizeText renders a byte count the way a vendor reads it.
-func FileSizeText(bytes int64) string {
+func FileSizeText(bytes int64, langOpt ...string) string {
+	lang := "ar"
+	if len(langOpt) > 0 && langOpt[0] != "" {
+		lang = langOpt[0]
+	}
 	switch {
 	case bytes >= 1<<20:
-		return fmt.Sprintf("%.1f ميجابايت", float64(bytes)/float64(1<<20))
+		return fmt.Sprintf(i18n.T(lang, "common.file_size_mb"), float64(bytes)/float64(1<<20))
 	case bytes >= 1<<10:
-		return fmt.Sprintf("%.0f كيلوبايت", float64(bytes)/float64(1<<10))
+		return fmt.Sprintf(i18n.T(lang, "common.file_size_kb"), float64(bytes)/float64(1<<10))
 	}
-	return fmt.Sprintf("%d بايت", bytes)
+	return fmt.Sprintf(i18n.T(lang, "common.file_size_bytes"), bytes)
 }
 
 // ImportModeOptions are the reconciliation strategies for the settings screen.

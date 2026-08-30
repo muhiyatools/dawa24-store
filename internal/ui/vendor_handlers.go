@@ -8,6 +8,7 @@ import (
 
 	"github.com/muhiya/dawa24-store/internal/modules/org"
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/shared/money"
 	"github.com/muhiya/dawa24-store/internal/ui/pages"
 )
@@ -50,6 +51,7 @@ func (h *UIHandler) VendorOrganizationPage(w http.ResponseWriter, r *http.Reques
 // VendorOrganizationSubmit handles updating supplier organization commercial info, limits, and file uploads.
 func (h *UIHandler) VendorOrganizationSubmit(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
+	lang := langOf(r)
 
 	actor, ok := authctx.From(ctx)
 	if !ok {
@@ -81,7 +83,7 @@ func (h *UIHandler) VendorOrganizationSubmit(w http.ResponseWriter, r *http.Requ
 		maxPrice = money.FromMajor(50)
 	}
 	if maxPrice.Minor() < minPrice.Minor() {
-		http.Redirect(w, r, "/vendor/organization?notice_type=error&notice_msg="+url.QueryEscape("الحد الأقصى لسعر الطلب يجب أن يكون أكبر من أو يساوي الحد الأدنى"), http.StatusSeeOther)
+		http.Redirect(w, r, "/vendor/organization?notice_type=error&notice_msg="+url.QueryEscape(i18n.T(lang, "vendor.org.max_price_invalid")), http.StatusSeeOther)
 		return
 	}
 
@@ -134,9 +136,9 @@ func (h *UIHandler) VendorOrganizationSubmit(w http.ResponseWriter, r *http.Requ
 
 	if err := h.orgSvc.UpdateSupplierProfile(ctx, profile); err != nil {
 		h.log.ErrorContext(ctx, "failed to update supplier profile", "org_id", orgID, "error", err)
-		http.Redirect(w, r, "/vendor/organization?notice_type=error&notice_msg="+url.QueryEscape("حدث خطأ أثناء حفظ التعديلات: "+err.Error()), http.StatusSeeOther)
+		http.Redirect(w, r, "/vendor/organization?notice_type=error&notice_msg="+url.QueryEscape(i18n.T(lang, "vendor.org.save_error_prefix")+err.Error()), http.StatusSeeOther)
 		return
 	}
 
-	http.Redirect(w, r, "/vendor/organization?notice_type=success&notice_msg="+url.QueryEscape("تم حفظ وتحديث بيانات المنشأة والهوية التجارية بنجاح"), http.StatusSeeOther)
+	http.Redirect(w, r, "/vendor/organization?notice_type=success&notice_msg="+url.QueryEscape(i18n.T(lang, "vendor.org.saved_success")), http.StatusSeeOther)
 }

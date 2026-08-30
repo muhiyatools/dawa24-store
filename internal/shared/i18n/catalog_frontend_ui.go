@@ -204,4 +204,16 @@ func loadFrontendUIKeys(e *engine) {
 	addKey(e, "customer.order.negotiate_success", "customer", "تم إرسال طلب التفاوض على السعر إلى المورد بنجاح وهو الآن قيد المراجعة.", "Price negotiation request sent to supplier and is now under review.", "Negotiation submitted")
 	addKey(e, "customer.order.edit_notification_title", "commerce", "تعديل على الطلب #%s", "Edit to order #%s", "Notification title for order edit")
 	addKey(e, "customer.order.edit_notification_body", "commerce", "قامت صيدلية %s بتعديل كميات وأصناف الطلب #%s بقيمة جديدة %s ج.م.", "Pharmacy %s edited quantities and items of order #%s with new total %s EGP", "Notification body for order edit")
+
+	// --- Days of Week & Coverage ---
+	addKey(e, "day.sunday", "common", "الأحد", "Sunday", "Day of week")
+	addKey(e, "day.monday", "common", "الاثنين", "Monday", "Day of week")
+	addKey(e, "day.tuesday", "common", "الثلاثاء", "Tuesday", "Day of week")
+	addKey(e, "day.wednesday", "common", "الأربعاء", "Wednesday", "Day of week")
+	addKey(e, "day.thursday", "common", "الخميس", "Thursday", "Day of week")
+	addKey(e, "day.friday", "common", "الجمعة", "Friday", "Day of week")
+	addKey(e, "day.saturday", "common", "السبت", "Saturday", "Day of week")
+	addKey(e, "vendor.coverage.within_range_meters", "vendor", "ضمن نطاق التغطية (%d متر)", "Within coverage range (%d meters)", "Coverage match reason")
+	addKey(e, "vendor.coverage.within_range_km", "vendor", "ضمن نطاق التغطية (%.1f كم)", "Within coverage range (%.1f km)", "Coverage match reason")
+	addKey(e, "vendor.coverage.within_distribution_city", "vendor", "ضمن نطاق مدينة التوزيع", "Within distribution city range", "Coverage match reason")
 }

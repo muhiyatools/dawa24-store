@@ -726,10 +726,10 @@ templ AdminWarehousesPage(warehouses []*AdminWarehouseRowView, lang, dir string)
 					</div>
 				}
 			</div>
+
 		</div>
 	}
 }
-
 // AdminWarehouseDetailPage renders full warehouse detail and searchable/paginated stocks page.
 templ AdminWarehouseDetailPage(data AdminWarehouseDetailView, lang, dir string) {
 	@layouts.AdminShell(fmt.Sprintf("مخزون مخزن: %s", data.Warehouse.Name), "warehouses", lang, dir) {
@@ -2724,6 +2724,9 @@ templ AdminSavingProductsPage(data AdminSavingProductsData, lang, dir string) {
 							</tbody>
 						</table>
 					</div>
+					if data.Pagination.TotalCount > 0 {
+						@components.B2BPagination(data.Pagination)
+					}
 				}
 			</div>
 

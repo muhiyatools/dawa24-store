@@ -10,6 +10,7 @@ import (
 
 	"github.com/muhiya/dawa24-store/internal/modules/commerce"
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/shared/money"
 	"github.com/muhiya/dawa24-store/internal/ui/pages"
 )
@@ -75,6 +76,7 @@ func (h *UIHandler) VendorPurchaseRequestDetailPage(w http.ResponseWriter, r *ht
 // VendorPurchaseRequestRespondSubmit allows vendor to approve, reject, or comment on a purchase request.
 func (h *UIHandler) VendorPurchaseRequestRespondSubmit(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
+	lang := langOf(r)
 	actor, ok := authctx.From(ctx)
 	if !ok || actor.OrganizationID <= 0 {
 		http.Redirect(w, r, "/auth/login", http.StatusSeeOther)
@@ -84,7 +86,7 @@ func (h *UIHandler) VendorPurchaseRequestRespondSubmit(w http.ResponseWriter, r 
 	reqIDStr := chi.URLParam(r, "id")
 	reqID, err := strconv.ParseInt(reqIDStr, 10, 64)
 	if err != nil || reqID <= 0 {
-		h.redirectWithNotice(w, r, "/vendor/purchase-requests", "error", "معرف طلب غير صالح.")
+		h.redirectWithNotice(w, r, "/vendor/purchase-requests", "error", i18n.T(lang, "vendor.purchase_request.invalid_id"))
 		return
 	}
 
@@ -96,18 +98,18 @@ func (h *UIHandler) VendorPurchaseRequestRespondSubmit(w http.ResponseWriter, r 
 	if h.commSvc != nil {
 		req, err := h.commSvc.GetPurchaseRequest(ctx, reqID)
 		if err != nil || req == nil {
-			h.redirectWithNotice(w, r, "/vendor/purchase-requests", "error", "طلب الشراء غير موجود.")
+			h.redirectWithNotice(w, r, "/vendor/purchase-requests", "error", i18n.T(lang, "vendor.purchase_request.not_found"))
 			return
 		}
 		if !actor.IsStaff && !actor.Can("commerce.admin") {
 			if req.VendorOrgID != actor.OrganizationID {
-				h.redirectWithNotice(w, r, "/vendor/purchase-requests", "error", "غير مصرح لك بإدارة هذا الطلب.")
+				h.redirectWithNotice(w, r, "/vendor/purchase-requests", "error", i18n.T(lang, "vendor.orders.unauthorized_order_management"))
 				return
 			}
 		}
 
 		if err := h.commSvc.RespondPurchaseRequest(ctx, reqID, status, vendorNotes, &responderID); err != nil {
-			h.redirectWithNotice(w, r, "/vendor/purchase-requests/"+reqIDStr, "error", h.safeMessage(err, langOf(r)))
+			h.redirectWithNotice(w, r, "/vendor/purchase-requests/"+reqIDStr, "error", h.safeMessage(err, lang))
 			return
 		}
 
@@ -120,12 +122,13 @@ func (h *UIHandler) VendorPurchaseRequestRespondSubmit(w http.ResponseWriter, r 
 		go h.notifyPurchaseRequestResponded(context.Background(), req.CustomerID, custOrgID, vendorName, reqID)
 	}
 
-	h.redirectWithNotice(w, r, "/vendor/purchase-requests/"+reqIDStr, "success", "تم تحديث حالة طلب الشراء بنجاح.")
+	h.redirectWithNotice(w, r, "/vendor/purchase-requests/"+reqIDStr, "success", i18n.T(lang, "vendor.purchase_request.status_updated_success"))
 }
 
 // VendorPurchaseRequestLineRespondSubmit updates vendor price/discount counter-offer for a specific line item.
 func (h *UIHandler) VendorPurchaseRequestLineRespondSubmit(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
+	lang := langOf(r)
 	actor, ok := authctx.From(ctx)
 	if !ok || actor.OrganizationID <= 0 {
 		http.Redirect(w, r, "/auth/login", http.StatusSeeOther)
@@ -135,7 +138,7 @@ func (h *UIHandler) VendorPurchaseRequestLineRespondSubmit(w http.ResponseWriter
 	lineIDStr := chi.URLParam(r, "id")
 	lineID, err := strconv.ParseInt(lineIDStr, 10, 64)
 	if err != nil || lineID <= 0 {
-		h.redirectWithNotice(w, r, "/vendor/purchase-requests", "error", "معرف سطر غير صالح.")
+		h.redirectWithNotice(w, r, "/vendor/purchase-requests", "error", i18n.T(lang, "vendor.purchase_request.invalid_line_id"))
 		return
 	}
 
@@ -160,10 +163,10 @@ func (h *UIHandler) VendorPurchaseRequestLineRespondSubmit(w http.ResponseWriter
 
 	if h.commSvc != nil {
 		if err := h.commSvc.UpdatePurchaseRequestLineOffer(ctx, lineID, price, discount, status); err != nil {
-			h.redirectWithNotice(w, r, "/vendor/purchase-requests", "error", h.safeMessage(err, langOf(r)))
+			h.redirectWithNotice(w, r, "/vendor/purchase-requests", "error", h.safeMessage(err, lang))
 			return
 		}
 	}
 
-	h.redirectWithNotice(w, r, "/vendor/purchase-requests", "success", "تم تحديث عرض السطر بنجاح.")
+	h.redirectWithNotice(w, r, "/vendor/purchase-requests", "success", i18n.T(lang, "vendor.purchase_request.line_offer_updated_success"))
 }

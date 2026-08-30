@@ -17,6 +17,7 @@ import (
 
 	"github.com/muhiya/dawa24-store/internal/modules/compare"
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/shared/sheet"
 )
 
@@ -93,6 +94,7 @@ func (h *UIHandler) CompareSampleDownload(w http.ResponseWriter, r *http.Request
 // CompareUploadSubmit handles uploading one or multiple supplier spreadsheet files and automatically parses rows in parallel.
 func (h *UIHandler) CompareUploadSubmit(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
+	lang := langOf(r)
 	actor, ok := authctx.From(ctx)
 	if !ok {
 		http.Redirect(w, r, "/auth/login?redirect=/compare/tool", http.StatusSeeOther)
@@ -100,13 +102,13 @@ func (h *UIHandler) CompareUploadSubmit(w http.ResponseWriter, r *http.Request) 
 	}
 
 	if h.compareSvc == nil {
-		h.redirectWithNotice(w, r, "/compare/tool", "error", "خدمة المقارنة غير متاحة حالياً.")
+		h.redirectWithNotice(w, r, "/compare/tool", "error", i18n.T(lang, "common.compare_service_unavailable"))
 		return
 	}
 
 	// 128 MB max memory for multi-file batch uploads
 	if err := r.ParseMultipartForm(128 << 20); err != nil {
-		h.redirectWithNotice(w, r, "/compare/tool", "error", "تعذر قراءة الملفات المرفوعة، يرجى التأكد من حجم الملفات.")
+		h.redirectWithNotice(w, r, "/compare/tool", "error", i18n.T(lang, "compare.upload.read_failed"))
 		return
 	}
 
@@ -118,7 +120,7 @@ func (h *UIHandler) CompareUploadSubmit(w http.ResponseWriter, r *http.Request) 
 	}
 
 	if len(fileHeaders) == 0 {
-		h.redirectWithNotice(w, r, "/compare/tool", "error", "يرجى اختيار ملف Excel أو CSV واحد على الأقل.")
+		h.redirectWithNotice(w, r, "/compare/tool", "error", i18n.T(lang, "compare.upload.choose_file"))
 		return
 	}
 
@@ -145,12 +147,12 @@ func (h *UIHandler) CompareUploadSubmit(w http.ResponseWriter, r *http.Request) 
 				}
 			}
 			if activeCount >= maxAllowedFiles {
-				h.redirectWithNotice(w, r, "/compare/tool", "error", fmt.Sprintf("لقد استنفدت الحد الأقصى المسموح به لكشوف الموردين في باقتك الحالية (%d كشوف). يرجى ترقية باقة الاشتراك أو أرشفة/حذف الكشوف القديمة للمتابعة.", maxAllowedFiles))
+				h.redirectWithNotice(w, r, "/compare/tool", "error", fmt.Sprintf(i18n.T(lang, "compare.upload.quota_exceeded"), maxAllowedFiles))
 				return
 			}
 			if activeCount+len(fileHeaders) > maxAllowedFiles {
 				remaining := maxAllowedFiles - activeCount
-				h.redirectWithNotice(w, r, "/compare/tool", "error", fmt.Sprintf("عدد الملفات المحددة للرفع (%d) يتجاوز السعة المتبقية في باقتك (%d كشوف متبقية من أصل %d). يرجى تقليل عدد الملفات أو ترقية الباقة.", len(fileHeaders), remaining, maxAllowedFiles))
+				h.redirectWithNotice(w, r, "/compare/tool", "error", fmt.Sprintf(i18n.T(lang, "compare.upload.quota_overflow"), len(fileHeaders), remaining, maxAllowedFiles))
 				return
 			}
 		}
@@ -180,20 +182,20 @@ func (h *UIHandler) CompareUploadSubmit(w http.ResponseWriter, r *http.Request) 
 
 	for idx, header := range fileHeaders {
 		if !SupportedUploadName(header.Filename) {
-			errorFiles = append(errorFiles, header.Filename+" (صيغة غير مدعومة)")
+			errorFiles = append(errorFiles, header.Filename+" ("+i18n.T(lang, "compare.upload.unsupported_format")+")")
 			continue
 		}
 
 		file, err := header.Open()
 		if err != nil {
-			errorFiles = append(errorFiles, header.Filename+" (تعذر الفتح)")
+			errorFiles = append(errorFiles, header.Filename+" ("+i18n.T(lang, "compare.upload.open_failed")+")")
 			continue
 		}
 
 		fileBytes, err := io.ReadAll(file)
 		file.Close()
 		if err != nil || len(fileBytes) == 0 {
-			errorFiles = append(errorFiles, header.Filename+" (ملف فارغ أو تعذر قراءته)")
+			errorFiles = append(errorFiles, header.Filename+" ("+i18n.T(lang, "compare.upload.empty_or_unread")+")")
 			continue
 		}
 
@@ -211,7 +213,7 @@ func (h *UIHandler) CompareUploadSubmit(w http.ResponseWriter, r *http.Request) 
 		localURL, localErr := saveUploadedBytes(fileBytes, header.Filename, "compare")
 		if localErr != nil {
 			h.log.ErrorContext(ctx, "failed to save uploaded compare file to disk", "error", localErr, "file", header.Filename)
-			errorFiles = append(errorFiles, header.Filename+" (تعذر الحفظ)")
+			errorFiles = append(errorFiles, header.Filename+" ("+i18n.T(lang, "compare.upload.save_failed")+")")
 			continue
 		}
 
@@ -253,7 +255,7 @@ func (h *UIHandler) CompareUploadSubmit(w http.ResponseWriter, r *http.Request) 
 						err:      err,
 					}
 					if err != nil {
-						res.errFile = itm.filename + " (" + h.safeMessage(err, langOf(r)) + ")"
+						res.errFile = itm.filename + " (" + h.safeMessage(err, lang) + ")"
 					}
 					results[itm.index] = res
 				}
@@ -290,17 +292,17 @@ func (h *UIHandler) CompareUploadSubmit(w http.ResponseWriter, r *http.Request) 
 	}
 
 	if processedCount == 0 {
-		errMsg := "تعذر معالجة أي من الملفات المرفوعة: " + strings.Join(errorFiles, "، ")
+		errMsg := i18n.T(lang, "compare.upload.none_processed_prefix") + strings.Join(errorFiles, ", ")
 		h.redirectWithNotice(w, r, "/compare/tool", "error", errMsg)
 		return
 	}
 
-	msg := fmt.Sprintf("تم رفع ومعالجة %d كشوف موردين بنجاح (إجمالي %d صنف جاهزة للمقارنة).", processedCount, totalRows)
+	msg := fmt.Sprintf(i18n.T(lang, "compare.upload.success_summary"), processedCount, totalRows)
 	firstID := uploadedIDs[0]
 	queueStr := strings.Join(uploadedIDs, ",")
 	redirectURL := fmt.Sprintf("/compare/tool?setup_queue=%s&setup_file=%s&setup_step=1&setup_total=%d&notice=success&msg=%s", url.QueryEscape(queueStr), firstID, len(uploadedIDs), url.QueryEscape(msg))
 	if len(errorFiles) > 0 {
-		redirectURL += "&warning=" + url.QueryEscape("تعذر رفع: "+strings.Join(errorFiles, "، "))
+		redirectURL += "&warning=" + url.QueryEscape(i18n.T(lang, "compare.upload.warning_failed_prefix")+strings.Join(errorFiles, ", "))
 	}
 	http.Redirect(w, r, redirectURL, http.StatusSeeOther)
 }
@@ -335,7 +337,7 @@ func (h *UIHandler) loadFileHeadersAndPreview(ctx context.Context, file *compare
 	// Fallback to already extracted rows in DB if disk read didn't populate headers
 	if len(headers) == 0 && file != nil && h.compareSvc != nil {
 		if dbRows, _ := h.compareSvc.ListFileRows(ctx, file.ID, 5, 0); len(dbRows) > 0 {
-			headers = []string{"كود الصنف", "اسم الصنف", "السعر", "الخصم"}
+			headers = []string{i18n.T("ar", "compare.col.sku"), i18n.T("ar", "compare.col.name"), i18n.T("ar", "compare.col.price"), i18n.T("ar", "compare.col.discount")}
 			for _, dr := range dbRows {
 				preview = append(preview, []string{
 					dr.SKU, dr.RawName, dr.Price.String(), fmt.Sprintf("%.1f%%", dr.Discount),
@@ -345,7 +347,7 @@ func (h *UIHandler) loadFileHeadersAndPreview(ctx context.Context, file *compare
 	}
 
 	if len(headers) == 0 {
-		headers = []string{"كود الصنف", "اسم الصنف", "السعر", "الخصم", "ملاحظات"}
+		headers = []string{i18n.T("ar", "compare.col.sku"), i18n.T("ar", "compare.col.name"), i18n.T("ar", "compare.col.price"), i18n.T("ar", "compare.col.discount"), i18n.T("ar", "compare.col.notes")}
 	}
 
 	return headers, preview

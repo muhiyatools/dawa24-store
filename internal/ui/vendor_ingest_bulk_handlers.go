@@ -15,6 +15,7 @@ import (
 	"github.com/go-chi/chi/v5"
 
 	"github.com/muhiya/dawa24-store/internal/modules/ingest"
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 )
 
 // bulkRowIDs reads the ticked rows out of a submitted review form.
@@ -71,11 +72,11 @@ func (h *UIHandler) VendorIngestBulkSubmit(w http.ResponseWriter, r *http.Reques
 	back := buildReviewRedirect(publicID, r)
 
 	if h.ingSvc == nil {
-		h.redirectWithNotice(w, r, "/vendor/ingest", "error", "خدمة الاستيراد غير متاحة حالياً.")
+		h.redirectWithNotice(w, r, "/vendor/ingest", "error", i18n.T(langOf(r), "common.import_service_unavailable"))
 		return
 	}
 	if err := r.ParseForm(); err != nil {
-		h.redirectWithNotice(w, r, back, "error", "تعذر قراءة النموذج المرسل.")
+		h.redirectWithNotice(w, r, back, "error", i18n.T(langOf(r), "common.invalid_form_data"))
 		return
 	}
 
@@ -100,7 +101,7 @@ func (h *UIHandler) VendorIngestBulkSubmit(w http.ResponseWriter, r *http.Reques
 	}
 	if len(ids) == 0 {
 		h.redirectWithNotice(w, r, back, "error",
-			"لم يتم تحديد أي صنف. اختر الأصناف أولاً ثم كرّر العملية.")
+			i18n.T(langOf(r), "vendor.ingest.no_items_selected"))
 		return
 	}
 
@@ -110,24 +111,24 @@ func (h *UIHandler) VendorIngestBulkSubmit(w http.ResponseWriter, r *http.Reques
 	case "confirm":
 		out, e := h.ingSvc.ConfirmRowMatches(ctx, publicID, ids)
 		err = e
-		msg = fmt.Sprintf("تم اعتماد %d صنف كمطابق ونقلها إلى قائمة الاستيراد.", out.Applied)
+		msg = fmt.Sprintf(i18n.T(langOf(r), "vendor.ingest.bulk_confirmed"), out.Applied)
 		if out.Skipped > 0 {
-			msg += fmt.Sprintf(" %d صنف لم يُعتمد لعدم وجود صنف مقترح — اربطه يدوياً أولاً.", out.Skipped)
+			msg += fmt.Sprintf(i18n.T(langOf(r), "vendor.ingest.bulk_confirmed_skipped"), out.Skipped)
 		}
 	case "unlink":
 		out, e := h.ingSvc.ClearRowMatches(ctx, publicID, ids)
 		err = e
-		msg = fmt.Sprintf("تم إلغاء الربط عن %d صنف.", out.Applied)
+		msg = fmt.Sprintf(i18n.T(langOf(r), "vendor.ingest.bulk_unlinked"), out.Applied)
 	case "exclude":
 		out, e := h.ingSvc.SetRowsExcluded(ctx, publicID, ids, true)
 		err = e
-		msg = fmt.Sprintf("تم استبعاد %d صنف من الاستيراد.", out.Applied)
+		msg = fmt.Sprintf(i18n.T(langOf(r), "vendor.ingest.bulk_excluded"), out.Applied)
 	case "include":
 		out, e := h.ingSvc.SetRowsExcluded(ctx, publicID, ids, false)
 		err = e
-		msg = fmt.Sprintf("تمت إعادة %d صنف إلى الاستيراد.", out.Applied)
+		msg = fmt.Sprintf(i18n.T(langOf(r), "vendor.ingest.bulk_included"), out.Applied)
 	default:
-		h.redirectWithNotice(w, r, back, "error", "إجراء غير معروف.")
+		h.redirectWithNotice(w, r, back, "error", i18n.T(langOf(r), "vendor.ingest.unknown_action"))
 		return
 	}
 

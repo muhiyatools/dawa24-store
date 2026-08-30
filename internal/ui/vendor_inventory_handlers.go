@@ -212,10 +212,10 @@ func (h *UIHandler) recordInitialStock(ctx context.Context, orgID int64, v *cata
 	}
 	// If no warehouse exists, auto-create a real warehouse linked to the vendor's branch
 	if warehouseID == 0 {
-		whName := "المخزن الرئيسي"
+		whName := i18n.T("ar", "vendor.ingest.main_warehouse")
 		if v.BranchID != nil && h.orgSvc != nil {
 			if b, err := h.orgSvc.GetBranch(ctx, *v.BranchID); err == nil && b != nil {
-				whName = "مخزن " + b.Name.Get(i18n.AR)
+				whName = i18n.T("ar", "vendor.inventory.warehouse_prefix") + b.Name.Get(i18n.AR)
 			}
 		}
 		newWh := &inventory.Warehouse{

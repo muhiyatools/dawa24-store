@@ -9,6 +9,7 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/muhiya/dawa24-store/internal/modules/ingest"
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/ui/pages"
 )
 
@@ -58,12 +59,12 @@ func (h *UIHandler) VendorIngestRowUpdateSubmit(w http.ResponseWriter, r *http.R
 	rowIDStr := chi.URLParam(r, "rowID")
 	rowID, err := strconv.ParseInt(rowIDStr, 10, 64)
 	if err != nil || h.ingSvc == nil {
-		h.redirectWithNotice(w, r, "/vendor/ingest/"+publicID, "error", "معرّف الصف غير صالح.")
+		h.redirectWithNotice(w, r, "/vendor/ingest/"+publicID, "error", i18n.T(langOf(r), "vendor.ingest.invalid_row_id"))
 		return
 	}
 
 	if err := r.ParseForm(); err != nil {
-		h.redirectWithNotice(w, r, "/vendor/ingest/"+publicID, "error", "تعذر قراءة النموذج المرسل.")
+		h.redirectWithNotice(w, r, "/vendor/ingest/"+publicID, "error", i18n.T(langOf(r), "common.invalid_form_data"))
 		return
 	}
 
@@ -96,7 +97,7 @@ func (h *UIHandler) VendorIngestRowUpdateSubmit(w http.ResponseWriter, r *http.R
 		return
 	}
 
-	h.redirectWithNotice(w, r, buildReviewRedirect(publicID, r), "success", "تم تحديث بيانات الصنف بنجاح.")
+	h.redirectWithNotice(w, r, buildReviewRedirect(publicID, r), "success", i18n.T(langOf(r), "vendor.ingest.item_updated_success"))
 }
 
 // VendorIngestBatchQuantitySubmit applies a uniform quantity to all staged items in the import.
@@ -104,18 +105,18 @@ func (h *UIHandler) VendorIngestBatchQuantitySubmit(w http.ResponseWriter, r *ht
 	ctx := r.Context()
 	publicID := chi.URLParam(r, "id")
 	if h.ingSvc == nil {
-		h.redirectWithNotice(w, r, "/vendor/ingest/"+publicID, "error", "خدمة الاستيراد غير متاحة.")
+		h.redirectWithNotice(w, r, "/vendor/ingest/"+publicID, "error", i18n.T(langOf(r), "common.import_service_unavailable"))
 		return
 	}
 	if err := r.ParseForm(); err != nil {
-		h.redirectWithNotice(w, r, "/vendor/ingest/"+publicID, "error", "تعذر قراءة النموذج.")
+		h.redirectWithNotice(w, r, "/vendor/ingest/"+publicID, "error", i18n.T(langOf(r), "common.invalid_form_data"))
 		return
 	}
 
 	qStr := strings.TrimSpace(r.PostFormValue("batch_quantity"))
 	qty, err := strconv.Atoi(qStr)
 	if err != nil || qty < 0 {
-		h.redirectWithNotice(w, r, buildReviewRedirect(publicID, r), "error", "يرجى إدخال كمية صحيحة أكبر من أو تساوي الصفر.")
+		h.redirectWithNotice(w, r, buildReviewRedirect(publicID, r), "error", i18n.T(langOf(r), "vendor.ingest.enter_valid_quantity"))
 		return
 	}
 
@@ -124,7 +125,7 @@ func (h *UIHandler) VendorIngestBatchQuantitySubmit(w http.ResponseWriter, r *ht
 		return
 	}
 
-	h.redirectWithNotice(w, r, buildReviewRedirect(publicID, r), "success", fmt.Sprintf("تم تعيين الكمية (%d) لجميع أصناف الملف بنجاح.", qty))
+	h.redirectWithNotice(w, r, buildReviewRedirect(publicID, r), "success", fmt.Sprintf(i18n.T(langOf(r), "vendor.ingest.batch_quantity_success"), qty))
 }
 
 // VendorIngestRowMatchSubmit manually assigns a master catalog product to a staged row.
@@ -134,12 +135,12 @@ func (h *UIHandler) VendorIngestRowMatchSubmit(w http.ResponseWriter, r *http.Re
 	rowIDStr := chi.URLParam(r, "rowID")
 	rowID, err := strconv.ParseInt(rowIDStr, 10, 64)
 	if err != nil || h.ingSvc == nil {
-		h.redirectWithNotice(w, r, "/vendor/ingest/"+publicID, "error", "معرّف الصف غير صالح.")
+		h.redirectWithNotice(w, r, "/vendor/ingest/"+publicID, "error", i18n.T(langOf(r), "vendor.ingest.invalid_row_id"))
 		return
 	}
 
 	if err := r.ParseForm(); err != nil {
-		h.redirectWithNotice(w, r, "/vendor/ingest/"+publicID, "error", "تعذر قراءة النموذج.")
+		h.redirectWithNotice(w, r, "/vendor/ingest/"+publicID, "error", i18n.T(langOf(r), "common.invalid_form_data"))
 		return
 	}
 
@@ -151,9 +152,9 @@ func (h *UIHandler) VendorIngestRowMatchSubmit(w http.ResponseWriter, r *http.Re
 	}
 
 	if productID > 0 {
-		h.redirectWithNotice(w, r, buildReviewRedirect(publicID, r), "success", "تم ربط الصنف بالكتالوج المركزي بنجاح.")
+		h.redirectWithNotice(w, r, buildReviewRedirect(publicID, r), "success", i18n.T(langOf(r), "vendor.ingest.item_linked_success"))
 	} else {
-		h.redirectWithNotice(w, r, buildReviewRedirect(publicID, r), "success", "تم إلغاء ربط الصنف بالكتالوج.")
+		h.redirectWithNotice(w, r, buildReviewRedirect(publicID, r), "success", i18n.T(langOf(r), "vendor.ingest.item_unlinked_success"))
 	}
 }
 
@@ -164,7 +165,7 @@ func (h *UIHandler) VendorIngestRowToggleSubmit(w http.ResponseWriter, r *http.R
 	rowIDStr := chi.URLParam(r, "rowID")
 	rowID, err := strconv.ParseInt(rowIDStr, 10, 64)
 	if err != nil || h.ingSvc == nil {
-		h.redirectWithNotice(w, r, "/vendor/ingest/"+publicID, "error", "معرّف الصف غير صالح.")
+		h.redirectWithNotice(w, r, "/vendor/ingest/"+publicID, "error", i18n.T(langOf(r), "vendor.ingest.invalid_row_id"))
 		return
 	}
 
@@ -231,7 +232,7 @@ func (h *UIHandler) VendorIngestBackToSettingsSubmit(w http.ResponseWriter, r *h
 	ctx := r.Context()
 	publicID := chi.URLParam(r, "id")
 	if h.ingSvc == nil {
-		h.redirectWithNotice(w, r, "/vendor/ingest", "error", "خدمة الاستيراد غير متاحة حالياً.")
+		h.redirectWithNotice(w, r, "/vendor/ingest", "error", i18n.T(langOf(r), "common.import_service_unavailable"))
 		return
 	}
 
@@ -248,7 +249,7 @@ func (h *UIHandler) VendorIngestCommitSubmit(w http.ResponseWriter, r *http.Requ
 	ctx := r.Context()
 	publicID := chi.URLParam(r, "id")
 	if h.ingSvc == nil {
-		h.redirectWithNotice(w, r, "/vendor/ingest", "error", "خدمة الاستيراد غير متاحة حالياً.")
+		h.redirectWithNotice(w, r, "/vendor/ingest", "error", i18n.T(langOf(r), "common.import_service_unavailable"))
 		return
 	}
 
@@ -258,10 +259,9 @@ func (h *UIHandler) VendorIngestCommitSubmit(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
-	msg := fmt.Sprintf("تم بنجاح حفظ %d صنفاً في الكتالوج والمخزن.", session.InsertedRows+session.UpdatedRows)
+	msg := fmt.Sprintf(i18n.T(langOf(r), "vendor.ingest.commit_success"), session.InsertedRows+session.UpdatedRows)
 	if session.SkippedRows > 0 {
-		msg += fmt.Sprintf(" ولم يُحفظ %d صنف لأنه ما زال يحتاج مراجعة أو غير مطابق — يمكنك اعتماده من شاشة المراجعة.",
-			session.SkippedRows)
+		msg += fmt.Sprintf(i18n.T(langOf(r), "vendor.ingest.commit_skipped"), session.SkippedRows)
 	}
 	h.redirectWithNotice(w, r, "/vendor/ingest/"+publicID, "success", msg)
 }

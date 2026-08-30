@@ -34,4 +34,43 @@ func loadCompareAndPromoKeys(e *engine) {
 	addKey(e, "promo.banner_title", "promo", "العنوان الترويجي", "Promotion Title", "Banner title")
 	addKey(e, "promo.banner_link", "promo", "رابط الوجهة", "Destination Link", "Banner link")
 	addKey(e, "promo.featured_suppliers", "promo", "الموردون المميزون", "Featured Suppliers", "Featured suppliers section")
+
+	// --- Sponsorship & Ads ---
+	addKey(e, "vendor.sponsorship.select_item", "vendor", "يرجى اختيار العنصر المراد رعايته.", "Please select an item to sponsor.", "Validation error")
+	addKey(e, "vendor.sponsorship.select_package", "vendor", "يرجى اختيار الباقة المناسبة.", "Please select a suitable package.", "Validation error")
+	addKey(e, "vendor.sponsorship.request_submitted_success", "vendor", "تم تقديم طلب الرعاية بنجاح. سيتم مراجعته من قبل الإدارة.", "Sponsorship request submitted successfully. It will be reviewed by admin.", "Success notice")
+	addKey(e, "vendor.sponsorship.invalid_request_id", "vendor", "معرف الطلب غير صحيح.", "Invalid request ID.", "Validation error")
+	addKey(e, "vendor.sponsorship.request_cancelled_success", "vendor", "تم إلغاء طلب الرعاية.", "Sponsorship request cancelled.", "Success notice")
+	addKey(e, "vendor.sponsorship.invalid_package_id", "vendor", "معرف الباقة غير صحيح.", "Invalid package ID.", "Validation error")
+	addKey(e, "vendor.sponsorship.package_purchased_success", "vendor", "تم شراء الباقة بنجاح. يمكنك الآن تقديم طلبات الرعاية.", "Package purchased successfully. You can now submit sponsorship requests.", "Success notice")
+	addKey(e, "vendor.ads.created_success", "vendor", "تم إنشاء الإعلان وسيتم مراجعته من قبل الإدارة.", "Advertisement created successfully. It will be reviewed by admin.", "Success notice")
+	addKey(e, "vendor.ads.invalid_ad_id", "vendor", "معرف الإعلان غير صحيح.", "Invalid advertisement ID.", "Validation error")
+	addKey(e, "vendor.ads.updated_success", "vendor", "تم تحديث الإعلان بنجاح.", "Advertisement updated successfully.", "Success notice")
+
+	// --- Vendor Special Offers ---
+	addKey(e, "vendor.offer.created_notification_title", "vendor", "تم إنشاء ونشر العرض الخاص", "Special Offer Created & Published", "Notification title")
+	addKey(e, "vendor.offer.created_notification_body", "vendor", "تم نشر وتفعيل العرض الخاص «%s» بنجاح وأصبح متاحاً للطلب من الصيدليات.", "Special offer '%s' was published and activated successfully and is now available for pharmacies to order.", "Notification body")
+	addKey(e, "vendor.offer.created_success", "vendor", "تم إنشاء ونشر العرض الخاص بنجاح.", "Special offer created and published successfully.", "Success notice")
+	addKey(e, "vendor.offer.not_found", "vendor", "لم يتم العثور على هذا العرض الخاص.", "Special offer not found.", "Not found error")
+	addKey(e, "vendor.offer.location_added_success", "vendor", "تم إضافة نطاق التغطية الجغرافي للعرض بنجاح.", "Geographic coverage location added to offer successfully.", "Success notice")
+	addKey(e, "vendor.offer.deleted_success", "vendor", "تم حذف العرض الخاص بنجاح.", "Special offer deleted successfully.", "Success notice")
+
+	// --- Compare Tool Uploads ---
+	addKey(e, "common.compare_service_unavailable", "common", "خدمة المقارنة غير متاحة حالياً.", "Comparison service is currently unavailable.", "Service unavailable error")
+	addKey(e, "compare.upload.read_failed", "compare", "تعذر قراءة الملفات المرفوعة، يرجى التأكد من حجم الملفات.", "Unable to read uploaded files, please check file sizes.", "Upload error")
+	addKey(e, "compare.upload.choose_file", "compare", "يرجى اختيار ملف Excel أو CSV واحد على الأقل.", "Please choose at least one Excel or CSV file.", "Validation error")
+	addKey(e, "compare.upload.quota_exceeded", "compare", "لقد استنفدت الحد الأقصى المسموح به لكشوف الموردين في باقتك الحالية (%d كشوف). يرجى ترقية باقة الاشتراك أو أرشفة/حذف الكشوف القديمة للمتابعة.", "You have reached the maximum allowed supplier lists in your current plan (%d lists). Please upgrade your subscription or archive/delete old lists to proceed.", "Quota error")
+	addKey(e, "compare.upload.quota_overflow", "compare", "عدد الملفات المحددة للرفع (%d) يتجاوز السعة المتبقية في باقتك (%d كشوف متبقية من أصل %d). يرجى تقليل عدد الملفات أو ترقية الباقة.", "Selected files count (%d) exceeds remaining quota in your plan (%d lists remaining out of %d). Please reduce files count or upgrade plan.", "Quota error")
+	addKey(e, "compare.upload.unsupported_format", "compare", "صيغة غير مدعومة", "Unsupported format", "File error")
+	addKey(e, "compare.upload.open_failed", "compare", "تعذر الفتح", "Open failed", "File error")
+	addKey(e, "compare.upload.empty_or_unread", "compare", "ملف فارغ أو تعذر قراءته", "Empty or unreadable file", "File error")
+	addKey(e, "compare.upload.save_failed", "compare", "تعذر الحفظ", "Save failed", "File error")
+	addKey(e, "compare.upload.none_processed_prefix", "compare", "تعذر معالجة أي من الملفات المرفوعة: ", "Could not process any of the uploaded files: ", "Error prefix")
+	addKey(e, "compare.upload.success_summary", "compare", "تم رفع ومعالجة %d كشوف موردين بنجاح (إجمالي %d صنف جاهزة للمقارنة).", "%d supplier lists uploaded and processed successfully (total %d items ready for comparison).", "Success notice")
+	addKey(e, "compare.upload.warning_failed_prefix", "compare", "تعذر رفع: ", "Failed to upload: ", "Warning prefix")
+	addKey(e, "compare.col.sku", "compare", "كود الصنف", "Item Code", "Column header")
+	addKey(e, "compare.col.name", "compare", "اسم الصنف", "Item Name", "Column header")
+	addKey(e, "compare.col.price", "compare", "السعر", "Price", "Column header")
+	addKey(e, "compare.col.discount", "compare", "الخصم", "Discount", "Column header")
+	addKey(e, "compare.col.notes", "compare", "ملاحظات", "Notes", "Column header")
 }

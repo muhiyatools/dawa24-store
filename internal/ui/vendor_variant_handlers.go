@@ -156,7 +156,7 @@ func (h *UIHandler) decorateVendorVariants(
 
 	out := make([]*pages.VendorVariantView, 0, len(variants))
 	for _, v := range variants {
-		branch := "المستودع الرئيسي"
+		branch := i18n.T("ar", "vendor.ingest.main_warehouse")
 		if v.BranchID != nil {
 			if name, ok := branchMap[*v.BranchID]; ok {
 				branch = name
@@ -276,7 +276,7 @@ func (h *UIHandler) VendorVariantNewSubmit(w http.ResponseWriter, r *http.Reques
 	}
 
 	if h.catSvc == nil {
-		h.redirectWithNotice(w, r, "/vendor/variants/new", "error", "خدمة الكتالوج غير متاحة حالياً.")
+		h.redirectWithNotice(w, r, "/vendor/variants/new", "error", i18n.T(langOf(r), "common.catalog_service_unavailable"))
 		return
 	}
 	created, err := h.catSvc.CreateVariant(ctx, variant)
@@ -296,12 +296,12 @@ func (h *UIHandler) VendorVariantNewSubmit(w http.ResponseWriter, r *http.Reques
 			h.log.WarnContext(ctx, "variant created but its opening stock could not be recorded",
 				"error", err, "variant", created.ID, "org", actor.OrganizationID, "qty", stockQty)
 			h.redirectWithNotice(w, r, "/vendor/products", "error",
-				"تم نشر الصنف، لكن تعذر تسجيل الكمية الافتتاحية. يرجى إضافة مستودع أولاً ثم تحديد الكمية من صفحة المخزون.")
+				i18n.T(langOf(r), "vendor.variant.initial_stock_warning"))
 			return
 		}
 	}
 
-	h.redirectWithNotice(w, r, "/vendor/products", "success", "تم نشر عرض التوريد بنجاح في الكتالوج.")
+	h.redirectWithNotice(w, r, "/vendor/products", "success", i18n.T(langOf(r), "vendor.variant.published_success"))
 }
 
 // VendorVariantDeleteSubmit removes a supplier's variant offer and clears associated warehouse stocks.
@@ -322,10 +322,10 @@ func (h *UIHandler) VendorVariantDeleteSubmit(w http.ResponseWriter, r *http.Req
 	if h.catSvc != nil {
 		ctx = database.WithTenant(ctx, actor.OrganizationID)
 		if err := h.catSvc.DeleteVariant(ctx, id); err != nil {
-			h.redirectWithNotice(w, r, "/vendor/products", "error", "تعذر حذف الصنف: "+h.safeMessage(err, langOf(r)))
+			h.redirectWithNotice(w, r, "/vendor/products", "error", i18n.T(langOf(r), "vendor.variant.delete_error_prefix")+h.safeMessage(err, langOf(r)))
 			return
 		}
 	}
 
-	h.redirectWithNotice(w, r, "/vendor/products", "success", "تم حذف الصنف ومسح الأرصدة المرتبطة به بالمخازن بنجاح.")
+	h.redirectWithNotice(w, r, "/vendor/products", "success", i18n.T(langOf(r), "vendor.variant.deleted_success"))
 }

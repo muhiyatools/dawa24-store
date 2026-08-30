@@ -13,6 +13,7 @@ import (
 	"github.com/muhiya/dawa24-store/internal/modules/org"
 	"github.com/muhiya/dawa24-store/internal/modules/workflow"
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/ui/pages"
 )
 
@@ -86,7 +87,15 @@ func (h *UIHandler) VendorPharmacyCoveragePage(w http.ResponseWriter, r *http.Re
 	}
 
 	todayWeekday := int(time.Now().Weekday())
-	dayNamesAr := []string{"الأحد", "الاثنين", "الثلاثاء", "الأربعاء", "الخميس", "الجمعة", "السبت"}
+	dayNamesList := []string{
+		i18n.T(lang, "day.sunday"),
+		i18n.T(lang, "day.monday"),
+		i18n.T(lang, "day.tuesday"),
+		i18n.T(lang, "day.wednesday"),
+		i18n.T(lang, "day.thursday"),
+		i18n.T(lang, "day.friday"),
+		i18n.T(lang, "day.saturday"),
+	}
 
 	var items []pages.CoveredPharmacyItem
 	seenCities := make(map[string]bool)
@@ -122,7 +131,7 @@ func (h *UIHandler) VendorPharmacyCoveragePage(w http.ResponseWriter, r *http.Re
 				pbBranchName = pb.Name["en"]
 			}
 			if pbBranchName == "" {
-				pbBranchName = "الفرع الرئيسي"
+				pbBranchName = i18n.T(lang, "customer.branch.default_name")
 			}
 
 			cityName := ""
@@ -156,9 +165,9 @@ func (h *UIHandler) VendorPharmacyCoveragePage(w http.ResponseWriter, r *http.Re
 						isMatch = true
 						if matchReason == "" {
 							if dist < 1000 {
-								matchReason = fmt.Sprintf("ضمن نطاق التغطية (%d متر)", dist)
+								matchReason = fmt.Sprintf(i18n.T(lang, "vendor.coverage.within_range_meters"), dist)
 							} else {
-								matchReason = fmt.Sprintf("ضمن نطاق التغطية (%.1f كم)", float64(dist)/1000.0)
+								matchReason = fmt.Sprintf(i18n.T(lang, "vendor.coverage.within_range_km"), float64(dist)/1000.0)
 							}
 						}
 					}
@@ -168,7 +177,7 @@ func (h *UIHandler) VendorPharmacyCoveragePage(w http.ResponseWriter, r *http.Re
 				if !isMatch && cov.CityID != nil && pb.CityID != nil && *cov.CityID == *pb.CityID {
 					isMatch = true
 					if matchReason == "" {
-						matchReason = "ضمن نطاق مدينة التوزيع"
+						matchReason = i18n.T(lang, "vendor.coverage.within_distribution_city")
 					}
 				}
 
@@ -199,8 +208,8 @@ func (h *UIHandler) VendorPharmacyCoveragePage(w http.ResponseWriter, r *http.Re
 			for d := 0; d <= 6; d++ {
 				if daysMap[d] {
 					coveredDays = append(coveredDays, d)
-					if d < len(dayNamesAr) {
-						coveredDaysLabels = append(coveredDaysLabels, dayNamesAr[d])
+					if d < len(dayNamesList) {
+						coveredDaysLabels = append(coveredDaysLabels, dayNamesList[d])
 					}
 					if d == todayWeekday {
 						isCoveredToday = true

@@ -5,6 +5,7 @@ import (
 
 	"github.com/muhiya/dawa24-store/internal/modules/org"
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/ui/pages"
 )
 
@@ -36,6 +37,7 @@ func (h *UIHandler) VendorPoliciesPage(w http.ResponseWriter, r *http.Request) {
 // VendorPoliciesSubmit saves the vendor's updated policy text.
 func (h *UIHandler) VendorPoliciesSubmit(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
+	lang := langOf(r)
 	actor, ok := authctx.From(ctx)
 	if !ok || actor.OrganizationID <= 0 {
 		http.Redirect(w, r, "/auth/login?redirect=/vendor/policies", http.StatusSeeOther)
@@ -43,7 +45,7 @@ func (h *UIHandler) VendorPoliciesSubmit(w http.ResponseWriter, r *http.Request)
 	}
 
 	if h.orgSvc == nil {
-		h.redirectWithNotice(w, r, "/vendor/policies", "error", "خدمة إدارة المنشآت غير متوفرة حالياً.")
+		h.redirectWithNotice(w, r, "/vendor/policies", "error", i18n.T(lang, "common.org_service_unavailable"))
 		return
 	}
 
@@ -53,18 +55,18 @@ func (h *UIHandler) VendorPoliciesSubmit(w http.ResponseWriter, r *http.Request)
 	terms := r.PostFormValue("terms_policy")
 
 	policies := []*org.Policy{
-		{Title: "سياسة الشحن والتسليم", Content: shipping, PolicyType: "shipping", IsActive: true},
-		{Title: "سياسة المرتجعات والتوالف", Content: returns, PolicyType: "returns", IsActive: true},
-		{Title: "شروط السداد والدفع الآجل", Content: terms, PolicyType: "terms", IsActive: true},
+		{Title: i18n.T("ar", "vendor.policy.shipping_title"), Content: shipping, PolicyType: "shipping", IsActive: true},
+		{Title: i18n.T("ar", "vendor.policy.returns_title"), Content: returns, PolicyType: "returns", IsActive: true},
+		{Title: i18n.T("ar", "vendor.policy.terms_title"), Content: terms, PolicyType: "terms", IsActive: true},
 	}
 
 	if err := h.orgSvc.SavePolicies(ctx, actor.OrganizationID, policies); err != nil {
 		h.log.ErrorContext(ctx, "save vendor policies", "error", err)
-		h.redirectWithNotice(w, r, "/vendor/policies", "error", h.safeMessage(err, langOf(r)))
+		h.redirectWithNotice(w, r, "/vendor/policies", "error", h.safeMessage(err, lang))
 		return
 	}
 
-	h.redirectWithNotice(w, r, "/vendor/policies", "success", "تم حفظ سياسات المنشأة بنجاح.")
+	h.redirectWithNotice(w, r, "/vendor/policies", "success", i18n.T(lang, "vendor.policy.saved_success"))
 }
 
 // VendorSocialMediaPage renders social media accounts editor for the supplier profile.
@@ -95,6 +97,7 @@ func (h *UIHandler) VendorSocialMediaPage(w http.ResponseWriter, r *http.Request
 // VendorSocialMediaSubmit saves the vendor's social media accounts.
 func (h *UIHandler) VendorSocialMediaSubmit(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
+	lang := langOf(r)
 	actor, ok := authctx.From(ctx)
 	if !ok || actor.OrganizationID <= 0 {
 		http.Redirect(w, r, "/auth/login?redirect=/vendor/social-media", http.StatusSeeOther)
@@ -102,7 +105,7 @@ func (h *UIHandler) VendorSocialMediaSubmit(w http.ResponseWriter, r *http.Reque
 	}
 
 	if h.orgSvc == nil {
-		h.redirectWithNotice(w, r, "/vendor/social-media", "error", "خدمة إدارة المنشآت غير متوفرة حالياً.")
+		h.redirectWithNotice(w, r, "/vendor/social-media", "error", i18n.T(lang, "common.org_service_unavailable"))
 		return
 	}
 
@@ -119,9 +122,9 @@ func (h *UIHandler) VendorSocialMediaSubmit(w http.ResponseWriter, r *http.Reque
 
 	if err := h.orgSvc.SaveSocialMedia(ctx, actor.OrganizationID, links); err != nil {
 		h.log.ErrorContext(ctx, "save vendor social media", "error", err)
-		h.redirectWithNotice(w, r, "/vendor/social-media", "error", h.safeMessage(err, langOf(r)))
+		h.redirectWithNotice(w, r, "/vendor/social-media", "error", h.safeMessage(err, lang))
 		return
 	}
 
-	h.redirectWithNotice(w, r, "/vendor/social-media", "success", "تم حفظ قنوات التواصل الاجتماعي بنجاح.")
+	h.redirectWithNotice(w, r, "/vendor/social-media", "success", i18n.T(lang, "vendor.social.saved_success"))
 }

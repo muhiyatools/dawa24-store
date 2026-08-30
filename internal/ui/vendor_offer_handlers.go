@@ -239,11 +239,11 @@ func (h *UIHandler) VendorOfferNewSubmit(w http.ResponseWriter, r *http.Request)
 		}
 
 		go h.dispatchInAppNotification(context.Background(), actor.UserID, &actor.OrganizationID,
-			"تم إنشاء ونشر العرض الخاص",
-			fmt.Sprintf("تم نشر وتفعيل العرض الخاص «%s» بنجاح وأصبح متاحاً للطلب من الصيدليات.", titleAr))
+			i18n.T(langOf(r), "vendor.offer.created_notification_title"),
+			fmt.Sprintf(i18n.T(langOf(r), "vendor.offer.created_notification_body"), titleAr))
 	}
 
-	h.redirectWithNotice(w, r, "/vendor/offers", "success", "تم إنشاء ونشر العرض الخاص بنجاح.")
+	h.redirectWithNotice(w, r, "/vendor/offers", "success", i18n.T(langOf(r), "vendor.offer.created_success"))
 }
 
 // VendorOfferLocationsPage renders geographic location coverage management for an offer.
@@ -265,7 +265,7 @@ func (h *UIHandler) VendorOfferLocationsPage(w http.ResponseWriter, r *http.Requ
 
 	offer, err := h.promoSvc.GetSpecialOffer(ctx, id)
 	if err != nil || offer == nil || offer.OrganizationID != actor.OrganizationID {
-		h.redirectWithNotice(w, r, "/vendor/offers", "error", "لم يتم العثور على هذا العرض الخاص.")
+		h.redirectWithNotice(w, r, "/vendor/offers", "error", i18n.T(lang, "vendor.offer.not_found"))
 		return
 	}
 
@@ -283,6 +283,7 @@ func (h *UIHandler) VendorOfferLocationsPage(w http.ResponseWriter, r *http.Requ
 // VendorOfferLocationNewSubmit adds a geographic coverage location to an offer.
 func (h *UIHandler) VendorOfferLocationNewSubmit(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
+	lang := langOf(r)
 	actor, ok := authctx.From(ctx)
 	if !ok {
 		http.Redirect(w, r, "/auth/login?redirect=/vendor/offers", http.StatusSeeOther)
@@ -327,12 +328,13 @@ func (h *UIHandler) VendorOfferLocationNewSubmit(w http.ResponseWriter, r *http.
 	}
 	_ = actor
 
-	h.redirectWithNotice(w, r, fmt.Sprintf("/vendor/offers/%d/locations", offerID), "success", "تم إضافة نطاق التغطية الجغرافي للعرض بنجاح.")
+	h.redirectWithNotice(w, r, fmt.Sprintf("/vendor/offers/%d/locations", offerID), "success", i18n.T(lang, "vendor.offer.location_added_success"))
 }
 
 // VendorOfferDeleteSubmit deletes a special offer.
 func (h *UIHandler) VendorOfferDeleteSubmit(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
+	lang := langOf(r)
 	actor, ok := authctx.From(ctx)
 	if !ok {
 		http.Redirect(w, r, "/auth/login?redirect=/vendor/offers", http.StatusSeeOther)
@@ -344,5 +346,5 @@ func (h *UIHandler) VendorOfferDeleteSubmit(w http.ResponseWriter, r *http.Reque
 		_ = h.promoSvc.DeleteSpecialOffer(ctx, id, actor.OrganizationID)
 	}
 
-	h.redirectWithNotice(w, r, "/vendor/offers", "success", "تم حذف العرض الخاص بنجاح.")
+	h.redirectWithNotice(w, r, "/vendor/offers", "success", i18n.T(lang, "vendor.offer.deleted_success"))
 }

@@ -11,6 +11,7 @@ import (
 	"github.com/muhiya/dawa24-store/internal/modules/org"
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/platform/database"
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/ui/pages"
 )
 
@@ -120,6 +121,7 @@ func (h *UIHandler) VendorUserOrganizationsPage(w http.ResponseWriter, r *http.R
 // VendorUserOrganizationCreateSubmit creates and immediately approves a customer link.
 func (h *UIHandler) VendorUserOrganizationCreateSubmit(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
+	lang := langOf(r)
 	actor, ok := authctx.From(ctx)
 	if !ok || !actor.IsVendor() {
 		http.Redirect(w, r, "/auth/login?redirect=/vendor/user-organization", http.StatusSeeOther)
@@ -137,13 +139,13 @@ func (h *UIHandler) VendorUserOrganizationCreateSubmit(w http.ResponseWriter, r 
 
 	targetUserID, err := strconv.ParseInt(strings.TrimSpace(r.FormValue("user_id")), 10, 64)
 	if err != nil || targetUserID <= 0 {
-		http.Redirect(w, r, "/vendor/user-organization?notice_type=error&notice_msg="+url.QueryEscape("يجب اختيار مستخدم صالح."), http.StatusSeeOther)
+		http.Redirect(w, r, "/vendor/user-organization?notice_type=error&notice_msg="+url.QueryEscape(i18n.T(lang, "vendor.user_org.select_valid_user")), http.StatusSeeOther)
 		return
 	}
 
 	orgNumber := strings.TrimSpace(r.FormValue("organization_number"))
 	if orgNumber == "" {
-		http.Redirect(w, r, "/vendor/user-organization?notice_type=error&notice_msg="+url.QueryEscape("رقم المنظمة مطلوب."), http.StatusSeeOther)
+		http.Redirect(w, r, "/vendor/user-organization?notice_type=error&notice_msg="+url.QueryEscape(i18n.T(lang, "vendor.user_org.org_number_required")), http.StatusSeeOther)
 		return
 	}
 
@@ -157,12 +159,13 @@ func (h *UIHandler) VendorUserOrganizationCreateSubmit(w http.ResponseWriter, r 
 		}
 	}
 
-	http.Redirect(w, r, "/vendor/user-organization?notice_type=success&notice_msg="+url.QueryEscape("تم ربط واعتماد المستخدم بنجاح."), http.StatusSeeOther)
+	http.Redirect(w, r, "/vendor/user-organization?notice_type=success&notice_msg="+url.QueryEscape(i18n.T(lang, "vendor.user_org.linked_approved_success")), http.StatusSeeOther)
 }
 
 // VendorUserOrganizationApproveSubmit approves a pending pharmacy connection.
 func (h *UIHandler) VendorUserOrganizationApproveSubmit(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
+	lang := langOf(r)
 	actor, ok := authctx.From(ctx)
 	if !ok || !actor.IsVendor() {
 		http.Redirect(w, r, "/auth/login?redirect=/vendor/user-organization", http.StatusSeeOther)
@@ -171,7 +174,7 @@ func (h *UIHandler) VendorUserOrganizationApproveSubmit(w http.ResponseWriter, r
 
 	id, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
 	if err != nil || id <= 0 {
-		http.Redirect(w, r, "/vendor/user-organization?notice_type=error&notice_msg="+url.QueryEscape("معرف غير صالح."), http.StatusSeeOther)
+		http.Redirect(w, r, "/vendor/user-organization?notice_type=error&notice_msg="+url.QueryEscape(i18n.T(lang, "vendor.user_org.invalid_id")), http.StatusSeeOther)
 		return
 	}
 
@@ -183,12 +186,13 @@ func (h *UIHandler) VendorUserOrganizationApproveSubmit(w http.ResponseWriter, r
 		}
 	}
 
-	http.Redirect(w, r, "/vendor/user-organization?notice_type=success&notice_msg="+url.QueryEscape("تم اعتماد وقبول المستخدم (APPROVAL ✓) بنجاح."), http.StatusSeeOther)
+	http.Redirect(w, r, "/vendor/user-organization?notice_type=success&notice_msg="+url.QueryEscape(i18n.T(lang, "vendor.user_org.approved_success")), http.StatusSeeOther)
 }
 
 // VendorUserOrganizationRejectSubmit rejects a pharmacy connection request.
 func (h *UIHandler) VendorUserOrganizationRejectSubmit(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
+	lang := langOf(r)
 	actor, ok := authctx.From(ctx)
 	if !ok || !actor.IsVendor() {
 		http.Redirect(w, r, "/auth/login?redirect=/vendor/user-organization", http.StatusSeeOther)
@@ -197,7 +201,7 @@ func (h *UIHandler) VendorUserOrganizationRejectSubmit(w http.ResponseWriter, r 
 
 	id, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
 	if err != nil || id <= 0 {
-		http.Redirect(w, r, "/vendor/user-organization?notice_type=error&notice_msg="+url.QueryEscape("معرف غير صالح."), http.StatusSeeOther)
+		http.Redirect(w, r, "/vendor/user-organization?notice_type=error&notice_msg="+url.QueryEscape(i18n.T(lang, "vendor.user_org.invalid_id")), http.StatusSeeOther)
 		return
 	}
 
@@ -211,12 +215,13 @@ func (h *UIHandler) VendorUserOrganizationRejectSubmit(w http.ResponseWriter, r 
 		}
 	}
 
-	http.Redirect(w, r, "/vendor/user-organization?notice_type=success&notice_msg="+url.QueryEscape("تم رفض طلب الربط."), http.StatusSeeOther)
+	http.Redirect(w, r, "/vendor/user-organization?notice_type=success&notice_msg="+url.QueryEscape(i18n.T(lang, "vendor.user_org.rejected_success")), http.StatusSeeOther)
 }
 
 // VendorUserOrganizationUpdateSubmit updates the organization number for a user.
 func (h *UIHandler) VendorUserOrganizationUpdateSubmit(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
+	lang := langOf(r)
 	actor, ok := authctx.From(ctx)
 	if !ok || !actor.IsVendor() {
 		http.Redirect(w, r, "/auth/login?redirect=/vendor/user-organization", http.StatusSeeOther)
@@ -225,7 +230,7 @@ func (h *UIHandler) VendorUserOrganizationUpdateSubmit(w http.ResponseWriter, r 
 
 	id, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
 	if err != nil || id <= 0 {
-		http.Redirect(w, r, "/vendor/user-organization?notice_type=error&notice_msg="+url.QueryEscape("معرف غير صالح."), http.StatusSeeOther)
+		http.Redirect(w, r, "/vendor/user-organization?notice_type=error&notice_msg="+url.QueryEscape(i18n.T(lang, "vendor.user_org.invalid_id")), http.StatusSeeOther)
 		return
 	}
 
@@ -240,12 +245,13 @@ func (h *UIHandler) VendorUserOrganizationUpdateSubmit(w http.ResponseWriter, r 
 		}
 	}
 
-	http.Redirect(w, r, "/vendor/user-organization?notice_type=success&notice_msg="+url.QueryEscape("تم تحديث بيانات المستخدم بنجاح."), http.StatusSeeOther)
+	http.Redirect(w, r, "/vendor/user-organization?notice_type=success&notice_msg="+url.QueryEscape(i18n.T(lang, "vendor.user_org.updated_success")), http.StatusSeeOther)
 }
 
 // VendorUserOrganizationDeleteSubmit removes a user link.
 func (h *UIHandler) VendorUserOrganizationDeleteSubmit(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
+	lang := langOf(r)
 	actor, ok := authctx.From(ctx)
 	if !ok || !actor.IsVendor() {
 		http.Redirect(w, r, "/auth/login?redirect=/vendor/user-organization", http.StatusSeeOther)
@@ -254,7 +260,7 @@ func (h *UIHandler) VendorUserOrganizationDeleteSubmit(w http.ResponseWriter, r 
 
 	id, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
 	if err != nil || id <= 0 {
-		http.Redirect(w, r, "/vendor/user-organization?notice_type=error&notice_msg="+url.QueryEscape("معرف غير صالح."), http.StatusSeeOther)
+		http.Redirect(w, r, "/vendor/user-organization?notice_type=error&notice_msg="+url.QueryEscape(i18n.T(lang, "vendor.user_org.invalid_id")), http.StatusSeeOther)
 		return
 	}
 
@@ -266,5 +272,5 @@ func (h *UIHandler) VendorUserOrganizationDeleteSubmit(w http.ResponseWriter, r 
 		}
 	}
 
-	http.Redirect(w, r, "/vendor/user-organization?notice_type=success&notice_msg="+url.QueryEscape("تم حذف المستخدم بنجاح."), http.StatusSeeOther)
+	http.Redirect(w, r, "/vendor/user-organization?notice_type=success&notice_msg="+url.QueryEscape(i18n.T(lang, "vendor.user_org.deleted_success")), http.StatusSeeOther)
 }

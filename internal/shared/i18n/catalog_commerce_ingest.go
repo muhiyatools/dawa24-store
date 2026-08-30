@@ -56,4 +56,111 @@ func loadCommerceAndIngestKeys(e *engine) {
 	addKey(e, "status.cancelled", "status", "ملغي", "Cancelled", "Cancelled")
 	addKey(e, "status.unpaid", "status", "غير مدفوع", "Unpaid", "Unpaid")
 	addKey(e, "status.paid", "status", "مدفوع", "Paid", "Paid")
+
+	// --- Ingest Review & Actions ---
+	addKey(e, "vendor.ingest.invalid_row_id", "vendor", "معرّف الصف غير صالح.", "Invalid row ID.", "Validation error")
+	addKey(e, "vendor.ingest.item_updated_success", "vendor", "تم تحديث بيانات الصنف بنجاح.", "Item data updated successfully.", "Success notice")
+	addKey(e, "common.import_service_unavailable", "common", "خدمة الاستيراد غير متاحة حالياً.", "Import service is currently unavailable.", "Service error")
+	addKey(e, "vendor.ingest.enter_valid_quantity", "vendor", "يرجى إدخال كمية صحيحة أكبر من أو تساوي الصفر.", "Please enter a valid quantity greater than or equal to zero.", "Validation error")
+	addKey(e, "vendor.ingest.batch_quantity_success", "vendor", "تم تعيين الكمية (%d) لجميع أصناف الملف بنجاح.", "Quantity (%d) set for all file items successfully.", "Success notice")
+	addKey(e, "vendor.ingest.item_linked_success", "vendor", "تم ربط الصنف بالكتالوج المركزي بنجاح.", "Item linked to master catalog successfully.", "Success notice")
+	addKey(e, "vendor.ingest.item_unlinked_success", "vendor", "تم إلغاء ربط الصنف بالكتالوج.", "Item unlinked from master catalog.", "Success notice")
+	addKey(e, "vendor.ingest.commit_success", "vendor", "تم بنجاح حفظ %d صنفاً في الكتالوج والمخزن.", "Successfully saved %d items in catalog and warehouse.", "Success notice")
+	addKey(e, "vendor.ingest.commit_skipped", "vendor", " ولم يُحفظ %d صنف لأنه ما زال يحتاج مراجعة أو غير مطابق — يمكنك اعتماده من شاشة المراجعة.", " and %d items were not saved because they still need review or are unmatched — you can approve them from the review screen.", "Notice suffix")
+
+	// --- Vendor Catalog Operations ---
+	addKey(e, "vendor.catalog.select_master_product_first", "vendor", "يرجى اختيار صنف من الكتالوج العام أولاً.", "Please select an item from the master catalog first.", "Validation error")
+	addKey(e, "vendor.catalog.default_variant_name", "vendor", "صنف توريد معتمد", "Verified Supply Item", "Default variant name")
+	addKey(e, "common.catalog_service_unavailable", "common", "خدمة الكتالوج غير متاحة حالياً.", "Catalog service is currently unavailable.", "Service error")
+	addKey(e, "vendor.catalog.add_variant_error_prefix", "vendor", "حدث خطأ أثناء إضافة الصنف: ", "An error occurred while adding the item: ", "Error prefix")
+	addKey(e, "vendor.catalog.variant_added_success", "vendor", "تمت إضافة الصنف من الكتالوج العام ونشره في قائمة أصناف التوريد بنجاح.", "Item added from master catalog and published to your supply list successfully.", "Success notice")
+	addKey(e, "vendor.catalog.invalid_variant_id", "vendor", "معرف الصنف غير صالح.", "Invalid item ID.", "Validation error")
+	addKey(e, "vendor.catalog.variant_not_found", "vendor", "لم يتم العثور على الصنف المطلوب تعديله.", "The requested item to edit was not found.", "Not found error")
+	addKey(e, "vendor.catalog.update_variant_error_prefix", "vendor", "حدث خطأ أثناء تعديل الصنف: ", "An error occurred while updating the item: ", "Error prefix")
+	addKey(e, "vendor.catalog.variant_updated_success", "vendor", "تم تحديث بيانات وسعر صنف التوريد بنجاح.", "Supply item data and price updated successfully.", "Success notice")
+	addKey(e, "vendor.catalog.delete_variants_error_prefix", "vendor", "حدث خطأ أثناء حذف الأصناف: ", "An error occurred while deleting items: ", "Error prefix")
+	addKey(e, "vendor.catalog.deleted_all_success", "vendor", "تم حذف %d من أصناف التوريد الخاصة بك بنجاح.", "Successfully deleted %d of your supply items.", "Success notice")
+
+	// --- Vendor Orders & Negotiations ---
+	addKey(e, "vendor.orders.update_shipment_status_error_prefix", "vendor", "تعذر تحديث حالة الشحنة: ", "Failed to update shipment status: ", "Error prefix")
+	addKey(e, "vendor.orders.shipment_status_updated_success", "vendor", "تم تحديث حالة الشحنة بنجاح.", "Shipment status updated successfully.", "Success notice")
+	addKey(e, "vendor.orders.order_not_found", "vendor", "الطلب غير موجود.", "Order not found.", "Not found error")
+	addKey(e, "vendor.orders.unauthorized_order_management", "vendor", "غير مصرح لك بإدارة هذا الطلب.", "You are not authorized to manage this order.", "Auth error")
+	addKey(e, "vendor.orders.accept_negotiation_error_prefix", "vendor", "تعذر قبول التفاوض: ", "Failed to accept negotiation: ", "Error prefix")
+	addKey(e, "vendor.orders.negotiation_accepted_title", "vendor", "تم قبول السعر المتفاوض عليه للطلب #%s", "Negotiated price accepted for order #%s", "Notification title")
+	addKey(e, "vendor.orders.negotiation_accepted_body", "vendor", "قام %s بقبول السعر واعتماد طلب التوريد بنجاح.", "%s accepted the price and confirmed the supply order.", "Notification body")
+	addKey(e, "vendor.orders.negotiation_accepted_success", "vendor", "تم قبول السعر المتفاوض عليه واعتماد الطلب بنجاح.", "Negotiated price accepted and order confirmed successfully.", "Success notice")
+	addKey(e, "vendor.orders.negotiation_default_reject_reason", "vendor", "تم رفض السعر المقترح من قبل إدارة المبيعات", "Proposed price was rejected by sales management", "Default reject reason")
+	addKey(e, "vendor.orders.reject_negotiation_error_prefix", "vendor", "تعذر رفض التفاوض: ", "Failed to reject negotiation: ", "Error prefix")
+	addKey(e, "vendor.orders.negotiation_rejected_title", "vendor", "تم رفض السعر المقترح للطلب #%s", "Proposed price rejected for order #%s", "Notification title")
+	addKey(e, "vendor.orders.negotiation_rejected_body", "vendor", "تم رفض السعر المقترح من قِبل %s. السبب: %s", "Proposed price was rejected by %s. Reason: %s", "Notification body")
+	addKey(e, "vendor.orders.negotiation_rejected_success", "vendor", "تم رفض طلب التفاوض وإلغاء الطلب.", "Negotiation request rejected and order cancelled.", "Success notice")
+
+	// --- Ingest Models & Fields ---
+	addKey(e, "ingest.field.name", "ingest", "اسم الصنف", "Product Name", "Product name field")
+	addKey(e, "ingest.field.name_desc", "ingest", "الاسم التجاري أو الوصف في الملف", "Commercial name or description in file", "Product name desc")
+	addKey(e, "ingest.field.price", "ingest", "سعر الجمهور", "Public Price", "Price field")
+	addKey(e, "ingest.field.price_desc", "ingest", "سعر الجمهور الرسمي للصنف", "Official public retail price for the product", "Price desc")
+	addKey(e, "ingest.field.quantity", "ingest", "الكمية (رصيد المخزون)", "Quantity (Stock Balance)", "Quantity field")
+	addKey(e, "ingest.field.quantity_desc", "ingest", "الكمية المتوفرة لتسجيلها في المستودع المحدد", "Available quantity to record in the selected warehouse", "Quantity desc")
+	addKey(e, "ingest.field.sku", "ingest", "كود الصنف (SKU)", "Product SKU Code", "SKU field")
+	addKey(e, "ingest.field.sku_desc", "ingest", "رمز الصنف الداخلي لديك", "Your internal item code", "SKU desc")
+	addKey(e, "ingest.field.barcode", "ingest", "الباركود الدولي", "International Barcode", "Barcode field")
+	addKey(e, "ingest.field.barcode_desc", "ingest", "رقم الباركود للمطابقة التلقائية الفورية", "Barcode for instant automatic matching", "Barcode desc")
+	addKey(e, "ingest.field.expiry", "ingest", "تاريخ الصلاحية", "Expiry Date", "Expiry field")
+	addKey(e, "ingest.field.expiry_desc", "ingest", "تاريخ انتهاء صلاحية التشغيلة", "Batch expiration date", "Expiry desc")
+	addKey(e, "ingest.field.discount", "ingest", "نسبة الخصم %", "Discount %", "Discount field")
+	addKey(e, "ingest.field.discount_desc", "ingest", "نسبة الخصم الممنوحة على الصنف", "Discount percentage on the item", "Discount desc")
+	addKey(e, "ingest.field.column_n", "ingest", "العمود %d", "Column %d", "Column number")
+	addKey(e, "ingest.outcome.inserted", "ingest", "تمت الإضافة", "Inserted", "Outcome inserted")
+	addKey(e, "ingest.outcome.updated", "ingest", "تم التحديث", "Updated", "Outcome updated")
+	addKey(e, "ingest.outcome.error", "ingest", "خطأ", "Error", "Outcome error")
+	addKey(e, "ingest.outcome.skipped", "ingest", "تم التخطي", "Skipped", "Outcome skipped")
+	addKey(e, "common.file_size_mb", "common", "%.1f ميجابايت", "%.1f MB", "File size MB")
+	addKey(e, "common.file_size_kb", "common", "%.0f كيلوبايت", "%.0f KB", "File size KB")
+	addKey(e, "common.file_size_bytes", "common", "%d بايت", "%d B", "File size bytes")
+
+	// --- Ingest Upload & Execution ---
+	addKey(e, "vendor.ingest.file_too_large", "vendor", "تعذر قراءة الملف المرفوع — قد يتجاوز حجمه الحد المسموح (25 ميجابايت).", "Unable to read uploaded file — it may exceed the size limit (25 MB).", "Upload error")
+	addKey(e, "vendor.ingest.invalid_file_format", "vendor", "يرجى اختيار ملف صالح للاستيراد (.xlsx أو .xls أو CSV).", "Please choose a valid file for import (.xlsx, .xls, or CSV).", "Upload error")
+	addKey(e, "vendor.ingest.read_file_error", "vendor", "تعذر قراءة محتوى الملف.", "Unable to read file content.", "Upload error")
+	addKey(e, "vendor.ingest.main_warehouse", "vendor", "المخزن الرئيسي", "Main Warehouse", "Default warehouse name")
+	addKey(e, "vendor.ingest.cancelled_notice", "vendor", "تم إلغاء عملية الاستيراد.", "Import process cancelled.", "Notice")
+	addKey(e, "ingest.csv.row_number", "ingest", "رقم الصف", "Row Number", "CSV column")
+	addKey(e, "ingest.csv.item_name", "ingest", "اسم الصنف في الملف", "File Item Name", "CSV column")
+	addKey(e, "ingest.csv.matched_catalog_item", "ingest", "الصنف المطابق المعتمد بالكتالوج", "Matched Catalog Item", "CSV column")
+	addKey(e, "ingest.csv.item_code", "ingest", "كود الصنف بالملف", "File Item Code", "CSV column")
+	addKey(e, "ingest.csv.outcome", "ingest", "النتيجة", "Outcome", "CSV column")
+	addKey(e, "ingest.csv.match_score", "ingest", "درجة المطابقة", "Match Score", "CSV column")
+	addKey(e, "ingest.csv.notes", "ingest", "الملاحظة", "Note", "CSV column")
+
+	// --- Ingest Bulk Operations ---
+	addKey(e, "vendor.ingest.no_items_selected", "vendor", "لم يتم تحديد أي صنف. اختر الأصناف أولاً ثم كرّر العملية.", "No items selected. Please select items first and try again.", "Validation error")
+	addKey(e, "vendor.ingest.bulk_confirmed", "vendor", "تم اعتماد %d صنف كمطابق ونقلها إلى قائمة الاستيراد.", "Confirmed %d items as matched and moved to import list.", "Success notice")
+	addKey(e, "vendor.ingest.bulk_confirmed_skipped", "vendor", " %d صنف لم يُعتمد لعدم وجود صنف مقترح — اربطه يدوياً أولاً.", " %d items were not confirmed due to no suggested match — link them manually first.", "Notice suffix")
+	addKey(e, "vendor.ingest.bulk_unlinked", "vendor", "تم إلغاء الربط عن %d صنف.", "Unlinked %d items.", "Success notice")
+	addKey(e, "vendor.ingest.bulk_excluded", "vendor", "تم استبعاد %d صنف من الاستيراد.", "Excluded %d items from import.", "Success notice")
+	addKey(e, "vendor.ingest.bulk_included", "vendor", "تمت إعادة %d صنف إلى الاستيراد.", "Restored %d items to import.", "Success notice")
+	addKey(e, "vendor.ingest.unknown_action", "vendor", "إجراء غير معروف.", "Unknown action.", "Action error")
+
+	// --- Vendor Variants ---
+	addKey(e, "vendor.variant.initial_stock_warning", "vendor", "تم نشر الصنف، لكن تعذر تسجيل الكمية الافتتاحية. يرجى إضافة مستودع أولاً ثم تحديد الكمية من صفحة المخزون.", "Item published, but opening stock could not be recorded. Please add a warehouse first then set quantity in the inventory page.", "Warning notice")
+	addKey(e, "vendor.variant.published_success", "vendor", "تم نشر عرض التوريد بنجاح في الكتالوج.", "Supply offer published successfully in catalog.", "Success notice")
+	addKey(e, "vendor.variant.delete_error_prefix", "vendor", "تعذر حذف الصنف: ", "Failed to delete item: ", "Error prefix")
+	addKey(e, "vendor.variant.deleted_success", "vendor", "تم حذف الصنف ومسح الأرصدة المرتبطة به بالمخازن بنجاح.", "Item deleted and associated warehouse stock cleared successfully.", "Success notice")
+
+	// --- Vendor Purchase Requests ---
+	addKey(e, "vendor.purchase_request.invalid_id", "vendor", "معرف طلب غير صالح.", "Invalid purchase request ID.", "Validation error")
+	addKey(e, "vendor.purchase_request.not_found", "vendor", "طلب الشراء غير موجود.", "Purchase request not found.", "Not found error")
+	addKey(e, "vendor.purchase_request.status_updated_success", "vendor", "تم تحديث حالة طلب الشراء بنجاح.", "Purchase request status updated successfully.", "Success notice")
+	addKey(e, "vendor.purchase_request.invalid_line_id", "vendor", "معرف سطر غير صالح.", "Invalid line item ID.", "Validation error")
+	addKey(e, "vendor.purchase_request.line_offer_updated_success", "vendor", "تم تحديث عرض السطر بنجاح.", "Line item offer updated successfully.", "Success notice")
+
+	// --- Saving Products Import ---
+	addKey(e, "saving.import.session_not_found", "catalog", "جلسة الاستيراد غير موجودة أو انتهت صلاحيتها.", "Import session not found or expired.", "Session error")
+	addKey(e, "saving.import.save_failed_prefix", "catalog", "فشل الحفظ: ", "Save failed: ", "Error prefix")
+	addKey(e, "saving.import.cancelled_success", "catalog", "تم إلغاء جلسة الاستيراد بنجاح.", "Import session cancelled successfully.", "Success notice")
+
+	// --- Vendor Inventory ---
+	addKey(e, "vendor.inventory.warehouse_prefix", "vendor", "مخزن ", "Warehouse ", "Warehouse name prefix")
 }

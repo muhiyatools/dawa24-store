@@ -9,6 +9,7 @@ import (
 	"github.com/go-chi/chi/v5"
 
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/shared/money"
 )
 
@@ -24,12 +25,12 @@ func (h *UIHandler) VendorSavingProductsImportMapSubmit(w http.ResponseWriter, r
 	sessionID := chi.URLParam(r, "id")
 	session, ok := globalSavingImportSessionStore.GetSession(sessionID, actor.OrganizationID)
 	if !ok {
-		h.redirectWithNotice(w, r, "/vendor/saving-products/import", "error", "جلسة الاستيراد غير موجودة أو انتهت صلاحيتها.")
+		h.redirectWithNotice(w, r, "/vendor/saving-products/import", "error", i18n.T(langOf(r), "saving.import.session_not_found"))
 		return
 	}
 
 	if err := r.ParseForm(); err != nil {
-		h.redirectWithNotice(w, r, fmt.Sprintf("/vendor/saving-products/import/%s", sessionID), "error", "بيانات غير صالحة.")
+		h.redirectWithNotice(w, r, fmt.Sprintf("/vendor/saving-products/import/%s", sessionID), "error", i18n.T(langOf(r), "common.invalid_form_data"))
 		return
 	}
 
@@ -260,7 +261,7 @@ func (h *UIHandler) VendorSavingProductsImportCommitSubmit(w http.ResponseWriter
 	sessionID := chi.URLParam(r, "id")
 	added, updated, err := globalSavingImportSessionStore.CommitSession(ctx, sessionID, actor.OrganizationID, actor.UserID, h.catSvc)
 	if err != nil {
-		h.redirectWithNotice(w, r, fmt.Sprintf("/vendor/saving-products/import/%s", sessionID), "error", "فشل الحفظ: "+h.safeMessage(err, langOf(r)))
+		h.redirectWithNotice(w, r, fmt.Sprintf("/vendor/saving-products/import/%s", sessionID), "error", i18n.T(langOf(r), "saving.import.save_failed_prefix")+h.safeMessage(err, langOf(r)))
 		return
 	}
 
@@ -286,5 +287,5 @@ func (h *UIHandler) VendorSavingProductsImportCancelSubmit(w http.ResponseWriter
 	sessionID := chi.URLParam(r, "id")
 	globalSavingImportSessionStore.CancelSession(sessionID, actor.OrganizationID)
 
-	h.redirectWithNotice(w, r, "/vendor/saving-products/import", "info", "تم إلغاء جلسة الاستيراد بنجاح.")
+	h.redirectWithNotice(w, r, "/vendor/saving-products/import", "info", i18n.T(langOf(r), "saving.import.cancelled_success"))
 }

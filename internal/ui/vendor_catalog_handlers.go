@@ -129,13 +129,13 @@ func (h *UIHandler) VendorProductAddFromCatalogSubmit(w http.ResponseWriter, r *
 	}
 
 	if err := r.ParseForm(); err != nil {
-		h.redirectWithNotice(w, r, "/vendor/products", "error", "بيانات النموذج غير صالحة.")
+		h.redirectWithNotice(w, r, "/vendor/products", "error", i18n.T(langOf(r), "common.invalid_form_data"))
 		return
 	}
 
 	productID, _ := strconv.ParseInt(r.FormValue("product_id"), 10, 64)
 	if productID <= 0 {
-		h.redirectWithNotice(w, r, "/vendor/products", "error", "يرجى اختيار صنف من الكتالوج العام أولاً.")
+		h.redirectWithNotice(w, r, "/vendor/products", "error", i18n.T(langOf(r), "vendor.catalog.select_master_product_first"))
 		return
 	}
 
@@ -150,7 +150,8 @@ func (h *UIHandler) VendorProductAddFromCatalogSubmit(w http.ResponseWriter, r *
 		}
 	}
 	if nameAr == "" && nameEn == "" {
-		nameAr = "صنف توريد معتمد"
+		nameAr = i18n.T("ar", "vendor.catalog.default_variant_name")
+		nameEn = i18n.T("en", "vendor.catalog.default_variant_name")
 	}
 
 	batch := strings.TrimSpace(r.FormValue("batch_number"))
@@ -158,7 +159,7 @@ func (h *UIHandler) VendorProductAddFromCatalogSubmit(w http.ResponseWriter, r *
 	barcode := strings.TrimSpace(r.FormValue("barcode"))
 	unit := strings.TrimSpace(r.FormValue("unit"))
 	if unit == "" {
-		unit = "عبوة"
+		unit = "item"
 	}
 
 	priceStr := strings.TrimSpace(r.FormValue("price"))
@@ -220,14 +221,14 @@ func (h *UIHandler) VendorProductAddFromCatalogSubmit(w http.ResponseWriter, r *
 	}
 
 	if h.catSvc == nil {
-		h.redirectWithNotice(w, r, "/vendor/products", "error", "خدمة الكتالوج غير متاحة حالياً.")
+		h.redirectWithNotice(w, r, "/vendor/products", "error", i18n.T(langOf(r), "common.catalog_service_unavailable"))
 		return
 	}
 
 	created, err := h.catSvc.CreateVariant(ctx, variant)
 	if err != nil {
 		h.log.ErrorContext(ctx, "add variant from catalog error", "error", err)
-		h.redirectWithNotice(w, r, "/vendor/products", "error", "حدث خطأ أثناء إضافة الصنف: "+h.safeMessage(err, langOf(r)))
+		h.redirectWithNotice(w, r, "/vendor/products", "error", i18n.T(langOf(r), "vendor.catalog.add_variant_error_prefix")+h.safeMessage(err, langOf(r)))
 		return
 	}
 
@@ -235,7 +236,7 @@ func (h *UIHandler) VendorProductAddFromCatalogSubmit(w http.ResponseWriter, r *
 		_ = h.recordInitialStock(ctx, actor.OrganizationID, created, stockQty)
 	}
 
-	h.redirectWithNotice(w, r, "/vendor/products", "success", "تمت إضافة الصنف من الكتالوج العام ونشره في قائمة أصناف التوريد بنجاح.")
+	h.redirectWithNotice(w, r, "/vendor/products", "success", i18n.T(langOf(r), "vendor.catalog.variant_added_success"))
 }
 
 // VendorVariantUpdateSubmit updates an existing variant's prices, batch, expiry, and attributes.
@@ -249,23 +250,23 @@ func (h *UIHandler) VendorVariantUpdateSubmit(w http.ResponseWriter, r *http.Req
 
 	id, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
 	if err != nil || id <= 0 {
-		h.redirectWithNotice(w, r, "/vendor/products", "error", "معرف الصنف غير صالح.")
+		h.redirectWithNotice(w, r, "/vendor/products", "error", i18n.T(langOf(r), "vendor.catalog.invalid_variant_id"))
 		return
 	}
 
 	if err := r.ParseForm(); err != nil {
-		h.redirectWithNotice(w, r, "/vendor/products", "error", "بيانات النموذج غير صالحة.")
+		h.redirectWithNotice(w, r, "/vendor/products", "error", i18n.T(langOf(r), "common.invalid_form_data"))
 		return
 	}
 
 	if h.catSvc == nil {
-		h.redirectWithNotice(w, r, "/vendor/products", "error", "خدمة الكتالوج غير متاحة حالياً.")
+		h.redirectWithNotice(w, r, "/vendor/products", "error", i18n.T(langOf(r), "common.catalog_service_unavailable"))
 		return
 	}
 
 	existing, err := h.catSvc.GetVariant(ctx, id)
 	if err != nil || existing == nil || existing.OrganizationID != actor.OrganizationID {
-		h.redirectWithNotice(w, r, "/vendor/products", "error", "لم يتم العثور على الصنف المطلوب تعديله.")
+		h.redirectWithNotice(w, r, "/vendor/products", "error", i18n.T(langOf(r), "vendor.catalog.variant_not_found"))
 		return
 	}
 
@@ -337,7 +338,7 @@ func (h *UIHandler) VendorVariantUpdateSubmit(w http.ResponseWriter, r *http.Req
 
 	if _, err := h.catSvc.UpdateVariant(ctx, id, existing); err != nil {
 		h.log.ErrorContext(ctx, "update variant error", "error", err, "variant_id", id)
-		h.redirectWithNotice(w, r, "/vendor/products", "error", "حدث خطأ أثناء تعديل الصنف: "+h.safeMessage(err, langOf(r)))
+		h.redirectWithNotice(w, r, "/vendor/products", "error", i18n.T(langOf(r), "vendor.catalog.update_variant_error_prefix")+h.safeMessage(err, langOf(r)))
 		return
 	}
 
@@ -347,7 +348,7 @@ func (h *UIHandler) VendorVariantUpdateSubmit(w http.ResponseWriter, r *http.Req
 		}
 	}
 
-	h.redirectWithNotice(w, r, "/vendor/products", "success", "تم تحديث بيانات وسعر صنف التوريد بنجاح.")
+	h.redirectWithNotice(w, r, "/vendor/products", "success", i18n.T(langOf(r), "vendor.catalog.variant_updated_success"))
 }
 
 // VendorCatalogSelectPage permanently redirects legacy route to /vendor/products.
@@ -369,14 +370,14 @@ func (h *UIHandler) VendorProductsDeleteAllSubmit(w http.ResponseWriter, r *http
 		return
 	}
 	if h.catSvc == nil {
-		h.redirectWithNotice(w, r, "/vendor/products", "error", "خدمة الكتالوج غير متاحة حالياً.")
+		h.redirectWithNotice(w, r, "/vendor/products", "error", i18n.T(langOf(r), "common.catalog_service_unavailable"))
 		return
 	}
 	count, err := h.catSvc.DeleteAllVariantsByOrg(ctx, actor.OrganizationID)
 	if err != nil {
 		h.log.ErrorContext(ctx, "delete all vendor variants error", "error", err)
-		h.redirectWithNotice(w, r, "/vendor/products", "error", "حدث خطأ أثناء حذف الأصناف: "+h.safeMessage(err, langOf(r)))
+		h.redirectWithNotice(w, r, "/vendor/products", "error", i18n.T(langOf(r), "vendor.catalog.delete_variants_error_prefix")+h.safeMessage(err, langOf(r)))
 		return
 	}
-	h.redirectWithNotice(w, r, "/vendor/products", "success", fmt.Sprintf("تم حذف %d من أصناف التوريد الخاصة بك بنجاح.", count))
+	h.redirectWithNotice(w, r, "/vendor/products", "success", fmt.Sprintf(i18n.T(langOf(r), "vendor.catalog.deleted_all_success"), count))
 }

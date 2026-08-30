@@ -11,6 +11,7 @@ import (
 	"github.com/muhiya/dawa24-store/internal/modules/catalog"
 	"github.com/muhiya/dawa24-store/internal/modules/inventory"
 	"github.com/muhiya/dawa24-store/internal/platform/database"
+	"github.com/muhiya/dawa24-store/internal/ui/components"
 	"github.com/muhiya/dawa24-store/internal/ui/pages"
 )
 
@@ -211,9 +212,17 @@ func (h *UIHandler) AdminSavingProductsPage(w http.ResponseWriter, r *http.Reque
 
 	var items []*catalog.SavingProductAdminView
 	var stats *catalog.SavingProductAdminStats
+
+	limit := h.pageLimit(r)
+	page, _ := strconv.Atoi(r.URL.Query().Get("page"))
+	if page < 1 {
+		page = 1
+	}
+	offset := (page - 1) * limit
+
 	if h.catSvc != nil {
 		var err error
-		items, stats, err = h.catSvc.ListAllSavingProductsAdmin(database.AsSystem(ctx), userID, orgID, search, filter, 500, 0)
+		items, stats, err = h.catSvc.ListAllSavingProductsAdmin(database.AsSystem(ctx), userID, orgID, search, filter, limit, offset)
 		if err != nil {
 			h.log.ErrorContext(ctx, "admin list saving products", "error", err)
 		}
@@ -268,6 +277,13 @@ func (h *UIHandler) AdminSavingProductsPage(w http.ResponseWriter, r *http.Reque
 		SelectedUserID: selectedUserID,
 		SearchQuery:    search,
 		ActiveFilter:   filter,
+		Pagination: components.PaginationProps{
+			CurrentPage: page,
+			PageSize:    limit,
+			TotalCount:  stats.TotalProducts,
+			BaseURL:     "/admin/saving-products",
+			QueryValues: r.URL.Query(),
+		},
 	}
 
 	h.renderPage(ctx, w, "render saving products", pages.AdminSavingProductsPage(data, lang, dir))
