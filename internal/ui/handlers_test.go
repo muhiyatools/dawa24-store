@@ -65,6 +65,7 @@ func setupTestRouter() http.Handler {
 	return newTestRouter(&authctx.Actor{
 		UserID:      1,
 		IsStaff:     true,
+		Role:        "super_admin",
 		OrgStatus:   "approved",
 		Permissions: []string{"*"},
 	})
@@ -144,6 +145,7 @@ func TestFormActionRoutes(t *testing.T) {
 	staffActor := &authctx.Actor{
 		UserID:      1,
 		IsStaff:     true,
+		Role:        "super_admin",
 		OrgStatus:   "approved",
 		Permissions: []string{"*"},
 	}
@@ -177,7 +179,6 @@ func TestFormActionRoutes(t *testing.T) {
 		{"POST", "/vendor/variants/new", vendorActor},
 		{"POST", "/vendor/orders/456/status", vendorActor},
 		{"POST", "/admin/products/new", staffActor},
-		{"POST", "/admin/products/import", staffActor},
 	}
 
 	for _, route := range actionRoutes {

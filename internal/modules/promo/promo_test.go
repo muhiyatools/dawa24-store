@@ -14,12 +14,13 @@ import (
 )
 
 type mockPromoRepo struct {
-	offers       map[int64]*Offer
-	packages     map[int64]*OfferPackage
-	sponsorships map[int64]*OfferSponsorship
-	ads          map[int64]*Ad
-	sections     map[int64]*HighlightSection
-	nextID       int64
+	offers                        map[int64]*Offer
+	packages                      map[int64]*OfferPackage
+	sponsorships                  map[int64]*OfferSponsorship
+	ads                           map[int64]*Ad
+	sections                      map[int64]*HighlightSection
+	nextID                        int64
+	CreateSponsorshipPurchaseFunc func(context.Context, *SponsorshipPurchase) error
 }
 
 func newMockPromoRepo() *mockPromoRepo {
@@ -175,8 +176,11 @@ func (m *mockPromoRepo) RecordAdClick(_ context.Context, adID int64, userID *int
 	return nil
 }
 func (m *mockPromoRepo) UpdatePackage(_ context.Context, _ *OfferPackage) error { return nil }
-func (m *mockPromoRepo) GetPackageByID(_ context.Context, _ int64) (*OfferPackage, error) {
-	return nil, nil
+func (m *mockPromoRepo) GetPackageByID(_ context.Context, id int64) (*OfferPackage, error) {
+	if p, ok := m.packages[id]; ok {
+		return p, nil
+	}
+	return nil, apperr.NotFound("package")
 }
 func (m *mockPromoRepo) AdminListPackages(_ context.Context) ([]*OfferPackage, error) {
 	return nil, nil
@@ -184,7 +188,10 @@ func (m *mockPromoRepo) AdminListPackages(_ context.Context) ([]*OfferPackage, e
 func (m *mockPromoRepo) TogglePackageActive(_ context.Context, _ int64, _ bool) error {
 	return nil
 }
-func (m *mockPromoRepo) CreateSponsorshipPurchase(_ context.Context, _ *SponsorshipPurchase) error {
+func (m *mockPromoRepo) CreateSponsorshipPurchase(ctx context.Context, p *SponsorshipPurchase) error {
+	if m.CreateSponsorshipPurchaseFunc != nil {
+		return m.CreateSponsorshipPurchaseFunc(ctx, p)
+	}
 	return nil
 }
 func (m *mockPromoRepo) GetSponsorshipPurchaseByID(_ context.Context, _ int64) (*SponsorshipPurchase, error) {
@@ -477,5 +484,64 @@ func TestPromoServiceLifecycle(t *testing.T) {
 	_, err = svc.ExpirePromotions(ctx)
 	if err != nil {
 		t.Fatalf("ExpirePromotions failed: %v", err)
+	}
+}
+
+func TestPurchaseSponsorshipPackage_WalletDebit(t *testing.T) {
+	repo := newMockPromoRepo()
+	pkg := &OfferPackage{
+		ID:           1,
+		Name:         i18n.New("الباقة الذهبية", "Gold Package"),
+		Price:        money.FromMinor(150000),
+		Credits:      10,
+		DurationDays: 30,
+		IsActive:     true,
+	}
+	repo.packages[1] = pkg
+
+	var savedPurchase *SponsorshipPurchase
+	repo.CreateSponsorshipPurchaseFunc = func(_ context.Context, p *SponsorshipPurchase) error {
+		savedPurchase = p
+		p.ID = 100
+		return nil
+	}
+
+	svc := NewService(repo, slog.New(slog.NewTextHandler(io.Discard, nil)))
+
+	var debitedOrgID int64
+	var debitedAmount money.Amount
+	fakeTxID := int64(777)
+	svc.SetWalletDebiter(func(ctx context.Context, orgID int64, amount money.Amount, description string) (*int64, error) {
+		debitedOrgID = orgID
+		debitedAmount = amount
+		return &fakeTxID, nil
+	})
+
+	ctx := database.WithTenant(context.Background(), 55)
+	purchase, err := svc.PurchaseSponsorshipPackage(ctx, 1, true, "monthly")
+	if err != nil {
+		t.Fatalf("PurchaseSponsorshipPackage failed: %v", err)
+	}
+
+	if debitedOrgID != 55 {
+		t.Errorf("debitedOrgID = %d, want 55", debitedOrgID)
+	}
+	if debitedAmount.Minor() != 150000 {
+		t.Errorf("debitedAmount = %d, want 150000", debitedAmount.Minor())
+	}
+	if savedPurchase == nil {
+		t.Fatal("expected purchase to be saved")
+	}
+	if savedPurchase.PaymentID != nil {
+		t.Errorf("savedPurchase.PaymentID = %v, want nil (must not violate foreign key)", *savedPurchase.PaymentID)
+	}
+	if savedPurchase.SourceID == nil || *savedPurchase.SourceID != 777 {
+		t.Errorf("savedPurchase.SourceID = %v, want 777", savedPurchase.SourceID)
+	}
+	if savedPurchase.SourceSystem != "wallet_checkout" {
+		t.Errorf("savedPurchase.SourceSystem = %q, want 'wallet_checkout'", savedPurchase.SourceSystem)
+	}
+	if purchase.CreditsRemaining != 10 {
+		t.Errorf("purchase.CreditsRemaining = %d, want 10", purchase.CreditsRemaining)
 	}
 }

@@ -32,6 +32,9 @@ func (s *Service) PurchaseSponsorshipPackage(ctx context.Context, packageID int6
 	if err != nil {
 		return nil, err
 	}
+	if pkg == nil {
+		return nil, apperr.NotFound("package")
+	}
 	if !pkg.IsActive {
 		return nil, apperr.Validation("package.inactive", "هذه الباقة غير متاحة حالياً.", nil)
 	}
