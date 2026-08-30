@@ -54,7 +54,7 @@ templ AdminOffers(data AdminOffersData, lang, dir string) {
 				<div class="flex-between items-center flex-wrap gap-4">
 					<div class="d-flex items-center gap-3">
 						<div class="user-avatar-badge text-xl">
-							🎁
+							@components.IconPackage("icon-sm")
 						</div>
 						<div>
 							<h1 class="text-2xl font-black text-primary m-0">العروض وباقات الموردين الخاصة</h1>
@@ -139,7 +139,7 @@ templ AdminOffers(data AdminOffersData, lang, dir string) {
 			<div class="glass-panel p-0 mb-6 overflow-hidden">
 				if len(data.Offers) == 0 {
 					<div class="p-8 text-center empty-state-glass">
-						<div class="text-4xl mb-3">🎁</div>
+						<div class="text-4xl mb-3">@components.IconPackage("icon-sm")</div>
 						<h3 class="text-lg font-black text-primary mb-2">لا توجد عروض وباقات موردين</h3>
 						<p class="text-sm text-secondary max-w-md mx-auto">لم يقم أي مورد بإدراج عروض خاصة حتى الآن.</p>
 					</div>
@@ -166,7 +166,7 @@ templ AdminOffers(data AdminOffersData, lang, dir string) {
 										<td>
 											<div style="display:flex; align-items:flex-start; gap:0.75rem;">
 												<div style="width:40px; height:40px; border-radius:var(--radius-lg); background:var(--accent-subtle); border:1px solid var(--accent); color:var(--accent); display:flex; align-items:center; justify-content:center; font-size:1.25rem; flex-shrink:0;">
-													🎁
+													@components.IconPackage("icon-sm")
 												</div>
 												<div>
 													<div style="font-weight:800; color:var(--text); font-size:0.95rem;">

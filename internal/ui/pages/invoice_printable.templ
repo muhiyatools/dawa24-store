@@ -1,6 +1,7 @@
 package pages
 
 import (
+	"github.com/muhiya/dawa24-store/internal/ui/components"
 	"fmt"
 
 	"github.com/muhiya/dawa24-store/internal/modules/billing"
@@ -337,7 +338,7 @@ templ InvoicePrintablePage(data billing.PrintableInvoiceData, lang, dir string) 
 			<!-- Floating Action Toolbar (Hidden in print) -->
 			<div class="no-print-toolbar">
 				<div class="d-flex items-center gap-2">
-					<span style="font-size:1.3rem;">🧾</span>
+					<span style="font-size:1.3rem;">@components.IconFileText("icon-sm")</span>
 					<div>
 						<strong style="font-size:0.95rem; display:block; color:#0f172a;">
 							فاتورة استلام وتوريد

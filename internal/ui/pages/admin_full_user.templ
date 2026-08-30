@@ -275,7 +275,7 @@ templ AdminEmployeeActivitiesPage(data AdminEmployeeActivitiesData, lang, dir st
 				<div class="flex-between items-center flex-wrap gap-4">
 					<div class="d-flex items-center gap-3">
 						<div class="w-11 h-11 rounded-xl bg-brand-50 text-brand-600 d-flex items-center justify-center border border-brand-200/60 shadow-2xs text-xl">
-							🕒
+							@components.IconClock("icon-sm")
 						</div>
 						<div>
 							<h1 class="text-2xl font-black text-primary m-0">سجل نشاطات وعمليات الموظفين بالمنشآت</h1>
@@ -376,7 +376,7 @@ templ AdminEmployeeActivitiesPage(data AdminEmployeeActivitiesData, lang, dir st
 				if len(data.Entries) == 0 {
 					<div class="p-8 text-center empty-state-glass">
 						<div class="w-12 h-12 rounded-full bg-slate-100 text-slate-400 d-flex items-center justify-center mx-auto mb-3 text-2xl">
-							🕒
+							@components.IconClock("icon-sm")
 						</div>
 						<h3 class="text-lg font-black text-primary mb-2">لا توجد أنشطة مسجلة</h3>
 						<p class="text-xs text-secondary max-w-md mx-auto">لم يتم العثور على أي عمليات تطابق معايير التصفية والبحث الحالية في سجل النظام.</p>
@@ -560,7 +560,7 @@ templ AdminEmployeeActivitiesPage(data AdminEmployeeActivitiesData, lang, dir st
 					<div class="flex-between items-center pb-3 mb-4 border-b border-slate-100">
 						<div class="d-flex items-center gap-2.5">
 							<div class="w-9 h-9 rounded-xl bg-brand-50 text-brand-600 d-flex items-center justify-center border border-brand-200/60 shadow-2xs">
-								🕒
+								@components.IconClock("icon-sm")
 							</div>
 							<div>
 								<h3 class="text-base font-black text-primary m-0" x-text="'تفاصيل العملية #' + (selected ? selected.id : '')"></h3>

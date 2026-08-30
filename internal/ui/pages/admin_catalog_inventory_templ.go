@@ -3298,7 +3298,15 @@ func AdminTempWarehousesPage(data *AdminTempWarehousesData, lang, dir string) te
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 343, "</span> <span>رفع كشوف المستودعات المجمّع (حتى 100 ملف دفعة واحدة)</span></h3><p style=\"font-size:0.8rem; color:var(--text-muted); margin:0.25rem 0 0 0;\">يدعم كافة أنواع الملفات (.xlsx, .xls, .csv, .txt) مع تسمية تلقائية ومعالجة متوازية فائقة السرعة</p></div><button type=\"button\" @click=\"if (!isBulkUploading) uploadModal = false\" :disabled=\"isBulkUploading\" class=\"btn btn-secondary btn-sm\" style=\"border-radius:var(--radius-full); width:32px; height:32px; padding:0; display:flex; align-items:center; justify-content:center; font-size:1.1rem;\">&times;</button></div><!-- Active Uploading Progress Overlay --><template x-if=\"isBulkUploading\"><div style=\"padding:2.5rem 1.5rem; text-align:center;\"><div class=\"spinner-border text-primary\" style=\"width:3.5rem; height:3.5rem; margin-bottom:1.25rem;\" role=\"status\"></div><h4 style=\"font-size:1.15rem; font-weight:900; color:var(--text); margin-bottom:0.5rem;\">جاري الرفع والمعالجة المتوازية فائقة السرعة...</h4><p class=\"text-xs text-muted\" x-text=\"uploadStatusText\" style=\"margin-bottom:1.5rem;\"></p><!-- Progress Bar --><div style=\"width:100%; height:12px; background:var(--surface-sunken); border-radius:var(--radius-full); overflow:hidden; border:1px solid var(--border); margin-bottom:0.75rem;\"><div style=\"height:100%; background:linear-gradient(90deg, var(--accent) 0%, var(--emerald, #10b981) 100%); transition:width 0.4s ease;\" :style=\"'width: ' + uploadProgress + '%'\"></div></div><div class=\"d-flex justify-between items-center text-xs text-muted font-bold tabular-nums\"><span x-text=\"'عدد الملفات المرفوعة: ' + selectedFiles.length\"></span> <span x-text=\"uploadProgress + '%'\"></span></div></div></template><!-- Upload Form --><form x-show=\"!isBulkUploading\" action=\"/admin/temporary-warehouses/upload\" method=\"POST\" enctype=\"multipart/form-data\" @submit.prevent=\"submitBulkUpload($event.target)\" class=\"stack-lg\"><!-- Drag & Drop Bulk Zone (up to 100 files) --><div @dragover.prevent=\"isDragging = true\" @dragleave.prevent=\"isDragging = false\" @drop.prevent=\"handleDrop($event)\" style=\"border:2px dashed var(--border); border-radius:var(--radius-xl); padding:1.75rem 1.25rem; text-align:center; background:var(--surface-sunken); transition:all 0.2s ease; cursor:pointer;\" :style=\"isDragging ? 'border-color:var(--accent); background:var(--accent-subtle);' : ''\" @click=\"$refs.fileInput.click()\"><input type=\"file\" name=\"files\" multiple accept=\".xlsx,.xls,.csv,.txt\" x-ref=\"fileInput\" @change=\"handleFilesSelect($event)\" style=\"display:none;\"><div style=\"font-size:2.5rem; margin-bottom:0.5rem;\">📂</div><div style=\"font-size:0.95rem; font-weight:800; color:var(--text); margin-bottom:0.25rem;\">اسحب وأفلت الملفات هنا، أو انقر لاختيار مجموعة ملفات من جهازك</div><div class=\"meta-muted\">يدعم رفع حتى 100 ملف دفعة واحدة بكافة الصيغ (.xlsx, .xls, .csv, .txt)</div></div><!-- Selected Files Badge & List --><template x-if=\"selectedFiles.length > 0\"><div style=\"background:var(--surface-sunken); border:1px solid var(--border); border-radius:var(--radius-xl); padding:1rem;\"><div style=\"display:flex; justify-content:space-between; align-items:center; margin-bottom:0.75rem;\"><div class=\"d-flex items-center gap-2\"><span class=\"badge badge-emerald fw-800 text-xs tabular-nums\">تم اختيار <strong x-text=\"selectedFiles.length\"></strong> ملف</span> <span class=\"text-xs text-muted tabular-nums\" x-text=\"'(الحجم الإجمالي: ' + totalSelectedSize() + ')'\"></span></div><button type=\"button\" @click=\"clearSelectedFiles()\" class=\"btn btn-secondary btn-xs text-danger fw-700\" style=\"border-radius:var(--radius-md);\">إفراغ القائمة</button></div><!-- Files Preview Scroll Area --><div style=\"max-height:160px; overflow-y:auto; display:flex; flex-direction:column; gap:0.35rem; padding-inline-end:0.25rem;\"><template x-for=\"(f, idx) in selectedFiles\" :key=\"idx\"><div style=\"display:flex; justify-content:space-between; align-items:center; background:var(--surface-raised); border:1px solid var(--border-subtle); border-radius:var(--radius-md); padding:0.4rem 0.65rem; font-size:0.75rem;\"><div style=\"display:flex; align-items:center; gap:0.4rem; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;\"><span class=\"text-muted tabular-nums\" x-text=\"(idx+1) + '.'\"></span> <strong class=\"text-primary text-truncate\" style=\"max-width:280px;\" x-text=\"f.name\"></strong> <span class=\"badge badge-slate text-xs\" x-text=\"'← مستودع: ' + cleanName(f.name)\"></span></div><div style=\"display:flex; align-items:center; gap:0.5rem; flex-shrink:0;\"><span class=\"text-muted tabular-nums\" x-text=\"formatFileSize(f.size)\"></span> <button type=\"button\" @click.stop=\"removeSelectedFile(idx)\" class=\"btn btn-secondary btn-xs text-danger\" style=\"padding:0.1rem 0.35rem; border-radius:var(--radius-sm);\" title=\"إزالة\"></button></div></div></template></div></div></template><!-- Case 1: Single File Custom Options --><template x-if=\"selectedFiles.length === 1\"><div class=\"stack-md\"><div class=\"form-group mb-0\"><label class=\"form-label text-xs fw-700\" style=\"color:var(--text-secondary); margin-bottom:0.35rem;\">اسم المورد / اسم المستودع</label> <input type=\"text\" name=\"supplier_name\" class=\"form-input\" :value=\"cleanName(selectedFiles[0]?.name)\" placeholder=\"مثال: مستودع الأمل، شركة النور...\" style=\"height:42px; border-radius:var(--radius-lg);\"></div></div></template><!-- Setup Experience Option Checkbox --><div style=\"background:linear-gradient(135deg, rgba(16,185,129,0.06) 0%, rgba(14,165,233,0.06) 100%); border:1px solid var(--border); border-radius:var(--radius-xl); padding:1rem; display:flex; align-items:center; gap:0.75rem;\"><input type=\"checkbox\" id=\"auto_setup_check\" x-model=\"autoLaunchSetup\" style=\"width:18px; height:18px; cursor:pointer;\"> <label for=\"auto_setup_check\" style=\"cursor:pointer; margin:0;\"><strong class=\"text-primary d-block text-xs font-extrabold\">بدء معالج ضبط وتأكيد أعمدة الملفات بعد الرفع (Setup Experience)</strong> <span class=\"text-2xs text-secondary font-medium d-block mt-0.5\">يتيح لك مراجعة الأعمدة ومعاينة بيانات كل كشف مستودع بالتتابع وتعديل الربط بسهولة</span></label></div><!-- Action Buttons --><div style=\"display:flex; justify-content:flex-end; gap:0.75rem; margin-top:0.75rem; border-top:1px solid var(--border); pt-3;\"><button type=\"button\" class=\"btn btn-secondary\" style=\"border-radius:var(--radius-lg); font-weight:700;\" @click=\"uploadModal = false\">إلغاء</button> <button type=\"submit\" class=\"btn btn-primary fw-900\" style=\"border-radius:var(--radius-lg); padding:0.65rem 1.75rem;\" :disabled=\"selectedFiles.length === 0\"><span x-show=\"selectedFiles.length <= 1\">تأكيد ورفع المستودع ↗</span> <span x-show=\"selectedFiles.length > 1\" x-text=\"'تأكيد ورفع ' + selectedFiles.length + ' مستودع الآن '\"></span></button></div></form></div></div><!-- 7. Warehouse Column Mapping & Setup Wizard Modal --><div x-show=\"mappingModal\" style=\"position:fixed; top:0; left:0; right:0; bottom:0; width:100vw; height:100vh; z-index:99999; background:rgba(15,23,42,0.8); backdrop-filter:blur(6px); display:flex; align-items:center; justify-content:center; padding:1.25rem; margin:0; box-sizing:border-box;\" x-cloak @keydown.escape.window=\"if(!mappingSubmitting) mappingModal = false\" @click.self=\"if(!mappingSubmitting) mappingModal = false\"><div class=\"card mb-0\" style=\"max-width:940px; width:100%; max-height:92vh; overflow-y:auto; padding:1.75rem; background:var(--surface-raised); border-radius:var(--radius-2xl); border:1px solid var(--border); box-shadow:var(--shadow-2xl); margin:auto;\"><!-- Modal Header & Queue Stepper --><div style=\"display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:1rem; border-bottom:1px solid var(--border); padding-bottom:1rem; gap:1rem;\"><div class=\"d-flex items-center gap-3\"><div style=\"width:44px; height:44px; border-radius:var(--radius-xl); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center; font-size:1.3rem;\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 343, "</span> <span>رفع كشوف المستودعات المجمّع (حتى 100 ملف دفعة واحدة)</span></h3><p style=\"font-size:0.8rem; color:var(--text-muted); margin:0.25rem 0 0 0;\">يدعم كافة أنواع الملفات (.xlsx, .xls, .csv, .txt) مع تسمية تلقائية ومعالجة متوازية فائقة السرعة</p></div><button type=\"button\" @click=\"if (!isBulkUploading) uploadModal = false\" :disabled=\"isBulkUploading\" class=\"btn btn-secondary btn-sm\" style=\"border-radius:var(--radius-full); width:32px; height:32px; padding:0; display:flex; align-items:center; justify-content:center; font-size:1.1rem;\">&times;</button></div><!-- Active Uploading Progress Overlay --><template x-if=\"isBulkUploading\"><div style=\"padding:2.5rem 1.5rem; text-align:center;\"><div class=\"spinner-border text-primary\" style=\"width:3.5rem; height:3.5rem; margin-bottom:1.25rem;\" role=\"status\"></div><h4 style=\"font-size:1.15rem; font-weight:900; color:var(--text); margin-bottom:0.5rem;\">جاري الرفع والمعالجة المتوازية فائقة السرعة...</h4><p class=\"text-xs text-muted\" x-text=\"uploadStatusText\" style=\"margin-bottom:1.5rem;\"></p><!-- Progress Bar --><div style=\"width:100%; height:12px; background:var(--surface-sunken); border-radius:var(--radius-full); overflow:hidden; border:1px solid var(--border); margin-bottom:0.75rem;\"><div style=\"height:100%; background:linear-gradient(90deg, var(--accent) 0%, var(--emerald, #10b981) 100%); transition:width 0.4s ease;\" :style=\"'width: ' + uploadProgress + '%'\"></div></div><div class=\"d-flex justify-between items-center text-xs text-muted font-bold tabular-nums\"><span x-text=\"'عدد الملفات المرفوعة: ' + selectedFiles.length\"></span> <span x-text=\"uploadProgress + '%'\"></span></div></div></template><!-- Upload Form --><form x-show=\"!isBulkUploading\" action=\"/admin/temporary-warehouses/upload\" method=\"POST\" enctype=\"multipart/form-data\" @submit.prevent=\"submitBulkUpload($event.target)\" class=\"stack-lg\"><!-- Drag & Drop Bulk Zone (up to 100 files) --><div @dragover.prevent=\"isDragging = true\" @dragleave.prevent=\"isDragging = false\" @drop.prevent=\"handleDrop($event)\" style=\"border:2px dashed var(--border); border-radius:var(--radius-xl); padding:1.75rem 1.25rem; text-align:center; background:var(--surface-sunken); transition:all 0.2s ease; cursor:pointer;\" :style=\"isDragging ? 'border-color:var(--accent); background:var(--accent-subtle);' : ''\" @click=\"$refs.fileInput.click()\"><input type=\"file\" name=\"files\" multiple accept=\".xlsx,.xls,.csv,.txt\" x-ref=\"fileInput\" @change=\"handleFilesSelect($event)\" style=\"display:none;\"><div style=\"font-size:2.5rem; margin-bottom:0.5rem;\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = components.IconFolderOpen("icon-sm").Render(ctx, templ_7745c5c3_Buffer)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 344, "</div><div style=\"font-size:0.95rem; font-weight:800; color:var(--text); margin-bottom:0.25rem;\">اسحب وأفلت الملفات هنا، أو انقر لاختيار مجموعة ملفات من جهازك</div><div class=\"meta-muted\">يدعم رفع حتى 100 ملف دفعة واحدة بكافة الصيغ (.xlsx, .xls, .csv, .txt)</div></div><!-- Selected Files Badge & List --><template x-if=\"selectedFiles.length > 0\"><div style=\"background:var(--surface-sunken); border:1px solid var(--border); border-radius:var(--radius-xl); padding:1rem;\"><div style=\"display:flex; justify-content:space-between; align-items:center; margin-bottom:0.75rem;\"><div class=\"d-flex items-center gap-2\"><span class=\"badge badge-emerald fw-800 text-xs tabular-nums\">تم اختيار <strong x-text=\"selectedFiles.length\"></strong> ملف</span> <span class=\"text-xs text-muted tabular-nums\" x-text=\"'(الحجم الإجمالي: ' + totalSelectedSize() + ')'\"></span></div><button type=\"button\" @click=\"clearSelectedFiles()\" class=\"btn btn-secondary btn-xs text-danger fw-700\" style=\"border-radius:var(--radius-md);\">إفراغ القائمة</button></div><!-- Files Preview Scroll Area --><div style=\"max-height:160px; overflow-y:auto; display:flex; flex-direction:column; gap:0.35rem; padding-inline-end:0.25rem;\"><template x-for=\"(f, idx) in selectedFiles\" :key=\"idx\"><div style=\"display:flex; justify-content:space-between; align-items:center; background:var(--surface-raised); border:1px solid var(--border-subtle); border-radius:var(--radius-md); padding:0.4rem 0.65rem; font-size:0.75rem;\"><div style=\"display:flex; align-items:center; gap:0.4rem; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;\"><span class=\"text-muted tabular-nums\" x-text=\"(idx+1) + '.'\"></span> <strong class=\"text-primary text-truncate\" style=\"max-width:280px;\" x-text=\"f.name\"></strong> <span class=\"badge badge-slate text-xs\" x-text=\"'← مستودع: ' + cleanName(f.name)\"></span></div><div style=\"display:flex; align-items:center; gap:0.5rem; flex-shrink:0;\"><span class=\"text-muted tabular-nums\" x-text=\"formatFileSize(f.size)\"></span> <button type=\"button\" @click.stop=\"removeSelectedFile(idx)\" class=\"btn btn-secondary btn-xs text-danger\" style=\"padding:0.1rem 0.35rem; border-radius:var(--radius-sm);\" title=\"إزالة\"></button></div></div></template></div></div></template><!-- Case 1: Single File Custom Options --><template x-if=\"selectedFiles.length === 1\"><div class=\"stack-md\"><div class=\"form-group mb-0\"><label class=\"form-label text-xs fw-700\" style=\"color:var(--text-secondary); margin-bottom:0.35rem;\">اسم المورد / اسم المستودع</label> <input type=\"text\" name=\"supplier_name\" class=\"form-input\" :value=\"cleanName(selectedFiles[0]?.name)\" placeholder=\"مثال: مستودع الأمل، شركة النور...\" style=\"height:42px; border-radius:var(--radius-lg);\"></div></div></template><!-- Setup Experience Option Checkbox --><div style=\"background:linear-gradient(135deg, rgba(16,185,129,0.06) 0%, rgba(14,165,233,0.06) 100%); border:1px solid var(--border); border-radius:var(--radius-xl); padding:1rem; display:flex; align-items:center; gap:0.75rem;\"><input type=\"checkbox\" id=\"auto_setup_check\" x-model=\"autoLaunchSetup\" style=\"width:18px; height:18px; cursor:pointer;\"> <label for=\"auto_setup_check\" style=\"cursor:pointer; margin:0;\"><strong class=\"text-primary d-block text-xs font-extrabold\">بدء معالج ضبط وتأكيد أعمدة الملفات بعد الرفع (Setup Experience)</strong> <span class=\"text-2xs text-secondary font-medium d-block mt-0.5\">يتيح لك مراجعة الأعمدة ومعاينة بيانات كل كشف مستودع بالتتابع وتعديل الربط بسهولة</span></label></div><!-- Action Buttons --><div style=\"display:flex; justify-content:flex-end; gap:0.75rem; margin-top:0.75rem; border-top:1px solid var(--border); pt-3;\"><button type=\"button\" class=\"btn btn-secondary\" style=\"border-radius:var(--radius-lg); font-weight:700;\" @click=\"uploadModal = false\">إلغاء</button> <button type=\"submit\" class=\"btn btn-primary fw-900\" style=\"border-radius:var(--radius-lg); padding:0.65rem 1.75rem;\" :disabled=\"selectedFiles.length === 0\"><span x-show=\"selectedFiles.length <= 1\">تأكيد ورفع المستودع ↗</span> <span x-show=\"selectedFiles.length > 1\" x-text=\"'تأكيد ورفع ' + selectedFiles.length + ' مستودع الآن '\"></span></button></div></form></div></div><!-- 7. Warehouse Column Mapping & Setup Wizard Modal --><div x-show=\"mappingModal\" style=\"position:fixed; top:0; left:0; right:0; bottom:0; width:100vw; height:100vh; z-index:99999; background:rgba(15,23,42,0.8); backdrop-filter:blur(6px); display:flex; align-items:center; justify-content:center; padding:1.25rem; margin:0; box-sizing:border-box;\" x-cloak @keydown.escape.window=\"if(!mappingSubmitting) mappingModal = false\" @click.self=\"if(!mappingSubmitting) mappingModal = false\"><div class=\"card mb-0\" style=\"max-width:940px; width:100%; max-height:92vh; overflow-y:auto; padding:1.75rem; background:var(--surface-raised); border-radius:var(--radius-2xl); border:1px solid var(--border); box-shadow:var(--shadow-2xl); margin:auto;\"><!-- Modal Header & Queue Stepper --><div style=\"display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:1rem; border-bottom:1px solid var(--border); padding-bottom:1rem; gap:1rem;\"><div class=\"d-flex items-center gap-3\"><div style=\"width:44px; height:44px; border-radius:var(--radius-xl); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center; font-size:1.3rem;\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -3306,7 +3314,7 @@ func AdminTempWarehousesPage(data *AdminTempWarehousesData, lang, dir string) te
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 344, "</div><div><div style=\"display:flex; align-items:center; gap:0.5rem; margin-bottom:0.25rem;\"><span class=\"badge badge-emerald fw-800 text-xs\">معالج ضبط وتأكيد أعمدة المستودع</span><template x-if=\"mappingTotal > 1\"><span class=\"badge badge-sky fw-800 text-xs tabular-nums\" x-text=\"'ملف ' + mappingStep + ' من ' + mappingTotal\"></span></template></div><h3 style=\"font-size:1.25rem; font-weight:900; color:var(--text); margin:0;\"><span x-text=\"mappingFile.supplier_name || 'ضبط الأعمدة'\"></span></h3><p style=\"font-size:0.8rem; color:var(--text-muted); margin:0.2rem 0 0 0;\">الملف المصدري: <strong class=\"text-primary font-mono\" x-text=\"mappingFile.original_filename\"></strong> <span class=\"tabular-nums\" x-text=\"' • (' + (mappingFile.row_count || 0) + ' صنف مسجل)'\"></span></p></div></div><button type=\"button\" @click=\"mappingModal = false\" :disabled=\"mappingSubmitting\" class=\"btn btn-secondary btn-sm\" style=\"border-radius:var(--radius-full); width:32px; height:32px; padding:0; display:flex; align-items:center; justify-content:center; font-size:1.1rem;\">&times;</button></div><!-- Progress Bar if in Multi-File Queue --><template x-if=\"mappingTotal > 1\"><div style=\"margin-bottom:1.25rem;\"><div style=\"display:flex; justify-content:space-between; align-items:center; font-size:0.75rem; color:var(--text-muted); font-weight:700; margin-bottom:0.35rem;\"><span>إنجاز مراجعة الملفات المرفوعة</span> <span class=\"tabular-nums\" x-text=\"Math.round((mappingStep / mappingTotal) * 100) + '%'\"></span></div><div style=\"width:100%; height:6px; background:var(--surface-sunken); border-radius:var(--radius-full); overflow:hidden; border:1px solid var(--border);\"><div style=\"height:100%; background:linear-gradient(90deg, var(--accent) 0%, var(--emerald, #10b981) 100%); transition:width 0.3s ease;\" :style=\"'width: ' + ((mappingStep / mappingTotal) * 100) + '%'\"></div></div></div></template><!-- Loading State --><template x-if=\"mappingLoading\"><div style=\"padding:3rem 1.5rem; text-align:center;\"><div class=\"spinner-border text-primary\" style=\"width:2.5rem; height:2.5rem; margin-bottom:1rem;\" role=\"status\"></div><div style=\"font-weight:700; color:var(--text-secondary); font-size:0.9rem;\">جاري قراءة وتحليل أعمدة المستودع...</div></div></template><!-- Mapping Form Content --><form x-show=\"!mappingLoading\" @submit.prevent=\"submitMapping($event.target)\" class=\"stack-lg\"><!-- Supplier Name Edit Strip --><div style=\"background:var(--surface-sunken); border:1px solid var(--border); border-radius:var(--radius-xl); padding:0.85rem 1.15rem; display:flex; align-items:center; gap:1rem; flex-wrap:wrap;\"><div style=\"font-size:1.3rem;\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 345, "</div><div><div style=\"display:flex; align-items:center; gap:0.5rem; margin-bottom:0.25rem;\"><span class=\"badge badge-emerald fw-800 text-xs\">معالج ضبط وتأكيد أعمدة المستودع</span><template x-if=\"mappingTotal > 1\"><span class=\"badge badge-sky fw-800 text-xs tabular-nums\" x-text=\"'ملف ' + mappingStep + ' من ' + mappingTotal\"></span></template></div><h3 style=\"font-size:1.25rem; font-weight:900; color:var(--text); margin:0;\"><span x-text=\"mappingFile.supplier_name || 'ضبط الأعمدة'\"></span></h3><p style=\"font-size:0.8rem; color:var(--text-muted); margin:0.2rem 0 0 0;\">الملف المصدري: <strong class=\"text-primary font-mono\" x-text=\"mappingFile.original_filename\"></strong> <span class=\"tabular-nums\" x-text=\"' • (' + (mappingFile.row_count || 0) + ' صنف مسجل)'\"></span></p></div></div><button type=\"button\" @click=\"mappingModal = false\" :disabled=\"mappingSubmitting\" class=\"btn btn-secondary btn-sm\" style=\"border-radius:var(--radius-full); width:32px; height:32px; padding:0; display:flex; align-items:center; justify-content:center; font-size:1.1rem;\">&times;</button></div><!-- Progress Bar if in Multi-File Queue --><template x-if=\"mappingTotal > 1\"><div style=\"margin-bottom:1.25rem;\"><div style=\"display:flex; justify-content:space-between; align-items:center; font-size:0.75rem; color:var(--text-muted); font-weight:700; margin-bottom:0.35rem;\"><span>إنجاز مراجعة الملفات المرفوعة</span> <span class=\"tabular-nums\" x-text=\"Math.round((mappingStep / mappingTotal) * 100) + '%'\"></span></div><div style=\"width:100%; height:6px; background:var(--surface-sunken); border-radius:var(--radius-full); overflow:hidden; border:1px solid var(--border);\"><div style=\"height:100%; background:linear-gradient(90deg, var(--accent) 0%, var(--emerald, #10b981) 100%); transition:width 0.3s ease;\" :style=\"'width: ' + ((mappingStep / mappingTotal) * 100) + '%'\"></div></div></div></template><!-- Loading State --><template x-if=\"mappingLoading\"><div style=\"padding:3rem 1.5rem; text-align:center;\"><div class=\"spinner-border text-primary\" style=\"width:2.5rem; height:2.5rem; margin-bottom:1rem;\" role=\"status\"></div><div style=\"font-weight:700; color:var(--text-secondary); font-size:0.9rem;\">جاري قراءة وتحليل أعمدة المستودع...</div></div></template><!-- Mapping Form Content --><form x-show=\"!mappingLoading\" @submit.prevent=\"submitMapping($event.target)\" class=\"stack-lg\"><!-- Supplier Name Edit Strip --><div style=\"background:var(--surface-sunken); border:1px solid var(--border); border-radius:var(--radius-xl); padding:0.85rem 1.15rem; display:flex; align-items:center; gap:1rem; flex-wrap:wrap;\"><div style=\"font-size:1.3rem;\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -3314,7 +3322,7 @@ func AdminTempWarehousesPage(data *AdminTempWarehousesData, lang, dir string) te
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 345, "</div><div style=\"flex:1; min-width:240px;\"><label class=\"form-label text-xs fw-800\" style=\"margin-bottom:0.25rem; color:var(--text);\">اسم المورد / المستودع المعروض في المنظومة</label> <input type=\"text\" name=\"supplier_name\" x-model=\"mappingFile.supplier_name\" class=\"form-input text-xs font-bold\" style=\"height:38px; border-radius:var(--radius-md);\" required></div></div><!-- Column Selectors Grid (4 key columns) --><div style=\"background:var(--surface-sunken); border:1px solid var(--border); border-radius:var(--radius-xl); padding:1.15rem;\"><div style=\"font-size:0.85rem; font-weight:800; color:var(--text); margin-bottom:0.6rem; display:flex; align-items:center; gap:0.4rem;\"><span>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 346, "</div><div style=\"flex:1; min-width:240px;\"><label class=\"form-label text-xs fw-800\" style=\"margin-bottom:0.25rem; color:var(--text);\">اسم المورد / المستودع المعروض في المنظومة</label> <input type=\"text\" name=\"supplier_name\" x-model=\"mappingFile.supplier_name\" class=\"form-input text-xs font-bold\" style=\"height:38px; border-radius:var(--radius-md);\" required></div></div><!-- Column Selectors Grid (4 key columns) --><div style=\"background:var(--surface-sunken); border:1px solid var(--border); border-radius:var(--radius-xl); padding:1.15rem;\"><div style=\"font-size:0.85rem; font-weight:800; color:var(--text); margin-bottom:0.6rem; display:flex; align-items:center; gap:0.4rem;\"><span>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -3322,7 +3330,7 @@ func AdminTempWarehousesPage(data *AdminTempWarehousesData, lang, dir string) te
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 346, "</span> <span>تعيين وتوجيه الأعمدة لاستخراج البيانات بدقة:</span></div><div style=\"display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:0.75rem;\"><!-- Code Col --><div><label class=\"form-label text-xs fw-800\" style=\"margin-bottom:0.25rem;\">كود الصنف (SKU / Barcode)</label> <select name=\"col_code\" x-model=\"mappingCode\" class=\"form-input text-xs\" style=\"height:38px; border-radius:var(--radius-md);\"><option value=\"-1\">-- غير محدد --</option><template x-for=\"(h, idx) in mappingHeaders\" :key=\"idx\"><option :value=\"idx\" x-text=\"'عمود ' + (idx+1) + ': ' + h\" :selected=\"mappingCode == idx\"></option></template></select></div><!-- Name Col --><div><label class=\"form-label text-xs fw-800\" style=\"margin-bottom:0.25rem;\">اسم المنتج / الصنف <span style=\"color:#dc2626;\">*</span></label> <select name=\"col_name\" x-model=\"mappingName\" class=\"form-input text-xs font-bold\" style=\"height:38px; border-radius:var(--radius-md);\" required><option value=\"-1\">-- يرجى الاختيار --</option><template x-for=\"(h, idx) in mappingHeaders\" :key=\"idx\"><option :value=\"idx\" x-text=\"'عمود ' + (idx+1) + ': ' + h\" :selected=\"mappingName == idx\"></option></template></select></div><!-- Price Col --><div><label class=\"form-label text-xs fw-800\" style=\"margin-bottom:0.25rem;\">سعر الجمهور (الرسمي)</label> <select name=\"col_price\" x-model=\"mappingPrice\" class=\"form-input text-xs\" style=\"height:38px; border-radius:var(--radius-md);\"><option value=\"-1\">-- غير محدد --</option><template x-for=\"(h, idx) in mappingHeaders\" :key=\"idx\"><option :value=\"idx\" x-text=\"'عمود ' + (idx+1) + ': ' + h\" :selected=\"mappingPrice == idx\"></option></template></select></div><!-- Discount Col --><div><label class=\"form-label text-xs fw-800\" style=\"margin-bottom:0.25rem;\">نسبة الخصم (%)</label> <select name=\"col_discount\" x-model=\"mappingDiscount\" class=\"form-input text-xs\" style=\"height:38px; border-radius:var(--radius-md);\"><option value=\"-1\">-- غير محدد --</option><template x-for=\"(h, idx) in mappingHeaders\" :key=\"idx\"><option :value=\"idx\" x-text=\"'عمود ' + (idx+1) + ': ' + h\" :selected=\"mappingDiscount == idx\"></option></template></select></div></div></div><!-- Live Spreadsheet Data Preview Table --><template x-if=\"mappingPreview.length > 0\"><div style=\"background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-xl); overflow:hidden;\"><div style=\"padding:0.6rem 1rem; background:var(--surface-sunken); border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:center;\"><span style=\"font-size:0.775rem; font-weight:800; color:var(--text-secondary);\">معاينة حية لأول 5 صفوف من ملف الإكسيل:</span> <span class=\"badge badge-slate text-xs tabular-nums\" x-text=\"mappingPreview.length + ' صفوف'\"></span></div><div style=\"overflow-x:auto; max-height:220px;\"><table class=\"data-table m-0 text-xs\"><thead><tr><th style=\"width:36px; text-align:center;\">#</th><template x-for=\"(h, colIdx) in mappingHeaders\" :key=\"colIdx\"><th class=\"nowrap\" :style=\"colIdx == mappingName ? 'color:var(--accent); font-weight:900;' : (colIdx == mappingPrice ? 'color:var(--emerald); font-weight:900;' : '')\"><span x-text=\"h\"></span><template x-if=\"colIdx == mappingCode\"><span class=\"badge badge-slate text-2xs\" style=\"margin-inline-start:4px;\">كود</span></template><template x-if=\"colIdx == mappingName\"><span class=\"badge badge-sky text-2xs\" style=\"margin-inline-start:4px;\">اسم</span></template><template x-if=\"colIdx == mappingPrice\"><span class=\"badge badge-emerald text-2xs\" style=\"margin-inline-start:4px;\">سعر</span></template><template x-if=\"colIdx == mappingDiscount\"><span class=\"badge badge-amber text-2xs\" style=\"margin-inline-start:4px;\">خصم %</span></template></th></template></tr></thead> <tbody><template x-for=\"(row, rIdx) in mappingPreview\" :key=\"rIdx\"><tr><td class=\"text-muted tabular-nums text-center\" x-text=\"rIdx+1\"></td><template x-for=\"(cell, cIdx) in row\" :key=\"cIdx\"><td :style=\"cIdx == mappingName ? 'font-weight:700;' : ''\" x-text=\"cell\"></td></template></tr></template></tbody></table></div></div></template><!-- Modal Footer Actions --><div style=\"display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.75rem; border-top:1px solid var(--border); padding-top:1rem;\"><div><template x-if=\"mappingQueue.length > 0\"><button type=\"button\" class=\"btn btn-secondary btn-sm fw-800\" @click=\"skipAllMapping()\" :disabled=\"mappingSubmitting\" style=\"border-radius:var(--radius-lg); font-size:0.8rem;\">تخطي باقي الملفات واعتماد الضبط التلقائي</button></template></div><div class=\"inline-row-06\"><button type=\"button\" class=\"btn btn-secondary btn-sm\" style=\"border-radius:var(--radius-lg); font-weight:700;\" @click=\"mappingModal = false\" :disabled=\"mappingSubmitting\">إغلاق</button><template x-if=\"mappingQueue.length > 0\"><button type=\"button\" class=\"btn btn-secondary btn-sm fw-800 rounded-lg\" @click=\"skipMapping()\" :disabled=\"mappingSubmitting\">تخطي للملف التالي ⏩</button></template><button type=\"submit\" class=\"btn btn-primary fw-900 btn-sm\" style=\"border-radius:var(--radius-lg); padding:0.5rem 1.5rem;\" :disabled=\"mappingSubmitting || mappingLoading\"><span x-show=\"!mappingSubmitting && mappingQueue.length === 0\">حفظ وتأكيد الأعمدة </span> <span x-show=\"!mappingSubmitting && mappingQueue.length > 0\">حفظ والانتقال للملف التالي </span> <span x-show=\"mappingSubmitting\">جاري الحفظ والمعالجة...</span></button></div></div></form></div></div></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 347, "</span> <span>تعيين وتوجيه الأعمدة لاستخراج البيانات بدقة:</span></div><div style=\"display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:0.75rem;\"><!-- Code Col --><div><label class=\"form-label text-xs fw-800\" style=\"margin-bottom:0.25rem;\">كود الصنف (SKU / Barcode)</label> <select name=\"col_code\" x-model=\"mappingCode\" class=\"form-input text-xs\" style=\"height:38px; border-radius:var(--radius-md);\"><option value=\"-1\">-- غير محدد --</option><template x-for=\"(h, idx) in mappingHeaders\" :key=\"idx\"><option :value=\"idx\" x-text=\"'عمود ' + (idx+1) + ': ' + h\" :selected=\"mappingCode == idx\"></option></template></select></div><!-- Name Col --><div><label class=\"form-label text-xs fw-800\" style=\"margin-bottom:0.25rem;\">اسم المنتج / الصنف <span style=\"color:#dc2626;\">*</span></label> <select name=\"col_name\" x-model=\"mappingName\" class=\"form-input text-xs font-bold\" style=\"height:38px; border-radius:var(--radius-md);\" required><option value=\"-1\">-- يرجى الاختيار --</option><template x-for=\"(h, idx) in mappingHeaders\" :key=\"idx\"><option :value=\"idx\" x-text=\"'عمود ' + (idx+1) + ': ' + h\" :selected=\"mappingName == idx\"></option></template></select></div><!-- Price Col --><div><label class=\"form-label text-xs fw-800\" style=\"margin-bottom:0.25rem;\">سعر الجمهور (الرسمي)</label> <select name=\"col_price\" x-model=\"mappingPrice\" class=\"form-input text-xs\" style=\"height:38px; border-radius:var(--radius-md);\"><option value=\"-1\">-- غير محدد --</option><template x-for=\"(h, idx) in mappingHeaders\" :key=\"idx\"><option :value=\"idx\" x-text=\"'عمود ' + (idx+1) + ': ' + h\" :selected=\"mappingPrice == idx\"></option></template></select></div><!-- Discount Col --><div><label class=\"form-label text-xs fw-800\" style=\"margin-bottom:0.25rem;\">نسبة الخصم (%)</label> <select name=\"col_discount\" x-model=\"mappingDiscount\" class=\"form-input text-xs\" style=\"height:38px; border-radius:var(--radius-md);\"><option value=\"-1\">-- غير محدد --</option><template x-for=\"(h, idx) in mappingHeaders\" :key=\"idx\"><option :value=\"idx\" x-text=\"'عمود ' + (idx+1) + ': ' + h\" :selected=\"mappingDiscount == idx\"></option></template></select></div></div></div><!-- Live Spreadsheet Data Preview Table --><template x-if=\"mappingPreview.length > 0\"><div style=\"background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-xl); overflow:hidden;\"><div style=\"padding:0.6rem 1rem; background:var(--surface-sunken); border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:center;\"><span style=\"font-size:0.775rem; font-weight:800; color:var(--text-secondary);\">معاينة حية لأول 5 صفوف من ملف الإكسيل:</span> <span class=\"badge badge-slate text-xs tabular-nums\" x-text=\"mappingPreview.length + ' صفوف'\"></span></div><div style=\"overflow-x:auto; max-height:220px;\"><table class=\"data-table m-0 text-xs\"><thead><tr><th style=\"width:36px; text-align:center;\">#</th><template x-for=\"(h, colIdx) in mappingHeaders\" :key=\"colIdx\"><th class=\"nowrap\" :style=\"colIdx == mappingName ? 'color:var(--accent); font-weight:900;' : (colIdx == mappingPrice ? 'color:var(--emerald); font-weight:900;' : '')\"><span x-text=\"h\"></span><template x-if=\"colIdx == mappingCode\"><span class=\"badge badge-slate text-2xs\" style=\"margin-inline-start:4px;\">كود</span></template><template x-if=\"colIdx == mappingName\"><span class=\"badge badge-sky text-2xs\" style=\"margin-inline-start:4px;\">اسم</span></template><template x-if=\"colIdx == mappingPrice\"><span class=\"badge badge-emerald text-2xs\" style=\"margin-inline-start:4px;\">سعر</span></template><template x-if=\"colIdx == mappingDiscount\"><span class=\"badge badge-amber text-2xs\" style=\"margin-inline-start:4px;\">خصم %</span></template></th></template></tr></thead> <tbody><template x-for=\"(row, rIdx) in mappingPreview\" :key=\"rIdx\"><tr><td class=\"text-muted tabular-nums text-center\" x-text=\"rIdx+1\"></td><template x-for=\"(cell, cIdx) in row\" :key=\"cIdx\"><td :style=\"cIdx == mappingName ? 'font-weight:700;' : ''\" x-text=\"cell\"></td></template></tr></template></tbody></table></div></div></template><!-- Modal Footer Actions --><div style=\"display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.75rem; border-top:1px solid var(--border); padding-top:1rem;\"><div><template x-if=\"mappingQueue.length > 0\"><button type=\"button\" class=\"btn btn-secondary btn-sm fw-800\" @click=\"skipAllMapping()\" :disabled=\"mappingSubmitting\" style=\"border-radius:var(--radius-lg); font-size:0.8rem;\">تخطي باقي الملفات واعتماد الضبط التلقائي</button></template></div><div class=\"inline-row-06\"><button type=\"button\" class=\"btn btn-secondary btn-sm\" style=\"border-radius:var(--radius-lg); font-weight:700;\" @click=\"mappingModal = false\" :disabled=\"mappingSubmitting\">إغلاق</button><template x-if=\"mappingQueue.length > 0\"><button type=\"button\" class=\"btn btn-secondary btn-sm fw-800 rounded-lg\" @click=\"skipMapping()\" :disabled=\"mappingSubmitting\">تخطي للملف التالي ⏩</button></template><button type=\"submit\" class=\"btn btn-primary fw-900 btn-sm\" style=\"border-radius:var(--radius-lg); padding:0.5rem 1.5rem;\" :disabled=\"mappingSubmitting || mappingLoading\"><span x-show=\"!mappingSubmitting && mappingQueue.length === 0\">حفظ وتأكيد الأعمدة </span> <span x-show=\"!mappingSubmitting && mappingQueue.length > 0\">حفظ والانتقال للملف التالي </span> <span x-show=\"mappingSubmitting\">جاري الحفظ والمعالجة...</span></button></div></div></form></div></div></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -3390,7 +3398,7 @@ func AdminSavingProductsPage(data AdminSavingProductsData, lang, dir string) tem
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 347, "<div class=\"page-container\"><!-- Header Banner --><div class=\"glass-panel p-6 mb-6\"><div class=\"flex-between items-center flex-wrap gap-4\"><div class=\"d-flex items-center gap-3\"><div class=\"user-avatar-badge text-xl\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 348, "<div class=\"page-container\"><!-- Header Banner --><div class=\"glass-panel p-6 mb-6\"><div class=\"flex-between items-center flex-wrap gap-4\"><div class=\"d-flex items-center gap-3\"><div class=\"user-avatar-badge text-xl\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -3398,7 +3406,7 @@ func AdminSavingProductsPage(data AdminSavingProductsData, lang, dir string) tem
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 348, "</div><div><h1 class=\"text-2xl font-black text-primary m-0\">منتجات التوفير لجميع مستخدمي المنصة</h1><p class=\"text-sm text-secondary m-0 mt-1\">متابعة ورصد قوائم منتجات التوفير والأسعار المستهدفة المسجلة من قبل الصيدليات والعملاء بالمنظومة</p></div></div><div class=\"d-flex items-center gap-2\"><a href=\"/admin/saving-products\" class=\"btn btn-secondary btn-sm font-bold text-xs\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 349, "</div><div><h1 class=\"text-2xl font-black text-primary m-0\">منتجات التوفير لجميع مستخدمي المنصة</h1><p class=\"text-sm text-secondary m-0 mt-1\">متابعة ورصد قوائم منتجات التوفير والأسعار المستهدفة المسجلة من قبل الصيدليات والعملاء بالمنظومة</p></div></div><div class=\"d-flex items-center gap-2\"><a href=\"/admin/saving-products\" class=\"btn btn-secondary btn-sm font-bold text-xs\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -3406,12 +3414,12 @@ func AdminSavingProductsPage(data AdminSavingProductsData, lang, dir string) tem
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 349, "<span>تحديث البيانات</span></a></div></div></div><!-- Stats KPI Cards -->")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 350, "<span>تحديث البيانات</span></a></div></div></div><!-- Stats KPI Cards -->")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			if data.Stats != nil {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 350, "<div class=\"dashboard-stat-grid mb-6\"><div class=\"stat-card-3d\"><div class=\"stat-card-label text-xs\">إجمالي منتجات التوفير</div><div class=\"stat-card-value text-primary tabular-nums text-2xl font-black\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 351, "<div class=\"dashboard-stat-grid mb-6\"><div class=\"stat-card-3d\"><div class=\"stat-card-label text-xs\">إجمالي منتجات التوفير</div><div class=\"stat-card-value text-primary tabular-nums text-2xl font-black\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -3424,7 +3432,7 @@ func AdminSavingProductsPage(data AdminSavingProductsData, lang, dir string) tem
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 351, "</div><div class=\"stat-card-sub text-muted text-xs mt-1\">منتج مسجل عبر المنصة</div></div><div class=\"stat-card-3d\"><div class=\"stat-card-label text-xs\">المستخدمون والمنشآت</div><div class=\"stat-card-value text-brand tabular-nums text-2xl font-black\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 352, "</div><div class=\"stat-card-sub text-muted text-xs mt-1\">منتج مسجل عبر المنصة</div></div><div class=\"stat-card-3d\"><div class=\"stat-card-label text-xs\">المستخدمون والمنشآت</div><div class=\"stat-card-value text-brand tabular-nums text-2xl font-black\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -3437,7 +3445,7 @@ func AdminSavingProductsPage(data AdminSavingProductsData, lang, dir string) tem
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 352, " <span class=\"text-xs font-normal text-secondary\">مستخدم / ")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 353, " <span class=\"text-xs font-normal text-secondary\">مستخدم / ")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -3450,7 +3458,7 @@ func AdminSavingProductsPage(data AdminSavingProductsData, lang, dir string) tem
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 353, " منشأة</span></div><div class=\"stat-card-sub text-muted text-xs mt-1\">أصحاب طلبات التوفير</div></div><div class=\"stat-card-3d\"><div class=\"stat-card-label text-xs\">إجمالي الكميات المطلوبة</div><div class=\"stat-card-value text-success tabular-nums text-2xl font-black\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 354, " منشأة</span></div><div class=\"stat-card-sub text-muted text-xs mt-1\">أصحاب طلبات التوفير</div></div><div class=\"stat-card-3d\"><div class=\"stat-card-label text-xs\">إجمالي الكميات المطلوبة</div><div class=\"stat-card-value text-success tabular-nums text-2xl font-black\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -3463,7 +3471,7 @@ func AdminSavingProductsPage(data AdminSavingProductsData, lang, dir string) tem
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 354, "</div><div class=\"stat-card-sub text-muted text-xs mt-1\">وحدة / عبوة دوائية</div></div><div class=\"stat-card-3d\"><div class=\"stat-card-label text-xs\">حالة الربط بالكتالوج</div><div class=\"d-flex items-center gap-2 mt-1\"><span class=\"badge badge-emerald text-xs font-bold\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 355, "</div><div class=\"stat-card-sub text-muted text-xs mt-1\">وحدة / عبوة دوائية</div></div><div class=\"stat-card-3d\"><div class=\"stat-card-label text-xs\">حالة الربط بالكتالوج</div><div class=\"d-flex items-center gap-2 mt-1\"><span class=\"badge badge-emerald text-xs font-bold\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -3476,7 +3484,7 @@ func AdminSavingProductsPage(data AdminSavingProductsData, lang, dir string) tem
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 355, " مربوط</span> <span class=\"badge badge-amber text-xs font-bold\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 356, " مربوط</span> <span class=\"badge badge-amber text-xs font-bold\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -3489,12 +3497,12 @@ func AdminSavingProductsPage(data AdminSavingProductsData, lang, dir string) tem
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 356, " غير مربوط</span></div><div class=\"stat-card-sub text-muted text-xs mt-1\">ربط مع الأدوية المعتمدة</div></div></div>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 357, " غير مربوط</span></div><div class=\"stat-card-sub text-muted text-xs mt-1\">ربط مع الأدوية المعتمدة</div></div></div>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 357, "<!-- Filter & Search Toolbar --><div class=\"glass-panel p-5 mb-6\"><form method=\"GET\" action=\"/admin/saving-products\" class=\"stack-md\"><div style=\"display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:1rem; align-items:flex-end;\"><!-- Org Selector --><div class=\"form-group mb-0\"><label class=\"form-label text-xs font-bold text-secondary mb-1\">المنشأة / الصيدلية</label> <select name=\"org_id\" class=\"form-input text-xs w-full\"><option value=\"\">-- كل المنشآت (")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 358, "<!-- Filter & Search Toolbar --><div class=\"glass-panel p-5 mb-6\"><form method=\"GET\" action=\"/admin/saving-products\" class=\"stack-md\"><div style=\"display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:1rem; align-items:flex-end;\"><!-- Org Selector --><div class=\"form-group mb-0\"><label class=\"form-label text-xs font-bold text-secondary mb-1\">المنشأة / الصيدلية</label> <select name=\"org_id\" class=\"form-input text-xs w-full\"><option value=\"\">-- كل المنشآت (")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -3507,12 +3515,12 @@ func AdminSavingProductsPage(data AdminSavingProductsData, lang, dir string) tem
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 358, ") --</option> ")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 359, ") --</option> ")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			for _, o := range data.Organizations {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 359, "<option value=\"")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 360, "<option value=\"")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -3525,17 +3533,17 @@ func AdminSavingProductsPage(data AdminSavingProductsData, lang, dir string) tem
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 360, "\"")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 361, "\"")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				if data.SelectedOrgID == o.ID {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 361, " selected")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 362, " selected")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 362, ">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 363, ">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -3548,7 +3556,7 @@ func AdminSavingProductsPage(data AdminSavingProductsData, lang, dir string) tem
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 363, " (")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 364, " (")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -3561,12 +3569,12 @@ func AdminSavingProductsPage(data AdminSavingProductsData, lang, dir string) tem
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 364, ")</option>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 365, ")</option>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 365, "</select></div><!-- User Selector --><div class=\"form-group mb-0\"><label class=\"form-label text-xs font-bold text-secondary mb-1\">المستخدم / الصيدلي</label> <select name=\"user_id\" class=\"form-input text-xs w-full\"><option value=\"\">-- كل المستخدمين (")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 366, "</select></div><!-- User Selector --><div class=\"form-group mb-0\"><label class=\"form-label text-xs font-bold text-secondary mb-1\">المستخدم / الصيدلي</label> <select name=\"user_id\" class=\"form-input text-xs w-full\"><option value=\"\">-- كل المستخدمين (")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -3579,12 +3587,12 @@ func AdminSavingProductsPage(data AdminSavingProductsData, lang, dir string) tem
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 366, ") --</option> ")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 367, ") --</option> ")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			for _, u := range data.Users {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 367, "<option value=\"")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 368, "<option value=\"")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -3597,17 +3605,17 @@ func AdminSavingProductsPage(data AdminSavingProductsData, lang, dir string) tem
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 368, "\"")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 369, "\"")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				if data.SelectedUserID == u.ID {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 369, " selected")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 370, " selected")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 370, ">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 371, ">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -3620,42 +3628,42 @@ func AdminSavingProductsPage(data AdminSavingProductsData, lang, dir string) tem
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 371, "</option>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 372, "</option>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 372, "</select></div><!-- Linking Filter --><div class=\"form-group mb-0\"><label class=\"form-label text-xs font-bold text-secondary mb-1\">حالة الربط بالكتالوج</label> <select name=\"filter\" class=\"form-input text-xs w-full\"><option value=\"all\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 373, "</select></div><!-- Linking Filter --><div class=\"form-group mb-0\"><label class=\"form-label text-xs font-bold text-secondary mb-1\">حالة الربط بالكتالوج</label> <select name=\"filter\" class=\"form-input text-xs w-full\"><option value=\"all\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			if data.ActiveFilter == "all" || data.ActiveFilter == "" {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 373, " selected")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 374, " selected")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 374, ">جميع الحالات</option> <option value=\"linked\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 375, ">جميع الحالات</option> <option value=\"linked\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			if data.ActiveFilter == "linked" {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 375, " selected")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 376, " selected")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 376, ">مربوط بكتالوج المنصة فقط</option> <option value=\"unlinked\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 377, ">مربوط بكتالوج المنصة فقط</option> <option value=\"unlinked\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			if data.ActiveFilter == "unlinked" {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 377, " selected")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 378, " selected")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 378, ">غير مربوط (يحتاج مطابقة)</option></select></div><!-- Search Query --><div class=\"form-group mb-0\"><label class=\"form-label text-xs font-bold text-secondary mb-1\">بحث بالاسم أو الكود</label> <input type=\"text\" name=\"q\" value=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 379, ">غير مربوط (يحتاج مطابقة)</option></select></div><!-- Search Query --><div class=\"form-group mb-0\"><label class=\"form-label text-xs font-bold text-secondary mb-1\">بحث بالاسم أو الكود</label> <input type=\"text\" name=\"q\" value=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -3668,17 +3676,17 @@ func AdminSavingProductsPage(data AdminSavingProductsData, lang, dir string) tem
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 379, "\" placeholder=\"اسم الدواء، SKU، اسم المستخدم...\" class=\"form-input text-xs w-full\"></div></div><!-- Filter Actions --><div class=\"flex-between items-center pt-3 border-t mt-3 flex-wrap gap-2\"><div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 380, "\" placeholder=\"اسم الدواء، SKU، اسم المستخدم...\" class=\"form-input text-xs w-full\"></div></div><!-- Filter Actions --><div class=\"flex-between items-center pt-3 border-t mt-3 flex-wrap gap-2\"><div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			if data.SelectedOrgID > 0 || data.SelectedUserID > 0 || data.SearchQuery != "" || (data.ActiveFilter != "all" && data.ActiveFilter != "") {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 380, "<a href=\"/admin/saving-products\" class=\"btn btn-ghost btn-sm font-bold text-xs text-muted\">إلغاء التصفية</a>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 381, "<a href=\"/admin/saving-products\" class=\"btn btn-ghost btn-sm font-bold text-xs text-muted\">إلغاء التصفية</a>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 381, "</div><button type=\"submit\" class=\"btn btn-primary btn-sm font-bold text-xs px-4\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 382, "</div><button type=\"submit\" class=\"btn btn-primary btn-sm font-bold text-xs px-4\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -3686,7 +3694,7 @@ func AdminSavingProductsPage(data AdminSavingProductsData, lang, dir string) tem
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 382, "<span>تطبيق الفلترة والبحث</span></button></div></form></div><!-- Saving Products Table --><div class=\"glass-panel p-0 mb-6 overflow-hidden\"><div class=\"p-4 border-b flex-between items-center\"><div class=\"text-sm font-black text-primary\">سجلات منتجات التوفير (")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 383, "<span>تطبيق الفلترة والبحث</span></button></div></form></div><!-- Saving Products Table --><div class=\"glass-panel p-0 mb-6 overflow-hidden\"><div class=\"p-4 border-b flex-between items-center\"><div class=\"text-sm font-black text-primary\">سجلات منتجات التوفير (")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -3699,12 +3707,12 @@ func AdminSavingProductsPage(data AdminSavingProductsData, lang, dir string) tem
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 383, ")</div></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 384, ")</div></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			if len(data.Items) == 0 {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 384, "<div class=\"p-8 text-center empty-state-glass\"><div class=\"text-4xl mb-3\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 385, "<div class=\"p-8 text-center empty-state-glass\"><div class=\"text-4xl mb-3\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -3712,17 +3720,17 @@ func AdminSavingProductsPage(data AdminSavingProductsData, lang, dir string) tem
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 385, "</div><h3 class=\"text-base font-black text-primary mb-2\">لا توجد نتائج مطابقة</h3><p class=\"text-xs text-secondary max-w-md mx-auto mb-4\">لم يتم العثور على منتجات توفير تطابق معايير الفلترة المحددة. جرب تغيير خيارات البحث أو إعادة ضبط التصفية.</p><a href=\"/admin/saving-products\" class=\"btn btn-secondary btn-sm font-bold text-xs\">عرض كل منتجات التوفير</a></div>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 386, "</div><h3 class=\"text-base font-black text-primary mb-2\">لا توجد نتائج مطابقة</h3><p class=\"text-xs text-secondary max-w-md mx-auto mb-4\">لم يتم العثور على منتجات توفير تطابق معايير الفلترة المحددة. جرب تغيير خيارات البحث أو إعادة ضبط التصفية.</p><a href=\"/admin/saving-products\" class=\"btn btn-secondary btn-sm font-bold text-xs\">عرض كل منتجات التوفير</a></div>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			} else {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 386, "<div class=\"table-container m-0\"><table class=\"data-table m-0\"><thead><tr><th style=\"width:60px;\">#</th><th>اسم المنتج المطلوب</th><th>المستخدم والمنشأة</th><th>الربط بالكتالوج العام</th><th>الكمية</th><th>السعر المستهدف</th><th>القيمة الإجمالية</th><th>تاريخ التسجيل</th><th class=\"text-end\">الإجراءات</th></tr></thead> <tbody>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 387, "<div class=\"table-container m-0\"><table class=\"data-table m-0\"><thead><tr><th style=\"width:60px;\">#</th><th>اسم المنتج المطلوب</th><th>المستخدم والمنشأة</th><th>الربط بالكتالوج العام</th><th>الكمية</th><th>السعر المستهدف</th><th>القيمة الإجمالية</th><th>تاريخ التسجيل</th><th class=\"text-end\">الإجراءات</th></tr></thead> <tbody>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				for _, item := range data.Items {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 387, "<tr><td class=\"tabular-nums text-muted text-xs font-mono\">#")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 388, "<tr><td class=\"tabular-nums text-muted text-xs font-mono\">#")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -3735,7 +3743,7 @@ func AdminSavingProductsPage(data AdminSavingProductsData, lang, dir string) tem
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 388, "</td><td><div class=\"font-bold text-xs text-primary\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 389, "</td><td><div class=\"font-bold text-xs text-primary\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -3748,12 +3756,12 @@ func AdminSavingProductsPage(data AdminSavingProductsData, lang, dir string) tem
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 389, "</div>")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 390, "</div>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 					if item.SKU != "" {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 390, "<div class=\"text-xs text-muted font-mono mt-0.5\">SKU: ")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 391, "<div class=\"text-xs text-muted font-mono mt-0.5\">SKU: ")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
@@ -3766,12 +3774,12 @@ func AdminSavingProductsPage(data AdminSavingProductsData, lang, dir string) tem
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 391, "</div>")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 392, "</div>")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 392, "</td><td><div class=\"font-bold text-xs text-primary\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 393, "</td><td><div class=\"font-bold text-xs text-primary\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -3784,7 +3792,7 @@ func AdminSavingProductsPage(data AdminSavingProductsData, lang, dir string) tem
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 393, "</div><div class=\"d-flex items-center gap-1 text-xs text-secondary mt-0.5\"><span class=\"badge badge-sky text-xs font-mono\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 394, "</div><div class=\"d-flex items-center gap-1 text-xs text-secondary mt-0.5\"><span class=\"badge badge-sky text-xs font-mono\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -3797,12 +3805,12 @@ func AdminSavingProductsPage(data AdminSavingProductsData, lang, dir string) tem
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 394, "</span> ")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 395, "</span> ")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 					if item.UserPhone != "" {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 395, "<span dir=\"ltr\" class=\"tabular-nums text-muted\">")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 396, "<span dir=\"ltr\" class=\"tabular-nums text-muted\">")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
@@ -3815,17 +3823,17 @@ func AdminSavingProductsPage(data AdminSavingProductsData, lang, dir string) tem
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 396, "</span>")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 397, "</span>")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 397, "</div></td><td>")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 398, "</div></td><td>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 					if item.ProductID != nil && *item.ProductID > 0 {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 398, "<div><span class=\"badge badge-emerald text-xs font-bold mb-1\">")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 399, "<div><span class=\"badge badge-emerald text-xs font-bold mb-1\">")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
@@ -3833,7 +3841,7 @@ func AdminSavingProductsPage(data AdminSavingProductsData, lang, dir string) tem
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 399, "<span>مربوط: #")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 400, "<span>مربوط: #")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
@@ -3846,7 +3854,7 @@ func AdminSavingProductsPage(data AdminSavingProductsData, lang, dir string) tem
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 400, "</span></span><div class=\"text-xs text-secondary font-medium\">")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 401, "</span></span><div class=\"text-xs text-secondary font-medium\">")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
@@ -3859,17 +3867,17 @@ func AdminSavingProductsPage(data AdminSavingProductsData, lang, dir string) tem
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 401, "</div></div>")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 402, "</div></div>")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
 					} else {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 402, "<span class=\"badge badge-amber text-xs font-bold\">غير مربوط بكتالوج</span>")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 403, "<span class=\"badge badge-amber text-xs font-bold\">غير مربوط بكتالوج</span>")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 403, "</td><td class=\"tabular-nums font-bold text-xs text-primary\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 404, "</td><td class=\"tabular-nums font-bold text-xs text-primary\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -3882,7 +3890,7 @@ func AdminSavingProductsPage(data AdminSavingProductsData, lang, dir string) tem
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 404, "</td><td class=\"tabular-nums font-bold text-xs text-brand\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 405, "</td><td class=\"tabular-nums font-bold text-xs text-brand\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -3895,7 +3903,7 @@ func AdminSavingProductsPage(data AdminSavingProductsData, lang, dir string) tem
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 405, "</td><td class=\"tabular-nums font-bold text-xs text-success\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 406, "</td><td class=\"tabular-nums font-bold text-xs text-success\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -3908,7 +3916,7 @@ func AdminSavingProductsPage(data AdminSavingProductsData, lang, dir string) tem
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 406, "</td><td class=\"text-xs text-muted tabular-nums whitespace-nowrap\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 407, "</td><td class=\"text-xs text-muted tabular-nums whitespace-nowrap\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -3921,12 +3929,12 @@ func AdminSavingProductsPage(data AdminSavingProductsData, lang, dir string) tem
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 407, "</td><td class=\"text-end\"><div class=\"d-flex justify-end gap-1\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 408, "</td><td class=\"text-end\"><div class=\"d-flex justify-end gap-1\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 					if item.ProductID != nil && *item.ProductID > 0 {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 408, "<a href=\"")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 409, "<a href=\"")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
@@ -3939,12 +3947,12 @@ func AdminSavingProductsPage(data AdminSavingProductsData, lang, dir string) tem
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 409, "\" class=\"btn btn-secondary btn-xs font-bold\" title=\"عرض تفاصيل الصنف بالكتالوج\">عرض الصنف</a>")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 410, "\" class=\"btn btn-secondary btn-xs font-bold\" title=\"عرض تفاصيل الصنف بالكتالوج\">عرض الصنف</a>")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
 					} else {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 410, "<a href=\"")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 411, "<a href=\"")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
@@ -3957,17 +3965,17 @@ func AdminSavingProductsPage(data AdminSavingProductsData, lang, dir string) tem
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 411, "\" class=\"btn btn-ghost btn-xs font-bold text-brand\" title=\"بحث في الكتالوج للمطابقة\">مطابقة</a>")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 412, "\" class=\"btn btn-ghost btn-xs font-bold text-brand\" title=\"بحث في الكتالوج للمطابقة\">مطابقة</a>")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 412, "</div></td></tr>")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 413, "</div></td></tr>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 413, "</tbody></table></div>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 414, "</tbody></table></div>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -3978,7 +3986,7 @@ func AdminSavingProductsPage(data AdminSavingProductsData, lang, dir string) tem
 					}
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 414, "</div></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 415, "</div></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

@@ -865,7 +865,7 @@ templ AdminOrganizationDetailPage(data AdminOrgDetailData, lang, dir string) {
 				<div style="background:var(--surface-raised); border:1px solid var(--border); border-radius:18px; padding:1.25rem 1.5rem; box-shadow:var(--shadow-sm);">
 					<div style="display:flex; justify-content:space-between; align-items:center; padding-bottom:0.75rem; border-bottom:1px solid var(--border); margin-bottom:1rem;">
 						<h3 style="font-size:1.05rem; font-weight:800; color:var(--text); margin:0; display:flex; align-items:center; gap:0.4rem;">
-							<span>📑</span>
+							<span>@components.IconFileText("icon-sm")</span>
 							<span>المستندات والتراخيص المرفوعة</span>
 							<span class="badge badge-sky text-xs fw-800 tabular-nums">{ fmt.Sprintf("%d مستند", len(data.Documents)) }</span>
 						</h3>

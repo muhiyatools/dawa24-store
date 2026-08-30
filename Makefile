@@ -157,7 +157,7 @@ docker: ## Build the container image
 
 check-inline-styles: ## Fail if inline style attributes grow past the current ceiling
 	@echo "==> checking inline styles"
-	@n=$$(grep -oh 'style="' internal/ui/pages/*.templ internal/ui/layouts/*.templ | wc -l | tr -d ' '); 	if [ "$$n" -gt 4042 ]; then 	  echo "FAIL: $$n inline style attributes (ceiling 4042)."; 	  echo ""; 	  echo "Inline styles bypass the tokens in app.css, which is why the design"; 	  echo "drifted: a fix on one page never generalises. Use a class from"; 	  echo "components.css, or add one there. Genuinely one-off positioning may"; 	  echo "stay inline, but must use var(--token) values, never literals."; 	  echo ""; 	  echo "This is a ratchet: lower the ceiling in the Makefile as it drops."; 	  exit 1; 	fi; 	echo "OK: $$n inline styles (ceiling 4042)"
+	@n=$$(grep -oh 'style="' internal/ui/pages/*.templ internal/ui/layouts/*.templ | wc -l | tr -d ' '); 	if [ "$$n" -gt 3996 ]; then 	  echo "FAIL: $$n inline style attributes (ceiling 3996)."; 	  echo ""; 	  echo "Inline styles bypass the tokens in app.css, which is why the design"; 	  echo "drifted: a fix on one page never generalises. Use a class from"; 	  echo "components.css, or add one there. Genuinely one-off positioning may"; 	  echo "stay inline, but must use var(--token) values, never literals."; 	  echo ""; 	  echo "This is a ratchet: lower the ceiling in the Makefile as it drops."; 	  exit 1; 	fi; 	echo "OK: $$n inline styles (ceiling 3996)"
 
 # --- ratchets ------------------------------------------------------------
 # Each number below may only go down. When a change improves one, lower its
@@ -181,7 +181,7 @@ check-hardcoded-arabic: ## Fail if Arabic string literals in Go grow
 
 .PHONY: check-emoji
 check-emoji: ## Fail if emoji in templates grow
-	@pat=$$(printf '\360\237'); n=$$(LC_ALL=C grep -ro "$$pat" --include='*.templ' internal/ui | wc -l | tr -d " "); if [ "$$n" -gt 43 ]; then echo "FAIL: $$n emoji in templates (ceiling 43). Use an icon from internal/ui/components/icons.templ, or nothing."; exit 1; fi; echo "  ok: $$n emoji in templates (ceiling 43)"
+	@pat=$$(printf '\360\237'); n=$$(LC_ALL=C grep -ro "$$pat" --include='*.templ' internal/ui | wc -l | tr -d " "); if [ "$$n" -gt 9 ]; then echo "FAIL: $$n emoji in templates (ceiling 9). Use an icon from internal/ui/components/icons.templ, or nothing."; exit 1; fi; echo "  ok: $$n emoji in templates (ceiling 9)"
 
 .PHONY: check-unused-components
 check-unused-components: ## Fail if components no page uses grow

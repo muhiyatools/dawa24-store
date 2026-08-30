@@ -1,6 +1,7 @@
 package pages
 
 import (
+	"github.com/muhiya/dawa24-store/internal/ui/components"
 	"fmt"
 	"strings"
 
@@ -90,7 +91,7 @@ templ tenantActivitiesBody(entries []*platformadmin.AuditEntry, orgType string, 
 				<div>
 					<div class="d-flex items-center gap-3 mb-1">
 						<div class="w-10 h-10 rounded-xl bg-brand-50 text-brand-600 d-flex items-center justify-center border border-brand-200/60 shadow-2xs">
-							🕒
+							@components.IconClock("icon-sm")
 						</div>
 						<h1 class="text-2xl font-black text-primary m-0">
 							if orgType == "vendor" {
@@ -127,7 +128,7 @@ templ tenantActivitiesBody(entries []*platformadmin.AuditEntry, orgType string, 
 		if len(entries) == 0 {
 			<div class="glass-panel p-8 text-center empty-state-glass border border-slate-200/80 rounded-2xl shadow-xs">
 				<div class="w-12 h-12 rounded-full bg-slate-100 text-slate-400 d-flex items-center justify-center mx-auto mb-3 text-2xl">
-					🕒
+					@components.IconClock("icon-sm")
 				</div>
 				<h3 class="text-lg font-black text-primary mb-2">لا توجد نشاطات مسجلة بعد</h3>
 				<p class="text-xs text-secondary max-w-md mx-auto">يتم توثيق كل عملية إضافة عروض، تعديل أسعار، إرسال طلبات، أو اعتماد فواتير هنا تلقائياً لضمان الشفافية والرقابة الداخلية على موظفي منشأتك.</p>

@@ -52,7 +52,7 @@ templ AdminOrdersHub(data AdminOrdersData, lang, dir string) {
 					<span>أوامر التوريد المباشر ({ fmt.Sprintf("%d", len(data.DirectOrders)) })</span>
 				</a>
 				<a href="/admin/orders?tab=negotiations" class={ "cb-tab-btn", templ.KV("active", data.ActiveTab == "negotiations") }>
-					<span>🤝</span>
+					<span>@components.IconUsers("icon-sm")</span>
 					<span>طلبات التفاوض ({ fmt.Sprintf("%d", len(data.NegotiationOrders)) })</span>
 				</a>
 			</div>

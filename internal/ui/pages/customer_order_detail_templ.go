@@ -1667,7 +1667,15 @@ func CustomerOrderDetail(order *commerce.Order, history []*commerce.OrderStatusH
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 170, "</div><!-- Left Column: Summary & Metadata --><div class=\"d-flex flex-col gap-6\"><!-- 1. Financial Summary Card --><div class=\"glass-panel p-6 mb-0\"><div class=\"d-flex items-center gap-2 mb-4 pb-3 border-b\"><span class=\"text-xl\">🧾</span><h2 class=\"text-base font-extrabold text-primary m-0\">الملخص المالي للفاتورة</h2></div><div class=\"d-flex flex-col gap-3 text-xs\"><div class=\"flex-between items-center\"><span class=\"text-secondary\">إجمالي الأصناف:</span> <span id=\"live-summary-subtotal\" class=\"tabular-nums font-bold text-primary\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 170, "</div><!-- Left Column: Summary & Metadata --><div class=\"d-flex flex-col gap-6\"><!-- 1. Financial Summary Card --><div class=\"glass-panel p-6 mb-0\"><div class=\"d-flex items-center gap-2 mb-4 pb-3 border-b\"><span class=\"text-xl\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = components.IconFileText("icon-sm").Render(ctx, templ_7745c5c3_Buffer)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 171, "</span><h2 class=\"text-base font-extrabold text-primary m-0\">الملخص المالي للفاتورة</h2></div><div class=\"d-flex flex-col gap-3 text-xs\"><div class=\"flex-between items-center\"><span class=\"text-secondary\">إجمالي الأصناف:</span> <span id=\"live-summary-subtotal\" class=\"tabular-nums font-bold text-primary\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -1681,7 +1689,7 @@ func CustomerOrderDetail(order *commerce.Order, history []*commerce.OrderStatusH
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 171, " ج.م")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 172, " ج.م")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -1695,17 +1703,17 @@ func CustomerOrderDetail(order *commerce.Order, history []*commerce.OrderStatusH
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 172, " ج.م")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 173, " ج.م")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 173, "</span></div><div class=\"flex-between items-center text-success\"><span>إجمالي الخصم الممنوح:</span> <span id=\"live-summary-discount\" class=\"tabular-nums font-bold\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 174, "</span></div><div class=\"flex-between items-center text-success\"><span>إجمالي الخصم الممنوح:</span> <span id=\"live-summary-discount\" class=\"tabular-nums font-bold\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			if order.TotalDiscount.Minor() > 0 {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 174, "- ")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 175, "- ")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -1718,12 +1726,12 @@ func CustomerOrderDetail(order *commerce.Order, history []*commerce.OrderStatusH
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 175, " ج.م")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 176, " ج.م")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			} else if order.DiscountAmount.Minor() > 0 {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 176, "- ")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 177, "- ")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -1736,17 +1744,17 @@ func CustomerOrderDetail(order *commerce.Order, history []*commerce.OrderStatusH
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 177, " ج.م")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 178, " ج.م")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			} else {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 178, "0.00 ج.م")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 179, "0.00 ج.م")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 179, "</span></div><div class=\"flex-between items-center\" id=\"order-summary-shipping\" data-shipping-minor=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 180, "</span></div><div class=\"flex-between items-center\" id=\"order-summary-shipping\" data-shipping-minor=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -1759,7 +1767,7 @@ func CustomerOrderDetail(order *commerce.Order, history []*commerce.OrderStatusH
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 180, "\"><span class=\"text-secondary\">مصاريف الشحن والتوصيل:</span> <span class=\"tabular-nums font-bold text-primary\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 181, "\"><span class=\"text-secondary\">مصاريف الشحن والتوصيل:</span> <span class=\"tabular-nums font-bold text-primary\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -1773,22 +1781,22 @@ func CustomerOrderDetail(order *commerce.Order, history []*commerce.OrderStatusH
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 181, " ج.م")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 182, " ج.م")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			} else {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 182, "<span class=\"text-emerald font-bold\">مجاناً</span>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 183, "<span class=\"text-emerald font-bold\">مجاناً</span>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 183, "</span></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 184, "</span></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			if order.TaxAmount.Minor() > 0 {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 184, "<div class=\"flex-between items-center\" id=\"order-summary-tax\" data-tax-rate=\"")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 185, "<div class=\"flex-between items-center\" id=\"order-summary-tax\" data-tax-rate=\"")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -1801,7 +1809,7 @@ func CustomerOrderDetail(order *commerce.Order, history []*commerce.OrderStatusH
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 185, "\"><span class=\"text-secondary\">ضريبة القيمة المضافة:</span> <span id=\"live-summary-tax\" class=\"tabular-nums font-bold text-primary\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 186, "\"><span class=\"text-secondary\">ضريبة القيمة المضافة:</span> <span id=\"live-summary-tax\" class=\"tabular-nums font-bold text-primary\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -1814,12 +1822,12 @@ func CustomerOrderDetail(order *commerce.Order, history []*commerce.OrderStatusH
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 186, " ج.م</span></div>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 187, " ج.م</span></div>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 187, "<div class=\"border-t my-1\"></div><div class=\"flex-between items-baseline\"><span class=\"font-extrabold text-primary text-sm\">المبلغ الصافي المستحق:</span><div class=\"text-2xl font-black text-brand tabular-nums\"><span id=\"live-summary-total\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 188, "<div class=\"border-t my-1\"></div><div class=\"flex-between items-baseline\"><span class=\"font-extrabold text-primary text-sm\">المبلغ الصافي المستحق:</span><div class=\"text-2xl font-black text-brand tabular-nums\"><span id=\"live-summary-total\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -1832,17 +1840,17 @@ func CustomerOrderDetail(order *commerce.Order, history []*commerce.OrderStatusH
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 188, "</span> <span class=\"text-xs font-bold text-secondary\">ج.م</span></div></div><!-- Payment method pill --><div class=\"mt-2 p-3 rounded-lg bg-surface-sunken border text-xs\"><div class=\"flex-between items-center mb-1\"><span class=\"text-muted\">طريقة الدفع:</span> <span class=\"font-bold text-primary\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 189, "</span> <span class=\"text-xs font-bold text-secondary\">ج.م</span></div></div><!-- Payment method pill --><div class=\"mt-2 p-3 rounded-lg bg-surface-sunken border text-xs\"><div class=\"flex-between items-center mb-1\"><span class=\"text-muted\">طريقة الدفع:</span> <span class=\"font-bold text-primary\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			if order.PaymentMethod == "cod" || order.PaymentMethod == "" {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 189, "<span>دفع عند الاستلام (COD)</span>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 190, "<span>دفع عند الاستلام (COD)</span>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			} else {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 190, "<span>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 191, "<span>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -1855,32 +1863,32 @@ func CustomerOrderDetail(order *commerce.Order, history []*commerce.OrderStatusH
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 191, "</span>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 192, "</span>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 192, "</span></div><div class=\"flex-between items-center\"><span class=\"text-muted\">حالة السداد:</span> ")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 193, "</span></div><div class=\"flex-between items-center\"><span class=\"text-muted\">حالة السداد:</span> ")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			if order.PaymentStatus == commerce.PaymentPaid {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 193, "<span class=\"text-emerald font-bold\">مدفوع بالكامل</span>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 194, "<span class=\"text-emerald font-bold\">مدفوع بالكامل</span>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			} else {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 194, "<span class=\"text-amber font-bold\">مستحق عند الاستلام</span>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 195, "<span class=\"text-amber font-bold\">مستحق عند الاستلام</span>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 195, "</div></div><!-- Print invoice button CTA --><div class=\"mt-2\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 196, "</div></div><!-- Print invoice button CTA --><div class=\"mt-2\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			if order.Status != commerce.StatusPending {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 196, "<a href=\"")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 197, "<a href=\"")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -1893,7 +1901,7 @@ func CustomerOrderDetail(order *commerce.Order, history []*commerce.OrderStatusH
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 197, "\" target=\"_blank\" class=\"btn btn-primary w-full justify-center font-bold text-xs py-2 gap-1\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 198, "\" target=\"_blank\" class=\"btn btn-primary w-full justify-center font-bold text-xs py-2 gap-1\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -1901,17 +1909,17 @@ func CustomerOrderDetail(order *commerce.Order, history []*commerce.OrderStatusH
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 198, "<span>طباعة الفاتورة</span></a>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 199, "<span>طباعة الفاتورة</span></a>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			} else {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 199, "<div class=\"bg-surface-sunken border border-dashed rounded-lg p-3 text-center text-xs text-muted\"><span>تتاح طباعة الفاتورة فور تأكيد وقبول المورد للطلب</span></div>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 200, "<div class=\"bg-surface-sunken border border-dashed rounded-lg p-3 text-center text-xs text-muted\"><span>تتاح طباعة الفاتورة فور تأكيد وقبول المورد للطلب</span></div>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 200, "</div></div></div><!-- 2. Pharmacy Receiving Branch Card --><div class=\"glass-panel p-6 mb-0\"><div class=\"d-flex items-center gap-2 mb-4 pb-3 border-b\"><span class=\"text-xl\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 201, "</div></div></div><!-- 2. Pharmacy Receiving Branch Card --><div class=\"glass-panel p-6 mb-0\"><div class=\"d-flex items-center gap-2 mb-4 pb-3 border-b\"><span class=\"text-xl\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -1919,7 +1927,7 @@ func CustomerOrderDetail(order *commerce.Order, history []*commerce.OrderStatusH
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 201, "</span><h2 class=\"text-base font-extrabold text-primary m-0\">بيانات فرع الاستلام</h2></div><div class=\"d-flex flex-col gap-3 text-xs\"><div><div class=\"text-muted font-bold mb-1\">فرع الصيدلية:</div><div class=\"text-primary font-bold\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 202, "</span><h2 class=\"text-base font-extrabold text-primary m-0\">بيانات فرع الاستلام</h2></div><div class=\"d-flex flex-col gap-3 text-xs\"><div><div class=\"text-muted font-bold mb-1\">فرع الصيدلية:</div><div class=\"text-primary font-bold\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -1934,17 +1942,17 @@ func CustomerOrderDetail(order *commerce.Order, history []*commerce.OrderStatusH
 					return templ_7745c5c3_Err
 				}
 			} else {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 202, "<span>الفرع الرئيسي للصيدلية</span>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 203, "<span>الفرع الرئيسي للصيدلية</span>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 203, "</div></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 204, "</div></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			if order.CustomerManagerName != "" {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 204, "<div><div class=\"text-muted font-bold mb-1\">الصيدلي المسؤول:</div><div class=\"text-primary font-bold\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 205, "<div><div class=\"text-muted font-bold mb-1\">الصيدلي المسؤول:</div><div class=\"text-primary font-bold\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -1957,13 +1965,13 @@ func CustomerOrderDetail(order *commerce.Order, history []*commerce.OrderStatusH
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 205, "</div></div>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 206, "</div></div>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			}
 			if order.CustomerBranchPhone != "" {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 206, "<div><div class=\"text-muted font-bold mb-1\">هاتف الفرع:</div><div class=\"text-primary font-bold tabular-nums font-mono\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 207, "<div><div class=\"text-muted font-bold mb-1\">هاتف الفرع:</div><div class=\"text-primary font-bold tabular-nums font-mono\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -1976,12 +1984,12 @@ func CustomerOrderDetail(order *commerce.Order, history []*commerce.OrderStatusH
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 207, "</div></div>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 208, "</div></div>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 208, "<div><div class=\"text-muted font-bold mb-1\">عنوان التوصيل المسجل:</div><div class=\"text-secondary leading-relaxed\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 209, "<div><div class=\"text-muted font-bold mb-1\">عنوان التوصيل المسجل:</div><div class=\"text-secondary leading-relaxed\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -1996,17 +2004,17 @@ func CustomerOrderDetail(order *commerce.Order, history []*commerce.OrderStatusH
 					return templ_7745c5c3_Err
 				}
 			} else {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 209, "<span class=\"text-muted\">العنوان المسجل في ملف المنشأة</span>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 210, "<span class=\"text-muted\">العنوان المسجل في ملف المنشأة</span>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 210, "</div></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 211, "</div></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			if order.Notes != "" {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 211, "<div class=\"mt-1 p-3 rounded-lg bg-surface-sunken border\"><div class=\"text-muted font-bold mb-1\">ملاحظات خاصة بالتسليم:</div><div class=\"text-primary text-xs\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 212, "<div class=\"mt-1 p-3 rounded-lg bg-surface-sunken border\"><div class=\"text-muted font-bold mb-1\">ملاحظات خاصة بالتسليم:</div><div class=\"text-primary text-xs\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -2019,17 +2027,17 @@ func CustomerOrderDetail(order *commerce.Order, history []*commerce.OrderStatusH
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 212, "</div></div>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 213, "</div></div>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 213, "</div></div><!-- 3. Quality & Cold-Chain Badge Card --><div class=\"glass-panel p-4 mb-0 text-xs d-flex flex-col gap-2 border-brand-subtle\"><div class=\"d-flex items-center gap-2 font-black text-brand\"><span>❄️</span> <span>معايير النقل المبرد المعتمد</span></div><p class=\"m-0 text-secondary leading-relaxed\">تخضع كافة الشحنات لرقابة درجات الحرارة وسلسلة التبريد الموثقة لضمان فاعلية ومأمونية الأصناف الدوائية.</p></div></div></div><!-- Edit Order Modal (Only rendered/available when order is pending) -->")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 214, "</div></div><!-- 3. Quality & Cold-Chain Badge Card --><div class=\"glass-panel p-4 mb-0 text-xs d-flex flex-col gap-2 border-brand-subtle\"><div class=\"d-flex items-center gap-2 font-black text-brand\"><span>❄️</span> <span>معايير النقل المبرد المعتمد</span></div><p class=\"m-0 text-secondary leading-relaxed\">تخضع كافة الشحنات لرقابة درجات الحرارة وسلسلة التبريد الموثقة لضمان فاعلية ومأمونية الأصناف الدوائية.</p></div></div></div><!-- Edit Order Modal (Only rendered/available when order is pending) -->")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			if order.Status == commerce.StatusPending {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 214, "<div id=\"order-edit-modal\" class=\"modal-overlay hidden\" style=\"position:fixed; inset:0; z-index:99999; background:rgba(15,23,42,0.65); backdrop-filter:blur(4px); display:none; align-items:center; justify-content:center; padding:1rem;\" onclick=\"if(event.target===this) window.closeOrderEditModal();\"><div class=\"glass-panel p-0 max-w-4xl w-full max-h-90vh d-flex flex-col overflow-hidden\"><!-- Header --><div class=\"flex-between items-center p-6 border-b\"><div class=\"d-flex items-center gap-3\"><span class=\"text-2xl\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 215, "<div id=\"order-edit-modal\" class=\"modal-overlay hidden\" style=\"position:fixed; inset:0; z-index:99999; background:rgba(15,23,42,0.65); backdrop-filter:blur(4px); display:none; align-items:center; justify-content:center; padding:1rem;\" onclick=\"if(event.target===this) window.closeOrderEditModal();\"><div class=\"glass-panel p-0 max-w-4xl w-full max-h-90vh d-flex flex-col overflow-hidden\"><!-- Header --><div class=\"flex-between items-center p-6 border-b\"><div class=\"d-flex items-center gap-3\"><span class=\"text-2xl\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -2037,7 +2045,7 @@ func CustomerOrderDetail(order *commerce.Order, history []*commerce.OrderStatusH
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 215, "</span><div><h3 class=\"text-lg font-black text-primary m-0\">تعديل أصناف وكميات الطلب #")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 216, "</span><div><h3 class=\"text-lg font-black text-primary m-0\">تعديل أصناف وكميات الطلب #")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -2050,7 +2058,7 @@ func CustomerOrderDetail(order *commerce.Order, history []*commerce.OrderStatusH
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 216, "</h3><p class=\"text-xs text-secondary m-0 mt-1\">يمكنك تعديل كميات الأصناف أو إضافة صنف جديد يدوياً، وسيقوم النظام بتحديث الفاتورة فوراً</p></div></div><button type=\"button\" class=\"btn btn-secondary btn-icon\" onclick=\"window.closeOrderEditModal()\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 217, "</h3><p class=\"text-xs text-secondary m-0 mt-1\">يمكنك تعديل كميات الأصناف أو إضافة صنف جديد يدوياً، وسيقوم النظام بتحديث الفاتورة فوراً</p></div></div><button type=\"button\" class=\"btn btn-secondary btn-icon\" onclick=\"window.closeOrderEditModal()\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -2058,7 +2066,7 @@ func CustomerOrderDetail(order *commerce.Order, history []*commerce.OrderStatusH
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 217, "</button></div><!-- Form --><form method=\"POST\" action=\"")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 218, "</button></div><!-- Form --><form method=\"POST\" action=\"")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -2071,12 +2079,12 @@ func CustomerOrderDetail(order *commerce.Order, history []*commerce.OrderStatusH
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 218, "\" id=\"order-edit-form\" class=\"d-flex flex-col overflow-y-auto p-6 gap-4\"><!-- Table of lines --><div class=\"table-container m-0\"><table class=\"data-table m-0\" id=\"edit-lines-table\"><thead><tr><th>الصنف الدوائي</th><th style=\"width:145px;\" class=\"text-center\">الكمية</th><th style=\"width:110px;\" class=\"text-end\">سعر الوحدة</th><th style=\"width:95px;\" class=\"text-end\">الخصم</th><th style=\"width:110px;\" class=\"text-end\">الإجمالي</th><th style=\"width:45px;\" class=\"text-center\"></th></tr></thead> <tbody id=\"edit-lines-tbody\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 219, "\" id=\"order-edit-form\" class=\"d-flex flex-col overflow-y-auto p-6 gap-4\"><!-- Table of lines --><div class=\"table-container m-0\"><table class=\"data-table m-0\" id=\"edit-lines-table\"><thead><tr><th>الصنف الدوائي</th><th style=\"width:145px;\" class=\"text-center\">الكمية</th><th style=\"width:110px;\" class=\"text-end\">سعر الوحدة</th><th style=\"width:95px;\" class=\"text-end\">الخصم</th><th style=\"width:110px;\" class=\"text-end\">الإجمالي</th><th style=\"width:45px;\" class=\"text-center\"></th></tr></thead> <tbody id=\"edit-lines-tbody\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				for _, line := range getAllOrderLines(order) {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 219, "<tr class=\"edit-line-row\" data-unit-price-minor=\"")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 220, "<tr class=\"edit-line-row\" data-unit-price-minor=\"")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -2089,7 +2097,7 @@ func CustomerOrderDetail(order *commerce.Order, history []*commerce.OrderStatusH
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 220, "\" data-unit-discount-minor=\"")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 221, "\" data-unit-discount-minor=\"")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -2102,7 +2110,7 @@ func CustomerOrderDetail(order *commerce.Order, history []*commerce.OrderStatusH
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 221, "\" data-min-qty=\"")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 222, "\" data-min-qty=\"")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -2115,7 +2123,7 @@ func CustomerOrderDetail(order *commerce.Order, history []*commerce.OrderStatusH
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 222, "\" data-max-qty=\"")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 223, "\" data-max-qty=\"")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -2128,7 +2136,7 @@ func CustomerOrderDetail(order *commerce.Order, history []*commerce.OrderStatusH
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 223, "\"><td><input type=\"hidden\" name=\"line_id[]\" value=\"")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 224, "\"><td><input type=\"hidden\" name=\"line_id[]\" value=\"")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -2141,7 +2149,7 @@ func CustomerOrderDetail(order *commerce.Order, history []*commerce.OrderStatusH
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 224, "\"> <input type=\"hidden\" name=\"is_deleted[]\" value=\"0\" class=\"line-deleted-input\"> <input type=\"text\" name=\"product_name[]\" value=\"")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 225, "\"> <input type=\"hidden\" name=\"is_deleted[]\" value=\"0\" class=\"line-deleted-input\"> <input type=\"text\" name=\"product_name[]\" value=\"")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -2154,12 +2162,12 @@ func CustomerOrderDetail(order *commerce.Order, history []*commerce.OrderStatusH
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 225, "\" required class=\"form-input text-xs w-full font-bold\"> ")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 226, "\" required class=\"form-input text-xs w-full font-bold\"> ")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 					if line.AvailableStock > 0 {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 226, "<div class=\"text-xs text-emerald font-bold mt-1\" style=\"font-size:0.7rem;\">المتوفر: ")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 227, "<div class=\"text-xs text-emerald font-bold mt-1\" style=\"font-size:0.7rem;\">المتوفر: ")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
@@ -2172,12 +2180,12 @@ func CustomerOrderDetail(order *commerce.Order, history []*commerce.OrderStatusH
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 227, " قطعة</div>")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 228, " قطعة</div>")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 228, "</td><td><div class=\"d-flex items-center gap-1 justify-center\"><button type=\"button\" class=\"btn btn-secondary btn-icon btn-sm font-bold\" onclick=\"window.stepQty(this, -1)\">−</button> <input type=\"number\" name=\"quantity[]\" value=\"")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 229, "</td><td><div class=\"d-flex items-center gap-1 justify-center\"><button type=\"button\" class=\"btn btn-secondary btn-icon btn-sm font-bold\" onclick=\"window.stepQty(this, -1)\">−</button> <input type=\"number\" name=\"quantity[]\" value=\"")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -2190,7 +2198,7 @@ func CustomerOrderDetail(order *commerce.Order, history []*commerce.OrderStatusH
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 229, "\" min=\"")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 230, "\" min=\"")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -2203,12 +2211,12 @@ func CustomerOrderDetail(order *commerce.Order, history []*commerce.OrderStatusH
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 230, "\"")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 231, "\"")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 					if maxAllowedQty(line) < 99999 {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 231, " max=\"")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 232, " max=\"")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
@@ -2221,12 +2229,12 @@ func CustomerOrderDetail(order *commerce.Order, history []*commerce.OrderStatusH
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 232, "\"")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 233, "\"")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 233, " required class=\"form-input text-xs tabular-nums text-center line-qty-input font-bold\" style=\"width:55px;\" oninput=\"window.recalcEditOrder()\"> <button type=\"button\" class=\"btn btn-secondary btn-icon btn-sm font-bold\" onclick=\"window.stepQty(this, 1)\">+</button></div></td><td class=\"text-end\"><input type=\"text\" name=\"unit_price[]\" value=\"")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 234, " required class=\"form-input text-xs tabular-nums text-center line-qty-input font-bold\" style=\"width:55px;\" oninput=\"window.recalcEditOrder()\"> <button type=\"button\" class=\"btn btn-secondary btn-icon btn-sm font-bold\" onclick=\"window.stepQty(this, 1)\">+</button></div></td><td class=\"text-end\"><input type=\"text\" name=\"unit_price[]\" value=\"")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -2239,7 +2247,7 @@ func CustomerOrderDetail(order *commerce.Order, history []*commerce.OrderStatusH
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 234, "\" required class=\"form-input text-xs tabular-nums line-unit-price text-end font-bold\" style=\"width:100%;\" oninput=\"window.recalcEditOrder()\"></td><td class=\"text-end\"><input type=\"text\" name=\"discount_amount[]\" value=\"")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 235, "\" required class=\"form-input text-xs tabular-nums line-unit-price text-end font-bold\" style=\"width:100%;\" oninput=\"window.recalcEditOrder()\"></td><td class=\"text-end\"><input type=\"text\" name=\"discount_amount[]\" value=\"")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -2252,7 +2260,7 @@ func CustomerOrderDetail(order *commerce.Order, history []*commerce.OrderStatusH
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 235, "\" class=\"form-input text-xs tabular-nums line-disc-amount text-end\" style=\"width:100%;\" oninput=\"window.recalcEditOrder()\"></td><td class=\"text-end tabular-nums font-black text-brand text-xs\"><span class=\"line-total-cell\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 236, "\" class=\"form-input text-xs tabular-nums line-disc-amount text-end\" style=\"width:100%;\" oninput=\"window.recalcEditOrder()\"></td><td class=\"text-end tabular-nums font-black text-brand text-xs\"><span class=\"line-total-cell\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -2265,7 +2273,7 @@ func CustomerOrderDetail(order *commerce.Order, history []*commerce.OrderStatusH
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 236, "</span></td><td class=\"text-center\"><button type=\"button\" class=\"btn btn-secondary btn-icon btn-sm text-danger\" title=\"حذف الصنف\" onclick=\"window.deleteEditRow(this)\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 237, "</span></td><td class=\"text-center\"><button type=\"button\" class=\"btn btn-secondary btn-icon btn-sm text-danger\" title=\"حذف الصنف\" onclick=\"window.deleteEditRow(this)\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -2273,12 +2281,12 @@ func CustomerOrderDetail(order *commerce.Order, history []*commerce.OrderStatusH
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 237, "</button></td></tr>")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 238, "</button></td></tr>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 238, "</tbody></table></div><!-- Button to add new line row --><div class=\"d-flex justify-start\"><button type=\"button\" class=\"btn btn-secondary btn-sm font-bold gap-1 border-dashed\" onclick=\"window.addNewEditRow()\"><span>إضافة صنف جديد يدوياً للطلب</span></button></div><!-- Notes --><div><label class=\"form-label text-xs font-bold text-secondary mb-1\">ملاحظات الصيدلية بخصوص التعديل (اختياري)</label> <input type=\"text\" name=\"notes\" placeholder=\"اكتب توضيح للمورد بخصوص تعديل الكميات أو الأصناف...\" class=\"form-input text-xs w-full\"></div><!-- Summary Box --><div class=\"glass-panel p-4 flex-between items-center flex-wrap gap-3\"><div class=\"d-flex gap-4 flex-wrap text-xs\"><div><span class=\"text-secondary\">إجمالي الأصناف:</span> <strong id=\"edit-subtotal-val\" class=\"tabular-nums text-primary ms-1\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 239, "</tbody></table></div><!-- Button to add new line row --><div class=\"d-flex justify-start\"><button type=\"button\" class=\"btn btn-secondary btn-sm font-bold gap-1 border-dashed\" onclick=\"window.addNewEditRow()\"><span>إضافة صنف جديد يدوياً للطلب</span></button></div><!-- Notes --><div><label class=\"form-label text-xs font-bold text-secondary mb-1\">ملاحظات الصيدلية بخصوص التعديل (اختياري)</label> <input type=\"text\" name=\"notes\" placeholder=\"اكتب توضيح للمورد بخصوص تعديل الكميات أو الأصناف...\" class=\"form-input text-xs w-full\"></div><!-- Summary Box --><div class=\"glass-panel p-4 flex-between items-center flex-wrap gap-3\"><div class=\"d-flex gap-4 flex-wrap text-xs\"><div><span class=\"text-secondary\">إجمالي الأصناف:</span> <strong id=\"edit-subtotal-val\" class=\"tabular-nums text-primary ms-1\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -2291,7 +2299,7 @@ func CustomerOrderDetail(order *commerce.Order, history []*commerce.OrderStatusH
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 239, "</strong> ج.م</div><div><span class=\"text-success\">إجمالي الخصم:</span> <strong id=\"edit-discount-val\" class=\"tabular-nums text-success ms-1\">-")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 240, "</strong> ج.م</div><div><span class=\"text-success\">إجمالي الخصم:</span> <strong id=\"edit-discount-val\" class=\"tabular-nums text-success ms-1\">-")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -2304,7 +2312,7 @@ func CustomerOrderDetail(order *commerce.Order, history []*commerce.OrderStatusH
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 240, "</strong> ج.م</div></div><div class=\"d-flex items-baseline gap-2\"><span class=\"font-extrabold text-xs text-primary\">المبلغ الصافي الجديد:</span> <span id=\"edit-grandtotal-val\" class=\"tabular-nums text-xl font-black text-brand\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 241, "</strong> ج.م</div></div><div class=\"d-flex items-baseline gap-2\"><span class=\"font-extrabold text-xs text-primary\">المبلغ الصافي الجديد:</span> <span id=\"edit-grandtotal-val\" class=\"tabular-nums text-xl font-black text-brand\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -2317,7 +2325,7 @@ func CustomerOrderDetail(order *commerce.Order, history []*commerce.OrderStatusH
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 241, "</span> <span class=\"text-xs text-secondary font-bold\">ج.م</span></div></div><!-- Modal Footer Actions --><div class=\"d-flex justify-end gap-3 pt-3 border-t\"><button type=\"button\" class=\"btn btn-secondary text-xs\" onclick=\"window.closeOrderEditModal()\">إلغاء</button> <button type=\"submit\" class=\"btn btn-primary text-xs font-bold px-4 gap-1\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 242, "</span> <span class=\"text-xs text-secondary font-bold\">ج.م</span></div></div><!-- Modal Footer Actions --><div class=\"d-flex justify-end gap-3 pt-3 border-t\"><button type=\"button\" class=\"btn btn-secondary text-xs\" onclick=\"window.closeOrderEditModal()\">إلغاء</button> <button type=\"submit\" class=\"btn btn-primary text-xs font-bold px-4 gap-1\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -2325,12 +2333,12 @@ func CustomerOrderDetail(order *commerce.Order, history []*commerce.OrderStatusH
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 242, "<span>حفظ وتحديث الطلب</span></button></div></form></div></div><script>\n\t\t\t\t\twindow.scrollToEditForm = function() {\n\t\t\t\t\t\tconst el = document.getElementById('order-lines-container');\n\t\t\t\t\t\tif (el) {\n\t\t\t\t\t\t\tel.scrollIntoView({ behavior: 'smooth', block: 'start' });\n\t\t\t\t\t\t}\n\t\t\t\t\t\tconst firstInput = document.querySelector('.row-qty-input');\n\t\t\t\t\t\tif (firstInput) {\n\t\t\t\t\t\t\tfirstInput.focus();\n\t\t\t\t\t\t\tfirstInput.select();\n\t\t\t\t\t\t}\n\t\t\t\t\t};\n\n\t\t\t\t\twindow.stepRowQty = function(btn, delta) {\n\t\t\t\t\t\tconst tr = btn.closest('.order-table-row');\n\t\t\t\t\t\tif (!tr) return;\n\t\t\t\t\t\tconst input = tr.querySelector('.row-qty-input');\n\t\t\t\t\t\tif (!input) return;\n\n\t\t\t\t\t\tconst minVal = parseInt(tr.getAttribute('data-min-qty'), 10) || 1;\n\t\t\t\t\t\tconst maxVal = parseInt(tr.getAttribute('data-max-qty'), 10) || 99999;\n\n\t\t\t\t\t\tlet val = parseInt(input.value, 10) || minVal;\n\t\t\t\t\t\tval += delta;\n\t\t\t\t\t\tif (val < minVal) val = minVal;\n\t\t\t\t\t\tif (val > maxVal) {\n\t\t\t\t\t\t\tval = maxVal;\n\t\t\t\t\t\t\talert('الكمية المطلوبة تتجاوز الحد الأقصى المتاح لدى المورد (' + maxVal + ' قطعة).');\n\t\t\t\t\t\t}\n\n\t\t\t\t\t\tinput.value = val;\n\t\t\t\t\t\twindow.recalcRowTotal(input);\n\t\t\t\t\t};\n\n\t\t\t\t\twindow.recalcRowTotal = function(input) {\n\t\t\t\t\t\tconst tr = input.closest('.order-table-row');\n\t\t\t\t\t\tif (!tr) return;\n\n\t\t\t\t\t\tconst minVal = parseInt(tr.getAttribute('data-min-qty'), 10) || 1;\n\t\t\t\t\t\tconst maxVal = parseInt(tr.getAttribute('data-max-qty'), 10) || 99999;\n\n\t\t\t\t\t\tlet qty = parseInt(input.value, 10);\n\t\t\t\t\t\tif (isNaN(qty) || qty < minVal) {\n\t\t\t\t\t\t\tqty = minVal;\n\t\t\t\t\t\t}\n\t\t\t\t\t\tif (qty > maxVal) {\n\t\t\t\t\t\t\tqty = maxVal;\n\t\t\t\t\t\t\tinput.value = maxVal;\n\t\t\t\t\t\t\talert('الكمية المطلوبة تتجاوز الحد الأقصى المتاح لدى المورد (' + maxVal + ' قطعة).');\n\t\t\t\t\t\t}\n\n\t\t\t\t\t\tconst priceMinor = parseInt(tr.getAttribute('data-unit-price-minor'), 10) || 0;\n\t\t\t\t\t\tconst discMinor = parseInt(tr.getAttribute('data-unit-discount-minor'), 10) || 0;\n\n\t\t\t\t\t\tconst effectivePriceMinor = Math.max(0, priceMinor - discMinor);\n\t\t\t\t\t\tconst lineTotalMinor = effectivePriceMinor * qty;\n\n\t\t\t\t\t\tconst totalDisplay = tr.querySelector('.row-total-display');\n\t\t\t\t\t\tif (totalDisplay) {\n\t\t\t\t\t\t\ttotalDisplay.textContent = (lineTotalMinor / 100).toFixed(2) + ' ج.م';\n\t\t\t\t\t\t}\n\n\t\t\t\t\t\twindow.recalcOrderLiveTotals();\n\t\t\t\t\t};\n\n\t\t\t\t\twindow.recalcOrderLiveTotals = function() {\n\t\t\t\t\t\tconst rows = document.querySelectorAll('.order-table-row');\n\t\t\t\t\t\tlet subtotalMinor = 0;\n\t\t\t\t\t\tlet discountMinor = 0;\n\n\t\t\t\t\t\trows.forEach(tr => {\n\t\t\t\t\t\t\tconst delInput = tr.querySelector('.row-deleted-input');\n\t\t\t\t\t\t\tif (delInput && delInput.value === \"1\") return;\n\t\t\t\t\t\t\tif (tr.style.display === 'none') return;\n\n\t\t\t\t\t\t\tconst qtyInput = tr.querySelector('.row-qty-input');\n\t\t\t\t\t\t\tconst priceMinor = parseInt(tr.getAttribute('data-unit-price-minor'), 10) || 0;\n\t\t\t\t\t\t\tconst discMinor = parseInt(tr.getAttribute('data-unit-discount-minor'), 10) || 0;\n\n\t\t\t\t\t\t\tconst qty = parseInt(qtyInput ? qtyInput.value : 1, 10) || 0;\n\t\t\t\t\t\t\tsubtotalMinor += (priceMinor * qty);\n\t\t\t\t\t\t\tdiscountMinor += (discMinor * qty);\n\t\t\t\t\t\t});\n\n\t\t\t\t\t\tconst taxableMinor = Math.max(0, subtotalMinor - discountMinor);\n\t\t\t\t\t\tconst shippingMinor = parseInt(document.getElementById('order-summary-shipping')?.getAttribute('data-shipping-minor') || '0', 10) || 0;\n\t\t\t\t\t\tconst taxRate = parseFloat(document.getElementById('order-summary-tax')?.getAttribute('data-tax-rate') || '0') || 0;\n\n\t\t\t\t\t\tconst taxMinor = Math.round(taxableMinor * taxRate);\n\t\t\t\t\t\tconst totalMinor = taxableMinor + shippingMinor + taxMinor;\n\n\t\t\t\t\t\tconst subEl = document.getElementById('live-summary-subtotal');\n\t\t\t\t\t\tif (subEl) subEl.textContent = (subtotalMinor / 100).toFixed(2) + ' ج.م';\n\n\t\t\t\t\t\tconst discEl = document.getElementById('live-summary-discount');\n\t\t\t\t\t\tif (discEl) discEl.textContent = (discountMinor > 0 ? '-' : '') + (discountMinor / 100).toFixed(2) + ' ج.م';\n\n\t\t\t\t\t\tconst taxEl = document.getElementById('live-summary-tax');\n\t\t\t\t\t\tif (taxEl) taxEl.textContent = (taxMinor / 100).toFixed(2) + ' ج.م';\n\n\t\t\t\t\t\tconst totalEl = document.getElementById('live-summary-total');\n\t\t\t\t\t\tif (totalEl) totalEl.textContent = (totalMinor / 100).toFixed(2);\n\n\t\t\t\t\t\tconst barTotalEl = document.getElementById('form-bar-total');\n\t\t\t\t\t\tif (barTotalEl) barTotalEl.textContent = (totalMinor / 100).toFixed(2) + ' ج.م';\n\t\t\t\t\t};\n\n\t\t\t\t\twindow.deleteRowLine = function(btn) {\n\t\t\t\t\t\tif (!confirm('هل أنت متأكد من رغبتك في حذف هذا الصنف من الطلب؟')) return;\n\t\t\t\t\t\tconst tr = btn.closest('.order-table-row');\n\t\t\t\t\t\tif (!tr) return;\n\t\t\t\t\t\tconst delInput = tr.querySelector('.row-deleted-input');\n\t\t\t\t\t\tif (delInput) {\n\t\t\t\t\t\t\tdelInput.value = '1';\n\t\t\t\t\t\t}\n\t\t\t\t\t\ttr.style.display = 'none';\n\t\t\t\t\t\twindow.recalcOrderLiveTotals();\n\t\t\t\t\t};\n\n\t\t\t\t\twindow.openOrderEditModal = function() {\n\t\t\t\t\t\tconst modal = document.getElementById('order-edit-modal');\n\t\t\t\t\t\tif (modal) {\n\t\t\t\t\t\t\tmodal.classList.remove('hidden');\n\t\t\t\t\t\t\tmodal.style.removeProperty('display');\n\t\t\t\t\t\t\tmodal.style.setProperty('display', 'flex', 'important');\n\t\t\t\t\t\t\tif (typeof window.recalcEditOrder === 'function') {\n\t\t\t\t\t\t\t\twindow.recalcEditOrder();\n\t\t\t\t\t\t\t}\n\t\t\t\t\t\t}\n\t\t\t\t\t};\n\n\t\t\t\t\twindow.closeOrderEditModal = function() {\n\t\t\t\t\t\tconst modal = document.getElementById('order-edit-modal');\n\t\t\t\t\t\tif (modal) {\n\t\t\t\t\t\t\tmodal.classList.add('hidden');\n\t\t\t\t\t\t\tmodal.style.setProperty('display', 'none', 'important');\n\t\t\t\t\t\t}\n\t\t\t\t\t};\n\n\t\t\t\t\twindow.stepQty = function(btn, delta) {\n\t\t\t\t\t\tconst row = btn.closest('.edit-line-row');\n\t\t\t\t\t\tif (!row) return;\n\t\t\t\t\t\tconst input = row.querySelector('.line-qty-input');\n\t\t\t\t\t\tif (!input) return;\n\n\t\t\t\t\t\tconst minVal = parseInt(row.getAttribute('data-min-qty'), 10) || 1;\n\t\t\t\t\t\tconst maxVal = parseInt(row.getAttribute('data-max-qty'), 10) || 99999;\n\n\t\t\t\t\t\tlet val = parseInt(input.value, 10) || minVal;\n\t\t\t\t\t\tval += delta;\n\t\t\t\t\t\tif (val < minVal) val = minVal;\n\t\t\t\t\t\tif (val > maxVal) {\n\t\t\t\t\t\t\tval = maxVal;\n\t\t\t\t\t\t\talert('الكمية المطلوبة تتجاوز الحد الأقصى المتاح لدى المورد (' + maxVal + ' قطعة).');\n\t\t\t\t\t\t}\n\n\t\t\t\t\t\tinput.value = val;\n\t\t\t\t\t\tif (typeof window.recalcEditOrder === 'function') {\n\t\t\t\t\t\t\twindow.recalcEditOrder();\n\t\t\t\t\t\t}\n\t\t\t\t\t};\n\n\t\t\t\t\twindow.deleteEditRow = function(btn) {\n\t\t\t\t\t\tconst row = btn.closest('.edit-line-row');\n\t\t\t\t\t\tif (!row) return;\n\t\t\t\t\t\tconst lineIdInput = row.querySelector('input[name=\"line_id[]\"]');\n\t\t\t\t\t\tif (lineIdInput && lineIdInput.value && lineIdInput.value !== \"0\") {\n\t\t\t\t\t\t\tconst delInput = row.querySelector('.line-deleted-input');\n\t\t\t\t\t\t\tif (delInput) delInput.value = \"1\";\n\t\t\t\t\t\t\trow.style.display = 'none';\n\t\t\t\t\t\t} else {\n\t\t\t\t\t\t\trow.remove();\n\t\t\t\t\t\t}\n\t\t\t\t\t\tif (typeof window.recalcEditOrder === 'function') {\n\t\t\t\t\t\t\twindow.recalcEditOrder();\n\t\t\t\t\t\t}\n\t\t\t\t\t};\n\n\t\t\t\t\twindow.addNewEditRow = function() {\n\t\t\t\t\t\tconst tbody = document.getElementById('edit-lines-tbody');\n\t\t\t\t\t\tif (!tbody) return;\n\t\t\t\t\t\tconst tr = document.createElement('tr');\n\t\t\t\t\t\ttr.className = 'edit-line-row';\n\t\t\t\t\t\ttr.setAttribute('data-min-qty', '1');\n\t\t\t\t\t\ttr.setAttribute('data-max-qty', '99999');\n\t\t\t\t\t\ttr.innerHTML = `\n\t\t\t\t\t\t\t<td style=\"padding:0.65rem 0.85rem;\">\n\t\t\t\t\t\t\t\t<input type=\"hidden\" name=\"line_id[]\" value=\"0\"/>\n\t\t\t\t\t\t\t\t<input type=\"hidden\" name=\"is_deleted[]\" value=\"0\" class=\"line-deleted-input\"/>\n\t\t\t\t\t\t\t\t<input type=\"text\" name=\"product_name[]\" placeholder=\"اسم الصنف الدوائي الجديد...\" required class=\"form-input input-sm w-full fw-700\" style=\"font-size:0.875rem;\"/>\n\t\t\t\t\t\t\t</td>\n\t\t\t\t\t\t\t<td style=\"padding:0.65rem 0.75rem;\">\n\t\t\t\t\t\t\t\t<div style=\"display:flex; align-items:center; gap:0.25rem; justify-content:center;\">\n\t\t\t\t\t\t\t\t\t<button type=\"button\" class=\"btn btn-secondary btn-icon\" style=\"width:26px; height:26px; padding:0; font-size:0.9rem;\" onclick=\"window.stepQty(this, -1)\">-</button>\n\t\t\t\t\t\t\t\t\t<input type=\"number\" name=\"quantity[]\" value=\"1\" min=\"1\" required class=\"form-input input-sm tabular-nums text-center line-qty-input\" style=\"width:55px; font-weight:800; padding:0.25rem 0.35rem;\" oninput=\"window.recalcEditOrder()\"/>\n\t\t\t\t\t\t\t\t\t<button type=\"button\" class=\"btn btn-secondary btn-icon\" style=\"width:26px; height:26px; padding:0; font-size:0.9rem;\" onclick=\"window.stepQty(this, 1)\">+</button>\n\t\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t\t</td>\n\t\t\t\t\t\t\t<td style=\"padding:0.65rem 0.75rem;\" class=\"td-numeric\">\n\t\t\t\t\t\t\t\t<input type=\"text\" name=\"unit_price[]\" value=\"0.00\" required class=\"form-input input-sm tabular-nums line-unit-price text-right\" style=\"width:100%; font-weight:700;\" oninput=\"window.recalcEditOrder()\"/>\n\t\t\t\t\t\t\t</td>\n\t\t\t\t\t\t\t<td style=\"padding:0.65rem 0.75rem;\" class=\"td-numeric\">\n\t\t\t\t\t\t\t\t<input type=\"text\" name=\"discount_amount[]\" value=\"0.00\" class=\"form-input input-sm tabular-nums line-disc-amount text-right\" style=\"width:100%;\" oninput=\"window.recalcEditOrder()\"/>\n\t\t\t\t\t\t\t</td>\n\t\t\t\t\t\t\t<td style=\"padding:0.65rem 0.85rem;\" class=\"td-numeric\">\n\t\t\t\t\t\t\t\t<span class=\"line-total-cell tabular-nums fw-800 text-primary\">0.00</span>\n\t\t\t\t\t\t\t</td>\n\t\t\t\t\t\t\t<td style=\"padding:0.65rem 0.5rem; text-align:center;\">\n\t\t\t\t\t\t\t\t<button type=\"button\" class=\"btn btn-secondary btn-icon\" title=\"حذف الصنف\" onclick=\"window.deleteEditRow(this)\" style=\"width:28px; height:28px; padding:0; border-radius:var(--radius-md); color:var(--rose);\">\n\t\t\t\t\t\t\t\t\t@components.IconTrash(\"icon-sm\")\n\t\t\t\t\t\t\t\t</button>\n\t\t\t\t\t\t\t</td>\n\t\t\t\t\t\t`;\n\t\t\t\t\t\ttbody.appendChild(tr);\n\t\t\t\t\t\tif (typeof window.recalcEditOrder === 'function') {\n\t\t\t\t\t\t\twindow.recalcEditOrder();\n\t\t\t\t\t\t}\n\t\t\t\t\t};\n\n\t\t\t\t\twindow.recalcEditOrder = function() {\n\t\t\t\t\t\tconst rows = document.querySelectorAll('#edit-lines-tbody .edit-line-row');\n\t\t\t\t\t\tlet subtotal = 0;\n\t\t\t\t\t\tlet discount = 0;\n\n\t\t\t\t\t\trows.forEach(row => {\n\t\t\t\t\t\t\tconst delInput = row.querySelector('.line-deleted-input');\n\t\t\t\t\t\t\tif (delInput && delInput.value === \"1\") return;\n\t\t\t\t\t\t\tif (row.style.display === 'none') return;\n\n\t\t\t\t\t\t\tconst qtyInput = row.querySelector('.line-qty-input');\n\t\t\t\t\t\t\tconst priceInput = row.querySelector('.line-unit-price');\n\t\t\t\t\t\t\tconst discInput = row.querySelector('.line-disc-amount');\n\t\t\t\t\t\t\tconst totalCell = row.querySelector('.line-total-cell');\n\n\t\t\t\t\t\t\tconst qty = parseInt(qtyInput ? qtyInput.value : 1, 10) || 0;\n\t\t\t\t\t\t\tconst price = parseFloat(priceInput ? priceInput.value.replace(/,/g, '') : 0) || 0;\n\t\t\t\t\t\t\tconst disc = parseFloat(discInput ? discInput.value.replace(/,/g, '') : 0) || 0;\n\n\t\t\t\t\t\t\tlet lineEff = price - disc;\n\t\t\t\t\t\t\tif (lineEff < 0) lineEff = 0;\n\t\t\t\t\t\t\tconst lineTotal = lineEff * qty;\n\n\t\t\t\t\t\t\tif (totalCell) {\n\t\t\t\t\t\t\t\ttotalCell.textContent = lineTotal.toFixed(2);\n\t\t\t\t\t\t\t}\n\n\t\t\t\t\t\t\tsubtotal += (price * qty);\n\t\t\t\t\t\t\tdiscount += (disc * qty);\n\t\t\t\t\t\t});\n\n\t\t\t\t\t\tconst grandTotal = Math.max(0, subtotal - discount);\n\n\t\t\t\t\t\tconst subEl = document.getElementById('edit-subtotal-val');\n\t\t\t\t\t\tconst discEl = document.getElementById('edit-discount-val');\n\t\t\t\t\t\tconst grandEl = document.getElementById('edit-grandtotal-val');\n\n\t\t\t\t\t\tif (subEl) subEl.textContent = subtotal.toFixed(2);\n\t\t\t\t\t\tif (discEl) discEl.textContent = '-' + discount.toFixed(2);\n\t\t\t\t\t\tif (grandEl) grandEl.textContent = grandTotal.toFixed(2);\n\t\t\t\t\t};\n\t\t\t\t</script>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 243, "<span>حفظ وتحديث الطلب</span></button></div></form></div></div><script>\n\t\t\t\t\twindow.scrollToEditForm = function() {\n\t\t\t\t\t\tconst el = document.getElementById('order-lines-container');\n\t\t\t\t\t\tif (el) {\n\t\t\t\t\t\t\tel.scrollIntoView({ behavior: 'smooth', block: 'start' });\n\t\t\t\t\t\t}\n\t\t\t\t\t\tconst firstInput = document.querySelector('.row-qty-input');\n\t\t\t\t\t\tif (firstInput) {\n\t\t\t\t\t\t\tfirstInput.focus();\n\t\t\t\t\t\t\tfirstInput.select();\n\t\t\t\t\t\t}\n\t\t\t\t\t};\n\n\t\t\t\t\twindow.stepRowQty = function(btn, delta) {\n\t\t\t\t\t\tconst tr = btn.closest('.order-table-row');\n\t\t\t\t\t\tif (!tr) return;\n\t\t\t\t\t\tconst input = tr.querySelector('.row-qty-input');\n\t\t\t\t\t\tif (!input) return;\n\n\t\t\t\t\t\tconst minVal = parseInt(tr.getAttribute('data-min-qty'), 10) || 1;\n\t\t\t\t\t\tconst maxVal = parseInt(tr.getAttribute('data-max-qty'), 10) || 99999;\n\n\t\t\t\t\t\tlet val = parseInt(input.value, 10) || minVal;\n\t\t\t\t\t\tval += delta;\n\t\t\t\t\t\tif (val < minVal) val = minVal;\n\t\t\t\t\t\tif (val > maxVal) {\n\t\t\t\t\t\t\tval = maxVal;\n\t\t\t\t\t\t\talert('الكمية المطلوبة تتجاوز الحد الأقصى المتاح لدى المورد (' + maxVal + ' قطعة).');\n\t\t\t\t\t\t}\n\n\t\t\t\t\t\tinput.value = val;\n\t\t\t\t\t\twindow.recalcRowTotal(input);\n\t\t\t\t\t};\n\n\t\t\t\t\twindow.recalcRowTotal = function(input) {\n\t\t\t\t\t\tconst tr = input.closest('.order-table-row');\n\t\t\t\t\t\tif (!tr) return;\n\n\t\t\t\t\t\tconst minVal = parseInt(tr.getAttribute('data-min-qty'), 10) || 1;\n\t\t\t\t\t\tconst maxVal = parseInt(tr.getAttribute('data-max-qty'), 10) || 99999;\n\n\t\t\t\t\t\tlet qty = parseInt(input.value, 10);\n\t\t\t\t\t\tif (isNaN(qty) || qty < minVal) {\n\t\t\t\t\t\t\tqty = minVal;\n\t\t\t\t\t\t}\n\t\t\t\t\t\tif (qty > maxVal) {\n\t\t\t\t\t\t\tqty = maxVal;\n\t\t\t\t\t\t\tinput.value = maxVal;\n\t\t\t\t\t\t\talert('الكمية المطلوبة تتجاوز الحد الأقصى المتاح لدى المورد (' + maxVal + ' قطعة).');\n\t\t\t\t\t\t}\n\n\t\t\t\t\t\tconst priceMinor = parseInt(tr.getAttribute('data-unit-price-minor'), 10) || 0;\n\t\t\t\t\t\tconst discMinor = parseInt(tr.getAttribute('data-unit-discount-minor'), 10) || 0;\n\n\t\t\t\t\t\tconst effectivePriceMinor = Math.max(0, priceMinor - discMinor);\n\t\t\t\t\t\tconst lineTotalMinor = effectivePriceMinor * qty;\n\n\t\t\t\t\t\tconst totalDisplay = tr.querySelector('.row-total-display');\n\t\t\t\t\t\tif (totalDisplay) {\n\t\t\t\t\t\t\ttotalDisplay.textContent = (lineTotalMinor / 100).toFixed(2) + ' ج.م';\n\t\t\t\t\t\t}\n\n\t\t\t\t\t\twindow.recalcOrderLiveTotals();\n\t\t\t\t\t};\n\n\t\t\t\t\twindow.recalcOrderLiveTotals = function() {\n\t\t\t\t\t\tconst rows = document.querySelectorAll('.order-table-row');\n\t\t\t\t\t\tlet subtotalMinor = 0;\n\t\t\t\t\t\tlet discountMinor = 0;\n\n\t\t\t\t\t\trows.forEach(tr => {\n\t\t\t\t\t\t\tconst delInput = tr.querySelector('.row-deleted-input');\n\t\t\t\t\t\t\tif (delInput && delInput.value === \"1\") return;\n\t\t\t\t\t\t\tif (tr.style.display === 'none') return;\n\n\t\t\t\t\t\t\tconst qtyInput = tr.querySelector('.row-qty-input');\n\t\t\t\t\t\t\tconst priceMinor = parseInt(tr.getAttribute('data-unit-price-minor'), 10) || 0;\n\t\t\t\t\t\t\tconst discMinor = parseInt(tr.getAttribute('data-unit-discount-minor'), 10) || 0;\n\n\t\t\t\t\t\t\tconst qty = parseInt(qtyInput ? qtyInput.value : 1, 10) || 0;\n\t\t\t\t\t\t\tsubtotalMinor += (priceMinor * qty);\n\t\t\t\t\t\t\tdiscountMinor += (discMinor * qty);\n\t\t\t\t\t\t});\n\n\t\t\t\t\t\tconst taxableMinor = Math.max(0, subtotalMinor - discountMinor);\n\t\t\t\t\t\tconst shippingMinor = parseInt(document.getElementById('order-summary-shipping')?.getAttribute('data-shipping-minor') || '0', 10) || 0;\n\t\t\t\t\t\tconst taxRate = parseFloat(document.getElementById('order-summary-tax')?.getAttribute('data-tax-rate') || '0') || 0;\n\n\t\t\t\t\t\tconst taxMinor = Math.round(taxableMinor * taxRate);\n\t\t\t\t\t\tconst totalMinor = taxableMinor + shippingMinor + taxMinor;\n\n\t\t\t\t\t\tconst subEl = document.getElementById('live-summary-subtotal');\n\t\t\t\t\t\tif (subEl) subEl.textContent = (subtotalMinor / 100).toFixed(2) + ' ج.م';\n\n\t\t\t\t\t\tconst discEl = document.getElementById('live-summary-discount');\n\t\t\t\t\t\tif (discEl) discEl.textContent = (discountMinor > 0 ? '-' : '') + (discountMinor / 100).toFixed(2) + ' ج.م';\n\n\t\t\t\t\t\tconst taxEl = document.getElementById('live-summary-tax');\n\t\t\t\t\t\tif (taxEl) taxEl.textContent = (taxMinor / 100).toFixed(2) + ' ج.م';\n\n\t\t\t\t\t\tconst totalEl = document.getElementById('live-summary-total');\n\t\t\t\t\t\tif (totalEl) totalEl.textContent = (totalMinor / 100).toFixed(2);\n\n\t\t\t\t\t\tconst barTotalEl = document.getElementById('form-bar-total');\n\t\t\t\t\t\tif (barTotalEl) barTotalEl.textContent = (totalMinor / 100).toFixed(2) + ' ج.م';\n\t\t\t\t\t};\n\n\t\t\t\t\twindow.deleteRowLine = function(btn) {\n\t\t\t\t\t\tif (!confirm('هل أنت متأكد من رغبتك في حذف هذا الصنف من الطلب؟')) return;\n\t\t\t\t\t\tconst tr = btn.closest('.order-table-row');\n\t\t\t\t\t\tif (!tr) return;\n\t\t\t\t\t\tconst delInput = tr.querySelector('.row-deleted-input');\n\t\t\t\t\t\tif (delInput) {\n\t\t\t\t\t\t\tdelInput.value = '1';\n\t\t\t\t\t\t}\n\t\t\t\t\t\ttr.style.display = 'none';\n\t\t\t\t\t\twindow.recalcOrderLiveTotals();\n\t\t\t\t\t};\n\n\t\t\t\t\twindow.openOrderEditModal = function() {\n\t\t\t\t\t\tconst modal = document.getElementById('order-edit-modal');\n\t\t\t\t\t\tif (modal) {\n\t\t\t\t\t\t\tmodal.classList.remove('hidden');\n\t\t\t\t\t\t\tmodal.style.removeProperty('display');\n\t\t\t\t\t\t\tmodal.style.setProperty('display', 'flex', 'important');\n\t\t\t\t\t\t\tif (typeof window.recalcEditOrder === 'function') {\n\t\t\t\t\t\t\t\twindow.recalcEditOrder();\n\t\t\t\t\t\t\t}\n\t\t\t\t\t\t}\n\t\t\t\t\t};\n\n\t\t\t\t\twindow.closeOrderEditModal = function() {\n\t\t\t\t\t\tconst modal = document.getElementById('order-edit-modal');\n\t\t\t\t\t\tif (modal) {\n\t\t\t\t\t\t\tmodal.classList.add('hidden');\n\t\t\t\t\t\t\tmodal.style.setProperty('display', 'none', 'important');\n\t\t\t\t\t\t}\n\t\t\t\t\t};\n\n\t\t\t\t\twindow.stepQty = function(btn, delta) {\n\t\t\t\t\t\tconst row = btn.closest('.edit-line-row');\n\t\t\t\t\t\tif (!row) return;\n\t\t\t\t\t\tconst input = row.querySelector('.line-qty-input');\n\t\t\t\t\t\tif (!input) return;\n\n\t\t\t\t\t\tconst minVal = parseInt(row.getAttribute('data-min-qty'), 10) || 1;\n\t\t\t\t\t\tconst maxVal = parseInt(row.getAttribute('data-max-qty'), 10) || 99999;\n\n\t\t\t\t\t\tlet val = parseInt(input.value, 10) || minVal;\n\t\t\t\t\t\tval += delta;\n\t\t\t\t\t\tif (val < minVal) val = minVal;\n\t\t\t\t\t\tif (val > maxVal) {\n\t\t\t\t\t\t\tval = maxVal;\n\t\t\t\t\t\t\talert('الكمية المطلوبة تتجاوز الحد الأقصى المتاح لدى المورد (' + maxVal + ' قطعة).');\n\t\t\t\t\t\t}\n\n\t\t\t\t\t\tinput.value = val;\n\t\t\t\t\t\tif (typeof window.recalcEditOrder === 'function') {\n\t\t\t\t\t\t\twindow.recalcEditOrder();\n\t\t\t\t\t\t}\n\t\t\t\t\t};\n\n\t\t\t\t\twindow.deleteEditRow = function(btn) {\n\t\t\t\t\t\tconst row = btn.closest('.edit-line-row');\n\t\t\t\t\t\tif (!row) return;\n\t\t\t\t\t\tconst lineIdInput = row.querySelector('input[name=\"line_id[]\"]');\n\t\t\t\t\t\tif (lineIdInput && lineIdInput.value && lineIdInput.value !== \"0\") {\n\t\t\t\t\t\t\tconst delInput = row.querySelector('.line-deleted-input');\n\t\t\t\t\t\t\tif (delInput) delInput.value = \"1\";\n\t\t\t\t\t\t\trow.style.display = 'none';\n\t\t\t\t\t\t} else {\n\t\t\t\t\t\t\trow.remove();\n\t\t\t\t\t\t}\n\t\t\t\t\t\tif (typeof window.recalcEditOrder === 'function') {\n\t\t\t\t\t\t\twindow.recalcEditOrder();\n\t\t\t\t\t\t}\n\t\t\t\t\t};\n\n\t\t\t\t\twindow.addNewEditRow = function() {\n\t\t\t\t\t\tconst tbody = document.getElementById('edit-lines-tbody');\n\t\t\t\t\t\tif (!tbody) return;\n\t\t\t\t\t\tconst tr = document.createElement('tr');\n\t\t\t\t\t\ttr.className = 'edit-line-row';\n\t\t\t\t\t\ttr.setAttribute('data-min-qty', '1');\n\t\t\t\t\t\ttr.setAttribute('data-max-qty', '99999');\n\t\t\t\t\t\ttr.innerHTML = `\n\t\t\t\t\t\t\t<td style=\"padding:0.65rem 0.85rem;\">\n\t\t\t\t\t\t\t\t<input type=\"hidden\" name=\"line_id[]\" value=\"0\"/>\n\t\t\t\t\t\t\t\t<input type=\"hidden\" name=\"is_deleted[]\" value=\"0\" class=\"line-deleted-input\"/>\n\t\t\t\t\t\t\t\t<input type=\"text\" name=\"product_name[]\" placeholder=\"اسم الصنف الدوائي الجديد...\" required class=\"form-input input-sm w-full fw-700\" style=\"font-size:0.875rem;\"/>\n\t\t\t\t\t\t\t</td>\n\t\t\t\t\t\t\t<td style=\"padding:0.65rem 0.75rem;\">\n\t\t\t\t\t\t\t\t<div style=\"display:flex; align-items:center; gap:0.25rem; justify-content:center;\">\n\t\t\t\t\t\t\t\t\t<button type=\"button\" class=\"btn btn-secondary btn-icon\" style=\"width:26px; height:26px; padding:0; font-size:0.9rem;\" onclick=\"window.stepQty(this, -1)\">-</button>\n\t\t\t\t\t\t\t\t\t<input type=\"number\" name=\"quantity[]\" value=\"1\" min=\"1\" required class=\"form-input input-sm tabular-nums text-center line-qty-input\" style=\"width:55px; font-weight:800; padding:0.25rem 0.35rem;\" oninput=\"window.recalcEditOrder()\"/>\n\t\t\t\t\t\t\t\t\t<button type=\"button\" class=\"btn btn-secondary btn-icon\" style=\"width:26px; height:26px; padding:0; font-size:0.9rem;\" onclick=\"window.stepQty(this, 1)\">+</button>\n\t\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t\t</td>\n\t\t\t\t\t\t\t<td style=\"padding:0.65rem 0.75rem;\" class=\"td-numeric\">\n\t\t\t\t\t\t\t\t<input type=\"text\" name=\"unit_price[]\" value=\"0.00\" required class=\"form-input input-sm tabular-nums line-unit-price text-right\" style=\"width:100%; font-weight:700;\" oninput=\"window.recalcEditOrder()\"/>\n\t\t\t\t\t\t\t</td>\n\t\t\t\t\t\t\t<td style=\"padding:0.65rem 0.75rem;\" class=\"td-numeric\">\n\t\t\t\t\t\t\t\t<input type=\"text\" name=\"discount_amount[]\" value=\"0.00\" class=\"form-input input-sm tabular-nums line-disc-amount text-right\" style=\"width:100%;\" oninput=\"window.recalcEditOrder()\"/>\n\t\t\t\t\t\t\t</td>\n\t\t\t\t\t\t\t<td style=\"padding:0.65rem 0.85rem;\" class=\"td-numeric\">\n\t\t\t\t\t\t\t\t<span class=\"line-total-cell tabular-nums fw-800 text-primary\">0.00</span>\n\t\t\t\t\t\t\t</td>\n\t\t\t\t\t\t\t<td style=\"padding:0.65rem 0.5rem; text-align:center;\">\n\t\t\t\t\t\t\t\t<button type=\"button\" class=\"btn btn-secondary btn-icon\" title=\"حذف الصنف\" onclick=\"window.deleteEditRow(this)\" style=\"width:28px; height:28px; padding:0; border-radius:var(--radius-md); color:var(--rose);\">\n\t\t\t\t\t\t\t\t\t@components.IconTrash(\"icon-sm\")\n\t\t\t\t\t\t\t\t</button>\n\t\t\t\t\t\t\t</td>\n\t\t\t\t\t\t`;\n\t\t\t\t\t\ttbody.appendChild(tr);\n\t\t\t\t\t\tif (typeof window.recalcEditOrder === 'function') {\n\t\t\t\t\t\t\twindow.recalcEditOrder();\n\t\t\t\t\t\t}\n\t\t\t\t\t};\n\n\t\t\t\t\twindow.recalcEditOrder = function() {\n\t\t\t\t\t\tconst rows = document.querySelectorAll('#edit-lines-tbody .edit-line-row');\n\t\t\t\t\t\tlet subtotal = 0;\n\t\t\t\t\t\tlet discount = 0;\n\n\t\t\t\t\t\trows.forEach(row => {\n\t\t\t\t\t\t\tconst delInput = row.querySelector('.line-deleted-input');\n\t\t\t\t\t\t\tif (delInput && delInput.value === \"1\") return;\n\t\t\t\t\t\t\tif (row.style.display === 'none') return;\n\n\t\t\t\t\t\t\tconst qtyInput = row.querySelector('.line-qty-input');\n\t\t\t\t\t\t\tconst priceInput = row.querySelector('.line-unit-price');\n\t\t\t\t\t\t\tconst discInput = row.querySelector('.line-disc-amount');\n\t\t\t\t\t\t\tconst totalCell = row.querySelector('.line-total-cell');\n\n\t\t\t\t\t\t\tconst qty = parseInt(qtyInput ? qtyInput.value : 1, 10) || 0;\n\t\t\t\t\t\t\tconst price = parseFloat(priceInput ? priceInput.value.replace(/,/g, '') : 0) || 0;\n\t\t\t\t\t\t\tconst disc = parseFloat(discInput ? discInput.value.replace(/,/g, '') : 0) || 0;\n\n\t\t\t\t\t\t\tlet lineEff = price - disc;\n\t\t\t\t\t\t\tif (lineEff < 0) lineEff = 0;\n\t\t\t\t\t\t\tconst lineTotal = lineEff * qty;\n\n\t\t\t\t\t\t\tif (totalCell) {\n\t\t\t\t\t\t\t\ttotalCell.textContent = lineTotal.toFixed(2);\n\t\t\t\t\t\t\t}\n\n\t\t\t\t\t\t\tsubtotal += (price * qty);\n\t\t\t\t\t\t\tdiscount += (disc * qty);\n\t\t\t\t\t\t});\n\n\t\t\t\t\t\tconst grandTotal = Math.max(0, subtotal - discount);\n\n\t\t\t\t\t\tconst subEl = document.getElementById('edit-subtotal-val');\n\t\t\t\t\t\tconst discEl = document.getElementById('edit-discount-val');\n\t\t\t\t\t\tconst grandEl = document.getElementById('edit-grandtotal-val');\n\n\t\t\t\t\t\tif (subEl) subEl.textContent = subtotal.toFixed(2);\n\t\t\t\t\t\tif (discEl) discEl.textContent = '-' + discount.toFixed(2);\n\t\t\t\t\t\tif (grandEl) grandEl.textContent = grandTotal.toFixed(2);\n\t\t\t\t\t};\n\t\t\t\t</script>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 243, "</div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 244, "</div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

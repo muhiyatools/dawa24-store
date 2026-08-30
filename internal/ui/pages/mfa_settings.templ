@@ -36,7 +36,7 @@ templ mfaSettingsContent(lang, dir string, data MFASettingsViewData) {
 		<div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem; margin-bottom:1.5rem;">
 			<div>
 				<h1 style="font-size:1.35rem; font-weight:800; color:var(--text); margin:0; display:flex; align-items:center; gap:0.5rem;">
-					<span style="font-size:1.35rem;">🛡️</span>
+					<span style="font-size:1.35rem;">@components.IconShield("icon-sm")</span>
 					<span>المصادقة الثنائية (Google Authenticator)</span>
 				</h1>
 				<p style="color:var(--text-secondary); font-size:0.85rem; margin:0.25rem 0 0 0;">
@@ -59,7 +59,7 @@ templ mfaSettingsContent(lang, dir string, data MFASettingsViewData) {
  class="btn btn-primary btn-sm font-bold rounded-lg"
  
 >
-					<span>🛡️</span>
+					<span>@components.IconShield("icon-sm")</span>
 					<span>المصادقة الثنائية</span>
 				</a>
 			</div>
@@ -125,7 +125,7 @@ templ mfaSettingsContent(lang, dir string, data MFASettingsViewData) {
 					<div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:1rem;">
 						<div style="display:flex; align-items:center; gap:1rem;">
 							<div style="width:56px; height:56px; border-radius:var(--radius-2xl); background:rgba(16, 185, 129, 0.12); color:#10b981; display:flex; align-items:center; justify-content:center; font-size:1.75rem; border:1px solid rgba(16, 185, 129, 0.25);">
-								🛡️
+								@components.IconShield("icon-sm")
 							</div>
 							<div>
 								<div class="row-center-sm gap-2">
@@ -227,7 +227,7 @@ templ mfaSettingsContent(lang, dir string, data MFASettingsViewData) {
 				<!-- Setup Intro -->
 				<div style="display:flex; align-items:center; gap:1rem; margin-bottom:1.5rem;">
 					<div style="width:52px; height:52px; border-radius:var(--radius-2xl); background:var(--brand-subtle, rgba(14, 165, 233, 0.12)); color:var(--brand); display:flex; align-items:center; justify-content:center; font-size:1.6rem; border:1px solid var(--border);">
-						🛡️
+						@components.IconShield("icon-sm")
 					</div>
 					<div>
 						<h2 style="font-size:1.15rem; font-weight:900; color:var(--text); margin:0;">
@@ -251,7 +251,7 @@ templ mfaSettingsContent(lang, dir string, data MFASettingsViewData) {
 							</p>
 							<form action={ templ.SafeURL(ternary(data.IsVendor, "/vendor/mfa/setup", "/customer/mfa/setup")) } method="POST" class="m-0">
 								<button type="submit" class="btn btn-primary font-bold px-6 py-2.5" style="border-radius:var(--radius-xl); font-size:0.95rem;">
-									<span>بدء إعداد المصادقة الثنائية 🚀</span>
+									<span>بدء إعداد المصادقة الثنائية </span>
 								</button>
 							</form>
 						</div>

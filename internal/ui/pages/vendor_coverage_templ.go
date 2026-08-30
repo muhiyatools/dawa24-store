@@ -494,7 +494,15 @@ func VendorCoveragePage(data VendorCoverageData, lang, dir string) templ.Compone
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 36, "</span></label></div></div><!-- Step 3: Subgovernorates / Cities Selection (Dynamic) --><div x-show=\"selectedGovId\" class=\"bg-surface-sunken p-5 rounded-xl border d-flex flex-col gap-3\"><div class=\"flex-between flex-wrap gap-3\"><div><label style=\"font-size:0.9rem; font-weight:800; margin:0; color:var(--color-text-heading); display:flex; align-items:center; gap:0.5rem;\"><span>🏙️</span> <span>المدن والمراكز المستهدفة بالمحافظة</span> <span class=\"badge badge-primary text-xs\" x-text=\"selectedCities.length + ' مدينة محددة'\"></span></label></div><div class=\"d-flex items-center gap-3\"><input type=\"text\" x-model=\"citySearch\" placeholder=\"بحث باسم المدينة أو الحي...\" class=\"form-control\" style=\"width:200px; padding:0.35rem 0.65rem; font-size:0.825rem; border-radius:0.5rem;\"> <button type=\"button\" @click=\"toggleSelectAllCities()\" class=\"btn btn-sm btn-primary\" style=\"font-weight:700; font-size:0.8rem; padding:0.35rem 0.75rem; border-radius:0.5rem;\"><span x-text=\"allCitiesInGov ? 'إلغاء تحديد كل المدن' : 'تحديد كل مدن المحافظة'\"></span></button></div></div><!-- Hidden input for all_cities_in_gov --><input type=\"hidden\" name=\"all_cities_in_gov\" :value=\"allCitiesInGov ? 'true' : 'false'\"><!-- Grid of cities under governorate --><div class=\"d-grid gap-2 max-h-56 overflow-y-auto p-2 bg-surface rounded-lg border\" style=\"grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));\"><template x-for=\"c in filteredCities\" :key=\"c.id\"><label :class=\"selectedCities.includes(String(c.id)) ? 'badge-primary' : 'bg-surface-sunken'\" class=\"p-2 rounded-lg border d-flex items-center gap-2 cursor-pointer transition\"><input type=\"checkbox\" name=\"city_ids\" :value=\"c.id\" :checked=\"selectedCities.includes(String(c.id))\" @change=\"toggleCity(c.id)\" class=\"w-4 h-4 cursor-pointer\"><div class=\"flex-1 min-w-0\"><div class=\"font-bold text-sm text-primary\" x-text=\"c.name_ar\"></div><div class=\"text-xs text-muted\" x-text=\"c.name_en\"></div></div><span x-show=\"c.is_capital\" class=\"badge badge-amber badge-compact\">عاصمة</span></label></template><div x-show=\"filteredCities.length === 0\" class=\"text-center py-6 text-muted text-xs col-span-full\">لم يتم العثور على مدن تطابق البحث.</div></div></div><!-- Step 4: General Radius & Timing Configurations --><div class=\"d-grid gap-4\" style=\"grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));\"><!-- Radius in Meters --><div class=\"bg-surface-sunken p-5 rounded-xl border\"><label class=\"d-block text-xs font-bold mb-2 text-primary\">نصف قطر التغطية الافتراضي (بالمتر)</label><div class=\"d-flex items-center gap-2 mb-3\"><input type=\"number\" name=\"distance_meters\" x-model=\"distanceMeters\" min=\"1\" max=\"1000000\" step=\"1\" class=\"form-control font-bold text-md w-36\" required> <span class=\"font-bold text-xs text-muted\">متر</span> <span class=\"badge badge-primary text-xs\" x-text=\"(distanceMeters / 1000).toFixed(1) + ' كم'\"></span></div><!-- Quick Presets --><div class=\"d-flex flex-wrap gap-1\"><button type=\"button\" @click=\"setDistance(1000)\" class=\"btn btn-2xs btn-secondary\">1 كم</button> <button type=\"button\" @click=\"setDistance(3000)\" class=\"btn btn-2xs btn-secondary\">3 كم</button> <button type=\"button\" @click=\"setDistance(5000)\" class=\"btn btn-2xs btn-secondary\">5 كم (قياسي)</button> <button type=\"button\" @click=\"setDistance(10000)\" class=\"btn btn-2xs btn-secondary\">10 كم</button> <button type=\"button\" @click=\"setDistance(25000)\" class=\"btn btn-2xs btn-secondary\">25 كم</button> <button type=\"button\" @click=\"setDistance(50000)\" class=\"btn btn-2xs btn-secondary\">50 كم</button></div></div><!-- Time Window --><div class=\"bg-surface-sunken p-5 rounded-xl border\"><label class=\"d-block text-xs font-bold mb-2 text-primary\">⏰ مواعيد وساعات العمل والتوصيل الافتراضية</label><div class=\"d-grid gap-3 mb-3\" style=\"grid-template-columns: 1fr 1fr;\"><div><span class=\"text-xs text-muted font-semibold d-block mb-1\">من (وقت البدء):</span> <input type=\"time\" name=\"coverage_from\" x-model=\"coverageFrom\" class=\"form-control text-xs\"></div><div><span class=\"text-xs text-muted font-semibold d-block mb-1\">إلى (وقت الانتهاء):</span> <input type=\"time\" name=\"coverage_to\" x-model=\"coverageTo\" class=\"form-control text-xs\"></div></div><!-- Time Presets --><div class=\"d-flex flex-wrap gap-1\"><button type=\"button\" @click=\"setTimePreset('09:00', '17:00')\" class=\"btn btn-2xs btn-secondary\">دوام كامل (9 ص - 5 م)</button> <button type=\"button\" @click=\"setTimePreset('16:00', '23:00')\" class=\"btn btn-2xs btn-secondary\">فترة مسائية</button> <button type=\"button\" @click=\"setTimePreset('', '')\" class=\"btn btn-2xs btn-secondary\">طوال اليوم (24 ساعة)</button></div></div></div><!-- Step 5: Per-City Timing & Radius Customization Grid --><div x-show=\"selectedCities.length > 0\" class=\"bg-surface-sunken p-5 rounded-xl border d-flex flex-col gap-4\"><div class=\"flex-between items-center flex-wrap gap-3\"><div><h3 class=\"text-sm font-extrabold text-primary m-0 d-flex items-center gap-2\"><span>⏱️</span> <span>تخصيص مواعيد وساعات التوصيل ونصف القطر لكل مدينة محددة على حدة</span></h3><p class=\"text-xs text-muted m-0 mt-1\">يمكنك تعديل مواعيد العمل ونطاق التغطية لكل مدينة مستقلة، أو تطبيق الإعدادات العامة عليها بضغطة زر.</p></div><button type=\"button\" @click=\"applyDefaultsToAllCities()\" class=\"btn btn-xs btn-secondary font-bold\">تطبيق الإعدادات العامة على كل المدن</button></div><div class=\"d-grid gap-3\" style=\"grid-template-columns: repeat(auto-fit, minmax(310px, 1fr));\"><template x-for=\"c in getSelectedCityDetails()\" :key=\"c.id\"><div class=\"bg-surface-raised p-4 rounded-xl border d-flex flex-col gap-3 shadow-xs\"><div class=\"flex-between items-start\"><div><div class=\"font-extrabold text-sm text-brand\" x-text=\"c.name_ar\"></div><div class=\"text-xs text-muted\" x-text=\"c.name_en + (c.lat ? ' (' + c.lat.toFixed(4) + ', ' + c.lon.toFixed(4) + ')' : '')\"></div></div><button type=\"button\" @click=\"toggleCity(c.id)\" class=\"btn btn-icon btn-2xs text-danger\" title=\"إزالة هذه المدينة\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 36, "</span></label></div></div><!-- Step 3: Subgovernorates / Cities Selection (Dynamic) --><div x-show=\"selectedGovId\" class=\"bg-surface-sunken p-5 rounded-xl border d-flex flex-col gap-3\"><div class=\"flex-between flex-wrap gap-3\"><div><label style=\"font-size:0.9rem; font-weight:800; margin:0; color:var(--color-text-heading); display:flex; align-items:center; gap:0.5rem;\"><span>")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = components.IconBuilding("icon-sm").Render(ctx, templ_7745c5c3_Buffer)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 37, "</span> <span>المدن والمراكز المستهدفة بالمحافظة</span> <span class=\"badge badge-primary text-xs\" x-text=\"selectedCities.length + ' مدينة محددة'\"></span></label></div><div class=\"d-flex items-center gap-3\"><input type=\"text\" x-model=\"citySearch\" placeholder=\"بحث باسم المدينة أو الحي...\" class=\"form-control\" style=\"width:200px; padding:0.35rem 0.65rem; font-size:0.825rem; border-radius:0.5rem;\"> <button type=\"button\" @click=\"toggleSelectAllCities()\" class=\"btn btn-sm btn-primary\" style=\"font-weight:700; font-size:0.8rem; padding:0.35rem 0.75rem; border-radius:0.5rem;\"><span x-text=\"allCitiesInGov ? 'إلغاء تحديد كل المدن' : 'تحديد كل مدن المحافظة'\"></span></button></div></div><!-- Hidden input for all_cities_in_gov --><input type=\"hidden\" name=\"all_cities_in_gov\" :value=\"allCitiesInGov ? 'true' : 'false'\"><!-- Grid of cities under governorate --><div class=\"d-grid gap-2 max-h-56 overflow-y-auto p-2 bg-surface rounded-lg border\" style=\"grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));\"><template x-for=\"c in filteredCities\" :key=\"c.id\"><label :class=\"selectedCities.includes(String(c.id)) ? 'badge-primary' : 'bg-surface-sunken'\" class=\"p-2 rounded-lg border d-flex items-center gap-2 cursor-pointer transition\"><input type=\"checkbox\" name=\"city_ids\" :value=\"c.id\" :checked=\"selectedCities.includes(String(c.id))\" @change=\"toggleCity(c.id)\" class=\"w-4 h-4 cursor-pointer\"><div class=\"flex-1 min-w-0\"><div class=\"font-bold text-sm text-primary\" x-text=\"c.name_ar\"></div><div class=\"text-xs text-muted\" x-text=\"c.name_en\"></div></div><span x-show=\"c.is_capital\" class=\"badge badge-amber badge-compact\">عاصمة</span></label></template><div x-show=\"filteredCities.length === 0\" class=\"text-center py-6 text-muted text-xs col-span-full\">لم يتم العثور على مدن تطابق البحث.</div></div></div><!-- Step 4: General Radius & Timing Configurations --><div class=\"d-grid gap-4\" style=\"grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));\"><!-- Radius in Meters --><div class=\"bg-surface-sunken p-5 rounded-xl border\"><label class=\"d-block text-xs font-bold mb-2 text-primary\">نصف قطر التغطية الافتراضي (بالمتر)</label><div class=\"d-flex items-center gap-2 mb-3\"><input type=\"number\" name=\"distance_meters\" x-model=\"distanceMeters\" min=\"1\" max=\"1000000\" step=\"1\" class=\"form-control font-bold text-md w-36\" required> <span class=\"font-bold text-xs text-muted\">متر</span> <span class=\"badge badge-primary text-xs\" x-text=\"(distanceMeters / 1000).toFixed(1) + ' كم'\"></span></div><!-- Quick Presets --><div class=\"d-flex flex-wrap gap-1\"><button type=\"button\" @click=\"setDistance(1000)\" class=\"btn btn-2xs btn-secondary\">1 كم</button> <button type=\"button\" @click=\"setDistance(3000)\" class=\"btn btn-2xs btn-secondary\">3 كم</button> <button type=\"button\" @click=\"setDistance(5000)\" class=\"btn btn-2xs btn-secondary\">5 كم (قياسي)</button> <button type=\"button\" @click=\"setDistance(10000)\" class=\"btn btn-2xs btn-secondary\">10 كم</button> <button type=\"button\" @click=\"setDistance(25000)\" class=\"btn btn-2xs btn-secondary\">25 كم</button> <button type=\"button\" @click=\"setDistance(50000)\" class=\"btn btn-2xs btn-secondary\">50 كم</button></div></div><!-- Time Window --><div class=\"bg-surface-sunken p-5 rounded-xl border\"><label class=\"d-block text-xs font-bold mb-2 text-primary\">⏰ مواعيد وساعات العمل والتوصيل الافتراضية</label><div class=\"d-grid gap-3 mb-3\" style=\"grid-template-columns: 1fr 1fr;\"><div><span class=\"text-xs text-muted font-semibold d-block mb-1\">من (وقت البدء):</span> <input type=\"time\" name=\"coverage_from\" x-model=\"coverageFrom\" class=\"form-control text-xs\"></div><div><span class=\"text-xs text-muted font-semibold d-block mb-1\">إلى (وقت الانتهاء):</span> <input type=\"time\" name=\"coverage_to\" x-model=\"coverageTo\" class=\"form-control text-xs\"></div></div><!-- Time Presets --><div class=\"d-flex flex-wrap gap-1\"><button type=\"button\" @click=\"setTimePreset('09:00', '17:00')\" class=\"btn btn-2xs btn-secondary\">دوام كامل (9 ص - 5 م)</button> <button type=\"button\" @click=\"setTimePreset('16:00', '23:00')\" class=\"btn btn-2xs btn-secondary\">فترة مسائية</button> <button type=\"button\" @click=\"setTimePreset('', '')\" class=\"btn btn-2xs btn-secondary\">طوال اليوم (24 ساعة)</button></div></div></div><!-- Step 5: Per-City Timing & Radius Customization Grid --><div x-show=\"selectedCities.length > 0\" class=\"bg-surface-sunken p-5 rounded-xl border d-flex flex-col gap-4\"><div class=\"flex-between items-center flex-wrap gap-3\"><div><h3 class=\"text-sm font-extrabold text-primary m-0 d-flex items-center gap-2\"><span>⏱️</span> <span>تخصيص مواعيد وساعات التوصيل ونصف القطر لكل مدينة محددة على حدة</span></h3><p class=\"text-xs text-muted m-0 mt-1\">يمكنك تعديل مواعيد العمل ونطاق التغطية لكل مدينة مستقلة، أو تطبيق الإعدادات العامة عليها بضغطة زر.</p></div><button type=\"button\" @click=\"applyDefaultsToAllCities()\" class=\"btn btn-xs btn-secondary font-bold\">تطبيق الإعدادات العامة على كل المدن</button></div><div class=\"d-grid gap-3\" style=\"grid-template-columns: repeat(auto-fit, minmax(310px, 1fr));\"><template x-for=\"c in getSelectedCityDetails()\" :key=\"c.id\"><div class=\"bg-surface-raised p-4 rounded-xl border d-flex flex-col gap-3 shadow-xs\"><div class=\"flex-between items-start\"><div><div class=\"font-extrabold text-sm text-brand\" x-text=\"c.name_ar\"></div><div class=\"text-xs text-muted\" x-text=\"c.name_en + (c.lat ? ' (' + c.lat.toFixed(4) + ', ' + c.lon.toFixed(4) + ')' : '')\"></div></div><button type=\"button\" @click=\"toggleCity(c.id)\" class=\"btn btn-icon btn-2xs text-danger\" title=\"إزالة هذه المدينة\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -502,7 +510,7 @@ func VendorCoveragePage(data VendorCoverageData, lang, dir string) templ.Compone
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 37, "</button></div><div class=\"d-grid gap-2\" style=\"grid-template-columns: 1fr 1fr;\"><div><label class=\"d-block text-xs font-semibold text-muted mb-1\">من (ساعة البدء):</label> <input type=\"time\" :name=\"'coverage_from_' + c.id\" x-model=\"initCityConfig(String(c.id)).from\" class=\"form-control text-xs\"></div><div><label class=\"d-block text-xs font-semibold text-muted mb-1\">إلى (ساعة الانتهاء):</label> <input type=\"time\" :name=\"'coverage_to_' + c.id\" x-model=\"initCityConfig(String(c.id)).to\" class=\"form-control text-xs\"></div></div><div><label class=\"d-block text-xs font-semibold text-muted mb-1\">نصف قطر التغطية (بالمتر من مركز المدينة):</label><div class=\"d-flex items-center gap-2\"><input type=\"number\" :name=\"'distance_meters_' + c.id\" x-model=\"initCityConfig(String(c.id)).distance\" min=\"1\" max=\"1000000\" step=\"1\" class=\"form-control text-xs font-bold flex-1\"> <span class=\"badge badge-primary text-xs\" x-text=\"((initCityConfig(String(c.id)).distance || 5000) / 1000).toFixed(1) + ' كم'\"></span></div></div></div></template></div></div><!-- Live Impact Summary & Submit Button --><div class=\"glass-panel p-5 flex-between items-center flex-wrap gap-4 border\"><div class=\"d-flex items-center gap-3\"><span class=\"text-2xl\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 38, "</button></div><div class=\"d-grid gap-2\" style=\"grid-template-columns: 1fr 1fr;\"><div><label class=\"d-block text-xs font-semibold text-muted mb-1\">من (ساعة البدء):</label> <input type=\"time\" :name=\"'coverage_from_' + c.id\" x-model=\"initCityConfig(String(c.id)).from\" class=\"form-control text-xs\"></div><div><label class=\"d-block text-xs font-semibold text-muted mb-1\">إلى (ساعة الانتهاء):</label> <input type=\"time\" :name=\"'coverage_to_' + c.id\" x-model=\"initCityConfig(String(c.id)).to\" class=\"form-control text-xs\"></div></div><div><label class=\"d-block text-xs font-semibold text-muted mb-1\">نصف قطر التغطية (بالمتر من مركز المدينة):</label><div class=\"d-flex items-center gap-2\"><input type=\"number\" :name=\"'distance_meters_' + c.id\" x-model=\"initCityConfig(String(c.id)).distance\" min=\"1\" max=\"1000000\" step=\"1\" class=\"form-control text-xs font-bold flex-1\"> <span class=\"badge badge-primary text-xs\" x-text=\"((initCityConfig(String(c.id)).distance || 5000) / 1000).toFixed(1) + ' كم'\"></span></div></div></div></template></div></div><!-- Live Impact Summary & Submit Button --><div class=\"glass-panel p-5 flex-between items-center flex-wrap gap-4 border\"><div class=\"d-flex items-center gap-3\"><span class=\"text-2xl\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -510,7 +518,7 @@ func VendorCoveragePage(data VendorCoverageData, lang, dir string) templ.Compone
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 38, "</span><div><div class=\"font-extrabold text-primary text-sm\">ملخص العملية: <span x-text=\"selectedDays.length\" class=\"text-brand\"></span> أيام × <span x-text=\"selectedCities.length > 0 ? selectedCities.length : '1'\" class=\"text-brand\"></span> مدينة = <span class=\"text-brand font-black\" x-text=\"(selectedDays.length * (selectedCities.length > 0 ? selectedCities.length : 1)) + ' نطاق تغطية أسبوعية'\"></span></div><div class=\"text-xs text-secondary mt-1\">سيتم إنشاء / تحديث جدول التوزيع ومواعيد التوصيل تلقائياً وفورياً لجميع الصيدليات ضمن هذه النطاقات.</div></div></div><button type=\"submit\" :disabled=\"selectedDays.length === 0 || !selectedGovId\" class=\"btn btn-primary px-8 font-extrabold text-sm shadow-md\"><span>حفظ وجدولة التغطية الأسبوعية</span> <span>←</span></button></div></form></div><!-- Active Weekly Coverages Table & Filters --><div class=\"glass-panel p-6 mb-6\"><div class=\"flex-between items-center mb-6 pb-4 border-b flex-wrap gap-4\"><div><h2 class=\"text-lg font-black text-primary m-0 d-flex items-center gap-2\"><span>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 39, "</span><div><div class=\"font-extrabold text-primary text-sm\">ملخص العملية: <span x-text=\"selectedDays.length\" class=\"text-brand\"></span> أيام × <span x-text=\"selectedCities.length > 0 ? selectedCities.length : '1'\" class=\"text-brand\"></span> مدينة = <span class=\"text-brand font-black\" x-text=\"(selectedDays.length * (selectedCities.length > 0 ? selectedCities.length : 1)) + ' نطاق تغطية أسبوعية'\"></span></div><div class=\"text-xs text-secondary mt-1\">سيتم إنشاء / تحديث جدول التوزيع ومواعيد التوصيل تلقائياً وفورياً لجميع الصيدليات ضمن هذه النطاقات.</div></div></div><button type=\"submit\" :disabled=\"selectedDays.length === 0 || !selectedGovId\" class=\"btn btn-primary px-8 font-extrabold text-sm shadow-md\"><span>حفظ وجدولة التغطية الأسبوعية</span> <span>←</span></button></div></form></div><!-- Active Weekly Coverages Table & Filters --><div class=\"glass-panel p-6 mb-6\"><div class=\"flex-between items-center mb-6 pb-4 border-b flex-wrap gap-4\"><div><h2 class=\"text-lg font-black text-primary m-0 d-flex items-center gap-2\"><span>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -518,7 +526,7 @@ func VendorCoveragePage(data VendorCoverageData, lang, dir string) templ.Compone
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 39, "</span> <span>سجل نطاقات التغطية والتوزيع المسجلة (")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 40, "</span> <span>سجل نطاقات التغطية والتوزيع المسجلة (")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -531,12 +539,12 @@ func VendorCoveragePage(data VendorCoverageData, lang, dir string) templ.Compone
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 40, ")</span></h2><p class=\"text-xs text-muted mt-1 m-0\">استعرض وعدل جداول التوزيع الخاصة بأسطولك حسب اليوم والمحافظة والمدينة.</p></div><!-- Filter Controls --><div class=\"d-flex items-center gap-3 flex-wrap\"><!-- Filter Day --><select x-model=\"filterDay\" class=\"form-control text-xs font-bold w-36\"><option value=\"all\">كل الأيام</option> <option value=\"6\">السبت</option> <option value=\"0\">الأحد</option> <option value=\"1\">الاثنين</option> <option value=\"2\">الثلاثاء</option> <option value=\"3\">الأربعاء</option> <option value=\"4\">الخميس</option> <option value=\"5\">الجمعة</option></select><!-- Search query --><input type=\"text\" x-model=\"searchQuery\" placeholder=\"بحث بالمدينة أو المحافظة...\" class=\"form-control text-xs w-48\"></div></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 41, ")</span></h2><p class=\"text-xs text-muted mt-1 m-0\">استعرض وعدل جداول التوزيع الخاصة بأسطولك حسب اليوم والمحافظة والمدينة.</p></div><!-- Filter Controls --><div class=\"d-flex items-center gap-3 flex-wrap\"><!-- Filter Day --><select x-model=\"filterDay\" class=\"form-control text-xs font-bold w-36\"><option value=\"all\">كل الأيام</option> <option value=\"6\">السبت</option> <option value=\"0\">الأحد</option> <option value=\"1\">الاثنين</option> <option value=\"2\">الثلاثاء</option> <option value=\"3\">الأربعاء</option> <option value=\"4\">الخميس</option> <option value=\"5\">الجمعة</option></select><!-- Search query --><input type=\"text\" x-model=\"searchQuery\" placeholder=\"بحث بالمدينة أو المحافظة...\" class=\"form-control text-xs w-48\"></div></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			if len(data.Coverages) == 0 {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 41, "<div class=\"empty-state-glass p-8 text-center\"><div class=\"empty-state-icon-wrapper mx-auto mb-3\"><span class=\"text-3xl\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 42, "<div class=\"empty-state-glass p-8 text-center\"><div class=\"empty-state-icon-wrapper mx-auto mb-3\"><span class=\"text-3xl\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -544,17 +552,17 @@ func VendorCoveragePage(data VendorCoverageData, lang, dir string) templ.Compone
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 42, "</span></div><h3 class=\"text-lg font-black text-primary mb-1\">لا توجد نطاقات تغطية مضافة حتى الآن</h3><p class=\"text-sm text-muted mb-4 max-w-md mx-auto\">قم بإنشاء جدول التغطية الأسبوعية لفرعك ومندوبيك لتتمكن الصيدليات الواقعة في نطاق مدنك من رؤية منتجاتك وطلبها.</p><a href=\"#builder-section\" class=\"btn btn-primary font-bold\">+ إنشاء أول نطاق تغطية</a></div>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 43, "</span></div><h3 class=\"text-lg font-black text-primary mb-1\">لا توجد نطاقات تغطية مضافة حتى الآن</h3><p class=\"text-sm text-muted mb-4 max-w-md mx-auto\">قم بإنشاء جدول التغطية الأسبوعية لفرعك ومندوبيك لتتمكن الصيدليات الواقعة في نطاق مدنك من رؤية منتجاتك وطلبها.</p><a href=\"#builder-section\" class=\"btn btn-primary font-bold\">+ إنشاء أول نطاق تغطية</a></div>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			} else {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 43, "<div class=\"table-container m-0\"><table class=\"data-table m-0\"><thead><tr><th>يوم التغطية</th><th>المحافظة والمدينة</th><th>الإحداثيات الجغرافية (GPS)</th><th>نصف القطر (المدى)</th><th>مواعيد العمل</th><th>الفرع</th><th>الحالة</th><th class=\"text-center\">الإجراءات</th></tr></thead> <tbody>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 44, "<div class=\"table-container m-0\"><table class=\"data-table m-0\"><thead><tr><th>يوم التغطية</th><th>المحافظة والمدينة</th><th>الإحداثيات الجغرافية (GPS)</th><th>نصف القطر (المدى)</th><th>مواعيد العمل</th><th>الفرع</th><th>الحالة</th><th class=\"text-center\">الإجراءات</th></tr></thead> <tbody>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				for _, c := range data.Coverages {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 44, "<tr x-show=\"")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 45, "<tr x-show=\"")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -567,7 +575,7 @@ func VendorCoveragePage(data VendorCoverageData, lang, dir string) templ.Compone
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 45, "\"><!-- Day Badge --><td>")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 46, "\"><!-- Day Badge --><td>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -576,7 +584,7 @@ func VendorCoveragePage(data VendorCoverageData, lang, dir string) templ.Compone
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 46, "<span class=\"")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 47, "<span class=\"")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -589,7 +597,7 @@ func VendorCoveragePage(data VendorCoverageData, lang, dir string) templ.Compone
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 47, "\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 48, "\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -602,7 +610,7 @@ func VendorCoveragePage(data VendorCoverageData, lang, dir string) templ.Compone
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 48, "</span></td><!-- Governorate & City --><td><div class=\"font-extrabold text-sm text-primary\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 49, "</span></td><!-- Governorate & City --><td><div class=\"font-extrabold text-sm text-primary\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -616,7 +624,7 @@ func VendorCoveragePage(data VendorCoverageData, lang, dir string) templ.Compone
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 49, " ")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 50, " ")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
@@ -630,18 +638,18 @@ func VendorCoveragePage(data VendorCoverageData, lang, dir string) templ.Compone
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 50, " ")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 51, " ")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
 					} else {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 51, "مصر ")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 52, "مصر ")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
 					}
 					if c.CityNameAr != "" || c.CityName != "" {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 52, "<span class=\"text-muted mx-1\">›</span> <span class=\"text-brand\">")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 53, "<span class=\"text-muted mx-1\">›</span> <span class=\"text-brand\">")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
@@ -666,17 +674,17 @@ func VendorCoveragePage(data VendorCoverageData, lang, dir string) templ.Compone
 								return templ_7745c5c3_Err
 							}
 						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 53, "</span>")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 54, "</span>")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 54, "</div>")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 55, "</div>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 					if c.Address != "" && c.Address != c.CityNameAr {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 55, "<div class=\"text-xs text-muted mt-1\">")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 56, "<div class=\"text-xs text-muted mt-1\">")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
@@ -689,17 +697,17 @@ func VendorCoveragePage(data VendorCoverageData, lang, dir string) templ.Compone
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 56, "</div>")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 57, "</div>")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 57, "</td><!-- GPS Coordinates & Map Link --><td class=\"font-mono text-xs\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 58, "</td><!-- GPS Coordinates & Map Link --><td class=\"font-mono text-xs\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 					if c.Latitude != nil && c.Longitude != nil {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 58, "<div class=\"d-flex items-center gap-2\"><span>")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 59, "<div class=\"d-flex items-center gap-2\"><span>")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
@@ -712,7 +720,7 @@ func VendorCoveragePage(data VendorCoverageData, lang, dir string) templ.Compone
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 59, "</span> <a href=\"")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 60, "</span> <a href=\"")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
@@ -725,7 +733,7 @@ func VendorCoveragePage(data VendorCoverageData, lang, dir string) templ.Compone
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 60, "\" target=\"_blank\" title=\"معاينة على خرائط جوجل\" class=\"text-decoration-none\">")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 61, "\" target=\"_blank\" title=\"معاينة على خرائط جوجل\" class=\"text-decoration-none\">")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
@@ -733,17 +741,17 @@ func VendorCoveragePage(data VendorCoverageData, lang, dir string) templ.Compone
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 61, "</a></div>")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 62, "</a></div>")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
 					} else {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 62, "<span class=\"text-muted text-xs\">إحداثيات مركز الفرع</span>")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 63, "<span class=\"text-muted text-xs\">إحداثيات مركز الفرع</span>")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 63, "</td><!-- Radius Distance --><td><span class=\"badge badge-primary\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 64, "</td><!-- Radius Distance --><td><span class=\"badge badge-primary\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -756,12 +764,12 @@ func VendorCoveragePage(data VendorCoverageData, lang, dir string) templ.Compone
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 64, "</span></td><!-- Coverage Time Window --><td>")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 65, "</span></td><!-- Coverage Time Window --><td>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 					if c.CoverageFrom != nil && c.CoverageTo != nil && *c.CoverageFrom != "" {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 65, "<span class=\"badge badge-secondary font-bold\">")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 66, "<span class=\"badge badge-secondary font-bold\">")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
@@ -774,7 +782,7 @@ func VendorCoveragePage(data VendorCoverageData, lang, dir string) templ.Compone
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 66, " - ")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 67, " - ")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
@@ -787,17 +795,17 @@ func VendorCoveragePage(data VendorCoverageData, lang, dir string) templ.Compone
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 67, "</span>")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 68, "</span>")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
 					} else {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 68, "<span class=\"text-muted text-xs\">طوال اليوم</span>")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 69, "<span class=\"text-muted text-xs\">طوال اليوم</span>")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 69, "</td><!-- Branch --><td class=\"text-sm font-semibold text-primary\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 70, "</td><!-- Branch --><td class=\"text-sm font-semibold text-primary\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -810,7 +818,7 @@ func VendorCoveragePage(data VendorCoverageData, lang, dir string) templ.Compone
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 70, "</td><!-- Status Toggle --><td><form method=\"POST\" action=\"")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 71, "</td><!-- Status Toggle --><td><form method=\"POST\" action=\"")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -823,7 +831,7 @@ func VendorCoveragePage(data VendorCoverageData, lang, dir string) templ.Compone
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 71, "\" class=\"d-inline\"><input type=\"hidden\" name=\"gorilla.csrf.Token\" value=\"\"> <input type=\"hidden\" name=\"id\" value=\"")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 72, "\" class=\"d-inline\"><input type=\"hidden\" name=\"gorilla.csrf.Token\" value=\"\"> <input type=\"hidden\" name=\"id\" value=\"")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -836,22 +844,22 @@ func VendorCoveragePage(data VendorCoverageData, lang, dir string) templ.Compone
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 72, "\"> ")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 73, "\"> ")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 					if c.IsActive {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 73, "<button type=\"submit\" class=\"badge badge-emerald border-0 cursor-pointer font-bold\" title=\"اضغط للتعطيل\">● نشط ومتاح</button>")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 74, "<button type=\"submit\" class=\"badge badge-emerald border-0 cursor-pointer font-bold\" title=\"اضغط للتعطيل\">● نشط ومتاح</button>")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
 					} else {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 74, "<button type=\"submit\" class=\"badge badge-secondary border-0 cursor-pointer font-bold\" title=\"اضغط للتفعيل\">○ معطل مؤقتاً</button>")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 75, "<button type=\"submit\" class=\"badge badge-secondary border-0 cursor-pointer font-bold\" title=\"اضغط للتفعيل\">○ معطل مؤقتاً</button>")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 75, "</form></td><!-- Actions --><td class=\"text-center\"><div class=\"d-inline-flex items-center gap-2\"><button type=\"button\" @click=\"")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 76, "</form></td><!-- Actions --><td class=\"text-center\"><div class=\"d-inline-flex items-center gap-2\"><button type=\"button\" @click=\"")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -913,7 +921,7 @@ func VendorCoveragePage(data VendorCoverageData, lang, dir string) templ.Compone
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 76, "\" class=\"btn btn-2xs btn-secondary\" title=\"تعديل النطاق\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 77, "\" class=\"btn btn-2xs btn-secondary\" title=\"تعديل النطاق\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -921,7 +929,7 @@ func VendorCoveragePage(data VendorCoverageData, lang, dir string) templ.Compone
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 77, "</button><form method=\"POST\" action=\"")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 78, "</button><form method=\"POST\" action=\"")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -934,7 +942,7 @@ func VendorCoveragePage(data VendorCoverageData, lang, dir string) templ.Compone
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 78, "\" onsubmit=\"return confirm('هل أنت متأكد من حذف نطاق التغطية هذا؟');\" class=\"d-inline\"><input type=\"hidden\" name=\"gorilla.csrf.Token\" value=\"\"> <input type=\"hidden\" name=\"id\" value=\"")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 79, "\" onsubmit=\"return confirm('هل أنت متأكد من حذف نطاق التغطية هذا؟');\" class=\"d-inline\"><input type=\"hidden\" name=\"gorilla.csrf.Token\" value=\"\"> <input type=\"hidden\" name=\"id\" value=\"")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -947,7 +955,7 @@ func VendorCoveragePage(data VendorCoverageData, lang, dir string) templ.Compone
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 79, "\"> <button type=\"submit\" class=\"btn btn-2xs btn-danger\" title=\"حذف النطاق\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 80, "\"> <button type=\"submit\" class=\"btn btn-2xs btn-danger\" title=\"حذف النطاق\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -955,17 +963,17 @@ func VendorCoveragePage(data VendorCoverageData, lang, dir string) templ.Compone
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 80, "</button></form></div></td></tr>")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 81, "</button></form></div></td></tr>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 81, "</tbody></table></div>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 82, "</tbody></table></div>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 82, "</div><!-- Delivery Distance Pricing Bands --><div class=\"glass-panel p-6 mb-6\"><div class=\"flex-between items-center mb-6 pb-4 border-b flex-wrap gap-3\"><div><h2 class=\"text-lg font-black text-primary m-0 d-flex items-center gap-2\"><span>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 83, "</div><!-- Delivery Distance Pricing Bands --><div class=\"glass-panel p-6 mb-6\"><div class=\"flex-between items-center mb-6 pb-4 border-b flex-wrap gap-3\"><div><h2 class=\"text-lg font-black text-primary m-0 d-flex items-center gap-2\"><span>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -973,7 +981,7 @@ func VendorCoveragePage(data VendorCoverageData, lang, dir string) templ.Compone
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 83, "</span> <span>شرائح ورسوم التوصيل حسب المسافة (Delivery Distance Bands)</span></h2><p class=\"text-xs text-muted mt-1 m-0\">تحديد تكلفة الشحن الإضافية للطلبات بناءً على بُعد الصيدلية بالمتر (أو الكيلومتر) عن مركز التغطية ونقطة التوزيع. (1000 متر = 1 كم).</p></div></div><div class=\"d-grid gap-6\" style=\"grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));\"><!-- Add Delivery Band Form --><form method=\"POST\" action=\"/vendor/delivery-bands/create\" class=\"bg-surface-sunken p-5 rounded-xl border d-flex flex-col gap-4\"><input type=\"hidden\" name=\"gorilla.csrf.Token\" value=\"\"><div class=\"font-extrabold text-sm text-primary d-flex items-center gap-2\"><span>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 84, "</span> <span>شرائح ورسوم التوصيل حسب المسافة (Delivery Distance Bands)</span></h2><p class=\"text-xs text-muted mt-1 m-0\">تحديد تكلفة الشحن الإضافية للطلبات بناءً على بُعد الصيدلية بالمتر (أو الكيلومتر) عن مركز التغطية ونقطة التوزيع. (1000 متر = 1 كم).</p></div></div><div class=\"d-grid gap-6\" style=\"grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));\"><!-- Add Delivery Band Form --><form method=\"POST\" action=\"/vendor/delivery-bands/create\" class=\"bg-surface-sunken p-5 rounded-xl border d-flex flex-col gap-4\"><input type=\"hidden\" name=\"gorilla.csrf.Token\" value=\"\"><div class=\"font-extrabold text-sm text-primary d-flex items-center gap-2\"><span>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -981,7 +989,7 @@ func VendorCoveragePage(data VendorCoverageData, lang, dir string) templ.Compone
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 84, "</span> <span>إضافة شريحة تسعير جديدة بالمتر</span></div><div class=\"d-grid gap-3\" style=\"grid-template-columns: 1fr 1fr 1fr;\"><div><span class=\"text-xs font-bold text-primary d-block mb-1\">من (متر):</span> <input type=\"number\" name=\"from_meters\" min=\"0\" step=\"1\" value=\"0\" class=\"form-control font-bold\" placeholder=\"0 م\" required></div><div><span class=\"text-xs font-bold text-primary d-block mb-1\">إلى (متر):</span> <input type=\"number\" name=\"to_meters\" min=\"0\" step=\"1\" value=\"5000\" class=\"form-control font-bold\" placeholder=\"5000 م\" required></div><div><span class=\"text-xs font-bold text-primary d-block mb-1\">الرسوم (")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 85, "</span> <span>إضافة شريحة تسعير جديدة بالمتر</span></div><div class=\"d-grid gap-3\" style=\"grid-template-columns: 1fr 1fr 1fr;\"><div><span class=\"text-xs font-bold text-primary d-block mb-1\">من (متر):</span> <input type=\"number\" name=\"from_meters\" min=\"0\" step=\"1\" value=\"0\" class=\"form-control font-bold\" placeholder=\"0 م\" required></div><div><span class=\"text-xs font-bold text-primary d-block mb-1\">إلى (متر):</span> <input type=\"number\" name=\"to_meters\" min=\"0\" step=\"1\" value=\"5000\" class=\"form-control font-bold\" placeholder=\"5000 م\" required></div><div><span class=\"text-xs font-bold text-primary d-block mb-1\">الرسوم (")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -994,22 +1002,22 @@ func VendorCoveragePage(data VendorCoverageData, lang, dir string) templ.Compone
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 85, "):</span> <input type=\"number\" step=\"any\" name=\"delivery_fee\" min=\"0\" value=\"30\" class=\"form-control font-bold\" placeholder=\"30\" required></div></div><button type=\"submit\" class=\"btn btn-primary btn-sm font-bold align-self-start shadow-xs\">حفظ الشريحة</button></form><!-- List of Existing Bands --><div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 86, "):</span> <input type=\"number\" step=\"any\" name=\"delivery_fee\" min=\"0\" value=\"30\" class=\"form-control font-bold\" placeholder=\"30\" required></div></div><button type=\"submit\" class=\"btn btn-primary btn-sm font-bold align-self-start shadow-xs\">حفظ الشريحة</button></form><!-- List of Existing Bands --><div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			if len(data.Bands) == 0 {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 86, "<div class=\"p-8 text-center text-muted text-sm bg-surface-sunken rounded-xl border border-dashed\">لا توجد شرائح تسعير مخصصة حالياً (يتم تطبيق التوصيل المجاني أو السعر الأساسي الافتراضي).</div>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 87, "<div class=\"p-8 text-center text-muted text-sm bg-surface-sunken rounded-xl border border-dashed\">لا توجد شرائح تسعير مخصصة حالياً (يتم تطبيق التوصيل المجاني أو السعر الأساسي الافتراضي).</div>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			} else {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 87, "<div class=\"d-flex flex-col gap-2\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 88, "<div class=\"d-flex flex-col gap-2\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				for _, band := range data.Bands {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 88, "<div class=\"flex-between items-center p-3 bg-surface-raised border rounded-xl shadow-xs\"><div><div class=\"font-extrabold text-sm text-primary tabular-nums\">من ")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 89, "<div class=\"flex-between items-center p-3 bg-surface-raised border rounded-xl shadow-xs\"><div><div class=\"font-extrabold text-sm text-primary tabular-nums\">من ")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -1022,7 +1030,7 @@ func VendorCoveragePage(data VendorCoverageData, lang, dir string) templ.Compone
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 89, " م إلى ")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 90, " م إلى ")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -1035,7 +1043,7 @@ func VendorCoveragePage(data VendorCoverageData, lang, dir string) templ.Compone
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 90, " م</div><div class=\"text-xs text-muted mt-1\">(يعادل ")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 91, " م</div><div class=\"text-xs text-muted mt-1\">(يعادل ")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -1048,7 +1056,7 @@ func VendorCoveragePage(data VendorCoverageData, lang, dir string) templ.Compone
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 91, " كم إلى ")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 92, " كم إلى ")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -1061,7 +1069,7 @@ func VendorCoveragePage(data VendorCoverageData, lang, dir string) templ.Compone
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 92, " كم)</div></div><div class=\"d-flex items-center gap-3\"><span class=\"badge badge-primary font-bold\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 93, " كم)</div></div><div class=\"d-flex items-center gap-3\"><span class=\"badge badge-primary font-bold\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -1074,7 +1082,7 @@ func VendorCoveragePage(data VendorCoverageData, lang, dir string) templ.Compone
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 93, "</span><form method=\"POST\" action=\"")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 94, "</span><form method=\"POST\" action=\"")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -1087,7 +1095,7 @@ func VendorCoveragePage(data VendorCoverageData, lang, dir string) templ.Compone
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 94, "\" onsubmit=\"return confirm('هل أنت متأكد من حذف شريحة التوصيل هذه؟');\" class=\"d-inline\"><input type=\"hidden\" name=\"gorilla.csrf.Token\" value=\"\"> <button type=\"submit\" class=\"btn btn-2xs btn-danger\" title=\"حذف الشريحة\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 95, "\" onsubmit=\"return confirm('هل أنت متأكد من حذف شريحة التوصيل هذه؟');\" class=\"d-inline\"><input type=\"hidden\" name=\"gorilla.csrf.Token\" value=\"\"> <button type=\"submit\" class=\"btn btn-2xs btn-danger\" title=\"حذف الشريحة\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -1095,17 +1103,17 @@ func VendorCoveragePage(data VendorCoverageData, lang, dir string) templ.Compone
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 95, "</button></form></div></div>")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 96, "</button></form></div></div>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 96, "</div>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 97, "</div>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 97, "</div></div></div><!-- Edit Coverage Modal --><div x-show=\"editModalOpen\" x-cloak class=\"modal-overlay\"><div class=\"modal-box modal-md\" @click.away=\"closeEdit()\"><div class=\"modal-header\"><h3 class=\"modal-title d-flex items-center gap-2\"><span>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 98, "</div></div></div><!-- Edit Coverage Modal --><div x-show=\"editModalOpen\" x-cloak class=\"modal-overlay\"><div class=\"modal-box modal-md\" @click.away=\"closeEdit()\"><div class=\"modal-header\"><h3 class=\"modal-title d-flex items-center gap-2\"><span>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -1113,7 +1121,7 @@ func VendorCoveragePage(data VendorCoverageData, lang, dir string) templ.Compone
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 98, "</span> <span>تعديل نطاق التغطية الأسبوعية</span></h3><button type=\"button\" @click=\"closeEdit()\" class=\"modal-close\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 99, "</span> <span>تعديل نطاق التغطية الأسبوعية</span></h3><button type=\"button\" @click=\"closeEdit()\" class=\"modal-close\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -1121,12 +1129,12 @@ func VendorCoveragePage(data VendorCoverageData, lang, dir string) templ.Compone
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 99, "</button></div><form :action=\"'/vendor/coverage/' + editCov.id + '/update'\" method=\"POST\" class=\"d-flex flex-col flex-1 overflow-hidden\"><div class=\"modal-body d-flex flex-col gap-4\"><input type=\"hidden\" name=\"gorilla.csrf.Token\" value=\"\"> <input type=\"hidden\" name=\"id\" :value=\"editCov.id\"> <input type=\"hidden\" name=\"coverage_id\" :value=\"editCov.id\"><div><label class=\"d-block text-xs font-bold mb-1 text-primary\">يوم الأسبوع</label> <select name=\"day_of_week\" x-model=\"editCov.day_of_week\" class=\"form-control font-bold\"><option value=\"6\">السبت</option> <option value=\"0\">الأحد</option> <option value=\"1\">الاثنين</option> <option value=\"2\">الثلاثاء</option> <option value=\"3\">الأربعاء</option> <option value=\"4\">الخميس</option> <option value=\"5\">الجمعة</option></select></div><div><label class=\"d-block text-xs font-bold mb-1 text-primary\">الفرع المسؤول</label> <select name=\"branch_id\" x-model=\"editCov.branch_id\" class=\"form-control\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 100, "</button></div><form :action=\"'/vendor/coverage/' + editCov.id + '/update'\" method=\"POST\" class=\"d-flex flex-col flex-1 overflow-hidden\"><div class=\"modal-body d-flex flex-col gap-4\"><input type=\"hidden\" name=\"gorilla.csrf.Token\" value=\"\"> <input type=\"hidden\" name=\"id\" :value=\"editCov.id\"> <input type=\"hidden\" name=\"coverage_id\" :value=\"editCov.id\"><div><label class=\"d-block text-xs font-bold mb-1 text-primary\">يوم الأسبوع</label> <select name=\"day_of_week\" x-model=\"editCov.day_of_week\" class=\"form-control font-bold\"><option value=\"6\">السبت</option> <option value=\"0\">الأحد</option> <option value=\"1\">الاثنين</option> <option value=\"2\">الثلاثاء</option> <option value=\"3\">الأربعاء</option> <option value=\"4\">الخميس</option> <option value=\"5\">الجمعة</option></select></div><div><label class=\"d-block text-xs font-bold mb-1 text-primary\">الفرع المسؤول</label> <select name=\"branch_id\" x-model=\"editCov.branch_id\" class=\"form-control\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			for _, b := range data.Branches {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 100, "<option value=\"")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 101, "<option value=\"")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -1139,7 +1147,7 @@ func VendorCoveragePage(data VendorCoverageData, lang, dir string) templ.Compone
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 101, "\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 102, "\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -1152,17 +1160,17 @@ func VendorCoveragePage(data VendorCoverageData, lang, dir string) templ.Compone
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 102, "</option>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 103, "</option>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 103, "</select></div><div><label class=\"d-block text-xs font-bold mb-1 text-primary\">المدينة / المركز</label> <select name=\"city_id\" x-model=\"editCov.city_id\" class=\"form-control\"><option value=\"\">-- المدينة --</option> ")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 104, "</select></div><div><label class=\"d-block text-xs font-bold mb-1 text-primary\">المدينة / المركز</label> <select name=\"city_id\" x-model=\"editCov.city_id\" class=\"form-control\"><option value=\"\">-- المدينة --</option> ")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			for _, c := range data.Cities {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 104, "<option value=\"")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 105, "<option value=\"")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -1175,7 +1183,7 @@ func VendorCoveragePage(data VendorCoverageData, lang, dir string) templ.Compone
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 105, "\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 106, "\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -1188,12 +1196,12 @@ func VendorCoveragePage(data VendorCoverageData, lang, dir string) templ.Compone
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 106, "</option>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 107, "</option>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 107, "</select></div><div class=\"d-grid gap-3\" style=\"grid-template-columns: 1fr 1fr;\"><div><label class=\"d-block text-xs font-bold mb-1 text-primary\">من (وقت البدء)</label> <input type=\"time\" name=\"coverage_from\" x-model=\"editCov.coverage_from\" class=\"form-control text-xs\"></div><div><label class=\"d-block text-xs font-bold mb-1 text-primary\">إلى (وقت النهاية)</label> <input type=\"time\" name=\"coverage_to\" x-model=\"editCov.coverage_to\" class=\"form-control text-xs\"></div></div><div><label class=\"d-block text-xs font-bold mb-1 text-primary\">نصف القطر (بالمتر)</label><div class=\"d-flex items-center gap-2\"><input type=\"number\" name=\"distance_meters\" x-model=\"editCov.distance_meters\" min=\"1\" max=\"1000000\" step=\"1\" class=\"form-control text-xs font-bold flex-1\" required> <span class=\"badge badge-primary text-xs\" x-text=\"((editCov.distance_meters || 5000) / 1000).toFixed(1) + ' كم'\"></span></div></div><div><label class=\"d-block text-xs font-bold mb-1 text-primary\">العنوان أو الوصف الميداني (اختياري)</label> <input type=\"text\" name=\"address\" x-model=\"editCov.address\" placeholder=\"مثال: قطاع شمال المدينة حتى الطريق الدائري\" class=\"form-control text-xs\"></div><div class=\"d-flex items-center gap-2 mt-2\"><input type=\"checkbox\" name=\"is_active\" value=\"true\" :checked=\"editCov.is_active\" id=\"edit_is_active\" class=\"w-4 h-4\"> <label for=\"edit_is_active\" class=\"text-xs font-bold text-primary cursor-pointer\">تفعيل هذا النطاق وجعله متاحاً للطلبات</label></div></div><div class=\"modal-footer\"><button type=\"button\" @click=\"closeEdit()\" class=\"btn btn-secondary btn-sm font-bold\">إلغاء</button> <button type=\"submit\" class=\"btn btn-primary btn-sm font-extrabold px-6\">حفظ التعديلات</button></div></form></div></div></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 108, "</select></div><div class=\"d-grid gap-3\" style=\"grid-template-columns: 1fr 1fr;\"><div><label class=\"d-block text-xs font-bold mb-1 text-primary\">من (وقت البدء)</label> <input type=\"time\" name=\"coverage_from\" x-model=\"editCov.coverage_from\" class=\"form-control text-xs\"></div><div><label class=\"d-block text-xs font-bold mb-1 text-primary\">إلى (وقت النهاية)</label> <input type=\"time\" name=\"coverage_to\" x-model=\"editCov.coverage_to\" class=\"form-control text-xs\"></div></div><div><label class=\"d-block text-xs font-bold mb-1 text-primary\">نصف القطر (بالمتر)</label><div class=\"d-flex items-center gap-2\"><input type=\"number\" name=\"distance_meters\" x-model=\"editCov.distance_meters\" min=\"1\" max=\"1000000\" step=\"1\" class=\"form-control text-xs font-bold flex-1\" required> <span class=\"badge badge-primary text-xs\" x-text=\"((editCov.distance_meters || 5000) / 1000).toFixed(1) + ' كم'\"></span></div></div><div><label class=\"d-block text-xs font-bold mb-1 text-primary\">العنوان أو الوصف الميداني (اختياري)</label> <input type=\"text\" name=\"address\" x-model=\"editCov.address\" placeholder=\"مثال: قطاع شمال المدينة حتى الطريق الدائري\" class=\"form-control text-xs\"></div><div class=\"d-flex items-center gap-2 mt-2\"><input type=\"checkbox\" name=\"is_active\" value=\"true\" :checked=\"editCov.is_active\" id=\"edit_is_active\" class=\"w-4 h-4\"> <label for=\"edit_is_active\" class=\"text-xs font-bold text-primary cursor-pointer\">تفعيل هذا النطاق وجعله متاحاً للطلبات</label></div></div><div class=\"modal-footer\"><button type=\"button\" @click=\"closeEdit()\" class=\"btn btn-secondary btn-sm font-bold\">إلغاء</button> <button type=\"submit\" class=\"btn btn-primary btn-sm font-extrabold px-6\">حفظ التعديلات</button></div></form></div></div></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

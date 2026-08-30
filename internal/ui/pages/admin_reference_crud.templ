@@ -24,7 +24,7 @@ templ AdminReferenceCRUDPage(title string, sectionKey string, itemLabel string, 
 				<div class="flex-between items-center flex-wrap gap-4">
 					<div class="d-flex items-center gap-3">
 						<div class="user-avatar-badge text-xl">
-							📑
+							@components.IconFileText("icon-sm")
 						</div>
 						<div>
 							<h1 class="text-2xl font-black text-primary m-0">{ title } ({ fmt.Sprintf("%d", len(items)) })</h1>
@@ -41,7 +41,7 @@ templ AdminReferenceCRUDPage(title string, sectionKey string, itemLabel string, 
 			<div class="glass-panel p-0 mb-6 overflow-hidden">
 				if len(items) == 0 {
 					<div class="p-8 text-center empty-state-glass">
-						<div class="text-4xl mb-3">📑</div>
+						<div class="text-4xl mb-3">@components.IconFileText("icon-sm")</div>
 						<h3 class="text-lg font-black text-primary mb-2">لا توجد سجلات { itemLabel }</h3>
 						<p class="text-sm text-secondary max-w-md mx-auto">لم يتم تسجيل أي بيانات بعد.</p>
 					</div>

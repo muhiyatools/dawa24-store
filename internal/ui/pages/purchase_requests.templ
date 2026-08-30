@@ -128,7 +128,7 @@ templ VendorPurchaseRequestsPage(lang, dir string, requests []*commerce.Purchase
 
 			if len(requests) == 0 {
 				<div class="glass-panel p-12 text-center empty-state-glass">
-					<div class="text-4xl mb-3">📭</div>
+					<div class="text-4xl mb-3">@components.IconMail("icon-sm")</div>
 					<h3 class="text-lg font-black text-primary mb-2">لا توجد طلبات شراء واردة</h3>
 					<p class="text-sm text-secondary max-w-md mx-auto">لم تتلق منشأتك طلبات شراء جديدة في هذا القسم حالياً.</p>
 				</div>

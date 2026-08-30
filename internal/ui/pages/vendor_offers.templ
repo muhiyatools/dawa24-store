@@ -24,7 +24,7 @@ templ VendorSpecialOffersPage(data VendorSpecialOffersData, lang, dir string) {
 					<div>
 						<div class="d-flex items-center gap-3 mb-1">
 							<div class="user-avatar-badge text-xl">
-								🎁
+								@components.IconPackage("icon-sm")
 							</div>
 							<h1 class="text-2xl font-black text-primary m-0">
 								العروض الخاصة والتغطية الجغرافية
@@ -99,7 +99,7 @@ templ VendorSpecialOffersPage(data VendorSpecialOffersData, lang, dir string) {
 			<!-- Offers Grid List -->
 			if len(data.Offers) == 0 {
 				<div class="glass-panel p-12 text-center empty-state-glass">
-					<div class="text-4xl mb-3">🎁</div>
+					<div class="text-4xl mb-3">@components.IconPackage("icon-sm")</div>
 					<h3 class="text-lg font-black text-primary mb-2">
 						لا توجد عروض خاصة مضافة حتى الآن
 					</h3>

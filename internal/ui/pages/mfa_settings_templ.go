@@ -118,7 +118,15 @@ func mfaSettingsContent(lang, dir string, data MFASettingsViewData) templ.Compon
 			templ_7745c5c3_Var4 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"page-container\" style=\"max-width:920px; margin:0 auto; padding:1.5rem 1rem 3rem 1rem;\"><!-- Header with Navigation Tabs --><div style=\"display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem; margin-bottom:1.5rem;\"><div><h1 style=\"font-size:1.35rem; font-weight:800; color:var(--text); margin:0; display:flex; align-items:center; gap:0.5rem;\"><span style=\"font-size:1.35rem;\">🛡️</span> <span>المصادقة الثنائية (Google Authenticator)</span></h1><p style=\"color:var(--text-secondary); font-size:0.85rem; margin:0.25rem 0 0 0;\">حماية حسابك الشخصي بطبقة أمان إضافية لمنع الوصول غير المصرح به</p></div><!-- Sub-nav pills --><div style=\"display:flex; gap:0.5rem; align-items:center;\"><a href=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"page-container\" style=\"max-width:920px; margin:0 auto; padding:1.5rem 1rem 3rem 1rem;\"><!-- Header with Navigation Tabs --><div style=\"display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem; margin-bottom:1.5rem;\"><div><h1 style=\"font-size:1.35rem; font-weight:800; color:var(--text); margin:0; display:flex; align-items:center; gap:0.5rem;\"><span style=\"font-size:1.35rem;\">")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = components.IconShield("icon-sm").Render(ctx, templ_7745c5c3_Buffer)
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</span> <span>المصادقة الثنائية (Google Authenticator)</span></h1><p style=\"color:var(--text-secondary); font-size:0.85rem; margin:0.25rem 0 0 0;\">حماية حسابك الشخصي بطبقة أمان إضافية لمنع الوصول غير المصرح به</p></div><!-- Sub-nav pills --><div style=\"display:flex; gap:0.5rem; align-items:center;\"><a href=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -131,7 +139,7 @@ func mfaSettingsContent(lang, dir string, data MFASettingsViewData) templ.Compon
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "\" class=\"btn btn-secondary btn-sm font-bold rounded-lg\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "\" class=\"btn btn-secondary btn-sm font-bold rounded-lg\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -139,7 +147,7 @@ func mfaSettingsContent(lang, dir string, data MFASettingsViewData) templ.Compon
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "<span>الأجهزة والجلسات</span></a> <a href=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "<span>الأجهزة والجلسات</span></a> <a href=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -152,13 +160,21 @@ func mfaSettingsContent(lang, dir string, data MFASettingsViewData) templ.Compon
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "\" class=\"btn btn-primary btn-sm font-bold rounded-lg\"><span>🛡️</span> <span>المصادقة الثنائية</span></a></div></div><!-- Flash Notices -->")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "\" class=\"btn btn-primary btn-sm font-bold rounded-lg\"><span>")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = components.IconShield("icon-sm").Render(ctx, templ_7745c5c3_Buffer)
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "</span> <span>المصادقة الثنائية</span></a></div></div><!-- Flash Notices -->")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		if data.NoticeMessage != "" {
 			if data.NoticeType == "error" {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "<div class=\"alert alert-danger\" style=\"border-radius:var(--radius-lg); padding:0.75rem 1rem; margin-bottom:1.25rem; font-size:0.875rem; font-weight:600; display:flex; align-items:center; gap:0.5rem;\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "<div class=\"alert alert-danger\" style=\"border-radius:var(--radius-lg); padding:0.75rem 1rem; margin-bottom:1.25rem; font-size:0.875rem; font-weight:600; display:flex; align-items:center; gap:0.5rem;\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -166,7 +182,7 @@ func mfaSettingsContent(lang, dir string, data MFASettingsViewData) templ.Compon
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "<span>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "<span>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -179,12 +195,12 @@ func mfaSettingsContent(lang, dir string, data MFASettingsViewData) templ.Compon
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "</span></div>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "</span></div>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			} else {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "<div class=\"alert alert-success\" style=\"border-radius:var(--radius-lg); padding:0.75rem 1rem; margin-bottom:1.25rem; font-size:0.875rem; font-weight:600; display:flex; align-items:center; gap:0.5rem;\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "<div class=\"alert alert-success\" style=\"border-radius:var(--radius-lg); padding:0.75rem 1rem; margin-bottom:1.25rem; font-size:0.875rem; font-weight:600; display:flex; align-items:center; gap:0.5rem;\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -192,7 +208,7 @@ func mfaSettingsContent(lang, dir string, data MFASettingsViewData) templ.Compon
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "<span>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "<span>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -205,23 +221,23 @@ func mfaSettingsContent(lang, dir string, data MFASettingsViewData) templ.Compon
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "</span></div>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "</span></div>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "<!-- Just Activated Recovery Codes Modal / Banner -->")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "<!-- Just Activated Recovery Codes Modal / Banner -->")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		if len(data.RecoveryCodes) > 0 {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "<div class=\"card p-6 mb-6\" style=\"background:var(--surface-raised); border:2px solid var(--emerald); border-radius:var(--radius-2xl); box-shadow:0 10px 25px rgba(16, 185, 129, 0.15);\"><div style=\"display:flex; align-items:flex-start; gap:0.75rem; margin-bottom:1rem;\"><span style=\"font-size:1.75rem; line-height:1;\">🎉</span><div><h3 style=\"font-size:1.15rem; font-weight:900; color:var(--emerald-text, #10b981); margin:0;\">تم تفعيل المصادقة الثنائية بنجاح!</h3><p style=\"font-size:0.85rem; color:var(--text); margin:0.25rem 0 0 0; font-weight:600;\">هام جداً: احفظ رموز الاسترداد الاحتياطية أدناه في مكان آمن. ستتيح لك تسجيل الدخول إذا فقدت الوصول لهاتفك.</p></div></div><div style=\"background:var(--surface-sunken); border:1px solid var(--border); border-radius:var(--radius-xl); padding:1rem; margin-bottom:1rem;\"><div style=\"display:grid; grid-template-columns:repeat(auto-fill, minmax(140px, 1fr)); gap:0.75rem;\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "<div class=\"card p-6 mb-6\" style=\"background:var(--surface-raised); border:2px solid var(--emerald); border-radius:var(--radius-2xl); box-shadow:0 10px 25px rgba(16, 185, 129, 0.15);\"><div style=\"display:flex; align-items:flex-start; gap:0.75rem; margin-bottom:1rem;\"><span style=\"font-size:1.75rem; line-height:1;\">🎉</span><div><h3 style=\"font-size:1.15rem; font-weight:900; color:var(--emerald-text, #10b981); margin:0;\">تم تفعيل المصادقة الثنائية بنجاح!</h3><p style=\"font-size:0.85rem; color:var(--text); margin:0.25rem 0 0 0; font-weight:600;\">هام جداً: احفظ رموز الاسترداد الاحتياطية أدناه في مكان آمن. ستتيح لك تسجيل الدخول إذا فقدت الوصول لهاتفك.</p></div></div><div style=\"background:var(--surface-sunken); border:1px solid var(--border); border-radius:var(--radius-xl); padding:1rem; margin-bottom:1rem;\"><div style=\"display:grid; grid-template-columns:repeat(auto-fill, minmax(140px, 1fr)); gap:0.75rem;\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			for _, code := range data.RecoveryCodes {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "<div class=\"font-mono text-center font-bold text-sm tabular-nums\" style=\"background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-md); padding:0.4rem 0.6rem; letter-spacing:0.05em;\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "<div class=\"font-mono text-center font-bold text-sm tabular-nums\" style=\"background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-md); padding:0.4rem 0.6rem; letter-spacing:0.05em;\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -234,12 +250,12 @@ func mfaSettingsContent(lang, dir string, data MFASettingsViewData) templ.Compon
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "</div>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "</div>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "</div></div><div class=\"flex-between flex-wrap gap-3\"><span style=\"font-size:0.75rem; color:var(--text-muted);\">كل رمز يمكن استخدامه لمرة واحدة فقط كبديل لرمز Google Authenticator.</span> <a href=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "</div></div><div class=\"flex-between flex-wrap gap-3\"><span style=\"font-size:0.75rem; color:var(--text-muted);\">كل رمز يمكن استخدامه لمرة واحدة فقط كبديل لرمز Google Authenticator.</span> <a href=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -252,7 +268,7 @@ func mfaSettingsContent(lang, dir string, data MFASettingsViewData) templ.Compon
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "\" class=\"btn btn-emerald btn-sm font-bold rounded-lg\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "\" class=\"btn btn-emerald btn-sm font-bold rounded-lg\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -260,22 +276,30 @@ func mfaSettingsContent(lang, dir string, data MFASettingsViewData) templ.Compon
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "<span>فهمت، تم حفظ الرموز بأمان</span></a></div></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "<span>فهمت، تم حفظ الرموز بأمان</span></a></div></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "<!-- State 1: MFA is Currently ENABLED -->")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, "<!-- State 1: MFA is Currently ENABLED -->")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		if data.Status != nil && data.Status.Enabled {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "<div class=\"stack-lg\"><!-- Active Status Card --><div class=\"card p-6\" style=\"border-radius:var(--radius-2xl); background:var(--surface); border:1px solid var(--border);\"><div style=\"display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:1rem;\"><div style=\"display:flex; align-items:center; gap:1rem;\"><div style=\"width:56px; height:56px; border-radius:var(--radius-2xl); background:rgba(16, 185, 129, 0.12); color:#10b981; display:flex; align-items:center; justify-content:center; font-size:1.75rem; border:1px solid rgba(16, 185, 129, 0.25);\">🛡️</div><div><div class=\"row-center-sm gap-2\"><h2 style=\"font-size:1.15rem; font-weight:900; color:var(--text); margin:0;\">المصادقة الثنائية مفعلة بحسابك</h2><span class=\"badge badge-emerald font-bold text-xs\">نشط ومؤمن</span></div><p style=\"font-size:0.85rem; color:var(--text-secondary); margin:0.25rem 0 0 0;\">Google Authenticator (TOTP) ")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, "<div class=\"stack-lg\"><!-- Active Status Card --><div class=\"card p-6\" style=\"border-radius:var(--radius-2xl); background:var(--surface); border:1px solid var(--border);\"><div style=\"display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:1rem;\"><div style=\"display:flex; align-items:center; gap:1rem;\"><div style=\"width:56px; height:56px; border-radius:var(--radius-2xl); background:rgba(16, 185, 129, 0.12); color:#10b981; display:flex; align-items:center; justify-content:center; font-size:1.75rem; border:1px solid rgba(16, 185, 129, 0.25);\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = components.IconShield("icon-sm").Render(ctx, templ_7745c5c3_Buffer)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, "</div><div><div class=\"row-center-sm gap-2\"><h2 style=\"font-size:1.15rem; font-weight:900; color:var(--text); margin:0;\">المصادقة الثنائية مفعلة بحسابك</h2><span class=\"badge badge-emerald font-bold text-xs\">نشط ومؤمن</span></div><p style=\"font-size:0.85rem; color:var(--text-secondary); margin:0.25rem 0 0 0;\">Google Authenticator (TOTP) ")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			if data.Status.ConfirmedAt != nil {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, "<span>• مفعل منذ ")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, "<span>• مفعل منذ ")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -288,12 +312,12 @@ func mfaSettingsContent(lang, dir string, data MFASettingsViewData) templ.Compon
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, "</span>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, "</span>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, "</p></div></div></div><div style=\"margin-top:1.5rem; padding-top:1.25rem; border-top:1px solid var(--border); display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:1rem;\"><div style=\"background:var(--surface-sunken); border:1px solid var(--border); border-radius:var(--radius-xl); padding:1rem;\"><div style=\"font-size:0.75rem; font-weight:700; color:var(--text-muted);\">طريقة المصادقة</div><div style=\"font-size:0.95rem; font-weight:800; color:var(--text); margin-top:0.2rem;\">تطبيق Google Authenticator</div></div><div style=\"background:var(--surface-sunken); border:1px solid var(--border); border-radius:var(--radius-xl); padding:1rem;\"><div style=\"font-size:0.75rem; font-weight:700; color:var(--text-muted);\">رموز الاسترداد الاحتياطية</div><div style=\"font-size:0.95rem; font-weight:800; color:var(--text); margin-top:0.2rem;\" class=\"tabular-nums\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 25, "</p></div></div></div><div style=\"margin-top:1.5rem; padding-top:1.25rem; border-top:1px solid var(--border); display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:1rem;\"><div style=\"background:var(--surface-sunken); border:1px solid var(--border); border-radius:var(--radius-xl); padding:1rem;\"><div style=\"font-size:0.75rem; font-weight:700; color:var(--text-muted);\">طريقة المصادقة</div><div style=\"font-size:0.95rem; font-weight:800; color:var(--text); margin-top:0.2rem;\">تطبيق Google Authenticator</div></div><div style=\"background:var(--surface-sunken); border:1px solid var(--border); border-radius:var(--radius-xl); padding:1rem;\"><div style=\"font-size:0.75rem; font-weight:700; color:var(--text-muted);\">رموز الاسترداد الاحتياطية</div><div style=\"font-size:0.95rem; font-weight:800; color:var(--text); margin-top:0.2rem;\" class=\"tabular-nums\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -306,7 +330,7 @@ func mfaSettingsContent(lang, dir string, data MFASettingsViewData) templ.Compon
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, " رموز متبقية</div></div></div></div><!-- Regenerate Recovery Codes Card --><div class=\"card p-5\" style=\"border-radius:var(--radius-2xl); background:var(--surface); border:1px solid var(--border);\" x-data=\"{ openRegen: false }\"><div class=\"flex-between flex-wrap gap-3\"><div><h3 style=\"font-size:0.95rem; font-weight:800; color:var(--text); margin:0;\">إعادة توليد رموز الاسترداد الاحتياطية</h3><p style=\"font-size:0.8rem; color:var(--text-secondary); margin:0.2rem 0 0 0;\">توليد 8 رموز استرداد جديدة وإلغاء الرموز السابقة</p></div><button type=\"button\" class=\"btn btn-secondary btn-sm font-bold\" @click=\"openRegen = !openRegen\"><span>توليد رموز جديدة</span></button></div><div x-show=\"openRegen\" style=\"display:none; margin-top:1.25rem; padding-top:1rem; border-top:1px solid var(--border);\"><form action=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 26, " رموز متبقية</div></div></div></div><!-- Regenerate Recovery Codes Card --><div class=\"card p-5\" style=\"border-radius:var(--radius-2xl); background:var(--surface); border:1px solid var(--border);\" x-data=\"{ openRegen: false }\"><div class=\"flex-between flex-wrap gap-3\"><div><h3 style=\"font-size:0.95rem; font-weight:800; color:var(--text); margin:0;\">إعادة توليد رموز الاسترداد الاحتياطية</h3><p style=\"font-size:0.8rem; color:var(--text-secondary); margin:0.2rem 0 0 0;\">توليد 8 رموز استرداد جديدة وإلغاء الرموز السابقة</p></div><button type=\"button\" class=\"btn btn-secondary btn-sm font-bold\" @click=\"openRegen = !openRegen\"><span>توليد رموز جديدة</span></button></div><div x-show=\"openRegen\" style=\"display:none; margin-top:1.25rem; padding-top:1rem; border-top:1px solid var(--border);\"><form action=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -319,7 +343,7 @@ func mfaSettingsContent(lang, dir string, data MFASettingsViewData) templ.Compon
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, "\" method=\"POST\" class=\"stack-sm\" style=\"max-width:440px;\"><div class=\"form-group mb-2\"><label class=\"form-label text-xs\">كلمة المرور الحالية للتأكيد</label> <input type=\"password\" name=\"password\" required class=\"form-input form-input-sm\" placeholder=\"••••••••\"></div><button type=\"submit\" class=\"btn btn-primary btn-sm font-bold\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 27, "\" method=\"POST\" class=\"stack-sm\" style=\"max-width:440px;\"><div class=\"form-group mb-2\"><label class=\"form-label text-xs\">كلمة المرور الحالية للتأكيد</label> <input type=\"password\" name=\"password\" required class=\"form-input form-input-sm\" placeholder=\"••••••••\"></div><button type=\"submit\" class=\"btn btn-primary btn-sm font-bold\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -327,7 +351,7 @@ func mfaSettingsContent(lang, dir string, data MFASettingsViewData) templ.Compon
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 25, "<span>تأكيد وتوليد 8 رموز جديدة</span></button></form></div></div><!-- Disable MFA Card --><div class=\"card p-5\" style=\"border-radius:var(--radius-2xl); background:var(--surface); border:1px solid var(--danger-subtle, rgba(239, 68, 68, 0.2));\" x-data=\"{ openDisable: false }\"><div class=\"flex-between flex-wrap gap-3\"><div><h3 style=\"font-size:0.95rem; font-weight:800; color:var(--danger-text, #ef4444); margin:0;\">تعطيل المصادقة الثنائية (MFA)</h3><p style=\"font-size:0.8rem; color:var(--text-secondary); margin:0.2rem 0 0 0;\">سيؤدي تعطيل MFA إلى خفض مستوى أمان حسابك وجعل الدخول بكلمة المرور فقط</p></div><button type=\"button\" class=\"btn btn-outline-danger btn-sm font-bold\" @click=\"openDisable = !openDisable\"><span>تعطيل المصادقة</span></button></div><div x-show=\"openDisable\" style=\"display:none; margin-top:1.25rem; padding-top:1rem; border-top:1px solid var(--border);\"><form action=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 28, "<span>تأكيد وتوليد 8 رموز جديدة</span></button></form></div></div><!-- Disable MFA Card --><div class=\"card p-5\" style=\"border-radius:var(--radius-2xl); background:var(--surface); border:1px solid var(--danger-subtle, rgba(239, 68, 68, 0.2));\" x-data=\"{ openDisable: false }\"><div class=\"flex-between flex-wrap gap-3\"><div><h3 style=\"font-size:0.95rem; font-weight:800; color:var(--danger-text, #ef4444); margin:0;\">تعطيل المصادقة الثنائية (MFA)</h3><p style=\"font-size:0.8rem; color:var(--text-secondary); margin:0.2rem 0 0 0;\">سيؤدي تعطيل MFA إلى خفض مستوى أمان حسابك وجعل الدخول بكلمة المرور فقط</p></div><button type=\"button\" class=\"btn btn-outline-danger btn-sm font-bold\" @click=\"openDisable = !openDisable\"><span>تعطيل المصادقة</span></button></div><div x-show=\"openDisable\" style=\"display:none; margin-top:1.25rem; padding-top:1rem; border-top:1px solid var(--border);\"><form action=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -340,17 +364,25 @@ func mfaSettingsContent(lang, dir string, data MFASettingsViewData) templ.Compon
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 26, "\" method=\"POST\" class=\"stack-sm\" style=\"max-width:440px;\" onsubmit=\"return confirm('هل أنت متأكد من رغبتك في تعطيل المصادقة الثنائية لحسابك؟');\"><div class=\"form-group mb-2\"><label class=\"form-label text-xs\">أدخل كلمة المرور الحالية لتأكيد التعطيل</label> <input type=\"password\" name=\"password\" required class=\"form-input form-input-sm\" placeholder=\"••••••••\"></div><button type=\"submit\" class=\"btn btn-danger btn-sm font-bold\"><span>تأكيد تعطيل المصادقة الثنائية</span></button></form></div></div></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 29, "\" method=\"POST\" class=\"stack-sm\" style=\"max-width:440px;\" onsubmit=\"return confirm('هل أنت متأكد من رغبتك في تعطيل المصادقة الثنائية لحسابك؟');\"><div class=\"form-group mb-2\"><label class=\"form-label text-xs\">أدخل كلمة المرور الحالية لتأكيد التعطيل</label> <input type=\"password\" name=\"password\" required class=\"form-input form-input-sm\" placeholder=\"••••••••\"></div><button type=\"submit\" class=\"btn btn-danger btn-sm font-bold\"><span>تأكيد تعطيل المصادقة الثنائية</span></button></form></div></div></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 		} else {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 27, "<!-- State 2: MFA is DISABLED - Setup Wizard --> <div class=\"card p-6\" style=\"border-radius:var(--radius-2xl); background:var(--surface); border:1px solid var(--border);\"><!-- Setup Intro --><div style=\"display:flex; align-items:center; gap:1rem; margin-bottom:1.5rem;\"><div style=\"width:52px; height:52px; border-radius:var(--radius-2xl); background:var(--brand-subtle, rgba(14, 165, 233, 0.12)); color:var(--brand); display:flex; align-items:center; justify-content:center; font-size:1.6rem; border:1px solid var(--border);\">🛡️</div><div><h2 style=\"font-size:1.15rem; font-weight:900; color:var(--text); margin:0;\">تفعيل التحقق بخطوتين عبر Google Authenticator</h2><p style=\"font-size:0.85rem; color:var(--text-secondary); margin:0.25rem 0 0 0;\">خطوات بسيطة لتأمين حسابك ضد أي اختراق عبر تطبيق المصادقة على هاتفك</p></div></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 30, "<!-- State 2: MFA is DISABLED - Setup Wizard --> <div class=\"card p-6\" style=\"border-radius:var(--radius-2xl); background:var(--surface); border:1px solid var(--border);\"><!-- Setup Intro --><div style=\"display:flex; align-items:center; gap:1rem; margin-bottom:1.5rem;\"><div style=\"width:52px; height:52px; border-radius:var(--radius-2xl); background:var(--brand-subtle, rgba(14, 165, 233, 0.12)); color:var(--brand); display:flex; align-items:center; justify-content:center; font-size:1.6rem; border:1px solid var(--border);\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = components.IconShield("icon-sm").Render(ctx, templ_7745c5c3_Buffer)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 31, "</div><div><h2 style=\"font-size:1.15rem; font-weight:900; color:var(--text); margin:0;\">تفعيل التحقق بخطوتين عبر Google Authenticator</h2><p style=\"font-size:0.85rem; color:var(--text-secondary); margin:0.25rem 0 0 0;\">خطوات بسيطة لتأمين حسابك ضد أي اختراق عبر تطبيق المصادقة على هاتفك</p></div></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			if data.SetupData == nil {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 28, "<!-- Start Setup Button --> <div style=\"background:var(--surface-sunken); border:1px solid var(--border); border-radius:var(--radius-xl); padding:1.5rem; text-align:center;\"><div style=\"max-width:540px; margin:0 auto;\"><h3 style=\"font-size:1rem; font-weight:800; color:var(--text); margin-bottom:0.5rem;\">كيف تعمل المصادقة الثنائية؟</h3><p style=\"font-size:0.85rem; color:var(--text-secondary); line-height:1.6; margin-bottom:1.25rem;\">عند تسجيل الدخول في المرات القادمة، سيُطلب منك إدخال رمز مؤقت من 6 أرقام يظهر على تطبيق Google Authenticator في هاتفك بالإضافة إلى كلمة المرور الخاصة بك.</p><form action=\"")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 32, "<!-- Start Setup Button --> <div style=\"background:var(--surface-sunken); border:1px solid var(--border); border-radius:var(--radius-xl); padding:1.5rem; text-align:center;\"><div style=\"max-width:540px; margin:0 auto;\"><h3 style=\"font-size:1rem; font-weight:800; color:var(--text); margin-bottom:0.5rem;\">كيف تعمل المصادقة الثنائية؟</h3><p style=\"font-size:0.85rem; color:var(--text-secondary); line-height:1.6; margin-bottom:1.25rem;\">عند تسجيل الدخول في المرات القادمة، سيُطلب منك إدخال رمز مؤقت من 6 أرقام يظهر على تطبيق Google Authenticator في هاتفك بالإضافة إلى كلمة المرور الخاصة بك.</p><form action=\"")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -363,12 +395,12 @@ func mfaSettingsContent(lang, dir string, data MFASettingsViewData) templ.Compon
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 29, "\" method=\"POST\" class=\"m-0\"><button type=\"submit\" class=\"btn btn-primary font-bold px-6 py-2.5\" style=\"border-radius:var(--radius-xl); font-size:0.95rem;\"><span>بدء إعداد المصادقة الثنائية 🚀</span></button></form></div></div>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 33, "\" method=\"POST\" class=\"m-0\"><button type=\"submit\" class=\"btn btn-primary font-bold px-6 py-2.5\" style=\"border-radius:var(--radius-xl); font-size:0.95rem;\"><span>بدء إعداد المصادقة الثنائية </span></button></form></div></div>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			} else {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 30, "<!-- Setup Wizard Active (QR Code & Verification Form) --> <div style=\"display:flex; flex-direction:column; gap:1.5rem;\"><!-- Step 1 & 2 Grid --><div style=\"display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:1.5rem; align-items:flex-start;\"><!-- Step 1: QR Code --><div style=\"background:var(--surface-sunken); border:1px solid var(--border); border-radius:var(--radius-xl); padding:1.25rem; text-align:center;\"><div class=\"badge badge-brand font-bold text-xs mb-3\" style=\"display:inline-block;\">الخطوة 1: امسح رمز الـ QR</div><h4 style=\"font-size:0.9rem; font-weight:800; color:var(--text); margin-bottom:0.75rem;\">افتح Google Authenticator وامسح الرمز:</h4><div style=\"display:inline-block; padding:0.75rem; background:#ffffff; border-radius:var(--radius-lg); box-shadow:0 4px 12px rgba(0,0,0,0.08); margin-bottom:0.75rem;\"><img src=\"")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 34, "<!-- Setup Wizard Active (QR Code & Verification Form) --> <div style=\"display:flex; flex-direction:column; gap:1.5rem;\"><!-- Step 1 & 2 Grid --><div style=\"display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:1.5rem; align-items:flex-start;\"><!-- Step 1: QR Code --><div style=\"background:var(--surface-sunken); border:1px solid var(--border); border-radius:var(--radius-xl); padding:1.25rem; text-align:center;\"><div class=\"badge badge-brand font-bold text-xs mb-3\" style=\"display:inline-block;\">الخطوة 1: امسح رمز الـ QR</div><h4 style=\"font-size:0.9rem; font-weight:800; color:var(--text); margin-bottom:0.75rem;\">افتح Google Authenticator وامسح الرمز:</h4><div style=\"display:inline-block; padding:0.75rem; background:#ffffff; border-radius:var(--radius-lg); box-shadow:0 4px 12px rgba(0,0,0,0.08); margin-bottom:0.75rem;\"><img src=\"")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -381,7 +413,7 @@ func mfaSettingsContent(lang, dir string, data MFASettingsViewData) templ.Compon
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 31, "\" alt=\"MFA QR Code\" style=\"width:190px; height:190px; display:block;\"></div><div style=\"margin-top:0.5rem;\"><div style=\"font-size:0.75rem; color:var(--text-muted); margin-bottom:0.3rem;\">أو أدخل المفتاح السري يدويًا في التطبيق:</div><div class=\"font-mono font-bold text-xs\" style=\"padding:0.4rem 0.6rem; background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-md); letter-spacing:0.1em; color:var(--brand); word-break:break-all; user-select:all;\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 35, "\" alt=\"MFA QR Code\" style=\"width:190px; height:190px; display:block;\"></div><div style=\"margin-top:0.5rem;\"><div style=\"font-size:0.75rem; color:var(--text-muted); margin-bottom:0.3rem;\">أو أدخل المفتاح السري يدويًا في التطبيق:</div><div class=\"font-mono font-bold text-xs\" style=\"padding:0.4rem 0.6rem; background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-md); letter-spacing:0.1em; color:var(--brand); word-break:break-all; user-select:all;\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -394,7 +426,7 @@ func mfaSettingsContent(lang, dir string, data MFASettingsViewData) templ.Compon
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 32, "</div></div></div><!-- Step 2: Confirm Code Form --><div style=\"background:var(--surface-sunken); border:1px solid var(--border); border-radius:var(--radius-xl); padding:1.25rem;\"><div class=\"badge badge-emerald font-bold text-xs mb-3\" style=\"display:inline-block;\">الخطوة 2: أدخل رمز التحقق</div><h4 style=\"font-size:0.9rem; font-weight:800; color:var(--text); margin-bottom:0.5rem;\">أدخل الرمز المكون من 6 أرقام لتأكيد التفعيل:</h4><p style=\"font-size:0.8rem; color:var(--text-secondary); line-height:1.5; margin-bottom:1rem;\">يظهر الرمز المكون من 6 أرقام داخل تطبيق Google Authenticator تحت اسم <strong style=\"color:var(--text);\">Dawa24</strong>.</p><form action=\"")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 36, "</div></div></div><!-- Step 2: Confirm Code Form --><div style=\"background:var(--surface-sunken); border:1px solid var(--border); border-radius:var(--radius-xl); padding:1.25rem;\"><div class=\"badge badge-emerald font-bold text-xs mb-3\" style=\"display:inline-block;\">الخطوة 2: أدخل رمز التحقق</div><h4 style=\"font-size:0.9rem; font-weight:800; color:var(--text); margin-bottom:0.5rem;\">أدخل الرمز المكون من 6 أرقام لتأكيد التفعيل:</h4><p style=\"font-size:0.8rem; color:var(--text-secondary); line-height:1.5; margin-bottom:1rem;\">يظهر الرمز المكون من 6 أرقام داخل تطبيق Google Authenticator تحت اسم <strong style=\"color:var(--text);\">Dawa24</strong>.</p><form action=\"")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -407,7 +439,7 @@ func mfaSettingsContent(lang, dir string, data MFASettingsViewData) templ.Compon
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 33, "\" method=\"POST\" class=\"stack-md\"><div class=\"form-group mb-0\"><input type=\"text\" name=\"code\" inputmode=\"numeric\" pattern=\"[0-9]*\" maxlength=\"6\" required autocomplete=\"one-time-code\" class=\"form-input text-center tabular-nums font-mono\" style=\"font-size:1.5rem; font-weight:900; letter-spacing:0.25em; height:50px; border-radius:var(--radius-lg);\" placeholder=\"000000\"></div><button type=\"submit\" class=\"btn btn-emerald font-bold py-2.5\" style=\"width:100%; justify-content:center; border-radius:var(--radius-lg);\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 37, "\" method=\"POST\" class=\"stack-md\"><div class=\"form-group mb-0\"><input type=\"text\" name=\"code\" inputmode=\"numeric\" pattern=\"[0-9]*\" maxlength=\"6\" required autocomplete=\"one-time-code\" class=\"form-input text-center tabular-nums font-mono\" style=\"font-size:1.5rem; font-weight:900; letter-spacing:0.25em; height:50px; border-radius:var(--radius-lg);\" placeholder=\"000000\"></div><button type=\"submit\" class=\"btn btn-emerald font-bold py-2.5\" style=\"width:100%; justify-content:center; border-radius:var(--radius-lg);\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -415,17 +447,17 @@ func mfaSettingsContent(lang, dir string, data MFASettingsViewData) templ.Compon
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 34, "<span>تأكيد وتفعيل المصادقة الثنائية</span></button></form></div></div></div>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 38, "<span>تأكيد وتفعيل المصادقة الثنائية</span></button></form></div></div></div>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 35, "</div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 39, "</div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 36, "</div>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 40, "</div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

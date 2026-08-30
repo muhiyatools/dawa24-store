@@ -926,7 +926,7 @@ templ VendorJobs(lang, dir string, data VendorJobsData) {
 					if (!apps || apps.length === 0) {
 						document.getElementById('applicants-modal-content').innerHTML = `
 							<div style="text-align:center; padding:3rem 1rem;">
-								<div style="font-size:2.5rem; margin-bottom:0.5rem;">📬</div>
+								<div style="font-size:2.5rem; margin-bottom:0.5rem;">@components.IconMail("icon-sm")</div>
 								<h4 style="color:var(--text); font-weight:800; margin:0;">لا يوجد متقدمين حتى الآن</h4>
 								<p style="color:var(--text-muted); font-size:0.85rem; margin:0.25rem 0 0;">
 									لم يقم أي مستخدم بالتقديم على هذه الوظيفة بعد.

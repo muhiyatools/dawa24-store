@@ -86,12 +86,20 @@ func OrganizationDocumentsContent(lang string, data *OrganizationDocumentsData) 
 			templ_7745c5c3_Var3 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"page-container\"><!-- Header Banner --><div class=\"glass-panel p-6 mb-0\"><div class=\"flex-between items-center flex-wrap gap-4\"><div><div class=\"d-flex items-center gap-3 mb-1\"><div class=\"user-avatar-badge text-xl\">📑</div><div><h1 class=\"text-2xl font-black text-primary m-0\">المستندات والتراخيص الرسمية للمنشأة</h1><span class=\"text-xs text-muted font-bold\">Legal Compliance & Official Licensing Records</span></div></div><p class=\"text-sm text-secondary m-0 mt-2\">إدارة وتوثيق التراخيص والسجلات القانونية لضمان مطابقة اشتراطات هيئة الدواء المصرية وبدء التداول والتعاملات الرسمية بأمان تام.</p></div><div class=\"d-flex items-center gap-2 flex-wrap\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"page-container\"><!-- Header Banner --><div class=\"glass-panel p-6 mb-0\"><div class=\"flex-between items-center flex-wrap gap-4\"><div><div class=\"d-flex items-center gap-3 mb-1\"><div class=\"user-avatar-badge text-xl\">")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = components.IconFileText("icon-sm").Render(ctx, templ_7745c5c3_Buffer)
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</div><div><h1 class=\"text-2xl font-black text-primary m-0\">المستندات والتراخيص الرسمية للمنشأة</h1><span class=\"text-xs text-muted font-bold\">Legal Compliance & Official Licensing Records</span></div></div><p class=\"text-sm text-secondary m-0 mt-2\">إدارة وتوثيق التراخيص والسجلات القانونية لضمان مطابقة اشتراطات هيئة الدواء المصرية وبدء التداول والتعاملات الرسمية بأمان تام.</p></div><div class=\"d-flex items-center gap-2 flex-wrap\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		if data != nil && data.VerifiedCount() > 0 && len(data.Missing) == 0 {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "<div class=\"badge badge-emerald text-xs font-bold gap-1 py-2 px-3\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "<div class=\"badge badge-emerald text-xs font-bold gap-1 py-2 px-3\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -99,12 +107,12 @@ func OrganizationDocumentsContent(lang string, data *OrganizationDocumentsData) 
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "<span>موثق ومعتمد رسمياً </span></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "<span>موثق ومعتمد رسمياً </span></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 		} else if data != nil && data.PendingCount() > 0 {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "<div class=\"badge badge-sky text-xs font-bold gap-1 py-2 px-3\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "<div class=\"badge badge-sky text-xs font-bold gap-1 py-2 px-3\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -112,12 +120,12 @@ func OrganizationDocumentsContent(lang string, data *OrganizationDocumentsData) 
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "<span>قيد المراجعة والتدقيق</span></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "<span>قيد المراجعة والتدقيق</span></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 		} else {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "<div class=\"badge badge-amber text-xs font-bold gap-1 py-2 px-3\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "<div class=\"badge badge-amber text-xs font-bold gap-1 py-2 px-3\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -125,17 +133,17 @@ func OrganizationDocumentsContent(lang string, data *OrganizationDocumentsData) 
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "<span>مستندات مطلوبة للتفعيل</span></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "<span>مستندات مطلوبة للتفعيل</span></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "</div></div></div><!-- Executive Verification Strip (3-stat Grid) -->")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "</div></div></div><!-- Executive Verification Strip (3-stat Grid) -->")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		if data != nil {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "<div class=\"dashboard-stat-grid cols-3 mb-0\"><!-- Card 1: Completion Progress --><div class=\"stat-card-3d d-flex flex-col justify-between\"><div><div class=\"flex-between items-center mb-1\"><span class=\"stat-card-label\">نسبة اكتمال التوثيق</span> <span class=\"badge badge-sky text-xs font-bold tabular-nums\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "<div class=\"dashboard-stat-grid cols-3 mb-0\"><!-- Card 1: Completion Progress --><div class=\"stat-card-3d d-flex flex-col justify-between\"><div><div class=\"flex-between items-center mb-1\"><span class=\"stat-card-label\">نسبة اكتمال التوثيق</span> <span class=\"badge badge-sky text-xs font-bold tabular-nums\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -148,7 +156,7 @@ func OrganizationDocumentsContent(lang string, data *OrganizationDocumentsData) 
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "</span></div><div class=\"tabular-nums text-2xl font-black text-primary mt-1\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "</span></div><div class=\"tabular-nums text-2xl font-black text-primary mt-1\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -161,7 +169,7 @@ func OrganizationDocumentsContent(lang string, data *OrganizationDocumentsData) 
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "</div><!-- Dynamic Progress Bar --><div class=\"progress-bar-container mt-2\"><div class=\"progress-bar-fill\" style=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "</div><!-- Dynamic Progress Bar --><div class=\"progress-bar-container mt-2\"><div class=\"progress-bar-fill\" style=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -174,7 +182,7 @@ func OrganizationDocumentsContent(lang string, data *OrganizationDocumentsData) 
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "\"></div></div></div><div class=\"text-xs text-muted mt-3 pt-2 border-t\"><span>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "\"></div></div></div><div class=\"text-xs text-muted mt-3 pt-2 border-t\"><span>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -187,27 +195,27 @@ func OrganizationDocumentsContent(lang string, data *OrganizationDocumentsData) 
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "</span></div></div><!-- Card 2: Legal Status --><div class=\"stat-card-3d d-flex flex-col justify-between\"><div><span class=\"stat-card-label\">حالة الحساب والاعتماد</span><div class=\"mt-2 d-flex items-center gap-2\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "</span></div></div><!-- Card 2: Legal Status --><div class=\"stat-card-3d d-flex flex-col justify-between\"><div><span class=\"stat-card-label\">حالة الحساب والاعتماد</span><div class=\"mt-2 d-flex items-center gap-2\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			if data.VerifiedCount() > 0 && len(data.Missing) == 0 {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "<span class=\"status-dot success\"></span> <strong class=\"text-base font-black text-primary\">منشأة موثقة ومطابقة</strong>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "<span class=\"status-dot success\"></span> <strong class=\"text-base font-black text-primary\">منشأة موثقة ومطابقة</strong>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			} else if data.PendingCount() > 0 {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "<span class=\"status-dot\"></span> <strong class=\"text-base font-black text-primary\">قيد التدقيق الإداري</strong>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "<span class=\"status-dot\"></span> <strong class=\"text-base font-black text-primary\">قيد التدقيق الإداري</strong>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			} else {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "<span class=\"status-dot warning\"></span> <strong class=\"text-base font-black text-primary\">بانتظار استكمال المستندات</strong>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "<span class=\"status-dot warning\"></span> <strong class=\"text-base font-black text-primary\">بانتظار استكمال المستندات</strong>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "</div></div><div class=\"text-xs text-muted mt-3 pt-2 border-t\"><span>تتم مراجعة كافة المستندات المرفوعة خلال 24 ساعة</span></div></div><!-- Card 3: Official Requests Status --><div class=\"stat-card-3d d-flex flex-col justify-between\"><div><span class=\"stat-card-label\">طلبات الإدارة والمهل</span><div class=\"tabular-nums text-2xl font-black text-primary mt-1\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "</div></div><div class=\"text-xs text-muted mt-3 pt-2 border-t\"><span>تتم مراجعة كافة المستندات المرفوعة خلال 24 ساعة</span></div></div><!-- Card 3: Official Requests Status --><div class=\"stat-card-3d d-flex flex-col justify-between\"><div><span class=\"stat-card-label\">طلبات الإدارة والمهل</span><div class=\"tabular-nums text-2xl font-black text-primary mt-1\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -220,32 +228,32 @@ func OrganizationDocumentsContent(lang string, data *OrganizationDocumentsData) 
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, " <span class=\"text-xs font-bold text-muted\">طلبات معلقة</span></div></div><div class=\"text-xs text-muted mt-3 pt-2 border-t\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, " <span class=\"text-xs font-bold text-muted\">طلبات معلقة</span></div></div><div class=\"text-xs text-muted mt-3 pt-2 border-t\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			if len(data.ActiveDocRequests()) > 0 {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "<span class=\"text-warning font-bold\">يوجد مستندات مطلوبة من إدارة المنصة</span>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, "<span class=\"text-warning font-bold\">يوجد مستندات مطلوبة من إدارة المنصة</span>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			} else {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, "<span class=\"text-success font-bold\">لا توجد طلبات مستندات معلقة حالياً</span>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, "<span class=\"text-success font-bold\">لا توجد طلبات مستندات معلقة حالياً</span>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, "</div></div></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, "</div></div></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, "<!-- Missing Mandatory Documents Warning -->")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, "<!-- Missing Mandatory Documents Warning -->")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		if data != nil && len(data.Missing) > 0 {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, "<div class=\"alert alert-warning mb-0 p-4 d-flex items-center gap-3\"><span class=\"text-2xl\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, "<div class=\"alert alert-warning mb-0 p-4 d-flex items-center gap-3\"><span class=\"text-2xl\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -253,7 +261,7 @@ func OrganizationDocumentsContent(lang string, data *OrganizationDocumentsData) 
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, "</span><div class=\"text-xs text-warning leading-relaxed font-bold\"><strong>تنبيه توثيق الحساب:</strong> يتطلب تفعيل الحساب وإتمام المعاملات اعتماد ")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 25, "</span><div class=\"text-xs text-warning leading-relaxed font-bold\"><strong>تنبيه توثيق الحساب:</strong> يتطلب تفعيل الحساب وإتمام المعاملات اعتماد ")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -266,17 +274,17 @@ func OrganizationDocumentsContent(lang string, data *OrganizationDocumentsData) 
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 25, " من إدارة المنصة.</div></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 26, " من إدارة المنصة.</div></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 26, "<!-- Error Message Banner -->")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 27, "<!-- Error Message Banner -->")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		if data != nil && data.Error != "" {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 27, "<div class=\"alert alert-danger mb-0 p-4 text-xs\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 28, "<div class=\"alert alert-danger mb-0 p-4 text-xs\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -289,23 +297,23 @@ func OrganizationDocumentsContent(lang string, data *OrganizationDocumentsData) 
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 28, "</div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 29, "</div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 29, "<!-- SECTION 1: Administrative Document Requests (If any) -->")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 30, "<!-- SECTION 1: Administrative Document Requests (If any) -->")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		if data != nil && len(data.Requests) > 0 {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 30, "<div class=\"glass-panel p-6 mb-0 border-warning\"><div class=\"flex-between items-center mb-4 pb-3 border-b flex-wrap gap-2\"><div class=\"d-flex items-center gap-2\"><span class=\"text-xl\">⏳</span><div><h2 class=\"text-base font-extrabold text-warning m-0\">مستندات وتراخيص مطلوبة من إدارة المنصة</h2><p class=\"text-xs text-secondary m-0 mt-1\">يرجى رفع المستندات المحددة أدناه خلال المهلة الزمنية المقررة لضمان استمرار تفعيل حساب المنشأة.</p></div></div></div><div class=\"d-flex flex-col gap-3\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 31, "<div class=\"glass-panel p-6 mb-0 border-warning\"><div class=\"flex-between items-center mb-4 pb-3 border-b flex-wrap gap-2\"><div class=\"d-flex items-center gap-2\"><span class=\"text-xl\">⏳</span><div><h2 class=\"text-base font-extrabold text-warning m-0\">مستندات وتراخيص مطلوبة من إدارة المنصة</h2><p class=\"text-xs text-secondary m-0 mt-1\">يرجى رفع المستندات المحددة أدناه خلال المهلة الزمنية المقررة لضمان استمرار تفعيل حساب المنشأة.</p></div></div></div><div class=\"d-flex flex-col gap-3\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			for _, req := range data.Requests {
 				if req != nil {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 31, "<div class=\"p-4 rounded-xl bg-surface-sunken border flex-between items-center flex-wrap gap-4\"><div style=\"max-width:600px;\"><div class=\"d-flex items-center gap-2 flex-wrap mb-1\"><strong class=\"text-sm font-extrabold text-primary\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 32, "<div class=\"p-4 rounded-xl bg-surface-sunken border flex-between items-center flex-wrap gap-4\"><div style=\"max-width:600px;\"><div class=\"d-flex items-center gap-2 flex-wrap mb-1\"><strong class=\"text-sm font-extrabold text-primary\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -318,27 +326,27 @@ func OrganizationDocumentsContent(lang string, data *OrganizationDocumentsData) 
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 32, "</strong> ")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 33, "</strong> ")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 					if req.Status == attachments.DocReqFulfilled {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 33, "<span class=\"badge badge-emerald text-xs font-bold\">معتمد ومطابق </span>")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 34, "<span class=\"badge badge-emerald text-xs font-bold\">معتمد ومطابق </span>")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
 					} else if req.Status == attachments.DocReqSubmitted {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 34, "<span class=\"badge badge-sky text-xs font-bold\">تم الرفع (قيد المراجعة)</span>")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 35, "<span class=\"badge badge-sky text-xs font-bold\">تم الرفع (قيد المراجعة)</span>")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
 					} else if req.IsOverdue() {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 35, "<span class=\"badge badge-rose text-xs font-bold\">انتهت المهلة </span>")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 36, "<span class=\"badge badge-rose text-xs font-bold\">انتهت المهلة </span>")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
 					} else {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 36, "<span class=\"badge badge-amber text-xs font-bold\">متبقي ")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 37, "<span class=\"badge badge-amber text-xs font-bold\">متبقي ")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
@@ -351,17 +359,17 @@ func OrganizationDocumentsContent(lang string, data *OrganizationDocumentsData) 
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 37, " يوم</span>")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 38, " يوم</span>")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 38, "</div>")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 39, "</div>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 					if req.Description != "" {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 39, "<div class=\"text-xs text-secondary leading-relaxed\">")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 40, "<div class=\"text-xs text-secondary leading-relaxed\">")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
@@ -374,12 +382,12 @@ func OrganizationDocumentsContent(lang string, data *OrganizationDocumentsData) 
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 40, "</div>")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 41, "</div>")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 41, "<div class=\"text-xs text-muted mt-2 tabular-nums\">الموعد النهائي: <strong class=\"text-primary font-bold\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 42, "<div class=\"text-xs text-muted mt-2 tabular-nums\">الموعد النهائي: <strong class=\"text-primary font-bold\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -392,12 +400,12 @@ func OrganizationDocumentsContent(lang string, data *OrganizationDocumentsData) 
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 42, "</strong></div></div><div>")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 43, "</strong></div></div><div>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 					if req.Status == attachments.DocReqPending {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 43, "<form action=\"/documents/upload\" method=\"POST\" enctype=\"multipart/form-data\" class=\"d-flex gap-2 items-center flex-wrap m-0\"><input type=\"hidden\" name=\"request_id\" value=\"")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 44, "<form action=\"/documents/upload\" method=\"POST\" enctype=\"multipart/form-data\" class=\"d-flex gap-2 items-center flex-wrap m-0\"><input type=\"hidden\" name=\"request_id\" value=\"")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
@@ -410,7 +418,7 @@ func OrganizationDocumentsContent(lang string, data *OrganizationDocumentsData) 
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 44, "\"> <input type=\"hidden\" name=\"document_type\" value=\"")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 45, "\"> <input type=\"hidden\" name=\"document_type\" value=\"")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
@@ -423,7 +431,7 @@ func OrganizationDocumentsContent(lang string, data *OrganizationDocumentsData) 
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 45, "\"> <input type=\"file\" name=\"file\" accept=\".pdf,.png,.jpg,.jpeg,.webp\" required class=\"form-input text-xs\" style=\"max-width:220px;\"> <button type=\"submit\" class=\"btn btn-primary btn-sm font-bold text-xs gap-1\">")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 46, "\"> <input type=\"file\" name=\"file\" accept=\".pdf,.png,.jpg,.jpeg,.webp\" required class=\"form-input text-xs\" style=\"max-width:220px;\"> <button type=\"submit\" class=\"btn btn-primary btn-sm font-bold text-xs gap-1\">")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
@@ -431,12 +439,12 @@ func OrganizationDocumentsContent(lang string, data *OrganizationDocumentsData) 
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 46, "<span>رفع المستند</span></button></form>")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 47, "<span>رفع المستند</span></button></form>")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
 					} else if req.Status == attachments.DocReqSubmitted {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 47, "<div class=\"d-flex items-center gap-2 text-xs font-bold text-primary\">")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 48, "<div class=\"d-flex items-center gap-2 text-xs font-bold text-primary\">")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
@@ -444,23 +452,23 @@ func OrganizationDocumentsContent(lang string, data *OrganizationDocumentsData) 
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 48, "<span>تم الرفع وبانتظار اعتماد الإدارة</span></div>")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 49, "<span>تم الرفع وبانتظار اعتماد الإدارة</span></div>")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 49, "</div></div>")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 50, "</div></div>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 50, "</div></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 51, "</div></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 51, "<!-- SECTION 2: Official Organization Documents Grid --><div class=\"glass-panel p-6 mb-0\"><div class=\"flex-between items-center mb-6 pb-3 border-b flex-wrap gap-2\"><div><h2 class=\"text-base font-extrabold text-primary m-0\">قائمة التراخيص والمستندات القانونية</h2><p class=\"text-xs text-secondary m-0 mt-1\">يمكنك رفع المستندات بصيغة (PDF، PNG، JPG، WebP) بحد أقصى 20 ميجابايت للملف.</p></div></div>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 52, "<!-- SECTION 2: Official Organization Documents Grid --><div class=\"glass-panel p-6 mb-0\"><div class=\"flex-between items-center mb-6 pb-3 border-b flex-wrap gap-2\"><div><h2 class=\"text-base font-extrabold text-primary m-0\">قائمة التراخيص والمستندات القانونية</h2><p class=\"text-xs text-secondary m-0 mt-1\">يمكنك رفع المستندات بصيغة (PDF، PNG، JPG، WebP) بحد أقصى 20 ميجابايت للملف.</p></div></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -473,18 +481,18 @@ func OrganizationDocumentsContent(lang string, data *OrganizationDocumentsData) 
 				return templ_7745c5c3_Err
 			}
 		} else {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 52, "<div class=\"d-flex flex-col gap-4\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 53, "<div class=\"d-flex flex-col gap-4\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			for _, req := range data.Requirements {
 				doc := data.LatestFor(req.DocType)
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 53, "<div class=\"p-4 rounded-xl bg-surface-sunken border flex-between items-center flex-wrap gap-4\"><!-- Document Info --><div class=\"d-flex items-start gap-3\" style=\"max-width:640px;\"><div class=\"user-avatar-badge text-lg mt-1\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 54, "<div class=\"p-4 rounded-xl bg-surface-sunken border flex-between items-center flex-wrap gap-4\"><!-- Document Info --><div class=\"d-flex items-start gap-3\" style=\"max-width:640px;\"><div class=\"user-avatar-badge text-lg mt-1\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				if doc != nil && doc.Status == attachments.StatusVerified {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 54, "<span class=\"text-success\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 55, "<span class=\"text-success\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -492,12 +500,12 @@ func OrganizationDocumentsContent(lang string, data *OrganizationDocumentsData) 
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 55, "</span>")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 56, "</span>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 				} else {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 56, "<span>")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 57, "<span>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -505,12 +513,12 @@ func OrganizationDocumentsContent(lang string, data *OrganizationDocumentsData) 
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 57, "</span>")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 58, "</span>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 58, "</div><div><div class=\"d-flex items-center gap-2 flex-wrap mb-1\"><h3 class=\"text-sm font-extrabold text-primary m-0\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 59, "</div><div><div class=\"d-flex items-center gap-2 flex-wrap mb-1\"><h3 class=\"text-sm font-extrabold text-primary m-0\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -523,55 +531,55 @@ func OrganizationDocumentsContent(lang string, data *OrganizationDocumentsData) 
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 59, "</h3>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 60, "</h3>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				if req.Required {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 60, "<span class=\"badge badge-rose text-xs font-bold\">إلزامي</span>")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 61, "<span class=\"badge badge-rose text-xs font-bold\">إلزامي</span>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 				} else {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 61, "<span class=\"badge badge-slate text-xs font-bold\">اختياري</span>")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 62, "<span class=\"badge badge-slate text-xs font-bold\">اختياري</span>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 62, "<!-- Status Pill -->")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 63, "<!-- Status Pill -->")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				if doc != nil {
 					switch doc.Status {
 					case attachments.StatusVerified:
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 63, "<span class=\"badge badge-emerald text-xs font-bold\">معتمد ومطابق </span>")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 64, "<span class=\"badge badge-emerald text-xs font-bold\">معتمد ومطابق </span>")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
 					case attachments.StatusRejected:
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 64, "<span class=\"badge badge-rose text-xs font-bold\">مرفوض </span>")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 65, "<span class=\"badge badge-rose text-xs font-bold\">مرفوض </span>")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
 					default:
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 65, "<span class=\"badge badge-sky text-xs font-bold\">قيد التدقيق والمراجعة</span>")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 66, "<span class=\"badge badge-sky text-xs font-bold\">قيد التدقيق والمراجعة</span>")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
 					}
 				} else {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 66, "<span class=\"badge badge-slate text-xs\">لم يُرفع بعد</span>")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 67, "<span class=\"badge badge-slate text-xs\">لم يُرفع بعد</span>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 67, "</div>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 68, "</div>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				if req.Description != "" {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 68, "<p class=\"text-xs text-secondary leading-relaxed m-0 mt-1\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 69, "<p class=\"text-xs text-secondary leading-relaxed m-0 mt-1\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -584,17 +592,17 @@ func OrganizationDocumentsContent(lang string, data *OrganizationDocumentsData) 
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 69, "</p>")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 70, "</p>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 70, "<!-- File Meta -->")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 71, "<!-- File Meta -->")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				if doc != nil {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 71, "<div class=\"d-flex items-center gap-2 text-xs text-muted mt-2 flex-wrap\"><span class=\"font-bold text-primary font-mono\" dir=\"ltr\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 72, "<div class=\"d-flex items-center gap-2 text-xs text-muted mt-2 flex-wrap\"><span class=\"font-bold text-primary font-mono\" dir=\"ltr\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -607,12 +615,12 @@ func OrganizationDocumentsContent(lang string, data *OrganizationDocumentsData) 
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 72, "</span> <span>•</span> ")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 73, "</span> <span>•</span> ")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 					if doc.SizeBytes > 0 {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 73, "<span class=\"tabular-nums\">")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 74, "<span class=\"tabular-nums\">")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
@@ -625,12 +633,12 @@ func OrganizationDocumentsContent(lang string, data *OrganizationDocumentsData) 
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 74, "</span> <span>•</span> ")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 75, "</span> <span>•</span> ")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 75, "<span class=\"tabular-nums\">تاريخ الرفع: ")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 76, "<span class=\"tabular-nums\">تاريخ الرفع: ")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -643,12 +651,12 @@ func OrganizationDocumentsContent(lang string, data *OrganizationDocumentsData) 
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 76, "</span></div>")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 77, "</span></div>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 					if doc.Status == attachments.StatusRejected && doc.ReviewNotes != "" {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 77, "<div class=\"mt-2 p-2 px-3 rounded bg-danger-subtle border text-xs text-danger\"><strong>سبب الرفض:</strong> ")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 78, "<div class=\"mt-2 p-2 px-3 rounded bg-danger-subtle border text-xs text-danger\"><strong>سبب الرفض:</strong> ")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
@@ -661,18 +669,18 @@ func OrganizationDocumentsContent(lang string, data *OrganizationDocumentsData) 
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 78, "</div>")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 79, "</div>")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
 					}
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 79, "</div></div><!-- Actions & Upload / Replace Buttons --><div class=\"d-flex items-center gap-2 flex-wrap\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 80, "</div></div><!-- Actions & Upload / Replace Buttons --><div class=\"d-flex items-center gap-2 flex-wrap\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				if doc != nil {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 80, "<!-- View Button: Triggers Dynamic In-App Viewer Modal --> <button type=\"button\" class=\"btn btn-secondary btn-sm font-bold text-xs gap-1\" data-doc-id=\"")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 81, "<!-- View Button: Triggers Dynamic In-App Viewer Modal --> <button type=\"button\" class=\"btn btn-secondary btn-sm font-bold text-xs gap-1\" data-doc-id=\"")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -685,7 +693,7 @@ func OrganizationDocumentsContent(lang string, data *OrganizationDocumentsData) 
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 81, "\" data-title=\"")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 82, "\" data-title=\"")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -698,7 +706,7 @@ func OrganizationDocumentsContent(lang string, data *OrganizationDocumentsData) 
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 82, "\" data-doctype=\"")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 83, "\" data-doctype=\"")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -711,7 +719,7 @@ func OrganizationDocumentsContent(lang string, data *OrganizationDocumentsData) 
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 83, "\" data-name=\"")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 84, "\" data-name=\"")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -724,7 +732,7 @@ func OrganizationDocumentsContent(lang string, data *OrganizationDocumentsData) 
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 84, "\" data-status=\"")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 85, "\" data-status=\"")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -737,7 +745,7 @@ func OrganizationDocumentsContent(lang string, data *OrganizationDocumentsData) 
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 85, "\" data-url=\"")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 86, "\" data-url=\"")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -750,7 +758,7 @@ func OrganizationDocumentsContent(lang string, data *OrganizationDocumentsData) 
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 86, "\" onclick=\"openDocViewerFromBtn(this)\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 87, "\" onclick=\"openDocViewerFromBtn(this)\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -758,7 +766,7 @@ func OrganizationDocumentsContent(lang string, data *OrganizationDocumentsData) 
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 87, "<span>معاينة</span></button><!-- Direct Download Button --> <a href=\"")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 88, "<span>معاينة</span></button><!-- Direct Download Button --> <a href=\"")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -771,7 +779,7 @@ func OrganizationDocumentsContent(lang string, data *OrganizationDocumentsData) 
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 88, "\" class=\"btn btn-secondary btn-icon btn-sm\" title=\"تحميل الملف إلى جهازك\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 89, "\" class=\"btn btn-secondary btn-icon btn-sm\" title=\"تحميل الملف إلى جهازك\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -779,7 +787,7 @@ func OrganizationDocumentsContent(lang string, data *OrganizationDocumentsData) 
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 89, "</a><!-- Replace Document Button (Opens Replacement Reason Modal) --> <button type=\"button\" class=\"btn btn-secondary btn-sm font-bold text-xs gap-1\" data-doc-id=\"")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 90, "</a><!-- Replace Document Button (Opens Replacement Reason Modal) --> <button type=\"button\" class=\"btn btn-secondary btn-sm font-bold text-xs gap-1\" data-doc-id=\"")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -792,7 +800,7 @@ func OrganizationDocumentsContent(lang string, data *OrganizationDocumentsData) 
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 90, "\" data-doctype=\"")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 91, "\" data-doctype=\"")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -805,7 +813,7 @@ func OrganizationDocumentsContent(lang string, data *OrganizationDocumentsData) 
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 91, "\" data-title=\"")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 92, "\" data-title=\"")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -818,7 +826,7 @@ func OrganizationDocumentsContent(lang string, data *OrganizationDocumentsData) 
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 92, "\" data-name=\"")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 93, "\" data-name=\"")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -831,12 +839,12 @@ func OrganizationDocumentsContent(lang string, data *OrganizationDocumentsData) 
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 93, "\" onclick=\"openReplaceDocModalFromBtn(this)\" title=\"استبدال وتحديث هذا المستند\"><span>استبدال</span></button>")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 94, "\" onclick=\"openReplaceDocModalFromBtn(this)\" title=\"استبدال وتحديث هذا المستند\"><span>استبدال</span></button>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 				} else {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 94, "<!-- Initial Upload Form (When doc is not uploaded yet) --> <form action=\"/documents/upload\" method=\"POST\" enctype=\"multipart/form-data\" class=\"d-flex gap-2 items-center m-0\"><input type=\"hidden\" name=\"document_type\" value=\"")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 95, "<!-- Initial Upload Form (When doc is not uploaded yet) --> <form action=\"/documents/upload\" method=\"POST\" enctype=\"multipart/form-data\" class=\"d-flex gap-2 items-center m-0\"><input type=\"hidden\" name=\"document_type\" value=\"")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -849,7 +857,7 @@ func OrganizationDocumentsContent(lang string, data *OrganizationDocumentsData) 
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 95, "\"> <input type=\"file\" name=\"file\" id=\"")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 96, "\"> <input type=\"file\" name=\"file\" id=\"")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -862,22 +870,30 @@ func OrganizationDocumentsContent(lang string, data *OrganizationDocumentsData) 
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 96, "\" accept=\".pdf,.png,.jpg,.jpeg,.webp\" required class=\"form-input text-xs\" style=\"max-width:180px;\"> <button type=\"submit\" class=\"btn btn-primary btn-sm font-bold text-xs\"><span>رفع المستند</span></button></form>")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 97, "\" accept=\".pdf,.png,.jpg,.jpeg,.webp\" required class=\"form-input text-xs\" style=\"max-width:180px;\"> <button type=\"submit\" class=\"btn btn-primary btn-sm font-bold text-xs\"><span>رفع المستند</span></button></form>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 97, "</div></div>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 98, "</div></div>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 98, "</div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 99, "</div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 99, "</div></div><!-- Dynamic In-App Document Viewer Modal (PDF + Image Responsive) --><div id=\"doc-viewer-modal\" style=\"display:none; position:fixed; inset:0; background:rgba(0,0,0,0.7); z-index:99999; align-items:center; justify-content:center; padding:1rem; backdrop-filter:blur(4px);\"><div style=\"background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-xl); width:100%; max-width:980px; box-shadow:var(--shadow-2xl); overflow:hidden; display:flex; flex-direction:column; max-height:92vh;\"><!-- Modal Header --><div style=\"padding:1rem 1.5rem; border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:center; background:var(--surface-sunken); flex-wrap:wrap; gap:0.75rem;\"><div><div class=\"d-flex items-center gap-2\"><span style=\"font-size:1.25rem;\">📑</span><h3 id=\"modal-doc-title\" style=\"font-size:1.1rem; font-weight:800; color:var(--text); margin:0;\">معاينة المستند الرسمي</h3></div><div id=\"modal-doc-filename\" style=\"font-size:0.775rem; color:var(--text-muted); font-family:monospace; margin-top:2px;\" dir=\"ltr\">filename.pdf</div></div><div class=\"d-flex items-center gap-2\"><a id=\"modal-doc-tab-btn\" href=\"#\" target=\"_blank\" class=\"btn btn-secondary btn-sm fw-700\" style=\"gap:0.35rem;\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 100, "</div></div><!-- Dynamic In-App Document Viewer Modal (PDF + Image Responsive) --><div id=\"doc-viewer-modal\" style=\"display:none; position:fixed; inset:0; background:rgba(0,0,0,0.7); z-index:99999; align-items:center; justify-content:center; padding:1rem; backdrop-filter:blur(4px);\"><div style=\"background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-xl); width:100%; max-width:980px; box-shadow:var(--shadow-2xl); overflow:hidden; display:flex; flex-direction:column; max-height:92vh;\"><!-- Modal Header --><div style=\"padding:1rem 1.5rem; border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:center; background:var(--surface-sunken); flex-wrap:wrap; gap:0.75rem;\"><div><div class=\"d-flex items-center gap-2\"><span style=\"font-size:1.25rem;\">")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = components.IconFileText("icon-sm").Render(ctx, templ_7745c5c3_Buffer)
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 101, "</span><h3 id=\"modal-doc-title\" style=\"font-size:1.1rem; font-weight:800; color:var(--text); margin:0;\">معاينة المستند الرسمي</h3></div><div id=\"modal-doc-filename\" style=\"font-size:0.775rem; color:var(--text-muted); font-family:monospace; margin-top:2px;\" dir=\"ltr\">filename.pdf</div></div><div class=\"d-flex items-center gap-2\"><a id=\"modal-doc-tab-btn\" href=\"#\" target=\"_blank\" class=\"btn btn-secondary btn-sm fw-700\" style=\"gap:0.35rem;\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -885,7 +901,7 @@ func OrganizationDocumentsContent(lang string, data *OrganizationDocumentsData) 
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 100, "<span>فتح في نافذة جديدة ↗</span></a> <a id=\"modal-doc-download-btn\" href=\"#\" class=\"btn btn-primary btn-sm fw-800\" style=\"gap:0.35rem;\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 102, "<span>فتح في نافذة جديدة ↗</span></a> <a id=\"modal-doc-download-btn\" href=\"#\" class=\"btn btn-primary btn-sm fw-800\" style=\"gap:0.35rem;\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -893,7 +909,7 @@ func OrganizationDocumentsContent(lang string, data *OrganizationDocumentsData) 
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 101, "<span>تحميل الملف</span></a> <button type=\"button\" onclick=\"closeDocViewer()\" style=\"background:none; border:none; font-size:1.4rem; color:var(--text-muted); cursor:pointer; padding:0 0.5rem; line-height:1;\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 103, "<span>تحميل الملف</span></a> <button type=\"button\" onclick=\"closeDocViewer()\" style=\"background:none; border:none; font-size:1.4rem; color:var(--text-muted); cursor:pointer; padding:0 0.5rem; line-height:1;\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -901,7 +917,7 @@ func OrganizationDocumentsContent(lang string, data *OrganizationDocumentsData) 
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 102, "</button></div></div><!-- Dynamic Interactive Viewer Viewport --><div id=\"modal-doc-viewport\" style=\"width:100%; height:72vh; background:var(--surface-sunken); overflow:auto; display:flex; align-items:center; justify-content:center; position:relative; padding:0.5rem;\"><!-- Mode 1: PDF Viewer Iframe --><iframe id=\"modal-doc-iframe\" src=\"about:blank\" style=\"width:100%; height:100%; border:none; border-radius:var(--radius-md); display:none;\" loading=\"lazy\"></iframe><!-- Mode 2: Image Viewer --><div id=\"modal-doc-img-container\" style=\"display:none; width:100%; height:100%; align-items:center; justify-content:center; overflow:auto;\"><img id=\"modal-doc-img\" src=\"\" alt=\"معاينة المستند\" style=\"max-width:100%; max-height:100%; object-fit:contain; border-radius:var(--radius-md); box-shadow:var(--shadow-md);\"></div></div><!-- Modal Footer --><div style=\"display:flex; justify-content:space-between; align-items:center; padding:0.75rem 1.5rem; border-top:1px solid var(--border); background:var(--surface); font-size:0.8rem; color:var(--text-muted);\"><span>مستند رقمي مشفر ومحمي لمنشأتك فقط</span> <button type=\"button\" class=\"btn btn-secondary btn-sm\" onclick=\"closeDocViewer()\">إغلاق المعاينة</button></div></div></div><!-- Modal: Replace Document Modal with Replacement Reason --><div id=\"replace-doc-modal\" style=\"display:none; position:fixed; inset:0; background:rgba(0,0,0,0.7); z-index:99999; align-items:center; justify-content:center; padding:1rem; backdrop-filter:blur(4px);\"><div style=\"background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-2xl); width:100%; max-width:580px; box-shadow:var(--shadow-2xl); overflow:hidden; display:flex; flex-direction:column;\"><!-- Header --><div style=\"padding:1.25rem 1.5rem; border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:center; background:var(--surface-sunken);\"><div class=\"inline-row-06\"><span style=\"font-size:1.4rem;\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 104, "</button></div></div><!-- Dynamic Interactive Viewer Viewport --><div id=\"modal-doc-viewport\" style=\"width:100%; height:72vh; background:var(--surface-sunken); overflow:auto; display:flex; align-items:center; justify-content:center; position:relative; padding:0.5rem;\"><!-- Mode 1: PDF Viewer Iframe --><iframe id=\"modal-doc-iframe\" src=\"about:blank\" style=\"width:100%; height:100%; border:none; border-radius:var(--radius-md); display:none;\" loading=\"lazy\"></iframe><!-- Mode 2: Image Viewer --><div id=\"modal-doc-img-container\" style=\"display:none; width:100%; height:100%; align-items:center; justify-content:center; overflow:auto;\"><img id=\"modal-doc-img\" src=\"\" alt=\"معاينة المستند\" style=\"max-width:100%; max-height:100%; object-fit:contain; border-radius:var(--radius-md); box-shadow:var(--shadow-md);\"></div></div><!-- Modal Footer --><div style=\"display:flex; justify-content:space-between; align-items:center; padding:0.75rem 1.5rem; border-top:1px solid var(--border); background:var(--surface); font-size:0.8rem; color:var(--text-muted);\"><span>مستند رقمي مشفر ومحمي لمنشأتك فقط</span> <button type=\"button\" class=\"btn btn-secondary btn-sm\" onclick=\"closeDocViewer()\">إغلاق المعاينة</button></div></div></div><!-- Modal: Replace Document Modal with Replacement Reason --><div id=\"replace-doc-modal\" style=\"display:none; position:fixed; inset:0; background:rgba(0,0,0,0.7); z-index:99999; align-items:center; justify-content:center; padding:1rem; backdrop-filter:blur(4px);\"><div style=\"background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-2xl); width:100%; max-width:580px; box-shadow:var(--shadow-2xl); overflow:hidden; display:flex; flex-direction:column;\"><!-- Header --><div style=\"padding:1.25rem 1.5rem; border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:center; background:var(--surface-sunken);\"><div class=\"inline-row-06\"><span style=\"font-size:1.4rem;\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -909,7 +925,7 @@ func OrganizationDocumentsContent(lang string, data *OrganizationDocumentsData) 
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 103, "</span><div><h3 id=\"replace-modal-title\" style=\"font-size:1.15rem; font-weight:900; color:var(--text); margin:0;\">استبدال وتحديث المستند</h3><div id=\"replace-modal-subtitle\" style=\"font-size:0.775rem; color:var(--text-muted); margin-top:2px;\">رفع نسخة جديدة مع توضيح سبب الاستبدال</div></div></div><button type=\"button\" onclick=\"closeReplaceDocModal()\" style=\"background:none; border:none; font-size:1.3rem; color:var(--text-muted); cursor:pointer; padding:0 0.4rem; line-height:1;\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 105, "</span><div><h3 id=\"replace-modal-title\" style=\"font-size:1.15rem; font-weight:900; color:var(--text); margin:0;\">استبدال وتحديث المستند</h3><div id=\"replace-modal-subtitle\" style=\"font-size:0.775rem; color:var(--text-muted); margin-top:2px;\">رفع نسخة جديدة مع توضيح سبب الاستبدال</div></div></div><button type=\"button\" onclick=\"closeReplaceDocModal()\" style=\"background:none; border:none; font-size:1.3rem; color:var(--text-muted); cursor:pointer; padding:0 0.4rem; line-height:1;\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -917,7 +933,7 @@ func OrganizationDocumentsContent(lang string, data *OrganizationDocumentsData) 
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 104, "</button></div><!-- Body Form --><form action=\"/documents/upload\" method=\"POST\" enctype=\"multipart/form-data\" style=\"padding:1.5rem; display:flex; flex-direction:column; gap:1.25rem; margin:0;\"><input type=\"hidden\" name=\"document_type\" id=\"replace-doc-type\" value=\"\"> <input type=\"hidden\" name=\"existing_doc_id\" id=\"replace-existing-id\" value=\"\"><!-- Current File Info Box --><div style=\"background:var(--surface-sunken); border:1px solid var(--border); border-radius:var(--radius-lg); padding:0.85rem 1rem; display:flex; align-items:center; justify-content:space-between; font-size:0.825rem;\"><span style=\"color:var(--text-secondary); font-weight:700;\">الملف الحالي المسجل:</span> <span id=\"replace-modal-current-file\" style=\"font-weight:800; color:var(--primary); font-family:monospace;\" dir=\"ltr\">file.pdf</span></div><!-- New File Upload Field --><div><label class=\"form-label\" style=\"font-size:0.85rem; font-weight:800; color:var(--text); margin-bottom:0.4rem; display:block;\">اختر ملف المستند الجديد <span class=\"text-rose fw-800\">*</span></label> <input type=\"file\" name=\"file\" required accept=\".pdf,.png,.jpg,.jpeg,.webp\" class=\"form-control\" style=\"padding:0.5rem 0.75rem; font-size:0.85rem; width:100%; border-radius:var(--radius-lg);\"> <span style=\"font-size:0.75rem; color:var(--text-muted); margin-top:0.35rem; display:block;\">الصيغ المقبولة: PDF أو صور (PNG, JPG, WebP) بحجم أقصى 20 ميجابايت.</span></div><!-- Replacement Reason Field --><div><label class=\"form-label\" style=\"font-size:0.85rem; font-weight:800; color:var(--text); margin-bottom:0.4rem; display:block;\">سبب استبدال / تحديث المستند <span class=\"text-rose fw-800\">*</span></label> <textarea name=\"replacement_reason\" id=\"replace-doc-reason\" required rows=\"3\" class=\"form-control\" placeholder=\"يرجى توضيح سبب الاستبدال لإدارة المنصة (مثال: تجديد ترخيص المنشأة السنوي، تصحيح خطأ بالصورة السابقة، صدور سجل تجاري محدث...)\" style=\"width:100%; font-size:0.85rem; padding:0.65rem 0.85rem; border-radius:var(--radius-lg); resize:vertical;\"></textarea></div><!-- Footer Actions --><div style=\"display:flex; justify-content:flex-end; gap:0.75rem; padding-top:0.75rem; border-top:1px solid var(--border); margin-top:0.25rem;\"><button type=\"button\" class=\"btn btn-secondary\" onclick=\"closeReplaceDocModal()\">إلغاء</button> <button type=\"submit\" class=\"btn btn-primary\" style=\"font-weight:850; padding:0 1.5rem; gap:0.4rem;\"><span>تأكيد واستبدال المستند </span></button></div></form></div></div><!-- Viewer & Replace Modal Logic Scripts --><script>\n\t\tfunction openDocViewerFromBtn(btn) {\n\t\t\tif (!btn) return;\n\t\t\tconst docId = btn.getAttribute('data-doc-id');\n\t\t\tconst title = btn.getAttribute('data-title') || '';\n\t\t\tconst docType = btn.getAttribute('data-doctype') || '';\n\t\t\tconst name = btn.getAttribute('data-name') || '';\n\t\t\tconst status = btn.getAttribute('data-status') || '';\n\t\t\tconst url = btn.getAttribute('data-url') || '';\n\t\t\topenDocViewer(docId, title, docType, name, status, url);\n\t\t}\n\n\t\tfunction openReplaceDocModalFromBtn(btn) {\n\t\t\tif (!btn) return;\n\t\t\tconst docId = btn.getAttribute('data-doc-id');\n\t\t\tconst docType = btn.getAttribute('data-doctype') || '';\n\t\t\tconst title = btn.getAttribute('data-title') || '';\n\t\t\tconst name = btn.getAttribute('data-name') || '';\n\t\t\topenReplaceDocModal(docId, docType, title, name);\n\t\t}\n\n\t\tfunction openDocViewer(docId, title, docType, originalName, status, rawUrl) {\n\t\t\tconst viewUrl = '/documents/' + docId + '/view';\n\t\t\tconst downloadUrl = '/documents/' + docId + '/download';\n\n\t\t\tconst titleEl = document.getElementById('modal-doc-title');\n\t\t\tconst filenameEl = document.getElementById('modal-doc-filename');\n\t\t\tconst tabBtn = document.getElementById('modal-doc-tab-btn');\n\t\t\tconst downloadBtn = document.getElementById('modal-doc-download-btn');\n\t\t\tconst iframe = document.getElementById('modal-doc-iframe');\n\t\t\tconst imgContainer = document.getElementById('modal-doc-img-container');\n\t\t\tconst img = document.getElementById('modal-doc-img');\n\t\t\tconst modal = document.getElementById('doc-viewer-modal');\n\n\t\t\tif (titleEl) titleEl.textContent = title;\n\t\t\tif (filenameEl) filenameEl.textContent = originalName || ('Document #' + docId);\n\t\t\tif (tabBtn) tabBtn.href = viewUrl;\n\t\t\tif (downloadBtn) downloadBtn.href = downloadUrl;\n\n\t\t\tconst ext = (originalName || '').split('.').pop().toLowerCase();\n\t\t\tconst isImage = ['png', 'jpg', 'jpeg', 'webp', 'svg', 'gif'].includes(ext);\n\n\t\t\tif (isImage) {\n\t\t\t\tif (iframe) {\n\t\t\t\t\tiframe.style.display = 'none';\n\t\t\t\t\tiframe.src = 'about:blank';\n\t\t\t\t}\n\t\t\t\tif (img && imgContainer) {\n\t\t\t\t\timg.src = viewUrl;\n\t\t\t\t\timgContainer.style.display = 'flex';\n\t\t\t\t}\n\t\t\t} else {\n\t\t\t\tif (imgContainer) imgContainer.style.display = 'none';\n\t\t\t\tif (iframe) {\n\t\t\t\t\tiframe.src = viewUrl;\n\t\t\t\t\tiframe.style.display = 'block';\n\t\t\t\t}\n\t\t\t}\n\n\t\t\tif (modal) {\n\t\t\t\tmodal.style.display = 'flex';\n\t\t\t}\n\t\t}\n\n\t\tfunction closeDocViewer() {\n\t\t\tconst modal = document.getElementById('doc-viewer-modal');\n\t\t\tconst iframe = document.getElementById('modal-doc-iframe');\n\t\t\tconst img = document.getElementById('modal-doc-img');\n\t\t\tif (modal) modal.style.display = 'none';\n\t\t\tif (iframe) iframe.src = 'about:blank';\n\t\t\tif (img) img.src = '';\n\t\t}\n\n\t\tfunction openReplaceDocModal(docId, docType, titleAr, origName) {\n\t\t\tconst modal = document.getElementById('replace-doc-modal');\n\t\t\tconst titleEl = document.getElementById('replace-modal-title');\n\t\t\tconst currFileEl = document.getElementById('replace-modal-current-file');\n\t\t\tconst docTypeInput = document.getElementById('replace-doc-type');\n\t\t\tconst existingIdInput = document.getElementById('replace-existing-id');\n\t\t\tconst reasonInput = document.getElementById('replace-doc-reason');\n\n\t\t\tif (titleEl) titleEl.textContent = 'استبدال مستند: ' + (titleAr || '');\n\t\t\tif (currFileEl) currFileEl.textContent = origName || ('مستند #' + docId);\n\t\t\tif (docTypeInput) docTypeInput.value = docType || '';\n\t\t\tif (existingIdInput) existingIdInput.value = docId || '';\n\t\t\tif (reasonInput) reasonInput.value = '';\n\n\t\t\tif (modal) {\n\t\t\t\tmodal.style.display = 'flex';\n\t\t\t}\n\t\t}\n\n\t\tfunction closeReplaceDocModal() {\n\t\t\tconst modal = document.getElementById('replace-doc-modal');\n\t\t\tif (modal) {\n\t\t\t\tmodal.style.display = 'none';\n\t\t\t}\n\t\t}\n\n\t\t// Close modals on backdrop click\n\t\twindow.addEventListener('click', function(e) {\n\t\t\tconst viewModal = document.getElementById('doc-viewer-modal');\n\t\t\tconst replModal = document.getElementById('replace-doc-modal');\n\t\t\tif (e.target === viewModal) closeDocViewer();\n\t\t\tif (e.target === replModal) closeReplaceDocModal();\n\t\t});\n\t</script>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 106, "</button></div><!-- Body Form --><form action=\"/documents/upload\" method=\"POST\" enctype=\"multipart/form-data\" style=\"padding:1.5rem; display:flex; flex-direction:column; gap:1.25rem; margin:0;\"><input type=\"hidden\" name=\"document_type\" id=\"replace-doc-type\" value=\"\"> <input type=\"hidden\" name=\"existing_doc_id\" id=\"replace-existing-id\" value=\"\"><!-- Current File Info Box --><div style=\"background:var(--surface-sunken); border:1px solid var(--border); border-radius:var(--radius-lg); padding:0.85rem 1rem; display:flex; align-items:center; justify-content:space-between; font-size:0.825rem;\"><span style=\"color:var(--text-secondary); font-weight:700;\">الملف الحالي المسجل:</span> <span id=\"replace-modal-current-file\" style=\"font-weight:800; color:var(--primary); font-family:monospace;\" dir=\"ltr\">file.pdf</span></div><!-- New File Upload Field --><div><label class=\"form-label\" style=\"font-size:0.85rem; font-weight:800; color:var(--text); margin-bottom:0.4rem; display:block;\">اختر ملف المستند الجديد <span class=\"text-rose fw-800\">*</span></label> <input type=\"file\" name=\"file\" required accept=\".pdf,.png,.jpg,.jpeg,.webp\" class=\"form-control\" style=\"padding:0.5rem 0.75rem; font-size:0.85rem; width:100%; border-radius:var(--radius-lg);\"> <span style=\"font-size:0.75rem; color:var(--text-muted); margin-top:0.35rem; display:block;\">الصيغ المقبولة: PDF أو صور (PNG, JPG, WebP) بحجم أقصى 20 ميجابايت.</span></div><!-- Replacement Reason Field --><div><label class=\"form-label\" style=\"font-size:0.85rem; font-weight:800; color:var(--text); margin-bottom:0.4rem; display:block;\">سبب استبدال / تحديث المستند <span class=\"text-rose fw-800\">*</span></label> <textarea name=\"replacement_reason\" id=\"replace-doc-reason\" required rows=\"3\" class=\"form-control\" placeholder=\"يرجى توضيح سبب الاستبدال لإدارة المنصة (مثال: تجديد ترخيص المنشأة السنوي، تصحيح خطأ بالصورة السابقة، صدور سجل تجاري محدث...)\" style=\"width:100%; font-size:0.85rem; padding:0.65rem 0.85rem; border-radius:var(--radius-lg); resize:vertical;\"></textarea></div><!-- Footer Actions --><div style=\"display:flex; justify-content:flex-end; gap:0.75rem; padding-top:0.75rem; border-top:1px solid var(--border); margin-top:0.25rem;\"><button type=\"button\" class=\"btn btn-secondary\" onclick=\"closeReplaceDocModal()\">إلغاء</button> <button type=\"submit\" class=\"btn btn-primary\" style=\"font-weight:850; padding:0 1.5rem; gap:0.4rem;\"><span>تأكيد واستبدال المستند </span></button></div></form></div></div><!-- Viewer & Replace Modal Logic Scripts --><script>\n\t\tfunction openDocViewerFromBtn(btn) {\n\t\t\tif (!btn) return;\n\t\t\tconst docId = btn.getAttribute('data-doc-id');\n\t\t\tconst title = btn.getAttribute('data-title') || '';\n\t\t\tconst docType = btn.getAttribute('data-doctype') || '';\n\t\t\tconst name = btn.getAttribute('data-name') || '';\n\t\t\tconst status = btn.getAttribute('data-status') || '';\n\t\t\tconst url = btn.getAttribute('data-url') || '';\n\t\t\topenDocViewer(docId, title, docType, name, status, url);\n\t\t}\n\n\t\tfunction openReplaceDocModalFromBtn(btn) {\n\t\t\tif (!btn) return;\n\t\t\tconst docId = btn.getAttribute('data-doc-id');\n\t\t\tconst docType = btn.getAttribute('data-doctype') || '';\n\t\t\tconst title = btn.getAttribute('data-title') || '';\n\t\t\tconst name = btn.getAttribute('data-name') || '';\n\t\t\topenReplaceDocModal(docId, docType, title, name);\n\t\t}\n\n\t\tfunction openDocViewer(docId, title, docType, originalName, status, rawUrl) {\n\t\t\tconst viewUrl = '/documents/' + docId + '/view';\n\t\t\tconst downloadUrl = '/documents/' + docId + '/download';\n\n\t\t\tconst titleEl = document.getElementById('modal-doc-title');\n\t\t\tconst filenameEl = document.getElementById('modal-doc-filename');\n\t\t\tconst tabBtn = document.getElementById('modal-doc-tab-btn');\n\t\t\tconst downloadBtn = document.getElementById('modal-doc-download-btn');\n\t\t\tconst iframe = document.getElementById('modal-doc-iframe');\n\t\t\tconst imgContainer = document.getElementById('modal-doc-img-container');\n\t\t\tconst img = document.getElementById('modal-doc-img');\n\t\t\tconst modal = document.getElementById('doc-viewer-modal');\n\n\t\t\tif (titleEl) titleEl.textContent = title;\n\t\t\tif (filenameEl) filenameEl.textContent = originalName || ('Document #' + docId);\n\t\t\tif (tabBtn) tabBtn.href = viewUrl;\n\t\t\tif (downloadBtn) downloadBtn.href = downloadUrl;\n\n\t\t\tconst ext = (originalName || '').split('.').pop().toLowerCase();\n\t\t\tconst isImage = ['png', 'jpg', 'jpeg', 'webp', 'svg', 'gif'].includes(ext);\n\n\t\t\tif (isImage) {\n\t\t\t\tif (iframe) {\n\t\t\t\t\tiframe.style.display = 'none';\n\t\t\t\t\tiframe.src = 'about:blank';\n\t\t\t\t}\n\t\t\t\tif (img && imgContainer) {\n\t\t\t\t\timg.src = viewUrl;\n\t\t\t\t\timgContainer.style.display = 'flex';\n\t\t\t\t}\n\t\t\t} else {\n\t\t\t\tif (imgContainer) imgContainer.style.display = 'none';\n\t\t\t\tif (iframe) {\n\t\t\t\t\tiframe.src = viewUrl;\n\t\t\t\t\tiframe.style.display = 'block';\n\t\t\t\t}\n\t\t\t}\n\n\t\t\tif (modal) {\n\t\t\t\tmodal.style.display = 'flex';\n\t\t\t}\n\t\t}\n\n\t\tfunction closeDocViewer() {\n\t\t\tconst modal = document.getElementById('doc-viewer-modal');\n\t\t\tconst iframe = document.getElementById('modal-doc-iframe');\n\t\t\tconst img = document.getElementById('modal-doc-img');\n\t\t\tif (modal) modal.style.display = 'none';\n\t\t\tif (iframe) iframe.src = 'about:blank';\n\t\t\tif (img) img.src = '';\n\t\t}\n\n\t\tfunction openReplaceDocModal(docId, docType, titleAr, origName) {\n\t\t\tconst modal = document.getElementById('replace-doc-modal');\n\t\t\tconst titleEl = document.getElementById('replace-modal-title');\n\t\t\tconst currFileEl = document.getElementById('replace-modal-current-file');\n\t\t\tconst docTypeInput = document.getElementById('replace-doc-type');\n\t\t\tconst existingIdInput = document.getElementById('replace-existing-id');\n\t\t\tconst reasonInput = document.getElementById('replace-doc-reason');\n\n\t\t\tif (titleEl) titleEl.textContent = 'استبدال مستند: ' + (titleAr || '');\n\t\t\tif (currFileEl) currFileEl.textContent = origName || ('مستند #' + docId);\n\t\t\tif (docTypeInput) docTypeInput.value = docType || '';\n\t\t\tif (existingIdInput) existingIdInput.value = docId || '';\n\t\t\tif (reasonInput) reasonInput.value = '';\n\n\t\t\tif (modal) {\n\t\t\t\tmodal.style.display = 'flex';\n\t\t\t}\n\t\t}\n\n\t\tfunction closeReplaceDocModal() {\n\t\t\tconst modal = document.getElementById('replace-doc-modal');\n\t\t\tif (modal) {\n\t\t\t\tmodal.style.display = 'none';\n\t\t\t}\n\t\t}\n\n\t\t// Close modals on backdrop click\n\t\twindow.addEventListener('click', function(e) {\n\t\t\tconst viewModal = document.getElementById('doc-viewer-modal');\n\t\t\tconst replModal = document.getElementById('replace-doc-modal');\n\t\t\tif (e.target === viewModal) closeDocViewer();\n\t\t\tif (e.target === replModal) closeReplaceDocModal();\n\t\t});\n\t</script>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
