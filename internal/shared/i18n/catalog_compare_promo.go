@@ -1,6 +1,7 @@
 package i18n
 
 func loadCompareAndPromoKeys(e *engine) {
+	addKey(e, "customer.offer.no_products", "promo", "هذا العرض لا يحتوي على أصناف قابلة للشراء حالياً. يرجى التواصل مع المورد.", "This offer has no purchasable items yet. Please contact the supplier.", "Offer has no products configured")
 	// --- Compare & Smart Savings ---
 	addKey(e, "compare.title", "compare", "مقارنة الأسعار والعروض الذكية", "Smart Savings & Price Comparison", "Compare page title")
 	addKey(e, "compare.subtitle", "compare", "قارن أسعار ونسب خصم الأدوية بين كافة الموردين المعتمدين لتوفير أعلى عائد ربحي لصيدليتك.", "Compare medicine prices and discount percentages across verified suppliers to maximize pharmacy profit.", "Compare page subtitle")

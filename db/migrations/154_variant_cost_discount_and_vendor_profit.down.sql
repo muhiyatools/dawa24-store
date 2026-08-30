@@ -1,7 +1,5 @@
-﻿-- Migration 154: Down
+-- Migration 154: Down
 -- Schema: catalog, commerce
-
-BEGIN;
 
 ALTER TABLE commerce.order_lines
     DROP COLUMN IF EXISTS cost_discount_percentage,
@@ -10,4 +8,3 @@ ALTER TABLE commerce.order_lines
 ALTER TABLE catalog.product_variants
     DROP COLUMN IF EXISTS cost_discount_percentage;
 
-COMMIT;
