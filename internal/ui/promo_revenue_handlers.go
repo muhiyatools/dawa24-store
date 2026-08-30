@@ -4,12 +4,15 @@ import (
 	"fmt"
 	"net/http"
 	"strconv"
+	"strings"
 
 	"github.com/go-chi/chi/v5"
 
 	"github.com/muhiya/dawa24-store/internal/modules/promo"
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/platform/database"
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
+	"github.com/muhiya/dawa24-store/internal/shared/money"
 	"github.com/muhiya/dawa24-store/internal/ui/pages"
 )
 
@@ -18,34 +21,94 @@ func (h *UIHandler) AdminOffersPackagesHubPage(w http.ResponseWriter, r *http.Re
 	ctx := r.Context()
 	lang, dir := h.localeAndDir(r)
 
+	tab := strings.TrimSpace(r.URL.Query().Get("tab"))
+	if tab == "" {
+		tab = "packages"
+	}
+
+	var packages []*promo.OfferPackage
+	var requests []*promo.SponsorshipRequest
+	var ads []*promo.Ad
+
+	var totalPkgs, activePkgs int
+	var totalRequests, pendingRequests, approvedRequests int
+	var totalAds, pendingAds int
+
+	if h.promoSvc != nil {
+		if pkgs, err := h.promoSvc.AdminListPackages(ctx); err == nil {
+			packages = pkgs
+			totalPkgs = len(pkgs)
+			for _, p := range pkgs {
+				if p != nil && p.IsActive {
+					activePkgs++
+				}
+			}
+		}
+
+		if reqs, err := h.promoSvc.AdminListSponsorshipRequests(database.AsSystem(ctx), 200, 0); err == nil {
+			requests = reqs
+			totalRequests = len(reqs)
+			for _, req := range reqs {
+				if req != nil {
+					if req.AdminStatus == "pending" {
+						pendingRequests++
+					} else if req.AdminStatus == "approved" {
+						approvedRequests++
+					}
+				}
+			}
+		}
+
+		if adList, err := h.promoSvc.AdminListAds(database.AsSystem(ctx), 200, 0); err == nil {
+			ads = adList
+			totalAds = len(adList)
+			for _, a := range adList {
+				if a != nil && a.AdminStatus == "pending" {
+					pendingAds++
+				}
+			}
+		}
+	}
+
+	noticeType := r.URL.Query().Get("notice")
+	if noticeType == "" {
+		noticeType = r.URL.Query().Get("notice_type")
+	}
+	noticeMsg := r.URL.Query().Get("msg")
+	if noticeMsg == "" {
+		noticeMsg = r.URL.Query().Get("message")
+	}
+
+	data := pages.AdminOffersPackagesData{
+		Packages:         packages,
+		Requests:         requests,
+		Ads:              ads,
+		TotalPackages:    totalPkgs,
+		ActivePackages:   activePkgs,
+		TotalRequests:    totalRequests,
+		PendingRequests:  pendingRequests,
+		ApprovedRequests: approvedRequests,
+		TotalAds:         totalAds,
+		PendingAds:       pendingAds,
+		ActiveTab:        tab,
+		NoticeType:       noticeType,
+		NoticeMsg:        noticeMsg,
+	}
+
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	if err := pages.AdminOffersPackagesHubPage(lang, dir).Render(ctx, w); err != nil {
+	if err := pages.AdminOffersPackagesHubPage(lang, dir, data).Render(ctx, w); err != nil {
 		h.log.ErrorContext(ctx, "render admin offers packages hub", "error", err)
 	}
 }
 
 // AdminOfferPackagesListPage renders list of offer packages and pricing tiers.
 func (h *UIHandler) AdminOfferPackagesListPage(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-	lang, dir := h.localeAndDir(r)
-
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	if err := pages.AdminOfferPackagesListPage(lang, dir).Render(ctx, w); err != nil {
-		h.log.ErrorContext(ctx, "render admin offer packages list", "error", err)
-	}
+	h.AdminOffersPackagesHubPage(w, r)
 }
 
 // AdminOfferPackageDetailPage renders single offer package details and features.
 func (h *UIHandler) AdminOfferPackageDetailPage(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-	idStr := chi.URLParam(r, "id")
-	pkgID, _ := strconv.ParseInt(idStr, 10, 64)
-	lang, dir := h.localeAndDir(r)
-
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	if err := pages.AdminOfferPackageDetailPage(pkgID, lang, dir).Render(ctx, w); err != nil {
-		h.log.ErrorContext(ctx, "render admin offer package detail", "error", err)
-	}
+	http.Redirect(w, r, "/admin/offers-packages?tab=packages", http.StatusMovedPermanently)
 }
 
 // AdminOfferSponsorshipsPage renders list of sponsored offers and pending requests.
@@ -91,15 +154,9 @@ func (h *UIHandler) AdminAdsListPage(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// AdminAdPlansPage renders advertising placement plans.
+// AdminAdPlansPage renders advertising placement plans (unifies into /admin/offers-packages).
 func (h *UIHandler) AdminAdPlansPage(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-	lang, dir := h.localeAndDir(r)
-
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	if err := pages.AdminAdPlansPage(lang, dir).Render(ctx, w); err != nil {
-		h.log.ErrorContext(ctx, "render admin ad plans", "error", err)
-	}
+	http.Redirect(w, r, "/admin/offers-packages?tab=packages", http.StatusMovedPermanently)
 }
 
 // AdminOfferAnalyticsViewsPage renders views time-series and aggregate report.
@@ -240,82 +297,282 @@ func (h *UIHandler) PublicAdClick(w http.ResponseWriter, r *http.Request) {
 func (h *UIHandler) AdminSponsorshipRequestApproveSubmit(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	if h.promoSvc == nil {
-		http.Redirect(w, r, "/admin/offers-packages/sponsorships", http.StatusSeeOther)
+		http.Redirect(w, r, "/admin/offers-packages?tab=requests", http.StatusSeeOther)
 		return
 	}
 	id, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
 	if err != nil || id <= 0 {
-		http.Redirect(w, r, "/admin/offers-packages/sponsorships", http.StatusSeeOther)
+		http.Redirect(w, r, "/admin/offers-packages?tab=requests", http.StatusSeeOther)
 		return
 	}
 	sysCtx := database.AsSystem(ctx)
 	notes := r.PostFormValue("notes")
 	if _, err := h.promoSvc.AdminApproveSponsorshipRequest(sysCtx, id, notes); err != nil {
-		h.redirectWithNotice(w, r, "/admin/offers-packages/sponsorships", "error", h.safeMessage(err, langOf(r)))
+		h.redirectWithNotice(w, r, "/admin/offers-packages?tab=requests", "error", h.safeMessage(err, langOf(r)))
 		return
 	}
-	h.redirectWithNotice(w, r, "/admin/offers-packages/sponsorships", "success", "تم اعتماد طلب الرعاية. سيظهر العنصر في صدارة النتائج.")
+	h.redirectWithNotice(w, r, "/admin/offers-packages?tab=requests", "success", "تم اعتماد طلب الرعاية. سيظهر العنصر في صدارة النتائج.")
 }
 
 // AdminSponsorshipRequestRejectSubmit rejects a pending sponsorship request from the admin UI.
 func (h *UIHandler) AdminSponsorshipRequestRejectSubmit(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	if h.promoSvc == nil {
-		http.Redirect(w, r, "/admin/offers-packages/sponsorships", http.StatusSeeOther)
+		http.Redirect(w, r, "/admin/offers-packages?tab=requests", http.StatusSeeOther)
 		return
 	}
 	id, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
 	if err != nil || id <= 0 {
-		http.Redirect(w, r, "/admin/offers-packages/sponsorships", http.StatusSeeOther)
+		http.Redirect(w, r, "/admin/offers-packages?tab=requests", http.StatusSeeOther)
 		return
 	}
 	sysCtx := database.AsSystem(ctx)
 	notes := r.PostFormValue("notes")
 	if err := h.promoSvc.AdminRejectSponsorshipRequest(sysCtx, id, notes); err != nil {
-		h.redirectWithNotice(w, r, "/admin/offers-packages/sponsorships", "error", h.safeMessage(err, langOf(r)))
+		h.redirectWithNotice(w, r, "/admin/offers-packages?tab=requests", "error", h.safeMessage(err, langOf(r)))
 		return
 	}
-	h.redirectWithNotice(w, r, "/admin/offers-packages/sponsorships", "success", "تم رفض طلب الرعاية وإرجاع الرصيد.")
+	h.redirectWithNotice(w, r, "/admin/offers-packages?tab=requests", "success", "تم رفض طلب الرعاية وإرجاع الرصيد للمورد.")
 }
 
 // AdminAdApproveSubmit approves an ad from the admin UI.
 func (h *UIHandler) AdminAdApproveSubmit(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	if h.promoSvc == nil {
-		http.Redirect(w, r, "/admin/ads", http.StatusSeeOther)
+		http.Redirect(w, r, "/admin/offers-packages?tab=ads", http.StatusSeeOther)
 		return
 	}
 	id, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
 	if err != nil || id <= 0 {
-		http.Redirect(w, r, "/admin/ads", http.StatusSeeOther)
+		http.Redirect(w, r, "/admin/offers-packages?tab=ads", http.StatusSeeOther)
 		return
 	}
 	sysCtx := database.AsSystem(ctx)
 	notes := r.PostFormValue("notes")
 	if err := h.promoSvc.AdminApproveAd(sysCtx, id, notes); err != nil {
-		h.redirectWithNotice(w, r, "/admin/ads", "error", h.safeMessage(err, langOf(r)))
+		h.redirectWithNotice(w, r, "/admin/offers-packages?tab=ads", "error", h.safeMessage(err, langOf(r)))
 		return
 	}
-	h.redirectWithNotice(w, r, "/admin/ads", "success", "تم اعتماد الإعلان ونشره في الصفحة الرئيسية.")
+	h.redirectWithNotice(w, r, "/admin/offers-packages?tab=ads", "success", "تم اعتماد الإعلان ونشره بنجاح.")
 }
 
 // AdminAdRejectSubmit rejects an ad from the admin UI.
 func (h *UIHandler) AdminAdRejectSubmit(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	if h.promoSvc == nil {
-		http.Redirect(w, r, "/admin/ads", http.StatusSeeOther)
+		http.Redirect(w, r, "/admin/offers-packages?tab=ads", http.StatusSeeOther)
 		return
 	}
 	id, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
 	if err != nil || id <= 0 {
-		http.Redirect(w, r, "/admin/ads", http.StatusSeeOther)
+		http.Redirect(w, r, "/admin/offers-packages?tab=ads", http.StatusSeeOther)
 		return
 	}
 	sysCtx := database.AsSystem(ctx)
 	notes := r.PostFormValue("notes")
 	if err := h.promoSvc.AdminRejectAd(sysCtx, id, notes); err != nil {
-		h.redirectWithNotice(w, r, "/admin/ads", "error", h.safeMessage(err, langOf(r)))
+		h.redirectWithNotice(w, r, "/admin/offers-packages?tab=ads", "error", h.safeMessage(err, langOf(r)))
 		return
 	}
-	h.redirectWithNotice(w, r, "/admin/ads", "success", "تم رفض الإعلان.")
+	h.redirectWithNotice(w, r, "/admin/offers-packages?tab=ads", "success", "تم رفض الإعلان.")
 }
+
+// AdminOfferPackageCreateSubmit creates a new monetization / sponsorship package.
+func (h *UIHandler) AdminOfferPackageCreateSubmit(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	if h.promoSvc == nil {
+		h.redirectWithNotice(w, r, "/admin/offers-packages?tab=packages", "error", "خدمة الباقات غير متوفرة حالياً.")
+		return
+	}
+
+	nameAR := strings.TrimSpace(r.PostFormValue("name_ar"))
+	nameEN := strings.TrimSpace(r.PostFormValue("name_en"))
+	if nameAR == "" && nameEN == "" {
+		h.redirectWithNotice(w, r, "/admin/offers-packages?tab=packages", "error", "يرجى كتابة اسم الباقة.")
+		return
+	}
+	if nameAR == "" {
+		nameAR = nameEN
+	}
+	if nameEN == "" {
+		nameEN = nameAR
+	}
+
+	descAR := strings.TrimSpace(r.PostFormValue("desc_ar"))
+	descEN := strings.TrimSpace(r.PostFormValue("desc_en"))
+
+	priceStr := strings.TrimSpace(r.PostFormValue("price"))
+	price, err := money.Parse(priceStr)
+	if err != nil {
+		price = money.Zero
+	}
+
+	durationDays, _ := strconv.Atoi(r.PostFormValue("duration_days"))
+	if durationDays <= 0 {
+		durationDays = 30
+	}
+
+	credits, _ := strconv.Atoi(r.PostFormValue("credits"))
+	if credits <= 0 {
+		credits = 10
+	}
+
+	maxOffers, _ := strconv.Atoi(r.PostFormValue("max_offers"))
+	if maxOffers <= 0 {
+		maxOffers = credits * 2
+	}
+
+	tierLevel, _ := strconv.Atoi(r.PostFormValue("tier_level"))
+	if tierLevel <= 0 || tierLevel > 5 {
+		tierLevel = 1
+	}
+
+	sortOrder, _ := strconv.Atoi(r.PostFormValue("sort_order"))
+	badgeColor := strings.TrimSpace(r.PostFormValue("badge_color"))
+	if badgeColor == "" {
+		badgeColor = "#0284c7"
+	}
+
+	isFeatured := r.PostFormValue("is_featured") == "true"
+	isActive := r.PostFormValue("is_active") == "true" || r.PostFormValue("is_active") == "on"
+
+	pkg := &promo.OfferPackage{
+		Name:         i18n.New(nameAR, nameEN),
+		Description:  i18n.New(descAR, descEN),
+		Price:        price,
+		DurationDays: durationDays,
+		Credits:      credits,
+		MaxOffers:    maxOffers,
+		TierLevel:    tierLevel,
+		SortOrder:    sortOrder,
+		BadgeColor:   badgeColor,
+		IsFeatured:   isFeatured,
+		IsActive:     isActive,
+	}
+
+	sysCtx := database.AsSystem(ctx)
+	if _, err := h.promoSvc.AdminCreatePackage(sysCtx, pkg); err != nil {
+		h.redirectWithNotice(w, r, "/admin/offers-packages?tab=packages", "error", h.safeMessage(err, langOf(r)))
+		return
+	}
+
+	h.redirectWithNotice(w, r, "/admin/offers-packages?tab=packages", "success", "تم إنشاء باقة الرعاية بنجاح.")
+}
+
+// AdminOfferPackageEditSubmit updates an offer package.
+func (h *UIHandler) AdminOfferPackageEditSubmit(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	if h.promoSvc == nil {
+		h.redirectWithNotice(w, r, "/admin/offers-packages?tab=packages", "error", "خدمة الباقات غير متوفرة حالياً.")
+		return
+	}
+
+	id, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
+	if err != nil || id <= 0 {
+		h.redirectWithNotice(w, r, "/admin/offers-packages?tab=packages", "error", "معرف الباقة غير صالح.")
+		return
+	}
+
+	nameAR := strings.TrimSpace(r.PostFormValue("name_ar"))
+	nameEN := strings.TrimSpace(r.PostFormValue("name_en"))
+	if nameAR == "" && nameEN == "" {
+		h.redirectWithNotice(w, r, "/admin/offers-packages?tab=packages", "error", "يرجى كتابة اسم الباقة.")
+		return
+	}
+	if nameAR == "" {
+		nameAR = nameEN
+	}
+	if nameEN == "" {
+		nameEN = nameAR
+	}
+
+	descAR := strings.TrimSpace(r.PostFormValue("desc_ar"))
+	descEN := strings.TrimSpace(r.PostFormValue("desc_en"))
+
+	priceStr := strings.TrimSpace(r.PostFormValue("price"))
+	price, err := money.Parse(priceStr)
+	if err != nil {
+		price = money.Zero
+	}
+
+	durationDays, _ := strconv.Atoi(r.PostFormValue("duration_days"))
+	if durationDays <= 0 {
+		durationDays = 30
+	}
+
+	credits, _ := strconv.Atoi(r.PostFormValue("credits"))
+	if credits <= 0 {
+		credits = 10
+	}
+
+	maxOffers, _ := strconv.Atoi(r.PostFormValue("max_offers"))
+	if maxOffers <= 0 {
+		maxOffers = credits * 2
+	}
+
+	tierLevel, _ := strconv.Atoi(r.PostFormValue("tier_level"))
+	if tierLevel <= 0 || tierLevel > 5 {
+		tierLevel = 1
+	}
+
+	sortOrder, _ := strconv.Atoi(r.PostFormValue("sort_order"))
+	badgeColor := strings.TrimSpace(r.PostFormValue("badge_color"))
+	if badgeColor == "" {
+		badgeColor = "#0284c7"
+	}
+
+	isFeatured := r.PostFormValue("is_featured") == "true"
+	isActive := r.PostFormValue("is_active") == "true" || r.PostFormValue("is_active") == "on"
+
+	pkg := &promo.OfferPackage{
+		ID:           id,
+		Name:         i18n.New(nameAR, nameEN),
+		Description:  i18n.New(descAR, descEN),
+		Price:        price,
+		DurationDays: durationDays,
+		Credits:      credits,
+		MaxOffers:    maxOffers,
+		TierLevel:    tierLevel,
+		SortOrder:    sortOrder,
+		BadgeColor:   badgeColor,
+		IsFeatured:   isFeatured,
+		IsActive:     isActive,
+	}
+
+	sysCtx := database.AsSystem(ctx)
+	if _, err := h.promoSvc.AdminUpdatePackage(sysCtx, pkg); err != nil {
+		h.redirectWithNotice(w, r, "/admin/offers-packages?tab=packages", "error", h.safeMessage(err, langOf(r)))
+		return
+	}
+
+	h.redirectWithNotice(w, r, "/admin/offers-packages?tab=packages", "success", "تم تحديث بيانات باقة الرعاية بنجاح.")
+}
+
+// AdminOfferPackageToggleSubmit toggles active status for an offer package.
+func (h *UIHandler) AdminOfferPackageToggleSubmit(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	if h.promoSvc == nil {
+		h.redirectWithNotice(w, r, "/admin/offers-packages?tab=packages", "error", "خدمة الباقات غير متوفرة حالياً.")
+		return
+	}
+
+	id, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
+	if err != nil || id <= 0 {
+		h.redirectWithNotice(w, r, "/admin/offers-packages?tab=packages", "error", "معرف الباقة غير صالح.")
+		return
+	}
+
+	active := r.PostFormValue("active") == "true" || r.PostFormValue("active") == "1" || r.PostFormValue("active") == "on"
+	sysCtx := database.AsSystem(ctx)
+	if err := h.promoSvc.AdminTogglePackageActive(sysCtx, id, active); err != nil {
+		h.redirectWithNotice(w, r, "/admin/offers-packages?tab=packages", "error", h.safeMessage(err, langOf(r)))
+		return
+	}
+
+	msg := "تم إلغاء تفعيل الباقة."
+	if active {
+		msg = "تم تفعيل الباقة بنجاح لتظهر للموردين."
+	}
+	h.redirectWithNotice(w, r, "/admin/offers-packages?tab=packages", "success", msg)
+}
+

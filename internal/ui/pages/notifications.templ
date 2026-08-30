@@ -2,93 +2,245 @@ package pages
 
 import (
 	"fmt"
+	"strings"
+
 	"github.com/muhiya/dawa24-store/internal/modules/notifications"
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/ui/components"
 	"github.com/muhiya/dawa24-store/internal/ui/layouts"
 )
 
+// Notifications renders the complete unified notifications center inside the actor's dashboard shell.
 templ Notifications(logs []*notifications.NotificationLog, unreadCount int, lang, dir string, isPartial bool) {
 	if isPartial {
 		@NotificationsList(logs)
 	} else {
-		@layouts.ShellFor("الإشعارات والتنبيهات | Notifications", "notifications", lang, dir, authctx.FromContext(ctx)) {
+		@layouts.ShellFor("مركز الإشعارات والتنبيهات | دواء 24", "notifications", lang, dir, authctx.FromContext(ctx)) {
 			@NotificationsContent(logs, unreadCount, lang)
 		}
 	}
 }
 
-
 templ NotificationsContent(logs []*notifications.NotificationLog, unreadCount int, lang string) {
-	<div class="notifications-page-container" style="max-width:880px; margin:1.5rem auto;">
-				<div class="header-row">
-					<div class="row-center-sm">
-						@components.IconBell("icon-md")
-						<h1 style="font-size:1.75rem; font-weight:900; color:var(--neutral-900); margin:0;">
-							الإشعارات والتنبيهات
-						</h1>
+	<div
+		class="page-container max-w-4xl"
+		x-data="{ tab: 'all' }"
+	>
+		<!-- 1. Header Banner -->
+		<div class="glass-panel p-6 mb-6">
+			<div class="flex-between items-center flex-wrap gap-4">
+				<div class="d-flex items-center gap-3.5">
+					<div class="user-avatar-badge" style="width:48px; height:48px; font-size:1.5rem;">
+						🔔
 					</div>
+					<div>
+						<div class="d-flex items-center gap-2.5 mb-1">
+							<h1 class="text-2xl font-black text-primary m-0">
+								مركز الإشعارات والتنبيهات
+							</h1>
+							if unreadCount > 0 {
+								<span class="badge badge-rose font-black text-xs tabular-nums">
+									{ fmt.Sprintf("%d غير مقروء", unreadCount) }
+								</span>
+							} else {
+								<span class="badge badge-emerald font-bold text-xs">
+									✓ جميع الإشعارات مقروءة
+								</span>
+							}
+						</div>
+						<p class="text-xs text-secondary m-0">
+							متابعة فورية لكافة طلبات الشراء، أوامر التوريد، تحديثات الأسعار والمخزون، وتنبيهات الحساب.
+						</p>
+					</div>
+				</div>
+
+				<!-- Header Actions: Mark All Read & Badge -->
+				<div class="d-flex items-center gap-2 flex-wrap">
 					if unreadCount > 0 {
-						<span class="badge badge-emerald" style="font-size:0.85rem; padding:0.35rem 0.85rem;">
-							{ fmt.Sprintf("%d غير مقروء", unreadCount) }
-						</span>
+						<form action="/notifications/read-all" method="POST" class="m-0">
+							<button
+								type="submit"
+								class="btn btn-secondary btn-sm font-bold text-xs gap-1.5"
+								title="تعليم كافة التنبيهات كمقروءة"
+							>
+								@components.IconCheck("icon-xs")
+								<span>تحديد الكل كمقروء</span>
+							</button>
+						</form>
 					}
 				</div>
-
-				<div id="notifications-list">
-					@NotificationsList(logs)
-				</div>
 			</div>
+
+			<!-- 2. Subtabs Navigation for Filter: All / Unread / Read -->
+			<div class="d-flex items-center gap-2 mt-5 pt-4 border-t flex-wrap">
+				<button
+					type="button"
+					@click="tab = 'all'"
+					class="cb-tab-btn text-xs font-bold"
+					:class="{ 'active': tab === 'all' }"
+				>
+					<span>كافة الإشعارات</span>
+					<span class="badge badge-secondary text-2xs font-bold tabular-nums ms-1.5">{ fmt.Sprintf("%d", len(logs)) }</span>
+				</button>
+
+				<button
+					type="button"
+					@click="tab = 'unread'"
+					class="cb-tab-btn text-xs font-bold"
+					:class="{ 'active': tab === 'unread' }"
+				>
+					<span>غير المقروءة فقط</span>
+					if unreadCount > 0 {
+						<span class="badge badge-rose text-2xs font-bold tabular-nums ms-1.5">{ fmt.Sprintf("%d", unreadCount) }</span>
+					} else {
+						<span class="badge badge-secondary text-2xs font-bold tabular-nums ms-1.5">0</span>
+					}
+				</button>
+
+				<button
+					type="button"
+					@click="tab = 'read'"
+					class="cb-tab-btn text-xs font-bold"
+					:class="{ 'active': tab === 'read' }"
+				>
+					<span>المقروءة سابقاً</span>
+					<span class="badge badge-secondary text-2xs font-bold tabular-nums ms-1.5">{ fmt.Sprintf("%d", len(logs) - unreadCount) }</span>
+				</button>
+			</div>
+		</div>
+
+		<!-- 3. Notifications List Area -->
+		<div id="notifications-list">
+			@NotificationsList(logs)
+		</div>
+	</div>
 }
 
 templ NotificationsList(logs []*notifications.NotificationLog) {
 	if len(logs) == 0 {
-		@components.EmptyState(components.EmptyStateProps{
-			Title:   "لا توجد إشعارات جديدة",
-			Message: "أنت على اطلاع دائم بجميع الطلبات وتحديثات الأسعار والمخزون.",
-		})
+		<div class="glass-panel p-12 text-center empty-state-glass">
+			<div class="text-4xl mb-3">🔔</div>
+			<h3 class="text-lg font-black text-primary mb-2">
+				لا توجد إشعارات حالياً
+			</h3>
+			<p class="text-sm text-secondary max-w-md mx-auto mb-0">
+				أنت على اطلاع دائم بجميع الطلبات وتحديثات الأسعار والمخزون، وسنوافيك بأحدث التنبيهات هنا فور ورودها.
+			</p>
+		</div>
 	} else {
-		<div style="display:flex; flex-direction:column; gap:0.875rem;">
+		<div class="d-flex flex-col gap-3">
 			for _, l := range logs {
-				<div class="card hover-lift" style={ fmt.Sprintf("padding:1.25rem; margin-bottom:0; display:flex; justify-content:space-between; align-items:flex-start; background:%s;", ifReadBg(l.IsRead)) }>
-					<div>
-						<div class="row-center-sm mb-sm">
-							if !l.IsRead {
-								<span style="display:inline-block; width:8px; height:8px; border-radius:50%; background:var(--primary-600);"></span>
-							}
-							<h4 style="font-weight:700; font-size:1rem; color:var(--neutral-900); margin:0;">
-								{ l.Title }
-							</h4>
+				<div
+					x-show={ notifFilterExpr(l.IsRead) }
+					x-cloak
+					class={ "glass-panel p-4 flex-between items-start flex-wrap gap-4 transition-all", templ.KV("notif-unread-card", !l.IsRead), templ.KV("notif-read-card", l.IsRead) }
+					style={ notifCardInlineStyle(l.IsRead) }
+				>
+					<!-- Icon & Main Details -->
+					<div class="d-flex items-start gap-3.5 flex-1" style="min-width: 260px;">
+						<!-- Icon Badge -->
+						<div class={ "user-avatar-badge rounded-xl flex-shrink-0 p-2.5", notifBadgeClass(l.Title, l.IsRead) }>
+							@notifIcon(l.Title)
 						</div>
-						<p style="font-size:0.9rem; color:var(--neutral-600); margin:0 0 0.5rem 0;">
-							{ l.Body }
-						</p>
-						<span class="tabular-nums" style="font-size:0.775rem; color:var(--neutral-400);">
-							{ l.CreatedAt.Format("2006-01-02 15:04") }
-						</span>
+
+						<div class="flex-1">
+							<div class="d-flex items-center gap-2 mb-1 flex-wrap">
+								if !l.IsRead {
+									<span class="notif-pulse-dot" title="إشعار غير مقروء"></span>
+								}
+								<h4 class={ "text-sm m-0 leading-snug", templ.KV("font-black text-primary", !l.IsRead), templ.KV("font-bold text-secondary", l.IsRead) }>
+									{ l.Title }
+								</h4>
+								if !l.IsRead {
+									<span class="badge badge-sky text-2xs font-bold py-0.5 px-2">جديد</span>
+								}
+							</div>
+
+							<p class={ "text-xs m-0 leading-relaxed mb-2", templ.KV("text-secondary font-medium", !l.IsRead), templ.KV("text-muted", l.IsRead) }>
+								{ l.Body }
+							</p>
+
+							<!-- Timestamp & Status -->
+							<div class="d-flex items-center gap-3 text-2xs text-muted tabular-nums">
+								<span class="d-flex items-center gap-1">
+									@components.IconClock("icon-2xs")
+									<span>{ l.CreatedAt.Format("2006-01-02 15:04") }</span>
+								</span>
+								if l.IsRead {
+									<span class="text-muted d-flex items-center gap-1">
+										✓ تمت القراءة
+									</span>
+								}
+							</div>
+						</div>
 					</div>
 
-					if !l.IsRead {
-						<form action={ templ.SafeURL(fmt.Sprintf("/notifications/%d/read", l.ID)) } method="POST" class="m-0">
-							<button
-								type="submit"
-								class="btn btn-secondary btn-sm"
-								style="font-size:0.8rem; padding:0.35rem 0.75rem;"
-							>
-								@components.IconCheck("icon-xs")
-								<span>تحديد كمقروء</span>
-							</button>
-						</form>
-					}
+					<!-- Action Buttons -->
+					<div class="d-flex items-center gap-2 justify-end">
+						if !l.IsRead {
+							<form action={ templ.SafeURL(fmt.Sprintf("/notifications/%d/read", l.ID)) } method="POST" class="m-0">
+								<button
+									type="submit"
+									class="btn btn-secondary btn-sm font-bold text-xs px-3 gap-1"
+									title="تحديد كمقروء"
+								>
+									@components.IconCheck("icon-xs")
+									<span>تحديد كمقروء</span>
+								</button>
+							</form>
+						}
+					</div>
 				</div>
 			}
 		</div>
 	}
 }
 
-func ifReadBg(isRead bool) string {
+func notifFilterExpr(isRead bool) string {
 	if isRead {
-		return "#ffffff"
+		return "tab === 'all' || tab === 'read'"
 	}
-	return "var(--primary-50)"
+	return "tab === 'all' || tab === 'unread'"
+}
+
+func notifCardInlineStyle(isRead bool) string {
+	if !isRead {
+		return "border-inline-start: 4px solid var(--primary); background: var(--surface-raised);"
+	}
+	return "border-inline-start: 4px solid transparent; background: var(--surface-sunken); opacity: 0.88;"
+}
+
+func notifBadgeClass(title string, isRead bool) string {
+	if isRead {
+		return "bg-surface-sunken text-muted border"
+	}
+	t := strings.ToLower(title)
+	if strings.Contains(t, "طلب") || strings.Contains(t, "order") {
+		return "bg-emerald-500/15 text-emerald-600 border border-emerald-500/30"
+	}
+	if strings.Contains(t, "خصم") || strings.Contains(t, "سعر") || strings.Contains(t, "discount") {
+		return "bg-amber-500/15 text-amber-600 border border-amber-500/30"
+	}
+	if strings.Contains(t, "محفظة") || strings.Contains(t, "رصيد") || strings.Contains(t, "دفع") || strings.Contains(t, "wallet") {
+		return "bg-sky-500/15 text-sky-600 border border-sky-500/30"
+	}
+	if strings.Contains(t, "أمان") || strings.Contains(t, "دخول") || strings.Contains(t, "security") {
+		return "bg-purple-500/15 text-purple-600 border border-purple-500/30"
+	}
+	return "bg-brand/15 text-brand border border-brand/30"
+}
+
+templ notifIcon(title string) {
+	switch {
+		case strings.Contains(title, "طلب") || strings.Contains(title, "order"):
+			@components.IconTruck("icon-xs")
+		case strings.Contains(title, "خصم") || strings.Contains(title, "سعر") || strings.Contains(title, "discount"):
+			@components.IconTag("icon-xs")
+		case strings.Contains(title, "محفظة") || strings.Contains(title, "رصيد") || strings.Contains(title, "دفع") || strings.Contains(title, "wallet"):
+			@components.IconWallet("icon-xs")
+		case strings.Contains(title, "أمان") || strings.Contains(title, "دخول") || strings.Contains(title, "security"):
+			@components.IconShield("icon-xs")
+		default:
+			@components.IconBell("icon-xs")
+	}
 }

@@ -161,3 +161,9 @@ func (s *Service) AdminUpdatePackage(ctx context.Context, p *OfferPackage) (*Off
 func (s *Service) AdminTogglePackageActive(ctx context.Context, id int64, active bool) error {
 	return s.repo.TogglePackageActive(database.AsSystem(ctx), id, active)
 }
+
+// AdminGetPackageByID retrieves a single package by ID for admin.
+func (s *Service) AdminGetPackageByID(ctx context.Context, id int64) (*OfferPackage, error) {
+	return s.repo.GetPackageByID(database.AsSystem(ctx), id)
+}
+

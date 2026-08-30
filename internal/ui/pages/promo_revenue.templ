@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/muhiya/dawa24-store/internal/modules/promo"
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/ui/components"
 	"github.com/muhiya/dawa24-store/internal/ui/layouts"
 )
@@ -18,85 +19,1026 @@ type SponsorshipRequestsData struct {
 	OrgID           int64
 }
 
-// AdminOffersPackagesHubPage renders monetization hub.
-templ AdminOffersPackagesHubPage(lang, dir string) {
-	@layouts.AdminShell("باقات العروض والرعايات الترويجية", "offers_packages", lang, dir) {
-		<div class="page-container py-6">
-			<!-- Header -->
+// AdminOffersPackagesData holds all metrics, packages, requests, and ads for admin management.
+type AdminOffersPackagesData struct {
+	Packages          []*promo.OfferPackage
+	Requests          []*promo.SponsorshipRequest
+	Ads               []*promo.Ad
+	TotalPackages     int
+	ActivePackages    int
+	TotalRequests     int
+	PendingRequests   int
+	ApprovedRequests  int
+	TotalAds          int
+	PendingAds        int
+	ActiveTab         string
+	NoticeType        string
+	NoticeMsg         string
+}
+
+func getTierName(tier int) string {
+	switch tier {
+	case 5:
+		return "💎 ماسي (Diamond)"
+	case 4:
+		return "👑 بلاتيني (Platinum)"
+	case 3:
+		return "🥇 ذهبي (Gold)"
+	case 2:
+		return "🥈 فضي (Silver)"
+	default:
+		return "🥉 عادي (Standard)"
+	}
+}
+
+// AdminOffersPackagesHubPage renders the unified sponsorship, promo packages, requests, and ads hub.
+templ AdminOffersPackagesHubPage(lang, dir string, data AdminOffersPackagesData) {
+	@layouts.AdminShell("باقات الرعايات والعروض الترويجية", "offers_packages", lang, dir) {
+		<div
+			x-data={ fmt.Sprintf(`{
+				activeTab: '%s',
+				showAddModal: false,
+				showEditModal: false,
+				showRejectModal: false,
+				rejectActionUrl: '',
+				rejectNotes: '',
+				editPkg: {
+					id: 0,
+					name_ar: '',
+					name_en: '',
+					desc_ar: '',
+					desc_en: '',
+					price: '',
+					duration_days: 30,
+					credits: 10,
+					max_offers: 20,
+					tier_level: 1,
+					sort_order: 0,
+					badge_color: '#0284c7',
+					is_featured: false,
+					is_active: true
+				},
+				openEdit(pkg) {
+					this.editPkg = {
+						id: pkg.id,
+						name_ar: pkg.name_ar,
+						name_en: pkg.name_en,
+						desc_ar: pkg.desc_ar,
+						desc_en: pkg.desc_en,
+						price: pkg.price,
+						duration_days: pkg.duration_days,
+						credits: pkg.credits,
+						max_offers: pkg.max_offers,
+						tier_level: pkg.tier_level,
+						sort_order: pkg.sort_order,
+						badge_color: pkg.badge_color || '#0284c7',
+						is_featured: pkg.is_featured,
+						is_active: pkg.is_active
+					};
+					this.showEditModal = true;
+				},
+				openReject(actionUrl) {
+					this.rejectActionUrl = actionUrl;
+					this.rejectNotes = '';
+					this.showRejectModal = true;
+				}
+			}`, func() string {
+				if data.ActiveTab != "" {
+					return data.ActiveTab
+				}
+				return "packages"
+			}()) }
+			class="page-container py-6"
+		>
+			<!-- Notice Banner -->
+			if data.NoticeMsg != "" {
+				if data.NoticeType == "error" {
+					<div class="alert alert-error mb-6 d-flex items-center gap-3 p-4 rounded-xl border border-rose-200 bg-rose-50 text-rose-800 shadow-xs">
+						@components.IconAlert("icon-sm text-rose-600 shrink-0")
+						<div class="flex-1 font-semibold text-xs">{ data.NoticeMsg }</div>
+					</div>
+				} else {
+					<div class="alert alert-success mb-6 d-flex items-center gap-3 p-4 rounded-xl border border-emerald-200 bg-emerald-50 text-emerald-800 shadow-xs">
+						@components.IconCheckCircle("icon-sm text-emerald-600 shrink-0")
+						<div class="flex-1 font-semibold text-xs">{ data.NoticeMsg }</div>
+					</div>
+				}
+			}
+
+			<!-- Hub Header -->
 			<div class="glass-panel p-6 mb-6 border border-slate-200/80 rounded-2xl shadow-sm">
 				<div class="flex-between items-center flex-wrap gap-4">
 					<div>
-						<div class="d-flex items-center gap-2.5 mb-1.5">
-							<div class="w-10 h-10 rounded-xl bg-brand-50 text-brand-600 d-flex items-center justify-center border border-brand-200/60 shadow-2xs">
-								@components.IconBoxes("icon-sm")
+						<div class="d-flex items-center gap-3 mb-1.5">
+							<div class="w-12 h-12 rounded-2xl bg-brand-50 text-brand-600 d-flex items-center justify-center border border-brand-200/60 shadow-2xs">
+								@components.IconBoxes("icon-md")
 							</div>
 							<div>
-								<h1 class="text-2xl font-black text-primary m-0">منظومة باقات العروض والرعايات والإعلانات</h1>
-								<p class="text-xs text-secondary m-0 mt-0.5 font-medium">إدارة خطط الاشتراكات المميزة للموردين، باقات الظهور، والرعايات الرسمية المعتمدة</p>
+								<h1 class="text-2xl font-black text-primary m-0">منظومة باقات الرعايات والعروض الترويجية</h1>
+								<p class="text-xs text-secondary m-0 mt-0.5 font-medium">إدارة وتخصيص باقات الرعاية للموردين، مراجعة طلبات التثبيت في الصدارة، ومتابعة الإعلانات</p>
 							</div>
 						</div>
 					</div>
-					<div class="d-flex items-center gap-2">
+					<div class="d-flex items-center gap-2.5 flex-wrap">
+						<button
+							type="button"
+							class="btn btn-primary btn-sm font-extrabold gap-1.5 shadow-sm"
+							@click="showAddModal = true"
+						>
+							@components.IconPlus("icon-xs")
+							<span>إضافة باقة رعاية جديدة</span>
+						</button>
 						<a href="/admin/ads" class="btn btn-secondary btn-sm font-bold gap-1.5 shadow-xs">
 							@components.IconMegaphone("icon-xs text-brand")
 							<span>مراجعة الإعلانات</span>
-						</a>
-						<a href="/admin/offers-packages/sponsorships" class="btn btn-primary btn-sm font-extrabold gap-1.5 shadow-sm">
-							@components.IconShield("icon-xs")
-							<span>طلبات الرعاية</span>
+							if data.PendingAds > 0 {
+								<span class="badge badge-rose text-2xs font-mono">{ fmt.Sprintf("%d", data.PendingAds) }</span>
+							}
 						</a>
 					</div>
 				</div>
 			</div>
 
-			<!-- 3 Hub Action Cards -->
-			<div class="d-grid grid-cols-1 md:grid-cols-3 gap-5 mb-6">
-				<div class="glass-panel p-5 border border-slate-200/80 rounded-2xl shadow-xs hover:border-brand-300 transition-all d-flex flex-col justify-between">
-					<div>
-						<div class="w-10 h-10 rounded-xl bg-sky-50 text-sky-600 d-flex items-center justify-center border border-sky-200/60 mb-3.5 shadow-2xs">
-							@components.IconBoxes("icon-sm")
-						</div>
-						<h3 class="text-base font-black text-primary m-0 mb-1.5">باقات العروض (Packages)</h3>
-						<p class="text-xs text-secondary m-0 leading-relaxed font-medium mb-4">
-							تحديد الباقات المتاحة للموردين لنشر عدد أكبر من العروض الترويجية وتثبيتها في صدارة البحث مع رصيد الرعايات المعتمد.
-						</p>
+			<!-- Metrics Cards -->
+			<div class="d-grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+				<!-- Total Packages -->
+				<div class="glass-panel p-4 border border-slate-200/80 rounded-xl shadow-2xs d-flex items-center gap-3.5">
+					<div class="w-11 h-11 rounded-xl bg-sky-50 text-sky-600 d-flex items-center justify-center border border-sky-200/60 shrink-0">
+						@components.IconBoxes("icon-sm")
 					</div>
-					<a href="/admin/offers-packages/packages" class="btn btn-secondary btn-sm w-full font-bold justify-center gap-1.5 shadow-2xs">
-						<span>إدارة الباقات</span>
-						@components.IconArrowLeft("icon-xs")
-					</a>
+					<div>
+						<div class="text-2xs text-secondary font-bold uppercase tracking-wider mb-0.5">باقات الرعاية</div>
+						<div class="d-flex items-baseline gap-1.5">
+							<span class="text-xl font-black text-primary tabular-nums">{ fmt.Sprintf("%d", data.TotalPackages) }</span>
+							<span class="text-2xs font-semibold text-emerald-600">({ fmt.Sprintf("%d", data.ActivePackages) } نشطة)</span>
+						</div>
+					</div>
 				</div>
 
-				<div class="glass-panel p-5 border border-slate-200/80 rounded-2xl shadow-xs hover:border-brand-300 transition-all d-flex flex-col justify-between">
-					<div>
-						<div class="w-10 h-10 rounded-xl bg-amber-50 text-amber-600 d-flex items-center justify-center border border-amber-200/60 mb-3.5 shadow-2xs">
-							@components.IconShield("icon-sm")
-						</div>
-						<h3 class="text-base font-black text-primary m-0 mb-1.5">الرعايات الرسمية (Sponsorships)</h3>
-						<p class="text-xs text-secondary m-0 leading-relaxed font-medium mb-4">
-							مراجعة واعتماد طلبات الرعاية المدفوعة لتثبيت أصناف وعروض الموردين في صدارة نتائج الكتالوج مع وسم التمويل المعتمد.
-						</p>
+				<!-- Pending Requests -->
+				<div class="glass-panel p-4 border border-slate-200/80 rounded-xl shadow-2xs d-flex items-center gap-3.5">
+					<div class="w-11 h-11 rounded-xl bg-amber-50 text-amber-600 d-flex items-center justify-center border border-amber-200/60 shrink-0">
+						@components.IconShield("icon-sm")
 					</div>
-					<a href="/admin/offers-packages/sponsorships" class="btn btn-secondary btn-sm w-full font-bold justify-center gap-1.5 shadow-2xs">
-						<span>إدارة الرعايات</span>
-						@components.IconArrowLeft("icon-xs")
-					</a>
+					<div>
+						<div class="text-2xs text-secondary font-bold uppercase tracking-wider mb-0.5">طلبات الرعاية</div>
+						<div class="d-flex items-baseline gap-1.5">
+							<span class="text-xl font-black text-primary tabular-nums">{ fmt.Sprintf("%d", data.TotalRequests) }</span>
+							if data.PendingRequests > 0 {
+								<span class="badge badge-amber text-2xs font-extrabold">{ fmt.Sprintf("%d معلق", data.PendingRequests) }</span>
+							} else {
+								<span class="text-2xs font-semibold text-secondary">(الكل معتمد)</span>
+							}
+						</div>
+					</div>
 				</div>
 
-				<div class="glass-panel p-5 border border-slate-200/80 rounded-2xl shadow-xs hover:border-brand-300 transition-all d-flex flex-col justify-between">
+				<!-- Pending Ads -->
+				<div class="glass-panel p-4 border border-slate-200/80 rounded-xl shadow-2xs d-flex items-center gap-3.5">
+					<div class="w-11 h-11 rounded-xl bg-emerald-50 text-emerald-600 d-flex items-center justify-center border border-emerald-200/60 shrink-0">
+						@components.IconMegaphone("icon-sm")
+					</div>
 					<div>
-						<div class="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 d-flex items-center justify-center border border-emerald-200/60 mb-3.5 shadow-2xs">
-							@components.IconMegaphone("icon-sm")
+						<div class="text-2xs text-secondary font-bold uppercase tracking-wider mb-0.5">البنرات والإعلانات</div>
+						<div class="d-flex items-baseline gap-1.5">
+							<span class="text-xl font-black text-primary tabular-nums">{ fmt.Sprintf("%d", data.TotalAds) }</span>
+							if data.PendingAds > 0 {
+								<span class="badge badge-rose text-2xs font-extrabold">{ fmt.Sprintf("%d للمراجعة", data.PendingAds) }</span>
+							} else {
+								<span class="text-2xs font-semibold text-emerald-600">(محدثة)</span>
+							}
 						</div>
-						<h3 class="text-base font-black text-primary m-0 mb-1.5">الحملات الترويجية (Promotions)</h3>
-						<p class="text-xs text-secondary m-0 leading-relaxed font-medium mb-4">
-							إدارة حملات الخصومات الموسمية والعروض الموجهة جغرافياً للصيدليات لرفع وتيرة التوريد والمبيعات.
+					</div>
+				</div>
+
+				<!-- Tier Ranking System -->
+				<div class="glass-panel p-4 border border-slate-200/80 rounded-xl shadow-2xs d-flex items-center gap-3.5">
+					<div class="w-11 h-11 rounded-xl bg-purple-50 text-purple-600 d-flex items-center justify-center border border-purple-200/60 shrink-0">
+						@components.IconSparkles("icon-sm")
+					</div>
+					<div>
+						<div class="text-2xs text-secondary font-bold uppercase tracking-wider mb-0.5">مستويات الأولوية</div>
+						<div class="d-flex items-baseline gap-1.5">
+							<span class="text-xl font-black text-primary">5 مستويات</span>
+							<span class="text-2xs text-secondary font-medium">(1-5 ترتيب)</span>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<!-- Navigation Tabs Bar -->
+			<div class="d-flex items-center gap-2 mb-6 border-b border-slate-200/80 pb-2">
+				<button
+					type="button"
+					class="btn btn-sm font-bold gap-2 transition-all"
+					:class="activeTab === 'packages' ? 'btn-primary shadow-xs' : 'btn-secondary text-secondary'"
+					@click="activeTab = 'packages'"
+				>
+					@components.IconBoxes("icon-xs")
+					<span>باقات الرعايات المتاحة</span>
+					<span class="badge text-2xs tabular-nums" :class="activeTab === 'packages' ? 'badge-primary' : 'badge-slate'">
+						{ fmt.Sprintf("%d", len(data.Packages)) }
+					</span>
+				</button>
+
+				<button
+					type="button"
+					class="btn btn-sm font-bold gap-2 transition-all"
+					:class="activeTab === 'requests' ? 'btn-primary shadow-xs' : 'btn-secondary text-secondary'"
+					@click="activeTab = 'requests'"
+				>
+					@components.IconShield("icon-xs")
+					<span>مراجعة طلبات الرعاية</span>
+					if data.PendingRequests > 0 {
+						<span class="badge badge-amber text-2xs font-extrabold tabular-nums">
+							{ fmt.Sprintf("%d معلق", data.PendingRequests) }
+						</span>
+					} else {
+						<span class="badge text-2xs tabular-nums" :class="activeTab === 'requests' ? 'badge-primary' : 'badge-slate'">
+							{ fmt.Sprintf("%d", len(data.Requests)) }
+						</span>
+					}
+				</button>
+
+				<button
+					type="button"
+					class="btn btn-sm font-bold gap-2 transition-all"
+					:class="activeTab === 'ads' ? 'btn-primary shadow-xs' : 'btn-secondary text-secondary'"
+					@click="activeTab = 'ads'"
+				>
+					@components.IconMegaphone("icon-xs")
+					<span>مراجعة الإعلانات والبنرات</span>
+					if data.PendingAds > 0 {
+						<span class="badge badge-rose text-2xs font-extrabold tabular-nums">
+							{ fmt.Sprintf("%d للمراجعة", data.PendingAds) }
+						</span>
+					} else {
+						<span class="badge text-2xs tabular-nums" :class="activeTab === 'ads' ? 'badge-primary' : 'badge-slate'">
+							{ fmt.Sprintf("%d", len(data.Ads)) }
+						</span>
+					}
+				</button>
+			</div>
+
+			<!-- TAB 1: Packages Management -->
+			<div x-show="activeTab === 'packages'" class="space-y-6">
+				<!-- Section Header & Actions -->
+				<div class="glass-panel p-4 mb-4 border border-slate-200/80 rounded-xl flex-between items-center flex-wrap gap-3">
+					<div>
+						<h3 class="text-base font-black text-primary m-0">قائمة باقات الرعاية والعروض الترويجية</h3>
+						<p class="text-xs text-secondary m-0 mt-0.5">الباقات المعروضة للموردين لشراء رصيد تثبيت الأصناف والعروض في صدارة نتائج البحث</p>
+					</div>
+					<button
+						type="button"
+						class="btn btn-primary btn-sm font-bold gap-1.5 shadow-xs"
+						@click="showAddModal = true"
+					>
+						@components.IconPlus("icon-xs")
+						<span>إضافة باقة جديدة</span>
+					</button>
+				</div>
+
+				if len(data.Packages) == 0 {
+					<div class="glass-panel p-10 text-center border border-slate-200/80 rounded-2xl shadow-xs">
+						<div class="w-14 h-14 rounded-full bg-brand-50 text-brand-500 d-flex items-center justify-center mx-auto mb-3 shadow-2xs">
+							@components.IconBoxes("icon-md")
+						</div>
+						<h3 class="text-base font-black text-primary mb-1">لا توجد باقات رعاية مضافة حتى الآن</h3>
+						<p class="text-xs text-secondary max-w-md mx-auto mb-5 leading-relaxed">
+							ابدأ بإضافة باقات الرعاية الترويجية (مثل الباقة الذهبية أو الفضية) ليتمكن الموردون من شرائها وتثبيت عروضهم ومنتجاتهم.
+						</p>
+						<button
+							type="button"
+							class="btn btn-primary btn-sm font-extrabold gap-1.5 shadow-sm"
+							@click="showAddModal = true"
+						>
+							@components.IconPlus("icon-xs")
+							<span>إنشاء أول باقة رعاية</span>
+						</button>
+					</div>
+				} else {
+					<!-- Packages Table -->
+					<div class="glass-panel p-0 border border-slate-200/80 rounded-2xl shadow-xs overflow-hidden mb-6">
+						<div class="table-container m-0 overflow-x-auto">
+							<table class="data-table m-0 text-xs w-full">
+								<thead>
+									<tr class="bg-slate-50/80 border-b border-slate-200/70 text-slate-700 font-bold">
+										<th class="py-3 text-start ps-4">الباقة والتصنيف</th>
+										<th class="py-3 text-start">مستوى الأولوية (Tier)</th>
+										<th class="py-3 text-center">السعر والمدة</th>
+										<th class="py-3 text-center">رصيد الرعايات</th>
+										<th class="py-3 text-center">أقصى عروض</th>
+										<th class="py-3 text-center">الترتيب</th>
+										<th class="py-3 text-center">الحالة</th>
+										<th class="py-3 text-end pe-4">الإجراءات</th>
+									</tr>
+								</thead>
+								<tbody class="divide-y divide-slate-100">
+									for _, pkg := range data.Packages {
+										if pkg != nil {
+											<tr class="hover:bg-slate-50/50 transition-colors">
+												<!-- Package Name & Info -->
+												<td class="py-3.5 ps-4">
+													<div class="d-flex items-center gap-3">
+														<div
+															class="w-3.5 h-3.5 rounded-full shrink-0 shadow-2xs border border-white"
+															style={ fmt.Sprintf("background-color: %s;", func() string { if pkg.BadgeColor != "" { return pkg.BadgeColor }; return "#0284c7" }()) }
+														></div>
+														<div>
+															<div class="d-flex items-center gap-2">
+																<span class="font-black text-primary text-sm">{ pkg.Name.Get(i18n.ParseLang(lang)) }</span>
+																if pkg.IsFeatured {
+																	<span class="badge badge-amber text-2xs font-extrabold shadow-2xs">⭐ مميزة</span>
+																}
+															</div>
+															if pkg.Description.Get(i18n.ParseLang(lang)) != "" {
+																<div class="text-secondary text-2xs font-medium mt-0.5 line-clamp-1 max-w-xs">{ pkg.Description.Get(i18n.ParseLang(lang)) }</div>
+															}
+														</div>
+													</div>
+												</td>
+
+												<!-- Tier Level -->
+												<td class="py-3.5">
+													<span
+														class="badge text-xs font-black shadow-2xs"
+														style={ fmt.Sprintf("background-color: %s15; color: %s; border: 1px solid %s40;", func() string { if pkg.BadgeColor != "" { return pkg.BadgeColor }; return "#0284c7" }(), func() string { if pkg.BadgeColor != "" { return pkg.BadgeColor }; return "#0284c7" }(), func() string { if pkg.BadgeColor != "" { return pkg.BadgeColor }; return "#0284c7" }()) }
+													>
+														{ getTierName(pkg.TierLevel) }
+													</span>
+												</td>
+
+												<!-- Price & Duration -->
+												<td class="py-3.5 text-center">
+													<div class="font-extrabold text-primary text-xs tabular-nums">
+														if pkg.Price.IsZero() {
+															<span class="text-emerald-600 font-black">مجاناً</span>
+														} else {
+															<span>{ fmt.Sprintf("%s ج.م", pkg.Price.String()) }</span>
+														}
+													</div>
+													<div class="text-secondary text-2xs font-medium">{ fmt.Sprintf("%d يوم", pkg.DurationDays) }</div>
+												</td>
+
+												<!-- Credits -->
+												<td class="py-3.5 text-center">
+													<span class="badge badge-sky font-extrabold text-xs tabular-nums shadow-2xs">
+														{ fmt.Sprintf("%d رعاية", pkg.Credits) }
+													</span>
+												</td>
+
+												<!-- Max Offers -->
+												<td class="py-3.5 text-center font-bold text-slate-700 tabular-nums">
+													{ fmt.Sprintf("%d", pkg.MaxOffers) }
+												</td>
+
+												<!-- Sort Order -->
+												<td class="py-3.5 text-center font-mono text-secondary tabular-nums">
+													{ fmt.Sprintf("%d", pkg.SortOrder) }
+												</td>
+
+												<!-- Status -->
+												<td class="py-3.5 text-center">
+													if pkg.IsActive {
+														<span class="badge badge-emerald font-extrabold text-xs">مفعلة</span>
+													} else {
+														<span class="badge badge-slate font-extrabold text-xs text-muted">معطلة</span>
+													}
+												</td>
+
+												<!-- Actions -->
+												<td class="py-3.5 text-end pe-4">
+													<div class="d-flex items-center justify-end gap-1.5">
+														<!-- Edit Button -->
+														<button
+															type="button"
+															class="btn btn-secondary btn-xs font-bold gap-1 shadow-2xs"
+															@click={ fmt.Sprintf(`openEdit({
+																id: %d,
+																name_ar: %q,
+																name_en: %q,
+																desc_ar: %q,
+																desc_en: %q,
+																price: '%s',
+																duration_days: %d,
+																credits: %d,
+																max_offers: %d,
+																tier_level: %d,
+																sort_order: %d,
+																badge_color: %q,
+																is_featured: %t,
+																is_active: %t
+															})`, pkg.ID, pkg.Name.Get(i18n.AR), pkg.Name.Get(i18n.EN), pkg.Description.Get(i18n.AR), pkg.Description.Get(i18n.EN), pkg.Price.String(), pkg.DurationDays, pkg.Credits, pkg.MaxOffers, pkg.TierLevel, pkg.SortOrder, pkg.BadgeColor, pkg.IsFeatured, pkg.IsActive) }
+														>
+															@components.IconEdit("icon-2xs")
+															<span>تعديل</span>
+														</button>
+
+														<!-- Toggle Status Button -->
+														<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/offers-packages/%d/toggle", pkg.ID)) } class="m-0 d-inline">
+															if pkg.IsActive {
+																<input type="hidden" name="active" value="false"/>
+																<button type="submit" class="btn btn-ghost btn-xs font-bold text-amber-700 hover:text-amber-800 gap-1" title="تعطيل الباقة">
+																	@components.IconMinus("icon-2xs")
+																	<span>تعطيل</span>
+																</button>
+															} else {
+																<input type="hidden" name="active" value="true"/>
+																<button type="submit" class="btn btn-ghost btn-xs font-bold text-emerald-700 hover:text-emerald-800 gap-1" title="تفعيل الباقة">
+																	@components.IconCheck("icon-2xs")
+																	<span>تفعيل</span>
+																</button>
+															}
+														</form>
+													</div>
+												</td>
+											</tr>
+										}
+									}
+								</tbody>
+							</table>
+						</div>
+					</div>
+				}
+			</div>
+
+			<!-- TAB 2: Sponsorship Requests Moderation -->
+			<div x-show="activeTab === 'requests'" class="space-y-6">
+				<!-- Section Header -->
+				<div class="glass-panel p-4 mb-4 border border-slate-200/80 rounded-xl flex-between items-center flex-wrap gap-3">
+					<div>
+						<h3 class="text-base font-black text-primary m-0">طلبات الرعاية والترويج من الموردين</h3>
+						<p class="text-xs text-secondary m-0 mt-0.5">مراجعة واعتماد طلبات الموردين لتثبيت الأصناف والعروض في صدارة الكتالوج</p>
+					</div>
+					<div class="d-flex items-center gap-2">
+						<span class="badge badge-slate text-xs font-bold tabular-nums">الإجمالي: { fmt.Sprintf("%d", len(data.Requests)) }</span>
+					</div>
+				</div>
+
+				if len(data.Requests) == 0 {
+					<div class="glass-panel p-10 text-center border border-slate-200/80 rounded-2xl shadow-xs">
+						<div class="w-14 h-14 rounded-full bg-slate-100 text-slate-400 d-flex items-center justify-center mx-auto mb-3">
+							@components.IconShield("icon-md")
+						</div>
+						<h3 class="text-base font-black text-primary mb-1">لا توجد طلبات رعاية حالياً</h3>
+						<p class="text-xs text-secondary max-w-md mx-auto">
+							جميع طلبات الرعاية الترويجية المقدمة من الموردين تمت معالجتها بالكامل.
 						</p>
 					</div>
-					<a href="/admin/offers-packages/promotions" class="btn btn-secondary btn-sm w-full font-bold justify-center gap-1.5 shadow-2xs">
-						<span>إدارة الحملات</span>
-						@components.IconArrowLeft("icon-xs")
-					</a>
+				} else {
+					<div class="glass-panel p-0 border border-slate-200/80 rounded-2xl shadow-xs overflow-hidden mb-6">
+						<div class="table-container m-0 overflow-x-auto">
+							<table class="data-table m-0 text-xs w-full">
+								<thead>
+									<tr class="bg-slate-50/80 border-b border-slate-200/70 text-slate-700 font-bold">
+										<th class="py-3 text-start ps-4">المورد (#ID)</th>
+										<th class="py-3 text-start">نوع العنصر</th>
+										<th class="py-3 text-start">معرف العنصر</th>
+										<th class="py-3 text-start">الباقة المستخدمة</th>
+										<th class="py-3 text-center">مستوى الأولوية</th>
+										<th class="py-3 text-center">الرصيد المستهلك</th>
+										<th class="py-3 text-center">الحالة</th>
+										<th class="py-3 text-center">تاريخ التقديم</th>
+										<th class="py-3 text-end pe-4">الإجراءات</th>
+									</tr>
+								</thead>
+								<tbody class="divide-y divide-slate-100">
+									for _, req := range data.Requests {
+										if req != nil {
+											<tr class="hover:bg-slate-50/50 transition-colors">
+												<td class="tabular-nums font-black text-primary py-3.5 ps-4">
+													<span class="badge badge-slate text-xs font-mono">{ fmt.Sprintf("#%d", req.OrganizationID) }</span>
+												</td>
+												<td class="py-3.5">
+													if req.ItemType == "product" {
+														<span class="badge badge-sky text-xs font-bold">💊 صنف دوائي</span>
+													} else {
+														<span class="badge badge-emerald text-xs font-bold">🏷️ عرض ترويجي</span>
+													}
+												</td>
+												<td class="tabular-nums font-mono font-bold text-slate-700 py-3.5">
+													{ fmt.Sprintf("#%d", req.ItemID) }
+												</td>
+												<td class="py-3.5 font-bold text-primary">
+													if req.Package != nil {
+														<span>{ req.Package.Name.Get(i18n.ParseLang(lang)) }</span>
+													} else {
+														<span class="tabular-nums">باقة #{ fmt.Sprintf("%d", req.PackageID) }</span>
+													}
+												</td>
+												<td class="py-3.5 text-center">
+													if req.Package != nil {
+														<span class="badge badge-amber font-black text-xs shadow-2xs">
+															{ getTierName(req.Package.TierLevel) }
+														</span>
+													} else {
+														<span class="text-muted text-xs">—</span>
+													}
+												</td>
+												<td class="py-3.5 text-center font-extrabold text-brand tabular-nums">
+													{ fmt.Sprintf("%d رصيد", req.CreditsUsed) }
+												</td>
+												<td class="py-3.5 text-center">
+													if req.AdminStatus == "pending" {
+														<span class="badge badge-amber font-extrabold text-xs animate-pulse">قيد المراجعة</span>
+													} else if req.AdminStatus == "approved" {
+														<span class="badge badge-emerald font-extrabold text-xs">معتمد</span>
+													} else {
+														<span class="badge badge-rose font-extrabold text-xs">مرفوض</span>
+													}
+												</td>
+												<td class="py-3.5 text-center text-secondary tabular-nums text-2xs">
+													{ req.CreatedAt.Format("2006-01-02 15:04") }
+												</td>
+												<td class="py-3.5 text-end pe-4">
+													if req.AdminStatus == "pending" {
+														<div class="d-flex items-center justify-end gap-1.5">
+															<!-- Approve -->
+															<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/offers-packages/sponsorships/%d/approve", req.ID)) } class="m-0">
+																<button type="submit" class="btn btn-primary btn-xs font-bold gap-1 shadow-2xs">
+																	@components.IconCheck("icon-2xs")
+																	<span>اعتماد</span>
+																</button>
+															</form>
+
+															<!-- Reject with Modal -->
+															<button
+																type="button"
+																class="btn btn-secondary btn-xs font-bold text-rose-600 gap-1 shadow-2xs hover:bg-rose-50"
+																@click={ fmt.Sprintf("openReject('/admin/offers-packages/sponsorships/%d/reject')", req.ID) }
+															>
+																@components.IconClose("icon-2xs")
+																<span>رفض</span>
+															</button>
+														</div>
+													} else {
+														<span class="text-muted text-2xs font-semibold">مكتمل</span>
+													}
+												</td>
+											</tr>
+										}
+									}
+								</tbody>
+							</table>
+						</div>
+					</div>
+				}
+			</div>
+
+			<!-- TAB 3: Ads & Banners Moderation -->
+			<div x-show="activeTab === 'ads'" class="space-y-6">
+				<!-- Section Header -->
+				<div class="glass-panel p-4 mb-4 border border-slate-200/80 rounded-xl flex-between items-center flex-wrap gap-3">
+					<div>
+						<h3 class="text-base font-black text-primary m-0">الإعلانات والبنرات الترويجية</h3>
+						<p class="text-xs text-secondary m-0 mt-0.5">مراجعة واعتماد بنرات وإعلانات الموردين المعروضة في المنصة</p>
+					</div>
+					<div class="d-flex items-center gap-2">
+						<span class="badge badge-slate text-xs font-bold tabular-nums">الإجمالي: { fmt.Sprintf("%d", len(data.Ads)) }</span>
+					</div>
+				</div>
+
+				if len(data.Ads) == 0 {
+					<div class="glass-panel p-10 text-center border border-slate-200/80 rounded-2xl shadow-xs">
+						<div class="w-14 h-14 rounded-full bg-slate-100 text-slate-400 d-flex items-center justify-center mx-auto mb-3">
+							@components.IconMegaphone("icon-md")
+						</div>
+						<h3 class="text-base font-black text-primary mb-1">لا توجد إعلانات مسجلة</h3>
+						<p class="text-xs text-secondary max-w-md mx-auto">
+							لم يقم الموردون بتقديم أي بنرات إعلانية جديدة حتى الآن.
+						</p>
+					</div>
+				} else {
+					<div class="glass-panel p-0 border border-slate-200/80 rounded-2xl shadow-xs overflow-hidden mb-6">
+						<div class="table-container m-0 overflow-x-auto">
+							<table class="data-table m-0 text-xs w-full">
+								<thead>
+									<tr class="bg-slate-50/80 border-b border-slate-200/70 text-slate-700 font-bold">
+										<th class="py-3 text-start ps-4">الإعلان والوسائط</th>
+										<th class="py-3 text-start">المورد (#ID)</th>
+										<th class="py-3 text-center">النوع والموضع</th>
+										<th class="py-3 text-center tabular-nums">المشاهدات</th>
+										<th class="py-3 text-center tabular-nums">النقرات</th>
+										<th class="py-3 text-center tabular-nums">معدل CTR %</th>
+										<th class="py-3 text-center">الحالة</th>
+										<th class="py-3 text-end pe-4">الإجراءات</th>
+									</tr>
+								</thead>
+								<tbody class="divide-y divide-slate-100">
+									for _, ad := range data.Ads {
+										if ad != nil {
+											<tr class="hover:bg-slate-50/50 transition-colors">
+												<!-- Ad Preview & Title -->
+												<td class="py-3.5 ps-4">
+													<div class="d-flex items-center gap-3">
+														if ad.MediaURL != "" {
+															<div class="w-16 h-10 rounded-lg overflow-hidden border border-slate-200 bg-slate-100 shrink-0 d-flex items-center justify-center">
+																if ad.MediaType == "video" {
+																	<span class="text-sky-600 font-bold text-2xs">🎬 فيديو</span>
+																} else {
+																	<img src={ ad.MediaURL } alt="Ad" class="w-full h-full object-cover"/>
+																}
+															</div>
+														}
+														<div>
+															<div class="font-extrabold text-primary text-sm">{ ad.DisplayTitle(lang) }</div>
+															if ad.DisplayText(lang) != "" {
+																<div class="text-secondary text-2xs font-medium line-clamp-1 max-w-xs">{ ad.DisplayText(lang) }</div>
+															}
+														</div>
+													</div>
+												</td>
+
+												<!-- Organization -->
+												<td class="py-3.5">
+													if ad.OrganizationID != nil {
+														<span class="badge badge-slate font-mono text-xs">{ fmt.Sprintf("#%d", *ad.OrganizationID) }</span>
+													} else {
+														<span class="text-muted text-xs">—</span>
+													}
+												</td>
+
+												<!-- Position -->
+												<td class="py-3.5 text-center">
+													<span class="badge badge-slate text-2xs font-bold">{ ad.Position }</span>
+												</td>
+
+												<!-- Impressions -->
+												<td class="py-3.5 text-center font-bold text-primary tabular-nums">
+													{ fmt.Sprintf("%d", ad.Impressions) }
+												</td>
+
+												<!-- Clicks -->
+												<td class="py-3.5 text-center font-bold text-brand tabular-nums">
+													{ fmt.Sprintf("%d", ad.Clicks) }
+												</td>
+
+												<!-- CTR -->
+												<td class="py-3.5 text-center font-black text-emerald-600 tabular-nums">
+													{ fmt.Sprintf("%.1f%%", ad.CTR) }
+												</td>
+
+												<!-- Status -->
+												<td class="py-3.5 text-center">
+													if ad.AdminStatus == "pending" {
+														<span class="badge badge-amber font-extrabold text-xs animate-pulse">قيد المراجعة</span>
+													} else if ad.AdminStatus == "approved" {
+														<span class="badge badge-emerald font-extrabold text-xs">معتمد</span>
+													} else {
+														<span class="badge badge-rose font-extrabold text-xs">مرفوض</span>
+													}
+												</td>
+
+												<!-- Actions -->
+												<td class="py-3.5 text-end pe-4">
+													if ad.AdminStatus == "pending" {
+														<div class="d-flex items-center justify-end gap-1.5">
+															<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/ads/%d/approve", ad.ID)) } class="m-0">
+																<button type="submit" class="btn btn-primary btn-xs font-bold gap-1 shadow-2xs">
+																	@components.IconCheck("icon-2xs")
+																	<span>اعتماد</span>
+																</button>
+															</form>
+															<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/ads/%d/reject", ad.ID)) } class="m-0">
+																<button type="submit" class="btn btn-secondary btn-xs font-bold text-rose-600 gap-1 shadow-2xs hover:bg-rose-50" onclick="return confirm('هل أنت متأكد من رفض هذا الإعلان؟')">
+																	@components.IconClose("icon-2xs")
+																	<span>رفض</span>
+																</button>
+															</form>
+														</div>
+													} else {
+														<span class="text-muted text-2xs font-semibold">مكتمل</span>
+													}
+												</td>
+											</tr>
+										}
+									}
+								</tbody>
+							</table>
+						</div>
+					</div>
+				}
+			</div>
+
+			<!-- ========================================== -->
+			<!-- MODAL: Add New Package                     -->
+			<!-- ========================================== -->
+			<div
+				x-show="showAddModal"
+				class="fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-xs d-flex items-center justify-center p-4"
+				style="display: none;"
+				@keydown.escape.window="showAddModal = false"
+			>
+				<div
+					class="glass-panel w-full max-w-2xl bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden"
+					@click.outside="showAddModal = false"
+				>
+					<div class="flex-between items-center p-5 border-b border-slate-100 bg-slate-50/50">
+						<div class="d-flex items-center gap-2.5">
+							<div class="w-9 h-9 rounded-xl bg-brand-50 text-brand-600 d-flex items-center justify-center shadow-2xs">
+								@components.IconPlus("icon-xs")
+							</div>
+							<div>
+								<h3 class="text-base font-black text-primary m-0">إضافة باقة رعاية وترويج جديدة</h3>
+								<p class="text-2xs text-secondary m-0 mt-0.5 font-medium">إنشاء باقة اشتراك جديدة تتيح للموردين تثبيت منتجاتهم وعروضهم</p>
+							</div>
+						</div>
+						<button type="button" class="btn btn-secondary btn-icon btn-xs" @click="showAddModal = false">
+							@components.IconClose("icon-2xs")
+						</button>
+					</div>
+
+					<form method="POST" action="/admin/offers-packages/new" class="p-6 space-y-4 m-0">
+						<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+							<!-- Name AR -->
+							<div>
+								<label class="form-label text-xs font-bold text-primary block mb-1">اسم الباقة (عربي) <span class="text-rose-500">*</span></label>
+								<input type="text" name="name_ar" required placeholder="مثال: الباقة الذهبية للرعايات" class="form-input text-xs w-full"/>
+							</div>
+
+							<!-- Name EN -->
+							<div>
+								<label class="form-label text-xs font-bold text-primary block mb-1">اسم الباقة (إنجليزي) <span class="text-rose-500">*</span></label>
+								<input type="text" name="name_en" required placeholder="e.g. Gold Sponsorship Package" class="form-input text-xs w-full text-left" dir="ltr"/>
+							</div>
+						</div>
+
+						<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+							<!-- Desc AR -->
+							<div>
+								<label class="form-label text-xs font-bold text-primary block mb-1">الوصف والمميزات (عربي)</label>
+								<textarea name="desc_ar" rows="2" placeholder="تثبيت 10 أصناف في صدارة نتائج البحث..." class="form-input text-xs w-full"></textarea>
+							</div>
+
+							<!-- Desc EN -->
+							<div>
+								<label class="form-label text-xs font-bold text-primary block mb-1">الوصف والمميزات (إنجليزي)</label>
+								<textarea name="desc_en" rows="2" placeholder="Pin 10 items in top search results..." class="form-input text-xs w-full text-left" dir="ltr"></textarea>
+							</div>
+						</div>
+
+						<div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+							<!-- Price -->
+							<div>
+								<label class="form-label text-xs font-bold text-primary block mb-1">السعر (ج.م) <span class="text-rose-500">*</span></label>
+								<input type="number" step="0.01" min="0" name="price" required placeholder="1500.00" class="form-input text-xs w-full font-mono font-bold"/>
+							</div>
+
+							<!-- Duration -->
+							<div>
+								<label class="form-label text-xs font-bold text-primary block mb-1">المدة (بالأيام) <span class="text-rose-500">*</span></label>
+								<input type="number" min="1" name="duration_days" value="30" required class="form-input text-xs w-full font-mono"/>
+							</div>
+
+							<!-- Credits -->
+							<div>
+								<label class="form-label text-xs font-bold text-primary block mb-1">رصيد الرعايات المضمن <span class="text-rose-500">*</span></label>
+								<input type="number" min="1" name="credits" value="10" required class="form-input text-xs w-full font-mono font-bold text-brand"/>
+							</div>
+						</div>
+
+						<div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+							<!-- Tier Level -->
+							<div>
+								<label class="form-label text-xs font-bold text-primary block mb-1">مستوى الأولوية والترتيب <span class="text-rose-500">*</span></label>
+								<select name="tier_level" required class="form-select text-xs w-full font-bold">
+									<option value="1">🥉 مستوى 1 - عادي (Standard)</option>
+									<option value="2">🥈 مستوى 2 - فضي (Silver)</option>
+									<option value="3" selected>🥇 مستوى 3 - ذهبي (Gold)</option>
+									<option value="4">👑 مستوى 4 - بلاتيني (Platinum)</option>
+									<option value="5">💎 مستوى 5 - ماسي (Diamond)</option>
+								</select>
+							</div>
+
+							<!-- Max Offers -->
+							<div>
+								<label class="form-label text-xs font-bold text-primary block mb-1">الحد الأقصى للعروض</label>
+								<input type="number" min="1" name="max_offers" value="20" class="form-input text-xs w-full font-mono"/>
+							</div>
+
+							<!-- Badge Color -->
+							<div>
+								<label class="form-label text-xs font-bold text-primary block mb-1">لون الشارة</label>
+								<div class="d-flex items-center gap-2">
+									<input type="color" name="badge_color" value="#0284c7" class="h-9 w-10 p-0 border border-slate-300 rounded cursor-pointer shrink-0"/>
+									<input type="text" name="badge_color_text" value="#0284c7" class="form-input text-xs w-full font-mono text-center" oninput="this.previousElementSibling.value = this.value"/>
+								</div>
+							</div>
+						</div>
+
+						<div class="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2 border-t border-slate-100">
+							<!-- Sort Order -->
+							<div>
+								<label class="form-label text-xs font-bold text-primary block mb-1">ترتيب الظهور في القائمة</label>
+								<input type="number" name="sort_order" value="0" class="form-input text-xs w-full font-mono"/>
+							</div>
+
+							<!-- Checkboxes -->
+							<div class="d-flex items-center gap-6 pt-5">
+								<label class="d-flex items-center gap-2 cursor-pointer select-none">
+									<input type="checkbox" name="is_featured" value="true" class="form-checkbox text-brand rounded"/>
+									<span class="text-xs font-bold text-primary">⭐ باقة مميزة</span>
+								</label>
+
+								<label class="d-flex items-center gap-2 cursor-pointer select-none">
+									<input type="checkbox" name="is_active" value="true" checked class="form-checkbox text-emerald-600 rounded"/>
+									<span class="text-xs font-bold text-primary">تفعيل الباقة فوراً</span>
+								</label>
+							</div>
+						</div>
+
+						<!-- Form Footer -->
+						<div class="flex-between items-center pt-4 border-t border-slate-100">
+							<button type="button" class="btn btn-secondary btn-sm font-bold" @click="showAddModal = false">إلغاء</button>
+							<button type="submit" class="btn btn-primary btn-sm font-extrabold gap-1.5 shadow-sm">
+								@components.IconCheck("icon-xs")
+								<span>حفظ وإنشاء الباقة</span>
+							</button>
+						</div>
+					</form>
+				</div>
+			</div>
+
+			<!-- ========================================== -->
+			<!-- MODAL: Edit Existing Package               -->
+			<!-- ========================================== -->
+			<div
+				x-show="showEditModal"
+				class="fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-xs d-flex items-center justify-center p-4"
+				style="display: none;"
+				@keydown.escape.window="showEditModal = false"
+			>
+				<div
+					class="glass-panel w-full max-w-2xl bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden"
+					@click.outside="showEditModal = false"
+				>
+					<div class="flex-between items-center p-5 border-b border-slate-100 bg-slate-50/50">
+						<div class="d-flex items-center gap-2.5">
+							<div class="w-9 h-9 rounded-xl bg-sky-50 text-sky-600 d-flex items-center justify-center shadow-2xs">
+								@components.IconEdit("icon-xs")
+							</div>
+							<div>
+								<h3 class="text-base font-black text-primary m-0">
+									<span>تعديل باقة الرعاية: </span>
+									<span x-text="editPkg.name_ar || ('#' + editPkg.id)" class="text-brand"></span>
+								</h3>
+								<p class="text-2xs text-secondary m-0 mt-0.5 font-medium">تحديث أسعار ورصيد ومستوى أولوية باقة الرعاية</p>
+							</div>
+						</div>
+						<button type="button" class="btn btn-secondary btn-icon btn-xs" @click="showEditModal = false">
+							@components.IconClose("icon-2xs")
+						</button>
+					</div>
+
+					<form method="POST" :action="'/admin/offers-packages/' + editPkg.id + '/edit'" class="p-6 space-y-4 m-0">
+						<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+							<!-- Name AR -->
+							<div>
+								<label class="form-label text-xs font-bold text-primary block mb-1">اسم الباقة (عربي) <span class="text-rose-500">*</span></label>
+								<input type="text" name="name_ar" x-model="editPkg.name_ar" required class="form-input text-xs w-full"/>
+							</div>
+
+							<!-- Name EN -->
+							<div>
+								<label class="form-label text-xs font-bold text-primary block mb-1">اسم الباقة (إنجليزي) <span class="text-rose-500">*</span></label>
+								<input type="text" name="name_en" x-model="editPkg.name_en" required class="form-input text-xs w-full text-left" dir="ltr"/>
+							</div>
+						</div>
+
+						<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+							<!-- Desc AR -->
+							<div>
+								<label class="form-label text-xs font-bold text-primary block mb-1">الوصف والمميزات (عربي)</label>
+								<textarea name="desc_ar" x-model="editPkg.desc_ar" rows="2" class="form-input text-xs w-full"></textarea>
+							</div>
+
+							<!-- Desc EN -->
+							<div>
+								<label class="form-label text-xs font-bold text-primary block mb-1">الوصف والمميزات (إنجليزي)</label>
+								<textarea name="desc_en" x-model="editPkg.desc_en" rows="2" class="form-input text-xs w-full text-left" dir="ltr"></textarea>
+							</div>
+						</div>
+
+						<div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+							<!-- Price -->
+							<div>
+								<label class="form-label text-xs font-bold text-primary block mb-1">السعر (ج.م) <span class="text-rose-500">*</span></label>
+								<input type="number" step="0.01" min="0" name="price" x-model="editPkg.price" required class="form-input text-xs w-full font-mono font-bold"/>
+							</div>
+
+							<!-- Duration -->
+							<div>
+								<label class="form-label text-xs font-bold text-primary block mb-1">المدة (بالأيام) <span class="text-rose-500">*</span></label>
+								<input type="number" min="1" name="duration_days" x-model="editPkg.duration_days" required class="form-input text-xs w-full font-mono"/>
+							</div>
+
+							<!-- Credits -->
+							<div>
+								<label class="form-label text-xs font-bold text-primary block mb-1">رصيد الرعايات المضمن <span class="text-rose-500">*</span></label>
+								<input type="number" min="1" name="credits" x-model="editPkg.credits" required class="form-input text-xs w-full font-mono font-bold text-brand"/>
+							</div>
+						</div>
+
+						<div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+							<!-- Tier Level -->
+							<div>
+								<label class="form-label text-xs font-bold text-primary block mb-1">مستوى الأولوية والترتيب <span class="text-rose-500">*</span></label>
+								<select name="tier_level" x-model="editPkg.tier_level" required class="form-select text-xs w-full font-bold">
+									<option value="1">🥉 مستوى 1 - عادي (Standard)</option>
+									<option value="2">🥈 مستوى 2 - فضي (Silver)</option>
+									<option value="3">🥇 مستوى 3 - ذهبي (Gold)</option>
+									<option value="4">👑 مستوى 4 - بلاتيني (Platinum)</option>
+									<option value="5">💎 مستوى 5 - ماسي (Diamond)</option>
+								</select>
+							</div>
+
+							<!-- Max Offers -->
+							<div>
+								<label class="form-label text-xs font-bold text-primary block mb-1">الحد الأقصى للعروض</label>
+								<input type="number" min="1" name="max_offers" x-model="editPkg.max_offers" class="form-input text-xs w-full font-mono"/>
+							</div>
+
+							<!-- Badge Color -->
+							<div>
+								<label class="form-label text-xs font-bold text-primary block mb-1">لون الشارة</label>
+								<div class="d-flex items-center gap-2">
+									<input type="color" name="badge_color" x-model="editPkg.badge_color" class="h-9 w-10 p-0 border border-slate-300 rounded cursor-pointer shrink-0"/>
+									<input type="text" x-model="editPkg.badge_color" class="form-input text-xs w-full font-mono text-center"/>
+								</div>
+							</div>
+						</div>
+
+						<div class="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2 border-t border-slate-100">
+							<!-- Sort Order -->
+							<div>
+								<label class="form-label text-xs font-bold text-primary block mb-1">ترتيب الظهور في القائمة</label>
+								<input type="number" name="sort_order" x-model="editPkg.sort_order" class="form-input text-xs w-full font-mono"/>
+							</div>
+
+							<!-- Checkboxes -->
+							<div class="d-flex items-center gap-6 pt-5">
+								<label class="d-flex items-center gap-2 cursor-pointer select-none">
+									<input type="checkbox" name="is_featured" x-model="editPkg.is_featured" value="true" class="form-checkbox text-brand rounded"/>
+									<span class="text-xs font-bold text-primary">⭐ باقة مميزة</span>
+								</label>
+
+								<label class="d-flex items-center gap-2 cursor-pointer select-none">
+									<input type="checkbox" name="is_active" x-model="editPkg.is_active" value="true" class="form-checkbox text-emerald-600 rounded"/>
+									<span class="text-xs font-bold text-primary">الباقة مفعلة</span>
+								</label>
+							</div>
+						</div>
+
+						<!-- Form Footer -->
+						<div class="flex-between items-center pt-4 border-t border-slate-100">
+							<button type="button" class="btn btn-secondary btn-sm font-bold" @click="showEditModal = false">إلغاء</button>
+							<button type="submit" class="btn btn-primary btn-sm font-extrabold gap-1.5 shadow-sm">
+								@components.IconCheck("icon-xs")
+								<span>حفظ التعديلات</span>
+							</button>
+						</div>
+					</form>
+				</div>
+			</div>
+
+			<!-- ========================================== -->
+			<!-- MODAL: Reject Sponsorship Request          -->
+			<!-- ========================================== -->
+			<div
+				x-show="showRejectModal"
+				class="fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-xs d-flex items-center justify-center p-4"
+				style="display: none;"
+				@keydown.escape.window="showRejectModal = false"
+			>
+				<div
+					class="glass-panel w-full max-w-md bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden"
+					@click.outside="showRejectModal = false"
+				>
+					<div class="p-5 border-b border-slate-100 bg-rose-50/50 flex-between items-center">
+						<div class="d-flex items-center gap-2 text-rose-700 font-black text-sm">
+							@components.IconAlertCircle("icon-xs")
+							<span>تأكيد رفض طلب الرعاية</span>
+						</div>
+						<button type="button" class="btn btn-secondary btn-icon btn-xs" @click="showRejectModal = false">
+							@components.IconClose("icon-2xs")
+						</button>
+					</div>
+					<form method="POST" :action="rejectActionUrl" class="p-5 m-0 space-y-4">
+						<p class="text-xs text-secondary leading-relaxed m-0">
+							سيتم رفض طلب الرعاية وإرجاع الرصيد المستهلك إلى محفظة / رصيد المورد تلقائياً.
+						</p>
+						<div>
+							<label class="form-label text-xs font-bold text-primary block mb-1">سبب الرفض (اختياري)</label>
+							<textarea name="notes" x-model="rejectNotes" rows="2" placeholder="اكتب سبب الرفض لتوضيحه للمورد..." class="form-input text-xs w-full"></textarea>
+						</div>
+						<div class="flex-between items-center pt-2">
+							<button type="button" class="btn btn-secondary btn-xs font-bold" @click="showRejectModal = false">إلغاء</button>
+							<button type="submit" class="btn btn-danger btn-xs font-extrabold gap-1 shadow-2xs">
+								@components.IconClose("icon-2xs")
+								<span>تأكيد الرفض وإرجاع الرصيد</span>
+							</button>
+						</div>
+					</form>
 				</div>
 			</div>
 		</div>
@@ -519,7 +1461,7 @@ templ VendorOffersPackagesPageWithData(lang, dir string, data SponsorshipRequest
 									<div class="flex-between items-start mb-4">
 										<div>
 											<h3 class="text-lg font-black text-primary m-0 leading-tight">
-												{ pkg.Name.Get("ar") }
+												{ pkg.Name.Get(i18n.AR) }
 											</h3>
 											if pkg.TierLevel > 0 {
 												<span class="badge badge-amber font-extrabold text-xs shadow-2xs mt-1.5 d-inline-flex">
@@ -909,7 +1851,7 @@ templ VendorSponsorshipRequestsPage(lang, dir string, data SponsorshipRequestsDa
 									<div>
 										<div class="flex-between items-start mb-2">
 											<div>
-												<h4 class="font-black text-sm text-primary m-0">{ pkg.Name.Get("ar") }</h4>
+												<h4 class="font-black text-sm text-primary m-0">{ pkg.Name.Get(i18n.AR) }</h4>
 												if pkg.TierLevel > 0 {
 													<span class="badge badge-amber font-extrabold text-2xs mt-1">
 														مستوى { fmt.Sprintf("%d", pkg.TierLevel) }

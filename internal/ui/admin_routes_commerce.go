@@ -121,7 +121,10 @@ func (h *UIHandler) registerAdminCommerceRoutes(r chi.Router) {
 		g.Get("/admin/offers-packages/clicks/{id}", h.AdminOfferAnalyticsClicksPage)
 	})
 	r.Group(func(g chi.Router) {
-		g.Use(authctx.RequirePagePermission("promo.offer_package.view"))
+		g.Use(authctx.RequirePagePermission("promo.offer_package.update", "promo.offer_package.view"))
+		g.Post("/admin/offers-packages/new", h.AdminOfferPackageCreateSubmit)
+		g.Post("/admin/offers-packages/{id}/edit", h.AdminOfferPackageEditSubmit)
+		g.Post("/admin/offers-packages/{id}/toggle", h.AdminOfferPackageToggleSubmit)
 		g.Post("/admin/offers-packages/sponsorships/{id}/approve", h.AdminSponsorshipRequestApproveSubmit)
 		g.Post("/admin/offers-packages/sponsorships/{id}/reject", h.AdminSponsorshipRequestRejectSubmit)
 	})
@@ -131,13 +134,13 @@ func (h *UIHandler) registerAdminCommerceRoutes(r chi.Router) {
 		g.Get("/admin/ads", h.AdminAdsListPage)
 	})
 	r.Group(func(g chi.Router) {
-		g.Use(authctx.RequirePagePermission("promo.ad.view"))
+		g.Use(authctx.RequirePagePermission("promo.ad.update", "promo.ad.view"))
 		g.Post("/admin/ads/{id}/approve", h.AdminAdApproveSubmit)
 		g.Post("/admin/ads/{id}/reject", h.AdminAdRejectSubmit)
 	})
 
 	r.Group(func(g chi.Router) {
-		g.Use(authctx.RequirePagePermission("promo.ad_plan.view"))
+		g.Use(authctx.RequirePagePermission("promo.ad_plan.view", "promo.offer_package.view"))
 		g.Get("/admin/ad-plan", h.AdminAdPlansPage)
 	})
 
