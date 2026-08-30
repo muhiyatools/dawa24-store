@@ -221,7 +221,7 @@ func (h *UIHandler) adminUserAction(
 		return
 	}
 
-	h.redirectWithNotice(w, r, "/admin/users", "success", "تم تنفيذ الإجراء بنجاح.")
+	h.redirectWithNotice(w, r, "/admin/users", "success", i18n.T(langOf(r), "admin.users.action_success"))
 }
 
 // AdminUserSuspendSubmit blocks an account and ends its sessions.
@@ -248,6 +248,7 @@ func (h *UIHandler) AdminUserResetMFASubmit(w http.ResponseWriter, r *http.Reque
 // AdminUserDeletionApproveSubmit approves an account deletion request and deletes/suspends the account.
 func (h *UIHandler) AdminUserDeletionApproveSubmit(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
+	lang := langOf(r)
 	actor, ok := authctx.From(ctx)
 	if !ok || (!actor.IsStaff && !actor.IsPlatformAdmin()) {
 		http.Redirect(w, r, "/auth/login?redirect=/admin/users?tab=deletion_requests", http.StatusSeeOther)
@@ -256,23 +257,24 @@ func (h *UIHandler) AdminUserDeletionApproveSubmit(w http.ResponseWriter, r *htt
 
 	reqID, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
 	if err != nil || reqID <= 0 {
-		h.redirectWithNotice(w, r, "/admin/users?tab=deletion_requests", "error", "معرف الطلب غير صالح.")
+		h.redirectWithNotice(w, r, "/admin/users?tab=deletion_requests", "error", i18n.T(lang, "admin.docs.invalid_request_id"))
 		return
 	}
 
 	if h.idSvc != nil {
-		if err := h.idSvc.AdminReviewDeletionRequest(ctx, reqID, actor.UserID, true, "تمت الموافقة من إدارة المنصة"); err != nil {
-			h.redirectWithNotice(w, r, "/admin/users?tab=deletion_requests", "error", h.safeMessage(err, langOf(r)))
+		if err := h.idSvc.AdminReviewDeletionRequest(ctx, reqID, actor.UserID, true, i18n.T(lang, "admin.users.deletion_approved_reason")); err != nil {
+			h.redirectWithNotice(w, r, "/admin/users?tab=deletion_requests", "error", h.safeMessage(err, lang))
 			return
 		}
 	}
 
-	h.redirectWithNotice(w, r, "/admin/users?tab=deletion_requests", "success", "تمت الموافقة على حذف الحساب وتعطيله بنجاح.")
+	h.redirectWithNotice(w, r, "/admin/users?tab=deletion_requests", "success", i18n.T(lang, "admin.users.deletion_approved_success"))
 }
 
 // AdminUserDeletionRejectSubmit rejects an account deletion request.
 func (h *UIHandler) AdminUserDeletionRejectSubmit(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
+	lang := langOf(r)
 	actor, ok := authctx.From(ctx)
 	if !ok || (!actor.IsStaff && !actor.IsPlatformAdmin()) {
 		http.Redirect(w, r, "/auth/login?redirect=/admin/users?tab=deletion_requests", http.StatusSeeOther)
@@ -281,16 +283,16 @@ func (h *UIHandler) AdminUserDeletionRejectSubmit(w http.ResponseWriter, r *http
 
 	reqID, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
 	if err != nil || reqID <= 0 {
-		h.redirectWithNotice(w, r, "/admin/users?tab=deletion_requests", "error", "معرف الطلب غير صالح.")
+		h.redirectWithNotice(w, r, "/admin/users?tab=deletion_requests", "error", i18n.T(lang, "admin.docs.invalid_request_id"))
 		return
 	}
 
 	if h.idSvc != nil {
-		if err := h.idSvc.AdminReviewDeletionRequest(ctx, reqID, actor.UserID, false, "تم رفض طلب الحذف من الإدارة"); err != nil {
-			h.redirectWithNotice(w, r, "/admin/users?tab=deletion_requests", "error", h.safeMessage(err, langOf(r)))
+		if err := h.idSvc.AdminReviewDeletionRequest(ctx, reqID, actor.UserID, false, i18n.T(lang, "admin.users.deletion_rejected_reason")); err != nil {
+			h.redirectWithNotice(w, r, "/admin/users?tab=deletion_requests", "error", h.safeMessage(err, lang))
 			return
 		}
 	}
 
-	h.redirectWithNotice(w, r, "/admin/users?tab=deletion_requests", "success", "تم رفض طلب حذف الحساب بنجاح.")
+	h.redirectWithNotice(w, r, "/admin/users?tab=deletion_requests", "success", i18n.T(lang, "admin.users.deletion_rejected_success"))
 }

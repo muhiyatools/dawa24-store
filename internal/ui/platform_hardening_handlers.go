@@ -5,6 +5,7 @@ import (
 
 	"github.com/muhiya/dawa24-store/internal/modules/workflow"
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/ui/pages"
 )
 
@@ -35,6 +36,7 @@ func (h *UIHandler) CustomerReportIssuePage(w http.ResponseWriter, r *http.Reque
 // CustomerReportIssueSubmit saves issue report into workflow.report_issues.
 func (h *UIHandler) CustomerReportIssueSubmit(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
+	lang := langOf(r)
 	actor, ok := authctx.From(ctx)
 	if !ok || actor.UserID <= 0 {
 		http.Redirect(w, r, "/auth/login?redirect=/report-issue", http.StatusSeeOther)
@@ -46,7 +48,7 @@ func (h *UIHandler) CustomerReportIssueSubmit(w http.ResponseWriter, r *http.Req
 	description := r.FormValue("description")
 
 	if h.wfSvc == nil {
-		h.redirectWithNotice(w, r, "/report-issue", "error", "خدمة البلاغات غير متوفرة.")
+		h.redirectWithNotice(w, r, "/report-issue", "error", i18n.T(lang, "issues.service_unavailable"))
 		return
 	}
 
@@ -62,11 +64,11 @@ func (h *UIHandler) CustomerReportIssueSubmit(w http.ResponseWriter, r *http.Req
 
 	if _, err := h.wfSvc.ReportIssue(ctx, issue); err != nil {
 		h.log.ErrorContext(ctx, "failed reporting issue", "error", err, "user_id", actor.UserID)
-		h.redirectWithNotice(w, r, "/report-issue", "error", h.safeMessage(err, langOf(r)))
+		h.redirectWithNotice(w, r, "/report-issue", "error", h.safeMessage(err, lang))
 		return
 	}
 
-	h.redirectWithNotice(w, r, "/report-issue", "success", "تم إرسال البلاغ بنجاح، سيقوم فريق الدعم بمتابعته.")
+	h.redirectWithNotice(w, r, "/report-issue", "success", i18n.T(lang, "issues.submitted_success"))
 }
 
 // AdminReportIssuesPage renders admin review queue for submitted user issues.

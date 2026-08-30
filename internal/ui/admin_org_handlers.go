@@ -14,6 +14,7 @@ import (
 	platformadmin "github.com/muhiya/dawa24-store/internal/modules/platform_admin"
 	"github.com/muhiya/dawa24-store/internal/modules/workflow"
 	"github.com/muhiya/dawa24-store/internal/platform/database"
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/ui/pages"
 )
 
@@ -46,7 +47,7 @@ func (h *UIHandler) AdminOrganizationDetailPage(w http.ResponseWriter, r *http.R
 	}
 
 	if organization == nil {
-		h.redirectWithNotice(w, r, "/admin/organizations", "error", "المنشأة غير موجودة.")
+		h.redirectWithNotice(w, r, "/admin/organizations", "error", i18n.T(lang, "admin.org.not_found"))
 		return
 	}
 
@@ -431,7 +432,7 @@ func (h *UIHandler) AdminWeeklyCoverageCreateSubmit(w http.ResponseWriter, r *ht
 		}
 	}
 
-	h.redirectWithNotice(w, r, "/admin/weekly-coverages?org_id="+redirectOrgID, "success", "تم إضافة جدول التغطية الأسبوعية بنجاح.")
+	h.redirectWithNotice(w, r, "/admin/weekly-coverages?org_id="+redirectOrgID, "success", i18n.T(langOf(r), "admin.org.coverage_created_success"))
 }
 
 // AdminWeeklyCoverageToggleSubmit toggles the active status of a coverage schedule.
@@ -446,7 +447,7 @@ func (h *UIHandler) AdminWeeklyCoverageToggleSubmit(w http.ResponseWriter, r *ht
 		_ = h.wfSvc.ToggleWeeklyCoverage(database.AsSystem(ctx), id, isActive)
 	}
 
-	h.redirectWithNotice(w, r, "/admin/weekly-coverages?org_id="+orgID, "success", "تم تحديث حالة جدول التغطية بنجاح.")
+	h.redirectWithNotice(w, r, "/admin/weekly-coverages?org_id="+orgID, "success", i18n.T(langOf(r), "admin.org.coverage_status_updated_success"))
 }
 
 // AdminWeeklyCoverageDeleteSubmit deletes a coverage schedule.
@@ -460,5 +461,5 @@ func (h *UIHandler) AdminWeeklyCoverageDeleteSubmit(w http.ResponseWriter, r *ht
 		_ = h.wfSvc.DeleteWeeklyCoverage(database.AsSystem(ctx), id)
 	}
 
-	h.redirectWithNotice(w, r, "/admin/weekly-coverages?org_id="+orgID, "success", "تم حذف جدول التغطية بنجاح.")
+	h.redirectWithNotice(w, r, "/admin/weekly-coverages?org_id="+orgID, "success", i18n.T(langOf(r), "admin.org.coverage_deleted_success"))
 }

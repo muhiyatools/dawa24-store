@@ -10,13 +10,15 @@ import (
 	"time"
 
 	platformadmin "github.com/muhiya/dawa24-store/internal/modules/platform_admin"
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 )
 
 // AdminSiteSettingsSubmit persists public contact info and social media links.
 func (h *UIHandler) AdminSiteSettingsSubmit(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
+	lang := langOf(r)
 	if h.adminSvc == nil {
-		h.redirectWithNotice(w, r, "/admin/settings?tab=site", "error", "خدمة الإعدادات غير متاحة.")
+		h.redirectWithNotice(w, r, "/admin/settings?tab=site", "error", i18n.T(lang, "admin.settings.service_unavailable"))
 		return
 	}
 
@@ -52,19 +54,20 @@ func (h *UIHandler) AdminSiteSettingsSubmit(w http.ResponseWriter, r *http.Reque
 	}
 
 	if err := h.adminSvc.SaveSiteSettings(ctx, curr); err != nil {
-		h.redirectWithNotice(w, r, "/admin/settings?tab=site", "error", h.safeMessage(err, langOf(r)))
+		h.redirectWithNotice(w, r, "/admin/settings?tab=site", "error", h.safeMessage(err, lang))
 		return
 	}
 
 	InvalidateSiteSettingsCache()
-	h.redirectWithNotice(w, r, "/admin/settings?tab=site", "success", "تم حفظ وتحديث إعدادات الموقع بنجاح.")
+	h.redirectWithNotice(w, r, "/admin/settings?tab=site", "success", i18n.T(lang, "admin.branding.site_saved_success"))
 }
 
 // AdminBrandingSubmit updates platform logo and favicon.
 func (h *UIHandler) AdminBrandingSubmit(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
+	lang := langOf(r)
 	if h.adminSvc == nil {
-		h.redirectWithNotice(w, r, "/admin/settings?tab=site", "error", "خدمة الإعدادات غير متاحة.")
+		h.redirectWithNotice(w, r, "/admin/settings?tab=site", "error", i18n.T(lang, "admin.settings.service_unavailable"))
 		return
 	}
 
@@ -153,10 +156,10 @@ func (h *UIHandler) AdminBrandingSubmit(w http.ResponseWriter, r *http.Request) 
 	}
 
 	if err := h.adminSvc.SaveSiteSettings(ctx, curr); err != nil {
-		h.redirectWithNotice(w, r, "/admin/settings?tab=site", "error", h.safeMessage(err, langOf(r)))
+		h.redirectWithNotice(w, r, "/admin/settings?tab=site", "error", h.safeMessage(err, lang))
 		return
 	}
 
 	InvalidateSiteSettingsCache()
-	h.redirectWithNotice(w, r, "/admin/settings?tab=site", "success", "تم حفظ وتطبيق الهوية البصرية بنجاح.")
+	h.redirectWithNotice(w, r, "/admin/settings?tab=site", "success", i18n.T(lang, "admin.branding.branding_saved_success"))
 }

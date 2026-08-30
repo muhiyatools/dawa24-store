@@ -1,6 +1,7 @@
 package ui
 
 import (
+	"fmt"
 	"net/http"
 	"net/url"
 	"strconv"
@@ -10,6 +11,7 @@ import (
 
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/shared/apperr"
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/ui/components"
 	"github.com/muhiya/dawa24-store/internal/ui/pages"
 )
@@ -38,10 +40,10 @@ func (h *UIHandler) renderError(w http.ResponseWriter, r *http.Request, err erro
 		// non-2xx would leave the old content in place with nothing explaining why.
 		w.WriteHeader(http.StatusOK)
 		if rerr := components.ErrorState(components.ErrorStateProps{
-			Title:      "حدث خطأ أثناء تحميل البيانات",
+			Title:      i18n.T(lang, "errors.data_load_failed"),
 			Message:    msg,
 			RetryURL:   r.URL.String(),
-			RetryLabel: "إعادة المحاولة",
+			RetryLabel: i18n.T(lang, "common.retry"),
 		}).Render(ctx, w); rerr != nil {
 			h.log.ErrorContext(ctx, "render error state", "error", rerr)
 		}
@@ -50,7 +52,7 @@ func (h *UIHandler) renderError(w http.ResponseWriter, r *http.Request, err erro
 
 	w.WriteHeader(statusForError(err))
 	if rerr := pages.ErrorPage(
-		"عذراً، حدث خطأ",
+		i18n.T(lang, "errors.generic_title"),
 		msg,
 		"/",
 		lang,
@@ -70,30 +72,27 @@ func (h *UIHandler) safeMessage(err error, lang string) string {
 	}
 	errStr := err.Error()
 	if strings.Contains(errStr, "email") && (strings.Contains(errStr, "unique") || strings.Contains(errStr, "duplicate key") || strings.Contains(errStr, "23505") || strings.Contains(errStr, "users_email_key")) {
-		return "البريد الإلكتروني مسجل مسبقاً في النظام. يرجى تسجيل الدخول أو استخدام بريد آخر."
+		return i18n.T(lang, "validation.email_already_registered")
 	}
 	if strings.Contains(errStr, "commercial_register") && (strings.Contains(errStr, "unique") || strings.Contains(errStr, "duplicate key") || strings.Contains(errStr, "23505")) {
-		return "رقم السجل التجاري مسجل مسبقاً لمنشأة أخرى."
+		return i18n.T(lang, "validation.cr_already_registered")
 	}
 	if strings.Contains(errStr, "city_id") || strings.Contains(errStr, "branches_city_id_fkey") {
-		return "بيانات الموقع أو المدينة غير صالحة. يرجى إعادة اختيار المدينة من الخريطة."
+		return i18n.T(lang, "validation.city_invalid")
 	}
 	if strings.Contains(errStr, "order_shipments_organization_id_fkey") || strings.Contains(errStr, "order_lines_organization_id_fkey") {
-		return "تعذر تحديد بيانات شركة التوريد المسؤولة عن هذا الصنف (رمز المورد غير مسجل). يرجى مراجعة الأصناف بالسلة."
+		return i18n.T(lang, "validation.supplier_missing_cart")
 	}
 	if strings.Contains(errStr, "orders_branch_id_fkey") || strings.Contains(errStr, "order_shipments_branch_id_fkey") {
-		return "فرع الصيدلية المحدد غير صالح أو تم حذفه. يرجى اختيار فرع صيدلية نشط."
+		return i18n.T(lang, "validation.pharmacy_branch_invalid")
 	}
 	if strings.Contains(errStr, "orders_vendor_branch_id_fkey") {
-		return "فرع التوريد المحدد للمورد غير صالح أو غير مسجل."
+		return i18n.T(lang, "validation.vendor_branch_invalid")
 	}
 	if strings.Contains(errStr, "foreign key") || strings.Contains(errStr, "23503") {
-		return "تعذر إتمام العملية بسبب عدم تطابق البيانات المرجعية (" + errStr + ")."
+		return fmt.Sprintf(i18n.T(lang, "errors.foreign_key_mismatch_format"), errStr)
 	}
-	if lang == "ar" {
-		return "حدث خطأ أثناء المعالجة: " + errStr
-	}
-	return "Operation could not be completed: " + errStr
+	return fmt.Sprintf(i18n.T(lang, "errors.processing_error_format"), errStr)
 }
 
 // statusForError maps an error onto a response code. A full page load that

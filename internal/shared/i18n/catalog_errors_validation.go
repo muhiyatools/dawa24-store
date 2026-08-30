@@ -23,4 +23,16 @@ func loadErrorsAndValidationKeys(e *engine) {
 	addKey(e, "errors.500_internal", "errors", "حدث خطأ غير متوقع في الخادم. تم تسجيل الخطأ للفحص.", "Internal server error. The incident has been logged.", "500 error")
 	addKey(e, "errors.database_error", "errors", "تعذر الاتصال بقاعدة البيانات حالياً.", "Database connection error.", "Database error")
 	addKey(e, "errors.ai_gateway_error", "errors", "تعذر استجابة خادم الذكاء الاصطناعي حالياً، يرجى المحاولة لاحقاً.", "AI Gateway is currently unavailable, please try again later.", "AI Gateway error")
+	addKey(e, "errors.foreign_key_mismatch_format", "errors", "تعذر إتمام العملية بسبب عدم تطابق البيانات المرجعية (%s).", "Operation failed due to reference data mismatch (%s).", "Reference error")
+	addKey(e, "errors.processing_error_format", "errors", "حدث خطأ أثناء المعالجة: %s", "An error occurred during processing: %s", "Processing error")
+	addKey(e, "errors.data_load_failed", "errors", "حدث خطأ أثناء تحميل البيانات", "Error loading data", "Error title")
+	addKey(e, "errors.generic_title", "errors", "عذراً، حدث خطأ", "Sorry, an error occurred", "Error page title")
+	addKey(e, "common.retry", "common", "إعادة المحاولة", "Retry", "Button label")
+
+	addKey(e, "validation.email_already_registered", "validation", "البريد الإلكتروني مسجل مسبقاً في النظام. يرجى تسجيل الدخول أو استخدام بريد آخر.", "Email is already registered in the system. Please sign in or use another email.", "Email exists error")
+	addKey(e, "validation.cr_already_registered", "validation", "رقم السجل التجاري مسجل مسبقاً لمنشأة أخرى.", "Commercial register number is already registered for another organization.", "CR exists error")
+	addKey(e, "validation.city_invalid", "validation", "بيانات الموقع أو المدينة غير صالحة. يرجى إعادة اختيار المدينة من الخريطة.", "Location or city data is invalid. Please reselect city from map.", "City invalid error")
+	addKey(e, "validation.supplier_missing_cart", "validation", "تعذر تحديد بيانات شركة التوريد المسؤولة عن هذا الصنف (رمز المورد غير مسجل). يرجى مراجعة الأصناف بالسلة.", "Could not determine supplier company for this item. Please review cart items.", "Supplier missing error")
+	addKey(e, "validation.pharmacy_branch_invalid", "validation", "فرع الصيدلية المحدد غير صالح أو تم حذفه. يرجى اختيار فرع صيدلية نشط.", "Selected pharmacy branch is invalid or deleted. Please select an active branch.", "Branch invalid error")
+	addKey(e, "validation.vendor_branch_invalid", "validation", "فرع التوريد المحدد للمورد غير صالح أو غير مسجل.", "Selected supplier branch is invalid or unregistered.", "Vendor branch invalid error")
 }

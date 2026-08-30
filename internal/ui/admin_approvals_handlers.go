@@ -13,7 +13,7 @@ import (
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/platform/database"
 	"github.com/muhiya/dawa24-store/internal/shared/apperr"
-
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/ui/pages"
 )
 
@@ -89,16 +89,17 @@ func (h *UIHandler) AdminApprovalsPage(w http.ResponseWriter, r *http.Request) {
 // AdminOrgReviewSubmit handles full administrative approval/rejection with custom reason and document categorization.
 func (h *UIHandler) AdminOrgReviewSubmit(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
+	lang := langOf(r)
 	actor, _ := authctx.From(ctx)
 
 	id, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
 	if err != nil || id <= 0 {
-		h.redirectWithNotice(w, r, "/admin/approvals", "error", "معرف المنشأة غير صالح.")
+		h.redirectWithNotice(w, r, "/admin/approvals", "error", i18n.T(lang, "admin.approvals.invalid_org_id"))
 		return
 	}
 
 	if h.orgSvc == nil {
-		h.redirectWithNotice(w, r, "/admin/approvals", "error", "خدمة المؤسسات غير متاحة.")
+		h.redirectWithNotice(w, r, "/admin/approvals", "error", i18n.T(lang, "admin.approvals.org_service_unavailable"))
 		return
 	}
 
@@ -108,7 +109,7 @@ func (h *UIHandler) AdminOrgReviewSubmit(w http.ResponseWriter, r *http.Request)
 	docTypeVal := attachments.DocumentType(strings.TrimSpace(r.PostFormValue("document_type")))
 
 	if err := h.orgSvc.ReviewOrganization(ctx, id, status, notes, rejectionReason, actor.UserID); err != nil {
-		h.redirectWithNotice(w, r, "/admin/approvals", "error", h.safeMessage(err, langOf(r)))
+		h.redirectWithNotice(w, r, "/admin/approvals", "error", h.safeMessage(err, lang))
 		return
 	}
 
@@ -133,11 +134,11 @@ func (h *UIHandler) AdminOrgReviewSubmit(w http.ResponseWriter, r *http.Request)
 		go h.provisionOrgAIAndSubscription(context.Background(), id)
 	}
 
-	msg := "تم اعتماد وتفعيل ترخيص المنشأة وتوثيق المستندات المرفقة بنجاح."
+	msg := i18n.T(lang, "admin.approvals.approved_and_verified_success")
 	if status == org.StatusRejected {
-		msg = "تم رفض طلب المنشأة وحفظ سبب الرفض."
+		msg = i18n.T(lang, "admin.approvals.rejected_success")
 	} else if status == org.StatusSuspended {
-		msg = "تم تعليق حساب المنشأة مؤقتاً."
+		msg = i18n.T(lang, "admin.approvals.suspended_notice")
 	}
 
 	h.redirectWithNotice(w, r, "/admin/approvals", "success", msg)
@@ -183,7 +184,7 @@ func (h *UIHandler) adminApprovalAction(
 	}
 
 	if !h.isHTMX(r) {
-		h.redirectWithNotice(w, r, "/admin/approvals", "success", "تم تحديث حالة المنشأة وتفعيل صلاحياتها بنجاح.")
+		h.redirectWithNotice(w, r, "/admin/approvals", "success", i18n.T(langOf(r), "admin.approvals.status_updated_success"))
 		return
 	}
 
@@ -236,7 +237,7 @@ func (h *UIHandler) AdminOrgApproveSubmit(w http.ResponseWriter, r *http.Request
 		_ = h.orgSvc.ApproveOrganization(ctx, id)
 		go h.provisionOrgAIAndSubscription(context.Background(), id)
 	}
-	h.redirectWithNotice(w, r, "/admin/organizations", "success", "تم اعتماد وتفعيل حساب المنشأة بنجاح.")
+	h.redirectWithNotice(w, r, "/admin/organizations", "success", i18n.T(langOf(r), "admin.approvals.account_activated_success"))
 }
 
 // provisionOrgAIAndSubscription gives a newly approved منشأة both of the things

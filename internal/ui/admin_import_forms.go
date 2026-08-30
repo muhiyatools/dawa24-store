@@ -11,6 +11,7 @@ import (
 	"github.com/muhiya/dawa24-store/internal/modules/catalog"
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/platform/database"
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 )
 
 // Reading the wizard's forms, and the upload itself.
@@ -147,9 +148,10 @@ func (h *UIHandler) recentImportSessions(ctx context.Context) []*catalog.ImportS
 	return sessions
 }
 
-// importMessage prefers the domain's own Arabic message over a raw error.
+// importMessage prefers the domain's own localized message over a raw error.
 func (h *UIHandler) importMessage(err error, r *http.Request) string {
-	if msg := h.safeMessage(err, langOf(r)); msg != "" && msg != "حدث خطأ غير متوقع" {
+	lang := langOf(r)
+	if msg := h.safeMessage(err, lang); msg != "" && msg != i18n.T(lang, "notice.error_generic") && msg != i18n.T(lang, "errors.server_error") {
 		return msg
 	}
 	return err.Error()
@@ -170,6 +172,7 @@ func (e *uploadError) Error() string { return e.message }
 // — the import wizard sends "import_file" and the older warehouse upload form
 // sends "file".
 func readUploadedFile(r *http.Request) ([]byte, string, *uploadError) {
+	lang := langOf(r)
 	// The body cap is enforced here rather than trusting the multipart parser's
 	// memory limit, which bounds what is held in RAM, not what a client may
 	// stream. A w of nil only means "cannot flag the connection as too large";
@@ -178,7 +181,7 @@ func readUploadedFile(r *http.Request) ([]byte, string, *uploadError) {
 
 	if err := r.ParseMultipartForm(maxImportUploadBytes); err != nil {
 		return nil, "", &uploadError{
-			message: fmt.Sprintf("تعذرت قراءة الملف المرفوع. الحد الأقصى لحجم الملف هو %d ميجابايت.",
+			message: fmt.Sprintf(i18n.T(lang, "admin.import.upload_max_bytes_format"),
 				maxImportUploadBytes>>20),
 			detail: err.Error(),
 		}
@@ -190,7 +193,7 @@ func readUploadedFile(r *http.Request) ([]byte, string, *uploadError) {
 	}
 	if err != nil {
 		return nil, "", &uploadError{
-			message: "لم يتم اختيار أي ملف. يرجى اختيار ملف Excel (.xlsx) أو CSV ثم الضغط على «قراءة الملف».",
+			message: i18n.T(lang, "admin.import.no_file_selected"),
 		}
 	}
 	defer func() { _ = file.Close() }()
@@ -200,13 +203,13 @@ func readUploadedFile(r *http.Request) ([]byte, string, *uploadError) {
 	content, err := io.ReadAll(io.LimitReader(file, maxImportUploadBytes+1))
 	if err != nil {
 		return nil, "", &uploadError{
-			message: "تعذرت قراءة محتوى الملف المرفوع. يرجى إعادة المحاولة.",
+			message: i18n.T(lang, "admin.import.read_content_failed"),
 			detail:  err.Error(),
 		}
 	}
 	if int64(len(content)) > maxImportUploadBytes {
 		return nil, "", &uploadError{
-			message: fmt.Sprintf("حجم الملف يتجاوز الحد الأقصى المسموح به (%d ميجابايت).",
+			message: fmt.Sprintf(i18n.T(lang, "admin.import.file_too_large_format"),
 				maxImportUploadBytes>>20),
 		}
 	}

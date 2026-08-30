@@ -384,4 +384,13 @@ func loadFrontendUIKeys(e *engine) {
 	addKey(e, "checkout.branch_out_of_coverage_format", "commerce", "فرع الصيدلية المحدد خارج نطاق التغطية الجغرافية لشركات التوريد (%s). يرجى اختيار فرع معتمد داخل التغطية.", "Selected pharmacy branch is outside supplier coverage area (%s). Please select an eligible branch within coverage.", "Coverage error")
 	addKey(e, "customer.catalog.custom_procurement_request", "catalog", "طلب توريد خاص", "Special Procurement Request", "Fallback supplier label")
 	addKey(e, "customer.catalog.no_active_offers", "catalog", "لا تتوفر عروض توريد نشطة لهذا الصنف حالياً", "No active supplier offers available for this item currently", "No offers notice")
+
+	// --- Storefront Offers & Distance ---
+	addKey(e, "offers.default_supplier_name", "offers", "مورد أدوية معتمد", "Certified pharmaceutical supplier", "Default supplier name")
+	addKey(e, "offers.distance_less_1km", "offers", "< 1 كم", "< 1 km", "Distance label")
+	addKey(e, "offers.distance_km_format", "offers", "%.1f كم", "%.1f km", "Distance format")
+	addKey(e, "offers.distance_km_int_format", "offers", "%d كم", "%d km", "Distance format")
+	addKey(e, "offers.cov_reason_verify_failed", "offers", "تعذر التحقق من التغطية الجغرافية", "Could not verify geographic coverage", "Coverage reason")
+	addKey(e, "offers.cov_reason_out_of_stock", "offers", "نفد المخزون لدى المورد", "Out of stock with supplier", "Coverage reason")
+	addKey(e, "offers.delivery_estimate_24h", "offers", "توصيل خلال 24 ساعة", "Delivery within 24 hours", "Delivery estimate")
 }

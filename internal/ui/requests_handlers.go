@@ -40,6 +40,7 @@ func (h *UIHandler) RequestsPage(w http.ResponseWriter, r *http.Request) {
 // RequestCreateSubmit sends a document/action request to another organization.
 func (h *UIHandler) RequestCreateSubmit(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
+	lang := langOf(r)
 	actor, ok := authctx.From(ctx)
 	if !ok {
 		http.Redirect(w, r, "/auth/login?redirect=/requests", http.StatusSeeOther)
@@ -49,17 +50,17 @@ func (h *UIHandler) RequestCreateSubmit(w http.ResponseWriter, r *http.Request) 
 	toOrgID, _ := strconv.ParseInt(r.PostFormValue("to_org_id"), 10, 64)
 	title := i18n.New(r.PostFormValue("title"), r.PostFormValue("title"))
 	if h.wfSvc == nil {
-		h.redirectWithNotice(w, r, "/requests", "error", "الخدمة غير متاحة حالياً.")
+		h.redirectWithNotice(w, r, "/requests", "error", i18n.T(lang, "admin.import.service_unavailable"))
 		return
 	}
 
 	_, err := h.wfSvc.CreateRequest(ctx, actor.UserID, actor.OrganizationID, toOrgID,
 		workflow.RequestType(r.PostFormValue("type")), title, r.PostFormValue("description"))
 	if err != nil {
-		h.redirectWithNotice(w, r, "/requests", "error", h.safeMessage(err, langOf(r)))
+		h.redirectWithNotice(w, r, "/requests", "error", h.safeMessage(err, lang))
 		return
 	}
-	h.redirectWithNotice(w, r, "/requests", "success", "تم إرسال الطلب.")
+	h.redirectWithNotice(w, r, "/requests", "success", i18n.T(lang, "requests.sent_success"))
 }
 
 // RequestRespondSubmit accepts or declines an incoming request.

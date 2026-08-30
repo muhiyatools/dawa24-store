@@ -9,6 +9,7 @@ import (
 
 	platformadmin "github.com/muhiya/dawa24-store/internal/modules/platform_admin"
 	"github.com/muhiya/dawa24-store/internal/platform/database"
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/ui/pages"
 )
 
@@ -79,7 +80,7 @@ func (h *UIHandler) AdminMessageToggleSubmit(w http.ResponseWriter, r *http.Requ
 			}
 		}
 	}
-	h.redirectWithNotice(w, r, "/admin/messages", "success", "تم تحديث حالة الرسالة بنجاح.")
+	h.redirectWithNotice(w, r, "/admin/messages", "success", i18n.T(langOf(r), "admin.messages.status_updated_success"))
 }
 
 // AdminMessageDeleteSubmit deletes a contact message from the inbox.
@@ -89,5 +90,5 @@ func (h *UIHandler) AdminMessageDeleteSubmit(w http.ResponseWriter, r *http.Requ
 	if err == nil && id > 0 && h.adminSvc != nil {
 		_ = h.adminSvc.DeleteContactMessage(database.AsSystem(ctx), id)
 	}
-	h.redirectWithNotice(w, r, "/admin/messages", "success", "تم حذف الرسالة بنجاح.")
+	h.redirectWithNotice(w, r, "/admin/messages", "success", i18n.T(langOf(r), "admin.messages.deleted_success"))
 }

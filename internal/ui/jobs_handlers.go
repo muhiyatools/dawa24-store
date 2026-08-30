@@ -65,7 +65,7 @@ func (h *UIHandler) JobsPage(w http.ResponseWriter, r *http.Request) {
 	for _, j := range rawJobs {
 		compName := orgNames[j.OrganizationID]
 		if compName == "" {
-			compName = "جهة صيدلانية معتمدة"
+			compName = i18n.T(lang, "jobs.verified_pharma_entity")
 		}
 		jobItems = append(jobItems, &pages.JobItemView{
 			Job:         j,
@@ -119,7 +119,7 @@ func (h *UIHandler) JobDetailPage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	compName := "جهة صيدلانية معتمدة"
+	compName := i18n.T(lang, "jobs.verified_pharma_entity")
 	if h.orgSvc != nil && j.OrganizationID > 0 {
 		if o, err := h.orgSvc.GetOrganization(ctx, j.OrganizationID); err == nil && o != nil {
 			compName = o.TradeName.Get(i18n.ParseLang(lang))
@@ -170,12 +170,12 @@ func (h *UIHandler) JobApplySubmit(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if !actor.IsJobSeeker() && !actor.IsStaff {
-		h.redirectWithNotice(w, r, "/jobs/"+strconv.FormatInt(offerID, 10), "error", "التقديم على الشواغر الوظيفية متاح فقط لحسابات (باحث عن عمل).")
+		h.redirectWithNotice(w, r, "/jobs/"+strconv.FormatInt(offerID, 10), "error", i18n.T(lang, "jobs.apply_jobseeker_only"))
 		return
 	}
 
 	if h.hrSvc == nil {
-		h.redirectWithNotice(w, r, "/jobs/"+strconv.FormatInt(offerID, 10), "error", "الخدمة غير متاحة حالياً.")
+		h.redirectWithNotice(w, r, "/jobs/"+strconv.FormatInt(offerID, 10), "error", i18n.T(lang, "common.service_unavailable"))
 		return
 	}
 
@@ -185,7 +185,7 @@ func (h *UIHandler) JobApplySubmit(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	compName := "جهة صيدلانية معتمدة"
+	compName := i18n.T(lang, "jobs.verified_pharma_entity")
 	if h.orgSvc != nil && offer.OrganizationID > 0 {
 		if o, err := h.orgSvc.GetOrganization(ctx, offer.OrganizationID); err == nil && o != nil {
 			compName = o.TradeName.Get(i18n.ParseLang(lang))

@@ -2,6 +2,7 @@ package ui
 
 import (
 	"errors"
+	"fmt"
 	"io"
 	"net/http"
 	"net/url"
@@ -23,7 +24,7 @@ import (
 //
 // The JSON API in modules/smartorder/http serves the same use cases for
 // scripted callers; these handlers are what the pharmacy actually uses. Both go
-// through the same service, so there is one set of rules rather than two.
+// through smartorder.Service and the database is the only state.
 
 // maxUploadBytes caps a direct upload.
 //
@@ -34,7 +35,7 @@ import (
 // and the refusal was reported as if the file were unreadable.
 const maxUploadBytes = 64 << 20
 
-// SmartOrderNewPage renders step 1: upload and configuration.
+// SmartOrderNewPage renders step 1.
 func (h *UIHandler) SmartOrderNewPage(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	lang, dir := h.localeAndDir(r)
@@ -69,7 +70,7 @@ func (h *UIHandler) SmartOrderNewPage(w http.ResponseWriter, r *http.Request) {
 	// The AI toggle is only offered when it would actually work. Rendering it
 	// enabled against an unreachable Gateway produces a run that silently does
 	// no AI at all, which reads as the feature being broken.
-	data.AIAvailable, data.AIUnavailableReason = h.smartOrderAIState(ctx, actor.OrganizationID)
+	data.AIAvailable, data.AIUnavailableReason = h.smartOrderAIState(ctx, actor.OrganizationID, lang)
 
 	h.renderPage(ctx, w, "render smart order import page", pages.SmartOrderNewPage(lang, dir, data))
 }
@@ -77,6 +78,7 @@ func (h *UIHandler) SmartOrderNewPage(w http.ResponseWriter, r *http.Request) {
 // SmartOrderCreateSubmit handles the upload and creates the run.
 func (h *UIHandler) SmartOrderCreateSubmit(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
+	lang := langOf(r)
 	actor, ok := authctx.From(ctx)
 	if !ok {
 		http.Redirect(w, r, "/auth/login", http.StatusSeeOther)
@@ -91,21 +93,20 @@ func (h *UIHandler) SmartOrderCreateSubmit(w http.ResponseWriter, r *http.Reques
 	// The in-memory portion is capped well below the body limit so a large
 	// upload spills to a temp file instead of being held whole in RAM.
 	if err := r.ParseMultipartForm(8 << 20); err != nil {
-		h.smartOrderFail(w, r,
-			"تعذّر رفع الملف. تأكد من أن حجمه لا يتجاوز 64 ميجابايت وأن الرفع اكتمل.")
+		h.smartOrderFail(w, r, i18n.T(lang, "smartorder.upload_size_limit"))
 		return
 	}
 
 	file, header, err := r.FormFile("file")
 	if err != nil {
-		h.smartOrderFail(w, r, "اختر ملف الأصناف المطلوبة.")
+		h.smartOrderFail(w, r, i18n.T(lang, "smartorder.file_required"))
 		return
 	}
 	defer file.Close()
 
 	content, err := io.ReadAll(file)
 	if err != nil || len(content) == 0 {
-		h.smartOrderFail(w, r, "الملف فارغ أو تعذّرت قراءته.")
+		h.smartOrderFail(w, r, i18n.T(lang, "smartorder.empty_file"))
 		return
 	}
 
@@ -119,7 +120,7 @@ func (h *UIHandler) SmartOrderCreateSubmit(w http.ResponseWriter, r *http.Reques
 		// buyer nothing they can act on.
 		h.log.WarnContext(ctx, "could not read the uploaded file",
 			"filename", header.Filename, "bytes", len(content), "error", err)
-		h.smartOrderFail(w, r, "تعذّرت قراءة الملف: "+err.Error())
+		h.smartOrderFail(w, r, fmt.Sprintf(i18n.T(lang, "smartorder.read_file_failed_format"), err.Error()))
 		return
 	}
 
@@ -147,7 +148,7 @@ func (h *UIHandler) SmartOrderCreateSubmit(w http.ResponseWriter, r *http.Reques
 		UseAIMatching:     r.FormValue("use_ai_matching") != "",
 	})
 	if err != nil {
-		h.smartOrderFail(w, r, translateSmartOrderError(err))
+		h.smartOrderFail(w, r, translateSmartOrderError(err, lang))
 		return
 	}
 
@@ -157,7 +158,7 @@ func (h *UIHandler) SmartOrderCreateSubmit(w http.ResponseWriter, r *http.Reques
 	// upload a nine-thousand-line workbook again for no visible reason.
 	if err := h.smartOrderSvc.SaveFile(ctx, run.ID, run.OrganizationID, header.Filename, content); err != nil {
 		h.log.ErrorContext(ctx, "could not store the uploaded file", "run_id", run.ID, "error", err)
-		h.smartOrderFail(w, r, "تعذّر حفظ الملف المرفوع. حاول مرة أخرى.")
+		h.smartOrderFail(w, r, i18n.T(lang, "smartorder.save_file_failed"))
 		return
 	}
 	_ = parsed
@@ -207,13 +208,13 @@ func (h *UIHandler) SmartOrderMappingPage(w http.ResponseWriter, r *http.Request
 
 	content, filename, err := h.smartOrderSvc.File(ctx, run.ID, run.OrganizationID)
 	if err != nil {
-		h.smartOrderFail(w, r, "لم يعد الملف المرفوع متاحًا. يرجى رفعه مرة أخرى.")
+		h.smartOrderFail(w, r, i18n.T(lang, "smartorder.file_no_longer_available"))
 		return
 	}
 
 	parsed, err := pipeline.Inspect(content, filename)
 	if err != nil {
-		h.smartOrderFail(w, r, "تعذّرت قراءة الملف: "+err.Error())
+		h.smartOrderFail(w, r, fmt.Sprintf(i18n.T(lang, "smartorder.read_file_failed_format"), err.Error()))
 		return
 	}
 
@@ -243,18 +244,19 @@ func (h *UIHandler) SmartOrderMappingPage(w http.ResponseWriter, r *http.Request
 // SmartOrderMappingSubmit stages the rows and queues the run.
 func (h *UIHandler) SmartOrderMappingSubmit(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
+	lang := langOf(r)
 	run, ok := h.smartOrderRun(w, r)
 	if !ok {
 		return
 	}
 	if err := r.ParseForm(); err != nil {
-		h.smartOrderFail(w, r, "تعذّرت قراءة النموذج.")
+		h.smartOrderFail(w, r, i18n.T(lang, "smartorder.form_parse_error"))
 		return
 	}
 
 	content, filename, err := h.smartOrderSvc.File(ctx, run.ID, run.OrganizationID)
 	if err != nil {
-		h.smartOrderFail(w, r, "لم يعد الملف المرفوع متاحًا. يرجى رفعه مرة أخرى.")
+		h.smartOrderFail(w, r, i18n.T(lang, "smartorder.file_no_longer_available"))
 		return
 	}
 
@@ -272,25 +274,25 @@ func (h *UIHandler) SmartOrderMappingSubmit(w http.ResponseWriter, r *http.Reque
 
 	m := &smartorder.Mapping{HeaderRow: headerRow, Fields: fields, UserOverridden: true}
 	if err := h.smartOrderSvc.ConfirmMapping(ctx, run, m); err != nil {
-		h.smartOrderFail(w, r, translateSmartOrderError(err))
+		h.smartOrderFail(w, r, translateSmartOrderError(err, lang))
 		return
 	}
 
 	lines, err := pipeline.Stage(content, filename, m, run.ID, run.OrganizationID)
 	if err != nil {
-		h.smartOrderFail(w, r, "تعذّر تجهيز الصفوف: "+err.Error())
+		h.smartOrderFail(w, r, fmt.Sprintf(i18n.T(lang, "smartorder.stage_lines_failed_format"), err.Error()))
 		return
 	}
 	if len(lines) == 0 {
-		h.smartOrderFail(w, r, "لم يُعثر على أي صنف في الملف بعد تطبيق التعيين.")
+		h.smartOrderFail(w, r, i18n.T(lang, "smartorder.no_items_found"))
 		return
 	}
 	if err := h.smartOrderSvc.StageLines(ctx, lines); err != nil {
-		h.smartOrderFail(w, r, "تعذّر حفظ الصفوف.")
+		h.smartOrderFail(w, r, i18n.T(lang, "smartorder.save_lines_failed"))
 		return
 	}
 	if err := h.smartOrderSvc.Queue(ctx, run); err != nil {
-		h.smartOrderFail(w, r, translateSmartOrderError(err))
+		h.smartOrderFail(w, r, translateSmartOrderError(err, lang))
 		return
 	}
 	if h.smartOrderEnqueue != nil {
@@ -343,9 +345,13 @@ func (h *UIHandler) smartOrderFail(w http.ResponseWriter, r *http.Request, messa
 
 // translateSmartOrderError turns a domain error into something a pharmacist can
 // act on, rather than a generic or technical error code.
-func translateSmartOrderError(err error) string {
+func translateSmartOrderError(err error, langOptional ...string) string {
 	if err == nil {
 		return ""
+	}
+	lang := "ar"
+	if len(langOptional) > 0 && langOptional[0] != "" {
+		lang = langOptional[0]
 	}
 
 	var appErr *apperr.Error
@@ -353,35 +359,35 @@ func translateSmartOrderError(err error) string {
 		msg := appErr.Msg
 		switch {
 		case strings.Contains(msg, "branch_required") || strings.Contains(msg, "branch_invalid") || strings.Contains(msg, "اختيار فرع"):
-			return "يرجى اختيار فرع الاستلام قبل المتابعة."
+			return i18n.T(lang, "smartorder.err_branch_required")
 		case strings.Contains(msg, "branch_no_location"):
-			return "لم يتم تحديد موقع فرع الاستلام على الخريطة، يرجى تحديده لتتمكن من الطلب."
+			return i18n.T(lang, "smartorder.err_branch_no_location")
 		case strings.Contains(msg, "branch_not_owned"):
-			return "فرع الاستلام المحدد لا يتبع حسابك."
+			return i18n.T(lang, "smartorder.err_branch_not_owned")
 		case strings.Contains(msg, "nothing_to_order"):
-			return "لا توجد أصناف صالحة للطلب ومحددة بمورد وكمية أكبر من صفر."
+			return i18n.T(lang, "smartorder.err_nothing_to_order")
 		case strings.Contains(msg, "customer_required"):
-			return "بيانات العميل غير مكتملة."
+			return i18n.T(lang, "smartorder.err_customer_required")
 		case strings.Contains(msg, "empty_cart"):
-			return "سلة الطلب فارغة."
+			return i18n.T(lang, "smartorder.err_empty_cart")
 		case strings.Contains(msg, "missing_documents") || strings.Contains(msg, "documents"):
-			return "يرجى استكمال المستندات الإلزامية للمؤسسة قبل إتمام الطلب."
+			return i18n.T(lang, "smartorder.err_missing_documents")
 		case strings.Contains(msg, "min_order_not_met"):
-			return "إجمالي الطلب أقل من الحد الأدنى للطلب لدى المورد."
+			return i18n.T(lang, "smartorder.err_min_order_not_met")
 		case strings.Contains(msg, "line_unavailable") || strings.Contains(msg, "not_covered") || strings.Contains(msg, "لا يغطي"):
-			return "بعض الأصناف المختارة غير متاحة للطلب حالياً أو خارج نطاق التغطية."
+			return i18n.T(lang, "smartorder.err_line_unavailable")
 		case strings.Contains(msg, "out_of_stock") || strings.Contains(msg, "غير متوفر"):
-			return "بعض الأصناف نفدت من المخزون لدى المورد."
+			return i18n.T(lang, "smartorder.err_out_of_stock")
 		case strings.Contains(msg, "insufficient_stock"):
-			return "الكمية المطلوبة تتجاوز المخزون المتاح لدى المورد."
+			return i18n.T(lang, "smartorder.err_insufficient_stock")
 		case strings.Contains(msg, "below_minimum"):
-			return "الكمية المطلوبة أقل من الحد الأدنى للطلب من الصنف."
+			return i18n.T(lang, "smartorder.err_below_minimum")
 		case strings.Contains(msg, "mapping_incomplete"):
-			return "عيّن عمودًا لاسم الصنف أو كوده أو الباركود قبل بدء المطابقة."
+			return i18n.T(lang, "smartorder.err_mapping_incomplete")
 		case strings.Contains(msg, "already_finalized"):
-			return "تم اعتماد هذا الطلب من قبل."
+			return i18n.T(lang, "smartorder.err_already_finalized")
 		case strings.Contains(msg, "stale"):
-			return "تغيّرت الإعدادات بعد إنشاء النتائج. أعد التشغيل قبل الاعتماد."
+			return i18n.T(lang, "smartorder.err_stale")
 		}
 		return msg
 	}
@@ -389,35 +395,35 @@ func translateSmartOrderError(err error) string {
 	msg := err.Error()
 	switch {
 	case strings.Contains(msg, "branch_required") || strings.Contains(msg, "branch_invalid") || strings.Contains(msg, "اختيار فرع"):
-		return "يرجى اختيار فرع الاستلام قبل المتابعة."
+		return i18n.T(lang, "smartorder.err_branch_required")
 	case strings.Contains(msg, "branch_no_location"):
-		return "لم يتم تحديد موقع فرع الاستلام على الخريطة، يرجى تحديده لتتمكن من الطلب."
+		return i18n.T(lang, "smartorder.err_branch_no_location")
 	case strings.Contains(msg, "branch_not_owned"):
-		return "فرع الاستلام المحدد لا يتبع حسابك."
+		return i18n.T(lang, "smartorder.err_branch_not_owned")
 	case strings.Contains(msg, "mapping_incomplete"):
-		return "عيّن عمودًا لاسم الصنف أو كوده أو الباركود قبل بدء المطابقة."
+		return i18n.T(lang, "smartorder.err_mapping_incomplete")
 	case strings.Contains(msg, "already_finalized"):
-		return "تم اعتماد هذا الطلب من قبل."
+		return i18n.T(lang, "smartorder.err_already_finalized")
 	case strings.Contains(msg, "stale"):
-		return "تغيّرت الإعدادات بعد إنشاء النتائج. أعد التشغيل قبل الاعتماد."
+		return i18n.T(lang, "smartorder.err_stale")
 	case strings.Contains(msg, "nothing_to_order"):
-		return "لا توجد أصناف صالحة للطلب ومحددة بمورد وكمية أكبر من صفر."
+		return i18n.T(lang, "smartorder.err_nothing_to_order")
 	case strings.Contains(msg, "customer_required"):
-		return "بيانات العميل غير مكتملة."
+		return i18n.T(lang, "smartorder.err_customer_required")
 	case strings.Contains(msg, "empty_cart"):
-		return "سلة الطلب فارغة."
+		return i18n.T(lang, "smartorder.err_empty_cart")
 	case strings.Contains(msg, "missing_documents") || strings.Contains(msg, "documents"):
-		return "يرجى استكمال المستندات الإلزامية للمؤسسة قبل إتمام الطلب."
+		return i18n.T(lang, "smartorder.err_missing_documents")
 	case strings.Contains(msg, "min_order_not_met"):
-		return "إجمالي الطلب أقل من الحد الأدنى للطلب لدى المورد."
+		return i18n.T(lang, "smartorder.err_min_order_not_met")
 	case strings.Contains(msg, "line_unavailable") || strings.Contains(msg, "not_covered") || strings.Contains(msg, "لا يغطي"):
-		return "بعض الأصناف المختارة غير متاحة للطلب حالياً أو خارج نطاق التغطية."
+		return i18n.T(lang, "smartorder.err_line_unavailable")
 	case strings.Contains(msg, "out_of_stock") || strings.Contains(msg, "غير متوفر"):
-		return "بعض الأصناف نفدت من المخزون لدى المورد."
+		return i18n.T(lang, "smartorder.err_out_of_stock")
 	case strings.Contains(msg, "insufficient_stock"):
-		return "الكمية المطلوبة تتجاوز المخزون المتاح لدى المورد."
+		return i18n.T(lang, "smartorder.err_insufficient_stock")
 	case strings.Contains(msg, "below_minimum"):
-		return "الكمية المطلوبة أقل من الحد الأدنى للطلب من الصنف."
+		return i18n.T(lang, "smartorder.err_below_minimum")
 	}
-	return "تعذّر إكمال العملية: " + msg
+	return fmt.Sprintf(i18n.T(lang, "smartorder.err_operation_failed_format"), msg)
 }

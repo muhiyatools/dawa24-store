@@ -13,6 +13,7 @@ import (
 	"github.com/muhiya/dawa24-store/internal/modules/catalog"
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/platform/database"
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/ui/pages"
 )
 
@@ -53,7 +54,7 @@ const reviewPageSize = 100
 func (h *UIHandler) requirePlatformAdmin(w http.ResponseWriter, r *http.Request) bool {
 	actor, ok := authctx.From(r.Context())
 	if !ok || !actor.IsPlatformAdmin() {
-		http.Error(w, "صلاحيات غير كافية لتنفيذ هذه العملية.", http.StatusForbidden)
+		http.Error(w, i18n.T(langOf(r), "admin.import.forbidden"), http.StatusForbidden)
 		return false
 	}
 	return true
@@ -67,7 +68,7 @@ func (h *UIHandler) importReady(w http.ResponseWriter, r *http.Request) bool {
 	}
 	if h.catSvc == nil {
 		h.renderImportConfigure(w, r, pages.ImportConfigureView{
-			Fatal: "خدمة الكتالوج غير متاحة حالياً. يرجى المحاولة بعد قليل أو التواصل مع الدعم الفني.",
+			Fatal: i18n.T(langOf(r), "admin.import.service_unavailable"),
 		}, http.StatusServiceUnavailable)
 		return false
 	}
@@ -220,7 +221,7 @@ func (h *UIHandler) attachStagedRows(
 func (h *UIHandler) importSessionGone(w http.ResponseWriter, r *http.Request, publicID string, cause error) {
 	h.log.WarnContext(r.Context(), "import session unavailable", "session", publicID, "error", cause)
 	h.renderImportConfigure(w, r, pages.ImportConfigureView{
-		Fatal: "لم يتم العثور على جلسة الاستيراد المطلوبة أو انتهت صلاحيتها. يرجى رفع الملف من جديد.",
+		Fatal: i18n.T(langOf(r), "admin.import.session_expired"),
 	}, http.StatusNotFound)
 }
 
@@ -314,7 +315,7 @@ func (h *UIHandler) AdminProductsImportCommit(w http.ResponseWriter, r *http.Req
 	// destructive strategy needs its own deliberate acknowledgement.
 	if session.Mode.IsDestructive() && r.PostFormValue("confirm_destructive") != "1" {
 		h.renderImportReview(w, r,
-			"يجب تأكيد أرشفة الكتالوج الحالي قبل تنفيذ هذه الطريقة.", http.StatusUnprocessableEntity)
+			i18n.T(langOf(r), "admin.import.confirm_destructive_required"), http.StatusUnprocessableEntity)
 		return
 	}
 
@@ -331,7 +332,7 @@ func (h *UIHandler) AdminProductsImportCommit(w http.ResponseWriter, r *http.Req
 		"session", written.PublicID, "inserted", result.Inserted, "updated", result.Updated)
 
 	h.redirectWithNotice(w, r, "/admin/products", "success", fmt.Sprintf(
-		"تم حفظ %d صنف في الكتالوج المعتمد (%d جديد، %d محدَّث).",
+		i18n.T(langOf(r), "admin.import.committed_success_format"),
 		result.Total(), result.Inserted, result.Updated))
 }
 
@@ -353,7 +354,7 @@ func (h *UIHandler) AdminProductsImportCancel(w http.ResponseWriter, r *http.Req
 		}
 	}
 	h.redirectWithNotice(w, r, "/admin/products/import", "success",
-		"تم إلغاء عملية الاستيراد ولم يتم حفظ أي صنف.")
+		i18n.T(langOf(r), "admin.import.cancelled_success"))
 }
 
 // AdminProductsImportProgress reports a run's state as JSON.

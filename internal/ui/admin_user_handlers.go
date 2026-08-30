@@ -98,7 +98,7 @@ func (h *UIHandler) AdminUserDetailPage(w http.ResponseWriter, r *http.Request) 
 	}
 
 	if user == nil {
-		h.redirectWithNotice(w, r, "/admin/users", "error", "المستخدم غير موجود.")
+		h.redirectWithNotice(w, r, "/admin/users", "error", i18n.T(lang, "admin.users.not_found"))
 		return
 	}
 

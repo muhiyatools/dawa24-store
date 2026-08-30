@@ -12,6 +12,7 @@ import (
 	"github.com/muhiya/dawa24-store/internal/modules/org"
 	"github.com/muhiya/dawa24-store/internal/modules/promo"
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/shared/money"
 	"github.com/muhiya/dawa24-store/internal/ui/pages"
 )
@@ -29,17 +30,17 @@ func calculateHaversineKM(lat1, lon1, lat2, lon2 float64) float64 {
 	return earthRadiusKM * c
 }
 
-func formatDistanceKMText(km float64) string {
+func formatDistanceKMText(km float64, lang string) string {
 	if km <= 0 {
 		return ""
 	}
 	if km < 1.0 {
-		return "< 1 كم"
+		return i18n.T(lang, "offers.distance_less_1km")
 	}
 	if km < 100.0 {
-		return fmt.Sprintf("%.1f كم", km)
+		return fmt.Sprintf(i18n.T(lang, "offers.distance_km_format"), km)
 	}
-	return fmt.Sprintf("%d كم", int(km))
+	return fmt.Sprintf(i18n.T(lang, "offers.distance_km_int_format"), int(km))
 }
 
 // offersForProduct turns the approved vendor variants and promo offers selling the product into
@@ -48,9 +49,13 @@ func formatDistanceKMText(km float64) string {
 // env carries batch-prefetched org/branch/stock/promo lookups; build it once
 // per page with buildOfferEnv so rendering a page costs constant queries
 // instead of a few per variant.
-func (h *UIHandler) offersForProduct(ctx context.Context, product *catalog.Product, variants []*catalog.ProductVariant, env *offerEnv) []pages.SupplierOffer {
+func (h *UIHandler) offersForProduct(ctx context.Context, product *catalog.Product, variants []*catalog.ProductVariant, env *offerEnv, langOptional ...string) []pages.SupplierOffer {
 	if product == nil {
 		return nil
+	}
+	lang := "ar"
+	if len(langOptional) > 0 && langOptional[0] != "" {
+		lang = langOptional[0]
 	}
 	if env == nil {
 		env = h.buildOfferEnv(ctx, []int64{product.ID}, map[int64][]*catalog.ProductVariant{
@@ -78,7 +83,7 @@ func (h *UIHandler) offersForProduct(ctx context.Context, product *catalog.Produ
 		orgn := env.org(v.OrganizationID)
 		supplierName := orgName(orgn)
 		if supplierName == "" {
-			supplierName = "مورد معتمد"
+			supplierName = i18n.T(lang, "offers.default_supplier_name")
 		}
 
 		minQty := v.MinOrderQty
@@ -140,7 +145,7 @@ func (h *UIHandler) offersForProduct(ctx context.Context, product *catalog.Produ
 
 		if hasCustCoords && venBranch != nil && venBranch.Latitude != nil && venBranch.Longitude != nil && (*venBranch.Latitude != 0 || *venBranch.Longitude != 0) {
 			distKM = calculateHaversineKM(custLat, custLng, *venBranch.Latitude, *venBranch.Longitude)
-			distText = formatDistanceKMText(distKM)
+			distText = formatDistanceKMText(distKM, lang)
 		}
 
 		isCovered := false
@@ -179,7 +184,7 @@ func (h *UIHandler) offersForProduct(ctx context.Context, product *catalog.Produ
 					}
 				} else {
 					isCovered = false
-					covReason = "تعذر التحقق من التغطية الجغرافية"
+					covReason = i18n.T(lang, "offers.cov_reason_verify_failed")
 					canAddToCart = false
 				}
 			} else if customerBranchID <= 0 {
@@ -187,7 +192,7 @@ func (h *UIHandler) offersForProduct(ctx context.Context, product *catalog.Produ
 				if stockQty > 0 {
 					canAddToCart = true
 				} else {
-					covReason = "نفد المخزون لدى المورد"
+					covReason = i18n.T(lang, "offers.cov_reason_out_of_stock")
 				}
 			}
 		} else {
@@ -195,7 +200,7 @@ func (h *UIHandler) offersForProduct(ctx context.Context, product *catalog.Produ
 			if stockQty > 0 {
 				canAddToCart = true
 			} else {
-				covReason = "نفد المخزون لدى المورد"
+				covReason = i18n.T(lang, "offers.cov_reason_out_of_stock")
 			}
 		}
 
@@ -212,7 +217,7 @@ func (h *UIHandler) offersForProduct(ctx context.Context, product *catalog.Produ
 			MinOrderQty:      minQty,
 			BatchNumber:      v.BatchNumber,
 			ExpiryDate:       expiryStr,
-			DeliveryEstimate: "توصيل خلال 24 ساعة",
+			DeliveryEstimate: i18n.T(lang, "offers.delivery_estimate_24h"),
 			ColdChain:        true,
 			BranchName:       branchNameStr,
 			CityName:         cityNameStr,
@@ -248,7 +253,7 @@ func (h *UIHandler) offersForProduct(ctx context.Context, product *catalog.Produ
 			orgn := env.org(row.Offer.OrganizationID)
 			sName := orgName(orgn)
 			if sName == "" {
-				sName = "مورد معتمد"
+				sName = i18n.T(lang, "offers.default_supplier_name")
 			}
 
 			newOffer := pages.SupplierOffer{
@@ -261,7 +266,7 @@ func (h *UIHandler) offersForProduct(ctx context.Context, product *catalog.Produ
 				DiscountAmount:   bd.DiscountAmount,
 				DiscountBPS:      bd.DiscountBPS,
 				MinOrderQty:      row.Product.CustomQty,
-				DeliveryEstimate: "توصيل خلال 24 ساعة",
+				DeliveryEstimate: i18n.T(lang, "offers.delivery_estimate_24h"),
 				ColdChain:        true,
 				IsCovered:        true,
 				CanAddToCart:     true,

@@ -212,7 +212,7 @@ func (h *UIHandler) CustomerCatalogPage(w http.ResponseWriter, r *http.Request) 
 			pBrandName = p.ManufacturingCompanies
 		}
 
-		offers := h.offersForProduct(ctx, p, variants, env)
+		offers := h.offersForProduct(ctx, p, variants, env, lang)
 
 		if len(offers) > 0 {
 			for _, off := range offers {

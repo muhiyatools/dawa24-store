@@ -19,11 +19,12 @@ import (
 	"github.com/muhiya/dawa24-store/internal/modules/compare"
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/platform/database"
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/shared/money"
 	"github.com/muhiya/dawa24-store/internal/shared/sheet"
 )
 
-func cleanSupplierNameFromFilename(filename string) string {
+func cleanSupplierNameFromFilename(filename string, lang ...string) string {
 	base := filepath.Base(filename)
 	ext := filepath.Ext(base)
 	name := strings.TrimSuffix(base, ext)
@@ -31,7 +32,11 @@ func cleanSupplierNameFromFilename(filename string) string {
 	name = strings.ReplaceAll(name, "-", " ")
 	name = strings.Join(strings.Fields(name), " ")
 	if name == "" {
-		name = "مستودع " + time.Now().Format("2006-01-02 15:04")
+		l := "ar"
+		if len(lang) > 0 && lang[0] != "" {
+			l = lang[0]
+		}
+		name = i18n.T(l, "admin.temp_warehouse.default_name_prefix") + time.Now().Format("2006-01-02 15:04")
 	}
 	return name
 }
@@ -64,18 +69,18 @@ func (h *UIHandler) processSingleTempWarehouseFile(
 ) tempWarehouseUploadResult {
 	file, err := fh.Open()
 	if err != nil {
-		return tempWarehouseUploadResult{Filename: fh.Filename, Success: false, Error: "فشل فتح الملف: " + err.Error()}
+		return tempWarehouseUploadResult{Filename: fh.Filename, Success: false, Error: fmt.Sprintf(i18n.T("ar", "admin.temp_warehouse.open_failed_format"), err.Error())}
 	}
 	defer file.Close()
 
 	fileBytes, err := io.ReadAll(file)
 	if err != nil {
-		return tempWarehouseUploadResult{Filename: fh.Filename, Success: false, Error: "فشل قراءة محتوى الملف: " + err.Error()}
+		return tempWarehouseUploadResult{Filename: fh.Filename, Success: false, Error: fmt.Sprintf(i18n.T("ar", "admin.temp_warehouse.read_failed_format"), err.Error())}
 	}
 
 	rawRows, err := sheet.ReadRows(fileBytes, fh.Filename)
 	if err != nil || len(rawRows) < 2 {
-		return tempWarehouseUploadResult{Filename: fh.Filename, Success: false, Error: "الملف لا يحتوي على صفوف بيانات كافية أو تعذر تحليله"}
+		return tempWarehouseUploadResult{Filename: fh.Filename, Success: false, Error: i18n.T("ar", "admin.temp_warehouse.insufficient_rows")}
 	}
 
 	headers := rawRows[0]
@@ -112,7 +117,7 @@ func (h *UIHandler) processSingleTempWarehouseFile(
 	}
 
 	if err := h.compareSvc.CreateFile(database.AsSystem(ctx), compareFile); err != nil {
-		return tempWarehouseUploadResult{Filename: fh.Filename, SupplierName: supplierName, Success: false, Error: "فشل إنشاء سجل المستودع: " + err.Error()}
+		return tempWarehouseUploadResult{Filename: fh.Filename, SupplierName: supplierName, Success: false, Error: fmt.Sprintf(i18n.T("ar", "admin.temp_warehouse.create_record_failed_format"), err.Error())}
 	}
 
 	fileRows := make([]*compare.CompareFileRow, 0, len(rawRows)-1)
@@ -189,16 +194,17 @@ func (h *UIHandler) processSingleTempWarehouseFile(
 // AdminTempWarehouseUploadSubmit handles bulk and single file upload (optimized for 60-100+ files in parallel).
 func (h *UIHandler) AdminTempWarehouseUploadSubmit(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
+	lang := langOf(r)
 
 	// 500MB max limit to comfortably allow 60-100+ bulk files
 	if err := r.ParseMultipartForm(500 << 20); err != nil {
 		if isJSONOrAJAX(r) {
 			w.Header().Set("Content-Type", "application/json; charset=utf-8")
 			w.WriteHeader(http.StatusBadRequest)
-			_ = json.NewEncoder(w).Encode(map[string]any{"success": false, "error": "حجم الملفات المرفوعة يتجاوز الحد الأقصى المسموح (500 ميجابايت)."})
+			_ = json.NewEncoder(w).Encode(map[string]any{"success": false, "error": i18n.T(lang, "admin.temp_warehouse.upload_limit_exceeded")})
 			return
 		}
-		h.redirectWithNotice(w, r, "/admin/user/temparte-warehouses", "error", "حجم الملفات المرفوعة كبير جداً.")
+		h.redirectWithNotice(w, r, "/admin/user/temparte-warehouses", "error", i18n.T(lang, "admin.temp_warehouse.upload_too_large"))
 		return
 	}
 
@@ -222,10 +228,10 @@ func (h *UIHandler) AdminTempWarehouseUploadSubmit(w http.ResponseWriter, r *htt
 		if isJSONOrAJAX(r) {
 			w.Header().Set("Content-Type", "application/json; charset=utf-8")
 			w.WriteHeader(http.StatusBadRequest)
-			_ = json.NewEncoder(w).Encode(map[string]any{"success": false, "error": "يرجى اختيار ملف أو أكثر للرفع."})
+			_ = json.NewEncoder(w).Encode(map[string]any{"success": false, "error": i18n.T(lang, "admin.temp_warehouse.select_files")})
 			return
 		}
-		h.redirectWithNotice(w, r, "/admin/user/temparte-warehouses", "error", "يرجى اختيار ملف أو مجموعة ملفات للرفع.")
+		h.redirectWithNotice(w, r, "/admin/user/temparte-warehouses", "error", i18n.T(lang, "admin.temp_warehouse.select_files_notice"))
 		return
 	}
 
@@ -337,19 +343,19 @@ func (h *UIHandler) AdminTempWarehouseUploadSubmit(w http.ResponseWriter, r *htt
 			"setup_queue":      strings.Join(uploadedIDs, ","),
 			"results":          results,
 			"errors":           errorMessages,
-			"message":          fmt.Sprintf("تم بنجاح رفع ومعالجة %d من أصل %d ملف مستودع بإجمالي %d صنف متاح في خصومات ومقارنات السوق.", successCount, len(fileHeaders), totalRows),
+			"message":          fmt.Sprintf(i18n.T(lang, "admin.temp_warehouse.upload_success_message"), successCount, len(fileHeaders), totalRows),
 		})
 		return
 	}
 
 	if successCount == 0 && failCount > 0 {
-		h.redirectWithNotice(w, r, "/admin/user/temparte-warehouses", "error", "فشل معالجة كافة الملفات المرفوعة: "+strings.Join(errorMessages, " | "))
+		h.redirectWithNotice(w, r, "/admin/user/temparte-warehouses", "error", i18n.T(lang, "admin.temp_warehouse.all_files_failed_prefix")+strings.Join(errorMessages, " | "))
 		return
 	}
 
-	successMsg := fmt.Sprintf("تم بنجاح رفع ومعالجة %d من أصل %d ملف مستودع بإجمالي %d صنف.", successCount, len(fileHeaders), totalRows)
+	successMsg := fmt.Sprintf(i18n.T(lang, "admin.temp_warehouse.success_summary"), successCount, len(fileHeaders), totalRows)
 	if failCount > 0 {
-		successMsg += fmt.Sprintf(" (فشل %d ملف)", failCount)
+		successMsg += fmt.Sprintf(i18n.T(lang, "admin.temp_warehouse.fail_count_suffix"), failCount)
 	}
 	h.redirectWithNotice(w, r, "/admin/user/temparte-warehouses", "success", successMsg)
 }

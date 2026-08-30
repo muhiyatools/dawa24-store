@@ -3,12 +3,13 @@ package ui
 import (
 	"fmt"
 	"net/http"
+	"strings"
 
 	"github.com/muhiya/dawa24-store/internal/modules/billing"
 	"github.com/muhiya/dawa24-store/internal/modules/commerce"
 	"github.com/muhiya/dawa24-store/internal/modules/org"
 	"github.com/muhiya/dawa24-store/internal/platform/database"
-
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/shared/money"
 	"github.com/muhiya/dawa24-store/internal/ui/pages"
 )
@@ -79,14 +80,14 @@ func (h *UIHandler) AdminDashboardPage(w http.ResponseWriter, r *http.Request) {
 			for _, d := range deps {
 				depTotal, _ = depTotal.Add(d.Amount)
 			}
-			stats.PendingDepositsAmount = fmt.Sprintf("%s ج.م", depTotal.String())
+			stats.PendingDepositsAmount = fmt.Sprintf("%s %s", depTotal.String(), i18n.T(lang, "common.currency_egp"))
 		}
 		if wallets, _, err := h.billSvc.AdminListDetailedWallets(sysCtx, billing.WalletFilter{Limit: 100}); err == nil {
 			var totalHeldMinor int64
 			for _, w := range wallets {
 				totalHeldMinor += w.Balance.Minor()
 			}
-			stats.TotalHeldInWallets = fmt.Sprintf("%s ج.م", money.FromMinor(totalHeldMinor).String())
+			stats.TotalHeldInWallets = fmt.Sprintf("%s %s", money.FromMinor(totalHeldMinor).String(), i18n.T(lang, "common.currency_egp"))
 		}
 	}
 	if h.catSvc != nil {
@@ -107,10 +108,10 @@ func (h *UIHandler) AdminDashboardPage(w http.ResponseWriter, r *http.Request) {
 			}
 		}
 	}
-	if stats.TotalGMV != "" && stats.TotalGMV != "0.00 ج.م" {
-		stats.TotalCommission = "5% عمولة"
+	if stats.TotalGMV != "" && !strings.HasPrefix(stats.TotalGMV, "0.00") && stats.TotalGMV != "0" {
+		stats.TotalCommission = i18n.T(lang, "admin.dashboard.commission_5pct")
 	} else {
-		stats.TotalCommission = "0.00 ج.م"
+		stats.TotalCommission = fmt.Sprintf("0.00 %s", i18n.T(lang, "common.currency_egp"))
 	}
 	if gwAdmin, _, ok := h.getGatewayAdminClient(ctx); ok && gwAdmin != nil {
 		stats.GatewayOnline = true

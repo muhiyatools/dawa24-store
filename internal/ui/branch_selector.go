@@ -12,6 +12,7 @@ import (
 
 	"github.com/muhiya/dawa24-store/internal/modules/org"
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 )
 
 // buyingBranchCookie persists the chosen branch per browser.
@@ -55,12 +56,13 @@ func (h *UIHandler) customerBranchOptions(r *http.Request, actor authctx.Actor) 
 	if err != nil {
 		return nil
 	}
+	lang := langOf(r)
 	options := make([]authctx.BranchOption, 0, len(branches))
 	for _, b := range branches {
 		if b == nil || b.Status != "active" {
 			continue
 		}
-		options = append(options, authctx.BranchOption{ID: b.ID, Name: branchName(b)})
+		options = append(options, authctx.BranchOption{ID: b.ID, Name: branchName(b, lang)})
 	}
 	return options
 }
@@ -141,16 +143,20 @@ func parseBranchID(c *http.Cookie) int64 {
 	return id
 }
 
-// branchName prefers the Arabic branch name, then the English one.
-func branchName(b *org.Branch) string {
+// branchName prefers the current language branch name, then the alternate, then code.
+func branchName(b *org.Branch, lang ...string) string {
 	if b == nil {
 		return ""
 	}
-	if b.Name["ar"] != "" {
-		return b.Name["ar"]
+	l := "ar"
+	if len(lang) > 0 && lang[0] != "" {
+		l = lang[0]
 	}
-	if b.Name["en"] != "" {
-		return b.Name["en"]
+	if name := b.Name.Get(i18n.Lang(l)); name != "" {
+		return name
+	}
+	if l == "en" {
+		return "Branch " + b.Code
 	}
 	return "فرع " + b.Code
 }

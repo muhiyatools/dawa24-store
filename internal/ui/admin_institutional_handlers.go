@@ -33,8 +33,9 @@ func (h *UIHandler) AdminInstitutionalPage(w http.ResponseWriter, r *http.Reques
 // AdminInstitutionalNewSubmit creates a new institutional work category.
 func (h *UIHandler) AdminInstitutionalNewSubmit(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
+	lang := langOf(r)
 	if h.orgSvc == nil {
-		h.redirectWithNotice(w, r, "/admin/institutional", "error", "خدمة الهيكل المؤسسي غير متاحة.")
+		h.redirectWithNotice(w, r, "/admin/institutional", "error", i18n.T(lang, "admin.inst.service_unavailable"))
 		return
 	}
 
@@ -42,7 +43,7 @@ func (h *UIHandler) AdminInstitutionalNewSubmit(w http.ResponseWriter, r *http.R
 	titleAr := strings.TrimSpace(r.PostFormValue("title_ar"))
 	titleEn := strings.TrimSpace(r.PostFormValue("title_en"))
 	if titleAr == "" && titleEn == "" {
-		h.redirectWithNotice(w, r, "/admin/institutional", "error", "يرجى كتابة اسم التصنيف المؤسسي.")
+		h.redirectWithNotice(w, r, "/admin/institutional", "error", i18n.T(lang, "admin.inst.title_required"))
 		return
 	}
 	if titleAr == "" {
@@ -100,19 +101,20 @@ func (h *UIHandler) AdminInstitutionalNewSubmit(w http.ResponseWriter, r *http.R
 
 	if err := h.orgSvc.CreateInstitutionalWork(ctx, iw); err != nil {
 		h.log.ErrorContext(ctx, "failed to create institutional work", "error", err)
-		h.redirectWithNotice(w, r, "/admin/institutional", "error", h.safeMessage(err, langOf(r)))
+		h.redirectWithNotice(w, r, "/admin/institutional", "error", h.safeMessage(err, lang))
 		return
 	}
 
-	h.redirectWithNotice(w, r, "/admin/institutional", "success", "تمت إضافة تصنيف الهيكل المؤسسي والاتصالات المسموح بها بنجاح.")
+	h.redirectWithNotice(w, r, "/admin/institutional", "success", i18n.T(lang, "admin.inst.created_success"))
 }
 
 // AdminInstitutionalEditSubmit updates an existing institutional category.
 func (h *UIHandler) AdminInstitutionalEditSubmit(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
+	lang := langOf(r)
 	id, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
 	if err != nil || id <= 0 {
-		h.redirectWithNotice(w, r, "/admin/institutional", "error", "معرف التصنيف غير صالح.")
+		h.redirectWithNotice(w, r, "/admin/institutional", "error", i18n.T(lang, "admin.inst.invalid_id"))
 		return
 	}
 
@@ -120,7 +122,7 @@ func (h *UIHandler) AdminInstitutionalEditSubmit(w http.ResponseWriter, r *http.
 	titleAr := strings.TrimSpace(r.PostFormValue("title_ar"))
 	titleEn := strings.TrimSpace(r.PostFormValue("title_en"))
 	if titleAr == "" && titleEn == "" {
-		h.redirectWithNotice(w, r, "/admin/institutional", "error", "يرجى كتابة اسم التصنيف المؤسسي.")
+		h.redirectWithNotice(w, r, "/admin/institutional", "error", i18n.T(lang, "admin.inst.title_required"))
 		return
 	}
 	if titleAr == "" {
@@ -173,11 +175,11 @@ func (h *UIHandler) AdminInstitutionalEditSubmit(w http.ResponseWriter, r *http.
 
 	if err := h.orgSvc.UpdateInstitutionalWork(ctx, iw); err != nil {
 		h.log.ErrorContext(ctx, "failed to update institutional work", "error", err)
-		h.redirectWithNotice(w, r, "/admin/institutional", "error", h.safeMessage(err, langOf(r)))
+		h.redirectWithNotice(w, r, "/admin/institutional", "error", h.safeMessage(err, lang))
 		return
 	}
 
-	h.redirectWithNotice(w, r, "/admin/institutional", "success", "تم تحديث بيانات التصنيف المؤسسي والاتصالات بنجاح.")
+	h.redirectWithNotice(w, r, "/admin/institutional", "success", i18n.T(lang, "admin.inst.updated_success"))
 }
 
 // AdminInstitutionalDeleteSubmit soft deletes an institutional category.
@@ -187,7 +189,7 @@ func (h *UIHandler) AdminInstitutionalDeleteSubmit(w http.ResponseWriter, r *htt
 	if err == nil && h.orgSvc != nil {
 		_ = h.orgSvc.DeleteInstitutionalWork(ctx, id)
 	}
-	h.redirectWithNotice(w, r, "/admin/institutional", "success", "تم حذف التصنيف المؤسسي.")
+	h.redirectWithNotice(w, r, "/admin/institutional", "success", i18n.T(langOf(r), "admin.inst.deleted_success"))
 }
 
 // AdminInstitutionalStatusSubmit toggles active status of an institutional category.
@@ -197,5 +199,5 @@ func (h *UIHandler) AdminInstitutionalStatusSubmit(w http.ResponseWriter, r *htt
 	if err == nil && h.orgSvc != nil {
 		_ = h.orgSvc.ToggleInstitutionalWorkStatus(ctx, id)
 	}
-	h.redirectWithNotice(w, r, "/admin/institutional", "success", "تم تحديث حالة تفعيل التصنيف.")
+	h.redirectWithNotice(w, r, "/admin/institutional", "success", i18n.T(langOf(r), "admin.inst.status_updated_success"))
 }

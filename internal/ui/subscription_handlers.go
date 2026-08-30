@@ -22,10 +22,10 @@ func (h *UIHandler) loadOrgSubscriptionView(ctx context.Context, actor authctx.A
 
 	subView := &pages.OrgSubscriptionView{
 		HasSubscription:  true,
-		PlanName:         "الباقة الأساسية الافتراضية",
+		PlanName:         i18n.T(lang, "sub.default_plan_name"),
 		PlanSlug:         "basic",
-		Status:           "ساري وفعال",
-		ExpiresAt:        "تجديد تلقائي مستمر",
+		Status:           i18n.T(lang, "sub.status_active"),
+		ExpiresAt:        i18n.T(lang, "sub.auto_renews"),
 		MaxLoginSessions: 3,
 		MaxDevices:       3,
 		AIPlanID:         gateway.FallbackPlanID,
@@ -45,7 +45,7 @@ func (h *UIHandler) loadOrgSubscriptionView(ctx context.Context, actor authctx.A
 		}
 
 		if sub != nil {
-			subView.Status = "ساري وفعال"
+			subView.Status = i18n.T(lang, "sub.status_active")
 			if !sub.ExpiresAt.IsZero() {
 				subView.ExpiresAt = sub.ExpiresAt.Format("2006-01-02")
 			}

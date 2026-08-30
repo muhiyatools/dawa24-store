@@ -77,9 +77,9 @@ func (h *UIHandler) HomePage(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *UIHandler) PrivacyPage(w http.ResponseWriter, r *http.Request) {
-	h.renderPolicy(w, r, "privacy", "سياسة الخصوصية")
+	h.renderPolicy(w, r, "privacy", i18n.T(langOf(r), "policy.privacy_title"))
 }
 
 func (h *UIHandler) TermsPage(w http.ResponseWriter, r *http.Request) {
-	h.renderPolicy(w, r, "terms", "الشروط والأحكام")
+	h.renderPolicy(w, r, "terms", i18n.T(langOf(r), "policy.terms_title"))
 }

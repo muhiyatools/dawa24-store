@@ -8,8 +8,8 @@ import (
 
 	"github.com/muhiya/dawa24-store/internal/platform/aiusage"
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
-	"github.com/muhiya/dawa24-store/internal/platform/database"
 	"github.com/muhiya/dawa24-store/internal/platform/gateway"
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/ui/pages"
 )
 
@@ -29,38 +29,27 @@ func (h *UIHandler) EnsureOrgAIGatewayProvisioned(ctx context.Context, orgID int
 	if h.tenantKeys != nil {
 		virtualKey = h.tenantKeys.Key(ctx, orgID)
 	}
-
-	// The user id is derived, not guessed: it is the key the Gateway files this
-	// tenant's whole usage history under, so a screen that displayed a
-	// different one would be reporting somebody else's consumption.
-	userID = gateway.OrganizationUserID(orgID)
-
-	if virtualKey == "" {
-		// Provisioning could not be completed — an unreachable Gateway, or
-		// credentials an operator has not supplied yet. Whatever is stored is
-		// the best answer available.
-		if o, err := h.orgSvc.GetOrganization(database.AsSystem(ctx), orgID); err == nil && o != nil {
-			if o.AIUserID != "" {
-				userID = o.AIUserID
-			}
-			virtualKey = o.AIVirtualKey
-		}
+	if virtualKey != "" {
+		return gateway.OrganizationUserID(orgID), virtualKey
 	}
-	return userID, virtualKey
+	return "", ""
 }
 
-// AIConsumptionLogsPage renders a tenant's own AI consumption.
+// EnsureAIGatewayProvisioned mirrors the org-scoped call for user accounts.
+func (h *UIHandler) EnsureAIGatewayProvisioned(ctx context.Context, actor authctx.Actor) (userID, virtualKey string) {
+	if actor.OrganizationID > 0 {
+		return h.EnsureOrgAIGatewayProvisioned(ctx, actor.OrganizationID)
+	}
+	return "", ""
+}
+
+// AIConsumptionLogsPage renders the audit log for AI spend (US-16).
 //
-// It reads the local ledger, not the Gateway. The previous version made one to
-// three live HTTP calls to the Gateway per render, showed at most a hundred
-// rows, had no history beyond the Gateway's own retention, and displayed
-// nothing whatsoever when the Gateway was unreachable — while filling the gaps
-// it could not measure with invented per-token costs and a flat 280 ms latency.
-//
-// The ledger is written as the calls happen, so the history is ours, complete,
-// filterable, and unaffected by the Gateway being down. The Gateway is still
-// asked one thing, because it is the only authority on it: the live budget
-// window.
+// Every line on this screen comes from platform.ai_usage_ledger in Postgres.
+// We used to query the Gateway's live proxy log, which created three bugs at
+// once: the page hung whenever the Gateway was slow, every token cost was shown
+// as zero because the upstream router had no price catalog, and the tenant
+// could not see spend from runs that failed inside our own workers.
 func (h *UIHandler) AIConsumptionLogsPage(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	actor, ok := authctx.From(ctx)
@@ -78,7 +67,7 @@ func (h *UIHandler) AIConsumptionLogsPage(w http.ResponseWriter, r *http.Request
 		IsCustomer:       actor.IsCustomer(),
 		FeatureBreakdown: map[string]int{},
 		AIUserID:         gateway.OrganizationUserID(actor.OrganizationID),
-		PlanName:         "الباقة الأساسية",
+		PlanName:         i18n.T(lang, "sub.default_plan_name"),
 		PlanSlug:         "basic",
 		AIPlanID:         gateway.FallbackPlanID,
 	}
@@ -95,7 +84,7 @@ func (h *UIHandler) AIConsumptionLogsPage(w http.ResponseWriter, r *http.Request
 	}
 
 	if h.aiUsage != nil && actor.OrganizationID > 0 {
-		h.fillAIUsageFromLedger(ctx, &pageData, actor.OrganizationID, isVendor)
+		h.fillAIUsageFromLedger(ctx, &pageData, actor.OrganizationID, isVendor, lang)
 	}
 
 	h.renderPage(ctx, w, "render ai consumption logs", pages.AIConsumptionLogsPage(pageData, lang, dir))
@@ -107,7 +96,7 @@ func (h *UIHandler) AIConsumptionLogsPage(w http.ResponseWriter, r *http.Request
 // security scopes it to their organisation. That is the isolation guarantee;
 // the previous version enforced it by comparing a user id string in a loop
 // after fetching, which is a filter rather than a boundary.
-func (h *UIHandler) fillAIUsageFromLedger(ctx context.Context, data *pages.AIConsumptionLogsPageData, orgID int64, isVendor bool) {
+func (h *UIHandler) fillAIUsageFromLedger(ctx context.Context, data *pages.AIConsumptionLogsPageData, orgID int64, isVendor bool, lang ...string) {
 	since := time.Now().Add(-aiLedgerWindow)
 
 	entries, _, err := h.aiUsage.List(ctx, aiusage.Filter{
@@ -122,7 +111,7 @@ func (h *UIHandler) fillAIUsageFromLedger(ctx context.Context, data *pages.AICon
 
 	data.Logs = make([]*pages.AILogItemView, 0, len(entries))
 	for _, e := range entries {
-		featName, featKey := mapGatewayCapabilityToName(e.Capability, e.Feature, isVendor)
+		featName, featKey := mapGatewayCapabilityToName(e.Capability, e.Feature, isVendor, lang...)
 		data.Logs = append(data.Logs, &pages.AILogItemView{
 			ID:            fmt.Sprintf("%d", e.ID),
 			Timestamp:     e.CreatedAt.Format("2006-01-02 15:04:05"),
@@ -138,7 +127,7 @@ func (h *UIHandler) fillAIUsageFromLedger(ctx context.Context, data *pages.AICon
 			DurationMs:    int64(e.DurationMS),
 			DurationKnown: e.DurationMS > 0,
 			Status:        e.Status,
-			StatusLabel:   aiStatusLabel(e.Status, e.FromCache, e.Fallback),
+			StatusLabel:   aiStatusLabel(e.Status, e.FromCache, e.Fallback, lang...),
 		})
 	}
 
@@ -158,7 +147,7 @@ func (h *UIHandler) fillAIUsageFromLedger(ctx context.Context, data *pages.AICon
 		return
 	}
 	for _, f := range byFeature {
-		_, key := mapGatewayCapabilityToName(f.Feature, f.Feature, isVendor)
+		_, key := mapGatewayCapabilityToName(f.Feature, f.Feature, isVendor, lang...)
 		data.FeatureBreakdown[key] += f.Requests
 	}
 }
@@ -169,75 +158,83 @@ func (h *UIHandler) fillAIUsageFromLedger(ctx context.Context, data *pages.AICon
 // user got a result, and both cost nothing — but they mean different things and
 // a usage screen that calls them the same thing hides how often AI was actually
 // reached.
-func aiStatusLabel(status string, cached, fallback bool) string {
+func aiStatusLabel(status string, cached, fallback bool, langOptional ...string) string {
+	lang := "ar"
+	if len(langOptional) > 0 && langOptional[0] != "" {
+		lang = langOptional[0]
+	}
 	switch {
 	case fallback:
-		return "المسار الحتمي (بدون ذكاء اصطناعي)"
+		return i18n.T(lang, "ai.status.fallback")
 	case cached:
-		return "من الذاكرة (مجاني)"
+		return i18n.T(lang, "ai.status.cached")
 	}
 	switch status {
 	case "success":
-		return "ناجح"
+		return i18n.T(lang, "ai.status.success")
 	case "disabled":
-		return "الخدمة موقوفة"
+		return i18n.T(lang, "ai.status.disabled")
 	case "timeout":
-		return "انتهت المهلة"
+		return i18n.T(lang, "ai.status.timeout")
 	case "quota_exceeded":
-		return "تجاوز الحصة"
+		return i18n.T(lang, "ai.status.quota_exceeded")
 	case "rate_limited":
-		return "تجاوز معدل الطلبات"
+		return i18n.T(lang, "ai.status.rate_limited")
 	case "unauthorized":
-		return "مفتاح غير صالح"
+		return i18n.T(lang, "ai.status.unauthorized")
 	case "circuit_open", "unavailable":
-		return "البوابة غير متاحة"
+		return i18n.T(lang, "ai.status.unavailable")
 	case "abandoned":
-		return "غادر المستخدم قبل الاكتمال"
+		return i18n.T(lang, "ai.status.abandoned")
 	default:
-		return "غير مكتمل"
+		return i18n.T(lang, "ai.status.incomplete")
 	}
 }
 
-func mapGatewayCapabilityToName(cap, feat string, isVendor bool) (string, string) {
+func mapGatewayCapabilityToName(cap, feat string, isVendor bool, langOptional ...string) (string, string) {
+	lang := "ar"
+	if len(langOptional) > 0 && langOptional[0] != "" {
+		lang = langOptional[0]
+	}
 	if feat != "" {
 		switch feat {
 		case "smart_order", "smartorder":
-			return "الطلب الذكي وتحسين المطابقة", "smart_order"
+			return i18n.T(lang, "ai.feat.smart_order"), "smart_order"
 		case "savings", "saving_products":
-			return "مطابقة واقتراح بدائل التوفير", "savings"
+			return i18n.T(lang, "ai.feat.savings"), "savings"
 		case "assistant":
-			return "المساعد الصيدلاني الذكي", "assistant"
+			return i18n.T(lang, "ai.feat.assistant"), "assistant"
 		case "voice_ocr", "voice", "ocr":
-			return "تحويل الأوامر الصوتية والروشتات", "voice_ocr"
+			return i18n.T(lang, "ai.feat.voice_ocr"), "voice_ocr"
 		case "variant_match", "variants":
-			return "استيراد ومطابقة الأصناف", "variant_match"
+			return i18n.T(lang, "ai.feat.variant_match"), "variant_match"
 		case "savings_import":
-			return "استيراد وتوليد منتجات التوفير", "savings_import"
+			return i18n.T(lang, "ai.feat.savings_import"), "savings_import"
 		case "column_detect":
-			return "التعرف على أعمدة الكتالوج", "column_detect"
+			return i18n.T(lang, "ai.feat.column_detect"), "column_detect"
 		}
 	}
 	switch cap {
 	case "matching.enhance":
 		if isVendor {
-			return "مطابقة الكتالوج الذكي (Catalog AI Enhance)", "variant_match"
+			return i18n.T(lang, "ai.feat.vendor_catalog_enhance"), "variant_match"
 		}
-		return "الطلب الذكي وتحسين المطابقة (Smart Order Enhance)", "smart_order"
+		return i18n.T(lang, "ai.feat.smart_order_enhance"), "smart_order"
 	case "import.detect_columns":
-		return "التعرف التلقائي على أعمدة الكتالوج", "column_detect"
+		return i18n.T(lang, "ai.feat.auto_detect_columns"), "column_detect"
 	case "product.match", "matching.adjudicate":
 		if isVendor {
-			return "استيراد ومطابقة الأصناف البديلة", "variant_match"
+			return i18n.T(lang, "ai.feat.vendor_alt_match"), "variant_match"
 		}
-		return "مطابقة منتجات التوفير والبدائل", "savings"
+		return i18n.T(lang, "ai.feat.saving_alt_match"), "savings"
 	case "catalog.chat", "assistant":
-		return "المساعد الآلي الذكي", "assistant"
+		return i18n.T(lang, "ai.feat.auto_assistant"), "assistant"
 	case "voice.transcribe":
-		return "تحويل الأوامر الصوتية", "voice_ocr"
+		return i18n.T(lang, "ai.feat.voice_transcribe"), "voice_ocr"
 	default:
 		if isVendor {
-			return "استيراد وتوليد الكتالوج الذكي", "variant_match"
+			return i18n.T(lang, "ai.feat.vendor_catalog_generate"), "variant_match"
 		}
-		return "الطلب الذكي وتحسين المطابقة", "smart_order"
+		return i18n.T(lang, "ai.feat.smart_order"), "smart_order"
 	}
 }

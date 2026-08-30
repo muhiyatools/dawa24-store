@@ -7,6 +7,7 @@ import (
 
 	"github.com/muhiya/dawa24-store/internal/modules/catalog"
 	"github.com/muhiya/dawa24-store/internal/platform/database"
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/ui/pages"
 )
 
@@ -35,13 +36,14 @@ func (h *UIHandler) AdminProductsImportPreview(w http.ResponseWriter, r *http.Re
 	if !h.importReady(w, r) {
 		return
 	}
+	lang := langOf(r)
 	if err := r.ParseForm(); err != nil {
 		h.renderImportMapping(w, r, catalog.ImportSettings{},
-			"تعذرت قراءة الإعدادات المرسلة.", "error", http.StatusBadRequest)
+			i18n.T(lang, "admin.import.parse_settings_failed"), "error", http.StatusBadRequest)
 		return
 	}
 	h.renderImportMapping(w, r, readImportSettings(r),
-		"تم تحديث المعاينة بالإعدادات الجديدة.", "ok", http.StatusOK)
+		i18n.T(lang, "admin.import.preview_updated_success"), "ok", http.StatusOK)
 }
 
 // renderImportMapping draws step two, applying settings when the admin has just
@@ -98,9 +100,10 @@ func (h *UIHandler) AdminProductsImportPrepare(w http.ResponseWriter, r *http.Re
 	if !h.importReady(w, r) {
 		return
 	}
+	lang := langOf(r)
 	if err := r.ParseForm(); err != nil {
 		h.renderImportMapping(w, r, catalog.ImportSettings{},
-			"تعذرت قراءة الإعدادات المرسلة.", "error", http.StatusBadRequest)
+			i18n.T(lang, "admin.import.parse_settings_failed"), "error", http.StatusBadRequest)
 		return
 	}
 

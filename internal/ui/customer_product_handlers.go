@@ -46,7 +46,7 @@ func (h *UIHandler) CustomerProductDetailPage(w http.ResponseWriter, r *http.Req
 		[]int64{product.ID},
 		map[int64][]*catalog.ProductVariant{product.ID: variants},
 	)
-	offers := h.offersForProduct(ctx, product, variants, env)
+	offers := h.offersForProduct(ctx, product, variants, env, lang)
 
 	// If target variant was specified, prioritize its offer to the top
 	if targetVariantID > 0 && len(offers) > 1 {

@@ -34,7 +34,7 @@ func (h *UIHandler) CustomerSavingProductsImportPage(w http.ResponseWriter, r *h
 
 	view := pages.SavingImportView{
 		AIAvailable:         h.matchEnhancer != nil,
-		AIUnavailableReason: savingAIUnavailableReason(h.matchEnhancer),
+		AIUnavailableReason: savingAIUnavailableReason(h.matchEnhancer, lang),
 		Audience:            "customer",
 		BaseURL:             "/customer/saving-products",
 		ImportURL:           "/customer/saving-products/import",
@@ -183,7 +183,7 @@ func (h *UIHandler) CustomerSavingProductsImportSessionPage(w http.ResponseWrite
 
 	view := pages.SavingImportView{
 		AIAvailable:         h.matchEnhancer != nil,
-		AIUnavailableReason: savingAIUnavailableReason(h.matchEnhancer),
+		AIUnavailableReason: savingAIUnavailableReason(h.matchEnhancer, lang),
 		Audience:            "customer",
 		BaseURL:             "/customer/saving-products",
 		ImportURL:           "/customer/saving-products/import",

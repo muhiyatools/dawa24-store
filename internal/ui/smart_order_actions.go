@@ -10,6 +10,7 @@ import (
 	"github.com/go-chi/chi/v5"
 
 	"github.com/muhiya/dawa24-store/internal/modules/smartorder"
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 )
 
 // Review-time actions.
@@ -24,17 +25,18 @@ func (h *UIHandler) SetFinalizer(f *smartorder.Finalizer) { h.smartOrderFinalize
 
 // SmartOrderQuantitySubmit applies a quantity edit.
 func (h *UIHandler) SmartOrderQuantitySubmit(w http.ResponseWriter, r *http.Request) {
+	lang := langOf(r)
 	run, lineID, ok := h.smartOrderLineAction(w, r)
 	if !ok {
 		return
 	}
 	qty, err := strconv.ParseFloat(r.FormValue("quantity"), 64)
 	if err != nil || qty < 0 {
-		h.smartOrderBack(w, r, run, "أدخل كمية صحيحة.")
+		h.smartOrderBack(w, r, run, i18n.T(lang, "smartorder.invalid_quantity"))
 		return
 	}
 	if err := h.smartOrderSvc.SetQuantity(r.Context(), run.OrganizationID, lineID, qty); err != nil {
-		h.smartOrderBack(w, r, run, translateSmartOrderError(err))
+		h.smartOrderBack(w, r, run, translateSmartOrderError(err, lang))
 		return
 	}
 	h.smartOrderRecalculate(r, run)
@@ -43,17 +45,18 @@ func (h *UIHandler) SmartOrderQuantitySubmit(w http.ResponseWriter, r *http.Requ
 
 // SmartOrderSupplierSubmit switches a line to a different vendor.
 func (h *UIHandler) SmartOrderSupplierSubmit(w http.ResponseWriter, r *http.Request) {
+	lang := langOf(r)
 	run, lineID, ok := h.smartOrderLineAction(w, r)
 	if !ok {
 		return
 	}
 	candidateID, err := strconv.ParseInt(r.FormValue("candidate_id"), 10, 64)
 	if err != nil {
-		h.smartOrderBack(w, r, run, "اختر موردًا من القائمة.")
+		h.smartOrderBack(w, r, run, i18n.T(lang, "smartorder.select_supplier_from_list"))
 		return
 	}
 	if err := h.smartOrderSvc.ChooseSupplier(r.Context(), run.OrganizationID, lineID, candidateID); err != nil {
-		h.smartOrderBack(w, r, run, translateSmartOrderError(err))
+		h.smartOrderBack(w, r, run, translateSmartOrderError(err, lang))
 		return
 	}
 	h.smartOrderRecalculate(r, run)
@@ -62,12 +65,13 @@ func (h *UIHandler) SmartOrderSupplierSubmit(w http.ResponseWriter, r *http.Requ
 
 // SmartOrderRemoveSubmit drops a line from the order.
 func (h *UIHandler) SmartOrderRemoveSubmit(w http.ResponseWriter, r *http.Request) {
+	lang := langOf(r)
 	run, lineID, ok := h.smartOrderLineAction(w, r)
 	if !ok {
 		return
 	}
 	if err := h.smartOrderSvc.RemoveLine(r.Context(), run.OrganizationID, lineID); err != nil {
-		h.smartOrderBack(w, r, run, translateSmartOrderError(err))
+		h.smartOrderBack(w, r, run, translateSmartOrderError(err, lang))
 		return
 	}
 	h.smartOrderRecalculate(r, run)
@@ -82,19 +86,20 @@ func (h *UIHandler) SmartOrderRemoveSubmit(w http.ResponseWriter, r *http.Reques
 // delivery (FR-047).
 func (h *UIHandler) SmartOrderFinalizeSubmit(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
+	lang := langOf(r)
 	run, ok := h.smartOrderRun(w, r)
 	if !ok {
 		return
 	}
 	if h.smartOrderFinalizer == nil {
-		h.smartOrderBack(w, r, run, "اعتماد الطلبات غير مُفعّل حاليًا.")
+		h.smartOrderBack(w, r, run, i18n.T(lang, "smartorder.finalizer_unavailable"))
 		return
 	}
 
 	orderID, stale, err := h.smartOrderFinalizer.Finalize(ctx, run)
 	if err != nil {
 		h.log.WarnContext(ctx, "smart order finalize failed", "run_id", run.ID, "error", err)
-		h.smartOrderBack(w, r, run, translateSmartOrderError(err))
+		h.smartOrderBack(w, r, run, translateSmartOrderError(err, lang))
 		return
 	}
 	if len(stale) > 0 {
@@ -117,7 +122,7 @@ func (h *UIHandler) smartOrderLineAction(w http.ResponseWriter, r *http.Request)
 		return nil, 0, false
 	}
 	if err := r.ParseForm(); err != nil {
-		h.smartOrderBack(w, r, run, "تعذّرت قراءة النموذج.")
+		h.smartOrderBack(w, r, run, i18n.T(langOf(r), "smartorder.form_parse_error"))
 		return nil, 0, false
 	}
 	lineID, err := strconv.ParseInt(chi.URLParam(r, "lineID"), 10, 64)

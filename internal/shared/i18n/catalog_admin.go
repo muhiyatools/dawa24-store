@@ -330,4 +330,105 @@ func loadAdminKeys(e *engine) {
 	addKey(e, "admin.pm.enabled_notice", "billing", "تم تفعيل وسيلة الدفع بنجاح.", "Payment method enabled successfully.", "Success notice")
 	addKey(e, "admin.pm.delete_failed", "billing", "فشل حذف وسيلة الدفع.", "Failed to delete payment method.", "Error notice")
 	addKey(e, "admin.pm.deleted_success", "billing", "تم حذف وسيلة الدفع بنجاح.", "Payment method deleted successfully.", "Success notice")
+
+	// --- Trash & Soft Delete Management ---
+	addKey(e, "admin.trash.restored_success", "admin", "تم استرجاع السجل بنجاح.", "Record restored successfully.", "Success notice")
+	addKey(e, "admin.trash.purged_success", "admin", "تم الحذف النهائي للسجل.", "Record permanently purged.", "Success notice")
+
+	// --- Institutional Structure & Classification ---
+	addKey(e, "admin.inst.service_unavailable", "org", "خدمة الهيكل المؤسسي غير متاحة.", "Institutional structure service is unavailable.", "Service error")
+	addKey(e, "admin.inst.title_required", "org", "يرجى كتابة اسم التصنيف المؤسسي.", "Institutional category name is required.", "Validation error")
+	addKey(e, "admin.inst.created_success", "org", "تمت إضافة تصنيف الهيكل المؤسسي والاتصالات المسموح بها بنجاح.", "Institutional work category and connections created successfully.", "Success notice")
+	addKey(e, "admin.inst.invalid_id", "org", "معرف التصنيف غير صالح.", "Invalid category ID.", "Validation error")
+	addKey(e, "admin.inst.updated_success", "org", "تم تحديث بيانات التصنيف المؤسسي والاتصالات بنجاح.", "Institutional category and connections updated successfully.", "Success notice")
+	addKey(e, "admin.inst.deleted_success", "org", "تم حذف التصنيف المؤسسي.", "Institutional category deleted.", "Success notice")
+	addKey(e, "admin.inst.status_updated_success", "org", "تم تحديث حالة تفعيل التصنيف.", "Category status updated.", "Success notice")
+
+	// --- Platform User Management ---
+	addKey(e, "admin.users.action_success", "identity", "تم تنفيذ الإجراء بنجاح.", "Action executed successfully.", "Success notice")
+	addKey(e, "admin.users.deletion_approved_reason", "identity", "تمت الموافقة من إدارة المنصة", "Approved by platform administration", "Review notes")
+	addKey(e, "admin.users.deletion_approved_success", "identity", "تمت الموافقة على حذف الحساب وتعطيله بنجاح.", "Account deletion approved and account disabled successfully.", "Success notice")
+	addKey(e, "admin.users.deletion_rejected_reason", "identity", "تم رفض طلب الحذف من الإدارة", "Deletion request rejected by administration", "Review notes")
+	addKey(e, "admin.users.deletion_rejected_success", "identity", "تم رفض طلب حذف الحساب بنجاح.", "Account deletion request rejected successfully.", "Success notice")
+
+	// --- Platform Approvals & Organization Verification ---
+	addKey(e, "admin.approvals.invalid_org_id", "org", "معرف المنشأة غير صالح.", "Invalid organization ID.", "Validation error")
+	addKey(e, "admin.approvals.org_service_unavailable", "org", "خدمة المؤسسات غير متاحة.", "Organization service is unavailable.", "Service error")
+	addKey(e, "admin.approvals.approved_and_verified_success", "org", "تم اعتماد وتفعيل ترخيص المنشأة وتوثيق المستندات المرفقة بنجاح.", "Organization license approved and attached documents verified successfully.", "Success notice")
+	addKey(e, "admin.approvals.rejected_success", "org", "تم رفض طلب المنشأة وحفظ سبب الرفض.", "Organization application rejected and reason recorded.", "Success notice")
+	addKey(e, "admin.approvals.suspended_notice", "org", "تم تعليق حساب المنشأة مؤقتاً.", "Organization account suspended temporarily.", "Notice")
+	addKey(e, "admin.approvals.status_updated_success", "org", "تم تحديث حالة المنشأة وتفعيل صلاحياتها بنجاح.", "Organization status updated and permissions activated successfully.", "Success notice")
+	addKey(e, "admin.approvals.account_activated_success", "org", "تم اعتماد وتفعيل حساب المنشأة بنجاح.", "Organization account approved and activated successfully.", "Success notice")
+
+	// --- Master Catalog Imports ---
+	addKey(e, "admin.import.forbidden", "catalog", "صلاحيات غير كافية لتنفيذ هذه العملية.", "Insufficient permissions to perform this operation.", "Permission error")
+	addKey(e, "admin.import.service_unavailable", "catalog", "خدمة الكتالوج غير متاحة حالياً. يرجى المحاولة بعد قليل أو التواصل مع الدعم الفني.", "Catalogue service is currently unavailable. Please try again later or contact support.", "Service error")
+	addKey(e, "admin.import.session_expired", "catalog", "لم يتم العثور على جلسة الاستيراد المطلوبة أو انتهت صلاحيتها. يرجى رفع الملف من جديد.", "Requested import session was not found or expired. Please upload file again.", "Not found error")
+	addKey(e, "admin.import.confirm_destructive_required", "catalog", "يجب تأكيد أرشفة الكتالوج الحالي قبل تنفيذ هذه الطريقة.", "You must confirm archiving current catalogue before executing this method.", "Validation error")
+	addKey(e, "admin.import.committed_success_format", "catalog", "تم حفظ %d صنف في الكتالوج المعتمد (%d جديد، %d محدَّث).", "Saved %d products in certified catalogue (%d new, %d updated).", "Success notice")
+	addKey(e, "admin.import.cancelled_success", "catalog", "تم إلغاء عملية الاستيراد ولم يتم حفظ أي صنف.", "Import cancelled; no products were saved.", "Success notice")
+	addKey(e, "admin.import.upload_max_bytes_format", "catalog", "تعذرت قراءة الملف المرفوع. الحد الأقصى لحجم الملف هو %d ميجابايت.", "Could not read uploaded file. Maximum file size is %d MB.", "Upload error")
+	addKey(e, "admin.import.no_file_selected", "catalog", "لم يتم اختيار أي ملف. يرجى اختيار ملف Excel (.xlsx) أو CSV ثم الضغط على «قراءة الملف».", "No file selected. Please select an Excel (.xlsx) or CSV file and click 'Read File'.", "Upload validation")
+	addKey(e, "admin.import.read_content_failed", "catalog", "تعذرت قراءة محتوى الملف المرفوع. يرجى إعادة المحاولة.", "Could not read uploaded file content. Please try again.", "Upload error")
+	addKey(e, "admin.import.file_too_large_format", "catalog", "حجم الملف يتجاوز الحد الأقصى المسموح به (%d ميجابايت).", "File size exceeds maximum allowed size (%d MB).", "Upload validation")
+	addKey(e, "admin.import.parse_settings_failed", "catalog", "تعذرت قراءة الإعدادات المرسلة.", "Could not parse submitted settings.", "Validation error")
+	addKey(e, "admin.import.preview_updated_success", "catalog", "تم تحديث المعاينة بالإعدادات الجديدة.", "Preview updated with new settings.", "Success notice")
+
+	// --- Catalog & Variants ---
+	addKey(e, "admin.catalog.variant_status_updated_success", "catalog", "تم تحديث حالة صنف المورد بنجاح.", "Supplier variant status updated successfully.", "Success notice")
+	addKey(e, "admin.catalog.delete_all_failed_format", "catalog", "حدث خطأ أثناء حذف منتجات الكتالوج: %s", "Failed to delete catalogue products: %s", "Error notice")
+	addKey(e, "admin.catalog.deleted_all_success_format", "catalog", "تم حذف %d صنفاً من الكتالوج المركزي الأساسي بنجاح.", "Successfully deleted %d products from primary central catalogue.", "Success notice")
+
+	// --- Admin Dashboard ---
+	addKey(e, "admin.dashboard.commission_5pct", "admin", "5% عمولة", "5% Commission", "Commission label")
+
+	// --- Site Settings & Branding ---
+	addKey(e, "admin.branding.site_saved_success", "admin", "تم حفظ وتحديث إعدادات الموقع بنجاح.", "Site settings saved and updated successfully.", "Success notice")
+	addKey(e, "admin.branding.branding_saved_success", "admin", "تم حفظ وتطبيق الهوية البصرية بنجاح.", "Branding and visual identity saved successfully.", "Success notice")
+
+	// --- Admin Organizations & Weekly Coverage ---
+	addKey(e, "admin.org.not_found", "org", "المنشأة غير موجودة.", "Organization not found.", "Not found error")
+	addKey(e, "admin.org.coverage_created_success", "org", "تم إضافة جدول التغطية الأسبوعية بنجاح.", "Weekly coverage schedule added successfully.", "Success notice")
+	addKey(e, "admin.org.coverage_status_updated_success", "org", "تم تحديث حالة جدول التغطية بنجاح.", "Coverage schedule status updated successfully.", "Success notice")
+	addKey(e, "admin.org.coverage_deleted_success", "org", "تم حذف جدول التغطية بنجاح.", "Coverage schedule deleted successfully.", "Success notice")
+
+	// --- Vendor Storefront ---
+	addKey(e, "vendor.storefront.title_ar_required", "vendor", "عنوان القسم بالعربية مطلوب.", "Arabic section title is required.", "Validation error")
+	addKey(e, "vendor.storefront.section_created_success", "vendor", "تم إضافة القسم المميز بنجاح.", "Featured section added successfully.", "Success notice")
+	addKey(e, "vendor.storefront.section_edit_failed", "vendor", "تعذر تعديل القسم.", "Failed to edit section.", "Error notice")
+	addKey(e, "vendor.storefront.section_updated_success", "vendor", "تم تحديث بيانات القسم بنجاح.", "Section updated successfully.", "Success notice")
+	addKey(e, "vendor.storefront.section_delete_failed", "vendor", "تعذر حذف القسم.", "Failed to delete section.", "Error notice")
+	addKey(e, "vendor.storefront.section_deleted_success", "vendor", "تم حذف القسم بنجاح.", "Section deleted successfully.", "Success notice")
+	addKey(e, "vendor.storefront.section_toggle_failed", "vendor", "تعذر تغيير حالة القسم.", "Failed to change section status.", "Error notice")
+	addKey(e, "vendor.storefront.section_not_found_or_unauthorized", "vendor", "القسم غير موجود أو غير مصرح بتعديله.", "Section not found or unauthorized to edit.", "Error notice")
+	addKey(e, "vendor.storefront.section_status_updated", "vendor", "تم تحديث حالة القسم.", "Section status updated.", "Success notice")
+
+	// --- Subscriptions ---
+	addKey(e, "sub.default_plan_name", "billing", "الباقة الأساسية الافتراضية", "Default Basic Plan", "Plan name")
+	addKey(e, "sub.status_active", "billing", "ساري وفعال", "Active & Valid", "Subscription status")
+	addKey(e, "sub.auto_renews", "billing", "تجديد تلقائي مستمر", "Continuous auto-renewal", "Subscription expiry")
+
+	// --- Issue Reporting ---
+	addKey(e, "issues.service_unavailable", "workflow", "خدمة البلاغات غير متوفرة.", "Issues reporting service is unavailable.", "Service error")
+	addKey(e, "issues.submitted_success", "workflow", "تم إرسال البلاغ بنجاح، سيقوم فريق الدعم بمتابعته.", "Issue reported successfully; support team will follow up.", "Success notice")
+
+	// --- Contact Messages & Requests ---
+	addKey(e, "admin.messages.status_updated_success", "admin", "تم تحديث حالة الرسالة بنجاح.", "Message status updated successfully.", "Success notice")
+	addKey(e, "admin.messages.deleted_success", "admin", "تم حذف الرسالة بنجاح.", "Message deleted successfully.", "Success notice")
+	addKey(e, "requests.sent_success", "workflow", "تم إرسال الطلب.", "Request sent successfully.", "Success notice")
+
+	// --- Admin Temp Warehouse Upload ---
+	addKey(e, "admin.temp_warehouse.default_name_prefix", "admin", "مستودع ", "Warehouse ", "Default warehouse prefix")
+	addKey(e, "admin.temp_warehouse.open_failed_format", "admin", "فشل فتح الملف: %s", "Failed to open file: %s", "Error format")
+	addKey(e, "admin.temp_warehouse.read_failed_format", "admin", "فشل قراءة محتوى الملف: %s", "Failed to read file content: %s", "Error format")
+	addKey(e, "admin.temp_warehouse.insufficient_rows", "admin", "الملف لا يحتوي على صفوف بيانات كافية أو تعذر تحليله", "File does not contain sufficient data rows or could not be parsed", "Error notice")
+	addKey(e, "admin.temp_warehouse.create_record_failed_format", "admin", "فشل إنشاء سجل المستودع: %s", "Failed to create warehouse record: %s", "Error format")
+	addKey(e, "admin.temp_warehouse.upload_limit_exceeded", "admin", "حجم الملفات المرفوعة يتجاوز الحد الأقصى المسموح (500 ميجابايت).", "Uploaded files size exceeds maximum limit (500 MB).", "Error notice")
+	addKey(e, "admin.temp_warehouse.upload_too_large", "admin", "حجم الملفات المرفوعة كبير جداً.", "Uploaded files are too large.", "Error notice")
+	addKey(e, "admin.temp_warehouse.select_files", "admin", "يرجى اختيار ملف أو أكثر للرفع.", "Please select one or more files to upload.", "Error notice")
+	addKey(e, "admin.temp_warehouse.select_files_notice", "admin", "يرجى اختيار ملف أو مجموعة ملفات للرفع.", "Please select a file or group of files to upload.", "Error notice")
+	addKey(e, "admin.temp_warehouse.upload_success_message", "admin", "تم بنجاح رفع ومعالجة %d من أصل %d ملف مستودع بإجمالي %d صنف متاح في خصومات ومقارنات السوق.", "Successfully uploaded and processed %d of %d warehouse files with %d items available in market comparison and discounts.", "Upload success message")
+	addKey(e, "admin.temp_warehouse.all_files_failed_prefix", "admin", "فشل معالجة كافة الملفات المرفوعة: ", "Failed to process all uploaded files: ", "Error prefix")
+	addKey(e, "admin.temp_warehouse.success_summary", "admin", "تم بنجاح رفع ومعالجة %d من أصل %d ملف مستودع بإجمالي %d صنف.", "Successfully uploaded and processed %d of %d warehouse files with %d items.", "Success summary")
+	addKey(e, "admin.temp_warehouse.fail_count_suffix", "admin", " (فشل %d ملف)", " (%d files failed)", "Fail suffix")
 }

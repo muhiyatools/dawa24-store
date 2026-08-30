@@ -35,6 +35,7 @@ func (h *UIHandler) VendorStorefrontPage(w http.ResponseWriter, r *http.Request)
 // VendorStorefrontSectionSubmit creates a supplier featured section.
 func (h *UIHandler) VendorStorefrontSectionSubmit(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
+	lang := langOf(r)
 	actor, ok := authctx.From(ctx)
 	if !ok {
 		http.Redirect(w, r, "/auth/login?redirect=/vendor/storefront", http.StatusSeeOther)
@@ -42,14 +43,14 @@ func (h *UIHandler) VendorStorefrontSectionSubmit(w http.ResponseWriter, r *http
 	}
 
 	if h.promoSvc == nil {
-		h.redirectWithNotice(w, r, "/vendor/storefront", "error", "الخدمة غير متاحة حالياً.")
+		h.redirectWithNotice(w, r, "/vendor/storefront", "error", i18n.T(lang, "admin.import.service_unavailable"))
 		return
 	}
 
 	titleAr := strings.TrimSpace(r.PostFormValue("title_ar"))
 	titleEn := strings.TrimSpace(r.PostFormValue("title_en"))
 	if titleAr == "" {
-		h.redirectWithNotice(w, r, "/vendor/storefront", "error", "عنوان القسم بالعربية مطلوب.")
+		h.redirectWithNotice(w, r, "/vendor/storefront", "error", i18n.T(lang, "vendor.storefront.title_ar_required"))
 		return
 	}
 
@@ -72,15 +73,16 @@ func (h *UIHandler) VendorStorefrontSectionSubmit(w http.ResponseWriter, r *http
 	description := i18n.New(descAr, descEn)
 
 	if _, err := h.promoSvc.CreateFeaturedSection(ctx, actor.OrganizationID, title, description, secType, color, slug, order, isActive, showInHeader); err != nil {
-		h.redirectWithNotice(w, r, "/vendor/storefront", "error", h.safeMessage(err, langOf(r)))
+		h.redirectWithNotice(w, r, "/vendor/storefront", "error", h.safeMessage(err, lang))
 		return
 	}
-	h.redirectWithNotice(w, r, "/vendor/storefront", "success", "تم إضافة القسم المميز بنجاح.")
+	h.redirectWithNotice(w, r, "/vendor/storefront", "success", i18n.T(lang, "vendor.storefront.section_created_success"))
 }
 
 // VendorStorefrontSectionUpdateSubmit updates an existing featured section.
 func (h *UIHandler) VendorStorefrontSectionUpdateSubmit(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
+	lang := langOf(r)
 	actor, ok := authctx.From(ctx)
 	if !ok {
 		http.Redirect(w, r, "/auth/login?redirect=/vendor/storefront", http.StatusSeeOther)
@@ -89,14 +91,14 @@ func (h *UIHandler) VendorStorefrontSectionUpdateSubmit(w http.ResponseWriter, r
 
 	sectionID, _ := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
 	if sectionID <= 0 || h.promoSvc == nil {
-		h.redirectWithNotice(w, r, "/vendor/storefront", "error", "تعذر تعديل القسم.")
+		h.redirectWithNotice(w, r, "/vendor/storefront", "error", i18n.T(lang, "vendor.storefront.section_edit_failed"))
 		return
 	}
 
 	titleAr := strings.TrimSpace(r.PostFormValue("title_ar"))
 	titleEn := strings.TrimSpace(r.PostFormValue("title_en"))
 	if titleAr == "" {
-		h.redirectWithNotice(w, r, "/vendor/storefront", "error", "عنوان القسم بالعربية مطلوب.")
+		h.redirectWithNotice(w, r, "/vendor/storefront", "error", i18n.T(lang, "vendor.storefront.title_ar_required"))
 		return
 	}
 
@@ -131,15 +133,16 @@ func (h *UIHandler) VendorStorefrontSectionUpdateSubmit(w http.ResponseWriter, r
 	}
 
 	if err := h.promoSvc.UpdateFeaturedSection(ctx, sec); err != nil {
-		h.redirectWithNotice(w, r, "/vendor/storefront", "error", h.safeMessage(err, langOf(r)))
+		h.redirectWithNotice(w, r, "/vendor/storefront", "error", h.safeMessage(err, lang))
 		return
 	}
-	h.redirectWithNotice(w, r, "/vendor/storefront", "success", "تم تحديث بيانات القسم بنجاح.")
+	h.redirectWithNotice(w, r, "/vendor/storefront", "success", i18n.T(lang, "vendor.storefront.section_updated_success"))
 }
 
 // VendorStorefrontSectionDeleteSubmit deletes a featured section.
 func (h *UIHandler) VendorStorefrontSectionDeleteSubmit(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
+	lang := langOf(r)
 	actor, ok := authctx.From(ctx)
 	if !ok {
 		http.Redirect(w, r, "/auth/login?redirect=/vendor/storefront", http.StatusSeeOther)
@@ -148,20 +151,21 @@ func (h *UIHandler) VendorStorefrontSectionDeleteSubmit(w http.ResponseWriter, r
 
 	sectionID, _ := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
 	if sectionID <= 0 || h.promoSvc == nil {
-		h.redirectWithNotice(w, r, "/vendor/storefront", "error", "تعذر حذف القسم.")
+		h.redirectWithNotice(w, r, "/vendor/storefront", "error", i18n.T(lang, "vendor.storefront.section_delete_failed"))
 		return
 	}
 
 	if err := h.promoSvc.DeleteFeaturedSection(ctx, sectionID, actor.OrganizationID); err != nil {
-		h.redirectWithNotice(w, r, "/vendor/storefront", "error", h.safeMessage(err, langOf(r)))
+		h.redirectWithNotice(w, r, "/vendor/storefront", "error", h.safeMessage(err, lang))
 		return
 	}
-	h.redirectWithNotice(w, r, "/vendor/storefront", "success", "تم حذف القسم بنجاح.")
+	h.redirectWithNotice(w, r, "/vendor/storefront", "success", i18n.T(lang, "vendor.storefront.section_deleted_success"))
 }
 
 // VendorStorefrontSectionToggleSubmit toggles the active state of a section.
 func (h *UIHandler) VendorStorefrontSectionToggleSubmit(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
+	lang := langOf(r)
 	actor, ok := authctx.From(ctx)
 	if !ok {
 		http.Redirect(w, r, "/auth/login?redirect=/vendor/storefront", http.StatusSeeOther)
@@ -170,20 +174,20 @@ func (h *UIHandler) VendorStorefrontSectionToggleSubmit(w http.ResponseWriter, r
 
 	sectionID, _ := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
 	if sectionID <= 0 || h.promoSvc == nil {
-		h.redirectWithNotice(w, r, "/vendor/storefront", "error", "تعذر تغيير حالة القسم.")
+		h.redirectWithNotice(w, r, "/vendor/storefront", "error", i18n.T(lang, "vendor.storefront.section_toggle_failed"))
 		return
 	}
 
 	sec, err := h.promoSvc.GetFeaturedSection(ctx, sectionID)
 	if err != nil || sec == nil || sec.OrganizationID == nil || *sec.OrganizationID != actor.OrganizationID {
-		h.redirectWithNotice(w, r, "/vendor/storefront", "error", "القسم غير موجود أو غير مصرح بتعديله.")
+		h.redirectWithNotice(w, r, "/vendor/storefront", "error", i18n.T(lang, "vendor.storefront.section_not_found_or_unauthorized"))
 		return
 	}
 
 	sec.IsActive = !sec.IsActive
 	if err := h.promoSvc.UpdateFeaturedSection(ctx, sec); err != nil {
-		h.redirectWithNotice(w, r, "/vendor/storefront", "error", h.safeMessage(err, langOf(r)))
+		h.redirectWithNotice(w, r, "/vendor/storefront", "error", h.safeMessage(err, lang))
 		return
 	}
-	h.redirectWithNotice(w, r, "/vendor/storefront", "success", "تم تحديث حالة القسم.")
+	h.redirectWithNotice(w, r, "/vendor/storefront", "success", i18n.T(lang, "vendor.storefront.section_status_updated"))
 }

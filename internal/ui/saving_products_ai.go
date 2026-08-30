@@ -6,6 +6,7 @@ import (
 	"sort"
 	"strings"
 
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/shared/matchflow"
 	"github.com/muhiya/dawa24-store/internal/shared/productmatch"
 )
@@ -46,11 +47,15 @@ func (h *UIHandler) enhanceSaving(
 // A toggle that ticks and then does nothing is worse than one that says why it
 // cannot: the old strategy dropdown promised "ذكاء اصطناعي" from an engine that
 // had none, and nobody could tell the promise was empty.
-func savingAIUnavailableReason(e matchflow.Enhancer) string {
+func savingAIUnavailableReason(e matchflow.Enhancer, lang ...string) string {
 	if e != nil {
 		return ""
 	}
-	return "خدمة الذكاء الاصطناعي غير مهيّأة على هذا الخادم؛ تعمل المطابقة الحتمية وحدها."
+	l := "ar"
+	if len(lang) > 0 && lang[0] != "" {
+		l = lang[0]
+	}
+	return i18n.T(l, "saving.ai.unavailable_reason")
 }
 
 // savingAICeilings is what one saving-list run may spend.

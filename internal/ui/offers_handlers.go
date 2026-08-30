@@ -56,7 +56,7 @@ func (h *UIHandler) OffersPage(w http.ResponseWriter, r *http.Request) {
 				continue
 			}
 
-			orgName := "مورد أدوية معتمد"
+			orgName := i18n.T(lang, "offers.default_supplier_name")
 			if h.orgSvc != nil && o.OrganizationID > 0 {
 				if oOrg, err := h.orgSvc.GetOrganization(database.AsSystem(ctx), o.OrganizationID); err == nil && oOrg != nil {
 					if oOrg.LegalName != "" {

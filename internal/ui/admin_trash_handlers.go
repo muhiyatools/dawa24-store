@@ -8,6 +8,7 @@ import (
 	"github.com/go-chi/chi/v5"
 
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/ui/pages"
 )
 
@@ -23,7 +24,7 @@ func (h *UIHandler) AdminTrashListPage(w http.ResponseWriter, r *http.Request) {
 	lang, dir := h.localeAndDir(r)
 
 	if h.adminSvc == nil {
-		h.redirectWithNotice(w, r, "/admin/dashboard", "error", "خدمة إدارة المنظومة غير متاحة.")
+		h.redirectWithNotice(w, r, "/admin/dashboard", "error", i18n.T(lang, "admin.dev.admin_service_unavailable"))
 		return
 	}
 	models, err := h.adminSvc.ListTrashModels(ctx)
@@ -55,7 +56,7 @@ func (h *UIHandler) AdminTrashListModelPage(w http.ResponseWriter, r *http.Reque
 	modelKey := chi.URLParam(r, "model")
 
 	if h.adminSvc == nil {
-		h.redirectWithNotice(w, r, "/admin/dashboard", "error", "خدمة إدارة المنظومة غير متاحة.")
+		h.redirectWithNotice(w, r, "/admin/dashboard", "error", i18n.T(lang, "admin.dev.admin_service_unavailable"))
 		return
 	}
 	rows, err := h.adminSvc.ListTrashedRows(ctx, modelKey, 100, 0)
@@ -76,50 +77,52 @@ func (h *UIHandler) AdminTrashListModelPage(w http.ResponseWriter, r *http.Reque
 // AdminTrashRestoreSubmit clears deleted_at on one row.
 func (h *UIHandler) AdminTrashRestoreSubmit(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
+	lang := langOf(r)
 	modelKey := chi.URLParam(r, "model")
 	back := "/admin/trash-list/" + url.PathEscape(modelKey)
 
 	rowID, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
 	if err != nil || rowID <= 0 {
-		h.redirectWithNotice(w, r, back, "error", "معرف السجل غير صالح.")
+		h.redirectWithNotice(w, r, back, "error", i18n.T(lang, "admin.dev.invalid_log_id"))
 		return
 	}
 	if h.adminSvc == nil {
-		h.redirectWithNotice(w, r, back, "error", "خدمة إدارة المنظومة غير متاحة.")
+		h.redirectWithNotice(w, r, back, "error", i18n.T(lang, "admin.dev.admin_service_unavailable"))
 		return
 	}
 
 	actor, _ := authctx.From(ctx)
 	if err := h.adminSvc.RestoreTrashedRow(ctx, modelKey, rowID, actor.UserID); err != nil {
 		h.log.ErrorContext(ctx, "restore trashed row", "error", err, "model", modelKey, "id", rowID)
-		h.redirectWithNotice(w, r, back, "error", h.safeMessage(err, langOf(r)))
+		h.redirectWithNotice(w, r, back, "error", h.safeMessage(err, lang))
 		return
 	}
-	h.redirectWithNotice(w, r, back, "success", "تم استرجاع السجل بنجاح.")
+	h.redirectWithNotice(w, r, back, "success", i18n.T(lang, "admin.trash.restored_success"))
 }
 
 // AdminTrashPurgeSubmit permanently removes one row. Irreversible, so the
 // service records the row's contents in the audit log before deleting it.
 func (h *UIHandler) AdminTrashPurgeSubmit(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
+	lang := langOf(r)
 	modelKey := chi.URLParam(r, "model")
 	back := "/admin/trash-list/" + url.PathEscape(modelKey)
 
 	rowID, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
 	if err != nil || rowID <= 0 {
-		h.redirectWithNotice(w, r, back, "error", "معرف السجل غير صالح.")
+		h.redirectWithNotice(w, r, back, "error", i18n.T(lang, "admin.dev.invalid_log_id"))
 		return
 	}
 	if h.adminSvc == nil {
-		h.redirectWithNotice(w, r, back, "error", "خدمة إدارة المنظومة غير متاحة.")
+		h.redirectWithNotice(w, r, back, "error", i18n.T(lang, "admin.dev.admin_service_unavailable"))
 		return
 	}
 
 	actor, _ := authctx.From(ctx)
 	if err := h.adminSvc.PurgeTrashedRow(ctx, modelKey, rowID, actor.UserID); err != nil {
 		h.log.ErrorContext(ctx, "purge trashed row", "error", err, "model", modelKey, "id", rowID)
-		h.redirectWithNotice(w, r, back, "error", h.safeMessage(err, langOf(r)))
+		h.redirectWithNotice(w, r, back, "error", h.safeMessage(err, lang))
 		return
 	}
-	h.redirectWithNotice(w, r, back, "success", "تم الحذف النهائي للسجل.")
+	h.redirectWithNotice(w, r, back, "success", i18n.T(lang, "admin.trash.purged_success"))
 }

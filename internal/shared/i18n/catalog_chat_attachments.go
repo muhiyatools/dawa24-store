@@ -28,4 +28,6 @@ func loadChatAndAttachmentsKeys(e *engine) {
 	addKey(e, "attachment.delete", "attachments", "حذف الوثيقة", "Delete Document", "Delete action")
 	addKey(e, "attachment.drag_drop", "attachments", "اسحب الملف وأفلته هنا، أو اضغط للاختيار", "Drag and drop file here, or click to browse", "Drag drop prompt")
 	addKey(e, "attachment.max_size_hint", "attachments", "الحد الأقصى لحجم الملف: 15 ميجابايت (PDF, JPG, PNG)", "Max file size: 15MB (PDF, JPG, PNG)", "Max size hint")
+	addKey(e, "chat.org_required_to_message", "chat", "تحتاج إلى حساب مؤسسة معتمد لإرسال الرسائل.", "You need a verified organization account to send messages.", "Validation error")
+	addKey(e, "chat.cannot_start_conversation", "chat", "تعذر بدء المحادثة.", "Unable to start conversation.", "Chat error")
 }

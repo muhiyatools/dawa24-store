@@ -178,4 +178,8 @@ func loadBillingAndHRKeys(e *engine) {
 	addKey(e, "settings.emp.invalid_employee_id", "org", "معرف الموظف غير صالح.", "Invalid employee ID.", "Validation error")
 	addKey(e, "settings.emp.deleted_success", "org", "تم حذف الموظف من المنشأة بنجاح.", "Employee removed from organization successfully.", "Success notice")
 	addKey(e, "settings.org.saved_success", "org", "تم حفظ بيانات المؤسسة.", "Organization details saved successfully.", "Success notice")
+
+	// --- Jobs ---
+	addKey(e, "jobs.verified_pharma_entity", "hr", "جهة صيدلانية معتمدة", "Verified Pharmaceutical Entity", "Fallback entity name")
+	addKey(e, "jobs.apply_jobseeker_only", "hr", "التقديم على الشواغر الوظيفية متاح فقط لحسابات (باحث عن عمل).", "Applying for jobs is only available for job seeker accounts.", "Job application restriction")
 }

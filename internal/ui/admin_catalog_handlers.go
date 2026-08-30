@@ -11,6 +11,7 @@ import (
 	"github.com/muhiya/dawa24-store/internal/modules/catalog"
 	"github.com/muhiya/dawa24-store/internal/modules/inventory"
 	"github.com/muhiya/dawa24-store/internal/platform/database"
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/ui/components"
 	"github.com/muhiya/dawa24-store/internal/ui/pages"
 )
@@ -33,7 +34,7 @@ func (h *UIHandler) AdminProductDetailPage(w http.ResponseWriter, r *http.Reques
 	}
 
 	if prod == nil {
-		h.redirectWithNotice(w, r, "/admin/products", "error", "المنتج غير موجود.")
+		h.redirectWithNotice(w, r, "/admin/products", "error", i18n.T(lang, "admin.products.not_found"))
 		return
 	}
 
@@ -144,7 +145,7 @@ func (h *UIHandler) AdminProductChildStatusSubmit(w http.ResponseWriter, r *http
 			_, _ = h.catSvc.UpdateVariant(sysCtx, id, variant)
 		}
 	}
-	h.redirectWithNotice(w, r, "/admin/product-child", "success", "تم تحديث حالة صنف المورد بنجاح.")
+	h.redirectWithNotice(w, r, "/admin/product-child", "success", i18n.T(langOf(r), "admin.catalog.variant_status_updated_success"))
 }
 
 // AdminAdvProductsPage is the legacy advanced-uploader route.
@@ -292,15 +293,16 @@ func (h *UIHandler) AdminSavingProductsPage(w http.ResponseWriter, r *http.Reque
 // AdminProductsDeleteAllSubmit removes all master products and variants (Super Admin).
 func (h *UIHandler) AdminProductsDeleteAllSubmit(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
+	lang := langOf(r)
 	if h.catSvc == nil {
-		h.redirectWithNotice(w, r, "/admin/products", "error", "خدمة الكتالوج غير متاحة حالياً.")
+		h.redirectWithNotice(w, r, "/admin/products", "error", i18n.T(lang, "admin.import.service_unavailable"))
 		return
 	}
 	count, err := h.catSvc.DeleteAllProducts(database.AsSystem(ctx))
 	if err != nil {
 		h.log.ErrorContext(ctx, "delete all master products error", "error", err)
-		h.redirectWithNotice(w, r, "/admin/products", "error", "حدث خطأ أثناء حذف منتجات الكتالوج: "+h.safeMessage(err, langOf(r)))
+		h.redirectWithNotice(w, r, "/admin/products", "error", fmt.Sprintf(i18n.T(lang, "admin.catalog.delete_all_failed_format"), h.safeMessage(err, lang)))
 		return
 	}
-	h.redirectWithNotice(w, r, "/admin/products", "success", fmt.Sprintf("تم حذف %d صنفاً من الكتالوج المركزي الأساسي بنجاح.", count))
+	h.redirectWithNotice(w, r, "/admin/products", "success", fmt.Sprintf(i18n.T(lang, "admin.catalog.deleted_all_success_format"), count))
 }

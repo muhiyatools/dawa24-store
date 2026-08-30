@@ -99,25 +99,26 @@ func (h *UIHandler) MessagesSendSubmit(w http.ResponseWriter, r *http.Request) {
 // SupplierMessageSubmit opens (or continues) a conversation with a supplier.
 func (h *UIHandler) SupplierMessageSubmit(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
+	lang := langOf(r)
 	actor, ok := authctx.From(ctx)
 	if !ok {
 		http.Redirect(w, r, "/auth/login?redirect="+r.Referer(), http.StatusSeeOther)
 		return
 	}
 	if actor.OrganizationID <= 0 {
-		h.redirectWithNotice(w, r, "/suppliers", "error", "تحتاج إلى حساب مؤسسة معتمد لإرسال الرسائل.")
+		h.redirectWithNotice(w, r, "/suppliers", "error", i18n.T(lang, "chat.org_required_to_message"))
 		return
 	}
 
 	supplierID, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
 	if err != nil || h.chatSvc == nil {
-		h.redirectWithNotice(w, r, "/suppliers", "error", "تعذر بدء المحادثة.")
+		h.redirectWithNotice(w, r, "/suppliers", "error", i18n.T(lang, "chat.cannot_start_conversation"))
 		return
 	}
 
 	c, err := h.chatSvc.StartConversation(ctx, actor.OrganizationID, supplierID, actor.UserID, i18n.New("استفسار", "Inquiry"), chat.ContextGeneral, nil)
 	if err != nil {
-		h.redirectWithNotice(w, r, "/suppliers/"+strconv.FormatInt(supplierID, 10), "error", h.safeMessage(err, langOf(r)))
+		h.redirectWithNotice(w, r, "/suppliers/"+strconv.FormatInt(supplierID, 10), "error", h.safeMessage(err, lang))
 		return
 	}
 	http.Redirect(w, r, fmt.Sprintf("/messages/%d", c.ID), http.StatusSeeOther)

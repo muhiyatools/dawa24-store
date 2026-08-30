@@ -8,6 +8,7 @@ import (
 
 	"github.com/muhiya/dawa24-store/internal/modules/smartorder"
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/ui/pages"
 )
 
@@ -40,13 +41,13 @@ func (h *UIHandler) SmartOrderProgressPage(w http.ResponseWriter, r *http.Reques
 		Events:  events,
 		Failed:  run.Status == smartorder.StatusFailed,
 		Percent: smartorder.RunPercent(events),
-		Caption: "جارٍ تجهيز الأصناف",
-		Message: "جارٍ مطابقة الأصناف والبحث عن الموردين…",
+		Caption: i18n.T(lang, "smartorder.staging_caption"),
+		Message: i18n.T(lang, "smartorder.matching_message"),
 	}
 	if data.Failed {
 		data.Message = run.FailureReason
 		if data.Message == "" {
-			data.Message = "حدث خطأ غير متوقع أثناء المعالجة."
+			data.Message = i18n.T(lang, "smartorder.unexpected_error")
 		}
 	} else if stage := smartorder.CurrentStage(events); stage != "" {
 		data.Caption = stage.Label()
@@ -130,14 +131,14 @@ func (h *UIHandler) SmartOrderResultsPage(w http.ResponseWriter, r *http.Request
 	filterCounts, err := h.smartOrderSvc.FilterCounts(ctx, run.ID)
 	if err != nil {
 		h.log.ErrorContext(ctx, "load smart order filter counts", "run_id", run.ID, "error", err)
-		http.Error(w, "تعذّر تحميل فلاتر النتائج", http.StatusInternalServerError)
+		http.Error(w, i18n.T(lang, "errors.data_load_failed"), http.StatusInternalServerError)
 		return
 	}
 
 	lines, total, err := h.smartOrderSvc.Results(ctx, run, filter)
 	if err != nil {
 		h.log.ErrorContext(ctx, "load smart order results", "run_id", run.ID, "error", err)
-		http.Error(w, "تعذّر تحميل النتائج", http.StatusInternalServerError)
+		http.Error(w, i18n.T(lang, "errors.data_load_failed"), http.StatusInternalServerError)
 		return
 	}
 
@@ -198,7 +199,7 @@ func (h *UIHandler) SmartOrderReviewPage(w http.ResponseWriter, r *http.Request)
 		Outcome: string(smartorder.OutcomeOrdered), All: true,
 	})
 	if err != nil {
-		http.Error(w, "تعذّر تحميل الطلب", http.StatusInternalServerError)
+		http.Error(w, i18n.T(lang, "errors.data_load_failed"), http.StatusInternalServerError)
 		return
 	}
 
@@ -317,11 +318,11 @@ func (h *UIHandler) skippedVendorName(ctx context.Context, candidates []smartord
 
 func (h *UIHandler) vendorName(ctx context.Context, orgID int64) string {
 	if h.orgSvc == nil {
-		return "مورد"
+		return i18n.T("ar", "common.supplier")
 	}
 	o, err := h.orgSvc.GetOrganization(ctx, orgID)
 	if err != nil || o == nil || o.LegalName == "" {
-		return "مورد"
+		return i18n.T("ar", "common.supplier")
 	}
 	return o.LegalName
 }
