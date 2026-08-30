@@ -66,65 +66,6 @@ type ConfirmModalProps struct {
 	Swap string
 }
 
-// ConfirmModal asks before an irreversible action.
-//
-// Every destructive control in the application should route through one of
-// these. Deleting a product, removing a member or cancelling an order are all
-// one click from the list view, and none of them had a confirmation step.
-templ ConfirmModal(props ConfirmModalProps) {
-	<dialog id={ props.ID } class="modal" aria-labelledby={ props.ID + "-title" }>
-		<div class="modal-box modal-sm">
-			<div class="modal-header">
-				<h3 class="modal-title" id={ props.ID + "-title" }>{ props.Title }</h3>
-				<form method="dialog">
-					<button class="modal-close" aria-label="إغلاق">
-						@IconClose("icon-sm")
-					</button>
-				</form>
-			</div>
-			<div class="modal-body">
-				<p class="text-secondary leading-relaxed m-0">
-					{ props.Message }
-				</p>
-			</div>
-			<div class="modal-footer">
-				<button
-					class={ "btn", templ.KV("btn-danger", props.Danger), templ.KV("btn-primary", !props.Danger) }
-					if props.ConfirmVerb == "delete" {
-						hx-delete={ props.ConfirmURL }
-					} else {
-						hx-post={ props.ConfirmURL }
-					}
-					if props.Target != "" {
-						hx-target={ props.Target }
-					}
-					if props.Swap != "" {
-						hx-swap={ props.Swap }
-					} else {
-						hx-swap="innerHTML"
-					}
-					onclick={ closeDialog(props.ID) }
-				>
-					if props.ConfirmText != "" {
-						{ props.ConfirmText }
-					} else {
-						تأكيد
-					}
-				</button>
-				<form method="dialog">
-					<button class="btn btn-secondary">
-						if props.CancelText != "" {
-							{ props.CancelText }
-						} else {
-							إلغاء
-						}
-					</button>
-				</form>
-			</div>
-		</div>
-	</dialog>
-}
-
 // ModalTrigger is the button that opens a dialog by id.
 templ ModalTrigger(dialogID, class string) {
 	<button

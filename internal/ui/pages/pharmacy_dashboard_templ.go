@@ -802,7 +802,7 @@ func PharmacyDashboard(lang, dir string, data PharmacyDashboardData, perms []str
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 79, " صنف</span></div></div><div style=\"display:flex; align-items:center; gap:0.6rem;\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 79, " صنف</span></div></div><div class=\"inline-row-06\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -836,7 +836,7 @@ func PharmacyDashboard(lang, dir string, data PharmacyDashboardData, perms []str
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 83, "</div></div><!-- Column 2: Side Widgets (Wallet, Branches, AI Quota, Offers) --><div style=\"display:flex; flex-direction:column; gap:1.5rem;\"><!-- Wallet Widget --><div class=\"card\" style=\"margin:0; padding:1.25rem 1.4rem; border-radius:var(--radius-xl); border:1px solid var(--border); background:var(--surface-raised); box-shadow:var(--shadow-xs);\"><div class=\"flex-between mb-md\" style=\"padding-bottom:0.75rem; border-bottom:1px solid var(--border);\"><div style=\"display:flex; align-items:center; gap:0.4rem;\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 83, "</div></div><!-- Column 2: Side Widgets (Wallet, Branches, AI Quota, Offers) --><div style=\"display:flex; flex-direction:column; gap:1.5rem;\"><!-- Wallet Widget --><div class=\"card\" style=\"margin:0; padding:1.25rem 1.4rem; border-radius:var(--radius-xl); border:1px solid var(--border); background:var(--surface-raised); box-shadow:var(--shadow-xs);\"><div class=\"flex-between mb-md\" style=\"padding-bottom:0.75rem; border-bottom:1px solid var(--border);\"><div class=\"inline-row-04\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -1001,7 +1001,7 @@ func PharmacyDashboard(lang, dir string, data PharmacyDashboardData, perms []str
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 103, "<span>شحن الرصيد / إيداع جديد</span></a></div><!-- Branches Widget --><div class=\"card\" style=\"margin:0; padding:1.25rem 1.4rem; border-radius:var(--radius-xl); border:1px solid var(--border); background:var(--surface-raised); box-shadow:var(--shadow-xs);\"><div class=\"flex-between mb-md\" style=\"padding-bottom:0.75rem; border-bottom:1px solid var(--border);\"><div style=\"display:flex; align-items:center; gap:0.4rem;\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 103, "<span>شحن الرصيد / إيداع جديد</span></a></div><!-- Branches Widget --><div class=\"card\" style=\"margin:0; padding:1.25rem 1.4rem; border-radius:var(--radius-xl); border:1px solid var(--border); background:var(--surface-raised); box-shadow:var(--shadow-xs);\"><div class=\"flex-between mb-md\" style=\"padding-bottom:0.75rem; border-bottom:1px solid var(--border);\"><div class=\"inline-row-04\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -1117,7 +1117,7 @@ func PharmacyDashboard(lang, dir string, data PharmacyDashboardData, perms []str
 				return templ_7745c5c3_Err
 			}
 			if data.Subscription != nil {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 119, "<div class=\"card\" style=\"margin:0; padding:1.25rem 1.4rem; border-radius:var(--radius-xl); border:1px solid var(--border); background:var(--surface-raised); box-shadow:var(--shadow-xs);\"><div class=\"flex-between mb-md\" style=\"padding-bottom:0.6rem; border-bottom:1px solid var(--border);\"><div style=\"display:flex; align-items:center; gap:0.4rem;\"><span style=\"color:#7c3aed;\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 119, "<div class=\"card\" style=\"margin:0; padding:1.25rem 1.4rem; border-radius:var(--radius-xl); border:1px solid var(--border); background:var(--surface-raised); box-shadow:var(--shadow-xs);\"><div class=\"flex-between mb-md\" style=\"padding-bottom:0.6rem; border-bottom:1px solid var(--border);\"><div class=\"inline-row-04\"><span style=\"color:#7c3aed;\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -1216,7 +1216,7 @@ func PharmacyDashboard(lang, dir string, data PharmacyDashboardData, perms []str
 				return templ_7745c5c3_Err
 			}
 			if len(data.Offers) > 0 {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 129, "<div class=\"card\" style=\"margin:0; padding:1.25rem 1.4rem; border-radius:var(--radius-xl); border:1px solid var(--border); background:var(--surface-raised); box-shadow:var(--shadow-xs);\"><div class=\"flex-between mb-md\" style=\"padding-bottom:0.75rem; border-bottom:1px solid var(--border);\"><div style=\"display:flex; align-items:center; gap:0.4rem;\"><span style=\"color:#e11d48;\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 129, "<div class=\"card\" style=\"margin:0; padding:1.25rem 1.4rem; border-radius:var(--radius-xl); border:1px solid var(--border); background:var(--surface-raised); box-shadow:var(--shadow-xs);\"><div class=\"flex-between mb-md\" style=\"padding-bottom:0.75rem; border-bottom:1px solid var(--border);\"><div class=\"inline-row-04\"><span style=\"color:#e11d48;\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}

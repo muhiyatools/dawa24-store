@@ -269,3 +269,31 @@
   padding-bottom: 1rem;
 }                                                                                   /* 10 */
 .inline-row-wrap { display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; } /* 10 */
+
+/* ---------------------------------------------------------------------------
+   Second round of inline-style removal. Each rule replaces an exact inline
+   declaration repeated eight times or more, and preserves its value exactly --
+   nothing below changes how a page renders.
+
+   Several of these sizes and gaps (0.775, 0.8, 0.825, 0.85, 0.9rem; 0.4, 0.6,
+   1.15rem) sit off the type and spacing scales in tokens.css. They are kept
+   verbatim here rather than snapped to the nearest token, because silently
+   moving a value is not a refactor. Reconciling them is a typography and
+   spacing pass of its own.
+   --------------------------------------------------------------------------- */
+.label-sm-bold   { font-size: 0.8rem; font-weight: 700; }                      /* 26 */
+.inline-row-06   { display: flex; align-items: center; gap: 0.6rem; }          /* 14 */
+.inline-row-04   { display: flex; align-items: center; gap: 0.4rem; }          /*  9 */
+.pad-sm          { padding: 0.5rem 0.75rem; }                                  /* 10 */
+.pad-md          { padding: 0.75rem 1rem; }                                    /*  9 */
+.text-09         { font-size: 0.9rem; }                                        /* 10 */
+.text-085-bold   { font-weight: 700; font-size: 0.85rem; }                     /*  9 */
+.stack-115       { display: flex; flex-direction: column; gap: 1.15rem; }      /*  9 */
+.no-underline    { text-decoration: none; }                                    /*  8 */
+.field-label     {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 0.35rem;
+  display: block;
+}                                                                              /* 10 */

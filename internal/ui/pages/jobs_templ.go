@@ -815,7 +815,7 @@ func JobDetailContent(data JobDetailData, lang, dir string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 78, "\" enctype=\"multipart/form-data\" style=\"display:flex; flex-direction:column; gap:0.85rem;\"><div><label class=\"form-label\" style=\"font-size:0.8rem; font-weight:700;\">الاسم الثلاثي / المهني <span class=\"text-danger\">*</span></label> <input type=\"text\" name=\"applicant_name\" required value=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 78, "\" enctype=\"multipart/form-data\" style=\"display:flex; flex-direction:column; gap:0.85rem;\"><div><label class=\"form-label label-sm-bold\">الاسم الثلاثي / المهني <span class=\"text-danger\">*</span></label> <input type=\"text\" name=\"applicant_name\" required value=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -828,7 +828,7 @@ func JobDetailContent(data JobDetailData, lang, dir string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 79, "\" placeholder=\"د. أحمد محمود\" class=\"form-input input-sm w-full\"></div><div><label class=\"form-label\" style=\"font-size:0.8rem; font-weight:700;\">البريد الإلكتروني <span class=\"text-danger\">*</span></label> <input type=\"email\" name=\"applicant_email\" required value=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 79, "\" placeholder=\"د. أحمد محمود\" class=\"form-input input-sm w-full\"></div><div><label class=\"form-label label-sm-bold\">البريد الإلكتروني <span class=\"text-danger\">*</span></label> <input type=\"email\" name=\"applicant_email\" required value=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -841,7 +841,7 @@ func JobDetailContent(data JobDetailData, lang, dir string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 80, "\" placeholder=\"pharmacist@example.com\" class=\"form-input input-sm tabular-nums w-full\"></div><div><label class=\"form-label\" style=\"font-size:0.8rem; font-weight:700;\">رقم الهاتف / الواتساب <span class=\"text-danger\">*</span></label> <input type=\"tel\" name=\"applicant_phone\" required value=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 80, "\" placeholder=\"pharmacist@example.com\" class=\"form-input input-sm tabular-nums w-full\"></div><div><label class=\"form-label label-sm-bold\">رقم الهاتف / الواتساب <span class=\"text-danger\">*</span></label> <input type=\"tel\" name=\"applicant_phone\" required value=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -854,7 +854,7 @@ func JobDetailContent(data JobDetailData, lang, dir string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 81, "\" placeholder=\"01012345678\" class=\"form-input input-sm tabular-nums w-full\"></div><div><label class=\"form-label\" style=\"font-size:0.8rem; font-weight:700;\">إرفاق السيرة الذاتية (CV / PDF) <span class=\"text-danger\">*</span></label> <input type=\"file\" name=\"resume_file\" accept=\".pdf,.doc,.docx\" required class=\"form-input input-sm w-full\" style=\"padding:0.35rem; font-size:0.775rem;\"></div><div><label class=\"form-label\" style=\"font-size:0.8rem; font-weight:700;\">ملاحظات أو نبذة عن الخبرة (اختياري)</label> <textarea name=\"notes\" rows=\"2\" placeholder=\"أبرز الخبرات والمهارات...\" class=\"form-input input-sm w-full\" style=\"resize:vertical;\"></textarea></div><button type=\"submit\" class=\"btn btn-primary btn-sm fw-800\" style=\"justify-content:center; padding:0.65rem; width:100%; margin-top:0.25rem;\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 81, "\" placeholder=\"01012345678\" class=\"form-input input-sm tabular-nums w-full\"></div><div><label class=\"form-label label-sm-bold\">إرفاق السيرة الذاتية (CV / PDF) <span class=\"text-danger\">*</span></label> <input type=\"file\" name=\"resume_file\" accept=\".pdf,.doc,.docx\" required class=\"form-input input-sm w-full\" style=\"padding:0.35rem; font-size:0.775rem;\"></div><div><label class=\"form-label label-sm-bold\">ملاحظات أو نبذة عن الخبرة (اختياري)</label> <textarea name=\"notes\" rows=\"2\" placeholder=\"أبرز الخبرات والمهارات...\" class=\"form-input input-sm w-full\" style=\"resize:vertical;\"></textarea></div><button type=\"submit\" class=\"btn btn-primary btn-sm fw-800\" style=\"justify-content:center; padding:0.65rem; width:100%; margin-top:0.25rem;\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

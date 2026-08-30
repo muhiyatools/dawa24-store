@@ -354,12 +354,21 @@ templ VendorOrdersContent(data VendorOrdersData, lang, dir string) {
 
 						<!-- Action Controls Toolbar -->
 						<div class="flex-between items-center flex-wrap gap-4 pt-4 border-t">
-							<div>
+							<div class="d-flex items-center gap-2 flex-wrap">
 								if sh.TrackingNumber != "" {
 									<div class="text-xs text-secondary bg-surface-sunken p-2 px-3 rounded-lg border d-flex items-center gap-2">
-										<span>رقم البوليصة / الشحنة:</span>
-										<strong class="tabular-nums text-primary font-black">{ sh.TrackingNumber }</strong>
+										<span>رقم بوليصة الشحن:</span>
+										<strong class="tabular-nums text-primary font-black font-mono">{ sh.TrackingNumber }</strong>
 									</div>
+									<a
+										href={ templ.SafeURL(fmt.Sprintf("/delivery?tracking=%s", sh.TrackingNumber)) }
+										target="_blank"
+										class="btn btn-secondary font-black text-xs py-1.5 px-3 gap-1.5 text-sky-700 bg-sky-50 border-sky-200"
+										title="فتح شاشة تسليم المندوب لمشاركتها معه"
+									>
+										@components.IconExternalLink("icon-2xs")
+										<span>بوابة المندوب ↗</span>
+									</a>
 								}
 							</div>
 
@@ -403,16 +412,16 @@ templ VendorOrdersContent(data VendorOrdersData, lang, dir string) {
 										<input
 											type="text"
 											name="tracking"
-											placeholder="رقم البوليصة / المندوب..."
+											placeholder="رقم البوليصة (أو يُولد تلقائياً)..."
 											class="form-input text-xs"
-											style="width:180px;"
+											style="width:200px;"
 										/>
 										<button
 											type="submit"
-											class="btn btn-secondary font-bold px-4 py-2 gap-2 text-xs"
+											class="btn btn-primary font-black px-4 py-2 gap-2 text-xs shadow-xs"
 										>
 											@components.IconTruck("icon-xs")
-											<span>إرسال للشحن</span>
+											<span>إرسال للشحن وبدء التوصيل</span>
 										</button>
 									</form>
 									<form action={ templ.SafeURL(fmt.Sprintf("/vendor/orders/%d/status", sh.ID)) } method="POST" class="m-0 d-inline">
@@ -420,10 +429,10 @@ templ VendorOrdersContent(data VendorOrdersData, lang, dir string) {
 										<input type="hidden" name="notes" value="تم تسليم الشحنة المبردة بالصيدلية وتوثيق الاستلام" />
 										<button
 											type="submit"
-											class="btn btn-primary font-black px-4 py-2 gap-2 text-xs"
+											class="btn btn-secondary font-bold px-4 py-2 gap-2 text-xs"
 										>
 											@components.IconCheckCircle("icon-xs")
-											<span>تأكيد وإتمام التسليم للصيدلية</span>
+											<span>تسليم مباشر</span>
 										</button>
 									</form>
 								} else if sh.Status == commerce.StatusShipped {

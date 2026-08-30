@@ -91,7 +91,7 @@ func savingReviewStage(view SavingImportView) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, " صنف)</span></button></form></div></div></div><!-- 4 KPI Stat Cards --><div class=\"grid grid-cols-2 md:grid-cols-4 gap-4 mb-4\"><div class=\"glass-panel p-4 d-flex items-center gap-3\" style=\"border-radius:var(--radius-lg);\"><div class=\"text-2xl p-2.5 rounded-xl\" style=\"background:rgba(59, 130, 246, 0.1); border:1px solid rgba(59, 130, 246, 0.2);\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, " صنف)</span></button></form></div></div></div><!-- 4 KPI Stat Cards --><div class=\"grid grid-cols-2 md:grid-cols-4 gap-4 mb-4\"><div class=\"glass-panel p-4 d-flex items-center gap-3 rounded-lg\"><div class=\"text-2xl p-2.5 rounded-xl\" style=\"background:rgba(59, 130, 246, 0.1); border:1px solid rgba(59, 130, 246, 0.2);\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -112,7 +112,7 @@ func savingReviewStage(view SavingImportView) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "</div></div></div><div class=\"glass-panel p-4 d-flex items-center gap-3\" style=\"border-radius:var(--radius-lg);\"><div class=\"text-2xl p-2.5 rounded-xl\" style=\"background:rgba(16, 185, 129, 0.1); border:1px solid rgba(16, 185, 129, 0.2);\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "</div></div></div><div class=\"glass-panel p-4 d-flex items-center gap-3 rounded-lg\"><div class=\"text-2xl p-2.5 rounded-xl\" style=\"background:rgba(16, 185, 129, 0.1); border:1px solid rgba(16, 185, 129, 0.2);\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -133,7 +133,7 @@ func savingReviewStage(view SavingImportView) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "</div></div></div><div class=\"glass-panel p-4 d-flex items-center gap-3\" style=\"border-radius:var(--radius-lg);\"><div class=\"text-2xl p-2.5 rounded-xl\" style=\"background:rgba(245, 158, 11, 0.1); border:1px solid rgba(245, 158, 11, 0.2);\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "</div></div></div><div class=\"glass-panel p-4 d-flex items-center gap-3 rounded-lg\"><div class=\"text-2xl p-2.5 rounded-xl\" style=\"background:rgba(245, 158, 11, 0.1); border:1px solid rgba(245, 158, 11, 0.2);\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -154,7 +154,7 @@ func savingReviewStage(view SavingImportView) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "</div></div></div><div class=\"glass-panel p-4 d-flex items-center gap-3\" style=\"border-radius:var(--radius-lg);\"><div class=\"text-2xl p-2.5 rounded-xl\" style=\"background:rgba(99, 102, 241, 0.1); border:1px solid rgba(99, 102, 241, 0.2);\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "</div></div></div><div class=\"glass-panel p-4 d-flex items-center gap-3 rounded-lg\"><div class=\"text-2xl p-2.5 rounded-xl\" style=\"background:rgba(99, 102, 241, 0.1); border:1px solid rgba(99, 102, 241, 0.2);\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

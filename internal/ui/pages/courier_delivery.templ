@@ -1,0 +1,431 @@
+package pages
+
+import (
+	"fmt"
+
+	"github.com/muhiya/dawa24-store/internal/modules/commerce"
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
+	"github.com/muhiya/dawa24-store/internal/ui/components"
+)
+
+type CourierDeliveryData struct {
+	TrackingQuery string
+	Shipment      *commerce.OrderShipment
+	ErrorMessage  string
+	SuccessMessage string
+	IsLocked      bool
+	RemainingLock int
+	IsCompleted   bool
+}
+
+templ CourierDeliveryPage(data CourierDeliveryData, lang, dir string) {
+	<!DOCTYPE html>
+	<html lang={ lang } dir={ dir } class="scroll-smooth">
+		<head>
+			<meta charset="UTF-8" />
+			<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+			<meta name="robots" content="noindex, nofollow, noarchive" />
+			<title>بوابة المندوب لتسليم الشحنات | Dawa24 Delivery Portal</title>
+			
+			<link rel="stylesheet" href="/static/css/modern.css" />
+			<link rel="stylesheet" href="/static/css/components.css" />
+			<link rel="stylesheet" href="/static/css/utilities.css" />
+			<link rel="stylesheet" href="/static/css/design-system.css" />
+
+			<style>
+				:root {
+					--primary-gradient: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
+				}
+				body {
+					background-color: #f8fafc;
+					color: #0f172a;
+					font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+					min-height: 100vh;
+					display: flex;
+					flex-direction: column;
+				}
+				.courier-header {
+					background: #ffffff;
+					border-bottom: 1px solid #e2e8f0;
+					padding: 0.875rem 1.25rem;
+					position: sticky;
+					top: 0;
+					z-index: 40;
+					backdrop-filter: blur(8px);
+				}
+				.courier-card {
+					background: #ffffff;
+					border: 1px solid #e2e8f0;
+					border-radius: 1rem;
+					box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+					padding: 1.25rem;
+					margin-bottom: 1rem;
+				}
+				.pin-input {
+					font-size: 1.75rem;
+					letter-spacing: 0.35em;
+					text-align: center;
+					font-weight: 900;
+					font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+					padding: 0.75rem 1rem;
+					border: 2px solid #cbd5e1;
+					border-radius: 0.875rem;
+					transition: all 0.2s ease;
+					width: 100%;
+					max-width: 320px;
+					margin: 0 auto;
+					display: block;
+				}
+				.pin-input:focus {
+					border-color: #0284c7;
+					box-shadow: 0 0 0 4px rgba(2, 132, 199, 0.15);
+					outline: none;
+				}
+				.amount-box {
+					background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+					border: 1px solid #bbf7d0;
+					border-radius: 0.875rem;
+					padding: 1rem 1.25rem;
+					text-align: center;
+				}
+			</style>
+		</head>
+		<body>
+			<!-- Top Clean Standalone Header -->
+			<header class="courier-header">
+				<div class="d-flex items-center justify-between max-w-xl mx-auto">
+					<div class="d-flex items-center gap-2.5">
+						<div class="w-8 h-8 rounded-lg bg-sky-600 text-white d-flex items-center justify-center font-black text-sm shadow-xs">
+							24
+						</div>
+						<div>
+							<div class="text-sm font-black text-primary leading-tight">دواء 24 — بوابة المندوب</div>
+							<div class="text-2xs text-secondary font-medium">نظام تسليم الشحنات والتحقق بالكود</div>
+						</div>
+					</div>
+					<div class="d-flex items-center gap-1 text-2xs font-bold text-slate-500 bg-slate-100 px-2.5 py-1 rounded-full border border-slate-200">
+						@components.IconShield("icon-2xs text-emerald-600")
+						<span>نظام مشفر آمن</span>
+					</div>
+				</div>
+			</header>
+
+			<!-- Main Content Container (Mobile-Optimized) -->
+			<main class="flex-1 p-4 pb-12">
+				<div class="max-w-xl mx-auto">
+					
+					<!-- Feedback Banners -->
+					if data.ErrorMessage != "" {
+						<div class="alert alert-danger p-4 rounded-xl mb-4 border border-rose-200 bg-rose-50/90 text-rose-900 shadow-xs">
+							<div class="d-flex items-center gap-2.5">
+								@components.IconAlertCircle("icon-sm text-rose-600 shrink-0")
+								<div>
+									<div class="font-black text-xs">{ data.ErrorMessage }</div>
+									if data.IsLocked {
+										<div class="text-2xs text-rose-700 mt-0.5">يرجى الانتظار والمحاولة لاحقاً بعد انتهاء فترة القفل.</div>
+									}
+								</div>
+							</div>
+						</div>
+					}
+
+					if data.SuccessMessage != "" {
+						<div class="alert alert-success p-4 rounded-xl mb-4 border border-emerald-200 bg-emerald-50/90 text-emerald-900 shadow-xs">
+							<div class="d-flex items-center gap-2.5">
+								@components.IconCheckCircle("icon-sm text-emerald-600 shrink-0")
+								<div class="font-black text-xs">{ data.SuccessMessage }</div>
+							</div>
+						</div>
+					}
+
+					<!-- State 1: Search Form (When no shipment loaded or searching for another) -->
+					if data.Shipment == nil {
+						<div class="courier-card text-center p-6 sm:p-8">
+							<div class="w-14 h-14 rounded-2xl bg-sky-50 text-sky-600 d-inline-flex items-center justify-center mb-4 border border-sky-100 shadow-2xs">
+								@components.IconTruck("icon-md")
+							</div>
+
+							<h2 class="text-lg font-black text-primary m-0 mb-1.5">
+								استعلام وتسليم شحنة
+							</h2>
+							<p class="text-xs text-secondary leading-relaxed max-w-sm mx-auto mb-6 font-medium">
+								أدخل رقم الشحنة أو بوليصة التتبع المسلمة لك من المورد لمعاينة بيانات الصيدلية والأصناف المطلوب تسليمها.
+							</p>
+
+							<form method="GET" action="/delivery" class="m-0 space-y-4">
+								<div>
+									<input
+										type="text"
+										name="tracking"
+										value={ data.TrackingQuery }
+										required
+										autofocus
+										placeholder="مثال: TRK-ORD-100-1102"
+										class="form-input text-sm text-center font-mono font-bold w-full p-3 rounded-xl border-slate-300"
+										style="max-width: 340px;"
+									/>
+								</div>
+								<button
+									type="submit"
+									class="btn btn-primary font-black text-xs py-3 px-6 rounded-xl shadow-xs gap-2 w-full"
+									style="max-width: 340px;"
+								>
+									@components.IconSearch("icon-xs")
+									<span>عرض بيانات الشحنة</span>
+								</button>
+							</form>
+						</div>
+					} else {
+						<!-- State 2: Shipment Loaded -->
+						
+						<!-- Status & Top Ribbon -->
+						<div class="courier-card mb-3">
+							<div class="flex-between items-center flex-wrap gap-2">
+								<div>
+									<span class="text-2xs text-secondary font-mono d-block mb-0.5">رقم الشحنة:</span>
+									<h2 class="text-base font-black text-primary font-mono m-0">{ data.Shipment.ShipmentNumber }</h2>
+									if data.Shipment.TrackingNumber != "" {
+										<span class="text-2xs text-muted font-mono font-bold">بوليصة: { data.Shipment.TrackingNumber }</span>
+									}
+								</div>
+								<div>
+									if data.Shipment.Status == commerce.StatusDelivered || data.Shipment.Status == commerce.StatusCompleted {
+										<span class="badge badge-emerald font-black text-xs p-2 px-3 gap-1.5 shadow-2xs">
+											@components.IconCheckCircle("icon-2xs")
+											<span>تم التسليم بنجاح</span>
+										</span>
+									} else if data.Shipment.Status == commerce.StatusCancelled {
+										<span class="badge badge-danger font-black text-xs p-2 px-3 gap-1.5">
+											@components.IconClose("icon-2xs")
+											<span>شحنة ملغاة</span>
+										</span>
+									} else {
+										<span class="badge badge-sky font-black text-xs p-2 px-3 gap-1.5 shadow-2xs">
+											@components.IconTruck("icon-2xs")
+											<span>جاهز للتسليم بالفرع</span>
+										</span>
+									}
+								</div>
+							</div>
+						</div>
+
+						<!-- Recipient Pharmacy Info Card -->
+						<div class="courier-card">
+							<div class="d-flex items-center gap-2 mb-3 pb-2.5 border-b border-slate-100 text-sky-800">
+								@components.IconMapPin("icon-xs text-sky-600")
+								<h3 class="text-xs font-black m-0">بيانات الصيدلية المستلمة</h3>
+							</div>
+
+							<div class="space-y-2.5 text-xs">
+								<div class="flex-between items-baseline">
+									<span class="text-secondary font-medium">اسم الصيدلية:</span>
+									<strong class="text-primary font-bold text-sm">{ data.Shipment.CustomerOrgName.Get(i18n.ParseLang(lang)) }</strong>
+								</div>
+
+								if data.Shipment.CustomerBranchName.Get(i18n.ParseLang(lang)) != "" {
+									<div class="flex-between items-baseline">
+										<span class="text-secondary font-medium">الفرع:</span>
+										<span class="text-primary font-semibold">{ data.Shipment.CustomerBranchName.Get(i18n.ParseLang(lang)) }</span>
+									</div>
+								}
+
+								if data.Shipment.CustomerBranchAddress != "" {
+									<div class="pt-2 border-t border-slate-100">
+										<span class="text-secondary font-medium d-block mb-1">العنوان بالتفصيل:</span>
+										<div class="p-2.5 rounded-lg bg-slate-50 border border-slate-100 text-primary font-bold leading-relaxed">
+											{ data.Shipment.CustomerBranchAddress }
+										</div>
+									</div>
+								}
+
+								<!-- Direct Contact Button -->
+								<div class="pt-2 flex-between items-center gap-2">
+									<div>
+										<span class="text-2xs text-secondary d-block font-medium">المسؤول:</span>
+										<span class="text-xs font-bold text-primary">
+											if data.Shipment.CustomerManagerName != "" {
+												{ data.Shipment.CustomerManagerName }
+											} else {
+												<span>الصيدلي المسؤول بالفرع</span>
+											}
+										</span>
+									</div>
+
+									if data.Shipment.CustomerBranchPhone != "" {
+										<a
+											href={ templ.SafeURL("tel:" + data.Shipment.CustomerBranchPhone) }
+											class="btn btn-secondary font-black text-xs py-2 px-3.5 gap-1.5 text-sky-700 bg-sky-50 border-sky-200"
+										>
+											@components.IconPhone("icon-2xs")
+											<span class="tabular-nums font-mono">{ data.Shipment.CustomerBranchPhone }</span>
+										</a>
+									}
+								</div>
+							</div>
+						</div>
+
+						<!-- Financial Collection Box -->
+						<div class="courier-card">
+							<div class="d-flex items-center gap-2 mb-3 pb-2.5 border-b border-slate-100 text-emerald-800">
+								@components.IconCreditCard("icon-xs text-emerald-600")
+								<h3 class="text-xs font-black m-0">التحصيل والمبالغ المالية</h3>
+							</div>
+
+							if data.Shipment.PaymentMethod == "cod" || data.Shipment.PaymentStatus != commerce.PaymentPaid {
+								<div class="amount-box mb-2">
+									<span class="text-2xs font-extrabold text-emerald-800 d-block mb-0.5">المبلغ المطلوب تحصيله نقداً من الصيدلية:</span>
+									<div class="text-2xl font-black text-emerald-700 tabular-nums font-mono">
+										@components.MoneyDisplay(components.MoneyDisplayProps{ Amount: data.Shipment.TotalAmount })
+									</div>
+									<span class="badge badge-amber font-extrabold text-2xs mt-1">الدفع عند الاستلام (COD)</span>
+								</div>
+							} else {
+								<div class="p-3 rounded-xl bg-sky-50 border border-sky-200 text-center mb-2">
+									<div class="text-xs font-black text-sky-800 mb-0.5">مدفوع مسبقاً بالكامل إلكترونياً</div>
+									<div class="text-2xs text-sky-700 font-medium">لا يلزم تحصيل أي مبالغ نقدية من الصيدلية لهذه الشحنة.</div>
+								</div>
+							}
+						</div>
+
+						<!-- Items Summary Table -->
+						<div class="courier-card">
+							<div class="d-flex items-center gap-2 mb-3 pb-2.5 border-b border-slate-100 text-primary">
+								@components.IconPackage("icon-xs text-brand")
+								<h3 class="text-xs font-black m-0">محتويات وأصناف الشحنة ({ fmt.Sprintf("%d", len(data.Shipment.Lines)) } صنف)</h3>
+							</div>
+
+							<div class="space-y-2">
+								for _, line := range data.Shipment.Lines {
+									<div class="p-2.5 rounded-lg bg-slate-50/70 border border-slate-100 flex-between items-center gap-3">
+										<div class="flex-1 min-w-0">
+											<div class="text-xs font-bold text-primary truncate">{ line.ProductName.Get(i18n.ParseLang(lang)) }</div>
+											if line.VariantName.Get(i18n.ParseLang(lang)) != "" {
+												<div class="text-2xs text-muted truncate">{ line.VariantName.Get(i18n.ParseLang(lang)) }</div>
+											}
+										</div>
+										<div class="text-end shrink-0">
+											<span class="badge badge-secondary font-black text-xs tabular-nums">
+												{ fmt.Sprintf("%d", line.Quantity) } عبوة
+											</span>
+										</div>
+									</div>
+								}
+							</div>
+						</div>
+
+						<!-- State 2.1: Handover Verification Form (Active) -->
+						if data.Shipment.Status != commerce.StatusDelivered && data.Shipment.Status != commerce.StatusCompleted && data.Shipment.Status != commerce.StatusCancelled {
+							<div class="courier-card border-2 border-brand-500/80 shadow-md">
+								<div class="text-center mb-5">
+									<div class="w-10 h-10 rounded-xl bg-brand-50 text-brand d-inline-flex items-center justify-center mb-2 shadow-2xs">
+										@components.IconShield("icon-xs")
+									</div>
+									<h3 class="text-sm font-black text-primary m-0">
+										تأكيد تسليم الشحنة بالكود
+									</h3>
+									<p class="text-2xs text-secondary m-0 mt-1 font-medium leading-relaxed">
+										اطلب من الصيدلي المسؤول إعطاءك «كود تأكيد الاستلام» الظاهر في حسابه وفاتورته لإتمام التسليم
+									</p>
+								</div>
+
+								<form method="POST" action="/delivery/verify" class="m-0 space-y-4">
+									<input type="hidden" name="tracking" value={ data.Shipment.TrackingNumber } />
+									<input type="hidden" name="shipment_id" value={ fmt.Sprintf("%d", data.Shipment.ID) } />
+									
+									<div>
+										<label class="form-label text-xs font-black text-primary block text-center mb-2">
+											أدخل كود تأكيد الاستلام المكون من 6 أرقام:
+										</label>
+										<input
+											type="text"
+											name="delivery_code"
+											required
+											maxlength="6"
+											pattern="[0-9]{6}"
+											inputmode="numeric"
+											autocomplete="one-time-code"
+											placeholder="••••••"
+											class="pin-input"
+										/>
+									</div>
+
+									<!-- Amount Collected Confirmation -->
+									if data.Shipment.PaymentMethod == "cod" || data.Shipment.PaymentStatus != commerce.PaymentPaid {
+										<div class="p-3 rounded-xl bg-slate-50 border border-slate-200">
+											<label class="d-flex items-center gap-2.5 cursor-pointer select-none">
+												<input
+													type="checkbox"
+													name="confirm_collected"
+													value="true"
+													required
+													class="form-checkbox text-emerald-600 rounded"
+												/>
+												<span class="text-xs font-bold text-primary">
+													أؤكد تحصيل كامل المبلغ المطلوب ({ data.Shipment.TotalAmount.String() } ج.م) نقداً من الصيدلي
+												</span>
+											</label>
+										</div>
+									}
+
+									<!-- Optional Notes -->
+									<div>
+										<label class="form-label text-2xs font-bold text-secondary block mb-1">
+											ملاحظات التسليم (اختياري):
+										</label>
+										<input
+											type="text"
+											name="notes"
+											placeholder="مثال: تم التسليم للدكتور فلان بالفرع"
+											class="form-input text-xs w-full rounded-xl"
+										/>
+									</div>
+
+									<button
+										type="submit"
+										class="btn btn-primary w-full py-3.5 font-black text-sm rounded-xl gap-2 shadow-sm"
+										style="background: linear-gradient(135deg, #059669 0%, #047857 100%); border-color: #059669;"
+									>
+										@components.IconCheckCircle("icon-sm")
+										<span>تأكيد الاستلام وإغلاق الشحنة فوراً</span>
+									</button>
+								</form>
+							</div>
+						} else if data.Shipment.Status == commerce.StatusDelivered || data.Shipment.Status == commerce.StatusCompleted {
+							<!-- State 2.2: Already Delivered Success Card -->
+							<div class="courier-card text-center p-6 bg-emerald-50/40 border-emerald-200">
+								<div class="w-12 h-12 rounded-full bg-emerald-100 text-emerald-700 d-inline-flex items-center justify-center mb-3 shadow-2xs">
+									@components.IconCheckCircle("icon-md")
+								</div>
+								<h3 class="text-base font-black text-emerald-900 m-0 mb-1">
+									تم تسليم الشحنة وتوثيقها بنجاح
+								</h3>
+								<p class="text-xs text-emerald-800 m-0 font-medium">
+									تم التحقق من كود الاستلام وإشعار المورد والصيدلية باكتمال أمر التوريد.
+								</p>
+								if data.Shipment.DeliveredAt != nil {
+									<div class="text-2xs text-emerald-700 mt-2 font-mono tabular-nums">
+										وقت التسليم: { data.Shipment.DeliveredAt.Format("2006-01-02 15:04") }
+									</div>
+								}
+
+								<div class="pt-4 mt-4 border-t border-emerald-200/60">
+									<a href="/delivery" class="btn btn-secondary text-xs font-bold py-2 px-4">
+										<span>تسليم شحنة أخرى</span>
+									</a>
+								</div>
+							</div>
+						}
+
+						<!-- Back / Switch Shipment Link -->
+						<div class="text-center pt-2">
+							<a href="/delivery" class="text-xs font-bold text-secondary text-decoration-none hover:text-primary">
+								<span>← البحث عن شحنة أخرى</span>
+							</a>
+						</div>
+					}
+
+				</div>
+			</main>
+		</body>
+	</html>
+}

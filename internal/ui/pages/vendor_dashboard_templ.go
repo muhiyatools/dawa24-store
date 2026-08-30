@@ -103,7 +103,7 @@ func VendorDashboard(lang, dir string, data VendorDashboardData) templ.Component
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "). يرجى الرفع لتجنب إيقاف وتجميد حساب المورد.</div></div></div><a href=\"/vendor/documents\" class=\"btn btn-primary btn-sm font-bold gap-1\" style=\"border-radius:8px;\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "). يرجى الرفع لتجنب إيقاف وتجميد حساب المورد.</div></div></div><a href=\"/vendor/documents\" class=\"btn btn-primary btn-sm font-bold gap-1 rounded-md\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -446,7 +446,7 @@ func VendorDashboard(lang, dir string, data VendorDashboardData) templ.Component
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 42, "</div><a href=\"/vendor/orders\" class=\"btn btn-secondary btn-sm font-bold text-xs\" style=\"border-radius:8px;\"><span>عرض كافة الطلبيات ↗</span></a></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 42, "</div><a href=\"/vendor/orders\" class=\"btn btn-secondary btn-sm font-bold text-xs rounded-md\"><span>عرض كافة الطلبيات ↗</span></a></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -669,7 +669,7 @@ func VendorDashboard(lang, dir string, data VendorDashboardData) templ.Component
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 70, "</div><a href=\"/vendor/inventory\" class=\"btn btn-secondary btn-sm font-bold text-xs\" style=\"border-radius:8px;\">الأرصدة والمخازن</a></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 70, "</div><a href=\"/vendor/inventory\" class=\"btn btn-secondary btn-sm font-bold text-xs rounded-md\">الأرصدة والمخازن</a></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -741,7 +741,7 @@ func VendorDashboard(lang, dir string, data VendorDashboardData) templ.Component
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 79, "</div></div><!-- 3. Active Offers Strip --><div class=\"glass-panel p-6 mb-0 d-flex flex-col justify-between\" style=\"border-radius:16px;\"><div><div class=\"flex-between items-center mb-4 pb-3 border-b\"><div class=\"d-flex items-center gap-2\"><span class=\"text-lg\">🎁</span><h2 class=\"text-base font-extrabold text-primary m-0\">العروض الخاصة النشطة</h2></div><a href=\"/vendor/offers\" class=\"btn btn-secondary btn-sm font-bold text-xs\" style=\"border-radius:8px;\">إدارة العروض</a></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 79, "</div></div><!-- 3. Active Offers Strip --><div class=\"glass-panel p-6 mb-0 d-flex flex-col justify-between\" style=\"border-radius:16px;\"><div><div class=\"flex-between items-center mb-4 pb-3 border-b\"><div class=\"d-flex items-center gap-2\"><span class=\"text-lg\">🎁</span><h2 class=\"text-base font-extrabold text-primary m-0\">العروض الخاصة النشطة</h2></div><a href=\"/vendor/offers\" class=\"btn btn-secondary btn-sm font-bold text-xs rounded-md\">إدارة العروض</a></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -805,7 +805,7 @@ func VendorDashboard(lang, dir string, data VendorDashboardData) templ.Component
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 87, "</div></div><!-- 4. Price Quotes Strip --><div class=\"glass-panel p-6 mb-0 d-flex flex-col justify-between\" style=\"border-radius:16px;\"><div><div class=\"flex-between items-center mb-4 pb-3 border-b\"><div class=\"d-flex items-center gap-2\"><span class=\"text-lg\">🤝</span><h2 class=\"text-base font-extrabold text-primary m-0\">طلبات التسعير المباشرة</h2></div><a href=\"/vendor/orders\" class=\"btn btn-secondary btn-sm font-bold text-xs\" style=\"border-radius:8px;\">المراجعة</a></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 87, "</div></div><!-- 4. Price Quotes Strip --><div class=\"glass-panel p-6 mb-0 d-flex flex-col justify-between\" style=\"border-radius:16px;\"><div><div class=\"flex-between items-center mb-4 pb-3 border-b\"><div class=\"d-flex items-center gap-2\"><span class=\"text-lg\">🤝</span><h2 class=\"text-base font-extrabold text-primary m-0\">طلبات التسعير المباشرة</h2></div><a href=\"/vendor/orders\" class=\"btn btn-secondary btn-sm font-bold text-xs rounded-md\">المراجعة</a></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -828,7 +828,7 @@ func VendorDashboard(lang, dir string, data VendorDashboardData) templ.Component
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 90, "</div><div class=\"text-xs text-secondary font-bold\">طلب تسعير جديد بانتظار موافقتك</div><div class=\"mt-4\"><a href=\"/vendor/orders\" class=\"btn btn-primary btn-sm font-bold text-xs px-4\" style=\"border-radius:8px;\"><span>مراجعة طلبات التسعير والرد ↗</span></a></div></div>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 90, "</div><div class=\"text-xs text-secondary font-bold\">طلب تسعير جديد بانتظار موافقتك</div><div class=\"mt-4\"><a href=\"/vendor/orders\" class=\"btn btn-primary btn-sm font-bold text-xs px-4 rounded-md\"><span>مراجعة طلبات التسعير والرد ↗</span></a></div></div>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -1181,7 +1181,7 @@ func VendorDashboard(lang, dir string, data VendorDashboardData) templ.Component
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 130, "\" method=\"POST\" class=\"m-0\"><input type=\"hidden\" name=\"status\" value=\"confirmed\"> <input type=\"hidden\" name=\"notes\" value=\"تمت الموافقة على أمر التوريد وبدء التجهيز بالمستودع\"> <button type=\"submit\" class=\"btn btn-secondary w-full justify-center font-bold text-xs py-2 gap-1\" style=\"border-radius:8px;\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 130, "\" method=\"POST\" class=\"m-0\"><input type=\"hidden\" name=\"status\" value=\"confirmed\"> <input type=\"hidden\" name=\"notes\" value=\"تمت الموافقة على أمر التوريد وبدء التجهيز بالمستودع\"> <button type=\"submit\" class=\"btn btn-secondary w-full justify-center font-bold text-xs py-2 gap-1 rounded-md\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -1202,7 +1202,7 @@ func VendorDashboard(lang, dir string, data VendorDashboardData) templ.Component
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 132, "\" method=\"POST\" class=\"m-0\"><input type=\"hidden\" name=\"status\" value=\"delivered\"> <input type=\"hidden\" name=\"notes\" value=\"تم تسليم الشحنة المبردة بالصيدلية وتوثيق الاستلام\"> <button type=\"submit\" class=\"btn btn-primary w-full justify-center font-bold text-xs py-2 gap-1\" style=\"border-radius:8px;\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 132, "\" method=\"POST\" class=\"m-0\"><input type=\"hidden\" name=\"status\" value=\"delivered\"> <input type=\"hidden\" name=\"notes\" value=\"تم تسليم الشحنة المبردة بالصيدلية وتوثيق الاستلام\"> <button type=\"submit\" class=\"btn btn-primary w-full justify-center font-bold text-xs py-2 gap-1 rounded-md\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -1223,7 +1223,7 @@ func VendorDashboard(lang, dir string, data VendorDashboardData) templ.Component
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 134, "\" method=\"POST\" class=\"m-0\" onsubmit=\"return confirm('تأكيد رفض أمر التوريد هذا وإلغائه؟');\"><input type=\"hidden\" name=\"status\" value=\"cancelled\"> <input type=\"hidden\" name=\"notes\" value=\"تم رفض الطلب من قبل إدارة مبيعات المورد\"> <button type=\"submit\" class=\"btn btn-danger w-full justify-center font-bold text-xs py-2\" style=\"border-radius:8px;\"><span>رفض الطلب</span></button></form></div><!-- Option D: Dispatch / Ship with Carrier Details --><form action=\"")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 134, "\" method=\"POST\" class=\"m-0\" onsubmit=\"return confirm('تأكيد رفض أمر التوريد هذا وإلغائه؟');\"><input type=\"hidden\" name=\"status\" value=\"cancelled\"> <input type=\"hidden\" name=\"notes\" value=\"تم رفض الطلب من قبل إدارة مبيعات المورد\"> <button type=\"submit\" class=\"btn btn-danger w-full justify-center font-bold text-xs py-2 rounded-md\"><span>رفض الطلب</span></button></form></div><!-- Option D: Dispatch / Ship with Carrier Details --><form action=\"")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -1283,7 +1283,7 @@ func VendorDashboard(lang, dir string, data VendorDashboardData) templ.Component
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 140, "\" method=\"POST\" class=\"m-0\"><input type=\"hidden\" name=\"status\" value=\"delivered\"> <input type=\"hidden\" name=\"notes\" value=\"تم تسليم الشحنة بالصيدلية وتوثيق الاستلام بنجاح\"> <button type=\"submit\" class=\"btn btn-primary w-full justify-center font-bold text-xs py-2 gap-1\" style=\"border-radius:8px;\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 140, "\" method=\"POST\" class=\"m-0\"><input type=\"hidden\" name=\"status\" value=\"delivered\"> <input type=\"hidden\" name=\"notes\" value=\"تم تسليم الشحنة بالصيدلية وتوثيق الاستلام بنجاح\"> <button type=\"submit\" class=\"btn btn-primary w-full justify-center font-bold text-xs py-2 gap-1 rounded-md\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}

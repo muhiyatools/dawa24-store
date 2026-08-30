@@ -9,6 +9,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/xuri/excelize/v2"
 )
 
@@ -240,7 +241,11 @@ func extractUniqueExcelRoles(rawRows [][]string, roleCol int, companyRoles []Tea
 }
 
 // MatchRoleByName finds the most appropriate platform role for a raw Excel role name.
-func MatchRoleByName(rawRole string, companyRoles []TeamRoleOption) (int64, string, string, bool) {
+func MatchRoleByName(rawRole string, companyRoles []TeamRoleOption, langOptional ...string) (int64, string, string, bool) {
+	lang := "ar"
+	if len(langOptional) > 0 && langOptional[0] != "" {
+		lang = langOptional[0]
+	}
 	normRaw := normalizeArabicText(rawRole)
 
 	// 1. Exact match on role name
@@ -305,7 +310,7 @@ func MatchRoleByName(rawRole string, companyRoles []TeamRoleOption) (int64, stri
 		return companyRoles[0].ID, companyRoles[0].Key, companyRoles[0].Name, false
 	}
 
-	return 0, "org_employee", "موظف (افتراضي)", false
+	return 0, "org_employee", i18n.T(lang, "team.import.default_role_name"), false
 }
 
 // ParseAndValidateTeamRows builds TeamImportRow items from raw rows and mappings.
@@ -316,7 +321,12 @@ func ParseAndValidateTeamRows(
 	defaultRoleID int64,
 	companyRoles []TeamRoleOption,
 	branches []TeamBranchOption,
+	langOptional ...string,
 ) []*TeamImportRow {
+	lang := "ar"
+	if len(langOptional) > 0 && langOptional[0] != "" {
+		lang = langOptional[0]
+	}
 	var rows []*TeamImportRow
 
 	roleByID := make(map[int64]TeamRoleOption)
@@ -370,7 +380,7 @@ func ParseAndValidateTeamRows(
 
 		roleOpt, hasRole := roleByID[targetRoleID]
 		roleKey := "org_employee"
-		roleName := "موظف"
+		roleName := i18n.T(lang, "team.import.role_employee")
 		if hasRole {
 			roleKey = roleOpt.Key
 			roleName = roleOpt.Name
@@ -416,10 +426,10 @@ func ParseAndValidateTeamRows(
 
 		if email == "" || !strings.Contains(email, "@") || !strings.Contains(email, ".") {
 			isValid = false
-			valErr = "البريد الإلكتروني غير صحيح أو مفقود"
+			valErr = i18n.T(lang, "team.import.email_invalid_or_missing")
 		} else if prevRow, duplicate := seenEmails[email]; duplicate {
 			isValid = false
-			valErr = fmt.Sprintf("البريد الإلكتروني مكرر في الملف (صف %d)", prevRow)
+			valErr = fmt.Sprintf(i18n.T(lang, "team.import.email_duplicate_in_file"), prevRow)
 		} else {
 			seenEmails[email] = rowIndex
 		}
@@ -429,7 +439,7 @@ func ParseAndValidateTeamRows(
 			if valErr != "" {
 				valErr += " | "
 			}
-			valErr += "اسم الموظف مفقود"
+			valErr += i18n.T(lang, "team.import.employee_name_missing")
 		}
 
 		status := "ready"

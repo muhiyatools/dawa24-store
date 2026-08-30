@@ -311,7 +311,7 @@ func AdminSettings(values AdminSettingsValues, lang, dir string) templ.Component
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 27, "<span>الهوية البصرية والشعار</span></button></div><!-- 1. Contact Info Form --><div x-show=\"siteSubTab === 'contact'\"><form action=\"/admin/settings/site\" method=\"POST\" style=\"display:flex; flex-direction:column; gap:1.15rem;\"><input type=\"hidden\" name=\"section\" value=\"contact\"><div class=\"form-grid-2\"><div class=\"form-group m-0\"><label class=\"form-label\">اسم المنصة / الموقع (Site Name) *</label> <input type=\"text\" name=\"site_name\" value=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 27, "<span>الهوية البصرية والشعار</span></button></div><!-- 1. Contact Info Form --><div x-show=\"siteSubTab === 'contact'\"><form action=\"/admin/settings/site\" method=\"POST\" class=\"stack-115\"><input type=\"hidden\" name=\"section\" value=\"contact\"><div class=\"form-grid-2\"><div class=\"form-group m-0\"><label class=\"form-label\">اسم المنصة / الموقع (Site Name) *</label> <input type=\"text\" name=\"site_name\" value=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -410,7 +410,7 @@ func AdminSettings(values AdminSettingsValues, lang, dir string) templ.Component
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 35, "<span>حفظ وتحديث بيانات التواصل</span></button></div></form></div><!-- 2. Social Media Links Form --><div x-show=\"siteSubTab === 'socials'\"><form action=\"/admin/settings/site\" method=\"POST\" style=\"display:flex; flex-direction:column; gap:1.15rem;\"><input type=\"hidden\" name=\"section\" value=\"socials\"><p style=\"font-size:0.85rem; color:var(--text-secondary); margin:0 0 0.5rem 0;\">سيتم حفظ هذه الروابط في قاعدة البيانات وعكسها تلقائياً في الفوتر وكافة الأقسام الرسمية للموقع.</p><div class=\"form-grid-2\"><div class=\"form-group m-0\"><label class=\"form-label\">Facebook</label> <input type=\"url\" name=\"social_facebook\" value=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 35, "<span>حفظ وتحديث بيانات التواصل</span></button></div></form></div><!-- 2. Social Media Links Form --><div x-show=\"siteSubTab === 'socials'\"><form action=\"/admin/settings/site\" method=\"POST\" class=\"stack-115\"><input type=\"hidden\" name=\"section\" value=\"socials\"><p style=\"font-size:0.85rem; color:var(--text-secondary); margin:0 0 0.5rem 0;\">سيتم حفظ هذه الروابط في قاعدة البيانات وعكسها تلقائياً في الفوتر وكافة الأقسام الرسمية للموقع.</p><div class=\"form-grid-2\"><div class=\"form-group m-0\"><label class=\"form-label\">Facebook</label> <input type=\"url\" name=\"social_facebook\" value=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

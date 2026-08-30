@@ -3,7 +3,9 @@
 package commerce
 
 import (
+	"crypto/rand"
 	"fmt"
+	"math/big"
 	"time"
 
 	"github.com/muhiya/dawa24-store/internal/shared/apperr"
@@ -120,23 +122,29 @@ type Order struct {
 
 // OrderShipment represents a vendor-specific shipment split from a master order.
 type OrderShipment struct {
-	ID             int64        `json:"id"`
-	PublicID       string       `json:"public_id"`
-	OrderID        int64        `json:"order_id"`
-	OrganizationID int64        `json:"organization_id"`
-	BranchID       *int64       `json:"branch_id,omitempty"`
-	ShipmentNumber string       `json:"shipment_number"`
-	Status         OrderStatus  `json:"status"`
-	Subtotal       money.Amount `json:"subtotal"`
-	ShippingFee    money.Amount `json:"shipping_fee"`
-	TotalAmount    money.Amount `json:"total_amount"`
-	TrackingNumber string       `json:"tracking_number,omitempty"`
-	CarrierName    string       `json:"carrier_name,omitempty"`
-	Lines          []*OrderLine `json:"lines,omitempty"`
-	ShippedAt      *time.Time   `json:"shipped_at,omitempty"`
-	DeliveredAt    *time.Time   `json:"delivered_at,omitempty"`
-	CreatedAt      time.Time    `json:"created_at"`
-	UpdatedAt      time.Time    `json:"updated_at"`
+	ID                   int64        `json:"id"`
+	PublicID             string       `json:"public_id"`
+	OrderID              int64        `json:"order_id"`
+	OrganizationID       int64        `json:"organization_id"`
+	BranchID             *int64       `json:"branch_id,omitempty"`
+	ShipmentNumber       string       `json:"shipment_number"`
+	Status               OrderStatus  `json:"status"`
+	Subtotal             money.Amount `json:"subtotal"`
+	ShippingFee          money.Amount `json:"shipping_fee"`
+	TotalAmount          money.Amount `json:"total_amount"`
+	TrackingNumber       string       `json:"tracking_number,omitempty"`
+	CarrierName          string       `json:"carrier_name,omitempty"`
+	DeliveryCode         string       `json:"delivery_code,omitempty"`
+	DeliveryAttempts     int          `json:"delivery_attempts"`
+	DeliveryLockedUntil  *time.Time   `json:"delivery_locked_until,omitempty"`
+	DeliveryNotes        string       `json:"delivery_notes,omitempty"`
+	CollectedAmountMinor int64        `json:"collected_amount_minor"`
+	DeliveredByCourierAt *time.Time   `json:"delivered_by_courier_at,omitempty"`
+	Lines                []*OrderLine `json:"lines,omitempty"`
+	ShippedAt            *time.Time   `json:"shipped_at,omitempty"`
+	DeliveredAt          *time.Time   `json:"delivered_at,omitempty"`
+	CreatedAt            time.Time    `json:"created_at"`
+	UpdatedAt            time.Time    `json:"updated_at"`
 
 	// Enriched metadata for views
 	OrderNumber           string        `json:"order_number,omitempty"`
@@ -276,6 +284,35 @@ func GenerateOrderNumber(t time.Time, id int64) string {
 // GenerateShipmentNumber formats a shipment partition identifier based on the order number.
 func GenerateShipmentNumber(orderNumber string, seq int) string {
 	return fmt.Sprintf("%s-%d", orderNumber, seq)
+}
+
+// GenerateDeliveryCode produces a secure random 6-digit numeric verification PIN.
+func GenerateDeliveryCode() string {
+	n, err := rand.Int(rand.Reader, big.NewInt(900000))
+	if err != nil {
+		return "582914" // safe fallback
+	}
+	return fmt.Sprintf("%06d", n.Int64()+100000)
+}
+
+// Standard courier delivery errors.
+var (
+	ErrDeliveryLocked       = apperr.Conflict("delivery.locked", "تم تجاوز الحد الأقصى للمحاولات الخاطئة. تم قفل التحقق مؤقتاً لمدة 15 دقيقة لدواعي الأمان.")
+	ErrInvalidDeliveryCode  = apperr.Validation("delivery.invalid_code", "كود تأكيد الاستلام غير صحيح.", map[string]string{"delivery_code": "invalid"})
+	ErrDeliveryNotAvailable = apperr.Conflict("delivery.not_available", "هذه الشحنة غير متاحة للتسليم حالياً.")
+)
+
+// GenerateTrackingNumber produces a formatted tracking reference code for couriers.
+func GenerateTrackingNumber(orderNumber string, seq int) string {
+	n, err := rand.Int(rand.Reader, big.NewInt(9000))
+	randSuffix := int64(1000)
+	if err == nil {
+		randSuffix = n.Int64() + 1000
+	}
+	if orderNumber != "" {
+		return fmt.Sprintf("TRK-%s-%d%04d", orderNumber, seq, randSuffix)
+	}
+	return fmt.Sprintf("TRK-%d%04d", time.Now().Unix()%1000000, randSuffix)
 }
 
 // ValidateLine ensures an order line has positive quantity and consistent totals.

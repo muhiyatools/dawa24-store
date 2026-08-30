@@ -11,6 +11,8 @@ import (
 type TenantSessionsViewData struct {
 	Sessions         []*identity.Session
 	CurrentToken     string
+	CurrentUserID    int64
+	IsSuperAdmin     bool
 	MaxLoginSessions int
 	MaxDevices       int
 	PlanName         string
@@ -47,13 +49,21 @@ templ tenantSessionsContent(lang, dir string, data TenantSessionsViewData) {
 			</div>
 
 			<div style="display:flex; gap:0.5rem; align-items:center;">
+				<a
+ href={ templ.SafeURL(ternary(data.IsVendor, "/vendor/mfa", "/customer/mfa")) }
+ class="btn btn-secondary btn-sm font-bold rounded-lg"
+ 
+>
+					<span>🛡️</span>
+					<span>المصادقة الثنائية (MFA)</span>
+				</a>
 				if data.IsVendor {
-					<a href="/vendor/subscription" class="btn btn-outline-brand btn-sm font-bold">
+					<a href="/vendor/subscription" class="btn btn-outline-brand btn-sm font-bold rounded-lg">
 						@components.IconSparkles("icon-xs")
 						<span>ترقية الباقة</span>
 					</a>
 				} else {
-					<a href="/customer/subscription" class="btn btn-outline-brand btn-sm font-bold">
+					<a href="/customer/subscription" class="btn btn-outline-brand btn-sm font-bold rounded-lg">
 						@components.IconSparkles("icon-xs")
 						<span>ترقية الباقة</span>
 					</a>
@@ -184,13 +194,17 @@ templ tenantSessionsContent(lang, dir string, data TenantSessionsViewData) {
 											<span>تسجيل الخروج</span>
 										</button>
 									</form>
-								} else {
+								} else if sess.UserID == data.CurrentUserID || data.IsSuperAdmin {
 									<form action={ templ.SafeURL(ternary(data.IsVendor, "/vendor/sessions/revoke", "/customer/sessions/revoke")) } method="POST" class="m-0" onsubmit="return confirm('إنهاء جلسة هذا الجهاز؟');">
 										<input type="hidden" name="token" value={ sess.Token } />
 										<button type="submit" class="btn btn-outline-danger btn-xs font-semibold" style="padding:0.35rem 0.75rem;">
 											<span>إنهاء</span>
 										</button>
 									</form>
+								} else {
+									<span class="badge badge-slate text-xs font-medium" style="padding:0.25rem 0.5rem;">
+										مستخدم آخر
+									</span>
 								}
 							</div>
 						</div>

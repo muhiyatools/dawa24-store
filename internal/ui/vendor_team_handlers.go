@@ -293,6 +293,7 @@ func (h *UIHandler) VendorTeamImportMapSubmit(w http.ResponseWriter, r *http.Req
 		session.DefaultRoleID,
 		session.CompanyRoles,
 		session.Branches,
+		langOf(r),
 	)
 
 	// Check existing user accounts

@@ -59,6 +59,12 @@ func (m *mockCommerceRepoForSupplierCartTest) ListShipmentsByVendor(ctx context.
 func (m *mockCommerceRepoForSupplierCartTest) GetShipmentByID(ctx context.Context, id int64) (*commerce.OrderShipment, error) {
 	return nil, nil
 }
+func (m *mockCommerceRepoForSupplierCartTest) GetShipmentForDeliveryByTracking(ctx context.Context, tracking string) (*commerce.OrderShipment, error) {
+	return nil, nil
+}
+func (m *mockCommerceRepoForSupplierCartTest) VerifyAndCompleteDelivery(ctx context.Context, shipmentID int64, deliveryCode, notes string, collectedAmountMinor int64) (*commerce.OrderShipment, error) {
+	return nil, nil
+}
 func (m *mockCommerceRepoForSupplierCartTest) UpdateShipmentStatus(ctx context.Context, id int64, from, to commerce.OrderStatus, history commerce.OrderStatusHistory) error {
 	return nil
 }

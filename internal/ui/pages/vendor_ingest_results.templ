@@ -230,7 +230,7 @@ templ importRowsTable(view VendorImportView) {
 						<tr class="rule-bottom">
 							<td class="text-center tabular-nums font-bold text-muted">{ fmt.Sprint(row.SourceRow) }</td>
 							<td>
-								<div class="fw-700 text-primary" style="font-size:0.9rem;">{ row.DisplayName }</div>
+								<div class="fw-700 text-primary text-09">{ row.DisplayName }</div>
 								if row.SourceCode != "" {
 									<div class="text-xs text-muted" style="margin-top:3px;">
 										كود الصنف بالملف: <code class="text-xs" style="background:var(--surface-sunken); padding:1px 4px; border-radius:4px;">{ row.SourceCode }</code>

@@ -228,7 +228,7 @@ func AdminDashboard(stats AdminDashboardStats, pendingOrgs []*org.Organization, 
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "</strong></span> <a href=\"/admin/orders\" class=\"text-accent fw-700\" style=\"text-decoration:none;\">عرض الكل ←</a></div></div><!-- KPI 3: Organizations & Supply Network --><div style=\"background:var(--surface-raised); border:1px solid var(--border); border-radius:16px; padding:1.25rem; box-shadow:var(--shadow-sm); display:flex; flex-direction:column; justify-content:space-between;\"><div style=\"display:flex; justify-content:space-between; align-items:center;\"><span style=\"font-size:0.82rem; font-weight:800; color:var(--text-secondary);\">شبكة الإمداد والمنشآت (Network)</span><div style=\"width:36px; height:36px; border-radius:10px; background:rgba(168, 85, 247, 0.12); color:#a855f7; display:flex; align-items:center; justify-content:center; border:1px solid rgba(168, 85, 247, 0.25);\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "</strong></span> <a href=\"/admin/orders\" class=\"text-accent fw-700 no-underline\">عرض الكل ←</a></div></div><!-- KPI 3: Organizations & Supply Network --><div style=\"background:var(--surface-raised); border:1px solid var(--border); border-radius:16px; padding:1.25rem; box-shadow:var(--shadow-sm); display:flex; flex-direction:column; justify-content:space-between;\"><div style=\"display:flex; justify-content:space-between; align-items:center;\"><span style=\"font-size:0.82rem; font-weight:800; color:var(--text-secondary);\">شبكة الإمداد والمنشآت (Network)</span><div style=\"width:36px; height:36px; border-radius:10px; background:rgba(168, 85, 247, 0.12); color:#a855f7; display:flex; align-items:center; justify-content:center; border:1px solid rgba(168, 85, 247, 0.25);\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -356,7 +356,7 @@ func AdminDashboard(stats AdminDashboardStats, pendingOrgs []*org.Organization, 
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 31, "</strong></span> <a href=\"/admin/approvals\" class=\"text-accent fw-700\" style=\"text-decoration:none;\">مراجعة الكل ←</a></div></div></div><!-- ══════════════════════════════════════════\n\t\t\t     2. MID SECTION (2-COLUMNS: OPERATIONS & ANALYTICS)\n\t\t\t══════════════════════════════════════════ --><div style=\"display:grid; grid-template-columns:repeat(auto-fit, minmax(420px, 1fr)); gap:1.25rem; margin-bottom:1.25rem; align-items:start;\"><!-- Column 1: Live Orders & Catalog Activity --><div style=\"background:var(--surface-raised); border:1px solid var(--border); border-radius:18px; padding:1.25rem 1.5rem; box-shadow:var(--shadow-sm);\"><div style=\"display:flex; justify-content:space-between; align-items:center; padding-bottom:0.75rem; border-bottom:1px solid var(--border); margin-bottom:1rem;\"><div><h3 style=\"font-size:1.05rem; font-weight:800; color:var(--text); margin:0; display:flex; align-items:center; gap:0.4rem;\"><span>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 31, "</strong></span> <a href=\"/admin/approvals\" class=\"text-accent fw-700 no-underline\">مراجعة الكل ←</a></div></div></div><!-- ══════════════════════════════════════════\n\t\t\t     2. MID SECTION (2-COLUMNS: OPERATIONS & ANALYTICS)\n\t\t\t══════════════════════════════════════════ --><div style=\"display:grid; grid-template-columns:repeat(auto-fit, minmax(420px, 1fr)); gap:1.25rem; margin-bottom:1.25rem; align-items:start;\"><!-- Column 1: Live Orders & Catalog Activity --><div style=\"background:var(--surface-raised); border:1px solid var(--border); border-radius:18px; padding:1.25rem 1.5rem; box-shadow:var(--shadow-sm);\"><div style=\"display:flex; justify-content:space-between; align-items:center; padding-bottom:0.75rem; border-bottom:1px solid var(--border); margin-bottom:1rem;\"><div><h3 style=\"font-size:1.05rem; font-weight:800; color:var(--text); margin:0; display:flex; align-items:center; gap:0.4rem;\"><span>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -421,12 +421,12 @@ func AdminDashboard(stats AdminDashboardStats, pendingOrgs []*org.Organization, 
 					return templ_7745c5c3_Err
 				}
 			} else {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 38, "<div style=\"border:1px solid var(--border); border-radius:12px; overflow:hidden; background:var(--surface-sunken);\"><table class=\"data-table\" style=\"font-size:0.8rem\"><thead><tr style=\"background:var(--surface-raised);\"><th style=\"padding:0.5rem 0.75rem;\"># الطلب</th><th style=\"padding:0.5rem 0.75rem;\">المنشأة / العميل</th><th style=\"padding:0.5rem 0.75rem;\">المبلغ الإجمالي</th><th style=\"padding:0.5rem 0.75rem;\">الحالة</th><th style=\"padding:0.5rem 0.75rem;\" class=\"text-end\">التاريخ</th></tr></thead> <tbody>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 38, "<div style=\"border:1px solid var(--border); border-radius:12px; overflow:hidden; background:var(--surface-sunken);\"><table class=\"data-table\" style=\"font-size:0.8rem\"><thead><tr style=\"background:var(--surface-raised);\"><th class=\"pad-sm\"># الطلب</th><th class=\"pad-sm\">المنشأة / العميل</th><th class=\"pad-sm\">المبلغ الإجمالي</th><th class=\"pad-sm\">الحالة</th><th class=\"text-end pad-sm\">التاريخ</th></tr></thead> <tbody>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				for _, ord := range stats.RecentOrders {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 39, "<tr class=\"rule-bottom\"><td style=\"padding:0.5rem 0.75rem;\" class=\"tabular-nums fw-800 text-primary\"><a href=\"/admin/orders\" style=\"color:inherit; text-decoration:none;\">ORD-#")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 39, "<tr class=\"rule-bottom\"><td class=\"tabular-nums fw-800 text-primary pad-sm\"><a href=\"/admin/orders\" style=\"color:inherit; text-decoration:none;\">ORD-#")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -439,7 +439,7 @@ func AdminDashboard(stats AdminDashboardStats, pendingOrgs []*org.Organization, 
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 40, "</a></td><td style=\"padding:0.5rem 0.75rem;\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 40, "</a></td><td class=\"pad-sm\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -480,7 +480,7 @@ func AdminDashboard(stats AdminDashboardStats, pendingOrgs []*org.Organization, 
 							return templ_7745c5c3_Err
 						}
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 45, "</td><td style=\"padding:0.5rem 0.75rem;\" class=\"tabular-nums fw-900 text-emerald\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 45, "</td><td class=\"tabular-nums fw-900 text-emerald pad-sm\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -493,7 +493,7 @@ func AdminDashboard(stats AdminDashboardStats, pendingOrgs []*org.Organization, 
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 46, " ج.م</td><td style=\"padding:0.5rem 0.75rem;\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 46, " ج.م</td><td class=\"pad-sm\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -531,7 +531,7 @@ func AdminDashboard(stats AdminDashboardStats, pendingOrgs []*org.Organization, 
 							return templ_7745c5c3_Err
 						}
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 52, "</td><td style=\"padding:0.5rem 0.75rem;\" class=\"tabular-nums text-muted text-end text-xs\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 52, "</td><td class=\"tabular-nums text-muted text-end text-xs pad-sm\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}

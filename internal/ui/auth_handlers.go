@@ -2,9 +2,15 @@ package ui
 
 import (
 	"context"
+	"crypto/hmac"
+	"crypto/sha256"
+	"encoding/base64"
+	"encoding/hex"
+	"encoding/json"
 	"net/http"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/muhiya/dawa24-store/internal/modules/hr"
@@ -124,15 +130,31 @@ func (h *UIHandler) LoginSubmit(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if res.RequiresMFA {
-		// No challenge UI exists yet (PLAN_V6 Task C.9). Refusing is the safe
-		// failure: never issue a session to an account that asked for a second
-		// factor we cannot verify.
-		var uid int64
+		uid := int64(0)
+		uEmail := email
 		if res.User != nil {
 			uid = res.User.ID
+			uEmail = res.User.Email
 		}
-		h.log.WarnContext(ctx, "login refused: MFA required but no challenge implemented", "user_id", uid)
-		http.Redirect(w, r, "/auth/login?error=mfa_unavailable", http.StatusSeeOther)
+		p := &pendingMFAPayload{
+			UserID:      uid,
+			Email:       uEmail,
+			OrgID:       0,
+			RememberMe:  rememberMe == "1" || rememberMe == "true" || rememberMe == "",
+			RedirectURL: redirectURL,
+			ExpiresAt:   time.Now().Add(5 * time.Minute).Unix(),
+		}
+		signedToken := h.signPendingMFAToken(p)
+		http.SetCookie(w, &http.Cookie{
+			Name:     "dawa24_mfa_pending",
+			Value:    signedToken,
+			Path:     "/",
+			HttpOnly: true,
+			SameSite: http.SameSiteLaxMode,
+			MaxAge:   300, // 5 minutes
+		})
+		h.log.InfoContext(ctx, "mfa challenge required for login", "user_id", uid)
+		http.Redirect(w, r, "/auth/mfa-verify?redirect="+redirectURL, http.StatusSeeOther)
 		return
 	}
 
@@ -165,6 +187,164 @@ func (h *UIHandler) LoginSubmit(w http.ResponseWriter, r *http.Request) {
 	}
 
 	http.Redirect(w, r, redirectURL, http.StatusSeeOther)
+}
+
+// MFAVerifyPage renders the 6-digit TOTP challenge screen during login.
+func (h *UIHandler) MFAVerifyPage(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	lang, dir := h.localeAndDir(r)
+	redirectURL := r.URL.Query().Get("redirect")
+	errorKey := r.URL.Query().Get("error")
+
+	cookie, err := r.Cookie("dawa24_mfa_pending")
+	if err != nil || cookie == nil || cookie.Value == "" {
+		http.Redirect(w, r, "/auth/login?error=mfa_session_expired", http.StatusSeeOther)
+		return
+	}
+
+	payload, err := h.parsePendingMFAToken(cookie.Value)
+	if err != nil || payload == nil || time.Now().Unix() > payload.ExpiresAt {
+		http.Redirect(w, r, "/auth/login?error=mfa_session_expired", http.StatusSeeOther)
+		return
+	}
+
+	var errorMsg string
+	if errorKey == "invalid_code" {
+		errorMsg = i18n.T(lang, "mfa.code_invalid_or_expired")
+	} else if errorKey != "" {
+		errorMsg = errorKey
+	}
+
+	h.renderPage(ctx, w, "render mfa verify page", pages.MFAVerifyPage(lang, dir, payload.Email, errorMsg, redirectURL))
+}
+
+// MFAVerifySubmit processes the 6-digit TOTP or backup code and issues the full session cookie.
+func (h *UIHandler) MFAVerifySubmit(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	cookie, err := r.Cookie("dawa24_mfa_pending")
+	if err != nil || cookie == nil || cookie.Value == "" {
+		http.Redirect(w, r, "/auth/login?error=mfa_session_expired", http.StatusSeeOther)
+		return
+	}
+
+	payload, err := h.parsePendingMFAToken(cookie.Value)
+	if err != nil || payload == nil || time.Now().Unix() > payload.ExpiresAt {
+		http.Redirect(w, r, "/auth/login?error=mfa_session_expired", http.StatusSeeOther)
+		return
+	}
+
+	code := strings.TrimSpace(r.PostFormValue("code"))
+	recoveryCode := strings.TrimSpace(r.PostFormValue("recovery_code"))
+	targetCode := code
+	if targetCode == "" {
+		targetCode = recoveryCode
+	}
+
+	redirectURL := r.PostFormValue("redirect")
+	if redirectURL == "" {
+		redirectURL = payload.RedirectURL
+	}
+
+	if targetCode == "" {
+		http.Redirect(w, r, "/auth/mfa-verify?error=invalid_code&redirect="+redirectURL, http.StatusSeeOther)
+		return
+	}
+
+	if h.idSvc == nil {
+		http.Redirect(w, r, "/auth/login?error=auth_service_unavailable", http.StatusSeeOther)
+		return
+	}
+
+	valid, err := h.idSvc.VerifyMFA(ctx, payload.UserID, targetCode)
+	if err != nil || !valid {
+		h.log.WarnContext(ctx, "mfa verification failed", "user_id", payload.UserID, "error", err)
+		http.Redirect(w, r, "/auth/mfa-verify?error=invalid_code&redirect="+redirectURL, http.StatusSeeOther)
+		return
+	}
+
+	// MFA verified! Clear pending cookie
+	http.SetCookie(w, &http.Cookie{
+		Name:     "dawa24_mfa_pending",
+		Value:    "",
+		Path:     "/",
+		HttpOnly: true,
+		MaxAge:   -1,
+	})
+
+	sess, err := h.idSvc.CompleteMFALogin(ctx, payload.UserID, payload.OrgID, r.RemoteAddr, r.UserAgent())
+	if err != nil {
+		h.log.ErrorContext(ctx, "complete mfa login error", "user_id", payload.UserID, "error", err)
+		http.Redirect(w, r, "/auth/login?error=auth_service_unavailable", http.StatusSeeOther)
+		return
+	}
+
+	maxAge := 86400 * 30
+	if !payload.RememberMe {
+		maxAge = 86400
+	}
+
+	http.SetCookie(w, &http.Cookie{
+		Name:     "dawa24_session",
+		Value:    sess.Token,
+		Path:     "/",
+		HttpOnly: true,
+		SameSite: http.SameSiteLaxMode,
+		MaxAge:   maxAge,
+	})
+
+	if sess.ActiveOrgID > 0 {
+		go h.EnsureOrgAIGatewayProvisioned(context.Background(), sess.ActiveOrgID)
+	}
+
+	if redirectURL == "" {
+		redirectURL = landingPathForSession(sess)
+	}
+
+	http.Redirect(w, r, redirectURL, http.StatusSeeOther)
+}
+
+type pendingMFAPayload struct {
+	UserID      int64  `json:"uid"`
+	Email       string `json:"em"`
+	OrgID       int64  `json:"oid"`
+	RememberMe  bool   `json:"rm"`
+	RedirectURL string `json:"rd,omitempty"`
+	ExpiresAt   int64  `json:"exp"`
+}
+
+func (h *UIHandler) signPendingMFAToken(p *pendingMFAPayload) string {
+	b, _ := json.Marshal(p)
+	payloadB64 := base64.RawURLEncoding.EncodeToString(b)
+	sigKey := []byte("dawa24_mfa_intermediate_key_secret_2026")
+	mac := hmac.New(sha256.New, sigKey)
+	mac.Write([]byte(payloadB64))
+	sig := hex.EncodeToString(mac.Sum(nil))
+	return payloadB64 + "." + sig
+}
+
+func (h *UIHandler) parsePendingMFAToken(tokenStr string) (*pendingMFAPayload, error) {
+	parts := strings.Split(tokenStr, ".")
+	if len(parts) != 2 {
+		return nil, identity.ErrInvalidCredentials
+	}
+	payloadB64, sig := parts[0], parts[1]
+	sigKey := []byte("dawa24_mfa_intermediate_key_secret_2026")
+	mac := hmac.New(sha256.New, sigKey)
+	mac.Write([]byte(payloadB64))
+	expectedSig := hex.EncodeToString(mac.Sum(nil))
+	if hmac.Equal([]byte(sig), []byte(expectedSig)) == false {
+		return nil, identity.ErrInvalidCredentials
+	}
+
+	b, err := base64.RawURLEncoding.DecodeString(payloadB64)
+	if err != nil {
+		return nil, err
+	}
+	var p pendingMFAPayload
+	if err := json.Unmarshal(b, &p); err != nil {
+		return nil, err
+	}
+	return &p, nil
 }
 
 func (h *UIHandler) LogoutSubmit(w http.ResponseWriter, r *http.Request) {

@@ -404,7 +404,7 @@ templ PharmacyDashboard(lang, dir string, data PharmacyDashboardData, perms []st
 												<span class="tabular-nums">مطابق { fmt.Sprintf("%d", r.Stats.MatchedRows) } من { fmt.Sprintf("%d", r.Stats.TotalRows) } صنف</span>
 											</div>
 										</div>
-										<div style="display:flex; align-items:center; gap:0.6rem;">
+										<div class="inline-row-06">
 											@components.Badge(components.BadgeProps{
 												Label: FormatSmartOrderStatusLabel(r.Status),
 												Tone:  FormatSmartOrderStatusTone(r.Status),
@@ -428,7 +428,7 @@ templ PharmacyDashboard(lang, dir string, data PharmacyDashboardData, perms []st
 					<!-- Wallet Widget -->
 					<div class="card" style="margin:0; padding:1.25rem 1.4rem; border-radius:var(--radius-xl); border:1px solid var(--border); background:var(--surface-raised); box-shadow:var(--shadow-xs);">
 						<div class="flex-between mb-md" style="padding-bottom:0.75rem; border-bottom:1px solid var(--border);">
-							<div style="display:flex; align-items:center; gap:0.4rem;">
+							<div class="inline-row-04">
 								@components.IconWallet("icon-sm text-primary")
 								<h2 class="card-title" style="margin:0; font-size:1.05rem; font-weight:800; color:var(--text);">المحفظة الرقمية</h2>
 							</div>
@@ -491,7 +491,7 @@ templ PharmacyDashboard(lang, dir string, data PharmacyDashboardData, perms []st
 					<!-- Branches Widget -->
 					<div class="card" style="margin:0; padding:1.25rem 1.4rem; border-radius:var(--radius-xl); border:1px solid var(--border); background:var(--surface-raised); box-shadow:var(--shadow-xs);">
 						<div class="flex-between mb-md" style="padding-bottom:0.75rem; border-bottom:1px solid var(--border);">
-							<div style="display:flex; align-items:center; gap:0.4rem;">
+							<div class="inline-row-04">
 								@components.IconBuilding("icon-sm text-primary")
 								<h2 class="card-title" style="margin:0; font-size:1.05rem; font-weight:800; color:var(--text);">فروع الصيدلية</h2>
 							</div>
@@ -538,7 +538,7 @@ templ PharmacyDashboard(lang, dir string, data PharmacyDashboardData, perms []st
 					if data.Subscription != nil {
 						<div class="card" style="margin:0; padding:1.25rem 1.4rem; border-radius:var(--radius-xl); border:1px solid var(--border); background:var(--surface-raised); box-shadow:var(--shadow-xs);">
 							<div class="flex-between mb-md" style="padding-bottom:0.6rem; border-bottom:1px solid var(--border);">
-								<div style="display:flex; align-items:center; gap:0.4rem;">
+								<div class="inline-row-04">
 									<span style="color:#7c3aed;">@components.IconSparkles("icon-sm")</span>
 									<span style="font-size:0.95rem; font-weight:800; color:var(--text);">حصة الذكاء الاصطناعي</span>
 								</div>
@@ -579,7 +579,7 @@ templ PharmacyDashboard(lang, dir string, data PharmacyDashboardData, perms []st
 					if len(data.Offers) > 0 {
 						<div class="card" style="margin:0; padding:1.25rem 1.4rem; border-radius:var(--radius-xl); border:1px solid var(--border); background:var(--surface-raised); box-shadow:var(--shadow-xs);">
 							<div class="flex-between mb-md" style="padding-bottom:0.75rem; border-bottom:1px solid var(--border);">
-								<div style="display:flex; align-items:center; gap:0.4rem;">
+								<div class="inline-row-04">
 									<span style="color:#e11d48;">@components.IconMegaphone("icon-sm")</span>
 									<h2 class="card-title" style="margin:0; font-size:1.05rem; font-weight:800; color:var(--text);">عروض توريد مقترحة</h2>
 								</div>

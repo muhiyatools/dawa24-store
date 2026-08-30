@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 	"strconv"
+	"strings"
 
 	"github.com/go-chi/chi/v5"
 
@@ -96,8 +97,13 @@ func (h *UIHandler) VendorOrderStatusSubmit(w http.ResponseWriter, r *http.Reque
 			h.redirectWithNotice(w, r, "/vendor/orders", "error", i18n.T(langOf(r), "vendor.orders.update_shipment_status_error_prefix")+h.safeMessage(err, langOf(r)))
 			return
 		}
-		if carrier := r.PostFormValue("carrier"); carrier != "" || r.PostFormValue("tracking") != "" {
-			_ = h.commSvc.SetShipmentTracking(ctx, shipmentID, carrier, r.PostFormValue("tracking"))
+		trackingVal := strings.TrimSpace(r.PostFormValue("tracking"))
+		carrier := strings.TrimSpace(r.PostFormValue("carrier"))
+		if toStatus == string(commerce.StatusShipped) && trackingVal == "" {
+			trackingVal = commerce.GenerateTrackingNumber(fmt.Sprintf("%d", shipmentID), 1)
+		}
+		if carrier != "" || trackingVal != "" {
+			_ = h.commSvc.SetShipmentTracking(ctx, shipmentID, carrier, trackingVal)
 		}
 
 		// Dispatch live notification to customer

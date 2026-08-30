@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/muhiya/dawa24-store/internal/modules/smartorder"
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/ui/pages"
 )
 
@@ -30,6 +31,7 @@ const utf8BOM = "\xEF\xBB\xBF"
 // SmartOrderExportCSV streams the whole run as a spreadsheet.
 func (h *UIHandler) SmartOrderExportCSV(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
+	lang := langOf(r)
 	run, ok := h.smartOrderRun(w, r)
 	if !ok {
 		return
@@ -38,7 +40,7 @@ func (h *UIHandler) SmartOrderExportCSV(w http.ResponseWriter, r *http.Request) 
 	lines, _, err := h.smartOrderSvc.Results(ctx, run, smartorder.LineFilter{All: true})
 	if err != nil {
 		h.log.ErrorContext(ctx, "export smart order results", "run_id", run.ID, "error", err)
-		http.Error(w, "تعذّر تصدير النتائج", http.StatusInternalServerError)
+		http.Error(w, i18n.T(lang, "smartorder.export_error"), http.StatusInternalServerError)
 		return
 	}
 
@@ -50,11 +52,19 @@ func (h *UIHandler) SmartOrderExportCSV(w http.ResponseWriter, r *http.Request) 
 	out := csv.NewWriter(w)
 	defer out.Flush()
 
-	_ = out.Write([]string{
-		"رقم الصف", "الصنف كما ورد", "الكود", "الباركود",
-		"رقم المنتج المطابق", "اسم المنتج المطابق",
-		"طريقة المطابقة", "نسبة الثقة", "الكمية", "الحالة", "السبب",
-	})
+	if lang == "en" {
+		_ = out.Write([]string{
+			"Row #", "Raw Name", "SKU", "Barcode",
+			"Matched Product ID", "Matched Product Name",
+			"Match Method", "Confidence", "Quantity", "Status", "Reason",
+		})
+	} else {
+		_ = out.Write([]string{
+			"رقم الصف", "الصنف كما ورد", "الكود", "الباركود",
+			"رقم المنتج المطابق", "اسم المنتج المطابق",
+			"طريقة المطابقة", "نسبة الثقة", "الكمية", "الحالة", "السبب",
+		})
+	}
 
 	for _, l := range lines {
 		matchedID, matchedName := "", ""

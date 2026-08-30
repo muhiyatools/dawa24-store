@@ -38,6 +38,8 @@ type Repository interface {
 	// so two vendor staff acting at once cannot both advance the same shipment.
 	UpdateShipmentStatus(ctx context.Context, id int64, from, to OrderStatus, history OrderStatusHistory) error
 	SetShipmentTracking(ctx context.Context, id int64, carrier, tracking string) error
+	GetShipmentForDeliveryByTracking(ctx context.Context, tracking string) (*OrderShipment, error)
+	VerifyAndCompleteDelivery(ctx context.Context, shipmentID int64, deliveryCode string, notes string, collectedAmountMinor int64) (*OrderShipment, error)
 	ListOrderHistory(ctx context.Context, orderID int64) ([]*OrderStatusHistory, error)
 	RateOrder(ctx context.Context, orderID int64, customerID int64, rating float64, review string) error
 

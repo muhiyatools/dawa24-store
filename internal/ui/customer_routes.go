@@ -282,6 +282,11 @@ func (h *UIHandler) registerCustomerCompanyRoutes(r chi.Router) {
 	r.Group(func(g chi.Router) {
 		g.Use(authctx.RequireTenantPagePermission("pharmacy.session.view"))
 		g.Get("/customer/sessions", h.TenantSessionsPage)
+		g.Get("/customer/mfa", h.CustomerMFAPage)
+		g.Post("/customer/mfa/setup", h.CustomerMFASetupSubmit)
+		g.Post("/customer/mfa/confirm", h.CustomerMFAConfirmSubmit)
+		g.Post("/customer/mfa/disable", h.CustomerMFADisableSubmit)
+		g.Post("/customer/mfa/regenerate-codes", h.CustomerMFARegenerateRecoveryCodesSubmit)
 	})
 	r.Group(func(g chi.Router) {
 		g.Use(authctx.RequireTenantPagePermission("pharmacy.session.revoke"))

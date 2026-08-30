@@ -61,7 +61,7 @@ templ SettingsEmployees(employees []*org.EmployeeView, branches []*org.Branch, r
 					</div>
 				</div>
 
-				<form method="POST" action="/settings/employees/create" style="display:flex; flex-direction:column; gap:1.15rem;">
+				<form method="POST" action="/settings/employees/create" class="stack-115">
 					<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(240px, 1fr)); gap:1rem;">
 						<div>
 							<label class="form-label">
@@ -273,13 +273,13 @@ templ SettingsEmployees(employees []*org.EmployeeView, branches []*org.Branch, r
 						<table style="width:100%; text-align:start; border-collapse:collapse; font-size:0.875rem;">
 							<thead>
 								<tr style="border-bottom:1px solid var(--border); color:var(--text-muted); font-size:0.775rem; text-transform:uppercase;">
-									<th style="padding:0.75rem 1rem;">الموظف</th>
-									<th style="padding:0.75rem 1rem;">المسمى والكود</th>
-									<th style="padding:0.75rem 1rem;">الدور</th>
-									<th style="padding:0.75rem 1rem;">الفرع</th>
-									<th style="padding:0.75rem 1rem;">الرتبة</th>
-									<th style="padding:0.75rem 1rem;">الراتب الأساسي</th>
-									<th style="padding:0.75rem 1rem;">الحالة</th>
+									<th class="pad-md">الموظف</th>
+									<th class="pad-md">المسمى والكود</th>
+									<th class="pad-md">الدور</th>
+									<th class="pad-md">الفرع</th>
+									<th class="pad-md">الرتبة</th>
+									<th class="pad-md">الراتب الأساسي</th>
+									<th class="pad-md">الحالة</th>
 									<th style="padding:0.75rem 1rem; text-align:end;">الإجراءات</th>
 								</tr>
 							</thead>

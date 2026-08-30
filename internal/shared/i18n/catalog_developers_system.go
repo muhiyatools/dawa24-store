@@ -79,4 +79,20 @@ func loadDevelopersAndSystemKeys(e *engine) {
 	addKey(e, "ai.feat.auto_assistant", "dev", "المساعد الآلي الذكي", "Automated Smart Assistant", "AI feature name")
 	addKey(e, "ai.feat.voice_transcribe", "dev", "تحويل الأوامر الصوتية", "Voice Command Transcription", "AI feature name")
 	addKey(e, "ai.feat.vendor_catalog_generate", "dev", "استيراد وتوليد الكتالوج الذكي", "Import & Generate Smart Catalogue", "AI feature name")
+
+	// --- MFA & Security ---
+	addKey(e, "mfa.user_not_found", "auth", "تعذر العثور على بيانات المستخدم.", "Unable to find user data.", "MFA user lookup error")
+	addKey(e, "mfa.setup_failed", "auth", "تعذر إنشاء بيانات المصادقة الثنائية، يرجى المحاولة لاحقاً.", "Could not generate MFA setup data, please try again later.", "MFA setup error")
+	addKey(e, "mfa.scan_qr_instruction", "auth", "امسح رمز الاستجابة السريعة (QR Code) بتطبيق Google Authenticator ثم أدخل رمز التحقق للتفعيل.", "Scan the QR code with Google Authenticator and enter the verification code to activate.", "MFA QR instructions")
+	addKey(e, "mfa.code_six_digits", "auth", "رمز التحقق يجب أن يتكون من 6 أرقام.", "Verification code must be exactly 6 digits.", "MFA validation")
+	addKey(e, "mfa.code_invalid_or_expired", "auth", "رمز التحقق غير صحيح أو انتهت صلاحيته. يرجى إعادة المحاولة.", "Invalid or expired verification code. Please try again.", "MFA invalid code")
+	addKey(e, "mfa.activated_success", "auth", "تم تفعيل المصادقة الثنائية بنجاح! احفظ رموز الاسترداد الاحتياطية في مكان آمن.", "Two-factor authentication enabled successfully! Store your backup recovery codes in a safe place.", "MFA success notice")
+	addKey(e, "mfa.password_required_disable", "auth", "يجب إدخال كلمة المرور الحالية لتأكيد تعطيل المصادقة الثنائية.", "Current password is required to disable two-factor authentication.", "MFA disable validation")
+	addKey(e, "mfa.disable_failed", "auth", "تعذر تعطيل المصادقة الثنائية، تأكد من صحة كلمة المرور.", "Could not disable two-factor authentication, please verify your password.", "MFA disable error")
+	addKey(e, "mfa.disabled_success", "auth", "تم تعطيل المصادقة الثنائية بنجاح.", "Two-factor authentication disabled successfully.", "MFA disabled notice")
+	addKey(e, "mfa.password_required_regen", "auth", "يجب إدخال كلمة المرور لتوليد رموز استرداد جديدة.", "Password is required to regenerate backup codes.", "MFA regen validation")
+	addKey(e, "mfa.regen_failed", "auth", "تعذر توليد رموز الاسترداد، تأكد من صحة كلمة المرور.", "Could not regenerate backup recovery codes, please verify your password.", "MFA regen error")
+	addKey(e, "mfa.regen_success", "auth", "تم توليد 8 رموز استرداد احتياطية جديدة بنجاح! احفظها في مكان آمن.", "8 new backup recovery codes generated successfully! Store them in a safe place.", "MFA regen success")
+	addKey(e, "tenant.sessions.super_admin_only_revoke", "org", "عذراً، إنهاء جلسات المستخدمين الآخرين في المنشأة متاح حصرياً للمشرف العام Super Admin.", "Sorry, terminating other users' sessions is restricted to Super Admin.", "Session revoke restriction")
+	addKey(e, "admin.gateway.invalid_credentials", "dev", "بيانات الاعتماد المُدخلة غير صالحة.", "Invalid credentials entered.", "Gateway credentials error")
 }

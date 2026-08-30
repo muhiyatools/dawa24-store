@@ -53,6 +53,8 @@ func (h *UIHandler) TenantSessionsPage(w http.ResponseWriter, r *http.Request) {
 	viewData := pages.TenantSessionsViewData{
 		Sessions:         allSessions,
 		CurrentToken:     currentToken,
+		CurrentUserID:    actor.UserID,
+		IsSuperAdmin:     actor.IsSuperAdmin(),
 		MaxLoginSessions: maxSessions,
 		MaxDevices:       maxDevices,
 		PlanName:         planName,
@@ -81,7 +83,15 @@ func (h *UIHandler) TenantSessionRevokeSubmit(w http.ResponseWriter, r *http.Req
 	}
 
 	if token != "" && h.idSvc != nil {
-		if actor.OrganizationID > 0 {
+		// Rule: No user can revoke another user's session in the organization unless super_admin
+		if targetSess, err := h.idSvc.ValidateSession(ctx, token); err == nil && targetSess != nil {
+			if targetSess.UserID != actor.UserID && !actor.IsSuperAdmin() {
+				h.redirectWithNotice(w, r, dest, "error", i18n.T(lang, "tenant.sessions.super_admin_only_revoke"))
+				return
+			}
+		}
+
+		if actor.OrganizationID > 0 && actor.IsSuperAdmin() {
 			_ = h.idSvc.RevokeOrgSession(ctx, actor.OrganizationID, token)
 		} else {
 			_ = h.idSvc.RevokeSession(ctx, token, actor.UserID)
@@ -114,7 +124,7 @@ func (h *UIHandler) TenantSessionRevokeAllSubmit(w http.ResponseWriter, r *http.
 	}
 
 	if h.idSvc != nil {
-		if actor.OrganizationID > 0 {
+		if actor.OrganizationID > 0 && actor.IsSuperAdmin() {
 			_ = h.idSvc.RevokeAllOtherOrgSessions(ctx, actor.OrganizationID, currentToken)
 		} else {
 			_ = h.idSvc.RevokeAllOtherUserSessions(ctx, actor.UserID, currentToken)

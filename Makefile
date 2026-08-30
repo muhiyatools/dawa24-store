@@ -177,7 +177,7 @@ check-file-size-count: ## Fail if the number of oversized Go files grows
 
 .PHONY: check-hardcoded-arabic
 check-hardcoded-arabic: ## Fail if Arabic string literals in Go grow
-	@pat=$$(printf '\330'); n=$$(LC_ALL=C grep -rc "\"[^\"]*$$pat[^\"]*\"" --include='*.go' internal/ui internal/modules cmd 2>/dev/null | grep -v "_test\|_templ\|/i18n/" | awk -F: '{s+=$$2} END{print s+0}'); if [ "$$n" -gt 2276 ]; then echo "FAIL: $$n Arabic literals in Go (ceiling 2276). A string in a handler cannot be shown in English -- add a key to internal/shared/i18n and call i18n.T(lang, key)."; exit 1; fi; echo "  ok: $$n Arabic literals in Go (ceiling 2276)"
+	@pat=$$(printf '\330'); n=$$(LC_ALL=C grep -rc "\"[^\"]*$$pat[^\"]*\"" --include='*.go' internal/ui internal/modules cmd 2>/dev/null | grep -v "_test\|_templ\|/i18n/" | awk -F: '{s+=$$2} END{print s+0}'); if [ "$$n" -gt 1246 ]; then echo "FAIL: $$n Arabic literals in Go (ceiling 1246). A string in a handler cannot be shown in English -- add a key to internal/shared/i18n and call i18n.T(lang, key)."; exit 1; fi; echo "  ok: $$n Arabic literals in Go (ceiling 1246)"
 
 .PHONY: check-emoji
 check-emoji: ## Fail if emoji in templates grow
@@ -185,4 +185,4 @@ check-emoji: ## Fail if emoji in templates grow
 
 .PHONY: check-unused-components
 check-unused-components: ## Fail if components no page uses grow
-	@n=0; for f in internal/ui/components/*.templ; do for fn in $$(grep -oE "^templ [A-Za-z0-9_]+" "$$f" | awk '{print $$2}'); do c=$$(grep -rho "components\.$$fn" --include='*.templ' internal/ui/pages internal/ui/layouts 2>/dev/null | wc -l); if [ "$$c" -eq 0 ]; then n=$$((n+1)); fi; done; done; if [ "$$n" -gt 50 ]; then echo "FAIL: $$n components no page uses (ceiling 50). Either a page should use it, or it should not exist."; exit 1; fi; echo "  ok: $$n unused components (ceiling 50)"
+	@n=0; for f in internal/ui/components/*.templ; do for fn in $$(grep -oE "^templ [A-Za-z0-9_]+" "$$f" | awk '{print $$2}'); do p=$$(grep -rho "components\.$$fn" --include='*.templ' internal/ui/pages internal/ui/layouts 2>/dev/null | wc -l); i=$$(grep -rho "@$$fn(" --include='*.templ' internal/ui/components 2>/dev/null | wc -l); if [ "$$p" -eq 0 ] && [ "$$i" -eq 0 ]; then n=$$((n+1)); echo "  unused: $$fn"; fi; done; done; if [ "$$n" -gt 0 ]; then echo "FAIL: $$n components nothing references (ceiling 0). Either a page should use it, or it should not exist."; exit 1; fi; echo "  ok: every component is referenced"

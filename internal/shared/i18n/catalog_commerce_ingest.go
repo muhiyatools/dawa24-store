@@ -205,4 +205,18 @@ func loadCommerceAndIngestKeys(e *engine) {
 	addKey(e, "smartorder.staging_caption", "smartorder", "جارٍ تجهيز الأصناف", "Preparing items", "Progress caption")
 	addKey(e, "smartorder.matching_message", "smartorder", "جارٍ مطابقة الأصناف والبحث عن الموردين…", "Matching items and searching for suppliers…", "Progress message")
 	addKey(e, "smartorder.unexpected_error", "smartorder", "حدث خطأ غير متوقع أثناء المعالجة.", "An unexpected error occurred during processing.", "Error message")
+	addKey(e, "smartorder.export_error", "smartorder", "تعذّر تصدير النتائج", "Could not export results", "Export error")
+
+	// --- Courier Delivery ---
+	addKey(e, "courier.shipment_not_found", "commerce", "لم يتم العثور على شحنة مطابقة لرقم التتبع المدخل. يرجى التحقق من الرقم والمحاولة مرة أخرى.", "No shipment matches the tracking number provided. Please check and try again.", "Error notice")
+	addKey(e, "courier.fetch_error", "commerce", "تعذر جلب بيانات الشحنة حالياً. يرجى المحاولة لاحقاً.", "Could not retrieve shipment details at this time. Please try again later.", "Error notice")
+	addKey(e, "courier.invalid_data", "commerce", "بيانات غير صالحة.", "Invalid data.", "Validation error")
+	addKey(e, "courier.code_required", "commerce", "يرجى إدخال كود الاستلام المطلوب.", "Please enter the required delivery confirmation code.", "Validation error")
+	addKey(e, "courier.service_unavailable", "commerce", "الخدمة غير متاحة حالياً.", "Service is currently unavailable.", "Service error")
+	addKey(e, "courier.delivery_failed", "commerce", "تعذر إتمام عملية التسليم، يرجى التأكد من كود الاستلام والمحاولة مجدداً.", "Could not complete delivery. Please verify confirmation code and try again.", "Error notice")
+	addKey(e, "courier.customer_notif_title", "commerce", "تم تسليم شحنتك بنجاح (%s)", "Your shipment has been delivered successfully (%s)", "Customer notification title")
+	addKey(e, "courier.customer_notif_body", "commerce", "قام مندوب الشحن بتسليم طلبك #%s من المورد (%s) وتوثيق استلام الأصناف.", "The courier delivered your order #%s from supplier (%s) and confirmed receipt.", "Customer notification body")
+	addKey(e, "courier.vendor_notif_title", "commerce", "تم تسليم الشحنة وتحصيل القيمة (%s)", "Shipment delivered and value collected (%s)", "Vendor notification title")
+	addKey(e, "courier.vendor_notif_body", "commerce", "تم تسليم الشحنة #%s للصيدلية بنجاح وتأكيد كود الاستلام.", "Shipment #%s was successfully delivered to the pharmacy and verified with code.", "Vendor notification body")
+	addKey(e, "courier.delivery_success", "commerce", "تم تأكيد الاستلام وتسليم الشحنة بنجاح وتوثيق العملية في النظام.", "Delivery confirmation verified and recorded successfully in the system.", "Success notice")
 }

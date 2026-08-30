@@ -107,3 +107,48 @@ func (m *mockCommerceRepo) UpdateCustomerPendingOrder(_ context.Context, order *
 	}
 	return o, nil
 }
+
+func (m *mockCommerceRepo) GetShipmentForDeliveryByTracking(_ context.Context, tracking string) (*OrderShipment, error) {
+	for _, list := range m.shipments {
+		for _, s := range list {
+			if s.TrackingNumber == tracking || s.ShipmentNumber == tracking || s.PublicID == tracking {
+				copied := *s
+				return &copied, nil
+			}
+		}
+	}
+	return nil, apperr.NotFound("shipment")
+}
+
+func (m *mockCommerceRepo) VerifyAndCompleteDelivery(
+	_ context.Context,
+	shipmentID int64,
+	deliveryCode string,
+	notes string,
+	collectedAmountMinor int64,
+) (*OrderShipment, error) {
+	for _, list := range m.shipments {
+		for _, s := range list {
+			if s.ID == shipmentID {
+				if s.DeliveryCode != "" && s.DeliveryCode != deliveryCode {
+					s.DeliveryAttempts++
+					if s.DeliveryAttempts >= 5 {
+						now := time.Now().Add(15 * time.Minute)
+						s.DeliveryLockedUntil = &now
+						return nil, apperr.Conflict("delivery.locked", "تم تجاوز الحد الأقصى للمحاولات الخاطئة.")
+					}
+					return nil, apperr.Validation("delivery.invalid_code", "كود تأكيد الاستلام غير صحيح.", nil)
+				}
+				s.Status = StatusDelivered
+				now := time.Now()
+				s.DeliveredAt = &now
+				s.DeliveredByCourierAt = &now
+				s.DeliveryNotes = notes
+				s.CollectedAmountMinor = collectedAmountMinor
+				copied := *s
+				return &copied, nil
+			}
+		}
+	}
+	return nil, apperr.NotFound("shipment")
+}

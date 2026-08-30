@@ -112,6 +112,12 @@ func (r *Repository) CreateOrder(
 			s.OrderID = order.ID
 			s.ShipmentNumber = commerce.GenerateShipmentNumber(order.OrderNumber, seq+1)
 			s.Status = order.Status
+			if s.DeliveryCode == "" {
+				s.DeliveryCode = commerce.GenerateDeliveryCode()
+			}
+			if s.TrackingNumber == "" {
+				s.TrackingNumber = commerce.GenerateTrackingNumber(order.OrderNumber, seq+1)
+			}
 
 			var sBranchID *int64
 			if s.BranchID != nil && *s.BranchID > 0 {
@@ -121,13 +127,14 @@ func (r *Repository) CreateOrder(
 			queryShipment := `
 				INSERT INTO commerce.order_shipments (
 					order_id, organization_id, branch_id, shipment_number,
-					status, subtotal, shipping_fee, total_amount
-				) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+					status, subtotal, shipping_fee, total_amount, tracking_number, delivery_code
+				) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
 				RETURNING id, public_id, created_at, updated_at;
 			`
 			err := tx.QueryRow(txCtx, queryShipment,
 				s.OrderID, s.OrganizationID, sBranchID, s.ShipmentNumber,
 				string(s.Status), s.Subtotal, s.ShippingFee, s.TotalAmount,
+				s.TrackingNumber, s.DeliveryCode,
 			).Scan(&s.ID, &s.PublicID, &s.CreatedAt, &s.UpdatedAt)
 			if err != nil {
 				return fmt.Errorf("commerce postgres: insert shipment: %w", err)
@@ -268,7 +275,9 @@ func hydrateOrderDetails(txCtx context.Context, tx pgx.Tx, o *commerce.Order) er
 	queryShipments := `
 		SELECT s.id, s.public_id, s.order_id, s.organization_id, s.branch_id, s.shipment_number,
 		       s.status, s.subtotal, s.shipping_fee, s.total_amount, s.tracking_number,
-		       s.carrier_name, s.shipped_at, s.delivered_at, s.created_at, s.updated_at,
+		       s.carrier_name, s.delivery_code, s.delivery_attempts, s.delivery_locked_until,
+		       s.delivery_notes, s.collected_amount_minor, s.delivered_by_courier_at,
+		       s.shipped_at, s.delivered_at, s.created_at, s.updated_at,
 		       COALESCE(org.name, '{"ar":"مورد معتمد","en":"Approved Supplier"}'::jsonb) AS vendor_name
 		FROM commerce.order_shipments s
 		LEFT JOIN org.organizations org ON org.id = s.organization_id
@@ -286,6 +295,8 @@ func hydrateOrderDetails(txCtx context.Context, tx pgx.Tx, o *commerce.Order) er
 				&s.ID, &s.PublicID, &s.OrderID, &s.OrganizationID, &s.BranchID,
 				&s.ShipmentNumber, &statusStr, &s.Subtotal, &s.ShippingFee,
 				&s.TotalAmount, &s.TrackingNumber, &s.CarrierName,
+				&s.DeliveryCode, &s.DeliveryAttempts, &s.DeliveryLockedUntil,
+				&s.DeliveryNotes, &s.CollectedAmountMinor, &s.DeliveredByCourierAt,
 				&s.ShippedAt, &s.DeliveredAt, &s.CreatedAt, &s.UpdatedAt,
 				&s.VendorName,
 			); err == nil {
@@ -484,7 +495,9 @@ func (r *Repository) ListShipmentsByVendor(ctx context.Context, vendorOrgID int6
 		query := `
 			SELECT s.id, s.public_id, s.order_id, s.organization_id, s.branch_id, s.shipment_number,
 			       s.status, s.subtotal, s.shipping_fee, s.total_amount, s.tracking_number,
-			       s.carrier_name, s.shipped_at, s.delivered_at, s.created_at, s.updated_at,
+			       s.carrier_name, s.delivery_code, s.delivery_attempts, s.delivery_locked_until,
+			       s.delivery_notes, s.collected_amount_minor, s.delivered_by_courier_at,
+			       s.shipped_at, s.delivered_at, s.created_at, s.updated_at,
 			       COALESCE(ord.order_number, ''),
 			       COALESCE(ord.payment_method, 'cod'),
 			       COALESCE(ord.payment_status, 'unpaid'),
@@ -521,6 +534,8 @@ func (r *Repository) ListShipmentsByVendor(ctx context.Context, vendorOrgID int6
 				&s.ID, &s.PublicID, &s.OrderID, &s.OrganizationID, &s.BranchID,
 				&s.ShipmentNumber, &statusStr, &s.Subtotal, &s.ShippingFee,
 				&s.TotalAmount, &s.TrackingNumber, &s.CarrierName,
+				&s.DeliveryCode, &s.DeliveryAttempts, &s.DeliveryLockedUntil,
+				&s.DeliveryNotes, &s.CollectedAmountMinor, &s.DeliveredByCourierAt,
 				&s.ShippedAt, &s.DeliveredAt, &s.CreatedAt, &s.UpdatedAt,
 				&s.OrderNumber, &s.PaymentMethod, &payStatusStr, &s.Notes,
 				&s.CustomerOrgName, &s.CustomerBranchName, &s.CustomerBranchAddress,

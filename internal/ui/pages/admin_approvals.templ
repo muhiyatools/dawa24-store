@@ -139,7 +139,7 @@ templ AdminApprovals(data *AdminApprovalsData, lang, dir string) {
 					</select>
 				</div>
 
-				<div style="display:flex; justify-content:flex-end; gap:0.75rem; margin-top:0.5rem;">
+				<div class="d-flex justify-end gap-3 mt-2">
 					<button
 						type="button"
 						class="btn btn-secondary"
@@ -429,7 +429,7 @@ templ AdminApprovalsTable(orgs []*org.Organization, orgDocs map[int64][]*attachm
 												<textarea id={ fmt.Sprintf("rejection-%d", o.ID) } name="rejection_reason" rows="2" class="form-input" placeholder="يرجى توضيح سبب الرفض أو النواقص المطلوبة...">{ o.RejectionReason }</textarea>
 											</div>
 
-											<div style="display:flex; justify-content:flex-end; gap:0.75rem; margin-top:0.5rem;">
+											<div class="d-flex justify-end gap-3 mt-2">
 												<button
 													type="button"
 													class="btn btn-secondary"
@@ -610,7 +610,7 @@ templ AdminApprovalsDocsTab(data *AdminApprovalsData) {
 												<textarea id={ fmt.Sprintf("doc-audit-notes-%d", doc.ID) } name="notes" rows="2" class="form-input" placeholder="ملاحظات توضيحية تظهر للمنشأة...">{ doc.ReviewNotes }</textarea>
 											</div>
 
-											<div style="display:flex; justify-content:flex-end; gap:0.75rem; margin-top:0.5rem;">
+											<div class="d-flex justify-end gap-3 mt-2">
 												<button
 													type="button"
 													class="btn btn-secondary"
@@ -752,7 +752,7 @@ templ AdminApprovalsRequestsTab(data *AdminApprovalsData) {
 				/>
 			</div>
 
-			<div style="display:flex; justify-content:flex-end; gap:0.75rem; margin-top:0.5rem;">
+			<div class="d-flex justify-end gap-3 mt-2">
 				<button
 					type="button"
 					class="btn btn-secondary"

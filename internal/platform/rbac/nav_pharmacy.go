@@ -74,7 +74,7 @@ func pharmacyNav() []NavSection {
 			},
 		},
 		{
-			Key: "account", NameAr: "الحساب والتنبيهات", NameEn: "Account & Notifications",
+			Key: "account", NameAr: "الأمان والجلسات", NameEn: "Security & Sessions",
 			Items: []NavItem{
 				{Key: "notifications", Href: "/notifications", Icon: "bell",
 					NameAr: "مركز الإشعارات والتنبيهات", NameEn: "Notifications",
@@ -84,6 +84,9 @@ func pharmacyNav() []NavSection {
 					Perm: "pharmacy.ai_log.view"},
 				{Key: "sessions", Href: "/customer/sessions", Icon: "shield",
 					NameAr: "الأجهزة والجلسات النشطة", NameEn: "Active sessions",
+					Perm: "pharmacy.session.view"},
+				{Key: "mfa", Href: "/customer/mfa", Icon: "lock",
+					NameAr: "المصادقة الثنائية (MFA)", NameEn: "Two-Factor Auth (MFA)",
 					Perm: "pharmacy.session.view"},
 			},
 		},

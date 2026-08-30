@@ -29,7 +29,7 @@ templ LoginPage(lang, dir, errorMsg string) {
 					</div>
 				}
 
-				<form method="POST" action="/auth/login" target="_self" style="display:flex; flex-direction:column; gap:1.15rem;">
+				<form method="POST" action="/auth/login" target="_self" class="stack-115">
 					<div class="form-group mb-0">
 						<label class="form-label" for="email">البريد الإلكتروني أو اسم المستخدم</label>
 						<input type="email" id="email" name="email" required class="form-input tabular-nums" placeholder="pharmacist@dawa24.eg" />
@@ -408,7 +408,7 @@ templ ForgotPasswordPage(lang, dir string) {
 					<p style="color:var(--text-secondary); font-size:0.875rem; margin-top:0.35rem;">أدخل بريدك الإلكتروني المسجل لإرسال رابط إعادة التعيين</p>
 				</div>
 
-				<form method="POST" action="/auth/forgot" style="display:flex; flex-direction:column; gap:1.15rem;">
+				<form method="POST" action="/auth/forgot" class="stack-115">
 					<div class="form-group mb-0">
 						<label class="form-label" for="forgot-email">البريد الإلكتروني</label>
 						<input type="email" id="forgot-email" name="email" required class="form-input tabular-nums" placeholder="pharmacist@dawa24.eg" />
@@ -438,7 +438,7 @@ templ ResetPasswordPage(lang, dir, token string) {
 					<h1 style="font-size:1.5rem; font-weight:800; color:var(--text);">تعيين كلمة المرور</h1>
 				</div>
 
-				<form method="POST" action="/auth/reset" style="display:flex; flex-direction:column; gap:1.15rem;">
+				<form method="POST" action="/auth/reset" class="stack-115">
 					<input type="hidden" name="token" value={ token } />
 					<div class="form-group mb-0">
 						<label class="form-label" for="reset-pass">كلمة المرور الجديدة</label>

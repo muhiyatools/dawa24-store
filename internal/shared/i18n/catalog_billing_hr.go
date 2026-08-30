@@ -182,4 +182,11 @@ func loadBillingAndHRKeys(e *engine) {
 	// --- Jobs ---
 	addKey(e, "jobs.verified_pharma_entity", "hr", "جهة صيدلانية معتمدة", "Verified Pharmaceutical Entity", "Fallback entity name")
 	addKey(e, "jobs.apply_jobseeker_only", "hr", "التقديم على الشواغر الوظيفية متاح فقط لحسابات (باحث عن عمل).", "Applying for jobs is only available for job seeker accounts.", "Job application restriction")
+
+	// --- Team Import & Member Validation ---
+	addKey(e, "team.import.default_role_name", "hr", "موظف (افتراضي)", "Employee (Default)", "Default role name")
+	addKey(e, "team.import.role_employee", "hr", "موظف", "Employee", "Role name")
+	addKey(e, "team.import.email_invalid_or_missing", "hr", "البريد الإلكتروني غير صحيح أو مفقود", "Email is invalid or missing", "Validation error")
+	addKey(e, "team.import.email_duplicate_in_file", "hr", "البريد الإلكتروني مكرر في الملف (صف %d)", "Email is duplicated in file (row %d)", "Validation error")
+	addKey(e, "team.import.employee_name_missing", "hr", "اسم الموظف مفقود", "Employee name is missing", "Validation error")
 }

@@ -116,6 +116,11 @@ func (h *UIHandler) registerVendorCompanyRoutes(r chi.Router) {
 	r.Group(func(g chi.Router) {
 		g.Use(authctx.RequireTenantPagePermission("vendor.session.view"))
 		g.Get("/vendor/sessions", h.TenantSessionsPage)
+		g.Get("/vendor/mfa", h.VendorMFAPage)
+		g.Post("/vendor/mfa/setup", h.VendorMFASetupSubmit)
+		g.Post("/vendor/mfa/confirm", h.VendorMFAConfirmSubmit)
+		g.Post("/vendor/mfa/disable", h.VendorMFADisableSubmit)
+		g.Post("/vendor/mfa/regenerate-codes", h.VendorMFARegenerateRecoveryCodesSubmit)
 	})
 	r.Group(func(g chi.Router) {
 		g.Use(authctx.RequireTenantPagePermission("vendor.session.revoke"))

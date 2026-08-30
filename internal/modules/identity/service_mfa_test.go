@@ -208,17 +208,29 @@ func TestSessionStore_Unit(t *testing.T) {
 	if err := store.Delete(ctx, ""); err != nil {
 		t.Errorf("expected nil error on empty token delete, got %v", err)
 	}
-	if _, err := store.Get(ctx, tok); err == nil || apperr.KindOf(err) != apperr.KindUnavailable {
-		t.Errorf("expected unavailable error with nil cache, got %v", err)
+
+	// In-memory fallback operations when cache is nil
+	sess := &Session{UserID: 1, Token: tok}
+	if err := store.Create(ctx, sess); err != nil {
+		t.Errorf("expected successful in-memory Create with nil cache, got %v", err)
 	}
-	if err := store.Create(ctx, &Session{UserID: 1}); err == nil || apperr.KindOf(err) != apperr.KindUnavailable {
-		t.Errorf("expected unavailable error on Create with nil cache, got %v", err)
+
+	fetched, err := store.Get(ctx, tok)
+	if err != nil || fetched == nil || fetched.UserID != 1 {
+		t.Errorf("expected successful Get from in-memory fallback, got err=%v, sess=%v", err, fetched)
 	}
-	if err := store.Delete(ctx, tok); err == nil || apperr.KindOf(err) != apperr.KindUnavailable {
-		t.Errorf("expected unavailable error on Delete with nil cache, got %v", err)
+
+	list, err := store.ListForUser(ctx, 1)
+	if err != nil || len(list) != 1 {
+		t.Errorf("expected 1 session in ListForUser, got %d, err=%v", len(list), err)
 	}
-	if err := store.DeleteAllForUser(ctx, 1); err == nil || apperr.KindOf(err) != apperr.KindUnavailable {
-		t.Errorf("expected unavailable error on DeleteAllForUser with nil cache, got %v", err)
+
+	if err := store.Delete(ctx, tok); err != nil {
+		t.Errorf("expected nil error on Delete, got %v", err)
+	}
+
+	if _, err := store.Get(ctx, tok); err == nil {
+		t.Error("expected unauthorized on deleted token")
 	}
 }
 

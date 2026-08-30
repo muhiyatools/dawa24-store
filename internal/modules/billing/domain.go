@@ -513,6 +513,8 @@ type PrintableInvoiceData struct {
 	Status         InvoiceStatus           `json:"status"`
 	PaymentMethod  string                  `json:"payment_method"`
 	PaymentStatus  string                  `json:"payment_status"`
+	DeliveryCode   string                  `json:"delivery_code,omitempty"`
+	TrackingNumber string                  `json:"tracking_number,omitempty"`
 	Notes          string                  `json:"notes,omitempty"`
 	QRCodeData     string                  `json:"qr_code_data"`
 }

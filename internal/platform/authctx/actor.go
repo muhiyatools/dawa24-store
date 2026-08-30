@@ -72,6 +72,11 @@ func (a Actor) IsPlatformAdmin() bool {
 	return a.Role == "super_admin" || a.Role == "admin"
 }
 
+// IsSuperAdmin reports whether the actor has super_admin role.
+func (a Actor) IsSuperAdmin() bool {
+	return a.Role == "super_admin"
+}
+
 // DashboardScope reports which dashboard this actor belongs to.
 //
 // Scope is set by authentication from the resolved grant. The OrgType fallback

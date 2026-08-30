@@ -130,7 +130,7 @@ templ AdminDashboard(stats AdminDashboardStats, pendingOrgs []*org.Organization,
 					<div style="border-top:1px solid var(--border); padding-top:0.5rem; margin-top:auto; font-size:0.78rem; display:flex; justify-content:space-between; align-items:center; color:var(--text-muted);">
 						<span>مكتملة: <strong class="text-emerald tabular-nums">+{ fmt.Sprintf("%d", stats.CompletedOrdersCount) }</strong></span>
 						<span>نشطة: <strong class="text-sky tabular-nums">{ fmt.Sprintf("%d", stats.ActiveOrdersCount) }</strong></span>
-						<a href="/admin/orders" class="text-accent fw-700" style="text-decoration:none;">عرض الكل ←</a>
+						<a href="/admin/orders" class="text-accent fw-700 no-underline">عرض الكل ←</a>
 					</div>
 				</div>
 
@@ -179,7 +179,7 @@ templ AdminDashboard(stats AdminDashboardStats, pendingOrgs []*org.Organization,
 					</div>
 					<div style="border-top:1px solid var(--border); padding-top:0.5rem; margin-top:auto; font-size:0.78rem; display:flex; justify-content:space-between; align-items:center; color:var(--text-muted);">
 						<span>إجمالي المستخدمين: <strong class="text-primary tabular-nums">{ fmt.Sprintf("%d", stats.TotalUsers) }</strong></span>
-						<a href="/admin/approvals" class="text-accent fw-700" style="text-decoration:none;">مراجعة الكل ←</a>
+						<a href="/admin/approvals" class="text-accent fw-700 no-underline">مراجعة الكل ←</a>
 					</div>
 				</div>
 
@@ -240,32 +240,32 @@ templ AdminDashboard(stats AdminDashboardStats, pendingOrgs []*org.Organization,
 							<table class="data-table" style="font-size:0.8rem">
 								<thead>
 									<tr style="background:var(--surface-raised);">
-										<th style="padding:0.5rem 0.75rem;"># الطلب</th>
-										<th style="padding:0.5rem 0.75rem;">المنشأة / العميل</th>
-										<th style="padding:0.5rem 0.75rem;">المبلغ الإجمالي</th>
-										<th style="padding:0.5rem 0.75rem;">الحالة</th>
-										<th style="padding:0.5rem 0.75rem;" class="text-end">التاريخ</th>
+										<th class="pad-sm"># الطلب</th>
+										<th class="pad-sm">المنشأة / العميل</th>
+										<th class="pad-sm">المبلغ الإجمالي</th>
+										<th class="pad-sm">الحالة</th>
+										<th class="text-end pad-sm">التاريخ</th>
 									</tr>
 								</thead>
 								<tbody>
 									for _, ord := range stats.RecentOrders {
 										<tr class="rule-bottom">
-											<td style="padding:0.5rem 0.75rem;" class="tabular-nums fw-800 text-primary">
+											<td class="tabular-nums fw-800 text-primary pad-sm">
 												<a href="/admin/orders" style="color:inherit; text-decoration:none;">
 													ORD-#{ fmt.Sprintf("%d", ord.ID) }
 												</a>
 											</td>
-											<td style="padding:0.5rem 0.75rem;">
+											<td class="pad-sm">
 												if ord.OrganizationID != nil {
 													<span class="badge badge-sky text-xs fw-700">منشأة #{ fmt.Sprintf("%d", *ord.OrganizationID) }</span>
 												} else {
 													<span class="text-muted">عميل #{ fmt.Sprintf("%d", ord.CustomerID) }</span>
 												}
 											</td>
-											<td style="padding:0.5rem 0.75rem;" class="tabular-nums fw-900 text-emerald">
+											<td class="tabular-nums fw-900 text-emerald pad-sm">
 												{ ord.TotalAmount.String() } ج.م
 											</td>
-											<td style="padding:0.5rem 0.75rem;">
+											<td class="pad-sm">
 												if ord.Status == "completed" || ord.Status == "delivered" {
 													<span class="badge badge-emerald text-xs fw-800">مكتمل</span>
 												} else if ord.Status == "pending" {
@@ -276,7 +276,7 @@ templ AdminDashboard(stats AdminDashboardStats, pendingOrgs []*org.Organization,
 													<span class="badge badge-sky text-xs fw-800">{ string(ord.Status) }</span>
 												}
 											</td>
-											<td style="padding:0.5rem 0.75rem;" class="tabular-nums text-muted text-end text-xs">
+											<td class="tabular-nums text-muted text-end text-xs pad-sm">
 												{ ord.CreatedAt.Format("01/02 15:04") }
 											</td>
 										</tr>

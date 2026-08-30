@@ -273,7 +273,7 @@ templ CustomerJobs(lang, dir string, data CustomerJobsData) {
 					<button type="button" class="btn btn-secondary btn-sm btn-icon" onclick="closeAddJobModal()">@components.IconX("icon-sm")</button>
 				</div>
 
-				<form method="POST" action="/customer/jobs" style="display:flex; flex-direction:column; gap:1.15rem;">
+				<form method="POST" action="/customer/jobs" class="stack-115">
 					<!-- Job Title Arabic & English -->
 					<div class="grid-2">
 						<div>
@@ -439,7 +439,7 @@ templ CustomerJobs(lang, dir string, data CustomerJobsData) {
 					<button type="button" class="btn btn-secondary btn-sm btn-icon" onclick="closeEditJobModal()">@components.IconX("icon-sm")</button>
 				</div>
 
-				<form id="edit-job-form" method="POST" action="" style="display:flex; flex-direction:column; gap:1.15rem;">
+				<form id="edit-job-form" method="POST" action="" class="stack-115">
 					<!-- Job Title Arabic & English -->
 					<div class="grid-2">
 						<div>
@@ -926,7 +926,7 @@ templ CustomerJobs(lang, dir string, data CustomerJobsData) {
 						html += `
 							<div style="padding:1.15rem; background:var(--surface-sunken); border:1px solid var(--border); border-radius:var(--radius-xl); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem;">
 								<div>
-									<div style="display:flex; align-items:center; gap:0.6rem;">
+									<div class="inline-row-06">
 										<span style="font-weight:800; font-size:1rem; color:var(--text);">${app.applicant_name || 'متقدم'}</span>
 										${statusBadge}
 									</div>

@@ -10,6 +10,7 @@ import (
 	"github.com/muhiya/dawa24-store/internal/modules/commerce"
 	"github.com/muhiya/dawa24-store/internal/platform/database"
 	"github.com/muhiya/dawa24-store/internal/shared/apperr"
+	"github.com/muhiya/dawa24-store/internal/shared/money"
 )
 
 // SetCartItemQuantity changes quantity without touching unit_price.
@@ -41,15 +42,25 @@ func (r *Repository) GetShipmentByID(ctx context.Context, id int64) (*commerce.O
 		query := `
 			SELECT id, public_id, order_id, organization_id, branch_id, shipment_number,
 			       status, subtotal, shipping_fee, total_amount, tracking_number,
-			       carrier_name, shipped_at, delivered_at, created_at
+			       carrier_name, delivery_code, delivery_attempts, delivery_locked_until,
+			       delivery_notes, collected_amount_minor, delivered_by_courier_at,
+			       shipped_at, delivered_at, created_at, updated_at
 			FROM commerce.order_shipments
 			WHERE id = $1;
 		`
-		return tx.QueryRow(txCtx, query, id).Scan(
+		var statusStr string
+		err := tx.QueryRow(txCtx, query, id).Scan(
 			&s.ID, &s.PublicID, &s.OrderID, &s.OrganizationID, &s.BranchID, &s.ShipmentNumber,
-			&s.Status, &s.Subtotal, &s.ShippingFee, &s.TotalAmount, &s.TrackingNumber,
-			&s.CarrierName, &s.ShippedAt, &s.DeliveredAt, &s.CreatedAt,
+			&statusStr, &s.Subtotal, &s.ShippingFee, &s.TotalAmount, &s.TrackingNumber,
+			&s.CarrierName, &s.DeliveryCode, &s.DeliveryAttempts, &s.DeliveryLockedUntil,
+			&s.DeliveryNotes, &s.CollectedAmountMinor, &s.DeliveredByCourierAt,
+			&s.ShippedAt, &s.DeliveredAt, &s.CreatedAt, &s.UpdatedAt,
 		)
+		if err != nil {
+			return err
+		}
+		s.Status = commerce.OrderStatus(statusStr)
+		return nil
 	})
 	if err != nil {
 		if err == pgx.ErrNoRows {
@@ -210,4 +221,231 @@ func (r *Repository) CountVendorShipmentsByStatus(ctx context.Context, orgID int
 		return tx.QueryRow(txCtx, query, orgID, statuses).Scan(&total)
 	})
 	return total, err
+}
+
+// GetShipmentForDeliveryByTracking fetches shipment and delivery information for the courier portal.
+func (r *Repository) GetShipmentForDeliveryByTracking(ctx context.Context, tracking string) (*commerce.OrderShipment, error) {
+	var s commerce.OrderShipment
+	err := r.db.InReadTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
+		query := `
+			SELECT s.id, s.public_id, s.order_id, s.organization_id, s.branch_id, s.shipment_number,
+			       s.status, s.subtotal, s.shipping_fee, s.total_amount, s.tracking_number,
+			       s.carrier_name, s.delivery_code, s.delivery_attempts, s.delivery_locked_until,
+			       s.delivery_notes, s.collected_amount_minor, s.delivered_by_courier_at,
+			       s.shipped_at, s.delivered_at, s.created_at, s.updated_at,
+			       COALESCE(ord.order_number, ''),
+			       COALESCE(ord.payment_method, 'cod'),
+			       COALESCE(ord.payment_status, 'unpaid'),
+			       COALESCE(ord.notes, ''),
+			       COALESCE(vendor_org.name, '{"ar":"مورد معتمد","en":"Approved Supplier"}'::jsonb) AS vendor_name,
+			       COALESCE(cust_org.name, '{"ar":"صيدلية معتمدة","en":"Approved Pharmacy"}'::jsonb) AS customer_org_name,
+			       COALESCE(b.name, '{"ar":"الفرع الرئيسي","en":"Main Branch"}'::jsonb) AS branch_name,
+			       COALESCE(b.address, '') AS branch_address,
+			       COALESCE(b.phone, '') AS branch_phone,
+			       COALESCE(b.manager_name, '') AS manager_name
+			FROM commerce.order_shipments s
+			JOIN commerce.orders ord ON ord.id = s.order_id
+			LEFT JOIN org.organizations vendor_org ON vendor_org.id = s.organization_id
+			LEFT JOIN org.organizations cust_org ON cust_org.id = ord.organization_id
+			LEFT JOIN org.branches b ON b.id = ord.branch_id
+			WHERE LOWER(TRIM(s.tracking_number)) = LOWER(TRIM($1))
+			   OR LOWER(TRIM(s.shipment_number)) = LOWER(TRIM($1))
+			   OR LOWER(TRIM(s.public_id)) = LOWER(TRIM($1))
+			ORDER BY s.id DESC
+			LIMIT 1;
+		`
+		var statusStr, payStatusStr string
+		err := tx.QueryRow(txCtx, query, tracking).Scan(
+			&s.ID, &s.PublicID, &s.OrderID, &s.OrganizationID, &s.BranchID, &s.ShipmentNumber,
+			&s.Status, &s.Subtotal, &s.ShippingFee, &s.TotalAmount, &s.TrackingNumber,
+			&s.CarrierName, &s.DeliveryCode, &s.DeliveryAttempts, &s.DeliveryLockedUntil,
+			&s.DeliveryNotes, &s.CollectedAmountMinor, &s.DeliveredByCourierAt,
+			&s.ShippedAt, &s.DeliveredAt, &s.CreatedAt, &s.UpdatedAt,
+			&s.OrderNumber, &s.PaymentMethod, &payStatusStr, &s.Notes,
+			&s.VendorName, &s.CustomerOrgName, &s.CustomerBranchName, &s.CustomerBranchAddress,
+			&s.CustomerBranchPhone, &s.CustomerManagerName,
+		)
+		if err != nil {
+			return err
+		}
+		s.Status = commerce.OrderStatus(statusStr)
+		s.PaymentStatus = commerce.PaymentStatus(payStatusStr)
+		return nil
+	})
+	if err != nil {
+		if err == pgx.ErrNoRows {
+			return nil, apperr.NotFound("shipment")
+		}
+		return nil, fmt.Errorf("commerce postgres: get shipment for delivery: %w", err)
+	}
+
+	// Load lines
+	err = r.db.InReadTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
+		queryLines := `
+			SELECT id, order_id, shipment_id, organization_id, product_id, product_variant_id,
+			       product_name, variant_name, sku, unit_price, quantity, discount_amount, total_price
+			FROM commerce.order_lines
+			WHERE shipment_id = $1
+			ORDER BY id ASC;
+		`
+		rows, err := tx.Query(txCtx, queryLines, s.ID)
+		if err != nil {
+			return err
+		}
+		defer rows.Close()
+		for rows.Next() {
+			var l commerce.OrderLine
+			if err := rows.Scan(
+				&l.ID, &l.OrderID, &l.ShipmentID, &l.OrganizationID, &l.ProductID, &l.ProductVariantID,
+				&l.ProductName, &l.VariantName, &l.SKU, &l.UnitPrice, &l.Quantity, &l.DiscountAmount, &l.TotalPrice,
+			); err != nil {
+				return err
+			}
+			s.Lines = append(s.Lines, &l)
+		}
+		return rows.Err()
+	})
+	if err != nil {
+		return nil, fmt.Errorf("commerce postgres: get shipment lines for delivery: %w", err)
+	}
+
+	return &s, nil
+}
+
+// VerifyAndCompleteDelivery validates the 6-digit delivery confirmation PIN and marks the shipment as delivered.
+func (r *Repository) VerifyAndCompleteDelivery(
+	ctx context.Context,
+	shipmentID int64,
+	deliveryCode string,
+	notes string,
+	collectedAmountMinor int64,
+) (*commerce.OrderShipment, error) {
+	err := r.db.InTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
+		// 1. Lock shipment row for update
+		query := `
+			SELECT id, order_id, organization_id, status, delivery_code, delivery_attempts,
+			       delivery_locked_until, total_amount
+			FROM commerce.order_shipments
+			WHERE id = $1
+			FOR UPDATE;
+		`
+		var currentStatus string
+		var actualCode string
+		var attempts int
+		var lockedUntil *time.Time
+		var totalAmount money.Amount
+		var orderID int64
+		var orgID int64
+
+		err := tx.QueryRow(txCtx, query, shipmentID).Scan(
+			&shipmentID, &orderID, &orgID, &currentStatus, &actualCode,
+			&attempts, &lockedUntil, &totalAmount,
+		)
+		if err != nil {
+			if err == pgx.ErrNoRows {
+				return apperr.NotFound("shipment")
+			}
+			return fmt.Errorf("commerce postgres: lock shipment: %w", err)
+		}
+
+		currentOrderStatus := commerce.OrderStatus(currentStatus)
+		now := time.Now()
+
+		// 2. Check if locked due to too many failed attempts
+		if lockedUntil != nil && lockedUntil.After(now) {
+			remainingMinutes := int(lockedUntil.Sub(now).Minutes()) + 1
+			return apperr.Conflict("delivery.locked",
+				fmt.Sprintf("تم تجاوز الحد الأقصى للمحاولات الخاطئة. تم قفل التحقق مؤقتاً، يرجى المحاولة بعد %d دقيقة.", remainingMinutes))
+		}
+
+		// 3. Check status
+		if currentOrderStatus == commerce.StatusDelivered || currentOrderStatus == commerce.StatusCompleted {
+			return nil // Already delivered
+		}
+		if currentOrderStatus == commerce.StatusCancelled || currentOrderStatus == commerce.StatusReturned {
+			return apperr.Conflict("delivery.cancelled", "لا يمكن إتمام تسليم هذه الشحنة لأنها ملغاة أو مرتجعة.")
+		}
+
+		// 4. Verify Delivery Code (PIN)
+		if actualCode != "" && deliveryCode != actualCode {
+			newAttempts := attempts + 1
+			if newAttempts >= 5 {
+				lockTime := now.Add(15 * time.Minute)
+				_, _ = tx.Exec(txCtx, `
+					UPDATE commerce.order_shipments
+					SET delivery_attempts = $2, delivery_locked_until = $3, updated_at = now()
+					WHERE id = $1;
+				`, shipmentID, newAttempts, lockTime)
+				return apperr.Conflict("delivery.locked",
+					"تم إدخال كود الاستلام بشكل خاطئ 5 مرات متتالية. تم قفل التحقق مؤقتاً لمدة 15 دقيقة لدواعي الأمان.")
+			}
+
+			_, _ = tx.Exec(txCtx, `
+				UPDATE commerce.order_shipments
+				SET delivery_attempts = $2, updated_at = now()
+				WHERE id = $1;
+			`, shipmentID, newAttempts)
+			return apperr.Validation("delivery.invalid_code",
+				fmt.Sprintf("كود تأكيد الاستلام غير صحيح. المتبقي لك %d محاولات قبل القفل المؤقت.", 5-newAttempts),
+				map[string]string{"delivery_code": "invalid"})
+		}
+
+		// 5. Success: update shipment to delivered
+		if collectedAmountMinor <= 0 {
+			collectedAmountMinor = totalAmount.Minor()
+		}
+
+		updateQuery := `
+			UPDATE commerce.order_shipments
+			SET status = 'delivered',
+			    delivered_at = now(),
+			    delivered_by_courier_at = now(),
+			    delivery_notes = $2,
+			    collected_amount_minor = $3,
+			    delivery_attempts = 0,
+			    delivery_locked_until = NULL,
+			    updated_at = now()
+			WHERE id = $1;
+		`
+		if _, err := tx.Exec(txCtx, updateQuery, shipmentID, notes, collectedAmountMinor); err != nil {
+			return fmt.Errorf("commerce postgres: update delivery status: %w", err)
+		}
+
+		// 6. Record audit trail in order_status_history
+		fromStatus := currentStatus
+		historyQuery := `
+			INSERT INTO commerce.order_status_history
+				(order_id, shipment_id, from_status, to_status, notes)
+			VALUES ($1, $2, $3, 'delivered', $4);
+		`
+		auditNotes := "تم تأكيد التسليم بنجاح بواسطة المندوب عبر كود الاستلام"
+		if notes != "" {
+			auditNotes += " — ملاحظات: " + notes
+		}
+		if _, err := tx.Exec(txCtx, historyQuery, orderID, shipmentID, fromStatus, auditNotes); err != nil {
+			return fmt.Errorf("commerce postgres: insert delivery history: %w", err)
+		}
+
+		// 7. Synchronize parent order status if all shipments are delivered
+		var nonDeliveredCount int
+		_ = tx.QueryRow(txCtx, `SELECT COUNT(*) FROM commerce.order_shipments WHERE order_id = $1 AND status != 'delivered';`, orderID).Scan(&nonDeliveredCount)
+		if nonDeliveredCount == 0 {
+			_, _ = tx.Exec(txCtx, `
+				UPDATE commerce.orders
+				SET status = 'delivered',
+				    payment_status = CASE WHEN payment_method = 'cod' THEN 'paid' ELSE payment_status END,
+				    delivered_at = now(),
+				    updated_at = now()
+				WHERE id = $1;
+			`, orderID)
+		}
+
+		return nil
+	})
+
+	if err != nil {
+		return nil, err
+	}
+
+	return r.GetShipmentByID(database.AsSystem(ctx), shipmentID)
 }

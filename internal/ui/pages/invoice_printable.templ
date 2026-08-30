@@ -452,7 +452,7 @@ templ InvoicePrintablePage(data billing.PrintableInvoiceData, lang, dir string) 
 						</div>
 						<div style="font-size:0.775rem; color:#334155;">
 							<span style="direction:rtl; display:inline-block; font-size:0.75rem; color:#64748b; margin-right:4px;">طريقة السداد:</span>
-							if data.PaymentMethod == "cash" || data.PaymentMethod == "cash_on_delivery" {
+							if data.PaymentMethod == "cash" || data.PaymentMethod == "cash_on_delivery" || data.PaymentMethod == "cod" {
 								<span class="font-bold">نقداً عند الاستلام</span>
 							} else if data.PaymentMethod == "wallet" {
 								<span class="font-bold">المحفظة الإلكترونية</span>
@@ -460,6 +460,12 @@ templ InvoicePrintablePage(data billing.PrintableInvoiceData, lang, dir string) 
 								<span class="font-bold">آجل / حساب ائتماني</span>
 							}
 						</div>
+						if data.DeliveryCode != "" {
+							<div style="font-size:0.775rem; color:#0f172a; margin-top:0.35rem; background:#f0fdf4; padding:0.25rem 0.5rem; border-radius:4px; border:1px solid #bbf7d0;">
+								<span style="font-size:0.75rem; color:#166534; font-weight:bold;">كود الاستلام (PIN):</span>
+								<strong class="tabular-nums" style="font-family:monospace; font-size:0.95rem; color:#15803d; margin-inline-start:0.35rem; letter-spacing:0.1em;">{ data.DeliveryCode }</strong>
+							</div>
+						}
 					</div>
 
 				</div>
@@ -603,7 +609,7 @@ templ InvoicePrintablePage(data billing.PrintableInvoiceData, lang, dir string) 
 
 				<!-- Exact Required Disclaimer Statement (Bottom of A4) -->
 				<div class="legal-disclaimer-box">
-					هذه الفاتورة ليست سند شراء أو فاتورة ضريبية معتمدة من مصلحة الضرائب المصرية، ولا تُعتد إلا بعد اعتمادها من الأطراف المعنية. وتكون مسؤولية تسليم واستلام الأصناف والمبالغ على المورد والمشتري.
+					Dawa24 منصة وسيطة ولا تتحمل أي مسؤولية عن البيع أو التسليم أو الاستلام أو التحصيل أو السداد بين العميل والمورد، وتظل المسؤولية كاملة على أطراف المعاملة، كلٌ حسب التزامه القانوني والتعاقدي.
 				</div>
 
 			</div>
@@ -667,6 +673,12 @@ templ InvoicePrintablePage(data billing.PrintableInvoiceData, lang, dir string) 
 						<span>{ data.Customer.PharmacistLicense }</span>
 					</div>
 				}
+				if data.DeliveryCode != "" {
+					<div class="thermal-row" style="background:#f1f5f9; padding:2px 4px; border-radius:3px; margin:2px 0;">
+						<span class="thermal-bold">كود الاستلام (PIN):</span>
+						<span class="thermal-bold tabular-nums" style="font-family:monospace; font-size:11px; letter-spacing:0.1em;">{ data.DeliveryCode }</span>
+					</div>
+				}
 				<div class="thermal-divider"></div>
 
 				<!-- Items Header: Sequence is Name -> Public Price -> Discount -> Qty -> Total -->
@@ -714,7 +726,7 @@ templ InvoicePrintablePage(data billing.PrintableInvoiceData, lang, dir string) 
 
 				<!-- Exact Required Disclaimer Statement (Bottom of Thermal) -->
 				<div class="thermal-center" style="font-size:8.5px; line-height:1.35; color:#333; margin-top:6px; padding-top:4px; border-top:1px dashed #000;">
-					هذه الفاتورة ليست سند شراء أو فاتورة ضريبية معتمدة من مصلحة الضرائب المصرية، ولا تُعتد إلا بعد اعتمادها من الأطراف المعنية. وتكون مسؤولية تسليم واستلام الأصناف والمبالغ على المورد والمشتري.
+					Dawa24 منصة وسيطة ولا تتحمل أي مسؤولية عن البيع أو التسليم أو الاستلام أو التحصيل أو السداد بين العميل والمورد، وتظل المسؤولية كاملة على أطراف المعاملة، كلٌ حسب التزامه القانوني والتعاقدي.
 				</div>
 
 			</div>

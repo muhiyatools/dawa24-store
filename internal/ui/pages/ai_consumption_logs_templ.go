@@ -457,7 +457,7 @@ func aiConsumptionLogsBody(data AIConsumptionLogsPageData, lang, dir string) tem
 							return templ_7745c5c3_Err
 						}
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 39, "</div></td><!-- Model & Tier --><td style=\"padding:0.75rem 1rem; vertical-align:middle;\"><div style=\"display:flex; align-items:center; gap:0.4rem;\"><code dir=\"ltr\" class=\"text-xs fw-700\" style=\"background:var(--surface-sunken); padding:0.15rem 0.4rem; border-radius:var(--radius-sm); border:1px solid var(--border);\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 39, "</div></td><!-- Model & Tier --><td style=\"padding:0.75rem 1rem; vertical-align:middle;\"><div class=\"inline-row-04\"><code dir=\"ltr\" class=\"text-xs fw-700\" style=\"background:var(--surface-sunken); padding:0.15rem 0.4rem; border-radius:var(--radius-sm); border:1px solid var(--border);\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}

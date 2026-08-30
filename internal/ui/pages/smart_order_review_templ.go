@@ -302,7 +302,7 @@ func SmartOrderReviewPage(lang, dir string, data SmartOrderReviewData) templ.Com
 				}
 			}
 			for _, g := range data.Groups {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, "<div class=\"card\" style=\"padding:0; overflow:hidden; background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-2xl); box-shadow:var(--shadow-xs);\"><!-- Group Header Strip --><div style=\"padding:1rem 1.35rem; background:var(--surface-sunken); border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.75rem;\"><div style=\"display:flex; align-items:center; gap:0.6rem;\"><span style=\"font-size:1.15rem;\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, "<div class=\"card\" style=\"padding:0; overflow:hidden; background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-2xl); box-shadow:var(--shadow-xs);\"><!-- Group Header Strip --><div style=\"padding:1rem 1.35rem; background:var(--surface-sunken); border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.75rem;\"><div class=\"inline-row-06\"><span style=\"font-size:1.15rem;\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -354,7 +354,7 @@ func SmartOrderReviewPage(lang, dir string, data SmartOrderReviewData) templ.Com
 					return templ_7745c5c3_Err
 				}
 				for _, l := range g.Lines {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 27, "<tr style=\"border-bottom:1px solid var(--border); transition:background 0.15s ease;\"><!-- 1. Product Name --><td style=\"padding:0.75rem 1rem;\"><div style=\"font-weight:800; color:var(--text); line-height:1.4;\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 27, "<tr style=\"border-bottom:1px solid var(--border); transition:background 0.15s ease;\"><!-- 1. Product Name --><td class=\"pad-md\"><div style=\"font-weight:800; color:var(--text); line-height:1.4;\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -444,7 +444,7 @@ func SmartOrderReviewPage(lang, dir string, data SmartOrderReviewData) templ.Com
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 37, "\" min=\"1\" class=\"tabular-nums\" style=\"width:42px; height:32px; text-align:center; font-weight:800; border:none; background:transparent; font-size:0.825rem;\"> <button type=\"button\" class=\"btn btn-ghost btn-xs\" style=\"width:22px; height:32px; padding:0; font-weight:900;\" onclick=\"stepReviewQty(this, 1)\">+</button></div><button type=\"submit\" class=\"btn btn-secondary btn-xs fw-700\" style=\"height:32px; padding:0 0.5rem;\" title=\"حفظ الكمية\">تعديل</button></form></td><!-- 4. Matched Product --><td style=\"padding:0.75rem 1rem;\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 37, "\" min=\"1\" class=\"tabular-nums\" style=\"width:42px; height:32px; text-align:center; font-weight:800; border:none; background:transparent; font-size:0.825rem;\"> <button type=\"button\" class=\"btn btn-ghost btn-xs\" style=\"width:22px; height:32px; padding:0; font-weight:900;\" onclick=\"stepReviewQty(this, 1)\">+</button></div><button type=\"submit\" class=\"btn btn-secondary btn-xs fw-700\" style=\"height:32px; padding:0 0.5rem;\" title=\"حفظ الكمية\">تعديل</button></form></td><!-- 4. Matched Product --><td class=\"pad-md\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}

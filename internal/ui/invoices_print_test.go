@@ -137,7 +137,7 @@ func TestInvoicePrintAndVendorInvoicesPages(t *testing.T) {
 		}
 		rendered := sb.String()
 
-		expectedDisclaimer := "هذه الفاتورة ليست سند شراء أو فاتورة ضريبية معتمدة من مصلحة الضرائب المصرية، ولا تُعتد إلا بعد اعتمادها من الأطراف المعنية. وتكون مسؤولية تسليم واستلام الأصناف والمبالغ على المورد والمشتري."
+		expectedDisclaimer := "Dawa24 منصة وسيطة ولا تتحمل أي مسؤولية عن البيع أو التسليم أو الاستلام أو التحصيل أو السداد بين العميل والمورد، وتظل المسؤولية كاملة على أطراف المعاملة، كلٌ حسب التزامه القانوني والتعاقدي."
 		if !strings.Contains(rendered, expectedDisclaimer) {
 			t.Errorf("expected rendered invoice to contain required legal disclaimer")
 		}

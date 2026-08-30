@@ -151,6 +151,7 @@ func (h *UIHandler) RegisterPublicRoutes(r chi.Router) {
 		pub.Get("/faq", h.FaqPage)
 		pub.Get("/contact", h.ContactPage)
 		pub.Get("/auth/login", h.LoginPage)
+		pub.Get("/auth/mfa-verify", h.MFAVerifyPage)
 		pub.Get("/auth/register", h.RegisterPage)
 		pub.Get("/auth/forgot", h.ForgotPasswordPage)
 		pub.Get("/auth/reset", h.ResetPasswordPage)
@@ -162,6 +163,10 @@ func (h *UIHandler) RegisterPublicRoutes(r chi.Router) {
 		pub.Get("/catalog/{id}", h.CustomerProductDetailPage)
 		pub.Get("/suppliers", h.SuppliersPage)
 		pub.Get("/suppliers/{id}", h.SupplierProfilePage)
+
+		// Unlisted Courier Delivery Portal (Dedicated Delivery Representative Interface)
+		pub.Get("/delivery", h.CourierDeliveryPage)
+		pub.Post("/delivery/verify", h.CourierVerifyDeliverySubmit)
 		pub.Get("/offers", h.OffersPage)
 		pub.Get("/offers/{id}", h.OfferDetailPage)
 		pub.Get("/jobs", h.JobsPage)
@@ -206,6 +211,7 @@ func (h *UIHandler) RegisterPublicRoutes(r chi.Router) {
 
 		// Form actions that work signed-out (sign-up must be reachable pre-login)
 		pub.Post("/auth/login", h.LoginSubmit)
+		pub.Post("/auth/mfa-verify", h.MFAVerifySubmit)
 		pub.Post("/auth/logout", h.LogoutSubmit)
 		pub.Get("/auth/logout", h.LogoutSubmit)
 		pub.Post("/auth/register", h.RegisterSubmit)

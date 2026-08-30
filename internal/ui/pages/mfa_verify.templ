@@ -1,0 +1,119 @@
+package pages
+
+import (
+	"github.com/muhiya/dawa24-store/internal/ui/components"
+	"github.com/muhiya/dawa24-store/internal/ui/layouts"
+)
+
+templ MFAVerifyPage(lang, dir, email, errorMsg, redirectURL string) {
+	@layouts.Base("التحقق بخطوتين (MFA)", lang, dir) {
+		<div style="min-height:100vh; display:flex; align-items:center; justify-content:center; padding:2rem 1.5rem; background:radial-gradient(ellipse at top, var(--primary-subtle) 0%, var(--bg-app) 100%);">
+			<div class="glass-panel p-8" style="width:100%; max-width:460px; margin-bottom:0;" x-data="{ useRecovery: false }">
+				<div style="text-align:center; margin-bottom:1.75rem;">
+					<div style="display:inline-flex; align-items:center; justify-content:center; width:64px; height:64px; border-radius:var(--radius-2xl); background:var(--brand-subtle, rgba(14, 165, 233, 0.12)); color:var(--brand); margin-bottom:1rem; border:1px solid var(--border);">
+						<span style="font-size:2rem; line-height:1;">🛡️</span>
+					</div>
+					<h1 style="font-size:1.5rem; font-weight:900; color:var(--text-primary); margin:0;">
+						التحقق بخطوتين (MFA)
+					</h1>
+					<p style="color:var(--text-secondary); font-size:0.875rem; margin-top:0.35rem; line-height:1.5;">
+						حسابك محمي بالمصادقة الثنائية. يرجى إدخال الرمز من تطبيق Google Authenticator للمتابعة.
+					</p>
+					if email != "" {
+						<div style="display:inline-block; margin-top:0.4rem; padding:0.25rem 0.75rem; background:var(--surface-sunken); border:1px solid var(--border); border-radius:var(--radius-full); font-size:0.8rem; font-weight:700; color:var(--text-muted);">
+							{ email }
+						</div>
+					}
+				</div>
+
+				if errorMsg != "" {
+					<div class="alert alert-danger mb-4" style="display:flex; align-items:flex-start; gap:0.65rem; padding:0.85rem 1rem; border-radius:var(--radius-lg); font-size:0.875rem; line-height:1.5;">
+						<div style="flex-shrink:0; margin-top:2px;">@components.IconAlert("icon-xs")</div>
+						<div style="flex:1;">{ errorMsg }</div>
+					</div>
+				}
+
+				<form method="POST" action="/auth/mfa-verify" target="_self" style="display:flex; flex-direction:column; gap:1.25rem;">
+					<input type="hidden" name="redirect" value={ redirectURL } />
+
+					<!-- Standard TOTP Code Input -->
+					<div class="form-group mb-0" x-show="!useRecovery">
+						<label class="form-label" for="mfa-code" style="font-weight:800; text-align:center; display:block; margin-bottom:0.6rem;">
+							رمز التحقق (6 أرقام)
+						</label>
+						<input
+							type="text"
+							id="mfa-code"
+							name="code"
+							inputmode="numeric"
+							pattern="[0-9]*"
+							maxlength="6"
+							autocomplete="one-time-code"
+							autofocus
+							class="form-input text-center tabular-nums font-mono"
+							style="font-size:1.75rem; font-weight:900; letter-spacing:0.35em; height:58px; border-radius:var(--radius-xl); border:2px solid var(--border);"
+							placeholder="000000"
+						/>
+						<p style="font-size:0.75rem; color:var(--text-muted); text-align:center; margin-top:0.4rem;">
+							يتغير الرمز تلقائياً كل 30 ثانية في تطبيق Google Authenticator
+						</p>
+					</div>
+
+					<!-- Recovery Code Input -->
+					<div class="form-group mb-0" x-show="useRecovery" style="display:none;">
+						<label class="form-label" for="mfa-recovery-code" style="font-weight:800; text-align:center; display:block; margin-bottom:0.6rem;">
+							رمز الاسترداد الاحتياطي (Backup Code)
+						</label>
+						<input
+							type="text"
+							id="mfa-recovery-code"
+							name="recovery_code"
+							maxlength="12"
+							autocomplete="off"
+							class="form-input text-center font-mono uppercase"
+							style="font-size:1.2rem; font-weight:800; letter-spacing:0.15em; height:52px; border-radius:var(--radius-xl); border:2px solid var(--border);"
+							placeholder="XXXX-XXXX"
+						/>
+						<p style="font-size:0.75rem; color:var(--text-muted); text-align:center; margin-top:0.4rem;">
+							أدخل أحد رموز الاسترداد المكونة من 8 خانات التي حفظتها عند تفعيل MFA
+						</p>
+					</div>
+
+					<button type="submit" class="btn btn-primary" style="width:100%; padding:0.85rem; font-size:1rem; font-weight:800; justify-content:center; border-radius:var(--radius-xl); box-shadow:0 4px 12px rgba(14, 165, 233, 0.25);">
+						@components.IconCheck("icon-sm")
+						<span>تأكيد تسجيل الدخول</span>
+					</button>
+
+					<!-- Recovery Code Toggle -->
+					<div style="display:flex; justify-content:center; margin-top:0.25rem;">
+						<button
+							type="button"
+							class="btn btn-link btn-xs"
+							style="font-size:0.8rem; font-weight:700; color:var(--text-secondary); text-decoration:underline;"
+							x-show="!useRecovery"
+							@click="useRecovery = true; $nextTick(() => document.getElementById('mfa-recovery-code')?.focus())"
+						>
+							لا يمكنك الوصول لتطبيق Google Authenticator؟ استخدم رمز الاسترداد
+						</button>
+						<button
+							type="button"
+							class="btn btn-link btn-xs"
+							style="font-size:0.8rem; font-weight:700; color:var(--text-secondary); text-decoration:underline; display:none;"
+							x-show="useRecovery"
+							@click="useRecovery = false; $nextTick(() => document.getElementById('mfa-code')?.focus())"
+						>
+							العودة لإدخال رمز تطبيق Google Authenticator
+						</button>
+					</div>
+				</form>
+
+				<div style="text-align:center; margin-top:1.5rem; font-size:0.85rem; color:var(--text-secondary); border-top:1px solid var(--border-subtle); padding-top:1.25rem;">
+					<a href="/auth/login" style="font-weight:700; color:var(--text-muted); display:inline-flex; align-items:center; gap:0.35rem;">
+						<span>✕</span>
+						<span>إلغاء والعودة لصفحة تسجيل الدخول</span>
+					</a>
+				</div>
+			</div>
+		</div>
+	}
+}

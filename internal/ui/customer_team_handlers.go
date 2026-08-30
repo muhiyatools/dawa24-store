@@ -381,6 +381,7 @@ func (h *UIHandler) CustomerTeamImportMapSubmit(w http.ResponseWriter, r *http.R
 		session.DefaultRoleID,
 		session.CompanyRoles,
 		session.Branches,
+		langOf(r),
 	)
 
 	// Check existing user accounts

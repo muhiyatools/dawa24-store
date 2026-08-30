@@ -233,46 +233,46 @@ func VendorBranchFormPage(data VendorBranchFormData, lang, dir string) templ.Com
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "</span><h2 style=\"font-size:1.1rem; font-weight:800; color:var(--text); margin:0;\">1. البيانات الأساسية للفرع أو المخزن</h2></div><div style=\"display:grid; grid-template-columns:repeat(auto-fit, minmax(260px, 1fr)); gap:1.25rem;\"><div><label class=\"form-label\" style=\"font-size:0.85rem; font-weight:700; color:var(--text); margin-bottom:0.35rem; display:block;\">اسم الفرع / المخزن (بالعربية) <span style=\"color:#ef4444;\">*</span></label> <input type=\"text\" name=\"name_ar\" value=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "</span><h2 style=\"font-size:1.1rem; font-weight:800; color:var(--text); margin:0;\">1. البيانات الأساسية للفرع أو المخزن</h2></div><div style=\"display:grid; grid-template-columns:repeat(auto-fit, minmax(260px, 1fr)); gap:1.25rem;\"><div><label class=\"form-label field-label\">اسم الفرع / المخزن (بالعربية) <span style=\"color:#ef4444;\">*</span></label> <input type=\"text\" name=\"name_ar\" value=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var7 string
 			templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.ResolveAttributeValue(nameAr)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_branch_form.templ`, Line: 151, Col: 23}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_branch_form.templ`, Line: 151, Col: 15}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var7)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "\" required placeholder=\"مثال: مخزن الدلتا الرئيسي - طنطا\" class=\"form-input w-full\" style=\"font-size:0.9rem;\"></div><div><label class=\"form-label\" style=\"font-size:0.85rem; font-weight:700; color:var(--text); margin-bottom:0.35rem; display:block;\">اسم الفرع (بالإنجليزية)</label> <input type=\"text\" name=\"name_en\" value=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "\" required placeholder=\"مثال: مخزن الدلتا الرئيسي - طنطا\" class=\"form-input w-full text-09\"></div><div><label class=\"form-label field-label\">اسم الفرع (بالإنجليزية)</label> <input type=\"text\" name=\"name_en\" value=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var8 string
 			templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.ResolveAttributeValue(nameEn)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_branch_form.templ`, Line: 166, Col: 23}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_branch_form.templ`, Line: 166, Col: 15}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var8)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "\" placeholder=\"e.g. Delta Central Depot - Tanta\" class=\"form-input w-full\" style=\"font-size:0.9rem;\"></div><div><label class=\"form-label\" style=\"font-size:0.85rem; font-weight:700; color:var(--text); margin-bottom:0.35rem; display:block;\">كود الفرع (Branch Code)</label> <input type=\"text\" name=\"code\" value=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "\" placeholder=\"e.g. Delta Central Depot - Tanta\" class=\"form-input w-full text-09\"></div><div><label class=\"form-label field-label\">كود الفرع (Branch Code)</label> <input type=\"text\" name=\"code\" value=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var9 string
 			templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.ResolveAttributeValue(code)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_branch_form.templ`, Line: 180, Col: 21}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_branch_form.templ`, Line: 180, Col: 13}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var9)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "\" placeholder=\"مثال: WH-DEL-01\" class=\"form-input tabular-nums w-full\" style=\"font-size:0.9rem;\"></div><div><label class=\"form-label\" style=\"font-size:0.85rem; font-weight:700; color:var(--text); margin-bottom:0.35rem; display:block;\">نوع المنشأة اللوجستية <span style=\"color:#ef4444;\">*</span></label> <select name=\"warehouse_type\" class=\"form-input w-full\" style=\"font-size:0.9rem;\"><option value=\"warehouse\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "\" placeholder=\"مثال: WH-DEL-01\" class=\"form-input tabular-nums w-full text-09\"></div><div><label class=\"form-label field-label\">نوع المنشأة اللوجستية <span style=\"color:#ef4444;\">*</span></label> <select name=\"warehouse_type\" class=\"form-input w-full text-09\"><option value=\"warehouse\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -320,7 +320,7 @@ func VendorBranchFormPage(data VendorBranchFormData, lang, dir string) templ.Com
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 26, "</span><h2 style=\"font-size:1.1rem; font-weight:800; color:var(--text); margin:0;\">2. الموقع الإداري والإدارة المسؤولة</h2></div><div style=\"display:grid; grid-template-columns:repeat(auto-fit, minmax(260px, 1fr)); gap:1.25rem; margin-bottom:1.25rem;\"><div><label class=\"form-label\" style=\"font-size:0.85rem; font-weight:700; color:var(--text); margin-bottom:0.35rem; display:block;\">المدينة / المحافظة <span style=\"color:#ef4444;\">*</span></label> <select name=\"city_id\" data-map-city required class=\"form-input w-full\" style=\"font-size:0.9rem;\"><option value=\"\">-- اختر المدينة / المحافظة --</option> ")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 26, "</span><h2 style=\"font-size:1.1rem; font-weight:800; color:var(--text); margin:0;\">2. الموقع الإداري والإدارة المسؤولة</h2></div><div style=\"display:grid; grid-template-columns:repeat(auto-fit, minmax(260px, 1fr)); gap:1.25rem; margin-bottom:1.25rem;\"><div><label class=\"form-label field-label\">المدينة / المحافظة <span style=\"color:#ef4444;\">*</span></label> <select name=\"city_id\" data-map-city required class=\"form-input w-full text-09\"><option value=\"\">-- اختر المدينة / المحافظة --</option> ")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -392,7 +392,7 @@ func VendorBranchFormPage(data VendorBranchFormData, lang, dir string) templ.Com
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 34, "</select></div><div><label class=\"form-label\" style=\"font-size:0.85rem; font-weight:700; color:var(--text); margin-bottom:0.35rem; display:block;\">مدير الفرع المسؤول</label> <select name=\"manager_id\" class=\"form-input w-full\" style=\"font-size:0.9rem;\"><option value=\"\">-- تعيين مدير من موظفي المنشأة --</option> ")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 34, "</select></div><div><label class=\"form-label field-label\">مدير الفرع المسؤول</label> <select name=\"manager_id\" class=\"form-input w-full text-09\"><option value=\"\">-- تعيين مدير من موظفي المنشأة --</option> ")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -453,46 +453,46 @@ func VendorBranchFormPage(data VendorBranchFormData, lang, dir string) templ.Com
 					}
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 41, "</select></div><div><label class=\"form-label\" style=\"font-size:0.85rem; font-weight:700; color:var(--text); margin-bottom:0.35rem; display:block;\">رقم هاتف الفرع</label> <input type=\"tel\" name=\"phone\" value=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 41, "</select></div><div><label class=\"form-label field-label\">رقم هاتف الفرع</label> <input type=\"tel\" name=\"phone\" value=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var17 string
 			templ_7745c5c3_Var17, templ_7745c5c3_Err = templ.ResolveAttributeValue(phone)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_branch_form.templ`, Line: 254, Col: 22}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_branch_form.templ`, Line: 254, Col: 14}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var17)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 42, "\" placeholder=\"010XXXXXXXX\" class=\"form-input tabular-nums w-full\" style=\"font-size:0.9rem;\"></div><div><label class=\"form-label\" style=\"font-size:0.85rem; font-weight:700; color:var(--text); margin-bottom:0.35rem; display:block;\">المساحة التخزينية (م²)</label> <input type=\"number\" name=\"capacity_sqm\" value=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 42, "\" placeholder=\"010XXXXXXXX\" class=\"form-input tabular-nums w-full text-09\"></div><div><label class=\"form-label field-label\">المساحة التخزينية (م²)</label> <input type=\"number\" name=\"capacity_sqm\" value=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var18 string
 			templ_7745c5c3_Var18, templ_7745c5c3_Err = templ.ResolveAttributeValue(capacitySQM)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_branch_form.templ`, Line: 268, Col: 28}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_branch_form.templ`, Line: 268, Col: 20}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var18)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 43, "\" placeholder=\"500\" class=\"form-input tabular-nums w-full\" style=\"font-size:0.9rem;\"></div></div><div><label class=\"form-label\" style=\"font-size:0.85rem; font-weight:700; color:var(--text); margin-bottom:0.35rem; display:block;\">العنوان التفصيلي وموقع الاستلام <span style=\"color:#ef4444;\">*</span></label> <input type=\"text\" name=\"address\" value=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 43, "\" placeholder=\"500\" class=\"form-input tabular-nums w-full text-09\"></div></div><div><label class=\"form-label field-label\">العنوان التفصيلي وموقع الاستلام <span style=\"color:#ef4444;\">*</span></label> <input type=\"text\" name=\"address\" value=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var19 string
 			templ_7745c5c3_Var19, templ_7745c5c3_Err = templ.ResolveAttributeValue(address)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_branch_form.templ`, Line: 283, Col: 23}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_branch_form.templ`, Line: 283, Col: 16}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var19)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 44, "\" required placeholder=\"مثال: المنطقة الصناعية الثانية، قطعة 42، بجوار شركة توزيع الأدوية\" class=\"form-input w-full\" style=\"font-size:0.9rem;\"></div></div><!-- Section 3: Interactive OpenStreetMap --><div><div style=\"display:flex; align-items:center; gap:0.5rem; margin-bottom:1.25rem; padding-bottom:0.6rem; border-bottom:1px solid var(--border);\"><span style=\"font-size:1.2rem;\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 44, "\" required placeholder=\"مثال: المنطقة الصناعية الثانية، قطعة 42، بجوار شركة توزيع الأدوية\" class=\"form-input w-full text-09\"></div></div><!-- Section 3: Interactive OpenStreetMap --><div><div style=\"display:flex; align-items:center; gap:0.5rem; margin-bottom:1.25rem; padding-bottom:0.6rem; border-bottom:1px solid var(--border);\"><span style=\"font-size:1.2rem;\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -578,7 +578,7 @@ func VendorBranchFormPage(data VendorBranchFormData, lang, dir string) templ.Com
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 51, "\"></div></div><div><label class=\"form-label\" style=\"font-size:0.85rem; font-weight:700; color:var(--text); margin-bottom:0.35rem; display:block;\">رابط خرائط Google (Google Maps URL)</label> <input type=\"url\" name=\"google_maps_url\" data-map-input=\"google_url\" value=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 51, "\"></div></div><div><label class=\"form-label field-label\">رابط خرائط Google (Google Maps URL)</label> <input type=\"url\" name=\"google_maps_url\" data-map-input=\"google_url\" value=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

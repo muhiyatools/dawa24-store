@@ -402,6 +402,20 @@ func (h *UIHandler) buildPrintableInvoiceData(ctx context.Context, invoice *bill
 		}
 	}
 
+	var deliveryCode, trackingNumber string
+	if order != nil {
+		for _, s := range order.Shipments {
+			if s != nil {
+				if deliveryCode == "" && s.DeliveryCode != "" {
+					deliveryCode = s.DeliveryCode
+				}
+				if trackingNumber == "" && s.TrackingNumber != "" {
+					trackingNumber = s.TrackingNumber
+				}
+			}
+		}
+	}
+
 	if issueDate.IsZero() {
 		issueDate = time.Now().UTC()
 	}
@@ -431,6 +445,8 @@ func (h *UIHandler) buildPrintableInvoiceData(ctx context.Context, invoice *bill
 		Status:         invStatus,
 		PaymentMethod:  paymentMethod,
 		PaymentStatus:  paymentStatus,
+		DeliveryCode:   deliveryCode,
+		TrackingNumber: trackingNumber,
 		Notes:          notes,
 		QRCodeData:     qrData,
 	}, nil

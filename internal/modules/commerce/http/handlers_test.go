@@ -90,6 +90,14 @@ func (r stubRepo) UpdateShipmentStatus(ctx context.Context, id int64, from, to c
 	r.fail("UpdateShipmentStatus")
 	return nil
 }
+func (r stubRepo) GetShipmentForDeliveryByTracking(ctx context.Context, tracking string) (*commerce.OrderShipment, error) {
+	r.fail("GetShipmentForDeliveryByTracking")
+	return nil, nil
+}
+func (r stubRepo) VerifyAndCompleteDelivery(ctx context.Context, shipmentID int64, deliveryCode string, notes string, collectedAmountMinor int64) (*commerce.OrderShipment, error) {
+	r.fail("VerifyAndCompleteDelivery")
+	return nil, nil
+}
 func (r stubRepo) ListOrderHistory(ctx context.Context, orderID int64) ([]*commerce.OrderStatusHistory, error) {
 	r.fail("ListOrderHistory")
 	return nil, nil
@@ -219,6 +227,12 @@ func (happyRepo) GetShipmentByID(ctx context.Context, id int64) (*commerce.Order
 }
 func (happyRepo) UpdateShipmentStatus(ctx context.Context, id int64, from, to commerce.OrderStatus, history commerce.OrderStatusHistory) error {
 	return nil
+}
+func (happyRepo) GetShipmentForDeliveryByTracking(ctx context.Context, tracking string) (*commerce.OrderShipment, error) {
+	return &commerce.OrderShipment{ID: 1, ShipmentNumber: "SH-1", TrackingNumber: tracking, Status: commerce.StatusShipped, DeliveryCode: "123456"}, nil
+}
+func (happyRepo) VerifyAndCompleteDelivery(ctx context.Context, shipmentID int64, deliveryCode string, notes string, collectedAmountMinor int64) (*commerce.OrderShipment, error) {
+	return &commerce.OrderShipment{ID: shipmentID, Status: commerce.StatusDelivered}, nil
 }
 func (happyRepo) ListOrderHistory(ctx context.Context, orderID int64) ([]*commerce.OrderStatusHistory, error) {
 	return []*commerce.OrderStatusHistory{{ID: 1, OrderID: orderID, ToStatus: string(commerce.StatusPending)}}, nil

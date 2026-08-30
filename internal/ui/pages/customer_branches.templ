@@ -258,7 +258,7 @@ templ CustomerBranches(data CustomerBranchesData, lang string, dir string, perms
 												}
 											</div>
 
-											<div style="display:flex; align-items:center; gap:0.4rem;">
+											<div class="inline-row-04">
 												<!-- Edit Branch Button (Triggers Edit Mode in the same interface) -->
 												<button
 													type="button"
@@ -354,7 +354,7 @@ templ CustomerBranches(data CustomerBranchesData, lang string, dir string, perms
 					<!-- Right Column: Unified Pharmacy Branch Form (Add / Edit Modes) -->
 					<div id="new-branch-form" style="background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-xl); padding:1.5rem; position:sticky; top:calc(var(--header-height) + 1.5rem); box-shadow:var(--shadow-xs);">
 						<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.25rem; border-bottom:1px solid var(--border); padding-bottom:0.75rem;">
-							<div style="display:flex; align-items:center; gap:0.6rem;">
+							<div class="inline-row-06">
 								<div style="width:36px; height:36px; border-radius:var(--radius-lg); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center;">
 									<span x-text="mode === 'edit' ? '' : ''"></span>
 								</div>
@@ -382,13 +382,13 @@ templ CustomerBranches(data CustomerBranchesData, lang string, dir string, perms
 						<form method="POST" :action="formAction" style="display:flex; flex-direction:column; gap:1rem;">
 							<div class="grid-halves">
 								<div>
-									<label class="form-label" style="font-size:0.8rem; font-weight:700;">
+									<label class="form-label label-sm-bold">
 										اسم الفرع بالعربية <span class="text-danger">*</span>
 									</label>
 									<input type="text" name="name_ar" x-model="form.name_ar" required placeholder="صيدلية الأمل - المعادي" class="form-input input-sm w-full"/>
 								</div>
 								<div>
-									<label class="form-label" style="font-size:0.8rem; font-weight:700;">
+									<label class="form-label label-sm-bold">
 										اسم الفرع بالإنجليزية
 									</label>
 									<input type="text" name="name_en" x-model="form.name_en" placeholder="Al Amal - Maadi" class="form-input input-sm w-full"/>
@@ -397,13 +397,13 @@ templ CustomerBranches(data CustomerBranchesData, lang string, dir string, perms
 
 							<div class="grid-halves">
 								<div>
-									<label class="form-label" style="font-size:0.8rem; font-weight:700;">
+									<label class="form-label label-sm-bold">
 										كود الفرع الداخلي
 									</label>
 									<input type="text" name="code" x-model="form.code" placeholder="PH-01" class="form-input input-sm tabular-nums w-full"/>
 								</div>
 								<div>
-									<label class="form-label" style="font-size:0.8rem; font-weight:700;">
+									<label class="form-label label-sm-bold">
 										المدينة / المحافظة <span class="text-danger">*</span>
 									</label>
 									<select name="city_id" x-model="form.city_id" required class="form-input input-sm w-full">
@@ -426,7 +426,7 @@ templ CustomerBranches(data CustomerBranchesData, lang string, dir string, perms
 							</div>
 
 							<div>
-								<label class="form-label" style="font-size:0.8rem; font-weight:700;">
+								<label class="form-label label-sm-bold">
 									العنوان التفصيلي <span class="text-danger">*</span>
 								</label>
 								<input type="text" name="address" x-model="form.address" required placeholder="شارع النصر، أمام مستشفى المعادي" class="form-input input-sm w-full"/>
@@ -434,13 +434,13 @@ templ CustomerBranches(data CustomerBranchesData, lang string, dir string, perms
 
 							<div class="grid-halves">
 								<div>
-									<label class="form-label" style="font-size:0.8rem; font-weight:700;">
+									<label class="form-label label-sm-bold">
 										رقم هاتف الفرع
 									</label>
 									<input type="tel" name="phone" x-model="form.phone" placeholder="01012345678" class="form-input input-sm tabular-nums w-full"/>
 								</div>
 								<div>
-									<label class="form-label" style="font-size:0.8rem; font-weight:700;">
+									<label class="form-label label-sm-bold">
 										ساعات العمل
 									</label>
 									<input type="text" name="operating_hours" x-model="form.operating_hours" placeholder="9 صباحاً - 11 مساءً" class="form-input input-sm w-full"/>
@@ -582,7 +582,7 @@ templ CustomerBranches(data CustomerBranchesData, lang string, dir string, perms
 											<!-- Branch Assignment -->
 											<td>
 												if emp.Member.BranchID != nil && *emp.Member.BranchID > 0 {
-													<div style="display:flex; align-items:center; gap:0.4rem;">
+													<div class="inline-row-04">
 														<span class="badge badge-primary text-xs fw-700">
 															{ data.GetBranchName(emp.Member.BranchID) }
 														</span>
@@ -684,40 +684,40 @@ templ CustomerBranches(data CustomerBranchesData, lang string, dir string, perms
 					<form method="POST" action="/customer/employees/new" style="display:flex; flex-direction:column; gap:1rem;">
 						<div class="grid-halves">
 							<div>
-								<label class="form-label" style="font-size:0.8rem; font-weight:700;">اسم الموظف بالكامل <span class="text-danger">*</span></label>
+								<label class="form-label label-sm-bold">اسم الموظف بالكامل <span class="text-danger">*</span></label>
 								<input type="text" name="name" required placeholder="د. أحمد محمد" class="form-input input-sm w-full"/>
 							</div>
 							<div>
-								<label class="form-label" style="font-size:0.8rem; font-weight:700;">البريد الإلكتروني <span class="text-danger">*</span></label>
+								<label class="form-label label-sm-bold">البريد الإلكتروني <span class="text-danger">*</span></label>
 								<input type="email" name="email" required placeholder="ahmed@pharmacy.com" class="form-input input-sm w-full"/>
 							</div>
 						</div>
 
 						<div class="grid-halves">
 							<div>
-								<label class="form-label" style="font-size:0.8rem; font-weight:700;">رقم الهاتف للتواصل</label>
+								<label class="form-label label-sm-bold">رقم الهاتف للتواصل</label>
 								<input type="tel" name="phone" placeholder="01099887766" class="form-input input-sm tabular-nums w-full"/>
 							</div>
 							<div>
-								<label class="form-label" style="font-size:0.8rem; font-weight:700;">المسمى الوظيفي</label>
+								<label class="form-label label-sm-bold">المسمى الوظيفي</label>
 								<input type="text" name="job_title" placeholder="صيدلي أول / مدير فرع" class="form-input input-sm w-full"/>
 							</div>
 						</div>
 
 						<div class="grid-halves">
 							<div>
-								<label class="form-label" style="font-size:0.8rem; font-weight:700;">كود الموظف الداخلي</label>
+								<label class="form-label label-sm-bold">كود الموظف الداخلي</label>
 								<input type="text" name="employee_code" placeholder="EMP-01" class="form-input input-sm tabular-nums w-full"/>
 							</div>
 							<div>
-								<label class="form-label" style="font-size:0.8rem; font-weight:700;">كلمة المرور (اختياري)</label>
+								<label class="form-label label-sm-bold">كلمة المرور (اختياري)</label>
 								<input type="password" name="password" placeholder="اتركه فارغاً للتوليد التلقائي" class="form-input input-sm w-full"/>
 							</div>
 						</div>
 
 						<div class="grid-halves">
 							<div>
-								<label class="form-label" style="font-size:0.8rem; font-weight:700;">الفرع التابع له الموظف <span class="text-danger">*</span></label>
+								<label class="form-label label-sm-bold">الفرع التابع له الموظف <span class="text-danger">*</span></label>
 								<select id="add-emp-branch-select" name="branch_id" class="form-input input-sm w-full">
 									<option value="">-- عام (كافة الفروع) --</option>
 									for _, b := range data.Branches {
@@ -733,7 +733,7 @@ templ CustomerBranches(data CustomerBranchesData, lang string, dir string, perms
 							</div>
 
 							<div>
-								<label class="form-label" style="font-size:0.8rem; font-weight:700;">الدور والصلاحيات (Role) <span class="text-danger">*</span></label>
+								<label class="form-label label-sm-bold">الدور والصلاحيات (Role) <span class="text-danger">*</span></label>
 								<select name="role_key" required class="form-input input-sm w-full">
 									<option value="org_pharmacist">صيدلي مسؤول (طلب أدوية واستعراض)</option>
 									<option value="org_manager">مدير فرع (صلاحيات كاملة للفرع والمخزون)</option>
@@ -776,29 +776,29 @@ templ CustomerBranches(data CustomerBranchesData, lang string, dir string, perms
 							<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/customer/employees/%d/edit", emp.Member.UserID)) } style="display:flex; flex-direction:column; gap:1rem;">
 								<div class="grid-halves">
 									<div>
-										<label class="form-label" style="font-size:0.8rem; font-weight:700;">اسم الموظف</label>
+										<label class="form-label label-sm-bold">اسم الموظف</label>
 										<input type="text" value={ emp.UserName } disabled class="form-input input-sm w-full" style="opacity:0.8;"/>
 									</div>
 									<div>
-										<label class="form-label" style="font-size:0.8rem; font-weight:700;">البريد الإلكتروني</label>
+										<label class="form-label label-sm-bold">البريد الإلكتروني</label>
 										<input type="email" value={ emp.UserEmail } disabled class="form-input input-sm w-full" style="opacity:0.8;"/>
 									</div>
 								</div>
 
 								<div class="grid-halves">
 									<div>
-										<label class="form-label" style="font-size:0.8rem; font-weight:700;">المسمى الوظيفي</label>
+										<label class="form-label label-sm-bold">المسمى الوظيفي</label>
 										<input type="text" name="job_title" value={ emp.Member.JobTitle } class="form-input input-sm w-full"/>
 									</div>
 									<div>
-										<label class="form-label" style="font-size:0.8rem; font-weight:700;">كود الموظف</label>
+										<label class="form-label label-sm-bold">كود الموظف</label>
 										<input type="text" name="employee_code" value={ emp.Member.EmployeeCode } class="form-input input-sm tabular-nums w-full"/>
 									</div>
 								</div>
 
 								<div class="grid-halves">
 									<div>
-										<label class="form-label" style="font-size:0.8rem; font-weight:700;">الفرع التابع له الموظف</label>
+										<label class="form-label label-sm-bold">الفرع التابع له الموظف</label>
 										<select name="branch_id" class="form-input input-sm w-full">
 											<option value="">-- عام (كافة الفروع) --</option>
 											for _, b := range data.Branches {
@@ -814,7 +814,7 @@ templ CustomerBranches(data CustomerBranchesData, lang string, dir string, perms
 									</div>
 
 									<div>
-										<label class="form-label" style="font-size:0.8rem; font-weight:700;">الدور والصلاحيات</label>
+										<label class="form-label label-sm-bold">الدور والصلاحيات</label>
 										<select name="role_key" required class="form-input input-sm w-full">
 											<option value="org_pharmacist" selected?={ emp.Member.RoleKey == "org_pharmacist" }>صيدلي مسؤول</option>
 											<option value="org_manager" selected?={ emp.Member.RoleKey == "org_manager" }>مدير فرع</option>

@@ -8,6 +8,7 @@ import (
 	"errors"
 	"fmt"
 	"sort"
+	"sync"
 	"time"
 
 	"github.com/redis/go-redis/v9"
@@ -75,15 +76,23 @@ type SessionStore struct {
 	cookieName string
 	ttl        time.Duration
 	secure     bool
+
+	memMu           sync.RWMutex
+	memSessions     map[string]*Session
+	memUserSessions map[int64]map[string]bool
+	memOrgSessions  map[int64]map[string]bool
 }
 
 // NewSessionStore creates a session store wrapping Redis.
 func NewSessionStore(c *cachepkg.Cache, cfg config.Session) *SessionStore {
 	return &SessionStore{
-		cache:      c,
-		cookieName: cfg.CookieName,
-		ttl:        cfg.TTL,
-		secure:     cfg.SecureOnly,
+		cache:           c,
+		cookieName:      cfg.CookieName,
+		ttl:             cfg.TTL,
+		secure:          cfg.SecureOnly,
+		memSessions:     make(map[string]*Session),
+		memUserSessions: make(map[int64]map[string]bool),
+		memOrgSessions:  make(map[int64]map[string]bool),
 	}
 }
 
@@ -133,7 +142,25 @@ func (s *SessionStore) Create(ctx context.Context, sess *Session) error {
 
 	rdb, err := s.client()
 	if err != nil {
-		return err
+		s.memMu.Lock()
+		defer s.memMu.Unlock()
+		if s.memSessions == nil {
+			s.memSessions = make(map[string]*Session)
+			s.memUserSessions = make(map[int64]map[string]bool)
+			s.memOrgSessions = make(map[int64]map[string]bool)
+		}
+		s.memSessions[sess.Token] = sess
+		if s.memUserSessions[sess.UserID] == nil {
+			s.memUserSessions[sess.UserID] = make(map[string]bool)
+		}
+		s.memUserSessions[sess.UserID][sess.Token] = true
+		if sess.ActiveOrgID > 0 {
+			if s.memOrgSessions[sess.ActiveOrgID] == nil {
+				s.memOrgSessions[sess.ActiveOrgID] = make(map[string]bool)
+			}
+			s.memOrgSessions[sess.ActiveOrgID][sess.Token] = true
+		}
+		return nil
 	}
 	pipe := rdb.TxPipeline()
 	pipe.Set(ctx, sessionKey(sess.Token), data, s.ttl)
@@ -239,7 +266,18 @@ func (s *SessionStore) enforceLimit(ctx context.Context, userID int64, max int) 
 func (s *SessionStore) ListForUser(ctx context.Context, userID int64) ([]*Session, error) {
 	rdb, err := s.client()
 	if err != nil {
-		return nil, err
+		s.memMu.RLock()
+		defer s.memMu.RUnlock()
+		var list []*Session
+		if set, ok := s.memUserSessions[userID]; ok {
+			for tok := range set {
+				if sess, exists := s.memSessions[tok]; exists {
+					list = append(list, sess)
+				}
+			}
+		}
+		sort.Slice(list, func(i, j int) bool { return list[i].CreatedAt.After(list[j].CreatedAt) })
+		return list, nil
 	}
 	tokens, err := rdb.SMembers(ctx, userSessionsKey(userID)).Result()
 	if err != nil && !errors.Is(err, redis.Nil) {
@@ -259,7 +297,18 @@ func (s *SessionStore) ListForUser(ctx context.Context, userID int64) ([]*Sessio
 func (s *SessionStore) ListForOrg(ctx context.Context, orgID int64) ([]*Session, error) {
 	rdb, err := s.client()
 	if err != nil {
-		return nil, err
+		s.memMu.RLock()
+		defer s.memMu.RUnlock()
+		var list []*Session
+		if set, ok := s.memOrgSessions[orgID]; ok {
+			for tok := range set {
+				if sess, exists := s.memSessions[tok]; exists {
+					list = append(list, sess)
+				}
+			}
+		}
+		sort.Slice(list, func(i, j int) bool { return list[i].CreatedAt.After(list[j].CreatedAt) })
+		return list, nil
 	}
 	tokens, err := rdb.SMembers(ctx, orgSessionsKey(orgID)).Result()
 	if err != nil && !errors.Is(err, redis.Nil) {
@@ -283,7 +332,12 @@ func (s *SessionStore) Get(ctx context.Context, token string) (*Session, error) 
 
 	rdb, err := s.client()
 	if err != nil {
-		return nil, err
+		s.memMu.RLock()
+		defer s.memMu.RUnlock()
+		if sess, ok := s.memSessions[token]; ok {
+			return sess, nil
+		}
+		return nil, apperr.Unauthorized()
 	}
 	val, err := rdb.Get(ctx, sessionKey(token)).Bytes()
 	if err != nil {
@@ -313,7 +367,18 @@ func (s *SessionStore) Delete(ctx context.Context, token string) error {
 
 	rdb, err := s.client()
 	if err != nil {
-		return err
+		s.memMu.Lock()
+		defer s.memMu.Unlock()
+		if sess, ok := s.memSessions[token]; ok {
+			delete(s.memSessions, token)
+			if s.memUserSessions[sess.UserID] != nil {
+				delete(s.memUserSessions[sess.UserID], token)
+			}
+			if sess.ActiveOrgID > 0 && s.memOrgSessions[sess.ActiveOrgID] != nil {
+				delete(s.memOrgSessions[sess.ActiveOrgID], token)
+			}
+		}
+		return nil
 	}
 
 	sess, err := s.Get(ctx, token)
@@ -334,7 +399,15 @@ func (s *SessionStore) Delete(ctx context.Context, token string) error {
 func (s *SessionStore) DeleteAllForUser(ctx context.Context, userID int64) error {
 	rdb, err := s.client()
 	if err != nil {
-		return err
+		s.memMu.Lock()
+		defer s.memMu.Unlock()
+		if set, ok := s.memUserSessions[userID]; ok {
+			for tok := range set {
+				delete(s.memSessions, tok)
+			}
+			delete(s.memUserSessions, userID)
+		}
+		return nil
 	}
 	tokens, err := rdb.SMembers(ctx, userSessionsKey(userID)).Result()
 	if err != nil && !errors.Is(err, redis.Nil) {
@@ -358,7 +431,22 @@ func (s *SessionStore) DeleteAllForUser(ctx context.Context, userID int64) error
 func (s *SessionStore) DeleteAllOtherForOrg(ctx context.Context, orgID int64, currentToken string) error {
 	rdb, err := s.client()
 	if err != nil {
-		return err
+		s.memMu.Lock()
+		defer s.memMu.Unlock()
+		if set, ok := s.memOrgSessions[orgID]; ok {
+			for tok := range set {
+				if tok != currentToken {
+					if sess, ok := s.memSessions[tok]; ok {
+						if s.memUserSessions[sess.UserID] != nil {
+							delete(s.memUserSessions[sess.UserID], tok)
+						}
+					}
+					delete(s.memSessions, tok)
+					delete(set, tok)
+				}
+			}
+		}
+		return nil
 	}
 	tokens, err := rdb.SMembers(ctx, orgSessionsKey(orgID)).Result()
 	if err != nil && !errors.Is(err, redis.Nil) {
@@ -377,7 +465,22 @@ func (s *SessionStore) DeleteAllOtherForOrg(ctx context.Context, orgID int64, cu
 func (s *SessionStore) DeleteAllOtherForUser(ctx context.Context, userID int64, currentToken string) error {
 	rdb, err := s.client()
 	if err != nil {
-		return err
+		s.memMu.Lock()
+		defer s.memMu.Unlock()
+		if set, ok := s.memUserSessions[userID]; ok {
+			for tok := range set {
+				if tok != currentToken {
+					if sess, ok := s.memSessions[tok]; ok {
+						if sess.ActiveOrgID > 0 && s.memOrgSessions[sess.ActiveOrgID] != nil {
+							delete(s.memOrgSessions[sess.ActiveOrgID], tok)
+						}
+					}
+					delete(s.memSessions, tok)
+					delete(set, tok)
+				}
+			}
+		}
+		return nil
 	}
 	tokens, err := rdb.SMembers(ctx, userSessionsKey(userID)).Result()
 	if err != nil && !errors.Is(err, redis.Nil) {

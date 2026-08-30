@@ -98,7 +98,6 @@ func (h *UIHandler) serveDocumentFile(w http.ResponseWriter, r *http.Request, do
 		}
 	}
 
-
 	for strings.HasPrefix(cleanKey, "/") {
 		cleanKey = strings.TrimPrefix(cleanKey, "/")
 	}

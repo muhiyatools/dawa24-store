@@ -341,7 +341,7 @@ templ AdminSettings(values AdminSettingsValues, lang, dir string) {
 
 					<!-- 1. Contact Info Form -->
 					<div x-show="siteSubTab === 'contact'">
-						<form action="/admin/settings/site" method="POST" style="display:flex; flex-direction:column; gap:1.15rem;">
+						<form action="/admin/settings/site" method="POST" class="stack-115">
 							<input type="hidden" name="section" value="contact"/>
 							
 							<div class="form-grid-2">
@@ -393,7 +393,7 @@ templ AdminSettings(values AdminSettingsValues, lang, dir string) {
 
 					<!-- 2. Social Media Links Form -->
 					<div x-show="siteSubTab === 'socials'">
-						<form action="/admin/settings/site" method="POST" style="display:flex; flex-direction:column; gap:1.15rem;">
+						<form action="/admin/settings/site" method="POST" class="stack-115">
 							<input type="hidden" name="section" value="socials"/>
 
 							<p style="font-size:0.85rem; color:var(--text-secondary); margin:0 0 0.5rem 0;">

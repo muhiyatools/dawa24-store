@@ -267,6 +267,39 @@ templ CustomerOrderDetail(order *commerce.Order, history []*commerce.OrderStatus
 						</div>
 					</div>
 
+					<!-- Delivery Confirmation Code PIN Banner (for Pharmacy Recipient) -->
+					for _, sh := range order.Shipments {
+						if sh != nil && sh.DeliveryCode != "" && sh.Status != commerce.StatusDelivered && sh.Status != commerce.StatusCompleted && sh.Status != commerce.StatusCancelled {
+							<div class="glass-panel p-5 mb-0 border-2 border-emerald-500/80 bg-emerald-50/20 rounded-2xl shadow-xs">
+								<div class="flex-between items-center flex-wrap gap-4">
+									<div class="d-flex items-center gap-3">
+										<div class="w-12 h-12 rounded-xl bg-emerald-100 text-emerald-700 d-flex items-center justify-center shadow-2xs">
+											@components.IconShield("icon-md")
+										</div>
+										<div>
+											<div class="d-flex items-center gap-2">
+												<h3 class="text-sm font-black text-emerald-950 m-0">
+													كود تأكيد الاستلام الخاص بك (Delivery PIN)
+												</h3>
+												<span class="badge badge-emerald text-2xs font-extrabold">سري للصيدلية</span>
+											</div>
+											<p class="text-xs text-emerald-800 m-0 mt-1 font-medium max-w-md leading-relaxed">
+												أعطِ هذا الكود لمندوب الشحن فقط عند وصوله لمقر الصيدلية وفحص واستلام كامل الأصناف وسداد القيمة.
+											</p>
+										</div>
+									</div>
+
+									<div class="text-center bg-white p-3 px-5 rounded-xl border border-emerald-300 shadow-xs">
+										<span class="text-2xs text-secondary font-bold d-block mb-1">كود التسليم للمندوب:</span>
+										<div class="text-2xl font-black text-emerald-700 font-mono tracking-widest tabular-nums select-all">
+											{ sh.DeliveryCode }
+										</div>
+									</div>
+								</div>
+							</div>
+						}
+					}
+
 					<!-- 2. Shipments & Line Items Table Card -->
 					<div class="glass-panel p-6 mb-0" id="order-lines-container">
 						<div class="flex-between items-center mb-4 flex-wrap gap-3 pb-3 border-b">
@@ -311,7 +344,7 @@ templ CustomerOrderDetail(order *commerce.Order, history []*commerce.OrderStatus
 												<div style="border:1px solid var(--border); border-radius:var(--radius-lg); background:var(--surface-sunken); overflow:hidden;">
 													<!-- Shipment Header -->
 													<div style="display:flex; justify-content:space-between; align-items:center; padding:0.85rem 1.15rem; background:var(--surface-raised); border-bottom:1px solid var(--border); flex-wrap:wrap; gap:0.75rem;">
-														<div style="display:flex; align-items:center; gap:0.6rem;">
+														<div class="inline-row-06">
 															<span class="badge badge-primary text-xs fw-800 tabular-nums">طرد { fmt.Sprintf("%d", idx+1) }</span>
 															<strong style="font-size:0.95rem; color:var(--text); font-weight:800;">
 																{ sh.VendorName.Get(i18n.Lang(lang)) }
@@ -562,9 +595,14 @@ templ CustomerOrderDetail(order *commerce.Order, history []*commerce.OrderStatus
 															{ sh.VendorName.Get(i18n.Lang(lang)) }
 														</strong>
 													</div>
-													<div class="d-flex items-center gap-2">
+													<div class="d-flex items-center gap-2 flex-wrap">
 														if sh.TrackingNumber != "" {
 															<span class="badge badge-slate text-xs font-mono">بوليصة: { sh.TrackingNumber }</span>
+														}
+														if sh.DeliveryCode != "" && sh.Status != commerce.StatusDelivered && sh.Status != commerce.StatusCompleted && sh.Status != commerce.StatusCancelled {
+															<span class="badge badge-emerald text-xs font-black font-mono tracking-wider shadow-2xs">
+																كود الاستلام: { sh.DeliveryCode }
+															</span>
 														}
 														@components.StatusBadge(string(sh.Status))
 													</div>
