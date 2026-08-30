@@ -73,4 +73,43 @@ func loadCompareAndPromoKeys(e *engine) {
 	addKey(e, "compare.col.price", "compare", "السعر", "Price", "Column header")
 	addKey(e, "compare.col.discount", "compare", "الخصم", "Discount", "Column header")
 	addKey(e, "compare.col.notes", "compare", "ملاحظات", "Notes", "Column header")
+
+	// --- Admin Sponsorships, Ads & Packages ---
+	addKey(e, "admin.promo.sponsorship_approved_success", "promo", "تم اعتماد طلب الرعاية. سيظهر العنصر في صدارة النتائج.", "Sponsorship request approved. The item will appear at top of results.", "Success notice")
+	addKey(e, "admin.promo.sponsorship_rejected_success", "promo", "تم رفض طلب الرعاية وإرجاع الرصيد للمورد.", "Sponsorship request rejected and balance refunded to vendor.", "Success notice")
+	addKey(e, "admin.promo.ad_approved_success", "promo", "تم اعتماد الإعلان ونشره بنجاح.", "Ad approved and published successfully.", "Success notice")
+	addKey(e, "admin.promo.ad_rejected_success", "promo", "تم رفض الإعلان.", "Ad was rejected.", "Success notice")
+	addKey(e, "admin.promo.packages_service_unavailable", "promo", "خدمة الباقات غير متوفرة حالياً.", "Packages service is currently unavailable.", "Service error")
+	addKey(e, "admin.promo.package_name_required", "promo", "يرجى كتابة اسم الباقة.", "Package name is required.", "Validation error")
+	addKey(e, "admin.promo.package_created_success", "promo", "تم إنشاء باقة الرعاية بنجاح.", "Sponsorship package created successfully.", "Success notice")
+	addKey(e, "admin.promo.package_invalid_id", "promo", "معرف الباقة غير صالح.", "Invalid package ID.", "Validation error")
+	addKey(e, "admin.promo.package_updated_success", "promo", "تم تحديث بيانات باقة الرعاية بنجاح.", "Sponsorship package updated successfully.", "Success notice")
+	addKey(e, "admin.promo.package_deactivated_success", "promo", "تم إلغاء تفعيل الباقة.", "Package deactivated successfully.", "Success notice")
+	addKey(e, "admin.promo.package_activated_success", "promo", "تم تفعيل الباقة بنجاح لتظهر للموردين.", "Package activated successfully to appear for vendors.", "Success notice")
+
+	// --- Compare File Management ---
+	addKey(e, "compare.file.invalid_id", "compare", "معرف ملف غير صالح.", "Invalid file ID.", "Validation error")
+	addKey(e, "compare.file.edit_forbidden", "compare", "غير مصرح لك بتعديل هذا الملف.", "You are not authorized to edit this file.", "Permission error")
+	addKey(e, "compare.file.supplier_name_required", "compare", "اسم المورد لا يمكن أن يكون فارغاً.", "Supplier name cannot be empty.", "Validation error")
+	addKey(e, "compare.file.renamed_success", "compare", "تم تغيير اسم المورد بنجاح.", "Supplier name updated successfully.", "Success notice")
+	addKey(e, "compare.file.manual_archive_reason", "compare", "أرشفة يدوية من قبل المستخدم", "Manual archiving by user", "Archive reason")
+	addKey(e, "compare.file.archived_success", "compare", "تم نقل الملف إلى الأرشيف.", "File moved to archive successfully.", "Success notice")
+	addKey(e, "compare.file.unarchived_success", "compare", "تم استعادة الملف من الأرشيف بنجاح.", "File restored from archive successfully.", "Success notice")
+	addKey(e, "compare.file.delete_forbidden", "compare", "غير مصرح لك بحذف هذا الملف.", "You are not authorized to delete this file.", "Permission error")
+	addKey(e, "compare.file.deleted_success", "compare", "تم حذف الملف بنجاح.", "File deleted successfully.", "Success notice")
+
+	// --- Compare Run, Results & Market Intelligence ---
+	addKey(e, "compare.run.vendors_only", "compare", "هذه الأداة مخصصة لحسابات الموردين فقط.", "This tool is for vendor accounts only.", "Permission error")
+	addKey(e, "compare.run.request_failed", "compare", "تعذر معالجة الطلب.", "Unable to process request.", "Request error")
+	addKey(e, "compare.run.select_at_least_one", "compare", "يرجى اختيار مورد واحد على الأقل للمقارنة.", "Please select at least one supplier to compare.", "Validation error")
+	addKey(e, "compare.run.max_suppliers_exceeded", "compare", "الحد الأقصى للمقارنة هو 10 موردين في المرة الواحدة.", "Maximum comparison limit is 10 suppliers at a time.", "Validation error")
+	addKey(e, "compare.run.mapping_needed", "compare", "الملف '%s' بحاجة إلى تعيين الأعمدة أولاً. الرجاء اكتمال تعيين الأعمدة لجميع الملفات المختارة.", "File '%s' needs column mapping first. Please complete column mapping for all selected files.", "Validation error")
+	addKey(e, "compare.run.read_content_failed", "compare", "تعذرت قراءة محتوى الملف.", "Could not read file content.", "File error")
+	addKey(e, "compare.run.file_failed_format", "compare", "تعذرت معالجة الملف '%s': %s يرجى إعادة رفع الملف أو مراجعة تعيين الأعمدة.", "Could not process file '%s': %s Please re-upload file or review column mappings.", "File error")
+	addKey(e, "compare.results.select_files_warning", "compare", "يرجى اختيار ملفات الموردين للمقارنة.", "Please select supplier files to compare.", "Validation warning")
+	addKey(e, "compare.results.process_error_prefix", "compare", "تعذر معالجة مقارنة الملفات: %s", "Failed to process files comparison: %s", "Comparison error")
+	addKey(e, "compare.intel.vendors_only", "compare", "مؤشرات السوق والتحليلات مخصصة لحسابات الموردين فقط.", "Market intelligence and analytics are for vendor accounts only.", "Permission error")
+	addKey(e, "compare.intel.upgrade_required", "compare", "يتطلب الوصول إلى مؤشرات وخصومات السوق ترقية باقة اشتراك المنشأة لتشمل هذه الميزة.", "Access to market intelligence and discounts requires upgrading the organization's subscription plan.", "Upgrade required error")
+	addKey(e, "compare.discounts.vendors_only", "compare", "قسم خصومات السوق مخصص لحسابات الموردين فقط.", "Market discounts section is for vendor accounts only.", "Permission error")
+	addKey(e, "compare.discounts.upgrade_required", "compare", "يتطلب تصفح خصومات السوق ترقية باقة اشتراك المنشأة لتشمل هذه الميزة.", "Browsing market discounts requires upgrading the organization's subscription plan.", "Upgrade required error")
 }

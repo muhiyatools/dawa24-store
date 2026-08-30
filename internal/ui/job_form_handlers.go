@@ -52,6 +52,7 @@ func (h *UIHandler) accessibleBranchesForActor(ctx context.Context, actor authct
 
 func (h *UIHandler) handleJobCreateSubmit(w http.ResponseWriter, r *http.Request, redirectURL string) {
 	ctx := r.Context()
+	lang := langOf(r)
 	actor, ok := authctx.From(ctx)
 	if !ok || actor.OrganizationID <= 0 {
 		http.Redirect(w, r, "/auth/login?redirect="+redirectURL, http.StatusSeeOther)
@@ -59,7 +60,7 @@ func (h *UIHandler) handleJobCreateSubmit(w http.ResponseWriter, r *http.Request
 	}
 
 	if h.hrSvc == nil {
-		h.redirectWithNotice(w, r, redirectURL, "error", "خدمة التوظيف غير متاحة حالياً.")
+		h.redirectWithNotice(w, r, redirectURL, "error", i18n.T(lang, "job.service_unavailable"))
 		return
 	}
 
@@ -68,7 +69,7 @@ func (h *UIHandler) handleJobCreateSubmit(w http.ResponseWriter, r *http.Request
 	titleAr := strings.TrimSpace(r.PostFormValue("title_ar"))
 	titleEn := strings.TrimSpace(r.PostFormValue("title_en"))
 	if titleAr == "" {
-		h.redirectWithNotice(w, r, redirectURL, "error", "المسمى الوظيفي بالعربية مطلوب.")
+		h.redirectWithNotice(w, r, redirectURL, "error", i18n.T(lang, "job.title_ar_required"))
 		return
 	}
 	if titleEn == "" {
@@ -81,12 +82,12 @@ func (h *UIHandler) handleJobCreateSubmit(w http.ResponseWriter, r *http.Request
 
 	if len(accessibleBranches) > 0 {
 		if branchIDStr == "" {
-			h.redirectWithNotice(w, r, redirectURL, "error", "يرجى اختيار الفرع المخصص للشاغر الوظيفي.")
+			h.redirectWithNotice(w, r, redirectURL, "error", i18n.T(lang, "job.branch_required"))
 			return
 		}
 		branchID, err := strconv.ParseInt(branchIDStr, 10, 64)
 		if err != nil || branchID <= 0 {
-			h.redirectWithNotice(w, r, redirectURL, "error", "معرف الفرع المحدد غير صالح.")
+			h.redirectWithNotice(w, r, redirectURL, "error", i18n.T(lang, "job.branch_id_invalid"))
 			return
 		}
 
@@ -98,7 +99,7 @@ func (h *UIHandler) handleJobCreateSubmit(w http.ResponseWriter, r *http.Request
 			}
 		}
 		if selectedBranch == nil {
-			h.redirectWithNotice(w, r, redirectURL, "error", "الفرع المختار غير متاح أو لا تملك صلاحية النشر عليه.")
+			h.redirectWithNotice(w, r, redirectURL, "error", i18n.T(lang, "job.branch_forbidden"))
 			return
 		}
 
@@ -107,12 +108,12 @@ func (h *UIHandler) handleJobCreateSubmit(w http.ResponseWriter, r *http.Request
 			location = selectedBranch.Name.Get(i18n.EN)
 		}
 		if location == "" {
-			location = fmt.Sprintf("فرع #%d", selectedBranch.ID)
+			location = fmt.Sprintf(i18n.T(lang, "job.branch_fallback_prefix"), selectedBranch.ID)
 		}
 	} else {
 		location = strings.TrimSpace(r.PostFormValue("location"))
 		if location == "" {
-			location = "الفرع الرئيسي"
+			location = i18n.T(lang, "job.main_branch")
 		}
 	}
 
@@ -138,15 +139,16 @@ func (h *UIHandler) handleJobCreateSubmit(w http.ResponseWriter, r *http.Request
 	}
 
 	if _, err := h.hrSvc.CreateJobOffer(ctx, actor.OrganizationID, j); err != nil {
-		h.redirectWithNotice(w, r, redirectURL, "error", h.safeMessage(err, langOf(r)))
+		h.redirectWithNotice(w, r, redirectURL, "error", h.safeMessage(err, lang))
 		return
 	}
 
-	h.redirectWithNotice(w, r, redirectURL, "success", "تم نشر الشاغر الوظيفي بنجاح.")
+	h.redirectWithNotice(w, r, redirectURL, "success", i18n.T(lang, "job.published_success"))
 }
 
 func (h *UIHandler) handleJobUpdateSubmit(w http.ResponseWriter, r *http.Request, redirectURL string) {
 	ctx := r.Context()
+	lang := langOf(r)
 	actor, ok := authctx.From(ctx)
 	if !ok || actor.OrganizationID <= 0 {
 		http.Redirect(w, r, "/auth/login?redirect="+redirectURL, http.StatusSeeOther)
@@ -155,12 +157,12 @@ func (h *UIHandler) handleJobUpdateSubmit(w http.ResponseWriter, r *http.Request
 
 	jobID, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
 	if err != nil || jobID <= 0 {
-		h.redirectWithNotice(w, r, redirectURL, "error", "معرف وظيفة غير صالح.")
+		h.redirectWithNotice(w, r, redirectURL, "error", i18n.T(lang, "job.invalid_id"))
 		return
 	}
 
 	if h.hrSvc == nil {
-		h.redirectWithNotice(w, r, redirectURL, "error", "خدمة التوظيف غير متاحة حالياً.")
+		h.redirectWithNotice(w, r, redirectURL, "error", i18n.T(lang, "job.service_unavailable"))
 		return
 	}
 
@@ -169,7 +171,7 @@ func (h *UIHandler) handleJobUpdateSubmit(w http.ResponseWriter, r *http.Request
 	titleAr := strings.TrimSpace(r.PostFormValue("title_ar"))
 	titleEn := strings.TrimSpace(r.PostFormValue("title_en"))
 	if titleAr == "" {
-		h.redirectWithNotice(w, r, redirectURL, "error", "المسمى الوظيفي بالعربية مطلوب.")
+		h.redirectWithNotice(w, r, redirectURL, "error", i18n.T(lang, "job.title_ar_required"))
 		return
 	}
 	if titleEn == "" {
@@ -182,12 +184,12 @@ func (h *UIHandler) handleJobUpdateSubmit(w http.ResponseWriter, r *http.Request
 
 	if len(accessibleBranches) > 0 {
 		if branchIDStr == "" {
-			h.redirectWithNotice(w, r, redirectURL, "error", "يرجى اختيار الفرع المخصص للشاغر الوظيفي.")
+			h.redirectWithNotice(w, r, redirectURL, "error", i18n.T(lang, "job.branch_required"))
 			return
 		}
 		branchID, err := strconv.ParseInt(branchIDStr, 10, 64)
 		if err != nil || branchID <= 0 {
-			h.redirectWithNotice(w, r, redirectURL, "error", "معرف الفرع المحدد غير صالح.")
+			h.redirectWithNotice(w, r, redirectURL, "error", i18n.T(lang, "job.branch_id_invalid"))
 			return
 		}
 
@@ -199,7 +201,7 @@ func (h *UIHandler) handleJobUpdateSubmit(w http.ResponseWriter, r *http.Request
 			}
 		}
 		if selectedBranch == nil {
-			h.redirectWithNotice(w, r, redirectURL, "error", "الفرع المختار غير متاح أو لا تملك صلاحية النشر عليه.")
+			h.redirectWithNotice(w, r, redirectURL, "error", i18n.T(lang, "job.branch_forbidden"))
 			return
 		}
 
@@ -208,12 +210,12 @@ func (h *UIHandler) handleJobUpdateSubmit(w http.ResponseWriter, r *http.Request
 			location = selectedBranch.Name.Get(i18n.EN)
 		}
 		if location == "" {
-			location = fmt.Sprintf("فرع #%d", selectedBranch.ID)
+			location = fmt.Sprintf(i18n.T(lang, "job.branch_fallback_prefix"), selectedBranch.ID)
 		}
 	} else {
 		location = strings.TrimSpace(r.PostFormValue("location"))
 		if location == "" {
-			location = "الفرع الرئيسي"
+			location = i18n.T(lang, "job.main_branch")
 		}
 	}
 
@@ -240,15 +242,16 @@ func (h *UIHandler) handleJobUpdateSubmit(w http.ResponseWriter, r *http.Request
 	}
 
 	if err := h.hrSvc.UpdateJobOffer(ctx, actor.OrganizationID, j); err != nil {
-		h.redirectWithNotice(w, r, redirectURL, "error", h.safeMessage(err, langOf(r)))
+		h.redirectWithNotice(w, r, redirectURL, "error", h.safeMessage(err, lang))
 		return
 	}
 
-	h.redirectWithNotice(w, r, redirectURL, "success", "تم تحديث بيانات وحالة الوظيفة بنجاح.")
+	h.redirectWithNotice(w, r, redirectURL, "success", i18n.T(lang, "job.updated_success"))
 }
 
 func (h *UIHandler) handleJobToggleSubmit(w http.ResponseWriter, r *http.Request, redirectURL string) {
 	ctx := r.Context()
+	lang := langOf(r)
 	actor, ok := authctx.From(ctx)
 	if !ok || actor.OrganizationID <= 0 {
 		http.Redirect(w, r, "/auth/login?redirect="+redirectURL, http.StatusSeeOther)
@@ -257,22 +260,23 @@ func (h *UIHandler) handleJobToggleSubmit(w http.ResponseWriter, r *http.Request
 
 	jobID, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
 	if err != nil || jobID <= 0 {
-		h.redirectWithNotice(w, r, redirectURL, "error", "معرف وظيفة غير صالح.")
+		h.redirectWithNotice(w, r, redirectURL, "error", i18n.T(lang, "job.invalid_id"))
 		return
 	}
 
 	if h.hrSvc != nil {
 		if err := h.hrSvc.ToggleJobOfferStatus(ctx, actor.OrganizationID, jobID); err != nil {
-			h.redirectWithNotice(w, r, redirectURL, "error", h.safeMessage(err, langOf(r)))
+			h.redirectWithNotice(w, r, redirectURL, "error", h.safeMessage(err, lang))
 			return
 		}
 	}
 
-	h.redirectWithNotice(w, r, redirectURL, "success", "تم تحديث حالة الوظيفة بنجاح.")
+	h.redirectWithNotice(w, r, redirectURL, "success", i18n.T(lang, "job.status_updated_success"))
 }
 
 func (h *UIHandler) handleJobDeleteSubmit(w http.ResponseWriter, r *http.Request, redirectURL string) {
 	ctx := r.Context()
+	lang := langOf(r)
 	actor, ok := authctx.From(ctx)
 	if !ok || actor.OrganizationID <= 0 {
 		http.Redirect(w, r, "/auth/login?redirect="+redirectURL, http.StatusSeeOther)
@@ -281,16 +285,16 @@ func (h *UIHandler) handleJobDeleteSubmit(w http.ResponseWriter, r *http.Request
 
 	jobID, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
 	if err != nil || jobID <= 0 {
-		h.redirectWithNotice(w, r, redirectURL, "error", "معرف وظيفة غير صالح.")
+		h.redirectWithNotice(w, r, redirectURL, "error", i18n.T(lang, "job.invalid_id"))
 		return
 	}
 
 	if h.hrSvc != nil {
 		if err := h.hrSvc.DeleteJobOffer(ctx, actor.OrganizationID, jobID); err != nil {
-			h.redirectWithNotice(w, r, redirectURL, "error", h.safeMessage(err, langOf(r)))
+			h.redirectWithNotice(w, r, redirectURL, "error", h.safeMessage(err, lang))
 			return
 		}
 	}
 
-	h.redirectWithNotice(w, r, redirectURL, "success", "تم حذف الوظيفة بنجاح.")
+	h.redirectWithNotice(w, r, redirectURL, "success", i18n.T(lang, "job.deleted_success"))
 }

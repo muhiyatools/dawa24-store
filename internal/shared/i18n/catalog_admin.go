@@ -52,4 +52,12 @@ func loadAdminKeys(e *engine) {
 	addKey(e, "decision_memory.customer_saved_success", "catalog", "تم حفظ قرار المطابقة بنجاح في ذاكرة الصيدلية.", "Match decision saved successfully in pharmacy memory.", "Save success")
 	addKey(e, "decision_memory.vendor_saved_success", "catalog", "تم حفظ قرار المطابقة بنجاح في ذاكرة المورد.", "Match decision saved successfully in vendor memory.", "Save success")
 	addKey(e, "decision_memory.org_cleared_success", "catalog", "تم مسح ذاكرة قرارات المطابقة بنجاح.", "Match decision memory cleared successfully.", "Clear success")
+
+	// --- Admin CMS Content ---
+	addKey(e, "admin.content.service_unavailable", "admin", "خدمة المحتوى غير متاحة حالياً.", "Content service is currently unavailable.", "Service error")
+	addKey(e, "admin.content.key_required", "admin", "يرجى تحديد المفتاح التعريفي للكتلة.", "Please specify the content block key.", "Validation error")
+	addKey(e, "admin.content.saved_success", "admin", "تم حفظ كتلة المحتوى بنجاح وتحديثها في المنصة.", "Content block saved and updated successfully on the platform.", "Success notice")
+	addKey(e, "admin.content.invalid_id", "admin", "معرف الكتلة غير صالح.", "Invalid content block ID.", "Validation error")
+	addKey(e, "admin.content.status_updated_success", "admin", "تم تحديث حالة تفعيل الكتلة بنجاح.", "Content block status updated successfully.", "Success notice")
+	addKey(e, "admin.content.deleted_success", "admin", "تم حذف كتلة المحتوى بنجاح.", "Content block deleted successfully.", "Success notice")
 }

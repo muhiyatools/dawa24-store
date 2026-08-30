@@ -9,6 +9,7 @@ import (
 
 	"github.com/muhiya/dawa24-store/internal/modules/compare"
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 )
 
 func (h *UIHandler) checkFileOwnership(actor authctx.Actor, file *compare.CompareFile) bool {
@@ -27,6 +28,7 @@ func (h *UIHandler) checkFileOwnership(actor authctx.Actor, file *compare.Compar
 // CompareFileRenameSubmit handles renaming a supplier file label.
 func (h *UIHandler) CompareFileRenameSubmit(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
+	lang := langOf(r)
 	actor, ok := authctx.From(ctx)
 	if !ok {
 		http.Redirect(w, r, "/auth/login?redirect=/compare/tool", http.StatusSeeOther)
@@ -34,33 +36,34 @@ func (h *UIHandler) CompareFileRenameSubmit(w http.ResponseWriter, r *http.Reque
 	}
 	id, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
 	if err != nil || id <= 0 {
-		h.redirectWithNotice(w, r, "/compare/tool", "error", "معرف ملف غير صالح.")
+		h.redirectWithNotice(w, r, "/compare/tool", "error", i18n.T(lang, "compare.file.invalid_id"))
 		return
 	}
 
 	if h.compareSvc != nil {
 		file, err := h.compareSvc.GetFile(ctx, id)
 		if err != nil || !h.checkFileOwnership(actor, file) {
-			h.redirectWithNotice(w, r, "/compare/tool", "error", "غير مصرح لك بتعديل هذا الملف.")
+			h.redirectWithNotice(w, r, "/compare/tool", "error", i18n.T(lang, "compare.file.edit_forbidden"))
 			return
 		}
 
 		newName := strings.TrimSpace(r.FormValue("supplier_name"))
 		if newName == "" {
-			h.redirectWithNotice(w, r, "/compare/tool", "error", "اسم المورد لا يمكن أن يكون فارغاً.")
+			h.redirectWithNotice(w, r, "/compare/tool", "error", i18n.T(lang, "compare.file.supplier_name_required"))
 			return
 		}
 		if err := h.compareSvc.RenameFile(ctx, id, newName); err != nil {
-			h.redirectWithNotice(w, r, "/compare/tool", "error", h.safeMessage(err, langOf(r)))
+			h.redirectWithNotice(w, r, "/compare/tool", "error", h.safeMessage(err, lang))
 			return
 		}
 	}
-	h.redirectWithNotice(w, r, "/compare/tool", "success", "تم تغيير اسم المورد بنجاح.")
+	h.redirectWithNotice(w, r, "/compare/tool", "success", i18n.T(lang, "compare.file.renamed_success"))
 }
 
 // CompareFileArchiveSubmit handles manually archiving a file.
 func (h *UIHandler) CompareFileArchiveSubmit(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
+	lang := langOf(r)
 	actor, ok := authctx.From(ctx)
 	if !ok {
 		http.Redirect(w, r, "/auth/login?redirect=/compare/tool", http.StatusSeeOther)
@@ -68,26 +71,27 @@ func (h *UIHandler) CompareFileArchiveSubmit(w http.ResponseWriter, r *http.Requ
 	}
 	id, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
 	if err != nil || id <= 0 {
-		h.redirectWithNotice(w, r, "/compare/tool", "error", "معرف ملف غير صالح.")
+		h.redirectWithNotice(w, r, "/compare/tool", "error", i18n.T(lang, "compare.file.invalid_id"))
 		return
 	}
 	if h.compareSvc != nil {
 		file, err := h.compareSvc.GetFile(ctx, id)
 		if err != nil || !h.checkFileOwnership(actor, file) {
-			h.redirectWithNotice(w, r, "/compare/tool", "error", "غير مصرح لك بتعديل هذا الملف.")
+			h.redirectWithNotice(w, r, "/compare/tool", "error", i18n.T(lang, "compare.file.edit_forbidden"))
 			return
 		}
-		if err := h.compareSvc.ArchiveFile(ctx, id, "أرشفة يدوية من قبل المستخدم"); err != nil {
-			h.redirectWithNotice(w, r, "/compare/tool", "error", h.safeMessage(err, langOf(r)))
+		if err := h.compareSvc.ArchiveFile(ctx, id, i18n.T(lang, "compare.file.manual_archive_reason")); err != nil {
+			h.redirectWithNotice(w, r, "/compare/tool", "error", h.safeMessage(err, lang))
 			return
 		}
 	}
-	h.redirectWithNotice(w, r, "/compare/tool", "success", "تم نقل الملف إلى الأرشيف.")
+	h.redirectWithNotice(w, r, "/compare/tool", "success", i18n.T(lang, "compare.file.archived_success"))
 }
 
 // CompareFileUnarchiveSubmit handles restoring an archived file.
 func (h *UIHandler) CompareFileUnarchiveSubmit(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
+	lang := langOf(r)
 	actor, ok := authctx.From(ctx)
 	if !ok {
 		http.Redirect(w, r, "/auth/login?redirect=/compare/tool", http.StatusSeeOther)
@@ -95,26 +99,27 @@ func (h *UIHandler) CompareFileUnarchiveSubmit(w http.ResponseWriter, r *http.Re
 	}
 	id, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
 	if err != nil || id <= 0 {
-		h.redirectWithNotice(w, r, "/compare/tool", "error", "معرف ملف غير صالح.")
+		h.redirectWithNotice(w, r, "/compare/tool", "error", i18n.T(lang, "compare.file.invalid_id"))
 		return
 	}
 	if h.compareSvc != nil {
 		file, err := h.compareSvc.GetFile(ctx, id)
 		if err != nil || !h.checkFileOwnership(actor, file) {
-			h.redirectWithNotice(w, r, "/compare/tool", "error", "غير مصرح لك بتعديل هذا الملف.")
+			h.redirectWithNotice(w, r, "/compare/tool", "error", i18n.T(lang, "compare.file.edit_forbidden"))
 			return
 		}
 		if err := h.compareSvc.UnarchiveFile(ctx, id); err != nil {
-			h.redirectWithNotice(w, r, "/compare/tool", "error", h.safeMessage(err, langOf(r)))
+			h.redirectWithNotice(w, r, "/compare/tool", "error", h.safeMessage(err, lang))
 			return
 		}
 	}
-	h.redirectWithNotice(w, r, "/compare/tool", "success", "تم استعادة الملف من الأرشيف بنجاح.")
+	h.redirectWithNotice(w, r, "/compare/tool", "success", i18n.T(lang, "compare.file.unarchived_success"))
 }
 
 // CompareFileDeleteSubmit handles soft-deleting a file.
 func (h *UIHandler) CompareFileDeleteSubmit(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
+	lang := langOf(r)
 	actor, ok := authctx.From(ctx)
 	if !ok {
 		http.Redirect(w, r, "/auth/login?redirect=/compare/tool", http.StatusSeeOther)
@@ -122,19 +127,19 @@ func (h *UIHandler) CompareFileDeleteSubmit(w http.ResponseWriter, r *http.Reque
 	}
 	id, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
 	if err != nil || id <= 0 {
-		h.redirectWithNotice(w, r, "/compare/tool", "error", "معرف ملف غير صالح.")
+		h.redirectWithNotice(w, r, "/compare/tool", "error", i18n.T(lang, "compare.file.invalid_id"))
 		return
 	}
 	if h.compareSvc != nil {
 		file, err := h.compareSvc.GetFile(ctx, id)
 		if err != nil || !h.checkFileOwnership(actor, file) {
-			h.redirectWithNotice(w, r, "/compare/tool", "error", "غير مصرح لك بحذف هذا الملف.")
+			h.redirectWithNotice(w, r, "/compare/tool", "error", i18n.T(lang, "compare.file.delete_forbidden"))
 			return
 		}
 		if err := h.compareSvc.DeleteFile(ctx, id); err != nil {
-			h.redirectWithNotice(w, r, "/compare/tool", "error", h.safeMessage(err, langOf(r)))
+			h.redirectWithNotice(w, r, "/compare/tool", "error", h.safeMessage(err, lang))
 			return
 		}
 	}
-	h.redirectWithNotice(w, r, "/compare/tool", "success", "تم حذف الملف بنجاح.")
+	h.redirectWithNotice(w, r, "/compare/tool", "success", i18n.T(lang, "compare.file.deleted_success"))
 }

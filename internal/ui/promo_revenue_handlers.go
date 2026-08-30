@@ -275,7 +275,7 @@ func (h *UIHandler) AdminSponsorshipRequestApproveSubmit(w http.ResponseWriter, 
 		h.redirectWithNotice(w, r, "/admin/offers-packages?tab=requests", "error", h.safeMessage(err, langOf(r)))
 		return
 	}
-	h.redirectWithNotice(w, r, "/admin/offers-packages?tab=requests", "success", "تم اعتماد طلب الرعاية. سيظهر العنصر في صدارة النتائج.")
+	h.redirectWithNotice(w, r, "/admin/offers-packages?tab=requests", "success", i18n.T(langOf(r), "admin.promo.sponsorship_approved_success"))
 }
 
 // AdminSponsorshipRequestRejectSubmit rejects a pending sponsorship request from the admin UI.
@@ -296,7 +296,7 @@ func (h *UIHandler) AdminSponsorshipRequestRejectSubmit(w http.ResponseWriter, r
 		h.redirectWithNotice(w, r, "/admin/offers-packages?tab=requests", "error", h.safeMessage(err, langOf(r)))
 		return
 	}
-	h.redirectWithNotice(w, r, "/admin/offers-packages?tab=requests", "success", "تم رفض طلب الرعاية وإرجاع الرصيد للمورد.")
+	h.redirectWithNotice(w, r, "/admin/offers-packages?tab=requests", "success", i18n.T(langOf(r), "admin.promo.sponsorship_rejected_success"))
 }
 
 // AdminAdApproveSubmit approves an ad from the admin UI.
@@ -317,7 +317,7 @@ func (h *UIHandler) AdminAdApproveSubmit(w http.ResponseWriter, r *http.Request)
 		h.redirectWithNotice(w, r, "/admin/offers-packages?tab=ads", "error", h.safeMessage(err, langOf(r)))
 		return
 	}
-	h.redirectWithNotice(w, r, "/admin/offers-packages?tab=ads", "success", "تم اعتماد الإعلان ونشره بنجاح.")
+	h.redirectWithNotice(w, r, "/admin/offers-packages?tab=ads", "success", i18n.T(langOf(r), "admin.promo.ad_approved_success"))
 }
 
 // AdminAdRejectSubmit rejects an ad from the admin UI.
@@ -338,21 +338,22 @@ func (h *UIHandler) AdminAdRejectSubmit(w http.ResponseWriter, r *http.Request) 
 		h.redirectWithNotice(w, r, "/admin/offers-packages?tab=ads", "error", h.safeMessage(err, langOf(r)))
 		return
 	}
-	h.redirectWithNotice(w, r, "/admin/offers-packages?tab=ads", "success", "تم رفض الإعلان.")
+	h.redirectWithNotice(w, r, "/admin/offers-packages?tab=ads", "success", i18n.T(langOf(r), "admin.promo.ad_rejected_success"))
 }
 
 // AdminOfferPackageCreateSubmit creates a new monetization / sponsorship package.
 func (h *UIHandler) AdminOfferPackageCreateSubmit(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
+	lang := langOf(r)
 	if h.promoSvc == nil {
-		h.redirectWithNotice(w, r, "/admin/offers-packages?tab=packages", "error", "خدمة الباقات غير متوفرة حالياً.")
+		h.redirectWithNotice(w, r, "/admin/offers-packages?tab=packages", "error", i18n.T(lang, "admin.promo.packages_service_unavailable"))
 		return
 	}
 
 	nameAR := strings.TrimSpace(r.PostFormValue("name_ar"))
 	nameEN := strings.TrimSpace(r.PostFormValue("name_en"))
 	if nameAR == "" && nameEN == "" {
-		h.redirectWithNotice(w, r, "/admin/offers-packages?tab=packages", "error", "يرجى كتابة اسم الباقة.")
+		h.redirectWithNotice(w, r, "/admin/offers-packages?tab=packages", "error", i18n.T(lang, "admin.promo.package_name_required"))
 		return
 	}
 	if nameAR == "" {
@@ -416,31 +417,32 @@ func (h *UIHandler) AdminOfferPackageCreateSubmit(w http.ResponseWriter, r *http
 
 	sysCtx := database.AsSystem(ctx)
 	if _, err := h.promoSvc.AdminCreatePackage(sysCtx, pkg); err != nil {
-		h.redirectWithNotice(w, r, "/admin/offers-packages?tab=packages", "error", h.safeMessage(err, langOf(r)))
+		h.redirectWithNotice(w, r, "/admin/offers-packages?tab=packages", "error", h.safeMessage(err, lang))
 		return
 	}
 
-	h.redirectWithNotice(w, r, "/admin/offers-packages?tab=packages", "success", "تم إنشاء باقة الرعاية بنجاح.")
+	h.redirectWithNotice(w, r, "/admin/offers-packages?tab=packages", "success", i18n.T(lang, "admin.promo.package_created_success"))
 }
 
 // AdminOfferPackageEditSubmit updates an offer package.
 func (h *UIHandler) AdminOfferPackageEditSubmit(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
+	lang := langOf(r)
 	if h.promoSvc == nil {
-		h.redirectWithNotice(w, r, "/admin/offers-packages?tab=packages", "error", "خدمة الباقات غير متوفرة حالياً.")
+		h.redirectWithNotice(w, r, "/admin/offers-packages?tab=packages", "error", i18n.T(lang, "admin.promo.packages_service_unavailable"))
 		return
 	}
 
 	id, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
 	if err != nil || id <= 0 {
-		h.redirectWithNotice(w, r, "/admin/offers-packages?tab=packages", "error", "معرف الباقة غير صالح.")
+		h.redirectWithNotice(w, r, "/admin/offers-packages?tab=packages", "error", i18n.T(lang, "admin.promo.package_invalid_id"))
 		return
 	}
 
 	nameAR := strings.TrimSpace(r.PostFormValue("name_ar"))
 	nameEN := strings.TrimSpace(r.PostFormValue("name_en"))
 	if nameAR == "" && nameEN == "" {
-		h.redirectWithNotice(w, r, "/admin/offers-packages?tab=packages", "error", "يرجى كتابة اسم الباقة.")
+		h.redirectWithNotice(w, r, "/admin/offers-packages?tab=packages", "error", i18n.T(lang, "admin.promo.package_name_required"))
 		return
 	}
 	if nameAR == "" {
@@ -505,37 +507,38 @@ func (h *UIHandler) AdminOfferPackageEditSubmit(w http.ResponseWriter, r *http.R
 
 	sysCtx := database.AsSystem(ctx)
 	if _, err := h.promoSvc.AdminUpdatePackage(sysCtx, pkg); err != nil {
-		h.redirectWithNotice(w, r, "/admin/offers-packages?tab=packages", "error", h.safeMessage(err, langOf(r)))
+		h.redirectWithNotice(w, r, "/admin/offers-packages?tab=packages", "error", h.safeMessage(err, lang))
 		return
 	}
 
-	h.redirectWithNotice(w, r, "/admin/offers-packages?tab=packages", "success", "تم تحديث بيانات باقة الرعاية بنجاح.")
+	h.redirectWithNotice(w, r, "/admin/offers-packages?tab=packages", "success", i18n.T(lang, "admin.promo.package_updated_success"))
 }
 
 // AdminOfferPackageToggleSubmit toggles active status for an offer package.
 func (h *UIHandler) AdminOfferPackageToggleSubmit(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
+	lang := langOf(r)
 	if h.promoSvc == nil {
-		h.redirectWithNotice(w, r, "/admin/offers-packages?tab=packages", "error", "خدمة الباقات غير متوفرة حالياً.")
+		h.redirectWithNotice(w, r, "/admin/offers-packages?tab=packages", "error", i18n.T(lang, "admin.promo.packages_service_unavailable"))
 		return
 	}
 
 	id, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
 	if err != nil || id <= 0 {
-		h.redirectWithNotice(w, r, "/admin/offers-packages?tab=packages", "error", "معرف الباقة غير صالح.")
+		h.redirectWithNotice(w, r, "/admin/offers-packages?tab=packages", "error", i18n.T(lang, "admin.promo.package_invalid_id"))
 		return
 	}
 
 	active := r.PostFormValue("active") == "true" || r.PostFormValue("active") == "1" || r.PostFormValue("active") == "on"
 	sysCtx := database.AsSystem(ctx)
 	if err := h.promoSvc.AdminTogglePackageActive(sysCtx, id, active); err != nil {
-		h.redirectWithNotice(w, r, "/admin/offers-packages?tab=packages", "error", h.safeMessage(err, langOf(r)))
+		h.redirectWithNotice(w, r, "/admin/offers-packages?tab=packages", "error", h.safeMessage(err, lang))
 		return
 	}
 
-	msg := "تم إلغاء تفعيل الباقة."
+	msg := i18n.T(lang, "admin.promo.package_deactivated_success")
 	if active {
-		msg = "تم تفعيل الباقة بنجاح لتظهر للموردين."
+		msg = i18n.T(lang, "admin.promo.package_activated_success")
 	}
 	h.redirectWithNotice(w, r, "/admin/offers-packages?tab=packages", "success", msg)
 }

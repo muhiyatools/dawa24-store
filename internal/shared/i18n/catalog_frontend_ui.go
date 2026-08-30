@@ -38,6 +38,7 @@ func loadFrontendUIKeys(e *engine) {
 	addKey(e, "notice.saved_success", "notice", "تم حفظ التعديلات بنجاح.", "Changes saved successfully.", "Success message")
 	addKey(e, "notice.delete_success", "notice", "تم الحذف بنجاح.", "Deleted successfully.", "Success message")
 	addKey(e, "notice.error_generic", "notice", "حدث خطأ غير متوقع. يرجى المحاولة مرة أخرى.", "An unexpected error occurred. Please try again.", "Error message")
+	addKey(e, "common.form_read_error", "common", "تعذر قراءة بيانات النموذج.", "Could not parse form data.", "Form parsing error")
 
 	// --- Customer: Saving Products ---
 	addKey(e, "customer.saving.form_invalid", "customer", "بيانات النموذج غير صالحة.", "Invalid form data.", "Saving product form validation")
@@ -262,4 +263,58 @@ func loadFrontendUIKeys(e *engine) {
 	addKey(e, "vendor.coverage.state_enabled", "vendor", "تفعيل", "Enable", "Enabled state word")
 	addKey(e, "vendor.coverage.state_disabled", "vendor", "إيقاف", "Disable", "Disabled state word")
 	addKey(e, "vendor.coverage.toggle_success", "vendor", "تم %s نطاق التغطية بنجاح.", "Coverage zone was %sd successfully.", "Toggle success")
+
+	// --- Vendor Working Status & Suppliers ---
+	addKey(e, "vendor.status.default_working_hours", "vendor", "09:00 ص - 06:00 م", "09:00 AM - 06:00 PM", "Default working hours")
+	addKey(e, "vendor.status.default_coverage_days", "vendor", "السبت - الخميس", "Saturday - Thursday", "Default coverage days")
+	addKey(e, "vendor.status.closed_now", "vendor", "مغلق حالياً", "Closed Now", "Status note")
+	addKey(e, "vendor.status.greater_cairo", "vendor", "القاهرة الكبرى", "Greater Cairo", "Default coverage area")
+	addKey(e, "vendor.status.all_governorates", "vendor", "كافة المحافظات", "All Governorates", "Default coverage area")
+	addKey(e, "vendor.status.coverage_24_7", "vendor", "طوال أيام الأسبوع 24/7", "24/7 All Week Days", "Coverage days note")
+	addKey(e, "vendor.status.day_prefix", "vendor", "يوم ", "Day ", "Day prefix")
+	addKey(e, "vendor.status.open_until_format", "vendor", "مفتوح الآن (يغلق %s)", "Open Now (Closes at %s)", "Status note")
+	addKey(e, "vendor.status.closed_until_format", "vendor", "مغلق حالياً (يفتح %s)", "Closed Now (Opens at %s)", "Status note")
+	addKey(e, "vendor.status.closed_working_hours_ended", "vendor", "مغلق الآن (انتهت ساعات العمل)", "Closed Now (Working hours ended)", "Status note")
+	addKey(e, "vendor.status.closed_out_of_coverage", "vendor", "مغلق اليوم (خارج أيام التغطية)", "Closed Today (Outside coverage days)", "Status note")
+	addKey(e, "vendor.status.closed_friday_holiday", "vendor", "مغلق اليوم (عطلة الجمعة)", "Closed Today (Friday weekend)", "Status note")
+	addKey(e, "vendor.status.open_until_6pm", "vendor", "مفتوح الآن (يغلق 06:00 م)", "Open Now (Closes at 06:00 PM)", "Status note")
+	addKey(e, "vendor.status.closed_opens_9am", "vendor", "مغلق حالياً (يفتح 09:00 ص)", "Closed Now (Opens at 09:00 AM)", "Status note")
+	addKey(e, "vendor.status.closed_opens_9am_tomorrow", "vendor", "مغلق الآن (يفتح 09:00 ص غداً)", "Closed Now (Opens at 09:00 AM tomorrow)", "Status note")
+	addKey(e, "suppliers.vendor_unavailable", "suppliers", "المورد غير متاح حالياً.", "Supplier is currently unavailable.", "Error notice")
+	addKey(e, "suppliers.verified_org_required_quote", "suppliers", "تحتاج إلى حساب مؤسسة معتمد لطلب عرض سعر.", "You need a verified organization account to request a price quote.", "Validation error")
+	addKey(e, "suppliers.quote_submitted_success", "suppliers", "تم إرسال طلب عرض السعر.", "Price quote request sent successfully.", "Success notice")
+
+	// --- Policies & CMS Fallbacks ---
+	addKey(e, "cms.how_it_works", "cms", "كيف يعمل", "How It Works", "CMS page title")
+	addKey(e, "policy.privacy_title", "policy", "سياسة الخصوصية وسرية البيانات", "Privacy Policy & Data Confidentiality", "Policy title")
+	addKey(e, "policy.privacy_body", "policy", "تلتزم منصة دواء 24 بحماية سرية وخصوصية بيانات المشتركين والموردين والصيدليات وفقاً لأعلى معايير الأمان والتشفير.\n\n1. لا يتم مشاركة بيانات أوامر التوريد أو الأسعار إلا بين الأطراف المتعاقدة.\n2. يتم تشفير كلمات المرور ومفاتيح المصادقة بأحدث خوارزميات التشفير القياسية.\n3. يحق للمستخدم طلب تقرير بكافة عملياته وحركاته المسجلة على المنصة.", "Dawa24 is committed to protecting the privacy and confidentiality of subscriber, supplier, and pharmacy data in accordance with the highest security and encryption standards.\n\n1. Supply order and pricing data are only shared between contracting parties.\n2. Passwords and authentication tokens are encrypted with standard algorithms.\n3. Users are entitled to request reports of all operations recorded on the platform.", "Policy fallback body")
+	addKey(e, "policy.terms_title", "policy", "الشروط والأحكام العامة", "Terms and General Conditions", "Policy title")
+	addKey(e, "policy.terms_body", "policy", "أهلاً بكم في منصة دواء 24. يخضع استخدام هذه المنصة لكافة الضوابط واللوائح الصيدلانية والتجارية الصادرة عن هيئة الدواء والجهات المختصة.\n\n1. يجب على كافة المنشآت الطبية والصيدليات تقديم تراخيص مزاولة المهنة والسجل التجاري الساري.\n2. كافة المعاملات المالية وأوامر التوريد موثقة ومحمية إلكترونياً.\n3. يلتزم الموردون بضمان جودة وسلاسل تبريد الأدوية والمستلزمات الطبية.", "Welcome to Dawa24. Using this platform is subject to pharmaceutical and commercial regulations.\n\n1. All medical and pharmacy establishments must provide valid licenses and commercial registries.\n2. All financial transactions and supply orders are electronically recorded and protected.\n3. Suppliers are committed to guaranteeing the quality and cold chain of medicines and medical supplies.", "Policy fallback body")
+	addKey(e, "policy.refund_title", "policy", "سياسة الاسترجاع والإلغاء", "Return and Cancellation Policy", "Policy title")
+	addKey(e, "policy.refund_body", "policy", "تخضع عمليات استرجاع أو استبدال الأدوية والمستلزمات الطبية للاشتراطات الصحية المعتمدة.\n\n1. يحق للصيدلية رفض استلام أي شحنة دوائية في حال وجود تلف في العبوة أو عدم مطابقة درجات حرارة التبريد.\n2. يتم إرجاع المبالغ لحساب الصيدلية أو إصدار إشعار دائن فوري عند اعتماد طلب الإرجاع.", "Return or replacement operations are subject to approved health requirements.\n\n1. The pharmacy has the right to refuse delivery if packaging is damaged or refrigeration temperatures do not match.\n2. Amounts are refunded or credit notes issued immediately upon approval.", "Policy fallback body")
+	addKey(e, "policy.vendor_agreement_title", "policy", "اتفاقية التوريد والاعتماد للموردين", "Vendor Supply & Accreditation Agreement", "Policy title")
+	addKey(e, "policy.vendor_agreement_body", "policy", "تحدد هذه الاتفاقية حقوق والتزامات الموردين والمستودعات الطبية المعتمدة على منصة دواء 24.\n\n1. يلتزم المورد بتحديث أسعار الكتالوج والمخزون المتوفر لحظياً.\n2. يتم تسليم أوامر التوريد للصيدليات خلال المواعيد المحددة مع وثائق التسليم الرسمية.", "This agreement defines the rights and obligations of verified suppliers and medical warehouses on Dawa24.\n\n1. The supplier is committed to updating catalog prices and available stock in real-time.\n2. Supply orders are delivered within specified timeframes with official delivery documents.", "Policy fallback body")
+
+	// --- Account Settings ---
+	addKey(e, "settings.profile_updated_success", "settings", "تم حفظ التغييرات وتحديث الملف الشخصي بنجاح.", "Changes saved and profile updated successfully.", "Success notice")
+	addKey(e, "settings.address_saved_success", "settings", "تم حفظ العنوان.", "Address saved successfully.", "Success notice")
+	addKey(e, "settings.address_deleted_success", "settings", "تم حذف العنوان.", "Address deleted successfully.", "Success notice")
+	addKey(e, "settings.plan_activated_success", "settings", "تم تفعيل الخطة.", "Plan activated successfully.", "Success notice")
+	addKey(e, "settings.session_revoked_success", "settings", "تم إلغاء الجلسة.", "Session revoked successfully.", "Success notice")
+	addKey(e, "settings.password_mismatch", "settings", "كلمة المرور الجديدة غير متطابقة.", "New password confirmation does not match.", "Validation error")
+	addKey(e, "settings.password_changed_success", "settings", "تم تغيير كلمة المرور بنجاح.", "Password changed successfully.", "Success notice")
+	addKey(e, "settings.preferences_saved_success", "settings", "تم حفظ التفضيلات.", "Preferences saved successfully.", "Success notice")
+	addKey(e, "settings.delete_account_requested_success", "settings", "تم استلام طلب حذف الحساب بنجاح، وسيتم مراجعته من قبل إدارة المنصة.", "Account deletion request received successfully and will be reviewed by platform administration.", "Success notice")
+
+	// --- Wallet Deposit & Withdrawal ---
+	addKey(e, "wallet.deposit.invalid_amount", "wallet", "يرجى إدخال مبلغ إيداع صالح وموجب.", "Please enter a valid positive deposit amount.", "Validation error")
+	addKey(e, "wallet.deposit.method_required", "wallet", "يرجى اختيار وسيلة الدفع أو التحويل.", "Please select a payment or transfer method.", "Validation error")
+	addKey(e, "wallet.deposit.reference_required", "wallet", "يرجى إدخال رقم الإشعار أو مرجع التحويل.", "Please enter notice number or transfer reference.", "Validation error")
+	addKey(e, "wallet.service_unavailable", "wallet", "خدمة المحفظة والفواتير غير متوفرة حالياً.", "Wallet and billing service is currently unavailable.", "Service error")
+	addKey(e, "wallet.deposit.pending_success", "wallet", "تم تسجيل طلب شحن الرصيد بنجاح، والعملية قيد مراجعة وتدقيق الإدارة المالية.", "Top-up request registered successfully and is under review by the finance department.", "Success notice")
+	addKey(e, "wallet.withdraw.invalid_amount", "wallet", "يرجى إدخال مبلغ سحب صالح وموجب.", "Please enter a valid positive withdrawal amount.", "Validation error")
+	addKey(e, "wallet.withdraw.destination_required", "wallet", "يرجى إدخال رقم الحساب أو الآيبان المستلم.", "Please enter recipient account or IBAN number.", "Validation error")
+	addKey(e, "wallet.withdraw.desc_prefix", "wallet", "طلب سحب رصيد إلى: %s", "Withdrawal request to: %s", "Withdrawal description")
+	addKey(e, "wallet.withdraw.reason_suffix", "wallet", " (السبب: %s)", " (Reason: %s)", "Withdrawal reason suffix")
+	addKey(e, "wallet.withdraw.success", "wallet", "تم خصم وتسجيل طلب السحب بنجاح.", "Withdrawal request deducted and registered successfully.", "Success notice")
 }

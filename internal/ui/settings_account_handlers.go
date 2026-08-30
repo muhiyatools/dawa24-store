@@ -9,11 +9,13 @@ import (
 
 	"github.com/muhiya/dawa24-store/internal/modules/identity"
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 )
 
 // SettingsProfileSubmit saves name, phone, timezone, language, and avatar.
 func (h *UIHandler) SettingsProfileSubmit(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
+	lang := langOf(r)
 	actor, ok := authctx.From(ctx)
 	if !ok {
 		http.Redirect(w, r, "/auth/login?redirect=/settings", http.StatusSeeOther)
@@ -21,7 +23,7 @@ func (h *UIHandler) SettingsProfileSubmit(w http.ResponseWriter, r *http.Request
 	}
 
 	if h.idSvc == nil {
-		h.redirectWithNotice(w, r, "/settings#profile", "error", "الخدمة غير متاحة حالياً.")
+		h.redirectWithNotice(w, r, "/settings#profile", "error", i18n.T(lang, "common.service_unavailable"))
 		return
 	}
 
@@ -44,7 +46,7 @@ func (h *UIHandler) SettingsProfileSubmit(w http.ResponseWriter, r *http.Request
 	)
 	if err != nil {
 		h.log.WarnContext(ctx, "profile update failed", "user_id", actor.UserID, "error", err)
-		h.redirectWithNotice(w, r, "/settings#profile", "error", h.safeMessage(err, langOf(r)))
+		h.redirectWithNotice(w, r, "/settings#profile", "error", h.safeMessage(err, lang))
 		return
 	}
 
@@ -59,12 +61,13 @@ func (h *UIHandler) SettingsProfileSubmit(w http.ResponseWriter, r *http.Request
 		_, _ = h.idSvc.UpdateAvatar(ctx, actor.UserID, avatarURL)
 	}
 
-	h.redirectWithNotice(w, r, "/settings#profile", "success", "تم حفظ التغييرات وتحديث الملف الشخصي بنجاح.")
+	h.redirectWithNotice(w, r, "/settings#profile", "success", i18n.T(lang, "settings.profile_updated_success"))
 }
 
 // SettingsAddressSubmit adds a saved address.
 func (h *UIHandler) SettingsAddressSubmit(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
+	lang := langOf(r)
 	actor, ok := authctx.From(ctx)
 	if !ok {
 		http.Redirect(w, r, "/auth/login?redirect=/settings/addresses", http.StatusSeeOther)
@@ -72,7 +75,7 @@ func (h *UIHandler) SettingsAddressSubmit(w http.ResponseWriter, r *http.Request
 	}
 
 	if h.idSvc == nil {
-		h.redirectWithNotice(w, r, "/settings/addresses", "error", "الخدمة غير متاحة حالياً.")
+		h.redirectWithNotice(w, r, "/settings/addresses", "error", i18n.T(lang, "common.service_unavailable"))
 		return
 	}
 
@@ -91,15 +94,16 @@ func (h *UIHandler) SettingsAddressSubmit(w http.ResponseWriter, r *http.Request
 	}
 
 	if _, err := h.idSvc.CreateAddress(ctx, addr); err != nil {
-		h.redirectWithNotice(w, r, "/settings/addresses", "error", h.safeMessage(err, langOf(r)))
+		h.redirectWithNotice(w, r, "/settings/addresses", "error", h.safeMessage(err, lang))
 		return
 	}
-	h.redirectWithNotice(w, r, "/settings/addresses", "success", "تم حفظ العنوان.")
+	h.redirectWithNotice(w, r, "/settings/addresses", "success", i18n.T(lang, "settings.address_saved_success"))
 }
 
 // SettingsAddressDeleteSubmit removes a saved address.
 func (h *UIHandler) SettingsAddressDeleteSubmit(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
+	lang := langOf(r)
 	actor, ok := authctx.From(ctx)
 	if !ok {
 		http.Redirect(w, r, "/auth/login?redirect=/settings/addresses", http.StatusSeeOther)
@@ -111,12 +115,13 @@ func (h *UIHandler) SettingsAddressDeleteSubmit(w http.ResponseWriter, r *http.R
 			_ = h.idSvc.DeleteAddress(ctx, id, actor.UserID)
 		}
 	}
-	h.redirectWithNotice(w, r, "/settings/addresses", "success", "تم حذف العنوان.")
+	h.redirectWithNotice(w, r, "/settings/addresses", "success", i18n.T(lang, "settings.address_deleted_success"))
 }
 
 // SettingsSessionPlanPurchaseSubmit applies a session plan's concurrency limit.
 func (h *UIHandler) SettingsSessionPlanPurchaseSubmit(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
+	lang := langOf(r)
 	actor, ok := authctx.From(ctx)
 	if !ok {
 		http.Redirect(w, r, "/auth/login?redirect=/settings/security", http.StatusSeeOther)
@@ -124,20 +129,21 @@ func (h *UIHandler) SettingsSessionPlanPurchaseSubmit(w http.ResponseWriter, r *
 	}
 
 	if h.idSvc == nil {
-		h.redirectWithNotice(w, r, "/settings/security", "error", "الخدمة غير متاحة حالياً.")
+		h.redirectWithNotice(w, r, "/settings/security", "error", i18n.T(lang, "common.service_unavailable"))
 		return
 	}
 	planID, _ := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
 	if err := h.idSvc.PurchaseSessionPlan(ctx, actor.UserID, planID); err != nil {
-		h.redirectWithNotice(w, r, "/settings/security", "error", h.safeMessage(err, langOf(r)))
+		h.redirectWithNotice(w, r, "/settings/security", "error", h.safeMessage(err, lang))
 		return
 	}
-	h.redirectWithNotice(w, r, "/settings/security", "success", "تم تفعيل الخطة.")
+	h.redirectWithNotice(w, r, "/settings/security", "success", i18n.T(lang, "settings.plan_activated_success"))
 }
 
 // SettingsSessionRevokeSubmit revokes one of the user's sessions.
 func (h *UIHandler) SettingsSessionRevokeSubmit(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
+	lang := langOf(r)
 	actor, ok := authctx.From(ctx)
 	if !ok {
 		http.Redirect(w, r, "/auth/login?redirect=/settings/security", http.StatusSeeOther)
@@ -147,12 +153,13 @@ func (h *UIHandler) SettingsSessionRevokeSubmit(w http.ResponseWriter, r *http.R
 	if h.idSvc != nil {
 		_ = h.idSvc.RevokeSession(ctx, r.PostFormValue("token"), actor.UserID)
 	}
-	h.redirectWithNotice(w, r, "/settings#security", "success", "تم إلغاء الجلسة.")
+	h.redirectWithNotice(w, r, "/settings#security", "success", i18n.T(lang, "settings.session_revoked_success"))
 }
 
 // SettingsPasswordSubmit updates the user's password from the settings form.
 func (h *UIHandler) SettingsPasswordSubmit(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
+	lang := langOf(r)
 	actor, ok := authctx.From(ctx)
 	if !ok {
 		http.Redirect(w, r, "/auth/login?redirect=/settings", http.StatusSeeOther)
@@ -160,7 +167,7 @@ func (h *UIHandler) SettingsPasswordSubmit(w http.ResponseWriter, r *http.Reques
 	}
 
 	if h.idSvc == nil {
-		h.redirectWithNotice(w, r, "/settings#security", "error", "الخدمة غير متاحة حالياً.")
+		h.redirectWithNotice(w, r, "/settings#security", "error", i18n.T(lang, "common.service_unavailable"))
 		return
 	}
 
@@ -170,21 +177,22 @@ func (h *UIHandler) SettingsPasswordSubmit(w http.ResponseWriter, r *http.Reques
 	confirmPass := r.PostFormValue("new_password_confirmation")
 
 	if newPass == "" || newPass != confirmPass {
-		h.redirectWithNotice(w, r, "/settings#security", "error", "كلمة المرور الجديدة غير متطابقة.")
+		h.redirectWithNotice(w, r, "/settings#security", "error", i18n.T(lang, "settings.password_mismatch"))
 		return
 	}
 
 	if err := h.idSvc.ChangePassword(ctx, actor.UserID, curr, newPass); err != nil {
-		h.redirectWithNotice(w, r, "/settings#security", "error", h.safeMessage(err, langOf(r)))
+		h.redirectWithNotice(w, r, "/settings#security", "error", h.safeMessage(err, lang))
 		return
 	}
 
-	h.redirectWithNotice(w, r, "/settings#security", "success", "تم تغيير كلمة المرور بنجاح.")
+	h.redirectWithNotice(w, r, "/settings#security", "success", i18n.T(lang, "settings.password_changed_success"))
 }
 
 // SettingsPreferencesSubmit saves the user's preferences.
 func (h *UIHandler) SettingsPreferencesSubmit(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
+	lang := langOf(r)
 	actor, ok := authctx.From(ctx)
 	if !ok {
 		http.Redirect(w, r, "/auth/login?redirect=/settings/preferences", http.StatusSeeOther)
@@ -192,7 +200,7 @@ func (h *UIHandler) SettingsPreferencesSubmit(w http.ResponseWriter, r *http.Req
 	}
 
 	if h.idSvc == nil {
-		h.redirectWithNotice(w, r, "/settings/preferences", "error", "الخدمة غير متاحة حالياً.")
+		h.redirectWithNotice(w, r, "/settings/preferences", "error", i18n.T(lang, "common.service_unavailable"))
 		return
 	}
 
@@ -211,15 +219,16 @@ func (h *UIHandler) SettingsPreferencesSubmit(w http.ResponseWriter, r *http.Req
 		p.Theme = "light"
 	}
 	if err := h.idSvc.UpdatePreferences(ctx, p); err != nil {
-		h.redirectWithNotice(w, r, "/settings/preferences", "error", h.safeMessage(err, langOf(r)))
+		h.redirectWithNotice(w, r, "/settings/preferences", "error", h.safeMessage(err, lang))
 		return
 	}
-	h.redirectWithNotice(w, r, "/settings/preferences", "success", "تم حفظ التفضيلات.")
+	h.redirectWithNotice(w, r, "/settings/preferences", "success", i18n.T(lang, "settings.preferences_saved_success"))
 }
 
 // SettingsDeleteRequestSubmit receives an account deletion request from a user.
 func (h *UIHandler) SettingsDeleteRequestSubmit(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
+	lang := langOf(r)
 	actor, ok := authctx.From(ctx)
 	if !ok {
 		http.Redirect(w, r, "/auth/login?redirect=/settings", http.StatusSeeOther)
@@ -235,14 +244,14 @@ func (h *UIHandler) SettingsDeleteRequestSubmit(w http.ResponseWriter, r *http.R
 	}
 
 	if h.idSvc == nil {
-		h.redirectWithNotice(w, r, "/settings?tab=security", "error", "الخدمة غير متاحة حالياً.")
+		h.redirectWithNotice(w, r, "/settings?tab=security", "error", i18n.T(lang, "common.service_unavailable"))
 		return
 	}
 
 	if err := h.idSvc.RequestAccountDeletion(ctx, actor.UserID, orgID, reason); err != nil {
-		h.redirectWithNotice(w, r, "/settings?tab=security", "error", h.safeMessage(err, langOf(r)))
+		h.redirectWithNotice(w, r, "/settings?tab=security", "error", h.safeMessage(err, lang))
 		return
 	}
 
-	h.redirectWithNotice(w, r, "/settings?tab=security", "success", "تم استلام طلب حذف الحساب بنجاح، وسيتم مراجعته من قبل إدارة المنصة.")
+	h.redirectWithNotice(w, r, "/settings?tab=security", "success", i18n.T(lang, "settings.delete_account_requested_success"))
 }

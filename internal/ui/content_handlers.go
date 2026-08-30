@@ -70,7 +70,7 @@ func (h *UIHandler) AboutPage(w http.ResponseWriter, r *http.Request) {
 
 // HowItWorksPage renders the how-it-works content block.
 func (h *UIHandler) HowItWorksPage(w http.ResponseWriter, r *http.Request) {
-	h.renderCmsBlock(w, r, "how-it-works", "كيف يعمل")
+	h.renderCmsBlock(w, r, "how-it-works", i18n.T(langOf(r), "cms.how_it_works"))
 }
 
 // FaqPage renders the dedicated interactive FAQ page with dynamic database overrides.
@@ -117,17 +117,17 @@ func (h *UIHandler) renderPolicy(w http.ResponseWriter, r *http.Request, slug, f
 	if body == "" {
 		switch slug {
 		case "privacy":
-			title = "سياسة الخصوصية وسرية البيانات"
-			body = "تلتزم منصة دواء 24 بحماية سرية وخصوصية بيانات المشتركين والموردين والصيدليات وفقاً لأعلى معايير الأمان والتشفير.\n\n1. لا يتم مشاركة بيانات أوامر التوريد أو الأسعار إلا بين الأطراف المتعاقدة.\n2. يتم تشفير كلمات المرور ومفاتيح المصادقة بأحدث خوارزميات التشفير القياسية.\n3. يحق للمستخدم طلب تقرير بكافة عملياته وحركاته المسجلة على المنصة."
+			title = i18n.T(lang, "policy.privacy_title")
+			body = i18n.T(lang, "policy.privacy_body")
 		case "terms":
-			title = "الشروط والأحكام العامة"
-			body = "أهلاً بكم في منصة دواء 24. يخضع استخدام هذه المنصة لكافة الضوابط واللوائح الصيدلانية والتجارية الصادرة عن هيئة الدواء والجهات المختصة.\n\n1. يجب على كافة المنشآت الطبية والصيدليات تقديم تراخيص مزاولة المهنة والسجل التجاري الساري.\n2. كافة المعاملات المالية وأوامر التوريد موثقة ومحمية إلكترونياً.\n3. يلتزم الموردون بضمان جودة وسلاسل تبريد الأدوية والمستلزمات الطبية."
+			title = i18n.T(lang, "policy.terms_title")
+			body = i18n.T(lang, "policy.terms_body")
 		case "refund":
-			title = "سياسة الاسترجاع والإلغاء"
-			body = "تخضع عمليات استرجاع أو استبدال الأدوية والمستلزمات الطبية للاشتراطات الصحية المعتمدة.\n\n1. يحق للصيدلية رفض استلام أي شحنة دوائية في حال وجود تلف في العبوة أو عدم مطابقة درجات حرارة التبريد.\n2. يتم إرجاع المبالغ لحساب الصيدلية أو إصدار إشعار دائن فوري عند اعتماد طلب الإرجاع."
+			title = i18n.T(lang, "policy.refund_title")
+			body = i18n.T(lang, "policy.refund_body")
 		case "vendor_agreement":
-			title = "اتفاقية التوريد والاعتماد للموردين"
-			body = "تحدد هذه الاتفاقية حقوق والتزامات الموردين والمستودعات الطبية المعتمدة على منصة دواء 24.\n\n1. يلتزم المورد بتحديث أسعار الكتالوج والمخزون المتوفر لحظياً.\n2. يتم تسليم أوامر التوريد للصيدليات خلال المواعيد المحددة مع وثائق التسليم الرسمية."
+			title = i18n.T(lang, "policy.vendor_agreement_title")
+			body = i18n.T(lang, "policy.vendor_agreement_body")
 		}
 	}
 
@@ -153,9 +153,10 @@ func (h *UIHandler) AdminContentPage(w http.ResponseWriter, r *http.Request) {
 // AdminContentSubmit creates or updates a CMS block or highlight section.
 func (h *UIHandler) AdminContentSubmit(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
+	lang := langOf(r)
 
 	if h.adminSvc == nil {
-		h.redirectWithNotice(w, r, "/admin/content", "error", "خدمة المحتوى غير متاحة حالياً.")
+		h.redirectWithNotice(w, r, "/admin/content", "error", i18n.T(lang, "admin.content.service_unavailable"))
 		return
 	}
 
@@ -163,7 +164,7 @@ func (h *UIHandler) AdminContentSubmit(w http.ResponseWriter, r *http.Request) {
 
 	key := strings.TrimSpace(r.FormValue("key"))
 	if key == "" {
-		h.redirectWithNotice(w, r, "/admin/content", "error", "يرجى تحديد المفتاح التعريفي للكتلة.")
+		h.redirectWithNotice(w, r, "/admin/content", "error", i18n.T(lang, "admin.content.key_required"))
 		return
 	}
 
@@ -186,45 +187,47 @@ func (h *UIHandler) AdminContentSubmit(w http.ResponseWriter, r *http.Request) {
 
 	if err := h.adminSvc.UpsertContentBlock(database.AsSystem(ctx), block); err != nil {
 		h.log.ErrorContext(ctx, "admin upsert content block failed", "key", key, "error", err)
-		h.redirectWithNotice(w, r, "/admin/content", "error", h.safeMessage(err, langOf(r)))
+		h.redirectWithNotice(w, r, "/admin/content", "error", h.safeMessage(err, lang))
 		return
 	}
 
-	h.redirectWithNotice(w, r, "/admin/content", "success", "تم حفظ كتلة المحتوى بنجاح وتحديثها في المنصة.")
+	h.redirectWithNotice(w, r, "/admin/content", "success", i18n.T(lang, "admin.content.saved_success"))
 }
 
 // AdminContentToggleSubmit toggles the active status of a content block.
 func (h *UIHandler) AdminContentToggleSubmit(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
+	lang := langOf(r)
 	id, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
 	if err != nil || id <= 0 || h.adminSvc == nil {
-		h.redirectWithNotice(w, r, "/admin/content", "error", "معرف الكتلة غير صالح.")
+		h.redirectWithNotice(w, r, "/admin/content", "error", i18n.T(lang, "admin.content.invalid_id"))
 		return
 	}
 
 	if err := h.adminSvc.ToggleContentBlockStatus(database.AsSystem(ctx), id); err != nil {
 		h.log.ErrorContext(ctx, "admin toggle content block failed", "id", id, "error", err)
-		h.redirectWithNotice(w, r, "/admin/content", "error", h.safeMessage(err, langOf(r)))
+		h.redirectWithNotice(w, r, "/admin/content", "error", h.safeMessage(err, lang))
 		return
 	}
 
-	h.redirectWithNotice(w, r, "/admin/content", "success", "تم تحديث حالة تفعيل الكتلة بنجاح.")
+	h.redirectWithNotice(w, r, "/admin/content", "success", i18n.T(lang, "admin.content.status_updated_success"))
 }
 
 // AdminContentDeleteSubmit deletes a content block.
 func (h *UIHandler) AdminContentDeleteSubmit(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
+	lang := langOf(r)
 	id, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
 	if err != nil || id <= 0 || h.adminSvc == nil {
-		h.redirectWithNotice(w, r, "/admin/content", "error", "معرف الكتلة غير صالح.")
+		h.redirectWithNotice(w, r, "/admin/content", "error", i18n.T(lang, "admin.content.invalid_id"))
 		return
 	}
 
 	if err := h.adminSvc.DeleteContentBlock(database.AsSystem(ctx), id); err != nil {
 		h.log.ErrorContext(ctx, "admin delete content block failed", "id", id, "error", err)
-		h.redirectWithNotice(w, r, "/admin/content", "error", h.safeMessage(err, langOf(r)))
+		h.redirectWithNotice(w, r, "/admin/content", "error", h.safeMessage(err, lang))
 		return
 	}
 
-	h.redirectWithNotice(w, r, "/admin/content", "success", "تم حذف كتلة المحتوى بنجاح.")
+	h.redirectWithNotice(w, r, "/admin/content", "success", i18n.T(lang, "admin.content.deleted_success"))
 }

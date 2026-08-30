@@ -10,9 +10,11 @@ import (
 
 	"github.com/muhiya/dawa24-store/internal/modules/billing"
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 )
 
 func buildPaymentMethodIdentifier(r *http.Request) (string, string, error) {
+	lang := langOf(r)
 	payType := strings.TrimSpace(r.PostFormValue("type"))
 	switch payType {
 	case "bank":
@@ -24,10 +26,10 @@ func buildPaymentMethodIdentifier(r *http.Request) (string, string, error) {
 		branch := strings.TrimSpace(r.PostFormValue("branch_name"))
 
 		if iban == "" && accNum == "" {
-			return "", "", fmt.Errorf("رقم الآيبان (IBAN) أو رقم الحساب البنكي مطلوب")
+			return "", "", fmt.Errorf("%s", i18n.T(lang, "payment.iban_or_account_required"))
 		}
 		if bankName == "" {
-			bankName = "حساب بنكي"
+			bankName = i18n.T(lang, "payment.bank_account")
 		}
 
 		parts := []string{bankName}
@@ -38,13 +40,13 @@ func buildPaymentMethodIdentifier(r *http.Request) (string, string, error) {
 			parts = append(parts, "IBAN: "+iban)
 		}
 		if accNum != "" {
-			parts = append(parts, "حساب: "+accNum)
+			parts = append(parts, i18n.T(lang, "payment.account_prefix")+accNum)
 		}
 		if swift != "" {
 			parts = append(parts, "SWIFT: "+swift)
 		}
 		if branch != "" {
-			parts = append(parts, "فرع "+branch)
+			parts = append(parts, i18n.T(lang, "payment.branch_prefix")+branch)
 		}
 		return "bank", strings.Join(parts, " • "), nil
 
@@ -52,7 +54,7 @@ func buildPaymentMethodIdentifier(r *http.Request) (string, string, error) {
 		handle := strings.TrimSpace(r.PostFormValue("instapay_handle"))
 		holder := strings.TrimSpace(r.PostFormValue("account_holder"))
 		if handle == "" {
-			return "", "", fmt.Errorf("معرف إنستاباي (IPA) أو رقم الهاتف مطلوب")
+			return "", "", fmt.Errorf("%s", i18n.T(lang, "payment.instapay_required"))
 		}
 		if holder != "" {
 			return "instapay", fmt.Sprintf("InstaPay: %s • %s", handle, holder), nil
@@ -62,12 +64,12 @@ func buildPaymentMethodIdentifier(r *http.Request) (string, string, error) {
 	case "wallet", "vodafone_cash":
 		walletName := strings.TrimSpace(r.PostFormValue("wallet_provider"))
 		if walletName == "" {
-			walletName = "محفظة إلكترونية"
+			walletName = i18n.T(lang, "payment.e_wallet")
 		}
 		phone := strings.TrimSpace(r.PostFormValue("wallet_phone"))
 		holder := strings.TrimSpace(r.PostFormValue("account_holder"))
 		if phone == "" {
-			return "", "", fmt.Errorf("رقم الهاتف المحمول للمحفظة مطلوب")
+			return "", "", fmt.Errorf("%s", i18n.T(lang, "payment.wallet_phone_required"))
 		}
 		if holder != "" {
 			return "wallet", fmt.Sprintf("%s: %s • %s", walletName, phone, holder), nil
@@ -82,7 +84,7 @@ func buildPaymentMethodIdentifier(r *http.Request) (string, string, error) {
 			cardBrand = "Card"
 		}
 		if cardNum == "" {
-			return "", "", fmt.Errorf("رقم البطاقة مطلوب")
+			return "", "", fmt.Errorf("%s", i18n.T(lang, "payment.card_number_required"))
 		}
 		cleanNum := strings.ReplaceAll(cardNum, " ", "")
 		last4 := cleanNum
@@ -95,13 +97,14 @@ func buildPaymentMethodIdentifier(r *http.Request) (string, string, error) {
 		return "card", fmt.Sprintf("%s (•••• %s)", cardBrand, last4), nil
 
 	default:
-		return "", "", fmt.Errorf("نوع وسيلة الدفع غير صالح")
+		return "", "", fmt.Errorf("%s", i18n.T(lang, "payment.invalid_type"))
 	}
 }
 
 // SettingsPaymentMethodsSubmit saves a new payment method.
 func (h *UIHandler) SettingsPaymentMethodsSubmit(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
+	lang := langOf(r)
 	actor, ok := authctx.From(ctx)
 	if !ok {
 		http.Redirect(w, r, "/auth/login", http.StatusSeeOther)
@@ -111,7 +114,7 @@ func (h *UIHandler) SettingsPaymentMethodsSubmit(w http.ResponseWriter, r *http.
 	dest := walletDestFor(actor)
 
 	if h.billSvc == nil {
-		h.redirectWithNotice(w, r, dest, "error", "خدمة المدفوعات غير متاحة حالياً.")
+		h.redirectWithNotice(w, r, dest, "error", i18n.T(lang, "payment.service_unavailable"))
 		return
 	}
 
@@ -133,16 +136,17 @@ func (h *UIHandler) SettingsPaymentMethodsSubmit(w http.ResponseWriter, r *http.
 
 	if err := h.billSvc.AddPaymentMethod(ctx, pm); err != nil {
 		h.log.ErrorContext(ctx, "failed to add payment method", "error", err)
-		h.redirectWithNotice(w, r, dest, "error", h.safeMessage(err, langOf(r)))
+		h.redirectWithNotice(w, r, dest, "error", h.safeMessage(err, lang))
 		return
 	}
 
-	h.redirectWithNotice(w, r, dest, "success", "تمت إضافة وحفظ وسيلة الدفع بنجاح.")
+	h.redirectWithNotice(w, r, dest, "success", i18n.T(lang, "payment.created_success"))
 }
 
 // SettingsPaymentMethodEditSubmit updates an existing saved payment method or bank account.
 func (h *UIHandler) SettingsPaymentMethodEditSubmit(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
+	lang := langOf(r)
 	actor, ok := authctx.From(ctx)
 	if !ok {
 		http.Redirect(w, r, "/auth/login", http.StatusSeeOther)
@@ -153,12 +157,12 @@ func (h *UIHandler) SettingsPaymentMethodEditSubmit(w http.ResponseWriter, r *ht
 
 	id, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
 	if err != nil || id <= 0 {
-		h.redirectWithNotice(w, r, dest, "error", "معرف وسيلة الدفع غير صالح.")
+		h.redirectWithNotice(w, r, dest, "error", i18n.T(lang, "payment.invalid_id"))
 		return
 	}
 
 	if h.billSvc == nil {
-		h.redirectWithNotice(w, r, dest, "error", "خدمة المدفوعات غير متاحة حالياً.")
+		h.redirectWithNotice(w, r, dest, "error", i18n.T(lang, "payment.service_unavailable"))
 		return
 	}
 
@@ -181,16 +185,17 @@ func (h *UIHandler) SettingsPaymentMethodEditSubmit(w http.ResponseWriter, r *ht
 
 	if err := h.billSvc.UpdatePaymentMethod(ctx, pm); err != nil {
 		h.log.ErrorContext(ctx, "failed to update payment method", "error", err, "id", id)
-		h.redirectWithNotice(w, r, dest, "error", h.safeMessage(err, langOf(r)))
+		h.redirectWithNotice(w, r, dest, "error", h.safeMessage(err, lang))
 		return
 	}
 
-	h.redirectWithNotice(w, r, dest, "success", "تم تحديث بيانات وسيلة الدفع والحساب بنجاح.")
+	h.redirectWithNotice(w, r, dest, "success", i18n.T(lang, "payment.updated_success"))
 }
 
 // SettingsPaymentMethodSetDefaultSubmit marks a payment method as default.
 func (h *UIHandler) SettingsPaymentMethodSetDefaultSubmit(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
+	lang := langOf(r)
 	actor, ok := authctx.From(ctx)
 	if !ok {
 		http.Redirect(w, r, "/auth/login", http.StatusSeeOther)
@@ -201,24 +206,25 @@ func (h *UIHandler) SettingsPaymentMethodSetDefaultSubmit(w http.ResponseWriter,
 
 	id, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
 	if err != nil || id <= 0 {
-		h.redirectWithNotice(w, r, dest, "error", "معرف وسيلة الدفع غير صالح.")
+		h.redirectWithNotice(w, r, dest, "error", i18n.T(lang, "payment.invalid_id"))
 		return
 	}
 
 	if h.billSvc != nil {
 		if err := h.billSvc.SetDefaultPaymentMethod(ctx, actor.UserID, id); err != nil {
 			h.log.ErrorContext(ctx, "failed to set default payment method", "error", err, "id", id)
-			h.redirectWithNotice(w, r, dest, "error", h.safeMessage(err, langOf(r)))
+			h.redirectWithNotice(w, r, dest, "error", h.safeMessage(err, lang))
 			return
 		}
 	}
 
-	h.redirectWithNotice(w, r, dest, "success", "تم تعيين وسيلة الدفع كافتراضية بنجاح.")
+	h.redirectWithNotice(w, r, dest, "success", i18n.T(lang, "payment.set_default_success"))
 }
 
 // SettingsPaymentMethodDeleteSubmit deletes a saved payment method.
 func (h *UIHandler) SettingsPaymentMethodDeleteSubmit(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
+	lang := langOf(r)
 	actor, ok := authctx.From(ctx)
 	if !ok {
 		http.Redirect(w, r, "/auth/login", http.StatusSeeOther)
@@ -229,17 +235,17 @@ func (h *UIHandler) SettingsPaymentMethodDeleteSubmit(w http.ResponseWriter, r *
 
 	id, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
 	if err != nil || id <= 0 {
-		h.redirectWithNotice(w, r, dest, "error", "معرف وسيلة الدفع غير صالح.")
+		h.redirectWithNotice(w, r, dest, "error", i18n.T(lang, "payment.invalid_id"))
 		return
 	}
 
 	if h.billSvc != nil {
 		if err := h.billSvc.DeletePaymentMethod(ctx, actor.UserID, id); err != nil {
 			h.log.ErrorContext(ctx, "failed to delete payment method", "error", err)
-			h.redirectWithNotice(w, r, dest, "error", h.safeMessage(err, langOf(r)))
+			h.redirectWithNotice(w, r, dest, "error", h.safeMessage(err, lang))
 			return
 		}
 	}
 
-	h.redirectWithNotice(w, r, dest, "success", "تم حذف وسيلة الدفع بنجاح.")
+	h.redirectWithNotice(w, r, dest, "success", i18n.T(lang, "payment.deleted_success"))
 }

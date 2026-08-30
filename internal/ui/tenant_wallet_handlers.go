@@ -11,6 +11,7 @@ import (
 
 	"github.com/muhiya/dawa24-store/internal/modules/billing"
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/shared/money"
 	"github.com/muhiya/dawa24-store/internal/ui/pages"
 )
@@ -76,6 +77,7 @@ func (h *UIHandler) TenantWalletPage(w http.ResponseWriter, r *http.Request) {
 // TenantWalletDepositSubmit handles wallet recharge deposit submissions.
 func (h *UIHandler) TenantWalletDepositSubmit(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
+	lang := langOf(r)
 	actor, ok := authctx.From(ctx)
 	if !ok || actor.UserID == 0 {
 		http.Redirect(w, r, "/auth/login", http.StatusSeeOther)
@@ -88,7 +90,7 @@ func (h *UIHandler) TenantWalletDepositSubmit(w http.ResponseWriter, r *http.Req
 	amountStr := r.PostFormValue("amount")
 	amt, err := money.Parse(amountStr)
 	if err != nil || amt.IsZero() || amt.IsNegative() {
-		h.redirectWithNotice(w, r, dest, "error", "يرجى إدخال مبلغ إيداع صالح وموجب.")
+		h.redirectWithNotice(w, r, dest, "error", i18n.T(lang, "wallet.deposit.invalid_amount"))
 		return
 	}
 
@@ -97,11 +99,11 @@ func (h *UIHandler) TenantWalletDepositSubmit(w http.ResponseWriter, r *http.Req
 	notes := strings.TrimSpace(r.PostFormValue("notes"))
 
 	if method == "" {
-		h.redirectWithNotice(w, r, dest, "error", "يرجى اختيار وسيلة الدفع أو التحويل.")
+		h.redirectWithNotice(w, r, dest, "error", i18n.T(lang, "wallet.deposit.method_required"))
 		return
 	}
 	if ref == "" {
-		h.redirectWithNotice(w, r, dest, "error", "يرجى إدخال رقم الإشعار أو مرجع التحويل.")
+		h.redirectWithNotice(w, r, dest, "error", i18n.T(lang, "wallet.deposit.reference_required"))
 		return
 	}
 
@@ -114,7 +116,7 @@ func (h *UIHandler) TenantWalletDepositSubmit(w http.ResponseWriter, r *http.Req
 	}
 
 	if h.billSvc == nil {
-		h.redirectWithNotice(w, r, dest, "error", "خدمة المحفظة والفواتير غير متوفرة حالياً.")
+		h.redirectWithNotice(w, r, dest, "error", i18n.T(lang, "wallet.service_unavailable"))
 		return
 	}
 
@@ -125,19 +127,20 @@ func (h *UIHandler) TenantWalletDepositSubmit(w http.ResponseWriter, r *http.Req
 
 	if _, err := h.billSvc.RequestDeposit(ctx, actor.UserID, orgPtr, "EGP", amt, method, ref, attachmentURL, notes); err != nil {
 		h.log.ErrorContext(ctx, "failed to submit deposit request", "error", err)
-		h.redirectWithNotice(w, r, dest, "error", h.safeMessage(err, langOf(r)))
+		h.redirectWithNotice(w, r, dest, "error", h.safeMessage(err, lang))
 		return
 	}
 
 	// Dispatch in-app notification
 	go h.notifyWalletDeposit(context.Background(), actor.UserID, actor.OrganizationID, amt, "pending")
 
-	h.redirectWithNotice(w, r, dest, "success", "تم تسجيل طلب شحن الرصيد بنجاح، والعملية قيد مراجعة وتدقيق الإدارة المالية.")
+	h.redirectWithNotice(w, r, dest, "success", i18n.T(lang, "wallet.deposit.pending_success"))
 }
 
 // TenantWalletWithdrawSubmit handles wallet withdrawal requests.
 func (h *UIHandler) TenantWalletWithdrawSubmit(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
+	lang := langOf(r)
 	actor, ok := authctx.From(ctx)
 	if !ok || actor.UserID == 0 {
 		http.Redirect(w, r, "/auth/login", http.StatusSeeOther)
@@ -150,39 +153,40 @@ func (h *UIHandler) TenantWalletWithdrawSubmit(w http.ResponseWriter, r *http.Re
 	amountStr := r.PostFormValue("amount")
 	amt, err := money.Parse(amountStr)
 	if err != nil || amt.IsZero() || amt.IsNegative() {
-		h.redirectWithNotice(w, r, dest, "error", "يرجى إدخال مبلغ سحب صالح وموجب.")
+		h.redirectWithNotice(w, r, dest, "error", i18n.T(lang, "wallet.withdraw.invalid_amount"))
 		return
 	}
 
 	destAcc := strings.TrimSpace(r.PostFormValue("destination_id"))
 	if destAcc == "" {
-		h.redirectWithNotice(w, r, dest, "error", "يرجى إدخال رقم الحساب أو الآيبان المستلم.")
+		h.redirectWithNotice(w, r, dest, "error", i18n.T(lang, "wallet.withdraw.destination_required"))
 		return
 	}
 
 	reason := r.PostFormValue("reason")
-	desc := fmt.Sprintf("طلب سحب رصيد إلى: %s", destAcc)
+	desc := fmt.Sprintf(i18n.T(lang, "wallet.withdraw.desc_prefix"), destAcc)
 	if reason != "" {
-		desc += fmt.Sprintf(" (السبب: %s)", reason)
+		desc += fmt.Sprintf(i18n.T(lang, "wallet.withdraw.reason_suffix"), reason)
 	}
 
 	if h.billSvc == nil {
-		h.redirectWithNotice(w, r, dest, "error", "خدمة المحفظة والفواتير غير متوفرة حالياً.")
+		h.redirectWithNotice(w, r, dest, "error", i18n.T(lang, "wallet.service_unavailable"))
 		return
 	}
 
 	if _, err := h.billSvc.Withdraw(ctx, actor.UserID, "EGP", amt, "user_withdrawal", nil, desc); err != nil {
 		h.log.ErrorContext(ctx, "failed wallet withdrawal", "error", err)
-		h.redirectWithNotice(w, r, dest, "error", h.safeMessage(err, langOf(r)))
+		h.redirectWithNotice(w, r, dest, "error", h.safeMessage(err, lang))
 		return
 	}
 
-	h.redirectWithNotice(w, r, dest, "success", "تم خصم وتسجيل طلب السحب بنجاح.")
+	h.redirectWithNotice(w, r, dest, "success", i18n.T(lang, "wallet.withdraw.success"))
 }
 
 // TenantPaymentMethodAddSubmit saves a new payment method from the dedicated wallet page.
 func (h *UIHandler) TenantPaymentMethodAddSubmit(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
+	lang := langOf(r)
 	actor, ok := authctx.From(ctx)
 	if !ok || actor.UserID == 0 {
 		http.Redirect(w, r, "/auth/login", http.StatusSeeOther)
@@ -192,7 +196,7 @@ func (h *UIHandler) TenantPaymentMethodAddSubmit(w http.ResponseWriter, r *http.
 	dest := walletDestFor(actor)
 
 	if h.billSvc == nil {
-		h.redirectWithNotice(w, r, dest, "error", "خدمة المدفوعات غير متاحة حالياً.")
+		h.redirectWithNotice(w, r, dest, "error", i18n.T(lang, "payment.service_unavailable"))
 		return
 	}
 
@@ -214,16 +218,17 @@ func (h *UIHandler) TenantPaymentMethodAddSubmit(w http.ResponseWriter, r *http.
 
 	if err := h.billSvc.AddPaymentMethod(ctx, pm); err != nil {
 		h.log.ErrorContext(ctx, "failed to add payment method", "error", err)
-		h.redirectWithNotice(w, r, dest, "error", h.safeMessage(err, langOf(r)))
+		h.redirectWithNotice(w, r, dest, "error", h.safeMessage(err, lang))
 		return
 	}
 
-	h.redirectWithNotice(w, r, dest, "success", "تمت إضافة وحفظ وسيلة الدفع بنجاح.")
+	h.redirectWithNotice(w, r, dest, "success", i18n.T(lang, "payment.created_success"))
 }
 
 // TenantPaymentMethodDeleteSubmit deletes a saved payment method from the dedicated wallet page.
 func (h *UIHandler) TenantPaymentMethodDeleteSubmit(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
+	lang := langOf(r)
 	actor, ok := authctx.From(ctx)
 	if !ok || actor.UserID == 0 {
 		http.Redirect(w, r, "/auth/login", http.StatusSeeOther)
@@ -234,17 +239,17 @@ func (h *UIHandler) TenantPaymentMethodDeleteSubmit(w http.ResponseWriter, r *ht
 
 	id, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
 	if err != nil || id <= 0 {
-		h.redirectWithNotice(w, r, dest, "error", "معرف وسيلة الدفع غير صالح.")
+		h.redirectWithNotice(w, r, dest, "error", i18n.T(lang, "payment.invalid_id"))
 		return
 	}
 
 	if h.billSvc != nil {
 		if err := h.billSvc.DeletePaymentMethod(ctx, actor.UserID, id); err != nil {
 			h.log.ErrorContext(ctx, "failed to delete payment method", "error", err)
-			h.redirectWithNotice(w, r, dest, "error", h.safeMessage(err, langOf(r)))
+			h.redirectWithNotice(w, r, dest, "error", h.safeMessage(err, lang))
 			return
 		}
 	}
 
-	h.redirectWithNotice(w, r, dest, "success", "تم حذف وسيلة الدفع بنجاح.")
+	h.redirectWithNotice(w, r, dest, "success", i18n.T(lang, "payment.deleted_success"))
 }

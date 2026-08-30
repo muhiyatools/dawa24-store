@@ -21,15 +21,16 @@ import (
 )
 
 // computeVendorWorkingStatus evaluates working hours, open/closed status, and coverage schedule.
+// computeVendorWorkingStatus evaluates working hours, open/closed status, and coverage schedule.
 func computeVendorWorkingStatus(branches []*org.Branch, coverages []*workflow.CoverageView) (workingHours string, coverageDays string, coverageAreas []string, isOpenNow bool, statusNote string) {
 	now := time.Now().UTC().Add(3 * time.Hour) // Egypt Time UTC+3 / EET
 	currentWeekday := int(now.Weekday())       // 0=Sun, 1=Mon, ..., 6=Sat
 	currentHourMin := fmt.Sprintf("%02d:%02d", now.Hour(), now.Minute())
 
-	workingHours = "09:00 ص - 06:00 م"
-	coverageDays = "السبت - الخميس"
+	workingHours = i18n.T("ar", "vendor.status.default_working_hours")
+	coverageDays = i18n.T("ar", "vendor.status.default_coverage_days")
 	isOpenNow = false
-	statusNote = "مغلق حالياً"
+	statusNote = i18n.T("ar", "vendor.status.closed_now")
 
 	areaMap := make(map[string]bool)
 	dayActiveMap := make(map[int]bool)
@@ -65,7 +66,7 @@ func computeVendorWorkingStatus(branches []*org.Branch, coverages []*workflow.Co
 		}
 	}
 	if len(coverageAreas) == 0 {
-		coverageAreas = []string{"القاهرة الكبرى", "كافة المحافظات"}
+		coverageAreas = []string{i18n.T("ar", "vendor.status.greater_cairo"), i18n.T("ar", "vendor.status.all_governorates")}
 	}
 
 	if fromTime != "" && toTime != "" {
@@ -80,9 +81,17 @@ func computeVendorWorkingStatus(branches []*org.Branch, coverages []*workflow.Co
 	}
 
 	if len(dayActiveMap) >= 6 {
-		coverageDays = "طوال أيام الأسبوع 24/7"
+		coverageDays = i18n.T("ar", "vendor.status.coverage_24_7")
 	} else if len(dayActiveMap) > 0 {
-		dayNames := []string{"الأحد", "الاثنين", "الثلاثاء", "الأربعاء", "الخميس", "الجمعة", "السبت"}
+		dayNames := []string{
+			i18n.T("ar", "day.sunday"),
+			i18n.T("ar", "day.monday"),
+			i18n.T("ar", "day.tuesday"),
+			i18n.T("ar", "day.wednesday"),
+			i18n.T("ar", "day.thursday"),
+			i18n.T("ar", "day.friday"),
+			i18n.T("ar", "day.saturday"),
+		}
 		var activeDays []string
 		for d := 0; d <= 6; d++ {
 			if dayActiveMap[d] {
@@ -91,7 +100,7 @@ func computeVendorWorkingStatus(branches []*org.Branch, coverages []*workflow.Co
 		}
 		if len(activeDays) > 0 {
 			if len(activeDays) == 1 {
-				coverageDays = "يوم " + activeDays[0]
+				coverageDays = i18n.T("ar", "vendor.status.day_prefix") + activeDays[0]
 			} else {
 				coverageDays = activeDays[0] + " - " + activeDays[len(activeDays)-1]
 			}
@@ -110,32 +119,32 @@ func computeVendorWorkingStatus(branches []*org.Branch, coverages []*workflow.Co
 			}
 			if currentHourMin >= start && currentHourMin <= end {
 				isOpenNow = true
-				statusNote = fmt.Sprintf("مفتوح الآن (يغلق %s)", end)
+				statusNote = fmt.Sprintf(i18n.T("ar", "vendor.status.open_until_format"), end)
 			} else if currentHourMin < start {
 				isOpenNow = false
-				statusNote = fmt.Sprintf("مغلق حالياً (يفتح %s)", start)
+				statusNote = fmt.Sprintf(i18n.T("ar", "vendor.status.closed_until_format"), start)
 			} else {
 				isOpenNow = false
-				statusNote = "مغلق الآن (انتهت ساعات العمل)"
+				statusNote = i18n.T("ar", "vendor.status.closed_working_hours_ended")
 			}
 		} else {
 			isOpenNow = false
-			statusNote = "مغلق اليوم (خارج أيام التغطية)"
+			statusNote = i18n.T("ar", "vendor.status.closed_out_of_coverage")
 		}
 	} else {
 		if currentWeekday == 5 { // Friday
 			isOpenNow = false
-			statusNote = "مغلق اليوم (عطلة الجمعة)"
+			statusNote = i18n.T("ar", "vendor.status.closed_friday_holiday")
 		} else {
 			if currentHourMin >= "09:00" && currentHourMin <= "18:00" {
 				isOpenNow = true
-				statusNote = "مفتوح الآن (يغلق 06:00 م)"
+				statusNote = i18n.T("ar", "vendor.status.open_until_6pm")
 			} else if currentHourMin < "09:00" {
 				isOpenNow = false
-				statusNote = "مغلق حالياً (يفتح 09:00 ص)"
+				statusNote = i18n.T("ar", "vendor.status.closed_opens_9am")
 			} else {
 				isOpenNow = false
-				statusNote = "مغلق الآن (يفتح 09:00 ص غداً)"
+				statusNote = i18n.T("ar", "vendor.status.closed_opens_9am_tomorrow")
 			}
 		}
 	}
@@ -305,7 +314,7 @@ func (h *UIHandler) SupplierProfilePage(w http.ResponseWriter, r *http.Request) 
 	}
 	// Allow approved or active suppliers
 	if o.Status == org.StatusRejected || o.Status == org.StatusSuspended {
-		h.renderError(w, r, fmt.Errorf("المورد غير متاح حالياً"))
+		h.renderError(w, r, fmt.Errorf("%s", i18n.T(lang, "suppliers.vendor_unavailable")))
 		return
 	}
 
@@ -488,25 +497,26 @@ func (h *UIHandler) SupplierFollowSubmit(w http.ResponseWriter, r *http.Request)
 // SupplierQuoteSubmit creates a bulk quote request addressed to a supplier.
 func (h *UIHandler) SupplierQuoteSubmit(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
+	lang := langOf(r)
 	actor, ok := authctx.From(ctx)
 	if !ok {
 		http.Redirect(w, r, "/auth/login?redirect="+r.Referer(), http.StatusSeeOther)
 		return
 	}
 	if actor.OrganizationID <= 0 {
-		h.redirectWithNotice(w, r, "/suppliers", "error", "تحتاج إلى حساب مؤسسة معتمد لطلب عرض سعر.")
+		h.redirectWithNotice(w, r, "/suppliers", "error", i18n.T(lang, "suppliers.verified_org_required_quote"))
 		return
 	}
 
 	supplierID, _ := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
 	qty, _ := strconv.Atoi(r.PostFormValue("quantity"))
 	if qty <= 0 {
-		h.redirectWithNotice(w, r, "/suppliers/"+strconv.FormatInt(supplierID, 10), "error", "أدخل كمية صحيحة.")
+		h.redirectWithNotice(w, r, "/suppliers/"+strconv.FormatInt(supplierID, 10), "error", i18n.T(lang, "common.invalid_quantity"))
 		return
 	}
 
 	if h.commSvc == nil {
-		h.redirectWithNotice(w, r, "/suppliers/"+strconv.FormatInt(supplierID, 10), "error", "الخدمة غير متاحة حالياً.")
+		h.redirectWithNotice(w, r, "/suppliers/"+strconv.FormatInt(supplierID, 10), "error", i18n.T(lang, "common.service_unavailable"))
 		return
 	}
 
@@ -523,8 +533,8 @@ func (h *UIHandler) SupplierQuoteSubmit(w http.ResponseWriter, r *http.Request) 
 		BuyerNotes:        r.PostFormValue("notes"),
 	})
 	if err != nil {
-		h.redirectWithNotice(w, r, "/suppliers/"+strconv.FormatInt(supplierID, 10), "error", h.safeMessage(err, langOf(r)))
+		h.redirectWithNotice(w, r, "/suppliers/"+strconv.FormatInt(supplierID, 10), "error", h.safeMessage(err, lang))
 		return
 	}
-	h.redirectWithNotice(w, r, "/suppliers/"+strconv.FormatInt(supplierID, 10), "success", "تم إرسال طلب عرض السعر.")
+	h.redirectWithNotice(w, r, "/suppliers/"+strconv.FormatInt(supplierID, 10), "success", i18n.T(lang, "suppliers.quote_submitted_success"))
 }

@@ -12,11 +12,13 @@ import (
 	platformadmin "github.com/muhiya/dawa24-store/internal/modules/platform_admin"
 	"github.com/muhiya/dawa24-store/internal/modules/workflow"
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 )
 
 // VendorCoverageCreateSubmit processes creation of weekly coverage for multiple days and multiple cities.
 func (h *UIHandler) VendorCoverageCreateSubmit(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
+	lang := langOf(r)
 	actor, ok := authctx.From(ctx)
 	if !ok || actor.OrganizationID <= 0 {
 		http.Redirect(w, r, "/auth/login?redirect=/vendor/coverage", http.StatusSeeOther)
@@ -24,7 +26,7 @@ func (h *UIHandler) VendorCoverageCreateSubmit(w http.ResponseWriter, r *http.Re
 	}
 
 	if err := r.ParseForm(); err != nil {
-		h.redirectWithNotice(w, r, "/vendor/coverage", "error", "تعذر قراءة بيانات النموذج.")
+		h.redirectWithNotice(w, r, "/vendor/coverage", "error", i18n.T(lang, "common.form_read_error"))
 		return
 	}
 
@@ -40,7 +42,7 @@ func (h *UIHandler) VendorCoverageCreateSubmit(w http.ResponseWriter, r *http.Re
 	}
 
 	if branchID <= 0 {
-		h.redirectWithNotice(w, r, "/vendor/coverage", "error", "يجب اختيار أو إنشاء فرع تابع لمنشأتكم أولاً.")
+		h.redirectWithNotice(w, r, "/vendor/coverage", "error", i18n.T(lang, "vendor.coverage.branch_required"))
 		return
 	}
 
@@ -50,7 +52,7 @@ func (h *UIHandler) VendorCoverageCreateSubmit(w http.ResponseWriter, r *http.Re
 		if err != nil || branch.OrganizationID != actor.OrganizationID {
 			h.log.WarnContext(ctx, "cross-tenant branch coverage creation attempt",
 				"actor_org", actor.OrganizationID, "target_branch", branchID)
-			h.redirectWithNotice(w, r, "/vendor/coverage", "error", "الفرع المحدد لا ينتمي إلى منشأتكم.")
+			h.redirectWithNotice(w, r, "/vendor/coverage", "error", i18n.T(lang, "vendor.coverage.branch_not_yours"))
 			return
 		}
 		targetBranch = branch
@@ -96,7 +98,7 @@ func (h *UIHandler) VendorCoverageCreateSubmit(w http.ResponseWriter, r *http.Re
 	}
 
 	if len(daysToCreate) == 0 {
-		h.redirectWithNotice(w, r, "/vendor/coverage", "error", "يرجى تحديد يوم واحد على الأقل من أيام الأسبوع لتطبيق التغطية.")
+		h.redirectWithNotice(w, r, "/vendor/coverage", "error", i18n.T(lang, "vendor.coverage.day_required"))
 		return
 	}
 
@@ -254,25 +256,26 @@ func (h *UIHandler) VendorCoverageCreateSubmit(w http.ResponseWriter, r *http.Re
 	}
 
 	if len(newCoverages) == 0 {
-		h.redirectWithNotice(w, r, "/vendor/coverage", "error", "يرجى اختيار مدينة أو محافظة صالحة لإنشاء التغطية.")
+		h.redirectWithNotice(w, r, "/vendor/coverage", "error", i18n.T(lang, "vendor.coverage.location_required"))
 		return
 	}
 
 	if h.wfSvc != nil {
 		if err := h.wfSvc.CreateBatchWeeklyCoverage(ctx, newCoverages); err != nil {
 			h.log.ErrorContext(ctx, "create batch weekly coverage failed", "error", err, "count", len(newCoverages))
-			h.redirectWithNotice(w, r, "/vendor/coverage", "error", "حدث خطأ أثناء حفظ نطاقات التغطية: "+err.Error())
+			h.redirectWithNotice(w, r, "/vendor/coverage", "error", i18n.T(lang, "vendor.coverage.save_error_prefix")+err.Error())
 			return
 		}
 	}
 
 	h.redirectWithNotice(w, r, "/vendor/coverage", "success",
-		fmt.Sprintf("تم بنجاح إضافة وتفعيل %d نطاق تغطية أسبوعية للفرع المتنقل.", len(newCoverages)))
+		fmt.Sprintf(i18n.T(lang, "vendor.coverage.created_summary"), len(newCoverages)))
 }
 
 // VendorCoverageUpdateSubmit processes updates to a single weekly coverage record.
 func (h *UIHandler) VendorCoverageUpdateSubmit(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
+	lang := langOf(r)
 	actor, ok := authctx.From(ctx)
 	if !ok || actor.OrganizationID <= 0 {
 		http.Redirect(w, r, "/auth/login?redirect=/vendor/coverage", http.StatusSeeOther)
@@ -288,7 +291,7 @@ func (h *UIHandler) VendorCoverageUpdateSubmit(w http.ResponseWriter, r *http.Re
 		id, err = strconv.ParseInt(r.PostFormValue("coverage_id"), 10, 64)
 	}
 	if err != nil || id <= 0 {
-		h.redirectWithNotice(w, r, "/vendor/coverage", "error", "معرف التغطية غير صالح.")
+		h.redirectWithNotice(w, r, "/vendor/coverage", "error", i18n.T(lang, "vendor.coverage.invalid_id"))
 		return
 	}
 
@@ -296,12 +299,12 @@ func (h *UIHandler) VendorCoverageUpdateSubmit(w http.ResponseWriter, r *http.Re
 	if err != nil || existingCov == nil || existingCov.OrganizationID != actor.OrganizationID {
 		h.log.WarnContext(ctx, "cross-tenant coverage update attempt",
 			"actor_org", actor.OrganizationID, "coverage_id", id)
-		h.redirectWithNotice(w, r, "/vendor/coverage", "error", "نطاق التغطية غير موجود أو لا ينتمي إلى منشأتكم.")
+		h.redirectWithNotice(w, r, "/vendor/coverage", "error", i18n.T(lang, "vendor.coverage.not_found"))
 		return
 	}
 
 	if err := r.ParseForm(); err != nil {
-		h.redirectWithNotice(w, r, "/vendor/coverage", "error", "تعذر قراءة بيانات النموذج.")
+		h.redirectWithNotice(w, r, "/vendor/coverage", "error", i18n.T(lang, "common.form_read_error"))
 		return
 	}
 
@@ -316,7 +319,7 @@ func (h *UIHandler) VendorCoverageUpdateSubmit(w http.ResponseWriter, r *http.Re
 		if err != nil || branch.OrganizationID != actor.OrganizationID {
 			h.log.WarnContext(ctx, "cross-tenant branch coverage update attempt",
 				"actor_org", actor.OrganizationID, "target_branch", branchID)
-			h.redirectWithNotice(w, r, "/vendor/coverage", "error", "الفرع المحدد لا ينتمي إلى منشأتكم.")
+			h.redirectWithNotice(w, r, "/vendor/coverage", "error", i18n.T(lang, "vendor.coverage.branch_not_yours"))
 			return
 		}
 		targetBranch = branch
@@ -399,8 +402,17 @@ func (h *UIHandler) VendorCoverageUpdateSubmit(w http.ResponseWriter, r *http.Re
 		isActive = activeStr == "true" || activeStr == "on" || activeStr == "1"
 	}
 
-	fromTime := workflow.TimeOfDay(r.PostFormValue("coverage_from"))
-	toTime := workflow.TimeOfDay(r.PostFormValue("coverage_to"))
+	var fromTime, toTime *string
+	if fStr := strings.TrimSpace(r.PostFormValue("coverage_from")); fStr != "" {
+		fromTime = &fStr
+	} else {
+		fromTime = existingCov.CoverageFrom
+	}
+	if tStr := strings.TrimSpace(r.PostFormValue("coverage_to")); tStr != "" {
+		toTime = &tStr
+	} else {
+		toTime = existingCov.CoverageTo
+	}
 
 	cov := workflow.WeeklyCoverage{
 		ID:             id,
@@ -420,16 +432,17 @@ func (h *UIHandler) VendorCoverageUpdateSubmit(w http.ResponseWriter, r *http.Re
 
 	if err := h.wfSvc.UpdateWeeklyCoverage(ctx, &cov); err != nil {
 		h.log.ErrorContext(ctx, "update weekly coverage", "error", err, "org", actor.OrganizationID, "id", id)
-		h.redirectWithNotice(w, r, "/vendor/coverage", "error", "فشل تحديث بيانات التغطية: "+err.Error())
+		h.redirectWithNotice(w, r, "/vendor/coverage", "error", i18n.T(lang, "vendor.coverage.update_error_prefix")+err.Error())
 		return
 	}
 
-	h.redirectWithNotice(w, r, "/vendor/coverage", "success", "تم تحديث نطاق التغطية الأسبوعية بنجاح.")
+	h.redirectWithNotice(w, r, "/vendor/coverage", "success", i18n.T(lang, "vendor.coverage.updated_success"))
 }
 
 // VendorCoverageDeleteSubmit deletes a weekly coverage record.
 func (h *UIHandler) VendorCoverageDeleteSubmit(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
+	lang := langOf(r)
 	actor, ok := authctx.From(ctx)
 	if !ok || actor.OrganizationID <= 0 {
 		http.Redirect(w, r, "/auth/login?redirect=/vendor/coverage", http.StatusSeeOther)
@@ -445,7 +458,7 @@ func (h *UIHandler) VendorCoverageDeleteSubmit(w http.ResponseWriter, r *http.Re
 		id, err = strconv.ParseInt(r.PostFormValue("coverage_id"), 10, 64)
 	}
 	if err != nil || id <= 0 {
-		h.redirectWithNotice(w, r, "/vendor/coverage", "error", "معرف التغطية غير صالح.")
+		h.redirectWithNotice(w, r, "/vendor/coverage", "error", i18n.T(lang, "vendor.coverage.invalid_id"))
 		return
 	}
 
@@ -453,22 +466,23 @@ func (h *UIHandler) VendorCoverageDeleteSubmit(w http.ResponseWriter, r *http.Re
 	if err != nil || existingCov == nil || existingCov.OrganizationID != actor.OrganizationID {
 		h.log.WarnContext(ctx, "cross-tenant coverage delete attempt",
 			"actor_org", actor.OrganizationID, "coverage_id", id)
-		h.redirectWithNotice(w, r, "/vendor/coverage", "error", "نطاق التغطية غير موجود أو لا ينتمي إلى منشأتكم.")
+		h.redirectWithNotice(w, r, "/vendor/coverage", "error", i18n.T(lang, "vendor.coverage.not_found"))
 		return
 	}
 
 	if err := h.wfSvc.DeleteWeeklyCoverage(ctx, id); err != nil {
 		h.log.ErrorContext(ctx, "delete weekly coverage", "error", err, "org", actor.OrganizationID, "id", id)
-		h.redirectWithNotice(w, r, "/vendor/coverage", "error", "حدث خطأ أثناء حذف نطاق التغطية.")
+		h.redirectWithNotice(w, r, "/vendor/coverage", "error", i18n.T(lang, "vendor.coverage.delete_error"))
 		return
 	}
 
-	h.redirectWithNotice(w, r, "/vendor/coverage", "success", "تم حذف نطاق التغطية بنجاح.")
+	h.redirectWithNotice(w, r, "/vendor/coverage", "success", i18n.T(lang, "vendor.coverage.deleted_success"))
 }
 
 // VendorCoverageToggleSubmit toggles the active state of a weekly coverage record.
 func (h *UIHandler) VendorCoverageToggleSubmit(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
+	lang := langOf(r)
 	actor, ok := authctx.From(ctx)
 	if !ok || actor.OrganizationID <= 0 {
 		http.Redirect(w, r, "/auth/login?redirect=/vendor/coverage", http.StatusSeeOther)
@@ -484,7 +498,7 @@ func (h *UIHandler) VendorCoverageToggleSubmit(w http.ResponseWriter, r *http.Re
 		id, err = strconv.ParseInt(r.PostFormValue("coverage_id"), 10, 64)
 	}
 	if err != nil || id <= 0 {
-		h.redirectWithNotice(w, r, "/vendor/coverage", "error", "معرف التغطية غير صالح.")
+		h.redirectWithNotice(w, r, "/vendor/coverage", "error", i18n.T(lang, "vendor.coverage.invalid_id"))
 		return
 	}
 
@@ -492,20 +506,20 @@ func (h *UIHandler) VendorCoverageToggleSubmit(w http.ResponseWriter, r *http.Re
 	if err != nil || existingCov == nil || existingCov.OrganizationID != actor.OrganizationID {
 		h.log.WarnContext(ctx, "cross-tenant coverage toggle attempt",
 			"actor_org", actor.OrganizationID, "coverage_id", id)
-		h.redirectWithNotice(w, r, "/vendor/coverage", "error", "نطاق التغطية غير موجود أو لا ينتمي إلى منشأتكم.")
+		h.redirectWithNotice(w, r, "/vendor/coverage", "error", i18n.T(lang, "vendor.coverage.not_found"))
 		return
 	}
 
 	newActive := !existingCov.IsActive
 	if err := h.wfSvc.ToggleWeeklyCoverage(ctx, id, newActive); err != nil {
 		h.log.ErrorContext(ctx, "toggle weekly coverage", "error", err, "org", actor.OrganizationID, "id", id)
-		h.redirectWithNotice(w, r, "/vendor/coverage", "error", "حدث خطأ أثناء تعديل حالة التغطية.")
+		h.redirectWithNotice(w, r, "/vendor/coverage", "error", i18n.T(lang, "vendor.coverage.toggle_error"))
 		return
 	}
 
-	stateLabel := "تفعيل"
+	stateLabel := i18n.T(lang, "vendor.coverage.state_enabled")
 	if !newActive {
-		stateLabel = "تعطيل"
+		stateLabel = i18n.T(lang, "vendor.coverage.state_disabled")
 	}
-	h.redirectWithNotice(w, r, "/vendor/coverage", "success", fmt.Sprintf("تم %s نطاق التغطية بنجاح.", stateLabel))
+	h.redirectWithNotice(w, r, "/vendor/coverage", "success", fmt.Sprintf(i18n.T(lang, "vendor.coverage.toggle_success"), stateLabel))
 }

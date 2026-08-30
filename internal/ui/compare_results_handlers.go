@@ -10,35 +10,37 @@ import (
 	"github.com/muhiya/dawa24-store/internal/modules/compare"
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/platform/database"
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/ui/pages"
 )
 
 // CompareRunSubmit processes selection of suppliers and redirects to results view (Plan V5 Phase 2 §2.5.1).
 func (h *UIHandler) CompareRunSubmit(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
+	lang := langOf(r)
 	actor, ok := authctx.From(ctx)
 	if !ok {
 		http.Redirect(w, r, "/auth/login?redirect=/compare/tool", http.StatusSeeOther)
 		return
 	}
 	if actor.IsCustomer() {
-		h.redirectWithNotice(w, r, "/customer/dashboard", "error", "هذه الأداة مخصصة لحسابات الموردين فقط.")
+		h.redirectWithNotice(w, r, "/customer/dashboard", "error", i18n.T(lang, "compare.run.vendors_only"))
 		return
 	}
 
 	if err := r.ParseForm(); err != nil {
-		h.redirectWithNotice(w, r, "/compare/tool", "error", "تعذر معالجة الطلب.")
+		h.redirectWithNotice(w, r, "/compare/tool", "error", i18n.T(lang, "compare.run.request_failed"))
 		return
 	}
 
 	supplierIDs := r.Form["supplier_ids"]
 	if len(supplierIDs) == 0 {
-		h.redirectWithNotice(w, r, "/compare/tool", "error", "يرجى اختيار مورد واحد على الأقل للمقارنة.")
+		h.redirectWithNotice(w, r, "/compare/tool", "error", i18n.T(lang, "compare.run.select_at_least_one"))
 		return
 	}
 
 	if len(supplierIDs) > 10 {
-		h.redirectWithNotice(w, r, "/compare/tool", "error", "الحد الأقصى للمقارنة هو 10 موردين في المرة الواحدة.")
+		h.redirectWithNotice(w, r, "/compare/tool", "error", i18n.T(lang, "compare.run.max_suppliers_exceeded"))
 		return
 	}
 
@@ -51,13 +53,13 @@ func (h *UIHandler) CompareRunSubmit(w http.ResponseWriter, r *http.Request) {
 					// A failed file is not an unmapped one. Telling the user to
 					// finish the mapping when parsing actually broke sends them
 					// to a screen that cannot fix anything.
-					msg := fmt.Sprintf("الملف '%s' بحاجة إلى تعيين الأعمدة أولاً. الرجاء اكتمال تعيين الأعمدة لجميع الملفات المختارة.", file.SupplierName)
+					msg := fmt.Sprintf(i18n.T(lang, "compare.run.mapping_needed"), file.SupplierName)
 					if file.Status == compare.FileFailed {
 						reason := strings.TrimSpace(file.ErrorMessage)
 						if reason == "" {
-							reason = "تعذرت قراءة محتوى الملف."
+							reason = i18n.T(lang, "compare.run.read_content_failed")
 						}
-						msg = fmt.Sprintf("تعذرت معالجة الملف '%s': %s يرجى إعادة رفع الملف أو مراجعة تعيين الأعمدة.", file.SupplierName, reason)
+						msg = fmt.Sprintf(i18n.T(lang, "compare.run.file_failed_format"), file.SupplierName, reason)
 					}
 					h.redirectWithNotice(w, r, "/compare/tool", "error", msg)
 					return
@@ -111,7 +113,7 @@ func (h *UIHandler) CompareResultsPage(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if len(fileIDs) == 0 {
-		h.redirectWithNotice(w, r, "/compare/tool", "warning", "يرجى اختيار ملفات الموردين للمقارنة.")
+		h.redirectWithNotice(w, r, "/compare/tool", "warning", i18n.T(lang, "compare.results.select_files_warning"))
 		return
 	}
 
@@ -121,7 +123,7 @@ func (h *UIHandler) CompareResultsPage(w http.ResponseWriter, r *http.Request) {
 		if err == nil {
 			result = res
 		} else {
-			h.redirectWithNotice(w, r, "/compare/tool", "error", "تعذر معالجة مقارنة الملفات: "+h.safeMessage(err, langOf(r)))
+			h.redirectWithNotice(w, r, "/compare/tool", "error", fmt.Sprintf(i18n.T(lang, "compare.results.process_error_prefix"), h.safeMessage(err, lang)))
 			return
 		}
 	}
@@ -339,13 +341,13 @@ func (h *UIHandler) CompareMarketIntelligencePage(w http.ResponseWriter, r *http
 		return
 	}
 	if actor.IsCustomer() {
-		h.redirectWithNotice(w, r, "/customer/dashboard", "error", "مؤشرات السوق والتحليلات مخصصة لحسابات الموردين فقط.")
+		h.redirectWithNotice(w, r, "/customer/dashboard", "error", i18n.T(lang, "compare.intel.vendors_only"))
 		return
 	}
 	if !actor.IsStaff && h.billSvc != nil {
 		allowed, err := h.billSvc.CheckOrgEntitlement(ctx, actor.OrganizationID, actor.UserID, billing.FeatureMarketDiscounts)
 		if err != nil || !allowed {
-			h.redirectWithNotice(w, r, "/vendor/subscription?upgrade=pro", "error", "يتطلب الوصول إلى مؤشرات وخصومات السوق ترقية باقة اشتراك المنشأة لتشمل هذه الميزة.")
+			h.redirectWithNotice(w, r, "/vendor/subscription?upgrade=pro", "error", i18n.T(lang, "compare.intel.upgrade_required"))
 			return
 		}
 	}
@@ -379,13 +381,13 @@ func (h *UIHandler) MarketDiscountsPage(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 	if actor.IsCustomer() {
-		h.redirectWithNotice(w, r, "/customer/dashboard", "error", "قسم خصومات السوق مخصص لحسابات الموردين فقط.")
+		h.redirectWithNotice(w, r, "/customer/dashboard", "error", i18n.T(lang, "compare.discounts.vendors_only"))
 		return
 	}
 	if !actor.IsStaff && h.billSvc != nil {
 		allowed, err := h.billSvc.CheckOrgEntitlement(ctx, actor.OrganizationID, actor.UserID, billing.FeatureMarketDiscounts)
 		if err != nil || !allowed {
-			h.redirectWithNotice(w, r, "/vendor/subscription?upgrade=pro", "error", "يتطلب تصفح خصومات السوق ترقية باقة اشتراك المنشأة لتشمل هذه الميزة.")
+			h.redirectWithNotice(w, r, "/vendor/subscription?upgrade=pro", "error", i18n.T(lang, "compare.discounts.upgrade_required"))
 			return
 		}
 	}
