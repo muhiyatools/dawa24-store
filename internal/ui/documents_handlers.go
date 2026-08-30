@@ -9,6 +9,7 @@ import (
 	"github.com/muhiya/dawa24-store/internal/modules/attachments"
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/platform/database"
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/ui/pages"
 )
 
@@ -40,7 +41,7 @@ func (h *UIHandler) OrganizationDocumentsPage(w http.ResponseWriter, r *http.Req
 		reqs, _ := h.attSvc.ListDocumentRequests(sysCtx, actor, &orgID)
 		if err != nil {
 			h.log.ErrorContext(ctx, "load organization documents", "organization_id", orgID, "error", err)
-			data.Error = "تعذر تحميل المستندات، حاول مجدداً."
+			data.Error = i18n.T(lang, "docs.load_failed")
 		} else {
 			data = pages.BuildOrganizationDocumentsData(docs, reqs, actor.IsVendor())
 		}
@@ -53,17 +54,18 @@ func (h *UIHandler) OrganizationDocumentsPage(w http.ResponseWriter, r *http.Req
 // registers it as a pending document on the actor's organization.
 func (h *UIHandler) OrganizationDocumentsUploadSubmit(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
+	lang := langOf(r)
 	actor, ok := authctx.From(ctx)
 	orgID := actor.OrganizationID
 	if orgID <= 0 {
 		orgID = actor.OrgID
 	}
 	if !ok || (orgID <= 0 && !actor.IsPlatformAdmin()) {
-		h.documentsRedirect(w, r, "error", "يجب تسجيل الدخول لحساب منشأة معتمدة.")
+		h.documentsRedirect(w, r, "error", i18n.T(lang, "docs.org_auth_required"))
 		return
 	}
 	if h.attSvc == nil {
-		h.documentsRedirect(w, r, "error", "خدمة المستندات غير متاحة حالياً.")
+		h.documentsRedirect(w, r, "error", i18n.T(lang, "docs.service_unavailable"))
 		return
 	}
 
@@ -73,7 +75,7 @@ func (h *UIHandler) OrganizationDocumentsUploadSubmit(w http.ResponseWriter, r *
 	}
 	docType := attachments.DocumentType(docTypeStr)
 	if docType == "" {
-		h.documentsRedirect(w, r, "error", "يرجى تحديد نوع المستند المراد رفعه.")
+		h.documentsRedirect(w, r, "error", i18n.T(lang, "docs.type_required"))
 		return
 	}
 
@@ -90,9 +92,9 @@ func (h *UIHandler) OrganizationDocumentsUploadSubmit(w http.ResponseWriter, r *
 	}
 
 	if fileURL == "" {
-		errMsg := "يجب اختيار ملف المستند للرفع."
+		errMsg := i18n.T(lang, "docs.file_required")
 		if uploadErr != nil {
-			errMsg = "فشل رفع الملف: " + uploadErr.Error()
+			errMsg = fmt.Sprintf(i18n.T(lang, "docs.upload_failed_prefix"), uploadErr.Error())
 		}
 		h.documentsRedirect(w, r, "error", errMsg)
 		return
@@ -102,7 +104,7 @@ func (h *UIHandler) OrganizationDocumentsUploadSubmit(w http.ResponseWriter, r *
 	uploadedDoc, err := h.attSvc.RegisterUpload(sysCtx, actor, docType, fileURL, originalName)
 	if err != nil {
 		h.log.ErrorContext(ctx, "failed to register document upload", "error", err)
-		h.documentsRedirect(w, r, "error", h.safeMessage(err, langOf(r)))
+		h.documentsRedirect(w, r, "error", h.safeMessage(err, lang))
 		return
 	}
 
@@ -110,7 +112,7 @@ func (h *UIHandler) OrganizationDocumentsUploadSubmit(w http.ResponseWriter, r *
 	replacementReason := strings.TrimSpace(r.PostFormValue("replacement_reason"))
 	if replacementReason != "" && uploadedDoc != nil {
 		adminActor := authctx.Actor{IsStaff: true, Role: "admin"}
-		_ = h.attSvc.VerifyDocument(sysCtx, adminActor, uploadedDoc.ID, attachments.StatusPending, fmt.Sprintf("سبب استبدال المستند: %s", replacementReason))
+		_ = h.attSvc.VerifyDocument(sysCtx, adminActor, uploadedDoc.ID, attachments.StatusPending, fmt.Sprintf(i18n.T(lang, "docs.replacement_reason_note"), replacementReason))
 	}
 
 	// If linked to an administrative document request, fulfill or submit it
@@ -122,38 +124,39 @@ func (h *UIHandler) OrganizationDocumentsUploadSubmit(w http.ResponseWriter, r *
 	}
 
 	if replacementReason != "" {
-		h.documentsRedirect(w, r, "success", "تم استبدال وتحديث المستند بنجاح، وهو الآن قيد تدقيق واعتماد إدارة المنصة.")
+		h.documentsRedirect(w, r, "success", i18n.T(lang, "docs.replaced_success"))
 	} else {
-		h.documentsRedirect(w, r, "success", "تم رفع المستند بنجاح وهو الآن قيد تدقيق إدارة المنصة.")
+		h.documentsRedirect(w, r, "success", i18n.T(lang, "docs.uploaded_success"))
 	}
 }
 
 // OrganizationDocumentDeleteSubmit removes a document, restricted strictly to platform administrators.
 func (h *UIHandler) OrganizationDocumentDeleteSubmit(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
+	lang := langOf(r)
 	actor, ok := authctx.From(ctx)
 	if !ok || !actor.IsPlatformAdmin() {
-		h.documentsRedirect(w, r, "error", "عفواً، لا يمكن حذف المستندات الرسمية المرفوعة إلا من خلال إدارة المنصة حصراً.")
+		h.documentsRedirect(w, r, "error", i18n.T(lang, "docs.delete_admin_only"))
 		return
 	}
 	if h.attSvc == nil {
-		h.documentsRedirect(w, r, "error", "خدمة المستندات غير متاحة حالياً.")
+		h.documentsRedirect(w, r, "error", i18n.T(lang, "docs.service_unavailable"))
 		return
 	}
 
 	id, err := strconv.ParseInt(strings.TrimSpace(r.PostFormValue("id")), 10, 64)
 	if err != nil || id <= 0 {
-		h.documentsRedirect(w, r, "error", "معرف المستند غير صالح.")
+		h.documentsRedirect(w, r, "error", i18n.T(lang, "docs.invalid_id"))
 		return
 	}
 
 	sysCtx := database.AsSystem(ctx)
 	if err := h.attSvc.Delete(sysCtx, actor, id); err != nil {
-		h.documentsRedirect(w, r, "error", h.safeMessage(err, langOf(r)))
+		h.documentsRedirect(w, r, "error", h.safeMessage(err, lang))
 		return
 	}
 
-	h.documentsRedirect(w, r, "success", "تم حذف المستند بنجاح.")
+	h.documentsRedirect(w, r, "success", i18n.T(lang, "docs.deleted_success"))
 }
 
 // saveUploadedFileMeta saves a multipart file and returns its public URL and

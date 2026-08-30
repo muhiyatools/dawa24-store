@@ -134,8 +134,8 @@ func (h *UIHandler) tenantRolesPage(w http.ResponseWriter, r *http.Request) {
 	view := pages.RolesView{
 		Scope:      scope,
 		BasePath:   base,
-		Title:      "الأدوار والصلاحيات",
-		Subtitle:   "أدوار موظفي منشأتك: كل دور يحدد الصفحات والإجراءات المتاحة لحامله داخل هذه المنشأة فقط.",
+		Title:      i18n.T(lang, "tenant.roles.title"),
+		Subtitle:   i18n.T(lang, "tenant.roles.subtitle"),
 		CanCreate:  actor.Can(tenantPerm(scope, "role.create")),
 		CanEdit:    actor.Can(tenantPerm(scope, "role.update")),
 		CanDelete:  actor.Can(tenantPerm(scope, "role.delete")),
@@ -150,7 +150,7 @@ func (h *UIHandler) tenantRolesPage(w http.ResponseWriter, r *http.Request) {
 			Description: role.Description,
 			IsSystem:    role.IsSystem,
 			IsOwner:     role.IsOwner,
-			Badge:       tenantRoleBadge(role),
+			Badge:       tenantRoleBadge(role, lang),
 			GrantCount:  grantCountFor(role, scope),
 			MemberCount: counts[role.ID],
 		})
@@ -174,7 +174,7 @@ func (h *UIHandler) tenantRoleDetailPage(w http.ResponseWriter, r *http.Request)
 	// as forbidden, which is also all the caller is entitled to learn.
 	role, err := h.orgSvc.GetRole(ctx, actor.OrganizationID, roleID)
 	if err != nil {
-		h.redirectWithNotice(w, r, base, "error", "الدور غير موجود.")
+		h.redirectWithNotice(w, r, base, "error", i18n.T(langOf(r), "tenant.roles.not_found"))
 		return
 	}
 
@@ -225,7 +225,7 @@ func (h *UIHandler) tenantRoleCreate(w http.ResponseWriter, r *http.Request) {
 	}
 	h.invalidatePermissions(actor.UserID, actor.OrganizationID)
 	h.redirectWithNotice(w, r, base+"/"+strconv.FormatInt(role.ID, 10),
-		"success", "تم إنشاء الدور. حدّد صلاحياته الآن.")
+		"success", i18n.T(langOf(r), "tenant.roles.created_success"))
 }
 
 func (h *UIHandler) tenantRoleUpdate(w http.ResponseWriter, r *http.Request) {
@@ -250,7 +250,7 @@ func (h *UIHandler) tenantRoleUpdate(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	h.invalidatePermissions(actor.UserID, actor.OrganizationID)
-	h.redirectWithNotice(w, r, base+"/"+chi.URLParam(r, "id"), "success", "تم حفظ صلاحيات الدور.")
+	h.redirectWithNotice(w, r, base+"/"+chi.URLParam(r, "id"), "success", i18n.T(langOf(r), "tenant.roles.saved_success"))
 }
 
 func (h *UIHandler) tenantRoleDelete(w http.ResponseWriter, r *http.Request) {
@@ -266,7 +266,7 @@ func (h *UIHandler) tenantRoleDelete(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	h.invalidatePermissions(actor.UserID, actor.OrganizationID)
-	h.redirectWithNotice(w, r, base, "success", "تم حذف الدور ونُقل حاملوه إلى دور الموظف.")
+	h.redirectWithNotice(w, r, base, "success", i18n.T(langOf(r), "tenant.roles.deleted_success"))
 }
 
 func (h *UIHandler) tenantMemberRoleAssign(w http.ResponseWriter, r *http.Request, base string) {
@@ -284,7 +284,7 @@ func (h *UIHandler) tenantMemberRoleAssign(w http.ResponseWriter, r *http.Reques
 		return
 	}
 	h.invalidatePermissions(actor.UserID, actor.OrganizationID)
-	h.redirectWithNotice(w, r, base, "success", "تم تحديث دور الموظف.")
+	h.redirectWithNotice(w, r, base, "success", i18n.T(langOf(r), "tenant.roles.member_assigned_success"))
 }
 
 // renderEmptyRoles shows the roles screen with nothing in it and an
@@ -294,11 +294,11 @@ func (h *UIHandler) renderEmptyRoles(w http.ResponseWriter, r *http.Request, sco
 	view := pages.RolesView{
 		Scope:      scope,
 		BasePath:   base,
-		Title:      "الأدوار والصلاحيات",
-		Subtitle:   "أدوار موظفي منشأتك.",
+		Title:      i18n.T(lang, "tenant.roles.title"),
+		Subtitle:   i18n.T(lang, "tenant.roles.empty_subtitle"),
 		Tenant:     true,
 		NoticeKind: "error",
-		Notice:     "خدمة المنشآت غير متوفرة حالياً؛ لا يمكن عرض الأدوار.",
+		Notice:     i18n.T(lang, "tenant.roles.service_unavailable"),
 	}
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 	if err := pages.RolesPage(view, lang, dir).Render(r.Context(), w); err != nil {
@@ -320,14 +320,14 @@ func grantCountFor(role *org.Role, scope rbac.Scope) int {
 	return len(grantsFor(role, scope))
 }
 
-func tenantRoleBadge(role *org.Role) string {
+func tenantRoleBadge(role *org.Role, lang any) string {
 	switch {
 	case role.IsOwner:
-		return "كامل الصلاحيات"
+		return i18n.T(lang, "tenant.roles.badge_owner")
 	case role.IsSystem:
-		return "دور أساسي"
+		return i18n.T(lang, "tenant.roles.badge_system")
 	default:
-		return "دور مخصص"
+		return i18n.T(lang, "tenant.roles.badge_custom")
 	}
 }
 

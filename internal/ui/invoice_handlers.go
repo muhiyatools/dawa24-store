@@ -14,6 +14,7 @@ import (
 	"github.com/muhiya/dawa24-store/internal/modules/billing"
 	"github.com/muhiya/dawa24-store/internal/modules/commerce"
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/shared/money"
 	"github.com/muhiya/dawa24-store/internal/ui/pages"
 )
@@ -31,7 +32,7 @@ func (h *UIHandler) InvoicesPage(w http.ResponseWriter, r *http.Request) {
 
 	// If pharmacy customer visits /invoices, redirect them to /orders since invoices are printed from order details
 	if actor.IsCustomer() {
-		h.redirectWithNotice(w, r, "/orders", "info", "يمكنك طباعة الفواتير الضريبية مباشرة من صفحة تفاصيل الطلب.")
+		h.redirectWithNotice(w, r, "/orders", "info", i18n.T(lang, "invoice.customer_redirect_info"))
 		return
 	}
 
@@ -92,10 +93,10 @@ func (h *UIHandler) InvoicePrintPage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	printableData, errBuild := h.buildPrintableInvoiceData(ctx, invoice, nil)
+	printableData, errBuild := h.buildPrintableInvoiceData(ctx, invoice, nil, lang)
 	if errBuild != nil {
 		h.log.ErrorContext(ctx, "failed to build printable invoice data", "error", errBuild)
-		http.Error(w, "تعذر تجهيز بيانات الفاتورة للطباعة", http.StatusInternalServerError)
+		http.Error(w, i18n.T(lang, "invoice.prepare_failed"), http.StatusInternalServerError)
 		return
 	}
 
@@ -128,28 +129,27 @@ func (h *UIHandler) OrderInvoicePrintPage(w http.ResponseWriter, r *http.Request
 	}
 
 	if order.Status == commerce.StatusPending {
-		h.redirectWithNotice(w, r, fmt.Sprintf("/orders/%d", id), "error", "لا يمكن طباعة الفاتورة قبل قبول وتأكيد المورد للطلب.")
+		h.redirectWithNotice(w, r, fmt.Sprintf("/orders/%d", id), "error", i18n.T(lang, "invoice.print_pending_error"))
 		return
 	}
 
-	printableData, errBuild := h.buildPrintableInvoiceData(ctx, nil, order)
+	printableData, errBuild := h.buildPrintableInvoiceData(ctx, nil, order, lang)
 	if errBuild != nil {
 		h.log.ErrorContext(ctx, "failed to build printable invoice data for order", "error", errBuild)
-		http.Error(w, "تعذر تجهيز بيانات الفاتورة للطباعة", http.StatusInternalServerError)
+		http.Error(w, i18n.T(lang, "invoice.prepare_failed"), http.StatusInternalServerError)
 		return
 	}
 
 	h.renderPage(ctx, w, "render order invoice print page", pages.InvoicePrintablePage(*printableData, lang, dir))
 }
 
-func (h *UIHandler) buildPrintableInvoiceData(ctx context.Context, invoice *billing.Invoice, order *commerce.Order) (*billing.PrintableInvoiceData, error) {
+func (h *UIHandler) buildPrintableInvoiceData(ctx context.Context, invoice *billing.Invoice, order *commerce.Order, lang any) (*billing.PrintableInvoiceData, error) {
 	if invoice == nil && order == nil {
 		return nil, fmt.Errorf("both invoice and order are nil")
 	}
 
 	if invoice == nil && order != nil && h.billSvc != nil {
-		inv, err := h.billSvc.GetInvoiceByOrderID(ctx, order.ID)
-		if err == nil && inv != nil {
+		if inv, err := h.billSvc.GetInvoiceByOrderID(ctx, order.ID); err == nil && inv != nil {
 			invoice = inv
 		} else {
 			vendorOrgID := int64(1)
@@ -204,13 +204,13 @@ func (h *UIHandler) buildPrintableInvoiceData(ctx context.Context, invoice *bill
 
 	// Fetch Vendor Info
 	vendorInfo := billing.PrintableOrgInfo{
-		DisplayName:        "المورد المعتمد - دواء 24",
-		LegalName:          "شركة توزيع الأدوية والمستلزمات الطبية",
+		DisplayName:        i18n.T(lang, "invoice.default_vendor_display_name"),
+		LegalName:          i18n.T(lang, "invoice.default_vendor_legal_name"),
 		TaxNumber:          "100-245-890",
 		CommercialRegister: "108920",
 		Phone:              "0100002424",
-		Address:            "المنطقة الصناعية - مخازن الأدوية",
-		City:               "القاهرة",
+		Address:            i18n.T(lang, "invoice.default_vendor_address"),
+		City:               i18n.T(lang, "invoice.default_vendor_city"),
 	}
 	if invoice != nil && invoice.OrganizationID > 0 && h.orgSvc != nil {
 		vOrg, _ := h.orgSvc.GetOrganization(ctx, invoice.OrganizationID)
@@ -237,14 +237,14 @@ func (h *UIHandler) buildPrintableInvoiceData(ctx context.Context, invoice *bill
 
 	// Fetch Customer Info
 	custInfo := billing.PrintableOrgInfo{
-		DisplayName:        "صيدلية معتمدة",
-		LegalName:          "صيدلية معتمدة",
+		DisplayName:        i18n.T(lang, "invoice.default_customer_display_name"),
+		LegalName:          i18n.T(lang, "invoice.default_customer_legal_name"),
 		TaxNumber:          "400-123-789",
 		CommercialRegister: "98201",
 		PharmacistLicense:  "PH-2026/884",
 		Phone:              "0110002424",
-		Address:            "جمهورية مصر العربية",
-		City:               "مصر",
+		Address:            i18n.T(lang, "invoice.default_customer_address"),
+		City:               i18n.T(lang, "invoice.default_customer_city"),
 	}
 	var custOrgID *int64
 	if invoice != nil && invoice.CustomerOrgID != nil {

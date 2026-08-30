@@ -12,12 +12,14 @@ import (
 
 	"github.com/muhiya/dawa24-store/internal/modules/compare"
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/ui/pages"
 )
 
 // CompareFileMappingModal renders the interactive modal HTML fragment for column mapping and setup mode.
 func (h *UIHandler) CompareFileMappingModal(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
+	lang := langOf(r)
 	actor, ok := authctx.From(ctx)
 	if !ok {
 		http.Error(w, "Unauthorized", http.StatusUnauthorized)
@@ -26,7 +28,7 @@ func (h *UIHandler) CompareFileMappingModal(w http.ResponseWriter, r *http.Reque
 
 	id, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
 	if err != nil || id <= 0 {
-		http.Error(w, "معرف ملف غير صالح.", http.StatusBadRequest)
+		http.Error(w, i18n.T(lang, "compare.file.invalid_id"), http.StatusBadRequest)
 		return
 	}
 
@@ -34,13 +36,13 @@ func (h *UIHandler) CompareFileMappingModal(w http.ResponseWriter, r *http.Reque
 	if h.compareSvc != nil {
 		file, err = h.compareSvc.GetFile(ctx, id)
 		if err != nil {
-			http.Error(w, "الملف غير موجود.", http.StatusNotFound)
+			http.Error(w, i18n.T(lang, "compare.file.not_found"), http.StatusNotFound)
 			return
 		}
 	}
 
 	if !h.checkFileOwnership(actor, file) {
-		http.Error(w, "غير مصرح لك بالوصول لهذا الملف.", http.StatusForbidden)
+		http.Error(w, i18n.T(lang, "compare.file.access_forbidden"), http.StatusForbidden)
 		return
 	}
 
@@ -135,7 +137,7 @@ func (h *UIHandler) CompareFileMappingPage(w http.ResponseWriter, r *http.Reques
 
 	id, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
 	if err != nil || id <= 0 {
-		h.redirectWithNotice(w, r, "/compare/tool", "error", "معرف ملف غير صالح.")
+		h.redirectWithNotice(w, r, "/compare/tool", "error", i18n.T(lang, "compare.file.invalid_id"))
 		return
 	}
 
@@ -143,13 +145,13 @@ func (h *UIHandler) CompareFileMappingPage(w http.ResponseWriter, r *http.Reques
 	if h.compareSvc != nil {
 		file, err = h.compareSvc.GetFile(ctx, id)
 		if err != nil {
-			h.redirectWithNotice(w, r, "/compare/tool", "error", h.safeMessage(err, langOf(r)))
+			h.redirectWithNotice(w, r, "/compare/tool", "error", h.safeMessage(err, lang))
 			return
 		}
 	}
 
 	if !h.checkFileOwnership(actor, file) {
-		h.redirectWithNotice(w, r, "/compare/tool", "error", "غير مصرح لك بالوصول لهذا الملف.")
+		h.redirectWithNotice(w, r, "/compare/tool", "error", i18n.T(lang, "compare.file.access_forbidden"))
 		return
 	}
 
@@ -216,6 +218,7 @@ func (h *UIHandler) CompareFileMappingPage(w http.ResponseWriter, r *http.Reques
 // CompareFileMappingSubmit persists user-confirmed column mapping for a spreadsheet.
 func (h *UIHandler) CompareFileMappingSubmit(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
+	lang := langOf(r)
 	actor, ok := authctx.From(ctx)
 	if !ok {
 		if r.Header.Get("Accept") == "application/json" {
@@ -232,7 +235,7 @@ func (h *UIHandler) CompareFileMappingSubmit(w http.ResponseWriter, r *http.Requ
 			http.Error(w, `{"error":"invalid file id"}`, http.StatusBadRequest)
 			return
 		}
-		h.redirectWithNotice(w, r, "/compare/tool", "error", "معرف ملف غير صالح.")
+		h.redirectWithNotice(w, r, "/compare/tool", "error", i18n.T(lang, "compare.file.invalid_id"))
 		return
 	}
 
@@ -243,7 +246,7 @@ func (h *UIHandler) CompareFileMappingSubmit(w http.ResponseWriter, r *http.Requ
 				http.Error(w, `{"error":"forbidden"}`, http.StatusForbidden)
 				return
 			}
-			h.redirectWithNotice(w, r, "/compare/tool", "error", "غير مصرح لك بتعديل هذا الملف.")
+			h.redirectWithNotice(w, r, "/compare/tool", "error", i18n.T(lang, "compare.file.edit_forbidden"))
 			return
 		}
 
@@ -276,10 +279,10 @@ func (h *UIHandler) CompareFileMappingSubmit(w http.ResponseWriter, r *http.Requ
 
 		if err := h.compareSvc.SaveFileMapping(ctx, id, config); err != nil {
 			if r.Header.Get("Accept") == "application/json" {
-				http.Error(w, `{"error":"`+h.safeMessage(err, langOf(r))+`"}`, http.StatusInternalServerError)
+				http.Error(w, `{"error":"`+h.safeMessage(err, lang)+`"}`, http.StatusInternalServerError)
 				return
 			}
-			h.redirectWithNotice(w, r, "/compare/tool", "error", h.safeMessage(err, langOf(r)))
+			h.redirectWithNotice(w, r, "/compare/tool", "error", h.safeMessage(err, lang))
 			return
 		}
 	}
@@ -321,12 +324,13 @@ func (h *UIHandler) CompareFileMappingSubmit(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
-	h.redirectWithNotice(w, r, "/compare/tool", "success", "تم حفظ وتطبيق ضبط أعمدة كشف المورد بنجاح.")
+	h.redirectWithNotice(w, r, "/compare/tool", "success", i18n.T(lang, "compare.mapping.saved_success"))
 }
 
 // CompareFileSkipSubmit handles skipping an uploaded file in setup mode.
 func (h *UIHandler) CompareFileSkipSubmit(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
+	lang := langOf(r)
 	actor, ok := authctx.From(ctx)
 	if !ok {
 		if r.Header.Get("Accept") == "application/json" {
@@ -342,7 +346,7 @@ func (h *UIHandler) CompareFileSkipSubmit(w http.ResponseWriter, r *http.Request
 			http.Error(w, `{"error":"invalid id"}`, http.StatusBadRequest)
 			return
 		}
-		h.redirectWithNotice(w, r, "/compare/tool", "error", "معرف ملف غير صالح.")
+		h.redirectWithNotice(w, r, "/compare/tool", "error", i18n.T(lang, "compare.file.invalid_id"))
 		return
 	}
 	if h.compareSvc != nil {
@@ -390,12 +394,13 @@ func (h *UIHandler) CompareFileSkipSubmit(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	h.redirectWithNotice(w, r, "/compare/tool", "success", "تم تخطي الملف بنجاح.")
+	h.redirectWithNotice(w, r, "/compare/tool", "success", i18n.T(lang, "compare.mapping.skipped_success"))
 }
 
 // CompareRowManualMatchSubmit allows users to manually link an uploaded row to a master product.
 func (h *UIHandler) CompareRowManualMatchSubmit(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
+	lang := langOf(r)
 	actor, ok := authctx.From(ctx)
 	if !ok {
 		http.Redirect(w, r, "/auth/login?redirect=/compare/tool", http.StatusSeeOther)
@@ -404,13 +409,13 @@ func (h *UIHandler) CompareRowManualMatchSubmit(w http.ResponseWriter, r *http.R
 
 	rowID, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
 	if err != nil || rowID <= 0 {
-		h.redirectWithNotice(w, r, "/compare/tool", "error", "معرف سطر غير صالح.")
+		h.redirectWithNotice(w, r, "/compare/tool", "error", i18n.T(lang, "compare.mapping.invalid_row_id"))
 		return
 	}
 
 	productID, err := strconv.ParseInt(r.FormValue("product_id"), 10, 64)
 	if err != nil || productID <= 0 {
-		h.redirectWithNotice(w, r, "/compare/tool", "error", "يرجى اختيار صنف صحيح للربط.")
+		h.redirectWithNotice(w, r, "/compare/tool", "error", i18n.T(lang, "compare.mapping.valid_product_required"))
 		return
 	}
 
@@ -423,12 +428,12 @@ func (h *UIHandler) CompareRowManualMatchSubmit(w http.ResponseWriter, r *http.R
 
 	if h.compareSvc != nil {
 		if err := h.compareSvc.SaveManualCorrection(ctx, orgPtr, rowID, rawName, productID); err != nil {
-			h.redirectWithNotice(w, r, "/compare/tool", "error", h.safeMessage(err, langOf(r)))
+			h.redirectWithNotice(w, r, "/compare/tool", "error", h.safeMessage(err, lang))
 			return
 		}
 	}
 
-	h.redirectWithNotice(w, r, "/compare/tool", "success", "تم حفظ وتثبيت المطابقة بنجاح.")
+	h.redirectWithNotice(w, r, "/compare/tool", "success", i18n.T(lang, "compare.mapping.match_confirmed_success"))
 }
 
 // CompareQuickSearch handles GET /compare/search?q=... and /api/v1/compare/search?q=...

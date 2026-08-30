@@ -317,4 +317,32 @@ func loadFrontendUIKeys(e *engine) {
 	addKey(e, "wallet.withdraw.desc_prefix", "wallet", "طلب سحب رصيد إلى: %s", "Withdrawal request to: %s", "Withdrawal description")
 	addKey(e, "wallet.withdraw.reason_suffix", "wallet", " (السبب: %s)", " (Reason: %s)", "Withdrawal reason suffix")
 	addKey(e, "wallet.withdraw.success", "wallet", "تم خصم وتسجيل طلب السحب بنجاح.", "Withdrawal request deducted and registered successfully.", "Success notice")
+
+	// --- Organization Documents ---
+	addKey(e, "docs.load_failed", "docs", "تعذر تحميل المستندات، حاول مجدداً.", "Failed to load documents, please try again.", "Load error")
+	addKey(e, "docs.org_auth_required", "docs", "يجب تسجيل الدخول لحساب منشأة معتمدة.", "You must log in with a verified organization account.", "Auth error")
+	addKey(e, "docs.service_unavailable", "docs", "خدمة المستندات غير متاحة حالياً.", "Documents service is currently unavailable.", "Service error")
+	addKey(e, "docs.type_required", "docs", "يرجى تحديد نوع المستند المراد رفعه.", "Please specify the document type to upload.", "Validation error")
+	addKey(e, "docs.file_required", "docs", "يجب اختيار ملف المستند للرفع.", "You must select a document file to upload.", "Validation error")
+	addKey(e, "docs.upload_failed_prefix", "docs", "فشل رفع الملف: %s", "File upload failed: %s", "Upload error")
+	addKey(e, "docs.replacement_reason_note", "docs", "سبب استبدال المستند: %s", "Document replacement reason: %s", "Admin verification note")
+	addKey(e, "docs.replaced_success", "docs", "تم استبدال وتحديث المستند بنجاح، وهو الآن قيد تدقيق واعتماد إدارة المنصة.", "Document replaced and updated successfully, and is now under review by platform administration.", "Success notice")
+	addKey(e, "docs.uploaded_success", "docs", "تم رفع المستند بنجاح وهو الآن قيد تدقيق إدارة المنصة.", "Document uploaded successfully and is now under review by platform administration.", "Success notice")
+	addKey(e, "docs.delete_admin_only", "docs", "عفواً، لا يمكن حذف المستندات الرسمية المرفوعة إلا من خلال إدارة المنصة حصراً.", "Sorry, uploaded official documents can only be deleted by platform administration.", "Permission error")
+	addKey(e, "docs.invalid_id", "docs", "معرف المستند غير صالح.", "Invalid document ID.", "Validation error")
+	addKey(e, "docs.deleted_success", "docs", "تم حذف المستند بنجاح.", "Document deleted successfully.", "Success notice")
+
+	// --- Document Serving & Preview ---
+	addKey(e, "docs.serve.auth_required", "docs", "يجب تسجيل الدخول لعرض المستند", "You must log in to view the document", "Auth error")
+	addKey(e, "docs.serve.invalid_id", "docs", "معرف المستند غير صالح", "Invalid document ID", "Validation error")
+	addKey(e, "docs.serve.service_unavailable", "docs", "خدمة المستندات غير متاحة", "Documents service is unavailable", "Service error")
+	addKey(e, "docs.serve.not_found", "docs", "المستند المطلوب غير مسجل بالنظام أو تم حذفه.", "Requested document is not registered in the system or has been deleted.", "Not found error")
+	addKey(e, "docs.serve.access_forbidden", "docs", "ليس لديك صلاحية لعرض هذا المستند", "You do not have permission to view this document", "Permission error")
+	addKey(e, "docs.serve.file_missing", "docs", "لم يتم العثور على الملف الرقمي الفعلي للمستند في وسائط التخزين السحابي.", "Actual digital document file not found in cloud storage.", "File missing error")
+	addKey(e, "docs.serve.org_fallback", "docs", "منشأة #%d", "Organization #%d", "Organization fallback name")
+	addKey(e, "docs.serve.status_verified", "docs", "معتمد ومطابق", "Verified and Approved", "Document status")
+	addKey(e, "docs.serve.status_rejected", "docs", "مرفوض", "Rejected", "Document status")
+	addKey(e, "docs.serve.status_pending", "docs", "قيد التدقيق", "Under Review", "Document status")
+	addKey(e, "docs.serve.doc_unregistered", "docs", "مستند غير مسجل", "Unregistered Document", "Document label")
+	addKey(e, "docs.serve.file_unavailable", "docs", "الملف غير متوفر", "File Unavailable", "Document label")
 }

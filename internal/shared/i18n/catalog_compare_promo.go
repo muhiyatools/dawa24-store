@@ -112,4 +112,13 @@ func loadCompareAndPromoKeys(e *engine) {
 	addKey(e, "compare.intel.upgrade_required", "compare", "يتطلب الوصول إلى مؤشرات وخصومات السوق ترقية باقة اشتراك المنشأة لتشمل هذه الميزة.", "Access to market intelligence and discounts requires upgrading the organization's subscription plan.", "Upgrade required error")
 	addKey(e, "compare.discounts.vendors_only", "compare", "قسم خصومات السوق مخصص لحسابات الموردين فقط.", "Market discounts section is for vendor accounts only.", "Permission error")
 	addKey(e, "compare.discounts.upgrade_required", "compare", "يتطلب تصفح خصومات السوق ترقية باقة اشتراك المنشأة لتشمل هذه الميزة.", "Browsing market discounts requires upgrading the organization's subscription plan.", "Upgrade required error")
+
+	// --- Compare Column Mapping & Row Matching ---
+	addKey(e, "compare.file.not_found", "compare", "الملف غير موجود.", "File not found.", "Not found error")
+	addKey(e, "compare.file.access_forbidden", "compare", "غير مصرح لك بالوصول لهذا الملف.", "You are not authorized to access this file.", "Permission error")
+	addKey(e, "compare.mapping.saved_success", "compare", "تم حفظ وتطبيق ضبط أعمدة كشف المورد بنجاح.", "Supplier list column settings saved and applied successfully.", "Success notice")
+	addKey(e, "compare.mapping.skipped_success", "compare", "تم تخطي الملف بنجاح.", "File skipped successfully.", "Success notice")
+	addKey(e, "compare.mapping.invalid_row_id", "compare", "معرف سطر غير صالح.", "Invalid row ID.", "Validation error")
+	addKey(e, "compare.mapping.valid_product_required", "compare", "يرجى اختيار صنف صحيح للربط.", "Please select a valid product to match.", "Validation error")
+	addKey(e, "compare.mapping.match_confirmed_success", "compare", "تم حفظ وتثبيت المطابقة بنجاح.", "Match confirmed and saved successfully.", "Success notice")
 }
