@@ -29,7 +29,7 @@ templ LoginPage(lang, dir, errorMsg string) {
 					</div>
 				}
 
-				<form method="POST" action="/auth/login" target="_self" class="stack-115">
+				<form method="POST" action="/auth/login" class="stack-115">
 					<div class="form-group mb-0">
 						<label class="form-label" for="email">البريد الإلكتروني أو اسم المستخدم</label>
 						<input type="email" id="email" name="email" required class="form-input tabular-nums" placeholder="pharmacist@dawa24.eg" />
@@ -100,7 +100,7 @@ templ RegisterPage(lang, dir string, form RegisterFormData, cities []*platformad
 					</div>
 				}
 
-				<form id="registration-onboarding-form" method="POST" action="/auth/register" target="_self" enctype="multipart/form-data" class="stack-lg">
+				<form id="registration-onboarding-form" method="POST" action="/auth/register" enctype="multipart/form-data" class="stack-lg">
 					<input type="hidden" name="account_type" id="reg-account-type-input" value="customer" />
 
 					<!-- ================= STEP 1: Select Account Type ================= -->

@@ -178,6 +178,224 @@ func (h *UIHandler) notifyWalletDeposit(ctx context.Context, userID int64, orgID
 	}
 }
 
+// notifyWalletDepositRejected dispatches notification when a deposit request is rejected with reason.
+func (h *UIHandler) notifyWalletDepositRejected(ctx context.Context, userID int64, orgID int64, amount money.Amount, reason string) {
+	title := i18n.T("ar", "notif.wallet_deposit_rejected_title")
+	body := fmt.Sprintf(i18n.T("ar", "notif.wallet_deposit_rejected_body"), amount.String())
+	if strings.TrimSpace(reason) != "" {
+		body += fmt.Sprintf(i18n.T("ar", "notif.reason_prefix"), reason)
+	}
+	h.dispatchInAppNotification(ctx, userID, &orgID, title, body)
+	if orgID > 0 {
+		h.dispatchOrgNotification(ctx, orgID, title, body)
+	}
+}
+
+// notifyAccountRegistered dispatches welcome notification to a newly registered account.
+func (h *UIHandler) notifyAccountRegistered(ctx context.Context, userID int64, orgID *int64) {
+	title := i18n.T("ar", "notif.account_registered_title")
+	body := i18n.T("ar", "notif.account_registered_body")
+	h.dispatchInAppNotification(ctx, userID, orgID, title, body)
+	if orgID != nil && *orgID > 0 {
+		h.dispatchOrgNotification(ctx, *orgID, title, body)
+	}
+}
+
+// notifyOrgApproved dispatches celebration notification when admin approves an organization.
+func (h *UIHandler) notifyOrgApproved(ctx context.Context, orgID int64) {
+	if orgID <= 0 {
+		return
+	}
+	title := i18n.T("ar", "notif.org_approved_title")
+	body := i18n.T("ar", "notif.org_approved_body")
+	h.dispatchOrgNotification(ctx, orgID, title, body)
+}
+
+// notifyOrgRejected dispatches notification when admin rejects an organization.
+func (h *UIHandler) notifyOrgRejected(ctx context.Context, orgID int64, reason string) {
+	if orgID <= 0 {
+		return
+	}
+	title := i18n.T("ar", "notif.org_rejected_title")
+	body := i18n.T("ar", "notif.org_rejected_body")
+	if strings.TrimSpace(reason) != "" {
+		body += fmt.Sprintf(i18n.T("ar", "notif.reason_prefix"), reason)
+	}
+	h.dispatchOrgNotification(ctx, orgID, title, body)
+}
+
+// notifyDocumentVerified dispatches notification when a business license or document is verified/rejected.
+func (h *UIHandler) notifyDocumentVerified(ctx context.Context, orgID int64, docName string, verified bool, notes string) {
+	if orgID <= 0 {
+		return
+	}
+	if docName == "" {
+		docName = "المستند الرسمي"
+	}
+	var title, body string
+	if verified {
+		title = i18n.T("ar", "notif.doc_verified_title")
+		body = fmt.Sprintf(i18n.T("ar", "notif.doc_verified_body"), docName)
+	} else {
+		title = i18n.T("ar", "notif.doc_rejected_title")
+		body = fmt.Sprintf(i18n.T("ar", "notif.doc_rejected_body"), docName)
+		if strings.TrimSpace(notes) != "" {
+			body += fmt.Sprintf(i18n.T("ar", "notif.reason_prefix"), notes)
+		}
+	}
+	h.dispatchOrgNotification(ctx, orgID, title, body)
+}
+
+// notifySpecialOfferStatus dispatches notification to the vendor when their special offer is approved or rejected.
+func (h *UIHandler) notifySpecialOfferStatus(ctx context.Context, vendorOrgID int64, offerTitle string, approved bool, reason string) {
+	if vendorOrgID <= 0 {
+		return
+	}
+	if offerTitle == "" {
+		offerTitle = "العرض الخاص"
+	}
+	var title, body string
+	if approved {
+		title = i18n.T("ar", "notif.special_offer_approved_title")
+		body = fmt.Sprintf(i18n.T("ar", "notif.special_offer_approved_body"), offerTitle)
+	} else {
+		title = i18n.T("ar", "notif.special_offer_rejected_title")
+		body = fmt.Sprintf(i18n.T("ar", "notif.special_offer_rejected_body"), offerTitle)
+		if strings.TrimSpace(reason) != "" {
+			body += fmt.Sprintf(i18n.T("ar", "notif.reason_prefix"), reason)
+		}
+	}
+	h.dispatchOrgNotification(ctx, vendorOrgID, title, body)
+}
+
+// notifySponsorshipStatus dispatches notification when a sponsorship package request is approved or rejected.
+func (h *UIHandler) notifySponsorshipStatus(ctx context.Context, vendorOrgID int64, pkgTitle string, approved bool, reason string) {
+	if vendorOrgID <= 0 {
+		return
+	}
+	if pkgTitle == "" {
+		pkgTitle = "باقة الرعاية"
+	}
+	var title, body string
+	if approved {
+		title = i18n.T("ar", "notif.sponsorship_approved_title")
+		body = fmt.Sprintf(i18n.T("ar", "notif.sponsorship_approved_body"), pkgTitle)
+	} else {
+		title = i18n.T("ar", "notif.sponsorship_rejected_title")
+		body = fmt.Sprintf(i18n.T("ar", "notif.sponsorship_rejected_body"), pkgTitle)
+		if strings.TrimSpace(reason) != "" {
+			body += fmt.Sprintf(i18n.T("ar", "notif.reason_prefix"), reason)
+		}
+	}
+	h.dispatchOrgNotification(ctx, vendorOrgID, title, body)
+}
+
+// notifyAdStatus dispatches notification when an advertisement is approved or rejected.
+func (h *UIHandler) notifyAdStatus(ctx context.Context, vendorOrgID int64, adTitle string, approved bool, reason string) {
+	if vendorOrgID <= 0 {
+		return
+	}
+	if adTitle == "" {
+		adTitle = "الإعلان الترويجي"
+	}
+	var title, body string
+	if approved {
+		title = i18n.T("ar", "notif.ad_approved_title")
+		body = fmt.Sprintf(i18n.T("ar", "notif.ad_approved_body"), adTitle)
+	} else {
+		title = i18n.T("ar", "notif.ad_rejected_title")
+		body = fmt.Sprintf(i18n.T("ar", "notif.ad_rejected_body"), adTitle)
+		if strings.TrimSpace(reason) != "" {
+			body += fmt.Sprintf(i18n.T("ar", "notif.reason_prefix"), reason)
+		}
+	}
+	h.dispatchOrgNotification(ctx, vendorOrgID, title, body)
+}
+
+// notifyNegotiationOffer dispatches notification when a customer proposes a negotiated price.
+func (h *UIHandler) notifyNegotiationOffer(ctx context.Context, vendorOrgID int64, customerOrgName string, orderNum string, proposedAmount money.Amount) {
+	if vendorOrgID <= 0 {
+		return
+	}
+	if customerOrgName == "" {
+		customerOrgName = i18n.T("ar", "notif.verified_pharmacy")
+	}
+	title := i18n.T("ar", "notif.negotiation_offer_title")
+	body := fmt.Sprintf(i18n.T("ar", "notif.negotiation_offer_body"), customerOrgName, proposedAmount.String(), orderNum)
+	h.dispatchOrgNotification(ctx, vendorOrgID, title, body)
+}
+
+// notifyNegotiationDecision dispatches notification to the pharmacy when a vendor accepts or rejects price negotiation.
+func (h *UIHandler) notifyNegotiationDecision(ctx context.Context, customerUserID int64, customerOrgID int64, vendorName string, orderNum string, accepted bool, reason string) {
+	if vendorName == "" {
+		vendorName = i18n.T("ar", "notif.the_vendor")
+	}
+	var title, body string
+	if accepted {
+		title = i18n.T("ar", "notif.negotiation_accepted_title")
+		body = fmt.Sprintf(i18n.T("ar", "notif.negotiation_accepted_body"), vendorName, orderNum)
+	} else {
+		title = i18n.T("ar", "notif.negotiation_rejected_title")
+		body = fmt.Sprintf(i18n.T("ar", "notif.negotiation_rejected_body"), orderNum, vendorName)
+		if strings.TrimSpace(reason) != "" {
+			body += fmt.Sprintf(i18n.T("ar", "notif.reason_prefix"), reason)
+		}
+	}
+	if customerUserID > 0 {
+		h.dispatchInAppNotification(ctx, customerUserID, nil, title, body)
+	}
+	if customerOrgID > 0 {
+		h.dispatchOrgNotification(ctx, customerOrgID, title, body)
+	}
+}
+
+// notifyQuoteRequest dispatches notification to the vendor when a new RFQ is created.
+func (h *UIHandler) notifyQuoteRequest(ctx context.Context, vendorOrgID int64, customerName string, productName string, quantity int) {
+	if vendorOrgID <= 0 {
+		return
+	}
+	if customerName == "" {
+		customerName = i18n.T("ar", "notif.verified_pharmacy")
+	}
+	title := i18n.T("ar", "notif.quote_req_title")
+	body := fmt.Sprintf(i18n.T("ar", "notif.quote_req_body"), customerName, productName, quantity)
+	h.dispatchOrgNotification(ctx, vendorOrgID, title, body)
+}
+
+// notifyQuoteProvided dispatches notification to the customer when a vendor submits a price quote.
+func (h *UIHandler) notifyQuoteProvided(ctx context.Context, customerUserID int64, customerOrgID int64, vendorName string, productName string, quotePrice money.Amount) {
+	if vendorName == "" {
+		vendorName = i18n.T("ar", "notif.the_vendor")
+	}
+	title := i18n.T("ar", "notif.quote_provided_title")
+	body := fmt.Sprintf(i18n.T("ar", "notif.quote_provided_body"), vendorName, productName, quotePrice.String())
+	if customerUserID > 0 {
+		h.dispatchInAppNotification(ctx, customerUserID, nil, title, body)
+	}
+	if customerOrgID > 0 {
+		h.dispatchOrgNotification(ctx, customerOrgID, title, body)
+	}
+}
+
+// notifyQuoteDecision dispatches notification to the vendor when a customer accepts or rejects a price quote.
+func (h *UIHandler) notifyQuoteDecision(ctx context.Context, vendorOrgID int64, customerName string, productName string, accepted bool) {
+	if vendorOrgID <= 0 {
+		return
+	}
+	if customerName == "" {
+		customerName = i18n.T("ar", "notif.verified_pharmacy")
+	}
+	var title, body string
+	if accepted {
+		title = i18n.T("ar", "notif.quote_accepted_title")
+		body = fmt.Sprintf(i18n.T("ar", "notif.quote_accepted_body"), customerName, productName)
+	} else {
+		title = i18n.T("ar", "notif.quote_rejected_title")
+		body = fmt.Sprintf(i18n.T("ar", "notif.quote_rejected_body"), productName, customerName)
+	}
+	h.dispatchOrgNotification(ctx, vendorOrgID, title, body)
+}
+
 // resolveOrgName retrieves the localized name of an organization.
 func (h *UIHandler) resolveOrgName(ctx context.Context, orgID int64) string {
 	if h.orgSvc == nil || orgID <= 0 {

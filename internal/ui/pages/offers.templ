@@ -127,10 +127,7 @@ templ OffersContent(lang string, offers []*OfferCardData) {
 								<div class="flex-between items-start gap-2 mb-3">
 									<div class="d-flex items-center gap-2 flex-wrap">
 										if o.IsSponsored {
-											<span class="badge badge-amber font-extrabold text-xs shadow-2xs gap-1">
-												@components.IconShield("icon-2xs")
-												<span>ممول</span>
-											</span>
+											@components.SponsoredBadge(lang)
 										}
 										<span class="badge badge-emerald font-bold text-xs shadow-2xs">سارٍ حالياً</span>
 										if o.DiscountPercentage > 0 {

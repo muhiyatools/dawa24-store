@@ -169,14 +169,18 @@ func (r *Repository) CreateOrder(
 			if pName.IsEmpty() && pvID != nil && *pvID > 0 {
 				var fetchedPName, fetchedVName, fetchedSKU string
 				var fetchedPID int64
+				var fetchedCostPrice *money.Amount
+				var fetchedCostDiscount float64
 				err := tx.QueryRow(txCtx, `
 					SELECT COALESCE(NULLIF(p.name->>'ar', ''), NULLIF(p.name->>'en', ''), pv.sku, ''),
 					       COALESCE(NULLIF(pv.name->>'ar', ''), NULLIF(pv.name->>'en', ''), ''),
 					       COALESCE(pv.sku, ''),
-					       p.id
+					       p.id,
+					       pv.cost_price,
+					       COALESCE(pv.cost_discount_percentage, 0.00)
 					FROM catalog.product_variants pv
 					JOIN catalog.products p ON p.id = pv.product_id
-					WHERE pv.id = $1`, *pvID).Scan(&fetchedPName, &fetchedVName, &fetchedSKU, &fetchedPID)
+					WHERE pv.id = $1`, *pvID).Scan(&fetchedPName, &fetchedVName, &fetchedSKU, &fetchedPID, &fetchedCostPrice, &fetchedCostDiscount)
 				if err == nil {
 					if pName.IsEmpty() && fetchedPName != "" {
 						pName = i18n.New(fetchedPName, fetchedPName)
@@ -189,6 +193,10 @@ func (r *Repository) CreateOrder(
 					}
 					if pID == nil && fetchedPID > 0 {
 						pID = &fetchedPID
+					}
+					if line.CostPrice == nil && fetchedCostPrice != nil && fetchedCostPrice.IsPositive() {
+						line.CostPrice = fetchedCostPrice
+						line.CostDiscountPercentage = fetchedCostDiscount
 					}
 				}
 			}
@@ -219,16 +227,18 @@ func (r *Repository) CreateOrder(
 					order_id, shipment_id, organization_id, product_id,
 					product_variant_id, product_name, variant_name, sku,
 					offer_product_id, unit_price, quantity, discount_amount,
-					total_price, list_price, original_price, original_discount,
+					total_price, cost_price, cost_discount_percentage,
+					list_price, original_price, original_discount,
 					is_negotiated, proposed_unit_price
-				) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18)
+				) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20)
 				RETURNING id, created_at;
 			`
 			err := tx.QueryRow(txCtx, queryLine,
 				line.OrderID, line.ShipmentID, line.OrganizationID, pID,
 				pvID, pName, vName, sku,
 				opID, line.UnitPrice, line.Quantity, line.DiscountAmount,
-				line.TotalPrice, line.ListPrice, line.OriginalPrice, line.OriginalDiscount,
+				line.TotalPrice, line.CostPrice, line.CostDiscountPercentage,
+				line.ListPrice, line.OriginalPrice, line.OriginalDiscount,
 				line.IsNegotiated, line.ProposedUnitPrice,
 			).Scan(&line.ID, &line.CreatedAt)
 			if err != nil {
@@ -326,7 +336,8 @@ func hydrateOrderDetails(txCtx context.Context, tx pgx.Tx, o *commerce.Order) er
 			SELECT l.id, l.order_id, l.shipment_id, l.organization_id, l.product_id,
 			       l.product_variant_id, l.product_name, l.variant_name, l.sku,
 			       l.offer_product_id, l.unit_price, l.quantity, l.discount_amount,
-			       l.total_price, l.list_price, l.original_price, l.original_discount,
+			       l.total_price, l.cost_price, COALESCE(l.cost_discount_percentage, 0.00),
+			       l.list_price, l.original_price, l.original_discount,
 			       l.is_negotiated, COALESCE(l.proposed_unit_price, 0) as proposed_unit_price, l.rating,
 			       COALESCE(stk.available_stock, 0) as available_stock,
 			       COALESCE(pv.min_order_qty, 1) as min_order_qty,
@@ -353,7 +364,8 @@ func hydrateOrderDetails(txCtx context.Context, tx pgx.Tx, o *commerce.Order) er
 					&l.ID, &l.OrderID, &l.ShipmentID, &l.OrganizationID, &l.ProductID,
 					&l.ProductVariantID, &l.ProductName, &l.VariantName, &l.SKU,
 					&l.OfferProductID, &l.UnitPrice, &l.Quantity, &l.DiscountAmount,
-					&l.TotalPrice, &l.ListPrice, &l.OriginalPrice, &l.OriginalDiscount,
+					&l.TotalPrice, &l.CostPrice, &l.CostDiscountPercentage,
+					&l.ListPrice, &l.OriginalPrice, &l.OriginalDiscount,
 					&l.IsNegotiated, &l.ProposedUnitPrice, &l.Rating,
 					&l.AvailableStock, &l.MinOrderQty, &l.MaxQtyPerOrder,
 				); err == nil {
@@ -555,7 +567,8 @@ func (r *Repository) ListShipmentsByVendor(ctx context.Context, vendorOrgID int6
 				SELECT id, order_id, shipment_id, organization_id, product_id,
 				       product_variant_id, product_name, variant_name, sku,
 				       offer_product_id, unit_price, quantity, discount_amount,
-				       total_price, list_price, original_price, original_discount, rating
+				       total_price, cost_price, COALESCE(cost_discount_percentage, 0.00),
+				       list_price, original_price, original_discount, rating
 				FROM commerce.order_lines
 				WHERE shipment_id = ANY($1)
 				ORDER BY id ASC;
@@ -569,7 +582,8 @@ func (r *Repository) ListShipmentsByVendor(ctx context.Context, vendorOrgID int6
 						&l.ID, &l.OrderID, &l.ShipmentID, &l.OrganizationID, &l.ProductID,
 						&l.ProductVariantID, &l.ProductName, &l.VariantName, &l.SKU,
 						&l.OfferProductID, &l.UnitPrice, &l.Quantity, &l.DiscountAmount,
-						&l.TotalPrice, &l.ListPrice, &l.OriginalPrice, &l.OriginalDiscount, &l.Rating,
+						&l.TotalPrice, &l.CostPrice, &l.CostDiscountPercentage,
+						&l.ListPrice, &l.OriginalPrice, &l.OriginalDiscount, &l.Rating,
 					); err == nil {
 						if sh, ok := shipmentMap[l.ShipmentID]; ok {
 							sh.Lines = append(sh.Lines, &l)

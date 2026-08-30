@@ -161,30 +161,126 @@ type OrderShipment struct {
 
 // OrderLine is an immutable snapshot of a product variant purchased in an order.
 type OrderLine struct {
-	ID                int64        `json:"id"`
-	OrderID           int64        `json:"order_id"`
-	ShipmentID        int64        `json:"shipment_id"`
-	OrganizationID    int64        `json:"organization_id"`
-	ProductID         *int64       `json:"product_id,omitempty"`
-	ProductVariantID  *int64       `json:"product_variant_id,omitempty"`
-	ProductName       i18n.Text    `json:"product_name"`
-	VariantName       i18n.Text    `json:"variant_name,omitempty"`
-	SKU               string       `json:"sku,omitempty"`
-	OfferProductID    *int64       `json:"offer_product_id,omitempty"` // offer_product sold under (063)
-	UnitPrice         money.Amount `json:"unit_price"`
-	Quantity          int          `json:"quantity"`
-	DiscountAmount    money.Amount `json:"discount_amount"`
-	TotalPrice        money.Amount `json:"total_price"`
-	ListPrice         money.Amount `json:"list_price,omitempty"`        // pre-discount strike price (063)
-	OriginalPrice     money.Amount `json:"original_price,omitempty"`    // legacy price snapshot (063)
-	OriginalDiscount  money.Amount `json:"original_discount,omitempty"` // legacy discount snapshot (063)
-	IsNegotiated      bool         `json:"is_negotiated"`
-	ProposedUnitPrice money.Amount `json:"proposed_unit_price,omitempty"`
-	Rating            *float64     `json:"rating,omitempty"` // per-line rating (Laravel adv_orders.rating parity)
-	AvailableStock    int          `json:"available_stock,omitempty"`
-	MinOrderQty       int          `json:"min_order_qty,omitempty"`
-	MaxQtyPerOrder    int          `json:"max_qty_per_order,omitempty"`
-	CreatedAt         time.Time    `json:"created_at"`
+	ID                     int64         `json:"id"`
+	OrderID                int64         `json:"order_id"`
+	ShipmentID             int64         `json:"shipment_id"`
+	OrganizationID         int64         `json:"organization_id"`
+	ProductID              *int64        `json:"product_id,omitempty"`
+	ProductVariantID       *int64        `json:"product_variant_id,omitempty"`
+	ProductName            i18n.Text     `json:"product_name"`
+	VariantName            i18n.Text     `json:"variant_name,omitempty"`
+	SKU                    string        `json:"sku,omitempty"`
+	OfferProductID         *int64        `json:"offer_product_id,omitempty"` // offer_product sold under (063)
+	UnitPrice              money.Amount  `json:"unit_price"`
+	Quantity               int           `json:"quantity"`
+	DiscountAmount         money.Amount  `json:"discount_amount"`
+	TotalPrice             money.Amount  `json:"total_price"`
+	CostPrice              *money.Amount `json:"cost_price,omitempty"`     // Optional snapshot of cost price at purchase
+	CostDiscountPercentage float64       `json:"cost_discount_percentage"` // Snapshot of cost discount %
+	ListPrice              money.Amount  `json:"list_price,omitempty"`        // pre-discount strike price (063)
+	OriginalPrice          money.Amount  `json:"original_price,omitempty"`    // legacy price snapshot (063)
+	OriginalDiscount       money.Amount  `json:"original_discount,omitempty"` // legacy discount snapshot (063)
+	IsNegotiated           bool          `json:"is_negotiated"`
+	ProposedUnitPrice      money.Amount  `json:"proposed_unit_price,omitempty"`
+	Rating                 *float64      `json:"rating,omitempty"` // per-line rating (Laravel adv_orders.rating parity)
+	AvailableStock         int           `json:"available_stock,omitempty"`
+	MinOrderQty            int           `json:"min_order_qty,omitempty"`
+	MaxQtyPerOrder         int           `json:"max_qty_per_order,omitempty"`
+	CreatedAt              time.Time     `json:"created_at"`
+}
+
+// HasCostPrice reports whether this line snapshot carried an explicit cost price.
+func (l *OrderLine) HasCostPrice() bool {
+	return l != nil && l.CostPrice != nil && l.CostPrice.IsPositive()
+}
+
+// UnitDiscountedCost calculates the discounted unit cost price.
+func (l *OrderLine) UnitDiscountedCost() money.Amount {
+	if !l.HasCostPrice() {
+		return money.Zero
+	}
+	if l.CostDiscountPercentage > 0 {
+		discMinor := int64(float64(l.CostPrice.Minor()) * (l.CostDiscountPercentage / 100.0))
+		return money.FromMinor(l.CostPrice.Minor() - discMinor)
+	}
+	return *l.CostPrice
+}
+
+// TotalCost calculates the total cost for this order line (Discounted Cost * Quantity).
+func (l *OrderLine) TotalCost() money.Amount {
+	if !l.HasCostPrice() || l.Quantity <= 0 {
+		return money.Zero
+	}
+	unitCost := l.UnitDiscountedCost()
+	return money.FromMinor(unitCost.Minor() * int64(l.Quantity))
+}
+
+// TotalNetProfit computes the vendor's net profit for this line.
+// If CostPrice is set, net profit = TotalPrice - TotalCost.
+// If CostPrice is NOT set (NULL or zero), net profit = TotalPrice (profit equals selling price after discount).
+func (l *OrderLine) TotalNetProfit() money.Amount {
+	if l == nil {
+		return money.Zero
+	}
+	if !l.HasCostPrice() {
+		return l.TotalPrice
+	}
+	totCost := l.TotalCost()
+	return money.FromMinor(l.TotalPrice.Minor() - totCost.Minor())
+}
+
+// VendorFinancialSummary represents the unified financial and profit metrics for a vendor.
+type VendorFinancialSummary struct {
+	Period               string                  `json:"period"` // "month", "last_month", "year", "all"
+	GrossSales           money.Amount            `json:"gross_sales"`
+	TotalDiscounts       money.Amount            `json:"total_discounts"`
+	NetSales             money.Amount            `json:"net_sales"`
+	COGS                 money.Amount            `json:"cogs"` // Total Cost of Goods Sold (discounted cost prices)
+	PlatformFees         money.Amount            `json:"platform_fees"`
+	NetProfit            money.Amount            `json:"net_profit"`
+	ProfitMargin         float64                 `json:"profit_margin"`
+	DeliveredOrdersCount int                     `json:"delivered_orders_count"`
+	PendingOrdersTotal   money.Amount            `json:"pending_orders_total"`
+	PendingOrdersCount   int                     `json:"pending_orders_count"`
+	WalletBalance        money.Amount            `json:"wallet_balance"`
+	Shipments            []*VendorShipmentProfit `json:"shipments,omitempty"`
+	TopProducts          []*VendorProductProfit  `json:"top_products,omitempty"`
+}
+
+// VendorShipmentProfit gives financial breakdown for a single delivered shipment.
+type VendorShipmentProfit struct {
+	ShipmentID      int64        `json:"shipment_id"`
+	ShipmentNumber  string       `json:"shipment_number"`
+	OrderID         int64        `json:"order_id"`
+	OrderNumber     string       `json:"order_number"`
+	CustomerOrgName string       `json:"customer_org_name"`
+	DeliveredAt     time.Time    `json:"delivered_at"`
+	GrossSales      money.Amount `json:"gross_sales"`
+	Discounts       money.Amount `json:"discounts"`
+	NetSales        money.Amount `json:"net_sales"`
+	COGS            money.Amount `json:"cogs"`
+	PlatformFee     money.Amount `json:"platform_fee"`
+	NetProfit       money.Amount `json:"net_profit"`
+	ProfitMargin    float64      `json:"profit_margin"`
+	PaymentStatus   string       `json:"payment_status"`
+	LineItemsCount  int          `json:"line_items_count"`
+}
+
+// VendorProductProfit gives profitability analysis per catalog item.
+type VendorProductProfit struct {
+	ProductID              int64         `json:"product_id"`
+	VariantID              int64         `json:"variant_id"`
+	Name                   string        `json:"name"`
+	SKU                    string        `json:"sku"`
+	QuantitySold           int           `json:"quantity_sold"`
+	SellingPrice           money.Amount  `json:"selling_price"`
+	CostPrice              *money.Amount `json:"cost_price,omitempty"`
+	CostDiscountPercentage float64       `json:"cost_discount_percentage"`
+	DiscountedCost         money.Amount  `json:"discounted_cost"`
+	TotalRevenue           money.Amount  `json:"total_revenue"`
+	TotalCost              money.Amount  `json:"total_cost"`
+	NetProfit              money.Amount  `json:"net_profit"`
+	ProfitMargin           float64       `json:"profit_margin"`
 }
 
 // CalculateAverageRating computes the exact 2-decimal scalar average of review criteria (audit §3.3).

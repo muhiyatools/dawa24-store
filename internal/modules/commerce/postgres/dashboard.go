@@ -44,3 +44,216 @@ func (r *Repository) MonthSpendByCustomer(ctx context.Context, customerID int64)
 	})
 	return total, err
 }
+
+// GetVendorFinancialSummary calculates the complete, unified financial and profit metrics for a vendor.
+// Orders that are delivered / completed have their discounted costs deducted from public selling prices to determine net profit.
+// If a variant has no cost_price, its profit equals its selling price after public discount.
+func (r *Repository) GetVendorFinancialSummary(ctx context.Context, vendorOrgID int64, period string) (*commerce.VendorFinancialSummary, error) {
+	summary := &commerce.VendorFinancialSummary{
+		Period: period,
+	}
+
+	err := r.db.InReadTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
+		// 1. Determine date filter for delivered shipments
+		var dateFilter string
+		switch period {
+		case "last_month":
+			dateFilter = "AND s.delivered_at >= date_trunc('month', now() - interval '1 month') AND s.delivered_at < date_trunc('month', now())"
+		case "year":
+			dateFilter = "AND s.delivered_at >= date_trunc('year', now())"
+		case "all":
+			dateFilter = ""
+		default: // "month" or empty
+			summary.Period = "month"
+			dateFilter = "AND s.delivered_at >= date_trunc('month', now())"
+		}
+
+		// 2. Query delivered shipments for this vendor in the period
+		queryShipments := `
+			SELECT s.id, s.shipment_number, s.order_id, o.order_number,
+			       COALESCE(cust_org.name->>'ar', cust_org.name->>'en', 'صيدلية عميل') as customer_org_name,
+			       COALESCE(s.delivered_at, s.updated_at, s.created_at) as delivered_at,
+			       s.subtotal, s.shipping_fee, s.total_amount,
+			       o.payment_status
+			FROM commerce.order_shipments s
+			JOIN commerce.orders o ON o.id = s.order_id
+			LEFT JOIN org.organizations cust_org ON cust_org.id = o.customer_id
+			WHERE s.organization_id = $1
+			  AND s.status IN ('delivered', 'completed')
+			  ` + dateFilter + `
+			ORDER BY s.delivered_at DESC NULLS LAST, s.id DESC;
+		`
+
+		sRows, err := tx.Query(txCtx, queryShipments, vendorOrgID)
+		if err != nil {
+			return err
+		}
+		defer sRows.Close()
+
+		type shipRec struct {
+			profit *commerce.VendorShipmentProfit
+			shipID int64
+		}
+		var shipRecs []shipRec
+		var shipIDs []int64
+
+		for sRows.Next() {
+			var s commerce.VendorShipmentProfit
+			var subtotal, shippingFee, totalAmount money.Amount
+			var payStatusStr string
+			if err := sRows.Scan(
+				&s.ShipmentID, &s.ShipmentNumber, &s.OrderID, &s.OrderNumber,
+				&s.CustomerOrgName, &s.DeliveredAt,
+				&subtotal, &shippingFee, &totalAmount,
+				&payStatusStr,
+			); err != nil {
+				return err
+			}
+			s.PaymentStatus = payStatusStr
+			shipRecs = append(shipRecs, shipRec{profit: &s, shipID: s.ShipmentID})
+			shipIDs = append(shipIDs, s.ShipmentID)
+		}
+		sRows.Close()
+
+		summary.DeliveredOrdersCount = len(shipRecs)
+
+		// 3. Load order lines for all delivered shipments
+		productMap := make(map[int64]*commerce.VendorProductProfit)
+
+		if len(shipIDs) > 0 {
+			queryLines := `
+				SELECT l.id, l.shipment_id, l.product_id, l.product_variant_id,
+				       COALESCE(NULLIF(l.product_name->>'ar', ''), NULLIF(l.product_name->>'en', ''), 'صنف'),
+				       l.sku, l.unit_price, l.quantity, l.discount_amount, l.total_price,
+				       l.cost_price, COALESCE(l.cost_discount_percentage, 0.00)
+				FROM commerce.order_lines l
+				WHERE l.shipment_id = ANY($1)
+				ORDER BY l.id ASC;
+			`
+			lRows, err := tx.Query(txCtx, queryLines, shipIDs)
+			if err != nil {
+				return err
+			}
+			defer lRows.Close()
+
+			shipmentLinesMap := make(map[int64][]*commerce.OrderLine)
+			for lRows.Next() {
+				var l commerce.OrderLine
+				var pName string
+				if err := lRows.Scan(
+					&l.ID, &l.ShipmentID, &l.ProductID, &l.ProductVariantID,
+					&pName, &l.SKU, &l.UnitPrice, &l.Quantity, &l.DiscountAmount, &l.TotalPrice,
+					&l.CostPrice, &l.CostDiscountPercentage,
+				); err != nil {
+					return err
+				}
+				l.ProductName = i18n.New(pName, pName)
+				shipmentLinesMap[l.ShipmentID] = append(shipmentLinesMap[l.ShipmentID], &l)
+			}
+			lRows.Close()
+
+			// Compute financials per shipment and aggregate into summary
+			for _, rec := range shipRecs {
+				sp := rec.profit
+				lines := shipmentLinesMap[rec.shipID]
+				sp.LineItemsCount = len(lines)
+
+				var shipGross, shipDiscounts, shipNet, shipCOGS, shipProfit money.Amount
+
+				for _, line := range lines {
+					lineGross := money.FromMinor(line.UnitPrice.Minor() * int64(line.Quantity))
+					lineCost := line.TotalCost()
+					lineProfit := line.TotalNetProfit()
+
+					shipGross, _ = shipGross.Add(lineGross)
+					shipDiscounts, _ = shipDiscounts.Add(line.DiscountAmount)
+					shipNet, _ = shipNet.Add(line.TotalPrice)
+					shipCOGS, _ = shipCOGS.Add(lineCost)
+					shipProfit, _ = shipProfit.Add(lineProfit)
+
+					// Aggregate product breakdown
+					key := int64(0)
+					if line.ProductVariantID != nil && *line.ProductVariantID > 0 {
+						key = *line.ProductVariantID
+					} else if line.ProductID != nil && *line.ProductID > 0 {
+						key = *line.ProductID
+					}
+					if key > 0 {
+						prod, exists := productMap[key]
+						if !exists {
+							prod = &commerce.VendorProductProfit{
+								VariantID:              key,
+								Name:                   line.ProductName.Get("ar"),
+								SKU:                    line.SKU,
+								SellingPrice:           line.UnitPrice,
+								CostPrice:              line.CostPrice,
+								CostDiscountPercentage: line.CostDiscountPercentage,
+								DiscountedCost:         line.UnitDiscountedCost(),
+							}
+							if line.ProductID != nil {
+								prod.ProductID = *line.ProductID
+							}
+							productMap[key] = prod
+						}
+						prod.QuantitySold += line.Quantity
+						prod.TotalRevenue, _ = prod.TotalRevenue.Add(line.TotalPrice)
+						prod.TotalCost, _ = prod.TotalCost.Add(lineCost)
+						prod.NetProfit, _ = prod.NetProfit.Add(lineProfit)
+					}
+				}
+
+				sp.GrossSales = shipGross
+				sp.Discounts = shipDiscounts
+				sp.NetSales = shipNet
+				sp.COGS = shipCOGS
+				sp.NetProfit = shipProfit
+				if sp.NetSales.IsPositive() {
+					sp.ProfitMargin = (float64(sp.NetProfit.Minor()) / float64(sp.NetSales.Minor())) * 100.0
+				}
+
+				summary.GrossSales, _ = summary.GrossSales.Add(shipGross)
+				summary.TotalDiscounts, _ = summary.TotalDiscounts.Add(shipDiscounts)
+				summary.NetSales, _ = summary.NetSales.Add(shipNet)
+				summary.COGS, _ = summary.COGS.Add(shipCOGS)
+				summary.NetProfit, _ = summary.NetProfit.Add(shipProfit)
+
+				summary.Shipments = append(summary.Shipments, sp)
+			}
+		}
+
+		// Calculate profit margin on summary
+		if summary.NetSales.IsPositive() {
+			summary.ProfitMargin = (float64(summary.NetProfit.Minor()) / float64(summary.NetSales.Minor())) * 100.0
+		}
+
+		// Convert product map to top products slice and calculate individual margins
+		for _, prod := range productMap {
+			if prod.TotalRevenue.IsPositive() {
+				prod.ProfitMargin = (float64(prod.NetProfit.Minor()) / float64(prod.TotalRevenue.Minor())) * 100.0
+			}
+			summary.TopProducts = append(summary.TopProducts, prod)
+		}
+
+		// 4. Pending orders total and count
+		queryPending := `
+			SELECT COUNT(*), COALESCE(SUM(total_amount), 0)
+			FROM commerce.order_shipments
+			WHERE organization_id = $1
+			  AND status IN ('pending', 'confirmed', 'processing', 'shipped');
+		`
+		_ = tx.QueryRow(txCtx, queryPending, vendorOrgID).Scan(&summary.PendingOrdersCount, &summary.PendingOrdersTotal)
+
+		// 5. Wallet balance
+		queryWallet := `
+			SELECT COALESCE(balance, 0)
+			FROM billing.wallets
+			WHERE organization_id = $1
+			LIMIT 1;
+		`
+		_ = tx.QueryRow(txCtx, queryWallet, vendorOrgID).Scan(&summary.WalletBalance)
+
+		return nil
+	})
+
+	return summary, err
+}

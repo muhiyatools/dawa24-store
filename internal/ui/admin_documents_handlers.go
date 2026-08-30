@@ -99,9 +99,17 @@ func (h *UIHandler) AdminVerifyUploadedDocSubmit(w http.ResponseWriter, r *http.
 
 	if h.attSvc != nil {
 		sysCtx := database.AsSystem(ctx)
+		doc, _ := h.attSvc.GetByIDAdmin(sysCtx, id)
 		if err := h.attSvc.VerifyDocumentWithType(sysCtx, actor, id, docType, status, notes); err != nil {
 			h.redirectWithNotice(w, r, "/admin/approvals?tab=documents", "error", h.safeMessage(err, lang))
 			return
+		}
+		if doc != nil && doc.OrganizationID != nil && *doc.OrganizationID > 0 {
+			docName := string(docType)
+			if docName == "" && doc.FileName != "" {
+				docName = doc.FileName
+			}
+			go h.notifyDocumentVerified(context.Background(), *doc.OrganizationID, docName, status == attachments.StatusVerified, notes)
 		}
 	}
 

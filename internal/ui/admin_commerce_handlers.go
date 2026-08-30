@@ -101,11 +101,15 @@ func (h *UIHandler) AdminOfferApproveSubmit(w http.ResponseWriter, r *http.Reque
 
 	actor, _ := authctx.From(ctx)
 	if h.promoSvc != nil {
+		off, _ := h.promoSvc.GetSpecialOffer(ctx, id)
 		if err := h.promoSvc.UpdateSpecialOfferAdminStatus(ctx, id, "approved", i18n.T(lang, "admin.commerce.approved_by_admin"), actor.UserID); err != nil {
 			h.redirectWithNotice(w, r, "/admin/offers", "error", h.safeMessage(err, lang))
 			return
 		}
 		_ = h.promoSvc.ToggleSpecialOfferStatus(ctx, id, true)
+		if off != nil && off.VendorOrganizationID > 0 {
+			go h.notifySpecialOfferStatus(context.Background(), off.VendorOrganizationID, off.Title, true, "")
+		}
 	}
 
 	h.redirectWithNotice(w, r, "/admin/offers", "success", i18n.T(lang, "admin.commerce.offer_approved_success"))
@@ -123,11 +127,15 @@ func (h *UIHandler) AdminOfferRejectSubmit(w http.ResponseWriter, r *http.Reques
 
 	actor, _ := authctx.From(ctx)
 	if h.promoSvc != nil {
+		off, _ := h.promoSvc.GetSpecialOffer(ctx, id)
 		if err := h.promoSvc.UpdateSpecialOfferAdminStatus(ctx, id, "rejected", i18n.T(lang, "admin.commerce.rejected_by_admin"), actor.UserID); err != nil {
 			h.redirectWithNotice(w, r, "/admin/offers", "error", h.safeMessage(err, lang))
 			return
 		}
 		_ = h.promoSvc.ToggleSpecialOfferStatus(ctx, id, false)
+		if off != nil && off.VendorOrganizationID > 0 {
+			go h.notifySpecialOfferStatus(context.Background(), off.VendorOrganizationID, off.Title, false, "")
+		}
 	}
 
 	h.redirectWithNotice(w, r, "/admin/offers", "success", i18n.T(lang, "admin.commerce.offer_rejected_success"))

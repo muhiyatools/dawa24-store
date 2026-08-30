@@ -164,6 +164,14 @@ func (h *UIHandler) AdminDepositApproveSubmit(w http.ResponseWriter, r *http.Req
 		return
 	}
 
+	if dep != nil {
+		var orgID int64
+		if dep.OrganizationID != nil {
+			orgID = *dep.OrganizationID
+		}
+		go h.notifyWalletDeposit(context.Background(), dep.UserID, orgID, dep.Amount, "approved")
+	}
+
 	h.redirectWithNotice(w, r, "/admin/finance?tab=deposits", "success", fmt.Sprintf(i18n.T(lang, "admin.finance.deposit_approved_success_format"), dep.Amount.String(), tx.ID))
 }
 
@@ -194,10 +202,19 @@ func (h *UIHandler) AdminDepositRejectSubmit(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
-	if _, err := h.billSvc.AdminRejectDeposit(ctx, depositID, actor.UserID, reason); err != nil {
+	dep, err := h.billSvc.AdminRejectDeposit(ctx, depositID, actor.UserID, reason)
+	if err != nil {
 		h.log.ErrorContext(ctx, "failed to reject deposit", "error", err, "deposit_id", depositID)
 		h.redirectWithNotice(w, r, "/admin/finance?tab=deposits", "error", h.safeMessage(err, lang))
 		return
+	}
+
+	if dep != nil {
+		var orgID int64
+		if dep.OrganizationID != nil {
+			orgID = *dep.OrganizationID
+		}
+		go h.notifyWalletDepositRejected(context.Background(), dep.UserID, orgID, dep.Amount, reason)
 	}
 
 	h.redirectWithNotice(w, r, "/admin/finance?tab=deposits", "success", i18n.T(lang, "admin.finance.deposit_rejected_success"))

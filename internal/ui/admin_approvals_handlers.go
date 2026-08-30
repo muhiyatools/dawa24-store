@@ -218,6 +218,7 @@ func (h *UIHandler) AdminApproveOrgSubmit(w http.ResponseWriter, r *http.Request
 			return err
 		}
 		go h.provisionOrgAIAndSubscription(context.Background(), orgID)
+		go h.notifyOrgApproved(context.Background(), orgID)
 		return nil
 	})
 }
@@ -225,7 +226,11 @@ func (h *UIHandler) AdminApproveOrgSubmit(w http.ResponseWriter, r *http.Request
 // AdminRejectOrgSubmit rejects a pending organization.
 func (h *UIHandler) AdminRejectOrgSubmit(w http.ResponseWriter, r *http.Request) {
 	h.adminApprovalAction(w, r, func(ctx context.Context, orgID int64) error {
-		return h.orgSvc.RejectOrganization(ctx, orgID)
+		err := h.orgSvc.RejectOrganization(ctx, orgID)
+		if err == nil {
+			go h.notifyOrgRejected(context.Background(), orgID, "")
+		}
+		return err
 	})
 }
 
@@ -236,6 +241,7 @@ func (h *UIHandler) AdminOrgApproveSubmit(w http.ResponseWriter, r *http.Request
 	if err == nil && h.orgSvc != nil {
 		_ = h.orgSvc.ApproveOrganization(ctx, id)
 		go h.provisionOrgAIAndSubscription(context.Background(), id)
+		go h.notifyOrgApproved(context.Background(), id)
 	}
 	h.redirectWithNotice(w, r, "/admin/organizations", "success", i18n.T(langOf(r), "admin.approvals.account_activated_success"))
 }

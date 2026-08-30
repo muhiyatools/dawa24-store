@@ -506,8 +506,11 @@ templ CustomerCatalogResults(data CatalogPageData, lang string) {
 templ CustomerCatalogGrid(variants []*SupplierVariantCard, lang string) {
 	<div class="product-grid-wrapper mb-6">
 		for _, v := range variants {
+			// is-sponsored draws the rail that marks a paid placement. The class
+			// is conditional rather than always-present-and-hidden so the rule
+			// never applies to an organic result.
 			<div
-				class="product-card-glass cursor-pointer"
+				class={ "product-card-glass", "cursor-pointer", templ.KV("is-sponsored", v.IsSponsored) }
 				onclick={ templ.ComponentScript{Call: fmt.Sprintf("navigateToVariant(%d, %d)", v.VariantID, v.ProductID)} }
 			>
 				<div>
@@ -524,9 +527,7 @@ templ CustomerCatalogGrid(variants []*SupplierVariantCard, lang string) {
 						<!-- Floating Badges -->
 						<div class="product-card-badges-floating position-absolute top-2 start-2 d-flex flex-col gap-1 z-10">
 							if v.IsSponsored {
-								<span class="badge font-black text-xs shadow-xs" style="background:#fef3c7; color:#92400e; border:1px solid #fcd34d;">
-									ممول
-								</span>
+								@components.SponsoredBadge(lang)
 							}
 							if v.DiscountPercent > 0 {
 								<span class="badge badge-emerald font-black text-xs shadow-xs">
@@ -772,9 +773,9 @@ templ CustomerCatalogTable(variants []*SupplierVariantCard, lang string) {
 									}
 								</a>
 								if v.IsSponsored {
-									<span class="badge font-black text-xs mt-1" style="background:#fef3c7; color:#92400e; border:1px solid #fcd34d;">
-										ممول — رعاية
-									</span>
+									<div class="mt-1">
+										@components.SponsoredBadge(lang)
+									</div>
 								}
 							</td>
 							<td class="py-3">

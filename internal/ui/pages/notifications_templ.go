@@ -510,22 +510,31 @@ func notifCardInlineStyle(isRead bool) string {
 
 func notifBadgeClass(title string, isRead bool) string {
 	if isRead {
-		return "bg-surface-sunken text-muted border"
+		return "bg-surface-sunken text-muted border border-slate-200"
 	}
 	t := strings.ToLower(title)
-	if strings.Contains(t, "طلب") || strings.Contains(t, "order") {
+	switch {
+	case strings.Contains(t, "موافقة") || strings.Contains(t, "اعتماد") || strings.Contains(t, "تفعيل") || strings.Contains(t, "توثيق") || strings.Contains(t, "approved") || strings.Contains(t, "verified"):
+		return "bg-emerald-500/15 text-emerald-700 border border-emerald-500/30"
+	case strings.Contains(t, "رفض") || strings.Contains(t, "إلغاء") || strings.Contains(t, "rejected") || strings.Contains(t, "cancelled"):
+		return "bg-rose-500/15 text-rose-700 border border-rose-500/30"
+	case strings.Contains(t, "شحن") || strings.Contains(t, "توصيل") || strings.Contains(t, "استلام") || strings.Contains(t, "مندوب") || strings.Contains(t, "delivery") || strings.Contains(t, "courier"):
+		return "bg-sky-500/15 text-sky-700 border border-sky-500/30"
+	case strings.Contains(t, "طلب") || strings.Contains(t, "order"):
 		return "bg-emerald-500/15 text-emerald-600 border border-emerald-500/30"
+	case strings.Contains(t, "تسعير") || strings.Contains(t, "تفاوض") || strings.Contains(t, "quote") || strings.Contains(t, "rfq"):
+		return "bg-indigo-500/15 text-indigo-700 border border-indigo-500/30"
+	case strings.Contains(t, "محفظة") || strings.Contains(t, "رصيد") || strings.Contains(t, "إيداع") || strings.Contains(t, "سداد") || strings.Contains(t, "wallet") || strings.Contains(t, "deposit"):
+		return "bg-teal-500/15 text-teal-700 border border-teal-500/30"
+	case strings.Contains(t, "عرض") || strings.Contains(t, "رعاية") || strings.Contains(t, "إعلان") || strings.Contains(t, "sponsor") || strings.Contains(t, "offer") || strings.Contains(t, "ad"):
+		return "bg-amber-500/15 text-amber-700 border border-amber-500/30"
+	case strings.Contains(t, "مرحباً") || strings.Contains(t, "تسجيل") || strings.Contains(t, "حساب") || strings.Contains(t, "welcome") || strings.Contains(t, "register"):
+		return "bg-blue-500/15 text-blue-700 border border-blue-500/30"
+	case strings.Contains(t, "أمان") || strings.Contains(t, "دخول") || strings.Contains(t, "security"):
+		return "bg-purple-500/15 text-purple-700 border border-purple-500/30"
+	default:
+		return "bg-brand/15 text-brand border border-brand/30"
 	}
-	if strings.Contains(t, "خصم") || strings.Contains(t, "سعر") || strings.Contains(t, "discount") {
-		return "bg-amber-500/15 text-amber-600 border border-amber-500/30"
-	}
-	if strings.Contains(t, "محفظة") || strings.Contains(t, "رصيد") || strings.Contains(t, "دفع") || strings.Contains(t, "wallet") {
-		return "bg-sky-500/15 text-sky-600 border border-sky-500/30"
-	}
-	if strings.Contains(t, "أمان") || strings.Contains(t, "دخول") || strings.Contains(t, "security") {
-		return "bg-purple-500/15 text-purple-600 border border-purple-500/30"
-	}
-	return "bg-brand/15 text-brand border border-brand/30"
 }
 
 func notifIcon(title string) templ.Component {
@@ -550,23 +559,48 @@ func notifIcon(title string) templ.Component {
 		}
 		ctx = templ.ClearChildren(ctx)
 		switch {
+		case strings.Contains(title, "موافقة") || strings.Contains(title, "اعتماد") || strings.Contains(title, "تفعيل") || strings.Contains(title, "توثيق") || strings.Contains(title, "approved") || strings.Contains(title, "verified"):
+			templ_7745c5c3_Err = components.IconCheckCircle("icon-xs text-emerald-600").Render(ctx, templ_7745c5c3_Buffer)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+		case strings.Contains(title, "رفض") || strings.Contains(title, "إلغاء") || strings.Contains(title, "rejected") || strings.Contains(title, "cancelled"):
+			templ_7745c5c3_Err = components.IconAlertCircle("icon-xs text-rose-600").Render(ctx, templ_7745c5c3_Buffer)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+		case strings.Contains(title, "شحن") || strings.Contains(title, "توصيل") || strings.Contains(title, "استلام") || strings.Contains(title, "مندوب") || strings.Contains(title, "delivery") || strings.Contains(title, "courier"):
+			templ_7745c5c3_Err = components.IconTruck("icon-xs text-sky-600").Render(ctx, templ_7745c5c3_Buffer)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+		case strings.Contains(title, "تسعير") || strings.Contains(title, "تفاوض") || strings.Contains(title, "quote") || strings.Contains(title, "rfq"):
+			templ_7745c5c3_Err = components.IconTag("icon-xs text-indigo-600").Render(ctx, templ_7745c5c3_Buffer)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
 		case strings.Contains(title, "طلب") || strings.Contains(title, "order"):
-			templ_7745c5c3_Err = components.IconTruck("icon-xs").Render(ctx, templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = components.IconPackage("icon-xs text-emerald-600").Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-		case strings.Contains(title, "خصم") || strings.Contains(title, "سعر") || strings.Contains(title, "discount"):
-			templ_7745c5c3_Err = components.IconTag("icon-xs").Render(ctx, templ_7745c5c3_Buffer)
+		case strings.Contains(title, "عرض") || strings.Contains(title, "رعاية") || strings.Contains(title, "إعلان") || strings.Contains(title, "sponsor") || strings.Contains(title, "offer"):
+			templ_7745c5c3_Err = components.IconSparkles("icon-xs text-amber-600").Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-		case strings.Contains(title, "محفظة") || strings.Contains(title, "رصيد") || strings.Contains(title, "دفع") || strings.Contains(title, "wallet"):
-			templ_7745c5c3_Err = components.IconWallet("icon-xs").Render(ctx, templ_7745c5c3_Buffer)
+		case strings.Contains(title, "محفظة") || strings.Contains(title, "رصيد") || strings.Contains(title, "إيداع") || strings.Contains(title, "سداد") || strings.Contains(title, "wallet"):
+			templ_7745c5c3_Err = components.IconWallet("icon-xs text-teal-600").Render(ctx, templ_7745c5c3_Buffer)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+		case strings.Contains(title, "مرحباً") || strings.Contains(title, "تسجيل") || strings.Contains(title, "welcome") || strings.Contains(title, "register"):
+			templ_7745c5c3_Err = components.IconUser("icon-xs text-blue-600").Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 		case strings.Contains(title, "أمان") || strings.Contains(title, "دخول") || strings.Contains(title, "security"):
-			templ_7745c5c3_Err = components.IconShield("icon-xs").Render(ctx, templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = components.IconShield("icon-xs text-purple-600").Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

@@ -5408,3 +5408,61 @@ input:focus {
 
 .so-review-lead-title { font-size: 0.95rem; color: var(--text); }
 .so-review-lead-hint { font-size: 0.8rem; color: var(--text-secondary); }
+
+/* ==========================================================================
+   MODAL PERFORMANCE
+   While a modal is open the page behind it is blurred by the overlay. Leaving
+   backdrop-filter on the panels underneath means the browser blurs a blur:
+   every .glass-panel keeps its own compositing layer and re-filters on each
+   frame of the open animation, which is what made the heavier admin screens
+   stall for a beat. None of that work is visible through the overlay.
+   ========================================================================== */
+body.modal-open .glass-panel,
+body.modal-open .glass-card,
+body.modal-open .glass-nav,
+body.modal-open .sidebar,
+body.modal-open .stat-card-3d {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+/* Scroll lock. Fixed positioning rather than overflow:hidden so the page does
+   not jump when the scrollbar disappears; app.js restores the offset on close. */
+body.modal-open {
+  position: fixed;
+  inset-inline: 0;
+  width: 100%;
+  overflow-y: scroll;
+}
+
+
+/* ==========================================================================
+   SPONSORED PLACEMENTS
+   One treatment, used by the product card, the catalogue table and the offers
+   grid. Previously each of the three inlined its own amber hex, so none of
+   them changed with the theme and the wording differed between them.
+   ========================================================================== */
+.badge-sponsored {
+  background: var(--sponsored-bg);
+  color: var(--sponsored-fg);
+  border: 1px solid var(--sponsored-border);
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
+
+/* The rail marks a whole card as a paid placement, the way a marketplace puts
+   a strip above a promoted result. Inline-start so it follows RTL and LTR. */
+.is-sponsored {
+  position: relative;
+}
+.is-sponsored::after {
+  content: '';
+  position: absolute;
+  inset-block: 0;
+  inset-inline-start: 0;
+  width: 3px;
+  background: var(--sponsored-rail);
+  border-start-start-radius: inherit;
+  border-end-start-radius: inherit;
+  pointer-events: none;
+}

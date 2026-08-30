@@ -91,51 +91,87 @@ func (h *UIHandler) AddOfferToCartSubmit(w http.ResponseWriter, r *http.Request)
 			}
 
 			variantID := p.VariantID
-			prodID := int64(0)
+			prodID := p.ProductID
 			unitPrice := p.CustomPrice
 
-			// If variant ID is missing, resolve variant from catalog
-			if variantID <= 0 && h.catSvc != nil {
-				if prodID > 0 {
-					if _, vars, vErr := h.catSvc.GetProduct(database.AsSystem(ctx), prodID); vErr == nil && len(vars) > 0 {
-						for _, v := range vars {
-							if v.OrganizationID == sp.OrganizationID || variantID <= 0 {
-								variantID = v.ID
-								if unitPrice.IsZero() {
-									unitPrice = v.Price
-								}
-								break
+			// 1. If variant ID is missing but we have prodID, resolve variant from catalog
+			if variantID <= 0 && h.catSvc != nil && prodID > 0 {
+				if _, vars, vErr := h.catSvc.GetProduct(database.AsSystem(ctx), prodID); vErr == nil && len(vars) > 0 {
+					for _, v := range vars {
+						if v.OrganizationID == sp.OrganizationID || variantID <= 0 {
+							variantID = v.ID
+							if unitPrice.IsZero() {
+								unitPrice = v.Price
 							}
+							break
+						}
+					}
+					if variantID <= 0 {
+						variantID = vars[0].ID
+						if unitPrice.IsZero() {
+							unitPrice = vars[0].Price
 						}
 					}
 				}
 			}
 
-			if variantID <= 0 {
-				continue
-			}
-
-			qty := p.Quantity * bundleMultiplier
-			if qty <= 0 {
-				qty = bundleMultiplier
-			}
-
-			if h.catSvc != nil {
+			// 2. If variant ID is present, make sure we have prodID and fallback price
+			if variantID > 0 && h.catSvc != nil {
 				if v, vErr := h.catSvc.GetVariant(database.AsSystem(ctx), variantID); vErr == nil && v != nil {
-					prodID = v.ProductID
+					if prodID <= 0 {
+						prodID = v.ProductID
+					}
 					if unitPrice.IsZero() {
 						unitPrice = v.Price
 					}
 				}
 			}
 
+			// 3. If variant ID is still missing (e.g. only VariantName / SKU or product name exists)
+			if variantID <= 0 && h.catSvc != nil && p.VariantName != "" {
+				if prods, sErr := h.catSvc.Search(database.AsSystem(ctx), catalog.SearchParams{Query: p.VariantName, Limit: 5}); sErr == nil && len(prods) > 0 {
+					pID := prods[0].ID
+					if _, vars, vErr := h.catSvc.GetProduct(database.AsSystem(ctx), pID); vErr == nil && len(vars) > 0 {
+						prodID = pID
+						variantID = vars[0].ID
+						if unitPrice.IsZero() {
+							unitPrice = vars[0].Price
+						}
+					}
+				}
+			}
+
+			if variantID <= 0 || prodID <= 0 {
+				h.log.WarnContext(ctx, "skipping offer product due to unresolvable variant/product", "offer_id", offerID, "variant_id", variantID, "product_id", prodID, "variant_name", p.VariantName)
+				continue
+			}
+
+			// 4. Calculate unit price
 			if unitPrice.IsZero() && p.OriginalPrice.IsPositive() {
-				if sp.DiscountPercentage > 0 {
+				if p.DiscountPercentage > 0 {
+					discMinor := int64(float64(p.OriginalPrice.Minor()) * (p.DiscountPercentage / 100.0))
+					unitPrice = money.FromMinor(p.OriginalPrice.Minor() - discMinor)
+				} else if sp.DiscountPercentage > 0 {
 					discMinor := int64(float64(p.OriginalPrice.Minor()) * (sp.DiscountPercentage / 100.0))
 					unitPrice = money.FromMinor(p.OriginalPrice.Minor() - discMinor)
+				} else if p.DiscountAmount.IsPositive() && p.DiscountAmount.Minor() < p.OriginalPrice.Minor() {
+					unitPrice = money.FromMinor(p.OriginalPrice.Minor() - p.DiscountAmount.Minor())
 				} else {
 					unitPrice = p.OriginalPrice
 				}
+			}
+
+			if unitPrice.IsZero() && sp.TotalPrice.IsPositive() && len(sp.Products) > 0 {
+				unitPrice = money.FromMinor(sp.TotalPrice.Minor() / int64(len(sp.Products)))
+			}
+
+			if unitPrice.IsZero() {
+				unitPrice = money.FromMinor(100) // 1 EGP fallback
+			}
+
+			qty := p.Quantity * bundleMultiplier
+			if qty <= 0 {
+				qty = bundleMultiplier
 			}
 
 			item := &commerce.CartItem{
@@ -150,7 +186,7 @@ func (h *UIHandler) AddOfferToCartSubmit(w http.ResponseWriter, r *http.Request)
 			if _, aErr := h.commSvc.AddToCart(ctx, userID, item); aErr == nil {
 				addedItemsCount++
 			} else {
-				h.log.WarnContext(ctx, "add offer item to cart error", "error", aErr, "variant_id", variantID)
+				h.log.ErrorContext(ctx, "add offer item to cart error", "error", aErr, "variant_id", variantID, "product_id", prodID, "user_id", userID)
 			}
 		}
 	} else if baseOffer != nil && len(baseOffer.ProductIDs) > 0 && h.catSvc != nil {
@@ -172,6 +208,9 @@ func (h *UIHandler) AddOfferToCartSubmit(w http.ResponseWriter, r *http.Request)
 						discMinor := int64(float64(uPrice.Minor()) * (sp.DiscountPercentage / 100.0))
 						uPrice = money.FromMinor(uPrice.Minor() - discMinor)
 					}
+					if uPrice.IsZero() {
+						uPrice = money.FromMinor(100)
+					}
 					item := &commerce.CartItem{
 						ProductID:        pID,
 						ProductVariantID: targetVar.ID,
@@ -182,7 +221,37 @@ func (h *UIHandler) AddOfferToCartSubmit(w http.ResponseWriter, r *http.Request)
 					}
 					if _, aErr := h.commSvc.AddToCart(ctx, userID, item); aErr == nil {
 						addedItemsCount++
+					} else {
+						h.log.ErrorContext(ctx, "add base offer item to cart error", "error", aErr, "variant_id", targetVar.ID, "product_id", pID, "user_id", userID)
 					}
+				}
+			}
+		}
+	} else if h.catSvc != nil && sp.OrganizationID > 0 {
+		// Fallback: If offer has no explicit products assigned, pick top vendor catalog products
+		if vars, _, vErr := h.catSvc.ListVariantsByOrganization(ctx, sp.OrganizationID, catalog.VariantSearchParams{Limit: 5}); vErr == nil && len(vars) > 0 {
+			for _, v := range vars {
+				if v == nil || v.ID <= 0 {
+					continue
+				}
+				uPrice := v.Price
+				if sp.DiscountPercentage > 0 && uPrice.IsPositive() {
+					discMinor := int64(float64(uPrice.Minor()) * (sp.DiscountPercentage / 100.0))
+					uPrice = money.FromMinor(uPrice.Minor() - discMinor)
+				}
+				if uPrice.IsZero() {
+					uPrice = money.FromMinor(100)
+				}
+				item := &commerce.CartItem{
+					ProductID:        v.ProductID,
+					ProductVariantID: v.ID,
+					OrganizationID:   sp.OrganizationID,
+					Quantity:         bundleMultiplier,
+					UnitPrice:        uPrice,
+					OfferID:          &offerID,
+				}
+				if _, aErr := h.commSvc.AddToCart(ctx, userID, item); aErr == nil {
+					addedItemsCount++
 				}
 			}
 		}

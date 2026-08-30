@@ -518,6 +518,10 @@ func (h *UIHandler) RegisterSubmit(w http.ResponseWriter, r *http.Request) {
 			_ = cvURL
 		}
 
+		if user != nil {
+			go h.notifyAccountRegistered(context.Background(), user.ID, nil)
+		}
+
 		if sess != nil {
 			http.SetCookie(w, &http.Cookie{
 				Name:     "dawa24_session",
@@ -569,6 +573,9 @@ func (h *UIHandler) RegisterSubmit(w http.ResponseWriter, r *http.Request) {
 
 	if regResult != nil && regResult.OrganizationID > 0 {
 		h.ensureCompanyRoles(database.AsSystem(ctx), regResult.OrganizationID, form.AccountType)
+		if sess != nil {
+			go h.notifyAccountRegistered(context.Background(), sess.UserID, &regResult.OrganizationID)
+		}
 	}
 
 	if sess != nil {

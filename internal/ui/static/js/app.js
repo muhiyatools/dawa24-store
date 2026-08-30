@@ -276,21 +276,58 @@ function initModalManager() {
   });
 }
 
+// Opening a modal used to stall for a beat on the heavier admin screens.
+// Four things were happening at once, and all four are addressed here.
+//
+//   1. Every .glass-panel on the page carries backdrop-filter. A page can hold
+//      dozens of them, and the overlay adds one more on top. backdrop-filter is
+//      the most expensive property in this stylesheet -- each instance forces
+//      its own compositing layer and re-blurs on every frame -- so the browser
+//      was re-blurring the whole page behind a blur. The body class below turns
+//      the background blurs off for as long as a modal is open; the overlay's
+//      own blur is the only one that survives, which is the only one anybody
+//      can see anyway.
+//
+//   2. Nothing locked the page scroll, so the content behind the overlay
+//      scrolled with the wheel.
+//
+//   3. Every open dispatched a synthetic window resize 100ms later, which runs
+//      every resize listener on the page -- charts, tables, the sidebar, Leaflet
+//      -- whether or not the modal had anything to resize. It now runs only when
+//      the modal actually contains a map.
+//
+//   4. Two modals open at once each restored the scroll on close. The open
+//      count keeps the lock honest.
+let openModalCount = 0;
+let scrollLockY = 0;
+
 window.openModal = function(id) {
   if (!id || typeof id !== 'string' || !id.trim()) return;
   const cleanId = id.trim();
   const el = document.getElementById(cleanId);
   if (!el) return;
+
   if (el.tagName === 'DIALOG' && typeof el.showModal === 'function') {
     try { el.showModal(); } catch (_) { el.setAttribute('open', ''); }
   } else {
     el.classList.remove('hidden');
     el.style.display = 'flex';
   }
-  setTimeout(() => {
-    initMapPickers();
-    window.dispatchEvent(new Event('resize'));
-  }, 100);
+
+  if (openModalCount === 0) {
+    scrollLockY = window.scrollY || 0;
+    document.body.classList.add('modal-open');
+    document.body.style.top = `-${scrollLockY}px`;
+  }
+  openModalCount += 1;
+
+  // Only pay for map initialisation when this modal actually holds a map.
+  if (el.querySelector('[data-map-picker], .map-canvas, .leaflet-container')) {
+    setTimeout(() => {
+      initMapPickers();
+      window.dispatchEvent(new Event('resize'));
+    }, 100);
+  }
 };
 
 window.closeModal = function(id) {
@@ -298,11 +335,26 @@ window.closeModal = function(id) {
   const cleanId = id.trim();
   const el = document.getElementById(cleanId);
   if (!el) return;
+
+  const wasOpen = el.tagName === 'DIALOG'
+    ? el.hasAttribute('open')
+    : !el.classList.contains('hidden');
+
   if (el.tagName === 'DIALOG' && typeof el.close === 'function') {
     try { el.close(); } catch (_) { el.removeAttribute('open'); }
   } else {
     el.classList.add('hidden');
     el.style.display = 'none';
+  }
+
+  // Only a modal that was actually open releases the lock, so a stray close
+  // call cannot unlock the page while another modal is still showing.
+  if (!wasOpen) return;
+  openModalCount = Math.max(0, openModalCount - 1);
+  if (openModalCount === 0) {
+    document.body.classList.remove('modal-open');
+    document.body.style.top = '';
+    window.scrollTo(0, scrollLockY);
   }
 };
 

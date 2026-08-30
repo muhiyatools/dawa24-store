@@ -35,7 +35,7 @@ const stockRollup = `
 // vendorVariantColumns is the projection the listing shares.
 const vendorVariantColumns = `
 	v.id, v.public_id, v.organization_id, COALESCE(v.product_id, 0), v.name, v.sku,
-	v.barcode, v.price, v.cost_price, v.discount, v.unit, v.image, v.status,
+	v.barcode, v.price, v.cost_price, COALESCE(v.cost_discount_percentage, 0.00), v.discount, v.unit, v.image, v.status,
 	v.is_featured, v.is_negotiable, v.batch_number, v.expiry_date, v.min_order_qty,
 	v.branch_id, v.created_at, v.updated_at, st.qty`
 
@@ -75,7 +75,7 @@ func (r *Repository) ListVendorVariants(
 			var status string
 			if err := rows.Scan(
 				&v.ID, &v.PublicID, &v.OrganizationID, &v.ProductID, &v.Name, &v.SKU,
-				&v.Barcode, &v.Price, &v.CostPrice, &v.Discount, &v.Unit, &v.Image,
+				&v.Barcode, &v.Price, &v.CostPrice, &v.CostDiscountPercentage, &v.Discount, &v.Unit, &v.Image,
 				&status, &v.IsFeatured, &v.IsNegotiable, &v.BatchNumber, &v.ExpiryDate,
 				&v.MinOrderQty, &v.BranchID, &v.CreatedAt, &v.UpdatedAt, &v.StockQty,
 			); err != nil {

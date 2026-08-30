@@ -21,7 +21,7 @@ func (r *Repository) ListVariantsByProducts(ctx context.Context, productIDs []in
 	err := r.db.InReadTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
 		query := `
 			SELECT id, public_id, organization_id, product_id, name, sku, barcode,
-			       price, cost_price, discount, unit, image, status, is_featured, is_negotiable,
+			       price, cost_price, COALESCE(cost_discount_percentage, 0.00), discount, unit, image, status, is_featured, is_negotiable,
 			       batch_number, expiry_date, min_order_qty, branch_id,
 			       created_at, updated_at, deleted_at
 			FROM catalog.product_variants
@@ -39,7 +39,7 @@ func (r *Repository) ListVariantsByProducts(ctx context.Context, productIDs []in
 			var statusStr string
 			if err := rows.Scan(
 				&v.ID, &v.PublicID, &v.OrganizationID, &v.ProductID, &v.Name, &v.SKU,
-				&v.Barcode, &v.Price, &v.CostPrice, &v.Discount, &v.Unit, &v.Image,
+				&v.Barcode, &v.Price, &v.CostPrice, &v.CostDiscountPercentage, &v.Discount, &v.Unit, &v.Image,
 				&statusStr, &v.IsFeatured, &v.IsNegotiable, &v.BatchNumber, &v.ExpiryDate, &v.MinOrderQty,
 				&v.BranchID, &v.CreatedAt, &v.UpdatedAt, &v.DeletedAt,
 			); err != nil {

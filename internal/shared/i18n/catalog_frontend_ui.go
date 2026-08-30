@@ -245,6 +245,52 @@ func loadFrontendUIKeys(e *engine) {
 	addKey(e, "notif.wallet_deposit_approved_body", "wallet", "تم قيد مبلغ %s ج.م بنجاح في رصيد محفظة منشأتكم.", "Amount of %s EGP was successfully credited to your organization's wallet balance.", "Wallet deposit approved body")
 	addKey(e, "notif.wallet_deposit_pending_title", "wallet", "طلب شحن رصيد قيد المراجعة", "Top-up request under review", "Wallet deposit pending title")
 	addKey(e, "notif.wallet_deposit_pending_body", "wallet", "تم استلام إشعار الإيداع بمبلغ %s ج.م وجاري تدقيقه واعتماده.", "Deposit notice of %s EGP received and is being verified and approved.", "Wallet deposit pending body")
+	addKey(e, "notif.wallet_deposit_rejected_title", "wallet", "تم رفض طلب شحن الرصيد", "Wallet top-up request rejected", "Wallet deposit rejected title")
+	addKey(e, "notif.wallet_deposit_rejected_body", "wallet", "تم رفض طلب إيداع مبلغ %s ج.م في المحفظة.", "Deposit request of %s EGP was rejected.", "Wallet deposit rejected body")
+
+	// --- Registration & Organization Approval Notifications ---
+	addKey(e, "notif.account_registered_title", "identity", "مرحباً بك في منصة دواء 24! 🌿", "Welcome to Dawa24 Platform!", "Welcome registration title")
+	addKey(e, "notif.account_registered_body", "identity", "تم إنشاء حسابك بنجاح. طلب اعتماد المنشأة قيد المراجعة والتدقيق بواسطة فريق الإدارة لتفعيل كافة خدمات التوريد والشراء.", "Your account has been created successfully. Organization verification is under review by administration.", "Welcome registration body")
+	addKey(e, "notif.org_approved_title", "org", "تم اعتماد وتفعيل حساب منشأتك بنجاح 🚀", "Your organization has been approved and activated!", "Org approved notification title")
+	addKey(e, "notif.org_approved_body", "org", "تهانينا! تمت مراجعة واعتماد بيانات المنشأة والتراخيص بنجاح بواسطة إدارة دواء 24. تم تفعيل كامل صلاحيات التوريد والطلب بالمنصة.", "Congratulations! Your organization profile and licenses have been verified and approved by Dawa24 admins.", "Org approved notification body")
+	addKey(e, "notif.org_rejected_title", "org", "تحديث بشأن طلب اعتماد المنشأة", "Update on organization approval request", "Org rejected notification title")
+	addKey(e, "notif.org_rejected_body", "org", "تم فحص طلب اعتماد المنشأة من قِبل إدارة المنصة. يرجى مراجعة المستندات أو التواصل مع الدعم الفني.", "Your organization approval request was reviewed. Please check your documents or contact support.", "Org rejected notification body")
+
+	// --- Document Verification Notifications ---
+	addKey(e, "notif.doc_verified_title", "docs", "تم توثيق المستند بنجاح ✅", "Document verified successfully", "Document verified title")
+	addKey(e, "notif.doc_verified_body", "docs", "تم اعتماد وتوثيق مستند (%s) بنجاح بواسطة الإدارة.", "Document (%s) was verified and approved successfully.", "Document verified body")
+	addKey(e, "notif.doc_rejected_title", "docs", "تحديث بشأن توثيق المستند", "Document verification update", "Document rejected title")
+	addKey(e, "notif.doc_rejected_body", "docs", "تم رفض توثيق مستند (%s).", "Document (%s) verification was rejected.", "Document rejected body")
+
+	// --- Promo, Sponsorships & Ads Notifications ---
+	addKey(e, "notif.special_offer_approved_title", "promo", "تمت الموافقة على نشر العرض الخاص 🏷️", "Special offer published", "Offer approved title")
+	addKey(e, "notif.special_offer_approved_body", "promo", "تمت الموافقة على نشر العرض الخاص (%s) في سوق العروض.", "Special offer (%s) was approved and published.", "Offer approved body")
+	addKey(e, "notif.special_offer_rejected_title", "promo", "تحديث بشأن العرض الخاص", "Special offer update", "Offer rejected title")
+	addKey(e, "notif.special_offer_rejected_body", "promo", "تم رفض طلب نشر العرض الخاص (%s).", "Special offer (%s) publication was rejected.", "Offer rejected body")
+	addKey(e, "notif.sponsorship_approved_title", "promo", "تم تفعيل باقة الرعاية بنجاح ⭐", "Sponsorship package activated", "Sponsorship approved title")
+	addKey(e, "notif.sponsorship_approved_body", "promo", "تمت الموافقة على طلب باقة الرعاية (%s) وتفعيلها بنجاح.", "Sponsorship request (%s) was approved and activated.", "Sponsorship approved body")
+	addKey(e, "notif.sponsorship_rejected_title", "promo", "تحديث بشأن طلب باقة الرعاية", "Sponsorship request update", "Sponsorship rejected title")
+	addKey(e, "notif.sponsorship_rejected_body", "promo", "تم رفض طلب باقة الرعاية (%s).", "Sponsorship request (%s) was rejected.", "Sponsorship rejected body")
+	addKey(e, "notif.ad_approved_title", "promo", "تمت الموافقة على الإعلان الترويجي 📢", "Banner ad approved", "Ad approved title")
+	addKey(e, "notif.ad_approved_body", "promo", "تمت الموافقة على نشر الإعلان الترويجي (%s) بنجاح.", "Banner ad (%s) was approved and published.", "Ad approved body")
+	addKey(e, "notif.ad_rejected_title", "promo", "تحديث بشأن الإعلان الترويجي", "Banner ad update", "Ad rejected title")
+	addKey(e, "notif.ad_rejected_body", "promo", "تم رفض نشر الإعلان الترويجي (%s).", "Banner ad (%s) was rejected.", "Ad rejected body")
+
+	// --- Negotiations & RFQ Quotes Notifications ---
+	addKey(e, "notif.negotiation_offer_title", "commerce", "طلب تفاوض على السعر من الصيدلية 💬", "Price negotiation offer from pharmacy", "Negotiation offer title")
+	addKey(e, "notif.negotiation_offer_body", "commerce", "قدمت صيدلية (%s) عرض سعر تفاوضي بقيمة %s ج.م على الطلب #%s.", "Pharmacy (%s) proposed a negotiated price of %s EGP on order #%s.", "Negotiation offer body")
+	addKey(e, "notif.negotiation_accepted_title", "commerce", "تم قبول عرض السعر التفاوضي! 🎉", "Negotiated price accepted!", "Negotiation accepted title")
+	addKey(e, "notif.negotiation_accepted_body", "commerce", "وافق المورد (%s) على السعر المقترح للطلب #%s، والطلب الآن قيد المعالجة والتجهيز.", "Supplier (%s) accepted the proposed price for order #%s.", "Negotiation accepted body")
+	addKey(e, "notif.negotiation_rejected_title", "commerce", "تم رفض عرض السعر التفاوضي", "Negotiated price rejected", "Negotiation rejected title")
+	addKey(e, "notif.negotiation_rejected_body", "commerce", "لم يتم قبول السعر المقترح للطلب #%s من قِبل المورد (%s).", "Supplier (%s) rejected the proposed price for order #%s.", "Negotiation rejected body")
+	addKey(e, "notif.quote_req_title", "commerce", "طلب عرض أسعار جديد (RFQ) 📋", "New price quote request (RFQ)", "Quote req title")
+	addKey(e, "notif.quote_req_body", "commerce", "استلمت طلب تسعير جديد من (%s) لصنف (%s) بكمية %d قطعة.", "New quote request received from (%s) for item (%s) quantity %d.", "Quote req body")
+	addKey(e, "notif.quote_provided_title", "commerce", "تم استلام عرض سعر للصنف 💊", "Price quote received", "Quote provided title")
+	addKey(e, "notif.quote_provided_body", "commerce", "قدم المورد (%s) عرض سعر لصنف (%s) بقيمة %s ج.م للوحدة.", "Supplier (%s) provided a quote for (%s) at %s EGP per unit.", "Quote provided body")
+	addKey(e, "notif.quote_accepted_title", "commerce", "تم قبول عرض السعر الخاص بك ✅", "Price quote accepted", "Quote accepted title")
+	addKey(e, "notif.quote_accepted_body", "commerce", "وافقت صيدلية (%s) على عرض السعر لصنف (%s).", "Pharmacy (%s) accepted the price quote for item (%s).", "Quote accepted body")
+	addKey(e, "notif.quote_rejected_title", "commerce", "تحديث بشأن عرض الأسعار", "Price quote update", "Quote rejected title")
+	addKey(e, "notif.quote_rejected_body", "commerce", "تم الاعتذار عن قبول عرض السعر لصنف (%s) من قِبل (%s).", "Price quote for item (%s) was declined by (%s).", "Quote rejected body")
 
 	// --- Coverage Management ---
 	addKey(e, "vendor.coverage.branch_required", "vendor", "يجب اختيار أو إنشاء فرع تابع لمنشأتكم أولاً.", "You must select or create a branch for your organization first.", "Validation error")

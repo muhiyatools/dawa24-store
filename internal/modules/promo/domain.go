@@ -264,6 +264,7 @@ type SpecialOffer struct {
 type SpecialOfferProduct struct {
 	ID                 int64        `json:"id"`
 	OfferID            int64        `json:"offer_id"`
+	ProductID          int64        `json:"product_id,omitempty"`
 	VariantID          int64        `json:"variant_id"`
 	VariantName        string       `json:"variant_name,omitempty"`
 	OriginalPrice      money.Amount `json:"original_price"`

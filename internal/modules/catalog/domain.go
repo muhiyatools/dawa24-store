@@ -94,22 +94,23 @@ type Product struct {
 
 // ProductVariant represents a distinct package, concentration, or SKU variation (was product_childerns).
 type ProductVariant struct {
-	ID             int64        `json:"id"`
-	PublicID       string       `json:"public_id"`
-	OrganizationID int64        `json:"organization_id"`
-	ProductID      int64        `json:"product_id"`
-	Name           i18n.Text    `json:"name"`
-	SKU            string       `json:"sku,omitempty"`
-	Barcode        string       `json:"barcode,omitempty"`
-	Price          money.Amount `json:"price"`
-	CostPrice      money.Amount `json:"cost_price"`
-	Discount       money.Amount `json:"discount"`
-	Unit           string       `json:"unit,omitempty"`
-	Image          string       `json:"image,omitempty"`
-	BatchNumber    string       `json:"batch_number,omitempty"`
-	ExpiryDate     *time.Time   `json:"expiry_date,omitempty"`
-	MinOrderQty    int          `json:"min_order_qty"`
-	BranchID       *int64       `json:"branch_id,omitempty"`
+	ID                     int64         `json:"id"`
+	PublicID               string        `json:"public_id"`
+	OrganizationID         int64         `json:"organization_id"`
+	ProductID              int64         `json:"product_id"`
+	Name                   i18n.Text     `json:"name"`
+	SKU                    string        `json:"sku,omitempty"`
+	Barcode                string        `json:"barcode,omitempty"`
+	Price                  money.Amount  `json:"price"`                   // سعر الجمهور
+	CostPrice              *money.Amount `json:"cost_price,omitempty"`     // سعر التكلفة (اختياري - optional)
+	CostDiscountPercentage float64       `json:"cost_discount_percentage"` // خصم التكلفة (%)
+	Discount               money.Amount  `json:"discount"`                // خصم الجمهور
+	Unit                   string        `json:"unit,omitempty"`
+	Image                  string        `json:"image,omitempty"`
+	BatchNumber            string        `json:"batch_number,omitempty"`
+	ExpiryDate             *time.Time    `json:"expiry_date,omitempty"`
+	MinOrderQty            int           `json:"min_order_qty"`
+	BranchID               *int64        `json:"branch_id,omitempty"`
 	// StockQty is NOT persisted on this table. catalog.product_variants has no
 	// stock column — stock lives in inventory.stocks against a warehouse. This
 	// field is a write-side input (a supplier's opening quantity) and a
@@ -126,6 +127,65 @@ type ProductVariant struct {
 	CreatedAt            time.Time     `json:"created_at"`
 	UpdatedAt            time.Time     `json:"updated_at"`
 	DeletedAt            *time.Time    `json:"deleted_at,omitempty"`
+}
+
+// HasCostPrice reports whether this variant carries an explicit cost price.
+func (v *ProductVariant) HasCostPrice() bool {
+	return v != nil && v.CostPrice != nil && v.CostPrice.IsPositive()
+}
+
+// DiscountedCost computes the unit cost after applying the cost discount percentage.
+func (v *ProductVariant) DiscountedCost() money.Amount {
+	if !v.HasCostPrice() {
+		return money.Zero
+	}
+	if v.CostDiscountPercentage > 0 {
+		discMinor := int64(float64(v.CostPrice.Minor()) * (v.CostDiscountPercentage / 100.0))
+		return money.FromMinor(v.CostPrice.Minor() - discMinor)
+	}
+	return *v.CostPrice
+}
+
+// EffectiveSellingPrice computes the customer selling price after public discount.
+func (v *ProductVariant) EffectiveSellingPrice() money.Amount {
+	if v == nil {
+		return money.Zero
+	}
+	if v.Discount.IsPositive() && v.Discount.Minor() < v.Price.Minor() {
+		eff, err := v.Price.Sub(v.Discount)
+		if err == nil {
+			return eff
+		}
+	}
+	return v.Price
+}
+
+// UnitNetProfit computes the vendor's net profit per unit.
+// If CostPrice is present, net profit = Selling Price - Discounted Cost.
+// If CostPrice is absent, net profit = Selling Price (full selling value after public discount).
+func (v *ProductVariant) UnitNetProfit() money.Amount {
+	if v == nil {
+		return money.Zero
+	}
+	selling := v.EffectiveSellingPrice()
+	if !v.HasCostPrice() {
+		return selling
+	}
+	cost := v.DiscountedCost()
+	return money.FromMinor(selling.Minor() - cost.Minor())
+}
+
+// ProfitMarginPercent computes the profit margin percentage over selling price.
+func (v *ProductVariant) ProfitMarginPercent() float64 {
+	if v == nil {
+		return 0
+	}
+	selling := v.EffectiveSellingPrice()
+	if selling.IsZero() {
+		return 0
+	}
+	profit := v.UnitNetProfit()
+	return (float64(profit.Minor()) / float64(selling.Minor())) * 100.0
 }
 
 // EffectivePrice calculates the final customer price after discount.

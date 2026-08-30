@@ -60,6 +60,17 @@
   --amber-600: #d97706;
   --amber-glow: rgba(245, 158, 11, 0.35);
 
+  /* ---- Sponsored placements ----
+     A sponsored label is a disclosure, not a promotion. It must be legible and
+     unmistakable, and it must not outshout a real discount badge sitting beside
+     it -- which the previous hardcoded amber did. Quiet neutral, like every
+     marketplace that has thought about this. */
+  --sponsored-bg:     rgba(100, 116, 139, 0.10);
+  --sponsored-fg:     #475569;
+  --sponsored-border: rgba(100, 116, 139, 0.28);
+  --sponsored-rail:   #f59e0b;
+
+
   --rose-50:  #fff1f2;
   --rose-100: #ffe4e6;
   --rose-400: #fb7185;
@@ -194,6 +205,11 @@
 [data-theme="dark"],
 body.dark {
   color-scheme: dark;
+
+  --sponsored-bg:     rgba(148, 163, 184, 0.14);
+  --sponsored-fg:     #cbd5e1;
+  --sponsored-border: rgba(148, 163, 184, 0.30);
+  --sponsored-rail:   #fbbf24;
 
   --bg-app:            #070d18;
   --bg-surface:        #0c1527;

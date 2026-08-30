@@ -32,6 +32,8 @@ type Repository interface {
 	MonthSalesByVendor(ctx context.Context, vendorOrgID int64) (money.Amount, error)
 	// MonthSpendByCustomer sums what a buyer paid across order lines this month.
 	MonthSpendByCustomer(ctx context.Context, customerID int64) (money.Amount, error)
+	// GetVendorFinancialSummary computes the complete, unified financial and profit analytics for a vendor.
+	GetVendorFinancialSummary(ctx context.Context, vendorOrgID int64, period string) (*VendorFinancialSummary, error)
 	ListShipmentsByVendor(ctx context.Context, vendorOrgID int64, limit, offset int) ([]*OrderShipment, error)
 	GetShipmentByID(ctx context.Context, id int64) (*OrderShipment, error)
 	// UpdateShipmentStatus is a compare-and-swap on the expected prior status,

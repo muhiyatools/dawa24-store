@@ -472,7 +472,8 @@ func (r *Repository) GetSpecialOfferByID(ctx context.Context, id int64) (*promo.
 
 		// Load Products
 		pRows, _ := tx.Query(txCtx, `
-			SELECT p.id, p.offer_id, 
+			SELECT p.id, p.offer_id,
+			       COALESCE(p.product_id, pv.product_id, 0),
 			       COALESCE(p.variant_id, pv.id, 0),
 			       COALESCE(prod.name->>'ar', prod.name->>'en', pv.sku, 'صنف دوائي معتمد'),
 			       COALESCE(pv.price, prod.base_price, 0),
@@ -482,7 +483,7 @@ func (r *Repository) GetSpecialOfferByID(ctx context.Context, id int64) (*promo.
 			       COALESCE(NULLIF(p.custom_qty, 0), 1),
 			       p.created_at
 			FROM promo.offer_products p
-			LEFT JOIN catalog.product_variants pv ON pv.id = p.variant_id
+			LEFT JOIN catalog.product_variants pv ON (pv.id = p.variant_id OR (p.variant_id IS NULL AND pv.product_id = p.product_id))
 			LEFT JOIN catalog.products prod ON prod.id = COALESCE(p.product_id, pv.product_id)
 			WHERE p.offer_id = $1;
 		`, id)
@@ -490,7 +491,7 @@ func (r *Repository) GetSpecialOfferByID(ctx context.Context, id int64) (*promo.
 			for pRows.Next() {
 				var p promo.SpecialOfferProduct
 				if err := pRows.Scan(
-					&p.ID, &p.OfferID, &p.VariantID, &p.VariantName, &p.OriginalPrice,
+					&p.ID, &p.OfferID, &p.ProductID, &p.VariantID, &p.VariantName, &p.OriginalPrice,
 					&p.CustomPrice, &p.DiscountPercentage, &p.DiscountAmount, &p.Quantity, &p.CreatedAt,
 				); err == nil {
 					o.Products = append(o.Products, &p)
@@ -708,17 +709,26 @@ func (r *Repository) ListAllSpecialOffers(ctx context.Context, limit, offset int
 		// Populate products and locations for each offer
 		for _, offer := range list {
 			pRows, _ := tx.Query(txCtx, `
-				SELECT p.id, p.offer_id, p.variant_id, COALESCE(pv.sku, ''), COALESCE(pv.price, 0),
-				       p.custom_price, p.custom_discount_percentage, p.custom_discount_amount, p.custom_qty, p.created_at
+				SELECT p.id, p.offer_id,
+				       COALESCE(p.product_id, pv.product_id, 0),
+				       COALESCE(p.variant_id, pv.id, 0),
+				       COALESCE(prod.name->>'ar', prod.name->>'en', pv.sku, 'صنف دوائي معتمد'),
+				       COALESCE(pv.price, prod.base_price, 0),
+				       COALESCE(p.custom_price, 0),
+				       COALESCE(p.custom_discount_percentage, 0),
+				       COALESCE(p.custom_discount_amount, 0),
+				       COALESCE(NULLIF(p.custom_qty, 0), 1),
+				       p.created_at
 				FROM promo.offer_products p
-				LEFT JOIN catalog.product_variants pv ON pv.id = p.variant_id
+				LEFT JOIN catalog.product_variants pv ON (pv.id = p.variant_id OR (p.variant_id IS NULL AND pv.product_id = p.product_id))
+				LEFT JOIN catalog.products prod ON prod.id = COALESCE(p.product_id, pv.product_id)
 				WHERE p.offer_id = $1;
 			`, offer.ID)
 			if pRows != nil {
 				for pRows.Next() {
 					var p promo.SpecialOfferProduct
 					if err := pRows.Scan(
-						&p.ID, &p.OfferID, &p.VariantID, &p.VariantName, &p.OriginalPrice,
+						&p.ID, &p.OfferID, &p.ProductID, &p.VariantID, &p.VariantName, &p.OriginalPrice,
 						&p.CustomPrice, &p.DiscountPercentage, &p.DiscountAmount, &p.Quantity, &p.CreatedAt,
 					); err == nil {
 						offer.Products = append(offer.Products, &p)

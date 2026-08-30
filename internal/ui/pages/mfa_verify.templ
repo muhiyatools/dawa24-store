@@ -33,7 +33,7 @@ templ MFAVerifyPage(lang, dir, email, errorMsg, redirectURL string) {
 					</div>
 				}
 
-				<form method="POST" action="/auth/mfa-verify" target="_self" style="display:flex; flex-direction:column; gap:1.25rem;">
+				<form method="POST" action="/auth/mfa-verify" style="display:flex; flex-direction:column; gap:1.25rem;">
 					<input type="hidden" name="redirect" value={ redirectURL } />
 
 					<!-- Standard TOTP Code Input -->

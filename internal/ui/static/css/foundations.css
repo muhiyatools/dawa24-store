@@ -1,0 +1,529 @@
+/* ==========================================================================
+   DAWA 24 — FOUNDATIONS (foundations.css)
+
+   Classes the templates have always used and no stylesheet ever defined.
+
+   An audit of every class name in internal/ui/**/*.templ against every class
+   name in these stylesheets found 617 that are used but never declared, across
+   4,199 occurrences. They are not exotic: the single most-used class on the
+   platform is .form-label, at 626 uses, and it did nothing at all. .form-group
+   (240) did nothing, so no form field had spacing. .alert and its variants (104)
+   did nothing, so every error and success notice rendered as unstyled body text.
+
+   The markup was written as though a utility framework were loaded. None is.
+   That is the reason screens looked half-finished for no visible reason in the
+   template, and why a fix applied to one page never generalised.
+
+   Everything below is built from the tokens in tokens.css, so all of it follows
+   the theme. Nothing here overrides an existing rule: these are additions for
+   selectors that had no declaration at all.
+   ========================================================================== */
+
+/* ==========================================================================
+   1. FORM PRIMITIVES
+   .form-input was already styled. Its label and its wrapper were not, which is
+   why fields ran together and labels sat at body weight.
+   ========================================================================== */
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  margin-bottom: 1rem;
+}
+
+.form-group:last-child { margin-bottom: 0; }
+
+.form-label {
+  display: block;
+  font-size: var(--text-xs);
+  font-weight: 700;
+  line-height: 1.4;
+  color: var(--text-secondary);
+  margin-bottom: 0.35rem;
+}
+
+/* A label that is a flex row (icon + text) must not also be display:block. */
+.form-label.d-flex,
+.form-label.d-inline-flex { display: flex; }
+
+.form-hint {
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+  line-height: 1.5;
+}
+
+.form-error {
+  font-size: var(--text-xs);
+  font-weight: 600;
+  color: var(--danger, #e11d48);
+  line-height: 1.5;
+}
+
+.form-check {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* Compact variants used by dense tables and inline editors. */
+.input-sm,
+.form-input-sm,
+.form-input.input-sm {
+  padding: 0.4rem 0.6rem !important;
+  font-size: var(--text-xs) !important;
+  border-radius: var(--radius-md) !important;
+}
+
+/* ==========================================================================
+   2. ALERTS
+   Every notice on the platform -- validation failures, save confirmations,
+   permission refusals -- used these four classes and rendered as plain text.
+   Tone comes from the semantic ramps so both themes work.
+   ========================================================================== */
+
+.alert {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.6rem;
+  padding: 0.75rem 1rem;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-card);
+  background: var(--bg-surface-sunken);
+  color: var(--text-primary);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  line-height: 1.6;
+}
+
+.alert-success { background: color-mix(in srgb, var(--emerald-500) 10%, transparent); border-color: color-mix(in srgb, var(--emerald-500) 32%, transparent); color: var(--emerald-600); }
+.alert-danger,
+.alert-error   { background: color-mix(in srgb, var(--rose-500)    10%, transparent); border-color: color-mix(in srgb, var(--rose-500)    32%, transparent); color: var(--rose-600); }
+.alert-warning { background: color-mix(in srgb, var(--amber-500)   12%, transparent); border-color: color-mix(in srgb, var(--amber-500)   34%, transparent); color: var(--amber-600); }
+.alert-info    { background: color-mix(in srgb, var(--brand-500)   10%, transparent); border-color: color-mix(in srgb, var(--brand-500)   30%, transparent); color: var(--brand-600); }
+
+/* Dark theme lifts the text off the tinted ground; the 600 weights go muddy. */
+[data-theme="dark"] .alert-success { color: var(--emerald-400); }
+[data-theme="dark"] .alert-danger,
+[data-theme="dark"] .alert-error   { color: var(--rose-400); }
+[data-theme="dark"] .alert-warning { color: var(--amber-400); }
+[data-theme="dark"] .alert-info    { color: var(--brand-400); }
+
+/* ==========================================================================
+   3. SPACING SCALE
+   utilities.css had m-*, mb-*, mt-* and p-*/px-*/py-* but no pt/pb/ps/pe, and
+   no half steps, so 577 spacing attributes did nothing. Completed here on the
+   same 0.25rem scale, including the logical start/end pair that RTL needs.
+   ========================================================================== */
+
+.m-0\.5  { margin: 0.125rem !important; }
+.mt-0\.5 { margin-top: 0.125rem !important; }
+.mb-0\.5 { margin-bottom: 0.125rem !important; }
+.mt-1\.5 { margin-top: 0.375rem !important; }
+.mb-1\.5 { margin-bottom: 0.375rem !important; }
+.mt-2\.5 { margin-top: 0.625rem !important; }
+.mb-2\.5 { margin-bottom: 0.625rem !important; }
+.mb-5    { margin-bottom: 1.25rem !important; }
+.mt-5    { margin-top: 1.25rem !important; }
+.mb-10   { margin-bottom: 2.5rem !important; }
+.mt-10   { margin-top: 2.5rem !important; }
+
+.ms-0 { margin-inline-start: 0 !important; }
+.ms-1 { margin-inline-start: 0.25rem !important; }
+.ms-2 { margin-inline-start: 0.5rem !important; }
+.ms-3 { margin-inline-start: 0.75rem !important; }
+.ms-4 { margin-inline-start: 1rem !important; }
+.ms-auto { margin-inline-start: auto !important; }
+.me-0 { margin-inline-end: 0 !important; }
+.me-1 { margin-inline-end: 0.25rem !important; }
+.me-2 { margin-inline-end: 0.5rem !important; }
+.me-3 { margin-inline-end: 0.75rem !important; }
+.me-4 { margin-inline-end: 1rem !important; }
+.me-auto { margin-inline-end: auto !important; }
+
+.pt-0 { padding-top: 0 !important; }
+.pt-1 { padding-top: 0.25rem !important; }
+.pt-2 { padding-top: 0.5rem !important; }
+.pt-3 { padding-top: 0.75rem !important; }
+.pt-4 { padding-top: 1rem !important; }
+.pt-5 { padding-top: 1.25rem !important; }
+.pt-6 { padding-top: 1.5rem !important; }
+.pt-8 { padding-top: 2rem !important; }
+.pt-10 { padding-top: 2.5rem !important; }
+.pb-0 { padding-bottom: 0 !important; }
+.pb-1 { padding-bottom: 0.25rem !important; }
+.pb-2 { padding-bottom: 0.5rem !important; }
+.pb-3 { padding-bottom: 0.75rem !important; }
+.pb-4 { padding-bottom: 1rem !important; }
+.pb-5 { padding-bottom: 1.25rem !important; }
+.pb-6 { padding-bottom: 1.5rem !important; }
+.pb-8 { padding-bottom: 2rem !important; }
+.pb-10 { padding-bottom: 2.5rem !important; }
+
+.ps-0 { padding-inline-start: 0 !important; }
+.ps-1 { padding-inline-start: 0.25rem !important; }
+.ps-2 { padding-inline-start: 0.5rem !important; }
+.ps-3 { padding-inline-start: 0.75rem !important; }
+.ps-4 { padding-inline-start: 1rem !important; }
+.ps-6 { padding-inline-start: 1.5rem !important; }
+.pe-0 { padding-inline-end: 0 !important; }
+.pe-1 { padding-inline-end: 0.25rem !important; }
+.pe-2 { padding-inline-end: 0.5rem !important; }
+.pe-3 { padding-inline-end: 0.75rem !important; }
+.pe-4 { padding-inline-end: 1rem !important; }
+.pe-6 { padding-inline-end: 1.5rem !important; }
+
+.p-2\.5  { padding: 0.625rem !important; }
+.p-3\.5  { padding: 0.875rem !important; }
+.p-4\.5  { padding: 1.125rem !important; }
+.py-0\.5 { padding-block: 0.125rem !important; }
+.py-1\.5 { padding-block: 0.375rem !important; }
+.py-2\.5 { padding-block: 0.625rem !important; }
+.py-3\.5 { padding-block: 0.875rem !important; }
+.px-1\.5 { padding-inline: 0.375rem !important; }
+.px-2\.5 { padding-inline: 0.625rem !important; }
+.px-3\.5 { padding-inline: 0.875rem !important; }
+
+/* ==========================================================================
+   4. GAP HALF STEPS
+   ========================================================================== */
+
+.gap-0\.5 { gap: 0.125rem !important; }
+.gap-1\.5 { gap: 0.375rem !important; }
+.gap-2\.5 { gap: 0.625rem !important; }
+.gap-3\.5 { gap: 0.875rem !important; }
+
+/* ==========================================================================
+   5. TYPE SCALE GAPS
+   ========================================================================== */
+
+.text-2xs   { font-size: 0.6875rem !important; line-height: 1.45; }
+.text-4xl   { font-size: 2rem !important; line-height: 1.15; }
+.text-5xl   { font-size: 2.5rem !important; line-height: 1.1; }
+
+.leading-none    { line-height: var(--leading-none) !important; }
+.leading-tight   { line-height: var(--leading-tight) !important; }
+.leading-snug    { line-height: var(--leading-snug) !important; }
+.leading-normal  { line-height: var(--leading-normal) !important; }
+.leading-relaxed { line-height: var(--leading-relaxed) !important; }
+
+.tracking-tight   { letter-spacing: -0.015em !important; }
+.tracking-wide    { letter-spacing: 0.015em !important; }
+.tracking-wider   { letter-spacing: 0.03em !important; }
+.tracking-widest  { letter-spacing: 0.06em !important; }
+
+/* ==========================================================================
+   6. PALETTE UTILITIES
+   The ramps exist as tokens; they were never exposed as classes, so 593 colour
+   attributes did nothing. Only the steps the templates actually ask for.
+   ========================================================================== */
+
+.text-slate-300 { color: var(--slate-300) !important; }
+.text-slate-400 { color: var(--slate-400) !important; }
+.text-slate-500 { color: var(--slate-500) !important; }
+.text-slate-600 { color: var(--slate-600) !important; }
+.text-slate-700 { color: var(--slate-700) !important; }
+.text-emerald, .text-emerald-500 { color: var(--emerald-500) !important; }
+.text-emerald-600 { color: var(--emerald-600) !important; }
+.text-emerald-800 { color: var(--emerald-600) !important; }
+.text-rose, .text-rose-500 { color: var(--rose-500) !important; }
+.text-rose-600 { color: var(--rose-600) !important; }
+.text-rose-700 { color: var(--rose-600) !important; }
+.text-amber, .text-amber-500 { color: var(--amber-500) !important; }
+.text-amber-600, .text-amber-800 { color: var(--amber-600) !important; }
+.text-sky, .text-sky-500 { color: var(--brand-500) !important; }
+.text-sky-600, .text-brand-600 { color: var(--brand-600) !important; }
+.text-brand-500 { color: var(--brand-500) !important; }
+
+.bg-slate-50  { background-color: var(--slate-50) !important; }
+.bg-slate-100 { background-color: var(--slate-100) !important; }
+.bg-slate-200 { background-color: var(--slate-200) !important; }
+.bg-brand-50  { background-color: var(--brand-50) !important; }
+.bg-emerald-50 { background-color: var(--emerald-50) !important; }
+.bg-rose-50   { background-color: var(--rose-50) !important; }
+.bg-amber-50  { background-color: var(--amber-50) !important; }
+
+.border-slate-100 { border-color: var(--slate-100) !important; }
+.border-slate-200 { border-color: var(--slate-200) !important; }
+.border-slate-300 { border-color: var(--slate-300) !important; }
+.border-brand-300 { border-color: var(--brand-300) !important; }
+.border-brand-500 { border-color: var(--brand-500) !important; }
+
+/* The templates also write opacity suffixes (border-slate-200/80). CSS has no
+   such syntax, so each is spelled out against the same ramp. */
+.border-slate-100\/80 { border-color: color-mix(in srgb, var(--slate-100) 80%, transparent) !important; }
+.border-slate-200\/70 { border-color: color-mix(in srgb, var(--slate-200) 70%, transparent) !important; }
+.border-slate-200\/80 { border-color: color-mix(in srgb, var(--slate-200) 80%, transparent) !important; }
+.bg-slate-50\/80      { background-color: color-mix(in srgb, var(--slate-50) 80%, transparent) !important; }
+.bg-slate-50\/50      { background-color: color-mix(in srgb, var(--slate-50) 50%, transparent) !important; }
+
+/* In dark mode a literal slate-50 ground is white. Map the light surfaces onto
+   the theme's own surfaces instead of inverting the ramp. */
+[data-theme="dark"] .bg-slate-50,
+[data-theme="dark"] .bg-slate-50\/80,
+[data-theme="dark"] .bg-slate-50\/50 { background-color: var(--bg-surface-sunken) !important; }
+[data-theme="dark"] .bg-slate-100    { background-color: var(--bg-surface-raised) !important; }
+[data-theme="dark"] .text-slate-600,
+[data-theme="dark"] .text-slate-700  { color: var(--text-secondary) !important; }
+[data-theme="dark"] .border-slate-100,
+[data-theme="dark"] .border-slate-200,
+[data-theme="dark"] .border-slate-100\/80,
+[data-theme="dark"] .border-slate-200\/70,
+[data-theme="dark"] .border-slate-200\/80 { border-color: var(--border-card) !important; }
+
+/* ==========================================================================
+   7. LAYOUT HELPERS
+   ========================================================================== */
+
+.position-relative { position: relative !important; }
+.position-absolute { position: absolute !important; }
+.position-fixed    { position: fixed !important; }
+.position-sticky   { position: sticky !important; }
+
+.overflow-hidden   { overflow: hidden !important; }
+.overflow-auto     { overflow: auto !important; }
+.overflow-y-auto   { overflow-y: auto !important; }
+.overflow-x-auto   { overflow-x: auto !important; }
+.overflow-y-hidden { overflow-y: hidden !important; }
+
+.cursor-pointer   { cursor: pointer !important; }
+.cursor-default   { cursor: default !important; }
+.cursor-not-allowed { cursor: not-allowed !important; }
+
+.rounded          { border-radius: var(--radius-md) !important; }
+.shadow-2xs       { box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04) !important; }
+
+.text-truncate {
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+}
+.text-decoration-none { text-decoration: none !important; }
+
+.z-0  { z-index: 0 !important; }
+.z-10 { z-index: 10 !important; }
+.z-20 { z-index: 20 !important; }
+.z-50 { z-index: 50 !important; }
+
+.top-0    { top: 0 !important; }
+.top-2    { top: 0.5rem !important; }
+.bottom-0 { bottom: 0 !important; }
+.bottom-2 { bottom: 0.5rem !important; }
+.start-0  { inset-inline-start: 0 !important; }
+.start-2  { inset-inline-start: 0.5rem !important; }
+.end-0    { inset-inline-end: 0 !important; }
+.end-2    { inset-inline-end: 0.5rem !important; }
+
+/* ==========================================================================
+   8. INTERACTION STATES
+   The colon in hover:bg-slate-50 is a class-name character here, not a
+   pseudo-class, so it has to be escaped in the selector.
+   ========================================================================== */
+
+.transition-colors {
+  transition: color var(--duration-fast, 150ms) var(--ease-smooth, ease),
+              background-color var(--duration-fast, 150ms) var(--ease-smooth, ease),
+              border-color var(--duration-fast, 150ms) var(--ease-smooth, ease);
+}
+
+.hover\:bg-slate-50\/50:hover  { background-color: color-mix(in srgb, var(--slate-50) 50%, transparent) !important; }
+.hover\:bg-slate-100:hover     { background-color: var(--slate-100) !important; }
+.hover\:bg-rose-50:hover       { background-color: var(--rose-50) !important; }
+.hover\:bg-brand-50\/20:hover  { background-color: color-mix(in srgb, var(--brand-50) 20%, transparent) !important; }
+.hover\:bg-surface-raised:hover { background-color: var(--bg-surface-raised) !important; }
+.hover\:text-rose-700:hover    { color: var(--rose-600) !important; }
+.hover\:text-slate-600:hover   { color: var(--slate-600) !important; }
+.hover\:text-emerald-800:hover { color: var(--emerald-600) !important; }
+.hover\:text-amber-800:hover   { color: var(--amber-600) !important; }
+.hover\:text-primary:hover,
+.hover\:text-brand:hover       { color: var(--brand-600) !important; }
+.hover\:border-brand-300:hover { border-color: var(--brand-300) !important; }
+.hover\:border-brand-500:hover { border-color: var(--brand-500) !important; }
+.hover\:shadow-md:hover        { box-shadow: var(--shadow-md) !important; }
+
+[data-theme="dark"] .hover\:bg-slate-50\/50:hover,
+[data-theme="dark"] .hover\:bg-slate-100:hover { background-color: var(--bg-surface-raised) !important; }
+
+@media (prefers-reduced-motion: reduce) {
+  .transition-colors { transition: none; }
+}
+
+/* ==========================================================================
+   9. COMPONENT CLASSES THE MARKUP EXPECTS
+
+   Each of these is written in the templates and was never declared. They are
+   grouped with the family they belong to and take their values from it, so a
+   stat card's label now matches its title rather than inventing a second look.
+   ========================================================================== */
+
+/* Stat cards. .stat-card-title and .stat-card-value existed; the label and the
+   sub-line beneath the value did not, so 129 of them rendered at body weight. */
+.stat-card-label {
+  font-size: var(--text-xs);
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  line-height: 1.4;
+}
+.stat-card-sub {
+  font-size: var(--text-xs);
+  font-weight: 600;
+  color: var(--text-muted);
+  line-height: 1.5;
+}
+
+/* Wide tables. Nine of these existed in the markup with no rule behind them,
+   so a table wider than its column pushed the whole page sideways instead of
+   scrolling inside its own container. */
+.table-responsive {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Pagination. The component emits four class names; the stylesheet had none. */
+.b2b-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  padding: 0.85rem 0;
+}
+.b2b-pagination-info {
+  font-size: var(--text-xs);
+  font-weight: 600;
+  color: var(--text-muted);
+  font-variant-numeric: tabular-nums;
+}
+.b2b-pagination-controls { display: flex; align-items: center; gap: 0.35rem; }
+.b2b-pagination-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 2rem;
+  height: 2rem;
+  padding: 0 0.6rem;
+  border: 1px solid var(--border-card);
+  border-radius: var(--radius-md);
+  background: var(--bg-surface-raised);
+  color: var(--text-secondary);
+  font-size: var(--text-xs);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  text-decoration: none;
+  cursor: pointer;
+}
+.b2b-pagination-btn:hover:not([disabled]):not(.is-active) {
+  border-color: var(--brand-400);
+  color: var(--brand-600);
+}
+.b2b-pagination-btn.is-active,
+.b2b-pagination-btn[aria-current="page"] {
+  background: var(--brand-600);
+  border-color: var(--brand-600);
+  color: #fff;
+}
+.b2b-pagination-btn[disabled],
+.b2b-pagination-btn.is-disabled { opacity: 0.45; pointer-events: none; }
+
+/* Filter tabs, used by the compare and catalogue screens. */
+.filter-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.35rem 0.75rem;
+  border-radius: var(--radius-full, 999px);
+  border: 1px solid var(--border-card);
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: var(--text-xs);
+  font-weight: 700;
+  cursor: pointer;
+}
+.filter-tab:hover { border-color: var(--brand-400); color: var(--brand-600); }
+.filter-tab.active {
+  background: var(--brand-600);
+  border-color: var(--brand-600);
+  color: #fff;
+}
+
+/* Status dot, used beside document and session states. */
+.status-dot {
+  display: inline-block;
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 999px;
+  background: var(--slate-400);
+  flex-shrink: 0;
+}
+.status-dot.is-active,
+.status-dot.is-success { background: var(--emerald-500); }
+.status-dot.is-warning { background: var(--amber-500); }
+.status-dot.is-danger  { background: var(--rose-500); }
+
+/* Maps. The picker markup asks for these two; without a height the container
+   collapsed and Leaflet initialised into a zero-height box. */
+.map-canvas,
+.map-container {
+  width: 100%;
+  min-height: 260px;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+
+/* A card that lifts on hover, used on the auth screens. */
+.hover-lift { transition: transform var(--duration-normal, 220ms) var(--ease-smooth, ease), box-shadow var(--duration-normal, 220ms) var(--ease-smooth, ease); }
+.hover-lift:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
+
+.header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+/* ==========================================================================
+   10. REMAINING UTILITY GAPS
+   ========================================================================== */
+
+.align-middle   { vertical-align: middle !important; }
+.shrink-0       { flex-shrink: 0 !important; }
+.grow           { flex-grow: 1 !important; }
+.transition-all { transition: all var(--duration-fast, 150ms) var(--ease-smooth, ease); }
+
+.p-12  { padding: 3rem !important; }
+.px-5  { padding-inline: 1.25rem !important; }
+.py-5  { padding-block: 1.25rem !important; }
+.h-9   { height: 2.25rem !important; }
+.w-9   { width: 2.25rem !important; }
+.h-8   { height: 2rem !important; }
+.w-8   { width: 2rem !important; }
+
+/* space-y-* puts the gap between children, not around them. */
+.space-y-2 > * + * { margin-top: 0.5rem !important; }
+.space-y-3 > * + * { margin-top: 0.75rem !important; }
+.space-y-4 > * + * { margin-top: 1rem !important; }
+.space-y-6 > * + * { margin-top: 1.5rem !important; }
+
+/* divide-y draws a rule between children, which is how the detail lists on the
+   admin user screen were meant to read. */
+.divide-y > * + * { border-top: 1px solid var(--border-card); }
+.divide-slate-100 > * + * { border-top-color: var(--border-subtle); }
+
+.border-brand-200\/60 { border-color: color-mix(in srgb, var(--brand-300) 60%, transparent) !important; }
+
+@media (prefers-reduced-motion: reduce) {
+  .transition-all, .hover-lift { transition: none; }
+  .hover-lift:hover { transform: none; }
+}
+
+/* One breakpoint prefix is used in the markup. The scale is defined here so
+   the next one has somewhere to go rather than becoming another literal. */
+@media (min-width: 768px) {
+  .md\:grid-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
+  .md\:grid-cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)) !important; }
+  .md\:flex-row    { flex-direction: row !important; }
+}
