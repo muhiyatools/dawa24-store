@@ -41,20 +41,19 @@ var secretSchemes = []string{
 }
 
 // knownDatabaseSecret is this process's own database password, registered at
-// boot so the shape checks below can be backed by one exact comparison.
+// boot so the settings screen can point out when the same string is also being
+// used as the Gateway credential.
 //
-// The shape checks alone are not enough, and that was demonstrated rather than
-// theorised: after "postgres:<password>" was rejected, the same password was
-// entered again on its own, with the username stripped. A bare password has no
-// shape that distinguishes it from any other password, so every heuristic here
-// waved it through and it went to the Gateway host as Basic auth.
-//
-// This is the one secret the process can recognise with certainty, so it is the
-// one it is told about.
+// It is advisory, not a veto. Reusing one password across the database and the
+// Gateway is a legitimate configuration — an operator who runs both and chose
+// the same secret is not making a mistake, and refusing their save would leave
+// AI unconfigurable with no way around it. What the platform owes them is to
+// say plainly that the value travels to an external host, and then to do as
+// they asked.
 var knownDatabaseSecret string
 
 // SetKnownDatabaseSecret registers the database password this process connects
-// with, so it can never be stored or sent as a Gateway credential.
+// with, so MatchesDatabaseSecret can recognise it.
 //
 // Called once from the composition root. An empty value disables the check,
 // which is what a deployment with no password in its DSN gets.
@@ -62,28 +61,30 @@ func SetKnownDatabaseSecret(secret string) {
 	knownDatabaseSecret = strings.TrimSpace(secret)
 }
 
+// MatchesDatabaseSecret reports whether a credential is this process's own
+// database password, in either the bare or the "user:password" form.
+//
+// Callers use it to warn. Nothing uses it to refuse.
+func MatchesDatabaseSecret(raw string) bool {
+	if knownDatabaseSecret == "" {
+		return false
+	}
+	value := strings.TrimSpace(raw)
+	if value == "" {
+		return false
+	}
+	_, pass, _ := strings.Cut(value, ":")
+	return value == knownDatabaseSecret || pass == knownDatabaseSecret
+}
+
 // ValidateAdminCredential rejects a value that is evidently not a Gateway
 // administrator credential.
 //
 // It errs towards accepting: a false rejection blocks an operator from
 // configuring AI at all, while the class of mistake it exists to catch has one
-// very recognisable shape. Anything it is unsure about is allowed through —
-// except the database password itself, which is matched exactly.
+// very recognisable shape. Anything it is unsure about is allowed through.
 func ValidateAdminCredential(raw string) error {
 	value := strings.TrimSpace(raw)
-
-	// Checked before anything else, and against the whole value as well as the
-	// password half, because the mistake arrives in both forms:
-	// "postgres:<password>" and a bare "<password>".
-	if knownDatabaseSecret != "" {
-		_, pass, _ := strings.Cut(value, ":")
-		if value == knownDatabaseSecret || pass == knownDatabaseSecret {
-			return apperr.Validation("gateway.credential_is_database_password",
-				"القيمة المُدخلة هي كلمة مرور قاعدة بيانات المنصة، وليست كلمة مرور مدير بوابة الذكاء الاصطناعي. "+
-					"هذه القيمة تُرسل إلى خادم البوابة الخارجي عند كل عملية. "+
-					"أدخل كلمة المرور المحددة في ADMIN_PASSWORD على خادم البوابة.", nil)
-		}
-	}
 	if value == "" {
 		return nil
 	}
@@ -122,5 +123,11 @@ func ValidateAdminCredential(raw string) error {
 // operator opening the screen needs to be told so even though they are not the
 // one who typed it.
 func (g *GatewaySettings) CredentialLooksMisconfigured() bool {
-	return g != nil && ValidateAdminCredential(g.APIKey) != nil
+	if g == nil {
+		return false
+	}
+	// Reuse of the database password is reported here and nowhere else: it is
+	// worth an operator's attention, but it is their configuration to make, so
+	// it warns and never blocks.
+	return ValidateAdminCredential(g.APIKey) != nil || MatchesDatabaseSecret(g.APIKey)
 }

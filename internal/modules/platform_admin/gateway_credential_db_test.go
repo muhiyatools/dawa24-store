@@ -2,28 +2,41 @@ package platformadmin
 
 import "testing"
 
-// The exact failure that reached production twice: the database password, first
-// with its username attached and then bare after the username was stripped.
-func TestValidateAdminCredentialRejectsDatabasePassword(t *testing.T) {
+// Reusing the database password as the Gateway credential is a legitimate
+// configuration. It is flagged for the operator, never refused: a veto here
+// would leave AI unconfigurable for a deployment that genuinely uses one
+// secret for both.
+func TestDatabasePasswordWarnsButDoesNotBlock(t *testing.T) {
 	SetKnownDatabaseSecret("s3cr3t-db-pass")
 	t.Cleanup(func() { SetKnownDatabaseSecret("") })
 
-	for _, value := range []string{"s3cr3t-db-pass", "postgres:s3cr3t-db-pass", "  s3cr3t-db-pass  "} {
-		if err := ValidateAdminCredential(value); err == nil {
-			t.Errorf("ValidateAdminCredential(%q) = nil, want rejection", value)
+	for _, value := range []string{"s3cr3t-db-pass", "admin:s3cr3t-db-pass", "  s3cr3t-db-pass  "} {
+		if err := ValidateAdminCredential(value); err != nil {
+			t.Errorf("ValidateAdminCredential(%q) = %v, want nil (must not block)", value, err)
+		}
+		if !MatchesDatabaseSecret(value) {
+			t.Errorf("MatchesDatabaseSecret(%q) = false, want true", value)
+		}
+		if gw := (&GatewaySettings{APIKey: value}); !gw.CredentialLooksMisconfigured() {
+			t.Errorf("CredentialLooksMisconfigured(%q) = false, want true", value)
 		}
 	}
 
-	if err := ValidateAdminCredential("a-real-gateway-password"); err != nil {
-		t.Errorf("ValidateAdminCredential(unrelated) = %v, want nil", err)
+	// A connection string is still refused outright — that one is never a
+	// credential, whatever the operator intended.
+	if err := ValidateAdminCredential("postgres://u:p@host:5432/db"); err == nil {
+		t.Error("ValidateAdminCredential(dsn) = nil, want rejection")
+	}
+
+	if MatchesDatabaseSecret("an-unrelated-password") {
+		t.Error("MatchesDatabaseSecret(unrelated) = true, want false")
 	}
 }
 
-// With no secret registered the check must not fire, or a deployment whose DSN
-// carries no password could never configure the Gateway at all.
-func TestValidateAdminCredentialWithoutKnownSecret(t *testing.T) {
+// With no secret registered nothing is flagged.
+func TestMatchesDatabaseSecretWithoutKnownSecret(t *testing.T) {
 	SetKnownDatabaseSecret("")
-	if err := ValidateAdminCredential("anything-at-all"); err != nil {
-		t.Errorf("ValidateAdminCredential = %v, want nil", err)
+	if MatchesDatabaseSecret("anything-at-all") {
+		t.Error("MatchesDatabaseSecret = true, want false")
 	}
 }
