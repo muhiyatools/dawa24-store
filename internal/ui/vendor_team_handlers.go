@@ -120,7 +120,7 @@ func (h *UIHandler) VendorTeamImportUploadSubmit(w http.ResponseWriter, r *http.
 	}
 	sampleRows = dataRows[:limit]
 
-	detectedCols := detectTeamColumns(headers, sampleRows)
+	detectedCols := DetectTeamColumns(headers, sampleRows)
 
 	// Fetch company roles
 	h.ensureCompanyRoles(ctx, actor.OrganizationID, actor.OrgType)
@@ -290,7 +290,7 @@ func (h *UIHandler) VendorTeamImportMapSubmit(w http.ResponseWriter, r *http.Req
 		}
 	}
 
-	parsedRows := parseAndValidateTeamRows(
+	parsedRows := ParseAndValidateTeamRows(
 		session.RawDataRows,
 		session.DetectedCols,
 		roleMap,

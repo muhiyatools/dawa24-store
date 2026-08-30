@@ -41,16 +41,13 @@ templ subscriptionGateContent(lang, dir string, props SubscriptionGateProps) {
 		
 		<!-- Hero Gating Banner -->
 		<div class="glass-panel text-center p-8 mb-8" style="background:linear-gradient(135deg, rgba(59, 130, 246, 0.08) 0%, rgba(99, 102, 241, 0.05) 100%); border:1px solid rgba(59, 130, 246, 0.25); border-radius:var(--radius-2xl);">
-			<div class="d-inline-flex items-center justify-center mb-4 text-4xl" style="width:72px; height:72px; background:rgba(59, 130, 246, 0.12); border:1px solid rgba(59, 130, 246, 0.3); border-radius:var(--radius-full);">
-				if props.FeatureIcon != "" {
-					<span>{ props.FeatureIcon }</span>
-				} else {
-					<span>🔒</span>
-				}
+			<div class="d-inline-flex items-center justify-center mb-4 text-brand" style="width:72px; height:72px; background:rgba(59, 130, 246, 0.12); border:1px solid rgba(59, 130, 246, 0.3); border-radius:var(--radius-full);">
+				@components.IconShield("icon-md")
 			</div>
 			
-			<div class="d-inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold mb-3" style="background:rgba(239, 68, 68, 0.1); color:#ef4444; border:1px solid rgba(239, 68, 68, 0.25);">
-				<span>🔒 ميزة حصرية تتطلب ترقية الباقة</span>
+			<div class="d-inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold mb-3 bg-rose-50 text-rose-700 border border-rose-200">
+				@components.IconShield("icon-2xs")
+				<span>ميزة حصرية تتطلب ترقية الباقة</span>
 			</div>
 
 			<h1 class="text-2xl md:text-3xl font-black text-primary mb-3">
@@ -62,7 +59,7 @@ templ subscriptionGateContent(lang, dir string, props SubscriptionGateProps) {
 			</p>
 
 			<div class="d-flex items-center justify-center gap-3 flex-wrap">
-				<a href="/customer/subscription" class="btn btn-primary font-bold text-sm px-6 py-2.5 shadow-lg">
+				<a href="/customer/subscription" class="btn btn-primary font-bold text-sm px-6 py-2.5 shadow-lg gap-1.5">
 					@components.IconSparkles("icon-xs")
 					<span>عرض تفاصيل الاشتراك الحالي والترقية</span>
 				</a>
@@ -84,13 +81,14 @@ templ subscriptionGateContent(lang, dir string, props SubscriptionGateProps) {
 					</p>
 				</div>
 
-				<div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+				<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem;">
 					for _, p := range props.Plans {
-						<div class={ "glass-panel p-6 d-flex flex-col justify-between hover-lift", templ.KV("border-primary", p.HasFeature(props.FeatureKey)) } style="border-radius:var(--radius-xl); position:relative;">
+						<div class={ "glass-panel p-6 d-flex flex-col justify-between hover-lift rounded-2xl", templ.KV("border-2 border-brand-500", p.HasFeature(props.FeatureKey)) } style="position:relative;">
 							
 							if p.Slug == "pro" {
-								<div class="badge badge-primary font-bold text-xs" style="position:absolute; top:-10px; left:50%; transform:translateX(-50%);">
-									★ الخيار الأكثر شيوعاً
+								<div class="badge badge-primary font-extrabold text-2xs d-inline-flex items-center gap-1 shadow-2xs" style="position:absolute; top:-10px; left:50%; transform:translateX(-50%);">
+									@components.IconSparkles("icon-2xs")
+									<span>الخيار الأكثر شيوعاً</span>
 								</div>
 							}
 
@@ -102,12 +100,12 @@ templ subscriptionGateContent(lang, dir string, props SubscriptionGateProps) {
 									<span class="text-xs text-muted font-mono" dir="ltr"><code>{ p.Slug }</code></span>
 								</div>
 
-								<p class="text-xs text-secondary mb-4" style="min-height:36px; line-height:1.4;">
+								<p class="text-xs text-secondary mb-4 font-medium" style="min-height:36px; line-height:1.4;">
 									{ p.Description.Get(i18n.Lang(lang)) }
 								</p>
 
 								<!-- Price display -->
-								<div class="p-4 rounded-xl mb-4" style="background:var(--surface-sunken); border:1px solid var(--border);">
+								<div class="p-4 rounded-xl mb-4 bg-surface-sunken border border-slate-200/80">
 									<div class="text-xs text-secondary font-bold mb-1">قيمة الاشتراك</div>
 									<div class="text-2xl font-black text-primary tabular-nums">
 										{ fmt.Sprintf("%s ج.م", p.PriceMonth.String()) }
@@ -119,30 +117,30 @@ templ subscriptionGateContent(lang, dir string, props SubscriptionGateProps) {
 								</div>
 
 								<!-- Features Checklist -->
-								<div class="space-y-2 mb-6 text-xs text-secondary">
+								<div class="space-y-2 mb-6 text-xs text-secondary font-medium">
 									<div class="d-flex items-center gap-2">
-										<span class="text-emerald">✓</span>
+										@components.IconCheck("icon-2xs text-emerald-600 shrink-0")
 										<span>الجلسات المتزامنة: <strong>{ fmt.Sprintf("%d جلسات", p.MaxLoginSessions) }</strong></span>
 									</div>
 									<div class="d-flex items-center gap-2">
-										<span class="text-emerald">✓</span>
+										@components.IconCheck("icon-2xs text-emerald-600 shrink-0")
 										<span>الأجهزة المسجلة: <strong>{ fmt.Sprintf("%d أجهزة", p.MaxDevices) }</strong></span>
 									</div>
 									<div class="d-flex items-center gap-2">
 										if p.HasFeature("feature_market_discounts") {
-											<span class="text-emerald">✓</span>
-											<strong class="text-emerald">خصومات السوق العامة</strong>
+											@components.IconCheck("icon-2xs text-emerald-600 shrink-0")
+											<strong class="text-emerald-700 font-bold">خصومات السوق العامة</strong>
 										} else {
-											<span class="text-muted">✕</span>
+											@components.IconClose("icon-2xs text-slate-400 shrink-0")
 											<span class="text-muted">خصومات السوق العامة</span>
 										}
 									</div>
 									<div class="d-flex items-center gap-2">
 										if p.HasFeature("feature_compare_tool") || p.HasFeature("compare") {
-											<span class="text-emerald">✓</span>
-											<strong class="text-indigo">أداة مقارنة الخصومات الخاصة</strong>
+											@components.IconCheck("icon-2xs text-emerald-600 shrink-0")
+											<strong class="text-brand font-bold">أداة مقارنة الخصومات الخاصة</strong>
 										} else {
-											<span class="text-muted">✕</span>
+											@components.IconClose("icon-2xs text-slate-400 shrink-0")
 											<span class="text-muted">أداة مقارنة الخصومات الخاصة</span>
 										}
 									</div>
@@ -150,9 +148,9 @@ templ subscriptionGateContent(lang, dir string, props SubscriptionGateProps) {
 							</div>
 
 							<div>
-								<a href={ templ.SafeURL(fmt.Sprintf("/customer/subscription?upgrade=%s", p.Slug)) } class="btn btn-primary w-full text-center font-bold text-xs py-2.5">
+								<a href={ templ.SafeURL(fmt.Sprintf("/customer/subscription?upgrade=%s", p.Slug)) } class="btn btn-primary w-full text-center font-bold text-xs py-2.5 gap-1.5 shadow-xs">
 									<span>الترقية إلى هذه الباقة</span>
-									<span>←</span>
+									@components.IconArrowLeft("icon-2xs")
 								</a>
 							</div>
 						</div>

@@ -115,7 +115,7 @@ func RequireTenantPagePermission(permissionKeys ...string) func(http.Handler) ht
 				notFound(w, r)
 				return
 			}
-			if actor.OrganizationID <= 0 {
+			if actor.OrganizationID <= 0 && actor.OrgID <= 0 {
 				notFound(w, r)
 				return
 			}

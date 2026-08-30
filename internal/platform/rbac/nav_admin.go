@@ -149,9 +149,6 @@ func adminNav() []NavSection {
 				{Key: "jobs", Href: "/admin/jobs", Icon: "briefcase",
 					NameAr: "وظائف وشواغر القطاع", NameEn: "Job listings",
 					Perm: "hr.job.view"},
-				{Key: "requests", Href: "/admin/requests", Icon: "inbox",
-					NameAr: "الطلبات والبلاغات", NameEn: "Requests & issues",
-					Perm: "workflow.request.view", Also: []string{"workflow.issue.view"}},
 			},
 		},
 		{

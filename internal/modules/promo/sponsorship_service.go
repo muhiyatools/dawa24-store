@@ -46,30 +46,31 @@ func (s *Service) PurchaseSponsorshipPackage(ctx context.Context, packageID int6
 	}
 
 	// Charge wallet if the package has a price and a debiter is wired.
-	var paymentID *int64
+	var sourceID *int64
 	if s.walletDebit != nil && cost.IsPositive() {
 		desc := "شراء باقة رعاية: " + pkg.Name.Get("ar")
-		pid, err := s.walletDebit(ctx, orgID, cost, desc)
+		txID, err := s.walletDebit(ctx, orgID, cost, desc)
 		if err != nil {
 			return nil, err
 		}
-		paymentID = pid
+		sourceID = txID
 	}
 
 	now := time.Now().UTC()
 	purchase := &SponsorshipPurchase{
 		OrganizationID: orgID,
-		PackageID:       packageID,
-		CreditsTotal:    pkg.Credits,
-		CreditsUsed:     0,
-		StartsAt:        now,
-		ExpiresAt:       now.Add(time.Duration(durationDays) * 24 * time.Hour),
-		Status:          PurchaseActive,
-		AutoRenew:       autoRenew,
-		BillingCycle:    billingCycle,
-		Amount:          cost,
-		PaymentID:       paymentID,
-		SourceSystem:     "wallet_checkout",
+		PackageID:      packageID,
+		CreditsTotal:   pkg.Credits,
+		CreditsUsed:    0,
+		StartsAt:       now,
+		ExpiresAt:      now.Add(time.Duration(durationDays) * 24 * time.Hour),
+		Status:         PurchaseActive,
+		AutoRenew:      autoRenew,
+		BillingCycle:   billingCycle,
+		Amount:         cost,
+		PaymentID:      nil,
+		SourceSystem:   "wallet_checkout",
+		SourceID:       sourceID,
 	}
 
 	if err := s.repo.CreateSponsorshipPurchase(ctx, purchase); err != nil {

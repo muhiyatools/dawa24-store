@@ -39,15 +39,15 @@ type AdminOffersPackagesData struct {
 func getTierName(tier int) string {
 	switch tier {
 	case 5:
-		return "💎 ماسي (Diamond)"
+		return "ماسي (Diamond)"
 	case 4:
-		return "👑 بلاتيني (Platinum)"
+		return "بلاتيني (Platinum)"
 	case 3:
-		return "🥇 ذهبي (Gold)"
+		return "ذهبي (Gold)"
 	case 2:
-		return "🥈 فضي (Silver)"
+		return "فضي (Silver)"
 	default:
-		return "🥉 عادي (Standard)"
+		return "عادي (Standard)"
 	}
 }
 
@@ -159,10 +159,10 @@ templ AdminOffersPackagesHubPage(lang, dir string, data AdminOffersPackagesData)
 				</div>
 			</div>
 
-			<!-- Metrics Cards -->
-			<div class="d-grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+			<!-- Metrics Cards Grid -->
+			<div class="dashboard-stat-grid cols-4 mb-6">
 				<!-- Total Packages -->
-				<div class="glass-panel p-4 border border-slate-200/80 rounded-xl shadow-2xs d-flex items-center gap-3.5">
+				<div class="stat-card-3d p-4 d-flex items-center gap-3.5">
 					<div class="w-11 h-11 rounded-xl bg-sky-50 text-sky-600 d-flex items-center justify-center border border-sky-200/60 shrink-0">
 						@components.IconBoxes("icon-sm")
 					</div>
@@ -176,7 +176,7 @@ templ AdminOffersPackagesHubPage(lang, dir string, data AdminOffersPackagesData)
 				</div>
 
 				<!-- Pending Requests -->
-				<div class="glass-panel p-4 border border-slate-200/80 rounded-xl shadow-2xs d-flex items-center gap-3.5">
+				<div class="stat-card-3d p-4 d-flex items-center gap-3.5">
 					<div class="w-11 h-11 rounded-xl bg-amber-50 text-amber-600 d-flex items-center justify-center border border-amber-200/60 shrink-0">
 						@components.IconShield("icon-sm")
 					</div>
@@ -194,7 +194,7 @@ templ AdminOffersPackagesHubPage(lang, dir string, data AdminOffersPackagesData)
 				</div>
 
 				<!-- Pending Ads -->
-				<div class="glass-panel p-4 border border-slate-200/80 rounded-xl shadow-2xs d-flex items-center gap-3.5">
+				<div class="stat-card-3d p-4 d-flex items-center gap-3.5">
 					<div class="w-11 h-11 rounded-xl bg-emerald-50 text-emerald-600 d-flex items-center justify-center border border-emerald-200/60 shrink-0">
 						@components.IconMegaphone("icon-sm")
 					</div>
@@ -212,7 +212,7 @@ templ AdminOffersPackagesHubPage(lang, dir string, data AdminOffersPackagesData)
 				</div>
 
 				<!-- Tier Ranking System -->
-				<div class="glass-panel p-4 border border-slate-200/80 rounded-xl shadow-2xs d-flex items-center gap-3.5">
+				<div class="stat-card-3d p-4 d-flex items-center gap-3.5">
 					<div class="w-11 h-11 rounded-xl bg-purple-50 text-purple-600 d-flex items-center justify-center border border-purple-200/60 shrink-0">
 						@components.IconSparkles("icon-sm")
 					</div>
@@ -348,7 +348,10 @@ templ AdminOffersPackagesHubPage(lang, dir string, data AdminOffersPackagesData)
 															<div class="d-flex items-center gap-2">
 																<span class="font-black text-primary text-sm">{ pkg.Name.Get(i18n.ParseLang(lang)) }</span>
 																if pkg.IsFeatured {
-																	<span class="badge badge-amber text-2xs font-extrabold shadow-2xs">⭐ مميزة</span>
+																	<span class="badge badge-amber text-2xs font-extrabold shadow-2xs d-inline-flex items-center gap-1">
+																		@components.IconSparkles("icon-2xs")
+																		<span>مميزة</span>
+																	</span>
 																}
 															</div>
 															if pkg.Description.Get(i18n.ParseLang(lang)) != "" {
@@ -725,15 +728,15 @@ templ AdminOffersPackagesHubPage(lang, dir string, data AdminOffersPackagesData)
 			<!-- ========================================== -->
 			<div
 				x-show="showAddModal"
-				class="fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-xs d-flex items-center justify-center p-4"
-				style="display: none;"
+				x-cloak
+				class="modal-overlay"
 				@keydown.escape.window="showAddModal = false"
 			>
 				<div
-					class="glass-panel w-full max-w-2xl bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden"
+					class="modal-box modal-lg"
 					@click.outside="showAddModal = false"
 				>
-					<div class="flex-between items-center p-5 border-b border-slate-100 bg-slate-50/50">
+					<div class="modal-header">
 						<div class="d-flex items-center gap-2.5">
 							<div class="w-9 h-9 rounded-xl bg-brand-50 text-brand-600 d-flex items-center justify-center shadow-2xs">
 								@components.IconPlus("icon-xs")
@@ -749,7 +752,7 @@ templ AdminOffersPackagesHubPage(lang, dir string, data AdminOffersPackagesData)
 					</div>
 
 					<form method="POST" action="/admin/offers-packages/new" class="p-6 space-y-4 m-0">
-						<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+						<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem;">
 							<!-- Name AR -->
 							<div>
 								<label class="form-label text-xs font-bold text-primary block mb-1">اسم الباقة (عربي) <span class="text-rose-500">*</span></label>
@@ -763,7 +766,7 @@ templ AdminOffersPackagesHubPage(lang, dir string, data AdminOffersPackagesData)
 							</div>
 						</div>
 
-						<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+						<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem;">
 							<!-- Desc AR -->
 							<div>
 								<label class="form-label text-xs font-bold text-primary block mb-1">الوصف والمميزات (عربي)</label>
@@ -777,7 +780,7 @@ templ AdminOffersPackagesHubPage(lang, dir string, data AdminOffersPackagesData)
 							</div>
 						</div>
 
-						<div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+						<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 1rem;">
 							<!-- Price -->
 							<div>
 								<label class="form-label text-xs font-bold text-primary block mb-1">السعر (ج.م) <span class="text-rose-500">*</span></label>
@@ -797,16 +800,16 @@ templ AdminOffersPackagesHubPage(lang, dir string, data AdminOffersPackagesData)
 							</div>
 						</div>
 
-						<div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+						<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 1rem;">
 							<!-- Tier Level -->
 							<div>
 								<label class="form-label text-xs font-bold text-primary block mb-1">مستوى الأولوية والترتيب <span class="text-rose-500">*</span></label>
 								<select name="tier_level" required class="form-select text-xs w-full font-bold">
-									<option value="1">🥉 مستوى 1 - عادي (Standard)</option>
-									<option value="2">🥈 مستوى 2 - فضي (Silver)</option>
-									<option value="3" selected>🥇 مستوى 3 - ذهبي (Gold)</option>
-									<option value="4">👑 مستوى 4 - بلاتيني (Platinum)</option>
-									<option value="5">💎 مستوى 5 - ماسي (Diamond)</option>
+									<option value="1">مستوى 1 - عادي (Standard)</option>
+									<option value="2">مستوى 2 - فضي (Silver)</option>
+									<option value="3" selected>مستوى 3 - ذهبي (Gold)</option>
+									<option value="4">مستوى 4 - بلاتيني (Platinum)</option>
+									<option value="5">مستوى 5 - ماسي (Diamond)</option>
 								</select>
 							</div>
 
@@ -826,7 +829,7 @@ templ AdminOffersPackagesHubPage(lang, dir string, data AdminOffersPackagesData)
 							</div>
 						</div>
 
-						<div class="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2 border-t border-slate-100">
+						<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;" class="pt-2 border-t border-slate-100">
 							<!-- Sort Order -->
 							<div>
 								<label class="form-label text-xs font-bold text-primary block mb-1">ترتيب الظهور في القائمة</label>
@@ -837,7 +840,7 @@ templ AdminOffersPackagesHubPage(lang, dir string, data AdminOffersPackagesData)
 							<div class="d-flex items-center gap-6 pt-5">
 								<label class="d-flex items-center gap-2 cursor-pointer select-none">
 									<input type="checkbox" name="is_featured" value="true" class="form-checkbox text-brand rounded"/>
-									<span class="text-xs font-bold text-primary">⭐ باقة مميزة</span>
+									<span class="text-xs font-bold text-primary">باقة مميزة</span>
 								</label>
 
 								<label class="d-flex items-center gap-2 cursor-pointer select-none">
@@ -864,15 +867,15 @@ templ AdminOffersPackagesHubPage(lang, dir string, data AdminOffersPackagesData)
 			<!-- ========================================== -->
 			<div
 				x-show="showEditModal"
-				class="fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-xs d-flex items-center justify-center p-4"
-				style="display: none;"
+				x-cloak
+				class="modal-overlay"
 				@keydown.escape.window="showEditModal = false"
 			>
 				<div
-					class="glass-panel w-full max-w-2xl bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden"
+					class="modal-box modal-lg"
 					@click.outside="showEditModal = false"
 				>
-					<div class="flex-between items-center p-5 border-b border-slate-100 bg-slate-50/50">
+					<div class="modal-header">
 						<div class="d-flex items-center gap-2.5">
 							<div class="w-9 h-9 rounded-xl bg-sky-50 text-sky-600 d-flex items-center justify-center shadow-2xs">
 								@components.IconEdit("icon-xs")
@@ -891,7 +894,7 @@ templ AdminOffersPackagesHubPage(lang, dir string, data AdminOffersPackagesData)
 					</div>
 
 					<form method="POST" :action="'/admin/offers-packages/' + editPkg.id + '/edit'" class="p-6 space-y-4 m-0">
-						<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+						<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem;">
 							<!-- Name AR -->
 							<div>
 								<label class="form-label text-xs font-bold text-primary block mb-1">اسم الباقة (عربي) <span class="text-rose-500">*</span></label>
@@ -905,7 +908,7 @@ templ AdminOffersPackagesHubPage(lang, dir string, data AdminOffersPackagesData)
 							</div>
 						</div>
 
-						<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+						<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem;">
 							<!-- Desc AR -->
 							<div>
 								<label class="form-label text-xs font-bold text-primary block mb-1">الوصف والمميزات (عربي)</label>
@@ -919,7 +922,7 @@ templ AdminOffersPackagesHubPage(lang, dir string, data AdminOffersPackagesData)
 							</div>
 						</div>
 
-						<div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+						<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 1rem;">
 							<!-- Price -->
 							<div>
 								<label class="form-label text-xs font-bold text-primary block mb-1">السعر (ج.م) <span class="text-rose-500">*</span></label>
@@ -939,16 +942,16 @@ templ AdminOffersPackagesHubPage(lang, dir string, data AdminOffersPackagesData)
 							</div>
 						</div>
 
-						<div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+						<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 1rem;">
 							<!-- Tier Level -->
 							<div>
 								<label class="form-label text-xs font-bold text-primary block mb-1">مستوى الأولوية والترتيب <span class="text-rose-500">*</span></label>
 								<select name="tier_level" x-model="editPkg.tier_level" required class="form-select text-xs w-full font-bold">
-									<option value="1">🥉 مستوى 1 - عادي (Standard)</option>
-									<option value="2">🥈 مستوى 2 - فضي (Silver)</option>
-									<option value="3">🥇 مستوى 3 - ذهبي (Gold)</option>
-									<option value="4">👑 مستوى 4 - بلاتيني (Platinum)</option>
-									<option value="5">💎 مستوى 5 - ماسي (Diamond)</option>
+									<option value="1">مستوى 1 - عادي (Standard)</option>
+									<option value="2">مستوى 2 - فضي (Silver)</option>
+									<option value="3">مستوى 3 - ذهبي (Gold)</option>
+									<option value="4">مستوى 4 - بلاتيني (Platinum)</option>
+									<option value="5">مستوى 5 - ماسي (Diamond)</option>
 								</select>
 							</div>
 
@@ -968,7 +971,7 @@ templ AdminOffersPackagesHubPage(lang, dir string, data AdminOffersPackagesData)
 							</div>
 						</div>
 
-						<div class="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2 border-t border-slate-100">
+						<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;" class="pt-2 border-t border-slate-100">
 							<!-- Sort Order -->
 							<div>
 								<label class="form-label text-xs font-bold text-primary block mb-1">ترتيب الظهور في القائمة</label>
@@ -979,7 +982,7 @@ templ AdminOffersPackagesHubPage(lang, dir string, data AdminOffersPackagesData)
 							<div class="d-flex items-center gap-6 pt-5">
 								<label class="d-flex items-center gap-2 cursor-pointer select-none">
 									<input type="checkbox" name="is_featured" x-model="editPkg.is_featured" value="true" class="form-checkbox text-brand rounded"/>
-									<span class="text-xs font-bold text-primary">⭐ باقة مميزة</span>
+									<span class="text-xs font-bold text-primary">باقة مميزة</span>
 								</label>
 
 								<label class="d-flex items-center gap-2 cursor-pointer select-none">
@@ -1006,15 +1009,15 @@ templ AdminOffersPackagesHubPage(lang, dir string, data AdminOffersPackagesData)
 			<!-- ========================================== -->
 			<div
 				x-show="showRejectModal"
-				class="fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-xs d-flex items-center justify-center p-4"
-				style="display: none;"
+				x-cloak
+				class="modal-overlay"
 				@keydown.escape.window="showRejectModal = false"
 			>
 				<div
-					class="glass-panel w-full max-w-md bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden"
+					class="modal-box modal-md"
 					@click.outside="showRejectModal = false"
 				>
-					<div class="p-5 border-b border-slate-100 bg-rose-50/50 flex-between items-center">
+					<div class="modal-header bg-rose-50/50">
 						<div class="d-flex items-center gap-2 text-rose-700 font-black text-sm">
 							@components.IconAlertCircle("icon-xs")
 							<span>تأكيد رفض طلب الرعاية</span>
@@ -1023,7 +1026,7 @@ templ AdminOffersPackagesHubPage(lang, dir string, data AdminOffersPackagesData)
 							@components.IconClose("icon-2xs")
 						</button>
 					</div>
-					<form method="POST" :action="rejectActionUrl" class="p-5 m-0 space-y-4">
+					<form method="POST" :action="rejectActionUrl" class="p-6 m-0 space-y-4">
 						<p class="text-xs text-secondary leading-relaxed m-0">
 							سيتم رفض طلب الرعاية وإرجاع الرصيد المستهلك إلى محفظة / رصيد المورد تلقائياً.
 						</p>
@@ -1031,9 +1034,9 @@ templ AdminOffersPackagesHubPage(lang, dir string, data AdminOffersPackagesData)
 							<label class="form-label text-xs font-bold text-primary block mb-1">سبب الرفض (اختياري)</label>
 							<textarea name="notes" x-model="rejectNotes" rows="2" placeholder="اكتب سبب الرفض لتوضيحه للمورد..." class="form-input text-xs w-full"></textarea>
 						</div>
-						<div class="flex-between items-center pt-2">
-							<button type="button" class="btn btn-secondary btn-xs font-bold" @click="showRejectModal = false">إلغاء</button>
-							<button type="submit" class="btn btn-danger btn-xs font-extrabold gap-1 shadow-2xs">
+						<div class="flex-between items-center pt-3 border-t border-slate-100">
+							<button type="button" class="btn btn-secondary btn-sm font-bold" @click="showRejectModal = false">إلغاء</button>
+							<button type="submit" class="btn btn-danger btn-sm font-extrabold gap-1 shadow-xs">
 								@components.IconClose("icon-2xs")
 								<span>تأكيد الرفض وإرجاع الرصيد</span>
 							</button>

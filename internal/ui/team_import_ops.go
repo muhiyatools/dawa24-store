@@ -13,15 +13,15 @@ import (
 )
 
 // Global in-memory session store for team imports.
-var globalTeamImportSessionStore = newTeamImportSessionStore()
+var globalTeamImportSessionStore = NewTeamImportSessionStore()
 
-type teamImportSessionStore struct {
+type TeamImportSessionStore struct {
 	mu       sync.RWMutex
 	sessions map[string]*TeamImportSession
 }
 
-func newTeamImportSessionStore() *teamImportSessionStore {
-	store := &teamImportSessionStore{
+func NewTeamImportSessionStore() *TeamImportSessionStore {
+	store := &TeamImportSessionStore{
 		sessions: make(map[string]*TeamImportSession),
 	}
 	// Periodic cleanup of sessions older than 4 hours.
@@ -34,7 +34,7 @@ func newTeamImportSessionStore() *teamImportSessionStore {
 	return store
 }
 
-func (s *teamImportSessionStore) cleanup(maxAge time.Duration) {
+func (s *TeamImportSessionStore) cleanup(maxAge time.Duration) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	cutoff := time.Now().Add(-maxAge)
@@ -45,7 +45,7 @@ func (s *teamImportSessionStore) cleanup(maxAge time.Duration) {
 	}
 }
 
-func (s *teamImportSessionStore) NewSession(orgID, userID int64, orgType, filename string, totalRows int) *TeamImportSession {
+func (s *TeamImportSessionStore) NewSession(orgID, userID int64, orgType, filename string, totalRows int) *TeamImportSession {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
@@ -69,7 +69,7 @@ func (s *teamImportSessionStore) NewSession(orgID, userID int64, orgType, filena
 	return sess
 }
 
-func (s *teamImportSessionStore) GetSession(sessionID string, orgID int64) (*TeamImportSession, bool) {
+func (s *TeamImportSessionStore) GetSession(sessionID string, orgID int64) (*TeamImportSession, bool) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
 	sess, ok := s.sessions[sessionID]
@@ -79,7 +79,7 @@ func (s *teamImportSessionStore) GetSession(sessionID string, orgID int64) (*Tea
 	return sess, true
 }
 
-func (s *teamImportSessionStore) ListSessions(orgID int64) []*TeamImportSession {
+func (s *TeamImportSessionStore) ListSessions(orgID int64) []*TeamImportSession {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
 	var list []*TeamImportSession
@@ -91,7 +91,7 @@ func (s *teamImportSessionStore) ListSessions(orgID int64) []*TeamImportSession 
 	return list
 }
 
-func (s *teamImportSessionStore) DeleteSession(sessionID string, orgID int64) {
+func (s *TeamImportSessionStore) DeleteSession(sessionID string, orgID int64) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	if sess, ok := s.sessions[sessionID]; ok && sess.OrganizationID == orgID {
@@ -118,8 +118,8 @@ func normalizeArabicText(s string) string {
 	return strings.Join(strings.Fields(sb.String()), " ")
 }
 
-// detectTeamColumns analyzes headers and sample rows to auto-detect employee columns.
-func detectTeamColumns(headers []string, sampleRows [][]string) TeamDetectedCols {
+// DetectTeamColumns analyzes headers and sample rows to auto-detect employee columns.
+func DetectTeamColumns(headers []string, sampleRows [][]string) TeamDetectedCols {
 	cols := TeamDetectedCols{
 		NameCol:      -1,
 		EmailCol:     -1,
@@ -226,7 +226,7 @@ func extractUniqueExcelRoles(rawRows [][]string, roleCol int, companyRoles []Tea
 
 	var results []*ExcelRoleInfo
 	for rawRole, count := range roleCounts {
-		matchedID, matchedKey, matchedName, isAuto := matchRoleByName(rawRole, companyRoles)
+		matchedID, matchedKey, matchedName, isAuto := MatchRoleByName(rawRole, companyRoles)
 		results = append(results, &ExcelRoleInfo{
 			RawName:        rawRole,
 			RowCount:       count,
@@ -239,8 +239,8 @@ func extractUniqueExcelRoles(rawRows [][]string, roleCol int, companyRoles []Tea
 	return results
 }
 
-// matchRoleByName finds the most appropriate platform role for a raw Excel role name.
-func matchRoleByName(rawRole string, companyRoles []TeamRoleOption) (int64, string, string, bool) {
+// MatchRoleByName finds the most appropriate platform role for a raw Excel role name.
+func MatchRoleByName(rawRole string, companyRoles []TeamRoleOption) (int64, string, string, bool) {
 	normRaw := normalizeArabicText(rawRole)
 
 	// 1. Exact match on role name
@@ -308,8 +308,8 @@ func matchRoleByName(rawRole string, companyRoles []TeamRoleOption) (int64, stri
 	return 0, "org_employee", "موظف (افتراضي)", false
 }
 
-// parseAndValidateTeamRows builds TeamImportRow items from raw rows and mappings.
-func parseAndValidateTeamRows(
+// ParseAndValidateTeamRows builds TeamImportRow items from raw rows and mappings.
+func ParseAndValidateTeamRows(
 	rawRows [][]string,
 	cols TeamDetectedCols,
 	roleMap map[string]int64, // rawRole -> roleID
@@ -522,3 +522,23 @@ func GenerateTeamSampleExcel(orgType string) ([]byte, error) {
 	}
 	return buf.Bytes(), nil
 }
+
+func detectTeamColumns(headers []string, sampleRows [][]string) TeamDetectedCols {
+	return DetectTeamColumns(headers, sampleRows)
+}
+
+func matchRoleByName(rawRole string, companyRoles []TeamRoleOption) (int64, string, string, bool) {
+	return MatchRoleByName(rawRole, companyRoles)
+}
+
+func parseAndValidateTeamRows(
+	rawRows [][]string,
+	cols TeamDetectedCols,
+	roleMap map[string]int64,
+	defaultRoleID int64,
+	companyRoles []TeamRoleOption,
+	branches []TeamBranchOption,
+) []*TeamImportRow {
+	return ParseAndValidateTeamRows(rawRows, cols, roleMap, defaultRoleID, companyRoles, branches)
+}
+

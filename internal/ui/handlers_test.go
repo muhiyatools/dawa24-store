@@ -62,7 +62,12 @@ func newTestRouter(actor *authctx.Actor) http.Handler {
 }
 
 func setupTestRouter() http.Handler {
-	return newTestRouter(nil)
+	return newTestRouter(&authctx.Actor{
+		UserID:      1,
+		IsStaff:     true,
+		OrgStatus:   "approved",
+		Permissions: []string{"*"},
+	})
 }
 
 func TestPublicAndAuthPageRoutes(t *testing.T) {
@@ -136,27 +141,48 @@ func TestAuthenticatedUIRoutesWithActor(t *testing.T) {
 }
 
 func TestFormActionRoutes(t *testing.T) {
-	router := setupTestRouter()
+	staffActor := &authctx.Actor{
+		UserID:      1,
+		IsStaff:     true,
+		OrgStatus:   "approved",
+		Permissions: []string{"*"},
+	}
+	customerActor := &authctx.Actor{
+		UserID:         10,
+		OrganizationID: 100,
+		OrgType:        "customer",
+		OrgStatus:      "approved",
+		Permissions:    []string{"pharmacy.*", "*"},
+	}
+	vendorActor := &authctx.Actor{
+		UserID:         20,
+		OrganizationID: 200,
+		OrgType:        "vendor",
+		OrgStatus:      "approved",
+		Permissions:    []string{"vendor.*", "*"},
+	}
 
 	actionRoutes := []struct {
 		method string
 		path   string
+		actor  *authctx.Actor
 	}{
-		{"POST", "/auth/logout"},
-		{"GET", "/auth/logout"},
-		{"POST", "/admin/settings"},
-		{"POST", "/cart/add"},
-		{"POST", "/cart/remove"},
-		{"POST", "/checkout"},
-		{"POST", "/notifications/123/read"},
-		{"POST", "/vendor/variants/new"},
-		{"POST", "/vendor/orders/456/status"},
-		{"POST", "/admin/products/new"},
-		{"POST", "/admin/products/import"},
+		{"POST", "/auth/logout", staffActor},
+		{"GET", "/auth/logout", staffActor},
+		{"POST", "/admin/settings", staffActor},
+		{"POST", "/cart/add", customerActor},
+		{"POST", "/cart/remove", customerActor},
+		{"POST", "/checkout", customerActor},
+		{"POST", "/notifications/123/read", staffActor},
+		{"POST", "/vendor/variants/new", vendorActor},
+		{"POST", "/vendor/orders/456/status", vendorActor},
+		{"POST", "/admin/products/new", staffActor},
+		{"POST", "/admin/products/import", staffActor},
 	}
 
 	for _, route := range actionRoutes {
 		t.Run(route.method+" "+route.path, func(t *testing.T) {
+			router := newTestRouter(route.actor)
 			req := httptest.NewRequest(route.method, route.path, nil)
 			rec := httptest.NewRecorder()
 
@@ -220,7 +246,8 @@ func TestVendorIngestAndRolesRoutes(t *testing.T) {
 		OrgType:        "vendor",
 		OrgStatus:      "approved",
 		Role:           "vendor",
-		Permissions:    []string{"vendor.*"},
+		IsOwner:        true,
+		Permissions:    []string{"*"},
 	}
 	router := newTestRouter(actor)
 

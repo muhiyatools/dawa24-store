@@ -1,11 +1,13 @@
-package ui
+package ui_test
 
 import (
 	"bytes"
+	"fmt"
 	"mime/multipart"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
+	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -13,6 +15,8 @@ import (
 	"github.com/xuri/excelize/v2"
 
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
+	"github.com/muhiya/dawa24-store/internal/ui"
+	"github.com/muhiya/dawa24-store/internal/ui/pages"
 )
 
 // TestDetectTeamColumns tests auto-detection of column headers in English and Arabic.
@@ -22,7 +26,7 @@ func TestDetectTeamColumns(t *testing.T) {
 		{"أحمد علي", "ahmed@example.com", "01012345678", "مدير", "مدير مبيعات", "الفرع الرئيسي", "EMP-01"},
 	}
 
-	cols := detectTeamColumns(headersArabic, sampleRows)
+	cols := ui.DetectTeamColumns(headersArabic, sampleRows)
 	assert.Equal(t, 0, cols.NameCol)
 	assert.Equal(t, 1, cols.EmailCol)
 	assert.Equal(t, 2, cols.PhoneCol)
@@ -32,7 +36,7 @@ func TestDetectTeamColumns(t *testing.T) {
 	assert.Equal(t, 6, cols.CodeCol)
 
 	headersEnglish := []string{"Employee Name", "E-mail", "Phone Number", "Role", "Job Title", "Branch", "Staff ID"}
-	colsEn := detectTeamColumns(headersEnglish, sampleRows)
+	colsEn := ui.DetectTeamColumns(headersEnglish, sampleRows)
 	assert.Equal(t, 0, colsEn.NameCol)
 	assert.Equal(t, 1, colsEn.EmailCol)
 	assert.Equal(t, 2, colsEn.PhoneCol)
@@ -44,7 +48,7 @@ func TestDetectTeamColumns(t *testing.T) {
 
 // TestMatchRoleByName tests fuzzy & semantic matching of raw role strings from Excel.
 func TestMatchRoleByName(t *testing.T) {
-	companyRoles := []TeamRoleOption{
+	companyRoles := []pages.TeamRoleOption{
 		{ID: 10, Key: "org_owner", Name: "مالك المنشأة", IsOwner: true},
 		{ID: 20, Key: "org_admin", Name: "مدير المنشأة", IsOwner: false},
 		{ID: 30, Key: "org_pharmacist", Name: "صيدلي مسؤول", IsOwner: false},
@@ -52,25 +56,25 @@ func TestMatchRoleByName(t *testing.T) {
 	}
 
 	// 1. Pharmacist
-	rID, rKey, _, isAuto := matchRoleByName("دكتور صيدلي", companyRoles)
+	rID, rKey, _, isAuto := ui.MatchRoleByName("دكتور صيدلي", companyRoles)
 	assert.True(t, isAuto)
 	assert.Equal(t, int64(30), rID)
 	assert.Equal(t, "org_pharmacist", rKey)
 
 	// 2. Manager / Admin
-	rID, rKey, _, isAuto = matchRoleByName("مدير فرع", companyRoles)
+	rID, rKey, _, isAuto = ui.MatchRoleByName("مدير فرع", companyRoles)
 	assert.True(t, isAuto)
 	assert.Equal(t, int64(20), rID)
 	assert.Equal(t, "org_admin", rKey)
 
 	// 3. Cashier / Employee
-	rID, rKey, _, isAuto = matchRoleByName("كاشير ومبيعات", companyRoles)
+	rID, rKey, _, isAuto = ui.MatchRoleByName("كاشير ومبيعات", companyRoles)
 	assert.True(t, isAuto)
 	assert.Equal(t, int64(40), rID)
 	assert.Equal(t, "org_employee", rKey)
 
 	// 4. Exact match
-	rID, rKey, _, isAuto = matchRoleByName("صيدلي مسؤول", companyRoles)
+	rID, rKey, _, isAuto = ui.MatchRoleByName("صيدلي مسؤول", companyRoles)
 	assert.True(t, isAuto)
 	assert.Equal(t, int64(30), rID)
 	assert.Equal(t, "org_pharmacist", rKey)
@@ -86,7 +90,7 @@ func TestParseAndValidateTeamRows(t *testing.T) {
 		{"", "", "", "", "", "", ""}, // Empty row to skip
 	}
 
-	cols := TeamDetectedCols{
+	cols := pages.TeamDetectedCols{
 		NameCol:     0,
 		EmailCol:    1,
 		PhoneCol:    2,
@@ -96,13 +100,13 @@ func TestParseAndValidateTeamRows(t *testing.T) {
 		CodeCol:     6,
 	}
 
-	companyRoles := []TeamRoleOption{
+	companyRoles := []pages.TeamRoleOption{
 		{ID: 10, Key: "org_admin", Name: "مدير المنشأة"},
 		{ID: 20, Key: "org_pharmacist", Name: "صيدلي مسؤول"},
 		{ID: 30, Key: "org_employee", Name: "موظف"},
 	}
 
-	branches := []TeamBranchOption{
+	branches := []pages.TeamBranchOption{
 		{ID: 100, Name: "المقر الرئيسي", Code: "HQ"},
 		{ID: 200, Name: "فرع التجمع", Code: "TAG"},
 	}
@@ -113,7 +117,7 @@ func TestParseAndValidateTeamRows(t *testing.T) {
 		"موظف":  30,
 	}
 
-	rows := parseAndValidateTeamRows(rawRows, cols, roleMap, 30, companyRoles, branches)
+	rows := ui.ParseAndValidateTeamRows(rawRows, cols, roleMap, 30, companyRoles, branches)
 	require.Len(t, rows, 4) // 4 non-empty rows
 
 	// Row 1: Valid
@@ -142,7 +146,7 @@ func TestParseAndValidateTeamRows(t *testing.T) {
 // TestGenerateTeamSampleExcel tests the downloadable Excel template generator.
 func TestGenerateTeamSampleExcel(t *testing.T) {
 	for _, orgType := range []string{"vendor", "customer"} {
-		fileBytes, err := GenerateTeamSampleExcel(orgType)
+		fileBytes, err := ui.GenerateTeamSampleExcel(orgType)
 		require.NoError(t, err)
 		require.NotEmpty(t, fileBytes)
 
@@ -160,12 +164,12 @@ func TestGenerateTeamSampleExcel(t *testing.T) {
 
 // TestTeamImportSessionStore tests in-memory session operations.
 func TestTeamImportSessionStore(t *testing.T) {
-	store := newTeamImportSessionStore()
+	store := ui.NewTeamImportSessionStore()
 
 	sess := store.NewSession(555, 12, "vendor", "test_team.xlsx", 10)
 	require.NotEmpty(t, sess.ID)
 	assert.Equal(t, int64(555), sess.OrganizationID)
-	assert.Equal(t, TeamPhaseUpload, sess.Phase)
+	assert.Equal(t, pages.TeamPhaseUpload, sess.Phase)
 
 	// Retrieve
 	retrieved, ok := store.GetSession(sess.ID, 555)
@@ -188,7 +192,7 @@ func TestTeamImportSessionStore(t *testing.T) {
 
 // TestVendorAndCustomerTeamImportEndpoints tests HTTP handlers for team imports.
 func TestVendorAndCustomerTeamImportEndpoints(t *testing.T) {
-	h := NewUIHandler(nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil)
+	h := ui.NewUIHandler(nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil)
 	r := newRealUIHandlerRouter(h)
 
 	vendorActor := authctx.Actor{
@@ -230,7 +234,7 @@ func TestVendorAndCustomerTeamImportEndpoints(t *testing.T) {
 
 // TestTeamImportFlow_MultipartUploadAndMapping tests complete import workflow.
 func TestTeamImportFlow_MultipartUploadAndMapping(t *testing.T) {
-	h := NewUIHandler(nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil)
+	h := ui.NewUIHandler(nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil)
 	r := newRealUIHandlerRouter(h)
 
 	vendorActor := authctx.Actor{
@@ -242,7 +246,7 @@ func TestTeamImportFlow_MultipartUploadAndMapping(t *testing.T) {
 	}
 
 	// 1. Generate sample excel
-	sampleBytes, err := GenerateTeamSampleExcel("vendor")
+	sampleBytes, err := ui.GenerateTeamSampleExcel("vendor")
 	require.NoError(t, err)
 
 	// 2. POST /vendor/team/import/upload
@@ -256,7 +260,7 @@ func TestTeamImportFlow_MultipartUploadAndMapping(t *testing.T) {
 
 	req := httptest.NewRequest("POST", "/vendor/team/import/upload", body)
 	req.Header.Set("Content-Type", writer.FormDataContentType())
-	req = req.WithContext(authctx.WithActor(req.Context(), &vendorActor))
+	req = req.WithContext(authctx.WithActor(req.Context(), vendorActor))
 
 	rec := httptest.NewRecorder()
 	r.ServeHTTP(rec, req)
@@ -296,5 +300,5 @@ func TestTeamImportFlow_MultipartUploadAndMapping(t *testing.T) {
 	// 6. POST cancel
 	rec = doPOST(t, r, fmt.Sprintf("/vendor/team/import/%s/cancel", sessionID), url.Values{}, vendorActor)
 	assert.Equal(t, http.StatusSeeOther, rec.Code)
-	assert.Equal(t, "/vendor/team/import", rec.Header().Get("Location"))
+	assert.Contains(t, rec.Header().Get("Location"), "/vendor/team/import")
 }

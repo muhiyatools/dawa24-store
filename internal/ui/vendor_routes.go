@@ -318,7 +318,7 @@ func (h *UIHandler) registerVendorContentRoutes(r chi.Router) {
 	})
 
 	r.Group(func(g chi.Router) {
-		g.Use(authctx.RequireTenantPagePermission("vendor.activity.view"))
+		g.Use(authctx.RequireTenantPagePermission("vendor.activity.view", "vendor.team.view", "vendor.dashboard.view"))
 		g.Get("/vendor/activities", h.VendorActivitiesPage)
 	})
 	r.Group(func(g chi.Router) {
