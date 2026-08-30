@@ -94,4 +94,9 @@ func loadCommonAndAuthKeys(e *engine) {
 	addKey(e, "errors.not_found", "errors", "الصفحة أو العنصر المطلوب غير موجود.", "The requested page or item was not found.", "404 not found")
 	addKey(e, "errors.server_error", "errors", "حدث خطأ غير متوقع في الخادم. يرجى المحاولة لاحقاً.", "An unexpected server error occurred. Please try again later.", "500 server error")
 	addKey(e, "errors.unauthorized", "errors", "يرجى تسجيل الدخول أولاً للمتابعة.", "Please sign in first to continue.", "401 unauthorized")
+
+	// Common form validation
+	addKey(e, "common.form_invalid", "common", "بيانات النموذج غير صالحة.", "Invalid form data.", "Generic form validation error")
+	addKey(e, "common.unauthorized", "common", "غير مصرح", "Unauthorized", "Unauthorized access message")
+	addKey(e, "common.unsupported_upload", "common", "صيغة الملف غير مدعومة. يرجى رفع ملف Excel (.xlsx أو .xls) أو ملف نصي (.csv). تُقرأ ملفات Excel القديمة (97-2003) والملفات المصدَّرة من برامج الحسابات تلقائياً.", "Unsupported file format. Please upload an Excel (.xlsx or .xls) or text (.csv) file. Legacy Excel (97-2003) and accounting software exports are read automatically.", "Unsupported upload format message")
 }

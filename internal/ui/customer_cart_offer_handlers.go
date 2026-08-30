@@ -11,6 +11,7 @@ import (
 	"github.com/muhiya/dawa24-store/internal/modules/promo"
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/platform/database"
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/shared/money"
 	"github.com/muhiya/dawa24-store/internal/ui/pages"
 )
@@ -22,7 +23,7 @@ func (h *UIHandler) AddOfferToCartSubmit(w http.ResponseWriter, r *http.Request)
 	if !ok {
 		if h.isHTMX(r) {
 			w.Header().Set("HX-Redirect", "/auth/login?redirect=/offers")
-			w.Header().Set("HX-Trigger", `{"showToast":{"message":"يرجى تسجيل الدخول كصيدلية مرخصة للشراء","type":"error"}}`)
+			w.Header().Set("HX-Trigger", fmt.Sprintf(`{"showToast":{"message":%q,"type":"error"}}`, i18n.T(langOf(r), "customer.offer.login_required")))
 			w.WriteHeader(http.StatusUnauthorized)
 			return
 		}
@@ -32,18 +33,18 @@ func (h *UIHandler) AddOfferToCartSubmit(w http.ResponseWriter, r *http.Request)
 
 	if !actor.IsCustomer() {
 		if h.isHTMX(r) {
-			w.Header().Set("HX-Trigger", `{"showToast":{"message":"عذراً، شراء باقات العروض متاح حصرياً لحسابات الصيدليات المرخصة","type":"error"}}`)
+			w.Header().Set("HX-Trigger", fmt.Sprintf(`{"showToast":{"message":%q,"type":"error"}}`, i18n.T(langOf(r), "customer.offer.buy_pharmacy_only")))
 			w.WriteHeader(http.StatusForbidden)
 			return
 		}
-		h.redirectWithNotice(w, r, "/offers", "error", "عذراً، شراء باقات العروض متاح حصرياً للصيدليات المرخصة.")
+		h.redirectWithNotice(w, r, "/offers", "error", i18n.T(langOf(r), "customer.offer.buy_pharmacy_only_notice"))
 		return
 	}
 
 	userID := actor.UserID
 	if h.commSvc == nil || h.promoSvc == nil {
 		if h.isHTMX(r) {
-			w.Header().Set("HX-Trigger", `{"showToast":{"message":"خدمة السلة غير متوفرة حالياً","type":"error"}}`)
+			w.Header().Set("HX-Trigger", fmt.Sprintf(`{"showToast":{"message":%q,"type":"error"}}`, i18n.T(langOf(r), "customer.cart.service_unavailable")))
 			w.WriteHeader(http.StatusServiceUnavailable)
 			return
 		}
@@ -53,7 +54,7 @@ func (h *UIHandler) AddOfferToCartSubmit(w http.ResponseWriter, r *http.Request)
 
 	offerID, _ := strconv.ParseInt(r.PostFormValue("offer_id"), 10, 64)
 	if offerID <= 0 {
-		h.redirectWithNotice(w, r, "/offers", "error", "معرف العرض غير صالح.")
+		h.redirectWithNotice(w, r, "/offers", "error", i18n.T(langOf(r), "customer.offer.invalid_id"))
 		return
 	}
 
@@ -70,7 +71,7 @@ func (h *UIHandler) AddOfferToCartSubmit(w http.ResponseWriter, r *http.Request)
 	if err != nil || sp == nil {
 		o, oErr := h.promoSvc.GetOffer(ctx, offerID)
 		if oErr != nil || o == nil {
-			h.redirectWithNotice(w, r, "/offers", "error", "العرض المطلوب غير موجود أو انتهت صلاحيته.")
+			h.redirectWithNotice(w, r, "/offers", "error", i18n.T(langOf(r), "customer.offer.not_found"))
 			return
 		}
 		baseOffer = o
@@ -192,11 +193,11 @@ func (h *UIHandler) AddOfferToCartSubmit(w http.ResponseWriter, r *http.Request)
 
 	if addedItemsCount == 0 {
 		if h.isHTMX(r) {
-			w.Header().Set("HX-Trigger", `{"showToast":{"message":"تعذر إضافة أصناف العرض إلى السلة، يرجى التأكد من توفر أصناف العرض","type":"error"}}`)
+			w.Header().Set("HX-Trigger", fmt.Sprintf(`{"showToast":{"message":%q,"type":"error"}}`, i18n.T(langOf(r), "customer.offer.add_failed")))
 			w.WriteHeader(http.StatusBadRequest)
 			return
 		}
-		h.redirectWithNotice(w, r, fmt.Sprintf("/offers/%d", offerID), "error", "تعذر إضافة أصناف العرض إلى السلة، يرجى التأكد من توفر أصناف العرض.")
+		h.redirectWithNotice(w, r, fmt.Sprintf("/offers/%d", offerID), "error", i18n.T(langOf(r), "customer.offer.add_failed"))
 		return
 	}
 
@@ -208,12 +209,12 @@ func (h *UIHandler) AddOfferToCartSubmit(w http.ResponseWriter, r *http.Request)
 				totalCount += ci.Quantity
 			}
 		}
-		w.Header().Set("HX-Trigger", fmt.Sprintf(`{"showToast":{"message":"تمت إضافة العرض بنجاح إلى سلة المشتريات","type":"success"},"cartUpdated":{"count":%d}}`, totalCount))
+		w.Header().Set("HX-Trigger", fmt.Sprintf(`{"showToast":{"message":%q,"type":"success"},"cartUpdated":{"count":%d}}`, i18n.T(langOf(r), "customer.offer.add_success"), totalCount))
 		w.WriteHeader(http.StatusOK)
 		return
 	}
 
-	h.redirectWithNotice(w, r, "/cart", "success", "تمت إضافة العرض بنجاح إلى سلة المشتريات.")
+	h.redirectWithNotice(w, r, "/cart", "success", i18n.T(langOf(r), "customer.offer.add_success"))
 }
 
 // assertCartLineAvailable runs the availability rule and, when it refuses,
@@ -242,12 +243,12 @@ func (h *UIHandler) assertCartLineAvailable(
 		h.log.ErrorContext(ctx, "availability check failed", "error", err,
 			"variant", variantID, "vendor", vendorOrgID, "branch", branchID)
 		if h.isHTMX(r) {
-			w.Header().Set("HX-Trigger", `{"showToast":{"message":"تعذر التحقق من توفر الصنف حالياً، يرجى المحاولة مرة أخرى","type":"error"}}`)
+			w.Header().Set("HX-Trigger", fmt.Sprintf(`{"showToast":{"message":%q,"type":"error"}}`, i18n.T(langOf(r), "customer.cart.availability_check_failed")))
 			w.WriteHeader(http.StatusBadRequest)
 			return false
 		}
 		h.redirectWithNotice(w, r, back, "error",
-			"تعذر التحقق من توفر الصنف حالياً، يرجى المحاولة مرة أخرى.")
+			i18n.T(langOf(r), "customer.cart.availability_check_failed"))
 		return false
 	}
 	if !res.Allowed {

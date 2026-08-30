@@ -12,6 +12,7 @@ import (
 	"github.com/muhiya/dawa24-store/internal/modules/org"
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/platform/database"
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/ui/pages"
 )
 
@@ -56,7 +57,7 @@ func (h *UIHandler) CustomerVendorSearchJSON(w http.ResponseWriter, r *http.Requ
 					name = nameEn
 				}
 				if name == "" {
-					name = fmt.Sprintf("مورد #%d", v.ID)
+					name = fmt.Sprintf(i18n.T(langOf(r), "customer.userorg.default_vendor_name"), v.ID)
 				}
 
 				if q != "" {
@@ -135,13 +136,13 @@ func (h *UIHandler) CustomerUserOrganizationCreateSubmit(w http.ResponseWriter, 
 
 	vendorOrgID, err := strconv.ParseInt(strings.TrimSpace(r.FormValue("vendor_org_id")), 10, 64)
 	if err != nil || vendorOrgID <= 0 {
-		http.Redirect(w, r, "/customer/user-organization?notice_type=error&notice_msg="+url.QueryEscape("يجب اختيار مورد / شركة صالحة."), http.StatusSeeOther)
+		http.Redirect(w, r, "/customer/user-organization?notice_type=error&notice_msg="+url.QueryEscape(i18n.T(langOf(r), "customer.userorg.vendor_required")), http.StatusSeeOther)
 		return
 	}
 
 	orgNumber := strings.TrimSpace(r.FormValue("organization_number"))
 	if orgNumber == "" {
-		http.Redirect(w, r, "/customer/user-organization?notice_type=error&notice_msg="+url.QueryEscape("رقم المنظمة مطلوب."), http.StatusSeeOther)
+		http.Redirect(w, r, "/customer/user-organization?notice_type=error&notice_msg="+url.QueryEscape(i18n.T(langOf(r), "customer.userorg.org_number_required")), http.StatusSeeOther)
 		return
 	}
 
@@ -164,7 +165,7 @@ func (h *UIHandler) CustomerUserOrganizationCreateSubmit(w http.ResponseWriter, 
 		}
 	}
 
-	http.Redirect(w, r, "/customer/user-organization?notice_type=success&notice_msg="+url.QueryEscape("تم ربط المنظمة بنجاح، والطلب الآن قيد انتظار اعتماد المورد."), http.StatusSeeOther)
+	http.Redirect(w, r, "/customer/user-organization?notice_type=success&notice_msg="+url.QueryEscape(i18n.T(langOf(r), "customer.userorg.link_success")), http.StatusSeeOther)
 }
 
 // CustomerUserOrganizationUpdateSubmit updates the organization number for a link.
@@ -178,7 +179,7 @@ func (h *UIHandler) CustomerUserOrganizationUpdateSubmit(w http.ResponseWriter, 
 
 	id, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
 	if err != nil || id <= 0 {
-		http.Redirect(w, r, "/customer/user-organization?notice_type=error&notice_msg="+url.QueryEscape("معرف الربط غير صالح."), http.StatusSeeOther)
+		http.Redirect(w, r, "/customer/user-organization?notice_type=error&notice_msg="+url.QueryEscape(i18n.T(langOf(r), "customer.userorg.invalid_link_id")), http.StatusSeeOther)
 		return
 	}
 
@@ -193,7 +194,7 @@ func (h *UIHandler) CustomerUserOrganizationUpdateSubmit(w http.ResponseWriter, 
 		}
 	}
 
-	http.Redirect(w, r, "/customer/user-organization?notice_type=success&notice_msg="+url.QueryEscape("تم تحديث رقم المنظمة بنجاح."), http.StatusSeeOther)
+	http.Redirect(w, r, "/customer/user-organization?notice_type=success&notice_msg="+url.QueryEscape(i18n.T(langOf(r), "customer.userorg.update_success")), http.StatusSeeOther)
 }
 
 // CustomerUserOrganizationDeleteSubmit removes a user-organization link.
@@ -207,7 +208,7 @@ func (h *UIHandler) CustomerUserOrganizationDeleteSubmit(w http.ResponseWriter, 
 
 	id, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
 	if err != nil || id <= 0 {
-		http.Redirect(w, r, "/customer/user-organization?notice_type=error&notice_msg="+url.QueryEscape("معرف الربط غير صالح."), http.StatusSeeOther)
+		http.Redirect(w, r, "/customer/user-organization?notice_type=error&notice_msg="+url.QueryEscape(i18n.T(langOf(r), "customer.userorg.invalid_link_id")), http.StatusSeeOther)
 		return
 	}
 
@@ -219,5 +220,5 @@ func (h *UIHandler) CustomerUserOrganizationDeleteSubmit(w http.ResponseWriter, 
 		}
 	}
 
-	http.Redirect(w, r, "/customer/user-organization?notice_type=success&notice_msg="+url.QueryEscape("تم حذف ربط المنظمة بنجاح."), http.StatusSeeOther)
+	http.Redirect(w, r, "/customer/user-organization?notice_type=success&notice_msg="+url.QueryEscape(i18n.T(langOf(r), "customer.userorg.delete_success")), http.StatusSeeOther)
 }

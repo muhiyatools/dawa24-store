@@ -10,6 +10,7 @@ import (
 	"github.com/go-chi/chi/v5"
 
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/shared/productmatch"
 	"github.com/muhiya/dawa24-store/internal/shared/sheet"
 	"github.com/muhiya/dawa24-store/internal/ui/pages"
@@ -66,7 +67,7 @@ func (h *UIHandler) VendorSavingProductsImportUploadSubmit(w http.ResponseWriter
 	defer file.Close()
 
 	if !SupportedUploadName(fileHeader.Filename) {
-		h.redirectWithNotice(w, r, "/vendor/saving-products/import", "error", unsupportedUploadMessage)
+		h.redirectWithNotice(w, r, "/vendor/saving-products/import", "error", unsupportedUploadMsg(langOf(r)))
 		return
 	}
 

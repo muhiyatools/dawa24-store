@@ -11,6 +11,7 @@ import (
 	"github.com/xuri/excelize/v2"
 
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/shared/productmatch"
 	"github.com/muhiya/dawa24-store/internal/shared/sheet"
 	"github.com/muhiya/dawa24-store/internal/ui/pages"
@@ -55,32 +56,32 @@ func (h *UIHandler) CustomerSavingProductsImportUploadSubmit(w http.ResponseWrit
 	}
 
 	if err := r.ParseMultipartForm(32 << 20); err != nil {
-		h.redirectWithNotice(w, r, "/customer/saving-products/import", "error", "الملف المرفوع كبير جداً أو غير صالح.")
+		h.redirectWithNotice(w, r, "/customer/saving-products/import", "error", i18n.T(langOf(r), "customer.saving.import.file_too_large_short"))
 		return
 	}
 
 	file, fileHeader, err := r.FormFile("file")
 	if err != nil {
-		h.redirectWithNotice(w, r, "/customer/saving-products/import", "error", "يرجى اختيار ملف Excel أو CSV صالح.")
+		h.redirectWithNotice(w, r, "/customer/saving-products/import", "error", i18n.T(langOf(r), "customer.saving.import.select_file"))
 		return
 	}
 	defer file.Close()
 
 	if !SupportedUploadName(fileHeader.Filename) {
-		h.redirectWithNotice(w, r, "/customer/saving-products/import", "error", unsupportedUploadMessage)
+		h.redirectWithNotice(w, r, "/customer/saving-products/import", "error", unsupportedUploadMsg(langOf(r)))
 		return
 	}
 
 	fileBytes, err := io.ReadAll(file)
 	if err != nil || len(fileBytes) == 0 {
-		h.redirectWithNotice(w, r, "/customer/saving-products/import", "error", "الملف فارغ أو تعذر قراءته.")
+		h.redirectWithNotice(w, r, "/customer/saving-products/import", "error", i18n.T(langOf(r), "customer.saving.import.file_empty"))
 		return
 	}
 
 	rawRows, err := sheet.ReadRows(fileBytes, fileHeader.Filename)
 	if err != nil || len(rawRows) < 2 {
 		h.log.WarnContext(ctx, "failed to parse spreadsheet", "error", err, "filename", fileHeader.Filename)
-		h.redirectWithNotice(w, r, "/customer/saving-products/import", "error", "تعذر قراءة ملف البيانات المرفوع أو أن الملف لا يحتوي على صفوف بيانات.")
+		h.redirectWithNotice(w, r, "/customer/saving-products/import", "error", i18n.T(langOf(r), "customer.saving.import.parse_error_short"))
 		return
 	}
 
@@ -101,7 +102,7 @@ func (h *UIHandler) CustomerSavingProductsImportUploadSubmit(w http.ResponseWrit
 
 	dataRows := rawRows[dataStart:]
 	if len(dataRows) == 0 {
-		h.redirectWithNotice(w, r, "/customer/saving-products/import", "error", "لم يتم العثور على أي صفوف بيانات للأصناف بعد صف العناوين.")
+		h.redirectWithNotice(w, r, "/customer/saving-products/import", "error", i18n.T(langOf(r), "customer.saving.import.no_data_rows"))
 		return
 	}
 
@@ -148,7 +149,7 @@ func (h *UIHandler) CustomerSavingProductsImportSessionPage(w http.ResponseWrite
 	sessionID := chi.URLParam(r, "id")
 	session, ok := globalSavingImportSessionStore.GetSession(sessionID, actor.OrganizationID)
 	if !ok {
-		h.redirectWithNotice(w, r, "/customer/saving-products/import", "error", "جلسة الاستيراد غير موجودة أو انتهت صلاحيتها.")
+		h.redirectWithNotice(w, r, "/customer/saving-products/import", "error", i18n.T(langOf(r), "customer.saving.import.session_not_found"))
 		return
 	}
 
@@ -199,6 +200,7 @@ func (h *UIHandler) CustomerSavingProductsImportSessionPage(w http.ResponseWrite
 
 // CustomerSavingProductsSampleXLSX streams download of a clean Excel template.
 func (h *UIHandler) CustomerSavingProductsSampleXLSX(w http.ResponseWriter, r *http.Request) {
+	lang, _ := h.localeAndDir(r)
 	f := excelize.NewFile()
 	sheet := "Saving Products Sample"
 	f.SetSheetName("Sheet1", sheet)
@@ -206,7 +208,12 @@ func (h *UIHandler) CustomerSavingProductsSampleXLSX(w http.ResponseWriter, r *h
 		RightToLeft: func(b bool) *bool { return &b }(true),
 	})
 
-	headers := []string{"اسم الصنف", "كود الصنف / SKU", "الكمية", "سعر الجمهور (ج.م)"}
+	headers := []string{
+		i18n.T(lang, "customer.saving.sample_col_name"),
+		i18n.T(lang, "customer.saving.sample_col_sku"),
+		i18n.T(lang, "customer.saving.sample_col_qty"),
+		i18n.T(lang, "customer.saving.sample_col_price"),
+	}
 	for i, hName := range headers {
 		cell, _ := excelize.CoordinatesToCellName(i+1, 1)
 		_ = f.SetCellValue(sheet, cell, hName)
@@ -233,7 +240,11 @@ func (h *UIHandler) CustomerSavingProductsSampleXLSX(w http.ResponseWriter, r *h
 
 // CustomerSavingProductsSampleCSV streams download of a clean CSV template.
 func (h *UIHandler) CustomerSavingProductsSampleCSV(w http.ResponseWriter, r *http.Request) {
-	csvContent := "\xEF\xBB\xBFاسم الصنف,كود الصنف / SKU,الكمية,سعر الجمهور (ج.م)\n" +
+	lang, _ := h.localeAndDir(r)
+	csvContent := "\xEF\xBB\xBF" + i18n.T(lang, "customer.saving.sample_col_name") + "," +
+		i18n.T(lang, "customer.saving.sample_col_sku") + "," +
+		i18n.T(lang, "customer.saving.sample_col_qty") + "," +
+		i18n.T(lang, "customer.saving.sample_col_price") + "\n" +
 		"بانادول اكسترا 500 مجم أقراص,PAN-EXT-24,50,48.50\n" +
 		"كونجستال أقراص للبرد,CONG-TAB-20,30,29.00\n" +
 		"أوجمنتين 1 جم أقراص 14 قرص,AUG-1G-14,20,110.00\n" +

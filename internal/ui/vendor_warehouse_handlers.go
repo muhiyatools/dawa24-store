@@ -15,6 +15,7 @@ import (
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/platform/database"
 	"github.com/muhiya/dawa24-store/internal/shared/arabic"
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/ui/pages"
 )
 
@@ -269,13 +270,13 @@ func (h *UIHandler) VendorWarehouseStockAdjustSubmit(w http.ResponseWriter, r *h
 	}
 
 	if err := r.ParseForm(); err != nil {
-		h.redirectWithNotice(w, r, fmt.Sprintf("/vendor/warehouses/%d", whID), "error", "بيانات النموذج غير صالحة.")
+		h.redirectWithNotice(w, r, fmt.Sprintf("/vendor/warehouses/%d", whID), "error", i18n.T(langOf(r), "common.form_invalid"))
 		return
 	}
 
 	reason := strings.TrimSpace(r.PostFormValue("reason"))
 	if reason == "" {
-		reason = "تسوية جردية يدوية من شاشة المخزن"
+		reason = i18n.T(langOf(r), "vendor.warehouse.default_adjustment_reason")
 	}
 
 	if h.invSvc != nil {
@@ -301,7 +302,7 @@ func (h *UIHandler) VendorWarehouseStockAdjustSubmit(w http.ResponseWriter, r *h
 						})
 						if err != nil {
 							h.log.ErrorContext(ctx, "adjust stock failed", "error", err)
-							h.redirectWithNotice(w, r, fmt.Sprintf("/vendor/warehouses/%d", whID), "error", "تعذر تعديل الرصيد: "+h.safeMessage(err, langOf(r)))
+							h.redirectWithNotice(w, r, fmt.Sprintf("/vendor/warehouses/%d", whID), "error", fmt.Sprintf(i18n.T(langOf(r), "vendor.warehouse.adjust_error"), h.safeMessage(err, langOf(r))))
 							return
 						}
 					}
@@ -318,14 +319,14 @@ func (h *UIHandler) VendorWarehouseStockAdjustSubmit(w http.ResponseWriter, r *h
 				})
 				if err != nil {
 					h.log.ErrorContext(ctx, "adjust stock failed", "error", err)
-					h.redirectWithNotice(w, r, fmt.Sprintf("/vendor/warehouses/%d", whID), "error", "تعذر تعديل الرصيد: "+h.safeMessage(err, langOf(r)))
+					h.redirectWithNotice(w, r, fmt.Sprintf("/vendor/warehouses/%d", whID), "error", fmt.Sprintf(i18n.T(langOf(r), "vendor.warehouse.adjust_error"), h.safeMessage(err, langOf(r))))
 					return
 				}
 			}
 		}
 	}
 
-	h.redirectWithNotice(w, r, fmt.Sprintf("/vendor/warehouses/%d", whID), "success", "تم تحديث رصيد الصنف في المخزن بنجاح.")
+	h.redirectWithNotice(w, r, fmt.Sprintf("/vendor/warehouses/%d", whID), "success", i18n.T(langOf(r), "vendor.warehouse.adjust_success"))
 }
 
 // VendorWarehouseCreateSubmit handles creating a new warehouse facility for the vendor.
@@ -338,7 +339,7 @@ func (h *UIHandler) VendorWarehouseCreateSubmit(w http.ResponseWriter, r *http.R
 	}
 
 	if err := r.ParseForm(); err != nil {
-		h.redirectWithNotice(w, r, "/vendor/warehouses", "error", "بيانات النموذج غير صالحة.")
+		h.redirectWithNotice(w, r, "/vendor/warehouses", "error", i18n.T(langOf(r), "common.form_invalid"))
 		return
 	}
 
@@ -348,7 +349,7 @@ func (h *UIHandler) VendorWarehouseCreateSubmit(w http.ResponseWriter, r *http.R
 	phone := strings.TrimSpace(r.PostFormValue("phone"))
 
 	if name == "" {
-		h.redirectWithNotice(w, r, "/vendor/warehouses", "error", "اسم المخزن مطلوب.")
+		h.redirectWithNotice(w, r, "/vendor/warehouses", "error", i18n.T(langOf(r), "vendor.warehouse.name_required"))
 		return
 	}
 	if code == "" {
@@ -407,12 +408,12 @@ func (h *UIHandler) VendorWarehouseCreateSubmit(w http.ResponseWriter, r *http.R
 	if h.invSvc != nil {
 		if _, err := h.invSvc.CreateWarehouse(ctx, wh); err != nil {
 			h.log.ErrorContext(ctx, "create warehouse failed", "error", err)
-			h.redirectWithNotice(w, r, "/vendor/warehouses", "error", "تعذر إضافة المخزن، يرجى التحقق من صحة البيانات.")
+			h.redirectWithNotice(w, r, "/vendor/warehouses", "error", i18n.T(langOf(r), "vendor.warehouse.create_error"))
 			return
 		}
 	}
 
-	h.redirectWithNotice(w, r, "/vendor/warehouses", "success", "تمت إضافة المخزن بنجاح وتفعيله للأرصدة.")
+	h.redirectWithNotice(w, r, "/vendor/warehouses", "success", i18n.T(langOf(r), "vendor.warehouse.create_success"))
 }
 
 // VendorWarehouseUpdateSubmit handles editing an existing warehouse facility.
@@ -432,7 +433,7 @@ func (h *UIHandler) VendorWarehouseUpdateSubmit(w http.ResponseWriter, r *http.R
 	}
 
 	if err := r.ParseForm(); err != nil {
-		h.redirectWithNotice(w, r, "/vendor/warehouses", "error", "بيانات النموذج غير صالحة.")
+		h.redirectWithNotice(w, r, "/vendor/warehouses", "error", i18n.T(langOf(r), "common.form_invalid"))
 		return
 	}
 
@@ -448,13 +449,13 @@ func (h *UIHandler) VendorWarehouseUpdateSubmit(w http.ResponseWriter, r *http.R
 	}
 
 	if wh == nil {
-		h.redirectWithNotice(w, r, "/vendor/warehouses", "error", "المخزن المطلوب غير موجود.")
+		h.redirectWithNotice(w, r, "/vendor/warehouses", "error", i18n.T(langOf(r), "vendor.warehouse.not_found"))
 		return
 	}
 
 	wh.Name = strings.TrimSpace(r.PostFormValue("name"))
 	if wh.Name == "" {
-		h.redirectWithNotice(w, r, "/vendor/warehouses", "error", "اسم المخزن مطلوب.")
+		h.redirectWithNotice(w, r, "/vendor/warehouses", "error", i18n.T(langOf(r), "vendor.warehouse.name_required"))
 		return
 	}
 	if code := strings.TrimSpace(r.PostFormValue("code")); code != "" {
@@ -474,12 +475,12 @@ func (h *UIHandler) VendorWarehouseUpdateSubmit(w http.ResponseWriter, r *http.R
 		ctx = database.WithTenant(ctx, actor.OrganizationID)
 		if _, err := h.invSvc.UpdateWarehouse(ctx, wh.ID, wh); err != nil {
 			h.log.ErrorContext(ctx, "update warehouse failed", "error", err)
-			h.redirectWithNotice(w, r, "/vendor/warehouses", "error", "تعذر تحديث بيانات المخزن.")
+			h.redirectWithNotice(w, r, "/vendor/warehouses", "error", i18n.T(langOf(r), "vendor.warehouse.update_error"))
 			return
 		}
 	}
 
-	h.redirectWithNotice(w, r, "/vendor/warehouses", "success", "تم تحديث بيانات المخزن بنجاح.")
+	h.redirectWithNotice(w, r, "/vendor/warehouses", "success", i18n.T(langOf(r), "vendor.warehouse.update_success"))
 }
 
 // VendorWarehouseToggleSubmit toggles the active/inactive status of a warehouse.
@@ -510,7 +511,7 @@ func (h *UIHandler) VendorWarehouseToggleSubmit(w http.ResponseWriter, r *http.R
 	}
 
 	if wh == nil {
-		h.redirectWithNotice(w, r, "/vendor/warehouses", "error", "المخزن المطلوب غير موجود.")
+		h.redirectWithNotice(w, r, "/vendor/warehouses", "error", i18n.T(langOf(r), "vendor.warehouse.not_found"))
 		return
 	}
 
@@ -520,9 +521,9 @@ func (h *UIHandler) VendorWarehouseToggleSubmit(w http.ResponseWriter, r *http.R
 		_, _ = h.invSvc.UpdateWarehouse(ctx, wh.ID, wh)
 	}
 
-	msg := "تم تعطيل المخزن بنجاح."
+	msg := i18n.T(langOf(r), "vendor.warehouse.deactivated")
 	if wh.IsActive {
-		msg = "تم تفعيل المخزن بنجاح."
+		msg = i18n.T(langOf(r), "vendor.warehouse.activated")
 	}
 	h.redirectWithNotice(w, r, "/vendor/warehouses", "success", msg)
 }

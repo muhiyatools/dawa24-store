@@ -14,6 +14,7 @@ import (
 	"github.com/muhiya/dawa24-store/internal/modules/org"
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/platform/database"
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 )
 
 // CustomerEmployeeCreateSubmit creates a new employee user and binds them to the branch and role.
@@ -30,7 +31,7 @@ func (h *UIHandler) CustomerEmployeeCreateSubmit(w http.ResponseWriter, r *http.
 	}
 
 	if h.idSvc == nil || h.orgSvc == nil {
-		h.redirectWithNotice(w, r, "/customer/branches?tab=employees", "error", "الخدمة غير متاحة حالياً.")
+		h.redirectWithNotice(w, r, "/customer/branches?tab=employees", "error", i18n.T(langOf(r), "customer.branch.service_unavailable"))
 		return
 	}
 
@@ -52,7 +53,7 @@ func (h *UIHandler) CustomerEmployeeCreateSubmit(w http.ResponseWriter, r *http.
 	password := strings.TrimSpace(r.PostFormValue("password"))
 
 	if email == "" || name == "" {
-		h.redirectWithNotice(w, r, "/customer/branches?tab=employees", "error", "الاسم والبريد الإلكتروني حقول إلزامية.")
+		h.redirectWithNotice(w, r, "/customer/branches?tab=employees", "error", i18n.T(langOf(r), "customer.employee.name_email_required"))
 		return
 	}
 
@@ -117,7 +118,7 @@ func (h *UIHandler) CustomerEmployeeCreateSubmit(w http.ResponseWriter, r *http.
 		_ = h.orgSvc.AssignBranchManager(sysCtx, orgID, *branchID, &targetUserID)
 	}
 
-	h.redirectWithNotice(w, r, "/customer/branches?tab=employees", "success", "تم إضافة وتعيين الموظف بالفرع وتحديد صلاحياته بنجاح.")
+	h.redirectWithNotice(w, r, "/customer/branches?tab=employees", "success", i18n.T(langOf(r), "customer.employee.create_success"))
 }
 
 // CustomerEmployeeEditSubmit updates an employee's branch assignment, role, job title, and details.
@@ -135,7 +136,7 @@ func (h *UIHandler) CustomerEmployeeEditSubmit(w http.ResponseWriter, r *http.Re
 
 	targetUserID, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
 	if err != nil || targetUserID <= 0 {
-		h.redirectWithNotice(w, r, "/customer/branches?tab=employees", "error", "معرف المستخدم غير صالح.")
+		h.redirectWithNotice(w, r, "/customer/branches?tab=employees", "error", i18n.T(langOf(r), "customer.employee.invalid_user_id"))
 		return
 	}
 
@@ -180,7 +181,7 @@ func (h *UIHandler) CustomerEmployeeEditSubmit(w http.ResponseWriter, r *http.Re
 		_ = h.orgSvc.AssignBranchManager(sysCtx, orgID, *branchID, &targetUserID)
 	}
 
-	h.redirectWithNotice(w, r, "/customer/branches?tab=employees", "success", "تم حفظ وتحديث بيانات وصلاحيات الموظف بنجاح.")
+	h.redirectWithNotice(w, r, "/customer/branches?tab=employees", "success", i18n.T(langOf(r), "customer.employee.update_success"))
 }
 
 // CustomerEmployeeDeleteSubmit removes an employee member from the organization and branch.
@@ -198,12 +199,12 @@ func (h *UIHandler) CustomerEmployeeDeleteSubmit(w http.ResponseWriter, r *http.
 
 	targetUserID, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
 	if err != nil || targetUserID <= 0 {
-		h.redirectWithNotice(w, r, "/customer/branches?tab=employees", "error", "معرف الموظف غير صالح.")
+		h.redirectWithNotice(w, r, "/customer/branches?tab=employees", "error", i18n.T(langOf(r), "customer.employee.invalid_id"))
 		return
 	}
 
 	if targetUserID == actor.UserID {
-		h.redirectWithNotice(w, r, "/customer/branches?tab=employees", "error", "لا يمكنك إزالة حسابك الحالي من المؤسسة.")
+		h.redirectWithNotice(w, r, "/customer/branches?tab=employees", "error", i18n.T(langOf(r), "customer.employee.cannot_remove_self"))
 		return
 	}
 
@@ -215,7 +216,7 @@ func (h *UIHandler) CustomerEmployeeDeleteSubmit(w http.ResponseWriter, r *http.
 		}
 	}
 
-	h.redirectWithNotice(w, r, "/customer/branches?tab=employees", "success", "تم حذف الموظف وإلغاء ربطه بالفرع بنجاح.")
+	h.redirectWithNotice(w, r, "/customer/branches?tab=employees", "success", i18n.T(langOf(r), "customer.employee.delete_success"))
 }
 
 // CustomerEmployeeStatusSubmit toggles active status for an employee.
@@ -233,7 +234,7 @@ func (h *UIHandler) CustomerEmployeeStatusSubmit(w http.ResponseWriter, r *http.
 
 	memberID, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
 	if err != nil || memberID <= 0 {
-		h.redirectWithNotice(w, r, "/customer/branches?tab=employees", "error", "معرف الموظف غير صالح.")
+		h.redirectWithNotice(w, r, "/customer/branches?tab=employees", "error", i18n.T(langOf(r), "customer.employee.invalid_id"))
 		return
 	}
 
@@ -245,5 +246,5 @@ func (h *UIHandler) CustomerEmployeeStatusSubmit(w http.ResponseWriter, r *http.
 		}
 	}
 
-	h.redirectWithNotice(w, r, "/customer/branches?tab=employees", "success", "تم تحديث حالة تفعيل الموظف بنجاح.")
+	h.redirectWithNotice(w, r, "/customer/branches?tab=employees", "success", i18n.T(langOf(r), "customer.employee.status_success"))
 }

@@ -9,6 +9,7 @@ import (
 
 	"github.com/muhiya/dawa24-store/internal/modules/catalog"
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/shared/money"
 	"github.com/muhiya/dawa24-store/internal/ui/pages"
 )
@@ -72,13 +73,13 @@ func (h *UIHandler) VendorSavingProductCreateSubmit(w http.ResponseWriter, r *ht
 	}
 
 	if err := r.ParseForm(); err != nil {
-		h.redirectWithNotice(w, r, "/vendor/saving-products", "error", "بيانات النموذج غير صالحة.")
+		h.redirectWithNotice(w, r, "/vendor/saving-products", "error", i18n.T(langOf(r), "common.form_invalid"))
 		return
 	}
 
 	nameProduct := strings.TrimSpace(r.FormValue("name_product"))
 	if nameProduct == "" {
-		h.redirectWithNotice(w, r, "/vendor/saving-products", "error", "اسم المنتج مطلوب.")
+		h.redirectWithNotice(w, r, "/vendor/saving-products", "error", i18n.T(langOf(r), "customer.saving.name_required"))
 		return
 	}
 
@@ -110,7 +111,7 @@ func (h *UIHandler) VendorSavingProductCreateSubmit(w http.ResponseWriter, r *ht
 		}
 	}
 
-	h.redirectWithNotice(w, r, "/vendor/saving-products", "success", "تمت إضافة منتج المساعدة بنجاح.")
+	h.redirectWithNotice(w, r, "/vendor/saving-products", "success", i18n.T(langOf(r), "vendor.saving.create_success"))
 }
 
 // VendorSavingProductUpdateSubmit handles updating an existing saving product.
@@ -124,18 +125,18 @@ func (h *UIHandler) VendorSavingProductUpdateSubmit(w http.ResponseWriter, r *ht
 
 	id, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
 	if err != nil || id <= 0 {
-		h.redirectWithNotice(w, r, "/vendor/saving-products", "error", "معرف منتج غير صالح.")
+		h.redirectWithNotice(w, r, "/vendor/saving-products", "error", i18n.T(langOf(r), "vendor.saving.invalid_product_id"))
 		return
 	}
 
 	if err := r.ParseForm(); err != nil {
-		h.redirectWithNotice(w, r, "/vendor/saving-products", "error", "بيانات النموذج غير صالحة.")
+		h.redirectWithNotice(w, r, "/vendor/saving-products", "error", i18n.T(langOf(r), "common.form_invalid"))
 		return
 	}
 
 	nameProduct := strings.TrimSpace(r.FormValue("name_product"))
 	if nameProduct == "" {
-		h.redirectWithNotice(w, r, "/vendor/saving-products", "error", "اسم المنتج مطلوب.")
+		h.redirectWithNotice(w, r, "/vendor/saving-products", "error", i18n.T(langOf(r), "customer.saving.name_required"))
 		return
 	}
 
@@ -168,7 +169,7 @@ func (h *UIHandler) VendorSavingProductUpdateSubmit(w http.ResponseWriter, r *ht
 		}
 	}
 
-	h.redirectWithNotice(w, r, "/vendor/saving-products", "success", "تم تحديث بيانات منتج المساعدة وتعيين الربط بنجاح.")
+	h.redirectWithNotice(w, r, "/vendor/saving-products", "success", i18n.T(langOf(r), "vendor.saving.update_success"))
 }
 
 // VendorSavingProductDeleteSubmit deletes a saving product record.
@@ -182,7 +183,7 @@ func (h *UIHandler) VendorSavingProductDeleteSubmit(w http.ResponseWriter, r *ht
 
 	id, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
 	if err != nil || id <= 0 {
-		h.redirectWithNotice(w, r, "/vendor/saving-products", "error", "معرف منتج غير صالح.")
+		h.redirectWithNotice(w, r, "/vendor/saving-products", "error", i18n.T(langOf(r), "vendor.saving.invalid_product_id"))
 		return
 	}
 
@@ -193,7 +194,7 @@ func (h *UIHandler) VendorSavingProductDeleteSubmit(w http.ResponseWriter, r *ht
 		}
 	}
 
-	h.redirectWithNotice(w, r, "/vendor/saving-products", "success", "تم حذف المنتج من قائمة المساعدة بنجاح.")
+	h.redirectWithNotice(w, r, "/vendor/saving-products", "success", i18n.T(langOf(r), "vendor.saving.delete_success"))
 }
 
 // VendorSavingProductsDeleteAllSubmit deletes all saving products for the vendor org.
@@ -208,12 +209,12 @@ func (h *UIHandler) VendorSavingProductsDeleteAllSubmit(w http.ResponseWriter, r
 	if h.catSvc != nil {
 		if err := h.catSvc.DeleteAllSavingProducts(ctx, actor.OrganizationID); err != nil {
 			h.log.ErrorContext(ctx, "delete all vendor saving products error", "error", err)
-			h.redirectWithNotice(w, r, "/vendor/saving-products", "error", "حدث خطأ أثناء حذف الأصناف.")
+			h.redirectWithNotice(w, r, "/vendor/saving-products", "error", i18n.T(langOf(r), "customer.saving.delete_all_error"))
 			return
 		}
 	}
 
-	h.redirectWithNotice(w, r, "/vendor/saving-products", "success", "تم حذف جميع منتجات التوفير بنجاح.")
+	h.redirectWithNotice(w, r, "/vendor/saving-products", "success", i18n.T(langOf(r), "vendor.saving.delete_all_success"))
 }
 
 // VendorSavingProductsAlias redirects misspelled route /vendor/saveing-products.

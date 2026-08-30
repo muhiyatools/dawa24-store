@@ -90,12 +90,12 @@ func (h *UIHandler) CustomerOrderEditSubmit(w http.ResponseWriter, r *http.Reque
 
 	id, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
 	if err != nil || id <= 0 {
-		h.redirectWithNotice(w, r, "/orders", "error", "معرف الطلب غير صالح.")
+		h.redirectWithNotice(w, r, "/orders", "error", i18n.T(langOf(r), "customer.order.invalid_id"))
 		return
 	}
 
 	if h.commSvc == nil {
-		h.redirectWithNotice(w, r, fmt.Sprintf("/orders/%d", id), "error", "خدمة إدارة الطلبات غير متوفرة حالياً.")
+		h.redirectWithNotice(w, r, fmt.Sprintf("/orders/%d", id), "error", i18n.T(langOf(r), "customer.order.service_unavailable"))
 		return
 	}
 
@@ -176,7 +176,7 @@ func (h *UIHandler) CustomerOrderEditSubmit(w http.ResponseWriter, r *http.Reque
 
 	updatedOrder, err := h.commSvc.UpdateCustomerPendingOrder(ctx, actor, input)
 	if err != nil {
-		errMsg := "تعذر تعديل الطلب: " + h.safeMessage(err, langOf(r))
+		errMsg := fmt.Sprintf(i18n.T(langOf(r), "customer.order.edit_error"), h.safeMessage(err, langOf(r)))
 		if r.Header.Get("X-Requested-With") == "XMLHttpRequest" || strings.Contains(r.Header.Get("Accept"), "application/json") {
 			w.Header().Set("Content-Type", "application/json; charset=utf-8")
 			w.WriteHeader(http.StatusBadRequest)
@@ -196,11 +196,12 @@ func (h *UIHandler) CustomerOrderEditSubmit(w http.ResponseWriter, r *http.Reque
 		if orderNum == "" {
 			orderNum = fmt.Sprintf("ORD-%d", updatedOrder.ID)
 		}
+		notifLang := langOf(r)
 		for _, sh := range updatedOrder.Shipments {
 			if sh != nil && sh.OrganizationID > 0 {
 				go h.dispatchOrgNotification(context.Background(), sh.OrganizationID,
-					fmt.Sprintf("تعديل على الطلب #%s", orderNum),
-					fmt.Sprintf("قامت صيدلية %s بتعديل كميات وأصناف الطلب #%s بقيمة جديدة %s ج.م.", pharmacyName, orderNum, updatedOrder.TotalAmount.String()))
+					fmt.Sprintf(i18n.T(notifLang, "customer.order.edit_notification_title"), orderNum),
+					fmt.Sprintf(i18n.T(notifLang, "customer.order.edit_notification_body"), pharmacyName, orderNum, updatedOrder.TotalAmount.String()))
 			}
 		}
 	}
@@ -209,7 +210,7 @@ func (h *UIHandler) CustomerOrderEditSubmit(w http.ResponseWriter, r *http.Reque
 		w.Header().Set("Content-Type", "application/json; charset=utf-8")
 		_ = json.NewEncoder(w).Encode(map[string]any{
 			"success":     true,
-			"message":     "تم حفظ وتعديل بيانات الطلب وتحديث الإجماليات بنجاح.",
+			"message":     i18n.T(langOf(r), "customer.order.edit_success"),
 			"subtotal":    updatedOrder.Subtotal.String(),
 			"discount":    updatedOrder.DiscountAmount.String(),
 			"total":       updatedOrder.TotalAmount.String(),
@@ -219,7 +220,7 @@ func (h *UIHandler) CustomerOrderEditSubmit(w http.ResponseWriter, r *http.Reque
 		return
 	}
 
-	h.redirectWithNotice(w, r, fmt.Sprintf("/orders/%d", id), "success", "تم حفظ وتعديل بيانات الطلب وتحديث الإجماليات بنجاح.")
+	h.redirectWithNotice(w, r, fmt.Sprintf("/orders/%d", id), "success", i18n.T(langOf(r), "customer.order.edit_success"))
 }
 
 // ReviewSubmit handles customer feedback submissions with multi-criteria rating.
@@ -234,7 +235,7 @@ func (h *UIHandler) ReviewSubmit(w http.ResponseWriter, r *http.Request) {
 	_ = r.ParseForm()
 	targetOrgID, _ := strconv.ParseInt(r.PostFormValue("organization_id"), 10, 64)
 	if targetOrgID <= 0 {
-		h.redirectWithNotice(w, r, "/suppliers", "error", "المؤسسة المستهدفة غير صالحة.")
+		h.redirectWithNotice(w, r, "/suppliers", "error", i18n.T(langOf(r), "customer.order.invalid_target_org"))
 		return
 	}
 
@@ -282,7 +283,7 @@ func (h *UIHandler) ReviewSubmit(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	h.redirectWithNotice(w, r, fmt.Sprintf("/suppliers/%d", targetOrgID), "success", "تم إرسال تقييمك بنجاح. شكراً لمشاركتك!")
+	h.redirectWithNotice(w, r, fmt.Sprintf("/suppliers/%d", targetOrgID), "success", i18n.T(langOf(r), "customer.order.review_success"))
 }
 
 // CustomerNegotiateOrderSubmit initiates a price negotiation order with a supplier.
@@ -295,7 +296,7 @@ func (h *UIHandler) CustomerNegotiateOrderSubmit(w http.ResponseWriter, r *http.
 	}
 
 	if err := r.ParseForm(); err != nil {
-		h.redirectWithNotice(w, r, "/catalog", "error", "بيانات النموذج غير صالحة.")
+		h.redirectWithNotice(w, r, "/catalog", "error", i18n.T(langOf(r), "common.form_invalid"))
 		return
 	}
 
@@ -309,13 +310,13 @@ func (h *UIHandler) CustomerNegotiateOrderSubmit(w http.ResponseWriter, r *http.
 	proposedPriceStr := r.PostFormValue("proposed_price")
 	proposedPrice, err := money.Parse(proposedPriceStr)
 	if err != nil || proposedPrice.IsZero() || proposedPrice.IsNegative() {
-		h.redirectWithNotice(w, r, "/catalog", "error", "يرجى إدخال سعر تفاوضي صالح وموجب.")
+		h.redirectWithNotice(w, r, "/catalog", "error", i18n.T(langOf(r), "customer.order.negotiate_invalid_price"))
 		return
 	}
 
 	notes := strings.TrimSpace(r.PostFormValue("notes"))
 	if notes == "" {
-		notes = fmt.Sprintf("طلب تفاوض على سعر الصنف: %s ج.م للعبوة (كمية: %d)", proposedPrice.String(), qty)
+		notes = fmt.Sprintf(i18n.T(langOf(r), "customer.order.negotiate_notes_default"), proposedPrice.String(), qty)
 	}
 
 	var branchID *int64
@@ -383,16 +384,16 @@ func (h *UIHandler) CustomerNegotiateOrderSubmit(w http.ResponseWriter, r *http.
 	}
 
 	if h.commSvc == nil {
-		h.redirectWithNotice(w, r, "/catalog", "error", "خدمة المبيعات غير متاحة حالياً.")
+		h.redirectWithNotice(w, r, "/catalog", "error", i18n.T(langOf(r), "customer.order.negotiate_service_unavailable"))
 		return
 	}
 
 	order, err := h.commSvc.Checkout(ctx, input)
 	if err != nil {
 		h.log.ErrorContext(ctx, "failed to submit negotiation order", "error", err, "variant_id", variantID)
-		h.redirectWithNotice(w, r, "/catalog", "error", "تعذر إرسال طلب التفاوض: "+h.safeMessage(err, langOf(r)))
+		h.redirectWithNotice(w, r, "/catalog", "error", fmt.Sprintf(i18n.T(langOf(r), "customer.order.negotiate_error"), h.safeMessage(err, langOf(r))))
 		return
 	}
 
-	h.redirectWithNotice(w, r, fmt.Sprintf("/orders/%d", order.ID), "success", "تم إرسال طلب التفاوض على السعر إلى المورد بنجاح وهو الآن قيد المراجعة.")
+	h.redirectWithNotice(w, r, fmt.Sprintf("/orders/%d", order.ID), "success", i18n.T(langOf(r), "customer.order.negotiate_success"))
 }

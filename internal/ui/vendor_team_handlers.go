@@ -74,7 +74,7 @@ func (h *UIHandler) VendorTeamImportUploadSubmit(w http.ResponseWriter, r *http.
 	defer file.Close()
 
 	if !SupportedUploadName(fileHeader.Filename) {
-		h.redirectWithNotice(w, r, "/vendor/team/import", "error", unsupportedUploadMessage)
+		h.redirectWithNotice(w, r, "/vendor/team/import", "error", unsupportedUploadMsg(langOf(r)))
 		return
 	}
 

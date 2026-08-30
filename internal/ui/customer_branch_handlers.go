@@ -90,7 +90,7 @@ func (h *UIHandler) CustomerBranchNewSubmit(w http.ResponseWriter, r *http.Reque
 	nameAr := strings.TrimSpace(r.PostFormValue("name_ar"))
 	nameEn := strings.TrimSpace(r.PostFormValue("name_en"))
 	if nameAr == "" {
-		nameAr = "فرع صيدلية"
+		nameAr = i18n.T(langOf(r), "customer.branch.default_name")
 	}
 	if nameEn == "" {
 		nameEn = nameAr
@@ -146,7 +146,7 @@ func (h *UIHandler) CustomerBranchNewSubmit(w http.ResponseWriter, r *http.Reque
 		}
 	}
 
-	h.redirectWithNotice(w, r, "/customer/branches", "success", "تم إضافة فرع الصيدلية بنجاح.")
+	h.redirectWithNotice(w, r, "/customer/branches", "success", i18n.T(langOf(r), "customer.branch.create_success"))
 }
 
 // CustomerBranchEditSubmit updates an existing pharmacy branch.
@@ -160,18 +160,18 @@ func (h *UIHandler) CustomerBranchEditSubmit(w http.ResponseWriter, r *http.Requ
 
 	id, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
 	if err != nil || id <= 0 {
-		h.redirectWithNotice(w, r, "/customer/branches", "error", "معرف الفرع غير صالح.")
+		h.redirectWithNotice(w, r, "/customer/branches", "error", i18n.T(langOf(r), "customer.branch.invalid_id"))
 		return
 	}
 
 	if h.orgSvc == nil {
-		h.redirectWithNotice(w, r, "/customer/branches", "error", "الخدمة غير متاحة حالياً.")
+		h.redirectWithNotice(w, r, "/customer/branches", "error", i18n.T(langOf(r), "customer.branch.service_unavailable"))
 		return
 	}
 
 	existing, err := h.orgSvc.GetBranch(ctx, id)
 	if err != nil || existing == nil || existing.OrganizationID != actor.OrganizationID {
-		h.redirectWithNotice(w, r, "/customer/branches", "error", "الفرع غير موجود أو لا تملك صلاحية تعديله.")
+		h.redirectWithNotice(w, r, "/customer/branches", "error", i18n.T(langOf(r), "customer.branch.not_found_edit"))
 		return
 	}
 
@@ -247,7 +247,7 @@ func (h *UIHandler) CustomerBranchEditSubmit(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
-	h.redirectWithNotice(w, r, "/customer/branches", "success", "تم تحديث بيانات الفرع بنجاح.")
+	h.redirectWithNotice(w, r, "/customer/branches", "success", i18n.T(langOf(r), "customer.branch.update_success"))
 }
 
 // CustomerBranchDeleteSubmit deletes a branch owned by the customer organization.
@@ -261,18 +261,18 @@ func (h *UIHandler) CustomerBranchDeleteSubmit(w http.ResponseWriter, r *http.Re
 
 	id, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
 	if err != nil || id <= 0 {
-		h.redirectWithNotice(w, r, "/customer/branches", "error", "معرف الفرع غير صالح.")
+		h.redirectWithNotice(w, r, "/customer/branches", "error", i18n.T(langOf(r), "customer.branch.invalid_id"))
 		return
 	}
 
 	if h.orgSvc != nil {
 		existing, err := h.orgSvc.GetBranch(ctx, id)
 		if err != nil || existing == nil || existing.OrganizationID != actor.OrganizationID {
-			h.redirectWithNotice(w, r, "/customer/branches", "error", "الفرع غير موجود أو لا تملك صلاحية حذفه.")
+			h.redirectWithNotice(w, r, "/customer/branches", "error", i18n.T(langOf(r), "customer.branch.not_found_delete"))
 			return
 		}
 		if existing.IsMain {
-			h.redirectWithNotice(w, r, "/customer/branches", "error", "لا يمكن حذف الفرع الرئيسي، يرجى تعيين فرع رئيسي آخر أولاً.")
+			h.redirectWithNotice(w, r, "/customer/branches", "error", i18n.T(langOf(r), "customer.branch.cannot_delete_main"))
 			return
 		}
 		if err := h.orgSvc.DeleteBranch(ctx, id, actor.OrganizationID); err != nil {
@@ -281,7 +281,7 @@ func (h *UIHandler) CustomerBranchDeleteSubmit(w http.ResponseWriter, r *http.Re
 		}
 	}
 
-	h.redirectWithNotice(w, r, "/customer/branches", "success", "تم حذف الفرع بنجاح.")
+	h.redirectWithNotice(w, r, "/customer/branches", "success", i18n.T(langOf(r), "customer.branch.delete_success"))
 }
 
 // CustomerSwitchActiveBranchSubmit handles switching the active branch for customer context.

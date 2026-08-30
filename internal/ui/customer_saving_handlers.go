@@ -78,13 +78,13 @@ func (h *UIHandler) CustomerSavingProductCreateSubmit(w http.ResponseWriter, r *
 	}
 
 	if err := r.ParseForm(); err != nil {
-		h.redirectWithNotice(w, r, "/customer/saving-products", "error", "بيانات النموذج غير صالحة.")
+		h.redirectWithNotice(w, r, "/customer/saving-products", "error", i18n.T(langOf(r), "customer.saving.form_invalid"))
 		return
 	}
 
 	nameProduct := strings.TrimSpace(r.FormValue("name_product"))
 	if nameProduct == "" {
-		h.redirectWithNotice(w, r, "/customer/saving-products", "error", "اسم المنتج مطلوب.")
+		h.redirectWithNotice(w, r, "/customer/saving-products", "error", i18n.T(langOf(r), "customer.saving.name_required"))
 		return
 	}
 
@@ -112,12 +112,12 @@ func (h *UIHandler) CustomerSavingProductCreateSubmit(w http.ResponseWriter, r *
 	if h.catSvc != nil {
 		if err := h.catSvc.CreateSavingProduct(ctx, sp); err != nil {
 			h.log.ErrorContext(ctx, "create customer saving product error", "error", err)
-			h.redirectWithNotice(w, r, "/customer/saving-products", "error", "حدث خطأ أثناء حفظ المنتج: "+h.safeMessage(err, langOf(r)))
+			h.redirectWithNotice(w, r, "/customer/saving-products", "error", fmt.Sprintf(i18n.T(langOf(r), "customer.saving.create_error"), h.safeMessage(err, langOf(r))))
 			return
 		}
 	}
 
-	h.redirectWithNotice(w, r, "/customer/saving-products", "success", "تمت إضافة صنف التوفير بنجاح.")
+	h.redirectWithNotice(w, r, "/customer/saving-products", "success", i18n.T(langOf(r), "customer.saving.create_success"))
 }
 
 // CustomerSavingProductUpdateSubmit handles updating an existing pharmacy saving product.
@@ -131,18 +131,18 @@ func (h *UIHandler) CustomerSavingProductUpdateSubmit(w http.ResponseWriter, r *
 
 	id, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
 	if err != nil || id <= 0 {
-		h.redirectWithNotice(w, r, "/customer/saving-products", "error", "معرف الصنف غير صالح.")
+		h.redirectWithNotice(w, r, "/customer/saving-products", "error", i18n.T(langOf(r), "customer.saving.invalid_id"))
 		return
 	}
 
 	if err := r.ParseForm(); err != nil {
-		h.redirectWithNotice(w, r, "/customer/saving-products", "error", "بيانات النموذج غير صالحة.")
+		h.redirectWithNotice(w, r, "/customer/saving-products", "error", i18n.T(langOf(r), "customer.saving.form_invalid"))
 		return
 	}
 
 	nameProduct := strings.TrimSpace(r.FormValue("name_product"))
 	if nameProduct == "" {
-		h.redirectWithNotice(w, r, "/customer/saving-products", "error", "اسم المنتج مطلوب.")
+		h.redirectWithNotice(w, r, "/customer/saving-products", "error", i18n.T(langOf(r), "customer.saving.name_required"))
 		return
 	}
 
@@ -171,12 +171,12 @@ func (h *UIHandler) CustomerSavingProductUpdateSubmit(w http.ResponseWriter, r *
 	if h.catSvc != nil {
 		if err := h.catSvc.UpdateSavingProduct(ctx, sp); err != nil {
 			h.log.ErrorContext(ctx, "update customer saving product error", "error", err)
-			h.redirectWithNotice(w, r, "/customer/saving-products", "error", "حدث خطأ أثناء تعديل المنتج: "+h.safeMessage(err, langOf(r)))
+			h.redirectWithNotice(w, r, "/customer/saving-products", "error", fmt.Sprintf(i18n.T(langOf(r), "customer.saving.update_error"), h.safeMessage(err, langOf(r))))
 			return
 		}
 	}
 
-	h.redirectWithNotice(w, r, "/customer/saving-products", "success", "تم تحديث صنف التوفير بنجاح.")
+	h.redirectWithNotice(w, r, "/customer/saving-products", "success", i18n.T(langOf(r), "customer.saving.update_success"))
 }
 
 // CustomerSavingProductDeleteSubmit deletes a saving product record for the pharmacy.
@@ -190,19 +190,19 @@ func (h *UIHandler) CustomerSavingProductDeleteSubmit(w http.ResponseWriter, r *
 
 	id, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
 	if err != nil || id <= 0 {
-		h.redirectWithNotice(w, r, "/customer/saving-products", "error", "معرف الصنف غير صالح.")
+		h.redirectWithNotice(w, r, "/customer/saving-products", "error", i18n.T(langOf(r), "customer.saving.invalid_id"))
 		return
 	}
 
 	if h.catSvc != nil {
 		if err := h.catSvc.DeleteSavingProduct(ctx, id, actor.OrganizationID); err != nil {
 			h.log.ErrorContext(ctx, "delete customer saving product error", "error", err)
-			h.redirectWithNotice(w, r, "/customer/saving-products", "error", "حدث خطأ أثناء حذف المنتج.")
+			h.redirectWithNotice(w, r, "/customer/saving-products", "error", i18n.T(langOf(r), "customer.saving.delete_error"))
 			return
 		}
 	}
 
-	h.redirectWithNotice(w, r, "/customer/saving-products", "success", "تم حذف الصنف من قائمة التوفير بنجاح.")
+	h.redirectWithNotice(w, r, "/customer/saving-products", "success", i18n.T(langOf(r), "customer.saving.delete_success"))
 }
 
 // CustomerSavingProductsDeleteAllSubmit deletes all saving products for the customer org.
@@ -217,12 +217,12 @@ func (h *UIHandler) CustomerSavingProductsDeleteAllSubmit(w http.ResponseWriter,
 	if h.catSvc != nil {
 		if err := h.catSvc.DeleteAllSavingProducts(ctx, actor.OrganizationID); err != nil {
 			h.log.ErrorContext(ctx, "delete all customer saving products error", "error", err)
-			h.redirectWithNotice(w, r, "/customer/saving-products", "error", "حدث خطأ أثناء حذف الأصناف.")
+			h.redirectWithNotice(w, r, "/customer/saving-products", "error", i18n.T(langOf(r), "customer.saving.delete_all_error"))
 			return
 		}
 	}
 
-	h.redirectWithNotice(w, r, "/customer/saving-products", "success", "تم حذف جميع أصناف التوفير بنجاح.")
+	h.redirectWithNotice(w, r, "/customer/saving-products", "success", i18n.T(langOf(r), "customer.saving.delete_all_success"))
 }
 
 // SavingProductsPreviewResponse represents the preview payload returned to UI.
@@ -237,6 +237,7 @@ type SavingProductsPreviewResponse struct {
 // CustomerSavingProductsExport streams an Excel spreadsheet of all saving products for the pharmacy.
 func (h *UIHandler) CustomerSavingProductsExport(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
+	lang, _ := h.localeAndDir(r)
 	actor, ok := authctx.From(ctx)
 	if !ok || actor.OrganizationID <= 0 {
 		http.Redirect(w, r, "/auth/login?redirect=/customer/saving-products", http.StatusSeeOther)
@@ -260,15 +261,15 @@ func (h *UIHandler) CustomerSavingProductsExport(w http.ResponseWriter, r *http.
 	})
 
 	headers := []string{
-		"معرف الصنف (ID)",
-		"اسم صنف الصيدلية",
-		"كود SKU",
-		"الكمية",
-		"سعر الجمهور المسجل (ج.م)",
-		"القيمة الإجمالية (ج.م)",
-		"معرف صنف الكتالوج (ProductID)",
-		"اسم الصنف المرتبط بالكتالوج",
-		"عدد الموردين المتاحين",
+		i18n.T(lang, "customer.saving.export_col_id"),
+		i18n.T(lang, "customer.saving.export_col_name"),
+		i18n.T(lang, "customer.saving.export_col_sku"),
+		i18n.T(lang, "customer.saving.export_col_qty"),
+		i18n.T(lang, "customer.saving.export_col_price"),
+		i18n.T(lang, "customer.saving.export_col_total"),
+		i18n.T(lang, "customer.saving.export_col_product_id"),
+		i18n.T(lang, "customer.saving.export_col_linked_name"),
+		i18n.T(lang, "customer.saving.export_col_suppliers"),
 	}
 
 	for colIdx, header := range headers {
@@ -287,11 +288,11 @@ func (h *UIHandler) CustomerSavingProductsExport(w http.ResponseWriter, r *http.
 
 		if it.ProductID != nil && *it.ProductID > 0 {
 			_ = f.SetCellValue(sheet, fmt.Sprintf("G%d", rNum), *it.ProductID)
-			_ = f.SetCellValue(sheet, fmt.Sprintf("H%d", rNum), it.LinkedProductName.Get(i18n.AR))
+			_ = f.SetCellValue(sheet, fmt.Sprintf("H%d", rNum), it.LinkedProductName.Get(i18n.ParseLang(lang)))
 			_ = f.SetCellValue(sheet, fmt.Sprintf("I%d", rNum), it.ProvidingOrgsCount)
 		} else {
 			_ = f.SetCellValue(sheet, fmt.Sprintf("G%d", rNum), "")
-			_ = f.SetCellValue(sheet, fmt.Sprintf("H%d", rNum), "غير مرتبط")
+			_ = f.SetCellValue(sheet, fmt.Sprintf("H%d", rNum), i18n.T(lang, "customer.saving.not_linked"))
 			_ = f.SetCellValue(sheet, fmt.Sprintf("I%d", rNum), 0)
 		}
 	}

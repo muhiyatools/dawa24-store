@@ -19,6 +19,8 @@ package ui
 import (
 	"path/filepath"
 	"strings"
+
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 )
 
 // uploadExtensions are the names a spreadsheet upload plausibly arrives under.
@@ -39,7 +41,8 @@ func SupportedUploadName(name string) bool {
 	return ok
 }
 
-// unsupportedUploadMessage is what a refused upload is told, and it names the
+// unsupportedUploadMsg is what a refused upload is told, and it names the
 // formats a person recognises rather than the eleven extensions above.
-const unsupportedUploadMessage = "صيغة الملف غير مدعومة. يرجى رفع ملف Excel (.xlsx أو .xls) أو ملف نصي (.csv). " +
-	"تُقرأ ملفات Excel القديمة (97-2003) والملفات المصدَّرة من برامج الحسابات تلقائياً."
+func unsupportedUploadMsg(lang string) string {
+	return i18n.T(lang, "common.unsupported_upload")
+}

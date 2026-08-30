@@ -13,6 +13,7 @@ import (
 
 	"github.com/muhiya/dawa24-store/internal/modules/catalog"
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/shared/money"
 	"github.com/muhiya/dawa24-store/internal/shared/sheet"
 )
@@ -27,32 +28,32 @@ func (h *UIHandler) CustomerSavingProductsImportSubmit(w http.ResponseWriter, r 
 	}
 
 	if err := r.ParseMultipartForm(MaxUploadBytes); err != nil {
-		h.redirectWithNotice(w, r, "/customer/saving-products", "error", "تعذر قراءة الملف المرفوع.")
+		h.redirectWithNotice(w, r, "/customer/saving-products", "error", i18n.T(langOf(r), "customer.saving.import.read_error"))
 		return
 	}
 
 	file, header, err := r.FormFile("file")
 	if err != nil {
-		h.redirectWithNotice(w, r, "/customer/saving-products", "error", "يرجى اختيار ملف Excel أو CSV.")
+		h.redirectWithNotice(w, r, "/customer/saving-products", "error", i18n.T(langOf(r), "customer.saving.import.select_file"))
 		return
 	}
 	defer file.Close()
 
 	if !SupportedUploadName(header.Filename) {
-		h.redirectWithNotice(w, r, "/customer/saving-products", "error", unsupportedUploadMessage)
+		h.redirectWithNotice(w, r, "/customer/saving-products", "error", unsupportedUploadMsg(langOf(r)))
 		return
 	}
 
 	fileBytes, err := io.ReadAll(file)
 	if err != nil || len(fileBytes) == 0 {
-		h.redirectWithNotice(w, r, "/customer/saving-products", "error", "الملف فارغ أو تعذر قراءته.")
+		h.redirectWithNotice(w, r, "/customer/saving-products", "error", i18n.T(langOf(r), "customer.saving.import.file_empty"))
 		return
 	}
 
 	rawRows, err := sheet.ReadRows(fileBytes, header.Filename)
 	if err != nil || len(rawRows) < 2 {
 		h.log.WarnContext(ctx, "failed to parse spreadsheet", "error", err, "filename", header.Filename)
-		h.redirectWithNotice(w, r, "/customer/saving-products", "error", "تعذر قراءة ملف البيانات المرفوع أو أن الملف لا يحتوي على صفوف بيانات صالحة.")
+		h.redirectWithNotice(w, r, "/customer/saving-products", "error", i18n.T(langOf(r), "customer.saving.import.parse_error"))
 		return
 	}
 
@@ -164,18 +165,18 @@ func (h *UIHandler) CustomerSavingProductsImportSubmit(w http.ResponseWriter, r 
 	}
 
 	if len(parsedItems) == 0 {
-		h.redirectWithNotice(w, r, "/customer/saving-products", "error", "لم يتم العثور على أي منتجات صالحة للاستيراد في الملف.")
+		h.redirectWithNotice(w, r, "/customer/saving-products", "error", i18n.T(langOf(r), "customer.saving.import.no_valid_products"))
 		return
 	}
 
 	added, updated, err := h.catSvc.BatchUpsertSavingProducts(ctx, actor.OrganizationID, &actor.UserID, parsedItems)
 	if err != nil {
 		h.log.ErrorContext(ctx, "customer failed to batch upsert saving products", "error", err, "org_id", actor.OrganizationID)
-		h.redirectWithNotice(w, r, "/customer/saving-products", "error", "حدث خطأ أثناء حفظ المنتجات: "+h.safeMessage(err, langOf(r)))
+		h.redirectWithNotice(w, r, "/customer/saving-products", "error", fmt.Sprintf(i18n.T(langOf(r), "customer.saving.import.save_error"), h.safeMessage(err, langOf(r))))
 		return
 	}
 
-	successMsg := fmt.Sprintf("تم استيراد ومعالجة %d منتج بنجاح (جديد: %d، تم تحديثه: %d). تم ربط %d صنف بالكتالوج، و %d صنف غير مرتبطة.", len(parsedItems), added, updated, matchedCount, unlinkedCount)
+	successMsg := fmt.Sprintf(i18n.T(langOf(r), "customer.saving.import.success_summary"), len(parsedItems), added, updated, matchedCount, unlinkedCount)
 	h.redirectWithNotice(w, r, "/customer/saving-products", "success", successMsg)
 }
 
@@ -184,26 +185,26 @@ func (h *UIHandler) CustomerSavingProductsPreviewColumnsJSON(w http.ResponseWrit
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 
 	if err := r.ParseMultipartForm(10 << 20); err != nil {
-		_ = json.NewEncoder(w).Encode(SavingProductsPreviewResponse{Success: false, Error: "الملف كبير جداً أو غير صالح"})
+		_ = json.NewEncoder(w).Encode(SavingProductsPreviewResponse{Success: false, Error: i18n.T(langOf(r), "customer.saving.import.file_too_large")})
 		return
 	}
 
 	file, header, err := r.FormFile("file")
 	if err != nil {
-		_ = json.NewEncoder(w).Encode(SavingProductsPreviewResponse{Success: false, Error: "يرجى اختيار ملف Excel أو CSV صالح"})
+		_ = json.NewEncoder(w).Encode(SavingProductsPreviewResponse{Success: false, Error: i18n.T(langOf(r), "customer.saving.import.select_valid_file")})
 		return
 	}
 	defer file.Close()
 
 	fileBytes, err := io.ReadAll(file)
 	if err != nil || len(fileBytes) == 0 {
-		_ = json.NewEncoder(w).Encode(SavingProductsPreviewResponse{Success: false, Error: "تعذر قراءة محتوى الملف"})
+		_ = json.NewEncoder(w).Encode(SavingProductsPreviewResponse{Success: false, Error: i18n.T(langOf(r), "customer.saving.import.read_content_error")})
 		return
 	}
 
 	rawRows, err := sheet.ReadRows(fileBytes, header.Filename)
 	if err != nil || len(rawRows) == 0 {
-		_ = json.NewEncoder(w).Encode(SavingProductsPreviewResponse{Success: false, Error: "تعذر قراءة أوراق العمل أو الجداول داخل الملف"})
+		_ = json.NewEncoder(w).Encode(SavingProductsPreviewResponse{Success: false, Error: i18n.T(langOf(r), "customer.saving.import.read_sheets_error")})
 		return
 	}
 
@@ -239,31 +240,31 @@ func (h *UIHandler) CustomerSavingProductsImportStartJSON(w http.ResponseWriter,
 	ctx := r.Context()
 	actor, ok := authctx.From(ctx)
 	if !ok || actor.OrganizationID <= 0 {
-		_ = json.NewEncoder(w).Encode(map[string]any{"success": false, "error": "غير مصرح"})
+		_ = json.NewEncoder(w).Encode(map[string]any{"success": false, "error": i18n.T(langOf(r), "common.unauthorized")})
 		return
 	}
 
 	if err := r.ParseMultipartForm(32 << 20); err != nil {
-		_ = json.NewEncoder(w).Encode(map[string]any{"success": false, "error": "الملف كبير جداً أو غير صالح"})
+		_ = json.NewEncoder(w).Encode(map[string]any{"success": false, "error": i18n.T(langOf(r), "customer.saving.import.file_too_large")})
 		return
 	}
 
 	file, fileHeader, err := r.FormFile("file")
 	if err != nil {
-		_ = json.NewEncoder(w).Encode(map[string]any{"success": false, "error": "يرجى اختيار ملف Excel أو CSV صالح"})
+		_ = json.NewEncoder(w).Encode(map[string]any{"success": false, "error": i18n.T(langOf(r), "customer.saving.import.select_valid_file")})
 		return
 	}
 	defer file.Close()
 
 	fileBytes, err := io.ReadAll(file)
 	if err != nil || len(fileBytes) == 0 {
-		_ = json.NewEncoder(w).Encode(map[string]any{"success": false, "error": "تعذر قراءة محتوى الملف"})
+		_ = json.NewEncoder(w).Encode(map[string]any{"success": false, "error": i18n.T(langOf(r), "customer.saving.import.read_content_error")})
 		return
 	}
 
 	rawRows, err := sheet.ReadRows(fileBytes, fileHeader.Filename)
 	if err != nil || len(rawRows) <= 1 {
-		_ = json.NewEncoder(w).Encode(map[string]any{"success": false, "error": "الملف فارغ أو لا يحتوي على صفوف بيانات"})
+		_ = json.NewEncoder(w).Encode(map[string]any{"success": false, "error": i18n.T(langOf(r), "customer.saving.import.file_empty_no_rows")})
 		return
 	}
 
@@ -300,10 +301,10 @@ func (h *UIHandler) CustomerSavingProductsImportStartJSON(w http.ResponseWriter,
 	session := globalSavingImportSessionStore.NewSession(actor.OrganizationID, actor.UserID, fileHeader.Filename, len(rawRows)-1)
 
 	// Launch async background processing
-	go func(sessID string, orgID, userID int64, dataRows [][]string, nCol, sCol, qCol, pCol, pidCol int, strat MatchStrategy, aiOn bool) {
+	go func(sessID string, orgID, userID int64, dataRows [][]string, nCol, sCol, qCol, pCol, pidCol int, strat MatchStrategy, aiOn bool, lang string) {
 		bgCtx := context.Background()
 
-		globalSavingImportSessionStore.UpdateProgress(sessID, 15, "تحميل وفهرسة كتالوج الأدوية المعتمد", 0)
+		globalSavingImportSessionStore.UpdateProgress(sessID, 15, i18n.T(lang, "customer.saving.import.progress_loading_catalog"), 0)
 
 		var matchEngine *SavingProductMatchEngine
 		if h.catSvc != nil {
@@ -319,7 +320,7 @@ func (h *UIHandler) CustomerSavingProductsImportStartJSON(w http.ResponseWriter,
 		var totalQty float64
 		var totalValMinor int64
 
-		globalSavingImportSessionStore.UpdateProgress(sessID, 30, "جاري المطابقة الذكية للأصناف وتجهيز المسودة", 0)
+		globalSavingImportSessionStore.UpdateProgress(sessID, 30, i18n.T(lang, "customer.saving.import.progress_matching"), 0)
 
 		for i, row := range dataRows {
 			if len(row) == 0 || IsAllEmptyRow(row) || IsSummaryOrTotalRow(row) {
@@ -409,7 +410,7 @@ func (h *UIHandler) CustomerSavingProductsImportStartJSON(w http.ResponseWriter,
 				if pct > 98 {
 					pct = 98
 				}
-				globalSavingImportSessionStore.UpdateProgress(sessID, pct, fmt.Sprintf("تمت معالجة %d من أصل %d صنف", i+1, total), i+1)
+				globalSavingImportSessionStore.UpdateProgress(sessID, pct, fmt.Sprintf(i18n.T(lang, "customer.saving.import.progress_processed"), i+1, total), i+1)
 			}
 		}
 
@@ -431,7 +432,7 @@ func (h *UIHandler) CustomerSavingProductsImportStartJSON(w http.ResponseWriter,
 			totalQty,
 			money.FromMinor(totalValMinor),
 		)
-	}(session.ID, actor.OrganizationID, actor.UserID, rawRows[1:], nameCol, skuCol, qtyCol, priceCol, productIDCol, matchStrategy, useAI)
+	}(session.ID, actor.OrganizationID, actor.UserID, rawRows[1:], nameCol, skuCol, qtyCol, priceCol, productIDCol, matchStrategy, useAI, langOf(r))
 
 	_ = json.NewEncoder(w).Encode(map[string]any{
 		"success":    true,
@@ -446,14 +447,14 @@ func (h *UIHandler) CustomerSavingProductsImportProgressJSON(w http.ResponseWrit
 	ctx := r.Context()
 	actor, ok := authctx.From(ctx)
 	if !ok || actor.OrganizationID <= 0 {
-		_ = json.NewEncoder(w).Encode(map[string]any{"success": false, "error": "غير مصرح"})
+		_ = json.NewEncoder(w).Encode(map[string]any{"success": false, "error": i18n.T(langOf(r), "common.unauthorized")})
 		return
 	}
 
 	sessionID := chi.URLParam(r, "id")
 	session, ok := globalSavingImportSessionStore.GetSession(sessionID, actor.OrganizationID)
 	if !ok {
-		_ = json.NewEncoder(w).Encode(map[string]any{"success": false, "error": "جلسة الاستيراد غير موجودة أو انتهت صلاحيتها"})
+		_ = json.NewEncoder(w).Encode(map[string]any{"success": false, "error": i18n.T(langOf(r), "customer.saving.import.session_not_found")})
 		return
 	}
 
@@ -467,14 +468,14 @@ func (h *UIHandler) CustomerSavingProductsImportCommitJSON(w http.ResponseWriter
 	ctx := r.Context()
 	actor, ok := authctx.From(ctx)
 	if !ok || actor.OrganizationID <= 0 {
-		_ = json.NewEncoder(w).Encode(map[string]any{"success": false, "error": "غير مصرح"})
+		_ = json.NewEncoder(w).Encode(map[string]any{"success": false, "error": i18n.T(langOf(r), "common.unauthorized")})
 		return
 	}
 
 	sessionID := chi.URLParam(r, "id")
 	added, updated, err := globalSavingImportSessionStore.CommitSession(ctx, sessionID, actor.OrganizationID, actor.UserID, h.catSvc)
 	if err != nil {
-		_ = json.NewEncoder(w).Encode(map[string]any{"success": false, "error": "فشل الحفظ: " + h.safeMessage(err, langOf(r))})
+		_ = json.NewEncoder(w).Encode(map[string]any{"success": false, "error": fmt.Sprintf(i18n.T(langOf(r), "customer.saving.import.commit_error"), h.safeMessage(err, langOf(r)))})
 		return
 	}
 
@@ -482,7 +483,7 @@ func (h *UIHandler) CustomerSavingProductsImportCommitJSON(w http.ResponseWriter
 		"success": true,
 		"added":   added,
 		"updated": updated,
-		"message": fmt.Sprintf("تم استيراد وحفظ %d منتج بنجاح (جديد: %d، تم تحديثه: %d).", added+updated, added, updated),
+		"message": fmt.Sprintf(i18n.T(langOf(r), "customer.saving.import.commit_success"), added+updated, added, updated),
 	})
 }
 
@@ -492,7 +493,7 @@ func (h *UIHandler) CustomerSavingProductsImportCancelJSON(w http.ResponseWriter
 	ctx := r.Context()
 	actor, ok := authctx.From(ctx)
 	if !ok || actor.OrganizationID <= 0 {
-		_ = json.NewEncoder(w).Encode(map[string]any{"success": false, "error": "غير مصرح"})
+		_ = json.NewEncoder(w).Encode(map[string]any{"success": false, "error": i18n.T(langOf(r), "common.unauthorized")})
 		return
 	}
 

@@ -10,6 +10,7 @@ import (
 	"github.com/muhiya/dawa24-store/internal/modules/commerce"
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/platform/database"
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/shared/money"
 	"github.com/muhiya/dawa24-store/internal/ui/pages"
 )
@@ -25,7 +26,7 @@ func (h *UIHandler) CustomerCartPage(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if !actor.IsCustomer() {
-		h.redirectWithNotice(w, r, "/catalog", "error", "عذراً، الشراء وسلة الطلبات متاحة حصرياً للصيدليات المرخصة.")
+		h.redirectWithNotice(w, r, "/catalog", "error", i18n.T(langOf(r), "customer.cart.pharmacy_only"))
 		return
 	}
 
@@ -57,9 +58,9 @@ func (h *UIHandler) CustomerCartPage(w http.ResponseWriter, r *http.Request) {
 					if !res.Allowed {
 						if res.Reason == commerce.ReasonNotCovered || res.Reason == commerce.ReasonBranchNoLocation {
 							it.IsCovered = false
-							it.CoverageReason = "خارج نطاق التغطية للفرع المحدد"
+							it.CoverageReason = i18n.T(langOf(r), "customer.cart.coverage_outside")
 						} else if res.Reason == commerce.ReasonOutOfStock || res.Reason == commerce.ReasonInsufficientStock {
-							it.CoverageReason = "نفد المخزون لدى المورد"
+							it.CoverageReason = i18n.T(langOf(r), "customer.cart.out_of_stock")
 						}
 					}
 				}
@@ -76,7 +77,7 @@ func (h *UIHandler) AddToCartSubmit(w http.ResponseWriter, r *http.Request) {
 	if !ok {
 		if h.isHTMX(r) {
 			w.Header().Set("HX-Redirect", "/auth/login?redirect=/cart")
-			w.Header().Set("HX-Trigger", `{"showToast":{"message":"يرجى تسجيل الدخول كصيدلية مرخصة للشراء","type":"error"}}`)
+			w.Header().Set("HX-Trigger", fmt.Sprintf(`{"showToast":{"message":%q,"type":"error"}}`, i18n.T(langOf(r), "customer.cart.login_required")))
 			w.WriteHeader(http.StatusUnauthorized)
 			return
 		}
@@ -86,18 +87,18 @@ func (h *UIHandler) AddToCartSubmit(w http.ResponseWriter, r *http.Request) {
 
 	if !actor.IsCustomer() {
 		if h.isHTMX(r) {
-			w.Header().Set("HX-Trigger", `{"showToast":{"message":"عذراً، إضافة الأدوية وسلة المشتريات متاحة حصرياً لحسابات الصيدليات المرخصة","type":"error"}}`)
+			w.Header().Set("HX-Trigger", fmt.Sprintf(`{"showToast":{"message":%q,"type":"error"}}`, i18n.T(langOf(r), "customer.cart.add_pharmacy_only")))
 			w.WriteHeader(http.StatusForbidden)
 			return
 		}
-		h.redirectWithNotice(w, r, "/catalog", "error", "عذراً، إضافة الأدوية وطلب التوريد متاح حصرياً للصيدليات المرخصة.")
+		h.redirectWithNotice(w, r, "/catalog", "error", i18n.T(langOf(r), "customer.cart.order_pharmacy_only"))
 		return
 	}
 
 	userID := actor.UserID
 	if h.commSvc == nil {
 		if h.isHTMX(r) {
-			w.Header().Set("HX-Trigger", `{"showToast":{"message":"خدمة السلة غير متوفرة حالياً","type":"error"}}`)
+			w.Header().Set("HX-Trigger", fmt.Sprintf(`{"showToast":{"message":%q,"type":"error"}}`, i18n.T(langOf(r), "customer.cart.service_unavailable")))
 			w.WriteHeader(http.StatusServiceUnavailable)
 			return
 		}
@@ -203,13 +204,13 @@ func (h *UIHandler) AddToCartSubmit(w http.ResponseWriter, r *http.Request) {
 				itemCount += ci.Quantity
 			}
 		}
-		w.Header().Set("HX-Trigger", fmt.Sprintf(`{"showToast":{"message":"تمت إضافة الصنف إلى سلة المشتريات بنجاح","type":"success"},"cartUpdated":{"count":%d}}`, itemCount))
+		w.Header().Set("HX-Trigger", fmt.Sprintf(`{"showToast":{"message":%q,"type":"success"},"cartUpdated":{"count":%d}}`, i18n.T(langOf(r), "customer.cart.add_success"), itemCount))
 		w.WriteHeader(http.StatusOK)
 		return
 	}
 
 	if returnTo := strings.TrimSpace(r.PostFormValue("return_to")); returnTo != "" {
-		h.redirectWithNotice(w, r, returnTo, "success", "تمت إضافة الصنف إلى سلة المشتريات بنجاح.")
+		h.redirectWithNotice(w, r, returnTo, "success", i18n.T(langOf(r), "customer.cart.add_success"))
 		return
 	}
 
