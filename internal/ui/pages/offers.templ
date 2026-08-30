@@ -312,44 +312,36 @@ templ OfferDetailContent(lang string, data OfferDetailPageData) {
 				</div>
 			</div>
 
-			<!-- Master Bundle Purchase Action Box -->
-			<div class="p-5 bg-brand-50/50 border border-brand-200/70 rounded-2xl mb-6 shadow-xs">
-				<div class="flex-between items-center flex-wrap gap-4">
+			<!-- Clean Direct Add-to-Cart Action Bar -->
+			<div class="p-5 bg-surface-raised border border-slate-200/90 rounded-2xl mb-6 shadow-sm flex-between items-center flex-wrap gap-4">
+				<div class="d-flex items-center gap-3">
+					<div class="w-10 h-10 rounded-xl bg-brand-50 text-brand-600 border border-brand-100 d-flex items-center justify-center font-black">
+						@components.IconTag("icon-sm")
+					</div>
 					<div>
-						<div class="d-flex items-center gap-2 mb-1">
-							<span class="w-8 h-8 rounded-lg bg-brand-100 text-brand-700 d-flex items-center justify-center font-black">
-								@components.IconBoxes("icon-xs")
-							</span>
-							<div>
-								<h3 class="text-sm font-black text-primary m-0">شراء باقة العرض الترويجي المتكاملة</h3>
-								<p class="text-xs text-secondary m-0 mt-0.5 font-medium">
-									تحتوي الباقة على جميع الأصناف والكميات المحددة أدناه بأسعار الخصم المعتمدة للعرض.
-								</p>
-							</div>
-						</div>
+						<h3 class="text-sm font-black text-primary m-0">طلب هذا العرض الترويجي</h3>
+						<p class="text-xs text-secondary m-0 mt-0.5 font-medium">
+							إضافة كافة أصناف العرض بأسعار التخفيض المعتمدة مباشرة إلى سلة المشتريات
+						</p>
 					</div>
+				</div>
 
-					<div class="d-flex items-center gap-3 flex-wrap">
-						if actor, ok := authctx.From(ctx); ok && actor.IsCustomer() {
-							<form action="/cart/add-offer" method="POST" hx-post="/cart/add-offer" hx-swap="none" class="m-0 d-flex items-center gap-3 flex-wrap">
-								<input type="hidden" name="offer_id" value={ fmt.Sprintf("%d", data.Offer.ID) } />
-								<div class="d-flex items-center gap-2">
-									<label class="text-xs font-bold text-secondary">الكمية (باقة):</label>
-									<input type="number" name="quantity" value="1" min="1" max="50" class="form-input text-xs font-bold tabular-nums text-center" style="width: 70px; height: 38px; border-radius: 8px;" />
-								</div>
-								<button type="submit" class="btn btn-primary font-black text-xs px-6 py-2.5 gap-2 shadow-sm" style="border-radius: 8px;">
-									@components.IconCart("icon-xs")
-									<span>إضافة باقة العرض بالكامل إلى السلة</span>
-								</button>
-							</form>
-						} else {
-							<a href={ templ.SafeURL(fmt.Sprintf("/auth/login?redirect=/offers/%d", data.Offer.ID)) } class="btn btn-primary font-black text-xs px-6 py-2.5 gap-2 shadow-sm" style="border-radius: 8px;">
-								@components.IconShield("icon-xs")
-								<span>تسجيل الدخول كصيدلية لشراء باقة العرض</span>
-							</a>
-						}
-
-					</div>
+				<div class="d-flex items-center gap-3 flex-wrap">
+					if actor, ok := authctx.From(ctx); ok && actor.IsCustomer() {
+						<form action="/cart/add-offer" method="POST" class="m-0 d-flex items-center gap-3">
+							<input type="hidden" name="offer_id" value={ fmt.Sprintf("%d", data.Offer.ID) } />
+							<input type="hidden" name="quantity" value="1" />
+							<button type="submit" class="btn btn-primary font-black text-sm px-6 py-2.5 gap-2 shadow-sm hover:shadow-md transition-all" style="border-radius: 10px;">
+								@components.IconCart("icon-xs")
+								<span>إضافة العرض للسلة والشراء الآن</span>
+							</button>
+						</form>
+					} else {
+						<a href={ templ.SafeURL(fmt.Sprintf("/auth/login?redirect=/offers/%d", data.Offer.ID)) } class="btn btn-primary font-black text-xs px-6 py-2.5 gap-2 shadow-sm" style="border-radius: 10px;">
+							@components.IconShield("icon-xs")
+							<span>تسجيل الدخول كصيدلية لشراء العرض</span>
+						</a>
+					}
 				</div>
 			</div>
 

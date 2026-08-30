@@ -1053,12 +1053,14 @@ func (h *UIHandler) AddOfferToCartSubmit(w http.ResponseWriter, r *http.Request)
 	}
 
 	sp, err := h.promoSvc.GetSpecialOffer(ctx, offerID)
+	var baseOffer *promo.Offer
 	if err != nil || sp == nil {
 		o, oErr := h.promoSvc.GetOffer(ctx, offerID)
 		if oErr != nil || o == nil {
 			h.redirectWithNotice(w, r, "/offers", "error", "العرض المطلوب غير موجود أو انتهت صلاحيته.")
 			return
 		}
+		baseOffer = o
 		sp = &promo.SpecialOffer{
 			ID:                 o.ID,
 			OrganizationID:     o.OrganizationID,
@@ -1070,16 +1072,49 @@ func (h *UIHandler) AddOfferToCartSubmit(w http.ResponseWriter, r *http.Request)
 	addedItemsCount := 0
 	if len(sp.Products) > 0 {
 		for _, p := range sp.Products {
-			if p == nil || p.VariantID <= 0 {
+			if p == nil {
 				continue
 			}
+
+			variantID := p.VariantID
+			prodID := int64(0)
+			unitPrice := p.CustomPrice
+
+			// If variant ID is missing, resolve variant from catalog
+			if variantID <= 0 && h.catSvc != nil {
+				if prodID > 0 {
+					if _, vars, vErr := h.catSvc.GetProduct(database.AsSystem(ctx), prodID); vErr == nil && len(vars) > 0 {
+						for _, v := range vars {
+							if v.OrganizationID == sp.OrganizationID || variantID <= 0 {
+								variantID = v.ID
+								if unitPrice.IsZero() {
+									unitPrice = v.Price
+								}
+								break
+							}
+						}
+					}
+				}
+			}
+
+			if variantID <= 0 {
+				continue
+			}
+
 			qty := p.Quantity * bundleMultiplier
 			if qty <= 0 {
 				qty = bundleMultiplier
 			}
 
-			prodID := int64(0)
-			unitPrice := p.CustomPrice
+			if h.catSvc != nil {
+				if v, vErr := h.catSvc.GetVariant(database.AsSystem(ctx), variantID); vErr == nil && v != nil {
+					prodID = v.ProductID
+					if unitPrice.IsZero() {
+						unitPrice = v.Price
+					}
+				}
+			}
+
 			if unitPrice.IsZero() && p.OriginalPrice.IsPositive() {
 				if sp.DiscountPercentage > 0 {
 					discMinor := int64(float64(p.OriginalPrice.Minor()) * (sp.DiscountPercentage / 100.0))
@@ -1089,18 +1124,9 @@ func (h *UIHandler) AddOfferToCartSubmit(w http.ResponseWriter, r *http.Request)
 				}
 			}
 
-			if h.catSvc != nil {
-				if v, vErr := h.catSvc.GetVariant(database.AsSystem(ctx), p.VariantID); vErr == nil && v != nil {
-					prodID = v.ProductID
-					if unitPrice.IsZero() {
-						unitPrice = v.Price
-					}
-				}
-			}
-
 			item := &commerce.CartItem{
 				ProductID:        prodID,
-				ProductVariantID: p.VariantID,
+				ProductVariantID: variantID,
 				OrganizationID:   sp.OrganizationID,
 				Quantity:         qty,
 				UnitPrice:        unitPrice,
@@ -1110,22 +1136,54 @@ func (h *UIHandler) AddOfferToCartSubmit(w http.ResponseWriter, r *http.Request)
 			if _, aErr := h.commSvc.AddToCart(ctx, userID, item); aErr == nil {
 				addedItemsCount++
 			} else {
-				h.log.WarnContext(ctx, "add offer item to cart error", "error", aErr, "variant_id", p.VariantID)
+				h.log.WarnContext(ctx, "add offer item to cart error", "error", aErr, "variant_id", variantID)
+			}
+		}
+	} else if baseOffer != nil && len(baseOffer.ProductIDs) > 0 && h.catSvc != nil {
+		for _, pID := range baseOffer.ProductIDs {
+			if _, vars, vErr := h.catSvc.GetProduct(database.AsSystem(ctx), pID); vErr == nil && len(vars) > 0 {
+				var targetVar *catalog.ProductVariant
+				for _, v := range vars {
+					if v.OrganizationID == baseOffer.OrganizationID {
+						targetVar = v
+						break
+					}
+				}
+				if targetVar == nil {
+					targetVar = vars[0]
+				}
+				if targetVar != nil {
+					uPrice := targetVar.Price
+					if sp.DiscountPercentage > 0 && uPrice.IsPositive() {
+						discMinor := int64(float64(uPrice.Minor()) * (sp.DiscountPercentage / 100.0))
+						uPrice = money.FromMinor(uPrice.Minor() - discMinor)
+					}
+					item := &commerce.CartItem{
+						ProductID:        pID,
+						ProductVariantID: targetVar.ID,
+						OrganizationID:   baseOffer.OrganizationID,
+						Quantity:         bundleMultiplier,
+						UnitPrice:        uPrice,
+						OfferID:          &offerID,
+					}
+					if _, aErr := h.commSvc.AddToCart(ctx, userID, item); aErr == nil {
+						addedItemsCount++
+					}
+				}
 			}
 		}
 	}
 
-
 	// Record offer conversion / click
 	_ = h.promoSvc.RecordOfferClick(ctx, offerID)
 
-	if addedItemsCount == 0 && len(sp.Products) > 0 {
+	if addedItemsCount == 0 {
 		if h.isHTMX(r) {
-			w.Header().Set("HX-Trigger", `{"showToast":{"message":"تعذر إضافة أصناف العرض إلى السلة، يرجى المحاولة لاحقاً","type":"error"}}`)
+			w.Header().Set("HX-Trigger", `{"showToast":{"message":"تعذر إضافة أصناف العرض إلى السلة، يرجى التأكد من توفر أصناف العرض","type":"error"}}`)
 			w.WriteHeader(http.StatusBadRequest)
 			return
 		}
-		h.redirectWithNotice(w, r, fmt.Sprintf("/offers/%d", offerID), "error", "تعذر إضافة أصناف العرض إلى السلة.")
+		h.redirectWithNotice(w, r, fmt.Sprintf("/offers/%d", offerID), "error", "تعذر إضافة أصناف العرض إلى السلة، يرجى التأكد من توفر أصناف العرض.")
 		return
 	}
 
@@ -1137,12 +1195,12 @@ func (h *UIHandler) AddOfferToCartSubmit(w http.ResponseWriter, r *http.Request)
 				totalCount += ci.Quantity
 			}
 		}
-		w.Header().Set("HX-Trigger", fmt.Sprintf(`{"showToast":{"message":"تمت إضافة باقة العرض بالكامل إلى سلة المشتريات بنجاح","type":"success"},"cartUpdated":{"count":%d}}`, totalCount))
+		w.Header().Set("HX-Trigger", fmt.Sprintf(`{"showToast":{"message":"تمت إضافة العرض بنجاح إلى سلة المشتريات","type":"success"},"cartUpdated":{"count":%d}}`, totalCount))
 		w.WriteHeader(http.StatusOK)
 		return
 	}
 
-	h.redirectWithNotice(w, r, "/cart", "success", "تمت إضافة باقة العرض بالكامل إلى سلة المشتريات بنجاح.")
+	h.redirectWithNotice(w, r, "/cart", "success", "تمت إضافة العرض بنجاح إلى سلة المشتريات.")
 }
 
 

@@ -53,9 +53,6 @@ func pharmacyOrderPerms() []Permission {
 		pharmacyPage("pharmacy.smart_order.view", g, "smart_order", "الطلب الذكي", "Smart ordering"),
 		pharmacyAct("pharmacy.smart_order.run", g, "تشغيل الطلب الذكي وإرساله", "Run and submit a smart order", "pharmacy.smart_order.view"),
 
-		pharmacyPage("pharmacy.priority.view", g, "purchase_priority", "أولويات الشراء", "Purchase priority"),
-		pharmacyAct("pharmacy.priority.run", g, "تشغيل محرك الأولويات", "Run the priority engine", "pharmacy.priority.view"),
-
 		pharmacyPage("pharmacy.order.view", g, "orders", "الطلبات والشحنات", "Orders & shipments"),
 		pharmacyAct("pharmacy.order.create", g, "إتمام الشراء وإرسال الطلبات", "Check out and place orders", "pharmacy.order.view"),
 		pharmacyAct("pharmacy.order.update", g, "تعديل الطلبات والتفاوض", "Edit orders and negotiate", "pharmacy.order.view"),

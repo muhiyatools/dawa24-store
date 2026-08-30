@@ -44,16 +44,12 @@ func (h *UIHandler) registerCustomerBuyingRoutes(r chi.Router) {
 		g.Get("/customer/purchase-request/supplier/{id}", h.CustomerPurchaseRequestSupplierRedirect)
 		g.Get("/customer/add-order", h.CustomerAddOrderPage)
 		g.Get("/customer/products/main/{id}", h.CustomerProductsMainAlias)
-	})
-
-	r.Group(func(g chi.Router) {
-		g.Use(authctx.RequireTenantPagePermission("pharmacy.priority.view"))
-		g.Get("/customer/purchase-priority", h.CustomerPurchasePriorityPage)
-		g.Get("/customer/purchase-priority/{id}", h.CustomerPurchasePriorityDetailPage)
-	})
-	r.Group(func(g chi.Router) {
-		g.Use(authctx.RequireTenantPagePermission("pharmacy.priority.run"))
-		g.Post("/customer/purchase-priority/run", h.CustomerPurchasePriorityRunSubmit)
+		g.Get("/customer/purchase-priority", func(w http.ResponseWriter, r *http.Request) {
+			http.Redirect(w, r, "/customer/dashboard", http.StatusMovedPermanently)
+		})
+		g.Get("/customer/purchase-priority/*", func(w http.ResponseWriter, r *http.Request) {
+			http.Redirect(w, r, "/customer/dashboard", http.StatusMovedPermanently)
+		})
 	})
 
 	// The former Automatic Purchase Request feature is superseded by Smart

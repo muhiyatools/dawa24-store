@@ -315,10 +315,10 @@ templ VendorProducts(data VendorVariantsData, lang, dir string, isPartial bool) 
 			</div>
 
 			<!-- MODAL 1: Master Catalog Selection Modal -->
-			<div id="add-from-catalog-modal" class="modal-overlay hidden">
-				<div class="card" style="max-width:720px; width:100%; max-height:90vh; overflow-y:auto; background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-2xl); padding:1.75rem; box-shadow:0 25px 50px -12px rgba(0,0,0,0.5);">
-					<div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--border); padding-bottom:1rem; margin-bottom:1.25rem;">
-						<div class="row-center-sm">
+			<div id="add-from-catalog-modal" class="modal-overlay hidden" style="position:fixed; inset:0; z-index:9999; display:none; align-items:center; justify-content:center; padding:1.25rem; background:rgba(15, 23, 42, 0.65); backdrop-filter:blur(4px);">
+				<div class="card" style="max-width:760px; width:100%; min-height:480px; max-height:90vh; display:flex; flex-direction:column; overflow:hidden; background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-2xl); padding:1.75rem; box-shadow:0 25px 50px -12px rgba(0,0,0,0.5);">
+					<div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--border); padding-bottom:1rem; margin-bottom:1.25rem; flex-shrink:0;">
+						<div class="row-center-sm gap-2">
 							<span class="text-2xl">🌐</span>
 							<h3 class="text-xl fw-900 text-primary m-0">
 								إضافة صنف من الكتالوج المركزي العام
@@ -329,7 +329,7 @@ templ VendorProducts(data VendorVariantsData, lang, dir string, isPartial bool) 
 						</button>
 					</div>
 
-					<form method="POST" action="/vendor/products/add-from-catalog" id="add-from-catalog-form">
+					<form method="POST" action="/vendor/products/add-from-catalog" id="add-from-catalog-form" style="display:flex; flex-direction:column; flex:1; overflow-y:auto; padding-inline-end:0.25rem;">
 						<input type="hidden" id="cat-select-product-id" name="product_id" value="" />
 						<input type="hidden" id="cat-select-name-ar" name="name_ar" value="" />
 						<input type="hidden" id="cat-select-name-en" name="name_en" value="" />
@@ -337,27 +337,30 @@ templ VendorProducts(data VendorVariantsData, lang, dir string, isPartial bool) 
 						<input type="hidden" id="cat-select-barcode" name="barcode" value="" />
 						<input type="hidden" id="cat-select-unit" name="unit" value="" />
 
-						<div class="stack-lg">
+						<div class="stack-lg" style="flex:1;">
 							
 							<!-- Search Input for General Catalog -->
-							<div style="position:relative;">
+							<div style="position:relative; width:100%;">
 								<label class="form-label" style="font-weight:800; color:var(--text); font-size:0.875rem; margin-bottom:0.4rem;">
 									1. ابحث في الكتالوج المركزي العام <span class="text-danger">*</span>
 								</label>
-								<input
-									type="text"
-									id="cat-search-input"
-									placeholder="اكتب اسم الدواء، المادة الفعالة، أو كود SKU..."
-									class="form-input"
-									style="width:100%; border-radius:var(--radius-lg); padding-inline-start:2.5rem;"
-									oninput="searchMasterCatalogLive(this.value)"
-								/>
-								<div style="position:absolute; inset-inline-start:0.85rem; top:38px; color:var(--text-muted); pointer-events:none;">
-									@components.IconSearch("icon-xs")
+								<div style="position:relative; width:100%;">
+									<input
+										type="text"
+										id="cat-search-input"
+										placeholder="اكتب اسم الدواء، المادة الفعالة، أو كود SKU..."
+										class="form-input"
+										style="width:100%; border-radius:var(--radius-lg); padding-inline-start:2.75rem; font-size:0.95rem; height:46px;"
+										oninput="searchMasterCatalogLive(this.value)"
+										autocomplete="off"
+									/>
+									<div style="position:absolute; inset-inline-start:0.95rem; top:50%; transform:translateY(-50%); color:var(--text-muted); pointer-events:none; display:flex; align-items:center;">
+										@components.IconSearch("icon-sm")
+									</div>
 								</div>
 
-								<!-- Dropdown Results -->
-								<div id="cat-search-dropdown" style="display:none; position:absolute; top:100%; left:0; right:0; z-index:100; max-height:220px; overflow-y:auto; background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-lg); box-shadow:0 10px 25px rgba(0,0,0,0.3); margin-top:0.25rem;"></div>
+								<!-- Dropdown Results in flow -->
+								<div id="cat-search-dropdown" style="display:none; max-height:280px; overflow-y:auto; background:var(--surface-sunken); border:1px solid var(--border); border-radius:var(--radius-xl); box-shadow:0 8px 24px rgba(0,0,0,0.18); margin-top:0.6rem;"></div>
 							</div>
 
 							<!-- Selected Product Info Card Preview -->

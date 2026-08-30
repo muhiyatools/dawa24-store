@@ -472,11 +472,18 @@ func (r *Repository) GetSpecialOfferByID(ctx context.Context, id int64) (*promo.
 
 		// Load Products
 		pRows, _ := tx.Query(txCtx, `
-			SELECT p.id, p.offer_id, p.variant_id, COALESCE(prod.name->>'ar', prod.name->>'en', pv.sku, ''), COALESCE(pv.price, 0),
-			       p.custom_price, p.custom_discount_percentage, p.custom_discount_amount, p.custom_qty, p.created_at
+			SELECT p.id, p.offer_id, 
+			       COALESCE(p.variant_id, pv.id, 0),
+			       COALESCE(prod.name->>'ar', prod.name->>'en', pv.sku, 'صنف دوائي معتمد'),
+			       COALESCE(pv.price, prod.base_price, 0),
+			       COALESCE(p.custom_price, 0),
+			       COALESCE(p.custom_discount_percentage, 0),
+			       COALESCE(p.custom_discount_amount, 0),
+			       COALESCE(NULLIF(p.custom_qty, 0), 1),
+			       p.created_at
 			FROM promo.offer_products p
 			LEFT JOIN catalog.product_variants pv ON pv.id = p.variant_id
-			LEFT JOIN catalog.products prod ON prod.id = pv.product_id
+			LEFT JOIN catalog.products prod ON prod.id = COALESCE(p.product_id, pv.product_id)
 			WHERE p.offer_id = $1;
 		`, id)
 		if pRows != nil {
