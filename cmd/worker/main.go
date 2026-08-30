@@ -16,6 +16,7 @@ import (
 	"github.com/muhiya/dawa24-store/internal/modules/billing"
 	billingPostgres "github.com/muhiya/dawa24-store/internal/modules/billing/postgres"
 	catalogJobs "github.com/muhiya/dawa24-store/internal/modules/catalog/jobs"
+	ingestPostgres "github.com/muhiya/dawa24-store/internal/modules/ingest/postgres"
 	"github.com/muhiya/dawa24-store/internal/platform/aiusage"
 	aiusagePostgres "github.com/muhiya/dawa24-store/internal/platform/aiusage/postgres"
 	"github.com/muhiya/dawa24-store/internal/platform/config"
@@ -84,6 +85,50 @@ func run() error {
 	if err := queueClient.Migrate(ctx); err != nil {
 		return err
 	}
+
+	// Releasing imports wedged in 'processing'.
+	//
+	// A staging run lives in the web process, so a deploy or a crash strands the
+	// session it was working on: the vendor sees a progress bar that polls for
+	// ever against work nobody is doing. Nothing swept those up, and the only
+	// recovery was editing the row by hand. A session whose rows are staged is
+	// promoted to review with its counters recomputed — the vendor gets the
+	// result the dead process already produced — and one with no rows is failed
+	// so they are told to upload again.
+	go func() {
+		importRepo := ingestPostgres.NewRepository(db)
+		sweep := func(reason string) {
+			// Cross-tenant by nature: it sweeps every organisation's sessions.
+			n, err := importRepo.RecoverStaleRuns(database.AsSystem(ctx))
+			if err != nil {
+				log.Error("wedged import sweep failed", "trigger", reason, "error", err)
+				return
+			}
+			if n > 0 {
+				log.Info("released wedged import runs", "trigger", reason, "count", n)
+			}
+		}
+
+		// Once shortly after boot, because a crash loop is exactly when
+		// sessions get stranded and exactly when somebody is watching.
+		select {
+		case <-ctx.Done():
+			return
+		case <-time.After(30 * time.Second):
+			sweep("startup")
+		}
+
+		ticker := time.NewTicker(15 * time.Minute)
+		defer ticker.Stop()
+		for {
+			select {
+			case <-ctx.Done():
+				return
+			case <-ticker.C:
+				sweep("periodic")
+			}
+		}
+	}()
 
 	// Daily Subscription Renewal Scheduler (Runs once every 24 hours)
 	go func() {

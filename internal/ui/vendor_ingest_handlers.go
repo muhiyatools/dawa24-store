@@ -341,10 +341,16 @@ func (h *UIHandler) VendorIngestProgress(w http.ResponseWriter, r *http.Request)
 		return
 	}
 	payload := map[string]any{
-		"phase":    session.Phase,
-		"percent":  session.ProgressPercent,
-		"note":     session.ProgressNote,
-		"done":     session.Phase.Terminal(),
+		"phase":   session.Phase,
+		"percent": session.ProgressPercent,
+		"note":    session.ProgressNote,
+		// "done" means the run has stopped, not that the import is finished.
+		//
+		// It used to be Phase.Terminal(), which is completed/failed/cancelled —
+		// correct for the commit path, and wrong for staging, which ends in
+		// 'review'. The browser polled a bar sitting at 100% for ever and the
+		// vendor never reached the review screen the run had already built.
+		"done":     session.Phase != ingest.PhaseProcessing,
 		"inserted": session.InsertedRows,
 		"updated":  session.UpdatedRows,
 		"skipped":  session.SkippedRows,

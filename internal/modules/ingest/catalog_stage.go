@@ -100,11 +100,10 @@ func (s *Service) StageImport(ctx context.Context, session *Session) error {
 	session.ErrorRows = run.counts.errors + result.Stats.Rejected
 	session.Phase = PhaseReview
 
-	if err := s.imports.SaveDraft(ctx, session); err != nil {
-		return err
-	}
-	s.note(ctx, session, 100, "اكتملت المعالجة")
-	return nil
+	// FinishStaging, not SaveDraft: the session is in 'processing' and SaveDraft
+	// refuses that phase on purpose. Writing the outcome through it matched
+	// zero rows and wedged every import at 95% with the work already done.
+	return s.imports.FinishStaging(ctx, session)
 }
 
 // note records how far the run has reached, without letting a failed write stop

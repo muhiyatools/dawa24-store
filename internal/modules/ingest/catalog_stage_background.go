@@ -4,7 +4,6 @@ import (
 	"context"
 	"time"
 
-	"github.com/muhiya/dawa24-store/internal/platform/database"
 	"github.com/muhiya/dawa24-store/internal/shared/apperr"
 )
 
@@ -76,10 +75,27 @@ func (s *Service) StageInBackground(ctx context.Context, session *Session) error
 	// exactly this: keep who you are, lose when you must stop.
 	runCtx, cancel := context.WithTimeout(context.WithoutCancel(ctx), stageTimeout)
 
+	// The goroutine works on its own copy. The caller still holds the session it
+	// passed in and a handler is free to read it while rendering; two goroutines
+	// writing and reading the same struct is a data race whatever the fields
+	// happen to be.
+	running := *session
+
 	go func() {
 		defer cancel()
-		defer s.runs.release(session.PublicID)
-		s.runStaging(runCtx, session)
+		defer s.runs.release(running.PublicID)
+		// A panic in a detached goroutine takes the whole web process with it,
+		// which would end every other vendor's import too. Contained here and
+		// reported as a failed run, so one bad file cannot be an outage.
+		defer func() {
+			if p := recover(); p != nil {
+				s.log.ErrorContext(runCtx, "vendor import staging panicked",
+					"import", running.PublicID, "panic", p)
+				s.failStaging(runCtx, &running,
+					"تعذّر إتمام معالجة الملف بسبب خطأ غير متوقع. يرجى إعادة المحاولة.")
+			}
+		}()
+		s.runStaging(runCtx, &running)
 	}()
 	return nil
 }
@@ -101,11 +117,21 @@ func (s *Service) runStaging(ctx context.Context, session *Session) {
 	s.log.ErrorContext(ctx, "vendor import staging failed",
 		"import", session.PublicID, "error", err)
 
+	s.failStaging(ctx, session, s.stagingFailureMessage(err))
+}
+
+// failStaging records that a run ended badly, so the screen stops polling.
+//
+// Through FinishStaging for the same reason the success path is: the session is
+// in 'processing', and SaveDraft refuses that phase — so the previous version
+// of this could not record a failure either, and a failed run was
+// indistinguishable from a slow one for as long as anyone cared to watch.
+func (s *Service) failStaging(ctx context.Context, session *Session, message string) {
 	session.Phase = PhaseFailed
-	session.ErrorMessage = s.stagingFailureMessage(err)
-	if saveErr := s.imports.SaveDraft(database.AsSystem(ctx), session); saveErr != nil {
+	session.ErrorMessage = message
+	if err := s.imports.FinishStaging(ctx, session); err != nil {
 		s.log.ErrorContext(ctx, "could not record staging failure",
-			"import", session.PublicID, "error", saveErr)
+			"import", session.PublicID, "error", err)
 	}
 }
 

@@ -30,6 +30,13 @@ type ImportStore interface {
 	Begin(ctx context.Context, id int64) error
 	// Progress records how far a run has reached, for the progress screen.
 	Progress(ctx context.Context, id int64, percent int, note string) error
+	// FinishStaging moves a run out of 'processing' and records what it
+	// produced. SaveDraft refuses a session in that phase by design, so a
+	// staging pass cannot publish its own outcome through it.
+	FinishStaging(ctx context.Context, s *Session) error
+	// RecoverStaleRuns releases sessions wedged in 'processing' by a process
+	// that died holding them.
+	RecoverStaleRuns(ctx context.Context) (int, error)
 	// Finish records the outcome of a completed run.
 	Finish(ctx context.Context, s *Session) error
 	// Fail records a run that stopped on an error.

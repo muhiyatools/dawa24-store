@@ -509,3 +509,68 @@ Still open, and deliberately not attempted:
   removes the drift that mattered; merging the two bodies is a larger change
   than the remaining benefit justifies without a parity suite.
 - **The savings import has no AI stage at all** (§3.1).
+
+### 2026-08-30 — Regression: every import wedged in 'processing'
+
+Reported as "the import systems get stuck and give no result". It was a defect
+I introduced in the Phase 3 change, and it is worth recording in full because
+the mechanism is not obvious.
+
+**What happened.** `StageInBackground` publishes `PhaseProcessing`, runs for
+minutes, then writes its outcome. It wrote that outcome through `SaveDraft`,
+whose SQL carries `WHERE id = $1 AND phase IN ('mapping','settings','review',
+'confirm')` — a guard that exists to stop a vendor editing settings underneath a
+run already reading them. `'processing'` is not in that list, so the write
+matched **zero rows** and returned `import.not_open`. The failure handler then
+tried the same call and was refused for the same reason. The session stayed in
+`processing` for ever, with the matching complete, the AI stage finished and
+paid for, and nothing the vendor could reach.
+
+A second, independent bug had the same symptom: the progress endpoint reported
+`done: session.Phase.Terminal()`, which is completed/failed/cancelled. Staging
+ends in `review`, which is **not** terminal, so even a successful run left the
+browser polling a bar at 100% for ever.
+
+**Confirmed on live data** — three of the user's test sessions, all with their
+rows fully staged and their counters never written:
+
+| id | phase | % | rows staged | matched |
+|---|---|---|---|---|
+| 44 | processing | 95 | 1134 / 1135 | 1080 |
+| 45 | processing | 95 | 1473 / 1474 | 1380 |
+| 46 | processing | 45 | 1473 / 1474 | 1380 |
+
+and proved by running both predicates against the live row inside a rolled-back
+transaction: `SaveDraft` → 0 rows, `FinishStaging` → 1 row.
+
+**Fixed.**
+
+- `Repository.FinishStaging` (new) — the transition that owns the other end of
+  `Begin`, updating `WHERE phase = 'processing'`. Staging's success and failure
+  paths both use it; `SaveDraft` keeps its guard.
+- Progress endpoint: `done` is now `phase != processing` — "the run has stopped",
+  not "the import is finished".
+- The detached goroutine got a `recover`: a panic in it would have taken the
+  whole web process down, ending every other vendor's import too.
+- It also works on its own copy of the session, rather than sharing the struct
+  with the handler that is still rendering it.
+- `Repository.RecoverStaleRuns` + `CountWedgedRuns` (new) — a session wedged by a
+  crash or deploy is promoted to `review` with counters recomputed from its rows
+  when the rows exist, and failed with a message when they do not.
+- `cli imports-recover [--apply]` and a 15-minute sweep in the worker, so this
+  self-heals rather than needing a hand-edited row.
+- `catalog_stage_transition_test.go` (new) — three tests modelling the phase
+  predicates. The existing fakes accepted every write, which is why the suite
+  could not see this.
+
+**Recovered in production.** `cli imports-recover --apply` released all three:
+
+| id | phase | % | matched | review | unmatched |
+|---|---|---|---|---|---|
+| 44 | review | 100 | 1041 | 39 | 54 |
+| 45 | review | 100 | 1066 | 314 | 93 |
+| 46 | review | 100 | 1066 | 314 | 93 |
+
+**Checked and clean:** no session is wedged in any subsystem —
+`ingest.catalog_imports` (21 completed, 5 review, 19 cancelled, 1 mapping),
+`catalog.import_sessions`, `smartorder.runs`.

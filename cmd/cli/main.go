@@ -46,6 +46,7 @@ Usage:
   cli health            Verify database and cache connectivity
   cli corpus-export     Copy every retained import file into test/corpus
   cli ai-identities [--apply] [--org N]   Give every منشأة a Gateway user and key
+  cli imports-recover [--apply]           Release imports wedged in 'processing'
 `
 
 }
@@ -200,6 +201,10 @@ func run() error {
 
 	case "ai-identities":
 		return aiIdentities(ctx, db, log, os.Args[2:])
+
+	case "imports-recover":
+		apply := len(os.Args) > 2 && os.Args[2] == "--apply"
+		return importsRecover(ctx, db, log, apply)
 
 	default:
 		fmt.Print(usage())

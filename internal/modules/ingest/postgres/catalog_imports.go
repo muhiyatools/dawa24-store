@@ -110,6 +110,137 @@ func (r *Repository) SaveDraft(ctx context.Context, s *ingest.Session) error {
 	})
 }
 
+// FinishStaging moves a run out of 'processing' and records what it produced.
+//
+// SaveDraft deliberately refuses a session in 'processing' — that guard is what
+// stops a vendor editing settings underneath a run that is already reading
+// them — so a staging pass cannot use it to publish its own result. Using it
+// anyway is a bug this code has already had: the pass set 'processing', worked
+// for several minutes, and then wrote its outcome through SaveDraft, which
+// matched zero rows and returned "not open". The failure handler then tried the
+// same call and was refused for the same reason, so every import wedged in
+// 'processing' at 95% with the work complete and nothing to show for it.
+//
+// This is the transition that owns the other end of Begin.
+func (r *Repository) FinishStaging(ctx context.Context, s *ingest.Session) error {
+	docs, err := encodeImport(s)
+	if err != nil {
+		return err
+	}
+	stats, err := json.Marshal(s.Stats)
+	if err != nil {
+		return fmt.Errorf("ingest postgres: encode import stats: %w", err)
+	}
+	findings, err := json.Marshal(s.Findings)
+	if err != nil {
+		return fmt.Errorf("ingest postgres: encode import findings: %w", err)
+	}
+	return r.db.InTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
+		tag, err := tx.Exec(txCtx, `
+			UPDATE ingest.catalog_imports
+			SET phase = $2, settings = $3, mapping = $4, stats = $5, findings = $6,
+			    total_rows = $7, matched_rows = $8, review_rows = $9, unmatched_rows = $10,
+			    error_rows = $11, ai_stats = $12, error_message = $13,
+			    progress_percent = CASE WHEN $2 = 'review' THEN 100 ELSE progress_percent END,
+			    completed_at = CASE WHEN $2 = 'failed' THEN now() ELSE completed_at END
+			WHERE id = $1 AND phase = 'processing'`,
+			s.ID, string(s.Phase), docs.settings, docs.mapping, stats, findings,
+			s.TotalRows, s.MatchedRows, s.ReviewRows, s.UnmatchedRows,
+			s.ErrorRows, docs.aiStats, s.ErrorMessage)
+		if err != nil {
+			return fmt.Errorf("ingest postgres: finish staging: %w", err)
+		}
+		if tag.RowsAffected() == 0 {
+			return apperr.Conflict("import.not_processing",
+				"لم تعد هذه الجلسة قيد المعالجة.")
+		}
+		return nil
+	})
+}
+
+// CountWedgedRuns reports how many sessions are stuck in 'processing', so an
+// operator can see the damage before changing anything.
+func (r *Repository) CountWedgedRuns(ctx context.Context) (int, error) {
+	var n int
+	err := r.db.InReadTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
+		return tx.QueryRow(txCtx, `
+			SELECT COUNT(*) FROM ingest.catalog_imports
+			WHERE phase = 'processing'
+			  AND COALESCE(started_at, updated_at, created_at) < now() - INTERVAL '`+staleRunAfter+`'`).Scan(&n)
+	})
+	return n, err
+}
+
+// RecoverStaleRuns releases sessions wedged in 'processing'.
+//
+// A detached staging run lives in the web process. A deploy, a crash, an OOM
+// kill — or, as happened here, an outcome write the phase predicate refused —
+// leaves the session in a phase that Begin, SaveDraft and the progress screen
+// all treat as live. The vendor gets a bar that polls for ever against work
+// nobody is doing, and the only recovery was editing the row by hand.
+//
+// It distinguishes two cases, because they deserve different answers:
+//
+//   - Rows are staged. The matching finished and only the outcome write was
+//     lost, so the session is promoted to 'review' with its counters recomputed
+//     from the rows themselves. The vendor gets the result they already paid
+//     for, including the AI stage.
+//   - No rows are staged. Nothing usable exists, so it is failed with a message
+//     telling the vendor to upload again.
+//
+// Counters come from the rows rather than from memory precisely because the
+// memory is gone: whatever the run held was lost with the process, and the
+// rows are the only surviving record of what it decided.
+func (r *Repository) RecoverStaleRuns(ctx context.Context) (int, error) {
+	var recovered int
+	err := r.db.InTx(ctx, func(txCtx context.Context, tx pgx.Tx) error {
+		promoted, err := tx.Exec(txCtx, `
+			WITH stale AS (
+				SELECT i.id
+				FROM ingest.catalog_imports i
+				WHERE i.phase = 'processing'
+				  AND COALESCE(i.started_at, i.updated_at, i.created_at) < now() - INTERVAL '`+staleRunAfter+`'
+				  AND EXISTS (SELECT 1 FROM ingest.catalog_import_rows r WHERE r.import_id = i.id)
+			), tally AS (
+				SELECT r.import_id,
+				       COUNT(*) FILTER (WHERE r.match_level IN ('barcode','code','exact','strong')) AS matched,
+				       COUNT(*) FILTER (WHERE r.match_level IN ('review','ambiguous'))              AS review,
+				       COUNT(*) FILTER (WHERE r.match_level = 'none' OR r.match_level IS NULL)      AS unmatched
+				FROM ingest.catalog_import_rows r
+				JOIN stale ON stale.id = r.import_id
+				GROUP BY r.import_id
+			)
+			UPDATE ingest.catalog_imports i
+			SET phase = 'review',
+			    progress_percent = 100,
+			    progress_note = 'اكتملت المعالجة',
+			    matched_rows = t.matched,
+			    review_rows = t.review,
+			    unmatched_rows = t.unmatched
+			FROM tally t
+			WHERE i.id = t.import_id`)
+		if err != nil {
+			return fmt.Errorf("ingest postgres: promote stale runs: %w", err)
+		}
+
+		failed, err := tx.Exec(txCtx, `
+			UPDATE ingest.catalog_imports i
+			SET phase = 'failed',
+			    error_message = 'توقفت المعالجة قبل اكتمالها. يرجى إعادة رفع الملف والمحاولة مرة أخرى.',
+			    completed_at = now()
+			WHERE i.phase = 'processing'
+			  AND COALESCE(i.started_at, i.updated_at, i.created_at) < now() - INTERVAL '`+staleRunAfter+`'
+			  AND NOT EXISTS (SELECT 1 FROM ingest.catalog_import_rows r WHERE r.import_id = i.id)`)
+		if err != nil {
+			return fmt.Errorf("ingest postgres: fail stale runs: %w", err)
+		}
+
+		recovered = int(promoted.RowsAffected() + failed.RowsAffected())
+		return nil
+	})
+	return recovered, err
+}
+
 // staleRunAfter is how long a 'processing' phase is trusted before it is
 // treated as a run that died with its process. Begin refuses live runs; past
 // this age the claim is stale — a crash or deploy left the session wedged where
