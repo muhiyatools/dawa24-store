@@ -2,6 +2,7 @@ package ui
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 	"strconv"
 	"time"
@@ -25,7 +26,7 @@ func (h *UIHandler) CustomerCheckoutPage(w http.ResponseWriter, r *http.Request)
 	}
 
 	if !actor.IsCustomer() {
-		h.redirectWithNotice(w, r, "/catalog", "error", "عذراً، إتمام الشراء والتوريد متاح حصرياً للصيدليات المرخصة.")
+		h.redirectWithNotice(w, r, "/catalog", "error", i18n.T(lang, "checkout.pharmacy_only"))
 		return
 	}
 
@@ -152,7 +153,11 @@ func (h *UIHandler) CheckoutSubmit(w http.ResponseWriter, r *http.Request) {
 				When:             time.Now(),
 			})
 			if err == nil && !res.Allowed {
-				h.redirectWithNotice(w, r, "/checkout", "error", "فرع الصيدلية المحدد خارج نطاق التغطية الجغرافية لشركات التوريد ("+res.MessageAr+"). يرجى اختيار فرع معتمد داخل التغطية.")
+				covReason := res.MessageAr
+				if langOf(r) == "en" && res.MessageEn != "" {
+					covReason = res.MessageEn
+				}
+				h.redirectWithNotice(w, r, "/checkout", "error", fmt.Sprintf(i18n.T(langOf(r), "checkout.branch_out_of_coverage_format"), covReason))
 				return
 			}
 		}

@@ -10,12 +10,14 @@ import (
 
 	"github.com/muhiya/dawa24-store/internal/modules/org"
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/shared/money"
 )
 
 // VendorDeliveryBandCreateSubmit creates a new distance delivery fee tier for the vendor.
 func (h *UIHandler) VendorDeliveryBandCreateSubmit(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
+	lang := langOf(r)
 	actor, ok := authctx.From(ctx)
 	if !ok || actor.OrganizationID <= 0 {
 		http.Redirect(w, r, "/auth/login?redirect=/vendor/coverage", http.StatusSeeOther)
@@ -23,7 +25,7 @@ func (h *UIHandler) VendorDeliveryBandCreateSubmit(w http.ResponseWriter, r *htt
 	}
 
 	if err := r.ParseForm(); err != nil {
-		h.redirectWithNotice(w, r, "/vendor/coverage", "error", "تعذر قراءة بيانات الشريحة.")
+		h.redirectWithNotice(w, r, "/vendor/coverage", "error", i18n.T(lang, "delivery.band.read_error"))
 		return
 	}
 
@@ -50,7 +52,7 @@ func (h *UIHandler) VendorDeliveryBandCreateSubmit(w http.ResponseWriter, r *htt
 	feeAmount, _ := strconv.ParseFloat(r.PostFormValue("delivery_fee"), 64)
 
 	if toMeters <= fromMeters || fromMeters < 0 || feeAmount < 0 {
-		h.redirectWithNotice(w, r, "/vendor/coverage", "error", "يرجى التحقق من صحة المسافات بالمتر وقيمة رسوم التوصيل (يجب أن تكون مسافة النهاية أكبر من البداية).")
+		h.redirectWithNotice(w, r, "/vendor/coverage", "error", i18n.T(lang, "delivery.band.invalid_params"))
 		return
 	}
 
@@ -70,17 +72,18 @@ func (h *UIHandler) VendorDeliveryBandCreateSubmit(w http.ResponseWriter, r *htt
 		bands = append(bands, newBand)
 		if err := h.orgSvc.SaveDeliveryBands(ctx, actor.OrganizationID, bands); err != nil {
 			h.log.ErrorContext(ctx, "save delivery bands", "error", err, "org", actor.OrganizationID)
-			h.redirectWithNotice(w, r, "/vendor/coverage", "error", "فشل حفظ شريحة التوصيل: "+err.Error())
+			h.redirectWithNotice(w, r, "/vendor/coverage", "error", fmt.Sprintf(i18n.T(lang, "delivery.band.save_failed_format"), err.Error()))
 			return
 		}
 	}
 
-	h.redirectWithNotice(w, r, "/vendor/coverage", "success", "تم إضافة شريحة تسعير التوصيل بنجاح.")
+	h.redirectWithNotice(w, r, "/vendor/coverage", "success", i18n.T(lang, "delivery.band.added_success"))
 }
 
 // VendorDeliveryBandDeleteSubmit removes a distance delivery fee tier.
 func (h *UIHandler) VendorDeliveryBandDeleteSubmit(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
+	lang := langOf(r)
 	actor, ok := authctx.From(ctx)
 	if !ok || actor.OrganizationID <= 0 {
 		http.Redirect(w, r, "/auth/login?redirect=/vendor/coverage", http.StatusSeeOther)
@@ -89,7 +92,7 @@ func (h *UIHandler) VendorDeliveryBandDeleteSubmit(w http.ResponseWriter, r *htt
 
 	bandID, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
 	if err != nil || bandID <= 0 {
-		h.redirectWithNotice(w, r, "/vendor/coverage", "error", "معرف الشريحة غير صالح.")
+		h.redirectWithNotice(w, r, "/vendor/coverage", "error", i18n.T(lang, "delivery.band.invalid_id"))
 		return
 	}
 
@@ -106,7 +109,7 @@ func (h *UIHandler) VendorDeliveryBandDeleteSubmit(w http.ResponseWriter, r *htt
 		}
 	}
 
-	h.redirectWithNotice(w, r, "/vendor/coverage", "success", "تم حذف شريحة التوصيل بنجاح.")
+	h.redirectWithNotice(w, r, "/vendor/coverage", "success", i18n.T(lang, "delivery.band.deleted_success"))
 }
 
 // ResolveVendorShippingFee calculates the dynamic distance-based delivery fee between a vendor

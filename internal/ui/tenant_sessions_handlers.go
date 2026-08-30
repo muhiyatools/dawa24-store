@@ -7,6 +7,7 @@ import (
 
 	"github.com/muhiya/dawa24-store/internal/modules/identity"
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/ui/pages"
 )
 
@@ -26,7 +27,7 @@ func (h *UIHandler) TenantSessionsPage(w http.ResponseWriter, r *http.Request) {
 	// 1. Resolve limits
 	maxSessions := 3
 	maxDevices := 3
-	planName := "الباقة الأساسية"
+	planName := i18n.T(lang, "tenant.sessions.default_plan")
 	if h.idSvc != nil {
 		if sMax, dMax, pName, err := h.idSvc.GetOrgPlanLimits(ctx, actor.OrganizationID); err == nil {
 			if sMax > 0 {
@@ -66,6 +67,7 @@ func (h *UIHandler) TenantSessionsPage(w http.ResponseWriter, r *http.Request) {
 // TenantSessionRevokeSubmit terminates a specific active session.
 func (h *UIHandler) TenantSessionRevokeSubmit(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
+	lang := langOf(r)
 	actor, ok := authctx.From(ctx)
 	if !ok || actor.UserID == 0 {
 		http.Redirect(w, r, "/auth/login", http.StatusSeeOther)
@@ -86,12 +88,13 @@ func (h *UIHandler) TenantSessionRevokeSubmit(w http.ResponseWriter, r *http.Req
 		}
 	}
 
-	h.redirectWithNotice(w, r, dest, "success", "تم إنهاء جلسة الجهاز المحدد بنجاح.")
+	h.redirectWithNotice(w, r, dest, "success", i18n.T(lang, "tenant.sessions.revoked_device_success"))
 }
 
 // TenantSessionRevokeAllSubmit terminates all sessions except the caller's current session.
 func (h *UIHandler) TenantSessionRevokeAllSubmit(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
+	lang := langOf(r)
 	actor, ok := authctx.From(ctx)
 	if !ok || actor.UserID == 0 {
 		http.Redirect(w, r, "/auth/login", http.StatusSeeOther)
@@ -118,12 +121,13 @@ func (h *UIHandler) TenantSessionRevokeAllSubmit(w http.ResponseWriter, r *http.
 		}
 	}
 
-	h.redirectWithNotice(w, r, dest, "success", "تم إنهاء كافة الجلسات الأخرى بنجاح.")
+	h.redirectWithNotice(w, r, dest, "success", i18n.T(lang, "tenant.sessions.revoked_all_other_success"))
 }
 
 // TenantPasswordChangeSubmit updates password from the dedicated sessions & security page.
 func (h *UIHandler) TenantPasswordChangeSubmit(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
+	lang := langOf(r)
 	actor, ok := authctx.From(ctx)
 	if !ok || actor.UserID == 0 {
 		http.Redirect(w, r, "/auth/login", http.StatusSeeOther)
@@ -141,26 +145,26 @@ func (h *UIHandler) TenantPasswordChangeSubmit(w http.ResponseWriter, r *http.Re
 	confirmPass := r.PostFormValue("confirm_password")
 
 	if strings.TrimSpace(newPass) == "" || newPass != confirmPass {
-		h.redirectWithNotice(w, r, dest, "error", "كلمة المرور الجديدة وتأكيدها غير متطابقين.")
+		h.redirectWithNotice(w, r, dest, "error", i18n.T(lang, "settings.password_mismatch"))
 		return
 	}
 
 	if len(newPass) < 8 {
-		h.redirectWithNotice(w, r, dest, "error", "كلمة المرور الجديدة يجب ألا تقل عن 8 أحرف.")
+		h.redirectWithNotice(w, r, dest, "error", i18n.T(lang, "tenant.sessions.password_too_short"))
 		return
 	}
 
 	if h.idSvc == nil {
-		h.redirectWithNotice(w, r, dest, "error", "خدمة تحديث الحساب غير متاحة حالياً.")
+		h.redirectWithNotice(w, r, dest, "error", i18n.T(lang, "tenant.sessions.service_unavailable"))
 		return
 	}
 
 	if err := h.idSvc.ChangePassword(ctx, actor.UserID, curr, newPass); err != nil {
-		h.redirectWithNotice(w, r, dest, "error", h.safeMessage(err, langOf(r)))
+		h.redirectWithNotice(w, r, dest, "error", h.safeMessage(err, lang))
 		return
 	}
 
-	h.redirectWithNotice(w, r, dest, "success", "تم تحديث كلمة المرور وتأمين الحساب بنجاح.")
+	h.redirectWithNotice(w, r, dest, "success", i18n.T(lang, "tenant.sessions.password_changed_success"))
 }
 
 // Helper to fetch live sessions for the actor/org

@@ -14,6 +14,7 @@ import (
 
 	"github.com/muhiya/dawa24-store/internal/modules/compare"
 	"github.com/muhiya/dawa24-store/internal/platform/database"
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/shared/money"
 	"github.com/muhiya/dawa24-store/internal/shared/sheet"
 )
@@ -21,12 +22,13 @@ import (
 // AdminTempWarehouseMappingJSON returns headers and preview rows for a temporary warehouse file.
 func (h *UIHandler) AdminTempWarehouseMappingJSON(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
+	lang := langOf(r)
 	idStr := chi.URLParam(r, "id")
 	fileID, err := strconv.ParseInt(idStr, 10, 64)
 	if err != nil || fileID <= 0 {
 		w.Header().Set("Content-Type", "application/json; charset=utf-8")
 		w.WriteHeader(http.StatusBadRequest)
-		_ = json.NewEncoder(w).Encode(map[string]any{"success": false, "error": "معرف المستودع غير صحيح"})
+		_ = json.NewEncoder(w).Encode(map[string]any{"success": false, "error": i18n.T(lang, "admin.temp_wh.invalid_id")})
 		return
 	}
 
@@ -34,7 +36,7 @@ func (h *UIHandler) AdminTempWarehouseMappingJSON(w http.ResponseWriter, r *http
 	if err != nil || file == nil {
 		w.Header().Set("Content-Type", "application/json; charset=utf-8")
 		w.WriteHeader(http.StatusNotFound)
-		_ = json.NewEncoder(w).Encode(map[string]any{"success": false, "error": "المستودع غير موجود"})
+		_ = json.NewEncoder(w).Encode(map[string]any{"success": false, "error": i18n.T(lang, "admin.temp_wh.not_found")})
 		return
 	}
 
@@ -91,16 +93,17 @@ func (h *UIHandler) AdminTempWarehouseMappingJSON(w http.ResponseWriter, r *http
 // AdminTempWarehouseMappingSubmit updates column mappings and reparses rows for a warehouse file.
 func (h *UIHandler) AdminTempWarehouseMappingSubmit(w http.ResponseWriter, r *http.Request) {
 	ctx := database.AsSystem(r.Context())
+	lang := langOf(r)
 	idStr := chi.URLParam(r, "id")
 	fileID, err := strconv.ParseInt(idStr, 10, 64)
 	if err != nil || fileID <= 0 {
 		if isJSONOrAJAX(r) {
 			w.Header().Set("Content-Type", "application/json; charset=utf-8")
 			w.WriteHeader(http.StatusBadRequest)
-			_ = json.NewEncoder(w).Encode(map[string]any{"success": false, "error": "معرف المستودع غير صحيح"})
+			_ = json.NewEncoder(w).Encode(map[string]any{"success": false, "error": i18n.T(lang, "admin.temp_wh.invalid_id")})
 			return
 		}
-		h.redirectWithNotice(w, r, "/admin/user/temparte-warehouses", "error", "معرف المستودع غير صحيح.")
+		h.redirectWithNotice(w, r, "/admin/user/temparte-warehouses", "error", i18n.T(lang, "admin.temp_wh.invalid_id"))
 		return
 	}
 
@@ -109,10 +112,10 @@ func (h *UIHandler) AdminTempWarehouseMappingSubmit(w http.ResponseWriter, r *ht
 		if isJSONOrAJAX(r) {
 			w.Header().Set("Content-Type", "application/json; charset=utf-8")
 			w.WriteHeader(http.StatusNotFound)
-			_ = json.NewEncoder(w).Encode(map[string]any{"success": false, "error": "المستودع غير موجود"})
+			_ = json.NewEncoder(w).Encode(map[string]any{"success": false, "error": i18n.T(lang, "admin.temp_wh.not_found")})
 			return
 		}
-		h.redirectWithNotice(w, r, "/admin/user/temparte-warehouses", "error", "المستودع غير موجود.")
+		h.redirectWithNotice(w, r, "/admin/user/temparte-warehouses", "error", i18n.T(lang, "admin.temp_wh.not_found"))
 		return
 	}
 
@@ -240,7 +243,7 @@ func (h *UIHandler) AdminTempWarehouseMappingSubmit(w http.ResponseWriter, r *ht
 			"remaining_queue": nextQueue,
 			"step":            step + 1,
 			"total":           total,
-			"message":         fmt.Sprintf("تم تحديث أعمدة المستودع [%s] بنجاح (إجمالي %d صنف).", f.SupplierName, f.RowCount),
+			"message":         fmt.Sprintf(i18n.T(lang, "admin.temp_wh.mapping_updated_msg"), f.SupplierName, f.RowCount),
 		})
 		return
 	}
@@ -251,7 +254,7 @@ func (h *UIHandler) AdminTempWarehouseMappingSubmit(w http.ResponseWriter, r *ht
 		return
 	}
 
-	h.redirectWithNotice(w, r, "/admin/user/temparte-warehouses", "success", fmt.Sprintf("تم تحديث وتأكيد أعمدة المستودع [%s] بنجاح.", f.SupplierName))
+	h.redirectWithNotice(w, r, "/admin/user/temparte-warehouses", "success", fmt.Sprintf(i18n.T(lang, "admin.temp_wh.mapping_applied_msg"), f.SupplierName))
 }
 
 func isJSONOrAJAX(r *http.Request) bool {

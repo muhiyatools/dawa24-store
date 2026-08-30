@@ -7,21 +7,22 @@ import (
 	"github.com/muhiya/dawa24-store/internal/modules/compare"
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/platform/features"
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/ui/pages"
 )
 
 // ComparePlansPage renders the pricing page for the discount-comparison plans.
 func (h *UIHandler) ComparePlansPage(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
+	lang, dir := h.localeAndDir(r)
 	if actor, ok := authctx.From(ctx); ok && actor.IsCustomer() {
-		h.redirectWithNotice(w, r, "/customer/dashboard", "error", "هذه الصفحة مخصصة لحسابات الموردين فقط.")
+		h.redirectWithNotice(w, r, "/customer/dashboard", "error", i18n.T(lang, "compare.plans.vendors_only"))
 		return
 	}
 	if !features.Enabled(ctx, "compare.enabled") {
 		http.Redirect(w, r, "/", http.StatusSeeOther)
 		return
 	}
-	lang, dir := h.localeAndDir(r)
 
 	var viewPlans []*billing.Plan
 	if h.compareSvc != nil {
@@ -49,19 +50,20 @@ func (h *UIHandler) ComparePlansPage(w http.ResponseWriter, r *http.Request) {
 // CompareSubscribeSubmit subscribes the caller to a compare plan.
 func (h *UIHandler) CompareSubscribeSubmit(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
+	lang := langOf(r)
 	actor, ok := authctx.From(ctx)
 	if !ok {
 		http.Redirect(w, r, "/auth/login?redirect=/compare", http.StatusSeeOther)
 		return
 	}
 	if actor.IsCustomer() {
-		h.redirectWithNotice(w, r, "/customer/dashboard", "error", "هذه الصفحة مخصصة لحسابات الموردين فقط.")
+		h.redirectWithNotice(w, r, "/customer/dashboard", "error", i18n.T(lang, "compare.plans.vendors_only"))
 		return
 	}
 
 	slug := r.URL.Query().Get("plan")
 	if slug == "" {
-		h.redirectWithNotice(w, r, "/compare", "error", "تعذر الاشتراك.")
+		h.redirectWithNotice(w, r, "/compare", "error", i18n.T(lang, "compare.plans.subscribe_failed"))
 		return
 	}
 
@@ -72,16 +74,16 @@ func (h *UIHandler) CompareSubscribeSubmit(w http.ResponseWriter, r *http.Reques
 
 	if h.compareSvc != nil {
 		if _, err := h.compareSvc.SubscribeDirectly(ctx, slug, orgPtr, actor.UserID, "monthly"); err != nil {
-			h.redirectWithNotice(w, r, "/compare", "error", h.safeMessage(err, langOf(r)))
+			h.redirectWithNotice(w, r, "/compare", "error", h.safeMessage(err, lang))
 			return
 		}
 	} else if h.billSvc != nil {
 		if _, err := h.billSvc.Subscribe(ctx, actor.UserID, orgPtr, slug, "compare", nil); err != nil {
-			h.redirectWithNotice(w, r, "/compare", "error", h.safeMessage(err, langOf(r)))
+			h.redirectWithNotice(w, r, "/compare", "error", h.safeMessage(err, lang))
 			return
 		}
 	}
-	h.redirectWithNotice(w, r, "/compare/tool", "success", "تم تفعيل اشتراكك بنجاح في محرك المقارنة.")
+	h.redirectWithNotice(w, r, "/compare/tool", "success", i18n.T(lang, "compare.plans.subscribed_success"))
 }
 
 // CompareToolPage renders the 3-column comparison workspace.
@@ -95,13 +97,13 @@ func (h *UIHandler) CompareToolPage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if actor.IsCustomer() {
-		h.redirectWithNotice(w, r, "/customer/dashboard", "error", "أداة مقارنة الخصومات مخصصة لحسابات الموردين فقط.")
+		h.redirectWithNotice(w, r, "/customer/dashboard", "error", i18n.T(lang, "compare.tool.vendors_only"))
 		return
 	}
 	if !actor.IsStaff && h.billSvc != nil {
 		allowed, err := h.billSvc.CheckOrgEntitlement(ctx, actor.OrganizationID, actor.UserID, billing.FeatureCompareTool)
 		if err != nil || !allowed {
-			h.redirectWithNotice(w, r, "/vendor/subscription?upgrade=pro", "error", "يتطلب استخدام أداة مقارنة الخصومات ترقية باقة اشتراك المنشأة لتشمل هذه الميزة.")
+			h.redirectWithNotice(w, r, "/vendor/subscription?upgrade=pro", "error", i18n.T(lang, "compare.tool.upgrade_required"))
 			return
 		}
 	}
@@ -117,8 +119,8 @@ func (h *UIHandler) CompareToolPage(w http.ResponseWriter, r *http.Request) {
 			w.Header().Set("Content-Type", "text/html; charset=utf-8")
 			if err := pages.SubscriptionGatePage(lang, dir, pages.SubscriptionGateProps{
 				FeatureKey:   billing.FeatureCompareTool,
-				FeatureTitle: "أداة مقارنة الخصومات الخاصة (Private Comparison Tool)",
-				FeatureDesc:  "تتيح لك هذه الأداة رفع كشوف أسعار وخصومات الموردين وتحليل الفروقات واختيار أفضل العروض الدوائية لصيدليتك تلقائياً.",
+				FeatureTitle: i18n.T(lang, "compare.tool.gate_title"),
+				FeatureDesc:  i18n.T(lang, "compare.tool.gate_desc"),
 				FeatureIcon:  "📊",
 				Plans:        plans,
 				Actor:        actor,

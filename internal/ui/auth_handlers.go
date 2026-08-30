@@ -12,6 +12,7 @@ import (
 	platformadmin "github.com/muhiya/dawa24-store/internal/modules/platform_admin"
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/platform/database"
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/shared/money"
 	"github.com/muhiya/dawa24-store/internal/ui/pages"
 )
@@ -28,15 +29,15 @@ func (h *UIHandler) LoginPage(w http.ResponseWriter, r *http.Request) {
 	var errorMsg string
 	switch errorKey {
 	case "concurrent_limit", "session_evicted":
-		errorMsg = "تم إنهاء جلستك تلقائياً نظراً لتسجيل الدخول من جهاز آخر وتجاوز الحد الأقصى للجلسات المتزامنة المصرح بها في باقة المنشأة. يمكنك تسجيل الدخول مجدداً أو ترقية باقة الاشتراك لزيادة عدد الأجهزة."
+		errorMsg = i18n.T(lang, "auth.login.session_evicted")
 	case "invalid_credentials":
-		errorMsg = "البريد الإلكتروني أو كلمة المرور غير صحيحة."
+		errorMsg = i18n.T(lang, "auth.login.invalid_credentials")
 	case "locked":
-		errorMsg = "الحساب مقفل مؤقتاً بسبب تكرار محاولات الدخول الخاطئة."
+		errorMsg = i18n.T(lang, "auth.login.account_locked")
 	case "mfa_unavailable":
-		errorMsg = "المصادقة الثنائية غير متاحة حالياً."
+		errorMsg = i18n.T(lang, "auth.login.mfa_unavailable")
 	case "auth_service_unavailable":
-		errorMsg = "خدمة تسجيل الدخول غير متاحة حالياً."
+		errorMsg = i18n.T(lang, "auth.login.service_unavailable")
 	default:
 		errorMsg = errorKey
 	}
@@ -229,7 +230,7 @@ func (h *UIHandler) RegisterSubmit(w http.ResponseWriter, r *http.Request) {
 		} else if name != "" {
 			legalName = name
 		} else {
-			legalName = "منشأة جديدة"
+			legalName = i18n.T(langOf(r), "auth.register.default_legal_name")
 		}
 	}
 	if tradeNameAr == "" {
@@ -239,7 +240,7 @@ func (h *UIHandler) RegisterSubmit(w http.ResponseWriter, r *http.Request) {
 		name = legalName
 	}
 	if address == "" {
-		address = "المقر الرئيسي"
+		address = i18n.T(langOf(r), "auth.register.default_address")
 	}
 
 	form := pages.RegisterFormData{

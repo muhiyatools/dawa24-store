@@ -103,22 +103,23 @@ func (h *UIHandler) handleJobApplicationAccept(w http.ResponseWriter, r *http.Re
 
 	// Dispatch In-App Notification to the Job Seeker
 	if app != nil && app.ApplicantUserID != nil && *app.ApplicantUserID > 0 && h.notifSvc != nil {
-		orgName := "المنشأة"
+		lang := langOf(r)
+		orgName := i18n.T(lang, "job.notif.default_org")
 		if h.orgSvc != nil {
 			if o, err := h.orgSvc.GetOrganization(ctx, actor.OrganizationID); err == nil && o != nil {
-				orgName = o.TradeName.Get(i18n.AR)
+				orgName = o.TradeName.Get(i18n.ParseLang(lang))
 				if orgName == "" {
 					orgName = o.LegalName
 				}
 			}
 		}
-		branchName := "الفرع الرئيسي"
+		branchName := i18n.T(lang, "job.main_branch")
 		if app.BranchName != "" {
 			branchName = app.BranchName
 		}
 		jobTitle := app.JobTitle
 		if jobTitle == "" {
-			jobTitle = "المعلنة"
+			jobTitle = i18n.T(lang, "job.notif.default_job_title")
 		}
 
 		_, notifErr := h.notifSvc.Send(ctx, notifications.SendInput{
@@ -126,8 +127,8 @@ func (h *UIHandler) handleJobApplicationAccept(w http.ResponseWriter, r *http.Re
 			OrganizationID: &actor.OrganizationID,
 			Channel:        notifications.ChannelInApp,
 			Recipient:      app.ApplicantEmail,
-			Title:          "🎉 تهانينا! تم قبول طلبك للوظيفة",
-			Body:           fmt.Sprintf("تم قبول طلب انضمامك لوظيفة \"%s\" لدى \"%s\" في فرع \"%s\". تم تعيينك وتفعيل لوحة التحكم لتبدأ مهامك مباشرة.", jobTitle, orgName, branchName),
+			Title:          i18n.T(lang, "job.notif.accept_title"),
+			Body:           fmt.Sprintf(i18n.T(lang, "job.notif.accept_body"), jobTitle, orgName, branchName),
 		})
 		if notifErr != nil {
 			h.log.WarnContext(ctx, "failed to send acceptance notification to seeker", "user_id", *app.ApplicantUserID, "error", notifErr)
@@ -177,10 +178,11 @@ func (h *UIHandler) handleJobApplicationReject(w http.ResponseWriter, r *http.Re
 
 	// Dispatch In-App Notification to Job Seeker
 	if app != nil && app.ApplicantUserID != nil && *app.ApplicantUserID > 0 && h.notifSvc != nil {
-		orgName := "المنشأة"
+		lang := langOf(r)
+		orgName := i18n.T(lang, "job.notif.default_org")
 		if h.orgSvc != nil {
 			if o, err := h.orgSvc.GetOrganization(ctx, actor.OrganizationID); err == nil && o != nil {
-				orgName = o.TradeName.Get(i18n.AR)
+				orgName = o.TradeName.Get(i18n.ParseLang(lang))
 				if orgName == "" {
 					orgName = o.LegalName
 				}
@@ -188,7 +190,7 @@ func (h *UIHandler) handleJobApplicationReject(w http.ResponseWriter, r *http.Re
 		}
 		jobTitle := app.JobTitle
 		if jobTitle == "" {
-			jobTitle = "المعلنة"
+			jobTitle = i18n.T(lang, "job.notif.default_job_title")
 		}
 
 		_, _ = h.notifSvc.Send(ctx, notifications.SendInput{
@@ -196,8 +198,8 @@ func (h *UIHandler) handleJobApplicationReject(w http.ResponseWriter, r *http.Re
 			OrganizationID: &actor.OrganizationID,
 			Channel:        notifications.ChannelInApp,
 			Recipient:      app.ApplicantEmail,
-			Title:          "تحديث بخصوص طلب التوظيف",
-			Body:           fmt.Sprintf("نعتذر عن عدم قبول طلبك لوظيفة \"%s\" لدى \"%s\". نتمنى لك كامل التوفيق في الفرص القادمة.", jobTitle, orgName),
+			Title:          i18n.T(lang, "job.notif.reject_title"),
+			Body:           fmt.Sprintf(i18n.T(lang, "job.notif.reject_body"), jobTitle, orgName),
 		})
 	}
 

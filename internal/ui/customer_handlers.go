@@ -297,9 +297,9 @@ func (h *UIHandler) CustomerCatalogPage(w http.ResponseWriter, r *http.Request) 
 					ScientificName: p.ScientificName,
 					PublicPrice:    p.Price,
 					Price:          p.Price,
-					SupplierName:   "طلب توريد خاص",
+					SupplierName:   i18n.T(lang, "customer.catalog.custom_procurement_request"),
 					IsCovered:      false,
-					CoverageReason: "لا تتوفر عروض توريد نشطة لهذا الصنف حالياً",
+					CoverageReason: i18n.T(lang, "customer.catalog.no_active_offers"),
 					CanAddToCart:   false,
 				})
 			}

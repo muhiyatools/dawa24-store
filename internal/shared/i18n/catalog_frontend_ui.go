@@ -353,4 +353,35 @@ func loadFrontendUIKeys(e *engine) {
 	addKey(e, "subscription.plan_required", "billing", "يرجى اختيار باقة صالحة.", "Please select a valid subscription plan.", "Validation error")
 	addKey(e, "subscription.service_unavailable", "billing", "خدمة الاشتراكات غير متوفرة حالياً.", "Subscription service is currently unavailable.", "Service error")
 	addKey(e, "subscription.activated_success", "billing", "تم تفعيل باقة الاشتراك وخصم القيمة من محفظتك بنجاح.", "Subscription plan activated and deducted from your wallet successfully.", "Success notice")
+
+	// --- Connected Devices & Active Sessions ---
+	addKey(e, "tenant.sessions.default_plan", "auth", "الباقة الأساسية", "Basic Plan", "Default subscription plan name")
+	addKey(e, "tenant.sessions.revoked_device_success", "auth", "تم إنهاء جلسة الجهاز المحدد بنجاح.", "Selected device session terminated successfully.", "Success notice")
+	addKey(e, "tenant.sessions.revoked_all_other_success", "auth", "تم إنهاء كافة الجلسات الأخرى بنجاح.", "All other sessions terminated successfully.", "Success notice")
+	addKey(e, "tenant.sessions.password_too_short", "auth", "كلمة المرور الجديدة يجب ألا تقل عن 8 أحرف.", "New password must be at least 8 characters.", "Validation error")
+	addKey(e, "tenant.sessions.service_unavailable", "auth", "خدمة تحديث الحساب غير متاحة حالياً.", "Account update service is currently unavailable.", "Service error")
+	addKey(e, "tenant.sessions.password_changed_success", "auth", "تم تحديث كلمة المرور وتأمين الحساب بنجاح.", "Password updated and account secured successfully.", "Success notice")
+
+	// --- Auth & Registration ---
+	addKey(e, "auth.login.session_evicted", "auth", "تم إنهاء جلستك تلقائياً نظراً لتسجيل الدخول من جهاز آخر وتجاوز الحد الأقصى للجلسات المتزامنة المصرح بها في باقة المنشأة. يمكنك تسجيل الدخول مجدداً أو ترقية باقة الاشتراك لزيادة عدد الأجهزة.", "Your session was automatically terminated due to logging in from another device exceeding the maximum concurrent sessions allowed in your organization's plan. You can log in again or upgrade your plan.", "Session evicted error")
+	addKey(e, "auth.login.invalid_credentials", "auth", "البريد الإلكتروني أو كلمة المرور غير صحيحة.", "Invalid email or password.", "Login error")
+	addKey(e, "auth.login.account_locked", "auth", "الحساب مقفل مؤقتاً بسبب تكرار محاولات الدخول الخاطئة.", "Account is temporarily locked due to multiple failed login attempts.", "Locked error")
+	addKey(e, "auth.login.mfa_unavailable", "auth", "المصادقة الثنائية غير متاحة حالياً.", "Two-factor authentication is currently unavailable.", "MFA error")
+	addKey(e, "auth.login.service_unavailable", "auth", "خدمة تسجيل الدخول غير متاحة حالياً.", "Login service is currently unavailable.", "Service error")
+	addKey(e, "auth.register.default_legal_name", "auth", "منشأة جديدة", "New Organization", "Default legal name")
+	addKey(e, "auth.register.default_address", "auth", "المقر الرئيسي", "Headquarters", "Default address")
+
+	// --- Delivery Bands ---
+	addKey(e, "delivery.band.read_error", "coverage", "تعذر قراءة بيانات الشريحة.", "Could not read delivery band data.", "Form error")
+	addKey(e, "delivery.band.invalid_params", "coverage", "يرجى التحقق من صحة المسافات بالمتر وقيمة رسوم التوصيل (يجب أن تكون مسافة النهاية أكبر من البداية).", "Please verify distances in meters and delivery fee value (end distance must be greater than start).", "Validation error")
+	addKey(e, "delivery.band.save_failed_format", "coverage", "فشل حفظ شريحة التوصيل: %s", "Failed to save delivery band: %s", "Save error")
+	addKey(e, "delivery.band.added_success", "coverage", "تم إضافة شريحة تسعير التوصيل بنجاح.", "Delivery pricing tier added successfully.", "Success notice")
+	addKey(e, "delivery.band.invalid_id", "coverage", "معرف الشريحة غير صالح.", "Invalid delivery band ID.", "Validation error")
+	addKey(e, "delivery.band.deleted_success", "coverage", "تم حذف شريحة التوصيل بنجاح.", "Delivery tier deleted successfully.", "Success notice")
+
+	// --- Customer Checkout ---
+	addKey(e, "checkout.pharmacy_only", "commerce", "عذراً، إتمام الشراء والتوريد متاح حصرياً للصيدليات المرخصة.", "Sorry, checkout and procurement is exclusively available to licensed pharmacies.", "Permission error")
+	addKey(e, "checkout.branch_out_of_coverage_format", "commerce", "فرع الصيدلية المحدد خارج نطاق التغطية الجغرافية لشركات التوريد (%s). يرجى اختيار فرع معتمد داخل التغطية.", "Selected pharmacy branch is outside supplier coverage area (%s). Please select an eligible branch within coverage.", "Coverage error")
+	addKey(e, "customer.catalog.custom_procurement_request", "catalog", "طلب توريد خاص", "Special Procurement Request", "Fallback supplier label")
+	addKey(e, "customer.catalog.no_active_offers", "catalog", "لا تتوفر عروض توريد نشطة لهذا الصنف حالياً", "No active supplier offers available for this item currently", "No offers notice")
 }

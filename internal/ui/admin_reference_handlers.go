@@ -98,8 +98,9 @@ func (h *UIHandler) AdminCategoriesPage(w http.ResponseWriter, r *http.Request) 
 // AdminCategoryCreateSubmit creates a new product category.
 func (h *UIHandler) AdminCategoryCreateSubmit(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
+	lang := langOf(r)
 	if h.catSvc == nil {
-		h.redirectWithNotice(w, r, "/admin/categories", "error", "خدمة الكتالوج غير متاحة.")
+		h.redirectWithNotice(w, r, "/admin/categories", "error", i18n.T(lang, "admin.categories.service_unavailable"))
 		return
 	}
 
@@ -108,7 +109,7 @@ func (h *UIHandler) AdminCategoryCreateSubmit(w http.ResponseWriter, r *http.Req
 	nameAr := strings.TrimSpace(r.FormValue("name_ar"))
 	nameEn := strings.TrimSpace(r.FormValue("name_en"))
 	if nameAr == "" && nameEn == "" {
-		h.redirectWithNotice(w, r, "/admin/categories", "error", "يرجى كتابة اسم فئة المنتج بالعربية أو الإنجليزية.")
+		h.redirectWithNotice(w, r, "/admin/categories", "error", i18n.T(lang, "admin.categories.name_required"))
 		return
 	}
 	if nameAr == "" {
@@ -141,25 +142,26 @@ func (h *UIHandler) AdminCategoryCreateSubmit(w http.ResponseWriter, r *http.Req
 
 	if _, err := h.catSvc.CreateCategory(database.AsSystem(ctx), cat); err != nil {
 		h.log.ErrorContext(ctx, "admin create category failed", "error", err)
-		h.redirectWithNotice(w, r, "/admin/categories", "error", h.safeMessage(err, langOf(r)))
+		h.redirectWithNotice(w, r, "/admin/categories", "error", h.safeMessage(err, lang))
 		return
 	}
 
-	h.redirectWithNotice(w, r, "/admin/categories", "success", "تم إنشاء فئة المنتجات بنجاح.")
+	h.redirectWithNotice(w, r, "/admin/categories", "success", i18n.T(lang, "admin.categories.created_success"))
 }
 
 // AdminCategoryEditSubmit updates an existing product category.
 func (h *UIHandler) AdminCategoryEditSubmit(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
+	lang := langOf(r)
 	if h.catSvc == nil {
-		h.redirectWithNotice(w, r, "/admin/categories", "error", "خدمة الكتالوج غير متاحة.")
+		h.redirectWithNotice(w, r, "/admin/categories", "error", i18n.T(lang, "admin.categories.service_unavailable"))
 		return
 	}
 
 	idStr := chi.URLParam(r, "id")
 	catID, err := strconv.ParseInt(idStr, 10, 64)
 	if err != nil || catID <= 0 {
-		h.redirectWithNotice(w, r, "/admin/categories", "error", "معرف الفئة غير صالح.")
+		h.redirectWithNotice(w, r, "/admin/categories", "error", i18n.T(lang, "admin.categories.invalid_id"))
 		return
 	}
 
@@ -167,14 +169,14 @@ func (h *UIHandler) AdminCategoryEditSubmit(w http.ResponseWriter, r *http.Reque
 
 	cat, err := h.catSvc.GetCategory(database.AsSystem(ctx), catID)
 	if err != nil || cat == nil {
-		h.redirectWithNotice(w, r, "/admin/categories", "error", "فئة المنتجات غير موجودة.")
+		h.redirectWithNotice(w, r, "/admin/categories", "error", i18n.T(lang, "admin.categories.not_found"))
 		return
 	}
 
 	nameAr := strings.TrimSpace(r.FormValue("name_ar"))
 	nameEn := strings.TrimSpace(r.FormValue("name_en"))
 	if nameAr == "" && nameEn == "" {
-		h.redirectWithNotice(w, r, "/admin/categories", "error", "يرجى كتابة اسم الفئة بالعربية أو الإنجليزية.")
+		h.redirectWithNotice(w, r, "/admin/categories", "error", i18n.T(lang, "admin.categories.name_required"))
 		return
 	}
 	if nameAr == "" {
@@ -207,16 +209,17 @@ func (h *UIHandler) AdminCategoryEditSubmit(w http.ResponseWriter, r *http.Reque
 
 	if err := h.catSvc.UpdateCategory(database.AsSystem(ctx), cat); err != nil {
 		h.log.ErrorContext(ctx, "admin update category failed", "error", err)
-		h.redirectWithNotice(w, r, "/admin/categories", "error", h.safeMessage(err, langOf(r)))
+		h.redirectWithNotice(w, r, "/admin/categories", "error", h.safeMessage(err, lang))
 		return
 	}
 
-	h.redirectWithNotice(w, r, "/admin/categories", "success", "تم تحديث بيانات فئة المنتجات بنجاح.")
+	h.redirectWithNotice(w, r, "/admin/categories", "success", i18n.T(lang, "admin.categories.updated_success"))
 }
 
 // AdminCategoryToggleSubmit toggles a category's active status.
 func (h *UIHandler) AdminCategoryToggleSubmit(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
+	lang := langOf(r)
 	idStr := chi.URLParam(r, "id")
 	catID, err := strconv.ParseInt(idStr, 10, 64)
 	if err == nil && catID > 0 && h.catSvc != nil {
@@ -230,37 +233,38 @@ func (h *UIHandler) AdminCategoryToggleSubmit(w http.ResponseWriter, r *http.Req
 			_ = h.catSvc.UpdateCategory(database.AsSystem(ctx), cat)
 		}
 	}
-	h.redirectWithNotice(w, r, "/admin/categories", "success", "تم تحديث حالة الفئة بنجاح.")
+	h.redirectWithNotice(w, r, "/admin/categories", "success", i18n.T(lang, "admin.categories.status_updated_success"))
 }
 
 // AdminCategoryDeleteSubmit deletes a category if no products are linked.
 func (h *UIHandler) AdminCategoryDeleteSubmit(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
+	lang := langOf(r)
 	if h.catSvc == nil {
-		h.redirectWithNotice(w, r, "/admin/categories", "error", "خدمة الكتالوج غير متاحة.")
+		h.redirectWithNotice(w, r, "/admin/categories", "error", i18n.T(lang, "admin.categories.service_unavailable"))
 		return
 	}
 
 	idStr := chi.URLParam(r, "id")
 	catID, err := strconv.ParseInt(idStr, 10, 64)
 	if err != nil || catID <= 0 {
-		h.redirectWithNotice(w, r, "/admin/categories", "error", "معرف الفئة غير صالح.")
+		h.redirectWithNotice(w, r, "/admin/categories", "error", i18n.T(lang, "admin.categories.invalid_id"))
 		return
 	}
 
 	count, _ := h.catSvc.CountProductsInCategory(database.AsSystem(ctx), catID)
 	if count > 0 {
-		h.redirectWithNotice(w, r, "/admin/categories", "error", fmt.Sprintf("لا يمكن حذف هذه الفئة لوجود %d صنف معتمد مرتبط بها. يرجى نقل الأصناف لفئة أخرى أولاً.", count))
+		h.redirectWithNotice(w, r, "/admin/categories", "error", fmt.Sprintf(i18n.T(lang, "admin.categories.cannot_delete_has_products_format"), count))
 		return
 	}
 
 	if err := h.catSvc.DeleteCategory(database.AsSystem(ctx), catID); err != nil {
 		h.log.WarnContext(ctx, "admin delete category failed", "error", err)
-		h.redirectWithNotice(w, r, "/admin/categories", "error", h.safeMessage(err, langOf(r)))
+		h.redirectWithNotice(w, r, "/admin/categories", "error", h.safeMessage(err, lang))
 		return
 	}
 
-	h.redirectWithNotice(w, r, "/admin/categories", "success", "تم حذف فئة المنتجات بنجاح.")
+	h.redirectWithNotice(w, r, "/admin/categories", "success", i18n.T(lang, "admin.categories.deleted_success"))
 }
 
 // AdminSocialMediaPage renders social media channel links.
@@ -283,7 +287,7 @@ func (h *UIHandler) AdminSocialMediaPage(w http.ResponseWriter, r *http.Request)
 			}
 		}
 	}
-	h.renderPage(ctx, w, "render admin social media", pages.AdminReferenceCRUDPage("قنوات التواصل الاجتماعي للمنصة", "social-media", "قناة تواصل", items, "settings", lang, dir))
+	h.renderPage(ctx, w, "render admin social media", pages.AdminReferenceCRUDPage(i18n.T(lang, "admin.reference.social_media_title"), "social-media", i18n.T(lang, "admin.reference.social_channel"), items, "settings", lang, dir))
 }
 
 // AdminApiIntegrationsPage renders third-party API configurations.
@@ -299,10 +303,10 @@ func (h *UIHandler) AdminApiIntegrationsPage(w http.ResponseWriter, r *http.Requ
 			}
 			items = append(items, pages.ReferenceItem{
 				ID:          1,
-				Name:        "بوابة الواجهات البرمجية (API Gateway)",
-				Description: fmt.Sprintf("البيئة: %s | الرابط: %s", gw.Environment, gw.EndpointURL),
+				Name:        i18n.T(lang, "admin.reference.api_gateway_title"),
+				Description: fmt.Sprintf(i18n.T(lang, "admin.reference.api_gateway_desc_format"), gw.Environment, gw.EndpointURL),
 				Status:      gwStatus,
-				Extra:       fmt.Sprintf("المهلة: %d ثوانٍ", gw.TimeoutSeconds),
+				Extra:       fmt.Sprintf(i18n.T(lang, "admin.reference.api_gateway_timeout_format"), gw.TimeoutSeconds),
 			})
 		}
 		if ai, err := h.adminSvc.GetAISettings(ctx); err == nil && ai != nil {
@@ -312,12 +316,12 @@ func (h *UIHandler) AdminApiIntegrationsPage(w http.ResponseWriter, r *http.Requ
 			}
 			items = append(items, pages.ReferenceItem{
 				ID:          2,
-				Name:        "بوابة الذكاء الاصطناعي (AI Gateway)",
-				Description: fmt.Sprintf("الرابط: %s", ai.EndpointURL),
+				Name:        i18n.T(lang, "admin.reference.ai_gateway_title"),
+				Description: fmt.Sprintf(i18n.T(lang, "admin.reference.ai_gateway_desc_format"), ai.EndpointURL),
 				Status:      aiStatus,
-				Extra:       fmt.Sprintf("الرموز القصوى: %d", ai.MaxTokens),
+				Extra:       fmt.Sprintf(i18n.T(lang, "admin.reference.ai_gateway_max_tokens_format"), ai.MaxTokens),
 			})
 		}
 	}
-	h.renderPage(ctx, w, "render admin api integrations", pages.AdminReferenceCRUDPage("بوابات الربط والواجهات البرمجية (APIs)", "api-integrations", "واجهة ربط", items, "developers", lang, dir))
+	h.renderPage(ctx, w, "render admin api integrations", pages.AdminReferenceCRUDPage(i18n.T(lang, "admin.reference.api_integrations_title"), "api-integrations", i18n.T(lang, "admin.reference.api_integration"), items, "developers", lang, dir))
 }

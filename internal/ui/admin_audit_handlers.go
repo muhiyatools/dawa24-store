@@ -5,7 +5,7 @@ import (
 	"strings"
 
 	platformadmin "github.com/muhiya/dawa24-store/internal/modules/platform_admin"
-
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/ui/pages"
 )
 
@@ -52,7 +52,7 @@ func (h *UIHandler) AdminAuditPage(w http.ResponseWriter, r *http.Request) {
 			h.log.WarnContext(ctx, "admin audit: list audit log", "error", err)
 		} else {
 			for _, e := range list {
-				localizeAuditEntry(e)
+				localizeAuditEntry(e, lang)
 			}
 			entries = list
 			total = tot
@@ -70,129 +70,129 @@ func (h *UIHandler) AdminAuditPage(w http.ResponseWriter, r *http.Request) {
 	h.renderPage(ctx, w, "render admin audit", pages.AdminAuditPage(values, lang, dir))
 }
 
-func localizeAuditEntry(e *platformadmin.AuditEntry) {
+func localizeAuditEntry(e *platformadmin.AuditEntry, lang any) {
 	if e == nil {
 		return
 	}
-	e.Severity = "عادي (Info)"
+	e.Severity = i18n.T(lang, "admin.audit.severity_info")
 	switch e.Action {
 	case "org.registered":
-		e.Module = "المنشآت"
-		e.ActionLabelAr = "تسجيل منشأة جديدة"
-		e.Title = "طلب تسجيل منشأة جديدة"
-		e.Description = "تم تقديم ملف ترخيص وسجل تجاري لمنشأة دوائية جديدة"
+		e.Module = i18n.T(lang, "admin.audit.mod_orgs")
+		e.ActionLabelAr = i18n.T(lang, "admin.audit.action_org_registered")
+		e.Title = i18n.T(lang, "admin.audit.title_org_registered")
+		e.Description = i18n.T(lang, "admin.audit.desc_org_registered")
 	case "org.approved", "org.status_updated":
-		e.Module = "المنشآت"
-		e.ActionLabelAr = "تحديث حالة اعتماد المنشأة"
-		e.Title = "اعتماد أو ترخيص منشأة"
-		e.Description = "تم التحقق من الوثائق والموافقة على حساب المنشأة"
+		e.Module = i18n.T(lang, "admin.audit.mod_orgs")
+		e.ActionLabelAr = i18n.T(lang, "admin.audit.action_org_status")
+		e.Title = i18n.T(lang, "admin.audit.title_org_approved")
+		e.Description = i18n.T(lang, "admin.audit.desc_org_approved")
 	case "org.rejected":
-		e.Module = "المنشآت"
-		e.ActionLabelAr = "رفض اعتماد المنشأة"
-		e.Title = "رفض اعتماد منشأة"
-		e.Description = "تم رفض ملف المنشأة بسبب عدم استيفاء التراخيص"
-		e.Severity = "حرج (Critical)"
+		e.Module = i18n.T(lang, "admin.audit.mod_orgs")
+		e.ActionLabelAr = i18n.T(lang, "admin.audit.action_org_rejected")
+		e.Title = i18n.T(lang, "admin.audit.title_org_rejected")
+		e.Description = i18n.T(lang, "admin.audit.desc_org_rejected")
+		e.Severity = i18n.T(lang, "admin.audit.severity_critical")
 	case "org.suspended":
-		e.Module = "المنشآت"
-		e.ActionLabelAr = "إيقاف المنشأة مؤقتاً"
-		e.Title = "إيقاف حساب منشأة"
-		e.Description = "تم تعليق حساب المنشأة مؤقتاً لمخالفة اللوائح"
-		e.Severity = "متوسط (Warning)"
+		e.Module = i18n.T(lang, "admin.audit.mod_orgs")
+		e.ActionLabelAr = i18n.T(lang, "admin.audit.action_org_suspended")
+		e.Title = i18n.T(lang, "admin.audit.title_org_suspended")
+		e.Description = i18n.T(lang, "admin.audit.desc_org_suspended")
+		e.Severity = i18n.T(lang, "admin.audit.severity_warning")
 	case "identity.user.registered":
-		e.Module = "المستخدمين"
-		e.ActionLabelAr = "تسجيل حساب مستخدم جديد"
-		e.Title = "إنشاء حساب مستخدم"
-		e.Description = "تم تسجيل عضو أو صيدلي جديد في النظام"
+		e.Module = i18n.T(lang, "admin.audit.mod_users")
+		e.ActionLabelAr = i18n.T(lang, "admin.audit.action_user_registered")
+		e.Title = i18n.T(lang, "admin.audit.title_user_registered")
+		e.Description = i18n.T(lang, "admin.audit.desc_user_registered")
 	case "identity.user.status_changed":
-		e.Module = "المستخدمين"
-		e.ActionLabelAr = "تغيير حالة حساب المستخدم"
-		e.Title = "تعديل حالة الحساب"
-		e.Description = "تحديث حالة التفعيل أو الإيقاف لحساب المستخدم"
-		e.Severity = "متوسط (Warning)"
+		e.Module = i18n.T(lang, "admin.audit.mod_users")
+		e.ActionLabelAr = i18n.T(lang, "admin.audit.action_user_status")
+		e.Title = i18n.T(lang, "admin.audit.title_user_status")
+		e.Description = i18n.T(lang, "admin.audit.desc_user_status")
+		e.Severity = i18n.T(lang, "admin.audit.severity_warning")
 	case "identity.user.role_assigned":
-		e.Module = "الأمان والصلاحيات"
-		e.ActionLabelAr = "تعيين دور وصلاحية للمستخدم"
-		e.Title = "إسناد صلاحية أمنية"
-		e.Description = "تعديل رتبة وصلاحيات المستخدم داخل المنصة"
-		e.Severity = "متوسط (Warning)"
+		e.Module = i18n.T(lang, "admin.audit.mod_security")
+		e.ActionLabelAr = i18n.T(lang, "admin.audit.action_user_role")
+		e.Title = i18n.T(lang, "admin.audit.title_user_role")
+		e.Description = i18n.T(lang, "admin.audit.desc_user_role")
+		e.Severity = i18n.T(lang, "admin.audit.severity_warning")
 	case "identity.user.mfa_reset":
-		e.Module = "الأمان والصلاحيات"
-		e.ActionLabelAr = "إعادة ضبط التحقق الثنائي (MFA)"
-		e.Title = "إعادة ضبط أمني (MFA)"
-		e.Description = "إعادة ضبط مفاتيح المصادقة الثنائية لحساب المستخدم"
-		e.Severity = "حرج (Critical)"
+		e.Module = i18n.T(lang, "admin.audit.mod_security")
+		e.ActionLabelAr = i18n.T(lang, "admin.audit.action_user_mfa_reset")
+		e.Title = i18n.T(lang, "admin.audit.title_user_mfa_reset")
+		e.Description = i18n.T(lang, "admin.audit.desc_user_mfa_reset")
+		e.Severity = i18n.T(lang, "admin.audit.severity_critical")
 	case "catalog.product.created", "product.created":
-		e.Module = "الكتالوج"
-		e.ActionLabelAr = "إضافة صنف دوائي جديد"
-		e.Title = "إضافة دواء للكتالوج"
-		e.Description = "إدراج صنف دوائي ومستحضر معتمد في الكتالوج الموحد"
+		e.Module = i18n.T(lang, "admin.audit.mod_catalog")
+		e.ActionLabelAr = i18n.T(lang, "admin.audit.action_product_created")
+		e.Title = i18n.T(lang, "admin.audit.title_product_created")
+		e.Description = i18n.T(lang, "admin.audit.desc_product_created")
 	case "catalog.product.updated", "product.updated":
-		e.Module = "الكتالوج"
-		e.ActionLabelAr = "تعديل بيانات الصنف الدوائي"
-		e.Title = "تحديث بيانات دواء"
-		e.Description = "تعديل الأسعار أو المادة الفعالة أو بيانات الصنف"
+		e.Module = i18n.T(lang, "admin.audit.mod_catalog")
+		e.ActionLabelAr = i18n.T(lang, "admin.audit.action_product_updated")
+		e.Title = i18n.T(lang, "admin.audit.title_product_updated")
+		e.Description = i18n.T(lang, "admin.audit.desc_product_updated")
 	case "catalog.product.deleted", "product.deleted":
-		e.Module = "الكتالوج"
-		e.ActionLabelAr = "حذف صنف من الكتالوج"
-		e.Title = "حذف صنف دوائي"
-		e.Description = "إلغاء أو حذف صنف دوائي من الكتالوج المعتمد"
-		e.Severity = "حرج (Critical)"
+		e.Module = i18n.T(lang, "admin.audit.mod_catalog")
+		e.ActionLabelAr = i18n.T(lang, "admin.audit.action_product_deleted")
+		e.Title = i18n.T(lang, "admin.audit.title_product_deleted")
+		e.Description = i18n.T(lang, "admin.audit.desc_product_deleted")
+		e.Severity = i18n.T(lang, "admin.audit.severity_critical")
 	case "catalog.variant.created", "variant.created":
-		e.Module = "عروض الموردين"
-		e.ActionLabelAr = "إضافة عرض توريد جديد"
-		e.Title = "إضافة عرض سعر دوائي"
-		e.Description = "طرح عرض أسعار وتوريد جديد لصنف معتمد"
+		e.Module = i18n.T(lang, "admin.audit.mod_offers")
+		e.ActionLabelAr = i18n.T(lang, "admin.audit.action_variant_created")
+		e.Title = i18n.T(lang, "admin.audit.title_variant_created")
+		e.Description = i18n.T(lang, "admin.audit.desc_variant_created")
 	case "order.created":
-		e.Module = "أوامر التوريد"
-		e.ActionLabelAr = "إنشاء طلب توريد جديد"
-		e.Title = "إنشاء أمر توريد"
-		e.Description = "تم تقديم أمر توريد دوائي جديد من صيدلية"
+		e.Module = i18n.T(lang, "admin.audit.mod_orders")
+		e.ActionLabelAr = i18n.T(lang, "admin.audit.action_order_created")
+		e.Title = i18n.T(lang, "admin.audit.title_order_created")
+		e.Description = i18n.T(lang, "admin.audit.desc_order_created")
 	case "order.status_updated", "order.status_changed":
-		e.Module = "أوامر التوريد"
-		e.ActionLabelAr = "تحديث حالة أمر التوريد"
-		e.Title = "تحديث حالة الشحن/التوريد"
-		e.Description = "تغيير حالة الطلب الدوائي بين التجهيز والتوصيل والاستلام"
+		e.Module = i18n.T(lang, "admin.audit.mod_orders")
+		e.ActionLabelAr = i18n.T(lang, "admin.audit.action_order_status")
+		e.Title = i18n.T(lang, "admin.audit.title_order_status")
+		e.Description = i18n.T(lang, "admin.audit.desc_order_status")
 	case "institutional_work.created":
-		e.Module = "الهيكل المؤسسي"
-		e.ActionLabelAr = "إضافة تصنيف هيكل مؤسسي"
-		e.Title = "إضافة هيكل مؤسسي جديد"
-		e.Description = "إنشاء تصنيف هيكلي جديد للمنشآت والمستودعات"
+		e.Module = i18n.T(lang, "admin.audit.mod_institutional")
+		e.ActionLabelAr = i18n.T(lang, "admin.audit.action_inst_created")
+		e.Title = i18n.T(lang, "admin.audit.title_inst_created")
+		e.Description = i18n.T(lang, "admin.audit.desc_inst_created")
 	case "institutional_work.updated":
-		e.Module = "الهيكل المؤسسي"
-		e.ActionLabelAr = "تعديل تصنيف هيكل مؤسسي"
-		e.Title = "تعديل هيكل مؤسسي"
-		e.Description = "تحديث بيانات تصنيف هيكلي أو باقة التسعير"
+		e.Module = i18n.T(lang, "admin.audit.mod_institutional")
+		e.ActionLabelAr = i18n.T(lang, "admin.audit.action_inst_updated")
+		e.Title = i18n.T(lang, "admin.audit.title_inst_updated")
+		e.Description = i18n.T(lang, "admin.audit.desc_inst_updated")
 	default:
-		e.Module = "النظام"
+		e.Module = i18n.T(lang, "admin.audit.mod_system")
 		e.ActionLabelAr = e.Action
 		e.Title = e.Action
-		e.Description = "عملية إدارية مسجلة بالنظام"
+		e.Description = i18n.T(lang, "admin.audit.desc_default")
 	}
 
 	switch e.EntityType {
 	case "organization", "org":
-		e.EntityTypeAr = "منشأة / شركة"
+		e.EntityTypeAr = i18n.T(lang, "admin.audit.entity_org")
 	case "identity.user", "user":
-		e.EntityTypeAr = "مستخدم"
+		e.EntityTypeAr = i18n.T(lang, "admin.audit.entity_user")
 	case "catalog.product", "product":
-		e.EntityTypeAr = "صنف دوائي"
+		e.EntityTypeAr = i18n.T(lang, "admin.audit.entity_product")
 	case "catalog.variant", "product_variant", "variant":
-		e.EntityTypeAr = "عرض توريد"
+		e.EntityTypeAr = i18n.T(lang, "admin.audit.entity_variant")
 	case "order", "commerce.order":
-		e.EntityTypeAr = "أمر توريد"
+		e.EntityTypeAr = i18n.T(lang, "admin.audit.entity_order")
 	case "branch", "org.branch":
-		e.EntityTypeAr = "فرع مستودع / صيدلية"
+		e.EntityTypeAr = i18n.T(lang, "admin.audit.entity_branch")
 	case "institutional_work":
-		e.EntityTypeAr = "هيكل مؤسسي"
+		e.EntityTypeAr = i18n.T(lang, "admin.audit.entity_inst")
 	default:
 		e.EntityTypeAr = e.EntityType
 	}
 
 	if e.ActorName == "" {
-		e.ActorName = "النظام / System"
+		e.ActorName = i18n.T(lang, "admin.audit.default_actor")
 	}
 	if e.OrganizationName == "" {
-		e.OrganizationName = "المنصة الرئيسية"
+		e.OrganizationName = i18n.T(lang, "admin.audit.default_org")
 	}
 	if e.IPAddress == "" {
 		e.IPAddress = "127.0.0.1 (Local)"

@@ -109,6 +109,7 @@ func (h *UIHandler) SettingsIndex(w http.ResponseWriter, r *http.Request) {
 // SettingsOrgUpdateSubmit saves organization profile fields.
 func (h *UIHandler) SettingsOrgUpdateSubmit(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
+	lang := langOf(r)
 	actor, ok := authctx.From(ctx)
 	if !ok || actor.OrganizationID <= 0 {
 		http.Redirect(w, r, "/auth/login?redirect=/settings/organization", http.StatusSeeOther)
@@ -116,13 +117,13 @@ func (h *UIHandler) SettingsOrgUpdateSubmit(w http.ResponseWriter, r *http.Reque
 	}
 
 	if h.orgSvc == nil {
-		h.redirectWithNotice(w, r, "/settings/organization", "error", "الخدمة غير متاحة حالياً.")
+		h.redirectWithNotice(w, r, "/settings/organization", "error", i18n.T(lang, "settings.emp.service_unavailable"))
 		return
 	}
 
 	o, err := h.orgSvc.GetOrganization(ctx, actor.OrganizationID)
 	if err != nil {
-		h.redirectWithNotice(w, r, "/settings/organization", "error", h.safeMessage(err, langOf(r)))
+		h.redirectWithNotice(w, r, "/settings/organization", "error", h.safeMessage(err, lang))
 		return
 	}
 	o.LegalName = r.PostFormValue("legal_name")
@@ -131,8 +132,8 @@ func (h *UIHandler) SettingsOrgUpdateSubmit(w http.ResponseWriter, r *http.Reque
 	o.CommercialRegister = r.PostFormValue("commercial_register")
 
 	if err := h.orgSvc.UpdateOrganization(ctx, o); err != nil {
-		h.redirectWithNotice(w, r, "/settings/organization", "error", h.safeMessage(err, langOf(r)))
+		h.redirectWithNotice(w, r, "/settings/organization", "error", h.safeMessage(err, lang))
 		return
 	}
-	h.redirectWithNotice(w, r, "/settings/organization", "success", "تم حفظ بيانات المؤسسة.")
+	h.redirectWithNotice(w, r, "/settings/organization", "success", i18n.T(lang, "settings.org.saved_success"))
 }

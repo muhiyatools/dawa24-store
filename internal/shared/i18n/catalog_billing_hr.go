@@ -117,6 +117,12 @@ func loadBillingAndHRKeys(e *engine) {
 	addKey(e, "job.updated_success", "hr", "تم تحديث بيانات وحالة الوظيفة بنجاح.", "Job details and status updated successfully.", "Success notice")
 	addKey(e, "job.status_updated_success", "hr", "تم تحديث حالة الوظيفة بنجاح.", "Job status updated successfully.", "Success notice")
 	addKey(e, "job.deleted_success", "hr", "تم حذف الوظيفة بنجاح.", "Job vacancy deleted successfully.", "Success notice")
+	addKey(e, "job.notif.default_org", "hr", "المنشأة", "The Organization", "Default organization name in notifications")
+	addKey(e, "job.notif.default_job_title", "hr", "المعلنة", "Advertised Position", "Default job title in notifications")
+	addKey(e, "job.notif.accept_title", "hr", "🎉 تهانينا! تم قبول طلبك للوظيفة", "🎉 Congratulations! Your job application has been accepted", "Accept notification title")
+	addKey(e, "job.notif.accept_body", "hr", "تم قبول طلب انضمامك لوظيفة \"%s\" لدى \"%s\" في فرع \"%s\". تم تعيينك وتفعيل لوحة التحكم لتبدأ مهامك مباشرة.", "Your application for the position \"%s\" at \"%s\" (%s branch) has been accepted. You are hired and your dashboard is activated.", "Accept notification body")
+	addKey(e, "job.notif.reject_title", "hr", "تحديث بخصوص طلب التوظيف", "Update on your job application", "Reject notification title")
+	addKey(e, "job.notif.reject_body", "hr", "نعتذر عن عدم قبول طلبك لوظيفة \"%s\" لدى \"%s\". نتمنى لك كامل التوفيق في الفرص القادمة.", "We regret to inform you that your application for \"%s\" at \"%s\" was not accepted. We wish you the best in future opportunities.", "Reject notification body")
 
 	// --- Payment Methods & Settings ---
 	addKey(e, "payment.iban_or_account_required", "billing", "رقم الآيبان (IBAN) أو رقم الحساب البنكي مطلوب", "IBAN or bank account number is required", "Validation error")
@@ -161,4 +167,15 @@ func loadBillingAndHRKeys(e *engine) {
 	addKey(e, "invoice.default_customer_legal_name", "billing", "صيدلية معتمدة", "Verified Pharmacy", "Default customer legal name")
 	addKey(e, "invoice.default_customer_address", "billing", "جمهورية مصر العربية", "Arab Republic of Egypt", "Default customer address")
 	addKey(e, "invoice.default_customer_city", "billing", "مصر", "Egypt", "Default customer city")
+
+	// --- Organization Employees & Settings ---
+	addKey(e, "settings.emp.service_unavailable", "org", "الخدمة غير متاحة حالياً.", "Service is currently unavailable.", "Service error")
+	addKey(e, "settings.emp.user_not_found", "org", "لا يوجد مستخدم بهذا البريد الإلكتروني.", "No user found with this email address.", "Validation error")
+	addKey(e, "settings.emp.member_added_success", "org", "تمت إضافة العضو.", "Member added successfully.", "Success notice")
+	addKey(e, "settings.emp.created_success", "org", "تم إنشاء وتعيين الموظف وتطبيق الصلاحيات بنجاح.", "Employee created, assigned, and permissions applied successfully.", "Success notice")
+	addKey(e, "settings.emp.invalid_branch_id", "org", "معرف الفرع غير صالح.", "Invalid branch ID.", "Validation error")
+	addKey(e, "settings.emp.manager_assigned_success", "org", "تم تعيين وتثبيت مدير الفرع بنجاح.", "Branch manager assigned successfully.", "Success notice")
+	addKey(e, "settings.emp.invalid_employee_id", "org", "معرف الموظف غير صالح.", "Invalid employee ID.", "Validation error")
+	addKey(e, "settings.emp.deleted_success", "org", "تم حذف الموظف من المنشأة بنجاح.", "Employee removed from organization successfully.", "Success notice")
+	addKey(e, "settings.org.saved_success", "org", "تم حفظ بيانات المؤسسة.", "Organization details saved successfully.", "Success notice")
 }

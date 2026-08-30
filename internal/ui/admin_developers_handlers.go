@@ -109,7 +109,7 @@ func (h *UIHandler) AdminDevelopersPage(w http.ResponseWriter, r *http.Request) 
 		values.ErrorMetrics.AffectedUsers = affUsers
 		ae, _ := h.adminSvc.ListAuditLog(ctx, 50, 0)
 		for _, e := range ae {
-			localizeAuditEntry(e)
+			localizeAuditEntry(e, lang)
 		}
 		auditEntries = ae
 
