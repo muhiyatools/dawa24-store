@@ -48,14 +48,14 @@ templ VendorProducts(data VendorVariantsData, lang, dir string, isPartial bool) 
 					if data.NoticeType == "error" {
 						<div class="alert alert-danger mb-4 p-4 flex-between">
 							<div class="d-flex items-center gap-3 font-extrabold text-sm">
-								<span class="text-2xl">⚠️</span>
+								<span class="text-2xl">@components.IconAlert("icon-sm")</span>
 								<span>{ data.NoticeMsg }</span>
 							</div>
 						</div>
 					} else {
 						<div class="alert alert-success mb-4 p-4 flex-between">
 							<div class="d-flex items-center gap-3 font-extrabold text-sm">
-								<span class="text-2xl">✅</span>
+								<span class="text-2xl">@components.IconCheckCircle("icon-sm")</span>
 								<span>{ data.NoticeMsg }</span>
 							</div>
 						</div>
@@ -64,7 +64,7 @@ templ VendorProducts(data VendorVariantsData, lang, dir string, isPartial bool) 
 
 				if data.LoadError != "" {
 					<div class="alert alert-danger mb-4 p-4 font-bold">
-						<span>⚠️ تعذر تحميل الأصناف: { data.LoadError }</span>
+						<span>تعذر تحميل الأصناف: { data.LoadError }</span>
 					</div>
 				}
 
@@ -104,7 +104,7 @@ templ VendorProducts(data VendorVariantsData, lang, dir string, isPartial bool) 
 						<form method="POST" action="/vendor/products/delete-all" class="d-inline m-0"
 							onsubmit="return confirm('تحذير: هل أنت متأكد من حذف جميع أصناف وعروض التوريد الخاصة بك بالكامل؟ لا يمكن التراجع عن هذا الإجراء.');">
 							<button type="submit" class="btn btn-ghost text-danger font-bold gap-2">
-								<span>🗑️ حذف جميع أصنافي</span>
+								<span>حذف جميع أصنافي</span>
 							</button>
 						</form>
 					}
@@ -211,19 +211,19 @@ templ VendorProducts(data VendorVariantsData, lang, dir string, isPartial bool) 
 								href={ templ.SafeURL(vendorFilterURL(data.Filter, catalog.StockFilterIn, false)) }
 								class={ "btn btn-sm font-bold", templ.KV("btn-primary", data.Filter.Stock == catalog.StockFilterIn && !data.Filter.Expiring), templ.KV("btn-secondary", data.Filter.Stock != catalog.StockFilterIn || data.Filter.Expiring) }
 							>
-								✓ متوفر بالمخزن ({ fmt.Sprintf("%d", data.Stats.InStock) })
+								متوفر بالمخزن ({ fmt.Sprintf("%d", data.Stats.InStock) })
 							</a>
 							<a
 								href={ templ.SafeURL(vendorFilterURL(data.Filter, catalog.StockFilterLow, false)) }
 								class={ "btn btn-sm font-bold", templ.KV("btn-primary", data.Filter.Stock == catalog.StockFilterLow && !data.Filter.Expiring), templ.KV("btn-secondary", data.Filter.Stock != catalog.StockFilterLow || data.Filter.Expiring) }
 							>
-								⚠️ رصيد منخفض ({ fmt.Sprintf("%d", data.Stats.LowStock) })
+								رصيد منخفض ({ fmt.Sprintf("%d", data.Stats.LowStock) })
 							</a>
 							<a
 								href={ templ.SafeURL(vendorFilterURL(data.Filter, catalog.StockFilterOut, false)) }
 								class={ "btn btn-sm font-bold", templ.KV("btn-primary", data.Filter.Stock == catalog.StockFilterOut && !data.Filter.Expiring), templ.KV("btn-secondary", data.Filter.Stock != catalog.StockFilterOut || data.Filter.Expiring) }
 							>
-								✗ نفد الرصيد ({ fmt.Sprintf("%d", data.Stats.OutOfStock) })
+								نفد الرصيد ({ fmt.Sprintf("%d", data.Stats.OutOfStock) })
 							</a>
 							<a
 								href={ templ.SafeURL(vendorFilterURL(data.Filter, catalog.StockFilterAny, true)) }
@@ -240,7 +240,7 @@ templ VendorProducts(data VendorVariantsData, lang, dir string, isPartial bool) 
 					if len(data.Variants) == 0 {
 						if data.Filter.Query != "" || data.Filter.Stock != "" || data.Filter.Expiring || data.Filter.Status != "" {
 							<div class="empty-state-glass p-8 text-center">
-								<div class="empty-state-icon-wrapper mx-auto mb-3">🔍</div>
+								<div class="empty-state-icon-wrapper mx-auto mb-3">@components.IconSearch("icon-sm")</div>
 								<h3 class="font-extrabold text-lg text-primary m-0 mb-2">لا توجد أصناف تطابق معايير البحث المحددة</h3>
 								<p class="text-sm text-muted mb-4 max-w-md mx-auto">
 									جرب البحث بكلمات مختلفة أو قم بإزالة عوامل التصفية لعرض جميع أصناف التوريد.
@@ -319,7 +319,7 @@ templ VendorProducts(data VendorVariantsData, lang, dir string, isPartial bool) 
 				<div class="card" style="max-width:760px; width:100%; min-height:480px; max-height:90vh; display:flex; flex-direction:column; overflow:hidden; background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-2xl); padding:1.75rem; box-shadow:0 25px 50px -12px rgba(0,0,0,0.5);">
 					<div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--border); padding-bottom:1rem; margin-bottom:1.25rem; flex-shrink:0;">
 						<div class="row-center-sm gap-2">
-							<span class="text-2xl">🌐</span>
+							<span class="text-2xl">@components.IconGlobe("icon-sm")</span>
 							<h3 class="text-xl fw-900 text-primary m-0">
 								إضافة صنف من الكتالوج المركزي العام
 							</h3>
@@ -372,7 +372,7 @@ templ VendorProducts(data VendorVariantsData, lang, dir string, isPartial bool) 
 										<div id="cat-preview-scientific" style="font-size:0.8rem; color:var(--text-muted); margin-top:2px;"></div>
 									</div>
 									<button type="button" class="btn btn-secondary btn-sm" onclick="resetSelectedMasterProduct()" style="font-size:0.75rem; color:var(--danger-text);">
-										تغيير الصنف ✕
+										تغيير الصنف 
 									</button>
 								</div>
 								
@@ -395,15 +395,15 @@ templ VendorProducts(data VendorVariantsData, lang, dir string, isPartial bool) 
 											سعر الجمهور (ج.م) <span class="text-danger">*</span>
 										</label>
 										<input
-											type="number"
-											step="0.01"
-											id="cat-field-price"
-											name="price"
-											required
-											placeholder="0.00"
-											class="form-input"
-											style="width:100%; border-radius:var(--radius-lg);"
-										/>
+ type="number"
+ step="0.01"
+ id="cat-field-price"
+ name="price"
+ required
+ placeholder="0.00"
+ class="form-input w-full-rounded"
+ 
+ />
 									</div>
 
 									<div>
@@ -411,16 +411,16 @@ templ VendorProducts(data VendorVariantsData, lang, dir string, isPartial bool) 
 											نسبة الخصم للصيدليات (%)
 										</label>
 										<input
-											type="number"
-											step="0.1"
-											min="0"
-											max="100"
-											id="cat-field-discount"
-											name="discount"
-											placeholder="مثال: 15.5%"
-											class="form-input"
-											style="width:100%; border-radius:var(--radius-lg);"
-										/>
+ type="number"
+ step="0.1"
+ min="0"
+ max="100"
+ id="cat-field-discount"
+ name="discount"
+ placeholder="مثال: 15.5%"
+ class="form-input w-full-rounded"
+ 
+ />
 									</div>
 								</div>
 
@@ -430,13 +430,13 @@ templ VendorProducts(data VendorVariantsData, lang, dir string, isPartial bool) 
 											الرصيد المتاح حالياً (الكمية الافتتاحية)
 										</label>
 										<input
-											type="number"
-											id="cat-field-stock"
-											name="stock_qty"
-											placeholder="50"
-											class="form-input"
-											style="width:100%; border-radius:var(--radius-lg);"
-										/>
+ type="number"
+ id="cat-field-stock"
+ name="stock_qty"
+ placeholder="50"
+ class="form-input w-full-rounded"
+ 
+ />
 									</div>
 
 									<div>
@@ -444,14 +444,14 @@ templ VendorProducts(data VendorVariantsData, lang, dir string, isPartial bool) 
 											الحد الأدنى للطلب (عبوة)
 										</label>
 										<input
-											type="number"
-											id="cat-field-min-qty"
-											name="min_order_qty"
-											value="1"
-											min="1"
-											class="form-input"
-											style="width:100%; border-radius:var(--radius-lg);"
-										/>
+ type="number"
+ id="cat-field-min-qty"
+ name="min_order_qty"
+ value="1"
+ min="1"
+ class="form-input w-full-rounded"
+ 
+ />
 									</div>
 								</div>
 
@@ -461,13 +461,13 @@ templ VendorProducts(data VendorVariantsData, lang, dir string, isPartial bool) 
 											رقم التشغيلة (Batch Number)
 										</label>
 										<input
-											type="text"
-											id="cat-field-batch"
-											name="batch_number"
-											placeholder="مثال: B202604"
-											class="form-input"
-											style="width:100%; border-radius:var(--radius-lg);"
-										/>
+ type="text"
+ id="cat-field-batch"
+ name="batch_number"
+ placeholder="مثال: B202604"
+ class="form-input w-full-rounded"
+ 
+ />
 									</div>
 
 									<div>
@@ -475,12 +475,12 @@ templ VendorProducts(data VendorVariantsData, lang, dir string, isPartial bool) 
 											تاريخ انتهاء الصلاحية
 										</label>
 										<input
-											type="date"
-											id="cat-field-expiry"
-											name="expiry_date"
-											class="form-input"
-											style="width:100%; border-radius:var(--radius-lg);"
-										/>
+ type="date"
+ id="cat-field-expiry"
+ name="expiry_date"
+ class="form-input w-full-rounded"
+ 
+ />
 									</div>
 								</div>
 
@@ -489,7 +489,7 @@ templ VendorProducts(data VendorVariantsData, lang, dir string, isPartial bool) 
 										<label class="form-label fw-700 text-primary text-sm">
 											مخزن / فرع الشحن
 										</label>
-										<select name="branch_id" id="cat-field-branch" class="form-input" style="width:100%; border-radius:var(--radius-lg);">
+										<select name="branch_id" id="cat-field-branch" class="form-input w-full-rounded">
 											for _, b := range data.Branches {
 												<option value={ fmt.Sprintf("%d", b.ID) } selected?={ b.IsMain }>
 													{ b.Name }
@@ -547,13 +547,13 @@ templ VendorProducts(data VendorVariantsData, lang, dir string, isPartial bool) 
 									اسم العرض / التعبئة (عربي)
 								</label>
 								<input
-									type="text"
-									id="edit-form-name-ar"
-									name="name_ar"
-									required
-									class="form-input"
-									style="width:100%; border-radius:var(--radius-lg);"
-								/>
+ type="text"
+ id="edit-form-name-ar"
+ name="name_ar"
+ required
+ class="form-input w-full-rounded"
+ 
+ />
 							</div>
 
 							<div class="grid-2">
@@ -562,14 +562,14 @@ templ VendorProducts(data VendorVariantsData, lang, dir string, isPartial bool) 
 										سعر الجمهور (ج.م) <span class="text-danger">*</span>
 									</label>
 									<input
-										type="number"
-										step="0.01"
-										id="edit-form-price"
-										name="price"
-										required
-										class="form-input"
-										style="width:100%; border-radius:var(--radius-lg);"
-									/>
+ type="number"
+ step="0.01"
+ id="edit-form-price"
+ name="price"
+ required
+ class="form-input w-full-rounded"
+ 
+ />
 								</div>
 
 								<div>
@@ -577,16 +577,16 @@ templ VendorProducts(data VendorVariantsData, lang, dir string, isPartial bool) 
 										نسبة الخصم (%)
 									</label>
 									<input
-										type="number"
-										step="0.1"
-										min="0"
-										max="100"
-										id="edit-form-discount"
-										name="discount"
-										placeholder="0.0%"
-										class="form-input"
-										style="width:100%; border-radius:var(--radius-lg);"
-									/>
+ type="number"
+ step="0.1"
+ min="0"
+ max="100"
+ id="edit-form-discount"
+ name="discount"
+ placeholder="0.0%"
+ class="form-input w-full-rounded"
+ 
+ />
 								</div>
 							</div>
 
@@ -596,13 +596,13 @@ templ VendorProducts(data VendorVariantsData, lang, dir string, isPartial bool) 
 										تحديث الرصيد بالمخزن (عبوة)
 									</label>
 									<input
-										type="number"
-										id="edit-form-stock"
-										name="stock_qty"
-										placeholder="الكمية الحالية..."
-										class="form-input"
-										style="width:100%; border-radius:var(--radius-lg);"
-									/>
+ type="number"
+ id="edit-form-stock"
+ name="stock_qty"
+ placeholder="الكمية الحالية..."
+ class="form-input w-full-rounded"
+ 
+ />
 								</div>
 
 								<div>
@@ -610,13 +610,13 @@ templ VendorProducts(data VendorVariantsData, lang, dir string, isPartial bool) 
 										الحد الأدنى للطلب
 									</label>
 									<input
-										type="number"
-										id="edit-form-min-qty"
-										name="min_order_qty"
-										min="1"
-										class="form-input"
-										style="width:100%; border-radius:var(--radius-lg);"
-									/>
+ type="number"
+ id="edit-form-min-qty"
+ name="min_order_qty"
+ min="1"
+ class="form-input w-full-rounded"
+ 
+ />
 								</div>
 							</div>
 
@@ -626,12 +626,12 @@ templ VendorProducts(data VendorVariantsData, lang, dir string, isPartial bool) 
 										رقم التشغيلة (Batch Number)
 									</label>
 									<input
-										type="text"
-										id="edit-form-batch"
-										name="batch_number"
-										class="form-input"
-										style="width:100%; border-radius:var(--radius-lg);"
-									/>
+ type="text"
+ id="edit-form-batch"
+ name="batch_number"
+ class="form-input w-full-rounded"
+ 
+ />
 								</div>
 
 								<div>
@@ -639,12 +639,12 @@ templ VendorProducts(data VendorVariantsData, lang, dir string, isPartial bool) 
 										تاريخ الصلاحية
 									</label>
 									<input
-										type="date"
-										id="edit-form-expiry"
-										name="expiry_date"
-										class="form-input"
-										style="width:100%; border-radius:var(--radius-lg);"
-									/>
+ type="date"
+ id="edit-form-expiry"
+ name="expiry_date"
+ class="form-input w-full-rounded"
+ 
+ />
 								</div>
 							</div>
 
@@ -653,7 +653,7 @@ templ VendorProducts(data VendorVariantsData, lang, dir string, isPartial bool) 
 									<label class="form-label fw-700 text-primary text-sm">
 										مخزن / فرع الشحن
 									</label>
-									<select name="branch_id" id="edit-form-branch" class="form-input" style="width:100%; border-radius:var(--radius-lg);">
+									<select name="branch_id" id="edit-form-branch" class="form-input w-full-rounded">
 										for _, b := range data.Branches {
 											<option value={ fmt.Sprintf("%d", b.ID) } selected?={ b.IsMain }>
 												{ b.Name }
@@ -669,7 +669,7 @@ templ VendorProducts(data VendorVariantsData, lang, dir string, isPartial bool) 
 									<label class="form-label fw-700 text-primary text-sm">
 										حالة العرض
 									</label>
-									<select name="status" id="edit-form-status" class="form-input" style="width:100%; border-radius:var(--radius-lg);">
+									<select name="status" id="edit-form-status" class="form-input w-full-rounded">
 										<option value="active">نشط ومتاح للطلب</option>
 										<option value="inactive">معطل مؤقتاً</option>
 									</select>
@@ -720,13 +720,13 @@ templ VendorProducts(data VendorVariantsData, lang, dir string, isPartial bool) 
 									اسم الصنف / العرض (عربي) <span class="text-danger">*</span>
 								</label>
 								<input
-									type="text"
-									name="name_ar"
-									required
-									placeholder="مثال: بانادول إكسترا 24 قرص"
-									class="form-input"
-									style="width:100%; border-radius:var(--radius-lg);"
-								/>
+ type="text"
+ name="name_ar"
+ required
+ placeholder="مثال: بانادول إكسترا 24 قرص"
+ class="form-input w-full-rounded"
+ 
+ />
 							</div>
 
 							<div class="grid-2">
@@ -735,12 +735,12 @@ templ VendorProducts(data VendorVariantsData, lang, dir string, isPartial bool) 
 										كود SKU (اختياري)
 									</label>
 									<input
-										type="text"
-										name="sku"
-										placeholder="PAN-EXT-24"
-										class="form-input"
-										style="width:100%; border-radius:var(--radius-lg);"
-									/>
+ type="text"
+ name="sku"
+ placeholder="PAN-EXT-24"
+ class="form-input w-full-rounded"
+ 
+ />
 								</div>
 
 								<div>
@@ -748,14 +748,14 @@ templ VendorProducts(data VendorVariantsData, lang, dir string, isPartial bool) 
 										سعر الجمهور (ج.م) <span class="text-danger">*</span>
 									</label>
 									<input
-										type="number"
-										step="0.01"
-										name="price"
-										required
-										placeholder="0.00"
-										class="form-input"
-										style="width:100%; border-radius:var(--radius-lg);"
-									/>
+ type="number"
+ step="0.01"
+ name="price"
+ required
+ placeholder="0.00"
+ class="form-input w-full-rounded"
+ 
+ />
 								</div>
 							</div>
 
@@ -765,15 +765,15 @@ templ VendorProducts(data VendorVariantsData, lang, dir string, isPartial bool) 
 										نسبة الخصم (%)
 									</label>
 									<input
-										type="number"
-										step="0.1"
-										min="0"
-										max="100"
-										name="discount"
-										placeholder="0.0%"
-										class="form-input"
-										style="width:100%; border-radius:var(--radius-lg);"
-									/>
+ type="number"
+ step="0.1"
+ min="0"
+ max="100"
+ name="discount"
+ placeholder="0.0%"
+ class="form-input w-full-rounded"
+ 
+ />
 								</div>
 
 								<div>
@@ -781,12 +781,12 @@ templ VendorProducts(data VendorVariantsData, lang, dir string, isPartial bool) 
 										الرصيد المتاح (الكمية الافتتاحية)
 									</label>
 									<input
-										type="number"
-										name="stock_qty"
-										placeholder="50"
-										class="form-input"
-										style="width:100%; border-radius:var(--radius-lg);"
-									/>
+ type="number"
+ name="stock_qty"
+ placeholder="50"
+ class="form-input w-full-rounded"
+ 
+ />
 								</div>
 							</div>
 
@@ -796,12 +796,12 @@ templ VendorProducts(data VendorVariantsData, lang, dir string, isPartial bool) 
 										رقم التشغيلة (Batch Number)
 									</label>
 									<input
-										type="text"
-										name="batch_number"
-										placeholder="B12345"
-										class="form-input"
-										style="width:100%; border-radius:var(--radius-lg);"
-									/>
+ type="text"
+ name="batch_number"
+ placeholder="B12345"
+ class="form-input w-full-rounded"
+ 
+ />
 								</div>
 
 								<div>
@@ -809,11 +809,11 @@ templ VendorProducts(data VendorVariantsData, lang, dir string, isPartial bool) 
 										تاريخ الصلاحية
 									</label>
 									<input
-										type="date"
-										name="expiry_date"
-										class="form-input"
-										style="width:100%; border-radius:var(--radius-lg);"
-									/>
+ type="date"
+ name="expiry_date"
+ class="form-input w-full-rounded"
+ 
+ />
 								</div>
 							</div>
 
@@ -821,7 +821,7 @@ templ VendorProducts(data VendorVariantsData, lang, dir string, isPartial bool) 
 								<label class="form-label fw-700 text-primary text-sm">
 									مخزن / فرع الشحن
 								</label>
-								<select name="branch_id" class="form-input" style="width:100%; border-radius:var(--radius-lg);">
+								<select name="branch_id" class="form-input w-full-rounded">
 									for _, b := range data.Branches {
 										<option value={ fmt.Sprintf("%d", b.ID) } selected?={ b.IsMain }>
 											{ b.Name }

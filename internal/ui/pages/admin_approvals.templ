@@ -18,7 +18,7 @@ templ AdminApprovals(data *AdminApprovalsData, lang, dir string) {
 				<div class="flex-between items-center flex-wrap gap-4">
 					<div class="d-flex items-center gap-3">
 						<div class="user-avatar-badge text-xl">
-							🛡️
+							@components.IconShield("icon-sm")
 						</div>
 						<div>
 							<h1 class="text-2xl font-black text-primary m-0">
@@ -525,9 +525,9 @@ templ AdminApprovalsDocsTab(data *AdminApprovalsData) {
 							<td>
 								switch doc.Status {
 									case attachments.StatusVerified:
-										<span class="badge badge-emerald">معتمد ومطابق ✓</span>
+										<span class="badge badge-emerald">معتمد ومطابق </span>
 									case attachments.StatusRejected:
-										<span class="badge badge-rose">مرفوض ✗</span>
+										<span class="badge badge-rose">مرفوض </span>
 									default:
 										<span class="badge badge-amber">قيد الفحص والتدقيق</span>
 								}
@@ -815,11 +815,11 @@ templ AdminApprovalsRequestsTab(data *AdminApprovalsData) {
 								</div>
 								<div style="margin-top:3px;">
 									if req.Status == attachments.DocReqFulfilled {
-										<span class="badge badge-emerald" style="font-size:10px;">تم الاستيفاء ✓</span>
+										<span class="badge badge-emerald font-size-10">تم الاستيفاء </span>
 									} else if req.IsOverdue() {
-										<span class="badge badge-rose" style="font-size:10px;">انتهت المهلة ⚠️</span>
+										<span class="badge badge-rose font-size-10">انتهت المهلة </span>
 									} else {
-										<span class="badge badge-amber" style="font-size:10px;">متبقي { fmt.Sprintf("%d", req.DaysRemaining()) } يوم</span>
+										<span class="badge badge-amber font-size-10">متبقي { fmt.Sprintf("%d", req.DaysRemaining()) } يوم</span>
 									}
 								</div>
 							</td>

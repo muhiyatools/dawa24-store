@@ -22,7 +22,7 @@ templ AdminProductsImportReview(lang, dir string, view ImportReviewView) {
 				<div class="flex-between items-center flex-wrap gap-4">
 					<div class="d-flex items-center gap-3">
 						<div class="user-avatar-badge text-xl">
-							📊
+							@components.IconBarChart("icon-sm")
 						</div>
 						<div>
 							<h1 class="text-2xl font-black text-primary m-0">مراجعة وتحليل بيانات الكتالوج</h1>
@@ -99,7 +99,7 @@ templ importReviewBanner(view ImportReviewView) {
 		if summary := view.EnrichmentSummary(); summary != "" {
 			<p class="import-banner-detail">
 				if view.UsedAI() {
-					{ "🤖 " + summary }
+					{ "" + summary }
 				} else {
 					{ summary }
 				}
@@ -166,7 +166,7 @@ templ wizStat(value, label, tone string) {
 // mapping now has its own screen and this one reads a stored description.
 templ importStructureCard(view ImportReviewView) {
 	<div class="glass-panel p-6 mb-6">
-		<h2 class="wiz-head">🧭 كيف تمت قراءة الملف</h2>
+		<h2 class="wiz-head">كيف تمت قراءة الملف</h2>
 		<p class="wiz-sub">
 			{ fmt.Sprintf("صف العناوين: %s · %d عمود مربوط بحقول المنتج",
 				headerRowLabel(view.Structure), len(view.Bindings)) }
@@ -214,7 +214,7 @@ templ importStructureCard(view ImportReviewView) {
 				ربط عمود خاطئ؟ ارجع لخطوة مراجعة الأعمدة، صحّحه، وأعد المعالجة — لن يتأثر الكتالوج.
 			</span>
 			<a href={ importAction(view, "mapping") } class="btn btn-secondary">
-				🧭 تعديل ربط الأعمدة وإعادة المعالجة
+				تعديل ربط الأعمدة وإعادة المعالجة
 			</a>
 		</div>
 	</div>
@@ -238,7 +238,7 @@ templ importFailedCard(view ImportReviewView) {
 				<button type="submit" class="btn btn-ghost">إلغاء العملية</button>
 			</form>
 			<a href={ importAction(view, "mapping") } class="btn btn-primary">
-				🧭 تصحيح ربط الأعمدة وإعادة المحاولة
+				تصحيح ربط الأعمدة وإعادة المحاولة
 			</a>
 		</div>
 	</div>
@@ -256,7 +256,7 @@ func headerRowLabel(structure catalog.FileStructure) string {
 templ importRowsCard(view ImportReviewView) {
 	<div class="glass-panel p-6 mb-6" id="import-rows-container">
 		<h2 class="wiz-head">
-			{ fmt.Sprintf("📋 الأصناف المستخرجة (%s)", FormatCount(view.Total)) }
+			{ fmt.Sprintf("الأصناف المستخرجة (%s)", FormatCount(view.Total)) }
 		</h2>
 		<p class="wiz-sub">
 			أرقام الصفوف مطابقة لأرقام الصفوف في ملف Excel. يمكنك استبعاد أي صنف من الاستيراد بضغطة زر فورية دون إعادة تحميل الصفحة.
@@ -264,9 +264,9 @@ templ importRowsCard(view ImportReviewView) {
 		<div class="wiz-toolbar">
 			@rowFilterChip(view, "", "الكل")
 			@rowFilterChip(view, string(catalog.ActionInsert), "الجديدة")
-			@rowFilterChip(view, string(catalog.ActionUpdate), "🔄 التحديثات")
-			@rowFilterChip(view, "issues", "⚠ الملاحظات")
-			@rowFilterChip(view, "ai", "🤖 استكمال ذكي")
+			@rowFilterChip(view, string(catalog.ActionUpdate), "التحديثات")
+			@rowFilterChip(view, "issues", "الملاحظات")
+			@rowFilterChip(view, "ai", "استكمال ذكي")
 			<span class="wiz-toolbar-spacer"></span>
 			<form
 				method="GET"
@@ -316,7 +316,7 @@ templ importRowsCard(view ImportReviewView) {
 
 templ ImportRowLine(view ImportReviewView, row *catalog.StagingRow) {
 	<tr id={ fmt.Sprintf("staged-row-%d", row.ID) } class={ templ.KV("wiz-row--excluded", !row.Included) }>
-		<td class="tabular-nums" style="text-align:center;">{ fmt.Sprintf("%d", row.SourceRow) }</td>
+		<td class="tabular-nums text-center">{ fmt.Sprintf("%d", row.SourceRow) }</td>
 		<td>
 			<span class={ "badge", RowActionBadge(row.Action) }>{ row.Action.Label() }</span>
 		</td>
@@ -338,7 +338,7 @@ templ ImportRowLine(view ImportReviewView, row *catalog.StagingRow) {
 		<td>
 			<div class="wiz-row-meta">{ ProductSummaryLine(row) }</div>
 			for _, change := range row.AIChanges {
-				<div class="wiz-row-ai">🤖 { change.Label }: { change.Value }</div>
+				<div class="wiz-row-ai">{ change.Label }: { change.Value }</div>
 			}
 		</td>
 		<td>
@@ -350,7 +350,7 @@ templ ImportRowLine(view ImportReviewView, row *catalog.StagingRow) {
 				}
 			}
 		</td>
-		<td style="text-align:center;">
+		<td class="text-center">
 			<form
 				method="POST"
 				action={ importRowAction(view, row) }
@@ -362,7 +362,7 @@ templ ImportRowLine(view ImportReviewView, row *catalog.StagingRow) {
 				<input type="hidden" name="included" value={ includedToggleValue(row) }/>
 				<button type="submit" class={ "wiz-chip", templ.KV("is-on", row.Included) } title="تضمين أو استبعاد من الاستيراد">
 					if row.Included {
-						✓ مضمّن
+						مضمّن
 					} else {
 						مستبعد
 					}
@@ -437,7 +437,7 @@ templ importConfirmCard(view ImportReviewView) {
 			<form method="POST" action={ importAction(view, "commit") } hx-boost="false">
 				if view.ModeIsDestructive() {
 					<label class="wiz-switch" style="margin-bottom:0.75rem;">
-						<span class="wiz-switch-icon" aria-hidden="true">🗑️</span>
+						<span class="wiz-switch-icon" aria-hidden="true">@components.IconTrash("icon-sm")</span>
 						<span class="wiz-switch-main">
 							<span class="wiz-switch-title">أؤكد أرشفة الكتالوج الحالي</span>
 							<span class="wiz-switch-text">مطلوب لتنفيذ هذه الطريقة</span>

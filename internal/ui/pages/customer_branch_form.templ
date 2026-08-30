@@ -99,14 +99,14 @@ templ CustomerBranchFormPage(data CustomerBranchFormData, lang string, dir strin
 				if data.NoticeType == "error" {
 					<div class="alert alert-danger mb-6 p-4 flex-between">
 						<div class="d-flex items-center gap-3 font-bold text-sm">
-							<span class="text-2xl">⚠️</span>
+							<span class="text-2xl">@components.IconAlert("icon-sm")</span>
 							<span>{ data.NoticeMsg }</span>
 						</div>
 					</div>
 				} else {
 					<div class="alert alert-success mb-6 p-4 flex-between">
 						<div class="d-flex items-center gap-3 font-bold text-sm">
-							<span class="text-2xl">✅</span>
+							<span class="text-2xl">@components.IconCheckCircle("icon-sm")</span>
 							<span>{ data.NoticeMsg }</span>
 						</div>
 					</div>
@@ -253,11 +253,11 @@ templ CustomerBranchFormPage(data CustomerBranchFormData, lang string, dir strin
 								<div class="map-container map-canvas" style="height:280px; width:100%; z-index:1;"></div>
 								<div class="flex-between p-3 bg-surface-raised border-t text-xs flex-wrap gap-2">
 									<div class="d-flex items-center gap-2">
-										<span class="text-secondary font-bold">📍 الإحداثيات المحددة:</span>
+										<span class="text-secondary font-bold">الإحداثيات المحددة:</span>
 										<span data-map-coords-badge class="tabular-nums font-black text-primary">{ defaultLat }, { defaultLon }</span>
 									</div>
 									<button type="button" data-map-locate class="btn btn-secondary btn-xs font-bold gap-1">
-										<span>📍 تحديد موقعي الحالي GPS</span>
+										<span>تحديد موقعي الحالي GPS</span>
 									</button>
 								</div>
 								<input type="hidden" name="latitude" data-map-input="lat" value={ defaultLat }/>
@@ -267,7 +267,7 @@ templ CustomerBranchFormPage(data CustomerBranchFormData, lang string, dir strin
 
 						<div>
 							<label class="form-label text-xs font-bold text-primary mb-1 d-block">
-								🔗 رابط خرائط Google (Google Maps URL)
+								رابط خرائط Google (Google Maps URL)
 							</label>
 							<input
 								type="url"
@@ -297,7 +297,7 @@ templ CustomerBranchFormPage(data CustomerBranchFormData, lang string, dir strin
 									class="mt-1"
 								/>
 								<div>
-									<span>❄️ تتوفر ثلاجة لحفظ وتبريد الأدوية (2-8°C)</span>
+									<span>تتوفر ثلاجة لحفظ وتبريد الأدوية (2-8°C)</span>
 									<span class="d-block text-xs font-normal text-secondary mt-1">
 										يتيح هذا الخيار للموردين توريد الأدوية الحيوية والأنسولين واللقاحات التي تتطلب سلسلة تبريد.
 									</span>
@@ -313,7 +313,7 @@ templ CustomerBranchFormPage(data CustomerBranchFormData, lang string, dir strin
 									class="mt-1"
 								/>
 								<div>
-									<span>🏢 تعيين كفرع رئيسي لاستلام طلبيات الصيدلية</span>
+									<span>تعيين كفرع رئيسي لاستلام طلبيات الصيدلية</span>
 									<span class="d-block text-xs font-normal text-secondary mt-1">
 										سيتم تعيين هذا الفرع كفرع افتراضي عند إنشاء الطلبيات وعمليات الطلب الذكي.
 									</span>
@@ -345,7 +345,7 @@ templ CustomerBranchFormPage(data CustomerBranchFormData, lang string, dir strin
 						<button type="submit" class="btn btn-primary font-black px-6 py-2 gap-2">
 							@components.IconCheck("icon-xs")
 							if data.IsEdit {
-								<span>💾 حفظ تحديثات الفرع</span>
+								<span>حفظ تحديثات الفرع</span>
 							} else {
 								<span>+ حفظ وإضافة الفرع</span>
 							}

@@ -32,10 +32,7 @@ func (h *UIHandler) VendorInstitutionalWorkPage(w http.ResponseWriter, r *http.R
 		works, _ = h.orgSvc.ListInstitutionalWorks(ctx, true)
 	}
 
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	if err := pages.VendorInstitutionalWorkPage(works, lang, dir).Render(ctx, w); err != nil {
-		h.log.ErrorContext(ctx, "render vendor institutional work", "error", err)
-	}
+	h.renderPage(ctx, w, "render vendor institutional work", pages.VendorInstitutionalWorkPage(works, lang, dir))
 }
 
 // VendorPharmacyCoveragePage renders which pharmacies fall inside this vendor's branch coverage schedules.
@@ -311,10 +308,7 @@ func (h *UIHandler) VendorPharmacyCoveragePage(w http.ResponseWriter, r *http.Re
 		SearchQuery:       search,
 	}
 
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	if err := pages.VendorPharmacyCoveragePage(data, lang, dir).Render(ctx, w); err != nil {
-		h.log.ErrorContext(ctx, "render vendor pharmacy coverage", "error", err)
-	}
+	h.renderPage(ctx, w, "render vendor pharmacy coverage", pages.VendorPharmacyCoveragePage(data, lang, dir))
 }
 
 // VendorPharmacyCoverageDetailPage renders single pharmacy coverage detail.

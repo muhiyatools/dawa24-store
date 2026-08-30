@@ -69,7 +69,15 @@ func VendorOfferLocationsPage(data VendorOfferLocationsData, lang, dir string) t
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div style=\"display:flex; flex-direction:column; gap:1.75rem; max-width:1100px; margin:0 auto;\"><!-- Header --><div style=\"background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-2xl); padding:1.75rem; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem;\"><div style=\"display:flex; align-items:center; gap:1rem;\"><div style=\"width:50px; height:50px; border-radius:var(--radius-xl); background:var(--accent-subtle); border:1px solid var(--accent); color:var(--accent); display:flex; align-items:center; justify-content:center; font-size:1.5rem;\">🗺️</div><div><div style=\"font-size:0.75rem; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.15em; font-weight:700; margin-bottom:0.2rem;\">تغطية العرض الجغرافية</div><h1 class=\"text-2xl fw-800 text-primary m-0\">نطاقات التغطية وأوقات التوصيل: ")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div style=\"display:flex; flex-direction:column; gap:1.75rem; max-width:1100px; margin:0 auto;\"><!-- Header --><div style=\"background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-2xl); padding:1.75rem; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem;\"><div style=\"display:flex; align-items:center; gap:1rem;\"><div style=\"width:50px; height:50px; border-radius:var(--radius-xl); background:var(--accent-subtle); border:1px solid var(--accent); color:var(--accent); display:flex; align-items:center; justify-content:center; font-size:1.5rem;\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = components.IconGlobe("icon-sm").Render(ctx, templ_7745c5c3_Buffer)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</div><div><div style=\"font-size:0.75rem; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.15em; font-weight:700; margin-bottom:0.2rem;\">تغطية العرض الجغرافية</div><h1 class=\"text-2xl fw-800 text-primary m-0\">نطاقات التغطية وأوقات التوصيل: ")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -82,7 +90,7 @@ func VendorOfferLocationsPage(data VendorOfferLocationsData, lang, dir string) t
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</h1></div></div><a href=\"/vendor/offers\" class=\"btn btn-secondary btn-sm fw-700\"><span>← العودة لجميع العروض</span></a></div><!-- Split Layout: Form on Left, List on Right --><div style=\"display:grid; grid-template-columns:1fr 1fr; gap:1.75rem;\" class=\"locations-grid\"><!-- Add New Location Coverage Form --><div style=\"background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-2xl); padding:1.75rem; display:flex; flex-direction:column; gap:1.25rem;\"><h3 style=\"font-size:1.15rem; font-weight:800; color:var(--text); margin:0; border-bottom:1px solid var(--border); padding-bottom:0.75rem;\">+ إضافة نطاق تغطية جغرافي جديد</h3><form action=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "</h1></div></div><a href=\"/vendor/offers\" class=\"btn btn-secondary btn-sm fw-700\"><span>← العودة لجميع العروض</span></a></div><!-- Split Layout: Form on Left, List on Right --><div style=\"display:grid; grid-template-columns:1fr 1fr; gap:1.75rem;\" class=\"locations-grid\"><!-- Add New Location Coverage Form --><div style=\"background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-2xl); padding:1.75rem; display:flex; flex-direction:column; gap:1.25rem;\"><h3 style=\"font-size:1.15rem; font-weight:800; color:var(--text); margin:0; border-bottom:1px solid var(--border); padding-bottom:0.75rem;\">+ إضافة نطاق تغطية جغرافي جديد</h3><form action=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -95,12 +103,12 @@ func VendorOfferLocationsPage(data VendorOfferLocationsData, lang, dir string) t
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "\" method=\"POST\" style=\"display:flex; flex-direction:column; gap:1.15rem;\"><!-- Leaflet Map Picker with Radius Circle --><div class=\"stack-sm\"><label style=\"display:block; font-size:0.8rem; font-weight:700; color:var(--text-secondary);\">حدد مركز ونصف قطر التغطية على الخريطة</label><div data-map-picker data-default-lat=\"30.0444\" data-default-lon=\"31.2357\" data-default-radius=\"1000\" style=\"border-radius:var(--radius-xl); overflow:hidden; border:1px solid var(--border); background:var(--surface-sunken); position:relative;\"><div class=\"map-container map-canvas\" style=\"height:220px; width:100%;\"></div><div style=\"display:flex; justify-content:space-between; align-items:center; padding:0.5rem 0.8rem; background:var(--surface-raised); border-top:1px solid var(--border); font-size:0.75rem;\"><span data-map-coords-badge style=\"font-weight:700; color:var(--accent);\">30.0444, 31.2357</span> <button type=\"button\" data-map-locate class=\"btn btn-secondary btn-xs\">📍 موقعي</button></div><input type=\"hidden\" name=\"latitude\" data-map-input=\"lat\" value=\"30.0444\"> <input type=\"hidden\" name=\"longitude\" data-map-input=\"lon\" value=\"31.2357\"></div></div><div style=\"display:grid; grid-template-columns:1fr 1fr; gap:0.9rem;\"><div><label class=\"form-label\">المدينة / المحافظة <span class=\"text-danger\">*</span></label> <select name=\"city_id\" data-map-city class=\"form-input w-full\"><option value=\"\">-- اختر المدينة --</option> ")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "\" method=\"POST\" style=\"display:flex; flex-direction:column; gap:1.15rem;\"><!-- Leaflet Map Picker with Radius Circle --><div class=\"stack-sm\"><label style=\"display:block; font-size:0.8rem; font-weight:700; color:var(--text-secondary);\">حدد مركز ونصف قطر التغطية على الخريطة</label><div data-map-picker data-default-lat=\"30.0444\" data-default-lon=\"31.2357\" data-default-radius=\"1000\" style=\"border-radius:var(--radius-xl); overflow:hidden; border:1px solid var(--border); background:var(--surface-sunken); position:relative;\"><div class=\"map-container map-canvas\" style=\"height:220px; width:100%;\"></div><div style=\"display:flex; justify-content:space-between; align-items:center; padding:0.5rem 0.8rem; background:var(--surface-raised); border-top:1px solid var(--border); font-size:0.75rem;\"><span data-map-coords-badge style=\"font-weight:700; color:var(--accent);\">30.0444, 31.2357</span> <button type=\"button\" data-map-locate class=\"btn btn-secondary btn-xs\">موقعي</button></div><input type=\"hidden\" name=\"latitude\" data-map-input=\"lat\" value=\"30.0444\"> <input type=\"hidden\" name=\"longitude\" data-map-input=\"lon\" value=\"31.2357\"></div></div><div style=\"display:grid; grid-template-columns:1fr 1fr; gap:0.9rem;\"><div><label class=\"form-label\">المدينة / المحافظة <span class=\"text-danger\">*</span></label> <select name=\"city_id\" data-map-city class=\"form-input w-full\"><option value=\"\">-- اختر المدينة --</option> ")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			for _, c := range data.Cities {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "<option value=\"")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "<option value=\"")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -113,7 +121,7 @@ func VendorOfferLocationsPage(data VendorOfferLocationsData, lang, dir string) t
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -126,17 +134,17 @@ func VendorOfferLocationsPage(data VendorOfferLocationsData, lang, dir string) t
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "</option>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "</option>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "</select></div><div><label class=\"form-label\">نصف قطر التغطية (بالمتر)</label> <input type=\"number\" name=\"radius\" data-map-radius value=\"1000\" step=\"100\" min=\"200\" max=\"50000\" class=\"form-input tabular-nums w-full\"></div></div><div><label class=\"form-label\">العنوان والمنطقة المغطاة (بالعربية)</label> <input type=\"text\" name=\"address_ar\" placeholder=\"مثال: مدينة نصر ومصر الجديدة والتجمع الخامس\" class=\"form-input w-full\"></div><div style=\"display:grid; grid-template-columns:repeat(auto-fit, minmax(130px, 1fr)); gap:0.75rem;\"><div><label class=\"form-label\">يوم التوصيل</label> <select name=\"day_of_week\" class=\"form-input w-full\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "</select></div><div><label class=\"form-label\">نصف قطر التغطية (بالمتر)</label> <input type=\"number\" name=\"radius\" data-map-radius value=\"1000\" step=\"100\" min=\"200\" max=\"50000\" class=\"form-input tabular-nums w-full\"></div></div><div><label class=\"form-label\">العنوان والمنطقة المغطاة (بالعربية)</label> <input type=\"text\" name=\"address_ar\" placeholder=\"مثال: مدينة نصر ومصر الجديدة والتجمع الخامس\" class=\"form-input w-full\"></div><div style=\"display:grid; grid-template-columns:repeat(auto-fit, minmax(130px, 1fr)); gap:0.75rem;\"><div><label class=\"form-label\">يوم التوصيل</label> <select name=\"day_of_week\" class=\"form-input w-full\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			for _, d := range daysOfWeek {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "<option value=\"")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "<option value=\"")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -149,7 +157,7 @@ func VendorOfferLocationsPage(data VendorOfferLocationsData, lang, dir string) t
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -162,12 +170,12 @@ func VendorOfferLocationsPage(data VendorOfferLocationsData, lang, dir string) t
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "</option>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "</option>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "</select></div><div><label class=\"form-label\">من الساعة</label> <input type=\"time\" name=\"time_from\" value=\"09:00\" class=\"form-input\" style=\"width:100%; color-scheme:dark;\"></div><div><label class=\"form-label\">إلى الساعة</label> <input type=\"time\" name=\"time_to\" value=\"18:00\" class=\"form-input\" style=\"width:100%; color-scheme:dark;\"></div></div><button type=\"submit\" class=\"btn btn-primary\" style=\"font-weight:800; justify-content:center; margin-top:0.5rem;\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "</select></div><div><label class=\"form-label\">من الساعة</label> <input type=\"time\" name=\"time_from\" value=\"09:00\" class=\"form-input\" style=\"width:100%; color-scheme:dark;\"></div><div><label class=\"form-label\">إلى الساعة</label> <input type=\"time\" name=\"time_to\" value=\"18:00\" class=\"form-input\" style=\"width:100%; color-scheme:dark;\"></div></div><button type=\"submit\" class=\"btn btn-primary\" style=\"font-weight:800; justify-content:center; margin-top:0.5rem;\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -175,7 +183,7 @@ func VendorOfferLocationsPage(data VendorOfferLocationsData, lang, dir string) t
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "<span>حفظ نطاق التغطية للعرض</span></button></form></div><!-- Existing Locations List --><div style=\"background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-2xl); padding:1.75rem; display:flex; flex-direction:column; gap:1.25rem;\"><div style=\"display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--border); padding-bottom:0.75rem;\"><h3 class=\"text-lg fw-800 text-primary m-0\">النطاقات المسجلة لهذا العرض</h3><span class=\"badge badge-sky tabular-nums fw-700\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "<span>حفظ نطاق التغطية للعرض</span></button></form></div><!-- Existing Locations List --><div style=\"background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-2xl); padding:1.75rem; display:flex; flex-direction:column; gap:1.25rem;\"><div style=\"display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--border); padding-bottom:0.75rem;\"><h3 class=\"text-lg fw-800 text-primary m-0\">النطاقات المسجلة لهذا العرض</h3><span class=\"badge badge-sky tabular-nums fw-700\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -188,48 +196,48 @@ func VendorOfferLocationsPage(data VendorOfferLocationsData, lang, dir string) t
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "</span></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "</span></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			if len(data.Locations) == 0 {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "<div style=\"padding:3rem 1.5rem; text-align:center; color:var(--text-muted); font-size:0.875rem;\">لا توجد نطاقات جغرافية مضافة لهذا العرض بعد. استخدم النموذج لإضافة أول نطاق.</div>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "<div style=\"padding:3rem 1.5rem; text-align:center; color:var(--text-muted); font-size:0.875rem;\">لا توجد نطاقات جغرافية مضافة لهذا العرض بعد. استخدم النموذج لإضافة أول نطاق.</div>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			} else {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "<div style=\"display:flex; flex-direction:column; gap:0.9rem;\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "<div style=\"display:flex; flex-direction:column; gap:0.9rem;\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				for _, loc := range data.Locations {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "<div style=\"background:var(--surface-sunken); border:1px solid var(--border); border-radius:var(--radius-xl); padding:1.1rem; display:flex; justify-content:space-between; align-items:flex-start; gap:0.75rem;\"><div><div style=\"font-weight:800; color:var(--text); font-size:0.95rem; margin-bottom:0.25rem;\">📍 ")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "<div style=\"background:var(--surface-sunken); border:1px solid var(--border); border-radius:var(--radius-xl); padding:1.1rem; display:flex; justify-content:space-between; align-items:flex-start; gap:0.75rem;\"><div><div style=\"font-weight:800; color:var(--text); font-size:0.95rem; margin-bottom:0.25rem;\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var10 string
 					templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.JoinStringErrs(loc.CityName)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_offer_locations.templ`, Line: 173, Col: 30}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_offer_locations.templ`, Line: 173, Col: 25}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var10))
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, " - ")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, " - ")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var11 string
 					templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.JoinStringErrs(loc.AddressAr)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_offer_locations.templ`, Line: 173, Col: 50}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_offer_locations.templ`, Line: 173, Col: 45}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var11))
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "</div><div style=\"font-size:0.8rem; color:var(--text-secondary); line-height:1.4;\"><div>نصف قطر التغطية: <strong class=\"tabular-nums text-accent\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "</div><div style=\"font-size:0.8rem; color:var(--text-secondary); line-height:1.4;\"><div>نصف قطر التغطية: <strong class=\"tabular-nums text-accent\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -242,7 +250,7 @@ func VendorOfferLocationsPage(data VendorOfferLocationsData, lang, dir string) t
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "</strong></div><div>أوقات التوصيل: ")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, "</strong></div><div>أوقات التوصيل: ")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -255,7 +263,7 @@ func VendorOfferLocationsPage(data VendorOfferLocationsData, lang, dir string) t
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, " (")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, " (")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -268,7 +276,7 @@ func VendorOfferLocationsPage(data VendorOfferLocationsData, lang, dir string) t
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, " - ")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, " - ")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -281,17 +289,17 @@ func VendorOfferLocationsPage(data VendorOfferLocationsData, lang, dir string) t
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, ")</div></div></div><span class=\"badge badge-emerald\" style=\"font-size:0.7rem; font-weight:700;\">نشط</span></div>")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, ")</div></div></div><span class=\"badge badge-emerald\" style=\"font-size:0.7rem; font-weight:700;\">نشط</span></div>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, "</div>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, "</div>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, "</div></div></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 25, "</div></div></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

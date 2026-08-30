@@ -82,7 +82,7 @@ templ AdminBrandsPage(brands []BrandViewItem, totalCount, currentPage, pageSize 
 				<div class="flex-between items-center flex-wrap gap-4">
 					<div class="d-flex items-center gap-3">
 						<div class="user-avatar-badge text-xl">
-							🏷️
+							@components.IconTag("icon-sm")
 						</div>
 						<div>
 							<h1 class="text-2xl font-black text-primary m-0">دليل الشركات المصنعة والماركات</h1>
@@ -146,7 +146,7 @@ templ AdminBrandsPage(brands []BrandViewItem, totalCount, currentPage, pageSize 
 				<!-- Brands Data Table -->
 				if len(brands) == 0 {
 					<div class="p-8 text-center empty-state-glass">
-						<div class="text-4xl mb-3">🏷️</div>
+						<div class="text-4xl mb-3">@components.IconTag("icon-sm")</div>
 						<h3 class="text-lg font-black text-primary mb-2">لا توجد شركات مصنعة مطابقة</h3>
 						<p class="text-sm text-secondary max-w-md mx-auto">لم يتم العثور على أي نتائج وفق معايير البحث الحالية. يمكنك تعديل كلمات البحث أو إضافة شركة جديدة.</p>
 					</div>
@@ -198,7 +198,7 @@ templ AdminBrandsPage(brands []BrandViewItem, totalCount, currentPage, pageSize 
 												<span class="text-sm text-muted">لا يوجد وصف</span>
 											}
 										</td>
-										<td style="text-align:center;">
+										<td class="text-center">
 											<button
 												type="button"
 												@click={ fmt.Sprintf("openProductsModal(%d, '%s', '%s', %d)", item.Brand.ID, templateEscape(item.Brand.Name.Get("ar")), templateEscape(item.Brand.Name.Get("en")), item.ProductCount) }
@@ -210,7 +210,7 @@ templ AdminBrandsPage(brands []BrandViewItem, totalCount, currentPage, pageSize 
 												<span class="tabular-nums">{ fmt.Sprintf("%d صنف معتمد", item.ProductCount) }</span>
 											</button>
 										</td>
-										<td style="text-align:center;">
+										<td class="text-center">
 											if item.Brand.Status == "active" {
 												<span class="badge badge-emerald fw-700">نشط</span>
 											} else {
@@ -396,7 +396,7 @@ templ AdminBrandsPage(brands []BrandViewItem, totalCount, currentPage, pageSize 
 					@click.outside="isCreateModalOpen = false"
 					class="modal-card modal-md p-modal"
 				>
-					<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; border-bottom:1px solid var(--border); padding-bottom:1rem;">
+					<div class="section-head">
 						<div class="row-center-sm">
 							<div class="b2b-icon-box-sm">
 								@components.IconPlus("icon-xs")
@@ -473,7 +473,7 @@ templ AdminBrandsPage(brands []BrandViewItem, totalCount, currentPage, pageSize 
 					@click.outside="isEditModalOpen = false"
 					class="modal-card modal-md p-modal"
 				>
-					<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; border-bottom:1px solid var(--border); padding-bottom:1rem;">
+					<div class="section-head">
 						<div class="row-center-sm">
 							<div class="b2b-icon-box-sm">
 								@components.IconEdit("icon-xs")

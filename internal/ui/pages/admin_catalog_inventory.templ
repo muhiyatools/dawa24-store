@@ -37,7 +37,7 @@ templ AdminProductDetailPage(p *catalog.Product, variants []*catalog.ProductVari
 							if p.Image != "" {
 								<img src={ p.Image } alt={ p.Name.Get("ar") } class="w-full h-full object-contain p-1" />
 							} else {
-								<span class="text-3xl">💊</span>
+								<span class="text-3xl">@components.IconPill("icon-sm")</span>
 							}
 						</div>
 
@@ -49,7 +49,7 @@ templ AdminProductDetailPage(p *catalog.Product, variants []*catalog.ProductVari
 									<span class="badge badge-rose text-xs font-bold">موقوف / معطل</span>
 								}
 								if p.IsFeatured {
-									<span class="badge badge-sky text-xs font-bold">مميز ⭐</span>
+									<span class="badge badge-sky text-xs font-bold">مميز </span>
 								}
 								<span class="text-xs text-muted tabular-nums font-mono">ID: #{ fmt.Sprintf("%d", p.ID) }</span>
 							</div>
@@ -66,13 +66,13 @@ templ AdminProductDetailPage(p *catalog.Product, variants []*catalog.ProductVari
 
 							<div class="d-flex items-center gap-4 flex-wrap text-xs text-muted">
 								if p.SKU != "" {
-									<div>🏷️ SKU: <strong class="text-primary tabular-nums font-mono">{ p.SKU }</strong></div>
+									<div>SKU: <strong class="text-primary tabular-nums font-mono">{ p.SKU }</strong></div>
 								}
 								if p.Barcode != "" {
-									<div>📊 باركود: <strong class="text-primary tabular-nums font-mono">{ p.Barcode }</strong></div>
+									<div>باركود: <strong class="text-primary tabular-nums font-mono">{ p.Barcode }</strong></div>
 								}
 								if p.ManufacturingCompanies != "" {
-									<div>🏭 الشركة: <strong class="text-primary">{ p.ManufacturingCompanies }</strong></div>
+									<div>الشركة: <strong class="text-primary">{ p.ManufacturingCompanies }</strong></div>
 								}
 							</div>
 						</div>
@@ -140,7 +140,7 @@ templ AdminProductDetailPage(p *catalog.Product, variants []*catalog.ProductVari
 			<div class="glass-panel p-6 mb-6">
 				<div class="flex-between items-center pb-3 mb-4 border-b">
 					<div class="d-flex items-center gap-2">
-						<span class="text-lg">📋</span>
+						<span class="text-lg">@components.IconFileText("icon-sm")</span>
 						<h2 class="text-base font-black text-primary m-0">
 							المواصفات والبيانات الدوائية المعتمدة
 						</h2>
@@ -233,7 +233,7 @@ templ AdminProductDetailPage(p *catalog.Product, variants []*catalog.ProductVari
 			<div class="glass-panel p-0 mb-6 overflow-hidden">
 				<div class="p-4 border-b flex-between items-center flex-wrap gap-2">
 					<div class="d-flex items-center gap-2">
-						<span class="text-lg">🏢</span>
+						<span class="text-lg">@components.IconBuilding("icon-sm")</span>
 						<h3 class="text-base font-black text-primary m-0">
 							عروض التوريد المسجلة من الموردين لهذا الصنف ({ fmt.Sprintf("%d", len(variants)) })
 						</h3>
@@ -242,7 +242,7 @@ templ AdminProductDetailPage(p *catalog.Product, variants []*catalog.ProductVari
 
 				if len(variants) == 0 {
 					<div class="p-8 text-center empty-state-glass">
-						<div class="text-3xl mb-2">📦</div>
+						<div class="text-3xl mb-2">@components.IconPackage("icon-sm")</div>
 						<h4 class="text-base font-bold text-primary mb-1">لا توجد عروض توريد مسجلة حالياً</h4>
 						<p class="text-xs text-secondary max-w-md mx-auto">لم يقم أي مورد بإدراج كميات أو عروض أسعار لهذا الصنف الدوائي بعد.</p>
 					</div>
@@ -327,7 +327,7 @@ templ AdminProductChildrenPage(data AdminProductChildrenData, lang, dir string) 
 				<div class="flex-between items-center flex-wrap gap-4">
 					<div class="d-flex items-center gap-3">
 						<div class="user-avatar-badge text-xl">
-							📦
+							@components.IconPackage("icon-sm")
 						</div>
 						<div>
 							<h1 class="text-2xl font-black text-primary m-0">
@@ -372,7 +372,7 @@ templ AdminProductChildrenPage(data AdminProductChildrenData, lang, dir string) 
 			<div class="glass-panel p-0 mb-6 overflow-hidden">
 				if len(data.Items) == 0 {
 					<div class="p-8 text-center empty-state-glass">
-						<div class="text-4xl mb-3">📦</div>
+						<div class="text-4xl mb-3">@components.IconPackage("icon-sm")</div>
 						<h3 class="text-lg font-black text-primary mb-2">لا توجد أصناف موردين مسجلة</h3>
 						<p class="text-sm text-secondary max-w-md mx-auto">لم يقم الموردون بتسجيل أصناف أو عروض توريد مطابقة لبحثك بعد.</p>
 					</div>
@@ -546,7 +546,7 @@ templ AdminStocksPage(stocks []*inventory.Stock, lang, dir string) {
 				<div class="flex-between items-center flex-wrap gap-4">
 					<div class="d-flex items-center gap-3">
 						<div class="user-avatar-badge text-xl">
-							📊
+							@components.IconBarChart("icon-sm")
 						</div>
 						<div>
 							<h1 class="text-2xl font-black text-primary m-0">أرصدة المخزون بالمنشآت والمخازن ({ fmt.Sprintf("%d", len(stocks)) })</h1>
@@ -559,7 +559,7 @@ templ AdminStocksPage(stocks []*inventory.Stock, lang, dir string) {
 			<div class="glass-panel p-0 mb-6 overflow-hidden">
 				if len(stocks) == 0 {
 					<div class="p-8 text-center empty-state-glass">
-						<div class="text-4xl mb-3">📊</div>
+						<div class="text-4xl mb-3">@components.IconBarChart("icon-sm")</div>
 						<h3 class="text-lg font-black text-primary mb-2">المخزون فارغ</h3>
 						<p class="text-sm text-secondary max-w-md mx-auto">لم يتم تسجيل أرصدة مخزون في المخازن بعد.</p>
 					</div>
@@ -628,7 +628,7 @@ templ AdminWarehousesPage(warehouses []*AdminWarehouseRowView, lang, dir string)
 				<div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem;">
 					<div style="display:flex; align-items:center; gap:1rem;">
 						<div style="width:48px; height:48px; border-radius:var(--radius-xl); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center; font-size:1.5rem; flex-shrink:0;">
-							🏬
+							@components.IconBuilding("icon-sm")
 						</div>
 						<div>
 							<h1 style="font-size:1.35rem; font-weight:900; color:var(--text); margin:0;">دليل المخازن ومراكز التوزيع</h1>
@@ -647,7 +647,7 @@ templ AdminWarehousesPage(warehouses []*AdminWarehouseRowView, lang, dir string)
 				if len(warehouses) == 0 {
 					<div style="padding:4rem 2rem; text-align:center;">
 						<div style="width:54px; height:54px; border-radius:var(--radius-full); background:var(--surface-sunken); color:var(--text-muted); display:flex; align-items:center; justify-content:center; margin:0 auto 1rem auto; font-size:1.5rem;">
-							🏬
+							@components.IconBuilding("icon-sm")
 						</div>
 						<h3 style="font-size:1.1rem; font-weight:800; color:var(--text); margin:0 0 0.35rem 0;">لا توجد مخازن مسجلة</h3>
 						<p style="font-size:0.85rem; color:var(--text-secondary); max-width:400px; margin:0 auto;">لم يتم تسجيل أي مخازن بالمنصة حتى الآن.</p>
@@ -670,7 +670,7 @@ templ AdminWarehousesPage(warehouses []*AdminWarehouseRowView, lang, dir string)
 									<tr>
 										<td>
 											<div style="display:flex; align-items:center; gap:0.65rem;">
-												<span style="font-size:1.2rem;">🏬</span>
+												<span style="font-size:1.2rem;">@components.IconBuilding("icon-sm")</span>
 												<div>
 													<strong style="color:var(--text); font-size:0.925rem;">{ row.Warehouse.Name }</strong>
 													if row.Warehouse.Code != "" {
@@ -682,7 +682,7 @@ templ AdminWarehousesPage(warehouses []*AdminWarehouseRowView, lang, dir string)
 										<td>
 											if row.OrgName != "" {
 												<span class="badge badge-slate" style="font-weight:700; font-size:0.8rem;">
-													🏢 { row.OrgName }
+													{ row.OrgName }
 												</span>
 											} else {
 												<span class="text-muted text-sm">منشأة #{ fmt.Sprintf("%d", row.Warehouse.OrganizationID) }</span>
@@ -704,9 +704,9 @@ templ AdminWarehousesPage(warehouses []*AdminWarehouseRowView, lang, dir string)
 										</td>
 										<td class="text-center">
 											if row.Warehouse.IsActive {
-												<span class="badge badge-emerald fw-800">✓ نشط</span>
+												<span class="badge badge-emerald fw-800">نشط</span>
 											} else {
-												<span class="badge badge-rose fw-800">✕ معطل</span>
+												<span class="badge badge-rose fw-800">معطل</span>
 											}
 										</td>
 										<td class="text-end">
@@ -747,11 +747,11 @@ templ AdminWarehouseDetailPage(data AdminWarehouseDetailView, lang, dir string) 
 					<strong style="color:var(--text); font-size:0.95rem;">{ data.Warehouse.Name }</strong>
 				</div>
 
-				<div style="display:flex; align-items:center; gap:0.5rem;">
+				<div class="d-flex items-center gap-2">
 					if data.Warehouse.IsActive {
-						<span class="badge badge-emerald fw-800" style="padding:0.4rem 0.85rem; font-size:0.825rem;">✓ مخزن نشط ومتاح للطلب</span>
+						<span class="badge badge-emerald fw-800" style="padding:0.4rem 0.85rem; font-size:0.825rem;">مخزن نشط ومتاح للطلب</span>
 					} else {
-						<span class="badge badge-rose fw-800" style="padding:0.4rem 0.85rem; font-size:0.825rem;">✕ مخزن معطل حالياً</span>
+						<span class="badge badge-rose fw-800" style="padding:0.4rem 0.85rem; font-size:0.825rem;">مخزن معطل حالياً</span>
 					}
 				</div>
 			</div>
@@ -761,7 +761,7 @@ templ AdminWarehouseDetailPage(data AdminWarehouseDetailView, lang, dir string) 
 				<div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1.25rem;">
 					<div style="display:flex; align-items:center; gap:1.15rem;">
 						<div style="width:56px; height:56px; border-radius:var(--radius-xl); background:linear-gradient(135deg, rgba(2,132,199,0.15) 0%, rgba(37,99,235,0.15) 100%); color:var(--accent); display:flex; align-items:center; justify-content:center; font-size:1.75rem; flex-shrink:0; border:1px solid rgba(2,132,199,0.25);">
-							🏬
+							@components.IconBuilding("icon-sm")
 						</div>
 						<div>
 							<div style="display:flex; align-items:center; gap:0.6rem; flex-wrap:wrap;">
@@ -770,7 +770,7 @@ templ AdminWarehouseDetailPage(data AdminWarehouseDetailView, lang, dir string) 
 								</h1>
 								if data.OrgName != "" {
 									<span class="badge badge-sky" style="font-weight:700; font-size:0.825rem; padding:0.25rem 0.7rem;">
-										🏢 { data.OrgName }
+										{ data.OrgName }
 									</span>
 								} else {
 									<span class="badge badge-slate" style="font-weight:700; font-size:0.8rem;">
@@ -781,12 +781,12 @@ templ AdminWarehouseDetailPage(data AdminWarehouseDetailView, lang, dir string) 
 							<div style="display:flex; align-items:center; gap:1.25rem; flex-wrap:wrap; font-size:0.825rem; color:var(--text-secondary); margin-top:0.45rem;">
 								if data.Warehouse.Code != "" {
 									<div style="display:flex; align-items:center; gap:0.35rem;">
-										<span style="color:var(--text-muted);">كود المخزن:</span>
+										<span class="text-muted">كود المخزن:</span>
 										<code style="background:var(--surface-raised); padding:0.15rem 0.45rem; border-radius:var(--radius-sm); border:1px solid var(--border); font-family:var(--font-mono, monospace); font-weight:700; font-size:0.775rem;">{ data.Warehouse.Code }</code>
 									</div>
 								}
 								<div style="display:flex; align-items:center; gap:0.35rem;">
-									<span style="color:var(--text-muted);">📍 العنوان:</span>
+									<span class="text-muted">العنوان:</span>
 									<span style="color:var(--text); font-weight:600;">
 										if data.Warehouse.Address != "" {
 											{ data.Warehouse.Address }
@@ -797,7 +797,7 @@ templ AdminWarehouseDetailPage(data AdminWarehouseDetailView, lang, dir string) 
 								</div>
 								if data.Warehouse.Phone != "" {
 									<div style="display:flex; align-items:center; gap:0.35rem;">
-										<span style="color:var(--text-muted);">📞 الهاتف:</span>
+										<span class="text-muted">الهاتف:</span>
 										<span dir="ltr" class="tabular-nums" style="color:var(--text); font-weight:700;">{ data.Warehouse.Phone }</span>
 									</div>
 								}
@@ -820,13 +820,13 @@ templ AdminWarehouseDetailPage(data AdminWarehouseDetailView, lang, dir string) 
 				<div class="card mb-0 warehouse-kpi-card" style="border-top:3px solid var(--primary); background:var(--surface-raised);">
 					<div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:0.4rem;">
 						<span style="font-size:0.825rem; font-weight:700; color:var(--text-secondary);">إجمالي أصناف المخزون</span>
-						<span style="font-size:1.1rem;">📦</span>
+						<span style="font-size:1.1rem;">@components.IconPackage("icon-sm")</span>
 					</div>
 					<div class="tabular-nums" style="font-size:1.85rem; font-weight:900; color:var(--text); line-height:1.2;">
 						{ fmt.Sprintf("%d", data.TotalItems) }
 					</div>
 					<div style="font-size:0.75rem; color:var(--text-muted); margin-top:0.35rem;">
-						بإجمالي <strong style="color:var(--text);">{ fmt.Sprintf("%d", data.TotalUnits) }</strong> وحدة مخزنة
+						بإجمالي <strong class="text-body">{ fmt.Sprintf("%d", data.TotalUnits) }</strong> وحدة مخزنة
 					</div>
 				</div>
 
@@ -834,7 +834,7 @@ templ AdminWarehouseDetailPage(data AdminWarehouseDetailView, lang, dir string) 
 				<div class="card mb-0 warehouse-kpi-card" style="border-top:3px solid var(--emerald); background:var(--surface-raised);">
 					<div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:0.4rem;">
 						<span style="font-size:0.825rem; font-weight:700; color:var(--text-secondary);">أصناف متوفرة (جاهزة للطلب)</span>
-						<span style="font-size:1.1rem;">✅</span>
+						<span style="font-size:1.1rem;">@components.IconCheckCircle("icon-sm")</span>
 					</div>
 					<div class="tabular-nums" style="font-size:1.85rem; font-weight:900; color:var(--emerald); line-height:1.2;">
 						{ fmt.Sprintf("%d", data.AvailableCount) }
@@ -848,7 +848,7 @@ templ AdminWarehouseDetailPage(data AdminWarehouseDetailView, lang, dir string) 
 				<div class="card mb-0 warehouse-kpi-card" style="border-top:3px solid var(--amber); background:var(--surface-raised);">
 					<div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:0.4rem;">
 						<span style="font-size:0.825rem; font-weight:700; color:var(--text-secondary);">أصناف رصيد منخفض</span>
-						<span style="font-size:1.1rem;">⚠️</span>
+						<span style="font-size:1.1rem;">@components.IconAlert("icon-sm")</span>
 					</div>
 					<div class="tabular-nums" style="font-size:1.85rem; font-weight:900; color:var(--amber); line-height:1.2;">
 						{ fmt.Sprintf("%d", data.LowStockCount) }
@@ -862,7 +862,7 @@ templ AdminWarehouseDetailPage(data AdminWarehouseDetailView, lang, dir string) 
 				<div class="card mb-0 warehouse-kpi-card" style="border-top:3px solid var(--rose); background:var(--surface-raised);">
 					<div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:0.4rem;">
 						<span style="font-size:0.825rem; font-weight:700; color:var(--text-secondary);">أصناف نفد مخزونها</span>
-						<span style="font-size:1.1rem;">❌</span>
+						<span style="font-size:1.1rem;">@components.IconClose("icon-sm")</span>
 					</div>
 					<div class="tabular-nums" style="font-size:1.85rem; font-weight:900; color:var(--rose); line-height:1.2;">
 						{ fmt.Sprintf("%d", data.OutOfStockCount) }
@@ -883,7 +883,7 @@ templ AdminWarehouseDetailPage(data AdminWarehouseDetailView, lang, dir string) 
 							<label class="form-label" style="font-size:0.825rem; font-weight:700; color:var(--text-secondary); margin-bottom:0.35rem;">
 								بحث بالأصناف والتشغيلات
 							</label>
-							<div style="position:relative;">
+							<div class="relative">
 								<input
 									type="text"
 									name="q"
@@ -937,7 +937,7 @@ templ AdminWarehouseDetailPage(data AdminWarehouseDetailView, lang, dir string) 
 							نتائج البحث: <span class="tabular-nums text-primary fw-800">{ fmt.Sprintf("%d", data.TotalCount) }</span> صنف مطابق
 						</div>
 
-						<div style="display:flex; align-items:center; gap:0.75rem;">
+						<div class="d-flex items-center gap-3">
 							if data.SearchQuery != "" || (data.StatusFilter != "all" && data.StatusFilter != "") || (data.NegotiableFilter != "all" && data.NegotiableFilter != "") {
 								<a href={ templ.SafeURL(fmt.Sprintf("/admin/warehouses/%d", data.Warehouse.ID)) } class="btn btn-ghost btn-sm text-muted">
 									إلغاء التصفية
@@ -956,11 +956,11 @@ templ AdminWarehouseDetailPage(data AdminWarehouseDetailView, lang, dir string) 
 			<div class="card mb-0" style="border:1px solid var(--border); border-radius:var(--radius-xl); padding:0; overflow:hidden; background:var(--surface-raised); box-shadow:0 4px 16px rgba(0,0,0,0.03);">
 				<div style="padding:1.25rem 1.5rem; border-bottom:1px solid var(--border-subtle); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.75rem; background:var(--surface);">
 					<div style="display:flex; align-items:center; gap:0.6rem;">
-						<span style="font-size:1.1rem;">📦</span>
+						<span style="font-size:1.1rem;">@components.IconPackage("icon-sm")</span>
 						<h3 style="font-weight:800; font-size:1rem; color:var(--text); margin:0;">
 							جدول أرصدة المخزون
 						</h3>
-						<span class="badge badge-slate text-xs tabular-nums" style="font-weight:700;">
+						<span class="badge badge-slate text-xs tabular-nums font-bold">
 							{ fmt.Sprintf("%d صنف معروض", len(data.Items)) }
 						</span>
 					</div>
@@ -969,13 +969,13 @@ templ AdminWarehouseDetailPage(data AdminWarehouseDetailView, lang, dir string) 
 				if len(data.Items) == 0 {
 					<div style="padding:4rem 2rem; text-align:center;">
 						<div style="width:54px; height:54px; border-radius:var(--radius-full); background:var(--surface-sunken); color:var(--text-muted); display:flex; align-items:center; justify-content:center; margin:0 auto 1rem auto; font-size:1.5rem;">
-							📦
+							@components.IconPackage("icon-sm")
 						</div>
 						<h4 style="font-size:1.1rem; font-weight:800; color:var(--text); margin:0 0 0.5rem 0;">لا توجد أصناف مخزنة مطابقة</h4>
 						<p style="font-size:0.875rem; color:var(--text-secondary); max-width:420px; margin:0 auto 1.5rem auto;">
 							لم يتم العثور على أي رصيد مخزني لهذا المخزن يطابق معايير البحث أو التصفية الحالية.
 						</p>
-						<a href={ templ.SafeURL(fmt.Sprintf("/admin/warehouses/%d", data.Warehouse.ID)) } class="btn btn-secondary btn-sm" style="font-weight:700;">
+						<a href={ templ.SafeURL(fmt.Sprintf("/admin/warehouses/%d", data.Warehouse.ID)) } class="btn btn-secondary btn-sm font-bold">
 							عرض كافة أصناف المخزن
 						</a>
 					</div>
@@ -1043,8 +1043,8 @@ templ AdminWarehouseDetailPage(data AdminWarehouseDetailView, lang, dir string) 
 												<div class="text-muted text-sm">-</div>
 											}
 											if st.ExpiryDate != nil {
-												<div style="font-size:0.75rem; color:var(--text-muted);" title="تاريخ الصلاحية">
-													📅 { st.ExpiryDate.Format("2006-01-02") }
+												<div class="meta-muted" title="تاريخ الصلاحية">
+													{ st.ExpiryDate.Format("2006-01-02") }
 												</div>
 											}
 										</td>
@@ -1560,7 +1560,7 @@ templ AdminTempWarehousesPage(data *AdminTempWarehousesData, lang, dir string) {
 					<div>
 						<div style="display:flex; align-items:center; gap:0.75rem; margin-bottom:0.35rem;">
 							<div style="width:46px; height:46px; border-radius:var(--radius-xl); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center; font-size:1.4rem;">
-								🏢
+								@components.IconBuilding("icon-sm")
 							</div>
 							<div>
 								<h1 style="font-size:1.5rem; font-weight:900; color:var(--text); margin:0;">
@@ -1584,7 +1584,7 @@ templ AdminTempWarehousesPage(data *AdminTempWarehousesData, lang, dir string) {
 							style={ templ.KV("background:var(--accent); color:#fff; font-weight:800;", data.Scope == "my" || data.Scope == ""), templ.KV("background:var(--surface-sunken); border:1px solid var(--border); color:var(--text-secondary); font-weight:700;", data.Scope != "my" && data.Scope != "") }
 							style="border-radius:var(--radius-lg); padding:0.5rem 1rem;"
 						>
-							<span>👤 مستودعاتي المرفوعة</span>
+							<span>مستودعاتي المرفوعة</span>
 						</a>
 						<a
 							href="/admin/user/temparte-warehouses?scope=admins"
@@ -1592,7 +1592,7 @@ templ AdminTempWarehousesPage(data *AdminTempWarehousesData, lang, dir string) {
 							style={ templ.KV("background:var(--accent); color:#fff; font-weight:800;", data.Scope == "admins"), templ.KV("background:var(--surface-sunken); border:1px solid var(--border); color:var(--text-secondary); font-weight:700;", data.Scope != "admins") }
 							style="border-radius:var(--radius-lg); padding:0.5rem 1rem;"
 						>
-							<span>🛡️ مستودعات كافة المشرفين</span>
+							<span>مستودعات كافة المشرفين</span>
 						</a>
 						<a
 							href="/admin/user/temparte-warehouses?scope=all"
@@ -1600,7 +1600,7 @@ templ AdminTempWarehousesPage(data *AdminTempWarehousesData, lang, dir string) {
 							style={ templ.KV("background:var(--accent); color:#fff; font-weight:800;", data.Scope == "all"), templ.KV("background:var(--surface-sunken); border:1px solid var(--border); color:var(--text-secondary); font-weight:700;", data.Scope != "all") }
 							style="border-radius:var(--radius-lg); padding:0.5rem 1rem;"
 						>
-							<span>👥 جميع مستودعات العملاء والبائعين</span>
+							<span>جميع مستودعات العملاء والبائعين</span>
 						</a>
 						<button
 							type="button"
@@ -1608,7 +1608,7 @@ templ AdminTempWarehousesPage(data *AdminTempWarehousesData, lang, dir string) {
 							class="btn btn-primary btn-sm"
 							style="display:inline-flex; align-items:center; gap:0.4rem; font-weight:900; padding:0.55rem 1.25rem; border-radius:var(--radius-lg);"
 						>
-							<span>➕ رفع الملفات وسجل الأخطاء</span>
+							<span>رفع الملفات وسجل الأخطاء</span>
 						</button>
 					</div>
 				</div>
@@ -1692,7 +1692,7 @@ templ AdminTempWarehousesPage(data *AdminTempWarehousesData, lang, dir string) {
 					</div>
 
 					<!-- Status Pill Tabs (Image 4) -->
-					<div style="display:flex; align-items:center; gap:0.5rem;">
+					<div class="d-flex items-center gap-2">
 						<div style="display:flex; background:var(--surface-sunken); border:1px solid var(--border); border-radius:var(--radius-lg); padding:2px; gap:2px;">
 							<a
 								href={ templ.SafeURL(fmt.Sprintf("/admin/user/temparte-warehouses?scope=%s&q=%s&status=ready", data.Scope, data.Query)) }
@@ -1700,7 +1700,7 @@ templ AdminTempWarehousesPage(data *AdminTempWarehousesData, lang, dir string) {
 								style={ templ.KV("background:var(--surface-raised); font-weight:800; color:var(--emerald); box-shadow:0 1px 3px rgba(0,0,0,0.06);", data.StatusFilter == "ready"), templ.KV("background:transparent; color:var(--text-secondary); border:none;", data.StatusFilter != "ready") }
 								style="padding:0.35rem 0.85rem; font-size:0.825rem; border-radius:var(--radius-md);"
 							>
-								<span>🟢 النشطة</span>
+								<span>النشطة</span>
 							</a>
 							<a
 								href={ templ.SafeURL(fmt.Sprintf("/admin/user/temparte-warehouses?scope=%s&q=%s&status=archived", data.Scope, data.Query)) }
@@ -1708,7 +1708,7 @@ templ AdminTempWarehousesPage(data *AdminTempWarehousesData, lang, dir string) {
 								style={ templ.KV("background:var(--surface-raised); font-weight:800; color:var(--accent); box-shadow:0 1px 3px rgba(0,0,0,0.06);", data.StatusFilter == "archived"), templ.KV("background:transparent; color:var(--text-secondary); border:none;", data.StatusFilter != "archived") }
 								style="padding:0.35rem 0.85rem; font-size:0.825rem; border-radius:var(--radius-md);"
 							>
-								<span>📦 المؤرشفة</span>
+								<span>المؤرشفة</span>
 							</a>
 							<a
 								href={ templ.SafeURL(fmt.Sprintf("/admin/user/temparte-warehouses?scope=%s&q=%s", data.Scope, data.Query)) }
@@ -1733,7 +1733,7 @@ templ AdminTempWarehousesPage(data *AdminTempWarehousesData, lang, dir string) {
 				if len(data.Items) == 0 {
 					<div style="text-align:center; padding:4.5rem 1.5rem;">
 						<div style="width:56px; height:56px; border-radius:var(--radius-full); background:var(--surface-sunken); color:var(--text-muted); display:flex; align-items:center; justify-content:center; margin:0 auto 1rem auto; font-size:1.75rem;">
-							📦
+							@components.IconPackage("icon-sm")
 						</div>
 						<h3 style="font-size:1.2rem; font-weight:800; color:var(--text); margin-bottom:0.4rem;">
 							لا توجد مستودعات مؤقتة مطابقة
@@ -1760,7 +1760,7 @@ templ AdminTempWarehousesPage(data *AdminTempWarehousesData, lang, dir string) {
 							<tbody>
 								for idx, item := range data.Items {
 									<tr>
-										<td class="tabular-nums text-muted text-sm" style="text-align:center;">
+										<td class="tabular-nums text-muted text-sm text-center">
 											{ fmt.Sprintf("%d", idx+1) }
 										</td>
 										<td>
@@ -1769,7 +1769,7 @@ templ AdminTempWarehousesPage(data *AdminTempWarehousesData, lang, dir string) {
 											</div>
 											if item.OriginalFilename != "" && item.OriginalFilename != item.SupplierName {
 												<div class="tabular-nums text-xs text-muted font-mono mt-0.5">
-													📁 { item.OriginalFilename }
+													{ item.OriginalFilename }
 												</div>
 											}
 										</td>
@@ -1778,7 +1778,7 @@ templ AdminTempWarehousesPage(data *AdminTempWarehousesData, lang, dir string) {
 												{ fmt.Sprintf("%d صنف", item.RowCount) }
 											</span>
 										</td>
-										<td class="tabular-nums text-xs text-muted" style="white-space:nowrap;">
+										<td class="tabular-nums text-xs text-muted nowrap">
 											{ item.CreatedAt.Format("2006-01-02 15:04") }
 										</td>
 										<td>
@@ -1791,7 +1791,7 @@ templ AdminTempWarehousesPage(data *AdminTempWarehousesData, lang, dir string) {
 													style="padding:0.35rem 0.75rem; font-size:0.8rem; border-radius:var(--radius-md); color:var(--accent);"
 													title="عرض وفحص كافة أصناف هذا المستودع"
 												>
-													<span>👁️ الأصناف</span>
+													<span>الأصناف</span>
 												</button>
 
 												<!-- Column Mapping Button -->
@@ -1802,7 +1802,7 @@ templ AdminTempWarehousesPage(data *AdminTempWarehousesData, lang, dir string) {
 													style="padding:0.35rem 0.65rem; font-size:0.8rem; border-radius:var(--radius-md); color:var(--text);"
 													title="ضبط وتعديل وتأكيد تعيين أعمدة المستودع"
 												>
-													<span>⚙️ ضبط الأعمدة</span>
+													<span>ضبط الأعمدة</span>
 												</button>
 
 												<!-- Download XLSX -->
@@ -1812,18 +1812,18 @@ templ AdminTempWarehousesPage(data *AdminTempWarehousesData, lang, dir string) {
 													style="padding:0.35rem 0.65rem; font-size:0.8rem; border-radius:var(--radius-md); color:var(--emerald, #10b981);"
 													title="تنزيل كشف المستودع بصيغة Excel"
 												>
-													<span>📊 XLSX</span>
+													<span>XLSX</span>
 												</a>
 
 												<!-- Toggle Archive -->
 												<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/temporary-warehouses/%d/toggle-archive", item.ID)) } style="display:inline; margin:0;">
 													if item.Status == "archived" {
 														<button type="submit" class="btn btn-secondary btn-sm fw-800" style="padding:0.35rem 0.65rem; font-size:0.8rem; border-radius:var(--radius-md);" title="إعادة تفعيل المستودع بالخصومات">
-															<span>🟢 تفعيل</span>
+															<span>تفعيل</span>
 														</button>
 													} else {
 														<button type="submit" class="btn btn-secondary btn-sm fw-800" style="padding:0.35rem 0.65rem; font-size:0.8rem; border-radius:var(--radius-md);" title="أرشفة المستودع">
-															<span>📦 أرشفة</span>
+															<span>أرشفة</span>
 														</button>
 													}
 												</form>
@@ -1831,7 +1831,7 @@ templ AdminTempWarehousesPage(data *AdminTempWarehousesData, lang, dir string) {
 												<!-- Delete Warehouse -->
 												<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/temporary-warehouses/%d/delete", item.ID)) } onsubmit="return confirm('هل أنت متأكد تماماً من حذف هذا المستودع وكافة أصنافه نهائياً؟');" style="display:inline; margin:0;">
 													<button type="submit" class="btn btn-secondary btn-sm fw-800" style="padding:0.35rem 0.65rem; font-size:0.8rem; border-radius:var(--radius-md); color:#dc2626;" title="حذف المستودع بالكامل">
-														<span>🗑️ حذف</span>
+														<span>حذف</span>
 													</button>
 												</form>
 											</div>
@@ -1859,7 +1859,7 @@ templ AdminTempWarehousesPage(data *AdminTempWarehousesData, lang, dir string) {
 					<!-- Modal Top Header (Image 3) -->
 					<div style="padding:1.25rem 1.75rem; border-bottom:1px solid var(--border-subtle); display:flex; justify-content:space-between; align-items:center; background:var(--surface);">
 						<div style="display:flex; align-items:center; gap:0.6rem;">
-							<span style="font-size:1.3rem;">📦</span>
+							<span style="font-size:1.3rem;">@components.IconPackage("icon-sm")</span>
 							<h3 style="font-size:1.2rem; font-weight:900; color:var(--text); margin:0;">
 								أصناف المستودع: <span x-text="selectedWarehouse.name" style="color:var(--accent);"></span> (<span x-text="selectedWarehouse.total" class="tabular-nums"></span> صنف)
 							</h3>
@@ -1872,7 +1872,7 @@ templ AdminTempWarehousesPage(data *AdminTempWarehousesData, lang, dir string) {
 								class="btn btn-secondary btn-sm fw-800"
 								style="display:inline-flex; align-items:center; gap:0.35rem; padding:0.4rem 0.85rem; border-radius:var(--radius-md); color:var(--emerald, #10b981);"
 							>
-								<span>📥 تحميل XLSX</span>
+								<span>تحميل XLSX</span>
 							</a>
 
 							<!-- Close Button -->
@@ -1898,7 +1898,7 @@ templ AdminTempWarehousesPage(data *AdminTempWarehousesData, lang, dir string) {
 
 						<template x-if="!modalLoading && modalItems.length === 0">
 							<div style="padding:4rem; text-align:center; color:var(--text-muted);">
-								<div style="font-size:2rem; margin-bottom:0.5rem;">🔍</div>
+								<div style="font-size:2rem; margin-bottom:0.5rem;">@components.IconSearch("icon-sm")</div>
 								<div class="fw-700">لا توجد أصناف في هذا المستودع حالياً.</div>
 							</div>
 						</template>
@@ -1935,7 +1935,7 @@ templ AdminTempWarehousesPage(data *AdminTempWarehousesData, lang, dir string) {
 											</td>
 
 											<!-- Delete Single Item Button (Image 3) -->
-											<td style="text-align:center;">
+											<td class="text-center">
 												<button
 													type="button"
 													@click="deleteItem(row.id)"
@@ -1943,7 +1943,7 @@ templ AdminTempWarehousesPage(data *AdminTempWarehousesData, lang, dir string) {
 													style="color:#dc2626; border-radius:var(--radius-md); padding:0.25rem 0.5rem; font-weight:800;"
 													title="حذف هذا الصنف من المستودع"
 												>
-													✕
+													@components.IconX("icon-sm")
 												</button>
 											</td>
 										</tr>
@@ -1966,7 +1966,7 @@ templ AdminTempWarehousesPage(data *AdminTempWarehousesData, lang, dir string) {
 							<span> صنف)</span>
 						</div>
 
-						<div style="display:flex; align-items:center; gap:0.5rem;">
+						<div class="d-flex items-center gap-2">
 							<button
 								type="button"
 								@click="prevModalPage()"
@@ -2013,7 +2013,7 @@ templ AdminTempWarehousesPage(data *AdminTempWarehousesData, lang, dir string) {
 					<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.25rem; border-bottom:1px solid var(--border); padding-bottom:1rem;">
 						<div>
 							<h3 style="font-size:1.3rem; font-weight:900; color:var(--text); margin:0; display:flex; align-items:center; gap:0.5rem;">
-								<span>⚡</span>
+								<span>@components.IconZap("icon-sm")</span>
 								<span>رفع كشوف المستودعات المجمّع (حتى 100 ملف دفعة واحدة)</span>
 							</h3>
 							<p style="font-size:0.8rem; color:var(--text-muted); margin:0.25rem 0 0 0;">
@@ -2083,7 +2083,7 @@ templ AdminTempWarehousesPage(data *AdminTempWarehousesData, lang, dir string) {
 							<div style="font-size:0.95rem; font-weight:800; color:var(--text); margin-bottom:0.25rem;">
 								اسحب وأفلت الملفات هنا، أو انقر لاختيار مجموعة ملفات من جهازك
 							</div>
-							<div style="font-size:0.75rem; color:var(--text-muted);">
+							<div class="meta-muted">
 								يدعم رفع حتى 100 ملف دفعة واحدة بكافة الصيغ (.xlsx, .xls, .csv, .txt)
 							</div>
 						</div>
@@ -2092,9 +2092,9 @@ templ AdminTempWarehousesPage(data *AdminTempWarehousesData, lang, dir string) {
 						<template x-if="selectedFiles.length > 0">
 							<div style="background:var(--surface-sunken); border:1px solid var(--border); border-radius:var(--radius-xl); padding:1rem;">
 								<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.75rem;">
-									<div style="display:flex; align-items:center; gap:0.5rem;">
+									<div class="d-flex items-center gap-2">
 										<span class="badge badge-emerald fw-800 text-xs tabular-nums">
-											✓ تم اختيار <strong x-text="selectedFiles.length"></strong> ملف
+											تم اختيار <strong x-text="selectedFiles.length"></strong> ملف
 										</span>
 										<span class="text-xs text-muted tabular-nums" x-text="'(الحجم الإجمالي: ' + totalSelectedSize() + ')'"></span>
 									</div>
@@ -2125,7 +2125,7 @@ templ AdminTempWarehousesPage(data *AdminTempWarehousesData, lang, dir string) {
 													class="btn btn-secondary btn-xs text-danger"
 													style="padding:0.1rem 0.35rem; border-radius:var(--radius-sm);"
 													title="إزالة"
-												>✕</button>
+												></button>
 											</div>
 										</div>
 									</template>
@@ -2162,7 +2162,7 @@ templ AdminTempWarehousesPage(data *AdminTempWarehousesData, lang, dir string) {
 							/>
 							<label for="auto_setup_check" style="cursor:pointer; margin:0;">
 								<strong class="text-primary d-block text-xs font-extrabold">
-									⚙️ بدء معالج ضبط وتأكيد أعمدة الملفات بعد الرفع (Setup Experience)
+									بدء معالج ضبط وتأكيد أعمدة الملفات بعد الرفع (Setup Experience)
 								</strong>
 								<span class="text-2xs text-secondary font-medium d-block mt-0.5">
 									يتيح لك مراجعة الأعمدة ومعاينة بيانات كل كشف مستودع بالتتابع وتعديل الربط بسهولة
@@ -2185,7 +2185,7 @@ templ AdminTempWarehousesPage(data *AdminTempWarehousesData, lang, dir string) {
 								:disabled="selectedFiles.length === 0"
 							>
 								<span x-show="selectedFiles.length <= 1">تأكيد ورفع المستودع ↗</span>
-								<span x-show="selectedFiles.length > 1" x-text="'تأكيد ورفع ' + selectedFiles.length + ' مستودع الآن ⚡'"></span>
+								<span x-show="selectedFiles.length > 1" x-text="'تأكيد ورفع ' + selectedFiles.length + ' مستودع الآن '"></span>
 							</button>
 						</div>
 					</form>
@@ -2206,9 +2206,9 @@ templ AdminTempWarehousesPage(data *AdminTempWarehousesData, lang, dir string) {
 				>
 					<!-- Modal Header & Queue Stepper -->
 					<div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:1rem; border-bottom:1px solid var(--border); padding-bottom:1rem; gap:1rem;">
-						<div style="display:flex; align-items:center; gap:0.75rem;">
+						<div class="d-flex items-center gap-3">
 							<div style="width:44px; height:44px; border-radius:var(--radius-xl); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center; font-size:1.3rem;">
-								⚙️
+								@components.IconSettings("icon-sm")
 							</div>
 							<div>
 								<div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:0.25rem;">
@@ -2272,7 +2272,7 @@ templ AdminTempWarehousesPage(data *AdminTempWarehousesData, lang, dir string) {
 					>
 						<!-- Supplier Name Edit Strip -->
 						<div style="background:var(--surface-sunken); border:1px solid var(--border); border-radius:var(--radius-xl); padding:0.85rem 1.15rem; display:flex; align-items:center; gap:1rem; flex-wrap:wrap;">
-							<div style="font-size:1.3rem;">🏢</div>
+							<div style="font-size:1.3rem;">@components.IconBuilding("icon-sm")</div>
 							<div style="flex:1; min-width:240px;">
 								<label class="form-label text-xs fw-800" style="margin-bottom:0.25rem; color:var(--text);">
 									اسم المورد / المستودع المعروض في المنظومة
@@ -2291,7 +2291,7 @@ templ AdminTempWarehousesPage(data *AdminTempWarehousesData, lang, dir string) {
 						<!-- Column Selectors Grid (4 key columns) -->
 						<div style="background:var(--surface-sunken); border:1px solid var(--border); border-radius:var(--radius-xl); padding:1.15rem;">
 							<div style="font-size:0.85rem; font-weight:800; color:var(--text); margin-bottom:0.6rem; display:flex; align-items:center; gap:0.4rem;">
-								<span>🎯</span>
+								<span>@components.IconActivity("icon-sm")</span>
 								<span>تعيين وتوجيه الأعمدة لاستخراج البيانات بدقة:</span>
 							</div>
 
@@ -2360,12 +2360,12 @@ templ AdminTempWarehousesPage(data *AdminTempWarehousesData, lang, dir string) {
 									<span class="badge badge-slate text-xs tabular-nums" x-text="mappingPreview.length + ' صفوف'"></span>
 								</div>
 								<div style="overflow-x:auto; max-height:220px;">
-									<table class="data-table m-0" style="font-size:0.75rem;">
+									<table class="data-table m-0 text-xs">
 										<thead>
 											<tr>
 												<th style="width:36px; text-align:center;">#</th>
 												<template x-for="(h, colIdx) in mappingHeaders" :key="colIdx">
-													<th style="white-space:nowrap;" :style="colIdx == mappingName ? 'color:var(--accent); font-weight:900;' : (colIdx == mappingPrice ? 'color:var(--emerald); font-weight:900;' : '')">
+													<th class="nowrap" :style="colIdx == mappingName ? 'color:var(--accent); font-weight:900;' : (colIdx == mappingPrice ? 'color:var(--emerald); font-weight:900;' : '')">
 														<span x-text="h"></span>
 														<template x-if="colIdx == mappingCode">
 															<span class="badge badge-slate text-2xs" style="margin-inline-start:4px;">كود</span>
@@ -2386,7 +2386,7 @@ templ AdminTempWarehousesPage(data *AdminTempWarehousesData, lang, dir string) {
 										<tbody>
 											<template x-for="(row, rIdx) in mappingPreview" :key="rIdx">
 												<tr>
-													<td class="text-muted tabular-nums" style="text-align:center;" x-text="rIdx+1"></td>
+													<td class="text-muted tabular-nums text-center" x-text="rIdx+1"></td>
 													<template x-for="(cell, cIdx) in row" :key="cIdx">
 														<td :style="cIdx == mappingName ? 'font-weight:700;' : ''" x-text="cell"></td>
 													</template>
@@ -2409,7 +2409,7 @@ templ AdminTempWarehousesPage(data *AdminTempWarehousesData, lang, dir string) {
 										:disabled="mappingSubmitting"
 										style="border-radius:var(--radius-lg); font-size:0.8rem;"
 									>
-										✓ تخطي باقي الملفات واعتماد الضبط التلقائي
+										تخطي باقي الملفات واعتماد الضبط التلقائي
 									</button>
 								</template>
 							</div>
@@ -2443,8 +2443,8 @@ templ AdminTempWarehousesPage(data *AdminTempWarehousesData, lang, dir string) {
 									style="border-radius:var(--radius-lg); padding:0.5rem 1.5rem;"
 									:disabled="mappingSubmitting || mappingLoading"
 								>
-									<span x-show="!mappingSubmitting && mappingQueue.length === 0">حفظ وتأكيد الأعمدة 💾</span>
-									<span x-show="!mappingSubmitting && mappingQueue.length > 0">حفظ والانتقال للملف التالي ⬅️</span>
+									<span x-show="!mappingSubmitting && mappingQueue.length === 0">حفظ وتأكيد الأعمدة </span>
+									<span x-show="!mappingSubmitting && mappingQueue.length > 0">حفظ والانتقال للملف التالي </span>
 									<span x-show="mappingSubmitting">جاري الحفظ والمعالجة...</span>
 								</button>
 							</div>
@@ -2486,7 +2486,7 @@ templ AdminSavingProductsPage(data AdminSavingProductsData, lang, dir string) {
 				<div class="flex-between items-center flex-wrap gap-4">
 					<div class="d-flex items-center gap-3">
 						<div class="user-avatar-badge text-xl">
-							🏷️
+							@components.IconTag("icon-sm")
 						</div>
 						<div>
 							<h1 class="text-2xl font-black text-primary m-0">
@@ -2626,7 +2626,7 @@ templ AdminSavingProductsPage(data AdminSavingProductsData, lang, dir string) {
 
 				if len(data.Items) == 0 {
 					<div class="p-8 text-center empty-state-glass">
-						<div class="text-4xl mb-3">🏷️</div>
+						<div class="text-4xl mb-3">@components.IconTag("icon-sm")</div>
 						<h3 class="text-base font-black text-primary mb-2">لا توجد نتائج مطابقة</h3>
 						<p class="text-xs text-secondary max-w-md mx-auto mb-4">
 							لم يتم العثور على منتجات توفير تطابق معايير الفلترة المحددة. جرب تغيير خيارات البحث أو إعادة ضبط التصفية.

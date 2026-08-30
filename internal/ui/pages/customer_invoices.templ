@@ -73,7 +73,7 @@ templ InvoicesPage(lang, dir string, data InvoicesData) {
 				if len(data.Invoices) == 0 {
 					<div style="padding:3.5rem 1rem; text-align:center; color:var(--text-muted);">
 						<div style="width:52px; height:52px; border-radius:var(--radius-full); background:var(--surface-sunken); color:var(--text-muted); display:flex; align-items:center; justify-content:center; margin:0 auto 1rem auto; font-size:1.5rem;">
-							📄
+							@components.IconFile("icon-sm")
 						</div>
 						<h3 style="font-size:1.15rem; font-weight:800; color:var(--text); margin-bottom:0.35rem;">
 							لا توجد فواتير مطابقة
@@ -84,7 +84,7 @@ templ InvoicesPage(lang, dir string, data InvoicesData) {
 					</div>
 				} else {
 					<div class="table-responsive">
-						<table class="table" style="margin:0; width:100%; border-collapse:collapse; font-size:0.875rem;">
+						<table class="data-table" style="font-size:0.875rem">
 							<thead>
 								<tr style="background:var(--surface-sunken); border-bottom:2px solid var(--border); font-size:0.825rem; text-align:start;">
 									<th style="padding:0.9rem 1rem;">رقم الفاتورة</th>
@@ -98,7 +98,7 @@ templ InvoicesPage(lang, dir string, data InvoicesData) {
 							</thead>
 							<tbody>
 								for _, inv := range data.Invoices {
-									<tr style="border-bottom:1px solid var(--border);">
+									<tr class="rule-bottom">
 										<!-- رقم الفاتورة -->
 										<td style="padding:0.85rem 1rem;">
 											<a
@@ -114,15 +114,15 @@ templ InvoicesPage(lang, dir string, data InvoicesData) {
 										<!-- رقم الطلبية -->
 										<td style="padding:0.85rem 0.85rem; text-align:center;" class="tabular-nums">
 											if inv.OrderID != nil {
-												<span class="badge badge-secondary" style="font-size:0.75rem;">
+												<span class="badge badge-secondary text-xs">
 													#{ fmt.Sprintf("%d", *inv.OrderID) }
 												</span>
 											} else if inv.OrderNumber != "" {
-												<span class="badge badge-secondary" style="font-size:0.75rem;">
+												<span class="badge badge-secondary text-xs">
 													#{ inv.OrderNumber }
 												</span>
 											} else {
-												<span style="color:var(--text-muted);">—</span>
+												<span class="text-muted">—</span>
 											}
 										</td>
 
@@ -155,15 +155,15 @@ templ InvoicesPage(lang, dir string, data InvoicesData) {
 										<!-- الحالة -->
 										<td style="padding:0.85rem 0.85rem; text-align:center;">
 											if inv.Status == "paid" {
-												<span class="badge badge-emerald" style="font-size:0.75rem;">مدفوعة</span>
+												<span class="badge badge-emerald text-xs">مدفوعة</span>
 											} else if inv.Status == "issued" {
-												<span class="badge badge-sky" style="font-size:0.75rem;">صادرة</span>
+												<span class="badge badge-sky text-xs">صادرة</span>
 											} else if inv.Status == "overdue" {
-												<span class="badge badge-amber" style="font-size:0.75rem;">متأخرة</span>
+												<span class="badge badge-amber text-xs">متأخرة</span>
 											} else if inv.Status == "cancelled" {
-												<span class="badge badge-rose" style="font-size:0.75rem;">ملغاة</span>
+												<span class="badge badge-rose text-xs">ملغاة</span>
 											} else {
-												<span class="badge badge-secondary" style="font-size:0.75rem;">{ string(inv.Status) }</span>
+												<span class="badge badge-secondary text-xs">{ string(inv.Status) }</span>
 											}
 										</td>
 
@@ -178,7 +178,7 @@ templ InvoicesPage(lang, dir string, data InvoicesData) {
 													style="font-weight:700; font-size:0.775rem; padding:0.35rem 0.65rem;"
 													title="طباعة الفاتورة أو إيصال الكاشير"
 												>
-													<span>🖨️ طباعة</span>
+													<span>طباعة</span>
 												</a>
 
 												<!-- زر العرض -->

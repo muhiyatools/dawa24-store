@@ -47,25 +47,25 @@ func sectionTypeLabel(t string) string {
 func sectionTypeIcon(t string) string {
 	switch t {
 	case "vision", "goals":
-		return "🎯"
+		return ""
 	case "about":
-		return "🏢"
+		return ""
 	case "why_us":
-		return "⭐"
+		return ""
 	case "features":
-		return "✨"
+		return ""
 	case "services":
-		return "🛠️"
+		return ""
 	case "achievements":
-		return "🏆"
+		return ""
 	case "certifications":
-		return "📜"
+		return ""
 	case "stats":
-		return "📊"
+		return ""
 	case "special_info":
-		return "💡"
+		return ""
 	default:
-		return "📌"
+		return ""
 	}
 }
 
@@ -102,7 +102,15 @@ func VendorStorefront(lang, dir string, sections []*promo.HighlightSection) temp
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"page-container\" style=\"max-width: 1100px; margin: 0 auto;\" x-data=\"{\n\t\t\t\tisModalOpen: false,\n\t\t\t\tmodalMode: 'add',\n\t\t\t\tcurrentSection: {\n\t\t\t\t\tid: 0,\n\t\t\t\t\ttitle_ar: '',\n\t\t\t\t\ttitle_en: '',\n\t\t\t\t\tdescription_ar: '',\n\t\t\t\t\tdescription_en: '',\n\t\t\t\t\tdisplay_order: 0,\n\t\t\t\t\tcolor: '#0284c7',\n\t\t\t\t\tis_active: true,\n\t\t\t\t\tshow_in_header: true\n\t\t\t\t},\n\t\t\t\topenAddModal() {\n\t\t\t\t\tthis.modalMode = 'add';\n\t\t\t\t\tthis.currentSection = {\n\t\t\t\t\t\tid: 0,\n\t\t\t\t\t\ttitle_ar: '',\n\t\t\t\t\t\ttitle_en: '',\n\t\t\t\t\t\tdescription_ar: '',\n\t\t\t\t\t\tdescription_en: '',\n\t\t\t\t\t\tdisplay_order: 0,\n\t\t\t\t\t\tcolor: '#0284c7',\n\t\t\t\t\t\tis_active: true,\n\t\t\t\t\t\tshow_in_header: true\n\t\t\t\t\t};\n\t\t\t\t\tthis.isModalOpen = true;\n\t\t\t\t}\n\t\t\t}\"><!-- Header Card --><div class=\"glass-panel p-6 mb-0\"><div class=\"flex-between items-center flex-wrap gap-4\"><div><div class=\"d-flex items-center gap-3 mb-1\"><div class=\"user-avatar-badge text-xl\">🌟</div><h1 class=\"text-2xl font-black text-primary m-0\">الأقسام المميزة ونبذة المنشأة</h1></div><p class=\"text-xs text-secondary m-0\">تخصيص الأقسام التعريفية (رؤيتنا، أهدافنا، حولنا، الشهادات، والمميزات) التي تظهر على بروفايلك العام للمنشأة أمام الصيدليات.</p></div><button type=\"button\" @click=\"openAddModal()\" class=\"btn btn-primary font-bold text-xs px-4 py-2 gap-2\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"page-container\" style=\"max-width: 1100px; margin: 0 auto;\" x-data=\"{\n\t\t\t\tisModalOpen: false,\n\t\t\t\tmodalMode: 'add',\n\t\t\t\tcurrentSection: {\n\t\t\t\t\tid: 0,\n\t\t\t\t\ttitle_ar: '',\n\t\t\t\t\ttitle_en: '',\n\t\t\t\t\tdescription_ar: '',\n\t\t\t\t\tdescription_en: '',\n\t\t\t\t\tdisplay_order: 0,\n\t\t\t\t\tcolor: '#0284c7',\n\t\t\t\t\tis_active: true,\n\t\t\t\t\tshow_in_header: true\n\t\t\t\t},\n\t\t\t\topenAddModal() {\n\t\t\t\t\tthis.modalMode = 'add';\n\t\t\t\t\tthis.currentSection = {\n\t\t\t\t\t\tid: 0,\n\t\t\t\t\t\ttitle_ar: '',\n\t\t\t\t\t\ttitle_en: '',\n\t\t\t\t\t\tdescription_ar: '',\n\t\t\t\t\t\tdescription_en: '',\n\t\t\t\t\t\tdisplay_order: 0,\n\t\t\t\t\t\tcolor: '#0284c7',\n\t\t\t\t\t\tis_active: true,\n\t\t\t\t\t\tshow_in_header: true\n\t\t\t\t\t};\n\t\t\t\t\tthis.isModalOpen = true;\n\t\t\t\t}\n\t\t\t}\"><!-- Header Card --><div class=\"glass-panel p-6 mb-0\"><div class=\"flex-between items-center flex-wrap gap-4\"><div><div class=\"d-flex items-center gap-3 mb-1\"><div class=\"user-avatar-badge text-xl\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = components.IconStar("icon-sm").Render(ctx, templ_7745c5c3_Buffer)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</div><h1 class=\"text-2xl font-black text-primary m-0\">الأقسام المميزة ونبذة المنشأة</h1></div><p class=\"text-xs text-secondary m-0\">تخصيص الأقسام التعريفية (رؤيتنا، أهدافنا، حولنا، الشهادات، والمميزات) التي تظهر على بروفايلك العام للمنشأة أمام الصيدليات.</p></div><button type=\"button\" @click=\"openAddModal()\" class=\"btn btn-primary font-bold text-xs px-4 py-2 gap-2\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -110,7 +118,7 @@ func VendorStorefront(lang, dir string, sections []*promo.HighlightSection) temp
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "<span>إضافة قسم تعريفي جديد</span></button></div></div><!-- List of Current Sections --><div class=\"glass-panel p-6 mb-0\"><div class=\"flex-between items-center pb-3 mb-4 border-b\"><div class=\"d-flex items-center gap-2\"><span class=\"text-lg\">📑</span><h2 class=\"text-base font-black text-primary m-0\">الأقسام المميزة الحالية بالمنشأة</h2></div><span class=\"badge badge-sky text-xs font-bold tabular-nums\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "<span>إضافة قسم تعريفي جديد</span></button></div></div><!-- List of Current Sections --><div class=\"glass-panel p-6 mb-0\"><div class=\"flex-between items-center pb-3 mb-4 border-b\"><div class=\"d-flex items-center gap-2\"><span class=\"text-lg\">📑</span><h2 class=\"text-base font-black text-primary m-0\">الأقسام المميزة الحالية بالمنشأة</h2></div><span class=\"badge badge-sky text-xs font-bold tabular-nums\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -123,12 +131,20 @@ func VendorStorefront(lang, dir string, sections []*promo.HighlightSection) temp
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "</span></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "</span></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			if len(sections) == 0 {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "<div class=\"p-12 text-center empty-state-glass\"><div class=\"text-4xl mb-3\">📋</div><h3 class=\"text-lg font-black text-primary mb-2\">لا توجد أقسام مميزة بعد</h3><p class=\"text-xs text-secondary max-w-md mx-auto mb-4\">قم بإضافة أقسام تعريفية كـ \"رؤيتنا\"، \"شهادات الاعتماد\"، أو \"خدماتنا\" لتظهر بأزرار تفاعلية أنيقة على بروفايلك العام أمام الصيدليات.</p><button type=\"button\" @click=\"openAddModal()\" class=\"btn btn-primary btn-sm font-bold text-xs\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "<div class=\"p-12 text-center empty-state-glass\"><div class=\"text-4xl mb-3\">")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				templ_7745c5c3_Err = components.IconFileText("icon-sm").Render(ctx, templ_7745c5c3_Buffer)
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "</div><h3 class=\"text-lg font-black text-primary mb-2\">لا توجد أقسام مميزة بعد</h3><p class=\"text-xs text-secondary max-w-md mx-auto mb-4\">قم بإضافة أقسام تعريفية كـ \"رؤيتنا\"، \"شهادات الاعتماد\"، أو \"خدماتنا\" لتظهر بأزرار تفاعلية أنيقة على بروفايلك العام أمام الصيدليات.</p><button type=\"button\" @click=\"openAddModal()\" class=\"btn btn-primary btn-sm font-bold text-xs\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -136,17 +152,17 @@ func VendorStorefront(lang, dir string, sections []*promo.HighlightSection) temp
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "<span>إضافة أول قسم الآن</span></button></div>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "<span>إضافة أول قسم الآن</span></button></div>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			} else {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "<div class=\"d-flex flex-col gap-3\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "<div class=\"d-flex flex-col gap-3\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				for _, s := range sections {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "<div class=\"p-4 bg-surface-sunken border rounded-xl d-flex flex-col gap-3\"><div class=\"flex-between items-center flex-wrap gap-3\"><div class=\"d-flex items-center gap-3\"><span class=\"text-2xl\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "<div class=\"p-4 bg-surface-sunken border rounded-xl d-flex flex-col gap-3\"><div class=\"flex-between items-center flex-wrap gap-3\"><div class=\"d-flex items-center gap-3\"><span class=\"text-2xl\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -159,7 +175,7 @@ func VendorStorefront(lang, dir string, sections []*promo.HighlightSection) temp
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "</span><div><div class=\"d-flex items-center gap-2 flex-wrap\"><strong class=\"text-primary text-sm font-extrabold\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "</span><div><div class=\"d-flex items-center gap-2 flex-wrap\"><strong class=\"text-primary text-sm font-extrabold\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -172,22 +188,22 @@ func VendorStorefront(lang, dir string, sections []*promo.HighlightSection) temp
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "</strong> ")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "</strong> ")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 					if s.IsActive {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "<span class=\"badge badge-emerald text-xs font-bold\">نشط ومعروض</span>")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "<span class=\"badge badge-emerald text-xs font-bold\">نشط ومعروض</span>")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
 					} else {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "<span class=\"badge badge-rose text-xs font-bold\">معطل</span>")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "<span class=\"badge badge-rose text-xs font-bold\">معطل</span>")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "</div><div class=\"text-xs text-muted tabular-nums mt-0.5\">الترتيب: ")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "</div><div class=\"text-xs text-muted tabular-nums mt-0.5\">الترتيب: ")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -200,17 +216,17 @@ func VendorStorefront(lang, dir string, sections []*promo.HighlightSection) temp
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, " ")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, " ")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 					if s.ShowInHeader {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "<span>• معروض في ترويسة البروفايل</span>")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "<span>• معروض في ترويسة البروفايل</span>")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "</div></div></div><!-- Action Buttons --><div class=\"d-flex items-center gap-2\"><!-- Edit Modal Trigger Button --><button type=\"button\" class=\"btn btn-secondary btn-sm font-bold text-xs gap-1\" @click=\"")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "</div></div></div><!-- Action Buttons --><div class=\"d-flex items-center gap-2\"><!-- Edit Modal Trigger Button --><button type=\"button\" class=\"btn btn-secondary btn-sm font-bold text-xs gap-1\" @click=\"")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -223,7 +239,7 @@ func VendorStorefront(lang, dir string, sections []*promo.HighlightSection) temp
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -231,7 +247,7 @@ func VendorStorefront(lang, dir string, sections []*promo.HighlightSection) temp
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "<span>تعديل</span></button><!-- Toggle Status Form --><form method=\"POST\" action=\"")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "<span>تعديل</span></button><!-- Toggle Status Form --><form method=\"POST\" action=\"")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -244,22 +260,22 @@ func VendorStorefront(lang, dir string, sections []*promo.HighlightSection) temp
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "\" class=\"m-0\"><button type=\"submit\" class=\"btn btn-secondary btn-sm font-bold text-xs\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, "\" class=\"m-0\"><button type=\"submit\" class=\"btn btn-secondary btn-sm font-bold text-xs\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 					if s.IsActive {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "<span>تعطيل</span>")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, "<span>تعطيل</span>")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
 					} else {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, "<span>تفعيل</span>")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, "<span>تفعيل</span>")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, "</button></form><!-- Delete Form --><form method=\"POST\" action=\"")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, "</button></form><!-- Delete Form --><form method=\"POST\" action=\"")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -272,7 +288,7 @@ func VendorStorefront(lang, dir string, sections []*promo.HighlightSection) temp
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, "\" class=\"m-0\" onsubmit=\"return confirm('هل أنت متأكد من حذف هذا القسم المميز؟');\"><button type=\"submit\" class=\"btn btn-secondary btn-sm btn-icon text-danger\" title=\"حذف القسم\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, "\" class=\"m-0\" onsubmit=\"return confirm('هل أنت متأكد من حذف هذا القسم المميز؟');\"><button type=\"submit\" class=\"btn btn-secondary btn-sm btn-icon text-danger\" title=\"حذف القسم\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -280,12 +296,12 @@ func VendorStorefront(lang, dir string, sections []*promo.HighlightSection) temp
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, "</button></form></div></div><!-- Content Snippet Preview -->")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 25, "</button></form></div></div><!-- Content Snippet Preview -->")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 					if s.Description.Get(i18n.Lang(lang)) != "" {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, "<div class=\"text-xs text-secondary p-3 bg-surface-raised border rounded-lg line-clamp-3\">")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 26, "<div class=\"text-xs text-secondary p-3 bg-surface-raised border rounded-lg line-clamp-3\">")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
@@ -298,22 +314,38 @@ func VendorStorefront(lang, dir string, sections []*promo.HighlightSection) temp
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 25, "</div>")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 27, "</div>")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 26, "</div>")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 28, "</div>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 27, "</div>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 29, "</div>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 28, "</div><!-- Unified Add / Edit Section Modal (Fixed Centered Overlay) --><div x-show=\"isModalOpen\" x-cloak x-transition.opacity style=\"position: fixed; inset: 0; z-index: 99999; display: flex; align-items: center; justify-content: center; background: rgba(15, 23, 42, 0.75); backdrop-filter: blur(8px); padding: 1.5rem;\" @keydown.escape.window=\"isModalOpen = false\"><div @click.outside=\"isModalOpen = false\" class=\"glass-panel p-6 w-full\" style=\"max-width: 620px; max-height: 90vh; overflow-y: auto;\"><div class=\"flex-between items-center mb-4 pb-3 border-b\"><div class=\"d-flex items-center gap-2\"><span class=\"text-xl\">🌟</span><h3 class=\"text-lg font-black text-primary m-0\" x-text=\"modalMode === 'add' ? 'إضافة قسم مميز جديد للبروفايل' : 'تعديل بيانات القسم المميز'\"></h3></div><button type=\"button\" @click=\"isModalOpen = false\" class=\"btn btn-secondary btn-icon btn-sm\">✕</button></div><form :action=\"modalMode === 'add' ? '/vendor/storefront/section' : '/vendor/storefront/section/' + currentSection.id\" method=\"POST\" class=\"d-flex flex-col gap-4 m-0\"><input type=\"hidden\" name=\"section_type\" value=\"about\"><!-- Titles --><div class=\"d-grid grid-cols-2 gap-3\"><div><label class=\"form-label text-xs font-bold text-primary mb-1 d-block\">العنوان (بالعربية) <span class=\"text-danger\">*</span></label> <input type=\"text\" name=\"title_ar\" x-model=\"currentSection.title_ar\" required placeholder=\"مثال: رؤيتنا للتميز الدوائي\" class=\"form-input text-xs w-full\"></div><div><label class=\"form-label text-xs font-bold text-primary mb-1 d-block\">العنوان (بالإنجليزية)</label> <input type=\"text\" name=\"title_en\" x-model=\"currentSection.title_en\" placeholder=\"e.g. Our Vision\" class=\"form-input text-xs w-full\" dir=\"ltr\"></div></div><!-- Order & Color --><div class=\"d-grid grid-cols-2 gap-3\"><div><label class=\"form-label text-xs font-bold text-primary mb-1 d-block\">ترتيب العرض</label> <input type=\"number\" name=\"display_order\" x-model.number=\"currentSection.display_order\" min=\"0\" class=\"form-input text-xs tabular-nums w-full\"></div><div><label class=\"form-label text-xs font-bold text-primary mb-1 d-block\">اللون المميز</label> <select name=\"color\" x-model=\"currentSection.color\" class=\"form-input text-xs w-full\"><option value=\"#0284c7\">أزرق سماوي (Sky Blue)</option> <option value=\"#10b981\">أخضر زمردي (Emerald Green)</option> <option value=\"#6366f1\">نيلي موحد (Indigo)</option> <option value=\"#8b5cf6\">بنفسجي ملكي (Purple)</option> <option value=\"#f59e0b\">كهرماني (Amber)</option> <option value=\"#ec4899\">وردي عصري (Pink)</option></select></div></div><!-- Descriptions --><div class=\"d-grid grid-cols-2 gap-3\"><div><label class=\"form-label text-xs font-bold text-primary mb-1 d-block\">المحتوى والوصف (بالعربية) <span class=\"text-danger\">*</span></label> <textarea name=\"description_ar\" x-model=\"currentSection.description_ar\" rows=\"4\" required placeholder=\"اكتب نبذة مفصلة عن رؤية الشركة، معايير التخزين، شهادات الجودة...\" class=\"form-input text-xs w-full\" style=\"resize:vertical;\"></textarea></div><div><label class=\"form-label text-xs font-bold text-primary mb-1 d-block\">المحتوى والوصف (بالإنجليزية)</label> <textarea name=\"description_en\" x-model=\"currentSection.description_en\" rows=\"4\" placeholder=\"Detailed content and description in English...\" class=\"form-input text-xs w-full\" dir=\"ltr\" style=\"resize:vertical;\"></textarea></div></div><!-- Toggles --><div class=\"d-flex items-center gap-4 py-1 flex-wrap\"><label class=\"d-flex items-center gap-2 cursor-pointer text-xs font-bold text-primary\"><input type=\"checkbox\" name=\"is_active\" value=\"true\" x-model=\"currentSection.is_active\" class=\"form-checkbox\"> <span>القسم نشط ومفعل</span></label> <label class=\"d-flex items-center gap-2 cursor-pointer text-xs font-bold text-primary\"><input type=\"checkbox\" name=\"show_in_header\" value=\"true\" x-model=\"currentSection.show_in_header\" class=\"form-checkbox\"> <span>إظهار في رأس بروفايل المورد العام</span></label></div><div class=\"flex-between items-center gap-3 pt-3 border-t mt-2\"><button type=\"button\" class=\"btn btn-secondary text-xs font-bold\" @click=\"isModalOpen = false\">إلغاء</button> <button type=\"submit\" class=\"btn btn-primary text-xs font-black px-6\" x-text=\"modalMode === 'add' ? 'حفظ ونشر القسم المميز' : 'تحديث وحفظ التعديلات'\"></button></div></form></div></div></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 30, "</div><!-- Unified Add / Edit Section Modal (Fixed Centered Overlay) --><div x-show=\"isModalOpen\" x-cloak x-transition.opacity style=\"position: fixed; inset: 0; z-index: 99999; display: flex; align-items: center; justify-content: center; background: rgba(15, 23, 42, 0.75); backdrop-filter: blur(8px); padding: 1.5rem;\" @keydown.escape.window=\"isModalOpen = false\"><div @click.outside=\"isModalOpen = false\" class=\"glass-panel p-6 w-full\" style=\"max-width: 620px; max-height: 90vh; overflow-y: auto;\"><div class=\"flex-between items-center mb-4 pb-3 border-b\"><div class=\"d-flex items-center gap-2\"><span class=\"text-xl\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = components.IconStar("icon-sm").Render(ctx, templ_7745c5c3_Buffer)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 31, "</span><h3 class=\"text-lg font-black text-primary m-0\" x-text=\"modalMode === 'add' ? 'إضافة قسم مميز جديد للبروفايل' : 'تعديل بيانات القسم المميز'\"></h3></div><button type=\"button\" @click=\"isModalOpen = false\" class=\"btn btn-secondary btn-icon btn-sm\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = components.IconX("icon-sm").Render(ctx, templ_7745c5c3_Buffer)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 32, "</button></div><form :action=\"modalMode === 'add' ? '/vendor/storefront/section' : '/vendor/storefront/section/' + currentSection.id\" method=\"POST\" class=\"d-flex flex-col gap-4 m-0\"><input type=\"hidden\" name=\"section_type\" value=\"about\"><!-- Titles --><div class=\"d-grid grid-cols-2 gap-3\"><div><label class=\"form-label text-xs font-bold text-primary mb-1 d-block\">العنوان (بالعربية) <span class=\"text-danger\">*</span></label> <input type=\"text\" name=\"title_ar\" x-model=\"currentSection.title_ar\" required placeholder=\"مثال: رؤيتنا للتميز الدوائي\" class=\"form-input text-xs w-full\"></div><div><label class=\"form-label text-xs font-bold text-primary mb-1 d-block\">العنوان (بالإنجليزية)</label> <input type=\"text\" name=\"title_en\" x-model=\"currentSection.title_en\" placeholder=\"e.g. Our Vision\" class=\"form-input text-xs w-full\" dir=\"ltr\"></div></div><!-- Order & Color --><div class=\"d-grid grid-cols-2 gap-3\"><div><label class=\"form-label text-xs font-bold text-primary mb-1 d-block\">ترتيب العرض</label> <input type=\"number\" name=\"display_order\" x-model.number=\"currentSection.display_order\" min=\"0\" class=\"form-input text-xs tabular-nums w-full\"></div><div><label class=\"form-label text-xs font-bold text-primary mb-1 d-block\">اللون المميز</label> <select name=\"color\" x-model=\"currentSection.color\" class=\"form-input text-xs w-full\"><option value=\"#0284c7\">أزرق سماوي (Sky Blue)</option> <option value=\"#10b981\">أخضر زمردي (Emerald Green)</option> <option value=\"#6366f1\">نيلي موحد (Indigo)</option> <option value=\"#8b5cf6\">بنفسجي ملكي (Purple)</option> <option value=\"#f59e0b\">كهرماني (Amber)</option> <option value=\"#ec4899\">وردي عصري (Pink)</option></select></div></div><!-- Descriptions --><div class=\"d-grid grid-cols-2 gap-3\"><div><label class=\"form-label text-xs font-bold text-primary mb-1 d-block\">المحتوى والوصف (بالعربية) <span class=\"text-danger\">*</span></label> <textarea name=\"description_ar\" x-model=\"currentSection.description_ar\" rows=\"4\" required placeholder=\"اكتب نبذة مفصلة عن رؤية الشركة، معايير التخزين، شهادات الجودة...\" class=\"form-input text-xs w-full\" style=\"resize:vertical;\"></textarea></div><div><label class=\"form-label text-xs font-bold text-primary mb-1 d-block\">المحتوى والوصف (بالإنجليزية)</label> <textarea name=\"description_en\" x-model=\"currentSection.description_en\" rows=\"4\" placeholder=\"Detailed content and description in English...\" class=\"form-input text-xs w-full\" dir=\"ltr\" style=\"resize:vertical;\"></textarea></div></div><!-- Toggles --><div class=\"d-flex items-center gap-4 py-1 flex-wrap\"><label class=\"d-flex items-center gap-2 cursor-pointer text-xs font-bold text-primary\"><input type=\"checkbox\" name=\"is_active\" value=\"true\" x-model=\"currentSection.is_active\" class=\"form-checkbox\"> <span>القسم نشط ومفعل</span></label> <label class=\"d-flex items-center gap-2 cursor-pointer text-xs font-bold text-primary\"><input type=\"checkbox\" name=\"show_in_header\" value=\"true\" x-model=\"currentSection.show_in_header\" class=\"form-checkbox\"> <span>إظهار في رأس بروفايل المورد العام</span></label></div><div class=\"flex-between items-center gap-3 pt-3 border-t mt-2\"><button type=\"button\" class=\"btn btn-secondary text-xs font-bold\" @click=\"isModalOpen = false\">إلغاء</button> <button type=\"submit\" class=\"btn btn-primary text-xs font-black px-6\" x-text=\"modalMode === 'add' ? 'حفظ ونشر القسم المميز' : 'تحديث وحفظ التعديلات'\"></button></div></form></div></div></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

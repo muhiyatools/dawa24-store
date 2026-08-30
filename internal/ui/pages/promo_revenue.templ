@@ -514,9 +514,9 @@ templ AdminOffersPackagesHubPage(lang, dir string, data AdminOffersPackagesData)
 												</td>
 												<td class="py-3.5">
 													if req.ItemType == "product" {
-														<span class="badge badge-sky text-xs font-bold">💊 صنف دوائي</span>
+														<span class="badge badge-sky text-xs font-bold">صنف دوائي</span>
 													} else {
-														<span class="badge badge-emerald text-xs font-bold">🏷️ عرض ترويجي</span>
+														<span class="badge badge-emerald text-xs font-bold">عرض ترويجي</span>
 													}
 												</td>
 												<td class="tabular-nums font-mono font-bold text-slate-700 py-3.5">
@@ -637,7 +637,7 @@ templ AdminOffersPackagesHubPage(lang, dir string, data AdminOffersPackagesData)
 														if ad.MediaURL != "" {
 															<div class="w-16 h-10 rounded-lg overflow-hidden border border-slate-200 bg-slate-100 shrink-0 d-flex items-center justify-center">
 																if ad.MediaType == "video" {
-																	<span class="text-sky-600 font-bold text-2xs">🎬 فيديو</span>
+																	<span class="text-sky-600 font-bold text-2xs">فيديو</span>
 																} else {
 																	<img src={ ad.MediaURL } alt="Ad" class="w-full h-full object-cover"/>
 																}

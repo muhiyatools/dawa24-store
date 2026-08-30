@@ -11,10 +11,7 @@ func (h *UIHandler) CustomerPurchaseRequestWizardPage(w http.ResponseWriter, r *
 	ctx := r.Context()
 	lang, dir := h.localeAndDir(r)
 
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	if err := pages.CustomerPurchaseRequestWizardPage(lang, dir, 1, "").Render(ctx, w); err != nil {
-		h.log.ErrorContext(ctx, "render purchase request wizard", "error", err)
-	}
+	h.renderPage(ctx, w, "render purchase request wizard", pages.CustomerPurchaseRequestWizardPage(lang, dir, 1, ""))
 }
 
 // Legacy redirects for deleted duplicate routes

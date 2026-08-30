@@ -55,10 +55,10 @@ const (
 type PurchaseStatus string
 
 const (
-	PurchaseActive   PurchaseStatus = "active"
-	PurchaseExpired  PurchaseStatus = "expired"
+	PurchaseActive    PurchaseStatus = "active"
+	PurchaseExpired   PurchaseStatus = "expired"
 	PurchaseCancelled PurchaseStatus = "cancelled"
-	PurchasePending  PurchaseStatus = "pending"
+	PurchasePending   PurchaseStatus = "pending"
 )
 
 // SponsorshipRequestStatus is the operational status of a request.
@@ -67,36 +67,36 @@ type SponsorshipRequestStatus string
 const (
 	SRSPending   SponsorshipRequestStatus = "pending"
 	SRSActive    SponsorshipRequestStatus = "active"
-	SRSExpired    SponsorshipRequestStatus = "expired"
-	SRSCancelled  SponsorshipRequestStatus = "cancelled"
-	SRSRejected   SponsorshipRequestStatus = "rejected"
+	SRSExpired   SponsorshipRequestStatus = "expired"
+	SRSCancelled SponsorshipRequestStatus = "cancelled"
+	SRSRejected  SponsorshipRequestStatus = "rejected"
 )
 
 // SponsorshipPurchase records a vendor's acquisition of a sponsorship package
 // and the remaining credits. One row per purchase; credits_used climbs as
 // the vendor submits sponsorship requests against this purchase.
 type SponsorshipPurchase struct {
-	ID             int64           `json:"id"`
-	PublicID       string          `json:"public_id"`
-	OrganizationID int64           `json:"organization_id"`
-	PackageID      int64           `json:"package_id"`
-	Package        *OfferPackage   `json:"package,omitempty"`
-	CreditsTotal   int             `json:"credits_total"`
-	CreditsUsed    int             `json:"credits_used"`
-	CreditsRemaining int           `json:"credits_remaining"`
-	StartsAt       time.Time       `json:"starts_at"`
-	ExpiresAt      time.Time       `json:"expires_at"`
-	Status         PurchaseStatus  `json:"status"`
-	AutoRenew      bool            `json:"auto_renew"`
-	BillingCycle   string          `json:"billing_cycle"`
-	Amount         money.Amount    `json:"amount"`
-	PaymentID      *int64          `json:"payment_id,omitempty"`
-	SourceSystem   string          `json:"source_system"`
-	SourceID       *int64          `json:"source_id,omitempty"`
-	ApprovedBy     *int64          `json:"approved_by,omitempty"`
-	ApprovedAt     *time.Time      `json:"approved_at,omitempty"`
-	CreatedAt      time.Time       `json:"created_at"`
-	UpdatedAt      time.Time       `json:"updated_at"`
+	ID               int64          `json:"id"`
+	PublicID         string         `json:"public_id"`
+	OrganizationID   int64          `json:"organization_id"`
+	PackageID        int64          `json:"package_id"`
+	Package          *OfferPackage  `json:"package,omitempty"`
+	CreditsTotal     int            `json:"credits_total"`
+	CreditsUsed      int            `json:"credits_used"`
+	CreditsRemaining int            `json:"credits_remaining"`
+	StartsAt         time.Time      `json:"starts_at"`
+	ExpiresAt        time.Time      `json:"expires_at"`
+	Status           PurchaseStatus `json:"status"`
+	AutoRenew        bool           `json:"auto_renew"`
+	BillingCycle     string         `json:"billing_cycle"`
+	Amount           money.Amount   `json:"amount"`
+	PaymentID        *int64         `json:"payment_id,omitempty"`
+	SourceSystem     string         `json:"source_system"`
+	SourceID         *int64         `json:"source_id,omitempty"`
+	ApprovedBy       *int64         `json:"approved_by,omitempty"`
+	ApprovedAt       *time.Time     `json:"approved_at,omitempty"`
+	CreatedAt        time.Time      `json:"created_at"`
+	UpdatedAt        time.Time      `json:"updated_at"`
 }
 
 // CreditsRemaining returns the unused credits on this purchase.
@@ -111,24 +111,24 @@ func (p *SponsorshipPurchase) CreditsRemainingInt() int {
 // SponsorshipRequest is one vendor's request to sponsor a product or offer
 // using credits from a purchase. Admin approval gates activation.
 type SponsorshipRequest struct {
-	ID             int64                     `json:"id"`
-	PublicID       string                    `json:"public_id"`
-	OrganizationID int64                     `json:"organization_id"`
-	PurchaseID     *int64                    `json:"purchase_id,omitempty"`
-	PackageID      int64                     `json:"package_id"`
-	Package        *OfferPackage             `json:"package,omitempty"`
-	ItemType       SponsorshipItemType       `json:"item_type"`
-	ItemID         int64                     `json:"item_id"`
-	CreditsUsed    int                       `json:"credits_used"`
-	AdminStatus    AdminStatus                `json:"admin_status"`
-	AdminNotes     string                    `json:"admin_notes,omitempty"`
-	ReviewedBy     *int64                    `json:"reviewed_by,omitempty"`
-	ReviewedAt     *time.Time                `json:"reviewed_at,omitempty"`
-	StartsAt       time.Time                 `json:"starts_at"`
-	ExpiresAt      time.Time                 `json:"expires_at"`
-	Status         SponsorshipRequestStatus  `json:"status"`
-	CreatedAt      time.Time                 `json:"created_at"`
-	UpdatedAt      time.Time                 `json:"updated_at"`
+	ID             int64                    `json:"id"`
+	PublicID       string                   `json:"public_id"`
+	OrganizationID int64                    `json:"organization_id"`
+	PurchaseID     *int64                   `json:"purchase_id,omitempty"`
+	PackageID      int64                    `json:"package_id"`
+	Package        *OfferPackage            `json:"package,omitempty"`
+	ItemType       SponsorshipItemType      `json:"item_type"`
+	ItemID         int64                    `json:"item_id"`
+	CreditsUsed    int                      `json:"credits_used"`
+	AdminStatus    AdminStatus              `json:"admin_status"`
+	AdminNotes     string                   `json:"admin_notes,omitempty"`
+	ReviewedBy     *int64                   `json:"reviewed_by,omitempty"`
+	ReviewedAt     *time.Time               `json:"reviewed_at,omitempty"`
+	StartsAt       time.Time                `json:"starts_at"`
+	ExpiresAt      time.Time                `json:"expires_at"`
+	Status         SponsorshipRequestStatus `json:"status"`
+	CreatedAt      time.Time                `json:"created_at"`
+	UpdatedAt      time.Time                `json:"updated_at"`
 }
 
 // IsApproved reports whether the admin cleared this request for activation.

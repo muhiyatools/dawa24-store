@@ -328,12 +328,12 @@ func AdminOrdersHub(data AdminOrdersData, lang, dir string) templ.Component {
 							return templ_7745c5c3_Err
 						}
 						if o.NegotiationStatus == "accepted" {
-							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 25, "<span class=\"badge badge-emerald text-xs font-bold\">✓ تم قبول التفاوض</span>")
+							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 25, "<span class=\"badge badge-emerald text-xs font-bold\">تم قبول التفاوض</span>")
 							if templ_7745c5c3_Err != nil {
 								return templ_7745c5c3_Err
 							}
 						} else if o.NegotiationStatus == "rejected" {
-							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 26, "<span class=\"badge badge-rose text-xs font-bold\">✕ تم رفض السعر</span>")
+							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 26, "<span class=\"badge badge-rose text-xs font-bold\">تم رفض السعر</span>")
 							if templ_7745c5c3_Err != nil {
 								return templ_7745c5c3_Err
 							}
@@ -607,7 +607,7 @@ func AdminOrdersHub(data AdminOrdersData, lang, dir string) templ.Component {
 							return templ_7745c5c3_Err
 						}
 						if o.IsNegotiation {
-							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 54, "<span class=\"badge badge-amber text-xs font-bold\">🤝 تفاوض</span>")
+							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 54, "<span class=\"badge badge-amber text-xs font-bold\">تفاوض</span>")
 							if templ_7745c5c3_Err != nil {
 								return templ_7745c5c3_Err
 							}

@@ -29,10 +29,7 @@ func (h *UIHandler) VendorStorefrontPage(w http.ResponseWriter, r *http.Request)
 		sections, _ = h.promoSvc.ListHighlightSectionsByOrg(ctx, actor.OrganizationID)
 	}
 
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	if err := pages.VendorStorefront(lang, dir, sections).Render(ctx, w); err != nil {
-		h.log.ErrorContext(ctx, "render vendor storefront", "error", err)
-	}
+	h.renderPage(ctx, w, "render vendor storefront", pages.VendorStorefront(lang, dir, sections))
 }
 
 // VendorStorefrontSectionSubmit creates a supplier featured section.

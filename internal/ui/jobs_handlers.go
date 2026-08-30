@@ -30,20 +30,33 @@ func (h *UIHandler) JobsPage(w http.ResponseWriter, r *http.Request) {
 		rawJobs, _ = h.hrSvc.ListPublishedJobs(ctx, 100, 0)
 	}
 
-	// Enrich with organization names
+	// Enrich with organization names.
+	//
+	// One query for the page, not one per job: this loop used to call
+	// GetOrganization inside the range, so a hundred published jobs meant a
+	// hundred round trips before the page could render.
 	orgNames := make(map[int64]string)
-	if h.orgSvc != nil {
+	if h.orgSvc != nil && len(rawJobs) > 0 {
+		ids := make([]int64, 0, len(rawJobs))
 		for _, j := range rawJobs {
-			if _, exists := orgNames[j.OrganizationID]; !exists && j.OrganizationID > 0 {
-				if o, err := h.orgSvc.GetOrganization(ctx, j.OrganizationID); err == nil && o != nil {
-					cName := o.TradeName.Get(i18n.ParseLang(lang))
-					if cName == "" {
-						cName = o.LegalName
-					}
-					if cName != "" {
-						orgNames[j.OrganizationID] = cName
-					}
-				}
+			if j.OrganizationID > 0 {
+				ids = append(ids, j.OrganizationID)
+			}
+		}
+		orgs, err := h.orgSvc.GetOrganizations(ctx, ids)
+		if err != nil {
+			h.log.WarnContext(ctx, "jobs: resolve organization names", "error", err)
+		}
+		for id, o := range orgs {
+			if o == nil {
+				continue
+			}
+			cName := o.TradeName.Get(i18n.ParseLang(lang))
+			if cName == "" {
+				cName = o.LegalName
+			}
+			if cName != "" {
+				orgNames[id] = cName
 			}
 		}
 	}
@@ -86,10 +99,7 @@ func (h *UIHandler) JobsPage(w http.ResponseWriter, r *http.Request) {
 		PostJobURL:  postJobURL,
 	}
 
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	if err := pages.JobsPage(data, lang, dir).Render(ctx, w); err != nil {
-		h.log.ErrorContext(ctx, "render jobs page", "error", err)
-	}
+	h.renderPage(ctx, w, "render jobs page", pages.JobsPage(data, lang, dir))
 }
 
 // JobDetailPage renders one vacancy with an apply form (adapted to dashboard shell).
@@ -144,10 +154,7 @@ func (h *UIHandler) JobDetailPage(w http.ResponseWriter, r *http.Request) {
 		UserPhone:   userPhone,
 	}
 
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	if err := pages.JobDetail(data, lang, dir).Render(ctx, w); err != nil {
-		h.log.ErrorContext(ctx, "render job detail", "error", err)
-	}
+	h.renderPage(ctx, w, "render job detail", pages.JobDetail(data, lang, dir))
 }
 
 // JobApplySubmit records an application (requires logged-in job seeker).
@@ -222,8 +229,5 @@ func (h *UIHandler) JobApplySubmit(w http.ResponseWriter, r *http.Request) {
 		UserPhone:   app.ApplicantPhone,
 	}
 
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	if err := pages.JobDetail(data, lang, dir).Render(ctx, w); err != nil {
-		h.log.ErrorContext(ctx, "render job detail after apply", "error", err)
-	}
+	h.renderPage(ctx, w, "render job detail after apply", pages.JobDetail(data, lang, dir))
 }

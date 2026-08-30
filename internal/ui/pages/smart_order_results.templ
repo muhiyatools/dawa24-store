@@ -300,7 +300,7 @@ templ SmartOrderResultsPage(lang, dir string, data SmartOrderResultsData) {
 			<!-- Main Table Card -->
 			<div class="card so-results-table-card">
 				<div class="table-responsive">
-					<table class="table so-results-table">
+					<table class="data-table so-results-table">
 						<thead>
 							<tr class="so-results-table-head">
 								<th class="so-col-index">
@@ -418,7 +418,7 @@ templ soBlockedPanel(data SmartOrderResultsData) {
 		<details class="so-blocked-panel">
 			<summary class="so-blocked-summary">
 				<span class="so-blocked-title">
-					⚠️ { fmt.Sprintf("%d صنف غير جاهز للطلب", blocked.Total()) }
+					{ fmt.Sprintf("%d صنف غير جاهز للطلب", blocked.Total()) }
 				</span>
 				<span class="so-blocked-hint">
 					لن تُطلب هذه الأصناف. اضغط لعرض أسبابها ومعالجتها.

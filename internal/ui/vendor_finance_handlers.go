@@ -29,10 +29,7 @@ func (h *UIHandler) VendorPaymentsPage(w http.ResponseWriter, r *http.Request) {
 		payments, _ = h.billSvc.ListPayments(ctx, actor.OrganizationID, 50, 0)
 	}
 
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	if err := pages.VendorPaymentsPage(payments, lang, dir).Render(ctx, w); err != nil {
-		h.log.ErrorContext(ctx, "render vendor payments", "error", err)
-	}
+	h.renderPage(ctx, w, "render vendor payments", pages.VendorPaymentsPage(payments, lang, dir))
 }
 
 // VendorEarningsOrderPage renders orders revenue and commissions report for the vendor.
@@ -51,10 +48,7 @@ func (h *UIHandler) VendorEarningsOrderPage(w http.ResponseWriter, r *http.Reque
 		revenue, _ = h.commSvc.MonthSalesByVendor(ctx, actor.OrganizationID)
 	}
 
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	if err := pages.VendorEarningsOrderPage(revenue, lang, dir).Render(ctx, w); err != nil {
-		h.log.ErrorContext(ctx, "render vendor earnings order", "error", err)
-	}
+	h.renderPage(ctx, w, "render vendor earnings order", pages.VendorEarningsOrderPage(revenue, lang, dir))
 }
 
 // VendorEarningsOffersPage renders offers revenue and commissions for the vendor.
@@ -68,10 +62,7 @@ func (h *UIHandler) VendorEarningsOffersPage(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	if err := pages.VendorEarningsOffersPage(money.Zero, lang, dir).Render(ctx, w); err != nil {
-		h.log.ErrorContext(ctx, "render vendor earnings offers", "error", err)
-	}
+	h.renderPage(ctx, w, "render vendor earnings offers", pages.VendorEarningsOffersPage(money.Zero, lang, dir))
 }
 
 // VendorOfferOrdersPage renders offer-based orders fulfilled by the vendor.
@@ -90,10 +81,7 @@ func (h *UIHandler) VendorOfferOrdersPage(w http.ResponseWriter, r *http.Request
 		shipments, _ = h.commSvc.ListVendorShipments(ctx, actor.OrganizationID, 100, 0)
 	}
 
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	if err := pages.VendorOfferOrdersPage(shipments, lang, dir).Render(ctx, w); err != nil {
-		h.log.ErrorContext(ctx, "render vendor offer orders", "error", err)
-	}
+	h.renderPage(ctx, w, "render vendor offer orders", pages.VendorOfferOrdersPage(shipments, lang, dir))
 }
 
 // VendorOfferOrderDetailPage renders single offer order details.
@@ -110,8 +98,5 @@ func (h *UIHandler) VendorOfferOrderDetailPage(w http.ResponseWriter, r *http.Re
 	idStr := chi.URLParam(r, "id")
 	shipID, _ := strconv.ParseInt(idStr, 10, 64)
 
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	if err := pages.VendorOfferOrderDetailPage(shipID, lang, dir).Render(ctx, w); err != nil {
-		h.log.ErrorContext(ctx, "render vendor offer order detail", "error", err)
-	}
+	h.renderPage(ctx, w, "render vendor offer order detail", pages.VendorOfferOrderDetailPage(shipID, lang, dir))
 }

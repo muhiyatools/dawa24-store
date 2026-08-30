@@ -94,7 +94,7 @@ func (s *stubPromoRepo) ActivateSponsorshipRequest(context.Context, int64, int64
 	return nil, nil
 }
 func (s *stubPromoRepo) CancelSponsorshipRequest(context.Context, int64, int64) error { return nil }
-func (s *stubPromoRepo) ExpireSponsorshipRequests(context.Context) (int64, error) { return 0, nil }
+func (s *stubPromoRepo) ExpireSponsorshipRequests(context.Context) (int64, error)     { return 0, nil }
 func (s *stubPromoRepo) RankedSponsorshipsForProducts(context.Context, []int64) ([]*RankedSponsorship, error) {
 	return nil, nil
 }

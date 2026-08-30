@@ -130,7 +130,7 @@ func (stubRepo) ActivateSponsorshipRequest(context.Context, int64, int64) (*prom
 	return nil, nil
 }
 func (stubRepo) CancelSponsorshipRequest(context.Context, int64, int64) error { return nil }
-func (stubRepo) ExpireSponsorshipRequests(context.Context) (int64, error) { return 0, nil }
+func (stubRepo) ExpireSponsorshipRequests(context.Context) (int64, error)     { return 0, nil }
 func (stubRepo) RankedSponsorshipsForProducts(context.Context, []int64) ([]*promo.RankedSponsorship, error) {
 	return nil, nil
 }
@@ -339,7 +339,7 @@ func (happyRepo) ActivateSponsorshipRequest(context.Context, int64, int64) (*pro
 	return &promo.SponsorshipRequest{ID: 1, AdminStatus: "approved", Status: "active"}, nil
 }
 func (happyRepo) CancelSponsorshipRequest(context.Context, int64, int64) error { return nil }
-func (happyRepo) ExpireSponsorshipRequests(context.Context) (int64, error) { return 0, nil }
+func (happyRepo) ExpireSponsorshipRequests(context.Context) (int64, error)     { return 0, nil }
 func (happyRepo) RankedSponsorshipsForProducts(context.Context, []int64) ([]*promo.RankedSponsorship, error) {
 	return nil, nil
 }

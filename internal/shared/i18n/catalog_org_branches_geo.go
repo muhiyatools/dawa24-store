@@ -21,7 +21,7 @@ func loadOrgBranchesGeoKeys(e *engine) {
 	addKey(e, "org.rejection_reason", "org", "سبب الرفض أو النواقص", "Reason for Rejection", "Rejection reason field")
 
 	// --- Branches & Geographical Locations ---
-	addKey(e, "geo.governorates_title", "geo", "المحافظات والمدن الجغرافية 🌍", "Governorates & Cities 🌍", "Governorates page title")
+	addKey(e, "geo.governorates_title", "geo", "المحافظات والمدن الجغرافية", "Governorates & Cities", "Governorates page title")
 	addKey(e, "geo.governorates_sub", "geo", "إدارة التقسيم الهرمي للمحافظات والمدن والمراكز الـ 350 بجمهورية مصر العربية وإحداثياتها المكانية (GPS).", "Manage hierarchical Egyptian Governorates and 350+ Cities/Districts with GPS coordinates.", "Governorates page subtitle")
 	addKey(e, "geo.governorates_count", "geo", "المحافظات المعتمدة (27)", "Official Governorates (27)", "Governorates count metric")
 	addKey(e, "geo.cities_count", "geo", "المدن والمراكز المسجلة", "Registered Cities & Districts", "Cities count metric")

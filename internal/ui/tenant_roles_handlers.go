@@ -156,10 +156,7 @@ func (h *UIHandler) tenantRolesPage(w http.ResponseWriter, r *http.Request) {
 		})
 	}
 
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	if err := pages.RolesPage(view, lang, dir).Render(ctx, w); err != nil {
-		h.log.ErrorContext(ctx, "render company roles page", "error", err)
-	}
+	h.renderPage(ctx, w, "render company roles page", pages.RolesPage(view, lang, dir))
 }
 
 func (h *UIHandler) tenantRoleDetailPage(w http.ResponseWriter, r *http.Request) {
@@ -201,10 +198,7 @@ func (h *UIHandler) tenantRoleDetailPage(w http.ResponseWriter, r *http.Request)
 		view.MemberCount = counts[role.ID]
 	}
 
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	if err := pages.RoleEditPage(view, lang, dir).Render(ctx, w); err != nil {
-		h.log.ErrorContext(ctx, "render company role editor", "error", err)
-	}
+	h.renderPage(ctx, w, "render company role editor", pages.RoleEditPage(view, lang, dir))
 }
 
 func (h *UIHandler) tenantRoleCreate(w http.ResponseWriter, r *http.Request) {

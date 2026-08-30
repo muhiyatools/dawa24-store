@@ -36,10 +36,7 @@ func (h *UIHandler) AdminProductDetailPage(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	if err := pages.AdminProductDetailPage(prod, variants, lang, dir).Render(ctx, w); err != nil {
-		h.log.ErrorContext(ctx, "render admin product detail", "error", err)
-	}
+	h.renderPage(ctx, w, "render admin product detail", pages.AdminProductDetailPage(prod, variants, lang, dir))
 }
 
 // AdminProductChildrenPage renders vendor-level variant listings and branch offers.
@@ -120,10 +117,7 @@ func (h *UIHandler) AdminProductChildrenPage(w http.ResponseWriter, r *http.Requ
 		}
 	}
 
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	if err := pages.AdminProductChildrenPage(data, lang, dir).Render(ctx, w); err != nil {
-		h.log.ErrorContext(ctx, "render product children", "error", err)
-	}
+	h.renderPage(ctx, w, "render product children", pages.AdminProductChildrenPage(data, lang, dir))
 }
 
 // AdminProductChildStatusSubmit updates the active status of a vendor product variant.
@@ -171,10 +165,7 @@ func (h *UIHandler) AdminStocksPage(w http.ResponseWriter, r *http.Request) {
 		stocks, _ = h.invSvc.ListLowStock(database.AsSystem(ctx), 100, 0)
 	}
 
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	if err := pages.AdminStocksPage(stocks, lang, dir).Render(ctx, w); err != nil {
-		h.log.ErrorContext(ctx, "render admin stocks page", "error", err)
-	}
+	h.renderPage(ctx, w, "render admin stocks page", pages.AdminStocksPage(stocks, lang, dir))
 }
 
 // AdminSavingProductsPage renders saving products (منتجات التوفير) across all users and organizations.
@@ -279,10 +270,7 @@ func (h *UIHandler) AdminSavingProductsPage(w http.ResponseWriter, r *http.Reque
 		ActiveFilter:   filter,
 	}
 
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	if err := pages.AdminSavingProductsPage(data, lang, dir).Render(ctx, w); err != nil {
-		h.log.ErrorContext(ctx, "render saving products", "error", err)
-	}
+	h.renderPage(ctx, w, "render saving products", pages.AdminSavingProductsPage(data, lang, dir))
 }
 
 // AdminProductsDeleteAllSubmit removes all master products and variants (Super Admin).

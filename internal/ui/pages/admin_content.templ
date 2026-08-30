@@ -50,7 +50,7 @@ templ AdminContent(lang, dir string, blocks []*platformadmin.ContentBlock) {
 				<div class="flex-between items-center flex-wrap gap-4">
 					<div class="d-flex items-center gap-3">
 						<div class="user-avatar-badge text-xl">
-							📄
+							@components.IconFile("icon-sm")
 						</div>
 						<div>
 							<h1 class="text-2xl font-black text-primary m-0">
@@ -128,7 +128,7 @@ templ AdminContent(lang, dir string, blocks []*platformadmin.ContentBlock) {
 			<div class="glass-panel p-0 mb-6 overflow-hidden">
 				if len(blocks) == 0 {
 					<div class="p-8 text-center empty-state-glass">
-						<div class="text-4xl mb-3">📄</div>
+						<div class="text-4xl mb-3">@components.IconFile("icon-sm")</div>
 						<h3 class="text-lg font-black text-primary mb-2">لا توجد كتل محتوى مسجلة</h3>
 						<p class="text-sm text-secondary max-w-md mx-auto">لم يتم إنشاء أي كتل محتوى أو أقسام بعد. اضغط على إضافة كتلة جديدة للبدء.</p>
 					</div>

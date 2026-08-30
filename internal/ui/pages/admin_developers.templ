@@ -128,7 +128,7 @@ templ AdminDevelopersPage(values AdminDevelopersValues, lang, dir string) {
 
 						<div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.75rem;">
 							<div style="font-size:0.775rem; color:var(--text-muted);">
-								🔒 الاستعلامات مسجلة وموثقة في سجل المطورين الزمني.
+								الاستعلامات مسجلة وموثقة في سجل المطورين الزمني.
 							</div>
 							<div class="row-center-sm">
 								<button type="button" @click="sqlQuery = ''" class="btn btn-secondary btn-sm">مسح</button>
@@ -287,7 +287,7 @@ templ AdminDevelopersPage(values AdminDevelopersValues, lang, dir string) {
 						  told even though they are not the one who typed it.
 						-->
 						<div style="background:rgba(220, 38, 38, 0.08); border:1px solid rgba(220, 38, 38, 0.35); border-radius:var(--radius-lg); padding:0.9rem 1.1rem; font-size:0.85rem; line-height:1.6;">
-							<strong style="color:var(--danger, #dc2626); display:block; margin-bottom:0.3rem;">⚠️ بيانات الاعتماد المحفوظة تبدو غير صحيحة</strong>
+							<strong style="color:var(--danger, #dc2626); display:block; margin-bottom:0.3rem;">بيانات الاعتماد المحفوظة تبدو غير صحيحة</strong>
 							<span class="text-secondary">
 								القيمة المحفوظة في حقل بيانات اعتماد المدير تطابق شكل بيانات اتصال قاعدة بيانات، وليست بيانات اعتماد بوابة الذكاء الاصطناعي.
 								<strong>تُرسل هذه القيمة إلى خادم البوابة الخارجي عند كل عملية مزامنة أو استعلام.</strong>
@@ -367,7 +367,7 @@ templ AdminDevelopersPage(values AdminDevelopersValues, lang, dir string) {
 							</div>
 						</div>
 						<p style="font-size:0.75rem; color:var(--text-muted); margin:-0.5rem 0 0 0;">
-							🔒 أدخل نفس بيانات تسجيل الدخول التي تستخدمها للدخول إلى لوحة البوابة <code>/admin/</code> (المحددة في ADMIN_PASSWORD بسيرفر البوابة).
+							أدخل نفس بيانات تسجيل الدخول التي تستخدمها للدخول إلى لوحة البوابة <code>/admin/</code> (المحددة في ADMIN_PASSWORD بسيرفر البوابة).
 						</p>
 
 						<!-- Models and the provisioned admin-panel identity -->
@@ -558,7 +558,7 @@ templ AdminDevelopersPage(values AdminDevelopersValues, lang, dir string) {
 				<!-- Error Diagnostics Table -->
 				if len(values.ErrorLogs) == 0 {
 					<div class="p-8 text-center empty-state-glass">
-						<div class="text-4xl mb-3">🐛</div>
+						<div class="text-4xl mb-3">@components.IconBug("icon-sm")</div>
 						<h3 class="text-lg font-black text-primary mb-2">لا توجد أخطاء مسجلة</h3>
 						<p class="text-sm text-secondary max-w-md mx-auto">النظام يعمل بكفاءة واستقرار تام. لم يتم تسجيل أي أخطاء أو استثناءات تطابق التصفية الحالية.</p>
 					</div>
@@ -578,7 +578,7 @@ templ AdminDevelopersPage(values AdminDevelopersValues, lang, dir string) {
 							</thead>
 							<tbody>
 								for _, err := range values.ErrorLogs {
-									<tr style="border-bottom:1px solid var(--border);">
+									<tr class="rule-bottom">
 										<td class="text-center tabular-nums">
 											<strong class="text-muted">#{ fmt.Sprintf("%d", err.ID) }</strong>
 										</td>
@@ -771,7 +771,7 @@ templ AdminDevelopersPage(values AdminDevelopersValues, lang, dir string) {
 
 					if len(values.AuditEntries) == 0 {
 						<div class="p-8 text-center empty-state-glass">
-							<div class="text-4xl mb-3">📜</div>
+							<div class="text-4xl mb-3">@components.IconFileText("icon-sm")</div>
 							<h3 class="text-lg font-black text-primary mb-2">لا توجد عمليات مسجلة</h3>
 							<p class="text-sm text-secondary max-w-md mx-auto">لم يتم تسجيل أي عمليات تطابق معايير البحث الحالية في سجل النظام.</p>
 						</div>
@@ -792,7 +792,7 @@ templ AdminDevelopersPage(values AdminDevelopersValues, lang, dir string) {
 								</thead>
 								<tbody>
 									for _, e := range values.AuditEntries {
-										<tr style="border-bottom:1px solid var(--border);">
+										<tr class="rule-bottom">
 											<td class="text-center tabular-nums">
 												<strong class="text-muted">#{ fmt.Sprintf("%d", e.ID) }</strong>
 											</td>

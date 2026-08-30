@@ -37,7 +37,7 @@ templ VendorOrders(data VendorOrdersData, lang, dir string, isPartial bool) {
 						<div>
 							<div class="d-flex items-center gap-3 mb-1">
 								<div class="user-avatar-badge text-xl">
-									📦
+									@components.IconPackage("icon-sm")
 								</div>
 								<h1 class="text-2xl font-black text-primary m-0">
 									طلبيات الصيدليات والشحنات
@@ -145,7 +145,7 @@ templ VendorOrders(data VendorOrdersData, lang, dir string, isPartial bool) {
 templ VendorOrdersContent(data VendorOrdersData, lang, dir string) {
 	if len(data.Shipments) == 0 {
 		<div class="glass-panel p-12 text-center empty-state-glass">
-			<div class="text-4xl mb-3">📦</div>
+			<div class="text-4xl mb-3">@components.IconPackage("icon-sm")</div>
 			<h3 class="text-lg font-black text-primary mb-2">لا توجد طلبيات مطابقة في هذا القسم</h3>
 			<p class="text-sm text-secondary m-0">ستظهر هنا أي طلبيات جديدة يتم إجراؤها من الصيدليات والعملاء التابعين لتغطيتك الجغرافية.</p>
 		</div>
@@ -203,7 +203,7 @@ templ VendorOrdersContent(data VendorOrdersData, lang, dir string) {
 
 							<!-- Items count chip -->
 							<span class="badge badge-secondary text-xs font-bold tabular-nums">
-								📦 { fmt.Sprintf("%d أصناف", len(sh.Lines)) }
+								{ fmt.Sprintf("%d أصناف", len(sh.Lines)) }
 							</span>
 						</div>
 
@@ -312,7 +312,7 @@ templ VendorOrdersContent(data VendorOrdersData, lang, dir string) {
 													<div class="d-flex items-center gap-2 flex-wrap">
 														<strong class="text-primary text-sm font-bold">{ line.ProductName.Get(i18n.Lang(lang)) }</strong>
 														if line.IsNegotiated {
-															<span class="badge badge-amber text-xs font-bold">🤝 سعر تفاوضي</span>
+															<span class="badge badge-amber text-xs font-bold">سعر تفاوضي</span>
 														}
 													</div>
 													if line.VariantName.Get(i18n.Lang(lang)) != "" {
@@ -383,7 +383,7 @@ templ VendorOrdersContent(data VendorOrdersData, lang, dir string) {
 											type="submit"
 											class="btn btn-danger font-bold px-4 py-2 text-xs"
 										>
-											<span>✕ رفض الطلب</span>
+											<span>رفض الطلب</span>
 										</button>
 									</form>
 									<form action={ templ.SafeURL(fmt.Sprintf("/vendor/orders/%d/status", sh.ID)) } method="POST" class="m-0 d-inline">
@@ -451,7 +451,7 @@ templ VendorOrdersContent(data VendorOrdersData, lang, dir string) {
 										class="btn btn-secondary font-bold px-4 py-2 text-xs"
 										title="طباعة الفاتورة"
 									>
-										<span>🖨️ طباعة الفاتورة</span>
+										<span>طباعة الفاتورة</span>
 									</a>
 								}
 							</div>

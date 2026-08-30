@@ -124,7 +124,7 @@ templ VendorSpecialOffersPage(data VendorSpecialOffersData, lang, dir string) {
 										</h3>
 										if o.BranchName != "" {
 											<div class="text-xs text-brand font-bold mt-1">
-												📍 الفرع: { o.BranchName }
+												الفرع: { o.BranchName }
 											</div>
 										}
 									</div>
@@ -172,9 +172,9 @@ templ VendorSpecialOffersPage(data VendorSpecialOffersData, lang, dir string) {
 								<!-- Validity Dates & Location Cover Badge -->
 								<div class="flex-between items-center text-xs text-muted">
 									if o.StartDate != nil && o.EndDate != nil {
-										<span>📅 { o.StartDate.Format("02/01/2006") } - { o.EndDate.Format("02/01/2006") }</span>
+										<span>{ o.StartDate.Format("02/01/2006") } - { o.EndDate.Format("02/01/2006") }</span>
 									} else {
-										<span>📅 ساري المفعول</span>
+										<span>ساري المفعول</span>
 									}
 
 									<span class="text-brand font-bold">
@@ -186,12 +186,12 @@ templ VendorSpecialOffersPage(data VendorSpecialOffersData, lang, dir string) {
 							<!-- Action Buttons -->
 							<div class="flex-between items-center border-t pt-4 mt-4">
 								<a href={ templ.SafeURL(fmt.Sprintf("/vendor/offers/%d/locations", o.ID)) } class="btn btn-secondary btn-sm font-bold text-xs gap-1">
-									<span>🗺️ نطاقات التغطية</span>
+									<span>نطاقات التغطية</span>
 								</a>
 
 								<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/vendor/offers/%d/delete", o.ID)) } class="m-0" onsubmit="return confirm('هل أنت متأكد من حذف هذا العرض الخاص؟');">
 									<button type="submit" class="btn btn-secondary btn-icon btn-sm text-danger" title="حذف هذا العرض">
-										✕
+										@components.IconX("icon-sm")
 									</button>
 								</form>
 							</div>

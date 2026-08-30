@@ -160,17 +160,33 @@ func SecurityHeaders(next http.Handler) http.Handler {
 		h.Set("Referrer-Policy", "strict-origin-when-cross-origin")
 		h.Set("Permissions-Policy", "geolocation=(self), camera=(), microphone=()")
 		h.Set("Cross-Origin-Opener-Policy", "same-origin-allow-popups")
+		// htmx, Alpine and Leaflet are served from this origin now, so the three
+		// CDN origins that used to be script and style sources are gone. Two
+		// relaxations remain and both are load-bearing rather than sloppy:
+		//
+		//   'unsafe-inline' — 56 inline <script> blocks live in the templates.
+		//   'unsafe-eval'   — Alpine 3 compiles expressions with new Function.
+		//
+		// Removing the first means moving those blocks into app.js; removing
+		// the second means switching to Alpine's CSP build, which requires
+		// rewriting the expressions it can no longer evaluate. Until both are
+		// done this policy stops cross-origin script injection but not inline
+		// injection, and saying so here is more useful than implying otherwise.
 		h.Set("Content-Security-Policy", strings.Join([]string{
-			"default-src 'self' https: data: blob:",
-			"script-src 'self' 'unsafe-inline' 'unsafe-eval' https://unpkg.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://maps.googleapis.com https://maps.google.com",
-			"style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net",
-			"img-src 'self' data: blob: https: http:",
-			"font-src 'self' data: https://fonts.gstatic.com https://cdnjs.cloudflare.com",
-			"connect-src 'self' https: http: ws: wss:",
+			"default-src 'self'",
+			"script-src 'self' 'unsafe-inline' 'unsafe-eval'",
+			"style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+			// Remote images are product and organization media held on object
+			// storage, plus OpenStreetMap tiles.
+			"img-src 'self' data: blob: https:",
+			"font-src 'self' data: https://fonts.gstatic.com",
+			"connect-src 'self' https:",
 			"frame-src 'self' https://www.google.com https://maps.google.com https://*.google.com https://*.openstreetmap.org",
-			"child-src 'self' blob: https://www.google.com https://maps.google.com https://*.google.com",
+			"child-src 'self' blob:",
+			"object-src 'none'",
 			"base-uri 'self'",
 			"form-action 'self'",
+			"frame-ancestors 'self'",
 		}, "; "))
 		next.ServeHTTP(w, r)
 	})

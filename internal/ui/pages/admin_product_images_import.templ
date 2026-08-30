@@ -15,7 +15,7 @@ templ AdminProductImagesImportPage(view AdminProductImagesImportView, lang, dir 
 				<div class="flex-between items-center flex-wrap gap-4">
 					<div class="d-flex items-center gap-3">
 						<div class="user-avatar-badge text-xl">
-							🖼️
+							@components.IconImage("icon-sm")
 						</div>
 						<div>
 							<h1 class="text-2xl font-black text-primary m-0">استرداد صور المنتجات أو الكتالوج الرسمي</h1>
@@ -126,7 +126,7 @@ templ adminImageUploadStage(view AdminProductImagesImportView) {
 									<td><span class="badge badge-danger">{ fmt.Sprintf("%d", sess.ErrorRows) }</span></td>
 									<td>
 										if sess.Phase == AdminImagePhaseCompleted {
-											<span class="badge badge-success">مكتمل ✓</span>
+											<span class="badge badge-success">مكتمل </span>
 										} else if sess.Phase == AdminImagePhaseProcessing {
 											<span class="badge badge-sky">جارٍ التحميل...</span>
 										} else {
@@ -222,7 +222,7 @@ templ adminImageMappingStage(view AdminProductImagesImportView) {
 				<a href="/admin/products/images/import" class="btn btn-secondary btn-md">إلغاء والعودة</a>
 				<button type="submit" class="btn btn-primary btn-md fw-800" style="min-width:200px;">
 					@components.IconImage("icon-sm")
-					<span>تأكيد وبدء تنزيل وربط الصور 🚀</span>
+					<span>تأكيد وبدء تنزيل وربط الصور </span>
 				</button>
 			</div>
 		</form>
@@ -353,7 +353,7 @@ templ adminImageCompletedStage(view AdminProductImagesImportView) {
 											{ r.ProductName } ↗
 										</a>
 									} else {
-										<span style="color:var(--text-muted);">-</span>
+										<span class="text-muted">-</span>
 									}
 								</td>
 								<td style="max-width:200px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-size:0.8rem; direction:ltr; text-align:right;">
@@ -363,7 +363,7 @@ templ adminImageCompletedStage(view AdminProductImagesImportView) {
 								</td>
 								<td>
 									if r.Status == "success" {
-										<span class="badge badge-success">تم الحفظ والربط ✓</span>
+										<span class="badge badge-success">تم الحفظ والربط </span>
 									} else if r.Status == "not_found" {
 										<span class="badge badge-amber">غير موجود بالكتالوج</span>
 									} else {

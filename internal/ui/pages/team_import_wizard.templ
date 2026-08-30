@@ -37,7 +37,7 @@ templ teamImportContent(view TeamImportView) {
 			<div class="flex-between items-center flex-wrap gap-4">
 				<div class="d-flex items-center gap-3">
 					<div class="user-avatar-badge text-2xl">
-						👥
+						@components.IconUsers("icon-sm")
 					</div>
 					<div>
 						<h1 class="text-2xl font-black text-primary m-0">استيراد فريق العمل والموظفين من ملف Excel</h1>
@@ -145,7 +145,7 @@ templ teamUploadStage(view TeamImportView) {
 				var file = input.files[0];
 				var title = document.getElementById('dropzone-title');
 				var hint = document.getElementById('dropzone-hint');
-				if (title) title.textContent = '✓ ' + file.name;
+				if (title) title.textContent = '' + file.name;
 				if (hint) hint.textContent = 'الحجم: ' + (file.size / (1024 * 1024)).toFixed(2) + ' ميجابايت — جاهز للرفع';
 			}
 		}
@@ -231,7 +231,7 @@ templ teamMappingStage(view TeamImportView) {
 			</div>
 			<form method="POST" action={ templ.SafeURL(fmt.Sprintf("%s/%s/cancel", view.ImportURL, sess.ID)) }
 				onsubmit="return confirm('هل تريد إلغاء هذه الجلسة؟');" class="m-0">
-				<button type="submit" class="btn btn-ghost btn-xs text-rose-600 hover:text-rose-700">✕ إلغاء الجلسة</button>
+				<button type="submit" class="btn btn-ghost btn-xs text-rose-600 hover:text-rose-700">إلغاء الجلسة</button>
 			</form>
 		</div>
 
@@ -344,7 +344,7 @@ templ teamMappingStage(view TeamImportView) {
 											<span class="badge badge-slate text-2xs font-mono">{ fmt.Sprintf("%d موظف", er.RowCount) }</span>
 										</div>
 										if er.IsAutoMatched {
-											<span class="badge badge-emerald text-2xs font-bold">✓ مطابقة ذكية</span>
+											<span class="badge badge-emerald text-2xs font-bold">مطابقة ذكية</span>
 										} else {
 											<span class="badge badge-amber text-2xs font-bold">تحديد يدوي</span>
 										}
@@ -559,10 +559,10 @@ templ teamReviewStage(view TeamImportView) {
 								</td>
 								<td class="text-center">
 									if r.IsValid {
-										<span class="badge badge-emerald text-2xs font-extrabold">✓ جاهز للإضافة</span>
+										<span class="badge badge-emerald text-2xs font-extrabold">جاهز للإضافة</span>
 									} else {
 										<span class="badge badge-rose text-2xs font-bold" title={ r.ValidationError }>
-											⚠️ { r.ValidationError }
+											{ r.ValidationError }
 										</span>
 									}
 								</td>

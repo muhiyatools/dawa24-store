@@ -62,10 +62,7 @@ func (h *UIHandler) AdminRolesPage(w http.ResponseWriter, r *http.Request) {
 		})
 	}
 
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	if err := pages.RolesPage(view, lang, dir).Render(ctx, w); err != nil {
-		h.log.ErrorContext(ctx, "render admin roles page", "error", err)
-	}
+	h.renderPage(ctx, w, "render admin roles page", pages.RolesPage(view, lang, dir))
 }
 
 // AdminRoleDetailPage renders the permission matrix for one platform role.
@@ -104,10 +101,7 @@ func (h *UIHandler) AdminRoleDetailPage(w http.ResponseWriter, r *http.Request) 
 		MemberCount:     role.UserCount,
 	}
 
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	if err := pages.RoleEditPage(view, lang, dir).Render(ctx, w); err != nil {
-		h.log.ErrorContext(ctx, "render admin role editor", "error", err)
-	}
+	h.renderPage(ctx, w, "render admin role editor", pages.RoleEditPage(view, lang, dir))
 }
 
 // AdminRoleCreateSubmit adds a moderator role.

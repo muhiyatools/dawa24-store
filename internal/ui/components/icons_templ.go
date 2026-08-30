@@ -2030,7 +2030,7 @@ func IconBriefcase(class string) templ.Component {
 	})
 }
 
-// Crisp Flag SVGs for language switching (Egypt 🇪🇬 / UK 🇬🇧)
+// Crisp Flag SVGs for language switching (Egypt / UK )
 func IconFlagEG(class string) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context

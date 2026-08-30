@@ -24,10 +24,7 @@ func (h *UIHandler) VendorActivitiesPage(w http.ResponseWriter, r *http.Request)
 		entries, _ = h.adminSvc.ListAuditLogByOrg(ctx, actor.OrganizationID, 100, 0)
 	}
 
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	if err := pages.VendorActivitiesPage(entries, lang, dir).Render(ctx, w); err != nil {
-		h.log.ErrorContext(ctx, "render vendor activities", "error", err)
-	}
+	h.renderPage(ctx, w, "render vendor activities", pages.VendorActivitiesPage(entries, lang, dir))
 }
 
 // CustomerActivitiesPage renders the pharmacy organization's employee activity logs.
@@ -46,9 +43,5 @@ func (h *UIHandler) CustomerActivitiesPage(w http.ResponseWriter, r *http.Reques
 		entries, _ = h.adminSvc.ListAuditLogByOrg(ctx, actor.OrganizationID, 100, 0)
 	}
 
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	if err := pages.CustomerActivitiesPage(entries, lang, dir).Render(ctx, w); err != nil {
-		h.log.ErrorContext(ctx, "render customer activities", "error", err)
-	}
+	h.renderPage(ctx, w, "render customer activities", pages.CustomerActivitiesPage(entries, lang, dir))
 }
-

@@ -39,10 +39,7 @@ func (h *UIHandler) VendorWarehousesPage(w http.ResponseWriter, r *http.Request)
 		branches, _ = h.orgSvc.ListBranches(ctx, actor.OrganizationID)
 	}
 
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	if err := pages.VendorWarehousesPage(warehouses, branches, lang, dir).Render(ctx, w); err != nil {
-		h.log.ErrorContext(ctx, "render vendor warehouses page", "error", err)
-	}
+	h.renderPage(ctx, w, "render vendor warehouses page", pages.VendorWarehousesPage(warehouses, branches, lang, dir))
 }
 
 // VendorWarehouseDetailPage renders single warehouse details and current stock rows.
@@ -252,10 +249,7 @@ func (h *UIHandler) VendorWarehouseDetailPage(w http.ResponseWriter, r *http.Req
 		NoticeMsg:     r.URL.Query().Get("msg"),
 	}
 
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	if err := pages.VendorWarehouseDetailPage(data, lang, dir).Render(ctx, w); err != nil {
-		h.log.ErrorContext(ctx, "render vendor warehouse detail", "error", err)
-	}
+	h.renderPage(ctx, w, "render vendor warehouse detail", pages.VendorWarehouseDetailPage(data, lang, dir))
 }
 
 // VendorWarehouseStockAdjustSubmit adjusts a stock level directly from warehouse detail page.

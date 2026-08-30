@@ -408,7 +408,7 @@ func tenantSessionsContent(lang, dir string, data TenantSessionsViewData) templ.
 						return templ_7745c5c3_Err
 					}
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 33, "</span><div><div style=\"display:flex; align-items:center; gap:0.5rem; flex-wrap:wrap;\"><span style=\"font-weight:700; font-size:0.9rem; color:var(--text);\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 33, "</span><div><div class=\"inline-row-wrap\"><span style=\"font-weight:700; font-size:0.9rem; color:var(--text);\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}

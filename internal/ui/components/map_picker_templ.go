@@ -115,7 +115,7 @@ func MapPicker(props MapPickerProps) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "</span></div><div style=\"font-size:var(--text-xs); color:var(--text-muted); margin-top:2px;\">انقر على الخريطة أو اسحب المؤشر 📍 لتحديد موقع المنشأة بدقة</div></div><!-- Toolbar Buttons --><div style=\"display:flex; align-items:center; gap:var(--space-2); flex-wrap:wrap;\"><!-- City Jump Selector (Dynamic from Database) --><select class=\"form-select text-xs\" style=\"padding:0.25rem 0.5rem; font-size:11px; width:auto;\" data-city-selector><option value=\"\">-- المحافظات المصرية (Governorates) --</option> ")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "</span></div><div style=\"font-size:var(--text-xs); color:var(--text-muted); margin-top:2px;\">انقر على الخريطة أو اسحب المؤشر لتحديد موقع المنشأة بدقة</div></div><!-- Toolbar Buttons --><div style=\"display:flex; align-items:center; gap:var(--space-2); flex-wrap:wrap;\"><!-- City Jump Selector (Dynamic from Database) --><select class=\"form-select text-xs\" style=\"padding:0.25rem 0.5rem; font-size:11px; width:auto;\" data-city-selector><option value=\"\">-- المحافظات المصرية (Governorates) --</option> ")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -197,7 +197,7 @@ func MapPicker(props MapPickerProps) templ.Component {
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "</select><!-- Current Location GPS Button --><button type=\"button\" class=\"btn btn-secondary btn-sm\" style=\"padding:0.25rem 0.6rem; font-size:11px; gap:4px;\" data-locate-me-btn title=\"تحديد موقعي الحالي بدقة\"><span>📍 موقعي الحالي</span></button><!-- Google Maps Link Button --><a href=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "</select><!-- Current Location GPS Button --><button type=\"button\" class=\"btn btn-secondary btn-sm\" style=\"padding:0.25rem 0.6rem; font-size:11px; gap:4px;\" data-locate-me-btn title=\"تحديد موقعي الحالي بدقة\"><span>موقعي الحالي</span></button><!-- Google Maps Link Button --><a href=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -210,7 +210,7 @@ func MapPicker(props MapPickerProps) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "\" target=\"_blank\" rel=\"noopener\" class=\"btn btn-secondary btn-sm\" style=\"padding:0.25rem 0.6rem; font-size:11px; gap:4px; text-decoration:none;\" data-google-maps-link title=\"فتح الموقع على خرائط Google\"><span>🗺️ خرائط Google</span></a></div></div><!-- Interactive Map Canvas (Pure Leaflet Container - No Blocked Iframes) --><div id=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "\" target=\"_blank\" rel=\"noopener\" class=\"btn btn-secondary btn-sm\" style=\"padding:0.25rem 0.6rem; font-size:11px; gap:4px; text-decoration:none;\" data-google-maps-link title=\"فتح الموقع على خرائط Google\"><span>خرائط Google</span></a></div></div><!-- Interactive Map Canvas (Pure Leaflet Container - No Blocked Iframes) --><div id=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

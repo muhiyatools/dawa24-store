@@ -22,9 +22,9 @@ templ SuppliersDirectory(lang, dir string, data SupplierDirectoryData) {
 }
 
 templ SuppliersDirectoryContent(lang, dir string, data SupplierDirectoryData) {
-	<!-- Leaflet Map Assets -->
-	<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
-	<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+	<!-- Leaflet is served from this application and loaded on demand by
+	     app.js (ensureLeaflet). It was previously fetched from unpkg here and
+	     again from the document head on every page in the platform. -->
 	
 	<style>
 		@keyframes supplier-pulse-ring {
@@ -54,7 +54,7 @@ templ SuppliersDirectoryContent(lang, dir string, data SupplierDirectoryData) {
 				<div>
 					<div class="d-flex items-center gap-3 mb-1">
 						<div class="user-avatar-badge text-xl">
-							🏢
+							@components.IconBuilding("icon-sm")
 						</div>
 						<h1 class="text-2xl font-black text-primary m-0">
 							دليل شركات ومخازن التوزيع الدوائي
@@ -142,7 +142,7 @@ templ SuppliersDirectoryContent(lang, dir string, data SupplierDirectoryData) {
 								<div class="flex-between items-start mb-4 gap-3">
 									<div class="d-flex items-center gap-3">
 										<div class="user-avatar-badge text-lg">
-											🏢
+											@components.IconBuilding("icon-sm")
 										</div>
 										<div>
 											<h3 class="text-base font-extrabold text-primary m-0 leading-tight">
@@ -187,7 +187,7 @@ templ SuppliersDirectoryContent(lang, dir string, data SupplierDirectoryData) {
 										</div>
 
 										<span class="badge badge-slate text-xs" style="direction:ltr;">
-											❄️ 2-8°C مبرد
+											2-8°C مبرد
 										</span>
 									</div>
 
@@ -199,7 +199,7 @@ templ SuppliersDirectoryContent(lang, dir string, data SupplierDirectoryData) {
 
 									<!-- Coverage Days & Radius -->
 									<div class="d-flex items-center gap-2 text-secondary">
-										<span class="text-muted">🚚 أيام التغطية:</span>
+										<span class="text-muted">أيام التغطية:</span>
 										<span>{ s.CoverageDays }</span>
 									</div>
 
@@ -333,7 +333,7 @@ templ SuppliersDirectoryContent(lang, dir string, data SupplierDirectoryData) {
 			const statusColor = isOpen ? '#10b981' : '#64748b';
 			return L.divIcon({
 				className: 'custom-map-pin',
-				html: `<div style="background:${statusColor}; color:#fff; width:38px; height:38px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:18px; font-weight:800; border:3px solid #fff; box-shadow:0 4px 14px rgba(0,0,0,0.35); transition:transform 0.2s;">🏢</div>`,
+				html: `<div style="background:${statusColor}; color:#fff; width:38px; height:38px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:18px; font-weight:800; border:3px solid #fff; box-shadow:0 4px 14px rgba(0,0,0,0.35); transition:transform 0.2s;"></div>`,
 				iconSize: [38, 38],
 				iconAnchor: [19, 38],
 				popupAnchor: [0, -38]
@@ -346,7 +346,7 @@ templ SuppliersDirectoryContent(lang, dir string, data SupplierDirectoryData) {
 				html: `
 					<div class="supplier-active-pin" style="position:relative; width:56px; height:56px; display:flex; align-items:center; justify-content:center;">
 						<div style="position:absolute; inset:-8px; border-radius:50%; background:rgba(37,99,235,0.35); animation:supplier-pulse-ring 1.8s infinite cubic-bezier(0.215, 0.61, 0.355, 1);"></div>
-						<div style="background:linear-gradient(135deg, #1e40af 0%, #2563eb 50%, #0284c7 100%); color:#fff; width:54px; height:54px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:26px; font-weight:900; border:3.5px solid #ffffff; box-shadow:0 8px 24px rgba(37,99,235,0.6); position:relative; z-index:2;">🏢</div>
+						<div style="background:linear-gradient(135deg, #1e40af 0%, #2563eb 50%, #0284c7 100%); color:#fff; width:54px; height:54px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:26px; font-weight:900; border:3.5px solid #ffffff; box-shadow:0 8px 24px rgba(37,99,235,0.6); position:relative; z-index:2;">@components.IconBuilding("icon-sm")</div>
 					</div>
 				`,
 				iconSize: [56, 56],
@@ -360,6 +360,17 @@ templ SuppliersDirectoryContent(lang, dir string, data SupplierDirectoryData) {
 			const mapEl = document.getElementById('suppliers-leaflet-map');
 			if (!mapEl) return;
 
+			// Leaflet arrives on demand; retry once it has.
+			if (typeof L === 'undefined') {
+				if (typeof ensureLeaflet === 'function') {
+					ensureLeaflet().then(initSuppliersMap).catch(function (err) {
+						mapEl.setAttribute('data-map-failed', 'true');
+						console.error('suppliers map:', err);
+					});
+				}
+				return;
+			}
+
 			// Egypt center: Cairo (30.0444, 31.2357)
 			mapInstance = L.map('suppliers-leaflet-map').setView([30.0444, 31.2357], 7);
 
@@ -372,18 +383,18 @@ templ SuppliersDirectoryContent(lang, dir string, data SupplierDirectoryData) {
 			data.forEach((s, idx) => {
 				if (!s.lat || !s.lng) return;
 
-				const statusText = s.isOpen ? 'مفتوح الآن 🟢' : 'مغلق حالياً ⚪';
+				const statusText = s.isOpen ? 'مفتوح الآن ' : 'مغلق حالياً ';
 				const customIcon = getNormalPinIcon(s.isOpen);
 
 				const marker = L.marker([parseFloat(s.lat), parseFloat(s.lng)], { icon: customIcon }).addTo(mapInstance);
 
 				const linkHtml = '<a href="/suppliers/' + s.id + '" style="display:block; text-align:center; background:#2563eb; color:#fff; padding:7px 14px; border-radius:8px; text-decoration:none; font-size:13px; font-weight:800; box-shadow:0 2px 8px rgba(37,99,235,0.3);">عرض الكتالوج والطلب ↗</a>';
 				const popupContent = '<div style="font-family:inherit; direction:rtl; text-align:right; min-width:240px; padding:0.4rem;">' +
-					'<div style="font-size:15px; font-weight:900; color:#0f172a; margin-bottom:6px; display:flex; align-items:center; gap:0.4rem;"><span>🏢</span> ' + s.name + '</div>' +
+					'<div style="font-size:15px; font-weight:900; color:#0f172a; margin-bottom:6px; display:flex; align-items:center; gap:0.4rem;"><span></span> ' + s.name + '</div>' +
 					'<div style="font-size:12px; margin-bottom:8px;"><span style="background:' + (s.isOpen ? '#dcfce7' : '#f1f5f9') + '; color:' + (s.isOpen ? '#15803d' : '#475569') + '; padding:3px 10px; border-radius:6px; font-weight:800;">' + statusText + '</span></div>' +
 					'<div style="font-size:12px; color:#475569; margin-bottom:5px;">⏱ <strong>مواعيد العمل:</strong> ' + s.hours + '</div>' +
-					'<div style="font-size:12px; color:#475569; margin-bottom:6px;">🚚 <strong>أيام التغطية:</strong> ' + s.coverageDays + '</div>' +
-					(s.address ? '<div style="font-size:12px; color:#64748b; margin-bottom:8px;">📍 ' + s.address + '</div>' : '') +
+					'<div style="font-size:12px; color:#475569; margin-bottom:6px;"><strong>أيام التغطية:</strong> ' + s.coverageDays + '</div>' +
+					(s.address ? '<div style="font-size:12px; color:#64748b; margin-bottom:8px;">' + s.address + '</div>' : '') +
 					'<div style="margin-top:10px; border-top:1px solid #e2e8f0; padding-top:8px;">' + linkHtml + '</div>' +
 				'</div>';
 
@@ -459,23 +470,23 @@ func dosageFormIcon(form string) string {
 	form = strings.ToLower(form)
 	switch {
 	case strings.Contains(form, "قرص") || strings.Contains(form, "اقراص") || strings.Contains(form, "أقراص") || strings.Contains(form, "tablet") || strings.Contains(form, "tab"):
-		return "💊"
+		return ""
 	case strings.Contains(form, "كبسول") || strings.Contains(form, "capsule") || strings.Contains(form, "cap"):
-		return "💊"
+		return ""
 	case strings.Contains(form, "شراب") || strings.Contains(form, "syrup") || strings.Contains(form, "liquid"):
-		return "🧴"
+		return ""
 	case strings.Contains(form, "فوار") || strings.Contains(form, "effervescent") || strings.Contains(form, "sachet") || strings.Contains(form, "أكياس"):
-		return "✨"
+		return ""
 	case strings.Contains(form, "حقن") || strings.Contains(form, "امبول") || strings.Contains(form, "أمبول") || strings.Contains(form, "ampoule") || strings.Contains(form, "vial"):
-		return "💉"
+		return ""
 	case strings.Contains(form, "كريم") || strings.Contains(form, "مرهم") || strings.Contains(form, "gel") || strings.Contains(form, "cream") || strings.Contains(form, "ointment"):
-		return "🧴"
+		return ""
 	case strings.Contains(form, "قطرة") || strings.Contains(form, "drop"):
-		return "💧"
+		return ""
 	case strings.Contains(form, "بخاخ") || strings.Contains(form, "spray"):
-		return "💨"
+		return ""
 	default:
-		return "📦"
+		return ""
 	}
 }
 
@@ -496,7 +507,7 @@ templ SupplierProfile(lang, dir string, data SupplierProfileData) {
 			<div class="sp-hero-card">
 				<div class="sp-hero-identity">
 					<div class="sp-hero-logo">
-						🏢
+						@components.IconBuilding("icon-sm")
 					</div>
 					<div class="sp-hero-details">
 						<div class="sp-hero-title-row">
@@ -601,7 +612,7 @@ templ SupplierProfile(lang, dir string, data SupplierProfileData) {
 				<!-- Coverage Days & Cold Storage -->
 				<div class="sp-ops-item">
 					<div class="sp-ops-icon">
-						🚚
+						@components.IconTruck("icon-sm")
 					</div>
 					<div class="sp-ops-content">
 						<div class="sp-ops-label">أيام التغطية والتوصيل</div>
@@ -615,7 +626,7 @@ templ SupplierProfile(lang, dir string, data SupplierProfileData) {
 				if len(data.CoverageAreas) > 0 {
 					<div class="sp-ops-item">
 						<div class="sp-ops-icon">
-							📍
+							@components.IconMapPin("icon-sm")
 						</div>
 						<div class="sp-ops-content">
 							<div class="sp-ops-label">المناطق المشمولة</div>
@@ -629,7 +640,7 @@ templ SupplierProfile(lang, dir string, data SupplierProfileData) {
 				<!-- Minimum Order -->
 				<div class="sp-ops-item">
 					<div class="sp-ops-icon">
-						💳
+						@components.IconCreditCard("icon-sm")
 					</div>
 					<div class="sp-ops-content">
 						<div class="sp-ops-label">الحد الأدنى للطلب</div>
@@ -653,7 +664,7 @@ templ SupplierProfile(lang, dir string, data SupplierProfileData) {
 
 				if len(data.Sections) > 0 {
 					<button type="button" class={ "sp-tab-btn", templ.KV("active", data.ActiveTab == "sections") } id="tab-btn-sections" onclick="switchProfileTab('sections')">
-						<span>✨</span>
+						<span>@components.IconSparkles("icon-sm")</span>
 						<span>نبذة وأقسام المنشأة ({ fmt.Sprintf("%d", len(data.Sections)) })</span>
 					</button>
 				}
@@ -703,13 +714,13 @@ templ SupplierProfile(lang, dir string, data SupplierProfileData) {
 						}
 					</form>
 
-					<div style="display:flex; align-items:center; gap:0.5rem;">
+					<div class="d-flex items-center gap-2">
 						<span class="badge badge-sky text-xs fw-700">
 							{ fmt.Sprintf("%d صنف معتمد", data.TotalVariants) }
 						</span>
 						<div style="display:flex; align-items:center; background:var(--surface-sunken); padding:0.2rem; border-radius:var(--radius-md); border:1px solid var(--border);">
 							<button type="button" id="cat-view-table-btn" onclick="switchCatalogView('table')" class="btn btn-sm btn-primary" style="padding:0.25rem 0.6rem; font-size:0.75rem; border-radius:var(--radius-sm);" title="عرض الجدول التفصيلي">
-								☰ جدول
+								جدول
 							</button>
 							<button type="button" id="cat-view-grid-btn" onclick="switchCatalogView('grid')" class="btn btn-sm btn-secondary" style="padding:0.25rem 0.6rem; font-size:0.75rem; border-radius:var(--radius-sm);" title="عرض البطاقات">
 								⊞ بطاقات
@@ -736,7 +747,7 @@ templ SupplierProfile(lang, dir string, data SupplierProfileData) {
 									<th>نسبة الخصم</th>
 									<th>السعر بعد الخصم</th>
 									<th>حالة المخزون والتغطية</th>
-									<th style="text-align:center;">طلب الصنف وإضافته للسلة</th>
+									<th class="text-center">طلب الصنف وإضافته للسلة</th>
 								</tr>
 							</thead>
 							<tbody>
@@ -859,27 +870,27 @@ templ SupplierProfile(lang, dir string, data SupplierProfileData) {
 											<div style="display:flex; flex-direction:column; gap:0.3rem;">
 												if availStock > 0 {
 													<span class="badge badge-emerald text-xs font-bold tabular-nums" style="width:fit-content;">
-														🟢 متوفر ({ fmt.Sprintf("%d", availStock) } عبوة)
+														متوفر ({ fmt.Sprintf("%d", availStock) } عبوة)
 													</span>
 												} else {
 													<span class="badge badge-rose text-xs font-bold" style="width:fit-content;">
-														🔴 نفد من المخزون
+														نفد من المخزون
 													</span>
 												}
 												if !isCovered {
 													<span class="badge badge-rose text-xs font-bold" style="width:fit-content;" title={ data.GetCoverageReason(v) }>
-														⚠️ خارج التغطية
+														خارج التغطية
 													</span>
 												} else {
-													<span class="text-xs text-muted" style="font-size:0.75rem;">
-														🚚 مشمول بالتوصيل
+													<span class="text-xs text-muted text-xs">
+														مشمول بالتوصيل
 													</span>
 												}
 											</div>
 										</td>
 
 										<!-- 5. Order Action & Stepper -->
-										<td style="text-align:center;">
+										<td class="text-center">
 											if canAdd {
 												<form
 													action="/cart/add"
@@ -917,7 +928,7 @@ templ SupplierProfile(lang, dir string, data SupplierProfileData) {
 														<span x-show="!loading && !added">@components.IconCart("icon-xs")</span>
 														<span x-show="!loading && !added">+ إضافة للسلة</span>
 														<span x-show="loading" style="display:none;">⏳ جارٍ الإضافة...</span>
-														<span x-show="added" style="display:none;" class="text-emerald font-bold">✓ تمت الإضافة!</span>
+														<span x-show="added" style="display:none;" class="text-emerald font-bold">تمت الإضافة!</span>
 													</button>
 													<a href={ templ.SafeURL(fmt.Sprintf("/catalog/%d", v.ProductID)) } class="btn btn-secondary btn-sm btn-icon" style="border-radius:var(--radius-md);" title="تفاصيل الصنف">
 														@components.IconArrowLeft("icon-xs")
@@ -927,7 +938,7 @@ templ SupplierProfile(lang, dir string, data SupplierProfileData) {
 												<div class="row-center-xs" style="justify-content:center; gap:0.5rem;">
 													if !isCovered {
 														<span class="badge badge-rose text-xs font-bold" title={ data.GetCoverageReason(v) }>
-															⚠️ غير مغطى
+															غير مغطى
 														</span>
 													} else if availStock <= 0 {
 														<span class="badge badge-slate text-xs font-bold">
@@ -1008,16 +1019,16 @@ templ SupplierProfile(lang, dir string, data SupplierProfileData) {
 									<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.75rem; flex-wrap:wrap; gap:0.35rem;">
 										if availStock > 0 {
 											<span class="badge badge-emerald text-xs font-bold tabular-nums">
-												🟢 متوفر ({ fmt.Sprintf("%d", availStock) })
+												متوفر ({ fmt.Sprintf("%d", availStock) })
 											</span>
 										} else {
 											<span class="badge badge-rose text-xs font-bold">
-												🔴 نفد المخزون
+												نفد المخزون
 											</span>
 										}
 										if !isCovered {
 											<span class="badge badge-rose text-xs font-bold" title={ data.GetCoverageReason(v) }>
-												⚠️ خارج التغطية
+												خارج التغطية
 											</span>
 										}
 									</div>
@@ -1073,14 +1084,14 @@ templ SupplierProfile(lang, dir string, data SupplierProfileData) {
 												<span x-show="!loading && !added">@components.IconCart("icon-xs")</span>
 												<span x-show="!loading && !added">إضافة للسلة</span>
 												<span x-show="loading" style="display:none;">⏳...</span>
-												<span x-show="added" style="display:none;" class="text-emerald font-bold">✓ أضيف!</span>
+												<span x-show="added" style="display:none;" class="text-emerald font-bold">أضيف!</span>
 											</button>
 										</form>
 									} else {
 										<div class="row-center-xs" style="justify-content:center; gap:0.4rem;">
 											if !isCovered {
 												<span class="badge badge-rose text-xs font-bold w-full text-center py-2" title={ data.GetCoverageReason(v) }>
-													⚠️ خارج نطاق التغطية
+													خارج نطاق التغطية
 												</span>
 											} else if availStock <= 0 {
 												<span class="badge badge-slate text-xs font-bold w-full text-center py-2">
@@ -1207,7 +1218,7 @@ templ SupplierProfile(lang, dir string, data SupplierProfileData) {
 								<div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:0.75rem;">
 									<div style="display:flex; align-items:center; gap:0.65rem;">
 										<div style="width:36px; height:36px; border-radius:var(--radius-md); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center;">
-											🏢
+											@components.IconBuilding("icon-sm")
 										</div>
 										<div>
 											<h4 style="font-size:1rem; font-weight:800; color:var(--text); margin:0;">
@@ -1219,7 +1230,7 @@ templ SupplierProfile(lang, dir string, data SupplierProfileData) {
 										</div>
 									</div>
 									if b.HasColdStorage {
-										<span class="badge badge-sky text-xs">❄️ مبرد</span>
+										<span class="badge badge-sky text-xs">مبرد</span>
 									}
 								</div>
 
@@ -1247,7 +1258,7 @@ templ SupplierProfile(lang, dir string, data SupplierProfileData) {
 			<div id="tab-content-reviews" class="sp-tab-panel" style={ templ.KV("display:none;", data.ActiveTab != "reviews") }>
 				if len(data.Reviews) == 0 {
 					<div class="card" style="padding:3rem 1.5rem; text-align:center; background:var(--surface-raised); border-radius:var(--radius-xl); border:1px solid var(--border);">
-						<div style="font-size:2rem; margin-bottom:0.5rem;">⭐</div>
+						<div style="font-size:2rem; margin-bottom:0.5rem;">@components.IconStar("icon-sm")</div>
 						<h3 style="font-size:1.1rem; font-weight:800; color:var(--text); margin:0 0 0.25rem 0;">مورد معتمد موثق</h3>
 						<p class="text-sm text-muted m-0">لم يتم تسجيل تقييمات مكتوبة بعد. عند استلام طلبيتك القادمة يمكنك إضافة تقييمك للخدمة والتوريد.</p>
 					</div>

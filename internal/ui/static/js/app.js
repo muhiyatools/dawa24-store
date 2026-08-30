@@ -1070,14 +1070,51 @@ function initScrollReveal() {
   targets.forEach(function(el) { observer.observe(el); });
 }
 
+// Leaflet is loaded on demand, not in the document head.
+//
+// It was previously requested by every page in the platform -- roughly 200 KB
+// of CSS, JavaScript and marker images -- for the two screens that draw a map.
+// ensureLeaflet injects it the first time a map element is actually present and
+// resolves immediately on every call after that.
+let leafletPromise = null;
+function ensureLeaflet() {
+  if (typeof L !== 'undefined') return Promise.resolve();
+  if (leafletPromise) return leafletPromise;
+
+  leafletPromise = new Promise(function (resolve, reject) {
+    if (!document.querySelector('link[data-leaflet-css]')) {
+      const css = document.createElement('link');
+      css.rel = 'stylesheet';
+      css.href = '/static/vendor/leaflet/leaflet.css';
+      css.setAttribute('data-leaflet-css', '');
+      document.head.appendChild(css);
+    }
+    const script = document.createElement('script');
+    script.src = '/static/vendor/leaflet/leaflet.js';
+    script.onload = function () { resolve(); };
+    script.onerror = function () {
+      leafletPromise = null;
+      reject(new Error('leaflet failed to load'));
+    };
+    document.head.appendChild(script);
+  });
+  return leafletPromise;
+}
+
 // Universal Leaflet & Interactive Map Engine
 function initMapPickers() {
   const containers = document.querySelectorAll('[data-map-picker]');
   if (!containers.length) return;
 
-  // If Leaflet is not yet defined on window, retry shortly
   if (typeof L === 'undefined') {
-    setTimeout(initMapPickers, 100);
+    ensureLeaflet().then(initMapPickers).catch(function (err) {
+      // A map that cannot load says so, rather than leaving an empty box.
+      containers.forEach(function (container) {
+        if (container.dataset.mapInitialized === 'true') return;
+        container.setAttribute('data-map-failed', 'true');
+      });
+      console.error('map picker:', err);
+    });
     return;
   }
 

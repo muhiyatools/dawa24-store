@@ -2,7 +2,7 @@ package i18n
 
 func loadModulesKeys(e *engine) {
 	// Customer / Pharmacy
-	addKey(e, "customer.branches_title", "customer", "فروع الصيدلية ومواقع الاستلام 📍", "Pharmacy Branches & Delivery Locations 📍", "Branches page header")
+	addKey(e, "customer.branches_title", "customer", "فروع الصيدلية ومواقع الاستلام", "Pharmacy Branches & Delivery Locations", "Branches page header")
 	addKey(e, "customer.branches_sub", "customer", "إدارة فروع الصيدلية ومواقع استلام شحنات الأدوية. يتم استخدام إحداثيات كل فرع لتحديد العروض والموردين الذين يغطون موقعك الجغرافي.", "Manage pharmacy branches and delivery points. Geographic coordinates determine which suppliers cover your area.", "Branches page description")
 	addKey(e, "customer.add_branch", "customer", "+ إضافة فرع جديد", "+ Add New Branch", "Add branch button")
 	addKey(e, "customer.total_branches", "customer", "إجمالي الفروع المسجلة", "Total Registered Branches", "Branch stat label")

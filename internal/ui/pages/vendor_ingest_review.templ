@@ -1,6 +1,7 @@
 package pages
 
 import (
+	"github.com/muhiya/dawa24-store/internal/ui/components"
 	"fmt"
 	"github.com/muhiya/dawa24-store/internal/modules/ingest"
 	"github.com/muhiya/dawa24-store/internal/shared/productmatch"
@@ -17,11 +18,11 @@ templ importReviewStage(view VendorImportView) {
 			</div>
 			<div class="d-flex items-center gap-2">
 				<form method="POST" action={ templ.SafeURL("/vendor/ingest/" + view.Session.PublicID + "/back-settings") }>
-					<button type="submit" class="btn btn-secondary btn-sm font-bold">⚙️ تعديل الإعدادات</button>
+					<button type="submit" class="btn btn-secondary btn-sm font-bold">تعديل الإعدادات</button>
 				</form>
 				<form method="POST" action={ templ.SafeURL("/vendor/ingest/" + view.Session.PublicID + "/cancel") }
 					onsubmit="return confirm('هل أنت متأكد من إلغاء عملية الاستيراد وحذف البيانات المؤقتة؟');">
-					<button type="submit" class="btn btn-ghost btn-sm text-danger font-bold">✕ إلغاء</button>
+					<button type="submit" class="btn btn-ghost btn-sm text-danger font-bold">إلغاء</button>
 				</form>
 			</div>
 		</div>
@@ -93,7 +94,7 @@ templ importReviewStage(view VendorImportView) {
 				class="flex-between items-center flex-wrap gap-3"
 				onsubmit="return confirm('هل تريد تطبيق هذه الكمية على جميع الأصناف في الملف؟');">
 				<div class="d-flex items-center gap-2">
-					<span class="text-base">📦</span>
+					<span class="text-base">@components.IconPackage("icon-sm")</span>
 					<span class="font-extrabold text-xs text-primary">تعيين كمية موحدة لكافة الأصناف في الملف:</span>
 					<span class="text-xs text-muted">(مفيد في حال لم يحتوي ملفك على عمود للكمية)</span>
 				</div>
@@ -181,7 +182,7 @@ templ importReviewStage(view VendorImportView) {
 					</div>
 					if held > 0 {
 						<div class="text-xs mt-2 review-gate-note">
-							⚠️ { fmt.Sprint(held) } صنف لن يُستورد لأنه ما زال «يحتاج مراجعة» أو «غير مطابق».
+							{ fmt.Sprint(held) } صنف لن يُستورد لأنه ما زال «يحتاج مراجعة» أو «غير مطابق».
 							اعتمدها من التبويبات أعلاه — أو اتركها، فلن يُكتب منها شيء.
 						</div>
 					}
@@ -192,7 +193,7 @@ templ importReviewStage(view VendorImportView) {
 					onsubmit="return confirmReviewCommit(this)">
 					<button type="submit" class="btn btn-primary font-black px-6 py-2 text-sm"
 						disabled?={ view.Session.MatchedRows == 0 }>
-						✓ اعتماد وحفظ الأصناف المطابقة
+						اعتماد وحفظ الأصناف المطابقة
 					</button>
 				</form>
 			</div>
@@ -450,18 +451,18 @@ templ reviewBulkBar(view VendorImportView) {
 					<button type="submit" name="bulk_action" value="confirm"
 						class="btn btn-primary btn-sm font-extrabold text-xs"
 						title="اعتماد الصنف المقترح لكل صف محدد ونقله إلى «مطابق» ليُستورد">
-						✓ اعتماد المحدد كمطابق
+						اعتماد المحدد كمطابق
 					</button>
 				}
 				<button type="submit" name="bulk_action" value="unlink"
 					class="btn btn-secondary btn-sm font-bold text-xs"
 					title="إلغاء الربط بالكتالوج عن الصفوف المحددة">
-					⛓ إلغاء الربط
+					إلغاء الربط
 				</button>
 				<button type="submit" name="bulk_action" value="exclude"
 					class="btn btn-ghost btn-sm font-bold text-xs text-danger"
 					title="استبعاد الصفوف المحددة من الاستيراد">
-					✕ استبعاد المحدد
+					استبعاد المحدد
 				</button>
 				<button type="submit" name="bulk_action" value="include"
 					class="btn btn-ghost btn-sm font-bold text-xs"
@@ -474,7 +475,7 @@ templ reviewBulkBar(view VendorImportView) {
 		if scope == "review" || scope == "unmatched" {
 			<div class="review-bulk-hint text-xs">
 				الأصناف في هذا التبويب <strong>لن تُستورد</strong> حتى تعتمدها. راجع الصنف المقترح لكل صف،
-				ألغِ تحديد الصفوف الخاطئة، ثم اضغط «اعتماد المحدد كمطابق» — أو اربط الصف يدوياً بزر «🔍 ربط».
+				ألغِ تحديد الصفوف الخاطئة، ثم اضغط «اعتماد المحدد كمطابق» — أو اربط الصف يدوياً بزر «ربط».
 			</div>
 		}
 	</form>
@@ -549,7 +550,7 @@ templ reviewTableRow(view VendorImportView, row *ingest.RowOutcome) {
 				<input type="text" name="display_name" value={ row.DisplayName }
 					class="form-input" style="padding: 0.35rem 0.6rem; font-size: 0.85rem; max-width: 250px;"
 					placeholder="اسم الصنف بالملف..."/>
-				<button type="submit" class="btn btn-secondary btn-sm px-2" title="حفظ تعديل الاسم">✓</button>
+				<button type="submit" class="btn btn-secondary btn-sm px-2" title="حفظ تعديل الاسم">@components.IconCheck("icon-sm")</button>
 			</form>
 			<div class="row-center-xs flex-wrap gap-xs">
 				if row.SourceCode != "" {
@@ -572,7 +573,7 @@ templ reviewTableRow(view VendorImportView, row *ingest.RowOutcome) {
 					if AIMatchedRow(row) {
 						<span class="badge badge-outline text-xs"
 							style="border-color: var(--primary); color: var(--primary);"
-							title={ aiRowTitle(row) }>🤖 ذكاء اصطناعي</span>
+							title={ aiRowTitle(row) }>ذكاء اصطناعي</span>
 					}
 					<button type="button"
 						data-row-id={ fmt.Sprint(row.ID) }
@@ -580,7 +581,7 @@ templ reviewTableRow(view VendorImportView, row *ingest.RowOutcome) {
 						class="btn btn-ghost btn-xs text-primary"
 						onclick="handleDropdownToggle(this)"
 						title="تغيير الصنف المربوط بالكتالوج">
-						🔄 تغيير
+						تغيير
 					</button>
 				} else {
 					<span class="badge badge-rose text-xs">غير مطابق بالكتالوج</span>
@@ -590,7 +591,7 @@ templ reviewTableRow(view VendorImportView, row *ingest.RowOutcome) {
 						class="btn btn-secondary btn-xs"
 						onclick="handleDropdownToggle(this)"
 						title="بحث وربط بالكتالوج المركزي">
-						🔍 ربط
+						ربط
 					</button>
 					if len(row.Candidates) > 0 {
 						<span class="text-xs text-muted">أقرب: { row.Candidates[0].Name }</span>
@@ -651,7 +652,7 @@ templ reviewTableRow(view VendorImportView, row *ingest.RowOutcome) {
 					<div style="border-top: 1px solid var(--border); padding-top: 0.4rem; margin-top: 0.4rem; text-align: start;">
 						<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/vendor/ingest/%s/rows/%d/match?product_id=0&match=%s&sort=%s&order=%s&page=%d&limit=%d&q=%s", view.Session.PublicID, row.ID, view.Filter.MatchLevel, view.Filter.SortBy, view.Filter.SortOrder, view.Page, view.PerPage, view.Filter.Search)) }>
 							<button type="submit" class="btn btn-ghost btn-xs text-danger w-100 text-start">
-								✕ إلغاء الربط (جعله غير مطابق)
+								إلغاء الربط (جعله غير مطابق)
 							</button>
 						</form>
 					</div>
@@ -695,7 +696,7 @@ templ reviewTableRow(view VendorImportView, row *ingest.RowOutcome) {
 					class="form-input text-center tabular-nums fw-700"
 					style="width: 78px; height: 32px; padding: 0.2rem 0.35rem; font-size: 0.85rem; border-radius: var(--radius-md);"
 					title="تعديل سعر الجمهور"/>
-				<button type="submit" class="btn btn-secondary btn-sm px-2" style="height: 32px; padding: 0 0.45rem;" title="حفظ سعر الجمهور">✓</button>
+				<button type="submit" class="btn btn-secondary btn-sm px-2" style="height: 32px; padding: 0 0.45rem;" title="حفظ سعر الجمهور">@components.IconCheck("icon-sm")</button>
 			</form>
 		</td>
 
@@ -713,7 +714,7 @@ templ reviewTableRow(view VendorImportView, row *ingest.RowOutcome) {
 					class="form-input text-center tabular-nums fw-700"
 					style="width: 70px; height: 32px; padding: 0.2rem 0.35rem; font-size: 0.85rem; border-radius: var(--radius-md);"
 					title="تعديل نسبة الخصم %"/>
-				<button type="submit" class="btn btn-secondary btn-sm px-2" style="height: 32px; padding: 0 0.45rem;" title="حفظ نسبة الخصم">✓</button>
+				<button type="submit" class="btn btn-secondary btn-sm px-2" style="height: 32px; padding: 0 0.45rem;" title="حفظ نسبة الخصم">@components.IconCheck("icon-sm")</button>
 			</form>
 		</td>
 
@@ -744,7 +745,7 @@ templ reviewTableRow(view VendorImportView, row *ingest.RowOutcome) {
 					class="form-input text-center tabular-nums fw-700"
 					style="width: 70px; height: 32px; padding: 0.2rem 0.35rem; font-size: 0.85rem; border-radius: var(--radius-md);"
 					title="تعديل أو إدخال الكمية يدوياً"/>
-				<button type="submit" class="btn btn-secondary btn-sm px-2" style="height: 32px; padding: 0 0.45rem;" title="حفظ الكمية">✓</button>
+				<button type="submit" class="btn btn-secondary btn-sm px-2" style="height: 32px; padding: 0 0.45rem;" title="حفظ الكمية">@components.IconCheck("icon-sm")</button>
 			</form>
 		</td>
 	</tr>

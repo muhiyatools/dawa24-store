@@ -44,7 +44,7 @@ templ AdminTrashListPage(models []ModelMetaEntry, lang, dir string) {
 				<div class="flex-between items-center flex-wrap gap-4">
 					<div class="d-flex items-center gap-3">
 						<div class="user-avatar-badge text-xl">
-							🗑️
+							@components.IconTrash("icon-sm")
 						</div>
 						<div>
 							<h1 class="text-2xl font-black text-primary m-0">سلة المحذوفات واسترجاع البيانات</h1>
@@ -166,7 +166,7 @@ templ AdminTrashListModelPage(modelKey string, rows []TrashRowView, lang, dir st
 				<div class="flex-between items-center flex-wrap gap-4">
 					<div class="d-flex items-center gap-3">
 						<div class="user-avatar-badge text-xl">
-							🗑️
+							@components.IconTrash("icon-sm")
 						</div>
 						<div>
 							<h1 class="text-2xl font-black text-primary m-0">سلة محذوفات: { modelKey } ({ fmt.Sprintf("%d", len(rows)) })</h1>
@@ -186,7 +186,7 @@ templ AdminTrashListModelPage(modelKey string, rows []TrashRowView, lang, dir st
 			<div class="glass-panel p-0 mb-6 overflow-hidden">
 				if len(rows) == 0 {
 					<div class="p-8 text-center empty-state-glass">
-						<div class="text-4xl mb-3">🗑️</div>
+						<div class="text-4xl mb-3">@components.IconTrash("icon-sm")</div>
 						<h3 class="text-lg font-black text-primary mb-2">سلة هذا القسم فارغة تماماً</h3>
 						<p class="text-sm text-secondary max-w-md mx-auto">لا توجد سجلات محذوفة مؤقتاً في هذا النموذج حالياً.</p>
 					</div>

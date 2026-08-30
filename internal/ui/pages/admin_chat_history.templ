@@ -28,7 +28,7 @@ templ AdminChatHistoryPage(data AdminChatHistoryData, lang, dir string) {
 				<div class="flex-between items-center flex-wrap gap-4">
 					<div class="d-flex items-center gap-3">
 						<div class="user-avatar-badge text-xl">
-							✨
+							@components.IconSparkles("icon-sm")
 						</div>
 						<div>
 							<h1 class="text-2xl font-black text-primary m-0">سجلات محادثات المساعد الذكي كبسولة AI</h1>
@@ -92,7 +92,7 @@ templ AdminChatHistoryPage(data AdminChatHistoryData, lang, dir string) {
 			<div class="glass-panel p-0 mb-6 overflow-hidden">
 				if len(data.AIConvs) == 0 {
 					<div class="p-8 text-center empty-state-glass">
-						<div class="text-4xl mb-3">✨</div>
+						<div class="text-4xl mb-3">@components.IconSparkles("icon-sm")</div>
 						<h3 class="text-lg font-black text-primary mb-2">لا توجد جلسات مطابقة</h3>
 						<p class="text-sm text-secondary max-w-md mx-auto">لم يتم العثور على أي جلسات محادثة للذكاء الاصطناعي تطابق معايير البحث.</p>
 					</div>
@@ -204,9 +204,9 @@ templ AdminAIChatDetailPage(summary *assistant.ConversationSummary, msgs []*assi
 							}
 						</h1>
 						<div class="d-flex items-center gap-3 flex-wrap text-xs text-secondary">
-							<div>👤 <strong>المستخدم:</strong> { summary.UserName } <span class="tabular-nums" dir="ltr">({ summary.UserEmail })</span></div>
-							<div>🏢 <strong>المنشأة:</strong> { summary.OrganizationName } <span class="tabular-nums">(#{ fmt.Sprintf("%d", summary.OrganizationID) })</span></div>
-							<div>📅 <strong>البدء:</strong> <span class="tabular-nums">{ summary.CreatedAt.Format("2006-01-02 15:04") }</span></div>
+							<div><strong>المستخدم:</strong> { summary.UserName } <span class="tabular-nums" dir="ltr">({ summary.UserEmail })</span></div>
+							<div><strong>المنشأة:</strong> { summary.OrganizationName } <span class="tabular-nums">(#{ fmt.Sprintf("%d", summary.OrganizationID) })</span></div>
+							<div><strong>البدء:</strong> <span class="tabular-nums">{ summary.CreatedAt.Format("2006-01-02 15:04") }</span></div>
 							<div>⏱️ <strong>آخر نشاط:</strong> <span class="tabular-nums">{ summary.UpdatedAt.Format("2006-01-02 15:04") }</span></div>
 						</div>
 					</div>
@@ -240,7 +240,7 @@ templ AdminAIChatDetailPage(summary *assistant.ConversationSummary, msgs []*assi
 			<div class="glass-panel p-6 mb-0">
 				<div class="flex-between items-center pb-3 mb-4 border-b">
 					<div class="d-flex items-center gap-2">
-						<span class="text-lg">📜</span>
+						<span class="text-lg">@components.IconFileText("icon-sm")</span>
 						<h2 class="text-base font-black text-primary m-0">
 							سجل الحوار والرسائل الكامل (Full Transcript)
 						</h2>
@@ -250,7 +250,7 @@ templ AdminAIChatDetailPage(summary *assistant.ConversationSummary, msgs []*assi
 
 				if len(msgs) == 0 {
 					<div class="p-12 text-center empty-state-glass">
-						<div class="text-4xl mb-3">💬</div>
+						<div class="text-4xl mb-3">@components.IconMessageSquare("icon-sm")</div>
 						<h3 class="text-lg font-black text-primary mb-2">لا توجد رسائل مسجلة</h3>
 						<p class="text-xs text-secondary max-w-md mx-auto">هذه الجلسة لا تحتوي على رسائل مسجلة.</p>
 					</div>
@@ -263,7 +263,7 @@ templ AdminAIChatDetailPage(summary *assistant.ConversationSummary, msgs []*assi
 									<div class="p-4 bg-surface-sunken border rounded-2xl" style="max-width: 85%;">
 										<div class="flex-between items-center gap-4 mb-2 pb-1 border-b text-xs text-muted">
 											<div class="d-flex items-center gap-1.5 font-extrabold text-primary">
-												<span>👤</span>
+												<span>@components.IconUser("icon-sm")</span>
 												<span>{ summary.UserName }</span>
 											</div>
 											<span class="tabular-nums font-mono">{ m.CreatedAt.Format("15:04:05") }</span>
@@ -285,7 +285,7 @@ templ AdminAIChatDetailPage(summary *assistant.ConversationSummary, msgs []*assi
 														}
 														<div class="p-2 text-xs text-secondary flex-between gap-2">
 															<span class="font-bold truncate" title={ att.Filename }>
-																📎 { att.Filename }
+																{ att.Filename }
 															</span>
 															if att.SizeMB > 0 {
 																<span class="text-muted tabular-nums font-mono">{ fmt.Sprintf("%.2f MB", att.SizeMB) }</span>
@@ -303,7 +303,7 @@ templ AdminAIChatDetailPage(summary *assistant.ConversationSummary, msgs []*assi
 									<div class="p-4 bg-surface-raised border rounded-2xl w-full">
 										<div class="flex-between items-center gap-4 mb-2 pb-2 border-b text-xs">
 											<div class="d-flex items-center gap-2">
-												<span class="badge badge-sky text-xs font-black">🤖 كبسولة AI</span>
+												<span class="badge badge-sky text-xs font-black">كبسولة AI</span>
 												if m.ModelRole != "" {
 													<span class="badge badge-slate text-xs font-mono">{ m.ModelRole }</span>
 												}

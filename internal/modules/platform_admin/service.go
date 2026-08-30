@@ -580,4 +580,3 @@ func (s *Service) ListAuditLogByOrg(ctx context.Context, orgID int64, limit, off
 func (s *Service) ListAuditLogWithFilter(ctx context.Context, filter AuditLogFilter) ([]*AuditEntry, int, error) {
 	return s.repo.ListAuditLogWithFilter(ctx, filter)
 }
-

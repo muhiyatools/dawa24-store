@@ -1,6 +1,8 @@
 package ui
 
 import (
+	"time"
+
 	"crypto/rand"
 	"encoding/hex"
 	"fmt"
@@ -47,10 +49,7 @@ func (h *UIHandler) VendorTeamImportPage(w http.ResponseWriter, r *http.Request)
 		NoticeMsg:  noticeMsg,
 	}
 
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	if err := pages.TeamImportPage(view, lang, dir).Render(ctx, w); err != nil {
-		h.log.ErrorContext(ctx, "render vendor team import", "error", err)
-	}
+	h.renderPage(ctx, w, "render vendor team import", pages.TeamImportPage(view, lang, dir))
 }
 
 // VendorTeamImportUploadSubmit handles file upload and creates new employee import session for vendor.
@@ -226,10 +225,7 @@ func (h *UIHandler) VendorTeamImportSessionPage(w http.ResponseWriter, r *http.R
 		NoticeMsg:  noticeMsg,
 	}
 
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	if err := pages.TeamImportPage(view, lang, dir).Render(ctx, w); err != nil {
-		h.log.ErrorContext(ctx, "render vendor team import session", "error", err)
-	}
+	h.renderPage(ctx, w, "render vendor team import session", pages.TeamImportPage(view, lang, dir))
 }
 
 // VendorTeamImportMapSubmit saves user column mappings and role mappings, then builds review rows.
@@ -313,7 +309,7 @@ func (h *UIHandler) VendorTeamImportMapSubmit(w http.ResponseWriter, r *http.Req
 
 	session.Rows = parsedRows
 	session.Phase = pages.TeamPhaseReview
-	session.UpdatedAt = session.UpdatedAt
+	session.UpdatedAt = time.Now()
 
 	http.Redirect(w, r, fmt.Sprintf("/vendor/team/import/%s", sessionID), http.StatusSeeOther)
 }
@@ -442,10 +438,7 @@ func (h *UIHandler) VendorTeamFastAddPage(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	if err := pages.VendorTeamFastAddPage(lang, dir).Render(ctx, w); err != nil {
-		h.log.ErrorContext(ctx, "render vendor team fast add", "error", err)
-	}
+	h.renderPage(ctx, w, "render vendor team fast add", pages.VendorTeamFastAddPage(lang, dir))
 }
 
 // VendorTeamUserDetailPage renders single employee profile and assigned permissions.
@@ -466,10 +459,7 @@ func (h *UIHandler) VendorTeamUserDetailPage(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	if err := pages.VendorTeamUserDetailPage(empID, lang, dir).Render(ctx, w); err != nil {
-		h.log.ErrorContext(ctx, "render vendor team user detail", "error", err)
-	}
+	h.renderPage(ctx, w, "render vendor team user detail", pages.VendorTeamUserDetailPage(empID, lang, dir))
 }
 
 // VendorTeamUserInfoPage renders employee audit information.

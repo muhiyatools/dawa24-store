@@ -65,10 +65,7 @@ func (h *UIHandler) AboutPage(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	if err := pages.AboutPage(lang, dir, data).Render(ctx, w); err != nil {
-		h.log.ErrorContext(ctx, "render about page", "error", err)
-	}
+	h.renderPage(ctx, w, "render about page", pages.AboutPage(lang, dir, data))
 }
 
 // HowItWorksPage renders the how-it-works content block.
@@ -89,10 +86,7 @@ func (h *UIHandler) FaqPage(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	if err := pages.FAQPage(lang, dir, customTitle, customSubtitle).Render(ctx, w); err != nil {
-		h.log.ErrorContext(ctx, "render faq page", "error", err)
-	}
+	h.renderPage(ctx, w, "render faq page", pages.FAQPage(lang, dir, customTitle, customSubtitle))
 }
 
 // renderPolicy renders a published legal document by slug.
@@ -153,10 +147,7 @@ func (h *UIHandler) AdminContentPage(w http.ResponseWriter, r *http.Request) {
 		blocks, _ = h.adminSvc.ListContentBlocks(database.AsSystem(ctx))
 	}
 
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	if err := pages.AdminContent(lang, dir, blocks).Render(ctx, w); err != nil {
-		h.log.ErrorContext(ctx, "render admin content", "error", err)
-	}
+	h.renderPage(ctx, w, "render admin content", pages.AdminContent(lang, dir, blocks))
 }
 
 // AdminContentSubmit creates or updates a CMS block or highlight section.

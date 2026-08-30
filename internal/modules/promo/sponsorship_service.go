@@ -159,15 +159,15 @@ func (s *Service) SubmitSponsorshipRequest(ctx context.Context, itemType Sponsor
 
 	sr := &SponsorshipRequest{
 		OrganizationID: orgID,
-		PurchaseID:      &purchase.ID,
-		PackageID:       packageID,
-		ItemType:        itemType,
-		ItemID:          itemID,
-		CreditsUsed:     1,
-		AdminStatus:     AdminPending,
-		Status:          SRSPending,
-		StartsAt:        now,
-		ExpiresAt:       expiresAt,
+		PurchaseID:     &purchase.ID,
+		PackageID:      packageID,
+		ItemType:       itemType,
+		ItemID:         itemID,
+		CreditsUsed:    1,
+		AdminStatus:    AdminPending,
+		Status:         SRSPending,
+		StartsAt:       now,
+		ExpiresAt:      expiresAt,
 	}
 
 	if err := s.repo.CreateSponsorshipRequest(ctx, sr); err != nil {

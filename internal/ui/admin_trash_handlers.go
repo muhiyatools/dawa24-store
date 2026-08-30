@@ -45,10 +45,7 @@ func (h *UIHandler) AdminTrashListPage(w http.ResponseWriter, r *http.Request) {
 		})
 	}
 
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	if err := pages.AdminTrashListPage(entries, lang, dir).Render(ctx, w); err != nil {
-		h.log.ErrorContext(ctx, "render admin trash list", "error", err)
-	}
+	h.renderPage(ctx, w, "render admin trash list", pages.AdminTrashListPage(entries, lang, dir))
 }
 
 // AdminTrashListModelPage lists the deleted rows of one table.
@@ -73,10 +70,7 @@ func (h *UIHandler) AdminTrashListModelPage(w http.ResponseWriter, r *http.Reque
 		items = append(items, pages.TrashRowView{ID: row.ID, Label: row.Label, DeletedAt: row.DeletedAt})
 	}
 
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	if err := pages.AdminTrashListModelPage(modelKey, items, lang, dir).Render(ctx, w); err != nil {
-		h.log.ErrorContext(ctx, "render admin trash list model", "error", err)
-	}
+	h.renderPage(ctx, w, "render admin trash list model", pages.AdminTrashListModelPage(modelKey, items, lang, dir))
 }
 
 // AdminTrashRestoreSubmit clears deleted_at on one row.

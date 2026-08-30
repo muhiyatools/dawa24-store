@@ -97,7 +97,7 @@ templ importUploadStage(view VendorImportView) {
 			</p>
 			<label class="wiz-drop" id="import-drop">
 				<input type="file" name="file" accept=".xlsx,.xls,.csv,.txt" required id="import-file-input"/>
-				<span class="wiz-drop-icon" aria-hidden="true">📤</span>
+				<span class="wiz-drop-icon" aria-hidden="true">@components.IconUpload("icon-sm")</span>
 				<span class="wiz-drop-title" id="import-drop-title">اسحب الملف إلى هنا أو اضغط للاختيار</span>
 				<span class="wiz-drop-text" id="import-drop-text">الحد الأقصى 25 ميجابايت</span>
 			</label>
@@ -127,7 +127,7 @@ templ importUploadStage(view VendorImportView) {
 			input.addEventListener('change', function () {
 				if (!this.files || !this.files[0]) return;
 				const f = this.files[0];
-				title.textContent = '✓ ' + f.name;
+				title.textContent = '' + f.name;
 				text.textContent = 'الحجم: ' + (f.size / 1048576).toFixed(2) + ' ميجابايت — جاهز للتحليل';
 				drop.classList.add('is-over');
 			});
@@ -152,7 +152,7 @@ templ importHistory(recent []*ingest.Session) {
 	<div class="card">
 		<h2 class="wiz-head">عمليات الاستيراد السابقة</h2>
 		<div class="table-wrap">
-			<table class="table">
+			<table class="data-table">
 				<thead>
 					<tr>
 						<th>الملف</th>

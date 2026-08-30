@@ -20,7 +20,7 @@ templ SettingsEmployees(employees []*org.EmployeeView, branches []*org.Branch, r
 			<div style="background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-2xl); padding:1.5rem 1.75rem; display:flex; justify-content:space-between; align-items:center; gap:1rem; flex-wrap:wrap;">
 				<div style="display:flex; align-items:center; gap:1rem;">
 					<div style="width:48px; height:48px; border-radius:var(--radius-xl); background:var(--accent-subtle); border:1px solid var(--accent); color:var(--accent); display:flex; align-items:center; justify-content:center; font-size:1.4rem;">
-						👥
+						@components.IconUsers("icon-sm")
 					</div>
 					<div>
 						<h1 style="margin:0; font-size:1.45rem; font-weight:800; color:var(--text);">
@@ -34,7 +34,7 @@ templ SettingsEmployees(employees []*org.EmployeeView, branches []*org.Branch, r
 
 				<div class="row-center">
 					<a href="/vendor/roles" class="btn btn-secondary btn-sm fw-700">
-						<span>⚙️ إدارة الأدوار والصلاحيات</span>
+						<span>إدارة الأدوار والصلاحيات</span>
 					</a>
 					<a href="#new-employee-panel" class="btn btn-primary btn-sm fw-700">
 						@components.IconPlus("icon-xs")
@@ -48,7 +48,7 @@ templ SettingsEmployees(employees []*org.EmployeeView, branches []*org.Branch, r
 				<div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--border); padding-bottom:1rem; margin-bottom:1.25rem;">
 					<div class="row-center">
 						<div style="width:36px; height:36px; border-radius:var(--radius-lg); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center; font-size:1.1rem;">
-							👤
+							@components.IconUser("icon-sm")
 						</div>
 						<div>
 							<h2 class="text-lg fw-800 text-primary m-0">
@@ -285,7 +285,7 @@ templ SettingsEmployees(employees []*org.EmployeeView, branches []*org.Branch, r
 							</thead>
 							<tbody style="divide-y:1px solid var(--border);">
 								for _, emp := range employees {
-									<tr style="border-bottom:1px solid var(--border);">
+									<tr class="rule-bottom">
 										<td style="padding:0.9rem 1rem;">
 											<div class="fw-800 text-primary">{ emp.UserName }</div>
 											<div style="font-size:0.775rem; color:var(--text-muted);" class="tabular-nums">{ emp.UserEmail } • { emp.UserPhone }</div>

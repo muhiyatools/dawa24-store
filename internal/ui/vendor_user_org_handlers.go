@@ -114,10 +114,7 @@ func (h *UIHandler) VendorUserOrganizationsPage(w http.ResponseWriter, r *http.R
 		}
 	}
 
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	if err := pages.VendorUserOrganizationsPage(lang, dir, data).Render(ctx, w); err != nil {
-		h.log.ErrorContext(ctx, "render vendor user organizations", "error", err)
-	}
+	h.renderPage(ctx, w, "render vendor user organizations", pages.VendorUserOrganizationsPage(lang, dir, data))
 }
 
 // VendorUserOrganizationCreateSubmit creates and immediately approves a customer link.

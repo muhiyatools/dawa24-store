@@ -122,9 +122,9 @@ templ CustomerOrderDetail(order *commerce.Order, history []*commerce.OrderStatus
 				>
 					<div class="d-flex items-center gap-2">
 						if noticeType == "error" {
-							<span>⚠️</span>
+							<span>@components.IconAlert("icon-sm")</span>
 						} else {
-							<span>✓</span>
+							<span>@components.IconCheck("icon-sm")</span>
 						}
 						<span class="font-bold">{ noticeMsg }</span>
 					</div>
@@ -144,7 +144,7 @@ templ CustomerOrderDetail(order *commerce.Order, history []*commerce.OrderStatus
 						</nav>
 						<div class="d-flex items-center gap-3 flex-wrap">
 							<div class="user-avatar-badge text-xl">
-								📦
+								@components.IconPackage("icon-sm")
 							</div>
 							<h1 class="text-2xl font-black text-primary m-0 tabular-nums">
 								طلب توريد #{ order.OrderNumber }
@@ -192,7 +192,7 @@ templ CustomerOrderDetail(order *commerce.Order, history []*commerce.OrderStatus
 					<div class="glass-panel p-6 mb-0">
 						<div class="flex-between items-center mb-6 pb-3 border-b flex-wrap gap-2">
 							<div class="d-flex items-center gap-2">
-								<span class="text-xl">🚚</span>
+								<span class="text-xl">@components.IconTruck("icon-sm")</span>
 								<h2 class="text-base font-extrabold text-primary m-0">
 									مسار ومراحل التوريد
 								</h2>
@@ -212,7 +212,7 @@ templ CustomerOrderDetail(order *commerce.Order, history []*commerce.OrderStatus
 							<!-- Step 1: Placed -->
 							<div class="order-step-item">
 								<div class="order-step-badge done">
-									✓
+									@components.IconCheck("icon-sm")
 								</div>
 								<div class="font-extrabold text-xs text-primary">تم استلام الطلب</div>
 								<div class="text-xs text-muted mt-1 tabular-nums">
@@ -224,11 +224,11 @@ templ CustomerOrderDetail(order *commerce.Order, history []*commerce.OrderStatus
 							<div class="order-step-item">
 								if isStepDone(order.Status, 2) {
 									<div class="order-step-badge done">
-										✓
+										@components.IconCheck("icon-sm")
 									</div>
 								} else {
 									<div class="order-step-badge pending">
-										📦
+										@components.IconPackage("icon-sm")
 									</div>
 								}
 								<div class="font-extrabold text-xs text-primary">التجهيز المخزني</div>
@@ -239,11 +239,11 @@ templ CustomerOrderDetail(order *commerce.Order, history []*commerce.OrderStatus
 							<div class="order-step-item">
 								if isStepDone(order.Status, 3) {
 									<div class="order-step-badge done">
-										✓
+										@components.IconCheck("icon-sm")
 									</div>
 								} else {
 									<div class="order-step-badge pending">
-										🚚
+										@components.IconTruck("icon-sm")
 									</div>
 								}
 								<div class="font-extrabold text-xs text-primary">الشحن والتوصيل</div>
@@ -254,11 +254,11 @@ templ CustomerOrderDetail(order *commerce.Order, history []*commerce.OrderStatus
 							<div class="order-step-item">
 								if isStepDone(order.Status, 4) {
 									<div class="order-step-badge completed">
-										✓
+										@components.IconCheck("icon-sm")
 									</div>
 								} else {
 									<div class="order-step-badge pending">
-										🏥
+										@components.IconBuilding("icon-sm")
 									</div>
 								}
 								<div class="font-extrabold text-xs text-primary">تم الاستلام</div>
@@ -271,7 +271,7 @@ templ CustomerOrderDetail(order *commerce.Order, history []*commerce.OrderStatus
 					<div class="glass-panel p-6 mb-0" id="order-lines-container">
 						<div class="flex-between items-center mb-4 flex-wrap gap-3 pb-3 border-b">
 							<div class="d-flex items-center gap-2">
-								<span class="text-xl">💊</span>
+								<span class="text-xl">@components.IconPill("icon-sm")</span>
 								<h2 class="text-base font-extrabold text-primary m-0">
 									الأصناف والشحنات الدوائية المطلوبة
 								</h2>
@@ -279,14 +279,14 @@ templ CustomerOrderDetail(order *commerce.Order, history []*commerce.OrderStatus
 							<div class="d-flex items-center gap-2 flex-wrap">
 								if order.Status == commerce.StatusPending {
 									<span class="badge badge-amber text-xs font-black">
-										<span>✏️ تعديل الكميات متاح ومحفوظ في قاعدة البيانات</span>
+										<span>تعديل الكميات متاح ومحفوظ في قاعدة البيانات</span>
 									</span>
 									<button type="button" class="btn btn-secondary btn-xs font-bold gap-1" onclick="window.openOrderEditModal()">
-										<span>➕ إضافة / حذف صنف</span>
+										<span>إضافة / حذف صنف</span>
 									</button>
 								} else {
 									<span class="badge badge-slate text-xs font-bold" title="لا يمكن تعديل الطلب بعد قبوله أو معالجته من المورد">
-										<span>🔒 الطلب مؤكد ولا يمكن تعديله</span>
+										<span>الطلب مؤكد ولا يمكن تعديله</span>
 									</span>
 								}
 								<span class="badge badge-sky text-xs font-bold">
@@ -320,7 +320,7 @@ templ CustomerOrderDetail(order *commerce.Order, history []*commerce.OrderStatus
 																(رقم الشحنة: <span class="tabular-nums font-mono">{ sh.ShipmentNumber }</span>)
 															</span>
 														</div>
-														<div style="display:flex; align-items:center; gap:0.5rem;">
+														<div class="d-flex items-center gap-2">
 															if sh.TrackingNumber != "" {
 																<span class="badge badge-slate text-xs font-mono">بوليصة: { sh.TrackingNumber }</span>
 															}
@@ -420,7 +420,7 @@ templ CustomerOrderDetail(order *commerce.Order, history []*commerce.OrderStatus
 																		</td>
 																		<td class="text-center">
 																			<button type="button" class="btn btn-secondary btn-icon btn-sm text-danger" onclick="deleteRowLine(this)" title="حذف الصنف من الطلب">
-																				✕
+																				@components.IconX("icon-sm")
 																			</button>
 																		</td>
 																	</tr>
@@ -524,7 +524,7 @@ templ CustomerOrderDetail(order *commerce.Order, history []*commerce.OrderStatus
 															</td>
 															<td class="text-center">
 																<button type="button" class="btn btn-secondary btn-icon btn-sm text-danger" onclick="deleteRowLine(this)" title="حذف الصنف من الطلب">
-																	✕
+																	@components.IconX("icon-sm")
 																</button>
 															</td>
 														</tr>
@@ -537,14 +537,14 @@ templ CustomerOrderDetail(order *commerce.Order, history []*commerce.OrderStatus
 									<!-- Save Edits Action Bar -->
 									<div class="glass-panel p-4 flex-between items-center mt-4 flex-wrap gap-3 border-brand-subtle" style="background:var(--surface-raised);">
 										<div class="d-flex items-center gap-3 text-xs text-secondary flex-wrap">
-											<span class="badge badge-amber font-bold">⚠️ قيد المراجعة</span>
+											<span class="badge badge-amber font-bold">قيد المراجعة</span>
 											<span>تم تعديل الكميات مباشرة: سيتم حفظ التعديلات وإعادة حساب الإجمالي الصافي فوراً.</span>
 											<span class="text-brand font-black ms-2 tabular-nums" style="font-size:0.95rem;">الإجمالي الصافي: <span id="form-bar-total">{ order.TotalAmount.String() } ج.م</span></span>
 										</div>
 										<div class="d-flex items-center gap-2">
 											<button type="submit" id="save-order-lines-btn" class="btn btn-primary font-bold text-xs px-5 py-2 gap-2 shadow-sm">
 												@components.IconCheck("icon-xs")
-												<span>💾 حفظ تعديلات الكميات وتحديث الفاتورة</span>
+												<span>حفظ تعديلات الكميات وتحديث الفاتورة</span>
 											</button>
 										</div>
 									</div>
@@ -658,7 +658,7 @@ templ CustomerOrderDetail(order *commerce.Order, history []*commerce.OrderStatus
 					if len(history) > 0 {
 						<div class="glass-panel p-6 mb-0">
 							<div class="d-flex items-center gap-2 mb-4 pb-3 border-b">
-								<span class="text-xl">📜</span>
+								<span class="text-xl">@components.IconFileText("icon-sm")</span>
 								<h2 class="text-base font-extrabold text-primary m-0">
 									سجل حركات وتحديثات الطلب
 								</h2>
@@ -761,7 +761,7 @@ templ CustomerOrderDetail(order *commerce.Order, history []*commerce.OrderStatus
 								<div class="flex-between items-center">
 									<span class="text-muted">حالة السداد:</span>
 									if order.PaymentStatus == commerce.PaymentPaid {
-										<span class="text-emerald font-bold">✓ مدفوع بالكامل</span>
+										<span class="text-emerald font-bold">مدفوع بالكامل</span>
 									} else {
 										<span class="text-amber font-bold">مستحق عند الاستلام</span>
 									}
@@ -781,7 +781,7 @@ templ CustomerOrderDetail(order *commerce.Order, history []*commerce.OrderStatus
 									</a>
 								} else {
 									<div class="bg-surface-sunken border border-dashed rounded-lg p-3 text-center text-xs text-muted">
-										<span>🔒 تتاح طباعة الفاتورة فور تأكيد وقبول المورد للطلب</span>
+										<span>تتاح طباعة الفاتورة فور تأكيد وقبول المورد للطلب</span>
 									</div>
 								}
 							</div>
@@ -791,7 +791,7 @@ templ CustomerOrderDetail(order *commerce.Order, history []*commerce.OrderStatus
 					<!-- 2. Pharmacy Receiving Branch Card -->
 					<div class="glass-panel p-6 mb-0">
 						<div class="d-flex items-center gap-2 mb-4 pb-3 border-b">
-							<span class="text-xl">🏥</span>
+							<span class="text-xl">@components.IconBuilding("icon-sm")</span>
 							<h2 class="text-base font-extrabold text-primary m-0">
 								بيانات فرع الاستلام
 							</h2>
@@ -865,7 +865,7 @@ templ CustomerOrderDetail(order *commerce.Order, history []*commerce.OrderStatus
 						<!-- Header -->
 						<div class="flex-between items-center p-6 border-b">
 							<div class="d-flex items-center gap-3">
-								<span class="text-2xl">✏️</span>
+								<span class="text-2xl">@components.IconEdit("icon-sm")</span>
 								<div>
 									<h3 class="text-lg font-black text-primary m-0">
 										تعديل أصناف وكميات الطلب #{ order.OrderNumber }
@@ -944,7 +944,7 @@ templ CustomerOrderDetail(order *commerce.Order, history []*commerce.OrderStatus
 												</td>
 												<td class="text-center">
 													<button type="button" class="btn btn-secondary btn-icon btn-sm text-danger" title="حذف الصنف" onclick="window.deleteEditRow(this)">
-														🗑️
+														@components.IconTrash("icon-sm")
 													</button>
 												</td>
 											</tr>
@@ -956,7 +956,7 @@ templ CustomerOrderDetail(order *commerce.Order, history []*commerce.OrderStatus
 							<!-- Button to add new line row -->
 							<div class="d-flex justify-start">
 								<button type="button" class="btn btn-secondary btn-sm font-bold gap-1 border-dashed" onclick="window.addNewEditRow()">
-									<span>➕ إضافة صنف جديد يدوياً للطلب</span>
+									<span>إضافة صنف جديد يدوياً للطلب</span>
 								</button>
 							</div>
 
@@ -1206,7 +1206,7 @@ templ CustomerOrderDetail(order *commerce.Order, history []*commerce.OrderStatus
 							</td>
 							<td style="padding:0.65rem 0.5rem; text-align:center;">
 								<button type="button" class="btn btn-secondary btn-icon" title="حذف الصنف" onclick="window.deleteEditRow(this)" style="width:28px; height:28px; padding:0; border-radius:var(--radius-md); color:var(--rose);">
-									🗑️
+									@components.IconTrash("icon-sm")
 								</button>
 							</td>
 						`;

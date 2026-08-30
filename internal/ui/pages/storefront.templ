@@ -39,25 +39,25 @@ func sectionTypeLabel(t string) string {
 func sectionTypeIcon(t string) string {
 	switch t {
 	case "vision", "goals":
-		return "🎯"
+		return ""
 	case "about":
-		return "🏢"
+		return ""
 	case "why_us":
-		return "⭐"
+		return ""
 	case "features":
-		return "✨"
+		return ""
 	case "services":
-		return "🛠️"
+		return ""
 	case "achievements":
-		return "🏆"
+		return ""
 	case "certifications":
-		return "📜"
+		return ""
 	case "stats":
-		return "📊"
+		return ""
 	case "special_info":
-		return "💡"
+		return ""
 	default:
-		return "📌"
+		return ""
 	}
 }
 
@@ -104,7 +104,7 @@ templ VendorStorefront(lang, dir string, sections []*promo.HighlightSection) {
 					<div>
 						<div class="d-flex items-center gap-3 mb-1">
 							<div class="user-avatar-badge text-xl">
-								🌟
+								@components.IconStar("icon-sm")
 							</div>
 							<h1 class="text-2xl font-black text-primary m-0">
 								الأقسام المميزة ونبذة المنشأة
@@ -136,7 +136,7 @@ templ VendorStorefront(lang, dir string, sections []*promo.HighlightSection) {
 
 				if len(sections) == 0 {
 					<div class="p-12 text-center empty-state-glass">
-						<div class="text-4xl mb-3">📋</div>
+						<div class="text-4xl mb-3">@components.IconFileText("icon-sm")</div>
 						<h3 class="text-lg font-black text-primary mb-2">لا توجد أقسام مميزة بعد</h3>
 						<p class="text-xs text-secondary max-w-md mx-auto mb-4">
 							قم بإضافة أقسام تعريفية كـ "رؤيتنا"، "شهادات الاعتماد"، أو "خدماتنا" لتظهر بأزرار تفاعلية أنيقة على بروفايلك العام أمام الصيدليات.
@@ -232,10 +232,10 @@ templ VendorStorefront(lang, dir string, sections []*promo.HighlightSection) {
 				>
 					<div class="flex-between items-center mb-4 pb-3 border-b">
 						<div class="d-flex items-center gap-2">
-							<span class="text-xl">🌟</span>
+							<span class="text-xl">@components.IconStar("icon-sm")</span>
 							<h3 class="text-lg font-black text-primary m-0" x-text="modalMode === 'add' ? 'إضافة قسم مميز جديد للبروفايل' : 'تعديل بيانات القسم المميز'"></h3>
 						</div>
-						<button type="button" @click="isModalOpen = false" class="btn btn-secondary btn-icon btn-sm">✕</button>
+						<button type="button" @click="isModalOpen = false" class="btn btn-secondary btn-icon btn-sm">@components.IconX("icon-sm")</button>
 					</div>
 
 					<form :action="modalMode === 'add' ? '/vendor/storefront/section' : '/vendor/storefront/section/' + currentSection.id" method="POST" class="d-flex flex-col gap-4 m-0">

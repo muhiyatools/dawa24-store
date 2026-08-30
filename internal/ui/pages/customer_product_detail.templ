@@ -39,7 +39,7 @@ templ CustomerProductDetail(product *catalog.Product, variants []*catalog.Produc
 							<img src={ product.Image } alt={ productTitle(product) } style="max-height:200px; max-width:100%; object-fit:contain;" />
 						} else {
 							<div class="user-avatar-badge text-3xl mb-3" style="width:80px; height:80px;">
-								💊
+								@components.IconPill("icon-sm")
 							</div>
 							<div class="font-extrabold text-sm text-primary">العبوة الرسمية المسجلة</div>
 							<span class="text-xs text-muted">مطابق لمعايير هيئة الدواء</span>
@@ -131,7 +131,7 @@ templ CustomerProductDetail(product *catalog.Product, variants []*catalog.Produc
 						<div class="flex-between items-center pb-3 border-b">
 							<div class="d-flex items-center gap-2">
 								<div class="user-avatar-badge text-sm">
-									🏢
+									@components.IconBuilding("icon-sm")
 								</div>
 								<div>
 									<div class="text-xs font-extrabold text-primary">
@@ -146,7 +146,7 @@ templ CustomerProductDetail(product *catalog.Product, variants []*catalog.Produc
 							</div>
 
 							if offers[0].IsVerified {
-								<span class="badge badge-emerald text-xs font-bold">معتمد ✓</span>
+								<span class="badge badge-emerald text-xs font-bold">معتمد </span>
 							}
 						</div>
 
@@ -202,12 +202,12 @@ templ CustomerProductDetail(product *catalog.Product, variants []*catalog.Produc
 						<div>
 							if offers[0].IsCovered {
 								<div class="p-2 px-3 rounded-lg bg-emerald-subtle border border-emerald text-emerald text-xs font-bold d-flex items-center gap-2">
-									<span>🚚</span>
+									<span>@components.IconTruck("icon-sm")</span>
 									<span>مشمول بالتغطية والتوصيل لفرعك</span>
 								</div>
 							} else {
 								<div class="p-2 px-3 rounded-lg bg-danger-subtle border border-danger text-danger text-xs font-bold d-flex items-center gap-2">
-									<span>⚠️</span>
+									<span>@components.IconAlert("icon-sm")</span>
 									<span>
 										if offers[0].CoverageReason != "" {
 											{ offers[0].CoverageReason }
@@ -252,7 +252,7 @@ templ CustomerProductDetail(product *catalog.Product, variants []*catalog.Produc
 						}
 					} else {
 						<div class="text-center p-6 text-muted">
-							<div class="text-3xl mb-2">📦</div>
+							<div class="text-3xl mb-2">@components.IconPackage("icon-sm")</div>
 							<div class="font-bold text-xs text-primary">لا توجد عروض توريد نشطة</div>
 							<p class="text-xs text-secondary mt-1">
 								لم يقم أي مورد بإدراج عروض لهذا الصنف حالياً.
@@ -295,7 +295,7 @@ templ CustomerProductDetail(product *catalog.Product, variants []*catalog.Produc
 											<div class="font-bold text-primary text-xs">
 												{ off.SupplierName }
 												if off.IsVerified {
-													<span class="text-success ms-1">✓</span>
+													<span class="text-success ms-1">@components.IconCheck("icon-sm")</span>
 												}
 											</div>
 											if off.BranchName != "" {

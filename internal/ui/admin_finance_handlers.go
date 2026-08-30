@@ -133,10 +133,7 @@ func (h *UIHandler) AdminFinancePage(w http.ResponseWriter, r *http.Request) {
 		SelectedWalletID:     walletID,
 	}
 
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	if err := pages.AdminFinance(data, lang, dir).Render(ctx, w); err != nil {
-		h.log.ErrorContext(ctx, "render admin finance page", "error", err)
-	}
+	h.renderPage(ctx, w, "render admin finance page", pages.AdminFinance(data, lang, dir))
 }
 
 // AdminDepositApproveSubmit approves a pending deposit request and credits the user's wallet.
@@ -271,10 +268,7 @@ func (h *UIHandler) AdminOfferOrderDetailPage(w http.ResponseWriter, r *http.Req
 		return
 	}
 
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	if err := pages.AdminOfferOrderDetailPage(order, lang, dir).Render(ctx, w); err != nil {
-		h.log.ErrorContext(ctx, "render admin offer order detail", "error", err)
-	}
+	h.renderPage(ctx, w, "render admin offer order detail", pages.AdminOfferOrderDetailPage(order, lang, dir))
 }
 
 // AdminPlansInfoPage renders subscription plan tiers directory.
@@ -287,10 +281,7 @@ func (h *UIHandler) AdminPlansInfoPage(w http.ResponseWriter, r *http.Request) {
 		plans, _ = h.billSvc.ListPlans(ctx)
 	}
 
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	if err := pages.AdminPlansInfoPage(plans, lang, dir).Render(ctx, w); err != nil {
-		h.log.ErrorContext(ctx, "render admin plans info", "error", err)
-	}
+	h.renderPage(ctx, w, "render admin plans info", pages.AdminPlansInfoPage(plans, lang, dir))
 }
 
 // AdminPlanTypesPage renders subscription plan types CRUD.
@@ -312,10 +303,7 @@ func (h *UIHandler) AdminPlanTypesPage(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	if err := pages.AdminReferenceCRUDPage("أنواع وتصنيفات خطط الاشتراك", "plan-types", "نوع خطة", items, "plans", lang, dir).Render(ctx, w); err != nil {
-		h.log.ErrorContext(ctx, "render admin plan types", "error", err)
-	}
+	h.renderPage(ctx, w, "render admin plan types", pages.AdminReferenceCRUDPage("أنواع وتصنيفات خطط الاشتراك", "plan-types", "نوع خطة", items, "plans", lang, dir))
 }
 
 // AdminPlanFeaturesPage renders feature matrix for subscription plans.
@@ -339,10 +327,7 @@ func (h *UIHandler) AdminPlanFeaturesPage(w http.ResponseWriter, r *http.Request
 		}
 	}
 
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	if err := pages.AdminReferenceCRUDPage("ميزات ومحددات باقات الاشتراك", "plan-features", "ميزة", items, "plans", lang, dir).Render(ctx, w); err != nil {
-		h.log.ErrorContext(ctx, "render admin plan features", "error", err)
-	}
+	h.renderPage(ctx, w, "render admin plan features", pages.AdminReferenceCRUDPage("ميزات ومحددات باقات الاشتراك", "plan-features", "ميزة", items, "plans", lang, dir))
 }
 
 // AdminPlansSubscriptionsPage renders active subscriptions and subscriber histories.
@@ -355,8 +340,5 @@ func (h *UIHandler) AdminPlansSubscriptionsPage(w http.ResponseWriter, r *http.R
 		subs, _ = h.billSvc.AdminListSubscriptions(ctx, 100, 0)
 	}
 
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	if err := pages.AdminPlansSubscriptionsPage(subs, lang, dir).Render(ctx, w); err != nil {
-		h.log.ErrorContext(ctx, "render admin plan subscriptions", "error", err)
-	}
+	h.renderPage(ctx, w, "render admin plan subscriptions", pages.AdminPlansSubscriptionsPage(subs, lang, dir))
 }

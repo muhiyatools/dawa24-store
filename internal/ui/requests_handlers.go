@@ -34,10 +34,7 @@ func (h *UIHandler) RequestsPage(w http.ResponseWriter, r *http.Request) {
 		data.Suppliers, _ = h.orgSvc.ListOrganizations(ctx, &typ, &status, 50, 0)
 	}
 
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	if err := pages.RequestsPage(lang, dir, r.URL.Query().Get("status"), data).Render(ctx, w); err != nil {
-		h.log.ErrorContext(ctx, "render requests page", "error", err)
-	}
+	h.renderPage(ctx, w, "render requests page", pages.RequestsPage(lang, dir, r.URL.Query().Get("status"), data))
 }
 
 // RequestCreateSubmit sends a document/action request to another organization.

@@ -139,11 +139,11 @@ type Plan struct {
 
 // Subscription feature gate keys for platform access control.
 const (
-	FeatureMarketDiscounts = "feature_market_discounts"
-	FeatureCompareTool     = "feature_compare_tool"
-	FeatureBulkImport      = "bulk_import"
-	FeatureAnalytics       = "analytics"
-	FeatureMaxCompareFiles = "max_compare_files"
+	FeatureMarketDiscounts      = "feature_market_discounts"
+	FeatureCompareTool          = "feature_compare_tool"
+	FeatureBulkImport           = "bulk_import"
+	FeatureAnalytics            = "analytics"
+	FeatureMaxCompareFiles      = "max_compare_files"
 	FeatureCompareRetentionDays = "compare_file_retention_days"
 )
 

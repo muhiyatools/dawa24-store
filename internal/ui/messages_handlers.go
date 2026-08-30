@@ -58,10 +58,7 @@ func (h *UIHandler) renderMessages(w http.ResponseWriter, r *http.Request, activ
 		}
 	}
 
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	if err := pages.MessagesPage(lang, dir, data).Render(ctx, w); err != nil {
-		h.log.ErrorContext(ctx, "render messages page", "error", err)
-	}
+	h.renderPage(ctx, w, "render messages page", pages.MessagesPage(lang, dir, data))
 }
 
 // otherPartyName resolves the display name of the conversation counterparty.

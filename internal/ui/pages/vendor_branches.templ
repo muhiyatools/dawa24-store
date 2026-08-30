@@ -22,18 +22,18 @@ var institutionalWorkCategories = []struct {
 	LabelEn string
 	Icon    string
 }{
-	{Key: "group", LabelAr: "مجموعة", LabelEn: "Group", Icon: "🏢"},
-	{Key: "sector", LabelAr: "قطاع", LabelEn: "Sector", Icon: "🌐"},
-	{Key: "startup", LabelAr: "شركة ناشئة", LabelEn: "Startup", Icon: "🚀"},
-	{Key: "sole_proprietorship", LabelAr: "مؤسسة فردية", LabelEn: "Sole Proprietorship", Icon: "👤"},
-	{Key: "audience_category", LabelAr: "فئة جماهيرية", LabelEn: "Audience Category", Icon: "👥"},
-	{Key: "retail", LabelAr: "تجزئة", LabelEn: "Retail", Icon: "🛍️"},
-	{Key: "nonprofit", LabelAr: "منظمة غير ربحية", LabelEn: "Nonprofit Organization", Icon: "🤝"},
-	{Key: "factory", LabelAr: "مصنع", LabelEn: "Factory", Icon: "🏭"},
-	{Key: "cooperative", LabelAr: "جمعية تعاونية", LabelEn: "Cooperative", Icon: "🌿"},
-	{Key: "services", LabelAr: "خدمات", LabelEn: "Services", Icon: "⚙️"},
-	{Key: "pharmacy", LabelAr: "صيدلية", LabelEn: "Pharmacy", Icon: "💊"},
-	{Key: "joint_stock", LabelAr: "شركة مساهمة", LabelEn: "Joint Stock Company", Icon: "🏛️"},
+	{Key: "group", LabelAr: "مجموعة", LabelEn: "Group", Icon: ""},
+	{Key: "sector", LabelAr: "قطاع", LabelEn: "Sector", Icon: ""},
+	{Key: "startup", LabelAr: "شركة ناشئة", LabelEn: "Startup", Icon: ""},
+	{Key: "sole_proprietorship", LabelAr: "مؤسسة فردية", LabelEn: "Sole Proprietorship", Icon: ""},
+	{Key: "audience_category", LabelAr: "فئة جماهيرية", LabelEn: "Audience Category", Icon: ""},
+	{Key: "retail", LabelAr: "تجزئة", LabelEn: "Retail", Icon: ""},
+	{Key: "nonprofit", LabelAr: "منظمة غير ربحية", LabelEn: "Nonprofit Organization", Icon: ""},
+	{Key: "factory", LabelAr: "مصنع", LabelEn: "Factory", Icon: ""},
+	{Key: "cooperative", LabelAr: "جمعية تعاونية", LabelEn: "Cooperative", Icon: ""},
+	{Key: "services", LabelAr: "خدمات", LabelEn: "Services", Icon: ""},
+	{Key: "pharmacy", LabelAr: "صيدلية", LabelEn: "Pharmacy", Icon: ""},
+	{Key: "joint_stock", LabelAr: "شركة مساهمة", LabelEn: "Joint Stock Company", Icon: ""},
 }
 
 templ VendorBranchesPage(data VendorBranchesData, lang, dir string) {
@@ -45,7 +45,7 @@ templ VendorBranchesPage(data VendorBranchesData, lang, dir string) {
 				<div class="flex-between items-center flex-wrap gap-4">
 					<div class="d-flex items-center gap-3">
 						<div class="user-avatar-badge text-2xl">
-							📍
+							@components.IconMapPin("icon-sm")
 						</div>
 						<div>
 							<h1 class="text-2xl font-black text-primary m-0">
@@ -108,14 +108,14 @@ templ VendorBranchesPage(data VendorBranchesData, lang, dir string) {
 						<input
 							type="text"
 							id="branch-search-input"
-							placeholder="🔍 بحث في الفروع والمخازن حسب الاسم، الكود، أو العنوان..."
+							placeholder="بحث في الفروع والمخازن حسب الاسم، الكود، أو العنوان..."
 							class="form-input text-xs w-full"
 							oninput="filterBranchesList(this.value)"
 						/>
 					</div>
 
 					<div class="alert alert-warning p-3 d-flex items-center gap-2 text-xs mb-0">
-						<span class="text-base">💡</span>
+						<span class="text-base">@components.IconInfo("icon-sm")</span>
 						<span>
 							لظهور منتجات الفرع في التغطية الجغرافية بدقة، تأكد من تعيين <strong>الأعمال المؤسسية</strong> والإحداثيات الجغرافية.
 						</span>
@@ -124,7 +124,7 @@ templ VendorBranchesPage(data VendorBranchesData, lang, dir string) {
 					<!-- Branch List Items -->
 					if len(data.Branches) == 0 {
 						<div class="glass-panel p-12 text-center empty-state-glass">
-							<div class="text-4xl mb-3">📍</div>
+							<div class="text-4xl mb-3">@components.IconMapPin("icon-sm")</div>
 							<h3 class="text-lg font-black text-primary mb-2">
 								لا توجد فروع مسجلة حتى الآن
 							</h3>
@@ -170,7 +170,7 @@ templ VendorBranchesPage(data VendorBranchesData, lang, dir string) {
 										<div class="d-flex items-center gap-2">
 											if b.GoogleMapsURL != "" {
 												<a href={ templ.SafeURL(b.GoogleMapsURL) } target="_blank" rel="noopener noreferrer" class="btn btn-secondary btn-sm font-bold text-xs" title="فتح في Google Maps">
-													<span>🗺️ خرائط Google</span>
+													<span>خرائط Google</span>
 												</a>
 											}
 										</div>
@@ -185,7 +185,7 @@ templ VendorBranchesPage(data VendorBranchesData, lang, dir string) {
 										<div>
 											<strong class="text-muted d-block text-xs mb-0.5">مدير الفرع:</strong>
 											if b.ManagerName != "" {
-												<span class="text-brand font-bold">👤 { b.ManagerName }</span>
+												<span class="text-brand font-bold">{ b.ManagerName }</span>
 											} else {
 												<span class="text-muted">غير محدد</span>
 											}
@@ -193,9 +193,9 @@ templ VendorBranchesPage(data VendorBranchesData, lang, dir string) {
 										<div>
 											<strong class="text-muted d-block text-xs mb-0.5">سلسلة التبريد:</strong>
 											if b.HasColdStorage {
-												<span class="badge badge-emerald text-xs font-bold">❄️ مبرد (2° - 8° مئوية)</span>
+												<span class="badge badge-emerald text-xs font-bold">مبرد (2° - 8° مئوية)</span>
 											} else {
-												<span class="text-secondary">🌡️ تخزين جاف عادي</span>
+												<span class="text-secondary">تخزين جاف عادي</span>
 											}
 										</div>
 										<div>
@@ -224,7 +224,7 @@ templ VendorBranchesPage(data VendorBranchesData, lang, dir string) {
 									<div class="flex-between items-center border-t pt-3 mt-1">
 										<div class="text-xs text-muted tabular-nums">
 											if b.Latitude != nil && b.Longitude != nil {
-												<span>📍 { fmt.Sprintf("%.4f, %.4f", *b.Latitude, *b.Longitude) }</span>
+												<span>{ fmt.Sprintf("%.4f, %.4f", *b.Latitude, *b.Longitude) }</span>
 											}
 										</div>
 
@@ -265,7 +265,7 @@ templ VendorBranchesPage(data VendorBranchesData, lang, dir string) {
 					<!-- Form Header -->
 					<div class="flex-between items-center pb-3 border-b">
 						<div class="d-flex items-center gap-2">
-							<span class="text-xl" x-text="mode === 'edit' ? '✏️' : '🏢'"></span>
+							<span class="text-xl" x-text="mode === 'edit' ? '' : ''"></span>
 							<div>
 								<h2 class="text-base font-black text-primary m-0" x-text="mode === 'edit' ? 'تعديل بيانات الفرع: ' + (form.name_ar || '') : 'إضافة فرع / مخزن جديد'">
 								</h2>
@@ -282,7 +282,7 @@ templ VendorBranchesPage(data VendorBranchesData, lang, dir string) {
 								@click="resetToAddMode()"
 								title="الخروج من وضع التعديل والعودة لإضافة فرع جديد"
 							>
-								<span>✕ الخروج من وضع التعديل</span>
+								<span>الخروج من وضع التعديل</span>
 							</button>
 						</template>
 					</div>
@@ -330,7 +330,7 @@ templ VendorBranchesPage(data VendorBranchesData, lang, dir string) {
 						<!-- Section 2: Interactive Location Map & GPS -->
 						<div class="d-flex flex-col gap-1">
 							<label class="form-label text-xs font-bold text-secondary mb-1 d-block">
-								🗺️ موقع الفرع الجغرافي وخريطة OpenStreetMap
+								موقع الفرع الجغرافي وخريطة OpenStreetMap
 							</label>
 
 							<div data-map-picker data-default-lat="30.0444" data-default-lon="31.2357" class="border rounded-xl overflow-hidden bg-surface-sunken position-relative">
@@ -339,7 +339,7 @@ templ VendorBranchesPage(data VendorBranchesData, lang, dir string) {
 								<div class="flex-between items-center p-2 bg-surface-raised border-t text-xs">
 									<span data-map-coords-badge class="tabular-nums font-bold text-brand">30.0444, 31.2357</span>
 									<button type="button" data-map-locate class="btn btn-secondary btn-xs font-bold">
-										<span>📍 موقعي الحالي</span>
+										<span>موقعي الحالي</span>
 									</button>
 								</div>
 
@@ -351,7 +351,7 @@ templ VendorBranchesPage(data VendorBranchesData, lang, dir string) {
 						<!-- Google Maps URL Input -->
 						<div>
 							<label class="form-label text-xs font-bold text-primary mb-1 d-block">
-								🔗 رابط خرائط Google (Google Maps URL)
+								رابط خرائط Google (Google Maps URL)
 							</label>
 							<input type="text" name="google_maps_url" x-model="form.google_maps_url" data-map-input="google_url" placeholder="الصق أي رابط من Google Maps لاستخراج الإحداثيات فوراً..." class="form-input text-xs w-full"/>
 						</div>
@@ -419,7 +419,7 @@ templ VendorBranchesPage(data VendorBranchesData, lang, dir string) {
 						<!-- Section 4: Institutional Works (12 Categories) -->
 						<div class="bg-surface-sunken p-3 rounded-xl border d-flex flex-col gap-2">
 							<label class="text-xs font-black text-primary m-0 d-block">
-								🏛️ الأعمال المؤسسية المغطاة (Institutional Works)
+								الأعمال المؤسسية المغطاة (Institutional Works)
 							</label>
 
 							<div class="d-grid grid-cols-2 gap-1.5 mt-1" style="max-height: 140px; overflow-y: auto;">
@@ -436,19 +436,19 @@ templ VendorBranchesPage(data VendorBranchesData, lang, dir string) {
 						<div class="d-grid grid-cols-2 gap-3 py-1">
 							<label class="d-flex items-center gap-2 text-xs font-bold text-primary cursor-pointer p-2 rounded-lg bg-surface-sunken border">
 								<input type="checkbox" name="has_cold_storage" value="true" x-model="form.has_cold_storage" class="form-checkbox"/>
-								<span>❄️ سلسلة تبريد (2° - 8°)</span>
+								<span>سلسلة تبريد (2° - 8°)</span>
 							</label>
 
 							<label class="d-flex items-center gap-2 text-xs font-bold text-primary cursor-pointer p-2 rounded-lg bg-surface-sunken border">
 								<input type="checkbox" name="is_main" value="true" x-model="form.is_main" class="form-checkbox"/>
-								<span>⭐ تعيين كفرع رئيسي</span>
+								<span>تعيين كفرع رئيسي</span>
 							</label>
 						</div>
 
 						<!-- Submit Button -->
 						<button type="submit" class="btn btn-primary btn-sm font-black w-full justify-center py-2.5 mt-2">
 							@components.IconCheck("icon-xs")
-							<span x-text="mode === 'edit' ? '💾 حفظ تحديثات الفرع' : 'حفظ وإضافة الفرع الآن'"></span>
+							<span x-text="mode === 'edit' ? 'حفظ تحديثات الفرع' : 'حفظ وإضافة الفرع الآن'"></span>
 						</button>
 					</form>
 				</div>

@@ -61,7 +61,7 @@ templ CompareMarketBenchmarkContent(data MarketBenchmarkPageData) {
 				<div>
 					<div class="d-flex items-center gap-3 mb-1">
 						<div class="user-avatar-badge text-xl">
-							🧠
+							@components.IconSparkles("icon-sm")
 						</div>
 						<h1 class="text-2xl font-black text-primary m-0">
 							مقارنة مع موردين السوق (Market Benchmark)
@@ -93,16 +93,16 @@ templ CompareMarketBenchmarkContent(data MarketBenchmarkPageData) {
 			<!-- Navigation Subtabs for all 4 Analysis Modes -->
 			<div class="cb-tabs-nav mt-4 pt-3 border-t">
 				<a href="/compare/results" class="cb-tab-btn">
-					📊 المقارنة المجمعة بين الموردين
+					المقارنة المجمعة بين الموردين
 				</a>
 				<a href="/compare/head-to-head" class="cb-tab-btn">
-					🏢 مقارنة مورد بمورد
+					مقارنة مورد بمورد
 				</a>
 				<a href="/compare/market-benchmark" class="cb-tab-btn active">
-					🧠 مقارنة مع موردين السوق
+					مقارنة مع موردين السوق
 				</a>
 				<a href="/compare/market-intelligence" class="cb-tab-btn">
-					🧠 تقرير ذكاء السوق
+					تقرير ذكاء السوق
 				</a>
 			</div>
 		</div>
@@ -125,7 +125,7 @@ templ CompareMarketBenchmarkContent(data MarketBenchmarkPageData) {
 				</div>
 
 				<button type="submit" class="btn btn-primary font-bold px-6">
-					⚡ تحليل ومقارنة السوق
+					تحليل ومقارنة السوق
 				</button>
 			</form>
 		</div>
@@ -144,7 +144,7 @@ templ CompareMarketBenchmarkContent(data MarketBenchmarkPageData) {
 
 				<!-- Higher than Market (أعلى من السوق) -->
 				<div class="stat-card-3d">
-					<div class="stat-card-label text-success">🟢 أعلى من السوق</div>
+					<div class="stat-card-label text-success">أعلى من السوق</div>
 					<div class="stat-card-value text-success tabular-nums">
 						{ fmt.Sprintf("%d", data.Result.HigherThanMarket) }
 					</div>
@@ -153,7 +153,7 @@ templ CompareMarketBenchmarkContent(data MarketBenchmarkPageData) {
 
 				<!-- Equal to Market (مساوي للسوق) -->
 				<div class="stat-card-3d">
-					<div class="stat-card-label text-brand">🔵 مساوي للسوق</div>
+					<div class="stat-card-label text-brand">مساوي للسوق</div>
 					<div class="stat-card-value text-brand tabular-nums">
 						{ fmt.Sprintf("%d", data.Result.EqualToMarket) }
 					</div>
@@ -162,7 +162,7 @@ templ CompareMarketBenchmarkContent(data MarketBenchmarkPageData) {
 
 				<!-- Lower than Market (أقل من السوق) -->
 				<div class="stat-card-3d">
-					<div class="stat-card-label text-danger">🔴 أقل من السوق</div>
+					<div class="stat-card-label text-danger">أقل من السوق</div>
 					<div class="stat-card-value text-danger tabular-nums">
 						{ fmt.Sprintf("%d", data.Result.LowerThanMarket) }
 					</div>
@@ -171,7 +171,7 @@ templ CompareMarketBenchmarkContent(data MarketBenchmarkPageData) {
 
 				<!-- Exclusives / Gaps -->
 				<div class="stat-card-3d">
-					<div class="stat-card-label text-warning">⭐ حصريات المورد</div>
+					<div class="stat-card-label text-warning">حصريات المورد</div>
 					<div class="stat-card-value text-warning tabular-nums">
 						{ fmt.Sprintf("%d", data.Result.ExclusivesCount) }
 					</div>
@@ -274,28 +274,28 @@ templ CompareMarketBenchmarkContent(data MarketBenchmarkPageData) {
 						href={ templ.SafeURL(buildMarketBenchmarkURL(data.FileID, data.Query, data.MinPrice, data.MaxPrice, data.MinDiscount, data.MaxDiscount, "higher")) }
 						class={ "btn btn-sm font-bold", templ.KV("btn-primary", data.ActiveTab == "higher"), templ.KV("btn-secondary", data.ActiveTab != "higher") }
 					>
-						🟢 أعلى من السوق ({ fmt.Sprintf("%d", data.Result.HigherThanMarket) })
+						أعلى من السوق ({ fmt.Sprintf("%d", data.Result.HigherThanMarket) })
 					</a>
 
 					<a
 						href={ templ.SafeURL(buildMarketBenchmarkURL(data.FileID, data.Query, data.MinPrice, data.MaxPrice, data.MinDiscount, data.MaxDiscount, "equal")) }
 						class={ "btn btn-sm font-bold", templ.KV("btn-primary", data.ActiveTab == "equal"), templ.KV("btn-secondary", data.ActiveTab != "equal") }
 					>
-						🔵 مساوي للسوق ({ fmt.Sprintf("%d", data.Result.EqualToMarket) })
+						مساوي للسوق ({ fmt.Sprintf("%d", data.Result.EqualToMarket) })
 					</a>
 
 					<a
 						href={ templ.SafeURL(buildMarketBenchmarkURL(data.FileID, data.Query, data.MinPrice, data.MaxPrice, data.MinDiscount, data.MaxDiscount, "lower")) }
 						class={ "btn btn-sm font-bold", templ.KV("btn-primary", data.ActiveTab == "lower"), templ.KV("btn-secondary", data.ActiveTab != "lower") }
 					>
-						🔴 أقل من السوق ({ fmt.Sprintf("%d", data.Result.LowerThanMarket) })
+						أقل من السوق ({ fmt.Sprintf("%d", data.Result.LowerThanMarket) })
 					</a>
 
 					<a
 						href={ templ.SafeURL(buildMarketBenchmarkURL(data.FileID, data.Query, data.MinPrice, data.MaxPrice, data.MinDiscount, data.MaxDiscount, "exclusives")) }
 						class={ "btn btn-sm font-bold", templ.KV("btn-primary", data.ActiveTab == "exclusives"), templ.KV("btn-secondary", data.ActiveTab != "exclusives") }
 					>
-						⭐ الحصريات ({ fmt.Sprintf("%d", data.Result.ExclusivesCount) })
+						الحصريات ({ fmt.Sprintf("%d", data.Result.ExclusivesCount) })
 					</a>
 				</div>
 			</div>
@@ -318,7 +318,7 @@ templ CompareMarketBenchmarkContent(data MarketBenchmarkPageData) {
 							if len(data.Result.Rows) == 0 {
 								<tr>
 									<td colspan="6" class="text-center p-8 text-muted">
-										<div class="text-3xl mb-2">🔍</div>
+										<div class="text-3xl mb-2">@components.IconSearch("icon-sm")</div>
 										<div class="font-extrabold text-base text-primary">لا توجد نتائج تطابق خيارات الفلترة</div>
 									</td>
 								</tr>

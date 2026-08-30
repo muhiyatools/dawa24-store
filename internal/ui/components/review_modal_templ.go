@@ -193,7 +193,7 @@ func ReviewModal(props ReviewModalProps) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "\" class=\"form-control text-xs\" style=\"padding:4px 8px; width:auto;\"><option value=\"5\">⭐⭐⭐⭐⭐ (5/5)</option> <option value=\"4\">⭐⭐⭐⭐ (4/5)</option> <option value=\"3\">⭐⭐⭐ (3/5)</option> <option value=\"2\">⭐⭐ (2/5)</option> <option value=\"1\">⭐ (1/5)</option></select></div></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "\" class=\"form-control text-xs\" style=\"padding:4px 8px; width:auto;\"><option value=\"5\">(5/5)</option> <option value=\"4\">(4/5)</option> <option value=\"3\">(3/5)</option> <option value=\"2\">(2/5)</option> <option value=\"1\">(1/5)</option></select></div></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

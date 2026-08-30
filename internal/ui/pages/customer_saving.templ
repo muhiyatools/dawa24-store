@@ -42,7 +42,7 @@ templ CustomerSavingProductsPage(data CustomerSavingPageData, lang, dir string) 
 				<div class="flex-between items-center flex-wrap gap-4">
 					<div class="d-flex items-center gap-3">
 						<div class="user-avatar-badge text-xl">
-							💊
+							@components.IconPill("icon-sm")
 						</div>
 						<div>
 							<h1 class="text-2xl font-black text-primary m-0">
@@ -80,14 +80,14 @@ templ CustomerSavingProductsPage(data CustomerSavingPageData, lang, dir string) 
 							download
 						>
 							@components.IconDownload("icon-xs")
-							<span>تصدير Excel 📊</span>
+							<span>تصدير Excel </span>
 						</a>
 
 						if data.Stats != nil && data.Stats.CountAll > 0 {
 							<form
 								method="POST"
 								action="/customer/saving-products/delete-all"
-								onsubmit="return confirm('⚠️ هل أنت متأكد من رغبتك في حذف جميع منتجات التوفير الخاصة بصيدليتك نهائياً؟ لا يمكن التراجع عن هذه العملية.');"
+								onsubmit="return confirm('هل أنت متأكد من رغبتك في حذف جميع منتجات التوفير الخاصة بصيدليتك نهائياً؟ لا يمكن التراجع عن هذه العملية.');"
 								style="margin:0; display:inline;"
 							>
 								<button
@@ -174,7 +174,7 @@ templ CustomerSavingProductsPage(data CustomerSavingPageData, lang, dir string) 
 			<div class="glass-panel p-0 mb-6 overflow-hidden">
 				if len(data.Items) == 0 {
 					<div class="p-8 text-center empty-state-glass">
-						<div class="text-4xl mb-3">📦</div>
+						<div class="text-4xl mb-3">@components.IconPackage("icon-sm")</div>
 						<h3 class="text-lg font-black text-primary mb-2">
 							لا توجد أصناف مسجلة في قائمة التوفير حالياً
 						</h3>
@@ -235,7 +235,7 @@ templ CustomerSavingProductsPage(data CustomerSavingPageData, lang, dir string) 
 											if it.ProductID != nil && *it.ProductID > 0 {
 												<div class="row-center-sm">
 													<span class="badge badge-emerald text-xs fw-800">
-														🔗 { it.LinkedProductName.Get(i18n.AR) }
+														{ it.LinkedProductName.Get(i18n.AR) }
 													</span>
 													<a href={ templ.SafeURL(fmt.Sprintf("/catalog/%d", *it.ProductID)) } target="_blank" class="btn btn-secondary btn-icon" style="width:26px; height:26px;" title="عرض بالكتالوج">
 														@components.IconEye("icon-xs")
@@ -329,14 +329,14 @@ templ CustomerSavingProductsPage(data CustomerSavingPageData, lang, dir string) 
 								اسم الصنف الدوائي بالصيدلية <span class="text-danger">*</span>
 							</label>
 							<input
-								type="text"
-								id="pharmacy-form-name-product"
-								name="name_product"
-								required
-								placeholder="مثال: أوجمنتين 1 جم 14 قرص"
-								class="form-input"
-								style="width:100%; border-radius:var(--radius-lg);"
-							/>
+ type="text"
+ id="pharmacy-form-name-product"
+ name="name_product"
+ required
+ placeholder="مثال: أوجمنتين 1 جم 14 قرص"
+ class="form-input w-full-rounded"
+ 
+ />
 						</div>
 
 						<div class="grid-2">
@@ -345,13 +345,13 @@ templ CustomerSavingProductsPage(data CustomerSavingPageData, lang, dir string) 
 									رمز SKU (اختياري)
 								</label>
 								<input
-									type="text"
-									id="pharmacy-form-sku"
-									name="sku"
-									placeholder="كود الصنف..."
-									class="form-input"
-									style="width:100%; border-radius:var(--radius-lg);"
-								/>
+ type="text"
+ id="pharmacy-form-sku"
+ name="sku"
+ placeholder="كود الصنف..."
+ class="form-input w-full-rounded"
+ 
+ />
 							</div>
 
 							<div>
@@ -359,14 +359,14 @@ templ CustomerSavingProductsPage(data CustomerSavingPageData, lang, dir string) 
 									الكمية المطلوبة
 								</label>
 								<input
-									type="number"
-									step="any"
-									id="pharmacy-form-qty"
-									name="qty"
-									placeholder="0"
-									class="form-input"
-									style="width:100%; border-radius:var(--radius-lg);"
-								/>
+ type="number"
+ step="any"
+ id="pharmacy-form-qty"
+ name="qty"
+ placeholder="0"
+ class="form-input w-full-rounded"
+ 
+ />
 							</div>
 						</div>
 
@@ -375,19 +375,19 @@ templ CustomerSavingProductsPage(data CustomerSavingPageData, lang, dir string) 
 								سعر الشراء الحالي / المستهدف (ج.م)
 							</label>
 							<input
-								type="number"
-								step="0.01"
-								id="pharmacy-form-price"
-								name="price"
-								placeholder="0.00"
-								class="form-input"
-								style="width:100%; border-radius:var(--radius-lg);"
-							/>
+ type="number"
+ step="0.01"
+ id="pharmacy-form-price"
+ name="price"
+ placeholder="0.00"
+ class="form-input w-full-rounded"
+ 
+ />
 						</div>
 
 						<div style="background:var(--surface-sunken); padding:1rem; border-radius:var(--radius-xl); border:1px solid var(--border); display:flex; flex-direction:column; gap:0.5rem;">
 							<label style="font-weight:800; color:var(--text); font-size:0.875rem;">
-								🔗 ربط الصنف بالكتالوج المركزي العام
+								ربط الصنف بالكتالوج المركزي العام
 							</label>
 							
 							<input type="hidden" id="pharmacy-form-product-id" name="product_id" value="" />
@@ -395,11 +395,11 @@ templ CustomerSavingProductsPage(data CustomerSavingPageData, lang, dir string) 
 							<div id="pharmacy-selected-product-box" style="display:none; justify-content:space-between; align-items:center; background:var(--surface-raised); padding:0.6rem 0.85rem; border-radius:var(--radius-lg); border:1px solid var(--border);">
 								<span id="pharmacy-selected-product-label" style="font-weight:800; color:var(--accent); font-size:0.9rem;"></span>
 								<button type="button" class="btn btn-secondary btn-sm" onclick="clearPharmacySelectedProduct()" style="font-size:0.75rem; color:var(--danger-text);">
-									إلغاء الربط ✕
+									إلغاء الربط 
 								</button>
 							</div>
 
-							<div id="pharmacy-search-product-container" style="position:relative;">
+							<div id="pharmacy-search-product-container" class="relative">
 								<input
 									type="text"
 									id="pharmacy-product-search-input"
@@ -433,7 +433,7 @@ templ CustomerSavingProductsPage(data CustomerSavingPageData, lang, dir string) 
 				<!-- Fixed Header -->
 				<div style="flex-shrink:0; display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--border); padding:1.25rem 1.5rem; background:var(--surface-raised);">
 					<div class="row-center-sm">
-						<span class="text-2xl" id="pharmacy-import-modal-icon">📥</span>
+						<span class="text-2xl" id="pharmacy-import-modal-icon">@components.IconDownload("icon-sm")</span>
 						<div>
 							<h3 id="pharmacy-import-modal-title" class="text-xl fw-900 text-primary m-0">
 								معالج استيراد ومطابقة أدوية التوفير
@@ -458,7 +458,7 @@ templ CustomerSavingProductsPage(data CustomerSavingPageData, lang, dir string) 
 							style="border:2px dashed var(--accent); background:var(--surface-sunken); border-radius:var(--radius-xl); padding:2rem 1rem; text-align:center; cursor:pointer;"
 							onclick="document.getElementById('pharmacy-import-file-input').click()"
 						>
-							<div style="font-size:2.8rem; margin-bottom:0.5rem;">📊</div>
+							<div style="font-size:2.8rem; margin-bottom:0.5rem;">@components.IconBarChart("icon-sm")</div>
 							<strong style="color:var(--text); font-size:1rem; display:block; margin-bottom:0.25rem;">
 								انقر هنا لاختيار الملف أو اسحبه هنا
 							</strong>
@@ -481,17 +481,17 @@ templ CustomerSavingProductsPage(data CustomerSavingPageData, lang, dir string) 
 						<div id="pharmacy-import-columns-panel" style="display:none; background:var(--surface-sunken); border:1px solid var(--border); border-radius:var(--radius-xl); padding:1.25rem;">
 							<div style="font-weight:800; font-size:0.9rem; color:var(--text); margin-bottom:0.75rem; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:0.5rem;">
 								<div class="row-center-sm">
-									<span>⚙️</span>
+									<span>@components.IconSettings("icon-sm")</span>
 									<span>تحديد وتعيين أعمدة الملف:</span>
 								</div>
-								<span class="badge badge-emerald" style="font-size:10px;">تم التحديد الذكي تلقائياً ✓</span>
+								<span class="badge badge-emerald font-size-10">تم التحديد الذكي تلقائياً </span>
 							</div>
 
 							<div id="pharmacy-import-columns-loading" style="display:none; text-align:center; padding:1.5rem; color:var(--accent); font-weight:700;">
 								⏳ جاري قراءة أعمدة الملف وتحليل البيانات...
 							</div>
 
-							<div id="pharmacy-import-columns-grid" style="display:grid; grid-template-columns:1fr 1fr; gap:0.75rem;">
+							<div id="pharmacy-import-columns-grid" class="grid-halves">
 								<div>
 									<label class="form-label" style="font-size:0.775rem; font-weight:700; color:var(--text); margin-bottom:0.25rem;">
 										عمود اسم الصنف / الدواء <span class="text-danger">*</span>
@@ -536,27 +536,27 @@ templ CustomerSavingProductsPage(data CustomerSavingPageData, lang, dir string) 
 						<!-- Match Strategy Selection -->
 						<div style="background:var(--surface-sunken); padding:1rem; border-radius:var(--radius-xl); border:1px solid var(--border);">
 							<label style="font-weight:800; color:var(--text); font-size:0.875rem; display:block; margin-bottom:0.6rem;">
-								🎯 طريقة مطابقة وربط الأصناف مع كتالوج الأدوية المعتمد:
+								طريقة مطابقة وربط الأصناف مع كتالوج الأدوية المعتمد:
 							</label>
 							<div style="display:flex; flex-direction:column; gap:0.6rem;">
 								<label style="display:flex; align-items:flex-start; gap:0.6rem; font-size:0.825rem; color:var(--text); cursor:pointer;">
 									<input type="radio" name="pharmacy_match_strategy" value="smart_auto" checked style="accent-color:var(--accent); margin-top:2px;" />
 									<div>
-										<strong style="color:var(--text);">مطابقة ذكية شاملة (موصى بها)</strong>
+										<strong class="text-body">مطابقة ذكية شاملة (موصى بها)</strong>
 										<span style="display:block; color:var(--text-muted); font-size:0.75rem; margin-top:2px;">الربط بكود SKU / الباركود أولاً، ثم الاسم بالتنظيف اللغوي وتصحيح الهمزات والتطابق الصيدلاني.</span>
 									</div>
 								</label>
 								<label style="display:flex; align-items:flex-start; gap:0.6rem; font-size:0.825rem; color:var(--text); cursor:pointer;">
 									<input type="radio" name="pharmacy_match_strategy" value="sku_only" style="accent-color:var(--accent); margin-top:2px;" />
 									<div>
-										<strong style="color:var(--text);">مطابقة عبر كود SKU / الباركود فقط</strong>
+										<strong class="text-body">مطابقة عبر كود SKU / الباركود فقط</strong>
 										<span style="display:block; color:var(--text-muted); font-size:0.75rem; margin-top:2px;">المطابقة الحصرية عبر كود الباركود / SKU؛ الأصناف غير المتطابقة برمجياً لن ترتبط.</span>
 									</div>
 								</label>
 								<label style="display:flex; align-items:flex-start; gap:0.6rem; font-size:0.825rem; color:var(--text); cursor:pointer;">
 									<input type="radio" name="pharmacy_match_strategy" value="name_only" style="accent-color:var(--accent); margin-top:2px;" />
 									<div>
-										<strong style="color:var(--text);">مطابقة عبر اسم الصنف فقط (تجاهل كود الصيدلية الداخلي)</strong>
+										<strong class="text-body">مطابقة عبر اسم الصنف فقط (تجاهل كود الصيدلية الداخلي)</strong>
 										<span style="display:block; color:var(--text-muted); font-size:0.75rem; margin-top:2px;">مثالي إذا كانت الصيدلية تستخدم أكواد كاشير داخلية خاصة تختلف عن أكواد الكتالوج العام.</span>
 									</div>
 								</label>
@@ -570,7 +570,7 @@ templ CustomerSavingProductsPage(data CustomerSavingPageData, lang, dir string) 
 
 					<!-- STEP 2: Real-time Background Progress -->
 					<div id="pharmacy-import-step-progress" style="display:none; text-align:center; padding:2.5rem 1.5rem;">
-						<div style="font-size:3.5rem; margin-bottom:1rem;">⚡</div>
+						<div style="font-size:3.5rem; margin-bottom:1rem;">@components.IconZap("icon-sm")</div>
 						<h4 id="pharmacy-progress-phase" style="font-size:1.15rem; font-weight:900; color:var(--text); margin-bottom:0.5rem;">
 							جاري قراءة وفك تشفير ملف الإكسيل...
 						</h4>
@@ -616,7 +616,7 @@ templ CustomerSavingProductsPage(data CustomerSavingPageData, lang, dir string) 
 								<button type="button" class="btn btn-sm btn-ghost" id="pharmacy-tab-matched" onclick="filterPharmacyReviewTable('matched')" style="font-size:0.75rem; font-weight:800;">المتطابق فقط (<span id="pharmacy-badge-matched">0</span>)</button>
 								<button type="button" class="btn btn-sm btn-ghost" id="pharmacy-tab-unlinked" onclick="filterPharmacyReviewTable('unlinked')" style="font-size:0.75rem; font-weight:800;">غير المرتبط (<span id="pharmacy-badge-unlinked">0</span>)</button>
 							</div>
-							<input type="text" id="pharmacy-review-search" class="form-input" placeholder="🔍 بحث سريع في المسودة..." style="max-width:240px; font-size:0.8rem; padding:0.35rem 0.65rem;" oninput="searchPharmacyReviewTable(this.value)" />
+							<input type="text" id="pharmacy-review-search" class="form-input" placeholder="بحث سريع في المسودة..." style="max-width:240px; font-size:0.8rem; padding:0.35rem 0.65rem;" oninput="searchPharmacyReviewTable(this.value)" />
 						</div>
 
 						<!-- Staged Items Table Container -->
@@ -640,7 +640,7 @@ templ CustomerSavingProductsPage(data CustomerSavingPageData, lang, dir string) 
 						</div>
 
 						<div style="font-size:0.775rem; color:var(--text-muted); display:flex; justify-content:space-between; align-items:center;">
-							<span>⚠️ لم يتم حفظ أي صنف في قاعدة البيانات بعد. اضغط "تأكيد الاستيراد والحفظ" لاعتماد البيانات.</span>
+							<span>لم يتم حفظ أي صنف في قاعدة البيانات بعد. اضغط "تأكيد الاستيراد والحفظ" لاعتماد البيانات.</span>
 							<span>الأصناف المحددة: <strong id="pharmacy-selected-count" style="color:var(--accent);">0</strong></span>
 						</div>
 					</div>
@@ -658,10 +658,10 @@ templ CustomerSavingProductsPage(data CustomerSavingPageData, lang, dir string) 
 							← الرجوع لضبط الأعمدة
 						</button>
 						<button type="button" id="pharmacy-start-btn" class="btn btn-primary" style="font-weight:800; padding:0.6rem 1.5rem;" onclick="startPharmacyAsyncImport()">
-							بدء المعالجة والمطابقة الذكية 🚀
+							بدء المعالجة والمطابقة الذكية 
 						</button>
 						<button type="button" id="pharmacy-commit-btn" class="btn btn-primary" style="display:none; font-weight:800; padding:0.6rem 1.75rem; background:#10b981; border-color:#10b981;" onclick="commitPharmacyStagedImport()">
-							💾 تأكيد الاستيراد والحفظ النهائي في قائمة التوفير
+							تأكيد الاستيراد والحفظ النهائي في قائمة التوفير
 						</button>
 					</div>
 				</div>
@@ -757,7 +757,7 @@ templ CustomerSavingProductsPage(data CustomerSavingPageData, lang, dir string) 
 
 			function selectPharmacyCatalogProduct(id, name) {
 				document.getElementById('pharmacy-form-product-id').value = id;
-				document.getElementById('pharmacy-selected-product-label').textContent = `🔗 ${name}`;
+				document.getElementById('pharmacy-selected-product-label').textContent = `${name}`;
 				document.getElementById('pharmacy-selected-product-box').style.display = 'flex';
 				document.getElementById('pharmacy-search-product-container').style.display = 'none';
 				document.getElementById('pharmacy-product-search-dropdown').style.display = 'none';
@@ -849,7 +849,7 @@ templ CustomerSavingProductsPage(data CustomerSavingPageData, lang, dir string) 
 				if (!input.files || !input.files[0]) return;
 				const f = input.files[0];
 				const size = (f.size / 1024 / 1024).toFixed(2);
-				document.getElementById('pharmacy-import-filename-preview').innerHTML = '✓ تم اختيار: ' + f.name + ' (' + size + ' MB)';
+				document.getElementById('pharmacy-import-filename-preview').innerHTML = 'تم اختيار: ' + f.name + ' (' + size + ' MB)';
 
 				const panel = document.getElementById('pharmacy-import-columns-panel');
 				const loadingEl = document.getElementById('pharmacy-import-columns-loading');
@@ -931,17 +931,17 @@ templ CustomerSavingProductsPage(data CustomerSavingPageData, lang, dir string) 
 
 				let html = '<div style="margin-top:1rem; border-top:1px solid var(--border); padding-top:0.75rem;">';
 				html += '<div style="font-size:0.8rem; font-weight:800; color:var(--text); margin-bottom:0.5rem; display:flex; justify-content:space-between; align-items:center;">';
-				html += '<span>👀 معاينة أعمدة الملف والبيانات الحقيقية:</span>';
-				html += '<span style="font-size:0.75rem; color:var(--text-muted);">أول ' + sampleRows.length + ' صفوف</span>';
+				html += '<span>معاينة أعمدة الملف والبيانات الحقيقية:</span>';
+				html += '<span class="meta-muted">أول ' + sampleRows.length + ' صفوف</span>';
 				html += '</div>';
 				html += '<div class="table-container m-0" style="max-height:160px; overflow:auto;"><table class="data-table m-0" style="font-size:0.75rem; width:100%;"><thead><tr>';
 
 				headers.forEach((h, idx) => {
 					let tag = '';
-					if (idx === detected.name_col) tag = ' <span class="badge badge-emerald" style="font-size:9px; margin-inline-start:3px;">اسم الصنف ✓</span>';
-					else if (idx === detected.sku_col) tag = ' <span class="badge badge-sky" style="font-size:9px; margin-inline-start:3px;">كود SKU ✓</span>';
-					else if (idx === detected.qty_col) tag = ' <span class="badge badge-amber" style="font-size:9px; margin-inline-start:3px;">الكمية ✓</span>';
-					else if (idx === detected.price_col) tag = ' <span class="badge badge-purple" style="font-size:9px; margin-inline-start:3px;">السعر ✓</span>';
+					if (idx === detected.name_col) tag = ' <span class="badge badge-emerald" style="font-size:9px; margin-inline-start:3px;">اسم الصنف </span>';
+					else if (idx === detected.sku_col) tag = ' <span class="badge badge-sky" style="font-size:9px; margin-inline-start:3px;">كود SKU </span>';
+					else if (idx === detected.qty_col) tag = ' <span class="badge badge-amber" style="font-size:9px; margin-inline-start:3px;">الكمية </span>';
+					else if (idx === detected.price_col) tag = ' <span class="badge badge-purple" style="font-size:9px; margin-inline-start:3px;">السعر </span>';
 					const colLetter = String.fromCharCode(65 + idx);
 					html += `<th style="padding:0.4rem 0.6rem; white-space:nowrap;">${colLetter}: ${h}${tag}</th>`;
 				});
@@ -1079,21 +1079,21 @@ templ CustomerSavingProductsPage(data CustomerSavingPageData, lang, dir string) 
 
 				if (step === 'config') {
 					subtitle.textContent = 'الخطوة 1 من 3: اختيار الملف وتعيين الأعمدة';
-					icon.textContent = '📥';
+					icon.textContent = '';
 					startBtn.style.display = 'inline-flex';
 					commitBtn.style.display = 'none';
 					backBtn.style.display = 'none';
 					cancelBtn.textContent = 'إلغاء';
 				} else if (step === 'progress') {
 					subtitle.textContent = 'الخطوة 2 من 3: المعالجة والمطابقة في الخلفية';
-					icon.textContent = '⚡';
+					icon.textContent = '';
 					startBtn.style.display = 'none';
 					commitBtn.style.display = 'none';
 					backBtn.style.display = 'none';
 					cancelBtn.textContent = 'إلغاء المعالجة';
 				} else if (step === 'review') {
 					subtitle.textContent = 'الخطوة 3 من 3: مراجعة المسودة وتأكيد الحفظ النهائي';
-					icon.textContent = '📋';
+					icon.textContent = '';
 					startBtn.style.display = 'none';
 					commitBtn.style.display = 'inline-flex';
 					backBtn.style.display = 'inline-flex';
@@ -1141,17 +1141,17 @@ templ CustomerSavingProductsPage(data CustomerSavingPageData, lang, dir string) 
 
 					if (item.included !== false) selectedCount++;
 
-					let matchBadge = '<span class="badge badge-amber" style="font-size:10px;">غير مرتبط (جديد)</span>';
+					let matchBadge = '<span class="badge badge-amber font-size-10">غير مرتبط (جديد)</span>';
 					if (isMatched) {
 						if (item.match_type === 'exact_sku' || item.match_type === 'clean_sku') {
-							matchBadge = '<span class="badge badge-emerald" style="font-size:10px;">كود SKU ✓</span>';
+							matchBadge = '<span class="badge badge-emerald font-size-10">كود SKU </span>';
 						} else if (item.match_type === 'exact_name' || item.match_type === 'norm_name') {
-							matchBadge = '<span class="badge badge-emerald" style="font-size:10px;">اسم متطابق ✓</span>';
+							matchBadge = '<span class="badge badge-emerald font-size-10">اسم متطابق </span>';
 						} else if (item.match_type === 'core_name') {
-							matchBadge = '<span class="badge badge-sky" style="font-size:10px;">اسم مجرد ✓</span>';
+							matchBadge = '<span class="badge badge-sky font-size-10">اسم مجرد </span>';
 						} else {
 							const conf = Math.round((item.confidence || 0) * 100);
-							matchBadge = '<span class="badge badge-purple" style="font-size:10px;">تشابه ' + conf + '% ✓</span>';
+							matchBadge = '<span class="badge badge-purple font-size-10">تشابه ' + conf + '% </span>';
 						}
 					}
 
@@ -1161,11 +1161,11 @@ templ CustomerSavingProductsPage(data CustomerSavingPageData, lang, dir string) 
 
 					const checkedAttr = (item.included !== false) ? 'checked' : '';
 
-					html += '<tr style="border-bottom:1px solid var(--border);">' +
-						'<td style="text-align:center;">' +
+					html += '<tr class="rule-bottom">' +
+						'<td class="text-center">' +
 							'<input type="checkbox" class="pharmacy-staged-row-cb" data-idx="' + idx + '" ' + checkedAttr + ' onchange="updatePharmacyRowInclusion(' + idx + ', this.checked)" />' +
 						'</td>' +
-						'<td><strong style="color:var(--text);">' + (item.name_product || '') + '</strong></td>' +
+						'<td><strong class="text-body">' + (item.name_product || '') + '</strong></td>' +
 						'<td><code class="text-xs">' + (item.sku || '—') + '</code></td>' +
 						'<td>' + masterDisplay + '</td>' +
 						'<td class="text-center">' + matchBadge + '</td>' +
@@ -1242,7 +1242,7 @@ templ CustomerSavingProductsPage(data CustomerSavingPageData, lang, dir string) 
 					if (!res.success) {
 						alert(res.error || 'فشل حفظ الأصناف.');
 						btn.disabled = false;
-						btn.textContent = '💾 تأكيد الاستيراد والحفظ النهائي في قائمة التوفير';
+						btn.textContent = 'تأكيد الاستيراد والحفظ النهائي في قائمة التوفير';
 						return;
 					}
 					alert(res.message || 'تم استيراد وحفظ الأصناف بنجاح!');
@@ -1252,7 +1252,7 @@ templ CustomerSavingProductsPage(data CustomerSavingPageData, lang, dir string) 
 					console.error('commit error', err);
 					alert('حدث خطأ في الاتصال أثناء تأكيد الحفظ.');
 					btn.disabled = false;
-					btn.textContent = '💾 تأكيد الاستيراد والحفظ النهائي في قائمة التوفير';
+					btn.textContent = 'تأكيد الاستيراد والحفظ النهائي في قائمة التوفير';
 				});
 			}
 
@@ -1295,7 +1295,7 @@ templ CustomerSavingProductsPage(data CustomerSavingPageData, lang, dir string) 
 							return;
 						}
 
-						let html = '<div style="overflow-x:auto;"><table class="table" style="width:100%; border-collapse:collapse; font-size:0.875rem;"><thead><tr style="background:var(--surface-sunken); border-bottom:2px solid var(--border); text-align:start; font-size:0.775rem; color:var(--text-muted);"><th class="p-sm">المورد / المخزن</th><th class="p-sm">العبوة / المواصفات</th><th class="p-sm text-center">المخزون</th><th class="p-sm text-center">سعر الجمهور</th><th class="p-sm text-center">نسبة الخصم</th><th class="p-sm text-center">السعر بعد الخصم</th><th class="p-sm text-center">طلب توريد</th></tr></thead><tbody>';
+						let html = '<div style="overflow-x:auto;"><table class="data-table" style="font-size:0.875rem"><thead><tr style="background:var(--surface-sunken); border-bottom:2px solid var(--border); text-align:start; font-size:0.775rem; color:var(--text-muted);"><th class="p-sm">المورد / المخزن</th><th class="p-sm">العبوة / المواصفات</th><th class="p-sm text-center">المخزون</th><th class="p-sm text-center">سعر الجمهور</th><th class="p-sm text-center">نسبة الخصم</th><th class="p-sm text-center">السعر بعد الخصم</th><th class="p-sm text-center">طلب توريد</th></tr></thead><tbody>';
 
 						providers.forEach(p => {
 							const branchText = p.branch_name ? ('<div style="font-size:0.725rem; color:var(--text-muted); margin-top:2px;">' + p.branch_name + '</div>') : '';
@@ -1320,7 +1320,7 @@ templ CustomerSavingProductsPage(data CustomerSavingPageData, lang, dir string) 
 								'</form>') :
 								'<span class="text-xs text-muted">غير متوفر</span>';
 
-							html += '<tr style="border-bottom:1px solid var(--border);">' +
+							html += '<tr class="rule-bottom">' +
 								'<td class="p-sm"><strong style="color:var(--text); font-size:0.875rem;">' + orgDisplayName + '</strong>' + branchText + '</td>' +
 								'<td class="p-sm"><div>' + varDisplayName + '</div>' + skuText + '</td>' +
 								'<td class="p-sm text-center tabular-nums"><span class="badge ' + stockBadge + '">' + p.stock_quantity + ' عبوة</span></td>' +

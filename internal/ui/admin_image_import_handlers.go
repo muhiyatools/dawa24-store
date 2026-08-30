@@ -43,10 +43,7 @@ func (h *UIHandler) AdminProductImagesImportPage(w http.ResponseWriter, r *http.
 		Actor:      actor,
 	}
 
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	if err := pages.AdminProductImagesImportPage(view, lang, dir).Render(ctx, w); err != nil {
-		h.log.ErrorContext(ctx, "render admin product images import page", "error", err)
-	}
+	h.renderPage(ctx, w, "render admin product images import page", pages.AdminProductImagesImportPage(view, lang, dir))
 }
 
 // AdminProductImagesUploadSubmit handles spreadsheet file upload and opens a new image recovery session.
@@ -178,10 +175,7 @@ func (h *UIHandler) AdminProductImagesSessionPage(w http.ResponseWriter, r *http
 		Actor:      actor,
 	}
 
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	if err := pages.AdminProductImagesImportPage(view, lang, dir).Render(ctx, w); err != nil {
-		h.log.ErrorContext(ctx, "render admin product images session page", "error", err)
-	}
+	h.renderPage(ctx, w, "render admin product images session page", pages.AdminProductImagesImportPage(view, lang, dir))
 }
 
 // AdminProductImagesMappingSubmit confirms column selection and launches image downloading in the background.

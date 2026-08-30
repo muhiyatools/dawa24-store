@@ -19,7 +19,16 @@ const (
 	MaxUploadBytes = 50 * 1024 * 1024 // 50 MB
 )
 
-// GetUploadBaseDir returns the configured uploads directory, respecting UPLOAD_DIR / DATA_DIR env vars.
+// GetUploadBaseDir returns the configured uploads directory, respecting the
+// UPLOAD_DIR and DATA_DIR environment variables.
+//
+// Whatever this returns is the only place an upload is written. Until now every
+// write was mirrored into the relative "data/uploads" as well, which meant
+// configuration could redirect reads but never writes: a test run with
+// UPLOAD_DIR pointed at a temporary directory still wrote into the working
+// tree. Since internal/ui is where the tests run, that filled the repository
+// with uploaded files, 166 of which ended up committed and were then deleted
+// and rewritten by every subsequent `go test ./...`.
 func GetUploadBaseDir() string {
 	if dir := os.Getenv("UPLOAD_DIR"); strings.TrimSpace(dir) != "" {
 		return strings.TrimSpace(dir)
@@ -30,15 +39,12 @@ func GetUploadBaseDir() string {
 	return UploadBaseDir
 }
 
-
 // RegisterUploadRoutes registers the public static file server for uploaded documents & media.
 func RegisterUploadRoutes(r chi.Router) {
 	baseDir := GetUploadBaseDir()
 	_ = os.MkdirAll(baseDir, 0755)
-	_ = os.MkdirAll("data/uploads", 0755)
 	for cat := range allowedUploadCategories {
 		_ = os.MkdirAll(filepath.Join(baseDir, cat), 0755)
-		_ = os.MkdirAll(filepath.Join("data/uploads", cat), 0755)
 	}
 
 	r.Get("/uploads/*", func(w http.ResponseWriter, r *http.Request) {
@@ -131,19 +137,6 @@ func saveUploadedFile(r *http.Request, fieldName, category string) (string, erro
 		return "", fmt.Errorf("failed to save uploaded file: %w", err)
 	}
 
-	// Dual-write to default data/uploads if custom path is configured
-	if baseDir != "data/uploads" {
-		fallbackDir := filepath.Join("data/uploads", category)
-		_ = os.MkdirAll(fallbackDir, 0755)
-		if fSrc, err := os.Open(targetPath); err == nil {
-			if fDst, err := os.Create(filepath.Join(fallbackDir, uniqueName)); err == nil {
-				_, _ = io.Copy(fDst, fSrc)
-				fDst.Close()
-			}
-			fSrc.Close()
-		}
-	}
-
 	// Return public URL path
 	return fmt.Sprintf("/uploads/%s/%s", category, uniqueName), nil
 }
@@ -174,16 +167,8 @@ func saveUploadedBytes(data []byte, originalFilename, category string) (string, 
 		return "", fmt.Errorf("failed to save file: %w", err)
 	}
 
-	// Dual-write to default data/uploads if custom base directory is configured
-	if baseDir != "data/uploads" {
-		fallbackDir := filepath.Join("data/uploads", category)
-		_ = os.MkdirAll(fallbackDir, 0755)
-		_ = os.WriteFile(filepath.Join(fallbackDir, safeFilename), data, 0644)
-	}
-
 	return fmt.Sprintf("/uploads/%s/%s", category, safeFilename), nil
 }
-
 
 // UploadAPISubmit allows asynchronous HTMX or JavaScript file uploads.
 func (h *UIHandler) UploadAPISubmit(w http.ResponseWriter, r *http.Request) {

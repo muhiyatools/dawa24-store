@@ -166,4 +166,3 @@ func (s *Service) AdminTogglePackageActive(ctx context.Context, id int64, active
 func (s *Service) AdminGetPackageByID(ctx context.Context, id int64) (*OfferPackage, error) {
 	return s.repo.GetPackageByID(database.AsSystem(ctx), id)
 }
-

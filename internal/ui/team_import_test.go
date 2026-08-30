@@ -112,7 +112,7 @@ func TestParseAndValidateTeamRows(t *testing.T) {
 	}
 
 	roleMap := map[string]int64{
-		"مدير":   10,
+		"مدير":  10,
 		"صيدلي": 20,
 		"موظف":  30,
 	}

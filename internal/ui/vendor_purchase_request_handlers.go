@@ -37,10 +37,7 @@ func (h *UIHandler) VendorPurchaseRequestsPage(w http.ResponseWriter, r *http.Re
 		}
 	}
 
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	if err := pages.VendorPurchaseRequestsPage(lang, dir, requests, status).Render(ctx, w); err != nil {
-		h.log.ErrorContext(ctx, "render vendor purchase requests page", "error", err)
-	}
+	h.renderPage(ctx, w, "render vendor purchase requests page", pages.VendorPurchaseRequestsPage(lang, dir, requests, status))
 }
 
 // VendorPurchaseRequestDetailPage renders one incoming purchase request with line items.
@@ -72,10 +69,7 @@ func (h *UIHandler) VendorPurchaseRequestDetailPage(w http.ResponseWriter, r *ht
 		return
 	}
 
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	if err := pages.VendorPurchaseRequestDetailPage(lang, dir, request).Render(ctx, w); err != nil {
-		h.log.ErrorContext(ctx, "render vendor purchase request detail page", "error", err)
-	}
+	h.renderPage(ctx, w, "render vendor purchase request detail page", pages.VendorPurchaseRequestDetailPage(lang, dir, request))
 }
 
 // VendorPurchaseRequestRespondSubmit allows vendor to approve, reject, or comment on a purchase request.

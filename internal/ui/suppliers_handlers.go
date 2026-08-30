@@ -263,10 +263,7 @@ func (h *UIHandler) SuppliersPage(w http.ResponseWriter, r *http.Request) {
 		data.Suppliers = items
 	}
 
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	if err := pages.SuppliersDirectory(lang, dir, data).Render(ctx, w); err != nil {
-		h.log.ErrorContext(ctx, "render suppliers directory", "error", err)
-	}
+	h.renderPage(ctx, w, "render suppliers directory", pages.SuppliersDirectory(lang, dir, data))
 }
 
 // FollowedSuppliersPage renders the list of suppliers followed by the current user.
@@ -285,10 +282,7 @@ func (h *UIHandler) FollowedSuppliersPage(w http.ResponseWriter, r *http.Request
 		suppliers, _ = h.orgSvc.ListFollowedOrganizations(ctx, userID)
 	}
 
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	if err := pages.CustomerFollowedSuppliers(suppliers, lang, dir).Render(ctx, w); err != nil {
-		h.log.ErrorContext(ctx, "render followed suppliers page", "error", err)
-	}
+	h.renderPage(ctx, w, "render followed suppliers page", pages.CustomerFollowedSuppliers(suppliers, lang, dir))
 }
 
 // SupplierProfilePage renders a supplier's public profile: catalogue, reviews
@@ -467,10 +461,7 @@ func (h *UIHandler) SupplierProfilePage(w http.ResponseWriter, r *http.Request) 
 		data.Rating = 0
 	}
 
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	if err := pages.SupplierProfile(lang, dir, data).Render(ctx, w); err != nil {
-		h.log.ErrorContext(ctx, "render supplier profile", "error", err)
-	}
+	h.renderPage(ctx, w, "render supplier profile", pages.SupplierProfile(lang, dir, data))
 }
 
 // SupplierFollowSubmit toggles following for the signed-in user.

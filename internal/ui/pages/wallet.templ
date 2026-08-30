@@ -189,7 +189,7 @@ templ walletContent(data WalletViewData, lang, dir string) {
 					</div>
 				} else {
 					<div class="table-responsive">
-						<table class="table mb-0">
+						<table class="data-table mb-0">
 							<thead>
 								<tr>
 									<th>نوع العملية</th>
@@ -268,7 +268,7 @@ templ walletContent(data WalletViewData, lang, dir string) {
 			<!-- Saved Methods Grid -->
 			if len(data.PaymentMethods) == 0 {
 				<div class="card p-6" style="border-radius:var(--radius-xl); text-align:center; background:var(--surface);">
-					<div style="font-size:2rem; margin-bottom:0.5rem;">💳</div>
+					<div style="font-size:2rem; margin-bottom:0.5rem;">@components.IconCreditCard("icon-sm")</div>
 					<h3 style="font-size:1rem; font-weight:800; color:var(--text); margin:0;">لم يتم حفظ أي وسيلة دفع</h3>
 					<p style="font-size:0.85rem; color:var(--text-secondary); margin:0.35rem 0 1rem 0;">
 						أضف حسابك البنكي أو محفظتك لتسهيل تسوية العمليات المالية وسحب الرصيد
@@ -289,17 +289,17 @@ templ walletContent(data WalletViewData, lang, dir string) {
 							<div style="display:flex; align-items:flex-start; gap:0.75rem;">
 								<div style="width:38px; height:38px; border-radius:var(--radius-md); background:var(--surface-sunken); display:flex; align-items:center; justify-content:center; flex-shrink:0; font-size:1.25rem;">
 									if pm.Provider == "bank" {
-										🏦
+										@components.IconBank("icon-sm")
 									} else if pm.Provider == "instapay" {
-										⚡
+										@components.IconZap("icon-sm")
 									} else if pm.Provider == "wallet" || pm.Provider == "vodafone_cash" {
-										📱
+										@components.IconPhone("icon-sm")
 									} else {
-										💳
+										@components.IconCreditCard("icon-sm")
 									}
 								</div>
 								<div>
-									<div style="display:flex; align-items:center; gap:0.5rem; flex-wrap:wrap;">
+									<div class="inline-row-wrap">
 										<span style="font-size:0.9rem; font-weight:800; color:var(--text);">
 											{ paymentProviderTitle(pm.Provider) }
 										</span>
@@ -363,7 +363,7 @@ templ walletContent(data WalletViewData, lang, dir string) {
 					</div>
 				} else {
 					<div class="table-responsive">
-						<table class="table mb-0">
+						<table class="data-table mb-0">
 							<thead>
 								<tr>
 									<th>رقم الطلب</th>
@@ -423,7 +423,7 @@ templ walletContent(data WalletViewData, lang, dir string) {
 				@click.away="isDepositModalOpen = false"
 			>
 				<div class="modal-header">
-					<h3 class="modal-title font-black" style="display:flex; align-items:center; gap:0.5rem;">
+					<h3 class="modal-title font-black d-flex items-center gap-2">
 						@components.IconPlus("icon-xs")
 						<span>شحن رصيد المحفظة</span>
 					</h3>
@@ -489,7 +489,7 @@ templ walletContent(data WalletViewData, lang, dir string) {
 				@click.away="isWithdrawModalOpen = false"
 			>
 				<div class="modal-header">
-					<h3 class="modal-title font-black" style="display:flex; align-items:center; gap:0.5rem;">
+					<h3 class="modal-title font-black d-flex items-center gap-2">
 						@components.IconArrowLeft("icon-xs")
 						<span>طلب سحب رصيد</span>
 					</h3>
@@ -539,7 +539,7 @@ templ walletContent(data WalletViewData, lang, dir string) {
 				@click.away="isAddPaymentModalOpen = false"
 			>
 				<div class="modal-header">
-					<h3 class="modal-title font-black" style="display:flex; align-items:center; gap:0.5rem;">
+					<h3 class="modal-title font-black d-flex items-center gap-2">
 						@components.IconPlus("icon-xs")
 						<span>إضافة وسيلة دفع وحساب معتمد</span>
 					</h3>

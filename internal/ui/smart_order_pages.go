@@ -60,10 +60,7 @@ func (h *UIHandler) SmartOrderProgressPage(w http.ResponseWriter, r *http.Reques
 		data.Percent = 2
 	}
 
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	if err := pages.SmartOrderProgressPage(lang, dir, data).Render(ctx, w); err != nil {
-		h.log.ErrorContext(ctx, "render smart order progress page", "error", err)
-	}
+	h.renderPage(ctx, w, "render smart order progress page", pages.SmartOrderProgressPage(lang, dir, data))
 }
 
 // SmartOrderResultsPage renders step 4: matching and supplier results.
@@ -270,10 +267,7 @@ func (h *UIHandler) SmartOrderReviewPage(w http.ResponseWriter, r *http.Request)
 		}
 	}
 
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	if err := pages.SmartOrderReviewPage(lang, dir, data).Render(ctx, w); err != nil {
-		h.log.ErrorContext(ctx, "render smart order review page", "error", err)
-	}
+	h.renderPage(ctx, w, "render smart order review page", pages.SmartOrderReviewPage(lang, dir, data))
 }
 
 // SmartOrderHistoryPage lists previous runs for this organisation.

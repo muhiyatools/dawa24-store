@@ -30,10 +30,7 @@ func (h *UIHandler) VendorPoliciesPage(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	if err := pages.VendorPoliciesPage(policyMap, lang, dir).Render(ctx, w); err != nil {
-		h.log.ErrorContext(ctx, "render vendor policies", "error", err)
-	}
+	h.renderPage(ctx, w, "render vendor policies", pages.VendorPoliciesPage(policyMap, lang, dir))
 }
 
 // VendorPoliciesSubmit saves the vendor's updated policy text.
@@ -92,10 +89,7 @@ func (h *UIHandler) VendorSocialMediaPage(w http.ResponseWriter, r *http.Request
 		}
 	}
 
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	if err := pages.VendorSocialMediaPage(linksMap, lang, dir).Render(ctx, w); err != nil {
-		h.log.ErrorContext(ctx, "render vendor social media", "error", err)
-	}
+	h.renderPage(ctx, w, "render vendor social media", pages.VendorSocialMediaPage(linksMap, lang, dir))
 }
 
 // VendorSocialMediaSubmit saves the vendor's social media accounts.

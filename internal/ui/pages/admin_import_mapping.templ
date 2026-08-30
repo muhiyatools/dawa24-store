@@ -70,7 +70,7 @@ templ importStepNotice(message, kind string) {
 // importFileCard states what was read, before anything about mapping.
 templ importFileCard(view ImportMappingView) {
 	<div class="glass-panel p-6 mb-6">
-		<h2 class="wiz-head">📄 الملف المرفوع</h2>
+		<h2 class="wiz-head">الملف المرفوع</h2>
 		<p class="wiz-sub">{ view.HeaderSummary() }</p>
 		<div class="wiz-stats">
 			@wizStat(FormatCount(view.Structure.TotalRows), "صف في الملف", "")
@@ -107,7 +107,7 @@ templ importMappingCard(view ImportMappingView) {
 	<div class="glass-panel p-6 mb-6">
 		<div class="flex-between items-center flex-wrap gap-3 mb-4 pb-3 border-b">
 			<div>
-				<h2 class="text-xl font-black text-primary m-0">🧭 ربط وتعيين أعمدة الملف</h2>
+				<h2 class="text-xl font-black text-primary m-0">ربط وتعيين أعمدة الملف</h2>
 				<p class="text-xs text-secondary m-0 mt-1">
 					تم تقسيم الحقول إلى 3 أقسام منظمة لتسهيل المراجعة: الحقول الأساسية، المواصفات الدوائية، وبيانات الأسعار والمخزون.
 				</p>
@@ -117,7 +117,7 @@ templ importMappingCard(view ImportMappingView) {
 		if len(view.Missing) > 0 {
 			<div class="alert alert-danger mb-4 p-4 flex-between">
 				<div class="d-flex items-center gap-3 font-bold text-xs">
-					<span class="text-xl">⚠️</span>
+					<span class="text-xl">@components.IconAlert("icon-sm")</span>
 					<span>{ fmt.Sprintf("حقول أساسية غير مربوطة: %s. يرجى تحديد الأعمدة الخاصة بها للمتابعة.", joinList(view.Missing)) }</span>
 				</div>
 			</div>
@@ -134,7 +134,7 @@ templ importMappingCard(view ImportMappingView) {
 		<div class="glass-panel p-4 mb-4" style="background:var(--bg-surface-raised); border:1px solid var(--border-subtle);">
 			<div class="flex-between items-center mb-3">
 				<div class="d-flex items-center gap-2">
-					<span class="text-base">⭐</span>
+					<span class="text-base">@components.IconStar("icon-sm")</span>
 					<h3 class="text-sm font-black text-primary m-0">الحقول الأساسية لتعريف الصنف (Core Fields)</h3>
 				</div>
 				<span class="badge badge-emerald text-xs font-bold">
@@ -165,7 +165,7 @@ templ importMappingCard(view ImportMappingView) {
 		<div class="glass-panel p-4 mb-4" style="background:var(--bg-surface-raised); border:1px solid var(--border-subtle);">
 			<div class="flex-between items-center mb-3">
 				<div class="d-flex items-center gap-2">
-					<span class="text-base">💊</span>
+					<span class="text-base">@components.IconPill("icon-sm")</span>
 					<h3 class="text-sm font-black text-primary m-0">المواصفات الدوائية والصيدلانية (Pharmaceutical Specs)</h3>
 				</div>
 				<span class="badge badge-sky text-xs font-bold">
@@ -196,7 +196,7 @@ templ importMappingCard(view ImportMappingView) {
 		<div class="glass-panel p-4 mb-0" style="background:var(--bg-surface-raised); border:1px solid var(--border-subtle);">
 			<div class="flex-between items-center mb-3">
 				<div class="d-flex items-center gap-2">
-					<span class="text-base">🏷️</span>
+					<span class="text-base">@components.IconTag("icon-sm")</span>
 					<h3 class="text-sm font-black text-primary m-0">بيانات الأسعار الإضافية، المخزون، والتصنيف (Pricing & Details)</h3>
 				</div>
 				<span class="badge badge-slate text-xs font-bold">
@@ -270,7 +270,7 @@ templ importFieldLine(view ImportMappingView, field ImportFieldRow) {
 templ importPreviewCard(view ImportMappingView) {
 	<div class="glass-panel p-6 mb-6">
 		<h2 class="wiz-head">
-			{ fmt.Sprintf("👁 معاينة أول %d صنف", len(view.PreviewRows)) }
+			{ fmt.Sprintf("معاينة أول %d صنف", len(view.PreviewRows)) }
 		</h2>
 		if view.PreviewIsEmpty() {
 			<div class="import-banner import-banner--error">
@@ -337,7 +337,7 @@ templ importMappingActions(view ImportMappingView) {
 					type="submit"
 					class="btn btn-secondary"
 					formaction={ mappingAction(view, "preview") }
-				>🔄 تحديث المعاينة</button>
+				>تحديث المعاينة</button>
 				<button
 					type="submit"
 					class="btn btn-primary"

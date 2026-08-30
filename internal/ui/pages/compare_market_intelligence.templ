@@ -22,7 +22,7 @@ templ CompareMarketIntelligenceContent(data MarketIntelligencePageData) {
 				<div>
 					<div class="d-flex items-center gap-3 mb-1">
 						<div class="user-avatar-badge text-xl">
-							🧠
+							@components.IconSparkles("icon-sm")
 						</div>
 						<h1 class="text-2xl font-black text-primary m-0">
 							تقرير ذكاء واستخبارات السوق (Market Intelligence)
@@ -44,16 +44,16 @@ templ CompareMarketIntelligenceContent(data MarketIntelligencePageData) {
 			<!-- Navigation Subtabs for all 4 Analysis Modes -->
 			<div class="cb-tabs-nav mt-4 pt-3 border-t">
 				<a href="/compare/results" class="cb-tab-btn">
-					📊 المقارنة المجمعة بين الموردين
+					المقارنة المجمعة بين الموردين
 				</a>
 				<a href="/compare/head-to-head" class="cb-tab-btn">
-					🏢 مقارنة مورد بمورد
+					مقارنة مورد بمورد
 				</a>
 				<a href="/compare/market-benchmark" class="cb-tab-btn">
-					🧠 مقارنة مع موردين السوق
+					مقارنة مع موردين السوق
 				</a>
 				<a href="/compare/market-intelligence" class="cb-tab-btn active">
-					🧠 تقرير ذكاء السوق
+					تقرير ذكاء السوق
 				</a>
 			</div>
 		</div>
@@ -98,7 +98,7 @@ templ CompareMarketIntelligenceContent(data MarketIntelligencePageData) {
 			if len(data.Report.Recommendations) > 0 {
 				<div class="glass-panel p-6 mb-6">
 					<div class="d-flex items-center gap-2 mb-3">
-						<span class="text-xl">💡</span>
+						<span class="text-xl">@components.IconInfo("icon-sm")</span>
 						<h3 class="text-base font-extrabold text-primary m-0">
 							توصيات الذكاء الاستراتيجي للمشتريات والتسعير
 						</h3>
@@ -215,7 +215,7 @@ templ CompareMarketIntelligenceContent(data MarketIntelligencePageData) {
 				<div class="glass-panel p-0 mb-0 overflow-hidden">
 					<div class="p-4 px-6 border-b flex-between items-center">
 						<div class="d-flex items-center gap-2">
-							<span class="text-lg">🏭</span>
+							<span class="text-lg">@components.IconBuilding("icon-sm")</span>
 							<h3 class="text-base font-extrabold text-primary m-0">
 								متوسط خصومات الشركات المصنعة
 							</h3>
@@ -267,7 +267,7 @@ templ CompareMarketIntelligenceContent(data MarketIntelligencePageData) {
 				<div class="glass-panel p-0 mb-0 overflow-hidden">
 					<div class="p-4 px-6 border-b flex-between items-center">
 						<div class="d-flex items-center gap-2">
-							<span class="text-lg">⭐</span>
+							<span class="text-lg">@components.IconStar("icon-sm")</span>
 							<h3 class="text-base font-extrabold text-primary m-0">
 								حصريات الموردين ونواقص السوق
 							</h3>

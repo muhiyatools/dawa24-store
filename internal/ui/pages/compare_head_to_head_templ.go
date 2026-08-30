@@ -85,7 +85,15 @@ func CompareHeadToHeadContent(data HeadToHeadPageData) templ.Component {
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"page-container\"><!-- Header Banner --><div class=\"glass-panel p-6 mb-6\"><div class=\"flex-between flex-wrap gap-4\"><div><div class=\"d-flex items-center gap-3 mb-1\"><div class=\"user-avatar-badge text-xl\">🏢</div><h1 class=\"text-2xl font-black text-primary m-0\">مقارنة مورد بمورد (رأس برأس)</h1></div><p class=\"text-sm text-secondary m-0\">تحليل مقارن مباشر ودقيق لأسعار وخصومات الأصناف بين موردين اثنين مع تحديد نقاط التفوق والضعف والتوفير الصافي.</p></div><div class=\"d-flex items-center gap-3 flex-wrap\"><a href=\"/compare/tool\" class=\"btn btn-secondary font-bold gap-2\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"page-container\"><!-- Header Banner --><div class=\"glass-panel p-6 mb-6\"><div class=\"flex-between flex-wrap gap-4\"><div><div class=\"d-flex items-center gap-3 mb-1\"><div class=\"user-avatar-badge text-xl\">")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = components.IconBuilding("icon-sm").Render(ctx, templ_7745c5c3_Buffer)
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</div><h1 class=\"text-2xl font-black text-primary m-0\">مقارنة مورد بمورد (رأس برأس)</h1></div><p class=\"text-sm text-secondary m-0\">تحليل مقارن مباشر ودقيق لأسعار وخصومات الأصناف بين موردين اثنين مع تحديد نقاط التفوق والضعف والتوفير الصافي.</p></div><div class=\"d-flex items-center gap-3 flex-wrap\"><a href=\"/compare/tool\" class=\"btn btn-secondary font-bold gap-2\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -93,12 +101,12 @@ func CompareHeadToHeadContent(data HeadToHeadPageData) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "<span>مركز الملفات</span></a> ")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "<span>مركز الملفات</span></a> ")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		if data.Result != nil && len(data.Result.Rows) > 0 {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "<button type=\"button\" class=\"btn btn-primary font-bold gap-2\" onclick=\"exportHeadToHeadToCSV()\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "<button type=\"button\" class=\"btn btn-primary font-bold gap-2\" onclick=\"exportHeadToHeadToCSV()\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -106,17 +114,17 @@ func CompareHeadToHeadContent(data HeadToHeadPageData) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "<span>تصدير التقرير</span></button>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "<span>تصدير التقرير</span></button>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "</div></div><!-- Navigation Subtabs for all 4 Analysis Modes --><div class=\"cb-tabs-nav mt-4 pt-3 border-t\"><a href=\"/compare/results\" class=\"cb-tab-btn\">📊 المقارنة المجمعة بين الموردين</a> <a href=\"/compare/head-to-head\" class=\"cb-tab-btn active\">🏢 مقارنة مورد بمورد</a> <a href=\"/compare/market-benchmark\" class=\"cb-tab-btn\">🧠 مقارنة مع موردين السوق</a> <a href=\"/compare/market-intelligence\" class=\"cb-tab-btn\">🧠 تقرير ذكاء السوق</a></div></div><!-- Supplier Selector Form --><div class=\"glass-panel p-6 mb-6\"><form method=\"GET\" action=\"/compare/head-to-head\" class=\"d-grid gap-4 items-end m-0\" style=\"grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)) auto;\"><div><label class=\"form-label font-bold text-xs text-primary mb-1 d-block\">المورد الأساسي (كشفك / المصدر)</label> <select name=\"source\" class=\"form-select text-xs w-full\" required><option value=\"\">-- اختر المورد الأساسي --</option> ")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "</div></div><!-- Navigation Subtabs for all 4 Analysis Modes --><div class=\"cb-tabs-nav mt-4 pt-3 border-t\"><a href=\"/compare/results\" class=\"cb-tab-btn\">المقارنة المجمعة بين الموردين</a> <a href=\"/compare/head-to-head\" class=\"cb-tab-btn active\">مقارنة مورد بمورد</a> <a href=\"/compare/market-benchmark\" class=\"cb-tab-btn\">مقارنة مع موردين السوق</a> <a href=\"/compare/market-intelligence\" class=\"cb-tab-btn\">تقرير ذكاء السوق</a></div></div><!-- Supplier Selector Form --><div class=\"glass-panel p-6 mb-6\"><form method=\"GET\" action=\"/compare/head-to-head\" class=\"d-grid gap-4 items-end m-0\" style=\"grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)) auto;\"><div><label class=\"form-label font-bold text-xs text-primary mb-1 d-block\">المورد الأساسي (كشفك / المصدر)</label> <select name=\"source\" class=\"form-select text-xs w-full\" required><option value=\"\">-- اختر المورد الأساسي --</option> ")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		for _, f := range data.Files {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "<option value=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "<option value=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -129,17 +137,17 @@ func CompareHeadToHeadContent(data HeadToHeadPageData) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			if f.ID == data.SourceFileID {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, " selected")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, " selected")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, ">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, ">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -152,7 +160,7 @@ func CompareHeadToHeadContent(data HeadToHeadPageData) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, " (")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, " (")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -165,17 +173,17 @@ func CompareHeadToHeadContent(data HeadToHeadPageData) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, ")</option>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, ")</option>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "</select></div><div><label class=\"form-label font-bold text-xs text-primary mb-1 d-block\">المورد المقارن به (المنافس / الهدف)</label> <select name=\"target\" class=\"form-select text-xs w-full\" required><option value=\"\">-- اختر المورد المقارن به --</option> ")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "</select></div><div><label class=\"form-label font-bold text-xs text-primary mb-1 d-block\">المورد المقارن به (المنافس / الهدف)</label> <select name=\"target\" class=\"form-select text-xs w-full\" required><option value=\"\">-- اختر المورد المقارن به --</option> ")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		for _, f := range data.Files {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "<option value=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "<option value=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -188,17 +196,17 @@ func CompareHeadToHeadContent(data HeadToHeadPageData) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			if f.ID == data.TargetFileID {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, " selected")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, " selected")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, ">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, ">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -211,7 +219,7 @@ func CompareHeadToHeadContent(data HeadToHeadPageData) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, " (")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, " (")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -224,17 +232,17 @@ func CompareHeadToHeadContent(data HeadToHeadPageData) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, ")</option>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, ")</option>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "</select></div><button type=\"submit\" class=\"btn btn-primary font-bold px-6\">⚡ بدء المقارنة</button></form></div>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, "</select></div><button type=\"submit\" class=\"btn btn-primary font-bold px-6\">بدء المقارنة</button></form></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		if data.Result != nil {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, "<!-- KPI Summary Metric Cards --> <div class=\"dashboard-stat-grid mb-6\"><!-- Shared Products --><div class=\"stat-card-3d\"><div class=\"stat-card-label\">الأصناف المشتركة</div><div class=\"stat-card-value text-primary tabular-nums\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, "<!-- KPI Summary Metric Cards --> <div class=\"dashboard-stat-grid mb-6\"><!-- Shared Products --><div class=\"stat-card-3d\"><div class=\"stat-card-label\">الأصناف المشتركة</div><div class=\"stat-card-value text-primary tabular-nums\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -247,7 +255,7 @@ func CompareHeadToHeadContent(data HeadToHeadPageData) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, "</div><span class=\"text-xs text-secondary mt-1 d-block\">صنف متطابق بين الكشفين</span></div><!-- Your Better (خصمك أفضل منهم) --><div class=\"stat-card-3d\"><div class=\"stat-card-label text-success\">🟢 خصمك أفضل منهم</div><div class=\"stat-card-value text-success tabular-nums\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, "</div><span class=\"text-xs text-secondary mt-1 d-block\">صنف متطابق بين الكشفين</span></div><!-- Your Better (خصمك أفضل منهم) --><div class=\"stat-card-3d\"><div class=\"stat-card-label text-success\">خصمك أفضل منهم</div><div class=\"stat-card-value text-success tabular-nums\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -260,7 +268,7 @@ func CompareHeadToHeadContent(data HeadToHeadPageData) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, "</div><span class=\"text-xs text-secondary mt-1 d-block\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, "</div><span class=\"text-xs text-secondary mt-1 d-block\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -275,7 +283,7 @@ func CompareHeadToHeadContent(data HeadToHeadPageData) templ.Component {
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, "</span></div><!-- Equal Discount (نفس الخصم) --><div class=\"stat-card-3d\"><div class=\"stat-card-label text-brand\">🔵 نفس الخصم</div><div class=\"stat-card-value text-brand tabular-nums\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, "</span></div><!-- Equal Discount (نفس الخصم) --><div class=\"stat-card-3d\"><div class=\"stat-card-label text-brand\">نفس الخصم</div><div class=\"stat-card-value text-brand tabular-nums\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -288,7 +296,7 @@ func CompareHeadToHeadContent(data HeadToHeadPageData) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, "</div><span class=\"text-xs text-secondary mt-1 d-block\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 25, "</div><span class=\"text-xs text-secondary mt-1 d-block\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -303,7 +311,7 @@ func CompareHeadToHeadContent(data HeadToHeadPageData) templ.Component {
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 25, "</span></div><!-- Competitor Better (خصم أفضل منك) --><div class=\"stat-card-3d\"><div class=\"stat-card-label text-danger\">🔴 خصم أفضل منك</div><div class=\"stat-card-value text-danger tabular-nums\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 26, "</span></div><!-- Competitor Better (خصم أفضل منك) --><div class=\"stat-card-3d\"><div class=\"stat-card-label text-danger\">خصم أفضل منك</div><div class=\"stat-card-value text-danger tabular-nums\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -316,7 +324,7 @@ func CompareHeadToHeadContent(data HeadToHeadPageData) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 26, "</div><span class=\"text-xs text-secondary mt-1 d-block\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 27, "</div><span class=\"text-xs text-secondary mt-1 d-block\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -331,7 +339,7 @@ func CompareHeadToHeadContent(data HeadToHeadPageData) templ.Component {
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 27, "</span></div><!-- Competitive Win Rate --><div class=\"stat-card-3d\"><div class=\"stat-card-label\">معدل التفوق التنافسي</div><div class=\"stat-card-value text-brand tabular-nums\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 28, "</span></div><!-- Competitive Win Rate --><div class=\"stat-card-3d\"><div class=\"stat-card-label\">معدل التفوق التنافسي</div><div class=\"stat-card-value text-brand tabular-nums\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -344,7 +352,7 @@ func CompareHeadToHeadContent(data HeadToHeadPageData) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 28, "</div><span class=\"text-xs text-secondary mt-1 d-block\">نسبة تفوقك أو تطابقك</span></div></div><!-- Filter Bar --> <div class=\"glass-panel p-6 mb-6 d-flex flex-col gap-4\"><form method=\"GET\" action=\"/compare/head-to-head\" class=\"m-0\"><input type=\"hidden\" name=\"source\" value=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 29, "</div><span class=\"text-xs text-secondary mt-1 d-block\">نسبة تفوقك أو تطابقك</span></div></div><!-- Filter Bar --> <div class=\"glass-panel p-6 mb-6 d-flex flex-col gap-4\"><form method=\"GET\" action=\"/compare/head-to-head\" class=\"m-0\"><input type=\"hidden\" name=\"source\" value=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -357,7 +365,7 @@ func CompareHeadToHeadContent(data HeadToHeadPageData) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 29, "\"> <input type=\"hidden\" name=\"target\" value=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 30, "\"> <input type=\"hidden\" name=\"target\" value=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -370,7 +378,7 @@ func CompareHeadToHeadContent(data HeadToHeadPageData) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 30, "\"> <input type=\"hidden\" name=\"tab\" value=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 31, "\"> <input type=\"hidden\" name=\"tab\" value=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -383,7 +391,7 @@ func CompareHeadToHeadContent(data HeadToHeadPageData) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 31, "\"><div class=\"d-grid gap-3 items-end\" style=\"grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)) 1.5fr auto;\"><!-- الحد الأدنى للسعر --><div><label class=\"text-xs font-bold text-muted mb-1 d-block\">الحد الأدنى للسعر</label> <input type=\"number\" step=\"0.01\" name=\"min_price\" value=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 32, "\"><div class=\"d-grid gap-3 items-end\" style=\"grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)) 1.5fr auto;\"><!-- الحد الأدنى للسعر --><div><label class=\"text-xs font-bold text-muted mb-1 d-block\">الحد الأدنى للسعر</label> <input type=\"number\" step=\"0.01\" name=\"min_price\" value=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -396,7 +404,7 @@ func CompareHeadToHeadContent(data HeadToHeadPageData) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 32, "\" placeholder=\"0.00\" class=\"form-input text-xs\"></div><!-- الحد الأقصى للسعر --><div><label class=\"text-xs font-bold text-muted mb-1 d-block\">الحد الأقصى للسعر</label> <input type=\"number\" step=\"0.01\" name=\"max_price\" value=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 33, "\" placeholder=\"0.00\" class=\"form-input text-xs\"></div><!-- الحد الأقصى للسعر --><div><label class=\"text-xs font-bold text-muted mb-1 d-block\">الحد الأقصى للسعر</label> <input type=\"number\" step=\"0.01\" name=\"max_price\" value=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -409,7 +417,7 @@ func CompareHeadToHeadContent(data HeadToHeadPageData) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 33, "\" placeholder=\"1000.00\" class=\"form-input text-xs\"></div><!-- الحد الأدنى للخصم --><div><label class=\"text-xs font-bold text-muted mb-1 d-block\">الحد الأدنى للخصم</label> <input type=\"number\" step=\"0.1\" name=\"min_discount\" value=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 34, "\" placeholder=\"1000.00\" class=\"form-input text-xs\"></div><!-- الحد الأدنى للخصم --><div><label class=\"text-xs font-bold text-muted mb-1 d-block\">الحد الأدنى للخصم</label> <input type=\"number\" step=\"0.1\" name=\"min_discount\" value=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -422,7 +430,7 @@ func CompareHeadToHeadContent(data HeadToHeadPageData) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 34, "\" placeholder=\"0%\" class=\"form-input text-xs\"></div><!-- الحد الأقصى للخصم --><div><label class=\"text-xs font-bold text-muted mb-1 d-block\">الحد الأقصى للخصم</label> <input type=\"number\" step=\"0.1\" name=\"max_discount\" value=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 35, "\" placeholder=\"0%\" class=\"form-input text-xs\"></div><!-- الحد الأقصى للخصم --><div><label class=\"text-xs font-bold text-muted mb-1 d-block\">الحد الأقصى للخصم</label> <input type=\"number\" step=\"0.1\" name=\"max_discount\" value=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -435,7 +443,7 @@ func CompareHeadToHeadContent(data HeadToHeadPageData) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 35, "\" placeholder=\"50%\" class=\"form-input text-xs\"></div><!-- بحث بالاسم --><div><label class=\"text-xs font-bold text-muted mb-1 d-block\">بحث باسم الصنف أو الكود</label> <input type=\"text\" name=\"q\" value=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 36, "\" placeholder=\"50%\" class=\"form-input text-xs\"></div><!-- بحث بالاسم --><div><label class=\"text-xs font-bold text-muted mb-1 d-block\">بحث باسم الصنف أو الكود</label> <input type=\"text\" name=\"q\" value=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -448,7 +456,7 @@ func CompareHeadToHeadContent(data HeadToHeadPageData) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 36, "\" placeholder=\"اسم الصنف...\" class=\"form-input text-xs\"></div><button type=\"submit\" class=\"btn btn-primary font-bold px-4\">تطبيق الفلتر</button></div></form><!-- Quick Filter Tabs --><div class=\"d-flex items-center gap-2 pt-3 border-t flex-wrap\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 37, "\" placeholder=\"اسم الصنف...\" class=\"form-input text-xs\"></div><button type=\"submit\" class=\"btn btn-primary font-bold px-4\">تطبيق الفلتر</button></div></form><!-- Quick Filter Tabs --><div class=\"d-flex items-center gap-2 pt-3 border-t flex-wrap\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -457,7 +465,7 @@ func CompareHeadToHeadContent(data HeadToHeadPageData) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 37, "<a href=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 38, "<a href=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -470,7 +478,7 @@ func CompareHeadToHeadContent(data HeadToHeadPageData) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 38, "\" class=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 39, "\" class=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -483,7 +491,7 @@ func CompareHeadToHeadContent(data HeadToHeadPageData) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 39, "\">الكل (")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 40, "\">الكل (")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -496,7 +504,7 @@ func CompareHeadToHeadContent(data HeadToHeadPageData) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 40, ")</a> ")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 41, ")</a> ")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -505,7 +513,7 @@ func CompareHeadToHeadContent(data HeadToHeadPageData) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 41, "<a href=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 42, "<a href=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -518,7 +526,7 @@ func CompareHeadToHeadContent(data HeadToHeadPageData) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 42, "\" class=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 43, "\" class=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -531,20 +539,20 @@ func CompareHeadToHeadContent(data HeadToHeadPageData) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 43, "\">🟢 خصمك أفضل منهم (")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 44, "\">خصمك أفضل منهم (")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var31 string
 			templ_7745c5c3_Var31, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", data.Result.YourBetterCount))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/compare_head_to_head.templ`, Line: 313, Col: 87}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/compare_head_to_head.templ`, Line: 313, Col: 82}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var31))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 44, ")</a> ")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 45, ")</a> ")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -553,7 +561,7 @@ func CompareHeadToHeadContent(data HeadToHeadPageData) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 45, "<a href=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 46, "<a href=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -566,7 +574,7 @@ func CompareHeadToHeadContent(data HeadToHeadPageData) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 46, "\" class=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 47, "\" class=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -579,20 +587,20 @@ func CompareHeadToHeadContent(data HeadToHeadPageData) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 47, "\">🔵 نفس الخصم (")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 48, "\">نفس الخصم (")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var35 string
 			templ_7745c5c3_Var35, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", data.Result.EqualCount))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/compare_head_to_head.templ`, Line: 320, Col: 73}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/compare_head_to_head.templ`, Line: 320, Col: 68}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var35))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 48, ")</a> ")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 49, ")</a> ")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -601,7 +609,7 @@ func CompareHeadToHeadContent(data HeadToHeadPageData) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 49, "<a href=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 50, "<a href=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -614,7 +622,7 @@ func CompareHeadToHeadContent(data HeadToHeadPageData) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 50, "\" class=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 51, "\" class=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -627,20 +635,20 @@ func CompareHeadToHeadContent(data HeadToHeadPageData) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 51, "\">🔴 خصم أفضل منك (")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 52, "\">خصم أفضل منك (")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var39 string
 			templ_7745c5c3_Var39, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", data.Result.CompetitorBetter))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/compare_head_to_head.templ`, Line: 327, Col: 84}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/compare_head_to_head.templ`, Line: 327, Col: 79}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var39))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 52, ")</a></div></div><!-- Main Comparison Table Matching Image 1 Exactly --> <div class=\"glass-panel p-0 mb-0 overflow-hidden\"><div class=\"table-container m-0\"><table class=\"data-table m-0\" id=\"head-to-head-table\"><thead><tr><!-- 1. المنتج --><th>المنتج</th><!-- 2. سعر الجمهور --><th class=\"text-center tabular-nums\">سعر الجمهور</th><!-- 3. نسبة الخصم --><th class=\"text-center tabular-nums\">نسبة الخصم (")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 53, ")</a></div></div><!-- Main Comparison Table Matching Image 1 Exactly --> <div class=\"glass-panel p-0 mb-0 overflow-hidden\"><div class=\"table-container m-0\"><table class=\"data-table m-0\" id=\"head-to-head-table\"><thead><tr><!-- 1. المنتج --><th>المنتج</th><!-- 2. سعر الجمهور --><th class=\"text-center tabular-nums\">سعر الجمهور</th><!-- 3. نسبة الخصم --><th class=\"text-center tabular-nums\">نسبة الخصم (")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -653,18 +661,26 @@ func CompareHeadToHeadContent(data HeadToHeadPageData) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 53, ")</th><!-- 4. خصم أفضل منك --><th class=\"text-center text-danger\">خصم أفضل منك</th><!-- 5. نفس الخصم --><th class=\"text-center text-brand\">نفس الخصم</th><!-- 6. خصمك أفضل منهم --><th class=\"text-center text-success\">خصمك أفضل منهم</th></tr></thead> <tbody>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 54, ")</th><!-- 4. خصم أفضل منك --><th class=\"text-center text-danger\">خصم أفضل منك</th><!-- 5. نفس الخصم --><th class=\"text-center text-brand\">نفس الخصم</th><!-- 6. خصمك أفضل منهم --><th class=\"text-center text-success\">خصمك أفضل منهم</th></tr></thead> <tbody>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			if len(data.Result.Rows) == 0 {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 54, "<tr><td colspan=\"6\" class=\"text-center p-8 text-muted\"><div class=\"text-3xl mb-2\">🔍</div><div class=\"font-extrabold text-base text-primary\">لا توجد نتائج تطابق خيارات الفلترة المحددة</div><div class=\"text-xs text-muted mt-1\">جرب تعديل نطاق الأسعار أو نسب الخصم أو اختيار موردين آخرين.</div></td></tr>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 55, "<tr><td colspan=\"6\" class=\"text-center p-8 text-muted\"><div class=\"text-3xl mb-2\">")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				templ_7745c5c3_Err = components.IconSearch("icon-sm").Render(ctx, templ_7745c5c3_Buffer)
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 56, "</div><div class=\"font-extrabold text-base text-primary\">لا توجد نتائج تطابق خيارات الفلترة المحددة</div><div class=\"text-xs text-muted mt-1\">جرب تعديل نطاق الأسعار أو نسب الخصم أو اختيار موردين آخرين.</div></td></tr>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			}
 			for _, r := range data.Result.Rows {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 55, "<tr><!-- 1. المنتج --><td><div class=\"font-extrabold text-primary text-sm\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 57, "<tr><!-- 1. المنتج --><td><div class=\"font-extrabold text-primary text-sm\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -677,12 +693,12 @@ func CompareHeadToHeadContent(data HeadToHeadPageData) templ.Component {
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 56, "</div>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 58, "</div>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				if r.SKU != "" {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 57, "<span class=\"text-xs text-muted tabular-nums\">كود: ")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 59, "<span class=\"text-xs text-muted tabular-nums\">كود: ")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -695,12 +711,12 @@ func CompareHeadToHeadContent(data HeadToHeadPageData) templ.Component {
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 58, "</span>")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 60, "</span>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 59, "</td><!-- 2. السعر --><td class=\"text-center font-bold text-secondary tabular-nums\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 61, "</td><!-- 2. السعر --><td class=\"text-center font-bold text-secondary tabular-nums\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -713,12 +729,12 @@ func CompareHeadToHeadContent(data HeadToHeadPageData) templ.Component {
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 60, " ج.م</td><!-- 3. الخصم --><td class=\"text-center font-extrabold text-primary tabular-nums\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 62, " ج.م</td><!-- 3. الخصم --><td class=\"text-center font-extrabold text-primary tabular-nums\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				if r.YourDiscount > 0 {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 61, "<span class=\"badge badge-slate text-xs\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 63, "<span class=\"badge badge-slate text-xs\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -731,22 +747,22 @@ func CompareHeadToHeadContent(data HeadToHeadPageData) templ.Component {
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 62, "</span>")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 64, "</span>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 				} else {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 63, "<span class=\"text-muted\">0%</span>")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 65, "<span class=\"text-muted\">0%</span>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 64, "</td><!-- 4. خصم أفضل منك --><td class=\"text-center tabular-nums\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 66, "</td><!-- 4. خصم أفضل منك --><td class=\"text-center tabular-nums\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				if r.Outcome == compare.OutcomeCompetitorBetter {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 65, "<div class=\"d-inline-flex flex-col items-center gap-1 p-1 px-2 bg-danger-subtle border border-danger rounded-lg\"><span class=\"font-extrabold text-danger text-xs\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 67, "<div class=\"d-inline-flex flex-col items-center gap-1 p-1 px-2 bg-danger-subtle border border-danger rounded-lg\"><span class=\"font-extrabold text-danger text-xs\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -759,7 +775,7 @@ func CompareHeadToHeadContent(data HeadToHeadPageData) templ.Component {
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 66, "</span> <span class=\"text-xs text-danger font-bold\">(+")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 68, "</span> <span class=\"text-xs text-danger font-bold\">(+")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -772,22 +788,22 @@ func CompareHeadToHeadContent(data HeadToHeadPageData) templ.Component {
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 67, " للمنافس)</span></div>")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 69, " للمنافس)</span></div>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 				} else {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 68, "<span class=\"text-muted\">—</span>")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 70, "<span class=\"text-muted\">—</span>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 69, "</td><!-- 5. نفس الخصم --><td class=\"text-center tabular-nums\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 71, "</td><!-- 5. نفس الخصم --><td class=\"text-center tabular-nums\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				if r.Outcome == compare.OutcomeEqual {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 70, "<span class=\"badge badge-sky text-xs font-bold\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 72, "<span class=\"badge badge-sky text-xs font-bold\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -800,22 +816,22 @@ func CompareHeadToHeadContent(data HeadToHeadPageData) templ.Component {
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 71, "</span>")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 73, "</span>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 				} else {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 72, "<span class=\"text-muted\">—</span>")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 74, "<span class=\"text-muted\">—</span>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 73, "</td><!-- 6. خصمك أفضل منهم --><td class=\"text-center tabular-nums\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 75, "</td><!-- 6. خصمك أفضل منهم --><td class=\"text-center tabular-nums\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				if r.Outcome == compare.OutcomeYourBetter {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 74, "<div class=\"d-inline-flex flex-col items-center gap-1 p-1 px-2 bg-emerald-subtle border border-emerald rounded-lg\"><span class=\"font-extrabold text-success text-xs\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 76, "<div class=\"d-inline-flex flex-col items-center gap-1 p-1 px-2 bg-emerald-subtle border border-emerald rounded-lg\"><span class=\"font-extrabold text-success text-xs\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -828,7 +844,7 @@ func CompareHeadToHeadContent(data HeadToHeadPageData) templ.Component {
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 75, "</span> <span class=\"text-xs text-success font-bold\">(+")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 77, "</span> <span class=\"text-xs text-success font-bold\">(+")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -841,27 +857,27 @@ func CompareHeadToHeadContent(data HeadToHeadPageData) templ.Component {
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 76, " أفضلية لك)</span></div>")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 78, " أفضلية لك)</span></div>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 				} else {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 77, "<span class=\"text-muted\">—</span>")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 79, "<span class=\"text-muted\">—</span>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 78, "</td></tr>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 80, "</td></tr>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 79, "</tbody></table></div></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 81, "</tbody></table></div></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 80, "</div><!-- Export Table to CSV Script --><script>\n\t\tfunction exportHeadToHeadToCSV() {\n\t\t\tvar table = document.getElementById(\"head-to-head-table\");\n\t\t\tif (!table) return;\n\t\t\tvar rows = table.querySelectorAll(\"tr\");\n\t\t\tvar csv = [];\n\t\t\tfor (var i = 0; i < rows.length; i++) {\n\t\t\t\tvar row = [], cols = rows[i].querySelectorAll(\"td, th\");\n\t\t\t\tfor (var j = 0; j < cols.length; j++) {\n\t\t\t\t\tvar data = cols[j].innerText.replace(/(\\r\\n|\\n|\\r)/gm, \" \").trim();\n\t\t\t\t\tdata = data.replace(/\"/g, '\"\"');\n\t\t\t\t\trow.push('\"' + data + '\"');\n\t\t\t\t}\n\t\t\t\tcsv.push(row.join(\",\"));\n\t\t\t}\n\t\t\tvar csvFile = new Blob([\"\\uFEFF\" + csv.join(\"\\n\")], { type: \"text/csv;charset=utf-8;\" });\n\t\t\tvar downloadLink = document.createElement(\"a\");\n\t\t\tdownloadLink.download = \"head_to_head_comparison.csv\";\n\t\t\tdownloadLink.href = window.URL.createObjectURL(csvFile);\n\t\t\tdownloadLink.style.display = \"none\";\n\t\t\tdocument.body.appendChild(downloadLink);\n\t\t\tdownloadLink.click();\n\t\t\tdocument.body.removeChild(downloadLink);\n\t\t}\n\t</script>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 82, "</div><!-- Export Table to CSV Script --><script>\n\t\tfunction exportHeadToHeadToCSV() {\n\t\t\tvar table = document.getElementById(\"head-to-head-table\");\n\t\t\tif (!table) return;\n\t\t\tvar rows = table.querySelectorAll(\"tr\");\n\t\t\tvar csv = [];\n\t\t\tfor (var i = 0; i < rows.length; i++) {\n\t\t\t\tvar row = [], cols = rows[i].querySelectorAll(\"td, th\");\n\t\t\t\tfor (var j = 0; j < cols.length; j++) {\n\t\t\t\t\tvar data = cols[j].innerText.replace(/(\\r\\n|\\n|\\r)/gm, \" \").trim();\n\t\t\t\t\tdata = data.replace(/\"/g, '\"\"');\n\t\t\t\t\trow.push('\"' + data + '\"');\n\t\t\t\t}\n\t\t\t\tcsv.push(row.join(\",\"));\n\t\t\t}\n\t\t\tvar csvFile = new Blob([\"\\uFEFF\" + csv.join(\"\\n\")], { type: \"text/csv;charset=utf-8;\" });\n\t\t\tvar downloadLink = document.createElement(\"a\");\n\t\t\tdownloadLink.download = \"head_to_head_comparison.csv\";\n\t\t\tdownloadLink.href = window.URL.createObjectURL(csvFile);\n\t\t\tdownloadLink.style.display = \"none\";\n\t\t\tdocument.body.appendChild(downloadLink);\n\t\t\tdownloadLink.click();\n\t\t\tdocument.body.removeChild(downloadLink);\n\t\t}\n\t</script>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

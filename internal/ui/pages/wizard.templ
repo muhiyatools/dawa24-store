@@ -1,6 +1,9 @@
 package pages
 
-import "fmt"
+import (
+	"github.com/muhiya/dawa24-store/internal/ui/components"
+	"fmt"
+)
 
 // The shared wizard chrome.
 //
@@ -34,7 +37,7 @@ templ WizardRail(steps []WizardStep) {
 			>
 				<span class="wiz-bubble" aria-hidden="true">
 					if step.Done {
-						✓
+						@components.IconCheck("icon-sm")
 					} else if step.Skipped {
 						—
 					} else {

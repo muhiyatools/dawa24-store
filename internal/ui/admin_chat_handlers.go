@@ -48,10 +48,7 @@ func (h *UIHandler) AdminChatHistoryPage(w http.ResponseWriter, r *http.Request)
 		AIConvs:     aiConvs,
 	}
 
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	if err := pages.AdminChatHistoryPage(data, lang, dir).Render(ctx, w); err != nil {
-		h.log.ErrorContext(ctx, "render admin chat history", "error", err)
-	}
+	h.renderPage(ctx, w, "render admin chat history", pages.AdminChatHistoryPage(data, lang, dir))
 }
 
 // AdminAIChatDetailPage renders full messages transcript for an AI assistant conversation.
@@ -77,8 +74,5 @@ func (h *UIHandler) AdminAIChatDetailPage(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	if err := pages.AdminAIChatDetailPage(summary, msgs, lang, dir).Render(ctx, w); err != nil {
-		h.log.ErrorContext(ctx, "render admin ai chat detail", "error", err)
-	}
+	h.renderPage(ctx, w, "render admin ai chat detail", pages.AdminAIChatDetailPage(summary, msgs, lang, dir))
 }

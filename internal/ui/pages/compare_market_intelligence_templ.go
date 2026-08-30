@@ -42,7 +42,15 @@ func CompareMarketIntelligenceContent(data MarketIntelligencePageData) templ.Com
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"page-container\"><!-- Header Banner --><div class=\"glass-panel p-6 mb-6\"><div class=\"flex-between flex-wrap gap-4\"><div><div class=\"d-flex items-center gap-3 mb-1\"><div class=\"user-avatar-badge text-xl\">🧠</div><h1 class=\"text-2xl font-black text-primary m-0\">تقرير ذكاء واستخبارات السوق (Market Intelligence)</h1></div><p class=\"text-sm text-secondary m-0\">رؤية تحليلية شاملة لحركة الخصومات والأسعار وفرص التوفير والوفر التنافسي ونواقص السوق عبر كافة الموردين.</p></div><div class=\"d-flex items-center gap-3 flex-wrap\"><a href=\"/compare/tool\" class=\"btn btn-secondary font-bold gap-2\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"page-container\"><!-- Header Banner --><div class=\"glass-panel p-6 mb-6\"><div class=\"flex-between flex-wrap gap-4\"><div><div class=\"d-flex items-center gap-3 mb-1\"><div class=\"user-avatar-badge text-xl\">")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = components.IconSparkles("icon-sm").Render(ctx, templ_7745c5c3_Buffer)
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</div><h1 class=\"text-2xl font-black text-primary m-0\">تقرير ذكاء واستخبارات السوق (Market Intelligence)</h1></div><p class=\"text-sm text-secondary m-0\">رؤية تحليلية شاملة لحركة الخصومات والأسعار وفرص التوفير والوفر التنافسي ونواقص السوق عبر كافة الموردين.</p></div><div class=\"d-flex items-center gap-3 flex-wrap\"><a href=\"/compare/tool\" class=\"btn btn-secondary font-bold gap-2\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -50,12 +58,12 @@ func CompareMarketIntelligenceContent(data MarketIntelligencePageData) templ.Com
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "<span>مركز الملفات</span></a></div></div><!-- Navigation Subtabs for all 4 Analysis Modes --><div class=\"cb-tabs-nav mt-4 pt-3 border-t\"><a href=\"/compare/results\" class=\"cb-tab-btn\">📊 المقارنة المجمعة بين الموردين</a> <a href=\"/compare/head-to-head\" class=\"cb-tab-btn\">🏢 مقارنة مورد بمورد</a> <a href=\"/compare/market-benchmark\" class=\"cb-tab-btn\">🧠 مقارنة مع موردين السوق</a> <a href=\"/compare/market-intelligence\" class=\"cb-tab-btn active\">🧠 تقرير ذكاء السوق</a></div></div>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "<span>مركز الملفات</span></a></div></div><!-- Navigation Subtabs for all 4 Analysis Modes --><div class=\"cb-tabs-nav mt-4 pt-3 border-t\"><a href=\"/compare/results\" class=\"cb-tab-btn\">المقارنة المجمعة بين الموردين</a> <a href=\"/compare/head-to-head\" class=\"cb-tab-btn\">مقارنة مورد بمورد</a> <a href=\"/compare/market-benchmark\" class=\"cb-tab-btn\">مقارنة مع موردين السوق</a> <a href=\"/compare/market-intelligence\" class=\"cb-tab-btn active\">تقرير ذكاء السوق</a></div></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		if data.Report != nil {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "<!-- 1. Market Vital KPIs --> <div class=\"dashboard-stat-grid mb-6\"><div class=\"stat-card-3d\"><div class=\"stat-card-label\">إجمالي الأصناف المرصودة</div><div class=\"stat-card-value text-primary tabular-nums\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "<!-- 1. Market Vital KPIs --> <div class=\"dashboard-stat-grid mb-6\"><div class=\"stat-card-3d\"><div class=\"stat-card-label\">إجمالي الأصناف المرصودة</div><div class=\"stat-card-value text-primary tabular-nums\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -68,7 +76,7 @@ func CompareMarketIntelligenceContent(data MarketIntelligencePageData) templ.Com
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "</div><span class=\"text-xs text-secondary mt-1 d-block\">عبر ")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "</div><span class=\"text-xs text-secondary mt-1 d-block\">عبر ")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -81,7 +89,7 @@ func CompareMarketIntelligenceContent(data MarketIntelligencePageData) templ.Com
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, " موردين نشطين</span></div><div class=\"stat-card-3d\"><div class=\"stat-card-label text-success\">متوسط خصم السوق العام</div><div class=\"stat-card-value text-success tabular-nums\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, " موردين نشطين</span></div><div class=\"stat-card-3d\"><div class=\"stat-card-label text-success\">متوسط خصم السوق العام</div><div class=\"stat-card-value text-success tabular-nums\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -94,7 +102,7 @@ func CompareMarketIntelligenceContent(data MarketIntelligencePageData) templ.Com
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "</div><span class=\"text-xs text-secondary mt-1 d-block\">مؤشر الخصم المرجعي للمنصة</span></div><div class=\"stat-card-3d\"><div class=\"stat-card-label text-warning\">أعلى خصم متاح بالسوق</div><div class=\"stat-card-value text-warning tabular-nums\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "</div><span class=\"text-xs text-secondary mt-1 d-block\">مؤشر الخصم المرجعي للمنصة</span></div><div class=\"stat-card-3d\"><div class=\"stat-card-label text-warning\">أعلى خصم متاح بالسوق</div><div class=\"stat-card-value text-warning tabular-nums\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -107,7 +115,7 @@ func CompareMarketIntelligenceContent(data MarketIntelligencePageData) templ.Com
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "</div><span class=\"text-xs text-secondary mt-1 d-block\">أفضل عروض التوفير الحالية</span></div><div class=\"stat-card-3d\"><div class=\"stat-card-label text-brand\">فرص التوفير الكبرى (Arbitrage)</div><div class=\"stat-card-value text-brand tabular-nums\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "</div><span class=\"text-xs text-secondary mt-1 d-block\">أفضل عروض التوفير الحالية</span></div><div class=\"stat-card-3d\"><div class=\"stat-card-label text-brand\">فرص التوفير الكبرى (Arbitrage)</div><div class=\"stat-card-value text-brand tabular-nums\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -120,17 +128,25 @@ func CompareMarketIntelligenceContent(data MarketIntelligencePageData) templ.Com
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "</div><span class=\"text-xs text-secondary mt-1 d-block\">فارق خصم يتجاوز 3% بين الموردين</span></div></div><!-- 2. Actionable Smart Recommendations --> ")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "</div><span class=\"text-xs text-secondary mt-1 d-block\">فارق خصم يتجاوز 3% بين الموردين</span></div></div><!-- 2. Actionable Smart Recommendations --> ")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			if len(data.Report.Recommendations) > 0 {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "<div class=\"glass-panel p-6 mb-6\"><div class=\"d-flex items-center gap-2 mb-3\"><span class=\"text-xl\">💡</span><h3 class=\"text-base font-extrabold text-primary m-0\">توصيات الذكاء الاستراتيجي للمشتريات والتسعير</h3></div><ul class=\"d-flex flex-col gap-2 ps-4 m-0 text-sm text-secondary leading-relaxed\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "<div class=\"glass-panel p-6 mb-6\"><div class=\"d-flex items-center gap-2 mb-3\"><span class=\"text-xl\">")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				templ_7745c5c3_Err = components.IconInfo("icon-sm").Render(ctx, templ_7745c5c3_Buffer)
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "</span><h3 class=\"text-base font-extrabold text-primary m-0\">توصيات الذكاء الاستراتيجي للمشتريات والتسعير</h3></div><ul class=\"d-flex flex-col gap-2 ps-4 m-0 text-sm text-secondary leading-relaxed\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				for _, rec := range data.Report.Recommendations {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "<li>")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "<li>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -143,28 +159,28 @@ func CompareMarketIntelligenceContent(data MarketIntelligencePageData) templ.Com
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "</li>")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "</li>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "</ul></div>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "</ul></div>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, " <!-- 3. Top Arbitrage Opportunities Table --> <div class=\"glass-panel p-0 mb-6 overflow-hidden\"><div class=\"p-4 px-6 border-b flex-between flex-wrap gap-2\"><div class=\"d-flex items-center gap-2\"><span class=\"text-xl\">💎</span><h3 class=\"text-base font-extrabold text-primary m-0\">أفضل فرص الوفر والشراء الذهبية (Highest Discount Spreads)</h3></div><span class=\"badge badge-emerald text-xs font-bold\">فروق خصومات حقيقية بين الموردين</span></div><div class=\"table-container m-0\"><table class=\"data-table m-0\"><thead><tr><th>اسم الصنف</th><th>المورد الأفضل (أعلى خصم)</th><th>المورد الأقل خصماً</th><th class=\"text-center tabular-nums\">فارق الخصم</th><th class=\"text-center tabular-nums\">الوفر لكل عبوة</th></tr></thead> <tbody>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, " <!-- 3. Top Arbitrage Opportunities Table --> <div class=\"glass-panel p-0 mb-6 overflow-hidden\"><div class=\"p-4 px-6 border-b flex-between flex-wrap gap-2\"><div class=\"d-flex items-center gap-2\"><span class=\"text-xl\">💎</span><h3 class=\"text-base font-extrabold text-primary m-0\">أفضل فرص الوفر والشراء الذهبية (Highest Discount Spreads)</h3></div><span class=\"badge badge-emerald text-xs font-bold\">فروق خصومات حقيقية بين الموردين</span></div><div class=\"table-container m-0\"><table class=\"data-table m-0\"><thead><tr><th>اسم الصنف</th><th>المورد الأفضل (أعلى خصم)</th><th>المورد الأقل خصماً</th><th class=\"text-center tabular-nums\">فارق الخصم</th><th class=\"text-center tabular-nums\">الوفر لكل عبوة</th></tr></thead> <tbody>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			if len(data.Report.TopArbitrage) == 0 {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "<tr><td colspan=\"5\" class=\"text-center p-8 text-muted\">لا توجد فروق خصومات كبيرة مرصودة حالياً.</td></tr>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "<tr><td colspan=\"5\" class=\"text-center p-8 text-muted\">لا توجد فروق خصومات كبيرة مرصودة حالياً.</td></tr>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			}
 			for _, deal := range data.Report.TopArbitrage {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "<tr><!-- الصنف --><td><div class=\"font-extrabold text-primary text-sm\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "<tr><!-- الصنف --><td><div class=\"font-extrabold text-primary text-sm\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -177,12 +193,12 @@ func CompareMarketIntelligenceContent(data MarketIntelligencePageData) templ.Com
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "</div>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "</div>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				if deal.SKU != "" {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "<span class=\"text-xs text-muted tabular-nums\">كود: ")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "<span class=\"text-xs text-muted tabular-nums\">كود: ")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -195,12 +211,12 @@ func CompareMarketIntelligenceContent(data MarketIntelligencePageData) templ.Com
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "</span>")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, "</span>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "</td><!-- المورد الأفضل --><td><div class=\"d-flex items-center gap-2\"><span class=\"badge badge-emerald text-xs font-extrabold\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, "</td><!-- المورد الأفضل --><td><div class=\"d-flex items-center gap-2\"><span class=\"badge badge-emerald text-xs font-extrabold\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -213,7 +229,7 @@ func CompareMarketIntelligenceContent(data MarketIntelligencePageData) templ.Com
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, "</span><div><div class=\"font-bold text-xs text-primary\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, "</span><div><div class=\"font-bold text-xs text-primary\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -226,7 +242,7 @@ func CompareMarketIntelligenceContent(data MarketIntelligencePageData) templ.Com
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, "</div><div class=\"text-xs text-muted tabular-nums\">صافي: ")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, "</div><div class=\"text-xs text-muted tabular-nums\">صافي: ")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -239,7 +255,7 @@ func CompareMarketIntelligenceContent(data MarketIntelligencePageData) templ.Com
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, " ج.م</div></div></div></td><!-- المورد الأقل --><td><div class=\"d-flex items-center gap-2\"><span class=\"badge badge-slate text-xs\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, " ج.م</div></div></div></td><!-- المورد الأقل --><td><div class=\"d-flex items-center gap-2\"><span class=\"badge badge-slate text-xs\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -252,7 +268,7 @@ func CompareMarketIntelligenceContent(data MarketIntelligencePageData) templ.Com
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, "</span><div><div class=\"font-bold text-xs text-muted\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 25, "</span><div><div class=\"font-bold text-xs text-muted\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -265,7 +281,7 @@ func CompareMarketIntelligenceContent(data MarketIntelligencePageData) templ.Com
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, "</div><div class=\"text-xs text-muted tabular-nums\">صافي: ")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 26, "</div><div class=\"text-xs text-muted tabular-nums\">صافي: ")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -278,7 +294,7 @@ func CompareMarketIntelligenceContent(data MarketIntelligencePageData) templ.Com
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 25, " ج.م</div></div></div></td><!-- فارق الخصم --><td class=\"text-center tabular-nums\"><span class=\"badge badge-emerald text-xs font-extrabold\">+")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 27, " ج.م</div></div></div></td><!-- فارق الخصم --><td class=\"text-center tabular-nums\"><span class=\"badge badge-emerald text-xs font-extrabold\">+")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -291,7 +307,7 @@ func CompareMarketIntelligenceContent(data MarketIntelligencePageData) templ.Com
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 26, "</span></td><!-- الوفر للعبوة --><td class=\"text-center font-extrabold text-primary text-sm tabular-nums\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 28, "</span></td><!-- الوفر للعبوة --><td class=\"text-center font-extrabold text-primary text-sm tabular-nums\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -304,23 +320,31 @@ func CompareMarketIntelligenceContent(data MarketIntelligencePageData) templ.Com
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 27, " ج.م</td></tr>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 29, " ج.م</td></tr>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 28, "</tbody></table></div></div><!-- 4. Manufacturer / Brand Breakdown & Market Gaps (Two-column grid) --> <div class=\"dashboard-workspace-grid mb-6\"><!-- Brand Discount Stats --><div class=\"glass-panel p-0 mb-0 overflow-hidden\"><div class=\"p-4 px-6 border-b flex-between items-center\"><div class=\"d-flex items-center gap-2\"><span class=\"text-lg\">🏭</span><h3 class=\"text-base font-extrabold text-primary m-0\">متوسط خصومات الشركات المصنعة</h3></div></div><div class=\"table-container m-0 max-h-360 overflow-y-auto\"><table class=\"data-table m-0\"><thead><tr><th>الشركة المصنعة</th><th class=\"text-center tabular-nums\">الأصناف</th><th class=\"text-center tabular-nums\">متوسط الخصم</th><th class=\"text-center tabular-nums\">أعلى خصم</th></tr></thead> <tbody>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 30, "</tbody></table></div></div><!-- 4. Manufacturer / Brand Breakdown & Market Gaps (Two-column grid) --> <div class=\"dashboard-workspace-grid mb-6\"><!-- Brand Discount Stats --><div class=\"glass-panel p-0 mb-0 overflow-hidden\"><div class=\"p-4 px-6 border-b flex-between items-center\"><div class=\"d-flex items-center gap-2\"><span class=\"text-lg\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = components.IconBuilding("icon-sm").Render(ctx, templ_7745c5c3_Buffer)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 31, "</span><h3 class=\"text-base font-extrabold text-primary m-0\">متوسط خصومات الشركات المصنعة</h3></div></div><div class=\"table-container m-0 max-h-360 overflow-y-auto\"><table class=\"data-table m-0\"><thead><tr><th>الشركة المصنعة</th><th class=\"text-center tabular-nums\">الأصناف</th><th class=\"text-center tabular-nums\">متوسط الخصم</th><th class=\"text-center tabular-nums\">أعلى خصم</th></tr></thead> <tbody>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			if len(data.Report.BrandStats) == 0 {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 29, "<tr><td colspan=\"4\" class=\"text-center p-6 text-muted\">لا تتوفر إحصائيات شركات مصنعة حالياً.</td></tr>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 32, "<tr><td colspan=\"4\" class=\"text-center p-6 text-muted\">لا تتوفر إحصائيات شركات مصنعة حالياً.</td></tr>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			}
 			for _, b := range data.Report.BrandStats {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 30, "<tr><td class=\"font-bold text-primary text-xs\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 33, "<tr><td class=\"font-bold text-primary text-xs\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -333,7 +357,7 @@ func CompareMarketIntelligenceContent(data MarketIntelligencePageData) templ.Com
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 31, "</td><td class=\"text-center text-muted text-xs tabular-nums\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 34, "</td><td class=\"text-center text-muted text-xs tabular-nums\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -346,7 +370,7 @@ func CompareMarketIntelligenceContent(data MarketIntelligencePageData) templ.Com
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 32, "</td><td class=\"text-center font-extrabold text-primary text-xs tabular-nums\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 35, "</td><td class=\"text-center font-extrabold text-primary text-xs tabular-nums\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -359,7 +383,7 @@ func CompareMarketIntelligenceContent(data MarketIntelligencePageData) templ.Com
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 33, "</td><td class=\"text-center tabular-nums\"><span class=\"badge badge-emerald text-xs font-bold\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 36, "</td><td class=\"text-center tabular-nums\"><span class=\"badge badge-emerald text-xs font-bold\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -372,23 +396,31 @@ func CompareMarketIntelligenceContent(data MarketIntelligencePageData) templ.Com
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 34, "</span></td></tr>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 37, "</span></td></tr>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 35, "</tbody></table></div></div><!-- Market Gaps / Exclusive Offerings --><div class=\"glass-panel p-0 mb-0 overflow-hidden\"><div class=\"p-4 px-6 border-b flex-between items-center\"><div class=\"d-flex items-center gap-2\"><span class=\"text-lg\">⭐</span><h3 class=\"text-base font-extrabold text-primary m-0\">حصريات الموردين ونواقص السوق</h3></div><span class=\"badge badge-amber text-xs font-bold\">متوفر لدى مورد واحد</span></div><div class=\"table-container m-0 max-h-360 overflow-y-auto\"><table class=\"data-table m-0\"><thead><tr><th>اسم الصنف</th><th>المورد الحصري</th><th class=\"text-center tabular-nums\">الخصم</th></tr></thead> <tbody>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 38, "</tbody></table></div></div><!-- Market Gaps / Exclusive Offerings --><div class=\"glass-panel p-0 mb-0 overflow-hidden\"><div class=\"p-4 px-6 border-b flex-between items-center\"><div class=\"d-flex items-center gap-2\"><span class=\"text-lg\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = components.IconStar("icon-sm").Render(ctx, templ_7745c5c3_Buffer)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 39, "</span><h3 class=\"text-base font-extrabold text-primary m-0\">حصريات الموردين ونواقص السوق</h3></div><span class=\"badge badge-amber text-xs font-bold\">متوفر لدى مورد واحد</span></div><div class=\"table-container m-0 max-h-360 overflow-y-auto\"><table class=\"data-table m-0\"><thead><tr><th>اسم الصنف</th><th>المورد الحصري</th><th class=\"text-center tabular-nums\">الخصم</th></tr></thead> <tbody>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			if len(data.Report.MarketGaps) == 0 {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 36, "<tr><td colspan=\"3\" class=\"text-center p-6 text-muted\">لا توجد أصناف حصرية أحادية المورد حالياً.</td></tr>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 40, "<tr><td colspan=\"3\" class=\"text-center p-6 text-muted\">لا توجد أصناف حصرية أحادية المورد حالياً.</td></tr>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			}
 			for _, gap := range data.Report.MarketGaps {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 37, "<tr><td class=\"font-bold text-primary text-xs\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 41, "<tr><td class=\"font-bold text-primary text-xs\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -401,7 +433,7 @@ func CompareMarketIntelligenceContent(data MarketIntelligencePageData) templ.Com
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 38, "</td><td class=\"text-secondary text-xs\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 42, "</td><td class=\"text-secondary text-xs\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -414,7 +446,7 @@ func CompareMarketIntelligenceContent(data MarketIntelligencePageData) templ.Com
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 39, "</td><td class=\"text-center tabular-nums\"><span class=\"badge badge-slate text-xs font-bold\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 43, "</td><td class=\"text-center tabular-nums\"><span class=\"badge badge-slate text-xs font-bold\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -427,17 +459,17 @@ func CompareMarketIntelligenceContent(data MarketIntelligencePageData) templ.Com
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 40, "</span></td></tr>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 44, "</span></td></tr>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 41, "</tbody></table></div></div></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 45, "</tbody></table></div></div></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 42, "</div>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 46, "</div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

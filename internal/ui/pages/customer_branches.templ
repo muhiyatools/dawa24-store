@@ -104,14 +104,14 @@ templ CustomerBranches(data CustomerBranchesData, lang string, dir string, perms
 				if data.NoticeType == "error" {
 					<div class="alert alert-danger mb-4 p-4 flex-between">
 						<div class="d-flex items-center gap-3 font-extrabold text-sm">
-							<span class="text-2xl">⚠️</span>
+							<span class="text-2xl">@components.IconAlert("icon-sm")</span>
 							<span>{ data.NoticeMsg }</span>
 						</div>
 					</div>
 				} else {
 					<div class="alert alert-success mb-4 p-4 flex-between">
 						<div class="d-flex items-center gap-3 font-extrabold text-sm">
-							<span class="text-2xl">✅</span>
+							<span class="text-2xl">@components.IconCheckCircle("icon-sm")</span>
 							<span>{ data.NoticeMsg }</span>
 						</div>
 					</div>
@@ -217,7 +217,7 @@ templ CustomerBranches(data CustomerBranchesData, lang string, dir string, perms
 					<!-- Left Column: Existing Pharmacy Branches List -->
 					<div style="display:flex; flex-direction:column; gap:1rem;">
 						<div style="font-size:1.05rem; font-weight:800; color:var(--text); display:flex; align-items:center; justify-content:space-between;">
-							<div style="display:flex; align-items:center; gap:0.5rem;">
+							<div class="d-flex items-center gap-2">
 								@components.IconBuilding("icon-xs")
 								<span>فروع الصيدلية المعتمدة</span>
 							</div>
@@ -226,7 +226,7 @@ templ CustomerBranches(data CustomerBranchesData, lang string, dir string, perms
 
 						if len(data.Branches) == 0 {
 							<div style="padding:2.5rem; text-align:center; background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-xl);">
-								<div style="font-size:2rem; margin-bottom:0.5rem;">🏥</div>
+								<div style="font-size:2rem; margin-bottom:0.5rem;">@components.IconBuilding("icon-sm")</div>
 								<h3 style="font-size:1.1rem; font-weight:700; color:var(--text); margin-bottom:0.4rem;">لم تقم بإضافة فروع بعد</h3>
 								<p style="font-size:0.85rem; color:var(--text-muted); margin-bottom:1rem;">أضف فرع صيدليتك الرئيسي لتتمكن من تصفح العروض وتحديد نطاق التوريد المتاح لمنطقتك.</p>
 							</div>
@@ -236,7 +236,7 @@ templ CustomerBranches(data CustomerBranchesData, lang string, dir string, perms
 									<div class="cb-branch-card">
 										<div style="display:flex; justify-content:space-between; align-items:flex-start; gap:0.75rem; flex-wrap:wrap;">
 											<div>
-												<div style="display:flex; align-items:center; gap:0.5rem; flex-wrap:wrap;">
+												<div class="inline-row-wrap">
 													<strong style="font-size:1.1rem; font-weight:800; color:var(--text);">
 														if b.Name["ar"] != "" {
 															{ b.Name["ar"] }
@@ -310,10 +310,10 @@ templ CustomerBranches(data CustomerBranchesData, lang string, dir string, perms
 
 										<!-- Badges Strip: Cold Storage & Staff Count -->
 										<div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:0.5rem; background:var(--surface-sunken); padding:0.6rem 0.85rem; border-radius:var(--radius-lg); font-size:0.775rem; border:1px solid var(--border);">
-											<div style="display:flex; align-items:center; gap:0.5rem; flex-wrap:wrap;">
+											<div class="inline-row-wrap">
 												<!-- Coordinates -->
 												<div style="display:flex; align-items:center; gap:0.35rem; color:var(--accent);">
-													<span>📍 الإحداثيات:</span>
+													<span>الإحداثيات:</span>
 													if b.Latitude != nil && b.Longitude != nil {
 														<span class="tabular-nums fw-700">{ fmt.Sprintf("%.4f, %.4f", *b.Latitude, *b.Longitude) }</span>
 													} else {
@@ -322,15 +322,15 @@ templ CustomerBranches(data CustomerBranchesData, lang string, dir string, perms
 												</div>
 
 												if b.HasColdStorage {
-													<span class="badge badge-sky text-xs">❄️ مجهز بتبريد 2-8°C</span>
+													<span class="badge badge-sky text-xs">مجهز بتبريد 2-8°C</span>
 												}
 											</div>
 
 											<div style="display:flex; align-items:center; gap:0.65rem;">
 												<!-- Assigned Staff Pill -->
 												{{ branchEmps := data.GetBranchEmployees(b.ID) }}
-												<span class="badge badge-secondary text-xs" style="font-weight:700;">
-													👥 { fmt.Sprintf("%d موظف بالفرع", len(branchEmps)) }
+												<span class="badge badge-secondary text-xs font-bold">
+													{ fmt.Sprintf("%d موظف بالفرع", len(branchEmps)) }
 												</span>
 
 												<!-- Google Maps Link -->
@@ -356,7 +356,7 @@ templ CustomerBranches(data CustomerBranchesData, lang string, dir string, perms
 						<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.25rem; border-bottom:1px solid var(--border); padding-bottom:0.75rem;">
 							<div style="display:flex; align-items:center; gap:0.6rem;">
 								<div style="width:36px; height:36px; border-radius:var(--radius-lg); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center;">
-									<span x-text="mode === 'edit' ? '✏️' : '➕'"></span>
+									<span x-text="mode === 'edit' ? '' : ''"></span>
 								</div>
 								<div>
 									<h3 class="text-base fw-800 text-primary m-0" x-text="mode === 'edit' ? 'تعديل بيانات الفرع: ' + (form.name_ar || '') : 'إضافة فرع صيدلية جديد'">
@@ -374,13 +374,13 @@ templ CustomerBranches(data CustomerBranchesData, lang string, dir string, perms
 									@click="resetToAddMode()"
 									title="إلغاء التعديل والعودة لوضع إضافة فرع جديد"
 								>
-									<span>✕ الخروج من وضع التعديل</span>
+									<span>الخروج من وضع التعديل</span>
 								</button>
 							</template>
 						</div>
 
 						<form method="POST" :action="formAction" style="display:flex; flex-direction:column; gap:1rem;">
-							<div style="display:grid; grid-template-columns:1fr 1fr; gap:0.75rem;">
+							<div class="grid-halves">
 								<div>
 									<label class="form-label" style="font-size:0.8rem; font-weight:700;">
 										اسم الفرع بالعربية <span class="text-danger">*</span>
@@ -395,7 +395,7 @@ templ CustomerBranches(data CustomerBranchesData, lang string, dir string, perms
 								</div>
 							</div>
 
-							<div style="display:grid; grid-template-columns:1fr 1fr; gap:0.75rem;">
+							<div class="grid-halves">
 								<div>
 									<label class="form-label" style="font-size:0.8rem; font-weight:700;">
 										كود الفرع الداخلي
@@ -432,7 +432,7 @@ templ CustomerBranches(data CustomerBranchesData, lang string, dir string, perms
 								<input type="text" name="address" x-model="form.address" required placeholder="شارع النصر، أمام مستشفى المعادي" class="form-input input-sm w-full"/>
 							</div>
 
-							<div style="display:grid; grid-template-columns:1fr 1fr; gap:0.75rem;">
+							<div class="grid-halves">
 								<div>
 									<label class="form-label" style="font-size:0.8rem; font-weight:700;">
 										رقم هاتف الفرع
@@ -450,13 +450,13 @@ templ CustomerBranches(data CustomerBranchesData, lang string, dir string, perms
 							<!-- Leaflet Map Picker with Auto-Pan -->
 							<div class="stack-xs">
 								<label style="display:block; font-size:0.775rem; font-weight:700; color:var(--text-secondary);">
-									🗺️ موقع الفرع على الخريطة (سيتم التحريك تلقائياً عند اختيار المدينة)
+									موقع الفرع على الخريطة (سيتم التحريك تلقائياً عند اختيار المدينة)
 								</label>
 								<div data-map-picker data-default-lat="30.0444" data-default-lon="31.2357" style="border-radius:var(--radius-lg); overflow:hidden; border:1px solid var(--border); background:var(--surface-sunken); position:relative;">
 									<div class="map-container map-canvas" style="height:190px; width:100%; z-index:1;"></div>
 									<div style="display:flex; justify-content:space-between; align-items:center; padding:0.4rem 0.75rem; background:var(--surface-raised); border-top:1px solid var(--border); font-size:0.75rem;">
 										<span data-map-coords-badge class="tabular-nums fw-700 text-primary">30.0444, 31.2357</span>
-										<button type="button" data-map-locate class="btn btn-secondary btn-xs fw-700">📍 موقعي</button>
+										<button type="button" data-map-locate class="btn btn-secondary btn-xs fw-700">موقعي</button>
 									</div>
 									<input type="hidden" name="latitude" data-map-input="lat" :value="form.latitude"/>
 									<input type="hidden" name="longitude" data-map-input="lon" :value="form.longitude"/>
@@ -465,15 +465,15 @@ templ CustomerBranches(data CustomerBranchesData, lang string, dir string, perms
 
 							<div>
 								<label class="form-label" style="font-size:0.775rem; font-weight:700;">
-									🔗 رابط خرائط Google (اختياري)
+									رابط خرائط Google (اختياري)
 								</label>
-								<input type="url" name="google_maps_url" x-model="form.google_maps_url" data-map-google-url placeholder="https://maps.google.com/?q=30.0444,31.2357" class="form-input input-sm w-full" style="font-size:0.75rem;"/>
+								<input type="url" name="google_maps_url" x-model="form.google_maps_url" data-map-google-url placeholder="https://maps.google.com/?q=30.0444,31.2357" class="form-input input-sm w-full text-xs"/>
 							</div>
 
 							<div style="display:flex; flex-direction:column; gap:0.5rem; background:var(--surface-sunken); padding:0.75rem 0.85rem; border-radius:var(--radius-md); border:1px solid var(--border);">
 								<label style="display:flex; align-items:center; gap:0.5rem; cursor:pointer; font-size:0.8rem; font-weight:700; color:var(--text);">
 									<input type="checkbox" name="has_cold_storage" value="true" x-model="form.has_cold_storage" style="width:16px; height:16px; accent-color:var(--accent);"/>
-									<span>❄️ تتوفر ثلاجة لحفظ وتبريد الأدوية (2-8°C)</span>
+									<span>تتوفر ثلاجة لحفظ وتبريد الأدوية (2-8°C)</span>
 								</label>
 								<label style="display:flex; align-items:center; gap:0.5rem; cursor:pointer; font-size:0.8rem; font-weight:700; color:var(--text);">
 									<input type="checkbox" name="is_main" value="true" x-model="form.is_main" style="width:16px; height:16px; accent-color:var(--accent);"/>
@@ -483,7 +483,7 @@ templ CustomerBranches(data CustomerBranchesData, lang string, dir string, perms
 
 							<button type="submit" class="btn btn-primary btn-sm" style="font-weight:800; padding:0.6rem; width:100%; justify-content:center;">
 								@components.IconCheck("icon-xs")
-								<span x-text="mode === 'edit' ? '💾 حفظ تعديلات الفرع' : 'حفظ وإضافة فرع الصيدلية'"></span>
+								<span x-text="mode === 'edit' ? 'حفظ تعديلات الفرع' : 'حفظ وإضافة فرع الصيدلية'"></span>
 							</button>
 						</form>
 					</div>
@@ -557,12 +557,12 @@ templ CustomerBranches(data CustomerBranchesData, lang string, dir string, perms
 										<tr data-emp-name={ strings.ToLower(emp.UserName + " " + emp.UserEmail + " " + emp.Member.EmployeeCode) } data-branch-id={ fmt.Sprintf("%d", func() int64 { if emp.Member.BranchID != nil { return *emp.Member.BranchID }; return 0 }()) }>
 											<!-- Personal Info -->
 											<td>
-												<div style="display:flex; align-items:center; gap:0.75rem;">
+												<div class="d-flex items-center gap-3">
 													<div style="width:38px; height:38px; border-radius:var(--radius-full); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center; font-weight:800; font-size:0.85rem; border:1px solid var(--border); flex-shrink:0;">
 														if len(emp.UserName) >= 2 {
 															{ string([]rune(emp.UserName)[0:1]) }
 														} else {
-															<span>👤</span>
+															<span>@components.IconUser("icon-sm")</span>
 														}
 													</div>
 													<div style="display:flex; flex-direction:column; gap:0.15rem;">
@@ -584,10 +584,10 @@ templ CustomerBranches(data CustomerBranchesData, lang string, dir string, perms
 												if emp.Member.BranchID != nil && *emp.Member.BranchID > 0 {
 													<div style="display:flex; align-items:center; gap:0.4rem;">
 														<span class="badge badge-primary text-xs fw-700">
-															🏥 { data.GetBranchName(emp.Member.BranchID) }
+															{ data.GetBranchName(emp.Member.BranchID) }
 														</span>
 														if emp.IsManager {
-															<span class="badge badge-emerald text-xs">⭐ مدير الفرع</span>
+															<span class="badge badge-emerald text-xs">مدير الفرع</span>
 														}
 													</div>
 												} else {
@@ -623,7 +623,7 @@ templ CustomerBranches(data CustomerBranchesData, lang string, dir string, perms
 											</td>
 
 											<!-- Actions -->
-											<td style="text-align:center;">
+											<td class="text-center">
 												<div style="display:flex; align-items:center; justify-content:center; gap:0.35rem;">
 													<!-- Edit Button -->
 													<button
@@ -670,7 +670,7 @@ templ CustomerBranches(data CustomerBranchesData, lang string, dir string, perms
 			<div id="add-employee-modal" class="modal-overlay hidden">
 				<div class="modal-card" style="max-width:540px; padding:1.75rem; background:var(--surface-raised); border-radius:var(--radius-xl); border:1px solid var(--border); box-shadow:var(--shadow-lg);">
 					<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.25rem; border-bottom:1px solid var(--border); padding-bottom:0.75rem;">
-						<div style="display:flex; align-items:center; gap:0.5rem;">
+						<div class="d-flex items-center gap-2">
 							@components.IconUser("icon-sm")
 							<h3 class="text-base fw-800 text-primary m-0">
 								إضافة مستخدم / موظف جديد للصيدلية
@@ -682,7 +682,7 @@ templ CustomerBranches(data CustomerBranchesData, lang string, dir string, perms
 					</div>
 
 					<form method="POST" action="/customer/employees/new" style="display:flex; flex-direction:column; gap:1rem;">
-						<div style="display:grid; grid-template-columns:1fr 1fr; gap:0.75rem;">
+						<div class="grid-halves">
 							<div>
 								<label class="form-label" style="font-size:0.8rem; font-weight:700;">اسم الموظف بالكامل <span class="text-danger">*</span></label>
 								<input type="text" name="name" required placeholder="د. أحمد محمد" class="form-input input-sm w-full"/>
@@ -693,7 +693,7 @@ templ CustomerBranches(data CustomerBranchesData, lang string, dir string, perms
 							</div>
 						</div>
 
-						<div style="display:grid; grid-template-columns:1fr 1fr; gap:0.75rem;">
+						<div class="grid-halves">
 							<div>
 								<label class="form-label" style="font-size:0.8rem; font-weight:700;">رقم الهاتف للتواصل</label>
 								<input type="tel" name="phone" placeholder="01099887766" class="form-input input-sm tabular-nums w-full"/>
@@ -704,7 +704,7 @@ templ CustomerBranches(data CustomerBranchesData, lang string, dir string, perms
 							</div>
 						</div>
 
-						<div style="display:grid; grid-template-columns:1fr 1fr; gap:0.75rem;">
+						<div class="grid-halves">
 							<div>
 								<label class="form-label" style="font-size:0.8rem; font-weight:700;">كود الموظف الداخلي</label>
 								<input type="text" name="employee_code" placeholder="EMP-01" class="form-input input-sm tabular-nums w-full"/>
@@ -715,7 +715,7 @@ templ CustomerBranches(data CustomerBranchesData, lang string, dir string, perms
 							</div>
 						</div>
 
-						<div style="display:grid; grid-template-columns:1fr 1fr; gap:0.75rem;">
+						<div class="grid-halves">
 							<div>
 								<label class="form-label" style="font-size:0.8rem; font-weight:700;">الفرع التابع له الموظف <span class="text-danger">*</span></label>
 								<select id="add-emp-branch-select" name="branch_id" class="form-input input-sm w-full">
@@ -762,7 +762,7 @@ templ CustomerBranches(data CustomerBranchesData, lang string, dir string, perms
 					<div id={ fmt.Sprintf("edit-emp-modal-%d", emp.Member.ID) } class="modal-overlay hidden">
 						<div class="modal-card" style="max-width:540px; padding:1.75rem; background:var(--surface-raised); border-radius:var(--radius-xl); border:1px solid var(--border); box-shadow:var(--shadow-lg);">
 							<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.25rem; border-bottom:1px solid var(--border); padding-bottom:0.75rem;">
-								<div style="display:flex; align-items:center; gap:0.5rem;">
+								<div class="d-flex items-center gap-2">
 									@components.IconUser("icon-sm")
 									<h3 class="text-base fw-800 text-primary m-0">
 										تعديل بيانات وصلاحيات الموظف
@@ -774,7 +774,7 @@ templ CustomerBranches(data CustomerBranchesData, lang string, dir string, perms
 							</div>
 
 							<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/customer/employees/%d/edit", emp.Member.UserID)) } style="display:flex; flex-direction:column; gap:1rem;">
-								<div style="display:grid; grid-template-columns:1fr 1fr; gap:0.75rem;">
+								<div class="grid-halves">
 									<div>
 										<label class="form-label" style="font-size:0.8rem; font-weight:700;">اسم الموظف</label>
 										<input type="text" value={ emp.UserName } disabled class="form-input input-sm w-full" style="opacity:0.8;"/>
@@ -785,7 +785,7 @@ templ CustomerBranches(data CustomerBranchesData, lang string, dir string, perms
 									</div>
 								</div>
 
-								<div style="display:grid; grid-template-columns:1fr 1fr; gap:0.75rem;">
+								<div class="grid-halves">
 									<div>
 										<label class="form-label" style="font-size:0.8rem; font-weight:700;">المسمى الوظيفي</label>
 										<input type="text" name="job_title" value={ emp.Member.JobTitle } class="form-input input-sm w-full"/>
@@ -796,7 +796,7 @@ templ CustomerBranches(data CustomerBranchesData, lang string, dir string, perms
 									</div>
 								</div>
 
-								<div style="display:grid; grid-template-columns:1fr 1fr; gap:0.75rem;">
+								<div class="grid-halves">
 									<div>
 										<label class="form-label" style="font-size:0.8rem; font-weight:700;">الفرع التابع له الموظف</label>
 										<select name="branch_id" class="form-input input-sm w-full">

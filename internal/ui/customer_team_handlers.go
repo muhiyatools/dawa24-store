@@ -1,6 +1,8 @@
 package ui
 
 import (
+	"time"
+
 	"crypto/rand"
 	"encoding/hex"
 	"fmt"
@@ -105,10 +107,7 @@ func (h *UIHandler) CustomerTeamPage(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	if err := pages.TenantTeamPage(view, lang, dir).Render(ctx, w); err != nil {
-		h.log.ErrorContext(ctx, "render pharmacy team page", "error", err)
-	}
+	h.renderPage(ctx, w, "render pharmacy team page", pages.TenantTeamPage(view, lang, dir))
 }
 
 // CustomerTeamImportPage renders bulk employee spreadsheet upload page for pharmacies.
@@ -138,10 +137,7 @@ func (h *UIHandler) CustomerTeamImportPage(w http.ResponseWriter, r *http.Reques
 		NoticeMsg:  noticeMsg,
 	}
 
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	if err := pages.TeamImportPage(view, lang, dir).Render(ctx, w); err != nil {
-		h.log.ErrorContext(ctx, "render customer team import", "error", err)
-	}
+	h.renderPage(ctx, w, "render customer team import", pages.TeamImportPage(view, lang, dir))
 }
 
 // CustomerTeamImportUploadSubmit handles file upload and creates new employee import session for pharmacy.
@@ -317,10 +313,7 @@ func (h *UIHandler) CustomerTeamImportSessionPage(w http.ResponseWriter, r *http
 		NoticeMsg:  noticeMsg,
 	}
 
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	if err := pages.TeamImportPage(view, lang, dir).Render(ctx, w); err != nil {
-		h.log.ErrorContext(ctx, "render customer team import session", "error", err)
-	}
+	h.renderPage(ctx, w, "render customer team import session", pages.TeamImportPage(view, lang, dir))
 }
 
 // CustomerTeamImportMapSubmit saves user column mappings and role mappings for pharmacy.
@@ -404,7 +397,7 @@ func (h *UIHandler) CustomerTeamImportMapSubmit(w http.ResponseWriter, r *http.R
 
 	session.Rows = parsedRows
 	session.Phase = pages.TeamPhaseReview
-	session.UpdatedAt = session.UpdatedAt
+	session.UpdatedAt = time.Now()
 
 	http.Redirect(w, r, fmt.Sprintf("/customer/team/import/%s", sessionID), http.StatusSeeOther)
 }

@@ -25,7 +25,7 @@ templ savingImportContent(view SavingImportView) {
 			<div class="flex-between items-center flex-wrap gap-4">
 				<div class="d-flex items-center gap-3">
 					<div class="user-avatar-badge text-xl">
-						📦
+						@components.IconPackage("icon-sm")
 					</div>
 					<div>
 						<h1 class="text-2xl font-black text-primary m-0">استيراد قائمة أصناف التوفير والنواقص</h1>
@@ -119,7 +119,7 @@ templ savingUploadStage(view SavingImportView) {
 				var file = input.files[0];
 				var title = document.getElementById('dropzone-title');
 				var hint = document.getElementById('dropzone-hint');
-				if (title) title.textContent = '✓ ' + file.name;
+				if (title) title.textContent = '' + file.name;
 				if (hint) hint.textContent = 'الحجم: ' + (file.size / (1024 * 1024)).toFixed(2) + ' ميجابايت — جاهز للرفع';
 			}
 		}
@@ -207,7 +207,7 @@ templ savingMappingStage(view SavingImportView) {
 			</div>
 			<form method="POST" action={ templ.SafeURL(fmt.Sprintf("%s/%s/cancel", view.ImportURL, sess.ID)) }
 				onsubmit="return confirm('هل تريد إلغاء هذه الجلسة؟');">
-				<button type="submit" class="btn btn-ghost btn-sm text-danger">✕ إلغاء الجلسة</button>
+				<button type="submit" class="btn btn-ghost btn-sm text-danger">إلغاء الجلسة</button>
 			</form>
 		</div>
 
@@ -256,11 +256,11 @@ templ savingMappingStage(view SavingImportView) {
 			<div>
 				<label class="form-label">استراتيجية المطابقة مع الكتالوج المركزي</label>
 				<select name="match_strategy" class="form-select">
-					<option value="smart_auto" selected>⚡ المطابقة الكاملة: المعرف ثم الكود ثم الاسم (موصى بها)</option>
-					<option value="sku_only">🔢 بالكود والباركود فقط</option>
-					<option value="name_only">📝 بالاسم فقط (تجاهل أكواد الصيدلية الداخلية)</option>
-					<option value="id_only">🆔 بمعرف المنتج في دواء 24 فقط</option>
-					<option value="none">🚫 بدون مطابقة تلقائية (للربط اليدوي)</option>
+					<option value="smart_auto" selected>المطابقة الكاملة: المعرف ثم الكود ثم الاسم (موصى بها)</option>
+					<option value="sku_only">بالكود والباركود فقط</option>
+					<option value="name_only">بالاسم فقط (تجاهل أكواد الصيدلية الداخلية)</option>
+					<option value="id_only">بمعرف المنتج في دواء 24 فقط</option>
+					<option value="none">بدون مطابقة تلقائية (للربط اليدوي)</option>
 				</select>
 				<p class="wiz-sub mt-xs">
 					تعمل المطابقة الحتمية دائماً وبدون تكلفة. كل صنف تحسمه لا يُرسل إلى أي خدمة خارجية.

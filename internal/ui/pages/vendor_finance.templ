@@ -1,6 +1,7 @@
 package pages
 
 import (
+	"github.com/muhiya/dawa24-store/internal/ui/components"
 	"fmt"
 
 	"github.com/muhiya/dawa24-store/internal/modules/billing"
@@ -19,7 +20,7 @@ templ VendorPaymentsPage(payments []*billing.Payment, lang, dir string) {
 					<div>
 						<div class="d-flex items-center gap-3 mb-1">
 							<div class="user-avatar-badge text-xl">
-								💳
+								@components.IconCreditCard("icon-sm")
 							</div>
 							<h1 class="text-2xl font-black text-primary m-0">سجل المدفوعات والتحويلات المالية ({ fmt.Sprintf("%d", len(payments)) })</h1>
 						</div>
@@ -30,7 +31,7 @@ templ VendorPaymentsPage(payments []*billing.Payment, lang, dir string) {
 
 			if len(payments) == 0 {
 				<div class="glass-panel p-8 text-center empty-state-glass">
-					<div class="text-4xl mb-3">💳</div>
+					<div class="text-4xl mb-3">@components.IconCreditCard("icon-sm")</div>
 					<h3 class="text-lg font-black text-primary mb-2">لا توجد دفعات مسجلة</h3>
 					<p class="text-sm text-secondary m-0">ستظهر هنا الدفعات والتحويلات المالية فور تسويتها.</p>
 				</div>
@@ -81,7 +82,7 @@ templ VendorEarningsOrderPage(revenue money.Amount, lang, dir string) {
 			<div class="glass-panel p-6 mb-6">
 				<div class="d-flex items-center gap-3 mb-1">
 					<div class="user-avatar-badge text-xl">
-						💰
+						@components.IconWallet("icon-sm")
 					</div>
 					<h1 class="text-2xl font-black text-primary m-0">أرباح ومبيعات الطلبات للشهر الحالي</h1>
 				</div>
@@ -106,7 +107,7 @@ templ VendorEarningsOffersPage(revenue money.Amount, lang, dir string) {
 			<div class="glass-panel p-6 mb-6">
 				<div class="d-flex items-center gap-3 mb-1">
 					<div class="user-avatar-badge text-xl">
-						🏷️
+						@components.IconTag("icon-sm")
 					</div>
 					<h1 class="text-2xl font-black text-primary m-0">أرباح ومبيعات عروض التوفير والصفقات</h1>
 				</div>
@@ -133,7 +134,7 @@ templ VendorOfferOrdersPage(shipments []*commerce.OrderShipment, lang, dir strin
 					<div>
 						<div class="d-flex items-center gap-3 mb-1">
 							<div class="user-avatar-badge text-xl">
-								📦
+								@components.IconPackage("icon-sm")
 							</div>
 							<h1 class="text-2xl font-black text-primary m-0">طلبات عروض الأسعار الواردة ({ fmt.Sprintf("%d", len(shipments)) })</h1>
 						</div>
@@ -144,7 +145,7 @@ templ VendorOfferOrdersPage(shipments []*commerce.OrderShipment, lang, dir strin
 
 			if len(shipments) == 0 {
 				<div class="glass-panel p-8 text-center empty-state-glass">
-					<div class="text-4xl mb-3">📦</div>
+					<div class="text-4xl mb-3">@components.IconPackage("icon-sm")</div>
 					<h3 class="text-lg font-black text-primary mb-2">لا توجد طلبات عروض واردة</h3>
 					<p class="text-sm text-secondary m-0">ستظهر هنا الشحنات الخاصة بالطلبيات المقدمة من الصيدليات.</p>
 				</div>

@@ -1,6 +1,7 @@
 package pages
 
 import (
+	"github.com/muhiya/dawa24-store/internal/ui/components"
 	"fmt"
 	"strings"
 
@@ -24,7 +25,7 @@ templ aiPanel(view VendorImportView) {
 		<section class="card mb-lg" style="border: 1px solid var(--border-strong); border-inline-start: 3px solid var(--primary); background: var(--surface-sunken);">
 			<div class="row-center-sm justify-between flex-wrap gap-sm mb-md">
 				<div class="row-center-sm gap-sm">
-					<span style="font-size: 1.4rem; line-height: 1;">🤖</span>
+					<span style="font-size: 1.4rem; line-height: 1;">@components.IconSparkles("icon-sm")</span>
 					<div>
 						<div class="fw-800 text-base">{ aiHeadline(view.Session.AI) }</div>
 						<div class="text-xs text-muted">{ aiSubline(view.Session.AI) }</div>
@@ -32,7 +33,7 @@ templ aiPanel(view VendorImportView) {
 				</div>
 				if view.Session.AI.CacheHits > 0 {
 					<span class="badge badge-outline text-xs" title="أصناف أُجيبت من ذاكرة القرارات المشتركة دون أي تكلفة إضافية">
-						♻️ { fmt.Sprint(view.Session.AI.CacheHits) } صنف من الذاكرة — بلا تكلفة
+						{ fmt.Sprint(view.Session.AI.CacheHits) } صنف من الذاكرة — بلا تكلفة
 					</span>
 				}
 			</div>
@@ -59,7 +60,7 @@ templ aiPanel(view VendorImportView) {
 			}
 			if view.Session.AI.CeilingHit {
 				<p class="text-xs mt-md mb-0 review-gate-note">
-					⚠️ توقفت المراجعة الذكية عند الحد الأقصى المسموح به للعملية الواحدة، واحتفظت بقية الأصناف
+					توقفت المراجعة الذكية عند الحد الأقصى المسموح به للعملية الواحدة، واحتفظت بقية الأصناف
 					بنتيجة المطابقة الحتمية. لم يُفقد أي صنف: كلها معروضة أدناه ويمكن اعتمادها أو ربطها يدوياً.
 					إن كان عدد الأصناف غير المطابقة كبيراً بشكل غير متوقع، فراجع عمود «اسم الصنف» في خطوة ربط
 					الأعمدة قبل إعادة المحاولة.
@@ -74,7 +75,7 @@ templ aiPanel(view VendorImportView) {
 	} else if view.Session != nil && !view.Session.Settings.UseAI {
 		<section class="card mb-lg" style="border: 1px dashed var(--border-strong); background: var(--surface-sunken);">
 			<div class="row-center-sm gap-sm">
-				<span style="font-size: 1.2rem; line-height: 1;">🤖</span>
+				<span style="font-size: 1.2rem; line-height: 1;">@components.IconSparkles("icon-sm")</span>
 				<div class="text-xs text-muted">
 					المطابقة الذكية كانت متوقفة في هذه العملية، فالنتائج أدناه من المطابقة الحتمية وحدها.
 					يمكنك العودة إلى الإعدادات وتفعيلها لإعادة فحص الأصناف غير المطابقة.

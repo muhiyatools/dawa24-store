@@ -41,10 +41,7 @@ func (h *UIHandler) VendorSavingProductsImportPage(w http.ResponseWriter, r *htt
 		NoticeMsg:           noticeMsg,
 	}
 
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	if err := pages.SavingImportPage(view, lang, dir).Render(ctx, w); err != nil {
-		h.log.ErrorContext(ctx, "render vendor saving import page", "error", err)
-	}
+	h.renderPage(ctx, w, "render vendor saving import page", pages.SavingImportPage(view, lang, dir))
 }
 
 // VendorSavingProductsImportUploadSubmit handles file upload and creates new import session for vendor.
@@ -196,10 +193,7 @@ func (h *UIHandler) VendorSavingProductsImportSessionPage(w http.ResponseWriter,
 		NoticeMsg:           noticeMsg,
 	}
 
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	if err := pages.SavingImportPage(view, lang, dir).Render(ctx, w); err != nil {
-		h.log.ErrorContext(ctx, "render vendor saving import session page", "error", err)
-	}
+	h.renderPage(ctx, w, "render vendor saving import session page", pages.SavingImportPage(view, lang, dir))
 }
 
 // VendorSavingProductsSampleXLSX streams download of a clean Excel template.

@@ -115,8 +115,24 @@ func run() error {
 		}
 		_ = w.Flush()
 		fmt.Printf("\n%d migration(s) defined, %d pending\n", len(migrations), pending)
+
+		orphans, err := db.Orphans(ctx, migrations)
+		if err != nil {
+			return err
+		}
+		if len(orphans) > 0 {
+			fmt.Printf("\n%d migration(s) applied to this database with no file:\n", len(orphans))
+			for _, o := range orphans {
+				fmt.Printf("  %d\t%s\n", o.Version, o.Name)
+			}
+			fmt.Println("\nThis database cannot be rebuilt from the repository until each is")
+			fmt.Println("restored, or written off deliberately in docs/adr/.")
+		}
 		if pending > 0 {
 			os.Exit(2)
+		}
+		if len(orphans) > 0 {
+			os.Exit(3)
 		}
 		return nil
 

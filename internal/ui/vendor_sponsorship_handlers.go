@@ -44,10 +44,7 @@ func (h *UIHandler) VendorSponsorshipRequestsPage(w http.ResponseWriter, r *http
 		OrgID:           actor.OrganizationID,
 	}
 
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	if err := pages.VendorSponsorshipRequestsPage(lang, dir, data).Render(ctx, w); err != nil {
-		h.log.ErrorContext(ctx, "render vendor sponsorship requests", "error", err)
-	}
+	h.renderPage(ctx, w, "render vendor sponsorship requests", pages.VendorSponsorshipRequestsPage(lang, dir, data))
 }
 
 // VendorSponsorshipRequestSubmit handles the submission of a new sponsorship request.

@@ -1,0 +1,133 @@
+package ui
+
+import (
+	"log/slog"
+
+	"github.com/muhiya/dawa24-store/internal/modules/assistant"
+	"github.com/muhiya/dawa24-store/internal/modules/attachments"
+	"github.com/muhiya/dawa24-store/internal/modules/billing"
+	"github.com/muhiya/dawa24-store/internal/modules/catalog"
+	"github.com/muhiya/dawa24-store/internal/modules/chat"
+	"github.com/muhiya/dawa24-store/internal/modules/commerce"
+	"github.com/muhiya/dawa24-store/internal/modules/compare"
+	"github.com/muhiya/dawa24-store/internal/modules/hr"
+	"github.com/muhiya/dawa24-store/internal/modules/identity"
+	"github.com/muhiya/dawa24-store/internal/modules/ingest"
+	"github.com/muhiya/dawa24-store/internal/modules/inventory"
+	"github.com/muhiya/dawa24-store/internal/modules/notifications"
+	"github.com/muhiya/dawa24-store/internal/modules/org"
+	platformadmin "github.com/muhiya/dawa24-store/internal/modules/platform_admin"
+	"github.com/muhiya/dawa24-store/internal/modules/promo"
+	"github.com/muhiya/dawa24-store/internal/modules/smartorder"
+	"github.com/muhiya/dawa24-store/internal/modules/workflow"
+	"github.com/muhiya/dawa24-store/internal/platform/aiusage"
+	"github.com/muhiya/dawa24-store/internal/platform/gateway"
+	"github.com/muhiya/dawa24-store/internal/platform/rbac"
+	"github.com/muhiya/dawa24-store/internal/platform/storage"
+	"github.com/muhiya/dawa24-store/internal/shared/matchflow"
+)
+
+// SetRoleSeeder wires starter-role provisioning for companies that have none.
+func (h *UIHandler) SetRoleSeeder(fn RoleSeederFunc) { h.roleSeeder = fn }
+
+// SetPermissionResolver wires live permission resolution. Optional: without
+// it the UI falls back to the session's permission copy, which is correct but
+// cannot see a revocation until the session ends.
+func (h *UIHandler) SetPermissionResolver(r *rbac.Resolver) { h.resolver = r }
+
+// SetMatchEnhancer attaches the shared AI matching stage.
+func (h *UIHandler) SetMatchEnhancer(e matchflow.Enhancer) { h.matchEnhancer = e }
+
+// SetMatchMemory attaches the shared decision cache, so the saving-list import
+// reads and writes the same catalog.match_decisions rows the vendor import and
+// the smart order do.
+func (h *UIHandler) SetMatchMemory(m matchflow.Memory) { h.matchMemory = m }
+
+// SetAssistantRepository attaches the Assistant database repository for auditing and history.
+func (h *UIHandler) SetAssistantRepository(repo assistant.Repository) {
+	h.assistantRepo = repo
+}
+
+// SetSmartOrder wires the smart ordering wizard.
+func (h *UIHandler) SetSmartOrder(svc *smartorder.Service, enqueue SmartOrderEnqueueFunc) {
+	h.smartOrderSvc = svc
+	h.smartOrderEnqueue = enqueue
+	if h.smartOrderStale == nil {
+		h.smartOrderStale = newSmartOrderStaleStore()
+	}
+}
+
+// SetGatewayClient attaches the Gateway client instance for health probes and AI services.
+func (h *UIHandler) SetGatewayClient(ai gateway.Client) {
+	h.aiClient = ai
+}
+
+// SetGatewayKeyCache installs the credential cache the settings screen resets.
+func (h *UIHandler) SetGatewayKeyCache(cache GatewayKeyCache) {
+	h.gatewayKeys = cache
+}
+
+// SetTenantGatewayKeys installs the per-organisation credential resolver.
+func (h *UIHandler) SetTenantGatewayKeys(keys TenantGatewayKeys) {
+	h.tenantKeys = keys
+}
+
+// SetAIUsage installs the local AI consumption ledger.
+//
+// The usage screens read from it rather than calling the Gateway on every
+// render. That is what gives a tenant a history longer than one API page, makes
+// the figures survive a Gateway outage, and removes the need for the invented
+// costs and latencies the screens used to fill the gaps with.
+func (h *UIHandler) SetAIUsage(repo aiusage.Repository) {
+	h.aiUsage = repo
+}
+
+// NewUIHandler creates a new UI page handler with all platform domain services wired.
+func NewUIHandler(
+	catSvc *catalog.Service,
+	orgSvc *org.Service,
+	ingSvc *ingest.Service,
+	commSvc *commerce.Service,
+	invSvc *inventory.Service,
+	idSvc *identity.Service,
+	notifSvc *notifications.Service,
+	promoSvc *promo.Service,
+	adminSvc *platformadmin.Service,
+	billSvc *billing.Service,
+	chatSvc *chat.Service,
+	wfSvc *workflow.Service,
+	hrSvc *hr.Service,
+	attSvc *attachments.Service,
+	log *slog.Logger,
+) *UIHandler {
+	if log == nil {
+		log = slog.Default()
+	}
+	return &UIHandler{
+		catSvc:   catSvc,
+		orgSvc:   orgSvc,
+		ingSvc:   ingSvc,
+		commSvc:  commSvc,
+		invSvc:   invSvc,
+		idSvc:    idSvc,
+		notifSvc: notifSvc,
+		promoSvc: promoSvc,
+		adminSvc: adminSvc,
+		billSvc:  billSvc,
+		chatSvc:  chatSvc,
+		wfSvc:    wfSvc,
+		hrSvc:    hrSvc,
+		attSvc:   attSvc,
+		log:      log,
+	}
+}
+
+// SetStorage configures object storage (MinIO/S3) for UI handlers.
+func (h *UIHandler) SetStorage(s *storage.Client) {
+	h.storage = s
+}
+
+// SetCompareService configures the compare module service for UI handlers.
+func (h *UIHandler) SetCompareService(s *compare.Service) {
+	h.compareSvc = s
+}

@@ -26,7 +26,7 @@ templ CompareResultsPage(lang, dir string, result *compare.ComparisonResultSet, 
 					<div>
 						<div class="d-flex items-center gap-3 mb-1">
 							<div class="user-avatar-badge text-xl">
-								📈
+								@components.IconTrendingUp("icon-sm")
 							</div>
 							<h1 class="text-2xl font-black text-primary m-0">
 								تقرير تحليل ومقارنة عروض الموردين
@@ -56,16 +56,16 @@ templ CompareResultsPage(lang, dir string, result *compare.ComparisonResultSet, 
 				<!-- Navigation Subtabs for all 4 Analysis Modes -->
 				<div class="cb-tabs-nav mt-4 pt-3 border-t">
 					<a href="/compare/results" class="cb-tab-btn active">
-						📊 المقارنة المجمعة بين الموردين
+						المقارنة المجمعة بين الموردين
 					</a>
 					<a href="/compare/head-to-head" class="cb-tab-btn">
-						🏢 مقارنة مورد بمورد
+						مقارنة مورد بمورد
 					</a>
 					<a href="/compare/market-benchmark" class="cb-tab-btn">
-						🧠 مقارنة مع موردين السوق
+						مقارنة مع موردين السوق
 					</a>
 					<a href="/compare/market-intelligence" class="cb-tab-btn">
-						🧠 تقرير ذكاء السوق
+						تقرير ذكاء السوق
 					</a>
 				</div>
 			</div>
@@ -136,7 +136,7 @@ templ CompareResultsPage(lang, dir string, result *compare.ComparisonResultSet, 
 							data-filter="best-discount"
 							onclick="applyTableFilter('best-discount', this)"
 						>
-							<span>🔥 خصم أعلى من 15%</span>
+							<span>خصم أعلى من 15%</span>
 						</button>
 
 						<button
@@ -145,7 +145,7 @@ templ CompareResultsPage(lang, dir string, result *compare.ComparisonResultSet, 
 							data-filter="multi-offer"
 							onclick="applyTableFilter('multi-offer', this)"
 						>
-							<span>⚖️ متوفر لدى أكثر من مورد</span>
+							<span>متوفر لدى أكثر من مورد</span>
 						</button>
 
 						<button
@@ -154,7 +154,7 @@ templ CompareResultsPage(lang, dir string, result *compare.ComparisonResultSet, 
 							data-filter="single-offer"
 							onclick="applyTableFilter('single-offer', this)"
 						>
-							<span>⭐ أصناف حصرية لمورد واحد</span>
+							<span>أصناف حصرية لمورد واحد</span>
 						</button>
 
 						<button
@@ -183,10 +183,10 @@ templ CompareResultsPage(lang, dir string, result *compare.ComparisonResultSet, 
 				if result == nil || len(result.Rows) == 0 {
 					<div class="empty-state-glass p-8 text-center">
 						<div class="empty-state-icon-wrapper mx-auto mb-3">
-							<span class="text-3xl">📊</span>
+							<span class="text-3xl">@components.IconBarChart("icon-sm")</span>
 						</div>
 						<h3 class="text-lg font-black text-primary mb-1">لا توجد أصناف مستخرجة في الكشوف المختارة</h3>
-						<p class="text-sm text-muted mb-4">تأكد من ضبط تعيين الأعمدة للملفات عبر أيقونة الترس ⚙️ في مركز الملفات.</p>
+						<p class="text-sm text-muted mb-4">تأكد من ضبط تعيين الأعمدة للملفات عبر أيقونة الترس في مركز الملفات.</p>
 						<a href="/compare/tool" class="btn btn-primary font-bold">
 							العودة لمركز ملفات الموردين
 						</a>
@@ -217,9 +217,9 @@ templ CompareResultsPage(lang, dir string, result *compare.ComparisonResultSet, 
 											<div class="d-flex items-center gap-2 flex-wrap mb-1">
 												<strong class="text-sm font-extrabold text-primary">{ row.ProductName }</strong>
 												if row.InCatalog {
-													<span class="badge badge-emerald text-xs font-bold">🟢 معتمد</span>
+													<span class="badge badge-emerald text-xs font-bold">معتمد</span>
 												} else {
-													<span class="badge badge-amber text-xs font-bold">🟡 كشف مورد</span>
+													<span class="badge badge-amber text-xs font-bold">كشف مورد</span>
 												}
 											</div>
 											if row.SKU != "" {
@@ -246,7 +246,7 @@ templ CompareResultsPage(lang, dir string, result *compare.ComparisonResultSet, 
 										<!-- Best Supplier -->
 										<td>
 											<span class="badge badge-sky text-xs font-bold">
-												👑 { row.BestSupplier }
+												{ row.BestSupplier }
 											</span>
 										</td>
 
@@ -256,7 +256,7 @@ templ CompareResultsPage(lang, dir string, result *compare.ComparisonResultSet, 
 												for supName, off := range row.Offers {
 													if supName == row.BestSupplier {
 														<span class="badge badge-emerald text-xs font-bold" title={ fmt.Sprintf("السعر الصافي: %s ج.م", off.PriceAfterDiscount.String()) }>
-															✓ { supName }: { fmt.Sprintf("%.1f%%", off.Discount) } ({ off.PriceAfterDiscount.String() } ج.م)
+															{ supName }: { fmt.Sprintf("%.1f%%", off.Discount) } ({ off.PriceAfterDiscount.String() } ج.م)
 														</span>
 													} else {
 														<span class="badge badge-secondary text-xs" title={ fmt.Sprintf("السعر الصافي: %s ج.م", off.PriceAfterDiscount.String()) }>
@@ -267,7 +267,7 @@ templ CompareResultsPage(lang, dir string, result *compare.ComparisonResultSet, 
 											</div>
 											if len(row.MissingSuppliers) > 0 {
 												<div class="text-xs text-danger font-semibold">
-													❌ غير مدرج لدى: <strong>{ strings.Join(row.MissingSuppliers, "، ") }</strong>
+													غير مدرج لدى: <strong>{ strings.Join(row.MissingSuppliers, "، ") }</strong>
 												</div>
 											}
 										</td>

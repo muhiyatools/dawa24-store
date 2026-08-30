@@ -32,3 +32,7 @@ coverage.html
 # and it gets committed with whatever change happened to be in flight.
 /internal/ui/data/uploads/compare/
 /internal/ui/data/orgs/
+
+# Uploaded files served at runtime. These are user data, not source; the
+# suite used to write into the tracked tree and a run looked like a commit.
+/internal/ui/data/uploads/

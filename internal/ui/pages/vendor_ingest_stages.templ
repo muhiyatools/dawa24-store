@@ -1,6 +1,7 @@
 package pages
 
 import (
+	"github.com/muhiya/dawa24-store/internal/ui/components"
 	"fmt"
 	"strings"
 
@@ -25,7 +26,7 @@ templ importMappingStage(view VendorImportView) {
 					تحقق من ربط الحقول الإلزامية وحقل الكمية (المخزون). إذا لم يُكتشف أحد الحقول تلقائياً، يمكنك تحديده مباشرة من جدول الأعمدة أدناه.
 				</p>
 				<div class="table-wrap">
-					<table class="table">
+					<table class="data-table">
 						<thead>
 							<tr>
 								<th>الحقل المطلوب</th>
@@ -51,15 +52,15 @@ templ importMappingStage(view VendorImportView) {
 									<td>
 										if st.ColumnIndex >= 0 {
 											<span class="badge badge-emerald text-xs">
-												✓ مربوط بـ: { st.ColumnName }
+												مربوط بـ: { st.ColumnName }
 											</span>
 										} else if st.Field == productmatch.FieldQuantity {
 											<span class="badge badge-sky text-xs">
-												📦 غير موجود بالملف — حدد كمية افتراضية في (3) أدناه
+												غير موجود بالملف — حدد كمية افتراضية في (3) أدناه
 											</span>
 										} else {
 											<span class="badge badge-amber text-xs">
-												⚠️ لم يُربط تلقائياً — حدده من الجدول أدناه
+												لم يُربط تلقائياً — حدده من الجدول أدناه
 											</span>
 										}
 									</td>
@@ -88,7 +89,7 @@ templ importMappingStage(view VendorImportView) {
 					تم فحص جميع أعمدة ملفك. غيّر ما تريد لربط الحقول بدقة (مثل اختيار عمود الكمية، السعر، والاسم).
 				</p>
 				<div class="table-wrap">
-					<table class="table">
+					<table class="data-table">
 						<thead>
 							<tr>
 								<th>العمود في ملفك</th>
@@ -110,7 +111,7 @@ templ importMappingStage(view VendorImportView) {
 			<div class="card">
 				<div class="row-center-sm gap-sm mb-2">
 					<div style="width:36px; height:36px; border-radius:var(--radius-lg); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center; font-size:1.2rem;">
-						📦
+						@components.IconPackage("icon-sm")
 					</div>
 					<div>
 						<h2 class="wiz-head mb-0">3. تعيين كمية افتراضية للمخزون (في حال عدم وجود عمود للكمية في ملفك)</h2>
@@ -288,7 +289,7 @@ templ importSettingsStage(view VendorImportView) {
 					<label class="wiz-choice">
 						<input type="radio" name="stock_mode" value={ string(mode) } checked?={ view.Session.Settings.StockMode == mode }/>
 						<span class="wiz-choice-body">
-							<span class="wiz-choice-icon">📦</span>
+							<span class="wiz-choice-icon">@components.IconPackage("icon-sm")</span>
 							<span><span class="wiz-choice-title">{ mode.Label() }</span></span>
 						</span>
 					</label>
@@ -310,11 +311,11 @@ templ importSettingsStage(view VendorImportView) {
 			</p>
 			<div class="wiz-switches">
 				if view.AIAvailable {
-					@vendorImportSwitch("use_ai", "🤖", "تفعيل المطابقة الذكية للأصناف الصعبة",
+					@vendorImportSwitch("use_ai", "", "تفعيل المطابقة الذكية للأصناف الصعبة",
 						"لا يمسّ أي مطابقة حتمية مؤكدة، ولا يختار إلا من أصناف الكتالوج المعروضة عليه.",
 						view.Session.Settings.UseAI)
 				} else {
-					@vendorImportSwitchDisabled("🤖", "المطابقة الذكية غير متاحة حالياً",
+					@vendorImportSwitchDisabled("", "المطابقة الذكية غير متاحة حالياً",
 						view.AIUnavailableReason)
 				}
 			</div>
@@ -327,33 +328,33 @@ templ importSettingsStage(view VendorImportView) {
 		<div class="card">
 			<h3 class="wiz-head">خيارات دقيقة</h3>
 			<div class="wiz-switches">
-				@vendorImportSwitch("publish_immediately", "🟢", "نشر الأصناف فور استيرادها",
+				@vendorImportSwitch("publish_immediately", "", "نشر الأصناف فور استيرادها",
 					"إن أُوقف، ستُضاف الأصناف موقوفة بانتظار التفعيل اليدوي لاحقاً.",
 					view.Session.Settings.PublishImmediately)
-				@vendorImportSwitch("reject_expired", "⛔", "رفض الأصناف منتهية الصلاحية",
+				@vendorImportSwitch("reject_expired", "", "رفض الأصناف منتهية الصلاحية",
 					"لن يُستورد أي سطر تاريخ صلاحيته قد مضى.", view.Session.Settings.RejectExpired)
 				@vendorImportSwitch("blank_quantity_is_zero", "0️⃣", "اعتبار الخلية الفارغة رصيداً صفرياً",
 					"فعّله فقط إذا كان الملف يمثل جرد المخزن كاملاً.", view.Session.Settings.BlankQuantityIsZero)
-				@vendorImportSwitch("infer_dosage_form", "💊", "استنتاج الشكل الصيدلي من اسم الصنف",
+				@vendorImportSwitch("infer_dosage_form", "", "استنتاج الشكل الصيدلي من اسم الصنف",
 					"يُستخدم فقط إذا لم يوجد عمود للشكل الصيدلي.", view.Session.Settings.InferDosageForm)
-				@vendorImportSwitch("infer_concentration", "🧪", "استخراج التركيز من اسم الصنف",
+				@vendorImportSwitch("infer_concentration", "", "استخراج التركيز من اسم الصنف",
 					"يُقتبس التركيز حرفياً من الاسم ولا يُخمَّن.", view.Session.Settings.InferConcentration)
 				if view.MappedIdentifiers().Code {
-					@vendorImportSwitch("trust_supplier_code", "🔢", "مطابقة الكتالوج المركزي بعمود كود الصنف",
+					@vendorImportSwitch("trust_supplier_code", "", "مطابقة الكتالوج المركزي بعمود كود الصنف",
 						"مغلق افتراضياً. الكود يحسم المطابقة قبل مقارنة الاسم، فلا تفعّله إلا إذا كان العمود يحمل كوداً يوجد فعلاً في الكتالوج المركزي.",
 						view.Session.Settings.TrustSupplierCode)
-					@vendorImportSwitch("code_is_catalog_code", "🎯", "عمود الكود يحمل أكواد دواء 24 نفسها",
+					@vendorImportSwitch("code_is_catalog_code", "", "عمود الكود يحمل أكواد دواء 24 نفسها",
 						"عند التفعيل يُقبل تطابق الكود دون اشتراط تشابه الاسم. اتركه مغلقاً إذا كان الكود ترقيماً داخلياً خاصاً بك.",
 						view.Session.Settings.CodeIsCatalogCode)
 				}
 				if view.MappedIdentifiers().Barcode {
-					@vendorImportSwitch("trust_barcode", "🏷️", "مطابقة الكتالوج المركزي بعمود الباركود",
+					@vendorImportSwitch("trust_barcode", "", "مطابقة الكتالوج المركزي بعمود الباركود",
 						"مغلق افتراضياً. الباركود يحسم المطابقة نهائياً دون النظر إلى الاسم أو التركيز، فلا تفعّله إلا إذا كان العمود يحمل باركود GTIN المطبوع على العبوة وليس ترقيم المخزن لديك.",
 						view.Session.Settings.TrustBarcode)
 				}
-				@vendorImportSwitch("mark_negotiable", "🤝", "تعليم الأصناف كقابلة للتفاوض", "",
+				@vendorImportSwitch("mark_negotiable", "", "تعليم الأصناف كقابلة للتفاوض", "",
 					view.Session.Settings.MarkNegotiable)
-				@vendorImportSwitch("record_rows", "🧾", "حفظ سجل تفصيلي لكل صف",
+				@vendorImportSwitch("record_rows", "", "حفظ سجل تفصيلي لكل صف",
 					"يتيح لك تصفية النتائج وتنزيل الأصناف التي تحتاج معالجة.", view.Session.Settings.RecordRows)
 			</div>
 			<div class="wiz-map">

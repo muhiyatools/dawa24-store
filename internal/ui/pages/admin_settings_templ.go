@@ -235,7 +235,7 @@ func AdminSettings(values AdminSettingsValues, lang, dir string) templ.Component
 						return templ_7745c5c3_Err
 					}
 				} else {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "<button type=\"submit\" class=\"btn btn-sm btn-secondary\" style=\"min-width:120px; justify-content:center; background:var(--surface-raised); color:var(--text-muted); border:1px solid var(--border); font-weight:600; border-radius:var(--radius-full);\" title=\"انقر لتفعيل الميزة\"><span>✕ معطل (Disabled)</span></button>")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "<button type=\"submit\" class=\"btn btn-sm btn-secondary\" style=\"min-width:120px; justify-content:center; background:var(--surface-raised); color:var(--text-muted); border:1px solid var(--border); font-weight:600; border-radius:var(--radius-full);\" title=\"انقر لتفعيل الميزة\"><span>معطل (Disabled)</span></button>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -623,7 +623,7 @@ func AdminSettings(values AdminSettingsValues, lang, dir string) templ.Component
 							return templ_7745c5c3_Err
 						}
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 55, "</div><div><div style=\"display:flex; align-items:center; gap:0.5rem; flex-wrap:wrap;\"><strong style=\"font-size:1.05rem; color:var(--text);\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 55, "</div><div><div class=\"inline-row-wrap\"><strong style=\"font-size:1.05rem; color:var(--text);\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -662,7 +662,7 @@ func AdminSettings(values AdminSettingsValues, lang, dir string) templ.Component
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 58, "</div></div></div><div style=\"display:flex; align-items:center; gap:0.5rem; flex-wrap:wrap;\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 58, "</div></div></div><div class=\"inline-row-wrap\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -678,13 +678,13 @@ func AdminSettings(values AdminSettingsValues, lang, dir string) templ.Component
 						}
 					}
 					if pm.IsDepositEnabled {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 61, "<span class=\"badge badge-sky text-xs\">شحن المحفظة ✓</span> ")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 61, "<span class=\"badge badge-sky text-xs\">شحن المحفظة </span> ")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
 					}
 					if pm.IsCheckoutEnabled {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 62, "<span class=\"badge badge-indigo text-xs\">سداد الطلبات ✓</span>")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 62, "<span class=\"badge badge-indigo text-xs\">سداد الطلبات </span>")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
@@ -929,7 +929,7 @@ func AdminSettings(values AdminSettingsValues, lang, dir string) templ.Component
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 89, "</div></div><!-- Dynamic Modal: Add / Edit Platform Payment Channel (Centered Popup) --><div x-show=\"isMethodModalOpen\" x-cloak class=\"modal-overlay\" @keydown.escape.window=\"isMethodModalOpen = false\"><div @click.outside=\"isMethodModalOpen = false\" class=\"card\" style=\"max-width:680px; width:100%; max-height:90vh; overflow-y:auto; padding:2rem; background:var(--surface-raised); border-radius:var(--radius-2xl); border:1px solid var(--border); box-shadow:var(--shadow-xl);\"><div style=\"display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; border-bottom:1px solid var(--border); padding-bottom:1rem;\"><div class=\"row-center-sm\"><div class=\"b2b-icon-box-sm\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 89, "</div></div><!-- Dynamic Modal: Add / Edit Platform Payment Channel (Centered Popup) --><div x-show=\"isMethodModalOpen\" x-cloak class=\"modal-overlay\" @keydown.escape.window=\"isMethodModalOpen = false\"><div @click.outside=\"isMethodModalOpen = false\" class=\"card\" style=\"max-width:680px; width:100%; max-height:90vh; overflow-y:auto; padding:2rem; background:var(--surface-raised); border-radius:var(--radius-2xl); border:1px solid var(--border); box-shadow:var(--shadow-xl);\"><div class=\"section-head\"><div class=\"row-center-sm\"><div class=\"b2b-icon-box-sm\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

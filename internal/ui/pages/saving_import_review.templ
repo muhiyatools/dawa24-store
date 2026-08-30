@@ -14,7 +14,7 @@ templ savingReviewStage(view SavingImportView) {
 			<div class="flex-between items-center flex-wrap gap-4">
 				<div class="d-flex items-center gap-3">
 					<div class="user-avatar-badge text-xl">
-						📋
+						@components.IconFileText("icon-sm")
 					</div>
 					<div>
 						<h2 class="text-xl font-black text-primary m-0">مراجعة أصناف التوفير والربط بالكتالوج المركزي</h2>
@@ -26,7 +26,7 @@ templ savingReviewStage(view SavingImportView) {
 					<form method="POST" action={ templ.SafeURL(fmt.Sprintf("%s/%s/cancel", view.ImportURL, sess.ID)) }
 						onsubmit="return confirm('هل أنت متأكد من رغبتك في إلغاء هذه الجلسة والتراجع عن الاستيراد؟');" class="m-0">
 						<button type="submit" class="btn btn-secondary btn-sm text-danger font-bold">
-							✕ إلغاء الجلسة
+							إلغاء الجلسة
 						</button>
 					</form>
 
@@ -45,7 +45,7 @@ templ savingReviewStage(view SavingImportView) {
 		<div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
 			<div class="glass-panel p-4 d-flex items-center gap-3" style="border-radius:var(--radius-lg);">
 				<div class="text-2xl p-2.5 rounded-xl" style="background:rgba(59, 130, 246, 0.1); border:1px solid rgba(59, 130, 246, 0.2);">
-					📦
+					@components.IconPackage("icon-sm")
 				</div>
 				<div>
 					<div class="text-xs text-secondary font-bold">إجمالي الأصناف</div>
@@ -55,7 +55,7 @@ templ savingReviewStage(view SavingImportView) {
 
 			<div class="glass-panel p-4 d-flex items-center gap-3" style="border-radius:var(--radius-lg);">
 				<div class="text-2xl p-2.5 rounded-xl" style="background:rgba(16, 185, 129, 0.1); border:1px solid rgba(16, 185, 129, 0.2);">
-					✓
+					@components.IconCheck("icon-sm")
 				</div>
 				<div>
 					<div class="text-xs text-secondary font-bold">مطابق بالكتالوج</div>
@@ -65,7 +65,7 @@ templ savingReviewStage(view SavingImportView) {
 
 			<div class="glass-panel p-4 d-flex items-center gap-3" style="border-radius:var(--radius-lg);">
 				<div class="text-2xl p-2.5 rounded-xl" style="background:rgba(245, 158, 11, 0.1); border:1px solid rgba(245, 158, 11, 0.2);">
-					⚠️
+					@components.IconAlert("icon-sm")
 				</div>
 				<div>
 					<div class="text-xs text-secondary font-bold">غير مرتبط</div>
@@ -75,7 +75,7 @@ templ savingReviewStage(view SavingImportView) {
 
 			<div class="glass-panel p-4 d-flex items-center gap-3" style="border-radius:var(--radius-lg);">
 				<div class="text-2xl p-2.5 rounded-xl" style="background:rgba(99, 102, 241, 0.1); border:1px solid rgba(99, 102, 241, 0.2);">
-					💰
+					@components.IconWallet("icon-sm")
 				</div>
 				<div>
 					<div class="text-xs text-secondary font-bold">القيمة التقديرية</div>
@@ -163,7 +163,7 @@ templ savingReviewStage(view SavingImportView) {
 					<p class="text-xs text-secondary m-0 mt-0.5 font-mono" id="saving-modal-item-name"></p>
 				</div>
 				<button type="button" class="btn btn-secondary btn-xs" onclick="closeSavingCatalogModal()" style="border-radius:var(--radius-full); width:32px; height:32px; padding:0; justify-content:center;">
-					✕
+					@components.IconX("icon-sm")
 				</button>
 			</div>
 
@@ -180,7 +180,7 @@ templ savingReviewStage(view SavingImportView) {
 				<form id="saving-modal-unlink-form" method="POST" action="" class="m-0">
 					<input type="hidden" name="product_id" value="0" />
 					<button type="submit" class="btn btn-ghost btn-xs text-danger font-bold">
-						✕ إلغاء الربط (جعله غير مرتبط)
+						إلغاء الربط (جعله غير مرتبط)
 					</button>
 				</form>
 				<button type="button" class="btn btn-secondary btn-xs font-bold" onclick="closeSavingCatalogModal()">إغلاق</button>
@@ -270,7 +270,7 @@ templ savingReviewStage(view SavingImportView) {
 						'<button type="submit" class="p-3 w-100 text-start flex-between items-center gap-3 border rounded-xl hover-lift cursor-pointer" style="margin-bottom:0; background:rgba(30,41,59,0.7); border-color:rgba(59,130,246,0.25);">' +
 						'<div><div class="text-sm font-extrabold text-primary">' + escapeSavingHtml(name) + '</div>' +
 						'<div class="d-flex items-center gap-2 mt-1">' + skuStr + priceStr + '</div></div>' +
-						'<span class="btn btn-primary btn-xs font-bold shrink-0">ربط ✓</span>' +
+						'<span class="btn btn-primary btn-xs font-bold shrink-0">ربط </span>' +
 						'</button>' +
 						'</form>';
 				});
@@ -360,7 +360,7 @@ templ savingProductRow(view SavingImportView, row *StagedSavingItem) {
 				<div class="row-center-xs gap-xs">
 					<input type="text" name="name" value={ row.NameProduct } class="form-input text-xs font-bold"
 						style="padding: 0.35rem 0.5rem;" />
-					<button type="submit" class="btn btn-ghost btn-xs px-1.5" title="حفظ الاسم">✓</button>
+					<button type="submit" class="btn btn-ghost btn-xs px-1.5" title="حفظ الاسم">@components.IconCheck("icon-sm")</button>
 				</div>
 				if row.SKU != "" {
 					<span class="text-2xs text-muted font-mono">{ row.SKU }</span>
@@ -409,7 +409,7 @@ templ savingProductRow(view SavingImportView, row *StagedSavingItem) {
 			<form method="POST" action={ templ.SafeURL(actionBase + "/update" + querySuffix) } class="row-center-xs justify-center gap-xs m-0">
 				<input type="number" step="1" min="1" name="quantity" value={ fmt.Sprintf("%.0f", row.Quantity) }
 					class="form-input text-center tabular-nums text-xs" style="padding: 0.35rem 0.4rem; width: 60px;" />
-				<button type="submit" class="btn btn-ghost btn-xs px-1.5" title="حفظ الكمية">✓</button>
+				<button type="submit" class="btn btn-ghost btn-xs px-1.5" title="حفظ الكمية">@components.IconCheck("icon-sm")</button>
 			</form>
 		</td>
 
@@ -417,7 +417,7 @@ templ savingProductRow(view SavingImportView, row *StagedSavingItem) {
 			<form method="POST" action={ templ.SafeURL(actionBase + "/update" + querySuffix) } class="row-center-xs justify-center gap-xs m-0">
 				<input type="number" step="0.01" min="0" name="price" value={ row.Price.String() }
 					class="form-input text-center tabular-nums text-xs" style="padding: 0.35rem 0.4rem; width: 75px;" />
-				<button type="submit" class="btn btn-ghost btn-xs px-1.5" title="حفظ السعر">✓</button>
+				<button type="submit" class="btn btn-ghost btn-xs px-1.5" title="حفظ السعر">@components.IconCheck("icon-sm")</button>
 			</form>
 		</td>
 

@@ -72,7 +72,7 @@ func importConfirmStage(view VendorImportView) templ.Component {
 			return templ_7745c5c3_Err
 		}
 		if view.Session.Mapping != nil {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "<div class=\"card\"><h3 class=\"wiz-head\">الأعمدة التي ستُقرأ</h3><div class=\"table-wrap\"><table class=\"table\"><thead><tr><th>العمود في ملفك</th><th>سيُقرأ كـ</th><th>المصدر</th></tr></thead> <tbody>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "<div class=\"card\"><h3 class=\"wiz-head\">الأعمدة التي ستُقرأ</h3><div class=\"table-wrap\"><table class=\"data-table\"><thead><tr><th>العمود في ملفك</th><th>سيُقرأ كـ</th><th>المصدر</th></tr></thead> <tbody>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -441,7 +441,7 @@ func importResultsStage(view VendorImportView) templ.Component {
 			return templ_7745c5c3_Err
 		}
 		if len(view.Session.Findings) > 0 {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 38, "<div class=\"card\"><h3 class=\"wiz-head\">ملاحظات على الصفوف</h3><div class=\"table-wrap\"><table class=\"table\"><thead><tr><th>الصف</th><th>الحقل</th><th>القيمة</th><th>الملاحظة</th></tr></thead> <tbody>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 38, "<div class=\"card\"><h3 class=\"wiz-head\">ملاحظات على الصفوف</h3><div class=\"table-wrap\"><table class=\"data-table\"><thead><tr><th>الصف</th><th>الحقل</th><th>القيمة</th><th>الملاحظة</th></tr></thead> <tbody>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -620,19 +620,19 @@ func importRowsTable(view VendorImportView) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 53, "</div></div><div class=\"table-wrap\"><table class=\"table\"><thead><tr style=\"background:var(--surface-sunken); border-bottom:2px solid var(--border);\"><th style=\"width:50px; text-align:center;\">#</th><th style=\"min-width:200px;\">اسم الصنف في الملف</th><th style=\"min-width:220px;\">الصنف المطابق المعتمد في المنصة (الأدوية المعتمدة)</th><th class=\"text-center\" style=\"width:100px;\">النتيجة</th><th class=\"text-center\" style=\"width:130px;\">درجة المطابقة</th><th style=\"min-width:200px;\">تفاصيل وملاحظات الذكاء الصيدلاني</th></tr></thead> <tbody>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 53, "</div></div><div class=\"table-wrap\"><table class=\"data-table\"><thead><tr style=\"background:var(--surface-sunken); border-bottom:2px solid var(--border);\"><th style=\"width:50px; text-align:center;\">#</th><th style=\"min-width:200px;\">اسم الصنف في الملف</th><th style=\"min-width:220px;\">الصنف المطابق المعتمد في المنصة (الأدوية المعتمدة)</th><th class=\"text-center\" style=\"width:100px;\">النتيجة</th><th class=\"text-center\" style=\"width:130px;\">درجة المطابقة</th><th style=\"min-width:200px;\">تفاصيل وملاحظات الذكاء الصيدلاني</th></tr></thead> <tbody>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		for _, row := range view.Rows {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 54, "<tr style=\"border-bottom:1px solid var(--border);\"><td class=\"text-center tabular-nums font-bold\" style=\"color:var(--text-muted);\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 54, "<tr class=\"rule-bottom\"><td class=\"text-center tabular-nums font-bold text-muted\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var26 string
 			templ_7745c5c3_Var26, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprint(row.SourceRow))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ingest_results.templ`, Line: 231, Col: 114}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_ingest_results.templ`, Line: 231, Col: 92}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var26))
 			if templ_7745c5c3_Err != nil {

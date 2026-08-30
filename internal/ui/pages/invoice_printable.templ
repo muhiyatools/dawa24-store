@@ -336,7 +336,7 @@ templ InvoicePrintablePage(data billing.PrintableInvoiceData, lang, dir string) 
 			
 			<!-- Floating Action Toolbar (Hidden in print) -->
 			<div class="no-print-toolbar">
-				<div style="display:flex; align-items:center; gap:0.5rem;">
+				<div class="d-flex items-center gap-2">
 					<span style="font-size:1.3rem;">🧾</span>
 					<div>
 						<strong style="font-size:0.95rem; display:block; color:#0f172a;">
@@ -356,7 +356,7 @@ templ InvoicePrintablePage(data billing.PrintableInvoiceData, lang, dir string) 
 						onclick="printA4()"
 						title="طباعة الفاتورة بالحجم القياسي A4"
 					>
-						<span>📄 طباعة الفاتورة (A4)</span>
+						<span>طباعة الفاتورة (A4)</span>
 					</button>
 
 					<!-- Thermal Print (POS 80mm) -->
@@ -366,7 +366,7 @@ templ InvoicePrintablePage(data billing.PrintableInvoiceData, lang, dir string) 
 						onclick="printThermal()"
 						title="طباعة إيصال كاشير 80 مم"
 					>
-						<span>🖨️ طباعة إيصال كاشير (Thermal)</span>
+						<span>طباعة إيصال كاشير (Thermal)</span>
 					</button>
 
 					<!-- Close / Back -->
@@ -375,7 +375,7 @@ templ InvoicePrintablePage(data billing.PrintableInvoiceData, lang, dir string) 
 						class="btn-action btn-secondary"
 						onclick="window.close(); if(!window.closed) window.history.back();"
 					>
-						<span>✕ إغلاق</span>
+						<span>إغلاق</span>
 					</button>
 				</div>
 			</div>
@@ -453,11 +453,11 @@ templ InvoicePrintablePage(data billing.PrintableInvoiceData, lang, dir string) 
 						<div style="font-size:0.775rem; color:#334155;">
 							<span style="direction:rtl; display:inline-block; font-size:0.75rem; color:#64748b; margin-right:4px;">طريقة السداد:</span>
 							if data.PaymentMethod == "cash" || data.PaymentMethod == "cash_on_delivery" {
-								<span style="font-weight:700;">نقداً عند الاستلام</span>
+								<span class="font-bold">نقداً عند الاستلام</span>
 							} else if data.PaymentMethod == "wallet" {
-								<span style="font-weight:700;">المحفظة الإلكترونية</span>
+								<span class="font-bold">المحفظة الإلكترونية</span>
 							} else {
-								<span style="font-weight:700;">آجل / حساب ائتماني</span>
+								<span class="font-bold">آجل / حساب ائتماني</span>
 							}
 						</div>
 					</div>
@@ -537,12 +537,12 @@ templ InvoicePrintablePage(data billing.PrintableInvoiceData, lang, dir string) 
 										</span>
 									}
 								</td>
-								<td style="text-align:center;" class="tabular-nums">{ line.UnitPrice.String() } ج.م</td>
+								<td class="tabular-nums text-center">{ line.UnitPrice.String() } ج.م</td>
 								<td style="text-align:center; font-weight:800; color:#0f172a;" class="tabular-nums">
 									{ formatDiscountInt(line.DiscountPercent) }
 								</td>
 								<td style="text-align:center; font-weight:800;" class="tabular-nums">{ fmt.Sprintf("%d", line.Quantity) }</td>
-								<td style="text-align:center;" class="tabular-nums">
+								<td class="tabular-nums text-center">
 									{ line.NetUnitPrice.String() } ج.م
 								</td>
 								<td style="text-align:center; font-weight:800; color:#0f172a;" class="tabular-nums">
@@ -627,16 +627,16 @@ templ InvoicePrintablePage(data billing.PrintableInvoiceData, lang, dir string) 
 						{ data.Vendor.DisplayName }
 					</div>
 					if data.Vendor.TaxNumber != "" {
-						<div style="font-size:10px;">ب.ض: { data.Vendor.TaxNumber } | س.ت: { data.Vendor.CommercialRegister }</div>
+						<div class="font-size-10">ب.ض: { data.Vendor.TaxNumber } | س.ت: { data.Vendor.CommercialRegister }</div>
 					}
 					if data.Vendor.Phone != "" {
-						<div style="font-size:10px;">هاتف: { data.Vendor.Phone }</div>
+						<div class="font-size-10">هاتف: { data.Vendor.Phone }</div>
 					}
 					<div class="thermal-divider"></div>
 					<div style="font-size:13px; font-weight:900;">
-						💊 دواء 24 — إيصال استلام وتوريد
+						دواء 24 — إيصال استلام وتوريد
 					</div>
-					<div style="font-size:10px;" class="tabular-nums">#{ data.InvoiceNumber }</div>
+					<div class="tabular-nums font-size-10">#{ data.InvoiceNumber }</div>
 					<div class="thermal-divider"></div>
 				</div>
 

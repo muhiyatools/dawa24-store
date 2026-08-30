@@ -70,10 +70,7 @@ func (h *UIHandler) TenantWalletPage(w http.ResponseWriter, r *http.Request) {
 		NoticeMessage:          r.URL.Query().Get("msg"),
 	}
 
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	if err := pages.WalletPage(viewData, lang, dir).Render(ctx, w); err != nil {
-		h.log.ErrorContext(ctx, "render tenant wallet page", "error", err)
-	}
+	h.renderPage(ctx, w, "render tenant wallet page", pages.WalletPage(viewData, lang, dir))
 }
 
 // TenantWalletDepositSubmit handles wallet recharge deposit submissions.

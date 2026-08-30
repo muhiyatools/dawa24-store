@@ -13,10 +13,7 @@ func (h *UIHandler) AdminSessionPlansPage(w http.ResponseWriter, r *http.Request
 	ctx := r.Context()
 	lang, dir := h.localeAndDir(r)
 
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	if err := pages.AdminSessionPlansPage(lang, dir).Render(ctx, w); err != nil {
-		h.log.ErrorContext(ctx, "render admin session plans", "error", err)
-	}
+	h.renderPage(ctx, w, "render admin session plans", pages.AdminSessionPlansPage(lang, dir))
 }
 
 // AdminSessionPlanRequestsPage renders multi-session seat request queue.
@@ -24,10 +21,7 @@ func (h *UIHandler) AdminSessionPlanRequestsPage(w http.ResponseWriter, r *http.
 	ctx := r.Context()
 	lang, dir := h.localeAndDir(r)
 
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	if err := pages.AdminSessionPlanRequestsPage(lang, dir).Render(ctx, w); err != nil {
-		h.log.ErrorContext(ctx, "render admin session plan requests", "error", err)
-	}
+	h.renderPage(ctx, w, "render admin session plan requests", pages.AdminSessionPlanRequestsPage(lang, dir))
 }
 
 // CustomerReportIssuePage renders issue report form for customers and vendors.
@@ -35,10 +29,7 @@ func (h *UIHandler) CustomerReportIssuePage(w http.ResponseWriter, r *http.Reque
 	ctx := r.Context()
 	lang, dir := h.localeAndDir(r)
 
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	if err := pages.CustomerReportIssuePage(lang, dir).Render(ctx, w); err != nil {
-		h.log.ErrorContext(ctx, "render customer report issue", "error", err)
-	}
+	h.renderPage(ctx, w, "render customer report issue", pages.CustomerReportIssuePage(lang, dir))
 }
 
 // CustomerReportIssueSubmit saves issue report into workflow.report_issues.
@@ -83,8 +74,5 @@ func (h *UIHandler) AdminReportIssuesPage(w http.ResponseWriter, r *http.Request
 	ctx := r.Context()
 	lang, dir := h.localeAndDir(r)
 
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	if err := pages.AdminReportIssuesPage(lang, dir).Render(ctx, w); err != nil {
-		h.log.ErrorContext(ctx, "render admin report issues", "error", err)
-	}
+	h.renderPage(ctx, w, "render admin report issues", pages.AdminReportIssuesPage(lang, dir))
 }

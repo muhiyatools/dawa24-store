@@ -42,7 +42,7 @@ templ VendorDashboard(lang, dir string, data VendorDashboardData) {
 				<div class="glass-panel p-5 mb-0" style="border-radius:16px;">
 					<div class="flex-between items-center flex-wrap gap-3 mb-4 pb-3 border-b">
 						<div class="d-flex items-center gap-2">
-							<span class="text-xl">🏢</span>
+							<span class="text-xl">@components.IconBuilding("icon-sm")</span>
 							<div>
 								<h2 class="text-base font-extrabold text-primary m-0">
 									باقة الاشتراك وخدمات الذكاء الاصطناعي للمورد
@@ -191,7 +191,7 @@ templ VendorDashboard(lang, dir string, data VendorDashboardData) {
 				<div class="stat-card-3d">
 					<div class="stat-card-label text-success font-bold d-flex items-center justify-between">
 						<span>الشحنات المسلمة بنجاح</span>
-						<span class="badge badge-emerald text-xs">✓ تسليم</span>
+						<span class="badge badge-emerald text-xs">تسليم</span>
 					</div>
 					<div class="stat-card-value text-success tabular-nums mt-1">
 						{ fmt.Sprintf("%d", data.DeliveredShipments) } <span style="font-size:0.8rem; font-weight:600; color:var(--text-muted);">شحنة</span>
@@ -227,7 +227,7 @@ templ VendorDashboard(lang, dir string, data VendorDashboardData) {
 					<div>
 						<div class="flex-between items-center mb-4 pb-3 border-b">
 							<div class="d-flex items-center gap-2">
-								<span class="text-lg">📦</span>
+								<span class="text-lg">@components.IconPackage("icon-sm")</span>
 								<h2 class="text-base font-extrabold text-primary m-0">
 									شحنات بانتظار قيد التنفيذ
 								</h2>
@@ -301,7 +301,7 @@ templ VendorDashboard(lang, dir string, data VendorDashboardData) {
 												</td>
 												<td class="text-center">
 													@components.ModalTrigger(fmt.Sprintf("preview-shipment-%d", s.ID), "btn btn-secondary btn-sm font-bold text-xs px-3 gap-1") {
-														<span>👁️</span>
+														<span>@components.IconEye("icon-sm")</span>
 														<span>معاينة</span>
 													}
 												</td>
@@ -319,7 +319,7 @@ templ VendorDashboard(lang, dir string, data VendorDashboardData) {
 					<div>
 						<div class="flex-between items-center mb-4 pb-3 border-b">
 							<div class="d-flex items-center gap-2">
-								<span class="text-lg">⚠️</span>
+								<span class="text-lg">@components.IconAlert("icon-sm")</span>
 								<h2 class="text-base font-extrabold text-primary m-0">أصناف تحت الحد الأدنى</h2>
 								if len(data.LowStock) > 0 {
 									<span class="badge badge-danger text-xs font-bold tabular-nums">{ fmt.Sprintf("%d", len(data.LowStock)) }</span>
@@ -329,7 +329,7 @@ templ VendorDashboard(lang, dir string, data VendorDashboardData) {
 						</div>
 						if len(data.LowStock) == 0 {
 							<div class="text-xs text-muted text-center py-10">
-								<div class="text-2xl mb-2">✅</div>
+								<div class="text-2xl mb-2">@components.IconCheckCircle("icon-sm")</div>
 								<strong class="text-primary d-block mb-1">المخزون في وضع آمن</strong>
 								<span>جميع الأرصدة المخزنية فوق حد إعادة الطلب الآمن.</span>
 							</div>
@@ -434,7 +434,7 @@ templ VendorDashboard(lang, dir string, data VendorDashboardData) {
 				<!-- Shipment & Pharmacy Quick Header Strip -->
 				<div class="d-grid gap-3 bg-surface-sunken p-4 rounded-xl border mb-3 text-xs" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));">
 					<div>
-						<div class="text-muted font-bold mb-1">🏥 الصيدلية والفرع المستلم:</div>
+						<div class="text-muted font-bold mb-1">الصيدلية والفرع المستلم:</div>
 						<strong class="text-primary text-sm font-bold d-block">
 							if s.CustomerBranchName.Get(i18n.Lang(lang)) != "" {
 								{ s.CustomerBranchName.Get(i18n.Lang(lang)) }
@@ -448,7 +448,7 @@ templ VendorDashboard(lang, dir string, data VendorDashboardData) {
 					</div>
 
 					<div>
-						<div class="text-muted font-bold mb-1">📍 عنوان التسليم:</div>
+						<div class="text-muted font-bold mb-1">عنوان التسليم:</div>
 						<div class="text-primary">
 							if s.CustomerBranchAddress != "" {
 								{ s.CustomerBranchAddress }
@@ -459,13 +459,13 @@ templ VendorDashboard(lang, dir string, data VendorDashboardData) {
 					</div>
 
 					<div>
-						<div class="text-muted font-bold mb-1">📞 مسؤول الاستلام:</div>
+						<div class="text-muted font-bold mb-1">مسؤول الاستلام:</div>
 						<div class="text-primary">
 							if s.CustomerManagerName != "" {
 								<strong>{ s.CustomerManagerName }</strong>
 							}
 							if s.CustomerBranchPhone != "" {
-								<div class="tabular-nums text-secondary mt-1">📞 { s.CustomerBranchPhone }</div>
+								<div class="tabular-nums text-secondary mt-1">{ s.CustomerBranchPhone }</div>
 							} else if s.CustomerManagerName == "" {
 								<span class="text-muted">الصيدلي المسؤول</span>
 							}
@@ -473,7 +473,7 @@ templ VendorDashboard(lang, dir string, data VendorDashboardData) {
 					</div>
 
 					<div>
-						<div class="text-muted font-bold mb-1">💰 القيمة الإجمالية:</div>
+						<div class="text-muted font-bold mb-1">القيمة الإجمالية:</div>
 						<strong class="text-brand font-black text-sm tabular-nums">
 							{ s.TotalAmount.String() } ج.م
 						</strong>
@@ -486,7 +486,7 @@ templ VendorDashboard(lang, dir string, data VendorDashboardData) {
 
 					if s.Notes != "" {
 						<div class="border-t pt-2 mt-1" style="grid-column: 1 / -1;">
-							<div class="text-muted font-bold mb-1">📝 ملاحظات الصيدلية:</div>
+							<div class="text-muted font-bold mb-1">ملاحظات الصيدلية:</div>
 							<div class="text-primary">{ s.Notes }</div>
 						</div>
 					}
@@ -542,7 +542,7 @@ templ VendorDashboard(lang, dir string, data VendorDashboardData) {
 				<!-- Execution Controls Workflow Section -->
 				<div class="p-3 bg-surface-sunken rounded-xl border">
 					<div class="text-xs font-extrabold text-primary mb-3">
-						🚀 خيارات بدء وتنفيذ الشحنة وفق دورة العمل الرسمية:
+						خيارات بدء وتنفيذ الشحنة وفق دورة العمل الرسمية:
 					</div>
 
 					if s.Status == commerce.StatusPending {
@@ -575,7 +575,7 @@ templ VendorDashboard(lang, dir string, data VendorDashboardData) {
 									<input type="hidden" name="status" value="cancelled" />
 									<input type="hidden" name="notes" value="تم رفض الطلب من قبل إدارة مبيعات المورد" />
 									<button type="submit" class="btn btn-danger w-full justify-center font-bold text-xs py-2" style="border-radius:8px;">
-										<span>✕ رفض الطلب</span>
+										<span>رفض الطلب</span>
 									</button>
 								</form>
 							</div>
@@ -601,7 +601,7 @@ templ VendorDashboard(lang, dir string, data VendorDashboardData) {
 								/>
 								<button type="submit" class="btn btn-secondary font-bold text-xs py-2 px-3 gap-1" style="border-radius:6px;">
 									@components.IconTruck("icon-xs")
-									<span>إرسال للشحن 🚚</span>
+									<span>إرسال للشحن </span>
 								</button>
 							</form>
 						</div>
@@ -637,14 +637,14 @@ templ VendorDashboard(lang, dir string, data VendorDashboardData) {
 								<input type="hidden" name="notes" value="تم تسليم الشحنة بالصيدلية وتوثيق الاستلام بنجاح" />
 								<button type="submit" class="btn btn-primary w-full justify-center font-bold text-xs py-2 gap-1" style="border-radius:8px;">
 									@components.IconCheckCircle("icon-xs")
-									<span>تأكيد وإتمام التسليم للصيدلية مباشرة ✓</span>
+									<span>تأكيد وإتمام التسليم للصيدلية مباشرة </span>
 								</button>
 							</form>
 						</div>
 					} else {
 						<div class="flex-between items-center">
 							<span class="badge badge-emerald text-xs font-bold p-2 px-3">
-								✓ الشحنة بحالة: { string(s.Status) }
+								الشحنة بحالة: { string(s.Status) }
 							</span>
 							<a href="/vendor/orders" class="btn btn-secondary btn-sm text-xs font-bold">
 								الانتقال لصفحة الطلبيات ↗

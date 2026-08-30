@@ -25,9 +25,9 @@ templ CompareFileMappingModal(file *compare.CompareFile, headers []string, previ
 				<div style="display:flex; align-items:flex-start; gap:0.85rem;">
 					<div style="width:46px; height:46px; border-radius:var(--radius-xl); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center; font-size:1.5rem; flex-shrink:0;">
 						if isSetup || total > 1 {
-							⚙️
+							@components.IconSettings("icon-sm")
 						} else {
-							📋
+							@components.IconFileText("icon-sm")
 						}
 					</div>
 					<div>
@@ -60,7 +60,7 @@ templ CompareFileMappingModal(file *compare.CompareFile, headers []string, previ
 					style="font-size:1.1rem; width:36px; height:36px; border-radius:var(--radius-lg); flex-shrink:0;"
 					title="إغلاق المعالج"
 				>
-					✕
+					@components.IconX("icon-sm")
 				</button>
 			</div>
 
@@ -95,7 +95,7 @@ templ CompareFileMappingModal(file *compare.CompareFile, headers []string, previ
 
 				<!-- Supplier Name Editable Field -->
 				<div style="background:var(--surface-sunken); border:1px solid var(--border); border-radius:var(--radius-xl); padding:1rem 1.25rem; display:flex; align-items:center; gap:1rem; flex-wrap:wrap;">
-					<div style="font-size:1.4rem;">🏢</div>
+					<div style="font-size:1.4rem;">@components.IconBuilding("icon-sm")</div>
 					<div style="flex:1; min-width:260px;">
 						<label class="form-label" style="font-weight:800; font-size:0.85rem; color:var(--text); margin-bottom:0.25rem; display:block;">
 							اسم المورد أو شركة التوزيع <span class="text-danger">*</span>
@@ -119,7 +119,7 @@ templ CompareFileMappingModal(file *compare.CompareFile, headers []string, previ
 				<div>
 					<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.75rem;">
 						<div class="row-center-sm">
-							<span style="font-size:1rem;">🎯</span>
+							<span style="font-size:1rem;">@components.IconActivity("icon-sm")</span>
 							<strong style="font-size:0.9rem; color:var(--text);">تحديد أعمدة البيانات بالكشف:</strong>
 						</div>
 						<span class="badge badge-sky" style="font-weight:700; font-size:0.75rem;">
@@ -137,7 +137,7 @@ templ CompareFileMappingModal(file *compare.CompareFile, headers []string, previ
 								</label>
 								if detection != nil && detection.NameCol != nil && detection.FieldScores != nil {
 									if score, ok := detection.FieldScores[compare.FieldProductName]; ok {
-										<span class="badge badge-emerald text-xs" style="font-weight:700;">
+										<span class="badge badge-emerald text-xs font-bold">
 											{ fmt.Sprintf("تطابق %.0f%%", score*100) }
 										</span>
 									}
@@ -163,7 +163,7 @@ templ CompareFileMappingModal(file *compare.CompareFile, headers []string, previ
 								</label>
 								if detection != nil && detection.PriceCol != nil && detection.FieldScores != nil {
 									if score, ok := detection.FieldScores[compare.FieldPrice]; ok {
-										<span class="badge badge-emerald text-xs" style="font-weight:700;">
+										<span class="badge badge-emerald text-xs font-bold">
 											{ fmt.Sprintf("تطابق %.0f%%", score*100) }
 										</span>
 									}
@@ -189,7 +189,7 @@ templ CompareFileMappingModal(file *compare.CompareFile, headers []string, previ
 								</label>
 								if detection != nil && detection.DiscountCol != nil && detection.FieldScores != nil {
 									if score, ok := detection.FieldScores[compare.FieldDiscount]; ok {
-										<span class="badge badge-emerald text-xs" style="font-weight:700;">
+										<span class="badge badge-emerald text-xs font-bold">
 											{ fmt.Sprintf("تطابق %.0f%%", score*100) }
 										</span>
 									}
@@ -215,7 +215,7 @@ templ CompareFileMappingModal(file *compare.CompareFile, headers []string, previ
 								</label>
 								if detection != nil && detection.CodeCol != nil && detection.FieldScores != nil {
 									if score, ok := detection.FieldScores[compare.FieldSKU]; ok {
-										<span class="badge badge-emerald text-xs" style="font-weight:700;">
+										<span class="badge badge-emerald text-xs font-bold">
 											{ fmt.Sprintf("تطابق %.0f%%", score*100) }
 										</span>
 									}
@@ -243,12 +243,12 @@ templ CompareFileMappingModal(file *compare.CompareFile, headers []string, previ
 							<div style="font-weight:800; font-size:0.85rem; color:var(--text);">
 								عينة من بيانات الملف (الصفوف الأولى):
 							</div>
-							<span style="font-size:0.75rem; color:var(--text-muted);">
+							<span class="meta-muted">
 								{ fmt.Sprintf("%d صفوف للمعاينة", len(preview)) }
 							</span>
 						</div>
 						<div style="overflow-x:auto; max-height:160px; border-radius:var(--radius-lg); border:1px solid var(--border);">
-							<table class="table" style="width:100%; border-collapse:collapse; font-size:0.785rem; text-align:start; margin:0;">
+							<table class="data-table" style="font-size:0.785rem">
 								<thead>
 									<tr style="background:var(--surface-raised); border-bottom:2px solid var(--border); color:var(--text-muted);">
 										for idx, h := range headers {
@@ -278,7 +278,7 @@ templ CompareFileMappingModal(file *compare.CompareFile, headers []string, previ
 				<!-- Actions Bar -->
 				<div style="display:flex; justify-content:space-between; align-items:center; gap:0.75rem; border-top:1px solid var(--border); padding-top:1.15rem; flex-wrap:wrap;">
 					
-					<div style="display:flex; align-items:center; gap:0.5rem;">
+					<div class="d-flex items-center gap-2">
 						if isSetup || total > 1 {
 							<button
 								type="button"
@@ -305,7 +305,7 @@ templ CompareFileMappingModal(file *compare.CompareFile, headers []string, previ
 						</button>
 					</div>
 
-					<div style="display:flex; align-items:center; gap:0.75rem;">
+					<div class="d-flex items-center gap-3">
 						<button
 							type="submit"
 							id="mapping-submit-btn"
@@ -314,9 +314,9 @@ templ CompareFileMappingModal(file *compare.CompareFile, headers []string, previ
 						>
 							@components.IconCheck("icon-xs")
 							if nextFileID > 0 {
-								<span>حفظ والملف التالي ➔</span>
+								<span>حفظ والملف التالي </span>
 							} else {
-								<span>حفظ وإنهاء وبدء المقارنة 🚀</span>
+								<span>حفظ وإنهاء وبدء المقارنة </span>
 							}
 						</button>
 					</div>

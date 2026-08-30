@@ -2,7 +2,7 @@ package i18n
 
 func loadCompareAndPromoKeys(e *engine) {
 	// --- Compare & Smart Savings ---
-	addKey(e, "compare.title", "compare", "مقارنة الأسعار والعروض الذكية 💰", "Smart Savings & Price Comparison 💰", "Compare page title")
+	addKey(e, "compare.title", "compare", "مقارنة الأسعار والعروض الذكية", "Smart Savings & Price Comparison", "Compare page title")
 	addKey(e, "compare.subtitle", "compare", "قارن أسعار ونسب خصم الأدوية بين كافة الموردين المعتمدين لتوفير أعلى عائد ربحي لصيدليتك.", "Compare medicine prices and discount percentages across verified suppliers to maximize pharmacy profit.", "Compare page subtitle")
 	addKey(e, "compare.search_drug", "compare", "ابحث عن دواء لمقارنة أسعاره...", "Search medicine to compare prices...", "Compare search placeholder")
 	addKey(e, "compare.best_discount", "compare", "أعلى نسبة خصم متاحة", "Best Available Discount", "Best discount label")
@@ -20,9 +20,9 @@ func loadCompareAndPromoKeys(e *engine) {
 	addKey(e, "compare.therapeutic_alternative", "compare", "بديل علاجي مماثل", "Therapeutic Equivalent", "Therapeutic badge")
 
 	// --- Promos, Discounts & Highlighted Sections ---
-	addKey(e, "promo.title", "promo", "العروض والخصومات الحصرية 🎉", "Deals & Exclusive Promotions 🎉", "Promos page title")
+	addKey(e, "promo.title", "promo", "العروض والخصومات الحصرية", "Deals & Exclusive Promotions", "Promos page title")
 	addKey(e, "promo.subtitle", "promo", "تصفح أحدث العروض الخاصة، الخصومات الكمية، وباقات التوفير المقدمة من كبرى شركات توزيع الأدوية.", "Browse the latest special deals, volume discounts, and bundle offers from top pharmaceutical distributors.", "Promos page subtitle")
-	addKey(e, "promo.hot_deals", "promo", "عروض اليوم المميزة 🔥", "Hot Deals of the Day 🔥", "Hot deals section")
+	addKey(e, "promo.hot_deals", "promo", "عروض اليوم المميزة", "Hot Deals of the Day", "Hot deals section")
 	addKey(e, "promo.volume_discounts", "promo", "خصومات الشراء الكمي", "Volume / Bulk Discounts", "Volume discounts section")
 	addKey(e, "promo.bonus_deals", "promo", "عروض البونص والكميات الإضافية", "Bonus Quantity Deals", "Bonus deals section")
 	addKey(e, "promo.deal_expires_in", "promo", "ينتهي العرض خلال:", "Deal Expires In:", "Expiry countdown label")

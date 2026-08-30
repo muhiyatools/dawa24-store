@@ -22,7 +22,7 @@ templ VendorWarehousesPage(warehouses []*inventory.Warehouse, branches []*org.Br
 					<div>
 						<div class="d-flex items-center gap-3 mb-1">
 							<div class="user-avatar-badge text-xl">
-								🏢
+								@components.IconBuilding("icon-sm")
 							</div>
 							<h1 class="text-2xl font-black text-primary m-0">مخازن ومواقع تخزين المنشأة</h1>
 						</div>
@@ -76,7 +76,7 @@ templ VendorWarehousesPage(warehouses []*inventory.Warehouse, branches []*org.Br
 			<div class="glass-panel p-0 mb-6 overflow-hidden">
 				if len(warehouses) == 0 {
 					<div class="p-8 text-center empty-state-glass">
-						<div class="text-4xl mb-3">🏢</div>
+						<div class="text-4xl mb-3">@components.IconBuilding("icon-sm")</div>
 						<h3 class="text-lg font-black text-primary mb-2">لا توجد مخازن مسجلة</h3>
 						<p class="text-sm text-secondary m-0">يمكنك تسجيل مخازن جديدة لتخزين الأدوية وربطها بالفروع التوزيعية.</p>
 					</div>
@@ -125,7 +125,7 @@ templ VendorWarehousesPage(warehouses []*inventory.Warehouse, branches []*org.Br
 													<div>{ w.Address }</div>
 												}
 												if w.Phone != "" {
-													<div class="text-xs text-muted tabular-nums mt-1">📞 { w.Phone }</div>
+													<div class="text-xs text-muted tabular-nums mt-1">{ w.Phone }</div>
 												}
 											</div>
 										</td>
@@ -456,7 +456,7 @@ templ VendorWarehouseDetailPage(data VendorWarehouseDetailData, lang, dir string
 					<div>
 						<div class="d-flex items-center gap-3 mb-2 flex-wrap">
 							<div class="user-avatar-badge text-xl">
-								🏢
+								@components.IconBuilding("icon-sm")
 							</div>
 							<div>
 								<div class="d-flex items-center gap-3 flex-wrap">
@@ -465,11 +465,11 @@ templ VendorWarehouseDetailPage(data VendorWarehouseDetailData, lang, dir string
 									</h1>
 									if data.Warehouse.IsActive {
 										<span class="badge badge-emerald text-xs font-black">
-											🟢 نشط وجاهز للعمليات
+											نشط وجاهز للعمليات
 										</span>
 									} else {
 										<span class="badge badge-rose text-xs font-black">
-											🔴 معطل حالياً
+											معطل حالياً
 										</span>
 									}
 								</div>
@@ -497,13 +497,13 @@ templ VendorWarehouseDetailPage(data VendorWarehouseDetailData, lang, dir string
 							}
 							if data.Warehouse.Address != "" {
 								<div class="d-flex items-center gap-1">
-									<span>📍</span>
+									<span>@components.IconMapPin("icon-sm")</span>
 									<span>{ data.Warehouse.Address }</span>
 								</div>
 							}
 							if data.Warehouse.Phone != "" {
 								<div class="d-flex items-center gap-1 tabular-nums">
-									<span>📞</span>
+									<span>@components.IconPhone("icon-sm")</span>
 									<span>{ data.Warehouse.Phone }</span>
 								</div>
 							}
@@ -581,9 +581,9 @@ templ VendorWarehouseDetailPage(data VendorWarehouseDetailData, lang, dir string
 							<label class="form-label text-xs font-bold text-secondary mb-1">حالة الرصيد</label>
 							<select name="stock_status" class="form-select text-xs w-full">
 								<option value="all" selected?={ data.Filter.StockStatus == "" || data.Filter.StockStatus == "all" }>كافة الأرصدة</option>
-								<option value="available" selected?={ data.Filter.StockStatus == "available" }>🟢 متوفر (فوق حد الأمان)</option>
-								<option value="low" selected?={ data.Filter.StockStatus == "low" }>🟡 منخفض المخزون</option>
-								<option value="out_of_stock" selected?={ data.Filter.StockStatus == "out_of_stock" }>🔴 نفد من الرصيد (0)</option>
+								<option value="available" selected?={ data.Filter.StockStatus == "available" }>متوفر (فوق حد الأمان)</option>
+								<option value="low" selected?={ data.Filter.StockStatus == "low" }>منخفض المخزون</option>
+								<option value="out_of_stock" selected?={ data.Filter.StockStatus == "out_of_stock" }>نفد من الرصيد (0)</option>
 							</select>
 						</div>
 
@@ -593,7 +593,7 @@ templ VendorWarehouseDetailPage(data VendorWarehouseDetailData, lang, dir string
 							<select name="expiry_status" class="form-select text-xs w-full">
 								<option value="all" selected?={ data.Filter.ExpiryStatus == "" || data.Filter.ExpiryStatus == "all" }>كافة التواريخ</option>
 								<option value="expiring_soon" selected?={ data.Filter.ExpiryStatus == "expiring_soon" }>⏳ ينتهي قريباً (خلال 6 أشهر)</option>
-								<option value="expired" selected?={ data.Filter.ExpiryStatus == "expired" }>⛔ منتهي الصلاحية</option>
+								<option value="expired" selected?={ data.Filter.ExpiryStatus == "expired" }>منتهي الصلاحية</option>
 							</select>
 						</div>
 
@@ -631,7 +631,7 @@ templ VendorWarehouseDetailPage(data VendorWarehouseDetailData, lang, dir string
 				<div class="p-4 px-6 border-b flex-between items-center flex-wrap gap-2">
 					<div>
 						<h2 class="text-base font-extrabold text-primary m-0">
-							📦 سجل الأرصدة والمخزون الفعلي
+							سجل الأرصدة والمخزون الفعلي
 						</h2>
 						<p class="text-xs text-secondary m-0 mt-1">
 							عرض تفصيلي لبيانات الأدوية، التشغيلات، تواريخ الصلاحية، وأسعار التوريد
@@ -644,7 +644,7 @@ templ VendorWarehouseDetailPage(data VendorWarehouseDetailData, lang, dir string
 
 				if len(data.Stocks) == 0 {
 					<div class="p-8 text-center empty-state-glass">
-						<div class="text-4xl mb-3">🔍</div>
+						<div class="text-4xl mb-3">@components.IconSearch("icon-sm")</div>
 						<h3 class="text-lg font-black text-primary mb-2">
 							لا توجد أصناف مطابقة لمعايير البحث
 						</h3>
@@ -697,19 +697,19 @@ templ VendorWarehouseDetailPage(data VendorWarehouseDetailData, lang, dir string
 
 											if s.ScientificName != "" {
 												<div class="text-xs text-muted mt-1">
-													🧪 { s.ScientificName }
+													{ s.ScientificName }
 												</div>
 											}
 
 											<div class="d-flex items-center gap-1 mt-1 flex-wrap">
 												if s.DosageForm != "" {
 													<span class="badge badge-slate text-xs">
-														💊 { s.DosageForm }
+														{ s.DosageForm }
 													</span>
 												}
 												if s.Manufacturer != "" {
 													<span class="badge badge-slate text-xs">
-														🏭 { s.Manufacturer }
+														{ s.Manufacturer }
 													</span>
 												}
 											</div>
@@ -738,15 +738,15 @@ templ VendorWarehouseDetailPage(data VendorWarehouseDetailData, lang, dir string
 												<div class="mt-1">
 													if isExpired(s.ExpiryDate) {
 														<span class="badge badge-rose text-xs tabular-nums font-black" title="صلاحية منتهية">
-															⛔ منتهي: { s.ExpiryDate.Format("2006-01-02") }
+															منتهي: { s.ExpiryDate.Format("2006-01-02") }
 														</span>
 													} else if isExpiringSoon(s.ExpiryDate) {
 														<span class="badge badge-amber text-xs tabular-nums font-black" title="ينتهي قريباً خلال 6 أشهر">
-															⚠️ ينتهي: { s.ExpiryDate.Format("2006-01-02") }
+															ينتهي: { s.ExpiryDate.Format("2006-01-02") }
 														</span>
 													} else {
 														<span class="text-xs text-muted tabular-nums">
-															📅 الصلاحية: { s.ExpiryDate.Format("2006-01-02") }
+															الصلاحية: { s.ExpiryDate.Format("2006-01-02") }
 														</span>
 													}
 												</div>
@@ -782,7 +782,7 @@ templ VendorWarehouseDetailPage(data VendorWarehouseDetailData, lang, dir string
 														{ fmt.Sprintf("%d", s.Quantity) } عبوة
 													</span>
 													<div class="text-xs text-warning font-bold mt-1">
-														⚠️ مخزون منخفض
+														مخزون منخفض
 													</div>
 												</div>
 											} else {
@@ -808,7 +808,7 @@ templ VendorWarehouseDetailPage(data VendorWarehouseDetailData, lang, dir string
 													@click={ fmt.Sprintf("adjustStock = { id: %d, name: %q, batch: %q, qty: %d, min: %d }; adjustModal = true;", s.StockID, func() string { if s.ProductName != "" { return s.ProductName }; return s.VariantName }(), s.BatchNumber, s.Quantity, s.MinThreshold) }
 													title="تعديل الرصيد الفعلي لهذا الصنف"
 												>
-													<span>✏️ تعديل</span>
+													<span>تعديل</span>
 												</button>
 												<a href="/vendor/products" class="btn btn-ghost btn-sm text-xs font-bold" title="عرض في قائمة الأصناف">
 													↗
@@ -894,7 +894,7 @@ templ VendorWarehouseDetailPage(data VendorWarehouseDetailData, lang, dir string
 					<div class="flex-between items-center mb-4 pb-2 border-b">
 						<div>
 							<h3 class="text-base font-black text-primary m-0">
-								✏️ تعديل رصيد الصنف بالمخزن
+								تعديل رصيد الصنف بالمخزن
 							</h3>
 							<p class="text-xs text-secondary m-0 mt-1">
 								تسجيل تسوية جردية أو تصحيح الكمية المتاحة فعلياً

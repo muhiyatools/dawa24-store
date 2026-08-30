@@ -310,7 +310,15 @@ func importUploadStage(view VendorImportView) templ.Component {
 			templ_7745c5c3_Var11 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "<form method=\"POST\" action=\"/vendor/ingest/upload\" enctype=\"multipart/form-data\" hx-boost=\"false\" id=\"import-upload-form\"><div class=\"card\"><h2 class=\"wiz-head\">1. اختر ملف الكتالوج</h2><p class=\"wiz-sub\">الصيغ المدعومة: Excel الحديث (.xlsx) وExcel القديم (.xls) وCSV وجداول HTML. لا يشترط ترتيب معين للأعمدة ولا أسماء محددة لها — سيتعرف النظام عليها من العناوين ومن محتوى الصفوف معاً، وستراجع النتيجة بنفسك قبل أن يُكتب أي شيء.</p><label class=\"wiz-drop\" id=\"import-drop\"><input type=\"file\" name=\"file\" accept=\".xlsx,.xls,.csv,.txt\" required id=\"import-file-input\"> <span class=\"wiz-drop-icon\" aria-hidden=\"true\">📤</span> <span class=\"wiz-drop-title\" id=\"import-drop-title\">اسحب الملف إلى هنا أو اضغط للاختيار</span> <span class=\"wiz-drop-text\" id=\"import-drop-text\">الحد الأقصى 25 ميجابايت</span></label><div class=\"wiz-actions\"><span class=\"wiz-actions-note\">لن يتم حفظ أي صنف الآن — الخطوة التالية هي مراجعة ربط الأعمدة.</span><div class=\"row-center\"><a href=\"/vendor/ingest/sample.csv\" class=\"btn btn-ghost\">تنزيل ملف نموذجي</a> <button type=\"submit\" class=\"btn btn-primary\" id=\"import-submit-btn\"><span id=\"import-submit-text\">تحليل الملف</span></button></div></div></div></form>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "<form method=\"POST\" action=\"/vendor/ingest/upload\" enctype=\"multipart/form-data\" hx-boost=\"false\" id=\"import-upload-form\"><div class=\"card\"><h2 class=\"wiz-head\">1. اختر ملف الكتالوج</h2><p class=\"wiz-sub\">الصيغ المدعومة: Excel الحديث (.xlsx) وExcel القديم (.xls) وCSV وجداول HTML. لا يشترط ترتيب معين للأعمدة ولا أسماء محددة لها — سيتعرف النظام عليها من العناوين ومن محتوى الصفوف معاً، وستراجع النتيجة بنفسك قبل أن يُكتب أي شيء.</p><label class=\"wiz-drop\" id=\"import-drop\"><input type=\"file\" name=\"file\" accept=\".xlsx,.xls,.csv,.txt\" required id=\"import-file-input\"> <span class=\"wiz-drop-icon\" aria-hidden=\"true\">")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = components.IconUpload("icon-sm").Render(ctx, templ_7745c5c3_Buffer)
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "</span> <span class=\"wiz-drop-title\" id=\"import-drop-title\">اسحب الملف إلى هنا أو اضغط للاختيار</span> <span class=\"wiz-drop-text\" id=\"import-drop-text\">الحد الأقصى 25 ميجابايت</span></label><div class=\"wiz-actions\"><span class=\"wiz-actions-note\">لن يتم حفظ أي صنف الآن — الخطوة التالية هي مراجعة ربط الأعمدة.</span><div class=\"row-center\"><a href=\"/vendor/ingest/sample.csv\" class=\"btn btn-ghost\">تنزيل ملف نموذجي</a> <button type=\"submit\" class=\"btn btn-primary\" id=\"import-submit-btn\"><span id=\"import-submit-text\">تحليل الملف</span></button></div></div></div></form>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -320,7 +328,7 @@ func importUploadStage(view VendorImportView) templ.Component {
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "<script>\n\t\t(function () {\n\t\t\tconst input = document.getElementById('import-file-input');\n\t\t\tconst drop = document.getElementById('import-drop');\n\t\t\tconst title = document.getElementById('import-drop-title');\n\t\t\tconst text = document.getElementById('import-drop-text');\n\t\t\tif (!input || !drop) return;\n\t\t\tinput.addEventListener('change', function () {\n\t\t\t\tif (!this.files || !this.files[0]) return;\n\t\t\t\tconst f = this.files[0];\n\t\t\t\ttitle.textContent = '✓ ' + f.name;\n\t\t\t\ttext.textContent = 'الحجم: ' + (f.size / 1048576).toFixed(2) + ' ميجابايت — جاهز للتحليل';\n\t\t\t\tdrop.classList.add('is-over');\n\t\t\t});\n\t\t\t['dragenter', 'dragover'].forEach(function (name) {\n\t\t\t\tdrop.addEventListener(name, function (e) { e.preventDefault(); drop.classList.add('is-dragover'); });\n\t\t\t});\n\t\t\t['dragleave', 'drop'].forEach(function (name) {\n\t\t\t\tdrop.addEventListener(name, function (e) { e.preventDefault(); drop.classList.remove('is-dragover'); });\n\t\t\t});\n\t\t\tconst form = document.getElementById('import-upload-form');\n\t\t\tform.addEventListener('submit', function () {\n\t\t\t\tconst btn = document.getElementById('import-submit-btn');\n\t\t\t\tconst label = document.getElementById('import-submit-text');\n\t\t\t\tif (btn) { btn.disabled = true; }\n\t\t\t\tif (label) { label.textContent = '⏳ جارٍ تحليل الملف...'; }\n\t\t\t});\n\t\t})();\n\t</script>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "<script>\n\t\t(function () {\n\t\t\tconst input = document.getElementById('import-file-input');\n\t\t\tconst drop = document.getElementById('import-drop');\n\t\t\tconst title = document.getElementById('import-drop-title');\n\t\t\tconst text = document.getElementById('import-drop-text');\n\t\t\tif (!input || !drop) return;\n\t\t\tinput.addEventListener('change', function () {\n\t\t\t\tif (!this.files || !this.files[0]) return;\n\t\t\t\tconst f = this.files[0];\n\t\t\t\ttitle.textContent = '' + f.name;\n\t\t\t\ttext.textContent = 'الحجم: ' + (f.size / 1048576).toFixed(2) + ' ميجابايت — جاهز للتحليل';\n\t\t\t\tdrop.classList.add('is-over');\n\t\t\t});\n\t\t\t['dragenter', 'dragover'].forEach(function (name) {\n\t\t\t\tdrop.addEventListener(name, function (e) { e.preventDefault(); drop.classList.add('is-dragover'); });\n\t\t\t});\n\t\t\t['dragleave', 'drop'].forEach(function (name) {\n\t\t\t\tdrop.addEventListener(name, function (e) { e.preventDefault(); drop.classList.remove('is-dragover'); });\n\t\t\t});\n\t\t\tconst form = document.getElementById('import-upload-form');\n\t\t\tform.addEventListener('submit', function () {\n\t\t\t\tconst btn = document.getElementById('import-submit-btn');\n\t\t\t\tconst label = document.getElementById('import-submit-text');\n\t\t\t\tif (btn) { btn.disabled = true; }\n\t\t\t\tif (label) { label.textContent = '⏳ جارٍ تحليل الملف...'; }\n\t\t\t});\n\t\t})();\n\t</script>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -349,12 +357,12 @@ func importHistory(recent []*ingest.Session) templ.Component {
 			templ_7745c5c3_Var12 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "<div class=\"card\"><h2 class=\"wiz-head\">عمليات الاستيراد السابقة</h2><div class=\"table-wrap\"><table class=\"table\"><thead><tr><th>الملف</th><th>الحالة</th><th>أضيف</th><th>حُدّث</th><th>تخطي</th><th>أخطاء</th><th></th></tr></thead> <tbody>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "<div class=\"card\"><h2 class=\"wiz-head\">عمليات الاستيراد السابقة</h2><div class=\"table-wrap\"><table class=\"data-table\"><thead><tr><th>الملف</th><th>الحالة</th><th>أضيف</th><th>حُدّث</th><th>تخطي</th><th>أخطاء</th><th></th></tr></thead> <tbody>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		for _, s := range recent {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "<tr><td class=\"fw-700\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "<tr><td class=\"fw-700\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -367,7 +375,7 @@ func importHistory(recent []*ingest.Session) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "</td><td><span class=\"badge badge-slate text-xs\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "</td><td><span class=\"badge badge-slate text-xs\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -380,7 +388,7 @@ func importHistory(recent []*ingest.Session) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "</span></td><td>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "</span></td><td>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -393,7 +401,7 @@ func importHistory(recent []*ingest.Session) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "</td><td>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, "</td><td>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -406,7 +414,7 @@ func importHistory(recent []*ingest.Session) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, "</td><td>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, "</td><td>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -419,7 +427,7 @@ func importHistory(recent []*ingest.Session) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, "</td><td>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, "</td><td>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -432,7 +440,7 @@ func importHistory(recent []*ingest.Session) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, "</td><td><a class=\"btn btn-ghost btn-sm\" href=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, "</td><td><a class=\"btn btn-ghost btn-sm\" href=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -445,12 +453,12 @@ func importHistory(recent []*ingest.Session) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, "\">فتح</a></td></tr>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, "\">فتح</a></td></tr>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, "</tbody></table></div></div>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 25, "</tbody></table></div></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

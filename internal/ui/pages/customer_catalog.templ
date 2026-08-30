@@ -377,37 +377,37 @@ templ CustomerCatalog(data CatalogPageData, lang, dir string, isPartial bool) {
 									if data.Query != "" {
 										<span class="badge badge-primary gap-1">
 											<span>بحث: "{ data.Query }"</span>
-											<a href={ templ.SafeURL(buildCatalogURL(CatalogPageData{CategoryID: data.CategoryID, BrandID: data.BrandID, MinPrice: data.MinPrice, MaxPrice: data.MaxPrice, DosageForm: data.DosageForm, InStock: data.InStock, HasDiscount: data.HasDiscount, PageSize: data.PageSize, ViewMode: data.ViewMode}, 1, data.PageSize, data.Sort, data.ViewMode)) } class="text-white text-decoration-none ms-1">✕</a>
+											<a href={ templ.SafeURL(buildCatalogURL(CatalogPageData{CategoryID: data.CategoryID, BrandID: data.BrandID, MinPrice: data.MinPrice, MaxPrice: data.MaxPrice, DosageForm: data.DosageForm, InStock: data.InStock, HasDiscount: data.HasDiscount, PageSize: data.PageSize, ViewMode: data.ViewMode}, 1, data.PageSize, data.Sort, data.ViewMode)) } class="text-white text-decoration-none ms-1"></a>
 										</span>
 									}
 									if data.ActiveCategory != "" {
 										<span class="badge badge-sky gap-1">
 											<span>القسم: { data.ActiveCategory }</span>
-											<a href={ templ.SafeURL(buildCatalogURL(CatalogPageData{Query: data.Query, BrandID: data.BrandID, MinPrice: data.MinPrice, MaxPrice: data.MaxPrice, DosageForm: data.DosageForm, InStock: data.InStock, HasDiscount: data.HasDiscount, PageSize: data.PageSize, ViewMode: data.ViewMode}, 1, data.PageSize, data.Sort, data.ViewMode)) } class="text-decoration-none ms-1">✕</a>
+											<a href={ templ.SafeURL(buildCatalogURL(CatalogPageData{Query: data.Query, BrandID: data.BrandID, MinPrice: data.MinPrice, MaxPrice: data.MaxPrice, DosageForm: data.DosageForm, InStock: data.InStock, HasDiscount: data.HasDiscount, PageSize: data.PageSize, ViewMode: data.ViewMode}, 1, data.PageSize, data.Sort, data.ViewMode)) } class="text-decoration-none ms-1"></a>
 										</span>
 									}
 									if data.ActiveBrand != "" {
 										<span class="badge badge-sky gap-1">
 											<span>الشركة: { data.ActiveBrand }</span>
-											<a href={ templ.SafeURL(buildCatalogURL(CatalogPageData{Query: data.Query, CategoryID: data.CategoryID, MinPrice: data.MinPrice, MaxPrice: data.MaxPrice, DosageForm: data.DosageForm, InStock: data.InStock, HasDiscount: data.HasDiscount, PageSize: data.PageSize, ViewMode: data.ViewMode}, 1, data.PageSize, data.Sort, data.ViewMode)) } class="text-decoration-none ms-1">✕</a>
+											<a href={ templ.SafeURL(buildCatalogURL(CatalogPageData{Query: data.Query, CategoryID: data.CategoryID, MinPrice: data.MinPrice, MaxPrice: data.MaxPrice, DosageForm: data.DosageForm, InStock: data.InStock, HasDiscount: data.HasDiscount, PageSize: data.PageSize, ViewMode: data.ViewMode}, 1, data.PageSize, data.Sort, data.ViewMode)) } class="text-decoration-none ms-1"></a>
 										</span>
 									}
 									if data.DosageForm != "" {
 										<span class="badge badge-slate gap-1">
 											<span>الشكل: { data.DosageForm }</span>
-											<a href={ templ.SafeURL(buildCatalogURL(CatalogPageData{Query: data.Query, CategoryID: data.CategoryID, BrandID: data.BrandID, MinPrice: data.MinPrice, MaxPrice: data.MaxPrice, InStock: data.InStock, HasDiscount: data.HasDiscount, PageSize: data.PageSize, ViewMode: data.ViewMode}, 1, data.PageSize, data.Sort, data.ViewMode)) } class="text-decoration-none ms-1">✕</a>
+											<a href={ templ.SafeURL(buildCatalogURL(CatalogPageData{Query: data.Query, CategoryID: data.CategoryID, BrandID: data.BrandID, MinPrice: data.MinPrice, MaxPrice: data.MaxPrice, InStock: data.InStock, HasDiscount: data.HasDiscount, PageSize: data.PageSize, ViewMode: data.ViewMode}, 1, data.PageSize, data.Sort, data.ViewMode)) } class="text-decoration-none ms-1"></a>
 										</span>
 									}
 									if data.InStock {
 										<span class="badge badge-emerald gap-1">
 											<span>المتوفر بالمخزون</span>
-											<a href={ templ.SafeURL(buildCatalogURL(CatalogPageData{Query: data.Query, CategoryID: data.CategoryID, BrandID: data.BrandID, MinPrice: data.MinPrice, MaxPrice: data.MaxPrice, DosageForm: data.DosageForm, HasDiscount: data.HasDiscount, PageSize: data.PageSize, ViewMode: data.ViewMode}, 1, data.PageSize, data.Sort, data.ViewMode)) } class="text-decoration-none ms-1">✕</a>
+											<a href={ templ.SafeURL(buildCatalogURL(CatalogPageData{Query: data.Query, CategoryID: data.CategoryID, BrandID: data.BrandID, MinPrice: data.MinPrice, MaxPrice: data.MaxPrice, DosageForm: data.DosageForm, HasDiscount: data.HasDiscount, PageSize: data.PageSize, ViewMode: data.ViewMode}, 1, data.PageSize, data.Sort, data.ViewMode)) } class="text-decoration-none ms-1"></a>
 										</span>
 									}
 									if data.HasDiscount {
 										<span class="badge badge-amber gap-1">
 											<span>عروض الخصم</span>
-											<a href={ templ.SafeURL(buildCatalogURL(CatalogPageData{Query: data.Query, CategoryID: data.CategoryID, BrandID: data.BrandID, MinPrice: data.MinPrice, MaxPrice: data.MaxPrice, DosageForm: data.DosageForm, InStock: data.InStock, PageSize: data.PageSize, ViewMode: data.ViewMode}, 1, data.PageSize, data.Sort, data.ViewMode)) } class="text-decoration-none ms-1">✕</a>
+											<a href={ templ.SafeURL(buildCatalogURL(CatalogPageData{Query: data.Query, CategoryID: data.CategoryID, BrandID: data.BrandID, MinPrice: data.MinPrice, MaxPrice: data.MaxPrice, DosageForm: data.DosageForm, InStock: data.InStock, PageSize: data.PageSize, ViewMode: data.ViewMode}, 1, data.PageSize, data.Sort, data.ViewMode)) } class="text-decoration-none ms-1"></a>
 										</span>
 									}
 									<a href="/catalog" class="text-xs text-rose-600 hover:text-rose-700 ms-auto font-bold no-underline">
@@ -525,7 +525,7 @@ templ CustomerCatalogGrid(variants []*SupplierVariantCard, lang string) {
 						<div class="product-card-badges-floating position-absolute top-2 start-2 d-flex flex-col gap-1 z-10">
 							if v.IsSponsored {
 								<span class="badge font-black text-xs shadow-xs" style="background:#fef3c7; color:#92400e; border:1px solid #fcd34d;">
-									★ ممول
+									ممول
 								</span>
 							}
 							if v.DiscountPercent > 0 {
@@ -773,7 +773,7 @@ templ CustomerCatalogTable(variants []*SupplierVariantCard, lang string) {
 								</a>
 								if v.IsSponsored {
 									<span class="badge font-black text-xs mt-1" style="background:#fef3c7; color:#92400e; border:1px solid #fcd34d;">
-										★ ممول — رعاية
+										ممول — رعاية
 									</span>
 								}
 							</td>
@@ -1013,7 +1013,7 @@ templ CustomerNegotiationModal() {
 						<span class="text-xs text-secondary font-medium">إرسال عرض سعر خاص ومباشر للمورّد</span>
 					</div>
 				</div>
-				<button type="button" class="btn btn-ghost btn-sm text-slate-400 hover:text-slate-600" onclick="closeNegotiationModal()">✕</button>
+				<button type="button" class="btn btn-ghost btn-sm text-slate-400 hover:text-slate-600" onclick="closeNegotiationModal()">@components.IconX("icon-sm")</button>
 			</div>
 
 			<form method="POST" action="/customer/negotiate-order" id="negotiation-form" class="d-flex flex-col gap-4 m-0">

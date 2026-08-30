@@ -101,7 +101,7 @@ func getCategoryDisplayLabel(c *catalog.Category, categories []*catalog.Category
 					parentName = parent.Name.Get("en")
 				}
 				if parentName != "" {
-					return parentName + " ⮞ " + name
+					return parentName + " " + name
 				}
 			}
 		}
@@ -214,7 +214,7 @@ templ AdminProducts(lang, dir string, products []*catalog.Product, brands []*cat
 					<form method="POST" action="/admin/products/delete-all" class="d-inline m-0"
 						onsubmit="return confirm('تحذير نهائي فائق الأهمية: هل أنت متأكد من حذف جميع أصناف الكتالوج المركزي الأساسي بالكامل؟ لا يمكن التراجع عن هذا الإجراء.');">
 						<button type="submit" class="btn btn-ghost text-danger font-bold gap-2">
-							<span>🗑️ حذف جميع أصناف الكتالوج</span>
+							<span>حذف جميع أصناف الكتالوج</span>
 						</button>
 					</form>
 				}
@@ -522,7 +522,7 @@ templ AdminProducts(lang, dir string, products []*catalog.Product, brands []*cat
 					@click.outside="isCreateModalOpen = false"
 					class="modal-card modal-lg p-modal"
 				>
-					<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; border-bottom:1px solid var(--border); padding-bottom:1rem;">
+					<div class="section-head">
 						<div class="row-center-sm">
 							<div class="b2b-icon-box-sm">
 								@components.IconPlus("icon-xs")
@@ -651,7 +651,7 @@ templ AdminProducts(lang, dir string, products []*catalog.Product, brands []*cat
 					@click.outside="isEditModalOpen = false"
 					class="modal-card modal-lg p-modal"
 				>
-					<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; border-bottom:1px solid var(--border); padding-bottom:1rem;">
+					<div class="section-head">
 						<div class="row-center-sm">
 							<div class="b2b-icon-box-sm">
 								@components.IconEdit("icon-xs")

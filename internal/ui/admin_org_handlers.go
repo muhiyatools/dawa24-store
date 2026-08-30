@@ -91,10 +91,7 @@ func (h *UIHandler) AdminOrganizationDetailPage(w http.ResponseWriter, r *http.R
 		AIVirtualKey:   aiKey,
 	}
 
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	if err := pages.AdminOrganizationDetailPage(data, lang, dir).Render(ctx, w); err != nil {
-		h.log.ErrorContext(ctx, "render admin org detail", "error", err)
-	}
+	h.renderPage(ctx, w, "render admin org detail", pages.AdminOrganizationDetailPage(data, lang, dir))
 }
 
 // AdminOrganizationInfoPage redirects to the 360 org detail profile.
@@ -200,10 +197,7 @@ func (h *UIHandler) AdminOrganizationsPage(w http.ResponseWriter, r *http.Reques
 		StatusFilter:    statusParam,
 	}
 
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	if err := pages.AdminOrganizationsPage(data, lang, dir).Render(ctx, w); err != nil {
-		h.log.ErrorContext(ctx, "render admin organizations page", "error", err)
-	}
+	h.renderPage(ctx, w, "render admin organizations page", pages.AdminOrganizationsPage(data, lang, dir))
 }
 
 // AdminBranchesPage renders the dedicated branches and warehouses directory.
@@ -282,10 +276,7 @@ func (h *UIHandler) AdminBranchesPage(w http.ResponseWriter, r *http.Request) {
 		StatusFilter:     statusFilter,
 	}
 
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	if err := pages.AdminBranchesPage(data, lang, dir).Render(ctx, w); err != nil {
-		h.log.ErrorContext(ctx, "render admin branches page", "error", err)
-	}
+	h.renderPage(ctx, w, "render admin branches page", pages.AdminBranchesPage(data, lang, dir))
 }
 
 // AdminBranchDetailPage renders detail for a specific branch.
@@ -304,10 +295,7 @@ func (h *UIHandler) AdminBranchDetailPage(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	if err := pages.AdminBranchDetailPage(branch, lang, dir).Render(ctx, w); err != nil {
-		h.log.ErrorContext(ctx, "render admin branch detail", "error", err)
-	}
+	h.renderPage(ctx, w, "render admin branch detail", pages.AdminBranchDetailPage(branch, lang, dir))
 }
 
 // AdminBranchProductsPage renders catalog assigned to a branch.
@@ -326,10 +314,7 @@ func (h *UIHandler) AdminBranchProductsPage(w http.ResponseWriter, r *http.Reque
 		return
 	}
 
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	if err := pages.AdminBranchDetailPage(branch, lang, dir).Render(ctx, w); err != nil {
-		h.log.ErrorContext(ctx, "render admin branch products", "error", err)
-	}
+	h.renderPage(ctx, w, "render admin branch products", pages.AdminBranchDetailPage(branch, lang, dir))
 }
 
 // AdminBranchUsersPage renders staff assigned to a branch.
@@ -348,10 +333,7 @@ func (h *UIHandler) AdminBranchUsersPage(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	if err := pages.AdminBranchDetailPage(branch, lang, dir).Render(ctx, w); err != nil {
-		h.log.ErrorContext(ctx, "render admin branch users", "error", err)
-	}
+	h.renderPage(ctx, w, "render admin branch users", pages.AdminBranchDetailPage(branch, lang, dir))
 }
 
 // AdminWeeklyCoveragesPage renders weekly delivery coverages filtered by organization dropdown.
@@ -397,10 +379,7 @@ func (h *UIHandler) AdminWeeklyCoveragesPage(w http.ResponseWriter, r *http.Requ
 		SelectedOrgID: selectedOrgID,
 	}
 
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	if err := pages.AdminWeeklyCoveragesPage(data, lang, dir).Render(ctx, w); err != nil {
-		h.log.ErrorContext(ctx, "render admin weekly coverages", "error", err)
-	}
+	h.renderPage(ctx, w, "render admin weekly coverages", pages.AdminWeeklyCoveragesPage(data, lang, dir))
 }
 
 // AdminWeeklyCoverageCreateSubmit creates a new weekly coverage schedule.

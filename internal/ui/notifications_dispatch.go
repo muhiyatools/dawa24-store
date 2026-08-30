@@ -197,4 +197,3 @@ func (h *UIHandler) resolveOrgName(ctx context.Context, orgID int64) string {
 	}
 	return name
 }
-

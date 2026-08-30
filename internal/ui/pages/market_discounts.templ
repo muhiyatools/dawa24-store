@@ -24,7 +24,7 @@ templ MarketDiscountsPage(lang, dir string, actor authctx.Actor, result *compare
 				<div class="flex-between items-center flex-wrap gap-3">
 					<div>
 						<div class="d-flex items-center gap-2 mb-1">
-							<span class="text-xl">🏷️</span>
+							<span class="text-xl">@components.IconTag("icon-sm")</span>
 							<h1 class="text-xl font-black text-primary m-0">
 								خصومات السوق العامة
 							</h1>
@@ -88,10 +88,10 @@ templ MarketDiscountsPage(lang, dir string, actor authctx.Actor, result *compare
 						<!-- Sort Order -->
 						<div style="min-width: 160px;">
 							<select name="sort" class="form-input text-xs w-full" onchange="this.form.submit()">
-								<option value="discount_desc" selected?={ filter.SortBy == "" || filter.SortBy == "discount_desc" }>الأعلى خصماً 🔥</option>
-								<option value="price_asc" selected?={ filter.SortBy == "price_asc" }>الأقل سعراً 💰</option>
+								<option value="discount_desc" selected?={ filter.SortBy == "" || filter.SortBy == "discount_desc" }>الأعلى خصماً </option>
+								<option value="price_asc" selected?={ filter.SortBy == "price_asc" }>الأقل سعراً </option>
 								<option value="price_desc" selected?={ filter.SortBy == "price_desc" }>الأعلى سعراً</option>
-								<option value="newest" selected?={ filter.SortBy == "newest" }>الأحدث إضافة ⚡</option>
+								<option value="newest" selected?={ filter.SortBy == "newest" }>الأحدث إضافة </option>
 								<option value="oldest" selected?={ filter.SortBy == "oldest" }>الأقدم</option>
 							</select>
 						</div>
@@ -112,7 +112,7 @@ templ MarketDiscountsPage(lang, dir string, actor authctx.Actor, result *compare
 							class="btn btn-secondary btn-sm text-xs font-bold px-3"
 							title="نطاق السعر والخصم"
 						>
-							<span x-text="showMoreFilters ? '▲ إخفاء النطاق' : '⚙️ نطاق متقدم'"></span>
+							<span x-text="showMoreFilters ? '▲ إخفاء النطاق' : 'نطاق متقدم'"></span>
 						</button>
 
 						<button type="submit" class="btn btn-primary btn-sm font-black text-xs px-4">
@@ -154,7 +154,7 @@ templ MarketDiscountsPage(lang, dir string, actor authctx.Actor, result *compare
 						<!-- Price Range -->
 						<div>
 							<label class="form-label text-xs font-bold text-secondary mb-1 d-block">
-								💰 نطاق السعر الصافي بعد الخصم (ج.م)
+								نطاق السعر الصافي بعد الخصم (ج.م)
 							</label>
 							<div class="d-flex gap-2 items-center">
 								<input
@@ -180,7 +180,7 @@ templ MarketDiscountsPage(lang, dir string, actor authctx.Actor, result *compare
 						<!-- Discount Range -->
 						<div>
 							<label class="form-label text-xs font-bold text-secondary mb-1 d-block">
-								📉 نطاق نسبة الخصم (%)
+								نطاق نسبة الخصم (%)
 							</label>
 							<div class="d-flex gap-2 items-center">
 								<input
@@ -209,7 +209,7 @@ templ MarketDiscountsPage(lang, dir string, actor authctx.Actor, result *compare
 			<!-- 3. Results Surface -->
 			if len(result.Items) == 0 {
 				<div class="glass-panel p-12 text-center empty-state-glass">
-					<div class="text-4xl mb-3">🔍</div>
+					<div class="text-4xl mb-3">@components.IconSearch("icon-sm")</div>
 					<h3 class="text-lg font-black text-primary mb-2">
 						لم نجد أي خصومات مطابقة
 					</h3>
@@ -239,7 +239,7 @@ templ MarketDiscountsPage(lang, dir string, actor authctx.Actor, result *compare
 									}
 									if item.InCatalog {
 										<span class="badge badge-sky text-xs font-bold">
-											✓ معتمد
+											معتمد
 										</span>
 									}
 								</div>

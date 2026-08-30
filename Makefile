@@ -51,7 +51,7 @@ migrate-status: ## List migrations and show how many are pending
 # pipeline, so failures are found before a push rather than after one.
 
 .PHONY: check
-check: fmt-check vet lint test check-provider-isolation check-prompt-version check-file-size check-inline-styles check-error-swallow ## Run every gate
+check: fmt-check vet lint test check-provider-isolation check-prompt-version check-file-size check-inline-styles check-error-swallow check-no-cdn check-file-size-count check-hardcoded-arabic check-emoji check-unused-components ## Run every gate
 
 .PHONY: check-error-swallow
 check-error-swallow: ## Fail if a service error is silently discarded
@@ -157,4 +157,32 @@ docker: ## Build the container image
 
 check-inline-styles: ## Fail if inline style attributes grow past the current ceiling
 	@echo "==> checking inline styles"
-	@n=$$(grep -oh 'style="' internal/ui/pages/*.templ internal/ui/layouts/*.templ | wc -l | tr -d ' '); 	if [ "$$n" -gt 4127 ]; then 	  echo "FAIL: $$n inline style attributes (ceiling 4127)."; 	  echo ""; 	  echo "Inline styles bypass the tokens in app.css, which is why the design"; 	  echo "drifted: a fix on one page never generalises. Use a class from"; 	  echo "components.css, or add one there. Genuinely one-off positioning may"; 	  echo "stay inline, but must use var(--token) values, never literals."; 	  echo ""; 	  echo "This is a ratchet: lower the ceiling in the Makefile as it drops."; 	  exit 1; 	fi; 	echo "OK: $$n inline styles (ceiling 4127)"
+	@n=$$(grep -oh 'style="' internal/ui/pages/*.templ internal/ui/layouts/*.templ | wc -l | tr -d ' '); 	if [ "$$n" -gt 4042 ]; then 	  echo "FAIL: $$n inline style attributes (ceiling 4042)."; 	  echo ""; 	  echo "Inline styles bypass the tokens in app.css, which is why the design"; 	  echo "drifted: a fix on one page never generalises. Use a class from"; 	  echo "components.css, or add one there. Genuinely one-off positioning may"; 	  echo "stay inline, but must use var(--token) values, never literals."; 	  echo ""; 	  echo "This is a ratchet: lower the ceiling in the Makefile as it drops."; 	  exit 1; 	fi; 	echo "OK: $$n inline styles (ceiling 4042)"
+
+# --- ratchets ------------------------------------------------------------
+# Each number below may only go down. When a change improves one, lower its
+# ceiling in the same commit: that is what stops an improvement eroding a page
+# at a time, which is how the design and the translations drifted in the first
+# place. These are the measured values on 30 August 2026.
+
+.PHONY: check-no-cdn
+check-no-cdn: ## Fail if a template loads a script or stylesheet from a CDN
+	@echo "==> checking for third-party asset hosts"
+	@if grep -rn --include='*.templ' -E '(src|href)="https?://(unpkg|cdnjs|cdn\.jsdelivr)' internal/ui; then echo ""; echo "ERROR: a template loads an asset from a CDN."; echo "htmx, Alpine and Leaflet are served from internal/ui/static/vendor;"; echo "a CDN tag puts a host we do not run on every page render and forces"; echo "script-src to name it in the CSP."; exit 1; fi
+	@echo "  ok: no CDN asset hosts"
+
+.PHONY: check-file-size-count
+check-file-size-count: ## Fail if the number of oversized Go files grows
+	@n=$$(find ./cmd ./internal -name '*.go' -not -name '*_templ.go' -exec wc -l {} + | grep -v " total$$" | awk '$$1>400' | wc -l | tr -d " "); if [ "$$n" -gt 93 ]; then echo "FAIL: $$n Go files over 400 lines (ceiling 93). check-file-size lists them."; exit 1; fi; echo "  ok: $$n oversized files (ceiling 93)"
+
+.PHONY: check-hardcoded-arabic
+check-hardcoded-arabic: ## Fail if Arabic string literals in Go grow
+	@pat=$$(printf '\330'); n=$$(LC_ALL=C grep -rc "\"[^\"]*$$pat[^\"]*\"" --include='*.go' internal/ui internal/modules cmd 2>/dev/null | grep -v "_test\|_templ\|/i18n/" | awk -F: '{s+=$$2} END{print s+0}'); if [ "$$n" -gt 2507 ]; then echo "FAIL: $$n Arabic literals in Go (ceiling 2507). A string in a handler cannot be shown in English -- add a key to internal/shared/i18n and call i18n.T(lang, key)."; exit 1; fi; echo "  ok: $$n Arabic literals in Go (ceiling 2507)"
+
+.PHONY: check-emoji
+check-emoji: ## Fail if emoji in templates grow
+	@pat=$$(printf '\360\237'); n=$$(LC_ALL=C grep -ro "$$pat" --include='*.templ' internal/ui | wc -l | tr -d " "); if [ "$$n" -gt 43 ]; then echo "FAIL: $$n emoji in templates (ceiling 43). Use an icon from internal/ui/components/icons.templ, or nothing."; exit 1; fi; echo "  ok: $$n emoji in templates (ceiling 43)"
+
+.PHONY: check-unused-components
+check-unused-components: ## Fail if components no page uses grow
+	@n=0; for f in internal/ui/components/*.templ; do for fn in $$(grep -oE "^templ [A-Za-z0-9_]+" "$$f" | awk '{print $$2}'); do c=$$(grep -rho "components\.$$fn" --include='*.templ' internal/ui/pages internal/ui/layouts 2>/dev/null | wc -l); if [ "$$c" -eq 0 ]; then n=$$((n+1)); fi; done; done; if [ "$$n" -gt 50 ]; then echo "FAIL: $$n components no page uses (ceiling 50). Either a page should use it, or it should not exist."; exit 1; fi; echo "  ok: $$n unused components (ceiling 50)"

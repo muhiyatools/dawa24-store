@@ -26,10 +26,7 @@ func (h *UIHandler) AdminFullUserPage(w http.ResponseWriter, r *http.Request) {
 		users, _ = h.idSvc.AdminListUsers(database.AsSystem(ctx), "", "")
 	}
 
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	if err := pages.AdminFullUserPage(users, "all", lang, dir).Render(ctx, w); err != nil {
-		h.log.ErrorContext(ctx, "render admin full user page", "error", err)
-	}
+	h.renderPage(ctx, w, "render admin full user page", pages.AdminFullUserPage(users, "all", lang, dir))
 }
 
 // AdminNewClientsPage renders recent new customer registrations.
@@ -42,10 +39,7 @@ func (h *UIHandler) AdminNewClientsPage(w http.ResponseWriter, r *http.Request) 
 		users, _ = h.idSvc.AdminListUsers(database.AsSystem(ctx), "customer", "")
 	}
 
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	if err := pages.AdminFullUserPage(users, "new_clients", lang, dir).Render(ctx, w); err != nil {
-		h.log.ErrorContext(ctx, "render admin new clients", "error", err)
-	}
+	h.renderPage(ctx, w, "render admin new clients", pages.AdminFullUserPage(users, "new_clients", lang, dir))
 }
 
 // AdminCustomerListPage renders pharmacy customer accounts.
@@ -58,10 +52,7 @@ func (h *UIHandler) AdminCustomerListPage(w http.ResponseWriter, r *http.Request
 		users, _ = h.idSvc.AdminListUsers(database.AsSystem(ctx), "customer", "")
 	}
 
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	if err := pages.AdminFullUserPage(users, "customers", lang, dir).Render(ctx, w); err != nil {
-		h.log.ErrorContext(ctx, "render admin customers", "error", err)
-	}
+	h.renderPage(ctx, w, "render admin customers", pages.AdminFullUserPage(users, "customers", lang, dir))
 }
 
 // AdminVendorListPage renders vendor and supplier user accounts.
@@ -74,10 +65,7 @@ func (h *UIHandler) AdminVendorListPage(w http.ResponseWriter, r *http.Request) 
 		users, _ = h.idSvc.AdminListUsers(database.AsSystem(ctx), "vendor", "")
 	}
 
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	if err := pages.AdminFullUserPage(users, "vendors", lang, dir).Render(ctx, w); err != nil {
-		h.log.ErrorContext(ctx, "render admin vendors", "error", err)
-	}
+	h.renderPage(ctx, w, "render admin vendors", pages.AdminFullUserPage(users, "vendors", lang, dir))
 }
 
 // AdminStaffListPage renders platform administrators and staff users.
@@ -90,10 +78,7 @@ func (h *UIHandler) AdminStaffListPage(w http.ResponseWriter, r *http.Request) {
 		users, _ = h.idSvc.AdminListUsers(database.AsSystem(ctx), "staff", "")
 	}
 
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	if err := pages.AdminFullUserPage(users, "staff", lang, dir).Render(ctx, w); err != nil {
-		h.log.ErrorContext(ctx, "render admin staff", "error", err)
-	}
+	h.renderPage(ctx, w, "render admin staff", pages.AdminFullUserPage(users, "staff", lang, dir))
 }
 
 // AdminUserDetailPage renders detailed user profile with role and organization info.
@@ -140,10 +125,7 @@ func (h *UIHandler) AdminUserDetailPage(w http.ResponseWriter, r *http.Request) 
 		}
 	}
 
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	if err := pages.AdminUserDetailPage(view, lang, dir).Render(ctx, w); err != nil {
-		h.log.ErrorContext(ctx, "render admin user detail page", "error", err)
-	}
+	h.renderPage(ctx, w, "render admin user detail page", pages.AdminUserDetailPage(view, lang, dir))
 }
 
 // AdminUserAddressesPage renders address records for users.
@@ -156,10 +138,7 @@ func (h *UIHandler) AdminUserAddressesPage(w http.ResponseWriter, r *http.Reques
 		users, _ = h.idSvc.AdminListUsers(database.AsSystem(ctx), "", "")
 	}
 
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	if err := pages.AdminFullUserPage(users, "addresses", lang, dir).Render(ctx, w); err != nil {
-		h.log.ErrorContext(ctx, "render admin user addresses", "error", err)
-	}
+	h.renderPage(ctx, w, "render admin user addresses", pages.AdminFullUserPage(users, "addresses", lang, dir))
 }
 
 // AdminUserOrganizationPage renders user-to-organization membership directory.
@@ -183,10 +162,7 @@ func (h *UIHandler) AdminUserOrganizationPage(w http.ResponseWriter, r *http.Req
 		}
 	}
 
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	if err := pages.AdminUserOrganizationsPage(lang, dir, data).Render(ctx, w); err != nil {
-		h.log.ErrorContext(ctx, "render admin user organizations", "error", err)
-	}
+	h.renderPage(ctx, w, "render admin user organizations", pages.AdminUserOrganizationsPage(lang, dir, data))
 }
 
 // AdminWantDeletePage renders account deletion requests.
@@ -199,10 +175,7 @@ func (h *UIHandler) AdminWantDeletePage(w http.ResponseWriter, r *http.Request) 
 		requests, _ = h.idSvc.AdminListDeletionRequests(database.AsSystem(ctx), "")
 	}
 
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	if err := pages.AdminDeletionRequestsPage(requests, lang, dir).Render(ctx, w); err != nil {
-		h.log.ErrorContext(ctx, "render deletion requests page", "error", err)
-	}
+	h.renderPage(ctx, w, "render deletion requests page", pages.AdminDeletionRequestsPage(requests, lang, dir))
 }
 
 // AdminEmployeeActivitiesPage renders employee audit trail with rich filters.
@@ -275,8 +248,5 @@ func (h *UIHandler) AdminEmployeeActivitiesPage(w http.ResponseWriter, r *http.R
 		data.Users = users
 	}
 
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	if err := pages.AdminEmployeeActivitiesPage(data, lang, dir).Render(ctx, w); err != nil {
-		h.log.ErrorContext(ctx, "render employee activities", "error", err)
-	}
+	h.renderPage(ctx, w, "render employee activities", pages.AdminEmployeeActivitiesPage(data, lang, dir))
 }

@@ -170,7 +170,7 @@ templ AdminCities(data AdminCitiesData, lang string, dir string, isHTMX bool) {
 					<div class="d-flex flex-wrap items-center gap-3 flex-1" style="min-width: 280px;">
 						<div style="min-width: 200px; flex: 1;">
 							<select name="gov_id" onchange="this.form.submit()" class="form-input text-xs w-full font-bold">
-								<option value="0">🌍 كل المحافظات (عرض جميع المدن)</option>
+								<option value="0">كل المحافظات (عرض جميع المدن)</option>
 								for _, g := range data.Governorates {
 									if data.SelectedGovernorateID == g.ID {
 										<option value={ fmt.Sprintf("%d", g.ID) } selected>
@@ -259,7 +259,7 @@ templ AdminCities(data AdminCitiesData, lang string, dir string, isHTMX bool) {
 								if len(data.Cities) == 0 {
 									<tr>
 										<td colspan="5" class="p-8 text-center text-muted">
-											<div class="text-3xl mb-2">🔍</div>
+											<div class="text-3xl mb-2">@components.IconSearch("icon-sm")</div>
 											<div class="font-bold text-sm text-primary">لم يتم العثور على أي مدن تطابق شروط البحث</div>
 											<div class="text-xs text-secondary mt-1">جرب تغيير المحافظة أو عبارة البحث في الأعلى.</div>
 										</td>
@@ -270,7 +270,7 @@ templ AdminCities(data AdminCitiesData, lang string, dir string, isHTMX bool) {
 										<td>
 											<div class="font-black text-primary d-flex items-center gap-1">
 												if c.IsCapital {
-													<span title="عاصمة / مركز رئيسي" class="text-xs">⭐</span>
+													<span title="عاصمة / مركز رئيسي" class="text-xs">@components.IconStar("icon-sm")</span>
 												}
 												if c.Name["ar"] != "" {
 													<span>{ c.Name["ar"] }</span>
@@ -300,7 +300,7 @@ templ AdminCities(data AdminCitiesData, lang string, dir string, isHTMX bool) {
 													title="فتح الموقع على خرائط جوجل"
 													class="text-brand text-xs font-bold text-decoration-none d-inline-flex items-center gap-1"
 												>
-													<span>📍 { fmt.Sprintf("%.4f, %.4f", c.Latitude, c.Longitude) }</span>
+													<span>{ fmt.Sprintf("%.4f, %.4f", c.Latitude, c.Longitude) }</span>
 												</a>
 											} else {
 												<span class="text-muted text-xs">غير محدد</span>
@@ -329,7 +329,7 @@ templ AdminCities(data AdminCitiesData, lang string, dir string, isHTMX bool) {
 														c.IsActive,
 													) }
 												>
-													<span>✏️ تعديل</span>
+													<span>تعديل</span>
 												</button>
 
 												<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/cities/%d/toggle", c.ID)) } class="m-0 d-inline">
@@ -469,11 +469,11 @@ templ AdminCities(data AdminCitiesData, lang string, dir string, isHTMX bool) {
 									<div class="map-container map-canvas" style="height:230px; width:100%; z-index:1;"></div>
 									<div class="flex-between p-2 bg-surface-raised border-t text-xs flex-wrap gap-2">
 										<div class="d-flex items-center gap-1.5">
-											<span class="text-secondary font-bold">📍 الإحداثيات:</span>
+											<span class="text-secondary font-bold">الإحداثيات:</span>
 											<span data-map-coords-badge class="tabular-nums font-black text-primary">30.0444, 31.2357</span>
 										</div>
 										<button type="button" data-map-locate class="btn btn-secondary btn-xs font-bold gap-1">
-											<span>📍 موقعي الحالي</span>
+											<span>موقعي الحالي</span>
 										</button>
 									</div>
 								</div>
@@ -501,7 +501,7 @@ templ AdminCities(data AdminCitiesData, lang string, dir string, isHTMX bool) {
 					<div id="new-gov-card" class="glass-panel p-5 mb-0">
 						<div class="d-flex items-center gap-2 pb-3 mb-4 border-b">
 							<div class="user-avatar-badge text-base">
-								🏛️
+								@components.IconBank("icon-sm")
 							</div>
 							<div>
 								<h3 class="text-sm font-black text-primary m-0">
@@ -540,11 +540,11 @@ templ AdminCities(data AdminCitiesData, lang string, dir string, isHTMX bool) {
 									<div class="map-container map-canvas" style="height:200px; width:100%; z-index:1;"></div>
 									<div class="flex-between p-2 bg-surface-raised border-t text-xs flex-wrap gap-2">
 										<div class="d-flex items-center gap-1.5">
-											<span class="text-secondary font-bold">📍 الإحداثيات:</span>
+											<span class="text-secondary font-bold">الإحداثيات:</span>
 											<span data-map-coords-badge class="tabular-nums font-black text-primary">30.0444, 31.2357</span>
 										</div>
 										<button type="button" data-map-locate class="btn btn-secondary btn-xs font-bold gap-1">
-											<span>📍 موقعي</span>
+											<span>موقعي</span>
 										</button>
 									</div>
 								</div>
@@ -593,7 +593,7 @@ templ AdminCities(data AdminCitiesData, lang string, dir string, isHTMX bool) {
 										title="تعديل المحافظة على الخريطة"
 										@click={ fmt.Sprintf("openGovEdit(%d, %q, %q, %f, %f, %t)", g.ID, g.Name["ar"], g.Name["en"], g.Latitude, g.Longitude, g.IsActive) }
 									>
-										✏️
+										@components.IconEdit("icon-sm")
 									</button>
 								</div>
 							}
@@ -619,7 +619,7 @@ templ AdminCities(data AdminCitiesData, lang string, dir string, isHTMX bool) {
 					<div class="flex-between items-center pb-3 mb-4 border-b">
 						<div class="d-flex items-center gap-2">
 							<div class="user-avatar-badge text-base">
-								✏️
+								@components.IconEdit("icon-sm")
 							</div>
 							<div>
 								<h3 class="text-base font-black text-primary m-0">
@@ -629,7 +629,7 @@ templ AdminCities(data AdminCitiesData, lang string, dir string, isHTMX bool) {
 							</div>
 						</div>
 						<button type="button" @click="closeEdit()" class="btn btn-secondary btn-xs btn-icon">
-							✕
+							@components.IconX("icon-sm")
 						</button>
 					</div>
 
@@ -681,11 +681,11 @@ templ AdminCities(data AdminCitiesData, lang string, dir string, isHTMX bool) {
 								<div class="map-container map-canvas" style="height:220px; width:100%; z-index:1;"></div>
 								<div class="flex-between p-2 bg-surface-raised border-t text-xs flex-wrap gap-2">
 									<div class="d-flex items-center gap-1.5">
-										<span class="text-secondary font-bold">📍 الإحداثيات المحددة:</span>
+										<span class="text-secondary font-bold">الإحداثيات المحددة:</span>
 										<span data-map-coords-badge class="tabular-nums font-black text-primary" x-text="(editForm.lat || '30.0444') + ', ' + (editForm.lon || '31.2357')"></span>
 									</div>
 									<button type="button" data-map-locate class="btn btn-secondary btn-xs font-bold gap-1">
-										<span>📍 موقعي الحالي</span>
+										<span>موقعي الحالي</span>
 									</button>
 								</div>
 							</div>
@@ -704,7 +704,7 @@ templ AdminCities(data AdminCitiesData, lang string, dir string, isHTMX bool) {
 
 						<div class="p-3 bg-surface-sunken border rounded-lg d-flex items-center gap-2 text-xs">
 							<a :href="editForm.map_link" target="_blank" rel="noopener noreferrer" class="text-brand font-bold text-decoration-none d-flex items-center gap-1">
-								<span>📍 معاينة الموقع على خرائط جوجل</span>
+								<span>معاينة الموقع على خرائط جوجل</span>
 							</a>
 						</div>
 
@@ -749,7 +749,7 @@ templ AdminCities(data AdminCitiesData, lang string, dir string, isHTMX bool) {
 					<div class="flex-between items-center pb-3 mb-4 border-b">
 						<div class="d-flex items-center gap-2">
 							<div class="user-avatar-badge text-base">
-								🏛️
+								@components.IconBank("icon-sm")
 							</div>
 							<div>
 								<h3 class="text-base font-black text-primary m-0">
@@ -759,7 +759,7 @@ templ AdminCities(data AdminCitiesData, lang string, dir string, isHTMX bool) {
 							</div>
 						</div>
 						<button type="button" @click="closeGovEdit()" class="btn btn-secondary btn-xs btn-icon">
-							✕
+							@components.IconX("icon-sm")
 						</button>
 					</div>
 
@@ -792,11 +792,11 @@ templ AdminCities(data AdminCitiesData, lang string, dir string, isHTMX bool) {
 								<div class="map-container map-canvas" style="height:210px; width:100%; z-index:1;"></div>
 								<div class="flex-between p-2 bg-surface-raised border-t text-xs flex-wrap gap-2">
 									<div class="d-flex items-center gap-1.5">
-										<span class="text-secondary font-bold">📍 الإحداثيات:</span>
+										<span class="text-secondary font-bold">الإحداثيات:</span>
 										<span data-map-coords-badge class="tabular-nums font-black text-primary" x-text="(govEditForm.lat || '30.0444') + ', ' + (govEditForm.lon || '31.2357')"></span>
 									</div>
 									<button type="button" data-map-locate class="btn btn-secondary btn-xs font-bold gap-1">
-										<span>📍 موقعي الحالي</span>
+										<span>موقعي الحالي</span>
 									</button>
 								</div>
 							</div>

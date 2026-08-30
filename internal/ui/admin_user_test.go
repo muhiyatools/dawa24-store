@@ -260,4 +260,3 @@ func TestActivitiesAndAuditLogsRoutes(t *testing.T) {
 		})
 	}
 }
-

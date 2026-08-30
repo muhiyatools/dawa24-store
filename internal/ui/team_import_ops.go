@@ -121,14 +121,14 @@ func normalizeArabicText(s string) string {
 // DetectTeamColumns analyzes headers and sample rows to auto-detect employee columns.
 func DetectTeamColumns(headers []string, sampleRows [][]string) TeamDetectedCols {
 	cols := TeamDetectedCols{
-		NameCol:      -1,
-		EmailCol:     -1,
-		PhoneCol:     -1,
-		RoleCol:      -1,
-		JobTitleCol:  -1,
-		BranchCol:    -1,
-		CodeCol:      -1,
-		NotesCol:     -1,
+		NameCol:     -1,
+		EmailCol:    -1,
+		PhoneCol:    -1,
+		RoleCol:     -1,
+		JobTitleCol: -1,
+		BranchCol:   -1,
+		CodeCol:     -1,
+		NotesCol:    -1,
 	}
 
 	nameKeywords := []string{"اسم الموظف", "اسم العامل", "الاسم بالكامل", "الاسم", "الموظف", "العامل", "اسم", "employee name", "staff name", "full name", "name", "username"}
@@ -367,7 +367,7 @@ func ParseAndValidateTeamRows(
 		if rID, ok := roleMap[rawRole]; ok && rID > 0 {
 			targetRoleID = rID
 		}
-		
+
 		roleOpt, hasRole := roleByID[targetRoleID]
 		roleKey := "org_employee"
 		roleName := "موظف"
@@ -541,4 +541,3 @@ func parseAndValidateTeamRows(
 ) []*TeamImportRow {
 	return ParseAndValidateTeamRows(rawRows, cols, roleMap, defaultRoleID, companyRoles, branches)
 }
-

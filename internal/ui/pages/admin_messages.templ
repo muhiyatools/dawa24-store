@@ -18,7 +18,7 @@ templ AdminMessages(lang, dir string, messages []*platformadmin.ContactMessage) 
 				<div class="flex-between items-center flex-wrap gap-4">
 					<div class="d-flex items-center gap-3">
 						<div class="user-avatar-badge text-xl">
-							✉️
+							@components.IconMail("icon-sm")
 						</div>
 						<div>
 							<h1 class="text-2xl font-black text-primary m-0">
@@ -43,7 +43,7 @@ templ AdminMessages(lang, dir string, messages []*platformadmin.ContactMessage) 
 			<div class="glass-panel p-0 mb-6 overflow-hidden">
 				if len(messages) == 0 {
 					<div class="p-8 text-center empty-state-glass">
-						<div class="text-4xl mb-3">✉️</div>
+						<div class="text-4xl mb-3">@components.IconMail("icon-sm")</div>
 						<h3 class="text-lg font-black text-primary mb-2">لا توجد رسائل تواصل واردة</h3>
 						<p class="text-sm text-secondary max-w-md mx-auto">لم يقم أي مستخدم بإرسال رسائل أو استفسارات عبر صفحة تواصل معنا حتى الآن.</p>
 					</div>
@@ -80,11 +80,11 @@ templ AdminMessages(lang, dir string, messages []*platformadmin.ContactMessage) 
 											}
 											if m.Phone != "" {
 												<div style="font-size:0.8rem; color:var(--neutral-600); margin-top:2px; display:flex; align-items:center; gap:0.35rem;" dir="ltr" class="tabular-nums">
-													<span>📞 { m.Phone }</span>
+													<span>{ m.Phone }</span>
 													{{ cleanPhone := strings.TrimPrefix(strings.TrimPrefix(m.Phone, "+"), "0") }}
 													if cleanPhone != "" {
 														<a href={ templ.SafeURL(fmt.Sprintf("https://wa.me/20%s", cleanPhone)) } target="_blank" rel="noopener" style="color:var(--success-text); font-size:0.75rem; font-weight:700; text-decoration:none;" title="محادثة واتساب">
-															(واتساب 💬)
+															(واتساب )
 														</a>
 													}
 												</div>
@@ -102,11 +102,11 @@ templ AdminMessages(lang, dir string, messages []*platformadmin.ContactMessage) 
 										</td>
 										<td>
 											if m.Status == "unread" || m.Status == "" {
-												<span class="badge badge-rose fw-800">غير مقروءة ✉</span>
+												<span class="badge badge-rose fw-800">غير مقروءة </span>
 											} else if m.Status == "in_progress" {
 												<span class="badge badge-warning fw-800">قيد المتابعة ⏳</span>
 											} else {
-												<span class="badge badge-emerald fw-800">تم الرد / مكتملة ✓</span>
+												<span class="badge badge-emerald fw-800">تم الرد / مكتملة </span>
 											}
 										</td>
 										<td class="tabular-nums" style="font-size:0.8rem; color:var(--neutral-500);">

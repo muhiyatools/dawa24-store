@@ -140,6 +140,19 @@ func (db *DB) Migrate(ctx context.Context, migrations []Migration, log func(stri
 		return err
 	}
 
+	// A migration recorded here but missing from disk means this database
+	// cannot be rebuilt from the repository. Reported, not fatal: see Orphans.
+	known := make(map[int]struct{}, len(migrations))
+	for _, m := range migrations {
+		known[m.Version] = struct{}{}
+	}
+	for version := range applied {
+		if _, ok := known[version]; !ok {
+			log("migration applied but its file is missing; this database cannot be "+
+				"rebuilt from the repository", "version", version)
+		}
+	}
+
 	for _, m := range migrations {
 		if prev, ok := applied[m.Version]; ok {
 			if prev != m.Hash {

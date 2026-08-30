@@ -114,10 +114,7 @@ func (h *UIHandler) OffersPage(w http.ResponseWriter, r *http.Request) {
 		})
 	}
 
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	if err := pages.OffersPage(lang, dir, offerCards).Render(ctx, w); err != nil {
-		h.log.ErrorContext(ctx, "render offers page", "error", err)
-	}
+	h.renderPage(ctx, w, "render offers page", pages.OffersPage(lang, dir, offerCards))
 }
 
 // OfferDetailPage renders one offer with its full products and records an impression.
@@ -185,10 +182,7 @@ func (h *UIHandler) OfferDetailPage(w http.ResponseWriter, r *http.Request) {
 		IsCustomerUser: isCustomer,
 	}
 
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	if err := pages.OfferDetail(lang, dir, data).Render(ctx, w); err != nil {
-		h.log.ErrorContext(ctx, "render offer detail", "error", err)
-	}
+	h.renderPage(ctx, w, "render offer detail", pages.OfferDetail(lang, dir, data))
 }
 
 // OfferClickSubmit records an offer click and sends the user to the catalogue.

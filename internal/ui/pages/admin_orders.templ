@@ -91,9 +91,9 @@ templ AdminOrdersHub(data AdminOrdersData, lang, dir string) {
 											</td>
 											<td>
 												if o.NegotiationStatus == "accepted" {
-													<span class="badge badge-emerald text-xs font-bold">✓ تم قبول التفاوض</span>
+													<span class="badge badge-emerald text-xs font-bold">تم قبول التفاوض</span>
 												} else if o.NegotiationStatus == "rejected" {
-													<span class="badge badge-rose text-xs font-bold">✕ تم رفض السعر</span>
+													<span class="badge badge-rose text-xs font-bold">تم رفض السعر</span>
 												} else {
 													<span class="badge badge-amber text-xs font-bold">⏳ قيد المراجعة</span>
 												}
@@ -180,7 +180,7 @@ templ AdminOrdersHub(data AdminOrdersData, lang, dir string) {
 											<td class="tabular-nums font-extrabold text-primary">{ o.OrderNumber }</td>
 											<td>
 												if o.IsNegotiation {
-													<span class="badge badge-amber text-xs font-bold">🤝 تفاوض</span>
+													<span class="badge badge-amber text-xs font-bold">تفاوض</span>
 												} else {
 													<span class="badge badge-slate text-xs font-bold">توريد مباشر</span>
 												}

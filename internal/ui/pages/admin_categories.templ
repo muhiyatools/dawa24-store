@@ -52,7 +52,7 @@ templ AdminCategoriesPage(categories []CategoryViewItem, allCategories []*catalo
 				<div class="flex-between items-center flex-wrap gap-4">
 					<div class="d-flex items-center gap-3">
 						<div class="user-avatar-badge text-xl">
-							📁
+							@components.IconFolder("icon-sm")
 						</div>
 						<div>
 							<h1 class="text-2xl font-black text-primary m-0">فئات المنتجات والتصنيفات المركزية</h1>
@@ -120,7 +120,7 @@ templ AdminCategoriesPage(categories []CategoryViewItem, allCategories []*catalo
 				<!-- Categories Table Card -->
 				if len(categories) == 0 {
 					<div class="p-8 text-center empty-state-glass">
-						<div class="text-4xl mb-3">📁</div>
+						<div class="text-4xl mb-3">@components.IconFolder("icon-sm")</div>
 						<h3 class="text-lg font-black text-primary mb-2">لا توجد فئات مطابقة</h3>
 						<p class="text-sm text-secondary max-w-md mx-auto">لم يتم العثور على أي نتائج وفق معايير البحث الحالية. اضغط على إضافة فئة جديدة للبدء.</p>
 					</div>
@@ -160,7 +160,7 @@ templ AdminCategoriesPage(categories []CategoryViewItem, allCategories []*catalo
 										<td style="text-align:start;">
 											if parentName != "" {
 												<span class="badge badge-slate fw-700">
-													📁 { parentName }
+													{ parentName }
 												</span>
 											} else {
 												<span style="color:var(--text-muted); font-size:0.825rem;">-- رئيسية (مستوى أول) --</span>
@@ -179,7 +179,7 @@ templ AdminCategoriesPage(categories []CategoryViewItem, allCategories []*catalo
 												<span class="text-sm text-muted">لا يوجد وصف</span>
 											}
 										</td>
-										<td style="text-align:center;">
+										<td class="text-center">
 											<a
 												href={ templ.SafeURL(fmt.Sprintf("/admin/products?category_id=%d", c.ID)) }
 												class="badge badge-indigo fw-700"
@@ -190,10 +190,10 @@ templ AdminCategoriesPage(categories []CategoryViewItem, allCategories []*catalo
 												<span class="tabular-nums">{ fmt.Sprintf("%d صنف", item.ProductCount) }</span>
 											</a>
 										</td>
-										<td class="tabular-nums fw-600" style="text-align:center;">
+										<td class="tabular-nums fw-600 text-center">
 											{ fmt.Sprintf("%d", c.SortOrder) }
 										</td>
-										<td style="text-align:center;">
+										<td class="text-center">
 											if c.Status == "active" || c.Status == "" {
 												<span class="badge badge-emerald fw-700">نشط</span>
 											} else {

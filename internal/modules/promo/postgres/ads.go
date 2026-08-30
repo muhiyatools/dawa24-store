@@ -221,9 +221,9 @@ func (r *Repository) RecordAdImpression(ctx context.Context, adID int64, userID 
 
 func scanAd(row pgx.Row, a *promo.Ad) error {
 	var (
-		mediaType    string
-		clickTarget  string
-		adminStatus  string
+		mediaType   string
+		clickTarget string
+		adminStatus string
 	)
 	err := row.Scan(
 		&a.ID, &a.PublicID, &a.OrganizationID, &a.Title, &a.TitleAr, &a.TitleEn, &a.AdTextAr, &a.AdTextEn,

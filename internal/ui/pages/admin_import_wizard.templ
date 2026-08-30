@@ -24,7 +24,7 @@ templ AdminProductsImportPage(lang, dir string, view ImportConfigureView) {
 				<div class="flex-between items-center flex-wrap gap-4">
 					<div class="d-flex items-center gap-3">
 						<div class="user-avatar-badge text-xl">
-							📥
+							@components.IconDownload("icon-sm")
 						</div>
 						<div>
 							<h1 class="text-2xl font-black text-primary m-0">استيراد وتحديث الكتالوج المركزي العام</h1>
@@ -80,7 +80,7 @@ templ AdminProductsImportPage(lang, dir string, view ImportConfigureView) {
 					if (this.files && this.files[0]) {
 						const f = this.files[0];
 						const sizeMb = (f.size / (1024 * 1024)).toFixed(2);
-						if (titleEl) titleEl.textContent = '✓ ' + f.name;
+						if (titleEl) titleEl.textContent = '' + f.name;
 						if (textEl) textEl.textContent = 'الحجم: ' + sizeMb + ' ميجابايت — جاهز للتحليل';
 						dropZone.classList.add('is-over');
 					}

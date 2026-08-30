@@ -76,12 +76,12 @@ templ VendorTeamPage(data VendorTeamData, lang, dir string) {
 			if data.NoticeMsg != "" {
 				if data.NoticeType == "error" {
 					<div class="alert alert-danger mb-0 d-flex items-center gap-3 p-4">
-						<span class="text-xl">⚠️</span>
+						<span class="text-xl">@components.IconAlert("icon-sm")</span>
 						<span class="font-bold text-sm">{ data.NoticeMsg }</span>
 					</div>
 				} else {
 					<div class="alert alert-success mb-0 d-flex items-center gap-3 p-4">
-						<span class="text-xl">✅</span>
+						<span class="text-xl">@components.IconCheckCircle("icon-sm")</span>
 						<span class="font-bold text-sm">{ data.NoticeMsg }</span>
 					</div>
 				}
@@ -92,7 +92,7 @@ templ VendorTeamPage(data VendorTeamData, lang, dir string) {
 				<div class="flex-between items-center flex-wrap gap-4">
 					<div class="d-flex items-center gap-3">
 						<div class="user-avatar-badge text-2xl">
-							👥
+							@components.IconUsers("icon-sm")
 						</div>
 						<div>
 							<h1 class="text-2xl font-black text-primary m-0">
@@ -170,7 +170,7 @@ templ VendorTeamPage(data VendorTeamData, lang, dir string) {
 				<!-- Table Control Bar: Search & Filter -->
 				<div class="p-4 border-b d-flex items-center justify-between flex-wrap gap-3">
 					<div class="d-flex items-center gap-2">
-						<span class="text-lg">📋</span>
+						<span class="text-lg">@components.IconFileText("icon-sm")</span>
 						<h3 class="text-base font-black text-primary m-0">
 							قائمة موظفي المنشأة
 						</h3>
@@ -185,7 +185,7 @@ templ VendorTeamPage(data VendorTeamData, lang, dir string) {
 							<input
 								type="text"
 								x-model="searchQuery"
-								placeholder="🔍 بحث بالاسم، البريد، أو الهاتف..."
+								placeholder="بحث بالاسم، البريد، أو الهاتف..."
 								class="form-input text-xs w-full"
 							/>
 						</div>
@@ -211,7 +211,7 @@ templ VendorTeamPage(data VendorTeamData, lang, dir string) {
 
 				if len(data.Members) == 0 {
 					<div class="p-12 text-center empty-state-glass">
-						<div class="text-4xl mb-3">👥</div>
+						<div class="text-4xl mb-3">@components.IconUsers("icon-sm")</div>
 						<h4 class="text-lg font-black text-primary m-0 mb-2">لا يوجد موظفون مضافون حالياً</h4>
 						<p class="text-xs text-secondary max-w-md mx-auto mb-4">
 							ابدأ بإضافة موظفي المبيعات، أمناء المخازن، أو المحاسبين لمنشأتك وتعيين صلاحياتهم التشغيلية فوراً.
@@ -287,7 +287,7 @@ templ VendorTeamPage(data VendorTeamData, lang, dir string) {
 													</select>
 												</form>
 											} else if m.RoleKey == "org_owner" {
-												<span class="badge badge-amber text-xs font-bold">👑 { m.RoleName }</span>
+												<span class="badge badge-amber text-xs font-bold">{ m.RoleName }</span>
 											} else {
 												<span class="badge badge-slate text-xs font-bold">{ m.RoleName }</span>
 											}
@@ -296,7 +296,7 @@ templ VendorTeamPage(data VendorTeamData, lang, dir string) {
 										<!-- Branch / Location -->
 										<td class="text-xs text-secondary font-bold">
 											if m.BranchName != "" {
-												<span>🏢 { m.BranchName }</span>
+												<span>{ m.BranchName }</span>
 											} else {
 												<span class="text-muted text-xs">كل الفروع / الإدارة</span>
 											}
@@ -396,12 +396,12 @@ templ VendorTeamPage(data VendorTeamData, lang, dir string) {
 					<!-- Modal Header -->
 					<div class="flex-between items-center mb-4 pb-3 border-b">
 						<div class="d-flex items-center gap-2">
-							<span class="text-xl">👤</span>
+							<span class="text-xl">@components.IconUser("icon-sm")</span>
 							<h3 class="text-lg font-black text-primary m-0">
 								إضافة وتعيين موظف جديد
 							</h3>
 						</div>
-						<button type="button" @click="showAddModal = false" class="btn btn-secondary btn-icon btn-sm">✕</button>
+						<button type="button" @click="showAddModal = false" class="btn btn-secondary btn-icon btn-sm">@components.IconX("icon-sm")</button>
 					</div>
 
 					<!-- Modal Form -->

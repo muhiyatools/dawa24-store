@@ -28,7 +28,7 @@ templ importConfirmStage(view VendorImportView) {
 		<div class="card">
 			<h3 class="wiz-head">الأعمدة التي ستُقرأ</h3>
 			<div class="table-wrap">
-				<table class="table">
+				<table class="data-table">
 					<thead>
 						<tr>
 							<th>العمود في ملفك</th>
@@ -165,7 +165,7 @@ templ importResultsStage(view VendorImportView) {
 		<div class="card">
 			<h3 class="wiz-head">ملاحظات على الصفوف</h3>
 			<div class="table-wrap">
-				<table class="table">
+				<table class="data-table">
 					<thead>
 						<tr><th>الصف</th><th>الحقل</th><th>القيمة</th><th>الملاحظة</th></tr>
 					</thead>
@@ -214,7 +214,7 @@ templ importRowsTable(view VendorImportView) {
 			</div>
 		</div>
 		<div class="table-wrap">
-			<table class="table">
+			<table class="data-table">
 				<thead>
 					<tr style="background:var(--surface-sunken); border-bottom:2px solid var(--border);">
 						<th style="width:50px; text-align:center;">#</th>
@@ -227,8 +227,8 @@ templ importRowsTable(view VendorImportView) {
 				</thead>
 				<tbody>
 					for _, row := range view.Rows {
-						<tr style="border-bottom:1px solid var(--border);">
-							<td class="text-center tabular-nums font-bold" style="color:var(--text-muted);">{ fmt.Sprint(row.SourceRow) }</td>
+						<tr class="rule-bottom">
+							<td class="text-center tabular-nums font-bold text-muted">{ fmt.Sprint(row.SourceRow) }</td>
 							<td>
 								<div class="fw-700 text-primary" style="font-size:0.9rem;">{ row.DisplayName }</div>
 								if row.SourceCode != "" {

@@ -242,3 +242,30 @@
 .shadow-lg      { box-shadow: var(--shadow-lg) !important; }
 .shadow-xl      { box-shadow: var(--shadow-xl) !important; }
 .shadow-glow    { box-shadow: var(--shadow-glow) !important; }
+
+/* ---------------------------------------------------------------------------
+   Additions made while removing inline styles.
+   Each replaces an exact inline declaration that appeared often enough in the
+   templates to be worth naming. Nothing here is speculative: the count next to
+   each rule is how many attributes it replaced.
+   --------------------------------------------------------------------------- */
+.nowrap         { white-space: nowrap !important; }              /* 19 */
+.text-body      { color: var(--text) !important; }               /* 16 */
+.font-size-10   { font-size: 10px !important; }                  /* 18 */
+.w-full-rounded { width: 100%; border-radius: var(--radius-lg); }/* 32 */
+.field-height   { height: 44px; border-radius: var(--radius-lg); }/* 18 */
+.relative       { position: relative !important; }               /* 10 */
+.label-strong   { font-size: 0.75rem; color: var(--text-muted); font-weight: 700; } /* 26 */
+.meta-muted     { font-size: 0.75rem; color: var(--text-muted); }                   /* 12 */
+.grid-halves    { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }    /* 15 */
+.rule-bottom    { border-bottom: 1px solid var(--border); }                         /* 14 */
+.field-cta      { height: 44px; border-radius: var(--radius-lg); font-weight: 700; }/* 11 */
+.section-head   {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 1rem;
+}                                                                                   /* 10 */
+.inline-row-wrap { display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; } /* 10 */

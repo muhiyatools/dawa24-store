@@ -207,7 +207,7 @@ templ AdminDeletionRequestsPage(requests []*identity.AccountDeletionRequest, lan
 			<div class="glass-panel p-6 mb-6">
 				<div class="d-flex items-center gap-3">
 					<div class="user-avatar-badge text-xl">
-						🗑️
+						@components.IconTrash("icon-sm")
 					</div>
 					<div>
 						<h1 class="text-2xl font-black text-primary m-0">طلبات حذف الحسابات ({ fmt.Sprintf("%d", len(requests)) })</h1>
@@ -219,7 +219,7 @@ templ AdminDeletionRequestsPage(requests []*identity.AccountDeletionRequest, lan
 			<div class="glass-panel p-0 mb-6 overflow-hidden">
 				if len(requests) == 0 {
 					<div class="p-8 text-center empty-state-glass">
-						<div class="text-4xl mb-3">🗑️</div>
+						<div class="text-4xl mb-3">@components.IconTrash("icon-sm")</div>
 						<h3 class="text-lg font-black text-primary mb-2">لا توجد طلبات حذف معلقة</h3>
 						<p class="text-sm text-secondary max-w-md mx-auto">لا توجد أي طلبات لحذف الحسابات حالياً.</p>
 					</div>

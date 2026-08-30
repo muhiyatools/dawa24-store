@@ -13,10 +13,7 @@ func (h *UIHandler) NotificationsDropdownPartial(w http.ResponseWriter, r *http.
 	ctx := r.Context()
 	userID, err := authctx.UserID(ctx)
 	if err != nil {
-		w.Header().Set("Content-Type", "text/html; charset=utf-8")
-		if err := pages.NotificationsDropdownPanel(nil, 0).Render(ctx, w); err != nil {
-			h.log.ErrorContext(ctx, "render notifications dropdown fallback", "error", err)
-		}
+		h.renderPage(ctx, w, "render notifications dropdown fallback", pages.NotificationsDropdownPanel(nil, 0))
 		return
 	}
 
@@ -27,10 +24,7 @@ func (h *UIHandler) NotificationsDropdownPartial(w http.ResponseWriter, r *http.
 		unread, _ = h.notifSvc.GetUnreadCount(ctx, userID)
 	}
 
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	if err := pages.NotificationsDropdownPanel(logs, unread).Render(ctx, w); err != nil {
-		h.log.ErrorContext(ctx, "render notifications dropdown", "error", err)
-	}
+	h.renderPage(ctx, w, "render notifications dropdown", pages.NotificationsDropdownPanel(logs, unread))
 }
 
 // NotificationsUnreadBadgePartial renders the polled unread badge.
@@ -38,10 +32,7 @@ func (h *UIHandler) NotificationsUnreadBadgePartial(w http.ResponseWriter, r *ht
 	ctx := r.Context()
 	userID, err := authctx.UserID(ctx)
 	if err != nil {
-		w.Header().Set("Content-Type", "text/html; charset=utf-8")
-		if err := pages.NotificationsUnreadBadge(0).Render(ctx, w); err != nil {
-			h.log.ErrorContext(ctx, "render unread badge fallback", "error", err)
-		}
+		h.renderPage(ctx, w, "render unread badge fallback", pages.NotificationsUnreadBadge(0))
 		return
 	}
 
@@ -50,10 +41,7 @@ func (h *UIHandler) NotificationsUnreadBadgePartial(w http.ResponseWriter, r *ht
 		unread, _ = h.notifSvc.GetUnreadCount(ctx, userID)
 	}
 
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	if err := pages.NotificationsUnreadBadge(unread).Render(ctx, w); err != nil {
-		h.log.ErrorContext(ctx, "render unread badge", "error", err)
-	}
+	h.renderPage(ctx, w, "render unread badge", pages.NotificationsUnreadBadge(unread))
 }
 
 // NotificationsReadAllSubmit marks every notification as read and returns the
@@ -62,10 +50,7 @@ func (h *UIHandler) NotificationsReadAllSubmit(w http.ResponseWriter, r *http.Re
 	ctx := r.Context()
 	userID, err := authctx.UserID(ctx)
 	if err != nil {
-		w.Header().Set("Content-Type", "text/html; charset=utf-8")
-		if err := pages.NotificationsDropdownPanel(nil, 0).Render(ctx, w); err != nil {
-			h.log.ErrorContext(ctx, "render notifications dropdown fallback", "error", err)
-		}
+		h.renderPage(ctx, w, "render notifications dropdown fallback", pages.NotificationsDropdownPanel(nil, 0))
 		return
 	}
 
@@ -78,8 +63,5 @@ func (h *UIHandler) NotificationsReadAllSubmit(w http.ResponseWriter, r *http.Re
 		logs, _ = h.notifSvc.ListUserNotifications(ctx, userID, 8, 0)
 	}
 
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	if err := pages.NotificationsDropdownPanel(logs, 0).Render(ctx, w); err != nil {
-		h.log.ErrorContext(ctx, "render notifications dropdown panel", "error", err)
-	}
+	h.renderPage(ctx, w, "render notifications dropdown panel", pages.NotificationsDropdownPanel(logs, 0))
 }

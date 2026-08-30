@@ -247,7 +247,7 @@ templ AdminSettings(values AdminSettingsValues, lang, dir string) {
 											style="min-width:120px; justify-content:center; background:var(--surface-raised); color:var(--text-muted); border:1px solid var(--border); font-weight:600; border-radius:var(--radius-full);"
 											title="انقر لتفعيل الميزة"
 										>
-											<span>✕ معطل (Disabled)</span>
+											<span>معطل (Disabled)</span>
 										</button>
 									}
 								</form>
@@ -586,7 +586,7 @@ templ AdminSettings(values AdminSettingsValues, lang, dir string) {
 												}
 											</div>
 											<div>
-												<div style="display:flex; align-items:center; gap:0.5rem; flex-wrap:wrap;">
+												<div class="inline-row-wrap">
 													<strong style="font-size:1.05rem; color:var(--text);">{ pm.Name.Get(i18n.Lang(lang)) }</strong>
 													<code style="font-size:0.75rem; background:var(--surface-raised); padding:0.15rem 0.45rem; border-radius:4px; border:1px solid var(--border);" dir="ltr">#{ pm.ID }</code>
 												</div>
@@ -596,7 +596,7 @@ templ AdminSettings(values AdminSettingsValues, lang, dir string) {
 											</div>
 										</div>
 
-										<div style="display:flex; align-items:center; gap:0.5rem; flex-wrap:wrap;">
+										<div class="inline-row-wrap">
 											if pm.IsActive {
 												<span class="badge badge-emerald fw-700">مفعل ونشط</span>
 											} else {
@@ -604,10 +604,10 @@ templ AdminSettings(values AdminSettingsValues, lang, dir string) {
 											}
 
 											if pm.IsDepositEnabled {
-												<span class="badge badge-sky text-xs">شحن المحفظة ✓</span>
+												<span class="badge badge-sky text-xs">شحن المحفظة </span>
 											}
 											if pm.IsCheckoutEnabled {
-												<span class="badge badge-indigo text-xs">سداد الطلبات ✓</span>
+												<span class="badge badge-indigo text-xs">سداد الطلبات </span>
 											}
 										</div>
 									</div>
@@ -709,7 +709,7 @@ templ AdminSettings(values AdminSettingsValues, lang, dir string) {
 					class="card"
 					style="max-width:680px; width:100%; max-height:90vh; overflow-y:auto; padding:2rem; background:var(--surface-raised); border-radius:var(--radius-2xl); border:1px solid var(--border); box-shadow:var(--shadow-xl);"
 				>
-					<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; border-bottom:1px solid var(--border); padding-bottom:1rem;">
+					<div class="section-head">
 						<div class="row-center-sm">
 							<div class="b2b-icon-box-sm">
 								@components.IconWallet("icon-xs")

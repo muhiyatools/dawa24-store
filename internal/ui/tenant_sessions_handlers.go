@@ -60,10 +60,7 @@ func (h *UIHandler) TenantSessionsPage(w http.ResponseWriter, r *http.Request) {
 		NoticeMessage:    r.URL.Query().Get("msg"),
 	}
 
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	if err := pages.TenantSessionsPage(lang, dir, viewData).Render(ctx, w); err != nil {
-		h.log.ErrorContext(ctx, "render tenant sessions page", "error", err)
-	}
+	h.renderPage(ctx, w, "render tenant sessions page", pages.TenantSessionsPage(lang, dir, viewData))
 }
 
 // TenantSessionRevokeSubmit terminates a specific active session.

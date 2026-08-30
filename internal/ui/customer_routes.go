@@ -76,7 +76,6 @@ func (h *UIHandler) registerCustomerBuyingRoutes(r chi.Router) {
 		g.Post("/cart/update-quantity", h.UpdateCartQuantitySubmit)
 	})
 
-
 	r.Group(func(g chi.Router) {
 		g.Use(authctx.RequireTenantPagePermission("pharmacy.order.create"))
 		g.Get("/checkout", h.CustomerCheckoutPage)

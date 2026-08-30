@@ -143,10 +143,16 @@ func (m *mockPromoRepo) UpdatePackage(ctx context.Context, p *promo.OfferPackage
 func (m *mockPromoRepo) GetPackageByID(ctx context.Context, id int64) (*promo.OfferPackage, error) {
 	return nil, nil
 }
-func (m *mockPromoRepo) AdminListPackages(ctx context.Context) ([]*promo.OfferPackage, error) { return nil, nil }
-func (m *mockPromoRepo) TogglePackageActive(ctx context.Context, id int64, active bool) error { return nil }
+func (m *mockPromoRepo) AdminListPackages(ctx context.Context) ([]*promo.OfferPackage, error) {
+	return nil, nil
+}
+func (m *mockPromoRepo) TogglePackageActive(ctx context.Context, id int64, active bool) error {
+	return nil
+}
 
-func (m *mockPromoRepo) CreateSponsorshipPurchase(ctx context.Context, p *promo.SponsorshipPurchase) error { return nil }
+func (m *mockPromoRepo) CreateSponsorshipPurchase(ctx context.Context, p *promo.SponsorshipPurchase) error {
+	return nil
+}
 func (m *mockPromoRepo) GetSponsorshipPurchaseByID(ctx context.Context, id int64) (*promo.SponsorshipPurchase, error) {
 	return nil, nil
 }
@@ -156,10 +162,14 @@ func (m *mockPromoRepo) ListSponsorshipPurchasesByOrg(ctx context.Context, orgID
 func (m *mockPromoRepo) ListActiveSponsorshipPurchasesByOrg(ctx context.Context, orgID int64) ([]*promo.SponsorshipPurchase, error) {
 	return nil, nil
 }
-func (m *mockPromoRepo) IncrementSponsorshipPurchaseCreditsUsed(ctx context.Context, purchaseID int64, credits int) error { return nil }
+func (m *mockPromoRepo) IncrementSponsorshipPurchaseCreditsUsed(ctx context.Context, purchaseID int64, credits int) error {
+	return nil
+}
 func (m *mockPromoRepo) ExpireSponsorshipPurchases(ctx context.Context) (int64, error) { return 0, nil }
 
-func (m *mockPromoRepo) CreateSponsorshipRequest(ctx context.Context, r *promo.SponsorshipRequest) error { return nil }
+func (m *mockPromoRepo) CreateSponsorshipRequest(ctx context.Context, r *promo.SponsorshipRequest) error {
+	return nil
+}
 func (m *mockPromoRepo) GetSponsorshipRequestByID(ctx context.Context, id int64) (*promo.SponsorshipRequest, error) {
 	return nil, nil
 }
@@ -172,11 +182,15 @@ func (m *mockPromoRepo) ListAllSponsorshipRequests(ctx context.Context, limit, o
 func (m *mockPromoRepo) ListPendingSponsorshipRequests(ctx context.Context, limit, offset int) ([]*promo.SponsorshipRequest, error) {
 	return nil, nil
 }
-func (m *mockPromoRepo) UpdateSponsorshipRequestAdminStatus(ctx context.Context, id int64, status promo.AdminStatus, notes string, reviewerID int64) error { return nil }
+func (m *mockPromoRepo) UpdateSponsorshipRequestAdminStatus(ctx context.Context, id int64, status promo.AdminStatus, notes string, reviewerID int64) error {
+	return nil
+}
 func (m *mockPromoRepo) ActivateSponsorshipRequest(ctx context.Context, id int64, reviewerID int64) (*promo.SponsorshipRequest, error) {
 	return nil, nil
 }
-func (m *mockPromoRepo) CancelSponsorshipRequest(ctx context.Context, id, orgID int64) error { return nil }
+func (m *mockPromoRepo) CancelSponsorshipRequest(ctx context.Context, id, orgID int64) error {
+	return nil
+}
 func (m *mockPromoRepo) ExpireSponsorshipRequests(ctx context.Context) (int64, error) { return 0, nil }
 
 func (m *mockPromoRepo) RankedSponsorshipsForProducts(ctx context.Context, productIDs []int64) ([]*promo.RankedSponsorship, error) {
@@ -189,13 +203,21 @@ func (m *mockPromoRepo) IsSponsored(ctx context.Context, itemType promo.Sponsors
 	return nil, nil
 }
 
-func (m *mockPromoRepo) CreateAd(ctx context.Context, a *promo.Ad) error { return nil }
-func (m *mockPromoRepo) UpdateAd(ctx context.Context, a *promo.Ad) error { return nil }
+func (m *mockPromoRepo) CreateAd(ctx context.Context, a *promo.Ad) error            { return nil }
+func (m *mockPromoRepo) UpdateAd(ctx context.Context, a *promo.Ad) error            { return nil }
 func (m *mockPromoRepo) GetAdByID(ctx context.Context, id int64) (*promo.Ad, error) { return nil, nil }
-func (m *mockPromoRepo) ListAdsByOrg(ctx context.Context, orgID int64, limit, offset int) ([]*promo.Ad, error) { return nil, nil }
-func (m *mockPromoRepo) ListAllAds(ctx context.Context, limit, offset int) ([]*promo.Ad, error) { return nil, nil }
-func (m *mockPromoRepo) UpdateAdAdminStatus(ctx context.Context, id int64, status promo.AdminStatus, notes string, reviewerID int64) error { return nil }
-func (m *mockPromoRepo) RecordAdImpression(ctx context.Context, adID int64, userID *int64, ip, ua string) error { return nil }
+func (m *mockPromoRepo) ListAdsByOrg(ctx context.Context, orgID int64, limit, offset int) ([]*promo.Ad, error) {
+	return nil, nil
+}
+func (m *mockPromoRepo) ListAllAds(ctx context.Context, limit, offset int) ([]*promo.Ad, error) {
+	return nil, nil
+}
+func (m *mockPromoRepo) UpdateAdAdminStatus(ctx context.Context, id int64, status promo.AdminStatus, notes string, reviewerID int64) error {
+	return nil
+}
+func (m *mockPromoRepo) RecordAdImpression(ctx context.Context, adID int64, userID *int64, ip, ua string) error {
+	return nil
+}
 
 func TestOffersWorkflowAndRendering(t *testing.T) {
 	now := time.Now().UTC()
@@ -258,7 +280,6 @@ func TestOffersWorkflowAndRendering(t *testing.T) {
 	r := chi.NewRouter()
 	handler.RegisterPublicRoutes(r)
 	r.Post("/cart/add-offer", handler.AddOfferToCartSubmit)
-
 
 	// 1. Test GET /offers (Public Offers Listing)
 	req := httptest.NewRequest(http.MethodGet, "/offers", nil)
@@ -330,8 +351,6 @@ func TestOffersWorkflowAndRendering(t *testing.T) {
 		t.Fatalf("expected status 303 or 200 for POST /cart/add-offer, got %d", recPostOffer.Code)
 	}
 }
-
-
 
 func containsStr(s, substr string) bool {
 	return len(s) > 0 && len(substr) > 0 && (s == substr || len(s) >= len(substr) && stringContains(s, substr))

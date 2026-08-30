@@ -1,6 +1,7 @@
 package pages
 
 import (
+	"github.com/muhiya/dawa24-store/internal/ui/components"
 	"fmt"
 
 	"github.com/muhiya/dawa24-store/internal/modules/smartorder"
@@ -98,7 +99,7 @@ templ SmartOrderReviewPage(lang, dir string, data SmartOrderReviewData) {
 
 			if data.Error != "" {
 				<div style="padding:1rem 1.25rem; border-radius:var(--radius-xl); background:rgba(239,68,68,0.10); border:1px solid var(--danger); font-weight:700; color:var(--danger);">
-					⚠️ { data.Error }
+					{ data.Error }
 				</div>
 			}
 
@@ -161,7 +162,7 @@ templ SmartOrderReviewPage(lang, dir string, data SmartOrderReviewData) {
 					<!-- Group Header Strip -->
 					<div style="padding:1rem 1.35rem; background:var(--surface-sunken); border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.75rem;">
 						<div style="display:flex; align-items:center; gap:0.6rem;">
-							<span style="font-size:1.15rem;">🏢</span>
+							<span style="font-size:1.15rem;">@components.IconBuilding("icon-sm")</span>
 							<div>
 								<div style="font-size:1rem; font-weight:800; color:var(--text);">
 									{ g.VendorName }
@@ -171,7 +172,7 @@ templ SmartOrderReviewPage(lang, dir string, data SmartOrderReviewData) {
 								</div>
 							</div>
 						</div>
-						<div style="display:flex; align-items:center; gap:0.75rem;">
+						<div class="d-flex items-center gap-3">
 							<span style="font-size:0.8rem; color:var(--text-secondary); font-weight:700;">إجمالي المورد:</span>
 							<span class="tabular-nums" style="font-size:1.2rem; font-weight:900; color:var(--accent);">
 								{ g.Subtotal.String() } ج.م
@@ -181,7 +182,7 @@ templ SmartOrderReviewPage(lang, dir string, data SmartOrderReviewData) {
 
 					<!-- 10-Column Master Responsive Table in Exact Specified Order -->
 					<div class="table-responsive" style="overflow-x:auto;">
-						<table class="table" style="margin:0; width:100%; border-collapse:collapse; font-size:0.85rem;">
+						<table class="data-table" style="font-size:0.85rem">
 							<thead>
 								<tr style="background:var(--surface-raised); border-bottom:1px solid var(--border); font-size:0.8rem; color:var(--text-secondary);">
 									<th style="padding:0.75rem 1rem; min-width:180px;">1. اسم الصنف</th>
@@ -281,7 +282,7 @@ templ SmartOrderReviewPage(lang, dir string, data SmartOrderReviewData) {
 										<td style="padding:0.75rem 0.75rem; text-align:center;">
 											if l.AvailableStock > 0 {
 												<span class="badge badge-emerald tabular-nums" style="font-size:0.75rem; font-weight:800;">
-													🟢 { fmt.Sprintf("%d", l.AvailableStock) } عبوة
+													{ fmt.Sprintf("%d", l.AvailableStock) } عبوة
 												</span>
 											} else {
 												<span class="badge badge-rose" style="font-size:0.725rem; font-weight:700;">
@@ -304,7 +305,7 @@ templ SmartOrderReviewPage(lang, dir string, data SmartOrderReviewData) {
 													{ fmt.Sprintf("%.1f%%", l.DiscountPct) }
 												</span>
 											} else {
-												<span class="text-secondary" style="font-size:0.75rem;">0%</span>
+												<span class="text-secondary text-xs">0%</span>
 											}
 										</td>
 
@@ -319,11 +320,11 @@ templ SmartOrderReviewPage(lang, dir string, data SmartOrderReviewData) {
 										<td style="padding:0.75rem 0.85rem; text-align:center;">
 											<div style="display:flex; align-items:center; justify-content:center; gap:0.4rem;">
 												<span class="badge badge-emerald" style="font-size:0.7rem; font-weight:800;">
-													جاهز للطلب ✓
+													جاهز للطلب 
 												</span>
 												<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/customer/smart-order/%s/lines/%d/remove", data.Run.PublicID, l.Line.ID)) } style="margin:0;">
 													<button type="submit" class="btn btn-ghost btn-xs text-danger" style="width:24px; height:24px; padding:0; border-radius:var(--radius-full);" title="حذف الصنف من الطلب">
-														✕
+														@components.IconX("icon-sm")
 													</button>
 												</form>
 											</div>
@@ -349,7 +350,7 @@ templ SmartOrderReviewPage(lang, dir string, data SmartOrderReviewData) {
 				<details class="so-blocked-panel">
 					<summary class="so-blocked-summary">
 						<span class="so-blocked-title">
-							⚠️ { fmt.Sprintf("%d صنف مستبعد ولن يُطلب", len(data.Excluded)) }
+							{ fmt.Sprintf("%d صنف مستبعد ولن يُطلب", len(data.Excluded)) }
 						</span>
 						<span class="so-blocked-hint">
 							لم تكتمل شروط توريدها. اضغط لمراجعتها ومعالجتها قبل الاعتماد.
@@ -363,7 +364,7 @@ templ SmartOrderReviewPage(lang, dir string, data SmartOrderReviewData) {
 					</div>
 
 					<div class="table-responsive" style="overflow-x:auto;">
-						<table class="table" style="margin:0; width:100%; border-collapse:collapse; font-size:0.825rem;">
+						<table class="data-table" style="font-size:0.825rem">
 							<thead>
 								<tr style="background:var(--surface-sunken); border-bottom:1px solid var(--border); font-size:0.775rem; color:var(--text-secondary);">
 									<th style="padding:0.6rem 0.75rem;">اسم الصنف المطلوب</th>
@@ -375,7 +376,7 @@ templ SmartOrderReviewPage(lang, dir string, data SmartOrderReviewData) {
 							</thead>
 							<tbody>
 								for _, l := range data.Excluded {
-									<tr style="border-bottom:1px solid var(--border);">
+									<tr class="rule-bottom">
 										<td style="padding:0.6rem 0.75rem; font-weight:700; color:var(--text);">
 											{ l.RawName }
 										</td>
@@ -431,7 +432,7 @@ templ SmartOrderReviewPage(lang, dir string, data SmartOrderReviewData) {
 							style="font-weight:900; padding:0.75rem 2rem; font-size:1rem; border-radius:var(--radius-xl); box-shadow:0 4px 14px rgba(37,99,235,0.35);"
 							disabled?={ len(data.Groups) == 0 }
 						>
-							<span>اعتماد الطلب وإرسال أوامر الشراء ✓</span>
+							<span>اعتماد الطلب وإرسال أوامر الشراء </span>
 						</button>
 					</form>
 				</div>

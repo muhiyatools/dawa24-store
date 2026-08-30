@@ -227,9 +227,21 @@ type GatewaySettings struct {
 // AdminCredentials splits the stored admin credential into a username and
 // password. A value with no colon is a password for the conventional "admin"
 // account, which is how the settings screen has always accepted it.
+//
+// A value that does not look like a Gateway credential yields nothing at all.
+// SaveGatewaySettings already refuses to store one, but validating only on the
+// way in protects nothing that is already stored — and the production database
+// was found holding its own superuser password in this field, which the client
+// then sent as basic auth to a third-party host on every call. Returning empty
+// here is the containment: the value cannot leave the process no matter which
+// caller asks for it, and CanProvision reports false so the caller degrades to
+// its fallback instead of authenticating with a database credential.
 func (g *GatewaySettings) AdminCredentials() (username, password string) {
 	raw := strings.TrimSpace(g.APIKey)
 	if raw == "" {
+		return "", ""
+	}
+	if ValidateAdminCredential(raw) != nil {
 		return "", ""
 	}
 	if user, pass, found := strings.Cut(raw, ":"); found {

@@ -193,7 +193,7 @@ templ CustomerOrdersList(orders []*commerce.Order, lang string) {
 
 						<div class="order-card-meta">
 							<span class="d-flex items-center gap-1">
-								<span>📅</span>
+								<span>@components.IconClock("icon-sm")</span>
 								<span class="tabular-nums">{ o.CreatedAt.Format("2006-01-02 15:04") }</span>
 							</span>
 							if o.CustomerBranchName.Get(i18n.Lang(lang)) != "" {

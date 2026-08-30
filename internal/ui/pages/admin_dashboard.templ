@@ -48,7 +48,7 @@ templ AdminDashboard(stats AdminDashboardStats, pendingOrgs []*org.Organization,
 				<div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem;">
 					<div style="display:flex; align-items:center; gap:0.85rem;">
 						<div style="width:46px; height:46px; border-radius:14px; background:var(--accent-subtle, rgba(56,189,248,0.12)); color:var(--accent); display:flex; align-items:center; justify-content:center; font-size:1.4rem; border:1px solid rgba(56,189,248,0.25);">
-							📊
+							@components.IconBarChart("icon-sm")
 						</div>
 						<div>
 							<h1 style="font-size:1.25rem; font-weight:900; color:var(--text); margin:0; display:flex; align-items:center; gap:0.5rem;">
@@ -70,7 +70,7 @@ templ AdminDashboard(stats AdminDashboardStats, pendingOrgs []*org.Organization,
 
 						<!-- Live AI Status Pill -->
 						<div style="display:inline-flex; align-items:center; gap:0.4rem; padding:0.35rem 0.75rem; border-radius:30px; font-size:0.78rem; font-weight:700; background:var(--surface-sunken); border:1px solid var(--border);">
-							<span>🤖</span>
+							<span>@components.IconSparkles("icon-sm")</span>
 							<span style="color:var(--text-secondary);">بوابة الـ AI:</span>
 							if stats.GatewayOnline {
 								<span style="color:#10b981;">متصلة ومزامنة</span>
@@ -167,13 +167,13 @@ templ AdminDashboard(stats AdminDashboardStats, pendingOrgs []*org.Organization,
 							</a>
 						} else {
 							<span class="badge badge-emerald text-xs font-bold" style="padding:0.35rem 0.65rem; border-radius:6px;">
-								✓ التراخيص معتمدة
+								التراخيص معتمدة
 							</span>
 						}
 
 						if stats.PendingDepositsCount > 0 {
 							<a href="/admin/finance?tab=deposits" class="badge badge-sky font-bold text-xs" style="padding:0.35rem 0.65rem; border-radius:6px; text-decoration:none;">
-								💳 { fmt.Sprintf("%d شحن محفظة", stats.PendingDepositsCount) }
+								{ fmt.Sprintf("%d شحن محفظة", stats.PendingDepositsCount) }
 							</a>
 						}
 					</div>
@@ -195,7 +195,7 @@ templ AdminDashboard(stats AdminDashboardStats, pendingOrgs []*org.Organization,
 					<div style="display:flex; justify-content:space-between; align-items:center; padding-bottom:0.75rem; border-bottom:1px solid var(--border); margin-bottom:1rem;">
 						<div>
 							<h3 style="font-size:1.05rem; font-weight:800; color:var(--text); margin:0; display:flex; align-items:center; gap:0.4rem;">
-								<span>🛒</span>
+								<span>@components.IconCart("icon-sm")</span>
 								<span>حركة الكتالوج وأحدث أوامر التوريد</span>
 							</h3>
 							<p style="font-size:0.78rem; color:var(--text-secondary); margin:0.15rem 0 0 0;">
@@ -237,7 +237,7 @@ templ AdminDashboard(stats AdminDashboardStats, pendingOrgs []*org.Organization,
 						</div>
 					} else {
 						<div style="border:1px solid var(--border); border-radius:12px; overflow:hidden; background:var(--surface-sunken);">
-							<table class="b2b-table" style="margin:0; width:100%; font-size:0.8rem;">
+							<table class="data-table" style="font-size:0.8rem">
 								<thead>
 									<tr style="background:var(--surface-raised);">
 										<th style="padding:0.5rem 0.75rem;"># الطلب</th>
@@ -249,7 +249,7 @@ templ AdminDashboard(stats AdminDashboardStats, pendingOrgs []*org.Organization,
 								</thead>
 								<tbody>
 									for _, ord := range stats.RecentOrders {
-										<tr style="border-bottom:1px solid var(--border);">
+										<tr class="rule-bottom">
 											<td style="padding:0.5rem 0.75rem;" class="tabular-nums fw-800 text-primary">
 												<a href="/admin/orders" style="color:inherit; text-decoration:none;">
 													ORD-#{ fmt.Sprintf("%d", ord.ID) }
@@ -292,7 +292,7 @@ templ AdminDashboard(stats AdminDashboardStats, pendingOrgs []*org.Organization,
 					<div style="display:flex; justify-content:space-between; align-items:center; padding-bottom:0.75rem; border-bottom:1px solid var(--border); margin-bottom:1rem;">
 						<div>
 							<h3 style="font-size:1.05rem; font-weight:800; color:var(--text); margin:0; display:flex; align-items:center; gap:0.4rem;">
-								<span>🌐</span>
+								<span>@components.IconGlobe("icon-sm")</span>
 								<span>حركة الزوار وجاهزية البنية التحتية</span>
 							</h3>
 							<p style="font-size:0.78rem; color:var(--text-secondary); margin:0.15rem 0 0 0;">
@@ -308,7 +308,7 @@ templ AdminDashboard(stats AdminDashboardStats, pendingOrgs []*org.Organization,
 					<!-- Visitor Counter & Devices Grid -->
 					<div style="display:grid; grid-template-columns:1fr 1fr; gap:0.75rem; margin-bottom:1rem;">
 						<div style="background:var(--surface-sunken); border:1px solid var(--border); border-radius:12px; padding:0.75rem 1rem;">
-							<div style="font-size:0.75rem; color:var(--text-muted); font-weight:700;">إجمالي زوار المنصة</div>
+							<div class="label-strong">إجمالي زوار المنصة</div>
 							<div class="tabular-nums" style="font-size:1.4rem; font-weight:900; color:var(--accent); margin-top:2px;">
 								{ fmt.Sprintf("%d", stats.TotalVisitors) } <span style="font-size:0.75rem; font-weight:600; color:var(--text-muted);">زائر</span>
 							</div>
@@ -318,7 +318,7 @@ templ AdminDashboard(stats AdminDashboardStats, pendingOrgs []*org.Organization,
 						</div>
 
 						<div style="background:var(--surface-sunken); border:1px solid var(--border); border-radius:12px; padding:0.75rem 1rem;">
-							<div style="font-size:0.75rem; color:var(--text-muted); font-weight:700;">توزيع الأجهزة (Devices)</div>
+							<div class="label-strong">توزيع الأجهزة (Devices)</div>
 							<div style="display:flex; flex-direction:column; gap:0.35rem; margin-top:0.4rem; font-size:0.75rem;">
 								for devName, devCount := range stats.TopDevices {
 									<div style="display:flex; justify-content:space-between; align-items:center;">
@@ -326,15 +326,15 @@ templ AdminDashboard(stats AdminDashboardStats, pendingOrgs []*org.Organization,
 											if devName == "desktop" || devName == "حاسوب مكتبي (Desktop)" {
 												<span>💻</span>
 											} else {
-												<span>📱</span>
+												<span>@components.IconPhone("icon-sm")</span>
 											}
 											<span>{ devName }</span>
 										</span>
-										<strong class="tabular-nums" style="color:var(--text);">{ fmt.Sprintf("%d", devCount) }</strong>
+										<strong class="tabular-nums text-body">{ fmt.Sprintf("%d", devCount) }</strong>
 									</div>
 								}
 								if len(stats.TopDevices) == 0 {
-									<span style="color:var(--text-muted);">جاري جمع إحصائيات الأجهزة...</span>
+									<span class="text-muted">جاري جمع إحصائيات الأجهزة...</span>
 								}
 							</div>
 						</div>
@@ -346,16 +346,16 @@ templ AdminDashboard(stats AdminDashboardStats, pendingOrgs []*org.Organization,
 						<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(180px, 1fr)); gap:0.5rem; font-size:0.78rem;">
 							<div style="display:flex; justify-content:space-between; align-items:center; background:var(--surface-raised); padding:0.4rem 0.6rem; border-radius:6px; border:1px solid var(--border);">
 								<span style="color:var(--text-secondary); font-weight:600;">قاعدة PostgreSQL:</span>
-								<span style="color:#10b981; font-weight:800;">نشطة ✓</span>
+								<span style="color:#10b981; font-weight:800;">نشطة </span>
 							</div>
 							<div style="display:flex; justify-content:space-between; align-items:center; background:var(--surface-raised); padding:0.4rem 0.6rem; border-radius:6px; border:1px solid var(--border);">
 								<span style="color:var(--text-secondary); font-weight:600;">طوابير River Queue:</span>
-								<span style="color:#10b981; font-weight:800;">معالجة فورية ✓</span>
+								<span style="color:#10b981; font-weight:800;">معالجة فورية </span>
 							</div>
 							<div style="display:flex; justify-content:space-between; align-items:center; background:var(--surface-raised); padding:0.4rem 0.6rem; border-radius:6px; border:1px solid var(--border);">
 								<span style="color:var(--text-secondary); font-weight:600;">بوابة الذكاء الاصطناعي:</span>
 								if stats.GatewayOnline {
-									<span style="color:#10b981; font-weight:800;">متصلة ومزامنة ✓</span>
+									<span style="color:#10b981; font-weight:800;">متصلة ومزامنة </span>
 								} else {
 									<span style="color:#f59e0b; font-weight:800;">جاهزة للربط</span>
 								}
@@ -376,7 +376,7 @@ templ AdminDashboard(stats AdminDashboardStats, pendingOrgs []*org.Organization,
 					<div style="display:flex; justify-content:space-between; align-items:center; padding-bottom:0.75rem; border-bottom:1px solid var(--border); margin-bottom:1rem;">
 						<div>
 							<h3 style="font-size:1.05rem; font-weight:800; color:var(--text); margin:0; display:flex; align-items:center; gap:0.4rem;">
-								<span>🛡️</span>
+								<span>@components.IconShield("icon-sm")</span>
 								<span>طلبات اعتماد التراخيص والمنشآت</span>
 								if len(pendingOrgs) > 0 {
 									<span class="badge badge-amber text-xs fw-800">{ fmt.Sprintf("%d معلق", len(pendingOrgs)) }</span>
@@ -394,7 +394,7 @@ templ AdminDashboard(stats AdminDashboardStats, pendingOrgs []*org.Organization,
 
 					if len(pendingOrgs) == 0 {
 						<div style="padding:1.75rem 1rem; text-align:center; background:rgba(16, 185, 129, 0.05); border:1px solid rgba(16, 185, 129, 0.2); border-radius:12px;">
-							<div style="font-size:1.5rem; margin-bottom:0.3rem;">✓</div>
+							<div style="font-size:1.5rem; margin-bottom:0.3rem;">@components.IconCheck("icon-sm")</div>
 							<div style="font-weight:800; font-size:0.9rem; color:#10b981;">تم اعتماد وتدقيق كافة التراخيص بالكامل</div>
 							<div style="font-size:0.75rem; color:var(--text-secondary); margin-top:0.2rem;">لا توجد منشآت أو تراخيص معلقة بانتظار المراجعة حالياً.</div>
 						</div>
@@ -402,7 +402,7 @@ templ AdminDashboard(stats AdminDashboardStats, pendingOrgs []*org.Organization,
 						<div style="display:flex; flex-direction:column; gap:0.6rem;">
 							for _, po := range pendingOrgs {
 								<div style="background:var(--surface-sunken); border:1px solid var(--border); border-radius:12px; padding:0.75rem 1rem; display:flex; justify-content:space-between; align-items:center; gap:0.75rem;">
-									<div style="display:flex; align-items:center; gap:0.75rem;">
+									<div class="d-flex items-center gap-3">
 										<div style="width:36px; height:36px; border-radius:8px; background:var(--surface-raised); border:1px solid var(--border); display:flex; align-items:center; justify-content:center; color:var(--accent);">
 											@components.IconBuilding("icon-xs")
 										</div>
@@ -439,7 +439,7 @@ templ AdminDashboard(stats AdminDashboardStats, pendingOrgs []*org.Organization,
 					<div style="display:flex; justify-content:space-between; align-items:center; padding-bottom:0.75rem; border-bottom:1px solid var(--border); margin-bottom:1rem;">
 						<div>
 							<h3 style="font-size:1.05rem; font-weight:800; color:var(--text); margin:0; display:flex; align-items:center; gap:0.4rem;">
-								<span>🏢</span>
+								<span>@components.IconBuilding("icon-sm")</span>
 								<span>أحدث المنشآت المنضمة للمنظومة</span>
 							</h3>
 							<p style="font-size:0.78rem; color:var(--text-secondary); margin:0.15rem 0 0 0;">
@@ -460,7 +460,7 @@ templ AdminDashboard(stats AdminDashboardStats, pendingOrgs []*org.Organization,
 						<div style="display:flex; flex-direction:column; gap:0.6rem;">
 							for _, ro := range stats.RecentOrganizations {
 								<div style="background:var(--surface-sunken); border:1px solid var(--border); border-radius:12px; padding:0.75rem 1rem; display:flex; justify-content:space-between; align-items:center;">
-									<div style="display:flex; align-items:center; gap:0.75rem;">
+									<div class="d-flex items-center gap-3">
 										<div style="width:36px; height:36px; border-radius:8px; background:var(--surface-raised); border:1px solid var(--border); display:flex; align-items:center; justify-content:center; color:var(--accent);">
 											@components.IconBuilding("icon-xs")
 										</div>
@@ -480,7 +480,7 @@ templ AdminDashboard(stats AdminDashboardStats, pendingOrgs []*org.Organization,
 									</div>
 									<div>
 										if string(ro.Status) == "approved" {
-											<span class="badge badge-emerald text-xs fw-700">معتمد ✓</span>
+											<span class="badge badge-emerald text-xs fw-700">معتمد </span>
 										} else if string(ro.Status) == "pending" {
 											<span class="badge badge-amber text-xs fw-700">قيد المراجعة</span>
 										} else {

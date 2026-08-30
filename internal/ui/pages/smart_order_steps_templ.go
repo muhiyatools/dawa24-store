@@ -266,7 +266,7 @@ func SmartOrderMappingPage(lang, dir string, data SmartOrderMappingData) templ.C
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, "<div class=\"so-preview\"><strong class=\"so-preview-title\">معاينة أول الصفوف</strong><div class=\"table-responsive so-preview-table\"><table class=\"table\"><thead><tr class=\"so-preview-head\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, "<div class=\"so-preview\"><strong class=\"so-preview-title\">معاينة أول الصفوف</strong><div class=\"table-responsive so-preview-table\"><table class=\"data-table\"><thead><tr class=\"so-preview-head\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

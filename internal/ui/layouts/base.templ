@@ -4,60 +4,75 @@ import (
 	"github.com/muhiya/dawa24-store/internal/ui/components"
 )
 
+// Base is the document shell every page renders inside.
+//
+// Three things changed here and each was a real cost:
+//
+//   - Every stylesheet and script is served from this application. htmx, Alpine
+//     and Leaflet were loaded from unpkg and cdnjs on every request, which made
+//     each page render depend on two third-party hosts being up and fast, and
+//     two of the three carried no integrity attribute. The self-hosted copies
+//     were verified against the integrity hashes that were pinned here before
+//     they were moved.
+//
+//   - Leaflet is no longer loaded at all by default. It was on every page in
+//     the platform and is used by two of them. app.js pulls it in when a map
+//     element is actually present.
+//
+//   - Asset URLs carry a content hash instead of a hand-typed version string.
+//     The old ones had drifted: the stylesheets said 2026082903 and the script
+//     said 2026082901, so a CSS change could ship without its JavaScript.
+//
+// GetSiteSettings never returns nil — it falls back to a complete default — so
+// the nil check that used to wrap this entire template could not fire. It has
+// been removed rather than left to imply a failure mode that does not exist.
 templ Base(title string, lang string, dir string) {
-	if site := GetSiteSettings(ctx); site != nil {
-		<!DOCTYPE html>
-		<html lang={ lang } dir={ dir }>
-			<head>
-				<meta charset="UTF-8"/>
-				<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-				<meta name="color-scheme" content="light dark"/>
-				<title>{ title } | { site.SiteName }</title>
-				<script>
-					(function() {
-						var t = localStorage.getItem('dawa24-theme') || 'system';
-						var isDark = t === 'dark' || (t === 'system' && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
-						if (isDark) document.documentElement.setAttribute('data-theme', 'dark');
-						else document.documentElement.setAttribute('data-theme', 'light');
+	{{ site := GetSiteSettings(ctx) }}
+	<!DOCTYPE html>
+	<html lang={ lang } dir={ dir }>
+		<head>
+			<meta charset="UTF-8"/>
+			<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+			<meta name="color-scheme" content="light dark"/>
+			<title>{ title } | { site.SiteName }</title>
+			<script>
+				(function() {
+					var t = localStorage.getItem('dawa24-theme') || 'system';
+					var isDark = t === 'dark' || (t === 'system' && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
+					document.documentElement.setAttribute('data-theme', isDark ? 'dark' : 'light');
 
-						// Immediate early scroll restoration
-						try {
-							var raw = sessionStorage.getItem('dawa24_scroll_pos');
-							if (raw) {
-								var data = JSON.parse(raw);
-								if (data && typeof data.y === 'number' && (Date.now() - data.time < 20000)) {
-									window.scrollTo(0, data.y);
-								}
+					// Early scroll restoration, before first paint.
+					try {
+						var raw = sessionStorage.getItem('dawa24_scroll_pos');
+						if (raw) {
+							var data = JSON.parse(raw);
+							if (data && typeof data.y === 'number' && (Date.now() - data.time < 20000)) {
+								window.scrollTo(0, data.y);
 							}
-						} catch(e) {}
-					})();
-				</script>
-				<link rel="icon" type="image/png" href={ site.FaviconURL }/>
-				<link rel="shortcut icon" type="image/png" href={ site.FaviconURL }/>
-				<link rel="dns-prefetch" href="//fonts.googleapis.com"/>
-				<link rel="dns-prefetch" href="//fonts.gstatic.com"/>
-				<link rel="dns-prefetch" href="//cdnjs.cloudflare.com"/>
-				<link rel="dns-prefetch" href="//unpkg.com"/>
-				<link rel="preconnect" href="https://fonts.googleapis.com"/>
-				<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
-				<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700;800;900&display=swap"/>
-				<link rel="stylesheet" href="/static/css/tokens.css?v=2026082903"/>
-				<link rel="stylesheet" href="/static/css/base.css?v=2026082903"/>
-				<link rel="stylesheet" href="/static/css/layout.css?v=2026082903"/>
-				<link rel="stylesheet" href="/static/css/glass.css?v=2026082903"/>
-				<link rel="stylesheet" href="/static/css/components.css?v=2026082903"/>
-				<link rel="stylesheet" href="/static/css/utilities.css?v=2026082903"/>
-				<link rel="stylesheet" href="/static/css/app.css?v=2026082903"/>
-				<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"/>
-				<script defer src="https://unpkg.com/htmx.org@1.9.10" integrity="sha384-D1Kt99CQMDuVetoL1lrYwg5t+9QdHe7NLX/SoJYkXDFfX37iInKRy5xLSi8nO7UC" crossorigin="anonymous"></script>
-				<script defer src="https://unpkg.com/alpinejs@3.13.5/dist/cdn.min.js"></script>
-				<script defer src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
-				<script defer src="/static/js/app.js?v=2026082901"></script>
-			</head>
-			<body>
-				{ children... }
-				@components.CapsuleAssistant()
-			</body>
-		</html>
-	}
+						}
+					} catch (e) {}
+				})();
+			</script>
+			// Asset leaves an uploaded favicon URL alone and hashes a bundled one.
+			<link rel="icon" type="image/png" href={ Asset(site.FaviconURL) }/>
+			<link rel="shortcut icon" type="image/png" href={ Asset(site.FaviconURL) }/>
+			<link rel="preconnect" href="https://fonts.googleapis.com"/>
+			<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+			<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700;800;900&display=swap"/>
+			<link rel="stylesheet" href={ Asset("/static/css/tokens.css") }/>
+			<link rel="stylesheet" href={ Asset("/static/css/base.css") }/>
+			<link rel="stylesheet" href={ Asset("/static/css/layout.css") }/>
+			<link rel="stylesheet" href={ Asset("/static/css/glass.css") }/>
+			<link rel="stylesheet" href={ Asset("/static/css/components.css") }/>
+			<link rel="stylesheet" href={ Asset("/static/css/utilities.css") }/>
+			<link rel="stylesheet" href={ Asset("/static/css/app.css") }/>
+			<script defer src={ Asset("/static/vendor/htmx-1.9.10.min.js") }></script>
+			<script defer src={ Asset("/static/vendor/alpine-3.13.5.min.js") }></script>
+			<script defer src={ Asset("/static/js/app.js") }></script>
+		</head>
+		<body>
+			{ children... }
+			@components.CapsuleAssistant()
+		</body>
+	</html>
 }

@@ -28,11 +28,11 @@ type TeamDetectedCols struct {
 
 // ExcelRoleInfo represents a distinct role found in the spreadsheet and its mapped platform role.
 type ExcelRoleInfo struct {
-	RawName        string `json:"raw_name"`          // Role name as written in the Excel file
-	RowCount       int    `json:"row_count"`         // How many rows carry this role
-	MatchedRoleID  int64  `json:"matched_role_id"`   // Mapped tenant role ID
-	MatchedRoleKey string `json:"matched_role_key"`  // Mapped tenant role key
-	MatchedName    string `json:"matched_name"`      // Display name of matched role
+	RawName        string `json:"raw_name"`         // Role name as written in the Excel file
+	RowCount       int    `json:"row_count"`        // How many rows carry this role
+	MatchedRoleID  int64  `json:"matched_role_id"`  // Mapped tenant role ID
+	MatchedRoleKey string `json:"matched_role_key"` // Mapped tenant role key
+	MatchedName    string `json:"matched_name"`     // Display name of matched role
 	IsAutoMatched  bool   `json:"is_auto_matched"`
 }
 
@@ -56,7 +56,7 @@ type TeamImportRow struct {
 	IsValid         bool   `json:"is_valid"`
 	ValidationError string `json:"validation_error,omitempty"`
 	IsExistingUser  bool   `json:"is_existing_user"` // Whether user account already exists in DB
-	ImportStatus    string `json:"import_status"`     // "ready", "imported", "skipped", "failed"
+	ImportStatus    string `json:"import_status"`    // "ready", "imported", "skipped", "failed"
 }
 
 // TeamRoleOption is a selectable role in the organization.

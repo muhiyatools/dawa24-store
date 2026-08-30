@@ -16,10 +16,7 @@ import (
 func (h *UIHandler) ContactPage(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	lang, dir := h.localeAndDir(r)
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	if err := pages.ContactPage(lang, dir, false).Render(ctx, w); err != nil {
-		h.log.ErrorContext(ctx, "render contact page", "error", err)
-	}
+	h.renderPage(ctx, w, "render contact page", pages.ContactPage(lang, dir, false))
 }
 
 // ContactSubmit records a public contact inquiry and re-renders the form with a
@@ -47,10 +44,7 @@ func (h *UIHandler) ContactSubmit(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	if err := pages.ContactPage(lang, dir, submitted).Render(ctx, w); err != nil {
-		h.log.ErrorContext(ctx, "render contact page after submit", "error", err)
-	}
+	h.renderPage(ctx, w, "render contact page after submit", pages.ContactPage(lang, dir, submitted))
 }
 
 // AdminMessagesPage renders the platform contact-message inbox.
@@ -63,10 +57,7 @@ func (h *UIHandler) AdminMessagesPage(w http.ResponseWriter, r *http.Request) {
 		messages, _ = h.adminSvc.ListContactMessages(database.AsSystem(ctx), "", 200, 0)
 	}
 
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	if err := pages.AdminMessages(lang, dir, messages).Render(ctx, w); err != nil {
-		h.log.ErrorContext(ctx, "render admin messages", "error", err)
-	}
+	h.renderPage(ctx, w, "render admin messages", pages.AdminMessages(lang, dir, messages))
 }
 
 // AdminMessageToggleSubmit toggles the status of a contact message between unread and read.

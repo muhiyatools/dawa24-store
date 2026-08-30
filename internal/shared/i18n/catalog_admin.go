@@ -7,11 +7,12 @@ func loadAdminKeys(e *engine) {
 	addKey(e, "admin.total_organizations", "admin", "إجمالي المنشآت", "Total Organizations", "Dashboard metric orgs")
 	addKey(e, "admin.total_orders", "admin", "إجمالي الطلبات", "Total Orders", "Dashboard metric orders")
 	addKey(e, "admin.total_revenue", "admin", "إجمالي حجم التداول", "Total Trade Volume", "Dashboard metric revenue")
+	addKey(e, "admin.jobs_unknown_company", "admin", "منشأة معتمدة", "Verified organization", "Fallback company name on the admin jobs list")
 
 	// Translations Manager
 	addKey(e, "admin.translations_title", "admin", "اللغات وإدارة الترجمة والتدويل (i18n)", "Localization & Translations Manager", "Translations manager page title")
 	addKey(e, "admin.translations_sub", "admin", "إدارة كافة نصوص ومصطلحات المنصة باللغتين العربية والإنجليزية، وتعديل الترجمات ديناميكياً مع التطبيق الفوري.", "Manage all platform text and terms in Arabic & English with real-time runtime override support.", "Translations page subtitle")
-	addKey(e, "admin.translations_sync", "admin", "🔄 مزامنة المفاتيح الافتراضية", "🔄 Sync Default Keys", "Sync default keys button")
+	addKey(e, "admin.translations_sync", "admin", "مزامنة المفاتيح الافتراضية", "Sync Default Keys", "Sync default keys button")
 	addKey(e, "admin.translations_total_keys", "admin", "إجمالي المفاتيح", "Total Keys", "Stats total keys")
 	addKey(e, "admin.translations_custom_overrides", "admin", "الترجمات المخصصة", "Custom Overrides", "Stats custom overrides")
 	addKey(e, "admin.translations_namespaces", "admin", "الأقسام والتصنيفات", "Namespaces", "Stats namespaces")

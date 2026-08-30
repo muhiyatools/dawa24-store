@@ -13,7 +13,6 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"net/url"
-	"os"
 	"strings"
 	"testing"
 	"time"
@@ -413,6 +412,8 @@ func TestAdminProductImagesUploadAndMappingFlow(t *testing.T) {
 		t.Errorf("NotFoundRows = %d; want 1 (for UNKNOWN-999)", cur.NotFoundRows)
 	}
 
-	// Cleanup test uploads
-	_ = os.RemoveAll(UploadBaseDir)
+	// No cleanup here. UploadBaseDir is the *default* relative directory, so
+	// removing it deleted internal/ui/data/uploads -- tracked files included --
+	// on every run. TestMain points uploads at a temporary directory and
+	// removes that instead.
 }

@@ -16,12 +16,12 @@ templ VendorOrganizationPage(lang, dir string, profile *org.SupplierOrgProfile, 
 			if noticeMsg != "" {
 				if noticeType == "error" {
 					<div class="alert alert-danger mb-0">
-						<span class="text-xl">⚠️</span>
+						<span class="text-xl">@components.IconAlert("icon-sm")</span>
 						<span>{ noticeMsg }</span>
 					</div>
 				} else {
 					<div class="alert alert-success mb-0">
-						<span class="text-xl">✅</span>
+						<span class="text-xl">@components.IconCheckCircle("icon-sm")</span>
 						<span>{ noticeMsg }</span>
 					</div>
 				}
@@ -32,7 +32,7 @@ templ VendorOrganizationPage(lang, dir string, profile *org.SupplierOrgProfile, 
 				<div class="flex-between items-center flex-wrap gap-4">
 					<div class="d-flex items-center gap-3">
 						<div class="user-avatar-badge text-xl">
-							🏢
+							@components.IconBuilding("icon-sm")
 						</div>
 						<div>
 							<h1 class="text-2xl font-black text-primary m-0">
@@ -46,7 +46,7 @@ templ VendorOrganizationPage(lang, dir string, profile *org.SupplierOrgProfile, 
 					if profile.ID > 0 {
 						<a href={ templ.SafeURL(fmt.Sprintf("/suppliers/%d", profile.ID)) } target="_blank" class="btn btn-secondary font-bold gap-2">
 							@components.IconGlobe("icon-xs")
-							<span>عرض الصفحة العامة للمورد 🌐</span>
+							<span>عرض الصفحة العامة للمورد </span>
 						</a>
 					}
 				</div>
@@ -59,7 +59,7 @@ templ VendorOrganizationPage(lang, dir string, profile *org.SupplierOrgProfile, 
 				<div class="d-flex flex-col gap-4">
 					<div class="d-flex items-center gap-3 pb-3 border-b">
 						<div class="user-avatar-badge">
-							🏢
+							@components.IconBuilding("icon-sm")
 						</div>
 						<div>
 							<h3 class="text-base font-extrabold text-primary m-0">
@@ -115,7 +115,7 @@ templ VendorOrganizationPage(lang, dir string, profile *org.SupplierOrgProfile, 
 				<div class="glass-panel p-5 mb-0 d-flex flex-col gap-4 border">
 					<div class="d-flex items-center gap-3">
 						<div class="user-avatar-badge text-lg">
-							💰
+							@components.IconWallet("icon-sm")
 						</div>
 						<div>
 							<h3 class="text-base font-extrabold text-primary m-0">
@@ -170,7 +170,7 @@ templ VendorOrganizationPage(lang, dir string, profile *org.SupplierOrgProfile, 
 				<div class="d-flex flex-col gap-4">
 					<div class="d-flex items-center gap-3 pb-3 border-b">
 						<div class="user-avatar-badge">
-							📞
+							@components.IconPhone("icon-sm")
 						</div>
 						<div>
 							<h3 class="text-base font-extrabold text-primary m-0">
@@ -252,7 +252,7 @@ templ VendorOrganizationPage(lang, dir string, profile *org.SupplierOrgProfile, 
 				<div class="d-flex flex-col gap-4">
 					<div class="d-flex items-center gap-3 pb-3 border-b">
 						<div class="user-avatar-badge">
-							📝
+							@components.IconEdit("icon-sm")
 						</div>
 						<div>
 							<h3 class="text-base font-extrabold text-primary m-0">
@@ -342,7 +342,7 @@ templ VendorOrganizationPage(lang, dir string, profile *org.SupplierOrgProfile, 
 						إلغاء والعودة
 					</a>
 					<button type="submit" class="btn btn-primary font-extrabold px-6">
-						<span>حفظ التعديلات والتحديث الفوري 💾</span>
+						<span>حفظ التعديلات والتحديث الفوري </span>
 					</button>
 				</div>
 

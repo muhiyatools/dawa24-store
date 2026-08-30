@@ -121,10 +121,7 @@ func (h *UIHandler) CustomerUserOrganizationsPage(w http.ResponseWriter, r *http
 		}
 	}
 
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	if err := pages.CustomerUserOrganizationsPage(lang, dir, data, actor.Permissions).Render(ctx, w); err != nil {
-		h.log.ErrorContext(ctx, "render customer user organizations", "error", err)
-	}
+	h.renderPage(ctx, w, "render customer user organizations", pages.CustomerUserOrganizationsPage(lang, dir, data, actor.Permissions))
 }
 
 // CustomerUserOrganizationCreateSubmit submits a new link request to a vendor organization.

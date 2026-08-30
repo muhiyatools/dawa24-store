@@ -56,7 +56,7 @@ func jobInitial(company string) string {
 	if len(runes) >= 2 {
 		return string(runes[0:1])
 	}
-	return "🏢"
+	return ""
 }
 
 // JobsContent renders the core jobs board view.
@@ -81,7 +81,7 @@ templ JobsContent(data JobsPageData, lang, dir string) {
 
 			<!-- Post Job Button (Shown for Pharmacies, Vendors & Admins) -->
 			if data.CanPostJob {
-				<div style="display:flex; align-items:center; gap:0.5rem;">
+				<div class="d-flex items-center gap-2">
 					<a href={ templ.SafeURL(data.PostJobURL) } class="btn btn-primary btn-sm fw-700" style="gap:0.4rem;">
 						@components.IconPlus("icon-xs")
 						<span>نشر وظيفة جديدة</span>
@@ -209,7 +209,7 @@ templ JobsContent(data JobsPageData, lang, dir string) {
 										</div>
 									</div>
 
-									<span class="tabular-nums text-xs text-muted" style="white-space:nowrap;">
+									<span class="tabular-nums text-xs text-muted nowrap">
 										{ item.Job.CreatedAt.Format("2006-01-02") }
 									</span>
 								</div>
@@ -230,7 +230,7 @@ templ JobsContent(data JobsPageData, lang, dir string) {
 										</span>
 									}
 									<span class="badge badge-sky text-xs">
-										💼 دوام كامل
+										دوام كامل
 									</span>
 								</div>
 
@@ -335,7 +335,7 @@ templ JobDetailContent(data JobDetailData, lang, dir string) {
 				<div class="job-detail-card">
 					<div>
 						<div style="display:flex; justify-content:space-between; align-items:center; gap:0.5rem; flex-wrap:wrap; margin-bottom:0.65rem;">
-							<div style="display:flex; align-items:center; gap:0.5rem;">
+							<div class="d-flex items-center gap-2">
 								<span class="badge badge-emerald text-xs fw-700">
 									@components.IconCheckCircle("icon-xs")
 									<span>فرصة عمل معتمدة</span>
@@ -422,19 +422,19 @@ templ JobDetailContent(data JobDetailData, lang, dir string) {
 					</h3>
 					<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:0.75rem; margin-top:0.25rem;">
 						<div style="display:flex; align-items:center; gap:0.5rem; font-size:0.875rem; color:var(--text-secondary);">
-							<span style="color:var(--success);">✓</span>
+							<span style="color:var(--success);">@components.IconCheck("icon-sm")</span>
 							<span>تأمينات اجتماعية وطبية شاملة</span>
 						</div>
 						<div style="display:flex; align-items:center; gap:0.5rem; font-size:0.875rem; color:var(--text-secondary);">
-							<span style="color:var(--success);">✓</span>
+							<span style="color:var(--success);">@components.IconCheck("icon-sm")</span>
 							<span>حوافز شهرية ومكافآت أداء</span>
 						</div>
 						<div style="display:flex; align-items:center; gap:0.5rem; font-size:0.875rem; color:var(--text-secondary);">
-							<span style="color:var(--success);">✓</span>
+							<span style="color:var(--success);">@components.IconCheck("icon-sm")</span>
 							<span>إجازات سنوية ورسمية مدفوعة</span>
 						</div>
 						<div style="display:flex; align-items:center; gap:0.5rem; font-size:0.875rem; color:var(--text-secondary);">
-							<span style="color:var(--success);">✓</span>
+							<span style="color:var(--success);">@components.IconCheck("icon-sm")</span>
 							<span>فرص ترقي وتطوير مهني مستمر</span>
 						</div>
 					</div>
@@ -504,7 +504,7 @@ templ JobDetailContent(data JobDetailData, lang, dir string) {
 						</div>
 					} else if !data.IsJobSeeker {
 						<div style="text-align:center; padding:1.25rem; background:rgba(245,158,11,0.08); border:1px solid rgba(245,158,11,0.3); border-radius:var(--radius-lg);">
-							<div style="font-size:1.5rem; margin-bottom:0.4rem;">⚠️</div>
+							<div style="font-size:1.5rem; margin-bottom:0.4rem;">@components.IconAlert("icon-sm")</div>
 							<h4 style="font-weight:800; font-size:0.95rem; color:var(--text); margin:0 0 0.35rem 0;">
 								التقديم متاح فقط لحسابات (باحث عن عمل)
 							</h4>
@@ -552,7 +552,7 @@ templ JobDetailContent(data JobDetailData, lang, dir string) {
 
 				<!-- Safety & Verification Notice -->
 				<div style="background:var(--surface-sunken); border:1px solid var(--border); border-radius:var(--radius-lg); padding:0.85rem 1rem; font-size:0.775rem; color:var(--text-muted); line-height:1.5;">
-					<div style="font-weight:700; color:var(--text-secondary); margin-bottom:0.25rem;">🛡️ ضمان الأمان والنزاهة</div>
+					<div style="font-weight:700; color:var(--text-secondary); margin-bottom:0.25rem;">ضمان الأمان والنزاهة</div>
 					تضمن منصة دواء24 التحقق من كافة جهات العمل المنشورة. لا تطلب أي جهة معتمدة رسوماً مقابل التقديم للوظائف.
 				</div>
 

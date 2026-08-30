@@ -13,6 +13,8 @@ import (
 	"sync"
 
 	"github.com/go-chi/chi/v5"
+
+	"github.com/muhiya/dawa24-store/internal/ui/layouts"
 )
 
 //go:embed static/*
@@ -80,6 +82,35 @@ func initStaticAssetCache() {
 	})
 }
 
+// AssetURL returns the public URL for an embedded asset with its content hash
+// appended as a cache-busting query parameter.
+//
+// It replaces a version string that was typed into the layout by hand and had
+// already drifted: the stylesheets carried ?v=2026082903 while app.js carried
+// ?v=2026082901, so a CSS change shipped without the JS change that went with
+// it, and both relied on someone remembering to edit the layout at all. The
+// hash is computed from the file, so it cannot be forgotten and cannot be
+// wrong.
+//
+// path is the URL path, e.g. "/static/css/app.css". An unknown path is returned
+// unchanged rather than failing the render — a missing stylesheet is a visible
+// bug, and a blank page is not a better way to report it.
+func AssetURL(path string) string {
+	assetOnce.Do(initStaticAssetCache)
+
+	key := strings.TrimPrefix(path, "/static")
+	asset, ok := assetCache[key]
+	if !ok {
+		return path
+	}
+	// etag is a quoted hex digest; eight characters distinguish any build.
+	digest := strings.Trim(asset.etag, `"`)
+	if len(digest) > 8 {
+		digest = digest[:8]
+	}
+	return path + "?v=" + digest
+}
+
 // RegisterStaticRoutes mounts embedded static assets with in-RAM caching, strong ETags, and 304 Not Modified support.
 func RegisterStaticRoutes(r chi.Router) {
 	assetOnce.Do(initStaticAssetCache)
@@ -133,4 +164,11 @@ func RegisterStaticRoutes(r chi.Router) {
 		w.WriteHeader(http.StatusOK)
 		_, _ = w.Write(asset.content)
 	})
+}
+
+// Layout templates resolve asset URLs through layouts.Asset, which cannot call
+// into this package directly without an import cycle. Installing the resolver
+// here keeps the hash computation in one place.
+func init() {
+	layouts.Asset = AssetURL
 }

@@ -131,10 +131,7 @@ func (h *UIHandler) CompareResultsPage(w http.ResponseWriter, r *http.Request) {
 		filter = "all"
 	}
 
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	if err := pages.CompareResultsPage(lang, dir, result, filter).Render(ctx, w); err != nil {
-		h.log.ErrorContext(ctx, "render compare results", "error", err)
-	}
+	h.renderPage(ctx, w, "render compare results", pages.CompareResultsPage(lang, dir, result, filter))
 }
 
 // CompareHeadToHeadPage handles head-to-head comparison between two suppliers.
@@ -242,10 +239,7 @@ func (h *UIHandler) CompareHeadToHeadPage(w http.ResponseWriter, r *http.Request
 		IsCustomer:   actor.IsCustomer(),
 	}
 
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	if err := pages.CompareHeadToHeadPage(lang, dir, pageData).Render(ctx, w); err != nil {
-		h.log.ErrorContext(ctx, "render head to head page", "error", err)
-	}
+	h.renderPage(ctx, w, "render head to head page", pages.CompareHeadToHeadPage(lang, dir, pageData))
 }
 
 // CompareMarketBenchmarkPage handles benchmarking a supplier file against platform market suppliers.
@@ -331,10 +325,7 @@ func (h *UIHandler) CompareMarketBenchmarkPage(w http.ResponseWriter, r *http.Re
 		IsCustomer:  actor.IsCustomer(),
 	}
 
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	if err := pages.CompareMarketBenchmarkPage(lang, dir, pageData).Render(ctx, w); err != nil {
-		h.log.ErrorContext(ctx, "render market benchmark page", "error", err)
-	}
+	h.renderPage(ctx, w, "render market benchmark page", pages.CompareMarketBenchmarkPage(lang, dir, pageData))
 }
 
 // CompareMarketIntelligencePage renders the market intelligence dashboard.
@@ -374,10 +365,7 @@ func (h *UIHandler) CompareMarketIntelligencePage(w http.ResponseWriter, r *http
 		IsCustomer: actor.IsCustomer(),
 	}
 
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	if err := pages.CompareMarketIntelligencePage(lang, dir, pageData).Render(ctx, w); err != nil {
-		h.log.ErrorContext(ctx, "render market intelligence page", "error", err)
-	}
+	h.renderPage(ctx, w, "render market intelligence page", pages.CompareMarketIntelligencePage(lang, dir, pageData))
 }
 
 // MarketDiscountsPage renders market-wide approved discounts across all suppliers and warehouses.
@@ -481,8 +469,5 @@ func (h *UIHandler) MarketDiscountsPage(w http.ResponseWriter, r *http.Request) 
 		}
 	}
 
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	if err := pages.MarketDiscountsPage(lang, dir, actor, result, filter, currentView).Render(ctx, w); err != nil {
-		h.log.ErrorContext(ctx, "render market discounts", "error", err)
-	}
+	h.renderPage(ctx, w, "render market discounts", pages.MarketDiscountsPage(lang, dir, actor, result, filter, currentView))
 }

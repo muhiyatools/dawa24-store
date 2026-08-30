@@ -42,10 +42,7 @@ func (h *UIHandler) CustomerSavingProductsImportPage(w http.ResponseWriter, r *h
 		NoticeMsg:           noticeMsg,
 	}
 
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	if err := pages.SavingImportPage(view, lang, dir).Render(ctx, w); err != nil {
-		h.log.ErrorContext(ctx, "render customer saving import page", "error", err)
-	}
+	h.renderPage(ctx, w, "render customer saving import page", pages.SavingImportPage(view, lang, dir))
 }
 
 // CustomerSavingProductsImportUploadSubmit handles file upload and creates new import session.
@@ -197,10 +194,7 @@ func (h *UIHandler) CustomerSavingProductsImportSessionPage(w http.ResponseWrite
 		NoticeMsg:           noticeMsg,
 	}
 
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	if err := pages.SavingImportPage(view, lang, dir).Render(ctx, w); err != nil {
-		h.log.ErrorContext(ctx, "render customer saving import session page", "error", err)
-	}
+	h.renderPage(ctx, w, "render customer saving import session page", pages.SavingImportPage(view, lang, dir))
 }
 
 // CustomerSavingProductsSampleXLSX streams download of a clean Excel template.

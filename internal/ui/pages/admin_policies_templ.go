@@ -41,7 +41,15 @@ func AdminPoliciesPanel(lang, dir string, currentKey string, policies []*platfor
 		}
 		ctx = templ.ClearChildren(ctx)
 		_ = dir
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"glass-panel p-6 mb-6\" x-data=\"{ policyFilter: 'all' }\"><div class=\"flex-between items-center flex-wrap gap-4 mb-6\"><div class=\"d-flex items-center gap-3\"><div class=\"user-avatar-badge text-xl\">📜</div><div><h2 class=\"text-xl font-black text-primary m-0\">إدارة إصدارات السياسات والوثائق القانونية</h2><p class=\"text-xs text-secondary m-0 mt-1\">تعديل ونشر الإصدارات المحدثة لشروط الاستخدام، سياسة الخصوصية، والاتفاقيات التجارية باللغتين العربية والإنجليزية</p></div></div><div class=\"d-flex items-center gap-2\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"glass-panel p-6 mb-6\" x-data=\"{ policyFilter: 'all' }\"><div class=\"flex-between items-center flex-wrap gap-4 mb-6\"><div class=\"d-flex items-center gap-3\"><div class=\"user-avatar-badge text-xl\">")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = components.IconFileText("icon-sm").Render(ctx, templ_7745c5c3_Buffer)
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</div><div><h2 class=\"text-xl font-black text-primary m-0\">إدارة إصدارات السياسات والوثائق القانونية</h2><p class=\"text-xs text-secondary m-0 mt-1\">تعديل ونشر الإصدارات المحدثة لشروط الاستخدام، سياسة الخصوصية، والاتفاقيات التجارية باللغتين العربية والإنجليزية</p></div></div><div class=\"d-flex items-center gap-2\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -61,7 +69,7 @@ func AdminPoliciesPanel(lang, dir string, currentKey string, policies []*platfor
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, " <span>إنشاء إصدار جديد من سياسة</span>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, " <span>إنشاء إصدار جديد من سياسة</span>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -71,7 +79,7 @@ func AdminPoliciesPanel(lang, dir string, currentKey string, policies []*platfor
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "</div></div><!-- Filter by Policy Type --><div class=\"cb-tabs-nav m-0 mb-6 pb-4 border-b\"><button type=\"button\" class=\"cb-tab-btn\" :class=\"policyFilter === 'all' ? 'active' : ''\" @click=\"policyFilter = 'all'\"><span>كافة السياسات (")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "</div></div><!-- Filter by Policy Type --><div class=\"cb-tabs-nav m-0 mb-6 pb-4 border-b\"><button type=\"button\" class=\"cb-tab-btn\" :class=\"policyFilter === 'all' ? 'active' : ''\" @click=\"policyFilter = 'all'\"><span>كافة السياسات (")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -84,22 +92,30 @@ func AdminPoliciesPanel(lang, dir string, currentKey string, policies []*platfor
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, ")</span></button> <button type=\"button\" class=\"cb-tab-btn\" :class=\"policyFilter === 'terms' ? 'active' : ''\" @click=\"policyFilter = 'terms'\"><span>شروط الاستخدام (Terms)</span></button> <button type=\"button\" class=\"cb-tab-btn\" :class=\"policyFilter === 'privacy' ? 'active' : ''\" @click=\"policyFilter = 'privacy'\"><span>سياسة الخصوصية (Privacy)</span></button> <button type=\"button\" class=\"cb-tab-btn\" :class=\"policyFilter === 'refund' ? 'active' : ''\" @click=\"policyFilter = 'refund'\"><span>المرتجعات والتسويات (Refund)</span></button> <button type=\"button\" class=\"cb-tab-btn\" :class=\"policyFilter === 'vendor_agreement' ? 'active' : ''\" @click=\"policyFilter = 'vendor_agreement'\"><span>اتفاقية التوريد (Vendor Agreement)</span></button></div>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, ")</span></button> <button type=\"button\" class=\"cb-tab-btn\" :class=\"policyFilter === 'terms' ? 'active' : ''\" @click=\"policyFilter = 'terms'\"><span>شروط الاستخدام (Terms)</span></button> <button type=\"button\" class=\"cb-tab-btn\" :class=\"policyFilter === 'privacy' ? 'active' : ''\" @click=\"policyFilter = 'privacy'\"><span>سياسة الخصوصية (Privacy)</span></button> <button type=\"button\" class=\"cb-tab-btn\" :class=\"policyFilter === 'refund' ? 'active' : ''\" @click=\"policyFilter = 'refund'\"><span>المرتجعات والتسويات (Refund)</span></button> <button type=\"button\" class=\"cb-tab-btn\" :class=\"policyFilter === 'vendor_agreement' ? 'active' : ''\" @click=\"policyFilter = 'vendor_agreement'\"><span>اتفاقية التوريد (Vendor Agreement)</span></button></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		if len(policies) == 0 {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "<div class=\"p-8 text-center empty-state-glass\"><div class=\"text-4xl mb-3\">📜</div><h3 class=\"text-lg font-black text-primary mb-2\">لا توجد إصدارات مسجلة</h3><p class=\"text-sm text-secondary max-w-md mx-auto\">يمكنك إنشاء إصدار جديد لأي سياسة من سياسات المنصة.</p></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "<div class=\"p-8 text-center empty-state-glass\"><div class=\"text-4xl mb-3\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = components.IconFileText("icon-sm").Render(ctx, templ_7745c5c3_Buffer)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "</div><h3 class=\"text-lg font-black text-primary mb-2\">لا توجد إصدارات مسجلة</h3><p class=\"text-sm text-secondary max-w-md mx-auto\">يمكنك إنشاء إصدار جديد لأي سياسة من سياسات المنصة.</p></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 		} else {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "<div class=\"table-container m-0\"><table class=\"data-table m-0\"><thead><tr><th>السياسة القانونية</th><th>رقم الإصدار</th><th>العنوان (عربي / English)</th><th>ملخص التعديلات</th><th class=\"text-center\">حالة النشر</th><th>تاريخ التحديث</th><th class=\"text-end\">الإجراءات</th></tr></thead> <tbody>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "<div class=\"table-container m-0\"><table class=\"data-table m-0\"><thead><tr><th>السياسة القانونية</th><th>رقم الإصدار</th><th>العنوان (عربي / English)</th><th>ملخص التعديلات</th><th class=\"text-center\">حالة النشر</th><th>تاريخ التحديث</th><th class=\"text-end\">الإجراءات</th></tr></thead> <tbody>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			for _, p := range policies {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "<tr x-show=\"")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "<tr x-show=\"")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -112,7 +128,7 @@ func AdminPoliciesPanel(lang, dir string, currentKey string, policies []*platfor
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "\"><td><span class=\"badge badge-slate fw-700\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "\"><td><span class=\"badge badge-slate fw-700\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -125,7 +141,7 @@ func AdminPoliciesPanel(lang, dir string, currentKey string, policies []*platfor
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "</span></td><td><strong class=\"tabular-nums\" style=\"color:var(--primary-700); font-size:0.95rem;\">v")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "</span></td><td><strong class=\"tabular-nums\" style=\"color:var(--primary-700); font-size:0.95rem;\">v")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -138,7 +154,7 @@ func AdminPoliciesPanel(lang, dir string, currentKey string, policies []*platfor
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "</strong></td><td><div style=\"font-weight:800; color:var(--neutral-900); font-size:0.9rem;\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "</strong></td><td><div style=\"font-weight:800; color:var(--neutral-900); font-size:0.9rem;\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -151,12 +167,12 @@ func AdminPoliciesPanel(lang, dir string, currentKey string, policies []*platfor
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "</div>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "</div>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				if p.Title["en"] != "" {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "<div style=\"font-size:0.75rem; color:var(--neutral-500);\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "<div style=\"font-size:0.75rem; color:var(--neutral-500);\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -169,12 +185,12 @@ func AdminPoliciesPanel(lang, dir string, currentKey string, policies []*platfor
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "</div>")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "</div>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "</td><td style=\"max-width:240px;\"><div style=\"font-size:0.8rem; color:var(--neutral-600); overflow:hidden; text-overflow:ellipsis; white-space:nowrap;\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "</td><td style=\"max-width:240px;\"><div style=\"font-size:0.8rem; color:var(--neutral-600); overflow:hidden; text-overflow:ellipsis; white-space:nowrap;\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -187,12 +203,12 @@ func AdminPoliciesPanel(lang, dir string, currentKey string, policies []*platfor
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "</div></td><td>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "</div></td><td>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				if p.IsPublished {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "<span class=\"badge badge-emerald\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "<span class=\"badge badge-emerald\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -200,17 +216,17 @@ func AdminPoliciesPanel(lang, dir string, currentKey string, policies []*platfor
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "<span>منشور ونشط</span></span>")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "<span>منشور ونشط</span></span>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 				} else {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "<span class=\"badge badge-amber\">مسودة غير منشورة</span>")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, "<span class=\"badge badge-amber\">مسودة غير منشورة</span>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "</td><td style=\"font-size:0.8rem; color:var(--neutral-500);\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, "</td><td style=\"font-size:0.8rem; color:var(--neutral-500);\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -223,7 +239,7 @@ func AdminPoliciesPanel(lang, dir string, currentKey string, policies []*platfor
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, "</td><td class=\"text-end\"><div class=\"table-actions\" style=\"justify-content:flex-end; gap:0.4rem;\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, "</td><td class=\"text-end\"><div class=\"table-actions\" style=\"justify-content:flex-end; gap:0.4rem;\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -239,7 +255,7 @@ func AdminPoliciesPanel(lang, dir string, currentKey string, policies []*platfor
 						}()
 					}
 					ctx = templ.InitializeContext(ctx)
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, "<span>معاينة</span>")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, "<span>معاينة</span>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -250,7 +266,7 @@ func AdminPoliciesPanel(lang, dir string, currentKey string, policies []*platfor
 					return templ_7745c5c3_Err
 				}
 				if !p.IsPublished {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, "<form method=\"POST\" action=\"")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, "<form method=\"POST\" action=\"")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -263,7 +279,7 @@ func AdminPoliciesPanel(lang, dir string, currentKey string, policies []*platfor
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, "\" class=\"m-0\"><button type=\"submit\" class=\"btn btn-primary btn-sm\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 25, "\" class=\"m-0\"><button type=\"submit\" class=\"btn btn-primary btn-sm\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -271,12 +287,12 @@ func AdminPoliciesPanel(lang, dir string, currentKey string, policies []*platfor
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, "<span>نشر هذا الإصدار</span></button></form>")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 26, "<span>نشر هذا الإصدار</span></button></form>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 25, "<!-- View Policy Modal -->")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 27, "<!-- View Policy Modal -->")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -292,7 +308,7 @@ func AdminPoliciesPanel(lang, dir string, currentKey string, policies []*platfor
 						}()
 					}
 					ctx = templ.InitializeContext(ctx)
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 26, "<div style=\"display:flex; flex-direction:column; gap:1rem; text-align:start;\"><div style=\"background:var(--neutral-50); padding:0.75rem 1rem; border-radius:var(--radius-md); border:1px solid var(--neutral-200); font-size:0.85rem;\"><strong>ملخص التغييرات:</strong> ")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 28, "<div style=\"display:flex; flex-direction:column; gap:1rem; text-align:start;\"><div style=\"background:var(--neutral-50); padding:0.75rem 1rem; border-radius:var(--radius-md); border:1px solid var(--neutral-200); font-size:0.85rem;\"><strong>ملخص التغييرات:</strong> ")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -305,7 +321,7 @@ func AdminPoliciesPanel(lang, dir string, currentKey string, policies []*platfor
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 27, "</div><div style=\"display:grid; grid-template-columns:1fr 1fr; gap:1.5rem;\"><div><h4 style=\"font-weight:800; color:var(--neutral-900); margin-bottom:0.5rem; font-size:0.95rem;\">المحتوى بالعربية:</h4><div style=\"font-size:0.875rem; color:var(--neutral-700); line-height:1.8; white-space:pre-line; max-height:300px; overflow-y:auto; padding:0.75rem; background:#fff; border:1px solid var(--neutral-200); border-radius:var(--radius-md);\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 29, "</div><div style=\"display:grid; grid-template-columns:1fr 1fr; gap:1.5rem;\"><div><h4 style=\"font-weight:800; color:var(--neutral-900); margin-bottom:0.5rem; font-size:0.95rem;\">المحتوى بالعربية:</h4><div style=\"font-size:0.875rem; color:var(--neutral-700); line-height:1.8; white-space:pre-line; max-height:300px; overflow-y:auto; padding:0.75rem; background:#fff; border:1px solid var(--neutral-200); border-radius:var(--radius-md);\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -318,7 +334,7 @@ func AdminPoliciesPanel(lang, dir string, currentKey string, policies []*platfor
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 28, "</div></div><div><h4 style=\"font-weight:800; color:var(--neutral-900); margin-bottom:0.5rem; font-size:0.95rem;\">English Content:</h4><div dir=\"ltr\" style=\"font-size:0.875rem; color:var(--neutral-700); line-height:1.8; white-space:pre-line; max-height:300px; overflow-y:auto; padding:0.75rem; background:#fff; border:1px solid var(--neutral-200); border-radius:var(--radius-md);\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 30, "</div></div><div><h4 style=\"font-weight:800; color:var(--neutral-900); margin-bottom:0.5rem; font-size:0.95rem;\">English Content:</h4><div dir=\"ltr\" style=\"font-size:0.875rem; color:var(--neutral-700); line-height:1.8; white-space:pre-line; max-height:300px; overflow-y:auto; padding:0.75rem; background:#fff; border:1px solid var(--neutral-200); border-radius:var(--radius-md);\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -331,7 +347,7 @@ func AdminPoliciesPanel(lang, dir string, currentKey string, policies []*platfor
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 29, "</div></div></div><div style=\"display:flex; justify-content:flex-end; margin-top:0.5rem;\"><button type=\"button\" class=\"btn btn-secondary\" data-modal-close>إغلاق</button></div></div>")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 31, "</div></div></div><div style=\"display:flex; justify-content:flex-end; margin-top:0.5rem;\"><button type=\"button\" class=\"btn btn-secondary\" data-modal-close>إغلاق</button></div></div>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -345,17 +361,17 @@ func AdminPoliciesPanel(lang, dir string, currentKey string, policies []*platfor
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 30, "</div></td></tr>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 32, "</div></td></tr>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 31, "</tbody></table></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 33, "</tbody></table></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 32, "<!-- Policy Version Creation Modal -->")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 34, "<!-- Policy Version Creation Modal -->")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -371,7 +387,7 @@ func AdminPoliciesPanel(lang, dir string, currentKey string, policies []*platfor
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 33, "<form method=\"POST\" action=\"/admin/policies\" style=\"display:flex; flex-direction:column; gap:1.15rem; text-align:start;\"><div class=\"form-grid-2\"><div class=\"form-group m-0\"><label class=\"form-label\" for=\"policy-key\">نوع الوثيقة القانونية *</label> <select id=\"policy-key\" name=\"policy_key\" required class=\"form-select\"><option value=\"terms\">شروط الاستخدام والخدمة (Terms of Service)</option> <option value=\"privacy\">سياسة الخصوصية وحماية البيانات (Privacy Policy)</option> <option value=\"refund\">سياسة المرتجعات والتسويات (Return & Refund)</option> <option value=\"vendor_agreement\">اتفاقية التوريد وشروط الموردين (Vendor Supply Agreement)</option></select></div><div class=\"form-group m-0\"><label class=\"form-label\" for=\"policy-version\">رقم الإصدار (Version) *</label> <input type=\"text\" id=\"policy-version\" name=\"version\" required class=\"form-input tabular-nums\" placeholder=\"1.1 أو 2.0\"></div></div><div class=\"form-grid-2\"><div class=\"form-group m-0\"><label class=\"form-label\" for=\"policy-title-ar\">عنوان الوثيقة (عربي) *</label> <input type=\"text\" id=\"policy-title-ar\" name=\"title_ar\" required class=\"form-input\" placeholder=\"شروط الاستخدام والخدمة\"></div><div class=\"form-group m-0\"><label class=\"form-label\" for=\"policy-title-en\">Title (English)</label> <input type=\"text\" id=\"policy-title-en\" name=\"title_en\" class=\"form-input\" dir=\"ltr\" placeholder=\"Terms of Service\"></div></div><div class=\"form-grid-2\"><div class=\"form-group m-0\"><label class=\"form-label\" for=\"policy-summary-ar\">ملخص التغييرات في هذا الإصدار (عربي)</label> <input type=\"text\" id=\"policy-summary-ar\" name=\"summary_ar\" class=\"form-input\" placeholder=\"تحديث بنود الفواتير الإلكترونية والتسويات الدوائية\"></div><div class=\"form-group m-0\"><label class=\"form-label\" for=\"policy-summary-en\">Changelog Summary (English)</label> <input type=\"text\" id=\"policy-summary-en\" name=\"summary_en\" class=\"form-input\" dir=\"ltr\" placeholder=\"Updated e-invoicing and settlement clauses\"></div></div><div class=\"form-grid-2\"><div class=\"form-group m-0\"><label class=\"form-label\" for=\"policy-content-ar\">نص الوثيقة القانونية (عربي) *</label> <textarea id=\"policy-content-ar\" name=\"content_ar\" rows=\"8\" required class=\"form-input\" placeholder=\"أدخل نص وبنود السياسة القانونية بالتفصيل...\"></textarea></div><div class=\"form-group m-0\"><label class=\"form-label\" for=\"policy-content-en\">Legal Policy Text (English)</label> <textarea id=\"policy-content-en\" name=\"content_en\" rows=\"8\" class=\"form-input\" dir=\"ltr\" placeholder=\"Enter policy text and terms...\"></textarea></div></div><div class=\"row-center-sm\"><input type=\"checkbox\" id=\"policy-publish\" name=\"is_published\" value=\"1\"> <label for=\"policy-publish\" style=\"font-size:0.875rem; font-weight:700; color:var(--neutral-800); cursor:pointer;\">نشر هذا الإصدار وتفعيله للجمهور فوراً</label></div><div style=\"display:flex; justify-content:flex-end; gap:0.75rem; margin-top:0.5rem;\"><button type=\"button\" class=\"btn btn-secondary\" data-modal-close>إلغاء</button> <button type=\"submit\" class=\"btn btn-primary fw-800\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 35, "<form method=\"POST\" action=\"/admin/policies\" style=\"display:flex; flex-direction:column; gap:1.15rem; text-align:start;\"><div class=\"form-grid-2\"><div class=\"form-group m-0\"><label class=\"form-label\" for=\"policy-key\">نوع الوثيقة القانونية *</label> <select id=\"policy-key\" name=\"policy_key\" required class=\"form-select\"><option value=\"terms\">شروط الاستخدام والخدمة (Terms of Service)</option> <option value=\"privacy\">سياسة الخصوصية وحماية البيانات (Privacy Policy)</option> <option value=\"refund\">سياسة المرتجعات والتسويات (Return & Refund)</option> <option value=\"vendor_agreement\">اتفاقية التوريد وشروط الموردين (Vendor Supply Agreement)</option></select></div><div class=\"form-group m-0\"><label class=\"form-label\" for=\"policy-version\">رقم الإصدار (Version) *</label> <input type=\"text\" id=\"policy-version\" name=\"version\" required class=\"form-input tabular-nums\" placeholder=\"1.1 أو 2.0\"></div></div><div class=\"form-grid-2\"><div class=\"form-group m-0\"><label class=\"form-label\" for=\"policy-title-ar\">عنوان الوثيقة (عربي) *</label> <input type=\"text\" id=\"policy-title-ar\" name=\"title_ar\" required class=\"form-input\" placeholder=\"شروط الاستخدام والخدمة\"></div><div class=\"form-group m-0\"><label class=\"form-label\" for=\"policy-title-en\">Title (English)</label> <input type=\"text\" id=\"policy-title-en\" name=\"title_en\" class=\"form-input\" dir=\"ltr\" placeholder=\"Terms of Service\"></div></div><div class=\"form-grid-2\"><div class=\"form-group m-0\"><label class=\"form-label\" for=\"policy-summary-ar\">ملخص التغييرات في هذا الإصدار (عربي)</label> <input type=\"text\" id=\"policy-summary-ar\" name=\"summary_ar\" class=\"form-input\" placeholder=\"تحديث بنود الفواتير الإلكترونية والتسويات الدوائية\"></div><div class=\"form-group m-0\"><label class=\"form-label\" for=\"policy-summary-en\">Changelog Summary (English)</label> <input type=\"text\" id=\"policy-summary-en\" name=\"summary_en\" class=\"form-input\" dir=\"ltr\" placeholder=\"Updated e-invoicing and settlement clauses\"></div></div><div class=\"form-grid-2\"><div class=\"form-group m-0\"><label class=\"form-label\" for=\"policy-content-ar\">نص الوثيقة القانونية (عربي) *</label> <textarea id=\"policy-content-ar\" name=\"content_ar\" rows=\"8\" required class=\"form-input\" placeholder=\"أدخل نص وبنود السياسة القانونية بالتفصيل...\"></textarea></div><div class=\"form-group m-0\"><label class=\"form-label\" for=\"policy-content-en\">Legal Policy Text (English)</label> <textarea id=\"policy-content-en\" name=\"content_en\" rows=\"8\" class=\"form-input\" dir=\"ltr\" placeholder=\"Enter policy text and terms...\"></textarea></div></div><div class=\"row-center-sm\"><input type=\"checkbox\" id=\"policy-publish\" name=\"is_published\" value=\"1\"> <label for=\"policy-publish\" style=\"font-size:0.875rem; font-weight:700; color:var(--neutral-800); cursor:pointer;\">نشر هذا الإصدار وتفعيله للجمهور فوراً</label></div><div style=\"display:flex; justify-content:flex-end; gap:0.75rem; margin-top:0.5rem;\"><button type=\"button\" class=\"btn btn-secondary\" data-modal-close>إلغاء</button> <button type=\"submit\" class=\"btn btn-primary fw-800\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -379,7 +395,7 @@ func AdminPoliciesPanel(lang, dir string, currentKey string, policies []*platfor
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 34, "<span>حفظ الإصدار</span></button></div></form>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 36, "<span>حفظ الإصدار</span></button></div></form>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -393,7 +409,7 @@ func AdminPoliciesPanel(lang, dir string, currentKey string, policies []*platfor
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 35, "</div>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 37, "</div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

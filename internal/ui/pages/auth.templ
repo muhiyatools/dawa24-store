@@ -294,7 +294,7 @@ templ RegisterPage(lang, dir string, form RegisterFormData, cities []*platformad
 						<div class="form-group mb-0" data-type-visibility="vendor customer">
 							<label class="form-label flex-between" for="reg-address">
 								<span>العنوان التفصيلي للمقر / الصيدلية *</span>
-								<span style="font-size:0.75rem; color:var(--accent);" id="reg-address-hint">📍 يُملأ تلقائياً عند تحديد الموقع على الخريطة</span>
+								<span style="font-size:0.75rem; color:var(--accent);" id="reg-address-hint">يُملأ تلقائياً عند تحديد الموقع على الخريطة</span>
 							</label>
 							<input type="text" id="reg-address" name="address" class="form-input" placeholder="اسم الشارع، رقم العقار، الحي، بجوار..." value={ form.Address } />
 						</div>
@@ -343,10 +343,10 @@ templ RegisterPage(lang, dir string, form RegisterFormData, cities []*platformad
 								<label class="form-label mb-0" for="reg-password">كلمة المرور *</label>
 								<span id="pass-strength-label" style="font-size:0.75rem; font-weight:700; color:var(--text-muted);">أدخل كلمة المرور</span>
 							</div>
-							<div style="position:relative;">
+							<div class="relative">
 								<input type="password" id="reg-password" name="password" class="form-input" placeholder="••••••••" style="padding-inline-end:2.5rem;" />
 								<button type="button" id="reg-toggle-pwd" style="position:absolute; inset-inline-end:0.75rem; top:50%; transform:translateY(-50%); background:none; border:none; color:var(--text-muted); cursor:pointer; padding:0; display:flex; align-items:center;">
-									👁️
+									@components.IconEye("icon-sm")
 								</button>
 							</div>
 

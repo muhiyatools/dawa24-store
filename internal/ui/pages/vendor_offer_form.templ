@@ -133,7 +133,7 @@ templ VendorOfferFormPage(data VendorOfferFormData, lang, dir string) {
 					<!-- Card 1: Basic Details -->
 					<div class="glass-panel p-6 d-flex flex-col gap-4">
 						<div class="d-flex items-center gap-2 pb-3 border-b">
-							<span class="text-lg">📋</span>
+							<span class="text-lg">@components.IconFileText("icon-sm")</span>
 							<h3 class="text-base font-black text-primary m-0">
 								البيانات الأساسية للعرض
 							</h3>
@@ -191,7 +191,7 @@ templ VendorOfferFormPage(data VendorOfferFormData, lang, dir string) {
 					<!-- Card 2: Pricing, Dates & Image -->
 					<div class="glass-panel p-6 d-flex flex-col gap-4">
 						<div class="d-flex items-center gap-2 pb-3 border-b">
-							<span class="text-lg">💰</span>
+							<span class="text-lg">@components.IconWallet("icon-sm")</span>
 							<h3 class="text-base font-black text-primary m-0">
 								التسعير العام والتواريخ
 							</h3>
@@ -250,7 +250,7 @@ templ VendorOfferFormPage(data VendorOfferFormData, lang, dir string) {
 					<div class="flex-between items-center flex-wrap gap-4 pb-3 border-b">
 						<div>
 							<div class="d-flex items-center gap-2">
-								<span class="text-xl">💊</span>
+								<span class="text-xl">@components.IconPill("icon-sm")</span>
 								<h3 class="text-lg font-black text-primary m-0">
 									تخصيص منتجات العرض من المخازن (Offer Products)
 								</h3>
@@ -269,7 +269,7 @@ templ VendorOfferFormPage(data VendorOfferFormData, lang, dir string) {
 					<!-- Product Search & Picker Box -->
 					<div class="position-relative">
 						<label class="form-label text-xs font-bold text-primary mb-1 d-block">
-							🔍 ابحث وأضف منتج من المخازن إلى العرض:
+							ابحث وأضف منتج من المخازن إلى العرض:
 						</label>
 						<div class="d-flex gap-2">
 							<input
@@ -299,7 +299,7 @@ templ VendorOfferFormPage(data VendorOfferFormData, lang, dir string) {
 									class="p-2 rounded-lg cursor-pointer hover:bg-surface-sunken d-flex items-center justify-between gap-3 border-b text-xs transition-colors"
 								>
 									<div class="d-flex items-center gap-2">
-										<span class="text-base">📦</span>
+										<span class="text-base">@components.IconPackage("icon-sm")</span>
 										<div>
 											<strong class="text-primary font-bold d-block" x-text="item.name_ar || item.name_en || item.sku"></strong>
 											<div class="text-muted text-xs tabular-nums">
@@ -413,7 +413,7 @@ templ VendorOfferFormPage(data VendorOfferFormData, lang, dir string) {
 												class="btn btn-secondary btn-icon btn-sm text-danger"
 												title="إزالة من العرض"
 											>
-												✕
+												@components.IconX("icon-sm")
 											</button>
 										</td>
 									</tr>

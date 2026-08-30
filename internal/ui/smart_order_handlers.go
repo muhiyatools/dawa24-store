@@ -71,10 +71,7 @@ func (h *UIHandler) SmartOrderNewPage(w http.ResponseWriter, r *http.Request) {
 	// no AI at all, which reads as the feature being broken.
 	data.AIAvailable, data.AIUnavailableReason = h.smartOrderAIState(ctx, actor.OrganizationID)
 
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	if err := pages.SmartOrderNewPage(lang, dir, data).Render(ctx, w); err != nil {
-		h.log.ErrorContext(ctx, "render smart order import page", "error", err)
-	}
+	h.renderPage(ctx, w, "render smart order import page", pages.SmartOrderNewPage(lang, dir, data))
 }
 
 // SmartOrderCreateSubmit handles the upload and creates the run.
@@ -240,10 +237,7 @@ func (h *UIHandler) SmartOrderMappingPage(w http.ResponseWriter, r *http.Request
 		data.Fields = append(data.Fields, field)
 	}
 
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	if err := pages.SmartOrderMappingPage(lang, dir, data).Render(ctx, w); err != nil {
-		h.log.ErrorContext(ctx, "render smart order mapping page", "error", err)
-	}
+	h.renderPage(ctx, w, "render smart order mapping page", pages.SmartOrderMappingPage(lang, dir, data))
 }
 
 // SmartOrderMappingSubmit stages the rows and queues the run.

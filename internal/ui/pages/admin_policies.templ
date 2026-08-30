@@ -20,7 +20,7 @@ templ AdminPoliciesPanel(lang, dir string, currentKey string, policies []*platfo
 		<div class="flex-between items-center flex-wrap gap-4 mb-6">
 			<div class="d-flex items-center gap-3">
 				<div class="user-avatar-badge text-xl">
-					📜
+					@components.IconFileText("icon-sm")
 				</div>
 				<div>
 					<h2 class="text-xl font-black text-primary m-0">
@@ -86,7 +86,7 @@ templ AdminPoliciesPanel(lang, dir string, currentKey string, policies []*platfo
 
 		if len(policies) == 0 {
 			<div class="p-8 text-center empty-state-glass">
-				<div class="text-4xl mb-3">📜</div>
+				<div class="text-4xl mb-3">@components.IconFileText("icon-sm")</div>
 				<h3 class="text-lg font-black text-primary mb-2">لا توجد إصدارات مسجلة</h3>
 				<p class="text-sm text-secondary max-w-md mx-auto">يمكنك إنشاء إصدار جديد لأي سياسة من سياسات المنصة.</p>
 			</div>
