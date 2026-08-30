@@ -194,7 +194,7 @@ func (r *Repository) UpdatePackage(ctx context.Context, p *promo.OfferPackage) e
 func (r *Repository) GetPackageByID(ctx context.Context, id int64) (*promo.OfferPackage, error) {
 	var p promo.OfferPackage
 	err := r.db.InReadTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
-		return scanPackage(tx.QueryRow(txCtx, packageColumns+` WHERE id = $1;`, id), &p)
+		return scanPackage(tx.QueryRow(txCtx, `SELECT `+packageColumns+` FROM promo.offer_packages WHERE id = $1;`, id), &p)
 	})
 	if err != nil {
 		if database.IsNotFound(err) {
