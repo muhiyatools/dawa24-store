@@ -16,6 +16,7 @@ import (
 	catalogPostgres "github.com/muhiya/dawa24-store/internal/modules/catalog/postgres"
 	"github.com/muhiya/dawa24-store/internal/modules/org"
 	orgPG "github.com/muhiya/dawa24-store/internal/modules/org/postgres"
+	platformadmin "github.com/muhiya/dawa24-store/internal/modules/platform_admin"
 	"github.com/muhiya/dawa24-store/internal/platform/config"
 	"github.com/muhiya/dawa24-store/internal/platform/database"
 	"github.com/muhiya/dawa24-store/internal/platform/gateway"
@@ -65,6 +66,11 @@ func run() error {
 		return err
 	}
 	log := observability.NewLogger(cfg.Observ, cfg.Env)
+
+	// Same guard as the server: the backfill reads the stored Gateway
+	// credential and sends it to the Gateway host, so it must refuse the
+	// database password just as the settings screen does.
+	platformadmin.SetKnownDatabaseSecret(config.DatabasePassword(cfg.Database.URL))
 
 	db, err := database.Open(ctx, cfg.Database)
 	if err != nil {

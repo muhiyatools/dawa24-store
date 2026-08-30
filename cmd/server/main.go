@@ -59,6 +59,12 @@ func run() error {
 		return err
 	}
 
+	// The Gateway administrator credential is typed by an operator and sent as
+	// Basic auth to a third-party host. Registering the database password here
+	// is what lets the settings screen recognise and refuse it — a bare
+	// password has no shape a heuristic can catch.
+	platformadmin.SetKnownDatabaseSecret(config.DatabasePassword(cfg.Database.URL))
+
 	log := observability.NewLogger(cfg.Observ, cfg.Env)
 	slog.SetDefault(log)
 

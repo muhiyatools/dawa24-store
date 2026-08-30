@@ -6,8 +6,10 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/muhiya/dawa24-store/internal/modules/org"
 	"github.com/muhiya/dawa24-store/internal/platform/aiusage"
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
+	"github.com/muhiya/dawa24-store/internal/platform/database"
 	"github.com/muhiya/dawa24-store/internal/platform/gateway"
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/ui/pages"
@@ -26,6 +28,14 @@ func (h *UIHandler) EnsureOrgAIGatewayProvisioned(ctx context.Context, orgID int
 	if orgID <= 0 || h.orgSvc == nil {
 		return "", ""
 	}
+
+	// A منشأة approved before any of this worked has nothing: no starter roles,
+	// no subscription, and so no Gateway plan to be provisioned under. Approval
+	// is no longer the only chance to fix that — signing in repairs whatever is
+	// missing, so an organisation that was already approved does not have to be
+	// approved a second time to become usable.
+	h.healOrgWiring(ctx, orgID)
+
 	if h.tenantKeys != nil {
 		virtualKey = h.tenantKeys.Key(ctx, orgID)
 	}
@@ -33,6 +43,41 @@ func (h *UIHandler) EnsureOrgAIGatewayProvisioned(ctx context.Context, orgID int
 		return gateway.OrganizationUserID(orgID), virtualKey
 	}
 	return "", ""
+}
+
+// healOrgWiring gives an already-approved organisation the roles and the
+// subscription it should have received at approval.
+//
+// It is called on the request path, so it is written to cost one indexed read
+// when there is nothing to do, and to write only when something is genuinely
+// absent. Nothing here is fatal: a منشأة with no subscription can still sign in
+// and browse, and reporting the failure is the approvals screen's job.
+func (h *UIHandler) healOrgWiring(ctx context.Context, orgID int64) {
+	sysCtx := database.AsSystem(ctx)
+
+	o, err := h.orgSvc.GetOrganization(sysCtx, orgID)
+	if err != nil || o == nil || o.Status != org.StatusApproved {
+		return
+	}
+
+	if h.billSvc == nil || o.OwnerID <= 0 {
+		return
+	}
+	if sub, err := h.billSvc.GetActiveSubscriptionByOrg(sysCtx, orgID); err == nil && sub != nil {
+		return
+	}
+
+	// Only an organisation that is actually missing its wiring reaches here, so
+	// seeding roles costs nothing on the common path.
+	h.ensureCompanyRoles(sysCtx, orgID, string(o.Type))
+
+	if _, err := h.billSvc.AssignDefaultSubscription(sysCtx, o.OwnerID, &orgID); err != nil {
+		h.log.WarnContext(ctx, "could not repair missing subscription on sign-in",
+			"org_id", orgID, "owner_id", o.OwnerID, "error", err)
+		return
+	}
+	h.log.InfoContext(ctx, "repaired missing subscription for approved organisation",
+		"org_id", orgID, "owner_id", o.OwnerID)
 }
 
 // EnsureAIGatewayProvisioned mirrors the org-scoped call for user accounts.
