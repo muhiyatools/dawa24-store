@@ -32,7 +32,7 @@ func (h *UIHandler) VendorPaymentsPage(w http.ResponseWriter, r *http.Request) {
 	h.renderPage(ctx, w, "render vendor payments", pages.VendorPaymentsPage(payments, lang, dir))
 }
 
-// VendorEarningsOrderPage renders orders revenue and commissions report for the vendor.
+// VendorEarningsOrderPage renders orders revenue and comprehensive net profit report for the vendor.
 func (h *UIHandler) VendorEarningsOrderPage(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	lang, dir := h.localeAndDir(r)
@@ -43,12 +43,20 @@ func (h *UIHandler) VendorEarningsOrderPage(w http.ResponseWriter, r *http.Reque
 		return
 	}
 
-	var revenue money.Amount
-	if h.commSvc != nil {
-		revenue, _ = h.commSvc.MonthSalesByVendor(ctx, actor.OrganizationID)
+	period := r.URL.Query().Get("period")
+	if period == "" {
+		period = "month"
 	}
 
-	h.renderPage(ctx, w, "render vendor earnings order", pages.VendorEarningsOrderPage(revenue, lang, dir))
+	var summary *commerce.VendorFinancialSummary
+	if h.commSvc != nil {
+		summary, _ = h.commSvc.GetVendorFinancialSummary(ctx, actor.OrganizationID, period)
+	}
+	if summary == nil {
+		summary = &commerce.VendorFinancialSummary{Period: period}
+	}
+
+	h.renderPage(ctx, w, "render vendor earnings order", pages.VendorEarningsOrderPage(summary, lang, dir))
 }
 
 // VendorEarningsOffersPage renders offers revenue and commissions for the vendor.

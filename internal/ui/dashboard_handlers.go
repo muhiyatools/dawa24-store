@@ -80,10 +80,25 @@ func (h *UIHandler) VendorDashboardPage(w http.ResponseWriter, r *http.Request) 
 			}
 			data.PendingShipments = len(data.Shipments)
 		}
-		if total, err := h.commSvc.MonthSalesByVendor(ctx, actor.OrganizationID); err != nil {
-			h.log.WarnContext(ctx, "vendor dashboard: month sales", "error", err)
+		if finSummary, err := h.commSvc.GetVendorFinancialSummary(ctx, actor.OrganizationID, "month"); err == nil && finSummary != nil {
+			data.MonthSales = finSummary.NetSales
+			data.MonthNetProfit = finSummary.NetProfit
+			data.MonthProfitMargin = finSummary.ProfitMargin
+			data.MonthCOGS = finSummary.COGS
+			if finSummary.DeliveredOrdersCount > 0 {
+				data.DeliveredShipments = finSummary.DeliveredOrdersCount
+			}
+			if finSummary.PendingOrdersCount > 0 {
+				data.PendingOrdersTotal = finSummary.PendingOrdersTotal
+			}
+			if finSummary.WalletBalance.IsPositive() {
+				data.WalletBalance = finSummary.WalletBalance
+				data.HasWallet = true
+			}
 		} else {
-			data.MonthSales = total
+			if total, err := h.commSvc.MonthSalesByVendor(ctx, actor.OrganizationID); err == nil {
+				data.MonthSales = total
+			}
 		}
 		if quotes, err := h.commSvc.ListQuoteRequests(ctx, actor.OrganizationID, true, 100, 0); err != nil {
 			h.log.WarnContext(ctx, "vendor dashboard: list quote requests", "error", err)

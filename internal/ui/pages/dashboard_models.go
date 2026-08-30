@@ -70,6 +70,9 @@ type VendorDashboardData struct {
 	TotalShipmentsCount   int
 	PendingOrdersTotal    money.Amount
 	MonthSales            money.Amount
+	MonthNetProfit        money.Amount
+	MonthProfitMargin     float64
+	MonthCOGS             money.Amount
 	WalletBalance         money.Amount
 	HasWallet             bool
 	LowStockCount         int

@@ -143,6 +143,9 @@ func (m *mockCommerceRepoForSupplierCartTest) AcceptNegotiation(ctx context.Cont
 func (m *mockCommerceRepoForSupplierCartTest) RejectNegotiation(ctx context.Context, orderID int64, reason string, actorID int64) error {
 	return nil
 }
+func (m *mockCommerceRepoForSupplierCartTest) GetVendorFinancialSummary(ctx context.Context, vendorOrgID int64, period string) (*commerce.VendorFinancialSummary, error) {
+	return &commerce.VendorFinancialSummary{Period: period}, nil
+}
 func (m *mockCommerceRepoForSupplierCartTest) ListWishlist(ctx context.Context, userID int64) ([]*commerce.WishlistItem, error) {
 	return nil, nil
 }

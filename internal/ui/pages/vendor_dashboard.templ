@@ -140,8 +140,8 @@ templ VendorDashboard(lang, dir string, data VendorDashboardData) {
 				<!-- 1. Monthly Revenue -->
 				<div class="stat-card-3d">
 					<div class="stat-card-label text-brand font-bold d-flex items-center justify-between">
-						<span>مبيعات الشهر الحالي</span>
-						<span class="badge badge-emerald text-xs">مكتمل</span>
+						<span>صافي مبيعات الشهر</span>
+						<a href="/vendor/earnings/order" class="badge badge-emerald text-xs text-decoration-none">تفاصيل ↗</a>
 					</div>
 					<div class="stat-card-value text-brand tabular-nums mt-1">
 						@components.MoneyDisplay(components.MoneyDisplayProps{ Amount: data.MonthSales })
@@ -149,7 +149,21 @@ templ VendorDashboard(lang, dir string, data VendorDashboardData) {
 					<div class="text-xs text-muted mt-1">إجمالي المبيعات المعتمدة لهذا الشهر</div>
 				</div>
 
-				<!-- 2. Available Wallet Balance -->
+				<!-- 2. Realized Net Profit -->
+				<div class="stat-card-3d">
+					<div class="stat-card-label text-success font-bold d-flex items-center justify-between">
+						<span>صافي أرباح الشهر المحققة</span>
+						if data.MonthProfitMargin > 0 {
+							<span class="badge badge-emerald text-xs font-extrabold tabular-nums">{ fmt.Sprintf("%.1f%%", data.MonthProfitMargin) }</span>
+						}
+					</div>
+					<div class="stat-card-value text-success tabular-nums mt-1">
+						@components.MoneyDisplay(components.MoneyDisplayProps{ Amount: data.MonthNetProfit })
+					</div>
+					<div class="text-xs text-muted mt-1">بعد خصم تكاليف البضاعة المباعة COGS</div>
+				</div>
+
+				<!-- 3. Available Wallet Balance -->
 				<div class="stat-card-3d">
 					<div class="stat-card-label text-sky font-bold d-flex items-center justify-between">
 						<span>رصيد المحفظة المتاح</span>
@@ -161,7 +175,7 @@ templ VendorDashboard(lang, dir string, data VendorDashboardData) {
 					<div class="text-xs text-muted mt-1">الرصيد القابل للتحويل والتسوية</div>
 				</div>
 
-				<!-- 3. Pending Orders -->
+				<!-- 4. Pending Orders -->
 				<div class="stat-card-3d">
 					<div class="stat-card-label text-warning font-bold d-flex items-center justify-between">
 						<span>طلبات قيد التنفيذ</span>
@@ -175,11 +189,11 @@ templ VendorDashboard(lang, dir string, data VendorDashboardData) {
 					</div>
 				</div>
 
-				<!-- 4. Active Catalog Products -->
+				<!-- 5. Active Catalog Products -->
 				<div class="stat-card-3d">
 					<div class="stat-card-label text-primary font-bold d-flex items-center justify-between">
 						<span>المنتجات النشطة بالكتالوج</span>
-						<span class="badge badge-slate text-xs">الكتالوج</span>
+						<a href="/vendor/products" class="badge badge-slate text-xs text-decoration-none">الكتالوج ↗</a>
 					</div>
 					<div class="stat-card-value text-primary tabular-nums mt-1">
 						{ fmt.Sprintf("%d", data.ActiveProducts) } <span style="font-size:0.8rem; font-weight:600; color:var(--text-muted);">صنف دواء</span>
@@ -187,7 +201,7 @@ templ VendorDashboard(lang, dir string, data VendorDashboardData) {
 					<div class="text-xs text-muted mt-1">جاهزة للطلب المباشر من الصيدليات</div>
 				</div>
 
-				<!-- 5. Delivered Shipments -->
+				<!-- 6. Delivered Shipments -->
 				<div class="stat-card-3d">
 					<div class="stat-card-label text-success font-bold d-flex items-center justify-between">
 						<span>الشحنات المسلمة بنجاح</span>
@@ -199,22 +213,6 @@ templ VendorDashboard(lang, dir string, data VendorDashboardData) {
 					<div class="text-xs text-muted mt-1 tabular-nums">
 						من إجمالي { fmt.Sprintf("%d", data.TotalShipmentsCount) } شحنة مسجلة
 					</div>
-				</div>
-
-				<!-- 6. Low Stock Alert -->
-				<div class="stat-card-3d">
-					<div class="stat-card-label text-danger font-bold d-flex items-center justify-between">
-						<span>أصناف تحت الحد الأدنى</span>
-						if data.LowStockCount > 0 {
-							<span class="badge badge-danger text-xs">تنبيه</span>
-						} else {
-							<span class="badge badge-slate text-xs">مستقر</span>
-						}
-					</div>
-					<div class="stat-card-value text-danger tabular-nums mt-1">
-						{ fmt.Sprintf("%d", data.LowStockCount) } <span style="font-size:0.8rem; font-weight:600; color:var(--text-muted);">صنف</span>
-					</div>
-					<div class="text-xs text-muted mt-1">أرصدة قاربت على النفاد بالمخازن</div>
 				</div>
 
 			</div>

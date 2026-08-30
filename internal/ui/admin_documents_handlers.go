@@ -1,6 +1,7 @@
 package ui
 
 import (
+	"context"
 	"net/http"
 	"strconv"
 	"strings"
@@ -106,8 +107,10 @@ func (h *UIHandler) AdminVerifyUploadedDocSubmit(w http.ResponseWriter, r *http.
 		}
 		if doc != nil && doc.OrganizationID != nil && *doc.OrganizationID > 0 {
 			docName := string(docType)
-			if docName == "" && doc.FileName != "" {
-				docName = doc.FileName
+			if docName == "" && doc.Title != "" {
+				docName = doc.Title
+			} else if docName == "" && doc.OriginalName != "" {
+				docName = doc.OriginalName
 			}
 			go h.notifyDocumentVerified(context.Background(), *doc.OrganizationID, docName, status == attachments.StatusVerified, notes)
 		}

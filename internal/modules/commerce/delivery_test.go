@@ -190,6 +190,10 @@ func (m *deliveryMockRepo) VerifyAndCompleteDelivery(
 	return nil, nil
 }
 
+func (m *deliveryMockRepo) GetVendorFinancialSummary(ctx context.Context, vendorOrgID int64, period string) (*commerce.VendorFinancialSummary, error) {
+	return &commerce.VendorFinancialSummary{Period: period}, nil
+}
+
 func TestCourierDeliveryPINAndTrackingHelpers(t *testing.T) {
 	pin1 := commerce.GenerateDeliveryCode()
 	pin2 := commerce.GenerateDeliveryCode()

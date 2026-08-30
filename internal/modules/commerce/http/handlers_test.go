@@ -181,6 +181,10 @@ func (r stubRepo) RejectNegotiation(ctx context.Context, orderID int64, reason s
 	r.fail("RejectNegotiation")
 	return nil
 }
+func (r stubRepo) GetVendorFinancialSummary(ctx context.Context, vendorOrgID int64, period string) (*commerce.VendorFinancialSummary, error) {
+	r.fail("GetVendorFinancialSummary")
+	return nil, nil
+}
 
 type happyRepo struct{}
 
@@ -299,6 +303,9 @@ func (happyRepo) RejectNegotiation(ctx context.Context, orderID int64, reason st
 }
 func (happyRepo) UpdateCustomerPendingOrder(ctx context.Context, order *commerce.Order, lines []commerce.OrderLineEditItem, changedByUserID int64) (*commerce.Order, error) {
 	return order, nil
+}
+func (happyRepo) GetVendorFinancialSummary(ctx context.Context, vendorOrgID int64, period string) (*commerce.VendorFinancialSummary, error) {
+	return &commerce.VendorFinancialSummary{Period: period}, nil
 }
 
 func newTestRouter(t *testing.T) http.Handler {

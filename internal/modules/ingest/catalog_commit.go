@@ -121,7 +121,10 @@ func (s *Service) CommitImport(ctx context.Context, publicID string) (*Session, 
 				VariantType:    "standard",
 				Price:          price,
 				Discount:       discount,
-				CostPrice:      sr.Payload.CostPrice,
+			}
+			if !sr.Payload.CostPrice.IsZero() {
+				cp := sr.Payload.CostPrice
+				v.CostPrice = &cp
 			}
 			if sr.Payload.Negotiable != nil {
 				v.IsNegotiable = *sr.Payload.Negotiable

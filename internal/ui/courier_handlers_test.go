@@ -143,6 +143,9 @@ func (m *courierMockCommerceRepo) AcceptNegotiation(_ context.Context, _, _ int6
 func (m *courierMockCommerceRepo) RejectNegotiation(_ context.Context, _ int64, _ string, _ int64) error {
 	return nil
 }
+func (m *courierMockCommerceRepo) GetVendorFinancialSummary(_ context.Context, _ int64, period string) (*commerce.VendorFinancialSummary, error) {
+	return &commerce.VendorFinancialSummary{Period: period}, nil
+}
 
 func (m *courierMockCommerceRepo) GetShipmentForDeliveryByTracking(_ context.Context, tracking string) (*commerce.OrderShipment, error) {
 	if m.shipment != nil && (m.shipment.TrackingNumber == tracking || m.shipment.ShipmentNumber == tracking || m.shipment.PublicID == tracking) {

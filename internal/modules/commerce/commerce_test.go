@@ -301,6 +301,12 @@ func (m *mockCommerceRepo) SetShipmentTracking(_ context.Context, _ int64, _, _ 
 	return nil
 }
 
+func (m *mockCommerceRepo) GetVendorFinancialSummary(_ context.Context, vendorOrgID int64, period string) (*VendorFinancialSummary, error) {
+	return &VendorFinancialSummary{
+		Period: period,
+	}, nil
+}
+
 func TestCheckoutCalculationsAndSplitting(t *testing.T) {
 	repo := newMockCommerceRepo()
 	logger := slog.New(slog.NewTextHandler(io.Discard, nil))

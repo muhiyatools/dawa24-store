@@ -1,6 +1,7 @@
 package ui
 
 import (
+	"context"
 	"net/http"
 	"strconv"
 
@@ -107,8 +108,12 @@ func (h *UIHandler) AdminOfferApproveSubmit(w http.ResponseWriter, r *http.Reque
 			return
 		}
 		_ = h.promoSvc.ToggleSpecialOfferStatus(ctx, id, true)
-		if off != nil && off.VendorOrganizationID > 0 {
-			go h.notifySpecialOfferStatus(context.Background(), off.VendorOrganizationID, off.Title, true, "")
+		if off != nil && off.OrganizationID > 0 {
+			offTitle := off.Title.Get(i18n.Lang(lang))
+			if offTitle == "" {
+				offTitle = off.Title.Get(i18n.AR)
+			}
+			go h.notifySpecialOfferStatus(context.Background(), off.OrganizationID, offTitle, true, "")
 		}
 	}
 
@@ -133,8 +138,12 @@ func (h *UIHandler) AdminOfferRejectSubmit(w http.ResponseWriter, r *http.Reques
 			return
 		}
 		_ = h.promoSvc.ToggleSpecialOfferStatus(ctx, id, false)
-		if off != nil && off.VendorOrganizationID > 0 {
-			go h.notifySpecialOfferStatus(context.Background(), off.VendorOrganizationID, off.Title, false, "")
+		if off != nil && off.OrganizationID > 0 {
+			offTitle := off.Title.Get(i18n.Lang(lang))
+			if offTitle == "" {
+				offTitle = off.Title.Get(i18n.AR)
+			}
+			go h.notifySpecialOfferStatus(context.Background(), off.OrganizationID, offTitle, false, "")
 		}
 	}
 

@@ -482,11 +482,12 @@ func TestCatalogServiceCreateAndVariants(t *testing.T) {
 	}
 
 	// 2. Create Variant
+	costP := money.MustParse("18.00")
 	v, err := svc.CreateVariant(ctx, &ProductVariant{
 		ProductID: p.ID,
 		Name:      i18n.New("شريط 12 قرص", "Strip of 12 tablets"),
 		Price:     money.MustParse("22.50"),
-		CostPrice: money.MustParse("18.00"),
+		CostPrice: &costP,
 	})
 	if err != nil {
 		t.Fatalf("CreateVariant failed: %v", err)

@@ -310,12 +310,13 @@ func TestCatalogRepository(t *testing.T) {
 	})
 
 	t.Run("Variants", func(t *testing.T) {
+		costP := money.FromMinor(300)
 		v := &catalog.ProductVariant{
 			OrganizationID: orgID,
 			ProductID:      productID,
 			Name:           i18n.Text{"en": "Variant 1"},
 			Price:          money.FromMinor(500),
-			CostPrice:      money.FromMinor(300),
+			CostPrice:      &costP,
 			Status:         catalog.StatusActive,
 		}
 		err := repo.CreateVariant(ctx, v)

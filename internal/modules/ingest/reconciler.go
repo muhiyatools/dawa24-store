@@ -332,11 +332,13 @@ func (s *Service) createVariantAndStock(
 		SKU:            rawSKU,
 		Barcode:        rawBarcode,
 		Price:          price,
-		CostPrice:      costPrice,
 		Discount:       discount,
 		Unit:           rawUnit,
 		MinOrderQty:    minOrderQty,
 		Status:         catalog.StatusActive,
+	}
+	if !costPrice.IsZero() {
+		v.CostPrice = &costPrice
 	}
 
 	created, err := catAdapter.CreateVariant(ctx, v)
@@ -377,7 +379,7 @@ func (s *Service) updateVariantAndStock(
 		v.Price = price
 	}
 	if costPrice.IsPositive() {
-		v.CostPrice = costPrice
+		v.CostPrice = &costPrice
 	}
 	if !discount.IsNegative() {
 		v.Discount = discount

@@ -146,82 +146,90 @@ func VendorProductEditor(data VendorVariantEditorData, lang, dir string) templ.C
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "</select><p style=\"font-size:0.8rem; color:var(--primary-800); margin:0.4rem 0 0 0;\">تنبيه: يتم إنشاء المنتجات الأساسية وتدقيق مواصفاتها وصورها حصرياً بواسطة إدارة المنصة.</p></div><!-- 2. Variant Title --><div style=\"display:grid; grid-template-columns:1fr 1fr; gap:1.25rem;\"><div><label class=\"form-label\" for=\"var-name-ar\">اسم العبوة والمواصفات (عربي) *</label> <input type=\"text\" id=\"var-name-ar\" name=\"name_ar\" class=\"form-input\" placeholder=\"مثال: علبة 30 قرص (3 شرائط)\" required></div><div><label class=\"form-label\" for=\"var-name-en\">اسم العبوة والمواصفات (إنجليزي)</label> <input type=\"text\" id=\"var-name-en\" name=\"name_en\" class=\"form-input\" dir=\"ltr\" placeholder=\"e.g. Box of 30 Tablets (3 Strips)\"></div></div><!-- 3. Batch and Expiry --><div style=\"display:grid; grid-template-columns:1fr 1fr; gap:1.25rem;\"><div><label class=\"form-label\" for=\"var-batch\">رقم التشغيلة (Batch / Lot Number) *</label> <input type=\"text\" id=\"var-batch\" name=\"batch_number\" class=\"form-input tabular-nums\" placeholder=\"مثال: BTH-2026-948\" required></div><div><label class=\"form-label\" for=\"var-expiry\">تاريخ انتهاء الصلاحية *</label> <input type=\"date\" id=\"var-expiry\" name=\"expiry_date\" class=\"form-input tabular-nums\" required></div></div><!-- 4. Pricing & Discount (Unified Standard: سعر الجمهور -> نسبة الخصم -> السعر بعد الخصم) --><div style=\"display:grid; grid-template-columns:1fr 1fr 1fr; gap:1rem;\"><div><label class=\"form-label\" for=\"var-cost\">سعر الجمهور (ج.م) *</label> <input type=\"number\" step=\"0.01\" min=\"0\" id=\"var-cost\" name=\"cost_price\" class=\"form-input tabular-nums\" placeholder=\"مثال: 100.00\" required></div><div><label class=\"form-label\" for=\"var-discount\">نسبة الخصم (%)</label> <input type=\"number\" step=\"0.1\" min=\"0\" max=\"100\" id=\"var-discount\" name=\"discount\" class=\"form-input tabular-nums\" placeholder=\"مثال: 15.0%\"></div><div><label class=\"form-label\" for=\"var-price\">السعر بعد الخصم (ج.م) *</label> <input type=\"number\" step=\"0.01\" min=\"0.5\" id=\"var-price\" name=\"price\" class=\"form-input tabular-nums\" placeholder=\"مثال: 85.00\" required></div></div><!-- 5. Quantities & Stock --><div style=\"display:grid; grid-template-columns:1fr 1fr; gap:1.25rem;\"><div><label class=\"form-label\" for=\"var-stock\">الكمية المتوفرة بالمخزن (الرصيد) *</label> <input type=\"number\" min=\"1\" id=\"var-stock\" name=\"stock_qty\" class=\"form-input tabular-nums\" placeholder=\"مثال: 500\" required></div><div><label class=\"form-label\" for=\"var-min-qty\">الحد الأدنى لطلب الصيدلية (عبوة)</label> <input type=\"number\" min=\"1\" id=\"var-min-qty\" name=\"min_order_qty\" value=\"1\" class=\"form-input tabular-nums\" required></div></div><!-- 6. Branch / Warehouse Location --><div style=\"display:grid; grid-template-columns:1fr 1fr; gap:1.25rem;\"><div><label class=\"form-label\" for=\"var-branch\">مخزن أو فرع الشحن المعتمد *</label> <select id=\"var-branch\" name=\"branch_id\" class=\"form-select\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "</select><p style=\"font-size:0.8rem; color:var(--primary-800); margin:0.4rem 0 0 0;\">تنبيه: يتم إنشاء المنتجات الأساسية وتدقيق مواصفاتها وصورها حصرياً بواسطة إدارة المنصة.</p></div><!-- 2. Variant Title --><div style=\"display:grid; grid-template-columns:1fr 1fr; gap:1.25rem;\"><div><label class=\"form-label\" for=\"var-name-ar\">اسم العبوة والمواصفات (عربي) *</label> <input type=\"text\" id=\"var-name-ar\" name=\"name_ar\" class=\"form-input\" placeholder=\"مثال: علبة 30 قرص (3 شرائط)\" required></div><div><label class=\"form-label\" for=\"var-name-en\">اسم العبوة والمواصفات (إنجليزي)</label> <input type=\"text\" id=\"var-name-en\" name=\"name_en\" class=\"form-input\" dir=\"ltr\" placeholder=\"e.g. Box of 30 Tablets (3 Strips)\"></div></div><!-- 3. Batch and Expiry --><div style=\"display:grid; grid-template-columns:1fr 1fr; gap:1.25rem;\"><div><label class=\"form-label\" for=\"var-batch\">رقم التشغيلة (Batch / Lot Number) *</label> <input type=\"text\" id=\"var-batch\" name=\"batch_number\" class=\"form-input tabular-nums\" placeholder=\"مثال: BTH-2026-948\" required></div><div><label class=\"form-label\" for=\"var-expiry\">تاريخ انتهاء الصلاحية *</label> <input type=\"date\" id=\"var-expiry\" name=\"expiry_date\" class=\"form-input tabular-nums\" required></div></div><!-- 4. Pricing & Cost Discounts (Unified Standard) --><div style=\"background:var(--surface); border:1px solid var(--border); padding:1.25rem; border-radius:var(--radius-xl);\" class=\"stack-md\"><div class=\"d-flex items-center gap-2\"><span class=\"text-brand\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = components.IconWallet("icon-xs").Render(ctx, templ_7745c5c3_Buffer)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "</span> <span class=\"font-extrabold text-sm text-primary\">التسعير، الخصومات، وهوامش الربح</span></div><div style=\"display:grid; grid-template-columns:1fr 1fr; gap:1rem;\"><div><label class=\"form-label\" for=\"var-price\">سعر الجمهور الرسمي (ج.م) <span class=\"text-danger\">*</span></label> <input type=\"number\" step=\"0.01\" min=\"0.5\" id=\"var-price\" name=\"price\" class=\"form-input tabular-nums\" placeholder=\"مثال: 100.00\" required oninput=\"recalcProfitPreview()\"> <span class=\"text-xs text-muted mt-1 d-block\">السعر الرسمي المعتمد للمستهلك</span></div><div><label class=\"form-label\" for=\"var-discount\">نسبة الخصم الممنوح للصيدليات (%)</label> <input type=\"number\" step=\"0.1\" min=\"0\" max=\"100\" id=\"var-discount\" name=\"discount\" class=\"form-input tabular-nums\" placeholder=\"مثال: 15.0%\" oninput=\"recalcProfitPreview()\"> <span class=\"text-xs text-muted mt-1 d-block\">الخصم المطبق على سعر الجمهور</span></div></div><div style=\"display:grid; grid-template-columns:1fr 1fr; gap:1rem; border-top:1px dashed var(--border); padding-top:0.75rem;\"><div><label class=\"form-label\" for=\"var-cost\">سعر التكلفة (ج.م) <span class=\"badge badge-slate text-xs\">اختياري</span></label> <input type=\"number\" step=\"0.01\" min=\"0\" id=\"var-cost\" name=\"cost_price\" class=\"form-input tabular-nums\" placeholder=\"0.00 (إن وجد)\" oninput=\"recalcProfitPreview()\"> <span class=\"text-xs text-muted mt-1 d-block\">تكلفة شراء الصنف على المورد</span></div><div><label class=\"form-label\" for=\"var-cost-discount\">خصم التكلفة (%) <span class=\"badge badge-slate text-xs\">اختياري</span></label> <input type=\"number\" step=\"0.1\" min=\"0\" max=\"100\" id=\"var-cost-discount\" name=\"cost_discount_percentage\" class=\"form-input tabular-nums\" placeholder=\"0.0%\" oninput=\"recalcProfitPreview()\"> <span class=\"text-xs text-muted mt-1 d-block\">نسبة الخصم الممنوحة على سعر التكلفة</span></div></div><!-- Real-time Profit Preview Strip --><div id=\"profit-calc-preview\" style=\"background:var(--surface-raised); border:1px solid var(--primary-200); border-radius:var(--radius-lg); padding:0.75rem 1rem; display:grid; grid-template-columns:repeat(auto-fit, minmax(130px, 1fr)); gap:0.5rem; text-align:center;\"><div><div class=\"text-xs text-muted font-bold\">سعر البيع بعد الخصم</div><div id=\"preview-selling-price\" class=\"font-extrabold text-primary tabular-nums mt-1\">0.00 ج.م</div></div><div><div class=\"text-xs text-muted font-bold\">التكلفة الفعلية المخفضة</div><div id=\"preview-cost-price\" class=\"font-extrabold text-secondary tabular-nums mt-1\">0.00 ج.م</div></div><div><div class=\"text-xs text-muted font-bold\">صافي ربح الوحدة</div><div id=\"preview-net-profit\" class=\"font-black text-success tabular-nums mt-1\">0.00 ج.م</div></div><div><div class=\"text-xs text-muted font-bold\">هامش الربح المتوقع</div><div id=\"preview-profit-margin\" class=\"font-black text-brand tabular-nums mt-1\">0.0%</div></div></div></div><script>\n\t\t\t\t\tfunction recalcProfitPreview() {\n\t\t\t\t\t\tconst price = parseFloat(document.getElementById('var-price')?.value) || 0;\n\t\t\t\t\t\tconst discount = parseFloat(document.getElementById('var-discount')?.value) || 0;\n\t\t\t\t\t\tconst cost = parseFloat(document.getElementById('var-cost')?.value) || 0;\n\t\t\t\t\t\tconst costDiscount = parseFloat(document.getElementById('var-cost-discount')?.value) || 0;\n\n\t\t\t\t\t\tconst sellingPrice = price > 0 ? (price * (1 - (discount / 100))) : 0;\n\t\t\t\t\t\tconst discountedCost = cost > 0 ? (cost * (1 - (costDiscount / 100))) : 0;\n\t\t\t\t\t\t\n\t\t\t\t\t\tlet netProfit = sellingPrice;\n\t\t\t\t\t\tif (cost > 0) {\n\t\t\t\t\t\t\tnetProfit = sellingPrice - discountedCost;\n\t\t\t\t\t\t}\n\t\t\t\t\t\tconst margin = sellingPrice > 0 ? ((netProfit / sellingPrice) * 100) : 0;\n\n\t\t\t\t\t\tconst elSell = document.getElementById('preview-selling-price');\n\t\t\t\t\t\tconst elCost = document.getElementById('preview-cost-price');\n\t\t\t\t\t\tconst elProfit = document.getElementById('preview-net-profit');\n\t\t\t\t\t\tconst elMargin = document.getElementById('preview-profit-margin');\n\n\t\t\t\t\t\tif (elSell) elSell.textContent = sellingPrice.toFixed(2) + ' ج.م';\n\t\t\t\t\t\tif (elCost) elCost.textContent = cost > 0 ? (discountedCost.toFixed(2) + ' ج.م') : 'لا توجد تكلفة';\n\t\t\t\t\t\tif (elProfit) elProfit.textContent = netProfit.toFixed(2) + ' ج.م';\n\t\t\t\t\t\tif (elMargin) elMargin.textContent = margin.toFixed(1) + '%';\n\t\t\t\t\t}\n\t\t\t\t\tdocument.addEventListener('DOMContentLoaded', recalcProfitPreview);\n\t\t\t\t</script><!-- 5. Quantities & Stock --><div style=\"display:grid; grid-template-columns:1fr 1fr; gap:1.25rem;\"><div><label class=\"form-label\" for=\"var-stock\">الكمية المتوفرة بالمخزن (الرصيد) *</label> <input type=\"number\" min=\"1\" id=\"var-stock\" name=\"stock_qty\" class=\"form-input tabular-nums\" placeholder=\"مثال: 500\" required></div><div><label class=\"form-label\" for=\"var-min-qty\">الحد الأدنى لطلب الصيدلية (عبوة)</label> <input type=\"number\" min=\"1\" id=\"var-min-qty\" name=\"min_order_qty\" value=\"1\" class=\"form-input tabular-nums\" required></div></div><!-- 6. Branch / Warehouse Location --><div style=\"display:grid; grid-template-columns:1fr 1fr; gap:1.25rem;\"><div><label class=\"form-label\" for=\"var-branch\">مخزن أو فرع الشحن المعتمد *</label> <select id=\"var-branch\" name=\"branch_id\" class=\"form-select\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			for _, b := range data.Branches {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "<option value=\"")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "<option value=\"")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var7 string
 				templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%d", b.ID))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_product_editor.templ`, Line: 115, Col: 47}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_product_editor.templ`, Line: 182, Col: 47}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var7)
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "\"")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "\"")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				if b.IsMain {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, " selected")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, " selected")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, ">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, ">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var8 string
 				templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(b.Name.Get(i18n.Lang(lang)))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_product_editor.templ`, Line: 116, Col: 38}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_product_editor.templ`, Line: 183, Col: 38}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var8))
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, " ")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, " ")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				if b.IsMain {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "<span>(الفرع الرئيسي)</span> ")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "<span>(الفرع الرئيسي)</span> ")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 				}
 				if b.Code != "" {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "(")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, "(")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var9 string
 					templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinStringErrs(b.Code)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_product_editor.templ`, Line: 121, Col: 19}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_product_editor.templ`, Line: 188, Col: 19}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var9))
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, ")")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, ")")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, "</option>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, "</option>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, "</select></div><div><label class=\"form-label\" for=\"var-sku\">كود الصنف الخاص بالشركة (SKU / Barcode)</label> <input type=\"text\" id=\"var-sku\" name=\"sku\" class=\"form-input tabular-nums\" placeholder=\"مثال: SKU-88492\"></div></div><div style=\"display:flex; justify-content:flex-end; gap:0.75rem; margin-top:1rem; border-top:1px solid var(--neutral-100); padding-top:1.25rem;\"><a href=\"/vendor/products\" class=\"btn btn-secondary\">إلغاء</a> <button type=\"submit\" class=\"btn btn-primary\" style=\"font-weight:800; padding:0.75rem 2rem;\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, "</select></div><div><label class=\"form-label\" for=\"var-sku\">كود الصنف الخاص بالشركة (SKU / Barcode)</label> <input type=\"text\" id=\"var-sku\" name=\"sku\" class=\"form-input tabular-nums\" placeholder=\"مثال: SKU-88492\"></div></div><div style=\"display:flex; justify-content:flex-end; gap:0.75rem; margin-top:1rem; border-top:1px solid var(--neutral-100); padding-top:1.25rem;\"><a href=\"/vendor/products\" class=\"btn btn-secondary\">إلغاء</a> <button type=\"submit\" class=\"btn btn-primary\" style=\"font-weight:800; padding:0.75rem 2rem;\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -229,7 +237,7 @@ func VendorProductEditor(data VendorVariantEditorData, lang, dir string) templ.C
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, "<span>حفظ ونشر عرض التوريد</span></button></div></form></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, "<span>حفظ ونشر عرض التوريد</span></button></div></form></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

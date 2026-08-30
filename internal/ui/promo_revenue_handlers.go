@@ -1,6 +1,7 @@
 package ui
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 	"strconv"
@@ -276,12 +277,12 @@ func (h *UIHandler) AdminSponsorshipRequestApproveSubmit(w http.ResponseWriter, 
 		h.redirectWithNotice(w, r, "/admin/offers-packages?tab=requests", "error", h.safeMessage(err, langOf(r)))
 		return
 	}
-	if req != nil && req.VendorOrganizationID > 0 {
-		pkgName := "الباقة الإعلانية"
-		if req.PackageName != "" {
-			pkgName = req.PackageName
+	if req != nil && req.OrganizationID > 0 {
+		pkgName := "باقة الرعاية"
+		if req.Package != nil {
+			pkgName = req.Package.Name.Get("ar")
 		}
-		go h.notifySponsorshipStatus(context.Background(), req.VendorOrganizationID, pkgName, true, notes)
+		go h.notifySponsorshipStatus(context.Background(), req.OrganizationID, pkgName, true, notes)
 	}
 	h.redirectWithNotice(w, r, "/admin/offers-packages?tab=requests", "success", i18n.T(langOf(r), "admin.promo.sponsorship_approved_success"))
 }
@@ -299,18 +300,18 @@ func (h *UIHandler) AdminSponsorshipRequestRejectSubmit(w http.ResponseWriter, r
 		return
 	}
 	sysCtx := database.AsSystem(ctx)
+	req, _ := h.promoSvc.GetSponsorshipRequestByID(sysCtx, id)
 	notes := r.PostFormValue("notes")
-	req, err := h.promoSvc.AdminRejectSponsorshipRequest(sysCtx, id, notes)
-	if err != nil {
+	if err := h.promoSvc.AdminRejectSponsorshipRequest(sysCtx, id, notes); err != nil {
 		h.redirectWithNotice(w, r, "/admin/offers-packages?tab=requests", "error", h.safeMessage(err, langOf(r)))
 		return
 	}
-	if req != nil && req.VendorOrganizationID > 0 {
-		pkgName := "الباقة الإعلانية"
-		if req.PackageName != "" {
-			pkgName = req.PackageName
+	if req != nil && req.OrganizationID > 0 {
+		pkgName := "باقة الرعاية"
+		if req.Package != nil {
+			pkgName = req.Package.Name.Get("ar")
 		}
-		go h.notifySponsorshipStatus(context.Background(), req.VendorOrganizationID, pkgName, false, notes)
+		go h.notifySponsorshipStatus(context.Background(), req.OrganizationID, pkgName, false, notes)
 	}
 	h.redirectWithNotice(w, r, "/admin/offers-packages?tab=requests", "success", i18n.T(langOf(r), "admin.promo.sponsorship_rejected_success"))
 }
@@ -334,12 +335,15 @@ func (h *UIHandler) AdminAdApproveSubmit(w http.ResponseWriter, r *http.Request)
 		h.redirectWithNotice(w, r, "/admin/offers-packages?tab=ads", "error", h.safeMessage(err, langOf(r)))
 		return
 	}
-	if ad != nil && ad.OrganizationID > 0 {
-		adTitle := ad.Headline
+	if ad != nil && ad.OrganizationID != nil && *ad.OrganizationID > 0 {
+		adTitle := ad.TitleAr
+		if adTitle == "" {
+			adTitle = ad.Title
+		}
 		if adTitle == "" {
 			adTitle = "الإعلان الترويجي"
 		}
-		go h.notifyAdStatus(context.Background(), ad.OrganizationID, adTitle, true, notes)
+		go h.notifyAdStatus(context.Background(), *ad.OrganizationID, adTitle, true, notes)
 	}
 	h.redirectWithNotice(w, r, "/admin/offers-packages?tab=ads", "success", i18n.T(langOf(r), "admin.promo.ad_approved_success"))
 }
@@ -363,12 +367,15 @@ func (h *UIHandler) AdminAdRejectSubmit(w http.ResponseWriter, r *http.Request) 
 		h.redirectWithNotice(w, r, "/admin/offers-packages?tab=ads", "error", h.safeMessage(err, langOf(r)))
 		return
 	}
-	if ad != nil && ad.OrganizationID > 0 {
-		adTitle := ad.Headline
+	if ad != nil && ad.OrganizationID != nil && *ad.OrganizationID > 0 {
+		adTitle := ad.TitleAr
+		if adTitle == "" {
+			adTitle = ad.Title
+		}
 		if adTitle == "" {
 			adTitle = "الإعلان الترويجي"
 		}
-		go h.notifyAdStatus(context.Background(), ad.OrganizationID, adTitle, false, notes)
+		go h.notifyAdStatus(context.Background(), *ad.OrganizationID, adTitle, false, notes)
 	}
 	h.redirectWithNotice(w, r, "/admin/offers-packages?tab=ads", "success", i18n.T(langOf(r), "admin.promo.ad_rejected_success"))
 }

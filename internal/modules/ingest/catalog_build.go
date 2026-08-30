@@ -38,7 +38,9 @@ func (w *importWriter) buildVariant(d *decision) *catalog.ProductVariant {
 		v.IsNegotiable = *row.Negotiable
 	}
 	v.Price, v.Discount = listAndDiscount(row)
-	v.CostPrice = row.CostPrice
+	if !row.CostPrice.IsZero() {
+		v.CostPrice = &row.CostPrice
+	}
 	return v
 }
 
