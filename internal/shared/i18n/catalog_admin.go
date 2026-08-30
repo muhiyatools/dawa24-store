@@ -34,4 +34,22 @@ func loadAdminKeys(e *engine) {
 	// Chat History Audit
 	addKey(e, "admin.chat_history_title", "admin", "سجلات محادثات المساعد الذكي كبسولة AI", "AI Capsule Assistant Audit & Chat Logs", "Admin chat history page title")
 	addKey(e, "admin.chat_history_sub", "admin", "مراقبة وتدقيق كافة جلسات ومحادثات الذكاء الاصطناعي مع المستخدمين (صيدليات وموردين) واستهلاك الرموز وتفاصيل الحوارات.", "Audit all user AI conversations across pharmacies and vendors with token usage and full dialog inspection.", "Admin chat history subtitle")
+
+	// Decision Memory
+	addKey(e, "admin.decision_memory.toggle_error", "admin", "حدث خطأ أثناء تحديث حالة ذاكرة القرارات.", "Error updating decision memory state.", "Toggle error")
+	addKey(e, "admin.decision_memory.state_enabled", "admin", "تفعيل", "Enable", "Enabled state word")
+	addKey(e, "admin.decision_memory.state_disabled", "admin", "إيقاف", "Disable", "Disabled state word")
+	addKey(e, "admin.decision_memory.toggle_success", "admin", "تم %s نظام ذاكرة القرارات بنجاح على مستوى المنصة بالكامل.", "Decision memory system was %sd successfully across the platform.", "Toggle success")
+	addKey(e, "admin.decision_memory.invalid_id", "admin", "معرف القرار غير صالح.", "Invalid decision ID.", "Validation error")
+	addKey(e, "admin.decision_memory.delete_error", "admin", "حدث خطأ أثناء حذف القرار.", "Error deleting decision.", "Delete error")
+	addKey(e, "admin.decision_memory.delete_success", "admin", "تم حذف القرار من ذاكرة المطابقة بنجاح.", "Decision deleted from match memory successfully.", "Delete success")
+	addKey(e, "admin.decision_memory.clear_error", "admin", "حدث خطأ أثناء مسح ذاكرة القرارات.", "Error clearing decision memory.", "Clear error")
+	addKey(e, "admin.decision_memory.clear_success", "admin", "تم مسح كافة قرارات الذاكرة بنجاح.", "All memory decisions cleared successfully.", "Clear success")
+	addKey(e, "decision_memory.item_and_drug_required", "catalog", "يرجى إدخال اسم الصنف واختيار الدواء المطابق من الكتالوج.", "Please enter item name and select matched medicine from catalog.", "Validation error")
+	addKey(e, "decision_memory.customer_manual_reason", "catalog", "قرار يدوي مضاف من الصيدلية", "Manual decision added by pharmacy", "Default reason")
+	addKey(e, "decision_memory.vendor_manual_reason", "catalog", "قرار يدوي مضاف من المورد", "Manual decision added by vendor", "Default reason")
+	addKey(e, "decision_memory.save_error", "catalog", "حدث خطأ أثناء حفظ القرار في الذاكرة.", "Error saving decision to memory.", "Save error")
+	addKey(e, "decision_memory.customer_saved_success", "catalog", "تم حفظ قرار المطابقة بنجاح في ذاكرة الصيدلية.", "Match decision saved successfully in pharmacy memory.", "Save success")
+	addKey(e, "decision_memory.vendor_saved_success", "catalog", "تم حفظ قرار المطابقة بنجاح في ذاكرة المورد.", "Match decision saved successfully in vendor memory.", "Save success")
+	addKey(e, "decision_memory.org_cleared_success", "catalog", "تم مسح ذاكرة قرارات المطابقة بنجاح.", "Match decision memory cleared successfully.", "Clear success")
 }

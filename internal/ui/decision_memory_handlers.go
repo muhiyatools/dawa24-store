@@ -8,6 +8,7 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/ui/pages"
 )
 
@@ -49,6 +50,7 @@ func (h *UIHandler) AdminMatchDecisionsPage(w http.ResponseWriter, r *http.Reque
 // AdminMatchDecisionToggleStateSubmit toggles the global Decision Memory active switch across the platform.
 func (h *UIHandler) AdminMatchDecisionToggleStateSubmit(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
+	lang := langOf(r)
 	currentlyEnabled := h.catSvc.IsDecisionMemoryEnabled(ctx)
 	targetState := !currentlyEnabled
 
@@ -58,47 +60,49 @@ func (h *UIHandler) AdminMatchDecisionToggleStateSubmit(w http.ResponseWriter, r
 
 	if err := h.catSvc.SetDecisionMemoryEnabled(ctx, targetState); err != nil {
 		h.log.ErrorContext(ctx, "failed to toggle decision memory state", "error", err)
-		h.redirectWithNotice(w, r, "/admin/match-decisions", "error", "حدث خطأ أثناء تحديث حالة ذاكرة القرارات.")
+		h.redirectWithNotice(w, r, "/admin/match-decisions", "error", i18n.T(lang, "admin.decision_memory.toggle_error"))
 		return
 	}
 
-	stateLabel := "تفعيل"
+	stateLabel := i18n.T(lang, "admin.decision_memory.state_enabled")
 	if !targetState {
-		stateLabel = "إيقاف"
+		stateLabel = i18n.T(lang, "admin.decision_memory.state_disabled")
 	}
-	h.redirectWithNotice(w, r, "/admin/match-decisions", "success", fmt.Sprintf("تم %s نظام ذاكرة القرارات بنجاح على مستوى المنصة بالكامل.", stateLabel))
+	h.redirectWithNotice(w, r, "/admin/match-decisions", "success", fmt.Sprintf(i18n.T(lang, "admin.decision_memory.toggle_success"), stateLabel))
 }
 
 // AdminMatchDecisionDeleteSubmit handles deleting a single match decision from the central cache.
 func (h *UIHandler) AdminMatchDecisionDeleteSubmit(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
+	lang := langOf(r)
 	idStr := chi.URLParam(r, "id")
 	id, err := strconv.ParseInt(idStr, 10, 64)
 	if err != nil || id <= 0 {
-		h.redirectWithNotice(w, r, "/admin/match-decisions", "error", "معرف القرار غير صالح.")
+		h.redirectWithNotice(w, r, "/admin/match-decisions", "error", i18n.T(lang, "admin.decision_memory.invalid_id"))
 		return
 	}
 
 	if err := h.catSvc.DeleteMatchDecision(ctx, id); err != nil {
 		h.log.ErrorContext(ctx, "failed to delete match decision", "id", id, "error", err)
-		h.redirectWithNotice(w, r, "/admin/match-decisions", "error", "حدث خطأ أثناء حذف القرار.")
+		h.redirectWithNotice(w, r, "/admin/match-decisions", "error", i18n.T(lang, "admin.decision_memory.delete_error"))
 		return
 	}
 
-	h.redirectWithNotice(w, r, "/admin/match-decisions", "success", "تم حذف القرار من ذاكرة المطابقة بنجاح.")
+	h.redirectWithNotice(w, r, "/admin/match-decisions", "success", i18n.T(lang, "admin.decision_memory.delete_success"))
 }
 
 // AdminMatchDecisionsClearSubmit purges the entire match decision cache.
 func (h *UIHandler) AdminMatchDecisionsClearSubmit(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
+	lang := langOf(r)
 
 	if err := h.catSvc.ClearMatchDecisions(ctx); err != nil {
 		h.log.ErrorContext(ctx, "failed to clear match decisions", "error", err)
-		h.redirectWithNotice(w, r, "/admin/match-decisions", "error", "حدث خطأ أثناء مسح ذاكرة القرارات.")
+		h.redirectWithNotice(w, r, "/admin/match-decisions", "error", i18n.T(lang, "admin.decision_memory.clear_error"))
 		return
 	}
 
-	h.redirectWithNotice(w, r, "/admin/match-decisions", "success", "تم مسح كافة قرارات الذاكرة بنجاح.")
+	h.redirectWithNotice(w, r, "/admin/match-decisions", "success", i18n.T(lang, "admin.decision_memory.clear_success"))
 }
 
 // CustomerDecisionMemoryPage renders the decision memory list for pharmacy customer organizations.
@@ -147,6 +151,7 @@ func (h *UIHandler) CustomerDecisionMemoryPage(w http.ResponseWriter, r *http.Re
 // CustomerDecisionMemoryAddSubmit adds a new manual match decision for the pharmacy.
 func (h *UIHandler) CustomerDecisionMemoryAddSubmit(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
+	lang := langOf(r)
 	actor, ok := authctx.From(ctx)
 	if !ok || actor.OrganizationID <= 0 {
 		http.Redirect(w, r, "/auth/login?redirect=/customer/decision-memory", http.StatusSeeOther)
@@ -159,26 +164,27 @@ func (h *UIHandler) CustomerDecisionMemoryAddSubmit(w http.ResponseWriter, r *ht
 
 	productID, err := strconv.ParseInt(productIDStr, 10, 64)
 	if err != nil || productID <= 0 || rawName == "" {
-		h.redirectWithNotice(w, r, "/customer/decision-memory", "error", "يرجى إدخال اسم الصنف واختيار الدواء المطابق من الكتالوج.")
+		h.redirectWithNotice(w, r, "/customer/decision-memory", "error", i18n.T(lang, "decision_memory.item_and_drug_required"))
 		return
 	}
 
 	if reason == "" {
-		reason = "قرار يدوي مضاف من الصيدلية"
+		reason = i18n.T(lang, "decision_memory.customer_manual_reason")
 	}
 
 	if err := h.catSvc.SaveManualDecision(ctx, actor.OrganizationID, actor.UserID, rawName, productID, reason); err != nil {
 		h.log.ErrorContext(ctx, "failed to add manual decision for customer", "error", err)
-		h.redirectWithNotice(w, r, "/customer/decision-memory", "error", "حدث خطأ أثناء حفظ القرار في الذاكرة.")
+		h.redirectWithNotice(w, r, "/customer/decision-memory", "error", i18n.T(lang, "decision_memory.save_error"))
 		return
 	}
 
-	h.redirectWithNotice(w, r, "/customer/decision-memory", "success", "تم حفظ قرار المطابقة بنجاح في ذاكرة الصيدلية.")
+	h.redirectWithNotice(w, r, "/customer/decision-memory", "success", i18n.T(lang, "decision_memory.customer_saved_success"))
 }
 
 // CustomerDecisionMemoryDeleteSubmit deletes a single customer saved match decision.
 func (h *UIHandler) CustomerDecisionMemoryDeleteSubmit(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
+	lang := langOf(r)
 	actor, ok := authctx.From(ctx)
 	if !ok || actor.OrganizationID <= 0 {
 		http.Redirect(w, r, "/auth/login?redirect=/customer/decision-memory", http.StatusSeeOther)
@@ -188,22 +194,23 @@ func (h *UIHandler) CustomerDecisionMemoryDeleteSubmit(w http.ResponseWriter, r 
 	idStr := chi.URLParam(r, "id")
 	id, err := strconv.ParseInt(idStr, 10, 64)
 	if err != nil || id <= 0 {
-		h.redirectWithNotice(w, r, "/customer/decision-memory", "error", "معرف القرار غير صالح.")
+		h.redirectWithNotice(w, r, "/customer/decision-memory", "error", i18n.T(lang, "admin.decision_memory.invalid_id"))
 		return
 	}
 
 	if err := h.catSvc.DeleteMatchDecisionForOrg(ctx, actor.OrganizationID, id); err != nil {
 		h.log.ErrorContext(ctx, "failed to delete match decision for customer", "id", id, "error", err)
-		h.redirectWithNotice(w, r, "/customer/decision-memory", "error", "حدث خطأ أثناء حذف القرار.")
+		h.redirectWithNotice(w, r, "/customer/decision-memory", "error", i18n.T(lang, "admin.decision_memory.delete_error"))
 		return
 	}
 
-	h.redirectWithNotice(w, r, "/customer/decision-memory", "success", "تم حذف القرار من ذاكرة المطابقة بنجاح.")
+	h.redirectWithNotice(w, r, "/customer/decision-memory", "success", i18n.T(lang, "admin.decision_memory.delete_success"))
 }
 
 // CustomerDecisionMemoryClearSubmit clears all match decisions from the customer organization's memory.
 func (h *UIHandler) CustomerDecisionMemoryClearSubmit(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
+	lang := langOf(r)
 	actor, ok := authctx.From(ctx)
 	if !ok || actor.OrganizationID <= 0 {
 		http.Redirect(w, r, "/auth/login?redirect=/customer/decision-memory", http.StatusSeeOther)
@@ -212,11 +219,11 @@ func (h *UIHandler) CustomerDecisionMemoryClearSubmit(w http.ResponseWriter, r *
 
 	if err := h.catSvc.ClearMatchDecisionsForOrg(ctx, actor.OrganizationID); err != nil {
 		h.log.ErrorContext(ctx, "failed to clear match decisions for customer", "error", err)
-		h.redirectWithNotice(w, r, "/customer/decision-memory", "error", "حدث خطأ أثناء مسح الذاكرة.")
+		h.redirectWithNotice(w, r, "/customer/decision-memory", "error", i18n.T(lang, "admin.decision_memory.clear_error"))
 		return
 	}
 
-	h.redirectWithNotice(w, r, "/customer/decision-memory", "success", "تم مسح ذاكرة قرارات المطابقة بنجاح.")
+	h.redirectWithNotice(w, r, "/customer/decision-memory", "success", i18n.T(lang, "decision_memory.org_cleared_success"))
 }
 
 // VendorDecisionMemoryPage renders the decision memory list for vendor organizations.
@@ -265,6 +272,7 @@ func (h *UIHandler) VendorDecisionMemoryPage(w http.ResponseWriter, r *http.Requ
 // VendorDecisionMemoryAddSubmit adds a new manual match decision for the vendor.
 func (h *UIHandler) VendorDecisionMemoryAddSubmit(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
+	lang := langOf(r)
 	actor, ok := authctx.From(ctx)
 	if !ok || actor.OrganizationID <= 0 {
 		http.Redirect(w, r, "/auth/login?redirect=/vendor/decision-memory", http.StatusSeeOther)
@@ -277,26 +285,27 @@ func (h *UIHandler) VendorDecisionMemoryAddSubmit(w http.ResponseWriter, r *http
 
 	productID, err := strconv.ParseInt(productIDStr, 10, 64)
 	if err != nil || productID <= 0 || rawName == "" {
-		h.redirectWithNotice(w, r, "/vendor/decision-memory", "error", "يرجى إدخال اسم الصنف واختيار الدواء المطابق من الكتالوج.")
+		h.redirectWithNotice(w, r, "/vendor/decision-memory", "error", i18n.T(lang, "decision_memory.item_and_drug_required"))
 		return
 	}
 
 	if reason == "" {
-		reason = "قرار يدوي مضاف من المورد"
+		reason = i18n.T(lang, "decision_memory.vendor_manual_reason")
 	}
 
 	if err := h.catSvc.SaveManualDecision(ctx, actor.OrganizationID, actor.UserID, rawName, productID, reason); err != nil {
 		h.log.ErrorContext(ctx, "failed to add manual decision for vendor", "error", err)
-		h.redirectWithNotice(w, r, "/vendor/decision-memory", "error", "حدث خطأ أثناء حفظ القرار في الذاكرة.")
+		h.redirectWithNotice(w, r, "/vendor/decision-memory", "error", i18n.T(lang, "decision_memory.save_error"))
 		return
 	}
 
-	h.redirectWithNotice(w, r, "/vendor/decision-memory", "success", "تم حفظ قرار المطابقة بنجاح في ذاكرة المورد.")
+	h.redirectWithNotice(w, r, "/vendor/decision-memory", "success", i18n.T(lang, "decision_memory.vendor_saved_success"))
 }
 
 // VendorDecisionMemoryDeleteSubmit deletes a single vendor saved match decision.
 func (h *UIHandler) VendorDecisionMemoryDeleteSubmit(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
+	lang := langOf(r)
 	actor, ok := authctx.From(ctx)
 	if !ok || actor.OrganizationID <= 0 {
 		http.Redirect(w, r, "/auth/login?redirect=/vendor/decision-memory", http.StatusSeeOther)
@@ -306,22 +315,23 @@ func (h *UIHandler) VendorDecisionMemoryDeleteSubmit(w http.ResponseWriter, r *h
 	idStr := chi.URLParam(r, "id")
 	id, err := strconv.ParseInt(idStr, 10, 64)
 	if err != nil || id <= 0 {
-		h.redirectWithNotice(w, r, "/vendor/decision-memory", "error", "معرف القرار غير صالح.")
+		h.redirectWithNotice(w, r, "/vendor/decision-memory", "error", i18n.T(lang, "admin.decision_memory.invalid_id"))
 		return
 	}
 
 	if err := h.catSvc.DeleteMatchDecisionForOrg(ctx, actor.OrganizationID, id); err != nil {
 		h.log.ErrorContext(ctx, "failed to delete match decision for vendor", "id", id, "error", err)
-		h.redirectWithNotice(w, r, "/vendor/decision-memory", "error", "حدث خطأ أثناء حذف القرار.")
+		h.redirectWithNotice(w, r, "/vendor/decision-memory", "error", i18n.T(lang, "admin.decision_memory.delete_error"))
 		return
 	}
 
-	h.redirectWithNotice(w, r, "/vendor/decision-memory", "success", "تم حذف القرار من ذاكرة المطابقة بنجاح.")
+	h.redirectWithNotice(w, r, "/vendor/decision-memory", "success", i18n.T(lang, "admin.decision_memory.delete_success"))
 }
 
 // VendorDecisionMemoryClearSubmit clears all match decisions from the vendor organization's memory.
 func (h *UIHandler) VendorDecisionMemoryClearSubmit(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
+	lang := langOf(r)
 	actor, ok := authctx.From(ctx)
 	if !ok || actor.OrganizationID <= 0 {
 		http.Redirect(w, r, "/auth/login?redirect=/vendor/decision-memory", http.StatusSeeOther)
@@ -330,9 +340,9 @@ func (h *UIHandler) VendorDecisionMemoryClearSubmit(w http.ResponseWriter, r *ht
 
 	if err := h.catSvc.ClearMatchDecisionsForOrg(ctx, actor.OrganizationID); err != nil {
 		h.log.ErrorContext(ctx, "failed to clear match decisions for vendor", "error", err)
-		h.redirectWithNotice(w, r, "/vendor/decision-memory", "error", "حدث خطأ أثناء مسح الذاكرة.")
+		h.redirectWithNotice(w, r, "/vendor/decision-memory", "error", i18n.T(lang, "admin.decision_memory.clear_error"))
 		return
 	}
 
-	h.redirectWithNotice(w, r, "/vendor/decision-memory", "success", "تم مسح ذاكرة قرارات المطابقة بنجاح.")
+	h.redirectWithNotice(w, r, "/vendor/decision-memory", "success", i18n.T(lang, "decision_memory.org_cleared_success"))
 }

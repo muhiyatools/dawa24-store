@@ -60,8 +60,8 @@ func (h *UIHandler) notifyOrderPlaced(ctx context.Context, order *commerce.Order
 	}
 
 	// 1. Notify Customer / Pharmacy
-	custTitle := fmt.Sprintf("تم استلام طلب التوريد #%s", orderNum)
-	custBody := fmt.Sprintf("تم تسجيل طلبك بقيمة %s ج.م بنجاح، وجاري مراجعته وتجهيزه من قِبل الموردين المعتمدين.", order.TotalAmount.String())
+	custTitle := fmt.Sprintf(i18n.T("ar", "notif.order_received_title"), orderNum)
+	custBody := fmt.Sprintf(i18n.T("ar", "notif.order_received_body"), order.TotalAmount.String())
 	h.dispatchInAppNotification(ctx, order.CustomerID, nil, custTitle, custBody)
 	if order.OrganizationID != nil && *order.OrganizationID > 0 {
 		h.dispatchOrgNotification(ctx, *order.OrganizationID, custTitle, custBody)
@@ -69,7 +69,7 @@ func (h *UIHandler) notifyOrderPlaced(ctx context.Context, order *commerce.Order
 
 	// 2. Notify each Vendor Organization
 	if pharmacyName == "" {
-		pharmacyName = "إحدى الصيدليات المعتمدة"
+		pharmacyName = i18n.T("ar", "notif.verified_pharmacy")
 	}
 
 	for _, sh := range order.Shipments {
@@ -77,8 +77,8 @@ func (h *UIHandler) notifyOrderPlaced(ctx context.Context, order *commerce.Order
 			continue
 		}
 		itemCount := len(sh.Lines)
-		vendorTitle := fmt.Sprintf("طلب توريد جديد #%s", orderNum)
-		vendorBody := fmt.Sprintf("ورد طلب توريد جديد من %s لعدد %d أصناف بقيمة %s ج.م. يرجى مراجعة وتأكيد الشحنة.",
+		vendorTitle := fmt.Sprintf(i18n.T("ar", "notif.new_supply_order_title"), orderNum)
+		vendorBody := fmt.Sprintf(i18n.T("ar", "notif.new_supply_order_body"),
 			pharmacyName, itemCount, sh.Subtotal.String())
 		h.dispatchOrgNotification(ctx, sh.OrganizationID, vendorTitle, vendorBody)
 	}
@@ -103,29 +103,29 @@ func (h *UIHandler) notifyOrderStatusChanged(
 	}
 
 	if vendorName == "" {
-		vendorName = "المورد"
+		vendorName = i18n.T("ar", "notif.the_vendor")
 	}
 
 	var title, body string
 	switch toStatus {
 	case commerce.StatusConfirmed:
-		title = fmt.Sprintf("تم قبول وتأكيد طلبك #%s", orderNum)
-		body = fmt.Sprintf("قام %s بقبول طلبك وجاري تجهيز الشحنة بالمستودع تمهيداً للإرسال.", vendorName)
+		title = fmt.Sprintf(i18n.T("ar", "notif.order_confirmed_title"), orderNum)
+		body = fmt.Sprintf(i18n.T("ar", "notif.order_confirmed_body"), vendorName)
 	case commerce.StatusShipped:
-		title = fmt.Sprintf("شحنتك للطلب #%s في الطريق", orderNum)
-		body = fmt.Sprintf("تم خروج شحنتك من مستودع %s وفي طريقها للتسليم لصيدليتك.", vendorName)
+		title = fmt.Sprintf(i18n.T("ar", "notif.order_shipped_title"), orderNum)
+		body = fmt.Sprintf(i18n.T("ar", "notif.order_shipped_body"), vendorName)
 	case commerce.StatusDelivered:
-		title = fmt.Sprintf("تم تسليم طلب التوريد #%s", orderNum)
-		body = fmt.Sprintf("تم تأكيد تسليم وتوثيق استلام الشحنة من %s بنجاح.", vendorName)
+		title = fmt.Sprintf(i18n.T("ar", "notif.order_delivered_title"), orderNum)
+		body = fmt.Sprintf(i18n.T("ar", "notif.order_delivered_body"), vendorName)
 	case commerce.StatusCancelled:
-		title = fmt.Sprintf("تم إلغاء شحنة الطلب #%s", orderNum)
-		body = fmt.Sprintf("تم إلغاء الشحنة من قِبل %s.", vendorName)
+		title = fmt.Sprintf(i18n.T("ar", "notif.order_cancelled_title"), orderNum)
+		body = fmt.Sprintf(i18n.T("ar", "notif.order_cancelled_body"), vendorName)
 		if strings.TrimSpace(notes) != "" {
-			body += fmt.Sprintf(" السبب: %s", notes)
+			body += fmt.Sprintf(i18n.T("ar", "notif.reason_prefix"), notes)
 		}
 	default:
-		title = fmt.Sprintf("تحديث حالة الطلب #%s", orderNum)
-		body = fmt.Sprintf("تم تحديث حالة شحنتك لدى %s إلى: %s", vendorName, string(toStatus))
+		title = fmt.Sprintf(i18n.T("ar", "notif.order_status_update_title"), orderNum)
+		body = fmt.Sprintf(i18n.T("ar", "notif.order_status_update_body"), vendorName, string(toStatus))
 	}
 
 	h.dispatchInAppNotification(ctx, order.CustomerID, nil, title, body)
@@ -140,20 +140,20 @@ func (h *UIHandler) notifyPurchaseRequestCreated(ctx context.Context, vendorOrgI
 		return
 	}
 	if pharmacyName == "" {
-		pharmacyName = "إحدى الصيدليات"
+		pharmacyName = i18n.T("ar", "notif.a_pharmacy")
 	}
-	title := fmt.Sprintf("طلب تسعير وشراء مباشر جديد #REQ-%d", requestID)
-	body := fmt.Sprintf("ورد طلب تسعير وتوريد مباشر من %s لعدد %d أصناف. يرجى تقديم عروض الأسعار والكميات المتاحة.", pharmacyName, itemCount)
+	title := fmt.Sprintf(i18n.T("ar", "notif.purchase_req_created_title"), requestID)
+	body := fmt.Sprintf(i18n.T("ar", "notif.purchase_req_created_body"), pharmacyName, itemCount)
 	h.dispatchOrgNotification(ctx, vendorOrgID, title, body)
 }
 
 // notifyPurchaseRequestResponded dispatches notification to the pharmacy when a vendor responds with prices.
 func (h *UIHandler) notifyPurchaseRequestResponded(ctx context.Context, customerUserID int64, customerOrgID int64, vendorName string, requestID int64) {
 	if vendorName == "" {
-		vendorName = "المورد"
+		vendorName = i18n.T("ar", "notif.the_vendor")
 	}
-	title := fmt.Sprintf("رد على طلب التسعير والشراء #REQ-%d", requestID)
-	body := fmt.Sprintf("قام %s بالرد على طلب التسعير الخاص بك وتقديم عروض الأسعار والكميات.", vendorName)
+	title := fmt.Sprintf(i18n.T("ar", "notif.purchase_req_responded_title"), requestID)
+	body := fmt.Sprintf(i18n.T("ar", "notif.purchase_req_responded_body"), vendorName)
 	if customerUserID > 0 {
 		h.dispatchInAppNotification(ctx, customerUserID, nil, title, body)
 	}
@@ -166,11 +166,11 @@ func (h *UIHandler) notifyPurchaseRequestResponded(ctx context.Context, customer
 func (h *UIHandler) notifyWalletDeposit(ctx context.Context, userID int64, orgID int64, amount money.Amount, status string) {
 	var title, body string
 	if status == "approved" || status == "completed" {
-		title = "تم شحن وإيداع الرصيد في المحفظة"
-		body = fmt.Sprintf("تم قيد مبلغ %s ج.م بنجاح في رصيد محفظة منشأتكم.", amount.String())
+		title = i18n.T("ar", "notif.wallet_deposit_approved_title")
+		body = fmt.Sprintf(i18n.T("ar", "notif.wallet_deposit_approved_body"), amount.String())
 	} else {
-		title = "طلب شحن رصيد قيد المراجعة"
-		body = fmt.Sprintf("تم استلام إشعار الإيداع بمبلغ %s ج.م وجاري تدقيقه واعتماده.", amount.String())
+		title = i18n.T("ar", "notif.wallet_deposit_pending_title")
+		body = fmt.Sprintf(i18n.T("ar", "notif.wallet_deposit_pending_body"), amount.String())
 	}
 	h.dispatchInAppNotification(ctx, userID, &orgID, title, body)
 	if orgID > 0 {
