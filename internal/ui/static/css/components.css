@@ -3269,7 +3269,7 @@ body.modal-open {
 .mobile-nav-user-box { padding: var(--space-md); border-block-end: 1px solid var(--border-subtle); margin-block-end: var(--space-sm); }
 .msg-mine { background: var(--primary-subtle); border-radius: var(--radius-lg); padding: var(--space-sm); margin-inline-start: auto; max-inline-size: 80%; }
 .no-print-toolbar { display: flex; gap: var(--space-sm); justify-content: flex-end; margin-block-end: var(--space-md); }
-@media print { .no-print-toolbar { display: none !important; } }
+@media print { .no-print-toolbar { display: none; } }
 .offer-form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr)); gap: var(--space-md); }
 .order-card-item { background: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: var(--radius-lg); padding: var(--space-md); }
 .parties-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-lg); margin-block-end: var(--space-lg); }
