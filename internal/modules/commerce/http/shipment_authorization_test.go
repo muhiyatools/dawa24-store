@@ -15,6 +15,7 @@ import (
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/platform/database"
 	"github.com/muhiya/dawa24-store/internal/platform/httpx"
+	"github.com/muhiya/dawa24-store/internal/platform/rbac"
 )
 
 type shipmentTestRepo struct {
@@ -63,35 +64,20 @@ func TestShipmentOwnershipAndSpoofing(t *testing.T) {
 	// Shipment owned by Vendor Org 10
 	repo := shipmentTestRepo{shipmentOrgID: 10}
 
-	vendorOrg10Member := authctx.Actor{
-		UserID:         101,
-		OrganizationID: 10,
-		OrgType:        "vendor",
-		Role:           "vendor_staff",
-		Permissions:    []string{"commerce.order.fulfil"},
-	}
+	vendorOrg10Member := authctx.ActorForRole("org_manager", rbac.ScopeVendor)
+	vendorOrg10Member.UserID = 101
+	vendorOrg10Member.OrganizationID = 10
 
-	vendorOrg20Member := authctx.Actor{
-		UserID:         201,
-		OrganizationID: 20,
-		OrgType:        "vendor",
-		Role:           "vendor_staff",
-		Permissions:    []string{"commerce.order.fulfil"},
-	}
+	vendorOrg20Member := authctx.ActorForRole("org_manager", rbac.ScopeVendor)
+	vendorOrg20Member.UserID = 201
+	vendorOrg20Member.OrganizationID = 20
 
-	customerActor := authctx.Actor{
-		UserID:         301,
-		OrganizationID: 30,
-		OrgType:        "customer",
-		Role:           "customer_owner",
-	}
+	customerActor := authctx.ActorForRole("org_owner", rbac.ScopePharmacy)
+	customerActor.UserID = 301
+	customerActor.OrganizationID = 30
 
-	staffActor := authctx.Actor{
-		UserID:      901,
-		IsStaff:     true,
-		Role:        "super_admin",
-		Permissions: []string{"*"},
-	}
+	staffActor := authctx.ActorForRole("super_admin", rbac.ScopeAdmin)
+	staffActor.UserID = 901
 
 	t.Run("Task 1: ListVendorShipments spoofing another vendor_id returns 403", func(t *testing.T) {
 		router := newRouterWithActor(repo, vendorOrg10Member)

@@ -117,8 +117,13 @@ func (h *Handler) TransitionShipmentStatus(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
+	// Authorization: platform staff / commerce admin may transition any shipment.
+	// A supplier organization member who owns the shipment must hold the tenant-scoped
+	// permission "vendor.order.update" (declared in catalog_vendor.go).
+	// NOTE: Do not use "commerce.order.*" here; "commerce.*" permissions are admin-scoped
+	// (catalog_admin.go) and holding them is impossible for non-staff vendor members.
 	allowed := actor.IsStaff || actor.Can("commerce.admin") ||
-		(shipment.OrganizationID == actor.OrganizationID && actor.CanAny("commerce.order.fulfil", "commerce.order.dispatch", "commerce.order.update"))
+		(shipment.OrganizationID > 0 && shipment.OrganizationID == actor.OrganizationID && actor.Can("vendor.order.update"))
 
 	if !allowed {
 		h.log.WarnContext(r.Context(), "unauthorized shipment status transition attempt",

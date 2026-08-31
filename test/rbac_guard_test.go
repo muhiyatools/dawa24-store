@@ -90,56 +90,76 @@ func TestEveryRouteGateNamesADeclaredPermission(t *testing.T) {
 	}
 }
 
-// TestTenantGatesUseTenantScopedPermissions.
-//
-// A vendor route gated on an admin permission would be reachable only by
-// someone holding a platform grant — which no company member has — and a
-// vendor route gated on a pharmacy permission would be unreachable outright.
-// Both are silent, and both are one careless copy-paste away.
+// TestTenantGatesUseTenantScopedPermissions asserts that every gate call site in the
+// codebase enforces keys matching its audience scope:
+// - Admin gates (RequirePagePermission, RequireAPIPermission, RequirePermission) must only use ScopeAdmin keys.
+// - Tenant gates (RequireTenantPagePermission, RequireAPITenantPermission) must never use ScopeAdmin keys,
+//   and must match ScopeVendor for vendor routes / ScopePharmacy for pharmacy/customer routes.
 func TestTenantGatesUseTenantScopedPermissions(t *testing.T) {
 	const root = ".."
 	catalog := rbac.Default()
 
-	for rel, want := range map[string]rbac.Scope{
-		"internal/ui/vendor_routes.go":         rbac.ScopeVendor,
-		"internal/ui/vendor_catalog_routes.go": rbac.ScopeVendor,
-		"internal/ui/customer_routes.go":       rbac.ScopePharmacy,
-	} {
-		src, err := os.ReadFile(filepath.Join(root, filepath.FromSlash(rel)))
-		if err != nil {
-			t.Fatalf("reading %s: %v", rel, err)
-		}
-		for _, m := range regexp.MustCompile(`RequireTenantPagePermission\(([^)]*)\)`).
-			FindAllStringSubmatch(string(src), -1) {
-			for _, k := range reQuoted.FindAllStringSubmatch(m[1], -1) {
-				p, ok := catalog.Lookup(k[1])
-				if !ok {
-					continue // covered by the test above
-				}
-				if !p.InScope(want) {
-					t.Errorf("%s gates a route on %q, which is not grantable in the %s dashboard",
-						rel, k[1], want)
-				}
-			}
-		}
-	}
+	reAdminGate := regexp.MustCompile(`Require(?:Page|API)?Permission\(([^)]*)\)`)
+	reTenantGate := regexp.MustCompile(`Require(?:API)?Tenant(?:Page)?Permission\(([^)]*)\)`)
 
-	// The admin registrars must not reach for a tenant permission either: a
-	// staff account never holds one, so the page would be dead.
-	for _, rel := range routeFiles {
-		if strings.Contains(rel, "vendor_") || strings.Contains(rel, "customer_") {
-			continue
-		}
-		src, err := os.ReadFile(filepath.Join(root, filepath.FromSlash(rel)))
-		if err != nil {
-			t.Fatalf("reading %s: %v", rel, err)
-		}
-		for _, m := range reGateKeys.FindAllStringSubmatch(string(src), -1) {
-			for _, k := range reQuoted.FindAllStringSubmatch(m[1], -1) {
-				if p, ok := catalog.Lookup(k[1]); ok && !p.InScope(rbac.ScopeAdmin) {
-					t.Errorf("%s gates an admin route on %q, which is not an admin permission", rel, k[1])
+	for _, dir := range []string{"cmd", "internal"} {
+		err := filepath.Walk(filepath.Join(root, dir), func(path string, info os.FileInfo, err error) error {
+			if err != nil {
+				return err
+			}
+			if info.IsDir() || !strings.HasSuffix(path, ".go") || strings.HasSuffix(path, "_test.go") || strings.HasSuffix(path, "_templ.go") {
+				return nil
+			}
+			rel, _ := filepath.Rel(root, path)
+			relSlash := filepath.ToSlash(rel)
+			if relSlash == "internal/platform/authctx/audience.go" || relSlash == "internal/platform/authctx/middleware.go" || relSlash == "internal/platform/authctx/testhelper.go" {
+				return nil
+			}
+
+			src, err := os.ReadFile(path)
+			if err != nil {
+				return err
+			}
+			content := string(src)
+
+			// 1. Admin gates must use ScopeAdmin keys
+			for _, m := range reAdminGate.FindAllStringSubmatch(content, -1) {
+				for _, k := range reQuoted.FindAllStringSubmatch(m[1], -1) {
+					key := k[1]
+					p, ok := catalog.Lookup(key)
+					if !ok {
+						continue // covered by TestEveryRouteGateNamesADeclaredPermission
+					}
+					if !p.InScope(rbac.ScopeAdmin) {
+						t.Errorf("%s gates an admin route on %q, which is not in ScopeAdmin", relSlash, key)
+					}
 				}
 			}
+
+			// 2. Tenant gates must use tenant keys (ScopeVendor or ScopePharmacy, never ScopeAdmin)
+			for _, m := range reTenantGate.FindAllStringSubmatch(content, -1) {
+				for _, k := range reQuoted.FindAllStringSubmatch(m[1], -1) {
+					key := k[1]
+					p, ok := catalog.Lookup(key)
+					if !ok {
+						continue // covered by TestEveryRouteGateNamesADeclaredPermission
+					}
+					if p.InScope(rbac.ScopeAdmin) && !p.InScope(rbac.ScopeVendor) && !p.InScope(rbac.ScopePharmacy) {
+						t.Errorf("%s gates a tenant route on %q, which is an admin-only key", relSlash, key)
+					}
+					if strings.Contains(relSlash, "vendor") && !p.InScope(rbac.ScopeVendor) {
+						t.Errorf("%s gates a vendor route on %q, which is not grantable in ScopeVendor", relSlash, key)
+					}
+					if (strings.Contains(relSlash, "customer") || strings.Contains(relSlash, "pharmacy")) && !p.InScope(rbac.ScopePharmacy) {
+						t.Errorf("%s gates a customer route on %q, which is not grantable in ScopePharmacy", relSlash, key)
+					}
+				}
+			}
+
+			return nil
+		})
+		if err != nil {
+			t.Fatalf("walking %s: %v", dir, err)
 		}
 	}
 }
