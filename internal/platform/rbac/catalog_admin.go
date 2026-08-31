@@ -100,8 +100,6 @@ func adminOrgPerms() []Permission {
 
 		adminPage("org.approval.view", g, "approvals", "اعتماد المنشآت والوثائق", "Approvals"),
 		adminAct("org.approval.decide", g, "قبول أو رفض طلبات الاعتماد", "Approve or reject requests", "org.approval.view"),
-		adminPage("org.change_request.view", g, "org_change_requests", "طلبات تعديل المنشآت", "Organization change requests"),
-		adminAct("org.change_request.decide", g, "قبول أو رفض طلبات تعديل المنشآت", "Approve or reject change requests", "org.change_request.view"),
 		adminPage("hr.document.view", g, "approvals", "وثائق المنشآت", "Organization documents"),
 		adminAct("hr.document.update", g, "مراجعة الوثائق", "Review documents", "hr.document.view"),
 
