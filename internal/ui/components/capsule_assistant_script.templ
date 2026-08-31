@@ -4,7 +4,7 @@ templ CapsuleAssistantScript() {
 		<script>
 			function capsuleAssistantManager() {
 				return {
-					isOpen: true,
+					isOpen: false,
 					inputQuery: '',
 					isStreaming: false,
 					statusStage: '',
@@ -31,35 +31,33 @@ templ CapsuleAssistantScript() {
 						window.addEventListener('open-capsule-assistant', () => {
 							this.openAssistant();
 						});
-						this.$nextTick(() => {
-							const c = document.getElementById('capsule-messages-container');
-							if (c) {
-								c.addEventListener('scroll', () => {
-									const dist = c.scrollHeight - c.scrollTop - c.clientHeight;
-									this.autoScrollEnabled = dist < 80;
-								});
-							}
-							if (this.$refs.chatTextarea) this.$refs.chatTextarea.focus();
-						});
 					},
 
 					openAssistant() {
 						this.isOpen = true;
 						this.autoScrollEnabled = true;
-						this.scrollToBottom(true);
-						const host = Alpine.$data(document.getElementById('capsule-assistant-host'));
-						if (host) host.isOpen = true;
 						this.$nextTick(() => {
+							const c = document.getElementById('capsule-messages-container');
+							if (c && !c._capsuleScrollBound) {
+								c._capsuleScrollBound = true;
+								c.addEventListener('scroll', () => {
+									const dist = c.scrollHeight - c.scrollTop - c.clientHeight;
+									this.autoScrollEnabled = dist < 80;
+								});
+							}
+							this.scrollToBottom(true);
 							if (this.$refs.chatTextarea) this.$refs.chatTextarea.focus();
 						});
+					},
+
+					toggleAssistant() {
+						this.isOpen ? this.closeAssistant() : this.openAssistant();
 					},
 
 					closeAssistant() {
 						this.isOpen = false;
 						this.isDragging = false;
 						this.dragCounter = 0;
-						const host = Alpine.$data(document.getElementById('capsule-assistant-host'));
-						if (host) host.isOpen = false;
 					},
 
 					filteredPastConversations() {

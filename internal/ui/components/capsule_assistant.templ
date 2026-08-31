@@ -1,16 +1,23 @@
 package components
 
+// CapsuleAssistantTrigger is the single mount point rendered once in the base
+// layout. The floating launcher button and the full chat drawer share ONE
+// Alpine component (capsuleAssistantManager) rendered inline — no HTMX lazy
+// load, so there is no swap/Alpine-init race and the buttons are always live.
 templ CapsuleAssistantTrigger() {
 	<div
 		id="capsule-assistant-host"
-		x-data="capsuleAssistantHost()"
+		x-data="capsuleAssistantManager()"
 		class="capsule-assistant-host"
 	>
 		<!-- Floating Trigger: Polished Circular Button -->
 		<button
 			type="button"
 			x-show="!isOpen"
-			@click="triggerClick()"
+			x-transition:enter="transition ease-out duration-200"
+			x-transition:enter-start="opacity-0 scale-90"
+			x-transition:enter-end="opacity-100 scale-100"
+			@click="openAssistant()"
 			class="capsule-circle-btn"
 			title="المستشار الصيدلي كبسولة"
 		>
@@ -20,29 +27,11 @@ templ CapsuleAssistantTrigger() {
 			<!-- Online Pulse Indicator -->
 			<span class="capsule-online-badge"></span>
 		</button>
-		
-		<div id="capsule-panel-slot"></div>
-		
-		<script>
-			function capsuleAssistantHost() {
-				return {
-					isOpen: false,
-					loaded: false,
-					triggerClick() {
-						if (!this.loaded) {
-							this.loaded = true;
-							htmx.ajax('GET', '/components/capsule-assistant', {
-								target: '#capsule-panel-slot',
-								swap: 'innerHTML'
-							});
-						} else {
-							window.dispatchEvent(new CustomEvent('open-capsule-assistant'));
-						}
-						this.isOpen = true;
-					}
-				};
-			}
-		</script>
+
+		@capsuleDrawerBody()
+
+		<!-- Assistant Core Logic -->
+		@CapsuleAssistantScript()
 	</div>
 }
 
@@ -50,16 +39,18 @@ templ CapsuleAssistant() {
 	@CapsuleAssistantTrigger()
 }
 
+// CapsuleAssistantPanel stays as a valid endpoint target for backwards
+// compatibility, but the drawer is now rendered inline by the trigger, so this
+// deliberately renders nothing.
 templ CapsuleAssistantPanel() {
-	<div
-		x-data="capsuleAssistantManager()"
-		x-init="init()"
-		x-cloak
-	>
+	<div data-capsule-panel-noop></div>
+}
+
+templ capsuleDrawerBody() {
+	<div x-cloak>
 		<!-- ChatGPT-Style Chat Window -->
 		<div
 			x-show="isOpen"
-			x-cloak
 			x-transition:enter="transition ease-out duration-250"
 			x-transition:enter-start="opacity-0 transform translate-y-6 scale-95"
 			x-transition:enter-end="opacity-100 transform translate-y-0 scale-100"
@@ -75,7 +66,6 @@ templ CapsuleAssistantPanel() {
 			<!-- Drag & Drop Overlay Zone -->
 			<div
 				x-show="isDragging"
-				x-cloak
 				x-transition:enter="transition ease-out duration-150"
 				x-transition:enter-start="opacity-0 scale-95"
 				x-transition:enter-end="opacity-100 scale-100"
@@ -146,7 +136,6 @@ templ CapsuleAssistantPanel() {
 			<!-- Sessions Drawer Overlay (Full Height Slide-over) -->
 			<div
 				x-show="showSessionsDrawer"
-				x-cloak
 				x-transition:enter="transition ease-out duration-200"
 				x-transition:enter-start="opacity-0 -translate-y-2"
 				x-transition:enter-end="opacity-100 translate-y-0"
@@ -511,8 +500,5 @@ templ CapsuleAssistantPanel() {
 			</div>
 
 		</div>
-
-		<!-- Assistant Core Logic -->
-		@CapsuleAssistantScript()
 	</div>
 }
