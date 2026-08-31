@@ -340,3 +340,169 @@ As the platform expanded to support complex workflows (smart ordering, bulk cata
 2. **Template Decomposition**: Split large views into modular subtemplates (`_table.templ`, `_modals.templ`, `_script.templ`, `_subpages.templ`) using declarative component composition (`@SubComponent(...)`).
 3. **Audience-Gated UI Partitioning**: Route handlers in `internal/ui` are structured by target audience (`admin_*.go`, `vendor_*.go`, `customer_*.go`, `shared_*.go`, `auth_*.go`), with strict AST regression tests in `test/route_audience_test.go` verifying that all endpoints are mounted within corresponding authenticated Chi middleware groups (`RequireCustomer`, `RequireVendor`, `RequireStaff`, `RequireApproved`).
 4. **Deadcode Ratchet Discipline**: Integrate `golang.org/x/tools/cmd/deadcode` into the automated testing harness (`test/deadcode_ratchet_test.go`) to prevent dead code accumulation beyond the measured baseline.
+
+---
+
+## ADR 0013 — Permission Namespaces Are Scoped, and the Scopes Do Not Mix
+
+**Status:** Accepted · 2026-08-31
+
+### Context
+
+The permission registry declares keys in three catalogues:
+`catalog_admin.go`, `catalog_vendor.go` and `catalog_pharmacy.go`. Keys beginning
+`commerce.`, `catalog.`, `org.`, `identity.`, `platform.` and `billing.` are declared
+through `adminPage()` / `adminAct()` and are held only by the staff roles. Keys beginning
+`vendor.` and `pharmacy.` are tenant keys, held by members of a supplier or pharmacy
+organization.
+
+A supplier cannot hold `commerce.order.fulfil`. Not "does not by default" — **cannot**: the
+key is not offered by the vendor catalogue, so no vendor role can ever grant it.
+
+This was learned expensively. A fulfilment handler was secured with:
+
+```go
+allowed := actor.IsStaff || actor.Can("commerce.admin") ||
+    (shipment.OrganizationID == actor.OrganizationID &&
+     actor.CanAny("commerce.order.fulfil", "commerce.order.dispatch", "commerce.order.update"))
+```
+
+Every key in that list is real, and every key in that list is admin-scope. `allowed` was
+therefore permanently false for every supplier, and supplier shipment fulfilment was broken
+in production until it was found. The test that covered the handler passed, because it built
+its vendor actor as `Permissions: []string{"commerce.order.fulfil"}` — a permission no real
+vendor can hold. The test proved the handler worked for an actor that cannot exist.
+
+### Decision
+
+1. A gate on a tenant route uses a `vendor.*` or `pharmacy.*` key. A gate on a staff route
+   uses an admin-scope key. The two never mix, except in an explicit staff-bypass branch
+   (`actor.IsStaff || actor.Can("<admin key>")`) sitting beside the tenant check.
+2. Tests construct actors from declared roles via `authctxtest.ActorForRole`, not from
+   hand-written permission slices. A synthetic slice is permitted only when the test is
+   exercising the gate mechanism itself, and must be obviously synthetic at the call site.
+3. `test/rbac_guard_test.go` asserts both that every gate key exists and that its scope
+   matches the audience of the route it guards. An admin key on a vendor route fails the
+   build.
+
+### Consequences
+
+A whole class of "correct-looking authorization that refuses everyone" is now caught by the
+build rather than by a supplier calling support. The cost is that a genuinely cross-audience
+endpoint cannot be gated by a single middleware key — those routes authorize on
+*relationship* (does this shipment belong to the caller's organization) with an explicit
+staff bypass, which is the honest shape for them anyway.
+
+---
+
+## ADR 0014 — One Cascade Order, Declared with @layer
+
+**Status:** Accepted · 2026-08-31
+
+### Context
+
+The stylesheets carried **670 `!important` declarations** — 212 in `components.css`, 195 in
+`utilities.css`, 181 in `foundations.css`. That is not a styling problem. It is what a
+cascade with no defined order produces: each fix had to out-shout the last, and a change on
+one page never generalised, which is the mechanical reason the design drifted.
+
+### Decision
+
+One order, declared once, before any rule:
+
+```css
+@layer reset, tokens, base, layout, components, utilities;
+```
+
+Utilities win by position, not by force. Every stylesheet lives in exactly one layer.
+
+`app.css` is the single deliberate exception and stays **outside** all layers, because
+unlayered rules beat every layered rule and that is precisely what a hide/show primitive
+needs: a cloaked element must not become visible because a component rule later in the sheet
+sets `display:flex`. `app.css` therefore contains hide/show primitives and nothing else.
+
+### Consequences
+
+`!important` fell from 670 to **3**, each with a comment justifying it. `check-important` and
+`check-css-layered` hold both properties.
+
+The second gate exists because it was learned that removing `!important` is not sufficient.
+Five stylesheets initially shipped without a layer wrapper, so they outranked the entire
+system that had just been built — the same problem wearing a different hat. A stylesheet
+outside `@layer` is as strong as `!important` and much harder to notice.
+
+`app.css` also once carried `@import` rules for six stylesheets already `<link>`ed from the
+layout. The browser parsed all six twice, and the imported copies arrived last and unlayered,
+silently outranking the originals. `@import` of a local stylesheet is now forbidden.
+
+---
+
+## ADR 0015 — API Gates Answer 403; Page Gates Answer 404
+
+**Status:** Accepted · 2026-08-31
+
+### Context
+
+The HTML surface answers an authorization refusal with **404**, deliberately: a support agent
+must not learn that `/admin/developers` exists, and a vendor must not learn the shape of the
+`/customer/*` URL space. That reasoning does not transfer to a JSON client, which is already
+authenticated and for which a misleading 404 costs debuggability and buys nothing.
+
+Before this was settled, the JSON API had no declarative authorization at all. Every module
+mounted behind `RequireAuth` + `ResolveTenant`, and authorization lived inside handler bodies
+— which is why three endpoints in one file had no ownership check while a fourth, four
+functions away, did it correctly.
+
+### Decision
+
+- `RequirePagePermission` / `RequireTenantPagePermission` gate HTML routes and answer 404.
+- `RequireAPIPermission` / `RequireAPITenantPermission` gate JSON routes and answer 403 via
+  `httpx.Error` + `apperr.Forbidden`.
+- Both log every refusal through the single `denied()` helper, so a permission problem in
+  production is one grep.
+- A genuinely multi-audience endpoint (staff, buyer and supplier all legitimately reach it)
+  authorizes on relationship inside the handler rather than by middleware key, and says so in
+  a comment.
+
+### Consequences
+
+The response-code split is intentional and must not be "harmonised" later. An engineer who
+sees a 404 from an HTML route and a 403 from an API route for the same underlying refusal is
+looking at the design, not a bug.
+
+---
+
+## ADR 0016 — One Dashboard Header, One Site Header
+
+**Status:** Accepted · 2026-08-31
+
+### Context
+
+Four headers existed. The public marketing navbar and all three dashboard shells rendered the
+same class, and one CSS rule listing that class alongside the public one set height, padding,
+sticky positioning and shadow for all four at once.
+
+They are not the same component. A marketing bar carries a brand lockup and five nav links
+and wants room. A dashboard bar sits directly above a data table and wants to be compact and
+quiet. The dashboard bar was wearing the marketing bar's 4.5rem proportions, which is most of
+why it felt wrong. Each shell then hand-built its contents; two used helper classes and the
+third used inline styles, so it did not even align with the other two.
+
+### Decision
+
+`components.DashboardTopBar` is the only dashboard header, with a contract of three regions:
+a lead (drawer toggle and title), an optional context slot for what a surface needs to say
+about *where* the caller is, and a fixed action cluster ending in the account menu. The order
+is fixed so the sign-out control does not move between dashboards.
+
+`.site-header` is the public header and shares no rules with it.
+
+Density is a token (`is-compact`), never a fork. Admin and vendor set it; the pharmacy surface
+does not, because its users are on phones at a counter and need 44px targets. **A component is
+never duplicated to serve a second density.**
+
+### Consequences
+
+`check-topbar-impls` fails the build if a shell hand-builds a header again. Chrome changes now
+happen once instead of four times, and cannot silently diverge.
+

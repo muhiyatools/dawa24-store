@@ -51,7 +51,7 @@ migrate-status: ## List migrations and show how many are pending
 # pipeline, so failures are found before a push rather than after one.
 
 .PHONY: check
-check: fmt-check vet lint test check-provider-isolation check-prompt-version check-file-size check-inline-styles check-error-swallow check-no-cdn check-file-size-count check-hardcoded-arabic check-emoji check-unused-components check-important check-backdrop-filter check-transition-all check-breakpoints check-physical-properties check-topbar-impls check-modal-legacy check-modal-handwritten check-css-layered ## Run every gate
+check: fmt-check vet lint test check-provider-isolation check-prompt-version check-file-size check-inline-styles check-error-swallow check-no-cdn check-file-size-count check-hardcoded-arabic check-emoji check-unused-components check-important check-backdrop-filter check-transition-all check-breakpoints check-physical-properties check-topbar-impls check-modal-legacy check-modal-handwritten check-css-layered check-deadcode ## Run every gate
 
 .PHONY: check-error-swallow
 check-error-swallow: ## Fail if a service error is silently discarded
@@ -187,7 +187,7 @@ check-no-cdn: ## Fail if a template loads a script or stylesheet from a CDN
 .PHONY: check-file-size-count
 check-file-size-count: ## Fail if the number of oversized Go files grows
 	# Ceiling set to 103 in Phase 5 Wave 4 (measured baseline before Phase 6 splitting).
-	@n=$$(find ./cmd ./internal -name '*.go' -not -name '*_templ.go' -exec wc -l {} + | grep -v " total$$" | awk '$$1>400' | wc -l | tr -d " "); if [ "$$n" -gt 103 ]; then echo "FAIL: $$n Go files over 400 lines (ceiling 103). check-file-size lists them."; exit 1; fi; echo "  ok: $$n oversized files (ceiling 103)"
+	@n=$$(find ./cmd ./internal -name '*.go' -not -name '*_templ.go' -exec wc -l {} + | grep -v " total$$" | awk '$$1>400' | wc -l | tr -d " "); if [ "$$n" -gt 0 ]; then echo "FAIL: $$n Go files over 400 lines (ceiling 0). check-file-size lists them."; exit 1; fi; echo "  ok: $$n oversized files (ceiling 0)"
 
 .PHONY: check-hardcoded-arabic
 check-hardcoded-arabic: ## Fail if Arabic string literals in Go grow
@@ -286,3 +286,8 @@ check-modal-handwritten: ## Fail if raw <dialog in pages exceeds ratchet ceiling
 .PHONY: check-css-layered
 check-css-layered: ## Fail if a stylesheet ships outside the @layer cascade
 	@fail=0; for f in internal/ui/static/css/*.css; do case "$$(basename $$f)" in app.css) continue;; esac; if ! grep -q '@layer' "$$f"; then echo "  unlayered: $$f"; fail=1; fi; done; if [ "$$fail" = "1" ]; then echo "FAIL: a stylesheet outside @layer beats every layered rule. app.css is the one deliberate exception (hide/show primitives)."; exit 1; fi; echo "  ok: every stylesheet is layered"
+
+.PHONY: check-deadcode
+check-deadcode: ## Fail if unreachable exported code grows past the ceiling
+	@echo "==> checking for unreachable code"
+	@if ! go run golang.org/x/tools/cmd/deadcode@latest -test ./... > /tmp/dawa_deadcode.txt 2>/dev/null; then 	  echo "  skipped: deadcode unavailable (needs network on first run)"; exit 0; 	fi; 	n=$$(wc -l < /tmp/dawa_deadcode.txt | tr -d ' '); 	if [ "$$n" -gt 211 ]; then 	  echo "FAIL: $$n unreachable funcs (ceiling 211). See /tmp/dawa_deadcode.txt."; 	  echo "Read each finding before deleting: a symbol may be reached from a .templ"; 	  echo "file, which deadcode does not parse."; 	  exit 1; 	fi; 	echo "  ok: $$n unreachable funcs (ceiling 211)"
