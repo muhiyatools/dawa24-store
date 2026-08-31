@@ -54,11 +54,28 @@ func newTestRouter(actor *authctx.Actor) http.Handler {
 		uiRouter.Use(authctx.RequireStaff(logger))
 		handler.RegisterAdminRoutes(uiRouter)
 	})
+	// The shared surface is three tiers in production and must be three here,
+	// or this harness cannot catch a regression in the thing it exists to
+	// check. Mounting all four registrars in one ungated group made every
+	// Tier B and Tier C route reachable by any actor the test supplied,
+	// including the pending and suspended ones.
 	r.Group(func(uiRouter chi.Router) {
 		uiRouter.Use(stubAuth)
 		handler.RegisterPreApprovalRoutes(uiRouter)
+	})
+	r.Group(func(uiRouter chi.Router) {
+		uiRouter.Use(stubAuth)
+		uiRouter.Use(authctx.RequireApproved(logger))
 		handler.RegisterApprovedSharedRoutes(uiRouter)
+	})
+	r.Group(func(uiRouter chi.Router) {
+		uiRouter.Use(stubAuth)
+		uiRouter.Use(authctx.RequireCustomer(logger))
 		handler.RegisterCustomerSharedRoutes(uiRouter)
+	})
+	r.Group(func(uiRouter chi.Router) {
+		uiRouter.Use(stubAuth)
+		uiRouter.Use(authctx.RequireVendor(logger))
 		handler.RegisterVendorSharedRoutes(uiRouter)
 	})
 	return r
