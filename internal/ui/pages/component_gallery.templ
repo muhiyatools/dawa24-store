@@ -1,0 +1,245 @@
+package pages
+
+import (
+	"fmt"
+
+	"github.com/muhiya/dawa24-store/internal/ui/components"
+	"github.com/muhiya/dawa24-store/internal/ui/layouts"
+)
+
+type ComponentGalleryProps struct {
+	Density string
+	Theme   string
+	Lang    string
+	Dir     string
+}
+
+templ ComponentGallery(props ComponentGalleryProps) {
+	@layouts.AdminShell("???? ???????? ????????", "gallery", props.Lang, props.Dir) {
+		<div class={ "p-6 d-flex flex-col gap-6", func() string { if props.Density == "is-compact" { return "is-compact" }; return "" }() }>
+			
+			<!-- Header -->
+			<div class="d-flex items-center justify-between border-b pb-4">
+				<div>
+					<h1 class="text-2xl font-bold text-slate-900 dark:text-white">???? ???????? (Phase 3 Component Gallery)</h1>
+					<p class="text-sm text-slate-500">?????? ???????? ?????? ????? ???????? ????????</p>
+				</div>
+				<div class="d-flex gap-2">
+					<span class="badge badge-primary">{ fmt.Sprintf("Density: %s", props.Density) }</span>
+					<span class="badge badge-slate">{ fmt.Sprintf("Theme: %s", props.Theme) }</span>
+					<span class="badge badge-emerald">{ fmt.Sprintf("Dir: %s", props.Dir) }</span>
+				</div>
+			</div>
+
+			<!-- 1. Buttons & Links -->
+			<section class="card p-4">
+				<h2 class="text-lg font-bold mb-3">1. Buttons & Variants</h2>
+				<div class="d-flex flex-wrap gap-3 items-center">
+					<button type="button" class="btn btn-primary">?? ????? (Primary)</button>
+					<button type="button" class="btn btn-secondary">?? ????? (Secondary)</button>
+					<button type="button" class="btn btn-danger">?? ??? (Danger)</button>
+					<button type="button" class="btn btn-ghost">?? ???? (Ghost)</button>
+					<button type="button" class="btn btn-primary btn-sm">???? (Small)</button>
+					<button type="button" class="btn btn-primary btn-xs">???? (Extra Small)</button>
+					<button type="button" class="btn btn-primary" disabled>???? (Disabled)</button>
+				</div>
+			</section>
+
+			<!-- 2. Inputs & Form Controls -->
+			<section class="card p-4">
+				<h2 class="text-lg font-bold mb-3">2. Form Inputs & Selects</h2>
+				<div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+					<div>
+						<label class="form-label">??? ??? ????</label>
+						<input type="text" class="form-input w-full" placeholder="??? ??????..." value="??????? ??????"/>
+					</div>
+					<div>
+						<label class="form-label">??? ????</label>
+						<input type="text" class="form-input w-full" disabled value="???? ??? ????? ???????"/>
+					</div>
+					<div>
+						<label class="form-label">????? ?????? (Select)</label>
+						<select class="form-input w-full">
+							<option>?????? ????? (???)</option>
+							<option>?????? ?????? (????)</option>
+						</select>
+					</div>
+				</div>
+			</section>
+
+			<!-- 3. Checkbox & Radio -->
+			<section class="card p-4">
+				<h2 class="text-lg font-bold mb-3">3. Checkbox & Radio Controls</h2>
+				<div class="d-flex gap-6 items-center">
+					<label class="d-flex items-center gap-2 cursor-pointer">
+						<input type="checkbox" class="form-checkbox" checked/>
+						<span>???? ???? (Checked)</span>
+					</label>
+					<label class="d-flex items-center gap-2 cursor-pointer">
+						<input type="checkbox" class="form-checkbox"/>
+						<span>???? ??? ????</span>
+					</label>
+					<label class="d-flex items-center gap-2 cursor-pointer">
+						<input type="radio" name="demo-radio" class="form-radio" checked/>
+						<span>???? ????? 1</span>
+					</label>
+					<label class="d-flex items-center gap-2 cursor-pointer">
+						<input type="radio" name="demo-radio" class="form-radio"/>
+						<span>???? ????? 2</span>
+					</label>
+				</div>
+			</section>
+
+			<!-- 4. Badges -->
+			<section class="card p-4">
+				<h2 class="text-lg font-bold mb-3">4. Badges & Tags</h2>
+				<div class="d-flex flex-wrap gap-2">
+					<span class="badge badge-primary">?????</span>
+					<span class="badge badge-emerald">????? / ???</span>
+					<span class="badge badge-amber">??? ????????</span>
+					<span class="badge badge-red">???? / ???</span>
+					<span class="badge badge-slate">???????</span>
+					<span class="badge badge-primary text-xs">??? ????</span>
+				</div>
+			</section>
+
+			<!-- 5. Cards & Stat Cards -->
+			<section class="card p-4">
+				<h2 class="text-lg font-bold mb-3">5. Cards & Data Surfaces</h2>
+				<div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+					@components.StatCard(components.StatCardProps{
+						Title: "?????? ???????",
+						Value: "1,248",
+						Change: "+12%",
+						IsPositive: true,
+					})
+					@components.StatCard(components.StatCardProps{
+						Title: "?????? ??????",
+						Value: "45,200 ?.?",
+						Change: "?????",
+						IsPositive: true,
+					})
+					@components.StatCard(components.StatCardProps{
+						Title: "????????? ???????",
+						Value: "3",
+						Change: "-2",
+						IsPositive: false,
+					})
+				</div>
+			</section>
+
+			<!-- 6. Table -->
+			<section class="card p-4">
+				<h2 class="text-lg font-bold mb-3">6. Data Table</h2>
+				<div class="table-container">
+					<table class="data-table">
+						<thead>
+							<tr>
+								<th>?????</th>
+								<th>??? ????? ???????</th>
+								<th>?????? ???????</th>
+								<th class="text-end">?????</th>
+								<th class="text-center">??????</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr>
+								<td class="tabular-nums">#MED-101</td>
+								<td class="font-bold">???????? 1 ?? ?????</td>
+								<td>GlaxoSmithKline</td>
+								<td class="text-end tabular-nums">98.50 ?.?</td>
+								<td class="text-center"><span class="badge badge-emerald">?????</span></td>
+							</tr>
+							<tr>
+								<td class="tabular-nums">#MED-102</td>
+								<td class="font-bold">???????? 20 ???</td>
+								<td>Sigma Pharma</td>
+								<td class="text-end tabular-nums">31.00 ?.?</td>
+								<td class="text-center"><span class="badge badge-amber">???? ??????</span></td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+			</section>
+
+			<!-- 7. Tabs & Pagination -->
+			<section class="card p-4">
+				<h2 class="text-lg font-bold mb-3">7. Tabs & Pagination Navigation</h2>
+				<div class="tabs-nav mb-4">
+					<button type="button" class="tab-btn active">???? ??????? (120)</button>
+					<button type="button" class="tab-btn">??????? ??????? (95)</button>
+					<button type="button" class="tab-btn">??????? (25)</button>
+				</div>
+				@components.Pagination(components.PaginationProps{
+					CurrentPage: 2,
+					TotalPages:  5,
+					BaseURL:      "/admin/gallery",
+				})
+			</section>
+
+			<!-- 8. Empty & Error States -->
+			<section class="grid grid-cols-1 md:grid-cols-2 gap-4">
+				<div class="card p-4">
+					<h2 class="text-lg font-bold mb-3">8. Empty State</h2>
+					@components.EmptyState(components.EmptyStateProps{
+						Title:       "?? ???? ?????? ?????",
+						Description: "?? ??? ?????? ??? ?? ?????? ?????? ??????? ??????? ??????.",
+					})
+				</div>
+				<div class="card p-4">
+					<h2 class="text-lg font-bold mb-3">9. Error State</h2>
+					@components.ErrorState(components.ErrorStateProps{
+						Title:       "???? ????? ????????",
+						Description: "??? ??? ?? ??????? ???????. ???? ???????? ??? ????.",
+					})
+				</div>
+			</section>
+
+			<!-- 10. Skeletons & Loaders -->
+			<section class="card p-4">
+				<h2 class="text-lg font-bold mb-3">10. Skeletons & Placeholders</h2>
+				<div class="d-flex flex-col gap-2 max-w-md">
+					@components.SkeletonText("w-full h-4")
+					@components.SkeletonText("w-3/4 h-4")
+					@components.SkeletonText("w-1/2 h-4")
+				</div>
+			</section>
+
+			<!-- 11. Modal Dialog Component -->
+			<section class="card p-4">
+				<h2 class="text-lg font-bold mb-3">11. Modal Component (Phase 4 Native Dialog)</h2>
+				<button type="button" class="btn btn-secondary" onclick="window.openModal('demo-gallery-modal')">
+					??? ????? ???????
+				</button>
+				@components.Modal(components.ModalProps{
+					ID:       "demo-gallery-modal",
+					Title:    "????? ?????? ?????????",
+					Subtitle: "???? ?????? ?????? ?????? ??? <dialog>",
+					Size:     "md",
+				}) {
+					<div class="p-4">
+						<p class="text-sm">??? ????? ?????? ???? ????? ?????? ?????? ?? ???????? ??????.</p>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-secondary" onclick="window.closeModal('demo-gallery-modal')">?????</button>
+						<button type="button" class="btn btn-primary" onclick="window.closeModal('demo-gallery-modal')">??? ?????????</button>
+					</div>
+				}
+			</section>
+
+			<!-- 12. Toast & Banner Notifications -->
+			<section class="card p-4">
+				<h2 class="text-lg font-bold mb-3">12. Toasts & Feedback Alerts</h2>
+				<div class="d-flex flex-col gap-3">
+					<div class="alert alert-success p-3 rounded-lg border">
+						<span class="font-bold">?? ?????:</span> ?? ??? ???? ????????? ?????? ?????????.
+					</div>
+					<div class="alert alert-danger p-3 rounded-lg border">
+						<span class="font-bold">?????:</span> ???? ?????? ????? ???? ????? ??????.
+					</div>
+				</div>
+			</section>
+
+		</div>
+	}
+}
