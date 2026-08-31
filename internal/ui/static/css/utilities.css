@@ -305,3 +305,179 @@
 }                                                                              /* 10 */
 
 }
+
+@layer utilities {
+/* ==========================================================================
+   UTILITIES RECOVERED IN PHASE 7 (see ADR 0017)
+
+   Phase 5 replaced 2,089 inline style attributes with class names. A large
+   number of those class names were never defined in any stylesheet, so the
+   elements carrying them lost their styling entirely -- the inline rule was
+   removed and nothing took its place. 468 distinct classes were used in
+   templates with no CSS definition; 398 of those predated the conversion and
+   were harmless only because an inline style was still doing the work.
+
+   These are the systematic families, generated from the measured usage list.
+   Values come from the Phase 3 token scale, not from the literals they replace,
+   which is the point of having done the conversion at all.
+   ========================================================================== */
+
+/* Size — logical properties so RTL is not a special case. */
+.h-10 { block-size: 2.5rem; }
+.h-11 { block-size: 2.75rem; }
+.h-12 { block-size: 3rem; }
+.h-14 { block-size: 3.5rem; }
+.h-16 { block-size: 4rem; }
+.h-2 { block-size: 0.5rem; }
+.h-20 { block-size: 5rem; }
+.h-3 { block-size: 0.75rem; }
+.h-4 { block-size: 1rem; }
+.h-48 { block-size: 12rem; }
+.h-52 { block-size: 13rem; }
+.h-56 { block-size: 14rem; }
+.h-6 { block-size: 1.5rem; }
+.h-96 { block-size: 24rem; }
+.max-h-40 { max-block-size: 10rem; }
+.max-h-48 { max-block-size: 12rem; }
+.max-h-56 { max-block-size: 14rem; }
+.max-h-64 { max-block-size: 16rem; }
+.max-h-72 { max-block-size: 18rem; }
+.max-h-96 { max-block-size: 24rem; }
+.max-w-32 { max-inline-size: 8rem; }
+.min-h-72 { min-block-size: 18rem; }
+.min-w-28 { min-inline-size: 7rem; }
+.min-w-32 { min-inline-size: 8rem; }
+.min-w-36 { min-inline-size: 9rem; }
+.min-w-40 { min-inline-size: 10rem; }
+.min-w-48 { min-inline-size: 12rem; }
+.min-w-56 { min-inline-size: 14rem; }
+.min-w-60 { min-inline-size: 15rem; }
+.min-w-64 { min-inline-size: 16rem; }
+.min-w-72 { min-inline-size: 18rem; }
+.min-w-80 { min-inline-size: 20rem; }
+.w-10 { inline-size: 2.5rem; }
+.w-11 { inline-size: 2.75rem; }
+.w-12 { inline-size: 3rem; }
+.w-14 { inline-size: 3.5rem; }
+.w-16 { inline-size: 4rem; }
+.w-20 { inline-size: 5rem; }
+.w-24 { inline-size: 6rem; }
+.w-28 { inline-size: 7rem; }
+.w-32 { inline-size: 8rem; }
+.w-36 { inline-size: 9rem; }
+.w-4 { inline-size: 1rem; }
+.w-52 { inline-size: 13rem; }
+.w-6 { inline-size: 1.5rem; }
+
+/* Spacing — 4pt scale and the semantic token names. */
+.mb-14 { margin-block-end: 3.5rem; }
+.mb-16 { margin-block-end: 4rem; }
+.mt-lg { margin-block-start: var(--space-lg); }
+.mt-md { margin-block-start: var(--space-md); }
+.mt-xs { margin-block-start: var(--space-xs); }
+.p-10 { padding: 2.5rem; }
+.p-16 { padding: 4rem; }
+.p-7 { padding: 1.75rem; }
+.p-xl { padding: var(--space-xl); }
+.pb-12 { padding-block-end: 3rem; }
+.pb-14 { padding-block-end: 3.5rem; }
+.pt-7 { padding-block-start: 1.75rem; }
+.px-7 { padding-inline: 1.75rem; }
+.py-10 { padding-block: 2.5rem; }
+.py-12 { padding-block: 3rem; }
+.py-8 { padding-block: 2rem; }
+
+/* Colour scale — expressed in oklch, chroma reduced toward the light end
+   so a 50 does not read as garish. Same ramp both themes; the surfaces around
+   them come from tokens, which is what actually flips. */
+.bg-emerald-100 { background-color: oklch(0.94 0.04 155); }
+.bg-emerald-500 { background-color: oklch(0.6 0.14 155); }
+.bg-indigo-50 { background-color: oklch(0.97 0.02 275); }
+.bg-purple-50 { background-color: oklch(0.97 0.02 300); }
+.bg-rose-100 { background-color: oklch(0.94 0.04 15); }
+.bg-rose-500 { background-color: oklch(0.6 0.14 15); }
+.bg-sky-50 { background-color: oklch(0.97 0.02 230); }
+.bg-sky-600 { background-color: oklch(0.52 0.15 230); }
+.bg-slate-900 { background-color: oklch(0.28 0.09 255); }
+.border-emerald-100 { border-color: oklch(0.94 0.04 155); }
+.border-emerald-200 { border-color: oklch(0.89 0.06 155); }
+.border-emerald-300 { border-color: oklch(0.8 0.09 155); }
+.border-rose-100 { border-color: oklch(0.94 0.04 15); }
+.border-rose-200 { border-color: oklch(0.89 0.06 15); }
+.border-sky-100 { border-color: oklch(0.94 0.04 230); }
+.border-sky-200 { border-color: oklch(0.89 0.06 230); }
+.border-slate-700 { border-color: oklch(0.45 0.14 255); }
+.text-amber-700 { color: oklch(0.45 0.14 75); }
+.text-amber-900 { color: oklch(0.28 0.09 75); }
+.text-emerald-700 { color: oklch(0.45 0.14 155); }
+.text-emerald-900 { color: oklch(0.28 0.09 155); }
+.text-emerald-950 { color: oklch(0.2 0.06 155); }
+.text-indigo-600 { color: oklch(0.52 0.15 275); }
+.text-purple-500 { color: oklch(0.6 0.14 300); }
+.text-purple-600 { color: oklch(0.52 0.15 300); }
+.text-rose-800 { color: oklch(0.38 0.12 15); }
+.text-rose-900 { color: oklch(0.28 0.09 15); }
+.text-sky-400 { color: oklch(0.7 0.12 230); }
+.text-sky-700 { color: oklch(0.45 0.14 230); }
+.text-sky-800 { color: oklch(0.38 0.12 230); }
+
+/* Semantic colour — these resolve through tokens so both themes follow. */
+.bg-accent-subtle { background-color: var(--primary-subtle); }
+.bg-brand { background-color: var(--brand); }
+.bg-white { background-color: var(--bg-surface-raised); }
+.border-accent { border-color: var(--primary); }
+.border-brand { border-color: var(--brand); }
+.border-danger { border-color: var(--danger); }
+.border-warning { border-color: var(--warning); }
+.border-white { border-color: var(--bg-surface-raised); }
+.text-white { color: var(--bg-surface-raised); }
+
+/* Borders — logical sides. */
+.border-2 { border: 2px solid var(--border-subtle); }
+.border-dashed { border-style: dashed; }
+.border-s { border-inline-start: 1px solid var(--border-subtle); }
+.border-s-4 { border-inline-start: 4px solid var(--border-subtle); }
+.border-t-4 { border-block-start: 4px solid var(--border-subtle); }
+
+/* Position. start-*/end-* are logical, so they follow direction. */
+.absolute { position: absolute; }
+.end-3 { inset-inline-end: 0.75rem; }
+.fixed { position: fixed; }
+.inset-0 { inset: 0; }
+.start-3 { inset-inline-start: 0.75rem; }
+.sticky { position: sticky; }
+.top-6 { inset-block-start: 1.5rem; }
+.z-1 { z-index: 1; }
+.z-modal { z-index: var(--z-modal, 400); }
+
+/* Text and display. */
+.capitalize { text-transform: capitalize; }
+.italic { font-style: italic; }
+.line-through { text-decoration: line-through; }
+.object-contain { object-fit: contain; }
+.object-cover { object-fit: cover; }
+.pointer-events-none { pointer-events: none; }
+.select-none { user-select: none; }
+.text-none { text-decoration: none; }
+.uppercase { text-transform: uppercase; letter-spacing: 0.04em; }
+.whitespace-nowrap { white-space: nowrap; }
+.hide-mobile { }
+@media (max-width: 768px) { .hide-mobile { display: none; } }
+.hide-desktop { }
+@media (min-width: 769px) { .hide-desktop { display: none; } }
+
+/* Effects. Motion honours prefers-reduced-motion below. */
+.backdrop-blur-sm { backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); }
+.disabled { opacity: 0.55; pointer-events: none; }
+.opacity-0 { opacity: 0.0; }
+.opacity-40 { opacity: 0.4; }
+.opacity-50 { opacity: 0.5; }
+.opacity-60 { opacity: 0.6; }
+.opacity-75 { opacity: 0.75; }
+.shadow-2xl { box-shadow: var(--shadow-2xl); }
+.transition { transition: background-color 150ms ease, border-color 150ms ease, color 150ms ease, opacity 150ms ease, transform 150ms ease; }
+
+@media (prefers-reduced-motion: reduce) {
+  .transition { transition: none; }
+}
+}

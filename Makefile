@@ -51,7 +51,7 @@ migrate-status: ## List migrations and show how many are pending
 # pipeline, so failures are found before a push rather than after one.
 
 .PHONY: check
-check: fmt-check vet lint test check-provider-isolation check-prompt-version check-file-size check-inline-styles check-error-swallow check-no-cdn check-file-size-count check-hardcoded-arabic check-emoji check-unused-components check-important check-backdrop-filter check-transition-all check-breakpoints check-physical-properties check-topbar-impls check-modal-legacy check-modal-handwritten check-css-layered check-deadcode ## Run every gate
+check: fmt-check vet lint test check-provider-isolation check-prompt-version check-file-size check-inline-styles check-error-swallow check-no-cdn check-file-size-count check-hardcoded-arabic check-emoji check-unused-components check-important check-backdrop-filter check-transition-all check-breakpoints check-physical-properties check-topbar-impls check-modal-legacy check-modal-handwritten check-css-layered check-deadcode check-undefined-classes ## Run every gate
 
 .PHONY: check-error-swallow
 check-error-swallow: ## Fail if a service error is silently discarded
@@ -291,3 +291,9 @@ check-css-layered: ## Fail if a stylesheet ships outside the @layer cascade
 check-deadcode: ## Fail if unreachable exported code grows past the ceiling
 	@echo "==> checking for unreachable code"
 	@if ! go run golang.org/x/tools/cmd/deadcode@latest -test ./... > /tmp/dawa_deadcode.txt 2>/dev/null; then 	  echo "  skipped: deadcode unavailable (needs network on first run)"; exit 0; 	fi; 	n=$$(wc -l < /tmp/dawa_deadcode.txt | tr -d ' '); 	if [ "$$n" -gt 211 ]; then 	  echo "FAIL: $$n unreachable funcs (ceiling 211). See /tmp/dawa_deadcode.txt."; 	  echo "Read each finding before deleting: a symbol may be reached from a .templ"; 	  echo "file, which deadcode does not parse."; 	  exit 1; 	fi; 	echo "  ok: $$n unreachable funcs (ceiling 211)"
+
+.PHONY: check-undefined-classes
+check-undefined-classes: ## Fail if templates reference class names no stylesheet defines
+	@echo "==> checking for class names with no CSS rule"
+	@grep -rhoE 'class="[^"]*"' internal/ui/pages/*.templ internal/ui/layouts/*.templ internal/ui/components/*.templ 	  | sed 's/class="//; s/"$$//' | tr ' ' '
+' 	  | grep -E '^[a-zA-Z][a-zA-Z0-9_-]*$$' | sort -u > /tmp/dawa_used.txt; 	grep -rhoE '\.[a-zA-Z][a-zA-Z0-9_-]*' internal/ui/static/css/*.css | sed 's/^\.//' | sort -u > /tmp/dawa_defined.txt; 	n=$$(comm -23 /tmp/dawa_used.txt /tmp/dawa_defined.txt | wc -l | tr -d ' '); 	if [ "$$n" -gt 235 ]; then 	  echo "FAIL: $$n class names have no CSS rule (ceiling 235)."; 	  echo ""; 	  echo "An element carrying a class nothing defines is unstyled. This is how"; 	  echo "the inline-style conversion silently removed styling: the style attribute"; 	  echo "went, and the class replacing it was never written."; 	  comm -23 /tmp/dawa_used.txt /tmp/dawa_defined.txt | head -20; 	  exit 1; 	fi; 	echo "  ok: $$n undefined classes (ceiling 235; the remainder are Alpine state names in :class bindings)"

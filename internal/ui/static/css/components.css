@@ -2776,3 +2776,256 @@ body.modal-open {
   }
 }
 }
+
+@layer components {
+/* ==========================================================================
+   CLASSES RECOVERED IN PHASE 7 (see ADR 0017)
+
+   Phase 5 removed 2,089 inline style attributes and replaced them with class
+   names. Many of those names had no rule anywhere, so the element lost its
+   styling rather than gaining a token-based version of it. These are the
+   component-level survivors of that audit, written against the Phase 3 tokens.
+   ========================================================================== */
+
+.form-checkbox,
+.form-check-input {
+  inline-size: 1.125rem;
+  block-size: 1.125rem;
+  flex-shrink: 0;
+  accent-color: var(--primary);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-xs);
+  cursor: pointer;
+}
+.form-checkbox:focus-visible,
+.form-check-input:focus-visible { outline: 2px solid var(--border-focus); outline-offset: 2px; }
+
+.form-textarea {
+  inline-size: 100%;
+  min-block-size: 6rem;
+  padding: var(--space-sm);
+  font: inherit;
+  color: var(--text-primary);
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  resize: vertical;
+}
+.form-textarea:focus-visible { outline: 2px solid var(--border-focus); outline-offset: -1px; }
+
+.search-input {
+  inline-size: 100%;
+  min-block-size: var(--touch-min);
+  padding-inline: var(--space-sm);
+  font: inherit;
+  color: var(--text-primary);
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+}
+
+.btn-outline,
+.btn-outline-brand,
+.btn-outline-danger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-xs);
+  min-block-size: var(--control-h-md);
+  padding-inline: var(--space-md);
+  font: inherit;
+  font-weight: 600;
+  background: transparent;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+}
+.btn-outline        { color: var(--text-primary); border: 1px solid var(--border-strong); }
+.btn-outline-brand  { color: var(--primary);      border: 1px solid var(--primary); }
+.btn-outline-danger { color: var(--danger);       border: 1px solid var(--danger); }
+.btn-outline:hover        { background: var(--bg-surface-sunken); }
+.btn-outline-brand:hover  { background: var(--primary-subtle); }
+.btn-outline-danger:hover { background: var(--bg-surface-sunken); }
+
+.badge-outline {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2xs);
+  padding: 0.15rem var(--space-xs);
+  font-size: var(--text-xs);
+  font-weight: 600;
+  color: var(--text-muted);
+  background: transparent;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-full);
+}
+
+.btn-action {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2xs);
+  min-block-size: var(--touch-min);
+  padding-inline: var(--space-sm);
+  border-radius: var(--radius-md);
+  background: transparent;
+  border: 1px solid transparent;
+  color: var(--text-primary);
+  cursor: pointer;
+}
+.btn-action:hover { background: var(--bg-surface-sunken); }
+
+.table-wrap { inline-size: 100%; overflow-x: auto; }
+.td-numeric { text-align: end; font-variant-numeric: tabular-nums; white-space: nowrap; }
+
+.container-fluid { inline-size: 100%; padding-inline: var(--space-md); }
+.grid-2-col { display: grid; grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr)); gap: var(--space-md); }
+.stack-xs   { display: flex; flex-direction: column; gap: var(--space-2xs); }
+.tab-content-pane { display: none; }
+.tab-content-pane.active { display: block; }
+
+.progress,
+.progress-bar-container {
+  inline-size: 100%;
+  block-size: 0.5rem;
+  background: var(--bg-surface-sunken);
+  border-radius: var(--radius-full);
+  overflow: hidden;
+}
+.progress-bar { block-size: 100%; background: var(--primary); border-radius: inherit; }
+.strength-bar-seg { block-size: 0.25rem; flex: 1; background: var(--bg-surface-sunken); border-radius: var(--radius-full); }
+
+.job-card, .job-detail-card, .courier-card,
+.jobs-metric-card, .warehouse-kpi-card, .preview-metric-data, .type-card {
+  padding: var(--space-md);
+  background: var(--bg-surface-raised);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+}
+.job-spec-item  { display: flex; flex-direction: column; gap: 2px; }
+.job-spec-label { font-size: var(--text-xs); color: var(--text-muted); }
+.job-spec-value { font-size: var(--text-sm); font-weight: 600; color: var(--text-primary); }
+.job-type-pill {
+  display: inline-flex; align-items: center;
+  padding: 0.15rem var(--space-xs);
+  font-size: var(--text-xs); font-weight: 600;
+  background: var(--primary-subtle); color: var(--primary);
+  border-radius: var(--radius-full);
+}
+
+.sp-ops-item { display: flex; align-items: center; gap: var(--space-sm); padding-block: var(--space-xs); }
+.sp-ops-icon { flex-shrink: 0; color: var(--text-muted); }
+.sp-ops-content { display: flex; flex-direction: column; min-inline-size: 0; }
+.sp-ops-label { font-size: var(--text-xs); color: var(--text-muted); }
+.sp-ops-val   { font-size: var(--text-sm); font-weight: 600; font-variant-numeric: tabular-nums; }
+.sp-tab-panel { display: none; }
+.sp-tab-panel.active { display: block; }
+.so-field   { display: flex; flex-direction: column; gap: var(--space-2xs); }
+.so-preview { padding: var(--space-md); background: var(--bg-surface-sunken); border-radius: var(--radius-md); }
+.rule-icon  { flex-shrink: 0; color: var(--text-muted); }
+
+.party-info-row {
+  display: flex; align-items: baseline; gap: var(--space-sm);
+  padding-block: var(--space-2xs);
+  border-block-end: 1px solid var(--border-subtle);
+}
+.party-info-row:last-child { border-block-end: none; }
+
+.onboard-step { display: flex; align-items: center; gap: var(--space-sm); }
+.step-num {
+  display: grid; place-items: center;
+  inline-size: 1.75rem; block-size: 1.75rem;
+  border-radius: var(--radius-full);
+  background: var(--primary-subtle); color: var(--primary);
+  font-size: var(--text-xs); font-weight: 700;
+}
+.type-icon  { color: var(--primary); }
+.type-check { color: var(--success); }
+
+.b2b-page-header { display: flex; align-items: center; justify-content: space-between; gap: var(--space-md); margin-block-end: var(--space-lg); }
+.wiz-toolbar     { display: flex; align-items: center; gap: var(--space-sm); flex-wrap: wrap; }
+.modal-container { inline-size: 100%; }
+.capsule-hdr-icon-btn, .capsule-chip-btn, .btn-theme-toggle {
+  display: inline-flex; align-items: center; justify-content: center;
+  min-inline-size: var(--touch-min); min-block-size: var(--touch-min);
+  background: transparent; border: none; border-radius: var(--radius-md);
+  color: inherit; cursor: pointer;
+}
+.capsule-hdr-icon-btn:hover, .capsule-chip-btn:hover, .btn-theme-toggle:hover { background: var(--bg-surface-sunken); }
+
+/* Thermal receipt rows render on an 80mm printer, where colour means nothing
+   and the only thing that matters is that the columns line up. */
+.thermal-row     { display: flex; justify-content: space-between; gap: var(--space-sm); font-variant-numeric: tabular-nums; }
+.thermal-bold    { font-weight: 700; }
+.thermal-divider { border-block-start: 1px dashed currentColor; margin-block: var(--space-2xs); }
+
+.modal-backdrop { position: fixed; inset: 0; background: var(--bg-overlay, rgba(15, 23, 42, 0.72)); }
+}
+
+@layer utilities {
+/* Colour aliases still referenced by templates. Semantic tokens where one
+   exists; otherwise a single oklch stop on the same ramp as the scale above. */
+.text-purple  { color: oklch(0.55 0.16 300); }
+.text-indigo  { color: oklch(0.55 0.16 275); }
+.text-cyan    { color: oklch(0.55 0.13 205); }
+.text-inherit { color: inherit; }
+.text-brand-700 { color: oklch(0.45 0.14 240); }
+.text-brand-900 { color: oklch(0.28 0.09 240); }
+.text-balance { text-wrap: balance; }
+.text-pretty  { text-wrap: pretty; }
+.text-decoration-line-through { text-decoration: line-through; }
+.break-words  { overflow-wrap: anywhere; }
+.my-auto      { margin-block: auto; }
+.my-1         { margin-block: 0.25rem; }
+.min-w-full   { min-inline-size: 100%; }
+.max-w-5xl    { max-inline-size: 64rem; }
+.bg-transparent { background: transparent; }
+.bg-emerald-subtle { background: oklch(0.95 0.03 155); }
+.bg-sky-subtle     { background: oklch(0.95 0.03 230); }
+.border-border         { border: 1px solid var(--border); }
+.border-border-subtle  { border: 1px solid var(--border-subtle); }
+.border-brand-subtle   { border: 1px solid var(--primary-border); }
+.border-brand-100      { border: 1px solid oklch(0.94 0.04 240); }
+.border-emerald        { border-color: oklch(0.60 0.14 155); }
+.border-b-2 { border-block-end-width: 2px; border-block-end-style: solid; }
+.border-t-2 { border-block-start-width: 2px; border-block-start-style: solid; }
+.border-t-amber   { border-block-start: 2px solid oklch(0.70 0.14 75); }
+.border-t-emerald { border-block-start: 2px solid oklch(0.60 0.14 155); }
+.border-t-primary { border-block-start: 2px solid var(--primary); }
+.border-t-rose    { border-block-start: 2px solid oklch(0.60 0.16 15); }
+.border-s-accent  { border-inline-start: 3px solid var(--primary); }
+.border-s-danger  { border-inline-start: 3px solid var(--danger); }
+.border-s-success { border-inline-start: 3px solid var(--success); }
+.border-s-warning { border-inline-start: 3px solid var(--warning); }
+}
+
+@layer components {
+/* Final recovery batch (Phase 7). The rest of the undefined-class list is
+   Alpine state names -- activeTab, filterTab, policyFilter -- which appear
+   inside :class bindings and are never CSS selectors. */
+.sidebar-brand { display: flex; align-items: center; gap: var(--space-sm); min-inline-size: 0; }
+.sidebar-toggle { display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.badge-neutral {
+  display: inline-flex; align-items: center; gap: var(--space-2xs);
+  padding: 0.15rem var(--space-xs); font-size: var(--text-xs); font-weight: 600;
+  color: var(--text-muted); background: var(--bg-surface-sunken);
+  border-radius: var(--radius-full);
+}
+.spinner-border {
+  display: inline-block; inline-size: 1rem; block-size: 1rem;
+  border: 2px solid var(--border-subtle); border-block-start-color: var(--primary);
+  border-radius: var(--radius-full); animation: spinner-rotate 700ms linear infinite;
+}
+@keyframes spinner-rotate { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { .spinner-border { animation: none; } }
+.wiz-toolbar-spacer { flex: 1; }
+}
+
+@layer utilities {
+.success { color: var(--success); }
+.warning { color: var(--warning); }
+.w-100 { inline-size: 100%; }
+.min-w-280 { min-inline-size: 17.5rem; }
+.mt-auto { margin-block-start: auto; }
+.ps-9 { padding-inline-start: 2.25rem; }
+.backdrop-blur-xs { backdrop-filter: blur(2px); -webkit-backdrop-filter: blur(2px); }
+.duration-300 { transition-duration: 300ms; }
+}
