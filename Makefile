@@ -258,6 +258,17 @@ check-physical-properties: ## Fail if physical directional properties appear wit
 check-topbar-impls: ## Fail if a shell hand-builds its own dashboard header again
 	@n=$$(grep -rl 'class="top-navbar"' --include='*.templ' internal/ui 2>/dev/null | wc -l | tr -d ' '); if [ "$$n" -gt 0 ]; then echo "FAIL: $$n templates still use .top-navbar. The dashboard header is components.DashboardTopBar; the public one is .site-header."; exit 1; fi; echo "  ok: one dashboard top bar, one site header"
 
+.PHONY: check-modal-legacy
+check-modal-legacy: ## Fail if legacy modal-overlay or window.openModal appears
+	@echo "==> checking legacy modal implementations"
+	@n=$$(grep -rnE '(modal-overlay|window\.openModal|window\.closeModal)' internal/ui 2>/dev/null | wc -l | tr -d ' '); \
+	if [ "$$n" -gt 0 ]; then \
+	  echo "FAIL: $$n legacy modal references found. Use native <dialog class=\"modal\"> with components.Modal or dialog.showModal()."; \
+	  grep -rnE '(modal-overlay|window\.openModal|window\.closeModal)' internal/ui 2>/dev/null; \
+	  exit 1; \
+	fi; \
+	echo "  ok: 0 legacy modal references"
+
 .PHONY: check-css-layered
 check-css-layered: ## Fail if a stylesheet ships outside the @layer cascade
 	@fail=0; for f in internal/ui/static/css/*.css; do case "$$(basename $$f)" in app.css) continue;; esac; if ! grep -q '@layer' "$$f"; then echo "  unlayered: $$f"; fail=1; fi; done; if [ "$$fail" = "1" ]; then echo "FAIL: a stylesheet outside @layer beats every layered rule. app.css is the one deliberate exception (hide/show primitives)."; exit 1; fi; echo "  ok: every stylesheet is layered"
