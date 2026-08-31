@@ -8,6 +8,7 @@ import (
 	"net/url"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/muhiya/dawa24-store/internal/modules/identity"
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
@@ -52,11 +53,24 @@ func RequireAuth(service *identity.Service, resolver *rbac.Resolver, cookieName 
 
 			sess, err := service.ValidateSession(r.Context(), token)
 			if err != nil {
+				// Expired/invalid session: clear cookie
+				http.SetCookie(w, &http.Cookie{
+					Name:     cookieName,
+					Value:    "",
+					Path:     "/",
+					MaxAge:   -1,
+					Expires:  time.Unix(0, 0),
+					HttpOnly: true,
+					SameSite: http.SameSiteLaxMode,
+				})
+
 				if r.Method == http.MethodGet && strings.Contains(r.Header.Get("Accept"), "text/html") {
 					q := url.Values{}
 					q.Set("redirect", r.URL.RequestURI())
 					var appErr *apperr.Error
-					if errors.Is(err, identity.ErrSessionEvictedConcurrentLimit) || (errors.As(err, &appErr) && appErr.Code == "session.evicted_concurrent_limit") {
+					if errors.Is(err, identity.ErrSessionIdleTimeout) || (errors.As(err, &appErr) && appErr.Code == "session.idle_timeout") {
+						q.Set("reason", "idle_timeout")
+					} else if errors.Is(err, identity.ErrSessionEvictedConcurrentLimit) || (errors.As(err, &appErr) && appErr.Code == "session.evicted_concurrent_limit") {
 						q.Set("error", "concurrent_limit")
 					}
 					http.Redirect(w, r, "/auth/login?"+q.Encode(), http.StatusSeeOther)
@@ -158,6 +172,16 @@ func OptionalAuth(service *identity.Service, resolver *rbac.Resolver, cookieName
 
 			sess, err := service.ValidateSession(r.Context(), token)
 			if err != nil {
+				// Expired or invalid session: clear cookie so browser stops sending dead token
+				http.SetCookie(w, &http.Cookie{
+					Name:     cookieName,
+					Value:    "",
+					Path:     "/",
+					MaxAge:   -1,
+					Expires:  time.Unix(0, 0),
+					HttpOnly: true,
+					SameSite: http.SameSiteLaxMode,
+				})
 				next.ServeHTTP(w, r)
 				return
 			}

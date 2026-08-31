@@ -27,17 +27,20 @@ func (h *UIHandler) LoginPage(w http.ResponseWriter, r *http.Request) {
 
 	lang, dir := h.localeAndDir(r)
 	errorKey := r.URL.Query().Get("error")
+	reasonKey := r.URL.Query().Get("reason")
 	var errorMsg string
-	switch errorKey {
-	case "concurrent_limit", "session_evicted":
+	switch {
+	case errorKey == "idle_timeout" || reasonKey == "idle_timeout":
+		errorMsg = "تم تسجيل خروجك تلقائياً لعدم وجود نشاط حفاظاً على أمان حسابك. يرجى تسجيل الدخول مجدداً."
+	case errorKey == "concurrent_limit" || errorKey == "session_evicted":
 		errorMsg = i18n.T(lang, "auth.login.session_evicted")
-	case "invalid_credentials":
+	case errorKey == "invalid_credentials":
 		errorMsg = i18n.T(lang, "auth.login.invalid_credentials")
-	case "locked":
+	case errorKey == "locked":
 		errorMsg = i18n.T(lang, "auth.login.account_locked")
-	case "mfa_unavailable":
+	case errorKey == "mfa_unavailable":
 		errorMsg = i18n.T(lang, "auth.login.mfa_unavailable")
-	case "auth_service_unavailable":
+	case errorKey == "auth_service_unavailable":
 		errorMsg = i18n.T(lang, "auth.login.service_unavailable")
 	default:
 		errorMsg = errorKey

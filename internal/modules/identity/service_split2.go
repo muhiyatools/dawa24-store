@@ -2,6 +2,7 @@ package identity
 
 import (
 	"context"
+	"time"
 
 	"github.com/muhiya/dawa24-store/internal/shared/apperr"
 )
@@ -55,6 +56,21 @@ func (s *Service) RevokeAllOtherUserSessions(ctx context.Context, userID int64, 
 // GetOrgPlanLimits returns the concurrent session and device quotas for an organization.
 func (s *Service) GetOrgPlanLimits(ctx context.Context, orgID int64) (maxSessions int, maxDevices int, planName string, err error) {
 	return s.repo.GetOrgPlanLimits(ctx, orgID)
+}
+
+// SetIdleTimeout configures the active idle timeout duration on the underlying session store.
+func (s *Service) SetIdleTimeout(d time.Duration) {
+	if s.sessionStore != nil {
+		s.sessionStore.SetIdleTimeout(d)
+	}
+}
+
+// GetIdleTimeout retrieves the active idle timeout duration.
+func (s *Service) GetIdleTimeout() time.Duration {
+	if s.sessionStore != nil {
+		return s.sessionStore.GetIdleTimeout()
+	}
+	return 30 * time.Minute
 }
 
 // ValidateSession verifies a session token.

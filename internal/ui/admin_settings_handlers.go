@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"strconv"
 	"strings"
+	"time"
 
 	platformadmin "github.com/muhiya/dawa24-store/internal/modules/platform_admin"
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
@@ -26,11 +27,12 @@ func (h *UIHandler) AdminSettingsPage(w http.ResponseWriter, r *http.Request) {
 	}
 
 	values := pages.AdminSettingsValues{
-		ActiveTab:      tab,
-		PolicyKey:      policyKey,
-		SupportEmail:   "support@dawa24.eg",
-		CommissionRate: "1.5",
-		FeatureFlags:   features.List(),
+		ActiveTab:                 tab,
+		PolicyKey:                 policyKey,
+		SupportEmail:              "support@dawa24.eg",
+		CommissionRate:            "1.5",
+		SessionIdleTimeoutMinutes: "30",
+		FeatureFlags:              features.List(),
 	}
 
 	if h.adminSvc != nil {
@@ -42,6 +44,13 @@ func (h *UIHandler) AdminSettingsPage(w http.ResponseWriter, r *http.Request) {
 		if s, err := h.adminSvc.GetSetting(ctx, settingCommissionRate); err == nil && s != nil {
 			if v, ok := s.Value["value"].(string); ok && v != "" {
 				values.CommissionRate = v
+			}
+		}
+		if s, err := h.adminSvc.GetSetting(ctx, settingSessionIdleTimeout); err == nil && s != nil {
+			if v, ok := s.Value["value"].(string); ok && v != "" {
+				values.SessionIdleTimeoutMinutes = v
+			} else if vNum, ok := s.Value["value"].(float64); ok && vNum > 0 {
+				values.SessionIdleTimeoutMinutes = strconv.Itoa(int(vNum))
 			}
 		}
 
@@ -123,6 +132,7 @@ func (h *UIHandler) AdminSettingsSubmit(w http.ResponseWriter, r *http.Request) 
 
 	supportEmail := strings.TrimSpace(r.PostFormValue("support_email"))
 	commissionRate := strings.TrimSpace(r.PostFormValue("commission_rate"))
+	sessionIdleTimeout := strings.TrimSpace(r.PostFormValue("session_idle_timeout_minutes"))
 
 	if supportEmail == "" || !strings.Contains(supportEmail, "@") {
 		h.redirectWithNotice(w, r, "/admin/settings?tab=features", "error", i18n.T(lang, "admin.settings.invalid_email"))
@@ -132,6 +142,10 @@ func (h *UIHandler) AdminSettingsSubmit(w http.ResponseWriter, r *http.Request) 
 	if err != nil || rate < 0 || rate > 100 {
 		h.redirectWithNotice(w, r, "/admin/settings?tab=features", "error", i18n.T(lang, "admin.settings.invalid_commission"))
 		return
+	}
+	idleMins, err := strconv.Atoi(sessionIdleTimeout)
+	if err != nil || idleMins < 1 || idleMins > 10080 {
+		idleMins = 30
 	}
 
 	settings := []*platformadmin.SystemSetting{
@@ -147,6 +161,12 @@ func (h *UIHandler) AdminSettingsSubmit(w http.ResponseWriter, r *http.Request) 
 			Description: "Default platform commission rate, percent",
 			IsPublic:    false,
 		},
+		{
+			Key:         settingSessionIdleTimeout,
+			Value:       map[string]any{"value": strconv.Itoa(idleMins)},
+			Description: "Session idle timeout in minutes before automatic logout",
+			IsPublic:    true,
+		},
 	}
 	for _, s := range settings {
 		if err := h.adminSvc.SetSetting(ctx, s); err != nil {
@@ -156,7 +176,16 @@ func (h *UIHandler) AdminSettingsSubmit(w http.ResponseWriter, r *http.Request) 
 		}
 	}
 
-	h.log.InfoContext(ctx, "platform settings updated", "support_email", supportEmail, "commission_rate", commissionRate)
+	if h.idSvc != nil {
+		h.idSvc.SetIdleTimeout(time.Duration(idleMins) * time.Minute)
+	}
+	if ss, err := h.adminSvc.GetSiteSettings(ctx); err == nil && ss != nil {
+		ss.SessionIdleTimeoutMinutes = idleMins
+		_ = h.adminSvc.SaveSiteSettings(ctx, ss)
+	}
+	InvalidateSiteSettingsCache()
+
+	h.log.InfoContext(ctx, "platform settings updated", "support_email", supportEmail, "commission_rate", commissionRate, "session_idle_timeout_minutes", idleMins)
 	h.redirectWithNotice(w, r, "/admin/settings?tab=features", "success", i18n.T(lang, "admin.settings.saved_general_success"))
 }
 

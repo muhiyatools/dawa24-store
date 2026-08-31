@@ -34,6 +34,9 @@ type DeviceDetails struct {
 // ErrSessionEvictedConcurrentLimit indicates the session was terminated because the organization exceeded its concurrent session limit.
 var ErrSessionEvictedConcurrentLimit = apperr.New(apperr.KindUnauthorized, "session.evicted_concurrent_limit", i18n.TDefault("w4_mod.w4str_170_170"))
 
+// ErrSessionIdleTimeout indicates the session was terminated because of user inactivity beyond configured idle limit.
+var ErrSessionIdleTimeout = apperr.New(apperr.KindUnauthorized, "session.idle_timeout", "انتهت صلاحية الجلسة لعدم وجود نشاط. يرجى تسجيل الدخول مجدداً.")
+
 // ParseUserAgentDevice analyzes a User-Agent string to produce human-readable Arabic device metadata.
 func ParseUserAgentDevice(ua, ip string) DeviceDetails {
 	uaLower := strings.ToLower(ua)

@@ -53,6 +53,10 @@ func (h *UIHandler) siteSettingsMiddleware(next http.Handler) http.Handler {
 		cachedAt = time.Now()
 		cacheMu.Unlock()
 
+		if s != nil && s.SessionIdleTimeoutMinutes > 0 && h.idSvc != nil {
+			h.idSvc.SetIdleTimeout(time.Duration(s.SessionIdleTimeoutMinutes) * time.Minute)
+		}
+
 		next.ServeHTTP(w, r.WithContext(layouts.WithSiteSettings(ctx, s)))
 	})
 }
@@ -70,15 +74,16 @@ func GetSiteSettings(ctx context.Context) *platformadmin.SiteSettings {
 // DefaultSiteSettings returns fallback settings if DB is uninitialized.
 func DefaultSiteSettings() *platformadmin.SiteSettings {
 	return &platformadmin.SiteSettings{
-		SiteName:        i18n.TDefault("w4_ui.24_28"),
-		SiteDescription: i18n.TDefault("w4_ui.s_99_99"),
-		LogoURL:         "/static/img/logo.png",
-		FaviconURL:      "/static/img/logo.png",
-		ContactEmail:    "info@dawa24.com",
-		SupportEmail:    "support@dawa24.com",
-		Phone:           "01065397000",
-		WhatsApp:        "201065397000",
-		Address:         i18n.TDefault("w4_ui.s_100_100"),
+		SiteName:                  i18n.TDefault("w4_ui.24_28"),
+		SiteDescription:           i18n.TDefault("w4_ui.s_99_99"),
+		LogoURL:                   "/static/img/logo.png",
+		FaviconURL:                "/static/img/logo.png",
+		ContactEmail:              "info@dawa24.com",
+		SupportEmail:              "support@dawa24.com",
+		Phone:                     "01065397000",
+		WhatsApp:                  "201065397000",
+		Address:                   i18n.TDefault("w4_ui.s_100_100"),
+		SessionIdleTimeoutMinutes: 30,
 		SocialLinks: map[string]string{
 			"facebook":  "https://facebook.com/dawa24",
 			"twitter":   "https://twitter.com/dawa24",

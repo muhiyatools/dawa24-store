@@ -1,0 +1,61 @@
+package pages
+
+import (
+	platformadmin "github.com/muhiya/dawa24-store/internal/modules/platform_admin"
+	"github.com/muhiya/dawa24-store/internal/ui/components"
+)
+
+templ adminSettingsPoliciesTab(policies []*platformadmin.Policy) {
+	<div x-show="activeTab === 'policies'" x-cloak class="d-flex flex-col gap-6">
+		<div class="glass-panel p-6 mb-0">
+			<div class="pb-3 mb-4 border-b">
+				<h3 class="text-base font-black text-primary m-0">
+					إدارة الشروط والسياسات القانونية
+				</h3>
+				<p class="text-xs text-secondary m-0 mt-1">تحديث الشروط والأحكام، سياسة الخصوصية، وسياسة الاسترجاع المعتمدة بالمنصة</p>
+			</div>
+
+			<div class="d-flex flex-col gap-4">
+				for _, pol := range policies {
+					<div class="border rounded-xl p-4 bg-surface-sunken">
+						<div class="flex-between items-center pb-2 mb-3 border-b">
+							<div class="d-flex items-center gap-2">
+								@components.IconFileText("icon-xs text-primary")
+								<strong class="text-sm font-black text-primary">{ pol.Title.Get("ar") }</strong>
+								<span class="badge badge-sky text-2xs font-mono">{ pol.PolicyKey }</span>
+							</div>
+							<span class="text-2xs text-muted font-mono">{ pol.UpdatedAt.Format("2006-01-02 15:04") }</span>
+						</div>
+
+						<form method="POST" action="/admin/settings/policies" class="d-flex flex-col gap-3 m-0">
+							<input type="hidden" name="key" value={ pol.PolicyKey }/>
+							
+							<div class="form-grid-2">
+								<div class="form-group mb-0">
+									<label class="form-label text-xs font-bold">العنوان (عربي)</label>
+									<input type="text" name="title_ar" value={ pol.Title.Get("ar") } required class="form-input text-xs"/>
+								</div>
+								<div class="form-group mb-0">
+									<label class="form-label text-xs font-bold">العنوان (إنجليزي)</label>
+									<input type="text" name="title_en" value={ pol.Title.Get("en") } required class="form-input text-xs"/>
+								</div>
+							</div>
+
+							<div class="form-group mb-0">
+								<label class="form-label text-xs font-bold">نص الوثيقة القانونية (Markdown / HTML مدعوم)</label>
+								<textarea name="content_ar" rows="6" required class="form-input text-xs font-mono leading-relaxed">{ pol.Content.Get("ar") }</textarea>
+							</div>
+
+							<div>
+								<button type="submit" class="btn btn-secondary btn-sm font-bold text-xs">
+									@components.IconCheck("icon-xs")
+									<span>تحديث { pol.Title.Get("ar") }</span>
+								</button>
+							</div>
+						</form>
+					</div>
+				}
+			</div>
+		</div>
+	</div>
+}

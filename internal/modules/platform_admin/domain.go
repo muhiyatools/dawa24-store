@@ -260,18 +260,19 @@ func (g *GatewaySettings) CanProvision() bool {
 	return password != ""
 }
 
-// SiteSettings defines public website branding, contact info, and social media.
+// SiteSettings defines public website branding, contact info, session timeout, and social media.
 type SiteSettings struct {
-	SiteName        string            `json:"site_name"`
-	SiteDescription string            `json:"site_description"`
-	LogoURL         string            `json:"logo_url"`
-	FaviconURL      string            `json:"favicon_url"`
-	ContactEmail    string            `json:"contact_email"`
-	SupportEmail    string            `json:"support_email"`
-	Phone           string            `json:"phone"`
-	WhatsApp        string            `json:"whatsapp"`
-	Address         string            `json:"address"`
-	SocialLinks     map[string]string `json:"social_links"` // facebook, twitter, instagram, linkedin, youtube, tiktok, snapchat, whatsapp, telegram
+	SiteName                  string            `json:"site_name"`
+	SiteDescription           string            `json:"site_description"`
+	LogoURL                   string            `json:"logo_url"`
+	FaviconURL                string            `json:"favicon_url"`
+	ContactEmail              string            `json:"contact_email"`
+	SupportEmail              string            `json:"support_email"`
+	Phone                     string            `json:"phone"`
+	WhatsApp                  string            `json:"whatsapp"`
+	Address                   string            `json:"address"`
+	SessionIdleTimeoutMinutes int               `json:"session_idle_timeout_minutes"`
+	SocialLinks               map[string]string `json:"social_links"` // facebook, twitter, instagram, linkedin, youtube, tiktok, snapchat, whatsapp, telegram
 }
 
 // Policy represents a versioned platform policy document (Terms, Privacy, Refund, etc.).

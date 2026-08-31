@@ -1,0 +1,78 @@
+package pages
+
+import (
+	platformadmin "github.com/muhiya/dawa24-store/internal/modules/platform_admin"
+	"github.com/muhiya/dawa24-store/internal/ui/components"
+)
+
+templ adminSettingsSiteTab(siteSettings *platformadmin.SiteSettings) {
+	<div x-show="activeTab === 'site'" x-cloak class="d-flex flex-col gap-6">
+		if siteSettings != nil {
+			<form action="/admin/settings/site" method="POST" class="d-flex flex-col gap-6 m-0">
+				<!-- Identity & Slogans -->
+				<div class="glass-panel p-6 mb-0">
+					<div class="pb-3 mb-4 border-b">
+						<h3 class="text-base font-black text-primary m-0">
+							الهوية البصرية والعناوين (Branding & Identity)
+						</h3>
+						<p class="text-xs text-secondary m-0 mt-1">تحديد اسم المنصة، الشعار، والوصف التسويقي المعروض في الصفحة الرئيسية</p>
+					</div>
+
+					<div class="form-grid-2 mb-4">
+						<div class="form-group mb-0">
+							<label class="form-label text-xs font-bold">اسم المنصة الرسمي *</label>
+							<input type="text" name="site_name" value={ siteSettings.SiteName } required class="form-input text-xs"/>
+						</div>
+						<div class="form-group mb-0">
+							<label class="form-label text-xs font-bold">عنوان ومقر الشركة</label>
+							<input type="text" name="address" value={ siteSettings.Address } class="form-input text-xs"/>
+						</div>
+					</div>
+
+					<div class="form-group mb-0">
+						<label class="form-label text-xs font-bold">الوصف الترويجي للمنصة (Site Description)</label>
+						<textarea name="site_description" rows="3" class="form-input text-xs">{ siteSettings.SiteDescription }</textarea>
+					</div>
+				</div>
+
+				<!-- Contact & Support Channels -->
+				<div class="glass-panel p-6 mb-0">
+					<div class="pb-3 mb-4 border-b">
+						<h3 class="text-base font-black text-primary m-0">
+							قنوات الاتصال والدعم الفني
+						</h3>
+					</div>
+
+					<div class="form-grid-2 mb-4">
+						<div class="form-group mb-0">
+							<label class="form-label text-xs font-bold">البريد الإلكتروني الرسمي للتواصل</label>
+							<input type="email" name="contact_email" value={ siteSettings.ContactEmail } class="form-input text-xs font-mono" dir="ltr"/>
+						</div>
+						<div class="form-group mb-0">
+							<label class="form-label text-xs font-bold">بريد الدعم الفني (Support Email)</label>
+							<input type="email" name="support_email" value={ siteSettings.SupportEmail } class="form-input text-xs font-mono" dir="ltr"/>
+						</div>
+					</div>
+
+					<div class="form-grid-2">
+						<div class="form-group mb-0">
+							<label class="form-label text-xs font-bold">رقم الهاتف المباشر</label>
+							<input type="tel" name="phone" value={ siteSettings.Phone } class="form-input text-xs font-mono" dir="ltr"/>
+						</div>
+						<div class="form-group mb-0">
+							<label class="form-label text-xs font-bold">رقم الواتساب للدعم اللحظي</label>
+							<input type="tel" name="whatsapp" value={ siteSettings.WhatsApp } class="form-input text-xs font-mono" dir="ltr"/>
+						</div>
+					</div>
+				</div>
+
+				<div>
+					<button type="submit" class="btn btn-primary font-bold text-xs">
+						@components.IconCheck("icon-xs")
+						<span>حفظ إعدادات الهوية والتواصل</span>
+					</button>
+				</div>
+			</form>
+		}
+	</div>
+}

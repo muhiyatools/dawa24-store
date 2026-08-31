@@ -620,3 +620,52 @@ function initScrollReveal() {
 
   targets.forEach(function(el) { observer.observe(el); });
 }
+
+// Universal Session Idle Timeout Watchdog
+(function() {
+  var path = window.location.pathname;
+  if (path.startsWith('/auth/login') || path.startsWith('/auth/register') || path.startsWith('/auth/forgot') || path.startsWith('/auth/reset')) {
+    return;
+  }
+
+  var sessionCookie = getCookie('dawa24_session') || getCookie('session');
+  if (!sessionCookie) return;
+
+  var metaTimeout = document.querySelector('meta[name="session-idle-timeout-mins"]');
+  var timeoutMins = metaTimeout ? parseInt(metaTimeout.getAttribute('content'), 10) : 30;
+  if (!timeoutMins || isNaN(timeoutMins) || timeoutMins <= 0) {
+    timeoutMins = 30;
+  }
+
+  var idleLimitMs = timeoutMins * 60 * 1000;
+  var lastActivityKey = 'dawa24_last_user_activity';
+
+  function recordActivity() {
+    try {
+      localStorage.setItem(lastActivityKey, Date.now().toString());
+    } catch(e) {}
+  }
+
+  recordActivity();
+
+  var events = ['mousedown', 'keydown', 'scroll', 'touchstart', 'click'];
+  events.forEach(function(evt) {
+    window.addEventListener(evt, recordActivity, { passive: true, capture: true });
+  });
+
+  function checkIdle() {
+    try {
+      var stored = localStorage.getItem(lastActivityKey);
+      var last = stored ? parseInt(stored, 10) : Date.now();
+      var elapsed = Date.now() - last;
+      if (elapsed >= idleLimitMs) {
+        localStorage.removeItem(lastActivityKey);
+        var curPath = window.location.pathname + window.location.search;
+        window.location.href = '/auth/login?reason=idle_timeout&redirect=' + encodeURIComponent(curPath);
+      }
+    } catch(e) {}
+  }
+
+  setInterval(checkIdle, 10000);
+})();
+

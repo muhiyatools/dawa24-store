@@ -72,10 +72,12 @@ func (s *Session) IsStaff() bool {
 // its dependencies connect — so capturing one at construction time captures nil
 // forever. Asking the handle at each use gets whatever is live now.
 type SessionStore struct {
-	cache      *cachepkg.Cache
-	cookieName string
-	ttl        time.Duration
-	secure     bool
+	cache       *cachepkg.Cache
+	cookieName  string
+	ttl         time.Duration
+	idleTimeout time.Duration
+	idleMu      sync.RWMutex
+	secure      bool
 
 	memMu           sync.RWMutex
 	memSessions     map[string]*Session
@@ -85,15 +87,45 @@ type SessionStore struct {
 
 // NewSessionStore creates a session store wrapping Redis.
 func NewSessionStore(c *cachepkg.Cache, cfg config.Session) *SessionStore {
+	idle := cfg.IdleTimeout
+	if idle <= 0 {
+		idle = 30 * time.Minute
+	}
 	return &SessionStore{
 		cache:           c,
 		cookieName:      cfg.CookieName,
 		ttl:             cfg.TTL,
+		idleTimeout:     idle,
 		secure:          cfg.SecureOnly,
 		memSessions:     make(map[string]*Session),
 		memUserSessions: make(map[int64]map[string]bool),
 		memOrgSessions:  make(map[int64]map[string]bool),
 	}
+}
+
+// SetIdleTimeout dynamically sets the maximum inactivity duration allowed before a session is expired.
+func (s *SessionStore) SetIdleTimeout(d time.Duration) {
+	if s == nil {
+		return
+	}
+	s.idleMu.Lock()
+	defer s.idleMu.Unlock()
+	if d > 0 {
+		s.idleTimeout = d
+	}
+}
+
+// GetIdleTimeout returns the active session idle timeout duration.
+func (s *SessionStore) GetIdleTimeout() time.Duration {
+	if s == nil {
+		return 30 * time.Minute
+	}
+	s.idleMu.RLock()
+	defer s.idleMu.RUnlock()
+	if s.idleTimeout <= 0 {
+		return 30 * time.Minute
+	}
+	return s.idleTimeout
 }
 
 // GenerateToken generates a cryptographically secure 32-byte hex token.

@@ -1,6 +1,8 @@
 package layouts
 
 import (
+	"fmt"
+
 	"github.com/muhiya/dawa24-store/internal/ui/components"
 )
 
@@ -34,6 +36,7 @@ templ Base(title string, lang string, dir string, extraCSS ...string) {
 			<meta charset="UTF-8"/>
 			<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 			<meta name="color-scheme" content="light dark"/>
+			<meta name="session-idle-timeout-mins" content={ fmt.Sprintf("%d", site.SessionIdleTimeoutMinutes) }/>
 			<title>{ title } | { site.SiteName }</title>
 			<script>
 				(function() {

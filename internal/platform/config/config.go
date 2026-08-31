@@ -128,10 +128,11 @@ type Maps struct {
 }
 
 type Session struct {
-	CookieName string
-	Secret     string
-	TTL        time.Duration
-	SecureOnly bool
+	CookieName  string
+	Secret      string
+	TTL         time.Duration
+	IdleTimeout time.Duration
+	SecureOnly  bool
 }
 
 type Observability struct {
@@ -234,10 +235,11 @@ func load(cliOnly bool) (*Config, error) {
 		},
 
 		Session: Session{
-			CookieName: getStr("SESSION_COOKIE_NAME", "dawa24_session"),
-			Secret:     getStr("SESSION_SECRET", ""),
-			TTL:        getDuration("SESSION_TTL", 720*time.Hour), // 30 days, matching legacy
-			SecureOnly: getBool("SESSION_SECURE", env != EnvDev),
+			CookieName:  getStr("SESSION_COOKIE_NAME", "dawa24_session"),
+			Secret:      getStr("SESSION_SECRET", ""),
+			TTL:         getDuration("SESSION_TTL", 720*time.Hour), // 30 days, matching legacy
+			IdleTimeout: getDuration("SESSION_IDLE_TIMEOUT", 30*time.Minute),
+			SecureOnly:  getBool("SESSION_SECURE", env != EnvDev),
 		},
 
 		Observ: Observability{

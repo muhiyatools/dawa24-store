@@ -5,35 +5,67 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"time"
 
 	"github.com/redis/go-redis/v9"
 
 	cachepkg "github.com/muhiya/dawa24-store/internal/platform/cache"
-
 	"github.com/muhiya/dawa24-store/internal/shared/apperr"
 )
 
-// Get retrieves a session by token.
+// Get retrieves a session by token and enforces the idle inactivity timeout.
 func (s *SessionStore) Get(ctx context.Context, token string) (*Session, error) {
 	if token == "" {
 		return nil, apperr.Unauthorized()
 	}
 
+	idleLimit := s.GetIdleTimeout()
+
 	rdb, err := s.client()
 	if err != nil {
-		s.memMu.RLock()
-		defer s.memMu.RUnlock()
-		if sess, ok := s.memSessions[token]; ok {
-			return sess, nil
+		s.memMu.Lock()
+		defer s.memMu.Unlock()
+		sess, ok := s.memSessions[token]
+		if !ok {
+			return nil, apperr.Unauthorized()
 		}
-		return nil, apperr.Unauthorized()
+
+		lastActive := sess.LastActiveAt
+		if lastActive.IsZero() {
+			lastActive = sess.CreatedAt
+		}
+
+		// Enforce Idle Timeout
+		if idleLimit > 0 && time.Since(lastActive) > idleLimit {
+			delete(s.memSessions, token)
+			if s.memUserSessions[sess.UserID] != nil {
+				delete(s.memUserSessions[sess.UserID], token)
+			}
+			if sess.ActiveOrgID > 0 && s.memOrgSessions[sess.ActiveOrgID] != nil {
+				delete(s.memOrgSessions[sess.ActiveOrgID], token)
+			}
+			return nil, ErrSessionIdleTimeout
+		}
+
+		// Debounced activity touch
+		now := time.Now().UTC()
+		if now.Sub(lastActive) >= 15*time.Second {
+			sess.LastActiveAt = now
+		}
+		return sess, nil
 	}
+
 	val, err := rdb.Get(ctx, sessionKey(token)).Bytes()
 	if err != nil {
 		if errors.Is(err, redis.Nil) {
-			// Check if this token was evicted due to concurrent session limit
-			if reason, evErr := rdb.Get(ctx, sessionEvictedKey(token)).Result(); evErr == nil && reason == "concurrent_limit" {
-				return nil, ErrSessionEvictedConcurrentLimit
+			// Check if this token was evicted due to concurrent session limit or idle timeout
+			if reason, evErr := rdb.Get(ctx, sessionEvictedKey(token)).Result(); evErr == nil {
+				if reason == "concurrent_limit" {
+					return nil, ErrSessionEvictedConcurrentLimit
+				}
+				if reason == "idle_timeout" {
+					return nil, ErrSessionIdleTimeout
+				}
 			}
 			return nil, apperr.Unauthorized()
 		}
@@ -43,6 +75,32 @@ func (s *SessionStore) Get(ctx context.Context, token string) (*Session, error) 
 	var sess Session
 	if err := json.Unmarshal(val, &sess); err != nil {
 		return nil, fmt.Errorf("session: unmarshal: %w", err)
+	}
+
+	lastActive := sess.LastActiveAt
+	if lastActive.IsZero() {
+		lastActive = sess.CreatedAt
+	}
+
+	// Enforce Idle Timeout
+	if idleLimit > 0 && time.Since(lastActive) > idleLimit {
+		_ = s.Delete(ctx, token)
+		_ = rdb.Set(ctx, sessionEvictedKey(token), "idle_timeout", 24*time.Hour).Err()
+		return nil, ErrSessionIdleTimeout
+	}
+
+	// Debounced activity update in Redis
+	now := time.Now().UTC()
+	if now.Sub(lastActive) >= 15*time.Second {
+		sess.LastActiveAt = now
+		if data, mErr := json.Marshal(&sess); mErr == nil {
+			remTTL, tErr := rdb.TTL(ctx, sessionKey(token)).Result()
+			if tErr == nil && remTTL > 0 {
+				_ = rdb.Set(ctx, sessionKey(token), data, remTTL).Err()
+			} else {
+				_ = rdb.Set(ctx, sessionKey(token), data, s.ttl).Err()
+			}
+		}
 	}
 
 	return &sess, nil

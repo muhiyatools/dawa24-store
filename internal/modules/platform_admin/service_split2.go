@@ -66,34 +66,45 @@ func (s *Service) GetSiteSettings(ctx context.Context) (*SiteSettings, error) {
 		socialMap = rawSocialStr
 	}
 
+	idleTimeoutMins := getInt(v, "session_idle_timeout_minutes", 30)
+	if idleTimeoutMins <= 0 {
+		idleTimeoutMins = 30
+	}
+
 	ss := &SiteSettings{
-		SiteName:        getString(v, "site_name", i18n.TDefault("w4_ui.24_28")),
-		SiteDescription: getString(v, "site_description", i18n.TDefault("w4_mod.s_424_424")),
-		LogoURL:         getString(v, "logo_url", "/static/img/logo.png"),
-		FaviconURL:      getString(v, "favicon_url", "/static/img/logo.png"),
-		ContactEmail:    getString(v, "contact_email", "info@dawa24.com"),
-		SupportEmail:    getString(v, "support_email", "support@dawa24.com"),
-		Phone:           getString(v, "phone", "01065397000"),
-		WhatsApp:        getString(v, "whatsapp", "201065397000"),
-		Address:         getString(v, "address", i18n.TDefault("w4_ui.s_100_100")),
-		SocialLinks:     socialMap,
+		SiteName:                  getString(v, "site_name", i18n.TDefault("w4_ui.24_28")),
+		SiteDescription:           getString(v, "site_description", i18n.TDefault("w4_mod.s_424_424")),
+		LogoURL:                   getString(v, "logo_url", "/static/img/logo.png"),
+		FaviconURL:                getString(v, "favicon_url", "/static/img/logo.png"),
+		ContactEmail:              getString(v, "contact_email", "info@dawa24.com"),
+		SupportEmail:              getString(v, "support_email", "support@dawa24.com"),
+		Phone:                     getString(v, "phone", "01065397000"),
+		WhatsApp:                  getString(v, "whatsapp", "201065397000"),
+		Address:                   getString(v, "address", i18n.TDefault("w4_ui.s_100_100")),
+		SessionIdleTimeoutMinutes: idleTimeoutMins,
+		SocialLinks:               socialMap,
 	}
 	return ss, nil
 }
 
 // SaveSiteSettings writes public site settings and branding to database.
 func (s *Service) SaveSiteSettings(ctx context.Context, ss *SiteSettings) error {
+	idleMins := ss.SessionIdleTimeoutMinutes
+	if idleMins <= 0 {
+		idleMins = 30
+	}
 	val := map[string]any{
-		"site_name":        ss.SiteName,
-		"site_description": ss.SiteDescription,
-		"logo_url":         ss.LogoURL,
-		"favicon_url":      ss.FaviconURL,
-		"contact_email":    ss.ContactEmail,
-		"support_email":    ss.SupportEmail,
-		"phone":            ss.Phone,
-		"whatsapp":         ss.WhatsApp,
-		"address":          ss.Address,
-		"social_links":     ss.SocialLinks,
+		"site_name":                    ss.SiteName,
+		"site_description":             ss.SiteDescription,
+		"logo_url":                     ss.LogoURL,
+		"favicon_url":                  ss.FaviconURL,
+		"contact_email":                ss.ContactEmail,
+		"support_email":                ss.SupportEmail,
+		"phone":                        ss.Phone,
+		"whatsapp":                     ss.WhatsApp,
+		"address":                      ss.Address,
+		"session_idle_timeout_minutes": idleMins,
+		"social_links":                 ss.SocialLinks,
 	}
 	return s.repo.SetSetting(ctx, &SystemSetting{
 		Key:         "site_public_settings",
