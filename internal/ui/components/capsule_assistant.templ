@@ -10,7 +10,7 @@ templ CapsuleAssistantTrigger() {
 		x-data="capsuleAssistantManager()"
 		class="capsule-assistant-host"
 	>
-		<!-- Floating Trigger: Polished Circular Button -->
+		<!-- Floating Trigger: Polished Circular Button (Positioned on the Left) -->
 		<button
 			type="button"
 			x-show="!isOpen"
@@ -48,7 +48,7 @@ templ CapsuleAssistantPanel() {
 
 templ capsuleDrawerBody() {
 	<div x-cloak>
-		<!-- ChatGPT-Style Chat Window -->
+		<!-- ChatGPT-Style Chat Window (Positioned on the Left) -->
 		<div
 			x-show="isOpen"
 			x-transition:enter="transition ease-out duration-250"

@@ -3491,11 +3491,12 @@ body.modal-open {
 .sp-stepper-form { display: inline-flex; align-items: center; }
 .sp-stepper-input { inline-size: 3.5rem; text-align: center; }
 
-/* Capsule Assistant Floating Host & Launcher */
+/* Capsule Assistant Floating Host & Launcher (Positioned on the Left) */
 .capsule-assistant-host {
   position: fixed;
-  inset-block-end: 1.5rem;
-  inset-inline-start: 1.5rem;
+  bottom: 1.5rem;
+  left: 1.5rem;
+  right: auto;
   z-index: 9990;
   font-family: var(--font-sans);
   direction: rtl;
@@ -3545,11 +3546,12 @@ body.modal-open {
   50% { transform: scale(1.15); opacity: 1; box-shadow: 0 0 12px rgba(16, 185, 129, 1); }
 }
 
-/* Chat Drawer Window */
+/* Chat Drawer Window (Positioned on the Left) */
 .capsule-drawer {
   position: fixed;
-  inset-block-end: 1.5rem;
-  inset-inline-start: 1.5rem;
+  bottom: 1.5rem;
+  left: 1.5rem;
+  right: auto;
   width: 440px;
   max-width: calc(100vw - 2rem);
   height: min(640px, calc(100dvh - 3rem));
@@ -3572,6 +3574,10 @@ body.modal-open {
 @media (max-width: 640px) {
   .capsule-drawer {
     inset: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    top: 0;
     width: 100%;
     max-width: 100%;
     height: 100dvh;
@@ -3758,6 +3764,7 @@ body.modal-open {
 .capsule-prose p { margin: 0 0 0.5rem 0; }
 .capsule-prose p:last-child { margin-bottom: 0; }
 .capsule-prose strong { font-weight: 700; color: var(--text-primary); }
+.capsule-paragraph-gap { height: 0.5rem; }
 
 .capsule-inline-code {
   background: var(--bg-surface-sunken, var(--surface-sunken));
