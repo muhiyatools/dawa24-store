@@ -1,6 +1,5 @@
 package assistant
 
-
 // SystemPromptVersion tracks changes to the assistant prompt for explainability.
 const SystemPromptVersion = "2026-08-20.1"
 
