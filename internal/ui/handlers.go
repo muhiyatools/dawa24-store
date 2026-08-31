@@ -29,6 +29,7 @@ import (
 	"github.com/muhiya/dawa24-store/internal/modules/workflow"
 	"github.com/muhiya/dawa24-store/internal/platform/aiusage"
 	"github.com/muhiya/dawa24-store/internal/platform/gateway"
+	"github.com/muhiya/dawa24-store/internal/platform/pagecontrol"
 	"github.com/muhiya/dawa24-store/internal/platform/rbac"
 	"github.com/muhiya/dawa24-store/internal/platform/storage"
 	"github.com/muhiya/dawa24-store/internal/shared/matchflow"
@@ -62,6 +63,10 @@ type UIHandler struct {
 	// resolver answers "what may this caller do", reading the database rather
 	// than trusting the permission list stamped into the session at login.
 	resolver *rbac.Resolver
+
+	// pageControl is the store behind the /admin/system-pages screen. Nil when
+	// the feature is not wired; the screen then reports itself unavailable.
+	pageControl *pagecontrol.Store
 
 	// roleSeeder provisions a company's starter roles. A function rather than
 	// the rbac package plus a database handle, so the UI keeps no database
@@ -259,6 +264,7 @@ func (h *UIHandler) RegisterAdminRoutes(r chi.Router) {
 	h.registerAdminIdentityRoutes(r)
 	h.registerAdminCommerceRoutes(r)
 	h.registerAdminPlatformRoutes(r)
+	h.registerAdminPageControlRoutes(r)
 }
 
 // RegisterPreApprovalRoutes mounts Tier A shared routes accessible by authenticated

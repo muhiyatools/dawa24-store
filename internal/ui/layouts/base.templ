@@ -1,7 +1,6 @@
 package layouts
 
 import (
-	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/ui/components"
 )
 
@@ -82,9 +81,7 @@ templ Base(title string, lang string, dir string, extraCSS ...string) {
 		</head>
 		<body>
 			{ children... }
-			if actor, ok := authctx.From(ctx); ok && !actor.IsStaff && (actor.OrganizationID > 0 || actor.OrgID > 0) {
-				@components.CapsuleAssistantTrigger()
-			}
+			@components.CapsuleAssistantTrigger()
 		</body>
 	</html>
 }

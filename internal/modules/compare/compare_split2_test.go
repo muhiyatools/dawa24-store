@@ -69,6 +69,28 @@ func (m *mockCompareRepo) ListAllFiles(ctx context.Context, search string, statu
 	return list, nil
 }
 
+func (m *mockCompareRepo) ListAdminTempWarehouses(ctx context.Context, filter compare.AdminTempWarehouseFilter) ([]*compare.AdminTempWarehouse, error) {
+	var list []*compare.AdminTempWarehouse
+	for _, f := range m.files {
+		if filter.OwnerOnly != nil && f.UserID != *filter.OwnerOnly {
+			continue
+		}
+		list = append(list, &compare.AdminTempWarehouse{CompareFile: f})
+	}
+	return list, nil
+}
+
+func (m *mockCompareRepo) ListTempWarehouseUploaders(ctx context.Context) ([]compare.FileUploader, error) {
+	return nil, nil
+}
+
+func (m *mockCompareRepo) SetFileVisibility(ctx context.Context, id int64, visibility string) error {
+	if f, ok := m.files[id]; ok {
+		f.Visibility = visibility
+	}
+	return nil
+}
+
 func (m *mockCompareRepo) CountActiveFiles(ctx context.Context, userID int64, orgID *int64) (int, error) {
 	count := 0
 	for _, f := range m.files {

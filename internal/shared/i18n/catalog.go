@@ -5,6 +5,7 @@ func loadCatalogDefaults(e *engine) {
 	loadNavKeys(e)
 	loadModulesKeys(e)
 	loadAdminKeys(e)
+	loadAdminPageControlKeys(e)
 	loadCommerceAndIngestKeys(e)
 	loadFrontendUIKeys(e)
 	loadBillingAndHRKeys(e)

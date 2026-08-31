@@ -341,6 +341,19 @@ func (s *Service) AdminRejectSponsorshipRequest(ctx context.Context, id int64, n
 	return nil
 }
 
+// AdminCreateDirectSponsorship allows an admin to create and immediately activate a product or offer sponsorship.
+func (s *Service) AdminCreateDirectSponsorship(ctx context.Context, sr *SponsorshipRequest) error {
+	sysCtx := database.AsSystem(ctx)
+	sr.AdminStatus = AdminApproved
+	sr.Status = SRSActive
+	if err := s.repo.CreateSponsorshipRequest(sysCtx, sr); err != nil {
+		return err
+	}
+	reviewerID, _ := authctx.UserID(ctx)
+	_, err := s.repo.ActivateSponsorshipRequest(sysCtx, sr.ID, reviewerID)
+	return err
+}
+
 // RankedSponsorshipsForProducts returns sponsored rankings for product IDs.
 func (s *Service) RankedSponsorshipsForProducts(ctx context.Context, productIDs []int64) ([]*RankedSponsorship, error) {
 	return s.repo.RankedSponsorshipsForProducts(database.AsSystem(ctx), productIDs)

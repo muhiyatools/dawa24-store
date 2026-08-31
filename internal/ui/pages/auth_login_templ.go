@@ -46,7 +46,7 @@ func LoginPage(lang, dir, errorMsg string) templ.Component {
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"auth-page-wrapper\"><div class=\"auth-card glass-panel\" x-data=\"{ showPwd: false }\"><div class=\"auth-header\"><a href=\"/\" class=\"auth-brand-logo\"><img src=\"/static/img/logo.png\" alt=\"DAWA24\"></a><h1 class=\"auth-title\">منصة دواء 24</h1><p class=\"auth-subtitle\">تسجيل الدخول إلى حسابك الصيدلي أو التجاري</p></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"auth-page-wrapper\"><div class=\"auth-card glass-panel\" x-data=\"{ showPwd: false }\"><div class=\"auth-header\"><a href=\"/\" class=\"auth-brand-logo\"><img src=\"/static/img/logo.png\" alt=\"DAWA24\" class=\"auth-logo-img\"></a><h1 class=\"auth-title\">منصة دواء 24</h1><p class=\"auth-subtitle\">تسجيل الدخول إلى حسابك الصيدلي أو التجاري</p></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -140,7 +140,7 @@ func ForgotPasswordPage(lang, dir string) templ.Component {
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "<div class=\"auth-page-wrapper\"><div class=\"auth-card glass-panel\"><div class=\"auth-header\"><a href=\"/\" class=\"auth-brand-logo\"><img src=\"/static/img/logo.png\" alt=\"DAWA24\"></a><h1 class=\"auth-title\">استعادة كلمة المرور</h1><p class=\"auth-subtitle\">أدخل بريدك الإلكتروني المسجل لإرسال رابط إعادة التعيين</p></div><form method=\"POST\" action=\"/auth/forgot\" class=\"d-flex flex-col gap-4\"><div class=\"form-group mb-0\"><label class=\"form-label font-semibold text-xs\" for=\"forgot-email\">البريد الإلكتروني</label> <input type=\"email\" id=\"forgot-email\" name=\"email\" required autofocus class=\"form-input tabular-nums\" placeholder=\"pharmacist@dawa24.eg\"></div><button type=\"submit\" class=\"btn btn-primary btn-lg w-100 font-bold\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "<div class=\"auth-page-wrapper\"><div class=\"auth-card glass-panel\"><div class=\"auth-header\"><a href=\"/\" class=\"auth-brand-logo\"><img src=\"/static/img/logo.png\" alt=\"DAWA24\" class=\"auth-logo-img\"></a><h1 class=\"auth-title\">استعادة كلمة المرور</h1><p class=\"auth-subtitle\">أدخل بريدك الإلكتروني المسجل لإرسال رابط إعادة التعيين</p></div><form method=\"POST\" action=\"/auth/forgot\" class=\"d-flex flex-col gap-4\"><div class=\"form-group mb-0\"><label class=\"form-label font-semibold text-xs\" for=\"forgot-email\">البريد الإلكتروني</label> <input type=\"email\" id=\"forgot-email\" name=\"email\" required autofocus class=\"form-input tabular-nums\" placeholder=\"pharmacist@dawa24.eg\"></div><button type=\"submit\" class=\"btn btn-primary btn-lg w-100 font-bold\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -195,7 +195,7 @@ func ResetPasswordPage(lang, dir, token string) templ.Component {
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "<div class=\"auth-page-wrapper\"><div class=\"auth-card glass-panel\" x-data=\"{ showPwd: false }\"><div class=\"auth-header\"><a href=\"/\" class=\"auth-brand-logo\"><img src=\"/static/img/logo.png\" alt=\"DAWA24\"></a><h1 class=\"auth-title\">تعيين كلمة المرور</h1><p class=\"auth-subtitle\">أدخل كلمة المرور الجديدة لحسابك الصيدلي</p></div><form method=\"POST\" action=\"/auth/reset\" class=\"d-flex flex-col gap-4\"><input type=\"hidden\" name=\"token\" value=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "<div class=\"auth-page-wrapper\"><div class=\"auth-card glass-panel\" x-data=\"{ showPwd: false }\"><div class=\"auth-header\"><a href=\"/\" class=\"auth-brand-logo\"><img src=\"/static/img/logo.png\" alt=\"DAWA24\" class=\"auth-logo-img\"></a><h1 class=\"auth-title\">تعيين كلمة المرور</h1><p class=\"auth-subtitle\">أدخل كلمة المرور الجديدة لحسابك الصيدلي</p></div><form method=\"POST\" action=\"/auth/reset\" class=\"d-flex flex-col gap-4\"><input type=\"hidden\" name=\"token\" value=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

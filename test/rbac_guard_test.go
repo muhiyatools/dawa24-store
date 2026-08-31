@@ -33,6 +33,7 @@ var routeFiles = []string{
 	"internal/ui/admin_routes_commerce.go",
 	"internal/ui/admin_routes_identity.go",
 	"internal/ui/admin_routes_org.go",
+	"internal/ui/admin_routes_pagecontrol.go",
 	"internal/ui/admin_routes_platform.go",
 	"internal/ui/vendor_routes.go",
 	"internal/ui/vendor_catalog_routes.go",

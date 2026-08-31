@@ -161,6 +161,14 @@ type Entitlement struct {
 	ExpiresAt         *time.Time `json:"expires_at,omitempty"`
 }
 
+// FileVisibility controls whether a file's rows surface on the public market
+// discounts page. Moderator temporary warehouses ignore it (they are always
+// public); a vendor's compare-tool upload is private until the vendor opts in.
+const (
+	VisibilityPrivate = "private"
+	VisibilityPublic  = "public"
+)
+
 // CompareFileStatus represents the processing state of an uploaded spreadsheet.
 type CompareFileStatus string
 
@@ -205,12 +213,39 @@ type CompareFile struct {
 	Status           CompareFileStatus `json:"status"`
 	MappingConfig    MappingConfig     `json:"mapping_config"`
 	IsTempWarehouse  bool              `json:"is_temp_warehouse"`
+	Visibility       string            `json:"visibility"`
 	ArchivedAt       *time.Time        `json:"archived_at,omitempty"`
 	ArchiveReason    string            `json:"archive_reason,omitempty"`
 	ErrorMessage     string            `json:"error_message,omitempty"`
 	CreatedAt        time.Time         `json:"created_at"`
 	UpdatedAt        time.Time         `json:"updated_at"`
 	DeletedAt        *time.Time        `json:"deleted_at,omitempty"`
+}
+
+// AdminTempWarehouseFilter narrows the Super Admin / "my uploads" temporary
+// warehouse listing. A temporary warehouse is a compare.files row that is
+// either a moderator upload (is_temp_warehouse) or any vendor compare-tool
+// upload (organization_id IS NOT NULL).
+type AdminTempWarehouseFilter struct {
+	Search     string
+	Status     *CompareFileStatus
+	UploaderID *int64 // filter by compare.files.user_id
+	Source     string // "", "moderator", "vendor"
+	OwnerOnly  *int64 // when set, force user_id = *OwnerOnly (the "my uploads" page)
+}
+
+// AdminTempWarehouse is a compare file enriched with the uploader and vendor
+// labels the admin listing shows.
+type AdminTempWarehouse struct {
+	*CompareFile
+	UploaderName string `json:"uploader_name"`
+	OrgName      string `json:"org_name"`
+}
+
+// FileUploader is one distinct uploader for the admin listing filter dropdown.
+type FileUploader struct {
+	UserID int64  `json:"user_id"`
+	Name   string `json:"name"`
 }
 
 // MatchMethod tracks how a row was linked to the canonical master catalog.

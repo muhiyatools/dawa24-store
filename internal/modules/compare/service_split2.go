@@ -50,6 +50,25 @@ func (s *Service) ListAllFiles(ctx context.Context, search string, status *Compa
 	return s.repo.ListAllFiles(ctx, search, status)
 }
 
+// ListAdminTempWarehouses lists moderator temporary warehouses plus vendor
+// compare-tool files, enriched with uploader / vendor labels, for the admin
+// oversight and "my uploads" pages.
+func (s *Service) ListAdminTempWarehouses(ctx context.Context, filter AdminTempWarehouseFilter) ([]*AdminTempWarehouse, error) {
+	return s.repo.ListAdminTempWarehouses(ctx, filter)
+}
+
+// ListTempWarehouseUploaders returns the distinct uploaders for the admin
+// listing's filter dropdown.
+func (s *Service) ListTempWarehouseUploaders(ctx context.Context) ([]FileUploader, error) {
+	return s.repo.ListTempWarehouseUploaders(ctx)
+}
+
+// SetFileVisibility switches a compare file between private and public. Public
+// vendor files surface on the market discounts page.
+func (s *Service) SetFileVisibility(ctx context.Context, id int64, visibility string) error {
+	return s.repo.SetFileVisibility(ctx, id, visibility)
+}
+
 // GetFile retrieves a file by ID.
 func (s *Service) GetFile(ctx context.Context, fileID int64) (*CompareFile, error) {
 	return s.repo.GetFileByID(ctx, fileID)

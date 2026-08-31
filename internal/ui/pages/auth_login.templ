@@ -11,7 +11,7 @@ templ LoginPage(lang, dir, errorMsg string) {
 			<div class="auth-card glass-panel" x-data="{ showPwd: false }">
 				<div class="auth-header">
 					<a href="/" class="auth-brand-logo">
-						<img src="/static/img/logo.png" alt="DAWA24" />
+						<img src="/static/img/logo.png" alt="DAWA24" class="auth-logo-img" />
 					</a>
 					<h1 class="auth-title">منصة دواء 24</h1>
 					<p class="auth-subtitle">تسجيل الدخول إلى حسابك الصيدلي أو التجاري</p>
@@ -91,7 +91,7 @@ templ ForgotPasswordPage(lang, dir string) {
 			<div class="auth-card glass-panel">
 				<div class="auth-header">
 					<a href="/" class="auth-brand-logo">
-						<img src="/static/img/logo.png" alt="DAWA24" />
+						<img src="/static/img/logo.png" alt="DAWA24" class="auth-logo-img" />
 					</a>
 					<h1 class="auth-title">استعادة كلمة المرور</h1>
 					<p class="auth-subtitle">أدخل بريدك الإلكتروني المسجل لإرسال رابط إعادة التعيين</p>
@@ -130,7 +130,7 @@ templ ResetPasswordPage(lang, dir, token string) {
 			<div class="auth-card glass-panel" x-data="{ showPwd: false }">
 				<div class="auth-header">
 					<a href="/" class="auth-brand-logo">
-						<img src="/static/img/logo.png" alt="DAWA24" />
+						<img src="/static/img/logo.png" alt="DAWA24" class="auth-logo-img" />
 					</a>
 					<h1 class="auth-title">تعيين كلمة المرور</h1>
 					<p class="auth-subtitle">أدخل كلمة المرور الجديدة لحسابك الصيدلي</p>

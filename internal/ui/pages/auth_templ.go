@@ -50,7 +50,7 @@ func RegisterPage(lang, dir string, form RegisterFormData, cities []*platformadm
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"auth-page-wrapper\"><div class=\"auth-card-wide glass-panel\"><!-- Brand Header --><div class=\"auth-header\"><a href=\"/\" class=\"auth-brand-logo\"><img src=\"/static/img/logo.png\" alt=\"DAWA24\"></a><h1 class=\"auth-title\">إنشاء حساب منشأة جديد</h1><p class=\"auth-subtitle\">انضم لمنظومة التوريد الدوائي المعتمدة — دواء 24</p></div><!-- 3-Step Onboarding Progress Indicator --><div class=\"auth-stepper\"><div id=\"step-indicator-1\" class=\"onboard-step active\"><span class=\"step-num\">1</span> <span>نوع المنشأة</span></div><div id=\"step-indicator-2\" class=\"onboard-step\"><span class=\"step-num\">2</span> <span>المنشأة والموقع</span></div><div id=\"step-indicator-3\" class=\"onboard-step\"><span class=\"step-num\">3</span> <span>بيانات الحساب</span></div></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"auth-page-wrapper\"><div class=\"auth-card-wide glass-panel\"><!-- Brand Header --><div class=\"auth-header\"><a href=\"/\" class=\"auth-brand-logo\"><img src=\"/static/img/logo.png\" alt=\"DAWA24\" class=\"auth-logo-img\"></a><h1 class=\"auth-title\">إنشاء حساب منشأة جديد</h1><p class=\"auth-subtitle\">انضم لمنظومة التوريد الدوائي المعتمدة — دواء 24</p></div><!-- 3-Step Onboarding Progress Indicator --><div class=\"auth-stepper\"><div id=\"step-indicator-1\" class=\"onboard-step active\"><span class=\"step-num\">1</span> <span>نوع المنشأة</span></div><div id=\"step-indicator-2\" class=\"onboard-step\"><span class=\"step-num\">2</span> <span>المنشأة والموقع</span></div><div id=\"step-indicator-3\" class=\"onboard-step\"><span class=\"step-num\">3</span> <span>بيانات الحساب</span></div></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -81,7 +81,7 @@ func RegisterPage(lang, dir string, form RegisterFormData, cities []*platformadm
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "<form id=\"registration-onboarding-form\" method=\"POST\" action=\"/auth/register\" enctype=\"multipart/form-data\" class=\"d-flex flex-col gap-6\"><input type=\"hidden\" name=\"account_type\" id=\"reg-account-type-input\" value=\"customer\"><!-- ================= STEP 1: Select Account Type ================= --><section id=\"reg-step-1\" class=\"form-step active d-flex flex-col gap-4\"><h2 class=\"text-sm font-bold text-primary m-0\">يرجى تحديد نوع حساب المنشأة للبدء:</h2><div class=\"d-flex flex-col gap-3\"><!-- Option 1: Customer / Pharmacy / Medical Facility (Selected by default) --><div class=\"type-card active\" data-account-type=\"customer\"><div class=\"type-icon\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "<form id=\"registration-onboarding-form\" method=\"POST\" action=\"/auth/register\" enctype=\"multipart/form-data\" class=\"d-flex flex-col gap-6\"><input type=\"hidden\" name=\"account_type\" id=\"reg-account-type-input\" value=\"customer\"><!-- ================= STEP 1: Select Account Type ================= --><section id=\"reg-step-1\" class=\"form-step active\"><h2 class=\"text-sm font-bold text-primary m-0\">يرجى تحديد نوع حساب المنشأة للبدء:</h2><div class=\"d-flex flex-col gap-3\"><!-- Option 1: Customer / Pharmacy / Medical Facility (Selected by default) --><div class=\"type-card active\" data-account-type=\"customer\"><div class=\"type-icon\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -137,7 +137,7 @@ func RegisterPage(lang, dir string, form RegisterFormData, cities []*platformadm
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "</button></section><!-- ================= STEP 2: Facility / Seeker Profile & Location ================= --><section id=\"reg-step-2\" class=\"form-step d-none flex-col gap-4\"><div class=\"d-flex items-center justify-between gap-3 pb-3 border-b\"><span id=\"reg-selected-badge\" class=\"badge badge-sky font-bold\">نوع الحساب: صيدلية / منشأة طبية مرخصة</span> <button type=\"button\" id=\"reg-back-to-step-1\" class=\"btn btn-secondary btn-sm font-bold\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "</button></section><!-- ================= STEP 2: Facility / Seeker Profile & Location ================= --><section id=\"reg-step-2\" class=\"form-step\"><div class=\"d-flex items-center justify-between gap-3 pb-3 border-b\"><span id=\"reg-selected-badge\" class=\"badge badge-sky font-bold\">نوع الحساب: صيدلية / منشأة طبية مرخصة</span> <button type=\"button\" id=\"reg-back-to-step-1\" class=\"btn btn-secondary btn-sm font-bold\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -349,7 +349,7 @@ func RegisterPage(lang, dir string, form RegisterFormData, cities []*platformadm
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 32, "</button></div></section><!-- ================= STEP 3: Account Credentials & Security ================= --><section id=\"reg-step-3\" class=\"form-step d-none flex-col gap-4\"><div class=\"d-flex items-center justify-between gap-3 pb-3 border-b\"><span class=\"badge badge-teal font-bold\">الخطوة الأخيرة: بيانات تسجيل الدخول والأمان</span> <button type=\"button\" id=\"reg-step-3-back\" class=\"btn btn-secondary btn-sm font-bold\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 32, "</button></div></section><!-- ================= STEP 3: Account Credentials & Security ================= --><section id=\"reg-step-3\" class=\"form-step\"><div class=\"d-flex items-center justify-between gap-3 pb-3 border-b\"><span class=\"badge badge-teal font-bold\">الخطوة الأخيرة: بيانات تسجيل الدخول والأمان</span> <button type=\"button\" id=\"reg-step-3-back\" class=\"btn btn-secondary btn-sm font-bold\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

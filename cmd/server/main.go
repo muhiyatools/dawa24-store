@@ -38,6 +38,7 @@ import (
 	"github.com/muhiya/dawa24-store/internal/platform/gateway"
 	"github.com/muhiya/dawa24-store/internal/platform/httpx"
 	"github.com/muhiya/dawa24-store/internal/platform/observability"
+	"github.com/muhiya/dawa24-store/internal/platform/pagecontrol"
 	"github.com/muhiya/dawa24-store/internal/shared/apperr"
 )
 
@@ -282,10 +283,11 @@ func newRouter(
 	// matters more than it looks: this domain previously served a different
 	// application, so stale bookmarks and browser autocomplete land on paths
 	// that never existed here.
-	r.NotFound(func(w http.ResponseWriter, req *http.Request) {
+	notFound := func(w http.ResponseWriter, req *http.Request) {
 		httpx.Error(w, req, log, apperr.New(apperr.KindNotFound, "route.not_found",
 			"No such endpoint. Try /health, /ready, /api/v1/status, or /."))
-	})
+	}
+	r.NotFound(notFound)
 
 	// 405, not 422: the request body was never the problem, the verb was.
 	// apperr has no method-not-allowed kind, so this writes the envelope
@@ -301,5 +303,29 @@ func newRouter(
 	// Mount all domain module and UI endpoints
 	mountModuleRoutes(r, cfg, log, deps, ai, adminKeys, tenantKeys)
 
-	return r
+	// Route-level page control. The engine loads platform_admin.managed_pages
+	// and keeps it fresh in the background; discovery walks the route table just
+	// mounted above so no route has to be typed in by hand. Guard then wraps the
+	// whole mux and answers a disabled route with the same 404 an unknown one
+	// gets — before auth, for every caller. The bootstrap waits for the database
+	// in a goroutine so a slow first connect does not delay the listener; until
+	// it runs, Guard finds no engine and serves everything.
+	go func() {
+		db := deps.Handle()
+		for i := 0; i < 30; i++ {
+			if db != nil && db.Connected() {
+				break
+			}
+			time.Sleep(time.Second)
+		}
+		pagecontrol.Init(context.Background(), db, log)
+		pagecontrol.SetRouter(r)
+		if added, err := pagecontrol.SyncDiscovered(context.Background(), db, r); err != nil {
+			log.Warn("pagecontrol: route discovery failed", "error", err)
+		} else {
+			log.Info("pagecontrol: catalogue synced", "discovered_added", added)
+		}
+	}()
+
+	return pagecontrol.Guard(r, notFound, log)
 }

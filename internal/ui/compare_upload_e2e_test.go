@@ -124,6 +124,22 @@ func (m *mockCompareRepoE2E) ListAllFiles(ctx context.Context, search string, st
 	}
 	return list, nil
 }
+func (m *mockCompareRepoE2E) ListAdminTempWarehouses(ctx context.Context, filter compare.AdminTempWarehouseFilter) ([]*compare.AdminTempWarehouse, error) {
+	var list []*compare.AdminTempWarehouse
+	for _, f := range m.files {
+		list = append(list, &compare.AdminTempWarehouse{CompareFile: f})
+	}
+	return list, nil
+}
+func (m *mockCompareRepoE2E) ListTempWarehouseUploaders(ctx context.Context) ([]compare.FileUploader, error) {
+	return nil, nil
+}
+func (m *mockCompareRepoE2E) SetFileVisibility(ctx context.Context, id int64, visibility string) error {
+	if f := m.files[id]; f != nil {
+		f.Visibility = visibility
+	}
+	return nil
+}
 func (m *mockCompareRepoE2E) CountActiveFiles(ctx context.Context, userID int64, orgID *int64) (int, error) {
 	return len(m.files), nil
 }

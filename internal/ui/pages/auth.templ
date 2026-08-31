@@ -16,7 +16,7 @@ templ RegisterPage(lang, dir string, form RegisterFormData, cities []*platformad
 				<!-- Brand Header -->
 				<div class="auth-header">
 					<a href="/" class="auth-brand-logo">
-						<img src="/static/img/logo.png" alt="DAWA24" />
+						<img src="/static/img/logo.png" alt="DAWA24" class="auth-logo-img" />
 					</a>
 					<h1 class="auth-title">إنشاء حساب منشأة جديد</h1>
 					<p class="auth-subtitle">انضم لمنظومة التوريد الدوائي المعتمدة — دواء 24</p>
@@ -49,7 +49,7 @@ templ RegisterPage(lang, dir string, form RegisterFormData, cities []*platformad
 					<input type="hidden" name="account_type" id="reg-account-type-input" value="customer" />
 
 					<!-- ================= STEP 1: Select Account Type ================= -->
-					<section id="reg-step-1" class="form-step active d-flex flex-col gap-4">
+					<section id="reg-step-1" class="form-step active">
 						<h2 class="text-sm font-bold text-primary m-0">
 							يرجى تحديد نوع حساب المنشأة للبدء:
 						</h2>
@@ -120,7 +120,7 @@ templ RegisterPage(lang, dir string, form RegisterFormData, cities []*platformad
 					</section>
 
 					<!-- ================= STEP 2: Facility / Seeker Profile & Location ================= -->
-					<section id="reg-step-2" class="form-step d-none flex-col gap-4">
+					<section id="reg-step-2" class="form-step">
 						<div class="d-flex items-center justify-between gap-3 pb-3 border-b">
 							<span id="reg-selected-badge" class="badge badge-sky font-bold">نوع الحساب: صيدلية / منشأة طبية مرخصة</span>
 							<button type="button" id="reg-back-to-step-1" class="btn btn-secondary btn-sm font-bold">
@@ -254,7 +254,7 @@ templ RegisterPage(lang, dir string, form RegisterFormData, cities []*platformad
 					</section>
 
 					<!-- ================= STEP 3: Account Credentials & Security ================= -->
-					<section id="reg-step-3" class="form-step d-none flex-col gap-4">
+					<section id="reg-step-3" class="form-step">
 						<div class="d-flex items-center justify-between gap-3 pb-3 border-b">
 							<span class="badge badge-teal font-bold">الخطوة الأخيرة: بيانات تسجيل الدخول والأمان</span>
 							<button type="button" id="reg-step-3-back" class="btn btn-secondary btn-sm font-bold">

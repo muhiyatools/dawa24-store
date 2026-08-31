@@ -109,6 +109,9 @@ func adminRoleGrants() []string {
 	withheld := map[string]struct{}{
 		"platform.developer.sql":           {},
 		"platform.admin":                   {},
+		"platform.page_control.create":     {},
+		"platform.page_control.update":     {},
+		"platform.page_control.delete":     {},
 		"platform.error_log.delete":        {},
 		"platform.activity_log.delete":     {},
 		"identity.admin_role.update":       {},

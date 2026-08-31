@@ -42,6 +42,7 @@ import (
 	aiusagePostgres "github.com/muhiya/dawa24-store/internal/platform/aiusage/postgres"
 	"github.com/muhiya/dawa24-store/internal/platform/config"
 	"github.com/muhiya/dawa24-store/internal/platform/gateway"
+	"github.com/muhiya/dawa24-store/internal/platform/pagecontrol"
 	"github.com/muhiya/dawa24-store/internal/platform/storage"
 	"github.com/muhiya/dawa24-store/internal/ui"
 
@@ -273,6 +274,9 @@ func buildUIHandler(
 	}
 	uiHandler.SetAssistantRepository(assistantPostgres.NewRepository(db))
 	uiHandler.SetPermissionResolver(permissions)
+	// The /admin/system-pages screen. The enforcement engine itself is started
+	// in newRouter; this is only the store the screen reads and writes.
+	uiHandler.SetPageControlStore(pagecontrol.NewStore(db))
 	// A company that has no roles yet gets them the first time its owner opens
 	// the roles or team screen. The boot seeder covers companies that already
 	// existed; this covers one registered while the process was running, and a

@@ -1,0 +1,306 @@
+package pages
+
+import (
+	"fmt"
+	"strconv"
+
+	"github.com/muhiya/dawa24-store/internal/ui/components"
+	"github.com/muhiya/dawa24-store/internal/ui/layouts"
+)
+
+// The System Pages screen, /admin/system-pages.
+//
+// It lists every route root the platform knows about — discovered from the chi
+// route table at boot, plus any an operator added by hand — and lets a super
+// admin turn one off. A disabled row is refused by pagecontrol.Guard with a
+// plain 404, before authentication, for every caller.
+
+// SystemPageRow is one managed page in the table.
+type SystemPageRow struct {
+	ID           int64
+	Label        string
+	Path         string
+	MatchMode    string // "exact" | "prefix"
+	Resource     string // "admin" | "vendor" | "client" | "independent"
+	Enabled      bool
+	IsSystem     bool
+	IsLockable   bool
+	Source       string // "discovered" | "manual"
+	PatternCount int
+	UpdatedAt    string
+}
+
+// SystemPagesView is everything the page renders.
+type SystemPagesView struct {
+	Rows       []SystemPageRow
+	Filter     string // active resource filter, "" for all
+	Counts     map[string]int
+	Total      int
+	CanCreate  bool
+	CanUpdate  bool
+	CanDelete  bool
+	Notice     string
+	NoticeKind string
+}
+
+var pageControlResources = []struct{ Key, Label string }{
+	{"", "الكل"},
+	{"admin", "لوحة الإدارة"},
+	{"vendor", "لوحة المورّد"},
+	{"client", "لوحة العميل"},
+	{"independent", "صفحات مستقلة"},
+}
+
+templ AdminSystemPagesPage(v SystemPagesView, lang, dir string) {
+	@layouts.AdminShell("التحكم في صفحات النظام", "system_pages", lang, dir) {
+		<div class="page-container" x-data="{ showAdd: false }">
+			@pageControlNotice(v.NoticeKind, v.Notice)
+			<div class="glass-panel p-6 mb-4">
+				<div class="flex-between items-start flex-wrap gap-4">
+     <div class="stack-sm">
+						<div class="d-flex items-center gap-3 mb-1">
+							<div class="user-avatar-badge text-xl">
+								@components.IconLayers("icon-sm")
+							</div>
+							<h1 class="text-2xl font-black text-primary m-0">التحكم في صفحات النظام</h1>
+						</div>
+						<p class="text-sm text-secondary m-0 max-w-2xl">
+							تفعيل أو تعطيل أي صفحة على مستوى المسار. الصفحة المعطّلة تُرفض بالكود قبل تسجيل الدخول
+							وترجع 404 لكل المستخدمين — الزائر والعميل والمورّد والأدمن. المسارات الحيوية محمية ولا تُعطَّل.
+						</p>
+					</div>
+					<div class="d-flex items-center gap-2">
+						if v.CanUpdate {
+							<form method="POST" action="/admin/system-pages/rescan" class="m-0">
+								<button type="submit" class="btn btn-secondary font-bold gap-2" title="إعادة فحص جدول المسارات وإضافة أي مسار جديد">
+									@components.IconRefresh("icon-xs")
+									<span>إعادة فحص المسارات</span>
+								</button>
+							</form>
+						}
+						if v.CanCreate {
+							<button type="button" class="btn btn-primary font-bold gap-2" @click="showAdd = !showAdd">
+								@components.IconPlus("icon-xs")
+								<span>إضافة صفحة</span>
+							</button>
+						}
+					</div>
+				</div>
+			</div>
+			if v.CanCreate {
+				@pageControlAddForm()
+			}
+			@pageControlFilters(v)
+			@pageControlTable(v)
+		</div>
+	}
+}
+
+templ pageControlAddForm() {
+	<div class="glass-panel p-6 mb-4" x-show="showAdd" x-cloak>
+		<h2 class="text-lg font-extrabold text-primary mt-0 mb-4">إضافة صفحة إلى السجل</h2>
+		<form method="POST" action="/admin/system-pages" class="d-grid grid-cols-2 gap-4">
+   <div class="stack-sm">
+				<label class="form-label" for="pc-path">المسار (بعد الدومين)</label>
+				<input id="pc-path" class="form-input" type="text" name="path" required maxlength="512" placeholder="/about"/>
+			</div>
+   <div class="stack-sm">
+				<label class="form-label" for="pc-match">نمط المطابقة</label>
+				<select id="pc-match" class="form-input" name="match_mode">
+					<option value="exact">هذا المسار فقط (exact)</option>
+					<option value="prefix">هذا المسار وكل ما تحته (prefix)</option>
+				</select>
+			</div>
+   <div class="stack-sm">
+				<label class="form-label" for="pc-resource">التصنيف</label>
+				<select id="pc-resource" class="form-input" name="resource">
+					<option value="">تلقائي من المسار</option>
+					<option value="admin">لوحة الإدارة</option>
+					<option value="vendor">لوحة المورّد</option>
+					<option value="client">لوحة العميل</option>
+					<option value="independent">صفحة مستقلة</option>
+				</select>
+			</div>
+   <div class="stack-sm">
+				<label class="form-label" for="pc-label-ar">الاسم (عربي)</label>
+				<input id="pc-label-ar" class="form-input" type="text" name="label_ar" maxlength="120" placeholder="مثال: صفحة من نحن"/>
+			</div>
+   <div class="stack-sm">
+				<label class="form-label" for="pc-label-en">الاسم (إنجليزي)</label>
+				<input id="pc-label-en" class="form-input" type="text" name="label_en" maxlength="120" placeholder="About us"/>
+			</div>
+			<div class="col-span-2">
+				<label class="form-label" for="pc-desc">وصف مختصر</label>
+				<input id="pc-desc" class="form-input" type="text" name="description" maxlength="200"/>
+			</div>
+			<div class="col-span-2 d-flex items-center gap-3">
+				<button type="submit" class="btn btn-primary font-bold">إضافة</button>
+				<span class="text-xs text-muted">تُضاف الصفحة مُفعّلة. لا حاجة لوجود المسار فعليًا — يدعم صفحات مستقبلية.</span>
+			</div>
+		</form>
+	</div>
+}
+
+templ pageControlFilters(v SystemPagesView) {
+	<div class="glass-panel p-3 mb-4 d-flex items-center gap-2 flex-wrap">
+		for _, res := range pageControlResources {
+			<a
+				href={ templ.SafeURL(pageControlFilterHref(res.Key)) }
+				class={ "btn btn-sm font-bold", templ.KV("btn-primary", v.Filter == res.Key), templ.KV("btn-secondary", v.Filter != res.Key) }
+			>
+				<span>{ res.Label }</span>
+				<span class="text-xs opacity-75">{ strconv.Itoa(pageControlCount(v, res.Key)) }</span>
+			</a>
+		}
+	</div>
+}
+
+templ pageControlTable(v SystemPagesView) {
+	if len(v.Rows) == 0 {
+		<div class="glass-panel p-6 text-center">
+			<p class="text-sm text-secondary m-0">لا توجد صفحات في هذا التصنيف بعد.</p>
+		</div>
+	} else {
+		<div class="glass-panel p-0 overflow-x-auto">
+			<table class="data-table m-0 text-sm w-full">
+				<thead>
+					<tr>
+						<th>الصفحة</th>
+						<th>المسار</th>
+						<th>المطابقة</th>
+						<th>التصنيف</th>
+						<th>الحالة</th>
+						<th>المصدر</th>
+						<th>آخر تعديل</th>
+						<th>إجراء</th>
+					</tr>
+				</thead>
+				<tbody>
+					for _, row := range v.Rows {
+						@pageControlRow(v, row)
+					}
+				</tbody>
+			</table>
+		</div>
+	}
+}
+
+templ pageControlRow(v SystemPagesView, row SystemPageRow) {
+	<tr>
+		<td>
+			<div class="d-flex flex-col">
+				<span class="font-bold text-primary">{ row.Label }</span>
+				if row.PatternCount > 0 {
+					<span class="text-xs text-muted">{ fmt.Sprintf("%d مسار مطابق", row.PatternCount) }</span>
+				}
+			</div>
+		</td>
+		<td><code class="text-xs" dir="ltr">{ row.Path }</code></td>
+		<td>
+			if row.MatchMode == "prefix" {
+				<span class="badge text-xs font-bold">شجرة</span>
+			} else {
+				<span class="badge text-xs">مطابقة تامة</span>
+			}
+		</td>
+		<td><span class="text-xs text-secondary">{ pageControlResourceLabel(row.Resource) }</span></td>
+		<td>
+			if row.Enabled {
+				<span class="badge badge-emerald text-xs font-bold">مُفعّلة</span>
+			} else {
+				<span class="badge badge-rose text-xs font-bold">معطّلة</span>
+			}
+		</td>
+		<td>
+			if row.Source == "discovered" {
+				<span class="text-xs text-muted">مُكتشفة</span>
+			} else {
+				<span class="text-xs text-muted">يدوية</span>
+			}
+		</td>
+		<td><span class="text-xs text-muted">{ row.UpdatedAt }</span></td>
+		<td>
+			<div class="d-flex items-center gap-2">
+				@pageControlToggle(v, row)
+				if v.CanDelete && row.Source == "manual" && !row.IsSystem {
+					<form
+						method="POST"
+						action={ templ.SafeURL("/admin/system-pages/" + strconv.FormatInt(row.ID, 10) + "/delete") }
+						class="m-0 inline"
+						onsubmit="return confirm('سيتم حذف هذه الصفحة من السجل. متابعة؟');"
+					>
+						<button type="submit" class="btn btn-danger btn-sm font-bold" title="حذف">
+							@components.IconTrash("icon-xs")
+						</button>
+					</form>
+				}
+			</div>
+		</td>
+	</tr>
+}
+
+templ pageControlToggle(v SystemPagesView, row SystemPageRow) {
+	if !v.CanUpdate {
+		<span class="text-xs text-muted">—</span>
+	} else if !row.IsLockable {
+		<span class="text-xs text-muted" title="مسار محمي لا يُعطَّل">محمي</span>
+	} else if row.Enabled {
+		<form
+			method="POST"
+			action={ templ.SafeURL("/admin/system-pages/" + strconv.FormatInt(row.ID, 10) + "/toggle") }
+			class="m-0 inline"
+			if row.MatchMode == "prefix" {
+				onsubmit="return confirm('سيؤدي هذا إلى تعطيل هذا المسار وكل ما تحته لجميع المستخدمين. متابعة؟');"
+			}
+		>
+			<input type="hidden" name="enabled" value="false"/>
+			<button type="submit" class="btn btn-secondary btn-sm font-bold">تعطيل</button>
+		</form>
+	} else {
+		<form
+			method="POST"
+			action={ templ.SafeURL("/admin/system-pages/" + strconv.FormatInt(row.ID, 10) + "/toggle") }
+			class="m-0 inline"
+		>
+			<input type="hidden" name="enabled" value="true"/>
+			<button type="submit" class="btn btn-primary btn-sm font-bold">تفعيل</button>
+		</form>
+	}
+}
+
+templ pageControlNotice(kind, message string) {
+	if message != "" {
+		if kind == "error" {
+			<div class="glass-panel p-4 mb-4 border-danger">
+				<p class="text-sm m-0 text-danger">{ message }</p>
+			</div>
+		} else {
+			<div class="glass-panel p-4 mb-4">
+				<p class="text-sm m-0 text-primary">{ message }</p>
+			</div>
+		}
+	}
+}
+
+func pageControlFilterHref(key string) string {
+	if key == "" {
+		return "/admin/system-pages"
+	}
+	return "/admin/system-pages?resource=" + key
+}
+
+func pageControlCount(v SystemPagesView, key string) int {
+	if key == "" {
+		return v.Total
+	}
+	return v.Counts[key]
+}
+
+func pageControlResourceLabel(key string) string {
+	for _, r := range pageControlResources {
+		if r.Key == key {
+			return r.Label
+		}
+	}
+	return key
+}

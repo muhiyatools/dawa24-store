@@ -40,6 +40,9 @@ func (h *UIHandler) registerAdminProductRoutes(r chi.Router) {
 	r.Group(func(g chi.Router) {
 		g.Use(authctx.RequirePagePermission("promo.adv_product.view"))
 		g.Get("/admin/adv-products", h.AdminAdvProductsPage)
+		g.Post("/admin/adv-products/{id}/approve", h.AdminAdvProductApproveSubmit)
+		g.Post("/admin/adv-products/{id}/reject", h.AdminAdvProductRejectSubmit)
+		g.Post("/admin/adv-products/new", h.AdminAdvProductCreateSubmit)
 		g.Get("/admin/import/temparte-warehouses", h.AdminAdvProductsPage)
 	})
 

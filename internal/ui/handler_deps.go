@@ -22,6 +22,7 @@ import (
 	"github.com/muhiya/dawa24-store/internal/modules/workflow"
 	"github.com/muhiya/dawa24-store/internal/platform/aiusage"
 	"github.com/muhiya/dawa24-store/internal/platform/gateway"
+	"github.com/muhiya/dawa24-store/internal/platform/pagecontrol"
 	"github.com/muhiya/dawa24-store/internal/platform/rbac"
 	"github.com/muhiya/dawa24-store/internal/platform/storage"
 	"github.com/muhiya/dawa24-store/internal/shared/matchflow"
@@ -34,6 +35,10 @@ func (h *UIHandler) SetRoleSeeder(fn RoleSeederFunc) { h.roleSeeder = fn }
 // it the UI falls back to the session's permission copy, which is correct but
 // cannot see a revocation until the session ends.
 func (h *UIHandler) SetPermissionResolver(r *rbac.Resolver) { h.resolver = r }
+
+// SetPageControlStore wires the /admin/system-pages screen. Optional: the screen
+// reports itself unavailable when it is nil.
+func (h *UIHandler) SetPageControlStore(s *pagecontrol.Store) { h.pageControl = s }
 
 // SetMatchEnhancer attaches the shared AI matching stage.
 func (h *UIHandler) SetMatchEnhancer(e matchflow.Enhancer) { h.matchEnhancer = e }

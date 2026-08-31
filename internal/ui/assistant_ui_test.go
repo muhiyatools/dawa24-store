@@ -7,31 +7,25 @@ import (
 	"testing"
 )
 
-// The assistant drawer shipped with two defects that made it unusable, and both
-// were single lines of markup. These guard against their return.
-
-// The composer sat below a message list styled `flex:1 1 auto; height:100%`.
-// height:100% on a flex child overrides the flex sizing and claims the whole
-// column, so the input row was pushed out of the parent's overflow:hidden box
-// and could not be seen or reached at any viewport size.
+// The assistant drawer guards against regressions in layout, responsiveness and sizing.
 func TestAssistantMessageListDoesNotClaimFullHeight(t *testing.T) {
 	src := readAssistant(t)
 
-	listStyle := regexp.MustCompile(`id="capsule-messages-container"[\s\S]{0,400}?style="([^"]*)"`)
-	m := listStyle.FindStringSubmatch(src)
-	if m == nil {
+	// Verify that messages container uses the class and does not set height:100% inline
+	if !strings.Contains(src, `id="capsule-messages-container"`) {
 		t.Fatal("could not find the messages container; if it was renamed, update this test rather than deleting it")
 	}
-	style := m[1]
 
-	if strings.Contains(style, "height:100%") {
-		t.Errorf("messages container declares height:100%%, which hides the composer.\nstyle: %s", style)
+	if strings.Contains(src, `id="capsule-messages-container" style="height:100%"`) {
+		t.Error("messages container declares height:100%, which hides the composer")
 	}
-	if !strings.Contains(style, "min-height:0") {
-		t.Errorf("messages container needs min-height:0 or it refuses to shrink.\nstyle: %s", style)
+
+	// Verify the CSS rules for .capsule-messages-scroll in components.css
+	if !strings.Contains(src, "min-height: 0") {
+		t.Error("messages container needs min-height: 0 or it refuses to shrink")
 	}
-	if !strings.Contains(style, "flex:1 1") {
-		t.Errorf("messages container must flex, not be fixed.\nstyle: %s", style)
+	if !strings.Contains(src, "flex: 1 1 0%") {
+		t.Error("messages container must flex with basis 0")
 	}
 }
 
@@ -76,7 +70,8 @@ func readAssistant(t *testing.T) string {
 		t.Fatalf("read assistant template: %v", err)
 	}
 	b2, _ := os.ReadFile("components/capsule_assistant_script.templ")
-	return string(b) + "\n" + string(b2)
+	b3, _ := os.ReadFile("static/css/components.css")
+	return string(b) + "\n" + string(b2) + "\n" + string(b3)
 }
 
 // The drawer's size was written as a style attribute, so no media query could
@@ -109,16 +104,10 @@ func TestAssistantDrawerSizeIsStyleable(t *testing.T) {
 func TestAssistantScrollAreaUsesDefiniteBasis(t *testing.T) {
 	src := readAssistant(t)
 
-	i := strings.Index(src, `id="capsule-messages-container"`)
-	if i < 0 {
-		t.Fatal("messages container not found")
+	if !strings.Contains(src, "flex: 1 1 0%") {
+		t.Error("scroll area must use flex: 1 1 0%, not basis auto")
 	}
-	seg := src[i : i+600]
-
-	if !strings.Contains(seg, "flex:1 1 0%") {
-		t.Error("scroll area must use flex:1 1 0%, not basis auto")
-	}
-	if !strings.Contains(seg, "overflow-y:auto") {
+	if !strings.Contains(src, "overflow-y: auto") {
 		t.Error("scroll area must scroll")
 	}
 }

@@ -132,6 +132,11 @@ func adminSettingsPerms() []Permission {
 
 		adminPage("platform.translation.view", g, "translations", "اللغات والترجمة", "Languages & translation"),
 		adminAct("platform.translation.update", g, "تعديل الترجمات", "Edit translations", "platform.translation.view"),
+
+		adminPage("platform.page_control.view", g, "system_pages", "التحكم في صفحات النظام", "System pages"),
+		adminAct("platform.page_control.create", g, "إضافة صفحة نظام", "Add system page", "platform.page_control.view"),
+		adminAct("platform.page_control.update", g, "تفعيل/تعطيل صفحات النظام", "Toggle system pages", "platform.page_control.view"),
+		adminAct("platform.page_control.delete", g, "حذف صفحة نظام مخصّصة", "Delete custom system page", "platform.page_control.view"),
 	}
 }
 
@@ -175,6 +180,8 @@ func adminCatalogPerms() []Permission {
 		adminAct("inventory.admin", g, "واجهة المخزون البرمجية", "Inventory API", "inventory.warehouse.view"),
 
 		adminPage("inventory.temp_warehouse.view", g, "temp_warehouses", "المستودعات المؤقتة", "Temporary warehouses"),
+		adminPage("inventory.my_temp_warehouse.view", g, "my_temp_warehouses", "مستودعاتي المرفوعة", "My uploaded warehouses"),
+		adminAct("inventory.my_temp_warehouse.manage", g, "إدارة مستودعاتي المرفوعة", "Manage my uploaded warehouses", "inventory.my_temp_warehouse.view"),
 		adminPage("inventory.stock.view", g, "warehouses", "أرصدة المخزون", "Stock levels"),
 		adminAct("inventory.stock.adjust", g, "تسوية المخزون", "Adjust stock", "inventory.stock.view"),
 		adminPage("inventory.transfer.view", g, "warehouses", "تحويلات المخزون", "Stock transfers"),
@@ -233,8 +240,8 @@ func adminPromoPerms() []Permission {
 		adminAct("promo.ad.delete", g, "حذف الإعلانات", "Delete advertisements", "promo.ad.view"),
 		adminPage("promo.ad_plan.view", g, "ad_plans", "خطط الإعلانات", "Advertisement plans"),
 		adminAct("promo.ad_plan.update", g, "تعديل خطط الإعلانات", "Edit advertisement plans", "promo.ad_plan.view"),
-		adminPage("promo.adv_product.view", g, "adv_products", "المنتجات المروَّجة", "Promoted products"),
-		adminAct("promo.adv_product.update", g, "تعديل المنتجات المروَّجة", "Edit promoted products", "promo.adv_product.view"),
+		adminPage("promo.adv_product.view", g, "adv_products", "رعاية المنتجات", "Product sponsorships"),
+		adminAct("promo.adv_product.update", g, "تعديل رعاية المنتجات", "Edit product sponsorships", "promo.adv_product.view"),
 
 		adminPage("platform.analytics.view", g, "analytics", "التحليلات والإحصائيات", "Analytics"),
 	}

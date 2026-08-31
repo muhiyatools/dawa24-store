@@ -14,7 +14,7 @@ import (
 	"github.com/muhiya/dawa24-store/internal/shared/apperr"
 )
 
-const fileColumns = `id, public_id, organization_id, user_id, supplier_name, original_filename, COALESCE(storage_key, ''), COALESCE(mime_type, ''), size_bytes, row_count, status, COALESCE(mapping_config, '{}'::jsonb), archived_at, COALESCE(archive_reason, ''), COALESCE(error_message, ''), is_temp_warehouse, created_at, updated_at, deleted_at`
+const fileColumns = `id, public_id, organization_id, user_id, supplier_name, original_filename, COALESCE(storage_key, ''), COALESCE(mime_type, ''), size_bytes, row_count, status, COALESCE(mapping_config, '{}'::jsonb), archived_at, COALESCE(archive_reason, ''), COALESCE(error_message, ''), is_temp_warehouse, COALESCE(visibility, 'private'), created_at, updated_at, deleted_at`
 
 func scanFile(row pgx.Row) (*compare.CompareFile, error) {
 	var f compare.CompareFile
@@ -24,7 +24,7 @@ func scanFile(row pgx.Row) (*compare.CompareFile, error) {
 		&f.ID, &f.PublicID, &f.OrganizationID, &f.UserID,
 		&f.SupplierName, &f.OriginalFilename, &f.StorageKey, &f.MIMEType,
 		&f.SizeBytes, &f.RowCount, &statusStr, &mappingBytes,
-		&f.ArchivedAt, &f.ArchiveReason, &f.ErrorMessage, &f.IsTempWarehouse,
+		&f.ArchivedAt, &f.ArchiveReason, &f.ErrorMessage, &f.IsTempWarehouse, &f.Visibility,
 		&f.CreatedAt, &f.UpdatedAt, &f.DeletedAt,
 	); err != nil {
 		return nil, err
@@ -41,17 +41,20 @@ func (r *Repository) CreateFile(ctx context.Context, f *compare.CompareFile) err
 		query := `
 			INSERT INTO compare.files (
 				organization_id, user_id, supplier_name, original_filename, storage_key,
-				mime_type, size_bytes, row_count, status, mapping_config, error_message, is_temp_warehouse
-			) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
+				mime_type, size_bytes, row_count, status, mapping_config, error_message, is_temp_warehouse, visibility
+			) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
 			RETURNING id, public_id, created_at, updated_at;
 		`
 		mappingJSON, _ := json.Marshal(f.MappingConfig)
 		if f.Status == "" {
 			f.Status = compare.FileUploaded
 		}
+		if f.Visibility == "" {
+			f.Visibility = compare.VisibilityPrivate
+		}
 		return tx.QueryRow(txCtx, query,
 			f.OrganizationID, f.UserID, f.SupplierName, f.OriginalFilename, f.StorageKey,
-			f.MIMEType, f.SizeBytes, f.RowCount, string(f.Status), mappingJSON, f.ErrorMessage, f.IsTempWarehouse,
+			f.MIMEType, f.SizeBytes, f.RowCount, string(f.Status), mappingJSON, f.ErrorMessage, f.IsTempWarehouse, f.Visibility,
 		).Scan(&f.ID, &f.PublicID, &f.CreatedAt, &f.UpdatedAt)
 	})
 }
