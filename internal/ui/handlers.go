@@ -271,6 +271,12 @@ func (h *UIHandler) RegisterPreApprovalRoutes(r chi.Router) {
 	r.Post("/documents/delete", h.OrganizationDocumentDeleteSubmit)
 
 	// Settings (profile and password only)
+
+	// One settings surface: the tabbed page. Six separate sub-pages used to
+	// render the same data through a second tab component, so the two could
+	// disagree about what the account looked like. They are 301s now — the
+	// paths stay reachable because they were linked from sidebars and may be
+	// bookmarked (PLAN_V7 Task 2.1).
 	r.Get("/settings", h.SettingsIndex)
 	r.Get("/settings/profile", redirectToSettingsTab("profile"))
 	r.Post("/settings/profile", h.SettingsProfileSubmit)
@@ -293,6 +299,8 @@ func (h *UIHandler) RegisterApprovedSharedRoutes(r chi.Router) {
 	r.Get("/settings/organization", redirectToSettingsTab("organization"))
 	r.Get("/settings/preferences", redirectToSettingsTab("preferences"))
 	r.Get("/settings/payment-methods", redirectToSettingsTab("payments"))
+	// Employees is a real management screen, not a settings tab: it lists
+	// staff, assigns branch managers and creates accounts.
 	r.Get("/settings/employees", h.SettingsEmployeesPage)
 
 	r.Post("/settings/addresses", h.SettingsAddressSubmit)
@@ -302,6 +310,9 @@ func (h *UIHandler) RegisterApprovedSharedRoutes(r chi.Router) {
 	r.Post("/settings/security/plan/{id}", h.SettingsSessionPlanPurchaseSubmit)
 	r.Post("/settings/delete-request", h.SettingsDeleteRequestSubmit)
 
+	// Branch management lives at /customer/branches and /vendor/branches. The
+	// settings page used to carry a third, lower-quality write path that even
+	// invented branch codes when the form omitted one (PLAN_V7 Task 2.2).
 	r.Post("/settings/organization", h.SettingsOrgUpdateSubmit)
 	r.Post("/settings/organization/member/{userID}/role", h.SettingsMemberRoleSubmit)
 	r.Post("/settings/organization/member", h.SettingsMemberAddSubmit)
@@ -351,16 +362,4 @@ func (h *UIHandler) RegisterVendorSharedRoutes(r chi.Router) {
 	r.Get("/vendor/documents", h.OrganizationDocumentsPage)
 	r.Get("/vendor/documents/{id}/view", h.DocumentViewHandler)
 	r.Get("/vendor/invoices", h.InvoicesPage)
-}
-
-// RegisterSharedRoutes mounts the legacy combined shared routes for tests or
-// standalone mounting. In production routes, these are partitioned into
-// RegisterPreApprovalRoutes (Tier A), RegisterApprovedSharedRoutes (Tier B),
-// RegisterCustomerSharedRoutes (Tier C), and RegisterVendorSharedRoutes (Tier C)
-// so that unapproved or cross-audience callers cannot reach protected surfaces.
-func (h *UIHandler) RegisterSharedRoutes(r chi.Router) {
-	h.RegisterPreApprovalRoutes(r)
-	h.RegisterApprovedSharedRoutes(r)
-	h.RegisterCustomerSharedRoutes(r)
-	h.RegisterVendorSharedRoutes(r)
 }

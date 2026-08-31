@@ -26,50 +26,75 @@ func TestUIRoutesAreAudienceGated(t *testing.T) {
 	// enforce for it. A function not listed here is a new surface without a
 	// defined audience — the test fails until it is either gated or justified.
 	audienceOf := map[string]string{
-		"RegisterPublicRoutes":   "public", // OptionalAuth only, visitor analytics
-		"RegisterCustomerRoutes": "customer",
-		"RegisterVendorRoutes":   "vendor",
-		"RegisterAdminRoutes":    "admin",
-		"RegisterSharedRoutes":   "shared", // authenticated, no type gate
-		"RegisterStaticRoutes":   "public",
-		"RegisterUploadRoutes":   "public",
+		"RegisterPublicRoutes":         "public", // OptionalAuth only, visitor analytics
+		"RegisterCustomerRoutes":       "customer",
+		"RegisterVendorRoutes":         "vendor",
+		"RegisterAdminRoutes":          "admin",
+		"RegisterPreApprovalRoutes":    "pre_approval",
+		"RegisterApprovedSharedRoutes": "approved_shared",
+		"RegisterCustomerSharedRoutes": "customer",
+		"RegisterVendorSharedRoutes":   "vendor",
+		"RegisterSmartOrderRoutes":     "customer",
+		"RegisterStaticRoutes":         "public",
+		"RegisterUploadRoutes":         "public",
 	}
 
 	// The old single-group registrar must stay dead: its existence is how the
 	// hole re-opens.
-	reRegister := regexp.MustCompile(`func \(h \*UIHandler\) (Register\w*Routes)\(r chi\.Router\) \{(.*?)\n\}`)
+	reRegister := regexp.MustCompile(`(?m)^func \(h \*UIHandler\) (Register\w*Routes)\(r chi\.Router\) \{\n([\s\S]*?)\n\}`)
 	reProtectedPath := regexp.MustCompile(`r\.(Get|Post|Put|Delete)\("(/(admin|vendor|customer|user|pharmacy)/[^"]*)"`)
 
-	src, err := os.ReadFile(filepath.Join(root, "internal", "ui", "handlers.go"))
+	uiFiles, err := filepath.Glob(filepath.Join(root, "internal", "ui", "*.go"))
 	if err != nil {
-		t.Fatalf("reading internal/ui/handlers.go: %v", err)
+		t.Fatalf("globbing internal/ui/*.go: %v", err)
 	}
 
-	for _, m := range reRegister.FindAllStringSubmatch(string(src), -1) {
-		name, body := m[1], m[2]
-		audience, ok := audienceOf[name]
-		if !ok {
-			t.Errorf("%s registers routes without a declared audience; add it to an audience group in cmd/server/routes.go and to audienceOf above", name)
+	totalMatches := 0
+	for _, f := range uiFiles {
+		if strings.HasSuffix(f, "_test.go") {
 			continue
 		}
-
-		if audience != "public" {
-			for _, p := range reProtectedPath.FindAllStringSubmatch(body, -1) {
-				t.Errorf("%s is a customer/vendor/staff route group, yet registers %s %s — it is gated in routes.go and must not be here", name, p[1], p[2])
-			}
-			continue
+		src, err := os.ReadFile(f)
+		if err != nil {
+			t.Fatalf("reading %s: %v", f, err)
 		}
 
-		// Public functions may only carry visitor analytics; a gate here means
-		// the whole group silently became optional-auth again.
-		for _, gate := range []string{"RequireAuth", "OptionalAuth", "RequireCustomer", "RequireVendor", "RequireStaff", "RequireApproved", "ResolveTenant"} {
-			if strings.Contains(body, gate) {
-				t.Errorf("RegisterPublicRoutes applies %s; public routes may only use visitor analytics middleware", gate)
+		matches := reRegister.FindAllStringSubmatch(string(src), -1)
+		totalMatches += len(matches)
+
+		for _, m := range matches {
+			name, body := m[1], m[2]
+			audience, ok := audienceOf[name]
+			if !ok {
+				t.Errorf("%s registers routes without a declared audience; add it to an audience group in cmd/server/routes.go and to audienceOf above", name)
+				continue
+			}
+
+			if audience == "pre_approval" || audience == "approved_shared" {
+				for _, p := range reProtectedPath.FindAllStringSubmatch(body, -1) {
+					t.Errorf("%s is a shared route group, yet registers %s %s — it is not audience-gated in routes.go and must not contain audience-specific paths", name, p[1], p[2])
+				}
+				continue
+			}
+
+			if audience == "public" {
+				// Public functions may only carry visitor analytics; a gate here means
+				// the whole group silently became optional-auth again.
+				for _, gate := range []string{"RequireAuth", "RequireCustomer", "RequireVendor", "RequireStaff", "RequireApproved", "ResolveTenant"} {
+					if strings.Contains(body, gate) {
+						t.Errorf("RegisterPublicRoutes applies %s; public routes may only use visitor analytics middleware", gate)
+					}
+				}
+				for _, p := range reProtectedPath.FindAllStringSubmatch(body, -1) {
+					t.Errorf("public registrar exposes %s %s without any audience gate", p[1], p[2])
+				}
+				continue
 			}
 		}
-		for _, p := range reProtectedPath.FindAllStringSubmatch(body, -1) {
-			t.Errorf("public registrar exposes %s %s without any audience gate", p[1], p[2])
-		}
+	}
+
+	if totalMatches == 0 {
+		t.Fatalf("reRegister regex found 0 matches in internal/ui/*.go; regex is broken")
 	}
 
 	// The mounting side: each audience function must be called inside a chi
@@ -81,27 +106,34 @@ func TestUIRoutesAreAudienceGated(t *testing.T) {
 	lines := strings.Split(string(routesSrc), "\n")
 
 	gates := map[string][]string{
-		"RegisterPublicRoutes":   {},
-		"RegisterCustomerRoutes": {"identityHttp.RequireAuth", "identityHttp.ResolveTenant", "authctx.RequireCustomer", "authctx.RequireApproved"},
-		"RegisterVendorRoutes":   {"identityHttp.RequireAuth", "identityHttp.ResolveTenant", "authctx.RequireVendor", "authctx.RequireApproved"},
-		"RegisterAdminRoutes":    {"identityHttp.RequireAuth", "identityHttp.ResolveTenant", "authctx.RequireStaff"},
-		"RegisterSharedRoutes":   {"identityHttp.RequireAuth", "identityHttp.ResolveTenant"},
+		"RegisterPublicRoutes":         {},
+		"RegisterCustomerRoutes":       {"identityHttp.RequireAuth", "identityHttp.ResolveTenant", "authctx.RequireCustomer", "authctx.RequireApproved"},
+		"RegisterSmartOrderRoutes":     {"identityHttp.RequireAuth", "identityHttp.ResolveTenant", "authctx.RequireCustomer", "authctx.RequireApproved"},
+		"RegisterVendorRoutes":         {"identityHttp.RequireAuth", "identityHttp.ResolveTenant", "authctx.RequireVendor", "authctx.RequireApproved"},
+		"RegisterAdminRoutes":          {"identityHttp.RequireAuth", "identityHttp.ResolveTenant", "authctx.RequireStaff"},
+		"RegisterPreApprovalRoutes":    {"identityHttp.RequireAuth", "identityHttp.ResolveTenant"},
+		"RegisterApprovedSharedRoutes": {"identityHttp.RequireAuth", "identityHttp.ResolveTenant", "authctx.RequireApproved"},
+		"RegisterCustomerSharedRoutes": {"identityHttp.RequireAuth", "identityHttp.ResolveTenant", "authctx.RequireCustomer"},
+		"RegisterVendorSharedRoutes":   {"identityHttp.RequireAuth", "identityHttp.ResolveTenant", "authctx.RequireVendor"},
 	}
 
+	mounted := make(map[string]bool)
 	for i, line := range lines {
 		if !strings.Contains(line, "uiHandler.Register") {
 			continue
 		}
 		name := ""
-		for _, fn := range []string{"RegisterPublicRoutes", "RegisterCustomerRoutes", "RegisterVendorRoutes", "RegisterAdminRoutes", "RegisterSharedRoutes"} {
+		for fn := range gates {
 			if strings.Contains(line, "uiHandler."+fn) {
 				name = fn
 				break
 			}
 		}
 		if name == "" {
+			t.Errorf("line %d mounts an unknown uiHandler.Register call: %s", i+1, strings.TrimSpace(line))
 			continue
 		}
+		mounted[name] = true
 
 		// Scope of the group containing this call: from the nearest UI
 		// r.Group(func(uiRouter ...) up to this line. Module API groups use
@@ -131,6 +163,12 @@ func TestUIRoutesAreAudienceGated(t *testing.T) {
 		}
 	}
 
+	for fn := range gates {
+		if !mounted[fn] {
+			t.Errorf("registrar %s is defined in gates map but was never mounted in cmd/server/routes.go", fn)
+		}
+	}
+
 	// The forbidden historics: the flat registrar must not exist anywhere.
 	for _, f := range []string{filepath.Join(root, "internal", "ui", "handlers.go")} {
 		b, err := os.ReadFile(f)
@@ -139,6 +177,9 @@ func TestUIRoutesAreAudienceGated(t *testing.T) {
 		}
 		if strings.Contains(string(b), "RegisterPageRoutes") {
 			t.Errorf("%s still defines RegisterPageRoutes — the unguarded flat registrar must stay deleted", f)
+		}
+		if strings.Contains(string(b), "RegisterSharedRoutes") {
+			t.Errorf("%s still defines RegisterSharedRoutes — the unguarded aggregator must stay deleted", f)
 		}
 	}
 }

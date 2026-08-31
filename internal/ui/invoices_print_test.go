@@ -23,7 +23,10 @@ func TestInvoicePrintAndVendorInvoicesPages(t *testing.T) {
 	handler := ui.NewUIHandler(nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, logger)
 
 	r := chi.NewRouter()
-	handler.RegisterSharedRoutes(r)
+	handler.RegisterPreApprovalRoutes(r)
+	handler.RegisterApprovedSharedRoutes(r)
+	handler.RegisterCustomerSharedRoutes(r)
+	handler.RegisterVendorSharedRoutes(r)
 	handler.RegisterCustomerRoutes(r)
 	handler.RegisterVendorRoutes(r)
 	handler.RegisterAdminRoutes(r)

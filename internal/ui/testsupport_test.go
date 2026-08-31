@@ -171,7 +171,10 @@ func newRealUIHandlerRouter(handler *ui.UIHandler) http.Handler {
 	handler.RegisterAdminRoutes(r)
 	handler.RegisterVendorRoutes(r)
 	handler.RegisterCustomerRoutes(r)
-	handler.RegisterSharedRoutes(r)
+	handler.RegisterPreApprovalRoutes(r)
+	handler.RegisterApprovedSharedRoutes(r)
+	handler.RegisterCustomerSharedRoutes(r)
+	handler.RegisterVendorSharedRoutes(r)
 	handler.RegisterPublicRoutes(r)
 	return r
 }

@@ -20,7 +20,10 @@ func TestPlatformPhase9Routes(t *testing.T) {
 
 	r := chi.NewRouter()
 	handler.RegisterAdminRoutes(r)
-	handler.RegisterSharedRoutes(r)
+	handler.RegisterPreApprovalRoutes(r)
+	handler.RegisterApprovedSharedRoutes(r)
+	handler.RegisterCustomerSharedRoutes(r)
+	handler.RegisterVendorSharedRoutes(r)
 	handler.RegisterPublicRoutes(r)
 
 	tests := []struct {

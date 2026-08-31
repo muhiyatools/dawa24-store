@@ -56,7 +56,10 @@ func newTestRouter(actor *authctx.Actor) http.Handler {
 	})
 	r.Group(func(uiRouter chi.Router) {
 		uiRouter.Use(stubAuth)
-		handler.RegisterSharedRoutes(uiRouter)
+		handler.RegisterPreApprovalRoutes(uiRouter)
+		handler.RegisterApprovedSharedRoutes(uiRouter)
+		handler.RegisterCustomerSharedRoutes(uiRouter)
+		handler.RegisterVendorSharedRoutes(uiRouter)
 	})
 	return r
 }
