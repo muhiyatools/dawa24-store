@@ -51,7 +51,7 @@ func PublicShell(title string, lang string, dir string) templ.Component {
 					}()
 				}
 				ctx = templ.InitializeContext(ctx)
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div x-data=\"{ mobileNav: false }\" class=\"public-shell-root\"><!-- Top Modern Navbar --><header class=\"top-navbar public-navbar\"><div class=\"top-navbar-brand\"><a href=\"/\" class=\"brand-lockup\" title=\"دواء 24 — الصفحة الرئيسية\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div x-data=\"{ mobileNav: false }\" class=\"public-shell-root\"><!-- Top Modern Navbar --><header class=\"site-header\"><div class=\"site-header-brand\"><a href=\"/\" class=\"brand-lockup\" title=\"دواء 24 — الصفحة الرئيسية\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -147,7 +147,7 @@ func PublicShell(title string, lang string, dir string) templ.Component {
 						return templ_7745c5c3_Err
 					}
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "</nav></div><div class=\"top-navbar-actions\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "</nav></div><div class=\"site-header-actions\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}

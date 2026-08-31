@@ -323,33 +323,6 @@
 }
 
 /* ---- Top Navbar Controls & User Chips ---- */
-.top-navbar-start {
-  display: flex;
-  align-items: center;
-  gap: var(--space-3, 0.75rem);
-}
-
-.top-navbar-title {
-  font-size: var(--text-lg);
-  font-weight: 700;
-  color: var(--text-primary);
-  margin: 0;
-}
-
-.top-navbar-end {
-  display: flex;
-  align-items: center;
-  gap: var(--space-3, 0.75rem);
-}
-
-.top-navbar-user-chip {
-  display: flex;
-  align-items: center;
-  gap: 0.65rem;
-  border-inline-start: 1px solid var(--border-subtle);
-  padding-inline-start: 0.85rem;
-}
-
 .user-avatar-badge {
   width: 32px;
   height: 32px;
@@ -649,8 +622,12 @@
    DAWA 24 DESIGN SYSTEM â€” PUBLIC TOP NAVBAR & FOOTER
    ========================================================================== */
 
-.public-navbar,
-.top-navbar {
+/* The public marketing header. This used to be one rule shared with the three
+   dashboard bars via `.public-navbar, .top-navbar`, which is why the dashboard
+   bar carried a 4.5rem marketing height directly above data tables. The
+   dashboard bar is now .dashboard-topbar in components.css and shares nothing
+   with this. */
+.site-header {
   height: var(--header-height, 4.5rem);
   width: 100%;
   background: var(--bg-surface-raised, #ffffff);
@@ -668,14 +645,13 @@
               box-shadow var(--duration-fast) var(--ease-smooth);
 }
 
-[data-theme="dark"] .public-navbar,
-[data-theme="dark"] .top-navbar {
+[data-theme="dark"] .site-header {
   background: var(--bg-surface-raised, #1e293b);
   border-bottom: 1px solid var(--border-subtle, #334155);
   box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.4);
 }
 
-.top-navbar-brand {
+.site-header-brand {
   display: flex;
   align-items: center;
   gap: 2.25rem;
@@ -755,7 +731,7 @@
   color: #38bdf8;
 }
 
-.top-navbar-actions {
+.site-header-actions {
   display: flex;
   align-items: center;
   gap: 0.65rem;

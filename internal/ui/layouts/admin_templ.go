@@ -9,7 +9,6 @@ import "github.com/a-h/templ"
 import templruntime "github.com/a-h/templ/runtime"
 
 import (
-	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/platform/rbac"
 	"github.com/muhiya/dawa24-store/internal/ui/components"
 )
@@ -55,7 +54,7 @@ func AdminShell(title string, activeNav string, lang string, dir string) templ.C
 				var templ_7745c5c3_Var3 string
 				templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.ResolveAttributeValue(site.LogoURL)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/layouts/admin.templ`, Line: 17, Col: 51}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/layouts/admin.templ`, Line: 16, Col: 51}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var3)
 				if templ_7745c5c3_Err != nil {
@@ -68,7 +67,7 @@ func AdminShell(title string, activeNav string, lang string, dir string) templ.C
 				var templ_7745c5c3_Var4 string
 				templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.ResolveAttributeValue(site.SiteName)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/layouts/admin.templ`, Line: 17, Col: 73}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/layouts/admin.templ`, Line: 16, Col: 73}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var4)
 				if templ_7745c5c3_Err != nil {
@@ -81,7 +80,7 @@ func AdminShell(title string, activeNav string, lang string, dir string) templ.C
 				var templ_7745c5c3_Var5 string
 				templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(site.SiteName)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/layouts/admin.templ`, Line: 19, Col: 56}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/layouts/admin.templ`, Line: 18, Col: 56}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
 				if templ_7745c5c3_Err != nil {
@@ -103,80 +102,19 @@ func AdminShell(title string, activeNav string, lang string, dir string) templ.C
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "</aside><script>\n\t\t\t\t\t(function() {\n\t\t\t\t\t\ttry {\n\t\t\t\t\t\t\tvar nav = document.querySelector('.sidebar-nav');\n\t\t\t\t\t\t\tif (!nav) return;\n\t\t\t\t\t\t\tvar currentPath = window.location.pathname;\n\t\t\t\t\t\t\tvar links = Array.from(nav.querySelectorAll('.sidebar-link'));\n\t\t\t\t\t\t\tvar hasActive = links.some(function(l) { return l.classList.contains('active'); });\n\t\t\t\t\t\t\tif (!hasActive && links.length > 0) {\n\t\t\t\t\t\t\t\tvar sorted = links.slice().sort(function(a, b) { return (b.getAttribute('href') || '').length - (a.getAttribute('href') || '').length; });\n\t\t\t\t\t\t\t\tfor (var i = 0; i < sorted.length; i++) {\n\t\t\t\t\t\t\t\t\tvar href = sorted[i].getAttribute('href');\n\t\t\t\t\t\t\t\t\tif (href && (currentPath === href || (href !== '/admin/dashboard' && currentPath.indexOf(href) === 0))) {\n\t\t\t\t\t\t\t\t\t\tsorted[i].classList.add('active');\n\t\t\t\t\t\t\t\t\t\tbreak;\n\t\t\t\t\t\t\t\t\t}\n\t\t\t\t\t\t\t\t}\n\t\t\t\t\t\t\t}\n\t\t\t\t\t\t\tvar saved = sessionStorage.getItem('dawa_sidebar_scroll_top');\n\t\t\t\t\t\t\tif (saved !== null) {\n\t\t\t\t\t\t\t\tnav.scrollTop = parseInt(saved, 10);\n\t\t\t\t\t\t\t} else {\n\t\t\t\t\t\t\t\tvar act = nav.querySelector('.sidebar-link.active');\n\t\t\t\t\t\t\t\tif (act) {\n\t\t\t\t\t\t\t\t\tact.scrollIntoView({ block: 'nearest' });\n\t\t\t\t\t\t\t\t}\n\t\t\t\t\t\t\t}\n\t\t\t\t\t\t} catch (e) {}\n\t\t\t\t\t})();\n\t\t\t\t</script><!-- Main Admin Content Area --><main class=\"main-content\"><!-- Top Admin Header --><header class=\"top-navbar\"><div class=\"top-navbar-start\"><h1 class=\"top-navbar-title\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "</aside><script>\n\t\t\t\t\t(function() {\n\t\t\t\t\t\ttry {\n\t\t\t\t\t\t\tvar nav = document.querySelector('.sidebar-nav');\n\t\t\t\t\t\t\tif (!nav) return;\n\t\t\t\t\t\t\tvar currentPath = window.location.pathname;\n\t\t\t\t\t\t\tvar links = Array.from(nav.querySelectorAll('.sidebar-link'));\n\t\t\t\t\t\t\tvar hasActive = links.some(function(l) { return l.classList.contains('active'); });\n\t\t\t\t\t\t\tif (!hasActive && links.length > 0) {\n\t\t\t\t\t\t\t\tvar sorted = links.slice().sort(function(a, b) { return (b.getAttribute('href') || '').length - (a.getAttribute('href') || '').length; });\n\t\t\t\t\t\t\t\tfor (var i = 0; i < sorted.length; i++) {\n\t\t\t\t\t\t\t\t\tvar href = sorted[i].getAttribute('href');\n\t\t\t\t\t\t\t\t\tif (href && (currentPath === href || (href !== '/admin/dashboard' && currentPath.indexOf(href) === 0))) {\n\t\t\t\t\t\t\t\t\t\tsorted[i].classList.add('active');\n\t\t\t\t\t\t\t\t\t\tbreak;\n\t\t\t\t\t\t\t\t\t}\n\t\t\t\t\t\t\t\t}\n\t\t\t\t\t\t\t}\n\t\t\t\t\t\t\tvar saved = sessionStorage.getItem('dawa_sidebar_scroll_top');\n\t\t\t\t\t\t\tif (saved !== null) {\n\t\t\t\t\t\t\t\tnav.scrollTop = parseInt(saved, 10);\n\t\t\t\t\t\t\t} else {\n\t\t\t\t\t\t\t\tvar act = nav.querySelector('.sidebar-link.active');\n\t\t\t\t\t\t\t\tif (act) {\n\t\t\t\t\t\t\t\t\tact.scrollIntoView({ block: 'nearest' });\n\t\t\t\t\t\t\t\t}\n\t\t\t\t\t\t\t}\n\t\t\t\t\t\t} catch (e) {}\n\t\t\t\t\t})();\n\t\t\t\t</script><!-- Main Admin Content Area --><main class=\"main-content\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				var templ_7745c5c3_Var6 string
-				templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(title)
-				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/layouts/admin.templ`, Line: 67, Col: 43}
-				}
-				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "</h1></div><div class=\"top-navbar-end\">")
+				templ_7745c5c3_Err = components.DashboardTopBar(components.TopBarProps{
+					Title:   title,
+					Lang:    lang,
+					Compact: true,
+				}).Render(ctx, templ_7745c5c3_Buffer)
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = components.LanguageToggle(lang).Render(ctx, templ_7745c5c3_Buffer)
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				templ_7745c5c3_Err = components.ThemeToggle().Render(ctx, templ_7745c5c3_Buffer)
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				if actor, ok := authctx.From(ctx); ok {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "<div class=\"top-navbar-user-chip\"><div class=\"user-avatar-badge\">")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					templ_7745c5c3_Err = components.IconShield("icon-xs").Render(ctx, templ_7745c5c3_Buffer)
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "</div><div class=\"user-avatar-info\"><span class=\"user-avatar-name\">")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					var templ_7745c5c3_Var7 string
-					templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(actor.DisplayName())
-					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/layouts/admin.templ`, Line: 80, Col: 62}
-					}
-					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "</span> <span class=\"user-avatar-role\">")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					var templ_7745c5c3_Var8 string
-					templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(actor.Role)
-					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/layouts/admin.templ`, Line: 81, Col: 53}
-					}
-					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var8))
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "</span></div><form action=\"/auth/logout\" method=\"POST\" class=\"m-0 ms-1\"><button type=\"submit\" class=\"btn btn-secondary btn-sm btn-logout\" title=\"تسجيل الخروج\">")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					templ_7745c5c3_Err = components.IconLogout("icon-xs").Render(ctx, templ_7745c5c3_Buffer)
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "<span>خروج</span></button></form></div>")
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "</div></header><!-- Page Container --><div class=\"page-container\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "<!-- Page Container --><div class=\"page-container\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -184,7 +122,7 @@ func AdminShell(title string, activeNav string, lang string, dir string) templ.C
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "</div></main></div>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "</div></main></div>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
