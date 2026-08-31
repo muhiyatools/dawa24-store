@@ -15,11 +15,23 @@ import (
 
 // CreateQuoteRequest creates buyer price inquiry.
 func (h *Handler) CreateQuoteRequest(w http.ResponseWriter, r *http.Request) {
+	actor, ok := authctx.From(r.Context())
+	if !ok {
+		httpx.Error(w, r, h.log, apperr.Unauthorized())
+		return
+	}
+
 	var q commerce.QuoteRequest
 	if err := httpx.DecodeJSON(w, r, &q); err != nil {
 		httpx.Error(w, r, h.log, err)
 		return
 	}
+
+	if actor.OrganizationID <= 0 {
+		httpx.Error(w, r, h.log, apperr.Forbidden("quote.no_org", "Organization membership required to create quote requests"))
+		return
+	}
+	q.CustomerOrgID = actor.OrganizationID
 
 	created, err := h.service.CreateQuoteRequest(r.Context(), &q)
 	if err != nil {

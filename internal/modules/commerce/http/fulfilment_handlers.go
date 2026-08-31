@@ -151,10 +151,43 @@ func (h *Handler) TransitionShipmentStatus(w http.ResponseWriter, r *http.Reques
 
 // GetOrderHistory returns the status audit trail for an order.
 func (h *Handler) GetOrderHistory(w http.ResponseWriter, r *http.Request) {
+	actor, ok := authctx.From(r.Context())
+	if !ok {
+		httpx.Error(w, r, h.log, apperr.Unauthorized())
+		return
+	}
+
 	id, err := commerceID(r, "id", "order")
 	if err != nil {
 		httpx.Error(w, r, h.log, err)
 		return
+	}
+
+	order, err := h.service.GetOrder(r.Context(), id)
+	if err != nil {
+		httpx.Error(w, r, h.log, err)
+		return
+	}
+
+	if !actor.IsStaff && !actor.Can("commerce.admin") {
+		allowed := order.CustomerID == actor.UserID || (order.OrganizationID != nil && *order.OrganizationID == actor.OrganizationID)
+		if !allowed && actor.IsVendor() && actor.OrganizationID > 0 {
+			for _, s := range order.Shipments {
+				if s.OrganizationID == actor.OrganizationID {
+					allowed = true
+					break
+				}
+			}
+		}
+		if !allowed {
+			h.log.WarnContext(r.Context(), "unauthorized order history read attempt",
+				"actor_user_id", actor.UserID,
+				"actor_org_id", actor.OrganizationID,
+				"order_id", id,
+			)
+			httpx.Error(w, r, h.log, apperr.Forbidden("order.unauthorized", "Not authorized to view this order history"))
+			return
+		}
 	}
 
 	history, err := h.service.GetOrderHistory(r.Context(), id)
@@ -167,9 +200,9 @@ func (h *Handler) GetOrderHistory(w http.ResponseWriter, r *http.Request) {
 
 // RateOrder records a customer rating for a delivered order.
 func (h *Handler) RateOrder(w http.ResponseWriter, r *http.Request) {
-	userID, err := authctx.UserID(r.Context())
-	if err != nil {
-		httpx.Error(w, r, h.log, err)
+	actor, ok := authctx.From(r.Context())
+	if !ok {
+		httpx.Error(w, r, h.log, apperr.Unauthorized())
 		return
 	}
 
@@ -178,6 +211,26 @@ func (h *Handler) RateOrder(w http.ResponseWriter, r *http.Request) {
 		httpx.Error(w, r, h.log, err)
 		return
 	}
+
+	order, err := h.service.GetOrder(r.Context(), id)
+	if err != nil {
+		httpx.Error(w, r, h.log, err)
+		return
+	}
+
+	if !actor.IsStaff && !actor.Can("commerce.admin") {
+		if order.CustomerID != actor.UserID && (order.OrganizationID == nil || *order.OrganizationID != actor.OrganizationID) {
+			h.log.WarnContext(r.Context(), "unauthorized order rate attempt",
+				"actor_user_id", actor.UserID,
+				"order_id", id,
+				"order_customer_id", order.CustomerID,
+			)
+			httpx.Error(w, r, h.log, apperr.Forbidden("order.unauthorized", "Not authorized to rate this order"))
+			return
+		}
+	}
+
+	userID := actor.UserID
 
 	var body struct {
 		Rating        *float64 `json:"rating,omitempty"`

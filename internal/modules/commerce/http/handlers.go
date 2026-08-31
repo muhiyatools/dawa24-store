@@ -256,15 +256,27 @@ func (h *Handler) ListVendorShipments(w http.ResponseWriter, r *http.Request) {
 
 // AddToWishlist adds a product to customer wishlist.
 func (h *Handler) AddToWishlist(w http.ResponseWriter, r *http.Request) {
+	// The acting user comes from the authenticated session, never from the
+	// request. Reading it from the request body let any caller act as any
+	// user by changing a number.
+	userID, err := authctx.UserID(r.Context())
+	if err != nil {
+		httpx.Error(w, r, h.log, err)
+		return
+	}
+
 	var input struct {
-		UserID    int64 `json:"user_id"`
 		ProductID int64 `json:"product_id"`
 	}
 	if err := httpx.DecodeJSON(w, r, &input); err != nil {
 		httpx.Error(w, r, h.log, err)
 		return
 	}
-	if err := h.service.AddToWishlist(r.Context(), input.UserID, input.ProductID); err != nil {
+	if input.ProductID <= 0 {
+		httpx.Error(w, r, h.log, apperr.Validation("product_id.invalid", "Valid product_id required", nil))
+		return
+	}
+	if err := h.service.AddToWishlist(r.Context(), userID, input.ProductID); err != nil {
 		httpx.Error(w, r, h.log, err)
 		return
 	}
