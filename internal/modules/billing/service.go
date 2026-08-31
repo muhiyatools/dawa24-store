@@ -1,6 +1,7 @@
 package billing
 
 import (
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"context"
 	"fmt"
 	"log/slog"
@@ -84,10 +85,10 @@ func (s *Service) RequestDeposit(
 		currency = "EGP"
 	}
 	if method == "" {
-		return nil, apperr.Validation("payment_method.required", "يرجى تحديد وسيلة الدفع أو التحويل.", nil)
+		return nil, apperr.Validation("payment_method.required", i18n.T("ar", "billing.val.method_required"), nil)
 	}
 	if referenceNumber == "" {
-		return nil, apperr.Validation("reference_number.required", "يرجى إدخال رقم الإشعار أو مرجع العملية.", nil)
+		return nil, apperr.Validation("reference_number.required", i18n.T("ar", "billing.val.ref_required"), nil)
 	}
 
 	wallet, err := s.repo.GetOrCreateWallet(ctx, userID, currency)
@@ -131,10 +132,10 @@ func (s *Service) EditPendingDeposit(
 		return nil, err
 	}
 	if method == "" {
-		return nil, apperr.Validation("payment_method.required", "يرجى تحديد وسيلة الدفع أو التحويل.", nil)
+		return nil, apperr.Validation("payment_method.required", i18n.T("ar", "billing.val.method_required"), nil)
 	}
 	if referenceNumber == "" {
-		return nil, apperr.Validation("reference_number.required", "يرجى إدخال رقم الإشعار أو مرجع العملية.", nil)
+		return nil, apperr.Validation("reference_number.required", i18n.T("ar", "billing.val.ref_required"), nil)
 	}
 
 	existing, err := s.repo.GetDepositRequestByID(ctx, depositID)
@@ -142,10 +143,10 @@ func (s *Service) EditPendingDeposit(
 		return nil, err
 	}
 	if existing.UserID != userID {
-		return nil, apperr.Forbidden("deposit.not_owner", "غير مصرح لك بتعديل هذا الطلب.")
+		return nil, apperr.Forbidden("deposit.not_owner", i18n.T("ar", "billing.err.not_owner"))
 	}
 	if existing.Status != DepositPending {
-		return nil, apperr.Conflict("deposit.locked", "لا يمكن تعديل الطلب بعد مراجعته من الإدارة.")
+		return nil, apperr.Conflict("deposit.locked", i18n.T("ar", "billing.err.locked"))
 	}
 
 	existing.Amount = amount
@@ -423,15 +424,15 @@ func (s *Service) SubscribeWithWallet(
 
 	if !cost.IsZero() && !cost.IsNegative() {
 		if wallet.Balance.Minor() < cost.Minor() {
-			return nil, apperr.Conflict("wallet.insufficient_funds", "رصيد المحفظة الحالي غير كافٍ لإتمام الاشتراك. يرجى شحن المحفظة أولاً.")
+			return nil, apperr.Conflict("wallet.insufficient_funds", i18n.T("ar", "billing.err.insufficient_funds"))
 		}
 
 		negCost := money.FromMinor(-cost.Minor())
 		desc := fmt.Sprintf("اشتراك في %s (%s)", plan.Name.Get("ar"), func() string {
 			if cycle == "annual" {
-				return "سنوي"
+				return i18n.T("ar", "billing.cycle.annual")
 			}
-			return "شهري"
+			return i18n.T("ar", "billing.cycle.monthly")
 		}())
 
 		_, err = s.repo.RecordTransaction(ctx, wallet.ID, TxPurchase, negCost, "subscription_checkout", nil, desc)
@@ -501,7 +502,7 @@ func (s *Service) ProcessDueSubscriptionRenewals(ctx context.Context) (renewed i
 			continue
 		}
 
-		desc := fmt.Sprintf("تجديد باقة %s - دورة %s", plan.Name.Get("ar"), sub.BillingCycle)
+		desc := fmt.Sprintf(i18n.T("ar", "billing.renewal_desc"), plan.Name.Get("ar"), sub.BillingCycle)
 		err = s.repo.RenewSubscription(ctx, sub.ID, wallet.ID, cost, newExpiresAt, desc)
 		if err != nil {
 			s.log.WarnContext(ctx, "subscription renewal failed", "sub_id", sub.ID, "user_id", sub.UserID, "error", err)

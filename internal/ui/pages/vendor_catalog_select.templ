@@ -26,7 +26,7 @@ templ VendorCatalogSelectPage(products []*catalog.Product, search string, lang, 
 				</div>
 
 				<form method="GET" action="/vendor/catalog/select" class="mt-4 pt-3 border-t">
-					<div class="d-flex gap-2" style="max-width:500px;">
+					<div class="d-flex gap-2">
 						<input type="text" name="q" value={ search } placeholder="ابحث بالاسم التجاري أو العلمي أو الكود..." class="form-input text-xs flex-1" />
 						<button type="submit" class="btn btn-secondary text-xs font-bold px-4">بحث</button>
 					</div>
@@ -46,7 +46,7 @@ templ VendorCatalogSelectPage(products []*catalog.Product, search string, lang, 
 							<table class="data-table m-0">
 								<thead>
 									<tr>
-										<th style="width:40px;" class="text-center">اختيار</th>
+										<th class="text-center">اختيار</th>
 										<th>المنتج الدوائي</th>
 										<th>الاسم العلمي والمواصفات</th>
 										<th>سعر الجمهور</th>

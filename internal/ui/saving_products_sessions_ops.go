@@ -1,7 +1,9 @@
 package ui
 
 import (
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"context"
+	"errors"
 	"fmt"
 	"sort"
 	"strings"
@@ -31,7 +33,7 @@ func (s *SavingImportSessionStore) CompleteProcessing(id string, items []*Staged
 		sess.Status = SessionStateReady
 		sess.Phase = SavingPhaseReview
 		sess.Progress = 100
-		sess.ProgressPhase = "اكتملت المعالجة — بانتظار مراجعة وتأكيد المستخدم"
+		sess.ProgressPhase = i18n.T("ar", "ops.saving.processing_complete")
 		sess.Items = items
 		sess.MatchedRows = matched
 		sess.UnlinkedRows = unlinked
@@ -48,7 +50,7 @@ func (s *SavingImportSessionStore) UpdateStagedItem(id string, orgID int64, item
 
 	sess, ok := s.sessions[id]
 	if !ok || sess.OrgID != orgID {
-		return fmt.Errorf("جلسة غير موجودة")
+		return errors.New(i18n.T("ar", "ops.session_not_found"))
 	}
 	for _, it := range sess.Items {
 		if it.Index == itemIndex {
@@ -69,7 +71,7 @@ func (s *SavingImportSessionStore) UpdateStagedItem(id string, orgID int64, item
 			return nil
 		}
 	}
-	return fmt.Errorf("صنف غير موجود")
+	return errors.New(i18n.T("ar", "ops.item_not_found"))
 }
 
 // AssignStagedItemMatch manually links or unlinks a staged item to/from a catalog product.
@@ -79,7 +81,7 @@ func (s *SavingImportSessionStore) AssignStagedItemMatch(id string, orgID int64,
 
 	sess, ok := s.sessions[id]
 	if !ok || sess.OrgID != orgID {
-		return fmt.Errorf("جلسة غير موجودة")
+		return errors.New(i18n.T("ar", "ops.session_not_found"))
 	}
 	for _, it := range sess.Items {
 		if it.Index == itemIndex {
@@ -101,7 +103,7 @@ func (s *SavingImportSessionStore) AssignStagedItemMatch(id string, orgID int64,
 			return nil
 		}
 	}
-	return fmt.Errorf("صنف غير موجود")
+	return errors.New(i18n.T("ar", "ops.item_not_found"))
 }
 
 // ToggleStagedItem flips inclusion flag for an item.
@@ -111,7 +113,7 @@ func (s *SavingImportSessionStore) ToggleStagedItem(id string, orgID int64, item
 
 	sess, ok := s.sessions[id]
 	if !ok || sess.OrgID != orgID {
-		return false, fmt.Errorf("جلسة غير موجودة")
+		return false, errors.New(i18n.T("ar", "ops.session_not_found"))
 	}
 	for _, it := range sess.Items {
 		if it.Index == itemIndex {
@@ -120,7 +122,7 @@ func (s *SavingImportSessionStore) ToggleStagedItem(id string, orgID int64, item
 			return it.Included, nil
 		}
 	}
-	return false, fmt.Errorf("صنف غير موجود")
+	return false, errors.New(i18n.T("ar", "ops.item_not_found"))
 }
 
 func (s *SavingImportSessionStore) recalculateTotals(sess *SavingImportSession) {

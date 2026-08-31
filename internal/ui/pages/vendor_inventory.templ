@@ -142,7 +142,7 @@ templ VendorInventory(data VendorInventoryData, lang, dir string, isPartial bool
 				<!-- Filter & Rows-Per-Page Form -->
 				<div class="glass-panel p-4 mb-0">
 					<form method="GET" action="/vendor/inventory" class="d-flex items-center gap-3 flex-wrap m-0">
-						<div class="flex-1" style="min-width:260px;">
+						<div class="flex-1">
 							<input
 								type="text"
 								name="q"
@@ -152,7 +152,7 @@ templ VendorInventory(data VendorInventoryData, lang, dir string, isPartial bool
 							/>
 						</div>
 
-						<div style="min-width:200px;">
+						<div>
 							<select name="warehouse_id" onchange="this.form.submit()" class="form-input text-xs w-full">
 								<option value="">كافة المخازن ({ fmt.Sprintf("%d", len(data.Warehouses)) })</option>
 								for _, wh := range data.Warehouses {
@@ -163,7 +163,7 @@ templ VendorInventory(data VendorInventoryData, lang, dir string, isPartial bool
 							</select>
 						</div>
 
-						<div style="min-width:130px;">
+						<div>
 							<select name="limit" onchange="this.form.submit()" class="form-input text-xs w-full">
 								<option value="10" selected?={ data.PerPage == 10 }>10 عناصر</option>
 								<option value="25" selected?={ data.PerPage == 25 || data.PerPage == 0 }>25 عنصر</option>
@@ -196,13 +196,11 @@ templ VendorInventory(data VendorInventoryData, lang, dir string, isPartial bool
 					x-show="adjustModal"
 					x-cloak
 					x-transition.opacity
-					style="position: fixed; inset: 0; z-index: 99999; display: flex; align-items: center; justify-content: center; background: rgba(15, 23, 42, 0.75); backdrop-filter: blur(8px); padding: 1.5rem;"
 					@keydown.escape.window="adjustModal = false"
 				>
 					<div
 						@click.outside="adjustModal = false"
 						class="glass-panel p-6 w-full"
-						style="max-width: 480px;"
 					>
 						<div class="flex-between items-center mb-4 pb-3 border-b">
 							<div class="d-flex items-center gap-2">

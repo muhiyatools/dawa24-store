@@ -155,7 +155,6 @@ templ VendorOrdersContent(data VendorOrdersData, lang, dir string) {
 				<div
 					x-data="{ expanded: false }"
 					class="glass-panel p-5 transition-all"
-					style="border-radius: var(--radius-xl);"
 				>
 					<!-- Compact Summary Header (Always Visible, Clickable to Expand) -->
 					<div
@@ -167,7 +166,6 @@ templ VendorOrdersContent(data VendorOrdersData, lang, dir string) {
 							<button
 								type="button"
 								class="btn btn-secondary btn-icon btn-sm"
-								style="width:32px; height:32px; font-size:0.75rem;"
 								:title="expanded ? 'طي التفاصيل' : 'عرض التفاصيل'"
 							>
 								<span x-text="expanded ? '▲' : '▼'"></span>
@@ -229,7 +227,7 @@ templ VendorOrdersContent(data VendorOrdersData, lang, dir string) {
 					<div x-show="expanded" x-cloak class="mt-4 pt-4 border-t">
 						
 						<!-- Destination & Contact Grid -->
-						<div class="d-grid gap-4 bg-surface-sunken p-4 rounded-xl border mb-5 text-sm" style="grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));">
+						<div class="d-grid gap-4 bg-surface-sunken p-4 rounded-xl border mb-5 text-sm" class="grid-auto-fit-md">
 							<div>
 								<div class="text-muted text-xs font-bold mb-1 d-flex items-center gap-2">
 									@components.IconBuilding("icon-xs")
@@ -277,7 +275,7 @@ templ VendorOrdersContent(data VendorOrdersData, lang, dir string) {
 							</div>
 
 							if sh.Notes != "" {
-								<div class="border-t pt-2 mt-1" style="grid-column: 1 / -1;">
+								<div class="border-t pt-2 mt-1">
 									<div class="text-muted text-xs font-bold mb-1">ملاحظات خاصة من الصيدلية:</div>
 									<div class="text-primary text-xs">{ sh.Notes }</div>
 								</div>
@@ -414,7 +412,6 @@ templ VendorOrdersContent(data VendorOrdersData, lang, dir string) {
 											name="tracking"
 											placeholder="رقم البوليصة (أو يُولد تلقائياً)..."
 											class="form-input text-xs"
-											style="width:200px;"
 										/>
 										<button
 											type="submit"

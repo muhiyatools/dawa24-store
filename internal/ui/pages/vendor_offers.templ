@@ -141,7 +141,7 @@ templ VendorSpecialOffersPage(data VendorSpecialOffersData, lang, dir string) {
 								</div>
 
 								if o.Description.Get(i18n.Lang(lang)) != "" {
-									<p class="text-xs text-secondary leading-relaxed mb-4" style="min-height:36px;">
+									<p class="text-xs text-secondary leading-relaxed mb-4">
 										{ o.Description.Get(i18n.Lang(lang)) }
 									</p>
 								}

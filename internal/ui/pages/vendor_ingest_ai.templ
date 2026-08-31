@@ -22,10 +22,10 @@ import (
 // aiPanel is the account of the enhancement stage.
 templ aiPanel(view VendorImportView) {
 	if view.Session != nil && view.Session.AI.Ran {
-		<section class="card mb-lg" style="border: 1px solid var(--border-strong); border-inline-start: 3px solid var(--primary); background: var(--surface-sunken);">
+		<section class="card mb-lg">
 			<div class="row-center-sm justify-between flex-wrap gap-sm mb-md">
 				<div class="row-center-sm gap-sm">
-					<span style="font-size: 1.4rem; line-height: 1;">@components.IconSparkles("icon-sm")</span>
+					<span>@components.IconSparkles("icon-sm")</span>
 					<div>
 						<div class="fw-800 text-base">{ aiHeadline(view.Session.AI) }</div>
 						<div class="text-xs text-muted">{ aiSubline(view.Session.AI) }</div>
@@ -73,9 +73,9 @@ templ aiPanel(view VendorImportView) {
 			</p>
 		</section>
 	} else if view.Session != nil && !view.Session.Settings.UseAI {
-		<section class="card mb-lg" style="border: 1px dashed var(--border-strong); background: var(--surface-sunken);">
+		<section class="card mb-lg">
 			<div class="row-center-sm gap-sm">
-				<span style="font-size: 1.2rem; line-height: 1;">@components.IconSparkles("icon-sm")</span>
+				<span>@components.IconSparkles("icon-sm")</span>
 				<div class="text-xs text-muted">
 					المطابقة الذكية كانت متوقفة في هذه العملية، فالنتائج أدناه من المطابقة الحتمية وحدها.
 					يمكنك العودة إلى الإعدادات وتفعيلها لإعادة فحص الأصناف غير المطابقة.

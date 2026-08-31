@@ -78,7 +78,7 @@ templ VendorPaymentsPage(payments []*billing.Payment, lang, dir string) {
 // VendorEarningsOrderPage renders unified financial and net profit report for the vendor.
 templ VendorEarningsOrderPage(summary *commerce.VendorFinancialSummary, lang, dir string) {
 	@layouts.VendorShell("الأرباح والبيانات المالية", "earnings_order", lang, dir) {
-		<div class="page-container" style="max-width:1440px; margin:0 auto; padding-bottom:3rem;">
+		<div class="page-container">
 			
 			<!-- Header & Period Filter Toolbar -->
 			<div class="glass-panel p-6 mb-6">
@@ -128,7 +128,7 @@ templ VendorEarningsOrderPage(summary *commerce.VendorFinancialSummary, lang, di
 			</div>
 
 			<!-- Financial Accounting Logic Banner -->
-			<div class="alert alert-info mb-6 p-4" style="border-radius:14px; background:rgba(14, 165, 233, 0.08); border:1px solid rgba(14, 165, 233, 0.25);">
+			<div class="alert alert-info mb-6 p-4">
 				<div class="d-flex items-start gap-3">
 					<div class="text-sky flex-shrink-0 mt-0.5">
 						@components.IconInfo("icon-sm")
@@ -147,7 +147,7 @@ templ VendorEarningsOrderPage(summary *commerce.VendorFinancialSummary, lang, di
 			</div>
 
 			<!-- 6 Key Financial KPI Cards -->
-			<div class="dashboard-stat-grid mb-6" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(210px, 1fr)); gap:1rem;">
+			<div class="dashboard-stat-grid mb-6">
 				
 				<!-- 1. Gross Sales -->
 				<div class="stat-card-3d">
@@ -198,7 +198,7 @@ templ VendorEarningsOrderPage(summary *commerce.VendorFinancialSummary, lang, di
 				</div>
 
 				<!-- 5. Realized Net Profit -->
-				<div class="stat-card-3d" style="background:linear-gradient(135deg, var(--surface-raised) 0%, rgba(16, 185, 129, 0.08) 100%); border-color:rgba(16, 185, 129, 0.35);">
+				<div class="stat-card-3d">
 					<div class="stat-card-label text-success font-extrabold flex-between">
 						<span>صافي الأرباح المحققة</span>
 						if summary.ProfitMargin > 0 {
@@ -207,7 +207,7 @@ templ VendorEarningsOrderPage(summary *commerce.VendorFinancialSummary, lang, di
 							</span>
 						}
 					</div>
-					<div class="stat-card-value text-success font-black tabular-nums mt-2" style="font-size:1.6rem;">
+					<div class="stat-card-value text-success font-black tabular-nums mt-2">
 						+{ summary.NetProfit.String() } <span class="text-xs font-bold text-secondary">ج.م</span>
 					</div>
 					<div class="text-xs text-success font-bold mt-1">صافي الربح الفعلي بعد استبعاد التكاليف</div>

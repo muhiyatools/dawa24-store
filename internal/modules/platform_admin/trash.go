@@ -1,6 +1,7 @@
 package platformadmin
 
 import (
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"context"
 	"fmt"
 	"strings"
@@ -37,19 +38,19 @@ type TrashRow struct {
 // registry is built from information_schema, not from this map, so a new
 // soft-deletable table shows up without a code change.
 var trashTableLabels = map[string][2]string{
-	"catalog.products":                 {"المنتجات والأدوية بالكتالوج المعتمد", "Master Products"},
-	"catalog.product_variants":         {"عروض وأسعار أصناف الموردين", "Product Variants"},
-	"catalog.categories":               {"التصنيفات والمجموعات العلاجية", "Categories"},
-	"catalog.brands":                   {"الشركات المصنعة والماركات", "Brands & Manufacturers"},
-	"org.organizations":                {"المنشآت (صيدليات وشركات موردة)", "Organizations"},
-	"org.branches":                     {"الفروع والمخازن", "Branches & Warehouses"},
-	"identity.users":                   {"حسابات المستخدمين والمدراء", "User Accounts"},
-	"commerce.orders":                  {"أوامر التوريد والطلبيات", "Orders & Procurement"},
-	"billing.invoices":                 {"الفواتير والمطالبات المالية", "Invoices"},
-	"promo.offers":                     {"العروض الخاصة وباقات التوريد", "Special Offers"},
-	"hr.job_offers":                    {"إعلانات وفرص التوظيف", "Job Vacancies"},
-	"billing.platform_payment_methods": {"وسائل وقنوات الدفع", "Payment Methods"},
-	"platform_admin.policies":          {"السياسات والبنود القانونية", "Policies"},
+	"catalog.products":                 {i18n.T("ar", "trash.model.products"), "Master Products"},
+	"catalog.product_variants":         {i18n.T("ar", "trash.model.variants"), "Product Variants"},
+	"catalog.categories":               {i18n.T("ar", "trash.model.categories"), "Categories"},
+	"catalog.brands":                   {i18n.T("ar", "trash.model.brands"), "Brands & Manufacturers"},
+	"org.organizations":                {i18n.T("ar", "trash.model.organizations"), "Organizations"},
+	"org.branches":                     {i18n.T("ar", "trash.model.branches"), "Branches & Warehouses"},
+	"identity.users":                   {i18n.T("ar", "trash.model.users"), "User Accounts"},
+	"commerce.orders":                  {i18n.T("ar", "trash.model.orders"), "Orders & Procurement"},
+	"billing.invoices":                 {i18n.T("ar", "trash.model.invoices"), "Invoices"},
+	"promo.offers":                     {i18n.T("ar", "trash.model.offers"), "Special Offers"},
+	"hr.job_offers":                    {i18n.T("ar", "trash.model.jobs"), "Job Vacancies"},
+	"billing.platform_payment_methods": {i18n.T("ar", "trash.model.payments"), "Payment Methods"},
+	"platform_admin.policies":          {i18n.T("ar", "trash.model.policies"), "Policies"},
 }
 
 // ListTrashModels returns every table that carries a deleted_at column, with

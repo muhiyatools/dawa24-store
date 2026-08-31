@@ -2,20 +2,21 @@ package pages
 
 import (
 	"github.com/muhiya/dawa24-store/internal/modules/attachments"
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 )
 
 // docTitlesAr is the UI-facing Arabic title per document type.
 var docTitlesAr = map[attachments.DocumentType]string{
-	attachments.DocCommercialRegister:  "السجل التجاري (Commercial Register)",
-	attachments.DocTaxCard:             "البطاقة الضريبية (Tax Card)",
-	attachments.DocPharmacyLicense:     "ترخيص المنشأة الصيدلية (Facility License)",
-	attachments.DocPharmacistLicense:   "ترخيص مزاولة المهنة للصيدلي (Pharmacist License)",
-	attachments.DocNationalID:          "بطاقة الرقم القومي (National ID)",
-	attachments.DocPassport:            "جواز السفر (Passport)",
-	attachments.DocSyndicateCard:       "كارنيه نقابة الصيادلة (Syndicate Card)",
-	attachments.DocAuthorizationLetter: "خطاب التفويض الرسمي (Authorization Letter)",
-	attachments.DocBankCertificate:     "شهادة الحساب البنكي (Bank Certificate)",
-	attachments.DocOther:               "مستند رسمي إضافي (Other Document)",
+	attachments.DocCommercialRegister:  i18n.T("ar", "doc.type.commercial_register"),
+	attachments.DocTaxCard:             i18n.T("ar", "doc.type.tax_card"),
+	attachments.DocPharmacyLicense:     i18n.T("ar", "doc.type.pharmacy_license"),
+	attachments.DocPharmacistLicense:   i18n.T("ar", "doc.type.pharmacist_license"),
+	attachments.DocNationalID:          i18n.T("ar", "doc.type.national_id"),
+	attachments.DocPassport:            i18n.T("ar", "doc.type.passport"),
+	attachments.DocSyndicateCard:       i18n.T("ar", "doc.type.syndicate_card"),
+	attachments.DocAuthorizationLetter: i18n.T("ar", "doc.type.authorization_letter"),
+	attachments.DocBankCertificate:     i18n.T("ar", "doc.type.bank_certificate"),
+	attachments.DocOther:               i18n.T("ar", "doc.type.other"),
 }
 
 // DocRequirement is one entry of the document requirement table.
@@ -32,26 +33,26 @@ func docRequirements(vendor bool) []DocRequirement {
 		return []DocRequirement{
 			{
 				DocType:     attachments.DocCommercialRegister,
-				TitleAr:     "السجل التجاري ساري المفعول",
-				Description: "شهادة القيد بالسجل التجاري للمنشأة لم يمر عليها أكثر من 3 أشهر.",
+				TitleAr:     i18n.T("ar", "doc.req.vendor_cr_title"),
+				Description: i18n.T("ar", "doc.req.vendor_cr_desc"),
 				Required:    true,
 			},
 			{
 				DocType:     attachments.DocTaxCard,
-				TitleAr:     "البطاقة الضريبية",
-				Description: "البطاقة الضريبية سارية ومسجلة باسم المنشأة.",
+				TitleAr:     i18n.T("ar", "doc.req.vendor_tax_title"),
+				Description: i18n.T("ar", "doc.req.vendor_tax_desc"),
 				Required:    true,
 			},
 			{
 				DocType:     attachments.DocPharmacyLicense,
-				TitleAr:     "ترخيص هيئة الدواء المصرية / ترخيص المخزن",
-				Description: "ترخيص مخزن الأدوية أو المنشأة الصادرة من هيئة الدواء المصرية.",
+				TitleAr:     i18n.T("ar", "doc.req.vendor_license_title"),
+				Description: i18n.T("ar", "doc.req.vendor_license_desc"),
 				Required:    true,
 			},
 			{
 				DocType:     attachments.DocAuthorizationLetter,
-				TitleAr:     "خطاب تفويض المدير المسؤول",
-				Description: "تفويض رسمي موثق للشخص المفوض بإدارة الحساب وإبرام الصفقات.",
+				TitleAr:     i18n.T("ar", "doc.req.vendor_auth_title"),
+				Description: i18n.T("ar", "doc.req.vendor_auth_desc"),
 				Required:    false,
 			},
 		}
@@ -60,32 +61,32 @@ func docRequirements(vendor bool) []DocRequirement {
 	return []DocRequirement{
 		{
 			DocType:     attachments.DocPharmacyLicense,
-			TitleAr:     "ترخيص المنشأة الصيدلية الرسمية",
-			Description: "ترخيص فتح الصيدلية الصادر من وزارة الصحة أو هيئة الدواء المصرية.",
+			TitleAr:     i18n.T("ar", "doc.req.pharm_license_title"),
+			Description: i18n.T("ar", "doc.req.pharm_license_desc"),
 			Required:    true,
 		},
 		{
 			DocType:     attachments.DocPharmacistLicense,
-			TitleAr:     "ترخيص مزاولة المهنة للصيدلي المدير",
-			Description: "ترخيص مزاولة مهنة الصيدلة للصيدلي المسؤول أو المدير الفني للصيدلية.",
+			TitleAr:     i18n.T("ar", "doc.req.pharmacist_title"),
+			Description: i18n.T("ar", "doc.req.pharmacist_desc"),
 			Required:    true,
 		},
 		{
 			DocType:     attachments.DocCommercialRegister,
-			TitleAr:     "السجل التجاري (إن وجد)",
-			Description: "مستخرج حديث من السجل التجاري للصيدلية أو المجموعة.",
+			TitleAr:     i18n.T("ar", "doc.req.pharm_cr_title"),
+			Description: i18n.T("ar", "doc.req.pharm_cr_desc"),
 			Required:    false,
 		},
 		{
 			DocType:     attachments.DocTaxCard,
-			TitleAr:     "البطاقة الضريبية",
-			Description: "صورة واضحة من البطاقة الضريبية سارية الصلاحية.",
+			TitleAr:     i18n.T("ar", "doc.req.vendor_tax_title"),
+			Description: i18n.T("ar", "doc.req.pharm_tax_desc"),
 			Required:    false,
 		},
 		{
 			DocType:     attachments.DocAuthorizationLetter,
-			TitleAr:     "خطاب تفويض / توكيل الإدارة",
-			Description: "تفويض رسمي موثق في حال كان المفوض غير الصيدلي المالك أو المدير.",
+			TitleAr:     i18n.T("ar", "doc.req.pharm_auth_title"),
+			Description: i18n.T("ar", "doc.req.pharm_auth_desc"),
 			Required:    false,
 		},
 	}

@@ -100,7 +100,7 @@ templ importProcessingStage(view VendorImportView) {
 		<h2 class="wiz-head">جارٍ تنفيذ الاستيراد</h2>
 		<p class="wiz-sub" id="import-progress-note">{ view.Session.ProgressNote }</p>
 		<div class="progress">
-			<div class="progress-bar" id="import-progress-bar" style="width:0%"></div>
+			<div class="progress-bar" id="import-progress-bar"></div>
 		</div>
 		<p class="text-xs text-muted mt-2">
 			يمكنك إغلاق هذه الصفحة؛ ستستمر العملية وستجد نتيجتها في سجل عمليات الاستيراد.
@@ -203,9 +203,9 @@ templ importResultsStage(view VendorImportView) {
 
 templ importRowsTable(view VendorImportView) {
 	<div class="card">
-		<div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.75rem; margin-bottom:1rem;">
+		<div>
 			<h3 class="wiz-head m-0">{ fmt.Sprintf("سجل الصفوف (%d)", view.RowTotal) }</h3>
-			<div class="row-center-sm" style="flex-wrap:wrap;">
+			<div class="row-center-sm">
 				@importRowFilter(view, "", "الكل")
 				@importRowFilter(view, ingest.OutcomeInserted, "أضيف")
 				@importRowFilter(view, ingest.OutcomeUpdated, "حُدّث")
@@ -216,13 +216,13 @@ templ importRowsTable(view VendorImportView) {
 		<div class="table-wrap">
 			<table class="data-table">
 				<thead>
-					<tr style="background:var(--surface-sunken); border-bottom:2px solid var(--border);">
-						<th style="width:50px; text-align:center;">#</th>
-						<th style="min-width:200px;">اسم الصنف في الملف</th>
-						<th style="min-width:220px;">الصنف المطابق المعتمد في المنصة (الأدوية المعتمدة)</th>
-						<th class="text-center" style="width:100px;">النتيجة</th>
-						<th class="text-center" style="width:130px;">درجة المطابقة</th>
-						<th style="min-width:200px;">تفاصيل وملاحظات الذكاء الصيدلاني</th>
+					<tr>
+						<th>#</th>
+						<th>اسم الصنف في الملف</th>
+						<th>الصنف المطابق المعتمد في المنصة (الأدوية المعتمدة)</th>
+						<th class="text-center">النتيجة</th>
+						<th class="text-center">درجة المطابقة</th>
+						<th>تفاصيل وملاحظات الذكاء الصيدلاني</th>
 					</tr>
 				</thead>
 				<tbody>
@@ -232,23 +232,23 @@ templ importRowsTable(view VendorImportView) {
 							<td>
 								<div class="fw-700 text-primary text-09">{ row.DisplayName }</div>
 								if row.SourceCode != "" {
-									<div class="text-xs text-muted" style="margin-top:3px;">
-										كود الصنف بالملف: <code class="text-xs" style="background:var(--surface-sunken); padding:1px 4px; border-radius:4px;">{ row.SourceCode }</code>
+									<div class="text-xs text-muted">
+										كود الصنف بالملف: <code class="text-xs">{ row.SourceCode }</code>
 									</div>
 								}
 							</td>
 							<td>
 								if row.MatchedCatalogName() != "" {
-									<div class="fw-700" style="color:var(--emerald-600); font-size:0.9rem;">
+									<div class="fw-700">
 										{ row.MatchedCatalogName() }
 									</div>
 									if row.MatchedCatalogSKU() != "" {
-										<div class="text-xs text-muted" style="margin-top:3px;">
-											كود الكتالوج: <code class="text-xs" style="background:rgba(16,185,129,0.1); color:var(--emerald-600); padding:1px 4px; border-radius:4px;">{ row.MatchedCatalogSKU() }</code>
+										<div class="text-xs text-muted">
+											كود الكتالوج: <code class="text-xs">{ row.MatchedCatalogSKU() }</code>
 										</div>
 									}
 								} else if row.MatchLevel == "none" || row.Outcome == ingest.OutcomeInserted {
-									<span class="badge badge-amber text-xs" style="padding:0.25rem 0.5rem;">
+									<span class="badge badge-amber text-xs">
 										صنف جديد غير مسجل مسبقاً بالكتالوج المركزي
 									</span>
 								} else {
@@ -256,23 +256,23 @@ templ importRowsTable(view VendorImportView) {
 								}
 							</td>
 							<td class="text-center">
-								<span class={ "badge", OutcomeTone(row.Outcome), "text-xs" } style="padding:0.3rem 0.6rem; font-weight:700;">
+								<span class={ "badge", OutcomeTone(row.Outcome), "text-xs" }>
 									{ OutcomeLabel(row.Outcome) }
 								</span>
 							</td>
 							<td class="text-center text-xs">
 								<div>
-									<span class={ "badge", MatchLevelBadgeClass(row.MatchLevel), "text-xs" } style="padding:0.25rem 0.5rem; font-weight:700;">
+									<span class={ "badge", MatchLevelBadgeClass(row.MatchLevel), "text-xs" }>
 										{ MatchLevelLabel(row.MatchLevel) }
 									</span>
 								</div>
 								if row.MatchScore > 0 {
-									<div class="text-muted tabular-nums fw-700" style="font-size:11px; margin-top:3px;">
+									<div class="text-muted tabular-nums fw-700">
 										{ PercentText(row.MatchScore) }
 									</div>
 								}
 							</td>
-							<td class="text-xs" style="color:var(--text-muted); line-height:1.4;">
+							<td class="text-xs">
 								{ row.Message }
 							</td>
 						</tr>

@@ -228,7 +228,7 @@ func VendorSpecialOffersPage(data VendorSpecialOffersData, lang, dir string) tem
 						return templ_7745c5c3_Err
 					}
 					if o.Description.Get(i18n.Lang(lang)) != "" {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, "<p class=\"text-xs text-secondary leading-relaxed mb-4\" style=\"min-height:36px;\">")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, "<p class=\"text-xs text-secondary leading-relaxed mb-4\">")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}

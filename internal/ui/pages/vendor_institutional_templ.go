@@ -275,7 +275,7 @@ func VendorPharmacyCoveragePage(data VendorPharmacyCoverageData, lang, dir strin
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, "</div><span class=\"text-xs text-secondary mt-1 d-block\">مراكز التوزيع النشطة</span></div></div><!-- Filter Bar --><div class=\"glass-panel p-4 mb-6\"><form method=\"GET\" action=\"/vendor/pharmacy-coverage\" class=\"d-grid gap-3 items-end\" style=\"grid-template-columns:2fr 1.2fr 1.2fr 1.2fr auto;\"><div><label class=\"form-label text-xs font-bold text-secondary mb-1\">البحث بالاسم أو العنوان أو الهاتف</label> <input type=\"text\" name=\"q\" value=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, "</div><span class=\"text-xs text-secondary mt-1 d-block\">مراكز التوزيع النشطة</span></div></div><!-- Filter Bar --><div class=\"glass-panel p-4 mb-6\"><form method=\"GET\" action=\"/vendor/pharmacy-coverage\" class=\"d-grid gap-3 items-end\"><div><label class=\"form-label text-xs font-bold text-secondary mb-1\">البحث بالاسم أو العنوان أو الهاتف</label> <input type=\"text\" name=\"q\" value=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -544,14 +544,14 @@ func VendorPharmacyCoveragePage(data VendorPharmacyCoverageData, lang, dir strin
 						return templ_7745c5c3_Err
 					}
 					if p.Phone != "" {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 61, "<span class=\"tabular-nums\" style=\"margin-inline-start:0.35rem;\">• ")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 61, "<span class=\"tabular-nums\">• ")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
 						var templ_7745c5c3_Var21 string
 						templ_7745c5c3_Var21, templ_7745c5c3_Err = templ.JoinStringErrs(p.Phone)
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_institutional.templ`, Line: 219, Col: 92}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_institutional.templ`, Line: 219, Col: 55}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var21))
 						if templ_7745c5c3_Err != nil {

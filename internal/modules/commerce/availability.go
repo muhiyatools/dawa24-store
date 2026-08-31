@@ -1,6 +1,7 @@
 package commerce
 
 import (
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"context"
 	"fmt"
 	"time"
@@ -108,20 +109,20 @@ func (s *Service) CheckAvailability(ctx context.Context, req AvailabilityRequest
 		// Fail closed. A missing probe means we cannot prove the line is
 		// buyable, and guessing is how the old code let anything through.
 		return denied(ReasonVariantInvalid, 0,
-			"تعذر التحقق من توفر الصنف حالياً، يرجى المحاولة لاحقاً.",
+			i18n.T("ar", "err.avail_check_failed"),
 			"Availability cannot be verified right now."), nil
 	}
 
 	if req.Quantity <= 0 {
 		return denied(ReasonQuantityInvalid, 0,
-			"الكمية المطلوبة يجب أن تكون أكبر من صفر.",
+			i18n.T("ar", "err.qty_must_be_positive"),
 			"Quantity must be greater than zero."), nil
 	}
 
 	// 1. The supplier must be a real, approved vendor. No default.
 	if req.VendorOrgID <= 0 {
 		return denied(ReasonVendorInvalid, 0,
-			"لم يتم تحديد المورد لهذا الصنف.",
+			i18n.T("ar", "err.supplier_not_specified"),
 			"No supplier was specified for this item."), nil
 	}
 	vendor, err := s.availability.Vendor(ctx, req.VendorOrgID)
@@ -130,12 +131,12 @@ func (s *Service) CheckAvailability(ctx context.Context, req AvailabilityRequest
 	}
 	if vendor.ID == 0 || !vendor.IsVendor {
 		return denied(ReasonVendorInvalid, 0,
-			"المورد المحدد غير صالح.",
+			i18n.T("ar", "err.supplier_invalid"),
 			"The specified supplier is not valid."), nil
 	}
 	if !vendor.Approved {
 		return denied(ReasonVendorUnapproved, 0,
-			"هذا المورد غير معتمد حالياً على المنصة.",
+			i18n.T("ar", "err.supplier_invalid"),
 			"This supplier is not currently approved."), nil
 	}
 

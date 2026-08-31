@@ -1,6 +1,7 @@
 package pages
 
 import (
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"fmt"
 	"time"
 )
@@ -13,12 +14,12 @@ func RelTime(t time.Time) string {
 	d := time.Since(t)
 	switch {
 	case d < time.Minute:
-		return "الآن"
+		return i18n.T("ar", "time.rel.now")
 	case d < time.Hour:
-		return fmt.Sprintf("منذ %d دقيقة", int(d.Minutes()))
+		return fmt.Sprintf(i18n.T("ar", "time.rel.minutes_ago"), int(d.Minutes()))
 	case d < 24*time.Hour:
-		return fmt.Sprintf("منذ %d ساعة", int(d.Hours()))
+		return fmt.Sprintf(i18n.T("ar", "time.rel.hours_ago"), int(d.Hours()))
 	default:
-		return fmt.Sprintf("منذ %d يوم", int(d.Hours()/24))
+		return fmt.Sprintf(i18n.T("ar", "time.rel.days_ago"), int(d.Hours()/24))
 	}
 }

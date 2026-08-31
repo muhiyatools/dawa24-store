@@ -50,7 +50,7 @@ func aiPanel(view VendorImportView) templ.Component {
 		}
 		ctx = templ.ClearChildren(ctx)
 		if view.Session != nil && view.Session.AI.Ran {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<section class=\"card mb-lg\" style=\"border: 1px solid var(--border-strong); border-inline-start: 3px solid var(--primary); background: var(--surface-sunken);\"><div class=\"row-center-sm justify-between flex-wrap gap-sm mb-md\"><div class=\"row-center-sm gap-sm\"><span style=\"font-size: 1.4rem; line-height: 1;\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<section class=\"card mb-lg\"><div class=\"row-center-sm justify-between flex-wrap gap-sm mb-md\"><div class=\"row-center-sm gap-sm\"><span>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -170,7 +170,7 @@ func aiPanel(view VendorImportView) templ.Component {
 				return templ_7745c5c3_Err
 			}
 		} else if view.Session != nil && !view.Session.Settings.UseAI {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "<section class=\"card mb-lg\" style=\"border: 1px dashed var(--border-strong); background: var(--surface-sunken);\"><div class=\"row-center-sm gap-sm\"><span style=\"font-size: 1.2rem; line-height: 1;\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "<section class=\"card mb-lg\"><div class=\"row-center-sm gap-sm\"><span>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

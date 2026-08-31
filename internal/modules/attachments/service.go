@@ -11,6 +11,7 @@ import (
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/platform/storage"
 	"github.com/muhiya/dawa24-store/internal/shared/apperr"
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 )
 
 // Service provides high-level business operations for attachments and storage presigning.
@@ -71,7 +72,7 @@ func (s *Service) RegisterUpload(ctx context.Context, actor authctx.Actor, docTy
 
 	validMimes, ok := allowedMIMEs[docType]
 	if !ok {
-		return nil, apperr.Validation("document.type_invalid", "نوع المستند غير صالح", map[string]string{"document_type": "نوع غير مدعوم"})
+		return nil, apperr.Validation("document.type_invalid", i18n.T("ar", "err.doc_type_invalid"), map[string]string{"document_type": i18n.T("ar", "err.doc_type_invalid")})
 	}
 
 	ext := strings.ToLower(filepath.Ext(originalName))
@@ -94,12 +95,12 @@ func (s *Service) RegisterUpload(ctx context.Context, actor authctx.Actor, docTy
 		}
 	}
 	if !mimeMatched {
-		return nil, apperr.Validation("document.mime_unsupported", "صيغة الملف غير مسموح بها لهذا النوع", map[string]string{"mime_type": "صيغة غير مدعومة"})
+		return nil, apperr.Validation("document.mime_unsupported", i18n.T("ar", "err.doc_mime_unsupported"), map[string]string{"mime_type": i18n.T("ar", "err.doc_mime_unsupported")})
 	}
 
 	url = strings.TrimSpace(url)
 	if url == "" {
-		return nil, apperr.Validation("document.file_required", "ملف المستند مطلوب", nil)
+		return nil, apperr.Validation("document.file_required", i18n.T("ar", "err.doc_file_required"), nil)
 	}
 
 	var orgIDPtr *int64
@@ -150,7 +151,7 @@ func (s *Service) PresignUpload(ctx context.Context, actor authctx.Actor, req Pr
 	if req.OrganizationID != nil && *req.OrganizationID > 0 {
 		// Verify actor belongs to this org or is platform admin
 		if !actor.IsPlatformAdmin() && actor.OrgID != *req.OrganizationID {
-			return nil, apperr.Forbidden("document.unauthorized_org", "ليس لديك صلاحية رفع مستندات لهذه المنشأة")
+			return nil, apperr.Forbidden("document.unauthorized_org", i18n.T("ar", "err.doc_unauthorized_org"))
 		}
 		orgID = req.OrganizationID
 	} else if actor.OrgID > 0 {

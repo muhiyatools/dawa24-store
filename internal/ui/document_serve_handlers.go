@@ -302,26 +302,26 @@ func (h *UIHandler) renderMissingDocError(w http.ResponseWriter, r *http.Request
 
 // renderOfficialDocSVG dynamically generates an official SVG document badge/receipt.
 func renderOfficialDocSVG(doc *attachments.Document) []byte {
-	typeNameAr := "مستند رسمي معتمد"
+	typeNameAr := i18n.T("ar", "doc.type.official_document")
 	switch doc.DocumentType {
 	case attachments.DocCommercialRegister:
-		typeNameAr = "السجل التجاري (Commercial Register)"
+		typeNameAr = i18n.T("ar", "doc.type.commercial_register")
 	case attachments.DocTaxCard:
-		typeNameAr = "البطاقة الضريبية (Tax Card)"
+		typeNameAr = i18n.T("ar", "doc.type.tax_card")
 	case attachments.DocPharmacistLicense:
-		typeNameAr = "ترخيص مزاولة المهنة للصيدلي (Pharmacist License)"
+		typeNameAr = i18n.T("ar", "doc.type.pharmacist_license")
 	case attachments.DocPharmacyLicense:
 		typeNameAr = "ترخيص الصيدلية / المنشأة (Pharmacy License)"
 	case attachments.DocNationalID:
 		typeNameAr = "الهوية الوطنية / بطاقة الرقم القومي (National ID)"
 	case attachments.DocPassport:
-		typeNameAr = "جواز السفر (Passport)"
+		typeNameAr = i18n.T("ar", "doc.type.passport")
 	case attachments.DocBankCertificate:
 		typeNameAr = "شهادة الحساب البنكي والآيبان (Bank Certificate)"
 	case attachments.DocAuthorizationLetter:
-		typeNameAr = "خطاب التفويض الرسمي (Authorization Letter)"
+		typeNameAr = i18n.T("ar", "doc.type.authorization_letter")
 	case attachments.DocSyndicateCard:
-		typeNameAr = "كارنيه نقابة الصيادلة (Syndicate Card)"
+		typeNameAr = i18n.T("ar", "doc.type.syndicate_card")
 	default:
 		typeNameAr = "مستند ترخيص وتوثيق رسمي"
 	}

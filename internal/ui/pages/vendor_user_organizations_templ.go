@@ -63,13 +63,13 @@ func VendorUserOrganizationsPage(lang, dir string, data *VendorUserOrgData) temp
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div style=\"max-width:1280px; margin:0 auto; display:flex; flex-direction:column; gap:1.5rem; padding-bottom:3.5rem;\"><!-- Notice Banner -->")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div><!-- Notice Banner -->")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			if data != nil && data.NoticeMsg != "" {
 				if data.NoticeType == "error" {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "<div class=\"card\" style=\"margin:0; padding:1rem 1.25rem; background:rgba(239, 68, 68, 0.08); border:1px solid rgba(239, 68, 68, 0.25); border-radius:var(--radius-xl); color:var(--rose); font-size:0.875rem; display:flex; align-items:center; gap:0.5rem;\"><span>")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "<div class=\"card\"><span>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -95,7 +95,7 @@ func VendorUserOrganizationsPage(lang, dir string, data *VendorUserOrgData) temp
 						return templ_7745c5c3_Err
 					}
 				} else {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "<div class=\"card\" style=\"margin:0; padding:1rem 1.25rem; background:rgba(16, 185, 129, 0.08); border:1px solid rgba(16, 185, 129, 0.25); border-radius:var(--radius-xl); color:var(--emerald-dark, #065f46); font-size:0.875rem; display:flex; align-items:center; gap:0.5rem;\"><span>")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "<div class=\"card\"><span>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -122,7 +122,7 @@ func VendorUserOrganizationsPage(lang, dir string, data *VendorUserOrgData) temp
 					}
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "<!-- Top Nav Tabs matching Old System --><div style=\"display:flex; align-items:center; gap:0.5rem; flex-wrap:wrap; border-bottom:1px solid var(--border); padding-bottom:0.75rem;\"><a href=\"/vendor/organization\" class=\"btn btn-secondary btn-sm font-bold\">المؤسسة</a> <a href=\"/vendor/team\" class=\"btn btn-secondary btn-sm font-bold\">الموظفون</a> <a href=\"/vendor/user-organization\" class=\"btn btn-primary btn-sm\" style=\"font-weight:800;\">المستخدم-المنظمة</a> <a href=\"/vendor/branches\" class=\"btn btn-secondary btn-sm font-bold\">الفروع</a> <a href=\"/vendor/roles\" class=\"btn btn-secondary btn-sm font-bold\">الأدوار</a></div><!-- Header Banner matching old system --><div class=\"card\" style=\"margin:0; padding:1.5rem 1.75rem; background:var(--surface-raised); border-radius:var(--radius-2xl); border:1px solid var(--border); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem; box-shadow:var(--shadow-xs);\"><div><div style=\"display:flex; align-items:center; gap:0.75rem; margin-bottom:0.35rem;\"><div style=\"width:42px; height:42px; border-radius:var(--radius-xl); background:rgba(16, 185, 129, 0.1); color:var(--emerald); display:flex; align-items:center; justify-content:center; font-size:1.3rem; border:1px solid rgba(16, 185, 129, 0.2);\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "<!-- Top Nav Tabs matching Old System --><div><a href=\"/vendor/organization\" class=\"btn btn-secondary btn-sm font-bold\">المؤسسة</a> <a href=\"/vendor/team\" class=\"btn btn-secondary btn-sm font-bold\">الموظفون</a> <a href=\"/vendor/user-organization\" class=\"btn btn-primary btn-sm\">المستخدم-المنظمة</a> <a href=\"/vendor/branches\" class=\"btn btn-secondary btn-sm font-bold\">الفروع</a> <a href=\"/vendor/roles\" class=\"btn btn-secondary btn-sm font-bold\">الأدوار</a></div><!-- Header Banner matching old system --><div class=\"card\"><div><div><div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -130,7 +130,7 @@ func VendorUserOrganizationsPage(lang, dir string, data *VendorUserOrgData) temp
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "</div><div><h1 style=\"font-size:1.45rem; font-weight:900; color:var(--text); margin:0;\">مستخدمو المنظمات (MANAGE ORGANIZATION MEMBERS)</h1><span style=\"font-size:0.775rem; color:var(--text-muted); font-weight:700;\">Pharmacy User Connections & Organization Codes</span></div></div><p style=\"font-size:0.875rem; color:var(--text-secondary); margin:0; line-height:1.5;\">إدارة وتدقيق طلبات ربط الصيدليات وتعيين أكواد المنظمات (Organization Numbers) وتفعيل أو رفض الحسابات.</p></div><div><button type=\"button\" class=\"btn btn-primary btn-sm fw-800\" data-modal-open=\"add-vendor-user-org-modal\" style=\"gap:0.4rem; padding:0.5rem 1.1rem;\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "</div><div><h1>مستخدمو المنظمات (MANAGE ORGANIZATION MEMBERS)</h1><span>Pharmacy User Connections & Organization Codes</span></div></div><p>إدارة وتدقيق طلبات ربط الصيدليات وتعيين أكواد المنظمات (Organization Numbers) وتفعيل أو رفض الحسابات.</p></div><div><button type=\"button\" class=\"btn btn-primary btn-sm fw-800\" data-modal-open=\"add-vendor-user-org-modal\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -154,7 +154,7 @@ func VendorUserOrganizationsPage(lang, dir string, data *VendorUserOrgData) temp
 					}()
 				}
 				ctx = templ.InitializeContext(ctx)
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "<form method=\"POST\" action=\"/vendor/user-organization/new\" style=\"display:flex; flex-direction:column; gap:1.2rem; text-align:start; margin:0;\"><!-- Live AJAX User Search with Debouncing --><div class=\"form-group m-0 relative\"><label class=\"form-label\" for=\"vendor-uo-user-search\">المستخدم / الصيدلية المستهدفة *</label><!-- Hidden Input holding the selected User ID --><input type=\"hidden\" id=\"vendor-selected-user-id\" name=\"user_id\" required value=\"\"><!-- Selected User Chip Card (shown once a user is chosen) --><div id=\"vendor-selected-user-chip\" style=\"display:none; padding:0.75rem 1rem; border-radius:var(--radius-lg); background:rgba(16,185,129,0.08); border:1px solid rgba(16,185,129,0.3); margin-bottom:0.5rem; justify-content:space-between; align-items:center;\"><div class=\"inline-row-06\"><span style=\"font-size:1.2rem;\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "<form method=\"POST\" action=\"/vendor/user-organization/new\"><!-- Live AJAX User Search with Debouncing --><div class=\"form-group m-0 relative\"><label class=\"form-label\" for=\"vendor-uo-user-search\">المستخدم / الصيدلية المستهدفة *</label><!-- Hidden Input holding the selected User ID --><input type=\"hidden\" id=\"vendor-selected-user-id\" name=\"user_id\" required value=\"\"><!-- Selected User Chip Card (shown once a user is chosen) --><div id=\"vendor-selected-user-chip\"><div class=\"inline-row-06\"><span>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -162,7 +162,7 @@ func VendorUserOrganizationsPage(lang, dir string, data *VendorUserOrgData) temp
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "</span><div><strong id=\"vendor-selected-user-name\" style=\"color:var(--text); font-size:0.9rem;\"></strong><div id=\"vendor-selected-user-details\" class=\"meta-muted\" dir=\"ltr\"></div></div></div><button type=\"button\" class=\"btn btn-ghost btn-xs text-danger font-bold\" onclick=\"clearVendorSelectedUser()\">تغيير</button></div><!-- Search Input Field --><div id=\"vendor-search-input-wrapper\" class=\"relative\"><input type=\"text\" id=\"vendor-uo-user-search\" placeholder=\"ابحث بالاسم أو البريد الإلكتروني أو الهاتف...\" autocomplete=\"off\" class=\"form-control fw-700\" style=\"font-size:0.9rem; padding-inline-end:2.2rem;\" oninput=\"handleVendorUserSearch(this.value)\" onfocus=\"handleVendorUserSearch(this.value)\"><div id=\"vendor-search-spinner\" style=\"position:absolute; inset-inline-end:10px; top:50%; transform:translateY(-50%); display:none; font-size:0.8rem;\">⏳</div></div><!-- Autocomplete Results Dropdown --><div id=\"vendor-user-search-dropdown\" style=\"display:none; position:absolute; top:100%; inset-inline-start:0; inset-inline-end:0; z-index:1050; max-height:220px; overflow-y:auto; background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-lg); box-shadow:0 10px 25px rgba(0,0,0,0.15); margin-top:4px;\"></div></div><div class=\"form-group m-0\"><label class=\"form-label\" for=\"vendor-uo-number\">رقم المنظمة لدى شركتك (Organization Number) *</label> <input type=\"text\" id=\"vendor-uo-number\" name=\"organization_number\" required placeholder=\"مثال: NUM10001 أو 010645645...\" class=\"form-control fw-700\" style=\"font-family:var(--font-mono, monospace); font-size:0.95rem;\" dir=\"ltr\"></div><div class=\"form-group m-0\"><label class=\"form-label\" for=\"vendor-uo-notes\">ملاحظات</label> <textarea id=\"vendor-uo-notes\" name=\"notes\" rows=\"2\" placeholder=\"أي تفاصيل أو ملاحظات...\" class=\"form-control\" style=\"font-size:0.85rem;\"></textarea></div><div class=\"d-flex justify-end gap-3 mt-2\"><button type=\"button\" class=\"btn btn-secondary\" data-modal-close=\"add-vendor-user-org-modal\">إلغاء</button> <button type=\"submit\" class=\"btn btn-primary fw-800\" style=\"padding:0 1.5rem;\">ربط واعتماد المستخدم</button></div></form>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "</span><div><strong id=\"vendor-selected-user-name\"></strong><div id=\"vendor-selected-user-details\" class=\"meta-muted\" dir=\"ltr\"></div></div></div><button type=\"button\" class=\"btn btn-ghost btn-xs text-danger font-bold\" onclick=\"clearVendorSelectedUser()\">تغيير</button></div><!-- Search Input Field --><div id=\"vendor-search-input-wrapper\" class=\"relative\"><input type=\"text\" id=\"vendor-uo-user-search\" placeholder=\"ابحث بالاسم أو البريد الإلكتروني أو الهاتف...\" autocomplete=\"off\" class=\"form-control fw-700\" oninput=\"handleVendorUserSearch(this.value)\" onfocus=\"handleVendorUserSearch(this.value)\"><div id=\"vendor-search-spinner\">⏳</div></div><!-- Autocomplete Results Dropdown --><div id=\"vendor-user-search-dropdown\"></div></div><div class=\"form-group m-0\"><label class=\"form-label\" for=\"vendor-uo-number\">رقم المنظمة لدى شركتك (Organization Number) *</label> <input type=\"text\" id=\"vendor-uo-number\" name=\"organization_number\" required placeholder=\"مثال: NUM10001 أو 010645645...\" class=\"form-control fw-700\" dir=\"ltr\"></div><div class=\"form-group m-0\"><label class=\"form-label\" for=\"vendor-uo-notes\">ملاحظات</label> <textarea id=\"vendor-uo-notes\" name=\"notes\" rows=\"2\" placeholder=\"أي تفاصيل أو ملاحظات...\" class=\"form-control\"></textarea></div><div class=\"d-flex justify-end gap-3 mt-2\"><button type=\"button\" class=\"btn btn-secondary\" data-modal-close=\"add-vendor-user-org-modal\">إلغاء</button> <button type=\"submit\" class=\"btn btn-primary fw-800\">ربط واعتماد المستخدم</button></div></form>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -181,7 +181,7 @@ func VendorUserOrganizationsPage(lang, dir string, data *VendorUserOrgData) temp
 				return templ_7745c5c3_Err
 			}
 			if data != nil {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "<div style=\"display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem;\"><div style=\"display:flex; align-items:center; gap:0.4rem; flex-wrap:wrap;\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "<div><div>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -203,14 +203,14 @@ func VendorUserOrganizationsPage(lang, dir string, data *VendorUserOrgData) temp
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "\" style=\"padding:0.4rem 0.85rem; border-radius:var(--radius-full); gap:0.4rem;\"><span>الكل</span> <span class=\"badge text-xs tabular-nums\" style=\"background:rgba(255,255,255,0.2);\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "\"><span>الكل</span> <span class=\"badge text-xs tabular-nums\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var8 string
 				templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", data.TotalCount))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_user_organizations.templ`, Line: 204, Col: 126}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_user_organizations.templ`, Line: 198, Col: 84}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var8))
 				if templ_7745c5c3_Err != nil {
@@ -238,14 +238,14 @@ func VendorUserOrganizationsPage(lang, dir string, data *VendorUserOrgData) temp
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "\" style=\"padding:0.4rem 0.85rem; border-radius:var(--radius-full); gap:0.4rem;\"><span>قيد الانتظار</span> <span class=\"badge badge-amber text-xs tabular-nums\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "\"><span>قيد الانتظار</span> <span class=\"badge badge-amber text-xs tabular-nums\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var11 string
 				templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", data.PendingCount))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_user_organizations.templ`, Line: 213, Col: 98}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_user_organizations.templ`, Line: 206, Col: 98}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var11))
 				if templ_7745c5c3_Err != nil {
@@ -273,14 +273,14 @@ func VendorUserOrganizationsPage(lang, dir string, data *VendorUserOrgData) temp
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, "\" style=\"padding:0.4rem 0.85rem; border-radius:var(--radius-full); gap:0.4rem;\"><span>Approval </span> <span class=\"badge badge-emerald text-xs tabular-nums\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, "\"><span>Approval </span> <span class=\"badge badge-emerald text-xs tabular-nums\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var14 string
 				templ_7745c5c3_Var14, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", data.ApprovedCount))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_user_organizations.templ`, Line: 222, Col: 101}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_user_organizations.templ`, Line: 214, Col: 101}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var14))
 				if templ_7745c5c3_Err != nil {
@@ -308,14 +308,14 @@ func VendorUserOrganizationsPage(lang, dir string, data *VendorUserOrgData) temp
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 25, "\" style=\"padding:0.4rem 0.85rem; border-radius:var(--radius-full); gap:0.4rem;\"><span>مرفوض </span> <span class=\"badge badge-rose text-xs tabular-nums\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 25, "\"><span>مرفوض </span> <span class=\"badge badge-rose text-xs tabular-nums\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var17 string
 				templ_7745c5c3_Var17, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", data.RejectedCount))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_user_organizations.templ`, Line: 231, Col: 98}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_user_organizations.templ`, Line: 222, Col: 98}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var17))
 				if templ_7745c5c3_Err != nil {
@@ -339,13 +339,13 @@ func VendorUserOrganizationsPage(lang, dir string, data *VendorUserOrgData) temp
 					return templ_7745c5c3_Err
 				}
 			} else {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 28, "<div style=\"display:flex; flex-direction:column; gap:0.75rem;\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 28, "<div>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				for _, uo := range data.UserOrgs {
 					if uo != nil {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 29, "<div class=\"card\" style=\"margin:0; padding:1.15rem 1.35rem; background:var(--surface-raised); border-radius:var(--radius-xl); border:1px solid var(--border); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem; box-shadow:0 2px 8px rgba(0,0,0,0.03);\"><!-- User Details --><div style=\"display:flex; align-items:center; gap:0.85rem; max-width:600px;\"><div style=\"width:44px; height:44px; border-radius:var(--radius-full); background:var(--surface-sunken); border:1px solid var(--border); display:flex; align-items:center; justify-content:center; font-weight:800; font-size:1.1rem; color:var(--primary); flex-shrink:0;\">")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 29, "<div class=\"card\"><!-- User Details --><div><div>")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
@@ -353,7 +353,7 @@ func VendorUserOrganizationsPage(lang, dir string, data *VendorUserOrgData) temp
 							var templ_7745c5c3_Var18 string
 							templ_7745c5c3_Var18, templ_7745c5c3_Err = templ.JoinStringErrs(string([]rune(uo.UserName)[0:1]))
 							if templ_7745c5c3_Err != nil {
-								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_user_organizations.templ`, Line: 255, Col: 45}
+								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_user_organizations.templ`, Line: 245, Col: 45}
 							}
 							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var18))
 							if templ_7745c5c3_Err != nil {
@@ -373,14 +373,14 @@ func VendorUserOrganizationsPage(lang, dir string, data *VendorUserOrgData) temp
 								return templ_7745c5c3_Err
 							}
 						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 32, "</div><div><div class=\"inline-row-wrap\"><strong style=\"font-size:0.975rem; color:var(--text);\">")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 32, "</div><div><div class=\"inline-row-wrap\"><strong>")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
 						var templ_7745c5c3_Var19 string
 						templ_7745c5c3_Var19, templ_7745c5c3_Err = templ.JoinStringErrs(uo.UserName)
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_user_organizations.templ`, Line: 263, Col: 79}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_user_organizations.templ`, Line: 253, Col: 32}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var19))
 						if templ_7745c5c3_Err != nil {
@@ -398,7 +398,7 @@ func VendorUserOrganizationsPage(lang, dir string, data *VendorUserOrgData) temp
 							var templ_7745c5c3_Var20 string
 							templ_7745c5c3_Var20, templ_7745c5c3_Err = templ.JoinStringErrs(uo.CustomerOrgName)
 							if templ_7745c5c3_Err != nil {
-								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_user_organizations.templ`, Line: 265, Col: 72}
+								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_user_organizations.templ`, Line: 255, Col: 72}
 							}
 							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var20))
 							if templ_7745c5c3_Err != nil {
@@ -409,40 +409,40 @@ func VendorUserOrganizationsPage(lang, dir string, data *VendorUserOrgData) temp
 								return templ_7745c5c3_Err
 							}
 						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 36, "<!-- Org Code Badge --><span class=\"badge badge-sky text-xs fw-800\" style=\"font-family:var(--font-mono, monospace);\" dir=\"ltr\">")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 36, "<!-- Org Code Badge --><span class=\"badge badge-sky text-xs fw-800\" dir=\"ltr\">")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
 						var templ_7745c5c3_Var21 string
 						templ_7745c5c3_Var21, templ_7745c5c3_Err = templ.JoinStringErrs(uo.OrganizationNumber)
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_user_organizations.templ`, Line: 269, Col: 35}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_user_organizations.templ`, Line: 259, Col: 35}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var21))
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 37, "</span></div><div style=\"font-size:0.775rem; color:var(--text-muted); margin-top:0.2rem;\" dir=\"ltr\">")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 37, "</span></div><div dir=\"ltr\">")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
 						var templ_7745c5c3_Var22 string
 						templ_7745c5c3_Var22, templ_7745c5c3_Err = templ.JoinStringErrs(uo.UserEmail)
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_user_organizations.templ`, Line: 274, Col: 25}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_user_organizations.templ`, Line: 264, Col: 25}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var22))
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 38, "</div><div style=\"font-size:0.725rem; color:var(--text-muted); margin-top:0.25rem;\">تاريخ الطلب: <span class=\"tabular-nums\">")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 38, "</div><div>تاريخ الطلب: <span class=\"tabular-nums\">")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
 						var templ_7745c5c3_Var23 string
 						templ_7745c5c3_Var23, templ_7745c5c3_Err = templ.JoinStringErrs(format.Date(uo.CreatedAt, "ar"))
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_user_organizations.templ`, Line: 278, Col: 94}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_user_organizations.templ`, Line: 268, Col: 94}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var23))
 						if templ_7745c5c3_Err != nil {
@@ -453,14 +453,14 @@ func VendorUserOrganizationsPage(lang, dir string, data *VendorUserOrgData) temp
 							return templ_7745c5c3_Err
 						}
 						if uo.Notes != "" {
-							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 40, "<div style=\"font-size:0.75rem; color:var(--text-secondary); margin-top:0.3rem;\"><strong>ملاحظات:</strong> ")
+							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 40, "<div><strong>ملاحظات:</strong> ")
 							if templ_7745c5c3_Err != nil {
 								return templ_7745c5c3_Err
 							}
 							var templ_7745c5c3_Var24 string
 							templ_7745c5c3_Var24, templ_7745c5c3_Err = templ.JoinStringErrs(uo.Notes)
 							if templ_7745c5c3_Err != nil {
-								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_user_organizations.templ`, Line: 283, Col: 55}
+								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_user_organizations.templ`, Line: 273, Col: 55}
 							}
 							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var24))
 							if templ_7745c5c3_Err != nil {
@@ -476,20 +476,20 @@ func VendorUserOrganizationsPage(lang, dir string, data *VendorUserOrgData) temp
 							return templ_7745c5c3_Err
 						}
 						if uo.Status == org.UserOrgStatusPending {
-							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 43, "<span class=\"badge badge-amber text-xs fw-800\" style=\"padding:0.4rem 0.75rem;\">قيد الانتظار</span><form method=\"POST\" action=\"")
+							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 43, "<span class=\"badge badge-amber text-xs fw-800\">قيد الانتظار</span><form method=\"POST\" action=\"")
 							if templ_7745c5c3_Err != nil {
 								return templ_7745c5c3_Err
 							}
 							var templ_7745c5c3_Var25 templ.SafeURL
 							templ_7745c5c3_Var25, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("/vendor/user-organization/%d/approve", uo.ID)))
 							if templ_7745c5c3_Err != nil {
-								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_user_organizations.templ`, Line: 296, Col: 112}
+								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_user_organizations.templ`, Line: 286, Col: 112}
 							}
 							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var25))
 							if templ_7745c5c3_Err != nil {
 								return templ_7745c5c3_Err
 							}
-							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 44, "\" style=\"margin:0; display:inline;\"><button type=\"submit\" class=\"btn btn-primary btn-sm fw-800\" style=\"background:var(--emerald); border-color:var(--emerald); gap:0.3rem; padding:0.4rem 0.85rem;\">")
+							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 44, "\" class=\"m-0 d-inline\"><button type=\"submit\" class=\"btn btn-primary btn-sm fw-800\">")
 							if templ_7745c5c3_Err != nil {
 								return templ_7745c5c3_Err
 							}
@@ -504,13 +504,13 @@ func VendorUserOrganizationsPage(lang, dir string, data *VendorUserOrgData) temp
 							var templ_7745c5c3_Var26 templ.SafeURL
 							templ_7745c5c3_Var26, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("/vendor/user-organization/%d/reject", uo.ID)))
 							if templ_7745c5c3_Err != nil {
-								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_user_organizations.templ`, Line: 303, Col: 111}
+								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_user_organizations.templ`, Line: 293, Col: 111}
 							}
 							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var26))
 							if templ_7745c5c3_Err != nil {
 								return templ_7745c5c3_Err
 							}
-							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 46, "\" style=\"margin:0; display:inline;\"><button type=\"submit\" class=\"btn btn-secondary btn-sm fw-800 text-danger\" style=\"gap:0.3rem; padding:0.4rem 0.85rem;\">")
+							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 46, "\" class=\"m-0 d-inline\"><button type=\"submit\" class=\"btn btn-secondary btn-sm fw-800 text-danger\">")
 							if templ_7745c5c3_Err != nil {
 								return templ_7745c5c3_Err
 							}
@@ -523,12 +523,12 @@ func VendorUserOrganizationsPage(lang, dir string, data *VendorUserOrgData) temp
 								return templ_7745c5c3_Err
 							}
 						} else if uo.Status == org.UserOrgStatusApproved {
-							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 48, "<span class=\"badge badge-emerald text-xs fw-800\" style=\"padding:0.4rem 0.75rem;\">APPROVAL </span>")
+							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 48, "<span class=\"badge badge-emerald text-xs fw-800\">APPROVAL </span>")
 							if templ_7745c5c3_Err != nil {
 								return templ_7745c5c3_Err
 							}
 						} else if uo.Status == org.UserOrgStatusRejected {
-							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 49, "<span class=\"badge badge-rose text-xs fw-800\" style=\"padding:0.4rem 0.75rem;\">مرفوض </span>")
+							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 49, "<span class=\"badge badge-rose text-xs fw-800\">مرفوض </span>")
 							if templ_7745c5c3_Err != nil {
 								return templ_7745c5c3_Err
 							}
@@ -540,7 +540,7 @@ func VendorUserOrganizationsPage(lang, dir string, data *VendorUserOrgData) temp
 						var templ_7745c5c3_Var27 string
 						templ_7745c5c3_Var27, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("vendor-edit-uo-modal-%d", uo.ID))
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_user_organizations.templ`, Line: 320, Col: 73}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_user_organizations.templ`, Line: 310, Col: 73}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var27)
 						if templ_7745c5c3_Err != nil {
@@ -561,13 +561,13 @@ func VendorUserOrganizationsPage(lang, dir string, data *VendorUserOrgData) temp
 						var templ_7745c5c3_Var28 templ.SafeURL
 						templ_7745c5c3_Var28, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("/vendor/user-organization/%d/delete", uo.ID)))
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_user_organizations.templ`, Line: 326, Col: 110}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_user_organizations.templ`, Line: 316, Col: 110}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var28))
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 53, "\" style=\"margin:0; display:inline;\" onsubmit=\"return confirm('هل أنت متأكد من حذف هذا المستخدم؟');\"><button type=\"submit\" class=\"btn btn-secondary btn-sm text-danger\" title=\"حذف الربط\">")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 53, "\" class=\"m-0 d-inline\" onsubmit=\"return confirm('هل أنت متأكد من حذف هذا المستخدم؟');\"><button type=\"submit\" class=\"btn btn-secondary btn-sm text-danger\" title=\"حذف الربط\">")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
@@ -598,20 +598,20 @@ func VendorUserOrganizationsPage(lang, dir string, data *VendorUserOrgData) temp
 							var templ_7745c5c3_Var30 templ.SafeURL
 							templ_7745c5c3_Var30, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("/vendor/user-organization/%d/edit", uo.ID)))
 							if templ_7745c5c3_Err != nil {
-								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_user_organizations.templ`, Line: 339, Col: 108}
+								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_user_organizations.templ`, Line: 329, Col: 108}
 							}
 							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var30))
 							if templ_7745c5c3_Err != nil {
 								return templ_7745c5c3_Err
 							}
-							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 56, "\" style=\"display:flex; flex-direction:column; gap:1.1rem; text-align:start; margin:0;\"><div class=\"form-group m-0\"><label class=\"form-label\" for=\"")
+							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 56, "\"><div class=\"form-group m-0\"><label class=\"form-label\" for=\"")
 							if templ_7745c5c3_Err != nil {
 								return templ_7745c5c3_Err
 							}
 							var templ_7745c5c3_Var31 string
 							templ_7745c5c3_Var31, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("vendor-edit-num-%d", uo.ID))
 							if templ_7745c5c3_Err != nil {
-								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_user_organizations.templ`, Line: 341, Col: 83}
+								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_user_organizations.templ`, Line: 331, Col: 83}
 							}
 							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var31)
 							if templ_7745c5c3_Err != nil {
@@ -624,7 +624,7 @@ func VendorUserOrganizationsPage(lang, dir string, data *VendorUserOrgData) temp
 							var templ_7745c5c3_Var32 string
 							templ_7745c5c3_Var32, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("vendor-edit-num-%d", uo.ID))
 							if templ_7745c5c3_Err != nil {
-								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_user_organizations.templ`, Line: 346, Col: 57}
+								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_user_organizations.templ`, Line: 336, Col: 57}
 							}
 							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var32)
 							if templ_7745c5c3_Err != nil {
@@ -637,20 +637,20 @@ func VendorUserOrganizationsPage(lang, dir string, data *VendorUserOrgData) temp
 							var templ_7745c5c3_Var33 string
 							templ_7745c5c3_Var33, templ_7745c5c3_Err = templ.ResolveAttributeValue(uo.OrganizationNumber)
 							if templ_7745c5c3_Err != nil {
-								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_user_organizations.templ`, Line: 348, Col: 41}
+								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_user_organizations.templ`, Line: 338, Col: 41}
 							}
 							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var33)
 							if templ_7745c5c3_Err != nil {
 								return templ_7745c5c3_Err
 							}
-							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 59, "\" required class=\"form-control fw-700\" style=\"font-family:var(--font-mono, monospace); font-size:0.95rem;\" dir=\"ltr\"></div><div class=\"form-group m-0\"><label class=\"form-label\" for=\"")
+							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 59, "\" required class=\"form-control fw-700\" dir=\"ltr\"></div><div class=\"form-group m-0\"><label class=\"form-label\" for=\"")
 							if templ_7745c5c3_Err != nil {
 								return templ_7745c5c3_Err
 							}
 							var templ_7745c5c3_Var34 string
 							templ_7745c5c3_Var34, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("vendor-edit-notes-%d", uo.ID))
 							if templ_7745c5c3_Err != nil {
-								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_user_organizations.templ`, Line: 357, Col: 85}
+								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_user_organizations.templ`, Line: 346, Col: 85}
 							}
 							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var34)
 							if templ_7745c5c3_Err != nil {
@@ -663,20 +663,20 @@ func VendorUserOrganizationsPage(lang, dir string, data *VendorUserOrgData) temp
 							var templ_7745c5c3_Var35 string
 							templ_7745c5c3_Var35, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("vendor-edit-notes-%d", uo.ID))
 							if templ_7745c5c3_Err != nil {
-								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_user_organizations.templ`, Line: 361, Col: 59}
+								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_user_organizations.templ`, Line: 350, Col: 59}
 							}
 							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var35)
 							if templ_7745c5c3_Err != nil {
 								return templ_7745c5c3_Err
 							}
-							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 61, "\" name=\"notes\" rows=\"2\" class=\"form-control\" style=\"font-size:0.85rem;\">")
+							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 61, "\" name=\"notes\" rows=\"2\" class=\"form-control\">")
 							if templ_7745c5c3_Err != nil {
 								return templ_7745c5c3_Err
 							}
 							var templ_7745c5c3_Var36 string
 							templ_7745c5c3_Var36, templ_7745c5c3_Err = templ.JoinStringErrs(uo.Notes)
 							if templ_7745c5c3_Err != nil {
-								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_user_organizations.templ`, Line: 366, Col: 22}
+								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_user_organizations.templ`, Line: 354, Col: 22}
 							}
 							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var36))
 							if templ_7745c5c3_Err != nil {
@@ -689,7 +689,7 @@ func VendorUserOrganizationsPage(lang, dir string, data *VendorUserOrgData) temp
 							var templ_7745c5c3_Var37 string
 							templ_7745c5c3_Var37, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("vendor-edit-uo-modal-%d", uo.ID))
 							if templ_7745c5c3_Err != nil {
-								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_user_organizations.templ`, Line: 373, Col: 76}
+								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/vendor_user_organizations.templ`, Line: 361, Col: 76}
 							}
 							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var37)
 							if templ_7745c5c3_Err != nil {
@@ -720,7 +720,7 @@ func VendorUserOrganizationsPage(lang, dir string, data *VendorUserOrgData) temp
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 66, "</div><script>\n\t\t\tlet searchDebounceTimer = null;\n\n\t\t\tfunction handleVendorUserSearch(val) {\n\t\t\t\tclearTimeout(searchDebounceTimer);\n\t\t\t\tconst dropdown = document.getElementById('vendor-user-search-dropdown');\n\t\t\t\tconst spinner = document.getElementById('vendor-search-spinner');\n\t\t\t\tif (!dropdown) return;\n\n\t\t\t\tconst query = (val || '').trim();\n\t\t\t\tif (!query) {\n\t\t\t\t\tdropdown.style.display = 'none';\n\t\t\t\t\tdropdown.innerHTML = '';\n\t\t\t\t\tif (spinner) spinner.style.display = 'none';\n\t\t\t\t\treturn;\n\t\t\t\t}\n\n\t\t\t\tif (spinner) spinner.style.display = 'block';\n\n\t\t\t\tsearchDebounceTimer = setTimeout(() => {\n\t\t\t\t\tfetch('/vendor/api/users/search?q=' + encodeURIComponent(query))\n\t\t\t\t\t\t.then(res => res.json())\n\t\t\t\t\t\t.then(users => {\n\t\t\t\t\t\t\tif (spinner) spinner.style.display = 'none';\n\t\t\t\t\t\t\tif (!users || users.length === 0) {\n\t\t\t\t\t\t\t\tdropdown.innerHTML = '<div style=\"padding:0.75rem 1rem; color:var(--text-muted); font-size:0.85rem; text-align:center;\">لا توجد حسابات صيدليات أو مستخدمين مطابقة</div>';\n\t\t\t\t\t\t\t\tdropdown.style.display = 'block';\n\t\t\t\t\t\t\t\treturn;\n\t\t\t\t\t\t\t}\n\n\t\t\t\t\t\t\tlet html = '';\n\t\t\t\t\t\t\tusers.forEach(u => {\n\t\t\t\t\t\t\t\tconst safeName = (u.name || 'بدون اسم').replace(/'/g, \"\\\\'\");\n\t\t\t\t\t\t\t\tconst safeEmail = (u.email || '').replace(/'/g, \"\\\\'\");\n\t\t\t\t\t\t\t\tconst safePhone = (u.phone || '').replace(/'/g, \"\\\\'\");\n\t\t\t\t\t\t\t\thtml += `\n\t\t\t\t\t\t\t\t\t<div\n\t\t\t\t\t\t\t\t\t\tonclick=\"selectVendorUser(${u.id}, '${safeName}', '${safeEmail}', '${safePhone}')\"\n\t\t\t\t\t\t\t\t\t\tstyle=\"padding:0.65rem 0.9rem; border-bottom:1px solid var(--border); cursor:pointer; display:flex; align-items:center; justify-content:space-between; gap:0.5rem; transition:background 0.15s;\"\n\t\t\t\t\t\t\t\t\t\tonmouseenter=\"this.style.background='var(--surface-sunken)'\"\n\t\t\t\t\t\t\t\t\t\tonmouseleave=\"this.style.background='transparent'\"\n\t\t\t\t\t\t\t\t\t>\n\t\t\t\t\t\t\t\t\t\t<div>\n\t\t\t\t\t\t\t\t\t\t\t<strong style=\"font-size:0.875rem; color:var(--text);\">${u.name}</strong>\n\t\t\t\t\t\t\t\t\t\t\t<div class=\"meta-muted\" dir=\"ltr\">${u.email} ${u.phone ? '• ' + u.phone : ''}</div>\n\t\t\t\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t\t\t\t\t<span class=\"badge badge-sky text-xs\">#${u.id}</span>\n\t\t\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t\t\t`;\n\t\t\t\t\t\t\t});\n\t\t\t\t\t\t\tdropdown.innerHTML = html;\n\t\t\t\t\t\t\tdropdown.style.display = 'block';\n\t\t\t\t\t\t})\n\t\t\t\t\t\t.catch(err => {\n\t\t\t\t\t\t\tif (spinner) spinner.style.display = 'none';\n\t\t\t\t\t\t\tdropdown.innerHTML = '<div style=\"padding:0.75rem 1rem; color:var(--danger); font-size:0.85rem; text-align:center;\">حدث خطأ أثناء البحث</div>';\n\t\t\t\t\t\t\tdropdown.style.display = 'block';\n\t\t\t\t\t\t});\n\t\t\t\t}, 250);\n\t\t\t}\n\n\t\t\tfunction selectVendorUser(id, name, email, phone) {\n\t\t\t\tconst hiddenInput = document.getElementById('vendor-selected-user-id');\n\t\t\t\tconst chip = document.getElementById('vendor-selected-user-chip');\n\t\t\t\tconst chipName = document.getElementById('vendor-selected-user-name');\n\t\t\t\tconst chipDetails = document.getElementById('vendor-selected-user-details');\n\t\t\t\tconst searchWrapper = document.getElementById('vendor-search-input-wrapper');\n\t\t\t\tconst dropdown = document.getElementById('vendor-user-search-dropdown');\n\t\t\t\tconst searchInput = document.getElementById('vendor-uo-user-search');\n\n\t\t\t\tif (hiddenInput) hiddenInput.value = id;\n\t\t\t\tif (chipName) chipName.textContent = name;\n\t\t\t\tif (chipDetails) chipDetails.textContent = email + (phone ? ' • ' + phone : '') + ' (ID: #' + id + ')';\n\t\t\t\tif (chip) chip.style.display = 'flex';\n\t\t\t\tif (searchWrapper) searchWrapper.style.display = 'none';\n\t\t\t\tif (dropdown) {\n\t\t\t\t\tdropdown.style.display = 'none';\n\t\t\t\t\tdropdown.innerHTML = '';\n\t\t\t\t}\n\t\t\t\tif (searchInput) searchInput.value = '';\n\t\t\t}\n\n\t\t\tfunction clearVendorSelectedUser() {\n\t\t\t\tconst hiddenInput = document.getElementById('vendor-selected-user-id');\n\t\t\t\tconst chip = document.getElementById('vendor-selected-user-chip');\n\t\t\t\tconst searchWrapper = document.getElementById('vendor-search-input-wrapper');\n\t\t\t\tconst searchInput = document.getElementById('vendor-uo-user-search');\n\n\t\t\t\tif (hiddenInput) hiddenInput.value = '';\n\t\t\t\tif (chip) chip.style.display = 'none';\n\t\t\t\tif (searchWrapper) searchWrapper.style.display = 'block';\n\t\t\t\tif (searchInput) {\n\t\t\t\t\tsearchInput.value = '';\n\t\t\t\t\tsearchInput.focus();\n\t\t\t\t}\n\t\t\t}\n\n\t\t\tdocument.addEventListener('click', (e) => {\n\t\t\t\tconst dropdown = document.getElementById('vendor-user-search-dropdown');\n\t\t\t\tconst searchInput = document.getElementById('vendor-uo-user-search');\n\t\t\t\tif (dropdown && !dropdown.contains(e.target) && e.target !== searchInput) {\n\t\t\t\t\tdropdown.style.display = 'none';\n\t\t\t\t}\n\t\t\t});\n\t\t</script>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 66, "</div><script>\n\t\t\tlet searchDebounceTimer = null;\n\n\t\t\tfunction handleVendorUserSearch(val) {\n\t\t\t\tclearTimeout(searchDebounceTimer);\n\t\t\t\tconst dropdown = document.getElementById('vendor-user-search-dropdown');\n\t\t\t\tconst spinner = document.getElementById('vendor-search-spinner');\n\t\t\t\tif (!dropdown) return;\n\n\t\t\t\tconst query = (val || '').trim();\n\t\t\t\tif (!query) {\n\t\t\t\t\tdropdown.style.display = 'none';\n\t\t\t\t\tdropdown.innerHTML = '';\n\t\t\t\t\tif (spinner) spinner.style.display = 'none';\n\t\t\t\t\treturn;\n\t\t\t\t}\n\n\t\t\t\tif (spinner) spinner.style.display = 'block';\n\n\t\t\t\tsearchDebounceTimer = setTimeout(() => {\n\t\t\t\t\tfetch('/vendor/api/users/search?q=' + encodeURIComponent(query))\n\t\t\t\t\t\t.then(res => res.json())\n\t\t\t\t\t\t.then(users => {\n\t\t\t\t\t\t\tif (spinner) spinner.style.display = 'none';\n\t\t\t\t\t\t\tif (!users || users.length === 0) {\n\t\t\t\t\t\t\t\tdropdown.innerHTML = '<div>لا توجد حسابات صيدليات أو مستخدمين مطابقة</div>';\n\t\t\t\t\t\t\t\tdropdown.style.display = 'block';\n\t\t\t\t\t\t\t\treturn;\n\t\t\t\t\t\t\t}\n\n\t\t\t\t\t\t\tlet html = '';\n\t\t\t\t\t\t\tusers.forEach(u => {\n\t\t\t\t\t\t\t\tconst safeName = (u.name || 'بدون اسم').replace(/'/g, \"\\\\'\");\n\t\t\t\t\t\t\t\tconst safeEmail = (u.email || '').replace(/'/g, \"\\\\'\");\n\t\t\t\t\t\t\t\tconst safePhone = (u.phone || '').replace(/'/g, \"\\\\'\");\n\t\t\t\t\t\t\t\thtml += `\n\t\t\t\t\t\t\t\t\t<div\n\t\t\t\t\t\t\t\t\t\tonclick=\"selectVendorUser(${u.id}, '${safeName}', '${safeEmail}', '${safePhone}')\"\n\t\t\t\t\t\t\t\t\t\tonmouseenter=\"this.style.background='var(--surface-sunken)'\"\n\t\t\t\t\t\t\t\t\t\tonmouseleave=\"this.style.background='transparent'\"\n\t\t\t\t\t\t\t\t\t>\n\t\t\t\t\t\t\t\t\t\t<div>\n\t\t\t\t\t\t\t\t\t\t\t<strong>${u.name}</strong>\n\t\t\t\t\t\t\t\t\t\t\t<div class=\"meta-muted\" dir=\"ltr\">${u.email} ${u.phone ? '• ' + u.phone : ''}</div>\n\t\t\t\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t\t\t\t\t<span class=\"badge badge-sky text-xs\">#${u.id}</span>\n\t\t\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t\t\t`;\n\t\t\t\t\t\t\t});\n\t\t\t\t\t\t\tdropdown.innerHTML = html;\n\t\t\t\t\t\t\tdropdown.style.display = 'block';\n\t\t\t\t\t\t})\n\t\t\t\t\t\t.catch(err => {\n\t\t\t\t\t\t\tif (spinner) spinner.style.display = 'none';\n\t\t\t\t\t\t\tdropdown.innerHTML = '<div>حدث خطأ أثناء البحث</div>';\n\t\t\t\t\t\t\tdropdown.style.display = 'block';\n\t\t\t\t\t\t});\n\t\t\t\t}, 250);\n\t\t\t}\n\n\t\t\tfunction selectVendorUser(id, name, email, phone) {\n\t\t\t\tconst hiddenInput = document.getElementById('vendor-selected-user-id');\n\t\t\t\tconst chip = document.getElementById('vendor-selected-user-chip');\n\t\t\t\tconst chipName = document.getElementById('vendor-selected-user-name');\n\t\t\t\tconst chipDetails = document.getElementById('vendor-selected-user-details');\n\t\t\t\tconst searchWrapper = document.getElementById('vendor-search-input-wrapper');\n\t\t\t\tconst dropdown = document.getElementById('vendor-user-search-dropdown');\n\t\t\t\tconst searchInput = document.getElementById('vendor-uo-user-search');\n\n\t\t\t\tif (hiddenInput) hiddenInput.value = id;\n\t\t\t\tif (chipName) chipName.textContent = name;\n\t\t\t\tif (chipDetails) chipDetails.textContent = email + (phone ? ' • ' + phone : '') + ' (ID: #' + id + ')';\n\t\t\t\tif (chip) chip.style.display = 'flex';\n\t\t\t\tif (searchWrapper) searchWrapper.style.display = 'none';\n\t\t\t\tif (dropdown) {\n\t\t\t\t\tdropdown.style.display = 'none';\n\t\t\t\t\tdropdown.innerHTML = '';\n\t\t\t\t}\n\t\t\t\tif (searchInput) searchInput.value = '';\n\t\t\t}\n\n\t\t\tfunction clearVendorSelectedUser() {\n\t\t\t\tconst hiddenInput = document.getElementById('vendor-selected-user-id');\n\t\t\t\tconst chip = document.getElementById('vendor-selected-user-chip');\n\t\t\t\tconst searchWrapper = document.getElementById('vendor-search-input-wrapper');\n\t\t\t\tconst searchInput = document.getElementById('vendor-uo-user-search');\n\n\t\t\t\tif (hiddenInput) hiddenInput.value = '';\n\t\t\t\tif (chip) chip.style.display = 'none';\n\t\t\t\tif (searchWrapper) searchWrapper.style.display = 'block';\n\t\t\t\tif (searchInput) {\n\t\t\t\t\tsearchInput.value = '';\n\t\t\t\t\tsearchInput.focus();\n\t\t\t\t}\n\t\t\t}\n\n\t\t\tdocument.addEventListener('click', (e) => {\n\t\t\t\tconst dropdown = document.getElementById('vendor-user-search-dropdown');\n\t\t\t\tconst searchInput = document.getElementById('vendor-uo-user-search');\n\t\t\t\tif (dropdown && !dropdown.contains(e.target) && e.target !== searchInput) {\n\t\t\t\t\tdropdown.style.display = 'none';\n\t\t\t\t}\n\t\t\t});\n\t\t</script>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

@@ -148,7 +148,7 @@ templ VendorJobs(lang, dir string, data VendorJobsData) {
 												{ item.Job.Title.Get(i18n.Lang(lang)) }
 											</div>
 											if item.Job.Description != "" {
-												<div class="text-xs text-muted mt-1 truncate" style="max-width:300px;">
+												<div class="text-xs text-muted mt-1 truncate" class="max-w-xs">
 													{ item.Job.Description }
 												</div>
 											}
@@ -273,496 +273,350 @@ templ VendorJobs(lang, dir string, data VendorJobsData) {
 		</div>
 
 		<!-- MODAL: Add New Job Modal -->
-		<dialog id="add-job-modal" class="modal" aria-labelledby="add-job-title">
-			<div class="modal-box modal-lg">
-				<div class="modal-header">
-					<div class="d-flex items-center gap-3">
-						<div class="b2b-icon-box-sm">
-							@components.IconBriefcase("icon-sm")
-						</div>
-						<div>
-							<h3 id="add-job-title" class="modal-title">
-								نشر شاغر وظيفي جديد
-							</h3>
-							<p class="text-xs text-muted mt-0.5 m-0">
-								تحديد مواصفات الوظيفة، المتطلبات والراتب المتوقع
-							</p>
-						</div>
+		@components.Modal(components.ModalProps{ID: "add-job-modal", Title: "??? ???? ????? ????", Size: "lg"}) {
+			<form method="POST" action="/vendor/jobs" class="stack-lg">
+				<!-- Titles -->
+				<div class="grid-2">
+					<div>
+						<label class="form-label">
+							?????? ??????? (????????) <span class="text-danger">*</span>
+						</label>
+						<input
+							type="text"
+							name="title_ar"
+							required
+							class="form-input field-height"
+							placeholder="????: ????? ??? / ????? ??????"
+						/>
 					</div>
-					<form method="dialog">
-						<button type="submit" class="modal-close" aria-label="إغلاق" onclick="closeAddJobModal()">
-							@components.IconClose("icon-xs")
-						</button>
-					</form>
+
+					<div>
+						<label class="form-label">
+							?????? ??????? (???????????)
+						</label>
+						<input
+							type="text"
+							name="title_en"
+							class="form-input field-height"
+							placeholder="e.g. Senior Pharmacist"
+							dir="ltr"
+						/>
+					</div>
 				</div>
 
-				<form method="POST" action="/vendor/jobs" class="stack-lg">
-					
-					<!-- Titles -->
-					<div class="grid-2">
-						<div>
-							<label class="form-label">
-								المسمى الوظيفي (بالعربية) <span class="text-danger">*</span>
-							</label>
-							<input
- type="text"
- name="title_ar"
- required
- class="form-input field-height"
- placeholder="مثال: صيدلي أول / مندوب مبيعات"
- 
- />
+				<!-- Location & Branch Selection -->
+				<div>
+					<label class="form-label">
+						????? / ??? ????? ?????? ??????? <span class="text-danger">*</span>
+					</label>
+					if len(data.Branches) == 0 {
+						<div class="p-3 bg-surface-sunken border border-dashed rounded-lg text-xs text-secondary">
+							<span>?? ???? ?????? ???. ???? ??? ??????? ?? <strong>(????? ???????)</strong>. ????? ????? ????? ?? <a href="/vendor/branches" class="text-primary font-bold text-decoration-none">????? ?????? ?</a>.</span>
 						</div>
-
-						<div>
-							<label class="form-label">
-								المسمى الوظيفي (بالإنجليزية)
-							</label>
-							<input
- type="text"
- name="title_en"
- class="form-input field-height"
- placeholder="e.g. Senior Pharmacist"
- dir="ltr"
- 
- />
-						</div>
-					</div>
-
-					<!-- Location & Branch Selection -->
-					<div>
-						<label class="form-label">
-							الفرع / مقر العمل المخصص للوظيفة <span class="text-danger">*</span>
-						</label>
-						if len(data.Branches) == 0 {
-							<div style="padding:0.65rem 0.85rem; background:var(--surface-sunken); border:1px dashed var(--border); border-radius:var(--radius-lg); font-size:0.8rem; color:var(--text-secondary);">
-								<span>لم تسجل فروعاً بعد. سيتم ربط الوظيفة بـ <strong>(الفرع الرئيسي)</strong>. يمكنك إضافة فروعك من <a href="/vendor/branches" class="text-primary font-bold text-decoration-none">إدارة الفروع ↗</a>.</span>
-							</div>
-							<input type="hidden" name="location" value="الفرع الرئيسي" />
-						} else {
-							<select
- name="branch_id"
- required
- class="form-input field-cta"
- 
->
-								<option value="">-- اختر الفرع المتاح للوظيفة --</option>
-								for _, b := range data.Branches {
-									<option value={ fmt.Sprintf("%d", b.ID) }>
-										{ b.Name.Get(i18n.ParseLang(lang)) }
-										if b.IsMain {
-											 (الفرع الرئيسي)
-										}
-									</option>
-								}
-							</select>
-						}
-					</div>
-
-					<!-- Salary Range -->
-					<div class="grid-2">
-						<div>
-							<label class="form-label">
-								الحد الأدنى للراتب (ج.م)
-							</label>
-							<input
-								type="number"
-								step="100"
-								name="salary_min"
-								class="form-input"
-								placeholder="5000"
-								style="height:44px; font-family:var(--font-mono, monospace); border-radius:var(--radius-lg);"
-							/>
-						</div>
-
-						<div>
-							<label class="form-label">
-								الحد الأقصى للراتب (ج.م)
-							</label>
-							<input
-								type="number"
-								step="100"
-								name="salary_max"
-								class="form-input"
-								placeholder="12000"
-								style="height:44px; font-family:var(--font-mono, monospace); border-radius:var(--radius-lg);"
-							/>
-						</div>
-					</div>
-
-					<!-- Description -->
-					<div>
-						<label class="form-label">
-							الوصف الوظيفي والمهام والمسؤوليات <span class="text-danger">*</span>
-						</label>
-						<textarea
-							name="description"
-							rows="4"
+						<input type="hidden" name="location" value="????? ???????" />
+					} else {
+						<select
+							name="branch_id"
 							required
-							class="form-input"
-							style="border-radius:var(--radius-lg); padding:0.75rem; font-size:0.875rem;"
-							placeholder="اكتب نبذة عن الدور الوظيفي، المهام اليومية، وساعات العمل..."
-						></textarea>
-					</div>
+							class="form-input field-cta"
+						>
+							<option value="">-- ???? ????? ?????? ??????? --</option>
+							for _, b := range data.Branches {
+								<option value={ fmt.Sprintf("%d", b.ID) }>
+									{ b.Name.Get(i18n.ParseLang(lang)) }
+									if b.IsMain {
+										 (????? ???????)
+									}
+								</option>
+							}
+						</select>
+					}
+				</div>
 
-					<!-- Requirements -->
+				<!-- Salary Range -->
+				<div class="grid-2">
 					<div>
 						<label class="form-label">
-							المؤهلات والمتطلبات والشروط
+							???? ?????? ?????? (?.?)
 						</label>
-						<textarea
-							name="requirements"
-							rows="3"
-							class="form-input"
-							style="border-radius:var(--radius-lg); padding:0.75rem; font-size:0.875rem;"
-							placeholder="سنوات الخبرة المطلوبة، المؤهل العلمي، المهارات التقنية المطلوبة..."
-						></textarea>
+						<input
+							type="number"
+							step="100"
+							name="salary_min"
+							class="form-input h-11 font-mono rounded-lg"
+							placeholder="5000"
+						/>
 					</div>
 
-					<!-- Form Footer -->
-					<div class="modal-footer">
-						<button type="button" class="btn btn-secondary font-bold" onclick="closeAddJobModal()">
-							إلغاء
-						</button>
-						<button type="submit" class="btn btn-primary font-bold px-6">
-							نشر الوظيفة الآن 
-						</button>
+					<div>
+						<label class="form-label">
+							???? ?????? ?????? (?.?)
+						</label>
+						<input
+							type="number"
+							step="100"
+							name="salary_max"
+							class="form-input h-11 font-mono rounded-lg"
+							placeholder="12000"
+						/>
 					</div>
+				</div>
 
-				</form>
-			</div>
-		</dialog>
+				<!-- Description -->
+				<div>
+					<label class="form-label">
+						????? ??????? ??????? ??????????? <span class="text-danger">*</span>
+					</label>
+					<textarea
+						name="description"
+						rows="4"
+						required
+						class="form-input rounded-lg p-3 text-sm"
+						placeholder="???? ???? ?? ????? ???????? ?????? ???????? ?????? ?????..."
+					></textarea>
+				</div>
+
+				<!-- Requirements -->
+				<div>
+					<label class="form-label">
+						???????? ?????????? ???????
+					</label>
+					<textarea
+						name="requirements"
+						rows="3"
+						class="form-input rounded-lg p-3 text-sm"
+						placeholder="????? ?????? ????????? ?????? ??????? ???????? ??????? ????????..."
+					></textarea>
+				</div>
+
+				<!-- Form Footer -->
+				<div class="modal-footer pt-3 border-t flex-between items-center">
+					<button type="button" class="btn btn-secondary font-bold" onclick="closeAddJobModal()">
+						?????
+					</button>
+					<button type="submit" class="btn btn-primary font-bold px-6">
+						??? ??????? ???? 
+					</button>
+				</div>
+			</form>
+		}
 
 		<!-- MODAL: Edit Job Modal -->
-		<dialog id="edit-job-modal" class="modal" aria-labelledby="edit-job-title">
-			<div class="modal-box modal-lg">
-				<div class="modal-header">
-					<div class="d-flex items-center gap-3">
-						<div class="b2b-icon-box-sm">
-							@components.IconEdit("icon-sm")
-						</div>
-						<div>
-							<h3 id="edit-job-title" class="modal-title">
-								تعديل بيانات وحالة الشاغر الوظيفي
-							</h3>
-							<p class="text-xs text-muted mt-0.5 m-0">
-								تحديث المسمى الوظيفي، المتطلبات، الراتب وحالة نشر الوظيفة
-							</p>
-						</div>
+		@components.Modal(components.ModalProps{ID: "edit-job-modal", Title: "????? ?????? ????? ?????? ???????", Size: "lg"}) {
+			<form id="edit-job-form" method="POST" action="" class="stack-lg">
+				<input type="hidden" id="edit-job-id" name="id" value="" />
+
+				<!-- Status & Active Switch -->
+				<div class="grid-2 bg-surface-sunken p-3.5 border rounded-xl items-center">
+					<div>
+						<label class="form-label mb-1">
+							???? ?????? ???????
+						</label>
+						<select id="edit-job-status" name="status" class="form-input h-10 font-bold">
+							<option value="published">?? ??? (???? ??????? ????? ???????)</option>
+							<option value="closed">?? ???? (????? ??????? ????? ??????? ??????)</option>
+							<option value="draft">?? ????? (??? ????)</option>
+						</select>
 					</div>
-					<form method="dialog">
-						<button type="submit" class="modal-close" aria-label="إغلاق" onclick="closeEditJobModal()">
-							@components.IconClose("icon-xs")
-						</button>
-					</form>
+
+					<div class="flex-between">
+						<div>
+							<span class="d-block font-extrabold text-sm text-primary">????? ??????? ???????</span>
+							<span class="d-block text-xs text-muted">??? ??????? ?? ????? ??????? ??????</span>
+						</div>
+						<input type="checkbox" id="edit-job-is-active" name="is_active" value="true" class="form-check-input" />
+					</div>
 				</div>
 
-				<form id="edit-job-form" method="POST" action="" class="stack-lg">
-					
-					<!-- Titles -->
-					<div class="grid-2">
-						<div>
-							<label class="form-label">
-								المسمى الوظيفي (بالعربية) <span class="text-danger">*</span>
-							</label>
-							<input
- type="text"
- name="title_ar"
- id="edit-job-title-ar"
- required
- class="form-input field-height"
- placeholder="مثال: صيدلي أول / مندوب مبيعات"
- 
- />
-						</div>
-
-						<div>
-							<label class="form-label">
-								المسمى الوظيفي (بالإنجليزية)
-							</label>
-							<input
- type="text"
- name="title_en"
- id="edit-job-title-en"
- class="form-input field-height"
- placeholder="e.g. Senior Pharmacist / Sales Rep"
- 
- />
-						</div>
-					</div>
-
-					<!-- Location & Status -->
-					<div class="grid-2">
-						<div>
-							<label class="form-label">
-								الفرع المخصص للشاغر <span class="text-danger">*</span>
-							</label>
-							if len(data.Branches) == 0 {
-								<input
-									type="text"
-									name="location"
-									id="edit-job-location"
-									readonly
-									class="form-input"
-									style="height:44px; border-radius:var(--radius-lg); background:var(--surface-sunken);"
-								/>
-							} else {
-								<select
- name="branch_id"
- id="edit-job-branch-id"
- required
- class="form-input field-cta"
- 
->
-									<option value="">-- اختر الفرع المتاح للوظيفة --</option>
-									for _, b := range data.Branches {
-										<option 
-											value={ fmt.Sprintf("%d", b.ID) }
-											data-branch-name={ b.Name.Get(i18n.ParseLang(lang)) }
-											data-branch-name-ar={ b.Name.Get(i18n.AR) }
-											data-branch-name-en={ b.Name.Get(i18n.EN) }
-										>
-											{ b.Name.Get(i18n.ParseLang(lang)) }
-											if b.IsMain {
-												 (الفرع الرئيسي)
-											}
-										</option>
-									}
-								</select>
-							}
-						</div>
-
-						<div>
-							<label class="form-label">
-								حالة الوظيفة <span class="text-danger">*</span>
-							</label>
-							<select
- name="status"
- id="edit-job-status"
- required
- class="form-input field-cta"
- 
->
-								<option value="published">منشورة ومتاحة للتقديم (Published)</option>
-								<option value="closed">مغلقة ومكتفية (Closed)</option>
-								<option value="draft">مسودة غير معلنة (Draft)</option>
-							</select>
-						</div>
-					</div>
-
-					<!-- Salary Range -->
-					<div class="grid-2">
-						<div>
-							<label class="form-label">
-								الحد الأدنى للراتب (اختياري)
-							</label>
-							<input
- type="text"
- name="salary_min"
- id="edit-job-salary-min"
- class="form-input field-height"
- placeholder="مثال: 8000"
- 
- />
-						</div>
-
-						<div>
-							<label class="form-label">
-								الحد الأقصى للراتب (اختياري)
-							</label>
-							<input
- type="text"
- name="salary_max"
- id="edit-job-salary-max"
- class="form-input field-height"
- placeholder="مثال: 12000"
- 
- />
-						</div>
-					</div>
-
-					<!-- Description -->
+				<!-- Titles -->
+				<div class="grid-2">
 					<div>
 						<label class="form-label">
-							الوصف الوظيفي والمهام المطلوبة
+							?????? ??????? (????????) <span class="text-danger">*</span>
 						</label>
-						<textarea
-							name="description"
-							id="edit-job-description"
-							rows="4"
-							class="form-input"
-							placeholder="اكتب نبذة عن المسؤوليات والمهام اليومية للوظيفة..."
-							style="border-radius:var(--radius-lg); resize:vertical;"
-						></textarea>
+						<input
+							type="text"
+							id="edit-job-title-ar"
+							name="title_ar"
+							required
+							class="form-input field-height"
+						/>
 					</div>
 
-					<!-- Requirements -->
 					<div>
 						<label class="form-label">
-							المتطلبات والمؤهلات المطلوبة
+							?????? ??????? (???????????)
 						</label>
-						<textarea
-							name="requirements"
-							id="edit-job-requirements"
-							rows="3"
-							class="form-input"
-							placeholder="مثال: بكالوريوس صيدلة، خبرة لا تقل عن سنتين، إجادة اللغة الإنجليزية..."
-							style="border-radius:var(--radius-lg); resize:vertical;"
-						></textarea>
+						<input
+							type="text"
+							id="edit-job-title-en"
+							name="title_en"
+							class="form-input field-height"
+							dir="ltr"
+						/>
+					</div>
+				</div>
+
+				<!-- Location & Branch Selection -->
+				<div>
+					<label class="form-label">
+						????? / ??? ????? ??????
+					</label>
+					<select id="edit-job-branch-id" name="branch_id" class="form-input h-11 rounded-lg">
+						<option value="">-- ???? ????? --</option>
+						for _, b := range data.Branches {
+							<option value={ fmt.Sprintf("%d", b.ID) }>
+								{ b.Name.Get(i18n.ParseLang(lang)) }
+								if b.IsMain {
+									 (????? ???????)
+								}
+							</option>
+						}
+					</select>
+				</div>
+
+				<!-- Salary Range -->
+				<div class="grid-2">
+					<div>
+						<label class="form-label">
+							???? ?????? ?????? (?.?)
+						</label>
+						<input
+							type="number"
+							step="100"
+							id="edit-job-salary-min"
+							name="salary_min"
+							class="form-input h-11 font-mono rounded-lg"
+						/>
 					</div>
 
-					<!-- Form Actions -->
-					<div class="modal-footer">
-						<button type="button" class="btn btn-secondary font-bold" onclick="closeEditJobModal()">
-							إلغاء
-						</button>
-						<button type="submit" class="btn btn-primary font-bold px-6">
-							@components.IconCheck("icon-xs")
-							<span>حفظ التعديلات والتحديث</span>
-						</button>
+					<div>
+						<label class="form-label">
+							???? ?????? ?????? (?.?)
+						</label>
+						<input
+							type="number"
+							step="100"
+							id="edit-job-salary-max"
+							name="salary_max"
+							class="form-input h-11 font-mono rounded-lg"
+						/>
 					</div>
+				</div>
 
-				</form>
-			</div>
-		</dialog>
+				<!-- Description -->
+				<div>
+					<label class="form-label">
+						????? ??????? ??????????? <span class="text-danger">*</span>
+					</label>
+					<textarea
+						id="edit-job-description"
+						name="description"
+						rows="4"
+						required
+						class="form-input rounded-lg"
+					></textarea>
+				</div>
+
+				<!-- Requirements -->
+				<div>
+					<label class="form-label">
+						???????? ??????????
+					</label>
+					<textarea
+						id="edit-job-requirements"
+						name="requirements"
+						rows="3"
+						class="form-input rounded-lg"
+					></textarea>
+				</div>
+
+				<!-- Form Footer -->
+				<div class="modal-footer pt-3 border-t flex-between items-center">
+					<button type="button" class="btn btn-secondary font-bold" onclick="closeEditJobModal()">
+						?????
+					</button>
+					<button type="submit" class="btn btn-primary font-bold px-6">
+						@components.IconCheck("icon-xs")
+						<span>??? ????????? ????????</span>
+					</button>
+				</div>
+			</form>
+		}
 
 		<!-- ================= APPLICANTS MODAL ================= -->
-		<dialog id="job-applicants-modal" class="modal" aria-labelledby="applicants-modal-title">
-			<div class="modal-box modal-lg">
-				<div class="modal-header">
-					<div>
-						<h3 id="applicants-modal-title" class="modal-title">
-							طلبات التقديم والسير الذاتية
-						</h3>
-						<p id="applicants-modal-subtitle" class="text-xs text-brand font-bold mt-1 m-0">
-							الوظيفة: -
-						</p>
-					</div>
-					<form method="dialog">
-						<button type="submit" class="modal-close" aria-label="إغلاق" onclick="closeApplicantsModal()">@components.IconClose("icon-xs")</button>
-					</form>
-				</div>
-
-				<!-- Dynamic Content -->
-				<div id="applicants-modal-content" class="modal-body">
-					<!-- Populated by JS -->
-				</div>
+		@components.Modal(components.ModalProps{ID: "job-applicants-modal", Title: "????? ??????? ?????? ???????", Size: "lg"}) {
+			<div id="applicants-modal-subtitle" class="text-xs text-brand font-bold mb-3">
+				???????: -
 			</div>
-		</dialog>
+			<!-- Dynamic Content -->
+			<div id="applicants-modal-content" class="modal-body p-0">
+				<!-- Populated by JS -->
+			</div>
+		}
 
 		<!-- ================= ONBOARD EMPLOYEE MODAL ================= -->
-		<dialog id="onboard-modal" class="modal" aria-labelledby="onboard-modal-title">
-			<div class="modal-box modal-md">
-				<div class="modal-header">
-					<div>
-						<h3 id="onboard-modal-title" class="modal-title">
-							قبول المتقدم وتعيينه كموظف
-						</h3>
-						<p id="onboard-modal-subtitle" class="text-xs text-secondary mt-1 m-0">
-							المتقدم: -
-						</p>
-					</div>
-					<form method="dialog">
-						<button type="submit" class="modal-close" aria-label="إغلاق" onclick="closeOnboardModal()">@components.IconClose("icon-xs")</button>
-					</form>
+		@components.Modal(components.ModalProps{ID: "onboard-modal", Title: "???? ??????? ??????? ?????", Size: "md"}) {
+			<div id="onboard-modal-subtitle" class="text-xs text-secondary mb-3">
+				???????: -
+			</div>
+			<form id="onboard-employee-form" onsubmit="submitOnboardEmployee(event)" class="d-flex flex-col gap-4 m-0">
+				<input type="hidden" id="onboard-app-id" name="applicant_id" value="" />
+
+				<div>
+					<label class="form-label">
+						?????? ?????????? ????? <span class="text-danger">*</span>
+					</label>
+					<input
+						type="email"
+						id="onboard-email"
+						name="email"
+						required
+						placeholder="employee@domain.com"
+						class="form-input"
+						dir="ltr"
+					/>
 				</div>
 
-				<form id="onboard-employee-form" onsubmit="submitOnboardEmployee(event)" class="d-flex flex-col gap-4 m-0">
-					<input type="hidden" id="onboard-job-id" value="" />
-					<input type="hidden" id="onboard-app-id" value="" />
+				<div>
+					<label class="form-label">
+						???? ?????? ??????? ?????? <span class="text-danger">*</span>
+					</label>
+					<input
+						type="password"
+						id="onboard-password"
+						name="password"
+						required
+						minlength="8"
+						placeholder="8 ???? ??? ?????"
+						class="form-input"
+					/>
+				</div>
 
-					<div class="modal-body d-flex flex-col gap-3">
-						<!-- Branch Selection -->
-						<div>
-							<label class="form-label font-bold text-xs">
-								الفرع / المستودع المخصص للعمل <span class="text-danger">*</span>
-							</label>
-							<select id="onboard-branch-id" required class="form-select w-full">
-								if len(data.Branches) == 0 {
-									<option value="">المقر الرئيسي / المستودع الرئيسي</option>
-								} else {
-									for _, b := range data.Branches {
-										<option value={ fmt.Sprintf("%d", b.ID) }>
-											{ b.Name.Get(i18n.ParseLang(lang)) }
-											if b.IsMain {
-												 (الرئيسي)
-											}
-										</option>
-									}
-								}
-							</select>
-						</div>
+				<div>
+					<label class="form-label">
+						????? ??????? / ???????? <span class="text-danger">*</span>
+					</label>
+					<select id="onboard-role" name="role" required class="form-input font-bold">
+						<option value="pharmacist">????? (Pharmacist)</option>
+						<option value="sales_rep">????? ?????? (Sales Representative)</option>
+						<option value="accountant">????? (Accountant)</option>
+						<option value="data_entry">???? ?????? (Data Entry)</option>
+						<option value="manager">???? ??? / ????? (Manager)</option>
+					</select>
+				</div>
 
-						<!-- Role / Permissions Selection -->
-						<div>
-							<label class="form-label font-bold text-xs">
-								الدور الوظيفي والصلاحيات <span class="text-danger">*</span>
-							</label>
-							<select id="onboard-role-key" required class="form-select w-full">
-								<option value="org_sales_rep">مندوب مبيعات / تسويق دوائي</option>
-								<option value="org_warehouse">أمين مخزن / مسؤول مستودع</option>
-								<option value="org_manager">مدير فرع / مسؤول تشغيل</option>
-								<option value="org_accountant">محاسب مالي</option>
-								<option value="org_employee">موظف تشغيل (صلاحيات أساسية)</option>
-								<option value="org_pharmacist">صيدلي / مستشار علمي</option>
-							</select>
-						</div>
-
-						<!-- Job Title -->
-						<div>
-							<label class="form-label font-bold text-xs">
-								المسمى الوظيفي المعتمد <span class="text-danger">*</span>
-							</label>
-							<input
-								type="text"
-								id="onboard-job-title"
-								required
-								class="form-input w-full"
-								placeholder="مثال: مندوب مبيعات طبي / مدير مستودع"
-							/>
-						</div>
-
-						<!-- Salary -->
-						<div>
-							<label class="form-label font-bold text-xs">
-								الراتب الأساسي (ج.م / شهرياً)
-							</label>
-							<input
-								type="text"
-								id="onboard-base-salary"
-								class="form-input tabular-nums w-full"
-								placeholder="مثال: 9500"
-							/>
-						</div>
-
-						<!-- Notes -->
-						<div>
-							<label class="form-label font-bold text-xs">
-								ملاحظات التعيين (اختياري)
-							</label>
-							<textarea
-								id="onboard-notes"
-								rows="2"
-								class="form-input text-xs w-full"
-								placeholder="ملاحظات حول موعد بدء العمل أو المستودع..."
-								style="resize:vertical;"
-							></textarea>
-						</div>
-					</div>
-
-					<!-- Form Actions -->
-					<div class="modal-footer">
-						<button type="button" class="btn btn-secondary font-bold" onclick="closeOnboardModal()">
-							إلغاء
-						</button>
-						<button type="submit" id="onboard-submit-btn" class="btn btn-primary font-bold px-6">
-							@components.IconCheck("icon-xs")
-							<span>تأكيد القبول وتعيين الموظف</span>
-						</button>
-					</div>
-				</form>
-			</div>
-		</dialog>
+				<div class="modal-footer pt-3 border-t flex-between items-center">
+					<button type="button" class="btn btn-secondary font-bold" onclick="closeOnboardModal()">
+						?????
+					</button>
+					<button type="submit" class="btn btn-primary font-bold px-6">
+						@components.IconCheck("icon-xs")
+						<span>????? ??????? ?????? ??????</span>
+					</button>
+				</div>
+			</form>
+		}
 
 		<script>
 			let currentJobId = 0;
@@ -886,8 +740,8 @@ templ VendorJobs(lang, dir string, data VendorJobsData) {
 				currentJobTitle = jobTitle;
 				document.getElementById('applicants-modal-subtitle').textContent = `الوظيفة: ${jobTitle}`;
 				document.getElementById('applicants-modal-content').innerHTML = `
-					<div style="padding:2.5rem; text-align:center; color:var(--text-muted);">
-						<div style="font-size:1.5rem; margin-bottom:0.5rem;">⏳</div>
+					<div class="p-10 text-center text-muted">
+						<div class="text-2xl mb-2">⏳</div>
 						<div>جاري استرجاع طلبات التقديم والسير الذاتية...</div>
 					</div>
 				`;
@@ -900,10 +754,10 @@ templ VendorJobs(lang, dir string, data VendorJobsData) {
 
 					if (!apps || apps.length === 0) {
 						document.getElementById('applicants-modal-content').innerHTML = `
-							<div style="text-align:center; padding:3rem 1rem;">
-								<div style="font-size:2.5rem; margin-bottom:0.5rem;">@components.IconMail("icon-sm")</div>
-								<h4 style="color:var(--text); font-weight:800; margin:0;">لا يوجد متقدمين حتى الآن</h4>
-								<p style="color:var(--text-muted); font-size:0.85rem; margin:0.25rem 0 0;">
+							<div class="text-center p-12">
+								<div class="text-4xl mb-2">@components.IconMail("icon-sm")</div>
+								<h4 class="text-primary font-extrabold m-0">لا يوجد متقدمين حتى الآن</h4>
+								<p class="text-muted text-xs mt-1">
 									لم يقم أي مستخدم بالتقديم على هذه الوظيفة بعد.
 								</p>
 							</div>
@@ -911,12 +765,12 @@ templ VendorJobs(lang, dir string, data VendorJobsData) {
 						return;
 					}
 
-					let html = `<div style="display:flex; flex-direction:column; gap:0.85rem;">`;
+					let html = `<div class="d-flex flex-col gap-3">`;
 
 					apps.forEach(app => {
 						const dateStr = app.created_at ? new Date(app.created_at).toLocaleDateString('ar-EG') : '';
 						const cvBtn = app.cv_storage_key 
-							? `<a href="${app.cv_storage_key}" target="_blank" class="btn btn-secondary btn-sm" style="font-size:0.75rem; font-weight:700; gap:0.35rem; color:var(--primary-600);">
+							? `<a href="${app.cv_storage_key}" target="_blank" class="btn btn-secondary btn-sm" class="text-xs font-bold gap-1 text-accent">
 									<span>@components.IconFile("icon-sm")</span>
 									<span>تحميل السيرة الذاتية (CV)</span>
 							   </a>`
@@ -933,12 +787,12 @@ templ VendorJobs(lang, dir string, data VendorJobsData) {
 						} else {
 							statusBadge = `<span class="badge badge-sky text-xs fw-700">⏳ قيد المراجعة</span>`;
 							actionButtons = `
-								<div style="display:flex; gap:0.4rem; align-items:center;">
-									<button type="button" class="btn btn-primary btn-sm fw-800" onclick="openOnboardModal(${app.id}, '${app.applicant_name}', '${jobTitle}')" style="font-size:0.75rem; padding:0.35rem 0.75rem; gap:0.3rem;">
+								<div class="d-flex gap-1.5 items-center">
+									<button type="button" class="btn btn-primary btn-sm fw-800" onclick="openOnboardModal(${app.id}, '${app.applicant_name}', '${jobTitle}')" class="text-xs px-3 py-1.5 gap-1">
 										<span>@components.IconCheckCircle("icon-sm")</span>
 										<span>قبول وتعيين</span>
 									</button>
-									<button type="button" class="btn btn-secondary btn-sm text-danger" onclick="rejectApplicant(${jobId}, ${app.id})" style="font-size:0.75rem; padding:0.35rem 0.65rem;">
+									<button type="button" class="btn btn-secondary btn-sm text-danger" onclick="rejectApplicant(${jobId}, ${app.id})" class="text-xs px-2.5 py-1.5">
 										<span>رفض</span>
 									</button>
 								</div>
@@ -946,19 +800,19 @@ templ VendorJobs(lang, dir string, data VendorJobsData) {
 						}
 
 						html += `
-							<div style="padding:1.15rem; background:var(--surface-sunken); border:1px solid var(--border); border-radius:var(--radius-xl); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem;">
+							<div class="p-4 bg-surface-sunken border rounded-2xl flex-between items-center flex-wrap gap-4">
 								<div>
 									<div class="inline-row-06">
-										<span style="font-weight:800; font-size:1rem; color:var(--text);">${app.applicant_name || 'متقدم'}</span>
+										<span class="font-black text-base text-primary">${app.applicant_name || 'متقدم'}</span>
 										${statusBadge}
 									</div>
-									<div style="display:flex; gap:1rem; font-size:0.8rem; color:var(--text-muted); margin-top:0.35rem; flex-wrap:wrap;">
+									<div class="d-flex gap-4 text-xs text-muted mt-1 flex-wrap">
 										<span>${app.applicant_email || '-'}</span>
 										<span>${app.applicant_phone || '-'}</span>
 										<span>${dateStr}</span>
 									</div>
 								</div>
-								<div style="display:flex; align-items:center; gap:0.75rem; flex-wrap:wrap;">
+								<div class="d-flex items-center gap-3 flex-wrap">
 									${cvBtn}
 									${actionButtons}
 								</div>

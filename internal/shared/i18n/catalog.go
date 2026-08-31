@@ -13,6 +13,7 @@ func loadCatalogDefaults(e *engine) {
 	loadOrgBranchesGeoKeys(e)
 	loadChatAndAttachmentsKeys(e)
 	loadErrorsAndValidationKeys(e)
+	loadWave3Keys(e)
 }
 
 func addKey(e *engine, key, namespace, textAR, textEN, desc string) {

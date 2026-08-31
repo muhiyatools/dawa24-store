@@ -1,6 +1,7 @@
 package pages
 
 import (
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/modules/org"
 	"github.com/muhiya/dawa24-store/internal/modules/workflow"
 )
@@ -24,11 +25,11 @@ func TabClass(active, current string) string {
 func reqTypeLabel(t workflow.RequestType) string {
 	switch t {
 	case workflow.RequestAction:
-		return "إجراء"
+		return i18n.T("ar", "common.action")
 	case workflow.RequestApproval:
-		return "اعتماد"
+		return i18n.T("ar", "common.approval")
 	default:
-		return "مستند"
+		return i18n.T("ar", "common.document")
 	}
 }
 
@@ -36,12 +37,12 @@ func reqTypeLabel(t workflow.RequestType) string {
 func reqStatusLabel(s workflow.RequestStatus) string {
 	switch s {
 	case workflow.RequestAccepted:
-		return "مقبول"
+		return i18n.T("ar", "common.accepted")
 	case workflow.RequestDeclined:
-		return "مرفوض"
+		return i18n.T("ar", "common.rejected")
 	case workflow.RequestCancelled:
-		return "ملغى"
+		return i18n.T("ar", "common.cancelled")
 	default:
-		return "معلق"
+		return i18n.T("ar", "common.pending")
 	}
 }

@@ -71,7 +71,7 @@ func VendorCatalogSelectPage(products []*catalog.Product, search string, lang, d
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, ")</h1></div><p class=\"text-sm text-secondary m-0\">اختر من الكتالوج المركزي الأدوية والمستحضرات المتوفرة لديك لإضافتها إلى قائمة عروضك</p></div></div><form method=\"GET\" action=\"/vendor/catalog/select\" class=\"mt-4 pt-3 border-t\"><div class=\"d-flex gap-2\" style=\"max-width:500px;\"><input type=\"text\" name=\"q\" value=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, ")</h1></div><p class=\"text-sm text-secondary m-0\">اختر من الكتالوج المركزي الأدوية والمستحضرات المتوفرة لديك لإضافتها إلى قائمة عروضك</p></div></div><form method=\"GET\" action=\"/vendor/catalog/select\" class=\"mt-4 pt-3 border-t\"><div class=\"d-flex gap-2\"><input type=\"text\" name=\"q\" value=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -102,7 +102,7 @@ func VendorCatalogSelectPage(products []*catalog.Product, search string, lang, d
 					return templ_7745c5c3_Err
 				}
 			} else {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "<form method=\"POST\" action=\"/vendor/catalog/select\"><div class=\"glass-panel p-0 mb-6 overflow-hidden\"><div class=\"table-container m-0\"><table class=\"data-table m-0\"><thead><tr><th style=\"width:40px;\" class=\"text-center\">اختيار</th><th>المنتج الدوائي</th><th>الاسم العلمي والمواصفات</th><th>سعر الجمهور</th><th class=\"text-center\">الحالة</th></tr></thead> <tbody>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "<form method=\"POST\" action=\"/vendor/catalog/select\"><div class=\"glass-panel p-0 mb-6 overflow-hidden\"><div class=\"table-container m-0\"><table class=\"data-table m-0\"><thead><tr><th class=\"text-center\">اختيار</th><th>المنتج الدوائي</th><th>الاسم العلمي والمواصفات</th><th>سعر الجمهور</th><th class=\"text-center\">الحالة</th></tr></thead> <tbody>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}

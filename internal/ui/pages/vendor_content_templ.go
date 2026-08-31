@@ -46,7 +46,7 @@ func VendorPoliciesPage(policies map[string]string, lang, dir string) templ.Comp
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"card mb-0\"><div class=\"header-row\"><div><h2 class=\"card-title m-0\">سياسات التوريد والدفع والاسترجاع للمنشأة</h2><p class=\"subtitle\">تظهر هذه السياسات في الملف التعريفي للمورد وتلزم الصيدليات المشترية بها.</p></div></div><form method=\"POST\" action=\"/vendor/policies\"><div style=\"display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:1.25rem;\"><div style=\"background:var(--surface-sunken); padding:1.25rem; border-radius:var(--radius-md);\"><h3 style=\"font-size:0.95rem; font-weight:700; margin-bottom:0.5rem;\">سياسة الشحن والتسليم</h3><textarea name=\"shipping_policy\" class=\"form-input\" rows=\"4\" placeholder=\"اكتب شروط التوصيل والحد الأدنى للطلبات...\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"card mb-0\"><div class=\"header-row\"><div><h2 class=\"card-title m-0\">سياسات التوريد والدفع والاسترجاع للمنشأة</h2><p class=\"subtitle\">تظهر هذه السياسات في الملف التعريفي للمورد وتلزم الصيدليات المشترية بها.</p></div></div><form method=\"POST\" action=\"/vendor/policies\"><div><div><h3>سياسة الشحن والتسليم</h3><textarea name=\"shipping_policy\" class=\"form-input\" rows=\"4\" placeholder=\"اكتب شروط التوصيل والحد الأدنى للطلبات...\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -59,7 +59,7 @@ func VendorPoliciesPage(policies map[string]string, lang, dir string) templ.Comp
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</textarea></div><div style=\"background:var(--surface-sunken); padding:1.25rem; border-radius:var(--radius-md);\"><h3 style=\"font-size:0.95rem; font-weight:700; margin-bottom:0.5rem;\">سياسة المرتجعات والتوالف</h3><textarea name=\"returns_policy\" class=\"form-input\" rows=\"4\" placeholder=\"اكتب شروط وفترة قبول المرتجعات...\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</textarea></div><div><h3>سياسة المرتجعات والتوالف</h3><textarea name=\"returns_policy\" class=\"form-input\" rows=\"4\" placeholder=\"اكتب شروط وفترة قبول المرتجعات...\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -72,7 +72,7 @@ func VendorPoliciesPage(policies map[string]string, lang, dir string) templ.Comp
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "</textarea></div><div style=\"background:var(--surface-sunken); padding:1.25rem; border-radius:var(--radius-md);\"><h3 style=\"font-size:0.95rem; font-weight:700; margin-bottom:0.5rem;\">شروط السداد والدفع الآجل</h3><textarea name=\"terms_policy\" class=\"form-input\" rows=\"4\" placeholder=\"اكتب شروط السداد وشيكات الضمان...\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "</textarea></div><div><h3>شروط السداد والدفع الآجل</h3><textarea name=\"terms_policy\" class=\"form-input\" rows=\"4\" placeholder=\"اكتب شروط السداد وشيكات الضمان...\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -85,7 +85,7 @@ func VendorPoliciesPage(policies map[string]string, lang, dir string) templ.Comp
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "</textarea></div></div><div style=\"display:flex; justify-content:flex-end; margin-top:1.5rem;\"><button type=\"submit\" class=\"btn btn-primary\">حفظ السياسات</button></div></form></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "</textarea></div></div><div><button type=\"submit\" class=\"btn btn-primary\">حفظ السياسات</button></div></form></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -133,7 +133,7 @@ func VendorSocialMediaPage(links map[string]string, lang, dir string) templ.Comp
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "<div class=\"card mb-0\"><div class=\"header-row\"><div><h2 class=\"card-title m-0\">قنوات التواصل الاجتماعي للمنشأة</h2><p class=\"subtitle\">روابط فيسبوك، واتساب، ولينكد إن للتواصل المباشر مع الصيدليات.</p></div></div><form method=\"POST\" action=\"/vendor/social-media\"><div style=\"display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:1.25rem;\"><div><label class=\"form-label\">رقم الواتساب الرسمي (WhatsApp)</label> <input type=\"text\" name=\"whatsapp\" value=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "<div class=\"card mb-0\"><div class=\"header-row\"><div><h2 class=\"card-title m-0\">قنوات التواصل الاجتماعي للمنشأة</h2><p class=\"subtitle\">روابط فيسبوك، واتساب، ولينكد إن للتواصل المباشر مع الصيدليات.</p></div></div><form method=\"POST\" action=\"/vendor/social-media\"><div><div><label class=\"form-label\">رقم الواتساب الرسمي (WhatsApp)</label> <input type=\"text\" name=\"whatsapp\" value=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -172,7 +172,7 @@ func VendorSocialMediaPage(links map[string]string, lang, dir string) templ.Comp
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "\" class=\"form-input\" placeholder=\"https://linkedin.com/company/...\"></div></div><div style=\"display:flex; justify-content:flex-end; margin-top:1.5rem;\"><button type=\"submit\" class=\"btn btn-primary\">حفظ الروابط</button></div></form></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "\" class=\"form-input\" placeholder=\"https://linkedin.com/company/...\"></div></div><div><button type=\"submit\" class=\"btn btn-primary\">حفظ الروابط</button></div></form></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

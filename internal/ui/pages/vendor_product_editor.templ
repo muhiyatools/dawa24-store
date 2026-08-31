@@ -17,16 +17,16 @@ type VendorVariantEditorData struct {
 
 templ VendorProductEditor(data VendorVariantEditorData, lang, dir string) {
 	@layouts.VendorShell("إضافة عرض توريد لصنف دوائي معتمد", "new_variant", lang, dir) {
-		<div class="card" style="max-width:840px; margin:0 auto; padding:2rem; border-radius:var(--radius-2xl);">
-			<div style="display:flex; align-items:center; gap:0.75rem; margin-bottom:1.5rem; border-bottom:1px solid var(--neutral-100); padding-bottom:1rem;">
-				<div style="width:40px; height:40px; border-radius:var(--radius-lg); background:var(--primary-100); color:var(--primary-700); display:flex; align-items:center; justify-content:center;">
+		<div class="card">
+			<div>
+				<div>
 					@components.IconPlus("icon-sm")
 				</div>
 				<div>
-					<h2 style="font-size:1.4rem; font-weight:900; color:var(--neutral-900); margin:0;">
+					<h2>
 						إضافة عرض توريد لصنف دوائي
 					</h2>
-					<p style="color:var(--neutral-500); font-size:0.875rem; margin:0.15rem 0 0 0;">
+					<p>
 						اختر الصنف من الكتالوج المعتمد وحدد سعر التوريد، الكمية، والخصم الممنوح للصيدليات
 					</p>
 				</div>
@@ -34,8 +34,8 @@ templ VendorProductEditor(data VendorVariantEditorData, lang, dir string) {
 
 			<form action="/vendor/variants/new" method="POST" class="stack-lg">
 				<!-- 1. Master Product Selection -->
-				<div style="background:var(--primary-50); border:1px solid var(--primary-200); padding:1.25rem; border-radius:var(--radius-xl);">
-					<label class="form-label" for="var-master-prod" style="color:var(--primary-950); font-weight:800;">
+				<div>
+					<label class="form-label" for="var-master-prod">
 						الصنف الدوائي المعتمد من هيئة الدواء (Master Product) *
 					</label>
 					<select id="var-master-prod" name="product_id" class="form-select" required>
@@ -49,13 +49,13 @@ templ VendorProductEditor(data VendorVariantEditorData, lang, dir string) {
 							</option>
 						}
 					</select>
-					<p style="font-size:0.8rem; color:var(--primary-800); margin:0.4rem 0 0 0;">
+					<p>
 						تنبيه: يتم إنشاء المنتجات الأساسية وتدقيق مواصفاتها وصورها حصرياً بواسطة إدارة المنصة.
 					</p>
 				</div>
 
 				<!-- 2. Variant Title -->
-				<div style="display:grid; grid-template-columns:1fr 1fr; gap:1.25rem;">
+				<div>
 					<div>
 						<label class="form-label" for="var-name-ar">اسم العبوة والمواصفات (عربي) *</label>
 						<input type="text" id="var-name-ar" name="name_ar" class="form-input" placeholder="مثال: علبة 30 قرص (3 شرائط)" required />
@@ -67,7 +67,7 @@ templ VendorProductEditor(data VendorVariantEditorData, lang, dir string) {
 				</div>
 
 				<!-- 3. Batch and Expiry -->
-				<div style="display:grid; grid-template-columns:1fr 1fr; gap:1.25rem;">
+				<div>
 					<div>
 						<label class="form-label" for="var-batch">رقم التشغيلة (Batch / Lot Number) *</label>
 						<input type="text" id="var-batch" name="batch_number" class="form-input tabular-nums" placeholder="مثال: BTH-2026-948" required />
@@ -79,13 +79,13 @@ templ VendorProductEditor(data VendorVariantEditorData, lang, dir string) {
 				</div>
 
 				<!-- 4. Pricing & Cost Discounts (Unified Standard) -->
-				<div style="background:var(--surface); border:1px solid var(--border); padding:1.25rem; border-radius:var(--radius-xl);" class="stack-md">
+				<div class="stack-md">
 					<div class="d-flex items-center gap-2">
 						<span class="text-brand">@components.IconWallet("icon-xs")</span>
 						<span class="font-extrabold text-sm text-primary">التسعير، الخصومات، وهوامش الربح</span>
 					</div>
 					
-					<div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
+					<div>
 						<div>
 							<label class="form-label" for="var-price">سعر الجمهور الرسمي (ج.م) <span class="text-danger">*</span></label>
 							<input type="number" step="0.01" min="0.5" id="var-price" name="price" class="form-input tabular-nums" placeholder="مثال: 100.00" required oninput="recalcProfitPreview()" />
@@ -98,7 +98,7 @@ templ VendorProductEditor(data VendorVariantEditorData, lang, dir string) {
 						</div>
 					</div>
 
-					<div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem; border-top:1px dashed var(--border); padding-top:0.75rem;">
+					<div>
 						<div>
 							<label class="form-label" for="var-cost">سعر التكلفة (ج.م) <span class="badge badge-slate text-xs">اختياري</span></label>
 							<input type="number" step="0.01" min="0" id="var-cost" name="cost_price" class="form-input tabular-nums" placeholder="0.00 (إن وجد)" oninput="recalcProfitPreview()" />
@@ -112,7 +112,7 @@ templ VendorProductEditor(data VendorVariantEditorData, lang, dir string) {
 					</div>
 
 					<!-- Real-time Profit Preview Strip -->
-					<div id="profit-calc-preview" style="background:var(--surface-raised); border:1px solid var(--primary-200); border-radius:var(--radius-lg); padding:0.75rem 1rem; display:grid; grid-template-columns:repeat(auto-fit, minmax(130px, 1fr)); gap:0.5rem; text-align:center;">
+					<div id="profit-calc-preview">
 						<div>
 							<div class="text-xs text-muted font-bold">سعر البيع بعد الخصم</div>
 							<div id="preview-selling-price" class="font-extrabold text-primary tabular-nums mt-1">0.00 ج.م</div>
@@ -162,7 +162,7 @@ templ VendorProductEditor(data VendorVariantEditorData, lang, dir string) {
 				</script>
 
 				<!-- 5. Quantities & Stock -->
-				<div style="display:grid; grid-template-columns:1fr 1fr; gap:1.25rem;">
+				<div>
 					<div>
 						<label class="form-label" for="var-stock">الكمية المتوفرة بالمخزن (الرصيد) *</label>
 						<input type="number" min="1" id="var-stock" name="stock_qty" class="form-input tabular-nums" placeholder="مثال: 500" required />
@@ -174,7 +174,7 @@ templ VendorProductEditor(data VendorVariantEditorData, lang, dir string) {
 				</div>
 
 				<!-- 6. Branch / Warehouse Location -->
-				<div style="display:grid; grid-template-columns:1fr 1fr; gap:1.25rem;">
+				<div>
 					<div>
 						<label class="form-label" for="var-branch">مخزن أو فرع الشحن المعتمد *</label>
 						<select id="var-branch" name="branch_id" class="form-select">
@@ -197,9 +197,9 @@ templ VendorProductEditor(data VendorVariantEditorData, lang, dir string) {
 					</div>
 				</div>
 
-				<div style="display:flex; justify-content:flex-end; gap:0.75rem; margin-top:1rem; border-top:1px solid var(--neutral-100); padding-top:1.25rem;">
+				<div>
 					<a href="/vendor/products" class="btn btn-secondary">إلغاء</a>
-					<button type="submit" class="btn btn-primary" style="font-weight:800; padding:0.75rem 2rem;">
+					<button type="submit" class="btn btn-primary">
 						@components.IconCheck("icon-xs")
 						<span>حفظ ونشر عرض التوريد</span>
 					</button>
