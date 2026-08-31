@@ -924,7 +924,7 @@ func VendorProducts(data VendorVariantsData, lang, dir string, isPartial bool) t
 					}
 					return nil
 				})
-				templ_7745c5c3_Err = components.Modal(components.ModalProps{ID: "add-from-catalog-modal", Title: "????? ??? ?? ???????? ??????? ?????", Size: "xl"}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var35), templ_7745c5c3_Buffer)
+				templ_7745c5c3_Err = components.Modal(components.ModalProps{ID: "add-from-catalog-modal", Title: "إضافة صنف من الكتالوج الدوائي العام", Size: "xl"}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var35), templ_7745c5c3_Buffer)
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}

@@ -273,14 +273,14 @@ templ VendorCoverageActiveTableAndBands(data VendorCoverageData, lang string) {
 			</div>
 
 			<!-- Edit Coverage Modal -->
-			@components.Modal(components.ModalProps{ID: "edit-coverage-modal", Title: "????? ???? ??????? ?????????", Size: "md"}) {
+			@components.Modal(components.ModalProps{ID: "edit-coverage-modal", Title: "إلغاء ?نوع التغطية إلغاءنوع التغطية?", Size: "md"}) {
 					<form :action="'/vendor/coverage/' + editCov.id + '/update'" method="POST" class="d-flex flex-col gap-4 m-0">
 						<input type="hidden" name="gorilla.csrf.Token" value=""/>
 						<input type="hidden" name="id" :value="editCov.id"/>
 						<input type="hidden" name="coverage_id" :value="editCov.id"/>
 
       <div class="stack-sm">
-							<label class="d-block text-xs font-bold mb-1 text-primary">??? ???????</label>
+							<label class="d-block text-xs font-bold mb-1 text-primary">مدة التوصيل (بالساعات)</label>
 							<select name="day_of_week" x-model="editCov.day_of_week" class="form-control font-bold">
 								<option value="6">السبت</option>
 								<option value="0">الأحد</option>
@@ -293,7 +293,7 @@ templ VendorCoverageActiveTableAndBands(data VendorCoverageData, lang string) {
 						</div>
 
       <div class="stack-sm">
-							<label class="d-block text-xs font-bold mb-1 text-primary">????? ???????</label>
+							<label class="d-block text-xs font-bold mb-1 text-primary">من (الحد الأدنى)</label>
 							<select name="branch_id" x-model="editCov.branch_id" class="form-control">
 								for _, b := range data.Branches {
 									<option value={ fmt.Sprintf("%d", b.ID) }>
@@ -304,9 +304,9 @@ templ VendorCoverageActiveTableAndBands(data VendorCoverageData, lang string) {
 						</div>
 
       <div class="stack-sm">
-							<label class="d-block text-xs font-bold mb-1 text-primary">??????? / ??????</label>
+							<label class="d-block text-xs font-bold mb-1 text-primary">?المحافظة / المدينة?</label>
 							<select name="city_id" x-model="editCov.city_id" class="form-control">
-								<option value="">-- ??????? --</option>
+								<option value="">-- ?نوع التغطية? --</option>
 								for _, c := range data.Cities {
 									<option value={ fmt.Sprintf("%d", c.ID) }>
 										{ c.Name.Get("ar") }
@@ -317,36 +317,36 @@ templ VendorCoverageActiveTableAndBands(data VendorCoverageData, lang string) {
 
 						<div class="d-grid grid-cols-2 gap-3">
        <div class="stack-sm">
-								<label class="d-block text-xs font-bold mb-1 text-primary">?? (??? ?????)</label>
+								<label class="d-block text-xs font-bold mb-1 text-primary">من (الحد الأدنى)</label>
 								<input type="time" name="coverage_from" x-model="editCov.coverage_from" class="form-control text-xs"/>
 							</div>
        <div class="stack-sm">
-								<label class="d-block text-xs font-bold mb-1 text-primary">??? (??? ???????)</label>
+								<label class="d-block text-xs font-bold mb-1 text-primary">من (الحد الأدنى)</label>
 								<input type="time" name="coverage_to" x-model="editCov.coverage_to" class="form-control text-xs"/>
 							</div>
 						</div>
 
       <div class="stack-sm">
-							<label class="d-block text-xs font-bold mb-1 text-primary">??? ????? (??????)</label>
+							<label class="d-block text-xs font-bold mb-1 text-primary">نصف قطر التغطية (بالمتر)</label>
 							<div class="d-flex items-center gap-2">
 								<input type="number" name="distance_meters" x-model="editCov.distance_meters" min="1" max="1000000" step="1" class="form-control text-xs font-bold flex-1" required/>
-								<span class="badge badge-primary text-xs" x-text="((editCov.distance_meters || 5000) / 1000).toFixed(1) + ' ??'"></span>
+								<span class="badge badge-primary text-xs" x-text="((editCov.distance_meters || 5000) / 1000).toFixed(1) + ' كم'"></span>
 							</div>
 						</div>
 
-      <div class="stack-sm">
-							<label class="d-block text-xs font-bold mb-1 text-primary">??????? ?? ????? ???????? (???????)</label>
-							<input type="text" name="address" x-model="editCov.address" placeholder="????: ???? ???? ??????? ??? ?????? ???????" class="form-control text-xs"/>
+						<div class="stack-sm">
+							<label class="d-block text-xs font-bold mb-1 text-primary">العنوان أو النطاق الجغرافي (اختياري)</label>
+							<input type="text" name="address" x-model="editCov.address" placeholder="مثال: قطاع شرق القاهرة، مدينة نصر ومصر الجديدة" class="form-control text-xs"/>
 						</div>
 
 						<div class="d-flex items-center gap-2 mt-2">
 							<input type="checkbox" name="is_active" value="true" :checked="editCov.is_active" id="edit_is_active" class="w-4 h-4"/>
-							<label for="edit_is_active" class="text-xs font-bold text-primary cursor-pointer">????? ??? ?????? ????? ?????? ???????</label>
+							<label for="edit_is_active" class="text-xs font-bold text-primary cursor-pointer">تفعيل هذا النطاق ضمن خيارات التوصيل</label>
 						</div>
 
 						<div class="modal-footer pt-3 border-t mt-3 flex-between items-center">
-							<button type="button" @click="closeEdit()" class="btn btn-secondary btn-sm font-bold">?????</button>
-							<button type="submit" class="btn btn-primary btn-sm font-extrabold px-6">??? ?????????</button>
+							<button type="button" @click="closeEdit()" class="btn btn-secondary btn-sm font-bold">إلغاء</button>
+							<button type="submit" class="btn btn-primary btn-sm font-extrabold px-6">حفظ التعديلات</button>
 						</div>
 					</form>
 				}

@@ -729,8 +729,8 @@ templ AdminOffersPackagesHubPage(lang, dir string, data AdminOffersPackagesData)
 			@components.Modal(components.ModalProps{
 				ID:         "add-package-modal",
 				AlpineOpen: "showAddModal",
-				Title:      "????? ???? ????? ?????? ?????",
-				Subtitle:   "????? ???? ?????? ????? ???? ???????? ????? ???????? ???????",
+				Title:      "إنشاء باقة إعلانية وترويجية جديدة",
+				Subtitle:   "تحديد نوع الباقة وقيمتها وعدد مرات الظهور في المنصة",
 				Size:       "lg",
 			}) {
 				<form method="POST" action="/admin/offers-packages/new" class="p-6 space-y-4 m-0">
@@ -849,8 +849,8 @@ templ AdminOffersPackagesHubPage(lang, dir string, data AdminOffersPackagesData)
 			@components.Modal(components.ModalProps{
 				ID:         "edit-package-modal",
 				AlpineOpen: "showEditModal",
-				Title:      "????? ???? ??????? ????????",
-				Subtitle:   "????? ????? ????? ?????? ?????? ???? ???????",
+				Title:      "تسجيل دفعة إيراد ترويجي",
+				Subtitle:   "تحديد نوع الباقة وقيمتها وعدد مرات الظهور في المنصة",
 				Size:       "lg",
 			}) {
 				<form method="POST" :action="'/admin/offers-packages/' + editPkg.id + '/edit'" class="p-6 space-y-4 m-0">
@@ -969,7 +969,7 @@ templ AdminOffersPackagesHubPage(lang, dir string, data AdminOffersPackagesData)
 			@components.Modal(components.ModalProps{
 				ID:         "reject-package-modal",
 				AlpineOpen: "showRejectModal",
-				Title:      "????? ??? ??? ???????",
+				Title:      "تسجيل دفعة إيراد ترويجي",
 				Size:       "md",
 			}) {
 				<form method="POST" :action="rejectActionUrl" class="p-6 m-0 space-y-4">

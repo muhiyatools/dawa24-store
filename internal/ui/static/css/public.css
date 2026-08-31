@@ -786,6 +786,10 @@
 }
 
 @media (max-width: 640px) {
+  .site-footer {
+    padding-block: 2rem 1.5rem;
+    padding-inline: 1rem;
+  }
   .footer-content {
     grid-template-columns: 1fr;
     gap: 1.75rem;
@@ -800,6 +804,7 @@
 }
 
 .footer-logo {
+  max-height: 40px;
   height: 36px;
   width: auto;
   object-fit: contain;

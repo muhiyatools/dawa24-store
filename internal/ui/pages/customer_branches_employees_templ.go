@@ -511,7 +511,7 @@ func CustomerEmployeesTab(data CustomerBranchesData, lang, dir string, perms []s
 		})
 		templ_7745c5c3_Err = components.Modal(components.ModalProps{
 			ID:    "add-employee-modal",
-			Title: "????? ?????? / ???? ???? ????????",
+			Title: "إضافة صيدلي / عضو جديد للفرع",
 			Size:  "md",
 		}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var20), templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
@@ -757,7 +757,7 @@ func CustomerEmployeesTab(data CustomerBranchesData, lang, dir string, perms []s
 				})
 				templ_7745c5c3_Err = components.Modal(components.ModalProps{
 					ID:    fmt.Sprintf("edit-emp-modal-%d", emp.Member.ID),
-					Title: "????? ?????? ???????? ??????",
+					Title: "تعديل صلاحيات وبيانات الموظف",
 					Size:  "md",
 				}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var24), templ_7745c5c3_Buffer)
 				if templ_7745c5c3_Err != nil {

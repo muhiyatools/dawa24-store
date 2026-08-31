@@ -913,7 +913,7 @@ func tenantSubscriptionBody(data TenantSubscriptionPageData, orgType string, lan
 		templ_7745c5c3_Err = components.Modal(components.ModalProps{
 			ID:         "checkout-plan-modal",
 			AlpineOpen: "isCheckoutOpen",
-			Title:      "????? ???????? ?????? ?? ???????",
+			Title:      "ترقية الاشتراك والتحويل إلى الباقة الأعلى",
 			Size:       "md",
 		}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var33), templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {

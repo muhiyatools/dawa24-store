@@ -273,7 +273,7 @@ templ VendorJobs(lang, dir string, data VendorJobsData) {
 		</div>
 
 		<!-- MODAL: Add New Job Modal -->
-		@components.Modal(components.ModalProps{ID: "add-job-modal", Title: "????? ????? ????? ?????", Size: "lg"}) {
+		@components.Modal(components.ModalProps{ID: "add-job-modal", Title: "إضافة وظيفة شاغرة جديدة", Size: "lg"}) {
 			<form method="POST" action="/vendor/jobs" class="stack-lg">
 				<!-- Titles -->
 				<div class="grid-2">
@@ -311,7 +311,7 @@ templ VendorJobs(lang, dir string, data VendorJobsData) {
 					</label>
 					if len(data.Branches) == 0 {
 						<div class="p-3 bg-surface-sunken border border-dashed rounded-lg text-xs text-secondary">
-							<span>?? ???? ?????? ???. ???? ??? ??????? ?? <strong>(????? ???????)</strong>. ????? ????? ????? ?? <a href="/vendor/branches" class="text-primary font-bold text-decoration-none">????? ?????? ?</a>.</span>
+							<span>لا توجد فروع مسجلة حالياً. سيتم ربط الوظيفة بـ <strong>(الفرع الرئيسي)</strong>. يمكنك إضافة فروع من <a href="/vendor/branches" class="text-primary font-bold text-decoration-none">إدارة الفروع ←</a>.</span>
 						</div>
 						<input type="hidden" name="location" value="الفرع الرئيسي" />
 					} else {
@@ -325,7 +325,7 @@ templ VendorJobs(lang, dir string, data VendorJobsData) {
 								<option value={ fmt.Sprintf("%d", b.ID) }>
 									{ b.Name.Get(i18n.ParseLang(lang)) }
 									if b.IsMain {
-										 المسمى الوظيفي (بالإنجليزية)
+										(الفرع الرئيسي)
 									}
 								</option>
 							}
@@ -337,7 +337,7 @@ templ VendorJobs(lang, dir string, data VendorJobsData) {
 				<div class="grid-2">
      <div class="stack-sm">
 						<label class="form-label">
-							???? ?????? ?????? (?.?)
+							الحد الأدنى للراتب (ج.م)
 						</label>
 						<input
 							type="number"
@@ -350,7 +350,7 @@ templ VendorJobs(lang, dir string, data VendorJobsData) {
 
      <div class="stack-sm">
 						<label class="form-label">
-							???? ?????? ?????? (?.?)
+							الحد الأقصى للراتب (ج.م)
 						</label>
 						<input
 							type="number"
@@ -379,7 +379,7 @@ templ VendorJobs(lang, dir string, data VendorJobsData) {
 				<!-- Requirements -->
     <div class="stack-sm">
 					<label class="form-label">
-						????????? ????????? ????????
+						المتطلبات والمؤهلات المطلوبة
 					</label>
 					<textarea
 						name="requirements"
@@ -392,17 +392,17 @@ templ VendorJobs(lang, dir string, data VendorJobsData) {
 				<!-- Form Footer -->
 				<div class="modal-footer pt-3 border-t flex-between items-center">
 					<button type="button" class="btn btn-secondary font-bold" onclick="closeAddJobModal()">
-						?????
+						إلغاء
 					</button>
 					<button type="submit" class="btn btn-primary font-bold px-6">
-						??? ??????? ???? 
+						نشر الوظيفة الآن
 					</button>
 				</div>
 			</form>
 		}
 
 		<!-- MODAL: Edit Job Modal -->
-		@components.Modal(components.ModalProps{ID: "edit-job-modal", Title: "????? ?????? ????? ???????? ???????", Size: "lg"}) {
+		@components.Modal(components.ModalProps{ID: "edit-job-modal", Title: "تعديل بيانات وإعدادات الوظيفة الشاغرة", Size: "lg"}) {
 			<form id="edit-job-form" method="POST" action="" class="stack-lg">
 				<input type="hidden" id="edit-job-id" name="id" value="" />
 
@@ -410,19 +410,19 @@ templ VendorJobs(lang, dir string, data VendorJobsData) {
 				<div class="grid-2 bg-surface-sunken p-3.5 border rounded-xl items-center">
      <div class="stack-sm">
 						<label class="form-label mb-1">
-							???? ??????? ???????
+							حالة الوظيفة الحالية
 						</label>
 						<select id="edit-job-status" name="status" class="form-input h-10 font-bold">
-							<option value="published">??? ????? (????? ???????? ?????? ???????)</option>
-							<option value="closed">????? (????? ?? ??????? ??? ?????? ?????)</option>
-							<option value="draft">????? (??? ??????)</option>
+							<option value="published">قيد النشر (ظاهرة للباحثين ومتاحة للتقديم)</option>
+							<option value="closed">مغلقة (مخفية ولا تستقبل طلبات جديدة)</option>
+							<option value="draft">مسودة (غير منشورة)</option>
 						</select>
 					</div>
 
 					<div class="flex-between">
       <div class="stack-sm">
-							<span class="d-block font-extrabold text-sm text-primary">????? ???????? ???????</span>
-							<span class="d-block text-xs text-muted">???? ???????? ?? ???? ??????? ????????</span>
+							<span class="d-block font-extrabold text-sm text-primary">تفعيل واستقبال التقديم</span>
+							<span class="d-block text-xs text-muted">تظهر للباحثين في منصة التوظيف المعتمدة</span>
 						</div>
 						<input type="checkbox" id="edit-job-is-active" name="is_active" value="true" class="form-check-input" />
 					</div>
@@ -458,9 +458,9 @@ templ VendorJobs(lang, dir string, data VendorJobsData) {
 				</div>
 
 				<!-- Location & Branch Selection -->
-    <div class="stack-sm">
+				<div class="stack-sm">
 					<label class="form-label">
-						????? / ??? ????? ??????
+						الفرع / مقر العمل المخصص للوظيفة
 					</label>
 					<select id="edit-job-branch-id" name="branch_id" class="form-input h-11 rounded-lg">
 						<option value="">-- اختر الفرع المتاح للوظيفة --</option>
@@ -468,7 +468,7 @@ templ VendorJobs(lang, dir string, data VendorJobsData) {
 							<option value={ fmt.Sprintf("%d", b.ID) }>
 								{ b.Name.Get(i18n.ParseLang(lang)) }
 								if b.IsMain {
-									 المسمى الوظيفي (بالإنجليزية)
+									(الفرع الرئيسي)
 								}
 							</option>
 						}
@@ -477,9 +477,9 @@ templ VendorJobs(lang, dir string, data VendorJobsData) {
 
 				<!-- Salary Range -->
 				<div class="grid-2">
-     <div class="stack-sm">
+					<div class="stack-sm">
 						<label class="form-label">
-							???? ?????? ?????? (?.?)
+							الحد الأدنى للراتب (ج.م)
 						</label>
 						<input
 							type="number"
@@ -490,9 +490,9 @@ templ VendorJobs(lang, dir string, data VendorJobsData) {
 						/>
 					</div>
 
-     <div class="stack-sm">
+					<div class="stack-sm">
 						<label class="form-label">
-							???? ?????? ?????? (?.?)
+							الحد الأقصى للراتب (ج.م)
 						</label>
 						<input
 							type="number"
@@ -519,9 +519,9 @@ templ VendorJobs(lang, dir string, data VendorJobsData) {
 				</div>
 
 				<!-- Requirements -->
-    <div class="stack-sm">
+				<div class="stack-sm">
 					<label class="form-label">
-						????????? ?????????
+						المتطلبات والمؤهلات
 					</label>
 					<textarea
 						id="edit-job-requirements"
@@ -534,18 +534,18 @@ templ VendorJobs(lang, dir string, data VendorJobsData) {
 				<!-- Form Footer -->
 				<div class="modal-footer pt-3 border-t flex-between items-center">
 					<button type="button" class="btn btn-secondary font-bold" onclick="closeEditJobModal()">
-						?????
+						إلغاء
 					</button>
 					<button type="submit" class="btn btn-primary font-bold px-6">
 						@components.IconCheck("icon-xs")
-						<span>نشر وظيفة جديدة</span>
+						<span>حفظ التعديلات</span>
 					</button>
 				</div>
 			</form>
 		}
 
 		<!-- ================= APPLICANTS MODAL ================= -->
-		@components.Modal(components.ModalProps{ID: "job-applicants-modal", Title: "????? ???????? ??????? ???????", Size: "lg"}) {
+		@components.Modal(components.ModalProps{ID: "job-applicants-modal", Title: "طلبات التقديم للوظيفة الشاغرة", Size: "lg"}) {
 			<div id="applicants-modal-subtitle" class="text-xs text-brand font-bold mb-3">
 				الوظيفة: -
 			</div>
@@ -556,16 +556,16 @@ templ VendorJobs(lang, dir string, data VendorJobsData) {
 		}
 
 		<!-- ================= ONBOARD EMPLOYEE MODAL ================= -->
-		@components.Modal(components.ModalProps{ID: "onboard-modal", Title: "???? ??????? ???????? ????????", Size: "md"}) {
+		@components.Modal(components.ModalProps{ID: "onboard-modal", Title: "قبول وتعيين المتقدم بالمنشأة", Size: "md"}) {
 			<div id="onboard-modal-subtitle" class="text-xs text-secondary mb-3">
 				الوظيفة: -
 			</div>
 			<form id="onboard-employee-form" onsubmit="submitOnboardEmployee(event)" class="d-flex flex-col gap-4 m-0">
 				<input type="hidden" id="onboard-app-id" name="applicant_id" value="" />
 
-    <div class="stack-sm">
+				<div class="stack-sm">
 					<label class="form-label">
-						الوصف الوظيفي والمهام والمسؤوليات <span class="text-danger">*</span>
+						البريد الإلكتروني المهني <span class="text-danger">*</span>
 					</label>
 					<input
 						type="email"
@@ -578,9 +578,9 @@ templ VendorJobs(lang, dir string, data VendorJobsData) {
 					/>
 				</div>
 
-    <div class="stack-sm">
+				<div class="stack-sm">
 					<label class="form-label">
-						الوصف الوظيفي والمهام والمسؤوليات <span class="text-danger">*</span>
+						كلمة المرور المبدئية <span class="text-danger">*</span>
 					</label>
 					<input
 						type="password"
@@ -588,31 +588,31 @@ templ VendorJobs(lang, dir string, data VendorJobsData) {
 						name="password"
 						required
 						minlength="8"
-						placeholder="8 ???? ??? ????"
+						placeholder="8 أحرف كحد أدنى"
 						class="form-input"
 					/>
 				</div>
 
-    <div class="stack-sm">
+				<div class="stack-sm">
 					<label class="form-label">
-						الفرع / مقر العمل المخصص للوظيفة <span class="text-danger">*</span>
+						الدور الوظيفي والصلاحيات <span class="text-danger">*</span>
 					</label>
 					<select id="onboard-role" name="role" required class="form-input font-bold">
-						<option value="pharmacist">????? (Pharmacist)</option>
-						<option value="sales_rep">????? ?????? (Sales Representative)</option>
-						<option value="accountant">????? (Accountant)</option>
-						<option value="data_entry">???? ?????? (Data Entry)</option>
-						<option value="manager">???? ??? / ????? (Manager)</option>
+						<option value="pharmacist">صيدلي (Pharmacist)</option>
+						<option value="sales_rep">مندوب مبيعات (Sales Representative)</option>
+						<option value="accountant">محاسب (Accountant)</option>
+						<option value="data_entry">مدخل بيانات (Data Entry)</option>
+						<option value="manager">مدير فرع / مسؤول (Manager)</option>
 					</select>
 				</div>
 
 				<div class="modal-footer pt-3 border-t flex-between items-center">
 					<button type="button" class="btn btn-secondary font-bold" onclick="closeOnboardModal()">
-						?????
+						إلغاء
 					</button>
 					<button type="submit" class="btn btn-primary font-bold px-6">
 						@components.IconCheck("icon-xs")
-						<span>نشر وظيفة جديدة</span>
+						<span>تأكيد التعيين والربط</span>
 					</button>
 				</div>
 			</form>

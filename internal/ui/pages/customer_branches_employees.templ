@@ -187,7 +187,7 @@ templ CustomerEmployeesTab(data CustomerBranchesData, lang, dir string, perms []
 			<!-- 1. Add Employee Modal -->
 			@components.Modal(components.ModalProps{
 				ID:    "add-employee-modal",
-				Title: "????? ?????? / ???? ???? ????????",
+				Title: "إضافة صيدلي / عضو جديد للفرع",
 				Size:  "md",
 			}) {
 				<form method="POST" action="/customer/employees/new" class="d-flex flex-col gap-4 m-0">
@@ -271,7 +271,7 @@ templ CustomerEmployeesTab(data CustomerBranchesData, lang, dir string, perms []
 				if emp != nil && emp.Member != nil {
 					@components.Modal(components.ModalProps{
 						ID:    fmt.Sprintf("edit-emp-modal-%d", emp.Member.ID),
-						Title: "????? ?????? ???????? ??????",
+						Title: "تعديل صلاحيات وبيانات الموظف",
 						Size:  "md",
 					}) {
 						<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/customer/employees/%d/edit", emp.Member.UserID)) } class="d-flex flex-col gap-4 m-0">

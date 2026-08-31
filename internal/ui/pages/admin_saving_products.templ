@@ -43,10 +43,10 @@ templ AdminSavingProductsPage(data AdminSavingProductsData, lang, dir string) {
 						</div>
       <div class="stack-sm">
 							<h1 class="text-2xl font-black text-primary m-0">
-								?????? ??????? ????? ??????? ??????
+استعراض وإدارة قائمة أصناف التوفير المخفضة والبحث في عروض الموردين
 							</h1>
 							<p class="text-sm text-secondary m-0 mt-1">
-								?????? ???? ????? ?????? ??????? ???????? ????????? ??????? ?? ??? ????????? ???????? ?????????
+استعراض وإدارة قائمة أصناف التوفير المخفضة والبحث في عروض الموردين
 							</p>
 						</div>
 					</div>
@@ -146,7 +146,7 @@ templ AdminSavingProductsPage(data AdminSavingProductsData, lang, dir string) {
 								type="text" 
 								name="q" 
 								value={ data.SearchQuery } 
-								placeholder="??? ??????? SKU? ??? ????????..." 
+								placeholder="كود الصنف SKU أو اسم المستحضر..." 
 								class="form-input text-xs w-full"
 							/>
 						</div>
@@ -157,7 +157,7 @@ templ AdminSavingProductsPage(data AdminSavingProductsData, lang, dir string) {
       <div class="stack-sm">
 							if data.SelectedOrgID > 0 || data.SelectedUserID > 0 || data.SearchQuery != "" || (data.ActiveFilter != "all" && data.ActiveFilter != "") {
 								<a href="/admin/saving-products" class="btn btn-ghost btn-sm font-bold text-xs text-muted">
-									????? ???????
+استعراض وإدارة قائمة أصناف التوفير المخفضة والبحث في عروض الموردين
 								</a>
 							}
 						</div>
@@ -242,7 +242,7 @@ templ AdminSavingProductsPage(data AdminSavingProductsData, lang, dir string) {
 												</div>
 											} else {
 												<span class="badge badge-amber text-xs font-bold">
-													??? ????? ???????
+استعراض وإدارة قائمة أصناف التوفير المخفضة والبحث في عروض الموردين
 												</span>
 											}
 										</td>
@@ -262,11 +262,11 @@ templ AdminSavingProductsPage(data AdminSavingProductsData, lang, dir string) {
 											<div class="d-flex justify-end gap-1">
 												if item.ProductID != nil && *item.ProductID > 0 {
 													<a href={ templ.SafeURL(fmt.Sprintf("/admin/products/%d", *item.ProductID)) } class="btn btn-secondary btn-xs font-bold" title="عرض تفاصيل الصنف بالكتالوج">
-														??? ?????
+														سعر العرض
 													</a>
 												} else {
 													<a href={ templ.SafeURL(fmt.Sprintf("/admin/products?q=%s", url.QueryEscape(item.NameProduct))) } class="btn btn-ghost btn-xs font-bold text-brand" title="بحث في الكتالوج للمطابقة">
-														??????
+														الكمية
 													</a>
 												}
 											</div>

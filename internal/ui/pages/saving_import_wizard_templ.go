@@ -336,7 +336,7 @@ func savingUploadStage(view SavingImportView) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "<span>تحميل نموذج CSV</span></a></div><button type=\"submit\" class=\"btn btn-primary fw-700\" id=\"upload-submit-btn\"><span>تحليل الملف ومتابعة الخطوة التالية ←</span></button></div></form></div><script>\r\n\t\tfunction handleSavingFileSelect(input) {\r\n\t\t\tif (input.files && input.files[0]) {\r\n\t\t\t\tvar file = input.files[0];\r\n\t\t\t\tvar title = document.getElementById('dropzone-title');\r\n\t\t\t\tvar hint = document.getElementById('dropzone-hint');\r\n\t\t\t\tif (title) title.textContent = '' + file.name;\r\n\t\t\t\tif (hint) hint.textContent = 'الحجم: ' + (file.size / (1024 * 1024)).toFixed(2) + ' ميجابايت — جاهز للرفع';\r\n\t\t\t}\r\n\t\t}\r\n\t</script>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "<span>تحميل نموذج CSV</span></a></div><button type=\"submit\" class=\"btn btn-primary fw-700\" id=\"upload-submit-btn\"><span>تحليل الملف ومتابعة الخطوة التالية ←</span></button></div></form></div><script>\n\t\tfunction handleSavingFileSelect(input) {\n\t\t\tif (input.files && input.files[0]) {\n\t\t\t\tvar file = input.files[0];\n\t\t\t\tvar title = document.getElementById('dropzone-title');\n\t\t\t\tvar hint = document.getElementById('dropzone-hint');\n\t\t\t\tif (title) title.textContent = '' + file.name;\n\t\t\t\tif (hint) hint.textContent = 'الحجم: ' + (file.size / (1024 * 1024)).toFixed(2) + ' ميجابايت — جاهز للرفع';\n\t\t\t}\n\t\t}\n\t</script>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

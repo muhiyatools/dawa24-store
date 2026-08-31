@@ -79,7 +79,7 @@ func AdminSavingProductsPage(data AdminSavingProductsData, lang, dir string) tem
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</div><div class=\"stack-sm\"><h1 class=\"text-2xl font-black text-primary m-0\">?????? ??????? ????? ??????? ??????</h1><p class=\"text-sm text-secondary m-0 mt-1\">?????? ???? ????? ?????? ??????? ???????? ????????? ??????? ?? ??? ????????? ???????? ?????????</p></div></div><div class=\"d-flex items-center gap-2\"><a href=\"/admin/saving-products\" class=\"btn btn-secondary btn-sm font-bold text-xs\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</div><div class=\"stack-sm\"><h1 class=\"text-2xl font-black text-primary m-0\">استعراض وإدارة قائمة أصناف التوفير المخفضة والبحث في عروض الموردين</h1><p class=\"text-sm text-secondary m-0 mt-1\">استعراض وإدارة قائمة أصناف التوفير المخفضة والبحث في عروض الموردين</p></div></div><div class=\"d-flex items-center gap-2\"><a href=\"/admin/saving-products\" class=\"btn btn-secondary btn-sm font-bold text-xs\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -349,12 +349,12 @@ func AdminSavingProductsPage(data AdminSavingProductsData, lang, dir string) tem
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 33, "\" placeholder=\"??? ??????? SKU? ??? ????????...\" class=\"form-input text-xs w-full\"></div></div><!-- Filter Actions --><div class=\"flex-between items-center pt-3 border-t mt-3 flex-wrap gap-2\"><div class=\"stack-sm\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 33, "\" placeholder=\"كود الصنف SKU أو اسم المستحضر...\" class=\"form-input text-xs w-full\"></div></div><!-- Filter Actions --><div class=\"flex-between items-center pt-3 border-t mt-3 flex-wrap gap-2\"><div class=\"stack-sm\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			if data.SelectedOrgID > 0 || data.SelectedUserID > 0 || data.SearchQuery != "" || (data.ActiveFilter != "all" && data.ActiveFilter != "") {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 34, "<a href=\"/admin/saving-products\" class=\"btn btn-ghost btn-sm font-bold text-xs text-muted\">????? ???????</a>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 34, "<a href=\"/admin/saving-products\" class=\"btn btn-ghost btn-sm font-bold text-xs text-muted\">استعراض وإدارة قائمة أصناف التوفير المخفضة والبحث في عروض الموردين</a>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -545,7 +545,7 @@ func AdminSavingProductsPage(data AdminSavingProductsData, lang, dir string) tem
 							return templ_7745c5c3_Err
 						}
 					} else {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 56, "<span class=\"badge badge-amber text-xs font-bold\">??? ????? ???????</span>")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 56, "<span class=\"badge badge-amber text-xs font-bold\">استعراض وإدارة قائمة أصناف التوفير المخفضة والبحث في عروض الموردين</span>")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
@@ -620,7 +620,7 @@ func AdminSavingProductsPage(data AdminSavingProductsData, lang, dir string) tem
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 63, "\" class=\"btn btn-secondary btn-xs font-bold\" title=\"عرض تفاصيل الصنف بالكتالوج\">??? ?????</a>")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 63, "\" class=\"btn btn-secondary btn-xs font-bold\" title=\"عرض تفاصيل الصنف بالكتالوج\">سعر العرض</a>")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
@@ -638,7 +638,7 @@ func AdminSavingProductsPage(data AdminSavingProductsData, lang, dir string) tem
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 65, "\" class=\"btn btn-ghost btn-xs font-bold text-brand\" title=\"بحث في الكتالوج للمطابقة\">??????</a>")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 65, "\" class=\"btn btn-ghost btn-xs font-bold text-brand\" title=\"بحث في الكتالوج للمطابقة\">الكمية</a>")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}

@@ -747,7 +747,7 @@ func VendorSavingProductsPage(data VendorSavingPageData, lang, dir string) templ
 				}
 				return nil
 			})
-			templ_7745c5c3_Err = components.Modal(components.ModalProps{ID: "saving-product-modal", Title: "????? ???? ?????? ????", Size: "md"}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var32), templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = components.Modal(components.ModalProps{ID: "saving-product-modal", Title: "إضافة صنف توفير جديد", Size: "md"}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var32), templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -797,7 +797,7 @@ func VendorSavingProductsPage(data VendorSavingPageData, lang, dir string) templ
 				}
 				return nil
 			})
-			templ_7745c5c3_Err = components.Modal(components.ModalProps{ID: "saving-import-modal", Title: "????? ??????? ??????? ?????? ????????", Size: "xl"}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var33), templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = components.Modal(components.ModalProps{ID: "saving-import-modal", Title: "استيراد وتحديث أسعار التوفير من ملف", Size: "xl"}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var33), templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -817,13 +817,13 @@ func VendorSavingProductsPage(data VendorSavingPageData, lang, dir string) templ
 					}()
 				}
 				ctx = templ.InitializeContext(ctx)
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 83, "<p id=\"providers-modal-subtitle\" class=\"text-xs text-muted mb-3\"></p><div id=\"providers-modal-content\" class=\"p-2\"><div class=\"text-center text-muted p-8\">? ???? ????? ???? ???????? ???????? ???????...</div></div>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 83, "<p id=\"providers-modal-subtitle\" class=\"text-xs text-muted mb-3\"></p><div id=\"providers-modal-content\" class=\"p-2\"><div class=\"text-center text-muted p-8\">جاري استرجاع عروض الشركات والموردين المتاحين...</div></div>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				return nil
 			})
-			templ_7745c5c3_Err = components.Modal(components.ModalProps{ID: "providers-modal", Title: "???? ???????? ????????? ????????", Size: "lg"}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var34), templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = components.Modal(components.ModalProps{ID: "providers-modal", Title: "عروض الموردين والشركات المتاحة", Size: "lg"}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var34), templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

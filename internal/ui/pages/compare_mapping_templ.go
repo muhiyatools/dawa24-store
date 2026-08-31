@@ -749,7 +749,7 @@ func CompareFileMappingModal(file *compare.CompareFile, headers []string, previe
 		})
 		templ_7745c5c3_Err = components.Modal(components.ModalProps{
 			ID:    "compare-mapping-modal-backdrop",
-			Title: "??? ?????? ????? ??? ??????",
+			Title: "ربط ومطابقة الصنف مع كتالوج الموردين",
 			Size:  "xl",
 			Open:  true,
 		}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var2), templ_7745c5c3_Buffer)

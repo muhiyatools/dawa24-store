@@ -1435,8 +1435,8 @@ func AdminOffersPackagesHubPage(lang, dir string, data AdminOffersPackagesData) 
 			templ_7745c5c3_Err = components.Modal(components.ModalProps{
 				ID:         "add-package-modal",
 				AlpineOpen: "showAddModal",
-				Title:      "????? ???? ????? ?????? ?????",
-				Subtitle:   "????? ???? ?????? ????? ???? ???????? ????? ???????? ???????",
+				Title:      "إنشاء باقة إعلانية وترويجية جديدة",
+				Subtitle:   "تحديد نوع الباقة وقيمتها وعدد مرات الظهور في المنصة",
 				Size:       "lg",
 			}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var51), templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
@@ -1475,8 +1475,8 @@ func AdminOffersPackagesHubPage(lang, dir string, data AdminOffersPackagesData) 
 			templ_7745c5c3_Err = components.Modal(components.ModalProps{
 				ID:         "edit-package-modal",
 				AlpineOpen: "showEditModal",
-				Title:      "????? ???? ??????? ????????",
-				Subtitle:   "????? ????? ????? ?????? ?????? ???? ???????",
+				Title:      "تسجيل دفعة إيراد ترويجي",
+				Subtitle:   "تحديد نوع الباقة وقيمتها وعدد مرات الظهور في المنصة",
 				Size:       "lg",
 			}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var52), templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
@@ -1515,7 +1515,7 @@ func AdminOffersPackagesHubPage(lang, dir string, data AdminOffersPackagesData) 
 			templ_7745c5c3_Err = components.Modal(components.ModalProps{
 				ID:         "reject-package-modal",
 				AlpineOpen: "showRejectModal",
-				Title:      "????? ??? ??? ???????",
+				Title:      "تسجيل دفعة إيراد ترويجي",
 				Size:       "md",
 			}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var53), templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {

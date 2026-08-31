@@ -313,7 +313,7 @@ templ CustomerSavingProductsPage(data CustomerSavingPageData, lang, dir string) 
 		<!-- MODAL 1: Create / Edit Saving Product Modal -->
 		@components.Modal(components.ModalProps{
 		ID:    "pharmacy-saving-product-modal",
-		Title: "????? ??? ????? ????",
+		Title: "إضافة طلب توفير جديد",
 		Size:  "md",
 	}) {
 		<form method="POST" id="pharmacy-saving-product-form" action="/customer/saving-products" class="d-flex flex-col gap-4 m-0">
@@ -421,7 +421,7 @@ templ CustomerSavingProductsPage(data CustomerSavingPageData, lang, dir string) 
 		<!-- MODAL 3: Providing Organizations & Offers Modal -->
 		@components.Modal(components.ModalProps{
 		ID:    "pharmacy-providers-modal",
-		Title: "???? ???????? ??????? ?????????",
+		Title: "تأكيد واستيراد ملف أصناف التوفير",
 		Size:  "lg",
 	}) {
 		<div id="pharmacy-providers-modal-content" class="modal-body p-4">

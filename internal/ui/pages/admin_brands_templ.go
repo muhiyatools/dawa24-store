@@ -674,7 +674,7 @@ func AdminBrandsPage(brands []BrandViewItem, totalCount, currentPage, pageSize i
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 75, "<span>إضافة صنف دوائي جديد</span></a></div></div><div class=\"modal-footer mt-4\"><form class=\"stack-md\" method=\"dialog\"><button type=\"submit\" class=\"btn btn-secondary font-bold\">?????</button></form></div>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 75, "<span>إضافة صنف دوائي جديد</span></a></div></div><div class=\"modal-footer mt-4\"><form class=\"stack-md\" method=\"dialog\"><button type=\"submit\" class=\"btn btn-secondary font-bold\">إلغاء</button></form></div>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -682,7 +682,7 @@ func AdminBrandsPage(brands []BrandViewItem, totalCount, currentPage, pageSize i
 			})
 			templ_7745c5c3_Err = components.Modal(components.ModalProps{
 				ID:    "brand-products-modal",
-				Title: "??????? ????????",
+				Title: "إلغاء إلغاء إلغاء? إلغاء",
 				Size:  "md",
 			}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var25), templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
@@ -720,7 +720,7 @@ func AdminBrandsPage(brands []BrandViewItem, totalCount, currentPage, pageSize i
 			})
 			templ_7745c5c3_Err = components.Modal(components.ModalProps{
 				ID:    "brand-create-modal",
-				Title: "????? ???? ????? / ????? ?????",
+				Title: "إلغاء إلغاء? إضافة علامة تجارية جديدة",
 				Size:  "md",
 			}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var26), templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
@@ -758,7 +758,7 @@ func AdminBrandsPage(brands []BrandViewItem, totalCount, currentPage, pageSize i
 			})
 			templ_7745c5c3_Err = components.Modal(components.ModalProps{
 				ID:    "brand-edit-modal",
-				Title: "????? ?????? ?????? ???????",
+				Title: "حذف وتأكيد العلامة التجارية",
 				Size:  "md",
 			}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var27), templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {

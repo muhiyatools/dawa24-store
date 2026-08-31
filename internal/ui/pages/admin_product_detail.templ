@@ -109,7 +109,7 @@ templ AdminProductDetailPage(p *catalog.Product, variants []*catalog.ProductVari
 					</div>
 					<div class="stat-card-sub text-muted text-xs mt-1">
 						if p.Discount.IsPositive() {
-							{ fmt.Sprintf("??? %s ?.?", p.Discount.String()) }
+							{ fmt.Sprintf("خصم %s ج.م", p.Discount.String()) }
 						} else {
 							<span>العودة لقائمة المنتجات</span>
 						}
@@ -139,7 +139,7 @@ templ AdminProductDetailPage(p *catalog.Product, variants []*catalog.ProductVari
 					<div class="d-flex items-center gap-2">
 						<span class="text-lg">@components.IconFileText("icon-sm")</span>
 						<h2 class="text-base font-black text-primary m-0">
-							????????? ????????? ???????? ????????
+							المواصفات والبيانات القياسية للأصناف
 						</h2>
 					</div>
 				</div>
@@ -331,7 +331,7 @@ templ AdminProductChildrenPage(data AdminProductChildrenData, lang, dir string) 
 								أصناف الموردين وعروض الفروع ({ fmt.Sprintf("%d", len(data.Items)) })
 							</h1>
 							<p class="text-sm text-secondary m-0 mt-1">
-								?????? ????? ???????? ????????? ??????? ?????????? ???????? ???? ????????
+								استعراض وإدارة جميع أصناف وعروض الموردين المرتبطة بالمنتج
 							</p>
 						</div>
 					</div>
@@ -358,7 +358,7 @@ templ AdminProductChildrenPage(data AdminProductChildrenData, lang, dir string) 
 							name="q"
 							value={ data.SearchQuery }
 							class="form-input text-xs w-full"
-							placeholder="????? ???? ?????? SKU? ????????? ?? ??? ????????..."
+							placeholder="ابحث باسم المورد أو كود الصنف SKU..."
 						/>
 					</div>
 					<button type="submit" class="btn btn-primary btn-sm font-bold text-xs px-3">بحث</button>
@@ -378,7 +378,7 @@ templ AdminProductChildrenPage(data AdminProductChildrenData, lang, dir string) 
 						<table class="data-table m-0">
 							<thead>
 								<tr>
-									<th class="w-12">??????</th>
+									<th class="w-12">الصورة</th>
 									<th>المنتج / SKU</th>
 									<th>المنظمة (المورد)</th>
 									<th>المورد</th>
@@ -492,11 +492,11 @@ templ AdminProductChildrenPage(data AdminProductChildrenData, lang, dir string) 
 												<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/product-child/%d/status", v.ID)) } class="m-0 inline">
 													if string(v.Status) == "active" {
 														<button type="submit" class="btn btn-secondary btn-sm text-warning" title="تعطيل العرض">
-															?????
+															تعطيل
 														</button>
 													} else {
 														<button type="submit" class="btn btn-secondary btn-sm text-success" title="تفعيل العرض">
-															?????
+															تفعيل
 														</button>
 													}
 												</form>
@@ -529,7 +529,7 @@ templ AdminApisProductsPage(lang, dir string) {
 	@layouts.AdminShell("ربط وتزامن واجهات API للمنتجات", "catalog", lang, dir) {
 		<div class="card max-w-2xl mx-auto">
 			<h2 class="card-title mb-sm">مزامنة المنتجات عبر واجهات API الخارجية</h2>
-			<p class="text-sm text-secondary mb-6">????? ?????? ????? Webhook ?Endpoints ??????? ??????? ???????? ???? ????????.</p>
+			<p class="text-sm text-secondary mb-6">سجل الروابط ونقاط النهاية (Endpoints) الخاصة بالتكامل والمزامنة التلقائية للأصناف.</p>
 			@components.EmptyState(components.EmptyStateProps{Title: "لا توجد روابط API متصلة", Message: "قم بإضافة موفر API لمزامنة المخزون تلقائياً."})
 		</div>
 	}

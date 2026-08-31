@@ -2431,7 +2431,7 @@ func SupplierProfile(lang, dir string, data SupplierProfileData) templ.Component
 			})
 			templ_7745c5c3_Err = components.Modal(components.ModalProps{
 				ID:    fmt.Sprintf("quote-modal-%d", data.Org.ID),
-				Title: "??? ??? ??? ???? ?? ??????",
+				Title: "طلب عرض سعر خاص من المورد",
 				Size:  "md",
 			}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var116), templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
@@ -2467,7 +2467,7 @@ func SupplierProfile(lang, dir string, data SupplierProfileData) templ.Component
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 268, "</div><div class=\"modal-footer mt-4\"><form class=\"stack-md\" method=\"dialog\"><button type=\"submit\" class=\"btn btn-secondary font-bold\">?????</button></form></div>")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 268, "</div><div class=\"modal-footer mt-4\"><form class=\"stack-md\" method=\"dialog\"><button type=\"submit\" class=\"btn btn-secondary font-bold\">إلغاء</button></form></div>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}

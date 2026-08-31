@@ -516,7 +516,7 @@ func AdminAuditPage(values AdminAuditValues, lang, dir string) templ.Component {
 			})
 			templ_7745c5c3_Err = components.Modal(components.ModalProps{
 				ID:    "audit-details-modal",
-				Title: "?????? ??????? ??????? ????????",
+				Title: "تصفية سجلات التدقيق والأمان",
 				Size:  "lg",
 			}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var24), templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {

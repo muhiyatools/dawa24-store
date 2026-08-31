@@ -880,8 +880,8 @@ func ModalTrigger(dialogID, class string) templ.Component {
 
 func openDialog(id string) templ.ComponentScript {
 	return templ.ComponentScript{
-		Name: `__templ_openDialog_919a`,
-		Function: `function __templ_openDialog_919a(id){const el = document.getElementById(id);
+		Name: `__templ_openDialog_3111`,
+		Function: `function __templ_openDialog_3111(id){const el = document.getElementById(id);
 	if (el && typeof el.showModal === "function") {
 		try {
 			if (!el.open) {
@@ -890,15 +890,15 @@ func openDialog(id string) templ.ComponentScript {
 		} catch (_) {}
 	}
 }`,
-		Call:       templ.SafeScript(`__templ_openDialog_919a`, id),
-		CallInline: templ.SafeScriptInline(`__templ_openDialog_919a`, id),
+		Call:       templ.SafeScript(`__templ_openDialog_3111`, id),
+		CallInline: templ.SafeScriptInline(`__templ_openDialog_3111`, id),
 	}
 }
 
 func closeDialog(id string) templ.ComponentScript {
 	return templ.ComponentScript{
-		Name: `__templ_closeDialog_48f3`,
-		Function: `function __templ_closeDialog_48f3(id){const el = document.getElementById(id);
+		Name: `__templ_closeDialog_60e7`,
+		Function: `function __templ_closeDialog_60e7(id){const el = document.getElementById(id);
 	if (el && typeof el.close === "function") {
 		try {
 			if (el.open) {
@@ -907,8 +907,8 @@ func closeDialog(id string) templ.ComponentScript {
 		} catch (_) {}
 	}
 }`,
-		Call:       templ.SafeScript(`__templ_closeDialog_48f3`, id),
-		CallInline: templ.SafeScriptInline(`__templ_closeDialog_48f3`, id),
+		Call:       templ.SafeScript(`__templ_closeDialog_60e7`, id),
+		CallInline: templ.SafeScriptInline(`__templ_closeDialog_60e7`, id),
 	}
 }
 

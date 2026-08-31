@@ -330,7 +330,7 @@ templ AdminBrandsPage(brands []BrandViewItem, totalCount, currentPage, pageSize 
 			<!-- Brand Associated Products Modal -->
 			@components.Modal(components.ModalProps{
 				ID:    "brand-products-modal",
-				Title: "??????? ????????",
+				Title: "إلغاء إلغاء إلغاء? إلغاء",
 				Size:  "md",
 			}) {
 				<div class="d-flex flex-col gap-4 text-start">
@@ -358,7 +358,7 @@ templ AdminBrandsPage(brands []BrandViewItem, totalCount, currentPage, pageSize 
 						</div>
 				<div class="modal-footer mt-4">
 					<form class="stack-md" method="dialog">
-						<button type="submit" class="btn btn-secondary font-bold">?????</button>
+						<button type="submit" class="btn btn-secondary font-bold">إلغاء</button>
 					</form>
 				</div>
 			}
@@ -366,7 +366,7 @@ templ AdminBrandsPage(brands []BrandViewItem, totalCount, currentPage, pageSize 
 			<!-- Create Brand Modal -->
 			@components.Modal(components.ModalProps{
 				ID:    "brand-create-modal",
-				Title: "????? ???? ????? / ????? ?????",
+				Title: "إلغاء إلغاء? إضافة علامة تجارية جديدة",
 				Size:  "md",
 			}) {
 				<form method="POST" action="/admin/brands/new" enctype="multipart/form-data" class="d-flex flex-col gap-4 m-0">
@@ -425,7 +425,7 @@ templ AdminBrandsPage(brands []BrandViewItem, totalCount, currentPage, pageSize 
 			<!-- Edit Brand Modal -->
 			@components.Modal(components.ModalProps{
 				ID:    "brand-edit-modal",
-				Title: "????? ?????? ?????? ???????",
+				Title: "حذف وتأكيد العلامة التجارية",
 				Size:  "md",
 			}) {
 				<form :action="'/admin/brands/' + editData.id + '/edit'" method="POST" enctype="multipart/form-data" class="d-flex flex-col gap-4 m-0">

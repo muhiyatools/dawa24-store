@@ -800,7 +800,7 @@ templ SupplierProfile(lang, dir string, data SupplierProfileData) {
 			<!-- Universal Quote Request Modal -->
 			@components.Modal(components.ModalProps{
 				ID:    fmt.Sprintf("quote-modal-%d", data.Org.ID),
-				Title: "??? ??? ??? ???? ?? ??????",
+				Title: "طلب عرض سعر خاص من المورد",
 				Size:  "md",
 			}) {
 				<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/suppliers/%d/quote", data.Org.ID)) } class="d-flex flex-col gap-4 m-0">
@@ -856,7 +856,7 @@ templ SupplierProfile(lang, dir string, data SupplierProfileData) {
 					</div>
 					<div class="modal-footer mt-4">
 						<form class="stack-md" method="dialog">
-							<button type="submit" class="btn btn-secondary font-bold">?????</button>
+							<button type="submit" class="btn btn-secondary font-bold">إلغاء</button>
 						</form>
 					</div>
 				}

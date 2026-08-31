@@ -7,7 +7,7 @@ import (
 )
 
 templ VendorProductsModals(data VendorVariantsData, lang string) {
-			@components.Modal(components.ModalProps{ID: "edit-variant-modal", Title: "????? ?????? ???? ??? ???????", Size: "md"}) {
+			@components.Modal(components.ModalProps{ID: "edit-variant-modal", Title: "تعديل تفاصيل ووحدات بيع الصنف", Size: "md"}) {
 				<form class="stack-md" method="POST" id="edit-variant-form" action="/vendor/variants/0/update">
 						<div class="stack-md">
 							
@@ -202,7 +202,7 @@ templ VendorProductsModals(data VendorVariantsData, lang string) {
 			}
 
 			<!-- MODAL 3: Add Custom Variant Modal -->
-			@components.Modal(components.ModalProps{ID: "add-custom-variant-modal", Title: "????? ??? ?? ?????? ????? ?????", Size: "md"}) {
+			@components.Modal(components.ModalProps{ID: "add-custom-variant-modal", Title: "إضافة وحدة أو تشغيلة مخصصة للصنف", Size: "md"}) {
 				<form class="stack-md" method="POST" action="/vendor/variants/new">
 						<div class="stack-md">
 							

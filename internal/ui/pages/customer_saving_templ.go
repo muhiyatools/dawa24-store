@@ -638,7 +638,7 @@ func CustomerSavingProductsPage(data CustomerSavingPageData, lang, dir string) t
 			})
 			templ_7745c5c3_Err = components.Modal(components.ModalProps{
 				ID:    "pharmacy-saving-product-modal",
-				Title: "????? ??? ????? ????",
+				Title: "إضافة طلب توفير جديد",
 				Size:  "md",
 			}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var30), templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
@@ -676,7 +676,7 @@ func CustomerSavingProductsPage(data CustomerSavingPageData, lang, dir string) t
 			})
 			templ_7745c5c3_Err = components.Modal(components.ModalProps{
 				ID:    "pharmacy-providers-modal",
-				Title: "???? ???????? ??????? ?????????",
+				Title: "تأكيد واستيراد ملف أصناف التوفير",
 				Size:  "lg",
 			}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var31), templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {

@@ -751,7 +751,7 @@ func AdminInstitutional(lang, dir string, items []*org.InstitutionalWork, allWor
 			})
 			templ_7745c5c3_Err = components.Modal(components.ModalProps{
 				ID:    "institutional-modal",
-				Title: "????? ?????? ??????? ???????",
+				Title: "إضافة مجموعة هيكلية جديدة",
 				Size:  "lg",
 			}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var27), templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
