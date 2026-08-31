@@ -313,49 +313,49 @@ templ CustomerSavingProductsPage(data CustomerSavingPageData, lang, dir string) 
 		</div>
 
 		<!-- MODAL 1: Create / Edit Saving Product Modal -->
-		<div id="pharmacy-saving-product-modal" class="modal-overlay hidden">
-			<div class="card" style="max-width:620px; width:100%; background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-2xl); padding:1.75rem; box-shadow:0 25px 50px -12px rgba(0,0,0,0.5);">
-				<div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--border); padding-bottom:1rem; margin-bottom:1.25rem;">
-					<h3 id="pharmacy-modal-title" class="text-xl fw-900 text-primary m-0">
+		<dialog id="pharmacy-saving-product-modal" class="modal" aria-labelledby="pharmacy-modal-title">
+			<div class="modal-box modal-md">
+				<div class="modal-header">
+					<h3 id="pharmacy-modal-title" class="modal-title">
 						إضافة صنف توفير جديد
 					</h3>
-					<button type="button" class="btn btn-secondary btn-sm btn-icon" onclick="closePharmacyCreateModal()">
-						@components.IconClose("icon-xs")
-					</button>
+					<form method="dialog">
+						<button type="submit" class="modal-close" aria-label="إغلاق">
+							@components.IconClose("icon-xs")
+						</button>
+					</form>
 				</div>
 
-				<form method="POST" id="pharmacy-saving-product-form" action="/customer/saving-products">
+				<form method="POST" id="pharmacy-saving-product-form" action="/customer/saving-products" class="d-flex flex-col gap-4 m-0">
 					<input type="hidden" id="pharmacy-form-saving-id" name="id" value="" />
 					
-					<div class="stack-md">
+					<div class="modal-body d-flex flex-col gap-3">
 						<div>
 							<label class="form-label text-sm fw-700 text-primary">
 								اسم الصنف الدوائي بالصيدلية <span class="text-danger">*</span>
 							</label>
 							<input
- type="text"
- id="pharmacy-form-name-product"
- name="name_product"
- required
- placeholder="مثال: أوجمنتين 1 جم 14 قرص"
- class="form-input w-full-rounded"
- 
- />
+								type="text"
+								id="pharmacy-form-name-product"
+								name="name_product"
+								required
+								placeholder="مثال: أوجمنتين 1 جم 14 قرص"
+								class="form-input w-full-rounded"
+							/>
 						</div>
 
-						<div class="grid-2">
+						<div class="d-grid grid-cols-2 gap-3">
 							<div>
 								<label class="form-label text-sm fw-700 text-primary">
 									رمز SKU (اختياري)
 								</label>
 								<input
- type="text"
- id="pharmacy-form-sku"
- name="sku"
- placeholder="كود الصنف..."
- class="form-input w-full-rounded"
- 
- />
+									type="text"
+									id="pharmacy-form-sku"
+									name="sku"
+									placeholder="كود الصنف..."
+									class="form-input w-full-rounded"
+								/>
 							</div>
 
 							<div>
@@ -363,14 +363,13 @@ templ CustomerSavingProductsPage(data CustomerSavingPageData, lang, dir string) 
 									الكمية المطلوبة
 								</label>
 								<input
- type="number"
- step="any"
- id="pharmacy-form-qty"
- name="qty"
- placeholder="0"
- class="form-input w-full-rounded"
- 
- />
+									type="number"
+									step="any"
+									id="pharmacy-form-qty"
+									name="qty"
+									placeholder="0"
+									class="form-input w-full-rounded"
+								/>
 							</div>
 						</div>
 
@@ -379,18 +378,17 @@ templ CustomerSavingProductsPage(data CustomerSavingPageData, lang, dir string) 
 								سعر الشراء الحالي / المستهدف (ج.م)
 							</label>
 							<input
- type="number"
- step="0.01"
- id="pharmacy-form-price"
- name="price"
- placeholder="0.00"
- class="form-input w-full-rounded"
- 
- />
+								type="number"
+								step="0.01"
+								id="pharmacy-form-price"
+								name="price"
+								placeholder="0.00"
+								class="form-input w-full-rounded"
+							/>
 						</div>
 
-						<div style="background:var(--surface-sunken); padding:1rem; border-radius:var(--radius-xl); border:1px solid var(--border); display:flex; flex-direction:column; gap:0.5rem;">
-							<label style="font-weight:800; color:var(--text); font-size:0.875rem;">
+						<div class="d-flex flex-col gap-2 p-3 rounded-xl border bg-surface-sunken">
+							<label class="font-extrabold text-sm text-primary">
 								ربط الصنف بالكتالوج المركزي العام
 							</label>
 							
@@ -408,8 +406,7 @@ templ CustomerSavingProductsPage(data CustomerSavingPageData, lang, dir string) 
 									type="text"
 									id="pharmacy-product-search-input"
 									placeholder="ابحث بالاسم أو SKU لربط الصنف بالكتالوج..."
-									class="form-input"
-									style="width:100%; border-radius:var(--radius-lg); font-size:0.85rem;"
+									class="form-input w-full"
 									oninput="searchPharmacyCatalogProductsLive(this.value)"
 								/>
 								<div id="pharmacy-product-search-dropdown" style="display:none; position:absolute; top:100%; left:0; right:0; z-index:100; max-height:200px; overflow-y:auto; background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-lg); box-shadow:0 10px 25px rgba(0,0,0,0.3); margin-top:0.25rem;"></div>
@@ -417,39 +414,41 @@ templ CustomerSavingProductsPage(data CustomerSavingPageData, lang, dir string) 
 						</div>
 					</div>
 
-					<div class="modal-footer-standard">
-						<button type="button" class="btn btn-secondary" onclick="closePharmacyCreateModal()">
+					<div class="modal-footer">
+						<button type="button" class="btn btn-secondary font-bold" onclick="closePharmacyCreateModal()">
 							إلغاء
 						</button>
-						<button type="submit" class="btn btn-primary" style="font-weight:800; padding:0.6rem 1.5rem;">
+						<button type="submit" class="btn btn-primary font-bold px-6">
 							حفظ وتثبيت البيانات
 						</button>
 					</div>
 				</form>
 			</div>
-		</div>
+		</dialog>
 
 		<!-- MODAL 2: Bulk Import Modal -->
 		<!-- MODAL 2: Bulk Import & Staged Review Wizard Modal -->
-		<div id="pharmacy-saving-import-modal" class="modal-overlay hidden" style="display:none; position:fixed; inset:0; z-index:9999; background:rgba(0,0,0,0.7); backdrop-filter:blur(4px); align-items:center; justify-content:center; padding:1rem;">
-			<div class="card" style="max-width:920px; width:100%; max-height:88vh; display:flex; flex-direction:column; background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-2xl); box-shadow:0 25px 50px -12px rgba(0,0,0,0.5); overflow:hidden; margin:0;">
+		<dialog id="pharmacy-saving-import-modal" class="modal" aria-labelledby="pharmacy-import-modal-title">
+			<div class="modal-box modal-xl">
 				
 				<!-- Fixed Header -->
-				<div style="flex-shrink:0; display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--border); padding:1.25rem 1.5rem; background:var(--surface-raised);">
+				<div class="modal-header">
 					<div class="row-center-sm">
 						<span class="text-2xl" id="pharmacy-import-modal-icon">@components.IconDownload("icon-sm")</span>
 						<div>
-							<h3 id="pharmacy-import-modal-title" class="text-xl fw-900 text-primary m-0">
+							<h3 id="pharmacy-import-modal-title" class="modal-title">
 								معالج استيراد ومطابقة أدوية التوفير
 							</h3>
-							<p id="pharmacy-import-modal-subtitle" style="font-size:0.75rem; color:var(--text-muted); margin:2px 0 0 0;">
+							<p id="pharmacy-import-modal-subtitle" class="text-xs text-muted mt-0.5 m-0">
 								الخطوة 1 من 3: اختيار الملف وتعيين الأعمدة
 							</p>
 						</div>
 					</div>
-					<button type="button" class="btn btn-secondary btn-sm btn-icon" onclick="closePharmacyImportModal()">
-						@components.IconClose("icon-xs")
-					</button>
+					<form method="dialog">
+						<button type="submit" class="modal-close" aria-label="إغلاق" onclick="closePharmacyImportModal()">
+							@components.IconClose("icon-xs")
+						</button>
+					</form>
 				</div>
 
 				<!-- Scrollable Body -->
@@ -670,30 +669,32 @@ templ CustomerSavingProductsPage(data CustomerSavingPageData, lang, dir string) 
 					</div>
 				</div>
 			</div>
-		</div>
+		</dialog>
 
 		<!-- MODAL 3: Providing Organizations & Offers Modal -->
-		<div id="pharmacy-providers-modal" class="modal-overlay hidden">
-			<div class="card" style="max-width:860px; width:100%; max-height:85vh; overflow-y:auto; background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-2xl); padding:1.75rem; box-shadow:0 25px 50px -12px rgba(0,0,0,0.5);">
-				<div style="display:flex; justify-content:space-between; align-items:flex-start; border-bottom:1px solid var(--border); padding-bottom:1rem; margin-bottom:1.25rem;">
+		<dialog id="pharmacy-providers-modal" class="modal" aria-labelledby="pharmacy-providers-modal-title">
+			<div class="modal-box modal-lg">
+				<div class="modal-header">
 					<div>
-						<h3 id="pharmacy-providers-modal-title" class="text-xl fw-900 text-primary m-0">
+						<h3 id="pharmacy-providers-modal-title" class="modal-title">
 							عروض الموردين المتاحة بالكتالوج
 						</h3>
-						<p id="pharmacy-providers-modal-subtitle" style="color:var(--text-muted); font-size:0.85rem; margin:0.25rem 0 0 0;"></p>
+						<p id="pharmacy-providers-modal-subtitle" class="text-xs text-muted mt-0.5 m-0"></p>
 					</div>
-					<button type="button" class="btn btn-secondary btn-sm btn-icon" onclick="closePharmacyProvidersModal()">
-						@components.IconClose("icon-xs")
-					</button>
+					<form method="dialog">
+						<button type="submit" class="modal-close" aria-label="إغلاق" onclick="closePharmacyProvidersModal()">
+							@components.IconClose("icon-xs")
+						</button>
+					</form>
 				</div>
 
-				<div id="pharmacy-providers-modal-content">
-					<div style="padding:2rem; text-align:center; color:var(--text-muted);">
+				<div id="pharmacy-providers-modal-content" class="modal-body p-4">
+					<div class="text-center text-muted p-8">
 						⏳ جاري استرجاع عروض الموردين والأسعار المتاحة...
 					</div>
 				</div>
 			</div>
-		</div>
+		</dialog>
 
 		<script>
 			function openPharmacyCreateModal() {
@@ -705,14 +706,9 @@ templ CustomerSavingProductsPage(data CustomerSavingPageData, lang, dir string) 
 				document.getElementById('pharmacy-form-qty').value = '';
 				document.getElementById('pharmacy-form-price').value = '';
 				clearPharmacySelectedProduct();
-				if (window.openModal) {
-					window.openModal('pharmacy-saving-product-modal');
-				} else {
-					const el = document.getElementById('pharmacy-saving-product-modal');
-					if (el) {
-						el.classList.remove('hidden');
-						el.style.display = 'flex';
-					}
+				const el = document.getElementById('pharmacy-saving-product-modal');
+				if (el && typeof el.showModal === 'function') {
+					el.showModal();
 				}
 			}
 
@@ -736,26 +732,16 @@ templ CustomerSavingProductsPage(data CustomerSavingPageData, lang, dir string) 
 					clearPharmacySelectedProduct();
 				}
 
-				if (window.openModal) {
-					window.openModal('pharmacy-saving-product-modal');
-				} else {
-					const el = document.getElementById('pharmacy-saving-product-modal');
-					if (el) {
-						el.classList.remove('hidden');
-						el.style.display = 'flex';
-					}
+				const el = document.getElementById('pharmacy-saving-product-modal');
+				if (el && typeof el.showModal === 'function') {
+					el.showModal();
 				}
 			}
 
 			function closePharmacyCreateModal() {
-				if (window.closeModal) {
-					window.closeModal('pharmacy-saving-product-modal');
-				} else {
-					const el = document.getElementById('pharmacy-saving-product-modal');
-					if (el) {
-						el.classList.add('hidden');
-						el.style.display = 'none';
-					}
+				const el = document.getElementById('pharmacy-saving-product-modal');
+				if (el && typeof el.close === 'function') {
+					el.close();
 				}
 			}
 
@@ -826,26 +812,16 @@ templ CustomerSavingProductsPage(data CustomerSavingPageData, lang, dir string) 
 			function openPharmacyImportModal() {
 				document.getElementById('pharmacy-import-filename-preview').innerHTML = '';
 				document.getElementById('pharmacy-import-file-input').value = '';
-				if (window.openModal) {
-					window.openModal('pharmacy-saving-import-modal');
-				} else {
-					const el = document.getElementById('pharmacy-saving-import-modal');
-					if (el) {
-						el.classList.remove('hidden');
-						el.style.display = 'flex';
-					}
+				const el = document.getElementById('pharmacy-saving-import-modal');
+				if (el && typeof el.showModal === 'function') {
+					el.showModal();
 				}
 			}
 
 			function closePharmacyImportModal() {
-				if (window.closeModal) {
-					window.closeModal('pharmacy-saving-import-modal');
-				} else {
-					const el = document.getElementById('pharmacy-saving-import-modal');
-					if (el) {
-						el.classList.add('hidden');
-						el.style.display = 'none';
-					}
+				const el = document.getElementById('pharmacy-saving-import-modal');
+				if (el && typeof el.close === 'function') {
+					el.close();
 				}
 			}
 
@@ -1283,12 +1259,8 @@ templ CustomerSavingProductsPage(data CustomerSavingPageData, lang, dir string) 
 				if (contentEl) contentEl.innerHTML = '<div style="padding:2rem; text-align:center; color:var(--text-muted);">⏳ جاري استرجاع عروض الموردين والأسعار...</div>';
 				
 				const modalEl = document.getElementById('pharmacy-providers-modal');
-				if (modalEl) {
-					modalEl.classList.remove('hidden');
-					modalEl.style.display = 'flex';
-				}
-				if (window.openModal) {
-					window.openModal('pharmacy-providers-modal');
+				if (modalEl && typeof modalEl.showModal === 'function') {
+					modalEl.showModal();
 				}
 
 				fetch('/customer/saving-products/providers/' + productId)
@@ -1345,12 +1317,8 @@ templ CustomerSavingProductsPage(data CustomerSavingPageData, lang, dir string) 
 
 			function closePharmacyProvidersModal() {
 				const el = document.getElementById('pharmacy-providers-modal');
-				if (el) {
-					el.classList.add('hidden');
-					el.style.display = 'none';
-				}
-				if (window.closeModal) {
-					window.closeModal('pharmacy-providers-modal');
+				if (el && typeof el.close === 'function') {
+					el.close();
 				}
 			}
 

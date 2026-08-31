@@ -1280,108 +1280,106 @@ templ SupplierProfile(lang, dir string, data SupplierProfileData) {
 			</div>
 
 			<!-- Universal Quote Request Modal -->
-			<div id={ fmt.Sprintf("quote-modal-%d", data.Org.ID) } class="modal-overlay hidden">
-				<div class="modal-card" style="max-width:520px; padding:1.75rem; background:var(--surface-raised); border-radius:var(--radius-xl); border:1px solid var(--border); box-shadow:var(--shadow-lg);">
-					<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.25rem; border-bottom:1px solid var(--border); padding-bottom:0.75rem;">
-						<h3 class="text-lg fw-800 text-primary m-0">
+			<dialog id={ fmt.Sprintf("quote-modal-%d", data.Org.ID) } class="modal" aria-labelledby={ fmt.Sprintf("quote-title-%d", data.Org.ID) }>
+				<div class="modal-box modal-md">
+					<div class="modal-header">
+						<h3 id={ fmt.Sprintf("quote-title-%d", data.Org.ID) } class="modal-title">
 							طلب عرض سعر مخصص من المورد
 						</h3>
-						<button type="button" class="btn btn-secondary btn-icon" data-modal-close={ fmt.Sprintf("quote-modal-%d", data.Org.ID) } style="border:none;">
-							@components.IconClose("icon-sm")
-						</button>
+						<form method="dialog">
+							<button type="submit" class="modal-close" aria-label="إغلاق">
+								@components.IconClose("icon-xs")
+							</button>
+						</form>
 					</div>
 
-					<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/suppliers/%d/quote", data.Org.ID)) } class="stack-md">
-						<div class="form-group mb-0">
-							<label class="form-label" for="q-product" style="font-size:0.85rem; font-weight:700;">اختر الصنف الدوائي (اختياري)</label>
-							<select id="q-product" name="product_id" class="form-select">
-								<option value="">طلب عرض سعر عام لكافة الاحتياجات</option>
-								for _, p := range data.Products {
-									<option value={ fmt.Sprintf("%d", p.ID) }>
-										if p.Name["ar"] != "" {
-											{ p.Name["ar"] }
-										} else {
-											{ p.Name["en"] }
-										}
-									</option>
-								}
-							</select>
+					<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/suppliers/%d/quote", data.Org.ID)) } class="d-flex flex-col gap-4 m-0">
+						<div class="modal-body d-flex flex-col gap-3">
+							<div class="form-group mb-0">
+								<label class="form-label font-bold text-xs" for="q-product">اختر الصنف الدوائي (اختياري)</label>
+								<select id="q-product" name="product_id" class="form-select w-full">
+									<option value="">طلب عرض سعر عام لكافة الاحتياجات</option>
+									for _, p := range data.Products {
+										<option value={ fmt.Sprintf("%d", p.ID) }>
+											if p.Name["ar"] != "" {
+												{ p.Name["ar"] }
+											} else {
+												{ p.Name["en"] }
+											}
+										</option>
+									}
+								</select>
+							</div>
+
+							<div class="form-group mb-0">
+								<label class="form-label font-bold text-xs" for="q-qty">الكمية التقديرية المطلوبة (عبوة) *</label>
+								<input type="number" id="q-qty" name="quantity" required min="1" value="50" class="form-input tabular-nums w-full" />
+							</div>
+
+							<div class="form-group mb-0">
+								<label class="form-label font-bold text-xs" for="q-notes">ملاحظات وشروط التوريد المطلوبة</label>
+								<textarea id="q-notes" name="notes" rows="3" placeholder="حدد شروط السداد المطلوبة أو مواعيد التسليم المفضلة..." class="form-textarea w-full"></textarea>
+							</div>
 						</div>
 
-						<div class="form-group mb-0">
-							<label class="form-label" for="q-qty" style="font-size:0.85rem; font-weight:700;">الكمية التقديرية المطلوبة (عبوة) *</label>
-							<input type="number" id="q-qty" name="quantity" required min="1" value="50" class="form-input tabular-nums" />
-						</div>
-
-						<div class="form-group mb-0">
-							<label class="form-label" for="q-notes" style="font-size:0.85rem; font-weight:700;">ملاحظات وشروط التوريد المطلوبة</label>
-							<textarea id="q-notes" name="notes" rows="3" placeholder="حدد شروط السداد المطلوبة أو مواعيد التسليم المفضلة..." class="form-textarea"></textarea>
-						</div>
-
-						<div style="display:flex; gap:0.75rem; justify-content:flex-end; margin-top:0.75rem;">
-							<button type="button" class="btn btn-secondary" data-modal-close={ fmt.Sprintf("quote-modal-%d", data.Org.ID) }>
+						<div class="modal-footer">
+							<button type="button" class="btn btn-secondary font-bold" data-modal-close={ fmt.Sprintf("quote-modal-%d", data.Org.ID) }>
 								إلغاء
 							</button>
-							<button type="submit" class="btn btn-primary fw-700">
+							<button type="submit" class="btn btn-primary font-bold">
 								@components.IconCheck("icon-xs")
 								<span>إرسال طلب عرض السعر</span>
 							</button>
 						</div>
 					</form>
 				</div>
-			</div>
+			</dialog>
 
 			<!-- Featured Section Modals -->
 			for _, s := range data.Sections {
-				<div
+				<dialog
 					id={ fmt.Sprintf("supplier-sec-modal-%d", s.ID) }
-					class="modal-overlay hidden"
-					style="position:fixed; inset:0; z-index:99999; display:none; align-items:center; justify-content:center; background:rgba(6, 10, 20, 0.82); backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px); padding:1.25rem;"
+					class="modal"
+					aria-labelledby={ fmt.Sprintf("sec-title-%d", s.ID) }
 				>
-					<div
-						class="modal-card"
-						style="width:min(94vw, 580px); background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-2xl); padding:2rem; box-shadow:0 25px 60px -15px rgba(0,0,0,0.7); position:relative; overflow:hidden;"
-					>
+					<div class="modal-box modal-md">
 						<div style={ fmt.Sprintf("position:absolute; top:0; left:0; right:0; height:4px; background:%s;", s.Color) }></div>
 
-						<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; border-bottom:1px solid var(--border); padding-bottom:1.25rem;">
-							<div style="display:flex; align-items:center; gap:0.85rem;">
-								<div style={ fmt.Sprintf("width:48px; height:48px; border-radius:var(--radius-xl); background:%s20; color:%s; display:flex; align-items:center; justify-content:center; font-size:1.5rem; border:1px solid %s40; flex-shrink:0;", s.Color, s.Color, s.Color) }>
+						<div class="modal-header">
+							<div class="d-flex items-center gap-3">
+								<div style={ fmt.Sprintf("width:40px; height:40px; border-radius:var(--radius-xl); background:%s20; color:%s; display:flex; align-items:center; justify-content:center; font-size:1.25rem; border:1px solid %s40; flex-shrink:0;", s.Color, s.Color, s.Color) }>
 									{ sectionTypeIcon(s.SectionType) }
 								</div>
-								<div>
-									<h3 style="font-size:1.35rem; font-weight:900; color:var(--text); margin:0; line-height:1.3;">
-										{ s.Title.Get(i18n.Lang(lang)) }
-									</h3>
-								</div>
+								<h3 id={ fmt.Sprintf("sec-title-%d", s.ID) } class="modal-title">
+									{ s.Title.Get(i18n.Lang(lang)) }
+								</h3>
 							</div>
-							<button
-								type="button"
-								class="btn btn-secondary btn-icon"
-								data-modal-close={ fmt.Sprintf("supplier-sec-modal-%d", s.ID) }
-								style="border-radius:var(--radius-full); width:38px; height:38px; min-width:38px; background:var(--surface-sunken); border:1px solid var(--border); cursor:pointer;"
-								title="إغلاق النافذة"
-							>
-								@components.IconClose("icon-xs")
-							</button>
+							<form method="dialog">
+								<button
+									type="submit"
+									class="modal-close"
+									aria-label="إغلاق"
+								>
+									@components.IconClose("icon-xs")
+								</button>
+							</form>
 						</div>
 
-						<div style="font-size:1.025rem; color:var(--text); line-height:1.95; white-space:pre-line; margin-bottom:1.75rem; background:var(--surface-sunken); padding:1.5rem 1.75rem; border-radius:var(--radius-xl); border:1px solid var(--border); max-height:55vh; overflow-y:auto;">
+						<div class="modal-body p-4 text-base leading-relaxed bg-surface-sunken rounded-xl border max-h-55vh overflow-y-auto">
 							{ s.Description.Get(i18n.Lang(lang)) }
 						</div>
 
-						<div class="flex justify-end">
+						<div class="modal-footer">
 							<button
 								type="button"
-								class="btn btn-primary"
+								class="btn btn-primary font-bold px-6"
 								data-modal-close={ fmt.Sprintf("supplier-sec-modal-%d", s.ID) }
-								style="font-weight:800; font-size:0.95rem; padding:0.65rem 2.25rem; border-radius:var(--radius-xl);"
 							>
 								إغلاق
 							</button>
 						</div>
 					</div>
-				</div>
+				</dialog>
 			}
 
 		</div>

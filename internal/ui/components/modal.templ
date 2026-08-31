@@ -83,8 +83,6 @@ script openDialog(id string) {
 	const el = document.getElementById(id);
 	if (el && typeof el.showModal === "function") {
 		try { el.showModal(); } catch (_) { el.setAttribute('open', ''); }
-	} else if (typeof window.openModal === "function") {
-		window.openModal(id);
 	}
 }
 
@@ -92,8 +90,6 @@ script closeDialog(id string) {
 	const el = document.getElementById(id);
 	if (el && typeof el.close === "function") {
 		try { el.close(); } catch (_) { el.removeAttribute('open'); }
-	} else if (typeof window.closeModal === "function") {
-		window.closeModal(id);
 	}
 }
 

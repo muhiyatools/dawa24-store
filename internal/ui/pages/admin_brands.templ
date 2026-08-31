@@ -64,7 +64,8 @@ templ AdminBrandsPage(brands []BrandViewItem, totalCount, currentPage, pageSize 
 						image: img || '',
 						status: status || 'active'
 					};
-					this.isEditModalOpen = true;
+					const modal = document.getElementById('brand-edit-modal');
+					if (modal && typeof modal.showModal === 'function') modal.showModal();
 				},
 				openProductsModal(id, nameAr, nameEn, count) {
 					this.selectedBrand = {
@@ -73,7 +74,8 @@ templ AdminBrandsPage(brands []BrandViewItem, totalCount, currentPage, pageSize 
 						name_en: nameEn || '',
 						count: count || 0
 					};
-					this.isProductsModalOpen = true;
+					const modal = document.getElementById('brand-products-modal');
+					if (modal && typeof modal.showModal === 'function') modal.showModal();
 				}
 			}"
 		>
@@ -91,7 +93,7 @@ templ AdminBrandsPage(brands []BrandViewItem, totalCount, currentPage, pageSize 
 					</div>
 
 					<div class="d-flex items-center gap-2">
-						<button type="button" @click="isCreateModalOpen = true" class="btn btn-primary font-bold text-xs px-3 py-2">
+						<button type="button" @click="document.getElementById('brand-create-modal').showModal()" class="btn btn-primary font-bold text-xs px-3 py-2">
 							@components.IconPlus("icon-xs")
 							<span>إضافة شركة مصنعة جديدة +</span>
 						</button>
@@ -326,218 +328,216 @@ templ AdminBrandsPage(brands []BrandViewItem, totalCount, currentPage, pageSize 
 			</div>
 
 			<!-- Brand Associated Products Modal -->
-			<div
-				x-show="isProductsModalOpen"
-				x-cloak
-				class="modal-overlay"
-				@keydown.escape.window="isProductsModalOpen = false"
+			<dialog
+				id="brand-products-modal"
+				class="modal"
+				aria-labelledby="brand-products-title"
 			>
-				<div
-					@click.outside="isProductsModalOpen = false"
-					class="modal-card modal-md p-modal"
-				>
-					<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.25rem; border-bottom:1px solid var(--border); padding-bottom:1rem;">
-						<div class="row-center-sm">
-							<div class="b2b-icon-box-sm">
+				<div class="modal-box modal-md">
+					<div class="modal-header">
+						<div class="d-flex items-center gap-2">
+							<div class="w-8 h-8 rounded-lg bg-primary-subtle text-brand flex-center">
 								@components.IconLayers("icon-xs")
 							</div>
 							<div>
-								<h3 class="text-xl fw-800 text-primary m-0" x-text="'الأصناف المرتبطة: ' + selectedBrand.name_ar"></h3>
+								<h3 id="brand-products-title" class="modal-title" x-text="'الأصناف المرتبطة: ' + selectedBrand.name_ar"></h3>
 								<span class="text-xs text-secondary" x-text="selectedBrand.name_en"></span>
 							</div>
 						</div>
-						<button type="button" @click="isProductsModalOpen = false" class="btn btn-secondary btn-icon size-8">
-							@components.IconClose("icon-xs")
-						</button>
+						<form method="dialog">
+							<button type="submit" class="modal-close" aria-label="إغلاق">
+								@components.IconClose("icon-xs")
+							</button>
+						</form>
 					</div>
 
-					<div style="display:flex; flex-direction:column; gap:1.25rem; text-align:start;">
-						<div class="b2b-metric-grid" style="grid-template-columns:1fr;">
-							<div class="stat-card" style="padding:1.25rem; background:var(--surface-sunken); border-radius:var(--radius-xl); text-align:center;">
-								<div class="text-sm text-secondary font-bold mb-xs">إجمالي الأصناف المعتمدة المسجلة لهذه الشركة</div>
-								<div class="text-2xl fw-900 text-primary tabular-nums" x-text="selectedBrand.count + ' صنف'"></div>
+					<div class="modal-body">
+						<div class="d-flex flex-col gap-4 text-start">
+							<div class="bg-surface-sunken p-4 rounded-xl border text-center">
+								<div class="text-xs text-secondary font-bold mb-1">إجمالي الأصناف المعتمدة المسجلة لهذه الشركة</div>
+								<div class="text-2xl font-black text-primary tabular-nums" x-text="selectedBrand.count + ' صنف'"></div>
+							</div>
+
+							<div class="d-flex gap-3 justify-center flex-wrap">
+								<a
+									:href="'/admin/products?brand_id=' + selectedBrand.id"
+									class="btn btn-primary font-bold flex-1 justify-center"
+								>
+									@components.IconLayers("icon-xs")
+									<span>تصفح كافة الأصناف في الكتالوج المركزي</span>
+								</a>
+								<a
+									:href="'/admin/products?new=1&brand_id=' + selectedBrand.id"
+									class="btn btn-secondary font-bold flex-1 justify-center"
+								>
+									@components.IconPlus("icon-xs")
+									<span>إضافة صنف دوائي جديد</span>
+								</a>
 							</div>
 						</div>
-
-						<div class="row-center" style="gap:0.75rem; justify-content:center;">
-							<a
-								:href="'/admin/products?brand_id=' + selectedBrand.id"
-								class="btn btn-primary fw-800"
-								style="flex:1; justify-content:center;"
-							>
-								@components.IconLayers("icon-xs")
-								<span>تصفح كافة الأصناف في الكتالوج المركزي</span>
-							</a>
-							<a
-								:href="'/admin/products?new=1&brand_id=' + selectedBrand.id"
-								class="btn btn-secondary fw-700"
-								style="flex:1; justify-content:center;"
-							>
-								@components.IconPlus("icon-xs")
-								<span>إضافة صنف دوائي جديد</span>
-							</a>
-						</div>
 					</div>
 
-					<div class="modal-footer-standard" style="margin-top:1.25rem;">
-						<button type="button" @click="isProductsModalOpen = false" class="btn btn-secondary">إغلاق</button>
+					<div class="modal-footer">
+						<form method="dialog">
+							<button type="submit" class="btn btn-secondary">إغلاق</button>
+						</form>
 					</div>
 				</div>
-			</div>
+			</dialog>
 
 			<!-- Create Brand Modal -->
-			<div
-				x-show="isCreateModalOpen"
-				x-cloak
-				class="modal-overlay"
-				@keydown.escape.window="isCreateModalOpen = false"
+			<dialog
+				id="brand-create-modal"
+				class="modal"
+				aria-labelledby="brand-create-title"
 			>
-				<div
-					@click.outside="isCreateModalOpen = false"
-					class="modal-card modal-md p-modal"
-				>
-					<div class="section-head">
-						<div class="row-center-sm">
-							<div class="b2b-icon-box-sm">
+				<div class="modal-box modal-md">
+					<div class="modal-header">
+						<div class="d-flex items-center gap-2">
+							<div class="w-8 h-8 rounded-lg bg-primary-subtle text-brand flex-center">
 								@components.IconPlus("icon-xs")
 							</div>
-							<h3 class="text-xl fw-800 text-primary m-0">
+							<h3 id="brand-create-title" class="modal-title">
 								إضافة شركة مصنعة / ماركة جديدة
 							</h3>
 						</div>
-						<button type="button" @click="isCreateModalOpen = false" class="btn btn-secondary btn-icon size-8">
-							@components.IconClose("icon-xs")
-						</button>
+						<form method="dialog">
+							<button type="submit" class="modal-close" aria-label="إغلاق">
+								@components.IconClose("icon-xs")
+							</button>
+						</form>
 					</div>
 
-					<form method="POST" action="/admin/brands/new" enctype="multipart/form-data" style="display:flex; flex-direction:column; gap:1.15rem; text-align:start;">
-						<div class="form-grid-2">
-							<div class="form-group m-0">
-								<label class="form-label">اسم الشركة المصنعة (عربي) *</label>
-								<input type="text" name="name_ar" required class="form-input" placeholder="إيفا فارما" />
+					<form method="POST" action="/admin/brands/new" enctype="multipart/form-data" class="d-flex flex-col gap-4 m-0">
+						<div class="modal-body d-flex flex-col gap-3">
+							<div class="d-grid grid-cols-2 gap-3">
+								<div class="form-group m-0">
+									<label class="form-label">اسم الشركة المصنعة (عربي) *</label>
+									<input type="text" name="name_ar" required class="form-input" placeholder="إيفا فارما" />
+								</div>
+								<div class="form-group m-0">
+									<label class="form-label">اسم الشركة (إنجليزي) *</label>
+									<input type="text" name="name_en" required class="form-input" dir="ltr" placeholder="Eva Pharma" />
+								</div>
 							</div>
+
+							<div class="d-grid grid-cols-2 gap-3">
+								<div class="form-group m-0">
+									<label class="form-label">شعار أو صورة الشركة (ملف)</label>
+									<input type="file" name="brand_image" accept=".png,.jpg,.jpeg,.webp" class="form-input p-2" />
+								</div>
+								<div class="form-group m-0">
+									<label class="form-label">أو رابط الصورة (URL)</label>
+									<input type="text" name="image_url" class="form-input" dir="ltr" placeholder="https://..." />
+								</div>
+							</div>
+
 							<div class="form-group m-0">
-								<label class="form-label">اسم الشركة (إنجليزي) *</label>
-								<input type="text" name="name_en" required class="form-input" dir="ltr" placeholder="Eva Pharma" />
+								<label class="form-label">الوصف والنبذة التعريفية (عربي)</label>
+								<textarea name="description_ar" rows="2" class="form-input" placeholder="نبذة عن الشركة، التراخيص والمقر الرئيسي..."></textarea>
+							</div>
+
+							<div class="form-group m-0">
+								<label class="form-label">الوصف (إنجليزي)</label>
+								<textarea name="description_en" rows="2" class="form-input" dir="ltr" placeholder="About the company, headquarters and certifications..."></textarea>
+							</div>
+
+							<div class="form-group m-0">
+								<label class="form-label">الحالة الأولية</label>
+								<select name="status" class="form-select">
+									<option value="active">نشط ومفعل (Active)</option>
+									<option value="inactive">معطل (Inactive)</option>
+								</select>
 							</div>
 						</div>
 
-						<div class="form-grid-2">
-							<div class="form-group m-0">
-								<label class="form-label">شعار أو صورة الشركة (ملف)</label>
-								<input type="file" name="brand_image" accept=".png,.jpg,.jpeg,.webp" class="form-input" style="padding:0.45rem;" />
-							</div>
-							<div class="form-group m-0">
-								<label class="form-label">أو رابط الصورة (URL)</label>
-								<input type="text" name="image_url" class="form-input" dir="ltr" placeholder="https://..." />
-							</div>
-						</div>
-
-						<div class="form-group m-0">
-							<label class="form-label">الوصف والنبذة التعريفية (عربي)</label>
-							<textarea name="description_ar" rows="2" class="form-input" placeholder="نبذة عن الشركة، التراخيص والمقر الرئيسي..."></textarea>
-						</div>
-
-						<div class="form-group m-0">
-							<label class="form-label">الوصف (إنجليزي)</label>
-							<textarea name="description_en" rows="2" class="form-input" dir="ltr" placeholder="About the company, headquarters and certifications..."></textarea>
-						</div>
-
-						<div class="form-group m-0">
-							<label class="form-label">الحالة الأولية</label>
-							<select name="status" class="form-select">
-								<option value="active">نشط ومفعل (Active)</option>
-								<option value="inactive">معطل (Inactive)</option>
-							</select>
-						</div>
-
-						<div class="modal-footer-standard">
-							<button type="button" @click="isCreateModalOpen = false" class="btn btn-secondary">إلغاء</button>
-							<button type="submit" class="btn btn-primary fw-800">
+						<div class="modal-footer">
+							<button type="button" onclick="document.getElementById('brand-create-modal').close()" class="btn btn-secondary">إلغاء</button>
+							<button type="submit" class="btn btn-primary font-bold">
 								@components.IconCheck("icon-xs")
 								<span>حفظ وإضافة الشركة المصنعة</span>
 							</button>
 						</div>
 					</form>
 				</div>
-			</div>
+			</dialog>
 
 			<!-- Edit Brand Modal -->
-			<div
-				x-show="isEditModalOpen"
-				x-cloak
-				class="modal-overlay"
-				@keydown.escape.window="isEditModalOpen = false"
+			<dialog
+				id="brand-edit-modal"
+				class="modal"
+				aria-labelledby="brand-edit-title"
 			>
-				<div
-					@click.outside="isEditModalOpen = false"
-					class="modal-card modal-md p-modal"
-				>
-					<div class="section-head">
-						<div class="row-center-sm">
-							<div class="b2b-icon-box-sm">
+				<div class="modal-box modal-md">
+					<div class="modal-header">
+						<div class="d-flex items-center gap-2">
+							<div class="w-8 h-8 rounded-lg bg-primary-subtle text-brand flex-center">
 								@components.IconEdit("icon-xs")
 							</div>
-							<h3 class="text-xl fw-800 text-primary m-0">
+							<h3 id="brand-edit-title" class="modal-title">
 								تعديل بيانات الشركة المصنعة
 							</h3>
 						</div>
-						<button type="button" @click="isEditModalOpen = false" class="btn btn-secondary btn-icon size-8">
-							@components.IconClose("icon-xs")
-						</button>
+						<form method="dialog">
+							<button type="submit" class="modal-close" aria-label="إغلاق">
+								@components.IconClose("icon-xs")
+							</button>
+						</form>
 					</div>
 
-					<form :action="'/admin/brands/' + editData.id + '/edit'" method="POST" enctype="multipart/form-data" style="display:flex; flex-direction:column; gap:1.15rem; text-align:start;">
-						<div class="form-grid-2">
-							<div class="form-group m-0">
-								<label class="form-label">اسم الشركة المصنعة (عربي) *</label>
-								<input type="text" name="name_ar" x-model="editData.name_ar" required class="form-input" />
+					<form :action="'/admin/brands/' + editData.id + '/edit'" method="POST" enctype="multipart/form-data" class="d-flex flex-col gap-4 m-0">
+						<div class="modal-body d-flex flex-col gap-3">
+							<div class="d-grid grid-cols-2 gap-3">
+								<div class="form-group m-0">
+									<label class="form-label">اسم الشركة المصنعة (عربي) *</label>
+									<input type="text" name="name_ar" x-model="editData.name_ar" required class="form-input" />
+								</div>
+								<div class="form-group m-0">
+									<label class="form-label">اسم الشركة (إنجليزي) *</label>
+									<input type="text" name="name_en" x-model="editData.name_en" required class="form-input" dir="ltr" />
+								</div>
 							</div>
+
+							<div class="d-grid grid-cols-2 gap-3">
+								<div class="form-group m-0">
+									<label class="form-label">تغيير الشعار أو الصورة</label>
+									<input type="file" name="brand_image" accept=".png,.jpg,.jpeg,.webp" class="form-input p-2" />
+								</div>
+								<div class="form-group m-0">
+									<label class="form-label">أو رابط الصورة (URL)</label>
+									<input type="text" name="image_url" x-model="editData.image" class="form-input" dir="ltr" />
+								</div>
+							</div>
+
 							<div class="form-group m-0">
-								<label class="form-label">اسم الشركة (إنجليزي) *</label>
-								<input type="text" name="name_en" x-model="editData.name_en" required class="form-input" dir="ltr" />
+								<label class="form-label">الوصف والنبذة التعريفية (عربي)</label>
+								<textarea name="description_ar" x-model="editData.description_ar" rows="2" class="form-input"></textarea>
+							</div>
+
+							<div class="form-group m-0">
+								<label class="form-label">الوصف (إنجليزي)</label>
+								<textarea name="description_en" x-model="editData.description_en" rows="2" class="form-input" dir="ltr"></textarea>
+							</div>
+
+							<div class="form-group m-0">
+								<label class="form-label">الحالة</label>
+								<select name="status" x-model="editData.status" class="form-select">
+									<option value="active">نشط ومفعل (Active)</option>
+									<option value="inactive">معطل (Inactive)</option>
+								</select>
 							</div>
 						</div>
 
-						<div class="form-grid-2">
-							<div class="form-group m-0">
-								<label class="form-label">تغيير الشعار أو الصورة</label>
-								<input type="file" name="brand_image" accept=".png,.jpg,.jpeg,.webp" class="form-input" style="padding:0.45rem;" />
-							</div>
-							<div class="form-group m-0">
-								<label class="form-label">أو رابط الصورة (URL)</label>
-								<input type="text" name="image_url" x-model="editData.image" class="form-input" dir="ltr" />
-							</div>
-						</div>
-
-						<div class="form-group m-0">
-							<label class="form-label">الوصف والنبذة التعريفية (عربي)</label>
-							<textarea name="description_ar" x-model="editData.description_ar" rows="2" class="form-input"></textarea>
-						</div>
-
-						<div class="form-group m-0">
-							<label class="form-label">الوصف (إنجليزي)</label>
-							<textarea name="description_en" x-model="editData.description_en" rows="2" class="form-input" dir="ltr"></textarea>
-						</div>
-
-						<div class="form-group m-0">
-							<label class="form-label">الحالة</label>
-							<select name="status" x-model="editData.status" class="form-select">
-								<option value="active">نشط ومفعل (Active)</option>
-								<option value="inactive">معطل (Inactive)</option>
-							</select>
-						</div>
-
-						<div class="modal-footer-standard">
-							<button type="button" @click="isEditModalOpen = false" class="btn btn-secondary">إلغاء</button>
-							<button type="submit" class="btn btn-primary fw-800">
+						<div class="modal-footer">
+							<button type="button" onclick="document.getElementById('brand-edit-modal').close()" class="btn btn-secondary">إلغاء</button>
+							<button type="submit" class="btn btn-primary font-bold">
 								@components.IconCheck("icon-xs")
 								<span>حفظ التعديلات</span>
 							</button>
 						</div>
 					</form>
 				</div>
-			</div>
+			</dialog>
 
 		</div>
 	}

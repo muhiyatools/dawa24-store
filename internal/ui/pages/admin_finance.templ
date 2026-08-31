@@ -44,21 +44,21 @@ templ AdminFinance(data AdminFinanceData, lang, dir string) {
 		<div
 			class="page-container"
 			x-data="{
-				isRejectModalOpen: false,
 				rejectDepositID: 0,
 				rejectDepositAmount: '',
 				rejectUserName: '',
-				isReceiptModalOpen: false,
 				receiptModalURL: '',
 				openRejectModal(id, amount, userName) {
 					this.rejectDepositID = id;
 					this.rejectDepositAmount = amount;
 					this.rejectUserName = userName;
-					this.isRejectModalOpen = true;
+					const modal = document.getElementById('finance-reject-modal');
+					if (modal && typeof modal.showModal === 'function') modal.showModal();
 				},
 				openReceiptModal(url) {
 					this.receiptModalURL = url;
-					this.isReceiptModalOpen = true;
+					const modal = document.getElementById('finance-receipt-modal');
+					if (modal && typeof modal.showModal === 'function') modal.showModal();
 				}
 			}"
 		>
@@ -872,55 +872,62 @@ templ AdminFinance(data AdminFinanceData, lang, dir string) {
 			<!-- ══════════════════════════════════════════
 			     WALLET ADJUSTMENT MODAL
 			══════════════════════════════════════════ -->
-			<div id="walletAdjustModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.75); backdrop-filter:blur(4px); z-index:9999; align-items:center; justify-content:center; padding:1rem;">
-				<div class="card" style="width:100%; max-width:480px; background:var(--surface); border:1px solid var(--border); border-radius:18px; box-shadow:var(--shadow-lg); overflow:hidden; animation:scaleIn 0.2s ease;">
-					<div style="display:flex; justify-content:space-between; align-items:center; padding:1.25rem 1.5rem; border-bottom:1px solid var(--border); background:var(--surface-sunken);">
-						<div class="row-center-sm">
-							<span style="font-size:1.3rem;">@components.IconCreditCard("icon-sm")</span>
-							<h3 style="margin:0; font-size:1.1rem; font-weight:800; color:var(--text);">تعديل وشحن رصيد المحفظة</h3>
+			<!-- ══════════════════════════════════════════
+			     WALLET ADJUSTMENT MODAL
+			══════════════════════════════════════════ -->
+			<dialog id="walletAdjustModal" class="modal" aria-labelledby="wallet-adjust-title">
+				<div class="modal-box modal-md">
+					<div class="modal-header">
+						<div class="d-flex items-center gap-2">
+							<span class="text-xl">@components.IconCreditCard("icon-sm")</span>
+							<h3 id="wallet-adjust-title" class="modal-title">تعديل وشحن رصيد المحفظة</h3>
 						</div>
-						<button type="button" onclick="closeWalletAdjustModal()" class="btn btn-secondary btn-sm" style="border:none; padding:0.25rem 0.5rem;">@components.IconX("icon-sm")</button>
+						<form method="dialog">
+							<button type="submit" class="modal-close" aria-label="إغلاق">@components.IconClose("icon-xs")</button>
+						</form>
 					</div>
-					<form id="walletAdjustForm" method="POST" action="/admin/finance/wallets/0/adjust" style="padding:1.5rem; display:flex; flex-direction:column; gap:1rem;">
+					<form id="walletAdjustForm" method="POST" action="/admin/finance/wallets/0/adjust" class="d-flex flex-col gap-4 m-0">
 						<input type="hidden" name="_csrf" value=""/>
-						<!-- Target Entity Info Banner -->
-						<div style="padding:0.75rem 1rem; border-radius:10px; background:var(--surface-sunken); border:1px solid var(--border);">
-							<div class="text-xs text-muted">المنشأة المستهدفة:</div>
-							<div id="modalTargetName" style="font-weight:800; color:var(--text); font-size:1rem; margin-top:2px;">-</div>
-							<div style="font-size:0.78rem; color:var(--text-secondary); margin-top:2px;">
-								الرصيد الحالي: <span id="modalCurrentBalance" style="font-weight:800; color:#10b981;">0.00</span>
+						<div class="modal-body d-flex flex-col gap-3">
+							<!-- Target Entity Info Banner -->
+							<div class="p-3 rounded-lg bg-surface-sunken border">
+								<div class="text-xs text-muted">المنشأة المستهدفة:</div>
+								<div id="modalTargetName" class="font-bold text-primary text-base mt-0.5">-</div>
+								<div class="text-xs text-secondary mt-0.5">
+									الرصيد الحالي: <span id="modalCurrentBalance" class="font-bold text-success">0.00</span>
+								</div>
+							</div>
+
+							<!-- Action Type -->
+							<div>
+								<label class="form-label font-bold">نوع العملية المحاسبية *</label>
+								<select name="action_type" id="modalActionType" class="form-select w-full rounded-md" required>
+									<option value="deposit">إيداع رصيد (شحن مباشر / تحويل)</option>
+									<option value="withdrawal">خصم من الرصيد (سحب / تسوية مدينة)</option>
+									<option value="adjustment">تسوية محاسبية يدوية (Adjustment)</option>
+								</select>
+							</div>
+
+							<!-- Amount -->
+							<div>
+								<label class="form-label font-bold">المبلغ بالجنيه المصري (EGP) *</label>
+								<input type="number" step="0.01" min="0.01" name="amount" class="form-input w-full rounded-md text-lg font-black tabular-nums" placeholder="0.00" required/>
+							</div>
+
+							<!-- Reason / Notes -->
+							<div>
+								<label class="form-label font-bold">سبب العملية والملاحظات المحاسبية *</label>
+								<textarea name="reason" rows="2" class="form-input w-full rounded-md text-sm" placeholder="اكتب سبب الشحن أو الخصم الإداري (إيداع بنكي، تسوية فاتورة، تعويض)..." required></textarea>
 							</div>
 						</div>
 
-						<!-- Action Type -->
-						<div>
-							<label class="form-label">نوع العملية المحاسبية *</label>
-							<select name="action_type" id="modalActionType" class="form-input" style="width:100%; border-radius:8px; padding:0.6rem 0.85rem;" required>
-								<option value="deposit">إيداع رصيد (شحن مباشر / تحويل)</option>
-								<option value="withdrawal">خصم من الرصيد (سحب / تسوية مدينة)</option>
-								<option value="adjustment">تسوية محاسبية يدوية (Adjustment)</option>
-							</select>
-						</div>
-
-						<!-- Amount -->
-						<div>
-							<label class="form-label">المبلغ بالجنيه المصري (EGP) *</label>
-							<input type="number" step="0.01" min="0.01" name="amount" class="form-input" placeholder="0.00" style="width:100%; border-radius:8px; padding:0.6rem 0.85rem; font-size:1.1rem; font-weight:800;" required/>
-						</div>
-
-						<!-- Reason / Notes -->
-						<div>
-							<label class="form-label">سبب العملية والملاحظات المحاسبية *</label>
-							<textarea name="reason" rows="2" class="form-input" placeholder="اكتب سبب الشحن أو الخصم الإداري (إيداع بنكي، تسوية فاتورة، تعويض)..." style="width:100%; border-radius:8px; padding:0.6rem 0.85rem; font-size:0.85rem;" required></textarea>
-						</div>
-
-						<div style="display:flex; gap:0.75rem; justify-content:flex-end; margin-top:0.5rem;">
+						<div class="modal-footer">
 							<button type="button" onclick="closeWalletAdjustModal()" class="btn btn-secondary flex-1">إلغاء</button>
-							<button type="submit" class="btn btn-primary" style="flex:1; font-weight:800;">تأكيد وقيد المعاملة</button>
+							<button type="submit" class="btn btn-primary font-bold flex-1">تأكيد وقيد المعاملة</button>
 						</div>
 					</form>
 				</div>
-			</div>
+			</dialog>
 
 			<script>
 				function openWalletAdjustModal(walletId, orgName, userName, balance, currency) {
@@ -933,90 +940,89 @@ templ AdminFinance(data AdminFinanceData, lang, dir string) {
 					targetName.textContent = (orgName && orgName !== '') ? orgName + ' (' + userName + ')' : userName;
 					currentBal.textContent = balance + ' ' + currency;
 
-					modal.style.display = 'flex';
+					if (modal && typeof modal.showModal === 'function') modal.showModal();
 				}
 
 				function closeWalletAdjustModal() {
 					var modal = document.getElementById('walletAdjustModal');
-					modal.style.display = 'none';
+					if (modal && typeof modal.close === 'function') modal.close();
 				}
 			</script>
 
 			<!-- Reject Deposit Request Modal -->
-			<div
-				x-show="isRejectModalOpen"
-				x-cloak
-				class="modal-overlay"
-				@keydown.escape.window="isRejectModalOpen = false"
-				style="position:fixed; inset:0; background:rgba(0,0,0,0.75); backdrop-filter:blur(4px); z-index:9999; display:flex; align-items:center; justify-content:center; padding:1rem;"
+			<dialog
+				id="finance-reject-modal"
+				class="modal"
+				aria-labelledby="finance-reject-title"
 			>
-				<div
-					@click.outside="isRejectModalOpen = false"
-					class="card"
-					style="width:100%; max-width:500px; background:var(--surface-raised); border:1px solid var(--border); border-radius:18px; box-shadow:var(--shadow-xl); padding:1.75rem; text-align:start;"
-				>
-					<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.25rem; border-bottom:1px solid var(--border); padding-bottom:0.75rem;">
-						<div class="row-center-sm" style="color:var(--danger-text);">
+				<div class="modal-box modal-sm">
+					<div class="modal-header">
+						<div class="d-flex items-center gap-2 text-danger">
 							@components.IconTrash("icon-sm")
-							<h3 class="text-lg fw-800 text-danger m-0">رفض طلب شحن المحفظة</h3>
+							<h3 id="finance-reject-title" class="modal-title text-danger">رفض طلب شحن المحفظة</h3>
 						</div>
-						<button type="button" @click="isRejectModalOpen = false" class="btn btn-secondary btn-icon size-7">
-							@components.IconClose("icon-xs")
-						</button>
+						<form method="dialog">
+							<button type="submit" class="modal-close" aria-label="إغلاق">
+								@components.IconClose("icon-xs")
+							</button>
+						</form>
 					</div>
-					<form :action="'/admin/finance/deposits/' + rejectDepositID + '/reject'" method="POST" style="display:flex; flex-direction:column; gap:1.25rem;">
-						<div style="background:var(--danger-surface); border:1px solid var(--danger-border); border-radius:var(--radius-lg); padding:0.85rem 1rem; font-size:0.85rem; color:var(--danger-text);">
-							أنت على وشك رفض طلب الإيداع المقدم من <strong x-text="rejectUserName"></strong> بمبلغ <strong class="tabular-nums" x-text="rejectDepositAmount + ' ج.م'"></strong>. لن يتم شحن الرصيد.
+					<form :action="'/admin/finance/deposits/' + rejectDepositID + '/reject'" method="POST" class="d-flex flex-col gap-4 m-0">
+						<div class="modal-body d-flex flex-col gap-3">
+							<div class="bg-danger-subtle border rounded-lg p-3 text-sm text-danger font-semibold">
+								أنت على وشك رفض طلب الإيداع المقدم من <strong x-text="rejectUserName"></strong> بمبلغ <strong class="tabular-nums" x-text="rejectDepositAmount + ' ج.م'"></strong>. لن يتم شحن الرصيد.
+							</div>
+							<div class="form-group mb-0">
+								<label class="form-label font-bold" for="rejection_reason_admin">سبب الرفض (سيظهر للمستخدم في صيدليته) *</label>
+								<textarea id="rejection_reason_admin" name="rejection_reason" rows="3" class="form-input w-full" placeholder="مثال: صورة الإيصال غير واضحة / رقم المرجع لا يطابق كشف حساب البنك / لم يصل التحويل بعد..." required></textarea>
+							</div>
 						</div>
-						<div class="form-group mb-0">
-							<label class="form-label font-bold" for="rejection_reason_admin">سبب الرفض (سيظهر للمستخدم في صيدليته) *</label>
-							<textarea id="rejection_reason_admin" name="rejection_reason" rows="3" class="form-input" placeholder="مثال: صورة الإيصال غير واضحة / رقم المرجع لا يطابق كشف حساب البنك / لم يصل التحويل بعد..." required></textarea>
-						</div>
-						<div style="display:flex; justify-content:flex-end; gap:0.5rem; margin-top:0.5rem;">
-							<button type="button" @click="isRejectModalOpen = false" class="btn btn-secondary">إلغاء</button>
-							<button type="submit" class="btn btn-danger fw-800">
+						<div class="modal-footer">
+							<button type="button" onclick="document.getElementById('finance-reject-modal').close()" class="btn btn-secondary">إلغاء</button>
+							<button type="submit" class="btn btn-danger font-bold">
 								<span>تأكيد رفض الطلب</span>
 							</button>
 						</div>
 					</form>
 				</div>
-			</div>
+			</dialog>
 
 			<!-- Receipt Preview Lightbox Modal -->
-			<div
-				x-show="isReceiptModalOpen"
-				x-cloak
-				class="modal-overlay"
-				@keydown.escape.window="isReceiptModalOpen = false"
-				style="position:fixed; inset:0; background:rgba(0,0,0,0.85); backdrop-filter:blur(6px); z-index:9999; display:flex; align-items:center; justify-content:center; padding:1.5rem;"
+			<dialog
+				id="finance-receipt-modal"
+				class="modal"
+				aria-labelledby="finance-receipt-title"
 			>
-				<div
-					@click.outside="isReceiptModalOpen = false"
-					class="card"
-					style="width:100%; max-width:760px; background:var(--surface-raised); border:1px solid var(--border); border-radius:20px; box-shadow:var(--shadow-2xl); padding:1.5rem; text-align:start;"
-				>
-					<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem; border-bottom:1px solid var(--border); padding-bottom:0.75rem;">
-						<div class="row-center-sm">
+				<div class="modal-box modal-lg">
+					<div class="modal-header">
+						<div class="d-flex items-center gap-2">
 							@components.IconFile("icon-sm")
-							<h3 class="text-lg fw-800 text-primary m-0">معاينة إشعار التحويل البنكي / الإيصال</h3>
+							<h3 id="finance-receipt-title" class="modal-title">معاينة إشعار التحويل البنكي / الإيصال</h3>
 						</div>
-						<div class="row-center-sm" style="gap:0.5rem;">
-							<a :href="receiptModalURL" target="_blank" download class="btn btn-secondary btn-xs fw-700">فتح بالحجم الكامل ↗</a>
-							<button type="button" @click="isReceiptModalOpen = false" class="btn btn-secondary btn-icon size-7">
-								@components.IconClose("icon-xs")
-							</button>
+						<div class="d-flex items-center gap-2">
+							<a :href="receiptModalURL" target="_blank" download class="btn btn-secondary btn-xs font-bold">فتح بالحجم الكامل ↗</a>
+							<form method="dialog">
+								<button type="submit" class="modal-close" aria-label="إغلاق">
+									@components.IconClose("icon-xs")
+								</button>
+							</form>
 						</div>
 					</div>
-					<div style="display:flex; justify-content:center; align-items:center; background:var(--surface-sunken); border-radius:var(--radius-lg); padding:1rem; min-height:280px; max-height:68vh; overflow:auto;">
+					<div class="modal-body p-4 bg-surface-sunken rounded-lg flex-center" style="min-height:280px; max-height:68vh;">
 						<template x-if="receiptModalURL.toLowerCase().endsWith('.pdf')">
-							<iframe :src="receiptModalURL" style="width:100%; height:500px; border:none; border-radius:var(--radius-md);"></iframe>
+							<iframe :src="receiptModalURL" class="w-full rounded-md border-0" style="height:500px;"></iframe>
 						</template>
 						<template x-if="!receiptModalURL.toLowerCase().endsWith('.pdf')">
-							<img :src="receiptModalURL" alt="إشعار التحويل" style="max-width:100%; max-height:62vh; object-fit:contain; border-radius:var(--radius-md); box-shadow:var(--shadow-md);" />
+							<img :src="receiptModalURL" alt="إشعار التحويل" class="max-w-full rounded-md shadow-md" style="max-height:62vh; object-fit:contain;" />
 						</template>
 					</div>
+					<div class="modal-footer">
+						<form method="dialog">
+							<button type="submit" class="btn btn-secondary">إغلاق</button>
+						</form>
+					</div>
 				</div>
-			</div>
+			</dialog>
 
 		</div>
 	}

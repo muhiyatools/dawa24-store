@@ -368,18 +368,20 @@ templ VendorSavingProductsPage(data VendorSavingPageData, lang, dir string) {
 		</div>
 
 		<!-- MODAL 1: Create / Edit Saving Product Modal -->
-		<div id="saving-product-modal" class="modal-overlay hidden">
-			<div class="card" style="max-width:620px; width:100%; background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-2xl); padding:1.75rem; box-shadow:0 25px 50px -12px rgba(0,0,0,0.5);">
-				<div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--border); padding-bottom:1rem; margin-bottom:1.25rem;">
-					<h3 id="modal-title" class="text-xl fw-900 text-primary m-0">
+		<dialog id="saving-product-modal" class="modal" aria-labelledby="modal-title">
+			<div class="modal-box modal-md">
+				<div class="modal-header">
+					<h3 id="modal-title" class="modal-title">
 						إضافة منتج مساعدة جديد
 					</h3>
-					<button type="button" class="btn btn-secondary btn-sm btn-icon" onclick="closeCreateModal()">
-						@components.IconClose("icon-xs")
-					</button>
+					<form method="dialog">
+						<button type="submit" class="modal-close" aria-label="إغلاق" onclick="closeCreateModal()">
+							@components.IconClose("icon-xs")
+						</button>
+					</form>
 				</div>
 
-				<form method="POST" id="saving-product-form" action="/vendor/saving-products">
+				<form method="POST" id="saving-product-form" action="/vendor/saving-products" class="d-flex flex-col gap-4 m-0">
 					<input type="hidden" id="form-saving-id" name="id" value="" />
 					
 					<div class="stack-md">
@@ -479,38 +481,40 @@ templ VendorSavingProductsPage(data VendorSavingPageData, lang, dir string) {
 					</div>
 
 					<!-- Form Footer -->
-					<div class="modal-footer-standard">
-						<button type="button" class="btn btn-secondary" onclick="closeCreateModal()">
+					<div class="modal-footer">
+						<button type="button" class="btn btn-secondary font-bold" onclick="closeCreateModal()">
 							إلغاء
 						</button>
-						<button type="submit" class="btn btn-primary" style="font-weight:800; padding:0.6rem 1.5rem;">
+						<button type="submit" class="btn btn-primary font-bold px-6">
 							حفظ وتثبيت البيانات
 						</button>
 					</div>
 				</form>
 			</div>
-		</div>
+		</dialog>
 
 		<!-- MODAL 2: Bulk Import & Staged Review Wizard Modal -->
-		<div id="saving-import-modal" class="modal-overlay hidden" style="display:none; position:fixed; inset:0; z-index:9999; background:rgba(0,0,0,0.7); backdrop-filter:blur(4px); align-items:center; justify-content:center; padding:1rem;">
-			<div class="card" style="max-width:920px; width:100%; max-height:88vh; display:flex; flex-direction:column; background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-2xl); box-shadow:0 25px 50px -12px rgba(0,0,0,0.5); overflow:hidden; margin:0;">
+		<dialog id="saving-import-modal" class="modal" aria-labelledby="vendor-import-modal-title">
+			<div class="modal-box modal-xl">
 				
 				<!-- Fixed Header -->
-				<div style="flex-shrink:0; display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--border); padding:1.25rem 1.5rem; background:var(--surface-raised);">
+				<div class="modal-header">
 					<div class="row-center-sm">
 						<span class="text-2xl" id="vendor-import-modal-icon">@components.IconDownload("icon-sm")</span>
 						<div>
-							<h3 id="vendor-import-modal-title" class="text-xl fw-900 text-primary m-0">
+							<h3 id="vendor-import-modal-title" class="modal-title">
 								معالج استيراد ومطابقة منتجات المساعدة
 							</h3>
-							<p id="vendor-import-modal-subtitle" style="font-size:0.75rem; color:var(--text-muted); margin:2px 0 0 0;">
+							<p id="vendor-import-modal-subtitle" class="text-xs text-muted mt-0.5 m-0">
 								الخطوة 1 من 3: اختيار الملف وتعيين الأعمدة
 							</p>
 						</div>
 					</div>
-					<button type="button" class="btn btn-secondary btn-sm btn-icon" onclick="closeImportModal()">
-						@components.IconClose("icon-xs")
-					</button>
+					<form method="dialog">
+						<button type="submit" class="modal-close" aria-label="إغلاق" onclick="closeImportModal()">
+							@components.IconClose("icon-xs")
+						</button>
+					</form>
 				</div>
 
 				<!-- Scrollable Body -->
@@ -735,30 +739,32 @@ templ VendorSavingProductsPage(data VendorSavingPageData, lang, dir string) {
 					</div>
 				</div>
 			</div>
-		</div>
+		</dialog>
 
 		<!-- MODAL 3: Providing Organizations & Offers Modal -->
-		<div id="providers-modal" class="modal-overlay hidden">
-			<div class="card" style="max-width:860px; width:100%; max-height:85vh; overflow-y:auto; background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-2xl); padding:1.75rem; box-shadow:0 25px 50px -12px rgba(0,0,0,0.5);">
-				<div style="display:flex; justify-content:space-between; align-items:flex-start; border-bottom:1px solid var(--border); padding-bottom:1rem; margin-bottom:1.25rem;">
+		<dialog id="providers-modal" class="modal" aria-labelledby="providers-modal-title">
+			<div class="modal-box modal-lg">
+				<div class="modal-header">
 					<div>
-						<h3 id="providers-modal-title" class="text-xl fw-900 text-primary m-0">
+						<h3 id="providers-modal-title" class="modal-title">
 							عروض الموردين والمنظمات المتوفرة
 						</h3>
-						<p id="providers-modal-subtitle" style="color:var(--text-muted); font-size:0.85rem; margin:0.25rem 0 0 0;"></p>
+						<p id="providers-modal-subtitle" class="text-xs text-muted mt-0.5 m-0"></p>
 					</div>
-					<button type="button" class="btn btn-secondary btn-sm btn-icon" onclick="closeProvidersModal()">
-						@components.IconClose("icon-xs")
-					</button>
+					<form method="dialog">
+						<button type="submit" class="modal-close" aria-label="إغلاق" onclick="closeProvidersModal()">
+							@components.IconClose("icon-xs")
+						</button>
+					</form>
 				</div>
 
-				<div id="providers-modal-content">
-					<div style="padding:2rem; text-align:center; color:var(--text-muted);">
+				<div id="providers-modal-content" class="modal-body p-4">
+					<div class="text-center text-muted p-8">
 						⏳ جاري تحميل عروض المنظمات والأسعار المتاحة...
 					</div>
 				</div>
 			</div>
-		</div>
+		</dialog>
 
 		<!-- JavaScript for all-in-one Saving Products operations -->
 		<script>
@@ -771,14 +777,9 @@ templ VendorSavingProductsPage(data VendorSavingPageData, lang, dir string) {
 				document.getElementById('form-qty').value = '';
 				document.getElementById('form-price').value = '';
 				clearSelectedProduct();
-				if (window.openModal) {
-					window.openModal('saving-product-modal');
-				} else {
-					const el = document.getElementById('saving-product-modal');
-					if (el) {
-						el.classList.remove('hidden');
-						el.style.display = 'flex';
-					}
+				const el = document.getElementById('saving-product-modal');
+				if (el && typeof el.showModal === 'function') {
+					el.showModal();
 				}
 			}
 
@@ -802,26 +803,16 @@ templ VendorSavingProductsPage(data VendorSavingPageData, lang, dir string) {
 					clearSelectedProduct();
 				}
 
-				if (window.openModal) {
-					window.openModal('saving-product-modal');
-				} else {
-					const el = document.getElementById('saving-product-modal');
-					if (el) {
-						el.classList.remove('hidden');
-						el.style.display = 'flex';
-					}
+				const el = document.getElementById('saving-product-modal');
+				if (el && typeof el.showModal === 'function') {
+					el.showModal();
 				}
 			}
 
 			function closeCreateModal() {
-				if (window.closeModal) {
-					window.closeModal('saving-product-modal');
-				} else {
-					const el = document.getElementById('saving-product-modal');
-					if (el) {
-						el.classList.add('hidden');
-						el.style.display = 'none';
-					}
+				const el = document.getElementById('saving-product-modal');
+				if (el && typeof el.close === 'function') {
+					el.close();
 				}
 			}
 
@@ -892,26 +883,16 @@ templ VendorSavingProductsPage(data VendorSavingPageData, lang, dir string) {
 			function openImportModal() {
 				document.getElementById('import-filename-preview').innerHTML = '';
 				document.getElementById('import-file-input').value = '';
-				if (window.openModal) {
-					window.openModal('saving-import-modal');
-				} else {
-					const el = document.getElementById('saving-import-modal');
-					if (el) {
-						el.classList.remove('hidden');
-						el.style.display = 'flex';
-					}
+				const el = document.getElementById('saving-import-modal');
+				if (el && typeof el.showModal === 'function') {
+					el.showModal();
 				}
 			}
 
 			function closeImportModal() {
-				if (window.closeModal) {
-					window.closeModal('saving-import-modal');
-				} else {
-					const el = document.getElementById('saving-import-modal');
-					if (el) {
-						el.classList.add('hidden');
-						el.style.display = 'none';
-					}
+				const el = document.getElementById('saving-import-modal');
+				if (el && typeof el.close === 'function') {
+					el.close();
 				}
 			}
 
@@ -1346,14 +1327,9 @@ templ VendorSavingProductsPage(data VendorSavingPageData, lang, dir string) {
 				document.getElementById('providers-modal-subtitle').textContent = 'الصنف: ' + productName;
 				document.getElementById('providers-modal-content').innerHTML = '<div style="padding:2rem; text-align:center; color:var(--text-muted);">⏳ جاري استرجاع عروض الموردين والأسعار...</div>';
 				
-				if (window.openModal) {
-					window.openModal('providers-modal');
-				} else {
-					const el = document.getElementById('providers-modal');
-					if (el) {
-						el.classList.remove('hidden');
-						el.style.display = 'flex';
-					}
+				const el = document.getElementById('providers-modal');
+				if (el && typeof el.showModal === 'function') {
+					el.showModal();
 				}
 
 				fetch('/vendor/saving-products/providers/' + productId)
@@ -1393,14 +1369,9 @@ templ VendorSavingProductsPage(data VendorSavingPageData, lang, dir string) {
 			}
 
 			function closeProvidersModal() {
-				if (window.closeModal) {
-					window.closeModal('providers-modal');
-				} else {
-					const el = document.getElementById('providers-modal');
-					if (el) {
-						el.classList.add('hidden');
-						el.style.display = 'none';
-					}
+				const el = document.getElementById('providers-modal');
+				if (el && typeof el.close === 'function') {
+					el.close();
 				}
 			}
 

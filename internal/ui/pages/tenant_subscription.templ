@@ -420,16 +420,14 @@ templ tenantSubscriptionBody(data TenantSubscriptionPageData, orgType string, la
 		</div>
 
 		<!-- In-App Wallet Checkout Modal -->
-		<div
-			x-show="isCheckoutOpen"
+		<dialog
+			:open="isCheckoutOpen"
 			x-cloak
-			class="modal-overlay"
+			class="modal"
 			@keydown.escape.window="isCheckoutOpen = false"
+			@click.self="isCheckoutOpen = false"
 		>
-			<div
-				class="modal-box modal-md"
-				@click.outside="isCheckoutOpen = false"
-			>
+			<div class="modal-box modal-md">
 				<!-- Modal Header -->
 				<div class="modal-header">
 					<div class="d-flex items-center gap-2.5">
@@ -563,7 +561,7 @@ templ tenantSubscriptionBody(data TenantSubscriptionPageData, orgType string, la
 					</div>
 				</form>
 			</div>
-		</div>
+		</dialog>
 
 	</div>
 }

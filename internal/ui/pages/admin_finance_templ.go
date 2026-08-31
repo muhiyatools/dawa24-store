@@ -80,7 +80,7 @@ func AdminFinance(data AdminFinanceData, lang, dir string) templ.Component {
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"page-container\" x-data=\"{\n\t\t\t\tisRejectModalOpen: false,\n\t\t\t\trejectDepositID: 0,\n\t\t\t\trejectDepositAmount: '',\n\t\t\t\trejectUserName: '',\n\t\t\t\tisReceiptModalOpen: false,\n\t\t\t\treceiptModalURL: '',\n\t\t\t\topenRejectModal(id, amount, userName) {\n\t\t\t\t\tthis.rejectDepositID = id;\n\t\t\t\t\tthis.rejectDepositAmount = amount;\n\t\t\t\t\tthis.rejectUserName = userName;\n\t\t\t\t\tthis.isRejectModalOpen = true;\n\t\t\t\t},\n\t\t\t\topenReceiptModal(url) {\n\t\t\t\t\tthis.receiptModalURL = url;\n\t\t\t\t\tthis.isReceiptModalOpen = true;\n\t\t\t\t}\n\t\t\t}\"><!-- Header Title & Quick Export Row --><div class=\"glass-panel p-6 mb-6\"><div class=\"flex-between items-center flex-wrap gap-4\"><div class=\"d-flex items-center gap-3\"><div class=\"user-avatar-badge text-xl\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"page-container\" x-data=\"{\n\t\t\t\trejectDepositID: 0,\n\t\t\t\trejectDepositAmount: '',\n\t\t\t\trejectUserName: '',\n\t\t\t\treceiptModalURL: '',\n\t\t\t\topenRejectModal(id, amount, userName) {\n\t\t\t\t\tthis.rejectDepositID = id;\n\t\t\t\t\tthis.rejectDepositAmount = amount;\n\t\t\t\t\tthis.rejectUserName = userName;\n\t\t\t\t\tconst modal = document.getElementById('finance-reject-modal');\n\t\t\t\t\tif (modal && typeof modal.showModal === 'function') modal.showModal();\n\t\t\t\t},\n\t\t\t\topenReceiptModal(url) {\n\t\t\t\t\tthis.receiptModalURL = url;\n\t\t\t\t\tconst modal = document.getElementById('finance-receipt-modal');\n\t\t\t\t\tif (modal && typeof modal.showModal === 'function') modal.showModal();\n\t\t\t\t}\n\t\t\t}\"><!-- Header Title & Quick Export Row --><div class=\"glass-panel p-6 mb-6\"><div class=\"flex-between items-center flex-wrap gap-4\"><div class=\"d-flex items-center gap-3\"><div class=\"user-avatar-badge text-xl\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -2418,7 +2418,7 @@ func AdminFinance(data AdminFinanceData, lang, dir string) templ.Component {
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 287, "</div></div><!-- ══════════════════════════════════════════\n\t\t\t     WALLET ADJUSTMENT MODAL\n\t\t\t══════════════════════════════════════════ --><div id=\"walletAdjustModal\" style=\"display:none; position:fixed; inset:0; background:rgba(0,0,0,0.75); backdrop-filter:blur(4px); z-index:9999; align-items:center; justify-content:center; padding:1rem;\"><div class=\"card\" style=\"width:100%; max-width:480px; background:var(--surface); border:1px solid var(--border); border-radius:18px; box-shadow:var(--shadow-lg); overflow:hidden; animation:scaleIn 0.2s ease;\"><div style=\"display:flex; justify-content:space-between; align-items:center; padding:1.25rem 1.5rem; border-bottom:1px solid var(--border); background:var(--surface-sunken);\"><div class=\"row-center-sm\"><span style=\"font-size:1.3rem;\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 287, "</div></div><!-- ══════════════════════════════════════════\n\t\t\t     WALLET ADJUSTMENT MODAL\n\t\t\t══════════════════════════════════════════ --><!-- ══════════════════════════════════════════\n\t\t\t     WALLET ADJUSTMENT MODAL\n\t\t\t══════════════════════════════════════════ --><dialog id=\"walletAdjustModal\" class=\"modal\" aria-labelledby=\"wallet-adjust-title\"><div class=\"modal-box modal-md\"><div class=\"modal-header\"><div class=\"d-flex items-center gap-2\"><span class=\"text-xl\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -2426,15 +2426,15 @@ func AdminFinance(data AdminFinanceData, lang, dir string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 288, "</span><h3 style=\"margin:0; font-size:1.1rem; font-weight:800; color:var(--text);\">تعديل وشحن رصيد المحفظة</h3></div><button type=\"button\" onclick=\"closeWalletAdjustModal()\" class=\"btn btn-secondary btn-sm\" style=\"border:none; padding:0.25rem 0.5rem;\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 288, "</span><h3 id=\"wallet-adjust-title\" class=\"modal-title\">تعديل وشحن رصيد المحفظة</h3></div><form method=\"dialog\"><button type=\"submit\" class=\"modal-close\" aria-label=\"إغلاق\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = components.IconX("icon-sm").Render(ctx, templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = components.IconClose("icon-xs").Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 289, "</button></div><form id=\"walletAdjustForm\" method=\"POST\" action=\"/admin/finance/wallets/0/adjust\" style=\"padding:1.5rem; display:flex; flex-direction:column; gap:1rem;\"><input type=\"hidden\" name=\"_csrf\" value=\"\"><!-- Target Entity Info Banner --><div style=\"padding:0.75rem 1rem; border-radius:10px; background:var(--surface-sunken); border:1px solid var(--border);\"><div class=\"text-xs text-muted\">المنشأة المستهدفة:</div><div id=\"modalTargetName\" style=\"font-weight:800; color:var(--text); font-size:1rem; margin-top:2px;\">-</div><div style=\"font-size:0.78rem; color:var(--text-secondary); margin-top:2px;\">الرصيد الحالي: <span id=\"modalCurrentBalance\" style=\"font-weight:800; color:#10b981;\">0.00</span></div></div><!-- Action Type --><div><label class=\"form-label\">نوع العملية المحاسبية *</label> <select name=\"action_type\" id=\"modalActionType\" class=\"form-input\" style=\"width:100%; border-radius:8px; padding:0.6rem 0.85rem;\" required><option value=\"deposit\">إيداع رصيد (شحن مباشر / تحويل)</option> <option value=\"withdrawal\">خصم من الرصيد (سحب / تسوية مدينة)</option> <option value=\"adjustment\">تسوية محاسبية يدوية (Adjustment)</option></select></div><!-- Amount --><div><label class=\"form-label\">المبلغ بالجنيه المصري (EGP) *</label> <input type=\"number\" step=\"0.01\" min=\"0.01\" name=\"amount\" class=\"form-input\" placeholder=\"0.00\" style=\"width:100%; border-radius:8px; padding:0.6rem 0.85rem; font-size:1.1rem; font-weight:800;\" required></div><!-- Reason / Notes --><div><label class=\"form-label\">سبب العملية والملاحظات المحاسبية *</label> <textarea name=\"reason\" rows=\"2\" class=\"form-input\" placeholder=\"اكتب سبب الشحن أو الخصم الإداري (إيداع بنكي، تسوية فاتورة، تعويض)...\" style=\"width:100%; border-radius:8px; padding:0.6rem 0.85rem; font-size:0.85rem;\" required></textarea></div><div style=\"display:flex; gap:0.75rem; justify-content:flex-end; margin-top:0.5rem;\"><button type=\"button\" onclick=\"closeWalletAdjustModal()\" class=\"btn btn-secondary flex-1\">إلغاء</button> <button type=\"submit\" class=\"btn btn-primary\" style=\"flex:1; font-weight:800;\">تأكيد وقيد المعاملة</button></div></form></div></div><script>\n\t\t\t\tfunction openWalletAdjustModal(walletId, orgName, userName, balance, currency) {\n\t\t\t\t\tvar modal = document.getElementById('walletAdjustModal');\n\t\t\t\t\tvar form = document.getElementById('walletAdjustForm');\n\t\t\t\t\tvar targetName = document.getElementById('modalTargetName');\n\t\t\t\t\tvar currentBal = document.getElementById('modalCurrentBalance');\n\n\t\t\t\t\tform.action = '/admin/finance/wallets/' + walletId + '/adjust';\n\t\t\t\t\ttargetName.textContent = (orgName && orgName !== '') ? orgName + ' (' + userName + ')' : userName;\n\t\t\t\t\tcurrentBal.textContent = balance + ' ' + currency;\n\n\t\t\t\t\tmodal.style.display = 'flex';\n\t\t\t\t}\n\n\t\t\t\tfunction closeWalletAdjustModal() {\n\t\t\t\t\tvar modal = document.getElementById('walletAdjustModal');\n\t\t\t\t\tmodal.style.display = 'none';\n\t\t\t\t}\n\t\t\t</script><!-- Reject Deposit Request Modal --><div x-show=\"isRejectModalOpen\" x-cloak class=\"modal-overlay\" @keydown.escape.window=\"isRejectModalOpen = false\" style=\"position:fixed; inset:0; background:rgba(0,0,0,0.75); backdrop-filter:blur(4px); z-index:9999; display:flex; align-items:center; justify-content:center; padding:1rem;\"><div @click.outside=\"isRejectModalOpen = false\" class=\"card\" style=\"width:100%; max-width:500px; background:var(--surface-raised); border:1px solid var(--border); border-radius:18px; box-shadow:var(--shadow-xl); padding:1.75rem; text-align:start;\"><div style=\"display:flex; justify-content:space-between; align-items:center; margin-bottom:1.25rem; border-bottom:1px solid var(--border); padding-bottom:0.75rem;\"><div class=\"row-center-sm\" style=\"color:var(--danger-text);\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 289, "</button></form></div><form id=\"walletAdjustForm\" method=\"POST\" action=\"/admin/finance/wallets/0/adjust\" class=\"d-flex flex-col gap-4 m-0\"><input type=\"hidden\" name=\"_csrf\" value=\"\"><div class=\"modal-body d-flex flex-col gap-3\"><!-- Target Entity Info Banner --><div class=\"p-3 rounded-lg bg-surface-sunken border\"><div class=\"text-xs text-muted\">المنشأة المستهدفة:</div><div id=\"modalTargetName\" class=\"font-bold text-primary text-base mt-0.5\">-</div><div class=\"text-xs text-secondary mt-0.5\">الرصيد الحالي: <span id=\"modalCurrentBalance\" class=\"font-bold text-success\">0.00</span></div></div><!-- Action Type --><div><label class=\"form-label font-bold\">نوع العملية المحاسبية *</label> <select name=\"action_type\" id=\"modalActionType\" class=\"form-select w-full rounded-md\" required><option value=\"deposit\">إيداع رصيد (شحن مباشر / تحويل)</option> <option value=\"withdrawal\">خصم من الرصيد (سحب / تسوية مدينة)</option> <option value=\"adjustment\">تسوية محاسبية يدوية (Adjustment)</option></select></div><!-- Amount --><div><label class=\"form-label font-bold\">المبلغ بالجنيه المصري (EGP) *</label> <input type=\"number\" step=\"0.01\" min=\"0.01\" name=\"amount\" class=\"form-input w-full rounded-md text-lg font-black tabular-nums\" placeholder=\"0.00\" required></div><!-- Reason / Notes --><div><label class=\"form-label font-bold\">سبب العملية والملاحظات المحاسبية *</label> <textarea name=\"reason\" rows=\"2\" class=\"form-input w-full rounded-md text-sm\" placeholder=\"اكتب سبب الشحن أو الخصم الإداري (إيداع بنكي، تسوية فاتورة، تعويض)...\" required></textarea></div></div><div class=\"modal-footer\"><button type=\"button\" onclick=\"closeWalletAdjustModal()\" class=\"btn btn-secondary flex-1\">إلغاء</button> <button type=\"submit\" class=\"btn btn-primary font-bold flex-1\">تأكيد وقيد المعاملة</button></div></form></div></dialog><script>\n\t\t\t\tfunction openWalletAdjustModal(walletId, orgName, userName, balance, currency) {\n\t\t\t\t\tvar modal = document.getElementById('walletAdjustModal');\n\t\t\t\t\tvar form = document.getElementById('walletAdjustForm');\n\t\t\t\t\tvar targetName = document.getElementById('modalTargetName');\n\t\t\t\t\tvar currentBal = document.getElementById('modalCurrentBalance');\n\n\t\t\t\t\tform.action = '/admin/finance/wallets/' + walletId + '/adjust';\n\t\t\t\t\ttargetName.textContent = (orgName && orgName !== '') ? orgName + ' (' + userName + ')' : userName;\n\t\t\t\t\tcurrentBal.textContent = balance + ' ' + currency;\n\n\t\t\t\t\tif (modal && typeof modal.showModal === 'function') modal.showModal();\n\t\t\t\t}\n\n\t\t\t\tfunction closeWalletAdjustModal() {\n\t\t\t\t\tvar modal = document.getElementById('walletAdjustModal');\n\t\t\t\t\tif (modal && typeof modal.close === 'function') modal.close();\n\t\t\t\t}\n\t\t\t</script><!-- Reject Deposit Request Modal --><dialog id=\"finance-reject-modal\" class=\"modal\" aria-labelledby=\"finance-reject-title\"><div class=\"modal-box modal-sm\"><div class=\"modal-header\"><div class=\"d-flex items-center gap-2 text-danger\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -2442,7 +2442,7 @@ func AdminFinance(data AdminFinanceData, lang, dir string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 290, "<h3 class=\"text-lg fw-800 text-danger m-0\">رفض طلب شحن المحفظة</h3></div><button type=\"button\" @click=\"isRejectModalOpen = false\" class=\"btn btn-secondary btn-icon size-7\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 290, "<h3 id=\"finance-reject-title\" class=\"modal-title text-danger\">رفض طلب شحن المحفظة</h3></div><form method=\"dialog\"><button type=\"submit\" class=\"modal-close\" aria-label=\"إغلاق\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -2450,7 +2450,7 @@ func AdminFinance(data AdminFinanceData, lang, dir string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 291, "</button></div><form :action=\"'/admin/finance/deposits/' + rejectDepositID + '/reject'\" method=\"POST\" style=\"display:flex; flex-direction:column; gap:1.25rem;\"><div style=\"background:var(--danger-surface); border:1px solid var(--danger-border); border-radius:var(--radius-lg); padding:0.85rem 1rem; font-size:0.85rem; color:var(--danger-text);\">أنت على وشك رفض طلب الإيداع المقدم من <strong x-text=\"rejectUserName\"></strong> بمبلغ <strong class=\"tabular-nums\" x-text=\"rejectDepositAmount + ' ج.م'\"></strong>. لن يتم شحن الرصيد.</div><div class=\"form-group mb-0\"><label class=\"form-label font-bold\" for=\"rejection_reason_admin\">سبب الرفض (سيظهر للمستخدم في صيدليته) *</label> <textarea id=\"rejection_reason_admin\" name=\"rejection_reason\" rows=\"3\" class=\"form-input\" placeholder=\"مثال: صورة الإيصال غير واضحة / رقم المرجع لا يطابق كشف حساب البنك / لم يصل التحويل بعد...\" required></textarea></div><div style=\"display:flex; justify-content:flex-end; gap:0.5rem; margin-top:0.5rem;\"><button type=\"button\" @click=\"isRejectModalOpen = false\" class=\"btn btn-secondary\">إلغاء</button> <button type=\"submit\" class=\"btn btn-danger fw-800\"><span>تأكيد رفض الطلب</span></button></div></form></div></div><!-- Receipt Preview Lightbox Modal --><div x-show=\"isReceiptModalOpen\" x-cloak class=\"modal-overlay\" @keydown.escape.window=\"isReceiptModalOpen = false\" style=\"position:fixed; inset:0; background:rgba(0,0,0,0.85); backdrop-filter:blur(6px); z-index:9999; display:flex; align-items:center; justify-content:center; padding:1.5rem;\"><div @click.outside=\"isReceiptModalOpen = false\" class=\"card\" style=\"width:100%; max-width:760px; background:var(--surface-raised); border:1px solid var(--border); border-radius:20px; box-shadow:var(--shadow-2xl); padding:1.5rem; text-align:start;\"><div style=\"display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem; border-bottom:1px solid var(--border); padding-bottom:0.75rem;\"><div class=\"row-center-sm\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 291, "</button></form></div><form :action=\"'/admin/finance/deposits/' + rejectDepositID + '/reject'\" method=\"POST\" class=\"d-flex flex-col gap-4 m-0\"><div class=\"modal-body d-flex flex-col gap-3\"><div class=\"bg-danger-subtle border rounded-lg p-3 text-sm text-danger font-semibold\">أنت على وشك رفض طلب الإيداع المقدم من <strong x-text=\"rejectUserName\"></strong> بمبلغ <strong class=\"tabular-nums\" x-text=\"rejectDepositAmount + ' ج.م'\"></strong>. لن يتم شحن الرصيد.</div><div class=\"form-group mb-0\"><label class=\"form-label font-bold\" for=\"rejection_reason_admin\">سبب الرفض (سيظهر للمستخدم في صيدليته) *</label> <textarea id=\"rejection_reason_admin\" name=\"rejection_reason\" rows=\"3\" class=\"form-input w-full\" placeholder=\"مثال: صورة الإيصال غير واضحة / رقم المرجع لا يطابق كشف حساب البنك / لم يصل التحويل بعد...\" required></textarea></div></div><div class=\"modal-footer\"><button type=\"button\" onclick=\"document.getElementById('finance-reject-modal').close()\" class=\"btn btn-secondary\">إلغاء</button> <button type=\"submit\" class=\"btn btn-danger font-bold\"><span>تأكيد رفض الطلب</span></button></div></form></div></dialog><!-- Receipt Preview Lightbox Modal --><dialog id=\"finance-receipt-modal\" class=\"modal\" aria-labelledby=\"finance-receipt-title\"><div class=\"modal-box modal-lg\"><div class=\"modal-header\"><div class=\"d-flex items-center gap-2\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -2458,7 +2458,7 @@ func AdminFinance(data AdminFinanceData, lang, dir string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 292, "<h3 class=\"text-lg fw-800 text-primary m-0\">معاينة إشعار التحويل البنكي / الإيصال</h3></div><div class=\"row-center-sm\" style=\"gap:0.5rem;\"><a :href=\"receiptModalURL\" target=\"_blank\" download class=\"btn btn-secondary btn-xs fw-700\">فتح بالحجم الكامل ↗</a> <button type=\"button\" @click=\"isReceiptModalOpen = false\" class=\"btn btn-secondary btn-icon size-7\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 292, "<h3 id=\"finance-receipt-title\" class=\"modal-title\">معاينة إشعار التحويل البنكي / الإيصال</h3></div><div class=\"d-flex items-center gap-2\"><a :href=\"receiptModalURL\" target=\"_blank\" download class=\"btn btn-secondary btn-xs font-bold\">فتح بالحجم الكامل ↗</a><form method=\"dialog\"><button type=\"submit\" class=\"modal-close\" aria-label=\"إغلاق\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -2466,7 +2466,7 @@ func AdminFinance(data AdminFinanceData, lang, dir string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 293, "</button></div></div><div style=\"display:flex; justify-content:center; align-items:center; background:var(--surface-sunken); border-radius:var(--radius-lg); padding:1rem; min-height:280px; max-height:68vh; overflow:auto;\"><template x-if=\"receiptModalURL.toLowerCase().endsWith('.pdf')\"><iframe :src=\"receiptModalURL\" style=\"width:100%; height:500px; border:none; border-radius:var(--radius-md);\"></iframe></template><template x-if=\"!receiptModalURL.toLowerCase().endsWith('.pdf')\"><img :src=\"receiptModalURL\" alt=\"إشعار التحويل\" style=\"max-width:100%; max-height:62vh; object-fit:contain; border-radius:var(--radius-md); box-shadow:var(--shadow-md);\"></template></div></div></div></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 293, "</button></form></div></div><div class=\"modal-body p-4 bg-surface-sunken rounded-lg flex-center\" style=\"min-height:280px; max-height:68vh;\"><template x-if=\"receiptModalURL.toLowerCase().endsWith('.pdf')\"><iframe :src=\"receiptModalURL\" class=\"w-full rounded-md border-0\" style=\"height:500px;\"></iframe></template><template x-if=\"!receiptModalURL.toLowerCase().endsWith('.pdf')\"><img :src=\"receiptModalURL\" alt=\"إشعار التحويل\" class=\"max-w-full rounded-md shadow-md\" style=\"max-height:62vh; object-fit:contain;\"></template></div><div class=\"modal-footer\"><form method=\"dialog\"><button type=\"submit\" class=\"btn btn-secondary\">إغلاق</button></form></div></div></dialog></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -2521,7 +2521,7 @@ func AdminOfferOrdersPage(orders []*commerce.Order, lang, dir string) templ.Comp
 			var templ_7745c5c3_Var109 string
 			templ_7745c5c3_Var109, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", len(orders)))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 1031, Col: 110}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 1037, Col: 110}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var109))
 			if templ_7745c5c3_Err != nil {
@@ -2549,7 +2549,7 @@ func AdminOfferOrdersPage(orders []*commerce.Order, lang, dir string) templ.Comp
 					var templ_7745c5c3_Var110 string
 					templ_7745c5c3_Var110, templ_7745c5c3_Err = templ.JoinStringErrs(o.OrderNumber)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 1054, Col: 57}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 1060, Col: 57}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var110))
 					if templ_7745c5c3_Err != nil {
@@ -2567,7 +2567,7 @@ func AdminOfferOrdersPage(orders []*commerce.Order, lang, dir string) templ.Comp
 						var templ_7745c5c3_Var111 string
 						templ_7745c5c3_Var111, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", *o.OrganizationID))
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 1057, Col: 61}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 1063, Col: 61}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var111))
 						if templ_7745c5c3_Err != nil {
@@ -2581,7 +2581,7 @@ func AdminOfferOrdersPage(orders []*commerce.Order, lang, dir string) templ.Comp
 						var templ_7745c5c3_Var112 string
 						templ_7745c5c3_Var112, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", o.CustomerID))
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 1059, Col: 54}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 1065, Col: 54}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var112))
 						if templ_7745c5c3_Err != nil {
@@ -2595,7 +2595,7 @@ func AdminOfferOrdersPage(orders []*commerce.Order, lang, dir string) templ.Comp
 					var templ_7745c5c3_Var113 string
 					templ_7745c5c3_Var113, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%s ج.م", o.TotalAmount.String()))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 1062, Col: 83}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 1068, Col: 83}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var113))
 					if templ_7745c5c3_Err != nil {
@@ -2608,7 +2608,7 @@ func AdminOfferOrdersPage(orders []*commerce.Order, lang, dir string) templ.Comp
 					var templ_7745c5c3_Var114 string
 					templ_7745c5c3_Var114, templ_7745c5c3_Err = templ.JoinStringErrs(string(o.Status))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 1063, Col: 61}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 1069, Col: 61}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var114))
 					if templ_7745c5c3_Err != nil {
@@ -2621,7 +2621,7 @@ func AdminOfferOrdersPage(orders []*commerce.Order, lang, dir string) templ.Comp
 					var templ_7745c5c3_Var115 string
 					templ_7745c5c3_Var115, templ_7745c5c3_Err = templ.JoinStringErrs(o.CreatedAt.Format("2006-01-02"))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 1064, Col: 68}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 1070, Col: 68}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var115))
 					if templ_7745c5c3_Err != nil {
@@ -2634,7 +2634,7 @@ func AdminOfferOrdersPage(orders []*commerce.Order, lang, dir string) templ.Comp
 					var templ_7745c5c3_Var116 templ.SafeURL
 					templ_7745c5c3_Var116, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("/admin/orders/offers/%d", o.ID)))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 1066, Col: 79}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 1072, Col: 79}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var116))
 					if templ_7745c5c3_Err != nil {
@@ -2704,7 +2704,7 @@ func AdminOfferOrderDetailPage(o *commerce.Order, lang, dir string) templ.Compon
 			var templ_7745c5c3_Var119 string
 			templ_7745c5c3_Var119, templ_7745c5c3_Err = templ.JoinStringErrs(o.OrderNumber)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 1083, Col: 54}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 1089, Col: 54}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var119))
 			if templ_7745c5c3_Err != nil {
@@ -2717,7 +2717,7 @@ func AdminOfferOrderDetailPage(o *commerce.Order, lang, dir string) templ.Compon
 			var templ_7745c5c3_Var120 string
 			templ_7745c5c3_Var120, templ_7745c5c3_Err = templ.JoinStringErrs(string(o.Status))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 1084, Col: 53}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 1090, Col: 53}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var120))
 			if templ_7745c5c3_Err != nil {
@@ -2730,7 +2730,7 @@ func AdminOfferOrderDetailPage(o *commerce.Order, lang, dir string) templ.Compon
 			var templ_7745c5c3_Var121 string
 			templ_7745c5c3_Var121, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%s ج.م", o.TotalAmount.String()))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 1084, Col: 125}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 1090, Col: 125}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var121))
 			if templ_7745c5c3_Err != nil {
@@ -2969,7 +2969,7 @@ func AdminPlansSubscriptionsPage(subs []*billing.Subscription, lang, dir string)
 				var templ_7745c5c3_Var130 string
 				templ_7745c5c3_Var130, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", s.ID))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 1135, Col: 37}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 1141, Col: 37}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var130))
 				if templ_7745c5c3_Err != nil {
@@ -2982,7 +2982,7 @@ func AdminPlansSubscriptionsPage(subs []*billing.Subscription, lang, dir string)
 				var templ_7745c5c3_Var131 string
 				templ_7745c5c3_Var131, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", s.UserID))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 1136, Col: 55}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 1142, Col: 55}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var131))
 				if templ_7745c5c3_Err != nil {
@@ -2995,7 +2995,7 @@ func AdminPlansSubscriptionsPage(subs []*billing.Subscription, lang, dir string)
 				var templ_7745c5c3_Var132 string
 				templ_7745c5c3_Var132, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", s.PlanID))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 1137, Col: 49}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 1143, Col: 49}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var132))
 				if templ_7745c5c3_Err != nil {
@@ -3008,7 +3008,7 @@ func AdminPlansSubscriptionsPage(subs []*billing.Subscription, lang, dir string)
 				var templ_7745c5c3_Var133 string
 				templ_7745c5c3_Var133, templ_7745c5c3_Err = templ.JoinStringErrs(string(s.Status))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 1138, Col: 64}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 1144, Col: 64}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var133))
 				if templ_7745c5c3_Err != nil {
@@ -3021,7 +3021,7 @@ func AdminPlansSubscriptionsPage(subs []*billing.Subscription, lang, dir string)
 				var templ_7745c5c3_Var134 string
 				templ_7745c5c3_Var134, templ_7745c5c3_Err = templ.JoinStringErrs(s.ExpiresAt.Format("2006-01-02"))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 1139, Col: 46}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_finance.templ`, Line: 1145, Col: 46}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var134))
 				if templ_7745c5c3_Err != nil {

@@ -273,26 +273,27 @@ templ VendorJobs(lang, dir string, data VendorJobsData) {
 		</div>
 
 		<!-- MODAL: Add New Job Modal -->
-		<div id="add-job-modal" class="modal-overlay hidden">
-			<div class="card" style="max-width:680px; width:100%; max-height:90vh; overflow-y:auto; background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-2xl); padding:2rem; box-shadow:0 25px 50px -12px rgba(0,0,0,0.5);">
-				
-				<div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--border); padding-bottom:1.25rem; margin-bottom:1.5rem;">
-					<div class="row-center">
-						<div style="width:40px; height:40px; border-radius:var(--radius-lg); background:var(--primary-subtle); display:flex; align-items:center; justify-content:center; font-size:1.25rem;">
+		<dialog id="add-job-modal" class="modal" aria-labelledby="add-job-title">
+			<div class="modal-box modal-lg">
+				<div class="modal-header">
+					<div class="d-flex items-center gap-3">
+						<div class="b2b-icon-box-sm">
 							@components.IconBriefcase("icon-sm")
 						</div>
 						<div>
-							<h3 style="font-size:1.3rem; font-weight:900; color:var(--text); margin:0;">
+							<h3 id="add-job-title" class="modal-title">
 								نشر شاغر وظيفي جديد
 							</h3>
-							<p style="font-size:0.8rem; color:var(--text-muted); margin:0.2rem 0 0;">
+							<p class="text-xs text-muted mt-0.5 m-0">
 								تحديد مواصفات الوظيفة، المتطلبات والراتب المتوقع
 							</p>
 						</div>
 					</div>
-					<button type="button" class="btn btn-secondary btn-sm btn-icon" onclick="closeAddJobModal()">
-						@components.IconClose("icon-xs")
-					</button>
+					<form method="dialog">
+						<button type="submit" class="modal-close" aria-label="إغلاق" onclick="closeAddJobModal()">
+							@components.IconClose("icon-xs")
+						</button>
+					</form>
 				</div>
 
 				<form method="POST" action="/vendor/jobs" class="stack-lg">
@@ -419,63 +420,41 @@ templ VendorJobs(lang, dir string, data VendorJobsData) {
 					</div>
 
 					<!-- Form Footer -->
-					<div style="display:flex; justify-content:flex-end; gap:0.75rem; margin-top:1rem; border-top:1px solid var(--border); padding-top:1.25rem;">
-						<button type="button" class="btn btn-secondary" onclick="closeAddJobModal()">
+					<div class="modal-footer">
+						<button type="button" class="btn btn-secondary font-bold" onclick="closeAddJobModal()">
 							إلغاء
 						</button>
-						<button type="submit" class="btn btn-primary" style="font-weight:800; padding:0.6rem 1.75rem;">
+						<button type="submit" class="btn btn-primary font-bold px-6">
 							نشر الوظيفة الآن 
 						</button>
 					</div>
 
 				</form>
 			</div>
-		</div>
-
-		<!-- MODAL: Job Applicants Viewer -->
-		<div id="job-applicants-modal" class="modal-overlay hidden">
-			<div class="card" style="max-width:800px; width:100%; max-height:85vh; overflow-y:auto; background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-2xl); padding:1.75rem; box-shadow:0 25px 50px -12px rgba(0,0,0,0.5);">
-				<div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--border); padding-bottom:1rem; margin-bottom:1.25rem;">
-					<div>
-						<h3 id="applicants-modal-title" class="text-xl fw-900 text-primary m-0">
-							قائمة المتقدمين للوظيفة
-						</h3>
-						<p id="applicants-modal-subtitle" style="color:var(--text-muted); font-size:0.85rem; margin:0.25rem 0 0 0;"></p>
-					</div>
-					<button type="button" class="btn btn-secondary btn-sm btn-icon" onclick="closeApplicantsModal()">
-						@components.IconClose("icon-xs")
-					</button>
-				</div>
-
-				<div id="applicants-modal-content">
-					<div style="padding:2rem; text-align:center; color:var(--text-muted);">
-						⏳ جاري تحميل المتقدمين...
-					</div>
-				</div>
-			</div>
-		</div>
+		</dialog>
 
 		<!-- MODAL: Edit Job Modal -->
-		<div id="edit-job-modal" class="modal-overlay hidden">
-			<div class="card" style="max-width:680px; width:100%; max-height:90vh; overflow-y:auto; background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-2xl); padding:2rem; box-shadow:0 25px 50px -12px rgba(0,0,0,0.5);">
-				
-				<div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--border); padding-bottom:1.25rem; margin-bottom:1.5rem;">
-					<div class="row-center">
-						<div style="width:40px; height:40px; border-radius:var(--radius-lg); background:var(--primary-subtle); display:flex; align-items:center; justify-content:center; font-size:1.25rem;">
+		<dialog id="edit-job-modal" class="modal" aria-labelledby="edit-job-title">
+			<div class="modal-box modal-lg">
+				<div class="modal-header">
+					<div class="d-flex items-center gap-3">
+						<div class="b2b-icon-box-sm">
 							@components.IconEdit("icon-sm")
 						</div>
 						<div>
-							<h3 style="font-size:1.3rem; font-weight:900; color:var(--text); margin:0;">
+							<h3 id="edit-job-title" class="modal-title">
 								تعديل بيانات وحالة الشاغر الوظيفي
 							</h3>
-							<p style="font-size:0.8rem; color:var(--text-muted); margin:0.2rem 0 0;">
+							<p class="text-xs text-muted mt-0.5 m-0">
 								تحديث المسمى الوظيفي، المتطلبات، الراتب وحالة نشر الوظيفة
 							</p>
 						</div>
 					</div>
-					<button type="button" class="btn btn-secondary btn-sm btn-icon" onclick="closeEditJobModal()">
-						@components.IconClose("icon-xs")
-					</button>
+					<form method="dialog">
+						<button type="submit" class="modal-close" aria-label="إغلاق" onclick="closeEditJobModal()">
+							@components.IconClose("icon-xs")
+						</button>
+					</form>
 				</div>
 
 				<form id="edit-job-form" method="POST" action="" class="stack-lg">
@@ -633,11 +612,11 @@ templ VendorJobs(lang, dir string, data VendorJobsData) {
 					</div>
 
 					<!-- Form Actions -->
-					<div style="display:flex; justify-content:flex-end; gap:0.75rem; border-top:1px solid var(--border); padding-top:1.25rem; margin-top:0.5rem;">
-						<button type="button" class="btn btn-secondary" onclick="closeEditJobModal()">
+					<div class="modal-footer">
+						<button type="button" class="btn btn-secondary font-bold" onclick="closeEditJobModal()">
 							إلغاء
 						</button>
-						<button type="submit" class="btn btn-primary" style="font-weight:800; padding:0 1.75rem;">
+						<button type="submit" class="btn btn-primary font-bold px-6">
 							@components.IconCheck("icon-xs")
 							<span>حفظ التعديلات والتحديث</span>
 						</button>
@@ -645,141 +624,145 @@ templ VendorJobs(lang, dir string, data VendorJobsData) {
 
 				</form>
 			</div>
-		</div>
+		</dialog>
 
 		<!-- ================= APPLICANTS MODAL ================= -->
-		<div id="job-applicants-modal" class="modal-backdrop hidden" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.65); z-index:9999; align-items:center; justify-content:center; padding:1.25rem;">
-			<div class="card" style="width:100%; max-width:780px; max-height:90vh; overflow-y:auto; padding:2rem; border-radius:var(--radius-2xl); background:var(--surface-raised); box-shadow:0 16px 40px rgba(0,0,0,0.3);">
-				<div class="section-head">
+		<dialog id="job-applicants-modal" class="modal" aria-labelledby="applicants-modal-title">
+			<div class="modal-box modal-lg">
+				<div class="modal-header">
 					<div>
-						<h3 style="font-size:1.35rem; font-weight:900; color:var(--text); margin:0;">
+						<h3 id="applicants-modal-title" class="modal-title">
 							طلبات التقديم والسير الذاتية
 						</h3>
-						<p id="applicants-modal-subtitle" style="font-size:0.85rem; color:var(--primary-600); font-weight:700; margin:0.25rem 0 0;">
+						<p id="applicants-modal-subtitle" class="text-xs text-brand font-bold mt-1 m-0">
 							الوظيفة: -
 						</p>
 					</div>
-					<button type="button" class="btn btn-secondary btn-sm btn-icon" onclick="closeApplicantsModal()">@components.IconX("icon-sm")</button>
+					<form method="dialog">
+						<button type="submit" class="modal-close" aria-label="إغلاق" onclick="closeApplicantsModal()">@components.IconClose("icon-xs")</button>
+					</form>
 				</div>
 
 				<!-- Dynamic Content -->
-				<div id="applicants-modal-content">
+				<div id="applicants-modal-content" class="modal-body">
 					<!-- Populated by JS -->
 				</div>
 			</div>
-		</div>
+		</dialog>
 
 		<!-- ================= ONBOARD EMPLOYEE MODAL ================= -->
-		<div id="onboard-modal" class="modal-backdrop hidden" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.7); z-index:10000; align-items:center; justify-content:center; padding:1.25rem;">
-			<div class="card" style="width:100%; max-width:540px; padding:2rem; border-radius:var(--radius-2xl); background:var(--surface-raised); box-shadow:0 16px 40px rgba(0,0,0,0.35);">
-				<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.25rem; border-bottom:1px solid var(--border); padding-bottom:0.75rem;">
+		<dialog id="onboard-modal" class="modal" aria-labelledby="onboard-modal-title">
+			<div class="modal-box modal-md">
+				<div class="modal-header">
 					<div>
-						<h3 style="font-size:1.25rem; font-weight:900; color:var(--text); margin:0;">
+						<h3 id="onboard-modal-title" class="modal-title">
 							قبول المتقدم وتعيينه كموظف
 						</h3>
-						<p id="onboard-modal-subtitle" style="font-size:0.8rem; color:var(--text-secondary); margin:0.2rem 0 0;">
+						<p id="onboard-modal-subtitle" class="text-xs text-secondary mt-1 m-0">
 							المتقدم: -
 						</p>
 					</div>
-					<button type="button" class="btn btn-secondary btn-sm btn-icon" onclick="closeOnboardModal()">@components.IconX("icon-sm")</button>
+					<form method="dialog">
+						<button type="submit" class="modal-close" aria-label="إغلاق" onclick="closeOnboardModal()">@components.IconClose("icon-xs")</button>
+					</form>
 				</div>
 
-				<form id="onboard-employee-form" onsubmit="submitOnboardEmployee(event)" style="display:flex; flex-direction:column; gap:1rem;">
+				<form id="onboard-employee-form" onsubmit="submitOnboardEmployee(event)" class="d-flex flex-col gap-4 m-0">
 					<input type="hidden" id="onboard-job-id" value="" />
 					<input type="hidden" id="onboard-app-id" value="" />
 
-					<!-- Branch Selection -->
-					<div>
-						<label class="form-label">
-							الفرع / المستودع المخصص للعمل <span class="text-danger">*</span>
-						</label>
-						<select id="onboard-branch-id" required class="form-input field-cta">
-							if len(data.Branches) == 0 {
-								<option value="">المقر الرئيسي / المستودع الرئيسي</option>
-							} else {
-								for _, b := range data.Branches {
-									<option value={ fmt.Sprintf("%d", b.ID) }>
-										{ b.Name.Get(i18n.ParseLang(lang)) }
-										if b.IsMain {
-											 (الرئيسي)
-										}
-									</option>
+					<div class="modal-body d-flex flex-col gap-3">
+						<!-- Branch Selection -->
+						<div>
+							<label class="form-label font-bold text-xs">
+								الفرع / المستودع المخصص للعمل <span class="text-danger">*</span>
+							</label>
+							<select id="onboard-branch-id" required class="form-select w-full">
+								if len(data.Branches) == 0 {
+									<option value="">المقر الرئيسي / المستودع الرئيسي</option>
+								} else {
+									for _, b := range data.Branches {
+										<option value={ fmt.Sprintf("%d", b.ID) }>
+											{ b.Name.Get(i18n.ParseLang(lang)) }
+											if b.IsMain {
+												 (الرئيسي)
+											}
+										</option>
+									}
 								}
-							}
-						</select>
-					</div>
+							</select>
+						</div>
 
-					<!-- Role / Permissions Selection -->
-					<div>
-						<label class="form-label">
-							الدور الوظيفي والصلاحيات <span class="text-danger">*</span>
-						</label>
-						<select id="onboard-role-key" required class="form-input field-cta">
-							<option value="org_sales_rep">مندوب مبيعات / تسويق دوائي</option>
-							<option value="org_warehouse">أمين مخزن / مسؤول مستودع</option>
-							<option value="org_manager">مدير فرع / مسؤول تشغيل</option>
-							<option value="org_accountant">محاسب مالي</option>
-							<option value="org_employee">موظف تشغيل (صلاحيات أساسية)</option>
-							<option value="org_pharmacist">صيدلي / مستشار علمي</option>
-						</select>
-					</div>
+						<!-- Role / Permissions Selection -->
+						<div>
+							<label class="form-label font-bold text-xs">
+								الدور الوظيفي والصلاحيات <span class="text-danger">*</span>
+							</label>
+							<select id="onboard-role-key" required class="form-select w-full">
+								<option value="org_sales_rep">مندوب مبيعات / تسويق دوائي</option>
+								<option value="org_warehouse">أمين مخزن / مسؤول مستودع</option>
+								<option value="org_manager">مدير فرع / مسؤول تشغيل</option>
+								<option value="org_accountant">محاسب مالي</option>
+								<option value="org_employee">موظف تشغيل (صلاحيات أساسية)</option>
+								<option value="org_pharmacist">صيدلي / مستشار علمي</option>
+							</select>
+						</div>
 
-					<!-- Job Title -->
-					<div>
-						<label class="form-label">
-							المسمى الوظيفي المعتمد <span class="text-danger">*</span>
-						</label>
-						<input
- type="text"
- id="onboard-job-title"
- required
- class="form-input field-height"
- placeholder="مثال: مندوب مبيعات طبي / مدير مستودع"
- 
- />
-					</div>
+						<!-- Job Title -->
+						<div>
+							<label class="form-label font-bold text-xs">
+								المسمى الوظيفي المعتمد <span class="text-danger">*</span>
+							</label>
+							<input
+								type="text"
+								id="onboard-job-title"
+								required
+								class="form-input w-full"
+								placeholder="مثال: مندوب مبيعات طبي / مدير مستودع"
+							/>
+						</div>
 
-					<!-- Salary -->
-					<div>
-						<label class="form-label">
-							الراتب الأساسي (ج.م / شهرياً)
-						</label>
-						<input
- type="text"
- id="onboard-base-salary"
- class="form-input field-height"
- placeholder="مثال: 9500"
- 
- />
-					</div>
+						<!-- Salary -->
+						<div>
+							<label class="form-label font-bold text-xs">
+								الراتب الأساسي (ج.م / شهرياً)
+							</label>
+							<input
+								type="text"
+								id="onboard-base-salary"
+								class="form-input tabular-nums w-full"
+								placeholder="مثال: 9500"
+							/>
+						</div>
 
-					<!-- Notes -->
-					<div>
-						<label class="form-label">
-							ملاحظات التعيين (اختياري)
-						</label>
-						<textarea
-							id="onboard-notes"
-							rows="2"
-							class="form-input"
-							placeholder="ملاحظات حول موعد بدء العمل أو المستودع..."
-							style="border-radius:var(--radius-lg); resize:vertical;"
-						></textarea>
+						<!-- Notes -->
+						<div>
+							<label class="form-label font-bold text-xs">
+								ملاحظات التعيين (اختياري)
+							</label>
+							<textarea
+								id="onboard-notes"
+								rows="2"
+								class="form-input text-xs w-full"
+								placeholder="ملاحظات حول موعد بدء العمل أو المستودع..."
+								style="resize:vertical;"
+							></textarea>
+						</div>
 					</div>
 
 					<!-- Form Actions -->
-					<div style="display:flex; justify-content:flex-end; gap:0.75rem; border-top:1px solid var(--border); padding-top:1.25rem; margin-top:0.5rem;">
-						<button type="button" class="btn btn-secondary" onclick="closeOnboardModal()">
+					<div class="modal-footer">
+						<button type="button" class="btn btn-secondary font-bold" onclick="closeOnboardModal()">
 							إلغاء
 						</button>
-						<button type="submit" id="onboard-submit-btn" class="btn btn-primary" style="font-weight:800; padding:0 1.75rem;">
+						<button type="submit" id="onboard-submit-btn" class="btn btn-primary font-bold px-6">
 							@components.IconCheck("icon-xs")
 							<span>تأكيد القبول وتعيين الموظف</span>
 						</button>
 					</div>
 				</form>
 			</div>
-		</div>
+		</dialog>
 
 		<script>
 			let currentJobId = 0;
@@ -787,17 +770,15 @@ templ VendorJobs(lang, dir string, data VendorJobsData) {
 
 			function openAddJobModal() {
 				const el = document.getElementById('add-job-modal');
-				if (el) {
-					el.classList.remove('hidden');
-					el.style.display = 'flex';
+				if (el && typeof el.showModal === 'function') {
+					el.showModal();
 				}
 			}
 
 			function closeAddJobModal() {
 				const el = document.getElementById('add-job-modal');
-				if (el) {
-					el.classList.add('hidden');
-					el.style.display = 'none';
+				if (el && typeof el.close === 'function') {
+					el.close();
 				}
 			}
 
@@ -856,33 +837,29 @@ templ VendorJobs(lang, dir string, data VendorJobsData) {
 				if (reqsInput) reqsInput.value = reqs || '';
 
 				const modal = document.getElementById('edit-job-modal');
-				if (modal) {
-					modal.classList.remove('hidden');
-					modal.style.display = 'flex';
+				if (modal && typeof modal.showModal === 'function') {
+					modal.showModal();
 				}
 			}
 
 			function closeEditJobModal() {
 				const modal = document.getElementById('edit-job-modal');
-				if (modal) {
-					modal.classList.add('hidden');
-					modal.style.display = 'none';
+				if (modal && typeof modal.close === 'function') {
+					modal.close();
 				}
 			}
 
 			function openApplicantsModal() {
 				const el = document.getElementById('job-applicants-modal');
-				if (el) {
-					el.classList.remove('hidden');
-					el.style.display = 'flex';
+				if (el && typeof el.showModal === 'function') {
+					el.showModal();
 				}
 			}
 
 			function closeApplicantsModal() {
 				const el = document.getElementById('job-applicants-modal');
-				if (el) {
-					el.classList.add('hidden');
-					el.style.display = 'none';
+				if (el && typeof el.close === 'function') {
+					el.close();
 				}
 			}
 
@@ -892,17 +869,15 @@ templ VendorJobs(lang, dir string, data VendorJobsData) {
 				document.getElementById('onboard-modal-subtitle').textContent = `المتقدم: ${applicantName} • الوظيفة: ${jobTitle}`;
 				document.getElementById('onboard-job-title').value = jobTitle || '';
 				const modal = document.getElementById('onboard-modal');
-				if (modal) {
-					modal.classList.remove('hidden');
-					modal.style.display = 'flex';
+				if (modal && typeof modal.showModal === 'function') {
+					modal.showModal();
 				}
 			}
 
 			function closeOnboardModal() {
 				const modal = document.getElementById('onboard-modal');
-				if (modal) {
-					modal.classList.add('hidden');
-					modal.style.display = 'none';
+				if (modal && typeof modal.close === 'function') {
+					modal.close();
 				}
 			}
 

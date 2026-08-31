@@ -37,7 +37,7 @@ func CompareFileMappingModal(file *compare.CompareFile, headers []string, previe
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div id=\"compare-mapping-modal-backdrop\" class=\"modal-overlay\" style=\"position:fixed; inset:0; z-index:10000; display:flex; align-items:center; justify-content:center; background:rgba(15,23,42,0.75); backdrop-filter:blur(8px); padding:1rem;\" onclick=\"if(event.target === this) closeMappingModal();\"><div class=\"card\" style=\"position:relative; max-width:920px; width:100%; max-height:92vh; overflow-y:auto; background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-2xl); box-shadow:0 25px 50px -12px rgba(0,0,0,0.6); padding:1.75rem; display:flex; flex-direction:column; gap:1.25rem;\" onclick=\"event.stopPropagation();\"><!-- Modal Header & Stepper --><div style=\"display:flex; justify-content:space-between; align-items:flex-start; border-bottom:1px solid var(--border); padding-bottom:1.15rem; gap:1rem;\"><div style=\"display:flex; align-items:flex-start; gap:0.85rem;\"><div style=\"width:46px; height:46px; border-radius:var(--radius-xl); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center; font-size:1.5rem; flex-shrink:0;\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<dialog id=\"compare-mapping-modal-backdrop\" class=\"modal\" open aria-labelledby=\"compare-mapping-title\"><div class=\"modal-box modal-xl\"><!-- Modal Header & Stepper --><div class=\"modal-header\"><div class=\"d-flex items-center gap-3\"><div class=\"b2b-icon-box-sm\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -57,14 +57,14 @@ func CompareFileMappingModal(file *compare.CompareFile, headers []string, previe
 			return templ_7745c5c3_Err
 		}
 		if isSetup || total > 1 {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "<div style=\"display:flex; align-items:center; gap:0.5rem; margin-bottom:0.25rem; flex-wrap:wrap;\"><span class=\"badge badge-emerald\" style=\"font-weight:800; font-size:0.75rem; padding:0.2rem 0.6rem;\">معالج ضبط الأعمدة (Setup Mode)</span> <span class=\"badge badge-sky\" style=\"font-weight:700; font-size:0.75rem; padding:0.2rem 0.6rem;\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "<div class=\"d-flex items-center gap-2 mb-1 flex-wrap\"><span class=\"badge badge-emerald text-xs font-extrabold\">معالج ضبط الأعمدة (Setup Mode)</span> <span class=\"badge badge-sky text-xs font-bold\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var2 string
 			templ_7745c5c3_Var2, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("ملف %d من %d", step, total))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/compare_mapping.templ`, Line: 40, Col: 56}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/compare_mapping.templ`, Line: 36, Col: 56}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var2))
 			if templ_7745c5c3_Err != nil {
@@ -75,14 +75,14 @@ func CompareFileMappingModal(file *compare.CompareFile, headers []string, previe
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "<h2 class=\"text-xl fw-900 text-primary m-0\">ضبط وتأكيد أعمدة كشف المورد</h2><p style=\"color:var(--text-muted); font-size:0.85rem; margin:0.25rem 0 0 0;\">الملف المرفوع: <strong class=\"text-primary\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "<h2 id=\"compare-mapping-title\" class=\"modal-title\">ضبط وتأكيد أعمدة كشف المورد</h2><p class=\"text-xs text-muted mt-1 m-0\">الملف المرفوع: <strong class=\"text-primary\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var3 string
 		templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(file.OriginalFilename)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/compare_mapping.templ`, Line: 48, Col: 86}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/compare_mapping.templ`, Line: 44, Col: 86}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
 		if templ_7745c5c3_Err != nil {
@@ -100,7 +100,7 @@ func CompareFileMappingModal(file *compare.CompareFile, headers []string, previe
 			var templ_7745c5c3_Var4 string
 			templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("(%d صنف مسجل)", file.RowCount))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/compare_mapping.templ`, Line: 50, Col: 71}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/compare_mapping.templ`, Line: 46, Col: 71}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
 			if templ_7745c5c3_Err != nil {
@@ -111,15 +111,15 @@ func CompareFileMappingModal(file *compare.CompareFile, headers []string, previe
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "</p></div></div><button type=\"button\" onclick=\"closeMappingModal()\" class=\"btn btn-secondary btn-sm btn-icon\" style=\"font-size:1.1rem; width:36px; height:36px; border-radius:var(--radius-lg); flex-shrink:0;\" title=\"إغلاق المعالج\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "</p></div></div><form method=\"dialog\"><button type=\"submit\" onclick=\"closeMappingModal()\" class=\"modal-close\" aria-label=\"إغلاق\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = components.IconX("icon-sm").Render(ctx, templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = components.IconClose("icon-xs").Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "</button></div><!-- Visual Progress Bar if in Multi-File Setup Mode -->")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "</button></form></div><!-- Visual Progress Bar if in Multi-File Setup Mode -->")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -131,7 +131,7 @@ func CompareFileMappingModal(file *compare.CompareFile, headers []string, previe
 			var templ_7745c5c3_Var5 string
 			templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d%%", (step*100)/total))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/compare_mapping.templ`, Line: 72, Col: 72}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/compare_mapping.templ`, Line: 69, Col: 72}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
 			if templ_7745c5c3_Err != nil {
@@ -144,7 +144,7 @@ func CompareFileMappingModal(file *compare.CompareFile, headers []string, previe
 			var templ_7745c5c3_Var6 string
 			templ_7745c5c3_Var6, templ_7745c5c3_Err = templruntime.SanitizeStyleAttributeValues(fmt.Sprintf("width:%d%%;", (step*100)/total))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/compare_mapping.templ`, Line: 76, Col: 59}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/compare_mapping.templ`, Line: 73, Col: 59}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
 			if templ_7745c5c3_Err != nil {
@@ -162,7 +162,7 @@ func CompareFileMappingModal(file *compare.CompareFile, headers []string, previe
 		var templ_7745c5c3_Var7 templ.SafeURL
 		templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("/compare/files/%d/mapping", file.ID)))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/compare_mapping.templ`, Line: 87, Col: 77}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/compare_mapping.templ`, Line: 84, Col: 77}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
 		if templ_7745c5c3_Err != nil {
@@ -175,7 +175,7 @@ func CompareFileMappingModal(file *compare.CompareFile, headers []string, previe
 		var templ_7745c5c3_Var8 string
 		templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.ResolveAttributeValue(remainingQueue)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/compare_mapping.templ`, Line: 91, Col: 66}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/compare_mapping.templ`, Line: 88, Col: 66}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var8)
 		if templ_7745c5c3_Err != nil {
@@ -188,7 +188,7 @@ func CompareFileMappingModal(file *compare.CompareFile, headers []string, previe
 		var templ_7745c5c3_Var9 string
 		templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%d", step))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/compare_mapping.templ`, Line: 92, Col: 68}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/compare_mapping.templ`, Line: 89, Col: 68}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var9)
 		if templ_7745c5c3_Err != nil {
@@ -201,7 +201,7 @@ func CompareFileMappingModal(file *compare.CompareFile, headers []string, previe
 		var templ_7745c5c3_Var10 string
 		templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%d", total))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/compare_mapping.templ`, Line: 93, Col: 70}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/compare_mapping.templ`, Line: 90, Col: 70}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var10)
 		if templ_7745c5c3_Err != nil {
@@ -214,7 +214,7 @@ func CompareFileMappingModal(file *compare.CompareFile, headers []string, previe
 		var templ_7745c5c3_Var11 string
 		templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%d", nextFileID))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/compare_mapping.templ`, Line: 94, Col: 82}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/compare_mapping.templ`, Line: 91, Col: 82}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var11)
 		if templ_7745c5c3_Err != nil {
@@ -235,7 +235,7 @@ func CompareFileMappingModal(file *compare.CompareFile, headers []string, previe
 		var templ_7745c5c3_Var12 string
 		templ_7745c5c3_Var12, templ_7745c5c3_Err = templ.ResolveAttributeValue(file.SupplierName)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/compare_mapping.templ`, Line: 106, Col: 32}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/compare_mapping.templ`, Line: 103, Col: 32}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var12)
 		if templ_7745c5c3_Err != nil {
@@ -256,7 +256,7 @@ func CompareFileMappingModal(file *compare.CompareFile, headers []string, previe
 		var templ_7745c5c3_Var13 string
 		templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d عمود تم رصده في الملف", len(headers)))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/compare_mapping.templ`, Line: 126, Col: 79}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/compare_mapping.templ`, Line: 123, Col: 79}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var13))
 		if templ_7745c5c3_Err != nil {
@@ -275,7 +275,7 @@ func CompareFileMappingModal(file *compare.CompareFile, headers []string, previe
 				var templ_7745c5c3_Var14 string
 				templ_7745c5c3_Var14, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("تطابق %.0f%%", score*100))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/compare_mapping.templ`, Line: 141, Col: 56}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/compare_mapping.templ`, Line: 138, Col: 56}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var14))
 				if templ_7745c5c3_Err != nil {
@@ -300,7 +300,7 @@ func CompareFileMappingModal(file *compare.CompareFile, headers []string, previe
 				var templ_7745c5c3_Var15 string
 				templ_7745c5c3_Var15, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%d", idx))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/compare_mapping.templ`, Line: 150, Col: 48}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/compare_mapping.templ`, Line: 147, Col: 48}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var15)
 				if templ_7745c5c3_Err != nil {
@@ -313,7 +313,7 @@ func CompareFileMappingModal(file *compare.CompareFile, headers []string, previe
 				var templ_7745c5c3_Var16 string
 				templ_7745c5c3_Var16, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("العمود %d: %s", idx+1, h))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/compare_mapping.templ`, Line: 150, Col: 106}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/compare_mapping.templ`, Line: 147, Col: 106}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var16))
 				if templ_7745c5c3_Err != nil {
@@ -331,7 +331,7 @@ func CompareFileMappingModal(file *compare.CompareFile, headers []string, previe
 				var templ_7745c5c3_Var17 string
 				templ_7745c5c3_Var17, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%d", idx))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/compare_mapping.templ`, Line: 152, Col: 48}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/compare_mapping.templ`, Line: 149, Col: 48}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var17)
 				if templ_7745c5c3_Err != nil {
@@ -344,7 +344,7 @@ func CompareFileMappingModal(file *compare.CompareFile, headers []string, previe
 				var templ_7745c5c3_Var18 string
 				templ_7745c5c3_Var18, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("العمود %d: %s", idx+1, h))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/compare_mapping.templ`, Line: 152, Col: 97}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/compare_mapping.templ`, Line: 149, Col: 97}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var18))
 				if templ_7745c5c3_Err != nil {
@@ -369,7 +369,7 @@ func CompareFileMappingModal(file *compare.CompareFile, headers []string, previe
 				var templ_7745c5c3_Var19 string
 				templ_7745c5c3_Var19, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("تطابق %.0f%%", score*100))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/compare_mapping.templ`, Line: 167, Col: 56}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/compare_mapping.templ`, Line: 164, Col: 56}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var19))
 				if templ_7745c5c3_Err != nil {
@@ -394,7 +394,7 @@ func CompareFileMappingModal(file *compare.CompareFile, headers []string, previe
 				var templ_7745c5c3_Var20 string
 				templ_7745c5c3_Var20, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%d", idx))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/compare_mapping.templ`, Line: 176, Col: 48}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/compare_mapping.templ`, Line: 173, Col: 48}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var20)
 				if templ_7745c5c3_Err != nil {
@@ -407,7 +407,7 @@ func CompareFileMappingModal(file *compare.CompareFile, headers []string, previe
 				var templ_7745c5c3_Var21 string
 				templ_7745c5c3_Var21, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("العمود %d: %s", idx+1, h))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/compare_mapping.templ`, Line: 176, Col: 106}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/compare_mapping.templ`, Line: 173, Col: 106}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var21))
 				if templ_7745c5c3_Err != nil {
@@ -425,7 +425,7 @@ func CompareFileMappingModal(file *compare.CompareFile, headers []string, previe
 				var templ_7745c5c3_Var22 string
 				templ_7745c5c3_Var22, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%d", idx))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/compare_mapping.templ`, Line: 178, Col: 48}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/compare_mapping.templ`, Line: 175, Col: 48}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var22)
 				if templ_7745c5c3_Err != nil {
@@ -438,7 +438,7 @@ func CompareFileMappingModal(file *compare.CompareFile, headers []string, previe
 				var templ_7745c5c3_Var23 string
 				templ_7745c5c3_Var23, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("العمود %d: %s", idx+1, h))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/compare_mapping.templ`, Line: 178, Col: 97}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/compare_mapping.templ`, Line: 175, Col: 97}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var23))
 				if templ_7745c5c3_Err != nil {
@@ -463,7 +463,7 @@ func CompareFileMappingModal(file *compare.CompareFile, headers []string, previe
 				var templ_7745c5c3_Var24 string
 				templ_7745c5c3_Var24, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("تطابق %.0f%%", score*100))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/compare_mapping.templ`, Line: 193, Col: 56}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/compare_mapping.templ`, Line: 190, Col: 56}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var24))
 				if templ_7745c5c3_Err != nil {
@@ -488,7 +488,7 @@ func CompareFileMappingModal(file *compare.CompareFile, headers []string, previe
 				var templ_7745c5c3_Var25 string
 				templ_7745c5c3_Var25, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%d", idx))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/compare_mapping.templ`, Line: 202, Col: 48}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/compare_mapping.templ`, Line: 199, Col: 48}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var25)
 				if templ_7745c5c3_Err != nil {
@@ -501,7 +501,7 @@ func CompareFileMappingModal(file *compare.CompareFile, headers []string, previe
 				var templ_7745c5c3_Var26 string
 				templ_7745c5c3_Var26, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("العمود %d: %s", idx+1, h))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/compare_mapping.templ`, Line: 202, Col: 106}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/compare_mapping.templ`, Line: 199, Col: 106}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var26))
 				if templ_7745c5c3_Err != nil {
@@ -519,7 +519,7 @@ func CompareFileMappingModal(file *compare.CompareFile, headers []string, previe
 				var templ_7745c5c3_Var27 string
 				templ_7745c5c3_Var27, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%d", idx))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/compare_mapping.templ`, Line: 204, Col: 48}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/compare_mapping.templ`, Line: 201, Col: 48}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var27)
 				if templ_7745c5c3_Err != nil {
@@ -532,7 +532,7 @@ func CompareFileMappingModal(file *compare.CompareFile, headers []string, previe
 				var templ_7745c5c3_Var28 string
 				templ_7745c5c3_Var28, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("العمود %d: %s", idx+1, h))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/compare_mapping.templ`, Line: 204, Col: 97}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/compare_mapping.templ`, Line: 201, Col: 97}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var28))
 				if templ_7745c5c3_Err != nil {
@@ -557,7 +557,7 @@ func CompareFileMappingModal(file *compare.CompareFile, headers []string, previe
 				var templ_7745c5c3_Var29 string
 				templ_7745c5c3_Var29, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("تطابق %.0f%%", score*100))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/compare_mapping.templ`, Line: 219, Col: 56}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/compare_mapping.templ`, Line: 216, Col: 56}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var29))
 				if templ_7745c5c3_Err != nil {
@@ -582,7 +582,7 @@ func CompareFileMappingModal(file *compare.CompareFile, headers []string, previe
 				var templ_7745c5c3_Var30 string
 				templ_7745c5c3_Var30, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%d", idx))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/compare_mapping.templ`, Line: 228, Col: 48}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/compare_mapping.templ`, Line: 225, Col: 48}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var30)
 				if templ_7745c5c3_Err != nil {
@@ -595,7 +595,7 @@ func CompareFileMappingModal(file *compare.CompareFile, headers []string, previe
 				var templ_7745c5c3_Var31 string
 				templ_7745c5c3_Var31, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("العمود %d: %s", idx+1, h))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/compare_mapping.templ`, Line: 228, Col: 106}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/compare_mapping.templ`, Line: 225, Col: 106}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var31))
 				if templ_7745c5c3_Err != nil {
@@ -613,7 +613,7 @@ func CompareFileMappingModal(file *compare.CompareFile, headers []string, previe
 				var templ_7745c5c3_Var32 string
 				templ_7745c5c3_Var32, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%d", idx))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/compare_mapping.templ`, Line: 230, Col: 48}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/compare_mapping.templ`, Line: 227, Col: 48}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var32)
 				if templ_7745c5c3_Err != nil {
@@ -626,7 +626,7 @@ func CompareFileMappingModal(file *compare.CompareFile, headers []string, previe
 				var templ_7745c5c3_Var33 string
 				templ_7745c5c3_Var33, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("العمود %d: %s", idx+1, h))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/compare_mapping.templ`, Line: 230, Col: 97}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/compare_mapping.templ`, Line: 227, Col: 97}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var33))
 				if templ_7745c5c3_Err != nil {
@@ -650,7 +650,7 @@ func CompareFileMappingModal(file *compare.CompareFile, headers []string, previe
 			var templ_7745c5c3_Var34 string
 			templ_7745c5c3_Var34, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d صفوف للمعاينة", len(preview)))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/compare_mapping.templ`, Line: 247, Col: 67}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/compare_mapping.templ`, Line: 244, Col: 67}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var34))
 			if templ_7745c5c3_Err != nil {
@@ -668,7 +668,7 @@ func CompareFileMappingModal(file *compare.CompareFile, headers []string, previe
 				var templ_7745c5c3_Var35 string
 				templ_7745c5c3_Var35, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", idx+1))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/compare_mapping.templ`, Line: 256, Col: 129}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/compare_mapping.templ`, Line: 253, Col: 129}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var35))
 				if templ_7745c5c3_Err != nil {
@@ -681,7 +681,7 @@ func CompareFileMappingModal(file *compare.CompareFile, headers []string, previe
 				var templ_7745c5c3_Var36 string
 				templ_7745c5c3_Var36, templ_7745c5c3_Err = templ.JoinStringErrs(h)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/compare_mapping.templ`, Line: 257, Col: 15}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/compare_mapping.templ`, Line: 254, Col: 15}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var36))
 				if templ_7745c5c3_Err != nil {
@@ -709,7 +709,7 @@ func CompareFileMappingModal(file *compare.CompareFile, headers []string, previe
 					var templ_7745c5c3_Var37 string
 					templ_7745c5c3_Var37, templ_7745c5c3_Err = templ.JoinStringErrs(cell)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/compare_mapping.templ`, Line: 267, Col: 19}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/compare_mapping.templ`, Line: 264, Col: 19}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var37))
 					if templ_7745c5c3_Err != nil {
@@ -742,7 +742,7 @@ func CompareFileMappingModal(file *compare.CompareFile, headers []string, previe
 			var templ_7745c5c3_Var38 string
 			templ_7745c5c3_Var38, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%d", file.ID))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/compare_mapping.templ`, Line: 285, Col: 49}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/compare_mapping.templ`, Line: 282, Col: 49}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var38)
 			if templ_7745c5c3_Err != nil {
@@ -755,7 +755,7 @@ func CompareFileMappingModal(file *compare.CompareFile, headers []string, previe
 			var templ_7745c5c3_Var39 string
 			templ_7745c5c3_Var39, templ_7745c5c3_Err = templ.ResolveAttributeValue(remainingQueue)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/compare_mapping.templ`, Line: 286, Col: 35}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/compare_mapping.templ`, Line: 283, Col: 35}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var39)
 			if templ_7745c5c3_Err != nil {
@@ -768,7 +768,7 @@ func CompareFileMappingModal(file *compare.CompareFile, headers []string, previe
 			var templ_7745c5c3_Var40 string
 			templ_7745c5c3_Var40, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%d", step))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/compare_mapping.templ`, Line: 287, Col: 43}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/compare_mapping.templ`, Line: 284, Col: 43}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var40)
 			if templ_7745c5c3_Err != nil {
@@ -781,7 +781,7 @@ func CompareFileMappingModal(file *compare.CompareFile, headers []string, previe
 			var templ_7745c5c3_Var41 string
 			templ_7745c5c3_Var41, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%d", total))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/compare_mapping.templ`, Line: 288, Col: 45}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/compare_mapping.templ`, Line: 285, Col: 45}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var41)
 			if templ_7745c5c3_Err != nil {
@@ -811,7 +811,7 @@ func CompareFileMappingModal(file *compare.CompareFile, headers []string, previe
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 84, "</button></div></div></form></div><script>\n\t\t\tif (typeof window.closeMappingModal !== 'function') {\n\t\t\t\twindow.closeMappingModal = function() {\n\t\t\t\t\tconst modal = document.getElementById('compare-mapping-modal-backdrop');\n\t\t\t\t\tif (modal) {\n\t\t\t\t\t\tmodal.remove();\n\t\t\t\t\t} else {\n\t\t\t\t\t\tconst root = document.getElementById('mapping-modal-root');\n\t\t\t\t\t\tif (root) root.innerHTML = '';\n\t\t\t\t\t\telse window.location.href = '/compare/tool';\n\t\t\t\t\t}\n\t\t\t\t};\n\t\t\t}\n\n\t\t\tif (typeof window.handleSetupSkip !== 'function') {\n\t\t\t\twindow.handleSetupSkip = function(fileId, remainingQueue, step, total) {\n\t\t\t\t\tif (!confirm('هل أنت متأكد من تخطي هذا الملف؟ سيتم حذفه من المقارنة والانتقال للملف التالي.')) {\n\t\t\t\t\t\treturn;\n\t\t\t\t\t}\n\n\t\t\t\t\tconst modal = document.getElementById('compare-mapping-modal-backdrop');\n\t\t\t\t\tif (modal) {\n\t\t\t\t\t\tmodal.innerHTML = `\n\t\t\t\t\t\t\t<div class=\"card\" style=\"background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-2xl); padding:2rem; color:var(--text); font-weight:800; text-align:center; display:flex; flex-direction:column; align-items:center; gap:0.75rem;\">\n\t\t\t\t\t\t\t\t<div style=\"font-size:2rem;\">⏩</div>\n\t\t\t\t\t\t\t\t<div>جاري تخطي الملف والانتقال للملف التالي...</div>\n\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t`;\n\t\t\t\t\t}\n\n\t\t\t\t\tconst formData = new FormData();\n\t\t\t\t\tformData.append('setup_queue', remainingQueue);\n\t\t\t\t\tformData.append('step', step);\n\t\t\t\t\tformData.append('total', total);\n\n\t\t\t\t\tfetch('/compare/files/' + fileId + '/skip', {\n\t\t\t\t\t\tmethod: 'POST',\n\t\t\t\t\t\tbody: formData,\n\t\t\t\t\t\theaders: {\n\t\t\t\t\t\t\t'Accept': 'application/json'\n\t\t\t\t\t\t}\n\t\t\t\t\t})\n\t\t\t\t\t.then(res => {\n\t\t\t\t\t\tif (!res.ok) throw new Error('فشل تخطي الملف.');\n\t\t\t\t\t\treturn res.json();\n\t\t\t\t\t})\n\t\t\t\t\t.then(data => {\n\t\t\t\t\t\tif (data.next_file_id && data.next_file_id > 0) {\n\t\t\t\t\t\t\tif (typeof window.openSetupModal === 'function') {\n\t\t\t\t\t\t\t\twindow.openSetupModal(data.next_file_id, data.remaining_queue, data.step, data.total);\n\t\t\t\t\t\t\t} else {\n\t\t\t\t\t\t\t\twindow.location.href = '/compare/tool?setup_file=' + data.next_file_id + '&setup_queue=' + encodeURIComponent(data.remaining_queue || '') + '&setup_step=' + data.step + '&setup_total=' + data.total;\n\t\t\t\t\t\t\t}\n\t\t\t\t\t\t} else {\n\t\t\t\t\t\t\twindow.location.href = '/compare/tool?notice=success&msg=' + encodeURIComponent('تم تخطي الملف والانتهاء من معالج الإعداد.');\n\t\t\t\t\t\t}\n\t\t\t\t\t})\n\t\t\t\t\t.catch(err => {\n\t\t\t\t\t\talert(err.message || 'تعذر تخطي الملف.');\n\t\t\t\t\t\tif (typeof window.closeMappingModal === 'function') {\n\t\t\t\t\t\t\twindow.closeMappingModal();\n\t\t\t\t\t\t}\n\t\t\t\t\t});\n\t\t\t\t};\n\t\t\t}\n\t\t</script></div>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 84, "</button></div></div></form></div><script>\n\t\t\tif (typeof window.closeMappingModal !== 'function') {\n\t\t\t\twindow.closeMappingModal = function() {\n\t\t\t\t\tconst modal = document.getElementById('compare-mapping-modal-backdrop');\n\t\t\t\t\tif (modal) {\n\t\t\t\t\t\tmodal.remove();\n\t\t\t\t\t} else {\n\t\t\t\t\t\tconst root = document.getElementById('mapping-modal-root');\n\t\t\t\t\t\tif (root) root.innerHTML = '';\n\t\t\t\t\t\telse window.location.href = '/compare/tool';\n\t\t\t\t\t}\n\t\t\t\t};\n\t\t\t}\n\n\t\t\tif (typeof window.handleSetupSkip !== 'function') {\n\t\t\t\twindow.handleSetupSkip = function(fileId, remainingQueue, step, total) {\n\t\t\t\t\tif (!confirm('هل أنت متأكد من تخطي هذا الملف؟ سيتم حذفه من المقارنة والانتقال للملف التالي.')) {\n\t\t\t\t\t\treturn;\n\t\t\t\t\t}\n\n\t\t\t\t\tconst modal = document.getElementById('compare-mapping-modal-backdrop');\n\t\t\t\t\tif (modal) {\n\t\t\t\t\t\tmodal.innerHTML = `\n\t\t\t\t\t\t\t<div class=\"card\" style=\"background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-2xl); padding:2rem; color:var(--text); font-weight:800; text-align:center; display:flex; flex-direction:column; align-items:center; gap:0.75rem;\">\n\t\t\t\t\t\t\t\t<div style=\"font-size:2rem;\">⏩</div>\n\t\t\t\t\t\t\t\t<div>جاري تخطي الملف والانتقال للملف التالي...</div>\n\t\t\t\t\t\t\t</div>\n\t\t\t\t\t\t`;\n\t\t\t\t\t}\n\n\t\t\t\t\tconst formData = new FormData();\n\t\t\t\t\tformData.append('setup_queue', remainingQueue);\n\t\t\t\t\tformData.append('step', step);\n\t\t\t\t\tformData.append('total', total);\n\n\t\t\t\t\tfetch('/compare/files/' + fileId + '/skip', {\n\t\t\t\t\t\tmethod: 'POST',\n\t\t\t\t\t\tbody: formData,\n\t\t\t\t\t\theaders: {\n\t\t\t\t\t\t\t'Accept': 'application/json'\n\t\t\t\t\t\t}\n\t\t\t\t\t})\n\t\t\t\t\t.then(res => {\n\t\t\t\t\t\tif (!res.ok) throw new Error('فشل تخطي الملف.');\n\t\t\t\t\t\treturn res.json();\n\t\t\t\t\t})\n\t\t\t\t\t.then(data => {\n\t\t\t\t\t\tif (data.next_file_id && data.next_file_id > 0) {\n\t\t\t\t\t\t\tif (typeof window.openSetupModal === 'function') {\n\t\t\t\t\t\t\t\twindow.openSetupModal(data.next_file_id, data.remaining_queue, data.step, data.total);\n\t\t\t\t\t\t\t} else {\n\t\t\t\t\t\t\t\twindow.location.href = '/compare/tool?setup_file=' + data.next_file_id + '&setup_queue=' + encodeURIComponent(data.remaining_queue || '') + '&setup_step=' + data.step + '&setup_total=' + data.total;\n\t\t\t\t\t\t\t}\n\t\t\t\t\t\t} else {\n\t\t\t\t\t\t\twindow.location.href = '/compare/tool?notice=success&msg=' + encodeURIComponent('تم تخطي الملف والانتهاء من معالج الإعداد.');\n\t\t\t\t\t\t}\n\t\t\t\t\t})\n\t\t\t\t\t.catch(err => {\n\t\t\t\t\t\talert(err.message || 'تعذر تخطي الملف.');\n\t\t\t\t\t\tif (typeof window.closeMappingModal === 'function') {\n\t\t\t\t\t\t\twindow.closeMappingModal();\n\t\t\t\t\t\t}\n\t\t\t\t\t});\n\t\t\t\t};\n\t\t\t}\n\t\t</script></dialog>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

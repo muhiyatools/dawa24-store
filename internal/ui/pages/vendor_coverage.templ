@@ -927,17 +927,17 @@ templ VendorCoveragePage(data VendorCoverageData, lang, dir string) {
 			</div>
 
 			<!-- Edit Coverage Modal -->
-			<div x-show="editModalOpen" x-cloak class="modal-overlay">
-				<div class="modal-box modal-md" @click.away="closeEdit()">
+			<dialog :open="editModalOpen" x-cloak class="modal" @keydown.escape.window="closeEdit()" @click.self="closeEdit()">
+				<div class="modal-box modal-md">
 					<div class="modal-header">
 						<h3 class="modal-title d-flex items-center gap-2">
 							<span>@components.IconEdit("icon-sm")</span>
 							<span>تعديل نطاق التغطية الأسبوعية</span>
 						</h3>
-						<button type="button" @click="closeEdit()" class="modal-close">@components.IconX("icon-sm")</button>
+						<button type="button" @click="closeEdit()" class="modal-close">@components.IconClose("icon-xs")</button>
 					</div>
 
-					<form :action="'/vendor/coverage/' + editCov.id + '/update'" method="POST" class="d-flex flex-col flex-1 overflow-hidden">
+					<form :action="'/vendor/coverage/' + editCov.id + '/update'" method="POST" class="d-flex flex-col flex-1 overflow-hidden m-0">
 						<div class="modal-body d-flex flex-col gap-4">
 							<input type="hidden" name="gorilla.csrf.Token" value=""/>
 							<input type="hidden" name="id" :value="editCov.id"/>
@@ -1015,7 +1015,7 @@ templ VendorCoveragePage(data VendorCoverageData, lang, dir string) {
 						</div>
 					</form>
 				</div>
-			</div>
+			</dialog>
 
 		</div>
 	}
