@@ -127,7 +127,7 @@ templ AdminOfferSponsorshipsPage(lang, dir string, requests []*promo.Sponsorship
 													<span class="badge badge-rose font-extrabold text-xs">مرفوض</span>
 												}
 											</td>
-											<td class="text-center text-xs tabular-nums text-secondary py-3">{ req.CreatedAt.Format("2006-01-02 15:04") }</td>
+											<td class="text-center text-xs tabular-nums text-secondary py-3">{ req.CreatedAt.Format("2006-01-02 03:04 PM") }</td>
 											<td class="text-end py-3 pe-4">
 												if req.AdminStatus == "pending" {
 													<div class="d-flex items-center justify-end gap-1.5">

@@ -142,7 +142,7 @@ templ VendorPurchaseRequestsPage(lang, dir string, requests []*commerce.Purchase
 									<span class="badge badge-primary text-xs font-bold">{ string(req.Status) }</span>
 								</div>
 								<div class="text-xs text-secondary">
-									العميل / الصيدلية: <strong class="text-primary">{ req.CustomerName }</strong> | تاريخ الطلب: <span class="tabular-nums">{ req.CreatedAt.Format("2006-01-02 15:04") }</span>
+									العميل / الصيدلية: <strong class="text-primary">{ req.CustomerName }</strong> | تاريخ الطلب: <span class="tabular-nums">{ req.CreatedAt.Format("2006-01-02 03:04 PM") }</span>
 								</div>
 							</div>
 							<a href={ templ.SafeURL(fmt.Sprintf("/vendor/purchase-requests/%d", req.ID)) } class="btn btn-primary btn-sm font-bold text-xs gap-1">

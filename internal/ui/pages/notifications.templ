@@ -164,7 +164,7 @@ templ NotificationsList(logs []*notifications.NotificationLog) {
 							<div class="d-flex items-center gap-3 text-2xs text-muted tabular-nums">
 								<span class="d-flex items-center gap-1">
 									@components.IconClock("icon-2xs")
-									<span>{ l.CreatedAt.Format("2006-01-02 15:04") }</span>
+									<span>{ l.CreatedAt.Format("2006-01-02 03:04 PM") }</span>
 								</span>
 								if l.IsRead {
 									<span class="text-muted d-flex items-center gap-1">

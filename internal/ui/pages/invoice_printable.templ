@@ -449,7 +449,7 @@ templ InvoicePrintablePage(data billing.PrintableInvoiceData, lang, dir string) 
 						}
 						<div class="stack-sm" style="font-size:0.775rem; color:#334155; margin-bottom:0.2rem;">
 							<span style="direction:rtl; display:inline-block; font-size:0.75rem; color:#64748b; margin-right:4px;">تاريخ الإصدار:</span>
-							<span class="tabular-nums">{ data.IssueDate.Format("2006-01-02 15:04") }</span>
+							<span class="tabular-nums">{ data.IssueDate.Format("2006-01-02 03:04 PM") }</span>
 						</div>
 						<div class="stack-sm" style="font-size:0.775rem; color:#334155;">
 							<span style="direction:rtl; display:inline-block; font-size:0.75rem; color:#64748b; margin-right:4px;">طريقة السداد:</span>
@@ -650,7 +650,7 @@ templ InvoicePrintablePage(data billing.PrintableInvoiceData, lang, dir string) 
 				<!-- Meta -->
 				<div class="thermal-row">
 					<span>التاريخ:</span>
-					<span class="tabular-nums">{ data.IssueDate.Format("2006-01-02 15:04") }</span>
+					<span class="tabular-nums">{ data.IssueDate.Format("2006-01-02 03:04 PM") }</span>
 				</div>
 				if data.OrderNumber != "" {
 					<div class="thermal-row">

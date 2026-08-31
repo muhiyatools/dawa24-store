@@ -466,7 +466,7 @@ templ PharmacyDashboard(lang, dir string, data PharmacyDashboardData, perms []st
 										<div class="flex-between items-center text-xs p-2 rounded-md bg-surface-sunken">
            <div class="stack-sm">
 												<div class="font-bold text-primary">{ FormatTxTypeLabel(tx.Type) }</div>
-												<div class="text-xs text-muted">{ tx.CreatedAt.Format("2006-01-02 15:04") }</div>
+												<div class="text-xs text-muted">{ tx.CreatedAt.Format("2006-01-02 03:04 PM") }</div>
 											</div>
 											<div class={ "tabular-nums font-extrabold", txClass(tx.Amount.Minor()) }>
 												if tx.Amount.Minor() > 0 {

@@ -195,19 +195,28 @@ func Date(t time.Time, lang string) string {
 	return t.Format("2006-01-02")
 }
 
-// DateTime formats date and time (e.g. "17 أغسطس 2026 14:30" or "Aug 17, 2026 14:30").
+// DateTime formats date and time in 12-hour AM/PM format (e.g. "17 أغسطس 2026 02:30 PM" or "Aug 17, 2026 02:30 PM").
 func DateTime(t time.Time, lang string) string {
 	if t.IsZero() {
 		return ""
 	}
 	if lang == "en" {
-		return t.Format("Jan 02, 2006 15:04")
+		return t.Format("Jan 02, 2006 03:04 PM")
 	}
 	m := int(t.Month())
-	if m >= 1 && m <= 12 {
-		return fmt.Sprintf("%d %s %d %02d:%02d", t.Day(), arMonths[m], t.Year(), t.Hour(), t.Minute())
+	period := "AM"
+	hour := t.Hour()
+	if hour >= 12 {
+		period = "PM"
 	}
-	return t.Format("2006-01-02 15:04")
+	h12 := hour % 12
+	if h12 == 0 {
+		h12 = 12
+	}
+	if m >= 1 && m <= 12 {
+		return fmt.Sprintf("%d %s %d %02d:%02d %s", t.Day(), arMonths[m], t.Year(), h12, t.Minute(), period)
+	}
+	return t.Format("2006-01-02 03:04 PM")
 }
 
 // Bytes formats byte size into human readable string (e.g. 500 B, 1.5 KB, 2.4 MB).

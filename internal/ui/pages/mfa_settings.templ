@@ -137,7 +137,7 @@ templ mfaSettingsContent(lang, dir string, data MFASettingsViewData) {
         <p class="text-sm text-secondary m-0">
 									Google Authenticator (TOTP)
 									if data.Status.ConfirmedAt != nil {
-										<span> • مفعل منذ { data.Status.ConfirmedAt.Format("2006-01-02 15:04") }</span>
+										<span> • مفعل منذ { data.Status.ConfirmedAt.Format("2006-01-02 03:04 PM") }</span>
 									}
 								</p>
 							</div>

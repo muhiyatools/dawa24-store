@@ -317,9 +317,9 @@ func VendorPurchaseRequestsPage(lang, dir string, requests []*commerce.PurchaseR
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var16 string
-					templ_7745c5c3_Var16, templ_7745c5c3_Err = templ.JoinStringErrs(req.CreatedAt.Format("2006-01-02 15:04"))
+					templ_7745c5c3_Var16, templ_7745c5c3_Err = templ.JoinStringErrs(req.CreatedAt.Format("2006-01-02 03:04 PM"))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/purchase_requests.templ`, Line: 145, Col: 195}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/purchase_requests.templ`, Line: 145, Col: 198}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var16))
 					if templ_7745c5c3_Err != nil {

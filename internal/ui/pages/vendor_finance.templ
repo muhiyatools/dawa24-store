@@ -63,7 +63,7 @@ templ VendorPaymentsPage(payments []*billing.Payment, lang, dir string) {
 										<td class="tabular-nums font-extrabold text-success text-sm">{ fmt.Sprintf("%s ج.م", p.Amount.String()) }</td>
 										<td><span class="badge badge-slate text-xs font-bold">{ p.Method }</span></td>
 										<td class="text-center"><span class="badge badge-emerald text-xs font-bold">{ string(p.Status) }</span></td>
-										<td class="text-end tabular-nums text-xs text-muted">{ p.CreatedAt.Format("2006-01-02 15:04") }</td>
+										<td class="text-end tabular-nums text-xs text-muted">{ p.CreatedAt.Format("2006-01-02 03:04 PM") }</td>
 									</tr>
 								}
 							</tbody>
@@ -280,7 +280,7 @@ templ VendorEarningsOrderPage(summary *commerce.VendorFinancialSummary, lang, di
 												</div>
 											</td>
 											<td class="tabular-nums text-xs font-semibold text-secondary">
-												{ s.DeliveredAt.Format("2006-01-02 15:04") }
+												{ s.DeliveredAt.Format("2006-01-02 03:04 PM") }
 											</td>
 											<td>
 												<span class="font-bold text-sm text-primary">{ s.CustomerOrgName }</span>

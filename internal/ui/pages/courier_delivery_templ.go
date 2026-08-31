@@ -599,9 +599,9 @@ func CourierDeliveryPage(data CourierDeliveryData, lang, dir string) templ.Compo
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var22 string
-					templ_7745c5c3_Var22, templ_7745c5c3_Err = templ.JoinStringErrs(data.Shipment.DeliveredAt.Format("2006-01-02 15:04"))
+					templ_7745c5c3_Var22, templ_7745c5c3_Err = templ.JoinStringErrs(data.Shipment.DeliveredAt.Format("2006-01-02 03:04 PM"))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/courier_delivery.templ`, Line: 407, Col: 87}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/courier_delivery.templ`, Line: 407, Col: 90}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var22))
 					if templ_7745c5c3_Err != nil {
