@@ -506,3 +506,50 @@ never duplicated to serve a second density.**
 `check-topbar-impls` fails the build if a shell hand-builds a header again. Chrome changes now
 happen once instead of four times, and cannot silently diverge.
 
+
+
+---
+
+## ADR 0017 — A Class With No Rule Is a Silent Regression
+
+**Status:** Accepted · 2026-08-31
+
+### Context
+
+Phase 5 converted 136 page templates, removing **2,089 inline `style` attributes** and
+replacing them with class names. Every ratchet agreed it went well: inline styles fell from
+2,170 to 81, raw `<dialog>` reached zero, `!important` held at 3.
+
+None of those gates could see the actual defect. A conversion can remove a `style` attribute
+and put a class name in its place **without anyone writing a rule for that class**. The diff
+looks like progress. The gate counts go the right way. The element renders unstyled.
+
+Measured after the conversion: 1,365 distinct class names appear in templates, and **468 had
+no matching selector in any stylesheet**. Comparing across refs, 398 of those already existed
+at the end of Phase 3 — harmless then, because an inline style was still doing the work.
+Removing the inline styles is what converted a latent inconsistency into visible breakage.
+
+### Decision
+
+`check-undefined-classes` compares every class token used in a template against every class
+selector defined in the stylesheets, and fails when the difference grows. It prints the
+offenders, and its failure message explains what the number means, because the number alone
+does not communicate the failure mode.
+
+The ceiling stands at 235. The residue is dominated by Alpine state names — `activeTab`,
+`filterTab`, `policyFilter` — which appear inside `:class` bindings and are never CSS
+selectors. Lowering the ceiling further requires distinguishing those from real classes,
+which is worth doing only if the number starts drifting.
+
+### Consequences
+
+The general lesson is worth more than the fix. **A ratchet measures what it counts, not what
+you care about.** `check-inline-styles` counts `style="` and cannot tell a conversion from a
+deletion; it read 81 while hundreds of elements were unstyled. Every gate added from here
+should be asked the same question: what failure would still pass this?
+
+Related: shell CSS was being tracked against a 90 KB target that was measured while 468
+classes' worth of rules were missing. Part of the apparent progress toward it was styling
+that had gone absent. The target must be reset against a complete stylesheet, and the
+`components.css` / `foundations.css` / `utilities.css` dedupe that would actually reach it
+should follow the visual regression suite, not precede it.
