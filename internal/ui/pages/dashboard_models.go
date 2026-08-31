@@ -12,6 +12,7 @@ import (
 	"github.com/muhiya/dawa24-store/internal/modules/org"
 	"github.com/muhiya/dawa24-store/internal/modules/promo"
 	"github.com/muhiya/dawa24-store/internal/modules/smartorder"
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/shared/money"
 )
 
@@ -104,11 +105,11 @@ func (v *OrgSubscriptionView) AIPercentage() int {
 	return pct
 }
 
-// FormatRelativeResetTime converts a reset timestamp into friendly countdown text (e.g. "متبقي 14 يوماً", "متبقي 8 ساعات").
+// FormatRelativeResetTime converts a reset timestamp into friendly countdown text.
 func FormatRelativeResetTime(rawTime string) string {
 	cleaned := strings.TrimSpace(rawTime)
 	if cleaned == "" {
-		return "تجديد شهري دوري"
+		return i18n.T("ar", "ai.periodic_renewal")
 	}
 	layouts := []string{
 		"2006-01-02 15:04",
@@ -128,39 +129,35 @@ func FormatRelativeResetTime(rawTime string) string {
 		}
 	}
 	if resetTime.IsZero() {
-		return "تجديد شهري دوري"
+		return i18n.T("ar", "ai.periodic_renewal")
 	}
 	now := time.Now()
 	diff := resetTime.Sub(now)
 	if diff <= 0 {
-		return "اليوم (جاري التجديد)"
+		return i18n.T("ar", "ai.today_renewing")
 	}
 	hours := int(diff.Hours())
 	days := hours / 24
 	if days > 1 {
-		return fmt.Sprintf("متبقي %d يوماً", days)
+		return fmt.Sprintf(i18n.T("ar", "ai.remaining_days_format"), days)
 	} else if days == 1 {
-		return "متبقي يوم واحد"
+		return i18n.T("ar", "ai.remaining_one_day")
 	} else if hours > 1 {
-		return fmt.Sprintf("متبقي %d ساعة", hours)
+		return fmt.Sprintf(i18n.T("ar", "ai.remaining_hours_format"), hours)
 	} else if hours == 1 {
-		return "متبقي ساعة واحدة"
+		return i18n.T("ar", "ai.remaining_one_hour")
 	}
 	mins := int(diff.Minutes())
 	if mins > 1 {
-		return fmt.Sprintf("متبقي %d دقيقة", mins)
+		return fmt.Sprintf(i18n.T("ar", "ai.remaining_mins_format"), mins)
 	}
-	return "أقل من دقيقة"
+	return i18n.T("ar", "ai.remaining_less_min")
 }
 
 // AIResetText says when the Gateway's budget window reopens.
-//
-// The window is the Gateway's to publish. When it publishes none this reports
-// that plainly rather than computing the first of next month locally and
-// presenting the guess as the tenant's renewal date.
 func (v *OrgSubscriptionView) AIResetText() string {
 	if v == nil || v.AIBudgetResetTime == "" {
-		return "غير محدد"
+		return i18n.T("ar", "ai.unspecified")
 	}
 	return FormatRelativeResetTime(v.AIBudgetResetTime)
 }
@@ -169,12 +166,12 @@ func (v *OrgSubscriptionView) AIResetText() string {
 // is unknown.
 func (v *OrgSubscriptionView) AIUsageText() string {
 	if v == nil || !v.HasAIUsage {
-		return "لا تتوفر بيانات استهلاك من البوابة حالياً"
+		return i18n.T("ar", "ai.no_usage_data")
 	}
 	if !v.HasAIBudget {
-		return fmt.Sprintf("%.2f$ مستهلك — لا يوجد سقف منشور لهذه الباقة", v.AIBudgetSpentUSD)
+		return fmt.Sprintf(i18n.T("ar", "ai.consumed_no_ceiling_format"), v.AIBudgetSpentUSD)
 	}
-	return fmt.Sprintf("%.2f$ من %.2f$", v.AIBudgetSpentUSD, v.AIBudgetLimitUSD)
+	return fmt.Sprintf(i18n.T("ar", "ai.consumed_of_total_format"), v.AIBudgetSpentUSD, v.AIBudgetLimitUSD)
 }
 
 // AILogItemView represents one unified, high-density AI request log entry.
@@ -220,11 +217,10 @@ func (l *AILogItemView) DurationText() string {
 	return fmt.Sprintf("%d ms", l.DurationMs)
 }
 
-// ModelText renders the model that served the request. The Gateway does not
-// always name one, and a blank is the honest answer when it does not.
+// ModelText renders the model that served the request.
 func (l *AILogItemView) ModelText() string {
 	if l == nil || strings.TrimSpace(l.ModelAlias) == "" {
-		return "غير محدد"
+		return i18n.T("ar", "ai.unspecified")
 	}
 	return l.ModelAlias
 }
@@ -246,13 +242,8 @@ type AIConsumptionLogsPageData struct {
 	IsVendor          bool
 	IsCustomer        bool
 	FeatureBreakdown  map[string]int
-	// HasBudget reports whether the Gateway published a ceiling for this
-	// tenant. Without one there is no percentage to draw.
-	HasBudget bool
-	// CostIsComplete reports whether every request in the window carried a
-	// published price. When false the total is a floor, and the screen says so
-	// rather than presenting a partial sum as the whole bill.
-	CostIsComplete bool
+	HasBudget         bool
+	CostIsComplete    bool
 }
 
 // TotalCostText renders the window's spend, marked as a floor when some of the
@@ -262,10 +253,10 @@ func (d *AIConsumptionLogsPageData) TotalCostText() string {
 		return "—"
 	}
 	if d.TotalRequests == 0 {
-		return "لا توجد عمليات في هذه الفترة"
+		return i18n.T("ar", "ai.no_operations")
 	}
 	if !d.CostIsComplete {
-		return fmt.Sprintf("%.4f$ على الأقل", d.TotalCostUSD)
+		return fmt.Sprintf(i18n.T("ar", "ai.at_least_cost_format"), d.TotalCostUSD)
 	}
 	return fmt.Sprintf("%.4f$", d.TotalCostUSD)
 }
@@ -273,7 +264,7 @@ func (d *AIConsumptionLogsPageData) TotalCostText() string {
 // QuotaText renders the quota headline, or says the Gateway published none.
 func (d *AIConsumptionLogsPageData) QuotaText() string {
 	if d == nil || !d.HasBudget {
-		return "لا يوجد سقف منشور"
+		return i18n.T("ar", "ai.no_ceiling_published")
 	}
 	return fmt.Sprintf("%d%%", d.UsagePercentage)
 }
@@ -281,7 +272,7 @@ func (d *AIConsumptionLogsPageData) QuotaText() string {
 // ResetCountdown returns friendly relative text for quota renewal.
 func (d *AIConsumptionLogsPageData) ResetCountdown() string {
 	if d == nil || strings.TrimSpace(d.ResetTime) == "" {
-		return "غير محدد"
+		return i18n.T("ar", "ai.unspecified")
 	}
 	return FormatRelativeResetTime(d.ResetTime)
 }
@@ -331,21 +322,21 @@ type PharmacyDashboardData struct {
 	Subscription       *OrgSubscriptionView
 }
 
-// FormatSmartOrderStatusLabel returns the localized Arabic label for Smart Order RunStatus.
+// FormatSmartOrderStatusLabel returns the localized label for Smart Order RunStatus.
 func FormatSmartOrderStatusLabel(status smartorder.RunStatus) string {
 	switch status {
 	case smartorder.StatusPlaced, smartorder.StatusCompleted, smartorder.StatusFinalizing:
-		return "مكتمل ومعتمد"
+		return i18n.T("ar", "smartorder.status_placed")
 	case smartorder.StatusProcessing, smartorder.StatusQueued:
-		return "جاري المعالجة"
+		return i18n.T("ar", "smartorder.status_processing")
 	case smartorder.StatusMapping:
-		return "بانتظار تعيين الأعمدة"
+		return i18n.T("ar", "smartorder.status_mapping")
 	case smartorder.StatusDraft:
-		return "مسودة"
+		return i18n.T("ar", "smartorder.status_draft")
 	case smartorder.StatusStale:
-		return "بحاجة لإعادة تشغيل"
+		return i18n.T("ar", "smartorder.status_stale")
 	case smartorder.StatusFailed:
-		return "تعذّر الاكتمال"
+		return i18n.T("ar", "smartorder.status_failed")
 	default:
 		return string(status)
 	}
@@ -367,27 +358,27 @@ func FormatSmartOrderStatusTone(status smartorder.RunStatus) string {
 	}
 }
 
-// FormatTxTypeLabel returns the Arabic translation for a wallet transaction type.
+// FormatTxTypeLabel returns the localized label for a wallet transaction type.
 func FormatTxTypeLabel(t billing.TransactionType) string {
 	switch t {
 	case billing.TxDeposit:
-		return "إيداع رصيد"
+		return i18n.T("ar", "tx.deposit")
 	case billing.TxWithdrawal:
-		return "سحب / استرداد"
+		return i18n.T("ar", "tx.withdrawal")
 	case billing.TxPurchase:
-		return "سداد طلبية"
+		return i18n.T("ar", "tx.purchase")
 	case billing.TxRefund:
-		return "استرجاع مالي"
+		return i18n.T("ar", "tx.refund")
 	case billing.TxBonus:
-		return "مكافأة / بونص"
+		return i18n.T("ar", "tx.bonus")
 	case billing.TxPenalty:
-		return "خصم إداري"
+		return i18n.T("ar", "tx.penalty")
 	case billing.TxTransferIn:
-		return "تحويل وارد"
+		return i18n.T("ar", "tx.transfer_in")
 	case billing.TxTransferOut:
-		return "تحويل صادر"
+		return i18n.T("ar", "tx.transfer_out")
 	case billing.TxAdjustment:
-		return "تسوية رصيد"
+		return i18n.T("ar", "tx.adjustment")
 	default:
 		return string(t)
 	}

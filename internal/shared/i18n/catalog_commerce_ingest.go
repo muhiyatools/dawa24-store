@@ -171,7 +171,18 @@ func loadCommerceAndIngestKeys(e *engine) {
 	addKey(e, "smartorder.invalid_quantity", "smartorder", "أدخل كمية صحيحة.", "Enter a valid quantity.", "Validation error")
 	addKey(e, "smartorder.select_supplier_from_list", "smartorder", "اختر موردًا من القائمة.", "Select a supplier from the list.", "Validation error")
 	addKey(e, "smartorder.finalizer_unavailable", "smartorder", "اعتماد الطلبات غير مُفعّل حاليًا.", "Order finalization is currently disabled.", "Service error")
-	addKey(e, "smartorder.form_parse_error", "smartorder", "تعذّرت قراءة النموذج.", "Could not read form data.", "Form error")
+	addKey(e, "smartorder.notice_run_already_in_progress", "smartorder", "المطابقة قيد التشغيل بالفعل لهذا الملف.", "Matching is already in progress for this file.", "Info notice")
+	addKey(e, "smartorder.notice_matching_started", "smartorder", "بدأت عملية المطابقة الذكية في الخلفية.", "Smart matching started in background.", "Success notice")
+	addKey(e, "smartorder.notice_draft_cancelled", "smartorder", "تم إلغاء المسودة.", "Draft cancelled.", "Success notice")
+
+	// --- Smart Order Status Labels ---
+	addKey(e, "smartorder.status_placed", "smartorder", "مكتمل ومعتمد", "Completed & Placed", "Completed smart order status")
+	addKey(e, "smartorder.status_processing", "smartorder", "جاري المعالجة", "Processing", "Processing smart order status")
+	addKey(e, "smartorder.status_mapping", "smartorder", "بانتظار تعيين الأعمدة", "Mapping Columns", "Mapping columns smart order status")
+	addKey(e, "smartorder.status_draft", "smartorder", "مسودة", "Draft", "Draft smart order status")
+	addKey(e, "smartorder.status_stale", "smartorder", "بحاجة لإعادة تشغيل", "Needs Rerun", "Stale smart order status")
+	addKey(e, "smartorder.status_failed", "smartorder", "تعذّر الاكتمال", "Failed", "Failed smart order status")
+
 	addKey(e, "smartorder.ai_not_enabled", "smartorder", "المطابقة الذكية غير مفعّلة على هذه المنصة.", "Smart matching is not enabled on this platform.", "AI status")
 	addKey(e, "smartorder.ai_gateway_down", "smartorder", "بوابة الذكاء الاصطناعي متوقفة حاليًا. ستعمل المطابقة الحتمية وحدها.", "AI Gateway is currently down. Deterministic matching runs alone.", "AI status")
 	addKey(e, "smartorder.ai_org_members_only", "smartorder", "المطابقة الذكية متاحة لأعضاء المؤسسات فقط.", "Smart matching is available for organization members only.", "AI permission")

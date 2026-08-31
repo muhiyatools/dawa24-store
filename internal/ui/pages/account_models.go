@@ -2,6 +2,7 @@ package pages
 
 import (
 	"github.com/muhiya/dawa24-store/internal/modules/billing"
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/shared/money"
 )
 
@@ -26,23 +27,23 @@ type InvoicesData struct {
 func TxLabel(t billing.TransactionType) string {
 	switch t {
 	case billing.TxDeposit:
-		return "إيداع"
+		return i18n.T("ar", "tx.deposit")
 	case billing.TxWithdrawal:
-		return "سحب"
+		return i18n.T("ar", "tx.withdrawal")
 	case billing.TxPurchase:
-		return "شراء"
+		return i18n.T("ar", "tx.purchase")
 	case billing.TxRefund:
-		return "استرداد"
+		return i18n.T("ar", "tx.refund")
 	case billing.TxBonus:
-		return "مكافأة"
+		return i18n.T("ar", "tx.bonus")
 	case billing.TxPenalty:
-		return "غرامة"
+		return i18n.T("ar", "tx.penalty")
 	case billing.TxTransferIn:
-		return "تحويل وارد"
+		return i18n.T("ar", "tx.transfer_in")
 	case billing.TxTransferOut:
-		return "تحويل صادر"
+		return i18n.T("ar", "tx.transfer_out")
 	case billing.TxAdjustment:
-		return "تسوية"
+		return i18n.T("ar", "tx.adjustment")
 	default:
 		return string(t)
 	}
@@ -52,15 +53,15 @@ func TxLabel(t billing.TransactionType) string {
 func InvoiceLabel(s billing.InvoiceStatus) string {
 	switch s {
 	case billing.InvoiceDraft:
-		return "مسودة"
+		return i18n.T("ar", "invoice.status_draft")
 	case billing.InvoiceIssued:
-		return "صادرة"
+		return i18n.T("ar", "invoice.status_issued")
 	case billing.InvoicePaid:
-		return "مدفوعة"
+		return i18n.T("ar", "invoice.status_paid")
 	case billing.InvoiceOverdue:
-		return "متأخرة"
+		return i18n.T("ar", "invoice.status_overdue")
 	case billing.InvoiceCancelled:
-		return "ملغاة"
+		return i18n.T("ar", "invoice.status_cancelled")
 	default:
 		return string(s)
 	}

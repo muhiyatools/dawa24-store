@@ -4,6 +4,7 @@ import (
 	"github.com/muhiya/dawa24-store/internal/modules/billing"
 	"github.com/muhiya/dawa24-store/internal/modules/identity"
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/ui/components"
 	"github.com/muhiya/dawa24-store/internal/ui/layouts"
 )
@@ -21,7 +22,7 @@ type UnifiedSettingsData struct {
 }
 
 templ UnifiedSettingsPage(data UnifiedSettingsData, lang, dir string) {
-	@layouts.ShellFor("إعدادات الحساب والمنشأة", "settings", lang, dir, authctx.FromContext(ctx)) {
+	@layouts.ShellFor(i18n.T(lang, "settings.unified_title"), "settings", lang, dir, authctx.FromContext(ctx)) {
 
 		<div
 			class="w-full mb-16"
@@ -37,11 +38,11 @@ templ UnifiedSettingsPage(data UnifiedSettingsData, lang, dir string) {
 							@components.IconSettings("icon-sm")
 						</div>
 						<h2 class="text-2xl font-black text-primary m-0">
-							إعدادات الحساب والمنشأة
+							{ i18n.T(lang, "settings.unified_title") }
 						</h2>
 					</div>
 					<p class="text-sm text-muted m-0">
-						إدارة البيانات الشخصية للصيدلي، التراخيص الرسمية للمنشأة، والتفضيلات
+						{ i18n.T(lang, "settings.unified_desc") }
 					</p>
 				</div>
 
@@ -51,7 +52,7 @@ templ UnifiedSettingsPage(data UnifiedSettingsData, lang, dir string) {
 						class="btn btn-outline-brand font-bold gap-2"
 					>
 						@components.IconWallet("icon-xs")
-						<span>المحفظة والرصيد</span>
+						<span>{ i18n.T(lang, "billing.wallet_balance") }</span>
 					</a>
 				</div>
 			</div>
@@ -66,7 +67,7 @@ templ UnifiedSettingsPage(data UnifiedSettingsData, lang, dir string) {
 					data-tab-target="profile"
 				>
 					@components.IconUser("icon-xs")
-					<span>الملف الشخصي</span>
+					<span>{ i18n.T(lang, "settings.tab_profile") }</span>
 				</button>
 
 				<button
@@ -77,7 +78,7 @@ templ UnifiedSettingsPage(data UnifiedSettingsData, lang, dir string) {
 					data-tab-target="organization"
 				>
 					@components.IconBuilding("icon-xs")
-					<span>المنشأة والتراخيص</span>
+					<span>{ i18n.T(lang, "settings.tab_organization") }</span>
 				</button>
 
 				<button
@@ -88,7 +89,7 @@ templ UnifiedSettingsPage(data UnifiedSettingsData, lang, dir string) {
 					data-tab-target="preferences"
 				>
 					@components.IconBell("icon-xs")
-					<span>الإشعارات والتفضيلات</span>
+					<span>{ i18n.T(lang, "settings.tab_preferences") }</span>
 				</button>
 			</div>
 
@@ -100,7 +101,7 @@ templ UnifiedSettingsPage(data UnifiedSettingsData, lang, dir string) {
 				x-show="activeTab === 'profile'"
 			>
 				<h3 class="text-lg font-extrabold text-primary mb-6">
-					البيانات الشخصية والصورة الرمزية
+					{ i18n.T(lang, "settings.profile_section_title") }
 				</h3>
 
 				<form 
@@ -131,11 +132,11 @@ templ UnifiedSettingsPage(data UnifiedSettingsData, lang, dir string) {
 
 						<!-- Upload Controls -->
 						<div class="flex-1">
-							<label class="form-label font-extrabold text-sm mb-1.5">الصورة الشخصية / شعار الصيدلية</label>
+							<label class="form-label font-extrabold text-sm mb-1.5">{ i18n.T(lang, "settings.avatar_label") }</label>
 							<div class="d-flex items-center gap-2 flex-wrap">
 								<label class="btn btn-secondary btn-sm font-bold cursor-pointer m-0 gap-1.5">
 									@components.IconUpload("icon-xs")
-									<span>اختيار وتغيير الصورة</span>
+									<span>{ i18n.T(lang, "settings.avatar_change") }</span>
 									<input 
 										type="file" 
 										id="user-avatar-file" 
@@ -162,41 +163,41 @@ templ UnifiedSettingsPage(data UnifiedSettingsData, lang, dir string) {
 										@click="removeAvatar = true; avatarPreview = ''; const el = document.getElementById('user-avatar-file'); if(el) el.value = '';"
 									>
 										@components.IconTrash("icon-xs")
-										<span>حذف الصورة</span>
+										<span>{ i18n.T(lang, "settings.avatar_delete") }</span>
 									</button>
 								}
 							</div>
 							<input type="hidden" name="remove_avatar" :value="removeAvatar ? '1' : '0'" />
 							<span class="text-xs text-muted d-block mt-1.5">
-								يدعم الصور بتنسيق JPG, PNG, WEBP حتى 50 ميجابايت كحد أقصى.
+								{ i18n.T(lang, "settings.avatar_hint") }
 							</span>
 						</div>
 					</div>
 
 					<div class="form-group mb-0">
-						<label class="form-label" for="user-name">الاسم بالكامل</label>
-						<input type="text" id="user-name" name="name" class="form-input" value={ userNameVal(data.User) } placeholder="د. أحمد محمود" required />
+						<label class="form-label" for="user-name">{ i18n.T(lang, "settings.full_name") }</label>
+						<input type="text" id="user-name" name="name" class="form-input" value={ userNameVal(data.User, lang) } required />
 					</div>
 
 					<div class="form-group mb-0">
-						<label class="form-label" for="user-email">البريد الإلكتروني</label>
-						<input type="email" id="user-email" name="email" class="form-input tabular-nums" value={ userEmailVal(data.User) } placeholder="pharmacy@dawa24.eg" required />
+						<label class="form-label" for="user-email">{ i18n.T(lang, "settings.email") }</label>
+						<input type="email" id="user-email" name="email" class="form-input tabular-nums" value={ userEmailVal(data.User) } required />
 					</div>
 
 					<div class="form-group mb-0">
-						<label class="form-label" for="user-phone">رقم الهاتف / الواتساب</label>
-						<input type="tel" id="user-phone" name="phone" class="form-input tabular-nums" value={ userPhoneVal(data.User) } placeholder="01012345678" />
+						<label class="form-label" for="user-phone">{ i18n.T(lang, "settings.phone") }</label>
+						<input type="tel" id="user-phone" name="phone" class="form-input tabular-nums" value={ userPhoneVal(data.User) } />
 					</div>
 
 					<div class="form-group mb-0">
-						<label class="form-label" for="user-role">نوع الحساب والصلاحية</label>
+						<label class="form-label" for="user-role">{ i18n.T(lang, "settings.account_role") }</label>
 						<input type="text" id="user-role" class="form-input bg-surface-sunken text-muted" value={ userRoleVal(data.User) } disabled />
 					</div>
 
 					<div class="mt-3">
 						<button type="submit" class="btn btn-primary font-black px-8 py-3">
 							@components.IconCheck("icon-xs")
-							<span>حفظ التعديلات وتحديث الملف</span>
+							<span>{ i18n.T(lang, "settings.save_profile") }</span>
 						</button>
 					</div>
 				</form>
@@ -207,10 +208,10 @@ templ UnifiedSettingsPage(data UnifiedSettingsData, lang, dir string) {
 						<div>
 							<div class="d-flex items-center gap-2 text-danger font-extrabold text-base">
 								@components.IconTrash("icon-xs")
-								<span>طلب حذف الحساب وإنهاء النشاط</span>
+								<span>{ i18n.T(lang, "settings.delete_account_title") }</span>
 							</div>
 							<p class="text-xs text-secondary mt-1.5 leading-relaxed max-w-xl">
-								يمكنك تقديم طلب رسمي لإلغاء الحساب وحذف البيانات. ستتم مراجعة الطلب من إدارة المنصة والتحقق من تسوية المستحقات المالية وأوامر التوريد قبل إتمام الحذف.
+								{ i18n.T(lang, "settings.delete_account_desc") }
 							</p>
 						</div>
 						<button
@@ -219,7 +220,7 @@ templ UnifiedSettingsPage(data UnifiedSettingsData, lang, dir string) {
 							data-modal-open="delete-account-modal"
 						>
 							@components.IconTrash("icon-xs")
-							<span>تقديم طلب حذف الحساب</span>
+							<span>{ i18n.T(lang, "settings.delete_account_btn") }</span>
 						</button>
 					</div>
 				</div>
@@ -235,37 +236,37 @@ templ UnifiedSettingsPage(data UnifiedSettingsData, lang, dir string) {
 				<div class="flex-between items-center mb-6 flex-wrap gap-4">
 					<div>
 						<h3 class="text-xl font-black text-primary m-0">
-							بيانات المنشأة والتراخيص الرسمية
+							{ i18n.T(lang, "settings.org_title") }
 						</h3>
 						<p class="text-sm text-muted mt-1">
-							السجلات التجارية وتراخيص هيئة الدواء المصرية (EDA)
+							{ i18n.T(lang, "settings.org_desc") }
 						</p>
 					</div>
 
 					<a href="/customer/branches" class="btn btn-secondary btn-sm font-bold">
 						@components.IconBuilding("icon-xs")
-						<span>إدارة فروع ومواقع استلام الصيدلية</span>
+						<span>{ i18n.T(lang, "settings.manage_branches") }</span>
 					</a>
 				</div>
 
 				<div class="d-grid grid-auto-fit-lg gap-5 mb-8">
 					<div class="p-5 bg-surface-sunken rounded-lg border">
-						<div class="text-xs text-muted font-bold">الاسم القانوني للمنشأة</div>
+						<div class="text-xs text-muted font-bold">{ i18n.T(lang, "settings.legal_name") }</div>
 						<div class="text-base font-black text-primary mt-1">صيدلية معتمدة - شبكة دواء 24</div>
 					</div>
 
 					<div class="p-5 bg-surface-sunken rounded-lg border">
-						<div class="text-xs text-muted font-bold">رقم السجل التجاري</div>
+						<div class="text-xs text-muted font-bold">{ i18n.T(lang, "settings.cr_number") }</div>
 						<div class="text-base font-black text-primary mt-1 tabular-nums">CR-9481920</div>
 					</div>
 
 					<div class="p-5 bg-surface-sunken rounded-lg border">
-						<div class="text-xs text-muted font-bold">رقم البطاقة الضريبية (ETA)</div>
+						<div class="text-xs text-muted font-bold">{ i18n.T(lang, "settings.tax_number") }</div>
 						<div class="text-base font-black text-primary mt-1 tabular-nums">984-210-941</div>
 					</div>
 
 					<div class="p-5 bg-surface-sunken rounded-lg border">
-						<div class="text-xs text-muted font-bold">رقم ترخيص المؤسسة الصيدلية</div>
+						<div class="text-xs text-muted font-bold">{ i18n.T(lang, "settings.eda_license") }</div>
 						<div class="text-base font-black text-accent mt-1 tabular-nums">EDA-LIC-2024-8842</div>
 					</div>
 				</div>
@@ -273,7 +274,7 @@ templ UnifiedSettingsPage(data UnifiedSettingsData, lang, dir string) {
 				<div class="p-4 bg-success/10 border border-success/30 rounded-lg d-flex items-center gap-3">
 					<div class="text-success">@components.IconCheckCircle("icon-sm")</div>
 					<div class="text-success font-bold text-sm">
-						حساب المؤسسة موثق ومعتمد رسمياً للتوريد والشراء المباشر عبر منظومة دواء 24.
+						{ i18n.T(lang, "settings.verified_badge") }
 					</div>
 				</div>
 			</div>
@@ -286,30 +287,30 @@ templ UnifiedSettingsPage(data UnifiedSettingsData, lang, dir string) {
 				x-show="activeTab === 'preferences'"
 			>
 				<h3 class="text-lg font-extrabold text-primary mb-6">
-					تفضيلات الإشعارات والتنبيهات
+					{ i18n.T(lang, "settings.pref_title") }
 				</h3>
 
 				<form action="/settings/preferences" method="POST" class="max-w-2xl d-flex flex-col gap-5 text-start">
 					<div class="flex-between items-center p-4 border rounded-lg bg-surface-sunken">
 						<div>
-							<div class="font-extrabold text-primary">إشعارات الواتساب (WhatsApp Alerts)</div>
-							<div class="text-sm text-muted">استلام تحديثات تسليم الشحنات وتغير حالة أوامر الشراء فورياً</div>
+							<div class="font-extrabold text-primary">{ i18n.T(lang, "settings.pref_whatsapp") }</div>
+							<div class="text-sm text-muted">{ i18n.T(lang, "settings.pref_whatsapp_desc") }</div>
 						</div>
 						<input type="checkbox" name="notif_whatsapp" checked class="form-checkbox" />
 					</div>
 
 					<div class="flex-between items-center p-4 border rounded-lg bg-surface-sunken">
 						<div>
-							<div class="font-extrabold text-primary">رسائل البريد الإلكتروني للفواتير الضريبية</div>
-							<div class="text-sm text-muted">إرسال نسخة PDF معتمدة من الفاتورة الضريبية فور اكتمال الطلب</div>
+							<div class="font-extrabold text-primary">{ i18n.T(lang, "settings.pref_invoices") }</div>
+							<div class="text-sm text-muted">{ i18n.T(lang, "settings.pref_invoices_desc") }</div>
 						</div>
 						<input type="checkbox" name="notif_invoices" checked class="form-checkbox" />
 					</div>
 
 					<div class="flex-between items-center p-4 border rounded-lg bg-surface-sunken">
 						<div>
-							<div class="font-extrabold text-primary">تنبيهات انخفاض المخزون والخصومات الحصرية</div>
-							<div class="text-sm text-muted">إشعارات عند توفر أصناف دوائية ناقصة أو وجود عروض بونص خاصة</div>
+							<div class="font-extrabold text-primary">{ i18n.T(lang, "settings.pref_promos") }</div>
+							<div class="text-sm text-muted">{ i18n.T(lang, "settings.pref_promos_desc") }</div>
 						</div>
 						<input type="checkbox" name="notif_promos" checked class="form-checkbox" />
 					</div>
@@ -317,7 +318,7 @@ templ UnifiedSettingsPage(data UnifiedSettingsData, lang, dir string) {
 					<div class="mt-3">
 						<button type="submit" class="btn btn-primary font-black px-8 py-3">
 							@components.IconCheck("icon-xs")
-							<span>حفظ التفضيلات</span>
+							<span>{ i18n.T(lang, "settings.save_preferences") }</span>
 						</button>
 					</div>
 				</form>
@@ -326,13 +327,13 @@ templ UnifiedSettingsPage(data UnifiedSettingsData, lang, dir string) {
 			<!-- Dynamic Modal: Request Account Deletion Modal (Typed Confirmation) -->
 			@components.ConfirmModal(components.ConfirmModalProps{
 				ID:           "delete-account-modal",
-				Title:        "طلب حذف الحساب وإنهاء النشاط",
-				Message:      "تنبيه: سيتم إرسال طلبك إلى إدارة المنصة للتحقق من عدم وجود معاملات أو مستحقات معلقة قبل إتمام الحذف.",
+				Title:        i18n.T(lang, "settings.delete_account_title"),
+				Message:      i18n.T(lang, "settings.delete_account_msg"),
 				ConfirmURL:   "/settings/delete-request",
 				ConfirmVerb:  "post",
-				ConfirmText:  "تأكيد إرسال طلب الحذف",
-				CancelText:   "إلغاء",
-				RequireMatch: "حذف",
+				ConfirmText:  i18n.T(lang, "settings.delete_account_confirm"),
+				CancelText:   i18n.T(lang, "common.cancel"),
+				RequireMatch: i18n.T(lang, "settings.delete_type_match"),
 				Danger:       true,
 			})
 
@@ -340,11 +341,11 @@ templ UnifiedSettingsPage(data UnifiedSettingsData, lang, dir string) {
 	}
 }
 
-func userNameVal(u *identity.User) string {
+func userNameVal(u *identity.User, lang string) string {
 	if u == nil {
 		return ""
 	}
-	return u.Name.Get("ar")
+	return u.Name.Get(i18n.Lang(lang))
 }
 
 func userEmailVal(u *identity.User) string {

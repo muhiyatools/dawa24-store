@@ -157,10 +157,10 @@ docker: ## Build the container image
 
 check-inline-styles: ## Fail if inline style attributes grow past the current ceiling
 	@echo "==> checking inline styles"
-	# Ceiling lowered to 3320 in Phase 5 Wave 1 (54 styles removed across Wave 1 daily driver screens).
+	# Ceiling lowered to 3251 in Phase 5 Wave 1 (69 styles removed from pharmacy_dashboard.templ).
 	@n=$$(grep -oh 'style="' internal/ui/pages/*.templ internal/ui/layouts/*.templ | wc -l | tr -d ' '); \
-	if [ "$$n" -gt 3320 ]; then \
-	  echo "FAIL: $$n inline style attributes (ceiling 3320)."; \
+	if [ "$$n" -gt 3251 ]; then \
+	  echo "FAIL: $$n inline style attributes (ceiling 3251)."; \
 	  echo ""; \
 	  echo "Inline styles bypass the tokens in app.css, which is why the design"; \
 	  echo "drifted: a fix on one page never generalises. Use a class from"; \
@@ -170,7 +170,7 @@ check-inline-styles: ## Fail if inline style attributes grow past the current ce
 	  echo "This is a ratchet: lower the ceiling in the Makefile as it drops."; \
 	  exit 1; \
 	fi; \
-	echo "OK: $$n inline styles (ceiling 3320)"
+	echo "OK: $$n inline styles (ceiling 3251)"
 
 # --- ratchets ------------------------------------------------------------
 # Each number below may only go down. When a change improves one, lower its
@@ -191,7 +191,8 @@ check-file-size-count: ## Fail if the number of oversized Go files grows
 
 .PHONY: check-hardcoded-arabic
 check-hardcoded-arabic: ## Fail if Arabic string literals in Go grow
-	@pat=$$(printf '\330'); n=$$(LC_ALL=C grep -rc "\"[^\"]*$$pat[^\"]*\"" --include='*.go' internal/ui internal/modules cmd 2>/dev/null | grep -v "_test\|_templ\|/i18n/" | awk -F: '{s+=$$2} END{print s+0}'); if [ "$$n" -gt 1246 ]; then echo "FAIL: $$n Arabic literals in Go (ceiling 1246). A string in a handler cannot be shown in English -- add a key to internal/shared/i18n and call i18n.T(lang, key)."; exit 1; fi; echo "  ok: $$n Arabic literals in Go (ceiling 1246)"
+	# Ceiling lowered to 1223 in Phase 5 Wave 1 completion (47 literals extracted to i18n).
+	@pat=$$(printf '\330'); n=$$(LC_ALL=C grep -rc "\"[^\"]*$$pat[^\"]*\"" --include='*.go' internal/ui internal/modules cmd 2>/dev/null | grep -v "_test\|_templ\|/i18n/" | awk -F: '{s+=$$2} END{print s+0}'); if [ "$$n" -gt 1223 ]; then echo "FAIL: $$n Arabic literals in Go (ceiling 1223). A string in a handler cannot be shown in English -- add a key to internal/shared/i18n and call i18n.T(lang, key)."; exit 1; fi; echo "  ok: $$n Arabic literals in Go (ceiling 1223)"
 
 .PHONY: check-emoji
 check-emoji: ## Fail if emoji in templates grow
