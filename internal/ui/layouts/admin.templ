@@ -1,6 +1,7 @@
 package layouts
 
 import (
+	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/platform/rbac"
 	"github.com/muhiya/dawa24-store/internal/ui/components"
 )
@@ -70,22 +71,24 @@ templ AdminShell(title string, activeNav string, lang string, dir string) {
 							@components.LanguageToggle(lang)
 							@components.ThemeToggle()
 
-							<div class="top-navbar-user-chip">
-								<div class="user-avatar-badge">
-									@components.IconShield("icon-xs")
-								</div>
-								<div class="user-avatar-info">
-									<span class="user-avatar-name">مدير النظام العام</span>
-									<span class="user-avatar-role">Super Admin</span>
-								</div>
+							if actor, ok := authctx.From(ctx); ok {
+								<div class="top-navbar-user-chip">
+									<div class="user-avatar-badge">
+										@components.IconShield("icon-xs")
+									</div>
+									<div class="user-avatar-info">
+										<span class="user-avatar-name">{ actor.DisplayName() }</span>
+										<span class="user-avatar-role">{ actor.Role }</span>
+									</div>
 
-								<form action="/auth/logout" method="POST" class="m-0 ms-1">
-									<button type="submit" class="btn btn-secondary btn-sm btn-logout" title="تسجيل الخروج">
-										@components.IconLogout("icon-xs")
-										<span>خروج</span>
-									</button>
-								</form>
-							</div>
+									<form action="/auth/logout" method="POST" class="m-0 ms-1">
+										<button type="submit" class="btn btn-secondary btn-sm btn-logout" title="تسجيل الخروج">
+											@components.IconLogout("icon-xs")
+											<span>خروج</span>
+										</button>
+									</form>
+								</div>
+							}
 						</div>
 					</header>
 
