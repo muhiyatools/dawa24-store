@@ -75,7 +75,8 @@ func readAssistant(t *testing.T) string {
 	if err != nil {
 		t.Fatalf("read assistant template: %v", err)
 	}
-	return string(b)
+	b2, _ := os.ReadFile("components/capsule_assistant_script.templ")
+	return string(b) + "\n" + string(b2)
 }
 
 // The drawer's size was written as a style attribute, so no media query could
