@@ -251,6 +251,7 @@ func (h *UIHandler) RegisterVendorRoutes(r chi.Router) {
 func (h *UIHandler) RegisterAdminRoutes(r chi.Router) {
 	// Dashboard is reachable by any authenticated platform staff member.
 	r.Get("/admin/dashboard", h.AdminDashboardPage)
+	r.Get("/admin/gallery", h.AdminComponentGalleryPage)
 
 	// Modular Area Routes with granular permission gates
 	h.registerAdminCatalogRoutes(r)
