@@ -9,76 +9,21 @@ import (
 	"github.com/muhiya/dawa24-store/internal/ui/layouts"
 )
 
-
-templ LoginPage(lang, dir, errorMsg string) {
-	@layouts.Base("تسجيل الدخول", lang, dir) {
-  <div class="stack-sm">
-			<div class="glass-panel p-8">
-    <div class="stack-sm">
-					<a href="/">
-						<img src="/static/img/logo.png" alt="DAWA24" />
-					</a>
-					<h1 class="auth-title font-bold text-xl m-0">منصة دواء 24</h1>
-					<p class="auth-subtitle text-sm text-secondary m-0">تسجيل الدخول إلى حسابك الصيدلي أو التجاري</p>
-				</div>
-
-				if errorMsg != "" {
-					<div class="alert alert-danger mb-4">
-						<div class="alert-icon">@components.IconAlert("icon-xs")</div>
-						<div class="alert-message text-sm">{ errorMsg }</div>
-					</div>
-				}
-
-				<form method="POST" action="/auth/login" class="stack-115">
-					<div class="form-group mb-0">
-						<label class="form-label" for="email">البريد الإلكتروني أو اسم المستخدم</label>
-						<input type="email" id="email" name="email" required class="form-input tabular-nums" placeholder="pharmacist@dawa24.eg" />
-					</div>
-					<div class="form-group mb-0">
-      <div class="stack-sm">
-							<label class="form-label mb-0" for="password">كلمة المرور</label>
-							<a href="/auth/forgot">نسيت كلمة المرور؟</a>
-						</div>
-						<input type="password" id="password" name="password" required class="form-input" placeholder="••••••••" />
-					</div>
-     <div class="stack-sm">
-						<input type="checkbox" id="remember_me" name="remember_me" value="1" checked class="form-checkbox" />
-						<label for="remember_me" class="form-check-label text-sm m-0">
-							تذكرني على هذا الجهاز
-						</label>
-					</div>
-					<button type="submit" class="btn btn-primary">
-						@components.IconCheck("icon-xs")
-						<span>دخول للنظام</span>
-					</button>
-				</form>
-
-    <div class="stack-sm">
-					ليس لديك حساب؟ <a href="/auth/register">تسجيل حساب صيدلية جديد</a>
-				</div>
-			</div>
-		</div>
-	}
-}
-
 templ RegisterPage(lang, dir string, form RegisterFormData, cities []*platformadmin.City) {
 	@layouts.Base("إنشاء حساب جديد", lang, dir) {
-  <div class="stack-sm">
-			<div
-				class="glass-panel p-8"
-			
-			>
+		<div class="auth-page-wrapper">
+			<div class="auth-card-wide glass-panel">
 				<!-- Brand Header -->
-    <div class="stack-sm">
-					<a href="/">
+				<div class="auth-header">
+					<a href="/" class="auth-brand-logo">
 						<img src="/static/img/logo.png" alt="DAWA24" />
 					</a>
-					<h1 class="auth-title font-bold text-xl m-0">إنشاء حساب منشأة جديد</h1>
-					<p class="auth-subtitle text-sm text-secondary m-0">انضم لمنظومة التوريد الدوائي المعتمدة — دواء 24</p>
+					<h1 class="auth-title">إنشاء حساب منشأة جديد</h1>
+					<p class="auth-subtitle">انضم لمنظومة التوريد الدوائي المعتمدة — دواء 24</p>
 				</div>
 
 				<!-- 3-Step Onboarding Progress Indicator -->
-    <div class="stack-sm">
+				<div class="auth-stepper">
 					<div id="step-indicator-1" class="onboard-step active">
 						<span class="step-num">1</span>
 						<span>نوع المنشأة</span>
@@ -94,34 +39,33 @@ templ RegisterPage(lang, dir string, form RegisterFormData, cities []*platformad
 				</div>
 
 				if form.Error != "" {
-     <div class="stack-sm">
-						@components.IconAlert("icon-xs")
-						<span>{ form.Error }</span>
+					<div class="alert alert-danger mb-5 d-flex items-center gap-3">
+						<div class="alert-icon flex-shrink-0">@components.IconAlert("icon-xs")</div>
+						<div class="alert-message text-sm font-semibold">{ form.Error }</div>
 					</div>
 				}
 
-				<form id="registration-onboarding-form" method="POST" action="/auth/register" enctype="multipart/form-data" class="stack-lg">
+				<form id="registration-onboarding-form" method="POST" action="/auth/register" enctype="multipart/form-data" class="d-flex flex-col gap-6">
 					<input type="hidden" name="account_type" id="reg-account-type-input" value="customer" />
 
 					<!-- ================= STEP 1: Select Account Type ================= -->
-					<section id="reg-step-1" class="form-step active stack-md">
-      <h2 class="card-title text-base font-semibold m-0">
+					<section id="reg-step-1" class="form-step active d-flex flex-col gap-4">
+						<h2 class="text-sm font-bold text-primary m-0">
 							يرجى تحديد نوع حساب المنشأة للبدء:
 						</h2>
 
-      <div class="stack-sm">
+						<div class="d-flex flex-col gap-3">
 							<!-- Option 1: Customer / Pharmacy / Medical Facility (Selected by default) -->
 							<div
-								class="type-card hover-lift active"
+								class="type-card active"
 								data-account-type="customer"
-							
 							>
 								<div class="type-icon">
 									@components.IconPill("icon-sm")
 								</div>
 								<div class="flex-1">
-									<div class="type-name font-bold text-sm">صيدلية / منشأة طبية مرخصة</div>
-									<div class="stack-sm">
+									<div class="type-name font-bold text-sm text-primary">صيدلية / منشأة طبية مرخصة</div>
+									<div class="text-xs text-secondary mt-0.5">
 										شراء وتوريد الأدوية والمستلزمات الصيدلانية مباشرة للصيدليات الفردية والسلاسل والمراكز الطبية.
 									</div>
 								</div>
@@ -132,16 +76,15 @@ templ RegisterPage(lang, dir string, form RegisterFormData, cities []*platformad
 
 							<!-- Option 2: Vendor / Supplier / Pharma Company -->
 							<div
-								class="type-card hover-lift"
+								class="type-card"
 								data-account-type="vendor"
-							
 							>
 								<div class="type-icon">
 									@components.IconBuilding("icon-sm")
 								</div>
 								<div class="flex-1">
-									<div class="type-name font-bold text-sm">مورّد / شركة ومخزن أدوية</div>
-									<div class="stack-sm">
+									<div class="type-name font-bold text-sm text-primary">مورّد / شركة ومخزن أدوية</div>
+									<div class="text-xs text-secondary mt-0.5">
 										توريد وبيع الأصناف الدوائية والمستلزمات الطبية للصيدليات والمستشفيات المسجلة.
 									</div>
 								</div>
@@ -152,16 +95,15 @@ templ RegisterPage(lang, dir string, form RegisterFormData, cities []*platformad
 
 							<!-- Option 3: Job Seeker / Medical & Pharma Professional -->
 							<div
-								class="type-card hover-lift"
+								class="type-card"
 								data-account-type="job_seeker"
-							
 							>
 								<div class="type-icon">
 									@components.IconUser("icon-sm")
 								</div>
 								<div class="flex-1">
-									<div class="type-name font-bold text-sm">باحث عن عمل / كادر طبي وصيدلاني</div>
-         <div class="stack-sm">
+									<div class="type-name font-bold text-sm text-primary">باحث عن عمل / كادر طبي وصيدلاني</div>
+									<div class="text-xs text-secondary mt-0.5">
 										للصيادلة ومساعدي الصيادلة ومسؤولي المبيعات للتقديم على الشواغر الوظيفية والانضمام لمنظومة العمل.
 									</div>
 								</div>
@@ -171,27 +113,27 @@ templ RegisterPage(lang, dir string, form RegisterFormData, cities []*platformad
 							</div>
 						</div>
 
-						<button type="button" id="reg-goto-step-2" class="btn btn-primary">
+						<button type="button" id="reg-goto-step-2" class="btn btn-primary btn-lg font-bold w-100 mt-2">
 							<span>المتابعة إلى الخطوة التالية</span>
 							@components.IconArrowLeft("icon-xs")
 						</button>
 					</section>
 
 					<!-- ================= STEP 2: Facility / Seeker Profile & Location ================= -->
-					<section id="reg-step-2" class="form-step">
-      <div class="stack-sm">
-							<span id="reg-selected-badge" class="badge badge-sky">نوع الحساب: صيدلية / منشأة طبية مرخصة</span>
-							<button type="button" id="reg-back-to-step-1" class="btn btn-secondary btn-sm fw-700">
+					<section id="reg-step-2" class="form-step d-none flex-col gap-4">
+						<div class="d-flex items-center justify-between gap-3 pb-3 border-b">
+							<span id="reg-selected-badge" class="badge badge-sky font-bold">نوع الحساب: صيدلية / منشأة طبية مرخصة</span>
+							<button type="button" id="reg-back-to-step-1" class="btn btn-secondary btn-sm font-bold">
 								@components.IconArrowRight("icon-xs")
 								<span>تغيير النوع</span>
 							</button>
 						</div>
 
 						<!-- JOB SEEKER ONLY FIELDS -->
-						<div class="form-grid-2" data-type-visibility="job_seeker">
+						<div class="d-grid grid-cols-1 md:grid-cols-2 gap-4" data-type-visibility="job_seeker">
 							<div class="form-group mb-0">
-								<label class="form-label" for="reg-specialisation">التخصص المهني *</label>
-								<select id="reg-specialisation" name="specialisation" class="form-input">
+								<label class="form-label font-semibold text-xs" for="reg-specialisation">التخصص المهني *</label>
+								<select id="reg-specialisation" name="specialisation" class="form-input form-select">
 									<option value="pharmacist">صيدلي / دكتور صيدلي (Pharmacist)</option>
 									<option value="assistant_pharmacist">مساعد صيدلي (Assistant Pharmacist)</option>
 									<option value="branch_manager">مدير فرع صيدلية (Branch Manager)</option>
@@ -201,15 +143,15 @@ templ RegisterPage(lang, dir string, form RegisterFormData, cities []*platformad
 								</select>
 							</div>
 							<div class="form-group mb-0">
-								<label class="form-label" for="reg-years-exp">سنوات الخبرة *</label>
+								<label class="form-label font-semibold text-xs" for="reg-years-exp">سنوات الخبرة *</label>
 								<input type="number" id="reg-years-exp" name="years_experience" min="0" max="40" class="form-input tabular-nums" placeholder="مثال: 3" value={ form.YearsExperience } />
 							</div>
 						</div>
 
-						<div class="form-grid-2" data-type-visibility="job_seeker">
+						<div class="d-grid grid-cols-1 md:grid-cols-2 gap-4" data-type-visibility="job_seeker">
 							<div class="form-group mb-0">
-								<label class="form-label" for="reg-city-id">المدينة / المحافظة المفضلة للعمل *</label>
-								<select id="reg-city-id" name="city_id" class="form-input">
+								<label class="form-label font-semibold text-xs" for="reg-city-id">المدينة / المحافظة المفضلة للعمل *</label>
+								<select id="reg-city-id" name="city_id" class="form-input form-select">
 									<option value="">اختر المدينة...</option>
 									for _, c := range cities {
 										<option value={ fmt.Sprintf("%d", c.ID) } selected?={ form.CitySelected(c.ID) }>
@@ -219,13 +161,13 @@ templ RegisterPage(lang, dir string, form RegisterFormData, cities []*platformad
 								</select>
 							</div>
 							<div class="form-group mb-0">
-								<label class="form-label" for="reg-expected-salary">الراتب المتوقع (ج.م / اختياري)</label>
+								<label class="form-label font-semibold text-xs" for="reg-expected-salary">الراتب المتوقع (ج.م / اختياري)</label>
 								<input type="text" id="reg-expected-salary" name="expected_salary" class="form-input tabular-nums" placeholder="مثال: 9000" value={ form.ExpectedSalary } />
 							</div>
 						</div>
 
 						<div class="form-group mb-0" data-type-visibility="job_seeker">
-							<label class="form-label flex-between" for="reg-cv-file">
+							<label class="form-label font-semibold text-xs d-flex justify-between" for="reg-cv-file">
 								<span>إرفاق السيرة الذاتية (CV / اختياري)</span>
 								<span class="text-xs text-muted">PDF, DOC, DOCX حتى 10 ميجابايت</span>
 							</label>
@@ -233,51 +175,51 @@ templ RegisterPage(lang, dir string, form RegisterFormData, cities []*platformad
 						</div>
 
 						<div class="form-group mb-0" data-type-visibility="job_seeker">
-							<label class="form-label" for="reg-bio">نبذة مهنية وموجز الخبرات</label>
+							<label class="form-label font-semibold text-xs" for="reg-bio">نبذة مهنية وموجز الخبرات</label>
 							<textarea id="reg-bio" name="bio" rows="3" class="form-input" placeholder="اكتب نبذة مختصرة عن مؤهلاتك وخبراتك السابقة وأهم المهارات...">{ form.Bio }</textarea>
 						</div>
 
 						<!-- BUSINESS ONLY FIELDS (Vendor & Customer) -->
 						<div class="form-group mb-0" data-type-visibility="vendor customer">
-							<label class="form-label" for="reg-legal-name">الاسم القانوني للمنشأة (مطابق للسجل التجاري) *</label>
+							<label class="form-label font-semibold text-xs" for="reg-legal-name">الاسم القانوني للمنشأة (مطابق للسجل التجاري) *</label>
 							<input type="text" id="reg-legal-name" name="legal_name" class="form-input" placeholder="صيدلية الأمل الحديثة ش.م.م" value={ form.LegalName } />
 						</div>
 
-						<div class="form-grid-2" data-type-visibility="vendor customer">
+						<div class="d-grid grid-cols-1 md:grid-cols-2 gap-4" data-type-visibility="vendor customer">
 							<div class="form-group mb-0">
-								<label class="form-label" for="reg-trade-ar">الاسم التجاري (عربي) *</label>
+								<label class="form-label font-semibold text-xs" for="reg-trade-ar">الاسم التجاري (عربي) *</label>
 								<input type="text" id="reg-trade-ar" name="trade_name_ar" class="form-input" value={ form.TradeNameAr } placeholder="صيدلية الأمل" />
 							</div>
 							<div class="form-group mb-0">
-								<label class="form-label" for="reg-trade-en">الاسم التجاري (إنجليزي)</label>
+								<label class="form-label font-semibold text-xs" for="reg-trade-en">الاسم التجاري (إنجليزي)</label>
 								<input type="text" id="reg-trade-en" name="trade_name_en" class="form-input" dir="ltr" value={ form.TradeNameEn } placeholder="Al Amal Pharmacy" />
 							</div>
 						</div>
 
-						<div class="form-grid-2" data-type-visibility="vendor customer">
+						<div class="d-grid grid-cols-1 md:grid-cols-2 gap-4" data-type-visibility="vendor customer">
 							<div class="form-group mb-0">
-								<label class="form-label" for="reg-cr">رقم السجل التجاري *</label>
+								<label class="form-label font-semibold text-xs" for="reg-cr">رقم السجل التجاري *</label>
 								<input type="text" id="reg-cr" name="commercial_register" class="form-input tabular-nums" value={ form.CommercialRegister } placeholder="CR-94819" />
 							</div>
 							<div class="form-group mb-0">
-								<label class="form-label" for="reg-tax">الرقم الضريبي (الفاتورة الإلكترونية)</label>
+								<label class="form-label font-semibold text-xs" for="reg-tax">الرقم الضريبي (الفاتورة الإلكترونية)</label>
 								<input type="text" id="reg-tax" name="tax_number" class="form-input tabular-nums" value={ form.TaxNumber } placeholder="984-210-941" />
 							</div>
 						</div>
 
 						<div class="form-group mb-0" data-type-visibility="customer">
-							<label class="form-label" for="reg-license">رقم ترخيص المؤسسة الصيدلية (نقابة الصيادلة / هيئة الدواء)</label>
+							<label class="form-label font-semibold text-xs" for="reg-license">رقم ترخيص المؤسسة الصيدلية (نقابة الصيادلة / هيئة الدواء)</label>
 							<input type="text" id="reg-license" name="pharmacist_license" class="form-input tabular-nums" value={ form.PharmacistLicense } placeholder="EDA-LIC-2024-884" />
 						</div>
 
 						<!-- Official Operating License / CR File Attachment -->
 						<div class="form-group mb-0" data-type-visibility="vendor customer">
-							<label class="form-label flex-between" for="reg-license-file">
+							<label class="form-label font-semibold text-xs d-flex justify-between" for="reg-license-file">
 								<span>إرفاق صورة الترخيص / السجل التجاري الرسمي</span>
 								<span class="text-xs text-muted">PDF, PNG, JPG حتى 20 ميجابايت</span>
 							</label>
 							<input type="file" id="reg-license-file" name="license_file" accept=".pdf,.png,.jpg,.jpeg" class="form-input" />
-       <p class="text-sm text-secondary m-0">
+							<p class="text-2xs text-secondary mt-1 m-0">
 								يتم مراجعة الملف واعتماد ترخيص المنشأة من إدارة المنصة خلال 24 ساعة للبدء في عمليات التوريد والشراء.
 							</p>
 						</div>
@@ -292,19 +234,19 @@ templ RegisterPage(lang, dir string, form RegisterFormData, cities []*platformad
 						</div>
 
 						<div class="form-group mb-0" data-type-visibility="vendor customer">
-							<label class="form-label flex-between" for="reg-address">
+							<label class="form-label font-semibold text-xs d-flex justify-between" for="reg-address">
 								<span>العنوان التفصيلي للمقر / الصيدلية *</span>
-								<span id="reg-address-hint">يُملأ تلقائياً عند تحديد الموقع على الخريطة</span>
+								<span id="reg-address-hint" class="text-2xs text-muted">يُملأ تلقائياً عند تحديد الموقع على الخريطة</span>
 							</label>
 							<input type="text" id="reg-address" name="address" class="form-input" placeholder="اسم الشارع، رقم العقار، الحي، بجوار..." value={ form.Address } />
 						</div>
 
-      <div class="stack-sm">
-							<button type="button" id="reg-step-2-back" class="btn btn-secondary">
+						<div class="d-flex items-center gap-3 pt-2">
+							<button type="button" id="reg-step-2-back" class="btn btn-secondary font-bold">
 								@components.IconArrowRight("icon-xs")
 								<span>السابق</span>
 							</button>
-							<button type="button" id="reg-goto-step-3" class="btn btn-primary">
+							<button type="button" id="reg-goto-step-3" class="btn btn-primary font-bold flex-1">
 								<span>المتابعة لبيانات الحساب</span>
 								@components.IconArrowLeft("icon-xs")
 							</button>
@@ -312,46 +254,46 @@ templ RegisterPage(lang, dir string, form RegisterFormData, cities []*platformad
 					</section>
 
 					<!-- ================= STEP 3: Account Credentials & Security ================= -->
-					<section id="reg-step-3" class="form-step">
-      <div class="stack-sm">
-							<span class="badge badge-teal">الخطوة الأخيرة: بيانات تسجيل الدخول والأمان</span>
-							<button type="button" id="reg-step-3-back" class="btn btn-secondary btn-sm fw-700">
+					<section id="reg-step-3" class="form-step d-none flex-col gap-4">
+						<div class="d-flex items-center justify-between gap-3 pb-3 border-b">
+							<span class="badge badge-teal font-bold">الخطوة الأخيرة: بيانات تسجيل الدخول والأمان</span>
+							<button type="button" id="reg-step-3-back" class="btn btn-secondary btn-sm font-bold">
 								@components.IconArrowRight("icon-xs")
 								<span>بيانات المنشأة</span>
 							</button>
 						</div>
 
 						<div class="form-group mb-0">
-							<label class="form-label" for="reg-name">اسم المسؤول / الصيدلي المسؤول *</label>
+							<label class="form-label font-semibold text-xs" for="reg-name">اسم المسؤول / الصيدلي المسؤول *</label>
 							<input type="text" id="reg-name" name="name" class="form-input" placeholder="د. أحمد محمود" value={ form.Name } />
 						</div>
 
-						<div class="form-grid-2">
+						<div class="d-grid grid-cols-1 md:grid-cols-2 gap-4">
 							<div class="form-group mb-0">
-								<label class="form-label" for="reg-email">البريد الإلكتروني الرسمي *</label>
+								<label class="form-label font-semibold text-xs" for="reg-email">البريد الإلكتروني الرسمي *</label>
 								<input type="email" id="reg-email" name="email" class="form-input tabular-nums" placeholder="pharmacy@dawa24.eg" value={ form.Email } />
 							</div>
 							<div class="form-group mb-0">
-								<label class="form-label" for="reg-phone">رقم الهاتف / الواتساب *</label>
+								<label class="form-label font-semibold text-xs" for="reg-phone">رقم الهاتف / الواتساب *</label>
 								<input type="tel" id="reg-phone" name="phone" class="form-input tabular-nums" placeholder="01012345678" value={ form.Phone } />
 							</div>
 						</div>
 
 						<!-- Password Field with Modern Live Strength Meter -->
 						<div class="form-group mb-0">
-       <div class="stack-sm">
-								<label class="form-label mb-0" for="reg-password">كلمة المرور *</label>
-								<span id="pass-strength-label">أدخل كلمة المرور</span>
+							<div class="d-flex items-center justify-between mb-1">
+								<label class="form-label font-semibold text-xs m-0" for="reg-password">كلمة المرور *</label>
+								<span id="pass-strength-label" class="text-2xs font-semibold text-secondary">أدخل كلمة المرور</span>
 							</div>
-							<div class="relative">
+							<div class="pwd-input-wrap">
 								<input type="password" id="reg-password" name="password" class="form-input" placeholder="••••••••" />
-								<button type="button" id="reg-toggle-pwd">
-									@components.IconEye("icon-sm")
+								<button type="button" id="reg-toggle-pwd" class="pwd-toggle-btn" title="إظهار / إخفاء كلمة المرور">
+									@components.IconEye("icon-xs")
 								</button>
 							</div>
 
 							<!-- Strength Progress Bars -->
-							<div id="pwd-strength-bars" class="pwd-strength-bars d-flex gap-1 mt-1">
+							<div id="pwd-strength-bars" class="pwd-strength-bars d-flex gap-1 mt-1.5">
 								<div class="strength-bar-seg"></div>
 								<div class="strength-bar-seg"></div>
 								<div class="strength-bar-seg"></div>
@@ -359,28 +301,28 @@ templ RegisterPage(lang, dir string, form RegisterFormData, cities []*platformad
 							</div>
 
 							<!-- Real-Time Password Checklist -->
-							<div id="pwd-checklist" class="pwd-checklist stack-xs mt-2 text-xs text-secondary">
-								<div id="rule-length" class="row-center-xs">
+							<div id="pwd-checklist" class="pwd-checklist d-flex flex-col gap-1 mt-2 text-2xs text-secondary">
+								<div id="rule-length" class="pwd-checklist-item">
 									<span class="rule-icon text-muted">●</span> 8 أحرف على الأقل
 								</div>
-								<div id="rule-casing" class="row-center-xs">
+								<div id="rule-casing" class="pwd-checklist-item">
 									<span class="rule-icon text-muted">●</span> حرف كبير (A-Z) وصغير (a-z)
 								</div>
-								<div id="rule-number" class="row-center-xs">
+								<div id="rule-number" class="pwd-checklist-item">
 									<span class="rule-icon text-muted">●</span> رقم واحد على الأقل (0-9)
 								</div>
-								<div id="rule-special" class="row-center-xs">
+								<div id="rule-special" class="pwd-checklist-item">
 									<span class="rule-icon text-muted">●</span> رمز خاص (@, $, !, %, *, #)
 								</div>
 							</div>
 						</div>
 
-      <div class="stack-sm">
-							<button type="button" id="reg-step-3-back-btn" class="btn btn-secondary">
+						<div class="d-flex items-center gap-3 pt-2">
+							<button type="button" id="reg-step-3-back-btn" class="btn btn-secondary font-bold">
 								@components.IconArrowRight("icon-xs")
 								<span>السابق</span>
 							</button>
-							<button type="submit" id="reg-submit-btn" class="btn btn-primary">
+							<button type="submit" id="reg-submit-btn" class="btn btn-primary btn-lg font-bold flex-1">
 								@components.IconCheck("icon-xs")
 								<span>إنشاء الحساب وبدء التفعيل</span>
 							</button>
@@ -388,8 +330,9 @@ templ RegisterPage(lang, dir string, form RegisterFormData, cities []*platformad
 					</section>
 				</form>
 
-    <div class="stack-sm">
-					لديك حساب بالفعل؟ <a href="/auth/login">تسجيل الدخول</a>
+				<div class="auth-footer">
+					<span>لديك حساب بالفعل؟</span>
+					<a href="/auth/login" class="font-bold text-accent text-decoration-none ms-1">تسجيل الدخول</a>
 				</div>
 			</div>
 		</div>
@@ -397,61 +340,4 @@ templ RegisterPage(lang, dir string, form RegisterFormData, cities []*platformad
 	}
 }
 
-templ ForgotPasswordPage(lang, dir string) {
-	@layouts.Base("استعادة كلمة المرور", lang, dir) {
-  <div class="stack-sm">
-			<div class="card">
-    <div class="stack-sm">
-					<a href="/">
-						<img src="/static/img/logo.png" alt="DAWA24" />
-					</a>
-					<h1 class="auth-title font-bold text-xl m-0">استعادة كلمة المرور</h1>
-					<p class="auth-subtitle text-sm text-secondary m-0">أدخل بريدك الإلكتروني المسجل لإرسال رابط إعادة التعيين</p>
-				</div>
-
-				<form method="POST" action="/auth/forgot" class="stack-115">
-					<div class="form-group mb-0">
-						<label class="form-label" for="forgot-email">البريد الإلكتروني</label>
-						<input type="email" id="forgot-email" name="email" required class="form-input tabular-nums" placeholder="pharmacist@dawa24.eg" />
-					</div>
-					<button type="submit" class="btn btn-primary">
-						@components.IconMail("icon-xs")
-						<span>إرسال رابط الاستعادة</span>
-					</button>
-				</form>
-
-    <div class="stack-sm">
-					<a href="/auth/login">العودة لتسجيل الدخول</a>
-				</div>
-			</div>
-		</div>
-	}
-}
-
-templ ResetPasswordPage(lang, dir, token string) {
-	@layouts.Base("تعيين كلمة المرور الجديدة", lang, dir) {
-  <div class="stack-sm">
-			<div class="card">
-    <div class="stack-sm">
-					<a href="/">
-						<img src="/static/img/logo.png" alt="DAWA24" />
-					</a>
-					<h1 class="auth-title font-bold text-xl m-0">تعيين كلمة المرور</h1>
-				</div>
-
-				<form method="POST" action="/auth/reset" class="stack-115">
-					<input type="hidden" name="token" value={ token } />
-					<div class="form-group mb-0">
-						<label class="form-label" for="reset-pass">كلمة المرور الجديدة</label>
-						<input type="password" id="reset-pass" name="password" required minlength="8" class="form-input" placeholder="••••••••" />
-					</div>
-					<button type="submit" class="btn btn-primary">
-						@components.IconCheck("icon-xs")
-						<span>تحديث كلمة المرور والدخول</span>
-					</button>
-				</form>
-			</div>
-		</div>
-	}
-}
 

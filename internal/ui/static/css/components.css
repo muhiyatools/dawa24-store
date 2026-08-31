@@ -1504,6 +1504,164 @@ dialog.modal[open] {
 	font-weight: 600;
 }
 
+.auth-brand-logo {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	margin-bottom: 1.25rem;
+	transition: transform 0.2s ease;
+}
+.auth-brand-logo:hover {
+	transform: scale(1.04);
+}
+.auth-brand-logo img {
+	height: 48px;
+	width: auto;
+	object-fit: contain;
+}
+.pwd-input-wrap {
+	position: relative;
+	display: flex;
+	align-items: center;
+}
+.pwd-input-wrap .form-input {
+	padding-inline-end: 2.75rem;
+}
+.pwd-toggle-btn {
+	position: absolute;
+	inset-inline-end: 0.5rem;
+	top: 50%;
+	transform: translateY(-50%);
+	background: transparent;
+	border: none;
+	padding: 0.35rem;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	color: var(--text-muted);
+	cursor: pointer;
+	border-radius: var(--radius-md);
+	transition: color 0.15s ease, background-color 0.15s ease;
+}
+.pwd-toggle-btn:hover {
+	color: var(--text);
+	background-color: var(--surface-sunken);
+}
+.auth-totp-input {
+	font-size: 1.75rem;
+	font-weight: 800;
+	letter-spacing: 0.35em;
+	text-align: center;
+	font-family: var(--font-mono, 'Spline Sans Mono', monospace);
+	padding: 0.75rem 1rem;
+	border-radius: var(--radius-xl);
+	border: 2px solid var(--border);
+	background: var(--surface-sunken);
+	color: var(--primary);
+	transition: border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+}
+.auth-totp-input:focus {
+	border-color: var(--accent);
+	background: var(--surface-raised);
+	box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent) 15%, transparent);
+	outline: none;
+}
+.type-card {
+	display: flex;
+	align-items: center;
+	gap: 1rem;
+	padding: 1.25rem;
+	border: 1.5px solid var(--border);
+	border-radius: var(--radius-xl);
+	background: var(--surface-raised);
+	cursor: pointer;
+	transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+	text-align: start;
+	user-select: none;
+}
+.type-card:hover {
+	border-color: var(--accent);
+	background: color-mix(in srgb, var(--accent) 4%, var(--surface-raised));
+	transform: translateY(-2px);
+}
+.type-card.active, .type-card.selected {
+	border-color: var(--accent);
+	background: color-mix(in srgb, var(--accent) 8%, var(--surface-raised));
+	box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 18%, transparent);
+}
+.type-card .type-icon {
+	width: 44px;
+	height: 44px;
+	border-radius: var(--radius-lg);
+	background: var(--surface-sunken);
+	color: var(--text-secondary);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	flex-shrink: 0;
+	transition: all 0.2s ease;
+}
+.type-card.active .type-icon, .type-card:hover .type-icon {
+	background: var(--accent);
+	color: #ffffff;
+}
+.type-card .type-check {
+	width: 24px;
+	height: 24px;
+	border-radius: var(--radius-full);
+	border: 1.5px solid var(--border);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	flex-shrink: 0;
+	transition: all 0.2s ease;
+}
+.type-card.active .type-check {
+	border-color: var(--accent);
+	background: var(--accent);
+	color: #ffffff;
+}
+.onboard-step {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	font-size: 0.825rem;
+	font-weight: 700;
+	color: var(--text-muted);
+}
+.onboard-step.active { color: var(--accent); }
+.onboard-step.done   { color: var(--success, #10b981); }
+.onboard-step .step-num {
+	width: 32px;
+	height: 32px;
+	border-radius: var(--radius-full);
+	border: 1px solid var(--border);
+	background: var(--surface-sunken);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	font-size: 0.85rem;
+	font-weight: 800;
+}
+.onboard-step.active .step-num {
+	border-color: var(--accent);
+	background: var(--accent);
+	color: #ffffff;
+	box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 15%, transparent);
+}
+.onboard-step.done .step-num {
+	border-color: var(--success, #10b981);
+	background: var(--success, #10b981);
+	color: #ffffff;
+}
+.strength-bar-seg {
+	flex: 1;
+	height: 4px;
+	border-radius: var(--radius-full);
+	background: var(--border);
+	transition: background-color 0.25s ease;
+}
+
 /* ==========================================================================
    Form Selects & Enhanced Dropdown System (muhiya-design)
    ========================================================================== */

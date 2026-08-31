@@ -7,39 +7,37 @@ import (
 
 templ MFAVerifyPage(lang, dir, email, errorMsg, redirectURL string) {
 	@layouts.Base("التحقق بخطوتين (MFA)", lang, dir) {
-  <div class="stack-sm">
-			<div class="glass-panel p-8" x-data="{ useRecovery: false }">
-    <div class="stack-sm">
-     <div class="stack-sm">
-						<span>@components.IconShield("icon-sm")</span>
+		<div class="auth-page-wrapper">
+			<div class="auth-card glass-panel" x-data="{ useRecovery: false }">
+				<div class="auth-header">
+					<div class="auth-brand-logo">
+						<div class="w-12 h-12 rounded-2xl bg-sky-500/10 text-accent d-flex items-center justify-center border border-sky-500/20 shadow-xs">
+							@components.IconShield("icon-md")
+						</div>
 					</div>
-					<h1 class="page-title font-bold text-xl m-0">
-						التحقق بخطوتين (MFA)
-					</h1>
-     <p class="text-sm text-secondary m-0">
-						حسابك محمي بالمصادقة الثنائية. يرجى إدخال الرمز من تطبيق Google Authenticator للمتابعة.
-					</p>
+					<h1 class="auth-title">التحقق بخطوتين (MFA)</h1>
+					<p class="auth-subtitle">حسابك محمي بالمصادقة الثنائية لحماية البيانات الحساسة</p>
 					if email != "" {
-						<div class="stack-xs text-sm">
-							{ email }
+						<div class="mt-2">
+							<span class="badge badge-slate text-xs font-semibold tabular-nums">{ email }</span>
 						</div>
 					}
 				</div>
 
 				if errorMsg != "" {
-					<div class="alert alert-danger mb-4">
-						<div class="stack-xs text-sm">@components.IconAlert("icon-xs")</div>
-						<div class="stack-xs text-sm">{ errorMsg }</div>
+					<div class="alert alert-danger mb-5 d-flex items-center gap-3">
+						<div class="alert-icon flex-shrink-0">@components.IconAlert("icon-xs")</div>
+						<div class="alert-message text-sm font-semibold">{ errorMsg }</div>
 					</div>
 				}
 
-				<form class="stack-md" method="POST" action="/auth/mfa-verify">
+				<form class="d-flex flex-col gap-4" method="POST" action="/auth/mfa-verify">
 					<input type="hidden" name="redirect" value={ redirectURL } />
 
 					<!-- Standard TOTP Code Input -->
 					<div class="form-group mb-0" x-show="!useRecovery">
-						<label class="form-label" for="mfa-code">
-							رمز التحقق (6 أرقام)
+						<label class="form-label font-semibold text-xs text-center d-block mb-2" for="mfa-code">
+							رمز التحقق من تطبيق Google Authenticator (6 أرقام)
 						</label>
 						<input
 							type="text"
@@ -50,18 +48,17 @@ templ MFAVerifyPage(lang, dir, email, errorMsg, redirectURL string) {
 							maxlength="6"
 							autocomplete="one-time-code"
 							autofocus
-							class="form-input text-center tabular-nums font-mono"
-						
-							placeholder="000000"
+							class="form-input auth-totp-input"
+							placeholder="••••••"
 						/>
-      <p class="text-sm text-secondary m-0">
-							يتغير الرمز تلقائياً كل 30 ثانية في تطبيق Google Authenticator
+						<p class="text-2xs text-muted text-center mt-2 m-0">
+							يتغير الرمز تلقائياً كل 30 ثانية في تطبيق المصادقة على هاتفك
 						</p>
 					</div>
 
 					<!-- Recovery Code Input -->
 					<div class="form-group mb-0" x-show="useRecovery">
-						<label class="form-label" for="mfa-recovery-code">
+						<label class="form-label font-semibold text-xs text-center d-block mb-2" for="mfa-recovery-code">
 							رمز الاسترداد الاحتياطي (Backup Code)
 						</label>
 						<input
@@ -70,26 +67,24 @@ templ MFAVerifyPage(lang, dir, email, errorMsg, redirectURL string) {
 							name="recovery_code"
 							maxlength="12"
 							autocomplete="off"
-							class="form-input text-center font-mono uppercase"
-						
+							class="form-input text-center font-mono uppercase tabular-nums font-bold"
 							placeholder="XXXX-XXXX"
 						/>
-      <p class="text-sm text-secondary m-0">
-							أدخل أحد رموز الاسترداد المكونة من 8 خانات التي حفظتها عند تفعيل MFA
+						<p class="text-2xs text-muted text-center mt-2 m-0">
+							أدخل أحد رموز الاسترداد المكونة من 8 خانات التي حفظتها عند إعداد الحساب
 						</p>
 					</div>
 
-					<button type="submit" class="btn btn-primary">
-						@components.IconCheck("icon-sm")
+					<button type="submit" class="btn btn-primary btn-lg w-100 font-bold mt-2">
+						@components.IconCheck("icon-xs")
 						<span>تأكيد تسجيل الدخول</span>
 					</button>
 
 					<!-- Recovery Code Toggle -->
-     <div class="stack-sm">
+					<div class="text-center mt-2">
 						<button
 							type="button"
-							class="btn btn-link btn-xs"
-						
+							class="btn btn-link btn-xs font-semibold text-accent text-decoration-none"
 							x-show="!useRecovery"
 							@click="useRecovery = true; $nextTick(() => document.getElementById('mfa-recovery-code')?.focus())"
 						>
@@ -97,8 +92,7 @@ templ MFAVerifyPage(lang, dir, email, errorMsg, redirectURL string) {
 						</button>
 						<button
 							type="button"
-							class="btn btn-link btn-xs"
-						
+							class="btn btn-link btn-xs font-semibold text-secondary text-decoration-none"
 							x-show="useRecovery"
 							@click="useRecovery = false; $nextTick(() => document.getElementById('mfa-code')?.focus())"
 						>
@@ -107,9 +101,9 @@ templ MFAVerifyPage(lang, dir, email, errorMsg, redirectURL string) {
 					</div>
 				</form>
 
-    <div class="stack-sm">
-					<a href="/auth/login">
-						<span>@components.IconX("icon-sm")</span>
+				<div class="auth-footer">
+					<a href="/auth/login" class="text-xs font-semibold text-secondary text-decoration-none d-flex items-center justify-center gap-1.5 hover:text-primary">
+						@components.IconArrowRight("icon-xs")
 						<span>إلغاء والعودة لصفحة تسجيل الدخول</span>
 					</a>
 				</div>
@@ -117,3 +111,4 @@ templ MFAVerifyPage(lang, dir, email, errorMsg, redirectURL string) {
 		</div>
 	}
 }
+
