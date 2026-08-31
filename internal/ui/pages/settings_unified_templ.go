@@ -263,7 +263,7 @@ func UnifiedSettingsPage(data UnifiedSettingsData, lang, dir string) templ.Compo
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, "<span>حفظ التفضيلات</span></button></div></form></div><!-- Dynamic Modal: Request Account Deletion Modal (Centered Popup) --><div x-show=\"isDeleteAccountModalOpen\" x-cloak class=\"modal-overlay\" @keydown.escape.window=\"isDeleteAccountModalOpen = false\"><div @click.outside=\"isDeleteAccountModalOpen = false\" class=\"modal-card modal-md\"><div style=\"display:flex; justify-content:space-between; align-items:center; margin-bottom:1.25rem; border-bottom:1px solid var(--border); padding-bottom:1rem;\"><div style=\"display:flex; align-items:center; gap:0.5rem; color:var(--danger-text);\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, "<span>حفظ التفضيلات</span></button></div></form></div><!-- Dynamic Modal: Request Account Deletion Modal (Centered Popup) --><dialog :open=\"isDeleteAccountModalOpen\" x-cloak class=\"modal\" @keydown.escape.window=\"isDeleteAccountModalOpen = false\" @click.self=\"isDeleteAccountModalOpen = false\"><div class=\"modal-box modal-md\"><div class=\"modal-header\"><div class=\"d-flex items-center gap-2 text-danger\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -271,7 +271,7 @@ func UnifiedSettingsPage(data UnifiedSettingsData, lang, dir string) templ.Compo
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 25, "<h3 style=\"font-size:1.25rem; font-weight:800; margin:0;\">طلب حذف الحساب</h3></div><button type=\"button\" @click=\"isDeleteAccountModalOpen = false\" class=\"btn btn-secondary btn-icon size-8\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 25, "<h3 class=\"modal-title\">طلب حذف الحساب</h3></div><button type=\"button\" @click=\"isDeleteAccountModalOpen = false\" class=\"modal-close\" aria-label=\"إغلاق\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -279,7 +279,7 @@ func UnifiedSettingsPage(data UnifiedSettingsData, lang, dir string) templ.Compo
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 26, "</button></div><form action=\"/settings/delete-request\" method=\"POST\" style=\"display:flex; flex-direction:column; gap:1.25rem; text-align:start;\"><div style=\"background:var(--surface-sunken); border:1px solid var(--border); border-radius:var(--radius-lg); padding:1rem; font-size:0.875rem; color:var(--text-secondary); line-height:1.6;\">تنبيه: سيتم إرسال طلبك إلى إدارة المنصة للتحقق من عدم وجود معاملات معلقة. يمكنك كتابة سبب الحذف اختيارياً:</div><div class=\"form-group mb-0\"><label class=\"form-label\">سبب طلب حذف الحساب (اختياري)</label> <textarea name=\"reason\" rows=\"3\" class=\"form-input\" placeholder=\"مثال: تغيير النشاط، إغلاق الفرع، أو أي ملاحظات أخرى...\"></textarea></div><div class=\"modal-footer-standard\"><button type=\"button\" @click=\"isDeleteAccountModalOpen = false\" class=\"btn btn-secondary\">إلغاء</button> <button type=\"submit\" class=\"btn btn-danger\" style=\"padding-inline:1.75rem; font-weight:800;\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 26, "</button></div><form action=\"/settings/delete-request\" method=\"POST\" class=\"d-flex flex-col gap-4 text-start m-0\"><div class=\"modal-body d-flex flex-col gap-3\"><div class=\"bg-surface-sunken border rounded-lg p-3 text-sm text-secondary leading-relaxed\">تنبيه: سيتم إرسال طلبك إلى إدارة المنصة للتحقق من عدم وجود معاملات معلقة. يمكنك كتابة سبب الحذف اختيارياً:</div><div class=\"form-group mb-0\"><label class=\"form-label\">سبب طلب حذف الحساب (اختياري)</label> <textarea name=\"reason\" rows=\"3\" class=\"form-input w-full\" placeholder=\"مثال: تغيير النشاط، إغلاق الفرع، أو أي ملاحظات أخرى...\"></textarea></div></div><div class=\"modal-footer\"><button type=\"button\" @click=\"isDeleteAccountModalOpen = false\" class=\"btn btn-secondary font-bold\">إلغاء</button> <button type=\"submit\" class=\"btn btn-danger font-bold px-6\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -287,7 +287,7 @@ func UnifiedSettingsPage(data UnifiedSettingsData, lang, dir string) templ.Compo
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 27, "<span>تأكيد إرسال طلب الحذف</span></button></div></form></div></div></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 27, "<span>تأكيد إرسال طلب الحذف</span></button></div></form></div></dialog></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

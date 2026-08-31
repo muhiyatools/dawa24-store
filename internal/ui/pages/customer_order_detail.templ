@@ -898,14 +898,14 @@ templ CustomerOrderDetail(order *commerce.Order, history []*commerce.OrderStatus
 
 			<!-- Edit Order Modal (Only rendered/available when order is pending) -->
 			if order.Status == commerce.StatusPending {
-				<div id="order-edit-modal" class="modal-overlay hidden" style="position:fixed; inset:0; z-index:99999; background:rgba(15,23,42,0.65); backdrop-filter:blur(4px); display:none; align-items:center; justify-content:center; padding:1rem;" onclick="if(event.target===this) window.closeOrderEditModal();">
-					<div class="glass-panel p-0 max-w-4xl w-full max-h-90vh d-flex flex-col overflow-hidden">
+				<dialog id="order-edit-modal" class="modal" aria-labelledby="order-edit-modal-title">
+					<div class="modal-box modal-xl">
 						<!-- Header -->
-						<div class="flex-between items-center p-6 border-b">
+						<div class="modal-header">
 							<div class="d-flex items-center gap-3">
 								<span class="text-2xl">@components.IconEdit("icon-sm")</span>
 								<div>
-									<h3 class="text-lg font-black text-primary m-0">
+									<h3 id="order-edit-modal-title" class="modal-title">
 										تعديل أصناف وكميات الطلب #{ order.OrderNumber }
 									</h3>
 									<p class="text-xs text-secondary m-0 mt-1">
@@ -913,9 +913,11 @@ templ CustomerOrderDetail(order *commerce.Order, history []*commerce.OrderStatus
 									</p>
 								</div>
 							</div>
-							<button type="button" class="btn btn-secondary btn-icon" onclick="window.closeOrderEditModal()">
-								@components.IconClose("icon-sm")
-							</button>
+							<form method="dialog">
+								<button type="submit" class="modal-close" aria-label="إغلاق">
+									@components.IconClose("icon-xs")
+								</button>
+							</form>
 						</div>
 
 						<!-- Form -->
@@ -1024,8 +1026,8 @@ templ CustomerOrderDetail(order *commerce.Order, history []*commerce.OrderStatus
 							</div>
 
 							<!-- Modal Footer Actions -->
-							<div class="d-flex justify-end gap-3 pt-3 border-t">
-								<button type="button" class="btn btn-secondary text-xs" onclick="window.closeOrderEditModal()">إلغاء</button>
+							<div class="modal-footer">
+								<button type="button" class="btn btn-secondary font-bold text-xs" onclick="window.closeOrderEditModal()">إلغاء</button>
 								<button type="submit" class="btn btn-primary text-xs font-bold px-4 gap-1">
 									@components.IconCheck("icon-xs")
 									<span>حفظ وتحديث الطلب</span>
@@ -1033,7 +1035,7 @@ templ CustomerOrderDetail(order *commerce.Order, history []*commerce.OrderStatus
 							</div>
 						</form>
 					</div>
-				</div>
+				</dialog>
 
 				<script>
 					window.scrollToEditForm = function() {
@@ -1156,10 +1158,8 @@ templ CustomerOrderDetail(order *commerce.Order, history []*commerce.OrderStatus
 
 					window.openOrderEditModal = function() {
 						const modal = document.getElementById('order-edit-modal');
-						if (modal) {
-							modal.classList.remove('hidden');
-							modal.style.removeProperty('display');
-							modal.style.setProperty('display', 'flex', 'important');
+						if (modal && typeof modal.showModal === 'function') {
+							modal.showModal();
 							if (typeof window.recalcEditOrder === 'function') {
 								window.recalcEditOrder();
 							}
@@ -1168,9 +1168,8 @@ templ CustomerOrderDetail(order *commerce.Order, history []*commerce.OrderStatus
 
 					window.closeOrderEditModal = function() {
 						const modal = document.getElementById('order-edit-modal');
-						if (modal) {
-							modal.classList.add('hidden');
-							modal.style.setProperty('display', 'none', 'important');
+						if (modal && typeof modal.close === 'function') {
+							modal.close();
 						}
 					};
 

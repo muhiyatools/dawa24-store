@@ -9,21 +9,17 @@ import (
 )
 
 templ CompareFileMappingModal(file *compare.CompareFile, headers []string, preview [][]string, detection *compare.ColumnDetection, isSetup bool, step int, total int, remainingQueue string, nextFileID int64) {
-	<div
+	<dialog
 		id="compare-mapping-modal-backdrop"
-		class="modal-overlay"
-		style="position:fixed; inset:0; z-index:10000; display:flex; align-items:center; justify-content:center; background:rgba(15,23,42,0.75); backdrop-filter:blur(8px); padding:1rem;"
-		onclick="if(event.target === this) closeMappingModal();"
+		class="modal"
+		open
+		aria-labelledby="compare-mapping-title"
 	>
-		<div
-			class="card"
-			style="position:relative; max-width:920px; width:100%; max-height:92vh; overflow-y:auto; background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-2xl); box-shadow:0 25px 50px -12px rgba(0,0,0,0.6); padding:1.75rem; display:flex; flex-direction:column; gap:1.25rem;"
-			onclick="event.stopPropagation();"
-		>
+		<div class="modal-box modal-xl">
 			<!-- Modal Header & Stepper -->
-			<div style="display:flex; justify-content:space-between; align-items:flex-start; border-bottom:1px solid var(--border); padding-bottom:1.15rem; gap:1rem;">
-				<div style="display:flex; align-items:flex-start; gap:0.85rem;">
-					<div style="width:46px; height:46px; border-radius:var(--radius-xl); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center; font-size:1.5rem; flex-shrink:0;">
+			<div class="modal-header">
+				<div class="d-flex items-center gap-3">
+					<div class="b2b-icon-box-sm">
 						if isSetup || total > 1 {
 							@components.IconSettings("icon-sm")
 						} else {
@@ -32,19 +28,19 @@ templ CompareFileMappingModal(file *compare.CompareFile, headers []string, previ
 					</div>
 					<div>
 						if isSetup || total > 1 {
-							<div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:0.25rem; flex-wrap:wrap;">
-								<span class="badge badge-emerald" style="font-weight:800; font-size:0.75rem; padding:0.2rem 0.6rem;">
+							<div class="d-flex items-center gap-2 mb-1 flex-wrap">
+								<span class="badge badge-emerald text-xs font-extrabold">
 									معالج ضبط الأعمدة (Setup Mode)
 								</span>
-								<span class="badge badge-sky" style="font-weight:700; font-size:0.75rem; padding:0.2rem 0.6rem;">
+								<span class="badge badge-sky text-xs font-bold">
 									{ fmt.Sprintf("ملف %d من %d", step, total) }
 								</span>
 							</div>
 						}
-						<h2 class="text-xl fw-900 text-primary m-0">
+						<h2 id="compare-mapping-title" class="modal-title">
 							ضبط وتأكيد أعمدة كشف المورد
 						</h2>
-						<p style="color:var(--text-muted); font-size:0.85rem; margin:0.25rem 0 0 0;">
+						<p class="text-xs text-muted mt-1 m-0">
 							الملف المرفوع: <strong class="text-primary">{ file.OriginalFilename }</strong>
 							if file.RowCount > 0 {
 								<span> • { fmt.Sprintf("(%d صنف مسجل)", file.RowCount) }</span>
@@ -53,15 +49,16 @@ templ CompareFileMappingModal(file *compare.CompareFile, headers []string, previ
 					</div>
 				</div>
 
-				<button
-					type="button"
-					onclick="closeMappingModal()"
-					class="btn btn-secondary btn-sm btn-icon"
-					style="font-size:1.1rem; width:36px; height:36px; border-radius:var(--radius-lg); flex-shrink:0;"
-					title="إغلاق المعالج"
-				>
-					@components.IconX("icon-sm")
-				</button>
+				<form method="dialog">
+					<button
+						type="submit"
+						onclick="closeMappingModal()"
+						class="modal-close"
+						aria-label="إغلاق"
+					>
+						@components.IconClose("icon-xs")
+					</button>
+				</form>
 			</div>
 
 			<!-- Visual Progress Bar if in Multi-File Setup Mode -->
@@ -391,7 +388,7 @@ templ CompareFileMappingModal(file *compare.CompareFile, headers []string, previ
 				};
 			}
 		</script>
-	</div>
+	</dialog>
 }
 
 templ CompareFileMappingPage(lang, dir string, file *compare.CompareFile, headers []string, preview [][]string, detection *compare.ColumnDetection, isSetup bool, step int, total int, remainingQueue string, nextFileID int64) {

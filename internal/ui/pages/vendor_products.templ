@@ -315,18 +315,20 @@ templ VendorProducts(data VendorVariantsData, lang, dir string, isPartial bool) 
 			</div>
 
 			<!-- MODAL 1: Master Catalog Selection Modal -->
-			<div id="add-from-catalog-modal" class="modal-overlay hidden" style="position:fixed; inset:0; z-index:9999; display:none; align-items:center; justify-content:center; padding:1.25rem; background:rgba(15, 23, 42, 0.65); backdrop-filter:blur(4px);">
-				<div class="card" style="max-width:760px; width:100%; min-height:480px; max-height:90vh; display:flex; flex-direction:column; overflow:hidden; background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-2xl); padding:1.75rem; box-shadow:0 25px 50px -12px rgba(0,0,0,0.5);">
-					<div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--border); padding-bottom:1rem; margin-bottom:1.25rem; flex-shrink:0;">
-						<div class="row-center-sm gap-2">
+			<dialog id="add-from-catalog-modal" class="modal" aria-labelledby="cat-modal-title">
+				<div class="modal-box modal-xl">
+					<div class="modal-header">
+						<div class="d-flex items-center gap-2">
 							<span class="text-2xl">@components.IconGlobe("icon-sm")</span>
-							<h3 class="text-xl fw-900 text-primary m-0">
+							<h3 id="cat-modal-title" class="modal-title">
 								إضافة صنف من الكتالوج المركزي العام
 							</h3>
 						</div>
-						<button type="button" class="btn btn-secondary btn-sm btn-icon" onclick="closeAddFromCatalogModal()">
-							@components.IconClose("icon-xs")
-						</button>
+						<form method="dialog">
+							<button type="submit" class="modal-close" aria-label="إغلاق" onclick="closeAddFromCatalogModal()">
+								@components.IconClose("icon-xs")
+							</button>
+						</form>
 					</div>
 
 					<form method="POST" action="/vendor/products/add-from-catalog" id="add-from-catalog-form" style="display:flex; flex-direction:column; flex:1; overflow-y:auto; padding-inline-end:0.25rem;">
@@ -545,11 +547,11 @@ templ VendorProducts(data VendorVariantsData, lang, dir string, isPartial bool) 
 									</div>
 								</div>
 
-								<div class="modal-footer-standard">
-									<button type="button" class="btn btn-secondary" onclick="closeAddFromCatalogModal()">
+								<div class="modal-footer">
+									<button type="button" class="btn btn-secondary font-bold" onclick="closeAddFromCatalogModal()">
 										إلغاء
 									</button>
-									<button type="submit" class="btn btn-primary" style="font-weight:800; padding:0.6rem 1.5rem;">
+									<button type="submit" class="btn btn-primary font-bold px-6">
 										حفظ وإضافة الصنف للتوريد
 									</button>
 								</div>
@@ -558,18 +560,20 @@ templ VendorProducts(data VendorVariantsData, lang, dir string, isPartial bool) 
 						</div>
 					</form>
 				</div>
-			</div>
+			</dialog>
 
 			<!-- MODAL 2: Quick Edit Variant Modal -->
-			<div id="edit-variant-modal" class="modal-overlay hidden">
-				<div class="card" style="max-width:640px; width:100%; max-height:90vh; overflow-y:auto; background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-2xl); padding:1.75rem; box-shadow:0 25px 50px -12px rgba(0,0,0,0.5);">
-					<div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--border); padding-bottom:1rem; margin-bottom:1.25rem;">
-						<h3 id="edit-modal-title" class="text-xl fw-900 text-primary m-0">
+			<dialog id="edit-variant-modal" class="modal" aria-labelledby="edit-modal-title">
+				<div class="modal-box modal-md">
+					<div class="modal-header">
+						<h3 id="edit-modal-title" class="modal-title">
 							تعديل بيانات وسعر صنف التوريد
 						</h3>
-						<button type="button" class="btn btn-secondary btn-sm btn-icon" onclick="closeEditVariantModal()">
-							@components.IconClose("icon-xs")
-						</button>
+						<form method="dialog">
+							<button type="submit" class="modal-close" aria-label="إغلاق" onclick="closeEditVariantModal()">
+								@components.IconClose("icon-xs")
+							</button>
+						</form>
 					</div>
 
 					<form method="POST" id="edit-variant-form" action="/vendor/variants/0/update">
@@ -754,28 +758,30 @@ templ VendorProducts(data VendorVariantsData, lang, dir string, isPartial bool) 
 
 						</div>
 
-						<div class="modal-footer-standard">
-							<button type="button" class="btn btn-secondary" onclick="closeEditVariantModal()">
+						<div class="modal-footer">
+							<button type="button" class="btn btn-secondary font-bold" onclick="closeEditVariantModal()">
 								إلغاء
 							</button>
-							<button type="submit" class="btn btn-primary" style="font-weight:800; padding:0.6rem 1.5rem;">
+							<button type="submit" class="btn btn-primary font-bold px-6">
 								حفظ التعديلات
 							</button>
 						</div>
 					</form>
 				</div>
-			</div>
+			</dialog>
 
 			<!-- MODAL 3: Add Custom Variant Modal -->
-			<div id="add-custom-variant-modal" class="modal-overlay hidden">
-				<div class="card" style="max-width:640px; width:100%; max-height:90vh; overflow-y:auto; background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-2xl); padding:1.75rem; box-shadow:0 25px 50px -12px rgba(0,0,0,0.5);">
-					<div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--border); padding-bottom:1rem; margin-bottom:1.25rem;">
-						<h3 class="text-xl fw-900 text-primary m-0">
+			<dialog id="add-custom-variant-modal" class="modal" aria-labelledby="custom-modal-title">
+				<div class="modal-box modal-md">
+					<div class="modal-header">
+						<h3 id="custom-modal-title" class="modal-title">
 							إضافة صنف أو تنويعة توريد مخصصة
 						</h3>
-						<button type="button" class="btn btn-secondary btn-sm btn-icon" onclick="closeAddCustomVariantModal()">
-							@components.IconClose("icon-xs")
-						</button>
+						<form method="dialog">
+							<button type="submit" class="modal-close" aria-label="إغلاق" onclick="closeAddCustomVariantModal()">
+								@components.IconClose("icon-xs")
+							</button>
+						</form>
 					</div>
 
 					<form method="POST" action="/vendor/variants/new">
@@ -932,67 +938,47 @@ templ VendorProducts(data VendorVariantsData, lang, dir string, isPartial bool) 
 
 						</div>
 
-						<div class="modal-footer-standard">
-							<button type="button" class="btn btn-secondary" onclick="closeAddCustomVariantModal()">
+						<div class="modal-footer">
+							<button type="button" class="btn btn-secondary font-bold" onclick="closeAddCustomVariantModal()">
 								إلغاء
 							</button>
-							<button type="submit" class="btn btn-primary" style="font-weight:800; padding:0.6rem 1.5rem;">
+							<button type="submit" class="btn btn-primary font-bold px-6">
 								نشر الصنف في الكتالوج
 							</button>
 						</div>
 					</form>
 				</div>
-			</div>
+			</dialog>
 
 			<!-- Live JS Logic for all Modals and Autocomplete -->
 			<script>
 				function openAddFromCatalogModal() {
 					resetSelectedMasterProduct();
 					document.getElementById('cat-search-input').value = '';
-					if (window.openModal) {
-						window.openModal('add-from-catalog-modal');
-					} else {
-						const el = document.getElementById('add-from-catalog-modal');
-						if (el) {
-							el.classList.remove('hidden');
-							el.style.display = 'flex';
-						}
+					const el = document.getElementById('add-from-catalog-modal');
+					if (el && typeof el.showModal === 'function') {
+						el.showModal();
 					}
 				}
 
 				function closeAddFromCatalogModal() {
-					if (window.closeModal) {
-						window.closeModal('add-from-catalog-modal');
-					} else {
-						const el = document.getElementById('add-from-catalog-modal');
-						if (el) {
-							el.classList.add('hidden');
-							el.style.display = 'none';
-						}
+					const el = document.getElementById('add-from-catalog-modal');
+					if (el && typeof el.close === 'function') {
+						el.close();
 					}
 				}
 
 				function openAddCustomVariantModal() {
-					if (window.openModal) {
-						window.openModal('add-custom-variant-modal');
-					} else {
-						const el = document.getElementById('add-custom-variant-modal');
-						if (el) {
-							el.classList.remove('hidden');
-							el.style.display = 'flex';
-						}
+					const el = document.getElementById('add-custom-variant-modal');
+					if (el && typeof el.showModal === 'function') {
+						el.showModal();
 					}
 				}
 
 				function closeAddCustomVariantModal() {
-					if (window.closeModal) {
-						window.closeModal('add-custom-variant-modal');
-					} else {
-						const el = document.getElementById('add-custom-variant-modal');
-						if (el) {
-							el.classList.add('hidden');
-							el.style.display = 'none';
-						}
+					const el = document.getElementById('add-custom-variant-modal');
+					if (el && typeof el.close === 'function') {
+						el.close();
 					}
 				}
 
@@ -1025,26 +1011,16 @@ templ VendorProducts(data VendorVariantsData, lang, dir string, isPartial bool) 
 						}
 					}
 
-					if (window.openModal) {
-						window.openModal('edit-variant-modal');
-					} else {
-						const el = document.getElementById('edit-variant-modal');
-						if (el) {
-							el.classList.remove('hidden');
-							el.style.display = 'flex';
-						}
+					const el = document.getElementById('edit-variant-modal');
+					if (el && typeof el.showModal === 'function') {
+						el.showModal();
 					}
 				}
 
 				function closeEditVariantModal() {
-					if (window.closeModal) {
-						window.closeModal('edit-variant-modal');
-					} else {
-						const el = document.getElementById('edit-variant-modal');
-						if (el) {
-							el.classList.add('hidden');
-							el.style.display = 'none';
-						}
+					const el = document.getElementById('edit-variant-modal');
+					if (el && typeof el.close === 'function') {
+						el.close();
 					}
 				}
 

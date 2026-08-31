@@ -1,0 +1,129 @@
+package components
+
+import (
+	"strings"
+
+	"github.com/muhiya/dawa24-store/internal/platform/authctx"
+)
+
+// The account menu in the dashboard top bar.
+//
+// What stood here was three different things depending on which shell rendered
+// it. Admin showed a chip reading "مدير النظام العام / Super Admin" — hardcoded,
+// so a support agent with a handful of grants was told on every page that they
+// were a super admin. Phase 0 replaced those two strings with the real actor,
+// which was the minimum and not a menu. Vendor showed a static "مورد معتمد"
+// badge. Pharmacy showed the same badge plus a cart button.
+//
+// One control now, in one place, showing who the caller actually is.
+//
+// The organization line is text rather than a switcher. Rendering a live list of
+// the caller's organizations means a query on every page render, and Phase 2 was
+// spent removing exactly that kind of per-page cost. The link goes to the
+// organizations page, which already loads that list for the one request that
+// needs it.
+templ UserMenu(lang string) {
+	if actor, ok := authctx.From(ctx); ok {
+		<div class="user-menu" x-data="{ open: false }" @keydown.escape.window="open = false">
+			<button
+				type="button"
+				class="user-menu-trigger"
+				@click="open = !open"
+				:aria-expanded="open ? 'true' : 'false'"
+				aria-haspopup="menu"
+				aria-controls="user-menu-panel"
+			>
+				<span class="user-menu-avatar" aria-hidden="true">{ initials(actor.DisplayName()) }</span>
+				<span class="user-menu-identity">
+					<span class="user-menu-name">{ actor.DisplayName() }</span>
+					<span class="user-menu-role">{ roleLabel(actor, lang) }</span>
+				</span>
+				@IconChevronDown("icon-xs")
+			</button>
+			<div
+				id="user-menu-panel"
+				class="user-menu-panel"
+				role="menu"
+				x-show="open"
+				x-cloak
+				@click.outside="open = false"
+				x-transition.opacity.duration.120ms
+			>
+				<div class="user-menu-header">
+					<span class="user-menu-header-name">{ actor.DisplayName() }</span>
+					if actor.Email != "" {
+						<span class="user-menu-header-detail">{ actor.Email }</span>
+					}
+					<span class="user-menu-header-detail">{ roleLabel(actor, lang) }</span>
+				</div>
+				<div class="user-menu-items">
+					<a href="/settings" class="user-menu-item" role="menuitem">
+						@IconSettings("icon-xs")
+						<span>{ tr(lang, "الإعدادات", "Settings") }</span>
+					</a>
+					if orgLink(actor) != "" {
+						<a href={ templ.SafeURL(orgLink(actor)) } class="user-menu-item" role="menuitem">
+							@IconBuilding("icon-xs")
+							<span>{ tr(lang, "المنشآت المرتبطة", "Organizations") }</span>
+						</a>
+					}
+				</div>
+				<form action="/auth/logout" method="POST" class="user-menu-logout">
+					<button type="submit" class="user-menu-item user-menu-item-danger" role="menuitem">
+						@IconLogout("icon-xs")
+						<span>{ tr(lang, "تسجيل الخروج", "Sign out") }</span>
+					</button>
+				</form>
+			</div>
+		</div>
+	}
+}
+
+// initials builds the avatar text. Arabic has no case, so upper-casing is a
+// no-op there and only matters for a Latin name.
+func initials(name string) string {
+	fields := strings.Fields(name)
+	if len(fields) == 0 {
+		return "?"
+	}
+	first := []rune(fields[0])
+	out := string(first[:1])
+	if len(fields) > 1 {
+		second := []rune(fields[len(fields)-1])
+		out += string(second[:1])
+	}
+	return strings.ToUpper(out)
+}
+
+// roleLabel names the caller's role. It reads the actor rather than the shell,
+// so the same menu is correct in all three dashboards.
+func roleLabel(actor authctx.Actor, lang string) string {
+	if actor.Role != "" {
+		return actor.Role
+	}
+	if actor.IsStaff {
+		return tr(lang, "فريق المنصة", "Platform staff")
+	}
+	return tr(lang, "عضو", "Member")
+}
+
+// orgLink points at the organizations page for the caller's audience.
+//
+// Both paths are singular — /vendor/user-organization, not -organizations — and
+// both are gated on a tenant permission, so the link is only offered to a caller
+// whose route would actually open. Offering a door that answers 404 is the exact
+// problem the sidebar registry was built to stop; the same rule applies here.
+//
+// Staff have no organization of their own and get no link.
+func orgLink(actor authctx.Actor) string {
+	switch {
+	case actor.IsStaff:
+		return ""
+	case actor.IsVendor() && actor.Can("vendor.user_org.view"):
+		return "/vendor/user-organization"
+	case actor.IsCustomer() && actor.Can("pharmacy.user_org.view"):
+		return "/customer/user-organization"
+	default:
+		return ""
+	}
+}

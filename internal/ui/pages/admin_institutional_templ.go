@@ -50,7 +50,7 @@ func AdminInstitutional(lang, dir string, items []*org.InstitutionalWork, allWor
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"page-container\" x-data=\"{\n\t\t\t\tsearchQuery: '',\n\t\t\t\tstatusFilter: 'all',\n\t\t\t\tisModalOpen: false,\n\t\t\t\tisEdit: false,\n\t\t\t\tform: {\n\t\t\t\t\tid: 0,\n\t\t\t\t\ttitle_ar: '',\n\t\t\t\t\ttitle_en: '',\n\t\t\t\t\tdescription_ar: '',\n\t\t\t\t\tdescription_en: '',\n\t\t\t\t\ticon: 'building',\n\t\t\t\t\tpricing_type: 'free',\n\t\t\t\t\tview_type: 1,\n\t\t\t\t\tparent_id: 0,\n\t\t\t\t\tis_active: true,\n\t\t\t\t\tconnections: []\n\t\t\t\t},\n\t\t\t\tavailableIcons: [\n\t\t\t\t\t{ id: 'building', label: 'مبنى / مؤسسة' },\n\t\t\t\t\t{ id: 'pill', label: 'صيدلية / دواء' },\n\t\t\t\t\t{ id: 'truck', label: 'مخزن / توزيع' },\n\t\t\t\t\t{ id: 'package', label: 'مصنع / إنتاج' },\n\t\t\t\t\t{ id: 'shield', label: 'خدمات / أمان' },\n\t\t\t\t\t{ id: 'briefcase', label: 'شركة مساهمة' },\n\t\t\t\t\t{ id: 'cart', label: 'تجزئة / منفذ بيع' },\n\t\t\t\t\t{ id: 'tag', label: 'شركة ناشئة' },\n\t\t\t\t\t{ id: 'users', label: 'تعاونيات' },\n\t\t\t\t\t{ id: 'file', label: 'مكتب علمي' },\n\t\t\t\t\t{ id: 'plus', label: 'رعاية صحية' },\n\t\t\t\t\t{ id: 'bell', label: 'إشعارات وخدمات' }\n\t\t\t\t],\n\t\t\t\topenNewModal() {\n\t\t\t\t\tthis.isEdit = false;\n\t\t\t\t\tthis.form = {\n\t\t\t\t\t\tid: 0,\n\t\t\t\t\t\ttitle_ar: '',\n\t\t\t\t\t\ttitle_en: '',\n\t\t\t\t\t\tdescription_ar: '',\n\t\t\t\t\t\tdescription_en: '',\n\t\t\t\t\t\ticon: 'building',\n\t\t\t\t\t\tpricing_type: 'free',\n\t\t\t\t\t\tview_type: 1,\n\t\t\t\t\t\tparent_id: 0,\n\t\t\t\t\t\tis_active: true,\n\t\t\t\t\t\tconnections: []\n\t\t\t\t\t};\n\t\t\t\t\tthis.isModalOpen = true;\n\t\t\t\t},\n\t\t\t\topenEditModal(item) {\n\t\t\t\t\tthis.isEdit = true;\n\t\t\t\t\tthis.form = {\n\t\t\t\t\t\tid: item.id,\n\t\t\t\t\t\ttitle_ar: item.title_ar || '',\n\t\t\t\t\t\ttitle_en: item.title_en || '',\n\t\t\t\t\t\tdescription_ar: item.description_ar || '',\n\t\t\t\t\t\tdescription_en: item.description_en || '',\n\t\t\t\t\t\ticon: item.icon || 'building',\n\t\t\t\t\t\tpricing_type: item.pricing_type || 'free',\n\t\t\t\t\t\tview_type: item.view_type || 1,\n\t\t\t\t\t\tparent_id: item.parent_id || 0,\n\t\t\t\t\t\tis_active: item.is_active,\n\t\t\t\t\t\tconnections: item.connections ? JSON.parse(JSON.stringify(item.connections)) : []\n\t\t\t\t\t};\n\t\t\t\t\tthis.isModalOpen = true;\n\t\t\t\t},\n\t\t\t\ttoggleConnection(targetId) {\n\t\t\t\t\tconst idx = this.form.connections.indexOf(targetId);\n\t\t\t\t\tif (idx > -1) {\n\t\t\t\t\t\tthis.form.connections.splice(idx, 1);\n\t\t\t\t\t} else {\n\t\t\t\t\t\tthis.form.connections.push(targetId);\n\t\t\t\t\t}\n\t\t\t\t},\n\t\t\t\tisConnectionSelected(targetId) {\n\t\t\t\t\treturn this.form.connections.includes(targetId);\n\t\t\t\t}\n\t\t\t}\"><!-- Top Header & Metrics Bar --><div class=\"glass-panel p-6 mb-6\"><div class=\"flex-between items-center flex-wrap gap-4\"><div class=\"d-flex items-center gap-3\"><div class=\"user-avatar-badge text-xl\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"page-container\" x-data=\"{\n\t\t\t\tsearchQuery: '',\n\t\t\t\tstatusFilter: 'all',\n\t\t\t\tisModalOpen: false,\n\t\t\t\tisEdit: false,\n\t\t\t\tform: {\n\t\t\t\t\tid: 0,\n\t\t\t\t\ttitle_ar: '',\n\t\t\t\t\ttitle_en: '',\n\t\t\t\t\tdescription_ar: '',\n\t\t\t\t\tdescription_en: '',\n\t\t\t\t\ticon: 'building',\n\t\t\t\t\tpricing_type: 'free',\n\t\t\t\t\tview_type: 1,\n\t\t\t\t\tparent_id: 0,\n\t\t\t\t\tis_active: true,\n\t\t\t\t\tconnections: []\n\t\t\t\t},\n\t\t\t\tavailableIcons: [\n\t\t\t\t\t{ id: 'building', label: 'مبنى / مؤسسة' },\n\t\t\t\t\t{ id: 'pill', label: 'صيدلية / دواء' },\n\t\t\t\t\t{ id: 'truck', label: 'مخزن / توزيع' },\n\t\t\t\t\t{ id: 'package', label: 'مصنع / إنتاج' },\n\t\t\t\t\t{ id: 'shield', label: 'خدمات / أمان' },\n\t\t\t\t\t{ id: 'briefcase', label: 'شركة مساهمة' },\n\t\t\t\t\t{ id: 'cart', label: 'تجزئة / منفذ بيع' },\n\t\t\t\t\t{ id: 'tag', label: 'شركة ناشئة' },\n\t\t\t\t\t{ id: 'users', label: 'تعاونيات' },\n\t\t\t\t\t{ id: 'file', label: 'مكتب علمي' },\n\t\t\t\t\t{ id: 'plus', label: 'رعاية صحية' },\n\t\t\t\t\t{ id: 'bell', label: 'إشعارات وخدمات' }\n\t\t\t\t],\n\t\t\t\topenNewModal() {\n\t\t\t\t\tthis.isEdit = false;\n\t\t\t\t\tthis.form = {\n\t\t\t\t\t\tid: 0,\n\t\t\t\t\t\ttitle_ar: '',\n\t\t\t\t\t\ttitle_en: '',\n\t\t\t\t\t\tdescription_ar: '',\n\t\t\t\t\t\tdescription_en: '',\n\t\t\t\t\t\ticon: 'building',\n\t\t\t\t\t\tpricing_type: 'free',\n\t\t\t\t\t\tview_type: 1,\n\t\t\t\t\t\tparent_id: 0,\n\t\t\t\t\t\tis_active: true,\n\t\t\t\t\t\tconnections: []\n\t\t\t\t\t};\n\t\t\t\t\tconst modal = document.getElementById('institutional-modal');\n\t\t\t\t\tif (modal && typeof modal.showModal === 'function') modal.showModal();\n\t\t\t\t},\n\t\t\t\topenEditModal(item) {\n\t\t\t\t\tthis.isEdit = true;\n\t\t\t\t\tthis.form = {\n\t\t\t\t\t\tid: item.id,\n\t\t\t\t\t\ttitle_ar: item.title_ar || '',\n\t\t\t\t\t\ttitle_en: item.title_en || '',\n\t\t\t\t\t\tdescription_ar: item.description_ar || '',\n\t\t\t\t\t\tdescription_en: item.description_en || '',\n\t\t\t\t\t\ticon: item.icon || 'building',\n\t\t\t\t\t\tpricing_type: item.pricing_type || 'free',\n\t\t\t\t\t\tview_type: item.view_type || 1,\n\t\t\t\t\t\tparent_id: item.parent_id || 0,\n\t\t\t\t\t\tis_active: item.is_active,\n\t\t\t\t\t\tconnections: item.connections ? JSON.parse(JSON.stringify(item.connections)) : []\n\t\t\t\t\t};\n\t\t\t\t\tconst modal = document.getElementById('institutional-modal');\n\t\t\t\t\tif (modal && typeof modal.showModal === 'function') modal.showModal();\n\t\t\t\t},\n\t\t\t\ttoggleConnection(targetId) {\n\t\t\t\t\tconst idx = this.form.connections.indexOf(targetId);\n\t\t\t\t\tif (idx > -1) {\n\t\t\t\t\t\tthis.form.connections.splice(idx, 1);\n\t\t\t\t\t} else {\n\t\t\t\t\t\tthis.form.connections.push(targetId);\n\t\t\t\t\t}\n\t\t\t\t},\n\t\t\t\tisConnectionSelected(targetId) {\n\t\t\t\t\treturn this.form.connections.includes(targetId);\n\t\t\t\t}\n\t\t\t}\"><!-- Top Header & Metrics Bar --><div class=\"glass-panel p-6 mb-6\"><div class=\"flex-between items-center flex-wrap gap-4\"><div class=\"d-flex items-center gap-3\"><div class=\"user-avatar-badge text-xl\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -81,7 +81,7 @@ func AdminInstitutional(lang, dir string, items []*org.InstitutionalWork, allWor
 			var templ_7745c5c3_Var3 string
 			templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", len(allWorks)))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_institutional.templ`, Line: 130, Col: 40}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_institutional.templ`, Line: 132, Col: 40}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
 			if templ_7745c5c3_Err != nil {
@@ -102,7 +102,7 @@ func AdminInstitutional(lang, dir string, items []*org.InstitutionalWork, allWor
 			var templ_7745c5c3_Var4 string
 			templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", countActiveWorks(allWorks)))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_institutional.templ`, Line: 140, Col: 53}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_institutional.templ`, Line: 142, Col: 53}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
 			if templ_7745c5c3_Err != nil {
@@ -123,7 +123,7 @@ func AdminInstitutional(lang, dir string, items []*org.InstitutionalWork, allWor
 			var templ_7745c5c3_Var5 string
 			templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", len(items)))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_institutional.templ`, Line: 150, Col: 37}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_institutional.templ`, Line: 152, Col: 37}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
 			if templ_7745c5c3_Err != nil {
@@ -144,7 +144,7 @@ func AdminInstitutional(lang, dir string, items []*org.InstitutionalWork, allWor
 			var templ_7745c5c3_Var6 string
 			templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", countTotalConnections(allWorks)))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_institutional.templ`, Line: 160, Col: 58}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_institutional.templ`, Line: 162, Col: 58}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
 			if templ_7745c5c3_Err != nil {
@@ -157,7 +157,7 @@ func AdminInstitutional(lang, dir string, items []*org.InstitutionalWork, allWor
 			var templ_7745c5c3_Var7 string
 			templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", len(allWorks)))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_institutional.templ`, Line: 183, Col: 50}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_institutional.templ`, Line: 185, Col: 50}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
 			if templ_7745c5c3_Err != nil {
@@ -170,7 +170,7 @@ func AdminInstitutional(lang, dir string, items []*org.InstitutionalWork, allWor
 			var templ_7745c5c3_Var8 string
 			templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", countActiveWorks(allWorks)))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_institutional.templ`, Line: 191, Col: 74}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_institutional.templ`, Line: 193, Col: 74}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var8))
 			if templ_7745c5c3_Err != nil {
@@ -202,7 +202,7 @@ func AdminInstitutional(lang, dir string, items []*org.InstitutionalWork, allWor
 					var templ_7745c5c3_Var9 string
 					templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("(statusFilter === 'all' || (statusFilter === 'active' && %t)) && (searchQuery === '' || %q.toLowerCase().includes(searchQuery.toLowerCase()) || %q.toLowerCase().includes(searchQuery.toLowerCase()))", item.IsActive, item.Title.Get("ar"), item.Title.Get("en")))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_institutional.templ`, Line: 225, Col: 290}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_institutional.templ`, Line: 227, Col: 290}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var9)
 					if templ_7745c5c3_Err != nil {
@@ -220,7 +220,7 @@ func AdminInstitutional(lang, dir string, items []*org.InstitutionalWork, allWor
 						var templ_7745c5c3_Var10 string
 						templ_7745c5c3_Var10, templ_7745c5c3_Err = templruntime.SanitizeStyleAttributeValues(fmt.Sprintf("width:%dpx; display:flex; justify-content:flex-end; color:var(--accent); font-weight:900;", item.Level*20))
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_institutional.templ`, Line: 232, Col: 145}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_institutional.templ`, Line: 234, Col: 145}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var10))
 						if templ_7745c5c3_Err != nil {
@@ -246,7 +246,7 @@ func AdminInstitutional(lang, dir string, items []*org.InstitutionalWork, allWor
 					var templ_7745c5c3_Var11 string
 					templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.JoinStringErrs(item.Title.Get("ar"))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_institutional.templ`, Line: 245, Col: 37}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_institutional.templ`, Line: 247, Col: 37}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var11))
 					if templ_7745c5c3_Err != nil {
@@ -269,7 +269,7 @@ func AdminInstitutional(lang, dir string, items []*org.InstitutionalWork, allWor
 						var templ_7745c5c3_Var12 string
 						templ_7745c5c3_Var12, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("مستوى %d", item.Level))
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_institutional.templ`, Line: 251, Col: 58}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_institutional.templ`, Line: 253, Col: 58}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var12))
 						if templ_7745c5c3_Err != nil {
@@ -292,7 +292,7 @@ func AdminInstitutional(lang, dir string, items []*org.InstitutionalWork, allWor
 						var templ_7745c5c3_Var13 string
 						templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.JoinStringErrs(item.Title.Get("en"))
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_institutional.templ`, Line: 257, Col: 37}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_institutional.templ`, Line: 259, Col: 37}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var13))
 						if templ_7745c5c3_Err != nil {
@@ -311,7 +311,7 @@ func AdminInstitutional(lang, dir string, items []*org.InstitutionalWork, allWor
 						var templ_7745c5c3_Var14 string
 						templ_7745c5c3_Var14, templ_7745c5c3_Err = templ.ResolveAttributeValue(item.Description.Get("ar"))
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_institutional.templ`, Line: 261, Col: 221}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_institutional.templ`, Line: 263, Col: 221}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var14)
 						if templ_7745c5c3_Err != nil {
@@ -324,7 +324,7 @@ func AdminInstitutional(lang, dir string, items []*org.InstitutionalWork, allWor
 						var templ_7745c5c3_Var15 string
 						templ_7745c5c3_Var15, templ_7745c5c3_Err = templ.JoinStringErrs(item.Description.Get("ar"))
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_institutional.templ`, Line: 262, Col: 43}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_institutional.templ`, Line: 264, Col: 43}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var15))
 						if templ_7745c5c3_Err != nil {
@@ -347,7 +347,7 @@ func AdminInstitutional(lang, dir string, items []*org.InstitutionalWork, allWor
 						var templ_7745c5c3_Var16 string
 						templ_7745c5c3_Var16, templ_7745c5c3_Err = templ.JoinStringErrs(item.ParentTitle)
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_institutional.templ`, Line: 273, Col: 31}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_institutional.templ`, Line: 275, Col: 31}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var16))
 						if templ_7745c5c3_Err != nil {
@@ -380,7 +380,7 @@ func AdminInstitutional(lang, dir string, items []*org.InstitutionalWork, allWor
 							var templ_7745c5c3_Var17 string
 							templ_7745c5c3_Var17, templ_7745c5c3_Err = templ.JoinStringErrs(name)
 							if templ_7745c5c3_Err != nil {
-								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_institutional.templ`, Line: 286, Col: 21}
+								return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_institutional.templ`, Line: 288, Col: 21}
 							}
 							_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var17))
 							if templ_7745c5c3_Err != nil {
@@ -441,7 +441,7 @@ func AdminInstitutional(lang, dir string, items []*org.InstitutionalWork, allWor
 					var templ_7745c5c3_Var20 string
 					templ_7745c5c3_Var20, templ_7745c5c3_Err = templ.JoinStringErrs(pricingTypeAr(string(item.PricingType)))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_institutional.templ`, Line: 308, Col: 54}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_institutional.templ`, Line: 310, Col: 54}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var20))
 					if templ_7745c5c3_Err != nil {
@@ -454,7 +454,7 @@ func AdminInstitutional(lang, dir string, items []*org.InstitutionalWork, allWor
 					var templ_7745c5c3_Var21 templ.SafeURL
 					templ_7745c5c3_Var21, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("/admin/institutional/%d/status", item.ID)))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_institutional.templ`, Line: 315, Col: 109}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_institutional.templ`, Line: 317, Col: 109}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var21))
 					if templ_7745c5c3_Err != nil {
@@ -489,7 +489,7 @@ func AdminInstitutional(lang, dir string, items []*org.InstitutionalWork, allWor
 					var templ_7745c5c3_Var24 string
 					templ_7745c5c3_Var24, templ_7745c5c3_Err = templ.ResolveAttributeValue(ternary(item.IsActive, "انقر للتعطيل", "انقر للتفعيل"))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_institutional.templ`, Line: 320, Col: 97}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_institutional.templ`, Line: 322, Col: 97}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var24)
 					if templ_7745c5c3_Err != nil {
@@ -521,7 +521,7 @@ func AdminInstitutional(lang, dir string, items []*org.InstitutionalWork, allWor
 					var templ_7745c5c3_Var25 string
 					templ_7745c5c3_Var25, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("openEditModal(%s)", entityToJSON(item)))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_institutional.templ`, Line: 340, Col: 74}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_institutional.templ`, Line: 342, Col: 74}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var25)
 					if templ_7745c5c3_Err != nil {
@@ -542,7 +542,7 @@ func AdminInstitutional(lang, dir string, items []*org.InstitutionalWork, allWor
 					var templ_7745c5c3_Var26 templ.SafeURL
 					templ_7745c5c3_Var26, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(fmt.Sprintf("/admin/institutional/%d/delete", item.ID)))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_institutional.templ`, Line: 344, Col: 110}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_institutional.templ`, Line: 346, Col: 110}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var26))
 					if templ_7745c5c3_Err != nil {
@@ -562,7 +562,7 @@ func AdminInstitutional(lang, dir string, items []*org.InstitutionalWork, allWor
 					}
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 59, "</tbody></table></div></div><!-- Unified Modal: Create / Edit Institutional Work (High-Craft) --><div x-show=\"isModalOpen\" x-cloak class=\"modal-overlay\" @keydown.escape.window=\"isModalOpen = false\"><div @click.outside=\"isModalOpen = false\" class=\"card\" style=\"max-width:780px; width:100%; max-height:92vh; overflow-y:auto; padding:2rem; background:var(--surface-raised); border-radius:var(--radius-2xl); border:1px solid var(--border); box-shadow:var(--shadow-2xl);\"><!-- Modal Header --><div class=\"section-head\"><div class=\"row-center-sm\"><div class=\"b2b-icon-box\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 59, "</tbody></table></div></div><!-- Unified Modal: Create / Edit Institutional Work (High-Craft) --><dialog id=\"institutional-modal\" class=\"modal\" aria-labelledby=\"institutional-modal-title\"><div class=\"modal-box modal-lg\"><!-- Modal Header --><div class=\"modal-header\"><div class=\"d-flex items-center gap-2\"><div class=\"w-8 h-8 rounded-lg bg-primary-subtle text-brand flex-center\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -570,15 +570,15 @@ func AdminInstitutional(lang, dir string, items []*org.InstitutionalWork, allWor
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 60, "</div><div><h3 style=\"font-size:1.3rem; font-weight:800; color:var(--text); margin:0;\" x-text=\"isEdit ? 'تعديل بيانات الكيان المؤسسي' : 'إضافة كيان ونشاط مؤسسي جديد'\"></h3><p style=\"font-size:0.8rem; color:var(--text-secondary); margin:0.15rem 0 0 0;\">تحديد الهيكل، التسعير، الأيقونة، وحالة التفعيل والاتصالات التجارية المسموح بها</p></div></div><button type=\"button\" @click=\"isModalOpen = false\" class=\"btn btn-secondary btn-icon\" style=\"width:34px; height:34px;\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 60, "</div><div><h3 id=\"institutional-modal-title\" class=\"modal-title\" x-text=\"isEdit ? 'تعديل بيانات الكيان المؤسسي' : 'إضافة كيان ونشاط مؤسسي جديد'\"></h3><p class=\"text-xs text-muted m-0 mt-0.5\">تحديد الهيكل، التسعير، الأيقونة، وحالة التفعيل والاتصالات التجارية المسموح بها</p></div></div><form method=\"dialog\"><button type=\"submit\" class=\"modal-close\" aria-label=\"إغلاق\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = components.IconX("icon-sm").Render(ctx, templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = components.IconClose("icon-xs").Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 61, "</button></div><!-- Form --><form :action=\"isEdit ? ('/admin/institutional/' + form.id) : '/admin/institutional/new'\" method=\"POST\" class=\"stack-lg\"><!-- Active Status Toggle Switch (Header placement matching reference image) --><div style=\"display:flex; justify-content:space-between; align-items:center; background:var(--surface); padding:0.85rem 1.25rem; border-radius:var(--radius-xl); border:1px solid var(--border);\"><div><span style=\"font-weight:800; font-size:0.95rem; color:var(--text);\">الحالة:</span> <span style=\"font-size:0.85rem; margin-inline-start:0.5rem; font-weight:700;\" :style=\"form.is_active ? 'color:#2ecc71;' : 'color:var(--danger);'\" x-text=\"form.is_active ? 'نشطة ومفعلة' : 'معطلة'\"></span></div><label style=\"display:flex; align-items:center; gap:0.75rem; cursor:pointer; margin:0;\"><span style=\"font-size:0.85rem; font-weight:700; color:var(--text);\">الحالة نشطة</span> <input type=\"checkbox\" name=\"is_active\" value=\"true\" x-model=\"form.is_active\" style=\"width:20px; height:20px; accent-color:var(--accent); cursor:pointer;\"></label></div><!-- Hierarchy Parent Selector --><div class=\"form-group m-0\"><label class=\"form-label fw-700\">التصنيف الأب (Parent Entity) *</label> <select name=\"parent_id\" x-model=\"form.parent_id\" class=\"form-input\"><option value=\"0\">بند رئيسي (بدون أب - Root Level)</option> ")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 61, "</button></form></div><!-- Form --><form :action=\"isEdit ? ('/admin/institutional/' + form.id) : '/admin/institutional/new'\" method=\"POST\" class=\"d-flex flex-col gap-4 m-0\"><div class=\"modal-body d-flex flex-col gap-3\"><!-- Active Status Toggle Switch --><div class=\"flex-between items-center bg-surface-sunken p-3 rounded-xl border\"><div><span class=\"font-bold text-sm text-primary\">الحالة:</span> <span class=\"text-xs font-bold ms-2\" :class=\"form.is_active ? 'text-success' : 'text-danger'\" x-text=\"form.is_active ? 'نشطة ومفعلة' : 'معطلة'\"></span></div><label class=\"d-flex items-center gap-2 cursor-pointer m-0\"><span class=\"text-xs font-bold text-primary\">الحالة نشطة</span> <input type=\"checkbox\" name=\"is_active\" value=\"true\" x-model=\"form.is_active\" class=\"cursor-pointer\" style=\"width:18px; height:18px; accent-color:var(--accent);\"></label></div><!-- Hierarchy Parent Selector --><div class=\"form-group m-0\"><label class=\"form-label font-bold\">التصنيف الأب (Parent Entity) *</label> <select name=\"parent_id\" x-model=\"form.parent_id\" class=\"form-select w-full\"><option value=\"0\">بند رئيسي (بدون أب - Root Level)</option> ")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -590,7 +590,7 @@ func AdminInstitutional(lang, dir string, items []*org.InstitutionalWork, allWor
 				var templ_7745c5c3_Var27 string
 				templ_7745c5c3_Var27, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%d", parent.ID))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_institutional.templ`, Line: 414, Col: 46}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_institutional.templ`, Line: 414, Col: 47}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var27)
 				if templ_7745c5c3_Err != nil {
@@ -603,7 +603,7 @@ func AdminInstitutional(lang, dir string, items []*org.InstitutionalWork, allWor
 				var templ_7745c5c3_Var28 string
 				templ_7745c5c3_Var28, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("!isEdit || form.id !== %d", parent.ID))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_institutional.templ`, Line: 415, Col: 70}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_institutional.templ`, Line: 415, Col: 71}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var28)
 				if templ_7745c5c3_Err != nil {
@@ -616,7 +616,7 @@ func AdminInstitutional(lang, dir string, items []*org.InstitutionalWork, allWor
 				var templ_7745c5c3_Var29 string
 				templ_7745c5c3_Var29, templ_7745c5c3_Err = templ.JoinStringErrs(formatOptionIndent(parent.Level) + parent.Title.Get("ar") + " (" + parent.Title.Get("en") + ")")
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_institutional.templ`, Line: 417, Col: 107}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_institutional.templ`, Line: 417, Col: 108}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var29))
 				if templ_7745c5c3_Err != nil {
@@ -627,37 +627,37 @@ func AdminInstitutional(lang, dir string, items []*org.InstitutionalWork, allWor
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 66, "</select> <span style=\"font-size:0.75rem; color:var(--text-muted); margin-top:3px;\">يتيح النظام بناء هيكل متعدد المستويات (مثال: جملة جملة ↳ قطاع ↳ مصنع).</span></div><!-- Bilingual Titles --><div class=\"form-grid-2\"><div class=\"form-group m-0\"><label class=\"form-label fw-700\">اسم الكيان المؤسسي (باللغة العربية) *</label> <input type=\"text\" name=\"title_ar\" x-model=\"form.title_ar\" required placeholder=\"مثال: جملة جملة، مصنع، صيدلية\" class=\"form-input\"></div><div class=\"form-group m-0\"><label class=\"form-label fw-700\">الاسم باللغة الإنجليزية (English Title)</label> <input type=\"text\" name=\"title_en\" x-model=\"form.title_en\" placeholder=\"e.g. Wholesale, Factory, Pharmacy\" class=\"form-input\" dir=\"ltr\"></div></div><!-- Bilingual Descriptions --><div class=\"form-grid-2\"><div class=\"form-group m-0\"><label class=\"form-label fw-700\">الوصف التعريفي (بالعربية)</label> <textarea name=\"description_ar\" x-model=\"form.description_ar\" rows=\"3\" placeholder=\"وصف الكيان ودوره في السوق...\" class=\"form-input\" style=\"line-height:1.5;\"></textarea></div><div class=\"form-group m-0\"><label class=\"form-label fw-700\">الوصف بالإنجليزية (English Description)</label> <textarea name=\"description_en\" x-model=\"form.description_en\" rows=\"3\" placeholder=\"Entity description and role...\" class=\"form-input\" dir=\"ltr\" style=\"line-height:1.5;\"></textarea></div></div><!-- Classification & Pricing --><div class=\"form-grid-2\"><div class=\"form-group m-0\"><label class=\"form-label fw-700\">نوع عرض التغطية (View Type) *</label> <select name=\"view_type\" x-model=\"form.view_type\" class=\"form-input\"><option value=\"1\">تغطية عادية (Normal Hub / Supplier) - 1</option> <option value=\"2\">تغطية صيدلية (Pharmacy Dispensing) - 2</option></select></div><div class=\"form-group m-0\"><label class=\"form-label fw-700\">نوع التسعير والاشتراك (Pricing Type) *</label> <select name=\"pricing_type\" x-model=\"form.pricing_type\" class=\"form-input\"><option value=\"free\">مجاني (Free)</option> <option value=\"paid\">مدفوع (Paid)</option> <option value=\"subscription\">اشتراك دوري (Subscription)</option> <option value=\"monthly\">شهري (Monthly)</option> <option value=\"hourly\">بالساعة (Hourly)</option> <option value=\"per_project\">لكل مشروع / طلب (Per Project)</option></select></div></div><!-- Visual Icon Picker Grid --><div class=\"form-group m-0\"><label class=\"form-label fw-700\">اختيار أيقونة الكيان المؤسسي (Visual Icon Picker)</label> <input type=\"hidden\" name=\"icon\" :value=\"form.icon\"><div style=\"display:grid; grid-template-columns:repeat(auto-fill, minmax(110px, 1fr)); gap:0.5rem; max-height:160px; overflow-y:auto; padding:0.5rem; background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-xl);\"><template x-for=\"ic in availableIcons\" :key=\"ic.id\"><button type=\"button\" class=\"btn btn-sm\" :style=\"form.icon === ic.id ? 'border:2px solid var(--accent); background:var(--accent-subtle); font-weight:800;' : 'border:1px solid var(--border); background:var(--surface-raised);'\" style=\"display:flex; flex-direction:column; align-items:center; justify-content:center; padding:0.6rem 0.25rem; gap:0.35rem; height:68px;\" @click=\"form.icon = ic.id\"><span class=\"text-xl\" x-text=\"getIconEmoji(ic.id)\"></span> <span style=\"font-size:0.675rem; color:var(--text); text-align:center;\" x-text=\"ic.label\"></span></button></template></div></div><!-- Allowed Connections (يتصل بـ) Multi-Select Checkbox Grid Matching Reference Image --><div style=\"border-top:1px solid var(--border); padding-top:1.25rem;\"><div style=\"margin-bottom:0.75rem;\"><label style=\"font-size:0.95rem; font-weight:800; color:var(--text); display:block;\">الاتصالات المسموح بها (يتصل بـ)</label><p style=\"font-size:0.775rem; color:var(--text-secondary); margin:0.15rem 0 0 0;\">حدد الكيانات والأنشطة التي يسمح لهذا الكيان بالاتصال والتعامل التجاري معها (Matching & Trading Channels)</p></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 66, "</select> <span class=\"text-xs text-muted mt-1 d-block\">يتيح النظام بناء هيكل متعدد المستويات (مثال: جملة جملة ↳ قطاع ↳ مصنع).</span></div><!-- Bilingual Titles --><div class=\"d-grid grid-cols-2 gap-3\"><div class=\"form-group m-0\"><label class=\"form-label font-bold\">اسم الكيان المؤسسي (باللغة العربية) *</label> <input type=\"text\" name=\"title_ar\" x-model=\"form.title_ar\" required placeholder=\"مثال: جملة جملة، مصنع، صيدلية\" class=\"form-input w-full\"></div><div class=\"form-group m-0\"><label class=\"form-label font-bold\">الاسم باللغة الإنجليزية (English Title)</label> <input type=\"text\" name=\"title_en\" x-model=\"form.title_en\" placeholder=\"e.g. Wholesale, Factory, Pharmacy\" class=\"form-input w-full\" dir=\"ltr\"></div></div><!-- Bilingual Descriptions --><div class=\"d-grid grid-cols-2 gap-3\"><div class=\"form-group m-0\"><label class=\"form-label font-bold\">الوصف التعريفي (بالعربية)</label> <textarea name=\"description_ar\" x-model=\"form.description_ar\" rows=\"3\" placeholder=\"وصف الكيان ودوره في السوق...\" class=\"form-input w-full\"></textarea></div><div class=\"form-group m-0\"><label class=\"form-label font-bold\">الوصف بالإنجليزية (English Description)</label> <textarea name=\"description_en\" x-model=\"form.description_en\" rows=\"3\" placeholder=\"Entity description and role...\" class=\"form-input w-full\" dir=\"ltr\"></textarea></div></div><!-- Classification & Pricing --><div class=\"d-grid grid-cols-2 gap-3\"><div class=\"form-group m-0\"><label class=\"form-label font-bold\">نوع عرض التغطية (View Type) *</label> <select name=\"view_type\" x-model=\"form.view_type\" class=\"form-select w-full\"><option value=\"1\">تغطية عادية (Normal Hub / Supplier) - 1</option> <option value=\"2\">تغطية صيدلية (Pharmacy Dispensing) - 2</option></select></div><div class=\"form-group m-0\"><label class=\"form-label font-bold\">نوع التسعير والاشتراك (Pricing Type) *</label> <select name=\"pricing_type\" x-model=\"form.pricing_type\" class=\"form-select w-full\"><option value=\"free\">مجاني (Free)</option> <option value=\"paid\">مدفوع (Paid)</option> <option value=\"subscription\">اشتراك دوري (Subscription)</option> <option value=\"monthly\">شهري (Monthly)</option> <option value=\"hourly\">بالساعة (Hourly)</option> <option value=\"per_project\">لكل مشروع / طلب (Per Project)</option></select></div></div><!-- Visual Icon Picker Grid --><div class=\"form-group m-0\"><label class=\"form-label font-bold\">اختيار أيقونة الكيان المؤسسي (Visual Icon Picker)</label> <input type=\"hidden\" name=\"icon\" :value=\"form.icon\"><div class=\"d-grid gap-2 p-2 bg-surface-sunken border rounded-xl overflow-y-auto max-h-40\" style=\"grid-template-columns:repeat(auto-fill, minmax(110px, 1fr));\"><template x-for=\"ic in availableIcons\" :key=\"ic.id\"><button type=\"button\" class=\"btn btn-sm d-flex flex-col items-center justify-center p-2 gap-1 h-16\" :class=\"form.icon === ic.id ? 'btn-primary font-bold' : 'btn-secondary'\" @click=\"form.icon = ic.id\"><span class=\"text-xl\" x-text=\"getIconEmoji(ic.id)\"></span> <span class=\"text-xs text-center\" x-text=\"ic.label\"></span></button></template></div></div><!-- Allowed Connections (يتصل بـ) --><div class=\"border-t pt-3 mt-1\"><div class=\"mb-2\"><label class=\"font-bold text-sm text-primary d-block\">الاتصالات المسموح بها (يتصل بـ)</label><p class=\"text-xs text-muted m-0 mt-0.5\">حدد الكيانات والأنشطة التي يسمح لهذا الكيان بالاتصال والتعامل التجاري معها (Matching & Trading Channels)</p></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			if len(allWorks) > 0 {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 67, "<div style=\"display:grid; grid-template-columns:repeat(auto-fill, minmax(280px, 1fr)); gap:0.65rem; max-height:220px; overflow-y:auto; padding:0.75rem; background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-xl);\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 67, "<div class=\"d-grid gap-2 p-3 bg-surface-sunken border rounded-xl overflow-y-auto max-h-48\" style=\"grid-template-columns:repeat(auto-fill, minmax(240px, 1fr));\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				for _, target := range allWorks {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 68, "<label style=\"display:flex; align-items:center; justify-content:space-between; padding:0.5rem 0.75rem; background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-lg); cursor:pointer; gap:0.5rem;\" x-show=\"")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 68, "<label class=\"flex-between items-center p-2 bg-surface-raised border rounded-lg cursor-pointer gap-2\" x-show=\"")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var30 string
 					templ_7745c5c3_Var30, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("!isEdit || form.id !== %d", target.ID))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_institutional.templ`, Line: 508, Col: 71}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_institutional.templ`, Line: 507, Col: 72}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var30)
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 69, "\"><div class=\"row-center-sm\"><span style=\"font-size:0.875rem; font-weight:700; color:var(--text);\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 69, "\"><div class=\"d-flex items-center gap-1.5\"><span class=\"text-xs font-bold text-primary\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var31 string
 					templ_7745c5c3_Var31, templ_7745c5c3_Err = templ.JoinStringErrs(target.Title.Get("ar"))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_institutional.templ`, Line: 512, Col: 37}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_institutional.templ`, Line: 511, Col: 38}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var31))
 					if templ_7745c5c3_Err != nil {
@@ -675,7 +675,7 @@ func AdminInstitutional(lang, dir string, items []*org.InstitutionalWork, allWor
 						var templ_7745c5c3_Var32 string
 						templ_7745c5c3_Var32, templ_7745c5c3_Err = templ.JoinStringErrs(target.Title.Get("en"))
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_institutional.templ`, Line: 516, Col: 39}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_institutional.templ`, Line: 515, Col: 40}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var32))
 						if templ_7745c5c3_Err != nil {
@@ -693,7 +693,7 @@ func AdminInstitutional(lang, dir string, items []*org.InstitutionalWork, allWor
 					var templ_7745c5c3_Var33 string
 					templ_7745c5c3_Var33, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%d", target.ID))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_institutional.templ`, Line: 523, Col: 48}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_institutional.templ`, Line: 522, Col: 49}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var33)
 					if templ_7745c5c3_Err != nil {
@@ -706,7 +706,7 @@ func AdminInstitutional(lang, dir string, items []*org.InstitutionalWork, allWor
 					var templ_7745c5c3_Var34 string
 					templ_7745c5c3_Var34, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("isConnectionSelected(%d)", target.ID))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_institutional.templ`, Line: 524, Col: 73}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_institutional.templ`, Line: 523, Col: 74}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var34)
 					if templ_7745c5c3_Err != nil {
@@ -719,13 +719,13 @@ func AdminInstitutional(lang, dir string, items []*org.InstitutionalWork, allWor
 					var templ_7745c5c3_Var35 string
 					templ_7745c5c3_Var35, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("toggleConnection(%d)", target.ID))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_institutional.templ`, Line: 525, Col: 68}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_institutional.templ`, Line: 524, Col: 69}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var35)
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 76, "\" style=\"width:18px; height:18px; accent-color:var(--accent); cursor:pointer; margin:0;\"></label>")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 76, "\" class=\"cursor-pointer\" style=\"width:16px; height:16px; accent-color:var(--accent);\"></label>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -735,7 +735,7 @@ func AdminInstitutional(lang, dir string, items []*org.InstitutionalWork, allWor
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 78, "</div><!-- Modal Actions --><div style=\"display:flex; justify-content:flex-end; gap:0.75rem; border-top:1px solid var(--border); padding-top:1.25rem; margin-top:0.5rem;\"><button type=\"button\" @click=\"isModalOpen = false\" class=\"btn btn-secondary\" style=\"font-weight:700; padding:0.6rem 1.5rem;\">إلغاء</button> <button type=\"submit\" class=\"btn btn-primary\" style=\"font-weight:800; padding:0.6rem 2rem; gap:0.4rem;\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 78, "</div></div><!-- Modal Actions --><div class=\"modal-footer\"><button type=\"button\" onclick=\"document.getElementById('institutional-modal').close()\" class=\"btn btn-secondary font-bold px-6\">إلغاء</button> <button type=\"submit\" class=\"btn btn-primary font-bold px-8 gap-2\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -743,7 +743,7 @@ func AdminInstitutional(lang, dir string, items []*org.InstitutionalWork, allWor
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 79, "<span x-text=\"isEdit ? 'حفظ التعديلات' : 'إضافة الكيان المؤسسي'\"></span></button></div></form></div></div></div><script>\n\t\t\tfunction getIconEmoji(id) {\n\t\t\t\tconst map = {\n\t\t\t\t\t'building': '',\n\t\t\t\t\t'pill': '',\n\t\t\t\t\t'truck': '',\n\t\t\t\t\t'package': '',\n\t\t\t\t\t'shield': '',\n\t\t\t\t\t'briefcase': '',\n\t\t\t\t\t'cart': '',\n\t\t\t\t\t'tag': '',\n\t\t\t\t\t'users': '',\n\t\t\t\t\t'file': '',\n\t\t\t\t\t'plus': '',\n\t\t\t\t\t'bell': ''\n\t\t\t\t};\n\t\t\t\treturn map[id] || '';\n\t\t\t}\n\t\t</script>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 79, "<span x-text=\"isEdit ? 'حفظ التعديلات' : 'إضافة الكيان المؤسسي'\"></span></button></div></form></div></dialog></div><script>\n\t\t\tfunction getIconEmoji(id) {\n\t\t\t\tconst map = {\n\t\t\t\t\t'building': '',\n\t\t\t\t\t'pill': '',\n\t\t\t\t\t'truck': '',\n\t\t\t\t\t'package': '',\n\t\t\t\t\t'shield': '',\n\t\t\t\t\t'briefcase': '',\n\t\t\t\t\t'cart': '',\n\t\t\t\t\t'tag': '',\n\t\t\t\t\t'users': '',\n\t\t\t\t\t'file': '',\n\t\t\t\t\t'plus': '',\n\t\t\t\t\t'bell': ''\n\t\t\t\t};\n\t\t\t\treturn map[id] || '';\n\t\t\t}\n\t\t</script>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

@@ -726,16 +726,14 @@ templ AdminOffersPackagesHubPage(lang, dir string, data AdminOffersPackagesData)
 			<!-- ========================================== -->
 			<!-- MODAL: Add New Package                     -->
 			<!-- ========================================== -->
-			<div
-				x-show="showAddModal"
+			<dialog
+				:open="showAddModal"
 				x-cloak
-				class="modal-overlay"
+				class="modal"
 				@keydown.escape.window="showAddModal = false"
+				@click.self="showAddModal = false"
 			>
-				<div
-					class="modal-box modal-lg"
-					@click.outside="showAddModal = false"
-				>
+				<div class="modal-box modal-lg">
 					<div class="modal-header">
 						<div class="d-flex items-center gap-2.5">
 							<div class="w-9 h-9 rounded-xl bg-brand-50 text-brand-600 d-flex items-center justify-center shadow-2xs">
@@ -860,21 +858,19 @@ templ AdminOffersPackagesHubPage(lang, dir string, data AdminOffersPackagesData)
 						</div>
 					</form>
 				</div>
-			</div>
+			</dialog>
 
 			<!-- ========================================== -->
 			<!-- MODAL: Edit Existing Package               -->
 			<!-- ========================================== -->
-			<div
-				x-show="showEditModal"
+			<dialog
+				:open="showEditModal"
 				x-cloak
-				class="modal-overlay"
+				class="modal"
 				@keydown.escape.window="showEditModal = false"
+				@click.self="showEditModal = false"
 			>
-				<div
-					class="modal-box modal-lg"
-					@click.outside="showEditModal = false"
-				>
+				<div class="modal-box modal-lg">
 					<div class="modal-header">
 						<div class="d-flex items-center gap-2.5">
 							<div class="w-9 h-9 rounded-xl bg-sky-50 text-sky-600 d-flex items-center justify-center shadow-2xs">
@@ -1002,21 +998,19 @@ templ AdminOffersPackagesHubPage(lang, dir string, data AdminOffersPackagesData)
 						</div>
 					</form>
 				</div>
-			</div>
+			</dialog>
 
 			<!-- ========================================== -->
 			<!-- MODAL: Reject Sponsorship Request          -->
 			<!-- ========================================== -->
-			<div
-				x-show="showRejectModal"
+			<dialog
+				:open="showRejectModal"
 				x-cloak
-				class="modal-overlay"
+				class="modal"
 				@keydown.escape.window="showRejectModal = false"
+				@click.self="showRejectModal = false"
 			>
-				<div
-					class="modal-box modal-md"
-					@click.outside="showRejectModal = false"
-				>
+				<div class="modal-box modal-md">
 					<div class="modal-header bg-rose-50/50">
 						<div class="d-flex items-center gap-2 text-rose-700 font-black text-sm">
 							@components.IconAlertCircle("icon-xs")
@@ -1043,7 +1037,7 @@ templ AdminOffersPackagesHubPage(lang, dir string, data AdminOffersPackagesData)
 						</div>
 					</form>
 				</div>
-			</div>
+			</dialog>
 		</div>
 	}
 }

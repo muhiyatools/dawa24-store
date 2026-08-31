@@ -1,7 +1,6 @@
 package layouts
 
 import (
-	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/platform/rbac"
 	"github.com/muhiya/dawa24-store/internal/ui/components"
 )
@@ -11,7 +10,7 @@ templ AdminShell(title string, activeNav string, lang string, dir string) {
 		@Base(title, lang, dir, "/static/css/admin.css") {
 			<div class="app-shell">
 				<!-- Sidebar -->
-				<aside class="sidebar">
+				<aside class="sidebar" id="app-sidebar">
 					<div class="sidebar-header">
 						<div class="sidebar-brand">
 							<img class="sidebar-logo" src={ site.LogoURL } alt={ site.SiteName } />
@@ -28,69 +27,13 @@ templ AdminShell(title string, activeNav string, lang string, dir string) {
 					@SidebarNav(rbac.ScopeAdmin, activeNav, lang)
 				</aside>
 
-				<script>
-					(function() {
-						try {
-							var nav = document.querySelector('.sidebar-nav');
-							if (!nav) return;
-							var currentPath = window.location.pathname;
-							var links = Array.from(nav.querySelectorAll('.sidebar-link'));
-							var hasActive = links.some(function(l) { return l.classList.contains('active'); });
-							if (!hasActive && links.length > 0) {
-								var sorted = links.slice().sort(function(a, b) { return (b.getAttribute('href') || '').length - (a.getAttribute('href') || '').length; });
-								for (var i = 0; i < sorted.length; i++) {
-									var href = sorted[i].getAttribute('href');
-									if (href && (currentPath === href || (href !== '/admin/dashboard' && currentPath.indexOf(href) === 0))) {
-										sorted[i].classList.add('active');
-										break;
-									}
-								}
-							}
-							var saved = sessionStorage.getItem('dawa_sidebar_scroll_top');
-							if (saved !== null) {
-								nav.scrollTop = parseInt(saved, 10);
-							} else {
-								var act = nav.querySelector('.sidebar-link.active');
-								if (act) {
-									act.scrollIntoView({ block: 'nearest' });
-								}
-							}
-						} catch (e) {}
-					})();
-				</script>
-
 				<!-- Main Admin Content Area -->
 				<main class="main-content">
-					<!-- Top Admin Header -->
-					<header class="top-navbar">
-						<div class="top-navbar-start">
-							<h1 class="top-navbar-title">{ title }</h1>
-						</div>
-
-						<div class="top-navbar-end">
-							@components.LanguageToggle(lang)
-							@components.ThemeToggle()
-
-							if actor, ok := authctx.From(ctx); ok {
-								<div class="top-navbar-user-chip">
-									<div class="user-avatar-badge">
-										@components.IconShield("icon-xs")
-									</div>
-									<div class="user-avatar-info">
-										<span class="user-avatar-name">{ actor.DisplayName() }</span>
-										<span class="user-avatar-role">{ actor.Role }</span>
-									</div>
-
-									<form action="/auth/logout" method="POST" class="m-0 ms-1">
-										<button type="submit" class="btn btn-secondary btn-sm btn-logout" title="تسجيل الخروج">
-											@components.IconLogout("icon-xs")
-											<span>خروج</span>
-										</button>
-									</form>
-								</div>
-							}
-						</div>
-					</header>
+					@components.DashboardTopBar(components.TopBarProps{
+						Title:   title,
+						Lang:    lang,
+						Compact: true,
+					})
 
 					<!-- Page Container -->
 					<div class="page-container">

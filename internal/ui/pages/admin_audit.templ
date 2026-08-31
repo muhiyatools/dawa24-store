@@ -215,102 +215,106 @@ templ AdminAuditPage(values AdminAuditValues, lang, dir string) {
 			</div>
 
 			<!-- Inspection & Details Diff Modal -->
-			<div
-				x-show="isDetailsOpen"
-				x-cloak
-				class="modal-overlay"
-				@keydown.escape.window="isDetailsOpen = false"
+			<dialog
+				id="audit-details-modal"
+				class="modal"
+				aria-labelledby="audit-details-title"
 			>
-				<div
-					@click.outside="isDetailsOpen = false"
-					class="modal-card modal-lg p-modal"
-				>
-					<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.25rem; border-bottom:1px solid var(--border); padding-bottom:1rem;">
-						<div class="row-center-sm">
-							<div class="b2b-icon-box-sm">
+				<div class="modal-box modal-lg">
+					<div class="modal-header">
+						<div class="d-flex items-center gap-2">
+							<div class="w-8 h-8 rounded-lg bg-primary-subtle text-brand flex-center">
 								@components.IconClock("icon-sm")
 							</div>
 							<div>
-								<h3 class="text-lg fw-800 text-primary m-0" x-text="'تفاصيل العملية #' + (selected ? selected.id : '')"></h3>
-								<div style="font-size:0.8rem; color:var(--text-muted); margin-top:2px;" x-text="selected ? selected.title : ''"></div>
+								<h3 id="audit-details-title" class="modal-title" x-text="'تفاصيل العملية #' + (selected ? selected.id : '')"></h3>
+								<div class="text-xs text-muted mt-0.5" x-text="selected ? selected.title : ''"></div>
 							</div>
 						</div>
-						<button type="button" @click="isDetailsOpen = false" class="btn btn-secondary btn-icon size-8">
-							@components.IconClose("icon-xs")
-						</button>
+						<form method="dialog">
+							<button type="submit" class="modal-close" aria-label="إغلاق">
+								@components.IconClose("icon-xs")
+							</button>
+						</form>
 					</div>
 
-					<template x-if="selected">
-						<div class="stack-lg">
-							
-							<!-- Meta Grid -->
-							<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:0.75rem; background:var(--surface-sunken); padding:1rem; border-radius:var(--radius-xl); border:1px solid var(--border);">
-								<div>
-									<div class="text-xs text-muted">المستخدم المنفذ:</div>
-									<div class="text-sm fw-700 text-primary" x-text="selected.actor_name"></div>
-									<div style="font-size:0.75rem; color:var(--text-secondary); direction:ltr; text-align:start;" x-text="selected.actor_email"></div>
-								</div>
-								<div>
-									<div class="text-xs text-muted">المنظمة / الجهة:</div>
-									<div class="text-sm fw-700 text-primary" x-text="selected.organization_name"></div>
-								</div>
-								<div>
-									<div class="text-xs text-muted">عنوان IP / المسار:</div>
-									<div style="font-family:monospace; font-size:0.8rem; color:var(--text); direction:ltr; text-align:start;" x-text="selected.ip_address"></div>
-									<div style="font-size:0.75rem; color:var(--text-muted); direction:ltr; text-align:start;" x-text="selected.route"></div>
-								</div>
-								<div>
-									<div class="text-xs text-muted">التوقيت والأهمية:</div>
-									<div style="font-size:0.85rem; font-weight:700; color:var(--text);" x-text="selected.created_at"></div>
-									<div style="margin-top:2px;">
-										<span class="badge" :class="selected.severity === 'حرج (Critical)' || selected.severity === 'critical' ? 'badge-rose' : (selected.severity === 'متوسط (Warning)' || selected.severity === 'warning' ? 'badge-amber' : 'badge-slate')" x-text="selected.severity"></span>
+					<div class="modal-body">
+						<template x-if="selected">
+							<div class="d-flex flex-col gap-4">
+								
+								<!-- Meta Grid -->
+								<div class="d-grid gap-3 p-4 bg-surface-sunken rounded-xl border grid-auto-fit-sm">
+									<div>
+										<div class="text-xs text-muted">المستخدم المنفذ:</div>
+										<div class="text-sm font-bold text-primary" x-text="selected.actor_name"></div>
+										<div class="text-xs text-secondary text-start" dir="ltr" x-text="selected.actor_email"></div>
+									</div>
+									<div>
+										<div class="text-xs text-muted">المنظمة / الجهة:</div>
+										<div class="text-sm font-bold text-primary" x-text="selected.organization_name"></div>
+									</div>
+									<div>
+										<div class="text-xs text-muted">عنوان IP / المسار:</div>
+										<div class="font-mono text-xs text-primary text-start" dir="ltr" x-text="selected.ip_address"></div>
+										<div class="text-xs text-muted text-start" dir="ltr" x-text="selected.route"></div>
+									</div>
+									<div>
+										<div class="text-xs text-muted">التوقيت والأهمية:</div>
+										<div class="text-sm font-bold text-primary" x-text="selected.created_at"></div>
+										<div class="mt-0.5">
+											<span class="badge" :class="selected.severity === 'حرج (Critical)' || selected.severity === 'critical' ? 'badge-rose' : (selected.severity === 'متوسط (Warning)' || selected.severity === 'warning' ? 'badge-amber' : 'badge-slate')" x-text="selected.severity"></span>
+										</div>
 									</div>
 								</div>
-							</div>
 
-							<!-- Action Description -->
-							<div style="background:var(--surface-raised); padding:1rem; border-radius:var(--radius-lg); border:1px solid var(--border);">
-								<div style="font-size:0.8rem; font-weight:700; color:var(--text-secondary); margin-bottom:0.25rem;">شرح وبيان العملية:</div>
-								<div style="font-size:0.9rem; color:var(--text); line-height:1.5;" x-text="selected.description"></div>
-							</div>
-
-							<!-- Side-by-Side Diff -->
-							<div class="form-grid-2">
-								<!-- Before State -->
-								<div style="background:var(--surface-sunken); border:1px solid var(--border); border-radius:var(--radius-xl); padding:1rem; display:flex; flex-direction:column;">
-									<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.5rem; border-bottom:1px solid var(--border); padding-bottom:0.5rem;">
-										<span style="font-weight:700; font-size:0.825rem; color:var(--text);">الحالة السابقة (Before)</span>
-										<span class="badge badge-slate text-xs">Original</span>
-									</div>
-									<pre
-										style="background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-md); padding:0.75rem; font-size:0.75rem; font-family:monospace; color:var(--text); overflow-x:auto; direction:ltr; text-align:left; max-height:250px; margin:0;"
-										x-text="selected.before ? JSON.stringify(selected.before, null, 2) : 'لا توجد بيانات سابقة مسجلة'"
-									></pre>
+								<!-- Action Description -->
+								<div class="bg-surface-raised p-4 rounded-lg border">
+									<div class="text-xs font-bold text-secondary mb-1">شرح وبيان العملية:</div>
+									<div class="text-sm text-primary" x-text="selected.description"></div>
 								</div>
 
-								<!-- After State -->
-								<div style="background:var(--surface-sunken); border:1px solid var(--border); border-radius:var(--radius-xl); padding:1rem; display:flex; flex-direction:column;">
-									<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.5rem; border-bottom:1px solid var(--border); padding-bottom:0.5rem;">
-										<span style="font-weight:700; font-size:0.825rem; color:var(--text);">الحالة الجديدة (After)</span>
-										<span class="badge badge-emerald text-xs">Updated</span>
+								<!-- Side-by-Side Diff -->
+								<div class="d-grid grid-cols-2 gap-4">
+									<!-- Before State -->
+									<div class="bg-surface-sunken border rounded-xl p-4 d-flex flex-col">
+										<div class="flex-between mb-2 pb-2 border-b">
+											<span class="font-bold text-xs text-primary">الحالة السابقة (Before)</span>
+											<span class="badge badge-slate text-xs">Original</span>
+										</div>
+										<pre
+											class="bg-surface-raised border rounded-md p-3 text-xs font-mono text-primary overflow-x-auto text-start max-h-64 m-0"
+											dir="ltr"
+											x-text="selected.before ? JSON.stringify(selected.before, null, 2) : 'لا توجد بيانات سابقة مسجلة'"
+										></pre>
 									</div>
-									<pre
-										style="background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-md); padding:0.75rem; font-size:0.75rem; font-family:monospace; color:var(--text); overflow-x:auto; direction:ltr; text-align:left; max-height:250px; margin:0;"
-										x-text="selected.after ? JSON.stringify(selected.after, null, 2) : 'لا توجد بيانات محدثة'"
-									></pre>
+
+									<!-- After State -->
+									<div class="bg-surface-sunken border rounded-xl p-4 d-flex flex-col">
+										<div class="flex-between mb-2 pb-2 border-b">
+											<span class="font-bold text-xs text-primary">الحالة الجديدة (After)</span>
+											<span class="badge badge-emerald text-xs">Updated</span>
+										</div>
+										<pre
+											class="bg-surface-raised border rounded-md p-3 text-xs font-mono text-primary overflow-x-auto text-start max-h-64 m-0"
+											dir="ltr"
+											x-text="selected.after ? JSON.stringify(selected.after, null, 2) : 'لا توجد بيانات محدثة'"
+										></pre>
+									</div>
 								</div>
+
 							</div>
+						</template>
+					</div>
 
-						</div>
-					</template>
-
-					<div style="display:flex; justify-content:flex-end; margin-top:1.5rem; border-top:1px solid var(--border); padding-top:1rem;">
-						<button type="button" @click="isDetailsOpen = false" class="btn btn-secondary" style="font-weight:700; padding:0.5rem 1.5rem;">
-							إغلاق
-						</button>
+					<div class="modal-footer">
+						<form method="dialog">
+							<button type="submit" class="btn btn-secondary font-bold px-6">
+								إغلاق
+							</button>
+						</form>
 					</div>
 				</div>
-			</div>
+			</dialog>
 
 			<!-- Embedded JSON Data Store for Modal -->
 			for _, e := range values.Entries {
@@ -340,7 +344,6 @@ templ AdminAuditPage(values AdminAuditValues, lang, dir string) {
 		<script>
 			function adminAuditManager() {
 				return {
-					isDetailsOpen: false,
 					selected: null,
 
 					openDetails(id) {
@@ -351,7 +354,10 @@ templ AdminAuditPage(values AdminAuditValues, lang, dir string) {
 						}
 						try {
 							this.selected = JSON.parse(script.textContent);
-							this.isDetailsOpen = true;
+							const modal = document.getElementById('audit-details-modal');
+							if (modal && typeof modal.showModal === 'function') {
+								modal.showModal();
+							}
 						} catch (e) {
 							console.error('Failed to parse audit JSON:', e);
 						}

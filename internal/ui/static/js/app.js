@@ -1,4 +1,4 @@
-﻿// Dawa24 Frontend Application Script
+// Dawa24 Frontend Application Script
 // Resilient Vanilla JS Engine: Tabs, Modals, Dropdowns, HTMX & Flash Notices.
 
 // Global Cookie Helper
@@ -204,136 +204,242 @@ function applyTheme(theme, persist = false) {
   });
 }
 
-// Sidebar Collapse & Mobile Drawer
+// Sidebar Collapse, Drawer & Navigation Shell
 function initSidebarToggle() {
-  const sidebar = document.querySelector('.sidebar');
+  const sidebar = document.getElementById('app-sidebar') || document.querySelector('.sidebar');
   if (!sidebar) return;
 
+  // Persisted Desktop Collapsed State (above 1024px)
   const savedState = localStorage.getItem('dawa24-sidebar-collapsed');
   if (savedState === 'true' && window.innerWidth >= 1024) {
     sidebar.classList.add('collapsed');
     document.body.classList.add('sidebar-collapsed');
   }
 
+  // Ensure Backdrop element exists
+  let backdrop = document.querySelector('.sidebar-backdrop');
+  if (!backdrop) {
+    backdrop = document.createElement('div');
+    backdrop.className = 'sidebar-backdrop';
+    document.body.appendChild(backdrop);
+  }
+
+  let lastDrawerOpener = null;
+
+  function setDrawerOpen(isOpen, openerBtn) {
+    sidebar.classList.toggle('mobile-open', isOpen);
+    backdrop.classList.toggle('active', isOpen);
+    document.body.classList.toggle('sidebar-mobile-open', isOpen);
+
+    if (openerBtn) {
+      lastDrawerOpener = openerBtn;
+    }
+
+    const toggles = document.querySelectorAll('[data-drawer-toggle], [data-sidebar-mobile-toggle]');
+    toggles.forEach((btn) => {
+      btn.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+    });
+
+    if (isOpen) {
+      // Focus first interactive element in sidebar
+      const firstFocusable = sidebar.querySelector('a, button, input, [tabindex]:not([tabindex="-1"])');
+      if (firstFocusable) {
+        setTimeout(() => firstFocusable.focus(), 50);
+      }
+    } else if (lastDrawerOpener && typeof lastDrawerOpener.focus === 'function') {
+      lastDrawerOpener.focus();
+    }
+  }
+
   document.addEventListener('click', (e) => {
+    // Desktop Collapse Toggle
     const toggleBtn = e.target.closest('[data-sidebar-toggle]');
     if (toggleBtn) {
       e.preventDefault();
       const isCollapsed = sidebar.classList.toggle('collapsed');
       document.body.classList.toggle('sidebar-collapsed', isCollapsed);
       localStorage.setItem('dawa24-sidebar-collapsed', isCollapsed ? 'true' : 'false');
+      return;
     }
 
-    const mobileToggle = e.target.closest('[data-sidebar-mobile-toggle]');
-    if (mobileToggle) {
+    // Mobile Off-canvas Drawer Toggle
+    const drawerToggle = e.target.closest('[data-drawer-toggle], [data-sidebar-mobile-toggle]');
+    if (drawerToggle) {
       e.preventDefault();
-      sidebar.classList.toggle('mobile-open');
-      document.body.classList.toggle('sidebar-mobile-open');
+      const isCurrentlyOpen = sidebar.classList.contains('mobile-open');
+      setDrawerOpen(!isCurrentlyOpen, drawerToggle);
+      return;
+    }
+
+    // Backdrop Click Dismissal
+    if (e.target === backdrop) {
+      setDrawerOpen(false);
     }
   });
+
+  // Escape to close mobile drawer & Focus Trap
+  document.addEventListener('keydown', (e) => {
+    if (sidebar.classList.contains('mobile-open')) {
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        setDrawerOpen(false);
+        return;
+      }
+
+      if (e.key === 'Tab') {
+        const focusables = Array.from(sidebar.querySelectorAll('a[href], button:not([disabled]), input:not([disabled]), [tabindex]:not([tabindex="-1"])'));
+        if (focusables.length === 0) return;
+        const first = focusables[0];
+        const last = focusables[focusables.length - 1];
+
+        if (e.shiftKey && document.activeElement === first) {
+          e.preventDefault();
+          last.focus();
+        } else if (!e.shiftKey && document.activeElement === last) {
+          e.preventDefault();
+          first.focus();
+        }
+      }
+    }
+  });
+
+  initSidebarNav();
 }
 
-// Universal Accessible Modal Manager
-let openModalCount = 0;
+// Active Link Resolution & Scroll Position Preservation
+function initSidebarNav() {
+  const nav = document.querySelector('.sidebar-nav');
+  if (!nav) return;
+
+  try {
+    const currentPath = window.location.pathname;
+    const links = Array.from(nav.querySelectorAll('.sidebar-link'));
+    const hasActive = links.some((l) => l.classList.contains('active'));
+    if (!hasActive && links.length > 0) {
+      const sorted = links.slice().sort((a, b) => {
+        return (b.getAttribute('href') || '').length - (a.getAttribute('href') || '').length;
+      });
+      for (let i = 0; i < sorted.length; i++) {
+        const href = sorted[i].getAttribute('href');
+        if (href && (currentPath === href || (href !== '/admin/dashboard' && href !== '/vendor' && href !== '/customer' && currentPath.indexOf(href) === 0))) {
+          sorted[i].classList.add('active');
+          break;
+        }
+      }
+    }
+
+    const saved = sessionStorage.getItem('dawa_sidebar_scroll_top');
+    if (saved !== null) {
+      nav.scrollTop = parseInt(saved, 10);
+    } else {
+      const act = nav.querySelector('.sidebar-link.active');
+      if (act) {
+        act.scrollIntoView({ block: 'nearest' });
+      }
+    }
+
+    nav.addEventListener('scroll', () => {
+      sessionStorage.setItem('dawa_sidebar_scroll_top', nav.scrollTop);
+    }, { passive: true });
+  } catch (e) {}
+}
+
+// Universal Accessible Native Modal Manager
+let openDialogCount = 0;
 let scrollLockY = 0;
+const lastActiveElements = new WeakMap();
 
 function initModalManager() {
+  // Delegate Trigger Opens
   document.addEventListener('click', (e) => {
-    const openBtn = e.target.closest('[data-modal-open], [data-open-modal]');
+    const openBtn = e.target.closest('[data-modal-open], [data-dialog-target], [data-open-modal]');
     if (openBtn) {
       e.preventDefault();
-      const targetId = openBtn.getAttribute('data-modal-open') || openBtn.getAttribute('data-open-modal');
-      window.openModal(targetId);
+      const targetId = openBtn.getAttribute('data-modal-open') || openBtn.getAttribute('data-dialog-target') || openBtn.getAttribute('data-open-modal');
+      if (!targetId) return;
+      const dialog = document.getElementById(targetId.trim());
+      if (dialog && typeof dialog.showModal === 'function') {
+        lastActiveElements.set(dialog, openBtn);
+        dialog.showModal();
+      }
       return;
     }
 
+    // Delegate Trigger Closes
     const closeBtn = e.target.closest('[data-modal-close], [data-close-modal], .modal-close');
     if (closeBtn) {
-      e.preventDefault();
-      const modal = closeBtn.closest('dialog, .modal, .modal-backdrop, .glass-panel');
-      if (modal && modal.id) {
-        window.closeModal(modal.id);
+      const dialog = closeBtn.closest('dialog');
+      if (dialog && typeof dialog.close === 'function') {
+        e.preventDefault();
+        dialog.close();
       }
       return;
     }
 
-    if (e.target.classList.contains('modal-backdrop') || e.target.classList.contains('modal')) {
-      if (e.target.id) {
-        window.closeModal(e.target.id);
+    // Backdrop Click on Native Dialog
+    if (e.target.tagName === 'DIALOG' && e.target.classList.contains('modal')) {
+      const rect = e.target.getBoundingClientRect();
+      const isOutside = (
+        e.clientX < rect.left ||
+        e.clientX > rect.right ||
+        e.clientY < rect.top ||
+        e.clientY > rect.bottom ||
+        e.target === e.currentTarget
+      );
+      // If click was directly on dialog backdrop (not on modal-box child)
+      if (e.target === e.currentTarget && !e.target.querySelector('.modal-box')?.contains(e.explicitOriginalTarget || e.target)) {
+        if (typeof e.target.close === 'function') {
+          e.target.close();
+        }
       }
     }
   });
 
-  document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape' && openModalCount > 0) {
-      const topModal = document.querySelector('dialog[open], .modal.open, .modal.is-active, .modal-backdrop.open');
-      if (topModal && topModal.id) {
-        window.closeModal(topModal.id);
-      }
+  // Listen for native dialog open and close events for scroll locking and focus restoration
+  document.addEventListener('close', (e) => {
+    if (e.target.tagName === 'DIALOG') {
+      handleDialogClose(e.target);
     }
-  });
+  }, true);
+
+  // Body scroll lock on dialog show
+  const originalShowModal = HTMLDialogElement.prototype.showModal;
+  HTMLDialogElement.prototype.showModal = function() {
+    if (openDialogCount === 0) {
+      scrollLockY = window.scrollY;
+      document.body.classList.add('modal-open');
+      document.body.style.top = `-${scrollLockY}px`;
+    }
+    openDialogCount += 1;
+
+    // Trigger map invalidation if dialog contains map
+    if (this.querySelector('[data-map-picker], .map-canvas, .leaflet-container')) {
+      setTimeout(() => {
+        if (typeof initMapPickers === 'function') initMapPickers();
+        window.dispatchEvent(new Event('resize'));
+      }, 100);
+    }
+
+    return originalShowModal.apply(this, arguments);
+  };
 }
 
-window.openModal = function(id) {
-  if (!id || typeof id !== 'string' || !id.trim()) return;
-  const cleanId = id.trim();
-  const el = document.getElementById(cleanId);
-  if (!el) return;
-
-  if (el.tagName === 'DIALOG') {
-    if (typeof el.showModal === 'function') {
-      el.showModal();
-    } else {
-      el.setAttribute('open', '');
-    }
-  } else {
-    el.classList.add('open', 'is-active');
-  }
-
-  if (openModalCount === 0) {
-    scrollLockY = window.scrollY;
-    document.body.classList.add('modal-open');
-    document.body.style.top = `-${scrollLockY}px`;
-  }
-  openModalCount += 1;
-
-  if (el.querySelector('[data-map-picker], .map-canvas, .leaflet-container')) {
-    setTimeout(() => {
-      if (typeof initMapPickers === 'function') initMapPickers();
-      window.dispatchEvent(new Event('resize'));
-    }, 100);
-  }
-};
-
-window.closeModal = function(id) {
-  if (!id || typeof id !== 'string' || !id.trim()) return;
-  const cleanId = id.trim();
-  const el = document.getElementById(cleanId);
-  if (!el) return;
-
-  const wasOpen = el.tagName === 'DIALOG'
-    ? el.hasAttribute('open')
-    : (el.classList.contains('open') || el.classList.contains('is-active'));
-
-  if (el.tagName === 'DIALOG') {
-    if (typeof el.close === 'function') {
-      el.close();
-    } else {
-      el.removeAttribute('open');
-    }
-  } else {
-    el.classList.remove('open', 'is-active');
-  }
-
-  if (wasOpen && openModalCount > 0) {
-    openModalCount -= 1;
-    if (openModalCount === 0) {
+function handleDialogClose(dialog) {
+  if (openDialogCount > 0) {
+    openDialogCount -= 1;
+    if (openDialogCount === 0) {
       document.body.classList.remove('modal-open');
       document.body.style.top = '';
       window.scrollTo(0, scrollLockY);
     }
   }
-};
+
+  const opener = lastActiveElements.get(dialog);
+  if (opener && typeof opener.focus === 'function') {
+    opener.focus();
+    lastActiveElements.delete(dialog);
+  }
+}
 
 // Resilient Vanilla Tab System
 function initTabSystem() {

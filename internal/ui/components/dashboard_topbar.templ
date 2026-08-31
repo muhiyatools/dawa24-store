@@ -1,0 +1,88 @@
+package components
+
+// The dashboard top bar.
+//
+// There were four of these. The public marketing navbar and the three dashboard
+// shells all rendered the same header class, and a single CSS rule listing both
+// that class and the public one set height, padding, sticky positioning and
+// shadow for all four at once.
+//
+// Those are not the same component. The marketing bar carries a brand lockup and
+// five nav links and wants room to breathe. A dashboard bar sits directly above a
+// data table and wants to be compact and quiet. Sharing height, padding, sticky
+// positioning and shadow between them meant every adjustment to one was a
+// regression in the other, which is why the dashboard bar ended up feeling wrong:
+// it was wearing the marketing bar's proportions.
+//
+// Then each shell hand-built its contents. Admin and vendor used
+// the start/end helper classes; pharmacy used inline styles for the same
+// job, so it did not even align with the other two.
+//
+// This is now the only dashboard bar. The public one is .site-header and shares
+// no rules with it.
+//
+// The contract is three regions and nothing else:
+//
+//   - Lead: the drawer toggle (below 1024px) and the page title.
+//   - Context: whatever this surface needs to say about *where* the caller is —
+//     the pharmacy branch selector, an organization switcher. Optional.
+//   - Actions: language, theme, surface-specific actions, then the user menu.
+//     The order is fixed so the logout control does not move between dashboards.
+type TopBarProps struct {
+	Title string
+	Lang  string
+	// Compact selects the denser of the two density modes. Admin and vendor set
+	// it; the pharmacy surface does not, because its users are on phones at a
+	// counter and need the larger touch targets (.impeccable.md, "the counter
+	// test").
+	Compact bool
+	// Context renders between the title and the actions. Optional.
+	Context templ.Component
+	// Actions renders before the user menu, for controls only one surface has —
+	// the pharmacy cart button, for example. Optional.
+	Actions templ.Component
+}
+
+templ DashboardTopBar(props TopBarProps) {
+	<header class={ "dashboard-topbar", templ.KV("is-compact", props.Compact) }>
+		<div class="dashboard-topbar-lead">
+			<button
+				type="button"
+				class="btn btn-icon dashboard-topbar-drawer-toggle"
+				data-drawer-toggle
+				aria-controls="app-sidebar"
+				aria-expanded="false"
+				aria-label={ tr(props.Lang, "فتح القائمة", "Open navigation") }
+			>
+				@IconMenu("icon-sm")
+			</button>
+			<h1 class="dashboard-topbar-title">{ props.Title }</h1>
+			if props.Context != nil {
+				<div class="dashboard-topbar-context">
+					@props.Context
+				</div>
+			}
+		</div>
+		<div class="dashboard-topbar-actions">
+			@LanguageToggle(props.Lang)
+			@ThemeToggle()
+			if props.Actions != nil {
+				@props.Actions
+			}
+			@UserMenu(props.Lang)
+		</div>
+	</header>
+}
+
+// tr picks an Arabic or English string without reaching for the i18n catalogue.
+//
+// The catalogue is the right home for these and Phase 5 moves them there along
+// with the other 1,246 Arabic literals still living in Go. Adding two keys here
+// now, in a different style from the sweep that is coming, would just be a third
+// convention to migrate.
+func tr(lang, ar, en string) string {
+	if lang == "en" {
+		return en
+	}
+	return ar
+}

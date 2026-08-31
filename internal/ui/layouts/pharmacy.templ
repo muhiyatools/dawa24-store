@@ -19,7 +19,7 @@ templ CustomerShell(title string, activeNav string, lang string, dir string, per
 		@Base(title, lang, dir, "/static/css/customer.css") {
 			<div class="app-shell">
 				<!-- Sidebar -->
-				<aside class="sidebar">
+				<aside class="sidebar" id="app-sidebar">
 					<div class="sidebar-header">
 						<div class="sidebar-brand">
 							<img class="sidebar-logo" src={ site.LogoURL } alt={ site.SiteName } />
@@ -39,33 +39,12 @@ templ CustomerShell(title string, activeNav string, lang string, dir string, per
 			<!-- Main Content -->
 			<main class="main-content">
 				<!-- Top Bar with Branch Selector -->
-				<header class="top-navbar">
-					<div style="display:flex; align-items:center; gap:var(--space-4);">
-						<h1 style="font-size:var(--text-lg); font-weight:700; color:var(--text); margin:0;">{ title }</h1>
-						@PharmacyBranchSelector(ctx)
-					</div>
-
-					<div style="display:flex; align-items:center; gap:var(--space-3);">
-						@components.LanguageToggle(lang)
-						@components.ThemeToggle()
-						
-						<!-- Cart Button -->
-						<a href="/cart" class="btn btn-secondary btn-icon relative" title={ i18n.T(lang, "nav.cart") }>
-							@components.IconCart("icon-sm")
-						</a>
-
-						<span class="badge badge-emerald font-semibold">
-							@components.IconCheckCircle("icon-xs")
-							<span>{ i18n.T(lang, "nav.pharmacy_portal") }</span>
-						</span>
-						<form action="/auth/logout" method="POST" class="m-0 inline">
-							<button type="submit" class="btn btn-secondary btn-sm btn-logout" title="تسجيل الخروج">
-								@components.IconLogout("icon-xs")
-								<span>{ i18n.T(lang, "auth.logout") }</span>
-							</button>
-						</form>
-					</div>
-				</header>
+				@components.DashboardTopBar(components.TopBarProps{
+					Title:   title,
+					Lang:    lang,
+					Context: PharmacyBranchSelector(ctx),
+					Actions: pharmacyTopBarActions(lang),
+				})
 
 				<div class="page-container">
 					{ children... }
@@ -107,4 +86,14 @@ templ PharmacyBranchSelector(ctx context.Context) {
 			</div>
 		}
 	}
+}
+
+// pharmacyTopBarActions is the one control the pharmacy bar has that the other
+// two dashboards do not. It goes in the top bar's Actions slot rather than being
+// hand-placed in the header, which is what made this shell drift out of
+// alignment with admin and vendor in the first place.
+templ pharmacyTopBarActions(lang string) {
+	<a href="/cart" class="btn btn-secondary btn-icon" title={ i18n.T(lang, "nav.cart") }>
+		@components.IconCart("icon-sm")
+	</a>
 }

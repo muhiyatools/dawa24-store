@@ -831,7 +831,7 @@ func tenantSubscriptionBody(data TenantSubscriptionPageData, orgType string, lan
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 83, "</div><!-- In-App Wallet Checkout Modal --><div x-show=\"isCheckoutOpen\" x-cloak class=\"modal-overlay\" @keydown.escape.window=\"isCheckoutOpen = false\"><div class=\"modal-box modal-md\" @click.outside=\"isCheckoutOpen = false\"><!-- Modal Header --><div class=\"modal-header\"><div class=\"d-flex items-center gap-2.5\"><div class=\"w-9 h-9 rounded-xl bg-brand-50 text-brand-600 d-flex items-center justify-center border border-brand-200/60 shadow-2xs\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 83, "</div><!-- In-App Wallet Checkout Modal --><dialog :open=\"isCheckoutOpen\" x-cloak class=\"modal\" @keydown.escape.window=\"isCheckoutOpen = false\" @click.self=\"isCheckoutOpen = false\"><div class=\"modal-box modal-md\"><!-- Modal Header --><div class=\"modal-header\"><div class=\"d-flex items-center gap-2.5\"><div class=\"w-9 h-9 rounded-xl bg-brand-50 text-brand-600 d-flex items-center justify-center border border-brand-200/60 shadow-2xs\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -859,7 +859,7 @@ func tenantSubscriptionBody(data TenantSubscriptionPageData, orgType string, lan
 			return "/customer/subscription/checkout"
 		}()))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/tenant_subscription.templ`, Line: 453, Col: 181}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/tenant_subscription.templ`, Line: 451, Col: 181}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var33))
 		if templ_7745c5c3_Err != nil {
@@ -904,7 +904,7 @@ func tenantSubscriptionBody(data TenantSubscriptionPageData, orgType string, lan
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 92, "<span>تأكيد والخصم المباشر من المحفظة</span></button></div></form></div></div></div>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 92, "<span>تأكيد والخصم المباشر من المحفظة</span></button></div></form></div></dialog></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

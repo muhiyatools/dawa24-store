@@ -642,92 +642,92 @@ templ AdminDevelopersPage(values AdminDevelopersValues, lang, dir string) {
 				}
 
 				<!-- Error Details Diagnostic Modal -->
-				<div
-					x-show="isErrorModalOpen"
-					style="display:none; position:fixed; inset:0; z-index:9999; background:rgba(0,0,0,0.7); backdrop-filter:blur(4px); align-items:center; justify-content:center; padding:1.5rem;"
-					:style="isErrorModalOpen ? 'display:flex;' : 'display:none;'"
-					@keydown.escape.window="isErrorModalOpen = false"
+				<dialog
+					id="dev-error-modal"
+					class="modal"
+					aria-labelledby="dev-error-modal-title"
 				>
-					<div
-						@click.outside="isErrorModalOpen = false"
-						class="card"
-						style="max-width:850px; width:100%; max-height:90vh; overflow-y:auto; padding:2rem; background:var(--surface-raised); border-radius:var(--radius-2xl); border:1px solid var(--border); box-shadow:var(--shadow-xl);"
-					>
-						<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.25rem; border-bottom:1px solid var(--border); padding-bottom:1rem;">
-							<div class="row-center-sm">
-								<div style="width:38px; height:38px; border-radius:var(--radius-lg); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center;">
+					<div class="modal-box modal-lg">
+						<div class="modal-header">
+							<div class="d-flex items-center gap-2">
+								<div class="w-8 h-8 rounded-lg bg-primary-subtle text-brand flex-center">
 									@components.IconBug("icon-sm")
 								</div>
 								<div>
-									<h3 class="text-lg fw-800 text-primary m-0" x-text="'سجل تشخيص الخطأ #' + (selectedError ? selectedError.id : '')"></h3>
-									<div class="text-sm text-muted" x-text="selectedError ? selectedError.exception_class : ''"></div>
+									<h3 id="dev-error-modal-title" class="modal-title" x-text="'سجل تشخيص الخطأ #' + (selectedError ? selectedError.id : '')"></h3>
+									<div class="text-xs text-muted mt-0.5" x-text="selectedError ? selectedError.exception_class : ''"></div>
 								</div>
 							</div>
-							<button type="button" @click="isErrorModalOpen = false" class="btn btn-secondary btn-icon size-8">
-								@components.IconClose("icon-xs")
-							</button>
+							<form method="dialog">
+								<button type="submit" class="modal-close" aria-label="إغلاق">
+									@components.IconClose("icon-xs")
+								</button>
+							</form>
 						</div>
 
-						<template x-if="selectedError">
-							<div class="stack-lg">
-								
-								<!-- Diagnostic Info Grid -->
-								<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:0.75rem; background:var(--surface-sunken); padding:1rem; border-radius:var(--radius-xl); border:1px solid var(--border);">
-									<div>
-										<div class="text-xs text-muted">المستخدم المتأثر:</div>
-										<div class="text-sm fw-700 text-primary" x-text="selectedError.user_name || 'زائر غير مسجل'"></div>
-										<div class="text-xs text-secondary" x-text="selectedError.user_email"></div>
+						<div class="modal-body">
+							<template x-if="selectedError">
+								<div class="d-flex flex-col gap-4">
+									
+									<!-- Diagnostic Info Grid -->
+									<div class="d-grid gap-3 p-4 bg-surface-sunken rounded-xl border grid-auto-fit-sm">
+										<div>
+											<div class="text-xs text-muted">المستخدم المتأثر:</div>
+											<div class="text-sm font-bold text-primary" x-text="selectedError.user_name || 'زائر غير مسجل'"></div>
+											<div class="text-xs text-secondary" x-text="selectedError.user_email"></div>
+										</div>
+										<div>
+											<div class="text-xs text-muted">المنظمة:</div>
+											<div class="font-bold text-primary" x-text="selectedError.organization_name || 'عام'"></div>
+										</div>
+										<div>
+											<div class="text-xs text-muted">المسار وعنوان IP:</div>
+											<div class="font-mono text-xs text-primary text-start" dir="ltr" x-text="selectedError.http_method + ' ' + selectedError.url_path"></div>
+											<div class="text-xs text-muted font-mono text-start" dir="ltr" x-text="selectedError.ip_address"></div>
+										</div>
+										<div>
+											<div class="text-xs text-muted">التوقيت والمستوى:</div>
+											<div class="text-sm font-bold text-primary" x-text="selectedError.created_at"></div>
+											<span class="badge badge-rose" x-text="selectedError.error_level"></span>
+										</div>
 									</div>
-									<div>
-										<div class="text-xs text-muted">المنظمة:</div>
-										<div class="fw-700 text-primary" x-text="selectedError.organization_name || 'عام'"></div>
+
+									<!-- Error Message Box -->
+									<div class="bg-surface-sunken text-danger p-4 rounded-lg font-mono text-sm text-start" dir="ltr">
+										<div class="text-muted text-xs mb-1">ERROR MESSAGE:</div>
+										<div x-text="selectedError.error_message"></div>
 									</div>
+
+									<!-- Stack Trace Viewer -->
 									<div>
-										<div class="text-xs text-muted">المسار وعنوان IP:</div>
-										<div style="font-family:monospace; font-size:0.8rem; color:var(--text); direction:ltr; text-align:start;" x-text="selectedError.http_method + ' ' + selectedError.url_path"></div>
-										<div style="font-size:0.75rem; color:var(--text-muted); font-family:monospace; direction:ltr; text-align:start;" x-text="selectedError.ip_address"></div>
+										<div class="text-xs font-bold text-secondary mb-1">
+											تتبع مكدس الاستدعاءات (Stack Trace & Code Location):
+										</div>
+										<pre
+											class="bg-surface-sunken text-secondary p-4 rounded-lg font-mono text-xs max-h-64 overflow-auto text-start m-0"
+											dir="ltr"
+											x-text="selectedError.stack_trace || 'لا يتوفر تتبع مكدس مسجل لهذا الخطأ.'"
+										></pre>
 									</div>
-									<div>
-										<div class="text-xs text-muted">التوقيت والمستوى:</div>
-										<div style="font-size:0.85rem; font-weight:700; color:var(--text);" x-text="selectedError.created_at"></div>
-										<span class="badge badge-rose" x-text="selectedError.error_level"></span>
-									</div>
+
 								</div>
+							</template>
+						</div>
 
-								<!-- Error Message Box -->
-								<div style="background:#0f172a; color:#f87171; padding:1rem; border-radius:var(--radius-lg); font-family:monospace; font-size:0.875rem; direction:ltr; text-align:start; line-height:1.5;">
-									<div style="color:#94a3b8; font-size:0.75rem; margin-bottom:0.35rem;">ERROR MESSAGE:</div>
-									<div x-text="selectedError.error_message"></div>
-								</div>
-
-								<!-- Stack Trace Viewer -->
-								<div>
-									<div style="font-size:0.8rem; font-weight:700; color:var(--text-secondary); margin-bottom:0.35rem;">
-										تتبع مكدس الاستدعاءات (Stack Trace & Code Location):
-									</div>
-									<pre
-										style="background:#0f172a; color:#e2e8f0; padding:1rem; border-radius:var(--radius-lg); font-family:monospace; font-size:0.75rem; max-height:260px; overflow:auto; direction:ltr; text-align:left; margin:0; line-height:1.5;"
-										x-text="selectedError.stack_trace || 'لا يتوفر تتبع مكدس مسجل لهذا الخطأ.'"
-									></pre>
-								</div>
-
-							</div>
-						</template>
-
-						<div style="display:flex; justify-content:space-between; align-items:center; margin-top:1.5rem; border-top:1px solid var(--border); padding-top:1rem;">
-							<div>
-								<form :action="'/admin/developers/errors/' + (selectedError ? selectedError.id : 0) + '/status'" method="POST" style="display:flex; gap:0.5rem; margin:0;">
-									<input type="hidden" name="status" value="RESOLVED"/>
-									<button type="submit" class="btn btn-primary btn-sm fw-700">
-										@components.IconCheck("icon-xs")
-										<span>وضع علامة تم الحل (Mark Resolved)</span>
-									</button>
-								</form>
-							</div>
-							<button type="button" @click="isErrorModalOpen = false" class="btn btn-secondary">إغلاق</button>
+						<div class="modal-footer">
+							<form :action="'/admin/developers/errors/' + (selectedError ? selectedError.id : 0) + '/status'" method="POST" class="d-flex gap-2 m-0 me-auto">
+								<input type="hidden" name="status" value="RESOLVED"/>
+								<button type="submit" class="btn btn-primary btn-sm font-bold">
+									@components.IconCheck("icon-xs")
+									<span>وضع علامة تم الحل (Mark Resolved)</span>
+								</button>
+							</form>
+							<form method="dialog">
+								<button type="submit" class="btn btn-secondary">إغلاق</button>
+							</form>
 						</div>
 					</div>
-				</div>
+				</dialog>
 
 				<!-- Embedded Error Log Data Scripts -->
 				for _, err := range values.ErrorLogs {
@@ -874,58 +874,60 @@ templ AdminDevelopersPage(values AdminDevelopersValues, lang, dir string) {
 				</div>
 
 				<!-- Audit Inspection Modal -->
-				<div
-					x-show="isDetailsOpen"
-					x-cloak
-					class="modal-overlay"
-					@keydown.escape.window="isDetailsOpen = false"
+				<dialog
+					id="dev-audit-modal"
+					class="modal"
+					aria-labelledby="dev-audit-modal-title"
 				>
-					<div
-						@click.outside="isDetailsOpen = false"
-						class="modal-card modal-lg p-modal"
-					>
-						<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.25rem; border-bottom:1px solid var(--border); padding-bottom:1rem;">
-							<div class="row-center-sm">
-								<div style="width:38px; height:38px; border-radius:var(--radius-lg); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center;">
+					<div class="modal-box modal-lg">
+						<div class="modal-header">
+							<div class="d-flex items-center gap-2">
+								<div class="w-8 h-8 rounded-lg bg-primary-subtle text-brand flex-center">
 									@components.IconClock("icon-sm")
 								</div>
 								<div>
-									<h3 class="text-lg fw-800 text-primary m-0" x-text="'تفاصيل العملية #' + (selected ? selected.id : '')"></h3>
-									<div class="text-sm text-muted" x-text="selected ? selected.title : ''"></div>
+									<h3 id="dev-audit-modal-title" class="modal-title" x-text="'تفاصيل العملية #' + (selected ? selected.id : '')"></h3>
+									<div class="text-xs text-muted mt-0.5" x-text="selected ? selected.title : ''"></div>
 								</div>
 							</div>
-							<button type="button" @click="isDetailsOpen = false" class="btn btn-secondary btn-icon size-8">
-								@components.IconClose("icon-xs")
-							</button>
+							<form method="dialog">
+								<button type="submit" class="modal-close" aria-label="إغلاق">
+									@components.IconClose("icon-xs")
+								</button>
+							</form>
 						</div>
 
-						<template x-if="selected">
-							<div class="stack-lg">
-								<div style="background:var(--surface-sunken); padding:1rem; border-radius:var(--radius-xl); border:1px solid var(--border);">
-									<div style="font-size:0.8rem; font-weight:700; color:var(--text-secondary); margin-bottom:0.25rem;">بيان العملية:</div>
-									<div style="font-size:0.9rem; color:var(--text); line-height:1.5;" x-text="selected.description"></div>
-								</div>
-
-								<!-- Side-by-Side Diff -->
-								<div class="form-grid-2">
-									<div style="background:var(--surface-sunken); border:1px solid var(--border); border-radius:var(--radius-xl); padding:1rem;">
-										<div style="font-weight:700; font-size:0.825rem; color:var(--text); margin-bottom:0.5rem;">الحالة السابقة (Before)</div>
-										<pre style="background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-md); padding:0.75rem; font-size:0.75rem; font-family:monospace; direction:ltr; text-align:left; max-height:220px; overflow:auto; margin:0;" x-text="selected.before ? JSON.stringify(selected.before, null, 2) : 'لا توجد بيانات سابقة'"></pre>
+						<div class="modal-body">
+							<template x-if="selected">
+								<div class="d-flex flex-col gap-4">
+									<div class="bg-surface-sunken p-4 rounded-xl border">
+										<div class="text-xs font-bold text-secondary mb-1">بيان العملية:</div>
+										<div class="text-sm text-primary" x-text="selected.description"></div>
 									</div>
 
-									<div style="background:var(--surface-sunken); border:1px solid var(--border); border-radius:var(--radius-xl); padding:1rem;">
-										<div style="font-weight:700; font-size:0.825rem; color:var(--text); margin-bottom:0.5rem;">الحالة الجديدة (After)</div>
-										<pre style="background:var(--surface-raised); border:1px solid var(--border); border-radius:var(--radius-md); padding:0.75rem; font-size:0.75rem; font-family:monospace; direction:ltr; text-align:left; max-height:220px; overflow:auto; margin:0;" x-text="selected.after ? JSON.stringify(selected.after, null, 2) : 'لا توجد بيانات محدثة'"></pre>
+									<!-- Side-by-Side Diff -->
+									<div class="d-grid grid-cols-2 gap-4">
+										<div class="bg-surface-sunken border rounded-xl p-4">
+											<div class="font-bold text-xs text-primary mb-2">الحالة السابقة (Before)</div>
+											<pre class="bg-surface-raised border rounded-md p-3 text-xs font-mono text-start max-h-56 overflow-auto m-0" dir="ltr" x-text="selected.before ? JSON.stringify(selected.before, null, 2) : 'لا توجد بيانات سابقة'"></pre>
+										</div>
+
+										<div class="bg-surface-sunken border rounded-xl p-4">
+											<div class="font-bold text-xs text-primary mb-2">الحالة الجديدة (After)</div>
+											<pre class="bg-surface-raised border rounded-md p-3 text-xs font-mono text-start max-h-56 overflow-auto m-0" dir="ltr" x-text="selected.after ? JSON.stringify(selected.after, null, 2) : 'لا توجد بيانات محدثة'"></pre>
+										</div>
 									</div>
 								</div>
-							</div>
-						</template>
+							</template>
+						</div>
 
-						<div style="display:flex; justify-content:flex-end; margin-top:1.5rem; border-top:1px solid var(--border); padding-top:1rem;">
-							<button type="button" @click="isDetailsOpen = false" class="btn btn-secondary">إلغاء</button>
+						<div class="modal-footer">
+							<form method="dialog">
+								<button type="submit" class="btn btn-secondary">إغلاق</button>
+							</form>
 						</div>
 					</div>
-				</div>
+				</dialog>
 
 				<!-- Embedded Audit JSON Data -->
 				for _, e := range values.AuditEntries {
@@ -1056,7 +1058,6 @@ templ AdminDevelopersPage(values AdminDevelopersValues, lang, dir string) {
 
 			function adminErrorsManager() {
 				return {
-					isErrorModalOpen: false,
 					selectedError: null,
 
 					openErrorDetails(id) {
@@ -1073,14 +1074,14 @@ templ AdminDevelopersPage(values AdminDevelopersValues, lang, dir string) {
 								error_level: 'ERROR'
 							};
 						}
-						this.isErrorModalOpen = true;
+						const modal = document.getElementById('dev-error-modal');
+						if (modal && typeof modal.showModal === 'function') modal.showModal();
 					}
 				};
 			}
 
 			function adminAuditManager() {
 				return {
-					isDetailsOpen: false,
 					selected: null,
 
 					openDetails(id) {
@@ -1104,7 +1105,8 @@ templ AdminDevelopersPage(values AdminDevelopersValues, lang, dir string) {
 								organization_name: 'المنصة الرئيسية'
 							};
 						}
-						this.isDetailsOpen = true;
+						const modal = document.getElementById('dev-audit-modal');
+						if (modal && typeof modal.showModal === 'function') modal.showModal();
 					}
 				};
 			}
