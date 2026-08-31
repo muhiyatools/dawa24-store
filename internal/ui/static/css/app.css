@@ -27,9 +27,7 @@
 /* ---- Visibility and Cloaking primitives ---- */
 [x-cloak],
 [x-cloak] *,
-.modal-overlay[x-cloak],
 .modal[x-cloak],
-.modal-backdrop[x-cloak],
 [style*="display: none"],
 [style*="display:none"],
 [hidden] {
@@ -40,7 +38,6 @@
 
 dialog:not([open]) { display: none !important; }
 
-.modal-overlay.hidden,
 .modal.hidden,
 .drawer-overlay.hidden { display: none !important; }
 

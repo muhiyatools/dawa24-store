@@ -1,4 +1,4 @@
-﻿/* ==========================================================================
+/* ==========================================================================
    DAWA 24 — INTERACTIVE MAP & LEAFLET MODULE (maps.js)
    Coordinate picker, reverse geocoding, radius preview & address locator
    ========================================================================== */
@@ -297,7 +297,7 @@ function initMapPickers() {
     }
 
     // Auto Invalidate Size for Modals and Tabs
-    const modalParent = container.closest('.modal-overlay, .modal-backdrop, dialog, .tab-pane');
+    const modalParent = container.closest('dialog, .modal, .tab-pane');
     if (modalParent) {
       const resizeObserver = new MutationObserver(() => {
         if (getComputedStyle(modalParent).display !== 'none' || modalParent.hasAttribute('open') || modalParent.classList.contains('active')) {
