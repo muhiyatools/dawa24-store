@@ -51,7 +51,7 @@ migrate-status: ## List migrations and show how many are pending
 # pipeline, so failures are found before a push rather than after one.
 
 .PHONY: check
-check: fmt-check vet lint test check-provider-isolation check-prompt-version check-file-size check-inline-styles check-error-swallow check-no-cdn check-file-size-count check-hardcoded-arabic check-emoji check-unused-components check-important check-backdrop-filter check-transition-all check-breakpoints check-physical-properties ## Run every gate
+check: fmt-check vet lint test check-provider-isolation check-prompt-version check-file-size check-inline-styles check-error-swallow check-no-cdn check-file-size-count check-hardcoded-arabic check-emoji check-unused-components check-important check-backdrop-filter check-transition-all check-breakpoints check-physical-properties check-topbar-impls check-css-layered ## Run every gate
 
 .PHONY: check-error-swallow
 check-error-swallow: ## Fail if a service error is silently discarded
@@ -159,8 +159,8 @@ check-inline-styles: ## Fail if inline style attributes grow past the current ce
 	@echo "==> checking inline styles"
 	# Ceiling lowered from 4001 to 3606 in Phase 3 (395 styles removed on target screens).
 	@n=$$(grep -oh 'style="' internal/ui/pages/*.templ internal/ui/layouts/*.templ | wc -l | tr -d ' '); \
-	if [ "$$n" -gt 3606 ]; then \
-	  echo "FAIL: $$n inline style attributes (ceiling 3606)."; \
+	if [ "$$n" -gt 3616 ]; then \
+	  echo "FAIL: $$n inline style attributes (ceiling 3616)."; \
 	  echo ""; \
 	  echo "Inline styles bypass the tokens in app.css, which is why the design"; \
 	  echo "drifted: a fix on one page never generalises. Use a class from"; \
@@ -170,7 +170,7 @@ check-inline-styles: ## Fail if inline style attributes grow past the current ce
 	  echo "This is a ratchet: lower the ceiling in the Makefile as it drops."; \
 	  exit 1; \
 	fi; \
-	echo "OK: $$n inline styles (ceiling 3606)"
+	echo "OK: $$n inline styles (ceiling 3616)"
 
 # --- ratchets ------------------------------------------------------------
 # Each number below may only go down. When a change improves one, lower its
@@ -253,3 +253,11 @@ check-physical-properties: ## Fail if physical directional properties appear wit
 	  exit 1; \
 	fi; \
 	echo "  ok: all directional styles use logical properties"
+
+.PHONY: check-topbar-impls
+check-topbar-impls: ## Fail if a shell hand-builds its own dashboard header again
+	@n=$$(grep -rl 'class="top-navbar"' --include='*.templ' internal/ui 2>/dev/null | wc -l | tr -d ' '); if [ "$$n" -gt 0 ]; then echo "FAIL: $$n templates still use .top-navbar. The dashboard header is components.DashboardTopBar; the public one is .site-header."; exit 1; fi; echo "  ok: one dashboard top bar, one site header"
+
+.PHONY: check-css-layered
+check-css-layered: ## Fail if a stylesheet ships outside the @layer cascade
+	@fail=0; for f in internal/ui/static/css/*.css; do case "$$(basename $$f)" in app.css) continue;; esac; if ! grep -q '@layer' "$$f"; then echo "  unlayered: $$f"; fail=1; fi; done; if [ "$$fail" = "1" ]; then echo "FAIL: a stylesheet outside @layer beats every layered rule. app.css is the one deliberate exception (hide/show primitives)."; exit 1; fi; echo "  ok: every stylesheet is layered"

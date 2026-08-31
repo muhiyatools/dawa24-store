@@ -29,26 +29,11 @@ templ VendorShell(title string, activeNav string, lang string, dir string) {
 
 			<!-- Main Content -->
 			<main class="main-content">
-				<header class="top-navbar">
-					<div class="top-navbar-start">
-						<h1 class="top-navbar-title">{ title }</h1>
-					</div>
-
-					<div class="top-navbar-end">
-						@components.LanguageToggle(lang)
-						@components.ThemeToggle()
-						<span class="badge badge-emerald font-semibold">
-							@components.IconCheckCircle("icon-xs")
-							<span>مورد معتمد</span>
-						</span>
-						<form action="/auth/logout" method="POST" class="m-0 inline">
-							<button type="submit" class="btn btn-secondary btn-sm btn-logout" title="تسجيل الخروج">
-								@components.IconLogout("icon-xs")
-								<span>تسجيل الخروج</span>
-							</button>
-						</form>
-					</div>
-				</header>
+				@components.DashboardTopBar(components.TopBarProps{
+					Title:   title,
+					Lang:    lang,
+					Compact: true,
+				})
 
 				<div class="page-container">
 					{ children... }

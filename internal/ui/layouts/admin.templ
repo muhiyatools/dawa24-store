@@ -1,7 +1,6 @@
 package layouts
 
 import (
-	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/platform/rbac"
 	"github.com/muhiya/dawa24-store/internal/ui/components"
 )
@@ -61,36 +60,11 @@ templ AdminShell(title string, activeNav string, lang string, dir string) {
 
 				<!-- Main Admin Content Area -->
 				<main class="main-content">
-					<!-- Top Admin Header -->
-					<header class="top-navbar">
-						<div class="top-navbar-start">
-							<h1 class="top-navbar-title">{ title }</h1>
-						</div>
-
-						<div class="top-navbar-end">
-							@components.LanguageToggle(lang)
-							@components.ThemeToggle()
-
-							if actor, ok := authctx.From(ctx); ok {
-								<div class="top-navbar-user-chip">
-									<div class="user-avatar-badge">
-										@components.IconShield("icon-xs")
-									</div>
-									<div class="user-avatar-info">
-										<span class="user-avatar-name">{ actor.DisplayName() }</span>
-										<span class="user-avatar-role">{ actor.Role }</span>
-									</div>
-
-									<form action="/auth/logout" method="POST" class="m-0 ms-1">
-										<button type="submit" class="btn btn-secondary btn-sm btn-logout" title="تسجيل الخروج">
-											@components.IconLogout("icon-xs")
-											<span>خروج</span>
-										</button>
-									</form>
-								</div>
-							}
-						</div>
-					</header>
+					@components.DashboardTopBar(components.TopBarProps{
+						Title:   title,
+						Lang:    lang,
+						Compact: true,
+					})
 
 					<!-- Page Container -->
 					<div class="page-container">

@@ -14,8 +14,8 @@ templ PublicShell(title string, lang string, dir string) {
 		@Base(title, lang, dir, "/static/css/public.css") {
 			<div x-data="{ mobileNav: false }" class="public-shell-root">
 				<!-- Top Modern Navbar -->
-				<header class="top-navbar public-navbar">
-					<div class="top-navbar-brand">
+				<header class="site-header">
+					<div class="site-header-brand">
 						<a href="/" class="brand-lockup" title="دواء 24 — الصفحة الرئيسية">
 							if site.LogoURL != "" {
 								<img class="brand-logo" src={ site.LogoURL } alt={ site.SiteName } />
@@ -55,7 +55,7 @@ templ PublicShell(title string, lang string, dir string) {
 						</nav>
 					</div>
 
-					<div class="top-navbar-actions">
+					<div class="site-header-actions">
 						if actor, ok := authctx.From(ctx); ok && actor.IsCustomer() {
 							<div class="hide-mobile">
 								@PharmacyBranchSelector(ctx)
