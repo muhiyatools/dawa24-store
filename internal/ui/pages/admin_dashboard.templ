@@ -38,7 +38,7 @@ type AdminDashboardStats struct {
 }
 
 templ AdminDashboard(stats AdminDashboardStats, pendingOrgs []*org.Organization, lang, dir string) {
-	@layouts.AdminShell("Ù„ÙˆØ­Ø© Ø§Ù„ØªØ­ÙƒÙ… ÙˆØ§Ù„Ù…Ø¤Ø´Ø±Ø§Øª Ø§Ù„Ø±Ø¦ÙŠØ³ÙŠØ©", "dashboard", lang, dir) {
+	@layouts.AdminShell("لوحة التحكم والمؤشرات الرئيسية", "dashboard", lang, dir) {
 		<div class="admin-page-container">
 			
 			<!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
@@ -52,10 +52,10 @@ templ AdminDashboard(stats AdminDashboardStats, pendingOrgs []*org.Organization,
 						</div>
 						<div>
 							<h1 class="admin-banner-title">
-								<span>Ù„ÙˆØ­Ø© Ø§Ù„Ù‚ÙŠØ§Ø¯Ø© Ø§Ù„ØªÙ†ÙÙŠØ°ÙŠØ© ÙˆØ§Ù„Ù…Ø¤Ø´Ø±Ø§Øª Ø§Ù„Ù…Ø±ÙƒØ²ÙŠØ©</span>
+								<span>لوحة القيادة التنفيذية والمؤشرات المركزية</span>
 							</h1>
 							<p class="admin-banner-subtitle">
-								Ø±ØµØ¯ Ø­ÙŠ Ù„Ø­Ø¬Ù… Ø§Ù„ØªØ¯Ø§ÙˆÙ„ØŒ Ø´Ø¨ÙƒØ© Ø§Ù„ØªÙˆØ±ÙŠØ¯ Ø§Ù„ØµÙŠØ¯Ù„ÙŠØŒ Ø£ÙˆØ§Ù…Ø± Ø§Ù„Ø´Ø±Ø§Ø¡ Ø§Ù„Ø¬Ø§Ø±ÙŠØ©ØŒ ÙˆØ¬Ø§Ù‡Ø²ÙŠØ© Ø§Ù„Ø®Ø¯Ù…Ø§Øª
+								رصد حي لحجم التداول، شبكة التوريد الصيدلي، أوامر الشراء الجارية، وجاهزية الخدمات
 							</p>
 						</div>
 					</div>
@@ -64,25 +64,25 @@ templ AdminDashboard(stats AdminDashboardStats, pendingOrgs []*org.Organization,
 						<!-- DB & River Status Pill -->
 						<div class="admin-status-pill">
 							<span class="admin-status-dot online"></span>
-							<span class="text-secondary">Ù‚Ø§Ø¹Ø¯Ø© Ø§Ù„Ø¨ÙŠØ§Ù†Ø§Øª:</span>
-							<span class="text-success">Ù…ØªØµÙ„Ø© ÙˆÙ†Ø´Ø·Ø©</span>
+							<span class="text-secondary">قاعدة البيانات:</span>
+							<span class="text-success">متصلة ونشطة</span>
 						</div>
 
 						<!-- Live AI Status Pill -->
 						<div class="admin-status-pill">
 							<span>@components.IconSparkles("icon-sm")</span>
-							<span class="text-secondary">Ø¨ÙˆØ§Ø¨Ø© Ø§Ù„Ù€ AI:</span>
+							<span class="text-secondary">بوابة الـ AI:</span>
 							if stats.GatewayOnline {
-								<span class="text-success">Ù…ØªØµÙ„Ø© ÙˆÙ…Ø²Ø§Ù…Ù†Ø©</span>
+								<span class="text-success">متصلة ومزامنة</span>
 							} else {
-								<span class="text-warning">Ù…Ø³ØªØ¹Ø¯Ø© Ù„Ù„Ø±Ø¨Ø·</span>
+								<span class="text-warning">مستعدة للربط</span>
 							}
 						</div>
 
 						<!-- Quick Refresh Button -->
 						<a href="/admin/dashboard"class="btn btn-secondary btn-sm fw-800 text-xs gap-1 rounded-md">
 							@components.IconRefresh("icon-xs")
-							<span>ØªØ­Ø¯ÙŠØ« ÙÙˆØ±ÙŠ</span>
+							<span>تحديث فوري</span>
 						</a>
 					</div>
 				</div>
@@ -96,7 +96,7 @@ templ AdminDashboard(stats AdminDashboardStats, pendingOrgs []*org.Organization,
 				<!-- KPI 1: GMV, Revenue & Commission -->
 				<div class="admin-kpi-card">
 					<div class="admin-kpi-header">
-						<span class="admin-kpi-title">Ø­Ø¬Ù… Ø§Ù„ØªØ¯Ø§ÙˆÙ„ ÙˆØ§Ù„Ù…Ø¨ÙŠØ¹Ø§Øª (GMV)</span>
+						<span class="admin-kpi-title">حجم التداول والمبيعات (GMV)</span>
 						<div class="admin-kpi-icon bg-success-subtle text-success">
 							@components.IconChart("icon-sm")
 						</div>
@@ -105,13 +105,13 @@ templ AdminDashboard(stats AdminDashboardStats, pendingOrgs []*org.Organization,
 						if stats.TotalGMV != "" {
 							{ stats.TotalGMV }
 						} else {
-							<span>0.00 Ø¬.Ù…</span>
+							<span>0.00 ج.م</span>
 						}
 					</div>
 					<div class="admin-kpi-footer">
-						<span>Ø¹Ù…ÙˆÙ„Ø© Ø§Ù„Ù…Ù†ØµØ©: <strong class="text-primary font-bold">{ stats.TotalCommission }</strong></span>
-						if stats.TotalHeldInWallets != "" && stats.TotalHeldInWallets != "0.00 Ø¬.Ù…" {
-							<span>Ø¨Ø§Ù„Ù…Ø­Ø§ÙØ¸: <strong class="tabular-nums text-primary">{ stats.TotalHeldInWallets }</strong></span>
+						<span>عمولة المنصة: <strong class="text-primary font-bold">{ stats.TotalCommission }</strong></span>
+						if stats.TotalHeldInWallets != "" && stats.TotalHeldInWallets != "0.00 ج.م" {
+							<span>بالمحافظ: <strong class="tabular-nums text-primary">{ stats.TotalHeldInWallets }</strong></span>
 						}
 					</div>
 				</div>
@@ -119,43 +119,43 @@ templ AdminDashboard(stats AdminDashboardStats, pendingOrgs []*org.Organization,
 				<!-- KPI 2: Orders & Trade Volume -->
 				<div class="admin-kpi-card">
 					<div class="admin-kpi-header">
-						<span class="admin-kpi-title">Ø£ÙˆØ§Ù…Ø± Ø§Ù„ØªÙˆØ±ÙŠØ¯ ÙˆØ§Ù„Ø´Ø­Ù†Ø§Øª (Orders)</span>
+						<span class="admin-kpi-title">أوامر التوريد والشحنات (Orders)</span>
 						<div class="admin-kpi-icon bg-primary-subtle text-brand">
 							@components.IconTruck("icon-sm")
 						</div>
 					</div>
 					<div class="tabular-nums admin-kpi-value text-primary">
-						{ fmt.Sprintf("%d", stats.TotalOrders) } <span class="text-xs text-muted font-bold">Ø·Ù„Ø¨ ØªÙˆØ±ÙŠØ¯</span>
+						{ fmt.Sprintf("%d", stats.TotalOrders) } <span class="text-xs text-muted font-bold">طلب توريد</span>
 					</div>
 					<div class="admin-kpi-footer">
-						<span>Ù…ÙƒØªÙ…Ù„Ø©: <strong class="text-emerald tabular-nums">+{ fmt.Sprintf("%d", stats.CompletedOrdersCount) }</strong></span>
-						<span>Ù†Ø´Ø·Ø©: <strong class="text-sky tabular-nums">{ fmt.Sprintf("%d", stats.ActiveOrdersCount) }</strong></span>
-						<a href="/admin/orders" class="text-accent fw-700 no-underline">Ø¹Ø±Ø¶ Ø§Ù„ÙƒÙ„ â†</a>
+						<span>مكتملة: <strong class="text-emerald tabular-nums">+{ fmt.Sprintf("%d", stats.CompletedOrdersCount) }</strong></span>
+						<span>نشطة: <strong class="text-sky tabular-nums">{ fmt.Sprintf("%d", stats.ActiveOrdersCount) }</strong></span>
+						<a href="/admin/orders" class="text-accent fw-700 no-underline">عرض الكل â†</a>
 					</div>
 				</div>
 
 				<!-- KPI 3: Organizations & Supply Network -->
 				<div class="admin-kpi-card">
 					<div class="admin-kpi-header">
-						<span class="admin-kpi-title">Ø´Ø¨ÙƒØ© Ø§Ù„Ø¥Ù…Ø¯Ø§Ø¯ ÙˆØ§Ù„Ù…Ù†Ø´Ø¢Øª (Network)</span>
+						<span class="admin-kpi-title">شبكة الإمداد والمنشآت (Network)</span>
 						<div class="admin-kpi-icon text-purple">
 							@components.IconBuilding("icon-sm")
 						</div>
 					</div>
 					<div class="tabular-nums admin-kpi-value text-primary">
-						{ fmt.Sprintf("%d", stats.TotalOrganizations) } <span class="text-xs text-muted font-bold">Ù…Ù†Ø´Ø£Ø© Ù…Ø¹ØªÙ…Ø¯Ø©</span>
+						{ fmt.Sprintf("%d", stats.TotalOrganizations) } <span class="text-xs text-muted font-bold">منشأة معتمدة</span>
 					</div>
 					<div class="admin-kpi-footer">
-						<span>ØµÙŠØ¯Ù„ÙŠØ§Øª: <strong class="text-emerald tabular-nums">{ fmt.Sprintf("%d", stats.TotalPharmacies) }</strong></span>
-						<span>Ù…ÙˆØ±Ø¯ÙˆÙ†: <strong class="text-purple tabular-nums">{ fmt.Sprintf("%d", stats.TotalVendors) }</strong></span>
-						<span>ÙØ±ÙˆØ¹: <strong class="text-sky tabular-nums">{ fmt.Sprintf("%d", stats.TotalBranches) }</strong></span>
+						<span>صيدليات: <strong class="text-emerald tabular-nums">{ fmt.Sprintf("%d", stats.TotalPharmacies) }</strong></span>
+						<span>موردون: <strong class="text-purple tabular-nums">{ fmt.Sprintf("%d", stats.TotalVendors) }</strong></span>
+						<span>فروع: <strong class="text-sky tabular-nums">{ fmt.Sprintf("%d", stats.TotalBranches) }</strong></span>
 					</div>
 				</div>
 
 				<!-- KPI 4: Governance & Pending Actions -->
 				<div class="admin-kpi-card">
 					<div class="admin-kpi-header">
-						<span class="admin-kpi-title">Ø§Ù„Ø§Ø¹ØªÙ…Ø§Ø¯Ø§Øª ÙˆØ§Ù„Ø¥ÙŠØ¯Ø§Ø¹Ø§Øª Ø§Ù„Ø¹Ø§Ø¬Ù„Ø©</span>
+						<span class="admin-kpi-title">الاعتمادات والإيداعات العاجلة</span>
 						<div class="admin-kpi-icon bg-warning-subtle text-warning">
 							@components.IconShield("icon-sm")
 						</div>
@@ -163,23 +163,23 @@ templ AdminDashboard(stats AdminDashboardStats, pendingOrgs []*org.Organization,
 					<div class="d-flex gap-2 items-baseline flex-wrap my-1">
 						if stats.PendingApprovals > 0 {
 							<a href="/admin/approvals"class="badge badge-amber font-bold text-xs rounded-md no-underline">
-								â³ { fmt.Sprintf("%d ØªØ±Ø§Ø®ÙŠØµ Ù…Ø¹Ù„Ù‚Ø©", stats.PendingApprovals) }
+								â³ { fmt.Sprintf("%d تراخيص معلقة", stats.PendingApprovals) }
 							</a>
 						} else {
 							<span class="badge badge-emerald text-xs font-bold rounded-md">
-								Ø§Ù„ØªØ±Ø§Ø®ÙŠØµ Ù…Ø¹ØªÙ…Ø¯Ø©
+								التراخيص معتمدة
 							</span>
 						}
 
 						if stats.PendingDepositsCount > 0 {
 							<a href="/admin/finance?tab=deposits"class="badge badge-sky font-bold text-xs rounded-md no-underline">
-								{ fmt.Sprintf("%d Ø´Ø­Ù† Ù…Ø­ÙØ¸Ø©", stats.PendingDepositsCount) }
+								{ fmt.Sprintf("%d شحن محفظة", stats.PendingDepositsCount) }
 							</a>
 						}
 					</div>
 					<div class="admin-kpi-footer">
-						<span>Ø¥Ø¬Ù…Ø§Ù„ÙŠ Ø§Ù„Ù…Ø³ØªØ®Ø¯Ù…ÙŠÙ†: <strong class="text-primary tabular-nums">{ fmt.Sprintf("%d", stats.TotalUsers) }</strong></span>
-						<a href="/admin/approvals" class="text-accent fw-700 no-underline">Ù…Ø±Ø§Ø¬Ø¹Ø© Ø§Ù„ÙƒÙ„ â†</a>
+						<span>إجمالي المستخدمين: <strong class="text-primary tabular-nums">{ fmt.Sprintf("%d", stats.TotalUsers) }</strong></span>
+						<a href="/admin/approvals" class="text-accent fw-700 no-underline">مراجعة الكل â†</a>
 					</div>
 				</div>
 
@@ -196,14 +196,14 @@ templ AdminDashboard(stats AdminDashboardStats, pendingOrgs []*org.Organization,
 						<div>
 							<h3 class="text-base font-bold text-primary m-0 d-flex items-center gap-1.5">
 								<span>@components.IconCart("icon-sm")</span>
-								<span>Ø­Ø±ÙƒØ© Ø§Ù„ÙƒØªØ§Ù„ÙˆØ¬ ÙˆØ£Ø­Ø¯Ø« Ø£ÙˆØ§Ù…Ø± Ø§Ù„ØªÙˆØ±ÙŠØ¯</span>
+								<span>حركة الكتالوج وأحدث أوامر التوريد</span>
 							</h3>
 							<p class="text-xs text-secondary mt-0.5 m-0">
-								Ø±ØµØ¯ Ù…Ø¨Ø§Ø´Ø± Ù„ØªØ¯ÙÙ‚ Ø·Ù„Ø¨Ø§Øª Ø§Ù„Ø´Ø±Ø§Ø¡ Ø¨ÙŠÙ† Ø§Ù„ØµÙŠØ¯Ù„ÙŠØ§Øª ÙˆØ§Ù„Ù…ÙˆØ±Ø¯ÙŠÙ†
+								رصد مباشر لتدفق طلبات الشراء بين الصيدليات والموردين
 							</p>
 						</div>
 						<a href="/admin/orders"class="btn btn-secondary btn-xs fw-800 gap-1">
-							<span>Ø¹Ø±Ø¶ Ø§Ù„Ø·Ù„Ø¨Ø§Øª</span>
+							<span>عرض الطلبات</span>
 							@components.IconArrowLeft("icon-xs")
 						</a>
 					</div>
@@ -211,19 +211,19 @@ templ AdminDashboard(stats AdminDashboardStats, pendingOrgs []*org.Organization,
 					<!-- Mini Catalog Summary Strip -->
 					<div class="d-grid grid-cols-3 gap-2 mb-3">
 						<div class="bg-surface-sunken border rounded-lg p-2 text-center">
-							<div class="text-xs text-muted font-bold">Ø§Ù„ÙƒØªØ§Ù„ÙˆØ¬ Ø§Ù„Ù…Ø¹ØªÙ…Ø¯</div>
+							<div class="text-xs text-muted font-bold">الكتالوج المعتمد</div>
 							<div class="tabular-nums text-lg font-black text-primary mt-0.5">
 								{ fmt.Sprintf("%d", stats.TotalProducts) }
 							</div>
 						</div>
 						<div class="bg-surface-sunken border rounded-lg p-2 text-center">
-							<div class="text-xs text-muted font-bold">Ù…Ù†ØªØ¬Ø§Øª Ø§Ù„ØªÙˆÙÙŠØ±</div>
+							<div class="text-xs text-muted font-bold">منتجات التوفير</div>
 							<div class="tabular-nums text-lg font-black text-success mt-0.5">
 								{ fmt.Sprintf("%d", stats.TotalSavingProducts) }
 							</div>
 						</div>
 						<div class="bg-surface-sunken border rounded-lg p-2 text-center">
-							<div class="text-xs text-muted font-bold">Ø§Ù„ÙØ±ÙˆØ¹ ÙˆØ§Ù„Ù…Ø³ØªÙˆØ¯Ø¹Ø§Øª</div>
+							<div class="text-xs text-muted font-bold">الفروع والمستودعات</div>
 							<div class="tabular-nums text-lg font-black text-brand mt-0.5">
 								{ fmt.Sprintf("%d", stats.TotalBranches) }
 							</div>
@@ -233,18 +233,18 @@ templ AdminDashboard(stats AdminDashboardStats, pendingOrgs []*org.Organization,
 					<!-- Recent Orders Stream Table -->
 					if len(stats.RecentOrders) == 0 {
 						<div class="p-6 text-center bg-surface-sunken rounded-xl border border-dashed text-xs text-muted">
-							Ù„Ø§ ØªÙˆØ¬Ø¯ Ø·Ù„Ø¨ÙŠØ§Øª Ù…Ø³Ø¬Ù„Ø© Ø­Ø¯ÙŠØ«Ø§Ù‹ ÙÙŠ Ø§Ù„Ù…Ù†Ø¸ÙˆÙ…Ø©.
+							لا توجد طلبيات مسجلة حديثاً في المنظومة.
 						</div>
 					} else {
 						<div class="border rounded-xl overflow-hidden bg-surface-sunken">
 							<table class="data-table text-xs">
 								<thead>
 									<tr class="bg-surface-raised">
-										<th class="pad-sm"># Ø§Ù„Ø·Ù„Ø¨</th>
-										<th class="pad-sm">Ø§Ù„Ù…Ù†Ø´Ø£Ø© / Ø§Ù„Ø¹Ù…ÙŠÙ„</th>
-										<th class="pad-sm">Ø§Ù„Ù…Ø¨Ù„Øº Ø§Ù„Ø¥Ø¬Ù…Ø§Ù„ÙŠ</th>
-										<th class="pad-sm">Ø§Ù„Ø­Ø§Ù„Ø©</th>
-										<th class="text-end pad-sm">Ø§Ù„ØªØ§Ø±ÙŠØ®</th>
+										<th class="pad-sm"># الطلب</th>
+										<th class="pad-sm">المنشأة / العميل</th>
+										<th class="pad-sm">المبلغ الإجمالي</th>
+										<th class="pad-sm">الحالة</th>
+										<th class="text-end pad-sm">التاريخ</th>
 									</tr>
 								</thead>
 								<tbody>
@@ -257,21 +257,21 @@ templ AdminDashboard(stats AdminDashboardStats, pendingOrgs []*org.Organization,
 											</td>
 											<td class="pad-sm">
 												if ord.OrganizationID != nil {
-													<span class="badge badge-sky text-xs fw-700">Ù…Ù†Ø´Ø£Ø© #{ fmt.Sprintf("%d", *ord.OrganizationID) }</span>
+													<span class="badge badge-sky text-xs fw-700">منشأة #{ fmt.Sprintf("%d", *ord.OrganizationID) }</span>
 												} else {
-													<span class="text-muted">Ø¹Ù…ÙŠÙ„ #{ fmt.Sprintf("%d", ord.CustomerID) }</span>
+													<span class="text-muted">عميل #{ fmt.Sprintf("%d", ord.CustomerID) }</span>
 												}
 											</td>
 											<td class="tabular-nums fw-900 text-emerald pad-sm">
-												{ ord.TotalAmount.String() } Ø¬.Ù…
+												{ ord.TotalAmount.String() } ج.م
 											</td>
 											<td class="pad-sm">
 												if ord.Status == "completed" || ord.Status == "delivered" {
-													<span class="badge badge-emerald text-xs fw-800">Ù…ÙƒØªÙ…Ù„</span>
+													<span class="badge badge-emerald text-xs fw-800">مكتمل</span>
 												} else if ord.Status == "pending" {
-													<span class="badge badge-amber text-xs fw-800">Ù…Ø¹Ù„Ù‚</span>
+													<span class="badge badge-amber text-xs fw-800">معلق</span>
 												} else if ord.Status == "cancelled" || ord.Status == "rejected" {
-													<span class="badge badge-danger text-xs fw-800">Ù…Ù„ØºÙŠ</span>
+													<span class="badge badge-danger text-xs fw-800">ملغي</span>
 												} else {
 													<span class="badge badge-sky text-xs fw-800">{ string(ord.Status) }</span>
 												}
@@ -293,14 +293,14 @@ templ AdminDashboard(stats AdminDashboardStats, pendingOrgs []*org.Organization,
 						<div>
 							<h3 class="text-base font-bold text-primary m-0 d-flex items-center gap-1.5">
 								<span>@components.IconGlobe("icon-sm")</span>
-								<span>Ø­Ø±ÙƒØ© Ø§Ù„Ø²ÙˆØ§Ø± ÙˆØ¬Ø§Ù‡Ø²ÙŠØ© Ø§Ù„Ø¨Ù†ÙŠØ© Ø§Ù„ØªØ­ØªÙŠØ©</span>
+								<span>حركة الزوار وجاهزية البنية التحتية</span>
 							</h3>
 							<p class="text-xs text-secondary mt-0.5 m-0">
-								ØªÙˆØ²ÙŠØ¹ Ø£Ø¬Ù‡Ø²Ø© Ø§Ù„ØªØµÙØ­ ÙˆØ­Ø§Ù„Ø© Ø®ÙˆØ§Ø¯Ù… Ø§Ù„ØªØ´ØºÙŠÙ„ ÙˆØ§Ù„Ø®Ø¯Ù…Ø§Øª Ø§Ù„Ø³Ø­Ø§Ø¨ÙŠØ©
+								توزيع أجهزة التصفح وحالة خوادم التشغيل والخدمات السحابية
 							</p>
 						</div>
 						<a href="/admin/analytics"class="btn btn-secondary btn-xs fw-800 gap-1">
-							<span>ØªÙØ§ØµÙŠÙ„ Ø§Ù„Ø²ÙˆØ§Ø±</span>
+							<span>تفاصيل الزوار</span>
 							@components.IconArrowLeft("icon-xs")
 						</a>
 					</div>
@@ -308,22 +308,22 @@ templ AdminDashboard(stats AdminDashboardStats, pendingOrgs []*org.Organization,
 					<!-- Visitor Counter & Devices Grid -->
 					<div class="d-grid grid-cols-2 gap-3 mb-3">
 						<div class="bg-surface-sunken border rounded-xl p-3">
-							<div class="label-strong">Ø¥Ø¬Ù…Ø§Ù„ÙŠ Ø²ÙˆØ§Ø± Ø§Ù„Ù…Ù†ØµØ©</div>
+							<div class="label-strong">إجمالي زوار المنصة</div>
 							<div class="tabular-nums text-xl font-black text-brand mt-0.5">
-								{ fmt.Sprintf("%d", stats.TotalVisitors) } <span class="text-xs text-muted font-semibold">Ø²Ø§Ø¦Ø±</span>
+								{ fmt.Sprintf("%d", stats.TotalVisitors) } <span class="text-xs text-muted font-semibold">زائر</span>
 							</div>
 							<div class="text-xs text-muted mt-1">
-								Ø§Ù„ÙŠÙˆÙ…: <strong class="text-emerald tabular-nums">+{ fmt.Sprintf("%d", stats.TodayVisitors) }</strong>
+								اليوم: <strong class="text-emerald tabular-nums">+{ fmt.Sprintf("%d", stats.TodayVisitors) }</strong>
 							</div>
 						</div>
 
 						<div class="bg-surface-sunken border rounded-xl p-3">
-							<div class="label-strong">ØªÙˆØ²ÙŠØ¹ Ø§Ù„Ø£Ø¬Ù‡Ø²Ø© (Devices)</div>
+							<div class="label-strong">توزيع الأجهزة (Devices)</div>
 							<div class="d-flex flex-col gap-1 mt-1 text-xs">
 								for devName, devCount := range stats.TopDevices {
 									<div class="admin-kpi-header">
 										<span class="text-secondary d-flex items-center gap-1">
-											if devName == "desktop" || devName == "Ø­Ø§Ø³ÙˆØ¨ Ù…ÙƒØªØ¨ÙŠ (Desktop)" {
+											if devName == "desktop" || devName == "حاسوب مكتبي (Desktop)" {
 												<span>@components.IconMonitor("icon-sm")</span>
 											} else {
 												<span>@components.IconPhone("icon-sm")</span>
@@ -334,7 +334,7 @@ templ AdminDashboard(stats AdminDashboardStats, pendingOrgs []*org.Organization,
 									</div>
 								}
 								if len(stats.TopDevices) == 0 {
-									<span class="text-muted">Ø¬Ø§Ø±ÙŠ Ø¬Ù…Ø¹ Ø¥Ø­ØµØ§Ø¦ÙŠØ§Øª Ø§Ù„Ø£Ø¬Ù‡Ø²Ø©...</span>
+									<span class="text-muted">جاري جمع إحصائيات الأجهزة...</span>
 								}
 							</div>
 						</div>
@@ -342,22 +342,22 @@ templ AdminDashboard(stats AdminDashboardStats, pendingOrgs []*org.Organization,
 
 					<!-- Infrastructure & Cloud Health Box -->
 					<div class="bg-surface-sunken border rounded-xl p-3">
-						<div class="text-xs font-bold text-secondary mb-2">Ø­Ø§Ù„Ø© Ø§Ù„Ø®Ø¯Ù…Ø§Øª Ø§Ù„Ø³Ø­Ø§Ø¨ÙŠØ© ÙˆØ§Ù„Ø±Ø¨Ø·:</div>
+						<div class="text-xs font-bold text-secondary mb-2">حالة الخدمات السحابية والربط:</div>
 						<div class="d-grid gap-2 text-xs grid-auto-fit-xs">
 							<div class="flex-between bg-surface-raised p-1.5 rounded-md border">
-								<span class="text-secondary font-semibold">Ù‚Ø§Ø¹Ø¯Ø© PostgreSQL:</span>
-								<span class="text-success font-bold">Ù†Ø´Ø·Ø© </span>
+								<span class="text-secondary font-semibold">قاعدة PostgreSQL:</span>
+								<span class="text-success font-bold">نشطة </span>
 							</div>
 							<div class="flex-between bg-surface-raised p-1.5 rounded-md border">
-								<span class="text-secondary font-semibold">Ø·ÙˆØ§Ø¨ÙŠØ± River Queue:</span>
-								<span class="text-success font-bold">Ù…Ø¹Ø§Ù„Ø¬Ø© ÙÙˆØ±ÙŠØ© </span>
+								<span class="text-secondary font-semibold">طوابير River Queue:</span>
+								<span class="text-success font-bold">معالجة فورية </span>
 							</div>
 							<div class="flex-between bg-surface-raised p-1.5 rounded-md border">
-								<span class="text-secondary font-semibold">Ø¨ÙˆØ§Ø¨Ø© Ø§Ù„Ø°ÙƒØ§Ø¡ Ø§Ù„Ø§ØµØ·Ù†Ø§Ø¹ÙŠ:</span>
+								<span class="text-secondary font-semibold">بوابة الذكاء الاصطناعي:</span>
 								if stats.GatewayOnline {
-									<span class="text-success font-bold">Ù…ØªØµÙ„Ø© ÙˆÙ…Ø²Ø§Ù…Ù†Ø© </span>
+									<span class="text-success font-bold">متصلة ومزامنة </span>
 								} else {
-									<span class="text-warning font-bold">Ø¬Ø§Ù‡Ø²Ø© Ù„Ù„Ø±Ø¨Ø·</span>
+									<span class="text-warning font-bold">جاهزة للربط</span>
 								}
 							</div>
 						</div>
@@ -377,17 +377,17 @@ templ AdminDashboard(stats AdminDashboardStats, pendingOrgs []*org.Organization,
 						<div>
 							<h3 class="text-base font-bold text-primary m-0 d-flex items-center gap-1.5">
 								<span>@components.IconShield("icon-sm")</span>
-								<span>Ø·Ù„Ø¨Ø§Øª Ø§Ø¹ØªÙ…Ø§Ø¯ Ø§Ù„ØªØ±Ø§Ø®ÙŠØµ ÙˆØ§Ù„Ù…Ù†Ø´Ø¢Øª</span>
+								<span>طلبات اعتماد التراخيص والمنشآت</span>
 								if len(pendingOrgs) > 0 {
-									<span class="badge badge-amber text-xs fw-800">{ fmt.Sprintf("%d Ù…Ø¹Ù„Ù‚", len(pendingOrgs)) }</span>
+									<span class="badge badge-amber text-xs fw-800">{ fmt.Sprintf("%d معلق", len(pendingOrgs)) }</span>
 								}
 							</h3>
 							<p class="text-xs text-secondary mt-0.5 m-0">
-								ÙØ­Øµ Ø§Ù„Ø³Ø¬Ù„Ø§Øª Ø§Ù„ØªØ¬Ø§Ø±ÙŠØ© ÙˆÙ…Ø²Ø§ÙˆÙ„Ø© Ø§Ù„Ù…Ù‡Ù†Ø© Ù„Ù„ØµÙŠØ¯Ù„ÙŠØ§Øª ÙˆØ§Ù„Ù…ÙˆØ±Ø¯ÙŠÙ†
+								فحص السجلات التجارية ومزاولة المهنة للصيدليات والموردين
 							</p>
 						</div>
 						<a href="/admin/approvals"class="btn btn-primary btn-xs fw-800 gap-1">
-							<span>Ù‚Ø§Ø¦Ù…Ø© Ø§Ù„ØªØ¯Ù‚ÙŠÙ‚</span>
+							<span>قائمة التدقيق</span>
 							@components.IconArrowLeft("icon-xs")
 						</a>
 					</div>
@@ -395,8 +395,8 @@ templ AdminDashboard(stats AdminDashboardStats, pendingOrgs []*org.Organization,
 					if len(pendingOrgs) == 0 {
 						<div class="p-6 text-center bg-success-subtle border rounded-xl">
 							<div class="text-2xl mb-1">@components.IconCheck("icon-sm")</div>
-							<div class="font-bold text-sm text-success">ØªÙ… Ø§Ø¹ØªÙ…Ø§Ø¯ ÙˆØªØ¯Ù‚ÙŠÙ‚ ÙƒØ§ÙØ© Ø§Ù„ØªØ±Ø§Ø®ÙŠØµ Ø¨Ø§Ù„ÙƒØ§Ù…Ù„</div>
-							<div class="text-xs text-secondary mt-0.5">Ù„Ø§ ØªÙˆØ¬Ø¯ Ù…Ù†Ø´Ø¢Øª Ø£Ùˆ ØªØ±Ø§Ø®ÙŠØµ Ù…Ø¹Ù„Ù‚Ø© Ø¨Ø§Ù†ØªØ¸Ø§Ø± Ø§Ù„Ù…Ø±Ø§Ø¬Ø¹Ø© Ø­Ø§Ù„ÙŠØ§Ù‹.</div>
+							<div class="font-bold text-sm text-success">تم اعتماد وتدقيق كافة التراخيص بالكامل</div>
+							<div class="text-xs text-secondary mt-0.5">لا توجد منشآت أو تراخيص معلقة بانتظار المراجعة حالياً.</div>
 						</div>
 					} else {
 						<div class="d-flex flex-col gap-2">
@@ -410,23 +410,23 @@ templ AdminDashboard(stats AdminDashboardStats, pendingOrgs []*org.Organization,
 											<div class="font-bold text-sm text-primary d-flex items-center gap-1.5">
 												<span>{ po.LegalName }</span>
 												if string(po.Type) == "vendor" {
-													<span class="badge badge-sky text-xs fw-700">Ù…ÙˆØ±Ø¯</span>
+													<span class="badge badge-sky text-xs fw-700">مورد</span>
 												} else {
-													<span class="badge badge-emerald text-xs fw-700">ØµÙŠØ¯Ù„ÙŠØ©</span>
+													<span class="badge badge-emerald text-xs fw-700">صيدلية</span>
 												}
 											</div>
 											<div class="text-xs text-muted tabular-nums mt-0.5">
 												if po.CommercialRegister != "" {
-													<span>Ø³Ø¬Ù„: { po.CommercialRegister }</span>
+													<span>سجل: { po.CommercialRegister }</span>
 												}
 												if po.PharmacistLicense != "" {
-													<span> â€¢ ØªØ±Ø®ÙŠØµ: { po.PharmacistLicense }</span>
+													<span> â€¢ ترخيص: { po.PharmacistLicense }</span>
 												}
 											</div>
 										</div>
 									</div>
 									<a href="/admin/approvals"class="btn btn-primary btn-xs fw-800 rounded-md px-3 py-1.5">
-										ÙØ­Øµ
+										فحص
 									</a>
 								</div>
 							}
@@ -440,21 +440,21 @@ templ AdminDashboard(stats AdminDashboardStats, pendingOrgs []*org.Organization,
 						<div>
 							<h3 class="text-base font-bold text-primary m-0 d-flex items-center gap-1.5">
 								<span>@components.IconBuilding("icon-sm")</span>
-								<span>Ø£Ø­Ø¯Ø« Ø§Ù„Ù…Ù†Ø´Ø¢Øª Ø§Ù„Ù…Ù†Ø¶Ù…Ø© Ù„Ù„Ù…Ù†Ø¸ÙˆÙ…Ø©</span>
+								<span>أحدث المنشآت المنضمة للمنظومة</span>
 							</h3>
 							<p class="text-xs text-secondary mt-0.5 m-0">
-								Ø§Ù„ØµÙŠØ¯Ù„ÙŠØ§Øª ÙˆØ§Ù„Ù…ÙˆØ±Ø¯ÙŠÙ† Ø§Ù„Ù…Ø³Ø¬Ù„ÙŠÙ† Ø­Ø¯ÙŠØ«Ø§Ù‹ ÙÙŠ Ø´Ø¨ÙƒØ© Ø¥Ù…Ø¯Ø§Ø¯ Ø¯ÙˆØ§Ø¡ 24
+								الصيدليات والموردين المسجلين حديثاً في شبكة إمداد دواء 24
 							</p>
 						</div>
 						<a href="/admin/organizations"class="btn btn-secondary btn-xs fw-800 gap-1">
-							<span>Ø¯Ù„ÙŠÙ„ Ø§Ù„Ù…Ù†Ø´Ø¢Øª</span>
+							<span>دليل المنشآت</span>
 							@components.IconArrowLeft("icon-xs")
 						</a>
 					</div>
 
 					if len(stats.RecentOrganizations) == 0 {
 						<div class="p-6 text-center bg-surface-sunken rounded-xl text-xs text-muted">
-							Ø¬Ø§Ø±ÙŠ ØªØ­Ù…ÙŠÙ„ Ø¨ÙŠØ§Ù†Ø§Øª Ø´Ø¨ÙƒØ© Ø§Ù„Ù…Ù†Ø´Ø¢Øª...
+							جاري تحميل بيانات شبكة المنشآت...
 						</div>
 					} else {
 						<div class="d-flex flex-col gap-2">
@@ -468,21 +468,21 @@ templ AdminDashboard(stats AdminDashboardStats, pendingOrgs []*org.Organization,
 											<div class="font-bold text-sm text-primary d-flex items-center gap-1.5">
 												<span>{ ro.LegalName }</span>
 												if string(ro.Type) == "vendor" {
-													<span class="badge badge-purple text-xs fw-700">Ù…ÙˆØ±Ø¯ Ø£Ø¯ÙˆÙŠØ©</span>
+													<span class="badge badge-purple text-xs fw-700">مورد أدوية</span>
 												} else {
-													<span class="badge badge-emerald text-xs fw-700">ØµÙŠØ¯Ù„ÙŠØ© Ù…Ø¹ØªÙ…Ø¯Ø©</span>
+													<span class="badge badge-emerald text-xs fw-700">صيدلية معتمدة</span>
 												}
 											</div>
 											<div class="text-xs text-muted tabular-nums mt-0.5">
-												Ù…Ù†Ø´Ø£Ø© #{ fmt.Sprintf("%d", ro.ID) } â€¢ { ro.CreatedAt.Format("2006-01-02") }
+												منشأة #{ fmt.Sprintf("%d", ro.ID) } â€¢ { ro.CreatedAt.Format("2006-01-02") }
 											</div>
 										</div>
 									</div>
 									<div>
 										if string(ro.Status) == "approved" {
-											<span class="badge badge-emerald text-xs fw-700">Ù…Ø¹ØªÙ…Ø¯ </span>
+											<span class="badge badge-emerald text-xs fw-700">معتمد </span>
 										} else if string(ro.Status) == "pending" {
-											<span class="badge badge-amber text-xs fw-700">Ù‚ÙŠØ¯ Ø§Ù„Ù…Ø±Ø§Ø¬Ø¹Ø©</span>
+											<span class="badge badge-amber text-xs fw-700">قيد المراجعة</span>
 										} else {
 											<span class="badge badge-slate text-xs fw-700">{ string(ro.Status) }</span>
 										}
@@ -499,35 +499,35 @@ templ AdminDashboard(stats AdminDashboardStats, pendingOrgs []*org.Organization,
 			     4. EXECUTIVE QUICK ACTION SHORTCUTS
 			â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
 			<div class="bg-surface-sunken border rounded-2xl p-4">
-				<div class="text-xs font-bold text-secondary mb-2">Ø§Ù„ÙˆØµÙˆÙ„ Ø§Ù„Ø³Ø±ÙŠØ¹ Ù„Ù„Ø£Ù‚Ø³Ø§Ù… Ø§Ù„ØªÙ†ÙÙŠØ°ÙŠØ©:</div>
+				<div class="text-xs font-bold text-secondary mb-2">الوصول السريع للأقسام التنفيذية:</div>
 				<div class="d-flex gap-2 flex-wrap items-center">
 					<a href="/admin/finance"class="btn btn-secondary btn-xs fw-800 gap-1 px-3 py-1.5 rounded-md">
 						@components.IconWallet("icon-xs")
-						<span>Ø§Ù„Ø¥Ø¯Ø§Ø±Ø© Ø§Ù„Ù…Ø§Ù„ÙŠØ© ÙˆØ§Ù„Ù…Ø­Ø§ÙØ¸</span>
+						<span>الإدارة المالية والمحافظ</span>
 					</a>
 					<a href="/admin/approvals"class="btn btn-secondary btn-xs fw-800 gap-1 px-3 py-1.5 rounded-md">
 						@components.IconShield("icon-xs")
-						<span>Ø§Ø¹ØªÙ…Ø§Ø¯ Ø§Ù„Ù…Ù†Ø´Ø¢Øª ÙˆØ§Ù„ÙˆØ«Ø§Ø¦Ù‚</span>
+						<span>اعتماد المنشآت والوثائق</span>
 					</a>
 					<a href="/admin/orders"class="btn btn-secondary btn-xs fw-800 gap-1 px-3 py-1.5 rounded-md">
 						@components.IconTruck("icon-xs")
-						<span>Ø£ÙˆØ§Ù…Ø± Ø§Ù„ØªÙˆØ±ÙŠØ¯ ÙˆØ§Ù„Ø´Ø­Ù†Ø§Øª</span>
+						<span>أوامر التوريد والشحنات</span>
 					</a>
 					<a href="/admin/products"class="btn btn-secondary btn-xs fw-800 gap-1 px-3 py-1.5 rounded-md">
 						@components.IconPackage("icon-xs")
-						<span>ÙƒØªØ§Ù„ÙˆØ¬ Ø§Ù„Ø£Ø¯ÙˆÙŠØ© Ø§Ù„Ù…Ø¹ØªÙ…Ø¯</span>
+						<span>كتالوج الأدوية المعتمد</span>
 					</a>
 					<a href="/admin/plans"class="btn btn-secondary btn-xs fw-800 gap-1 px-3 py-1.5 rounded-md">
 						@components.IconTag("icon-xs")
-						<span>Ø¨Ø§Ù‚Ø§Øª ÙˆØ®Ø·Ø· Ø§Ù„Ø§Ø´ØªØ±Ø§Ùƒ</span>
+						<span>باقات وخطط الاشتراك</span>
 					</a>
 					<a href="/admin/users"class="btn btn-secondary btn-xs fw-800 gap-1 px-3 py-1.5 rounded-md">
 						@components.IconUsers("icon-xs")
-						<span>Ø§Ù„Ù…Ø³ØªØ®Ø¯Ù…ÙˆÙ† ÙˆØ§Ù„Ø­Ø³Ø§Ø¨Ø§Øª</span>
+						<span>المستخدمون والحسابات</span>
 					</a>
 					<a href="/admin/settings"class="btn btn-secondary btn-xs fw-800 gap-1 px-3 py-1.5 rounded-md">
 						@components.IconSettings("icon-xs")
-						<span>Ø¥Ø¹Ø¯Ø§Ø¯Ø§Øª Ø§Ù„Ù†Ø¸Ø§Ù… Ø§Ù„Ø¹Ø§Ù…Ø©</span>
+						<span>إعدادات النظام العامة</span>
 					</a>
 				</div>
 			</div>
