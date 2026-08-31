@@ -259,9 +259,9 @@ func AdminAuditPage(values AdminAuditValues, lang, dir string) templ.Component {
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var8 string
-					templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(e.CreatedAt.Format("15:04:05"))
+					templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(e.CreatedAt.Format("03:04:05 PM"))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_audit.templ`, Line: 132, Col: 44}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_audit.templ`, Line: 132, Col: 47}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var8))
 					if templ_7745c5c3_Err != nil {
@@ -540,7 +540,7 @@ func AdminAuditPage(values AdminAuditValues, lang, dir string) templ.Component {
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 57, "\">\n\t\t\t\t\t{\n\t\t\t\t\t\t\"id\": { fmt.Sprintf(\"%d\", e.ID) },\n\t\t\t\t\t\t\"actor_name\": { fmt.Sprintf(\"%q\", e.ActorName) },\n\t\t\t\t\t\t\"actor_email\": { fmt.Sprintf(\"%q\", e.ActorEmail) },\n\t\t\t\t\t\t\"organization_name\": { fmt.Sprintf(\"%q\", e.OrganizationName) },\n\t\t\t\t\t\t\"action\": { fmt.Sprintf(\"%q\", e.Action) },\n\t\t\t\t\t\t\"action_label_ar\": { fmt.Sprintf(\"%q\", e.ActionLabelAr) },\n\t\t\t\t\t\t\"module\": { fmt.Sprintf(\"%q\", e.Module) },\n\t\t\t\t\t\t\"title\": { fmt.Sprintf(\"%q\", e.Title) },\n\t\t\t\t\t\t\"description\": { fmt.Sprintf(\"%q\", e.Description) },\n\t\t\t\t\t\t\"severity\": { fmt.Sprintf(\"%q\", e.Severity) },\n\t\t\t\t\t\t\"ip_address\": { fmt.Sprintf(\"%q\", e.IPAddress) },\n\t\t\t\t\t\t\"route\": { fmt.Sprintf(\"%q\", e.Route) },\n\t\t\t\t\t\t\"created_at\": { fmt.Sprintf(\"%q\", e.CreatedAt.Format(\"2006-01-02 15:04:05\")) },\n\t\t\t\t\t\t\"before\": { templ.JSONString(e.Before) },\n\t\t\t\t\t\t\"after\": { templ.JSONString(e.After) }\n\t\t\t\t\t}\n\t\t\t\t</script>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 57, "\">\n\t\t\t\t\t{\n\t\t\t\t\t\t\"id\": { fmt.Sprintf(\"%d\", e.ID) },\n\t\t\t\t\t\t\"actor_name\": { fmt.Sprintf(\"%q\", e.ActorName) },\n\t\t\t\t\t\t\"actor_email\": { fmt.Sprintf(\"%q\", e.ActorEmail) },\n\t\t\t\t\t\t\"organization_name\": { fmt.Sprintf(\"%q\", e.OrganizationName) },\n\t\t\t\t\t\t\"action\": { fmt.Sprintf(\"%q\", e.Action) },\n\t\t\t\t\t\t\"action_label_ar\": { fmt.Sprintf(\"%q\", e.ActionLabelAr) },\n\t\t\t\t\t\t\"module\": { fmt.Sprintf(\"%q\", e.Module) },\n\t\t\t\t\t\t\"title\": { fmt.Sprintf(\"%q\", e.Title) },\n\t\t\t\t\t\t\"description\": { fmt.Sprintf(\"%q\", e.Description) },\n\t\t\t\t\t\t\"severity\": { fmt.Sprintf(\"%q\", e.Severity) },\n\t\t\t\t\t\t\"ip_address\": { fmt.Sprintf(\"%q\", e.IPAddress) },\n\t\t\t\t\t\t\"route\": { fmt.Sprintf(\"%q\", e.Route) },\n\t\t\t\t\t\t\"created_at\": { fmt.Sprintf(\"%q\", e.CreatedAt.Format(\"2006-01-02 03:04:05 PM\")) },\n\t\t\t\t\t\t\"before\": { templ.JSONString(e.Before) },\n\t\t\t\t\t\t\"after\": { templ.JSONString(e.After) }\n\t\t\t\t\t}\n\t\t\t\t</script>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}

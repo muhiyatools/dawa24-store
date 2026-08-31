@@ -45,7 +45,7 @@ templ VendorJobs(lang, dir string, data VendorJobsData) {
 			<!-- Top Header Banner -->
 			<div class="glass-panel p-6 mb-6">
 				<div class="flex-between items-center flex-wrap gap-4">
-					<div>
+     <div class="stack-sm">
 						<div class="d-flex items-center gap-3 mb-1">
 							<div class="user-avatar-badge text-xl">
 								@components.IconBriefcase("icon-sm")
@@ -273,11 +273,11 @@ templ VendorJobs(lang, dir string, data VendorJobsData) {
 		</div>
 
 		<!-- MODAL: Add New Job Modal -->
-		@components.Modal(components.ModalProps{ID: "add-job-modal", Title: "??? ???? ????? ????", Size: "lg"}) {
+		@components.Modal(components.ModalProps{ID: "add-job-modal", Title: "????? ????? ????? ?????", Size: "lg"}) {
 			<form method="POST" action="/vendor/jobs" class="stack-lg">
 				<!-- Titles -->
 				<div class="grid-2">
-					<div>
+     <div class="stack-sm">
 						<label class="form-label">
 							المسمى الوظيفي (بالعربية) <span class="text-danger">*</span>
 						</label>
@@ -290,7 +290,7 @@ templ VendorJobs(lang, dir string, data VendorJobsData) {
 						/>
 					</div>
 
-					<div>
+     <div class="stack-sm">
 						<label class="form-label">
 							المسمى الوظيفي (بالإنجليزية)
 						</label>
@@ -305,7 +305,7 @@ templ VendorJobs(lang, dir string, data VendorJobsData) {
 				</div>
 
 				<!-- Location & Branch Selection -->
-				<div>
+    <div class="stack-sm">
 					<label class="form-label">
 						الفرع / مقر العمل المخصص للوظيفة <span class="text-danger">*</span>
 					</label>
@@ -335,7 +335,7 @@ templ VendorJobs(lang, dir string, data VendorJobsData) {
 
 				<!-- Salary Range -->
 				<div class="grid-2">
-					<div>
+     <div class="stack-sm">
 						<label class="form-label">
 							???? ?????? ?????? (?.?)
 						</label>
@@ -348,7 +348,7 @@ templ VendorJobs(lang, dir string, data VendorJobsData) {
 						/>
 					</div>
 
-					<div>
+     <div class="stack-sm">
 						<label class="form-label">
 							???? ?????? ?????? (?.?)
 						</label>
@@ -363,7 +363,7 @@ templ VendorJobs(lang, dir string, data VendorJobsData) {
 				</div>
 
 				<!-- Description -->
-				<div>
+    <div class="stack-sm">
 					<label class="form-label">
 						الوصف الوظيفي والمهام والمسؤوليات <span class="text-danger">*</span>
 					</label>
@@ -377,9 +377,9 @@ templ VendorJobs(lang, dir string, data VendorJobsData) {
 				</div>
 
 				<!-- Requirements -->
-				<div>
+    <div class="stack-sm">
 					<label class="form-label">
-						???????? ?????????? ???????
+						????????? ????????? ????????
 					</label>
 					<textarea
 						name="requirements"
@@ -402,27 +402,27 @@ templ VendorJobs(lang, dir string, data VendorJobsData) {
 		}
 
 		<!-- MODAL: Edit Job Modal -->
-		@components.Modal(components.ModalProps{ID: "edit-job-modal", Title: "????? ?????? ????? ?????? ???????", Size: "lg"}) {
+		@components.Modal(components.ModalProps{ID: "edit-job-modal", Title: "????? ?????? ????? ???????? ???????", Size: "lg"}) {
 			<form id="edit-job-form" method="POST" action="" class="stack-lg">
 				<input type="hidden" id="edit-job-id" name="id" value="" />
 
 				<!-- Status & Active Switch -->
 				<div class="grid-2 bg-surface-sunken p-3.5 border rounded-xl items-center">
-					<div>
+     <div class="stack-sm">
 						<label class="form-label mb-1">
-							???? ?????? ???????
+							???? ??????? ???????
 						</label>
 						<select id="edit-job-status" name="status" class="form-input h-10 font-bold">
-							<option value="published">?? ??? (???? ??????? ????? ???????)</option>
-							<option value="closed">?? ???? (????? ??????? ????? ??????? ??????)</option>
-							<option value="draft">?? ????? (??? ????)</option>
+							<option value="published">??? ????? (????? ???????? ?????? ???????)</option>
+							<option value="closed">????? (????? ?? ??????? ??? ?????? ?????)</option>
+							<option value="draft">????? (??? ??????)</option>
 						</select>
 					</div>
 
 					<div class="flex-between">
-						<div>
-							<span class="d-block font-extrabold text-sm text-primary">????? ??????? ???????</span>
-							<span class="d-block text-xs text-muted">??? ??????? ?? ????? ??????? ??????</span>
+      <div class="stack-sm">
+							<span class="d-block font-extrabold text-sm text-primary">????? ???????? ???????</span>
+							<span class="d-block text-xs text-muted">???? ???????? ?? ???? ??????? ????????</span>
 						</div>
 						<input type="checkbox" id="edit-job-is-active" name="is_active" value="true" class="form-check-input" />
 					</div>
@@ -430,7 +430,7 @@ templ VendorJobs(lang, dir string, data VendorJobsData) {
 
 				<!-- Titles -->
 				<div class="grid-2">
-					<div>
+     <div class="stack-sm">
 						<label class="form-label">
 							المسمى الوظيفي (بالعربية) <span class="text-danger">*</span>
 						</label>
@@ -443,7 +443,7 @@ templ VendorJobs(lang, dir string, data VendorJobsData) {
 						/>
 					</div>
 
-					<div>
+     <div class="stack-sm">
 						<label class="form-label">
 							المسمى الوظيفي (بالإنجليزية)
 						</label>
@@ -458,7 +458,7 @@ templ VendorJobs(lang, dir string, data VendorJobsData) {
 				</div>
 
 				<!-- Location & Branch Selection -->
-				<div>
+    <div class="stack-sm">
 					<label class="form-label">
 						????? / ??? ????? ??????
 					</label>
@@ -477,7 +477,7 @@ templ VendorJobs(lang, dir string, data VendorJobsData) {
 
 				<!-- Salary Range -->
 				<div class="grid-2">
-					<div>
+     <div class="stack-sm">
 						<label class="form-label">
 							???? ?????? ?????? (?.?)
 						</label>
@@ -490,7 +490,7 @@ templ VendorJobs(lang, dir string, data VendorJobsData) {
 						/>
 					</div>
 
-					<div>
+     <div class="stack-sm">
 						<label class="form-label">
 							???? ?????? ?????? (?.?)
 						</label>
@@ -505,7 +505,7 @@ templ VendorJobs(lang, dir string, data VendorJobsData) {
 				</div>
 
 				<!-- Description -->
-				<div>
+    <div class="stack-sm">
 					<label class="form-label">
 						الوصف الوظيفي والمهام والمسؤوليات <span class="text-danger">*</span>
 					</label>
@@ -519,9 +519,9 @@ templ VendorJobs(lang, dir string, data VendorJobsData) {
 				</div>
 
 				<!-- Requirements -->
-				<div>
+    <div class="stack-sm">
 					<label class="form-label">
-						???????? ??????????
+						????????? ?????????
 					</label>
 					<textarea
 						id="edit-job-requirements"
@@ -545,7 +545,7 @@ templ VendorJobs(lang, dir string, data VendorJobsData) {
 		}
 
 		<!-- ================= APPLICANTS MODAL ================= -->
-		@components.Modal(components.ModalProps{ID: "job-applicants-modal", Title: "????? ??????? ?????? ???????", Size: "lg"}) {
+		@components.Modal(components.ModalProps{ID: "job-applicants-modal", Title: "????? ???????? ??????? ???????", Size: "lg"}) {
 			<div id="applicants-modal-subtitle" class="text-xs text-brand font-bold mb-3">
 				الوظيفة: -
 			</div>
@@ -556,14 +556,14 @@ templ VendorJobs(lang, dir string, data VendorJobsData) {
 		}
 
 		<!-- ================= ONBOARD EMPLOYEE MODAL ================= -->
-		@components.Modal(components.ModalProps{ID: "onboard-modal", Title: "???? ??????? ??????? ?????", Size: "md"}) {
+		@components.Modal(components.ModalProps{ID: "onboard-modal", Title: "???? ??????? ???????? ????????", Size: "md"}) {
 			<div id="onboard-modal-subtitle" class="text-xs text-secondary mb-3">
 				الوظيفة: -
 			</div>
 			<form id="onboard-employee-form" onsubmit="submitOnboardEmployee(event)" class="d-flex flex-col gap-4 m-0">
 				<input type="hidden" id="onboard-app-id" name="applicant_id" value="" />
 
-				<div>
+    <div class="stack-sm">
 					<label class="form-label">
 						الوصف الوظيفي والمهام والمسؤوليات <span class="text-danger">*</span>
 					</label>
@@ -578,7 +578,7 @@ templ VendorJobs(lang, dir string, data VendorJobsData) {
 					/>
 				</div>
 
-				<div>
+    <div class="stack-sm">
 					<label class="form-label">
 						الوصف الوظيفي والمهام والمسؤوليات <span class="text-danger">*</span>
 					</label>
@@ -588,12 +588,12 @@ templ VendorJobs(lang, dir string, data VendorJobsData) {
 						name="password"
 						required
 						minlength="8"
-						placeholder="8 ???? ??? ?????"
+						placeholder="8 ???? ??? ????"
 						class="form-input"
 					/>
 				</div>
 
-				<div>
+    <div class="stack-sm">
 					<label class="form-label">
 						الفرع / مقر العمل المخصص للوظيفة <span class="text-danger">*</span>
 					</label>
@@ -742,7 +742,7 @@ templ VendorJobs(lang, dir string, data VendorJobsData) {
 				document.getElementById('applicants-modal-content').innerHTML = `
 					<div class="p-10 text-center text-muted">
 						<div class="text-2xl mb-2">⏳</div>
-						<div>جاري استرجاع طلبات التقديم والسير الذاتية...</div>
+						<div class="stat-label text-sm text-secondary">جاري استرجاع طلبات التقديم والسير الذاتية...</div>
 					</div>
 				`;
 				openApplicantsModal();
@@ -801,7 +801,7 @@ templ VendorJobs(lang, dir string, data VendorJobsData) {
 
 						html += `
 							<div class="p-4 bg-surface-sunken border rounded-2xl flex-between items-center flex-wrap gap-4">
-								<div>
+        <div class="stack-sm">
 									<div class="inline-row-06">
 										<span class="font-black text-base text-primary">${app.applicant_name || 'متقدم'}</span>
 										${statusBadge}

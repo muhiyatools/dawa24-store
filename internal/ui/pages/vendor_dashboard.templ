@@ -21,7 +21,7 @@ templ VendorDashboard(lang, dir string, data VendorDashboardData) {
 						<div class="text-warning flex-shrink-0">
 							@components.IconAlert("icon-lg")
 						</div>
-						<div>
+      <div class="stack-sm">
 							<div class="font-extrabold text-sm text-warning">
 								تنبيه إداري عاجل: مطلوب رفع مستند رسمي ({ data.PendingDocRequests[0].Title })
 							</div>
@@ -43,7 +43,7 @@ templ VendorDashboard(lang, dir string, data VendorDashboardData) {
 					<div class="flex-between items-center flex-wrap gap-3 mb-4 pb-3 border-b">
 						<div class="d-flex items-center gap-2">
 							<span class="text-xl">@components.IconBuilding("icon-sm")</span>
-							<div>
+       <div class="stack-sm">
 								<h2 class="text-base font-extrabold text-primary m-0">
 									باقة الاشتراك وخدمات الذكاء الاصطناعي للمورد
 								</h2>
@@ -88,7 +88,7 @@ templ VendorDashboard(lang, dir string, data VendorDashboardData) {
 
 						<!-- AI Gateway & Live Consumption -->
 						<div class="stat-card-3d d-flex flex-col justify-between">
-							<div>
+       <div class="stack-sm">
 								<div class="flex-between items-center mb-1">
 									<span class="stat-card-label text-brand font-black">بوابة الـ AI</span>
 									<span class="badge badge-sky text-xs font-bold font-mono" dir="ltr">{ data.Subscription.AIPlanID }</span>
@@ -222,7 +222,7 @@ templ VendorDashboard(lang, dir string, data VendorDashboardData) {
 				
 				<!-- 1. Pending Shipments Section (With Preview Flow) -->
 				<div class="glass-panel p-6 mb-0 d-flex flex-col justify-between" class="rounded-2xl">
-					<div>
+     <div class="stack-sm">
 						<div class="flex-between items-center mb-4 pb-3 border-b">
 							<div class="d-flex items-center gap-2">
 								<span class="text-lg">@components.IconPackage("icon-sm")</span>
@@ -314,7 +314,7 @@ templ VendorDashboard(lang, dir string, data VendorDashboardData) {
 
 				<!-- 2. Low Stock Alerts -->
 				<div class="glass-panel p-6 mb-0 d-flex flex-col justify-between" class="rounded-2xl">
-					<div>
+     <div class="stack-sm">
 						<div class="flex-between items-center mb-4 pb-3 border-b">
 							<div class="d-flex items-center gap-2">
 								<span class="text-lg">@components.IconAlert("icon-sm")</span>
@@ -358,7 +358,7 @@ templ VendorDashboard(lang, dir string, data VendorDashboardData) {
 
 				<!-- 3. Active Offers Strip -->
 				<div class="glass-panel p-6 mb-0 d-flex flex-col justify-between" class="rounded-2xl">
-					<div>
+     <div class="stack-sm">
 						<div class="flex-between items-center mb-4 pb-3 border-b">
 							<div class="d-flex items-center gap-2">
 								<span class="text-lg">@components.IconPackage("icon-sm")</span>
@@ -374,7 +374,7 @@ templ VendorDashboard(lang, dir string, data VendorDashboardData) {
 							<div class="d-flex flex-col gap-2">
 								for _, o := range data.Offers {
 									<div class="flex-between items-center p-3 rounded-lg bg-surface-sunken border">
-										<div>
+          <div class="stack-sm">
 											<div class="font-bold text-primary text-xs">{ o.Title.Get(i18n.Lang(lang)) }</div>
 											<div class="text-xs text-muted mt-1 tabular-nums">مشاهدة { fmt.Sprintf("%d", o.ViewsCount) } Â· نقر { fmt.Sprintf("%d", o.ClicksCount) }</div>
 										</div>
@@ -388,7 +388,7 @@ templ VendorDashboard(lang, dir string, data VendorDashboardData) {
 
 				<!-- 4. Price Quotes Strip -->
 				<div class="glass-panel p-6 mb-0 d-flex flex-col justify-between" class="rounded-2xl">
-					<div>
+     <div class="stack-sm">
 						<div class="flex-between items-center mb-4 pb-3 border-b">
 							<div class="d-flex items-center gap-2">
 								<span class="text-lg">@components.IconUsers("icon-sm")</span>
@@ -431,7 +431,7 @@ templ VendorDashboard(lang, dir string, data VendorDashboardData) {
 				
 				<!-- Shipment & Pharmacy Quick Header Strip -->
 				<div class="d-grid gap-3 bg-surface-sunken p-4 rounded-xl border mb-3 text-xs" class="grid-auto-fit-sm">
-					<div>
+     <div class="stack-sm">
 						<div class="text-muted font-bold mb-1">الصيدلية والفرع المستلم:</div>
 						<strong class="text-primary text-sm font-bold d-block">
 							if s.CustomerBranchName.Get(i18n.Lang(lang)) != "" {
@@ -445,7 +445,7 @@ templ VendorDashboard(lang, dir string, data VendorDashboardData) {
 						}
 					</div>
 
-					<div>
+     <div class="stack-sm">
 						<div class="text-muted font-bold mb-1">عنوان التسليم:</div>
 						<div class="text-primary">
 							if s.CustomerBranchAddress != "" {
@@ -456,7 +456,7 @@ templ VendorDashboard(lang, dir string, data VendorDashboardData) {
 						</div>
 					</div>
 
-					<div>
+     <div class="stack-sm">
 						<div class="text-muted font-bold mb-1">مسؤول الاستلام:</div>
 						<div class="text-primary">
 							if s.CustomerManagerName != "" {
@@ -470,7 +470,7 @@ templ VendorDashboard(lang, dir string, data VendorDashboardData) {
 						</div>
 					</div>
 
-					<div>
+     <div class="stack-sm">
 						<div class="text-muted font-bold mb-1">القيمة الإجمالية:</div>
 						<strong class="text-brand font-black text-sm tabular-nums">
 							{ s.TotalAmount.String() } ج.م

@@ -129,7 +129,7 @@ templ AdminAuditPage(values AdminAuditValues, lang, dir string) {
 												{ e.CreatedAt.Format("2006-01-02") }
 											</div>
 											<div class="tabular-nums">
-												{ e.CreatedAt.Format("15:04:05") }
+												{ e.CreatedAt.Format("03:04:05 PM") }
 											</div>
 										</td>
 
@@ -311,7 +311,7 @@ templ AdminAuditPage(values AdminAuditValues, lang, dir string) {
 						"severity": { fmt.Sprintf("%q", e.Severity) },
 						"ip_address": { fmt.Sprintf("%q", e.IPAddress) },
 						"route": { fmt.Sprintf("%q", e.Route) },
-						"created_at": { fmt.Sprintf("%q", e.CreatedAt.Format("2006-01-02 15:04:05")) },
+						"created_at": { fmt.Sprintf("%q", e.CreatedAt.Format("2006-01-02 03:04:05 PM")) },
 						"before": { templ.JSONString(e.Before) },
 						"after": { templ.JSONString(e.After) }
 					}

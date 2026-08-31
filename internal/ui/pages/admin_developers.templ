@@ -217,7 +217,7 @@ templ AdminDevelopersPage(values AdminDevelopersValues, lang, dir string) {
 									for _, log := range values.SQLLogs {
 										<tr>
 											<td class="text-start">
-												<div class="tabular-nums font-bold text-primary">{ log.CreatedAt.Format("2006-01-02 15:04:05") }</div>
+												<div class="tabular-nums font-bold text-primary">{ log.CreatedAt.Format("2006-01-02 03:04:05 PM") }</div>
 												<div class="text-xs text-muted">{ log.ActorName }</div>
 											</td>
 											<td class="text-start">

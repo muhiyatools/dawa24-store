@@ -45,7 +45,7 @@ templ CompareToolPage(lang, dir string, files []*compare.CompareFile, maxAllowed
 			<!-- Header Banner -->
 			<div class="glass-panel p-6 mb-6">
 				<div class="flex-between flex-wrap gap-4">
-					<div>
+     <div class="stack-sm">
 						<div class="d-flex items-center gap-2 mb-1">
 							<div class="user-avatar-badge">
 								@components.IconBarChart("icon-sm")
@@ -249,7 +249,7 @@ templ CompareToolPage(lang, dir string, files []*compare.CompareFile, maxAllowed
 					if maxAllowedFiles > 0 && len(files) >= maxAllowedFiles {
 						<div class="alert alert-warning p-3 mb-3 d-flex items-start gap-2.5 rounded-xl border border-amber-300/80 bg-amber-50/80 text-xs">
 							<span class="text-base">@components.IconAlert("icon-sm")</span>
-							<div>
+       <div class="stack-sm">
 								<strong class="d-block font-extrabold text-amber-900 mb-0.5">
 									بلغت الحد الأقصى لكشوف الموردين في باقتك ({ fmt.Sprintf("%d / %d", len(files), maxAllowedFiles) })
 								</strong>
@@ -403,9 +403,9 @@ templ CompareToolPage(lang, dir string, files []*compare.CompareFile, maxAllowed
 						}
 						const totalMb = (totalSize / 1024 / 1024).toFixed(2);
 						previewEl.innerHTML = `
-							<div>
-								<div>تم اختيار (${input.files.length}) ملفات موردين (الإجمالي: ${totalMb} MB):</div>
-								<div>
+       <div class="stack-sm">
+								<div class="stat-label text-sm text-secondary">تم اختيار (${input.files.length}) ملفات موردين (الإجمالي: ${totalMb} MB):</div>
+        <div class="stack-sm">
 									${fileNames.map(n => `• ${n}`).join('<br/>')}
 								</div>
 							</div>
@@ -519,7 +519,7 @@ templ CompareToolPage(lang, dir string, files []*compare.CompareFile, maxAllowed
 				const resultsContainer = document.getElementById('instant-search-results');
 				if (!query || query.trim().length < 2) {
 					resultsContainer.innerHTML = `
-						<div>
+      <div class="stack-sm">
 							اكتب اسم الصنف للبحث المباشر عبر جميع كشوف الموردين المرفوعة ومقارنة الخصومات فورياً.
 						</div>
 					`;
@@ -527,7 +527,7 @@ templ CompareToolPage(lang, dir string, files []*compare.CompareFile, maxAllowed
 				}
 
 				resultsContainer.innerHTML = `
-					<div>
+     <div class="stack-sm">
 						⏳ جاري البحث عبر الكتالوج وكشوف الموردين...
 					</div>
 				`;
@@ -544,7 +544,7 @@ templ CompareToolPage(lang, dir string, files []*compare.CompareFile, maxAllowed
 						const items = data.items || [];
 						if (items.length === 0) {
 							resultsContainer.innerHTML = `
-								<div>
+        <div class="stack-sm">
 									لم يتم العثور على أصناف مطابقة لـ "${query}".
 								</div>
 							`;
@@ -552,7 +552,7 @@ templ CompareToolPage(lang, dir string, files []*compare.CompareFile, maxAllowed
 						}
 
 						let html = `
-							<div>
+       <div class="stack-sm">
 								<span>تم العثور على <strong>${items.length}</strong> صنف</span>
 								<span>بالكتالوج: ${data.in_catalog_count || 0} | أصناف موردين: ${data.custom_items_count || 0}</span>
 							</div>
@@ -577,14 +577,14 @@ templ CompareToolPage(lang, dir string, files []*compare.CompareFile, maxAllowed
 										<div class="tabular-nums">
 											${item.best_net_price} ج.م
 										</div>
-										<div>
+          <div class="stack-sm">
 											${item.best_supplier || 'أفضل سعر'} (${item.best_discount || 0}%)
 										</div>
 									</div>
 								`;
 							} else {
 								bestPriceHtml = `
-									<div>
+         <div class="stack-sm">
 										لا توجد عروض أسعار مرفوعة
 									</div>
 								`;
@@ -593,7 +593,7 @@ templ CompareToolPage(lang, dir string, files []*compare.CompareFile, maxAllowed
 							// Offers pill list
 							let offersHtml = '';
 							if (item.offers && Object.keys(item.offers).length > 0) {
-								offersHtml = '<div>';
+								offersHtml = '<div class="offers-list d-flex flex-wrap gap-2 mt-2">';
 								for (const [sup, off] of Object.entries(item.offers)) {
 									const isBest = (sup === item.best_supplier);
 									const badgeClass = isBest ? 'badge-emerald' : 'badge-secondary';
@@ -608,17 +608,17 @@ templ CompareToolPage(lang, dir string, files []*compare.CompareFile, maxAllowed
 
 							let missingHtml = '';
 							if (item.missing_from_suppliers && item.missing_from_suppliers.length > 0 && Object.keys(item.offers || {}).length > 0) {
-								missingHtml = '<div>' +
+								missingHtml = '<div class="missing-suppliers text-xs text-muted mt-1">' +
 									'غير مدرج لدى: <strong>' + item.missing_from_suppliers.join('، ') + '</strong>' +
 								'</div>';
 							}
 
-							const skuHtml = item.sku ? ('<span class="tabular-nums">كود: ' + item.sku + '</span>') : '';
-							html += '<div>' +
-								'<div>' +
-									'<div>' +
-										'<div>' +
-											'<strong>' + (item.product_name || 'صنف دوائي') + '</strong>' +
+							const skuHtml = item.sku ? ('<span class="tabular-nums text-xs text-secondary">كود: ' + item.sku + '</span>') : '';
+							html += '<div class="comparison-card card p-4 mb-3">' +
+								'<div class="d-flex justify-between items-start flex-wrap gap-3">' +
+									'<div class="stack-xs">' +
+										'<div class="d-flex items-center gap-2">' +
+											'<strong class="product-title font-bold text-base">' + (item.product_name || 'صنف دوائي') + '</strong>' +
 											statusBadge +
 										'</div>' +
 										skuHtml +
@@ -633,7 +633,7 @@ templ CompareToolPage(lang, dir string, files []*compare.CompareFile, maxAllowed
 						resultsContainer.innerHTML = html;
 					})
 					.catch(err => {
-						resultsContainer.innerHTML = '<div>حدث خطأ أثناء البحث. يرجى المحاولة بكلمة بحث أخرى.</div>';
+						resultsContainer.innerHTML = '<div class="stat-label text-sm text-secondary">حدث خطأ أثناء البحث. يرجى المحاولة بكلمة بحث أخرى.</div>';
 					});
 				}, 250);
 			}
@@ -651,11 +651,11 @@ templ CompareToolPage(lang, dir string, files []*compare.CompareFile, maxAllowed
 				queue = queue || '';
 
 				root.innerHTML = `
-					<div>
+     <div class="stack-sm">
 						<div class="card">
-							<div>@components.IconSettings("icon-sm")</div>
-							<div>معالج ضبط الأعمدة (ملف ${step} من ${total})...</div>
-							<div>جاري قراءة البيانات وإعداد المعاينة الذكية</div>
+							<div class="stat-label text-sm text-secondary">@components.IconSettings("icon-sm")</div>
+							<div class="stat-label text-sm text-secondary">معالج ضبط الأعمدة (ملف ${step} من ${total})...</div>
+							<div class="stat-label text-sm text-secondary">جاري قراءة البيانات وإعداد المعاينة الذكية</div>
 						</div>
 					</div>
 				`;
@@ -683,10 +683,10 @@ templ CompareToolPage(lang, dir string, files []*compare.CompareFile, maxAllowed
 
 				isModalLoading = true;
 				root.innerHTML = `
-					<div>
+     <div class="stack-sm">
 						<div class="card">
-							<div>⏳</div>
-							<div>جاري قراءة أعمدة الملف ومعاينتها...</div>
+							<div class="stat-label text-sm text-secondary">⏳</div>
+							<div class="stat-label text-sm text-secondary">جاري قراءة أعمدة الملف ومعاينتها...</div>
 						</div>
 					</div>
 				`;
@@ -758,10 +758,10 @@ templ CompareToolPage(lang, dir string, files []*compare.CompareFile, maxAllowed
 				const root = document.getElementById('mapping-modal-root');
 				if (root) {
 					root.innerHTML = `
-						<div>
+      <div class="stack-sm">
 							<div class="card">
-								<div>⏩</div>
-								<div>جاري تخطي الملف والانتقال للملف التالي...</div>
+								<div class="stat-label text-sm text-secondary">⏩</div>
+								<div class="stat-label text-sm text-secondary">جاري تخطي الملف والانتقال للملف التالي...</div>
 							</div>
 						</div>
 					`;
@@ -824,7 +824,7 @@ templ CompareToolPage(lang, dir string, files []*compare.CompareFile, maxAllowed
 		</script>
 
 		<!-- Root container for dynamically injected mapping modal -->
-		<div id="mapping-modal-root"></div>
+		<div class="stack-sm" id="mapping-modal-root"></div>
 	}
 }
 
@@ -835,7 +835,7 @@ templ CompareToolPage(lang, dir string, files []*compare.CompareFile, maxAllowed
 // lets one switch govern every file's run without repeating the checkbox on
 // each card.
 templ compareMatchPanel(matching CompareMatchOptions) {
-	<form method="POST" action="/compare/tool" id="compare-match-form"
+	<form method="POST" class="m-0" action="/compare/tool" id="compare-match-form"
 		class="compare-match-panel">
 		<div class="d-flex items-center gap-2 mb-1">
 			<span class="text-base">@components.IconExternalLink("icon-sm")</span>

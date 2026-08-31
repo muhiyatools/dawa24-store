@@ -51,7 +51,7 @@ func renderOfficialDocSVG(doc *attachments.Document) []byte {
 		orgIDStr = fmt.Sprintf(i18n.TDefault("w4_ui.d_26"), *doc.OrganizationID)
 	}
 
-	dateStr := doc.CreatedAt.Format("2006-01-02 15:04")
+	dateStr := doc.CreatedAt.Format("2006-01-02 03:04 PM")
 	filename := doc.OriginalName
 	if filename == "" {
 		filename = fmt.Sprintf("Document #%d", doc.ID)

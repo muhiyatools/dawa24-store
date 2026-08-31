@@ -22,12 +22,12 @@ templ OrganizationDocumentsContent(lang string, data *OrganizationDocumentsData)
 		<!-- Header Banner -->
 		<div class="glass-panel p-6 mb-0">
 			<div class="flex-between items-center flex-wrap gap-4">
-				<div>
+    <div class="stack-sm">
 					<div class="d-flex items-center gap-3 mb-1">
 						<div class="user-avatar-badge text-xl">
 							@components.IconFileText("icon-sm")
 						</div>
-						<div>
+      <div class="stack-sm">
 							<h1 class="text-2xl font-black text-primary m-0">
 								المستندات والتراخيص الرسمية للمنشأة
 							</h1>
@@ -66,7 +66,7 @@ templ OrganizationDocumentsContent(lang string, data *OrganizationDocumentsData)
 				
 				<!-- Card 1: Completion Progress -->
 				<div class="stat-card-3d d-flex flex-col justify-between">
-					<div>
+     <div class="stack-sm">
 						<div class="flex-between items-center mb-1">
 							<span class="stat-card-label">نسبة اكتمال التوثيق</span>
 							<span class="badge badge-sky text-xs font-bold tabular-nums">{ fmt.Sprintf("%d / %d", data.VerifiedCount(), data.TotalRequirementsCount()) }</span>
@@ -86,7 +86,7 @@ templ OrganizationDocumentsContent(lang string, data *OrganizationDocumentsData)
 
 				<!-- Card 2: Legal Status -->
 				<div class="stat-card-3d d-flex flex-col justify-between">
-					<div>
+     <div class="stack-sm">
 						<span class="stat-card-label">حالة الحساب والاعتماد</span>
 						<div class="mt-2 d-flex items-center gap-2">
 							if data.VerifiedCount() > 0 && len(data.Missing) == 0 {
@@ -108,7 +108,7 @@ templ OrganizationDocumentsContent(lang string, data *OrganizationDocumentsData)
 
 				<!-- Card 3: Official Requests Status -->
 				<div class="stat-card-3d d-flex flex-col justify-between">
-					<div>
+     <div class="stack-sm">
 						<span class="stat-card-label">طلبات الإدارة والمهل</span>
 						<div class="tabular-nums text-2xl font-black text-primary mt-1">
 							{ fmt.Sprintf("%d", len(data.ActiveDocRequests())) } <span class="text-xs font-bold text-muted">طلبات معلقة</span>
@@ -149,7 +149,7 @@ templ OrganizationDocumentsContent(lang string, data *OrganizationDocumentsData)
 				<div class="flex-between items-center mb-4 pb-3 border-b flex-wrap gap-2">
 					<div class="d-flex items-center gap-2">
 						<span class="text-xl">⏳</span>
-						<div>
+      <div class="stack-sm">
 							<h2 class="text-base font-extrabold text-warning m-0">
 								مستندات وتراخيص مطلوبة من إدارة المنصة
 							</h2>
@@ -164,7 +164,7 @@ templ OrganizationDocumentsContent(lang string, data *OrganizationDocumentsData)
 					for _, req := range data.Requests {
 						if req != nil {
 							<div class="p-4 rounded-xl bg-surface-sunken border flex-between items-center flex-wrap gap-4">
-								<div>
+        <div class="stack-sm">
 									<div class="d-flex items-center gap-2 flex-wrap mb-1">
 										<strong class="text-sm font-extrabold text-primary">{ req.Title }</strong>
 										if req.Status == attachments.DocReqFulfilled {
@@ -187,7 +187,7 @@ templ OrganizationDocumentsContent(lang string, data *OrganizationDocumentsData)
 									</div>
 								</div>
 
-								<div>
+        <div class="stack-sm">
 									if req.Status == attachments.DocReqPending {
 										<form action="/documents/upload" method="POST" enctype="multipart/form-data" class="d-flex gap-2 items-center flex-wrap m-0">
 											<input type="hidden" name="request_id" value={ fmt.Sprintf("%d", req.ID) } />
@@ -215,7 +215,7 @@ templ OrganizationDocumentsContent(lang string, data *OrganizationDocumentsData)
 		<!-- SECTION 2: Official Organization Documents Grid -->
 		<div class="glass-panel p-6 mb-0">
 			<div class="flex-between items-center mb-6 pb-3 border-b flex-wrap gap-2">
-				<div>
+    <div class="stack-sm">
 					<h2 class="text-base font-extrabold text-primary m-0">
 						قائمة التراخيص والمستندات القانونية
 					</h2>
@@ -244,7 +244,7 @@ templ OrganizationDocumentsContent(lang string, data *OrganizationDocumentsData)
 										<span>@components.IconFile("icon-sm")</span>
 									}
 								</div>
-								<div>
+        <div class="stack-sm">
 									<div class="d-flex items-center gap-2 flex-wrap mb-1">
 										<h3 class="text-sm font-extrabold text-primary m-0">
 											{ req.TitleAr }
@@ -366,18 +366,18 @@ templ OrganizationDocumentsContent(lang string, data *OrganizationDocumentsData)
 	</div>
 
 	<!-- Dynamic In-App Document Viewer Modal (PDF + Image Responsive) -->
-	<div id="doc-viewer-modal">
-		<div>
+	<div class="stack-sm" id="doc-viewer-modal">
+  <div class="stack-sm">
 			<!-- Modal Header -->
-			<div>
-				<div>
+   <div class="stack-sm">
+    <div class="stack-sm">
 					<div class="d-flex items-center gap-2">
 						<span>@components.IconFileText("icon-sm")</span>
-						<h3 id="modal-doc-title">
+						<h3 class="card-title font-bold text-base" id="modal-doc-title">
 							معاينة المستند الرسمي
 						</h3>
 					</div>
-					<div id="modal-doc-filename" dir="ltr">
+					<div class="stack-sm" id="modal-doc-filename" dir="ltr">
 						filename.pdf
 					</div>
 				</div>
@@ -411,7 +411,7 @@ templ OrganizationDocumentsContent(lang string, data *OrganizationDocumentsData)
 			</div>
 
 			<!-- Dynamic Interactive Viewer Viewport -->
-			<div id="modal-doc-viewport">
+			<div class="stack-sm" id="modal-doc-viewport">
 				<!-- Mode 1: PDF Viewer Iframe -->
 				<iframe
 					id="modal-doc-iframe"
@@ -421,7 +421,7 @@ templ OrganizationDocumentsContent(lang string, data *OrganizationDocumentsData)
 				></iframe>
 
 				<!-- Mode 2: Image Viewer -->
-				<div id="modal-doc-img-container">
+				<div class="stack-sm" id="modal-doc-img-container">
 					<img
 						id="modal-doc-img"
 						src=""
@@ -432,7 +432,7 @@ templ OrganizationDocumentsContent(lang string, data *OrganizationDocumentsData)
 			</div>
 
 			<!-- Modal Footer -->
-			<div>
+   <div class="stack-sm">
 				<span>مستند رقمي مشفر ومحمي لمنشأتك فقط</span>
 				<button
 					type="button"
@@ -446,17 +446,17 @@ templ OrganizationDocumentsContent(lang string, data *OrganizationDocumentsData)
 	</div>
 
 	<!-- Modal: Replace Document Modal with Replacement Reason -->
-	<div id="replace-doc-modal">
-		<div>
+	<div class="stack-sm" id="replace-doc-modal">
+  <div class="stack-sm">
 			<!-- Header -->
-			<div>
+   <div class="stack-sm">
 				<div class="inline-row-06">
 					<span>@components.IconRefresh("icon-sm")</span>
-					<div>
-						<h3 id="replace-modal-title">
+     <div class="stack-sm">
+						<h3 class="card-title font-bold text-base" id="replace-modal-title">
 							استبدال وتحديث المستند
 						</h3>
-						<div id="replace-modal-subtitle">
+						<div class="stack-sm" id="replace-modal-subtitle">
 							رفع نسخة جديدة مع توضيح سبب الاستبدال
 						</div>
 					</div>
@@ -471,18 +471,18 @@ templ OrganizationDocumentsContent(lang string, data *OrganizationDocumentsData)
 			</div>
 
 			<!-- Body Form -->
-			<form action="/documents/upload" method="POST" enctype="multipart/form-data">
+			<form class="stack-md" action="/documents/upload" method="POST" enctype="multipart/form-data">
 				<input type="hidden" name="document_type" id="replace-doc-type" value="" />
 				<input type="hidden" name="existing_doc_id" id="replace-existing-id" value="" />
 
 				<!-- Current File Info Box -->
-				<div>
+    <div class="stack-sm">
 					<span>الملف الحالي المسجل:</span>
 					<span id="replace-modal-current-file" dir="ltr">file.pdf</span>
 				</div>
 
 				<!-- New File Upload Field -->
-				<div>
+    <div class="stack-sm">
 					<label class="form-label">
 						اختر ملف المستند الجديد <span class="text-rose fw-800">*</span>
 					</label>
@@ -500,7 +500,7 @@ templ OrganizationDocumentsContent(lang string, data *OrganizationDocumentsData)
 				</div>
 
 				<!-- Replacement Reason Field -->
-				<div>
+    <div class="stack-sm">
 					<label class="form-label">
 						سبب استبدال / تحديث المستند <span class="text-rose fw-800">*</span>
 					</label>
@@ -516,7 +516,7 @@ templ OrganizationDocumentsContent(lang string, data *OrganizationDocumentsData)
 				</div>
 
 				<!-- Footer Actions -->
-				<div>
+    <div class="stack-sm">
 					<button
 						type="button"
 						class="btn btn-secondary"

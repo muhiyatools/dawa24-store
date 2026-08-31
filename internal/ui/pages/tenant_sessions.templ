@@ -37,18 +37,18 @@ templ tenantSessionsContent(lang, dir string, data TenantSessionsViewData) {
 	<div class="page-container">
 		
 		<!-- Compact Page Header -->
-		<div>
-			<div>
-				<h1>
+  <div class="stack-sm">
+   <div class="stack-sm">
+				<h1 class="page-title font-bold text-xl m-0">
 					@components.IconShield("icon-sm")
 					<span>الأجهزة والجلسات النشطة</span>
 				</h1>
-				<p>
+    <p class="text-sm text-secondary m-0">
 					إدارة الأجهزة المتصلة بحساب المنشأة وسعة الجلسات المتزامنة ({ data.PlanName })
 				</p>
 			</div>
 
-			<div>
+   <div class="stack-sm">
 				<a
  href={ templ.SafeURL(ternary(data.IsVendor, "/vendor/mfa", "/customer/mfa")) }
  class="btn btn-secondary btn-sm font-bold rounded-lg"
@@ -88,17 +88,17 @@ templ tenantSessionsContent(lang, dir string, data TenantSessionsViewData) {
 
 		<!-- Compact Metrics Bar -->
 		<div class="card p-4">
-			<div>
-				<div>
-					<div>الجلسات المتصلة</div>
+   <div class="stack-sm">
+    <div class="stack-sm">
+					<div class="stat-label text-sm text-secondary">الجلسات المتصلة</div>
 					<div class="tabular-nums">
 						{ fmt.Sprintf("%d", len(data.Sessions)) } <span>/ { fmt.Sprintf("%d", data.MaxLoginSessions) } مسموحة</span>
 					</div>
 				</div>
 
-				<div>
-					<div>حالة السعة</div>
-					<div>
+    <div class="stack-sm">
+					<div class="stat-label text-sm text-secondary">حالة السعة</div>
+     <div class="stack-sm">
 						if len(data.Sessions) >= data.MaxLoginSessions {
 							<span class="badge badge-amber font-bold text-xs">الحد الأقصى مستنفد</span>
 						} else {
@@ -107,16 +107,16 @@ templ tenantSessionsContent(lang, dir string, data TenantSessionsViewData) {
 					</div>
 				</div>
 
-				<div>
-					<div>حد الأجهزة المعتمدة</div>
+    <div class="stack-sm">
+					<div class="stat-label text-sm text-secondary">حد الأجهزة المعتمدة</div>
 					<div class="tabular-nums">
 						{ fmt.Sprintf("%d", data.MaxDevices) } أجهزة
 					</div>
 				</div>
 
-				<div>
-					<div>باقة المنشأة</div>
-					<div>
+    <div class="stack-sm">
+					<div class="stat-label text-sm text-secondary">باقة المنشأة</div>
+     <div class="stack-sm">
 						{ data.PlanName }
 					</div>
 				</div>
@@ -125,8 +125,8 @@ templ tenantSessionsContent(lang, dir string, data TenantSessionsViewData) {
 
 		<!-- Active Sessions List -->
 		<div class="card p-5">
-			<div>
-				<h2>
+   <div class="stack-sm">
+				<h2 class="card-title font-bold text-base m-0">
 					الأجهزة المتصلة حالياً ({ fmt.Sprintf("%d", len(data.Sessions)) })
 				</h2>
 
@@ -147,14 +147,14 @@ templ tenantSessionsContent(lang, dir string, data TenantSessionsViewData) {
 					Message: "لم يتم العثور على أي جلسات متصلة حالياً.",
 				})
 			} else {
-				<div>
+    <div class="stack-sm">
 					for _, sess := range data.Sessions {
-						<div
+						<div class="stack-sm"
 							style={ fmt.Sprintf("display:flex; justify-content:space-between; align-items:center; padding:0.85rem 1rem; border-radius:var(--radius-lg); border:1px solid %s; background:%s; flex-wrap:wrap; gap:0.75rem;",
 								ternary(sess.Token == data.CurrentToken, "var(--primary-subtle)", "var(--border)"),
 								ternary(sess.Token == data.CurrentToken, "var(--primary-subtle)", "var(--surface-sunken)")) }
 						>
-							<div>
+       <div class="stack-sm">
 								<span>
 									if sess.Icon != "" {
 										{ sess.Icon }
@@ -162,7 +162,7 @@ templ tenantSessionsContent(lang, dir string, data TenantSessionsViewData) {
 										@components.IconMonitor("icon-sm")
 									}
 								</span>
-								<div>
+        <div class="stack-sm">
 									<div class="inline-row-wrap">
 										<span>
 											if sess.DeviceName != "" {
@@ -187,7 +187,7 @@ templ tenantSessionsContent(lang, dir string, data TenantSessionsViewData) {
 								</div>
 							</div>
 
-							<div>
+       <div class="stack-sm">
 								if sess.Token == data.CurrentToken {
 									<form action="/auth/logout" method="POST" class="m-0">
 										<button type="submit" class="btn btn-secondary btn-xs font-semibold">
@@ -215,11 +215,11 @@ templ tenantSessionsContent(lang, dir string, data TenantSessionsViewData) {
 
 		<!-- Password Security Form -->
 		<div class="card p-5">
-			<div>
-				<h2>
+   <div class="stack-sm">
+				<h2 class="card-title font-bold text-base m-0">
 					تحديث كلمة المرور
 				</h2>
-				<p>
+    <p class="text-sm text-secondary m-0">
 					تغيير كلمة المرور الخاصة بحسابك ينهي الجلسات الأخرى فوراً
 				</p>
 			</div>
@@ -241,7 +241,7 @@ templ tenantSessionsContent(lang, dir string, data TenantSessionsViewData) {
 					</div>
 				</div>
 
-				<div>
+    <div class="stack-sm">
 					<button type="submit" class="btn btn-primary btn-sm font-bold">
 						@components.IconCheck("icon-xs")
 						<span>حفظ التغييرات</span>

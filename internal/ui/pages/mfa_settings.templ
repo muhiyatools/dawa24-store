@@ -33,19 +33,19 @@ templ mfaSettingsContent(lang, dir string, data MFASettingsViewData) {
 	<div class="page-container">
 		
 		<!-- Header with Navigation Tabs -->
-		<div>
-			<div>
-				<h1>
+  <div class="stack-sm">
+   <div class="stack-sm">
+				<h1 class="page-title font-bold text-xl m-0">
 					<span>@components.IconShield("icon-sm")</span>
 					<span>المصادقة الثنائية (Google Authenticator)</span>
 				</h1>
-				<p>
+    <p class="text-sm text-secondary m-0">
 					حماية حسابك الشخصي بطبقة أمان إضافية لمنع الوصول غير المصرح به
 				</p>
 			</div>
 
 			<!-- Sub-nav pills -->
-			<div>
+   <div class="stack-sm">
 				<a
  href={ templ.SafeURL(ternary(data.IsVendor, "/vendor/sessions", "/customer/sessions")) }
  class="btn btn-secondary btn-sm font-bold rounded-lg"
@@ -83,20 +83,20 @@ templ mfaSettingsContent(lang, dir string, data MFASettingsViewData) {
 		<!-- Just Activated Recovery Codes Modal / Banner -->
 		if len(data.RecoveryCodes) > 0 {
 			<div class="card p-6 mb-6">
-				<div>
+    <div class="stack-sm">
 					<span>🎉</span>
-					<div>
-						<h3>
+     <div class="stack-sm">
+						<h3 class="font-bold text-sm m-0">
 							تم تفعيل المصادقة الثنائية بنجاح!
 						</h3>
-						<p>
+      <p class="text-sm text-secondary m-0">
 							هام جداً: احفظ رموز الاسترداد الاحتياطية أدناه في مكان آمن. ستتيح لك تسجيل الدخول إذا فقدت الوصول لهاتفك.
 						</p>
 					</div>
 				</div>
 
-				<div>
-					<div>
+    <div class="stack-sm">
+     <div class="stack-sm">
 						for _, code := range data.RecoveryCodes {
 							<div class="font-mono text-center font-bold text-sm tabular-nums">
 								{ code }
@@ -122,19 +122,19 @@ templ mfaSettingsContent(lang, dir string, data MFASettingsViewData) {
 			<div class="stack-lg">
 				<!-- Active Status Card -->
 				<div class="card p-6">
-					<div>
-						<div>
-							<div>
+     <div class="stack-sm">
+      <div class="stack-sm">
+       <div class="stack-sm">
 								@components.IconShield("icon-sm")
 							</div>
-							<div>
+       <div class="stack-sm">
 								<div class="row-center-sm gap-2">
-									<h2>
+									<h2 class="card-title font-bold text-base m-0">
 										المصادقة الثنائية مفعلة بحسابك
 									</h2>
 									<span class="badge badge-emerald font-bold text-xs">نشط ومؤمن</span>
 								</div>
-								<p>
+        <p class="text-sm text-secondary m-0">
 									Google Authenticator (TOTP)
 									if data.Status.ConfirmedAt != nil {
 										<span> • مفعل منذ { data.Status.ConfirmedAt.Format("2006-01-02 15:04") }</span>
@@ -144,16 +144,16 @@ templ mfaSettingsContent(lang, dir string, data MFASettingsViewData) {
 						</div>
 					</div>
 
-					<div>
-						<div>
-							<div>طريقة المصادقة</div>
-							<div>
+     <div class="stack-sm">
+      <div class="stack-sm">
+							<div class="stat-label text-sm text-secondary">طريقة المصادقة</div>
+       <div class="stack-sm">
 								تطبيق Google Authenticator
 							</div>
 						</div>
 
-						<div>
-							<div>رموز الاسترداد الاحتياطية</div>
+      <div class="stack-sm">
+							<div class="stat-label text-sm text-secondary">رموز الاسترداد الاحتياطية</div>
 							<div class="tabular-nums">
 								{ fmt.Sprintf("%d", data.Status.RecoveryCodesCount) } رموز متبقية
 							</div>
@@ -164,11 +164,11 @@ templ mfaSettingsContent(lang, dir string, data MFASettingsViewData) {
 				<!-- Regenerate Recovery Codes Card -->
 				<div class="card p-5" x-data="{ openRegen: false }">
 					<div class="flex-between flex-wrap gap-3">
-						<div>
-							<h3>
+      <div class="stack-sm">
+							<h3 class="font-bold text-sm m-0">
 								إعادة توليد رموز الاسترداد الاحتياطية
 							</h3>
-							<p>
+       <p class="text-sm text-secondary m-0">
 								توليد 8 رموز استرداد جديدة وإلغاء الرموز السابقة
 							</p>
 						</div>
@@ -177,7 +177,7 @@ templ mfaSettingsContent(lang, dir string, data MFASettingsViewData) {
 						</button>
 					</div>
 
-					<div x-show="openRegen">
+					<div class="stack-md" x-show="openRegen">
 						<form action={ templ.SafeURL(ternary(data.IsVendor, "/vendor/mfa/regenerate-codes", "/customer/mfa/regenerate-codes")) } method="POST" class="stack-sm">
 							<div class="form-group mb-2">
 								<label class="form-label text-xs">كلمة المرور الحالية للتأكيد</label>
@@ -194,11 +194,11 @@ templ mfaSettingsContent(lang, dir string, data MFASettingsViewData) {
 				<!-- Disable MFA Card -->
 				<div class="card p-5" x-data="{ openDisable: false }">
 					<div class="flex-between flex-wrap gap-3">
-						<div>
-							<h3>
+      <div class="stack-sm">
+							<h3 class="font-bold text-sm m-0">
 								تعطيل المصادقة الثنائية (MFA)
 							</h3>
-							<p>
+       <p class="text-sm text-secondary m-0">
 								سيؤدي تعطيل MFA إلى خفض مستوى أمان حسابك وجعل الدخول بكلمة المرور فقط
 							</p>
 						</div>
@@ -207,7 +207,7 @@ templ mfaSettingsContent(lang, dir string, data MFASettingsViewData) {
 						</button>
 					</div>
 
-					<div x-show="openDisable">
+					<div class="stack-md" x-show="openDisable">
 						<form action={ templ.SafeURL(ternary(data.IsVendor, "/vendor/mfa/disable", "/customer/mfa/disable")) } method="POST" class="stack-sm" onsubmit="return confirm('هل أنت متأكد من رغبتك في تعطيل المصادقة الثنائية لحسابك؟');">
 							<div class="form-group mb-2">
 								<label class="form-label text-xs">أدخل كلمة المرور الحالية لتأكيد التعطيل</label>
@@ -225,15 +225,15 @@ templ mfaSettingsContent(lang, dir string, data MFASettingsViewData) {
 			<div class="card p-6">
 				
 				<!-- Setup Intro -->
-				<div>
-					<div>
+    <div class="stack-sm">
+     <div class="stack-sm">
 						@components.IconShield("icon-sm")
 					</div>
-					<div>
-						<h2>
+     <div class="stack-sm">
+						<h2 class="card-title font-bold text-base m-0">
 							تفعيل التحقق بخطوتين عبر Google Authenticator
 						</h2>
-						<p>
+      <p class="text-sm text-secondary m-0">
 							خطوات بسيطة لتأمين حسابك ضد أي اختراق عبر تطبيق المصادقة على هاتفك
 						</p>
 					</div>
@@ -241,12 +241,12 @@ templ mfaSettingsContent(lang, dir string, data MFASettingsViewData) {
 
 				if data.SetupData == nil {
 					<!-- Start Setup Button -->
-					<div>
-						<div>
-							<h3>
+     <div class="stack-sm">
+      <div class="stack-sm">
+							<h3 class="font-bold text-sm m-0">
 								كيف تعمل المصادقة الثنائية؟
 							</h3>
-							<p>
+       <p class="text-sm text-secondary m-0">
 								عند تسجيل الدخول في المرات القادمة، سيُطلب منك إدخال رمز مؤقت من 6 أرقام يظهر على تطبيق Google Authenticator في هاتفك بالإضافة إلى كلمة المرور الخاصة بك.
 							</p>
 							<form action={ templ.SafeURL(ternary(data.IsVendor, "/vendor/mfa/setup", "/customer/mfa/setup")) } method="POST" class="m-0">
@@ -258,24 +258,24 @@ templ mfaSettingsContent(lang, dir string, data MFASettingsViewData) {
 					</div>
 				} else {
 					<!-- Setup Wizard Active (QR Code & Verification Form) -->
-					<div>
+     <div class="stack-sm">
 						
 						<!-- Step 1 & 2 Grid -->
-						<div>
+      <div class="stack-sm">
 							
 							<!-- Step 1: QR Code -->
-							<div>
+       <div class="stack-sm">
 								<div class="badge badge-brand font-bold text-xs mb-3">الخطوة 1: امسح رمز الـ QR</div>
-								<h4>
+								<h4 class="font-semibold text-sm m-0">
 									افتح Google Authenticator وامسح الرمز:
 								</h4>
 
-								<div>
+        <div class="stack-sm">
 									<img src={ data.SetupData.QRCodeDataURI } alt="MFA QR Code" />
 								</div>
 
-								<div>
-									<div>أو أدخل المفتاح السري يدويًا في التطبيق:</div>
+        <div class="stack-sm">
+									<div class="stat-label text-sm text-secondary">أو أدخل المفتاح السري يدويًا في التطبيق:</div>
 									<div class="font-mono font-bold text-xs">
 										{ data.SetupData.Secret }
 									</div>
@@ -283,12 +283,12 @@ templ mfaSettingsContent(lang, dir string, data MFASettingsViewData) {
 							</div>
 
 							<!-- Step 2: Confirm Code Form -->
-							<div>
+       <div class="stack-sm">
 								<div class="badge badge-emerald font-bold text-xs mb-3">الخطوة 2: أدخل رمز التحقق</div>
-								<h4>
+								<h4 class="font-semibold text-sm m-0">
 									أدخل الرمز المكون من 6 أرقام لتأكيد التفعيل:
 								</h4>
-								<p>
+        <p class="text-sm text-secondary m-0">
 									يظهر الرمز المكون من 6 أرقام داخل تطبيق Google Authenticator تحت اسم <strong>Dawa24</strong>.
 								</p>
 

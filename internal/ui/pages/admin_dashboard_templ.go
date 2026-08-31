@@ -536,9 +536,9 @@ func AdminDashboard(stats AdminDashboardStats, pendingOrgs []*org.Organization, 
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var24 string
-					templ_7745c5c3_Var24, templ_7745c5c3_Err = templ.JoinStringErrs(ord.CreatedAt.Format("01/02 15:04"))
+					templ_7745c5c3_Var24, templ_7745c5c3_Err = templ.JoinStringErrs(ord.CreatedAt.Format("01/02 03:04 PM"))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_dashboard.templ`, Line: 280, Col: 49}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_dashboard.templ`, Line: 280, Col: 52}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var24))
 					if templ_7745c5c3_Err != nil {

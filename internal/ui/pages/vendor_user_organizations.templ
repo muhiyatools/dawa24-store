@@ -24,7 +24,7 @@ type VendorUserOrgData struct {
 
 templ VendorUserOrganizationsPage(lang, dir string, data *VendorUserOrgData) {
 	@layouts.VendorShell("مستخدمو المنظمات | إدارة المنشأة", "user_organization", lang, dir) {
-		<div>
+  <div class="stack-sm">
 
 			<!-- Notice Banner -->
 			if data != nil && data.NoticeMsg != "" {
@@ -42,7 +42,7 @@ templ VendorUserOrganizationsPage(lang, dir string, data *VendorUserOrgData) {
 			}
 
 			<!-- Top Nav Tabs matching Old System -->
-			<div>
+   <div class="stack-sm">
 				<a href="/vendor/organization" class="btn btn-secondary btn-sm font-bold">
 					المؤسسة
 				</a>
@@ -62,24 +62,24 @@ templ VendorUserOrganizationsPage(lang, dir string, data *VendorUserOrgData) {
 
 			<!-- Header Banner matching old system -->
 			<div class="card">
-				<div>
-					<div>
-						<div>
+    <div class="stack-sm">
+     <div class="stack-sm">
+      <div class="stack-sm">
 							@components.IconUsers("icon-sm")
 						</div>
-						<div>
-							<h1>
+      <div class="stack-sm">
+							<h1 class="page-title font-bold text-xl m-0">
 								مستخدمو المنظمات (MANAGE ORGANIZATION MEMBERS)
 							</h1>
 							<span>Pharmacy User Connections & Organization Codes</span>
 						</div>
 					</div>
-					<p>
+     <p class="text-sm text-secondary m-0">
 						إدارة وتدقيق طلبات ربط الصيدليات وتعيين أكواد المنظمات (Organization Numbers) وتفعيل أو رفض الحسابات.
 					</p>
 				</div>
 
-				<div>
+    <div class="stack-sm">
 					<button
 						type="button"
 						class="btn btn-primary btn-sm fw-800"
@@ -97,7 +97,7 @@ templ VendorUserOrganizationsPage(lang, dir string, data *VendorUserOrgData) {
 				Title: "ربط مستخدم / صيدلية وتعيين رقم المنظمة",
 				Size:  "md",
 			}) {
-				<form method="POST" action="/vendor/user-organization/new">
+				<form method="POST" class="m-0" action="/vendor/user-organization/new">
 					<!-- Live AJAX User Search with Debouncing -->
 					<div class="form-group m-0 relative">
 						<label class="form-label" for="vendor-uo-user-search">
@@ -108,10 +108,10 @@ templ VendorUserOrganizationsPage(lang, dir string, data *VendorUserOrgData) {
 						<input type="hidden" id="vendor-selected-user-id" name="user_id" required value="" />
 
 						<!-- Selected User Chip Card (shown once a user is chosen) -->
-						<div id="vendor-selected-user-chip">
+						<div class="stack-sm" id="vendor-selected-user-chip">
 							<div class="inline-row-06">
 								<span>@components.IconUser("icon-sm")</span>
-								<div>
+        <div class="stack-sm">
 									<strong id="vendor-selected-user-name"></strong>
 									<div id="vendor-selected-user-details" class="meta-muted" dir="ltr"></div>
 								</div>
@@ -132,13 +132,13 @@ templ VendorUserOrganizationsPage(lang, dir string, data *VendorUserOrgData) {
 								oninput="handleVendorUserSearch(this.value)"
 								onfocus="handleVendorUserSearch(this.value)"
 							/>
-							<div id="vendor-search-spinner">
+							<div class="stack-sm" id="vendor-search-spinner">
 								⏳
 							</div>
 						</div>
 
 						<!-- Autocomplete Results Dropdown -->
-						<div
+						<div class="stack-sm"
 							id="vendor-user-search-dropdown"
 						></div>
 					</div>
@@ -188,8 +188,8 @@ templ VendorUserOrganizationsPage(lang, dir string, data *VendorUserOrgData) {
 
 			<!-- Filter Status Pills matching old reference UI (الكل، قيد الانتظار، Approval، مرفوض) -->
 			if data != nil {
-				<div>
-					<div>
+    <div class="stack-sm">
+     <div class="stack-sm">
 						<a
 							href="/vendor/user-organization?status=all"
 							class={ "btn btn-sm fw-800", templ.KV("btn-primary", data.ActiveTab == "" || data.ActiveTab == "all"), templ.KV("btn-secondary", data.ActiveTab != "" && data.ActiveTab != "all") }
@@ -232,15 +232,15 @@ templ VendorUserOrganizationsPage(lang, dir string, data *VendorUserOrgData) {
 					Message: "لم يتم تقديم أي طلبات ربط تحت هذا التصنيف حالياً.",
 				})
 			} else {
-				<div>
+    <div class="stack-sm">
 					for _, uo := range data.UserOrgs {
 						if uo != nil {
 							<div
 								class="card"
 							>
 								<!-- User Details -->
-								<div>
-									<div>
+        <div class="stack-sm">
+         <div class="stack-sm">
 										if len(uo.UserName) > 0 {
 											{ string([]rune(uo.UserName)[0:1]) }
 										} else {
@@ -248,7 +248,7 @@ templ VendorUserOrganizationsPage(lang, dir string, data *VendorUserOrgData) {
 										}
 									</div>
 
-									<div>
+         <div class="stack-sm">
 										<div class="inline-row-wrap">
 											<strong>{ uo.UserName }</strong>
 											if uo.CustomerOrgName != "" {
@@ -260,16 +260,16 @@ templ VendorUserOrganizationsPage(lang, dir string, data *VendorUserOrgData) {
 											</span>
 										</div>
 
-										<div dir="ltr">
+										<div class="stack-sm" dir="ltr">
 											{ uo.UserEmail }
 										</div>
 
-										<div>
+          <div class="stack-sm">
 											تاريخ الطلب: <span class="tabular-nums">{ format.Date(uo.CreatedAt, "ar") }</span>
 										</div>
 
 										if uo.Notes != "" {
-											<div>
+           <div class="stack-sm">
 												<strong>ملاحظات:</strong> { uo.Notes }
 											</div>
 										}
@@ -326,7 +326,7 @@ templ VendorUserOrganizationsPage(lang, dir string, data *VendorUserOrgData) {
 									Title: fmt.Sprintf("تعديل رقم المنظمة للمستخدم %s", uo.UserName),
 									Size:  "md",
 								}) {
-									<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/vendor/user-organization/%d/edit", uo.ID)) }>
+									<form method="POST" class="m-0" action={ templ.SafeURL(fmt.Sprintf("/vendor/user-organization/%d/edit", uo.ID)) }>
 										<div class="form-group m-0">
 											<label class="form-label" for={ fmt.Sprintf("vendor-edit-num-%d", uo.ID) }>
 												رقم المنظمة (Organization Number) *
@@ -402,7 +402,7 @@ templ VendorUserOrganizationsPage(lang, dir string, data *VendorUserOrgData) {
 						.then(users => {
 							if (spinner) spinner.style.display = 'none';
 							if (!users || users.length === 0) {
-								dropdown.innerHTML = '<div>لا توجد حسابات صيدليات أو مستخدمين مطابقة</div>';
+								dropdown.innerHTML = '<div class="stat-label text-sm text-secondary">لا توجد حسابات صيدليات أو مستخدمين مطابقة</div>';
 								dropdown.style.display = 'block';
 								return;
 							}
@@ -413,12 +413,12 @@ templ VendorUserOrganizationsPage(lang, dir string, data *VendorUserOrgData) {
 								const safeEmail = (u.email || '').replace(/'/g, "\\'");
 								const safePhone = (u.phone || '').replace(/'/g, "\\'");
 								html += `
-									<div
+									<div class="stack-sm"
 										onclick="selectVendorUser(${u.id}, '${safeName}', '${safeEmail}', '${safePhone}')"
 										onmouseenter="this.style.background='var(--surface-sunken)'"
 										onmouseleave="this.style.background='transparent'"
 									>
-										<div>
+          <div class="stack-sm">
 											<strong>${u.name}</strong>
 											<div class="meta-muted" dir="ltr">${u.email} ${u.phone ? '• ' + u.phone : ''}</div>
 										</div>
@@ -431,7 +431,7 @@ templ VendorUserOrganizationsPage(lang, dir string, data *VendorUserOrgData) {
 						})
 						.catch(err => {
 							if (spinner) spinner.style.display = 'none';
-							dropdown.innerHTML = '<div>حدث خطأ أثناء البحث</div>';
+							dropdown.innerHTML = '<div class="stat-label text-sm text-secondary">حدث خطأ أثناء البحث</div>';
 							dropdown.style.display = 'block';
 						});
 				}, 250);

@@ -117,7 +117,7 @@ templ AdminDevelopersDiagnostics(values AdminDevelopersValues, lang string) {
 										</td>
 										<td class="text-start">
 											<div class="tabular-nums font-bold text-primary">{ err.CreatedAt.Format("2006-01-02") }</div>
-											<div class="tabular-nums text-xs text-muted">{ err.CreatedAt.Format("15:04:05") }</div>
+											<div class="tabular-nums text-xs text-muted">{ err.CreatedAt.Format("03:04:05 PM") }</div>
 										</td>
 										<td class="text-center">
 											if err.ErrorLevel == "CRITICAL" || err.ErrorLevel == "FATAL" {
@@ -252,7 +252,7 @@ templ AdminDevelopersDiagnostics(values AdminDevelopersValues, lang string) {
 							"url_path": { fmt.Sprintf("%q", err.URLPath) },
 							"ip_address": { fmt.Sprintf("%q", err.IPAddress) },
 							"status": { fmt.Sprintf("%q", err.Status) },
-							"created_at": { fmt.Sprintf("%q", err.CreatedAt.Format("2006-01-02 15:04:05")) }
+							"created_at": { fmt.Sprintf("%q", err.CreatedAt.Format("2006-01-02 03:04:05 PM")) }
 						}
 					</script>
 				}
@@ -305,7 +305,7 @@ templ AdminDevelopersDiagnostics(values AdminDevelopersValues, lang string) {
 											</td>
 											<td class="text-start">
 												<div class="tabular-nums font-bold text-primary">{ e.CreatedAt.Format("2006-01-02") }</div>
-												<div class="tabular-nums text-xs text-muted">{ e.CreatedAt.Format("15:04:05") }</div>
+												<div class="tabular-nums text-xs text-muted">{ e.CreatedAt.Format("03:04:05 PM") }</div>
 											</td>
 											<td class="text-start">
 												<div class="font-bold text-primary">{ e.ActorName }</div>

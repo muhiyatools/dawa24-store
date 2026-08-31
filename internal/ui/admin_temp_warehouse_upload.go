@@ -36,7 +36,7 @@ func cleanSupplierNameFromFilename(filename string, lang ...string) string {
 		if len(lang) > 0 && lang[0] != "" {
 			l = lang[0]
 		}
-		name = i18n.T(l, "admin.temp_warehouse.default_name_prefix") + time.Now().Format("2006-01-02 15:04")
+		name = i18n.T(l, "admin.temp_warehouse.default_name_prefix") + time.Now().Format("2006-01-02 03:04 PM")
 	}
 	return name
 }

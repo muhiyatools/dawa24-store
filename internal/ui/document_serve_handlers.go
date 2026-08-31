@@ -268,7 +268,7 @@ func (h *UIHandler) renderMissingDocError(w http.ResponseWriter, r *http.Request
 		if view.OriginalName == "" {
 			view.OriginalName = fmt.Sprintf("Document #%d", doc.ID)
 		}
-		view.UploadDate = doc.CreatedAt.Format("2006-01-02 15:04")
+		view.UploadDate = doc.CreatedAt.Format("2006-01-02 03:04 PM")
 		if doc.OrganizationID != nil && *doc.OrganizationID > 0 {
 			view.OrgID = *doc.OrganizationID
 			if h.orgSvc != nil {

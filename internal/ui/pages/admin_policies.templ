@@ -22,7 +22,7 @@ templ AdminPoliciesPanel(lang, dir string, currentKey string, policies []*platfo
 				<div class="user-avatar-badge text-xl">
 					@components.IconFileText("icon-sm")
 				</div>
-				<div>
+    <div class="stack-sm">
 					<h2 class="text-xl font-black text-primary m-0">
 						إدارة إصدارات السياسات والوثائق القانونية
 					</h2>
@@ -114,13 +114,13 @@ templ AdminPoliciesPanel(lang, dir string, currentKey string, policies []*platfo
 									<strong class="tabular-nums">v{ p.Version }</strong>
 								</td>
 								<td>
-									<div>{ p.Title["ar"] }</div>
+									<div class="stat-label text-sm text-secondary">{ p.Title["ar"] }</div>
 									if p.Title["en"] != "" {
-										<div>{ p.Title["en"] }</div>
+										<div class="stat-label text-sm text-secondary">{ p.Title["en"] }</div>
 									}
 								</td>
 								<td>
-									<div>
+         <div class="stack-sm">
 										{ p.Summary["ar"] }
 									</div>
 								</td>
@@ -158,27 +158,27 @@ templ AdminPoliciesPanel(lang, dir string, currentKey string, policies []*platfo
 											Title: fmt.Sprintf("%s (الإصدار %s)", p.Title["ar"], p.Version),
 											Size:  "lg",
 										}) {
-											<div>
-												<div>
+           <div class="stack-sm">
+            <div class="stack-sm">
 													<strong>ملخص التغييرات:</strong> { p.Summary["ar"] }
 												</div>
 
-												<div>
-													<div>
-														<h4>المحتوى بالعربية:</h4>
-														<div>
+            <div class="stack-sm">
+             <div class="stack-sm">
+														<h4 class="font-semibold text-sm m-0">المحتوى بالعربية:</h4>
+              <div class="stack-sm">
 															{ p.Content["ar"] }
 														</div>
 													</div>
-													<div>
-														<h4>English Content:</h4>
-														<div dir="ltr">
+             <div class="stack-sm">
+														<h4 class="font-semibold text-sm m-0">English Content:</h4>
+														<div class="stack-sm" dir="ltr">
 															{ p.Content["en"] }
 														</div>
 													</div>
 												</div>
 
-												<div>
+            <div class="stack-sm">
 													<button type="button" class="btn btn-secondary" data-modal-close>إغلاق</button>
 												</div>
 											</div>
@@ -198,7 +198,7 @@ templ AdminPoliciesPanel(lang, dir string, currentKey string, policies []*platfo
 			Title: "إنشاء إصدار جديد من سياسة المنصة",
 			Size:  "lg",
 		}) {
-			<form method="POST" action="/admin/policies">
+			<form method="POST" class="m-0" action="/admin/policies">
 				<div class="form-grid-2">
 					<div class="form-group m-0">
 						<label class="form-label" for="policy-key">نوع الوثيقة القانونية *</label>
@@ -250,7 +250,7 @@ templ AdminPoliciesPanel(lang, dir string, currentKey string, policies []*platfo
 
 				<div class="row-center-sm">
 					<input type="checkbox" id="policy-publish" name="is_published" value="1" />
-					<label for="policy-publish">
+					<label class="form-label" for="policy-publish">
 						نشر هذا الإصدار وتفعيله للجمهور فوراً
 					</label>
 				</div>

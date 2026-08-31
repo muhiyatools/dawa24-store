@@ -159,8 +159,8 @@ func (h *UIHandler) fillAIUsageFromLedger(ctx context.Context, data *pages.AICon
 		featName, featKey := mapGatewayCapabilityToName(e.Capability, e.Feature, isVendor, lang...)
 		data.Logs = append(data.Logs, &pages.AILogItemView{
 			ID:            fmt.Sprintf("%d", e.ID),
-			Timestamp:     e.CreatedAt.Format("2006-01-02 15:04:05"),
-			TimeFormatted: e.CreatedAt.Format("2006-01-02 15:04"),
+			Timestamp:     e.CreatedAt.Format("2006-01-02 03:04:05 PM"),
+			TimeFormatted: e.CreatedAt.Format("2006-01-02 03:04 PM"),
 			FeatureName:   featName,
 			FeatureKey:    featKey,
 			ModelAlias:    e.Model,

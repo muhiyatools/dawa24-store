@@ -114,7 +114,7 @@ func (h *UIHandler) loadOrgSubscriptionView(ctx context.Context, actor authctx.A
 					subView.AIBudgetSpentUSD = bw.CurrentSpent
 					subView.HasAIUsage = true
 					if !bw.ResetTime.IsZero() {
-						subView.AIBudgetResetTime = bw.ResetTime.Format("2006-01-02 15:04")
+						subView.AIBudgetResetTime = bw.ResetTime.Format("2006-01-02 03:04 PM")
 					}
 				}
 			}

@@ -431,9 +431,9 @@ func AdminAnalytics(lang, dir string, a *platformadmin.VisitorAnalytics) templ.C
 						return templ_7745c5c3_Err
 					}
 					var templ_7745c5c3_Var21 string
-					templ_7745c5c3_Var21, templ_7745c5c3_Err = templ.JoinStringErrs(v.CreatedAt.Format("15:04:05"))
+					templ_7745c5c3_Var21, templ_7745c5c3_Err = templ.JoinStringErrs(v.CreatedAt.Format("03:04:05 PM"))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_analytics.templ`, Line: 230, Col: 44}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_analytics.templ`, Line: 230, Col: 47}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var21))
 					if templ_7745c5c3_Err != nil {
