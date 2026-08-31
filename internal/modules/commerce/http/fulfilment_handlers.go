@@ -53,6 +53,12 @@ func (h *Handler) SetCartQuantity(w http.ResponseWriter, r *http.Request) {
 
 // GetShipment returns one vendor shipment.
 func (h *Handler) GetShipment(w http.ResponseWriter, r *http.Request) {
+	actor, ok := authctx.From(r.Context())
+	if !ok {
+		httpx.Error(w, r, h.log, apperr.Unauthorized())
+		return
+	}
+
 	id, err := commerceID(r, "id", "shipment")
 	if err != nil {
 		httpx.Error(w, r, h.log, err)
@@ -64,6 +70,29 @@ func (h *Handler) GetShipment(w http.ResponseWriter, r *http.Request) {
 		httpx.Error(w, r, h.log, err)
 		return
 	}
+
+	allowed := actor.IsStaff || actor.Can("commerce.admin") ||
+		(shipment.OrganizationID > 0 && shipment.OrganizationID == actor.OrganizationID)
+
+	if !allowed && shipment.OrderID > 0 {
+		if order, err := h.service.GetOrder(r.Context(), shipment.OrderID); err == nil && order != nil {
+			if order.CustomerID == actor.UserID || (order.OrganizationID != nil && *order.OrganizationID == actor.OrganizationID) {
+				allowed = true
+			}
+		}
+	}
+
+	if !allowed {
+		h.log.WarnContext(r.Context(), "unauthorized shipment read attempt",
+			"actor_user_id", actor.UserID,
+			"actor_org_id", actor.OrganizationID,
+			"shipment_id", id,
+			"shipment_org_id", shipment.OrganizationID,
+		)
+		httpx.Error(w, r, h.log, apperr.Forbidden("shipment.unauthorized", "Not authorized to view this shipment"))
+		return
+	}
+
 	httpx.JSON(w, http.StatusOK, shipment)
 }
 
