@@ -2,6 +2,7 @@ package pages
 
 import (
 	"fmt"
+
 	"github.com/muhiya/dawa24-store/internal/modules/org"
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/ui/components"
@@ -10,28 +11,30 @@ import (
 
 templ CustomerFollowedSuppliers(suppliers []*org.Organization, lang, dir string) {
 	@layouts.CustomerShell("الموردون المتابعون", "followed", lang, dir, nil) {
-		<div class="followed-suppliers-container">
+		<div class="page-container">
 			
 			<!-- Page Header -->
-   <div class="stack-sm">
-    <div class="stack-sm">
-     <div class="stack-sm">
-						<div class="stack-xs text-sm">
-							@components.IconBuilding("icon-xs")
+			<div class="glass-panel p-6 mb-6">
+				<div class="flex-between items-center flex-wrap gap-4">
+					<div class="stack-xs">
+						<div class="d-flex items-center gap-3 mb-1">
+							<div class="user-avatar-badge text-xl">
+								@components.IconBuilding("icon-sm")
+							</div>
+							<h1 class="page-title text-2xl font-black text-primary m-0">
+								الموردون المتابعون
+							</h1>
 						</div>
-						<h2 class="card-title font-bold text-base m-0">
-							الموردون المتابعون
-						</h2>
+						<p class="text-sm text-secondary m-0 max-w-2xl leading-relaxed">
+							الوصول السريع لكتالوجات شركات التوزيع المفضلة ومتابعة عروض التوريد الخاصة بصيدليتك.
+						</p>
 					</div>
-     <p class="text-sm text-secondary m-0">
-						الوصول السريع لكتالوجات شركات التوزيع المفضلة ومتابعة عروض التوريد الخاصة بصيدليتك.
-					</p>
-				</div>
 
-				<a href="/suppliers" class="btn btn-secondary fw-700">
-					@components.IconSearch("icon-xs")
-					<span>دليل الموردين المعتمدين</span>
-				</a>
+					<a href="/suppliers" class="btn btn-secondary btn-sm font-bold gap-2">
+						@components.IconSearch("icon-xs")
+						<span>دليل الموردين المعتمدين</span>
+					</a>
+				</div>
 			</div>
 
 			if len(suppliers) == 0 {
@@ -41,61 +44,63 @@ templ CustomerFollowedSuppliers(suppliers []*org.Organization, lang, dir string)
 					ActionLabel: "تصفح دليل الموردين المعتمدين",
 				})
 			} else {
-    <div class="stack-sm">
+				<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
 					for _, s := range suppliers {
-						<div class="card">
-       <div class="stack-sm">
-								<!-- Header with Emblem and Verified Badge -->
-        <div class="stack-sm">
-									<div class="row-center">
-										<div class="stack-xs text-sm">
-											@components.IconBuilding("icon-md")
-										</div>
-          <div class="stack-sm">
-											<h3 class="font-bold text-sm m-0">
-												{ s.TradeName.Get(i18n.Lang(lang)) }
-											</h3>
-           <div class="stack-sm">
-												<span class="badge badge-emerald">مورد معتمد</span>
+						if s != nil {
+							<div class="card p-5 flex flex-col justify-between hover:shadow-md transition-shadow">
+								<div>
+									<!-- Header with Emblem and Verified Badge -->
+									<div class="flex-between items-start gap-3 mb-4">
+										<div class="d-flex items-center gap-3">
+											<div class="w-12 h-12 rounded-xl bg-primary-subtle text-primary flex-center flex-shrink-0">
+												@components.IconBuilding("icon-md")
+											</div>
+											<div class="stack-2xs">
+												<h3 class="font-bold text-sm text-primary m-0">
+													{ s.TradeName.Get(i18n.Lang(lang)) }
+												</h3>
+												<div>
+													<span class="badge badge-emerald text-xs font-bold">مورد معتمد</span>
+												</div>
 											</div>
 										</div>
+
+										<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/suppliers/%d/follow", s.ID)) } class="m-0">
+											<button type="submit" class="btn btn-secondary btn-icon btn-sm text-rose" title="إلغاء المتابعة">
+												@components.IconHeart("icon-xs")
+											</button>
+										</form>
 									</div>
 
-									<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/suppliers/%d/follow", s.ID)) } class="m-0">
-										<button type="submit" class="btn btn-secondary btn-icon" title="إلغاء المتابعة">
-											@components.IconHeart("icon-xs")
-										</button>
-									</form>
+									<!-- Legal Info -->
+									<div class="p-3 bg-surface-sunken rounded-xl border stack-2xs text-xs mb-4">
+										if s.LegalName != "" && s.LegalName != s.TradeName.Get(i18n.Lang(lang)) {
+											<div>
+												<span class="text-muted font-bold">الاسم القانوني: </span>
+												<strong class="text-primary">{ s.LegalName }</strong>
+											</div>
+										}
+										if s.CommercialRegister != "" {
+											<div>
+												<span class="text-muted font-bold">السجل التجاري: </span>
+												<strong class="tabular-nums font-mono text-primary">{ s.CommercialRegister }</strong>
+											</div>
+										}
+									</div>
 								</div>
 
-								<!-- Legal Info -->
-        <div class="stack-sm">
-									if s.LegalName != "" && s.LegalName != s.TradeName.Get(i18n.Lang(lang)) {
-          <div class="stack-sm">
-											<span class="text-muted">الاسم القانوني:</span>
-											<strong class="text-primary">{ s.LegalName }</strong>
-										</div>
-									}
-									if s.CommercialRegister != "" {
-          <div class="stack-sm">
-											<span class="text-muted">السجل التجاري:</span>
-											<strong class="tabular-nums text-primary">{ s.CommercialRegister }</strong>
-										</div>
-									}
+								<!-- Bottom Actions -->
+								<div class="flex-between items-center gap-2 pt-3 border-t">
+									<a href={ templ.SafeURL(fmt.Sprintf("/suppliers/%d", s.ID)) } class="btn btn-primary btn-sm font-bold flex-1 justify-center gap-1">
+										@components.IconPackage("icon-xs")
+										<span>عرض الكتالوج والطلب</span>
+									</a>
+									<a href="https://wa.me/201012345678" target="_blank" rel="noopener" class="btn btn-secondary btn-sm btn-icon text-success" title="تواصل عبر واتساب">
+										@components.IconWhatsApp("icon-xs")
+									</a>
 								</div>
 							</div>
-
-							<!-- Bottom Actions -->
-       <div class="stack-sm">
-								<a href={ templ.SafeURL(fmt.Sprintf("/suppliers/%d", s.ID)) } class="btn btn-primary btn-sm">
-									@components.IconPackage("icon-xs")
-									<span>عرض الكتالوج والطلب</span>
-								</a>
-								<a href="https://wa.me/201012345678" target="_blank" rel="noopener" class="btn btn-secondary btn-sm btn-icon text-success" title="تواصل عبر واتساب">
-									@components.IconWhatsApp("icon-xs")
-								</a>
-							</div>
-						</div>
+						}
 					}
 				</div>
 			}

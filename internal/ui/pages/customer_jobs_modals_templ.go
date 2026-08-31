@@ -36,277 +36,365 @@ func CustomerJobsModals(lang, dir string, data CustomerJobsData) templ.Component
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<!-- ================= ADD JOB MODAL ================= --><div id=\"add-job-modal\" class=\"modal-backdrop hidden\"><div class=\"card\"><div class=\"section-head\"><div class=\"stack-sm\"><h3 class=\"font-bold text-sm m-0\">نشر وظيفة / شاغر صيدلاني جديد</h3><p class=\"text-sm text-secondary m-0\">أدخل تفاصيل الشاغر لاستقبال طلبات التقديم والسير الذاتية من الكوادر المعتمدة.</p></div><button type=\"button\" class=\"btn btn-secondary btn-sm btn-icon\" onclick=\"closeAddJobModal()\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<!-- ================= ADD JOB MODAL ================= -->")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = components.IconX("icon-sm").Render(ctx, templ_7745c5c3_Buffer)
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</button></div><form method=\"POST\" action=\"/customer/jobs\" class=\"stack-115\"><!-- Job Title Arabic & English --><div class=\"grid-2\"><div class=\"stack-sm\"><label class=\"form-label\">المسمى الوظيفي (بالعربية) <span class=\"text-danger\">*</span></label> <input type=\"text\" name=\"title_ar\" required class=\"form-input field-height\" placeholder=\"مثال: صيدلي أول / مساعد صيدلي\"></div><div class=\"stack-sm\"><label class=\"form-label\">المسمى الوظيفي (بالإنجليزية)</label> <input type=\"text\" name=\"title_en\" class=\"form-input field-height\" placeholder=\"e.g. Pharmacist / Branch Manager\"></div></div><!-- Location & Branch Selection --><div class=\"grid-2\"><div class=\"stack-sm\"><label class=\"form-label\">الفرع المخصص للشاغر <span class=\"text-danger\">*</span></label> ")
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		if len(data.Branches) == 0 {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "<div class=\"stack-sm\"><span>لم تسجل فروعاً بعد. سيتم ربط الوظيفة بـ <strong>(الفرع الرئيسي)</strong>. يمكنك إضافة فروعك من <a href=\"/customer/branches\" class=\"text-primary font-bold text-decoration-none\">إدارة الفروع ↗</a>.</span></div><input type=\"hidden\" name=\"location\" value=\"الفرع الرئيسي\">")
+		templ_7745c5c3_Var2 := templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
+			templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
+			templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templruntime.GetBuffer(templ_7745c5c3_W)
+			if !templ_7745c5c3_IsBuffer {
+				defer func() {
+					templ_7745c5c3_BufErr := templruntime.ReleaseBuffer(templ_7745c5c3_Buffer)
+					if templ_7745c5c3_Err == nil {
+						templ_7745c5c3_Err = templ_7745c5c3_BufErr
+					}
+				}()
+			}
+			ctx = templ.InitializeContext(ctx)
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "<form method=\"POST\" action=\"/customer/jobs\" class=\"stack-lg\"><!-- Job Title Arabic & English --><div class=\"grid grid-cols-1 md:grid-cols-2 gap-4\"><div class=\"stack-xs\"><label class=\"form-label font-bold text-xs\">المسمى الوظيفي (بالعربية) <span class=\"text-danger\">*</span></label> <input type=\"text\" name=\"title_ar\" required class=\"form-input\" placeholder=\"مثال: صيدلي أول / مساعد صيدلي\"></div><div class=\"stack-xs\"><label class=\"form-label font-bold text-xs\">المسمى الوظيفي (بالإنجليزية)</label> <input type=\"text\" name=\"title_en\" class=\"form-input\" placeholder=\"e.g. Pharmacist / Branch Manager\" dir=\"ltr\"></div></div><!-- Location & Branch Selection --><div class=\"grid grid-cols-1 md:grid-cols-2 gap-4\"><div class=\"stack-xs\"><label class=\"form-label font-bold text-xs\">الفرع المخصص للشاغر <span class=\"text-danger\">*</span></label> ")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-		} else {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "<select name=\"branch_id\" required class=\"form-input field-cta\"><option value=\"\">-- اختر الفرع المتاح للوظيفة --</option> ")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			for _, b := range data.Branches {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "<option value=\"")
+			if len(data.Branches) == 0 {
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "<div class=\"p-3 bg-surface-sunken border rounded-lg text-xs text-secondary\"><span>لم تسجل فروعاً بعد. سيتم ربط الوظيفة بـ <strong>(الفرع الرئيسي)</strong>. يمكنك إضافة فروعك من <a href=\"/customer/branches\" class=\"text-primary font-bold\">إدارة الفروع ↗</a>.</span></div><input type=\"hidden\" name=\"location\" value=\"الفرع الرئيسي\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				var templ_7745c5c3_Var2 string
-				templ_7745c5c3_Var2, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%d", b.ID))
-				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_jobs_modals.templ`, Line: 77, Col: 49}
-				}
-				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var2)
+			} else {
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "<select name=\"branch_id\" required class=\"form-select\"><option value=\"\">-- اختر الفرع المتاح للوظيفة --</option> ")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "\">")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				var templ_7745c5c3_Var3 string
-				templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(b.Name.Get(i18n.ParseLang(lang)))
-				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_jobs_modals.templ`, Line: 78, Col: 45}
-				}
-				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, " ")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				if b.IsMain {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "(الفرع الرئيسي)")
+				for _, b := range data.Branches {
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "<option value=\"")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					var templ_7745c5c3_Var3 string
+					templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%d", b.ID))
+					if templ_7745c5c3_Err != nil {
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_jobs_modals.templ`, Line: 67, Col: 47}
+					}
+					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var3)
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "\">")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					var templ_7745c5c3_Var4 string
+					templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(b.Name.Get(i18n.ParseLang(lang)))
+					if templ_7745c5c3_Err != nil {
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_jobs_modals.templ`, Line: 68, Col: 43}
+					}
+					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, " ")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					if b.IsMain {
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "(الفرع الرئيسي)")
+						if templ_7745c5c3_Err != nil {
+							return templ_7745c5c3_Err
+						}
+					}
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "</option>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "</option>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "</select>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "</select>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "</div><div class=\"stack-xs\"><label class=\"form-label font-bold text-xs\">حالة الوظيفة <span class=\"text-danger\">*</span></label> <select name=\"status\" required class=\"form-select\"><option value=\"published\">منشورة ومتاحة للتقديم (Published)</option> <option value=\"closed\">مغلقة ومكتفية (Closed)</option> <option value=\"draft\">مسودة غير معلنة (Draft)</option></select></div></div><!-- Salary Range --><div class=\"grid grid-cols-1 md:grid-cols-2 gap-4\"><div class=\"stack-xs\"><label class=\"form-label font-bold text-xs\">الحد الأدنى للراتب (اختياري)</label> <input type=\"number\" name=\"salary_min\" class=\"form-input tabular-nums font-mono\" placeholder=\"8000\"></div><div class=\"stack-xs\"><label class=\"form-label font-bold text-xs\">الحد الأقصى للراتب (اختياري)</label> <input type=\"number\" name=\"salary_max\" class=\"form-input tabular-nums font-mono\" placeholder=\"12000\"></div></div><!-- Description --><div class=\"stack-xs\"><label class=\"form-label font-bold text-xs\">الوصف الوظيفي والمسؤوليات</label> <textarea name=\"description\" rows=\"3\" class=\"form-input\" placeholder=\"اكتب نبذة عن المسؤوليات اليومية، مواعيد الشفتات، وطبيعة العمل بالفرع...\"></textarea></div><!-- Requirements --><div class=\"stack-xs\"><label class=\"form-label font-bold text-xs\">المتطلبات والمؤهلات المطلوبة</label> <textarea name=\"requirements\" rows=\"3\" class=\"form-input\" placeholder=\"مثال: بكالوريوس صيدلة، ترخيص مزاولة المهنة، خبرة سنة على الأقل...\"></textarea></div><!-- Form Actions --><div class=\"modal-footer pt-3 border-t flex-between items-center\"><button type=\"button\" class=\"btn btn-secondary font-bold\" onclick=\"closeAddJobModal()\">إلغاء</button> <button type=\"submit\" class=\"btn btn-primary font-bold px-6\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "</div><div class=\"stack-sm\"><label class=\"form-label\">حالة الوظيفة <span class=\"text-danger\">*</span></label> <select name=\"status\" required class=\"form-input field-cta\"><option value=\"published\">منشورة ومتاحة للتقديم (Published)</option> <option value=\"closed\">مغلقة ومكتفية (Closed)</option> <option value=\"draft\">مسودة غير معلنة (Draft)</option></select></div></div><!-- Salary Range --><div class=\"grid-2\"><div class=\"stack-sm\"><label class=\"form-label\">الحد الأدنى للراتب (اختياري)</label> <input type=\"text\" name=\"salary_min\" class=\"form-input field-height\" placeholder=\"مثال: 8000\"></div><div class=\"stack-sm\"><label class=\"form-label\">الحد الأقصى للراتب (اختياري)</label> <input type=\"text\" name=\"salary_max\" class=\"form-input field-height\" placeholder=\"مثال: 12000\"></div></div><!-- Description --><div class=\"stack-sm\"><label class=\"form-label\">الوصف الوظيفي والمسؤوليات</label> <textarea name=\"description\" rows=\"4\" class=\"form-input\" placeholder=\"اكتب نبذة عن المسؤوليات اليومية، مواعيد الشفتات، وطبيعة العمل بالفرع...\"></textarea></div><!-- Requirements --><div class=\"stack-sm\"><label class=\"form-label\">المتطلبات والمؤهلات المطلوبة</label> <textarea name=\"requirements\" rows=\"3\" class=\"form-input\" placeholder=\"مثال: بكالوريوس صيدلة، ترخيص مزاولة المهنة، خبرة سنة على الأقل...\"></textarea></div><!-- Form Actions --><div class=\"stack-sm\"><button type=\"button\" class=\"btn btn-secondary\" onclick=\"closeAddJobModal()\">إلغاء</button> <button type=\"submit\" class=\"btn btn-primary\">")
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		templ_7745c5c3_Err = components.IconCheck("icon-xs").Render(ctx, templ_7745c5c3_Buffer)
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "<span>نشر الشاغر الوظيفي الآن</span></button></div></form></div></div><!-- ================= EDIT JOB MODAL ================= --><div id=\"edit-job-modal\" class=\"modal-backdrop hidden\"><div class=\"card\"><div class=\"section-head\"><div class=\"stack-sm\"><h3 class=\"font-bold text-sm m-0\">تعديل بيانات الشاغر الوظيفي</h3><p class=\"text-sm text-secondary m-0\">تحديث متطلبات الوظيفة أو الراتب أو تغيير حالتها.</p></div><button type=\"button\" class=\"btn btn-secondary btn-sm btn-icon\" onclick=\"closeEditJobModal()\">")
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		templ_7745c5c3_Err = components.IconX("icon-sm").Render(ctx, templ_7745c5c3_Buffer)
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "</button></div><form id=\"edit-job-form\" method=\"POST\" action=\"\" class=\"stack-115\"><!-- Job Title Arabic & English --><div class=\"grid-2\"><div class=\"stack-sm\"><label class=\"form-label\">المسمى الوظيفي (بالعربية) <span class=\"text-danger\">*</span></label> <input type=\"text\" name=\"title_ar\" id=\"edit-job-title-ar\" required class=\"form-input field-height\"></div><div class=\"stack-sm\"><label class=\"form-label\">المسمى الوظيفي (بالإنجليزية)</label> <input type=\"text\" name=\"title_en\" id=\"edit-job-title-en\" class=\"form-input field-height\"></div></div><!-- Location & Status --><div class=\"grid-2\"><div class=\"stack-sm\"><label class=\"form-label\">الفرع المخصص للشاغر <span class=\"text-danger\">*</span></label> ")
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		if len(data.Branches) == 0 {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "<input type=\"text\" name=\"location\" id=\"edit-job-location\" readonly class=\"form-input\">")
+			templ_7745c5c3_Err = components.IconCheck("icon-xs").Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-		} else {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "<select name=\"branch_id\" id=\"edit-job-branch-id\" required class=\"form-input field-cta\"><option value=\"\">-- اختر الفرع المتاح للوظيفة --</option> ")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "<span>نشر الشاغر الوظيفي الآن</span></button></div></form>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			for _, b := range data.Branches {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "<option value=\"")
+			return nil
+		})
+		templ_7745c5c3_Err = components.Modal(components.ModalProps{
+			ID:       "add-job-modal",
+			Title:    "نشر شاغر وظيفي جديد بالصيدلية",
+			Subtitle: "أدخل تفاصيل الشاغر لاستقبال طلبات التقديم والسير الذاتية من الكوادر المعتمدة",
+			Size:     "lg",
+		}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var2), templ_7745c5c3_Buffer)
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "<!-- ================= EDIT JOB MODAL ================= -->")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Var5 := templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
+			templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
+			templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templruntime.GetBuffer(templ_7745c5c3_W)
+			if !templ_7745c5c3_IsBuffer {
+				defer func() {
+					templ_7745c5c3_BufErr := templruntime.ReleaseBuffer(templ_7745c5c3_Buffer)
+					if templ_7745c5c3_Err == nil {
+						templ_7745c5c3_Err = templ_7745c5c3_BufErr
+					}
+				}()
+			}
+			ctx = templ.InitializeContext(ctx)
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "<form id=\"edit-job-form\" method=\"POST\" action=\"\" class=\"stack-lg\"><!-- Job Title Arabic & English --><div class=\"grid grid-cols-1 md:grid-cols-2 gap-4\"><div class=\"stack-xs\"><label class=\"form-label font-bold text-xs\">المسمى الوظيفي (بالعربية) <span class=\"text-danger\">*</span></label> <input type=\"text\" name=\"title_ar\" id=\"edit-job-title-ar\" required class=\"form-input\"></div><div class=\"stack-xs\"><label class=\"form-label font-bold text-xs\">المسمى الوظيفي (بالإنجليزية)</label> <input type=\"text\" name=\"title_en\" id=\"edit-job-title-en\" class=\"form-input\" dir=\"ltr\"></div></div><!-- Location & Status --><div class=\"grid grid-cols-1 md:grid-cols-2 gap-4\"><div class=\"stack-xs\"><label class=\"form-label font-bold text-xs\">الفرع المخصص للشاغر <span class=\"text-danger\">*</span></label> ")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			if len(data.Branches) == 0 {
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "<input type=\"text\" name=\"location\" id=\"edit-job-location\" readonly class=\"form-input\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				var templ_7745c5c3_Var4 string
-				templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%d", b.ID))
-				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_jobs_modals.templ`, Line: 249, Col: 42}
-				}
-				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var4)
+			} else {
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "<select name=\"branch_id\" id=\"edit-job-branch-id\" required class=\"form-select\"><option value=\"\">-- اختر الفرع المتاح للوظيفة --</option> ")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "\" data-branch-name=\"")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				var templ_7745c5c3_Var5 string
-				templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.ResolveAttributeValue(b.Name.Get(i18n.ParseLang(lang)))
-				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_jobs_modals.templ`, Line: 250, Col: 62}
-				}
-				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var5)
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "\" data-branch-name-ar=\"")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				var templ_7745c5c3_Var6 string
-				templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.ResolveAttributeValue(b.Name.Get(i18n.AR))
-				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_jobs_modals.templ`, Line: 251, Col: 52}
-				}
-				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var6)
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "\" data-branch-name-en=\"")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				var templ_7745c5c3_Var7 string
-				templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.ResolveAttributeValue(b.Name.Get(i18n.EN))
-				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_jobs_modals.templ`, Line: 252, Col: 52}
-				}
-				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var7)
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, "\">")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				var templ_7745c5c3_Var8 string
-				templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(b.Name.Get(i18n.ParseLang(lang)))
-				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_jobs_modals.templ`, Line: 254, Col: 45}
-				}
-				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var8))
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, " ")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				if b.IsMain {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, "(الفرع الرئيسي)")
+				for _, b := range data.Branches {
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "<option value=\"")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					var templ_7745c5c3_Var6 string
+					templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%d", b.ID))
+					if templ_7745c5c3_Err != nil {
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_jobs_modals.templ`, Line: 221, Col: 40}
+					}
+					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var6)
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "\" data-branch-name=\"")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					var templ_7745c5c3_Var7 string
+					templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.ResolveAttributeValue(b.Name.Get(i18n.ParseLang(lang)))
+					if templ_7745c5c3_Err != nil {
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_jobs_modals.templ`, Line: 222, Col: 60}
+					}
+					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var7)
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "\" data-branch-name-ar=\"")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					var templ_7745c5c3_Var8 string
+					templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.ResolveAttributeValue(b.Name.Get(i18n.AR))
+					if templ_7745c5c3_Err != nil {
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_jobs_modals.templ`, Line: 223, Col: 50}
+					}
+					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var8)
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, "\" data-branch-name-en=\"")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					var templ_7745c5c3_Var9 string
+					templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.ResolveAttributeValue(b.Name.Get(i18n.EN))
+					if templ_7745c5c3_Err != nil {
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_jobs_modals.templ`, Line: 224, Col: 50}
+					}
+					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var9)
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, "\">")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					var templ_7745c5c3_Var10 string
+					templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.JoinStringErrs(b.Name.Get(i18n.ParseLang(lang)))
+					if templ_7745c5c3_Err != nil {
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_jobs_modals.templ`, Line: 226, Col: 43}
+					}
+					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var10))
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, " ")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					if b.IsMain {
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, "(الفرع الرئيسي)")
+						if templ_7745c5c3_Err != nil {
+							return templ_7745c5c3_Err
+						}
+					}
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, "</option>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, "</option>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 25, "</select>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, "</select>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 26, "</div><div class=\"stack-xs\"><label class=\"form-label font-bold text-xs\">حالة الوظيفة <span class=\"text-danger\">*</span></label> <select name=\"status\" id=\"edit-job-status\" required class=\"form-select\"><option value=\"published\">منشورة ومتاحة للتقديم (Published)</option> <option value=\"closed\">مغلقة ومكتفية (Closed)</option> <option value=\"draft\">مسودة غير معلنة (Draft)</option></select></div></div><!-- Salary Range --><div class=\"grid grid-cols-1 md:grid-cols-2 gap-4\"><div class=\"stack-xs\"><label class=\"form-label font-bold text-xs\">الحد الأدنى للراتب</label> <input type=\"number\" name=\"salary_min\" id=\"edit-job-salary-min\" class=\"form-input tabular-nums font-mono\"></div><div class=\"stack-xs\"><label class=\"form-label font-bold text-xs\">الحد الأقصى للراتب</label> <input type=\"number\" name=\"salary_max\" id=\"edit-job-salary-max\" class=\"form-input tabular-nums font-mono\"></div></div><!-- Description --><div class=\"stack-xs\"><label class=\"form-label font-bold text-xs\">الوصف الوظيفي والمسؤوليات</label> <textarea name=\"description\" id=\"edit-job-description\" rows=\"3\" class=\"form-input\"></textarea></div><!-- Requirements --><div class=\"stack-xs\"><label class=\"form-label font-bold text-xs\">المتطلبات والمؤهلات المطلوبة</label> <textarea name=\"requirements\" id=\"edit-job-requirements\" rows=\"3\" class=\"form-input\"></textarea></div><!-- Form Actions --><div class=\"modal-footer pt-3 border-t flex-between items-center\"><button type=\"button\" class=\"btn btn-secondary font-bold\" onclick=\"closeEditJobModal()\">إلغاء</button> <button type=\"submit\" class=\"btn btn-primary font-bold px-6\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 25, "</div><div class=\"stack-sm\"><label class=\"form-label\">حالة الوظيفة <span class=\"text-danger\">*</span></label> <select name=\"status\" id=\"edit-job-status\" required class=\"form-input field-cta\"><option value=\"published\">منشورة ومتاحة للتقديم (Published)</option> <option value=\"closed\">مغلقة ومكتفية (Closed)</option> <option value=\"draft\">مسودة غير معلنة (Draft)</option></select></div></div><!-- Salary Range --><div class=\"grid-2\"><div class=\"stack-sm\"><label class=\"form-label\">الحد الأدنى للراتب</label> <input type=\"text\" name=\"salary_min\" id=\"edit-job-salary-min\" class=\"form-input field-height\"></div><div class=\"stack-sm\"><label class=\"form-label\">الحد الأقصى للراتب</label> <input type=\"text\" name=\"salary_max\" id=\"edit-job-salary-max\" class=\"form-input field-height\"></div></div><!-- Description --><div class=\"stack-sm\"><label class=\"form-label\">الوصف الوظيفي والمسؤوليات</label> <textarea name=\"description\" id=\"edit-job-description\" rows=\"4\" class=\"form-input\"></textarea></div><!-- Requirements --><div class=\"stack-sm\"><label class=\"form-label\">المتطلبات والمؤهلات المطلوبة</label> <textarea name=\"requirements\" id=\"edit-job-requirements\" rows=\"3\" class=\"form-input\"></textarea></div><!-- Form Actions --><div class=\"stack-sm\"><button type=\"button\" class=\"btn btn-secondary\" onclick=\"closeEditJobModal()\">إلغاء</button> <button type=\"submit\" class=\"btn btn-primary\">")
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		templ_7745c5c3_Err = components.IconCheck("icon-xs").Render(ctx, templ_7745c5c3_Buffer)
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 26, "<span>حفظ التعديلات والتحديث</span></button></div></form></div></div><!-- ================= APPLICANTS & ONBOARDING MODAL ================= --><div id=\"job-applicants-modal\" class=\"modal-backdrop hidden\"><div class=\"card\"><div class=\"section-head\"><div class=\"stack-sm\"><h3 class=\"font-bold text-sm m-0\">طلبات التقديم والسير الذاتية</h3><p class=\"text-sm text-secondary m-0\" id=\"applicants-modal-subtitle\">الوظيفة: -</p></div><button type=\"button\" class=\"btn btn-secondary btn-sm btn-icon\" onclick=\"closeApplicantsModal()\">")
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		templ_7745c5c3_Err = components.IconX("icon-sm").Render(ctx, templ_7745c5c3_Buffer)
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 27, "</button></div><!-- Dynamic Content --><div class=\"stack-sm\" id=\"applicants-modal-content\"><!-- Populated by JS --></div></div></div><!-- ================= ONBOARD EMPLOYEE MODAL ================= --><div id=\"onboard-modal\" class=\"modal-backdrop hidden\"><div class=\"card\"><div class=\"stack-sm\"><div class=\"stack-sm\"><h3 class=\"font-bold text-sm m-0\">قبول المتقدم وتعيينه كموظف</h3><p class=\"text-sm text-secondary m-0\" id=\"onboard-modal-subtitle\">المتقدم: -</p></div><button type=\"button\" class=\"btn btn-secondary btn-sm btn-icon\" onclick=\"closeOnboardModal()\">")
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		templ_7745c5c3_Err = components.IconX("icon-sm").Render(ctx, templ_7745c5c3_Buffer)
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 28, "</button></div><form class=\"stack-md\" id=\"onboard-employee-form\" onsubmit=\"submitOnboardEmployee(event)\"><input type=\"hidden\" id=\"onboard-job-id\" value=\"\"> <input type=\"hidden\" id=\"onboard-app-id\" value=\"\"><!-- Branch Selection --><div class=\"stack-sm\"><label class=\"form-label\">الفرع المخصص للعمل <span class=\"text-danger\">*</span></label> <select id=\"onboard-branch-id\" required class=\"form-input field-cta\">")
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		if len(data.Branches) == 0 {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 29, "<option value=\"\">الفرع الرئيسي</option>")
+			templ_7745c5c3_Err = components.IconCheck("icon-xs").Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-		} else {
-			for _, b := range data.Branches {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 30, "<option value=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 27, "<span>حفظ التعديلات والتحديث</span></button></div></form>")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			return nil
+		})
+		templ_7745c5c3_Err = components.Modal(components.ModalProps{
+			ID:       "edit-job-modal",
+			Title:    "تعديل بيانات الشاغر الوظيفي",
+			Subtitle: "تحديث متطلبات الوظيفة أو الراتب أو تغيير حالتها",
+			Size:     "lg",
+		}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var5), templ_7745c5c3_Buffer)
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 28, "<!-- ================= APPLICANTS MODAL ================= -->")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Var11 := templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
+			templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
+			templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templruntime.GetBuffer(templ_7745c5c3_W)
+			if !templ_7745c5c3_IsBuffer {
+				defer func() {
+					templ_7745c5c3_BufErr := templruntime.ReleaseBuffer(templ_7745c5c3_Buffer)
+					if templ_7745c5c3_Err == nil {
+						templ_7745c5c3_Err = templ_7745c5c3_BufErr
+					}
+				}()
+			}
+			ctx = templ.InitializeContext(ctx)
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 29, "<div id=\"applicants-modal-subtitle\" class=\"text-xs text-primary font-bold mb-4 pb-2 border-b\">الوظيفة: -</div><!-- Dynamic Content --> <div class=\"stack-md\" id=\"applicants-modal-content\"><!-- Populated by JS --></div>")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			return nil
+		})
+		templ_7745c5c3_Err = components.Modal(components.ModalProps{
+			ID:       "job-applicants-modal",
+			Title:    "طلبات التقديم والسير الذاتية",
+			Subtitle: "استعراض ملفات المتقدمين للشواغر الوظيفية",
+			Size:     "xl",
+		}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var11), templ_7745c5c3_Buffer)
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 30, "<!-- ================= ONBOARD EMPLOYEE MODAL ================= -->")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Var12 := templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
+			templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
+			templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templruntime.GetBuffer(templ_7745c5c3_W)
+			if !templ_7745c5c3_IsBuffer {
+				defer func() {
+					templ_7745c5c3_BufErr := templruntime.ReleaseBuffer(templ_7745c5c3_Buffer)
+					if templ_7745c5c3_Err == nil {
+						templ_7745c5c3_Err = templ_7745c5c3_BufErr
+					}
+				}()
+			}
+			ctx = templ.InitializeContext(ctx)
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 31, "<div id=\"onboard-modal-subtitle\" class=\"text-xs text-muted font-bold mb-4 pb-2 border-b\">المتقدم: -</div><form class=\"stack-md\" id=\"onboard-employee-form\" onsubmit=\"submitOnboardEmployee(event)\"><input type=\"hidden\" id=\"onboard-job-id\" value=\"\"> <input type=\"hidden\" id=\"onboard-app-id\" value=\"\"><!-- Branch Selection --><div class=\"stack-xs\"><label class=\"form-label font-bold text-xs\">الفرع المخصص للعمل <span class=\"text-danger\">*</span></label> <select id=\"onboard-branch-id\" required class=\"form-select\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			if len(data.Branches) == 0 {
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 32, "<option value=\"\">الفرع الرئيسي</option>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				var templ_7745c5c3_Var9 string
-				templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%d", b.ID))
-				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_jobs_modals.templ`, Line: 405, Col: 48}
-				}
-				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var9)
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 31, "\">")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				var templ_7745c5c3_Var10 string
-				templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.JoinStringErrs(b.Name.Get(i18n.ParseLang(lang)))
-				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_jobs_modals.templ`, Line: 406, Col: 44}
-				}
-				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var10))
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 32, " ")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				if b.IsMain {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 33, "(الرئيسي)")
+			} else {
+				for _, b := range data.Branches {
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 33, "<option value=\"")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					var templ_7745c5c3_Var13 string
+					templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprintf("%d", b.ID))
+					if templ_7745c5c3_Err != nil {
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_jobs_modals.templ`, Line: 360, Col: 46}
+					}
+					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var13)
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 34, "\">")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					var templ_7745c5c3_Var14 string
+					templ_7745c5c3_Var14, templ_7745c5c3_Err = templ.JoinStringErrs(b.Name.Get(i18n.ParseLang(lang)))
+					if templ_7745c5c3_Err != nil {
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/customer_jobs_modals.templ`, Line: 361, Col: 42}
+					}
+					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var14))
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 35, " ")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					if b.IsMain {
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 36, "(الرئيسي)")
+						if templ_7745c5c3_Err != nil {
+							return templ_7745c5c3_Err
+						}
+					}
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 37, "</option>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 34, "</option>")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
 			}
-		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 35, "</select></div><!-- Role / Permissions Selection --><div class=\"stack-sm\"><label class=\"form-label\">الدور الوظيفي والصلاحيات <span class=\"text-danger\">*</span></label> <select id=\"onboard-role-key\" required class=\"form-input field-cta\"><option value=\"org_pharmacist\">صيدلي مسؤول (طلبات، فواتير، استلام)</option> <option value=\"org_manager\">مدير فرع (صلاحيات كاملة للفرع)</option> <option value=\"org_employee\">موظف / كاشير (صلاحيات أساسية)</option> <option value=\"org_warehouse\">أمين مخزن (المخزون والاستلام)</option> <option value=\"org_accountant\">محاسب (المالية والفواتير)</option></select></div><!-- Job Title --><div class=\"stack-sm\"><label class=\"form-label\">المسمى الوظيفي المعتمد <span class=\"text-danger\">*</span></label> <input type=\"text\" id=\"onboard-job-title\" required class=\"form-input field-height\" placeholder=\"مثال: صيدلي أول / مدير شفت مسائي\"></div><!-- Salary --><div class=\"stack-sm\"><label class=\"form-label\">الراتب الأساسي (ج.م / شهرياً)</label> <input type=\"text\" id=\"onboard-base-salary\" class=\"form-input field-height\" placeholder=\"مثال: 9500\"></div><!-- Notes --><div class=\"stack-sm\"><label class=\"form-label\">ملاحظات التعيين (اختياري)</label> <textarea id=\"onboard-notes\" rows=\"2\" class=\"form-input\" placeholder=\"ملاحظات حول موعد بدء العمل أو الشفت...\"></textarea></div><!-- Form Actions --><div class=\"stack-sm\"><button type=\"button\" class=\"btn btn-secondary\" onclick=\"closeOnboardModal()\">إلغاء</button> <button type=\"submit\" id=\"onboard-submit-btn\" class=\"btn btn-primary\">")
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		templ_7745c5c3_Err = components.IconCheck("icon-xs").Render(ctx, templ_7745c5c3_Buffer)
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 36, "<span>تأكيد القبول وتعيين الموظف</span></button></div></form></div></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 38, "</select></div><!-- Role / Permissions Selection --><div class=\"stack-xs\"><label class=\"form-label font-bold text-xs\">الدور الوظيفي والصلاحيات <span class=\"text-danger\">*</span></label> <select id=\"onboard-role-key\" required class=\"form-select\"><option value=\"org_pharmacist\">صيدلي مسؤول (طلبات، فواتير، استلام)</option> <option value=\"org_manager\">مدير فرع (صلاحيات كاملة للفرع)</option> <option value=\"org_employee\">موظف / كاشير (صلاحيات أساسية)</option> <option value=\"org_warehouse\">أمين مخزن (المخزون والاستلام)</option> <option value=\"org_accountant\">محاسب (المالية والفواتير)</option></select></div><!-- Job Title --><div class=\"stack-xs\"><label class=\"form-label font-bold text-xs\">المسمى الوظيفي المعتمد <span class=\"text-danger\">*</span></label> <input type=\"text\" id=\"onboard-job-title\" required class=\"form-input\" placeholder=\"مثال: صيدلي أول / مدير شفت مسائي\"></div><!-- Salary --><div class=\"stack-xs\"><label class=\"form-label font-bold text-xs\">الراتب الأساسي (ج.م / شهرياً)</label> <input type=\"text\" id=\"onboard-base-salary\" class=\"form-input tabular-nums font-mono\" placeholder=\"مثال: 9500\"></div><!-- Notes --><div class=\"stack-xs\"><label class=\"form-label font-bold text-xs\">ملاحظات التعيين (اختياري)</label> <textarea id=\"onboard-notes\" rows=\"2\" class=\"form-input\" placeholder=\"ملاحظات حول موعد بدء العمل أو الشفت...\"></textarea></div><!-- Form Actions --><div class=\"modal-footer pt-3 border-t flex-between items-center\"><button type=\"button\" class=\"btn btn-secondary font-bold\" onclick=\"closeOnboardModal()\">إلغاء</button> <button type=\"submit\" id=\"onboard-submit-btn\" class=\"btn btn-primary font-bold px-6\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = components.IconCheck("icon-xs").Render(ctx, templ_7745c5c3_Buffer)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 39, "<span>تأكيد القبول وتعيين الموظف</span></button></div></form>")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			return nil
+		})
+		templ_7745c5c3_Err = components.Modal(components.ModalProps{
+			ID:       "onboard-modal",
+			Title:    "قبول المتقدم وتعيينه كموظف بالمنشأة",
+			Subtitle: "إضافة المتقدم مباشرة إلى طاقم العمل وتحديد صلاحياته",
+			Size:     "md",
+		}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var12), templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
