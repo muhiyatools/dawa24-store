@@ -512,7 +512,7 @@ templ AdminProducts(lang, dir string, products []*catalog.Product, brands []*cat
 			<!-- Master Product Creation Modal -->
 			@components.Modal(components.ModalProps{
 				ID:    "product-create-modal",
-				Title: "????? ??? ????? ????? ????",
+				Title:      "دليل الأصناف الدوائية المعتمدة",
 				Size:  "lg",
 			}) {
 				<form action="/admin/products/new" method="POST" enctype="multipart/form-data" class="d-flex flex-col gap-4 m-0">
@@ -623,7 +623,7 @@ templ AdminProducts(lang, dir string, products []*catalog.Product, brands []*cat
 			<!-- Master Product Edit Modal -->
 			@components.Modal(components.ModalProps{
 				ID:    "product-edit-modal",
-				Title: "????? ?????? ????? ???????",
+				Title:      "دليل الأصناف الدوائية المعتمدة",
 				Size:  "lg",
 			}) {
 				<form :action="'/admin/products/' + editData.id + '/edit'" method="POST" enctype="multipart/form-data" class="d-flex flex-col gap-4 m-0">

@@ -615,17 +615,17 @@ func VendorJobs(lang, dir string, data VendorJobsData) templ.Component {
 					}()
 				}
 				ctx = templ.InitializeContext(ctx)
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 60, "<form method=\"POST\" action=\"/vendor/jobs\" class=\"stack-lg\"><!-- Titles --><div class=\"grid-2\"><div><label class=\"form-label\">?????? ??????? (????????) <span class=\"text-danger\">*</span></label> <input type=\"text\" name=\"title_ar\" required class=\"form-input field-height\" placeholder=\"????: ????? ??? / ????? ??????\"></div><div><label class=\"form-label\">?????? ??????? (???????????)</label> <input type=\"text\" name=\"title_en\" class=\"form-input field-height\" placeholder=\"e.g. Senior Pharmacist\" dir=\"ltr\"></div></div><!-- Location & Branch Selection --><div><label class=\"form-label\">????? / ??? ????? ?????? ??????? <span class=\"text-danger\">*</span></label> ")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 60, "<form method=\"POST\" action=\"/vendor/jobs\" class=\"stack-lg\"><!-- Titles --><div class=\"grid-2\"><div><label class=\"form-label\">المسمى الوظيفي (بالعربية) <span class=\"text-danger\">*</span></label> <input type=\"text\" name=\"title_ar\" required class=\"form-input field-height\" placeholder=\"مثال: صيدلي أول / مندوب مبيعات\"></div><div><label class=\"form-label\">المسمى الوظيفي (بالإنجليزية)</label> <input type=\"text\" name=\"title_en\" class=\"form-input field-height\" placeholder=\"e.g. Senior Pharmacist\" dir=\"ltr\"></div></div><!-- Location & Branch Selection --><div><label class=\"form-label\">الفرع / مقر العمل المخصص للوظيفة <span class=\"text-danger\">*</span></label> ")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				if len(data.Branches) == 0 {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 61, "<div class=\"p-3 bg-surface-sunken border border-dashed rounded-lg text-xs text-secondary\"><span>?? ???? ?????? ???. ???? ??? ??????? ?? <strong>(????? ???????)</strong>. ????? ????? ????? ?? <a href=\"/vendor/branches\" class=\"text-primary font-bold text-decoration-none\">????? ?????? ?</a>.</span></div><input type=\"hidden\" name=\"location\" value=\"????? ???????\">")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 61, "<div class=\"p-3 bg-surface-sunken border border-dashed rounded-lg text-xs text-secondary\"><span>?? ???? ?????? ???. ???? ??? ??????? ?? <strong>(????? ???????)</strong>. ????? ????? ????? ?? <a href=\"/vendor/branches\" class=\"text-primary font-bold text-decoration-none\">????? ?????? ?</a>.</span></div><input type=\"hidden\" name=\"location\" value=\"الفرع الرئيسي\">")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
 				} else {
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 62, "<select name=\"branch_id\" required class=\"form-input field-cta\"><option value=\"\">-- ???? ????? ?????? ??????? --</option> ")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 62, "<select name=\"branch_id\" required class=\"form-input field-cta\"><option value=\"\">-- اختر الفرع المتاح للوظيفة --</option> ")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -661,7 +661,7 @@ func VendorJobs(lang, dir string, data VendorJobsData) templ.Component {
 							return templ_7745c5c3_Err
 						}
 						if b.IsMain {
-							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 66, "(????? ???????)")
+							templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 66, "المسمى الوظيفي (بالإنجليزية)")
 							if templ_7745c5c3_Err != nil {
 								return templ_7745c5c3_Err
 							}
@@ -676,7 +676,7 @@ func VendorJobs(lang, dir string, data VendorJobsData) templ.Component {
 						return templ_7745c5c3_Err
 					}
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 69, "</div><!-- Salary Range --><div class=\"grid-2\"><div><label class=\"form-label\">???? ?????? ?????? (?.?)</label> <input type=\"number\" step=\"100\" name=\"salary_min\" class=\"form-input h-11 font-mono rounded-lg\" placeholder=\"5000\"></div><div><label class=\"form-label\">???? ?????? ?????? (?.?)</label> <input type=\"number\" step=\"100\" name=\"salary_max\" class=\"form-input h-11 font-mono rounded-lg\" placeholder=\"12000\"></div></div><!-- Description --><div><label class=\"form-label\">????? ??????? ??????? ??????????? <span class=\"text-danger\">*</span></label> <textarea name=\"description\" rows=\"4\" required class=\"form-input rounded-lg p-3 text-sm\" placeholder=\"???? ???? ?? ????? ???????? ?????? ???????? ?????? ?????...\"></textarea></div><!-- Requirements --><div><label class=\"form-label\">???????? ?????????? ???????</label> <textarea name=\"requirements\" rows=\"3\" class=\"form-input rounded-lg p-3 text-sm\" placeholder=\"????? ?????? ????????? ?????? ??????? ???????? ??????? ????????...\"></textarea></div><!-- Form Footer --><div class=\"modal-footer pt-3 border-t flex-between items-center\"><button type=\"button\" class=\"btn btn-secondary font-bold\" onclick=\"closeAddJobModal()\">?????</button> <button type=\"submit\" class=\"btn btn-primary font-bold px-6\">??? ??????? ???? </button></div></form>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 69, "</div><!-- Salary Range --><div class=\"grid-2\"><div><label class=\"form-label\">???? ?????? ?????? (?.?)</label> <input type=\"number\" step=\"100\" name=\"salary_min\" class=\"form-input h-11 font-mono rounded-lg\" placeholder=\"5000\"></div><div><label class=\"form-label\">???? ?????? ?????? (?.?)</label> <input type=\"number\" step=\"100\" name=\"salary_max\" class=\"form-input h-11 font-mono rounded-lg\" placeholder=\"12000\"></div></div><!-- Description --><div><label class=\"form-label\">الوصف الوظيفي والمهام والمسؤوليات <span class=\"text-danger\">*</span></label> <textarea name=\"description\" rows=\"4\" required class=\"form-input rounded-lg p-3 text-sm\" placeholder=\"اكتب نبذة عن الدور الوظيفي، المهام اليومية، وساعات العمل...\"></textarea></div><!-- Requirements --><div><label class=\"form-label\">???????? ?????????? ???????</label> <textarea name=\"requirements\" rows=\"3\" class=\"form-input rounded-lg p-3 text-sm\" placeholder=\"اكتب نبذة عن الدور الوظيفي، المهام اليومية، وساعات العمل...\"></textarea></div><!-- Form Footer --><div class=\"modal-footer pt-3 border-t flex-between items-center\"><button type=\"button\" class=\"btn btn-secondary font-bold\" onclick=\"closeAddJobModal()\">?????</button> <button type=\"submit\" class=\"btn btn-primary font-bold px-6\">??? ??????? ???? </button></div></form>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -702,7 +702,7 @@ func VendorJobs(lang, dir string, data VendorJobsData) templ.Component {
 					}()
 				}
 				ctx = templ.InitializeContext(ctx)
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 71, "<form id=\"edit-job-form\" method=\"POST\" action=\"\" class=\"stack-lg\"><input type=\"hidden\" id=\"edit-job-id\" name=\"id\" value=\"\"><!-- Status & Active Switch --><div class=\"grid-2 bg-surface-sunken p-3.5 border rounded-xl items-center\"><div><label class=\"form-label mb-1\">???? ?????? ???????</label> <select id=\"edit-job-status\" name=\"status\" class=\"form-input h-10 font-bold\"><option value=\"published\">?? ??? (???? ??????? ????? ???????)</option> <option value=\"closed\">?? ???? (????? ??????? ????? ??????? ??????)</option> <option value=\"draft\">?? ????? (??? ????)</option></select></div><div class=\"flex-between\"><div><span class=\"d-block font-extrabold text-sm text-primary\">????? ??????? ???????</span> <span class=\"d-block text-xs text-muted\">??? ??????? ?? ????? ??????? ??????</span></div><input type=\"checkbox\" id=\"edit-job-is-active\" name=\"is_active\" value=\"true\" class=\"form-check-input\"></div></div><!-- Titles --><div class=\"grid-2\"><div><label class=\"form-label\">?????? ??????? (????????) <span class=\"text-danger\">*</span></label> <input type=\"text\" id=\"edit-job-title-ar\" name=\"title_ar\" required class=\"form-input field-height\"></div><div><label class=\"form-label\">?????? ??????? (???????????)</label> <input type=\"text\" id=\"edit-job-title-en\" name=\"title_en\" class=\"form-input field-height\" dir=\"ltr\"></div></div><!-- Location & Branch Selection --><div><label class=\"form-label\">????? / ??? ????? ??????</label> <select id=\"edit-job-branch-id\" name=\"branch_id\" class=\"form-input h-11 rounded-lg\"><option value=\"\">-- ???? ????? --</option> ")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 71, "<form id=\"edit-job-form\" method=\"POST\" action=\"\" class=\"stack-lg\"><input type=\"hidden\" id=\"edit-job-id\" name=\"id\" value=\"\"><!-- Status & Active Switch --><div class=\"grid-2 bg-surface-sunken p-3.5 border rounded-xl items-center\"><div><label class=\"form-label mb-1\">???? ?????? ???????</label> <select id=\"edit-job-status\" name=\"status\" class=\"form-input h-10 font-bold\"><option value=\"published\">?? ??? (???? ??????? ????? ???????)</option> <option value=\"closed\">?? ???? (????? ??????? ????? ??????? ??????)</option> <option value=\"draft\">?? ????? (??? ????)</option></select></div><div class=\"flex-between\"><div><span class=\"d-block font-extrabold text-sm text-primary\">????? ??????? ???????</span> <span class=\"d-block text-xs text-muted\">??? ??????? ?? ????? ??????? ??????</span></div><input type=\"checkbox\" id=\"edit-job-is-active\" name=\"is_active\" value=\"true\" class=\"form-check-input\"></div></div><!-- Titles --><div class=\"grid-2\"><div><label class=\"form-label\">المسمى الوظيفي (بالعربية) <span class=\"text-danger\">*</span></label> <input type=\"text\" id=\"edit-job-title-ar\" name=\"title_ar\" required class=\"form-input field-height\"></div><div><label class=\"form-label\">المسمى الوظيفي (بالإنجليزية)</label> <input type=\"text\" id=\"edit-job-title-en\" name=\"title_en\" class=\"form-input field-height\" dir=\"ltr\"></div></div><!-- Location & Branch Selection --><div><label class=\"form-label\">????? / ??? ????? ??????</label> <select id=\"edit-job-branch-id\" name=\"branch_id\" class=\"form-input h-11 rounded-lg\"><option value=\"\">-- اختر الفرع المتاح للوظيفة --</option> ")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -738,7 +738,7 @@ func VendorJobs(lang, dir string, data VendorJobsData) templ.Component {
 						return templ_7745c5c3_Err
 					}
 					if b.IsMain {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 75, "(????? ???????)")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 75, "المسمى الوظيفي (بالإنجليزية)")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
@@ -748,7 +748,7 @@ func VendorJobs(lang, dir string, data VendorJobsData) templ.Component {
 						return templ_7745c5c3_Err
 					}
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 77, "</select></div><!-- Salary Range --><div class=\"grid-2\"><div><label class=\"form-label\">???? ?????? ?????? (?.?)</label> <input type=\"number\" step=\"100\" id=\"edit-job-salary-min\" name=\"salary_min\" class=\"form-input h-11 font-mono rounded-lg\"></div><div><label class=\"form-label\">???? ?????? ?????? (?.?)</label> <input type=\"number\" step=\"100\" id=\"edit-job-salary-max\" name=\"salary_max\" class=\"form-input h-11 font-mono rounded-lg\"></div></div><!-- Description --><div><label class=\"form-label\">????? ??????? ??????????? <span class=\"text-danger\">*</span></label> <textarea id=\"edit-job-description\" name=\"description\" rows=\"4\" required class=\"form-input rounded-lg\"></textarea></div><!-- Requirements --><div><label class=\"form-label\">???????? ??????????</label> <textarea id=\"edit-job-requirements\" name=\"requirements\" rows=\"3\" class=\"form-input rounded-lg\"></textarea></div><!-- Form Footer --><div class=\"modal-footer pt-3 border-t flex-between items-center\"><button type=\"button\" class=\"btn btn-secondary font-bold\" onclick=\"closeEditJobModal()\">?????</button> <button type=\"submit\" class=\"btn btn-primary font-bold px-6\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 77, "</select></div><!-- Salary Range --><div class=\"grid-2\"><div><label class=\"form-label\">???? ?????? ?????? (?.?)</label> <input type=\"number\" step=\"100\" id=\"edit-job-salary-min\" name=\"salary_min\" class=\"form-input h-11 font-mono rounded-lg\"></div><div><label class=\"form-label\">???? ?????? ?????? (?.?)</label> <input type=\"number\" step=\"100\" id=\"edit-job-salary-max\" name=\"salary_max\" class=\"form-input h-11 font-mono rounded-lg\"></div></div><!-- Description --><div><label class=\"form-label\">الوصف الوظيفي والمهام والمسؤوليات <span class=\"text-danger\">*</span></label> <textarea id=\"edit-job-description\" name=\"description\" rows=\"4\" required class=\"form-input rounded-lg\"></textarea></div><!-- Requirements --><div><label class=\"form-label\">???????? ??????????</label> <textarea id=\"edit-job-requirements\" name=\"requirements\" rows=\"3\" class=\"form-input rounded-lg\"></textarea></div><!-- Form Footer --><div class=\"modal-footer pt-3 border-t flex-between items-center\"><button type=\"button\" class=\"btn btn-secondary font-bold\" onclick=\"closeEditJobModal()\">?????</button> <button type=\"submit\" class=\"btn btn-primary font-bold px-6\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -756,7 +756,7 @@ func VendorJobs(lang, dir string, data VendorJobsData) templ.Component {
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 78, "<span>??? ????????? ????????</span></button></div></form>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 78, "<span>نشر وظيفة جديدة</span></button></div></form>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -782,7 +782,7 @@ func VendorJobs(lang, dir string, data VendorJobsData) templ.Component {
 					}()
 				}
 				ctx = templ.InitializeContext(ctx)
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 80, "<div id=\"applicants-modal-subtitle\" class=\"text-xs text-brand font-bold mb-3\">???????: -</div><!-- Dynamic Content --> <div id=\"applicants-modal-content\" class=\"modal-body p-0\"><!-- Populated by JS --></div>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 80, "<div id=\"applicants-modal-subtitle\" class=\"text-xs text-brand font-bold mb-3\">الوظيفة: -</div><!-- Dynamic Content --> <div id=\"applicants-modal-content\" class=\"modal-body p-0\"><!-- Populated by JS --></div>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -808,7 +808,7 @@ func VendorJobs(lang, dir string, data VendorJobsData) templ.Component {
 					}()
 				}
 				ctx = templ.InitializeContext(ctx)
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 82, "<div id=\"onboard-modal-subtitle\" class=\"text-xs text-secondary mb-3\">???????: -</div><form id=\"onboard-employee-form\" onsubmit=\"submitOnboardEmployee(event)\" class=\"d-flex flex-col gap-4 m-0\"><input type=\"hidden\" id=\"onboard-app-id\" name=\"applicant_id\" value=\"\"><div><label class=\"form-label\">?????? ?????????? ????? <span class=\"text-danger\">*</span></label> <input type=\"email\" id=\"onboard-email\" name=\"email\" required placeholder=\"employee@domain.com\" class=\"form-input\" dir=\"ltr\"></div><div><label class=\"form-label\">???? ?????? ??????? ?????? <span class=\"text-danger\">*</span></label> <input type=\"password\" id=\"onboard-password\" name=\"password\" required minlength=\"8\" placeholder=\"8 ???? ??? ?????\" class=\"form-input\"></div><div><label class=\"form-label\">????? ??????? / ???????? <span class=\"text-danger\">*</span></label> <select id=\"onboard-role\" name=\"role\" required class=\"form-input font-bold\"><option value=\"pharmacist\">????? (Pharmacist)</option> <option value=\"sales_rep\">????? ?????? (Sales Representative)</option> <option value=\"accountant\">????? (Accountant)</option> <option value=\"data_entry\">???? ?????? (Data Entry)</option> <option value=\"manager\">???? ??? / ????? (Manager)</option></select></div><div class=\"modal-footer pt-3 border-t flex-between items-center\"><button type=\"button\" class=\"btn btn-secondary font-bold\" onclick=\"closeOnboardModal()\">?????</button> <button type=\"submit\" class=\"btn btn-primary font-bold px-6\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 82, "<div id=\"onboard-modal-subtitle\" class=\"text-xs text-secondary mb-3\">الوظيفة: -</div><form id=\"onboard-employee-form\" onsubmit=\"submitOnboardEmployee(event)\" class=\"d-flex flex-col gap-4 m-0\"><input type=\"hidden\" id=\"onboard-app-id\" name=\"applicant_id\" value=\"\"><div><label class=\"form-label\">الوصف الوظيفي والمهام والمسؤوليات <span class=\"text-danger\">*</span></label> <input type=\"email\" id=\"onboard-email\" name=\"email\" required placeholder=\"employee@domain.com\" class=\"form-input\" dir=\"ltr\"></div><div><label class=\"form-label\">الوصف الوظيفي والمهام والمسؤوليات <span class=\"text-danger\">*</span></label> <input type=\"password\" id=\"onboard-password\" name=\"password\" required minlength=\"8\" placeholder=\"8 ???? ??? ?????\" class=\"form-input\"></div><div><label class=\"form-label\">الفرع / مقر العمل المخصص للوظيفة <span class=\"text-danger\">*</span></label> <select id=\"onboard-role\" name=\"role\" required class=\"form-input font-bold\"><option value=\"pharmacist\">????? (Pharmacist)</option> <option value=\"sales_rep\">????? ?????? (Sales Representative)</option> <option value=\"accountant\">????? (Accountant)</option> <option value=\"data_entry\">???? ?????? (Data Entry)</option> <option value=\"manager\">???? ??? / ????? (Manager)</option></select></div><div class=\"modal-footer pt-3 border-t flex-between items-center\"><button type=\"button\" class=\"btn btn-secondary font-bold\" onclick=\"closeOnboardModal()\">?????</button> <button type=\"submit\" class=\"btn btn-primary font-bold px-6\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -816,7 +816,7 @@ func VendorJobs(lang, dir string, data VendorJobsData) templ.Component {
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 83, "<span>????? ??????? ?????? ??????</span></button></div></form>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 83, "<span>نشر وظيفة جديدة</span></button></div></form>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}

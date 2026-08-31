@@ -23,7 +23,7 @@ func formatVariantDiscount(price, discount money.Amount) string {
 
 // AdminProductDetailPage renders master product view with full specifications and supplier offerings.
 templ AdminProductDetailPage(p *catalog.Product, variants []*catalog.ProductVariant, lang, dir string) {
-	@layouts.AdminShell(fmt.Sprintf("?????? ?????: %s", p.Name.Get("ar")), "products", lang, dir) {
+	@layouts.AdminShell(fmt.Sprintf("تفاصيل الصنف: %s", p.Name.Get("ar")), "products", lang, dir) {
 		<div class="page-container max-w-5xl mx-auto">
 			
 			<!-- Header Card -->
@@ -41,12 +41,12 @@ templ AdminProductDetailPage(p *catalog.Product, variants []*catalog.ProductVari
 						<div>
 							<div class="d-flex items-center gap-2 mb-1">
 								if p.Status == catalog.StatusActive {
-									<span class="badge badge-emerald text-xs font-bold">??? ????? ?? ?????</span>
+									<span class="badge badge-emerald text-xs font-bold">نشط ومتاح في السوق</span>
 								} else {
-									<span class="badge badge-rose text-xs font-bold">????? / ????</span>
+									<span class="badge badge-rose text-xs font-bold">موقوف / معطل</span>
 								}
 								if p.IsFeatured {
-									<span class="badge badge-sky text-xs font-bold">???? </span>
+									<span class="badge badge-sky text-xs font-bold">مميز </span>
 								}
 								<span class="text-xs text-muted tabular-nums font-mono">ID: #{ fmt.Sprintf("%d", p.ID) }</span>
 							</div>
@@ -66,10 +66,10 @@ templ AdminProductDetailPage(p *catalog.Product, variants []*catalog.ProductVari
 									<div>SKU: <strong class="text-primary tabular-nums font-mono">{ p.SKU }</strong></div>
 								}
 								if p.Barcode != "" {
-									<div>??????: <strong class="text-primary tabular-nums font-mono">{ p.Barcode }</strong></div>
+									<div>باركود: <strong class="text-primary tabular-nums font-mono">{ p.Barcode }</strong></div>
 								}
 								if p.ManufacturingCompanies != "" {
-									<div>??????: <strong class="text-primary">{ p.ManufacturingCompanies }</strong></div>
+									<div>الشركة: <strong class="text-primary">{ p.ManufacturingCompanies }</strong></div>
 								}
 							</div>
 						</div>
@@ -78,11 +78,11 @@ templ AdminProductDetailPage(p *catalog.Product, variants []*catalog.ProductVari
 					<div class="d-flex items-center gap-2">
 						<a href="/admin/products" class="btn btn-secondary btn-sm font-bold text-xs">
 							@components.IconArrowRight("icon-xs")
-							<span>?????? ?????? ????????</span>
+							<span>العودة لقائمة المنتجات</span>
 						</a>
 						<a href={ templ.SafeURL(fmt.Sprintf("/catalog?q=%s", url.QueryEscape(p.Name.Get("ar")))) } target="_blank" class="btn btn-primary btn-sm font-bold text-xs">
 							@components.IconExternalLink("icon-xs")
-							<span>?????? ?? ??????</span>
+							<span>العودة لقائمة المنتجات</span>
 						</a>
 					</div>
 				</div>
@@ -91,15 +91,15 @@ templ AdminProductDetailPage(p *catalog.Product, variants []*catalog.ProductVari
 			<!-- Stats Strip -->
 			<div class="dashboard-stat-grid mb-6">
 				<div class="stat-card-3d">
-					<div class="stat-card-label text-xs">??? ??????? ??????</div>
+					<div class="stat-card-label text-xs">سعر الجمهور الرسمي</div>
 					<div class="stat-card-value text-primary tabular-nums text-2xl font-black">
 						{ p.Price.String() } <span class="text-xs font-normal">?.?</span>
 					</div>
-					<div class="stat-card-sub text-muted text-xs mt-1">????? ??????? ?????????</div>
+					<div class="stat-card-sub text-muted text-xs mt-1">السعر المعتمد للصيدليات</div>
 				</div>
 
 				<div class="stat-card-3d">
-					<div class="stat-card-label text-xs">????? ?????? / ?????</div>
+					<div class="stat-card-label text-xs">السعر القديم / الخصم</div>
 					<div class="stat-card-value text-brand tabular-nums text-2xl font-black">
 						if p.OldPrice.IsPositive() {
 							{ p.OldPrice.String() } <span class="text-xs font-normal">?.?</span>
@@ -111,25 +111,25 @@ templ AdminProductDetailPage(p *catalog.Product, variants []*catalog.ProductVari
 						if p.Discount.IsPositive() {
 							{ fmt.Sprintf("??? %s ?.?", p.Discount.String()) }
 						} else {
-							<span>?? ???? ??? ?????</span>
+							<span>العودة لقائمة المنتجات</span>
 						}
 					</div>
 				</div>
 
 				<div class="stat-card-3d">
-					<div class="stat-card-label text-xs">???? ????? ??????</div>
+					<div class="stat-card-label text-xs">سعر الجمهور الرسمي</div>
 					<div class="stat-card-value text-success tabular-nums text-2xl font-black">
 						{ fmt.Sprintf("%d", p.SoldTimes) }
 					</div>
-					<div class="stat-card-sub text-muted text-xs mt-1">????? ???? ??????</div>
+					<div class="stat-card-sub text-muted text-xs mt-1">السعر المعتمد للصيدليات</div>
 				</div>
 
 				<div class="stat-card-3d">
-					<div class="stat-card-label text-xs">???? ???????? ?????</div>
+					<div class="stat-card-label text-xs">سعر الجمهور الرسمي</div>
 					<div class="stat-card-value text-sky tabular-nums text-2xl font-black">
 						{ fmt.Sprintf("%d", len(variants)) }
 					</div>
-					<div class="stat-card-sub text-muted text-xs mt-1">??? ????? ????</div>
+					<div class="stat-card-sub text-muted text-xs mt-1">السعر المعتمد للصيدليات</div>
 				</div>
 			</div>
 
@@ -146,7 +146,7 @@ templ AdminProductDetailPage(p *catalog.Product, variants []*catalog.ProductVari
 
 				<div class="d-grid grid-auto-fit-md gap-4">
 					<div class="p-3 bg-surface-sunken border rounded-lg">
-						<div class="text-xs text-muted mb-1">????? ?????? (Scientific Name)</div>
+						<div class="text-xs text-muted mb-1">الاسم العلمي (Scientific Name)</div>
 						<div class="text-xs font-bold text-primary font-mono">
 							if p.ScientificName != "" {
 								{ p.ScientificName }
@@ -157,7 +157,7 @@ templ AdminProductDetailPage(p *catalog.Product, variants []*catalog.ProductVari
 					</div>
 
 					<div class="p-3 bg-surface-sunken border rounded-lg">
-						<div class="text-xs text-muted mb-1">?????? ??????? (Active Ingredient)</div>
+						<div class="text-xs text-muted mb-1">المادة الفعالة (Active Ingredient)</div>
 						<div class="text-xs font-bold text-primary">
 							if p.Active != "" {
 								{ p.Active }
@@ -168,7 +168,7 @@ templ AdminProductDetailPage(p *catalog.Product, variants []*catalog.ProductVari
 					</div>
 
 					<div class="p-3 bg-surface-sunken border rounded-lg">
-						<div class="text-xs text-muted mb-1">????? ??????? (Dosage Form)</div>
+						<div class="text-xs text-muted mb-1">الشكل الصيدلي (Dosage Form)</div>
 						<div class="text-xs font-bold text-primary">
 							if p.DosageForm != "" {
 								{ p.DosageForm }
@@ -179,7 +179,7 @@ templ AdminProductDetailPage(p *catalog.Product, variants []*catalog.ProductVari
 					</div>
 
 					<div class="p-3 bg-surface-sunken border rounded-lg">
-						<div class="text-xs text-muted mb-1">??????? ??????? (Concentration)</div>
+						<div class="text-xs text-muted mb-1">التركيز الدوائي (Concentration)</div>
 						<div class="text-xs font-bold text-primary">
 							if p.Concentration != "" {
 								{ p.Concentration }
@@ -190,7 +190,7 @@ templ AdminProductDetailPage(p *catalog.Product, variants []*catalog.ProductVari
 					</div>
 
 					<div class="p-3 bg-surface-sunken border rounded-lg">
-						<div class="text-xs text-muted mb-1">???? ??????? (Unit)</div>
+						<div class="text-xs text-muted mb-1">وحدة التعبئة (Unit)</div>
 						<div class="text-xs font-bold text-primary">
 							if p.Unit != "" {
 								{ p.Unit }
@@ -201,7 +201,7 @@ templ AdminProductDetailPage(p *catalog.Product, variants []*catalog.ProductVari
 					</div>
 
 					<div class="p-3 bg-surface-sunken border rounded-lg">
-						<div class="text-xs text-muted mb-1">??????? ??????? (Pharmacology)</div>
+						<div class="text-xs text-muted mb-1">التصنيف الدوائي (Pharmacology)</div>
 						<div class="text-xs font-bold text-primary">
 							if p.Pharmacology != "" {
 								{ p.Pharmacology }
@@ -214,7 +214,7 @@ templ AdminProductDetailPage(p *catalog.Product, variants []*catalog.ProductVari
 
 				if p.Description.Get("ar") != "" || p.Description.Get("en") != "" {
 					<div class="mt-4 pt-4 border-t">
-						<div class="text-xs font-bold text-muted mb-1">????? ?????? ?????????:</div>
+						<div class="text-xs font-bold text-muted mb-1">الوصف ودواعي الاستعمال:</div>
 						<div class="text-xs text-primary leading-relaxed">
 							if p.Description.Get("ar") != "" {
 								{ p.Description.Get("ar") }
@@ -232,7 +232,7 @@ templ AdminProductDetailPage(p *catalog.Product, variants []*catalog.ProductVari
 					<div class="d-flex items-center gap-2">
 						<span class="text-lg">@components.IconBuilding("icon-sm")</span>
 						<h3 class="text-base font-black text-primary m-0">
-							???? ??????? ??????? ?? ???????? ???? ????? ({ fmt.Sprintf("%d", len(variants)) })
+							عروض التوريد المسجلة من الموردين لهذا الصنف ({ fmt.Sprintf("%d", len(variants)) })
 						</h3>
 					</div>
 				</div>
@@ -240,21 +240,21 @@ templ AdminProductDetailPage(p *catalog.Product, variants []*catalog.ProductVari
 				if len(variants) == 0 {
 					<div class="p-8 text-center empty-state-glass">
 						<div class="text-3xl mb-2">@components.IconPackage("icon-sm")</div>
-						<h4 class="text-base font-bold text-primary mb-1">?? ???? ???? ????? ????? ??????</h4>
-						<p class="text-xs text-secondary max-w-md mx-auto">?? ??? ?? ???? ?????? ????? ?? ???? ????? ???? ????? ??????? ???.</p>
+						<h4 class="text-base font-bold text-primary mb-1">لا توجد عروض توريد مسجلة حالياً</h4>
+						<p class="text-xs text-secondary max-w-md mx-auto">لم يقم أي مورد بإدراج كميات أو عروض أسعار لهذا الصنف الدوائي بعد.</p>
 					</div>
 				} else {
 					<div class="table-container m-0">
 						<table class="data-table m-0">
 							<thead>
 								<tr>
-									<th>??? ????? / ????????</th>
-									<th>??????</th>
-									<th>??? ???????</th>
-									<th>???? ?????</th>
-									<th>??????? ???????</th>
-									<th>????? ????????</th>
-									<th>??????</th>
+									<th>اسم العرض / التشغيلة</th>
+									<th>المورد</th>
+									<th>المورد</th>
+									<th>المورد</th>
+									<th>المورد</th>
+									<th>المورد</th>
+									<th>المورد</th>
 								</tr>
 							</thead>
 							<tbody>
@@ -265,15 +265,15 @@ templ AdminProductDetailPage(p *catalog.Product, variants []*catalog.ProductVari
 												if v.Name.Get("ar") != "" {
 													{ v.Name.Get("ar") }
 												} else {
-													<span>??? ?????</span>
+													<span>العودة لقائمة المنتجات</span>
 												}
 											</div>
 											if v.BatchNumber != "" {
-												<div class="text-xs text-muted font-mono">??????: { v.BatchNumber }</div>
+												<div class="text-xs text-muted font-mono">تشغيلة: { v.BatchNumber }</div>
 											}
 										</td>
 										<td>
-											<span class="badge badge-sky text-xs font-mono">????? #{ fmt.Sprintf("%d", v.OrganizationID) }</span>
+											<span class="badge badge-sky text-xs font-mono">منشأة #{ fmt.Sprintf("%d", v.OrganizationID) }</span>
 										</td>
 										<td class="tabular-nums font-bold text-xs text-primary">
 											{ v.Price.String() } ?.?
@@ -283,9 +283,9 @@ templ AdminProductDetailPage(p *catalog.Product, variants []*catalog.ProductVari
 										</td>
 										<td class="tabular-nums font-bold text-xs">
 											if v.StockQty > 0 {
-												<span class="badge badge-emerald text-xs">{ fmt.Sprintf("%d ????", v.StockQty) }</span>
+												<span class="badge badge-emerald text-xs">{ fmt.Sprintf("%d وحدة", v.StockQty) }</span>
 											} else {
-												<span class="badge badge-slate text-xs">0 ????</span>
+												<span class="badge badge-slate text-xs">0 وحدة</span>
 											}
 										</td>
 										<td class="text-xs text-muted tabular-nums">
@@ -297,9 +297,9 @@ templ AdminProductDetailPage(p *catalog.Product, variants []*catalog.ProductVari
 										</td>
 										<td>
 											if string(v.Status) == "active" {
-												<span class="badge badge-emerald text-xs">???</span>
+												<span class="badge badge-emerald text-xs">نشط</span>
 											} else {
-												<span class="badge badge-slate text-xs">????</span>
+												<span class="badge badge-slate text-xs">معطل</span>
 											}
 										</td>
 									</tr>
@@ -316,7 +316,7 @@ templ AdminProductDetailPage(p *catalog.Product, variants []*catalog.ProductVari
 
 // AdminProductChildrenPage renders vendor variant listings with real database structure.
 templ AdminProductChildrenPage(data AdminProductChildrenData, lang, dir string) {
-	@layouts.AdminShell("????? ???????? ????? ???????", "product_child", lang, dir) {
+	@layouts.AdminShell("أصناف الموردين وعروض التوريد", "product_child", lang, dir) {
 		<div class="page-container">
 			
 			<!-- Header Card -->
@@ -328,7 +328,7 @@ templ AdminProductChildrenPage(data AdminProductChildrenData, lang, dir string) 
 						</div>
 						<div>
 							<h1 class="text-2xl font-black text-primary m-0">
-								????? ???????? ????? ?????? ({ fmt.Sprintf("%d", len(data.Items)) })
+								أصناف الموردين وعروض الفروع ({ fmt.Sprintf("%d", len(data.Items)) })
 							</h1>
 							<p class="text-sm text-secondary m-0 mt-1">
 								?????? ????? ???????? ????????? ??????? ?????????? ???????? ???? ????????
@@ -338,13 +338,13 @@ templ AdminProductChildrenPage(data AdminProductChildrenData, lang, dir string) 
 
 					<div class="d-flex items-center gap-2">
 						<a href="/admin/product-child" class={ "btn btn-sm font-bold text-xs", templ.KV("btn-primary", data.StatusFilter == "" || data.StatusFilter == "all"), templ.KV("btn-secondary", data.StatusFilter != "" && data.StatusFilter != "all") }>
-							<span>????</span>
+							<span>العودة لقائمة المنتجات</span>
 						</a>
 						<a href="/admin/product-child?status=active" class={ "btn btn-sm font-bold text-xs", templ.KV("btn-primary", data.StatusFilter == "active"), templ.KV("btn-secondary", data.StatusFilter != "active") }>
-							<span>??????</span>
+							<span>العودة لقائمة المنتجات</span>
 						</a>
 						<a href="/admin/product-child?status=inactive" class={ "btn btn-sm font-bold text-xs", templ.KV("btn-primary", data.StatusFilter == "inactive"), templ.KV("btn-secondary", data.StatusFilter != "inactive") }>
-							<span>????????</span>
+							<span>العودة لقائمة المنتجات</span>
 						</a>
 					</div>
 				</div>
@@ -361,7 +361,7 @@ templ AdminProductChildrenPage(data AdminProductChildrenData, lang, dir string) 
 							placeholder="????? ???? ?????? SKU? ????????? ?? ??? ????????..."
 						/>
 					</div>
-					<button type="submit" class="btn btn-primary btn-sm font-bold text-xs px-3">???</button>
+					<button type="submit" class="btn btn-primary btn-sm font-bold text-xs px-3">بحث</button>
 				</form>
 			</div>
 
@@ -370,8 +370,8 @@ templ AdminProductChildrenPage(data AdminProductChildrenData, lang, dir string) 
 				if len(data.Items) == 0 {
 					<div class="p-8 text-center empty-state-glass">
 						<div class="text-4xl mb-3">@components.IconPackage("icon-sm")</div>
-						<h3 class="text-lg font-black text-primary mb-2">?? ???? ????? ?????? ?????</h3>
-						<p class="text-sm text-secondary max-w-md mx-auto">?? ??? ???????? ?????? ????? ?? ???? ????? ?????? ????? ???.</p>
+						<h3 class="text-lg font-black text-primary mb-2">لا توجد أصناف موردين مسجلة</h3>
+						<p class="text-sm text-secondary max-w-md mx-auto">لم يقم الموردون بتسجيل أصناف أو عروض توريد مطابقة لبحثك بعد.</p>
 					</div>
 				} else {
 					<div class="table-container m-0">
@@ -379,20 +379,20 @@ templ AdminProductChildrenPage(data AdminProductChildrenData, lang, dir string) 
 							<thead>
 								<tr>
 									<th class="w-12">??????</th>
-									<th>?????? / SKU</th>
-									<th>??????? (??????)</th>
-									<th>??? ???????</th>
-									<th>???? ?????</th>
-									<th>???????</th>
-									<th>???? ??????</th>
-									<th class="text-end">?????????</th>
+									<th>المنتج / SKU</th>
+									<th>المنظمة (المورد)</th>
+									<th>المورد</th>
+									<th>المورد</th>
+									<th>المورد</th>
+									<th>المورد</th>
+									<th class="text-end">الإجراءات</th>
 								</tr>
 							</thead>
 							<tbody>
 								for _, item := range data.Items {
 									{{ v := item.Variant }}
 									<tr id={ fmt.Sprintf("variant-row-%d", v.ID) }>
-										<!-- 1. ?????? -->
+										<!-- 1. الصورة -->
 										<td class="w-12">
 											if item.DisplayImage != "" {
 												<img src={ item.DisplayImage } alt={ v.Name.Get("ar") } class="w-11 h-11 object-contain rounded-md border bg-surface-raised p-0.5" />
@@ -403,7 +403,7 @@ templ AdminProductChildrenPage(data AdminProductChildrenData, lang, dir string) 
 											}
 										</td>
 
-										<!-- 2. ?????? / SKU -->
+										<!-- 2. المنتج / SKU -->
 										<td>
 											<div class="font-black text-primary text-base">
 												{ v.Name.Get("ar") }
@@ -415,7 +415,7 @@ templ AdminProductChildrenPage(data AdminProductChildrenData, lang, dir string) 
 											}
 											if item.ParentProdName != "" {
 												<div class="text-xs text-accent mt-0.5">
-													??? ?????: { item.ParentProdName }
+													صنف رئيسي: { item.ParentProdName }
 												</div>
 											}
 											<div class="text-xs text-muted mt-0.5 d-flex gap-2 flex-wrap">
@@ -423,79 +423,79 @@ templ AdminProductChildrenPage(data AdminProductChildrenData, lang, dir string) 
 													<span class="tabular-nums">SKU: <strong class="text-primary">{ v.SKU }</strong></span>
 												}
 												if v.Barcode != "" {
-													<span class="tabular-nums">??????: { v.Barcode }</span>
+													<span class="tabular-nums">باركود: { v.Barcode }</span>
 												}
 												if v.BatchNumber != "" {
-													<span>??????: { v.BatchNumber }</span>
+													<span>تشغيلة: { v.BatchNumber }</span>
 												}
 											</div>
 										</td>
 
-										<!-- 3. ??????? -->
+										<!-- 3. المنظمة -->
 										<td>
 											<strong class="text-primary text-sm">
 												if item.OrgName != "" {
 													{ item.OrgName }
 												} else {
-													???? #{ fmt.Sprintf("%d", v.OrganizationID) }
+													مورد #{ fmt.Sprintf("%d", v.OrganizationID) }
 												}
 											</strong>
 											<div class="text-xs text-muted mt-0.5">
-												???? ???????: #{ fmt.Sprintf("%d", v.OrganizationID) }
+												معرف المؤسسة: #{ fmt.Sprintf("%d", v.OrganizationID) }
 											</div>
 										</td>
 
-										<!-- 4. ??? ??????? -->
+										<!-- 4. سعر الجمهور -->
 										<td>
 											<div class="tabular-nums font-black text-primary text-base">
 												@components.MoneyDisplay(components.MoneyDisplayProps{ Amount: v.Price })
 											</div>
 										</td>
 
-										<!-- 5. ???? ????? -->
+										<!-- 5. نسبة الخصم -->
 										<td>
 											<div class="tabular-nums font-black text-brand text-base">
 												{ formatVariantDiscount(v.Price, v.Discount) }
 											</div>
 										</td>
 
-										<!-- 6. ??????? -->
+										<!-- 6. المخزون -->
 										<td>
 											if v.StockQty > 0 {
 												<span class="badge badge-emerald tabular-nums text-xs font-black">
-													{ fmt.Sprintf("%d", v.StockQty) } ????
+													{ fmt.Sprintf("%d", v.StockQty) } وحدة
 												</span>
 											} else {
 												<span class="badge badge-rose text-xs font-black">
-													??? ??????? (0)
+													نفذ المخزون (0)
 												</span>
 											}
 											if v.MinOrderQty > 1 {
 												<div class="text-xs text-muted mt-0.5">
-													??? ????: { fmt.Sprintf("%d", v.MinOrderQty) }
+													أقل كمية: { fmt.Sprintf("%d", v.MinOrderQty) }
 												</div>
 											}
 										</td>
 
-										<!-- 7. ???? ?????? -->
+										<!-- 7. حالة المنتج -->
 										<td>
 											if string(v.Status) == "active" {
-												<span class="badge badge-emerald">??? ??????</span>
+												<span class="badge badge-emerald">نشط ومعروض</span>
 											} else {
-												<span class="badge badge-slate">????? / ????</span>
+												<span class="badge badge-slate">موقوف / معطل</span>
 											}
 										</td>
 
-										<!-- 8. ????????? -->
+										<!-- 8. الإجراءات -->
 										<td class="text-end">
 											<div class="table-actions justify-end gap-1.5">
 												<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/product-child/%d/status", v.ID)) } class="m-0 inline">
 													if string(v.Status) == "active" {
-														<button type="submit" class="btn btn-secondary btn-sm text-warning" title="????? ?????">
+														<button type="submit" class="btn btn-secondary btn-sm text-warning" title="تعطيل العرض">
 															?????
 														</button>
 													} else {
-														<button type="submit" class="btn btn-secondary btn-sm text-success" title="????? ?????">
+														<button type="submit" class="btn btn-secondary btn-sm text-success" title="تفعيل العرض">
 															?????
 														</button>
 													}
@@ -505,7 +505,7 @@ templ AdminProductChildrenPage(data AdminProductChildrenData, lang, dir string) 
 													<a
 														href={ templ.SafeURL(fmt.Sprintf("/admin/products/%d", v.ProductID)) }
 														class="btn btn-secondary btn-sm"
-														title="?????? ????? ??????? ?? ????????"
+														title="معاينة الصنف الأساسي في الكتالوج"
 													>
 														@components.IconEye("icon-xs")
 													</a>
@@ -526,11 +526,11 @@ templ AdminProductChildrenPage(data AdminProductChildrenData, lang, dir string) 
 
 // AdminApisProductsPage renders external API connector.
 templ AdminApisProductsPage(lang, dir string) {
-	@layouts.AdminShell("??? ?????? ?????? API ????????", "catalog", lang, dir) {
+	@layouts.AdminShell("ربط وتزامن واجهات API للمنتجات", "catalog", lang, dir) {
 		<div class="card max-w-2xl mx-auto">
-			<h2 class="card-title mb-sm">?????? ???????? ??? ?????? API ????????</h2>
+			<h2 class="card-title mb-sm">مزامنة المنتجات عبر واجهات API الخارجية</h2>
 			<p class="text-sm text-secondary mb-6">????? ?????? ????? Webhook ?Endpoints ??????? ??????? ???????? ???? ????????.</p>
-			@components.EmptyState(components.EmptyStateProps{Title: "?? ???? ????? API ?????", Message: "?? ?????? ???? API ??????? ??????? ????????."})
+			@components.EmptyState(components.EmptyStateProps{Title: "لا توجد روابط API متصلة", Message: "قم بإضافة موفر API لمزامنة المخزون تلقائياً."})
 		</div>
 	}
 }

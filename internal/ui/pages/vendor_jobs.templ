@@ -279,20 +279,20 @@ templ VendorJobs(lang, dir string, data VendorJobsData) {
 				<div class="grid-2">
 					<div>
 						<label class="form-label">
-							?????? ??????? (????????) <span class="text-danger">*</span>
+							المسمى الوظيفي (بالعربية) <span class="text-danger">*</span>
 						</label>
 						<input
 							type="text"
 							name="title_ar"
 							required
 							class="form-input field-height"
-							placeholder="????: ????? ??? / ????? ??????"
+							placeholder="مثال: صيدلي أول / مندوب مبيعات"
 						/>
 					</div>
 
 					<div>
 						<label class="form-label">
-							?????? ??????? (???????????)
+							المسمى الوظيفي (بالإنجليزية)
 						</label>
 						<input
 							type="text"
@@ -307,25 +307,25 @@ templ VendorJobs(lang, dir string, data VendorJobsData) {
 				<!-- Location & Branch Selection -->
 				<div>
 					<label class="form-label">
-						????? / ??? ????? ?????? ??????? <span class="text-danger">*</span>
+						الفرع / مقر العمل المخصص للوظيفة <span class="text-danger">*</span>
 					</label>
 					if len(data.Branches) == 0 {
 						<div class="p-3 bg-surface-sunken border border-dashed rounded-lg text-xs text-secondary">
 							<span>?? ???? ?????? ???. ???? ??? ??????? ?? <strong>(????? ???????)</strong>. ????? ????? ????? ?? <a href="/vendor/branches" class="text-primary font-bold text-decoration-none">????? ?????? ?</a>.</span>
 						</div>
-						<input type="hidden" name="location" value="????? ???????" />
+						<input type="hidden" name="location" value="الفرع الرئيسي" />
 					} else {
 						<select
 							name="branch_id"
 							required
 							class="form-input field-cta"
 						>
-							<option value="">-- ???? ????? ?????? ??????? --</option>
+							<option value="">-- اختر الفرع المتاح للوظيفة --</option>
 							for _, b := range data.Branches {
 								<option value={ fmt.Sprintf("%d", b.ID) }>
 									{ b.Name.Get(i18n.ParseLang(lang)) }
 									if b.IsMain {
-										 (????? ???????)
+										 المسمى الوظيفي (بالإنجليزية)
 									}
 								</option>
 							}
@@ -365,14 +365,14 @@ templ VendorJobs(lang, dir string, data VendorJobsData) {
 				<!-- Description -->
 				<div>
 					<label class="form-label">
-						????? ??????? ??????? ??????????? <span class="text-danger">*</span>
+						الوصف الوظيفي والمهام والمسؤوليات <span class="text-danger">*</span>
 					</label>
 					<textarea
 						name="description"
 						rows="4"
 						required
 						class="form-input rounded-lg p-3 text-sm"
-						placeholder="???? ???? ?? ????? ???????? ?????? ???????? ?????? ?????..."
+						placeholder="اكتب نبذة عن الدور الوظيفي، المهام اليومية، وساعات العمل..."
 					></textarea>
 				</div>
 
@@ -385,7 +385,7 @@ templ VendorJobs(lang, dir string, data VendorJobsData) {
 						name="requirements"
 						rows="3"
 						class="form-input rounded-lg p-3 text-sm"
-						placeholder="????? ?????? ????????? ?????? ??????? ???????? ??????? ????????..."
+						placeholder="اكتب نبذة عن الدور الوظيفي، المهام اليومية، وساعات العمل..."
 					></textarea>
 				</div>
 
@@ -432,7 +432,7 @@ templ VendorJobs(lang, dir string, data VendorJobsData) {
 				<div class="grid-2">
 					<div>
 						<label class="form-label">
-							?????? ??????? (????????) <span class="text-danger">*</span>
+							المسمى الوظيفي (بالعربية) <span class="text-danger">*</span>
 						</label>
 						<input
 							type="text"
@@ -445,7 +445,7 @@ templ VendorJobs(lang, dir string, data VendorJobsData) {
 
 					<div>
 						<label class="form-label">
-							?????? ??????? (???????????)
+							المسمى الوظيفي (بالإنجليزية)
 						</label>
 						<input
 							type="text"
@@ -463,12 +463,12 @@ templ VendorJobs(lang, dir string, data VendorJobsData) {
 						????? / ??? ????? ??????
 					</label>
 					<select id="edit-job-branch-id" name="branch_id" class="form-input h-11 rounded-lg">
-						<option value="">-- ???? ????? --</option>
+						<option value="">-- اختر الفرع المتاح للوظيفة --</option>
 						for _, b := range data.Branches {
 							<option value={ fmt.Sprintf("%d", b.ID) }>
 								{ b.Name.Get(i18n.ParseLang(lang)) }
 								if b.IsMain {
-									 (????? ???????)
+									 المسمى الوظيفي (بالإنجليزية)
 								}
 							</option>
 						}
@@ -507,7 +507,7 @@ templ VendorJobs(lang, dir string, data VendorJobsData) {
 				<!-- Description -->
 				<div>
 					<label class="form-label">
-						????? ??????? ??????????? <span class="text-danger">*</span>
+						الوصف الوظيفي والمهام والمسؤوليات <span class="text-danger">*</span>
 					</label>
 					<textarea
 						id="edit-job-description"
@@ -538,7 +538,7 @@ templ VendorJobs(lang, dir string, data VendorJobsData) {
 					</button>
 					<button type="submit" class="btn btn-primary font-bold px-6">
 						@components.IconCheck("icon-xs")
-						<span>??? ????????? ????????</span>
+						<span>نشر وظيفة جديدة</span>
 					</button>
 				</div>
 			</form>
@@ -547,7 +547,7 @@ templ VendorJobs(lang, dir string, data VendorJobsData) {
 		<!-- ================= APPLICANTS MODAL ================= -->
 		@components.Modal(components.ModalProps{ID: "job-applicants-modal", Title: "????? ??????? ?????? ???????", Size: "lg"}) {
 			<div id="applicants-modal-subtitle" class="text-xs text-brand font-bold mb-3">
-				???????: -
+				الوظيفة: -
 			</div>
 			<!-- Dynamic Content -->
 			<div id="applicants-modal-content" class="modal-body p-0">
@@ -558,14 +558,14 @@ templ VendorJobs(lang, dir string, data VendorJobsData) {
 		<!-- ================= ONBOARD EMPLOYEE MODAL ================= -->
 		@components.Modal(components.ModalProps{ID: "onboard-modal", Title: "???? ??????? ??????? ?????", Size: "md"}) {
 			<div id="onboard-modal-subtitle" class="text-xs text-secondary mb-3">
-				???????: -
+				الوظيفة: -
 			</div>
 			<form id="onboard-employee-form" onsubmit="submitOnboardEmployee(event)" class="d-flex flex-col gap-4 m-0">
 				<input type="hidden" id="onboard-app-id" name="applicant_id" value="" />
 
 				<div>
 					<label class="form-label">
-						?????? ?????????? ????? <span class="text-danger">*</span>
+						الوصف الوظيفي والمهام والمسؤوليات <span class="text-danger">*</span>
 					</label>
 					<input
 						type="email"
@@ -580,7 +580,7 @@ templ VendorJobs(lang, dir string, data VendorJobsData) {
 
 				<div>
 					<label class="form-label">
-						???? ?????? ??????? ?????? <span class="text-danger">*</span>
+						الوصف الوظيفي والمهام والمسؤوليات <span class="text-danger">*</span>
 					</label>
 					<input
 						type="password"
@@ -595,7 +595,7 @@ templ VendorJobs(lang, dir string, data VendorJobsData) {
 
 				<div>
 					<label class="form-label">
-						????? ??????? / ???????? <span class="text-danger">*</span>
+						الفرع / مقر العمل المخصص للوظيفة <span class="text-danger">*</span>
 					</label>
 					<select id="onboard-role" name="role" required class="form-input font-bold">
 						<option value="pharmacist">????? (Pharmacist)</option>
@@ -612,7 +612,7 @@ templ VendorJobs(lang, dir string, data VendorJobsData) {
 					</button>
 					<button type="submit" class="btn btn-primary font-bold px-6">
 						@components.IconCheck("icon-xs")
-						<span>????? ??????? ?????? ??????</span>
+						<span>نشر وظيفة جديدة</span>
 					</button>
 				</div>
 			</form>

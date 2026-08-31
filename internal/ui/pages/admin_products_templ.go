@@ -178,7 +178,7 @@ func AdminProducts(lang, dir string, products []*catalog.Product, brands []*cata
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"stack-lg\" x-data=\"{\n\t\t\t\tsearchQuery: '',\n\t\t\t\tdosageFilter: 'all',\n\t\t\t\tstatusFilter: 'all',\n\t\t\t\teditData: {\n\t\t\t\t\tid: 0,\n\t\t\t\t\tname_ar: '',\n\t\t\t\t\tname_en: '',\n\t\t\t\t\tgeneric_name: '',\n\t\t\t\t\tactive_ingredient: '',\n\t\t\t\t\tdosage_form: 'أقراص',\n\t\t\t\t\tbrand_id: 0,\n\t\t\t\t\tcategory_id: 0,\n\t\t\t\t\tmanufacturer: '',\n\t\t\t\t\teda_reg_number: '',\n\t\t\t\t\tprice: '0.00',\n\t\t\t\t\timage: '',\n\t\t\t\t\tdescription_ar: '',\n\t\t\t\t\tdescription_en: '',\n\t\t\t\t\tstatus: 'active'\n\t\t\t\t},\n\t\t\t\topenEdit(id, nameAr, nameEn, genericName, activeIng, dosageForm, brandId, categoryId, manufacturer, edaReg, price, image, descAr, descEn, status) {\n\t\t\t\t\tthis.editData = {\n\t\t\t\t\t\tid: id,\n\t\t\t\t\t\tname_ar: nameAr || '',\n\t\t\t\t\t\tname_en: nameEn || '',\n\t\t\t\t\t\tgeneric_name: genericName || '',\n\t\t\t\t\t\tactive_ingredient: activeIng || '',\n\t\t\t\t\t\tdosage_form: dosageForm || 'أقراص',\n\t\t\t\t\t\tbrand_id: brandId || 0,\n\t\t\t\t\t\tcategory_id: categoryId || 0,\n\t\t\t\t\t\tmanufacturer: manufacturer || '',\n\t\t\t\t\t\teda_reg_number: edaReg || '',\n\t\t\t\t\t\tprice: price || '0.00',\n\t\t\t\t\t\timage: image || '',\n\t\t\t\t\t\tdescription_ar: descAr || '',\n\t\t\t\t\t\tdescription_en: descEn || '',\n\t\t\t\t\t\tstatus: status || 'active'\n\t\t\t\t\t};\n\t\t\t\t\tconst modal = document.getElementById('product-edit-modal');\n\t\t\t\t\tif (modal && typeof modal.showModal === 'function') modal.showModal();\n\t\t\t\t}\n\t\t\t}\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"stack-lg\" x-data=\"{\r\n\t\t\t\tsearchQuery: '',\r\n\t\t\t\tdosageFilter: 'all',\r\n\t\t\t\tstatusFilter: 'all',\r\n\t\t\t\teditData: {\r\n\t\t\t\t\tid: 0,\r\n\t\t\t\t\tname_ar: '',\r\n\t\t\t\t\tname_en: '',\r\n\t\t\t\t\tgeneric_name: '',\r\n\t\t\t\t\tactive_ingredient: '',\r\n\t\t\t\t\tdosage_form: 'أقراص',\r\n\t\t\t\t\tbrand_id: 0,\r\n\t\t\t\t\tcategory_id: 0,\r\n\t\t\t\t\tmanufacturer: '',\r\n\t\t\t\t\teda_reg_number: '',\r\n\t\t\t\t\tprice: '0.00',\r\n\t\t\t\t\timage: '',\r\n\t\t\t\t\tdescription_ar: '',\r\n\t\t\t\t\tdescription_en: '',\r\n\t\t\t\t\tstatus: 'active'\r\n\t\t\t\t},\r\n\t\t\t\topenEdit(id, nameAr, nameEn, genericName, activeIng, dosageForm, brandId, categoryId, manufacturer, edaReg, price, image, descAr, descEn, status) {\r\n\t\t\t\t\tthis.editData = {\r\n\t\t\t\t\t\tid: id,\r\n\t\t\t\t\t\tname_ar: nameAr || '',\r\n\t\t\t\t\t\tname_en: nameEn || '',\r\n\t\t\t\t\t\tgeneric_name: genericName || '',\r\n\t\t\t\t\t\tactive_ingredient: activeIng || '',\r\n\t\t\t\t\t\tdosage_form: dosageForm || 'أقراص',\r\n\t\t\t\t\t\tbrand_id: brandId || 0,\r\n\t\t\t\t\t\tcategory_id: categoryId || 0,\r\n\t\t\t\t\t\tmanufacturer: manufacturer || '',\r\n\t\t\t\t\t\teda_reg_number: edaReg || '',\r\n\t\t\t\t\t\tprice: price || '0.00',\r\n\t\t\t\t\t\timage: image || '',\r\n\t\t\t\t\t\tdescription_ar: descAr || '',\r\n\t\t\t\t\t\tdescription_en: descEn || '',\r\n\t\t\t\t\t\tstatus: status || 'active'\r\n\t\t\t\t\t};\r\n\t\t\t\t\tconst modal = document.getElementById('product-edit-modal');\r\n\t\t\t\t\tif (modal && typeof modal.showModal === 'function') modal.showModal();\r\n\t\t\t\t}\r\n\t\t\t}\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -1159,7 +1159,7 @@ func AdminProducts(lang, dir string, products []*catalog.Product, brands []*cata
 			})
 			templ_7745c5c3_Err = components.Modal(components.ModalProps{
 				ID:    "product-create-modal",
-				Title: "????? ??? ????? ????? ????",
+				Title: "دليل الأصناف الدوائية المعتمدة",
 				Size:  "lg",
 			}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var32), templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
@@ -1292,7 +1292,7 @@ func AdminProducts(lang, dir string, products []*catalog.Product, brands []*cata
 			})
 			templ_7745c5c3_Err = components.Modal(components.ModalProps{
 				ID:    "product-edit-modal",
-				Title: "????? ?????? ????? ???????",
+				Title: "دليل الأصناف الدوائية المعتمدة",
 				Size:  "lg",
 			}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var38), templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {

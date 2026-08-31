@@ -767,7 +767,7 @@ func VendorSavingProductsPage(data VendorSavingPageData, lang, dir string) templ
 					}()
 				}
 				ctx = templ.InitializeContext(ctx)
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 78, "<p id=\"vendor-import-modal-subtitle\" class=\"text-xs text-muted mb-4\">?????? 1 ?? 3: ?????? ????? ?????? ???????</p><div class=\"stack-lg\"><!-- STEP 1: Upload & Configuration --><div id=\"vendor-import-step-config\" class=\"stack-lg\"><!-- Dropzone --><div id=\"import-dropzone\" onclick=\"document.getElementById('import-file-input').click()\"><div>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 78, "<p id=\"vendor-import-modal-subtitle\" class=\"text-xs text-muted mb-4\">الخطوة 1 من 3: اختيار الملف وتعيين الأعمدة</p><div class=\"stack-lg\"><!-- STEP 1: Upload & Configuration --><div id=\"vendor-import-step-config\" class=\"stack-lg\"><!-- Dropzone --><div id=\"import-dropzone\" onclick=\"document.getElementById('import-file-input').click()\"><div>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}

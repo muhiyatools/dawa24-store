@@ -31,7 +31,7 @@ type AdminSavingProductsData struct {
 
 // AdminSavingProductsPage renders the full platform-wide saving products manager for admins.
 templ AdminSavingProductsPage(data AdminSavingProductsData, lang, dir string) {
-	@layouts.AdminShell("????? ?????? ??????? ?????????? (Saving Products)", "saving_products", lang, dir) {
+	@layouts.AdminShell("إدارة منتجات التوفير للمستخدمين (Saving Products)", "saving_products", lang, dir) {
 		<div class="page-container">
 			
 			<!-- Header Banner -->
@@ -54,7 +54,7 @@ templ AdminSavingProductsPage(data AdminSavingProductsData, lang, dir string) {
 					<div class="d-flex items-center gap-2">
 						<a href="/admin/saving-products" class="btn btn-secondary btn-sm font-bold text-xs">
 							@components.IconRefresh("icon-xs")
-							<span>????? ????????</span>
+							<span>العودة لقائمة المنتجات</span>
 						</a>
 					</div>
 				</div>
@@ -64,36 +64,36 @@ templ AdminSavingProductsPage(data AdminSavingProductsData, lang, dir string) {
 			if data.Stats != nil {
 				<div class="dashboard-stat-grid mb-6">
 					<div class="stat-card-3d">
-						<div class="stat-card-label text-xs">?????? ?????? ???????</div>
+						<div class="stat-card-label text-xs">سعر الجمهور الرسمي</div>
 						<div class="stat-card-value text-primary tabular-nums text-2xl font-black">
 							{ fmt.Sprintf("%d", data.Stats.TotalProducts) }
 						</div>
-						<div class="stat-card-sub text-muted text-xs mt-1">???? ???? ??? ??????</div>
+						<div class="stat-card-sub text-muted text-xs mt-1">السعر المعتمد للصيدليات</div>
 					</div>
 
 					<div class="stat-card-3d">
-						<div class="stat-card-label text-xs">?????????? ????????</div>
+						<div class="stat-card-label text-xs">سعر الجمهور الرسمي</div>
 						<div class="stat-card-value text-brand tabular-nums text-2xl font-black">
-							{ fmt.Sprintf("%d", data.Stats.TotalUsers) } <span class="text-xs font-normal text-secondary">?????? / { fmt.Sprintf("%d", data.Stats.TotalOrganizations) } ?????</span>
+							{ fmt.Sprintf("%d", data.Stats.TotalUsers) } <span class="text-xs font-normal text-secondary">مستخدم / { fmt.Sprintf("%d", data.Stats.TotalOrganizations) } منشأة</span>
 						</div>
-						<div class="stat-card-sub text-muted text-xs mt-1">????? ????? ???????</div>
+						<div class="stat-card-sub text-muted text-xs mt-1">السعر المعتمد للصيدليات</div>
 					</div>
 
 					<div class="stat-card-3d">
-						<div class="stat-card-label text-xs">?????? ??????? ????????</div>
+						<div class="stat-card-label text-xs">سعر الجمهور الرسمي</div>
 						<div class="stat-card-value text-success tabular-nums text-2xl font-black">
 							{ fmt.Sprintf("%.0f", data.Stats.TotalQuantity) }
 						</div>
-						<div class="stat-card-sub text-muted text-xs mt-1">???? / ???? ??????</div>
+						<div class="stat-card-sub text-muted text-xs mt-1">وحدة / عبوة دوائية</div>
 					</div>
 
 					<div class="stat-card-3d">
-						<div class="stat-card-label text-xs">???? ????? ?????????</div>
+						<div class="stat-card-label text-xs">سعر الجمهور الرسمي</div>
 						<div class="d-flex items-center gap-2 mt-1">
-							<span class="badge badge-emerald text-xs font-bold">{ fmt.Sprintf("%d", data.Stats.CountLinked) } ?????</span>
-							<span class="badge badge-amber text-xs font-bold">{ fmt.Sprintf("%d", data.Stats.CountUnlinked) } ??? ?????</span>
+							<span class="badge badge-emerald text-xs font-bold">{ fmt.Sprintf("%d", data.Stats.CountLinked) } مربوط</span>
+							<span class="badge badge-amber text-xs font-bold">{ fmt.Sprintf("%d", data.Stats.CountUnlinked) } غير مربوط</span>
 						</div>
-						<div class="stat-card-sub text-muted text-xs mt-1">??? ?? ??????? ????????</div>
+						<div class="stat-card-sub text-muted text-xs mt-1">السعر المعتمد للصيدليات</div>
 					</div>
 				</div>
 			}
@@ -105,9 +105,9 @@ templ AdminSavingProductsPage(data AdminSavingProductsData, lang, dir string) {
 						
 						<!-- Org Selector -->
 						<div class="form-group mb-0">
-							<label class="form-label text-xs font-bold text-secondary mb-1">??????? / ????????</label>
+							<label class="form-label text-xs font-bold text-secondary mb-1">المنشأة / الصيدلية</label>
 							<select name="org_id" class="form-input text-xs w-full">
-								<option value="">-- ?? ??????? ({ fmt.Sprintf("%d", len(data.Organizations)) }) --</option>
+								<option value="">-- كل المنشآت ({ fmt.Sprintf("%d", len(data.Organizations)) }) --</option>
 								for _, o := range data.Organizations {
 									<option value={ fmt.Sprintf("%d", o.ID) } selected?={ data.SelectedOrgID == o.ID }>
 										{ o.Name } ({ o.Type })
@@ -118,9 +118,9 @@ templ AdminSavingProductsPage(data AdminSavingProductsData, lang, dir string) {
 
 						<!-- User Selector -->
 						<div class="form-group mb-0">
-							<label class="form-label text-xs font-bold text-secondary mb-1">???????? / ???????</label>
+							<label class="form-label text-xs font-bold text-secondary mb-1">المنشأة / الصيدلية</label>
 							<select name="user_id" class="form-input text-xs w-full">
-								<option value="">-- ?? ?????????? ({ fmt.Sprintf("%d", len(data.Users)) }) --</option>
+								<option value="">-- كل المستخدمين ({ fmt.Sprintf("%d", len(data.Users)) }) --</option>
 								for _, u := range data.Users {
 									<option value={ fmt.Sprintf("%d", u.ID) } selected?={ data.SelectedUserID == u.ID }>
 										{ u.Name }
@@ -131,17 +131,17 @@ templ AdminSavingProductsPage(data AdminSavingProductsData, lang, dir string) {
 
 						<!-- Linking Filter -->
 						<div class="form-group mb-0">
-							<label class="form-label text-xs font-bold text-secondary mb-1">???? ????? ?????????</label>
+							<label class="form-label text-xs font-bold text-secondary mb-1">حالة الربط بالكتالوج</label>
 							<select name="filter" class="form-input text-xs w-full">
-								<option value="all" selected?={ data.ActiveFilter == "all" || data.ActiveFilter == "" }>???? ???????</option>
-								<option value="linked" selected?={ data.ActiveFilter == "linked" }>????? ??????? ?????? ???</option>
-								<option value="unlinked" selected?={ data.ActiveFilter == "unlinked" }>??? ????? (????? ??????)</option>
+								<option value="all" selected?={ data.ActiveFilter == "all" || data.ActiveFilter == "" }>جميع الحالات</option>
+								<option value="linked" selected?={ data.ActiveFilter == "linked" }>مربوط بكتالوج المنصة فقط</option>
+								<option value="unlinked" selected?={ data.ActiveFilter == "unlinked" }>غير مربوط (يحتاج مطابقة)</option>
 							</select>
 						</div>
 
 						<!-- Search Query -->
 						<div class="form-group mb-0">
-							<label class="form-label text-xs font-bold text-secondary mb-1">??? ?????? ?? ?????</label>
+							<label class="form-label text-xs font-bold text-secondary mb-1">حالة الربط بالكتالوج</label>
 							<input 
 								type="text" 
 								name="q" 
@@ -163,7 +163,7 @@ templ AdminSavingProductsPage(data AdminSavingProductsData, lang, dir string) {
 						</div>
 						<button type="submit" class="btn btn-primary btn-sm font-bold text-xs px-4">
 							@components.IconSearch("icon-xs")
-							<span>????? ??????? ??????</span>
+							<span>العودة لقائمة المنتجات</span>
 						</button>
 					</div>
 				</form>
@@ -173,18 +173,18 @@ templ AdminSavingProductsPage(data AdminSavingProductsData, lang, dir string) {
 			<div class="glass-panel p-0 mb-6 overflow-hidden">
 				<div class="p-4 border-b flex-between items-center">
 					<div class="text-sm font-black text-primary">
-						????? ?????? ??????? ({ fmt.Sprintf("%d", len(data.Items)) })
+						أصناف الموردين وعروض الفروع ({ fmt.Sprintf("%d", len(data.Items)) })
 					</div>
 				</div>
 
 				if len(data.Items) == 0 {
 					<div class="p-8 text-center empty-state-glass">
 						<div class="text-4xl mb-3">@components.IconTag("icon-sm")</div>
-						<h3 class="text-base font-black text-primary mb-2">?? ???? ????? ??????</h3>
+						<h3 class="text-base font-black text-primary mb-2">لا توجد نتائج مطابقة</h3>
 						<p class="text-xs text-secondary max-w-md mx-auto mb-4">
-							?? ??? ?????? ??? ?????? ????? ????? ?????? ??????? ???????. ??? ????? ?????? ????? ?? ????? ??? ???????.
+							لم يتم العثور على منتجات توفير تطابق معايير الفلترة المحددة. جرب تغيير خيارات البحث أو إعادة ضبط التصفية.
 						</p>
-						<a href="/admin/saving-products" class="btn btn-secondary btn-sm font-bold text-xs">??? ?? ?????? ???????</a>
+						<a href="/admin/saving-products" class="btn btn-secondary btn-sm font-bold text-xs">عرض كل منتجات التوفير</a>
 					</div>
 				} else {
 					<div class="table-container m-0">
@@ -192,14 +192,14 @@ templ AdminSavingProductsPage(data AdminSavingProductsData, lang, dir string) {
 							<thead>
 								<tr>
 									<th class="w-16">#</th>
-									<th>??? ?????? ???????</th>
-									<th>???????? ????????</th>
-									<th>????? ????????? ?????</th>
-									<th>??????</th>
-									<th>????? ????????</th>
-									<th>?????? ?????????</th>
-									<th>????? ???????</th>
-									<th class="text-end">?????????</th>
+									<th>المورد</th>
+									<th>المورد</th>
+									<th>المورد</th>
+									<th>المورد</th>
+									<th>المورد</th>
+									<th>المورد</th>
+									<th>المورد</th>
+									<th class="text-end">الإجراءات</th>
 								</tr>
 							</thead>
 							<tbody>
@@ -234,7 +234,7 @@ templ AdminSavingProductsPage(data AdminSavingProductsData, lang, dir string) {
 												<div>
 													<span class="badge badge-emerald text-xs font-bold mb-1">
 														@components.IconCheck("icon-xxs")
-														<span>?????: #{ fmt.Sprintf("%d", *item.ProductID) }</span>
+														<span>مربوط: #{ fmt.Sprintf("%d", *item.ProductID) }</span>
 													</span>
 													<div class="text-xs text-secondary font-medium">
 														{ item.MasterProductName }
@@ -261,11 +261,11 @@ templ AdminSavingProductsPage(data AdminSavingProductsData, lang, dir string) {
 										<td class="text-end">
 											<div class="d-flex justify-end gap-1">
 												if item.ProductID != nil && *item.ProductID > 0 {
-													<a href={ templ.SafeURL(fmt.Sprintf("/admin/products/%d", *item.ProductID)) } class="btn btn-secondary btn-xs font-bold" title="??? ?????? ????? ?????????">
+													<a href={ templ.SafeURL(fmt.Sprintf("/admin/products/%d", *item.ProductID)) } class="btn btn-secondary btn-xs font-bold" title="عرض تفاصيل الصنف بالكتالوج">
 														??? ?????
 													</a>
 												} else {
-													<a href={ templ.SafeURL(fmt.Sprintf("/admin/products?q=%s", url.QueryEscape(item.NameProduct))) } class="btn btn-ghost btn-xs font-bold text-brand" title="??? ?? ???????? ????????">
+													<a href={ templ.SafeURL(fmt.Sprintf("/admin/products?q=%s", url.QueryEscape(item.NameProduct))) } class="btn btn-ghost btn-xs font-bold text-brand" title="بحث في الكتالوج للمطابقة">
 														??????
 													</a>
 												}

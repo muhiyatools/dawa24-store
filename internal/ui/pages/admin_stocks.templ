@@ -10,7 +10,7 @@ import (
 
 // AdminStocksPage renders inventory stocks across warehouses.
 templ AdminStocksPage(stocks []*inventory.Stock, lang, dir string) {
-	@layouts.AdminShell("????? ??????? ???????? ????", "stocks", lang, dir) {
+	@layouts.AdminShell("إدارة الأرصدة والمخزون الحي", "stocks", lang, dir) {
 		<div class="page-container">
 			<div class="glass-panel p-6 mb-6">
 				<div class="flex-between items-center flex-wrap gap-4">
@@ -19,8 +19,8 @@ templ AdminStocksPage(stocks []*inventory.Stock, lang, dir string) {
 							@components.IconBarChart("icon-sm")
 						</div>
 						<div>
-							<h1 class="text-2xl font-black text-primary m-0">????? ??????? ???????? ???????? ({ fmt.Sprintf("%d", len(stocks)) })</h1>
-							<p class="text-sm text-secondary m-0 mt-1">?????? ????? ??????? ???? ????? ?????? ???????????</p>
+							<h1 class="text-2xl font-black text-primary m-0">أرصدة المخزون بالمنشآت والمخازن ({ fmt.Sprintf("%d", len(stocks)) })</h1>
+							<p class="text-sm text-secondary m-0 mt-1">متابعة أرصدة المخزون الحي وحدود الأمان بالمستودعات</p>
 						</div>
 					</div>
 				</div>
@@ -30,8 +30,8 @@ templ AdminStocksPage(stocks []*inventory.Stock, lang, dir string) {
 				if len(stocks) == 0 {
 					<div class="p-8 text-center empty-state-glass">
 						<div class="text-4xl mb-3">@components.IconBarChart("icon-sm")</div>
-						<h3 class="text-lg font-black text-primary mb-2">??????? ????</h3>
-						<p class="text-sm text-secondary max-w-md mx-auto">?? ??? ????? ????? ????? ?? ??????? ???.</p>
+						<h3 class="text-lg font-black text-primary mb-2">لا توجد أصناف موردين مسجلة</h3>
+						<p class="text-sm text-secondary max-w-md mx-auto">لم يقم الموردون بتسجيل أصناف أو عروض توريد مطابقة لبحثك بعد.</p>
 					</div>
 				} else {
 					<div class="table-container m-0">
@@ -39,18 +39,18 @@ templ AdminStocksPage(stocks []*inventory.Stock, lang, dir string) {
 							<thead>
 								<tr>
 									<th>#</th>
-									<th>???????</th>
-									<th>??????</th>
-									<th>?????? ???????</th>
-									<th>?? ??????</th>
+									<th>المورد</th>
+									<th>المورد</th>
+									<th>المورد</th>
+									<th>المورد</th>
 								</tr>
 							</thead>
 							<tbody>
 								for _, s := range stocks {
 									<tr>
 										<td class="tabular-nums font-bold text-brand">#{ fmt.Sprintf("%d", s.ID) }</td>
-										<td>????? #{ fmt.Sprintf("%d", s.OrganizationID) }</td>
-										<td>???? #{ fmt.Sprintf("%d", s.WarehouseID) }</td>
+										<td>منشأة #{ fmt.Sprintf("%d", s.OrganizationID) }</td>
+										<td>مخزن #{ fmt.Sprintf("%d", s.WarehouseID) }</td>
 										<td class="tabular-nums font-bold text-primary">{ fmt.Sprintf("%d", s.Quantity) }</td>
 										<td class="tabular-nums text-muted">{ fmt.Sprintf("%d", s.MinThreshold) }</td>
 									</tr>

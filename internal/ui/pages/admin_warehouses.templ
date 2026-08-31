@@ -37,7 +37,7 @@ type AdminWarehouseDetailView struct {
 
 // AdminWarehousesPage renders permanent warehouses list.
 templ AdminWarehousesPage(warehouses []*AdminWarehouseRowView, lang, dir string) {
-	@layouts.AdminShell("????? ??????? ?????? ???????", "warehouses", lang, dir) {
+	@layouts.AdminShell("إدارة المخازن ومراكز التوزيع", "warehouses", lang, dir) {
 		<div class="d-flex flex-col gap-6 w-full">
 			<!-- Header Banner -->
 			<div class="card mb-0 bg-surface-raised border rounded-2xl p-6">
@@ -48,12 +48,12 @@ templ AdminWarehousesPage(warehouses []*AdminWarehouseRowView, lang, dir string)
 						</div>
 						<div>
 							<h1 class="text-xl font-black text-primary m-0">???? ??????? ?????? ???????</h1>
-							<p class="text-sm text-secondary m-0 mt-1">??????? ??????? ??????? ????? ???????? ?? ??????? ??? ?????? ??????? ??????? ????</p>
+							<p class="text-sm text-secondary m-0 mt-1">متابعة أرصدة المخزون الحي وحدود الأمان بالمستودعات</p>
 						</div>
 					</div>
 
 					<div class="badge badge-sky font-bold text-sm px-3.5 py-1.5">
-						{ fmt.Sprintf("?????? %d ???? ?????", len(warehouses)) }
+						{ fmt.Sprintf("إجمالي %d مخزن معتمد", len(warehouses)) }
 					</div>
 				</div>
 			</div>
@@ -73,12 +73,12 @@ templ AdminWarehousesPage(warehouses []*AdminWarehouseRowView, lang, dir string)
 						<table class="data-table m-0">
 							<thead>
 								<tr>
-									<th>??? ??????</th>
-									<th>??????? ?????? ???</th>
-									<th>??????? ????? ???????</th>
-									<th>??????</th>
-									<th class="text-center">??????</th>
-									<th class="text-end">????? ??????</th>
+									<th>المورد</th>
+									<th>المورد</th>
+									<th>المورد</th>
+									<th>المورد</th>
+									<th class="text-center">الحالة</th>
+									<th class="text-end">الإجراءات</th>
 								</tr>
 							</thead>
 							<tbody>
@@ -101,14 +101,14 @@ templ AdminWarehousesPage(warehouses []*AdminWarehouseRowView, lang, dir string)
 													{ row.OrgName }
 												</span>
 											} else {
-												<span class="text-muted text-sm">????? #{ fmt.Sprintf("%d", row.Warehouse.OrganizationID) }</span>
+												<span class="text-muted text-sm">منشأة #{ fmt.Sprintf("%d", row.Warehouse.OrganizationID) }</span>
 											}
 										</td>
 										<td>
 											if row.Warehouse.Address != "" {
 												<span class="text-sm text-primary font-semibold">{ row.Warehouse.Address }</span>
 											} else {
-												<span class="text-muted text-sm">??? ????</span>
+												<span class="text-muted text-sm">غير محدد</span>
 											}
 										</td>
 										<td class="tabular-nums">
@@ -131,7 +131,7 @@ templ AdminWarehousesPage(warehouses []*AdminWarehouseRowView, lang, dir string)
 												class="btn btn-secondary btn-sm font-bold text-xs px-3.5 py-1.5 rounded-lg gap-1.5 inline-flex items-center"
 											>
 												@components.IconPackage("icon-xs")
-												<span>??? ??????? ??????</span>
+												<span>العودة لقائمة المنتجات</span>
 											</a>
 										</td>
 									</tr>
@@ -148,7 +148,7 @@ templ AdminWarehousesPage(warehouses []*AdminWarehouseRowView, lang, dir string)
 
 // AdminWarehouseDetailPage renders full warehouse detail and searchable/paginated stocks page.
 templ AdminWarehouseDetailPage(data AdminWarehouseDetailView, lang, dir string) {
-	@layouts.AdminShell(fmt.Sprintf("????? ????: %s", data.Warehouse.Name), "warehouses", lang, dir) {
+	@layouts.AdminShell(fmt.Sprintf("مخزون مخزن: %s", data.Warehouse.Name), "warehouses", lang, dir) {
 		<div class="d-flex flex-col gap-6 w-full">
 			
 			<!-- Breadcrumb & Top Bar -->
@@ -156,7 +156,7 @@ templ AdminWarehouseDetailPage(data AdminWarehouseDetailView, lang, dir string) 
 				<div class="d-flex items-center gap-2.5 text-sm">
 					<a href="/admin/warehouses" class="btn btn-secondary btn-sm inline-flex items-center gap-1.5 font-bold rounded-lg">
 						@components.IconArrowRight("icon-xs")
-						<span>?????? ??? ???? ???????</span>
+						<span>العودة لقائمة المنتجات</span>
 					</a>
 					<span class="text-muted">|</span>
 					<span class="text-muted text-xs">????? ????:</span>
@@ -182,7 +182,7 @@ templ AdminWarehouseDetailPage(data AdminWarehouseDetailView, lang, dir string) 
 						<div>
 							<div class="d-flex items-center gap-2.5 flex-wrap">
 								<h1 class="text-xl font-black text-primary m-0">
-									????? ????: { data.Warehouse.Name }
+									مخزون مخزن: { data.Warehouse.Name }
 								</h1>
 								if data.OrgName != "" {
 									<span class="badge badge-sky font-bold text-xs px-2.5 py-1">
@@ -190,19 +190,19 @@ templ AdminWarehouseDetailPage(data AdminWarehouseDetailView, lang, dir string) 
 									</span>
 								} else {
 									<span class="badge badge-slate font-bold text-xs">
-										????? #{ fmt.Sprintf("%d", data.Warehouse.OrganizationID) }
+										منشأة #{ fmt.Sprintf("%d", data.Warehouse.OrganizationID) }
 									</span>
 								}
 							</div>
 							<div class="d-flex items-center gap-5 flex-wrap text-xs text-secondary mt-1.5">
 								if data.Warehouse.Code != "" {
 									<div class="d-flex items-center gap-1.5">
-										<span class="text-muted">??? ??????:</span>
+										<span class="text-muted">كود المخزن:</span>
 										<code class="bg-surface-raised px-1.5 py-0.5 rounded border font-mono font-bold text-xs">{ data.Warehouse.Code }</code>
 									</div>
 								}
 								<div class="d-flex items-center gap-1.5">
-									<span class="text-muted">???????:</span>
+									<span class="text-muted">كود المخزن:</span>
 									<span class="text-primary font-semibold">
 										if data.Warehouse.Address != "" {
 											{ data.Warehouse.Address }
@@ -213,7 +213,7 @@ templ AdminWarehouseDetailPage(data AdminWarehouseDetailView, lang, dir string) 
 								</div>
 								if data.Warehouse.Phone != "" {
 									<div class="d-flex items-center gap-1.5">
-										<span class="text-muted">??????:</span>
+										<span class="text-muted">كود المخزن:</span>
 										<span dir="ltr" class="tabular-nums text-primary font-bold">{ data.Warehouse.Phone }</span>
 									</div>
 								}
@@ -224,7 +224,7 @@ templ AdminWarehouseDetailPage(data AdminWarehouseDetailView, lang, dir string) 
 					<div class="d-flex gap-2 items-center">
 						<a href={ templ.SafeURL(fmt.Sprintf("/admin/warehouses/%d", data.Warehouse.ID)) } class="btn btn-secondary btn-sm d-flex items-center gap-1.5 font-bold rounded-lg px-3.5 py-1.5">
 							@components.IconRefresh("icon-xs")
-							<span>????? ????????</span>
+							<span>العودة لقائمة المنتجات</span>
 						</a>
 					</div>
 				</div>
@@ -284,7 +284,7 @@ templ AdminWarehouseDetailPage(data AdminWarehouseDetailView, lang, dir string) 
 						{ fmt.Sprintf("%d", data.OutOfStockCount) }
 					</div>
 					<div class="text-xs text-muted mt-1">
-						???? ???? (??? ????)
+						رصيد صفري (غير متاح)
 					</div>
 				</div>
 			</div>
@@ -315,33 +315,33 @@ templ AdminWarehouseDetailPage(data AdminWarehouseDetailView, lang, dir string) 
 
 						<!-- Stock Status Filter -->
 						<div class="form-group mb-0">
-							<label class="form-label text-xs font-bold text-secondary mb-1">???? ??????</label>
+							<label class="form-label text-xs font-bold text-secondary mb-1">حالة الربط بالكتالوج</label>
 							<select name="status" class="form-input text-sm h-10 rounded-lg">
-								<option value="all" selected?={ data.StatusFilter == "all" || data.StatusFilter == "" }>???? ???????</option>
-								<option value="available" selected?={ data.StatusFilter == "available" }>????? (??? ?? ??????)</option>
-								<option value="low" selected?={ data.StatusFilter == "low" }>???? ?????</option>
-								<option value="out" selected?={ data.StatusFilter == "out" }>??? ??????? (???)</option>
+								<option value="all" selected?={ data.StatusFilter == "all" || data.StatusFilter == "" }>جميع الحالات</option>
+								<option value="available" selected?={ data.StatusFilter == "available" }>متوفر (فوق حد الأمان)</option>
+								<option value="low" selected?={ data.StatusFilter == "low" }>رصيد منخفض</option>
+								<option value="out" selected?={ data.StatusFilter == "out" }>نفد المخزون (صفر)</option>
 							</select>
 						</div>
 
 						<!-- Negotiation Filter -->
 						<div class="form-group mb-0">
-							<label class="form-label text-xs font-bold text-secondary mb-1">?????? ???????</label>
+							<label class="form-label text-xs font-bold text-secondary mb-1">حالة الربط بالكتالوج</label>
 							<select name="negotiable" class="form-input text-sm h-10 rounded-lg">
-								<option value="all" selected?={ data.NegotiableFilter == "all" || data.NegotiableFilter == "" }>????</option>
-								<option value="yes" selected?={ data.NegotiableFilter == "yes" }>???? ???????</option>
-								<option value="no" selected?={ data.NegotiableFilter == "no" }>??? ???? ???</option>
+								<option value="all" selected?={ data.NegotiableFilter == "all" || data.NegotiableFilter == "" }>الكل</option>
+								<option value="yes" selected?={ data.NegotiableFilter == "yes" }>قابل للتفاوض</option>
+								<option value="no" selected?={ data.NegotiableFilter == "no" }>سعر ثابت فقط</option>
 							</select>
 						</div>
 
 						<!-- Page Size Selector -->
 						<div class="form-group mb-0">
-							<label class="form-label text-xs font-bold text-secondary mb-1">??? ??????? ???????</label>
+							<label class="form-label text-xs font-bold text-secondary mb-1">حالة الربط بالكتالوج</label>
 							<select name="limit" class="form-input text-sm h-10 rounded-lg">
-								<option value="25" selected?={ data.PageSize == 25 }>25 ???</option>
-								<option value="50" selected?={ data.PageSize == 50 }>50 ???</option>
-								<option value="100" selected?={ data.PageSize == 100 }>100 ???</option>
-								<option value="250" selected?={ data.PageSize == 250 }>250 ???</option>
+								<option value="25" selected?={ data.PageSize == 25 }>25 صنف</option>
+								<option value="50" selected?={ data.PageSize == 50 }>50 صنف</option>
+								<option value="100" selected?={ data.PageSize == 100 }>100 صنف</option>
+								<option value="250" selected?={ data.PageSize == 250 }>250 صنف</option>
 							</select>
 						</div>
 					</div>
@@ -360,7 +360,7 @@ templ AdminWarehouseDetailPage(data AdminWarehouseDetailView, lang, dir string) 
 							}
 							<button type="submit" class="btn btn-primary btn-sm d-flex items-center gap-1.5 px-5 font-bold rounded-lg">
 								@components.IconSearch("icon-xs")
-								<span>????? ???????</span>
+								<span>العودة لقائمة المنتجات</span>
 							</button>
 						</div>
 					</div>
@@ -376,7 +376,7 @@ templ AdminWarehouseDetailPage(data AdminWarehouseDetailView, lang, dir string) 
 							???? ????? ???????
 						</h3>
 						<span class="badge badge-slate text-xs tabular-nums font-bold">
-							{ fmt.Sprintf("%d ??? ?????", len(data.Items)) }
+							{ fmt.Sprintf("%d صنف معروض", len(data.Items)) }
 						</span>
 					</div>
 				</div>
@@ -400,15 +400,15 @@ templ AdminWarehouseDetailPage(data AdminWarehouseDetailView, lang, dir string) 
 							<thead>
 								<tr>
 									<th class="w-12">#</th>
-									<th>??? ?????? ??????</th>
-									<th>??? SKU ?????????</th>
-									<th>??? ???????? ?????????</th>
-									<th>??? ???????</th>
-									<th>???? ?????</th>
-									<th>???? ???????</th>
-									<th>?????? ??????</th>
-									<th>?? ??????</th>
-									<th>???? ??????</th>
+									<th>المورد</th>
+									<th>كود SKU والباركود</th>
+									<th>المورد</th>
+									<th>المورد</th>
+									<th>المورد</th>
+									<th>المورد</th>
+									<th>المورد</th>
+									<th>المورد</th>
+									<th>المورد</th>
 								</tr>
 							</thead>
 							<tbody>
