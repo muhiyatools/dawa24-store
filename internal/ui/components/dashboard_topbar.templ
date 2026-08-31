@@ -28,8 +28,14 @@ import "github.com/muhiya/dawa24-store/internal/shared/i18n"
 //   - Lead: the drawer toggle (below 1024px) and the page title.
 //   - Context: whatever this surface needs to say about *where* the caller is —
 //     the pharmacy branch selector, an organization switcher. Optional.
-//   - Actions: language, theme, surface-specific actions, then the user menu.
-//     The order is fixed so the logout control does not move between dashboards.
+//   - Actions: surface-specific controls, then notifications, then the account
+//     menu. The order is fixed so the account control does not move between
+//     dashboards.
+//
+// Language and theme used to sit here as two separate always-visible toggles.
+// They are settings, not actions: they are changed rarely and they were taking
+// the width that notifications and the account menu need on a phone. Both moved
+// into the account menu, which is where a reader looks for "things about me".
 type TopBarProps struct {
 	Title string
 	Lang  string
@@ -66,11 +72,10 @@ templ DashboardTopBar(props TopBarProps) {
 			}
 		</div>
 		<div class="dashboard-topbar-actions">
-			@LanguageToggle(props.Lang)
-			@ThemeToggle()
 			if props.Actions != nil {
 				@props.Actions
 			}
+			@NotificationsBell(props.Lang)
 			@UserMenu(props.Lang)
 		</div>
 	</header>

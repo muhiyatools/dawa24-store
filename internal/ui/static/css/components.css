@@ -3296,3 +3296,93 @@ body.modal-open {
 }
 
 
+
+@layer components {
+/* ---- Account menu: appearance and language sections (Phase 7) ----
+   Theme and language moved in here from the header, where they were two
+   permanently visible toggles competing for width with notifications on a
+   phone. The language control also carried its entire layout as inline
+   styles; that is now here, in tokens. */
+.user-menu-section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2xs);
+  padding: var(--space-sm) var(--space-md);
+  border-block-start: 1px solid var(--border-subtle);
+}
+
+.user-menu-section-label {
+  font-size: var(--text-xs);
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.user-menu-segmented {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 1fr;
+  gap: 2px;
+  padding: 2px;
+  background: var(--bg-surface-sunken);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+}
+
+.user-menu-segment {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2xs);
+  min-block-size: 2rem;
+  padding-inline: var(--space-2xs);
+  border: none;
+  border-radius: calc(var(--radius-md) - 2px);
+  background: transparent;
+  color: var(--text-muted);
+  font: inherit;
+  font-size: var(--text-xs);
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.user-menu-segment:hover { color: var(--text-primary); }
+.user-menu-segment:focus-visible { outline: 2px solid var(--border-focus); outline-offset: -2px; }
+
+/* The active theme segment is stamped by app.js, which already tracks the
+   resolved theme; the language one is known at render time. */
+.user-menu-segment.is-active,
+.user-menu-segment.active,
+.user-menu-segment[aria-pressed="true"] {
+  background: var(--bg-surface-raised);
+  color: var(--text-primary);
+  box-shadow: var(--shadow-xs);
+}
+
+/* On a phone the labels are dropped and the icon carries the meaning, so three
+   themes still fit across the sheet without wrapping. */
+@media (max-width: 380px) {
+  .user-menu-segment span { display: none; }
+}
+
+/* ---- Notifications bell in the dashboard header ---- */
+.notif-bell { position: relative; }
+.notif-bell .btn-notification-wrap { position: relative; }
+.notif-bell .notification-indicator:not(:empty) {
+  position: absolute;
+  inset-block-start: 2px;
+  inset-inline-end: 2px;
+  min-inline-size: 1rem;
+  block-size: 1rem;
+  display: grid;
+  place-items: center;
+  padding-inline: 3px;
+  border-radius: var(--radius-full);
+  background: var(--danger);
+  color: #fff;
+  font-size: 0.625rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+.notif-bell .notification-menu { inset-inline-end: 0; }
+}

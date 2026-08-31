@@ -215,7 +215,11 @@ function applyTheme(theme, persist = false) {
 
   document.querySelectorAll('[data-set-theme]').forEach((btn) => {
     const btnTheme = btn.getAttribute('data-set-theme');
-    btn.classList.toggle('active', btnTheme === theme);
+    const on = btnTheme === theme;
+    btn.classList.toggle('active', on);
+    // The class is what a sighted reader sees; aria-pressed is what a screen
+    // reader announces. Both have to move or the control lies to one of them.
+    if (btn.tagName === 'BUTTON') btn.setAttribute('aria-pressed', on ? 'true' : 'false');
   });
 }
 

@@ -30,6 +30,11 @@ func addKey(e *engine, key, namespace, textAR, textEN, desc string) {
 
 func loadCommonAndAuthKeys(e *engine) {
 	// Common actions
+	addKey(e, "notifications.title", "notifications", "الإشعارات", "Notifications", "Notifications bell")
+	addKey(e, "notifications.empty", "notifications", "لا توجد إشعارات جديدة", "No new notifications", "Notifications bell")
+	addKey(e, "common.appearance", "common", "المظهر", "Appearance", "Account menu")
+	addKey(e, "common.theme_system", "common", "تلقائي", "System", "Account menu")
+	addKey(e, "common.language", "common", "اللغة", "Language", "Account menu")
 	addKey(e, "common.save", "common", "حفظ", "Save", "General save button")
 	addKey(e, "common.save_changes", "common", "حفظ التعديلات", "Save Changes", "Save changes button")
 	addKey(e, "common.cancel", "common", "إلغاء", "Cancel", "Cancel button")

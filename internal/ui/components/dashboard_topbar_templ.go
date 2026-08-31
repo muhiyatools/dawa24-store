@@ -36,8 +36,14 @@ import "github.com/muhiya/dawa24-store/internal/shared/i18n"
 //   - Lead: the drawer toggle (below 1024px) and the page title.
 //   - Context: whatever this surface needs to say about *where* the caller is —
 //     the pharmacy branch selector, an organization switcher. Optional.
-//   - Actions: language, theme, surface-specific actions, then the user menu.
-//     The order is fixed so the logout control does not move between dashboards.
+//   - Actions: surface-specific controls, then notifications, then the account
+//     menu. The order is fixed so the account control does not move between
+//     dashboards.
+//
+// Language and theme used to sit here as two separate always-visible toggles.
+// They are settings, not actions: they are changed rarely and they were taking
+// the width that notifications and the account menu need on a phone. Both moved
+// into the account menu, which is where a reader looks for "things about me".
 type TopBarProps struct {
 	Title string
 	Lang  string
@@ -99,7 +105,7 @@ func DashboardTopBar(props TopBarProps) templ.Component {
 		var templ_7745c5c3_Var4 string
 		templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.ResolveAttributeValue(i18n.T(props.Lang, "nav.open_menu"))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/components/dashboard_topbar.templ`, Line: 57, Col: 52}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/components/dashboard_topbar.templ`, Line: 63, Col: 52}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var4)
 		if templ_7745c5c3_Err != nil {
@@ -120,7 +126,7 @@ func DashboardTopBar(props TopBarProps) templ.Component {
 		var templ_7745c5c3_Var5 string
 		templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(props.Title)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/components/dashboard_topbar.templ`, Line: 61, Col: 51}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/components/dashboard_topbar.templ`, Line: 67, Col: 51}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
 		if templ_7745c5c3_Err != nil {
@@ -148,19 +154,15 @@ func DashboardTopBar(props TopBarProps) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = LanguageToggle(props.Lang).Render(ctx, templ_7745c5c3_Buffer)
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		templ_7745c5c3_Err = ThemeToggle().Render(ctx, templ_7745c5c3_Buffer)
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
 		if props.Actions != nil {
 			templ_7745c5c3_Err = props.Actions.Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
+		}
+		templ_7745c5c3_Err = NotificationsBell(props.Lang).Render(ctx, templ_7745c5c3_Buffer)
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
 		}
 		templ_7745c5c3_Err = UserMenu(props.Lang).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {

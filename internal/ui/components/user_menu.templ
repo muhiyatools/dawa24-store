@@ -18,6 +18,12 @@ import (
 //
 // One control now, in one place, showing who the caller actually is.
 //
+// Theme and language live in here rather than as two permanently visible
+// toggles in the header. They are settings, not actions: changed rarely, and on
+// a phone they were consuming the width that notifications and this control
+// need. The theme buttons reuse the existing data-set-theme delegation in
+// app.js, so there is no second implementation of the same behaviour.
+//
 // The organization line is text rather than a switcher. Rendering a live list of
 // the caller's organizations means a query on every page render, and Phase 2 was
 // spent removing exactly that kind of per-page cost. The link goes to the
@@ -68,6 +74,36 @@ templ UserMenu(lang string) {
 							<span>{ i18n.T(lang, "nav.linked_organizations") }</span>
 						</a>
 					}
+				</div>
+				<div class="user-menu-section">
+					<span class="user-menu-section-label">{ i18n.T(lang, "common.appearance") }</span>
+					<div class="user-menu-segmented" role="group" aria-label={ i18n.T(lang, "common.appearance") }>
+						<button type="button" class="user-menu-segment" data-set-theme="light" title={ i18n.T(lang, "common.theme_light") }>
+							@IconSun("icon-xs")
+							<span>{ i18n.T(lang, "common.theme_light") }</span>
+						</button>
+						<button type="button" class="user-menu-segment" data-set-theme="dark" title={ i18n.T(lang, "common.theme_dark") }>
+							@IconMoon("icon-xs")
+							<span>{ i18n.T(lang, "common.theme_dark") }</span>
+						</button>
+						<button type="button" class="user-menu-segment" data-set-theme="system" title={ i18n.T(lang, "common.theme_system") }>
+							@IconMonitor("icon-xs")
+							<span>{ i18n.T(lang, "common.theme_system") }</span>
+						</button>
+					</div>
+				</div>
+				<div class="user-menu-section">
+					<span class="user-menu-section-label">{ i18n.T(lang, "common.language") }</span>
+					<div class="user-menu-segmented" role="group" aria-label={ i18n.T(lang, "common.language") }>
+						<a href="/lang/ar" class={ "user-menu-segment", templ.KV("is-active", lang != "en") } hreflang="ar">
+							@IconFlagEG("icon-xs")
+							<span>عربي</span>
+						</a>
+						<a href="/lang/en" class={ "user-menu-segment", templ.KV("is-active", lang == "en") } hreflang="en">
+							@IconFlagGB("icon-xs")
+							<span>English</span>
+						</a>
+					</div>
 				</div>
 				<form action="/auth/logout" method="POST" class="user-menu-logout">
 					<button type="submit" class="user-menu-item user-menu-item-danger" role="menuitem">

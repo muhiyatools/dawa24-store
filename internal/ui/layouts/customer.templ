@@ -75,48 +75,7 @@ templ PublicShell(title string, lang string, dir string) {
 								</a>
 							}
 
-							<!-- Notifications Popover -->
-							<div class="dropdown" x-data="{ open: false }" @click.outside="open = false" @keydown.escape.window="open = false">
-								<button
-									type="button"
-									title="الإشعارات"
-									@click="open = !open"
-									hx-get="/notifications/dropdown"
-									hx-target="#notif-dropdown-content"
-									hx-trigger="click"
-									hx-swap="innerHTML"
-									class="btn btn-secondary btn-icon btn-notification-wrap"
-								>
-									@components.IconBell("icon-md")
-									<span class="notification-indicator" hx-get="/notifications/unread-badge" hx-trigger="load, every 60s" hx-swap="innerHTML" hx-target="this"></span>
-								</button>
-
-								<div
-									class="dropdown-menu notification-menu"
-									id="notif-dropdown-content"
-									x-show="open"
-									x-cloak
-									x-transition.origin.top.duration.150ms
-								>
-									<div class="notification-panel">
-										<div class="notification-header">
-											<div class="row-center-sm">
-												@components.IconBell("icon-xs")
-												<span class="notification-title">الإشعارات</span>
-											</div>
-										</div>
-										<div class="notification-empty">
-											<div class="notification-empty-icon">
-												@components.IconBell("icon-sm")
-											</div>
-											<div>لا توجد إشعارات جديدة</div>
-										</div>
-										<div class="notification-footer">
-											<a href="/notifications" class="notification-footer-link">عرض كل الإشعارات</a>
-										</div>
-									</div>
-								</div>
-							</div>
+							@components.NotificationsBell(lang)
 
 							<!-- User Avatar Dropdown -->
 							<div class="dropdown" x-data="{ open: false }" @click.outside="open = false" @keydown.escape.window="open = false">
