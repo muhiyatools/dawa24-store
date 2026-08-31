@@ -43,6 +43,9 @@ import (
 	platformadminHttp "github.com/muhiya/dawa24-store/internal/modules/platform_admin/http"
 	"github.com/muhiya/dawa24-store/internal/modules/promo"
 	promoHttp "github.com/muhiya/dawa24-store/internal/modules/promo/http"
+	"github.com/muhiya/dawa24-store/internal/modules/smartorder"
+	smartorderHttp "github.com/muhiya/dawa24-store/internal/modules/smartorder/http"
+	smartorderPG "github.com/muhiya/dawa24-store/internal/modules/smartorder/postgres"
 	"github.com/muhiya/dawa24-store/internal/modules/workflow"
 	workflowHttp "github.com/muhiya/dawa24-store/internal/modules/workflow/http"
 
@@ -270,6 +273,17 @@ func mountAuthenticatedModules(
 	assistantHandler := assistantHttp.NewHandler(assistantSvc, ai, assistantRepo, log)
 	assistantHandler.SetKeyResolver(keyResolverAPI)
 	assistantHandler.RegisterRoutes(r)
+
+	// 14. Smart Order API
+	smartorderRepo := smartorderPG.New(db)
+	smartorderSvc := smartorder.NewService(smartorderRepo, log)
+	soHandler := smartorderHttp.NewHandler(smartorderSvc, log)
+	soFinalizer := smartorder.NewFinalizer(
+		smartorderRepo,
+		placeSmartOrder(commSvc, orgSvc, workflow.NewCoverageService(db), log),
+		&reverifier{wfCoverage: workflow.NewCoverageService(db), orgSvc: orgSvc},
+	)
+	smartorderHttp.RegisterRoutes(r, soHandler, smartorderHttp.NewReviewer(soHandler, smartorderSvc, soFinalizer))
 
 	instGateAPI := catalog.InstitutionalGateFunc(func(ctx context.Context, userID int64, mode int) ([]int64, error) {
 		return orgSvc.AllowedWorkIDs(ctx, userID, org.InstitutionalFilterMode(mode))
