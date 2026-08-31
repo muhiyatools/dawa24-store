@@ -1685,7 +1685,7 @@ func VendorWarehouseDetailPage(data VendorWarehouseDetailData, lang, dir string)
 							return templ_7745c5c3_Err
 						}
 					} else {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 179, "<button class=\"btn btn-secondary btn-sm text-xs\" disabled>السابق</button>")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 179, "<button type=\"button\" class=\"btn btn-secondary btn-sm text-xs\" disabled>السابق</button>")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
@@ -1779,7 +1779,7 @@ func VendorWarehouseDetailPage(data VendorWarehouseDetailData, lang, dir string)
 							return templ_7745c5c3_Err
 						}
 					} else {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 191, "<button class=\"btn btn-secondary btn-sm text-xs\" disabled>التالي</button>")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 191, "<button type=\"button\" class=\"btn btn-secondary btn-sm text-xs\" disabled>التالي</button>")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}

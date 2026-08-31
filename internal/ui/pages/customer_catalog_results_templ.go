@@ -1534,7 +1534,7 @@ func CustomerCatalogPagination(data CatalogPageData) templ.Component {
 					return templ_7745c5c3_Err
 				}
 			} else {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 155, "<button disabled class=\"btn btn-secondary btn-sm font-bold gap-1 text-xs opacity-40 cursor-not-allowed\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 155, "<button type=\"button\" disabled class=\"btn btn-secondary btn-sm font-bold gap-1 text-xs opacity-40 cursor-not-allowed\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -1697,7 +1697,7 @@ func CustomerCatalogPagination(data CatalogPageData) templ.Component {
 					return templ_7745c5c3_Err
 				}
 			} else {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 174, "<button disabled class=\"btn btn-secondary btn-sm font-bold gap-1 text-xs opacity-40 cursor-not-allowed\"><span>التالي</span>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 174, "<button type=\"button\" disabled class=\"btn btn-secondary btn-sm font-bold gap-1 text-xs opacity-40 cursor-not-allowed\"><span>التالي</span>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -1797,7 +1797,7 @@ func CustomerNegotiationModal() templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 180, "<script>\r\n\t\tfunction triggerNegotiationModal(btn) {\r\n\t\t\topenNegotiationModal({\r\n\t\t\t\tvariant_id: btn.getAttribute('data-variant-id'),\r\n\t\t\t\tproduct_id: btn.getAttribute('data-product-id'),\r\n\t\t\t\tvendor_org_id: btn.getAttribute('data-vendor-id'),\r\n\t\t\t\tname: btn.getAttribute('data-product-name'),\r\n\t\t\t\tcurrent_price: btn.getAttribute('data-current-price'),\r\n\t\t\t\tmin_qty: parseInt(btn.getAttribute('data-min-qty') || '1', 10)\r\n\t\t\t});\r\n\t\t}\r\n\t\tfunction openNegotiationModal(data) {\r\n\t\t\tdocument.getElementById('neg-variant-id').value = data.variant_id || '';\r\n\t\t\tdocument.getElementById('neg-vendor-id').value = data.vendor_org_id || '';\r\n\t\t\tdocument.getElementById('neg-product-name').innerText = data.name || 'صنف دوائي';\r\n\t\t\tdocument.getElementById('neg-current-price').innerText = data.current_price || '0.00';\r\n\t\t\tdocument.getElementById('neg-qty').value = data.min_qty || 1;\r\n\t\t\tdocument.getElementById('neg-proposed-price').value = data.current_price || '';\r\n\t\t\tconst m = document.getElementById('negotiation-modal');\r\n\t\t\tif (m && typeof m.showModal === 'function') {\r\n\t\t\t\tm.showModal();\r\n\t\t\t}\r\n\t\t}\r\n\t\tfunction closeNegotiationModal() {\r\n\t\t\tconst m = document.getElementById('negotiation-modal');\r\n\t\t\tif (m && typeof m.close === 'function') {\r\n\t\t\t\tm.close();\r\n\t\t\t}\r\n\t\t}\r\n\t</script>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 180, "<script>\n\t\tfunction triggerNegotiationModal(btn) {\n\t\t\topenNegotiationModal({\n\t\t\t\tvariant_id: btn.getAttribute('data-variant-id'),\n\t\t\t\tproduct_id: btn.getAttribute('data-product-id'),\n\t\t\t\tvendor_org_id: btn.getAttribute('data-vendor-id'),\n\t\t\t\tname: btn.getAttribute('data-product-name'),\n\t\t\t\tcurrent_price: btn.getAttribute('data-current-price'),\n\t\t\t\tmin_qty: parseInt(btn.getAttribute('data-min-qty') || '1', 10)\n\t\t\t});\n\t\t}\n\t\tfunction openNegotiationModal(data) {\n\t\t\tdocument.getElementById('neg-variant-id').value = data.variant_id || '';\n\t\t\tdocument.getElementById('neg-vendor-id').value = data.vendor_org_id || '';\n\t\t\tdocument.getElementById('neg-product-name').innerText = data.name || 'صنف دوائي';\n\t\t\tdocument.getElementById('neg-current-price').innerText = data.current_price || '0.00';\n\t\t\tdocument.getElementById('neg-qty').value = data.min_qty || 1;\n\t\t\tdocument.getElementById('neg-proposed-price').value = data.current_price || '';\n\t\t\tconst m = document.getElementById('negotiation-modal');\n\t\t\tif (m && typeof m.showModal === 'function') {\n\t\t\t\tm.showModal();\n\t\t\t}\n\t\t}\n\t\tfunction closeNegotiationModal() {\n\t\t\tconst m = document.getElementById('negotiation-modal');\n\t\t\tif (m && typeof m.close === 'function') {\n\t\t\t\tm.close();\n\t\t\t}\n\t\t}\n\t</script>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

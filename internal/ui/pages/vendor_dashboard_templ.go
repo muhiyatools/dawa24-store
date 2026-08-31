@@ -1333,7 +1333,7 @@ func VendorDashboard(lang, dir string, data VendorDashboardData) templ.Component
 						return templ_7745c5c3_Err
 					}
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 146, "</div><!-- Navigation Footer Link --><div class=\"mt-3 pt-2 border-t flex-between items-center\"><a href=\"/vendor/orders\" class=\"text-xs font-bold text-secondary text-decoration-none\">Ø§Ù„Ø§Ù†ØªÙ‚Ø§Ù„ Ù„ØµÙ\u0081Ø\u00adØ© ÙƒØ§Ù\u0081Ø© Ø§Ù„Ø·Ù„Ø¨ÙŠØ§Øª ÙˆØ§Ù„Ø´Ø\u00adÙ†Ø§Øª Ø§Ù„Ù…Ø¹ØªÙ…Ø¯Ø© â†—</a><form method=\"dialog\" class=\"m-0\"><button class=\"btn btn-secondary btn-sm font-bold text-xs\">Ø¥ØºÙ„Ø§Ù‚</button></form></div></div>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 146, "</div><!-- Navigation Footer Link --><div class=\"mt-3 pt-2 border-t flex-between items-center\"><a href=\"/vendor/orders\" class=\"text-xs font-bold text-secondary text-decoration-none\">Ø§Ù„Ø§Ù†ØªÙ‚Ø§Ù„ Ù„ØµÙ\u0081Ø\u00adØ© ÙƒØ§Ù\u0081Ø© Ø§Ù„Ø·Ù„Ø¨ÙŠØ§Øª ÙˆØ§Ù„Ø´Ø\u00adÙ†Ø§Øª Ø§Ù„Ù…Ø¹ØªÙ…Ø¯Ø© â†—</a><form method=\"dialog\" class=\"m-0\"><button type=\"button\" class=\"btn btn-secondary btn-sm font-bold text-xs\">Ø¥ØºÙ„Ø§Ù‚</button></form></div></div>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
