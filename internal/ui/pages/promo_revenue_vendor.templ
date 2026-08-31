@@ -186,125 +186,123 @@ templ VendorOffersPackagesPromotionsPage(lang, dir string) {
 	}
 }
 
-// VendorAdsPage renders vendor's ads with statistics and a creation form.
-templ VendorAdsPage(lang, dir string, ads []*promo.Ad) {
+// VendorAdsPage renders vendor's ads with statistics, KPIs, and the creation wizard.
+templ VendorAdsPage(lang, dir string, data VendorAdsData) {
 	@layouts.VendorShell("الإعلانات والبنرات الترويجية", "ads", lang, dir) {
 		<div class="page-container py-6">
-			<!-- Header -->
+			<!-- Header & Action Bar -->
 			<div class="glass-panel p-6 mb-6 border border-slate-200/80 rounded-2xl shadow-sm">
-				<div class="d-flex items-center gap-2.5 mb-1.5">
-					<div class="w-10 h-10 rounded-xl bg-brand-50 text-brand-600 d-flex items-center justify-center border border-brand-200/60 shadow-2xs">
-						@components.IconMegaphone("icon-sm")
+				<div class="flex-between items-center flex-wrap gap-4">
+					<div class="d-flex items-center gap-3">
+						<div class="w-12 h-12 rounded-2xl bg-brand-50 text-brand-600 d-flex items-center justify-center border border-brand-200/60 shadow-2xs">
+							@components.IconMegaphone("icon-md")
+						</div>
+						<div class="stack-sm">
+							<h1 class="text-2xl font-black text-primary m-0">إعلانات وبنرات المنشأة الترويجية</h1>
+							<p class="text-xs text-secondary m-0 mt-0.5 font-medium">أنشئ بنرات وإعلانات ترويجية بصور أو مقاطع فيديو موجهة لأصنافك في الكتالوج والصفحة الرئيسية</p>
+						</div>
 					</div>
-     <div class="stack-sm">
-						<h1 class="text-2xl font-black text-primary m-0">إعلانات وبنرات المنشأة</h1>
-						<p class="text-xs text-secondary m-0 mt-0.5 font-medium">أنشئ إعلاناً وبنراً ترويجياً بصورة أو فيديو ونص ثنائي اللغة. يتم مراجعة كل إعلان من قِبل الإدارة قبل نشره</p>
+
+					<div class="d-flex items-center gap-2.5">
+						@VendorAdsWizardModal(data, lang, dir)
 					</div>
 				</div>
 			</div>
 
-			<!-- Create Ad Form Panel -->
-			<div class="glass-panel p-6 mb-6 border border-slate-200/80 rounded-2xl shadow-xs">
-				<div class="d-flex items-center gap-2 mb-4 pb-3 border-b border-slate-100">
-					@components.IconPlus("icon-xs text-brand")
-					<h3 class="text-sm font-black text-primary m-0">إنشاء إعلان وبنر جديد</h3>
+			<!-- Notice Banner (if any) -->
+			if data.NoticeMsg != "" {
+				<div class={ "p-4 mb-6 rounded-2xl border d-flex items-center gap-3", templ.KV("bg-emerald-50 text-emerald-800 border-emerald-200", data.NoticeType == "success"), templ.KV("bg-rose-50 text-rose-800 border-rose-200", data.NoticeType == "error") }>
+					if data.NoticeType == "success" {
+						@components.IconCheckCircle("icon-sm text-emerald-600 flex-shrink-0")
+					} else {
+						@components.IconAlertTriangle("icon-sm text-rose-600 flex-shrink-0")
+					}
+					<span class="text-xs font-bold">{ data.NoticeMsg }</span>
 				</div>
+			}
 
-				<form method="POST" action="/vendor/ads/new" class="d-flex flex-col gap-4 m-0">
-					<div class="d-grid grid-cols-1 md:grid-cols-2 gap-4">
-      <div class="stack-sm">
-							<label class="form-label text-xs font-bold text-primary mb-1.5 d-block">العنوان (عربي) *</label>
-							<input type="text" name="title_ar" class="form-input text-xs font-semibold" required placeholder="عنوان الإعلان بالعربية" />
-						</div>
-      <div class="stack-sm">
-							<label class="form-label text-xs font-bold text-primary mb-1.5 d-block">العنوان (إنجليزي)</label>
-							<input type="text" name="title_en" class="form-input text-xs font-semibold" placeholder="Ad title in English" dir="ltr" />
-						</div>
+			<!-- KPIs Summary Cards -->
+			<div class="d-grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+				<div class="glass-panel p-4 border border-slate-200/80 rounded-2xl shadow-xs">
+					<span class="text-2xs text-muted font-bold d-block mb-1">إجمالي الإعلانات</span>
+					<div class="text-2xl font-black text-primary tabular-nums">{ fmt.Sprintf("%d", len(data.Ads)) }</div>
+				</div>
+				<div class="glass-panel p-4 border border-slate-200/80 rounded-2xl shadow-xs">
+					<span class="text-2xs text-muted font-bold d-block mb-1">معتمد ومباشر</span>
+					<div class="text-2xl font-black text-emerald-600 tabular-nums">
+						{ fmt.Sprintf("%d", func() int { count := 0; for _, a := range data.Ads { if a != nil && a.AdminStatus == "approved" { count++ } }; return count }()) }
 					</div>
-
-					<div class="d-grid grid-cols-1 md:grid-cols-2 gap-4">
-      <div class="stack-sm">
-							<label class="form-label text-xs font-bold text-primary mb-1.5 d-block">النص الإعلاني (عربي)</label>
-							<textarea name="ad_text_ar" class="form-input text-xs" rows="2" placeholder="النص والرسالة الترويجية بالعربية"></textarea>
-						</div>
-      <div class="stack-sm">
-							<label class="form-label text-xs font-bold text-primary mb-1.5 d-block">النص الإعلاني (إنجليزي)</label>
-							<textarea name="ad_text_en" class="form-input text-xs" rows="2" placeholder="Advertising message in English" dir="ltr"></textarea>
-						</div>
+				</div>
+				<div class="glass-panel p-4 border border-slate-200/80 rounded-2xl shadow-xs">
+					<span class="text-2xs text-muted font-bold d-block mb-1">قيد المراجعة</span>
+					<div class="text-2xl font-black text-sky-600 tabular-nums">
+						{ fmt.Sprintf("%d", func() int { count := 0; for _, a := range data.Ads { if a != nil && a.AdminStatus == "pending" { count++ } }; return count }()) }
 					</div>
-
-					<div class="d-grid grid-cols-1 md:grid-cols-2 gap-4">
-      <div class="stack-sm">
-							<label class="form-label text-xs font-bold text-primary mb-1.5 d-block">رابط الوسائط (صورة / فيديو) *</label>
-							<input type="url" name="media_url" class="form-input text-xs font-mono" required placeholder="https://cdn.example.com/banner.jpg" dir="ltr" />
-						</div>
-      <div class="stack-sm">
-							<label class="form-label text-xs font-bold text-primary mb-1.5 d-block">نوع الوسائط *</label>
-							<select name="media_type" class="form-input text-xs font-semibold">
-								<option value="image">صورة ثابتة (Image Banner)</option>
-								<option value="video">مقطع فيديو ترويجي (Video Ad)</option>
-							</select>
-						</div>
-					</div>
-
-					<div class="d-grid grid-cols-1 md:grid-cols-2 gap-4">
-      <div class="stack-sm">
-							<label class="form-label text-xs font-bold text-primary mb-1.5 d-block">وجهة النقر (Target Type)</label>
-							<select name="click_target_type" class="form-input text-xs font-semibold">
-								<option value="vendor_page">صفحة بروفايل المورد</option>
-								<option value="offer">عرض ترويجي محدد</option>
-								<option value="external_url">رابط خارجي مخصص</option>
-							</select>
-						</div>
-      <div class="stack-sm">
-							<label class="form-label text-xs font-bold text-primary mb-1.5 d-block">معرف الوجهة (ID أو الرابط)</label>
-							<input type="number" name="click_target_id" class="form-input text-xs tabular-nums" placeholder="معرف العرض (إن وجد)" />
-						</div>
-					</div>
-
-					<div class="pt-2">
-						<button type="submit" class="btn btn-primary btn-sm font-black px-6 shadow-sm gap-1.5">
-							@components.IconPlus("icon-xs")
-							<span>حفظ وإرسال الإعلان للمراجعة</span>
-						</button>
-					</div>
-				</form>
+				</div>
+				<div class="glass-panel p-4 border border-slate-200/80 rounded-2xl shadow-xs">
+					<span class="text-2xs text-muted font-bold d-block mb-1">رصيد الرعايات المتاح</span>
+					<div class="text-2xl font-black text-brand tabular-nums">{ fmt.Sprintf("%d", data.TotalCredits) }</div>
+				</div>
 			</div>
 
 			<!-- Ads List with Statistics Table -->
 			<div class="glass-panel p-0 border border-slate-200/80 rounded-2xl shadow-xs overflow-hidden">
-				<div class="p-4 border-b border-slate-100 flex-between items-center">
+				<div class="p-4 border-b border-slate-100 flex-between items-center bg-slate-50/60">
 					<div class="d-flex items-center gap-2">
 						@components.IconChart("icon-xs text-brand")
-						<h3 class="text-sm font-black text-primary m-0">إحصائيات وحالة الإعلانات المنشورة</h3>
+						<h3 class="text-sm font-black text-primary m-0">سجل وحالة الإعلانات المنشورة</h3>
 					</div>
-					<span class="badge badge-slate text-xs font-bold tabular-nums">إجمالي: { fmt.Sprintf("%d", len(ads)) }</span>
+					<span class="badge badge-slate text-xs font-bold tabular-nums">إجمالي: { fmt.Sprintf("%d", len(data.Ads)) }</span>
 				</div>
 
-				if len(ads) > 0 {
+				if len(data.Ads) > 0 {
 					<div class="table-container m-0 overflow-x-auto">
 						<table class="data-table m-0 text-xs w-full">
 							<thead>
 								<tr class="bg-slate-50/80 border-b border-slate-200/70 text-slate-700 font-bold">
-									<th class="py-3 text-start ps-4">عنوان الإعلان</th>
-									<th class="text-center py-3">نوع الوسائط</th>
-									<th class="text-center tabular-nums py-3">المشاهدات</th>
-									<th class="text-center tabular-nums py-3">النقرات</th>
-									<th class="text-center tabular-nums py-3">معدل CTR %</th>
-									<th class="text-center py-3">الحالة</th>
-									<th class="text-end py-3 pe-4">الإجراءات</th>
+									<th class="py-3.5 text-start ps-4">الإعلان والوسائط</th>
+									<th class="text-start py-3.5">موضع الظهور</th>
+									<th class="text-center py-3.5">نوع الوسائط</th>
+									<th class="text-center tabular-nums py-3.5">المشاهدات</th>
+									<th class="text-center tabular-nums py-3.5">النقرات</th>
+									<th class="text-center tabular-nums py-3.5">معدل CTR %</th>
+									<th class="text-center py-3.5">الحالة</th>
+									<th class="text-end py-3.5 pe-4">الإجراءات</th>
 								</tr>
 							</thead>
 							<tbody class="divide-y divide-slate-100">
-								for _, ad := range ads {
+								for _, ad := range data.Ads {
 									if ad != nil {
 										<tr class="hover:bg-slate-50/50 transition-colors">
-											<td class="font-extrabold text-primary py-3 ps-4">{ ad.DisplayTitle(lang) }</td>
+											<td class="py-3 ps-4">
+												<div class="d-flex items-center gap-3">
+													if ad.MediaURL != "" && ad.MediaType != "video" {
+														<img src={ ad.MediaURL } alt="Ad Thumb" class="w-10 h-10 rounded-lg object-cover border border-slate-200" />
+													} else if ad.MediaType == "video" {
+														<div class="w-10 h-10 rounded-lg bg-slate-900 text-white d-flex items-center justify-center text-2xs font-bold">فيديو</div>
+													} else {
+														<div class="w-10 h-10 rounded-lg bg-slate-100 text-slate-400 d-flex items-center justify-center">
+															@components.IconImage("icon-xs")
+														</div>
+													}
+													<div class="stack-sm">
+														<strong class="font-extrabold text-primary d-block">{ ad.DisplayTitle(lang) }</strong>
+														if ad.DisplayText(lang) != "" {
+															<span class="text-2xs text-muted max-w-xs text-truncate d-block">{ ad.DisplayText(lang) }</span>
+														}
+													</div>
+												</div>
+											</td>
+											<td class="py-3">
+												<span class="badge badge-sky text-2xs font-extrabold">
+													{ PlacementLabel(ad.Position) }
+												</span>
+											</td>
 											<td class="text-center py-3">
 												if ad.MediaType == "video" {
-													<span class="badge badge-sky text-xs font-bold">فيديو</span>
+													<span class="badge badge-indigo text-2xs font-bold">فيديو MP4</span>
 												} else {
-													<span class="badge badge-slate text-xs font-bold">صورة</span>
+													<span class="badge badge-slate text-2xs font-bold">صورة</span>
 												}
 											</td>
 											<td class="text-center tabular-nums font-bold text-primary py-3">{ fmt.Sprintf("%d", ad.Impressions) }</td>
@@ -332,8 +330,14 @@ templ VendorAdsPage(lang, dir string, ads []*promo.Ad) {
 						</table>
 					</div>
 				} else {
-					<div class="p-8 text-center">
-						<p class="text-xs text-muted m-0 font-medium">لم يتم إنشاء أي إعلانات حتى الآن. استخدم النموذج أعلاه لإنشاء بنرك الأول.</p>
+					<div class="p-12 text-center">
+						<div class="w-12 h-12 rounded-full bg-slate-100 text-slate-400 d-flex items-center justify-center mx-auto mb-3">
+							@components.IconMegaphone("icon-md")
+						</div>
+						<h3 class="text-sm font-extrabold text-primary mb-1">لا توجد إعلانات منشورة حتى الآن</h3>
+						<p class="text-xs text-muted max-w-sm mx-auto mb-4">
+							أنشئ بنرك الترويجي الأول لعرض أصنافك الدوائية أمام آلاف الصيدليات في الصفحة الرئيسية والكتالوج.
+						</p>
 					</div>
 				}
 			</div>
@@ -464,29 +468,93 @@ templ VendorSponsorshipRequestsPage(lang, dir string, data SponsorshipRequestsDa
 				</div>
 			}
 
-			<!-- Submit New Request Form Panel -->
-			<div class="glass-panel p-6 mb-6 border border-slate-200/80 rounded-2xl shadow-xs">
+			<!-- Submit New Request Form Panel with Multi-Select & Live Credit Calculations -->
+			<div
+				class="glass-panel p-6 mb-6 border border-slate-200/80 rounded-2xl shadow-xs"
+				x-data={ fmt.Sprintf(`{
+					availableProducts: %s,
+					availableOffers: %s,
+					itemType: 'product',
+					selectedItems: [],
+					selectedPackageID: '%s',
+					searchQuery: '',
+					showDropdown: false,
+					packagesCredits: %s,
+
+					get currentAvailableList() {
+						if (this.itemType === 'product') {
+							if (!this.searchQuery.trim()) return this.availableProducts.slice(0, 15);
+							const q = this.searchQuery.toLowerCase();
+							return this.availableProducts.filter(p => 
+								(p.name_ar && p.name_ar.toLowerCase().includes(q)) ||
+								(p.name_en && p.name_en.toLowerCase().includes(q)) ||
+								(p.sku && p.sku.toLowerCase().includes(q))
+							).slice(0, 15);
+						} else {
+							if (!this.searchQuery.trim()) return this.availableOffers.slice(0, 15);
+							const q = this.searchQuery.toLowerCase();
+							return this.availableOffers.filter(o => 
+								o.title && o.title.toLowerCase().includes(q)
+							).slice(0, 15);
+						}
+					},
+
+					get selectedPkgCredits() {
+						return this.packagesCredits[this.selectedPackageID] || 0;
+					},
+
+					addItem(item) {
+						const id = item.variant_id || item.id;
+						if (this.selectedItems.some(i => i.id === id)) return;
+						if (this.selectedItems.length >= this.selectedPkgCredits) return;
+						const title = item.name_ar || item.title || item.name_en || ('#' + id);
+						this.selectedItems.push({
+							id: id,
+							title: title,
+							sku: item.sku || '',
+							stock: item.available_stock || 0
+						});
+						this.searchQuery = '';
+						this.showDropdown = false;
+					},
+
+					removeItem(id) {
+						this.selectedItems = this.selectedItems.filter(i => i.id !== id);
+					},
+
+					onTypeChange() {
+						this.selectedItems = [];
+						this.searchQuery = '';
+					}
+				}`, InStockItemsToJSON(data.ItemOptions), ActiveOffersToJSON(data.ActiveOffers), func() string { if len(data.ActivePurchases) > 0 { return fmt.Sprintf("%d", data.ActivePurchases[0].PackageID) }; return "" }(), func() string {
+					m := make(map[string]int)
+					for _, p := range data.ActivePurchases {
+						if p != nil {
+							m[fmt.Sprintf("%d", p.PackageID)] = p.CreditsRemaining
+						}
+					}
+					b, _ := json.Marshal(m)
+					return string(b)
+				}()) }
+			>
 				<div class="d-flex items-center gap-2 mb-4 pb-3 border-b border-slate-100">
 					@components.IconPlus("icon-xs text-brand")
-					<h3 class="text-sm font-black text-primary m-0">تقديم طلب رعاية جديد لأحد أصنافك</h3>
+					<h3 class="text-sm font-black text-primary m-0">تقديم طلب رعاية جديد لأصنافك وعروضك</h3>
 				</div>
 
 				<form method="POST" action="/vendor/sponsorship-requests/new" class="d-flex flex-col gap-4 m-0">
-					<div class="d-grid grid-cols-1 md:grid-cols-3 gap-4">
-      <div class="stack-sm">
-							<label class="form-label text-xs font-bold text-primary mb-1.5 d-block">نوع العنصر المراد رعايته *</label>
-							<select name="item_type" class="form-input text-xs font-semibold">
-								<option value="product">صنف دوائي (Product)</option>
-								<option value="offer">عرض ترويجي خاص (Offer)</option>
+					<div class="d-grid grid-cols-1 md:grid-cols-2 gap-4">
+						<div class="stack-sm">
+							<label class="form-label text-xs font-bold text-primary mb-1.5 d-block">نوع العناصر المراد رعايتها *</label>
+							<select name="item_type" x-model="itemType" @change="onTypeChange()" class="form-input text-xs font-semibold">
+								<option value="product">أصناف دوائية من المخزون (In-Stock Products)</option>
+								<option value="offer">عروض ترويجية نشطة (Active Offers)</option>
 							</select>
 						</div>
-      <div class="stack-sm">
-							<label class="form-label text-xs font-bold text-primary mb-1.5 d-block">معرف العنصر (Item ID) *</label>
-							<input type="number" name="item_id" class="form-input text-xs tabular-nums font-bold" required min="1" placeholder="أدخل رقم المعرف من الكتالوج" />
-						</div>
-      <div class="stack-sm">
+
+						<div class="stack-sm">
 							<label class="form-label text-xs font-bold text-primary mb-1.5 d-block">الباقة المستخدمة للخصم من الرصيد *</label>
-							<select name="package_id" class="form-input text-xs font-semibold" required>
+							<select name="package_id" x-model="selectedPackageID" class="form-input text-xs font-semibold" required>
 								if len(data.ActivePurchases) > 0 {
 									for _, p := range data.ActivePurchases {
 										if p != nil {
@@ -502,10 +570,129 @@ templ VendorSponsorshipRequestsPage(lang, dir string, data SponsorshipRequestsDa
 						</div>
 					</div>
 
+					<!-- Dynamic Multi-Select Search Dropdown -->
+					<div class="position-relative">
+						<label class="form-label text-xs font-bold text-primary mb-1.5 d-block">
+							<span x-text="itemType === 'product' ? 'ابحث وحدد الأصناف الدوائية المراد رعايتها (متعدد) *' : 'ابحث وحدد العروض الترويجية المراد رعايتها (متعدد) *'"></span>
+						</label>
+
+						<div class="position-relative">
+							<input
+								type="text"
+								x-model="searchQuery"
+								@focus="showDropdown = true"
+								@input="showDropdown = true"
+								:placeholder="itemType === 'product' ? 'ابحث بالاسم أو SKU لاختيار صنف...' : 'ابحث بعنوان العرض...'"
+								class="form-input text-xs font-semibold w-full ps-9"
+								autocomplete="off"
+							/>
+							<span class="position-absolute start-3 top-half translate-middle-y text-muted pointer-events-none">
+								@components.IconSearch("icon-xs")
+							</span>
+						</div>
+
+						<!-- Autocomplete Results Dropdown -->
+						<div
+							x-show="showDropdown"
+							@click.outside="showDropdown = false"
+							class="position-absolute z-50 w-full bg-white border border-slate-200 rounded-2xl shadow-2xl p-2 mt-1.5 max-h-60 overflow-y-auto"
+							x-cloak
+						>
+							<template x-for="item in currentAvailableList" :key="item.variant_id || item.id">
+								<div
+									@click="addItem(item)"
+									class="p-2.5 rounded-xl cursor-pointer hover:bg-slate-50 d-flex items-center justify-between gap-3 border-b border-slate-100 last:border-b-0 transition-colors"
+								>
+									<div class="d-flex items-center gap-2.5">
+										<div class="w-8 h-8 rounded-lg bg-brand-50 text-brand-600 d-flex items-center justify-center">
+											<template x-if="itemType === 'product'">
+												@components.IconPill("icon-xs")
+											</template>
+											<template x-if="itemType === 'offer'">
+												@components.IconPercent("icon-xs")
+											</template>
+										</div>
+										<div class="stack-sm">
+											<strong class="text-xs font-bold text-primary d-block" x-text="item.name_ar || item.title || item.name_en"></strong>
+											<div class="text-2xs text-muted font-mono" x-show="item.sku" x-text="'SKU: ' + item.sku"></div>
+										</div>
+									</div>
+									<div class="text-end">
+										<template x-if="itemType === 'product'">
+											<span class="badge badge-emerald text-2xs font-extrabold tabular-nums" x-text="item.available_stock + ' عبوة متوفرة'"></span>
+										</template>
+										<button type="button" class="btn btn-secondary btn-2xs font-bold gap-1 mt-1">
+											@components.IconPlus("icon-2xs")
+											<span>إضافة</span>
+										</button>
+									</div>
+								</div>
+							</template>
+							<div x-show="currentAvailableList.length === 0" class="p-4 text-center text-xs text-muted">
+								لا توجد عناصر مطابقة متاحة.
+							</div>
+						</div>
+					</div>
+
+					<!-- Selected Items Chips Display -->
+					<div class="p-4 bg-slate-50/80 border border-slate-200/80 rounded-2xl">
+						<div class="flex-between items-center mb-2.5 pb-2 border-b border-slate-200/60">
+							<div class="d-flex items-center gap-2">
+								@components.IconCheckCircle("icon-xs text-brand")
+								<span class="text-xs font-black text-primary">العناصر المحددة للرعاية:</span>
+							</div>
+							<div class="text-xs text-secondary font-bold">
+								<span>التكلفة: </span>
+								<strong class="text-brand tabular-nums font-black" x-text="selectedItems.length + ' رصيد (1 لكل عنصر)'"></strong>
+							</div>
+						</div>
+
+						<div class="d-flex items-center gap-2 flex-wrap min-h-8">
+							<template x-if="selectedItems.length === 0">
+								<span class="text-xs text-muted font-medium">لم يتم اختيار أي أصناف بعد. استخدم شريط البحث أعلاه لإضافة أصناف.</span>
+							</template>
+							<template x-for="it in selectedItems" :key="it.id">
+								<div class="badge badge-sky font-bold text-xs gap-1.5 p-1.5 ps-2.5 rounded-xl border border-sky-300/60 d-flex items-center shadow-2xs">
+									<span x-text="it.title"></span>
+									<button
+										type="button"
+										@click="removeItem(it.id)"
+										class="w-4 h-4 rounded-full bg-sky-200 hover:bg-sky-300 text-sky-800 d-flex items-center justify-center text-2xs cursor-pointer border-0"
+										title="إزالة"
+									>
+										&times;
+									</button>
+								</div>
+							</template>
+						</div>
+
+						<!-- Hidden Inputs for Submission -->
+						<template x-for="it in selectedItems" :key="it.id">
+							<input type="hidden" name="item_ids" :value="it.id" />
+						</template>
+					</div>
+
+					<!-- Credits Calculation & Warning -->
+					<div class="p-4 bg-surface-sunken rounded-2xl border border-slate-200 d-flex items-center justify-between gap-4 flex-wrap text-xs">
+						<div class="d-flex items-center gap-2 text-secondary">
+							@components.IconZap("icon-xs text-amber-500")
+							<span>كل عنصر مختار يستهلك <strong>1 رصيد رعاية</strong> من رصيدك المتبقي في الباقة.</span>
+						</div>
+						<div class="d-flex items-center gap-3 tabular-nums font-bold">
+							<span>الرصيد المتاح: <strong class="text-primary" x-text="selectedPkgCredits"></strong></span>
+							<span>المطلوب: <strong class="text-amber-600" x-text="selectedItems.length"></strong></span>
+							<span>المتبقي: <strong :class="selectedPkgCredits - selectedItems.length >= 0 ? 'text-emerald-600' : 'text-rose-600'" x-text="selectedPkgCredits - selectedItems.length"></strong></span>
+						</div>
+					</div>
+
 					<div class="pt-2">
-						<button type="submit" class="btn btn-primary btn-sm font-black px-6 shadow-sm gap-1.5" disabled={ len(data.ActivePurchases) == 0 }>
+						<button
+							type="submit"
+							class="btn btn-primary btn-sm font-black px-8 shadow-sm gap-2"
+							:disabled="selectedItems.length === 0 || selectedItems.length > selectedPkgCredits || len(data.ActivePurchases) === 0"
+						>
 							@components.IconCheck("icon-xs")
-							<span>إرسال طلب الرعاية للمراجعة والاعتماد</span>
+							<span x-text="selectedItems.length > 0 ? ('إرسال ' + selectedItems.length + ' طلب رعاية للمراجعة (خصم ' + selectedItems.length + ' رصيد)') : 'حدد أصنافاً لإرسال طلب الرعاية'"></span>
 						</button>
 					</div>
 				</form>

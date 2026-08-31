@@ -198,6 +198,10 @@ func (a *Ad) ResolveClickURL() string {
 		return a.TargetURL
 	}
 	switch a.ClickTargetType {
+	case ClickTargetProduct:
+		if a.ClickTargetID != nil {
+			return "/catalog/" + fmtInt64(*a.ClickTargetID)
+		}
 	case ClickTargetOffer:
 		if a.ClickTargetID != nil {
 			return "/offers/" + fmtInt64(*a.ClickTargetID)

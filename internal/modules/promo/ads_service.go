@@ -11,6 +11,7 @@ import (
 )
 
 // CreateAd creates a new advertisement for the vendor's organization.
+// It deducts AdCreditCost (2 credits) from an active sponsorship purchase.
 // The ad starts in pending admin_status and must be approved before display.
 func (s *Service) CreateAd(ctx context.Context, a *Ad) (*Ad, error) {
 	orgID, ok := database.TenantFrom(ctx)
@@ -27,11 +28,33 @@ func (s *Service) CreateAd(ctx context.Context, a *Ad) (*Ad, error) {
 		a.Title = a.TitleEn
 	}
 	if a.Title == "" {
-		return nil, apperr.Validation("ad.title_required", i18n.TDefault("w4_mod.w4str_242_242"), nil)
+		return nil, apperr.Validation("ad.title_required", "عنوان الإعلان مطلوب.", nil)
 	}
 	if a.MediaURL == "" {
-		return nil, apperr.Validation("ad.media_required", i18n.TDefault("w4_mod.w4str_243_243"), nil)
+		return nil, apperr.Validation("ad.media_required", "ملف أو رابط وسائط الإعلان مطلوب.", nil)
 	}
+
+	// 1. Verify and deduct 2 sponsorship credits
+	purchases, err := s.repo.ListActiveSponsorshipPurchasesByOrg(ctx, orgID)
+	if err != nil {
+		return nil, err
+	}
+	var selectedPurchase *SponsorshipPurchase
+	for _, p := range purchases {
+		if p != nil && p.CreditsRemainingInt() >= AdCreditCost {
+			selectedPurchase = p
+			break
+		}
+	}
+	if selectedPurchase == nil {
+		return nil, apperr.Conflict("ad.insufficient_credits", "رصيد الرعاية غير كافٍ. يتطلب إنشاء الإعلان 2 رصيد رعاية على الأقل.")
+	}
+
+	if err := s.repo.IncrementSponsorshipPurchaseCreditsUsed(ctx, selectedPurchase.ID, AdCreditCost); err != nil {
+		return nil, err
+	}
+	a.AdPlanID = &selectedPurchase.PackageID
+
 	if a.DurationDays <= 0 {
 		a.DurationDays = 30
 	}
@@ -42,9 +65,11 @@ func (s *Service) CreateAd(ctx context.Context, a *Ad) (*Ad, error) {
 		a.StartsAt = time.Now().UTC()
 	}
 	if err := s.repo.CreateAd(ctx, a); err != nil {
+		// Refund credits on failure
+		_ = s.repo.IncrementSponsorshipPurchaseCreditsUsed(ctx, selectedPurchase.ID, -AdCreditCost)
 		return nil, err
 	}
-	s.log.InfoContext(ctx, "ad created", "ad_id", a.ID, "org_id", orgID, "position", a.Position)
+	s.log.InfoContext(ctx, "ad created with 2 credits deducted", "ad_id", a.ID, "org_id", orgID, "position", a.Position, "purchase_id", selectedPurchase.ID)
 	return a, nil
 }
 

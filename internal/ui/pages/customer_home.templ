@@ -18,6 +18,8 @@ type HomeStats struct {
 	HeroSubtitle   string
 	HeroBadge      string
 	Ads            []*promo.Ad
+	DealsAds       []*promo.Ad
+	BottomAds      []*promo.Ad
 }
 
 templ CustomerHome(featured []*catalog.Product, categories []*catalog.Category, offers []*promo.Offer, stats HomeStats, lang, dir string) {

@@ -8,6 +8,13 @@ import (
 	"github.com/muhiya/dawa24-store/internal/shared/money"
 )
 
+func resolveTargetID(variantID, productID int64) int64 {
+	if variantID > 0 {
+		return variantID
+	}
+	return productID
+}
+
 // SupplierVariantCard represents an enriched product variant supplied by a specific vendor.
 // This is the core storefront item for the pharmacy catalog (Rebuild V2).
 type SupplierVariantCard struct {
@@ -133,6 +140,7 @@ type CatalogPageData struct {
 	ActiveCategory      string
 	ActiveBrand         string
 	SponsoredProductIDs map[int64]bool // products promoted via sponsorship (shown with "Sponsored" tag, ranked first)
+	CatalogAds          []*promo.Ad
 }
 
 // CatalogFilterParams encapsulates filter inputs for the catalog page.

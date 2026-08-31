@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/muhiya/dawa24-store/internal/modules/catalog"
+	"github.com/muhiya/dawa24-store/internal/modules/promo"
 	"github.com/muhiya/dawa24-store/internal/platform/database"
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/shared/money"
@@ -244,6 +245,13 @@ func (h *UIHandler) CustomerCatalogPage(w http.ResponseWriter, r *http.Request) 
 		}
 	}
 
+	var catalogAds []*promo.Ad
+	if h.promoSvc != nil {
+		if ads, err := h.promoSvc.ListActiveAds(ctx, promo.PositionCatalogTop); err == nil {
+			catalogAds = ads
+		}
+	}
+
 	viewData := pages.CatalogPageData{
 		Variants:            variantCards,
 		Categories:          categories,
@@ -271,6 +279,7 @@ func (h *UIHandler) CustomerCatalogPage(w http.ResponseWriter, r *http.Request) 
 		ActiveCategory:      activeCatName,
 		ActiveBrand:         activeBrandName,
 		SponsoredProductIDs: sponsoredProductIDs,
+		CatalogAds:          catalogAds,
 	}
 
 	h.renderPage(ctx, w, "render catalog page", pages.CustomerCatalog(viewData, lang, dir, h.isHTMX(r)))

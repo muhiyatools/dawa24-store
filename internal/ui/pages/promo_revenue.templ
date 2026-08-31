@@ -10,13 +10,16 @@ import (
 )
 
 // SponsorshipRequestsData holds the vendor's sponsorship packages, purchases,
-// active purchases (with remaining credits), and submitted requests.
+// active purchases (with remaining credits), submitted requests, and eligible items.
 type SponsorshipRequestsData struct {
 	Packages        []*promo.OfferPackage
 	Purchases       []*promo.SponsorshipPurchase
 	ActivePurchases []*promo.SponsorshipPurchase
 	Requests        []*promo.SponsorshipRequest
 	OrgID           int64
+	ItemOptions     []VendorOfferItemOption
+	ActiveOffers    []*promo.Offer
+	TotalCredits    int
 }
 
 // AdminOffersPackagesData holds all metrics, packages, requests, and ads for admin management.

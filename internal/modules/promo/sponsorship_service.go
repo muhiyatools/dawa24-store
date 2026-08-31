@@ -185,6 +185,77 @@ func (s *Service) SubmitSponsorshipRequest(ctx context.Context, itemType Sponsor
 	return sr, nil
 }
 
+// SubmitBatchSponsorshipRequests creates sponsorship requests for multiple products/offers,
+// consuming 1 credit per item from the vendor's active purchase.
+func (s *Service) SubmitBatchSponsorshipRequests(ctx context.Context, itemType SponsorshipItemType, itemIDs []int64, packageID int64) ([]*SponsorshipRequest, error) {
+	if len(itemIDs) == 0 {
+		return nil, apperr.Validation("sponsorship.items_required", "يرجى تحديد عنصر واحد على الأقل للرعاية.", nil)
+	}
+
+	orgID, ok := database.TenantFrom(ctx)
+	if !ok {
+		return nil, database.ErrNoTenant
+	}
+
+	pkg, err := s.repo.GetPackageByID(ctx, packageID)
+	if err != nil {
+		return nil, err
+	}
+
+	totalCreditsNeeded := len(itemIDs) * SponsorshipCreditCost
+
+	purchases, err := s.repo.ListActiveSponsorshipPurchasesByOrg(ctx, orgID)
+	if err != nil {
+		return nil, err
+	}
+	var purchase *SponsorshipPurchase
+	for _, p := range purchases {
+		if p != nil && p.PackageID == packageID && p.CreditsRemainingInt() >= totalCreditsNeeded {
+			purchase = p
+			break
+		}
+	}
+	if purchase == nil {
+		return nil, apperr.Conflict("sponsorship.no_credits", "رصيد الرعاية في الباقة المختارة غير كافٍ لعدد الأصناف المحددة.")
+	}
+
+	now := time.Now().UTC()
+	expiresAt := now.Add(time.Duration(pkg.DurationDays) * 24 * time.Hour)
+	if expiresAt.After(purchase.ExpiresAt) {
+		expiresAt = purchase.ExpiresAt
+	}
+
+	var created []*SponsorshipRequest
+	for _, itemID := range itemIDs {
+		if itemID <= 0 {
+			continue
+		}
+		sr := &SponsorshipRequest{
+			OrganizationID: orgID,
+			PurchaseID:     &purchase.ID,
+			PackageID:      packageID,
+			ItemType:       itemType,
+			ItemID:         itemID,
+			CreditsUsed:    SponsorshipCreditCost,
+			AdminStatus:    AdminPending,
+			Status:         SRSPending,
+			StartsAt:       now,
+			ExpiresAt:      expiresAt,
+		}
+		if err := s.repo.CreateSponsorshipRequest(ctx, sr); err != nil {
+			return created, err
+		}
+		created = append(created, sr)
+	}
+
+	if len(created) > 0 {
+		_ = s.repo.IncrementSponsorshipPurchaseCreditsUsed(ctx, purchase.ID, len(created)*SponsorshipCreditCost)
+	}
+
+	s.log.InfoContext(ctx, "batch sponsorship requests submitted", "count", len(created), "org_id", orgID, "package_id", packageID)
+	return created, nil
+}
+
 // ListSponsorshipRequestsByOrg returns the vendor's sponsorship requests.
 func (s *Service) ListSponsorshipRequestsByOrg(ctx context.Context, limit, offset int) ([]*SponsorshipRequest, error) {
 	orgID, ok := database.TenantFrom(ctx)

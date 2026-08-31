@@ -212,7 +212,7 @@ func (h *UIHandler) VendorOffersPackagesPromotionsPage(w http.ResponseWriter, r 
 	h.renderPage(ctx, w, "render vendor offers packages promotions", pages.VendorOffersPackagesPromotionsPage(lang, dir))
 }
 
-// VendorAdsPage renders vendor's active banners and ads with statistics and creation form.
+// VendorAdsPage renders vendor's active banners and ads with statistics and creation wizard.
 func (h *UIHandler) VendorAdsPage(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	lang, dir := h.localeAndDir(r)
@@ -224,11 +224,37 @@ func (h *UIHandler) VendorAdsPage(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var ads []*promo.Ad
+	var activePurchases []*promo.SponsorshipPurchase
 	if h.promoSvc != nil {
 		ads, _ = h.promoSvc.ListAdsByOrg(ctx, 100, 0)
+		activePurchases, _ = h.promoSvc.ListActiveSponsorshipPurchases(ctx)
 	}
 
-	h.renderPage(ctx, w, "render vendor ads", pages.VendorAdsPage(lang, dir, ads))
+	totalCredits := 0
+	for _, p := range activePurchases {
+		if p != nil {
+			totalCredits += p.CreditsRemainingInt()
+		}
+	}
+
+	itemOptions := h.loadVendorInStockItems(ctx, actor.OrganizationID)
+
+	noticeType := r.URL.Query().Get("notice_type")
+	noticeMsg := r.URL.Query().Get("notice")
+	if noticeMsg == "" {
+		noticeMsg = r.URL.Query().Get("notice_msg")
+	}
+
+	data := pages.VendorAdsData{
+		Ads:             ads,
+		ItemOptions:     itemOptions,
+		ActivePurchases: activePurchases,
+		TotalCredits:    totalCredits,
+		NoticeType:      noticeType,
+		NoticeMsg:       noticeMsg,
+	}
+
+	h.renderPage(ctx, w, "render vendor ads", pages.VendorAdsPage(lang, dir, data))
 }
 
 // VendorOffersLocationsPage renders vendor's offer geographic coverage.

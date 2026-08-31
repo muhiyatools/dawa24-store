@@ -72,12 +72,12 @@ templ CustomerCatalog(data CatalogPageData, lang, dir string, isPartial bool) {
 			<div class="page-container py-6">
 				
 				<!-- Page Header Strip -->
-				<div class="glass-panel p-5 mb-5 flex-between flex-wrap gap-4 border border-slate-200/80 rounded-2xl shadow-sm">
-     <div class="stack-sm">
-						<nav class="breadcrumb-trail text-xs text-muted mb-1.5 d-flex items-center gap-1.5 font-semibold">
+				<div class="glass-panel p-5 mb-5 flex-between flex-wrap gap-4 border rounded-2xl shadow-xs">
+					<div class="stack-2xs">
+						<nav class="text-xs text-muted mb-1 d-flex items-center gap-1.5 font-bold">
 							<a href="/" class="text-secondary hover:text-primary transition-colors">الرئيسية</a>
-							<span class="text-slate-300">/</span>
-							<span class="text-primary font-bold">كتالوج التوريد الدوائي</span>
+							<span class="text-muted">/</span>
+							<span class="text-primary font-black">كتالوج التوريد الدوائي</span>
 						</nav>
 						<h1 class="text-2xl font-black text-primary m-0 tracking-tight">
 							كتالوج عروض توريد الأدوية والمستلزمات الطبية
@@ -87,7 +87,7 @@ templ CustomerCatalog(data CatalogPageData, lang, dir string, isPartial bool) {
 						</p>
 					</div>
 
-					<div class="page-actions-group d-flex items-center gap-2.5">
+					<div class="d-flex items-center gap-2.5 flex-wrap">
 						<a href="/customer/purchase-request" class="btn btn-secondary btn-sm font-bold gap-2 shadow-xs">
 							@components.IconZap("icon-xs text-amber-500")
 							<span>طلب شراء ذكي</span>
@@ -99,8 +99,44 @@ templ CustomerCatalog(data CatalogPageData, lang, dir string, isPartial bool) {
 					</div>
 				</div>
 
+				<!-- Promoted Catalog Top Header Banner (Position: catalog_top) -->
+				if len(data.CatalogAds) > 0 {
+					<div class="mb-5 d-flex flex-col gap-3">
+						for _, ad := range data.CatalogAds {
+							if ad != nil {
+								<a
+									href={ templ.SafeURL(ad.ResolveClickURL()) }
+									class="glass-panel p-4 rounded-2xl border border-brand-200/80 bg-gradient-to-r from-brand-50/70 via-sky-50/50 to-white shadow-xs d-flex items-center justify-between gap-4 flex-wrap hover:border-brand-400 transition-all text-decoration-none"
+								>
+									<div class="d-flex items-center gap-3.5">
+										if ad.MediaURL != "" && ad.MediaType != "video" {
+											<img src={ ad.MediaURL } alt={ ad.DisplayTitle(lang) } class="w-16 h-16 rounded-xl object-cover border border-slate-200 shadow-2xs flex-shrink-0" />
+										} else if ad.MediaType == "video" {
+											<div class="w-16 h-16 rounded-xl bg-slate-900 text-white d-flex items-center justify-center text-xs font-black flex-shrink-0">فيديو</div>
+										}
+										<div class="stack-sm">
+											<div class="d-flex items-center gap-2">
+												<span class="badge badge-amber font-black text-2xs shadow-2xs">إعلان مميز في صدارة الكتالوج</span>
+												<span class="badge badge-emerald text-2xs font-bold">موثق</span>
+											</div>
+											<h3 class="text-sm font-black text-primary m-0 mt-0.5">{ ad.DisplayTitle(lang) }</h3>
+											if ad.DisplayText(lang) != "" {
+												<p class="text-xs text-secondary m-0 line-clamp-1">{ ad.DisplayText(lang) }</p>
+											}
+										</div>
+									</div>
+									<div class="d-flex items-center gap-2 text-xs font-black text-brand">
+										<span>استعراض العرض والتفاصيل</span>
+										@components.IconArrowLeft("icon-xs")
+									</div>
+								</a>
+							}
+						}
+					</div>
+				}
+
 				<!-- Quick Dosage Form Pills Strip -->
-				<div class="dosage-pills-strip d-flex gap-2 mb-5 overflow-x-auto pb-1.5 scrollbar-none">
+				<div class="dosage-pills-strip mb-5">
 					<a
 						href={ templ.SafeURL(buildCatalogURL(CatalogPageData{Query: data.Query, CategoryID: data.CategoryID, BrandID: data.BrandID, MinPrice: data.MinPrice, MaxPrice: data.MaxPrice, InStock: data.InStock, HasDiscount: data.HasDiscount, PageSize: data.PageSize, ViewMode: data.ViewMode}, 1, data.PageSize, data.Sort, data.ViewMode)) }
 						class={ "btn btn-sm btn-pill gap-1.5 text-xs font-bold transition-all", templ.KV("btn-primary font-extrabold shadow-sm", data.DosageForm == ""), templ.KV("btn-secondary", data.DosageForm != "") }
@@ -156,22 +192,22 @@ templ CustomerCatalog(data CatalogPageData, lang, dir string, isPartial bool) {
 				<div class="catalog-main-layout">
 					
 					<!-- Filter Sidebar (Right in RTL) -->
-					<aside class="catalog-sidebar-filter glass-panel p-4.5 border border-slate-200/80 rounded-2xl shadow-xs">
-						<div class="flex-between border-b border-slate-100 pb-3 mb-4">
+					<aside class="catalog-sidebar-filter">
+						<div class="flex-between items-center pb-3 mb-4 border-b">
 							<div class="d-flex items-center gap-2">
 								@components.IconFilter("icon-sm text-primary")
 								<h2 class="text-sm font-extrabold text-primary m-0">
 									الفلاتر والبحث المتقدم
 								</h2>
 							</div>
-							<a href="/catalog" class="text-xs font-bold text-rose-600 hover:text-rose-700 transition-colors" title="تصفير الفلاتر">
+							<a href="/catalog" class="text-xs font-bold text-rose hover:underline" title="تصفير الفلاتر">
 								تصفير
 							</a>
 						</div>
 
 						<form action="/catalog" method="GET" class="d-flex flex-col gap-4" id="catalog-filter-form">
 							<!-- Anti-Scraping Honeypot Trap (Hidden from users) -->
-							<input type="text" name="company_tax_ref" class="d-none" tabindex="-1" autocomplete="off" />
+							<input type="text" name="company_tax_ref" class="hidden" tabindex="-1" autocomplete="off" />
 
 							if data.Query != "" {
 								<input type="hidden" name="q" value={ data.Query } />
@@ -190,15 +226,15 @@ templ CustomerCatalog(data CatalogPageData, lang, dir string, isPartial bool) {
 							}
 
 							<!-- Categories Tree -->
-       <div class="stack-sm">
-								<label class="form-label text-xs font-bold mb-1.5 text-primary d-flex items-center gap-1.5">
+							<div>
+								<label class="form-label text-xs font-bold mb-2 text-primary d-flex items-center gap-1.5">
 									@components.IconLayers("icon-xs text-muted")
 									<span>التصنيف الدوائي</span>
 								</label>
-								<div class="d-flex flex-col gap-1 overflow-y-auto border border-slate-200/80 rounded-xl p-1.5 bg-surface-sunken max-h-48">
+								<div class="category-filter-list">
 									<a
 										href={ templ.SafeURL(buildCatalogURL(CatalogPageData{Query: data.Query, BrandID: data.BrandID, MinPrice: data.MinPrice, MaxPrice: data.MaxPrice, DosageForm: data.DosageForm, InStock: data.InStock, HasDiscount: data.HasDiscount, PageSize: data.PageSize, ViewMode: data.ViewMode}, 1, data.PageSize, data.Sort, data.ViewMode)) }
-										class={ "sidebar-link p-2 text-xs rounded-lg font-semibold flex-between transition-colors", templ.KV("active bg-primary/10 text-primary font-bold", data.CategoryID == nil) }
+										class={ "category-filter-item", templ.KV("active", data.CategoryID == nil) }
 									>
 										<span>جميع التصنيفات</span>
 										<span class="badge badge-slate text-xs font-bold">الكل</span>
@@ -207,7 +243,7 @@ templ CustomerCatalog(data CatalogPageData, lang, dir string, isPartial bool) {
 									for _, cat := range data.Categories {
 										<a
 											href={ templ.SafeURL(buildCatalogURL(CatalogPageData{Query: data.Query, CategoryID: &cat.ID, BrandID: data.BrandID, MinPrice: data.MinPrice, MaxPrice: data.MaxPrice, DosageForm: data.DosageForm, InStock: data.InStock, HasDiscount: data.HasDiscount, PageSize: data.PageSize, ViewMode: data.ViewMode}, 1, data.PageSize, data.Sort, data.ViewMode)) }
-											class={ "sidebar-link p-2 text-xs rounded-lg font-medium flex-between transition-colors", templ.KV("active bg-primary/10 text-primary font-bold", data.CategoryID != nil && *data.CategoryID == cat.ID) }
+											class={ "category-filter-item", templ.KV("active", data.CategoryID != nil && *data.CategoryID == cat.ID) }
 										>
 											<span class="text-truncate">
 												if cat.Name["ar"] != "" {
@@ -223,14 +259,14 @@ templ CustomerCatalog(data CatalogPageData, lang, dir string, isPartial bool) {
 
 							<!-- Manufacturers / Brands -->
 							if len(data.Brands) > 0 {
-								<div class="border-t border-slate-100 pt-3.5">
-									<label class="form-label text-xs font-bold mb-1.5 text-primary d-flex items-center gap-1.5">
+								<div class="pt-3 border-t">
+									<label class="form-label text-xs font-bold mb-2 text-primary d-flex items-center gap-1.5">
 										@components.IconBuilding("icon-xs text-muted")
 										<span>الشركة المصنعة / الماركة</span>
 									</label>
 									<select
 										name="brand_id"
-										class="form-input text-xs w-full font-medium"
+										class="form-select text-xs w-full"
 										onchange="document.getElementById('catalog-filter-form').submit()"
 									>
 										<option value="">كافة الشركات والمصانع</option>
@@ -251,34 +287,34 @@ templ CustomerCatalog(data CatalogPageData, lang, dir string, isPartial bool) {
 							}
 
 							<!-- Price Range -->
-							<div class="border-t border-slate-100 pt-3.5">
-								<label class="form-label text-xs font-bold mb-1.5 text-primary d-flex items-center gap-1.5">
+							<div class="pt-3 border-t">
+								<label class="form-label text-xs font-bold mb-2 text-primary d-flex items-center gap-1.5">
 									@components.IconTag("icon-xs text-muted")
 									<span>سعر التوريد للصيدلية (ج.م)</span>
 								</label>
-								<div class="d-grid grid-cols-2 gap-2">
-         <div class="stack-sm">
-										<input type="number" name="min_price" value={ data.MinPrice } placeholder="من 0" class="form-input text-xs tabular-nums font-semibold" />
+								<div class="grid grid-cols-2 gap-2">
+									<div>
+										<input type="number" name="min_price" value={ data.MinPrice } placeholder="من 0" class="form-input text-xs tabular-nums font-semibold w-full" />
 									</div>
-         <div class="stack-sm">
-										<input type="number" name="max_price" value={ data.MaxPrice } placeholder="إلى 1000" class="form-input text-xs tabular-nums font-semibold" />
+									<div>
+										<input type="number" name="max_price" value={ data.MaxPrice } placeholder="إلى 1000" class="form-input text-xs tabular-nums font-semibold w-full" />
 									</div>
 								</div>
 							</div>
 
 							<!-- Availability & Discount Checkboxes -->
-							<div class="border-t border-slate-100 pt-3.5 d-flex flex-col gap-2.5">
+							<div class="pt-3 border-t d-flex flex-col gap-2.5">
 								<label class="d-flex items-center gap-2.5 text-xs font-bold text-primary cursor-pointer select-none">
-									<input type="checkbox" name="in_stock" value="true" checked?={ data.InStock } class="form-checkbox text-primary rounded" onchange="document.getElementById('catalog-filter-form').submit()" />
+									<input type="checkbox" name="in_stock" value="true" checked?={ data.InStock } class="form-checkbox" onchange="document.getElementById('catalog-filter-form').submit()" />
 									<span>الأصناف المتوفرة بالمخزون فقط</span>
 								</label>
 								<label class="d-flex items-center gap-2.5 text-xs font-bold text-primary cursor-pointer select-none">
-									<input type="checkbox" name="has_discount" value="true" checked?={ data.HasDiscount } class="form-checkbox text-primary rounded" onchange="document.getElementById('catalog-filter-form').submit()" />
+									<input type="checkbox" name="has_discount" value="true" checked?={ data.HasDiscount } class="form-checkbox" onchange="document.getElementById('catalog-filter-form').submit()" />
 									<span>عروض الخصومات الإضافية %</span>
 								</label>
 							</div>
 
-							<button type="submit" class="btn btn-primary btn-sm w-full justify-center font-extrabold mt-1 shadow-xs gap-2">
+							<button type="submit" class="btn btn-primary btn-sm w-full justify-center font-bold mt-1 shadow-xs gap-2">
 								@components.IconSearch("icon-xs")
 								<span>تطبيق الفلاتر</span>
 							</button>
@@ -289,20 +325,17 @@ templ CustomerCatalog(data CatalogPageData, lang, dir string, isPartial bool) {
 					<main class="catalog-main-content">
 						
 						<!-- Search Toolbar, Sorting, Rows per Page, View Switcher -->
-						<div class="glass-panel p-4 mb-5 border border-slate-200/80 rounded-2xl shadow-xs">
+						<div class="glass-panel p-4 mb-5 border rounded-2xl shadow-xs">
 							<div class="flex-between flex-wrap gap-3">
 								
 								<!-- Live Search Input -->
 								<div class="flex-1 relative min-w-64">
-									<div class="search-input-icon position-absolute inset-y-0 start-0 d-flex items-center ps-3.5 pointer-events-none text-muted">
-										@components.IconSearch("icon-sm")
-									</div>
 									<input
 										type="search"
 										name="q"
 										value={ data.Query }
 										placeholder="ابحث بالاسم التجاري، المادة الفعالة، اسم الشركة، أو الباركود..."
-										class="form-input ps-10 font-medium text-xs"
+										class="form-input text-xs w-full"
 										hx-get="/catalog"
 										hx-trigger="keyup changed delay:350ms, search"
 										hx-target="#catalog-results"
@@ -319,7 +352,7 @@ templ CustomerCatalog(data CatalogPageData, lang, dir string, isPartial bool) {
 										<label class="form-label">عرض:</label>
 										<select
 											name="page_size"
-											class="form-input text-xs w-auto py-1 font-semibold"
+											class="form-select text-xs w-auto"
 											onchange={ templ.ComponentScript{Call: "changePageSize(this.value)"} }
 										>
 											<option value="12" selected?={ data.PageSize == 12 }>12</option>
@@ -334,7 +367,7 @@ templ CustomerCatalog(data CatalogPageData, lang, dir string, isPartial bool) {
 										<label class="form-label">الترتيب:</label>
 										<select
 											name="sort"
-											class="form-input text-xs w-auto py-1 font-semibold"
+											class="form-select text-xs w-auto"
 											onchange={ templ.ComponentScript{Call: "changeSort(this.value)"} }
 										>
 											<option value="" selected?={ data.Sort == "" }>الأقرب جغرافياً والأعلى توفراً (تلقائي)</option>
@@ -347,11 +380,11 @@ templ CustomerCatalog(data CatalogPageData, lang, dir string, isPartial bool) {
 									</div>
 
 									<!-- View Mode Toggle: Grid vs Table -->
-									<div class="cb-tabs-nav p-1 d-flex gap-1 bg-slate-100 rounded-lg border border-slate-200/60">
+									<div class="d-flex gap-1 p-1 bg-surface-sunken rounded-lg border">
 										<button
 											type="button"
 											onclick={ templ.ComponentScript{Call: "changeViewMode('grid')"} }
-											class={ "btn btn-icon btn-xs", templ.KV("btn-primary shadow-xs", data.ViewMode == "grid" || data.ViewMode == ""), templ.KV("btn-ghost text-slate-500", data.ViewMode == "table") }
+											class={ "btn btn-icon btn-xs", templ.KV("btn-primary shadow-xs", data.ViewMode == "grid" || data.ViewMode == ""), templ.KV("btn-ghost text-muted", data.ViewMode == "table") }
 											title="عرض البطاقات (Grid)"
 										>
 											@components.IconGrid("icon-xs")
@@ -359,7 +392,7 @@ templ CustomerCatalog(data CatalogPageData, lang, dir string, isPartial bool) {
 										<button
 											type="button"
 											onclick={ templ.ComponentScript{Call: "changeViewMode('table')"} }
-											class={ "btn btn-icon btn-xs", templ.KV("btn-primary shadow-xs", data.ViewMode == "table"), templ.KV("btn-ghost text-slate-500", data.ViewMode != "table") }
+											class={ "btn btn-icon btn-xs", templ.KV("btn-primary shadow-xs", data.ViewMode == "table"), templ.KV("btn-ghost text-muted", data.ViewMode != "table") }
 											title="عرض جدول التوريد السريع (Table)"
 										>
 											@components.IconList("icon-xs")
@@ -371,45 +404,45 @@ templ CustomerCatalog(data CatalogPageData, lang, dir string, isPartial bool) {
 
 							<!-- Active Filter Chips Strip -->
 							if data.Query != "" || data.ActiveCategory != "" || data.ActiveBrand != "" || data.DosageForm != "" || data.InStock || data.HasDiscount || data.MinPrice != "" || data.MaxPrice != "" {
-								<div class="d-flex items-center gap-2 flex-wrap mt-3 pt-3 border-t border-slate-100 text-xs font-semibold">
+								<div class="d-flex items-center gap-2 flex-wrap mt-3 pt-3 border-t text-xs font-semibold">
 									<span class="text-secondary font-bold">فلاتر نشطة:</span>
 									if data.Query != "" {
 										<span class="badge badge-primary gap-1">
 											<span>بحث: "{ data.Query }"</span>
-											<a href={ templ.SafeURL(buildCatalogURL(CatalogPageData{CategoryID: data.CategoryID, BrandID: data.BrandID, MinPrice: data.MinPrice, MaxPrice: data.MaxPrice, DosageForm: data.DosageForm, InStock: data.InStock, HasDiscount: data.HasDiscount, PageSize: data.PageSize, ViewMode: data.ViewMode}, 1, data.PageSize, data.Sort, data.ViewMode)) } class="text-white text-decoration-none ms-1"></a>
+											<a href={ templ.SafeURL(buildCatalogURL(CatalogPageData{CategoryID: data.CategoryID, BrandID: data.BrandID, MinPrice: data.MinPrice, MaxPrice: data.MaxPrice, DosageForm: data.DosageForm, InStock: data.InStock, HasDiscount: data.HasDiscount, PageSize: data.PageSize, ViewMode: data.ViewMode}, 1, data.PageSize, data.Sort, data.ViewMode)) } class="text-white ms-1 font-bold">✕</a>
 										</span>
 									}
 									if data.ActiveCategory != "" {
 										<span class="badge badge-sky gap-1">
 											<span>القسم: { data.ActiveCategory }</span>
-											<a href={ templ.SafeURL(buildCatalogURL(CatalogPageData{Query: data.Query, BrandID: data.BrandID, MinPrice: data.MinPrice, MaxPrice: data.MaxPrice, DosageForm: data.DosageForm, InStock: data.InStock, HasDiscount: data.HasDiscount, PageSize: data.PageSize, ViewMode: data.ViewMode}, 1, data.PageSize, data.Sort, data.ViewMode)) } class="text-decoration-none ms-1"></a>
+											<a href={ templ.SafeURL(buildCatalogURL(CatalogPageData{Query: data.Query, BrandID: data.BrandID, MinPrice: data.MinPrice, MaxPrice: data.MaxPrice, DosageForm: data.DosageForm, InStock: data.InStock, HasDiscount: data.HasDiscount, PageSize: data.PageSize, ViewMode: data.ViewMode}, 1, data.PageSize, data.Sort, data.ViewMode)) } class="ms-1 font-bold">✕</a>
 										</span>
 									}
 									if data.ActiveBrand != "" {
 										<span class="badge badge-sky gap-1">
 											<span>الشركة: { data.ActiveBrand }</span>
-											<a href={ templ.SafeURL(buildCatalogURL(CatalogPageData{Query: data.Query, CategoryID: data.CategoryID, MinPrice: data.MinPrice, MaxPrice: data.MaxPrice, DosageForm: data.DosageForm, InStock: data.InStock, HasDiscount: data.HasDiscount, PageSize: data.PageSize, ViewMode: data.ViewMode}, 1, data.PageSize, data.Sort, data.ViewMode)) } class="text-decoration-none ms-1"></a>
+											<a href={ templ.SafeURL(buildCatalogURL(CatalogPageData{Query: data.Query, CategoryID: data.CategoryID, MinPrice: data.MinPrice, MaxPrice: data.MaxPrice, DosageForm: data.DosageForm, InStock: data.InStock, HasDiscount: data.HasDiscount, PageSize: data.PageSize, ViewMode: data.ViewMode}, 1, data.PageSize, data.Sort, data.ViewMode)) } class="ms-1 font-bold">✕</a>
 										</span>
 									}
 									if data.DosageForm != "" {
 										<span class="badge badge-slate gap-1">
 											<span>الشكل: { data.DosageForm }</span>
-											<a href={ templ.SafeURL(buildCatalogURL(CatalogPageData{Query: data.Query, CategoryID: data.CategoryID, BrandID: data.BrandID, MinPrice: data.MinPrice, MaxPrice: data.MaxPrice, InStock: data.InStock, HasDiscount: data.HasDiscount, PageSize: data.PageSize, ViewMode: data.ViewMode}, 1, data.PageSize, data.Sort, data.ViewMode)) } class="text-decoration-none ms-1"></a>
+											<a href={ templ.SafeURL(buildCatalogURL(CatalogPageData{Query: data.Query, CategoryID: data.CategoryID, BrandID: data.BrandID, MinPrice: data.MinPrice, MaxPrice: data.MaxPrice, InStock: data.InStock, HasDiscount: data.HasDiscount, PageSize: data.PageSize, ViewMode: data.ViewMode}, 1, data.PageSize, data.Sort, data.ViewMode)) } class="ms-1 font-bold">✕</a>
 										</span>
 									}
 									if data.InStock {
 										<span class="badge badge-emerald gap-1">
 											<span>المتوفر بالمخزون</span>
-											<a href={ templ.SafeURL(buildCatalogURL(CatalogPageData{Query: data.Query, CategoryID: data.CategoryID, BrandID: data.BrandID, MinPrice: data.MinPrice, MaxPrice: data.MaxPrice, DosageForm: data.DosageForm, HasDiscount: data.HasDiscount, PageSize: data.PageSize, ViewMode: data.ViewMode}, 1, data.PageSize, data.Sort, data.ViewMode)) } class="text-decoration-none ms-1"></a>
+											<a href={ templ.SafeURL(buildCatalogURL(CatalogPageData{Query: data.Query, CategoryID: data.CategoryID, BrandID: data.BrandID, MinPrice: data.MinPrice, MaxPrice: data.MaxPrice, DosageForm: data.DosageForm, HasDiscount: data.HasDiscount, PageSize: data.PageSize, ViewMode: data.ViewMode}, 1, data.PageSize, data.Sort, data.ViewMode)) } class="ms-1 font-bold">✕</a>
 										</span>
 									}
 									if data.HasDiscount {
 										<span class="badge badge-amber gap-1">
 											<span>عروض الخصم</span>
-											<a href={ templ.SafeURL(buildCatalogURL(CatalogPageData{Query: data.Query, CategoryID: data.CategoryID, BrandID: data.BrandID, MinPrice: data.MinPrice, MaxPrice: data.MaxPrice, DosageForm: data.DosageForm, InStock: data.InStock, PageSize: data.PageSize, ViewMode: data.ViewMode}, 1, data.PageSize, data.Sort, data.ViewMode)) } class="text-decoration-none ms-1"></a>
+											<a href={ templ.SafeURL(buildCatalogURL(CatalogPageData{Query: data.Query, CategoryID: data.CategoryID, BrandID: data.BrandID, MinPrice: data.MinPrice, MaxPrice: data.MaxPrice, DosageForm: data.DosageForm, InStock: data.InStock, PageSize: data.PageSize, ViewMode: data.ViewMode}, 1, data.PageSize, data.Sort, data.ViewMode)) } class="ms-1 font-bold">✕</a>
 										</span>
 									}
-									<a href="/catalog" class="text-xs text-rose-600 hover:text-rose-700 ms-auto font-bold no-underline">
+									<a href="/catalog" class="text-xs text-rose hover:underline ms-auto font-bold">
 										مسح جميع الفلاتر
 									</a>
 								</div>
@@ -417,7 +450,7 @@ templ CustomerCatalog(data CatalogPageData, lang, dir string, isPartial bool) {
 						</div>
 
 						<!-- Results Dynamic Container -->
-						<div class="stack-sm" id="catalog-results">
+						<div id="catalog-results">
 							@CustomerCatalogResults(data, lang)
 						</div>
 
@@ -475,3 +508,81 @@ templ CustomerCatalog(data CatalogPageData, lang, dir string, isPartial bool) {
 	}
 }
 
+templ CustomerNegotiationModal() {
+	@components.Modal(components.ModalProps{
+		ID:    "negotiation-modal",
+		Title: "طلب تفاوض على سعر الصنف",
+		Size:  "md",
+	}) {
+		<form method="POST" action="/customer/negotiate-order" id="negotiation-form" class="stack-md">
+			<input type="hidden" name="variant_id" id="neg-variant-id" />
+			<input type="hidden" name="vendor_org_id" id="neg-vendor-id" />
+			
+			<div class="modal-body stack-md">
+				<div class="bg-surface-sunken p-3.5 rounded-xl border stack-2xs">
+					<div class="text-xs text-muted font-bold">الصنف الدوائي المختار:</div>
+					<div class="text-sm font-black text-primary" id="neg-product-name">-</div>
+					<div class="text-xs text-secondary font-semibold">سعر التوريد الحالي المعلن: <strong id="neg-current-price" class="tabular-nums text-primary font-black">-</strong> ج.م</div>
+				</div>
+
+				<div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+					<div class="stack-xs">
+						<label class="form-label font-bold text-primary text-xs">السعر المقترح للعبوة (ج.م) <span class="text-danger">*</span></label>
+						<input type="number" step="0.01" min="0.01" name="proposed_price" id="neg-proposed-price" required placeholder="0.00" class="form-input tabular-nums font-black text-sm w-full" />
+					</div>
+					<div class="stack-xs">
+						<label class="form-label font-bold text-primary text-xs">الكمية المطلوبة (عبوة) <span class="text-danger">*</span></label>
+						<input type="number" min="1" name="qty" id="neg-qty" value="1" required class="form-input tabular-nums font-black text-sm w-full" />
+					</div>
+				</div>
+
+				<div class="stack-xs">
+					<label class="form-label font-bold text-primary text-xs">ملاحظات إضافية للمورّد (اختياري)</label>
+					<textarea name="notes" rows="2" placeholder="اكتب أي شروط أو تفاصيل إضافية بخصوص جدول الاستلام أو التوريد..." class="form-input text-xs w-full"></textarea>
+				</div>
+			</div>
+
+			<div class="modal-footer pt-3 border-t flex-between items-center">
+				<button type="button" class="btn btn-secondary font-bold text-xs" onclick="closeNegotiationModal()">إلغاء</button>
+				<button type="submit" class="btn btn-primary font-bold text-xs px-4 shadow-sm">إرسال طلب التفاوض للمورّد</button>
+			</div>
+		</form>
+	}
+
+	<script>
+		function triggerNegotiationModal(btn) {
+			openNegotiationModal({
+				variant_id: btn.getAttribute('data-variant-id'),
+				product_id: btn.getAttribute('data-product-id'),
+				vendor_org_id: btn.getAttribute('data-vendor-id'),
+				name: btn.getAttribute('data-product-name'),
+				current_price: btn.getAttribute('data-current-price'),
+				min_qty: parseInt(btn.getAttribute('data-min-qty') || '1', 10)
+			});
+		}
+		function openNegotiationModal(data) {
+			const vId = document.getElementById('neg-variant-id');
+			const oId = document.getElementById('neg-vendor-id');
+			const name = document.getElementById('neg-product-name');
+			const curPrice = document.getElementById('neg-current-price');
+			const qty = document.getElementById('neg-qty');
+			const propPrice = document.getElementById('neg-proposed-price');
+			if (vId) vId.value = data.variant_id || '';
+			if (oId) oId.value = data.vendor_org_id || '';
+			if (name) name.innerText = data.name || 'صنف دوائي';
+			if (curPrice) curPrice.innerText = data.current_price || '0.00';
+			if (qty) qty.value = data.min_qty || 1;
+			if (propPrice) propPrice.value = data.current_price || '';
+			const m = document.getElementById('negotiation-modal');
+			if (m && typeof m.showModal === 'function') {
+				m.showModal();
+			}
+		}
+		function closeNegotiationModal() {
+			const m = document.getElementById('negotiation-modal');
+			if (m && typeof m.close === 'function') {
+				m.close();
+			}
+		}
+	</script>
+}

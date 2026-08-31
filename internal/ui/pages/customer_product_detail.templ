@@ -10,263 +10,279 @@ import (
 
 templ CustomerProductDetail(product *catalog.Product, variants []*catalog.ProductVariant, offers []SupplierOffer, lang, dir string) {
 	@layouts.PublicShell(productTitle(product)+" | تفاصيل عرض التوريد", lang, dir) {
-		<div class="page-container">
+		<div class="page-container py-6">
 			
 			<!-- Breadcrumb Navigation -->
-			<nav class="d-flex items-center gap-2 text-xs text-muted mb-4 flex-wrap">
-				<a href="/" class="text-secondary text-decoration-none font-bold">الرئيسية</a>
+			<nav class="d-flex items-center gap-2 text-xs text-muted mb-4 flex-wrap font-bold">
+				<a href="/" class="text-secondary hover:text-primary transition-colors">الرئيسية</a>
 				<span>/</span>
-				<a href="/catalog" class="text-secondary text-decoration-none font-bold">كتالوج عروض التوريد</a>
+				<a href="/catalog" class="text-secondary hover:text-primary transition-colors">كتالوج عروض التوريد</a>
 				<span>/</span>
 				<span class="text-primary font-black">{ productTitle(product) }</span>
 			</nav>
 
-			<!-- 1. Hero Variant Details Card -->
-			<div class="glass-panel p-6 mb-6">
-    <div class="stack-sm">
-				
-				<!-- Col 1: Product Image Gallery -->
-				<div class="d-flex flex-col gap-4">
-					<div class="p-6 rounded-2xl bg-surface-sunken border d-flex flex-col items-center justify-center position-relative overflow-hidden">
-						<div class="position-absolute">
-							<span class="badge badge-emerald text-xs font-bold">
-								@components.IconCheck("icon-xs")
-								<span>صنف معتمد 100%</span>
-							</span>
-						</div>
+			<!-- 1. Hero Product Showcase Grid (3 Columns) -->
+			<div class="glass-panel p-6 mb-6 border rounded-2xl shadow-xs">
+				<div class="product-detail-hero-grid">
+					
+					<!-- Col 1: Product Media & Trust Badges (320px) -->
+					<div class="d-flex flex-col gap-4">
+						<div class="p-6 rounded-2xl bg-surface-sunken border d-flex flex-col items-center justify-center relative overflow-hidden">
+							<div class="absolute top-3 start-3">
+								<span class="badge badge-emerald text-xs font-bold gap-1">
+									@components.IconCheck("icon-xs")
+									<span>صنف معتمد 100%</span>
+								</span>
+							</div>
 
-						if product.Image != "" {
-							<img src={ product.Image } alt={ productTitle(product) } />
-						} else {
-							<div class="user-avatar-badge text-3xl mb-3">
-								@components.IconPill("icon-sm")
-							</div>
-							<div class="font-extrabold text-sm text-primary">العبوة الرسمية المسجلة</div>
-							<span class="text-xs text-muted">مطابق لمعايير هيئة الدواء</span>
-						}
-					</div>
-				</div>
-
-				<!-- Col 2: Product & Variant Specifications -->
-				<div class="d-flex flex-col gap-4">
-     <div class="stack-sm">
-						<!-- Dosage Badge -->
-						if product.DosageForm != "" {
-							<span class="badge badge-sky text-xs font-bold mb-2">
-								{ product.DosageForm }
-							</span>
-						}
-
-						<h1 class="text-2xl font-black text-primary m-0 mb-1 leading-tight">
-							{ productTitle(product) }
-						</h1>
-						
-						if product.Name["en"] != "" && product.Name["en"] != product.Name["ar"] {
-							<div class="text-sm text-muted font-mono mb-3" dir="ltr">
-								{ product.Name["en"] }
-							</div>
-						}
-					</div>
-
-					<!-- Master Attributes Grid -->
-					<div class="p-4 rounded-xl bg-surface-sunken border text-xs">
-						if product.ScientificName != "" {
-       <div class="stack-sm">
-								<span class="text-muted d-block text-xs mb-1">الاسم العلمي / التركيز:</span>
-								<strong class="text-primary font-bold">{ product.ScientificName }</strong>
-							</div>
-						}
-						if product.Active != "" {
-       <div class="stack-sm">
-								<span class="text-muted d-block text-xs mb-1">المادة الفعالة:</span>
-								<strong class="text-primary font-bold">{ product.Active }</strong>
-							</div>
-						}
-						if product.ManufacturingCompanies != "" {
-       <div class="stack-sm">
-								<span class="text-muted d-block text-xs mb-1">الشركة المصنعة:</span>
-								<strong class="text-primary font-bold">{ product.ManufacturingCompanies }</strong>
-							</div>
-						}
-						if product.Barcode != "" {
-       <div class="stack-sm">
-								<span class="text-muted d-block text-xs mb-1">الباركود الدولي:</span>
-								<strong class="text-primary font-mono">{ product.Barcode }</strong>
-							</div>
-						}
-					</div>
-
-					<!-- Variants Packaging Strip -->
-					if len(variants) > 0 {
-      <div class="stack-sm">
-							<label class="text-xs font-extrabold text-primary d-block mb-2">
-								العبوات والتنويعات المسجلة:
-							</label>
-							<div class="d-flex flex-wrap gap-2">
-								for _, v := range variants {
-									<div class="p-2 px-3 rounded-lg bg-surface-sunken border text-xs d-flex items-center gap-2">
-										<span class="font-bold text-primary">
-											if v.Name["ar"] != "" {
-												{ v.Name["ar"] }
-											} else {
-												{ v.SKU }
-											}
-										</span>
-										if v.Price.IsPositive() {
-											<span class="text-brand font-black tabular-nums font-mono">
-												{ v.Price.String() } ج.م
-											</span>
-										}
-									</div>
-								}
-							</div>
-						</div>
-					}
-				</div>
-
-				<!-- Col 3: Primary Purchase Card (Best Offer) -->
-				<div class="p-5 rounded-2xl bg-surface-sunken border d-flex flex-col gap-4">
-					if len(offers) > 0 {
-						<!-- Supplier Info -->
-						<div class="flex-between items-center pb-3 border-b">
-							<div class="d-flex items-center gap-2">
-								<div class="user-avatar-badge text-sm">
-									@components.IconBuilding("icon-sm")
+							if product.Image != "" {
+								<img src={ product.Image } alt={ productTitle(product) } class="max-h-56 max-w-full object-contain my-2" />
+							} else {
+								<div class="w-20 h-20 rounded-2xl bg-primary-subtle text-primary flex-center text-3xl mb-3 mt-4">
+									@components.IconPill("icon-lg")
 								</div>
-        <div class="stack-sm">
-									<div class="text-xs font-extrabold text-primary">
-										{ offers[0].SupplierName }
-									</div>
-									if offers[0].BranchName != "" {
-										<div class="text-xs text-muted">
-											{ offers[0].BranchName }
+								<div class="font-extrabold text-sm text-primary">العبوة الرسمية المسجلة</div>
+								<span class="text-xs text-muted">مطابق لمعايير هيئة الدواء</span>
+							}
+						</div>
+
+						<!-- Pharmacist Trust Signals -->
+						<div class="p-3 bg-surface-sunken rounded-xl border stack-2xs text-xs">
+							<div class="d-flex items-center gap-2 text-success font-bold">
+								@components.IconCheckCircle("icon-xs")
+								<span>فحص ومطابقة الصلاحية قبل الشحن</span>
+							</div>
+							<div class="d-flex items-center gap-2 text-primary font-bold">
+								@components.IconShield("icon-xs")
+								<span>سلسلة توريد دوائي آمنة ومباشرة</span>
+							</div>
+						</div>
+					</div>
+
+					<!-- Col 2: Product & Clinical Specifications (1fr) -->
+					<div class="d-flex flex-col gap-4">
+						<div>
+							<!-- Dosage Badge -->
+							if product.DosageForm != "" {
+								<span class="badge badge-sky text-xs font-bold mb-2">
+									{ product.DosageForm }
+								</span>
+							}
+
+							<h1 class="text-2xl font-black text-primary m-0 mb-1 leading-tight">
+								{ productTitle(product) }
+							</h1>
+							
+							if product.Name["en"] != "" && product.Name["en"] != product.Name["ar"] {
+								<div class="text-sm text-muted font-mono mb-3 font-bold" dir="ltr">
+									{ product.Name["en"] }
+								</div>
+							}
+						</div>
+
+						<!-- Master Attributes Grid -->
+						<div class="p-4 rounded-xl bg-surface-sunken border text-xs grid grid-cols-1 sm:grid-cols-2 gap-3">
+							if product.ScientificName != "" {
+								<div>
+									<span class="text-muted d-block text-xs mb-1 font-bold">الاسم العلمي / التركيز:</span>
+									<strong class="text-primary font-bold">{ product.ScientificName }</strong>
+								</div>
+							}
+							if product.Active != "" {
+								<div>
+									<span class="text-muted d-block text-xs mb-1 font-bold">المادة الفعالة:</span>
+									<strong class="text-primary font-bold">{ product.Active }</strong>
+								</div>
+							}
+							if product.ManufacturingCompanies != "" {
+								<div>
+									<span class="text-muted d-block text-xs mb-1 font-bold">الشركة المصنعة:</span>
+									<strong class="text-primary font-bold">{ product.ManufacturingCompanies }</strong>
+								</div>
+							}
+							if product.Barcode != "" {
+								<div>
+									<span class="text-muted d-block text-xs mb-1 font-bold">الباركود الدولي:</span>
+									<strong class="text-primary font-mono">{ product.Barcode }</strong>
+								</div>
+							}
+						</div>
+
+						<!-- Variants Packaging Strip -->
+						if len(variants) > 0 {
+							<div>
+								<label class="text-xs font-extrabold text-primary d-block mb-2">
+									العبوات والتنويعات المسجلة:
+								</label>
+								<div class="d-flex flex-wrap gap-2">
+									for _, v := range variants {
+										<div class="p-2 px-3 rounded-lg bg-surface-sunken border text-xs d-flex items-center gap-2">
+											<span class="font-bold text-primary">
+												if v.Name["ar"] != "" {
+													{ v.Name["ar"] }
+												} else {
+													{ v.SKU }
+												}
+											</span>
+											if v.Price.IsPositive() {
+												<span class="text-brand font-black tabular-nums font-mono">
+													{ v.Price.String() } ج.م
+												</span>
+											}
 										</div>
 									}
 								</div>
 							</div>
-
-							if offers[0].IsVerified {
-								<span class="badge badge-emerald text-xs font-bold">معتمد </span>
-							}
-						</div>
-
-						<!-- Pricing Block -->
-      <div class="stack-sm">
-							<div class="text-xs text-muted font-bold mb-1">
-								سعر التوريد للصيدلية:
-							</div>
-							<div class="d-flex items-baseline gap-2 flex-wrap">
-								<span class="tabular-nums text-2xl font-black text-brand">
-									{ offers[0].Price.String() }
-								</span>
-								<span class="text-xs font-bold text-secondary">ج.م / عبوة</span>
-
-								if offers[0].OldPrice.IsPositive() && offers[0].OldPrice.Minor() > offers[0].Price.Minor() {
-									<span class="text-xs text-muted text-decoration-line-through font-mono">
-										{ offers[0].OldPrice.String() } ج.م
-									</span>
-								}
-							</div>
-							if offers[0].DiscountBPS > 0 {
-								<div class="mt-1">
-									<span class="badge badge-emerald text-xs font-extrabold">
-										{ fmt.Sprintf("وفرت %s (خصم %.1f%%)", offers[0].DiscountAmount.String(), float64(offers[0].DiscountBPS)/100.0) }
-									</span>
-								</div>
-							}
-						</div>
-
-						<!-- Stock and Limits -->
-						<div class="text-xs d-flex flex-col gap-2 py-3 border-t border-b">
-							<div class="flex-between">
-								<span class="text-muted">المخزون المتاح:</span>
-								if offers[0].AvailableStock > 0 {
-									<strong class="text-brand font-bold">{ fmt.Sprintf("%d عبوة", offers[0].AvailableStock) }</strong>
-								} else {
-									<strong class="text-danger font-bold">غير متوفر</strong>
-								}
-							</div>
-							<div class="flex-between">
-								<span class="text-muted">الحد الأدنى للطلب:</span>
-								<strong class="text-primary font-bold">{ fmt.Sprintf("%d عبوة", max(1, offers[0].MinOrderQty)) }</strong>
-							</div>
-							if offers[0].ExpiryDate != "" {
-								<div class="flex-between">
-									<span class="text-muted">تاريخ الصلاحية:</span>
-									<strong class="font-mono text-primary">{ offers[0].ExpiryDate }</strong>
-								</div>
-							}
-						</div>
-
-						<!-- Coverage Banner -->
-      <div class="stack-sm">
-							if offers[0].IsCovered {
-								<div class="p-2 px-3 rounded-lg bg-emerald-subtle border border-emerald text-emerald text-xs font-bold d-flex items-center gap-2">
-									<span>@components.IconTruck("icon-sm")</span>
-									<span>مشمول بالتغطية والتوصيل لفرعك</span>
-								</div>
-							} else {
-								<div class="p-2 px-3 rounded-lg bg-danger-subtle border border-danger text-danger text-xs font-bold d-flex items-center gap-2">
-									<span>@components.IconAlert("icon-sm")</span>
-									<span>
-										if offers[0].CoverageReason != "" {
-											{ offers[0].CoverageReason }
-										} else {
-											خارج نطاق التغطية لفرعك الحالي
-										}
-									</span>
-								</div>
-							}
-						</div>
-
-						<!-- Add to Cart Form -->
-						if offers[0].CanAddToCart {
-							<form method="POST" action="/cart/add" class="d-flex flex-col gap-3">
-								<input type="hidden" name="variant_id" value={ fmt.Sprintf("%d", offers[0].VariantID) } />
-								<input type="hidden" name="product_id" value={ fmt.Sprintf("%d", product.ID) } />
-								<input type="hidden" name="organization_id" value={ fmt.Sprintf("%d", offers[0].SupplierID) } />
-								<input type="hidden" name="vendor_org_id" value={ fmt.Sprintf("%d", offers[0].SupplierID) } />
-								<input type="hidden" name="offer_price" value={ offers[0].Price.String() } />
-								
-								<div class="d-flex items-center gap-2">
-									<label class="text-xs font-bold text-secondary">الكمية:</label>
-									<input
-										type="number"
-										name="qty"
-										value={ fmt.Sprintf("%d", max(1, offers[0].MinOrderQty)) }
-										min={ fmt.Sprintf("%d", max(1, offers[0].MinOrderQty)) }
-										max={ fmt.Sprintf("%d", max(1, offers[0].AvailableStock)) }
-										class="form-input text-xs tabular-nums text-center font-bold font-mono flex-1"
-									/>
-								</div>
-
-								<button type="submit" class="btn btn-primary font-bold text-xs w-full py-2 gap-1">
-									@components.IconPlus("icon-sm")
-									<span>أضف إلى سلة المشتريات</span>
-								</button>
-							</form>
-						} else {
-							<button type="button" disabled class="btn btn-secondary text-xs w-full py-2 font-bold cursor-not-allowed">
-								غير متاح للطلب المباشر
-							</button>
 						}
-					} else {
-						<div class="text-center p-6 text-muted">
-							<div class="text-3xl mb-2">@components.IconPackage("icon-sm")</div>
-							<div class="font-bold text-xs text-primary">لا توجد عروض توريد نشطة</div>
-							<p class="text-xs text-secondary mt-1">
-								لم يقم أي مورد بإدراج عروض لهذا الصنف حالياً.
-							</p>
-						</div>
-					}
-				</div>
+					</div>
+
+					<!-- Col 3: Primary Purchase Card / Buy Box (340px) -->
+					<div class="p-5 rounded-2xl bg-surface-sunken border d-flex flex-col gap-4 shadow-xs product-detail-buy-box">
+						if len(offers) > 0 {
+							<!-- Supplier Info -->
+							<div class="flex-between items-center pb-3 border-b">
+								<div class="d-flex items-center gap-2">
+									<div class="w-8 h-8 rounded-lg bg-primary-subtle text-primary flex-center text-sm">
+										@components.IconBuilding("icon-xs")
+									</div>
+									<div>
+										<div class="text-xs font-extrabold text-primary">
+											{ offers[0].SupplierName }
+										</div>
+										if offers[0].BranchName != "" {
+											<div class="text-xs text-muted">
+												{ offers[0].BranchName }
+											</div>
+										}
+									</div>
+								</div>
+
+								if offers[0].IsVerified {
+									<span class="badge badge-emerald text-xs font-bold">معتمد</span>
+								}
+							</div>
+
+							<!-- Pricing Block -->
+							<div>
+								<div class="text-xs text-muted font-bold mb-1">
+									سعر التوريد للصيدلية:
+								</div>
+								<div class="d-flex items-baseline gap-2 flex-wrap">
+									<span class="tabular-nums text-2xl font-black text-brand">
+										{ offers[0].Price.String() }
+									</span>
+									<span class="text-xs font-bold text-secondary">ج.م / عبوة</span>
+
+									if offers[0].OldPrice.IsPositive() && offers[0].OldPrice.Minor() > offers[0].Price.Minor() {
+										<span class="text-xs text-muted line-through font-mono">
+											{ offers[0].OldPrice.String() } ج.م
+										</span>
+									}
+								</div>
+								if offers[0].DiscountBPS > 0 {
+									<div class="mt-1.5">
+										<span class="badge badge-emerald text-xs font-extrabold">
+											{ fmt.Sprintf("وفرت %s (خصم %.1f%%)", offers[0].DiscountAmount.String(), float64(offers[0].DiscountBPS)/100.0) }
+										</span>
+									</div>
+								}
+							</div>
+
+							<!-- Stock and Limits -->
+							<div class="text-xs d-flex flex-col gap-2 py-3 border-t border-b">
+								<div class="flex-between">
+									<span class="text-muted">المخزون المتاح:</span>
+									if offers[0].AvailableStock > 0 {
+										<strong class="text-brand font-bold">{ fmt.Sprintf("%d عبوة", offers[0].AvailableStock) }</strong>
+									} else {
+										<strong class="text-danger font-bold">غير متوفر</strong>
+									}
+								</div>
+								<div class="flex-between">
+									<span class="text-muted">الحد الأدنى للطلب:</span>
+									<strong class="text-primary font-bold">{ fmt.Sprintf("%d عبوة", max(1, offers[0].MinOrderQty)) }</strong>
+								</div>
+								if offers[0].ExpiryDate != "" {
+									<div class="flex-between">
+										<span class="text-muted">تاريخ الصلاحية:</span>
+										<strong class="font-mono text-primary">{ offers[0].ExpiryDate }</strong>
+									</div>
+								}
+							</div>
+
+							<!-- Coverage Banner -->
+							<div>
+								if offers[0].IsCovered {
+									<div class="p-2 px-3 rounded-lg bg-emerald-subtle border border-emerald text-emerald text-xs font-bold d-flex items-center gap-2">
+										@components.IconTruck("icon-xs")
+										<span>مشمول بالتغطية والتوصيل لفرعك</span>
+									</div>
+								} else {
+									<div class="p-2 px-3 rounded-lg bg-danger-subtle border border-danger text-danger text-xs font-bold d-flex items-center gap-2">
+										@components.IconAlert("icon-xs")
+										<span>
+											if offers[0].CoverageReason != "" {
+												{ offers[0].CoverageReason }
+											} else {
+												خارج نطاق التغطية لفرعك الحالي
+											}
+										</span>
+									</div>
+								}
+							</div>
+
+							<!-- Add to Cart Form -->
+							if offers[0].CanAddToCart {
+								<form method="POST" action="/cart/add" class="d-flex flex-col gap-3">
+									<input type="hidden" name="variant_id" value={ fmt.Sprintf("%d", offers[0].VariantID) } />
+									<input type="hidden" name="product_id" value={ fmt.Sprintf("%d", product.ID) } />
+									<input type="hidden" name="organization_id" value={ fmt.Sprintf("%d", offers[0].SupplierID) } />
+									<input type="hidden" name="vendor_org_id" value={ fmt.Sprintf("%d", offers[0].SupplierID) } />
+									<input type="hidden" name="offer_price" value={ offers[0].Price.String() } />
+									
+									<div class="d-flex items-center gap-2">
+										<label class="text-xs font-bold text-secondary">الكمية:</label>
+										<div class="cart-stepper-control flex-1 justify-between">
+											<button type="button" class="cart-stepper-btn" onclick="stepCatalogQty(this, -1)">−</button>
+											<input
+												type="number"
+												name="qty"
+												value={ fmt.Sprintf("%d", max(1, offers[0].MinOrderQty)) }
+												min={ fmt.Sprintf("%d", max(1, offers[0].MinOrderQty)) }
+												max={ fmt.Sprintf("%d", max(1, offers[0].AvailableStock)) }
+												class="cart-stepper-input flex-1"
+											/>
+											<button type="button" class="cart-stepper-btn" onclick="stepCatalogQty(this, 1)">+</button>
+										</div>
+									</div>
+
+									<button type="submit" class="btn btn-primary font-bold text-xs w-full py-2 gap-1 shadow-sm">
+										@components.IconPlus("icon-xs")
+										<span>أضف إلى سلة المشتريات</span>
+									</button>
+								</form>
+							} else {
+								<button type="button" disabled class="btn btn-secondary text-xs w-full py-2 font-bold cursor-not-allowed opacity-60">
+									غير متاح للطلب المباشر
+								</button>
+							}
+						} else {
+							<div class="text-center p-6 text-muted">
+								<div class="text-3xl mb-2">@components.IconPackage("icon-md")</div>
+								<div class="font-bold text-xs text-primary">لا توجد عروض توريد نشطة</div>
+								<p class="text-xs text-secondary mt-1">
+									لم يقم أي مورد بإدراج عروض لهذا الصنف حالياً.
+								</p>
+							</div>
+						}
+					</div>
 
 				</div>
 			</div>
 
 			<!-- 2. Other Supplier Offers Comparison Table -->
 			if len(offers) > 1 {
-				<div class="glass-panel p-0 mb-6 overflow-hidden">
+				<div class="glass-panel p-0 mb-6 overflow-hidden border rounded-2xl shadow-xs">
 					<div class="p-4 px-6 border-b flex-between items-center">
 						<h3 class="text-base font-extrabold text-primary m-0 d-flex items-center gap-2">
 							<span>عروض الموردين الآخرين لنفس الصنف</span>
@@ -274,8 +290,8 @@ templ CustomerProductDetail(product *catalog.Product, variants []*catalog.Produc
 						</h3>
 					</div>
 
-					<div class="table-container m-0">
-						<table class="data-table m-0">
+					<div class="table-container m-0 overflow-x-auto">
+						<table class="data-table m-0 text-xs w-full">
 							<thead>
 								<tr>
 									<th>المورد والفرع</th>
@@ -292,14 +308,14 @@ templ CustomerProductDetail(product *catalog.Product, variants []*catalog.Produc
 									<tr>
 										<!-- Supplier -->
 										<td>
-											<div class="font-bold text-primary text-xs">
-												{ off.SupplierName }
+											<div class="font-bold text-primary text-xs d-flex items-center gap-1">
+												<span>{ off.SupplierName }</span>
 												if off.IsVerified {
-													<span class="text-success ms-1">@components.IconCheck("icon-sm")</span>
+													<span class="badge badge-emerald text-xs font-bold">معتمد</span>
 												}
 											</div>
 											if off.BranchName != "" {
-												<div class="text-xs text-muted">
+												<div class="text-xs text-muted mt-0.5">
 													{ off.BranchName }
 												</div>
 											}
@@ -321,7 +337,7 @@ templ CustomerProductDetail(product *catalog.Product, variants []*catalog.Produc
 													{ fmt.Sprintf("%.1f%%", float64(off.DiscountBPS)/100.0) }
 												</span>
 											} else {
-												<span class="text-xs text-muted">0%</span>
+												<span class="text-xs text-muted font-medium">0%</span>
 											}
 										</td>
 
@@ -351,19 +367,19 @@ templ CustomerProductDetail(product *catalog.Product, variants []*catalog.Produc
 										<!-- Action -->
 										<td class="text-center">
 											if off.CanAddToCart {
-												<form class="stack-md" method="POST" action="/cart/add">
+												<form method="POST" action="/cart/add" class="d-flex items-center justify-center gap-1 m-0">
 													<input type="hidden" name="variant_id" value={ fmt.Sprintf("%d", off.VariantID) } />
 													<input type="hidden" name="product_id" value={ fmt.Sprintf("%d", product.ID) } />
 													<input type="hidden" name="organization_id" value={ fmt.Sprintf("%d", off.SupplierID) } />
 													<input type="hidden" name="vendor_org_id" value={ fmt.Sprintf("%d", off.SupplierID) } />
 													<input type="hidden" name="offer_price" value={ off.Price.String() } />
 													<input type="hidden" name="qty" value={ fmt.Sprintf("%d", max(1, off.MinOrderQty)) } />
-													<button type="submit" class="btn btn-primary btn-sm">
+													<button type="submit" class="btn btn-primary btn-xs font-bold px-3">
 														<span>أضف للسلة</span>
 													</button>
 												</form>
 											} else {
-												<button type="button" disabled class="btn btn-secondary btn-sm">
+												<button type="button" disabled class="btn btn-secondary btn-xs font-bold opacity-60">
 													غير متاح
 												</button>
 											}
@@ -377,6 +393,23 @@ templ CustomerProductDetail(product *catalog.Product, variants []*catalog.Produc
 			}
 
 		</div>
+
+		<script>
+			function stepCatalogQty(btn, delta) {
+				const form = btn.closest('form') || btn.closest('.product-detail-buy-box');
+				if (!form) return;
+				const input = form.querySelector('input[name="qty"]');
+				if (input) {
+					let val = parseInt(input.value, 10) || 1;
+					val += delta;
+					const min = parseInt(input.getAttribute('min') || '1', 10);
+					const max = parseInt(input.getAttribute('max') || '9999', 10);
+					if (val < min) val = min;
+					if (val > max && max > 0) val = max;
+					input.value = val;
+				}
+			}
+		</script>
 	}
 }
 

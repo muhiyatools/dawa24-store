@@ -38,9 +38,23 @@ type AdClickTarget string
 
 const (
 	ClickTargetVendor   AdClickTarget = "vendor_page"
+	ClickTargetProduct  AdClickTarget = "product"
 	ClickTargetOffer    AdClickTarget = "offer"
 	ClickTargetExternal AdClickTarget = "external_url"
 )
+
+// Standard advertisement placement positions on the storefront and platform.
+const (
+	PositionHomeHero   = "home_hero"
+	PositionHomeBanner = "home_banner"
+	PositionHomeDeals  = "home_deals"
+	PositionHomeBottom = "home_bottom"
+	PositionCatalogTop = "catalog_top"
+
+	AdCreditCost          = 2
+	SponsorshipCreditCost = 1
+)
+
 
 // AdminStatus is the approval lifecycle of a moderation-gated row.
 type AdminStatus string

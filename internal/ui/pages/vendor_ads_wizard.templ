@@ -1,0 +1,574 @@
+package pages
+
+import (
+	"fmt"
+
+	"github.com/muhiya/dawa24-store/internal/modules/promo"
+	"github.com/muhiya/dawa24-store/internal/ui/components"
+)
+
+templ VendorAdsWizardModal(data VendorAdsData, lang, dir string) {
+	<div
+		x-data={ fmt.Sprintf(`{
+			isOpen: false,
+			step: 1,
+			totalSteps: 4,
+			availableItems: %s,
+			searchQuery: '',
+			showDropdown: false,
+			selectedProduct: null,
+			placement: '%s',
+			clickTargetType: 'product',
+			durationDays: 30,
+			titleAr: '',
+			titleEn: '',
+			adTextAr: '',
+			adTextEn: '',
+			mediaType: 'image',
+			mediaPreview: '',
+			totalCredits: %d,
+			creditCost: 2,
+
+			get filteredItems() {
+				if (!this.searchQuery.trim()) return this.availableItems.slice(0, 15);
+				const q = this.searchQuery.toLowerCase();
+				return this.availableItems.filter(i => 
+					(i.name_ar && i.name_ar.toLowerCase().includes(q)) ||
+					(i.name_en && i.name_en.toLowerCase().includes(q)) ||
+					(i.sku && i.sku.toLowerCase().includes(q))
+				).slice(0, 15);
+			},
+
+			selectProduct(item) {
+				this.selectedProduct = item;
+				this.showDropdown = false;
+				if (!this.titleAr && item.name_ar) {
+					this.titleAr = item.name_ar;
+				}
+				if (!this.titleEn && item.name_en) {
+					this.titleEn = item.name_en;
+				}
+			},
+
+			clearProduct() {
+				this.selectedProduct = null;
+			},
+
+			onFileChange(event) {
+				const file = event.target.files && event.target.files[0];
+				if (!file) return;
+				if (file.type.startsWith('video/')) {
+					this.mediaType = 'video';
+				} else {
+					this.mediaType = 'image';
+				}
+				const reader = new FileReader();
+				reader.onload = (e) => {
+					this.mediaPreview = e.target.result;
+				};
+				reader.readAsDataURL(file);
+			},
+
+			nextStep() {
+				if (this.step === 1 && !this.selectedProduct) return;
+				if (this.step === 3 && !this.titleAr) return;
+				if (this.step < this.totalSteps) {
+					this.step++;
+				}
+			},
+
+			prevStep() {
+				if (this.step > 1) {
+					this.step--;
+				}
+			},
+
+			resetWizard() {
+				this.step = 1;
+				this.searchQuery = '';
+				this.selectedProduct = null;
+				this.placement = 'home_hero';
+				this.clickTargetType = 'product';
+				this.durationDays = 30;
+				this.titleAr = '';
+				this.titleEn = '';
+				this.adTextAr = '';
+				this.adTextEn = '';
+				this.mediaType = 'image';
+				this.mediaPreview = '';
+				this.isOpen = false;
+			}
+		}`, InStockItemsToJSON(data.ItemOptions), promo.PositionHomeHero, data.TotalCredits) }
+		class="relative"
+	>
+		<!-- Open Wizard Action Trigger Button -->
+		<button
+			type="button"
+			@click="isOpen = true"
+			class="btn btn-primary btn-sm font-extrabold gap-2 shadow-sm"
+		>
+			@components.IconPlus("icon-xs")
+			<span>إنشاء إعلان وبنر جديد (معالج تفاعلي)</span>
+		</button>
+
+		<!-- Wizard Modal Backdrop & Dialog -->
+		<div
+			x-show="isOpen"
+			x-cloak
+			class="modal-backdrop fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs d-flex items-center justify-center p-4 overflow-y-auto"
+			@keydown.escape.window="isOpen = false"
+		>
+			<div
+				class="modal-dialog w-full max-w-3xl bg-white rounded-3xl shadow-2xl border border-slate-200/80 overflow-hidden text-start my-8"
+				@click.outside="isOpen = false"
+			>
+				<!-- Modal Top Header -->
+				<div class="modal-header p-5 border-b border-slate-100 bg-slate-50/70 flex-between items-center">
+					<div class="d-flex items-center gap-3">
+						<div class="w-10 h-10 rounded-2xl bg-brand-50 text-brand-600 d-flex items-center justify-center border border-brand-200/60 shadow-2xs">
+							@components.IconMegaphone("icon-sm")
+						</div>
+						<div class="stack-sm">
+							<h3 class="text-base font-black text-primary m-0">معالج بناء وإنشاء الإعلان الترويجي</h3>
+							<p class="text-xs text-secondary m-0 font-medium">خطوات رقمية ميسرة لإطلاق حملتك الإعلانية بالصورة أو الفيديو وتوجيهها للكتالوج</p>
+						</div>
+					</div>
+					<button
+						type="button"
+						@click="resetWizard()"
+						class="btn btn-secondary btn-icon btn-sm text-secondary"
+						title="إغلاق"
+					>
+						@components.IconClose("icon-xs")
+					</button>
+				</div>
+
+				<!-- Step Progress Indicator Bar -->
+				<div class="px-6 pt-5 pb-3 border-b border-slate-100 bg-surface-raised">
+					<div class="d-grid grid-cols-4 gap-2 text-center text-xs">
+						<!-- Step 1 Indicator -->
+						<div
+							class="p-2 rounded-xl transition-all font-bold"
+							:class="step === 1 ? 'bg-brand-50 text-brand-700 border border-brand-200' : (step > 1 ? 'bg-emerald-50 text-emerald-700 font-bold' : 'text-muted')"
+						>
+							<div class="d-flex items-center justify-center gap-1.5 mb-1">
+								<span class="w-5 h-5 rounded-full text-2xs d-flex items-center justify-center font-black" :class="step > 1 ? 'bg-emerald-500 text-white' : (step === 1 ? 'bg-brand-600 text-white' : 'bg-slate-200 text-slate-600')">1</span>
+								<span>الصنف والمخزون</span>
+							</div>
+						</div>
+
+						<!-- Step 2 Indicator -->
+						<div
+							class="p-2 rounded-xl transition-all font-bold"
+							:class="step === 2 ? 'bg-brand-50 text-brand-700 border border-brand-200' : (step > 2 ? 'bg-emerald-50 text-emerald-700 font-bold' : 'text-muted')"
+						>
+							<div class="d-flex items-center justify-center gap-1.5 mb-1">
+								<span class="w-5 h-5 rounded-full text-2xs d-flex items-center justify-center font-black" :class="step > 2 ? 'bg-emerald-500 text-white' : (step === 2 ? 'bg-brand-600 text-white' : 'bg-slate-200 text-slate-600')">2</span>
+								<span>الموضع والحملة</span>
+							</div>
+						</div>
+
+						<!-- Step 3 Indicator -->
+						<div
+							class="p-2 rounded-xl transition-all font-bold"
+							:class="step === 3 ? 'bg-brand-50 text-brand-700 border border-brand-200' : (step > 3 ? 'bg-emerald-50 text-emerald-700 font-bold' : 'text-muted')"
+						>
+							<div class="d-flex items-center justify-center gap-1.5 mb-1">
+								<span class="w-5 h-5 rounded-full text-2xs d-flex items-center justify-center font-black" :class="step > 3 ? 'bg-emerald-500 text-white' : (step === 3 ? 'bg-brand-600 text-white' : 'bg-slate-200 text-slate-600')">3</span>
+								<span>الوسائط والمحتوى</span>
+							</div>
+						</div>
+
+						<!-- Step 4 Indicator -->
+						<div
+							class="p-2 rounded-xl transition-all font-bold"
+							:class="step === 4 ? 'bg-brand-50 text-brand-700 border border-brand-200' : 'text-muted'"
+						>
+							<div class="d-flex items-center justify-center gap-1.5 mb-1">
+								<span class="w-5 h-5 rounded-full text-2xs d-flex items-center justify-center font-black" :class="step === 4 ? 'bg-brand-600 text-white' : 'bg-slate-200 text-slate-600'">4</span>
+								<span>مراجعة الرصيد</span>
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<!-- Wizard Form (Multipart for direct file upload) -->
+				<form
+					action="/vendor/ads/new"
+					method="POST"
+					enctype="multipart/form-data"
+					class="m-0"
+				>
+					<div class="modal-body p-6">
+						<!-- STEP 1: Product Selection from In-Stock Inventory -->
+						<div x-show="step === 1" class="d-flex flex-col gap-4">
+							<div class="p-4 bg-sky-50/70 border border-sky-200/80 rounded-2xl">
+								<div class="d-flex items-start gap-3">
+									@components.IconPill("icon-sm text-sky-600 flex-shrink-0 mt-0.5")
+									<div class="stack-sm">
+										<strong class="text-xs text-sky-900 font-black d-block">شرط الأهلية لإنشاء الإعلان</strong>
+										<p class="text-xs text-sky-800 m-0 mt-0.5 leading-relaxed font-medium">
+											يُشترط لإنشاء الإعلان الترويجي أن يكون مرتبطاً بصنف دوائي متوفر لديك في المخزون حالياً، لضمان تلبية طلبات الشراء الواردة فوراً.
+										</p>
+									</div>
+								</div>
+							</div>
+
+							<!-- Selected Product Preview Card -->
+							<template x-if="selectedProduct">
+								<div class="p-4 bg-emerald-50/70 border border-emerald-200/80 rounded-2xl d-flex items-center justify-between gap-4">
+									<div class="d-flex items-center gap-3">
+										<div class="w-11 h-11 rounded-xl bg-emerald-500 text-white d-flex items-center justify-center shadow-sm">
+											@components.IconCheckCircle("icon-sm")
+										</div>
+										<div class="stack-sm">
+											<strong class="text-sm font-black text-primary d-block" x-text="selectedProduct.name_ar || selectedProduct.name_en"></strong>
+											<div class="text-xs text-secondary d-flex items-center gap-3 mt-1 flex-wrap">
+												<span class="font-mono" x-text="'SKU: ' + selectedProduct.sku"></span>
+												<span class="badge badge-emerald font-extrabold text-2xs tabular-nums" x-text="'الرصيد المتاح: ' + selectedProduct.available_stock + ' عبوة'"></span>
+												<span class="badge badge-slate font-bold text-2xs" x-show="selectedProduct.warehouse_name" x-text="'مستودع: ' + selectedProduct.warehouse_name"></span>
+												<span class="font-black text-brand tabular-nums" x-text="selectedProduct.price + ' ج.م'"></span>
+											</div>
+										</div>
+									</div>
+									<button
+										type="button"
+										@click="clearProduct()"
+										class="btn btn-secondary btn-xs font-bold text-danger gap-1 shadow-2xs"
+									>
+										@components.IconClose("icon-2xs")
+										<span>تغيير الصنف</span>
+									</button>
+								</div>
+							</template>
+
+							<!-- Product Search & Dropdown Picker -->
+							<div x-show="!selectedProduct" class="position-relative">
+								<label class="form-label text-xs font-bold text-primary mb-1.5 d-block">
+									ابحث واختر الصنف الدوائي من المخزون *
+								</label>
+								<div class="position-relative">
+									<input
+										type="text"
+										x-model="searchQuery"
+										@focus="showDropdown = true"
+										@input="showDropdown = true"
+										placeholder="ابحث بالاسم التجاري بالعربية أو الإنجليزية، أو كود SKU..."
+										class="form-input text-xs font-semibold w-full ps-9"
+										autocomplete="off"
+									/>
+									<span class="position-absolute start-3 top-half translate-middle-y text-muted pointer-events-none">
+										@components.IconSearch("icon-xs")
+									</span>
+								</div>
+
+								<!-- Dropdown Results Box -->
+								<div
+									x-show="showDropdown"
+									@click.outside="showDropdown = false"
+									class="position-absolute z-50 w-full bg-white border border-slate-200 rounded-2xl shadow-2xl p-2 mt-1.5 max-h-60 overflow-y-auto"
+									x-cloak
+								>
+									<template x-for="item in filteredItems" :key="item.variant_id">
+										<div
+											@click="selectProduct(item)"
+											class="p-2.5 rounded-xl cursor-pointer hover:bg-slate-50 d-flex items-center justify-between gap-3 border-b border-slate-100 last:border-b-0 transition-colors"
+										>
+											<div class="d-flex items-center gap-2.5">
+												<div class="w-8 h-8 rounded-lg bg-brand-50 text-brand-600 d-flex items-center justify-center">
+													@components.IconPill("icon-xs")
+												</div>
+												<div class="stack-sm">
+													<strong class="text-xs font-bold text-primary d-block" x-text="item.name_ar || item.name_en"></strong>
+													<div class="text-2xs text-muted font-mono" x-text="'SKU: ' + item.sku + (item.warehouse_name ? ' · ' + item.warehouse_name : '')"></div>
+												</div>
+											</div>
+											<div class="text-end">
+												<span class="badge badge-emerald text-2xs font-extrabold tabular-nums" x-text="item.available_stock + ' عبوة متوفرة'"></span>
+												<div class="text-xs font-black text-brand tabular-nums mt-0.5" x-text="item.price + ' ج.م'"></div>
+											</div>
+										</div>
+									</template>
+									<div x-show="filteredItems.length === 0" class="p-4 text-center text-xs text-muted">
+										لا توجد أصناف مطابقة متوفرة بالمخزون حالياً.
+									</div>
+								</div>
+							</div>
+
+							<!-- Hidden Input for Selected Product ID -->
+							<input type="hidden" name="click_target_id" :value="selectedProduct ? selectedProduct.variant_id : ''" />
+						</div>
+
+						<!-- STEP 2: Placement & Campaign Settings -->
+						<div x-show="step === 2" class="d-flex flex-col gap-4">
+							<div class="stack-sm">
+								<label class="form-label text-xs font-bold text-primary mb-1 d-block">
+									حدد موضع ظهور الإعلان على المنصة *
+								</label>
+								<p class="text-xs text-secondary m-0 mb-3">اختر الموقع الاستراتيجي المستهدف لعرض البنر والإعلان أمام الصيدليات</p>
+							</div>
+
+							<!-- Placement Selector Radio Cards -->
+							<div class="d-grid grid-cols-1 md:grid-cols-2 gap-3.5">
+								for _, p := range GetStandardPlacements() {
+									<label
+										class="p-4 rounded-2xl border-2 transition-all cursor-pointer d-flex flex-col justify-between"
+										:class={ fmt.Sprintf("placement === '%s' ? 'border-brand-500 bg-brand-50/40 shadow-xs' : 'border-slate-200 bg-white hover:border-slate-300'", p.Key) }
+									>
+										<div class="stack-sm">
+											<div class="flex-between items-start mb-2">
+												<div class="d-flex items-center gap-2">
+													<input
+														type="radio"
+														name="position"
+														value={ p.Key }
+														x-model="placement"
+														class="accent-brand mt-0.5"
+													/>
+													<span class="font-black text-xs text-primary">{ p.TitleAr }</span>
+												</div>
+												<span class="badge badge-sky font-extrabold text-2xs shadow-2xs">{ p.Badge }</span>
+											</div>
+											<p class="text-xs text-secondary m-0 leading-relaxed font-medium ps-6">
+												{ p.Description }
+											</p>
+										</div>
+									</label>
+								}
+							</div>
+
+							<div class="d-grid grid-cols-1 md:grid-cols-2 gap-4 mt-2">
+								<div class="stack-sm">
+									<label class="form-label text-xs font-bold text-primary mb-1.5 d-block">وجهة النقر (Target Destination) *</label>
+									<select name="click_target_type" x-model="clickTargetType" class="form-input text-xs font-semibold">
+										<option value="product">صفحة الصنف الدوائي المختار بالكتالوج</option>
+										<option value="vendor_page">صفحة ملف المورد والمستودع</option>
+										<option value="offer">عرض ترويجي محدد</option>
+										<option value="external_url">رابط خارجي مخصص</option>
+									</select>
+								</div>
+								<div class="stack-sm">
+									<label class="form-label text-xs font-bold text-primary mb-1.5 d-block">مدة الحملة الإعلانية *</label>
+									<select name="duration_days" x-model.number="durationDays" class="form-input text-xs font-semibold tabular-nums">
+										<option value="7">7 أيام (أسبوع ترويجي)</option>
+										<option value="15">15 يوماً (نصف شهر)</option>
+										<option value="30" selected>30 يوماً (شهر كامل)</option>
+										<option value="60">60 يوماً (شهران)</option>
+									</select>
+								</div>
+							</div>
+						</div>
+
+						<!-- STEP 3: Media Upload & Bilingual Creative -->
+						<div x-show="step === 3" class="d-flex flex-col gap-4">
+							<!-- Media File Upload Dropzone -->
+							<div class="glass-panel p-4 border-2 border-dashed border-slate-300 rounded-2xl text-center bg-slate-50/50">
+								<div class="d-flex flex-col items-center justify-center gap-2">
+									<template x-if="!mediaPreview">
+										<div class="d-flex flex-col items-center gap-1.5">
+											<div class="w-12 h-12 rounded-2xl bg-brand-100 text-brand-600 d-flex items-center justify-center shadow-xs">
+												@components.IconUpload("icon-sm")
+											</div>
+											<strong class="text-xs font-black text-primary mt-1">رفع صورة أو فيديو الإعلان مباشرة</strong>
+											<span class="text-2xs text-muted">صيغ الصور المدعومة: PNG, JPG, WebP · صيغ الفيديو: MP4, WebM (حد أقصى: 10 ميجابايت)</span>
+										</div>
+									</template>
+
+									<!-- Live Preview Box -->
+									<template x-if="mediaPreview">
+										<div class="relative w-full max-w-sm rounded-xl overflow-hidden border border-slate-200 shadow-sm bg-black mb-2">
+											<template x-if="mediaType === 'image'">
+												<img :src="mediaPreview" alt="Ad Preview" class="w-full h-36 object-contain" />
+											</template>
+											<template x-if="mediaType === 'video'">
+												<video :src="mediaPreview" controls class="w-full h-36 object-contain"></video>
+											</template>
+										</div>
+									</template>
+
+									<input
+										type="file"
+										name="media_file"
+										accept="image/png,image/jpeg,image/webp,video/mp4,video/webm"
+										@change="onFileChange($event)"
+										class="form-input text-xs font-medium max-w-xs mt-1"
+									/>
+									<input type="hidden" name="media_type" :value="mediaType" />
+								</div>
+							</div>
+
+							<!-- Bilingual Ad Content -->
+							<div class="d-grid grid-cols-1 md:grid-cols-2 gap-4">
+								<div class="stack-sm">
+									<label class="form-label text-xs font-bold text-primary mb-1.5 d-block">عنوان الإعلان (عربي) *</label>
+									<input
+										type="text"
+										name="title_ar"
+										x-model="titleAr"
+										required
+										placeholder="مثال: خصم استثنائي على أوجمنتين 1 جم"
+										class="form-input text-xs font-bold"
+									/>
+								</div>
+								<div class="stack-sm">
+									<label class="form-label text-xs font-bold text-primary mb-1.5 d-block">عنوان الإعلان (إنجليزي)</label>
+									<input
+										type="text"
+										name="title_en"
+										x-model="titleEn"
+										placeholder="e.g. Special Discount on Augmentin 1g"
+										class="form-input text-xs font-bold"
+										dir="ltr"
+									/>
+								</div>
+							</div>
+
+							<div class="d-grid grid-cols-1 md:grid-cols-2 gap-4">
+								<div class="stack-sm">
+									<label class="form-label text-xs font-bold text-primary mb-1.5 d-block">نص الإعلان والرسالة الترويجية (عربي)</label>
+									<textarea
+										name="ad_text_ar"
+										x-model="adTextAr"
+										rows="2"
+										placeholder="اكتب رسالتك الترويجية الموجهة للصيدليات..."
+										class="form-input text-xs"
+									></textarea>
+								</div>
+								<div class="stack-sm">
+									<label class="form-label text-xs font-bold text-primary mb-1.5 d-block">نص الإعلان (إنجليزي)</label>
+									<textarea
+										name="ad_text_en"
+										x-model="adTextEn"
+										rows="2"
+										placeholder="Promotional copy in English..."
+										class="form-input text-xs"
+										dir="ltr"
+									></textarea>
+								</div>
+							</div>
+						</div>
+
+						<!-- STEP 4: Credit Summary & Final Confirmation -->
+						<div x-show="step === 4" class="d-flex flex-col gap-4">
+							<div class="p-5 bg-surface-sunken border border-slate-200/80 rounded-2xl">
+								<div class="flex-between items-center mb-3.5 pb-2.5 border-b border-slate-200/80">
+									<div class="d-flex items-center gap-2">
+										@components.IconZap("icon-xs text-amber-500")
+										<span class="font-black text-xs text-primary">تفاصيل وحساب تكلفة الإعلان</span>
+									</div>
+									<span class="badge badge-emerald font-black text-xs tabular-nums">تكلفة الإعلان: 2 رصيد</span>
+								</div>
+
+								<div class="d-grid grid-cols-1 md:grid-cols-3 gap-3 text-center">
+									<div class="p-3 bg-white rounded-xl border border-slate-200/70">
+										<span class="text-2xs text-muted font-semibold d-block">رصيد الرعايات المتاح</span>
+										<strong class="text-lg font-black text-primary tabular-nums" x-text="totalCredits + ' رصيد'"></strong>
+									</div>
+									<div class="p-3 bg-white rounded-xl border border-slate-200/70">
+										<span class="text-2xs text-muted font-semibold d-block">تكلفة هذا الإعلان</span>
+										<strong class="text-lg font-black text-amber-600 tabular-nums">- 2 رصيد</strong>
+									</div>
+									<div class="p-3 bg-white rounded-xl border border-slate-200/70">
+										<span class="text-2xs text-muted font-semibold d-block">الرصيد المتبقي بعد النشر</span>
+										<strong
+											class="text-lg font-black tabular-nums"
+											:class="totalCredits >= 2 ? 'text-emerald-600' : 'text-rose-600'"
+											x-text="(totalCredits - 2 >= 0 ? (totalCredits - 2) : 0) + ' رصيد'"
+										></strong>
+									</div>
+								</div>
+							</div>
+
+							<!-- Insufficient Credits Warning Alert -->
+							<template x-if="totalCredits < 2">
+								<div class="p-4 bg-rose-50 border border-rose-200 rounded-2xl d-flex items-center justify-between gap-4 flex-wrap">
+									<div class="d-flex items-center gap-2.5 text-rose-800">
+										@components.IconAlertTriangle("icon-sm text-rose-600 flex-shrink-0")
+										<div class="stack-sm">
+											<strong class="text-xs font-black d-block">رصيدك الحالي غير كافٍ لإنشاء الإعلان</strong>
+											<span class="text-xs mt-0.5">يتطلب إنشاء ونشر الإعلان الترويجي توفر 2 رصيد رعاية على الأقل من باقة مفعلة.</span>
+										</div>
+									</div>
+									<a
+										href="/vendor/sponsorship-requests"
+										class="btn btn-primary btn-xs font-black px-4 shadow-sm"
+									>
+										شراء باقة رعاية وشحن الرصيد
+									</a>
+								</div>
+							</template>
+
+							<!-- Summary Confirmation Box -->
+							<div class="p-4 bg-slate-50 border border-slate-200 rounded-2xl text-xs text-secondary font-medium d-flex flex-col gap-2">
+								<div class="d-flex justify-between">
+									<span>الصنف المختار:</span>
+									<strong class="text-primary font-black" x-text="selectedProduct ? (selectedProduct.name_ar || selectedProduct.name_en) : '—'"></strong>
+								</div>
+								<div class="d-flex justify-between">
+									<span>الموضع المختار:</span>
+									<strong class="text-primary font-bold" x-text="placement"></strong>
+								</div>
+								<div class="d-flex justify-between">
+									<span>عنوان الإعلان:</span>
+									<strong class="text-primary font-bold" x-text="titleAr"></strong>
+								</div>
+								<div class="d-flex justify-between">
+									<span>مدة الحملة:</span>
+									<strong class="text-primary font-bold" x-text="durationDays + ' يوماً'"></strong>
+								</div>
+							</div>
+						</div>
+					</div>
+
+					<!-- Modal Bottom Navigation Footer -->
+					<div class="modal-footer p-4 border-t border-slate-100 bg-slate-50/70 flex-between items-center">
+						<div>
+							<button
+								type="button"
+								x-show="step > 1"
+								@click="prevStep()"
+								class="btn btn-secondary btn-sm font-bold gap-1.5 shadow-2xs"
+							>
+								@components.IconArrowRight("icon-xs")
+								<span>السابق</span>
+							</button>
+						</div>
+
+						<div class="d-flex items-center gap-2">
+							<button
+								type="button"
+								@click="resetWizard()"
+								class="btn btn-ghost btn-sm text-secondary font-bold"
+							>
+								إلغاء
+							</button>
+
+							<!-- Next Step Button (Steps 1 to 3) -->
+							<button
+								type="button"
+								x-show="step < 4"
+								@click="nextStep()"
+								:disabled="(step === 1 && !selectedProduct) || (step === 3 && !titleAr)"
+								class="btn btn-primary btn-sm font-black px-6 shadow-sm gap-1.5"
+							>
+								<span>التالي</span>
+								@components.IconArrowLeft("icon-xs")
+							</button>
+
+							<!-- Final Submit Button (Step 4) -->
+							<button
+								type="submit"
+								x-show="step === 4"
+								:disabled="totalCredits < 2 || !selectedProduct || !titleAr"
+								class="btn btn-primary btn-sm font-black px-8 shadow-sm gap-2"
+							>
+								@components.IconCheck("icon-xs")
+								<span>تأكيد وخصم 2 رصيد وإرسال الإعلان للمراجعة</span>
+							</button>
+						</div>
+					</div>
+				</form>
+			</div>
+		</div>
+	</div>
+}
