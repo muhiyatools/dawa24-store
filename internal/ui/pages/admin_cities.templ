@@ -167,8 +167,8 @@ templ AdminCities(data AdminCitiesData, lang string, dir string, isHTMX bool) {
 			<!-- Filter Bar -->
 			<div class="glass-panel p-4 mb-6">
 				<form method="GET" action="/admin/cities" class="d-flex flex-wrap items-center justify-between gap-3 m-0">
-					<div class="d-flex flex-wrap items-center gap-3 flex-1" style="min-width: 280px;">
-						<div style="min-width: 200px; flex: 1;">
+					<div class="d-flex flex-wrap items-center gap-3 flex-1 min-w-72">
+						<div class="flex-1 min-w-48">
 							<select name="gov_id" onchange="this.form.submit()" class="form-input text-xs w-full font-bold">
 								<option value="0">كل المحافظات (عرض جميع المدن)</option>
 								for _, g := range data.Governorates {
@@ -185,7 +185,7 @@ templ AdminCities(data AdminCitiesData, lang string, dir string, isHTMX bool) {
 							</select>
 						</div>
 
-						<div style="min-width: 220px; flex: 1.5;">
+						<div class="flex-1 min-w-56">
 							<input
 								type="text"
 								name="q"
@@ -220,7 +220,7 @@ templ AdminCities(data AdminCitiesData, lang string, dir string, isHTMX bool) {
 			</div>
 
 			<!-- Main Content Grid: Table on Left (1.8fr), Forms on Right (1.2fr) -->
-			<div style="display: grid; grid-template-columns: 1.8fr 1.2fr; gap: 1.5rem; align-items: start;" class="cities-layout-grid">
+			<div class="cities-layout-grid">
 				
 				<!-- Left: Cities Table -->
 				<div class="glass-panel p-0 mb-6 overflow-hidden">
@@ -355,8 +355,7 @@ templ AdminCities(data AdminCitiesData, lang string, dir string, isHTMX bool) {
 						<div class="d-flex items-center gap-2 text-xs text-secondary">
 							<span>صفوف لكل صفحة:</span>
 							<select
-								class="form-input text-xs py-1 px-2"
-								style="width: auto;"
+								class="form-input text-xs py-1 px-2 w-auto"
 								onchange="location.href=this.value"
 							>
 								<option value={ templ.SafeURL(fmt.Sprintf("/admin/cities?gov_id=%d&q=%s&limit=10&page=1", data.SelectedGovernorateID, data.Query)) } selected?={ data.Limit == 10 }>10</option>
@@ -466,7 +465,7 @@ templ AdminCities(data AdminCitiesData, lang string, dir string, isHTMX bool) {
 									data-default-lon="31.2357"
 									class="rounded-xl overflow-hidden border bg-surface-sunken position-relative shadow-xs"
 								>
-									<div class="map-container map-canvas" style="height:230px; width:100%; z-index:1;"></div>
+									<div class="map-container map-canvas h-56 w-full relative z-1"></div>
 									<div class="flex-between p-2 bg-surface-raised border-t text-xs flex-wrap gap-2">
 										<div class="d-flex items-center gap-1.5">
 											<span class="text-secondary font-bold">الإحداثيات:</span>
@@ -537,7 +536,7 @@ templ AdminCities(data AdminCitiesData, lang string, dir string, isHTMX bool) {
 									data-default-lon="31.2357"
 									class="rounded-xl overflow-hidden border bg-surface-sunken position-relative shadow-xs"
 								>
-									<div class="map-container map-canvas" style="height:200px; width:100%; z-index:1;"></div>
+									<div class="map-container map-canvas h-48 w-full relative z-1"></div>
 									<div class="flex-between p-2 bg-surface-raised border-t text-xs flex-wrap gap-2">
 										<div class="d-flex items-center gap-1.5">
 											<span class="text-secondary font-bold">الإحداثيات:</span>
@@ -575,21 +574,19 @@ templ AdminCities(data AdminCitiesData, lang string, dir string, isHTMX bool) {
 								المحافظات المعتمدة ({ fmt.Sprintf("%d", len(data.Governorates)) })
 							</h4>
 						</div>
-						<div class="d-flex flex-wrap gap-1.5" style="max-height: 220px; overflow-y: auto;">
+						<div class="d-flex flex-wrap gap-1.5 max-h-56 overflow-y-auto">
 							for _, g := range data.Governorates {
 								<div class="d-inline-flex items-center gap-1 bg-surface-sunken p-1 rounded-lg border">
 									<a
 										href={ templ.SafeURL(fmt.Sprintf("/admin/cities?gov_id=%d", g.ID)) }
-										class={ "badge text-xs", templ.KV("badge-primary", data.SelectedGovernorateID == g.ID), templ.KV("badge-slate", data.SelectedGovernorateID != g.ID) }
-										style="text-decoration: none; cursor: pointer; padding: 0.35rem 0.6rem;"
+										class={ "badge text-xs no-underline cursor-pointer py-1 px-2.5", templ.KV("badge-primary", data.SelectedGovernorateID == g.ID), templ.KV("badge-slate", data.SelectedGovernorateID != g.ID) }
 									>
 										<span>{ g.Name["ar"] }</span>
 										<span class="tabular-nums opacity-75 font-mono">({ fmt.Sprintf("%d", g.CityCount) })</span>
 									</a>
 									<button
 										type="button"
-										class="btn btn-ghost btn-2xs"
-										style="padding: 0.2rem 0.35rem; font-size: 0.7rem;"
+										class="btn btn-ghost btn-2xs p-1 text-2xs"
 										title="تعديل المحافظة على الخريطة"
 										@click={ fmt.Sprintf("openGovEdit(%d, %q, %q, %f, %f, %t)", g.ID, g.Name["ar"], g.Name["en"], g.Latitude, g.Longitude, g.IsActive) }
 									>
@@ -607,13 +604,11 @@ templ AdminCities(data AdminCitiesData, lang string, dir string, isHTMX bool) {
 			<div
 				x-show="isEditOpen"
 				x-cloak
-				class="modal-backdrop"
-				style="position: fixed; inset: 0; z-index: 9999; display: flex; align-items: center; justify-content: center; background: rgba(15, 23, 42, 0.7); backdrop-filter: blur(4px); padding: 1rem;"
+				class="modal-backdrop fixed inset-0 z-modal flex-center bg-black/70 backdrop-blur-sm p-4"
 				@click.self="closeEdit()"
 			>
 				<div
-					class="glass-panel p-6 w-full"
-					style="max-width: 540px; max-height: 90vh; overflow-y: auto; box-shadow: var(--shadow-2xl); border-radius: var(--radius-2xl);"
+					class="glass-panel p-6 w-full max-w-lg max-h-[90vh] overflow-y-auto shadow-2xl rounded-2xl"
 					@click.stop
 				>
 					<div class="flex-between items-center pb-3 mb-4 border-b">
@@ -678,7 +673,7 @@ templ AdminCities(data AdminCitiesData, lang string, dir string, isHTMX bool) {
 								data-default-lon="31.2357"
 								class="rounded-xl overflow-hidden border bg-surface-sunken position-relative shadow-xs mb-2"
 							>
-								<div class="map-container map-canvas" style="height:220px; width:100%; z-index:1;"></div>
+								<div class="map-container map-canvas h-56 w-full relative z-1"></div>
 								<div class="flex-between p-2 bg-surface-raised border-t text-xs flex-wrap gap-2">
 									<div class="d-flex items-center gap-1.5">
 										<span class="text-secondary font-bold">الإحداثيات المحددة:</span>
@@ -737,13 +732,11 @@ templ AdminCities(data AdminCitiesData, lang string, dir string, isHTMX bool) {
 			<div
 				x-show="isGovEditOpen"
 				x-cloak
-				class="modal-backdrop"
-				style="position: fixed; inset: 0; z-index: 9999; display: flex; align-items: center; justify-content: center; background: rgba(15, 23, 42, 0.7); backdrop-filter: blur(4px); padding: 1rem;"
+				class="modal-backdrop fixed inset-0 z-modal flex-center bg-black/70 backdrop-blur-sm p-4"
 				@click.self="closeGovEdit()"
 			>
 				<div
-					class="glass-panel p-6 w-full"
-					style="max-width: 540px; max-height: 90vh; overflow-y: auto; box-shadow: var(--shadow-2xl); border-radius: var(--radius-2xl);"
+					class="glass-panel p-6 w-full max-w-lg max-h-[90vh] overflow-y-auto shadow-2xl rounded-2xl"
 					@click.stop
 				>
 					<div class="flex-between items-center pb-3 mb-4 border-b">
@@ -789,7 +782,7 @@ templ AdminCities(data AdminCitiesData, lang string, dir string, isHTMX bool) {
 								data-default-lon="31.2357"
 								class="rounded-xl overflow-hidden border bg-surface-sunken position-relative shadow-xs mb-2"
 							>
-								<div class="map-container map-canvas" style="height:210px; width:100%; z-index:1;"></div>
+								<div class="map-container map-canvas h-52 w-full relative z-1"></div>
 								<div class="flex-between p-2 bg-surface-raised border-t text-xs flex-wrap gap-2">
 									<div class="d-flex items-center gap-1.5">
 										<span class="text-secondary font-bold">الإحداثيات:</span>

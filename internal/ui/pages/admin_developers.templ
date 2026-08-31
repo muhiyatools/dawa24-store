@@ -94,18 +94,18 @@ templ AdminDevelopersPage(values AdminDevelopersValues, lang, dir string) {
 			<div x-show="activeTab === 'sql'" class="stack-lg" x-data="adminSQLManager()" x-cloak>
 				
 				<div class="card mb-0">
-					<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem; border-bottom:1px solid var(--border); padding-bottom:0.75rem; flex-wrap:wrap; gap:0.5rem;">
+					<div class="flex-between items-center mb-4 pb-3 border-b flex-wrap gap-2">
 						<div>
-							<h3 class="card-title" style="margin:0; font-size:1.15rem; font-weight:800;">
+							<h3 class="card-title m-0 text-lg font-black">
 								وحدة استعلامات SQL التفاعلية
 							</h3>
-							<p style="font-size:0.8rem; color:var(--text-secondary); margin:0.15rem 0 0 0;">
+							<p class="text-xs text-secondary mt-0.5 mb-0">
 								تنفيذ استعلامات قواعد البيانات المباشرة وعرض النتائج ومعدل زمن الاستجابة
 							</p>
 						</div>
 
 						<!-- Quick Query Presets -->
-						<div style="display:flex; gap:0.4rem; flex-wrap:wrap;">
+						<div class="d-flex gap-1.5 flex-wrap">
 							<button type="button" @click="setQuery('SELECT id, name, type, status, created_at FROM org.organizations ORDER BY id DESC LIMIT 10;')" class="btn btn-secondary btn-xs">منظمات</button>
 							<button type="button" @click="setQuery('SELECT id, name, generic_name, dosage_form, status FROM catalog.products LIMIT 10;')" class="btn btn-secondary btn-xs">أصناف</button>
 							<button type="button" @click="setQuery('SELECT id, status, total_amount, currency, created_at FROM commerce.orders ORDER BY id DESC LIMIT 10;')" class="btn btn-secondary btn-xs">طلبيات</button>
@@ -119,20 +119,19 @@ templ AdminDevelopersPage(values AdminDevelopersValues, lang, dir string) {
 								x-model="sqlQuery"
 								rows="5"
 								required
-								class="form-input"
+								class="form-input font-mono text-sm leading-relaxed bg-slate-900 text-sky-400 border-slate-700"
 								dir="ltr"
-								style="font-family:monospace; font-size:0.9rem; line-height:1.5; background:#0f172a; color:#38bdf8; border-color:#334155;"
 								placeholder="SELECT * FROM catalog.products LIMIT 10;"
 							></textarea>
 						</div>
 
 						<div class="flex-between flex-wrap gap-3">
-							<div style="font-size:0.775rem; color:var(--text-muted);">
+							<div class="text-xs text-muted">
 								الاستعلامات مسجلة وموثقة في سجل المطورين الزمني.
 							</div>
 							<div class="row-center-sm">
 								<button type="button" @click="sqlQuery = ''" class="btn btn-secondary btn-sm">مسح</button>
-								<button type="submit" class="btn btn-primary" style="font-weight:800; padding:0.5rem 1.75rem;" :disabled="isRunning">
+								<button type="submit" class="btn btn-primary font-bold px-6 py-2" :disabled="isRunning">
 									<span x-show="!isRunning">▶ تنفيذ الاستعلام (Execute)</span>
 									<span x-show="isRunning">جاري التنفيذ...</span>
 								</button>
@@ -141,10 +140,10 @@ templ AdminDevelopersPage(values AdminDevelopersValues, lang, dir string) {
 					</form>
 
 					<!-- Query Output Area -->
-					<div x-show="queryExecuted" style="margin-top:1.5rem; border-top:1px solid var(--border); padding-top:1.25rem;">
+					<div x-show="queryExecuted" class="mt-6 pt-5 border-t">
 						
 						<!-- Execution Summary Pill -->
-						<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.75rem; flex-wrap:wrap; gap:0.5rem;">
+						<div class="flex-between items-center mb-3 flex-wrap gap-2">
 							<div class="row-center-sm">
 								<template x-if="!queryResult.error">
 									<span class="badge badge-emerald">نجاح التنفيذ</span>
@@ -159,15 +158,15 @@ templ AdminDevelopersPage(values AdminDevelopersValues, lang, dir string) {
 
 						<!-- Error Display if any -->
 						<template x-if="queryResult.error">
-							<div style="background:rgba(239, 68, 68, 0.1); border:1px solid var(--danger); border-radius:var(--radius-lg); padding:1rem; color:var(--danger-text); font-family:monospace; font-size:0.85rem; direction:ltr; text-align:left; overflow-x:auto;" x-text="queryResult.error"></div>
+							<div class="bg-danger-subtle border border-danger rounded-xl p-4 text-danger font-mono text-sm text-start overflow-x-auto" dir="ltr" x-text="queryResult.error"></div>
 						</template>
 
 						<!-- Results Table -->
 						<template x-if="!queryResult.error && queryResult.columns && queryResult.columns.length > 0">
-							<div class="table-container m-0" style="max-height:400px; overflow-y:auto;">
-								<table class="data-table m-0" style="font-family:monospace; font-size:0.8rem;">
+							<div class="table-container m-0 max-h-96 overflow-y-auto">
+								<table class="data-table m-0 font-mono text-xs">
 									<thead>
-										<tr style="position:sticky; top:0; z-index:1;">
+										<tr class="sticky top-0 z-1">
 											<template x-for="col in queryResult.columns" :key="col">
 												<th x-text="col"></th>
 											</template>
@@ -177,7 +176,7 @@ templ AdminDevelopersPage(values AdminDevelopersValues, lang, dir string) {
 										<template x-for="(row, rIdx) in queryResult.rows" :key="rIdx">
 											<tr>
 												<template x-for="(cell, cIdx) in row" :key="cIdx">
-													<td style="max-width:280px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;" x-text="cell"></td>
+													<td class="max-w-xs truncate nowrap" x-text="cell"></td>
 												</template>
 											</tr>
 										</template>
@@ -204,25 +203,25 @@ templ AdminDevelopersPage(values AdminDevelopersValues, lang, dir string) {
 						</div>
 					} else {
 						<div class="table-container m-0">
-							<table class="data-table m-0" style="font-size:0.8rem;">
+							<table class="data-table m-0 text-xs">
 								<thead>
 									<tr>
-										<th style="width:18%;">التوقيت والمستخدم</th>
-										<th style="width:52%;">نص الاستعلام (SQL Query)</th>
-										<th style="width:10%;" class="text-center">المدة (ms)</th>
-										<th style="width:10%;" class="text-center">الصفوف</th>
-										<th style="width:10%;" class="text-center">الحالة</th>
+										<th class="w-1/5">التوقيت والمستخدم</th>
+										<th class="w-1/2">نص الاستعلام (SQL Query)</th>
+										<th class="text-center w-24">المدة (ms)</th>
+										<th class="text-center w-20">الصفوف</th>
+										<th class="text-center w-24">الحالة</th>
 									</tr>
 								</thead>
 								<tbody>
 									for _, log := range values.SQLLogs {
 										<tr>
 											<td class="text-start">
-												<div class="tabular-nums fw-700 text-primary">{ log.CreatedAt.Format("2006-01-02 15:04:05") }</div>
-												<div style="font-size:0.725rem; color:var(--text-muted);">{ log.ActorName }</div>
+												<div class="tabular-nums font-bold text-primary">{ log.CreatedAt.Format("2006-01-02 15:04:05") }</div>
+												<div class="text-xs text-muted">{ log.ActorName }</div>
 											</td>
 											<td class="text-start">
-												<code style="background:var(--surface-sunken); padding:0.2rem 0.5rem; border-radius:var(--radius-sm); font-family:monospace; display:block; max-width:500px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;" dir="ltr">{ log.Query }</code>
+												<code class="bg-surface-sunken p-1 rounded font-mono block max-w-lg truncate" dir="ltr">{ log.Query }</code>
 											</td>
 											<td class="text-center tabular-nums">
 												<span>{ fmt.Sprintf("%d", log.DurationMS) } ms</span>
@@ -258,16 +257,16 @@ templ AdminDevelopersPage(values AdminDevelopersValues, lang, dir string) {
 			>
 				
 				<div class="card mb-0">
-					<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.25rem; border-bottom:1px solid var(--border); padding-bottom:0.75rem;">
+					<div class="flex-between items-center mb-5 pb-3 border-b">
 						<div class="row-center">
 							<div class="b2b-icon-box">
 								@components.IconSparkles("icon-sm")
 							</div>
 							<div>
-								<h3 class="card-title" style="margin:0; font-size:1.15rem; font-weight:800;">
+								<h3 class="card-title m-0 text-lg font-black">
 									بوابة الذكاء الاصطناعي (AI Gateway — api.muhiya.com)
 								</h3>
-								<p style="font-size:0.8rem; color:var(--text-secondary); margin:0.15rem 0 0 0;">
+								<p class="text-xs text-secondary mt-0.5 mb-0">
 									إدارة نقطة النهاية (Endpoint)، ومزامنة باقات الذكاء الاصطناعي مع خطط الاشتراك الموحدة.
 								</p>
 							</div>
@@ -286,8 +285,8 @@ templ AdminDevelopersPage(values AdminDevelopersValues, lang, dir string) {
 						  host on every management call, so the operator has to be
 						  told even though they are not the one who typed it.
 						-->
-						<div style="background:rgba(220, 38, 38, 0.08); border:1px solid rgba(220, 38, 38, 0.35); border-radius:var(--radius-lg); padding:0.9rem 1.1rem; font-size:0.85rem; line-height:1.6;">
-							<strong style="color:var(--danger, #dc2626); display:block; margin-bottom:0.3rem;">بيانات الاعتماد المحفوظة تبدو غير صحيحة</strong>
+						<div class="bg-danger-subtle border border-danger rounded-xl p-4 text-sm leading-relaxed">
+							<strong class="text-danger block mb-1">بيانات الاعتماد المحفوظة تبدو غير صحيحة</strong>
 							<span class="text-secondary">
 								القيمة المحفوظة في حقل بيانات اعتماد المدير تطابق شكل بيانات اتصال قاعدة بيانات، وليست بيانات اعتماد بوابة الذكاء الاصطناعي.
 								<strong>تُرسل هذه القيمة إلى خادم البوابة الخارجي عند كل عملية مزامنة أو استعلام.</strong>
@@ -297,8 +296,8 @@ templ AdminDevelopersPage(values AdminDevelopersValues, lang, dir string) {
 					}
 
 					<!-- Informational Architecture Alert -->
-					<div style="background:rgba(56, 189, 248, 0.06); border:1px solid rgba(56, 189, 248, 0.2); border-radius:var(--radius-lg); padding:0.9rem 1.1rem; font-size:0.825rem; line-height:1.5;">
-						<strong style="color:var(--primary); display:block; margin-bottom:0.25rem;">ℹ️ مبدأ عمل وعزل الذكاء الاصطناعي للمنشآت:</strong>
+					<div class="bg-sky-subtle border border-sky-500/20 rounded-xl p-4 text-xs leading-relaxed">
+						<strong class="text-primary block mb-1">ℹ️ مبدأ عمل وعزل الذكاء الاصطناعي للمنشآت:</strong>
 						<span class="text-secondary">
 							مفتاح الربط والمصادقة هنا يُستخدم فقط من قِبل إدارة منصة دواء 24 لمزامنة الباقات وتوليد مفاتيح المنشآت. جميع طلبات الذكاء الاصطناعي للمنشآت والمستخدمين تعمل تلقائياً باستخدام <strong>المفتاح الافتراضي المخصص لكل منشأة (Organization Virtual Key)</strong> وبناءً على خطة اشتراكها وحصتها المحددة في باقات الاشتراك الموحدة.
 						</span>
@@ -307,7 +306,7 @@ templ AdminDevelopersPage(values AdminDevelopersValues, lang, dir string) {
 					<form action="/admin/developers/ai" method="POST" class="stack-lg">
 						
 						<!-- Gateway Endpoint -->
-						<div style="display:grid; grid-template-columns:1.5fr 1fr; gap:1rem;">
+						<div class="d-grid grid-cols-2 gap-4">
 							<div class="form-group m-0">
 								<label class="form-label">رابط بوابة الذكاء الاصطناعي (Gateway Endpoint URL) *</label>
 								<input
@@ -331,7 +330,7 @@ templ AdminDevelopersPage(values AdminDevelopersValues, lang, dir string) {
 						</div>
 
 						<!-- Admin Credentials (Username & Password) -->
-						<div style="display:grid; grid-template-columns:1fr 1.5fr; gap:1rem;">
+						<div class="d-grid grid-cols-2 gap-4">
 							<div class="form-group m-0">
 								<label class="form-label">اسم مستخدم مدير البوابة (Admin Username) *</label>
 								<input
@@ -347,26 +346,25 @@ templ AdminDevelopersPage(values AdminDevelopersValues, lang, dir string) {
 
 							<div class="form-group m-0">
 								<label class="form-label">كلمة مرور مدير البوابة (ADMIN_PASSWORD) *</label>
-								<div style="position:relative; display:flex; align-items:center;">
+								<div class="relative d-flex items-center">
 									<input
 										:type="showKey ? 'text' : 'password'"
 										name="api_key"
 										x-model="gatewayKey"
-										class="form-input"
+										class="form-input pe-12"
 										dir="ltr"
 										placeholder="أدخل كلمة مرور تسجيل الدخول للوحة البوابة..."
-										style="padding-inline-end:3rem;"
 									/>
 									<button
 										type="button"
 										@click="showKey = !showKey"
-										style="position:absolute; inset-inline-end:0.75rem; background:none; border:none; color:var(--text-muted); cursor:pointer; font-size:0.8rem; font-weight:700;"
+										class="absolute end-3 bg-transparent border-0 text-muted cursor-pointer text-xs font-bold"
 										x-text="showKey ? 'إخفاء' : 'إظهار'"
 									></button>
 								</div>
 							</div>
 						</div>
-						<p style="font-size:0.75rem; color:var(--text-muted); margin:-0.5rem 0 0 0;">
+						<p class="text-xs text-muted -mt-2 mb-0">
 							أدخل نفس بيانات تسجيل الدخول التي تستخدمها للدخول إلى لوحة البوابة <code>/admin/</code> (المحددة في ADMIN_PASSWORD بسيرفر البوابة).
 						</p>
 
@@ -382,7 +380,7 @@ templ AdminDevelopersPage(values AdminDevelopersValues, lang, dir string) {
 									dir="ltr"
 									placeholder="qwen3.7-flash"
 								/>
-								<span style="font-size:0.72rem; color:var(--text-muted);">
+								<span class="text-xs text-muted">
 									يُستخدم في مطابقة الأصناف وتوسيع البحث.
 								</span>
 							</div>
@@ -396,41 +394,40 @@ templ AdminDevelopersPage(values AdminDevelopersValues, lang, dir string) {
 									dir="ltr"
 									placeholder="qwen3.7-flash"
 								/>
-								<span style="font-size:0.72rem; color:var(--text-muted);">
+								<span class="text-xs text-muted">
 									يُستخدم في استكمال بيانات الأصناف أثناء الاستيراد.
 								</span>
 							</div>
 						</div>
-						<p style="font-size:0.75rem; color:var(--text-muted); margin:-0.5rem 0 0 0;">
+						<p class="text-xs text-muted -mt-2 mb-0">
 							اتركهما فارغين لاستخدام النموذج الافتراضي. يجب أن يكون الاسم مطابقاً لما تنشره البوابة.
 						</p>
 
-						<div style="padding:0.75rem 1rem; border:1px solid var(--border); border-radius:var(--radius-md); background:var(--surface-sunken);">
-							<div style="font-size:0.8rem; font-weight:700; margin-bottom:0.25rem;">
+						<div class="p-4 border rounded-lg bg-surface-sunken">
+							<div class="text-sm font-bold mb-1">
 								مفتاح لوحة التحكم (Admin Panel Key)
 							</div>
 							if values.GatewaySettings.VirtualKey != "" {
-								<div style="font-size:0.78rem; color:var(--success, #10b981);">
+								<div class="text-xs text-success font-bold">
 									تم إنشاؤه تلقائياً — المستخدم:
 									<code dir="ltr">{ values.GatewaySettings.AIUserID }</code>
 								</div>
 							} else {
-								<div style="font-size:0.78rem; color:var(--text-muted);">
+								<div class="text-xs text-muted">
 									سيتم إنشاؤه تلقائياً من بيانات مدير البوابة أعلاه عند أول استخدام للذكاء الاصطناعي.
 								</div>
 							}
-							<div style="font-size:0.72rem; color:var(--text-muted); margin-top:0.35rem;">
+							<div class="text-xs text-muted mt-1">
 								هذا المفتاح مستقل عن مفاتيح المنشآت، ويُستخدم لعمليات المنصة نفسها مثل استيراد الكتالوج.
 							</div>
 						</div>
 
 						<!-- Test Connection & Role Breakdown -->
-						<div style="display:grid; grid-template-columns:1.2fr 1fr; gap:1rem; align-items:start;">
+						<div class="d-grid grid-cols-2 gap-4 items-start">
 							<div>
 								<button
 									type="button"
-									class="btn btn-secondary"
-									style="width:100%; font-weight:700; height:42px; justify-content:center; gap:0.4rem;"
+									class="btn btn-secondary w-full font-bold h-11 justify-center gap-1.5"
 									@click="testConnection()"
 									:disabled="isTesting"
 								>
@@ -438,14 +435,14 @@ templ AdminDevelopersPage(values AdminDevelopersValues, lang, dir string) {
 									<span x-show="!isTesting">اختبار الاتصال بالبوابة (Live Test)</span>
 									<span x-show="isTesting">جاري فحص الاتصال...</span>
 								</button>
-								<div x-show="testResult" style="margin-top:0.5rem;" x-cloak>
-									<div :class="testResult && testResult.status === 'healthy' ? 'badge badge-emerald' : badge-rose'" style="width:100%; padding:0.5rem; justify-content:center; font-weight:700;" x-text="testResult ? testResult.message : ''"></div>
+								<div x-show="testResult" class="mt-2" x-cloak>
+									<div :class="testResult && testResult.status === 'healthy' ? 'badge badge-emerald' : 'badge badge-rose'" class="w-full p-2 justify-center font-bold" x-text="testResult ? testResult.message : ''"></div>
 								</div>
 							</div>
 
-							<div style="background:var(--surface-sunken); border:1px solid var(--border); border-radius:var(--radius-lg); padding:0.75rem; font-size:0.8rem;">
-								<div style="font-weight:700; color:var(--text); margin-bottom:0.35rem;">أدوار النماذج المعتمدة بالمنظومة:</div>
-								<div style="display:flex; flex-direction:column; gap:0.25rem; color:var(--text-secondary); font-size:0.75rem;">
+							<div class="bg-surface-sunken border rounded-xl p-3 text-xs">
+								<div class="font-bold text-primary mb-1">أدوار النماذج المعتمدة بالمنظومة:</div>
+								<div class="d-flex flex-col gap-1 text-secondary">
 									<div>• <strong>المحادثة الأساسية:</strong> <code>assistant.primary</code></div>
 									<div>• <strong>تحليل المرفقات:</strong> <code>assistant.attachment</code></div>
 									<div>• <strong>التفريغ الصوتي:</strong> <code>assistant.transcribe</code></div>
@@ -462,8 +459,8 @@ templ AdminDevelopersPage(values AdminDevelopersValues, lang, dir string) {
 							}
 						</div>
 
-						<div style="display:flex; justify-content:flex-end; border-top:1px solid var(--border); padding-top:1rem;">
-							<button type="submit" class="btn btn-primary" style="font-weight:800; padding:0.6rem 2rem;">
+						<div class="d-flex justify-end border-t pt-4">
+							<button type="submit" class="btn btn-primary font-bold px-8 py-2.5">
 								@components.IconCheck("icon-xs")
 								<span>حفظ إعدادات بوابة الذكاء الاصطناعي</span>
 							</button>
@@ -479,58 +476,57 @@ templ AdminDevelopersPage(values AdminDevelopersValues, lang, dir string) {
 			<div x-show="activeTab === 'errors'" class="stack-lg" x-data="adminErrorsManager()" x-cloak>
 				
 				<!-- Diagnostics Header Strip & Metrics -->
-				<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:1rem;">
-					<div class="card" style="margin-bottom:0; padding:1.25rem; border-inline-start:4px solid var(--accent);">
-						<div style="font-size:0.775rem; font-weight:700; color:var(--text-muted);">إجمالي الاستثناءات المسجلة</div>
-						<div style="font-size:1.75rem; font-weight:800; color:var(--text); margin-top:0.25rem;" class="tabular-nums">
+				<div class="dashboard-stat-grid mb-4">
+					<div class="card mb-0 p-5 border-s-4 border-s-accent">
+						<div class="text-xs font-bold text-muted">إجمالي الاستثناءات المسجلة</div>
+						<div class="text-2xl font-black text-primary mt-1 tabular-nums">
 							{ fmt.Sprintf("%d", values.ErrorMetrics.Total) }
 						</div>
-						<div style="font-size:0.725rem; color:var(--text-muted); margin-top:0.15rem;">سجل تشخيصي شامل</div>
+						<div class="text-xs text-muted mt-0.5">سجل تشخيصي شامل</div>
 					</div>
 
-					<div class="card" style="margin-bottom:0; padding:1.25rem; border-inline-start:4px solid var(--danger);">
-						<div style="font-size:0.775rem; font-weight:700; color:var(--text-muted);">أخطاء حرجة (24 ساعة)</div>
-						<div style="font-size:1.75rem; font-weight:800; color:var(--danger); margin-top:0.25rem;" class="tabular-nums">
+					<div class="card mb-0 p-5 border-s-4 border-s-danger">
+						<div class="text-xs font-bold text-muted">أخطاء حرجة (24 ساعة)</div>
+						<div class="text-2xl font-black text-danger mt-1 tabular-nums">
 							{ fmt.Sprintf("%d", values.ErrorMetrics.Critical24h) }
 						</div>
-						<div style="font-size:0.725rem; color:var(--text-muted); margin-top:0.15rem;">تتطلب تدخلاً فورياً</div>
+						<div class="text-xs text-muted mt-0.5">تتطلب تدخلاً فورياً</div>
 					</div>
 
-					<div class="card" style="margin-bottom:0; padding:1.25rem; border-inline-start:4px solid var(--warning);">
-						<div style="font-size:0.775rem; font-weight:700; color:var(--text-muted);">أخطاء قيد المتابعة</div>
-						<div style="font-size:1.75rem; font-weight:800; color:var(--warning); margin-top:0.25rem;" class="tabular-nums">
+					<div class="card mb-0 p-5 border-s-4 border-s-warning">
+						<div class="text-xs font-bold text-muted">أخطاء قيد المتابعة</div>
+						<div class="text-2xl font-black text-warning mt-1 tabular-nums">
 							{ fmt.Sprintf("%d", values.ErrorMetrics.Unresolved) }
 						</div>
-						<div style="font-size:0.725rem; color:var(--text-muted); margin-top:0.15rem;">حالة New أو Investigating</div>
+						<div class="text-xs text-muted mt-0.5">حالة New أو Investigating</div>
 					</div>
 
-					<div class="card" style="margin-bottom:0; padding:1.25rem; border-inline-start:4px solid var(--success);">
-						<div style="font-size:0.775rem; font-weight:700; color:var(--text-muted);">المستخدمين المتأثرين</div>
-						<div style="font-size:1.75rem; font-weight:800; color:var(--text); margin-top:0.25rem;" class="tabular-nums">
+					<div class="card mb-0 p-5 border-s-4 border-s-success">
+						<div class="text-xs font-bold text-muted">المستخدمين المتأثرين</div>
+						<div class="text-2xl font-black text-primary mt-1 tabular-nums">
 							{ fmt.Sprintf("%d", values.ErrorMetrics.AffectedUsers) }
 						</div>
-						<div style="font-size:0.725rem; color:var(--text-muted); margin-top:0.15rem;">حسابات صادفت أخطاء</div>
+						<div class="text-xs text-muted mt-0.5">حسابات صادفت أخطاء</div>
 					</div>
 				</div>
 
 				<!-- Filter Strip -->
-				<div class="card" style="margin-bottom:0; padding:0.85rem 1.25rem;">
-					<form method="GET" action="/admin/developers" style="display:flex; gap:0.75rem; align-items:center; flex-wrap:wrap; margin:0;">
+				<div class="card mb-0 p-4">
+					<form method="GET" action="/admin/developers" class="d-flex gap-3 items-center flex-wrap m-0">
 						<input type="hidden" name="tab" value="errors"/>
 
-						<div style="flex:1; min-width:240px;">
+						<div class="flex-1 min-w-60">
 							<input
 								type="text"
 								name="err_q"
 								value={ values.ErrorSearch }
 								placeholder="بحث برسالة الخطأ، الكلاس، أو اسم المستخدم..."
-								class="form-input"
-								style="padding:0.45rem 0.75rem; font-size:0.85rem;"
+								class="form-input text-sm"
 							/>
 						</div>
 
-						<div style="min-width:150px;">
-							<select name="err_level" class="form-select" style="padding:0.45rem 0.75rem; font-size:0.85rem;">
+						<div class="min-w-36">
+							<select name="err_level" class="form-select text-sm">
 								<option value="">كافة المستويات</option>
 								<option value="CRITICAL" selected?={ values.ErrorLevelFilter == "CRITICAL" }>حرج (CRITICAL)</option>
 								<option value="ERROR" selected?={ values.ErrorLevelFilter == "ERROR" }>خطأ (ERROR)</option>
@@ -539,8 +535,8 @@ templ AdminDevelopersPage(values AdminDevelopersValues, lang, dir string) {
 							</select>
 						</div>
 
-						<div style="min-width:150px;">
-							<select name="err_status" class="form-select" style="padding:0.45rem 0.75rem; font-size:0.85rem;">
+						<div class="min-w-36">
+							<select name="err_status" class="form-select text-sm">
 								<option value="">كافة الحالات</option>
 								<option value="NEW" selected?={ values.ErrorStatusFilter == "NEW" }>جديد (NEW)</option>
 								<option value="INVESTIGATING" selected?={ values.ErrorStatusFilter == "INVESTIGATING" }>قيد التحقيق</option>
@@ -548,7 +544,7 @@ templ AdminDevelopersPage(values AdminDevelopersValues, lang, dir string) {
 							</select>
 						</div>
 
-						<button type="submit" class="btn btn-primary btn-sm fw-700">
+						<button type="submit" class="btn btn-primary btn-sm font-bold">
 							@components.IconSearch("icon-xs")
 							<span>تصفية</span>
 						</button>
@@ -564,16 +560,16 @@ templ AdminDevelopersPage(values AdminDevelopersValues, lang, dir string) {
 					</div>
 				} else {
 					<div class="table-container m-0">
-						<table class="data-table m-0" style="min-width:1000px; font-size:0.825rem;">
+						<table class="data-table m-0 min-w-full text-xs">
 							<thead>
-								<tr style="background:var(--surface-sunken); border-bottom:1px solid var(--border);">
-									<th style="width:7%; text-align:center;">المعرف</th>
-									<th style="width:13%; text-align:start;">التوقيت</th>
-									<th style="width:10%; text-align:center;">المستوى</th>
-									<th style="width:15%; text-align:start;">المستخدم / المنظمة</th>
-									<th style="width:30%; text-align:start;">رسالة الخطأ والاستثناء</th>
-									<th style="width:13%; text-align:start;">المسار / IP</th>
-									<th style="width:12%; text-align:center;">الإجراءات</th>
+								<tr class="bg-surface-sunken border-b">
+									<th class="w-16 text-center">المعرف</th>
+									<th class="w-28 text-start">التوقيت</th>
+									<th class="w-24 text-center">المستوى</th>
+									<th class="w-36 text-start">المستخدم / المنظمة</th>
+									<th class="text-start">رسالة الخطأ والاستثناء</th>
+									<th class="w-32 text-start">المسار / IP</th>
+									<th class="w-24 text-center">الإجراءات</th>
 								</tr>
 							</thead>
 							<tbody>
@@ -583,51 +579,50 @@ templ AdminDevelopersPage(values AdminDevelopersValues, lang, dir string) {
 											<strong class="text-muted">#{ fmt.Sprintf("%d", err.ID) }</strong>
 										</td>
 										<td class="text-start">
-											<div class="tabular-nums fw-700 text-primary">{ err.CreatedAt.Format("2006-01-02") }</div>
+											<div class="tabular-nums font-bold text-primary">{ err.CreatedAt.Format("2006-01-02") }</div>
 											<div class="tabular-nums text-xs text-muted">{ err.CreatedAt.Format("15:04:05") }</div>
 										</td>
 										<td class="text-center">
 											if err.ErrorLevel == "CRITICAL" || err.ErrorLevel == "FATAL" {
-												<span class="badge badge-danger fw-800">{ err.ErrorLevel }</span>
+												<span class="badge badge-danger font-black">{ err.ErrorLevel }</span>
 											} else if err.ErrorLevel == "WARNING" {
-												<span class="badge badge-amber fw-700">{ err.ErrorLevel }</span>
+												<span class="badge badge-amber font-bold">{ err.ErrorLevel }</span>
 											} else {
-												<span class="badge badge-sky fw-700">{ err.ErrorLevel }</span>
+												<span class="badge badge-sky font-bold">{ err.ErrorLevel }</span>
 											}
 										</td>
 										<td class="text-start">
 											if err.UserName != "" {
-												<div class="fw-700 text-primary">{ err.UserName }</div>
+												<div class="font-bold text-primary">{ err.UserName }</div>
 											} else {
 												<div class="text-muted">مستخدم غير مسجل (Guest)</div>
 											}
 											if err.OrganizationName != "" {
-												<div style="font-size:0.725rem; color:var(--text-secondary);">{ err.OrganizationName }</div>
+												<div class="text-xs text-secondary">{ err.OrganizationName }</div>
 											}
 										</td>
 										<td class="text-start">
-											<div style="font-weight:700; color:var(--text); font-family:monospace; font-size:0.8rem; direction:ltr; text-align:start; overflow:hidden; text-overflow:ellipsis; max-width:320px; white-space:nowrap;">
+											<div class="font-bold text-primary font-mono text-xs text-start truncate max-w-xs" dir="ltr">
 												{ err.ErrorMessage }
 											</div>
 											if err.ExceptionClass != "" {
-												<div style="font-size:0.725rem; color:var(--accent); font-family:monospace; direction:ltr; text-align:start; margin-top:2px;">
+												<div class="text-xs text-accent font-mono text-start mt-0.5" dir="ltr">
 													{ err.ExceptionClass }
 												</div>
 											}
 										</td>
 										<td class="text-start">
-											<div style="font-family:monospace; font-size:0.775rem; direction:ltr; text-align:start; overflow:hidden; text-overflow:ellipsis; max-width:130px; white-space:nowrap;">
+											<div class="font-mono text-xs text-start truncate max-w-32" dir="ltr">
 												<strong class="text-accent">{ err.HTTPMethod }</strong> { err.URLPath }
 											</div>
-											<div style="font-size:0.7rem; color:var(--text-muted); font-family:monospace; direction:ltr; text-align:start;">
+											<div class="text-xs text-muted font-mono text-start" dir="ltr">
 												{ err.IPAddress }
 											</div>
 										</td>
 										<td class="text-center">
 											<button
 												type="button"
-												class="btn btn-secondary btn-sm"
-												style="padding:0.3rem 0.65rem; font-size:0.75rem; font-weight:700; color:var(--accent);"
+												class="btn btn-secondary btn-sm text-xs font-bold text-accent"
 												@click={ fmt.Sprintf("openErrorDetails(%d)", err.ID) }
 											>
 												@components.IconEye("icon-xs")
@@ -642,92 +637,67 @@ templ AdminDevelopersPage(values AdminDevelopersValues, lang, dir string) {
 				}
 
 				<!-- Error Details Diagnostic Modal -->
-				<dialog
-					id="dev-error-modal"
-					class="modal"
-					aria-labelledby="dev-error-modal-title"
-				>
-					<div class="modal-box modal-lg">
-						<div class="modal-header">
-							<div class="d-flex items-center gap-2">
-								<div class="w-8 h-8 rounded-lg bg-primary-subtle text-brand flex-center">
-									@components.IconBug("icon-sm")
+				@components.Modal(components.ModalProps{
+					ID:    "dev-error-modal",
+					Title: "سجل تشخيص الخطأ",
+					Size:  "lg",
+				}) {
+					<template x-if="selectedError">
+						<div class="d-flex flex-col gap-4 text-start">
+							<!-- Diagnostic Info Grid -->
+							<div class="d-grid gap-3 p-4 bg-surface-sunken rounded-xl border grid-auto-fit-sm">
+								<div>
+									<div class="text-xs text-muted">المستخدم المتأثر:</div>
+									<div class="text-sm font-bold text-primary" x-text="selectedError.user_name || 'زائر غير مسجل'"></div>
+									<div class="text-xs text-secondary" x-text="selectedError.user_email"></div>
 								</div>
 								<div>
-									<h3 id="dev-error-modal-title" class="modal-title" x-text="'سجل تشخيص الخطأ #' + (selectedError ? selectedError.id : '')"></h3>
-									<div class="text-xs text-muted mt-0.5" x-text="selectedError ? selectedError.exception_class : ''"></div>
+									<div class="text-xs text-muted">المنظمة:</div>
+									<div class="font-bold text-primary" x-text="selectedError.organization_name || 'عام'"></div>
+								</div>
+								<div>
+									<div class="text-xs text-muted">المسار وعنوان IP:</div>
+									<div class="font-mono text-xs text-primary text-start" dir="ltr" x-text="selectedError.http_method + ' ' + selectedError.url_path"></div>
+									<div class="text-xs text-muted font-mono text-start" dir="ltr" x-text="selectedError.ip_address"></div>
+								</div>
+								<div>
+									<div class="text-xs text-muted">التوقيت والمستوى:</div>
+									<div class="text-sm font-bold text-primary" x-text="selectedError.created_at"></div>
+									<span class="badge badge-rose" x-text="selectedError.error_level"></span>
 								</div>
 							</div>
-							<form method="dialog">
-								<button type="submit" class="modal-close" aria-label="إغلاق">
-									@components.IconClose("icon-xs")
-								</button>
-							</form>
-						</div>
 
-						<div class="modal-body">
-							<template x-if="selectedError">
-								<div class="d-flex flex-col gap-4">
-									
-									<!-- Diagnostic Info Grid -->
-									<div class="d-grid gap-3 p-4 bg-surface-sunken rounded-xl border grid-auto-fit-sm">
-										<div>
-											<div class="text-xs text-muted">المستخدم المتأثر:</div>
-											<div class="text-sm font-bold text-primary" x-text="selectedError.user_name || 'زائر غير مسجل'"></div>
-											<div class="text-xs text-secondary" x-text="selectedError.user_email"></div>
-										</div>
-										<div>
-											<div class="text-xs text-muted">المنظمة:</div>
-											<div class="font-bold text-primary" x-text="selectedError.organization_name || 'عام'"></div>
-										</div>
-										<div>
-											<div class="text-xs text-muted">المسار وعنوان IP:</div>
-											<div class="font-mono text-xs text-primary text-start" dir="ltr" x-text="selectedError.http_method + ' ' + selectedError.url_path"></div>
-											<div class="text-xs text-muted font-mono text-start" dir="ltr" x-text="selectedError.ip_address"></div>
-										</div>
-										<div>
-											<div class="text-xs text-muted">التوقيت والمستوى:</div>
-											<div class="text-sm font-bold text-primary" x-text="selectedError.created_at"></div>
-											<span class="badge badge-rose" x-text="selectedError.error_level"></span>
-										</div>
-									</div>
+							<!-- Error Message Box -->
+							<div class="bg-surface-sunken text-danger p-4 rounded-lg font-mono text-sm text-start" dir="ltr">
+								<div class="text-muted text-xs mb-1">ERROR MESSAGE:</div>
+								<div x-text="selectedError.error_message"></div>
+							</div>
 
-									<!-- Error Message Box -->
-									<div class="bg-surface-sunken text-danger p-4 rounded-lg font-mono text-sm text-start" dir="ltr">
-										<div class="text-muted text-xs mb-1">ERROR MESSAGE:</div>
-										<div x-text="selectedError.error_message"></div>
-									</div>
-
-									<!-- Stack Trace Viewer -->
-									<div>
-										<div class="text-xs font-bold text-secondary mb-1">
-											تتبع مكدس الاستدعاءات (Stack Trace & Code Location):
-										</div>
-										<pre
-											class="bg-surface-sunken text-secondary p-4 rounded-lg font-mono text-xs max-h-64 overflow-auto text-start m-0"
-											dir="ltr"
-											x-text="selectedError.stack_trace || 'لا يتوفر تتبع مكدس مسجل لهذا الخطأ.'"
-										></pre>
-									</div>
-
+							<!-- Stack Trace Viewer -->
+							<div>
+								<div class="text-xs font-bold text-secondary mb-1">
+									تتبع مكدس الاستدعاءات (Stack Trace & Code Location):
 								</div>
-							</template>
-						</div>
+								<pre
+									class="bg-surface-sunken text-secondary p-4 rounded-lg font-mono text-xs max-h-64 overflow-auto text-start m-0"
+									dir="ltr"
+									x-text="selectedError.stack_trace || 'لا يتوفر تتبع مكدس مسجل لهذا الخطأ.'"
+								></pre>
+							</div>
 
-						<div class="modal-footer">
-							<form :action="'/admin/developers/errors/' + (selectedError ? selectedError.id : 0) + '/status'" method="POST" class="d-flex gap-2 m-0 me-auto">
-								<input type="hidden" name="status" value="RESOLVED"/>
-								<button type="submit" class="btn btn-primary btn-sm font-bold">
-									@components.IconCheck("icon-xs")
-									<span>وضع علامة تم الحل (Mark Resolved)</span>
-								</button>
-							</form>
-							<form method="dialog">
-								<button type="submit" class="btn btn-secondary">إغلاق</button>
-							</form>
+							<div class="d-flex justify-between items-center pt-3 border-t mt-2">
+								<form :action="'/admin/developers/errors/' + (selectedError ? selectedError.id : 0) + '/status'" method="POST" class="d-flex gap-2 m-0">
+									<input type="hidden" name="status" value="RESOLVED"/>
+									<button type="submit" class="btn btn-primary btn-sm font-bold">
+										@components.IconCheck("icon-xs")
+										<span>وضع علامة تم الحل (Mark Resolved)</span>
+									</button>
+								</form>
+								<button type="button" class="btn btn-secondary" data-modal-close="dev-error-modal">إغلاق</button>
+							</div>
 						</div>
-					</div>
-				</dialog>
+					</template>
+				}
 
 				<!-- Embedded Error Log Data Scripts -->
 				for _, err := range values.ErrorLogs {
@@ -758,12 +728,12 @@ templ AdminDevelopersPage(values AdminDevelopersValues, lang, dir string) {
 			<div x-show="activeTab === 'audit'" class="stack-lg" x-data="adminAuditManager()" x-cloak>
 				
 				<div class="card mb-0">
-					<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem; border-bottom:1px solid var(--border); padding-bottom:0.75rem;">
+					<div class="flex-between items-center mb-4 pb-3 border-b">
 						<div>
-							<h3 class="card-title" style="margin:0; font-size:1.15rem; font-weight:800;">
+							<h3 class="card-title m-0 text-lg font-black">
 								سجلات الأنشطة والتدقيق الأمني ({ fmt.Sprintf("%d", len(values.AuditEntries)) })
 							</h3>
-							<p style="font-size:0.8rem; color:var(--text-secondary); margin:0.15rem 0 0 0;">
+							<p class="text-xs text-secondary mt-0.5 mb-0">
 								سجل متزامن للعمليات الإدارية، التراخيص، تعديلات الأدوية، وحركات الحسابات
 							</p>
 						</div>
@@ -777,17 +747,17 @@ templ AdminDevelopersPage(values AdminDevelopersValues, lang, dir string) {
 						</div>
 					} else {
 						<div class="table-container m-0">
-							<table class="data-table m-0" style="min-width:1000px; font-size:0.825rem;">
+							<table class="data-table m-0 min-w-full text-xs">
 								<thead>
-									<tr style="background:var(--surface-sunken); border-bottom:1px solid var(--border);">
-										<th style="width:6%; text-align:center;">المعرف</th>
-										<th style="width:12%; text-align:start;">التوقيت</th>
-										<th style="width:16%; text-align:start;">المستخدم</th>
-										<th style="width:14%; text-align:start;">المنظمة</th>
-										<th style="width:16%; text-align:start;">القسم والإجراء</th>
-										<th style="width:24%; text-align:start;">العنوان والوصف</th>
-										<th style="width:6%; text-align:center;">الأهمية</th>
-										<th style="width:6%; text-align:center;">الإجراءات</th>
+									<tr class="bg-surface-sunken border-b">
+										<th class="w-16 text-center">المعرف</th>
+										<th class="w-28 text-start">التوقيت</th>
+										<th class="w-36 text-start">المستخدم</th>
+										<th class="w-32 text-start">المنظمة</th>
+										<th class="w-36 text-start">القسم والإجراء</th>
+										<th class="text-start">العنوان والوصف</th>
+										<th class="w-20 text-center">الأهمية</th>
+										<th class="w-20 text-center">الإجراءات</th>
 									</tr>
 								</thead>
 								<tbody>
@@ -797,21 +767,21 @@ templ AdminDevelopersPage(values AdminDevelopersValues, lang, dir string) {
 												<strong class="text-muted">#{ fmt.Sprintf("%d", e.ID) }</strong>
 											</td>
 											<td class="text-start">
-												<div class="tabular-nums fw-700 text-primary">{ e.CreatedAt.Format("2006-01-02") }</div>
+												<div class="tabular-nums font-bold text-primary">{ e.CreatedAt.Format("2006-01-02") }</div>
 												<div class="tabular-nums text-xs text-muted">{ e.CreatedAt.Format("15:04:05") }</div>
 											</td>
 											<td class="text-start">
-												<div class="fw-700 text-primary">{ e.ActorName }</div>
+												<div class="font-bold text-primary">{ e.ActorName }</div>
 												if e.ActorEmail != "" {
-													<div style="font-size:0.725rem; color:var(--text-muted); direction:ltr; text-align:start;">{ e.ActorEmail }</div>
+													<div class="text-xs text-muted font-mono text-start" dir="ltr">{ e.ActorEmail }</div>
 												}
 											</td>
 											<td class="text-start">
-												<div style="font-weight:600; color:var(--text);">{ e.OrganizationName }</div>
+												<div class="font-bold text-primary">{ e.OrganizationName }</div>
 											</td>
 											<td class="text-start">
-												<div style="display:flex; flex-direction:column; gap:0.25rem;">
-													<span class={ "badge", auditBadgeClass(e.Action) } style="font-weight:700; font-size:0.725rem; align-self:flex-start;">
+												<div class="d-flex flex-col gap-1">
+													<span class={ "badge", auditBadgeClass(e.Action) } class="font-bold text-xs self-start">
 														if e.ActionLabelAr != "" {
 															{ e.ActionLabelAr }
 														} else {
@@ -819,14 +789,14 @@ templ AdminDevelopersPage(values AdminDevelopersValues, lang, dir string) {
 														}
 													</span>
 													if e.Module != "" {
-														<span style="font-size:0.7rem; color:var(--text-muted);">القسم: { e.Module }</span>
+														<span class="text-xs text-muted">القسم: { e.Module }</span>
 													} else {
-														<span style="font-size:0.7rem; color:var(--text-muted);">القسم: المنظومة العامة</span>
+														<span class="text-xs text-muted">القسم: المنظومة العامة</span>
 													}
 												</div>
 											</td>
 											<td class="text-start">
-												<div class="fw-700 text-primary">
+												<div class="font-bold text-primary">
 													if e.Title != "" {
 														{ e.Title }
 													} else if e.ActionLabelAr != "" {
@@ -835,7 +805,7 @@ templ AdminDevelopersPage(values AdminDevelopersValues, lang, dir string) {
 														{ e.Action }
 													}
 												</div>
-												<div style="font-size:0.75rem; color:var(--text-secondary); margin-top:2px; line-height:1.4;">
+												<div class="text-xs text-secondary mt-0.5 leading-relaxed">
 													if e.Description != "" {
 														{ e.Description }
 													} else {
@@ -845,11 +815,11 @@ templ AdminDevelopersPage(values AdminDevelopersValues, lang, dir string) {
 											</td>
 											<td class="text-center">
 												if e.Severity != "" && e.Severity != "-" {
-													<span class={ "badge", severityBadgeClass(e.Severity) } style="font-size:0.725rem; font-weight:700;">
+													<span class={ "badge", severityBadgeClass(e.Severity) } class="text-xs font-bold">
 														{ e.Severity }
 													</span>
 												} else {
-													<span class="badge badge-slate" style="font-size:0.725rem; font-weight:700;">
+													<span class="badge badge-slate text-xs font-bold">
 														عادي (Info)
 													</span>
 												}
@@ -857,8 +827,7 @@ templ AdminDevelopersPage(values AdminDevelopersValues, lang, dir string) {
 											<td class="text-center">
 												<button
 													type="button"
-													class="btn btn-secondary btn-sm"
-													style="padding:0.3rem 0.65rem; font-size:0.75rem; font-weight:700; color:var(--accent);"
+													class="btn btn-secondary btn-sm text-xs font-bold text-accent"
 													@click={ fmt.Sprintf("openDetails(%d)", e.ID) }
 												>
 													@components.IconEye("icon-xs")
@@ -874,60 +843,37 @@ templ AdminDevelopersPage(values AdminDevelopersValues, lang, dir string) {
 				</div>
 
 				<!-- Audit Inspection Modal -->
-				<dialog
-					id="dev-audit-modal"
-					class="modal"
-					aria-labelledby="dev-audit-modal-title"
-				>
-					<div class="modal-box modal-lg">
-						<div class="modal-header">
-							<div class="d-flex items-center gap-2">
-								<div class="w-8 h-8 rounded-lg bg-primary-subtle text-brand flex-center">
-									@components.IconClock("icon-sm")
+				@components.Modal(components.ModalProps{
+					ID:    "dev-audit-modal",
+					Title: "تفاصيل العملية والتدقيق",
+					Size:  "lg",
+				}) {
+					<template x-if="selected">
+						<div class="d-flex flex-col gap-4 text-start">
+							<div class="bg-surface-sunken p-4 rounded-xl border">
+								<div class="text-xs font-bold text-secondary mb-1">بيان العملية:</div>
+								<div class="text-sm text-primary font-bold" x-text="selected.description"></div>
+							</div>
+
+							<!-- Side-by-Side Diff -->
+							<div class="d-grid grid-cols-2 gap-4">
+								<div class="bg-surface-sunken border rounded-xl p-4">
+									<div class="font-bold text-xs text-primary mb-2">الحالة السابقة (Before)</div>
+									<pre class="bg-surface-raised border rounded-md p-3 text-xs font-mono text-start max-h-56 overflow-auto m-0" dir="ltr" x-text="selected.before ? JSON.stringify(selected.before, null, 2) : 'لا توجد بيانات سابقة'"></pre>
 								</div>
-								<div>
-									<h3 id="dev-audit-modal-title" class="modal-title" x-text="'تفاصيل العملية #' + (selected ? selected.id : '')"></h3>
-									<div class="text-xs text-muted mt-0.5" x-text="selected ? selected.title : ''"></div>
+
+								<div class="bg-surface-sunken border rounded-xl p-4">
+									<div class="font-bold text-xs text-primary mb-2">الحالة الجديدة (After)</div>
+									<pre class="bg-surface-raised border rounded-md p-3 text-xs font-mono text-start max-h-56 overflow-auto m-0" dir="ltr" x-text="selected.after ? JSON.stringify(selected.after, null, 2) : 'لا توجد بيانات محدثة'"></pre>
 								</div>
 							</div>
-							<form method="dialog">
-								<button type="submit" class="modal-close" aria-label="إغلاق">
-									@components.IconClose("icon-xs")
-								</button>
-							</form>
+
+							<div class="d-flex justify-end pt-3 border-t mt-2">
+								<button type="button" class="btn btn-secondary" data-modal-close="dev-audit-modal">إغلاق</button>
+							</div>
 						</div>
-
-						<div class="modal-body">
-							<template x-if="selected">
-								<div class="d-flex flex-col gap-4">
-									<div class="bg-surface-sunken p-4 rounded-xl border">
-										<div class="text-xs font-bold text-secondary mb-1">بيان العملية:</div>
-										<div class="text-sm text-primary" x-text="selected.description"></div>
-									</div>
-
-									<!-- Side-by-Side Diff -->
-									<div class="d-grid grid-cols-2 gap-4">
-										<div class="bg-surface-sunken border rounded-xl p-4">
-											<div class="font-bold text-xs text-primary mb-2">الحالة السابقة (Before)</div>
-											<pre class="bg-surface-raised border rounded-md p-3 text-xs font-mono text-start max-h-56 overflow-auto m-0" dir="ltr" x-text="selected.before ? JSON.stringify(selected.before, null, 2) : 'لا توجد بيانات سابقة'"></pre>
-										</div>
-
-										<div class="bg-surface-sunken border rounded-xl p-4">
-											<div class="font-bold text-xs text-primary mb-2">الحالة الجديدة (After)</div>
-											<pre class="bg-surface-raised border rounded-md p-3 text-xs font-mono text-start max-h-56 overflow-auto m-0" dir="ltr" x-text="selected.after ? JSON.stringify(selected.after, null, 2) : 'لا توجد بيانات محدثة'"></pre>
-										</div>
-									</div>
-								</div>
-							</template>
-						</div>
-
-						<div class="modal-footer">
-							<form method="dialog">
-								<button type="submit" class="btn btn-secondary">إغلاق</button>
-							</form>
-						</div>
-					</div>
-				</dialog>
+					</template>
+				}
 
 				<!-- Embedded Audit JSON Data -->
 				for _, e := range values.AuditEntries {
