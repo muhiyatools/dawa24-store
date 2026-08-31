@@ -101,10 +101,10 @@ type ProductVariant struct {
 	Name                   i18n.Text     `json:"name"`
 	SKU                    string        `json:"sku,omitempty"`
 	Barcode                string        `json:"barcode,omitempty"`
-	Price                  money.Amount  `json:"price"`                   // سعر الجمهور
+	Price                  money.Amount  `json:"price"`                    // سعر الجمهور
 	CostPrice              *money.Amount `json:"cost_price,omitempty"`     // سعر التكلفة (اختياري - optional)
 	CostDiscountPercentage float64       `json:"cost_discount_percentage"` // خصم التكلفة (%)
-	Discount               money.Amount  `json:"discount"`                // خصم الجمهور
+	Discount               money.Amount  `json:"discount"`                 // خصم الجمهور
 	Unit                   string        `json:"unit,omitempty"`
 	Image                  string        `json:"image,omitempty"`
 	BatchNumber            string        `json:"batch_number,omitempty"`

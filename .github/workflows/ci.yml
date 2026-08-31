@@ -117,6 +117,15 @@ jobs:
             exit 1
           fi
 
+      - name: Install golangci-lint
+        run: |
+          if ! command -v golangci-lint >/dev/null 2>&1; then
+            curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin v1.64.5
+          fi
+
+      - name: Run Quality Gates (make check)
+        run: make check
+
       - name: Build All 5 Production Binaries
         run: |
           go build -trimpath -o bin/server ./cmd/server
