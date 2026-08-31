@@ -15,21 +15,21 @@ templ InvoicesPage(lang, dir string, data InvoicesData) {
 			<!-- Header Banner -->
 			<div class="card">
 				<div class="flex-between flex-wrap gap-md">
-					<div>
-						<div>
-							<div>
+     <div class="stack-sm">
+      <div class="stack-sm">
+       <div class="stack-sm">
 								@components.IconFileText("icon-sm")
 							</div>
-							<h1>
+       <h1 class="page-title text-xl font-bold m-0">
 								فواتير وسندات التوريد
 							</h1>
 						</div>
-						<p>
+      <p class="text-sm text-secondary m-0">
 							سجل الفواتير وسندات التوريد الصادرة لطلبيات الأدوية مع تفاصيل المبالغ والبنود وقابلة للطباعة الفورية.
 						</p>
 					</div>
 
-					<div>
+     <div class="stack-sm">
 						<span class="badge badge-secondary">
 							@components.IconFileText("icon-xs")
 							<span>سجل الفواتير</span>
@@ -40,8 +40,8 @@ templ InvoicesPage(lang, dir string, data InvoicesData) {
 
 			<!-- Search & Filter Bar -->
 			<div class="card">
-				<form method="GET" action="/invoices">
-					<div>
+				<form method="GET" class="filter-bar d-flex items-center gap-3 flex-wrap" action="/invoices">
+     <div class="stack-sm">
 						<input
 							type="text"
 							name="q"
@@ -52,7 +52,7 @@ templ InvoicesPage(lang, dir string, data InvoicesData) {
 						/>
 					</div>
 
-					<div>
+     <div class="stack-sm">
 						<select name="status" class="form-select">
 							<option value="">-- جميع الحالات --</option>
 							<option value="paid" selected?={ data.StatusFilter == "paid" }>مدفوعة (Paid)</option>
@@ -71,14 +71,14 @@ templ InvoicesPage(lang, dir string, data InvoicesData) {
 			<!-- Invoices Table -->
 			<div class="card">
 				if len(data.Invoices) == 0 {
-					<div>
-						<div>
+     <div class="stack-sm">
+      <div class="stack-sm">
 							@components.IconFile("icon-sm")
 						</div>
-						<h3>
+      <h3 class="card-title text-sm font-semibold m-0">
 							لا توجد فواتير مطابقة
 						</h3>
-						<p>
+      <p class="text-sm text-secondary m-0">
 							يتم إنشاء وتوثيق فواتير وسندات التوريد تلقائياً فور تسجيل واعتماد أوامر الشراء.
 						</p>
 					</div>
@@ -128,7 +128,7 @@ templ InvoicesPage(lang, dir string, data InvoicesData) {
 
 										<!-- الصيدلية المستلمة -->
 										<td>
-											<div>
+           <div class="stack-sm">
 												if inv.CustomerName != "" {
 													{ inv.CustomerName }
 												} else {
@@ -136,7 +136,7 @@ templ InvoicesPage(lang, dir string, data InvoicesData) {
 												}
 											</div>
 											if inv.CustomerOrgID != nil {
-												<div>
+            <div class="stack-sm">
 													كود العميل: #{ fmt.Sprintf("%d", *inv.CustomerOrgID) }
 												</div>
 											}
@@ -169,7 +169,7 @@ templ InvoicesPage(lang, dir string, data InvoicesData) {
 
 										<!-- الإجراءات: عرض + طباعة -->
 										<td>
-											<div>
+           <div class="stack-sm">
 												<!-- زر الطباعة -->
 												<a
 													href={ templ.SafeURL(fmt.Sprintf("/invoices/%d/print", inv.ID)) }

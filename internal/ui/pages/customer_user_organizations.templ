@@ -18,7 +18,7 @@ type CustomerUserOrgData struct {
 
 templ CustomerUserOrganizationsPage(lang, dir string, data *CustomerUserOrgData, perms []string) {
 	@layouts.CustomerShell("المستخدم-المنظمة | My organizations", "user_organization", lang, dir, perms) {
-		<div>
+  <div class="stack-sm">
 
 			<!-- Notice Banner -->
 			if data != nil && data.NoticeMsg != "" {
@@ -37,24 +37,24 @@ templ CustomerUserOrganizationsPage(lang, dir string, data *CustomerUserOrgData,
 
 			<!-- Top Header Banner matching old system -->
 			<div class="card">
-				<div>
-					<div>
-						<div>
+    <div class="stack-sm">
+     <div class="stack-sm">
+      <div class="stack-sm">
 							@components.IconBuilding("icon-sm")
 						</div>
-						<div>
-							<h1>
+      <div class="stack-sm">
+       <h1 class="page-title text-xl font-bold m-0">
 								My organizations (منظماتي المرتبطة)
 							</h1>
 							<span>Manage organization memberships & vendor connections</span>
 						</div>
 					</div>
-					<p>
+     <p class="text-sm text-secondary m-0">
 						ربط الصيدلية بالموردين والشركات داخل المنصة باستخدام رقم المنظمة (Organization Number) للحصول على الأسعار المعتمدة والتسهيلات المباشرة.
 					</p>
 				</div>
 
-				<div>
+    <div class="stack-sm">
 					<a href="/customer/dashboard" class="btn btn-secondary btn-sm">
 						<span>العودة إلى لوحة التحكم ←</span>
 					</a>
@@ -76,7 +76,7 @@ templ CustomerUserOrganizationsPage(lang, dir string, data *CustomerUserOrgData,
 				Title: "إضافة وربط منظمة / مورد جديد",
 				Size:  "md",
 			}) {
-				<form method="POST" action="/customer/user-organization/new">
+				<form method="POST" class="form-stack" action="/customer/user-organization/new">
 					<!-- Live AJAX Vendor Search with Debouncing -->
 					<div class="form-group m-0 relative">
 						<label class="form-label" for="customer-uo-vendor-search">
@@ -87,10 +87,10 @@ templ CustomerUserOrganizationsPage(lang, dir string, data *CustomerUserOrgData,
 						<input type="hidden" id="customer-selected-vendor-id" name="vendor_org_id" required value="" />
 
 						<!-- Selected Vendor Chip Card (shown once a vendor is chosen) -->
-						<div id="customer-selected-vendor-chip">
+						<div id="customer-selected-vendor-chip" class="selected-vendor-chip d-flex items-center gap-2 p-2">
 							<div class="inline-row-06">
 								<span>@components.IconBuilding("icon-sm")</span>
-								<div>
+        <div class="stack-sm">
 									<strong id="customer-selected-vendor-name"></strong>
 									<div id="customer-selected-vendor-details" class="meta-muted" dir="ltr"></div>
 								</div>
@@ -112,7 +112,7 @@ templ CustomerUserOrganizationsPage(lang, dir string, data *CustomerUserOrgData,
 								oninput="handleCustomerVendorSearch(this.value)"
 								onfocus="handleCustomerVendorSearch(this.value)"
 							/>
-							<div id="customer-vendor-search-spinner">
+							<div id="customer-vendor-search-spinner" class="spinner-container text-muted">
 								⏳
 							</div>
 						</div>
@@ -120,7 +120,7 @@ templ CustomerUserOrganizationsPage(lang, dir string, data *CustomerUserOrgData,
 						<!-- Autocomplete Results Dropdown -->
 						<div
 							id="customer-vendor-search-dropdown"
-						
+							class="dropdown-menu shadow-md"
 						></div>
 					</div>
 
@@ -179,7 +179,7 @@ templ CustomerUserOrganizationsPage(lang, dir string, data *CustomerUserOrgData,
 					Message: "يمكنك إضافة وربط حسابك بالموردين والشركات بالضغط على 'Add organization +'.",
 				})
 			} else {
-				<div>
+    <div class="stack-sm">
 					for _, uo := range data.UserOrgs {
 						if uo != nil {
 							<div
@@ -187,13 +187,13 @@ templ CustomerUserOrganizationsPage(lang, dir string, data *CustomerUserOrgData,
 							
 							>
 								<!-- Card Header -->
-								<div>
+        <div class="stack-sm">
 									<div class="d-flex items-center gap-3">
-										<div>
+          <div class="stack-sm">
 											@components.IconBuilding("icon-sm")
 										</div>
-										<div>
-											<h3>
+          <div class="stack-sm">
+           <h3 class="card-title text-sm font-semibold m-0">
 												{ uo.VendorOrgName }
 											</h3>
 											<span class="label-strong">
@@ -203,7 +203,7 @@ templ CustomerUserOrganizationsPage(lang, dir string, data *CustomerUserOrgData,
 									</div>
 
 									<!-- Status Pill -->
-									<div>
+         <div class="stack-sm">
 										switch uo.Status {
 											case org.UserOrgStatusApproved:
 												<span class="badge badge-emerald text-xs fw-800">Approval </span>
@@ -216,25 +216,25 @@ templ CustomerUserOrganizationsPage(lang, dir string, data *CustomerUserOrgData,
 								</div>
 
 								<!-- Card Body: Organization Number Display -->
-								<div>
-									<div>
+        <div class="stack-sm">
+         <div class="stack-sm">
 										رقم المنظمة (Organization Number)
 									</div>
 									<div class="tabular-nums fw-900" dir="ltr">
 										{ uo.OrganizationNumber }
 									</div>
 									if uo.Notes != "" {
-										<div>
+          <div class="stack-sm">
 											{ uo.Notes }
 										</div>
 									}
 								</div>
 
 								<!-- Card Footer: Actions & Date -->
-								<div>
+        <div class="stack-sm">
 									<div class="inline-row-04">
 										<!-- Delete Form -->
-										<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/customer/user-organization/%d/delete", uo.ID)) } onsubmit="return confirm('هل أنت متأكد من حذف ربط هذه المنظمة؟');">
+										<form method="POST" class="form-stack" action={ templ.SafeURL(fmt.Sprintf("/customer/user-organization/%d/delete", uo.ID)) } onsubmit="return confirm('هل أنت متأكد من حذف ربط هذه المنظمة؟');">
 											<button type="submit" class="btn btn-secondary btn-sm" title="حذف الربط">
 												@components.IconTrash("icon-xs")
 											</button>
@@ -263,7 +263,7 @@ templ CustomerUserOrganizationsPage(lang, dir string, data *CustomerUserOrgData,
 									Title: fmt.Sprintf("تعديل بيانات الربط مع %s", uo.VendorOrgName),
 									Size:  "md",
 								}) {
-									<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/customer/user-organization/%d/edit", uo.ID)) }>
+									<form method="POST" class="form-stack" action={ templ.SafeURL(fmt.Sprintf("/customer/user-organization/%d/edit", uo.ID)) }>
 										<div class="form-group m-0">
 											<label class="form-label" for={ fmt.Sprintf("edit-uo-num-%d", uo.ID) }>
 												رقم المنظمة (Organization Number) *
@@ -341,7 +341,7 @@ templ CustomerUserOrganizationsPage(lang, dir string, data *CustomerUserOrgData,
 						.then(vendors => {
 							if (spinner) spinner.style.display = 'none';
 							if (!vendors || vendors.length === 0) {
-								dropdown.innerHTML = '<div>لا توجد شركات أو موردين مطابقين</div>';
+								dropdown.innerHTML = '<div class="p-3 text-sm text-muted text-center">لا توجد شركات أو موردين مطابقين</div>';
 								dropdown.style.display = 'block';
 								return;
 							}
@@ -354,12 +354,12 @@ templ CustomerUserOrganizationsPage(lang, dir string, data *CustomerUserOrgData,
 								const safeTax = (v.tax_number || '').replace(/'/g, "\\'");
 								html += `
 									<div
+										class="dropdown-item d-flex items-center justify-between p-2 cursor-pointer"
 										onclick="selectCustomerVendor(${v.id}, '${safeName}', '${safeLegal}', '${safeOrgNum}', '${safeTax}')"
-									
 										onmouseenter="this.style.background='var(--surface-sunken)'"
 										onmouseleave="this.style.background='transparent'"
 									>
-										<div>
+										<div class="stack-sm">
 											<strong>${v.name}</strong>
 											<div class="meta-muted" dir="ltr">${v.organization_number ? 'كود: ' + v.organization_number + ' • ' : ''}${v.tax_number ? 'ب.ض: ' + v.tax_number : ''}</div>
 										</div>
@@ -372,7 +372,7 @@ templ CustomerUserOrganizationsPage(lang, dir string, data *CustomerUserOrgData,
 						})
 						.catch(err => {
 							if (spinner) spinner.style.display = 'none';
-							dropdown.innerHTML = '<div>حدث خطأ أثناء البحث</div>';
+							dropdown.innerHTML = '<div class="p-3 text-sm text-danger text-center">حدث خطأ أثناء البحث</div>';
 							dropdown.style.display = 'block';
 						});
 				}, 250);

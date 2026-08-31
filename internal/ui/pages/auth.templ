@@ -12,20 +12,20 @@ import (
 
 templ LoginPage(lang, dir, errorMsg string) {
 	@layouts.Base("تسجيل الدخول", lang, dir) {
-		<div>
+  <div class="stack-sm">
 			<div class="glass-panel p-8">
-				<div>
+    <div class="stack-sm">
 					<a href="/">
 						<img src="/static/img/logo.png" alt="DAWA24" />
 					</a>
-					<h1>منصة دواء 24</h1>
-					<p>تسجيل الدخول إلى حسابك الصيدلي أو التجاري</p>
+					<h1 class="auth-title font-bold text-xl m-0">منصة دواء 24</h1>
+					<p class="auth-subtitle text-sm text-secondary m-0">تسجيل الدخول إلى حسابك الصيدلي أو التجاري</p>
 				</div>
 
 				if errorMsg != "" {
 					<div class="alert alert-danger mb-4">
-						<div>@components.IconAlert("icon-xs")</div>
-						<div>{ errorMsg }</div>
+						<div class="alert-icon">@components.IconAlert("icon-xs")</div>
+						<div class="alert-message text-sm">{ errorMsg }</div>
 					</div>
 				}
 
@@ -35,15 +35,15 @@ templ LoginPage(lang, dir, errorMsg string) {
 						<input type="email" id="email" name="email" required class="form-input tabular-nums" placeholder="pharmacist@dawa24.eg" />
 					</div>
 					<div class="form-group mb-0">
-						<div>
+      <div class="stack-sm">
 							<label class="form-label mb-0" for="password">كلمة المرور</label>
 							<a href="/auth/forgot">نسيت كلمة المرور؟</a>
 						</div>
 						<input type="password" id="password" name="password" required class="form-input" placeholder="••••••••" />
 					</div>
-					<div>
+     <div class="stack-sm">
 						<input type="checkbox" id="remember_me" name="remember_me" value="1" checked class="form-checkbox" />
-						<label for="remember_me">
+						<label for="remember_me" class="form-check-label text-sm m-0">
 							تذكرني على هذا الجهاز
 						</label>
 					</div>
@@ -53,7 +53,7 @@ templ LoginPage(lang, dir, errorMsg string) {
 					</button>
 				</form>
 
-				<div>
+    <div class="stack-sm">
 					ليس لديك حساب؟ <a href="/auth/register">تسجيل حساب صيدلية جديد</a>
 				</div>
 			</div>
@@ -63,22 +63,22 @@ templ LoginPage(lang, dir, errorMsg string) {
 
 templ RegisterPage(lang, dir string, form RegisterFormData, cities []*platformadmin.City) {
 	@layouts.Base("إنشاء حساب جديد", lang, dir) {
-		<div>
+  <div class="stack-sm">
 			<div
 				class="glass-panel p-8"
 			
 			>
 				<!-- Brand Header -->
-				<div>
+    <div class="stack-sm">
 					<a href="/">
 						<img src="/static/img/logo.png" alt="DAWA24" />
 					</a>
-					<h1>إنشاء حساب منشأة جديد</h1>
-					<p>انضم لمنظومة التوريد الدوائي المعتمدة — دواء 24</p>
+					<h1 class="auth-title font-bold text-xl m-0">إنشاء حساب منشأة جديد</h1>
+					<p class="auth-subtitle text-sm text-secondary m-0">انضم لمنظومة التوريد الدوائي المعتمدة — دواء 24</p>
 				</div>
 
 				<!-- 3-Step Onboarding Progress Indicator -->
-				<div>
+    <div class="stack-sm">
 					<div id="step-indicator-1" class="onboard-step active">
 						<span class="step-num">1</span>
 						<span>نوع المنشأة</span>
@@ -94,7 +94,7 @@ templ RegisterPage(lang, dir string, form RegisterFormData, cities []*platformad
 				</div>
 
 				if form.Error != "" {
-					<div>
+     <div class="stack-sm">
 						@components.IconAlert("icon-xs")
 						<span>{ form.Error }</span>
 					</div>
@@ -105,11 +105,11 @@ templ RegisterPage(lang, dir string, form RegisterFormData, cities []*platformad
 
 					<!-- ================= STEP 1: Select Account Type ================= -->
 					<section id="reg-step-1" class="form-step active stack-md">
-						<h2>
+      <h2 class="card-title text-base font-semibold m-0">
 							يرجى تحديد نوع حساب المنشأة للبدء:
 						</h2>
 
-						<div>
+      <div class="stack-sm">
 							<!-- Option 1: Customer / Pharmacy / Medical Facility (Selected by default) -->
 							<div
 								class="type-card hover-lift active"
@@ -120,8 +120,8 @@ templ RegisterPage(lang, dir string, form RegisterFormData, cities []*platformad
 									@components.IconPill("icon-sm")
 								</div>
 								<div class="flex-1">
-									<div>صيدلية / منشأة طبية مرخصة</div>
-									<div>
+									<div class="type-name font-bold text-sm">صيدلية / منشأة طبية مرخصة</div>
+									<div class="stack-sm">
 										شراء وتوريد الأدوية والمستلزمات الصيدلانية مباشرة للصيدليات الفردية والسلاسل والمراكز الطبية.
 									</div>
 								</div>
@@ -140,8 +140,8 @@ templ RegisterPage(lang, dir string, form RegisterFormData, cities []*platformad
 									@components.IconBuilding("icon-sm")
 								</div>
 								<div class="flex-1">
-									<div>مورّد / شركة ومخزن أدوية</div>
-									<div>
+									<div class="type-name font-bold text-sm">مورّد / شركة ومخزن أدوية</div>
+									<div class="stack-sm">
 										توريد وبيع الأصناف الدوائية والمستلزمات الطبية للصيدليات والمستشفيات المسجلة.
 									</div>
 								</div>
@@ -160,8 +160,8 @@ templ RegisterPage(lang, dir string, form RegisterFormData, cities []*platformad
 									@components.IconUser("icon-sm")
 								</div>
 								<div class="flex-1">
-									<div>باحث عن عمل / كادر طبي وصيدلاني</div>
-									<div>
+									<div class="type-name font-bold text-sm">باحث عن عمل / كادر طبي وصيدلاني</div>
+         <div class="stack-sm">
 										للصيادلة ومساعدي الصيادلة ومسؤولي المبيعات للتقديم على الشواغر الوظيفية والانضمام لمنظومة العمل.
 									</div>
 								</div>
@@ -179,7 +179,7 @@ templ RegisterPage(lang, dir string, form RegisterFormData, cities []*platformad
 
 					<!-- ================= STEP 2: Facility / Seeker Profile & Location ================= -->
 					<section id="reg-step-2" class="form-step">
-						<div>
+      <div class="stack-sm">
 							<span id="reg-selected-badge" class="badge badge-sky">نوع الحساب: صيدلية / منشأة طبية مرخصة</span>
 							<button type="button" id="reg-back-to-step-1" class="btn btn-secondary btn-sm fw-700">
 								@components.IconArrowRight("icon-xs")
@@ -277,7 +277,7 @@ templ RegisterPage(lang, dir string, form RegisterFormData, cities []*platformad
 								<span class="text-xs text-muted">PDF, PNG, JPG حتى 20 ميجابايت</span>
 							</label>
 							<input type="file" id="reg-license-file" name="license_file" accept=".pdf,.png,.jpg,.jpeg" class="form-input" />
-							<p>
+       <p class="text-sm text-secondary m-0">
 								يتم مراجعة الملف واعتماد ترخيص المنشأة من إدارة المنصة خلال 24 ساعة للبدء في عمليات التوريد والشراء.
 							</p>
 						</div>
@@ -299,7 +299,7 @@ templ RegisterPage(lang, dir string, form RegisterFormData, cities []*platformad
 							<input type="text" id="reg-address" name="address" class="form-input" placeholder="اسم الشارع، رقم العقار، الحي، بجوار..." value={ form.Address } />
 						</div>
 
-						<div>
+      <div class="stack-sm">
 							<button type="button" id="reg-step-2-back" class="btn btn-secondary">
 								@components.IconArrowRight("icon-xs")
 								<span>السابق</span>
@@ -313,7 +313,7 @@ templ RegisterPage(lang, dir string, form RegisterFormData, cities []*platformad
 
 					<!-- ================= STEP 3: Account Credentials & Security ================= -->
 					<section id="reg-step-3" class="form-step">
-						<div>
+      <div class="stack-sm">
 							<span class="badge badge-teal">الخطوة الأخيرة: بيانات تسجيل الدخول والأمان</span>
 							<button type="button" id="reg-step-3-back" class="btn btn-secondary btn-sm fw-700">
 								@components.IconArrowRight("icon-xs")
@@ -339,7 +339,7 @@ templ RegisterPage(lang, dir string, form RegisterFormData, cities []*platformad
 
 						<!-- Password Field with Modern Live Strength Meter -->
 						<div class="form-group mb-0">
-							<div>
+       <div class="stack-sm">
 								<label class="form-label mb-0" for="reg-password">كلمة المرور *</label>
 								<span id="pass-strength-label">أدخل كلمة المرور</span>
 							</div>
@@ -351,7 +351,7 @@ templ RegisterPage(lang, dir string, form RegisterFormData, cities []*platformad
 							</div>
 
 							<!-- Strength Progress Bars -->
-							<div id="pwd-strength-bars">
+							<div id="pwd-strength-bars" class="pwd-strength-bars d-flex gap-1 mt-1">
 								<div class="strength-bar-seg"></div>
 								<div class="strength-bar-seg"></div>
 								<div class="strength-bar-seg"></div>
@@ -359,7 +359,7 @@ templ RegisterPage(lang, dir string, form RegisterFormData, cities []*platformad
 							</div>
 
 							<!-- Real-Time Password Checklist -->
-							<div id="pwd-checklist">
+							<div id="pwd-checklist" class="pwd-checklist stack-xs mt-2 text-xs text-secondary">
 								<div id="rule-length" class="row-center-xs">
 									<span class="rule-icon text-muted">●</span> 8 أحرف على الأقل
 								</div>
@@ -375,7 +375,7 @@ templ RegisterPage(lang, dir string, form RegisterFormData, cities []*platformad
 							</div>
 						</div>
 
-						<div>
+      <div class="stack-sm">
 							<button type="button" id="reg-step-3-back-btn" class="btn btn-secondary">
 								@components.IconArrowRight("icon-xs")
 								<span>السابق</span>
@@ -388,7 +388,7 @@ templ RegisterPage(lang, dir string, form RegisterFormData, cities []*platformad
 					</section>
 				</form>
 
-				<div>
+    <div class="stack-sm">
 					لديك حساب بالفعل؟ <a href="/auth/login">تسجيل الدخول</a>
 				</div>
 			</div>
@@ -399,14 +399,14 @@ templ RegisterPage(lang, dir string, form RegisterFormData, cities []*platformad
 
 templ ForgotPasswordPage(lang, dir string) {
 	@layouts.Base("استعادة كلمة المرور", lang, dir) {
-		<div>
+  <div class="stack-sm">
 			<div class="card">
-				<div>
+    <div class="stack-sm">
 					<a href="/">
 						<img src="/static/img/logo.png" alt="DAWA24" />
 					</a>
-					<h1>استعادة كلمة المرور</h1>
-					<p>أدخل بريدك الإلكتروني المسجل لإرسال رابط إعادة التعيين</p>
+					<h1 class="auth-title font-bold text-xl m-0">استعادة كلمة المرور</h1>
+					<p class="auth-subtitle text-sm text-secondary m-0">أدخل بريدك الإلكتروني المسجل لإرسال رابط إعادة التعيين</p>
 				</div>
 
 				<form method="POST" action="/auth/forgot" class="stack-115">
@@ -420,7 +420,7 @@ templ ForgotPasswordPage(lang, dir string) {
 					</button>
 				</form>
 
-				<div>
+    <div class="stack-sm">
 					<a href="/auth/login">العودة لتسجيل الدخول</a>
 				</div>
 			</div>
@@ -430,13 +430,13 @@ templ ForgotPasswordPage(lang, dir string) {
 
 templ ResetPasswordPage(lang, dir, token string) {
 	@layouts.Base("تعيين كلمة المرور الجديدة", lang, dir) {
-		<div>
+  <div class="stack-sm">
 			<div class="card">
-				<div>
+    <div class="stack-sm">
 					<a href="/">
 						<img src="/static/img/logo.png" alt="DAWA24" />
 					</a>
-					<h1>تعيين كلمة المرور</h1>
+					<h1 class="auth-title font-bold text-xl m-0">تعيين كلمة المرور</h1>
 				</div>
 
 				<form method="POST" action="/auth/reset" class="stack-115">
