@@ -553,3 +553,51 @@ classes' worth of rules were missing. Part of the apparent progress toward it wa
 that had gone absent. The target must be reset against a complete stylesheet, and the
 `components.css` / `foundations.css` / `utilities.css` dedupe that would actually reach it
 should follow the visual regression suite, not precede it.
+
+
+---
+
+## ADR 0018 — Arabic Matching Data Is Not Translatable Text
+
+**Status:** Accepted · 2026-08-31
+
+### Context
+
+`check-hardcoded-arabic` counted every Arabic string literal in Go and drove toward zero, on
+the reasoning that a string baked into a handler can never be shown in English. That was
+right for handler text and wrong for what remained once handler text was gone.
+
+At the end of the conversion the count sat at 226, all of it in `internal/modules`, and none
+of it user-facing:
+
+| File | What the Arabic is |
+|---|---|
+| `ingest/domain.go`, `compare/columns_data.go` | column-header dictionaries used to recognise Arabic headings in an uploaded spreadsheet |
+| `catalog/import_rows.go` | dosage-form vocabulary — `"غسول فم"` → mouthwash, `"معجون أسنان"` → toothpaste |
+| `compare/comparison.go` | Arabic → Latin brand map — `"بانادول"` → panadol |
+| `smartorder/pipeline/query.go` | Arabic tokenisation rules, largely in comments |
+| `assistant/prompt.go` | the assistant's Arabic system prompt |
+
+These are **inputs the platform matches against, not output it renders**. A supplier uploads
+an Excel file with a column headed `الباركود`; the importer recognises it because that exact
+string is in a dictionary. Moving it into the i18n catalogue would not translate anything —
+it would break product matching, which is the core feature of the platform.
+
+### Decision
+
+The gate measures **user-facing** Arabic and excludes those files by name, with the reason for
+each written beside the exclusion. The ceiling is **0**, not a ratchet, because the remaining
+population is genuinely empty: `internal/ui` and `cmd` both measure zero.
+
+Adding a file to the exclusion list requires the same justification — that the strings are
+matched against rather than displayed.
+
+### Consequences
+
+The English requirement is complete for user-facing code, and the gate now says so honestly
+instead of reporting 226 against a target that could never be reached.
+
+The wider point is the same one ADR 0017 makes from the other direction. A ratchet is a proxy,
+and a proxy stops being useful at the boundary where the thing it counts and the thing you
+care about come apart. Driving this one to literal zero would have been measurable, defensible
+on the number, and a product regression.
