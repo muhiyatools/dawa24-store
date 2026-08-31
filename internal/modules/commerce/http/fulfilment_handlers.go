@@ -8,6 +8,7 @@ import (
 
 	"github.com/muhiya/dawa24-store/internal/modules/commerce"
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
+	"github.com/muhiya/dawa24-store/internal/platform/database"
 	"github.com/muhiya/dawa24-store/internal/platform/httpx"
 	"github.com/muhiya/dawa24-store/internal/shared/apperr"
 )
@@ -139,9 +140,14 @@ func (h *Handler) TransitionShipmentStatus(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
+	reqCtx := r.Context()
+	if actor.IsStaff || actor.Can("commerce.admin") {
+		reqCtx = database.WithTenant(reqCtx, shipment.OrganizationID)
+	}
+
 	actorID := actor.UserID
 	updatedShipment, err := h.service.TransitionShipmentStatus(
-		r.Context(), id, commerce.OrderStatus(body.Status), &actorID, body.Notes)
+		reqCtx, id, commerce.OrderStatus(body.Status), &actorID, body.Notes)
 	if err != nil {
 		httpx.Error(w, r, h.log, err)
 		return

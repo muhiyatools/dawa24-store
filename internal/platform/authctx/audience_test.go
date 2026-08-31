@@ -1,6 +1,8 @@
 package authctx_test
 
 import (
+	"io"
+	"log/slog"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -114,5 +116,127 @@ func TestRequirePagePermission(t *testing.T) {
 				t.Errorf("got status %d, want %d", rec.Code, tt.wantStatus)
 			}
 		})
+	}
+}
+
+func TestOrgStatusMatrix(t *testing.T) {
+	log := slog.New(slog.NewTextHandler(io.Discard, nil))
+	tierBGate := authctx.RequireApproved(log)
+	tierAGate := func(next http.Handler) http.Handler {
+		// Tier A has no RequireApproved gate; authenticated callers proceed.
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			if _, ok := authctx.From(r.Context()); !ok {
+				http.Redirect(w, r, "/auth/login", http.StatusSeeOther)
+				return
+			}
+			next.ServeHTTP(w, r)
+		})
+	}
+
+	okHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+		_, _ = w.Write([]byte("OK"))
+	})
+
+	statuses := []struct {
+		status         string
+		tierBWantsCode int
+		tierAWantsCode int
+	}{
+		{"pending", http.StatusFound, http.StatusOK},
+		{"under_review", http.StatusFound, http.StatusOK},
+		{"rejected", http.StatusFound, http.StatusOK},
+		{"suspended", http.StatusFound, http.StatusOK},
+		{"approved", http.StatusOK, http.StatusOK},
+	}
+
+	for _, s := range statuses {
+		t.Run("Status_"+s.status, func(t *testing.T) {
+			actor := authctx.Actor{
+				UserID:         10,
+				OrganizationID: 100,
+				OrgType:        "customer",
+				OrgStatus:      s.status,
+			}
+
+			// Tier B check
+			reqB := httptest.NewRequest("GET", "/wallet", nil)
+			reqB = reqB.WithContext(authctx.WithActor(reqB.Context(), actor))
+			recB := httptest.NewRecorder()
+			tierBGate(okHandler).ServeHTTP(recB, reqB)
+			if recB.Code != s.tierBWantsCode {
+				t.Errorf("Tier B status %q: got %d, want %d", s.status, recB.Code, s.tierBWantsCode)
+			}
+
+			// Tier A check
+			reqA := httptest.NewRequest("GET", "/documents", nil)
+			reqA = reqA.WithContext(authctx.WithActor(reqA.Context(), actor))
+			recA := httptest.NewRecorder()
+			tierAGate(okHandler).ServeHTTP(recA, reqA)
+			if recA.Code != s.tierAWantsCode {
+				t.Errorf("Tier A status %q: got %d, want %d", s.status, recA.Code, s.tierAWantsCode)
+			}
+		})
+	}
+}
+
+func TestCrossAudienceGates(t *testing.T) {
+	log := slog.New(slog.NewTextHandler(io.Discard, nil))
+	customerGate := authctx.RequireCustomer(log)
+	vendorGate := authctx.RequireVendor(log)
+
+	okHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+		_, _ = w.Write([]byte("OK"))
+	})
+
+	customerActor := authctx.Actor{
+		UserID:         1,
+		OrganizationID: 10,
+		OrgType:        "customer",
+		OrgStatus:      "approved",
+	}
+
+	vendorActor := authctx.Actor{
+		UserID:         2,
+		OrganizationID: 20,
+		OrgType:        "vendor",
+		OrgStatus:      "approved",
+	}
+
+	// 1. Customer accessing /vendor/* path gets 404
+	reqCV := httptest.NewRequest("GET", "/vendor/documents", nil)
+	reqCV = reqCV.WithContext(authctx.WithActor(reqCV.Context(), customerActor))
+	recCV := httptest.NewRecorder()
+	vendorGate(okHandler).ServeHTTP(recCV, reqCV)
+	if recCV.Code != http.StatusNotFound {
+		t.Errorf("Customer on vendor gate: got %d, want 404", recCV.Code)
+	}
+
+	// 2. Vendor accessing /customer/* path gets 404
+	reqVC := httptest.NewRequest("GET", "/customer/documents", nil)
+	reqVC = reqVC.WithContext(authctx.WithActor(reqVC.Context(), vendorActor))
+	recVC := httptest.NewRecorder()
+	customerGate(okHandler).ServeHTTP(recVC, reqVC)
+	if recVC.Code != http.StatusNotFound {
+		t.Errorf("Vendor on customer gate: got %d, want 404", recVC.Code)
+	}
+
+	// 3. Customer accessing customer gate gets 200
+	reqCC := httptest.NewRequest("GET", "/customer/documents", nil)
+	reqCC = reqCC.WithContext(authctx.WithActor(reqCC.Context(), customerActor))
+	recCC := httptest.NewRecorder()
+	customerGate(okHandler).ServeHTTP(recCC, reqCC)
+	if recCC.Code != http.StatusOK {
+		t.Errorf("Customer on customer gate: got %d, want 200", recCC.Code)
+	}
+
+	// 4. Vendor accessing vendor gate gets 200
+	reqVV := httptest.NewRequest("GET", "/vendor/documents", nil)
+	reqVV = reqVV.WithContext(authctx.WithActor(reqVV.Context(), vendorActor))
+	recVV := httptest.NewRecorder()
+	vendorGate(okHandler).ServeHTTP(recVV, reqVV)
+	if recVV.Code != http.StatusOK {
+		t.Errorf("Vendor on vendor gate: got %d, want 200", recVV.Code)
 	}
 }
