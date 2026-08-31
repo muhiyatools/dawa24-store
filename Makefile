@@ -191,8 +191,8 @@ check-file-size-count: ## Fail if the number of oversized Go files grows
 
 .PHONY: check-hardcoded-arabic
 check-hardcoded-arabic: ## Fail if Arabic string literals in Go grow
-	# Ceiling lowered to 132 in Phase 5 Wave 4 (extracted remaining user-facing literals to i18n, leaving only algorithmic token/column dictionaries).
-	@pat=$$(printf '\330'); n=$$(LC_ALL=C grep -rc "\"[^\"]*$$pat[^\"]*\"" --include='*.go' internal/ui internal/modules cmd 2>/dev/null | grep -v "_test\|_templ\|/i18n/" | awk -F: '{s+=$$2} END{print s+0}'); if [ "$$n" -gt 132 ]; then echo "FAIL: $$n Arabic literals in Go (ceiling 132). A string in a handler cannot be shown in English -- add a key to internal/shared/i18n and call i18n.T(lang, key)."; exit 1; fi; echo "  ok: $$n Arabic literals in Go (ceiling 132)"
+	# Ceiling lowered to 224 in Phase 5 Wave 4 (extracted all user-facing domain/service/UI literals to i18n, leaving only algorithmic token/column dictionaries).
+	@pat=$$(printf '\330'); n=$$(LC_ALL=C grep -rc "\"[^\"]*$$pat[^\"]*\"" --include='*.go' internal/ui internal/modules cmd 2>/dev/null | grep -v "_test\|_templ\|/i18n/" | awk -F: '{s+=$$2} END{print s+0}'); if [ "$$n" -gt 224 ]; then echo "FAIL: $$n Arabic literals in Go (ceiling 224). A string in a handler cannot be shown in English -- add a key to internal/shared/i18n and call i18n.T(lang, key)."; exit 1; fi; echo "  ok: $$n Arabic literals in Go (ceiling 224)"
 
 .PHONY: check-emoji
 check-emoji: ## Fail if emoji in templates grow

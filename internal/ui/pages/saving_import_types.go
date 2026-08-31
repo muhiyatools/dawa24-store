@@ -1,7 +1,6 @@
 package pages
 
 import (
-	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"time"
 
 	"github.com/muhiya/dawa24-store/internal/shared/money"
