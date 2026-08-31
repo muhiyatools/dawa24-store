@@ -1,9 +1,9 @@
 package ingest
 
 import (
-	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"context"
 	"fmt"
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 
 	"github.com/muhiya/dawa24-store/internal/modules/catalog"
 	"github.com/muhiya/dawa24-store/internal/modules/inventory"

@@ -3,10 +3,10 @@
 package attachments
 
 import (
-	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"encoding/json"
 	"fmt"
 	"github.com/muhiya/dawa24-store/internal/platform/rbac"
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"path/filepath"
 	"strings"
 	"time"

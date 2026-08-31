@@ -13,7 +13,6 @@
 package promo
 
 import (
-	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"math"
 
 	"github.com/muhiya/dawa24-store/internal/shared/money"

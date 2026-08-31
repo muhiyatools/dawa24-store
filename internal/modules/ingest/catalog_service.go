@@ -1,8 +1,8 @@
 package ingest
 
 import (
-	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"context"
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"sync"
 
 	"github.com/muhiya/dawa24-store/internal/modules/catalog"

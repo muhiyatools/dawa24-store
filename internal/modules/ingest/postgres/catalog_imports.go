@@ -1,10 +1,10 @@
 package postgres
 
 import (
-	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 
 	"github.com/jackc/pgx/v5"
 
