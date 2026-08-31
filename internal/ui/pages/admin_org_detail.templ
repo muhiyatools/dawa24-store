@@ -1,0 +1,387 @@
+package pages
+
+import (
+	"fmt"
+
+	"github.com/muhiya/dawa24-store/internal/modules/attachments"
+	"github.com/muhiya/dawa24-store/internal/modules/billing"
+	"github.com/muhiya/dawa24-store/internal/modules/commerce"
+	"github.com/muhiya/dawa24-store/internal/modules/org"
+	"github.com/muhiya/dawa24-store/internal/ui/components"
+	"github.com/muhiya/dawa24-store/internal/ui/layouts"
+)
+
+type AdminOrgDetailData struct {
+	Organization   *org.Organization
+	Branches       []*org.Branch
+	Employees      []*org.EmployeeView
+	Documents      []*attachments.Document
+	Wallet         *billing.Wallet
+	RecentTxs      []*billing.WalletTransaction
+	RecentDeposits []*billing.WalletDeposit
+	OrdersCount    int
+	RecentOrders   []*commerce.Order
+	AIUserID       string
+	AIVirtualKey   string
+}
+
+templ AdminOrganizationDetailPage(data AdminOrgDetailData, lang, dir string) {
+	@layouts.AdminShell(fmt.Sprintf("ملف المنشأة: %s", data.Organization.LegalName), "organizations", lang, dir) {
+		<div class="admin-page-container">
+			
+			<!-- Executive Header Card -->
+			<div class="admin-banner">
+				<div class="flex-between items-start flex-wrap gap-4">
+					<div class="d-flex items-center gap-3">
+						<div class="w-14 h-14 rounded-2xl bg-surface-sunken border flex-center font-black text-2xl text-brand">
+							if len(data.Organization.LegalName) > 0 {
+								{ string([]rune(data.Organization.LegalName)[0]) }
+							} else {
+								@components.IconBuilding("icon-sm")
+							}
+						</div>
+						<div>
+							<div class="d-flex items-center gap-2 flex-wrap">
+								<h1 class="text-xl font-black text-primary m-0">
+									{ data.Organization.LegalName }
+								</h1>
+								if string(data.Organization.Type) == "vendor" {
+									<span class="badge badge-purple text-xs font-black">مورد أدوية معتمد</span>
+								} else {
+									<span class="badge badge-emerald text-xs font-black">صيدلية معتمدة</span>
+								}
+								<span class="tabular-nums text-xs text-muted font-bold">#{ fmt.Sprintf("ORG-%d", data.Organization.ID) }</span>
+							</div>
+							if data.Organization.TradeName["ar"] != "" && data.Organization.TradeName["ar"] != data.Organization.LegalName {
+								<div class="text-sm text-secondary mt-0.5">
+									الاسم التجاري: <strong class="text-primary">{ data.Organization.TradeName["ar"] }</strong>
+								</div>
+							}
+							<div class="d-flex items-center gap-3 mt-1 text-xs text-muted flex-wrap">
+								<span>تاريخ التسجيل: <strong class="tabular-nums text-secondary">{ data.Organization.CreatedAt.Format("2006-01-02 15:04") }</strong></span>
+								if string(data.Organization.Status) == "approved" {
+									<span class="badge badge-emerald text-xs font-black">معتمد ومفعل في المنظومة</span>
+								} else if string(data.Organization.Status) == "pending" {
+									<span class="badge badge-amber text-xs font-black">⏳ قيد المراجعة والتدقيق</span>
+								} else if string(data.Organization.Status) == "rejected" {
+									<span class="badge badge-danger text-xs font-black">مرفوض</span>
+								}
+							</div>
+						</div>
+					</div>
+
+					<!-- Header Actions Bar -->
+					<div class="inline-row-wrap">
+						if string(data.Organization.Status) == "pending" {
+							<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/organizations/%d/approve", data.Organization.ID)) } class="m-0" onsubmit="return confirm('تأكيد اعتماد هذه المنشأة وتفعيل حسابها بالكامل؟');">
+								<button type="submit" class="btn btn-primary btn-sm font-black px-4 py-2">
+									@components.IconCheck("icon-xs")
+									<span>اعتماد المنشأة فوراً</span>
+								</button>
+							</form>
+							<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/organizations/%d/reject", data.Organization.ID)) } class="m-0" onsubmit="return confirm('تأكيد رفض هذه المنشأة؟');">
+								<button type="submit" class="btn btn-danger btn-sm font-black px-4 py-2">
+									@components.IconClose("icon-xs")
+									<span>رفض المنشأة</span>
+								</button>
+							</form>
+						} else if string(data.Organization.Status) == "approved" {
+							<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/organizations/%d/suspend", data.Organization.ID)) } class="m-0" onsubmit="return confirm('تأكيد تعليق هذه المنشأة؟');">
+								<button type="submit" class="btn btn-secondary btn-sm font-bold text-danger">
+									تعليق المنشأة
+								</button>
+							</form>
+						}
+
+						<a href="/admin/organizations" class="btn btn-secondary btn-sm font-bold gap-1">
+							@components.IconArrowRight("icon-xs")
+							<span>العودة للمنشآت</span>
+						</a>
+					</div>
+				</div>
+
+				<!-- 4 High-Impact Stat Tiles -->
+				<div class="d-grid gap-3 mt-4 pt-3 border-t grid-auto-fit-sm">
+					<div class="bg-surface-sunken p-3 rounded-xl border">
+						<div class="label-strong">الفروع ومواقع التخزين</div>
+						<div class="text-xl font-black text-brand mt-0.5 tabular-nums">
+							{ fmt.Sprintf("%d", len(data.Branches)) } <span class="text-xs text-muted font-semibold">فرع ومخزن</span>
+						</div>
+					</div>
+
+					<div class="bg-surface-sunken p-3 rounded-xl border">
+						<div class="label-strong">فريق العمل والموظفون</div>
+						<div class="text-xl font-black text-purple mt-0.5 tabular-nums">
+							{ fmt.Sprintf("%d", len(data.Employees)) } <span class="text-xs text-muted font-semibold">عضو مسجل</span>
+						</div>
+					</div>
+
+					<div class="bg-surface-sunken p-3 rounded-xl border">
+						<div class="label-strong">رصيد المحفظة المالية</div>
+						<div class="text-xl font-black text-success mt-0.5 tabular-nums">
+							if data.Wallet != nil {
+								{ data.Wallet.Balance.String() } ج.م
+							} else {
+								<span>0.00 ج.م</span>
+							}
+						</div>
+					</div>
+
+					<div class="bg-surface-sunken p-3 rounded-xl border">
+						<div class="label-strong">أوامر التوريد والعمليات</div>
+						<div class="text-xl font-black text-primary mt-0.5 tabular-nums">
+							{ fmt.Sprintf("%d", data.OrdersCount) } <span class="text-xs text-muted font-semibold">طلب توريد</span>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<!-- Main 2-Column Overview Grid -->
+			<div class="d-grid gap-4 items-start mb-4 grid-auto-fit-lg">
+				
+				<!-- Card 1: Legal & Registration Profile -->
+				<div class="admin-banner">
+					<div class="flex-between pb-3 border-b mb-3">
+						<h3 class="text-base font-bold text-primary m-0 d-flex items-center gap-1.5">
+							<span>@components.IconFileText("icon-sm")</span>
+							<span>البيانات القانونية والتراخيص الرسمية</span>
+						</h3>
+					</div>
+
+					<div class="d-grid grid-2-col gap-4 text-sm">
+						<div>
+							<div class="label-strong">الاسم القانوني المسجل</div>
+							<div class="font-bold text-primary mt-1">{ data.Organization.LegalName }</div>
+						</div>
+
+						<div>
+							<div class="label-strong">نوع النشاط</div>
+							<div class="mt-1">
+								if string(data.Organization.Type) == "vendor" {
+									<span class="badge badge-purple text-xs font-black">مورد ومستودع أدوية</span>
+								} else {
+									<span class="badge badge-emerald text-xs font-black">صيدلية مرخصة</span>
+								}
+							</div>
+						</div>
+
+						<div class="bg-surface-sunken p-2.5 rounded-md border">
+							<div class="label-strong">رقم السجل التجاري (CR)</div>
+							<div class="font-black text-primary text-base mt-0.5 tabular-nums">
+								if data.Organization.CommercialRegister != "" {
+									{ data.Organization.CommercialRegister }
+								} else {
+									<span class="text-muted text-xs">غير مسجل</span>
+								}
+							</div>
+						</div>
+
+						<div class="bg-surface-sunken p-2.5 rounded-md border">
+							<div class="label-strong">الرقم الضريبي (Tax ID)</div>
+							<div class="font-black text-primary text-base mt-0.5 tabular-nums">
+								if data.Organization.TaxNumber != "" {
+									{ data.Organization.TaxNumber }
+								} else {
+									<span class="text-muted text-xs">غير مسجل</span>
+								}
+							</div>
+						</div>
+
+						<div class="col-span-full bg-surface-sunken p-2.5 rounded-md border">
+							<div class="label-strong">رقم ترخيص الصيدلي / المنشأة</div>
+							<div class="font-black text-brand text-base mt-0.5 tabular-nums">
+								if data.Organization.PharmacistLicense != "" {
+									{ data.Organization.PharmacistLicense }
+								} else {
+									<span class="text-muted text-xs">غير مسجل</span>
+								}
+							</div>
+						</div>
+					</div>
+
+					<!-- AI Gateway Credentials Box -->
+					<div class="mt-3 pt-3 border-t">
+						<div class="text-xs font-bold text-secondary mb-1.5">إعدادات بوابة الذكاء الاصطناعي (AI Gateway):</div>
+						<div class="bg-surface-sunken border rounded-lg p-2.5 text-xs d-flex flex-col gap-1">
+							<div class="flex-between">
+								<span class="text-muted">معرف الـ AI User:</span>
+								<strong class="tabular-nums" dir="ltr">{ data.AIUserID }</strong>
+							</div>
+							<div class="flex-between">
+								<span class="text-muted">حالة المفتاح الافتراضي:</span>
+								if data.AIVirtualKey != "" {
+									<span class="text-success font-bold">مفعل ومربوط</span>
+								} else {
+									<span class="text-warning font-bold">جاهز للتوليد</span>
+								}
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<!-- Card 2: Uploaded Compliance Documents -->
+				<div class="admin-banner">
+					<div class="flex-between pb-3 border-b mb-3">
+						<h3 class="text-base font-bold text-primary m-0 d-flex items-center gap-1.5">
+							<span>@components.IconFileText("icon-sm")</span>
+							<span>المستندات والتراخيص المرفوعة</span>
+							<span class="badge badge-sky text-xs font-black tabular-nums">{ fmt.Sprintf("%d مستند", len(data.Documents)) }</span>
+						</h3>
+						<a href="/admin/approvals?tab=documents" class="btn btn-secondary btn-xs font-bold">
+							مركز المستندات
+						</a>
+					</div>
+
+					if len(data.Documents) == 0 {
+						<div class="p-6 text-center bg-surface-sunken border border-dashed rounded-xl text-xs text-muted">
+							لم يتم رفع أي مستندات أو وثائق تراخيص لهذه المنشأة حتى الآن.
+						</div>
+					} else {
+						<div class="d-flex flex-col gap-2">
+							for _, doc := range data.Documents {
+								<div class="bg-surface-sunken border rounded-xl p-3 flex-between gap-3">
+									<div class="inline-row-06">
+										<div class="w-8 h-8 rounded-md bg-surface-raised border flex-center text-brand">
+											@components.IconFile("icon-xs")
+										</div>
+										<div>
+											<div class="font-bold text-xs text-primary">{ doc.Title }</div>
+											<div class="text-xs text-muted tabular-nums">{ string(doc.DocumentType) } • { doc.CreatedAt.Format("2006-01-02") }</div>
+										</div>
+									</div>
+									<div class="inline-row-04">
+										if doc.Status == "verified" {
+											<span class="badge badge-emerald text-xs font-black">معتمد</span>
+										} else if doc.Status == "rejected" {
+											<span class="badge badge-danger text-xs font-black">مرفوض</span>
+										} else {
+											<span class="badge badge-amber text-xs font-black">قيد المراجعة</span>
+										}
+										if doc.FileURL != "" {
+											<a href={ templ.SafeURL(doc.FileURL) } target="_blank" class="btn btn-secondary btn-xs font-bold">
+												معاينة
+											</a>
+										}
+									</div>
+								</div>
+							}
+						</div>
+					}
+				</div>
+
+			</div>
+
+			<!-- Lower Grid: Branches & Team -->
+			<div class="d-grid gap-4 items-start mb-4 grid-auto-fit-lg">
+				
+				<!-- Branches Table Card -->
+				<div class="admin-banner">
+					<div class="flex-between pb-3 border-b mb-3">
+						<h3 class="text-base font-bold text-primary m-0 d-flex items-center gap-1.5">
+							<span>@components.IconMapPin("icon-sm")</span>
+							<span>الفروع والمستودعات التابعة</span>
+							<span class="badge badge-sky text-xs font-black tabular-nums">{ fmt.Sprintf("%d", len(data.Branches)) }</span>
+						</h3>
+					</div>
+
+					if len(data.Branches) == 0 {
+						<div class="p-6 text-center bg-surface-sunken border border-dashed rounded-xl text-xs text-muted">
+							لا توجد فروع أو مخازن مسجلة تابعة لهذه المنشأة.
+						</div>
+					} else {
+						<div class="border rounded-xl overflow-hidden bg-surface-sunken">
+							<table class="data-table data-table-responsive text-xs">
+								<thead>
+									<tr class="bg-surface-raised">
+										<th>اسم الفرع</th>
+										<th>الكود</th>
+										<th>العنوان</th>
+										<th>الحالة</th>
+									</tr>
+								</thead>
+								<tbody>
+									for _, b := range data.Branches {
+										<tr class="rule-bottom">
+											<td class="font-bold text-primary">
+												if b.Name["ar"] != "" {
+													{ b.Name["ar"] }
+												} else {
+													{ b.Name["en"] }
+												}
+											</td>
+											<td class="tabular-nums" dir="ltr"><code>{ b.Code }</code></td>
+											<td>{ b.Address }</td>
+											<td>
+												if b.Status == "active" || b.Status == "" {
+													<span class="badge badge-emerald text-xs font-black">نشط</span>
+												} else {
+													<span class="badge badge-danger text-xs font-black">معطل</span>
+												}
+											</td>
+										</tr>
+									}
+								</tbody>
+							</table>
+						</div>
+					}
+				</div>
+
+				<!-- Team Members Table Card -->
+				<div class="admin-banner">
+					<div class="flex-between pb-3 border-b mb-3">
+						<h3 class="text-base font-bold text-primary m-0 d-flex items-center gap-1.5">
+							<span>@components.IconUsers("icon-sm")</span>
+							<span>فريق العمل والمستخدمون المرتبطون</span>
+							<span class="badge badge-indigo text-xs font-black tabular-nums">{ fmt.Sprintf("%d", len(data.Employees)) }</span>
+						</h3>
+					</div>
+
+					if len(data.Employees) == 0 {
+						<div class="p-6 text-center bg-surface-sunken border border-dashed rounded-xl text-xs text-muted">
+							لم يتم إضافة أي موظفين أو مستخدمين تابعين لهذه المنشأة.
+						</div>
+					} else {
+						<div class="border rounded-xl overflow-hidden bg-surface-sunken">
+							<table class="data-table data-table-responsive text-xs">
+								<thead>
+									<tr class="bg-surface-raised">
+										<th>الاسم</th>
+										<th>البريد الإلكتروني</th>
+										<th>الدور الوظيفي</th>
+										<th>الحالة</th>
+									</tr>
+								</thead>
+								<tbody>
+									for _, e := range data.Employees {
+										<tr class="rule-bottom">
+											<td class="font-bold text-primary">{ e.UserName }</td>
+											<td class="tabular-nums text-muted text-xs" dir="ltr">{ e.UserEmail }</td>
+											<td><span class="badge badge-secondary text-xs">{ e.RoleName }</span></td>
+											<td>
+												if e.Member != nil && e.Member.IsActive {
+													<span class="badge badge-emerald text-xs font-black">نشط</span>
+												} else {
+													<span class="badge badge-danger text-xs font-black">معطل</span>
+												}
+											</td>
+										</tr>
+									}
+								</tbody>
+							</table>
+						</div>
+					}
+				</div>
+
+			</div>
+
+		</div>
+	}
+}
+
+templ AdminOrganizationDetail(o *org.Organization, branches []*org.Branch, employees []*org.EmployeeView, activeTab string, lang, dir string) {
+	@AdminOrganizationDetailPage(AdminOrgDetailData{
+		Organization: o,
+		Branches:     branches,
+		Employees:    employees,
+	}, lang, dir)
+}

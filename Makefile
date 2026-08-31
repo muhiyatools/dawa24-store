@@ -51,7 +51,7 @@ migrate-status: ## List migrations and show how many are pending
 # pipeline, so failures are found before a push rather than after one.
 
 .PHONY: check
-check: fmt-check vet lint test check-provider-isolation check-prompt-version check-file-size check-inline-styles check-error-swallow check-no-cdn check-file-size-count check-hardcoded-arabic check-emoji check-unused-components check-important check-backdrop-filter check-transition-all check-breakpoints check-physical-properties check-topbar-impls check-modal-legacy check-css-layered ## Run every gate
+check: fmt-check vet lint test check-provider-isolation check-prompt-version check-file-size check-inline-styles check-error-swallow check-no-cdn check-file-size-count check-hardcoded-arabic check-emoji check-unused-components check-important check-backdrop-filter check-transition-all check-breakpoints check-physical-properties check-topbar-impls check-modal-legacy check-modal-handwritten check-css-layered ## Run every gate
 
 .PHONY: check-error-swallow
 check-error-swallow: ## Fail if a service error is silently discarded
@@ -157,10 +157,10 @@ docker: ## Build the container image
 
 check-inline-styles: ## Fail if inline style attributes grow past the current ceiling
 	@echo "==> checking inline styles"
-	# Ceiling lowered from 3616 to 3374 in Phase 4 (242 styles removed across modal migrations and shell cleanups).
+	# Ceiling lowered to 2657 in Phase 5 Wave 2 (Wave 2 conversion and admin heavy screens decomposition).
 	@n=$$(grep -oh 'style="' internal/ui/pages/*.templ internal/ui/layouts/*.templ | wc -l | tr -d ' '); \
-	if [ "$$n" -gt 3374 ]; then \
-	  echo "FAIL: $$n inline style attributes (ceiling 3374)."; \
+	if [ "$$n" -gt 2657 ]; then \
+	  echo "FAIL: $$n inline style attributes (ceiling 2657)."; \
 	  echo ""; \
 	  echo "Inline styles bypass the tokens in app.css, which is why the design"; \
 	  echo "drifted: a fix on one page never generalises. Use a class from"; \
@@ -170,7 +170,7 @@ check-inline-styles: ## Fail if inline style attributes grow past the current ce
 	  echo "This is a ratchet: lower the ceiling in the Makefile as it drops."; \
 	  exit 1; \
 	fi; \
-	echo "OK: $$n inline styles (ceiling 3374)"
+	echo "OK: $$n inline styles (ceiling 2657)"
 
 # --- ratchets ------------------------------------------------------------
 # Each number below may only go down. When a change improves one, lower its
@@ -191,15 +191,17 @@ check-file-size-count: ## Fail if the number of oversized Go files grows
 
 .PHONY: check-hardcoded-arabic
 check-hardcoded-arabic: ## Fail if Arabic string literals in Go grow
-	@pat=$$(printf '\330'); n=$$(LC_ALL=C grep -rc "\"[^\"]*$$pat[^\"]*\"" --include='*.go' internal/ui internal/modules cmd 2>/dev/null | grep -v "_test\|_templ\|/i18n/" | awk -F: '{s+=$$2} END{print s+0}'); if [ "$$n" -gt 1246 ]; then echo "FAIL: $$n Arabic literals in Go (ceiling 1246). A string in a handler cannot be shown in English -- add a key to internal/shared/i18n and call i18n.T(lang, key)."; exit 1; fi; echo "  ok: $$n Arabic literals in Go (ceiling 1246)"
+	# Ceiling lowered to 1223 in Phase 5 Wave 1 completion (47 literals extracted to i18n).
+	@pat=$$(printf '\330'); n=$$(LC_ALL=C grep -rc "\"[^\"]*$$pat[^\"]*\"" --include='*.go' internal/ui internal/modules cmd 2>/dev/null | grep -v "_test\|_templ\|/i18n/" | awk -F: '{s+=$$2} END{print s+0}'); if [ "$$n" -gt 1223 ]; then echo "FAIL: $$n Arabic literals in Go (ceiling 1223). A string in a handler cannot be shown in English -- add a key to internal/shared/i18n and call i18n.T(lang, key)."; exit 1; fi; echo "  ok: $$n Arabic literals in Go (ceiling 1223)"
 
 .PHONY: check-emoji
 check-emoji: ## Fail if emoji in templates grow
-	@pat=$$(printf '\360\237'); n=$$(LC_ALL=C grep -ro "$$pat" --include='*.templ' internal/ui | wc -l | tr -d " "); if [ "$$n" -gt 9 ]; then echo "FAIL: $$n emoji in templates (ceiling 9). Use an icon from internal/ui/components/icons.templ, or nothing."; exit 1; fi; echo "  ok: $$n emoji in templates (ceiling 9)"
+	# Ceiling lowered to 8 in Phase 5 Wave 2.
+	@pat=$$(printf '\360\237'); n=$$(LC_ALL=C grep -ro "$$pat" --include='*.templ' internal/ui | wc -l | tr -d " "); if [ "$$n" -gt 8 ]; then echo "FAIL: $$n emoji in templates (ceiling 8). Use an icon from internal/ui/components/icons.templ, or nothing."; exit 1; fi; echo "  ok: $$n emoji in templates (ceiling 8)"
 
 .PHONY: check-unused-components
 check-unused-components: ## Fail if components no page uses grow
-	@n=0; for f in internal/ui/components/*.templ; do for fn in $$(grep -oE "^templ [A-Za-z0-9_]+" "$$f" | awk '{print $$2}'); do p=$$(grep -rho "components\.$$fn" --include='*.templ' internal/ui/pages internal/ui/layouts 2>/dev/null | wc -l); i=$$(grep -rho "@$$fn(" --include='*.templ' internal/ui/components 2>/dev/null | wc -l); if [ "$$p" -eq 0 ] && [ "$$i" -eq 0 ]; then n=$$((n+1)); echo "  unused: $$fn"; fi; done; done; if [ "$$n" -gt 0 ]; then echo "FAIL: $$n components nothing references (ceiling 0). Either a page should use it, or it should not exist."; exit 1; fi; echo "  ok: every component is referenced"
+	@n=0; for f in internal/ui/components/*.templ; do for fn in $$(grep -oE "^templ [A-Za-z0-9_]+" "$$f" | awk '{print $$2}'); do p=$$(grep -rho "components\.$$fn" --include='*.templ' internal/ui/pages internal/ui/layouts 2>/dev/null | wc -l); i=$$(grep -rho "@$$fn(" --include='*.templ' internal/ui/components 2>/dev/null | wc -l); g=$$(grep -rho "components\.$$fn" internal/ui/*.go 2>/dev/null | wc -l); if [ "$$p" -eq 0 ] && [ "$$i" -eq 0 ] && [ "$$g" -eq 0 ]; then n=$$((n+1)); echo "  unused: $$fn"; fi; done; done; if [ "$$n" -gt 0 ]; then echo "FAIL: $$n components nothing references (ceiling 0). Either a page should use it, or it should not exist."; exit 1; fi; echo "  ok: every component is referenced"
 
 .PHONY: check-important
 check-important: ## Fail if !important occurrences exceed defended ceiling (3)
@@ -268,6 +270,18 @@ check-modal-legacy: ## Fail if legacy modal-overlay or window.openModal appears
 	  exit 1; \
 	fi; \
 	echo "  ok: 0 legacy modal references"
+
+.PHONY: check-modal-handwritten
+check-modal-handwritten: ## Fail if raw <dialog in pages exceeds ratchet ceiling
+	@echo "==> checking raw <dialog in page templates"
+	# Ceiling lowered from 37 to 31 in Phase 5 Wave 2.
+	@n=$$(grep -rn '<dialog' internal/ui/pages/*.templ 2>/dev/null | wc -l | tr -d ' '); \
+	if [ "$$n" -gt 31 ]; then \
+	  echo "FAIL: $$n raw <dialog elements in pages (ceiling 31). Every modal must go through components.Modal."; \
+	  grep -rn '<dialog' internal/ui/pages/*.templ 2>/dev/null; \
+	  exit 1; \
+	fi; \
+	echo "OK: $$n raw <dialog elements (ceiling 31)"
 
 .PHONY: check-css-layered
 check-css-layered: ## Fail if a stylesheet ships outside the @layer cascade

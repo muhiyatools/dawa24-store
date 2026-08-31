@@ -1,0 +1,1267 @@
+package pages
+
+import (
+	"fmt"
+	"time"
+
+	"github.com/muhiya/dawa24-store/internal/ui/components"
+	"github.com/muhiya/dawa24-store/internal/ui/layouts"
+)
+
+// AdminTempWarehouseItem represents a single temporary warehouse or uploaded price spreadsheet.
+type AdminTempWarehouseItem struct {
+	ID               int64
+	SupplierName     string
+	OriginalFilename string
+	RowCount         int
+	SizeBytes        int64
+	Status           string
+	CreatedBy        *int64
+	CreatedAt        time.Time
+	ArchivedAt       *time.Time
+}
+
+// AdminTempWarehousesData carries data for the temporary warehouses admin page.
+type AdminTempWarehousesData struct {
+	Items         []*AdminTempWarehouseItem
+	TotalCount    int
+	TotalRows     int64
+	ActiveCount   int
+	ArchivedCount int
+	Query         string
+	StatusFilter  string
+	Scope         string
+	NoticeMsg     string
+	NoticeType    string
+}
+
+// AdminTempWarehousesPage renders the full temporary warehouses management and staging interface.
+templ AdminTempWarehousesPage(data *AdminTempWarehousesData, lang, dir string) {
+	@layouts.AdminShell("قوائم المستودعات التابعة لحسابي المشرف", "temp_warehouses", lang, dir) {
+		<div
+			x-data="{
+				uploadModal: false,
+				itemsModal: false,
+				mappingModal: false,
+				mappingLoading: false,
+				mappingSubmitting: false,
+				mappingFile: { id: 0, supplier_name: '', original_filename: '', row_count: 0 },
+				mappingHeaders: [],
+				mappingPreview: [],
+				mappingCode: 0,
+				mappingName: 1,
+				mappingPrice: 2,
+				mappingDiscount: 3,
+				mappingQueue: [],
+				mappingStep: 1,
+				mappingTotal: 1,
+				autoLaunchSetup: true,
+				selectedWarehouse: { id: 0, name: '', total: 0 },
+				modalItems: [],
+				modalPage: 1,
+				modalTotalPages: 1,
+				modalLoading: false,
+				uploadStep: 1,
+				fileHeaders: [],
+				sampleRows: [],
+				detectedCode: 0,
+				detectedName: 1,
+				detectedPrice: 2,
+				detectedDiscount: 3,
+				isDragging: false,
+				isBulkUploading: false,
+				uploadProgress: 0,
+				uploadStatusText: '',
+				selectedFiles: [],
+				bulkUploadResults: null,
+				init() {
+					const urlParams = new URLSearchParams(window.location.search);
+					const setupFile = urlParams.get('setup_file');
+					const setupQueue = urlParams.get('setup_queue');
+					if (setupFile) {
+						const queue = setupQueue ? setupQueue.split(',').filter(x => x.trim().length > 0) : [];
+						const step = parseInt(urlParams.get('setup_step'), 10) || 1;
+						const total = parseInt(urlParams.get('setup_total'), 10) || (queue.length + 1);
+						this.openMapping(parseInt(setupFile, 10), queue, step, total);
+					}
+				},
+				async openItems(id, name, total) {
+					this.selectedWarehouse = { id: id, name: name, total: total };
+					this.modalPage = 1;
+					this.itemsModal = true;
+					await this.fetchItems();
+				},
+				async fetchItems() {
+					this.modalLoading = true;
+					try {
+						const res = await fetch('/admin/temporary-warehouses/' + this.selectedWarehouse.id + '/items-json?page=' + this.modalPage + '&limit=10');
+						const json = await res.json();
+						if (json.success) {
+							this.modalItems = json.items || [];
+							this.modalTotalPages = json.total_pages || 1;
+							this.selectedWarehouse.total = json.total || 0;
+						}
+					} catch(e) {
+						console.error('Error fetching items:', e);
+					} finally {
+						this.modalLoading = false;
+					}
+				},
+				async nextModalPage() {
+					if (this.modalPage < this.modalTotalPages) {
+						this.modalPage++;
+						await this.fetchItems();
+					}
+				},
+				async prevModalPage() {
+					if (this.modalPage > 1) {
+						this.modalPage--;
+						await this.fetchItems();
+					}
+				},
+				async deleteItem(rowId) {
+					if (!confirm('هل أنت متأكد من حذف هذا الصنف من المستودع؟')) return;
+					try {
+						const formData = new FormData();
+						const res = await fetch('/admin/temporary-warehouses/items/' + rowId + '/delete', {
+							method: 'POST',
+							body: formData
+						});
+						const json = await res.json();
+						if (json.success) {
+							await this.fetchItems();
+						} else {
+							alert(json.error || 'حدث خطأ أثناء الحذف');
+						}
+					} catch(e) {
+						alert('فشل الاتصال بالخادم');
+					}
+				},
+				async openMapping(id, queue, step, total) {
+					if (!id || id <= 0) return;
+					this.mappingLoading = true;
+					this.mappingModal = true;
+					this.mappingQueue = queue || [];
+					this.mappingStep = step || 1;
+					this.mappingTotal = total || (this.mappingQueue.length + 1);
+					try {
+						const res = await fetch('/admin/temporary-warehouses/' + id + '/mapping-json');
+						const json = await res.json();
+						if (json.success) {
+							this.mappingFile = {
+								id: json.id,
+								supplier_name: json.supplier_name,
+								original_filename: json.original_filename,
+								row_count: json.row_count
+							};
+							this.mappingHeaders = json.headers || [];
+							this.mappingPreview = json.preview || [];
+							this.mappingCode = json.code_col >= 0 ? json.code_col : 0;
+							this.mappingName = json.name_col >= 0 ? json.name_col : 1;
+							this.mappingPrice = json.price_col >= 0 ? json.price_col : 2;
+							this.mappingDiscount = json.discount_col >= 0 ? json.discount_col : 3;
+						} else {
+							alert(json.error || 'تعذر تحميل بيانات أعمدة المستودع');
+							this.mappingModal = false;
+						}
+					} catch(e) {
+						console.error('Mapping load error:', e);
+						alert('فشل الاتصال بالخادم لتحميل تفاصيل الأعمدة');
+						this.mappingModal = false;
+					} finally {
+						this.mappingLoading = false;
+					}
+				},
+				async submitMapping(form) {
+					if (!this.mappingFile || !this.mappingFile.id) return;
+					this.mappingSubmitting = true;
+					try {
+						const formData = new FormData();
+						formData.append('supplier_name', this.mappingFile.supplier_name || '');
+						formData.append('col_code', this.mappingCode);
+						formData.append('col_name', this.mappingName);
+						formData.append('col_price', this.mappingPrice);
+						formData.append('col_discount', this.mappingDiscount);
+						formData.append('setup_queue', this.mappingQueue.join(','));
+						formData.append('step', this.mappingStep);
+						formData.append('total', this.mappingTotal);
+
+						const res = await fetch('/admin/temporary-warehouses/' + this.mappingFile.id + '/mapping', {
+							method: 'POST',
+							body: formData,
+							headers: {
+								'Accept': 'application/json',
+								'X-Requested-With': 'XMLHttpRequest'
+							}
+						});
+						const json = await res.json();
+						if (json.success) {
+							if (this.mappingQueue && this.mappingQueue.length > 0) {
+								const nextId = parseInt(this.mappingQueue[0], 10);
+								const nextQueue = this.mappingQueue.slice(1);
+								await this.openMapping(nextId, nextQueue, this.mappingStep + 1, this.mappingTotal);
+							} else {
+								this.mappingModal = false;
+								window.location.reload();
+							}
+						} else {
+							alert(json.error || 'فشل حفظ وضبط الأعمدة');
+						}
+					} catch(e) {
+						console.error('Mapping submit error:', e);
+						alert('حدث خطأ أثناء حفظ الإعدادات');
+					} finally {
+						this.mappingSubmitting = false;
+					}
+				},
+				async skipMapping() {
+					if (this.mappingQueue && this.mappingQueue.length > 0) {
+						const nextId = parseInt(this.mappingQueue[0], 10);
+						const nextQueue = this.mappingQueue.slice(1);
+						await this.openMapping(nextId, nextQueue, this.mappingStep + 1, this.mappingTotal);
+					} else {
+						this.mappingModal = false;
+						window.location.reload();
+					}
+				},
+				skipAllMapping() {
+					this.mappingModal = false;
+					window.location.reload();
+				},
+				handleFilesSelect(event) {
+					const files = Array.from(event.target.files || []);
+					if (files.length === 0) return;
+					this.selectedFiles = files;
+					this.bulkUploadResults = null;
+					if (files.length === 1) {
+						this.handleSingleFileHeaders(files[0]);
+					}
+				},
+				handleDrop(event) {
+					this.isDragging = false;
+					if (event.dataTransfer && event.dataTransfer.files) {
+						const files = Array.from(event.dataTransfer.files).filter(f => 
+							f.name.endsWith('.xlsx') || f.name.endsWith('.xls') || f.name.endsWith('.csv') || f.name.endsWith('.txt')
+						);
+						if (files.length > 0) {
+							this.selectedFiles = files;
+							this.bulkUploadResults = null;
+							if (files.length === 1) {
+								this.handleSingleFileHeaders(files[0]);
+							}
+						}
+					}
+				},
+				removeSelectedFile(idx) {
+					this.selectedFiles.splice(idx, 1);
+					if (this.selectedFiles.length === 1) {
+						this.handleSingleFileHeaders(this.selectedFiles[0]);
+					}
+				},
+				clearSelectedFiles() {
+					this.selectedFiles = [];
+					this.fileHeaders = [];
+					this.bulkUploadResults = null;
+					if (this.$refs && this.$refs.fileInput) {
+						this.$refs.fileInput.value = '';
+					}
+				},
+				formatFileSize(bytes) {
+					if (!bytes || bytes === 0) return '0 B';
+					const k = 1024;
+					const sizes = ['B', 'KB', 'MB', 'GB'];
+					const i = Math.floor(Math.log(bytes) / Math.log(k));
+					return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
+				},
+				totalSelectedSize() {
+					const totalBytes = this.selectedFiles.reduce((acc, f) => acc + (f.size || 0), 0);
+					return this.formatFileSize(totalBytes);
+				},
+				cleanName(filename) {
+					if (!filename) return '';
+					let name = filename.replace(/\.[^/.]+$/, '');
+					name = name.replace(/[_\-]/g, ' ').trim();
+					return name || filename;
+				},
+				handleSingleFileHeaders(file) {
+					if (!file) return;
+					const reader = new FileReader();
+					reader.onload = (e) => {
+						const text = e.target.result;
+						if (file.name.endsWith('.csv') || file.name.endsWith('.txt')) {
+							const lines = text.split(/\r?\n/).filter(l => l.trim().length > 0);
+							if (lines.length > 0) {
+								this.fileHeaders = lines[0].split(',').map(h => h.trim().replace(/^['\x22]|['\x22]$/g, ''));
+								this.guessColumns();
+							}
+						} else {
+							this.fileHeaders = ['كود الصنف (SKU)', 'اسم المنتج / الصنف', 'سعر الجمهور', 'نسبة الخصم %', 'الكمية'];
+							this.detectedCode = 0;
+							this.detectedName = 1;
+							this.detectedPrice = 2;
+							this.detectedDiscount = 3;
+						}
+					};
+					if (file.name.endsWith('.csv') || file.name.endsWith('.txt')) {
+						reader.readAsText(file);
+					} else {
+						reader.readAsArrayBuffer(file);
+					}
+				},
+				guessColumns() {
+					if (!this.fileHeaders || this.fileHeaders.length === 0) return;
+					this.detectedCode = 0;
+					this.detectedName = 1;
+					this.detectedPrice = 2;
+					this.detectedDiscount = 3;
+					this.fileHeaders.forEach((h, idx) => {
+						const norm = h.toLowerCase().replace(/[\s_\-]/g, '');
+						if (norm.includes('كود') || norm.includes('code') || norm.includes('sku') || norm.includes('باركود') || norm.includes('barcode')) {
+							this.detectedCode = idx;
+						} else if (norm.includes('اسم') || norm.includes('name') || norm.includes('صنف') || norm.includes('منتج')) {
+							this.detectedName = idx;
+						} else if ((norm.includes('سعر') || norm.includes('price') || norm.includes('جمهور') || norm.includes('رسمي')) && !norm.includes('خصم') && !norm.includes('صافي')) {
+							this.detectedPrice = idx;
+						} else if (norm.includes('خصم') || norm.includes('discount') || norm.includes('%') || norm.includes('نسبة')) {
+							this.detectedDiscount = idx;
+						}
+					});
+				},
+				async submitBulkUpload(form) {
+					if (this.selectedFiles.length === 0) {
+						alert('يرجى اختيار ملف أو أكثر أولاً');
+						return;
+					}
+					this.isBulkUploading = true;
+					this.uploadProgress = 10;
+					this.uploadStatusText = 'جاري رفع ' + this.selectedFiles.length + ' ملف إلى الخادم...';
+
+					const formData = new FormData();
+					if (this.selectedFiles.length === 1) {
+						formData.append('supplier_name', form.supplier_name ? form.supplier_name.value : '');
+						formData.append('col_code', this.detectedCode);
+						formData.append('col_name', this.detectedName);
+						formData.append('col_price', this.detectedPrice);
+						formData.append('col_discount', this.detectedDiscount);
+					} else if (form.supplier_name && form.supplier_name.value) {
+						formData.append('supplier_name', form.supplier_name.value);
+					}
+
+					for (let i = 0; i < this.selectedFiles.length; i++) {
+						formData.append('files', this.selectedFiles[i]);
+					}
+
+					try {
+						this.uploadProgress = 35;
+						this.uploadStatusText = 'جاري المعالجة المتوازية فائقة السرعة واستخراج أصناف المستودعات في قاعدة البيانات...';
+
+						const response = await fetch(form.action || '/admin/temporary-warehouses/upload', {
+							method: 'POST',
+							body: formData,
+							headers: {
+								'Accept': 'application/json',
+								'X-Requested-With': 'XMLHttpRequest'
+							}
+						});
+
+						this.uploadProgress = 85;
+						const result = await response.json();
+						this.uploadProgress = 100;
+
+						if (result && result.success) {
+							this.bulkUploadResults = result;
+							this.uploadStatusText = result.message || 'تم الرفع والمعالجة بنجاح!';
+							
+							if (this.autoLaunchSetup && result.uploaded_ids && result.uploaded_ids.length > 0) {
+								setTimeout(() => {
+									this.isBulkUploading = false;
+									this.uploadModal = false;
+									this.clearSelectedFiles();
+									const firstId = parseInt(result.uploaded_ids[0], 10);
+									const queue = result.uploaded_ids.slice(1);
+									this.openMapping(firstId, queue, 1, result.uploaded_ids.length);
+								}, 800);
+							} else {
+								setTimeout(() => {
+									window.location.reload();
+								}, 1500);
+							}
+						} else {
+							alert((result && result.error) || 'حدث خطأ أثناء معالجة الملفات');
+							this.isBulkUploading = false;
+						}
+					} catch(err) {
+						console.error('Upload error:', err);
+						this.uploadStatusText = 'تم إرسال الملفات بنجاح، جاري تحديث الصفحة...';
+						setTimeout(() => {
+							window.location.reload();
+						}, 2000);
+					}
+				}
+			}"
+			class="d-flex flex-col gap-6 max-w-7xl mx-auto mb-14"
+		>
+			
+			<!-- 1. Header Banner & Top Action Tabs -->
+			<div class="card mb-0 bg-surface-raised border rounded-2xl p-7 shadow-xs">
+				<div class="flex-between items-start flex-wrap gap-6">
+					<div>
+						<div class="d-flex items-center gap-3 mb-1.5">
+							<div class="w-12 h-12 rounded-2xl bg-accent-subtle text-accent flex-center text-2xl shrink-0">
+								@components.IconBuilding("icon-sm")
+							</div>
+							<div>
+								<h1 class="text-2xl font-black text-primary m-0">
+									قوائم المستودعات التابعة لحسابي المشرف
+								</h1>
+								<span class="text-xs font-bold text-accent uppercase">
+									Temporary Warehouses & Staged Supplier Catalogs
+								</span>
+							</div>
+						</div>
+						<p class="text-sm text-secondary m-0 mt-1.5 leading-relaxed max-w-3xl">
+							تعرض هذه الصفحة ملفات المستودعات وكشوف الأسعار المؤقتة التي تم رفعها، والمرتبطة بعروض خصومات السوق العامة.
+						</p>
+					</div>
+
+					<!-- Top Navigation Scope Tabs + Upload Button -->
+					<div class="d-flex gap-2.5 items-center flex-wrap">
+						<a
+							href="/admin/user/temparte-warehouses?scope=my"
+							class={ "btn btn-sm px-4 py-2 rounded-lg font-bold", templ.KV("btn-primary", data.Scope == "my" || data.Scope == ""), templ.KV("btn-secondary", data.Scope != "my" && data.Scope != "") }
+						>
+							<span>مستودعاتي المرفوعة</span>
+						</a>
+						<a
+							href="/admin/user/temparte-warehouses?scope=admins"
+							class={ "btn btn-sm px-4 py-2 rounded-lg font-bold", templ.KV("btn-primary", data.Scope == "admins"), templ.KV("btn-secondary", data.Scope != "admins") }
+						>
+							<span>مستودعات كافة المشرفين</span>
+						</a>
+						<a
+							href="/admin/user/temparte-warehouses?scope=all"
+							class={ "btn btn-sm px-4 py-2 rounded-lg font-bold", templ.KV("btn-primary", data.Scope == "all"), templ.KV("btn-secondary", data.Scope != "all") }
+						>
+							<span>جميع مستودعات العملاء والبائعين</span>
+						</a>
+						<button
+							type="button"
+							@click="uploadModal = true"
+							class="btn btn-primary btn-sm inline-flex items-center gap-1.5 font-black px-5 py-2.5 rounded-lg"
+						>
+							<span>رفع الملفات وسجل الأخطاء</span>
+						</button>
+					</div>
+				</div>
+			</div>
+
+			<!-- Notice Banner -->
+			if data.NoticeMsg != "" {
+				<div
+					class={ "alert rounded-2xl font-bold",
+						templ.KV("alert-success", data.NoticeType == "success"),
+						templ.KV("alert-danger", data.NoticeType == "error"),
+						templ.KV("alert-info", data.NoticeType != "success" && data.NoticeType != "error") }
+					role="alert"
+				>
+					{ data.NoticeMsg }
+				</div>
+			}
+
+			<!-- 2. 4 Stat Metric Cards -->
+			<div class="d-grid grid-auto-fit-md gap-4">
+				<!-- Card 1: Total Items -->
+				<div class="card mb-0 p-5 border rounded-2xl bg-surface-raised shadow-xs text-center">
+					<div class="tabular-nums text-4xl font-black text-accent leading-tight">
+						{ fmt.Sprintf("%d", data.TotalRows) }
+					</div>
+					<div class="text-sm font-bold text-secondary mt-1.5">
+						إجمالي الأصناف المرفوعة
+					</div>
+				</div>
+
+				<!-- Card 2: Total Files -->
+				<div class="card mb-0 p-5 border rounded-2xl bg-surface-raised shadow-xs text-center">
+					<div class="tabular-nums text-4xl font-black text-emerald leading-tight">
+						{ fmt.Sprintf("%d", data.TotalCount) }
+					</div>
+					<div class="text-sm font-bold text-secondary mt-1.5">
+						إجمالي ملفات الموردين
+					</div>
+				</div>
+
+				<!-- Card 3: Active Warehouses -->
+				<div class="card mb-0 p-5 border rounded-2xl bg-surface-raised shadow-xs text-center">
+					<div class="tabular-nums text-4xl font-black text-emerald leading-tight">
+						{ fmt.Sprintf("%d", data.ActiveCount) }
+					</div>
+					<div class="text-sm font-bold text-secondary mt-1.5">
+						المستودعات النشطة
+					</div>
+				</div>
+
+				<!-- Card 4: Archived Warehouses -->
+				<div class="card mb-0 p-5 border rounded-2xl bg-surface-raised shadow-xs text-center">
+					<div class="tabular-nums text-4xl font-black text-muted leading-tight">
+						{ fmt.Sprintf("%d", data.ArchivedCount) }
+					</div>
+					<div class="text-sm font-bold text-secondary mt-1.5">
+						المستودعات المؤرشفة
+					</div>
+				</div>
+			</div>
+
+			<!-- 3. Search & Status Tabs Bar -->
+			<div class="card mb-0 border rounded-2xl p-5 bg-surface-raised">
+				<form method="GET" action="/admin/user/temparte-warehouses" class="flex-between items-center flex-wrap gap-4 m-0">
+					<input type="hidden" name="scope" value={ data.Scope } />
+					
+					<!-- Search Input -->
+					<div class="relative min-w-72 flex-1">
+						<input
+							type="text"
+							name="q"
+							value={ data.Query }
+							class="form-input ps-9 text-sm h-10 w-full rounded-lg"
+							placeholder="بحث باسم المورد / المستودع..."
+						/>
+						<div class="absolute start-3 top-1/2 -translate-y-1/2 text-muted pointer-events-none">
+							@components.IconSearch("icon-xs")
+						</div>
+					</div>
+
+					<!-- Status Pill Tabs -->
+					<div class="d-flex items-center gap-2">
+						<div class="d-flex bg-surface-sunken border rounded-lg p-0.5 gap-0.5">
+							<a
+								href={ templ.SafeURL(fmt.Sprintf("/admin/user/temparte-warehouses?scope=%s&q=%s&status=ready", data.Scope, data.Query)) }
+								class={ "btn btn-sm px-3 py-1.5 text-xs rounded-md", templ.KV("btn-primary font-black", data.StatusFilter == "ready"), templ.KV("btn-ghost text-secondary", data.StatusFilter != "ready") }
+							>
+								<span>النشطة</span>
+							</a>
+							<a
+								href={ templ.SafeURL(fmt.Sprintf("/admin/user/temparte-warehouses?scope=%s&q=%s&status=archived", data.Scope, data.Query)) }
+								class={ "btn btn-sm px-3 py-1.5 text-xs rounded-md", templ.KV("btn-primary font-black", data.StatusFilter == "archived"), templ.KV("btn-ghost text-secondary", data.StatusFilter != "archived") }
+							>
+								<span>المؤرشفة</span>
+							</a>
+							<a
+								href={ templ.SafeURL(fmt.Sprintf("/admin/user/temparte-warehouses?scope=%s&q=%s", data.Scope, data.Query)) }
+								class={ "btn btn-sm px-3 py-1.5 text-xs rounded-md", templ.KV("btn-primary font-black", data.StatusFilter == ""), templ.KV("btn-ghost text-secondary", data.StatusFilter != "") }
+							>
+								<span>الكل</span>
+							</a>
+						</div>
+
+						<button type="submit" class="btn btn-primary btn-sm d-flex items-center gap-1.5 h-10 px-5 font-black rounded-lg">
+							@components.IconSearch("icon-xs")
+							<span>بحث</span>
+						</button>
+					</div>
+				</form>
+			</div>
+
+			<!-- 4. Table Surface -->
+			<div class="card mb-0 border rounded-2xl p-0 overflow-hidden bg-surface-raised shadow-xs">
+				if len(data.Items) == 0 {
+					<div class="text-center p-16">
+						<div class="w-14 h-14 rounded-full bg-surface-sunken text-muted flex-center mx-auto mb-4 text-2xl">
+							@components.IconPackage("icon-sm")
+						</div>
+						<h3 class="text-lg font-black text-primary mb-1.5">
+							لا توجد مستودعات مؤقتة مطابقة
+						</h3>
+						<p class="text-sm text-secondary max-w-md mx-auto mb-6">
+							يمكنك رفع كشف أسعار ومستودع جديد بالنقر على زر الرفع أعلاه.
+						</p>
+						<button type="button" @click="uploadModal = true" class="btn btn-primary btn-sm font-black rounded-lg">
+							رفع كشف مستودع جديد الآن
+						</button>
+					</div>
+				} else {
+					<div class="table-container m-0">
+						<table class="data-table m-0">
+							<thead>
+								<tr>
+									<th class="w-10 text-center">#</th>
+									<th class="min-w-60">اسم المورد / الملف</th>
+									<th class="min-w-36">عدد المنتجات</th>
+									<th class="min-w-40">تاريخ الرفع</th>
+									<th class="min-w-64 text-center">الإجراءات</th>
+								</tr>
+							</thead>
+							<tbody>
+								for idx, item := range data.Items {
+									<tr>
+										<td class="tabular-nums text-muted text-sm text-center">
+											{ fmt.Sprintf("%d", idx+1) }
+										</td>
+										<td>
+											<div class="font-black text-primary text-base">
+												{ item.SupplierName }
+											</div>
+											if item.OriginalFilename != "" && item.OriginalFilename != item.SupplierName {
+												<div class="tabular-nums text-xs text-muted font-mono mt-0.5">
+													{ item.OriginalFilename }
+												</div>
+											}
+										</td>
+										<td>
+											<span class="badge badge-sky font-black text-xs tabular-nums px-3 py-1.5 rounded-md">
+												{ fmt.Sprintf("%d صنف", item.RowCount) }
+											</span>
+										</td>
+										<td class="tabular-nums text-xs text-muted whitespace-nowrap">
+											{ item.CreatedAt.Format("2006-01-02 15:04") }
+										</td>
+										<td>
+											<div class="d-flex gap-1.5 justify-center items-center flex-wrap">
+												<!-- View Items Button -->
+												<button
+													type="button"
+													@click={ fmt.Sprintf("openItems(%d, %q, %d)", item.ID, item.SupplierName, item.RowCount) }
+													class="btn btn-secondary btn-sm font-black px-3 py-1.5 rounded-md text-accent text-xs"
+													title="عرض وفحص كافة أصناف هذا المستودع"
+												>
+													<span>الأصناف</span>
+												</button>
+
+												<!-- Column Mapping Button -->
+												<button
+													type="button"
+													@click={ fmt.Sprintf("openMapping(%d, [], 1, 1)", item.ID) }
+													class="btn btn-secondary btn-sm font-black px-2.5 py-1.5 rounded-md text-primary text-xs"
+													title="ضبط وتعديل وتأكيد تعيين أعمدة المستودع"
+												>
+													<span>ضبط الأعمدة</span>
+												</button>
+
+												<!-- Download XLSX -->
+												<a
+													href={ templ.SafeURL(fmt.Sprintf("/admin/temporary-warehouses/%d/export", item.ID)) }
+													class="btn btn-secondary btn-sm font-black px-2.5 py-1.5 rounded-md text-emerald text-xs"
+													title="تنزيل كشف المستودع بصيغة Excel"
+												>
+													<span>XLSX</span>
+												</a>
+
+												<!-- Toggle Archive -->
+												<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/temporary-warehouses/%d/toggle-archive", item.ID)) } class="inline m-0">
+													if item.Status == "archived" {
+														<button type="submit" class="btn btn-secondary btn-sm font-black px-2.5 py-1.5 rounded-md text-xs" title="إعادة تفعيل المستودع بالخصومات">
+															<span>تفعيل</span>
+														</button>
+													} else {
+														<button type="submit" class="btn btn-secondary btn-sm font-black px-2.5 py-1.5 rounded-md text-xs" title="أرشفة المستودع">
+															<span>أرشفة</span>
+														</button>
+													}
+												</form>
+
+												<!-- Delete Warehouse -->
+												<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/temporary-warehouses/%d/delete", item.ID)) } onsubmit="return confirm('هل أنت متأكد تماماً من حذف هذا المستودع وكافة أصنافه نهائياً؟');" class="inline m-0">
+													<button type="submit" class="btn btn-secondary btn-sm font-black px-2.5 py-1.5 rounded-md text-danger text-xs" title="حذف المستودع بالكامل">
+														<span>حذف</span>
+													</button>
+												</form>
+											</div>
+										</td>
+									</tr>
+								}
+							</tbody>
+						</table>
+					</div>
+				}
+			</div>
+
+			<!-- 5. Warehouse Items Modal -->
+			<div
+				x-show="itemsModal"
+				class="fixed inset-0 z-modal flex-center bg-black/75 backdrop-blur-sm p-5"
+				x-cloak
+				@keydown.escape.window="itemsModal = false"
+				@click.self="itemsModal = false"
+			>
+				<div
+					class="card mb-0 max-w-4xl w-full max-h-[90vh] d-flex flex-col overflow-hidden p-0 bg-surface-raised rounded-2xl border shadow-2xl m-auto"
+				>
+					<!-- Modal Top Header -->
+					<div class="p-5 border-b flex-between items-center bg-surface">
+						<div class="d-flex items-center gap-2.5">
+							<span class="text-xl">@components.IconPackage("icon-sm")</span>
+							<h3 class="text-lg font-black text-primary m-0">
+								أصناف المستودع: <span x-text="selectedWarehouse.name" class="text-accent"></span> (<span x-text="selectedWarehouse.total" class="tabular-nums"></span> صنف)
+							</h3>
+						</div>
+
+						<div class="d-flex items-center gap-2.5">
+							<!-- Download XLSX Button -->
+							<a
+								:href="'/admin/temporary-warehouses/' + selectedWarehouse.id + '/export'"
+								class="btn btn-secondary btn-sm font-bold inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-md text-emerald"
+							>
+								<span>تحميل XLSX</span>
+							</a>
+
+							<!-- Close Button -->
+							<button
+								type="button"
+								@click="itemsModal = false"
+								class="btn btn-secondary btn-sm rounded-full w-8 h-8 p-0 flex-center text-lg"
+							>
+								&times;
+							</button>
+						</div>
+					</div>
+
+					<!-- Modal Body Table -->
+					<div class="flex-1 overflow-y-auto p-0">
+						<template x-if="modalLoading">
+							<div class="p-16 text-center text-muted">
+								<div class="text-3xl mb-2">⏳</div>
+								<div class="font-bold">جاري تحميل أصناف المستودع...</div>
+							</div>
+						</template>
+
+						<template x-if="!modalLoading && modalItems.length === 0">
+							<div class="p-16 text-center text-muted">
+								<div class="text-3xl mb-2">@components.IconSearch("icon-sm")</div>
+								<div class="font-bold">لا توجد أصناف في هذا المستودع حالياً.</div>
+							</div>
+						</template>
+
+						<template x-if="!modalLoading && modalItems.length > 0">
+							<div class="table-container m-0">
+								<table class="data-table m-0">
+								<thead>
+									<tr>
+										<th class="min-w-32">الكود</th>
+										<th class="min-w-80">اسم المنتج</th>
+										<th class="min-w-32">سعر الجمهور</th>
+										<th class="min-w-28">نسبة الخصم</th>
+										<th class="w-16 text-center">حذف</th>
+									</tr>
+								</thead>
+								<tbody>
+									<template x-for="row in modalItems" :key="row.id">
+										<tr>
+											<!-- SKU Code -->
+											<td class="tabular-nums font-mono text-xs font-black text-primary" x-text="row.sku || ('#' + row.id)"></td>
+											
+											<!-- Product Name -->
+											<td>
+												<div class="font-black text-primary text-sm" x-text="row.raw_name"></div>
+											</td>
+
+											<!-- Public Price -->
+											<td class="tabular-nums font-bold text-sm text-primary" x-text="row.price + ' ج.م'"></td>
+
+											<!-- Discount -->
+											<td class="tabular-nums">
+												<span class="badge badge-emerald font-black text-xs px-2.5 py-1 rounded-md" x-text="row.discount + '%'"></span>
+											</td>
+
+											<!-- Delete Single Item Button -->
+											<td class="text-center">
+												<button
+													type="button"
+													@click="deleteItem(row.id)"
+													class="btn btn-secondary btn-xs text-danger rounded-md px-2 py-1 font-bold"
+													title="حذف هذا الصنف من المستودع"
+												>
+													@components.IconX("icon-sm")
+												</button>
+											</td>
+										</tr>
+									</template>
+								</tbody>
+							</table>
+							</div>
+						</template>
+					</div>
+
+					<!-- Modal Pagination Footer -->
+					<div class="p-4 border-t flex-between items-center bg-surface flex-wrap gap-4">
+						<div class="text-xs text-muted font-bold tabular-nums">
+							<span>عرض صفحة </span>
+							<strong class="text-primary" x-text="modalPage"></strong>
+							<span> من </span>
+							<strong class="text-primary" x-text="modalTotalPages"></strong>
+							<span> (إجمالي </span>
+							<strong class="text-accent" x-text="selectedWarehouse.total"></strong>
+							<span> صنف)</span>
+						</div>
+
+						<div class="d-flex items-center gap-2">
+							<button
+								type="button"
+								@click="prevModalPage()"
+								:disabled="modalPage <= 1 || modalLoading"
+								class="btn btn-secondary btn-sm font-bold rounded-md px-3.5 py-1.5"
+							>
+								السابق
+							</button>
+							<button
+								type="button"
+								@click="nextModalPage()"
+								:disabled="modalPage >= modalTotalPages || modalLoading"
+								class="btn btn-secondary btn-sm font-bold rounded-md px-3.5 py-1.5"
+							>
+								التالي
+							</button>
+							<button
+								type="button"
+								@click="itemsModal = false"
+								class="btn btn-secondary btn-sm font-bold rounded-md px-3.5 py-1.5 ms-2"
+							>
+								إغلاق
+							</button>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<!-- 6. Upload Modal with 100 Files Bulk Support & Auto-Naming -->
+			<div
+				x-show="uploadModal"
+				class="fixed inset-0 z-modal flex-center bg-black/75 backdrop-blur-sm p-5"
+				x-cloak
+				@keydown.escape.window="if (!isBulkUploading) uploadModal = false"
+				@click.self="if (!isBulkUploading) uploadModal = false"
+			>
+				<div
+					class="card mb-0 max-w-3xl w-full max-h-[92vh] overflow-y-auto p-7 bg-surface-raised rounded-2xl border shadow-2xl m-auto"
+				>
+					<div class="flex-between items-center mb-5 pb-4 border-b">
+						<div>
+							<h3 class="text-xl font-black text-primary m-0 d-flex items-center gap-2">
+								<span>@components.IconZap("icon-sm")</span>
+								<span>رفع كشوف المستودعات المجمّع (حتى 100 ملف دفعة واحدة)</span>
+							</h3>
+							<p class="text-xs text-muted m-0 mt-1">
+								يدعم كافة أنواع الملفات (.xlsx, .xls, .csv, .txt) مع تسمية تلقائية ومعالجة متوازية فائقة السرعة
+							</p>
+						</div>
+						<button
+							type="button"
+							@click="if (!isBulkUploading) uploadModal = false"
+							:disabled="isBulkUploading"
+							class="btn btn-secondary btn-sm rounded-full w-8 h-8 p-0 flex-center text-lg"
+						>&times;</button>
+					</div>
+
+					<!-- Active Uploading Progress Overlay -->
+					<template x-if="isBulkUploading">
+						<div class="p-10 text-center">
+							<div class="spinner-border text-primary w-14 h-14 mb-5" role="status"></div>
+							<h4 class="text-lg font-black text-primary mb-2">
+								جاري الرفع والمعالجة المتوازية فائقة السرعة...
+							</h4>
+							<p class="text-xs text-muted mb-6" x-text="uploadStatusText"></p>
+
+							<!-- Progress Bar -->
+							<div class="w-full h-3 bg-surface-sunken rounded-full overflow-hidden border mb-3">
+								<div
+									class="h-full bg-gradient-to-r from-accent to-emerald transition-all duration-300"
+									:style="'width: ' + uploadProgress + '%'"
+								></div>
+							</div>
+							<div class="d-flex justify-between items-center text-xs text-muted font-bold tabular-nums">
+								<span x-text="'عدد الملفات المرفوعة: ' + selectedFiles.length"></span>
+								<span x-text="uploadProgress + '%'"></span>
+							</div>
+						</div>
+					</template>
+
+					<!-- Upload Form -->
+					<form
+						x-show="!isBulkUploading"
+						action="/admin/temporary-warehouses/upload"
+						method="POST"
+						enctype="multipart/form-data"
+						@submit.prevent="submitBulkUpload($event.target)"
+						class="stack-lg"
+					>
+						<!-- Drag & Drop Bulk Zone (up to 100 files) -->
+						<div
+							@dragover.prevent="isDragging = true"
+							@dragleave.prevent="isDragging = false"
+							@drop.prevent="handleDrop($event)"
+							class="border-2 border-dashed border-border rounded-2xl p-7 text-center bg-surface-sunken transition-all cursor-pointer"
+							:class="{ 'border-accent bg-accent-subtle': isDragging }"
+							@click="$refs.fileInput.click()"
+						>
+							<input
+								type="file"
+								name="files"
+								multiple
+								accept=".xlsx,.xls,.csv,.txt"
+								x-ref="fileInput"
+								@change="handleFilesSelect($event)"
+								class="d-none"
+							/>
+							<div class="text-4xl mb-2">@components.IconFolderOpen("icon-sm")</div>
+							<div class="text-sm font-bold text-primary mb-1">
+								اسحب وأفلت الملفات هنا، أو انقر لاختيار مجموعة ملفات من جهازك
+							</div>
+							<div class="meta-muted">
+								يدعم رفع حتى 100 ملف دفعة واحدة بكافة الصيغ (.xlsx, .xls, .csv, .txt)
+							</div>
+						</div>
+
+						<!-- Selected Files Badge & List -->
+						<template x-if="selectedFiles.length > 0">
+							<div class="bg-surface-sunken border rounded-2xl p-4">
+								<div class="flex-between items-center mb-3">
+									<div class="d-flex items-center gap-2">
+										<span class="badge badge-emerald font-black text-xs tabular-nums">
+											تم اختيار <strong x-text="selectedFiles.length"></strong> ملف
+										</span>
+										<span class="text-xs text-muted tabular-nums" x-text="'(الحجم الإجمالي: ' + totalSelectedSize() + ')'"></span>
+									</div>
+									<button
+										type="button"
+										@click="clearSelectedFiles()"
+										class="btn btn-secondary btn-xs text-danger font-bold rounded-md"
+									>
+										إفراغ القائمة
+									</button>
+								</div>
+
+								<!-- Files Preview Scroll Area -->
+								<div class="max-h-40 overflow-y-auto d-flex flex-col gap-1.5 pe-1">
+									<template x-for="(f, idx) in selectedFiles" :key="idx">
+										<div class="flex-between items-center bg-surface-raised border border-border-subtle rounded-md p-2 text-xs">
+											<div class="d-flex items-center gap-1.5 truncate">
+												<span class="text-muted tabular-nums" x-text="(idx+1) + '.'"></span>
+												<strong class="text-primary truncate max-w-xs" x-text="f.name"></strong>
+												<span class="badge badge-slate text-xs" x-text="'← مستودع: ' + cleanName(f.name)"></span>
+											</div>
+											<div class="d-flex items-center gap-2 shrink-0">
+												<span class="text-muted tabular-nums" x-text="formatFileSize(f.size)"></span>
+												<button
+													type="button"
+													@click.stop="removeSelectedFile(idx)"
+													class="btn btn-secondary btn-xs text-danger rounded p-1"
+													title="إزالة"
+												></button>
+											</div>
+										</div>
+									</template>
+								</div>
+							</div>
+						</template>
+
+						<!-- Case 1: Single File Custom Options -->
+						<template x-if="selectedFiles.length === 1">
+							<div class="stack-md">
+								<div class="form-group mb-0">
+									<label class="form-label text-xs font-bold text-secondary mb-1">
+										اسم المورد / اسم المستودع
+									</label>
+									<input
+										type="text"
+										name="supplier_name"
+										class="form-input h-10 rounded-lg text-sm"
+										:value="cleanName(selectedFiles[0]?.name)"
+										placeholder="مثال: مستودع الأمل، شركة النور..."
+									/>
+								</div>
+							</div>
+						</template>
+
+						<!-- Setup Experience Option Checkbox -->
+						<div class="bg-emerald-500/5 border rounded-2xl p-4 d-flex items-center gap-3">
+							<input
+								type="checkbox"
+								id="auto_setup_check"
+								x-model="autoLaunchSetup"
+								class="w-4 h-4 cursor-pointer"
+							/>
+							<label for="auto_setup_check" class="cursor-pointer m-0">
+								<strong class="text-primary d-block text-xs font-black">
+									بدء معالج ضبط وتأكيد أعمدة الملفات بعد الرفع (Setup Experience)
+								</strong>
+								<span class="text-xs text-secondary font-medium d-block mt-0.5">
+									يتيح لك مراجعة الأعمدة ومعاينة بيانات كل كشف مستودع بالتتابع وتعديل الربط بسهولة
+								</span>
+							</label>
+						</div>
+
+						<!-- Action Buttons -->
+						<div class="d-flex justify-end gap-3 mt-3 border-t pt-4">
+							<button
+								type="button"
+								class="btn btn-secondary font-bold rounded-lg"
+								@click="uploadModal = false"
+							>إلغاء</button>
+							<button
+								type="submit"
+								class="btn btn-primary font-black rounded-lg px-7 py-2.5"
+								:disabled="selectedFiles.length === 0"
+							>
+								<span x-show="selectedFiles.length <= 1">تأكيد ورفع المستودع ↗</span>
+								<span x-show="selectedFiles.length > 1" x-text="'تأكيد ورفع ' + selectedFiles.length + ' مستودع الآن '"></span>
+							</button>
+						</div>
+					</form>
+				</div>
+			</div>
+
+			<!-- 7. Warehouse Column Mapping & Setup Wizard Modal -->
+			<div
+				x-show="mappingModal"
+				class="fixed inset-0 z-modal flex-center bg-black/80 backdrop-blur-sm p-5"
+				x-cloak
+				@keydown.escape.window="if(!mappingSubmitting) mappingModal = false"
+				@click.self="if(!mappingSubmitting) mappingModal = false"
+			>
+				<div
+					class="card mb-0 max-w-4xl w-full max-h-[92vh] overflow-y-auto p-7 bg-surface-raised rounded-2xl border shadow-2xl m-auto"
+				>
+					<!-- Modal Header & Queue Stepper -->
+					<div class="flex-between items-start mb-4 border-b pb-4 gap-4">
+						<div class="d-flex items-center gap-3">
+							<div class="w-11 h-11 rounded-2xl bg-accent-subtle text-accent flex-center text-xl shrink-0">
+								@components.IconSettings("icon-sm")
+							</div>
+							<div>
+								<div class="d-flex items-center gap-2 mb-1">
+									<span class="badge badge-emerald font-black text-xs">
+										معالج ضبط وتأكيد أعمدة المستودع
+									</span>
+									<template x-if="mappingTotal > 1">
+										<span class="badge badge-sky font-black text-xs tabular-nums" x-text="'ملف ' + mappingStep + ' من ' + mappingTotal"></span>
+									</template>
+								</div>
+								<h3 class="text-xl font-black text-primary m-0">
+									<span x-text="mappingFile.supplier_name || 'ضبط الأعمدة'"></span>
+								</h3>
+								<p class="text-xs text-muted mt-1 m-0">
+									الملف المصدري: <strong class="text-primary font-mono" x-text="mappingFile.original_filename"></strong>
+									<span class="tabular-nums" x-text="' • (' + (mappingFile.row_count || 0) + ' صنف مسجل)'"></span>
+								</p>
+							</div>
+						</div>
+
+						<button
+							type="button"
+							@click="mappingModal = false"
+							:disabled="mappingSubmitting"
+							class="btn btn-secondary btn-sm rounded-full w-8 h-8 p-0 flex-center text-lg"
+						>&times;</button>
+					</div>
+
+					<!-- Progress Bar if in Multi-File Queue -->
+					<template x-if="mappingTotal > 1">
+						<div class="mb-5">
+							<div class="flex-between items-center text-xs text-muted font-bold mb-1.5">
+								<span>إنجاز مراجعة الملفات المرفوعة</span>
+								<span class="tabular-nums" x-text="Math.round((mappingStep / mappingTotal) * 100) + '%'"></span>
+							</div>
+							<div class="w-full h-1.5 bg-surface-sunken rounded-full overflow-hidden border">
+								<div
+									class="h-full bg-gradient-to-r from-accent to-emerald transition-all duration-300"
+									:style="'width: ' + ((mappingStep / mappingTotal) * 100) + '%'"
+								></div>
+							</div>
+						</div>
+					</template>
+
+					<!-- Loading State -->
+					<template x-if="mappingLoading">
+						<div class="p-12 text-center">
+							<div class="spinner-border text-primary w-10 h-10 mb-4" role="status"></div>
+							<div class="font-bold text-secondary text-sm">
+								جاري قراءة وتحليل أعمدة المستودع...
+							</div>
+						</div>
+					</template>
+
+					<!-- Mapping Form Content -->
+					<form
+						x-show="!mappingLoading"
+						@submit.prevent="submitMapping($event.target)"
+						class="stack-lg"
+					>
+						<!-- Supplier Name Edit Strip -->
+						<div class="bg-surface-sunken border rounded-2xl p-4 d-flex items-center gap-4 flex-wrap">
+							<div class="text-xl">@components.IconBuilding("icon-sm")</div>
+							<div class="flex-1 min-w-60">
+								<label class="form-label text-xs font-black text-primary mb-1">
+									اسم المورد / المستودع المعروض في المنظومة
+								</label>
+								<input
+									type="text"
+									name="supplier_name"
+									x-model="mappingFile.supplier_name"
+									class="form-input text-xs font-bold h-9 rounded-md"
+									required
+								/>
+							</div>
+						</div>
+
+						<!-- Column Selectors Grid (4 key columns) -->
+						<div class="bg-surface-sunken border rounded-2xl p-4">
+							<div class="text-sm font-black text-primary mb-3 d-flex items-center gap-1.5">
+								<span>@components.IconActivity("icon-sm")</span>
+								<span>تعيين وتوجيه الأعمدة لاستخراج البيانات بدقة:</span>
+							</div>
+
+							<div class="d-grid grid-auto-fit-sm gap-3">
+								<!-- Code Col -->
+								<div>
+									<label class="form-label text-xs font-black mb-1">
+										كود الصنف (SKU / Barcode)
+									</label>
+									<select name="col_code" x-model="mappingCode" class="form-input text-xs h-9 rounded-md">
+										<option value="-1">-- غير محدد --</option>
+										<template x-for="(h, idx) in mappingHeaders" :key="idx">
+											<option :value="idx" x-text="'عمود ' + (idx+1) + ': ' + h" :selected="mappingCode == idx"></option>
+										</template>
+									</select>
+								</div>
+
+								<!-- Name Col -->
+								<div>
+									<label class="form-label text-xs font-black mb-1">
+										اسم المنتج / الصنف <span class="text-danger">*</span>
+									</label>
+									<select name="col_name" x-model="mappingName" class="form-input text-xs font-bold h-9 rounded-md" required>
+										<option value="-1">-- يرجى الاختيار --</option>
+										<template x-for="(h, idx) in mappingHeaders" :key="idx">
+											<option :value="idx" x-text="'عمود ' + (idx+1) + ': ' + h" :selected="mappingName == idx"></option>
+										</template>
+									</select>
+								</div>
+
+								<!-- Price Col -->
+								<div>
+									<label class="form-label text-xs font-black mb-1">
+										سعر الجمهور (الرسمي)
+									</label>
+									<select name="col_price" x-model="mappingPrice" class="form-input text-xs h-9 rounded-md">
+										<option value="-1">-- غير محدد --</option>
+										<template x-for="(h, idx) in mappingHeaders" :key="idx">
+											<option :value="idx" x-text="'عمود ' + (idx+1) + ': ' + h" :selected="mappingPrice == idx"></option>
+										</template>
+									</select>
+								</div>
+
+								<!-- Discount Col -->
+								<div>
+									<label class="form-label text-xs font-black mb-1">
+										نسبة الخصم (%)
+									</label>
+									<select name="col_discount" x-model="mappingDiscount" class="form-input text-xs h-9 rounded-md">
+										<option value="-1">-- غير محدد --</option>
+										<template x-for="(h, idx) in mappingHeaders" :key="idx">
+											<option :value="idx" x-text="'عمود ' + (idx+1) + ': ' + h" :selected="mappingDiscount == idx"></option>
+										</template>
+									</select>
+								</div>
+							</div>
+						</div>
+
+						<!-- Live Spreadsheet Data Preview Table -->
+						<template x-if="mappingPreview.length > 0">
+							<div class="bg-surface-raised border rounded-2xl overflow-hidden">
+								<div class="p-3 bg-surface-sunken border-b flex-between items-center">
+									<span class="text-xs font-black text-secondary">
+										معاينة حية لأول 5 صفوف من ملف الإكسيل:
+									</span>
+									<span class="badge badge-slate text-xs tabular-nums" x-text="mappingPreview.length + ' صفوف'"></span>
+								</div>
+								<div class="overflow-x-auto max-h-56">
+									<table class="data-table m-0 text-xs">
+										<thead>
+											<tr>
+												<th class="w-9 text-center">#</th>
+												<template x-for="(h, colIdx) in mappingHeaders" :key="colIdx">
+													<th class="nowrap" :class="{ 'text-accent font-black': colIdx == mappingName, 'text-emerald font-black': colIdx == mappingPrice }">
+														<span x-text="h"></span>
+														<template x-if="colIdx == mappingCode">
+															<span class="badge badge-slate text-2xs ms-1">كود</span>
+														</template>
+														<template x-if="colIdx == mappingName">
+															<span class="badge badge-sky text-2xs ms-1">اسم</span>
+														</template>
+														<template x-if="colIdx == mappingPrice">
+															<span class="badge badge-emerald text-2xs ms-1">سعر</span>
+														</template>
+														<template x-if="colIdx == mappingDiscount">
+															<span class="badge badge-amber text-2xs ms-1">خصم %</span>
+														</template>
+													</th>
+												</template>
+											</tr>
+										</thead>
+										<tbody>
+											<template x-for="(row, rIdx) in mappingPreview" :key="rIdx">
+												<tr>
+													<td class="text-muted tabular-nums text-center" x-text="rIdx+1"></td>
+													<template x-for="(cell, cIdx) in row" :key="cIdx">
+														<td :class="{ 'font-bold': cIdx == mappingName }" x-text="cell"></td>
+													</template>
+												</tr>
+											</template>
+										</tbody>
+									</table>
+								</div>
+							</div>
+						</template>
+
+						<!-- Modal Footer Actions -->
+						<div class="flex-between items-center flex-wrap gap-3 border-t pt-4">
+							<div>
+								<template x-if="mappingQueue.length > 0">
+									<button
+										type="button"
+										class="btn btn-secondary btn-sm font-black rounded-lg text-xs"
+										@click="skipAllMapping()"
+										:disabled="mappingSubmitting"
+									>
+										تخطي باقي الملفات واعتماد الضبط التلقائي
+									</button>
+								</template>
+							</div>
+
+							<div class="d-flex items-center gap-2">
+								<button
+									type="button"
+									class="btn btn-secondary btn-sm font-bold rounded-lg"
+									@click="mappingModal = false"
+									:disabled="mappingSubmitting"
+								>
+									إغلاق
+								</button>
+
+								<template x-if="mappingQueue.length > 0">
+									<button
+										type="button"
+										class="btn btn-secondary btn-sm font-black rounded-lg"
+										@click="skipMapping()"
+										:disabled="mappingSubmitting"
+									>
+										تخطي للملف التالي ⏩
+									</button>
+								</template>
+
+								<button
+									type="submit"
+									class="btn btn-primary font-black btn-sm rounded-lg px-6 py-2"
+									:disabled="mappingSubmitting || mappingLoading"
+								>
+									<span x-show="!mappingSubmitting && mappingQueue.length === 0">حفظ وتأكيد الأعمدة </span>
+									<span x-show="!mappingSubmitting && mappingQueue.length > 0">حفظ والانتقال للملف التالي </span>
+									<span x-show="mappingSubmitting">جاري الحفظ والمعالجة...</span>
+								</button>
+							</div>
+						</div>
+					</form>
+				</div>
+			</div>
+
+		</div>
+	}
+}

@@ -11,7 +11,7 @@ import (
 )
 
 templ PharmacyDashboard(lang, dir string, data PharmacyDashboardData, perms []string) {
-	@layouts.CustomerShell("لوحة التحكم", "dashboard", lang, dir, perms) {
+	@layouts.CustomerShell(i18n.T(lang, "pharmacy.dashboard.title"), "dashboard", lang, dir, perms) {
 		<div class="page-container">
 			
 			<!-- Header / Pharmacy Overview Banner -->
@@ -22,17 +22,17 @@ templ PharmacyDashboard(lang, dir string, data PharmacyDashboardData, perms []st
 							if data.CustomerOrgName != "" {
 								{ data.CustomerOrgName }
 							} else {
-								<span>لوحة تحكم الصيدلية</span>
+								<span>{ i18n.T(lang, "pharmacy.dashboard.title") }</span>
 							}
 						</h1>
 						<span class="badge badge-emerald text-xs font-bold">
-							صيدلية معتمدة
+							{ i18n.T(lang, "pharmacy.dashboard.verified") }
 						</span>
 					</div>
 					<div class="text-xs text-muted mt-1 d-flex items-center gap-2 flex-wrap">
-						<span>نظرة عامة على المشتريات والطلبيات والرصيد المتاح</span>
+						<span>{ i18n.T(lang, "pharmacy.dashboard.overview") }</span>
 						<span>•</span>
-						<span>اليوم: <strong class="tabular-nums text-primary">{ format.Date(time.Now(), "ar") }</strong></span>
+						<span>{ i18n.T(lang, "pharmacy.dashboard.today") } <strong class="tabular-nums text-primary">{ format.Date(time.Now(), lang) }</strong></span>
 					</div>
 				</div>
 
@@ -40,17 +40,17 @@ templ PharmacyDashboard(lang, dir string, data PharmacyDashboardData, perms []st
 				<div class="d-flex items-center gap-3 bg-surface-sunken p-2 px-3 rounded-lg border">
 					<div class="d-flex items-center gap-2 text-secondary text-xs">
 						@components.IconBuilding("icon-xs text-primary")
-						<span>فرع الشراء النشط:</span>
+						<span>{ i18n.T(lang, "pharmacy.dashboard.active_branch") }</span>
 						<strong class="text-primary font-bold">
 							if data.ActiveBranchName != "" {
 								{ data.ActiveBranchName }
 							} else {
-								<span>الفرع الرئيسي</span>
+								<span>{ i18n.T(lang, "pharmacy.dashboard.main_branch") }</span>
 							}
 						</strong>
 					</div>
 					<a href="/customer/branches" class="btn btn-secondary btn-xs font-bold">
-						تغيير ⇄
+						{ i18n.T(lang, "pharmacy.dashboard.change") }
 					</a>
 				</div>
 			</div>
@@ -67,7 +67,7 @@ templ PharmacyDashboard(lang, dir string, data PharmacyDashboardData, perms []st
 								تنبيه إداري عاجل: مطلوب استكمال مستند رسمي ({ data.PendingDocRequests[0].Title })
 							</div>
 							<div class="text-xs text-muted mt-1">
-								المهلة الممنوحة: متبقي <strong class="tabular-nums text-primary">{ fmt.Sprintf("%d", data.PendingDocRequests[0].DaysRemaining()) }</strong> يوم (حتى { format.Date(data.PendingDocRequests[0].DeadlineAt, "ar") }). يرجى الرفع لتجنب إيقاف العمليات.
+								المهلة الممنوحة: متبقي <strong class="tabular-nums text-primary">{ fmt.Sprintf("%d", data.PendingDocRequests[0].DaysRemaining()) }</strong> يوم (حتى { format.Date(data.PendingDocRequests[0].DeadlineAt, lang) }). يرجى الرفع لتجنب إيقاف العمليات.
 							</div>
 						</div>
 					</div>
@@ -84,7 +84,7 @@ templ PharmacyDashboard(lang, dir string, data PharmacyDashboardData, perms []st
 				<!-- Pillar 1: Purchases & Spending (إجمالي المشتريات) -->
 				<div class="stat-card-3d">
 					<div class="stat-card-top">
-						<span class="stat-card-title">إجمالي المشتريات</span>
+						<span class="stat-card-title">{ i18n.T(lang, "pharmacy.dashboard.total_spend") }</span>
 						<div class="stat-card-icon-wrapper">
 							@components.IconChart("icon-sm")
 						</div>
@@ -94,7 +94,7 @@ templ PharmacyDashboard(lang, dir string, data PharmacyDashboardData, perms []st
 							@components.MoneyDisplay(components.MoneyDisplayProps{ Amount: data.TotalSpend, Large: true })
 						</div>
 						<div class="stat-card-footer">
-							<span>الشهر الحالي: <strong class="tabular-nums text-primary">{ data.MonthSpend.String() }</strong> ج.م</span>
+							<span>{ i18n.T(lang, "pharmacy.dashboard.current_month") } <strong class="tabular-nums text-primary">{ data.MonthSpend.String() }</strong> ج.م</span>
 							<span class="badge badge-slate text-xs">{ fmt.Sprintf("%d صنف", data.TotalOrderedItems) }</span>
 						</div>
 					</div>
@@ -103,7 +103,7 @@ templ PharmacyDashboard(lang, dir string, data PharmacyDashboardData, perms []st
 				<!-- Pillar 2: Orders Lifecycle Status (حالة الطلبيات) -->
 				<div class="stat-card-3d">
 					<div class="stat-card-top">
-						<span class="stat-card-title">حالة الطلبيات</span>
+						<span class="stat-card-title">{ i18n.T(lang, "pharmacy.dashboard.orders_status") }</span>
 						<div class="stat-card-icon-wrapper">
 							@components.IconPackage("icon-sm")
 						</div>
@@ -113,23 +113,23 @@ templ PharmacyDashboard(lang, dir string, data PharmacyDashboardData, perms []st
 							<span class="stat-card-value">
 								{ fmt.Sprintf("%d", data.TotalOrders) }
 							</span>
-							<span class="text-xs text-muted font-semibold">طلبية مسجلة</span>
+							<span class="text-xs text-muted font-semibold">{ i18n.T(lang, "pharmacy.dashboard.orders_registered") }</span>
 						</div>
 						<div class="stat-card-footer flex-wrap gap-2">
 							<span class="text-warning d-flex items-center gap-1">
 								<span>●</span>
-								<span>{ fmt.Sprintf("%d قيد التنفيذ", data.ActiveOrders) }</span>
+								<span>{ fmt.Sprintf(i18n.T(lang, "pharmacy.dashboard.in_progress"), data.ActiveOrders) }</span>
 							</span>
 							<span class="text-muted">•</span>
 							<span class="text-success d-flex items-center gap-1">
 								<span>●</span>
-								<span>{ fmt.Sprintf("%d مكتمل", data.CompletedOrders) }</span>
+								<span>{ fmt.Sprintf(i18n.T(lang, "pharmacy.dashboard.completed"), data.CompletedOrders) }</span>
 							</span>
 							if data.CancelledOrders > 0 {
 								<span class="text-muted">•</span>
 								<span class="text-danger d-flex items-center gap-1">
 									<span>●</span>
-									<span>{ fmt.Sprintf("%d ملغي", data.CancelledOrders) }</span>
+									<span>{ fmt.Sprintf(i18n.T(lang, "pharmacy.dashboard.cancelled"), data.CancelledOrders) }</span>
 								</span>
 							}
 						</div>
@@ -139,7 +139,7 @@ templ PharmacyDashboard(lang, dir string, data PharmacyDashboardData, perms []st
 				<!-- Pillar 3: Wallet Balance & Funds (المحفظة والرصيد) -->
 				<div class="stat-card-3d">
 					<div class="stat-card-top">
-						<span class="stat-card-title">رصيد المحفظة</span>
+						<span class="stat-card-title">{ i18n.T(lang, "pharmacy.dashboard.wallet_balance") }</span>
 						<div class="stat-card-icon-wrapper emerald">
 							@components.IconWallet("icon-sm")
 						</div>
@@ -150,9 +150,9 @@ templ PharmacyDashboard(lang, dir string, data PharmacyDashboardData, perms []st
 						</div>
 						<div class="stat-card-footer">
 							if data.PendingDepositsCount > 0 {
-								<span class="text-warning font-bold">معلق: <strong class="tabular-nums">{ data.PendingDepositsTotal.String() }</strong> ج.م</span>
+								<span class="text-warning font-bold">{ i18n.T(lang, "pharmacy.dashboard.pending_deposits") } <strong class="tabular-nums">{ data.PendingDepositsTotal.String() }</strong> ج.م</span>
 							} else {
-								<span class="text-muted">رصيد متاح للسداد الفوري</span>
+								<span class="text-muted">{ i18n.T(lang, "pharmacy.dashboard.available_for_orders") }</span>
 							}
 							<a href="/wallet" class="btn btn-secondary btn-xs font-bold">
 								شحن +
@@ -165,7 +165,7 @@ templ PharmacyDashboard(lang, dir string, data PharmacyDashboardData, perms []st
 				<div class="stat-card-3d">
 					<div class="stat-card-top">
 						<div class="d-flex items-center gap-2">
-							<span class="stat-card-title">الطلب الذكي</span>
+							<span class="stat-card-title">{ i18n.T(lang, "pharmacy.dashboard.smart_order") }</span>
 							<span class="badge badge-sky text-xs">AI</span>
 						</div>
 						<div class="stat-card-icon-wrapper violet">
@@ -177,15 +177,15 @@ templ PharmacyDashboard(lang, dir string, data PharmacyDashboardData, perms []st
 							<span class="stat-card-value text-brand">
 								{ fmt.Sprintf("%d", data.SmartOrdersCount) }
 							</span>
-							<span class="text-xs text-muted font-semibold">ملف نواقص</span>
+							<span class="text-xs text-muted font-semibold">{ i18n.T(lang, "pharmacy.dashboard.shortage_files") }</span>
 						</div>
 						<div class="stat-card-footer">
 							if data.SmartOrdersProcessing > 0 {
-								<span class="text-warning">{ fmt.Sprintf("%d قيد المعالجة", data.SmartOrdersProcessing) }</span>
+								<span class="text-warning">{ fmt.Sprintf(i18n.T(lang, "pharmacy.dashboard.in_progress"), data.SmartOrdersProcessing) }</span>
 							} else if data.SmartOrdersNeedsReview > 0 {
 								<span class="text-info">{ fmt.Sprintf("%d بحاجة لمراجعة", data.SmartOrdersNeedsReview) }</span>
 							} else {
-								<span class="text-success">{ fmt.Sprintf("%d مكتمل ومعتمد", data.SmartOrdersCompleted) }</span>
+								<span class="text-success">{ fmt.Sprintf(i18n.T(lang, "pharmacy.dashboard.completed"), data.SmartOrdersCompleted) }</span>
 							}
 							<a href="/customer/smart-order/new" class="btn btn-secondary btn-xs font-bold">
 								رفع جديد ↗
@@ -199,45 +199,45 @@ templ PharmacyDashboard(lang, dir string, data PharmacyDashboardData, perms []st
 			<!-- Quick Actions Hub -->
 			<div class="glass-panel p-4 mb-6">
 				<div class="flex-between mb-3">
-					<span class="text-sm font-extrabold text-primary">إجراءات سريعة واختصارات</span>
-					<span class="text-xs text-muted">الأكثر استخداماً</span>
+					<span class="text-sm font-extrabold text-primary">{ i18n.T(lang, "pharmacy.dashboard.quick_actions") }</span>
+					<span class="text-xs text-muted">{ i18n.T(lang, "pharmacy.dashboard.most_used") }</span>
 				</div>
 				<div class="quick-actions-grid">
 					
 					<!-- Action 1: Purchase Request Hub (طلب الشراء) -->
 					<a href="/customer/purchase-request" class="quick-action-btn">
 						<span class="text-brand">@components.IconShoppingBag("icon-xs")</span>
-						<span>طلب الشراء</span>
+						<span>{ i18n.T(lang, "pharmacy.dashboard.purchase_request") }</span>
 					</a>
 
 					<!-- Action 2: New Smart Order (الطلب الذكي) -->
 					<a href="/customer/smart-order/new" class="quick-action-btn">
 						<span class="text-brand">@components.IconZap("icon-xs")</span>
-						<span>الطلب الذكي</span>
+						<span>{ i18n.T(lang, "pharmacy.dashboard.smart_order") }</span>
 					</a>
 
 					<!-- Action 3: Top up Wallet -->
 					<a href="/wallet" class="quick-action-btn">
 						<span class="text-success">@components.IconCreditCard("icon-xs")</span>
-						<span>إضافة رصيد / شحن</span>
+						<span>{ i18n.T(lang, "pharmacy.dashboard.top_up_action") }</span>
 					</a>
 
 					<!-- Action 4: Manage Branches -->
 					<a href="/customer/branches" class="quick-action-btn">
 						<span class="text-info">@components.IconBuilding("icon-xs")</span>
-						<span>إدارة الفروع ({ fmt.Sprintf("%d", data.TotalBranches) })</span>
+						<span>{ fmt.Sprintf(i18n.T(lang, "pharmacy.dashboard.manage_branches_action"), data.TotalBranches) }</span>
 					</a>
 
 					<!-- Action 5: Documents -->
 					<a href="/customer/documents" class="quick-action-btn">
 						<span class="text-warning">@components.IconFileText("icon-xs")</span>
-						<span>المستندات والتراخيص</span>
+						<span>{ i18n.T(lang, "pharmacy.dashboard.documents_action") }</span>
 					</a>
 
 					<!-- Action 6: View Orders -->
 					<a href="/orders" class="quick-action-btn">
 						<span class="text-secondary">@components.IconPackage("icon-xs")</span>
-						<span>سجل الطلبات</span>
+						<span>{ i18n.T(lang, "pharmacy.dashboard.orders_log_action") }</span>
 					</a>
 
 				</div>
@@ -253,31 +253,31 @@ templ PharmacyDashboard(lang, dir string, data PharmacyDashboardData, perms []st
 					<div class="glass-panel p-4">
 						<div class="flex-between pb-3 border-b mb-4">
 							<div>
-								<h2 class="text-base font-extrabold text-primary m-0">آخر الطلبات</h2>
-								<span class="text-xs text-muted">متابعة وتفاصيل أحدث طلبيات الصيدلية</span>
+								<h2 class="text-base font-extrabold text-primary m-0">{ i18n.T(lang, "pharmacy.dashboard.recent_orders") }</h2>
+								<span class="text-xs text-muted">{ i18n.T(lang, "pharmacy.dashboard.recent_orders_desc") }</span>
 							</div>
 							<a href="/orders" class="btn btn-secondary btn-sm font-bold">
-								كل الطلبات ({ fmt.Sprintf("%d", data.TotalOrders) }) ↗
+								{ fmt.Sprintf(i18n.T(lang, "pharmacy.dashboard.all_orders_count"), data.TotalOrders) }
 							</a>
 						</div>
 
 						if len(data.Orders) == 0 {
 							@components.EmptyState(components.EmptyStateProps{
-								Title:   "لا توجد طلبات مسجلة بعد",
-								Message: "تصفح كتالوج الأدوية وأضف احتياجات صيدليتك للبدء في أول طلبية.",
+								Title:   i18n.T(lang, "pharmacy.dashboard.empty_orders_title"),
+								Message: i18n.T(lang, "pharmacy.dashboard.empty_orders_msg"),
 							})
 						} else {
 							<div class="table-container">
 								<table class="data-table">
 									<thead>
 										<tr>
-											<th>رقم الطلب</th>
-											<th>التاريخ</th>
-											<th>فرع الاستلام</th>
-											<th class="text-center">الأصناف</th>
-											<th class="tabular-nums text-end">الإجمالي</th>
-											<th>الحالة</th>
-											<th class="text-end">الإجراءات</th>
+											<th>{ i18n.T(lang, "pharmacy.dashboard.col_order_num") }</th>
+											<th>{ i18n.T(lang, "pharmacy.dashboard.col_date") }</th>
+											<th>{ i18n.T(lang, "pharmacy.dashboard.col_branch") }</th>
+											<th class="text-center">{ i18n.T(lang, "pharmacy.dashboard.col_items") }</th>
+											<th class="tabular-nums text-end">{ i18n.T(lang, "pharmacy.dashboard.col_total") }</th>
+											<th>{ i18n.T(lang, "pharmacy.dashboard.col_status") }</th>
+											<th class="text-end">{ i18n.T(lang, "pharmacy.dashboard.col_actions") }</th>
 										</tr>
 									</thead>
 									<tbody>
@@ -289,7 +289,7 @@ templ PharmacyDashboard(lang, dir string, data PharmacyDashboardData, perms []st
 													</a>
 												</td>
 												<td class="text-xs text-secondary whitespace-nowrap">
-													{ format.Date(o.CreatedAt, "ar") }
+													{ format.Date(o.CreatedAt, lang) }
 												</td>
 												<td class="text-xs text-primary font-semibold">
 													if !o.CustomerBranchName.IsEmpty() {
@@ -297,7 +297,7 @@ templ PharmacyDashboard(lang, dir string, data PharmacyDashboardData, perms []st
 													} else if data.ActiveBranchName != "" {
 														{ data.ActiveBranchName }
 													} else {
-														<span>الفرع الرئيسي</span>
+														<span>{ i18n.T(lang, "pharmacy.dashboard.main_branch") }</span>
 													}
 												</td>
 												<td class="text-center text-xs font-bold">
@@ -316,7 +316,7 @@ templ PharmacyDashboard(lang, dir string, data PharmacyDashboardData, perms []st
 												<td class="text-end">
 													<div class="d-flex items-center gap-1 justify-end">
 														<a href={ templ.SafeURL(fmt.Sprintf("/orders/%d", o.ID)) } class="btn btn-secondary btn-xs font-bold">
-															عرض
+															{ i18n.T(lang, "common.details") }
 														</a>
 														<a href={ templ.SafeURL(fmt.Sprintf("/orders/%d/invoice/print", o.ID)) } target="_blank" class="btn btn-secondary btn-xs text-muted" title="طباعة الفاتورة">
 															@components.IconPrinter("icon-xs")
@@ -336,44 +336,44 @@ templ PharmacyDashboard(lang, dir string, data PharmacyDashboardData, perms []st
 						<div class="flex-between pb-3 border-b mb-4">
 							<div>
 								<div class="d-flex items-center gap-2">
-									<h2 class="text-base font-extrabold text-primary m-0">الطلب الذكي ومطابقة النواقص</h2>
-									<span class="badge badge-sky text-xs font-bold">ذكاء اصطناعي</span>
+									<h2 class="text-base font-extrabold text-primary m-0">{ i18n.T(lang, "pharmacy.dashboard.smart_matching_title") }</h2>
+									<span class="badge badge-sky text-xs font-bold">{ i18n.T(lang, "pharmacy.dashboard.ai_badge") }</span>
 								</div>
-								<span class="text-xs text-muted">استيراد ومطابقة ملفات النواقص تلقائياً بأفضل عروض الموردين</span>
+								<span class="text-xs text-muted">{ i18n.T(lang, "pharmacy.dashboard.smart_matching_desc") }</span>
 							</div>
 							<a href="/customer/smart-order/new" class="btn btn-primary btn-sm font-bold gap-1">
 								@components.IconPlus("icon-xs")
-								<span>بدء طلب ذكي جديد ↗</span>
+								<span>{ i18n.T(lang, "pharmacy.dashboard.start_smart_order") }</span>
 							</a>
 						</div>
 
 						<!-- Smart Orders Stats 4-Pills Grid -->
-						<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(130px, 1fr)); gap:0.75rem; margin-bottom:1.25rem;">
+						<div class="d-grid grid-auto-fit-sm gap-3 mb-5">
 							
-							<div style="background:var(--surface-sunken); padding:0.75rem; border-radius:var(--radius-lg); border:1px solid var(--border); text-align:center;">
-								<div style="font-size:0.75rem; color:var(--text-secondary); font-weight:700;">إجمالي الملفات</div>
-								<div class="tabular-nums" style="font-size:1.35rem; font-weight:900; color:var(--text); margin-top:0.2rem;">
+							<div class="bg-surface-sunken p-3 rounded-lg border text-center">
+								<div class="text-xs text-secondary font-bold">{ i18n.T(lang, "pharmacy.dashboard.total_files") }</div>
+								<div class="tabular-nums text-xl font-black text-primary mt-1">
 									{ fmt.Sprintf("%d", data.SmartOrdersTotal) }
 								</div>
 							</div>
 
-							<div style="background:rgba(245, 158, 11, 0.08); padding:0.75rem; border-radius:var(--radius-lg); border:1px solid rgba(245, 158, 11, 0.25); text-align:center;">
-								<div style="font-size:0.75rem; color:#b45309; font-weight:700;">قيد المعالجة</div>
-								<div class="tabular-nums" style="font-size:1.35rem; font-weight:900; color:#d97706; margin-top:0.2rem;">
+							<div class="bg-warning/10 p-3 rounded-lg border border-warning/30 text-center">
+								<div class="text-xs text-warning font-bold">{ i18n.T(lang, "smartorder.status_processing") }</div>
+								<div class="tabular-nums text-xl font-black text-warning mt-1">
 									{ fmt.Sprintf("%d", data.SmartOrdersProcessing) }
 								</div>
 							</div>
 
-							<div style="background:rgba(16, 185, 129, 0.08); padding:0.75rem; border-radius:var(--radius-lg); border:1px solid rgba(16, 185, 129, 0.25); text-align:center;">
-								<div style="font-size:0.75rem; color:#065f46; font-weight:700;">مكتمل ومعتمد</div>
-								<div class="tabular-nums" style="font-size:1.35rem; font-weight:900; color:#059669; margin-top:0.2rem;">
+							<div class="bg-success/10 p-3 rounded-lg border border-success/30 text-center">
+								<div class="text-xs text-success font-bold">{ i18n.T(lang, "smartorder.status_placed") }</div>
+								<div class="tabular-nums text-xl font-black text-success mt-1">
 									{ fmt.Sprintf("%d", data.SmartOrdersCompleted) }
 								</div>
 							</div>
 
-							<div style="background:rgba(59, 130, 246, 0.08); padding:0.75rem; border-radius:var(--radius-lg); border:1px solid rgba(59, 130, 246, 0.25); text-align:center;">
-								<div style="font-size:0.75rem; color:#1e40af; font-weight:700;">بانتظار المراجعة</div>
-								<div class="tabular-nums" style="font-size:1.35rem; font-weight:900; color:#2563eb; margin-top:0.2rem;">
+							<div class="bg-info/10 p-3 rounded-lg border border-info/30 text-center">
+								<div class="text-xs text-info font-bold">{ i18n.T(lang, "pharmacy.dashboard.awaiting_review") }</div>
+								<div class="tabular-nums text-xl font-black text-info mt-1">
 									{ fmt.Sprintf("%d", data.SmartOrdersNeedsReview) }
 								</div>
 							</div>
@@ -382,24 +382,24 @@ templ PharmacyDashboard(lang, dir string, data PharmacyDashboardData, perms []st
 
 						<!-- Recent Smart Order Runs -->
 						if len(data.RecentSmartOrders) == 0 {
-							<div style="text-align:center; padding:1.75rem 1rem; background:var(--surface-sunken); border-radius:var(--radius-lg); border:1px dashed var(--border);">
-								<div style="font-size:0.875rem; font-weight:700; color:var(--text);">لم تقم برفع أي ملف طلب ذكي بعد</div>
-								<p style="font-size:0.8rem; color:var(--text-secondary); margin:0.35rem 0 1rem 0;">ارفع ملف Excel أو CSV لاحتياجاتك وسيقوم النظام بمطابقتها واقتراح أرخص وأفضل الموردين المتاحين لمنطقتك.</p>
+							<div class="text-center p-7 bg-surface-sunken rounded-lg border border-dashed">
+								<div class="text-sm font-bold text-primary">{ i18n.T(lang, "pharmacy.dashboard.no_smart_orders_title") }</div>
+								<p class="text-xs text-secondary my-2">{ i18n.T(lang, "pharmacy.dashboard.no_smart_orders_msg") }</p>
 								<a href="/customer/smart-order/new" class="btn btn-primary btn-sm font-bold">
-									رفع أول ملف نواقص الآن
+									{ i18n.T(lang, "pharmacy.dashboard.upload_first_file") }
 								</a>
 							</div>
 						} else {
-							<div style="display:flex; flex-direction:column; gap:0.6rem;">
+							<div class="d-flex flex-col gap-2.5">
 								for _, r := range data.RecentSmartOrders {
-									<div style="display:flex; justify-content:space-between; align-items:center; padding:0.75rem 1rem; border:1px solid var(--border); border-radius:var(--radius-lg); background:var(--surface-sunken); flex-wrap:wrap; gap:0.5rem;">
+									<div class="flex-between items-center p-3 px-4 border rounded-lg bg-surface-sunken flex-wrap gap-2">
 										<div>
-											<div style="font-weight:800; color:var(--text); font-size:0.875rem; display:flex; align-items:center; gap:0.4rem;">
+											<div class="font-extrabold text-primary text-sm d-flex items-center gap-1.5">
 												<span>{ r.OriginalFile }</span>
-												<span style="font-size:0.75rem; font-weight:600; color:var(--text-muted); font-variant-numeric:tabular-nums;">#{ r.RunNumber }</span>
+												<span class="text-xs font-semibold text-muted tabular-nums">#{ r.RunNumber }</span>
 											</div>
-											<div style="font-size:0.775rem; color:var(--text-secondary); margin-top:0.2rem; display:flex; align-items:center; gap:0.6rem;">
-												<span>{ format.Date(r.CreatedAt, "ar") }</span>
+											<div class="text-xs text-secondary mt-1 d-flex items-center gap-2">
+												<span>{ format.Date(r.CreatedAt, lang) }</span>
 												<span>•</span>
 												<span class="tabular-nums">مطابق { fmt.Sprintf("%d", r.Stats.MatchedRows) } من { fmt.Sprintf("%d", r.Stats.TotalRows) } صنف</span>
 											</div>
@@ -409,8 +409,8 @@ templ PharmacyDashboard(lang, dir string, data PharmacyDashboardData, perms []st
 												Label: FormatSmartOrderStatusLabel(r.Status),
 												Tone:  FormatSmartOrderStatusTone(r.Status),
 											})
-											<a href={ templ.SafeURL(fmt.Sprintf("/customer/smart-order/%s/results", r.PublicID)) } class="btn btn-secondary btn-xs" style="font-weight:700; padding:0.25rem 0.6rem;">
-												عرض النتائج
+											<a href={ templ.SafeURL(fmt.Sprintf("/customer/smart-order/%s/results", r.PublicID)) } class="btn btn-secondary btn-xs font-bold px-2.5 py-1">
+												{ i18n.T(lang, "pharmacy.dashboard.view_results") }
 											</a>
 										</div>
 									</div>
@@ -423,58 +423,58 @@ templ PharmacyDashboard(lang, dir string, data PharmacyDashboardData, perms []st
 				</div>
 
 				<!-- Column 2: Side Widgets (Wallet, Branches, AI Quota, Offers) -->
-				<div style="display:flex; flex-direction:column; gap:1.5rem;">
+				<div class="d-flex flex-col gap-6">
 					
 					<!-- Wallet Widget -->
-					<div class="card" style="margin:0; padding:1.25rem 1.4rem; border-radius:var(--radius-xl); border:1px solid var(--border); background:var(--surface-raised); box-shadow:var(--shadow-xs);">
-						<div class="flex-between mb-md" style="padding-bottom:0.75rem; border-bottom:1px solid var(--border);">
+					<div class="card p-5">
+						<div class="flex-between mb-4 pb-3 border-b">
 							<div class="inline-row-04">
 								@components.IconWallet("icon-sm text-primary")
-								<h2 class="card-title" style="margin:0; font-size:1.05rem; font-weight:800; color:var(--text);">المحفظة الرقمية</h2>
+								<h2 class="card-title text-base font-extrabold text-primary m-0">{ i18n.T(lang, "pharmacy.dashboard.wallet_card_title") }</h2>
 							</div>
-							<a href="/wallet" class="btn btn-secondary btn-xs fw-700 text-xs">
-								إدارة المحفظة ↗
+							<a href="/wallet" class="btn btn-secondary btn-xs font-bold text-xs">
+								{ i18n.T(lang, "pharmacy.dashboard.manage_wallet") }
 							</a>
 						</div>
 
 						<!-- Balance Block -->
-						<div style="background:var(--surface-sunken); padding:1rem 1.15rem; border-radius:var(--radius-lg); border:1px solid var(--border); margin-bottom:1rem;">
-							<span style="font-size:0.775rem; font-weight:700; color:var(--text-secondary);">الرصيد المتاح الحالي</span>
-							<div class="tabular-nums" style="font-size:1.85rem; font-weight:900; color:#059669; line-height:1.2; margin-top:0.25rem;">
+						<div class="bg-surface-sunken p-4 rounded-lg border mb-4">
+							<span class="text-xs font-bold text-secondary">{ i18n.T(lang, "pharmacy.dashboard.available_balance") }</span>
+							<div class="tabular-nums text-2xl font-black text-emerald mt-1 leading-tight">
 								@components.MoneyDisplay(components.MoneyDisplayProps{ Amount: data.WalletBalance, Large: true })
 							</div>
 							if data.PendingDepositsCount > 0 {
-								<div style="font-size:0.775rem; font-weight:700; color:#d97706; margin-top:0.4rem; padding-top:0.4rem; border-top:1px dashed var(--border); display:flex; justify-content:space-between;">
-									<span>إيداعات معلقة قيد المراجعة:</span>
+								<div class="text-xs font-bold text-amber mt-2 pt-2 border-t border-dashed flex-between">
+									<span>{ i18n.T(lang, "pharmacy.dashboard.pending_deposits") }</span>
 									<span class="tabular-nums">{ data.PendingDepositsTotal.String() } ج.م ({ fmt.Sprintf("%d", data.PendingDepositsCount) })</span>
 								</div>
 							}
 						</div>
 
 						<!-- Recent Transactions -->
-						<div style="margin-bottom:1rem;">
-							<div style="font-size:0.8rem; font-weight:800; color:var(--text-secondary); margin-bottom:0.5rem;">
-								آخر العمليات المالية
+						<div class="mb-4">
+							<div class="text-xs font-extrabold text-secondary mb-2">
+								{ i18n.T(lang, "pharmacy.dashboard.recent_tx_title") }
 							</div>
 							if len(data.RecentTransactions) == 0 {
-								<div style="font-size:0.775rem; color:var(--text-muted); padding:0.5rem 0; text-align:center;">
-									لا توجد حركات مالية مسجلة بعد
+								<div class="text-xs text-muted py-2 text-center">
+									{ i18n.T(lang, "pharmacy.dashboard.no_tx_title") }
 								</div>
 							} else {
-								<div style="display:flex; flex-direction:column; gap:0.45rem;">
+								<div class="d-flex flex-col gap-2">
 									for _, tx := range data.RecentTransactions {
-										<div style="display:flex; justify-content:space-between; align-items:center; font-size:0.775rem; padding:0.4rem 0.5rem; border-radius:var(--radius-md); background:var(--surface-sunken);">
+										<div class="flex-between items-center text-xs p-2 rounded-md bg-surface-sunken">
 											<div>
-												<div style="font-weight:700; color:var(--text);">{ FormatTxTypeLabel(tx.Type) }</div>
-												<div style="font-size:0.7rem; color:var(--text-muted);">{ tx.CreatedAt.Format("2006-01-02 15:04") }</div>
+												<div class="font-bold text-primary">{ FormatTxTypeLabel(tx.Type) }</div>
+												<div class="text-xs text-muted">{ tx.CreatedAt.Format("2006-01-02 15:04") }</div>
 											</div>
-											<div class="tabular-nums" style={ fmt.Sprintf("font-weight:800; color:%s;", txColor(tx.Amount.Minor())) }>
+											<div class={ "tabular-nums font-extrabold", txClass(tx.Amount.Minor()) }>
 												if tx.Amount.Minor() > 0 {
 													<span>+{ tx.Amount.String() }</span>
 												} else {
 													<span>{ tx.Amount.String() }</span>
 												}
-												<span style="font-size:0.7rem; font-weight:600;"> ج.م</span>
+												<span class="text-xs font-semibold text-muted"> ج.م</span>
 											</div>
 										</div>
 									}
@@ -482,44 +482,44 @@ templ PharmacyDashboard(lang, dir string, data PharmacyDashboardData, perms []st
 							}
 						</div>
 
-						<a href="/wallet" class="btn btn-primary btn-sm" style="width:100%; justify-content:center; font-weight:700; font-size:0.825rem; gap:0.4rem;">
+						<a href="/wallet" class="btn btn-primary btn-sm w-full justify-center font-bold text-xs gap-1.5">
 							@components.IconPlus("icon-xs")
-							<span>شحن الرصيد / إيداع جديد</span>
+							<span>{ i18n.T(lang, "pharmacy.dashboard.top_up_btn") }</span>
 						</a>
 					</div>
 
 					<!-- Branches Widget -->
-					<div class="card" style="margin:0; padding:1.25rem 1.4rem; border-radius:var(--radius-xl); border:1px solid var(--border); background:var(--surface-raised); box-shadow:var(--shadow-xs);">
-						<div class="flex-between mb-md" style="padding-bottom:0.75rem; border-bottom:1px solid var(--border);">
+					<div class="card p-5">
+						<div class="flex-between mb-4 pb-3 border-b">
 							<div class="inline-row-04">
 								@components.IconBuilding("icon-sm text-primary")
-								<h2 class="card-title" style="margin:0; font-size:1.05rem; font-weight:800; color:var(--text);">فروع الصيدلية</h2>
+								<h2 class="card-title text-base font-extrabold text-primary m-0">{ i18n.T(lang, "pharmacy.dashboard.branches_card_title") }</h2>
 							</div>
-							<a href="/customer/branches" class="btn btn-secondary btn-xs fw-700 text-xs">
-								إدارة الفروع ({ fmt.Sprintf("%d", data.TotalBranches) }) ↗
+							<a href="/customer/branches" class="btn btn-secondary btn-xs font-bold text-xs">
+								{ fmt.Sprintf(i18n.T(lang, "pharmacy.dashboard.manage_branches_btn"), data.TotalBranches) }
 							</a>
 						</div>
 
 						if len(data.Branches) == 0 {
-							<div style="font-size:0.8rem; color:var(--text-secondary); text-align:center; padding:1rem 0;">
-								لم يتم تسجيل فروع بعد.
+							<div class="text-xs text-secondary text-center py-4">
+								{ i18n.T(lang, "pharmacy.dashboard.no_branches") }
 							</div>
 						} else {
-							<div style="display:flex; flex-direction:column; gap:0.5rem; margin-bottom:1rem;">
+							<div class="d-flex flex-col gap-2 mb-4">
 								for _, b := range data.Branches {
-									<div style={ branchCardStyle(b.ID == data.ActiveBranchID) }>
-										<div style="flex:1;">
-											<div style="font-weight:800; color:var(--text); font-size:0.85rem; display:flex; align-items:center; gap:0.35rem;">
+									<div class={ "flex-between items-center p-3 rounded-lg border", branchCardClass(b.ID == data.ActiveBranchID) }>
+										<div class="flex-1">
+											<div class="font-extrabold text-primary text-sm d-flex items-center gap-1.5">
 												<span>{ b.Name.Get(i18n.Lang(lang)) }</span>
 												if b.IsMain {
-													<span class="badge badge-sky" style="font-size:0.65rem; padding:0.1rem 0.35rem;">رئيسي</span>
+													<span class="badge badge-sky text-xs px-1 py-0.5">{ i18n.T(lang, "pharmacy.dashboard.branch_main") }</span>
 												}
 												if b.ID == data.ActiveBranchID {
-													<span class="badge badge-emerald" style="font-size:0.65rem; padding:0.1rem 0.35rem;">النشط حالياً</span>
+													<span class="badge badge-emerald text-xs px-1 py-0.5">{ i18n.T(lang, "pharmacy.dashboard.branch_active") }</span>
 												}
 											</div>
 											if b.Address != "" {
-												<div style="font-size:0.75rem; color:var(--text-secondary); margin-top:0.15rem;">
+												<div class="text-xs text-secondary mt-1">
 													{ b.Address }
 												</div>
 											}
@@ -529,20 +529,20 @@ templ PharmacyDashboard(lang, dir string, data PharmacyDashboardData, perms []st
 							</div>
 						}
 
-						<a href="/customer/branches" class="btn btn-secondary btn-sm" style="width:100%; justify-content:center; font-weight:700; font-size:0.825rem;">
-							إضافة أو تعديل الفروع
+						<a href="/customer/branches" class="btn btn-secondary btn-sm w-full justify-center font-bold text-xs">
+							{ i18n.T(lang, "pharmacy.dashboard.add_edit_branches") }
 						</a>
 					</div>
 
 					<!-- AI Gateway Consumption & Quota Widget -->
 					if data.Subscription != nil {
-						<div class="card" style="margin:0; padding:1.25rem 1.4rem; border-radius:var(--radius-xl); border:1px solid var(--border); background:var(--surface-raised); box-shadow:var(--shadow-xs);">
-							<div class="flex-between mb-md" style="padding-bottom:0.6rem; border-bottom:1px solid var(--border);">
+						<div class="card p-5">
+							<div class="flex-between mb-4 pb-2 border-b">
 								<div class="inline-row-04">
-									<span style="color:#7c3aed;">@components.IconSparkles("icon-sm")</span>
-									<span style="font-size:0.95rem; font-weight:800; color:var(--text);">حصة الذكاء الاصطناعي</span>
+									<span class="text-accent">@components.IconSparkles("icon-sm")</span>
+									<span class="text-sm font-extrabold text-primary">{ i18n.T(lang, "pharmacy.dashboard.ai_quota_title") }</span>
 								</div>
-								<span class="badge badge-info" dir="ltr" style="font-size:0.7rem; font-weight:800;">
+								<span class="badge badge-info text-xs font-extrabold" dir="ltr">
 									if data.Subscription.AIPlanID != "" {
 										{ data.Subscription.AIPlanID }
 									} else {
@@ -552,9 +552,9 @@ templ PharmacyDashboard(lang, dir string, data PharmacyDashboardData, perms []st
 							</div>
 
 							<div>
-								<div style="display:flex; justify-content:space-between; align-items:baseline; margin-bottom:0.35rem;">
-									<span style="font-size:0.8rem; color:var(--text-secondary); font-weight:700;">الاستهلاك الشهري:</span>
-									<span class="tabular-nums" style="font-size:1.35rem; font-weight:900; color:var(--primary);">
+								<div class="flex-between items-baseline mb-1.5">
+									<span class="text-xs text-secondary font-bold">{ i18n.T(lang, "pharmacy.dashboard.ai_monthly_label") }</span>
+									<span class="tabular-nums text-lg font-black text-primary">
 										if data.Subscription.HasAIBudget {
 											{ fmt.Sprintf("%d%%", data.Subscription.AIPercentage()) }
 										} else {
@@ -563,13 +563,13 @@ templ PharmacyDashboard(lang, dir string, data PharmacyDashboardData, perms []st
 									</span>
 								</div>
 								if data.Subscription.HasAIBudget {
-									<div style="width:100%; height:7px; border-radius:4px; background:var(--surface-sunken); overflow:hidden; border:1px solid var(--border);">
-										<div style={ fmt.Sprintf("width:%d%%; height:100%%; border-radius:4px; background:linear-gradient(90deg, var(--primary), #8b5cf6); transition:width 0.4s ease;", data.Subscription.AIPercentage()) }></div>
+									<div class="w-full h-2 rounded-full bg-surface-sunken overflow-hidden border">
+										<div class="h-full rounded-full bg-brand transition-all" style={ fmt.Sprintf("width:%d%%;", data.Subscription.AIPercentage()) }></div>
 									</div>
 								}
-								<div style="display:flex; justify-content:space-between; align-items:center; font-size:0.75rem; font-weight:700; color:var(--text-muted); margin-top:0.45rem;">
+								<div class="flex-between items-center text-xs font-bold text-muted mt-2">
 									<span>{ data.Subscription.AIResetText() }</span>
-									<a href="/customer/ai-logs" style="color:var(--primary); text-decoration:none; font-weight:800;">سجل العمليات ↗</a>
+									<a href="/customer/ai-logs" class="text-primary font-extrabold">{ i18n.T(lang, "pharmacy.dashboard.ai_logs_link") }</a>
 								</div>
 							</div>
 						</div>
@@ -577,24 +577,24 @@ templ PharmacyDashboard(lang, dir string, data PharmacyDashboardData, perms []st
 
 					<!-- Suggested Offers Widget -->
 					if len(data.Offers) > 0 {
-						<div class="card" style="margin:0; padding:1.25rem 1.4rem; border-radius:var(--radius-xl); border:1px solid var(--border); background:var(--surface-raised); box-shadow:var(--shadow-xs);">
-							<div class="flex-between mb-md" style="padding-bottom:0.75rem; border-bottom:1px solid var(--border);">
+						<div class="card p-5">
+							<div class="flex-between mb-4 pb-3 border-b">
 								<div class="inline-row-04">
-									<span style="color:#e11d48;">@components.IconMegaphone("icon-sm")</span>
-									<h2 class="card-title" style="margin:0; font-size:1.05rem; font-weight:800; color:var(--text);">عروض توريد مقترحة</h2>
+									<span class="text-danger">@components.IconMegaphone("icon-sm")</span>
+									<h2 class="card-title text-base font-extrabold text-primary m-0">{ i18n.T(lang, "pharmacy.dashboard.suggested_offers_title") }</h2>
 								</div>
-								<a href="/offers" class="btn btn-secondary btn-xs fw-700 text-xs">كل العروض ↗</a>
+								<a href="/offers" class="btn btn-secondary btn-xs font-bold text-xs">{ i18n.T(lang, "pharmacy.dashboard.all_offers_link") }</a>
 							</div>
-							<div style="display:flex; flex-direction:column; gap:0.5rem;">
+							<div class="d-flex flex-col gap-2">
 								for _, o := range data.Offers {
-									<div style="display:flex; justify-content:space-between; align-items:center; padding:0.65rem 0.75rem; border:1px solid var(--border); border-radius:var(--radius-lg); background:var(--surface-sunken);">
+									<div class="flex-between items-center p-3 border rounded-lg bg-surface-sunken">
 										<div>
-											<div style="font-weight:800; color:var(--text); font-size:0.825rem;">{ o.Title.Get(i18n.Lang(lang)) }</div>
-											<div style="font-size:0.75rem; color:var(--text-secondary); margin-top:0.15rem;">
-												خصم: <strong class="tabular-nums text-primary">{ o.DiscountValue.String() }</strong> ج.م
+											<div class="font-extrabold text-primary text-xs">{ o.Title.Get(i18n.Lang(lang)) }</div>
+											<div class="text-xs text-secondary mt-1">
+												{ i18n.T(lang, "pharmacy.dashboard.offer_discount") } <strong class="tabular-nums text-primary">{ o.DiscountValue.String() }</strong> ج.م
 											</div>
 										</div>
-										<a href="/offers" class="btn btn-secondary btn-xs fw-700">تفاصيل</a>
+										<a href="/offers" class="btn btn-secondary btn-xs font-bold">{ i18n.T(lang, "pharmacy.dashboard.offer_details") }</a>
 									</div>
 								}
 							</div>
@@ -609,16 +609,16 @@ templ PharmacyDashboard(lang, dir string, data PharmacyDashboardData, perms []st
 	}
 }
 
-func txColor(minor int64) string {
+func txClass(minor int64) string {
 	if minor > 0 {
-		return "#059669"
+		return "text-success"
 	}
-	return "#dc2626"
+	return "text-danger"
 }
 
-func branchCardStyle(isActive bool) string {
+func branchCardClass(isActive bool) string {
 	if isActive {
-		return "display:flex; justify-content:space-between; align-items:center; padding:0.65rem 0.8rem; border:1px solid var(--primary); border-radius:var(--radius-lg); background:rgba(16, 185, 129, 0.06);"
+		return "border-emerald/40 bg-emerald/5"
 	}
-	return "display:flex; justify-content:space-between; align-items:center; padding:0.65rem 0.8rem; border:1px solid var(--border); border-radius:var(--radius-lg); background:var(--surface-sunken);"
+	return "bg-surface-sunken"
 }

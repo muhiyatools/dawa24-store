@@ -8,6 +8,8 @@ package components
 import "github.com/a-h/templ"
 import templruntime "github.com/a-h/templ/runtime"
 
+import "github.com/muhiya/dawa24-store/internal/shared/i18n"
+
 // The dashboard top bar.
 //
 // There were four of these. The public marketing navbar and the three dashboard
@@ -95,9 +97,9 @@ func DashboardTopBar(props TopBarProps) templ.Component {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var4 string
-		templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.ResolveAttributeValue(tr(props.Lang, "فتح القائمة", "Open navigation"))
+		templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.ResolveAttributeValue(i18n.T(props.Lang, "nav.open_menu"))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/components/dashboard_topbar.templ`, Line: 55, Col: 75}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/components/dashboard_topbar.templ`, Line: 57, Col: 52}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var4)
 		if templ_7745c5c3_Err != nil {
@@ -118,7 +120,7 @@ func DashboardTopBar(props TopBarProps) templ.Component {
 		var templ_7745c5c3_Var5 string
 		templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(props.Title)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/components/dashboard_topbar.templ`, Line: 59, Col: 51}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/components/dashboard_topbar.templ`, Line: 61, Col: 51}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
 		if templ_7745c5c3_Err != nil {
@@ -170,19 +172,6 @@ func DashboardTopBar(props TopBarProps) templ.Component {
 		}
 		return nil
 	})
-}
-
-// tr picks an Arabic or English string without reaching for the i18n catalogue.
-//
-// The catalogue is the right home for these and Phase 5 moves them there along
-// with the other 1,246 Arabic literals still living in Go. Adding two keys here
-// now, in a different style from the sweep that is coming, would just be a third
-// convention to migrate.
-func tr(lang, ar, en string) string {
-	if lang == "en" {
-		return en
-	}
-	return ar
 }
 
 var _ = templruntime.GeneratedTemplate

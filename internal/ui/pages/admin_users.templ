@@ -5,14 +5,271 @@ import (
 	"strings"
 
 	"github.com/muhiya/dawa24-store/internal/modules/identity"
+	"github.com/muhiya/dawa24-store/internal/modules/org"
 	"github.com/muhiya/dawa24-store/internal/ui/components"
 	"github.com/muhiya/dawa24-store/internal/ui/layouts"
 )
+
+type AdminUsersPageData struct {
+	Users            []*identity.User
+	Organizations    []*org.Organization
+	OrgNames         map[int64]string
+	DeletionRequests []*identity.AccountDeletionRequest
+	TotalUsers       int
+	CustomerUsers    int
+	VendorUsers      int
+	StaffUsers       int
+	ActiveUsers      int
+	SuspendedUsers   int
+	SearchQuery      string
+	RoleFilter       string
+	StatusFilter     string
+	StaffRoles       []AdminUserRoleOption
+	Notice           string
+	NoticeKind       string
+}
 
 type AdminUsersData struct {
 	Users            []*identity.User
 	DeletionRequests []*identity.AccountDeletionRequest
 	ActiveTab        string
+}
+
+templ AdminUsersPage(data AdminUsersPageData, lang, dir string) {
+	@layouts.AdminShell("إدارة المستخدمين والحسابات", "users", lang, dir) {
+		<div class="admin-page-container" x-data="{ showAddStaff: false }">
+			@roleNotice(data.NoticeKind, data.Notice)
+			@adminStaffCreateForm(data)
+			
+			<!-- Header Banner -->
+			<div class="glass-panel p-5 mb-5 border rounded-2xl shadow-xs">
+				<div class="flex-between items-center flex-wrap gap-4">
+					<div class="d-flex items-center gap-3">
+						<div class="w-11 h-11 rounded-xl bg-surface-sunken text-primary d-flex items-center justify-center border">
+							@components.IconUsers("icon-sm")
+						</div>
+						<div>
+							<h1 class="text-xl font-black text-primary m-0 d-flex items-center gap-2">
+								<span>إدارة المستخدمين والحسابات المركزية</span>
+								<span class="badge badge-indigo text-xs font-black tabular-nums">{ fmt.Sprintf("%d حساب", data.TotalUsers) }</span>
+							</h1>
+							<p class="text-xs text-secondary m-0 mt-0.5 font-medium">
+								التحكم في حسابات الصيادلة، مدراء وموظفي الموردين، ومشرفي وإدارة المنصة
+							</p>
+						</div>
+					</div>
+
+					<div class="d-flex items-center gap-2 flex-wrap">
+						if len(data.StaffRoles) > 0 {
+							<button
+								type="button"
+								class="btn btn-primary btn-sm font-bold gap-1"
+								@click="showAddStaff = !showAddStaff"
+							>
+								@components.IconPlus("icon-xs")
+								<span>إضافة مشرف / دور إداري</span>
+							</button>
+						}
+						<a href="/admin/users" class="btn btn-secondary btn-sm font-bold gap-1">
+							@components.IconRefresh("icon-xs")
+							<span>تحديث</span>
+						</a>
+					</div>
+				</div>
+
+				<!-- KPI Metric Strip -->
+				<div class="d-grid gap-3 mt-4 pt-3 border-t grid-auto-fit-xs">
+					<div class="bg-surface-sunken p-3 rounded-xl border">
+						<div class="text-xs text-muted font-bold">إجمالي الحسابات</div>
+						<div class="tabular-nums text-lg font-black text-primary mt-0.5">{ fmt.Sprintf("%d", data.TotalUsers) }</div>
+					</div>
+					<div class="bg-surface-sunken p-3 rounded-xl border">
+						<div class="text-xs text-muted font-bold">حسابات الصيدليات</div>
+						<div class="tabular-nums text-lg font-black text-success mt-0.5">{ fmt.Sprintf("%d", data.CustomerUsers) }</div>
+					</div>
+					<div class="bg-surface-sunken p-3 rounded-xl border">
+						<div class="text-xs text-muted font-bold">حسابات الموردين</div>
+						<div class="tabular-nums text-lg font-black text-purple mt-0.5">{ fmt.Sprintf("%d", data.VendorUsers) }</div>
+					</div>
+					<div class="bg-surface-sunken p-3 rounded-xl border">
+						<div class="text-xs text-muted font-bold">إدارة المنصة (Staff)</div>
+						<div class="tabular-nums text-lg font-black text-brand mt-0.5">{ fmt.Sprintf("%d", data.StaffUsers) }</div>
+					</div>
+				</div>
+			</div>
+
+			<!-- Filter Bar -->
+			<div class="glass-panel p-4 mb-5 border rounded-2xl shadow-xs">
+				<form method="GET" action="/admin/users" class="flex-between items-center flex-wrap gap-3 m-0">
+					<div class="d-flex gap-2 items-center flex-wrap flex-1">
+						<input
+							type="text"
+							name="q"
+							value={ data.SearchQuery }
+							placeholder="ابحث بالاسم، البريد الإلكتروني، أو رقم الهاتف..."
+							class="form-input text-xs min-w-64"
+						/>
+						<select name="role" class="form-select text-xs font-bold w-auto">
+							<option value="">كل الأدوار الوظيفية</option>
+							<option value="customer" selected?={ data.RoleFilter == "customer" }>صيدلي / عميل</option>
+							<option value="vendor" selected?={ data.RoleFilter == "vendor" }>مورد / موظف مورد</option>
+							<option value="staff" selected?={ data.RoleFilter == "staff" }>إدارة ومشرفو المنصة</option>
+						</select>
+						<select name="status" class="form-select text-xs font-bold w-auto">
+							<option value="">كل الحالات</option>
+							<option value="active" selected?={ data.StatusFilter == "active" }>نشط ومفعل</option>
+							<option value="suspended" selected?={ data.StatusFilter == "suspended" }>موقوف / معلق</option>
+						</select>
+						<button type="submit" class="btn btn-secondary btn-sm font-black shadow-2xs">
+							تصفية
+						</button>
+						if data.SearchQuery != "" || data.RoleFilter != "" || data.StatusFilter != "" {
+							<a href="/admin/users" class="btn btn-secondary btn-sm text-muted font-bold shadow-2xs">إلغاء</a>
+						}
+					</div>
+				</form>
+			</div>
+
+			<!-- Users Table -->
+			if len(data.Users) == 0 {
+				@components.EmptyState(components.EmptyStateProps{
+					Title:   "لا يوجد مستخدمون",
+					Message: "لم يتم العثور على أي مستخدمين يطابقون معايير الفلترة المحددة.",
+				})
+			} else {
+				<div class="glass-panel p-0 border rounded-2xl shadow-xs overflow-hidden">
+					<div class="table-container m-0 overflow-x-auto">
+						<table class="data-table m-0 text-xs w-full">
+							<thead>
+								<tr class="bg-surface-raised border-b font-bold">
+									<th class="py-3 text-start ps-4">المستخدم</th>
+									<th class="py-3 text-start">البريد الإلكتروني ورقم الهاتف</th>
+									<th class="py-3 text-start">الدور الوظيفي والصلاحية</th>
+									<th class="py-3 text-center">تاريخ الانضمام</th>
+									<th class="py-3 text-center">الحالة</th>
+									<th class="text-end py-3 pe-4">الإجراءات</th>
+								</tr>
+							</thead>
+							<tbody>
+								for _, u := range data.Users {
+									<tr>
+										<td class="py-3 ps-4">
+											<div class="d-flex items-center gap-2.5">
+												<div class="w-8 h-8 rounded-lg bg-surface-sunken text-primary border d-flex items-center justify-center font-black text-xs">
+													if len(userDisplayName(u)) > 0 {
+														{ string([]rune(userDisplayName(u))[0]) }
+													} else {
+														U
+													}
+												</div>
+												<div>
+													<div class="font-extrabold text-primary text-xs">{ userDisplayName(u) }</div>
+													<div class="text-2xs text-muted tabular-nums font-mono">#{ fmt.Sprintf("USR-%d", u.ID) }</div>
+												</div>
+											</div>
+										</td>
+										<td class="py-3">
+											<div class="tabular-nums text-xs font-mono text-secondary" dir="ltr">{ u.Email }</div>
+											if u.Phone != "" {
+												<div class="text-2xs text-muted mt-0.5 tabular-nums">{ u.Phone }</div>
+											}
+										</td>
+										<td class="py-3">
+											<span class={ "badge text-xs font-bold", roleBadgeClass(u.Role) }>
+												{ roleDisplayAr(u.Role) }
+											</span>
+										</td>
+										<td class="tabular-nums text-xs text-muted text-center py-3">
+											{ u.CreatedAt.Format("2006-01-02") }
+										</td>
+										<td class="text-center py-3">
+											if u.Status == identity.StatusActive {
+												<span class="badge badge-emerald text-xs font-black">نشط ومفعل</span>
+											} else if u.Status == identity.StatusSuspended {
+												<span class="badge badge-rose text-xs font-black">موقوف / معلق</span>
+											} else {
+												<span class="badge badge-amber text-xs font-black">قيد المراجعة</span>
+											}
+										</td>
+										<td class="text-end py-3 pe-4">
+											<div class="d-inline-flex gap-1.5 justify-end items-center">
+												if u.Status == identity.StatusActive {
+													<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/users/%d/suspend", u.ID)) } class="m-0" onsubmit="return confirm('هل أنت متأكد من رغبتك في تعليق هذا الحساب؟');">
+														<button type="submit" class="btn btn-secondary btn-xs font-bold text-danger">
+															تعليق
+														</button>
+													</form>
+												} else {
+													<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/users/%d/reactivate", u.ID)) } class="m-0">
+														<button type="submit" class="btn btn-primary btn-xs font-bold">
+															تفعيل
+														</button>
+													</form>
+												}
+											</div>
+										</td>
+									</tr>
+								}
+							</tbody>
+						</table>
+					</div>
+				</div>
+			}
+
+		</div>
+	}
+}
+
+templ adminStaffCreateForm(data AdminUsersPageData) {
+	if len(data.StaffRoles) > 0 {
+		<div
+			x-show="showAddStaff"
+			x-cloak
+			class="admin-banner mb-4"
+		>
+			<h2 class="text-base font-black text-primary mb-1 m-0">إنشاء حساب مشرف جديد</h2>
+			<p class="text-xs text-secondary mb-4 m-0">
+				يحدد الدور المختار الصفحات والإجراءات المتاحة للمشرف داخل لوحة الإدارة. يمكنك تعديل صلاحيات أي دور من صفحة الأدوار.
+			</p>
+			<form method="POST" action="/admin/users/staff" class="d-grid gap-3 grid-auto-fit-sm">
+				<div>
+					<label class="form-label" for="staff-name-ar">الاسم بالعربية</label>
+					<input id="staff-name-ar" class="form-input" type="text" name="name_ar" required maxlength="120"/>
+				</div>
+				<div>
+					<label class="form-label" for="staff-name-en">الاسم بالإنجليزية</label>
+					<input id="staff-name-en" class="form-input" type="text" name="name_en" maxlength="120"/>
+				</div>
+				<div>
+					<label class="form-label" for="staff-email">البريد الإلكتروني</label>
+					<input id="staff-email" class="form-input" type="email" name="email" required autocomplete="off"/>
+				</div>
+				<div>
+					<label class="form-label" for="staff-phone">رقم الهاتف</label>
+					<input id="staff-phone" class="form-input" type="tel" name="phone" maxlength="20"/>
+				</div>
+				<div>
+					<label class="form-label" for="staff-password">كلمة مرور مبدئية</label>
+					<input id="staff-password" class="form-input" type="password" name="password" required minlength="8" autocomplete="new-password"/>
+				</div>
+				<div>
+					<label class="form-label" for="staff-role">الدور الإداري</label>
+					<select id="staff-role" class="form-input font-bold" name="role" required>
+						for _, role := range data.StaffRoles {
+							<option value={ role.Key }>{ role.Name }</option>
+						}
+					</select>
+				</div>
+				<div class="col-span-full d-flex items-center gap-3">
+					<button type="submit" class="btn btn-primary font-black">إنشاء الحساب</button>
+					<button type="button" class="btn btn-secondary" @click="showAddStaff = false">إلغاء</button>
+					<span class="text-xs text-muted">
+						يُنشأ الحساب مُفعّلاً؛ يُغيّر المشرف كلمة المرور المبدئية عند أول دخول.
+					</span>
+				</div>
+			</form>
+		</div>
+	}
 }
 
 templ AdminUsers(data AdminUsersData, lang, dir string) {
@@ -53,7 +310,6 @@ templ AdminUsers(data AdminUsersData, lang, dir string) {
 				}
 			}"
 		>
-			
 			<!-- Header -->
 			<div class="glass-panel p-6 mb-6">
 				<div class="flex-between flex-wrap gap-4">
@@ -135,14 +391,11 @@ templ AdminUsers(data AdminUsersData, lang, dir string) {
 				</div>
 			</div>
 
-			<!-- ========================================== -->
-			<!-- TABS 1-4: Users Tables with Live Filter   -->
-			<!-- ========================================== -->
+			<!-- TABS 1-4: Users Tables with Live Filter -->
 			<div x-show="activeTab !== 'deletion_requests'" class="d-flex flex-col gap-6">
-				
 				<!-- Search and Filter Toolstrip -->
 				<div class="glass-panel p-4 mb-0">
-					<div class="d-grid gap-3 items-center" style="grid-template-columns: 2fr 1fr 1fr;">
+					<div class="d-grid grid-3-col gap-3 items-center">
 						<div>
 							<input
 								type="text"
@@ -153,7 +406,7 @@ templ AdminUsers(data AdminUsersData, lang, dir string) {
 						</div>
 
 						<div>
-							<select x-model="statusFilter" class="form-select text-xs w-full">
+							<select x-model="statusFilter" class="form-select text-xs w-full font-bold">
 								<option value="all">جميع الحالات (All Status)</option>
 								<option value="active">نشط (Active)</option>
 								<option value="suspended">موقوف / معلق (Suspended)</option>
@@ -162,7 +415,7 @@ templ AdminUsers(data AdminUsersData, lang, dir string) {
 						</div>
 
 						<div>
-							<select x-model="roleFilter" class="form-select text-xs w-full">
+							<select x-model="roleFilter" class="form-select text-xs w-full font-bold">
 								<option value="all">جميع الصلاحيات (All Roles)</option>
 								<option value="super_admin">مدير نظام عام (Super Admin)</option>
 								<option value="admin">مدير (Admin)</option>
@@ -269,14 +522,10 @@ templ AdminUsers(data AdminUsersData, lang, dir string) {
 						</div>
 					}
 				</div>
-
 			</div>
 
-			<!-- ========================================== -->
-			<!-- TAB 5: Account Deletion Requests           -->
-			<!-- ========================================== -->
+			<!-- TAB 5: Account Deletion Requests -->
 			<div x-show="activeTab === 'deletion_requests'" class="d-flex flex-col gap-6">
-				
 				<div class="glass-panel p-0 mb-6 overflow-hidden">
 					<div class="p-4 px-6 border-b flex-between items-center flex-wrap gap-2">
 						<div>
@@ -369,15 +618,10 @@ templ AdminUsers(data AdminUsersData, lang, dir string) {
 						</div>
 					}
 				</div>
-
 			</div>
 
 		</div>
 	}
-}
-
-templ AdminUsersTable(users []*identity.User) {
-	<!-- Deprecated legacy partial container - rendered inside AdminUsers -->
 }
 
 func userDisplayName(u *identity.User) string {
@@ -403,19 +647,6 @@ func isSupplierGroup(role string) bool {
 func isStaffGroup(role string) bool {
 	r := strings.ToLower(role)
 	return r == "super_admin" || r == "admin" || r == "support" || r == "developer" || r == "employer" || r == "staff" || r == "finance" || r == "auditor"
-}
-
-func getUserGroup(role string) string {
-	if isPharmacyGroup(role) {
-		return "pharmacy"
-	}
-	if isSupplierGroup(role) {
-		return "supplier"
-	}
-	if isStaffGroup(role) {
-		return "staff"
-	}
-	return "other"
 }
 
 func countUsersByGroup(users []*identity.User, group string) int {
@@ -482,4 +713,3 @@ func roleBadgeClass(role string) string {
 		return "badge-slate"
 	}
 }
-

@@ -35,6 +35,23 @@ func loadBillingAndHRKeys(e *engine) {
 	addKey(e, "billing.vodafone_cash", "billing", "فودافون كاش ومحافظ المحمول", "Mobile Wallets (Vodafone Cash)", "Mobile wallet option")
 	addKey(e, "billing.platform_commission", "billing", "عمولة المنصة", "Platform Fee / Commission", "Platform fee label")
 
+	// --- Transaction & Invoice Statuses ---
+	addKey(e, "tx.deposit", "billing", "إيداع رصيد", "Deposit", "Deposit tx")
+	addKey(e, "tx.withdrawal", "billing", "سحب / استرداد", "Withdrawal", "Withdrawal tx")
+	addKey(e, "tx.purchase", "billing", "سداد طلبية", "Purchase", "Purchase tx")
+	addKey(e, "tx.refund", "billing", "استرجاع مالي", "Refund", "Refund tx")
+	addKey(e, "tx.bonus", "billing", "مكافأة / بونص", "Bonus", "Bonus tx")
+	addKey(e, "tx.penalty", "billing", "خصم إداري", "Penalty", "Penalty tx")
+	addKey(e, "tx.transfer_in", "billing", "تحويل وارد", "Transfer In", "Transfer in tx")
+	addKey(e, "tx.transfer_out", "billing", "تحويل صادر", "Transfer Out", "Transfer out tx")
+	addKey(e, "tx.adjustment", "billing", "تسوية رصيد", "Adjustment", "Adjustment tx")
+
+	addKey(e, "invoice.status_draft", "billing", "مسودة", "Draft", "Draft invoice status")
+	addKey(e, "invoice.status_issued", "billing", "صادرة", "Issued", "Issued invoice status")
+	addKey(e, "invoice.status_paid", "billing", "مدفوعة", "Paid", "Paid invoice status")
+	addKey(e, "invoice.status_overdue", "billing", "متأخرة", "Overdue", "Overdue invoice status")
+	addKey(e, "invoice.status_cancelled", "billing", "ملغاة", "Cancelled", "Cancelled invoice status")
+
 	// --- HR & Team Management ---
 	addKey(e, "hr.title", "hr", "فريق العمل وإدارة الموظفين", "Team & Employee Management", "HR page title")
 	addKey(e, "hr.subtitle", "hr", "إدارة حسابات الموظفين والصيادلة، توزيع الأدوار والصلاحيات، ومتابعة سجلات النشاط والأداء.", "Manage staff and pharmacist accounts, assign RBAC roles and permissions, and monitor activity.", "HR page subtitle")

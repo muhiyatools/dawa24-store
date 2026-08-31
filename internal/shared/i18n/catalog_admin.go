@@ -431,4 +431,21 @@ func loadAdminKeys(e *engine) {
 	addKey(e, "admin.temp_warehouse.all_files_failed_prefix", "admin", "فشل معالجة كافة الملفات المرفوعة: ", "Failed to process all uploaded files: ", "Error prefix")
 	addKey(e, "admin.temp_warehouse.success_summary", "admin", "تم بنجاح رفع ومعالجة %d من أصل %d ملف مستودع بإجمالي %d صنف.", "Successfully uploaded and processed %d of %d warehouse files with %d items.", "Success summary")
 	addKey(e, "admin.temp_warehouse.fail_count_suffix", "admin", " (فشل %d ملف)", " (%d files failed)", "Fail suffix")
+
+	// --- AI Gateway Dashboard Texts ---
+	addKey(e, "ai.unspecified", "ai", "غير محدد", "Unspecified", "Unspecified value")
+	addKey(e, "ai.no_operations", "ai", "لا توجد عمليات في هذه الفترة", "No operations in this period", "No AI operations")
+	addKey(e, "ai.at_least_cost_format", "ai", "%.4f$ على الأقل", "At least $%.4f", "At least cost format")
+	addKey(e, "ai.no_ceiling_published", "ai", "لا يوجد سقف منشور", "No ceiling published", "No ceiling published")
+	addKey(e, "ai.periodic_renewal", "ai", "تجديد شهري دوري", "Periodic monthly renewal", "Periodic monthly renewal")
+	addKey(e, "ai.today_renewing", "ai", "اليوم (جاري التجديد)", "Today (renewing)", "Today renewing")
+	addKey(e, "ai.remaining_days_format", "ai", "متبقي %d يوماً", "%d days remaining", "Days remaining")
+	addKey(e, "ai.remaining_one_day", "ai", "متبقي يوم واحد", "1 day remaining", "One day remaining")
+	addKey(e, "ai.remaining_hours_format", "ai", "متبقي %d ساعة", "%d hours remaining", "Hours remaining")
+	addKey(e, "ai.remaining_one_hour", "ai", "متبقي ساعة واحدة", "1 hour remaining", "One hour remaining")
+	addKey(e, "ai.remaining_mins_format", "ai", "متبقي %d دقيقة", "%d minutes remaining", "Mins remaining")
+	addKey(e, "ai.remaining_less_min", "ai", "أقل من دقيقة", "Less than a minute", "Less than a minute")
+	addKey(e, "ai.no_usage_data", "ai", "لا تتوفر بيانات استهلاك من البوابة حالياً", "No consumption data available from gateway currently", "No usage data")
+	addKey(e, "ai.consumed_no_ceiling_format", "ai", "%.2f$ مستهلك — لا يوجد سقف منشور لهذه الباقة", "$%.2f consumed — no ceiling published for this plan", "Consumed no ceiling format")
+	addKey(e, "ai.consumed_of_total_format", "ai", "%.2f$ من %.2f$", "$%.2f of $%.2f", "Consumed of total format")
 }

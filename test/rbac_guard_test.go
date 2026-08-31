@@ -92,9 +92,9 @@ func TestEveryRouteGateNamesADeclaredPermission(t *testing.T) {
 
 // TestTenantGatesUseTenantScopedPermissions asserts that every gate call site in the
 // codebase enforces keys matching its audience scope:
-// - Admin gates (RequirePagePermission, RequireAPIPermission, RequirePermission) must only use ScopeAdmin keys.
-// - Tenant gates (RequireTenantPagePermission, RequireAPITenantPermission) must never use ScopeAdmin keys,
-//   and must match ScopeVendor for vendor routes / ScopePharmacy for pharmacy/customer routes.
+//   - Admin gates (RequirePagePermission, RequireAPIPermission, RequirePermission) must only use ScopeAdmin keys.
+//   - Tenant gates (RequireTenantPagePermission, RequireAPITenantPermission) must never use ScopeAdmin keys,
+//     and must match ScopeVendor for vendor routes / ScopePharmacy for pharmacy/customer routes.
 func TestTenantGatesUseTenantScopedPermissions(t *testing.T) {
 	const root = ".."
 	catalog := rbac.Default()

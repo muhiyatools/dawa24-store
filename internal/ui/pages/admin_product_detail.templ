@@ -1,0 +1,536 @@
+package pages
+
+import (
+	"fmt"
+	"net/url"
+
+	"github.com/muhiya/dawa24-store/internal/modules/catalog"
+	"github.com/muhiya/dawa24-store/internal/shared/money"
+	"github.com/muhiya/dawa24-store/internal/ui/components"
+	"github.com/muhiya/dawa24-store/internal/ui/layouts"
+)
+
+func formatVariantDiscount(price, discount money.Amount) string {
+	if discount.Minor() == 0 {
+		return "0%"
+	}
+	if price.Minor() > 0 && discount.Minor() < price.Minor() {
+		pct := (float64(discount.Minor()) / float64(price.Minor())) * 100
+		return fmt.Sprintf("%.1f%%", pct)
+	}
+	return fmt.Sprintf("%s%%", discount.String())
+}
+
+// AdminProductDetailPage renders master product view with full specifications and supplier offerings.
+templ AdminProductDetailPage(p *catalog.Product, variants []*catalog.ProductVariant, lang, dir string) {
+	@layouts.AdminShell(fmt.Sprintf("?????? ?????: %s", p.Name.Get("ar")), "products", lang, dir) {
+		<div class="page-container max-w-5xl mx-auto">
+			
+			<!-- Header Card -->
+			<div class="glass-panel p-6 mb-6">
+				<div class="flex-between items-start flex-wrap gap-4">
+					<div class="d-flex items-start gap-4">
+						<div class="w-20 h-20 rounded-2xl overflow-hidden bg-surface-sunken border flex-center shrink-0">
+							if p.Image != "" {
+								<img src={ p.Image } alt={ p.Name.Get("ar") } class="w-full h-full object-contain p-1" />
+							} else {
+								<span class="text-3xl">@components.IconPill("icon-sm")</span>
+							}
+						</div>
+
+						<div>
+							<div class="d-flex items-center gap-2 mb-1">
+								if p.Status == catalog.StatusActive {
+									<span class="badge badge-emerald text-xs font-bold">??? ????? ?? ?????</span>
+								} else {
+									<span class="badge badge-rose text-xs font-bold">????? / ????</span>
+								}
+								if p.IsFeatured {
+									<span class="badge badge-sky text-xs font-bold">???? </span>
+								}
+								<span class="text-xs text-muted tabular-nums font-mono">ID: #{ fmt.Sprintf("%d", p.ID) }</span>
+							</div>
+
+							<h1 class="text-2xl font-black text-primary m-0 mb-1">
+								{ p.Name.Get("ar") }
+							</h1>
+
+							if p.Name.Get("en") != "" {
+								<div class="text-sm text-secondary font-medium mb-2" dir="ltr">
+									{ p.Name.Get("en") }
+								</div>
+							}
+
+							<div class="d-flex items-center gap-4 flex-wrap text-xs text-muted">
+								if p.SKU != "" {
+									<div>SKU: <strong class="text-primary tabular-nums font-mono">{ p.SKU }</strong></div>
+								}
+								if p.Barcode != "" {
+									<div>??????: <strong class="text-primary tabular-nums font-mono">{ p.Barcode }</strong></div>
+								}
+								if p.ManufacturingCompanies != "" {
+									<div>??????: <strong class="text-primary">{ p.ManufacturingCompanies }</strong></div>
+								}
+							</div>
+						</div>
+					</div>
+
+					<div class="d-flex items-center gap-2">
+						<a href="/admin/products" class="btn btn-secondary btn-sm font-bold text-xs">
+							@components.IconArrowRight("icon-xs")
+							<span>?????? ?????? ????????</span>
+						</a>
+						<a href={ templ.SafeURL(fmt.Sprintf("/catalog?q=%s", url.QueryEscape(p.Name.Get("ar")))) } target="_blank" class="btn btn-primary btn-sm font-bold text-xs">
+							@components.IconExternalLink("icon-xs")
+							<span>?????? ?? ??????</span>
+						</a>
+					</div>
+				</div>
+			</div>
+
+			<!-- Stats Strip -->
+			<div class="dashboard-stat-grid mb-6">
+				<div class="stat-card-3d">
+					<div class="stat-card-label text-xs">??? ??????? ??????</div>
+					<div class="stat-card-value text-primary tabular-nums text-2xl font-black">
+						{ p.Price.String() } <span class="text-xs font-normal">?.?</span>
+					</div>
+					<div class="stat-card-sub text-muted text-xs mt-1">????? ??????? ?????????</div>
+				</div>
+
+				<div class="stat-card-3d">
+					<div class="stat-card-label text-xs">????? ?????? / ?????</div>
+					<div class="stat-card-value text-brand tabular-nums text-2xl font-black">
+						if p.OldPrice.IsPositive() {
+							{ p.OldPrice.String() } <span class="text-xs font-normal">?.?</span>
+						} else {
+							<span class="text-muted text-base font-normal">—</span>
+						}
+					</div>
+					<div class="stat-card-sub text-muted text-xs mt-1">
+						if p.Discount.IsPositive() {
+							{ fmt.Sprintf("??? %s ?.?", p.Discount.String()) }
+						} else {
+							<span>?? ???? ??? ?????</span>
+						}
+					</div>
+				</div>
+
+				<div class="stat-card-3d">
+					<div class="stat-card-label text-xs">???? ????? ??????</div>
+					<div class="stat-card-value text-success tabular-nums text-2xl font-black">
+						{ fmt.Sprintf("%d", p.SoldTimes) }
+					</div>
+					<div class="stat-card-sub text-muted text-xs mt-1">????? ???? ??????</div>
+				</div>
+
+				<div class="stat-card-3d">
+					<div class="stat-card-label text-xs">???? ???????? ?????</div>
+					<div class="stat-card-value text-sky tabular-nums text-2xl font-black">
+						{ fmt.Sprintf("%d", len(variants)) }
+					</div>
+					<div class="stat-card-sub text-muted text-xs mt-1">??? ????? ????</div>
+				</div>
+			</div>
+
+			<!-- Specifications Grid & Info -->
+			<div class="glass-panel p-6 mb-6">
+				<div class="flex-between items-center pb-3 mb-4 border-b">
+					<div class="d-flex items-center gap-2">
+						<span class="text-lg">@components.IconFileText("icon-sm")</span>
+						<h2 class="text-base font-black text-primary m-0">
+							????????? ????????? ???????? ????????
+						</h2>
+					</div>
+				</div>
+
+				<div class="d-grid grid-auto-fit-md gap-4">
+					<div class="p-3 bg-surface-sunken border rounded-lg">
+						<div class="text-xs text-muted mb-1">????? ?????? (Scientific Name)</div>
+						<div class="text-xs font-bold text-primary font-mono">
+							if p.ScientificName != "" {
+								{ p.ScientificName }
+							} else {
+								<span class="text-muted">—</span>
+							}
+						</div>
+					</div>
+
+					<div class="p-3 bg-surface-sunken border rounded-lg">
+						<div class="text-xs text-muted mb-1">?????? ??????? (Active Ingredient)</div>
+						<div class="text-xs font-bold text-primary">
+							if p.Active != "" {
+								{ p.Active }
+							} else {
+								<span class="text-muted">—</span>
+							}
+						</div>
+					</div>
+
+					<div class="p-3 bg-surface-sunken border rounded-lg">
+						<div class="text-xs text-muted mb-1">????? ??????? (Dosage Form)</div>
+						<div class="text-xs font-bold text-primary">
+							if p.DosageForm != "" {
+								{ p.DosageForm }
+							} else {
+								<span class="text-muted">—</span>
+							}
+						</div>
+					</div>
+
+					<div class="p-3 bg-surface-sunken border rounded-lg">
+						<div class="text-xs text-muted mb-1">??????? ??????? (Concentration)</div>
+						<div class="text-xs font-bold text-primary">
+							if p.Concentration != "" {
+								{ p.Concentration }
+							} else {
+								<span class="text-muted">—</span>
+							}
+						</div>
+					</div>
+
+					<div class="p-3 bg-surface-sunken border rounded-lg">
+						<div class="text-xs text-muted mb-1">???? ??????? (Unit)</div>
+						<div class="text-xs font-bold text-primary">
+							if p.Unit != "" {
+								{ p.Unit }
+							} else {
+								<span class="text-muted">—</span>
+							}
+						</div>
+					</div>
+
+					<div class="p-3 bg-surface-sunken border rounded-lg">
+						<div class="text-xs text-muted mb-1">??????? ??????? (Pharmacology)</div>
+						<div class="text-xs font-bold text-primary">
+							if p.Pharmacology != "" {
+								{ p.Pharmacology }
+							} else {
+								<span class="text-muted">—</span>
+							}
+						</div>
+					</div>
+				</div>
+
+				if p.Description.Get("ar") != "" || p.Description.Get("en") != "" {
+					<div class="mt-4 pt-4 border-t">
+						<div class="text-xs font-bold text-muted mb-1">????? ?????? ?????????:</div>
+						<div class="text-xs text-primary leading-relaxed">
+							if p.Description.Get("ar") != "" {
+								{ p.Description.Get("ar") }
+							} else {
+								{ p.Description.Get("en") }
+							}
+						</div>
+					</div>
+				}
+			</div>
+
+			<!-- Linked Vendor Offers / Variants -->
+			<div class="glass-panel p-0 mb-6 overflow-hidden">
+				<div class="p-4 border-b flex-between items-center flex-wrap gap-2">
+					<div class="d-flex items-center gap-2">
+						<span class="text-lg">@components.IconBuilding("icon-sm")</span>
+						<h3 class="text-base font-black text-primary m-0">
+							???? ??????? ??????? ?? ???????? ???? ????? ({ fmt.Sprintf("%d", len(variants)) })
+						</h3>
+					</div>
+				</div>
+
+				if len(variants) == 0 {
+					<div class="p-8 text-center empty-state-glass">
+						<div class="text-3xl mb-2">@components.IconPackage("icon-sm")</div>
+						<h4 class="text-base font-bold text-primary mb-1">?? ???? ???? ????? ????? ??????</h4>
+						<p class="text-xs text-secondary max-w-md mx-auto">?? ??? ?? ???? ?????? ????? ?? ???? ????? ???? ????? ??????? ???.</p>
+					</div>
+				} else {
+					<div class="table-container m-0">
+						<table class="data-table m-0">
+							<thead>
+								<tr>
+									<th>??? ????? / ????????</th>
+									<th>??????</th>
+									<th>??? ???????</th>
+									<th>???? ?????</th>
+									<th>??????? ???????</th>
+									<th>????? ????????</th>
+									<th>??????</th>
+								</tr>
+							</thead>
+							<tbody>
+								for _, v := range variants {
+									<tr>
+										<td>
+											<div class="font-bold text-xs text-primary">
+												if v.Name.Get("ar") != "" {
+													{ v.Name.Get("ar") }
+												} else {
+													<span>??? ?????</span>
+												}
+											</div>
+											if v.BatchNumber != "" {
+												<div class="text-xs text-muted font-mono">??????: { v.BatchNumber }</div>
+											}
+										</td>
+										<td>
+											<span class="badge badge-sky text-xs font-mono">????? #{ fmt.Sprintf("%d", v.OrganizationID) }</span>
+										</td>
+										<td class="tabular-nums font-bold text-xs text-primary">
+											{ v.Price.String() } ?.?
+										</td>
+										<td class="tabular-nums font-bold text-xs text-brand">
+											{ formatVariantDiscount(v.Price, v.Discount) }
+										</td>
+										<td class="tabular-nums font-bold text-xs">
+											if v.StockQty > 0 {
+												<span class="badge badge-emerald text-xs">{ fmt.Sprintf("%d ????", v.StockQty) }</span>
+											} else {
+												<span class="badge badge-slate text-xs">0 ????</span>
+											}
+										</td>
+										<td class="text-xs text-muted tabular-nums">
+											if v.ExpiryDate != nil {
+												{ v.ExpiryDate.Format("2006-01-02") }
+											} else {
+												<span>—</span>
+											}
+										</td>
+										<td>
+											if string(v.Status) == "active" {
+												<span class="badge badge-emerald text-xs">???</span>
+											} else {
+												<span class="badge badge-slate text-xs">????</span>
+											}
+										</td>
+									</tr>
+								}
+							</tbody>
+						</table>
+					</div>
+				}
+			</div>
+
+		</div>
+	}
+}
+
+// AdminProductChildrenPage renders vendor variant listings with real database structure.
+templ AdminProductChildrenPage(data AdminProductChildrenData, lang, dir string) {
+	@layouts.AdminShell("????? ???????? ????? ???????", "product_child", lang, dir) {
+		<div class="page-container">
+			
+			<!-- Header Card -->
+			<div class="glass-panel p-6 mb-6">
+				<div class="flex-between items-center flex-wrap gap-4">
+					<div class="d-flex items-center gap-3">
+						<div class="user-avatar-badge text-xl">
+							@components.IconPackage("icon-sm")
+						</div>
+						<div>
+							<h1 class="text-2xl font-black text-primary m-0">
+								????? ???????? ????? ?????? ({ fmt.Sprintf("%d", len(data.Items)) })
+							</h1>
+							<p class="text-sm text-secondary m-0 mt-1">
+								?????? ????? ???????? ????????? ??????? ?????????? ???????? ???? ????????
+							</p>
+						</div>
+					</div>
+
+					<div class="d-flex items-center gap-2">
+						<a href="/admin/product-child" class={ "btn btn-sm font-bold text-xs", templ.KV("btn-primary", data.StatusFilter == "" || data.StatusFilter == "all"), templ.KV("btn-secondary", data.StatusFilter != "" && data.StatusFilter != "all") }>
+							<span>????</span>
+						</a>
+						<a href="/admin/product-child?status=active" class={ "btn btn-sm font-bold text-xs", templ.KV("btn-primary", data.StatusFilter == "active"), templ.KV("btn-secondary", data.StatusFilter != "active") }>
+							<span>??????</span>
+						</a>
+						<a href="/admin/product-child?status=inactive" class={ "btn btn-sm font-bold text-xs", templ.KV("btn-primary", data.StatusFilter == "inactive"), templ.KV("btn-secondary", data.StatusFilter != "inactive") }>
+							<span>????????</span>
+						</a>
+					</div>
+				</div>
+
+				<!-- Search Toolbar -->
+				<form method="GET" action="/admin/product-child" class="d-flex gap-3 items-center flex-wrap mt-6 pt-4 border-t">
+					<input type="hidden" name="status" value={ data.StatusFilter } />
+					<div class="flex-1 min-w-64">
+						<input
+							type="text"
+							name="q"
+							value={ data.SearchQuery }
+							class="form-input text-xs w-full"
+							placeholder="????? ???? ?????? SKU? ????????? ?? ??? ????????..."
+						/>
+					</div>
+					<button type="submit" class="btn btn-primary btn-sm font-bold text-xs px-3">???</button>
+				</form>
+			</div>
+
+			<!-- Variants Table -->
+			<div class="glass-panel p-0 mb-6 overflow-hidden">
+				if len(data.Items) == 0 {
+					<div class="p-8 text-center empty-state-glass">
+						<div class="text-4xl mb-3">@components.IconPackage("icon-sm")</div>
+						<h3 class="text-lg font-black text-primary mb-2">?? ???? ????? ?????? ?????</h3>
+						<p class="text-sm text-secondary max-w-md mx-auto">?? ??? ???????? ?????? ????? ?? ???? ????? ?????? ????? ???.</p>
+					</div>
+				} else {
+					<div class="table-container m-0">
+						<table class="data-table m-0">
+							<thead>
+								<tr>
+									<th class="w-12">??????</th>
+									<th>?????? / SKU</th>
+									<th>??????? (??????)</th>
+									<th>??? ???????</th>
+									<th>???? ?????</th>
+									<th>???????</th>
+									<th>???? ??????</th>
+									<th class="text-end">?????????</th>
+								</tr>
+							</thead>
+							<tbody>
+								for _, item := range data.Items {
+									{{ v := item.Variant }}
+									<tr id={ fmt.Sprintf("variant-row-%d", v.ID) }>
+										<!-- 1. ?????? -->
+										<td class="w-12">
+											if item.DisplayImage != "" {
+												<img src={ item.DisplayImage } alt={ v.Name.Get("ar") } class="w-11 h-11 object-contain rounded-md border bg-surface-raised p-0.5" />
+											} else {
+												<div class="w-11 h-11 rounded-md bg-surface-sunken flex-center text-muted border">
+													@components.IconPill("icon-xs")
+												</div>
+											}
+										</td>
+
+										<!-- 2. ?????? / SKU -->
+										<td>
+											<div class="font-black text-primary text-base">
+												{ v.Name.Get("ar") }
+											</div>
+											if v.Name.Get("en") != "" {
+												<div class="text-xs text-secondary" dir="ltr">
+													{ v.Name.Get("en") }
+												</div>
+											}
+											if item.ParentProdName != "" {
+												<div class="text-xs text-accent mt-0.5">
+													??? ?????: { item.ParentProdName }
+												</div>
+											}
+											<div class="text-xs text-muted mt-0.5 d-flex gap-2 flex-wrap">
+												if v.SKU != "" {
+													<span class="tabular-nums">SKU: <strong class="text-primary">{ v.SKU }</strong></span>
+												}
+												if v.Barcode != "" {
+													<span class="tabular-nums">??????: { v.Barcode }</span>
+												}
+												if v.BatchNumber != "" {
+													<span>??????: { v.BatchNumber }</span>
+												}
+											</div>
+										</td>
+
+										<!-- 3. ??????? -->
+										<td>
+											<strong class="text-primary text-sm">
+												if item.OrgName != "" {
+													{ item.OrgName }
+												} else {
+													???? #{ fmt.Sprintf("%d", v.OrganizationID) }
+												}
+											</strong>
+											<div class="text-xs text-muted mt-0.5">
+												???? ???????: #{ fmt.Sprintf("%d", v.OrganizationID) }
+											</div>
+										</td>
+
+										<!-- 4. ??? ??????? -->
+										<td>
+											<div class="tabular-nums font-black text-primary text-base">
+												@components.MoneyDisplay(components.MoneyDisplayProps{ Amount: v.Price })
+											</div>
+										</td>
+
+										<!-- 5. ???? ????? -->
+										<td>
+											<div class="tabular-nums font-black text-brand text-base">
+												{ formatVariantDiscount(v.Price, v.Discount) }
+											</div>
+										</td>
+
+										<!-- 6. ??????? -->
+										<td>
+											if v.StockQty > 0 {
+												<span class="badge badge-emerald tabular-nums text-xs font-black">
+													{ fmt.Sprintf("%d", v.StockQty) } ????
+												</span>
+											} else {
+												<span class="badge badge-rose text-xs font-black">
+													??? ??????? (0)
+												</span>
+											}
+											if v.MinOrderQty > 1 {
+												<div class="text-xs text-muted mt-0.5">
+													??? ????: { fmt.Sprintf("%d", v.MinOrderQty) }
+												</div>
+											}
+										</td>
+
+										<!-- 7. ???? ?????? -->
+										<td>
+											if string(v.Status) == "active" {
+												<span class="badge badge-emerald">??? ??????</span>
+											} else {
+												<span class="badge badge-slate">????? / ????</span>
+											}
+										</td>
+
+										<!-- 8. ????????? -->
+										<td class="text-end">
+											<div class="table-actions justify-end gap-1.5">
+												<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/product-child/%d/status", v.ID)) } class="m-0 inline">
+													if string(v.Status) == "active" {
+														<button type="submit" class="btn btn-secondary btn-sm text-warning" title="????? ?????">
+															?????
+														</button>
+													} else {
+														<button type="submit" class="btn btn-secondary btn-sm text-success" title="????? ?????">
+															?????
+														</button>
+													}
+												</form>
+
+												if v.ProductID > 0 {
+													<a
+														href={ templ.SafeURL(fmt.Sprintf("/admin/products/%d", v.ProductID)) }
+														class="btn btn-secondary btn-sm"
+														title="?????? ????? ??????? ?? ????????"
+													>
+														@components.IconEye("icon-xs")
+													</a>
+												}
+											</div>
+										</td>
+									</tr>
+								}
+							</tbody>
+						</table>
+					</div>
+				}
+			</div>
+
+		</div>
+	}
+}
+
+// AdminApisProductsPage renders external API connector.
+templ AdminApisProductsPage(lang, dir string) {
+	@layouts.AdminShell("??? ?????? ?????? API ????????", "catalog", lang, dir) {
+		<div class="card max-w-2xl mx-auto">
+			<h2 class="card-title mb-sm">?????? ???????? ??? ?????? API ????????</h2>
+			<p class="text-sm text-secondary mb-6">????? ?????? ????? Webhook ?Endpoints ??????? ??????? ???????? ???? ????????.</p>
+			@components.EmptyState(components.EmptyStateProps{Title: "?? ???? ????? API ?????", Message: "?? ?????? ???? API ??????? ??????? ????????."})
+		</div>
+	}
+}
