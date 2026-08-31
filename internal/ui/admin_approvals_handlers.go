@@ -280,11 +280,11 @@ func (h *UIHandler) provisionOrgAIAndSubscription(ctx context.Context, orgID int
 	case h.billSvc == nil:
 	case o == nil || o.OwnerID <= 0:
 		h.recordProvisioningFailure(ctx, orgID,
-			"تعذّر إنشاء اشتراك للمنشأة المعتمدة: لا يوجد مالك (owner_id) مرتبط بها.")
+			i18n.TDefault("w4_ui.owner_id_1"))
 	default:
 		if _, err := h.billSvc.AssignDefaultSubscription(sysCtx, o.OwnerID, &orgID); err != nil {
 			h.recordProvisioningFailure(ctx, orgID,
-				"تعذّر إنشاء اشتراك افتراضي للمنشأة المعتمدة: "+err.Error())
+				i18n.TDefault("w4_ui.w4str_2_2")+err.Error())
 		}
 	}
 
@@ -300,13 +300,13 @@ func (h *UIHandler) provisionOrgAIAndSubscription(ctx context.Context, orgID int
 	switch {
 	case h.tenantKeys == nil:
 		h.recordProvisioningFailure(ctx, orgID,
-			"منشأة معتمدة بدون هوية على بوابة الذكاء الاصطناعي: مزوّد المفاتيح غير مُهيّأ في هذا الخادم.")
+			i18n.TDefault("w4_ui.w4str_3_3"))
 	default:
 		if key := h.tenantKeys.Key(sysCtx, orgID); key == "" {
 			h.recordProvisioningFailure(ctx, orgID,
-				"تعذّر إنشاء مستخدم ومفتاح الذكاء الاصطناعي للمنشأة المعتمدة. "+
-					"تأكد من إدخال اسم مستخدم وكلمة مرور مدير البوابة في إعدادات المطوّرين ← بوابة الذكاء الاصطناعي، "+
-					"ثم أعد المحاولة عبر الأمر: dawa24 ai-identities --apply")
+				i18n.TDefault("w4_ui.w4str_4_4")+
+					i18n.TDefault("w4_ui.w4str_5_5")+
+					i18n.TDefault("w4_ui.dawa24_ai_identities_app_6"))
 		}
 	}
 

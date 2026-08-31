@@ -72,11 +72,11 @@ func (s *Service) CreatePlatformRole(ctx context.Context, in PlatformRoleInput) 
 	key := platformRoleKey(in)
 	if _, taken := rbac.PlatformRole(key); taken {
 		return nil, apperr.Validation("identity.role_key_reserved",
-			"هذا المعرّف محجوز لدور أساسي في النظام.", nil)
+			i18n.TDefault("w4_mod.w4str_173_173"), nil)
 	}
 	if _, taken := rbac.OrganizationRole(key); taken {
 		return nil, apperr.Validation("identity.role_key_reserved",
-			"هذا المعرّف محجوز لدور أساسي في النظام.", nil)
+			i18n.TDefault("w4_mod.w4str_173_173"), nil)
 	}
 
 	role := &PlatformRole{
@@ -114,7 +114,7 @@ func (s *Service) UpdatePlatformRole(ctx context.Context, key string, in Platfor
 	}
 	if existing.IsOwner {
 		return nil, apperr.Validation("identity.role_is_owner",
-			"دور المدير الأعلى يملك جميع الصلاحيات ولا يمكن تعديله.", nil)
+			i18n.TDefault("w4_mod.w4str_174_174"), nil)
 	}
 	if err := validatePlatformRoleInput(in); err != nil {
 		return nil, err
@@ -149,11 +149,11 @@ func (s *Service) DeletePlatformRole(ctx context.Context, key string, actorID in
 	}
 	if existing.IsSystem {
 		return apperr.Validation("identity.role_is_system",
-			"لا يمكن حذف دور أساسي؛ يمكنك تعديل صلاحياته بدلاً من ذلك.", nil)
+			i18n.TDefault("w4_mod.w4str_175_175"), nil)
 	}
 	if existing.UserCount > 0 {
 		return apperr.Validation("identity.role_in_use",
-			"لا يمكن حذف الدور لوجود مستخدمين يحملونه؛ انقلهم إلى دور آخر أولاً.", nil)
+			i18n.TDefault("w4_mod.w4str_176_176"), nil)
 	}
 	if err := s.repo.DeletePlatformRole(ctx, key); err != nil {
 		return err
@@ -187,7 +187,7 @@ func (s *Service) AssignPlatformRole(ctx context.Context, userID int64, key stri
 
 func validatePlatformRoleInput(in PlatformRoleInput) error {
 	if strings.TrimSpace(in.Name["ar"]) == "" && strings.TrimSpace(in.Name["en"]) == "" {
-		return apperr.Validation("identity.role_name_required", "اسم الدور مطلوب.", nil)
+		return apperr.Validation("identity.role_name_required", i18n.TDefault("w4_mod.w4str_177_177"), nil)
 	}
 	return nil
 }
@@ -236,15 +236,15 @@ type StaffUserInput struct {
 func (s *Service) CreateStaffUser(ctx context.Context, in StaffUserInput) (*User, error) {
 	email := NormalizeEmail(in.Email)
 	if email == "" || !stringsContains(email, "@") {
-		return nil, apperr.Validation("email.invalid", "بريد إلكتروني صالح مطلوب.", nil)
+		return nil, apperr.Validation("email.invalid", i18n.TDefault("w4_mod.w4str_178_178"), nil)
 	}
 	if len(in.Password) < 8 {
 		return nil, apperr.Validation("password.too_short",
-			"كلمة المرور يجب أن تكون 8 أحرف على الأقل.", nil)
+			i18n.TDefault("w4_mod.8_179"), nil)
 	}
 	nameAr := strings.TrimSpace(in.NameAr)
 	if nameAr == "" {
-		return nil, apperr.Validation("identity.name_required", "اسم المشرف مطلوب.", nil)
+		return nil, apperr.Validation("identity.name_required", i18n.TDefault("w4_mod.w4str_180_180"), nil)
 	}
 
 	role, err := s.GetPlatformRole(ctx, strings.TrimSpace(in.RoleKey))
@@ -253,7 +253,7 @@ func (s *Service) CreateStaffUser(ctx context.Context, in StaffUserInput) (*User
 	}
 	if !role.IsStaff {
 		return nil, apperr.Validation("identity.role_not_staff",
-			"هذا الدور لا يمنح الوصول إلى لوحة الإدارة؛ اختر دوراً إدارياً.", nil)
+			i18n.TDefault("w4_mod.w4str_181_181"), nil)
 	}
 
 	hash, err := HashPassword(in.Password)

@@ -1,6 +1,7 @@
 package assistant
 
 import (
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"context"
 	"fmt"
 	"log/slog"
@@ -85,7 +86,7 @@ func (s *Service) ExecutePrePass(ctx context.Context, atts []Attachment, onStatu
 			},
 			{
 				Kind: gateway.PartText,
-				Text: fmt.Sprintf("قم بتحليل محتوى هذا الملف (%s) واستخراج ملخص واضح والنقاط الصيدلانية/التجارية الرئيسية باللغة العربية بإيجاز.", a.Filename),
+				Text: fmt.Sprintf(i18n.TDefault("w4_mod.s_57"), a.Filename),
 			},
 		}
 
@@ -94,7 +95,7 @@ func (s *Service) ExecutePrePass(ctx context.Context, atts []Attachment, onStatu
 			Messages: []gateway.ChatMessage{
 				{
 					Role: "system",
-					Text: "أنت محلل وثائق وتسجيلات لمنصة دواء 24. مهمتك قراءة وتحليل المستند أو التسجيل واستخراج ملخص صيدلاني/تجاري دقيق والنقاط الرئيسية بنقاط موجزة.",
+					Text: i18n.TDefault("w4_mod.24_58"),
 				},
 				{
 					Role:  "user",
@@ -114,7 +115,7 @@ func (s *Service) ExecutePrePass(ctx context.Context, atts []Attachment, onStatu
 			d := Digest{
 				Filename:  a.Filename,
 				Kind:      ClassifyMIME(a.MIMEType),
-				Summary:   fmt.Sprintf("تم إرفاق الملف %s (تعذر استخراج تحليل مفصل)", a.Filename),
+				Summary:   fmt.Sprintf(i18n.TDefault("w4_mod.s_59"), a.Filename),
 				Truncated: false,
 			}
 			digests = append(digests, d)
@@ -190,7 +191,7 @@ func (s *Service) BuildTurn(
 	}
 	prompt := strings.TrimSpace(userText)
 	if prompt == "" && (len(plan.DirectParts) > 0 || len(prePassDigests) > 0) {
-		prompt = "يرجى فحص وتحليل هذه الصورة/المرفق واستخراج الأدوية والأصناف والبيانات الصيدلانية بدقة."
+		prompt = i18n.TDefault("w4_mod.w4str_60_60")
 	}
 	userContent.WriteString(prompt)
 

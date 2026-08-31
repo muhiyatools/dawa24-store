@@ -70,7 +70,7 @@ func GetSiteSettings(ctx context.Context) *platformadmin.SiteSettings {
 // DefaultSiteSettings returns fallback settings if DB is uninitialized.
 func DefaultSiteSettings() *platformadmin.SiteSettings {
 	return &platformadmin.SiteSettings{
-		SiteName:        "دواء 24",
+		SiteName:        i18n.TDefault("w4_ui.24_28"),
 		SiteDescription: i18n.TDefault("w4_ui.s_99_99"),
 		LogoURL:         "/static/img/logo.png",
 		FaviconURL:      "/static/img/logo.png",

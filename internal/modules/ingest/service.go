@@ -1,6 +1,7 @@
 package ingest
 
 import (
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"context"
 	"fmt"
 	"log/slog"
@@ -305,7 +306,7 @@ func (s *Service) OverrideRowMatchDetailed(ctx context.Context, rowID int64, mat
 		&matchedProductID,
 		1.0,
 		ConfidenceHigh,
-		"تم التعيين اليدوي بواسطة المستخدم (100%)",
+		i18n.TDefault("w4_mod.100_220"),
 		nil,
 		true,
 		"matched",

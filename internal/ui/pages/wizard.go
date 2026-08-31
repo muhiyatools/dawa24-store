@@ -191,18 +191,18 @@ func AIToggle(name string, checked, available bool, unavailableReason string) Wi
 		Name:  name,
 		Icon:  "🤖",
 		Title: i18n.TDefault("w4_ui.s_202_202"),
-		Description: "تعمل المطابقة الحتمية أولاً دائماً، ولا يصل إلى الذكاء الاصطناعي إلا ما تعذّر " +
-			"حسمه — وهو عادةً عشرات الأسطر من آلاف. لا يمسّ أي مطابقة مؤكدة، ولا يختار إلا من " +
-			"أصناف الكتالوج المعروضة عليه، ويُعاد فحص كل اقتراح قبل تطبيقه.",
+		Description: i18n.TDefault("w4_ui.w4str_46_46") +
+			i18n.TDefault("w4_ui.w4str_47_47") +
+			i18n.TDefault("w4_ui.w4str_48_48"),
 		Checked: checked && available,
-		Note:    "اختياري — الاستيراد يعمل بالكامل بدون تفعيله.",
+		Note:    i18n.TDefault("w4_ui.w4str_49_49"),
 	}
 	if !available {
 		t.Disabled = true
 		t.Checked = false
 		t.Note = unavailableReason
 		if t.Note == "" {
-			t.Note = "خدمة الذكاء الاصطناعي غير متاحة حالياً."
+			t.Note = i18n.TDefault("w4_ui.w4str_50_50")
 		}
 	}
 	return t

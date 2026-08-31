@@ -1,6 +1,7 @@
 package promo
 
 import (
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"context"
 	"time"
 
@@ -36,7 +37,7 @@ func (s *Service) PurchaseSponsorshipPackage(ctx context.Context, packageID int6
 		return nil, apperr.NotFound("package")
 	}
 	if !pkg.IsActive {
-		return nil, apperr.Validation("package.inactive", "هذه الباقة غير متاحة حالياً.", nil)
+		return nil, apperr.Validation("package.inactive", i18n.TDefault("w4_mod.w4str_247_247"), nil)
 	}
 
 	cost := pkg.Price
@@ -51,7 +52,7 @@ func (s *Service) PurchaseSponsorshipPackage(ctx context.Context, packageID int6
 	// Charge wallet if the package has a price and a debiter is wired.
 	var sourceID *int64
 	if s.walletDebit != nil && cost.IsPositive() {
-		desc := "شراء باقة رعاية: " + pkg.Name.Get("ar")
+		desc := i18n.TDefault("w4_mod.w4str_248_248") + pkg.Name.Get("ar")
 		txID, err := s.walletDebit(ctx, orgID, cost, desc)
 		if err != nil {
 			return nil, err
@@ -148,7 +149,7 @@ func (s *Service) SubmitSponsorshipRequest(ctx context.Context, itemType Sponsor
 		}
 	}
 	if purchase == nil {
-		return nil, apperr.Conflict("sponsorship.no_credits", "لا توجد رعايات متاحة في هذه الباقة. يرجى شراء باقة جديدة أو انتظار موافقة الطلبات السابقة.")
+		return nil, apperr.Conflict("sponsorship.no_credits", i18n.TDefault("w4_mod.w4str_249_249"))
 	}
 
 	now := time.Now().UTC()
@@ -230,7 +231,7 @@ func (s *Service) AdminApproveSponsorshipRequest(ctx context.Context, id int64, 
 		return nil, err
 	}
 	if sr.AdminStatus != "pending" {
-		return nil, apperr.Conflict("sponsorship.already_reviewed", "تمت مراجعة هذا الطلب مسبقاً.")
+		return nil, apperr.Conflict("sponsorship.already_reviewed", i18n.TDefault("w4_mod.w4str_250_250"))
 	}
 
 	activated, err := s.repo.ActivateSponsorshipRequest(sysCtx, id, reviewerID)
@@ -254,7 +255,7 @@ func (s *Service) AdminRejectSponsorshipRequest(ctx context.Context, id int64, n
 		return err
 	}
 	if sr.AdminStatus != "pending" {
-		return apperr.Conflict("sponsorship.already_reviewed", "تمت مراجعة هذا الطلب مسبقاً.")
+		return apperr.Conflict("sponsorship.already_reviewed", i18n.TDefault("w4_mod.w4str_250_250"))
 	}
 
 	if err := s.repo.UpdateSponsorshipRequestAdminStatus(sysCtx, id, AdminRejected, notes, reviewerID); err != nil {

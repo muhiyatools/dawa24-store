@@ -13,6 +13,7 @@ package ingest
 // scored at 31% is a question, and a question is not an instruction.
 
 import (
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"context"
 
 	"github.com/muhiya/dawa24-store/internal/shared/apperr"
@@ -114,7 +115,7 @@ func (s *Service) reviewSession(ctx context.Context, publicID string) (*Session,
 	}
 	if session.Phase != PhaseReview {
 		return nil, apperr.Conflict("import.not_in_review",
-			"لا يمكن تعديل المطابقة إلا في مرحلة المراجعة.")
+			i18n.TDefault("w4_mod.w4str_193_193"))
 	}
 	return session, nil
 }

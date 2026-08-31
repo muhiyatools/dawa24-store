@@ -133,7 +133,7 @@ type Permission struct {
 // at least 8 characters, with uppercase, lowercase, digit, and special character.
 func ValidatePassword(password string) error {
 	if len(password) < 8 {
-		return apperr.Validation("password.too_short", "كلمة المرور يجب أن لا تقل عن 8 أحرف.", nil)
+		return apperr.Validation("password.too_short", i18n.TDefault("w4_mod.8_167"), nil)
 	}
 	var hasUpper, hasLower, hasDigit, hasSpecial bool
 	for _, ch := range password {
@@ -149,7 +149,7 @@ func ValidatePassword(password string) error {
 		}
 	}
 	if !hasUpper || !hasLower || !hasDigit || !hasSpecial {
-		return apperr.Validation("password.weak", "كلمة المرور يجب أن تحتوي على أحرف كبيرة وصغيرة وأرقام ورموز خاصة (مثل @ أو $ أو !).", nil)
+		return apperr.Validation("password.weak", i18n.TDefault("w4_mod.w4str_168_168"), nil)
 	}
 	return nil
 }
@@ -361,7 +361,7 @@ type SessionPlan struct {
 
 // DeviceDetails contains parsed client hardware and software environment.
 type DeviceDetails struct {
-	DeviceName string `json:"device_name"` // e.g. "كمبيوتر (Windows - Google Chrome)"
+	DeviceName string `json:"device_name"` // e.g. i18n.TDefault("w4_mod.windows_google_chrome_169")
 	DeviceType string `json:"device_type"` // "desktop", "mobile", "tablet", "unknown"
 	Browser    string `json:"browser"`     // "Chrome", "Safari", "Firefox", "Edge", etc.
 	OS         string `json:"os"`          // "Windows", "macOS", "iOS", "Android", "Linux"
@@ -369,7 +369,7 @@ type DeviceDetails struct {
 }
 
 // ErrSessionEvictedConcurrentLimit indicates the session was terminated because the organization exceeded its concurrent session limit.
-var ErrSessionEvictedConcurrentLimit = apperr.New(apperr.KindUnauthorized, "session.evicted_concurrent_limit", "تم تسجيل خروجك لتجاوز الحد الأقصى للجلسات المتزامنة المصرح بها في باقة اشتراك المنشأة.")
+var ErrSessionEvictedConcurrentLimit = apperr.New(apperr.KindUnauthorized, "session.evicted_concurrent_limit", i18n.TDefault("w4_mod.w4str_170_170"))
 
 // ParseUserAgentDevice analyzes a User-Agent string to produce human-readable Arabic device metadata.
 func ParseUserAgentDevice(ua, ip string) DeviceDetails {

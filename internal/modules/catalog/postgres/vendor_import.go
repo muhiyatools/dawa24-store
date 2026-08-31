@@ -261,5 +261,5 @@ func writeFailureMessage(err error) string {
 	case strings.Contains(msg, "numeric field overflow"):
 		return i18n.TDefault("w4_mod.s_355_355")
 	}
-	return "تعذر حفظ الصنف بسبب خطأ غير متوقع؛ أعد المحاولة، وإن تكرر راجع الدعم الفني."
+	return i18n.TDefault("w4_mod.w4str_125_125")
 }

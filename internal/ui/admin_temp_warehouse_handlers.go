@@ -258,7 +258,7 @@ func (h *UIHandler) AdminTempWarehouseExportXLSX(w http.ResponseWriter, r *http.
 		RightToLeft: func(b bool) *bool { return &b }(true),
 	})
 
-	headers := []string{"كود الصنف (SKU)", i18n.TDefault("w4_ui.s_28_28"), "سعر الجمهور (ج.م)", "نسبة الخصم (%)", "السعر الإجمالي بعد الخصم (ج.م)"}
+	headers := []string{i18n.TDefault("w4_ui.sku_7"), i18n.TDefault("w4_ui.s_28_28"), i18n.TDefault("w4_ui.w4str_13_13"), i18n.TDefault("w4_ui.w4str_14_14"), i18n.TDefault("w4_ui.w4str_15_15")}
 	for colIdx, header := range headers {
 		cell, _ := excelize.CoordinatesToCellName(colIdx+1, 1)
 		_ = f.SetCellValue(sheet, cell, header)

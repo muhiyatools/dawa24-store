@@ -1,6 +1,7 @@
 package ingest
 
 import (
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"context"
 	"sync"
 
@@ -112,11 +113,11 @@ func (s *Service) StartImport(
 	}
 	if len(content) == 0 {
 		return nil, nil, apperr.Validation("import.empty_file",
-			"الملف المرفوع فارغ. يرجى التأكد من اكتمال الرفع ثم المحاولة مرة أخرى.", nil)
+			i18n.TDefault("w4_mod.w4str_195_195"), nil)
 	}
 	if len(content) > MaxImportBytes {
 		return nil, nil, apperr.Validation("import.file_too_large",
-			"حجم الملف يتجاوز الحد المسموح (25 ميجابايت). يرجى تقسيمه إلى ملفات أصغر.", nil)
+			i18n.TDefault("w4_mod.25_196"), nil)
 	}
 
 	// Reclaim abandoned sessions before adding another; the files they hold are
@@ -231,7 +232,7 @@ func (s *Service) SaveMapping(
 	}
 	if !session.Phase.Open() {
 		return nil, nil, apperr.Conflict("import.closed",
-			"لم يعد بالإمكان تعديل هذه الجلسة. يرجى بدء عملية استيراد جديدة.")
+			i18n.TDefault("w4_mod.w4str_197_197"))
 	}
 
 	session.Overrides = overrides
@@ -262,12 +263,12 @@ func (s *Service) SaveSettings(ctx context.Context, publicID string, settings Se
 	}
 	if !session.Phase.Open() {
 		return nil, apperr.Conflict("import.closed",
-			"لم يعد بالإمكان تعديل هذه الجلسة. يرجى بدء عملية استيراد جديدة.")
+			i18n.TDefault("w4_mod.w4str_197_197"))
 	}
 	settings = settings.Normalize()
 	if settings.WarehouseID <= 0 {
 		return nil, apperr.Validation("import.warehouse_required",
-			"يجب اختيار المخزن الذي ستُسجَّل فيه الأرصدة قبل بدء الاستيراد.", nil)
+			i18n.TDefault("w4_mod.w4str_198_198"), nil)
 	}
 	if err := s.assertWarehouse(ctx, settings.WarehouseID); err != nil {
 		return nil, err
@@ -301,7 +302,7 @@ func (s *Service) assertWarehouse(ctx context.Context, warehouseID int64) error 
 		}
 	}
 	return apperr.Validation("import.warehouse_unknown",
-		"المخزن المحدد غير موجود ضمن مخازن منشأتك.", nil)
+		i18n.TDefault("w4_mod.w4str_199_199"), nil)
 }
 
 // BackToSettings reopens the settings step from the review screen.
@@ -311,7 +312,7 @@ func (s *Service) BackToSettings(ctx context.Context, publicID string) (*Session
 		return nil, err
 	}
 	if session.Phase.Terminal() || session.Phase == PhaseProcessing {
-		return nil, apperr.Conflict("import.closed", "لم يعد بالإمكان تعديل هذه الجلسة.")
+		return nil, apperr.Conflict("import.closed", i18n.TDefault("w4_mod.w4str_200_200"))
 	}
 	session.Phase = PhaseSettings
 	if err := s.imports.SaveDraft(ctx, session); err != nil {
@@ -327,7 +328,7 @@ func (s *Service) BackToMapping(ctx context.Context, publicID string) (*Session,
 		return nil, err
 	}
 	if session.Phase.Terminal() || session.Phase == PhaseProcessing {
-		return nil, apperr.Conflict("import.closed", "لم يعد بالإمكان تعديل هذه الجلسة.")
+		return nil, apperr.Conflict("import.closed", i18n.TDefault("w4_mod.w4str_200_200"))
 	}
 	session.Phase = PhaseMapping
 	if err := s.imports.SaveDraft(ctx, session); err != nil {
@@ -344,7 +345,7 @@ func (s *Service) CancelImport(ctx context.Context, publicID string) error {
 	}
 	if session.Phase == PhaseProcessing {
 		return apperr.Conflict("import.running",
-			"لا يمكن إلغاء عملية قيد التنفيذ. يرجى انتظار انتهائها.")
+			i18n.TDefault("w4_mod.w4str_201_201"))
 	}
 	return s.imports.Cancel(ctx, session.ID)
 }

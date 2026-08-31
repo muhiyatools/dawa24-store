@@ -158,5 +158,5 @@ func branchName(b *org.Branch, lang ...string) string {
 	if l == "en" {
 		return "Branch " + b.Code
 	}
-	return "فرع " + b.Code
+	return i18n.TDefault("w4_ui.w4str_16_16") + b.Code
 }

@@ -1,6 +1,7 @@
 package ingest
 
 import (
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"context"
 	"fmt"
 
@@ -20,7 +21,7 @@ func (s *Service) UpdateStagedRow(
 		return err
 	}
 	if session.Phase != PhaseReview {
-		return apperr.Conflict("import.not_in_review", "لا يمكن تعديل الصفوف إلا في مرحلة المراجعة.")
+		return apperr.Conflict("import.not_in_review", i18n.TDefault("w4_mod.w4str_205_205"))
 	}
 	return s.imports.UpdateRow(ctx, session.ID, rowID, displayName, customVariantName, price, discount, quantity, isExcluded)
 }
@@ -32,7 +33,7 @@ func (s *Service) SetBatchQuantity(ctx context.Context, publicID string, quantit
 		return err
 	}
 	if session.Phase != PhaseReview {
-		return apperr.Conflict("import.not_in_review", "لا يمكن تعديل الكميات إلا في مرحلة المراجعة.")
+		return apperr.Conflict("import.not_in_review", i18n.TDefault("w4_mod.w4str_206_206"))
 	}
 	return s.imports.SetBatchQuantity(ctx, session.ID, quantity)
 }
@@ -46,7 +47,7 @@ func (s *Service) AssignStagedRowMatch(
 		return err
 	}
 	if session.Phase != PhaseReview {
-		return apperr.Conflict("import.not_in_review", "لا يمكن تعديل المطابقة إلا في مرحلة المراجعة.")
+		return apperr.Conflict("import.not_in_review", i18n.TDefault("w4_mod.w4str_193_193"))
 	}
 	if productID <= 0 {
 		return s.imports.AssignRowMatch(ctx, session.ID, rowID, 0, "", "")
@@ -69,7 +70,7 @@ func (s *Service) ToggleStagedRowExclude(ctx context.Context, publicID string, r
 		return false, err
 	}
 	if session.Phase != PhaseReview {
-		return false, apperr.Conflict("import.not_in_review", "لا يمكن تعديل حالة الصف إلا في مرحلة المراجعة.")
+		return false, apperr.Conflict("import.not_in_review", i18n.TDefault("w4_mod.w4str_207_207"))
 	}
 	return s.imports.ToggleRowExclude(ctx, session.ID, rowID)
 }

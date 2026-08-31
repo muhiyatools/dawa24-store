@@ -52,7 +52,7 @@ func ArabicLabel(f TargetField) string {
 	case FieldAlertPrice:
 		return i18n.TDefault("w4_mod.s_371_371")
 	case FieldAlertDiscount:
-		return "خصم التنبيه (%)"
+		return i18n.TDefault("w4_mod.w4str_159_159")
 	default:
 		return string(f)
 	}

@@ -209,7 +209,7 @@ func (s *AdminImageImportSessionStore) ProcessImageImport(
 		imgData, ext, dlErr := ingest.DownloadProductImage(ctx, urlVal)
 		if dlErr != nil {
 			itemRow.Status = "download_failed"
-			itemRow.ErrorMsg = fmt.Sprintf("فشل تنزيل الصورة: %v", dlErr)
+			itemRow.ErrorMsg = fmt.Sprintf(i18n.TDefault("w4_ui.v_9"), dlErr)
 			errorCount++
 			outRows = append(outRows, itemRow)
 			continue
@@ -243,7 +243,7 @@ func (s *AdminImageImportSessionStore) ProcessImageImport(
 		updatedProd, updateErr := catSvc.UpdateProductImageBySKU(ctx, skuVal, publicPath, urlVal)
 		if updateErr != nil {
 			itemRow.Status = "download_failed"
-			itemRow.ErrorMsg = fmt.Sprintf("تعذر تحديث صورة المنتج في قاعدة البيانات: %v", updateErr)
+			itemRow.ErrorMsg = fmt.Sprintf(i18n.TDefault("w4_ui.v_10"), updateErr)
 			errorCount++
 			outRows = append(outRows, itemRow)
 			continue
@@ -262,7 +262,7 @@ func (s *AdminImageImportSessionStore) ProcessImageImport(
 			s.mu.Lock()
 			if curSess, ok := s.sessions[sessionID]; ok {
 				curSess.Progress = int(float64(i+1) / float64(total) * 100)
-				curSess.ProgressNote = fmt.Sprintf("تمت معالجة %d من إجمالي %d صفاً...", i+1, total)
+				curSess.ProgressNote = fmt.Sprintf(i18n.TDefault("w4_ui.d_d_11"), i+1, total)
 				curSess.SuccessRows = successCount
 				curSess.NotFoundRows = notFoundCount
 				curSess.ErrorRows = errorCount
@@ -276,7 +276,7 @@ func (s *AdminImageImportSessionStore) ProcessImageImport(
 	if curSess, ok := s.sessions[sessionID]; ok {
 		curSess.Phase = AdminImagePhaseCompleted
 		curSess.Progress = 100
-		curSess.ProgressNote = "اكتملت المعالجة وربط كافة الصور بنجاح!"
+		curSess.ProgressNote = i18n.TDefault("w4_ui.w4str_12_12")
 		curSess.SuccessRows = successCount
 		curSess.NotFoundRows = notFoundCount
 		curSess.ErrorRows = errorCount

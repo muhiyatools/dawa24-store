@@ -1,6 +1,7 @@
 package postgres
 
 import (
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"context"
 	"fmt"
 	"strconv"
@@ -682,7 +683,7 @@ func (r *Repository) AdminApproveDepositRequest(ctx context.Context, depositID i
 		}
 		dep.Status = billing.DepositStatus(statusStr)
 		if dep.Status != billing.DepositPending {
-			return apperr.Conflict("deposit.already_processed", fmt.Sprintf("تم البت في هذا الطلب مسبقاً بحالة (%s)", dep.Status))
+			return apperr.Conflict("deposit.already_processed", fmt.Sprintf(i18n.TDefault("w4_mod.s_71"), dep.Status))
 		}
 
 		var currentBalance money.Amount
@@ -697,7 +698,7 @@ func (r *Repository) AdminApproveDepositRequest(ctx context.Context, depositID i
 			return fmt.Errorf("compute updated wallet balance: %w", err)
 		}
 
-		desc := fmt.Sprintf("إيداع معتمد عبر %s (مرجع: %s)", dep.PaymentMethod, dep.ReferenceNumber)
+		desc := fmt.Sprintf(i18n.TDefault("w4_mod.s_s_72"), dep.PaymentMethod, dep.ReferenceNumber)
 		if dep.UserNotes != "" {
 			desc += " - " + dep.UserNotes
 		}
@@ -771,7 +772,7 @@ func (r *Repository) AdminRejectDepositRequest(ctx context.Context, depositID in
 		}
 		dep.Status = billing.DepositStatus(statusStr)
 		if dep.Status != billing.DepositPending {
-			return apperr.Conflict("deposit.already_processed", fmt.Sprintf("تم البت في هذا الطلب مسبقاً بحالة (%s)", dep.Status))
+			return apperr.Conflict("deposit.already_processed", fmt.Sprintf(i18n.TDefault("w4_mod.s_71"), dep.Status))
 		}
 
 		now := time.Now()

@@ -225,7 +225,7 @@ func writePlatformGrants(ctx context.Context, tx pgx.Tx, key string, perms []str
 func translatePlatformRoleWriteError(err error) error {
 	var pgErr interface{ SQLState() string }
 	if errors.As(err, &pgErr) && pgErr.SQLState() == "23505" {
-		return apperr.Validation("identity.role_key_taken", "يوجد دور بنفس المعرّف بالفعل.", nil)
+		return apperr.Validation("identity.role_key_taken", i18n.TDefault("w4_mod.w4str_189_189"), nil)
 	}
 	return err
 }

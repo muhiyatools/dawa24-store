@@ -130,7 +130,7 @@ func runSeed(ctx context.Context, db *database.DB, log *slog.Logger) error {
 			value string
 			desc  string
 		}{
-			{"platform_name", `{"ar":"دوا 24","en":"Dawa 24"}`, "Platform public title"},
+			{"platform_name", `{"ar":i18n.TDefault("w4_cmd.24_262"),"en":"Dawa 24"}`, "Platform public title"},
 			{"contact_email", `{"value":"support@dawa24.com"}`, "Support email address"},
 			{"contact_phone", `{"value":"19000"}`, "Support hotline number"},
 			{"maintenance_mode", `{"enabled":false}`, "Platform maintenance state"},

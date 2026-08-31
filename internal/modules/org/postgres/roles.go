@@ -1,6 +1,7 @@
 package postgres
 
 import (
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"context"
 	"errors"
 	"fmt"
@@ -192,7 +193,7 @@ func (r *Repository) DeleteRole(ctx context.Context, orgID, roleID int64) error 
 		}
 		if isSystem {
 			return apperr.Validation("org.role_is_system",
-				"لا يمكن حذف دور أساسي؛ يمكنك تعديل صلاحياته بدلاً من ذلك.", nil)
+				i18n.TDefault("w4_mod.w4str_175_175"), nil)
 		}
 
 		if _, err := tx.Exec(txCtx, `
@@ -319,7 +320,7 @@ func translateRoleWriteError(err error) error {
 	var pgErr interface{ SQLState() string }
 	if errors.As(err, &pgErr) && pgErr.SQLState() == "23505" {
 		return apperr.Validation("org.role_key_taken",
-			"يوجد دور بنفس المعرّف في هذه المنشأة بالفعل.", nil)
+			i18n.TDefault("w4_mod.w4str_231_231"), nil)
 	}
 	return err
 }

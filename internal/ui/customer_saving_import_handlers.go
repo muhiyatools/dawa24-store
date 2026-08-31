@@ -245,10 +245,10 @@ func (h *UIHandler) CustomerSavingProductsSampleCSV(w http.ResponseWriter, r *ht
 		i18n.T(lang, "customer.saving.sample_col_sku") + "," +
 		i18n.T(lang, "customer.saving.sample_col_qty") + "," +
 		i18n.T(lang, "customer.saving.sample_col_price") + "\n" +
-		"بانادول اكسترا 500 مجم أقراص,PAN-EXT-24,50,48.50\n" +
-		"كونجستال أقراص للبرد,CONG-TAB-20,30,29.00\n" +
-		"أوجمنتين 1 جم أقراص 14 قرص,AUG-1G-14,20,110.00\n" +
-		"أنتينال 200 مجم كبسول,ANT-200-24,40,32.00\n"
+		i18n.TDefault("w4_ui.500_pan_ext_24_50_48_50_18") +
+		i18n.TDefault("w4_ui.cong_tab_20_30_29_00_n_19") +
+		i18n.TDefault("w4_ui.1_14_aug_1g_14_20_110_00_20") +
+		i18n.TDefault("w4_ui.200_ant_200_24_40_32_00_21")
 
 	w.Header().Set("Content-Type", "text/csv; charset=utf-8")
 	w.Header().Set("Content-Disposition", "attachment; filename=\"saving_products_sample.csv\"")

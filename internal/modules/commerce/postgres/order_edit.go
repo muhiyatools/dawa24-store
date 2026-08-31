@@ -36,7 +36,7 @@ func (r *Repository) UpdateCustomerPendingOrder(
 		}
 
 		if commerce.OrderStatus(currentStatus) != commerce.StatusPending {
-			return apperr.Forbidden("order.locked", fmt.Sprintf("لا يمكن تعديل الطلب لأن المورد قام بتأكيد الطلب أو استلامه بالفعل (حالة الطلب الحالية: %s)", currentStatus))
+			return apperr.Forbidden("order.locked", fmt.Sprintf(i18n.TDefault("w4_mod.s_151"), currentStatus))
 		}
 
 		// Calculate initial tax percentage rate if tax was present on the order
@@ -66,7 +66,7 @@ func (r *Repository) UpdateCustomerPendingOrder(
 			}
 
 			if l.Quantity <= 0 {
-				return apperr.Validation("quantity", "يجب أن تكون كمية الصنف 1 على الأقل.", nil)
+				return apperr.Validation("quantity", i18n.TDefault("w4_mod.1_152"), nil)
 			}
 
 			if l.ID > 0 {
@@ -105,10 +105,10 @@ func (r *Repository) UpdateCustomerPendingOrder(
 					`, *dbOfferProductID).Scan(&offerCustomQty, &maxQtyPerOrder)
 
 					if maxQtyPerOrder > 0 && l.Quantity > maxQtyPerOrder {
-						return apperr.Validation("max_qty_exceeded", fmt.Sprintf("الكمية المطلوبة للصنف (%s) هي %d وتتجاوز الحد الأقصى المسموح به لكل طلب في هذا العرض (%d قطعة).", dbProductName, l.Quantity, maxQtyPerOrder), nil)
+						return apperr.Validation("max_qty_exceeded", fmt.Sprintf(i18n.TDefault("w4_mod.s_d_d_153"), dbProductName, l.Quantity, maxQtyPerOrder), nil)
 					}
 					if offerCustomQty > 1 && l.Quantity < offerCustomQty {
-						return apperr.Validation("min_offer_qty", fmt.Sprintf("الحد الأدنى لطلب الصنف (%s) داخل هذا العرض هو %d قطعة.", dbProductName, offerCustomQty), nil)
+						return apperr.Validation("min_offer_qty", fmt.Sprintf(i18n.TDefault("w4_mod.s_d_154"), dbProductName, offerCustomQty), nil)
 					}
 				}
 
@@ -121,7 +121,7 @@ func (r *Repository) UpdateCustomerPendingOrder(
 						WHERE id = $1 AND deleted_at IS NULL;
 					`, *dbVariantID).Scan(&minOrderQty)
 					if minOrderQty > 0 && l.Quantity < minOrderQty {
-						return apperr.Validation("min_order_qty", fmt.Sprintf("الحد الأدنى لطلب الصنف (%s) هو %d قطعة.", dbProductName, minOrderQty), nil)
+						return apperr.Validation("min_order_qty", fmt.Sprintf(i18n.TDefault("w4_mod.s_d_155"), dbProductName, minOrderQty), nil)
 					}
 
 					var availableStock int
@@ -137,7 +137,7 @@ func (r *Repository) UpdateCustomerPendingOrder(
 						  AND deleted_at IS NULL;
 					`, *dbVariantID, checkOrgID).Scan(&availableStock)
 					if availableStock > 0 && l.Quantity > availableStock {
-						return apperr.Validation("stock_exceeded", fmt.Sprintf("الكمية المطلوبة للصنف (%s) هي %d وتتجاوز المخزون المتاح حالياً لدى المورد (%d قطعة).", dbProductName, l.Quantity, availableStock), nil)
+						return apperr.Validation("stock_exceeded", fmt.Sprintf(i18n.TDefault("w4_mod.s_d_d_156"), dbProductName, l.Quantity, availableStock), nil)
 					}
 				}
 
@@ -198,7 +198,7 @@ func (r *Repository) UpdateCustomerPendingOrder(
 		var remainingCount int
 		_ = tx.QueryRow(txCtx, `SELECT COUNT(*) FROM commerce.order_lines WHERE order_id = $1;`, order.ID).Scan(&remainingCount)
 		if remainingCount == 0 {
-			return apperr.Validation("order.empty", "لا يمكن حفظ الطلب بدون أصناف. يجب أن يحتوي الطلب على صنف واحد على الأقل.", nil)
+			return apperr.Validation("order.empty", i18n.TDefault("w4_mod.w4str_157_157"), nil)
 		}
 
 		// 4. Recalculate order totals from all active lines in DB

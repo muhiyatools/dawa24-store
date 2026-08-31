@@ -100,10 +100,10 @@ func importToggles(opts catalog.ImportOptions, aiAvailable bool) []ImportToggle 
 	ai := ImportToggle{
 		Name: "use_ai", Icon: "🤖",
 		Title: i18n.T("ar", "wizard.opt.use_ai_title"),
-		Description: "ثلاثة طلبات ثابتة مهما كان حجم الملف — تحديد معنى الأعمدة، ومطابقة الفئات " +
-			"والأشكال الصيدلية — ثم طلبات مجمّعة للأصناف التي لم يحسمها التطابق الحتمي وحده " +
-			"(٢٥ صنفاً في الطلب الواحد، ومن بين مرشحين محدّدين فقط). لا يُعالَج أي صف على حدة، " +
-			"وإيقافه لا يعطّل الاستيراد بل يقلّل نسبة المطابقة فقط.",
+		Description: i18n.TDefault("w4_ui.w4str_39_39") +
+			i18n.TDefault("w4_ui.w4str_40_40") +
+			i18n.TDefault("w4_ui.w4str_41_41") +
+			i18n.TDefault("w4_ui.w4str_42_42"),
 		Checked: opts.UseAI && aiAvailable,
 		Note:    i18n.T("ar", "wizard.opt.use_ai_note_optional"),
 	}
@@ -259,10 +259,10 @@ func (v ImportReviewView) SourceSummary() string {
 	switch v.Session.SourceFormat {
 	case "xlsx":
 		if v.Session.SheetName != "" {
-			parts = append(parts, fmt.Sprintf("ورقة «%s»", v.Session.SheetName))
+			parts = append(parts, fmt.Sprintf(i18n.TDefault("w4_ui.s_32"), v.Session.SheetName))
 		}
 	case "csv":
-		parts = append(parts, fmt.Sprintf("فاصل «%s»", delimiterLabel(v.Session.Delimiter)))
+		parts = append(parts, fmt.Sprintf(i18n.TDefault("w4_ui.s_33"), delimiterLabel(v.Session.Delimiter)))
 	}
 	if v.Session.BlockCount > 1 {
 		parts = append(parts, fmt.Sprintf(i18n.TDefault("w4_ui.d_186"), v.Session.BlockCount))
@@ -285,7 +285,7 @@ func (v ImportReviewView) EnrichmentSummary() string {
 	if v.Session.AICalls == 0 {
 		return v.Session.AINote
 	}
-	return fmt.Sprintf("%s (%d طلب ذكاء اصطناعي)", v.Session.AINote, v.Session.AICalls)
+	return fmt.Sprintf(i18n.TDefault("w4_ui.s_d_43"), v.Session.AINote, v.Session.AICalls)
 }
 
 // UsedAI reports whether a model was actually asked anything, which is what the

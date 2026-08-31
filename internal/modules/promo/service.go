@@ -228,7 +228,7 @@ func (s *Service) CreateOrganizationHighlightSection(ctx context.Context, orgID 
 // CreateFeaturedSection creates an informational or branding section for the supplier.
 func (s *Service) CreateFeaturedSection(ctx context.Context, orgID int64, title, description i18n.Text, sectionType, color, slug string, order int, active, showInHeader bool) (*HighlightSection, error) {
 	if title.IsEmpty() {
-		return nil, apperr.Validation("highlight.title_required", "عنوان القسم مطلوب.", nil)
+		return nil, apperr.Validation("highlight.title_required", i18n.TDefault("w4_mod.w4str_245_245"), nil)
 	}
 	if sectionType == "" {
 		sectionType = "about"
@@ -257,10 +257,10 @@ func (s *Service) CreateFeaturedSection(ctx context.Context, orgID int64, title,
 // UpdateFeaturedSection updates an existing featured section.
 func (s *Service) UpdateFeaturedSection(ctx context.Context, sec *HighlightSection) error {
 	if sec == nil || sec.ID <= 0 {
-		return apperr.Validation("highlight.id_required", "معرف القسم مطلوب.", nil)
+		return apperr.Validation("highlight.id_required", i18n.TDefault("w4_mod.w4str_246_246"), nil)
 	}
 	if sec.Title.IsEmpty() {
-		return apperr.Validation("highlight.title_required", "عنوان القسم مطلوب.", nil)
+		return apperr.Validation("highlight.title_required", i18n.TDefault("w4_mod.w4str_245_245"), nil)
 	}
 	return s.repo.UpdateHighlightSection(ctx, sec)
 }

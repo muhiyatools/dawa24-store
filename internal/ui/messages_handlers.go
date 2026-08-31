@@ -72,7 +72,7 @@ func (h *UIHandler) otherPartyName(ctx context.Context, c *chat.Conversation, my
 			return o.TradeName
 		}
 	}
-	return i18n.New(fmt.Sprintf("محادثة %d", c.ID), fmt.Sprintf("Conversation %d", c.ID))
+	return i18n.New(fmt.Sprintf(i18n.TDefault("w4_ui.d_27"), c.ID), fmt.Sprintf("Conversation %d", c.ID))
 }
 
 // MessagesSendSubmit appends a message and returns to the thread.

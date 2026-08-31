@@ -1,6 +1,7 @@
 package catalog
 
 import (
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"context"
 	"errors"
 	"fmt"
@@ -43,7 +44,7 @@ func (s *Service) AnalyzeImport(
 	}
 	if len(sheet.Rows) == 0 {
 		return nil, FileStructure{}, apperr.Validation("catalog.import_file_empty",
-			"الملف المرفوع لا يحتوي على أي صفوف قابلة للقراءة. يرجى التأكد من الملف ثم إعادة رفعه.", nil)
+			i18n.TDefault("w4_mod.w4str_82_82"), nil)
 	}
 
 	layout := AnalyzeLayout(sheet)
@@ -132,11 +133,11 @@ func (s *Service) PreviewImport(
 	}
 	if session.IsProcessing() {
 		return session, nil, apperr.Conflict("catalog.import_already_running",
-			"جارٍ بالفعل معالجة هذا الملف. يرجى الانتظار حتى تكتمل العملية.")
+			i18n.TDefault("w4_mod.w4str_83_83"))
 	}
 	if !session.IsRetryable() {
 		return session, nil, apperr.Validation("catalog.import_not_reviewable",
-			"لا يمكن تعديل هذه الجلسة لأنها اكتملت أو أُلغيت. يرجى بدء عملية استيراد جديدة.", nil)
+			i18n.TDefault("w4_mod.w4str_84_84"), nil)
 	}
 
 	sheet, err := s.sheetFor(ctx, session)
@@ -200,7 +201,7 @@ func (s *Service) sheetFor(ctx context.Context, session *ImportSession) (*SheetD
 	}
 	if len(content) == 0 {
 		return nil, apperr.Validation("catalog.import_file_expired",
-			"انتهت صلاحية الملف المرفوع لهذه الجلسة. يرجى رفع الملف من جديد.", nil)
+			i18n.TDefault("w4_mod.w4str_85_85"), nil)
 	}
 
 	sheet, err := ReadSpreadsheet(content, session.Filename)
@@ -244,17 +245,17 @@ func (s *Service) PrepareImportAsync(ctx context.Context, publicID string, setti
 	}
 	if session.IsProcessing() {
 		return apperr.Conflict("catalog.import_already_running",
-			"جارٍ بالفعل معالجة هذا الملف. يرجى الانتظار حتى تكتمل العملية.")
+			i18n.TDefault("w4_mod.w4str_83_83"))
 	}
 	if !session.IsRetryable() {
 		return apperr.Validation("catalog.import_not_reviewable",
-			"لا يمكن تعديل هذه الجلسة لأنها اكتملت أو أُلغيت. يرجى بدء عملية استيراد جديدة.", nil)
+			i18n.TDefault("w4_mod.w4str_84_84"), nil)
 	}
 
 	report, claimed := s.progress.TryBegin(publicID)
 	if !claimed {
 		return apperr.Conflict("catalog.import_already_running",
-			"جارٍ بالفعل معالجة هذا الملف. يرجى الانتظار حتى تكتمل العملية.")
+			i18n.TDefault("w4_mod.w4str_83_83"))
 	}
 
 	// Taking the session before the goroutine starts means the caller learns
@@ -339,7 +340,7 @@ func failureMessage(err error) string {
 	if errors.As(err, &appErr) && appErr.Msg != "" {
 		return appErr.Msg
 	}
-	return "تعذرت معالجة الملف: " + err.Error()
+	return i18n.TDefault("w4_mod.w4str_86_86") + err.Error()
 }
 
 // prepareTimeout bounds one background run. A file large enough to exceed this
@@ -415,7 +416,7 @@ func (s *Service) prepare(
 	// CLI arrives on a session that is merely retryable.
 	if !session.IsRetryable() && !session.IsProcessing() {
 		return nil, apperr.Validation("catalog.import_not_reviewable",
-			"لا يمكن تعديل هذه الجلسة لأنها اكتملت أو أُلغيت. يرجى بدء عملية استيراد جديدة.", nil)
+			i18n.TDefault("w4_mod.w4str_84_84"), nil)
 	}
 
 	sheet, err := s.sheetFor(ctx, session)
@@ -510,14 +511,14 @@ func (s *Service) prepare(
 func emptyParseMessage(parsed *ParseResult) string {
 	switch {
 	case parsed.Stats.TotalRowsRead == 0:
-		return "الملف لا يحتوي على أي صفوف. يرجى التأكد من الملف ثم رفعه من جديد."
+		return i18n.TDefault("w4_mod.w4str_87_87")
 	case parsed.Stats.RejectedRows > 0:
 		return fmt.Sprintf(
-			"لم يُقرأ أي صنف من الملف: تم رفض %d صف لعدم احتوائها على اسم صنف أو كود. "+
-				"راجع ربط الأعمدة في خطوة «مراجعة الأعمدة» ثم أعد المعالجة.",
+			i18n.TDefault("w4_mod.d_88")+
+				i18n.TDefault("w4_mod.w4str_89_89"),
 			parsed.Stats.RejectedRows)
 	default:
-		return "لم يُقرأ أي صنف من الملف بالإعدادات الحالية. " +
-			"راجع صف العناوين ونطاق الصفوف وربط الأعمدة في خطوة «مراجعة الأعمدة» ثم أعد المعالجة."
+		return i18n.TDefault("w4_mod.w4str_90_90") +
+			i18n.TDefault("w4_mod.w4str_91_91")
 	}
 }

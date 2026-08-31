@@ -1,6 +1,7 @@
 package promo
 
 import (
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"context"
 	"time"
 
@@ -26,10 +27,10 @@ func (s *Service) CreateAd(ctx context.Context, a *Ad) (*Ad, error) {
 		a.Title = a.TitleEn
 	}
 	if a.Title == "" {
-		return nil, apperr.Validation("ad.title_required", "عنوان الإعلان مطلوب.", nil)
+		return nil, apperr.Validation("ad.title_required", i18n.TDefault("w4_mod.w4str_242_242"), nil)
 	}
 	if a.MediaURL == "" {
-		return nil, apperr.Validation("ad.media_required", "يرجى رفع صورة أو فيديو للإعلان.", nil)
+		return nil, apperr.Validation("ad.media_required", i18n.TDefault("w4_mod.w4str_243_243"), nil)
 	}
 	if a.DurationDays <= 0 {
 		a.DurationDays = 30
@@ -67,7 +68,7 @@ func (s *Service) UpdateAd(ctx context.Context, a *Ad) error {
 		a.Title = a.TitleEn
 	}
 	if a.Title == "" {
-		return apperr.Validation("ad.title_required", "عنوان الإعلان مطلوب.", nil)
+		return apperr.Validation("ad.title_required", i18n.TDefault("w4_mod.w4str_242_242"), nil)
 	}
 	return s.repo.UpdateAd(ctx, a)
 }

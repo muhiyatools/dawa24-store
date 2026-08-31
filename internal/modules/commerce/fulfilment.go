@@ -1,6 +1,7 @@
 package commerce
 
 import (
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"context"
 	"strings"
 
@@ -161,7 +162,7 @@ func (s *Service) RateOrderWithCriteria(ctx context.Context, orderID, customerID
 func (s *Service) GetShipmentForDelivery(ctx context.Context, tracking string) (*OrderShipment, error) {
 	cleanTracking := strings.TrimSpace(tracking)
 	if cleanTracking == "" {
-		return nil, apperr.Validation("delivery.tracking_required", "يرجى إدخال رقم الشحنة أو بوليصة التتبع.", map[string]string{"tracking": "required"})
+		return nil, apperr.Validation("delivery.tracking_required", i18n.TDefault("w4_mod.w4str_141_141"), map[string]string{"tracking": "required"})
 	}
 	return s.repo.GetShipmentForDeliveryByTracking(database.AsSystem(ctx), cleanTracking)
 }
@@ -172,10 +173,10 @@ func (s *Service) VerifyAndCompleteDelivery(ctx context.Context, tracking, deliv
 	cleanCode := strings.TrimSpace(deliveryCode)
 
 	if cleanTracking == "" {
-		return nil, apperr.Validation("delivery.tracking_required", "رقم الشحنة مطلوب.", map[string]string{"tracking": "required"})
+		return nil, apperr.Validation("delivery.tracking_required", i18n.TDefault("w4_mod.w4str_142_142"), map[string]string{"tracking": "required"})
 	}
 	if cleanCode == "" {
-		return nil, apperr.Validation("delivery.code_required", "يرجى إدخال كود تأكيد الاستلام المكون من 6 أرقام.", map[string]string{"delivery_code": "required"})
+		return nil, apperr.Validation("delivery.code_required", i18n.TDefault("w4_mod.6_143"), map[string]string{"delivery_code": "required"})
 	}
 
 	shipment, err := s.repo.GetShipmentForDeliveryByTracking(database.AsSystem(ctx), cleanTracking)

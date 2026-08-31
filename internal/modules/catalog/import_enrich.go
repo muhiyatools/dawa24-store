@@ -97,7 +97,7 @@ func (s *Service) resolveCategories(
 	// only when the admin left auto-creation on.
 	session.NewCategories = mapping.Unmatched()
 	return []string{fmt.Sprintf(
-		"تمت مطابقة %d فئة من أصل %d فئة مستوردة%s.",
+		i18n.TDefault("w4_mod.d_d_s_80"),
 		mapping.Matched(), len(sources), unmatchedSuffix(len(mapping.Unmatched())))}
 }
 
@@ -121,7 +121,7 @@ func (s *Service) resolveDosageForms(
 		}
 	}
 	return []string{fmt.Sprintf(
-		"تمت مطابقة %d شكل صيدلي من أصل %d شكل مستورد%s.",
+		i18n.TDefault("w4_mod.d_d_s_81"),
 		mapping.Matched(), len(sources), unmatchedSuffix(len(mapping.Unmatched())))}
 }
 

@@ -1,6 +1,7 @@
 package http
 
 import (
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"net/http"
 	"strconv"
 
@@ -88,11 +89,11 @@ func (h *Handler) VendorSubmitSponsorshipRequest(w http.ResponseWriter, r *http.
 		return
 	}
 	if req.ItemType != "product" && req.ItemType != "offer" {
-		httpx.Error(w, r, h.log, apperr.Validation("item_type.invalid", "نوع العنصر يجب أن يكون منتج أو عرض.", nil))
+		httpx.Error(w, r, h.log, apperr.Validation("item_type.invalid", i18n.TDefault("w4_mod.w4str_251_251"), nil))
 		return
 	}
 	if req.ItemID <= 0 || req.PackageID <= 0 {
-		httpx.Error(w, r, h.log, apperr.Validation("ids.required", "معرف العنصر والباقة مطلوبان.", nil))
+		httpx.Error(w, r, h.log, apperr.Validation("ids.required", i18n.TDefault("w4_mod.w4str_252_252"), nil))
 		return
 	}
 

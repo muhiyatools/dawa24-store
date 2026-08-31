@@ -180,13 +180,13 @@ func (s *Service) DisableMFA(ctx context.Context, userID int64, password, code s
 		// Alternatively allow current valid TOTP code
 		mfa, err := s.repo.GetMFA(ctx, userID)
 		if err != nil || mfa == nil || !mfa.Enabled {
-			return apperr.Validation("mfa.not_enabled", "المصادقة الثنائية غير مفعلة.", nil)
+			return apperr.Validation("mfa.not_enabled", i18n.TDefault("w4_mod.w4str_184_184"), nil)
 		}
 		if !ValidateTOTP(string(mfa.TOTPSecret), code, time.Now().UTC()) {
-			return apperr.Validation("mfa.code_incorrect", "رمز التحقق غير صحيح.", nil)
+			return apperr.Validation("mfa.code_incorrect", i18n.TDefault("w4_mod.w4str_185_185"), nil)
 		}
 	} else {
-		return apperr.Validation("auth.confirmation_required", "يجب إدخال كلمة المرور الحالية لتأكيد تعطيل المصادقة الثنائية.", nil)
+		return apperr.Validation("auth.confirmation_required", i18n.TDefault("w4_mod.w4str_186_186"), nil)
 	}
 
 	disabledMFA := &UserMFA{
@@ -213,7 +213,7 @@ func (s *Service) VerifyMFA(ctx context.Context, userID int64, code string) (boo
 
 	mfa, err := s.repo.GetMFA(ctx, userID)
 	if err != nil || mfa == nil || !mfa.Enabled || len(mfa.TOTPSecret) == 0 {
-		return false, apperr.Validation("mfa.not_enabled", "المصادقة الثنائية غير مفعلة لهذا الحساب.", nil)
+		return false, apperr.Validation("mfa.not_enabled", i18n.TDefault("w4_mod.w4str_187_187"), nil)
 	}
 
 	cleanCode := strings.ToUpper(strings.TrimSpace(code))
@@ -338,7 +338,7 @@ func (s *Service) RegenerateRecoveryCodes(ctx context.Context, userID int64, pas
 
 	mfa, err := s.repo.GetMFA(ctx, userID)
 	if err != nil || mfa == nil || !mfa.Enabled {
-		return nil, apperr.Validation("mfa.not_enabled", "المصادقة الثنائية غير مفعلة.", nil)
+		return nil, apperr.Validation("mfa.not_enabled", i18n.TDefault("w4_mod.w4str_184_184"), nil)
 	}
 
 	newCodes, err := GenerateRecoveryCodes(8)

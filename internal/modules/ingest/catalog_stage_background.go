@@ -51,11 +51,11 @@ const stageTimeout = 45 * time.Minute
 // long since been answered.
 func (s *Service) StageInBackground(ctx context.Context, session *Session) error {
 	if session == nil {
-		return apperr.Validation("import.missing", "لا توجد جلسة استيراد.", nil)
+		return apperr.Validation("import.missing", i18n.TDefault("w4_mod.w4str_202_202"), nil)
 	}
 	if !s.runs.claim(session.PublicID) {
 		return apperr.Conflict("import.running",
-			"هذه العملية قيد التنفيذ بالفعل. يرجى انتظار انتهائها.")
+			i18n.TDefault("w4_mod.w4str_190_190"))
 	}
 
 	// Publish the phase before the goroutine starts. A vendor who is redirected
@@ -93,7 +93,7 @@ func (s *Service) StageInBackground(ctx context.Context, session *Session) error
 				s.log.ErrorContext(runCtx, "vendor import staging panicked",
 					"import", running.PublicID, "panic", p)
 				s.failStaging(runCtx, &running,
-					"تعذّر إتمام معالجة الملف بسبب خطأ غير متوقع. يرجى إعادة المحاولة.")
+					i18n.TDefault("w4_mod.w4str_203_203"))
 			}
 		}()
 		s.runStaging(runCtx, &running)
@@ -147,5 +147,5 @@ func (s *Service) stagingFailureMessage(err error) string {
 			return msg
 		}
 	}
-	return "تعذّر إتمام معالجة الملف. يرجى مراجعة ربط الأعمدة ثم إعادة المحاولة."
+	return i18n.TDefault("w4_mod.w4str_204_204")
 }

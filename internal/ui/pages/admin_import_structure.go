@@ -30,11 +30,11 @@ func describeSource(stats catalog.ImportStats) string {
 	switch stats.Format {
 	case "xlsx":
 		if stats.SheetName != "" {
-			return fmt.Sprintf("ملف Excel — ورقة العمل «%s»", stats.SheetName)
+			return fmt.Sprintf(i18n.TDefault("w4_ui.excel_s_36"), stats.SheetName)
 		}
-		return "ملف Excel"
+		return i18n.TDefault("w4_ui.excel_37")
 	case "csv":
-		return fmt.Sprintf("ملف نصي — الفاصل «%s»", delimiterLabel(stats.Delimiter))
+		return fmt.Sprintf(i18n.TDefault("w4_ui.s_38"), delimiterLabel(stats.Delimiter))
 	default:
 		return ""
 	}

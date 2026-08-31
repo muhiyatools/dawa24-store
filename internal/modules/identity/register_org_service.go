@@ -102,12 +102,12 @@ func (s *Service) RegisterOrganization(ctx context.Context, input RegisterOrgani
 // the registration form.
 func validateOrgInput(in RegisterOrgInput) error {
 	if in.LegalName == "" {
-		return apperr.Validation("org.legal_name_required", "الاسم القانوني للمنشأة مطلوب.", nil)
+		return apperr.Validation("org.legal_name_required", i18n.TDefault("w4_mod.w4str_171_171"), nil)
 	}
 	switch in.Type {
 	case OrgTypeVendor, OrgTypeCustomer:
 		return nil
 	default:
-		return apperr.Validation("org.type_invalid", "يرجى تحديد نوع الحساب: صيدلية أو مورد.", nil)
+		return apperr.Validation("org.type_invalid", i18n.TDefault("w4_mod.w4str_172_172"), nil)
 	}
 }

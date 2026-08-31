@@ -204,7 +204,7 @@ func stockFailureMessage(err error) string {
 	case strings.Contains(msg, "duplicate key"):
 		return i18n.TDefault("w4_mod.s_404_404")
 	}
-	return "تعذر تحديث الرصيد بسبب خطأ غير متوقع؛ أعد المحاولة، وإن تكرر راجع الدعم الفني."
+	return i18n.TDefault("w4_mod.w4str_226_226")
 }
 
 func maxInt(a, b int) int {

@@ -359,7 +359,7 @@ func (s *Service) UpdateCustomerPendingOrder(ctx context.Context, actor authctx.
 
 	// Check lifecycle state: strictly only StatusPending can be edited
 	if order.Status != StatusPending {
-		return nil, apperr.Forbidden("order.locked", "لا يمكن تعديل الطلب بعد قبوله أو تأكيده من قِبل المورد (حالة الطلب: "+string(order.Status)+")")
+		return nil, apperr.Forbidden("order.locked", i18n.TDefault("w4_mod.w4str_144_144")+string(order.Status)+")")
 	}
 
 	return s.repo.UpdateCustomerPendingOrder(ctx, order, input.Lines, actor.UserID)

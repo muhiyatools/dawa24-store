@@ -29,14 +29,14 @@ func (s *Service) CommitImport(ctx context.Context, publicID string) (*Session, 
 	}
 	if session.Phase == PhaseProcessing || s.runs.running(publicID) {
 		return nil, apperr.Conflict("import.running",
-			"هذه العملية قيد التنفيذ بالفعل. يرجى انتظار انتهائها.")
+			i18n.TDefault("w4_mod.w4str_190_190"))
 	}
 	if session.Settings.WarehouseID <= 0 {
 		return nil, apperr.Validation("import.warehouse_required",
-			"يجب اختيار المخزن قبل بدء الاستيراد.", nil)
+			i18n.TDefault("w4_mod.w4str_191_191"), nil)
 	}
 	if !s.runs.claim(publicID) {
-		return nil, apperr.Conflict("import.running", "هذه العملية قيد التنفيذ بالفعل.")
+		return nil, apperr.Conflict("import.running", i18n.TDefault("w4_mod.w4str_192_192"))
 	}
 	defer s.runs.release(publicID)
 

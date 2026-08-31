@@ -1,6 +1,7 @@
 package postgres
 
 import (
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"context"
 	"encoding/json"
 	"fmt"
@@ -104,7 +105,7 @@ func (r *Repository) SaveDraft(ctx context.Context, s *ingest.Session) error {
 			return fmt.Errorf("ingest postgres: save import draft: %w", err)
 		}
 		if tag.RowsAffected() == 0 {
-			return apperr.Conflict("import.not_open", "لم يعد بالإمكان تعديل هذه الجلسة.")
+			return apperr.Conflict("import.not_open", i18n.TDefault("w4_mod.w4str_200_200"))
 		}
 		return nil
 	})
@@ -152,7 +153,7 @@ func (r *Repository) FinishStaging(ctx context.Context, s *ingest.Session) error
 		}
 		if tag.RowsAffected() == 0 {
 			return apperr.Conflict("import.not_processing",
-				"لم تعد هذه الجلسة قيد المعالجة.")
+				i18n.TDefault("w4_mod.w4str_221_221"))
 		}
 		return nil
 	})
@@ -279,7 +280,7 @@ func (r *Repository) Begin(ctx context.Context, id int64) error {
 			return fmt.Errorf("ingest postgres: begin import: %w", err)
 		}
 		if tag.RowsAffected() == 0 {
-			return apperr.Conflict("import.already_running", "هذه الجلسة قيد التنفيذ أو منتهية بالفعل.")
+			return apperr.Conflict("import.already_running", i18n.TDefault("w4_mod.w4str_222_222"))
 		}
 		// A re-run must not show the previous run's rows beside the new ones.
 		if _, err := tx.Exec(txCtx,
@@ -335,7 +336,7 @@ func (r *Repository) Finish(ctx context.Context, s *ingest.Session) error {
 		}
 		if tag.RowsAffected() == 0 {
 			return apperr.Conflict("import.not_processing",
-				"لم تعد هذه الجلسة قيد التنفيذ، ولم يتم تحديث نتيجتها.")
+				i18n.TDefault("w4_mod.w4str_223_223"))
 		}
 		return nil
 	})
@@ -353,7 +354,7 @@ func (r *Repository) Fail(ctx context.Context, id int64, message string) error {
 		}
 		if tag.RowsAffected() == 0 {
 			return apperr.Conflict("import.not_processing",
-				"لم تعد هذه الجلسة قيد التنفيذ، ولم يتم تسجيل الخطأ عليها.")
+				i18n.TDefault("w4_mod.w4str_224_224"))
 		}
 		return nil
 	})
@@ -372,7 +373,7 @@ func (r *Repository) Cancel(ctx context.Context, id int64) error {
 			return fmt.Errorf("ingest postgres: cancel import: %w", err)
 		}
 		if tag.RowsAffected() == 0 {
-			return apperr.Conflict("import.not_open", "لم تعد هذه الجلسة قابلة للإلغاء.")
+			return apperr.Conflict("import.not_open", i18n.TDefault("w4_mod.w4str_225_225"))
 		}
 		return nil
 	})

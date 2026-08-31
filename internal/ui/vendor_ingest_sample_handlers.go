@@ -118,7 +118,7 @@ func (h *UIHandler) VendorIngestExport(w http.ResponseWriter, r *http.Request) {
 	writer := csv.NewWriter(w)
 	defer writer.Flush()
 
-	headers := []string{"الباركود / SKU", i18n.TDefault("w4_ui.s_172_172"), "سعر التوريد (ج.م)", "الرصيد المتاح (عبوة)", i18n.T("ar", "ingest.col.batch_no"), i18n.T("ar", "ingest.col.expiry_date"), i18n.TDefault("w4_ui.s_173_173")}
+	headers := []string{i18n.TDefault("w4_ui.sku_29"), i18n.TDefault("w4_ui.s_172_172"), i18n.TDefault("w4_ui.w4str_30_30"), i18n.TDefault("w4_ui.w4str_31_31"), i18n.T("ar", "ingest.col.batch_no"), i18n.T("ar", "ingest.col.expiry_date"), i18n.TDefault("w4_ui.s_173_173")}
 	_ = writer.Write(headers)
 
 	if h.catSvc != nil {

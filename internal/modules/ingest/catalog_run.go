@@ -204,5 +204,5 @@ func importFailureMessage(err error) string {
 	if errors.As(err, &domain) && domain.Msg != "" {
 		return domain.Msg
 	}
-	return "تعذر إتمام الاستيراد: " + err.Error()
+	return i18n.TDefault("w4_mod.w4str_194_194") + err.Error()
 }

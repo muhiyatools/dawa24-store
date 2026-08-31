@@ -247,7 +247,7 @@ func (s *Service) GetAISettings(ctx context.Context) (*AISettings, error) {
 		return &AISettings{
 			Temperature:  0.7,
 			MaxTokens:    2048,
-			SystemPrompt: "أنت المساعد الذكي لمنصة دواء 24، متخصص في مساعدة الصيدليات والموردين في العمليات الدوائية وإدارة المخزون والتوريد.",
+			SystemPrompt: i18n.TDefault("w4_mod.24_237"),
 			IsActive:     true,
 		}, nil
 	}
@@ -368,7 +368,7 @@ func (s *Service) GetSiteSettings(ctx context.Context) (*SiteSettings, error) {
 	setting, err := s.repo.GetSetting(ctx, "site_public_settings")
 	if err != nil || setting == nil || setting.Value == nil {
 		return &SiteSettings{
-			SiteName:        "دواء 24",
+			SiteName:        i18n.TDefault("w4_ui.24_28"),
 			SiteDescription: i18n.TDefault("w4_ui.s_99_99"),
 			LogoURL:         "/static/img/logo.png",
 			FaviconURL:      "/static/img/logo.png",
@@ -401,7 +401,7 @@ func (s *Service) GetSiteSettings(ctx context.Context) (*SiteSettings, error) {
 	}
 
 	ss := &SiteSettings{
-		SiteName:        getString(v, "site_name", "دواء 24"),
+		SiteName:        getString(v, "site_name", i18n.TDefault("w4_ui.24_28")),
 		SiteDescription: getString(v, "site_description", i18n.TDefault("w4_mod.s_424_424")),
 		LogoURL:         getString(v, "logo_url", "/static/img/logo.png"),
 		FaviconURL:      getString(v, "favicon_url", "/static/img/logo.png"),

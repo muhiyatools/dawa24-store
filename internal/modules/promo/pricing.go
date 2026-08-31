@@ -13,6 +13,7 @@
 package promo
 
 import (
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"math"
 
 	"github.com/muhiya/dawa24-store/internal/shared/money"
@@ -30,7 +31,7 @@ const (
 )
 
 // DiscountBreakdown is the full derivation of one line's final price, for
-// display ("خصم 15%") and for order-line persistence later.
+// display (i18n.TDefault("w4_mod.15_244")) and for order-line persistence later.
 type DiscountBreakdown struct {
 	ListPrice      money.Amount
 	FinalPrice     money.Amount

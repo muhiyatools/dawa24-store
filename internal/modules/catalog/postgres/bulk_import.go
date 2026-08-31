@@ -840,19 +840,19 @@ func explainWriteError(err error) string {
 	case "23505": // unique_violation
 		return i18n.TDefault("w4_mod.s_344_344")
 	case "23503": // foreign_key_violation
-		return "قيمة مرتبطة غير موجودة (التصنيف أو الشركة المصنعة أو الفرع)"
+		return i18n.TDefault("w4_mod.w4str_117_117")
 	case "23514": // check_violation
-		return fmt.Sprintf("قيمة غير مسموح بها في العمود (%s)", pgErr.ConstraintName)
+		return fmt.Sprintf(i18n.TDefault("w4_mod.s_118"), pgErr.ConstraintName)
 	case "23502": // not_null_violation
-		return fmt.Sprintf("قيمة مطلوبة مفقودة في العمود «%s»", pgErr.ColumnName)
+		return fmt.Sprintf(i18n.TDefault("w4_mod.s_119"), pgErr.ColumnName)
 	case "22001": // string_data_right_truncation
 		return i18n.TDefault("w4_mod.s_345_345")
 	case "22003": // numeric_value_out_of_range
-		return "قيمة رقمية خارج النطاق المسموح به (الحد الأقصى للسعر 9,999,999,999.99)"
+		return i18n.TDefault("w4_mod.9_999_999_999_99_120")
 	case "22P02": // invalid_text_representation
 		return i18n.TDefault("w4_mod.s_346_346")
 	default:
-		return fmt.Sprintf("%s (رمز الخطأ %s)", pgErr.Message, pgErr.Code)
+		return fmt.Sprintf(i18n.TDefault("w4_mod.s_s_121"), pgErr.Message, pgErr.Code)
 	}
 }
 

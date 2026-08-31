@@ -271,7 +271,7 @@ func (r *Repository) UpdateImportSession(
 		}
 		if tag.RowsAffected() == 0 {
 			return apperr.Conflict("catalog.import_state_changed",
-				"تغيرت حالة جلسة الاستيراد أثناء المعالجة. يرجى تحديث الصفحة ومراجعة الحالة.")
+				i18n.TDefault("w4_mod.w4str_122_122"))
 		}
 		return nil
 	})
@@ -325,7 +325,7 @@ func (r *Repository) ClaimImportSessionForCommit(ctx context.Context, publicID s
 		s, err := scanImportSession(row)
 		if errors.Is(err, pgx.ErrNoRows) {
 			return apperr.Conflict("catalog.import_not_committable",
-				"لم تعد هذه الجلسة قابلة للحفظ. يرجى تحديث الصفحة ومراجعة حالتها.")
+				i18n.TDefault("w4_mod.w4str_123_123"))
 		}
 		if err != nil {
 			return err

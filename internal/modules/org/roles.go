@@ -47,7 +47,7 @@ func ScopeForOrganization(orgType OrganizationType) (rbac.Scope, error) {
 	scope, ok := rbac.TenantScopeFor(string(orgType))
 	if !ok {
 		return "", apperr.Validation("org.type_has_no_dashboard",
-			"لا توجد لوحة تحكم لهذا النوع من المنشآت.", nil)
+			i18n.TDefault("w4_mod.w4str_227_227"), nil)
 	}
 	return scope, nil
 }
@@ -114,7 +114,7 @@ func (s *Service) UpdateRole(ctx context.Context, roleID int64, in RoleInput) (*
 		// The owner role holds everything by definition; editing it would let
 		// an owner lock themselves out of their own company with no way back.
 		return nil, apperr.Validation("org.role_is_owner",
-			"دور المالك يملك جميع الصلاحيات ولا يمكن تعديله.", nil)
+			i18n.TDefault("w4_mod.w4str_228_228"), nil)
 	}
 
 	existing.Name = in.Name
@@ -144,7 +144,7 @@ func (s *Service) DeleteRole(ctx context.Context, orgID, roleID int64) error {
 // AssignMemberRole puts a member into one of their own company's roles.
 func (s *Service) AssignMemberRole(ctx context.Context, orgID, memberID, roleID int64) error {
 	if orgID <= 0 || memberID <= 0 || roleID <= 0 {
-		return apperr.Validation("org.invalid", "معرّف غير صالح.", nil)
+		return apperr.Validation("org.invalid", i18n.TDefault("w4_mod.w4str_229_229"), nil)
 	}
 	if err := s.repo.AssignMemberRole(ctx, orgID, memberID, roleID); err != nil {
 		return err
@@ -159,10 +159,10 @@ func validateRoleInput(in RoleInput) error {
 		return apperr.Validation("org.required", "An organization is required.", nil)
 	}
 	if !rbac.ValidScope(in.Scope) {
-		return apperr.Validation("org.scope_invalid", "لوحة التحكم غير معروفة.", nil)
+		return apperr.Validation("org.scope_invalid", i18n.TDefault("w4_mod.w4str_230_230"), nil)
 	}
 	if strings.TrimSpace(in.Name["ar"]) == "" && strings.TrimSpace(in.Name["en"]) == "" {
-		return apperr.Validation("org.role_name_required", "اسم الدور مطلوب.", nil)
+		return apperr.Validation("org.role_name_required", i18n.TDefault("w4_mod.w4str_177_177"), nil)
 	}
 	return nil
 }

@@ -81,10 +81,10 @@ func (c *WeeklyCoverage) Validate() error {
 		return apperr.Validation("coverage.longitude_invalid", "Longitude must be between -180 and 180.", map[string]string{"longitude": i18n.TDefault("w4s_mod.s_11_11")})
 	}
 	if !validTimeOfDay(c.CoverageFrom) {
-		return apperr.Validation("coverage.from_invalid", "Coverage start time must be HH:MM.", map[string]string{"coverage_from": "وقت البداية يجب أن يكون بصيغة HH:MM"})
+		return apperr.Validation("coverage.from_invalid", "Coverage start time must be HH:MM.", map[string]string{"coverage_from": i18n.TDefault("w4_mod.hh_mm_255")})
 	}
 	if !validTimeOfDay(c.CoverageTo) {
-		return apperr.Validation("coverage.to_invalid", "Coverage end time must be HH:MM.", map[string]string{"coverage_to": "وقت النهاية يجب أن يكون بصيغة HH:MM"})
+		return apperr.Validation("coverage.to_invalid", "Coverage end time must be HH:MM.", map[string]string{"coverage_to": i18n.TDefault("w4_mod.hh_mm_256")})
 	}
 	// A half-open window is meaningless: either both ends are set or neither is.
 	if (c.CoverageFrom == nil) != (c.CoverageTo == nil) {

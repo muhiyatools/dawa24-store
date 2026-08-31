@@ -187,7 +187,7 @@ func ValidatePresignRequest(req PresignRequest) error {
 		}
 	}
 	if !mimeMatched {
-		return apperr.Validation("document.mime_unsupported", fmt.Sprintf("صيغة الملف غير مسموح بها (%s)", req.MimeType), map[string]string{"mime_type": i18n.TDefault("w4s_mod.s_18_18")})
+		return apperr.Validation("document.mime_unsupported", fmt.Sprintf(i18n.TDefault("w4_mod.s_68"), req.MimeType), map[string]string{"mime_type": i18n.TDefault("w4s_mod.s_18_18")})
 	}
 
 	maxSize := int64(MaxDocumentSize)
@@ -198,7 +198,7 @@ func ValidatePresignRequest(req PresignRequest) error {
 	}
 
 	if req.SizeBytes > maxSize {
-		return apperr.Validation("document.size_exceeded", fmt.Sprintf("حجم الملف يتجاوز الحد الأقصى المسموح به (%d ميجابايت)", maxSize/(1024*1024)), map[string]string{"size_bytes": i18n.TDefault("w4s_mod.s_19_19")})
+		return apperr.Validation("document.size_exceeded", fmt.Sprintf(i18n.TDefault("w4_mod.d_69"), maxSize/(1024*1024)), map[string]string{"size_bytes": i18n.TDefault("w4s_mod.s_19_19")})
 	}
 
 	return nil

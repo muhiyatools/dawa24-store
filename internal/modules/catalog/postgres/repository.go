@@ -1,6 +1,7 @@
 package postgres
 
 import (
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"context"
 	"fmt"
 
@@ -35,7 +36,7 @@ func (r *Repository) CreateProduct(ctx context.Context, p *catalog.Product) erro
 			} else {
 				err = tx.QueryRow(txCtx, `
 					INSERT INTO org.organizations (name, legal_name, trade_name, type, status)
-					VALUES ('{"ar":i18n.TDefault("w4_mod.24_343"),"en":"Dawa24 Master Catalog"}'::jsonb, 'دواء 24 - الكتالوج المعتمد', '{"ar":"دواء 24","en":"Dawa24"}'::jsonb, 'vendor', 'approved')
+					VALUES ('{"ar":i18n.TDefault("w4_mod.24_343"),"en":"Dawa24 Master Catalogi18n.TDefault("w4_mod.jsonb_24_124")ar":i18n.TDefault("w4_ui.24_28"),"en":"Dawa24"}'::jsonb, 'vendor', 'approved')
 					RETURNING id
 				`).Scan(&firstOrgID)
 				if err == nil {

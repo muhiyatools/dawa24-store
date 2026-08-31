@@ -143,7 +143,7 @@ func (s *Service) CheckAvailability(ctx context.Context, req AvailabilityRequest
 	// 2. The variant must exist, be active, and belong to that supplier.
 	if req.VariantID <= 0 {
 		return denied(ReasonVariantInvalid, 0,
-			"الصنف المطلوب غير محدد.",
+			i18n.TDefault("w4_mod.w4str_126_126"),
 			"No product variant was specified."), nil
 	}
 	variant, err := s.availability.Variant(ctx, req.VariantID)
@@ -152,41 +152,41 @@ func (s *Service) CheckAvailability(ctx context.Context, req AvailabilityRequest
 	}
 	if variant.ID == 0 {
 		return denied(ReasonVariantInvalid, 0,
-			"الصنف المطلوب غير موجود.",
+			i18n.TDefault("w4_mod.w4str_127_127"),
 			"The requested product variant does not exist."), nil
 	}
 	if !variant.Active {
 		return denied(ReasonVariantInactive, 0,
-			"هذا الصنف غير متاح للطلب حالياً.",
+			i18n.TDefault("w4_mod.w4str_128_128"),
 			"This product is not currently available."), nil
 	}
 	if variant.OrganizationID != req.VendorOrgID {
 		return denied(ReasonWrongVendor, 0,
-			"هذا الصنف لا يتبع المورد المحدد.",
+			i18n.TDefault("w4_mod.w4str_129_129"),
 			"This product does not belong to the specified supplier."), nil
 	}
 
 	// 3. Stock. Zero stock is a refusal, not a skipped check.
 	if variant.StockQty <= 0 {
 		return denied(ReasonOutOfStock, 0,
-			"الصنف غير متوفر حالياً لدى المورد.",
+			i18n.TDefault("w4_mod.w4str_130_130"),
 			"This item is out of stock at the supplier."), nil
 	}
 	if req.Quantity > variant.StockQty {
 		return denied(ReasonInsufficientStock, variant.StockQty,
-			fmt.Sprintf("الكمية المتاحة لدى المورد: %d فقط.", variant.StockQty),
+			fmt.Sprintf(i18n.TDefault("w4_mod.d_131"), variant.StockQty),
 			fmt.Sprintf("Only %d available from this supplier.", variant.StockQty)), nil
 	}
 	if variant.MinOrderQty > 0 && req.Quantity < variant.MinOrderQty {
 		return denied(ReasonBelowMinimum, variant.StockQty,
-			fmt.Sprintf("الحد الأدنى للطلب من هذا الصنف: %d.", variant.MinOrderQty),
+			fmt.Sprintf(i18n.TDefault("w4_mod.d_132"), variant.MinOrderQty),
 			fmt.Sprintf("Minimum order quantity for this item is %d.", variant.MinOrderQty)), nil
 	}
 
 	// 4. The delivery branch must belong to the buying pharmacy.
 	if req.CustomerBranchID <= 0 {
 		return denied(ReasonBranchInvalid, variant.StockQty,
-			"يرجى اختيار فرع الاستلام أولاً.",
+			i18n.TDefault("w4_mod.w4str_133_133"),
 			"Select a receiving branch first."), nil
 	}
 	branch, err := s.availability.CustomerBranch(ctx, req.CustomerBranchID)
@@ -195,19 +195,19 @@ func (s *Service) CheckAvailability(ctx context.Context, req AvailabilityRequest
 	}
 	if branch.ID == 0 {
 		return denied(ReasonBranchInvalid, variant.StockQty,
-			"فرع الاستلام المحدد غير موجود.",
+			i18n.TDefault("w4_mod.w4str_134_134"),
 			"The selected receiving branch does not exist."), nil
 	}
 	if req.CustomerOrgID > 0 && branch.OrganizationID != req.CustomerOrgID {
 		return denied(ReasonBranchNotOwned, variant.StockQty,
-			"فرع الاستلام المحدد لا يتبع منشأتك.",
+			i18n.TDefault("w4_mod.w4str_135_135"),
 			"The selected branch does not belong to your organization."), nil
 	}
 
 	// 5. The supplier must cover that branch's location on the relevant weekday.
 	if branch.Latitude == nil || branch.Longitude == nil {
 		return denied(ReasonBranchNoLocation, variant.StockQty,
-			"لم يتم تحديد موقع فرع الاستلام على الخريطة، يرجى تحديده لتتمكن من الطلب.",
+			i18n.TDefault("w4_mod.w4str_136_136"),
 			"This branch has no map location yet; set one to order."), nil
 	}
 	when := req.When
@@ -220,7 +220,7 @@ func (s *Service) CheckAvailability(ctx context.Context, req AvailabilityRequest
 	}
 	if !covered {
 		return denied(ReasonNotCovered, variant.StockQty,
-			"هذا المورد لا يغطي موقع فرع الاستلام في هذا اليوم.",
+			i18n.TDefault("w4_mod.w4str_137_137"),
 			"This supplier does not cover your branch's location on this day."), nil
 	}
 

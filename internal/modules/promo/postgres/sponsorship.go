@@ -1,6 +1,7 @@
 package postgres
 
 import (
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"context"
 	"fmt"
 
@@ -116,7 +117,7 @@ func (r *Repository) IncrementSponsorshipPurchaseCreditsUsed(ctx context.Context
 			return fmt.Errorf("increment sponsorship credits: %w", err)
 		}
 		if tag.RowsAffected() == 0 {
-			return apperr.Conflict("sponsorship.insufficient_credits", "لا توجد رعايات متاحة كافية في الباقة المشتراة. يرجى شراء باقة إضافية.")
+			return apperr.Conflict("sponsorship.insufficient_credits", i18n.TDefault("w4_mod.w4str_253_253"))
 		}
 		return nil
 	})
@@ -264,7 +265,7 @@ func (r *Repository) ActivateSponsorshipRequest(ctx context.Context, id int64, r
 			return err
 		}
 		if sr.AdminStatus != "pending" {
-			return apperr.Conflict("sponsorship.already_reviewed", "تمت مراجعة هذا الطلب مسبقاً.")
+			return apperr.Conflict("sponsorship.already_reviewed", i18n.TDefault("w4_mod.w4str_250_250"))
 		}
 
 		// Deduct credits from the purchase if linked.
@@ -278,7 +279,7 @@ func (r *Repository) ActivateSponsorshipRequest(ctx context.Context, id int64, r
 				return err
 			}
 			if tag.RowsAffected() == 0 {
-				return apperr.Conflict("sponsorship.insufficient_credits", "لا توجد رعايات كافية متاحة في الباقة.")
+				return apperr.Conflict("sponsorship.insufficient_credits", i18n.TDefault("w4_mod.w4str_254_254"))
 			}
 		}
 

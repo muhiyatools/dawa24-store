@@ -70,7 +70,7 @@ func (s *Service) MatchLadder(ctx context.Context, orgID *int64, rawName string,
 				ProductID:   mappedID,
 				Confidence:  100.0,
 				Method:      MatchMethodSavedMapping,
-				MethodLabel: "تطابق محفوظ مسبقاً ⚡",
+				MethodLabel: i18n.TDefault("w4_mod.w4str_160_160"),
 			}, nil
 		}
 	}
@@ -85,7 +85,7 @@ func (s *Service) MatchLadder(ctx context.Context, orgID *int64, rawName string,
 					ProductID:   &c.ID,
 					Confidence:  100.0,
 					Method:      MatchMethodSKU,
-					MethodLabel: "تطابق بالـ SKU",
+					MethodLabel: i18n.TDefault("w4_mod.sku_161"),
 				}, nil
 			}
 		}
@@ -156,14 +156,14 @@ func (s *Service) MatchLadder(ctx context.Context, orgID *int64, rawName string,
 				ProductID:   &bestCandidate.ID,
 				Confidence:  confidence,
 				Method:      MatchMethodFuzzy,
-				MethodLabel: fmt.Sprintf("تطابق ذكي (%d%%)", int(confidence)),
+				MethodLabel: fmt.Sprintf(i18n.TDefault("w4_mod.d_162"), int(confidence)),
 			}, nil
 		}
 		return &MatchResult{
 			ProductID:   &bestCandidate.ID,
 			Confidence:  confidence,
 			Method:      MatchMethodPartial,
-			MethodLabel: fmt.Sprintf("تطابق جزئي (%d%%)", int(confidence)),
+			MethodLabel: fmt.Sprintf(i18n.TDefault("w4_mod.d_163"), int(confidence)),
 		}, nil
 	}
 
@@ -189,7 +189,7 @@ func (s *Service) MatchLadder(ctx context.Context, orgID *int64, rawName string,
 				ProductID:   &bestCandidate.ID,
 				Confidence:  confidence,
 				Method:      MatchMethodPartial,
-				MethodLabel: fmt.Sprintf("تطابق جزئي (%d%%)", int(confidence)),
+				MethodLabel: fmt.Sprintf(i18n.TDefault("w4_mod.d_163"), int(confidence)),
 			}, nil
 		}
 	}
@@ -218,7 +218,7 @@ func (s *Service) MatchLadder(ctx context.Context, orgID *int64, rawName string,
 					ProductID:   &matchedCand.ID,
 					Confidence:  aiConf,
 					Method:      MatchMethodAI,
-					MethodLabel: fmt.Sprintf("تطابق بالذكاء الاصطناعي (%d%%)", int(aiConf)),
+					MethodLabel: fmt.Sprintf(i18n.TDefault("w4_mod.d_164"), int(aiConf)),
 				}, nil
 			}
 		}

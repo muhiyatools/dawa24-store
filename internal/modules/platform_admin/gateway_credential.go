@@ -1,6 +1,7 @@
 package platformadmin
 
 import (
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"strings"
 
 	"github.com/muhiya/dawa24-store/internal/shared/apperr"
@@ -93,8 +94,8 @@ func ValidateAdminCredential(raw string) error {
 	for _, scheme := range secretSchemes {
 		if strings.HasPrefix(lower, scheme) {
 			return apperr.Validation("gateway.credential_is_connection_string",
-				"القيمة المُدخلة تبدو سلسلة اتصال (Connection String) وليست بيانات اعتماد بوابة الذكاء الاصطناعي. "+
-					"هذه القيمة تُرسل إلى خادم البوابة عند كل عملية، فلا يجوز وضع بيانات قاعدة البيانات هنا.", nil)
+				i18n.TDefault("w4_mod.connection_string_232")+
+					i18n.TDefault("w4_mod.w4str_233_233"), nil)
 		}
 	}
 
@@ -106,9 +107,9 @@ func ValidateAdminCredential(raw string) error {
 	for _, name := range databaseUsers {
 		if user == name {
 			return apperr.Validation("gateway.credential_is_database_user",
-				"اسم المستخدم في بيانات الاعتماد يطابق اسم مستخدم قاعدة بيانات. "+
-					"هذه القيمة تُرسل إلى خادم البوابة الخارجي عند كل عملية — "+
-					"يرجى إدخال بيانات اعتماد مدير بوابة الذكاء الاصطناعي فقط.", nil)
+				i18n.TDefault("w4_mod.w4str_234_234")+
+					i18n.TDefault("w4_mod.w4str_235_235")+
+					i18n.TDefault("w4_mod.w4str_236_236"), nil)
 		}
 	}
 	return nil

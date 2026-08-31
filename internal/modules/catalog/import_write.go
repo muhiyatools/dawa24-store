@@ -82,10 +82,10 @@ func (r BulkWriteResult) Error() string {
 		shown = shown[:3]
 	}
 	for _, f := range shown {
-		msg += fmt.Sprintf("؛ «%s»: %s", f.Name, f.Reason)
+		msg += fmt.Sprintf(i18n.TDefault("w4_mod.s_s_113"), f.Name, f.Reason)
 	}
 	if len(r.Failures) > len(shown) {
-		msg += fmt.Sprintf(" (و%d حالات أخرى)", len(r.Failures)-len(shown))
+		msg += fmt.Sprintf(i18n.TDefault("w4_mod.d_114"), len(r.Failures)-len(shown))
 	}
 	return msg
 }

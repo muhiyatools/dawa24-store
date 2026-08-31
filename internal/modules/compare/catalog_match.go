@@ -211,7 +211,7 @@ type openRow struct {
 func (s *Service) catalogIndex(ctx context.Context) (*productmatch.Index, error) {
 	products, err := s.catalog.ListMatchProducts(ctx)
 	if err != nil {
-		return nil, fmt.Errorf("تعذر تحميل الكتالوج المركزي: %w", err)
+		return nil, fmt.Errorf(i18n.TDefault("w4_mod.w_158"), err)
 	}
 	if len(products) == 0 {
 		return nil, fmt.Errorf("%s", i18n.TDefault("w4_mod.s_363_363"))

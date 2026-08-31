@@ -159,7 +159,7 @@ func (s *Service) CommitSessionWithReconciliation(
 				actionUpdates = append(actionUpdates, RowActionUpdate{
 					RowID:        row.ID,
 					ImportAction: "skip",
-					ErrorDetails: "تم التخطي: الصنف موجود مسبقاً (نمط الإضافة فقط)",
+					ErrorDetails: i18n.TDefault("w4_mod.w4str_215_215"),
 				})
 				outcome.Skipped++
 				continue
@@ -185,7 +185,7 @@ func (s *Service) CommitSessionWithReconciliation(
 				actionUpdates = append(actionUpdates, RowActionUpdate{
 					RowID:        row.ID,
 					ImportAction: "insert",
-					ErrorDetails: fmt.Sprintf("تمت إضافة الصنف بنجاح (معرف: %d)", v.ID),
+					ErrorDetails: fmt.Sprintf(i18n.TDefault("w4_mod.d_216"), v.ID),
 				})
 				outcome.Inserted++
 			}
@@ -195,7 +195,7 @@ func (s *Service) CommitSessionWithReconciliation(
 				actionUpdates = append(actionUpdates, RowActionUpdate{
 					RowID:        row.ID,
 					ImportAction: "skip",
-					ErrorDetails: "تم التخطي: الصنف غير موجود مسبقاً (نمط التحديث فقط)",
+					ErrorDetails: i18n.TDefault("w4_mod.w4str_217_217"),
 				})
 				outcome.Skipped++
 				continue
@@ -212,7 +212,7 @@ func (s *Service) CommitSessionWithReconciliation(
 				actionUpdates = append(actionUpdates, RowActionUpdate{
 					RowID:        row.ID,
 					ImportAction: "update",
-					ErrorDetails: fmt.Sprintf("تم تحديث الصنف بنجاح (معرف: %d)", existingVariant.ID),
+					ErrorDetails: fmt.Sprintf(i18n.TDefault("w4_mod.d_218"), existingVariant.ID),
 				})
 				outcome.Updated++
 			}
@@ -239,7 +239,7 @@ func (s *Service) CommitSessionWithReconciliation(
 				actionUpdates = append(actionUpdates, RowActionUpdate{
 					RowID:        row.ID,
 					ImportAction: "insert",
-					ErrorDetails: fmt.Sprintf("تمت الإضافة للمخزن المفرغ (معرف: %d)", v.ID),
+					ErrorDetails: fmt.Sprintf(i18n.TDefault("w4_mod.d_219"), v.ID),
 				})
 				outcome.Inserted++
 			}
@@ -260,7 +260,7 @@ func (s *Service) CommitSessionWithReconciliation(
 					actionUpdates = append(actionUpdates, RowActionUpdate{
 						RowID:        row.ID,
 						ImportAction: "update",
-						ErrorDetails: fmt.Sprintf("تم تحديث الصنف بنجاح (معرف: %d)", existingVariant.ID),
+						ErrorDetails: fmt.Sprintf(i18n.TDefault("w4_mod.d_218"), existingVariant.ID),
 					})
 					outcome.Updated++
 				}
@@ -286,7 +286,7 @@ func (s *Service) CommitSessionWithReconciliation(
 					actionUpdates = append(actionUpdates, RowActionUpdate{
 						RowID:        row.ID,
 						ImportAction: "insert",
-						ErrorDetails: fmt.Sprintf("تمت إضافة الصنف بنجاح (معرف: %d)", v.ID),
+						ErrorDetails: fmt.Sprintf(i18n.TDefault("w4_mod.d_216"), v.ID),
 					})
 					outcome.Inserted++
 				}

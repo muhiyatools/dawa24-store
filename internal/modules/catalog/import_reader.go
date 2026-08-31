@@ -63,7 +63,7 @@ var ErrLegacyXLS = errors.New("catalog: legacy .xls workbook")
 // ReadSpreadsheet decodes an uploaded file into rows.
 //
 // Every failure returns an Arabic message naming the actual problem. The old
-// importer surfaced "تنسيق الملف غير صالح: <nil>" — the error was nil because
+// importer surfaced i18n.TDefault("w4_mod.nil_92") — the error was nil because
 // the check was `err != nil || len(records) < 1` and an empty file took the
 // second branch — which told the admin nothing at all.
 func ReadSpreadsheet(content []byte, filename string) (*SheetData, error) {
@@ -176,7 +176,7 @@ var errSheetTooLarge = errors.New(
 func readExcel(content []byte) (*SheetData, error) {
 	f, err := excelize.OpenReader(bytes.NewReader(content))
 	if err != nil {
-		return nil, fmt.Errorf("تعذر فتح ملف Excel — قد يكون الملف تالفاً أو محمياً بكلمة مرور (%v)", err)
+		return nil, fmt.Errorf(i18n.TDefault("w4_mod.excel_v_93"), err)
 	}
 	defer func() { _ = f.Close() }()
 
@@ -263,7 +263,7 @@ func scoreSheet(f *excelize.File, name string) (rows, cells int, err error) {
 func readRowsCapped(f *excelize.File, name string) ([][]string, error) {
 	iter, err := f.Rows(name)
 	if err != nil {
-		return nil, fmt.Errorf("تعذر قراءة ورقة العمل «%s» من ملف Excel (%v)", name, err)
+		return nil, fmt.Errorf(i18n.TDefault("w4_mod.s_excel_v_94"), name, err)
 	}
 	defer func() { _ = iter.Close() }()
 
@@ -279,7 +279,7 @@ func readRowsCapped(f *excelize.File, name string) ([][]string, error) {
 		rows = append(rows, record)
 	}
 	if err := iter.Error(); err != nil {
-		return nil, fmt.Errorf("تعذرت قراءة ملف Excel (%v)", err)
+		return nil, fmt.Errorf(i18n.TDefault("w4_mod.excel_v_95"), err)
 	}
 	return rows, nil
 }
@@ -309,7 +309,7 @@ func readDelimited(content []byte, filename string) (*SheetData, error) {
 
 	rows, err := readCSVRows(content, delimiter)
 	if err != nil {
-		return nil, fmt.Errorf("تعذر قراءة ملف CSV: %s", csvErrorHint(err, filename))
+		return nil, fmt.Errorf(i18n.TDefault("w4_mod.csv_s_96"), csvErrorHint(err, filename))
 	}
 	if len(rows) == 0 {
 		return nil, errors.New(i18n.TDefault("w4_mod.csv_285"))
@@ -385,13 +385,13 @@ func csvErrorHint(err error, filename string) string {
 	msg := err.Error()
 	switch {
 	case strings.Contains(msg, "quote"):
-		return fmt.Sprintf("يوجد خطأ في علامات التنصيص داخل الملف (%s). "+
-			"يرجى فتح الملف في Excel وحفظه من جديد بصيغة «CSV UTF-8»", msg)
+		return fmt.Sprintf(i18n.TDefault("w4_mod.s_97")+
+			i18n.TDefault("w4_mod.excel_csv_utf_8_98"), msg)
 	case strings.Contains(msg, "wrong number of fields"):
-		return fmt.Sprintf("عدد الأعمدة غير متساوٍ بين الصفوف (%s)", msg)
+		return fmt.Sprintf(i18n.TDefault("w4_mod.s_99"), msg)
 	default:
 		if filename != "" {
-			return fmt.Sprintf("%s (الملف: %s)", msg, filename)
+			return fmt.Sprintf(i18n.TDefault("w4_mod.s_s_100"), msg, filename)
 		}
 		return msg
 	}

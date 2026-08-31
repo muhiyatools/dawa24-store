@@ -358,7 +358,7 @@ func (r *Repository) VerifyAndCompleteDelivery(
 		if lockedUntil != nil && lockedUntil.After(now) {
 			remainingMinutes := int(lockedUntil.Sub(now).Minutes()) + 1
 			return apperr.Conflict("delivery.locked",
-				fmt.Sprintf("تم تجاوز الحد الأقصى للمحاولات الخاطئة. تم قفل التحقق مؤقتاً، يرجى المحاولة بعد %d دقيقة.", remainingMinutes))
+				fmt.Sprintf(i18n.TDefault("w4_mod.d_145"), remainingMinutes))
 		}
 
 		// 3. Check status
@@ -366,7 +366,7 @@ func (r *Repository) VerifyAndCompleteDelivery(
 			return nil // Already delivered
 		}
 		if currentOrderStatus == commerce.StatusCancelled || currentOrderStatus == commerce.StatusReturned {
-			return apperr.Conflict("delivery.cancelled", "لا يمكن إتمام تسليم هذه الشحنة لأنها ملغاة أو مرتجعة.")
+			return apperr.Conflict("delivery.cancelled", i18n.TDefault("w4_mod.w4str_146_146"))
 		}
 
 		// 4. Verify Delivery Code (PIN)
@@ -380,7 +380,7 @@ func (r *Repository) VerifyAndCompleteDelivery(
 					WHERE id = $1;
 				`, shipmentID, newAttempts, lockTime)
 				return apperr.Conflict("delivery.locked",
-					"تم إدخال كود الاستلام بشكل خاطئ 5 مرات متتالية. تم قفل التحقق مؤقتاً لمدة 15 دقيقة لدواعي الأمان.")
+					i18n.TDefault("w4_mod.5_15_147"))
 			}
 
 			_, _ = tx.Exec(txCtx, `
@@ -389,7 +389,7 @@ func (r *Repository) VerifyAndCompleteDelivery(
 				WHERE id = $1;
 			`, shipmentID, newAttempts)
 			return apperr.Validation("delivery.invalid_code",
-				fmt.Sprintf("كود تأكيد الاستلام غير صحيح. المتبقي لك %d محاولات قبل القفل المؤقت.", 5-newAttempts),
+				fmt.Sprintf(i18n.TDefault("w4_mod.d_148"), 5-newAttempts),
 				map[string]string{"delivery_code": "invalid"})
 		}
 
@@ -423,7 +423,7 @@ func (r *Repository) VerifyAndCompleteDelivery(
 		`
 		auditNotes := i18n.TDefault("w4_mod.s_359_359")
 		if notes != "" {
-			auditNotes += " — ملاحظات: " + notes
+			auditNotes += i18n.TDefault("w4_mod.w4str_149_149") + notes
 		}
 		if _, err := tx.Exec(txCtx, historyQuery, orderID, shipmentID, fromStatus, auditNotes); err != nil {
 			return fmt.Errorf("commerce postgres: insert delivery history: %w", err)

@@ -114,7 +114,7 @@ func (s *Service) BulkImportProducts(
 	}
 	if len(prods) > maxImportBatch {
 		return empty, nil, apperr.Validation("catalog.import_too_large",
-			fmt.Sprintf("الملف يحتوي على %d صنف، والحد الأقصى المسموح به في عملية الاستيراد الواحدة هو %d صنف. يرجى تقسيم الملف.",
+			fmt.Sprintf(i18n.TDefault("w4_mod.d_d_102"),
 				len(prods), maxImportBatch), nil)
 	}
 
@@ -162,7 +162,7 @@ func (s *Service) validateImportBatch(prods []*Product) ([]*Product, []RowIssue,
 
 	if len(valid) == 0 {
 		return nil, issues, apperr.Validation("catalog.import_no_valid_rows",
-			"لا يوجد أي صنف صالح للاستيراد بعد التحقق من البيانات.", nil)
+			i18n.TDefault("w4_mod.w4str_115_115"), nil)
 	}
 	return valid, issues, nil
 }
@@ -542,7 +542,7 @@ func (s *Service) CountProductsByOrg(ctx context.Context, orgID int64, status st
 // CreateSavingProduct registers a saving target product.
 func (s *Service) CreateSavingProduct(ctx context.Context, sp *SavingProduct) error {
 	if sp.NameProduct == "" {
-		return apperr.Validation("name_product.required", "اسم المنتج مطلوب.", nil)
+		return apperr.Validation("name_product.required", i18n.TDefault("w4_mod.w4str_116_116"), nil)
 	}
 	return s.repo.CreateSavingProduct(ctx, sp)
 }
@@ -550,7 +550,7 @@ func (s *Service) CreateSavingProduct(ctx context.Context, sp *SavingProduct) er
 // UpdateSavingProduct updates an existing saving product.
 func (s *Service) UpdateSavingProduct(ctx context.Context, sp *SavingProduct) error {
 	if sp.NameProduct == "" {
-		return apperr.Validation("name_product.required", "اسم المنتج مطلوب.", nil)
+		return apperr.Validation("name_product.required", i18n.TDefault("w4_mod.w4str_116_116"), nil)
 	}
 	return s.repo.UpdateSavingProduct(ctx, sp)
 }

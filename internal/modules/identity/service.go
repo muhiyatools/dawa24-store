@@ -294,10 +294,10 @@ func (s *Service) ChangePassword(ctx context.Context, userID int64, currentPassw
 		return err
 	}
 	if !CheckPassword(user.PasswordHash, currentPassword) {
-		return apperr.Validation("auth.invalid_password", "كلمة المرور الحالية غير صحيحة.", nil)
+		return apperr.Validation("auth.invalid_password", i18n.TDefault("w4_mod.w4str_182_182"), nil)
 	}
 	if len(newPassword) < 8 {
-		return apperr.Validation("auth.weak_password", "كلمة المرور الجديدة يجب أن تكون 8 أحرف على الأقل.", nil)
+		return apperr.Validation("auth.weak_password", i18n.TDefault("w4_mod.8_183"), nil)
 	}
 
 	hash, err := HashPassword(newPassword)

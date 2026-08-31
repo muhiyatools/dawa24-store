@@ -1,6 +1,7 @@
 package http
 
 import (
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"context"
 	"encoding/json"
 	"fmt"
@@ -79,7 +80,7 @@ func (h *Handler) AssistantStream(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if !h.limiter.Allow(actor.UserID) {
-		http.Error(w, `{"error":"rate_limited","message":"لقد تجاوزت الحد المسموح من الطلبات، يرجى الانتظار دقيقة."}`, http.StatusTooManyRequests)
+		http.Error(w, `{"error":"rate_limited","message":i18n.TDefault("w4_mod.w4str_63_63")}`, http.StatusTooManyRequests)
 		return
 	}
 
@@ -122,7 +123,7 @@ func (h *Handler) AssistantStream(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		h.writeSSE(w, flusher, "error", map[string]string{
 			"code":    "build_failed",
-			"message": "تعذر تجهيز المحادثة والمرفقات.",
+			"message": i18n.TDefault("w4_mod.w4str_64_64"),
 		})
 		return
 	}
@@ -133,7 +134,7 @@ func (h *Handler) AssistantStream(w http.ResponseWriter, r *http.Request) {
 				"stage":   "attachment_rejected",
 				"file":    rej.Attachment.Filename,
 				"reason":  rej.Reason,
-				"message": fmt.Sprintf("تم استبعاد الملف %s: %s", rej.Attachment.Filename, rej.Reason),
+				"message": fmt.Sprintf(i18n.TDefault("w4_mod.s_s_65"), rej.Attachment.Filename, rej.Reason),
 			})
 		}
 	}
@@ -169,7 +170,7 @@ func (h *Handler) AssistantStream(w http.ResponseWriter, r *http.Request) {
 		h.log.WarnContext(ctx, "failed to start gateway stream", "error", err)
 		h.writeSSE(w, flusher, "error", map[string]string{
 			"code":    "gateway_unavailable",
-			"message": "خدمة المساعد الذكي غير متاحة حالياً، يرجى المحاولة لاحقاً.",
+			"message": i18n.TDefault("w4_mod.w4str_66_66"),
 		})
 		return
 	}
@@ -182,7 +183,7 @@ func (h *Handler) AssistantStream(w http.ResponseWriter, r *http.Request) {
 			h.log.WarnContext(ctx, "stream event error", "error", ev.Err)
 			h.writeSSE(w, flusher, "error", map[string]string{
 				"code":    "stream_error",
-				"message": "حدث انقطاع في تدفق الإجابة.",
+				"message": i18n.TDefault("w4_mod.w4str_67_67"),
 			})
 			return
 		}

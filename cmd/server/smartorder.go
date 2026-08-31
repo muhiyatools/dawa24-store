@@ -86,7 +86,7 @@ func placeSmartOrder(commSvc *commerce.Service, orgSvc *org.Service, wfCoverage 
 			}
 			raw := l.RawName
 			if raw == "" {
-				raw = "صنف دواء 24"
+				raw = i18n.TDefault("w4_mod.24_150")
 			}
 			pName := i18n.New(raw, raw)
 			items = append(items, commerce.CheckoutLineItem{

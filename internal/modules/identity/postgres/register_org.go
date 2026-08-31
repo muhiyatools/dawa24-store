@@ -70,7 +70,7 @@ func (r *Repository) RegisterOrganization(ctx context.Context, u *identity.User,
 		).Scan(&result.OrganizationID, &result.OrganizationPublicID, &result.OrganizationType, &status)
 		if err != nil {
 			if database.IsUniqueViolation(err) {
-				return apperr.Conflict("org.commercial_register_exists", "رقم السجل التجاري مسجل مسبقاً لمنشأة أخرى.")
+				return apperr.Conflict("org.commercial_register_exists", i18n.TDefault("w4_mod.w4str_188_188"))
 			}
 			return fmt.Errorf("identity postgres: register organization: %w", err)
 		}

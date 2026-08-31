@@ -35,7 +35,7 @@ var (
 // currencyNoise is stripped before numeric parsing. Order matters: longer
 // tokens come first, so i18n.TDefault("w4_ui.s_50_50") is removed before a bare i18n.TDefault("w4_mod.s_301_301") could be.
 var currencyNoise = []string{
-	"ج.م.", i18n.TDefault("w4_ui.s_50_50"), i18n.TDefault("w4_mod.s_302_302"), i18n.TDefault("w4_ui.s_87_87"), i18n.TDefault("w4_ui.s_51_51"), "egp", "l.e.", "l.e", "le",
+	i18n.TDefault("w4_mod.w4str_112_112"), i18n.TDefault("w4_ui.s_50_50"), i18n.TDefault("w4_mod.s_302_302"), i18n.TDefault("w4_ui.s_87_87"), i18n.TDefault("w4_ui.s_51_51"), "egp", "l.e.", "l.e", "le",
 	"pound", "pounds", i18n.TDefault("w4_mod.s_303_303"), "sar", "usd", "$", "€", "£", i18n.TDefault("w4_mod.s_304_304"), i18n.TDefault("w4_mod.s_305_305"),
 	"pcs", i18n.TDefault("w4_mod.s_306_306"), i18n.TDefault("w4_mod.s_307_307"), i18n.TDefault("w4_ui.s_14_14"), "vat", "incl", "excl",
 }

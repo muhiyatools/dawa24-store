@@ -406,9 +406,9 @@ func GenerateDeliveryCode() string {
 
 // Standard courier delivery errors.
 var (
-	ErrDeliveryLocked       = apperr.Conflict("delivery.locked", "تم تجاوز الحد الأقصى للمحاولات الخاطئة. تم قفل التحقق مؤقتاً لمدة 15 دقيقة لدواعي الأمان.")
-	ErrInvalidDeliveryCode  = apperr.Validation("delivery.invalid_code", "كود تأكيد الاستلام غير صحيح.", map[string]string{"delivery_code": "invalid"})
-	ErrDeliveryNotAvailable = apperr.Conflict("delivery.not_available", "هذه الشحنة غير متاحة للتسليم حالياً.")
+	ErrDeliveryLocked       = apperr.Conflict("delivery.locked", i18n.TDefault("w4_mod.15_138"))
+	ErrInvalidDeliveryCode  = apperr.Validation("delivery.invalid_code", i18n.TDefault("w4_mod.w4str_139_139"), map[string]string{"delivery_code": "invalid"})
+	ErrDeliveryNotAvailable = apperr.Conflict("delivery.not_available", i18n.TDefault("w4_mod.w4str_140_140"))
 )
 
 // GenerateTrackingNumber produces a formatted tracking reference code for couriers.

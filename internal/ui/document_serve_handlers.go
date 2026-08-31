@@ -311,13 +311,13 @@ func renderOfficialDocSVG(doc *attachments.Document) []byte {
 	case attachments.DocPharmacistLicense:
 		typeNameAr = i18n.T("ar", "doc.type.pharmacist_license")
 	case attachments.DocPharmacyLicense:
-		typeNameAr = "ترخيص الصيدلية / المنشأة (Pharmacy License)"
+		typeNameAr = i18n.TDefault("w4_ui.pharmacy_license_22")
 	case attachments.DocNationalID:
-		typeNameAr = "الهوية الوطنية / بطاقة الرقم القومي (National ID)"
+		typeNameAr = i18n.TDefault("w4_ui.national_id_23")
 	case attachments.DocPassport:
 		typeNameAr = i18n.T("ar", "doc.type.passport")
 	case attachments.DocBankCertificate:
-		typeNameAr = "شهادة الحساب البنكي والآيبان (Bank Certificate)"
+		typeNameAr = i18n.TDefault("w4_ui.bank_certificate_24")
 	case attachments.DocAuthorizationLetter:
 		typeNameAr = i18n.T("ar", "doc.type.authorization_letter")
 	case attachments.DocSyndicateCard:
@@ -330,7 +330,7 @@ func renderOfficialDocSVG(doc *attachments.Document) []byte {
 	statusColor := "#0284c7"
 	statusBg := "#e0f2fe"
 	if doc.Status == attachments.StatusVerified {
-		statusText = "معتمد ومطابق رسمياً ✓"
+		statusText = i18n.TDefault("w4_ui.w4str_25_25")
 		statusColor = "#16a34a"
 		statusBg = "#dcfce7"
 	} else if doc.Status == attachments.StatusRejected {
@@ -341,7 +341,7 @@ func renderOfficialDocSVG(doc *attachments.Document) []byte {
 
 	orgIDStr := i18n.TDefault("w4_ui.s_76_76")
 	if doc.OrganizationID != nil && *doc.OrganizationID > 0 {
-		orgIDStr = fmt.Sprintf("منشأة #%d", *doc.OrganizationID)
+		orgIDStr = fmt.Sprintf(i18n.TDefault("w4_ui.d_26"), *doc.OrganizationID)
 	}
 
 	dateStr := doc.CreatedAt.Format("2006-01-02 15:04")

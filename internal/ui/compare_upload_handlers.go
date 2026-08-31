@@ -67,7 +67,7 @@ func (h *UIHandler) CompareSampleDownload(w http.ResponseWriter, r *http.Request
 		{"1004", i18n.TDefault("w4_ui.50_20_60"), 58.50, 15.0, i18n.T("ar", "sample.notes.fresh_expiry")},
 		{"1005", i18n.TDefault("w4_ui.20_61"), 22.00, 25.0, i18n.T("ar", "sample.notes.highest_discount")},
 		{"1006", i18n.TDefault("w4_ui.400_30_62"), 48.00, 14.5, i18n.T("ar", "sample.notes.fast_delivery")},
-		{"1007", i18n.TDefault("w4_ui.20_63"), 35.00, 16.0, "صلاحية 2027"},
+		{"1007", i18n.TDefault("w4_ui.20_63"), 35.00, 16.0, i18n.TDefault("w4_ui.2027_17")},
 		{"1008", i18n.TDefault("w4_ui.500_20_64"), 18.00, 22.5, i18n.T("ar", "sample.notes.pharmacy_offer")},
 		{"1009", i18n.TDefault("w4_ui.500_3_65"), 52.00, 15.0, i18n.T("ar", "sample.notes.factory_direct")},
 		{"1010", i18n.TDefault("w4_ui.20_66"), 28.00, 19.0, i18n.T("ar", "sample.notes.free_shipping")},

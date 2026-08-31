@@ -405,7 +405,7 @@ func (s *Service) SaveFileMapping(ctx context.Context, fileID int64, config Mapp
 		})
 	}
 	if config.PriceCol == nil && config.DiscountCol == nil {
-		return apperr.Validation("mapping.price_or_discount_required", "يرجى تحديد عمود السعر أو الخصم على الأقل.", map[string]string{
+		return apperr.Validation("mapping.price_or_discount_required", i18n.TDefault("w4_mod.w4str_165_165"), map[string]string{
 			"price_col": i18n.TDefault("w4_mod.s_374_374"),
 		})
 	}
@@ -585,7 +585,7 @@ func (s *Service) ProcessCompareFile(ctx context.Context, fileID int64) error {
 			_ = s.repo.UpdateFile(ctx, file)
 			return nil
 		}
-		return apperr.Internal(fmt.Errorf("تعذر العثور على ملف كشف الأسعار على السيرفر (معرف %d). يرجى إعادة رفع الملف.", fileID))
+		return apperr.Internal(fmt.Errorf(i18n.TDefault("w4_mod.d_166"), fileID))
 	}
 	defer reader.Close()
 

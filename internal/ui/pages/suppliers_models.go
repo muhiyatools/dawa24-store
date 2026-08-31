@@ -22,7 +22,7 @@ type SupplierDirectoryItem struct {
 	CoverageAreas  []string // e.g. [i18n.TDefault("w4m_ui.s_7_7"), i18n.TDefault("w4m_ui.s_8_8"), i18n.TDefault("w4m_ui.s_9_9")]
 	CoverageRadius int      // in km, e.g. 50
 	IsOpenNow      bool
-	StatusNote     string // e.g. "مفتوح الآن (يغلق 06:00 م)"
+	StatusNote     string // e.g. i18n.TDefault("w4_ui.06_00_45")
 	Latitude       float64
 	Longitude      float64
 	HasCoordinates bool

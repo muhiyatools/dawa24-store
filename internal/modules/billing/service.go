@@ -428,7 +428,7 @@ func (s *Service) SubscribeWithWallet(
 		}
 
 		negCost := money.FromMinor(-cost.Minor())
-		desc := fmt.Sprintf("اشتراك في %s (%s)", plan.Name.Get("ar"), func() string {
+		desc := fmt.Sprintf(i18n.TDefault("w4_mod.s_s_70"), plan.Name.Get("ar"), func() string {
 			if cycle == "annual" {
 				return i18n.T("ar", "billing.cycle.annual")
 			}

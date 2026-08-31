@@ -1,6 +1,7 @@
 package assistant
 
 import (
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"time"
 
 	"github.com/google/uuid"
@@ -91,22 +92,22 @@ type Digest struct {
 // RenderBlock formats a digest into a delimited Markdown block for the primary model context.
 func (d Digest) RenderBlock() string {
 	var s string
-	s += "[مرفق: " + d.Filename + " — تحليل]\n"
+	s += i18n.TDefault("w4_mod.w4str_51_51") + d.Filename + i18n.TDefault("w4_mod.n_52")
 	if d.Summary != "" {
 		s += d.Summary + "\n"
 	}
 	if len(d.KeyFacts) > 0 {
-		s += "النقاط الرئيسية:\n"
+		s += i18n.TDefault("w4_mod.n_53")
 		for _, k := range d.KeyFacts {
 			s += "- " + k + "\n"
 		}
 	}
 	if d.Verbatim != "" {
-		s += "النص المفرغ:\n" + d.Verbatim + "\n"
+		s += i18n.TDefault("w4_mod.n_54") + d.Verbatim + "\n"
 	}
 	if d.Truncated {
-		s += "(تنبيه: تم اقتصاص التحليل لتجاوز الحد الأقصى للسياق)\n"
+		s += i18n.TDefault("w4_mod.n_55")
 	}
-	s += "[/مرفق]"
+	s += i18n.TDefault("w4_mod.w4str_56_56")
 	return s
 }

@@ -122,7 +122,7 @@ func BuildOrganizationDocumentsData(docs []*attachments.Document, requests []*at
 
 	if !hasVerified {
 		data.Missing = []DocRequirement{
-			{TitleAr: "مستند رسمي معتمد واحد على الأقل (السجل التجاري، ترخيص الصيدلية، أو البطاقة الضريبية)"},
+			{TitleAr: i18n.TDefault("w4_ui.w4str_44_44")},
 		}
 	}
 	return data
@@ -208,7 +208,7 @@ func (d *OrganizationDocumentsData) MissingTitles() string {
 	joined := ""
 	for i, req := range d.Missing {
 		if i > 0 {
-			joined += "، "
+			joined += i18n.TDefault("w4_ui.w4str_35_35")
 		}
 		joined += req.TitleAr
 	}

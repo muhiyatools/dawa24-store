@@ -278,7 +278,7 @@ func (s *Service) CommitImport(ctx context.Context, publicID string) (*ImportSes
 	if len(rows) == 0 {
 		s.releaseClaim(ctx, session)
 		return session, empty, apperr.Validation("catalog.import_nothing_selected",
-			"لم يتم تحديد أي صنف للاستيراد. يرجى مراجعة الصفوف واختيار ما تريد حفظه.", nil)
+			i18n.TDefault("w4_mod.w4str_101_101"), nil)
 	}
 
 	prods := make([]*Product, 0, len(rows))
@@ -307,7 +307,7 @@ func (s *Service) CommitImport(ctx context.Context, publicID string) (*ImportSes
 	if len(prods) > maxImportBatch {
 		s.releaseClaim(ctx, session)
 		return session, empty, apperr.Validation("catalog.import_too_large",
-			fmt.Sprintf("الملف يحتوي على %d صنف، والحد الأقصى المسموح به في عملية الاستيراد الواحدة هو %d صنف. يرجى تقسيم الملف.",
+			fmt.Sprintf(i18n.TDefault("w4_mod.d_d_102"),
 				len(prods), maxImportBatch), nil)
 	}
 	valid, issues, err := s.validateImportBatch(prods)
@@ -391,11 +391,11 @@ func (s *Service) CancelImport(ctx context.Context, publicID string) error {
 	// had already finished and durably said so.
 	if session.IsProcessing() {
 		return apperr.Conflict("catalog.import_still_processing",
-			"لا تزال معالجة الملف جارية. انتظر حتى تكتمل ثم أعد المحاولة.")
+			i18n.TDefault("w4_mod.w4str_103_103"))
 	}
 	if !session.IsReviewable() && session.Status != SessionFailed {
 		return apperr.Conflict("catalog.import_not_cancellable",
-			"لا يمكن إلغاء هذه الجلسة لأنها اكتملت بالفعل.")
+			i18n.TDefault("w4_mod.w4str_104_104"))
 	}
 	from := session.Status
 	session.Status = SessionCancelled
@@ -552,10 +552,10 @@ func SummarizeProduct(p *Product) string {
 	}
 	var parts []string
 	if p.SKU != "" {
-		parts = append(parts, "كود: "+p.SKU)
+		parts = append(parts, i18n.TDefault("w4_mod.w4str_105_105")+p.SKU)
 	}
 	if p.Price.IsPositive() {
-		parts = append(parts, "سعر: "+p.Price.String())
+		parts = append(parts, i18n.TDefault("w4_mod.w4str_106_106")+p.Price.String())
 	}
 	if p.DosageForm != "" {
 		parts = append(parts, p.DosageForm)

@@ -71,7 +71,7 @@ func aiIdentities(ctx context.Context, db *database.DB, log *slog.Logger, args [
 		}
 	} else {
 		fmt.Println(i18n.TDefault("w4_mod.s_455_455"))
-		fmt.Println("    وتخطّي إنشاء مستخدم ومفتاح الذكاء الاصطناعي. أدخلها في إعدادات المطوّرين ثم أعد التشغيل.")
+		fmt.Println(i18n.TDefault("w4_cmd.w4str_261_261"))
 	}
 
 	orgs, err := orgSvc.ListOrganizations(sysCtx, nil, nil, 10000, 0)

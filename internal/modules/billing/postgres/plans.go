@@ -1,6 +1,7 @@
 package postgres
 
 import (
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"context"
 
 	"github.com/jackc/pgx/v5"
@@ -157,13 +158,13 @@ func (r *Repository) DeletePlan(ctx context.Context, id int64) error {
 			return err
 		}
 		if isDefault {
-			return apperr.Validation("plan.delete_default", "لا يمكن حذف الباقة الافتراضية للمنظومة.", nil)
+			return apperr.Validation("plan.delete_default", i18n.TDefault("w4_mod.w4str_73_73"), nil)
 		}
 
 		var activeSubs int
 		_ = tx.QueryRow(txCtx, `SELECT COUNT(*) FROM billing.subscriptions WHERE plan_id = $1 AND status = 'active' AND expires_at > now();`, id).Scan(&activeSubs)
 		if activeSubs > 0 {
-			return apperr.Validation("plan.has_active_subscriptions", "لا يمكن حذف الباقة لوجود اشتراكات نشطة مرتبطة بها. يمكنك تعطيلها بدلاً من ذلك.", nil)
+			return apperr.Validation("plan.has_active_subscriptions", i18n.TDefault("w4_mod.w4str_74_74"), nil)
 		}
 
 		_, _ = tx.Exec(txCtx, `DELETE FROM billing.plan_features WHERE plan_id = $1;`, id)

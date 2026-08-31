@@ -220,7 +220,7 @@ func (r *Repository) CreateOrder(
 			}
 
 			if pName.IsEmpty() {
-				pName = i18n.New("صنف دواء 24", "Dawa24 Product")
+				pName = i18n.New(i18n.TDefault("w4_mod.24_150"), "Dawa24 Product")
 			}
 
 			queryLine := `

@@ -249,7 +249,7 @@ func (h *UIHandler) AdminProductImagesSampleXLSX(w http.ResponseWriter, r *http.
 	sheet := "Sheet1"
 	f.SetSheetName("Sheet1", sheet)
 
-	headers := []string{"كود الصنف (SKU)", "رابط صورة المنتج (Image URL)"}
+	headers := []string{i18n.TDefault("w4_ui.sku_7"), i18n.TDefault("w4_ui.image_url_8")}
 	for i, h := range headers {
 		cell, _ := excelize.CoordinatesToCellName(i+1, 1)
 		_ = f.SetCellValue(sheet, cell, h)
@@ -277,7 +277,7 @@ func (h *UIHandler) AdminProductImagesSampleCSV(w http.ResponseWriter, r *http.R
 	var buf bytes.Buffer
 	buf.WriteString("\xEF\xBB\xBF") // UTF-8 BOM
 	cw := csv.NewWriter(&buf)
-	_ = cw.Write([]string{"كود الصنف (SKU)", "رابط صورة المنتج (Image URL)"})
+	_ = cw.Write([]string{i18n.TDefault("w4_ui.sku_7"), i18n.TDefault("w4_ui.image_url_8")})
 	_ = cw.Write([]string{"PAN-500-01", "https://example.com/images/panadol-extra.jpg"})
 	_ = cw.Write([]string{"CAT-050-02", "https://example.com/images/cataflam-50mg.jpg"})
 	_ = cw.Write([]string{"AUG-100-03", "https://example.com/images/augmentin-1g.jpg"})

@@ -632,13 +632,13 @@ func (r *Repository) ExecuteSQL(ctx context.Context, actorID *int64, actorName, 
 
 	trimmed := strings.TrimSpace(query)
 	if trimmed == "" {
-		result.Error = "استعلام SQL فارغ."
+		result.Error = i18n.TDefault("w4_mod.sql_238")
 		return result, nil
 	}
 
 	upper := strings.ToUpper(trimmed)
 	if !strings.HasPrefix(upper, "SELECT") && !strings.HasPrefix(upper, "WITH") && !strings.HasPrefix(upper, "EXPLAIN") {
-		result.Error = "عمليات التعديل أو الحذف أو الإدراج غير مسموحة في لوحة الاستعلامات. يُسمح فقط باستعلامات القراءة (SELECT / EXPLAIN)."
+		result.Error = i18n.TDefault("w4_mod.select_explain_239")
 		return result, nil
 	}
 
@@ -648,7 +648,7 @@ func (r *Repository) ExecuteSQL(ctx context.Context, actorID *int64, actorName, 
 	_ = r.db.InReadTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
 		// Set transaction read-only and statement timeout
 		if _, err := tx.Exec(txCtx, "SET LOCAL transaction_read_only = on; SET LOCAL statement_timeout = '10s';"); err != nil {
-			result.Error = "تعذر تهيئة جلسة الاستعلام الآمنة: " + err.Error()
+			result.Error = i18n.TDefault("w4_mod.w4str_240_240") + err.Error()
 			return nil
 		}
 
@@ -669,7 +669,7 @@ func (r *Repository) ExecuteSQL(ctx context.Context, actorID *int64, actorName, 
 			count++
 			if count > 1000 {
 				result.Truncated = true
-				result.Message = "تم اقتطاع النتائج عند 1000 صف للحفاظ على أداء المتصفح."
+				result.Message = i18n.TDefault("w4_mod.1000_241")
 				break
 			}
 

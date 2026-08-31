@@ -265,10 +265,10 @@ func (v ImportMappingView) HeaderSummary() string {
 	switch v.Structure.Format {
 	case "xlsx":
 		if v.Structure.Sheet != "" {
-			parts = append(parts, fmt.Sprintf("ورقة «%s»", v.Structure.Sheet))
+			parts = append(parts, fmt.Sprintf(i18n.TDefault("w4_ui.s_32"), v.Structure.Sheet))
 		}
 	case "csv":
-		parts = append(parts, fmt.Sprintf("فاصل «%s»", delimiterLabel(v.Structure.Delimiter)))
+		parts = append(parts, fmt.Sprintf(i18n.TDefault("w4_ui.s_33"), delimiterLabel(v.Structure.Delimiter)))
 	}
 	parts = append(parts, fmt.Sprintf(i18n.TDefault("w4_ui.s_182"), FormatCount(v.Structure.TotalRows)))
 	parts = append(parts, fmt.Sprintf(i18n.TDefault("w4_ui.d_183"), v.Structure.Width))
@@ -285,7 +285,7 @@ func (v ImportMappingView) HeaderRowLabel() string {
 	if v.Structure.Positional || v.Structure.HeaderRow <= 0 {
 		return i18n.TDefault("w4_ui.s_185_185")
 	}
-	return fmt.Sprintf("الصف %d", v.Structure.HeaderRow)
+	return fmt.Sprintf(i18n.TDefault("w4_ui.d_34"), v.Structure.HeaderRow)
 }
 
 // CanProcess reports whether the mapping is usable enough to run.
@@ -325,4 +325,4 @@ func tonedProducts(view ImportMappingView) string {
 }
 
 // joinList renders a list of names as Arabic prose.
-func joinList(items []string) string { return strings.Join(items, "، ") }
+func joinList(items []string) string { return strings.Join(items, i18n.TDefault("w4_ui.w4str_35_35")) }

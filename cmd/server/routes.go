@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"context"
 	"log/slog"
 
@@ -212,14 +213,14 @@ func mountModuleRoutes(
 	promoSvcUI.SetWalletDebiter(func(ctx context.Context, orgID int64, amount money.Amount, description string) (*int64, error) {
 		uid, _ := authctx.UserID(ctx)
 		if uid <= 0 {
-			return nil, apperr.Validation("auth.required", "يجب تسجيل الدخول لشراء الباقة.", nil)
+			return nil, apperr.Validation("auth.required", i18n.TDefault("w4_cmd.w4str_263_263"), nil)
 		}
 		wallet, err := billSvcUIForPromo.GetWallet(ctx, uid, "EGP")
 		if err != nil {
 			return nil, err
 		}
 		if wallet.Balance.Minor() < amount.Minor() {
-			return nil, apperr.Conflict("wallet.insufficient_funds", "رصيد المحفظة غير كافٍ. يرجى شحن المحفظة أولاً.")
+			return nil, apperr.Conflict("wallet.insufficient_funds", i18n.TDefault("w4_cmd.w4str_264_264"))
 		}
 		tx, err := billSvcUIForPromo.Withdraw(ctx, uid, "EGP", amount, "sponsorship_package", nil, description)
 		if err != nil {
@@ -529,14 +530,14 @@ func mountAuthenticatedModules(
 		// the org's owner user from the tenant context.
 		uid, _ := authctx.UserID(ctx)
 		if uid <= 0 {
-			return nil, apperr.Validation("auth.required", "يجب تسجيل الدخول لشراء الباقة.", nil)
+			return nil, apperr.Validation("auth.required", i18n.TDefault("w4_cmd.w4str_263_263"), nil)
 		}
 		wallet, err := billSvcForPromo.GetWallet(ctx, uid, "EGP")
 		if err != nil {
 			return nil, err
 		}
 		if wallet.Balance.Minor() < amount.Minor() {
-			return nil, apperr.Conflict("wallet.insufficient_funds", "رصيد المحفظة غير كافٍ. يرجى شحن المحفظة أولاً.")
+			return nil, apperr.Conflict("wallet.insufficient_funds", i18n.TDefault("w4_cmd.w4str_264_264"))
 		}
 		tx, err := billSvcForPromo.Withdraw(ctx, uid, "EGP", amount, "sponsorship_package", nil, description)
 		if err != nil {

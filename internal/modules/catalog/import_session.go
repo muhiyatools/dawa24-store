@@ -52,25 +52,25 @@ var ImportModeOptions = []ImportModeOption{
 		Mode:        ModeUpdateAndAdd,
 		Icon:        "⚡",
 		Title:       i18n.TDefault("w4_mod.s_289_289"),
-		Description: "الخيار الافتراضي؛ يحدّث أسعار وبيانات الأصناف المتطابقة، ويضيف أي صنف جديد غير مسجل.",
+		Description: i18n.TDefault("w4_mod.w4str_107_107"),
 	},
 	{
 		Mode:        ModeAddNewOnly,
 		Icon:        "➕",
 		Title:       i18n.TDefault("w4_mod.s_290_290"),
-		Description: "يضيف الأصناف الجديدة فقط، ولا يعدّل أي منتج موجود مسبقاً في الكتالوج.",
+		Description: i18n.TDefault("w4_mod.w4str_108_108"),
 	},
 	{
 		Mode:        ModeUpdateExistingOnly,
 		Icon:        "🔄",
 		Title:       i18n.TDefault("w4_mod.s_291_291"),
-		Description: "يحدّث تفاصيل وأسعار الأصناف الموجودة بالفعل، ولا يضيف أي صنف جديد.",
+		Description: i18n.TDefault("w4_mod.w4str_109_109"),
 	},
 	{
 		Mode:        ModeClearAndAdd,
 		Icon:        "🗑️",
 		Title:       i18n.TDefault("w4_mod.s_292_292"),
-		Description: "ينقل جميع الأصناف الحالية إلى الأرشيف (حذف قابل للاسترجاع)، ثم يستورد الملف كأصناف جديدة.",
+		Description: i18n.TDefault("w4_mod.w4str_110_110"),
 		Destructive: true,
 	},
 }
@@ -332,7 +332,7 @@ func (r *StagingRow) MatchedLabel() string {
 	if r.MatchedProductName != "" {
 		return r.MatchedProductName
 	}
-	return fmt.Sprintf("صنف رقم %d", *r.MatchedProductID)
+	return fmt.Sprintf(i18n.TDefault("w4_mod.d_111"), *r.MatchedProductID)
 }
 
 // DisplayName is the product name shown in the review table.

@@ -1,6 +1,7 @@
 package workflow
 
 import (
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"context"
 	"fmt"
 	"time"
@@ -158,16 +159,16 @@ func (s *Service) ListPriorityEngines(ctx context.Context, userID int64, limit, 
 func formatPrioritiesApplied(p Priorities) []string {
 	var applied []string
 	if p.PriorityHighestDiscount {
-		applied = append(applied, "Highest Discount (أعلى نسبة خصم)")
+		applied = append(applied, i18n.TDefault("w4_mod.highest_discount_257"))
 	}
 	if p.PriorityLowestPrice {
-		applied = append(applied, "Lowest Price (أقل سعر)")
+		applied = append(applied, i18n.TDefault("w4_mod.lowest_price_258"))
 	}
 	if p.PriorityFastestDelivery {
-		applied = append(applied, "Fastest Delivery (أسرع توصيل)")
+		applied = append(applied, i18n.TDefault("w4_mod.fastest_delivery_259"))
 	}
 	if p.PriorityPreferredSuppliersOnly {
-		applied = append(applied, "Preferred Suppliers Only (الموردون المفضلون فقط)")
+		applied = append(applied, i18n.TDefault("w4_mod.preferred_suppliers_only_260"))
 	}
 	if p.BudgetConstraint != nil && p.BudgetConstraint.IsPositive() {
 		applied = append(applied, fmt.Sprintf("Budget: %s EGP", p.BudgetConstraint.String()))

@@ -1,6 +1,7 @@
 package http
 
 import (
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
@@ -24,7 +25,7 @@ func (h *Handler) AssistantUpload(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := r.ParseMultipartForm(10 << 20); err != nil {
-		http.Error(w, `{"error":"file_too_large","message":"حجم الملف يتجاوز الحد المسموح (10 ميجابايت)"}`, http.StatusRequestEntityTooLarge)
+		http.Error(w, `{"error":"file_too_large","message":i18n.TDefault("w4_mod.10_61")}`, http.StatusRequestEntityTooLarge)
 		return
 	}
 
@@ -125,7 +126,7 @@ func (h *Handler) AssistantTranscribe(w http.ResponseWriter, r *http.Request) {
 	transcript, err := h.gwClient.Transcribe(ctx, file, header.Filename, header.Header.Get("Content-Type"))
 	if err != nil {
 		h.log.WarnContext(ctx, "transcription error", "error", err)
-		http.Error(w, `{"error":"transcribe_failed","message":"تعذر تفريغ المقطع الصوتي."}`, http.StatusBadGateway)
+		http.Error(w, `{"error":"transcribe_failed","message":i18n.TDefault("w4_mod.w4str_62_62")}`, http.StatusBadGateway)
 		return
 	}
 

@@ -240,10 +240,10 @@ func (p *Product) DiscountPercent() int {
 // Validate ensures required product attributes are sound before persisting.
 func (p *Product) Validate() error {
 	if p.Name.IsEmpty() {
-		return apperr.Validation("product.name_required", "اسم الصنف الدوائي بالعربية أو الإنجليزية مطلوب.", nil)
+		return apperr.Validation("product.name_required", i18n.TDefault("w4_mod.w4str_78_78"), nil)
 	}
 	if p.Price.IsNegative() {
-		return apperr.Validation("product.price_negative", "سعر الصنف لا يمكن أن يكون سالباً.", nil)
+		return apperr.Validation("product.price_negative", i18n.TDefault("w4_mod.w4str_79_79"), nil)
 	}
 	return nil
 }

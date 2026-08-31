@@ -1,6 +1,7 @@
 package ingest
 
 import (
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"context"
 	"fmt"
 
@@ -183,9 +184,9 @@ func (w *importWriter) allowed(variantID int64) bool {
 
 func (w *importWriter) modeMessage(variantID int64) string {
 	if variantID == 0 {
-		return "تم التخطي: الصنف غير موجود لديك، والوضع الحالي يحدّث الموجود فقط."
+		return i18n.TDefault("w4_mod.w4str_208_208")
 	}
-	return "تم التخطي: الصنف موجود لديك بالفعل، والوضع الحالي يضيف الجديد فقط."
+	return i18n.TDefault("w4_mod.w4str_209_209")
 }
 
 // unmatchedMessage tells the vendor why a row was left out and what to do.
@@ -195,11 +196,11 @@ func (w *importWriter) modeMessage(variantID int64) string {
 // extended. The two cases have different remedies, so they say different things.
 func (w *importWriter) unmatchedMessage(m productmatch.MatchResult) string {
 	if m.Level == productmatch.MatchAmbiguous {
-		return "تم التخطي: أكثر من صنف في الكتالوج المعتمد يطابق هذا السطر بنفس الدرجة — " +
-			"راجع المرشحين واختر الصنف الصحيح، أو أضف الباركود إلى ملفك ليُحسم تلقائياً."
+		return i18n.TDefault("w4_mod.w4str_210_210") +
+			i18n.TDefault("w4_mod.w4str_211_211")
 	}
-	return "تم التخطي: لا يوجد صنف مطابق في الكتالوج المعتمد. " +
-		"تأكد من الاسم أو أضف الباركود، وإن كان الصنف غير موجود فاطلب من الإدارة إضافته."
+	return i18n.TDefault("w4_mod.w4str_212_212") +
+		i18n.TDefault("w4_mod.w4str_213_213")
 }
 
 // writeVariants writes the vendor's own catalogue rows.
@@ -295,7 +296,7 @@ func (w *importWriter) writeStocks(ctx context.Context, decisions []*decision) e
 			// The variant landed; only its balance did not. That is a warning on
 			// a written row, not a failed row, and saying otherwise would have
 			// the results screen contradict the catalogue.
-			d.message = appendMessage(d.message, "تعذر تحديث الرصيد: "+f.Message)
+			d.message = appendMessage(d.message, i18n.TDefault("w4_mod.w4str_214_214")+f.Message)
 			d.row.Issues = append(d.row.Issues, productmatch.Issue{
 				Row:      d.row.Number,
 				Field:    productmatch.FieldQuantity,

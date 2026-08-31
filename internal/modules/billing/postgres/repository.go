@@ -1,6 +1,7 @@
 package postgres
 
 import (
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"context"
 	"fmt"
 	"time"
@@ -529,7 +530,7 @@ func (r *Repository) RenewSubscription(ctx context.Context, subID int64, walletI
 			}
 
 			if balance.Minor() < cost.Minor() {
-				return apperr.Conflict("wallet.insufficient_funds", "رصيد المحفظة غير كافٍ للتجديد التلقائي.")
+				return apperr.Conflict("wallet.insufficient_funds", i18n.TDefault("w4_mod.w4str_75_75"))
 			}
 
 			newBalance, _ := balance.Sub(cost)
@@ -539,7 +540,7 @@ func (r *Repository) RenewSubscription(ctx context.Context, subID int64, walletI
 				INSERT INTO billing.wallet_transactions (
 					wallet_id, type, amount, balance_after, reference_type, reference_id, description
 				) VALUES ($1, $2, $3, $4, $5, $6, $7);
-			`, walletID, string(billing.TxPurchase), negCost, newBalance, "subscription_renewal", subID, "تجديد تلقائي للاشتراك: "+details)
+			`, walletID, string(billing.TxPurchase), negCost, newBalance, "subscription_renewal", subID, i18n.TDefault("w4_mod.w4str_76_76")+details)
 			if err != nil {
 				return err
 			}
@@ -715,7 +716,7 @@ func (r *Repository) UpdatePendingDepositRequest(ctx context.Context, dep *billi
 			return fmt.Errorf("update pending deposit: %w", err)
 		}
 		if res.RowsAffected() == 0 {
-			return apperr.Validation("deposit.not_editable", "لا يمكن تعديل العملية لأنها قيد المراجعة المتقدمة أو تم البت فيها بالفعل.", nil)
+			return apperr.Validation("deposit.not_editable", i18n.TDefault("w4_mod.w4str_77_77"), nil)
 		}
 		return nil
 	})

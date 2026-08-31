@@ -2,6 +2,7 @@
 package main
 
 import (
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"context"
 	"fmt"
 	"log/slog"
@@ -241,8 +242,8 @@ type orderNotificationWorker struct {
 }
 
 func (w *orderNotificationWorker) Work(ctx context.Context, job *river.Job[queue.OrderNotificationArgs]) error {
-	title := fmt.Sprintf("تحديث حالة الطلب #%d", job.Args.OrderID)
-	body := fmt.Sprintf("تم تحديث حالة طلبك إلى: %s", job.Args.ToStatus)
+	title := fmt.Sprintf(i18n.TDefault("w4_cmd.d_265"), job.Args.OrderID)
+	body := fmt.Sprintf(i18n.TDefault("w4_cmd.s_266"), job.Args.ToStatus)
 
 	err := w.db.InTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
 		query := `
