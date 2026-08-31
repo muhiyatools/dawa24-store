@@ -15,9 +15,9 @@ import (
 	"github.com/muhiya/dawa24-store/internal/ui/layouts"
 )
 
-// ══════════════════════════════════════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 // DATA MODELS FOR DEDICATED ADMIN SCREENS
-// ══════════════════════════════════════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 
 type AdminOrganizationsPageData struct {
 	Organizations   []*org.Organization
@@ -100,96 +100,96 @@ type AdminEnterpriseHubData struct {
 	TotalUsersCount    int
 }
 
-// ══════════════════════════════════════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 // 1. DEDICATED ORGANIZATIONS DIRECTORY PAGE
-// ══════════════════════════════════════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 
 templ AdminOrganizationsPage(data AdminOrganizationsPageData, lang, dir string) {
-	@layouts.AdminShell("إدارة المنشآت والمؤسسات الطبية", "organizations", lang, dir) {
-		<div style="max-width:1440px; margin:0 auto; padding-bottom:3rem;">
+	@layouts.AdminShell("Ø¥Ø¯Ø§Ø±Ø© Ø§Ù„Ù…Ù†Ø´Ø¢Øª ÙˆØ§Ù„Ù…Ø¤Ø³Ø³Ø§Øª Ø§Ù„Ø·Ø¨ÙŠØ©", "organizations", lang, dir) {
+		<div class="admin-page-container">
 			
 			<!-- Header Banner & Quick Actions -->
-			<div style="background:var(--surface-raised); border:1px solid var(--border); border-radius:18px; padding:1.25rem 1.5rem; margin-bottom:1.25rem; box-shadow:var(--shadow-sm);">
-				<div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem;">
-					<div style="display:flex; align-items:center; gap:0.85rem;">
-						<div style="width:46px; height:46px; border-radius:14px; background:rgba(168, 85, 247, 0.12); color:#a855f7; display:flex; align-items:center; justify-content:center; font-size:1.4rem; border:1px solid rgba(168, 85, 247, 0.25);">
+			<div class="admin-banner">
+				<div class="admin-banner-inner">
+					<div class="d-flex items-center gap-3">
+						<div class="admin-banner-icon purple">
 							@components.IconBuilding("icon-sm")
 						</div>
 						<div>
-							<h1 style="font-size:1.25rem; font-weight:900; color:var(--text); margin:0; display:flex; align-items:center; gap:0.5rem;">
-								<span>إدارة المنشآت والمؤسسات المعتمدة</span>
-								<span class="badge badge-purple text-xs fw-800 tabular-nums">{ fmt.Sprintf("%d منشأة", data.TotalOrgs) }</span>
+							<h1 class="admin-banner-title">
+								<span>Ø¥Ø¯Ø§Ø±Ø© Ø§Ù„Ù…Ù†Ø´Ø¢Øª ÙˆØ§Ù„Ù…Ø¤Ø³Ø³Ø§Øª Ø§Ù„Ù…Ø¹ØªÙ…Ø¯Ø©</span>
+								<span class="badge badge-purple text-xs fw-800 tabular-nums">{ fmt.Sprintf("%d Ù…Ù†Ø´Ø£Ø©", data.TotalOrgs) }</span>
 							</h1>
-							<p style="font-size:0.82rem; color:var(--text-secondary); margin:0.2rem 0 0 0;">
-								الدليل الشامل لإدارة وتدقيق واعتماد شبكة الصيدليات ومستودعات وموردي الأدوية
+							<p class="admin-banner-subtitle">
+								Ø§Ù„Ø¯Ù„ÙŠÙ„ Ø§Ù„Ø´Ø§Ù…Ù„ Ù„Ø¥Ø¯Ø§Ø±Ø© ÙˆØªØ¯Ù‚ÙŠÙ‚ ÙˆØ§Ø¹ØªÙ…Ø§Ø¯ Ø´Ø¨ÙƒØ© Ø§Ù„ØµÙŠØ¯Ù„ÙŠØ§Øª ÙˆÙ…Ø³ØªÙˆØ¯Ø¹Ø§Øª ÙˆÙ…ÙˆØ±Ø¯ÙŠ Ø§Ù„Ø£Ø¯ÙˆÙŠØ©
 							</p>
 						</div>
 					</div>
 
-					<div style="display:flex; align-items:center; gap:0.6rem; flex-wrap:wrap;">
-						<a href="/admin/approvals" class="btn btn-secondary btn-sm fw-800" style="padding:0.45rem 0.9rem; font-size:0.82rem; gap:0.35rem; border-radius:8px;">
+					<div class="d-flex items-center gap-2 flex-wrap">
+						<a href="/admin/approvals" class="btn btn-secondary btn-sm fw-800" class="px-3 py-1.5 text-xs gap-1 rounded-md">
 							@components.IconShield("icon-xs")
-							<span>مركز فحص التراخيص</span>
+							<span>Ù…Ø±ÙƒØ² ÙØ­Øµ Ø§Ù„ØªØ±Ø§Ø®ÙŠØµ</span>
 							if data.PendingCount > 0 {
 								<span class="badge badge-amber text-xs tabular-nums">{ fmt.Sprintf("%d", data.PendingCount) }</span>
 							}
 						</a>
-						<a href="/admin/organizations" class="btn btn-secondary btn-sm fw-800" style="padding:0.45rem 0.9rem; font-size:0.82rem; gap:0.35rem; border-radius:8px;">
+						<a href="/admin/organizations" class="btn btn-secondary btn-sm fw-800" class="px-3 py-1.5 text-xs gap-1 rounded-md">
 							@components.IconRefresh("icon-xs")
-							<span>تحديث</span>
+							<span>ØªØ­Ø¯ÙŠØ«</span>
 						</a>
 					</div>
 				</div>
 
 				<!-- Stats KPI Strip -->
-				<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(180px, 1fr)); gap:0.75rem; margin-top:1.25rem; border-top:1px solid var(--border); padding-top:1rem;">
-					<div style="background:var(--surface-sunken); padding:0.75rem 1rem; border-radius:12px; border:1px solid var(--border);">
-						<div class="label-strong">إجمالي المنشآت</div>
-						<div class="tabular-nums" style="font-size:1.35rem; font-weight:900; color:var(--text); margin-top:2px;">{ fmt.Sprintf("%d", data.TotalOrgs) }</div>
+				<div class="d-grid gap-3 mt-4 pt-3 border-t grid-auto-fit-xs">
+					<div class="bg-surface-sunken p-3 rounded-xl border">
+						<div class="label-strong">Ø¥Ø¬Ù…Ø§Ù„ÙŠ Ø§Ù„Ù…Ù†Ø´Ø¢Øª</div>
+						<div class="tabular-nums" class="text-xl font-black text-primary mt-0.5 tabular-nums">{ fmt.Sprintf("%d", data.TotalOrgs) }</div>
 					</div>
-					<div style="background:var(--surface-sunken); padding:0.75rem 1rem; border-radius:12px; border:1px solid var(--border);">
-						<div class="label-strong">الصيدليات المعتمدة</div>
-						<div class="tabular-nums" style="font-size:1.35rem; font-weight:900; color:#10b981; margin-top:2px;">{ fmt.Sprintf("%d", data.TotalPharmacies) }</div>
+					<div class="bg-surface-sunken p-3 rounded-xl border">
+						<div class="label-strong">Ø§Ù„ØµÙŠØ¯Ù„ÙŠØ§Øª Ø§Ù„Ù…Ø¹ØªÙ…Ø¯Ø©</div>
+						<div class="tabular-nums" class="text-xl font-black text-success mt-0.5 tabular-nums">{ fmt.Sprintf("%d", data.TotalPharmacies) }</div>
 					</div>
-					<div style="background:var(--surface-sunken); padding:0.75rem 1rem; border-radius:12px; border:1px solid var(--border);">
-						<div class="label-strong">الموردون وشركات الأدوية</div>
-						<div class="tabular-nums" style="font-size:1.35rem; font-weight:900; color:#a855f7; margin-top:2px;">{ fmt.Sprintf("%d", data.TotalVendors) }</div>
+					<div class="bg-surface-sunken p-3 rounded-xl border">
+						<div class="label-strong">Ø§Ù„Ù…ÙˆØ±Ø¯ÙˆÙ† ÙˆØ´Ø±ÙƒØ§Øª Ø§Ù„Ø£Ø¯ÙˆÙŠØ©</div>
+						<div class="tabular-nums" class="text-xl font-black text-purple mt-0.5 tabular-nums">{ fmt.Sprintf("%d", data.TotalVendors) }</div>
 					</div>
-					<div style="background:var(--surface-sunken); padding:0.75rem 1rem; border-radius:12px; border:1px solid var(--border);">
-						<div class="label-strong">بانتظار الاعتماد</div>
-						<div class="tabular-nums" style="font-size:1.35rem; font-weight:900; color:#f59e0b; margin-top:2px;">{ fmt.Sprintf("%d", data.PendingCount) }</div>
+					<div class="bg-surface-sunken p-3 rounded-xl border">
+						<div class="label-strong">Ø¨Ø§Ù†ØªØ¸Ø§Ø± Ø§Ù„Ø§Ø¹ØªÙ…Ø§Ø¯</div>
+						<div class="tabular-nums" class="text-xl font-black text-warning mt-0.5 tabular-nums">{ fmt.Sprintf("%d", data.PendingCount) }</div>
 					</div>
 				</div>
 			</div>
 
 			<!-- Filter Bar -->
-			<div style="background:var(--surface-raised); border:1px solid var(--border); border-radius:14px; padding:1rem 1.25rem; margin-bottom:1.25rem;">
-				<form method="GET" action="/admin/organizations" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.75rem; margin:0;">
-					<div style="display:flex; gap:0.5rem; align-items:center; flex-wrap:wrap; flex:1;">
+			<div class="admin-filter-bar">
+				<form method="GET" action="/admin/organizations" class="flex-between flex-wrap gap-3 m-0 w-full">
+					<div class="d-flex gap-2 items-center flex-wrap flex-1">
 						<input
 							type="text"
 							name="q"
 							value={ data.SearchQuery }
-							placeholder="ابحث بالاسم، السجل التجاري، الرقم الضريبي، أو الترخيص..."
+							placeholder="Ø§Ø¨Ø­Ø« Ø¨Ø§Ù„Ø§Ø³Ù…ØŒ Ø§Ù„Ø³Ø¬Ù„ Ø§Ù„ØªØ¬Ø§Ø±ÙŠØŒ Ø§Ù„Ø±Ù‚Ù… Ø§Ù„Ø¶Ø±ÙŠØ¨ÙŠØŒ Ø£Ùˆ Ø§Ù„ØªØ±Ø®ÙŠØµ..."
 							class="form-input"
-							style="padding:0.5rem 0.9rem; font-size:0.85rem; min-width:280px; border-radius:8px;"
+							class="px-3 py-2 text-sm min-w-64 rounded-md"
 						/>
-						<select name="type" class="form-select" style="padding:0.5rem 0.9rem; font-size:0.85rem; border-radius:8px; width:auto; font-weight:700;">
-							<option value="">كل أنواع المنشآت</option>
-							<option value="customer" selected?={ data.TypeFilter == "customer" }>صيدليات ومراكز طبية</option>
-							<option value="vendor" selected?={ data.TypeFilter == "vendor" }>موردون ومخازن أدوية</option>
+						<select name="type" class="form-select" class="px-3 py-2 text-sm rounded-md w-auto font-bold">
+							<option value="">ÙƒÙ„ Ø£Ù†ÙˆØ§Ø¹ Ø§Ù„Ù…Ù†Ø´Ø¢Øª</option>
+							<option value="customer" selected?={ data.TypeFilter == "customer" }>ØµÙŠØ¯Ù„ÙŠØ§Øª ÙˆÙ…Ø±Ø§ÙƒØ² Ø·Ø¨ÙŠØ©</option>
+							<option value="vendor" selected?={ data.TypeFilter == "vendor" }>Ù…ÙˆØ±Ø¯ÙˆÙ† ÙˆÙ…Ø®Ø§Ø²Ù† Ø£Ø¯ÙˆÙŠØ©</option>
 						</select>
-						<select name="status" class="form-select" style="padding:0.5rem 0.9rem; font-size:0.85rem; border-radius:8px; width:auto; font-weight:700;">
-							<option value="">كل حالات الاعتماد</option>
-							<option value="approved" selected?={ data.StatusFilter == "approved" }>معتمدة ومفعلة (Approved)</option>
-							<option value="pending" selected?={ data.StatusFilter == "pending" }>⏳ قيد المراجعة (Pending)</option>
-							<option value="rejected" selected?={ data.StatusFilter == "rejected" }>مرفوضة (Rejected)</option>
+						<select name="status" class="form-select" class="px-3 py-2 text-sm rounded-md w-auto font-bold">
+							<option value="">ÙƒÙ„ Ø­Ø§Ù„Ø§Øª Ø§Ù„Ø§Ø¹ØªÙ…Ø§Ø¯</option>
+							<option value="approved" selected?={ data.StatusFilter == "approved" }>Ù…Ø¹ØªÙ…Ø¯Ø© ÙˆÙ…ÙØ¹Ù„Ø© (Approved)</option>
+							<option value="pending" selected?={ data.StatusFilter == "pending" }>â³ Ù‚ÙŠØ¯ Ø§Ù„Ù…Ø±Ø§Ø¬Ø¹Ø© (Pending)</option>
+							<option value="rejected" selected?={ data.StatusFilter == "rejected" }>Ù…Ø±ÙÙˆØ¶Ø© (Rejected)</option>
 						</select>
-						<button type="submit" class="btn btn-secondary btn-sm fw-800" style="padding:0.5rem 1.1rem; border-radius:8px;">
-							تصفية
+						<button type="submit" class="btn btn-secondary btn-sm fw-800" class="px-4 py-2 rounded-md">
+							ØªØµÙÙŠØ©
 						</button>
 						if data.SearchQuery != "" || data.TypeFilter != "" || data.StatusFilter != "" {
-							<a href="/admin/organizations" class="btn btn-secondary btn-sm text-muted rounded-md">إلغاء</a>
+							<a href="/admin/organizations" class="btn btn-secondary btn-sm text-muted rounded-md">Ø¥Ù„ØºØ§Ø¡</a>
 						}
 					</div>
 				</form>
@@ -198,33 +198,33 @@ templ AdminOrganizationsPage(data AdminOrganizationsPageData, lang, dir string) 
 			<!-- Organizations Table -->
 			if len(data.Organizations) == 0 {
 				@components.EmptyState(components.EmptyStateProps{
-					Title:   "لا توجد منشآت مطابقة",
-					Message: "لم يتم العثور على أي منشآت أو شركات تطابق معايير البحث والفلترة المحددة.",
+					Title:   "Ù„Ø§ ØªÙˆØ¬Ø¯ Ù…Ù†Ø´Ø¢Øª Ù…Ø·Ø§Ø¨Ù‚Ø©",
+					Message: "Ù„Ù… ÙŠØªÙ… Ø§Ù„Ø¹Ø«ÙˆØ± Ø¹Ù„Ù‰ Ø£ÙŠ Ù…Ù†Ø´Ø¢Øª Ø£Ùˆ Ø´Ø±ÙƒØ§Øª ØªØ·Ø§Ø¨Ù‚ Ù…Ø¹Ø§ÙŠÙŠØ± Ø§Ù„Ø¨Ø­Ø« ÙˆØ§Ù„ÙÙ„ØªØ±Ø© Ø§Ù„Ù…Ø­Ø¯Ø¯Ø©.",
 				})
 			} else {
-				<div class="table-container" style="border:1px solid var(--border); border-radius:14px; overflow:hidden; background:var(--surface-raised); box-shadow:var(--shadow-sm);">
-					<table class="data-table">
+				<div class="table-container" class="admin-table-wrapper">
+					<table class="data-table data-table-responsive">
 						<thead>
 							<tr>
-								<th class="nowrap"># المعرف</th>
-								<th>المنشأة والاسم التجاري</th>
-								<th class="nowrap">نوع النشاط</th>
-								<th>السجل والضريبة والترخيص</th>
-								<th class="nowrap">الفروع</th>
-								<th class="nowrap">تاريخ الانضمام</th>
-								<th class="nowrap">حالة الاعتماد</th>
-								<th class="text-end" style="white-space:nowrap; min-width:140px;">الإجراءات</th>
+								<th class="nowrap"># Ø§Ù„Ù…Ø¹Ø±Ù</th>
+								<th>Ø§Ù„Ù…Ù†Ø´Ø£Ø© ÙˆØ§Ù„Ø§Ø³Ù… Ø§Ù„ØªØ¬Ø§Ø±ÙŠ</th>
+								<th class="nowrap">Ù†ÙˆØ¹ Ø§Ù„Ù†Ø´Ø§Ø·</th>
+								<th>Ø§Ù„Ø³Ø¬Ù„ ÙˆØ§Ù„Ø¶Ø±ÙŠØ¨Ø© ÙˆØ§Ù„ØªØ±Ø®ÙŠØµ</th>
+								<th class="nowrap">Ø§Ù„ÙØ±ÙˆØ¹</th>
+								<th class="nowrap">ØªØ§Ø±ÙŠØ® Ø§Ù„Ø§Ù†Ø¶Ù…Ø§Ù…</th>
+								<th class="nowrap">Ø­Ø§Ù„Ø© Ø§Ù„Ø§Ø¹ØªÙ…Ø§Ø¯</th>
+								<th class="text-end" class="nowrap min-w-36">Ø§Ù„Ø¥Ø¬Ø±Ø§Ø¡Ø§Øª</th>
 							</tr>
 						</thead>
 						<tbody>
 							for _, o := range data.Organizations {
-								<tr style="vertical-align:middle;">
+								<tr class="align-middle">
 									<td class="tabular-nums fw-800 text-primary nowrap">
 										#{ fmt.Sprintf("ORG-%d", o.ID) }
 									</td>
 									<td>
-										<div style="display:flex; align-items:center; gap:0.65rem;">
-											<div style="width:36px; height:36px; border-radius:10px; background:var(--surface-sunken); border:1px solid var(--border); display:flex; align-items:center; justify-content:center; font-weight:900; color:var(--text); font-size:0.9rem;">
+										<div class="d-flex items-center gap-2">
+											<div class="w-9 h-9 rounded-lg bg-surface-sunken border flex-center font-black text-primary text-sm">
 												if len(o.LegalName) > 0 {
 													{ string([]rune(o.LegalName)[0]) }
 												} else {
@@ -232,38 +232,38 @@ templ AdminOrganizationsPage(data AdminOrganizationsPageData, lang, dir string) 
 												}
 											</div>
 											<div>
-												<a href={ templ.SafeURL(fmt.Sprintf("/admin/organizations/%d", o.ID)) } style="font-weight:800; font-size:0.92rem; color:var(--text); text-decoration:none;">
+												<a href={ templ.SafeURL(fmt.Sprintf("/admin/organizations/%d", o.ID)) } class="font-bold text-sm text-primary no-underline">
 													{ o.LegalName }
 												</a>
 												if o.TradeName["ar"] != "" && o.TradeName["ar"] != o.LegalName {
-													<div style="font-size:0.75rem; color:var(--text-secondary); margin-top:1px;">{ o.TradeName["ar"] }</div>
+													<div class="text-xs text-secondary mt-0.5">{ o.TradeName["ar"] }</div>
 												}
 											</div>
 										</div>
 									</td>
 									<td>
 										if string(o.Type) == "vendor" {
-											<span class="badge badge-purple text-xs fw-800" style="padding:0.25rem 0.6rem; border-radius:6px;">مورد أدوية</span>
+											<span class="badge badge-purple text-xs fw-800" class="px-2 py-1 rounded-md">Ù…ÙˆØ±Ø¯ Ø£Ø¯ÙˆÙŠØ©</span>
 										} else {
-											<span class="badge badge-emerald text-xs fw-800" style="padding:0.25rem 0.6rem; border-radius:6px;">صيدلية</span>
+											<span class="badge badge-emerald text-xs fw-800" class="px-2 py-1 rounded-md">ØµÙŠØ¯Ù„ÙŠØ©</span>
 										}
 									</td>
 									<td>
-										<div style="font-size:0.78rem; display:flex; flex-direction:column; gap:0.2rem;" class="tabular-nums text-muted">
+										<div class="text-xs d-flex flex-col gap-1" class="tabular-nums text-muted">
 											if o.CommercialRegister != "" {
-												<div><strong style="color:var(--text-secondary);">سجل:</strong> { o.CommercialRegister }</div>
+												<div><strong class="text-secondary font-bold">Ø³Ø¬Ù„:</strong> { o.CommercialRegister }</div>
 											}
 											if o.TaxNumber != "" {
-												<div><strong style="color:var(--text-secondary);">ضريبة:</strong> { o.TaxNumber }</div>
+												<div><strong class="text-secondary font-bold">Ø¶Ø±ÙŠØ¨Ø©:</strong> { o.TaxNumber }</div>
 											}
 											if o.PharmacistLicense != "" {
-												<div><strong style="color:var(--text-secondary);">ترخيص:</strong> { o.PharmacistLicense }</div>
+												<div><strong class="text-secondary font-bold">ØªØ±Ø®ÙŠØµ:</strong> { o.PharmacistLicense }</div>
 											}
 										</div>
 									</td>
 									<td>
-										<a href={ templ.SafeURL(fmt.Sprintf("/admin/branches?org_id=%d", o.ID)) } class="badge badge-sky text-xs fw-800" style="padding:0.25rem 0.6rem; border-radius:6px; text-decoration:none;" title="استعراض فروع هذه المنشأة">
-											{ fmt.Sprintf("%d فرع", data.BranchCounts[o.ID]) }
+										<a href={ templ.SafeURL(fmt.Sprintf("/admin/branches?org_id=%d", o.ID)) } class="badge badge-sky text-xs fw-800" class="px-2 py-1 rounded-md no-underline" title="Ø§Ø³ØªØ¹Ø±Ø§Ø¶ ÙØ±ÙˆØ¹ Ù‡Ø°Ù‡ Ø§Ù„Ù…Ù†Ø´Ø£Ø©">
+											{ fmt.Sprintf("%d ÙØ±Ø¹", data.BranchCounts[o.ID]) }
 										</a>
 									</td>
 									<td class="tabular-nums text-xs text-muted nowrap">
@@ -271,19 +271,19 @@ templ AdminOrganizationsPage(data AdminOrganizationsPageData, lang, dir string) 
 									</td>
 									<td>
 										if string(o.Status) == "approved" {
-											<span class="badge badge-emerald text-xs fw-800" style="padding:0.25rem 0.6rem; border-radius:6px;">معتمد ومفعل</span>
+											<span class="badge badge-emerald text-xs fw-800" class="px-2 py-1 rounded-md">Ù…Ø¹ØªÙ…Ø¯ ÙˆÙ…ÙØ¹Ù„</span>
 										} else if string(o.Status) == "pending" {
-											<span class="badge badge-amber text-xs fw-800" style="padding:0.25rem 0.6rem; border-radius:6px;">⏳ قيد التدقيق</span>
+											<span class="badge badge-amber text-xs fw-800" class="px-2 py-1 rounded-md">â³ Ù‚ÙŠØ¯ Ø§Ù„ØªØ¯Ù‚ÙŠÙ‚</span>
 										} else if string(o.Status) == "rejected" {
-											<span class="badge badge-danger text-xs fw-800" style="padding:0.25rem 0.6rem; border-radius:6px;">مرفوض</span>
+											<span class="badge badge-danger text-xs fw-800" class="px-2 py-1 rounded-md">Ù…Ø±ÙÙˆØ¶</span>
 										} else {
-											<span class="badge badge-slate text-xs fw-800" style="padding:0.25rem 0.6rem; border-radius:6px;">{ string(o.Status) }</span>
+											<span class="badge badge-slate text-xs fw-800" class="px-2 py-1 rounded-md">{ string(o.Status) }</span>
 										}
 									</td>
 									<td class="text-end nowrap">
-										<div style="display:inline-flex; gap:0.4rem; justify-content:flex-end; align-items:center;">
-											<a href={ templ.SafeURL(fmt.Sprintf("/admin/organizations/%d", o.ID)) } class="btn btn-secondary btn-xs fw-800" style="padding:0.35rem 0.75rem; border-radius:6px;">
-												<span>الملف الشامل ↗</span>
+										<div class="d-inline-flex gap-1 justify-end items-center">
+											<a href={ templ.SafeURL(fmt.Sprintf("/admin/organizations/%d", o.ID)) } class="btn btn-secondary btn-xs fw-800" class="px-3 py-1 rounded-md">
+												<span>Ø§Ù„Ù…Ù„Ù Ø§Ù„Ø´Ø§Ù…Ù„ â†—</span>
 											</a>
 										</div>
 									</td>
@@ -298,93 +298,93 @@ templ AdminOrganizationsPage(data AdminOrganizationsPageData, lang, dir string) 
 	}
 }
 
-// ══════════════════════════════════════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 // 2. DEDICATED BRANCHES & WAREHOUSES DIRECTORY PAGE
-// ══════════════════════════════════════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 
 templ AdminBranchesPage(data AdminBranchesPageData, lang, dir string) {
-	@layouts.AdminShell("دليل الفروع ومواقع التخزين", "branches", lang, dir) {
-		<div style="max-width:1440px; margin:0 auto; padding-bottom:3rem;">
+	@layouts.AdminShell("Ø¯Ù„ÙŠÙ„ Ø§Ù„ÙØ±ÙˆØ¹ ÙˆÙ…ÙˆØ§Ù‚Ø¹ Ø§Ù„ØªØ®Ø²ÙŠÙ†", "branches", lang, dir) {
+		<div class="admin-page-container">
 			
 			<!-- Header Banner -->
-			<div style="background:var(--surface-raised); border:1px solid var(--border); border-radius:18px; padding:1.25rem 1.5rem; margin-bottom:1.25rem; box-shadow:var(--shadow-sm);">
-				<div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem;">
-					<div style="display:flex; align-items:center; gap:0.85rem;">
-						<div style="width:46px; height:46px; border-radius:14px; background:rgba(56, 189, 248, 0.12); color:var(--accent); display:flex; align-items:center; justify-content:center; font-size:1.4rem; border:1px solid rgba(56, 189, 248, 0.25);">
+			<div class="admin-banner">
+				<div class="admin-banner-inner">
+					<div class="d-flex items-center gap-3">
+						<div class="admin-banner-icon primary">
 							@components.IconMapPin("icon-sm")
 						</div>
 						<div>
-							<h1 style="font-size:1.25rem; font-weight:900; color:var(--text); margin:0; display:flex; align-items:center; gap:0.5rem;">
-								<span>دليل الفروع ومواقع التخزين والمستودعات</span>
-								<span class="badge badge-sky text-xs fw-800 tabular-nums">{ fmt.Sprintf("%d فرع ومخزن", data.TotalBranches) }</span>
+							<h1 class="admin-banner-title">
+								<span>Ø¯Ù„ÙŠÙ„ Ø§Ù„ÙØ±ÙˆØ¹ ÙˆÙ…ÙˆØ§Ù‚Ø¹ Ø§Ù„ØªØ®Ø²ÙŠÙ† ÙˆØ§Ù„Ù…Ø³ØªÙˆØ¯Ø¹Ø§Øª</span>
+								<span class="badge badge-sky text-xs fw-800 tabular-nums">{ fmt.Sprintf("%d ÙØ±Ø¹ ÙˆÙ…Ø®Ø²Ù†", data.TotalBranches) }</span>
 							</h1>
-							<p style="font-size:0.82rem; color:var(--text-secondary); margin:0.2rem 0 0 0;">
-								إدارة ومتابعة كافة نقاط الاستلام والتوريد ومواقع التخزين المركزية للصيدليات والموردين
+							<p class="admin-banner-subtitle">
+								Ø¥Ø¯Ø§Ø±Ø© ÙˆÙ…ØªØ§Ø¨Ø¹Ø© ÙƒØ§ÙØ© Ù†Ù‚Ø§Ø· Ø§Ù„Ø§Ø³ØªÙ„Ø§Ù… ÙˆØ§Ù„ØªÙˆØ±ÙŠØ¯ ÙˆÙ…ÙˆØ§Ù‚Ø¹ Ø§Ù„ØªØ®Ø²ÙŠÙ† Ø§Ù„Ù…Ø±ÙƒØ²ÙŠØ© Ù„Ù„ØµÙŠØ¯Ù„ÙŠØ§Øª ÙˆØ§Ù„Ù…ÙˆØ±Ø¯ÙŠÙ†
 							</p>
 						</div>
 					</div>
 
-					<div style="display:flex; align-items:center; gap:0.6rem; flex-wrap:wrap;">
-						<a href="/admin/weekly-coverages" class="btn btn-secondary btn-sm fw-800" style="padding:0.45rem 0.9rem; font-size:0.82rem; gap:0.35rem; border-radius:8px;">
+					<div class="d-flex items-center gap-2 flex-wrap">
+						<a href="/admin/weekly-coverages" class="btn btn-secondary btn-sm fw-800" class="px-3 py-1.5 text-xs gap-1 rounded-md">
 							@components.IconTruck("icon-xs")
-							<span>جداول التغطية الأسبوعية</span>
+							<span>Ø¬Ø¯Ø§ÙˆÙ„ Ø§Ù„ØªØºØ·ÙŠØ© Ø§Ù„Ø£Ø³Ø¨ÙˆØ¹ÙŠØ©</span>
 						</a>
-						<a href="/admin/branches" class="btn btn-secondary btn-sm fw-800" style="padding:0.45rem 0.9rem; font-size:0.82rem; gap:0.35rem; border-radius:8px;">
+						<a href="/admin/branches" class="btn btn-secondary btn-sm fw-800" class="px-3 py-1.5 text-xs gap-1 rounded-md">
 							@components.IconRefresh("icon-xs")
-							<span>تحديث</span>
+							<span>ØªØ­Ø¯ÙŠØ«</span>
 						</a>
 					</div>
 				</div>
 
 				<!-- Stats KPI Strip -->
-				<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(180px, 1fr)); gap:0.75rem; margin-top:1.25rem; border-top:1px solid var(--border); padding-top:1rem;">
-					<div style="background:var(--surface-sunken); padding:0.75rem 1rem; border-radius:12px; border:1px solid var(--border);">
-						<div class="label-strong">إجمالي الفروع والمخازن</div>
-						<div class="tabular-nums" style="font-size:1.35rem; font-weight:900; color:var(--text); margin-top:2px;">{ fmt.Sprintf("%d", data.TotalBranches) }</div>
+				<div class="d-grid gap-3 mt-4 pt-3 border-t grid-auto-fit-xs">
+					<div class="bg-surface-sunken p-3 rounded-xl border">
+						<div class="label-strong">Ø¥Ø¬Ù…Ø§Ù„ÙŠ Ø§Ù„ÙØ±ÙˆØ¹ ÙˆØ§Ù„Ù…Ø®Ø§Ø²Ù†</div>
+						<div class="tabular-nums" class="text-xl font-black text-primary mt-0.5 tabular-nums">{ fmt.Sprintf("%d", data.TotalBranches) }</div>
 					</div>
-					<div style="background:var(--surface-sunken); padding:0.75rem 1rem; border-radius:12px; border:1px solid var(--border);">
-						<div class="label-strong">الفروع النشطة</div>
-						<div class="tabular-nums" style="font-size:1.35rem; font-weight:900; color:#10b981; margin-top:2px;">{ fmt.Sprintf("%d", data.ActiveBranches) }</div>
+					<div class="bg-surface-sunken p-3 rounded-xl border">
+						<div class="label-strong">Ø§Ù„ÙØ±ÙˆØ¹ Ø§Ù„Ù†Ø´Ø·Ø©</div>
+						<div class="tabular-nums" class="text-xl font-black text-success mt-0.5 tabular-nums">{ fmt.Sprintf("%d", data.ActiveBranches) }</div>
 					</div>
-					<div style="background:var(--surface-sunken); padding:0.75rem 1rem; border-radius:12px; border:1px solid var(--border);">
-						<div class="label-strong">فروع الصيدليات</div>
-						<div class="tabular-nums" style="font-size:1.35rem; font-weight:900; color:#10b981; margin-top:2px;">{ fmt.Sprintf("%d", data.PharmacyBranches) }</div>
+					<div class="bg-surface-sunken p-3 rounded-xl border">
+						<div class="label-strong">ÙØ±ÙˆØ¹ Ø§Ù„ØµÙŠØ¯Ù„ÙŠØ§Øª</div>
+						<div class="tabular-nums" class="text-xl font-black text-success mt-0.5 tabular-nums">{ fmt.Sprintf("%d", data.PharmacyBranches) }</div>
 					</div>
-					<div style="background:var(--surface-sunken); padding:0.75rem 1rem; border-radius:12px; border:1px solid var(--border);">
-						<div class="label-strong">مستودعات الموردين</div>
-						<div class="tabular-nums" style="font-size:1.35rem; font-weight:900; color:#a855f7; margin-top:2px;">{ fmt.Sprintf("%d", data.VendorWarehouses) }</div>
+					<div class="bg-surface-sunken p-3 rounded-xl border">
+						<div class="label-strong">Ù…Ø³ØªÙˆØ¯Ø¹Ø§Øª Ø§Ù„Ù…ÙˆØ±Ø¯ÙŠÙ†</div>
+						<div class="tabular-nums" class="text-xl font-black text-purple mt-0.5 tabular-nums">{ fmt.Sprintf("%d", data.VendorWarehouses) }</div>
 					</div>
 				</div>
 			</div>
 
 			<!-- Filter Bar -->
-			<div style="background:var(--surface-raised); border:1px solid var(--border); border-radius:14px; padding:1rem 1.25rem; margin-bottom:1.25rem;">
-				<form method="GET" action="/admin/branches" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.75rem; margin:0;">
-					<div style="display:flex; gap:0.5rem; align-items:center; flex-wrap:wrap; flex:1;">
+			<div class="admin-filter-bar">
+				<form method="GET" action="/admin/branches" class="flex-between flex-wrap gap-3 m-0 w-full">
+					<div class="d-flex gap-2 items-center flex-wrap flex-1">
 						<input
 							type="text"
 							name="q"
 							value={ data.SearchQuery }
-							placeholder="ابحث باسم الفرع، الكود، العنوان، أو المنشأة..."
+							placeholder="Ø§Ø¨Ø­Ø« Ø¨Ø§Ø³Ù… Ø§Ù„ÙØ±Ø¹ØŒ Ø§Ù„ÙƒÙˆØ¯ØŒ Ø§Ù„Ø¹Ù†ÙˆØ§Ù†ØŒ Ø£Ùˆ Ø§Ù„Ù…Ù†Ø´Ø£Ø©..."
 							class="form-input"
-							style="padding:0.5rem 0.9rem; font-size:0.85rem; min-width:280px; border-radius:8px;"
+							class="px-3 py-2 text-sm min-w-64 rounded-md"
 						/>
-						<select name="org_id" class="form-select" style="padding:0.5rem 0.9rem; font-size:0.85rem; border-radius:8px; width:auto; font-weight:700;">
-							<option value="0">كافة المنشآت والشركات</option>
+						<select name="org_id" class="form-select" class="px-3 py-2 text-sm rounded-md w-auto font-bold">
+							<option value="0">ÙƒØ§ÙØ© Ø§Ù„Ù…Ù†Ø´Ø¢Øª ÙˆØ§Ù„Ø´Ø±ÙƒØ§Øª</option>
 							for _, o := range data.Organizations {
 								<option value={ fmt.Sprintf("%d", o.ID) } selected?={ o.ID == data.SelectedOrgID }>{ o.LegalName }</option>
 							}
 						</select>
-						<select name="status" class="form-select" style="padding:0.5rem 0.9rem; font-size:0.85rem; border-radius:8px; width:auto; font-weight:700;">
-							<option value="">كل الحالات</option>
-							<option value="active" selected?={ data.StatusFilter == "active" }>نشط ومفعل</option>
-							<option value="inactive" selected?={ data.StatusFilter == "inactive" }>معطل</option>
+						<select name="status" class="form-select" class="px-3 py-2 text-sm rounded-md w-auto font-bold">
+							<option value="">ÙƒÙ„ Ø§Ù„Ø­Ø§Ù„Ø§Øª</option>
+							<option value="active" selected?={ data.StatusFilter == "active" }>Ù†Ø´Ø· ÙˆÙ…ÙØ¹Ù„</option>
+							<option value="inactive" selected?={ data.StatusFilter == "inactive" }>Ù…Ø¹Ø·Ù„</option>
 						</select>
-						<button type="submit" class="btn btn-secondary btn-sm fw-800" style="padding:0.5rem 1.1rem; border-radius:8px;">
-							تصفية
+						<button type="submit" class="btn btn-secondary btn-sm fw-800" class="px-4 py-2 rounded-md">
+							ØªØµÙÙŠØ©
 						</button>
 						if data.SearchQuery != "" || data.SelectedOrgID > 0 || data.StatusFilter != "" {
-							<a href="/admin/branches" class="btn btn-secondary btn-sm text-muted rounded-md">إلغاء</a>
+							<a href="/admin/branches" class="btn btn-secondary btn-sm text-muted rounded-md">Ø¥Ù„ØºØ§Ø¡</a>
 						}
 					</div>
 				</form>
@@ -393,27 +393,27 @@ templ AdminBranchesPage(data AdminBranchesPageData, lang, dir string) {
 			<!-- Branches Table -->
 			if len(data.Branches) == 0 {
 				@components.EmptyState(components.EmptyStateProps{
-					Title:   "لا توجد فروع مسجلة",
-					Message: "لم يتم العثور على فروع أو مواقع تخزين تطابق معايير الفلترة المحددة.",
+					Title:   "Ù„Ø§ ØªÙˆØ¬Ø¯ ÙØ±ÙˆØ¹ Ù…Ø³Ø¬Ù„Ø©",
+					Message: "Ù„Ù… ÙŠØªÙ… Ø§Ù„Ø¹Ø«ÙˆØ± Ø¹Ù„Ù‰ ÙØ±ÙˆØ¹ Ø£Ùˆ Ù…ÙˆØ§Ù‚Ø¹ ØªØ®Ø²ÙŠÙ† ØªØ·Ø§Ø¨Ù‚ Ù…Ø¹Ø§ÙŠÙŠØ± Ø§Ù„ÙÙ„ØªØ±Ø© Ø§Ù„Ù…Ø­Ø¯Ø¯Ø©.",
 				})
 			} else {
-				<div class="table-container" style="border:1px solid var(--border); border-radius:14px; overflow:hidden; background:var(--surface-raised); box-shadow:var(--shadow-sm);">
-					<table class="data-table">
+				<div class="table-container" class="admin-table-wrapper">
+					<table class="data-table data-table-responsive">
 						<thead>
 							<tr>
-								<th>اسم الفرع والكود</th>
-								<th>المنشأة التابع لها</th>
-								<th class="nowrap">نوع الفرع اللوجستي</th>
-								<th>العنوان وبيانات الاتصال</th>
-								<th class="nowrap">الحالة</th>
-								<th class="text-end" style="white-space:nowrap; min-width:140px;">الإجراءات</th>
+								<th>Ø§Ø³Ù… Ø§Ù„ÙØ±Ø¹ ÙˆØ§Ù„ÙƒÙˆØ¯</th>
+								<th>Ø§Ù„Ù…Ù†Ø´Ø£Ø© Ø§Ù„ØªØ§Ø¨Ø¹ Ù„Ù‡Ø§</th>
+								<th class="nowrap">Ù†ÙˆØ¹ Ø§Ù„ÙØ±Ø¹ Ø§Ù„Ù„ÙˆØ¬Ø³ØªÙŠ</th>
+								<th>Ø§Ù„Ø¹Ù†ÙˆØ§Ù† ÙˆØ¨ÙŠØ§Ù†Ø§Øª Ø§Ù„Ø§ØªØµØ§Ù„</th>
+								<th class="nowrap">Ø§Ù„Ø­Ø§Ù„Ø©</th>
+								<th class="text-end" class="nowrap min-w-36">Ø§Ù„Ø¥Ø¬Ø±Ø§Ø¡Ø§Øª</th>
 							</tr>
 						</thead>
 						<tbody>
 							for _, b := range data.Branches {
-								<tr style="vertical-align:middle;">
+								<tr class="align-middle">
 									<td>
-										<div style="font-weight:800; font-size:0.92rem; color:var(--text);">
+										<div class="font-bold text-sm text-primary">
 											if b.Name["ar"] != "" {
 												{ b.Name["ar"] }
 											} else {
@@ -421,16 +421,16 @@ templ AdminBranchesPage(data AdminBranchesPageData, lang, dir string) {
 											}
 										</div>
 										if b.Code != "" {
-											<div class="text-xs text-muted tabular-nums" style="margin-top:2px;" dir="ltr">
+											<div class="text-xs text-muted tabular-nums" class="mt-0.5" dir="ltr">
 												<code>{ b.Code }</code>
 											</div>
 										}
 									</td>
 									<td>
-										<a href={ templ.SafeURL(fmt.Sprintf("/admin/organizations/%d", b.OrganizationID)) } style="font-weight:800; color:var(--text); text-decoration:none;">
+										<a href={ templ.SafeURL(fmt.Sprintf("/admin/organizations/%d", b.OrganizationID)) } class="font-bold text-primary no-underline">
 											{ getOrgLegalName(b.OrganizationID, data.OrgNames) }
 										</a>
-										<div style="margin-top:2px;">
+										<div class="mt-0.5">
 											<span class="badge badge-slate text-xs">{ getOrgTypeBadge(b.OrganizationID, data.OrgTypes) }</span>
 										</div>
 									</td>
@@ -439,26 +439,26 @@ templ AdminBranchesPage(data AdminBranchesPageData, lang, dir string) {
 											if b.WarehouseType != "" {
 												{ b.WarehouseType }
 											} else {
-												<span>فرع تشغيلي</span>
+												<span>ÙØ±Ø¹ ØªØ´ØºÙŠÙ„ÙŠ</span>
 											}
 										</span>
 									</td>
 									<td>
-										<div style="font-size:0.8rem; color:var(--text);">{ b.Address }</div>
+										<div class="text-xs text-primary">{ b.Address }</div>
 										if b.Phone != "" {
-											<div class="text-xs text-muted tabular-nums" style="margin-top:2px;">{ b.Phone }</div>
+											<div class="text-xs text-muted tabular-nums" class="mt-0.5">{ b.Phone }</div>
 										}
 									</td>
 									<td>
 										if b.Status == "active" || b.Status == "" {
-											<span class="badge badge-emerald text-xs fw-800">نشط ومفعل</span>
+											<span class="badge badge-emerald text-xs fw-800">Ù†Ø´Ø· ÙˆÙ…ÙØ¹Ù„</span>
 										} else {
-											<span class="badge badge-danger text-xs fw-800">معطل</span>
+											<span class="badge badge-danger text-xs fw-800">Ù…Ø¹Ø·Ù„</span>
 										}
 									</td>
 									<td class="text-end">
-										<a href={ templ.SafeURL(fmt.Sprintf("/admin/branches/%d", b.ID)) } class="btn btn-secondary btn-xs fw-800" style="padding:0.35rem 0.75rem; border-radius:6px;">
-											<span>التفاصيل ↗</span>
+										<a href={ templ.SafeURL(fmt.Sprintf("/admin/branches/%d", b.ID)) } class="btn btn-secondary btn-xs fw-800" class="px-3 py-1 rounded-md">
+											<span>Ø§Ù„ØªÙØ§ØµÙŠÙ„ â†—</span>
 										</a>
 									</td>
 								</tr>
@@ -472,13 +472,13 @@ templ AdminBranchesPage(data AdminBranchesPageData, lang, dir string) {
 	}
 }
 
-// ══════════════════════════════════════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 // 3. DEDICATED USERS & ACCOUNTS MANAGEMENT PAGE
-// ══════════════════════════════════════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 
 templ AdminUsersPage(data AdminUsersPageData, lang, dir string) {
-	@layouts.AdminShell("إدارة المستخدمين والحسابات", "users", lang, dir) {
-		<div style="max-width:1440px; margin:0 auto; padding-bottom:3rem;" x-data="{ showAddStaff: false }">
+	@layouts.AdminShell("Ø¥Ø¯Ø§Ø±Ø© Ø§Ù„Ù…Ø³ØªØ®Ø¯Ù…ÙŠÙ† ÙˆØ§Ù„Ø­Ø³Ø§Ø¨Ø§Øª", "users", lang, dir) {
+		<div class="admin-page-container" x-data="{ showAddStaff: false }">
 			@roleNotice(data.NoticeKind, data.Notice)
 			@adminStaffCreateForm(data)
 			
@@ -491,11 +491,11 @@ templ AdminUsersPage(data AdminUsersPageData, lang, dir string) {
 						</div>
 						<div>
 							<h1 class="text-xl font-black text-primary m-0 d-flex items-center gap-2">
-								<span>إدارة المستخدمين والحسابات المركزية</span>
-								<span class="badge badge-indigo text-xs font-black tabular-nums">{ fmt.Sprintf("%d حساب", data.TotalUsers) }</span>
+								<span>Ø¥Ø¯Ø§Ø±Ø© Ø§Ù„Ù…Ø³ØªØ®Ø¯Ù…ÙŠÙ† ÙˆØ§Ù„Ø­Ø³Ø§Ø¨Ø§Øª Ø§Ù„Ù…Ø±ÙƒØ²ÙŠØ©</span>
+								<span class="badge badge-indigo text-xs font-black tabular-nums">{ fmt.Sprintf("%d Ø­Ø³Ø§Ø¨", data.TotalUsers) }</span>
 							</h1>
 							<p class="text-xs text-secondary m-0 mt-0.5 font-medium">
-								التحكم في حسابات الصيادلة، مدراء وموظفي الموردين، ومشرفي وإدارة المنصة
+								Ø§Ù„ØªØ­ÙƒÙ… ÙÙŠ Ø­Ø³Ø§Ø¨Ø§Øª Ø§Ù„ØµÙŠØ§Ø¯Ù„Ø©ØŒ Ù…Ø¯Ø±Ø§Ø¡ ÙˆÙ…ÙˆØ¸ÙÙŠ Ø§Ù„Ù…ÙˆØ±Ø¯ÙŠÙ†ØŒ ÙˆÙ…Ø´Ø±ÙÙŠ ÙˆØ¥Ø¯Ø§Ø±Ø© Ø§Ù„Ù…Ù†ØµØ©
 							</p>
 						</div>
 					</div>
@@ -504,16 +504,16 @@ templ AdminUsersPage(data AdminUsersPageData, lang, dir string) {
 						if len(data.StaffRoles) > 0 {
 							<button type="button" class="btn btn-primary btn-sm font-black gap-1.5 shadow-sm" @click="showAddStaff = !showAddStaff">
 								@components.IconPlus("icon-xs")
-								<span>مشرف جديد</span>
+								<span>Ù…Ø´Ø±Ù Ø¬Ø¯ÙŠØ¯</span>
 							</button>
 						}
 						<a href="/admin/roles" class="btn btn-secondary btn-sm font-bold gap-1.5 shadow-xs">
 							@components.IconShield("icon-xs")
-							<span>الأدوار والصلاحيات (RBAC)</span>
+							<span>Ø§Ù„Ø£Ø¯ÙˆØ§Ø± ÙˆØ§Ù„ØµÙ„Ø§Ø­ÙŠØ§Øª (RBAC)</span>
 						</a>
 						<a href="/admin/users" class="btn btn-secondary btn-sm font-bold gap-1.5 shadow-xs">
 							@components.IconRefresh("icon-xs")
-							<span>تحديث</span>
+							<span>ØªØ­Ø¯ÙŠØ«</span>
 						</a>
 					</div>
 				</div>
@@ -521,19 +521,19 @@ templ AdminUsersPage(data AdminUsersPageData, lang, dir string) {
 				<!-- Stats KPI Strip -->
 				<div class="d-grid grid-cols-2 md:grid-cols-4 gap-3 mt-4 pt-3.5 border-t border-slate-100">
 					<div class="bg-surface-sunken p-3 rounded-xl border border-slate-200/70">
-						<div class="text-xs text-muted font-bold">إجمالي المستخدمين</div>
+						<div class="text-xs text-muted font-bold">Ø¥Ø¬Ù…Ø§Ù„ÙŠ Ø§Ù„Ù…Ø³ØªØ®Ø¯Ù…ÙŠÙ†</div>
 						<div class="tabular-nums text-lg font-black text-primary mt-0.5">{ fmt.Sprintf("%d", data.TotalUsers) }</div>
 					</div>
 					<div class="bg-surface-sunken p-3 rounded-xl border border-slate-200/70">
-						<div class="text-xs text-muted font-bold">عملاء الصيدليات</div>
+						<div class="text-xs text-muted font-bold">Ø¹Ù…Ù„Ø§Ø¡ Ø§Ù„ØµÙŠØ¯Ù„ÙŠØ§Øª</div>
 						<div class="tabular-nums text-lg font-black text-emerald-600 mt-0.5">{ fmt.Sprintf("%d", data.CustomerUsers) }</div>
 					</div>
 					<div class="bg-surface-sunken p-3 rounded-xl border border-slate-200/70">
-						<div class="text-xs text-muted font-bold">حسابات الموردين</div>
+						<div class="text-xs text-muted font-bold">Ø­Ø³Ø§Ø¨Ø§Øª Ø§Ù„Ù…ÙˆØ±Ø¯ÙŠÙ†</div>
 						<div class="tabular-nums text-lg font-black text-purple-600 mt-0.5">{ fmt.Sprintf("%d", data.VendorUsers) }</div>
 					</div>
 					<div class="bg-surface-sunken p-3 rounded-xl border border-slate-200/70">
-						<div class="text-xs text-muted font-bold">إدارة المنصة (Staff)</div>
+						<div class="text-xs text-muted font-bold">Ø¥Ø¯Ø§Ø±Ø© Ø§Ù„Ù…Ù†ØµØ© (Staff)</div>
 						<div class="tabular-nums text-lg font-black text-brand mt-0.5">{ fmt.Sprintf("%d", data.StaffUsers) }</div>
 					</div>
 				</div>
@@ -547,26 +547,26 @@ templ AdminUsersPage(data AdminUsersPageData, lang, dir string) {
 							type="text"
 							name="q"
 							value={ data.SearchQuery }
-							placeholder="ابحث بالاسم، البريد الإلكتروني، أو رقم الهاتف..."
+							placeholder="Ø§Ø¨Ø­Ø« Ø¨Ø§Ù„Ø§Ø³Ù…ØŒ Ø§Ù„Ø¨Ø±ÙŠØ¯ Ø§Ù„Ø¥Ù„ÙƒØªØ±ÙˆÙ†ÙŠØŒ Ø£Ùˆ Ø±Ù‚Ù… Ø§Ù„Ù‡Ø§ØªÙ..."
 							class="form-input text-xs"
-							style="min-width:280px;"
+							class="min-w-64"
 						/>
 						<select name="role" class="form-select text-xs font-bold w-auto">
-							<option value="">كل الأدوار الوظيفية</option>
-							<option value="customer" selected?={ data.RoleFilter == "customer" }>صيدلي / عميل</option>
-							<option value="vendor" selected?={ data.RoleFilter == "vendor" }>مورد / موظف مورد</option>
-							<option value="staff" selected?={ data.RoleFilter == "staff" }>إدارة ومشرفو المنصة</option>
+							<option value="">ÙƒÙ„ Ø§Ù„Ø£Ø¯ÙˆØ§Ø± Ø§Ù„ÙˆØ¸ÙŠÙÙŠØ©</option>
+							<option value="customer" selected?={ data.RoleFilter == "customer" }>ØµÙŠØ¯Ù„ÙŠ / Ø¹Ù…ÙŠÙ„</option>
+							<option value="vendor" selected?={ data.RoleFilter == "vendor" }>Ù…ÙˆØ±Ø¯ / Ù…ÙˆØ¸Ù Ù…ÙˆØ±Ø¯</option>
+							<option value="staff" selected?={ data.RoleFilter == "staff" }>Ø¥Ø¯Ø§Ø±Ø© ÙˆÙ…Ø´Ø±ÙÙˆ Ø§Ù„Ù…Ù†ØµØ©</option>
 						</select>
 						<select name="status" class="form-select text-xs font-bold w-auto">
-							<option value="">كل الحالات</option>
-							<option value="active" selected?={ data.StatusFilter == "active" }>نشط ومفعل</option>
-							<option value="suspended" selected?={ data.StatusFilter == "suspended" }>موقوف / معلق</option>
+							<option value="">ÙƒÙ„ Ø§Ù„Ø­Ø§Ù„Ø§Øª</option>
+							<option value="active" selected?={ data.StatusFilter == "active" }>Ù†Ø´Ø· ÙˆÙ…ÙØ¹Ù„</option>
+							<option value="suspended" selected?={ data.StatusFilter == "suspended" }>Ù…ÙˆÙ‚ÙˆÙ / Ù…Ø¹Ù„Ù‚</option>
 						</select>
 						<button type="submit" class="btn btn-secondary btn-sm font-black shadow-2xs">
-							تصفية
+							ØªØµÙÙŠØ©
 						</button>
 						if data.SearchQuery != "" || data.RoleFilter != "" || data.StatusFilter != "" {
-							<a href="/admin/users" class="btn btn-secondary btn-sm text-muted font-bold shadow-2xs">إلغاء</a>
+							<a href="/admin/users" class="btn btn-secondary btn-sm text-muted font-bold shadow-2xs">Ø¥Ù„ØºØ§Ø¡</a>
 						}
 					</div>
 				</form>
@@ -575,8 +575,8 @@ templ AdminUsersPage(data AdminUsersPageData, lang, dir string) {
 			<!-- Users Table -->
 			if len(data.Users) == 0 {
 				@components.EmptyState(components.EmptyStateProps{
-					Title:   "لا يوجد مستخدمون",
-					Message: "لم يتم العثور على أي مستخدمين يطابقون معايير الفلترة المحددة.",
+					Title:   "Ù„Ø§ ÙŠÙˆØ¬Ø¯ Ù…Ø³ØªØ®Ø¯Ù…ÙˆÙ†",
+					Message: "Ù„Ù… ÙŠØªÙ… Ø§Ù„Ø¹Ø«ÙˆØ± Ø¹Ù„Ù‰ Ø£ÙŠ Ù…Ø³ØªØ®Ø¯Ù…ÙŠÙ† ÙŠØ·Ø§Ø¨Ù‚ÙˆÙ† Ù…Ø¹Ø§ÙŠÙŠØ± Ø§Ù„ÙÙ„ØªØ±Ø© Ø§Ù„Ù…Ø­Ø¯Ø¯Ø©.",
 				})
 			} else {
 				<div class="glass-panel p-0 border border-slate-200/80 rounded-2xl shadow-xs overflow-hidden">
@@ -584,12 +584,12 @@ templ AdminUsersPage(data AdminUsersPageData, lang, dir string) {
 						<table class="data-table m-0 text-xs w-full">
 							<thead>
 								<tr class="bg-slate-50/80 border-b border-slate-200/70 text-slate-700 font-bold">
-									<th class="py-3 text-start ps-4">المستخدم</th>
-									<th class="py-3 text-start">البريد الإلكتروني ورقم الهاتف</th>
-									<th class="py-3 text-start">الدور الوظيفي والصلاحية</th>
-									<th class="py-3 text-center">تاريخ الانضمام</th>
-									<th class="py-3 text-center">الحالة</th>
-									<th class="text-end py-3 pe-4">الإجراءات</th>
+									<th class="py-3 text-start ps-4">Ø§Ù„Ù…Ø³ØªØ®Ø¯Ù…</th>
+									<th class="py-3 text-start">Ø§Ù„Ø¨Ø±ÙŠØ¯ Ø§Ù„Ø¥Ù„ÙƒØªØ±ÙˆÙ†ÙŠ ÙˆØ±Ù‚Ù… Ø§Ù„Ù‡Ø§ØªÙ</th>
+									<th class="py-3 text-start">Ø§Ù„Ø¯ÙˆØ± Ø§Ù„ÙˆØ¸ÙŠÙÙŠ ÙˆØ§Ù„ØµÙ„Ø§Ø­ÙŠØ©</th>
+									<th class="py-3 text-center">ØªØ§Ø±ÙŠØ® Ø§Ù„Ø§Ù†Ø¶Ù…Ø§Ù…</th>
+									<th class="py-3 text-center">Ø§Ù„Ø­Ø§Ù„Ø©</th>
+									<th class="text-end py-3 pe-4">Ø§Ù„Ø¥Ø¬Ø±Ø§Ø¡Ø§Øª</th>
 								</tr>
 							</thead>
 							<tbody class="divide-y divide-slate-100">
@@ -626,25 +626,25 @@ templ AdminUsersPage(data AdminUsersPageData, lang, dir string) {
 										</td>
 										<td class="text-center py-3">
 											if u.Status == identity.StatusActive {
-												<span class="badge badge-emerald text-xs font-black shadow-2xs">نشط ومفعل</span>
+												<span class="badge badge-emerald text-xs font-black shadow-2xs">Ù†Ø´Ø· ÙˆÙ…ÙØ¹Ù„</span>
 											} else if u.Status == identity.StatusSuspended {
-												<span class="badge badge-rose text-xs font-black shadow-2xs">موقوف / معلق</span>
+												<span class="badge badge-rose text-xs font-black shadow-2xs">Ù…ÙˆÙ‚ÙˆÙ / Ù…Ø¹Ù„Ù‚</span>
 											} else {
-												<span class="badge badge-amber text-xs font-black shadow-2xs">قيد المراجعة</span>
+												<span class="badge badge-amber text-xs font-black shadow-2xs">Ù‚ÙŠØ¯ Ø§Ù„Ù…Ø±Ø§Ø¬Ø¹Ø©</span>
 											}
 										</td>
 										<td class="text-end py-3 pe-4">
 											<div class="d-inline-flex gap-1.5 justify-end items-center">
 												if u.Status == identity.StatusActive {
-													<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/users/%d/suspend", u.ID)) } class="m-0" onsubmit="return confirm('هل أنت متأكد من رغبتك في تعليق هذا الحساب؟');">
+													<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/users/%d/suspend", u.ID)) } class="m-0" onsubmit="return confirm('Ù‡Ù„ Ø£Ù†Øª Ù…ØªØ£ÙƒØ¯ Ù…Ù† Ø±ØºØ¨ØªÙƒ ÙÙŠ ØªØ¹Ù„ÙŠÙ‚ Ù‡Ø°Ø§ Ø§Ù„Ø­Ø³Ø§Ø¨ØŸ');">
 														<button type="submit" class="btn btn-secondary btn-xs font-bold text-rose-600 shadow-2xs">
-															تعليق
+															ØªØ¹Ù„ÙŠÙ‚
 														</button>
 													</form>
 												} else {
 													<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/users/%d/reactivate", u.ID)) } class="m-0">
 														<button type="submit" class="btn btn-primary btn-xs font-bold shadow-2xs">
-															تفعيل
+															ØªÙØ¹ÙŠÙ„
 														</button>
 													</form>
 												}
@@ -663,19 +663,19 @@ templ AdminUsersPage(data AdminUsersPageData, lang, dir string) {
 	}
 }
 
-// ══════════════════════════════════════════════════════════════════════════
-// 4. DEEP 360° ORGANIZATION PROFILE OVERHAUL (/admin/organizations/{id})
-// ══════════════════════════════════════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// 4. DEEP 360Â° ORGANIZATION PROFILE OVERHAUL (/admin/organizations/{id})
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 
 templ AdminOrganizationDetailPage(data AdminOrgDetailData, lang, dir string) {
-	@layouts.AdminShell(fmt.Sprintf("ملف المنشأة: %s", data.Organization.LegalName), "organizations", lang, dir) {
-		<div style="max-width:1440px; margin:0 auto; padding-bottom:3rem;">
+	@layouts.AdminShell(fmt.Sprintf("Ù…Ù„Ù Ø§Ù„Ù…Ù†Ø´Ø£Ø©: %s", data.Organization.LegalName), "organizations", lang, dir) {
+		<div class="admin-page-container">
 			
 			<!-- Executive Header Card -->
-			<div style="background:var(--surface-raised); border:1px solid var(--border); border-radius:18px; padding:1.5rem; margin-bottom:1.25rem; box-shadow:var(--shadow-sm);">
-				<div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:1.25rem;">
-					<div style="display:flex; align-items:center; gap:1rem;">
-						<div style="width:58px; height:58px; border-radius:16px; background:var(--surface-sunken); border:2px solid var(--border); display:flex; align-items:center; justify-content:center; font-weight:900; font-size:1.5rem; color:var(--accent);">
+			<div class="admin-banner">
+				<div class="flex-between items-start flex-wrap gap-4">
+					<div class="d-flex items-center gap-3">
+						<div class="w-14 h-14 rounded-2xl bg-surface-sunken border flex-center font-black text-2xl text-brand">
 							if len(data.Organization.LegalName) > 0 {
 								{ string([]rune(data.Organization.LegalName)[0]) }
 							} else {
@@ -683,30 +683,30 @@ templ AdminOrganizationDetailPage(data AdminOrgDetailData, lang, dir string) {
 							}
 						</div>
 						<div>
-							<div style="display:flex; align-items:center; gap:0.6rem; flex-wrap:wrap;">
-								<h1 style="font-size:1.4rem; font-weight:900; color:var(--text); margin:0;">
+							<div class="d-flex items-center gap-2 flex-wrap">
+								<h1 class="text-xl font-black text-primary m-0">
 									{ data.Organization.LegalName }
 								</h1>
 								if string(data.Organization.Type) == "vendor" {
-									<span class="badge badge-purple text-xs fw-800" style="padding:0.3rem 0.75rem; border-radius:6px;">مورد أدوية معتمد</span>
+									<span class="badge badge-purple text-xs fw-800" class="px-3 py-1 rounded-md">Ù…ÙˆØ±Ø¯ Ø£Ø¯ÙˆÙŠØ© Ù…Ø¹ØªÙ…Ø¯</span>
 								} else {
-									<span class="badge badge-emerald text-xs fw-800" style="padding:0.3rem 0.75rem; border-radius:6px;">صيدلية معتمدة</span>
+									<span class="badge badge-emerald text-xs fw-800" class="px-3 py-1 rounded-md">ØµÙŠØ¯Ù„ÙŠØ© Ù…Ø¹ØªÙ…Ø¯Ø©</span>
 								}
 								<span class="tabular-nums text-xs text-muted font-bold">#{ fmt.Sprintf("ORG-%d", data.Organization.ID) }</span>
 							</div>
 							if data.Organization.TradeName["ar"] != "" && data.Organization.TradeName["ar"] != data.Organization.LegalName {
-								<div style="font-size:0.85rem; color:var(--text-secondary); margin-top:2px;">
-									الاسم التجاري: <strong class="text-body">{ data.Organization.TradeName["ar"] }</strong>
+								<div class="text-sm text-secondary mt-0.5">
+									Ø§Ù„Ø§Ø³Ù… Ø§Ù„ØªØ¬Ø§Ø±ÙŠ: <strong class="text-body">{ data.Organization.TradeName["ar"] }</strong>
 								</div>
 							}
-							<div style="display:flex; align-items:center; gap:1rem; margin-top:0.4rem; font-size:0.8rem; color:var(--text-muted); flex-wrap:wrap;">
-								<span>تاريخ التسجيل: <strong class="tabular-nums text-secondary">{ data.Organization.CreatedAt.Format("2006-01-02 15:04") }</strong></span>
+							<div class="d-flex items-center gap-3 mt-1 text-xs text-muted flex-wrap">
+								<span>ØªØ§Ø±ÙŠØ® Ø§Ù„ØªØ³Ø¬ÙŠÙ„: <strong class="tabular-nums text-secondary">{ data.Organization.CreatedAt.Format("2006-01-02 15:04") }</strong></span>
 								if string(data.Organization.Status) == "approved" {
-									<span class="badge badge-emerald text-xs fw-800">معتمد ومفعل في المنظومة</span>
+									<span class="badge badge-emerald text-xs fw-800">Ù…Ø¹ØªÙ…Ø¯ ÙˆÙ…ÙØ¹Ù„ ÙÙŠ Ø§Ù„Ù…Ù†Ø¸ÙˆÙ…Ø©</span>
 								} else if string(data.Organization.Status) == "pending" {
-									<span class="badge badge-amber text-xs fw-800">⏳ قيد المراجعة والتدقيق</span>
+									<span class="badge badge-amber text-xs fw-800">â³ Ù‚ÙŠØ¯ Ø§Ù„Ù…Ø±Ø§Ø¬Ø¹Ø© ÙˆØ§Ù„ØªØ¯Ù‚ÙŠÙ‚</span>
 								} else if string(data.Organization.Status) == "rejected" {
-									<span class="badge badge-danger text-xs fw-800">مرفوض</span>
+									<span class="badge badge-danger text-xs fw-800">Ù…Ø±ÙÙˆØ¶</span>
 								}
 							</div>
 						</div>
@@ -715,146 +715,146 @@ templ AdminOrganizationDetailPage(data AdminOrgDetailData, lang, dir string) {
 					<!-- Header Actions Bar -->
 					<div class="inline-row-wrap">
 						if string(data.Organization.Status) == "pending" {
-							<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/organizations/%d/approve", data.Organization.ID)) } class="m-0" onsubmit="return confirm('تأكيد اعتماد هذه المنشأة وتفعيل حسابها بالكامل؟');">
-								<button type="submit" class="btn btn-xs fw-800" style="background:#059669; color:#ffffff !important; border:1px solid #10b981; padding:0.45rem 1rem; border-radius:8px; font-size:0.85rem;">
+							<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/organizations/%d/approve", data.Organization.ID)) } class="m-0" onsubmit="return confirm('ØªØ£ÙƒÙŠØ¯ Ø§Ø¹ØªÙ…Ø§Ø¯ Ù‡Ø°Ù‡ Ø§Ù„Ù…Ù†Ø´Ø£Ø© ÙˆØªÙØ¹ÙŠÙ„ Ø­Ø³Ø§Ø¨Ù‡Ø§ Ø¨Ø§Ù„ÙƒØ§Ù…Ù„ØŸ');">
+								<button type="submit" class="btn btn-xs fw-800" class="btn-success text-sm rounded-md px-4 py-2">
 									@components.IconCheck("icon-xs")
-									<span style="color:#ffffff !important;">اعتماد المنشأة فوراً </span>
+									<span >Ø§Ø¹ØªÙ…Ø§Ø¯ Ø§Ù„Ù…Ù†Ø´Ø£Ø© ÙÙˆØ±Ø§Ù‹ </span>
 								</button>
 							</form>
-							<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/organizations/%d/reject", data.Organization.ID)) } class="m-0" onsubmit="return confirm('تأكيد رفض هذه المنشأة؟');">
-								<button type="submit" class="btn btn-xs fw-800" style="background:#dc2626; color:#ffffff !important; border:1px solid #ef4444; padding:0.45rem 1rem; border-radius:8px; font-size:0.85rem;">
+							<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/organizations/%d/reject", data.Organization.ID)) } class="m-0" onsubmit="return confirm('ØªØ£ÙƒÙŠØ¯ Ø±ÙØ¶ Ù‡Ø°Ù‡ Ø§Ù„Ù…Ù†Ø´Ø£Ø©ØŸ');">
+								<button type="submit" class="btn btn-xs fw-800" class="btn-danger text-sm rounded-md px-4 py-2">
 									@components.IconClose("icon-xs")
-									<span style="color:#ffffff !important;">رفض المنشأة </span>
+									<span >Ø±ÙØ¶ Ø§Ù„Ù…Ù†Ø´Ø£Ø© </span>
 								</button>
 							</form>
 						} else if string(data.Organization.Status) == "approved" {
-							<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/organizations/%d/suspend", data.Organization.ID)) } class="m-0" onsubmit="return confirm('تأكيد تعليق هذه المنشأة؟');">
+							<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/organizations/%d/suspend", data.Organization.ID)) } class="m-0" onsubmit="return confirm('ØªØ£ÙƒÙŠØ¯ ØªØ¹Ù„ÙŠÙ‚ Ù‡Ø°Ù‡ Ø§Ù„Ù…Ù†Ø´Ø£Ø©ØŸ');">
 								<button type="submit" class="btn btn-secondary btn-sm fw-800 text-danger rounded-md">
-									تعليق المنشأة
+									ØªØ¹Ù„ÙŠÙ‚ Ø§Ù„Ù…Ù†Ø´Ø£Ø©
 								</button>
 							</form>
 						}
 
-						<a href="/admin/organizations" class="btn btn-secondary btn-sm fw-800" style="gap:0.3rem; border-radius:8px;">
+						<a href="/admin/organizations" class="btn btn-secondary btn-sm fw-800" class="gap-1 rounded-md">
 							@components.IconArrowRight("icon-xs")
-							<span>العودة للمنشآت</span>
+							<span>Ø§Ù„Ø¹ÙˆØ¯Ø© Ù„Ù„Ù…Ù†Ø´Ø¢Øª</span>
 						</a>
 					</div>
 				</div>
 
 				<!-- 4 High-Impact Stat Tiles -->
-				<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:0.75rem; margin-top:1.5rem; border-top:1px solid var(--border); padding-top:1.25rem;">
-					<div style="background:var(--surface-sunken); padding:0.85rem 1.1rem; border-radius:12px; border:1px solid var(--border);">
-						<div class="label-strong">الفروع ومواقع التخزين</div>
-						<div class="tabular-nums" style="font-size:1.4rem; font-weight:900; color:var(--accent); margin-top:2px;">
-							{ fmt.Sprintf("%d", len(data.Branches)) } <span style="font-size:0.75rem; color:var(--text-muted); font-weight:600;">فرع ومخزن</span>
+				<div class="d-grid gap-3 mt-4 pt-3 border-t grid-auto-fit-sm">
+					<div class="bg-surface-sunken p-3 rounded-xl border">
+						<div class="label-strong">Ø§Ù„ÙØ±ÙˆØ¹ ÙˆÙ…ÙˆØ§Ù‚Ø¹ Ø§Ù„ØªØ®Ø²ÙŠÙ†</div>
+						<div class="tabular-nums" class="text-xl font-black text-brand mt-0.5 tabular-nums">
+							{ fmt.Sprintf("%d", len(data.Branches)) } <span class="text-xs text-muted font-semibold">ÙØ±Ø¹ ÙˆÙ…Ø®Ø²Ù†</span>
 						</div>
 					</div>
 
-					<div style="background:var(--surface-sunken); padding:0.85rem 1.1rem; border-radius:12px; border:1px solid var(--border);">
-						<div class="label-strong">فريق العمل والموظفون</div>
-						<div class="tabular-nums" style="font-size:1.4rem; font-weight:900; color:#a855f7; margin-top:2px;">
-							{ fmt.Sprintf("%d", len(data.Employees)) } <span style="font-size:0.75rem; color:var(--text-muted); font-weight:600;">عضو مسجل</span>
+					<div class="bg-surface-sunken p-3 rounded-xl border">
+						<div class="label-strong">ÙØ±ÙŠÙ‚ Ø§Ù„Ø¹Ù…Ù„ ÙˆØ§Ù„Ù…ÙˆØ¸ÙÙˆÙ†</div>
+						<div class="tabular-nums" class="text-xl font-black text-purple mt-0.5 tabular-nums">
+							{ fmt.Sprintf("%d", len(data.Employees)) } <span class="text-xs text-muted font-semibold">Ø¹Ø¶Ùˆ Ù…Ø³Ø¬Ù„</span>
 						</div>
 					</div>
 
-					<div style="background:var(--surface-sunken); padding:0.85rem 1.1rem; border-radius:12px; border:1px solid var(--border);">
-						<div class="label-strong">رصيد المحفظة المالية</div>
-						<div class="tabular-nums" style="font-size:1.4rem; font-weight:900; color:#10b981; margin-top:2px;">
+					<div class="bg-surface-sunken p-3 rounded-xl border">
+						<div class="label-strong">Ø±ØµÙŠØ¯ Ø§Ù„Ù…Ø­ÙØ¸Ø© Ø§Ù„Ù…Ø§Ù„ÙŠØ©</div>
+						<div class="tabular-nums" class="text-xl font-black text-success mt-0.5 tabular-nums">
 							if data.Wallet != nil {
-								{ data.Wallet.Balance.String() } ج.م
+								{ data.Wallet.Balance.String() } Ø¬.Ù…
 							} else {
-								<span>0.00 ج.م</span>
+								<span>0.00 Ø¬.Ù…</span>
 							}
 						</div>
 					</div>
 
-					<div style="background:var(--surface-sunken); padding:0.85rem 1.1rem; border-radius:12px; border:1px solid var(--border);">
-						<div class="label-strong">أوامر التوريد والعمليات</div>
-						<div class="tabular-nums" style="font-size:1.4rem; font-weight:900; color:var(--text); margin-top:2px;">
-							{ fmt.Sprintf("%d", data.OrdersCount) } <span style="font-size:0.75rem; color:var(--text-muted); font-weight:600;">طلب توريد</span>
+					<div class="bg-surface-sunken p-3 rounded-xl border">
+						<div class="label-strong">Ø£ÙˆØ§Ù…Ø± Ø§Ù„ØªÙˆØ±ÙŠØ¯ ÙˆØ§Ù„Ø¹Ù…Ù„ÙŠØ§Øª</div>
+						<div class="tabular-nums" class="text-xl font-black text-primary mt-0.5 tabular-nums">
+							{ fmt.Sprintf("%d", data.OrdersCount) } <span class="text-xs text-muted font-semibold">Ø·Ù„Ø¨ ØªÙˆØ±ÙŠØ¯</span>
 						</div>
 					</div>
 				</div>
 			</div>
 
 			<!-- Main 2-Column Overview Grid -->
-			<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(440px, 1fr)); gap:1.25rem; margin-bottom:1.25rem; align-items:start;">
+			<div class="d-grid gap-4 items-start mb-4 grid-auto-fit-lg">
 				
 				<!-- Card 1: Legal & Registration Profile -->
-				<div style="background:var(--surface-raised); border:1px solid var(--border); border-radius:18px; padding:1.25rem 1.5rem; box-shadow:var(--shadow-sm);">
-					<div style="display:flex; justify-content:space-between; align-items:center; padding-bottom:0.75rem; border-bottom:1px solid var(--border); margin-bottom:1rem;">
-						<h3 style="font-size:1.05rem; font-weight:800; color:var(--text); margin:0; display:flex; align-items:center; gap:0.4rem;">
+				<div class="admin-banner">
+					<div class="flex-between pb-3 border-b mb-3">
+						<h3 class="text-base font-bold text-primary m-0 d-flex items-center gap-1.5">
 							<span>@components.IconFileText("icon-sm")</span>
-							<span>البيانات القانونية والتراخيص الرسمية</span>
+							<span>Ø§Ù„Ø¨ÙŠØ§Ù†Ø§Øª Ø§Ù„Ù‚Ø§Ù†ÙˆÙ†ÙŠØ© ÙˆØ§Ù„ØªØ±Ø§Ø®ÙŠØµ Ø§Ù„Ø±Ø³Ù…ÙŠØ©</span>
 						</h3>
 					</div>
 
-					<div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem; font-size:0.85rem;">
+					<div class="d-grid grid-cols-2 gap-4 text-sm">
 						<div>
-							<div class="label-strong">الاسم القانوني المسجل</div>
-							<div style="font-weight:800; color:var(--text); margin-top:3px;">{ data.Organization.LegalName }</div>
+							<div class="label-strong">Ø§Ù„Ø§Ø³Ù… Ø§Ù„Ù‚Ø§Ù†ÙˆÙ†ÙŠ Ø§Ù„Ù…Ø³Ø¬Ù„</div>
+							<div class="font-bold text-primary mt-1">{ data.Organization.LegalName }</div>
 						</div>
 
 						<div>
-							<div class="label-strong">نوع النشاط</div>
-							<div style="margin-top:3px;">
+							<div class="label-strong">Ù†ÙˆØ¹ Ø§Ù„Ù†Ø´Ø§Ø·</div>
+							<div class="mt-1">
 								if string(data.Organization.Type) == "vendor" {
-									<span class="badge badge-purple text-xs fw-800">مورد ومستودع أدوية</span>
+									<span class="badge badge-purple text-xs fw-800">Ù…ÙˆØ±Ø¯ ÙˆÙ…Ø³ØªÙˆØ¯Ø¹ Ø£Ø¯ÙˆÙŠØ©</span>
 								} else {
-									<span class="badge badge-emerald text-xs fw-800">صيدلية مرخصة</span>
+									<span class="badge badge-emerald text-xs fw-800">ØµÙŠØ¯Ù„ÙŠØ© Ù…Ø±Ø®ØµØ©</span>
 								}
 							</div>
 						</div>
 
-						<div style="background:var(--surface-sunken); padding:0.6rem 0.75rem; border-radius:8px; border:1px solid var(--border);">
-							<div class="label-strong">رقم السجل التجاري (CR)</div>
-							<div class="tabular-nums" style="font-weight:900; color:var(--text); font-size:1rem; margin-top:2px;">
+						<div class="bg-surface-sunken p-2.5 rounded-md border">
+							<div class="label-strong">Ø±Ù‚Ù… Ø§Ù„Ø³Ø¬Ù„ Ø§Ù„ØªØ¬Ø§Ø±ÙŠ (CR)</div>
+							<div class="tabular-nums" class="font-black text-primary text-base mt-0.5 tabular-nums">
 								if data.Organization.CommercialRegister != "" {
 									{ data.Organization.CommercialRegister }
 								} else {
-									<span class="text-muted text-xs">غير مسجل</span>
+									<span class="text-muted text-xs">ØºÙŠØ± Ù…Ø³Ø¬Ù„</span>
 								}
 							</div>
 						</div>
 
-						<div style="background:var(--surface-sunken); padding:0.6rem 0.75rem; border-radius:8px; border:1px solid var(--border);">
-							<div class="label-strong">الرقم الضريبي (Tax ID)</div>
-							<div class="tabular-nums" style="font-weight:900; color:var(--text); font-size:1rem; margin-top:2px;">
+						<div class="bg-surface-sunken p-2.5 rounded-md border">
+							<div class="label-strong">Ø§Ù„Ø±Ù‚Ù… Ø§Ù„Ø¶Ø±ÙŠØ¨ÙŠ (Tax ID)</div>
+							<div class="tabular-nums" class="font-black text-primary text-base mt-0.5 tabular-nums">
 								if data.Organization.TaxNumber != "" {
 									{ data.Organization.TaxNumber }
 								} else {
-									<span class="text-muted text-xs">غير مسجل</span>
+									<span class="text-muted text-xs">ØºÙŠØ± Ù…Ø³Ø¬Ù„</span>
 								}
 							</div>
 						</div>
 
-						<div style="grid-column:span 2; background:var(--surface-sunken); padding:0.6rem 0.75rem; border-radius:8px; border:1px solid var(--border);">
-							<div class="label-strong">رقم ترخيص الصيدلي / المنشأة</div>
-							<div class="tabular-nums" style="font-weight:900; color:var(--accent); font-size:1.05rem; margin-top:2px;">
+						<div class="col-span-2 bg-surface-sunken p-2.5 rounded-md border">
+							<div class="label-strong">Ø±Ù‚Ù… ØªØ±Ø®ÙŠØµ Ø§Ù„ØµÙŠØ¯Ù„ÙŠ / Ø§Ù„Ù…Ù†Ø´Ø£Ø©</div>
+							<div class="tabular-nums" class="font-black text-brand text-base mt-0.5 tabular-nums">
 								if data.Organization.PharmacistLicense != "" {
 									{ data.Organization.PharmacistLicense }
 								} else {
-									<span class="text-muted text-xs">غير مسجل</span>
+									<span class="text-muted text-xs">ØºÙŠØ± Ù…Ø³Ø¬Ù„</span>
 								}
 							</div>
 						</div>
 					</div>
 
 					<!-- AI Gateway Credentials Box -->
-					<div style="margin-top:1rem; padding-top:1rem; border-top:1px solid var(--border);">
-						<div style="font-size:0.75rem; font-weight:800; color:var(--text-secondary); margin-bottom:0.4rem;">إعدادات بوابة الذكاء الاصطناعي (AI Gateway):</div>
-						<div style="background:var(--surface-sunken); border:1px solid var(--border); border-radius:10px; padding:0.6rem 0.85rem; font-size:0.78rem; display:flex; flex-direction:column; gap:0.3rem;">
-							<div style="display:flex; justify-content:space-between;">
-								<span class="text-muted">معرف الـ AI User:</span>
+					<div class="mt-3 pt-3 border-t">
+						<div class="text-xs font-bold text-secondary mb-1.5">Ø¥Ø¹Ø¯Ø§Ø¯Ø§Øª Ø¨ÙˆØ§Ø¨Ø© Ø§Ù„Ø°ÙƒØ§Ø¡ Ø§Ù„Ø§ØµØ·Ù†Ø§Ø¹ÙŠ (AI Gateway):</div>
+						<div class="bg-surface-sunken border rounded-lg p-2.5 text-xs d-flex flex-col gap-1">
+							<div class="flex-between">
+								<span class="text-muted">Ù…Ø¹Ø±Ù Ø§Ù„Ù€ AI User:</span>
 								<strong class="tabular-nums" dir="ltr">{ data.AIUserID }</strong>
 							</div>
-							<div style="display:flex; justify-content:space-between;">
-								<span class="text-muted">حالة المفتاح الافتراضي:</span>
+							<div class="flex-between">
+								<span class="text-muted">Ø­Ø§Ù„Ø© Ø§Ù„Ù…ÙØªØ§Ø­ Ø§Ù„Ø§ÙØªØ±Ø§Ø¶ÙŠ:</span>
 								if data.AIVirtualKey != "" {
-									<span style="color:#10b981; font-weight:800;">مفعل ومربوط </span>
+									<span class="text-success font-bold">Ù…ÙØ¹Ù„ ÙˆÙ…Ø±Ø¨ÙˆØ· </span>
 								} else {
-									<span style="color:#f59e0b; font-weight:800;">جاهز للتوليد</span>
+									<span class="text-warning font-bold">Ø¬Ø§Ù‡Ø² Ù„Ù„ØªÙˆÙ„ÙŠØ¯</span>
 								}
 							</div>
 						</div>
@@ -862,46 +862,46 @@ templ AdminOrganizationDetailPage(data AdminOrgDetailData, lang, dir string) {
 				</div>
 
 				<!-- Card 2: Uploaded Compliance Documents -->
-				<div style="background:var(--surface-raised); border:1px solid var(--border); border-radius:18px; padding:1.25rem 1.5rem; box-shadow:var(--shadow-sm);">
-					<div style="display:flex; justify-content:space-between; align-items:center; padding-bottom:0.75rem; border-bottom:1px solid var(--border); margin-bottom:1rem;">
-						<h3 style="font-size:1.05rem; font-weight:800; color:var(--text); margin:0; display:flex; align-items:center; gap:0.4rem;">
+				<div class="admin-banner">
+					<div class="flex-between pb-3 border-b mb-3">
+						<h3 class="text-base font-bold text-primary m-0 d-flex items-center gap-1.5">
 							<span>@components.IconFileText("icon-sm")</span>
-							<span>المستندات والتراخيص المرفوعة</span>
-							<span class="badge badge-sky text-xs fw-800 tabular-nums">{ fmt.Sprintf("%d مستند", len(data.Documents)) }</span>
+							<span>Ø§Ù„Ù…Ø³ØªÙ†Ø¯Ø§Øª ÙˆØ§Ù„ØªØ±Ø§Ø®ÙŠØµ Ø§Ù„Ù…Ø±ÙÙˆØ¹Ø©</span>
+							<span class="badge badge-sky text-xs fw-800 tabular-nums">{ fmt.Sprintf("%d Ù…Ø³ØªÙ†Ø¯", len(data.Documents)) }</span>
 						</h3>
 						<a href="/admin/approvals?tab=documents" class="btn btn-secondary btn-xs fw-800">
-							مركز المستندات
+							Ù…Ø±ÙƒØ² Ø§Ù„Ù…Ø³ØªÙ†Ø¯Ø§Øª
 						</a>
 					</div>
 
 					if len(data.Documents) == 0 {
-						<div style="padding:2rem 1rem; text-align:center; background:var(--surface-sunken); border:1px dashed var(--border); border-radius:12px; font-size:0.82rem; color:var(--text-muted);">
-							لم يتم رفع أي مستندات أو وثائق تراخيص لهذه المنشأة حتى الآن.
+						<div class="p-6 text-center bg-surface-sunken border border-dashed rounded-xl text-xs text-muted">
+							Ù„Ù… ÙŠØªÙ… Ø±ÙØ¹ Ø£ÙŠ Ù…Ø³ØªÙ†Ø¯Ø§Øª Ø£Ùˆ ÙˆØ«Ø§Ø¦Ù‚ ØªØ±Ø§Ø®ÙŠØµ Ù„Ù‡Ø°Ù‡ Ø§Ù„Ù…Ù†Ø´Ø£Ø© Ø­ØªÙ‰ Ø§Ù„Ø¢Ù†.
 						</div>
 					} else {
-						<div style="display:flex; flex-direction:column; gap:0.6rem;">
+						<div class="d-flex flex-col gap-2">
 							for _, doc := range data.Documents {
-								<div style="background:var(--surface-sunken); border:1px solid var(--border); border-radius:12px; padding:0.75rem 1rem; display:flex; justify-content:space-between; align-items:center; gap:0.75rem;">
+								<div class="bg-surface-sunken border rounded-xl p-3 flex-between gap-3">
 									<div class="inline-row-06">
-										<div style="width:34px; height:34px; border-radius:8px; background:var(--surface-raised); border:1px solid var(--border); display:flex; align-items:center; justify-content:center; color:var(--accent);">
+										<div class="w-8 h-8 rounded-md bg-surface-raised border flex-center text-brand">
 											@components.IconFile("icon-xs")
 										</div>
 										<div>
-											<div style="font-weight:800; font-size:0.85rem; color:var(--text);">{ doc.Title }</div>
-											<div class="text-xs text-muted tabular-nums">{ string(doc.DocumentType) } • { doc.CreatedAt.Format("2006-01-02") }</div>
+											<div class="font-bold text-xs text-primary">{ doc.Title }</div>
+											<div class="text-xs text-muted tabular-nums">{ string(doc.DocumentType) } â€¢ { doc.CreatedAt.Format("2006-01-02") }</div>
 										</div>
 									</div>
 									<div class="inline-row-04">
 										if doc.Status == "verified" {
-											<span class="badge badge-emerald text-xs fw-800">معتمد </span>
+											<span class="badge badge-emerald text-xs fw-800">Ù…Ø¹ØªÙ…Ø¯ </span>
 										} else if doc.Status == "rejected" {
-											<span class="badge badge-danger text-xs fw-800">مرفوض</span>
+											<span class="badge badge-danger text-xs fw-800">Ù…Ø±ÙÙˆØ¶</span>
 										} else {
-											<span class="badge badge-amber text-xs fw-800">قيد المراجعة</span>
+											<span class="badge badge-amber text-xs fw-800">Ù‚ÙŠØ¯ Ø§Ù„Ù…Ø±Ø§Ø¬Ø¹Ø©</span>
 										}
 										if doc.FileURL != "" {
-											<a href={ templ.SafeURL(doc.FileURL) } target="_blank" class="btn btn-secondary btn-xs fw-800" style="padding:0.25rem 0.6rem;">
-												معاينة 
+											<a href={ templ.SafeURL(doc.FileURL) } target="_blank" class="btn btn-secondary btn-xs fw-800" class="px-2 py-1 rounded-md">
+												Ù…Ø¹Ø§ÙŠÙ†Ø© 
 											</a>
 										}
 									</div>
@@ -914,37 +914,37 @@ templ AdminOrganizationDetailPage(data AdminOrgDetailData, lang, dir string) {
 			</div>
 
 			<!-- Lower Grid: Branches & Team -->
-			<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(440px, 1fr)); gap:1.25rem; margin-bottom:1.25rem; align-items:start;">
+			<div class="d-grid gap-4 items-start mb-4 grid-auto-fit-lg">
 				
 				<!-- Branches Table Card -->
-				<div style="background:var(--surface-raised); border:1px solid var(--border); border-radius:18px; padding:1.25rem 1.5rem; box-shadow:var(--shadow-sm);">
-					<div style="display:flex; justify-content:space-between; align-items:center; padding-bottom:0.75rem; border-bottom:1px solid var(--border); margin-bottom:1rem;">
-						<h3 style="font-size:1.05rem; font-weight:800; color:var(--text); margin:0; display:flex; align-items:center; gap:0.4rem;">
+				<div class="admin-banner">
+					<div class="flex-between pb-3 border-b mb-3">
+						<h3 class="text-base font-bold text-primary m-0 d-flex items-center gap-1.5">
 							<span>@components.IconMapPin("icon-sm")</span>
-							<span>الفروع والمستودعات التابعة</span>
+							<span>Ø§Ù„ÙØ±ÙˆØ¹ ÙˆØ§Ù„Ù…Ø³ØªÙˆØ¯Ø¹Ø§Øª Ø§Ù„ØªØ§Ø¨Ø¹Ø©</span>
 							<span class="badge badge-sky text-xs fw-800 tabular-nums">{ fmt.Sprintf("%d", len(data.Branches)) }</span>
 						</h3>
 					</div>
 
 					if len(data.Branches) == 0 {
-						<div style="padding:2rem 1rem; text-align:center; background:var(--surface-sunken); border:1px dashed var(--border); border-radius:12px; font-size:0.82rem; color:var(--text-muted);">
-							لا توجد فروع أو مخازن مسجلة تابعة لهذه المنشأة.
+						<div class="p-6 text-center bg-surface-sunken border border-dashed rounded-xl text-xs text-muted">
+							Ù„Ø§ ØªÙˆØ¬Ø¯ ÙØ±ÙˆØ¹ Ø£Ùˆ Ù…Ø®Ø§Ø²Ù† Ù…Ø³Ø¬Ù„Ø© ØªØ§Ø¨Ø¹Ø© Ù„Ù‡Ø°Ù‡ Ø§Ù„Ù…Ù†Ø´Ø£Ø©.
 						</div>
 					} else {
-						<div style="border:1px solid var(--border); border-radius:12px; overflow:hidden; background:var(--surface-sunken);">
-							<table class="data-table" style="font-size:0.8rem">
+						<div class="border rounded-xl overflow-hidden bg-surface-sunken">
+							<table class="data-table data-table-responsive" class="text-xs">
 								<thead>
-									<tr style="background:var(--surface-raised);">
-										<th>اسم الفرع</th>
-										<th>الكود</th>
-										<th>العنوان</th>
-										<th>الحالة</th>
+									<tr class="bg-surface-raised">
+										<th>Ø§Ø³Ù… Ø§Ù„ÙØ±Ø¹</th>
+										<th>Ø§Ù„ÙƒÙˆØ¯</th>
+										<th>Ø§Ù„Ø¹Ù†ÙˆØ§Ù†</th>
+										<th>Ø§Ù„Ø­Ø§Ù„Ø©</th>
 									</tr>
 								</thead>
 								<tbody>
 									for _, b := range data.Branches {
 										<tr class="rule-bottom">
-											<td style="font-weight:800; color:var(--text);">
+											<td class="font-bold text-primary">
 												if b.Name["ar"] != "" {
 													{ b.Name["ar"] }
 												} else {
@@ -955,9 +955,9 @@ templ AdminOrganizationDetailPage(data AdminOrgDetailData, lang, dir string) {
 											<td>{ b.Address }</td>
 											<td>
 												if b.Status == "active" || b.Status == "" {
-													<span class="badge badge-emerald text-xs fw-800">نشط</span>
+													<span class="badge badge-emerald text-xs fw-800">Ù†Ø´Ø·</span>
 												} else {
-													<span class="badge badge-danger text-xs fw-800">معطل</span>
+													<span class="badge badge-danger text-xs fw-800">Ù…Ø¹Ø·Ù„</span>
 												}
 											</td>
 										</tr>
@@ -969,41 +969,41 @@ templ AdminOrganizationDetailPage(data AdminOrgDetailData, lang, dir string) {
 				</div>
 
 				<!-- Team Members Table Card -->
-				<div style="background:var(--surface-raised); border:1px solid var(--border); border-radius:18px; padding:1.25rem 1.5rem; box-shadow:var(--shadow-sm);">
-					<div style="display:flex; justify-content:space-between; align-items:center; padding-bottom:0.75rem; border-bottom:1px solid var(--border); margin-bottom:1rem;">
-						<h3 style="font-size:1.05rem; font-weight:800; color:var(--text); margin:0; display:flex; align-items:center; gap:0.4rem;">
+				<div class="admin-banner">
+					<div class="flex-between pb-3 border-b mb-3">
+						<h3 class="text-base font-bold text-primary m-0 d-flex items-center gap-1.5">
 							<span>@components.IconUsers("icon-sm")</span>
-							<span>فريق العمل والمستخدمون المرتبطون</span>
+							<span>ÙØ±ÙŠÙ‚ Ø§Ù„Ø¹Ù…Ù„ ÙˆØ§Ù„Ù…Ø³ØªØ®Ø¯Ù…ÙˆÙ† Ø§Ù„Ù…Ø±ØªØ¨Ø·ÙˆÙ†</span>
 							<span class="badge badge-indigo text-xs fw-800 tabular-nums">{ fmt.Sprintf("%d", len(data.Employees)) }</span>
 						</h3>
 					</div>
 
 					if len(data.Employees) == 0 {
-						<div style="padding:2rem 1rem; text-align:center; background:var(--surface-sunken); border:1px dashed var(--border); border-radius:12px; font-size:0.82rem; color:var(--text-muted);">
-							لم يتم إضافة أي موظفين أو مستخدمين تابعين لهذه المنشأة.
+						<div class="p-6 text-center bg-surface-sunken border border-dashed rounded-xl text-xs text-muted">
+							Ù„Ù… ÙŠØªÙ… Ø¥Ø¶Ø§ÙØ© Ø£ÙŠ Ù…ÙˆØ¸ÙÙŠÙ† Ø£Ùˆ Ù…Ø³ØªØ®Ø¯Ù…ÙŠÙ† ØªØ§Ø¨Ø¹ÙŠÙ† Ù„Ù‡Ø°Ù‡ Ø§Ù„Ù…Ù†Ø´Ø£Ø©.
 						</div>
 					} else {
-						<div style="border:1px solid var(--border); border-radius:12px; overflow:hidden; background:var(--surface-sunken);">
-							<table class="data-table" style="font-size:0.8rem">
+						<div class="border rounded-xl overflow-hidden bg-surface-sunken">
+							<table class="data-table data-table-responsive" class="text-xs">
 								<thead>
-									<tr style="background:var(--surface-raised);">
-										<th>الاسم</th>
-										<th>البريد الإلكتروني</th>
-										<th>الدور الوظيفي</th>
-										<th>الحالة</th>
+									<tr class="bg-surface-raised">
+										<th>Ø§Ù„Ø§Ø³Ù…</th>
+										<th>Ø§Ù„Ø¨Ø±ÙŠØ¯ Ø§Ù„Ø¥Ù„ÙƒØªØ±ÙˆÙ†ÙŠ</th>
+										<th>Ø§Ù„Ø¯ÙˆØ± Ø§Ù„ÙˆØ¸ÙŠÙÙŠ</th>
+										<th>Ø§Ù„Ø­Ø§Ù„Ø©</th>
 									</tr>
 								</thead>
 								<tbody>
 									for _, e := range data.Employees {
 										<tr class="rule-bottom">
-											<td style="font-weight:800; color:var(--text);">{ e.UserName }</td>
+											<td class="font-bold text-primary">{ e.UserName }</td>
 											<td class="tabular-nums text-muted text-xs" dir="ltr">{ e.UserEmail }</td>
 											<td><span class="badge badge-secondary text-xs">{ e.RoleName }</span></td>
 											<td>
 												if e.Member != nil && e.Member.IsActive {
-													<span class="badge badge-emerald text-xs fw-800">نشط</span>
+													<span class="badge badge-emerald text-xs fw-800">Ù†Ø´Ø·</span>
 												} else {
-													<span class="badge badge-danger text-xs fw-800">معطل</span>
+													<span class="badge badge-danger text-xs fw-800">Ù…Ø¹Ø·Ù„</span>
 												}
 											</td>
 										</tr>
@@ -1020,9 +1020,9 @@ templ AdminOrganizationDetailPage(data AdminOrgDetailData, lang, dir string) {
 	}
 }
 
-// ══════════════════════════════════════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 // BACKWARD COMPATIBILITY ALIASES & HELPERS
-// ══════════════════════════════════════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 
 templ AdminOrganizations(data AdminEnterpriseHubData, lang, dir string) {
 	@AdminOrganizationsPage(AdminOrganizationsPageData{
@@ -1053,56 +1053,56 @@ func getOrgLegalName(id int64, names map[int64]string) string {
 		return name
 	}
 	if id > 0 {
-		return fmt.Sprintf("منشأة #%d", id)
+		return fmt.Sprintf("Ù…Ù†Ø´Ø£Ø© #%d", id)
 	}
-	return "المنصة الرئيسية"
+	return "Ø§Ù„Ù…Ù†ØµØ© Ø§Ù„Ø±Ø¦ÙŠØ³ÙŠØ©"
 }
 
 func getOrgTypeBadge(id int64, types map[int64]string) string {
 	if t, ok := types[id]; ok {
 		if t == "vendor" {
-			return "مورد"
+			return "Ù…ÙˆØ±Ø¯"
 		}
-		return "صيدلية"
+		return "ØµÙŠØ¯Ù„ÙŠØ©"
 	}
-	return "منشأة"
+	return "Ù…Ù†Ø´Ø£Ø©"
 }
 
 func dayOfWeekAr(day int) string {
-	days := []string{"الأحد", "الإثنين", "الثلاثاء", "الأربعاء", "الخميس", "الجمعة", "السبت"}
+	days := []string{"Ø§Ù„Ø£Ø­Ø¯", "Ø§Ù„Ø¥Ø«Ù†ÙŠÙ†", "Ø§Ù„Ø«Ù„Ø§Ø«Ø§Ø¡", "Ø§Ù„Ø£Ø±Ø¨Ø¹Ø§Ø¡", "Ø§Ù„Ø®Ù…ÙŠØ³", "Ø§Ù„Ø¬Ù…Ø¹Ø©", "Ø§Ù„Ø³Ø¨Øª"}
 	if day >= 0 && day < len(days) {
 		return days[day]
 	}
-	return "—"
+	return "â€”"
 }
 
 // AdminBranchDetailPage renders detail for a single branch.
 templ AdminBranchDetailPage(b *org.Branch, lang, dir string) {
-	@layouts.AdminShell(fmt.Sprintf("تفاصيل الفرع: %s", b.Name.Get("ar")), "branches", lang, dir) {
-		<div style="max-width:1100px; margin:0 auto; padding-bottom:3rem;">
-			<div style="background:var(--surface-raised); border:1px solid var(--border); border-radius:18px; padding:1.5rem; margin-bottom:1.25rem; box-shadow:var(--shadow-sm);">
-				<div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem;">
+	@layouts.AdminShell(fmt.Sprintf("ØªÙØ§ØµÙŠÙ„ Ø§Ù„ÙØ±Ø¹: %s", b.Name.Get("ar")), "branches", lang, dir) {
+		<div class="admin-page-container">
+			<div class="admin-banner">
+				<div class="admin-banner-inner">
 					<div>
-						<h1 style="font-size:1.3rem; font-weight:900; color:var(--text); margin:0;">{ b.Name.Get("ar") }</h1>
-						<p style="font-size:0.85rem; color:var(--text-secondary); margin:0.25rem 0 0 0;">
-							كود الفرع: <strong class="tabular-nums">{ b.Code }</strong> | منشأة #{ fmt.Sprintf("%d", b.OrganizationID) }
+						<h1 class="text-xl font-black text-primary m-0">{ b.Name.Get("ar") }</h1>
+						<p class="text-sm text-secondary mt-1 m-0">
+							ÙƒÙˆØ¯ Ø§Ù„ÙØ±Ø¹: <strong class="tabular-nums">{ b.Code }</strong> | Ù…Ù†Ø´Ø£Ø© #{ fmt.Sprintf("%d", b.OrganizationID) }
 						</p>
 					</div>
-					<a href="/admin/branches" class="btn btn-secondary btn-sm fw-800 rounded-md">العودة لدليل الفروع ←</a>
+					<a href="/admin/branches" class="btn btn-secondary btn-sm fw-800 rounded-md">Ø§Ù„Ø¹ÙˆØ¯Ø© Ù„Ø¯Ù„ÙŠÙ„ Ø§Ù„ÙØ±ÙˆØ¹ â†</a>
 				</div>
 
-				<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(240px, 1fr)); gap:1.25rem; margin-top:1.5rem; border-top:1px solid var(--border); padding-top:1.25rem;">
-					<div style="background:var(--surface-sunken); padding:1rem; border-radius:12px; border:1px solid var(--border);">
-						<div class="label-strong">العنوان الجغرافي</div>
-						<div style="font-weight:800; color:var(--text); margin-top:0.25rem;">{ b.Address }</div>
+				<div class="d-grid gap-4 mt-4 pt-4 border-t grid-auto-fit-sm">
+					<div class="bg-surface-sunken p-4 rounded-xl border">
+						<div class="label-strong">Ø§Ù„Ø¹Ù†ÙˆØ§Ù† Ø§Ù„Ø¬ØºØ±Ø§ÙÙŠ</div>
+						<div class="font-bold text-primary mt-1">{ b.Address }</div>
 					</div>
-					<div style="background:var(--surface-sunken); padding:1rem; border-radius:12px; border:1px solid var(--border);">
-						<div class="label-strong">هاتف التواصل</div>
-						<div class="tabular-nums" style="font-weight:800; color:var(--text); margin-top:0.25rem;">{ b.Phone }</div>
+					<div class="bg-surface-sunken p-4 rounded-xl border">
+						<div class="label-strong">Ù‡Ø§ØªÙ Ø§Ù„ØªÙˆØ§ØµÙ„</div>
+						<div class="tabular-nums" class="font-bold text-primary mt-1">{ b.Phone }</div>
 					</div>
-					<div style="background:var(--surface-sunken); padding:1rem; border-radius:12px; border:1px solid var(--border);">
-						<div class="label-strong">ساعات العمل والتشغيل</div>
-						<div style="font-weight:800; color:var(--text); margin-top:0.25rem;">⏰ { b.OperatingHours }</div>
+					<div class="bg-surface-sunken p-4 rounded-xl border">
+						<div class="label-strong">Ø³Ø§Ø¹Ø§Øª Ø§Ù„Ø¹Ù…Ù„ ÙˆØ§Ù„ØªØ´ØºÙŠÙ„</div>
+						<div class="font-bold text-primary mt-1">â° { b.OperatingHours }</div>
 					</div>
 				</div>
 			</div>
@@ -1141,30 +1141,30 @@ func countCoveredCities(coverages []*workflow.CoverageView) int {
 
 // AdminWeeklyCoveragesPage renders weekly coverage rules filtered by selected organization with full controls.
 templ AdminWeeklyCoveragesPage(data AdminWeeklyCoveragesData, lang, dir string) {
-	@layouts.AdminShell("إدارة نطاقات وتغطية التوصيل الأسبوعية", "weekly_coverages", lang, dir) {
-		<div style="display:flex; flex-direction:column; gap:1.5rem; max-width:1440px; margin:0 auto 3rem auto;" x-data="{ addModalOpen: false, editModalOpen: false, currentItem: {} }">
+	@layouts.AdminShell("Ø¥Ø¯Ø§Ø±Ø© Ù†Ø·Ø§Ù‚Ø§Øª ÙˆØªØºØ·ÙŠØ© Ø§Ù„ØªÙˆØµÙŠÙ„ Ø§Ù„Ø£Ø³Ø¨ÙˆØ¹ÙŠØ©", "weekly_coverages", lang, dir) {
+		<div class="d-flex flex-col gap-4 admin-page-container" x-data="{ addModalOpen: false, editModalOpen: false, currentItem: {} }">
 			
 			<!-- Header Card -->
-			<div style="background:var(--surface-raised); border:1px solid var(--border); border-radius:18px; padding:1.5rem; box-shadow:var(--shadow-sm);">
-				<div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1.25rem;">
+			<div class="admin-banner">
+				<div class="flex-between flex-wrap gap-4">
 					<div>
-						<div style="display:flex; align-items:center; gap:0.75rem; margin-bottom:0.35rem;">
-							<div style="width:44px; height:44px; border-radius:12px; background:rgba(56, 189, 248, 0.12); color:var(--accent); display:flex; align-items:center; justify-content:center; font-size:1.3rem;">
+						<div class="d-flex items-center gap-3 mb-1">
+							<div class="w-11 h-11 rounded-xl bg-primary-subtle text-brand flex-center text-xl">
 								@components.IconTruck("icon-sm")
 							</div>
 							<div>
-								<h1 style="font-size:1.3rem; font-weight:900; color:var(--text); margin:0;">نطاقات وجداول التغطية الأسبوعية</h1>
-								<span style="font-size:0.75rem; font-weight:700; color:var(--accent); text-transform:uppercase;">Weekly Delivery Schedules & Routes</span>
+								<h1 class="text-xl font-black text-primary m-0">Ù†Ø·Ø§Ù‚Ø§Øª ÙˆØ¬Ø¯Ø§ÙˆÙ„ Ø§Ù„ØªØºØ·ÙŠØ© Ø§Ù„Ø£Ø³Ø¨ÙˆØ¹ÙŠØ©</h1>
+								<span class="text-xs font-bold text-brand uppercase">Weekly Delivery Schedules & Routes</span>
 							</div>
 						</div>
-						<p style="font-size:0.85rem; color:var(--text-secondary); margin:0.35rem 0 0 0;">استعراض، تدقيق، وإدارة مواعيد ومناطق تسليم الموردين للصيدليات في مختلف المحافظات بدقة تامة.</p>
+						<p class="text-sm text-secondary mt-1 m-0">Ø§Ø³ØªØ¹Ø±Ø§Ø¶ØŒ ØªØ¯Ù‚ÙŠÙ‚ØŒ ÙˆØ¥Ø¯Ø§Ø±Ø© Ù…ÙˆØ§Ø¹ÙŠØ¯ ÙˆÙ…Ù†Ø§Ø·Ù‚ ØªØ³Ù„ÙŠÙ… Ø§Ù„Ù…ÙˆØ±Ø¯ÙŠÙ† Ù„Ù„ØµÙŠØ¯Ù„ÙŠØ§Øª ÙÙŠ Ù…Ø®ØªÙ„Ù Ø§Ù„Ù…Ø­Ø§ÙØ¸Ø§Øª Ø¨Ø¯Ù‚Ø© ØªØ§Ù…Ø©.</p>
 					</div>
 
-					<div style="display:flex; align-items:center; gap:0.75rem; flex-wrap:wrap;">
-						<form method="GET" action="/admin/weekly-coverages" style="display:flex; align-items:center; gap:0.5rem; margin:0;">
-							<label style="font-size:0.825rem; font-weight:700; color:var(--text-secondary); white-space:nowrap;">تصفية المنشأة:</label>
-							<select name="org_id" class="form-select" onchange="this.form.submit()" style="font-size:0.85rem; padding:0.45rem 0.85rem; min-width:240px; border-radius:8px; font-weight:700;">
-								<option value="0" selected?={ data.SelectedOrgID == 0 }>كافة المنشآت والموردين</option>
+					<div class="d-flex items-center gap-3 flex-wrap">
+						<form method="GET" action="/admin/weekly-coverages" class="d-flex items-center gap-2 m-0">
+							<label class="text-xs font-bold text-secondary nowrap">ØªØµÙÙŠØ© Ø§Ù„Ù…Ù†Ø´Ø£Ø©:</label>
+							<select name="org_id" class="form-select" onchange="this.form.submit()" class="text-sm px-3 py-2 min-w-56 rounded-md font-bold">
+								<option value="0" selected?={ data.SelectedOrgID == 0 }>ÙƒØ§ÙØ© Ø§Ù„Ù…Ù†Ø´Ø¢Øª ÙˆØ§Ù„Ù…ÙˆØ±Ø¯ÙŠÙ†</option>
 								for _, o := range data.Organizations {
 									<option value={ fmt.Sprintf("%d", o.ID) } selected?={ o.ID == data.SelectedOrgID }>
 										{ o.LegalName }
@@ -1173,59 +1173,59 @@ templ AdminWeeklyCoveragesPage(data AdminWeeklyCoveragesData, lang, dir string) 
 							</select>
 						</form>
 
-						<button type="button" class="btn btn-primary btn-sm fw-800" @click="addModalOpen = true" style="padding:0.5rem 1rem; border-radius:8px; gap:0.35rem;">
+						<button type="button" class="btn btn-primary btn-sm fw-800" @click="addModalOpen = true" class="px-4 py-2 rounded-md gap-1">
 							<span>@components.IconPlus("icon-sm")</span>
-							<span>إضافة جدول تغطية جديد</span>
+							<span>Ø¥Ø¶Ø§ÙØ© Ø¬Ø¯ÙˆÙ„ ØªØºØ·ÙŠØ© Ø¬Ø¯ÙŠØ¯</span>
 						</button>
 					</div>
 				</div>
 
 				<!-- Stats KPI Strip -->
-				<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:1rem; margin-top:1.5rem; border-top:1px solid var(--border); padding-top:1.25rem;">
-					<div style="background:var(--surface-sunken); padding:0.85rem 1.1rem; border-radius:12px; border:1px solid var(--border);">
-						<div class="label-strong">إجمالي جداول التغطية</div>
-						<div class="tabular-nums" style="font-size:1.35rem; font-weight:900; color:var(--text); margin-top:2px;">{ fmt.Sprintf("%d", len(data.Coverages)) }</div>
+				<div class="d-grid gap-3 mt-4 pt-3 border-t grid-auto-fit-sm">
+					<div class="bg-surface-sunken p-3 rounded-xl border">
+						<div class="label-strong">Ø¥Ø¬Ù…Ø§Ù„ÙŠ Ø¬Ø¯Ø§ÙˆÙ„ Ø§Ù„ØªØºØ·ÙŠØ©</div>
+						<div class="tabular-nums" class="text-xl font-black text-primary mt-0.5 tabular-nums">{ fmt.Sprintf("%d", len(data.Coverages)) }</div>
 					</div>
-					<div style="background:var(--surface-sunken); padding:0.85rem 1.1rem; border-radius:12px; border:1px solid var(--border);">
-						<div class="label-strong">الجداول النشطة للتوصيل</div>
-						<div class="tabular-nums" style="font-size:1.35rem; font-weight:900; color:#10b981; margin-top:2px;">{ fmt.Sprintf("%d", countActiveCoverages(data.Coverages)) }</div>
+					<div class="bg-surface-sunken p-3 rounded-xl border">
+						<div class="label-strong">Ø§Ù„Ø¬Ø¯Ø§ÙˆÙ„ Ø§Ù„Ù†Ø´Ø·Ø© Ù„Ù„ØªÙˆØµÙŠÙ„</div>
+						<div class="tabular-nums" class="text-xl font-black text-success mt-0.5 tabular-nums">{ fmt.Sprintf("%d", countActiveCoverages(data.Coverages)) }</div>
 					</div>
-					<div style="background:var(--surface-sunken); padding:0.85rem 1.1rem; border-radius:12px; border:1px solid var(--border);">
-						<div class="label-strong">المدن والمحافظات المشمولة</div>
-						<div class="tabular-nums" style="font-size:1.35rem; font-weight:900; color:var(--accent); margin-top:2px;">{ fmt.Sprintf("%d", countCoveredCities(data.Coverages)) }</div>
+					<div class="bg-surface-sunken p-3 rounded-xl border">
+						<div class="label-strong">Ø§Ù„Ù…Ø¯Ù† ÙˆØ§Ù„Ù…Ø­Ø§ÙØ¸Ø§Øª Ø§Ù„Ù…Ø´Ù…ÙˆÙ„Ø©</div>
+						<div class="tabular-nums" class="text-xl font-black text-brand mt-0.5 tabular-nums">{ fmt.Sprintf("%d", countCoveredCities(data.Coverages)) }</div>
 					</div>
 				</div>
 			</div>
 
 			<!-- Coverages List Table -->
-			<div style="border:1px solid var(--border); background:var(--surface-raised); border-radius:18px; overflow:hidden; box-shadow:var(--shadow-sm);">
+			<div class="border bg-surface-raised rounded-2xl overflow-hidden shadow-sm">
 				if len(data.Coverages) == 0 {
-					<div style="padding:3rem 1.5rem;">
+					<div class="p-10 text-center">
 						@components.EmptyState(components.EmptyStateProps{
-							Title:   "لا توجد جداول تغطية أسبوعية",
-							Message: "لم يتم ضبط أي جداول تغطية أسبوعية تطابق معايير الاختيار الحالية. يمكنك إضافة جدول تغطية جديد عبر الزر أعلاه.",
+							Title:   "Ù„Ø§ ØªÙˆØ¬Ø¯ Ø¬Ø¯Ø§ÙˆÙ„ ØªØºØ·ÙŠØ© Ø£Ø³Ø¨ÙˆØ¹ÙŠØ©",
+							Message: "Ù„Ù… ÙŠØªÙ… Ø¶Ø¨Ø· Ø£ÙŠ Ø¬Ø¯Ø§ÙˆÙ„ ØªØºØ·ÙŠØ© Ø£Ø³Ø¨ÙˆØ¹ÙŠØ© ØªØ·Ø§Ø¨Ù‚ Ù…Ø¹Ø§ÙŠÙŠØ± Ø§Ù„Ø§Ø®ØªÙŠØ§Ø± Ø§Ù„Ø­Ø§Ù„ÙŠØ©. ÙŠÙ…ÙƒÙ†Ùƒ Ø¥Ø¶Ø§ÙØ© Ø¬Ø¯ÙˆÙ„ ØªØºØ·ÙŠØ© Ø¬Ø¯ÙŠØ¯ Ø¹Ø¨Ø± Ø§Ù„Ø²Ø± Ø£Ø¹Ù„Ø§Ù‡.",
 						})
 					</div>
 				} else {
 					<div class="table-container m-0">
-						<table class="data-table">
+						<table class="data-table data-table-responsive">
 							<thead>
 								<tr>
-									<th>يوم التوصيل</th>
-									<th>المنشأة / المورد</th>
-									<th>المدينة / المحافظة</th>
-									<th>الفرع أو المخزن المنفذ</th>
-									<th>نطاق التغطية</th>
-									<th>مواعيد التوصيل</th>
-									<th>حالة التغطية</th>
-									<th class="text-end">الإجراءات والتحكم</th>
+									<th>ÙŠÙˆÙ… Ø§Ù„ØªÙˆØµÙŠÙ„</th>
+									<th>Ø§Ù„Ù…Ù†Ø´Ø£Ø© / Ø§Ù„Ù…ÙˆØ±Ø¯</th>
+									<th>Ø§Ù„Ù…Ø¯ÙŠÙ†Ø© / Ø§Ù„Ù…Ø­Ø§ÙØ¸Ø©</th>
+									<th>Ø§Ù„ÙØ±Ø¹ Ø£Ùˆ Ø§Ù„Ù…Ø®Ø²Ù† Ø§Ù„Ù…Ù†ÙØ°</th>
+									<th>Ù†Ø·Ø§Ù‚ Ø§Ù„ØªØºØ·ÙŠØ©</th>
+									<th>Ù…ÙˆØ§Ø¹ÙŠØ¯ Ø§Ù„ØªÙˆØµÙŠÙ„</th>
+									<th>Ø­Ø§Ù„Ø© Ø§Ù„ØªØºØ·ÙŠØ©</th>
+									<th class="text-end">Ø§Ù„Ø¥Ø¬Ø±Ø§Ø¡Ø§Øª ÙˆØ§Ù„ØªØ­ÙƒÙ…</th>
 								</tr>
 							</thead>
 							<tbody>
 								for _, c := range data.Coverages {
-									<tr style="vertical-align:middle;">
+									<tr class="align-middle">
 										<td>
-											<span class="badge badge-sky fw-800" style="font-size:0.825rem; padding:0.3rem 0.75rem; border-radius:6px;">
+											<span class="badge badge-sky fw-800" class="text-xs px-3 py-1 rounded-md">
 												{ dayOfWeekAr(c.DayOfWeek) }
 											</span>
 										</td>
@@ -1233,61 +1233,61 @@ templ AdminWeeklyCoveragesPage(data AdminWeeklyCoveragesData, lang, dir string) 
 											if c.OrgName != "" {
 												<strong class="text-body">{ c.OrgName }</strong>
 											} else {
-												<span class="text-muted">منشأة #{ fmt.Sprintf("%d", c.OrganizationID) }</span>
+												<span class="text-muted">Ù…Ù†Ø´Ø£Ø© #{ fmt.Sprintf("%d", c.OrganizationID) }</span>
 											}
 										</td>
 										<td>
 											if c.CityName != "" {
 												<strong class="text-primary">{ c.CityName }</strong>
 											} else {
-												<span class="text-muted">كافة المناطق</span>
+												<span class="text-muted">ÙƒØ§ÙØ© Ø§Ù„Ù…Ù†Ø§Ø·Ù‚</span>
 											}
 										</td>
 										<td>
 											if c.BranchName != "" {
 												<span>{ c.BranchName }</span>
 											} else {
-												<span class="text-muted">المقر الرئيسي</span>
+												<span class="text-muted">Ø§Ù„Ù…Ù‚Ø± Ø§Ù„Ø±Ø¦ÙŠØ³ÙŠ</span>
 											}
 										</td>
 										<td class="tabular-nums">
-											<strong class="text-accent">{ fmt.Sprintf("%d كم", c.DistanceMeters/1000) }</strong>
+											<strong class="text-accent">{ fmt.Sprintf("%d ÙƒÙ…", c.DistanceMeters/1000) }</strong>
 										</td>
 										<td class="tabular-nums">
 											if c.CoverageFrom != nil && c.CoverageTo != nil {
 												<span class="fw-700">{ *c.CoverageFrom } - { *c.CoverageTo }</span>
 											} else {
-												<span class="badge badge-slate text-xs">طوال اليوم</span>
+												<span class="badge badge-slate text-xs">Ø·ÙˆØ§Ù„ Ø§Ù„ÙŠÙˆÙ…</span>
 											}
 										</td>
 										<td>
 											if c.IsActive {
-												<span class="badge badge-emerald fw-800">نشط ومتاح</span>
+												<span class="badge badge-emerald fw-800">Ù†Ø´Ø· ÙˆÙ…ØªØ§Ø­</span>
 											} else {
-												<span class="badge badge-danger fw-800">معطل</span>
+												<span class="badge badge-danger fw-800">Ù…Ø¹Ø·Ù„</span>
 											}
 										</td>
 										<td class="text-end">
-											<div style="display:inline-flex; align-items:center; gap:0.4rem;">
+											<div class="d-inline-flex items-center gap-1.5">
 												<!-- Toggle Button Form -->
 												<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/weekly-coverages/%d/toggle", c.ID)) } class="m-0">
 													<input type="hidden" name="is_active" value={ fmt.Sprintf("%t", !c.IsActive) } />
 													<input type="hidden" name="org_id" value={ fmt.Sprintf("%d", data.SelectedOrgID) } />
 													if c.IsActive {
-														<button type="submit" class="btn btn-secondary btn-xs fw-800" title="تعطيل هذا الجدول" style="padding:0.3rem 0.65rem; border-radius:6px;">
-															تعطيل
+														<button type="submit" class="btn btn-secondary btn-xs fw-800" title="ØªØ¹Ø·ÙŠÙ„ Ù‡Ø°Ø§ Ø§Ù„Ø¬Ø¯ÙˆÙ„" class="px-2.5 py-1 rounded-md">
+															ØªØ¹Ø·ÙŠÙ„
 														</button>
 													} else {
-														<button type="submit" class="btn btn-primary btn-xs fw-800" title="تفعيل هذا الجدول" style="padding:0.3rem 0.65rem; border-radius:6px;">
-															تفعيل
+														<button type="submit" class="btn btn-primary btn-xs fw-800" title="ØªÙØ¹ÙŠÙ„ Ù‡Ø°Ø§ Ø§Ù„Ø¬Ø¯ÙˆÙ„" class="px-2.5 py-1 rounded-md">
+															ØªÙØ¹ÙŠÙ„
 														</button>
 													}
 												</form>
 
 												<!-- Delete Button Form -->
-												<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/weekly-coverages/%d/delete", c.ID)) } onsubmit="return confirm('هل أنت متأكد من حذف جدول التغطية هذا؟');" class="m-0">
+												<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/admin/weekly-coverages/%d/delete", c.ID)) } onsubmit="return confirm('Ù‡Ù„ Ø£Ù†Øª Ù…ØªØ£ÙƒØ¯ Ù…Ù† Ø­Ø°Ù Ø¬Ø¯ÙˆÙ„ Ø§Ù„ØªØºØ·ÙŠØ© Ù‡Ø°Ø§ØŸ');" class="m-0">
 													<input type="hidden" name="org_id" value={ fmt.Sprintf("%d", data.SelectedOrgID) } />
-													<button type="submit" class="btn btn-danger btn-xs fw-800" style="padding:0.3rem 0.55rem; border-radius:6px;" title="حذف">
+													<button type="submit" class="btn btn-danger btn-xs fw-800" class="px-2 py-1 rounded-md" title="Ø­Ø°Ù">
 														@components.IconTrash("icon-xs")
 													</button>
 												</form>
@@ -1303,18 +1303,18 @@ templ AdminWeeklyCoveragesPage(data AdminWeeklyCoveragesData, lang, dir string) 
 
 			<!-- Add Schedule Modal -->
 			<div x-show="addModalOpen" x-cloak class="modal-overlay">
-				<div @click.away="addModalOpen = false" class="modal-card modal-md" style="background:var(--surface-raised); border:1px solid var(--border); border-radius:18px;">
-					<div style="padding:1.25rem 1.5rem; border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:center; background:var(--surface-sunken);">
-						<h3 style="font-size:1.1rem; font-weight:800; margin:0; color:var(--text);">إضافة جدول تغطية أسبوعية جديد</h3>
-						<button type="button" @click="addModalOpen = false" style="background:none; border:none; font-size:1.2rem; cursor:pointer; color:var(--text-muted);">@components.IconX("icon-sm")</button>
+				<div @click.away="addModalOpen = false" class="modal-card modal-md" class="bg-surface-raised border rounded-2xl">
+					<div class="p-4 border-b flex-between bg-surface-sunken">
+						<h3 class="text-base font-bold m-0 text-primary">Ø¥Ø¶Ø§ÙØ© Ø¬Ø¯ÙˆÙ„ ØªØºØ·ÙŠØ© Ø£Ø³Ø¨ÙˆØ¹ÙŠØ© Ø¬Ø¯ÙŠØ¯</h3>
+						<button type="button" @click="addModalOpen = false" class="border-0 bg-transparent text-xl cursor-pointer text-muted">@components.IconX("icon-sm")</button>
 					</div>
 
-					<form method="POST" action="/admin/weekly-coverages/new" style="padding:1.5rem; display:flex; flex-direction:column; gap:1rem; margin:0;">
+					<form method="POST" action="/admin/weekly-coverages/new" class="p-6 d-flex flex-col gap-4 m-0">
 						<input type="hidden" name="redirect_org_id" value={ fmt.Sprintf("%d", data.SelectedOrgID) } />
 
 						<div>
-							<label class="form-label text-085-bold">المنشأة / المورد المعتمد *</label>
-							<select name="organization_id" class="form-select" required style="width:100%; font-size:0.85rem;">
+							<label class="form-label text-085-bold">Ø§Ù„Ù…Ù†Ø´Ø£Ø© / Ø§Ù„Ù…ÙˆØ±Ø¯ Ø§Ù„Ù…Ø¹ØªÙ…Ø¯ *</label>
+							<select name="organization_id" class="form-select" required class="w-full text-sm">
 								for _, o := range data.Organizations {
 									<option value={ fmt.Sprintf("%d", o.ID) } selected?={ o.ID == data.SelectedOrgID }>
 										{ o.LegalName }
@@ -1325,8 +1325,8 @@ templ AdminWeeklyCoveragesPage(data AdminWeeklyCoveragesData, lang, dir string) 
 
 						<div class="grid-halves">
 							<div>
-								<label class="form-label text-085-bold">الفرع أو المخزن المنفذ *</label>
-								<select name="branch_id" class="form-select" required style="width:100%; font-size:0.85rem;">
+								<label class="form-label text-085-bold">Ø§Ù„ÙØ±Ø¹ Ø£Ùˆ Ø§Ù„Ù…Ø®Ø²Ù† Ø§Ù„Ù…Ù†ÙØ° *</label>
+								<select name="branch_id" class="form-select" required class="w-full text-sm">
 									for _, b := range data.Branches {
 										<option value={ fmt.Sprintf("%d", b.ID) }>
 											if b.Name["ar"] != "" {
@@ -1340,9 +1340,9 @@ templ AdminWeeklyCoveragesPage(data AdminWeeklyCoveragesData, lang, dir string) 
 							</div>
 
 							<div>
-								<label class="form-label text-085-bold">المدينة / المحافظة المشمولة</label>
-								<select name="city_id" class="form-select" style="width:100%; font-size:0.85rem;">
-									<option value="0">كافة مدن النطاق</option>
+								<label class="form-label text-085-bold">Ø§Ù„Ù…Ø¯ÙŠÙ†Ø© / Ø§Ù„Ù…Ø­Ø§ÙØ¸Ø© Ø§Ù„Ù…Ø´Ù…ÙˆÙ„Ø©</label>
+								<select name="city_id" class="form-select" class="w-full text-sm">
+									<option value="0">ÙƒØ§ÙØ© Ù…Ø¯Ù† Ø§Ù„Ù†Ø·Ø§Ù‚</option>
 									for _, ct := range data.Cities {
 										<option value={ fmt.Sprintf("%d", ct.ID) }>
 											{ ct.Name.Get(i18n.AR) }
@@ -1354,44 +1354,44 @@ templ AdminWeeklyCoveragesPage(data AdminWeeklyCoveragesData, lang, dir string) 
 
 						<div class="grid-halves">
 							<div>
-								<label class="form-label text-085-bold">يوم التوصيل *</label>
-								<select name="day_of_week" class="form-select" required style="width:100%; font-size:0.85rem; font-weight:700;">
-									<option value="0">الأحد (Sunday)</option>
-									<option value="1">الاثنين (Monday)</option>
-									<option value="2">الثلاثاء (Tuesday)</option>
-									<option value="3">الأربعاء (Wednesday)</option>
-									<option value="4">الخميس (Thursday)</option>
-									<option value="5">الجمعة (Friday)</option>
-									<option value="6">السبت (Saturday)</option>
+								<label class="form-label text-085-bold">ÙŠÙˆÙ… Ø§Ù„ØªÙˆØµÙŠÙ„ *</label>
+								<select name="day_of_week" class="form-select" required class="w-full text-sm font-bold">
+									<option value="0">Ø§Ù„Ø£Ø­Ø¯ (Sunday)</option>
+									<option value="1">Ø§Ù„Ø§Ø«Ù†ÙŠÙ† (Monday)</option>
+									<option value="2">Ø§Ù„Ø«Ù„Ø§Ø«Ø§Ø¡ (Tuesday)</option>
+									<option value="3">Ø§Ù„Ø£Ø±Ø¨Ø¹Ø§Ø¡ (Wednesday)</option>
+									<option value="4">Ø§Ù„Ø®Ù…ÙŠØ³ (Thursday)</option>
+									<option value="5">Ø§Ù„Ø¬Ù…Ø¹Ø© (Friday)</option>
+									<option value="6">Ø§Ù„Ø³Ø¨Øª (Saturday)</option>
 								</select>
 							</div>
 
 							<div>
-								<label class="form-label text-085-bold">نصف قطر التغطية (كم) *</label>
-								<input type="number" name="distance_km" value="50" min="1" max="500" required class="form-input tabular-nums" style="width:100%; font-size:0.85rem; font-weight:700;" />
+								<label class="form-label text-085-bold">Ù†ØµÙ Ù‚Ø·Ø± Ø§Ù„ØªØºØ·ÙŠØ© (ÙƒÙ…) *</label>
+								<input type="number" name="distance_km" value="50" min="1" max="500" required class="form-input tabular-nums" class="w-full text-sm font-bold" />
 							</div>
 						</div>
 
 						<div class="grid-halves">
 							<div>
-								<label class="form-label text-085-bold">من الساعة (اختياري)</label>
-								<input type="text" name="coverage_from" placeholder="مثال: 08:00" pattern="^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$" class="form-input tabular-nums" style="width:100%; font-size:0.85rem;" />
+								<label class="form-label text-085-bold">Ù…Ù† Ø§Ù„Ø³Ø§Ø¹Ø© (Ø§Ø®ØªÙŠØ§Ø±ÙŠ)</label>
+								<input type="text" name="coverage_from" placeholder="Ù…Ø«Ø§Ù„: 08:00" pattern="^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$" class="form-input tabular-nums" class="w-full text-sm" />
 							</div>
 
 							<div>
-								<label class="form-label text-085-bold">إلى الساعة (اختياري)</label>
-								<input type="text" name="coverage_to" placeholder="مثال: 18:00" pattern="^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$" class="form-input tabular-nums" style="width:100%; font-size:0.85rem;" />
+								<label class="form-label text-085-bold">Ø¥Ù„Ù‰ Ø§Ù„Ø³Ø§Ø¹Ø© (Ø§Ø®ØªÙŠØ§Ø±ÙŠ)</label>
+								<input type="text" name="coverage_to" placeholder="Ù…Ø«Ø§Ù„: 18:00" pattern="^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$" class="form-input tabular-nums" class="w-full text-sm" />
 							</div>
 						</div>
 
 						<div>
-							<label class="form-label text-085-bold">ملاحظات العنوان أو خط السير</label>
-							<input type="text" name="address" placeholder="مثال: خط سير الصيدليات المركزية والمستشفيات" class="form-input" style="width:100%; font-size:0.85rem;" />
+							<label class="form-label text-085-bold">Ù…Ù„Ø§Ø­Ø¸Ø§Øª Ø§Ù„Ø¹Ù†ÙˆØ§Ù† Ø£Ùˆ Ø®Ø· Ø§Ù„Ø³ÙŠØ±</label>
+							<input type="text" name="address" placeholder="Ù…Ø«Ø§Ù„: Ø®Ø· Ø³ÙŠØ± Ø§Ù„ØµÙŠØ¯Ù„ÙŠØ§Øª Ø§Ù„Ù…Ø±ÙƒØ²ÙŠØ© ÙˆØ§Ù„Ù…Ø³ØªØ´ÙÙŠØ§Øª" class="form-input" class="w-full text-sm" />
 						</div>
 
-						<div style="display:flex; justify-content:flex-end; gap:0.6rem; border-top:1px solid var(--border); padding-top:1rem; margin-top:0.5rem;">
-							<button type="button" @click="addModalOpen = false" class="btn btn-secondary fw-700">إلغاء</button>
-							<button type="submit" class="btn btn-primary" style="font-weight:800; padding:0.5rem 1.5rem;">حفظ الجدول</button>
+						<div class="d-flex justify-end gap-2 border-t pt-3 mt-2">
+							<button type="button" @click="addModalOpen = false" class="btn btn-secondary fw-700">Ø¥Ù„ØºØ§Ø¡</button>
+							<button type="submit" class="btn btn-primary" class="font-bold px-6 py-2">Ø­ÙØ¸ Ø§Ù„Ø¬Ø¯ÙˆÙ„</button>
 						</div>
 					</form>
 				</div>
@@ -1404,7 +1404,7 @@ templ AdminWeeklyCoveragesPage(data AdminWeeklyCoveragesData, lang, dir string) 
 // adminStaffCreateForm creates a moderator or administrator in one step.
 //
 // The role list is the same one the role editor manages, filtered to roles
-// marked staff — so a role a super admin invents this morning is selectable
+// marked staff â€” so a role a super admin invents this morning is selectable
 // this afternoon without a code change. That was the missing half of the
 // feature: roles could be defined and nobody could be created to hold them.
 templ adminStaffCreateForm(data AdminUsersPageData) {
@@ -1412,49 +1412,52 @@ templ adminStaffCreateForm(data AdminUsersPageData) {
 		<div
 			x-show="showAddStaff"
 			x-cloak
-			style="background:var(--surface-raised); border:1px solid var(--border); border-radius:18px; padding:1.5rem; margin-bottom:1.25rem; box-shadow:var(--shadow-sm);"
+			class="admin-banner"
 		>
-			<h2 style="font-size:1.05rem; font-weight:900; color:var(--text); margin:0 0 0.35rem 0;">إنشاء حساب مشرف جديد</h2>
-			<p style="font-size:0.82rem; color:var(--text-secondary); margin:0 0 1.25rem 0;">
-				يحدد الدور المختار الصفحات والإجراءات المتاحة للمشرف داخل لوحة الإدارة. يمكنك تعديل صلاحيات أي دور من صفحة الأدوار.
+			<h2 class="text-base font-black text-primary mb-1 m-0">Ø¥Ù†Ø´Ø§Ø¡ Ø­Ø³Ø§Ø¨ Ù…Ø´Ø±Ù Ø¬Ø¯ÙŠØ¯</h2>
+			<p class="text-xs text-secondary mb-4 m-0">
+				ÙŠØ­Ø¯Ø¯ Ø§Ù„Ø¯ÙˆØ± Ø§Ù„Ù…Ø®ØªØ§Ø± Ø§Ù„ØµÙØ­Ø§Øª ÙˆØ§Ù„Ø¥Ø¬Ø±Ø§Ø¡Ø§Øª Ø§Ù„Ù…ØªØ§Ø­Ø© Ù„Ù„Ù…Ø´Ø±Ù Ø¯Ø§Ø®Ù„ Ù„ÙˆØ­Ø© Ø§Ù„Ø¥Ø¯Ø§Ø±Ø©. ÙŠÙ…ÙƒÙ†Ùƒ ØªØ¹Ø¯ÙŠÙ„ ØµÙ„Ø§Ø­ÙŠØ§Øª Ø£ÙŠ Ø¯ÙˆØ± Ù…Ù† ØµÙØ­Ø© Ø§Ù„Ø£Ø¯ÙˆØ§Ø±.
 			</p>
-			<form method="POST" action="/admin/users/staff" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:1rem;">
+			<form method="POST" action="/admin/users/staff" class="d-grid gap-3 grid-auto-fit-sm">
 				<div>
-					<label class="form-label" for="staff-name-ar">الاسم بالعربية</label>
+					<label class="form-label" for="staff-name-ar">Ø§Ù„Ø§Ø³Ù… Ø¨Ø§Ù„Ø¹Ø±Ø¨ÙŠØ©</label>
 					<input id="staff-name-ar" class="form-input" type="text" name="name_ar" required maxlength="120"/>
 				</div>
 				<div>
-					<label class="form-label" for="staff-name-en">الاسم بالإنجليزية</label>
+					<label class="form-label" for="staff-name-en">Ø§Ù„Ø§Ø³Ù… Ø¨Ø§Ù„Ø¥Ù†Ø¬Ù„ÙŠØ²ÙŠØ©</label>
 					<input id="staff-name-en" class="form-input" type="text" name="name_en" maxlength="120"/>
 				</div>
 				<div>
-					<label class="form-label" for="staff-email">البريد الإلكتروني</label>
+					<label class="form-label" for="staff-email">Ø§Ù„Ø¨Ø±ÙŠØ¯ Ø§Ù„Ø¥Ù„ÙƒØªØ±ÙˆÙ†ÙŠ</label>
 					<input id="staff-email" class="form-input" type="email" name="email" required autocomplete="off"/>
 				</div>
 				<div>
-					<label class="form-label" for="staff-phone">رقم الهاتف</label>
+					<label class="form-label" for="staff-phone">Ø±Ù‚Ù… Ø§Ù„Ù‡Ø§ØªÙ</label>
 					<input id="staff-phone" class="form-input" type="tel" name="phone" maxlength="20"/>
 				</div>
 				<div>
-					<label class="form-label" for="staff-password">كلمة مرور مبدئية</label>
+					<label class="form-label" for="staff-password">ÙƒÙ„Ù…Ø© Ù…Ø±ÙˆØ± Ù…Ø¨Ø¯Ø¦ÙŠØ©</label>
 					<input id="staff-password" class="form-input" type="password" name="password" required minlength="8" autocomplete="new-password"/>
 				</div>
 				<div>
-					<label class="form-label" for="staff-role">الدور الإداري</label>
+					<label class="form-label" for="staff-role">Ø§Ù„Ø¯ÙˆØ± Ø§Ù„Ø¥Ø¯Ø§Ø±ÙŠ</label>
 					<select id="staff-role" class="form-input" name="role" required>
 						for _, role := range data.StaffRoles {
 							<option value={ role.Key }>{ role.Name }</option>
 						}
 					</select>
 				</div>
-				<div style="grid-column:1/-1; display:flex; align-items:center; gap:0.75rem;">
-					<button type="submit" class="btn btn-primary fw-800">إنشاء الحساب</button>
-					<button type="button" class="btn btn-secondary" @click="showAddStaff = false">إلغاء</button>
-					<span style="font-size:0.78rem; color:var(--text-muted);">
-						يُنشأ الحساب مفعّلاً؛ يغيّر المشرف كلمة المرور المبدئية عند أول دخول.
+				<div class="col-span-full d-flex items-center gap-3">
+					<button type="submit" class="btn btn-primary fw-800">Ø¥Ù†Ø´Ø§Ø¡ Ø§Ù„Ø­Ø³Ø§Ø¨</button>
+					<button type="button" class="btn btn-secondary" @click="showAddStaff = false">Ø¥Ù„ØºØ§Ø¡</button>
+					<span class="text-xs text-muted">
+						ÙŠÙÙ†Ø´Ø£ Ø§Ù„Ø­Ø³Ø§Ø¨ Ù…ÙØ¹Ù‘Ù„Ø§Ù‹Ø› ÙŠØºÙŠÙ‘Ø± Ø§Ù„Ù…Ø´Ø±Ù ÙƒÙ„Ù…Ø© Ø§Ù„Ù…Ø±ÙˆØ± Ø§Ù„Ù…Ø¨Ø¯Ø¦ÙŠØ© Ø¹Ù†Ø¯ Ø£ÙˆÙ„ Ø¯Ø®ÙˆÙ„.
 					</span>
 				</div>
 			</form>
 		</div>
 	}
 }
+
+
+

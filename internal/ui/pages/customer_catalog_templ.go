@@ -531,7 +531,7 @@ func CustomerCatalog(data CatalogPageData, lang, dir string, isPartial bool) tem
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 41, "<span>التصنيف الدوائي</span></label><div class=\"d-flex flex-col gap-1 overflow-y-auto border border-slate-200/80 rounded-xl p-1.5 bg-surface-sunken\" style=\"max-height: 180px;\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 41, "<span>التصنيف الدوائي</span></label><div class=\"d-flex flex-col gap-1 overflow-y-auto border border-slate-200/80 rounded-xl p-1.5 bg-surface-sunken max-h-48\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -770,7 +770,7 @@ func CustomerCatalog(data CatalogPageData, lang, dir string, isPartial bool) tem
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 66, "<span>تطبيق الفلاتر</span></button></form></aside><!-- Main Results Area --><main class=\"catalog-main-content\"><!-- Search Toolbar, Sorting, Rows per Page, View Switcher --><div class=\"glass-panel p-4 mb-5 border border-slate-200/80 rounded-2xl shadow-xs\"><div class=\"flex-between flex-wrap gap-3\"><!-- Live Search Input --><div class=\"flex-1\" style=\"min-width: 260px; position: relative;\"><div class=\"search-input-icon position-absolute inset-y-0 start-0 d-flex items-center ps-3.5 pointer-events-none text-muted\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 66, "<span>تطبيق الفلاتر</span></button></form></aside><!-- Main Results Area --><main class=\"catalog-main-content\"><!-- Search Toolbar, Sorting, Rows per Page, View Switcher --><div class=\"glass-panel p-4 mb-5 border border-slate-200/80 rounded-2xl shadow-xs\"><div class=\"flex-between flex-wrap gap-3\"><!-- Live Search Input --><div class=\"flex-1 relative min-w-64\"><div class=\"search-input-icon position-absolute inset-y-0 start-0 d-flex items-center ps-3.5 pointer-events-none text-muted\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}

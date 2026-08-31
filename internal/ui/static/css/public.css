@@ -1,4 +1,9 @@
-﻿/* ==========================================================================
+/* ==========================================================================
+   DAWA 24 DESIGN SYSTEM — PUBLIC SURFACE (public.css)
+   ========================================================================== */
+
+@layer components {
+/* ==========================================================================
    DAWA 24 — PUBLIC & MARKETING SURFACE STYLES (public.css)
    Landing Hero, Showcase, Procurement, Guarantees, Footer, Storefront & Catalog
    ========================================================================== */
@@ -50,20 +55,20 @@
 
 .hero-search-input {
   width: 100%;
-  border: none !important;
-  background: transparent !important;
-  padding: 0.5rem 0 !important;
-  font-size: var(--text-sm) !important;
-  font-weight: 600 !important;
-  color: var(--text-primary) !important;
-  outline: none !important;
-  box-shadow: none !important;
+  border: none;
+  background: transparent;
+  padding: 0.5rem 0;
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--text-primary);
+  outline: none;
+  box-shadow: none;
 }
 
 .hero-search-btn {
-  border-radius: var(--radius-full) !important;
-  padding: 0.65rem 1.35rem !important;
-  font-weight: 800 !important;
+  border-radius: var(--radius-full);
+  padding: 0.65rem 1.35rem;
+  font-weight: 800;
   flex-shrink: 0;
 }
 
@@ -112,7 +117,7 @@
 }
 
 .hero-cta-btn {
-  padding: 0.75rem 1.5rem !important;
+  padding: 0.75rem 1.5rem;
 }
 
 /* 2D/3D Live Dashboard Showcase Frame */
@@ -773,7 +778,7 @@
   border-bottom: 1px solid var(--border-subtle, #e2e8f0);
 }
 
-@media (max-width: 992px) {
+@media (max-width: 1024px) {
   .footer-content {
     grid-template-columns: 1fr 1fr;
     gap: 2rem;
@@ -1048,7 +1053,7 @@
   align-items: start;
 }
 
-@media (max-width: 860px) {
+@media (max-width: 768px) {
   .contact-layout { grid-template-columns: 1fr; }
 }
 
@@ -1097,7 +1102,7 @@
   align-items: start;
 }
 
-@media (max-width: 992px) {
+@media (max-width: 1024px) {
   .catalog-main-layout {
     grid-template-columns: 1fr;
   }
@@ -1121,4 +1126,6 @@
 .dosage-pills-strip::-webkit-scrollbar-thumb {
   background: var(--border-subtle);
   border-radius: 4px;
+}
+
 }

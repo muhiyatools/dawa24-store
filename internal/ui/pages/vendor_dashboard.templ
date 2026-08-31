@@ -11,51 +11,51 @@ import (
 )
 
 templ VendorDashboard(lang, dir string, data VendorDashboardData) {
-	@layouts.VendorShell("لوحة التحكم", "dashboard", lang, dir) {
-		<div class="page-container" style="max-width:1440px; margin:0 auto; padding-bottom:3rem;">
+	@layouts.VendorShell("Ù„ÙˆØ­Ø© Ø§Ù„ØªØ­ÙƒÙ…", "dashboard", lang, dir) {
+		<div class="page-container" class="admin-page-container">
 			
 			<!-- Emergency Legal Document Request Banner -->
 			if len(data.PendingDocRequests) > 0 {
-				<div class="alert alert-warning mb-0 p-4 flex-between flex-wrap gap-4" style="border-radius:14px;">
+				<div class="alert alert-warning mb-0 p-4 flex-between flex-wrap gap-4" class="rounded-xl">
 					<div class="d-flex items-center gap-3">
 						<div class="text-warning flex-shrink-0">
 							@components.IconAlert("icon-lg")
 						</div>
 						<div>
 							<div class="font-extrabold text-sm text-warning">
-								تنبيه إداري عاجل: مطلوب رفع مستند رسمي ({ data.PendingDocRequests[0].Title })
+								ØªÙ†Ø¨ÙŠÙ‡ Ø¥Ø¯Ø§Ø±ÙŠ Ø¹Ø§Ø¬Ù„: Ù…Ø·Ù„ÙˆØ¨ Ø±ÙØ¹ Ù…Ø³ØªÙ†Ø¯ Ø±Ø³Ù…ÙŠ ({ data.PendingDocRequests[0].Title })
 							</div>
 							<div class="text-xs text-muted mt-1">
-								المهلة الممنوحة: متبقي <strong class="tabular-nums text-primary">{ fmt.Sprintf("%d", data.PendingDocRequests[0].DaysRemaining()) }</strong> يوم (حتى { format.Date(data.PendingDocRequests[0].DeadlineAt, "ar") }). يرجى الرفع لتجنب إيقاف وتجميد حساب المورد.
+								Ø§Ù„Ù…Ù‡Ù„Ø© Ø§Ù„Ù…Ù…Ù†ÙˆØ­Ø©: Ù…ØªØ¨Ù‚ÙŠ <strong class="tabular-nums text-primary">{ fmt.Sprintf("%d", data.PendingDocRequests[0].DaysRemaining()) }</strong> ÙŠÙˆÙ… (Ø­ØªÙ‰ { format.Date(data.PendingDocRequests[0].DeadlineAt, "ar") }). ÙŠØ±Ø¬Ù‰ Ø§Ù„Ø±ÙØ¹ Ù„ØªØ¬Ù†Ø¨ Ø¥ÙŠÙ‚Ø§Ù ÙˆØªØ¬Ù…ÙŠØ¯ Ø­Ø³Ø§Ø¨ Ø§Ù„Ù…ÙˆØ±Ø¯.
 							</div>
 						</div>
 					</div>
 					<a href="/vendor/documents" class="btn btn-primary btn-sm font-bold gap-1 rounded-md">
 						@components.IconFile("icon-xs")
-						<span>رفع المستند المطلوب الآن ↗</span>
+						<span>Ø±ÙØ¹ Ø§Ù„Ù…Ø³ØªÙ†Ø¯ Ø§Ù„Ù…Ø·Ù„ÙˆØ¨ Ø§Ù„Ø¢Ù† â†—</span>
 					</a>
 				</div>
 			}
 
 			<!-- Subscription & AI Quotas Strip -->
 			if data.Subscription != nil && data.Subscription.HasSubscription {
-				<div class="glass-panel p-5 mb-0" style="border-radius:16px;">
+				<div class="glass-panel p-5 mb-0" class="rounded-2xl">
 					<div class="flex-between items-center flex-wrap gap-3 mb-4 pb-3 border-b">
 						<div class="d-flex items-center gap-2">
 							<span class="text-xl">@components.IconBuilding("icon-sm")</span>
 							<div>
 								<h2 class="text-base font-extrabold text-primary m-0">
-									باقة الاشتراك وخدمات الذكاء الاصطناعي للمورد
+									Ø¨Ø§Ù‚Ø© Ø§Ù„Ø§Ø´ØªØ±Ø§Ùƒ ÙˆØ®Ø¯Ù…Ø§Øª Ø§Ù„Ø°ÙƒØ§Ø¡ Ø§Ù„Ø§ØµØ·Ù†Ø§Ø¹ÙŠ Ù„Ù„Ù…ÙˆØ±Ø¯
 								</h2>
 								<p class="text-xs text-secondary m-0 mt-1">
-									الخطة المعتمدة وحدود الجلسات المطبقة على المنشأة بالكامل وحصة الـ AI Gateway
+									Ø§Ù„Ø®Ø·Ø© Ø§Ù„Ù…Ø¹ØªÙ…Ø¯Ø© ÙˆØ­Ø¯ÙˆØ¯ Ø§Ù„Ø¬Ù„Ø³Ø§Øª Ø§Ù„Ù…Ø·Ø¨Ù‚Ø© Ø¹Ù„Ù‰ Ø§Ù„Ù…Ù†Ø´Ø£Ø© Ø¨Ø§Ù„ÙƒØ§Ù…Ù„ ÙˆØ­ØµØ© Ø§Ù„Ù€ AI Gateway
 								</p>
 							</div>
 						</div>
 						<div class="d-flex items-center gap-2">
 							<span class="badge badge-emerald text-xs font-bold">{ data.Subscription.Status }</span>
 							if data.Subscription.IsDefaultPlan {
-								<span class="badge badge-primary text-xs font-bold">باقة افتراضية</span>
+								<span class="badge badge-primary text-xs font-bold">Ø¨Ø§Ù‚Ø© Ø§ÙØªØ±Ø§Ø¶ÙŠØ©</span>
 							}
 						</div>
 					</div>
@@ -63,40 +63,40 @@ templ VendorDashboard(lang, dir string, data VendorDashboardData) {
 					<div class="dashboard-stat-grid cols-4 mb-0">
 						<!-- Plan Name & Expiry -->
 						<div class="stat-card-3d">
-							<div class="stat-card-label">خطة الاشتراك المعتمدة</div>
+							<div class="stat-card-label">Ø®Ø·Ø© Ø§Ù„Ø§Ø´ØªØ±Ø§Ùƒ Ø§Ù„Ù…Ø¹ØªÙ…Ø¯Ø©</div>
 							<div class="text-base font-black text-primary mt-1">{ data.Subscription.PlanName }</div>
-							<div class="text-xs text-muted mt-1">الصلاحية: { data.Subscription.ExpiresAt }</div>
+							<div class="text-xs text-muted mt-1">Ø§Ù„ØµÙ„Ø§Ø­ÙŠØ©: { data.Subscription.ExpiresAt }</div>
 						</div>
 
 						<!-- Sessions Quota -->
 						<div class="stat-card-3d">
-							<div class="stat-card-label">الجلسات المتزامنة</div>
+							<div class="stat-card-label">Ø§Ù„Ø¬Ù„Ø³Ø§Øª Ø§Ù„Ù…ØªØ²Ø§Ù…Ù†Ø©</div>
 							<div class="stat-card-value text-brand tabular-nums">
 								{ fmt.Sprintf("%d", data.Subscription.MaxLoginSessions) }
 							</div>
-							<div class="text-xs text-muted mt-1">مشتركة لكافة موظفي المورد</div>
+							<div class="text-xs text-muted mt-1">Ù…Ø´ØªØ±ÙƒØ© Ù„ÙƒØ§ÙØ© Ù…ÙˆØ¸ÙÙŠ Ø§Ù„Ù…ÙˆØ±Ø¯</div>
 						</div>
 
 						<!-- Devices Quota -->
 						<div class="stat-card-3d">
-							<div class="stat-card-label">حد الأجهزة المفتوحة</div>
+							<div class="stat-card-label">Ø­Ø¯ Ø§Ù„Ø£Ø¬Ù‡Ø²Ø© Ø§Ù„Ù…ÙØªÙˆØ­Ø©</div>
 							<div class="stat-card-value text-primary tabular-nums">
 								{ fmt.Sprintf("%d", data.Subscription.MaxDevices) }
 							</div>
-							<div class="text-xs text-muted mt-1">الحد الأقصى للأجهزة المصرح بها</div>
+							<div class="text-xs text-muted mt-1">Ø§Ù„Ø­Ø¯ Ø§Ù„Ø£Ù‚ØµÙ‰ Ù„Ù„Ø£Ø¬Ù‡Ø²Ø© Ø§Ù„Ù…ØµØ±Ø­ Ø¨Ù‡Ø§</div>
 						</div>
 
 						<!-- AI Gateway & Live Consumption -->
 						<div class="stat-card-3d d-flex flex-col justify-between">
 							<div>
 								<div class="flex-between items-center mb-1">
-									<span class="stat-card-label text-brand font-black">بوابة الـ AI</span>
+									<span class="stat-card-label text-brand font-black">Ø¨ÙˆØ§Ø¨Ø© Ø§Ù„Ù€ AI</span>
 									<span class="badge badge-sky text-xs font-bold font-mono" dir="ltr">{ data.Subscription.AIPlanID }</span>
 								</div>
 
 								<div class="mt-2">
 									<div class="flex-between items-baseline mb-1">
-										<span class="text-xs text-secondary font-bold">استهلاك الحصة:</span>
+										<span class="text-xs text-secondary font-bold">Ø§Ø³ØªÙ‡Ù„Ø§Ùƒ Ø§Ù„Ø­ØµØ©:</span>
 										<div class="tabular-nums text-base font-black text-brand">
 											if data.Subscription.HasAIBudget {
 												{ fmt.Sprintf("%d%%", data.Subscription.AIPercentage()) }
@@ -114,19 +114,19 @@ templ VendorDashboard(lang, dir string, data VendorDashboardData) {
 
 									<div class="flex-between text-xs text-muted mt-1">
 										if data.Subscription.HasAIBudget {
-											<span>متبقي: <strong class="text-success">{ fmt.Sprintf("%d%%", 100-data.Subscription.AIPercentage()) }</strong></span>
+											<span>Ù…ØªØ¨Ù‚ÙŠ: <strong class="text-success">{ fmt.Sprintf("%d%%", 100-data.Subscription.AIPercentage()) }</strong></span>
 										}
-										<span>التجديد: <strong class="text-primary">{ data.Subscription.AIResetText() }</strong></span>
+										<span>Ø§Ù„ØªØ¬Ø¯ÙŠØ¯: <strong class="text-primary">{ data.Subscription.AIResetText() }</strong></span>
 									</div>
 								</div>
 							</div>
 
 							<div class="mt-3 pt-2 border-t flex-between items-center">
 								<a href="/vendor/ai-logs" class="text-xs font-bold text-brand text-decoration-none">
-									<span>سجل الاستهلاك (AI Logs) ↗</span>
+									<span>Ø³Ø¬Ù„ Ø§Ù„Ø§Ø³ØªÙ‡Ù„Ø§Ùƒ (AI Logs) â†—</span>
 								</a>
 								<a href="/vendor/subscription" class="text-xs font-bold text-muted text-decoration-none">
-									<span>الاشتراك ↗</span>
+									<span>Ø§Ù„Ø§Ø´ØªØ±Ø§Ùƒ â†—</span>
 								</a>
 							</div>
 						</div>
@@ -135,24 +135,24 @@ templ VendorDashboard(lang, dir string, data VendorDashboardData) {
 			}
 
 			<!-- Master KPI 6-Stat Grid with Relevant Metrics -->
-			<div class="dashboard-stat-grid mb-0" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(210px, 1fr)); gap:0.9rem;">
+			<div class="dashboard-stat-grid mb-0" >
 				
 				<!-- 1. Monthly Revenue -->
 				<div class="stat-card-3d">
 					<div class="stat-card-label text-brand font-bold d-flex items-center justify-between">
-						<span>صافي مبيعات الشهر</span>
-						<a href="/vendor/earnings/order" class="badge badge-emerald text-xs text-decoration-none">تفاصيل ↗</a>
+						<span>ØµØ§ÙÙŠ Ù…Ø¨ÙŠØ¹Ø§Øª Ø§Ù„Ø´Ù‡Ø±</span>
+						<a href="/vendor/earnings/order" class="badge badge-emerald text-xs text-decoration-none">ØªÙØ§ØµÙŠÙ„ â†—</a>
 					</div>
 					<div class="stat-card-value text-brand tabular-nums mt-1">
 						@components.MoneyDisplay(components.MoneyDisplayProps{ Amount: data.MonthSales })
 					</div>
-					<div class="text-xs text-muted mt-1">إجمالي المبيعات المعتمدة لهذا الشهر</div>
+					<div class="text-xs text-muted mt-1">Ø¥Ø¬Ù…Ø§Ù„ÙŠ Ø§Ù„Ù…Ø¨ÙŠØ¹Ø§Øª Ø§Ù„Ù…Ø¹ØªÙ…Ø¯Ø© Ù„Ù‡Ø°Ø§ Ø§Ù„Ø´Ù‡Ø±</div>
 				</div>
 
 				<!-- 2. Realized Net Profit -->
 				<div class="stat-card-3d">
 					<div class="stat-card-label text-success font-bold d-flex items-center justify-between">
-						<span>صافي أرباح الشهر المحققة</span>
+						<span>ØµØ§ÙÙŠ Ø£Ø±Ø¨Ø§Ø­ Ø§Ù„Ø´Ù‡Ø± Ø§Ù„Ù…Ø­Ù‚Ù‚Ø©</span>
 						if data.MonthProfitMargin > 0 {
 							<span class="badge badge-emerald text-xs font-extrabold tabular-nums">{ fmt.Sprintf("%.1f%%", data.MonthProfitMargin) }</span>
 						}
@@ -160,58 +160,58 @@ templ VendorDashboard(lang, dir string, data VendorDashboardData) {
 					<div class="stat-card-value text-success tabular-nums mt-1">
 						@components.MoneyDisplay(components.MoneyDisplayProps{ Amount: data.MonthNetProfit })
 					</div>
-					<div class="text-xs text-muted mt-1">بعد خصم تكاليف البضاعة المباعة COGS</div>
+					<div class="text-xs text-muted mt-1">Ø¨Ø¹Ø¯ Ø®ØµÙ… ØªÙƒØ§Ù„ÙŠÙ Ø§Ù„Ø¨Ø¶Ø§Ø¹Ø© Ø§Ù„Ù…Ø¨Ø§Ø¹Ø© COGS</div>
 				</div>
 
 				<!-- 3. Available Wallet Balance -->
 				<div class="stat-card-3d">
 					<div class="stat-card-label text-sky font-bold d-flex items-center justify-between">
-						<span>رصيد المحفظة المتاح</span>
-						<span class="badge badge-sky text-xs">سيولة</span>
+						<span>Ø±ØµÙŠØ¯ Ø§Ù„Ù…Ø­ÙØ¸Ø© Ø§Ù„Ù…ØªØ§Ø­</span>
+						<span class="badge badge-sky text-xs">Ø³ÙŠÙˆÙ„Ø©</span>
 					</div>
 					<div class="stat-card-value text-sky tabular-nums mt-1">
 						@components.MoneyDisplay(components.MoneyDisplayProps{ Amount: data.WalletBalance })
 					</div>
-					<div class="text-xs text-muted mt-1">الرصيد القابل للتحويل والتسوية</div>
+					<div class="text-xs text-muted mt-1">Ø§Ù„Ø±ØµÙŠØ¯ Ø§Ù„Ù‚Ø§Ø¨Ù„ Ù„Ù„ØªØ­ÙˆÙŠÙ„ ÙˆØ§Ù„ØªØ³ÙˆÙŠØ©</div>
 				</div>
 
 				<!-- 4. Pending Orders -->
 				<div class="stat-card-3d">
 					<div class="stat-card-label text-warning font-bold d-flex items-center justify-between">
-						<span>طلبات قيد التنفيذ</span>
-						<span class="badge badge-amber text-xs font-bold">بانتظار</span>
+						<span>Ø·Ù„Ø¨Ø§Øª Ù‚ÙŠØ¯ Ø§Ù„ØªÙ†ÙÙŠØ°</span>
+						<span class="badge badge-amber text-xs font-bold">Ø¨Ø§Ù†ØªØ¸Ø§Ø±</span>
 					</div>
 					<div class="stat-card-value text-warning tabular-nums mt-1">
-						{ fmt.Sprintf("%d", data.PendingShipments) } <span style="font-size:0.8rem; font-weight:600; color:var(--text-muted);">أوامر توريد</span>
+						{ fmt.Sprintf("%d", data.PendingShipments) } <span class="text-xs text-muted font-semibold">Ø£ÙˆØ§Ù…Ø± ØªÙˆØ±ÙŠØ¯</span>
 					</div>
 					<div class="text-xs text-secondary font-bold mt-1 tabular-nums">
-						بقيمة: { data.PendingOrdersTotal.String() } ج.م
+						Ø¨Ù‚ÙŠÙ…Ø©: { data.PendingOrdersTotal.String() } Ø¬.Ù…
 					</div>
 				</div>
 
 				<!-- 5. Active Catalog Products -->
 				<div class="stat-card-3d">
 					<div class="stat-card-label text-primary font-bold d-flex items-center justify-between">
-						<span>المنتجات النشطة بالكتالوج</span>
-						<a href="/vendor/products" class="badge badge-slate text-xs text-decoration-none">الكتالوج ↗</a>
+						<span>Ø§Ù„Ù…Ù†ØªØ¬Ø§Øª Ø§Ù„Ù†Ø´Ø·Ø© Ø¨Ø§Ù„ÙƒØªØ§Ù„ÙˆØ¬</span>
+						<a href="/vendor/products" class="badge badge-slate text-xs text-decoration-none">Ø§Ù„ÙƒØªØ§Ù„ÙˆØ¬ â†—</a>
 					</div>
 					<div class="stat-card-value text-primary tabular-nums mt-1">
-						{ fmt.Sprintf("%d", data.ActiveProducts) } <span style="font-size:0.8rem; font-weight:600; color:var(--text-muted);">صنف دواء</span>
+						{ fmt.Sprintf("%d", data.ActiveProducts) } <span class="text-xs text-muted font-semibold">ØµÙ†Ù Ø¯ÙˆØ§Ø¡</span>
 					</div>
-					<div class="text-xs text-muted mt-1">جاهزة للطلب المباشر من الصيدليات</div>
+					<div class="text-xs text-muted mt-1">Ø¬Ø§Ù‡Ø²Ø© Ù„Ù„Ø·Ù„Ø¨ Ø§Ù„Ù…Ø¨Ø§Ø´Ø± Ù…Ù† Ø§Ù„ØµÙŠØ¯Ù„ÙŠØ§Øª</div>
 				</div>
 
 				<!-- 6. Delivered Shipments -->
 				<div class="stat-card-3d">
 					<div class="stat-card-label text-success font-bold d-flex items-center justify-between">
-						<span>الشحنات المسلمة بنجاح</span>
-						<span class="badge badge-emerald text-xs">تسليم</span>
+						<span>Ø§Ù„Ø´Ø­Ù†Ø§Øª Ø§Ù„Ù…Ø³Ù„Ù…Ø© Ø¨Ù†Ø¬Ø§Ø­</span>
+						<span class="badge badge-emerald text-xs">ØªØ³Ù„ÙŠÙ…</span>
 					</div>
 					<div class="stat-card-value text-success tabular-nums mt-1">
-						{ fmt.Sprintf("%d", data.DeliveredShipments) } <span style="font-size:0.8rem; font-weight:600; color:var(--text-muted);">شحنة</span>
+						{ fmt.Sprintf("%d", data.DeliveredShipments) } <span class="text-xs text-muted font-semibold">Ø´Ø­Ù†Ø©</span>
 					</div>
 					<div class="text-xs text-muted mt-1 tabular-nums">
-						من إجمالي { fmt.Sprintf("%d", data.TotalShipmentsCount) } شحنة مسجلة
+						Ù…Ù† Ø¥Ø¬Ù…Ø§Ù„ÙŠ { fmt.Sprintf("%d", data.TotalShipmentsCount) } Ø´Ø­Ù†Ø© Ù…Ø³Ø¬Ù„Ø©
 					</div>
 				</div>
 
@@ -221,49 +221,49 @@ templ VendorDashboard(lang, dir string, data VendorDashboardData) {
 			<div class="dashboard-grid-2col mb-0">
 				
 				<!-- 1. Pending Shipments Section (With Preview Flow) -->
-				<div class="glass-panel p-6 mb-0 d-flex flex-col justify-between" style="border-radius:16px;">
+				<div class="glass-panel p-6 mb-0 d-flex flex-col justify-between" class="rounded-2xl">
 					<div>
 						<div class="flex-between items-center mb-4 pb-3 border-b">
 							<div class="d-flex items-center gap-2">
 								<span class="text-lg">@components.IconPackage("icon-sm")</span>
 								<h2 class="text-base font-extrabold text-primary m-0">
-									شحنات بانتظار قيد التنفيذ
+									Ø´Ø­Ù†Ø§Øª Ø¨Ø§Ù†ØªØ¸Ø§Ø± Ù‚ÙŠØ¯ Ø§Ù„ØªÙ†ÙÙŠØ°
 								</h2>
 								if len(data.Shipments) > 0 {
 									<span class="badge badge-amber text-xs font-bold tabular-nums">{ fmt.Sprintf("%d", len(data.Shipments)) }</span>
 								}
 							</div>
 							<a href="/vendor/orders" class="btn btn-secondary btn-sm font-bold text-xs rounded-md">
-								<span>عرض كافة الطلبيات ↗</span>
+								<span>Ø¹Ø±Ø¶ ÙƒØ§ÙØ© Ø§Ù„Ø·Ù„Ø¨ÙŠØ§Øª â†—</span>
 							</a>
 						</div>
 
 						if len(data.Shipments) == 0 {
 							<div class="text-xs text-muted text-center py-10">
-								<div class="text-2xl mb-2">🎉</div>
-								<strong class="text-primary d-block mb-1">لا توجد شحنات معلّقة حالياً</strong>
-								<span>تمت معالجة وتنفيذ كافة أوامر التوريد الواردة من الصيدليات.</span>
+								<div class="text-2xl mb-2">ðŸŽ‰</div>
+								<strong class="text-primary d-block mb-1">Ù„Ø§ ØªÙˆØ¬Ø¯ Ø´Ø­Ù†Ø§Øª Ù…Ø¹Ù„Ù‘Ù‚Ø© Ø­Ø§Ù„ÙŠØ§Ù‹</strong>
+								<span>ØªÙ…Øª Ù…Ø¹Ø§Ù„Ø¬Ø© ÙˆØªÙ†ÙÙŠØ° ÙƒØ§ÙØ© Ø£ÙˆØ§Ù…Ø± Ø§Ù„ØªÙˆØ±ÙŠØ¯ Ø§Ù„ÙˆØ§Ø±Ø¯Ø© Ù…Ù† Ø§Ù„ØµÙŠØ¯Ù„ÙŠØ§Øª.</span>
 							</div>
 						} else {
-							<div class="table-container m-0" style="border-radius:12px; overflow:hidden;">
+							<div class="table-container m-0" class="rounded-xl overflow-hidden">
 								<table class="data-table m-0">
 									<thead>
 										<tr>
-											<th>الشحنة والطلب</th>
-											<th>الصيدلية والفرع المستلم</th>
-											<th class="text-center">الأصناف</th>
-											<th class="text-end">الإجمالي</th>
-											<th>الحالة</th>
-											<th style="width:90px;" class="text-center">الإجراء</th>
+											<th>Ø§Ù„Ø´Ø­Ù†Ø© ÙˆØ§Ù„Ø·Ù„Ø¨</th>
+											<th>Ø§Ù„ØµÙŠØ¯Ù„ÙŠØ© ÙˆØ§Ù„ÙØ±Ø¹ Ø§Ù„Ù…Ø³ØªÙ„Ù…</th>
+											<th class="text-center">Ø§Ù„Ø£ØµÙ†Ø§Ù</th>
+											<th class="text-end">Ø§Ù„Ø¥Ø¬Ù…Ø§Ù„ÙŠ</th>
+											<th>Ø§Ù„Ø­Ø§Ù„Ø©</th>
+											<th class="w-24" class="text-center">Ø§Ù„Ø¥Ø¬Ø±Ø§Ø¡</th>
 										</tr>
 									</thead>
 									<tbody>
 										for _, s := range data.Shipments {
-											<tr style="vertical-align:middle;">
+											<tr class="align-middle">
 												<td>
 													<div class="tabular-nums font-bold text-xs text-primary">#{ s.ShipmentNumber }</div>
 													if s.OrderNumber != "" {
-														<div class="text-xs text-muted tabular-nums mt-1">أمر #{ s.OrderNumber }</div>
+														<div class="text-xs text-muted tabular-nums mt-1">Ø£Ù…Ø± #{ s.OrderNumber }</div>
 													}
 												</td>
 												<td>
@@ -271,18 +271,18 @@ templ VendorDashboard(lang, dir string, data VendorDashboardData) {
 														if s.CustomerBranchName.Get(i18n.Lang(lang)) != "" {
 															{ s.CustomerBranchName.Get(i18n.Lang(lang)) }
 														} else {
-															<span>صيدلية معتمدة</span>
+															<span>ØµÙŠØ¯Ù„ÙŠØ© Ù…Ø¹ØªÙ…Ø¯Ø©</span>
 														}
 													</div>
 													if s.CustomerBranchAddress != "" {
-														<div class="text-xs text-muted mt-1 text-truncate" style="max-width:180px;">
+														<div class="text-xs text-muted mt-1 text-truncate" class="max-w-xs">
 															{ s.CustomerBranchAddress }
 														</div>
 													}
 												</td>
 												<td class="text-center tabular-nums">
 													<span class="badge badge-secondary text-xs font-bold">
-														{ fmt.Sprintf("%d صنف", len(s.Lines)) }
+														{ fmt.Sprintf("%d ØµÙ†Ù", len(s.Lines)) }
 													</span>
 												</td>
 												<td class="tabular-nums font-black text-brand text-xs text-end">
@@ -290,9 +290,9 @@ templ VendorDashboard(lang, dir string, data VendorDashboardData) {
 												</td>
 												<td>
 													if s.Status == commerce.StatusPending {
-														<span class="badge badge-amber text-xs font-bold">بانتظار التأكيد</span>
+														<span class="badge badge-amber text-xs font-bold">Ø¨Ø§Ù†ØªØ¸Ø§Ø± Ø§Ù„ØªØ£ÙƒÙŠØ¯</span>
 													} else if s.Status == commerce.StatusConfirmed {
-														<span class="badge badge-sky text-xs font-bold">قيد التجهيز</span>
+														<span class="badge badge-sky text-xs font-bold">Ù‚ÙŠØ¯ Ø§Ù„ØªØ¬Ù‡ÙŠØ²</span>
 													} else {
 														<span class="badge badge-slate text-xs font-bold">{ string(s.Status) }</span>
 													}
@@ -300,7 +300,7 @@ templ VendorDashboard(lang, dir string, data VendorDashboardData) {
 												<td class="text-center">
 													@components.ModalTrigger(fmt.Sprintf("preview-shipment-%d", s.ID), "btn btn-secondary btn-sm font-bold text-xs px-3 gap-1") {
 														<span>@components.IconEye("icon-sm")</span>
-														<span>معاينة</span>
+														<span>Ù…Ø¹Ø§ÙŠÙ†Ø©</span>
 													}
 												</td>
 											</tr>
@@ -313,38 +313,38 @@ templ VendorDashboard(lang, dir string, data VendorDashboardData) {
 				</div>
 
 				<!-- 2. Low Stock Alerts -->
-				<div class="glass-panel p-6 mb-0 d-flex flex-col justify-between" style="border-radius:16px;">
+				<div class="glass-panel p-6 mb-0 d-flex flex-col justify-between" class="rounded-2xl">
 					<div>
 						<div class="flex-between items-center mb-4 pb-3 border-b">
 							<div class="d-flex items-center gap-2">
 								<span class="text-lg">@components.IconAlert("icon-sm")</span>
-								<h2 class="text-base font-extrabold text-primary m-0">أصناف تحت الحد الأدنى</h2>
+								<h2 class="text-base font-extrabold text-primary m-0">Ø£ØµÙ†Ø§Ù ØªØ­Øª Ø§Ù„Ø­Ø¯ Ø§Ù„Ø£Ø¯Ù†Ù‰</h2>
 								if len(data.LowStock) > 0 {
 									<span class="badge badge-danger text-xs font-bold tabular-nums">{ fmt.Sprintf("%d", len(data.LowStock)) }</span>
 								}
 							</div>
-							<a href="/vendor/inventory" class="btn btn-secondary btn-sm font-bold text-xs rounded-md">الأرصدة والمخازن</a>
+							<a href="/vendor/inventory" class="btn btn-secondary btn-sm font-bold text-xs rounded-md">Ø§Ù„Ø£Ø±ØµØ¯Ø© ÙˆØ§Ù„Ù…Ø®Ø§Ø²Ù†</a>
 						</div>
 						if len(data.LowStock) == 0 {
 							<div class="text-xs text-muted text-center py-10">
 								<div class="text-2xl mb-2">@components.IconCheckCircle("icon-sm")</div>
-								<strong class="text-primary d-block mb-1">المخزون في وضع آمن</strong>
-								<span>جميع الأرصدة المخزنية فوق حد إعادة الطلب الآمن.</span>
+								<strong class="text-primary d-block mb-1">Ø§Ù„Ù…Ø®Ø²ÙˆÙ† ÙÙŠ ÙˆØ¶Ø¹ Ø¢Ù…Ù†</strong>
+								<span>Ø¬Ù…ÙŠØ¹ Ø§Ù„Ø£Ø±ØµØ¯Ø© Ø§Ù„Ù…Ø®Ø²Ù†ÙŠØ© ÙÙˆÙ‚ Ø­Ø¯ Ø¥Ø¹Ø§Ø¯Ø© Ø§Ù„Ø·Ù„Ø¨ Ø§Ù„Ø¢Ù…Ù†.</span>
 							</div>
 						} else {
-							<div class="table-container m-0" style="border-radius:12px; overflow:hidden;">
+							<div class="table-container m-0" class="rounded-xl overflow-hidden">
 								<table class="data-table m-0">
 									<thead>
 										<tr>
-											<th>الصنف</th>
-											<th class="text-center">الكمية المتبقية</th>
-											<th class="text-center">حد الأمان</th>
+											<th>Ø§Ù„ØµÙ†Ù</th>
+											<th class="text-center">Ø§Ù„ÙƒÙ…ÙŠØ© Ø§Ù„Ù…ØªØ¨Ù‚ÙŠØ©</th>
+											<th class="text-center">Ø­Ø¯ Ø§Ù„Ø£Ù…Ø§Ù†</th>
 										</tr>
 									</thead>
 									<tbody>
 										for _, s := range data.LowStock {
 											<tr>
-												<td class="font-bold text-xs text-primary">صنف #{ fmt.Sprintf("%d", s.ProductID) }</td>
+												<td class="font-bold text-xs text-primary">ØµÙ†Ù #{ fmt.Sprintf("%d", s.ProductID) }</td>
 												<td class="text-center tabular-nums text-danger font-black text-xs">{ fmt.Sprintf("%d", s.Quantity) }</td>
 												<td class="text-center tabular-nums text-muted text-xs">{ fmt.Sprintf("%d", s.MinThreshold) }</td>
 											</tr>
@@ -357,18 +357,18 @@ templ VendorDashboard(lang, dir string, data VendorDashboardData) {
 				</div>
 
 				<!-- 3. Active Offers Strip -->
-				<div class="glass-panel p-6 mb-0 d-flex flex-col justify-between" style="border-radius:16px;">
+				<div class="glass-panel p-6 mb-0 d-flex flex-col justify-between" class="rounded-2xl">
 					<div>
 						<div class="flex-between items-center mb-4 pb-3 border-b">
 							<div class="d-flex items-center gap-2">
 								<span class="text-lg">@components.IconPackage("icon-sm")</span>
-								<h2 class="text-base font-extrabold text-primary m-0">العروض الخاصة النشطة</h2>
+								<h2 class="text-base font-extrabold text-primary m-0">Ø§Ù„Ø¹Ø±ÙˆØ¶ Ø§Ù„Ø®Ø§ØµØ© Ø§Ù„Ù†Ø´Ø·Ø©</h2>
 							</div>
-							<a href="/vendor/offers" class="btn btn-secondary btn-sm font-bold text-xs rounded-md">إدارة العروض</a>
+							<a href="/vendor/offers" class="btn btn-secondary btn-sm font-bold text-xs rounded-md">Ø¥Ø¯Ø§Ø±Ø© Ø§Ù„Ø¹Ø±ÙˆØ¶</a>
 						</div>
 						if len(data.Offers) == 0 {
 							<div class="text-xs text-muted text-center py-8">
-								لا توجد عروض ترويجية نشطة حالياً.
+								Ù„Ø§ ØªÙˆØ¬Ø¯ Ø¹Ø±ÙˆØ¶ ØªØ±ÙˆÙŠØ¬ÙŠØ© Ù†Ø´Ø·Ø© Ø­Ø§Ù„ÙŠØ§Ù‹.
 							</div>
 						} else {
 							<div class="d-flex flex-col gap-2">
@@ -376,9 +376,9 @@ templ VendorDashboard(lang, dir string, data VendorDashboardData) {
 									<div class="flex-between items-center p-3 rounded-lg bg-surface-sunken border">
 										<div>
 											<div class="font-bold text-primary text-xs">{ o.Title.Get(i18n.Lang(lang)) }</div>
-											<div class="text-xs text-muted mt-1 tabular-nums">مشاهدة { fmt.Sprintf("%d", o.ViewsCount) } · نقر { fmt.Sprintf("%d", o.ClicksCount) }</div>
+											<div class="text-xs text-muted mt-1 tabular-nums">Ù…Ø´Ø§Ù‡Ø¯Ø© { fmt.Sprintf("%d", o.ViewsCount) } Â· Ù†Ù‚Ø± { fmt.Sprintf("%d", o.ClicksCount) }</div>
 										</div>
-										<span class="badge badge-emerald text-xs font-bold">نشط</span>
+										<span class="badge badge-emerald text-xs font-bold">Ù†Ø´Ø·</span>
 									</div>
 								}
 							</div>
@@ -387,26 +387,26 @@ templ VendorDashboard(lang, dir string, data VendorDashboardData) {
 				</div>
 
 				<!-- 4. Price Quotes Strip -->
-				<div class="glass-panel p-6 mb-0 d-flex flex-col justify-between" style="border-radius:16px;">
+				<div class="glass-panel p-6 mb-0 d-flex flex-col justify-between" class="rounded-2xl">
 					<div>
 						<div class="flex-between items-center mb-4 pb-3 border-b">
 							<div class="d-flex items-center gap-2">
 								<span class="text-lg">@components.IconUsers("icon-sm")</span>
-								<h2 class="text-base font-extrabold text-primary m-0">طلبات التسعير المباشرة</h2>
+								<h2 class="text-base font-extrabold text-primary m-0">Ø·Ù„Ø¨Ø§Øª Ø§Ù„ØªØ³Ø¹ÙŠØ± Ø§Ù„Ù…Ø¨Ø§Ø´Ø±Ø©</h2>
 							</div>
-							<a href="/vendor/orders" class="btn btn-secondary btn-sm font-bold text-xs rounded-md">المراجعة</a>
+							<a href="/vendor/orders" class="btn btn-secondary btn-sm font-bold text-xs rounded-md">Ø§Ù„Ù…Ø±Ø§Ø¬Ø¹Ø©</a>
 						</div>
 						if data.UnreadQuotes == 0 {
 							<div class="text-xs text-muted text-center py-8">
-								لا توجد طلبات تسعير غير مقروءة بانتظار الرد.
+								Ù„Ø§ ØªÙˆØ¬Ø¯ Ø·Ù„Ø¨Ø§Øª ØªØ³Ø¹ÙŠØ± ØºÙŠØ± Ù…Ù‚Ø±ÙˆØ¡Ø© Ø¨Ø§Ù†ØªØ¸Ø§Ø± Ø§Ù„Ø±Ø¯.
 							</div>
 						} else {
 							<div class="p-4 rounded-lg bg-surface-sunken border text-center">
 								<div class="text-2xl font-black text-brand tabular-nums mb-1">{ fmt.Sprintf("%d", data.UnreadQuotes) }</div>
-								<div class="text-xs text-secondary font-bold">طلب تسعير جديد بانتظار موافقتك</div>
+								<div class="text-xs text-secondary font-bold">Ø·Ù„Ø¨ ØªØ³Ø¹ÙŠØ± Ø¬Ø¯ÙŠØ¯ Ø¨Ø§Ù†ØªØ¸Ø§Ø± Ù…ÙˆØ§ÙÙ‚ØªÙƒ</div>
 								<div class="mt-4">
 									<a href="/vendor/orders" class="btn btn-primary btn-sm font-bold text-xs px-4 rounded-md">
-										<span>مراجعة طلبات التسعير والرد ↗</span>
+										<span>Ù…Ø±Ø§Ø¬Ø¹Ø© Ø·Ù„Ø¨Ø§Øª Ø§Ù„ØªØ³Ø¹ÙŠØ± ÙˆØ§Ù„Ø±Ø¯ â†—</span>
 									</a>
 								</div>
 							</div>
@@ -418,26 +418,26 @@ templ VendorDashboard(lang, dir string, data VendorDashboardData) {
 		</div>
 	}
 
-	<!-- ══════════════════════════════════════════════════════════════════ -->
+	<!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
 	<!-- Detailed Shipment Preview & Execution Modals (With Official Workflow) -->
-	<!-- ══════════════════════════════════════════════════════════════════ -->
+	<!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
 	for _, s := range data.Shipments {
 		@components.Modal(components.ModalProps{ 
 			ID: fmt.Sprintf("preview-shipment-%d", s.ID), 
-			Title: fmt.Sprintf("معاينة أمر التوريد والبدء في التنفيذ: شحنة #%s", s.ShipmentNumber), 
+			Title: fmt.Sprintf("Ù…Ø¹Ø§ÙŠÙ†Ø© Ø£Ù…Ø± Ø§Ù„ØªÙˆØ±ÙŠØ¯ ÙˆØ§Ù„Ø¨Ø¯Ø¡ ÙÙŠ Ø§Ù„ØªÙ†ÙÙŠØ°: Ø´Ø­Ù†Ø© #%s", s.ShipmentNumber), 
 			Size: "lg", 
 		}) {
 			<div class="stack-md p-1">
 				
 				<!-- Shipment & Pharmacy Quick Header Strip -->
-				<div class="d-grid gap-3 bg-surface-sunken p-4 rounded-xl border mb-3 text-xs" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));">
+				<div class="d-grid gap-3 bg-surface-sunken p-4 rounded-xl border mb-3 text-xs" class="grid-auto-fit-sm">
 					<div>
-						<div class="text-muted font-bold mb-1">الصيدلية والفرع المستلم:</div>
+						<div class="text-muted font-bold mb-1">Ø§Ù„ØµÙŠØ¯Ù„ÙŠØ© ÙˆØ§Ù„ÙØ±Ø¹ Ø§Ù„Ù…Ø³ØªÙ„Ù…:</div>
 						<strong class="text-primary text-sm font-bold d-block">
 							if s.CustomerBranchName.Get(i18n.Lang(lang)) != "" {
 								{ s.CustomerBranchName.Get(i18n.Lang(lang)) }
 							} else {
-								<span>صيدلية معتمدة</span>
+								<span>ØµÙŠØ¯Ù„ÙŠØ© Ù…Ø¹ØªÙ…Ø¯Ø©</span>
 							}
 						</strong>
 						if s.CustomerOrgName.Get(i18n.Lang(lang)) != "" {
@@ -446,18 +446,18 @@ templ VendorDashboard(lang, dir string, data VendorDashboardData) {
 					</div>
 
 					<div>
-						<div class="text-muted font-bold mb-1">عنوان التسليم:</div>
+						<div class="text-muted font-bold mb-1">Ø¹Ù†ÙˆØ§Ù† Ø§Ù„ØªØ³Ù„ÙŠÙ…:</div>
 						<div class="text-primary">
 							if s.CustomerBranchAddress != "" {
 								{ s.CustomerBranchAddress }
 							} else {
-								<span class="text-muted">العنوان المسجل للفرع</span>
+								<span class="text-muted">Ø§Ù„Ø¹Ù†ÙˆØ§Ù† Ø§Ù„Ù…Ø³Ø¬Ù„ Ù„Ù„ÙØ±Ø¹</span>
 							}
 						</div>
 					</div>
 
 					<div>
-						<div class="text-muted font-bold mb-1">مسؤول الاستلام:</div>
+						<div class="text-muted font-bold mb-1">Ù…Ø³Ø¤ÙˆÙ„ Ø§Ù„Ø§Ø³ØªÙ„Ø§Ù…:</div>
 						<div class="text-primary">
 							if s.CustomerManagerName != "" {
 								<strong>{ s.CustomerManagerName }</strong>
@@ -465,26 +465,26 @@ templ VendorDashboard(lang, dir string, data VendorDashboardData) {
 							if s.CustomerBranchPhone != "" {
 								<div class="tabular-nums text-secondary mt-1">{ s.CustomerBranchPhone }</div>
 							} else if s.CustomerManagerName == "" {
-								<span class="text-muted">الصيدلي المسؤول</span>
+								<span class="text-muted">Ø§Ù„ØµÙŠØ¯Ù„ÙŠ Ø§Ù„Ù…Ø³Ø¤ÙˆÙ„</span>
 							}
 						</div>
 					</div>
 
 					<div>
-						<div class="text-muted font-bold mb-1">القيمة الإجمالية:</div>
+						<div class="text-muted font-bold mb-1">Ø§Ù„Ù‚ÙŠÙ…Ø© Ø§Ù„Ø¥Ø¬Ù…Ø§Ù„ÙŠØ©:</div>
 						<strong class="text-brand font-black text-sm tabular-nums">
-							{ s.TotalAmount.String() } ج.م
+							{ s.TotalAmount.String() } Ø¬.Ù…
 						</strong>
 						<div class="text-muted mt-1">
 							if s.PaymentMethod != "" {
-								<span>طريقة الدفع: { s.PaymentMethod }</span>
+								<span>Ø·Ø±ÙŠÙ‚Ø© Ø§Ù„Ø¯ÙØ¹: { s.PaymentMethod }</span>
 							}
 						</div>
 					</div>
 
 					if s.Notes != "" {
-						<div class="border-t pt-2 mt-1" style="grid-column: 1 / -1;">
-							<div class="text-muted font-bold mb-1">ملاحظات الصيدلية:</div>
+						<div class="border-t pt-2 mt-1" class="col-span-full">
+							<div class="text-muted font-bold mb-1">Ù…Ù„Ø§Ø­Ø¸Ø§Øª Ø§Ù„ØµÙŠØ¯Ù„ÙŠØ©:</div>
 							<div class="text-primary">{ s.Notes }</div>
 						</div>
 					}
@@ -495,24 +495,24 @@ templ VendorDashboard(lang, dir string, data VendorDashboardData) {
 					<div class="flex-between items-center mb-2">
 						<h4 class="text-xs font-black text-primary m-0 d-flex items-center gap-1">
 							@components.IconPackage("icon-xs")
-							<span>الأصناف المطلوبة للتوريد ({ fmt.Sprintf("%d", len(s.Lines)) } صنف)</span>
+							<span>Ø§Ù„Ø£ØµÙ†Ø§Ù Ø§Ù„Ù…Ø·Ù„ÙˆØ¨Ø© Ù„Ù„ØªÙˆØ±ÙŠØ¯ ({ fmt.Sprintf("%d", len(s.Lines)) } ØµÙ†Ù)</span>
 						</h4>
-						<span class="badge badge-sky text-xs font-bold">Cold-Chain مبرد</span>
+						<span class="badge badge-sky text-xs font-bold">Cold-Chain Ù…Ø¨Ø±Ø¯</span>
 					</div>
 
 					if len(s.Lines) == 0 {
 						<div class="text-xs text-muted text-center py-4 bg-surface-sunken rounded-lg border">
-							أمر التوريد يحتوي على أصناف معتمدة بقيمة إجمالية { s.TotalAmount.String() } ج.م.
+							Ø£Ù…Ø± Ø§Ù„ØªÙˆØ±ÙŠØ¯ ÙŠØ­ØªÙˆÙŠ Ø¹Ù„Ù‰ Ø£ØµÙ†Ø§Ù Ù…Ø¹ØªÙ…Ø¯Ø© Ø¨Ù‚ÙŠÙ…Ø© Ø¥Ø¬Ù…Ø§Ù„ÙŠØ© { s.TotalAmount.String() } Ø¬.Ù….
 						</div>
 					} else {
-						<div class="table-container m-0" style="border-radius:10px; overflow:hidden; max-height:220px; overflow-y:auto;">
-							<table class="data-table m-0" style="font-size:0.8rem;">
+						<div class="table-container m-0" class="rounded-lg overflow-y-auto max-h-56">
+							<table class="data-table m-0" class="text-xs">
 								<thead>
-									<tr style="background:var(--surface-raised);">
-										<th>اسم الصنف / الدواء</th>
-										<th class="text-center">الكمية</th>
-										<th class="text-center">السعر</th>
-										<th class="text-end">الإجمالي</th>
+									<tr class="bg-surface-raised">
+										<th>Ø§Ø³Ù… Ø§Ù„ØµÙ†Ù / Ø§Ù„Ø¯ÙˆØ§Ø¡</th>
+										<th class="text-center">Ø§Ù„ÙƒÙ…ÙŠØ©</th>
+										<th class="text-center">Ø§Ù„Ø³Ø¹Ø±</th>
+										<th class="text-end">Ø§Ù„Ø¥Ø¬Ù…Ø§Ù„ÙŠ</th>
 									</tr>
 								</thead>
 								<tbody>
@@ -525,10 +525,10 @@ templ VendorDashboard(lang, dir string, data VendorDashboardData) {
 												}
 											</td>
 											<td class="text-center font-bold tabular-nums">
-												<span class="badge badge-secondary text-xs">{ fmt.Sprintf("%d", l.Quantity) } عبوة</span>
+												<span class="badge badge-secondary text-xs">{ fmt.Sprintf("%d", l.Quantity) } Ø¹Ø¨ÙˆØ©</span>
 											</td>
-											<td class="text-center tabular-nums text-secondary text-xs">{ l.UnitPrice.String() } ج.م</td>
-											<td class="text-end tabular-nums font-bold text-brand">{ l.TotalPrice.String() } ج.م</td>
+											<td class="text-center tabular-nums text-secondary text-xs">{ l.UnitPrice.String() } Ø¬.Ù…</td>
+											<td class="text-end tabular-nums font-bold text-brand">{ l.TotalPrice.String() } Ø¬.Ù…</td>
 										</tr>
 									}
 								</tbody>
@@ -540,40 +540,40 @@ templ VendorDashboard(lang, dir string, data VendorDashboardData) {
 				<!-- Execution Controls Workflow Section -->
 				<div class="p-3 bg-surface-sunken rounded-xl border">
 					<div class="text-xs font-extrabold text-primary mb-3">
-						خيارات بدء وتنفيذ الشحنة وفق دورة العمل الرسمية:
+						Ø®ÙŠØ§Ø±Ø§Øª Ø¨Ø¯Ø¡ ÙˆØªÙ†ÙÙŠØ° Ø§Ù„Ø´Ø­Ù†Ø© ÙˆÙÙ‚ Ø¯ÙˆØ±Ø© Ø§Ù„Ø¹Ù…Ù„ Ø§Ù„Ø±Ø³Ù…ÙŠØ©:
 					</div>
 
 					if s.Status == commerce.StatusPending {
 						<!-- Status: Pending -> Choice to Confirm, Ship, Deliver, or Reject -->
 						<div class="d-flex flex-col gap-3">
-							<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(180px, 1fr)); gap:0.6rem;">
+							<div class="d-grid gap-2 grid-auto-fit-xs">
 								
 								<!-- Option A: Confirm & Start Warehouse Prep -->
 								<form action={ templ.SafeURL(fmt.Sprintf("/vendor/orders/%d/status", s.ID)) } method="POST" class="m-0">
 									<input type="hidden" name="status" value="confirmed" />
-									<input type="hidden" name="notes" value="تمت الموافقة على أمر التوريد وبدء التجهيز بالمستودع" />
+									<input type="hidden" name="notes" value="ØªÙ…Øª Ø§Ù„Ù…ÙˆØ§ÙÙ‚Ø© Ø¹Ù„Ù‰ Ø£Ù…Ø± Ø§Ù„ØªÙˆØ±ÙŠØ¯ ÙˆØ¨Ø¯Ø¡ Ø§Ù„ØªØ¬Ù‡ÙŠØ² Ø¨Ø§Ù„Ù…Ø³ØªÙˆØ¯Ø¹" />
 									<button type="submit" class="btn btn-secondary w-full justify-center font-bold text-xs py-2 gap-1 rounded-md">
 										@components.IconCheck("icon-xs")
-										<span>قبول وبدء التجهيز</span>
+										<span>Ù‚Ø¨ÙˆÙ„ ÙˆØ¨Ø¯Ø¡ Ø§Ù„ØªØ¬Ù‡ÙŠØ²</span>
 									</button>
 								</form>
 
 								<!-- Option B: Direct Deliver -->
 								<form action={ templ.SafeURL(fmt.Sprintf("/vendor/orders/%d/status", s.ID)) } method="POST" class="m-0">
 									<input type="hidden" name="status" value="delivered" />
-									<input type="hidden" name="notes" value="تم تسليم الشحنة المبردة بالصيدلية وتوثيق الاستلام" />
+									<input type="hidden" name="notes" value="ØªÙ… ØªØ³Ù„ÙŠÙ… Ø§Ù„Ø´Ø­Ù†Ø© Ø§Ù„Ù…Ø¨Ø±Ø¯Ø© Ø¨Ø§Ù„ØµÙŠØ¯Ù„ÙŠØ© ÙˆØªÙˆØ«ÙŠÙ‚ Ø§Ù„Ø§Ø³ØªÙ„Ø§Ù…" />
 									<button type="submit" class="btn btn-primary w-full justify-center font-bold text-xs py-2 gap-1 rounded-md">
 										@components.IconCheckCircle("icon-xs")
-										<span>إتمام وتسليم الطلب للصيدلية</span>
+										<span>Ø¥ØªÙ…Ø§Ù… ÙˆØªØ³Ù„ÙŠÙ… Ø§Ù„Ø·Ù„Ø¨ Ù„Ù„ØµÙŠØ¯Ù„ÙŠØ©</span>
 									</button>
 								</form>
 
 								<!-- Option C: Reject Order -->
-								<form action={ templ.SafeURL(fmt.Sprintf("/vendor/orders/%d/status", s.ID)) } method="POST" class="m-0" onsubmit="return confirm('تأكيد رفض أمر التوريد هذا وإلغائه؟');">
+								<form action={ templ.SafeURL(fmt.Sprintf("/vendor/orders/%d/status", s.ID)) } method="POST" class="m-0" onsubmit="return confirm('ØªØ£ÙƒÙŠØ¯ Ø±ÙØ¶ Ø£Ù…Ø± Ø§Ù„ØªÙˆØ±ÙŠØ¯ Ù‡Ø°Ø§ ÙˆØ¥Ù„ØºØ§Ø¦Ù‡ØŸ');">
 									<input type="hidden" name="status" value="cancelled" />
-									<input type="hidden" name="notes" value="تم رفض الطلب من قبل إدارة مبيعات المورد" />
+									<input type="hidden" name="notes" value="ØªÙ… Ø±ÙØ¶ Ø§Ù„Ø·Ù„Ø¨ Ù…Ù† Ù‚Ø¨Ù„ Ø¥Ø¯Ø§Ø±Ø© Ù…Ø¨ÙŠØ¹Ø§Øª Ø§Ù„Ù…ÙˆØ±Ø¯" />
 									<button type="submit" class="btn btn-danger w-full justify-center font-bold text-xs py-2 rounded-md">
-										<span>رفض الطلب</span>
+										<span>Ø±ÙØ¶ Ø§Ù„Ø·Ù„Ø¨</span>
 									</button>
 								</form>
 							</div>
@@ -581,25 +581,25 @@ templ VendorDashboard(lang, dir string, data VendorDashboardData) {
 							<!-- Option D: Dispatch / Ship with Carrier Details -->
 							<form action={ templ.SafeURL(fmt.Sprintf("/vendor/orders/%d/status", s.ID)) } method="POST" class="border-t pt-3 mt-1 d-flex items-center gap-2 flex-wrap">
 								<input type="hidden" name="status" value="shipped" />
-								<input type="hidden" name="notes" value="تم تسليم الشحنة للمندوب/شركة الشحن" />
+								<input type="hidden" name="notes" value="ØªÙ… ØªØ³Ù„ÙŠÙ… Ø§Ù„Ø´Ø­Ù†Ø© Ù„Ù„Ù…Ù†Ø¯ÙˆØ¨/Ø´Ø±ÙƒØ© Ø§Ù„Ø´Ø­Ù†" />
 								<input
 									type="text"
 									name="carrier"
-									placeholder="شركة الشحن / اسم المندوب..."
+									placeholder="Ø´Ø±ÙƒØ© Ø§Ù„Ø´Ø­Ù† / Ø§Ø³Ù… Ø§Ù„Ù…Ù†Ø¯ÙˆØ¨..."
 									class="form-input text-xs"
-									style="flex:1; min-width:140px; border-radius:6px;"
+									class="flex-1 min-w-36 rounded-md"
 								/>
 								<input
 									type="text"
 									name="tracking"
-									placeholder="رقم البوليصة / هاتف المندوب..."
+									placeholder="Ø±Ù‚Ù… Ø§Ù„Ø¨ÙˆÙ„ÙŠØµØ© / Ù‡Ø§ØªÙ Ø§Ù„Ù…Ù†Ø¯ÙˆØ¨..."
 									class="form-input text-xs tabular-nums"
-									style="flex:1; min-width:140px; border-radius:6px;"
+									class="flex-1 min-w-36 rounded-md"
 									dir="ltr"
 								/>
-								<button type="submit" class="btn btn-secondary font-bold text-xs py-2 px-3 gap-1" style="border-radius:6px;">
+								<button type="submit" class="btn btn-secondary font-bold text-xs py-2 px-3 gap-1" class="rounded-md">
 									@components.IconTruck("icon-xs")
-									<span>إرسال للشحن </span>
+									<span>Ø¥Ø±Ø³Ø§Ù„ Ù„Ù„Ø´Ø­Ù† </span>
 								</button>
 							</form>
 						</div>
@@ -608,44 +608,44 @@ templ VendorDashboard(lang, dir string, data VendorDashboardData) {
 						<div class="d-flex flex-col gap-3">
 							<form action={ templ.SafeURL(fmt.Sprintf("/vendor/orders/%d/status", s.ID)) } method="POST" class="d-flex items-center gap-2 flex-wrap">
 								<input type="hidden" name="status" value="shipped" />
-								<input type="hidden" name="notes" value="تم الانتهاء من التجهيز وتسليم الشحنة للشحن والتوصيل" />
+								<input type="hidden" name="notes" value="ØªÙ… Ø§Ù„Ø§Ù†ØªÙ‡Ø§Ø¡ Ù…Ù† Ø§Ù„ØªØ¬Ù‡ÙŠØ² ÙˆØªØ³Ù„ÙŠÙ… Ø§Ù„Ø´Ø­Ù†Ø© Ù„Ù„Ø´Ø­Ù† ÙˆØ§Ù„ØªÙˆØµÙŠÙ„" />
 								<input
 									type="text"
 									name="carrier"
-									placeholder="شركة الشحن / المندوب..."
+									placeholder="Ø´Ø±ÙƒØ© Ø§Ù„Ø´Ø­Ù† / Ø§Ù„Ù…Ù†Ø¯ÙˆØ¨..."
 									class="form-input text-xs"
-									style="flex:1; min-width:140px; border-radius:6px;"
+									class="flex-1 min-w-36 rounded-md"
 								/>
 								<input
 									type="text"
 									name="tracking"
-									placeholder="رقم التتبع / البوليصة..."
+									placeholder="Ø±Ù‚Ù… Ø§Ù„ØªØªØ¨Ø¹ / Ø§Ù„Ø¨ÙˆÙ„ÙŠØµØ©..."
 									class="form-input text-xs tabular-nums"
-									style="flex:1; min-width:140px; border-radius:6px;"
+									class="flex-1 min-w-36 rounded-md"
 									dir="ltr"
 								/>
-								<button type="submit" class="btn btn-secondary font-bold text-xs py-2 px-3 gap-1" style="border-radius:6px;">
+								<button type="submit" class="btn btn-secondary font-bold text-xs py-2 px-3 gap-1" class="rounded-md">
 									@components.IconTruck("icon-xs")
-									<span>بدء الشحن والتوصيل</span>
+									<span>Ø¨Ø¯Ø¡ Ø§Ù„Ø´Ø­Ù† ÙˆØ§Ù„ØªÙˆØµÙŠÙ„</span>
 								</button>
 							</form>
 
 							<form action={ templ.SafeURL(fmt.Sprintf("/vendor/orders/%d/status", s.ID)) } method="POST" class="m-0">
 								<input type="hidden" name="status" value="delivered" />
-								<input type="hidden" name="notes" value="تم تسليم الشحنة بالصيدلية وتوثيق الاستلام بنجاح" />
+								<input type="hidden" name="notes" value="ØªÙ… ØªØ³Ù„ÙŠÙ… Ø§Ù„Ø´Ø­Ù†Ø© Ø¨Ø§Ù„ØµÙŠØ¯Ù„ÙŠØ© ÙˆØªÙˆØ«ÙŠÙ‚ Ø§Ù„Ø§Ø³ØªÙ„Ø§Ù… Ø¨Ù†Ø¬Ø§Ø­" />
 								<button type="submit" class="btn btn-primary w-full justify-center font-bold text-xs py-2 gap-1 rounded-md">
 									@components.IconCheckCircle("icon-xs")
-									<span>تأكيد وإتمام التسليم للصيدلية مباشرة </span>
+									<span>ØªØ£ÙƒÙŠØ¯ ÙˆØ¥ØªÙ…Ø§Ù… Ø§Ù„ØªØ³Ù„ÙŠÙ… Ù„Ù„ØµÙŠØ¯Ù„ÙŠØ© Ù…Ø¨Ø§Ø´Ø±Ø© </span>
 								</button>
 							</form>
 						</div>
 					} else {
 						<div class="flex-between items-center">
 							<span class="badge badge-emerald text-xs font-bold p-2 px-3">
-								الشحنة بحالة: { string(s.Status) }
+								Ø§Ù„Ø´Ø­Ù†Ø© Ø¨Ø­Ø§Ù„Ø©: { string(s.Status) }
 							</span>
 							<a href="/vendor/orders" class="btn btn-secondary btn-sm text-xs font-bold">
-								الانتقال لصفحة الطلبيات ↗
+								Ø§Ù„Ø§Ù†ØªÙ‚Ø§Ù„ Ù„ØµÙØ­Ø© Ø§Ù„Ø·Ù„Ø¨ÙŠØ§Øª â†—
 							</a>
 						</div>
 					}
@@ -654,10 +654,10 @@ templ VendorDashboard(lang, dir string, data VendorDashboardData) {
 				<!-- Navigation Footer Link -->
 				<div class="mt-3 pt-2 border-t flex-between items-center">
 					<a href="/vendor/orders" class="text-xs font-bold text-secondary text-decoration-none">
-						الانتقال لصفحة كافة الطلبيات والشحنات المعتمدة ↗
+						Ø§Ù„Ø§Ù†ØªÙ‚Ø§Ù„ Ù„ØµÙØ­Ø© ÙƒØ§ÙØ© Ø§Ù„Ø·Ù„Ø¨ÙŠØ§Øª ÙˆØ§Ù„Ø´Ø­Ù†Ø§Øª Ø§Ù„Ù…Ø¹ØªÙ…Ø¯Ø© â†—
 					</a>
 					<form method="dialog" class="m-0">
-						<button class="btn btn-secondary btn-sm font-bold text-xs">إغلاق</button>
+						<button class="btn btn-secondary btn-sm font-bold text-xs">Ø¥ØºÙ„Ø§Ù‚</button>
 					</form>
 				</div>
 
@@ -665,3 +665,4 @@ templ VendorDashboard(lang, dir string, data VendorDashboardData) {
 		}
 	}
 }
+

@@ -1,4 +1,4 @@
-﻿/* ==========================================================================
+/* ==========================================================================
    DAWA 24 DESIGN SYSTEM — COMPARE SUITE & WORKSPACE (compare.css)
    ========================================================================== */
 
@@ -9,7 +9,7 @@
 	align-items: start;
 }
 
-@media (max-width: 1100px) {
+@media (max-width: 1024px) {
 	.compare-workspace-grid { grid-template-columns: 1fr; }
 }
 

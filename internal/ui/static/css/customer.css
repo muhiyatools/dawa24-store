@@ -1,3 +1,8 @@
+/* ==========================================================================
+   DAWA 24 DESIGN SYSTEM — CUSTOMER SURFACE (customer.css)
+   ========================================================================== */
+
+@layer components {
 /* ===========================================================================
    AI & Processing Keyframes
    =========================================================================== */
@@ -15,7 +20,7 @@
    Smart order: the processing screen.
 
    One ring with one number in it. The previous screen listed every stage the
-   pipeline had entered, each with a count that always read "0 / 804" â€” four
+   pipeline had entered, each with a count that always read "0 / 804" Ã¢â‚¬â€ four
    lines of text answering a question the buyer had not asked, while leaving
    the one they had ("how much longer?") unanswered.
 
@@ -301,12 +306,12 @@
 
 .so-col-item {
   min-width: 14.375rem;
-  padding-inline: 1rem !important;
+  padding-inline: 1rem;
 }
 
 .so-col-match {
   min-width: 18.75rem;
-  padding-inline: 1rem !important;
+  padding-inline: 1rem;
 }
 
 .so-col-status {
@@ -1215,7 +1220,7 @@
   font-weight: 700;
 }
 
-@media (max-width: 700px) {
+@media (max-width: 768px) {
   .so-new-order-page {
     width: min(100% - 1.25rem, 62.5rem);
     padding-block: var(--space-4);
@@ -1227,7 +1232,7 @@
 
 }
 
-@media (max-width: 700px) {
+@media (max-width: 768px) {
   .so-group-header,
   .so-excluded-header,
   .so-finalize-bar {
@@ -1311,7 +1316,7 @@
   font-size: var(--text-xs);
 }
 
-@media (max-width: 700px) {
+@media (max-width: 768px) {
   .so-mapping-page,
   .so-results-page,
   .so-review-page {
@@ -1334,7 +1339,7 @@
 
 
 /* ==========================================================================
-   DAWA 24 — CUSTOMER & PHARMACY PORTAL SURFACE STYLES (customer.css)
+   DAWA 24 â€” CUSTOMER & PHARMACY PORTAL SURFACE STYLES (customer.css)
    ========================================================================== */
 
 /* Smart Ordering workflow */
@@ -1613,7 +1618,7 @@
   align-items: start;
 }
 
-@media (max-width: 980px) {
+@media (max-width: 1024px) {
   .cb-split-grid {
     grid-template-columns: 1fr;
   }
@@ -1662,7 +1667,7 @@
   }
 }
 
-@media (max-width: 420px) {
+@media (max-width: 640px) {
   .product-grid-wrapper {
     grid-template-columns: 1fr;
   }
@@ -1871,7 +1876,7 @@
   align-items: start;
 }
 
-@media (max-width: 992px) {
+@media (max-width: 1024px) {
   .cart-grid-layout {
     grid-template-columns: 1fr;
   }
@@ -2016,7 +2021,7 @@
   align-items: start;
 }
 
-@media (max-width: 992px) {
+@media (max-width: 1024px) {
   .dashboard-workspace-grid {
     grid-template-columns: 1fr;
   }
@@ -2075,7 +2080,7 @@
   grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
 }
 
-@media (max-width: 1100px) {
+@media (max-width: 1024px) {
   .dashboard-stat-grid.cols-4,
   .dashboard-stat-grid.cols-3 {
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -2100,7 +2105,7 @@
   align-items: start;
 }
 
-@media (max-width: 992px) {
+@media (max-width: 1024px) {
   .checkout-grid {
     grid-template-columns: 1fr;
   }
@@ -2147,7 +2152,7 @@
   align-items: start;
 }
 
-@media (max-width: 992px) {
+@media (max-width: 1024px) {
   .compare-workspace-grid {
     grid-template-columns: 1fr;
   }
@@ -2163,3 +2168,5 @@
   gap: 1rem;
 }
 
+
+}

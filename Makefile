@@ -51,7 +51,7 @@ migrate-status: ## List migrations and show how many are pending
 # pipeline, so failures are found before a push rather than after one.
 
 .PHONY: check
-check: fmt-check vet lint test check-provider-isolation check-prompt-version check-file-size check-inline-styles check-error-swallow check-no-cdn check-file-size-count check-hardcoded-arabic check-emoji check-unused-components ## Run every gate
+check: fmt-check vet lint test check-provider-isolation check-prompt-version check-file-size check-inline-styles check-error-swallow check-no-cdn check-file-size-count check-hardcoded-arabic check-emoji check-unused-components check-important check-backdrop-filter check-transition-all check-breakpoints check-physical-properties ## Run every gate
 
 .PHONY: check-error-swallow
 check-error-swallow: ## Fail if a service error is silently discarded
@@ -157,10 +157,10 @@ docker: ## Build the container image
 
 check-inline-styles: ## Fail if inline style attributes grow past the current ceiling
 	@echo "==> checking inline styles"
-	# Ceiling corrected to 4001 in Phase 1 (measured baseline; downward only).
+	# Ceiling lowered from 4001 to 3606 in Phase 3 (395 styles removed on target screens).
 	@n=$$(grep -oh 'style="' internal/ui/pages/*.templ internal/ui/layouts/*.templ | wc -l | tr -d ' '); \
-	if [ "$$n" -gt 4001 ]; then \
-	  echo "FAIL: $$n inline style attributes (ceiling 4001)."; \
+	if [ "$$n" -gt 3606 ]; then \
+	  echo "FAIL: $$n inline style attributes (ceiling 3606)."; \
 	  echo ""; \
 	  echo "Inline styles bypass the tokens in app.css, which is why the design"; \
 	  echo "drifted: a fix on one page never generalises. Use a class from"; \
@@ -170,13 +170,13 @@ check-inline-styles: ## Fail if inline style attributes grow past the current ce
 	  echo "This is a ratchet: lower the ceiling in the Makefile as it drops."; \
 	  exit 1; \
 	fi; \
-	echo "OK: $$n inline styles (ceiling 4001)"
+	echo "OK: $$n inline styles (ceiling 3606)"
 
 # --- ratchets ------------------------------------------------------------
 # Each number below may only go down. When a change improves one, lower its
 # ceiling in the same commit: that is what stops an improvement eroding a page
 # at a time, which is how the design and the translations drifted in the first
-# place. These are the measured values on 30 August 2026.
+# place. These are the measured values on 31 August 2026.
 
 .PHONY: check-no-cdn
 check-no-cdn: ## Fail if a template loads a script or stylesheet from a CDN
@@ -200,3 +200,56 @@ check-emoji: ## Fail if emoji in templates grow
 .PHONY: check-unused-components
 check-unused-components: ## Fail if components no page uses grow
 	@n=0; for f in internal/ui/components/*.templ; do for fn in $$(grep -oE "^templ [A-Za-z0-9_]+" "$$f" | awk '{print $$2}'); do p=$$(grep -rho "components\.$$fn" --include='*.templ' internal/ui/pages internal/ui/layouts 2>/dev/null | wc -l); i=$$(grep -rho "@$$fn(" --include='*.templ' internal/ui/components 2>/dev/null | wc -l); if [ "$$p" -eq 0 ] && [ "$$i" -eq 0 ]; then n=$$((n+1)); echo "  unused: $$fn"; fi; done; done; if [ "$$n" -gt 0 ]; then echo "FAIL: $$n components nothing references (ceiling 0). Either a page should use it, or it should not exist."; exit 1; fi; echo "  ok: every component is referenced"
+
+.PHONY: check-important
+check-important: ## Fail if !important occurrences exceed defended ceiling (3)
+	@echo "==> checking !important in CSS"
+	@n=$$(grep -ro '!important' internal/ui/static/css/*.css 2>/dev/null | wc -l | tr -d ' '); \
+	if [ "$$n" -gt 3 ]; then \
+	  echo "FAIL: $$n !important occurrences in CSS (ceiling 3). Cascade layers must resolve precedence."; \
+	  exit 1; \
+	fi; \
+	echo "  ok: $$n !important occurrences (ceiling 3)"
+
+.PHONY: check-backdrop-filter
+check-backdrop-filter: ## Fail if backdrop-filter exceeds dialog overlay ceiling (4 including vendor prefix)
+	@echo "==> checking backdrop-filter in CSS"
+	@n=$$(grep -rn 'backdrop-filter:' internal/ui/static/css/*.css 2>/dev/null | grep -v '^\s*/\*' | wc -l | tr -d ' '); \
+	if [ "$$n" -gt 4 ]; then \
+	  echo "FAIL: $$n backdrop-filter rules in CSS (ceiling 4). Only dialog/modal backdrops are permitted."; \
+	  exit 1; \
+	fi; \
+	echo "  ok: $$n backdrop-filter rules (ceiling 4)"
+
+.PHONY: check-transition-all
+check-transition-all: ## Fail if transition: all appears in CSS
+	@echo "==> checking transition: all in CSS"
+	@if grep -rnE 'transition:\s*all' internal/ui/static/css/*.css 2>/dev/null; then \
+	  echo "FAIL: transition: all found. Animate explicit CSS properties only for 60fps performance."; \
+	  exit 1; \
+	fi; \
+	echo "  ok: 0 transition: all rules"
+
+.PHONY: check-breakpoints
+check-breakpoints: ## Fail if media queries use pixel values outside the 4 canonical tokens
+	@echo "==> checking responsive breakpoints in CSS"
+	@bad=$$(grep -rnE '@media\s*\([^{]+' internal/ui/static/css/*.css 2>/dev/null | grep -vE '(640px|768px|1024px|1280px|prefers-reduced-motion|prefers-color-scheme|print)' | wc -l | tr -d ' '); \
+	if [ "$$bad" -ne 0 ]; then \
+	  echo "FAIL: $$bad non-standard media query breakpoints found:"; \
+	  grep -rnE '@media\s*\([^{]+' internal/ui/static/css/*.css 2>/dev/null | grep -vE '(640px|768px|1024px|1280px|prefers-reduced-motion|prefers-color-scheme|print)'; \
+	  echo "All breakpoints must snap to 640px, 768px, 1024px, or 1280px."; \
+	  exit 1; \
+	fi; \
+	echo "  ok: all media queries match standard tokens"
+
+.PHONY: check-physical-properties
+check-physical-properties: ## Fail if physical directional properties appear without defended comment
+	@echo "==> checking physical directional properties in CSS"
+	@bad=$$(grep -rnE '^\s*(margin-left|margin-right|padding-left|padding-right|left:\s*|right:\s*)' internal/ui/static/css/*.css 2>/dev/null | grep -v 'defended' | wc -l | tr -d ' '); \
+	if [ "$$bad" -ne 0 ]; then \
+	  echo "FAIL: $$bad physical directional properties found:"; \
+	  grep -rnE '^\s*(margin-left|margin-right|padding-left|padding-right|left:\s*|right:\s*)' internal/ui/static/css/*.css 2>/dev/null | grep -v 'defended'; \
+	  echo "Use CSS logical properties (margin-inline, padding-inline, inset-inline) for bi-directional RTL support."; \
+	  exit 1; \
+	fi; \
+	echo "  ok: all directional styles use logical properties"

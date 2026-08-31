@@ -1,40 +1,226 @@
-﻿/* ==========================================================================
+/* ==========================================================================
    DAWA 24 — ADMIN & MANAGEMENT PORTAL SURFACE STYLES (admin.css)
    ========================================================================== */
 
-.admin-metric-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 1.25rem;
-  margin-bottom: 1.5rem;
-}
+@layer components {
+  /* Admin Container & Header */
+  .admin-page-container {
+    max-width: 1440px;
+    margin: 0 auto;
+    padding-bottom: var(--space-2xl);
+  }
 
-.admin-filter-bar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
-  padding: 1rem 1.25rem;
-  background: var(--bg-surface-raised);
-  border: 1px solid var(--border-card);
-  border-radius: var(--radius-xl);
-  margin-bottom: 1.5rem;
-  flex-wrap: wrap;
-}
+  .admin-banner {
+    background: var(--bg-surface-raised);
+    border: 1px solid var(--border-card);
+    border-radius: var(--radius-2xl);
+    padding: var(--space-md) var(--space-lg);
+    margin-bottom: var(--space-md);
+    box-shadow: var(--shadow-sm);
+  }
 
-.admin-table-wrapper {
-  background: var(--bg-surface-raised);
-  border: 1px solid var(--border-card);
-  border-radius: var(--radius-xl);
-  box-shadow: var(--shadow-xs);
-  overflow-x: auto;
-}
+  .admin-banner-inner {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: var(--space-md);
+  }
 
-.admin-log-badge {
-  font-family: var(--font-mono, monospace);
-  font-size: var(--text-xs);
-  padding: 0.2rem 0.5rem;
-  border-radius: var(--radius-md);
-  background: var(--bg-surface-sunken);
-  border: 1px solid var(--border-subtle);
+  .admin-banner-icon {
+    width: 46px;
+    height: 46px;
+    border-radius: var(--radius-lg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.4rem;
+    flex-shrink: 0;
+  }
+
+  .admin-banner-icon.primary {
+    background: var(--primary-subtle);
+    color: var(--primary);
+    border: 1px solid var(--primary-border);
+  }
+
+  .admin-banner-icon.purple {
+    background: oklch(0.60 0.16 300 / 0.12);
+    color: oklch(0.65 0.18 300);
+    border: 1px solid oklch(0.60 0.16 300 / 0.25);
+  }
+
+  .admin-banner-title {
+    font-size: var(--text-lg);
+    font-weight: 900;
+    color: var(--text-primary);
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: var(--space-xs);
+  }
+
+  .admin-banner-subtitle {
+    font-size: var(--text-xs);
+    color: var(--text-secondary);
+    margin: 0.2rem 0 0 0;
+  }
+
+  /* Admin Status Indicator Pills */
+  .admin-status-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2xs);
+    padding: 0.35rem 0.75rem;
+    border-radius: var(--radius-full);
+    font-size: var(--text-xs);
+    font-weight: 700;
+    background: var(--bg-surface-sunken);
+    border: 1px solid var(--border-subtle);
+  }
+
+  .admin-status-dot {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: var(--radius-full);
+  }
+
+  .admin-status-dot.online {
+    background: var(--success);
+    box-shadow: 0 0 8px var(--success);
+  }
+
+  /* Admin KPI Grid & Cards */
+  .admin-kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: var(--space-md);
+    margin-bottom: var(--space-md);
+  }
+
+  .admin-kpi-card {
+    background: var(--bg-surface-raised);
+    border: 1px solid var(--border-card);
+    border-radius: var(--radius-xl);
+    padding: var(--space-md);
+    box-shadow: var(--shadow-sm);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    contain: content;
+  }
+
+  .admin-kpi-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .admin-kpi-title {
+    font-size: var(--text-xs);
+    font-weight: 800;
+    color: var(--text-secondary);
+  }
+
+  .admin-kpi-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: var(--radius-md);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .admin-kpi-value {
+    font-size: var(--text-2xl);
+    font-weight: 900;
+    margin: 0.4rem 0 0.5rem 0;
+    line-height: var(--leading-none);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .admin-kpi-footer {
+    border-top: 1px solid var(--border-subtle);
+    padding-top: var(--space-xs);
+    margin-top: auto;
+    font-size: var(--text-xs);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: var(--text-muted);
+  }
+
+  /* Admin Filter Bar */
+  .admin-filter-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-md);
+    padding: var(--space-md) var(--space-lg);
+    background: var(--bg-surface-raised);
+    border: 1px solid var(--border-card);
+    border-radius: var(--radius-xl);
+    margin-bottom: var(--space-md);
+    flex-wrap: wrap;
+  }
+
+  /* Admin Table Wrapper & Responsive Transformation below 768px */
+  .admin-table-wrapper {
+    background: var(--bg-surface-raised);
+    border: 1px solid var(--border-card);
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow-xs);
+    overflow: hidden;
+    margin-bottom: var(--space-md);
+  }
+
+  @media (max-width: 768px) {
+    .data-table-responsive thead {
+      display: none;
+    }
+    .data-table-responsive,
+    .data-table-responsive tbody,
+    .data-table-responsive tr,
+    .data-table-responsive td {
+      display: block;
+      width: 100%;
+    }
+    .data-table-responsive tr {
+      margin-bottom: var(--space-sm);
+      background: var(--bg-surface-raised);
+      border: 1px solid var(--border-card);
+      border-radius: var(--radius-xl);
+      padding: var(--space-sm);
+      box-shadow: var(--shadow-xs);
+    }
+    .data-table-responsive td {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: var(--space-xs) 0;
+      border-bottom: 1px solid var(--border-subtle);
+      font-size: var(--text-xs);
+    }
+    .data-table-responsive td:last-child {
+      border-bottom: none;
+      padding-top: var(--space-sm);
+      justify-content: flex-end;
+    }
+    .data-table-responsive td::before {
+      content: attr(data-label);
+      font-weight: 700;
+      font-size: var(--text-xs);
+      color: var(--text-muted);
+    }
+  }
+
+  .admin-log-badge {
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    padding: 0.2rem 0.5rem;
+    border-radius: var(--radius-md);
+    background: var(--bg-surface-sunken);
+    border: 1px solid var(--border-subtle);
+  }
 }

@@ -1,5 +1,11 @@
 /* ==========================================================================
-   DAWA 24 — FOUNDATIONS (foundations.css)
+   DAWA 24 DESIGN SYSTEM — FOUNDATIONS (foundations.css)
+   Card layouts, metrics, responsive utilities, helpers
+   ========================================================================== */
+
+@layer components {
+/* ==========================================================================
+   DAWA 24 â€” FOUNDATIONS (foundations.css)
 
    Classes the templates have always used and no stylesheet ever defined.
 
@@ -70,9 +76,9 @@
 .input-sm,
 .form-input-sm,
 .form-input.input-sm {
-  padding: 0.4rem 0.6rem !important;
-  font-size: var(--text-xs) !important;
-  border-radius: var(--radius-md) !important;
+  padding: 0.4rem 0.6rem;
+  font-size: var(--text-xs);
+  border-radius: var(--radius-md);
 }
 
 /* ==========================================================================
@@ -116,101 +122,101 @@
    same 0.25rem scale, including the logical start/end pair that RTL needs.
    ========================================================================== */
 
-.m-0\.5  { margin: 0.125rem !important; }
-.mt-0\.5 { margin-top: 0.125rem !important; }
-.mb-0\.5 { margin-bottom: 0.125rem !important; }
-.mt-1\.5 { margin-top: 0.375rem !important; }
-.mb-1\.5 { margin-bottom: 0.375rem !important; }
-.mt-2\.5 { margin-top: 0.625rem !important; }
-.mb-2\.5 { margin-bottom: 0.625rem !important; }
-.mb-5    { margin-bottom: 1.25rem !important; }
-.mt-5    { margin-top: 1.25rem !important; }
-.mb-10   { margin-bottom: 2.5rem !important; }
-.mt-10   { margin-top: 2.5rem !important; }
+.m-0\.5  { margin: 0.125rem; }
+.mt-0\.5 { margin-top: 0.125rem; }
+.mb-0\.5 { margin-bottom: 0.125rem; }
+.mt-1\.5 { margin-top: 0.375rem; }
+.mb-1\.5 { margin-bottom: 0.375rem; }
+.mt-2\.5 { margin-top: 0.625rem; }
+.mb-2\.5 { margin-bottom: 0.625rem; }
+.mb-5    { margin-bottom: 1.25rem; }
+.mt-5    { margin-top: 1.25rem; }
+.mb-10   { margin-bottom: 2.5rem; }
+.mt-10   { margin-top: 2.5rem; }
 
-.ms-0 { margin-inline-start: 0 !important; }
-.ms-1 { margin-inline-start: 0.25rem !important; }
-.ms-2 { margin-inline-start: 0.5rem !important; }
-.ms-3 { margin-inline-start: 0.75rem !important; }
-.ms-4 { margin-inline-start: 1rem !important; }
-.ms-auto { margin-inline-start: auto !important; }
-.me-0 { margin-inline-end: 0 !important; }
-.me-1 { margin-inline-end: 0.25rem !important; }
-.me-2 { margin-inline-end: 0.5rem !important; }
-.me-3 { margin-inline-end: 0.75rem !important; }
-.me-4 { margin-inline-end: 1rem !important; }
-.me-auto { margin-inline-end: auto !important; }
+.ms-0 { margin-inline-start: 0; }
+.ms-1 { margin-inline-start: 0.25rem; }
+.ms-2 { margin-inline-start: 0.5rem; }
+.ms-3 { margin-inline-start: 0.75rem; }
+.ms-4 { margin-inline-start: 1rem; }
+.ms-auto { margin-inline-start: auto; }
+.me-0 { margin-inline-end: 0; }
+.me-1 { margin-inline-end: 0.25rem; }
+.me-2 { margin-inline-end: 0.5rem; }
+.me-3 { margin-inline-end: 0.75rem; }
+.me-4 { margin-inline-end: 1rem; }
+.me-auto { margin-inline-end: auto; }
 
-.pt-0 { padding-top: 0 !important; }
-.pt-1 { padding-top: 0.25rem !important; }
-.pt-2 { padding-top: 0.5rem !important; }
-.pt-3 { padding-top: 0.75rem !important; }
-.pt-4 { padding-top: 1rem !important; }
-.pt-5 { padding-top: 1.25rem !important; }
-.pt-6 { padding-top: 1.5rem !important; }
-.pt-8 { padding-top: 2rem !important; }
-.pt-10 { padding-top: 2.5rem !important; }
-.pb-0 { padding-bottom: 0 !important; }
-.pb-1 { padding-bottom: 0.25rem !important; }
-.pb-2 { padding-bottom: 0.5rem !important; }
-.pb-3 { padding-bottom: 0.75rem !important; }
-.pb-4 { padding-bottom: 1rem !important; }
-.pb-5 { padding-bottom: 1.25rem !important; }
-.pb-6 { padding-bottom: 1.5rem !important; }
-.pb-8 { padding-bottom: 2rem !important; }
-.pb-10 { padding-bottom: 2.5rem !important; }
+.pt-0 { padding-top: 0; }
+.pt-1 { padding-top: 0.25rem; }
+.pt-2 { padding-top: 0.5rem; }
+.pt-3 { padding-top: 0.75rem; }
+.pt-4 { padding-top: 1rem; }
+.pt-5 { padding-top: 1.25rem; }
+.pt-6 { padding-top: 1.5rem; }
+.pt-8 { padding-top: 2rem; }
+.pt-10 { padding-top: 2.5rem; }
+.pb-0 { padding-bottom: 0; }
+.pb-1 { padding-bottom: 0.25rem; }
+.pb-2 { padding-bottom: 0.5rem; }
+.pb-3 { padding-bottom: 0.75rem; }
+.pb-4 { padding-bottom: 1rem; }
+.pb-5 { padding-bottom: 1.25rem; }
+.pb-6 { padding-bottom: 1.5rem; }
+.pb-8 { padding-bottom: 2rem; }
+.pb-10 { padding-bottom: 2.5rem; }
 
-.ps-0 { padding-inline-start: 0 !important; }
-.ps-1 { padding-inline-start: 0.25rem !important; }
-.ps-2 { padding-inline-start: 0.5rem !important; }
-.ps-3 { padding-inline-start: 0.75rem !important; }
-.ps-4 { padding-inline-start: 1rem !important; }
-.ps-6 { padding-inline-start: 1.5rem !important; }
-.pe-0 { padding-inline-end: 0 !important; }
-.pe-1 { padding-inline-end: 0.25rem !important; }
-.pe-2 { padding-inline-end: 0.5rem !important; }
-.pe-3 { padding-inline-end: 0.75rem !important; }
-.pe-4 { padding-inline-end: 1rem !important; }
-.pe-6 { padding-inline-end: 1.5rem !important; }
+.ps-0 { padding-inline-start: 0; }
+.ps-1 { padding-inline-start: 0.25rem; }
+.ps-2 { padding-inline-start: 0.5rem; }
+.ps-3 { padding-inline-start: 0.75rem; }
+.ps-4 { padding-inline-start: 1rem; }
+.ps-6 { padding-inline-start: 1.5rem; }
+.pe-0 { padding-inline-end: 0; }
+.pe-1 { padding-inline-end: 0.25rem; }
+.pe-2 { padding-inline-end: 0.5rem; }
+.pe-3 { padding-inline-end: 0.75rem; }
+.pe-4 { padding-inline-end: 1rem; }
+.pe-6 { padding-inline-end: 1.5rem; }
 
-.p-2\.5  { padding: 0.625rem !important; }
-.p-3\.5  { padding: 0.875rem !important; }
-.p-4\.5  { padding: 1.125rem !important; }
-.py-0\.5 { padding-block: 0.125rem !important; }
-.py-1\.5 { padding-block: 0.375rem !important; }
-.py-2\.5 { padding-block: 0.625rem !important; }
-.py-3\.5 { padding-block: 0.875rem !important; }
-.px-1\.5 { padding-inline: 0.375rem !important; }
-.px-2\.5 { padding-inline: 0.625rem !important; }
-.px-3\.5 { padding-inline: 0.875rem !important; }
+.p-2\.5  { padding: 0.625rem; }
+.p-3\.5  { padding: 0.875rem; }
+.p-4\.5  { padding: 1.125rem; }
+.py-0\.5 { padding-block: 0.125rem; }
+.py-1\.5 { padding-block: 0.375rem; }
+.py-2\.5 { padding-block: 0.625rem; }
+.py-3\.5 { padding-block: 0.875rem; }
+.px-1\.5 { padding-inline: 0.375rem; }
+.px-2\.5 { padding-inline: 0.625rem; }
+.px-3\.5 { padding-inline: 0.875rem; }
 
 /* ==========================================================================
    4. GAP HALF STEPS
    ========================================================================== */
 
-.gap-0\.5 { gap: 0.125rem !important; }
-.gap-1\.5 { gap: 0.375rem !important; }
-.gap-2\.5 { gap: 0.625rem !important; }
-.gap-3\.5 { gap: 0.875rem !important; }
+.gap-0\.5 { gap: 0.125rem; }
+.gap-1\.5 { gap: 0.375rem; }
+.gap-2\.5 { gap: 0.625rem; }
+.gap-3\.5 { gap: 0.875rem; }
 
 /* ==========================================================================
    5. TYPE SCALE GAPS
    ========================================================================== */
 
-.text-2xs   { font-size: 0.6875rem !important; line-height: 1.45; }
-.text-4xl   { font-size: 2rem !important; line-height: 1.15; }
-.text-5xl   { font-size: 2.5rem !important; line-height: 1.1; }
+.text-2xs   { font-size: 0.6875rem; line-height: 1.45; }
+.text-4xl   { font-size: 2rem; line-height: 1.15; }
+.text-5xl   { font-size: 2.5rem; line-height: 1.1; }
 
-.leading-none    { line-height: var(--leading-none) !important; }
-.leading-tight   { line-height: var(--leading-tight) !important; }
-.leading-snug    { line-height: var(--leading-snug) !important; }
-.leading-normal  { line-height: var(--leading-normal) !important; }
-.leading-relaxed { line-height: var(--leading-relaxed) !important; }
+.leading-none    { line-height: var(--leading-none); }
+.leading-tight   { line-height: var(--leading-tight); }
+.leading-snug    { line-height: var(--leading-snug); }
+.leading-normal  { line-height: var(--leading-normal); }
+.leading-relaxed { line-height: var(--leading-relaxed); }
 
-.tracking-tight   { letter-spacing: -0.015em !important; }
-.tracking-wide    { letter-spacing: 0.015em !important; }
-.tracking-wider   { letter-spacing: 0.03em !important; }
-.tracking-widest  { letter-spacing: 0.06em !important; }
+.tracking-tight   { letter-spacing: -0.015em; }
+.tracking-wide    { letter-spacing: 0.015em; }
+.tracking-wider   { letter-spacing: 0.03em; }
+.tracking-widest  { letter-spacing: 0.06em; }
 
 /* ==========================================================================
    6. PALETTE UTILITIES
@@ -218,101 +224,101 @@
    attributes did nothing. Only the steps the templates actually ask for.
    ========================================================================== */
 
-.text-slate-300 { color: var(--slate-300) !important; }
-.text-slate-400 { color: var(--slate-400) !important; }
-.text-slate-500 { color: var(--slate-500) !important; }
-.text-slate-600 { color: var(--slate-600) !important; }
-.text-slate-700 { color: var(--slate-700) !important; }
-.text-emerald, .text-emerald-500 { color: var(--emerald-500) !important; }
-.text-emerald-600 { color: var(--emerald-600) !important; }
-.text-emerald-800 { color: var(--emerald-600) !important; }
-.text-rose, .text-rose-500 { color: var(--rose-500) !important; }
-.text-rose-600 { color: var(--rose-600) !important; }
-.text-rose-700 { color: var(--rose-600) !important; }
-.text-amber, .text-amber-500 { color: var(--amber-500) !important; }
-.text-amber-600, .text-amber-800 { color: var(--amber-600) !important; }
-.text-sky, .text-sky-500 { color: var(--brand-500) !important; }
-.text-sky-600, .text-brand-600 { color: var(--brand-600) !important; }
-.text-brand-500 { color: var(--brand-500) !important; }
+.text-slate-300 { color: var(--slate-300); }
+.text-slate-400 { color: var(--slate-400); }
+.text-slate-500 { color: var(--slate-500); }
+.text-slate-600 { color: var(--slate-600); }
+.text-slate-700 { color: var(--slate-700); }
+.text-emerald, .text-emerald-500 { color: var(--emerald-500); }
+.text-emerald-600 { color: var(--emerald-600); }
+.text-emerald-800 { color: var(--emerald-600); }
+.text-rose, .text-rose-500 { color: var(--rose-500); }
+.text-rose-600 { color: var(--rose-600); }
+.text-rose-700 { color: var(--rose-600); }
+.text-amber, .text-amber-500 { color: var(--amber-500); }
+.text-amber-600, .text-amber-800 { color: var(--amber-600); }
+.text-sky, .text-sky-500 { color: var(--brand-500); }
+.text-sky-600, .text-brand-600 { color: var(--brand-600); }
+.text-brand-500 { color: var(--brand-500); }
 
-.bg-slate-50  { background-color: var(--slate-50) !important; }
-.bg-slate-100 { background-color: var(--slate-100) !important; }
-.bg-slate-200 { background-color: var(--slate-200) !important; }
-.bg-brand-50  { background-color: var(--brand-50) !important; }
-.bg-emerald-50 { background-color: var(--emerald-50) !important; }
-.bg-rose-50   { background-color: var(--rose-50) !important; }
-.bg-amber-50  { background-color: var(--amber-50) !important; }
+.bg-slate-50  { background-color: var(--slate-50); }
+.bg-slate-100 { background-color: var(--slate-100); }
+.bg-slate-200 { background-color: var(--slate-200); }
+.bg-brand-50  { background-color: var(--brand-50); }
+.bg-emerald-50 { background-color: var(--emerald-50); }
+.bg-rose-50   { background-color: var(--rose-50); }
+.bg-amber-50  { background-color: var(--amber-50); }
 
-.border-slate-100 { border-color: var(--slate-100) !important; }
-.border-slate-200 { border-color: var(--slate-200) !important; }
-.border-slate-300 { border-color: var(--slate-300) !important; }
-.border-brand-300 { border-color: var(--brand-300) !important; }
-.border-brand-500 { border-color: var(--brand-500) !important; }
+.border-slate-100 { border-color: var(--slate-100); }
+.border-slate-200 { border-color: var(--slate-200); }
+.border-slate-300 { border-color: var(--slate-300); }
+.border-brand-300 { border-color: var(--brand-300); }
+.border-brand-500 { border-color: var(--brand-500); }
 
 /* The templates also write opacity suffixes (border-slate-200/80). CSS has no
    such syntax, so each is spelled out against the same ramp. */
-.border-slate-100\/80 { border-color: color-mix(in srgb, var(--slate-100) 80%, transparent) !important; }
-.border-slate-200\/70 { border-color: color-mix(in srgb, var(--slate-200) 70%, transparent) !important; }
-.border-slate-200\/80 { border-color: color-mix(in srgb, var(--slate-200) 80%, transparent) !important; }
-.bg-slate-50\/80      { background-color: color-mix(in srgb, var(--slate-50) 80%, transparent) !important; }
-.bg-slate-50\/50      { background-color: color-mix(in srgb, var(--slate-50) 50%, transparent) !important; }
+.border-slate-100\/80 { border-color: color-mix(in srgb, var(--slate-100) 80%, transparent); }
+.border-slate-200\/70 { border-color: color-mix(in srgb, var(--slate-200) 70%, transparent); }
+.border-slate-200\/80 { border-color: color-mix(in srgb, var(--slate-200) 80%, transparent); }
+.bg-slate-50\/80      { background-color: color-mix(in srgb, var(--slate-50) 80%, transparent); }
+.bg-slate-50\/50      { background-color: color-mix(in srgb, var(--slate-50) 50%, transparent); }
 
 /* In dark mode a literal slate-50 ground is white. Map the light surfaces onto
    the theme's own surfaces instead of inverting the ramp. */
 [data-theme="dark"] .bg-slate-50,
 [data-theme="dark"] .bg-slate-50\/80,
-[data-theme="dark"] .bg-slate-50\/50 { background-color: var(--bg-surface-sunken) !important; }
-[data-theme="dark"] .bg-slate-100    { background-color: var(--bg-surface-raised) !important; }
+[data-theme="dark"] .bg-slate-50\/50 { background-color: var(--bg-surface-sunken); }
+[data-theme="dark"] .bg-slate-100    { background-color: var(--bg-surface-raised); }
 [data-theme="dark"] .text-slate-600,
-[data-theme="dark"] .text-slate-700  { color: var(--text-secondary) !important; }
+[data-theme="dark"] .text-slate-700  { color: var(--text-secondary); }
 [data-theme="dark"] .border-slate-100,
 [data-theme="dark"] .border-slate-200,
 [data-theme="dark"] .border-slate-100\/80,
 [data-theme="dark"] .border-slate-200\/70,
-[data-theme="dark"] .border-slate-200\/80 { border-color: var(--border-card) !important; }
+[data-theme="dark"] .border-slate-200\/80 { border-color: var(--border-card); }
 
 /* ==========================================================================
    7. LAYOUT HELPERS
    ========================================================================== */
 
-.position-relative { position: relative !important; }
-.position-absolute { position: absolute !important; }
-.position-fixed    { position: fixed !important; }
-.position-sticky   { position: sticky !important; }
+.position-relative { position: relative; }
+.position-absolute { position: absolute; }
+.position-fixed    { position: fixed; }
+.position-sticky   { position: sticky; }
 
-.overflow-hidden   { overflow: hidden !important; }
-.overflow-auto     { overflow: auto !important; }
-.overflow-y-auto   { overflow-y: auto !important; }
-.overflow-x-auto   { overflow-x: auto !important; }
-.overflow-y-hidden { overflow-y: hidden !important; }
+.overflow-hidden   { overflow: hidden; }
+.overflow-auto     { overflow: auto; }
+.overflow-y-auto   { overflow-y: auto; }
+.overflow-x-auto   { overflow-x: auto; }
+.overflow-y-hidden { overflow-y: hidden; }
 
-.cursor-pointer   { cursor: pointer !important; }
-.cursor-default   { cursor: default !important; }
-.cursor-not-allowed { cursor: not-allowed !important; }
+.cursor-pointer   { cursor: pointer; }
+.cursor-default   { cursor: default; }
+.cursor-not-allowed { cursor: not-allowed; }
 
-.rounded          { border-radius: var(--radius-md) !important; }
-.shadow-2xs       { box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04) !important; }
+.rounded          { border-radius: var(--radius-md); }
+.shadow-2xs       { box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04); }
 
 .text-truncate {
-  overflow: hidden !important;
-  text-overflow: ellipsis !important;
-  white-space: nowrap !important;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
-.text-decoration-none { text-decoration: none !important; }
+.text-decoration-none { text-decoration: none; }
 
-.z-0  { z-index: 0 !important; }
-.z-10 { z-index: 10 !important; }
-.z-20 { z-index: 20 !important; }
-.z-50 { z-index: 50 !important; }
+.z-0  { z-index: 0; }
+.z-10 { z-index: 10; }
+.z-20 { z-index: 20; }
+.z-50 { z-index: 50; }
 
-.top-0    { top: 0 !important; }
-.top-2    { top: 0.5rem !important; }
-.bottom-0 { bottom: 0 !important; }
-.bottom-2 { bottom: 0.5rem !important; }
-.start-0  { inset-inline-start: 0 !important; }
-.start-2  { inset-inline-start: 0.5rem !important; }
-.end-0    { inset-inline-end: 0 !important; }
-.end-2    { inset-inline-end: 0.5rem !important; }
+.top-0    { top: 0; }
+.top-2    { top: 0.5rem; }
+.bottom-0 { bottom: 0; }
+.bottom-2 { bottom: 0.5rem; }
+.start-0  { inset-inline-start: 0; }
+.start-2  { inset-inline-start: 0.5rem; }
+.end-0    { inset-inline-end: 0; }
+.end-2    { inset-inline-end: 0.5rem; }
 
 /* ==========================================================================
    8. INTERACTION STATES
@@ -326,23 +332,23 @@
               border-color var(--duration-fast, 150ms) var(--ease-smooth, ease);
 }
 
-.hover\:bg-slate-50\/50:hover  { background-color: color-mix(in srgb, var(--slate-50) 50%, transparent) !important; }
-.hover\:bg-slate-100:hover     { background-color: var(--slate-100) !important; }
-.hover\:bg-rose-50:hover       { background-color: var(--rose-50) !important; }
-.hover\:bg-brand-50\/20:hover  { background-color: color-mix(in srgb, var(--brand-50) 20%, transparent) !important; }
-.hover\:bg-surface-raised:hover { background-color: var(--bg-surface-raised) !important; }
-.hover\:text-rose-700:hover    { color: var(--rose-600) !important; }
-.hover\:text-slate-600:hover   { color: var(--slate-600) !important; }
-.hover\:text-emerald-800:hover { color: var(--emerald-600) !important; }
-.hover\:text-amber-800:hover   { color: var(--amber-600) !important; }
+.hover\:bg-slate-50\/50:hover  { background-color: color-mix(in srgb, var(--slate-50) 50%, transparent); }
+.hover\:bg-slate-100:hover     { background-color: var(--slate-100); }
+.hover\:bg-rose-50:hover       { background-color: var(--rose-50); }
+.hover\:bg-brand-50\/20:hover  { background-color: color-mix(in srgb, var(--brand-50) 20%, transparent); }
+.hover\:bg-surface-raised:hover { background-color: var(--bg-surface-raised); }
+.hover\:text-rose-700:hover    { color: var(--rose-600); }
+.hover\:text-slate-600:hover   { color: var(--slate-600); }
+.hover\:text-emerald-800:hover { color: var(--emerald-600); }
+.hover\:text-amber-800:hover   { color: var(--amber-600); }
 .hover\:text-primary:hover,
-.hover\:text-brand:hover       { color: var(--brand-600) !important; }
-.hover\:border-brand-300:hover { border-color: var(--brand-300) !important; }
-.hover\:border-brand-500:hover { border-color: var(--brand-500) !important; }
-.hover\:shadow-md:hover        { box-shadow: var(--shadow-md) !important; }
+.hover\:text-brand:hover       { color: var(--brand-600); }
+.hover\:border-brand-300:hover { border-color: var(--brand-300); }
+.hover\:border-brand-500:hover { border-color: var(--brand-500); }
+.hover\:shadow-md:hover        { box-shadow: var(--shadow-md); }
 
 [data-theme="dark"] .hover\:bg-slate-50\/50:hover,
-[data-theme="dark"] .hover\:bg-slate-100:hover { background-color: var(--bg-surface-raised) !important; }
+[data-theme="dark"] .hover\:bg-slate-100:hover { background-color: var(--bg-surface-raised); }
 
 @media (prefers-reduced-motion: reduce) {
   .transition-colors { transition: none; }
@@ -489,31 +495,31 @@
    10. REMAINING UTILITY GAPS
    ========================================================================== */
 
-.align-middle   { vertical-align: middle !important; }
-.shrink-0       { flex-shrink: 0 !important; }
-.grow           { flex-grow: 1 !important; }
+.align-middle   { vertical-align: middle; }
+.shrink-0       { flex-shrink: 0; }
+.grow           { flex-grow: 1; }
 .transition-all { transition: background-color var(--duration-fast, 150ms) var(--ease-smooth, ease), border-color var(--duration-fast, 150ms) var(--ease-smooth, ease), color var(--duration-fast, 150ms) var(--ease-smooth, ease), opacity var(--duration-fast, 150ms) var(--ease-smooth, ease), transform var(--duration-fast, 150ms) var(--ease-smooth, ease), box-shadow var(--duration-fast, 150ms) var(--ease-smooth, ease); }
 
-.p-12  { padding: 3rem !important; }
-.px-5  { padding-inline: 1.25rem !important; }
-.py-5  { padding-block: 1.25rem !important; }
-.h-9   { height: 2.25rem !important; }
-.w-9   { width: 2.25rem !important; }
-.h-8   { height: 2rem !important; }
-.w-8   { width: 2rem !important; }
+.p-12  { padding: 3rem; }
+.px-5  { padding-inline: 1.25rem; }
+.py-5  { padding-block: 1.25rem; }
+.h-9   { height: 2.25rem; }
+.w-9   { width: 2.25rem; }
+.h-8   { height: 2rem; }
+.w-8   { width: 2rem; }
 
 /* space-y-* puts the gap between children, not around them. */
-.space-y-2 > * + * { margin-top: 0.5rem !important; }
-.space-y-3 > * + * { margin-top: 0.75rem !important; }
-.space-y-4 > * + * { margin-top: 1rem !important; }
-.space-y-6 > * + * { margin-top: 1.5rem !important; }
+.space-y-2 > * + * { margin-top: 0.5rem; }
+.space-y-3 > * + * { margin-top: 0.75rem; }
+.space-y-4 > * + * { margin-top: 1rem; }
+.space-y-6 > * + * { margin-top: 1.5rem; }
 
 /* divide-y draws a rule between children, which is how the detail lists on the
    admin user screen were meant to read. */
 .divide-y > * + * { border-top: 1px solid var(--border-card); }
 .divide-slate-100 > * + * { border-top-color: var(--border-subtle); }
 
-.border-brand-200\/60 { border-color: color-mix(in srgb, var(--brand-300) 60%, transparent) !important; }
+.border-brand-200\/60 { border-color: color-mix(in srgb, var(--brand-300) 60%, transparent); }
 
 @media (prefers-reduced-motion: reduce) {
   .transition-all, .hover-lift { transition: none; }
@@ -523,7 +529,9 @@
 /* One breakpoint prefix is used in the markup. The scale is defined here so
    the next one has somewhere to go rather than becoming another literal. */
 @media (min-width: 768px) {
-  .md\:grid-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
-  .md\:grid-cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)) !important; }
-  .md\:flex-row    { flex-direction: row !important; }
+  .md\:grid-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .md\:grid-cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .md\:flex-row    { flex-direction: row; }
+}
+
 }

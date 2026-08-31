@@ -1,160 +1,129 @@
 /* ==========================================================================
    DAWA 24 DESIGN SYSTEM — BASE & TYPOGRAPHY (base.css)
-   Normalize, Box-Sizing, Font Stack, Focus Visibility, Scrollbars, Print Rules
+   Normalize, Box-Sizing, Font Stack, Focus Visibility, Scrollbars
    ========================================================================== */
 
-*, *::before, *::after {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-}
-
-html {
-  font-size: 16px;
-  -webkit-text-size-adjust: 100%;
-  -moz-text-size-adjust: 100%;
-  text-size-adjust: 100%;
-  scroll-behavior: smooth;
-  height: 100%;
-}
-
-body {
-  font-family: var(--font-sans);
-  font-size: var(--text-base);
-  line-height: var(--leading-normal);
-  color: var(--text-primary);
-  background-color: var(--bg-app);
-  min-height: 100%;
-  direction: rtl;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
-/* ---- Headings & Hierarchical Typography ---- */
-h1, h2, h3, h4, h5, h6 {
-  color: var(--text-primary);
-  font-weight: 700;
-  line-height: var(--leading-tight);
-  text-wrap: balance;
-}
-
-h1 { font-size: var(--text-3xl); font-weight: 800; letter-spacing: -0.025em; }
-h2 { font-size: var(--text-2xl); font-weight: 800; letter-spacing: -0.02em; }
-h3 { font-size: var(--text-xl);  font-weight: 700; }
-h4 { font-size: var(--text-lg);  font-weight: 700; }
-h5 { font-size: var(--text-md);  font-weight: 600; }
-h6 { font-size: var(--text-sm);  font-weight: 600; text-transform: uppercase; }
-
-p {
-  line-height: var(--leading-relaxed);
-  text-wrap: pretty;
-}
-
-a {
-  color: var(--primary);
-  text-decoration: none;
-  transition: color var(--duration-fast) var(--ease-smooth);
-}
-
-a:hover {
-  color: var(--primary-hover);
-}
-
-strong, b {
-  font-weight: 700;
-  color: var(--text-primary);
-}
-
-code, kbd, samp, pre {
-  font-family: var(--font-mono);
-  font-size: 0.875em;
-  direction: ltr;
-}
-
-/* ---- Focus Visibility & Accessibility ---- */
-:focus-visible {
-  outline: 2px solid var(--primary);
-  outline-offset: 2px;
-  border-radius: var(--radius-sm);
-}
-
-/* Remove default focus styles on mouse click when supported */
-:focus:not(:focus-visible) {
-  outline: none;
-}
-
-/* ---- Smooth Custom Scrollbars ---- */
-::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
-}
-
-::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-::-webkit-scrollbar-thumb {
-  background: var(--slate-300);
-  border-radius: var(--radius-full);
-}
-
-[data-theme="dark"] ::-webkit-scrollbar-thumb {
-  background: var(--slate-700);
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: var(--slate-400);
-}
-
-[data-theme="dark"] ::-webkit-scrollbar-thumb:hover {
-  background: var(--slate-600);
-}
-
-/* ---- Base SVG & Icon Sizing Standards ---- */
-svg {
-  display: inline-block;
-  vertical-align: middle;
-  flex-shrink: 0;
-}
-
-svg:not([width]):not([class*="icon"]):not([class*="w-"]):not([class*="h-"]) {
-  width: 1.25rem;
-  height: 1.25rem;
-}
-
-.icon, svg.icon         { width: 1.25rem !important; height: 1.25rem !important; min-width: 1.25rem !important; min-height: 1.25rem !important; }
-.icon-2xs, svg.icon-2xs { width: 0.75rem !important; height: 0.75rem !important; min-width: 0.75rem !important; min-height: 0.75rem !important; }
-.icon-xs, svg.icon-xs   { width: 1rem !important; height: 1rem !important; min-width: 1rem !important; min-height: 1rem !important; }
-.icon-sm, svg.icon-sm   { width: 1.25rem !important; height: 1.25rem !important; min-width: 1.25rem !important; min-height: 1.25rem !important; }
-.icon-md, svg.icon-md   { width: 1.5rem !important; height: 1.5rem !important; min-width: 1.5rem !important; min-height: 1.5rem !important; }
-.icon-lg, svg.icon-lg   { width: 2rem !important; height: 2rem !important; min-width: 2rem !important; min-height: 2rem !important; }
-.icon-xl, svg.icon-xl   { width: 2.5rem !important; height: 2.5rem !important; min-width: 2.5rem !important; min-height: 2.5rem !important; }
-.icon-2xl, svg.icon-2xl { width: 3rem !important; height: 3rem !important; min-width: 3rem !important; min-height: 3rem !important; }
-
-/* Tailwind w-*/h-* compat for SVG icons */
-svg.w-3, .w-3 { width: 0.75rem !important; }
-svg.h-3, .h-3 { height: 0.75rem !important; }
-svg.w-4, .w-4 { width: 1rem !important; }
-svg.h-4, .h-4 { height: 1rem !important; }
-svg.w-5, .w-5 { width: 1.25rem !important; }
-svg.h-5, .h-5 { height: 1.25rem !important; }
-svg.w-6, .w-6 { width: 1.5rem !important; }
-svg.h-6, .h-6 { height: 1.5rem !important; }
-svg.w-8, .w-8 { width: 2rem !important; }
-svg.h-8, .h-8 { height: 2rem !important; }
-svg.w-10, .w-10 { width: 2.5rem !important; }
-svg.h-10, .h-10 { height: 2.5rem !important; }
-svg.w-12, .w-12 { width: 3rem !important; }
-svg.h-12, .h-12 { height: 3rem !important; }
-
-/* ---- Motion Preferences ---- */
-@media (prefers-reduced-motion: reduce) {
+@layer reset {
   *, *::before, *::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-    scroll-behavior: auto !important;
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  html {
+    font-size: 16px;
+    -webkit-text-size-adjust: 100%;
+    -moz-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+    scroll-behavior: smooth;
+    height: 100%;
+  }
+
+  body {
+    font-family: var(--font-sans);
+    font-size: var(--text-base);
+    line-height: var(--leading-normal);
+    color: var(--text-primary);
+    background-color: var(--bg-app);
+    min-height: 100%;
+    direction: rtl;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 }
 
+@layer base {
+  /* ---- Headings & Hierarchical Typography ---- */
+  h1, h2, h3, h4, h5, h6 {
+    color: var(--text-primary);
+    font-weight: 700;
+    line-height: var(--leading-tight);
+    text-wrap: balance;
+  }
+
+  h1 { font-size: var(--text-3xl); font-weight: 800; letter-spacing: -0.025em; }
+  h2 { font-size: var(--text-2xl); font-weight: 800; letter-spacing: -0.02em; }
+  h3 { font-size: var(--text-xl);  font-weight: 700; }
+  h4 { font-size: var(--text-lg);  font-weight: 700; }
+  h5 { font-size: var(--text-base); font-weight: 600; }
+  h6 { font-size: var(--text-sm);  font-weight: 600; text-transform: uppercase; }
+
+  p {
+    line-height: var(--leading-relaxed);
+    text-wrap: pretty;
+    max-width: 70ch;
+  }
+
+  a {
+    color: var(--primary);
+    text-decoration: none;
+    transition: color var(--duration-fast) var(--ease-smooth);
+  }
+
+  a:hover {
+    color: var(--primary-hover);
+  }
+
+  strong, b {
+    font-weight: 700;
+    color: var(--text-primary);
+  }
+
+  code, kbd, samp, pre {
+    font-family: var(--font-mono);
+    font-size: 0.875em;
+    direction: ltr;
+  }
+
+  /* ---- Focus Visibility & Accessibility ---- */
+  :focus-visible {
+    outline: 2px solid var(--primary);
+    outline-offset: 2px;
+    border-radius: var(--radius-sm);
+  }
+
+  :focus:not(:focus-visible) {
+    outline: none;
+  }
+
+  /* ---- Smooth Custom Scrollbars ---- */
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: var(--border-card);
+    border-radius: var(--radius-full);
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--text-muted);
+  }
+
+  /* ---- Base SVG & Icon Sizing Standards ---- */
+  svg {
+    display: inline-block;
+    vertical-align: middle;
+    flex-shrink: 0;
+  }
+
+  svg:not([width]):not([class*="icon"]):not([class*="w-"]):not([class*="h-"]) {
+    width: 1.25rem;
+    height: 1.25rem;
+  }
+
+  .icon, svg.icon         { width: 1.25rem; height: 1.25rem; min-width: 1.25rem; min-height: 1.25rem; }
+  .icon-2xs, svg.icon-2xs { width: 0.75rem; height: 0.75rem; min-width: 0.75rem; min-height: 0.75rem; }
+  .icon-xs, svg.icon-xs   { width: 1.00rem; height: 1.00rem; min-width: 1.00rem; min-height: 1.00rem; }
+  .icon-sm, svg.icon-sm   { width: 1.25rem; height: 1.25rem; min-width: 1.25rem; min-height: 1.25rem; }
+  .icon-md, svg.icon-md   { width: 1.50rem; height: 1.50rem; min-width: 1.50rem; min-height: 1.50rem; }
+  .icon-lg, svg.icon-lg   { width: 2.00rem; height: 2.00rem; min-width: 2.00rem; min-height: 2.00rem; }
+  .icon-xl, svg.icon-xl   { width: 2.50rem; height: 2.50rem; min-width: 2.50rem; min-height: 2.50rem; }
+  .icon-2xl, svg.icon-2xl { width: 3.00rem; height: 3.00rem; min-width: 3.00rem; min-height: 3.00rem; }
+}

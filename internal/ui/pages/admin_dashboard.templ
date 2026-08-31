@@ -38,193 +38,193 @@ type AdminDashboardStats struct {
 }
 
 templ AdminDashboard(stats AdminDashboardStats, pendingOrgs []*org.Organization, lang, dir string) {
-	@layouts.AdminShell("لوحة التحكم والمؤشرات الرئيسية", "dashboard", lang, dir) {
-		<div style="max-width:1440px; margin:0 auto; padding-bottom:3rem;">
+	@layouts.AdminShell("Ù„ÙˆØ­Ø© Ø§Ù„ØªØ­ÙƒÙ… ÙˆØ§Ù„Ù…Ø¤Ø´Ø±Ø§Øª Ø§Ù„Ø±Ø¦ÙŠØ³ÙŠØ©", "dashboard", lang, dir) {
+		<div class="admin-page-container">
 			
-			<!-- ══════════════════════════════════════════
+			<!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 			     EXECUTIVE HEADER BANNER
-			══════════════════════════════════════════ -->
-			<div style="background:var(--surface-raised); border:1px solid var(--border); border-radius:18px; padding:1.25rem 1.5rem; margin-bottom:1.25rem; box-shadow:var(--shadow-sm);">
-				<div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem;">
-					<div style="display:flex; align-items:center; gap:0.85rem;">
-						<div style="width:46px; height:46px; border-radius:14px; background:var(--accent-subtle, rgba(56,189,248,0.12)); color:var(--accent); display:flex; align-items:center; justify-content:center; font-size:1.4rem; border:1px solid rgba(56,189,248,0.25);">
+			â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
+			<div class="admin-banner">
+				<div class="admin-banner-inner">
+					<div class="d-flex items-center gap-3">
+						<div class="admin-banner-icon primary">
 							@components.IconBarChart("icon-sm")
 						</div>
 						<div>
-							<h1 style="font-size:1.25rem; font-weight:900; color:var(--text); margin:0; display:flex; align-items:center; gap:0.5rem;">
-								<span>لوحة القيادة التنفيذية والمؤشرات المركزية</span>
+							<h1 class="admin-banner-title">
+								<span>Ù„ÙˆØ­Ø© Ø§Ù„Ù‚ÙŠØ§Ø¯Ø© Ø§Ù„ØªÙ†ÙÙŠØ°ÙŠØ© ÙˆØ§Ù„Ù…Ø¤Ø´Ø±Ø§Øª Ø§Ù„Ù…Ø±ÙƒØ²ÙŠØ©</span>
 							</h1>
-							<p style="font-size:0.82rem; color:var(--text-secondary); margin:0.2rem 0 0 0;">
-								رصد حي لحجم التداول، شبكة التوريد الصيدلي، أوامر الشراء الجارية، وجاهزية الخدمات
+							<p class="admin-banner-subtitle">
+								Ø±ØµØ¯ Ø­ÙŠ Ù„Ø­Ø¬Ù… Ø§Ù„ØªØ¯Ø§ÙˆÙ„ØŒ Ø´Ø¨ÙƒØ© Ø§Ù„ØªÙˆØ±ÙŠØ¯ Ø§Ù„ØµÙŠØ¯Ù„ÙŠØŒ Ø£ÙˆØ§Ù…Ø± Ø§Ù„Ø´Ø±Ø§Ø¡ Ø§Ù„Ø¬Ø§Ø±ÙŠØ©ØŒ ÙˆØ¬Ø§Ù‡Ø²ÙŠØ© Ø§Ù„Ø®Ø¯Ù…Ø§Øª
 							</p>
 						</div>
 					</div>
 
-					<div style="display:flex; align-items:center; gap:0.6rem; flex-wrap:wrap;">
+					<div class="d-flex items-center gap-2 flex-wrap">
 						<!-- DB & River Status Pill -->
-						<div style="display:inline-flex; align-items:center; gap:0.4rem; padding:0.35rem 0.75rem; border-radius:30px; font-size:0.78rem; font-weight:700; background:var(--surface-sunken); border:1px solid var(--border);">
-							<span style="display:inline-block; width:8px; height:8px; border-radius:50%; background:#10b981; box-shadow:0 0 8px #10b981;"></span>
-							<span style="color:var(--text-secondary);">قاعدة البيانات:</span>
-							<span style="color:#10b981;">متصلة ونشطة</span>
+						<div class="admin-status-pill">
+							<span class="admin-status-dot online"></span>
+							<span class="text-secondary">Ù‚Ø§Ø¹Ø¯Ø© Ø§Ù„Ø¨ÙŠØ§Ù†Ø§Øª:</span>
+							<span class="text-success">Ù…ØªØµÙ„Ø© ÙˆÙ†Ø´Ø·Ø©</span>
 						</div>
 
 						<!-- Live AI Status Pill -->
-						<div style="display:inline-flex; align-items:center; gap:0.4rem; padding:0.35rem 0.75rem; border-radius:30px; font-size:0.78rem; font-weight:700; background:var(--surface-sunken); border:1px solid var(--border);">
+						<div class="admin-status-pill">
 							<span>@components.IconSparkles("icon-sm")</span>
-							<span style="color:var(--text-secondary);">بوابة الـ AI:</span>
+							<span class="text-secondary">Ø¨ÙˆØ§Ø¨Ø© Ø§Ù„Ù€ AI:</span>
 							if stats.GatewayOnline {
-								<span style="color:#10b981;">متصلة ومزامنة</span>
+								<span class="text-success">Ù…ØªØµÙ„Ø© ÙˆÙ…Ø²Ø§Ù…Ù†Ø©</span>
 							} else {
-								<span style="color:#f59e0b;">مستعدة للربط</span>
+								<span class="text-warning">Ù…Ø³ØªØ¹Ø¯Ø© Ù„Ù„Ø±Ø¨Ø·</span>
 							}
 						</div>
 
 						<!-- Quick Refresh Button -->
-						<a href="/admin/dashboard" class="btn btn-secondary btn-sm fw-800" style="padding:0.4rem 0.85rem; font-size:0.8rem; gap:0.35rem; border-radius:8px;">
+						<a href="/admin/dashboard" class="btn btn-secondary btn-sm fw-800" class="btn-sm text-xs gap-1 rounded-md">
 							@components.IconRefresh("icon-xs")
-							<span>تحديث فوري</span>
+							<span>ØªØ­Ø¯ÙŠØ« ÙÙˆØ±ÙŠ</span>
 						</a>
 					</div>
 				</div>
 			</div>
 
-			<!-- ══════════════════════════════════════════
+			<!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 			     1. TOP 4 HIGH-IMPACT EXECUTIVE KPI TILES
-			══════════════════════════════════════════ -->
-			<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(260px, 1fr)); gap:1rem; margin-bottom:1.25rem;">
+			â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
+			<div class="admin-kpi-grid">
 				
 				<!-- KPI 1: GMV, Revenue & Commission -->
-				<div style="background:var(--surface-raised); border:1px solid var(--border); border-radius:16px; padding:1.25rem; box-shadow:var(--shadow-sm); display:flex; flex-direction:column; justify-content:space-between;">
-					<div style="display:flex; justify-content:space-between; align-items:center;">
-						<span style="font-size:0.82rem; font-weight:800; color:var(--text-secondary);">حجم التداول والمبيعات (GMV)</span>
-						<div style="width:36px; height:36px; border-radius:10px; background:rgba(16, 185, 129, 0.12); color:#10b981; display:flex; align-items:center; justify-content:center; border:1px solid rgba(16, 185, 129, 0.25);">
+				<div class="admin-kpi-card">
+					<div class="admin-kpi-header">
+						<span class="admin-kpi-title">Ø­Ø¬Ù… Ø§Ù„ØªØ¯Ø§ÙˆÙ„ ÙˆØ§Ù„Ù…Ø¨ÙŠØ¹Ø§Øª (GMV)</span>
+						<div class="admin-kpi-icon bg-success-subtle text-success">
 							@components.IconChart("icon-sm")
 						</div>
 					</div>
-					<div class="tabular-nums" style="font-size:1.85rem; font-weight:900; color:#10b981; margin:0.4rem 0 0.5rem 0; line-height:1.2;">
+					<div class="tabular-nums" class="admin-kpi-value text-success">
 						if stats.TotalGMV != "" {
 							{ stats.TotalGMV }
 						} else {
-							<span>0.00 ج.م</span>
+							<span>0.00 Ø¬.Ù…</span>
 						}
 					</div>
-					<div style="border-top:1px solid var(--border); padding-top:0.5rem; margin-top:auto; font-size:0.78rem; display:flex; justify-content:space-between; align-items:center; color:var(--text-muted);">
-						<span>عمولة المنصة: <strong style="color:var(--text); font-weight:800;">{ stats.TotalCommission }</strong></span>
-						if stats.TotalHeldInWallets != "" && stats.TotalHeldInWallets != "0.00 ج.م" {
-							<span>بالمحافظ: <strong class="tabular-nums text-primary">{ stats.TotalHeldInWallets }</strong></span>
+					<div class="admin-kpi-footer">
+						<span>Ø¹Ù…ÙˆÙ„Ø© Ø§Ù„Ù…Ù†ØµØ©: <strong class="text-primary font-bold">{ stats.TotalCommission }</strong></span>
+						if stats.TotalHeldInWallets != "" && stats.TotalHeldInWallets != "0.00 Ø¬.Ù…" {
+							<span>Ø¨Ø§Ù„Ù…Ø­Ø§ÙØ¸: <strong class="tabular-nums text-primary">{ stats.TotalHeldInWallets }</strong></span>
 						}
 					</div>
 				</div>
 
 				<!-- KPI 2: Orders & Trade Volume -->
-				<div style="background:var(--surface-raised); border:1px solid var(--border); border-radius:16px; padding:1.25rem; box-shadow:var(--shadow-sm); display:flex; flex-direction:column; justify-content:space-between;">
-					<div style="display:flex; justify-content:space-between; align-items:center;">
-						<span style="font-size:0.82rem; font-weight:800; color:var(--text-secondary);">أوامر التوريد والشحنات (Orders)</span>
-						<div style="width:36px; height:36px; border-radius:10px; background:rgba(56, 189, 248, 0.12); color:var(--accent); display:flex; align-items:center; justify-content:center; border:1px solid rgba(56, 189, 248, 0.25);">
+				<div class="admin-kpi-card">
+					<div class="admin-kpi-header">
+						<span class="admin-kpi-title">Ø£ÙˆØ§Ù…Ø± Ø§Ù„ØªÙˆØ±ÙŠØ¯ ÙˆØ§Ù„Ø´Ø­Ù†Ø§Øª (Orders)</span>
+						<div class="admin-kpi-icon bg-primary-subtle text-brand">
 							@components.IconTruck("icon-sm")
 						</div>
 					</div>
-					<div class="tabular-nums" style="font-size:1.85rem; font-weight:900; color:var(--text); margin:0.4rem 0 0.5rem 0; line-height:1.2;">
-						{ fmt.Sprintf("%d", stats.TotalOrders) } <span style="font-size:0.9rem; font-weight:700; color:var(--text-muted);">طلب توريد</span>
+					<div class="tabular-nums" class="admin-kpi-value text-primary">
+						{ fmt.Sprintf("%d", stats.TotalOrders) } <span class="text-xs text-muted font-bold">Ø·Ù„Ø¨ ØªÙˆØ±ÙŠØ¯</span>
 					</div>
-					<div style="border-top:1px solid var(--border); padding-top:0.5rem; margin-top:auto; font-size:0.78rem; display:flex; justify-content:space-between; align-items:center; color:var(--text-muted);">
-						<span>مكتملة: <strong class="text-emerald tabular-nums">+{ fmt.Sprintf("%d", stats.CompletedOrdersCount) }</strong></span>
-						<span>نشطة: <strong class="text-sky tabular-nums">{ fmt.Sprintf("%d", stats.ActiveOrdersCount) }</strong></span>
-						<a href="/admin/orders" class="text-accent fw-700 no-underline">عرض الكل ←</a>
+					<div class="admin-kpi-footer">
+						<span>Ù…ÙƒØªÙ…Ù„Ø©: <strong class="text-emerald tabular-nums">+{ fmt.Sprintf("%d", stats.CompletedOrdersCount) }</strong></span>
+						<span>Ù†Ø´Ø·Ø©: <strong class="text-sky tabular-nums">{ fmt.Sprintf("%d", stats.ActiveOrdersCount) }</strong></span>
+						<a href="/admin/orders" class="text-accent fw-700 no-underline">Ø¹Ø±Ø¶ Ø§Ù„ÙƒÙ„ â†</a>
 					</div>
 				</div>
 
 				<!-- KPI 3: Organizations & Supply Network -->
-				<div style="background:var(--surface-raised); border:1px solid var(--border); border-radius:16px; padding:1.25rem; box-shadow:var(--shadow-sm); display:flex; flex-direction:column; justify-content:space-between;">
-					<div style="display:flex; justify-content:space-between; align-items:center;">
-						<span style="font-size:0.82rem; font-weight:800; color:var(--text-secondary);">شبكة الإمداد والمنشآت (Network)</span>
-						<div style="width:36px; height:36px; border-radius:10px; background:rgba(168, 85, 247, 0.12); color:#a855f7; display:flex; align-items:center; justify-content:center; border:1px solid rgba(168, 85, 247, 0.25);">
+				<div class="admin-kpi-card">
+					<div class="admin-kpi-header">
+						<span class="admin-kpi-title">Ø´Ø¨ÙƒØ© Ø§Ù„Ø¥Ù…Ø¯Ø§Ø¯ ÙˆØ§Ù„Ù…Ù†Ø´Ø¢Øª (Network)</span>
+						<div class="admin-kpi-icon text-purple">
 							@components.IconBuilding("icon-sm")
 						</div>
 					</div>
-					<div class="tabular-nums" style="font-size:1.85rem; font-weight:900; color:var(--text); margin:0.4rem 0 0.5rem 0; line-height:1.2;">
-						{ fmt.Sprintf("%d", stats.TotalOrganizations) } <span style="font-size:0.9rem; font-weight:700; color:var(--text-muted);">منشأة معتمدة</span>
+					<div class="tabular-nums" class="admin-kpi-value text-primary">
+						{ fmt.Sprintf("%d", stats.TotalOrganizations) } <span class="text-xs text-muted font-bold">Ù…Ù†Ø´Ø£Ø© Ù…Ø¹ØªÙ…Ø¯Ø©</span>
 					</div>
-					<div style="border-top:1px solid var(--border); padding-top:0.5rem; margin-top:auto; font-size:0.78rem; display:flex; justify-content:space-between; align-items:center; color:var(--text-muted);">
-						<span>صيدليات: <strong class="text-emerald tabular-nums">{ fmt.Sprintf("%d", stats.TotalPharmacies) }</strong></span>
-						<span>موردون: <strong class="text-purple tabular-nums">{ fmt.Sprintf("%d", stats.TotalVendors) }</strong></span>
-						<span>فروع: <strong class="text-sky tabular-nums">{ fmt.Sprintf("%d", stats.TotalBranches) }</strong></span>
+					<div class="admin-kpi-footer">
+						<span>ØµÙŠØ¯Ù„ÙŠØ§Øª: <strong class="text-emerald tabular-nums">{ fmt.Sprintf("%d", stats.TotalPharmacies) }</strong></span>
+						<span>Ù…ÙˆØ±Ø¯ÙˆÙ†: <strong class="text-purple tabular-nums">{ fmt.Sprintf("%d", stats.TotalVendors) }</strong></span>
+						<span>ÙØ±ÙˆØ¹: <strong class="text-sky tabular-nums">{ fmt.Sprintf("%d", stats.TotalBranches) }</strong></span>
 					</div>
 				</div>
 
 				<!-- KPI 4: Governance & Pending Actions -->
-				<div style="background:var(--surface-raised); border:1px solid var(--border); border-radius:16px; padding:1.25rem; box-shadow:var(--shadow-sm); display:flex; flex-direction:column; justify-content:space-between;">
-					<div style="display:flex; justify-content:space-between; align-items:center;">
-						<span style="font-size:0.82rem; font-weight:800; color:var(--text-secondary);">الاعتمادات والإيداعات العاجلة</span>
-						<div style="width:36px; height:36px; border-radius:10px; background:rgba(245, 158, 11, 0.12); color:#f59e0b; display:flex; align-items:center; justify-content:center; border:1px solid rgba(245, 158, 11, 0.25);">
+				<div class="admin-kpi-card">
+					<div class="admin-kpi-header">
+						<span class="admin-kpi-title">Ø§Ù„Ø§Ø¹ØªÙ…Ø§Ø¯Ø§Øª ÙˆØ§Ù„Ø¥ÙŠØ¯Ø§Ø¹Ø§Øª Ø§Ù„Ø¹Ø§Ø¬Ù„Ø©</span>
+						<div class="admin-kpi-icon bg-warning-subtle text-warning">
 							@components.IconShield("icon-sm")
 						</div>
 					</div>
-					<div style="margin:0.4rem 0 0.5rem 0; display:flex; gap:0.5rem; align-items:baseline; flex-wrap:wrap;">
+					<div class="d-flex gap-2 items-baseline flex-wrap my-1">
 						if stats.PendingApprovals > 0 {
-							<a href="/admin/approvals" class="badge badge-amber font-bold text-xs" style="padding:0.35rem 0.65rem; border-radius:6px; text-decoration:none;">
-								⏳ { fmt.Sprintf("%d تراخيص معلقة", stats.PendingApprovals) }
+							<a href="/admin/approvals" class="badge badge-amber font-bold text-xs" class="rounded-md no-underline">
+								â³ { fmt.Sprintf("%d ØªØ±Ø§Ø®ÙŠØµ Ù…Ø¹Ù„Ù‚Ø©", stats.PendingApprovals) }
 							</a>
 						} else {
-							<span class="badge badge-emerald text-xs font-bold" style="padding:0.35rem 0.65rem; border-radius:6px;">
-								التراخيص معتمدة
+							<span class="badge badge-emerald text-xs font-bold" class="rounded-md">
+								Ø§Ù„ØªØ±Ø§Ø®ÙŠØµ Ù…Ø¹ØªÙ…Ø¯Ø©
 							</span>
 						}
 
 						if stats.PendingDepositsCount > 0 {
-							<a href="/admin/finance?tab=deposits" class="badge badge-sky font-bold text-xs" style="padding:0.35rem 0.65rem; border-radius:6px; text-decoration:none;">
-								{ fmt.Sprintf("%d شحن محفظة", stats.PendingDepositsCount) }
+							<a href="/admin/finance?tab=deposits" class="badge badge-sky font-bold text-xs" class="rounded-md no-underline">
+								{ fmt.Sprintf("%d Ø´Ø­Ù† Ù…Ø­ÙØ¸Ø©", stats.PendingDepositsCount) }
 							</a>
 						}
 					</div>
-					<div style="border-top:1px solid var(--border); padding-top:0.5rem; margin-top:auto; font-size:0.78rem; display:flex; justify-content:space-between; align-items:center; color:var(--text-muted);">
-						<span>إجمالي المستخدمين: <strong class="text-primary tabular-nums">{ fmt.Sprintf("%d", stats.TotalUsers) }</strong></span>
-						<a href="/admin/approvals" class="text-accent fw-700 no-underline">مراجعة الكل ←</a>
+					<div class="admin-kpi-footer">
+						<span>Ø¥Ø¬Ù…Ø§Ù„ÙŠ Ø§Ù„Ù…Ø³ØªØ®Ø¯Ù…ÙŠÙ†: <strong class="text-primary tabular-nums">{ fmt.Sprintf("%d", stats.TotalUsers) }</strong></span>
+						<a href="/admin/approvals" class="text-accent fw-700 no-underline">Ù…Ø±Ø§Ø¬Ø¹Ø© Ø§Ù„ÙƒÙ„ â†</a>
 					</div>
 				</div>
 
 			</div>
 
-			<!-- ══════════════════════════════════════════
+			<!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 			     2. MID SECTION (2-COLUMNS: OPERATIONS & ANALYTICS)
-			══════════════════════════════════════════ -->
-			<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(420px, 1fr)); gap:1.25rem; margin-bottom:1.25rem; align-items:start;">
+			â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
+			<div class="d-grid gap-4 items-start mb-4 grid-auto-fit-lg">
 				
 				<!-- Column 1: Live Orders & Catalog Activity -->
-				<div style="background:var(--surface-raised); border:1px solid var(--border); border-radius:18px; padding:1.25rem 1.5rem; box-shadow:var(--shadow-sm);">
-					<div style="display:flex; justify-content:space-between; align-items:center; padding-bottom:0.75rem; border-bottom:1px solid var(--border); margin-bottom:1rem;">
+				<div class="admin-banner">
+					<div class="flex-between pb-3 border-b mb-3">
 						<div>
-							<h3 style="font-size:1.05rem; font-weight:800; color:var(--text); margin:0; display:flex; align-items:center; gap:0.4rem;">
+							<h3 class="text-base font-bold text-primary m-0 d-flex items-center gap-1.5">
 								<span>@components.IconCart("icon-sm")</span>
-								<span>حركة الكتالوج وأحدث أوامر التوريد</span>
+								<span>Ø­Ø±ÙƒØ© Ø§Ù„ÙƒØªØ§Ù„ÙˆØ¬ ÙˆØ£Ø­Ø¯Ø« Ø£ÙˆØ§Ù…Ø± Ø§Ù„ØªÙˆØ±ÙŠØ¯</span>
 							</h3>
-							<p style="font-size:0.78rem; color:var(--text-secondary); margin:0.15rem 0 0 0;">
-								رصد مباشر لتدفق طلبات الشراء بين الصيدليات والموردين
+							<p class="text-xs text-secondary mt-0.5 m-0">
+								Ø±ØµØ¯ Ù…Ø¨Ø§Ø´Ø± Ù„ØªØ¯ÙÙ‚ Ø·Ù„Ø¨Ø§Øª Ø§Ù„Ø´Ø±Ø§Ø¡ Ø¨ÙŠÙ† Ø§Ù„ØµÙŠØ¯Ù„ÙŠØ§Øª ÙˆØ§Ù„Ù…ÙˆØ±Ø¯ÙŠÙ†
 							</p>
 						</div>
-						<a href="/admin/orders" class="btn btn-secondary btn-xs fw-800" style="gap:0.25rem;">
-							<span>عرض الطلبات</span>
+						<a href="/admin/orders" class="btn btn-secondary btn-xs fw-800" class="gap-1">
+							<span>Ø¹Ø±Ø¶ Ø§Ù„Ø·Ù„Ø¨Ø§Øª</span>
 							@components.IconArrowLeft("icon-xs")
 						</a>
 					</div>
 
 					<!-- Mini Catalog Summary Strip -->
-					<div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:0.5rem; margin-bottom:1rem;">
-						<div style="background:var(--surface-sunken); border:1px solid var(--border); border-radius:10px; padding:0.6rem 0.75rem; text-align:center;">
-							<div style="font-size:0.72rem; color:var(--text-muted); font-weight:700;">الكتالوج المعتمد</div>
-							<div class="tabular-nums" style="font-size:1.15rem; font-weight:900; color:var(--text); margin-top:2px;">
+					<div class="d-grid grid-cols-3 gap-2 mb-3">
+						<div class="bg-surface-sunken border rounded-lg p-2 text-center">
+							<div class="text-xs text-muted font-bold">Ø§Ù„ÙƒØªØ§Ù„ÙˆØ¬ Ø§Ù„Ù…Ø¹ØªÙ…Ø¯</div>
+							<div class="tabular-nums" class="text-lg font-black text-primary mt-0.5">
 								{ fmt.Sprintf("%d", stats.TotalProducts) }
 							</div>
 						</div>
-						<div style="background:var(--surface-sunken); border:1px solid var(--border); border-radius:10px; padding:0.6rem 0.75rem; text-align:center;">
-							<div style="font-size:0.72rem; color:var(--text-muted); font-weight:700;">منتجات التوفير</div>
-							<div class="tabular-nums" style="font-size:1.15rem; font-weight:900; color:#10b981; margin-top:2px;">
+						<div class="bg-surface-sunken border rounded-lg p-2 text-center">
+							<div class="text-xs text-muted font-bold">Ù…Ù†ØªØ¬Ø§Øª Ø§Ù„ØªÙˆÙÙŠØ±</div>
+							<div class="tabular-nums" class="text-lg font-black text-success mt-0.5">
 								{ fmt.Sprintf("%d", stats.TotalSavingProducts) }
 							</div>
 						</div>
-						<div style="background:var(--surface-sunken); border:1px solid var(--border); border-radius:10px; padding:0.6rem 0.75rem; text-align:center;">
-							<div style="font-size:0.72rem; color:var(--text-muted); font-weight:700;">الفروع والمستودعات</div>
-							<div class="tabular-nums" style="font-size:1.15rem; font-weight:900; color:var(--accent); margin-top:2px;">
+						<div class="bg-surface-sunken border rounded-lg p-2 text-center">
+							<div class="text-xs text-muted font-bold">Ø§Ù„ÙØ±ÙˆØ¹ ÙˆØ§Ù„Ù…Ø³ØªÙˆØ¯Ø¹Ø§Øª</div>
+							<div class="tabular-nums" class="text-lg font-black text-brand mt-0.5">
 								{ fmt.Sprintf("%d", stats.TotalBranches) }
 							</div>
 						</div>
@@ -232,46 +232,46 @@ templ AdminDashboard(stats AdminDashboardStats, pendingOrgs []*org.Organization,
 
 					<!-- Recent Orders Stream Table -->
 					if len(stats.RecentOrders) == 0 {
-						<div style="padding:2rem 1rem; text-align:center; background:var(--surface-sunken); border-radius:12px; border:1px dashed var(--border); font-size:0.82rem; color:var(--text-muted);">
-							لا توجد طلبيات مسجلة حديثاً في المنظومة.
+						<div class="p-6 text-center bg-surface-sunken rounded-xl border border-dashed text-xs text-muted">
+							Ù„Ø§ ØªÙˆØ¬Ø¯ Ø·Ù„Ø¨ÙŠØ§Øª Ù…Ø³Ø¬Ù„Ø© Ø­Ø¯ÙŠØ«Ø§Ù‹ ÙÙŠ Ø§Ù„Ù…Ù†Ø¸ÙˆÙ…Ø©.
 						</div>
 					} else {
-						<div style="border:1px solid var(--border); border-radius:12px; overflow:hidden; background:var(--surface-sunken);">
-							<table class="data-table" style="font-size:0.8rem">
+						<div class="border rounded-xl overflow-hidden bg-surface-sunken">
+							<table class="data-table" class="text-xs">
 								<thead>
-									<tr style="background:var(--surface-raised);">
-										<th class="pad-sm"># الطلب</th>
-										<th class="pad-sm">المنشأة / العميل</th>
-										<th class="pad-sm">المبلغ الإجمالي</th>
-										<th class="pad-sm">الحالة</th>
-										<th class="text-end pad-sm">التاريخ</th>
+									<tr class="bg-surface-raised">
+										<th class="pad-sm"># Ø§Ù„Ø·Ù„Ø¨</th>
+										<th class="pad-sm">Ø§Ù„Ù…Ù†Ø´Ø£Ø© / Ø§Ù„Ø¹Ù…ÙŠÙ„</th>
+										<th class="pad-sm">Ø§Ù„Ù…Ø¨Ù„Øº Ø§Ù„Ø¥Ø¬Ù…Ø§Ù„ÙŠ</th>
+										<th class="pad-sm">Ø§Ù„Ø­Ø§Ù„Ø©</th>
+										<th class="text-end pad-sm">Ø§Ù„ØªØ§Ø±ÙŠØ®</th>
 									</tr>
 								</thead>
 								<tbody>
 									for _, ord := range stats.RecentOrders {
 										<tr class="rule-bottom">
 											<td class="tabular-nums fw-800 text-primary pad-sm">
-												<a href="/admin/orders" style="color:inherit; text-decoration:none;">
+												<a href="/admin/orders" class="text-inherit no-underline">
 													ORD-#{ fmt.Sprintf("%d", ord.ID) }
 												</a>
 											</td>
 											<td class="pad-sm">
 												if ord.OrganizationID != nil {
-													<span class="badge badge-sky text-xs fw-700">منشأة #{ fmt.Sprintf("%d", *ord.OrganizationID) }</span>
+													<span class="badge badge-sky text-xs fw-700">Ù…Ù†Ø´Ø£Ø© #{ fmt.Sprintf("%d", *ord.OrganizationID) }</span>
 												} else {
-													<span class="text-muted">عميل #{ fmt.Sprintf("%d", ord.CustomerID) }</span>
+													<span class="text-muted">Ø¹Ù…ÙŠÙ„ #{ fmt.Sprintf("%d", ord.CustomerID) }</span>
 												}
 											</td>
 											<td class="tabular-nums fw-900 text-emerald pad-sm">
-												{ ord.TotalAmount.String() } ج.م
+												{ ord.TotalAmount.String() } Ø¬.Ù…
 											</td>
 											<td class="pad-sm">
 												if ord.Status == "completed" || ord.Status == "delivered" {
-													<span class="badge badge-emerald text-xs fw-800">مكتمل</span>
+													<span class="badge badge-emerald text-xs fw-800">Ù…ÙƒØªÙ…Ù„</span>
 												} else if ord.Status == "pending" {
-													<span class="badge badge-amber text-xs fw-800">معلق</span>
+													<span class="badge badge-amber text-xs fw-800">Ù…Ø¹Ù„Ù‚</span>
 												} else if ord.Status == "cancelled" || ord.Status == "rejected" {
-													<span class="badge badge-danger text-xs fw-800">ملغي</span>
+													<span class="badge badge-danger text-xs fw-800">Ù…Ù„ØºÙŠ</span>
 												} else {
 													<span class="badge badge-sky text-xs fw-800">{ string(ord.Status) }</span>
 												}
@@ -288,42 +288,42 @@ templ AdminDashboard(stats AdminDashboardStats, pendingOrgs []*org.Organization,
 				</div>
 
 				<!-- Column 2: Traffic, Visitor Analytics & Infrastructure -->
-				<div style="background:var(--surface-raised); border:1px solid var(--border); border-radius:18px; padding:1.25rem 1.5rem; box-shadow:var(--shadow-sm);">
-					<div style="display:flex; justify-content:space-between; align-items:center; padding-bottom:0.75rem; border-bottom:1px solid var(--border); margin-bottom:1rem;">
+				<div class="admin-banner">
+					<div class="flex-between pb-3 border-b mb-3">
 						<div>
-							<h3 style="font-size:1.05rem; font-weight:800; color:var(--text); margin:0; display:flex; align-items:center; gap:0.4rem;">
+							<h3 class="text-base font-bold text-primary m-0 d-flex items-center gap-1.5">
 								<span>@components.IconGlobe("icon-sm")</span>
-								<span>حركة الزوار وجاهزية البنية التحتية</span>
+								<span>Ø­Ø±ÙƒØ© Ø§Ù„Ø²ÙˆØ§Ø± ÙˆØ¬Ø§Ù‡Ø²ÙŠØ© Ø§Ù„Ø¨Ù†ÙŠØ© Ø§Ù„ØªØ­ØªÙŠØ©</span>
 							</h3>
-							<p style="font-size:0.78rem; color:var(--text-secondary); margin:0.15rem 0 0 0;">
-								توزيع أجهزة التصفح وحالة خوادم التشغيل والخدمات السحابية
+							<p class="text-xs text-secondary mt-0.5 m-0">
+								ØªÙˆØ²ÙŠØ¹ Ø£Ø¬Ù‡Ø²Ø© Ø§Ù„ØªØµÙØ­ ÙˆØ­Ø§Ù„Ø© Ø®ÙˆØ§Ø¯Ù… Ø§Ù„ØªØ´ØºÙŠÙ„ ÙˆØ§Ù„Ø®Ø¯Ù…Ø§Øª Ø§Ù„Ø³Ø­Ø§Ø¨ÙŠØ©
 							</p>
 						</div>
-						<a href="/admin/analytics" class="btn btn-secondary btn-xs fw-800" style="gap:0.25rem;">
-							<span>تفاصيل الزوار</span>
+						<a href="/admin/analytics" class="btn btn-secondary btn-xs fw-800" class="gap-1">
+							<span>ØªÙØ§ØµÙŠÙ„ Ø§Ù„Ø²ÙˆØ§Ø±</span>
 							@components.IconArrowLeft("icon-xs")
 						</a>
 					</div>
 
 					<!-- Visitor Counter & Devices Grid -->
-					<div style="display:grid; grid-template-columns:1fr 1fr; gap:0.75rem; margin-bottom:1rem;">
-						<div style="background:var(--surface-sunken); border:1px solid var(--border); border-radius:12px; padding:0.75rem 1rem;">
-							<div class="label-strong">إجمالي زوار المنصة</div>
-							<div class="tabular-nums" style="font-size:1.4rem; font-weight:900; color:var(--accent); margin-top:2px;">
-								{ fmt.Sprintf("%d", stats.TotalVisitors) } <span style="font-size:0.75rem; font-weight:600; color:var(--text-muted);">زائر</span>
+					<div class="d-grid grid-cols-2 gap-3 mb-3">
+						<div class="bg-surface-sunken border rounded-xl p-3">
+							<div class="label-strong">Ø¥Ø¬Ù…Ø§Ù„ÙŠ Ø²ÙˆØ§Ø± Ø§Ù„Ù…Ù†ØµØ©</div>
+							<div class="tabular-nums" class="text-xl font-black text-brand mt-0.5">
+								{ fmt.Sprintf("%d", stats.TotalVisitors) } <span class="text-xs text-muted font-semibold">Ø²Ø§Ø¦Ø±</span>
 							</div>
-							<div style="font-size:0.72rem; color:var(--text-muted); margin-top:0.25rem;">
-								اليوم: <strong class="text-emerald tabular-nums">+{ fmt.Sprintf("%d", stats.TodayVisitors) }</strong>
+							<div class="text-xs text-muted mt-1">
+								Ø§Ù„ÙŠÙˆÙ…: <strong class="text-emerald tabular-nums">+{ fmt.Sprintf("%d", stats.TodayVisitors) }</strong>
 							</div>
 						</div>
 
-						<div style="background:var(--surface-sunken); border:1px solid var(--border); border-radius:12px; padding:0.75rem 1rem;">
-							<div class="label-strong">توزيع الأجهزة (Devices)</div>
-							<div style="display:flex; flex-direction:column; gap:0.35rem; margin-top:0.4rem; font-size:0.75rem;">
+						<div class="bg-surface-sunken border rounded-xl p-3">
+							<div class="label-strong">ØªÙˆØ²ÙŠØ¹ Ø§Ù„Ø£Ø¬Ù‡Ø²Ø© (Devices)</div>
+							<div class="d-flex flex-col gap-1 mt-1 text-xs">
 								for devName, devCount := range stats.TopDevices {
-									<div style="display:flex; justify-content:space-between; align-items:center;">
-										<span style="color:var(--text-secondary); display:flex; align-items:center; gap:0.25rem;">
-											if devName == "desktop" || devName == "حاسوب مكتبي (Desktop)" {
+									<div class="admin-kpi-header">
+										<span class="text-secondary d-flex items-center gap-1">
+											if devName == "desktop" || devName == "Ø­Ø§Ø³ÙˆØ¨ Ù…ÙƒØªØ¨ÙŠ (Desktop)" {
 												<span>@components.IconMonitor("icon-sm")</span>
 											} else {
 												<span>@components.IconPhone("icon-sm")</span>
@@ -334,30 +334,30 @@ templ AdminDashboard(stats AdminDashboardStats, pendingOrgs []*org.Organization,
 									</div>
 								}
 								if len(stats.TopDevices) == 0 {
-									<span class="text-muted">جاري جمع إحصائيات الأجهزة...</span>
+									<span class="text-muted">Ø¬Ø§Ø±ÙŠ Ø¬Ù…Ø¹ Ø¥Ø­ØµØ§Ø¦ÙŠØ§Øª Ø§Ù„Ø£Ø¬Ù‡Ø²Ø©...</span>
 								}
 							</div>
 						</div>
 					</div>
 
 					<!-- Infrastructure & Cloud Health Box -->
-					<div style="background:var(--surface-sunken); border:1px solid var(--border); border-radius:12px; padding:0.85rem 1rem;">
-						<div style="font-size:0.75rem; font-weight:800; color:var(--text-secondary); margin-bottom:0.5rem;">حالة الخدمات السحابية والربط:</div>
-						<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(180px, 1fr)); gap:0.5rem; font-size:0.78rem;">
-							<div style="display:flex; justify-content:space-between; align-items:center; background:var(--surface-raised); padding:0.4rem 0.6rem; border-radius:6px; border:1px solid var(--border);">
-								<span style="color:var(--text-secondary); font-weight:600;">قاعدة PostgreSQL:</span>
-								<span style="color:#10b981; font-weight:800;">نشطة </span>
+					<div class="bg-surface-sunken border rounded-xl p-3">
+						<div class="text-xs font-bold text-secondary mb-2">Ø­Ø§Ù„Ø© Ø§Ù„Ø®Ø¯Ù…Ø§Øª Ø§Ù„Ø³Ø­Ø§Ø¨ÙŠØ© ÙˆØ§Ù„Ø±Ø¨Ø·:</div>
+						<div class="d-grid gap-2 text-xs grid-auto-fit-xs">
+							<div class="flex-between bg-surface-raised p-1.5 rounded-md border">
+								<span class="text-secondary font-semibold">Ù‚Ø§Ø¹Ø¯Ø© PostgreSQL:</span>
+								<span class="text-success font-bold">Ù†Ø´Ø·Ø© </span>
 							</div>
-							<div style="display:flex; justify-content:space-between; align-items:center; background:var(--surface-raised); padding:0.4rem 0.6rem; border-radius:6px; border:1px solid var(--border);">
-								<span style="color:var(--text-secondary); font-weight:600;">طوابير River Queue:</span>
-								<span style="color:#10b981; font-weight:800;">معالجة فورية </span>
+							<div class="flex-between bg-surface-raised p-1.5 rounded-md border">
+								<span class="text-secondary font-semibold">Ø·ÙˆØ§Ø¨ÙŠØ± River Queue:</span>
+								<span class="text-success font-bold">Ù…Ø¹Ø§Ù„Ø¬Ø© ÙÙˆØ±ÙŠØ© </span>
 							</div>
-							<div style="display:flex; justify-content:space-between; align-items:center; background:var(--surface-raised); padding:0.4rem 0.6rem; border-radius:6px; border:1px solid var(--border);">
-								<span style="color:var(--text-secondary); font-weight:600;">بوابة الذكاء الاصطناعي:</span>
+							<div class="flex-between bg-surface-raised p-1.5 rounded-md border">
+								<span class="text-secondary font-semibold">Ø¨ÙˆØ§Ø¨Ø© Ø§Ù„Ø°ÙƒØ§Ø¡ Ø§Ù„Ø§ØµØ·Ù†Ø§Ø¹ÙŠ:</span>
 								if stats.GatewayOnline {
-									<span style="color:#10b981; font-weight:800;">متصلة ومزامنة </span>
+									<span class="text-success font-bold">Ù…ØªØµÙ„Ø© ÙˆÙ…Ø²Ø§Ù…Ù†Ø© </span>
 								} else {
-									<span style="color:#f59e0b; font-weight:800;">جاهزة للربط</span>
+									<span class="text-warning font-bold">Ø¬Ø§Ù‡Ø²Ø© Ù„Ù„Ø±Ø¨Ø·</span>
 								}
 							</div>
 						</div>
@@ -366,67 +366,67 @@ templ AdminDashboard(stats AdminDashboardStats, pendingOrgs []*org.Organization,
 
 			</div>
 
-			<!-- ══════════════════════════════════════════
+			<!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 			     3. BOTTOM SECTION: PENDING APPROVALS & RECENT ORGANIZATIONS
-			══════════════════════════════════════════ -->
-			<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(420px, 1fr)); gap:1.25rem; margin-bottom:1.5rem; align-items:start;">
+			â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
+			<div class="d-grid gap-4 items-start mb-4 grid-auto-fit-lg">
 				
 				<!-- Pending Approvals Queue -->
-				<div style="background:var(--surface-raised); border:1px solid var(--border); border-radius:18px; padding:1.25rem 1.5rem; box-shadow:var(--shadow-sm);">
-					<div style="display:flex; justify-content:space-between; align-items:center; padding-bottom:0.75rem; border-bottom:1px solid var(--border); margin-bottom:1rem;">
+				<div class="admin-banner">
+					<div class="flex-between pb-3 border-b mb-3">
 						<div>
-							<h3 style="font-size:1.05rem; font-weight:800; color:var(--text); margin:0; display:flex; align-items:center; gap:0.4rem;">
+							<h3 class="text-base font-bold text-primary m-0 d-flex items-center gap-1.5">
 								<span>@components.IconShield("icon-sm")</span>
-								<span>طلبات اعتماد التراخيص والمنشآت</span>
+								<span>Ø·Ù„Ø¨Ø§Øª Ø§Ø¹ØªÙ…Ø§Ø¯ Ø§Ù„ØªØ±Ø§Ø®ÙŠØµ ÙˆØ§Ù„Ù…Ù†Ø´Ø¢Øª</span>
 								if len(pendingOrgs) > 0 {
-									<span class="badge badge-amber text-xs fw-800">{ fmt.Sprintf("%d معلق", len(pendingOrgs)) }</span>
+									<span class="badge badge-amber text-xs fw-800">{ fmt.Sprintf("%d Ù…Ø¹Ù„Ù‚", len(pendingOrgs)) }</span>
 								}
 							</h3>
-							<p style="font-size:0.78rem; color:var(--text-secondary); margin:0.15rem 0 0 0;">
-								فحص السجلات التجارية ومزاولة المهنة للصيدليات والموردين
+							<p class="text-xs text-secondary mt-0.5 m-0">
+								ÙØ­Øµ Ø§Ù„Ø³Ø¬Ù„Ø§Øª Ø§Ù„ØªØ¬Ø§Ø±ÙŠØ© ÙˆÙ…Ø²Ø§ÙˆÙ„Ø© Ø§Ù„Ù…Ù‡Ù†Ø© Ù„Ù„ØµÙŠØ¯Ù„ÙŠØ§Øª ÙˆØ§Ù„Ù…ÙˆØ±Ø¯ÙŠÙ†
 							</p>
 						</div>
-						<a href="/admin/approvals" class="btn btn-primary btn-xs fw-800" style="gap:0.25rem;">
-							<span>قائمة التدقيق</span>
+						<a href="/admin/approvals" class="btn btn-primary btn-xs fw-800" class="gap-1">
+							<span>Ù‚Ø§Ø¦Ù…Ø© Ø§Ù„ØªØ¯Ù‚ÙŠÙ‚</span>
 							@components.IconArrowLeft("icon-xs")
 						</a>
 					</div>
 
 					if len(pendingOrgs) == 0 {
-						<div style="padding:1.75rem 1rem; text-align:center; background:rgba(16, 185, 129, 0.05); border:1px solid rgba(16, 185, 129, 0.2); border-radius:12px;">
-							<div style="font-size:1.5rem; margin-bottom:0.3rem;">@components.IconCheck("icon-sm")</div>
-							<div style="font-weight:800; font-size:0.9rem; color:#10b981;">تم اعتماد وتدقيق كافة التراخيص بالكامل</div>
-							<div style="font-size:0.75rem; color:var(--text-secondary); margin-top:0.2rem;">لا توجد منشآت أو تراخيص معلقة بانتظار المراجعة حالياً.</div>
+						<div class="p-6 text-center bg-success-subtle border rounded-xl">
+							<div class="text-2xl mb-1">@components.IconCheck("icon-sm")</div>
+							<div class="font-bold text-sm text-success">ØªÙ… Ø§Ø¹ØªÙ…Ø§Ø¯ ÙˆØªØ¯Ù‚ÙŠÙ‚ ÙƒØ§ÙØ© Ø§Ù„ØªØ±Ø§Ø®ÙŠØµ Ø¨Ø§Ù„ÙƒØ§Ù…Ù„</div>
+							<div class="text-xs text-secondary mt-0.5">Ù„Ø§ ØªÙˆØ¬Ø¯ Ù…Ù†Ø´Ø¢Øª Ø£Ùˆ ØªØ±Ø§Ø®ÙŠØµ Ù…Ø¹Ù„Ù‚Ø© Ø¨Ø§Ù†ØªØ¸Ø§Ø± Ø§Ù„Ù…Ø±Ø§Ø¬Ø¹Ø© Ø­Ø§Ù„ÙŠØ§Ù‹.</div>
 						</div>
 					} else {
-						<div style="display:flex; flex-direction:column; gap:0.6rem;">
+						<div class="d-flex flex-col gap-2">
 							for _, po := range pendingOrgs {
-								<div style="background:var(--surface-sunken); border:1px solid var(--border); border-radius:12px; padding:0.75rem 1rem; display:flex; justify-content:space-between; align-items:center; gap:0.75rem;">
+								<div class="bg-surface-sunken border rounded-xl p-3 flex-between gap-3">
 									<div class="d-flex items-center gap-3">
-										<div style="width:36px; height:36px; border-radius:8px; background:var(--surface-raised); border:1px solid var(--border); display:flex; align-items:center; justify-content:center; color:var(--accent);">
+										<div class="w-9 h-9 rounded-lg bg-surface-raised border flex-center text-brand">
 											@components.IconBuilding("icon-xs")
 										</div>
 										<div>
-											<div style="font-weight:800; font-size:0.88rem; color:var(--text); display:flex; align-items:center; gap:0.4rem;">
+											<div class="font-bold text-sm text-primary d-flex items-center gap-1.5">
 												<span>{ po.LegalName }</span>
 												if string(po.Type) == "vendor" {
-													<span class="badge badge-sky text-xs fw-700">مورد</span>
+													<span class="badge badge-sky text-xs fw-700">Ù…ÙˆØ±Ø¯</span>
 												} else {
-													<span class="badge badge-emerald text-xs fw-700">صيدلية</span>
+													<span class="badge badge-emerald text-xs fw-700">ØµÙŠØ¯Ù„ÙŠØ©</span>
 												}
 											</div>
-											<div class="text-xs text-muted tabular-nums" style="margin-top:2px;">
+											<div class="text-xs text-muted tabular-nums" class="mt-0.5">
 												if po.CommercialRegister != "" {
-													<span>سجل: { po.CommercialRegister }</span>
+													<span>Ø³Ø¬Ù„: { po.CommercialRegister }</span>
 												}
 												if po.PharmacistLicense != "" {
-													<span> • ترخيص: { po.PharmacistLicense }</span>
+													<span> â€¢ ØªØ±Ø®ÙŠØµ: { po.PharmacistLicense }</span>
 												}
 											</div>
 										</div>
 									</div>
-									<a href="/admin/approvals" class="btn btn-primary btn-xs fw-800" style="padding:0.35rem 0.75rem; border-radius:6px;">
-										فحص
+									<a href="/admin/approvals" class="btn btn-primary btn-xs fw-800" class="rounded-md px-3 py-1.5">
+										ÙØ­Øµ
 									</a>
 								</div>
 							}
@@ -435,54 +435,54 @@ templ AdminDashboard(stats AdminDashboardStats, pendingOrgs []*org.Organization,
 				</div>
 
 				<!-- Recent Organizations Ecosystem -->
-				<div style="background:var(--surface-raised); border:1px solid var(--border); border-radius:18px; padding:1.25rem 1.5rem; box-shadow:var(--shadow-sm);">
-					<div style="display:flex; justify-content:space-between; align-items:center; padding-bottom:0.75rem; border-bottom:1px solid var(--border); margin-bottom:1rem;">
+				<div class="admin-banner">
+					<div class="flex-between pb-3 border-b mb-3">
 						<div>
-							<h3 style="font-size:1.05rem; font-weight:800; color:var(--text); margin:0; display:flex; align-items:center; gap:0.4rem;">
+							<h3 class="text-base font-bold text-primary m-0 d-flex items-center gap-1.5">
 								<span>@components.IconBuilding("icon-sm")</span>
-								<span>أحدث المنشآت المنضمة للمنظومة</span>
+								<span>Ø£Ø­Ø¯Ø« Ø§Ù„Ù…Ù†Ø´Ø¢Øª Ø§Ù„Ù…Ù†Ø¶Ù…Ø© Ù„Ù„Ù…Ù†Ø¸ÙˆÙ…Ø©</span>
 							</h3>
-							<p style="font-size:0.78rem; color:var(--text-secondary); margin:0.15rem 0 0 0;">
-								الصيدليات والموردين المسجلين حديثاً في شبكة إمداد دواء 24
+							<p class="text-xs text-secondary mt-0.5 m-0">
+								Ø§Ù„ØµÙŠØ¯Ù„ÙŠØ§Øª ÙˆØ§Ù„Ù…ÙˆØ±Ø¯ÙŠÙ† Ø§Ù„Ù…Ø³Ø¬Ù„ÙŠÙ† Ø­Ø¯ÙŠØ«Ø§Ù‹ ÙÙŠ Ø´Ø¨ÙƒØ© Ø¥Ù…Ø¯Ø§Ø¯ Ø¯ÙˆØ§Ø¡ 24
 							</p>
 						</div>
-						<a href="/admin/organizations" class="btn btn-secondary btn-xs fw-800" style="gap:0.25rem;">
-							<span>دليل المنشآت</span>
+						<a href="/admin/organizations" class="btn btn-secondary btn-xs fw-800" class="gap-1">
+							<span>Ø¯Ù„ÙŠÙ„ Ø§Ù„Ù…Ù†Ø´Ø¢Øª</span>
 							@components.IconArrowLeft("icon-xs")
 						</a>
 					</div>
 
 					if len(stats.RecentOrganizations) == 0 {
-						<div style="padding:1.75rem 1rem; text-align:center; background:var(--surface-sunken); border-radius:12px; font-size:0.82rem; color:var(--text-muted);">
-							جاري تحميل بيانات شبكة المنشآت...
+						<div class="p-6 text-center bg-surface-sunken rounded-xl text-xs text-muted">
+							Ø¬Ø§Ø±ÙŠ ØªØ­Ù…ÙŠÙ„ Ø¨ÙŠØ§Ù†Ø§Øª Ø´Ø¨ÙƒØ© Ø§Ù„Ù…Ù†Ø´Ø¢Øª...
 						</div>
 					} else {
-						<div style="display:flex; flex-direction:column; gap:0.6rem;">
+						<div class="d-flex flex-col gap-2">
 							for _, ro := range stats.RecentOrganizations {
-								<div style="background:var(--surface-sunken); border:1px solid var(--border); border-radius:12px; padding:0.75rem 1rem; display:flex; justify-content:space-between; align-items:center;">
+								<div class="bg-surface-sunken border rounded-xl p-3 flex-between">
 									<div class="d-flex items-center gap-3">
-										<div style="width:36px; height:36px; border-radius:8px; background:var(--surface-raised); border:1px solid var(--border); display:flex; align-items:center; justify-content:center; color:var(--accent);">
+										<div class="w-9 h-9 rounded-lg bg-surface-raised border flex-center text-brand">
 											@components.IconBuilding("icon-xs")
 										</div>
 										<div>
-											<div style="font-weight:800; font-size:0.88rem; color:var(--text); display:flex; align-items:center; gap:0.4rem;">
+											<div class="font-bold text-sm text-primary d-flex items-center gap-1.5">
 												<span>{ ro.LegalName }</span>
 												if string(ro.Type) == "vendor" {
-													<span class="badge badge-purple text-xs fw-700">مورد أدوية</span>
+													<span class="badge badge-purple text-xs fw-700">Ù…ÙˆØ±Ø¯ Ø£Ø¯ÙˆÙŠØ©</span>
 												} else {
-													<span class="badge badge-emerald text-xs fw-700">صيدلية معتمدة</span>
+													<span class="badge badge-emerald text-xs fw-700">ØµÙŠØ¯Ù„ÙŠØ© Ù…Ø¹ØªÙ…Ø¯Ø©</span>
 												}
 											</div>
-											<div class="text-xs text-muted tabular-nums" style="margin-top:2px;">
-												منشأة #{ fmt.Sprintf("%d", ro.ID) } • { ro.CreatedAt.Format("2006-01-02") }
+											<div class="text-xs text-muted tabular-nums" class="mt-0.5">
+												Ù…Ù†Ø´Ø£Ø© #{ fmt.Sprintf("%d", ro.ID) } â€¢ { ro.CreatedAt.Format("2006-01-02") }
 											</div>
 										</div>
 									</div>
 									<div>
 										if string(ro.Status) == "approved" {
-											<span class="badge badge-emerald text-xs fw-700">معتمد </span>
+											<span class="badge badge-emerald text-xs fw-700">Ù…Ø¹ØªÙ…Ø¯ </span>
 										} else if string(ro.Status) == "pending" {
-											<span class="badge badge-amber text-xs fw-700">قيد المراجعة</span>
+											<span class="badge badge-amber text-xs fw-700">Ù‚ÙŠØ¯ Ø§Ù„Ù…Ø±Ø§Ø¬Ø¹Ø©</span>
 										} else {
 											<span class="badge badge-slate text-xs fw-700">{ string(ro.Status) }</span>
 										}
@@ -495,39 +495,39 @@ templ AdminDashboard(stats AdminDashboardStats, pendingOrgs []*org.Organization,
 
 			</div>
 
-			<!-- ══════════════════════════════════════════
+			<!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 			     4. EXECUTIVE QUICK ACTION SHORTCUTS
-			══════════════════════════════════════════ -->
-			<div style="background:var(--surface-sunken); border:1px solid var(--border); border-radius:16px; padding:1rem 1.25rem;">
-				<div style="font-size:0.8rem; font-weight:800; color:var(--text-secondary); margin-bottom:0.6rem;">الوصول السريع للأقسام التنفيذية:</div>
-				<div style="display:flex; gap:0.6rem; flex-wrap:wrap; align-items:center;">
-					<a href="/admin/finance" class="btn btn-secondary btn-xs fw-800" style="gap:0.35rem; padding:0.45rem 0.85rem; border-radius:8px;">
+			â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
+			<div class="bg-surface-sunken border rounded-2xl p-4">
+				<div class="text-xs font-bold text-secondary mb-2">Ø§Ù„ÙˆØµÙˆÙ„ Ø§Ù„Ø³Ø±ÙŠØ¹ Ù„Ù„Ø£Ù‚Ø³Ø§Ù… Ø§Ù„ØªÙ†ÙÙŠØ°ÙŠØ©:</div>
+				<div class="d-flex gap-2 flex-wrap items-center">
+					<a href="/admin/finance" class="btn btn-secondary btn-xs fw-800" class="gap-1 px-3 py-1.5 rounded-md">
 						@components.IconWallet("icon-xs")
-						<span>الإدارة المالية والمحافظ</span>
+						<span>Ø§Ù„Ø¥Ø¯Ø§Ø±Ø© Ø§Ù„Ù…Ø§Ù„ÙŠØ© ÙˆØ§Ù„Ù…Ø­Ø§ÙØ¸</span>
 					</a>
-					<a href="/admin/approvals" class="btn btn-secondary btn-xs fw-800" style="gap:0.35rem; padding:0.45rem 0.85rem; border-radius:8px;">
+					<a href="/admin/approvals" class="btn btn-secondary btn-xs fw-800" class="gap-1 px-3 py-1.5 rounded-md">
 						@components.IconShield("icon-xs")
-						<span>اعتماد المنشآت والوثائق</span>
+						<span>Ø§Ø¹ØªÙ…Ø§Ø¯ Ø§Ù„Ù…Ù†Ø´Ø¢Øª ÙˆØ§Ù„ÙˆØ«Ø§Ø¦Ù‚</span>
 					</a>
-					<a href="/admin/orders" class="btn btn-secondary btn-xs fw-800" style="gap:0.35rem; padding:0.45rem 0.85rem; border-radius:8px;">
+					<a href="/admin/orders" class="btn btn-secondary btn-xs fw-800" class="gap-1 px-3 py-1.5 rounded-md">
 						@components.IconTruck("icon-xs")
-						<span>أوامر التوريد والشحنات</span>
+						<span>Ø£ÙˆØ§Ù…Ø± Ø§Ù„ØªÙˆØ±ÙŠØ¯ ÙˆØ§Ù„Ø´Ø­Ù†Ø§Øª</span>
 					</a>
-					<a href="/admin/products" class="btn btn-secondary btn-xs fw-800" style="gap:0.35rem; padding:0.45rem 0.85rem; border-radius:8px;">
+					<a href="/admin/products" class="btn btn-secondary btn-xs fw-800" class="gap-1 px-3 py-1.5 rounded-md">
 						@components.IconPackage("icon-xs")
-						<span>كتالوج الأدوية المعتمد</span>
+						<span>ÙƒØªØ§Ù„ÙˆØ¬ Ø§Ù„Ø£Ø¯ÙˆÙŠØ© Ø§Ù„Ù…Ø¹ØªÙ…Ø¯</span>
 					</a>
-					<a href="/admin/plans" class="btn btn-secondary btn-xs fw-800" style="gap:0.35rem; padding:0.45rem 0.85rem; border-radius:8px;">
+					<a href="/admin/plans" class="btn btn-secondary btn-xs fw-800" class="gap-1 px-3 py-1.5 rounded-md">
 						@components.IconTag("icon-xs")
-						<span>باقات وخطط الاشتراك</span>
+						<span>Ø¨Ø§Ù‚Ø§Øª ÙˆØ®Ø·Ø· Ø§Ù„Ø§Ø´ØªØ±Ø§Ùƒ</span>
 					</a>
-					<a href="/admin/users" class="btn btn-secondary btn-xs fw-800" style="gap:0.35rem; padding:0.45rem 0.85rem; border-radius:8px;">
+					<a href="/admin/users" class="btn btn-secondary btn-xs fw-800" class="gap-1 px-3 py-1.5 rounded-md">
 						@components.IconUsers("icon-xs")
-						<span>المستخدمون والحسابات</span>
+						<span>Ø§Ù„Ù…Ø³ØªØ®Ø¯Ù…ÙˆÙ† ÙˆØ§Ù„Ø­Ø³Ø§Ø¨Ø§Øª</span>
 					</a>
-					<a href="/admin/settings" class="btn btn-secondary btn-xs fw-800" style="gap:0.35rem; padding:0.45rem 0.85rem; border-radius:8px;">
+					<a href="/admin/settings" class="btn btn-secondary btn-xs fw-800" class="gap-1 px-3 py-1.5 rounded-md">
 						@components.IconSettings("icon-xs")
-						<span>إعدادات النظام العامة</span>
+						<span>Ø¥Ø¹Ø¯Ø§Ø¯Ø§Øª Ø§Ù„Ù†Ø¸Ø§Ù… Ø§Ù„Ø¹Ø§Ù…Ø©</span>
 					</a>
 				</div>
 			</div>
@@ -535,3 +535,4 @@ templ AdminDashboard(stats AdminDashboardStats, pendingOrgs []*org.Organization,
 		</div>
 	}
 }
+
