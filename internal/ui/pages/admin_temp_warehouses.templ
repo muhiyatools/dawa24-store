@@ -101,9 +101,49 @@ func tempWarehouseFilterURL(data *AdminTempWarehousesData, status string) string
 // AdminTempWarehousesPage renders the full temporary warehouses management and staging interface.
 templ AdminTempWarehousesPage(data *AdminTempWarehousesData, lang, dir string) {
 	@layouts.AdminShell(tempWarehousesShellTitle(data), tempWarehousesNavKey(data), lang, dir) {
-		<div class="stack-sm"
+		<div class="d-flex flex-col gap-6"
 			data-base={ data.Base }
 			x-data="{
+				selectedIds: [],
+				selectAll: false,
+				toggleSelectAll(e) {
+					if (e.target.checked) {
+						this.selectedIds = Array.from(document.querySelectorAll('.warehouse-row-checkbox')).map(el => el.value);
+						this.selectAll = true;
+					} else {
+						this.selectedIds = [];
+						this.selectAll = false;
+					}
+				},
+				updateSelectState() {
+					const allBoxes = Array.from(document.querySelectorAll('.warehouse-row-checkbox'));
+					if (allBoxes.length === 0) {
+						this.selectAll = false;
+						return;
+					}
+					this.selectAll = allBoxes.every(el => this.selectedIds.includes(el.value));
+				},
+				isSelected(id) {
+					return this.selectedIds.includes(String(id));
+				},
+				clearSelection() {
+					this.selectedIds = [];
+					this.selectAll = false;
+				},
+				submitBulk(action) {
+					if (this.selectedIds.length === 0) return;
+					if (action === 'delete') {
+						if (!confirm('هل أنت متأكد تماماً من حذف المستودعات المحددة (' + this.selectedIds.length + ' مستودع) وكافة أصنافها نهائياً؟')) {
+							return;
+						}
+					} else if (action === 'archive') {
+						if (!confirm('هل تريد أرشفة المستودعات المحددة (' + this.selectedIds.length + ' مستودع)؟')) {
+							return;
+						}
+					}
+					document.getElementById('bulk-action-input').value = action;
+					document.getElementById('warehouse-bulk-form').submit();
+				},
 				uploadModal: false,
 				itemsModal: false,
 				mappingModal: false,
@@ -469,12 +509,12 @@ templ AdminTempWarehousesPage(data *AdminTempWarehousesData, lang, dir string) {
 			<!-- 1. Header Banner & Top Action Tabs -->
 			<div class="card mb-0 bg-surface-raised border rounded-2xl p-7 shadow-xs">
 				<div class="flex-between items-start flex-wrap gap-6">
-     <div class="stack-sm">
+     <div>
 						<div class="d-flex items-center gap-3 mb-1.5">
 							<div class="w-12 h-12 rounded-2xl bg-accent-subtle text-accent flex-center text-2xl shrink-0">
 								@components.IconBuilding("icon-sm")
 							</div>
-       <div class="stack-sm">
+							<div>
 								<h1 class="text-2xl font-black text-primary m-0">
 									if data.MineOnly {
 										مستودعاتي المرفوعة
@@ -644,7 +684,67 @@ templ AdminTempWarehousesPage(data *AdminTempWarehousesData, lang, dir string) {
 				</form>
 			</div>
 
-			<!-- 4. Table Surface -->
+			<!-- 4. Bulk Actions Toolbar (Sticky / Visible on Selection) -->
+			<div x-show="selectedIds.length > 0" x-cloak class="warehouse-bulk-bar">
+				<form id="warehouse-bulk-form" method="POST" action={ templ.SafeURL(data.Base + "/bulk") } class="w-full flex-between items-center flex-wrap gap-3 m-0">
+					<input type="hidden" name="bulk_action" id="bulk-action-input" value=""/>
+					<template x-for="id in selectedIds" :key="id">
+						<input type="hidden" name="selected_ids" :value="id"/>
+					</template>
+
+					<div class="warehouse-bulk-info">
+						<div class="w-8 h-8 rounded-lg bg-accent-subtle text-accent flex-center font-black text-sm">
+							@components.IconCheck("icon-xs")
+						</div>
+						<div class="d-flex items-center gap-2">
+							<span class="badge badge-sky font-black text-xs px-2.5 py-1" x-text="'تم تحديد ' + selectedIds.length + ' مستودع'"></span>
+							<span class="text-xs text-secondary font-bold">إجراءات جماعية موحدة على المستودعات المحددة:</span>
+						</div>
+					</div>
+
+					<div class="warehouse-bulk-actions">
+						<button
+							type="button"
+							@click="submitBulk('archive')"
+							class="btn btn-secondary btn-sm font-black text-xs gap-1"
+							title="أرشفة كافة المستودعات المحددة"
+						>
+							@components.IconFolder("icon-xs")
+							<span>أرشفة المحددة</span>
+						</button>
+
+						<button
+							type="button"
+							@click="submitBulk('unarchive')"
+							class="btn btn-secondary btn-sm font-black text-xs text-emerald gap-1"
+							title="تفعيل واسترجاع كافة المستودعات المحددة"
+						>
+							@components.IconRefresh("icon-xs")
+							<span>تفعيل / استرجاع</span>
+						</button>
+
+						<button
+							type="button"
+							@click="submitBulk('delete')"
+							class="btn btn-secondary btn-sm font-black text-xs text-danger gap-1"
+							title="حذف كافة المستودعات المحددة نهائياً"
+						>
+							@components.IconTrash("icon-xs")
+							<span>حذف المحددة</span>
+						</button>
+
+						<button
+							type="button"
+							@click="clearSelection()"
+							class="btn btn-ghost btn-sm text-xs font-bold text-muted"
+						>
+							إلغاء التحديد
+						</button>
+					</div>
+				</form>
+			</div>
+
+			<!-- 5. Table Surface -->
 			<div class="card mb-0 border rounded-2xl p-0 overflow-hidden bg-surface-raised shadow-xs">
 				if len(data.Items) == 0 {
 					<div class="text-center p-16">
@@ -666,6 +766,15 @@ templ AdminTempWarehousesPage(data *AdminTempWarehousesData, lang, dir string) {
 						<table class="data-table m-0">
 							<thead>
 								<tr>
+									<th class="w-10 text-center">
+										<input
+											type="checkbox"
+											@change="toggleSelectAll($event)"
+											:checked="selectAll"
+											class="form-checkbox cursor-pointer"
+											title="تحديد أو إلغاء تحديد كل المستودعات"
+										/>
+									</th>
 									<th class="w-10 text-center">#</th>
 									<th class="min-w-60">اسم المورد / الملف</th>
 									if !data.MineOnly {
@@ -679,7 +788,17 @@ templ AdminTempWarehousesPage(data *AdminTempWarehousesData, lang, dir string) {
 							</thead>
 							<tbody>
 								for idx, item := range data.Items {
-									<tr>
+									<tr :class={ fmt.Sprintf("isSelected(%d) ? 'warehouse-row-selected' : ''", item.ID) }>
+										<td class="text-center align-middle">
+											<input
+												type="checkbox"
+												value={ fmt.Sprintf("%d", item.ID) }
+												x-model="selectedIds"
+												@change="updateSelectState()"
+												class="warehouse-row-checkbox form-checkbox cursor-pointer"
+												title="تحديد هذا المستودع"
+											/>
+										</td>
 										<td class="tabular-nums text-muted text-sm text-center">
 											{ fmt.Sprintf("%d", idx+1) }
 										</td>

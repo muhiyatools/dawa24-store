@@ -35,4 +35,14 @@ func loadErrorsAndValidationKeys(e *engine) {
 	addKey(e, "validation.supplier_missing_cart", "validation", "تعذر تحديد بيانات شركة التوريد المسؤولة عن هذا الصنف (رمز المورد غير مسجل). يرجى مراجعة الأصناف بالسلة.", "Could not determine supplier company for this item. Please review cart items.", "Supplier missing error")
 	addKey(e, "validation.pharmacy_branch_invalid", "validation", "فرع الصيدلية المحدد غير صالح أو تم حذفه. يرجى اختيار فرع صيدلية نشط.", "Selected pharmacy branch is invalid or deleted. Please select an active branch.", "Branch invalid error")
 	addKey(e, "validation.vendor_branch_invalid", "validation", "فرع التوريد المحدد للمورد غير صالح أو غير مسجل.", "Selected supplier branch is invalid or unregistered.", "Vendor branch invalid error")
+
+	// --- Anti-scraping refusals (internal/platform/antiscrape) ---
+	// Deliberately vague. A refused caller is told what to do next, never which
+	// signal caught it: naming the signal is telling a scraper what to change.
+	addKey(e, "security.antiscrape.blocked_title", "security", "تعذر عرض هذه الصفحة", "This page could not be shown", "Anti-scraping block page title")
+	addKey(e, "security.antiscrape.blocked_body", "security", "تم رفض هذا الطلب تلقائياً. إذا كنت تتصفح من متصفح عادي، يرجى تسجيل الدخول أو مراسلة الدعم الفني.", "This request was refused automatically. If you are browsing from an ordinary browser, please sign in or contact support.", "Anti-scraping block page body")
+	addKey(e, "security.antiscrape.throttled_title", "security", "عدد الطلبات كبير جداً", "Too many requests", "Anti-scraping throttle page title")
+	addKey(e, "security.antiscrape.throttled_body", "security", "وصلت منك طلبات أكثر مما يسمح به النظام خلال فترة قصيرة. يرجى الانتظار قليلاً ثم المحاولة مرة أخرى. تسجيل الدخول يرفع هذا الحد.", "You have sent more requests than the system allows in a short period. Please wait a moment and try again. Signing in raises this limit.", "Anti-scraping throttle page body")
+	addKey(e, "security.antiscrape.back_home", "security", "العودة للصفحة الرئيسية", "Back to home", "Anti-scraping page action")
+	addKey(e, "catalog.guest_depth_notice", "catalog", "لعرض نتائج أكثر والوصول إلى كامل الكتالوج، يرجى تسجيل الدخول.", "Sign in to browse deeper into the catalogue.", "Guest pagination cap notice")
 }

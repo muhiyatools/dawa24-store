@@ -41,6 +41,7 @@ type Config struct {
 	Session  Session
 	Observ   Observability
 	Worker   Worker
+	Scrape   AntiScrape
 }
 
 type HTTP struct {
@@ -50,6 +51,33 @@ type HTTP struct {
 	IdleTimeout     time.Duration
 	ShutdownTimeout time.Duration
 	TrustedProxies  []string
+	// TrustedProxyHops is how many reverse proxies sit in front of this
+	// process. Every per-address defence depends on it: X-Forwarded-For is
+	// written by the caller and appended to by each proxy, so the real client
+	// is the entry this many places from the right. Set it wrong and either
+	// every visitor shares one bucket (too high) or a scraper mints a fresh
+	// identity per request (too low, or unset with a proxy in front).
+	//
+	// One is right for the current deployment: Elest.io's proxy and nothing
+	// else. Zero is right when the process is exposed directly.
+	TrustedProxyHops int
+}
+
+// AntiScrape governs the guard on the signed-out pages that publish
+// marketplace data. See internal/platform/antiscrape.
+type AntiScrape struct {
+	// Enabled turns the guard into a passthrough when false. Kept switchable
+	// because the failure mode of a mistuned budget is refusing customers, and
+	// an operator needs to be able to stop that without a deploy.
+	Enabled bool
+	// PenaltyTTL is how long a honeypot trip keeps a caller refused.
+	PenaltyTTL time.Duration
+	// GuestMaxPage and GuestMaxPageSize bound how far into a listing a caller
+	// who has not signed in may page. This is the ceiling on how much of the
+	// catalogue one anonymous session can collect at all; the budgets only
+	// govern how fast.
+	GuestMaxPage     int
+	GuestMaxPageSize int
 }
 
 type Database struct {
@@ -153,12 +181,20 @@ func load(cliOnly bool) (*Config, error) {
 		BaseURL: getStr("APP_BASE_URL", "http://localhost:8080"),
 
 		HTTP: HTTP{
-			Port:            getInt("PORT", 8080),
-			ReadTimeout:     getDuration("HTTP_READ_TIMEOUT", 15*time.Second),
-			WriteTimeout:    getDuration("HTTP_WRITE_TIMEOUT", 30*time.Second),
-			IdleTimeout:     getDuration("HTTP_IDLE_TIMEOUT", 120*time.Second),
-			ShutdownTimeout: getDuration("HTTP_SHUTDOWN_TIMEOUT", 20*time.Second),
-			TrustedProxies:  getCSV("TRUSTED_PROXIES"),
+			Port:             getInt("PORT", 8080),
+			ReadTimeout:      getDuration("HTTP_READ_TIMEOUT", 15*time.Second),
+			WriteTimeout:     getDuration("HTTP_WRITE_TIMEOUT", 30*time.Second),
+			IdleTimeout:      getDuration("HTTP_IDLE_TIMEOUT", 120*time.Second),
+			ShutdownTimeout:  getDuration("HTTP_SHUTDOWN_TIMEOUT", 20*time.Second),
+			TrustedProxies:   getCSV("TRUSTED_PROXIES"),
+			TrustedProxyHops: getInt("TRUSTED_PROXY_HOPS", 1),
+		},
+
+		Scrape: AntiScrape{
+			Enabled:          getBool("ANTISCRAPE_ENABLED", true),
+			PenaltyTTL:       getDuration("ANTISCRAPE_PENALTY_TTL", time.Hour),
+			GuestMaxPage:     getInt("ANTISCRAPE_GUEST_MAX_PAGE", 25),
+			GuestMaxPageSize: getInt("ANTISCRAPE_GUEST_MAX_PAGE_SIZE", 48),
 		},
 
 		Database: Database{

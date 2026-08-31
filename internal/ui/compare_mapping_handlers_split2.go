@@ -124,6 +124,10 @@ func (h *UIHandler) CompareRowManualMatchSubmit(w http.ResponseWriter, r *http.R
 	h.redirectWithNotice(w, r, "/compare/tool", "success", i18n.T(lang, "compare.mapping.match_confirmed_success"))
 }
 
+// guestSearchResultCap bounds what the JSON search returns to a caller who has
+// not signed in.
+const guestSearchResultCap = 20
+
 // CompareQuickSearch handles GET /compare/search?q=... and /api/v1/compare/search?q=...
 func (h *UIHandler) CompareQuickSearch(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
@@ -159,6 +163,18 @@ func (h *UIHandler) CompareQuickSearch(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
+	// This endpoint answers a URL with structured supplier pricing, which makes
+	// it the cheapest thing on the platform to harvest. Signed-out callers get
+	// a short list: enough to find the product they typed, not enough to walk
+	// the market one query at a time. TotalMatches is left as it was so the
+	// page can still say how many there are.
+	if actor.UserID == 0 && len(results.Items) > guestSearchResultCap {
+		results.Items = results.Items[:guestSearchResultCap]
+	}
+
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	// Supplier pricing must not sit in a shared cache between two callers who
+	// are entitled to see different things.
+	w.Header().Set("Cache-Control", "private, no-store")
 	_ = json.NewEncoder(w).Encode(results)
 }

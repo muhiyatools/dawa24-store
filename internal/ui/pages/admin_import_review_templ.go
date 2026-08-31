@@ -63,7 +63,7 @@ func AdminProductsImportReview(lang, dir string, view ImportReviewView) templ.Co
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</div><div class=\"stack-sm\"><h1 class=\"text-2xl font-black text-primary m-0\">مراجعة وتحليل بيانات الكتالوج</h1><p class=\"text-sm text-secondary m-0 mt-1\">فحص مطابقة الحقول، والتحقق من الأسماء والباركودات قبل الاعتماد النهائي في قاعدة البيانات المركزية</p></div></div><div class=\"d-flex items-center gap-2\"><a href=\"/admin/products/import\" class=\"btn btn-secondary btn-sm font-bold text-xs gap-1\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</div><div><h1 class=\"text-2xl font-black text-primary m-0\">مراجعة وتحليل بيانات الكتالوج</h1><p class=\"text-sm text-secondary m-0 mt-1\">فحص مطابقة الحقول، والتحقق من الأسماء والباركودات قبل الاعتماد النهائي في قاعدة البيانات المركزية</p></div></div><div class=\"d-flex items-center gap-2\"><a href=\"/admin/products/import\" class=\"btn btn-secondary btn-sm font-bold text-xs gap-1\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -1150,14 +1150,14 @@ func ImportRowLine(view ImportReviewView, row *catalog.StagingRow) templ.Compone
 		}
 		for _, issue := range row.Issues {
 			if issue.Severity == catalog.SeverityError {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 79, "<div class=\"stack-sm\"><span class=\"badge badge-rose\">خطأ</span> <span class=\"wiz-row-meta\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 79, "<div class=\"d-flex items-center gap-1.5 my-1\"><span class=\"badge badge-rose\">خطأ</span> <span class=\"wiz-row-meta\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var55 string
 				templ_7745c5c3_Var55, templ_7745c5c3_Err = templ.JoinStringErrs(issue.Message)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_import_review.templ`, Line: 347, Col: 114}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_import_review.templ`, Line: 347, Col: 138}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var55))
 				if templ_7745c5c3_Err != nil {
@@ -1168,14 +1168,14 @@ func ImportRowLine(view ImportReviewView, row *catalog.StagingRow) templ.Compone
 					return templ_7745c5c3_Err
 				}
 			} else {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 81, "<div class=\"stack-sm\"><span class=\"badge badge-amber\">تنبيه</span> <span class=\"wiz-row-meta\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 81, "<div class=\"d-flex items-center gap-1.5 my-1\"><span class=\"badge badge-amber\">تنبيه</span> <span class=\"wiz-row-meta\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 				var templ_7745c5c3_Var56 string
 				templ_7745c5c3_Var56, templ_7745c5c3_Err = templ.JoinStringErrs(issue.Message)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_import_review.templ`, Line: 349, Col: 119}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_import_review.templ`, Line: 349, Col: 143}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var56))
 				if templ_7745c5c3_Err != nil {
@@ -1538,14 +1538,14 @@ func importConfirmCard(view ImportReviewView) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 111, "\" hx-boost=\"false\" class=\"wiz-actions-note\"><button type=\"submit\" class=\"btn btn-ghost\">إلغاء العملية</button></form><form class=\"stack-md\" method=\"POST\" action=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 111, "\" hx-boost=\"false\" class=\"wiz-actions-note\"><button type=\"submit\" class=\"btn btn-ghost\">إلغاء العملية</button></form><form class=\"d-flex items-center gap-2\" method=\"POST\" action=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var78 templ.SafeURL
 		templ_7745c5c3_Var78, templ_7745c5c3_Err = templ.JoinURLErrs(importAction(view, "commit"))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_import_review.templ`, Line: 437, Col: 77}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_import_review.templ`, Line: 437, Col: 94}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var78))
 		if templ_7745c5c3_Err != nil {

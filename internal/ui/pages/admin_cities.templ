@@ -98,7 +98,7 @@ templ AdminCities(data AdminCitiesData, lang string, dir string, isHTMX bool) {
 						<div class="user-avatar-badge text-xl">
 							@components.IconGlobe("icon-sm")
 						</div>
-      <div class="stack-sm">
+						<div>
 							<h1 class="text-2xl font-black text-primary m-0">
 								المحافظات والمدن والمراكز الجغرافية
 							</h1>
@@ -219,13 +219,13 @@ templ AdminCities(data AdminCitiesData, lang string, dir string, isHTMX bool) {
 				</form>
 			</div>
 
-			<!-- Main Content Grid: Table on Left (1.8fr), Forms on Right (1.2fr) -->
+			<!-- Main 2-Column Grid: Cities Table (Start/Right 1fr) + Sticky Action Sidebar (End/Left 400px) -->
 			<div class="cities-layout-grid">
 				
-				<!-- Left: Cities Table -->
+				<!-- Right in RTL / Start Column: Cities Table -->
 				<div class="glass-panel p-0 mb-6 overflow-hidden">
 					<div class="p-4 border-b flex-between items-center flex-wrap gap-2">
-      <div class="stack-sm">
+						<div>
 							<h3 class="text-base font-black text-primary m-0">
 								سجل المدن والمراكز المعتمدة
 							</h3>
@@ -393,7 +393,7 @@ templ AdminCities(data AdminCitiesData, lang string, dir string, isHTMX bool) {
 					</div>
 				</div>
 
-				<!-- Right Side: Creation Forms -->
+				<!-- Left in RTL / End Column: Creation Forms & Quick Navigation -->
 				<div class="d-flex flex-col gap-6">
 					
 					<!-- Card 1: Add New City with Interactive Map & Smart Governorate Pan -->
@@ -402,7 +402,7 @@ templ AdminCities(data AdminCitiesData, lang string, dir string, isHTMX bool) {
 							<div class="user-avatar-badge text-base">
 								@components.IconBuilding("icon-sm")
 							</div>
-       <div class="stack-sm">
+							<div>
 								<h3 class="text-sm font-black text-primary m-0">
 									إضافة مدينة / حي فرعي
 								</h3>
@@ -411,7 +411,7 @@ templ AdminCities(data AdminCitiesData, lang string, dir string, isHTMX bool) {
 						</div>
 
 						<form method="POST" action="/admin/cities/new" class="d-flex flex-col gap-3 m-0">
-       <div class="stack-sm">
+							<div class="form-group mb-0">
 								<label class="form-label text-xs font-bold mb-1">
 									المحافظة التابعة <span class="text-danger">*</span> <span class="text-secondary font-normal">(اختيار المحافظة ينقلك إليها تلقائياً على الخريطة)</span>
 								</label>
@@ -440,35 +440,36 @@ templ AdminCities(data AdminCitiesData, lang string, dir string, isHTMX bool) {
 								</select>
 							</div>
 
-       <div class="stack-sm">
+							<div class="form-group mb-0">
 								<label class="form-label text-xs font-bold mb-1">
 									اسم المدينة / الحي بالعربية <span class="text-danger">*</span>
 								</label>
 								<input type="text" name="name_ar" required placeholder="مثال: المنصورة الجديدة" class="form-input text-xs w-full"/>
 							</div>
 
-       <div class="stack-sm">
+							<div class="form-group mb-0">
 								<label class="form-label text-xs font-bold mb-1">
 									اسم المدينة / الحي بالإنجليزية
 								</label>
 								<input type="text" name="name_en" placeholder="New Mansoura" class="form-input text-xs w-full"/>
 							</div>
 
-							<!-- Interactive Map Picker for City -->
-       <div class="stack-sm">
+							<!-- Map Picker for Add City -->
+							<div class="form-group mb-0">
 								<label class="form-label text-xs font-bold mb-1 d-block">
-									الموقع الجغرافي والإحداثيات (GPS) <span class="text-secondary font-normal">(اضغط على الخريطة لتحديد الموقع بدقة)</span>
+									تحديد الموقع الجغرافي على الخريطة <span class="text-secondary font-normal">(اضغط على الخريطة لتثبيت الإحداثيات)</span>
 								</label>
 								<div
+									id="city-map-picker"
 									data-map-picker
 									data-default-lat="30.0444"
 									data-default-lon="31.2357"
-									class="rounded-xl overflow-hidden border bg-surface-sunken position-relative shadow-xs"
+									class="rounded-xl overflow-hidden border bg-surface-sunken position-relative shadow-xs mb-2"
 								>
-									<div class="map-container map-canvas h-56 w-full relative z-1"></div>
+									<div class="map-container map-canvas h-48 w-full relative z-1"></div>
 									<div class="flex-between p-2 bg-surface-raised border-t text-xs flex-wrap gap-2">
 										<div class="d-flex items-center gap-1.5">
-											<span class="text-secondary font-bold">الإحداثيات:</span>
+											<span class="text-secondary font-bold">الإحداثيات المحددة:</span>
 											<span data-map-coords-badge class="tabular-nums font-black text-primary">30.0444, 31.2357</span>
 										</div>
 										<button type="button" data-map-locate class="btn btn-secondary btn-xs font-bold gap-1">
@@ -489,54 +490,67 @@ templ AdminCities(data AdminCitiesData, lang string, dir string, isHTMX bool) {
 								</div>
 							</div>
 
+							<div class="d-flex gap-4 p-3 bg-surface-sunken border rounded-lg">
+								<label class="d-flex items-center gap-2 cursor-pointer text-xs font-bold text-primary">
+									<input type="checkbox" name="is_capital" value="true" class="form-checkbox"/>
+									<span>عاصمة / مركز رئيسي</span>
+								</label>
+
+								<label class="d-flex items-center gap-2 cursor-pointer text-xs font-bold text-primary">
+									<input type="checkbox" name="is_active" value="true" checked class="form-checkbox"/>
+									<span>مفعلة بالمنظومة</span>
+								</label>
+							</div>
+
 							<button type="submit" class="btn btn-primary btn-sm font-black text-xs w-full mt-2">
-								@components.IconCheck("icon-xs")
+								@components.IconPlus("icon-xs")
 								<span>حفظ وإضافة المدينة</span>
 							</button>
 						</form>
 					</div>
 
-					<!-- Card 2: Add New Governorate with Interactive Map -->
+					<!-- Card 2: Add New Governorate -->
 					<div id="new-gov-card" class="glass-panel p-5 mb-0">
 						<div class="d-flex items-center gap-2 pb-3 mb-4 border-b">
 							<div class="user-avatar-badge text-base">
 								@components.IconBank("icon-sm")
 							</div>
-       <div class="stack-sm">
+							<div>
 								<h3 class="text-sm font-black text-primary m-0">
-									إضافة محافظة رئيسية
+									إضافة محافظة جديدة
 								</h3>
-								<div class="text-xs text-secondary mt-0.5">إدراج نطاق محافظة جديد بالجمهورية مع موقعه على الخريطة</div>
+								<div class="text-xs text-secondary mt-0.5">تسجيل محافظة رسمية جديدة وتحديد مركزها الجغرافي</div>
 							</div>
 						</div>
 
 						<form method="POST" action="/admin/governorates/new" class="d-flex flex-col gap-3 m-0">
-       <div class="stack-sm">
+							<div class="form-group mb-0">
 								<label class="form-label text-xs font-bold mb-1">
 									اسم المحافظة بالعربية <span class="text-danger">*</span>
 								</label>
-								<input type="text" name="gov_name_ar" required placeholder="مثال: مطروح" class="form-input text-xs w-full"/>
+								<input type="text" name="gov_name_ar" required placeholder="مثال: أسوان" class="form-input text-xs w-full"/>
 							</div>
 
-       <div class="stack-sm">
+							<div class="form-group mb-0">
 								<label class="form-label text-xs font-bold mb-1">
 									اسم المحافظة بالإنجليزية
 								</label>
-								<input type="text" name="gov_name_en" placeholder="Matrooh" class="form-input text-xs w-full"/>
+								<input type="text" name="gov_name_en" placeholder="Aswan" class="form-input text-xs w-full"/>
 							</div>
 
-							<!-- Interactive Map Picker for Governorate -->
-       <div class="stack-sm">
+							<!-- Map Picker for Add Gov -->
+							<div class="form-group mb-0">
 								<label class="form-label text-xs font-bold mb-1 d-block">
-									الموقع الجغرافي لمركز المحافظة (GPS) <span class="text-secondary font-normal">(حدد موقع ديوان/مركز المحافظة)</span>
+									مركز المحافظة على الخريطة <span class="text-secondary font-normal">(اضغط لتحديد مركز المحافظة)</span>
 								</label>
 								<div
+									id="gov-map-picker"
 									data-map-picker
 									data-default-lat="30.0444"
 									data-default-lon="31.2357"
-									class="rounded-xl overflow-hidden border bg-surface-sunken position-relative shadow-xs"
+									class="rounded-xl overflow-hidden border bg-surface-sunken position-relative shadow-xs mb-2"
 								>
-									<div class="map-container map-canvas h-48 w-full relative z-1"></div>
+									<div class="map-container map-canvas h-44 w-full relative z-1"></div>
 									<div class="flex-between p-2 bg-surface-raised border-t text-xs flex-wrap gap-2">
 										<div class="d-flex items-center gap-1.5">
 											<span class="text-secondary font-bold">الإحداثيات:</span>
@@ -560,38 +574,66 @@ templ AdminCities(data AdminCitiesData, lang string, dir string, isHTMX bool) {
 								</div>
 							</div>
 
+							<div class="d-flex gap-4 p-3 bg-surface-sunken border rounded-lg">
+								<label class="d-flex items-center gap-2 cursor-pointer text-xs font-bold text-primary">
+									<input type="checkbox" name="is_active" value="true" checked class="form-checkbox"/>
+									<span>مفعلة ومعتمدة بالجمهورية</span>
+								</label>
+							</div>
+
 							<button type="submit" class="btn btn-secondary btn-sm font-black text-xs w-full mt-2">
-								@components.IconCheck("icon-xs")
+								@components.IconPlus("icon-xs")
 								<span>حفظ وإضافة المحافظة</span>
 							</button>
 						</form>
 					</div>
 
-					<!-- Card 3: Governorates Quick Filter Pills & Quick Management -->
+					<!-- Card 3: Governorates Quick Navigator -->
 					<div class="glass-panel p-5 mb-0">
-						<div class="flex-between items-center pb-2 mb-3 border-b">
-							<h4 class="text-xs font-black text-primary m-0">
-								المحافظات المعتمدة ({ fmt.Sprintf("%d", len(data.Governorates)) })
-							</h4>
+						<div class="d-flex items-center gap-2 pb-3 mb-3 border-b">
+							<div class="user-avatar-badge text-base">
+								@components.IconLayers("icon-sm")
+							</div>
+							<div>
+								<h3 class="text-sm font-black text-primary m-0">
+									المحافظات المسجلة ({ fmt.Sprintf("%d", len(data.Governorates)) })
+								</h3>
+								<div class="text-xs text-secondary mt-0.5">انقر على أي محافظة للفلترة السريعة وتعديل بياناتها</div>
+							</div>
 						</div>
-						<div class="d-flex flex-wrap gap-1.5 max-h-56 overflow-y-auto">
+
+						<div class="d-flex flex-col gap-2 max-h-96 overflow-y-auto pe-1">
 							for _, g := range data.Governorates {
-								<div class="d-inline-flex items-center gap-1 bg-surface-sunken p-1 rounded-lg border">
+								<div class="p-2.5 bg-surface-sunken border rounded-lg flex-between items-center gap-2 text-xs">
 									<a
 										href={ templ.SafeURL(fmt.Sprintf("/admin/cities?gov_id=%d", g.ID)) }
-										class={ "badge text-xs no-underline cursor-pointer py-1 px-2.5", templ.KV("badge-primary", data.SelectedGovernorateID == g.ID), templ.KV("badge-slate", data.SelectedGovernorateID != g.ID) }
+										class="font-black text-primary text-decoration-none d-flex items-center gap-1.5 flex-1"
 									>
 										<span>{ g.Name["ar"] }</span>
-										<span class="tabular-nums opacity-75 font-mono">({ fmt.Sprintf("%d", g.CityCount) })</span>
+										<span class="text-muted font-normal">({ g.Name["en"] })</span>
 									</a>
-									<button
-										type="button"
-										class="btn btn-ghost btn-2xs p-1 text-2xs"
-										title="تعديل المحافظة على الخريطة"
-										@click={ fmt.Sprintf("openGovEdit(%d, %q, %q, %f, %f, %t)", g.ID, g.Name["ar"], g.Name["en"], g.Latitude, g.Longitude, g.IsActive) }
-									>
-										@components.IconEdit("icon-sm")
-									</button>
+
+									<div class="d-flex items-center gap-1.5">
+										<span class="badge badge-sky tabular-nums text-xs font-bold">
+											{ fmt.Sprintf("%d مدينة", g.CityCount) }
+										</span>
+
+										<button
+											type="button"
+											class="btn btn-secondary btn-xs py-0.5 px-1.5"
+											@click={ fmt.Sprintf("openGovEdit(%d, %q, %q, %f, %f, %t)",
+												g.ID,
+												g.Name["ar"],
+												g.Name["en"],
+												g.Latitude,
+												g.Longitude,
+												g.IsActive,
+											) }
+											title="تعديل المحافظة"
+										>
+											@components.IconEdit("icon-2xs")
+										</button>
+									</div>
 								</div>
 							}
 						</div>
@@ -616,7 +658,7 @@ templ AdminCities(data AdminCitiesData, lang string, dir string, isHTMX bool) {
 							<div class="user-avatar-badge text-base">
 								@components.IconEdit("icon-sm")
 							</div>
-       <div class="stack-sm">
+							<div>
 								<h3 class="text-base font-black text-primary m-0">
 									تعديل بيانات المدينة / الحي
 								</h3>
@@ -624,12 +666,12 @@ templ AdminCities(data AdminCitiesData, lang string, dir string, isHTMX bool) {
 							</div>
 						</div>
 						<button type="button" @click="closeEdit()" class="btn btn-secondary btn-xs btn-icon">
-							@components.IconX("icon-sm")
+							@components.IconClose("icon-sm")
 						</button>
 					</div>
 
 					<form :action="'/admin/cities/' + editForm.id + '/edit'" method="POST" class="d-flex flex-col gap-3 m-0">
-      <div class="stack-sm">
+						<div class="form-group mb-0">
 							<label class="form-label text-xs font-bold mb-1">
 								المحافظة التابعة <span class="text-danger">*</span>
 							</label>
@@ -647,14 +689,14 @@ templ AdminCities(data AdminCitiesData, lang string, dir string, isHTMX bool) {
 							</select>
 						</div>
 
-      <div class="stack-sm">
+						<div class="form-group mb-0">
 							<label class="form-label text-xs font-bold mb-1">
 								اسم المدينة / الحي بالعربية <span class="text-danger">*</span>
 							</label>
 							<input type="text" name="name_ar" x-model="editForm.name_ar" required placeholder="مثال: مدينة نصر" class="form-input text-xs w-full"/>
 						</div>
 
-      <div class="stack-sm">
+						<div class="form-group mb-0">
 							<label class="form-label text-xs font-bold mb-1">
 								اسم المدينة / الحي بالإنجليزية
 							</label>
@@ -662,7 +704,7 @@ templ AdminCities(data AdminCitiesData, lang string, dir string, isHTMX bool) {
 						</div>
 
 						<!-- Map Picker in City Edit Modal -->
-      <div class="stack-sm">
+						<div class="form-group mb-0">
 							<label class="form-label text-xs font-bold mb-1 d-block">
 								الموقع الجغرافي للمدينة على الخريطة <span class="text-secondary font-normal">(حرك المؤشر أو اضغط على الموقع لتحديث الإحداثيات)</span>
 							</label>
@@ -744,7 +786,7 @@ templ AdminCities(data AdminCitiesData, lang string, dir string, isHTMX bool) {
 							<div class="user-avatar-badge text-base">
 								@components.IconBank("icon-sm")
 							</div>
-       <div class="stack-sm">
+							<div>
 								<h3 class="text-base font-black text-primary m-0">
 									تعديل بيانات المحافظة والموقع الجغرافي
 								</h3>
@@ -752,26 +794,27 @@ templ AdminCities(data AdminCitiesData, lang string, dir string, isHTMX bool) {
 							</div>
 						</div>
 						<button type="button" @click="closeGovEdit()" class="btn btn-secondary btn-xs btn-icon">
-							@components.IconX("icon-sm")
+							@components.IconClose("icon-sm")
 						</button>
 					</div>
 
 					<form :action="'/admin/governorates/' + govEditForm.id + '/edit'" method="POST" class="d-flex flex-col gap-3 m-0">
-      <div class="stack-sm">
+						<div class="form-group mb-0">
 							<label class="form-label text-xs font-bold mb-1">
 								اسم المحافظة بالعربية <span class="text-danger">*</span>
 							</label>
 							<input type="text" name="gov_name_ar" x-model="govEditForm.name_ar" required placeholder="مثال: الإسكندرية" class="form-input text-xs w-full"/>
 						</div>
 
-      <div class="stack-sm">
+						<div class="form-group mb-0">
 							<label class="form-label text-xs font-bold mb-1">
 								اسم المحافظة بالإنجليزية
 							</label>
 							<input type="text" name="gov_name_en" x-model="govEditForm.name_en" placeholder="Alexandria" class="form-input text-xs w-full"/>
 						</div>
 
-      <div class="stack-sm">
+						<!-- Map Picker in Gov Edit Modal -->
+						<div class="form-group mb-0">
 							<label class="form-label text-xs font-bold mb-1 d-block">
 								الموقع الجغرافي لمركز المحافظة <span class="text-secondary font-normal">(اضغط على الخريطة لتحديث المركز)</span>
 							</label>

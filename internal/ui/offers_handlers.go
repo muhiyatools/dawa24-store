@@ -17,11 +17,15 @@ import (
 	"github.com/muhiya/dawa24-store/internal/ui/pages"
 )
 
-// OffersPage renders the public offers listing.
+// OffersPage renders the offers listing for authenticated users.
 func (h *UIHandler) OffersPage(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	if !features.Enabled(ctx, "offers.enabled") {
 		http.Redirect(w, r, "/", http.StatusSeeOther)
+		return
+	}
+	if _, ok := authctx.From(ctx); !ok {
+		http.Redirect(w, r, "/auth/login?redirect="+r.URL.RequestURI(), http.StatusSeeOther)
 		return
 	}
 	lang, dir := h.localeAndDir(r)
@@ -120,6 +124,10 @@ func (h *UIHandler) OffersPage(w http.ResponseWriter, r *http.Request) {
 // OfferDetailPage renders one offer with its full products and records an impression.
 func (h *UIHandler) OfferDetailPage(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
+	if _, ok := authctx.From(ctx); !ok {
+		http.Redirect(w, r, "/auth/login?redirect="+r.URL.RequestURI(), http.StatusSeeOther)
+		return
+	}
 	lang, dir := h.localeAndDir(r)
 
 	id, err := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)

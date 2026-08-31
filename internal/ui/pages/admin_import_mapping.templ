@@ -24,7 +24,7 @@ templ AdminProductsImportMapping(lang, dir string, view ImportMappingView) {
 						<div class="user-avatar-badge text-xl">
 							🧭
 						</div>
-      <div class="stack-sm">
+						<div>
 							<h1 class="text-2xl font-black text-primary m-0">مراجعة الأعمدة قبل المعالجة</h1>
 							<p class="text-sm text-secondary m-0 mt-1">تأكد من أن كل عمود في الملف مربوط بالحقل الصحيح، وراجع عيّنة من الأصناف كما ستُقرأ فعلياً</p>
 						</div>
@@ -44,7 +44,7 @@ templ AdminProductsImportMapping(lang, dir string, view ImportMappingView) {
 				if view.Notice != "" {
 					@importStepNotice(view.Notice, view.NoticeKind)
 				}
-				<form class="stack-md" method="POST" hx-boost="false" id="mapping-form">
+				<form class="d-flex flex-col gap-6" method="POST" hx-boost="false" id="mapping-form">
 					@importFileCard(view)
 					@importMappingCard(view)
 					@importPreviewCard(view)
@@ -106,7 +106,7 @@ templ importFileCard(view ImportMappingView) {
 templ importMappingCard(view ImportMappingView) {
 	<div class="glass-panel p-6 mb-6">
 		<div class="flex-between items-center flex-wrap gap-3 mb-4 pb-3 border-b">
-   <div class="stack-sm">
+			<div>
 				<h2 class="text-xl font-black text-primary m-0">ربط وتعيين أعمدة الملف</h2>
 				<p class="text-xs text-secondary m-0 mt-1">
 					تم تقسيم الحقول إلى 3 أقسام منظمة لتسهيل المراجعة: الحقول الأساسية، المواصفات الدوائية، وبيانات الأسعار والمخزون.

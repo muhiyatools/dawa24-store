@@ -2,6 +2,7 @@ package ui
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"strconv"
 	"strings"
@@ -167,4 +168,76 @@ func (h *UIHandler) AdminMyTempWarehouseItemDeleteSubmit(w http.ResponseWriter, 
 		return
 	}
 	_ = json.NewEncoder(w).Encode(map[string]any{"success": true})
+}
+
+// AdminMyTempWarehouseBulkSubmit processes bulk actions on the current user's owned warehouses.
+func (h *UIHandler) AdminMyTempWarehouseBulkSubmit(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	lang := langOf(r)
+	if err := r.ParseForm(); err != nil {
+		h.redirectWithNotice(w, r, tempWarehouseMineBase, "error", i18n.T(lang, "admin.temp_wh.invalid_data"))
+		return
+	}
+
+	action := strings.TrimSpace(r.PostFormValue("bulk_action"))
+	idsRaw := r.PostForm["selected_ids"]
+	if len(idsRaw) == 0 {
+		if raw := strings.TrimSpace(r.PostFormValue("selected_ids")); raw != "" {
+			idsRaw = strings.Split(raw, ",")
+		}
+	}
+
+	var ids []int64
+	for _, s := range idsRaw {
+		if id, err := strconv.ParseInt(strings.TrimSpace(s), 10, 64); err == nil && id > 0 {
+			ids = append(ids, id)
+		}
+	}
+
+	if len(ids) == 0 {
+		h.redirectWithNotice(w, r, tempWarehouseMineBase, "error", "لم يتم تحديد أي مستودعات لتنفيذ الإجراء")
+		return
+	}
+
+	currentUID := currentActorUserID(r)
+	successCount := 0
+
+	switch action {
+	case "archive":
+		reason := i18n.T(lang, "admin.temp_wh.manual_archive_reason")
+		for _, id := range ids {
+			f, err := h.compareSvc.GetFile(database.AsSystem(ctx), id)
+			if err != nil || f == nil || f.UserID != currentUID {
+				continue
+			}
+			if err := h.compareSvc.ArchiveFile(database.AsSystem(ctx), id, reason); err == nil {
+				successCount++
+			}
+		}
+		h.redirectWithNotice(w, r, tempWarehouseMineBase, "success", fmt.Sprintf("تم أرشفة %d مستودع بنجاح", successCount))
+	case "unarchive":
+		for _, id := range ids {
+			f, err := h.compareSvc.GetFile(database.AsSystem(ctx), id)
+			if err != nil || f == nil || f.UserID != currentUID {
+				continue
+			}
+			if err := h.compareSvc.UnarchiveFile(database.AsSystem(ctx), id); err == nil {
+				successCount++
+			}
+		}
+		h.redirectWithNotice(w, r, tempWarehouseMineBase, "success", fmt.Sprintf("تم تفعيل واسترجاع %d مستودع بنجاح", successCount))
+	case "delete":
+		for _, id := range ids {
+			f, err := h.compareSvc.GetFile(database.AsSystem(ctx), id)
+			if err != nil || f == nil || f.UserID != currentUID {
+				continue
+			}
+			if err := h.compareSvc.DeleteFile(database.AsSystem(ctx), id); err == nil {
+				successCount++
+			}
+		}
+		h.redirectWithNotice(w, r, tempWarehouseMineBase, "success", fmt.Sprintf("تم حذف %d مستودع وكافة أصنافها نهائياً", successCount))
+	default:
+		h.redirectWithNotice(w, r, tempWarehouseMineBase, "error", "إجراء غير معروف")
+	}
 }

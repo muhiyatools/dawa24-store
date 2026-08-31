@@ -2365,6 +2365,50 @@ input:focus {
   .review-bulk-actions { margin-inline-start: 0; width: 100%; }
 }
 
+/* Warehouse Bulk Actions Toolbar */
+.warehouse-bulk-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.875rem 1.25rem;
+  background: var(--bg-surface-raised, #ffffff);
+  border: 1.5px solid var(--brand, #0284c7);
+  border-radius: var(--radius-xl, 1rem);
+  box-shadow: 0 10px 25px -5px rgba(2, 132, 199, 0.15), 0 8px 10px -6px rgba(2, 132, 199, 0.1);
+  margin-bottom: 1rem;
+  animation: slideDown 0.2s ease-out;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.warehouse-bulk-info {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.warehouse-bulk-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.warehouse-row-selected {
+  background-color: var(--primary-subtle, rgba(2, 132, 199, 0.08)) !important;
+}
+
 /* The compare tool's catalogue matching control. */
 .compare-match-panel {
   background: var(--surface-sunken, var(--bg-surface-sunken));
@@ -3468,9 +3512,112 @@ body.modal-open {
 .job-spec-tile-label { font-size: 0.7rem; font-weight: 600; color: var(--text-muted, #94a3b8); }
 .job-spec-tile-value { font-size: var(--text-xs, 0.8125rem); font-weight: 800; color: var(--text-primary, #0f172a); }
 .locations-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(14rem, 1fr)); gap: var(--space-md); }
-.cities-layout-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(12rem, 1fr)); gap: var(--space-sm); }
+.cities-layout-grid {
+  display: grid;
+  grid-template-columns: 1fr 400px;
+  gap: var(--space-lg, 1.5rem);
+  align-items: start;
+}
+
+@media (max-width: 1200px) {
+  .cities-layout-grid {
+    grid-template-columns: 1fr 360px;
+  }
+}
+
+@media (max-width: 992px) {
+  .cities-layout-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
 .warehouse-filter-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr)); gap: var(--space-sm); }
 .warehouse-kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr)); gap: var(--space-md); }
+
+/* Feature Flags & Settings Styles */
+.feature-flag-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1rem 1.25rem;
+  background: var(--bg-surface-sunken, #f8fafc);
+  border: 1px solid var(--border-subtle, #e2e8f0);
+  border-radius: var(--radius-xl, 0.875rem);
+  transition: border-color var(--duration-fast) ease, box-shadow var(--duration-fast) ease;
+}
+
+.feature-flag-row:hover {
+  border-color: var(--border-card, #cbd5e1);
+  box-shadow: var(--shadow-xs);
+}
+
+.feature-flag-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  flex: 1;
+}
+
+.feature-flag-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.feature-flag-desc {
+  font-size: var(--text-xs, 0.8125rem);
+  color: var(--text-secondary, #64748b);
+  line-height: 1.45;
+  margin: 0;
+}
+
+/* Payment Method Card */
+.payment-method-card {
+  background: var(--bg-surface-raised, #ffffff);
+  border: 1px solid var(--border-card, #e2e8f0);
+  border-radius: var(--radius-xl, 1rem);
+  padding: 1.25rem;
+  box-shadow: var(--shadow-xs);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 1rem;
+  transition: all var(--duration-fast) ease;
+}
+
+.payment-method-card:hover {
+  border-color: var(--brand, #0284c7);
+  box-shadow: var(--shadow-md);
+}
+
+.payment-method-badge-row {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  flex-wrap: wrap;
+}
+
+/* Wizard Drag Drop Area */
+.wiz-drop-zone {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  border: 2px dashed var(--border-card, #cbd5e1);
+  border-radius: var(--radius-2xl, 1.25rem);
+  padding: 2.5rem 1.5rem;
+  background: var(--bg-surface-sunken, #f8fafc);
+  cursor: pointer;
+  transition: all var(--duration-fast) ease;
+}
+
+.wiz-drop-zone:hover, .wiz-drop-zone.is-over, .wiz-drop-zone.is-dragover {
+  border-color: var(--brand, #0284c7);
+  background: var(--primary-subtle, rgba(2, 132, 199, 0.06));
+}
 
 /* Supplier Profile Component Suite */
 .sp-hero-actions { display: flex; gap: var(--space-xs); align-items: center; }

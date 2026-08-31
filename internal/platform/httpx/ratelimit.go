@@ -3,9 +3,7 @@ package httpx
 import (
 	"context"
 	"fmt"
-	"net"
 	"net/http"
-	"strings"
 	"time"
 
 	"github.com/redis/go-redis/v9"
@@ -37,7 +35,7 @@ func (l *Limiter) LimitByIP(limit int, window time.Duration) func(http.Handler) 
 				return
 			}
 
-			ip := getClientIP(r)
+			ip := ClientIP(r, 1)
 			key := fmt.Sprintf("%sip:%s", l.prefix, ip)
 
 			allowed, err := l.allow(r.Context(), key, limit, window)
@@ -86,22 +84,4 @@ func (l *Limiter) allow(ctx context.Context, key string, limit int, window time.
 		l.rdb.Expire(ctx, key, window)
 	}
 	return count <= int64(limit), nil
-}
-
-func getClientIP(r *http.Request) string {
-	if xff := r.Header.Get("X-Forwarded-For"); xff != "" {
-		parts := strings.Split(xff, ",")
-		clientIP := strings.TrimSpace(parts[0])
-		if clientIP != "" {
-			return clientIP
-		}
-	}
-	if xri := r.Header.Get("X-Real-IP"); xri != "" {
-		return strings.TrimSpace(xri)
-	}
-	host, _, err := net.SplitHostPort(r.RemoteAddr)
-	if err == nil {
-		return host
-	}
-	return r.RemoteAddr
 }

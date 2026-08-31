@@ -281,8 +281,15 @@ func TestOffersWorkflowAndRendering(t *testing.T) {
 	handler.RegisterPublicRoutes(r)
 	r.Post("/cart/add-offer", handler.AddOfferToCartSubmit)
 
+	testActor := authctx.Actor{
+		UserID:         5,
+		OrganizationID: 12,
+		Role:           "pharmacy",
+	}
+
 	// 1. Test GET /offers (Public Offers Listing)
 	req := httptest.NewRequest(http.MethodGet, "/offers", nil)
+	req = req.WithContext(authctx.WithActor(req.Context(), testActor))
 	rec := httptest.NewRecorder()
 	r.ServeHTTP(rec, req)
 
@@ -299,6 +306,7 @@ func TestOffersWorkflowAndRendering(t *testing.T) {
 
 	// 2. Test GET /offers/101 (Offer Detail Page)
 	reqDetail := httptest.NewRequest(http.MethodGet, "/offers/101", nil)
+	reqDetail = reqDetail.WithContext(authctx.WithActor(reqDetail.Context(), testActor))
 	recDetail := httptest.NewRecorder()
 	r.ServeHTTP(recDetail, reqDetail)
 

@@ -7,6 +7,7 @@ import (
 
 	"github.com/muhiya/dawa24-store/internal/modules/catalog"
 	"github.com/muhiya/dawa24-store/internal/modules/promo"
+	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/platform/database"
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/shared/money"
@@ -15,11 +16,23 @@ import (
 
 func (h *UIHandler) CustomerCatalogPage(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
+	if _, ok := authctx.From(ctx); !ok {
+		http.Redirect(w, r, "/auth/login?redirect="+r.URL.RequestURI(), http.StatusSeeOther)
+		return
+	}
 	lang, dir := h.localeAndDir(r)
 
 	// 1. Security & Anti-Scraping / Bot Defense
-	// Honeypot trap check: if filled by a scraper/bot, return empty page safely
+	// Honeypot trap check: the filter form carries a hidden field no person can
+	// see or tab into, so a value in it means the caller submitted the form by
+	// reading the HTML. The response is a normal-looking empty catalogue rather
+	// than an error: a scraper that is told it was caught adapts, one that is
+	// handed plausible nothing does not.
+	//
+	// The caller is also put on the guard's refused list, which is what makes
+	// this cost more than one wasted request.
 	if botTrap := r.URL.Query().Get("company_tax_ref"); botTrap != "" {
+		h.scrape.Penalize(r, "honeypot_field")
 		w.Header().Set("Content-Type", "text/html; charset=utf-8")
 		_ = pages.CustomerCatalog(pages.CatalogPageData{
 			Page:     1,
@@ -76,6 +89,14 @@ func (h *UIHandler) CustomerCatalogPage(w http.ResponseWriter, r *http.Request) 
 	}
 
 	// 2. Rows per page (PageSize) & Page bounds enforcement
+	//
+	// The two ceilings are the cap on how much of the catalogue one caller can
+	// reach at all, which is the part of the anti-scraping defence that a
+	// forged User-Agent cannot walk around: the request budgets decide how fast
+	// the catalogue can be read, these decide how much of it is readable. A
+	// caller who has not signed in gets the lower pair.
+	maxPage, maxPageSize := h.guestListingBounds(r, 200, 96)
+
 	pageSize := 24
 	if psVal := r.URL.Query().Get("page_size"); psVal != "" {
 		if ps, err := strconv.Atoi(psVal); err == nil {
@@ -87,6 +108,9 @@ func (h *UIHandler) CustomerCatalogPage(w http.ResponseWriter, r *http.Request) 
 			}
 		}
 	}
+	if pageSize > maxPageSize {
+		pageSize = maxPageSize
+	}
 
 	page := 1
 	if pVal := r.URL.Query().Get("page"); pVal != "" {
@@ -94,9 +118,10 @@ func (h *UIHandler) CustomerCatalogPage(w http.ResponseWriter, r *http.Request) 
 			page = p
 		}
 	}
-	// Bound page depth to 200 to prevent database exhaustion by scrapers
-	if page > 200 {
-		page = 200
+	// Bound page depth so no single filter combination can be walked to the end
+	// of the catalogue.
+	if page > maxPage {
+		page = maxPage
 	}
 
 	if h.catSvc == nil {

@@ -9,6 +9,7 @@ import (
 	"encoding/hex"
 	"fmt"
 	"log/slog"
+	"net"
 	"net/http"
 	"runtime/debug"
 	"strings"
@@ -244,22 +245,62 @@ func cookieValue(r *http.Request, name string) string {
 	return c.Value
 }
 
-// clientIP resolves the caller address, preferring X-Forwarded-For only because
-// the app runs behind Elest.io's proxy. It takes the first entry, which is the
-// original client when the proxy chain is trusted.
-func clientIP(r *http.Request) string {
-	if xff := r.Header.Get("X-Forwarded-For"); xff != "" {
-		if idx := strings.IndexByte(xff, ','); idx > 0 {
-			return strings.TrimSpace(xff[:idx])
+// ClientIP resolves the address a request should be attributed to.
+//
+// trustedHops is how many reverse proxies sit in front of this process. It
+// matters more than it looks: X-Forwarded-For is a header the caller writes,
+// and every proxy appends to it rather than replacing it. Reading the first
+// entry — which is what this function used to do, and what most examples do —
+// means a scraper sending "X-Forwarded-For: <random>" is a brand new client on
+// every request, and every per-address defence built on it counts to one
+// forever.
+//
+// Counting from the right is what fixes that. The last entry was written by the
+// proxy nearest to us and cannot be forged by the caller; the one before it was
+// written by the proxy before that. With one proxy in front, the rightmost
+// entry is the real client and everything to its left is whatever the caller
+// invented.
+//
+// trustedHops of 0 ignores X-Forwarded-For entirely and uses the peer address,
+// which is correct when nothing is in front of this process.
+func ClientIP(r *http.Request, trustedHops int) string {
+	if trustedHops > 0 {
+		if parts := splitForwarded(r.Header.Get("X-Forwarded-For")); len(parts) > 0 {
+			// Index from the right; a chain shorter than the configured hop
+			// count means the request did not come through the whole chain, so
+			// the leftmost entry is the furthest we can trust.
+			i := len(parts) - trustedHops
+			if i < 0 {
+				i = 0
+			}
+			return parts[i]
 		}
-		return strings.TrimSpace(xff)
+		if rip := strings.TrimSpace(r.Header.Get("X-Real-IP")); rip != "" {
+			return rip
+		}
 	}
-	if rip := r.Header.Get("X-Real-IP"); rip != "" {
-		return rip
-	}
-	host, _, found := strings.Cut(r.RemoteAddr, ":")
-	if !found {
+
+	host, _, err := net.SplitHostPort(r.RemoteAddr)
+	if err != nil {
 		return r.RemoteAddr
 	}
 	return host
 }
+
+func splitForwarded(header string) []string {
+	if strings.TrimSpace(header) == "" {
+		return nil
+	}
+	raw := strings.Split(header, ",")
+	out := make([]string, 0, len(raw))
+	for _, p := range raw {
+		if p = strings.TrimSpace(p); p != "" {
+			out = append(out, p)
+		}
+	}
+	return out
+}
+
+// clientIP is the log line's view of the caller. One proxy (Elest.io's) sits in
+// front of this process in every deployed environment.
+func clientIP(r *http.Request) string { return ClientIP(r, 1) }

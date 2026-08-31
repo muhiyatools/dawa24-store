@@ -144,6 +144,8 @@ func (h *UIHandler) registerAdminWarehouseRoutes(r chi.Router) {
 		g.Post("/admin/user/temparte-warehouses/upload", h.AdminTempWarehouseUploadSubmit)
 		g.Post("/admin/temporary-warehouses/{id}/mapping", h.AdminTempWarehouseMappingSubmit)
 		g.Post("/admin/temporary-warehouses/{id}/toggle-archive", h.AdminTempWarehouseToggleArchiveSubmit)
+		g.Post("/admin/temporary-warehouses/bulk", h.AdminTempWarehouseBulkSubmit)
+		g.Post("/admin/user/temparte-warehouses/bulk", h.AdminTempWarehouseBulkSubmit)
 	})
 
 	r.Group(func(g chi.Router) {
@@ -168,6 +170,7 @@ func (h *UIHandler) registerAdminWarehouseRoutes(r chi.Router) {
 		g.Post("/admin/my/temparte-warehouses/{id}/toggle-archive", h.AdminMyTempWarehouseToggleArchiveSubmit)
 		g.Post("/admin/my/temparte-warehouses/{id}/delete", h.AdminMyTempWarehouseDeleteSubmit)
 		g.Post("/admin/my/temparte-warehouses/items/{id}/delete", h.AdminMyTempWarehouseItemDeleteSubmit)
+		g.Post("/admin/my/temparte-warehouses/bulk", h.AdminMyTempWarehouseBulkSubmit)
 	})
 }
 

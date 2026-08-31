@@ -150,10 +150,25 @@ func (m *mockBulkCompareRepo) RenameFile(ctx context.Context, id int64, newName 
 }
 
 func (m *mockBulkCompareRepo) ArchiveFile(ctx context.Context, id int64, reason string) error {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+	if f, ok := m.files[id]; ok {
+		f.Status = compare.FileArchived
+		f.ArchiveReason = reason
+		now := time.Now()
+		f.ArchivedAt = &now
+	}
 	return nil
 }
 
 func (m *mockBulkCompareRepo) UnarchiveFile(ctx context.Context, id int64) error {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+	if f, ok := m.files[id]; ok {
+		f.Status = compare.FileReady
+		f.ArchivedAt = nil
+		f.ArchiveReason = ""
+	}
 	return nil
 }
 

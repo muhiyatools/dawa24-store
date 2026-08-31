@@ -40,11 +40,14 @@ import (
 	"github.com/muhiya/dawa24-store/internal/modules/workflow"
 
 	aiusagePostgres "github.com/muhiya/dawa24-store/internal/platform/aiusage/postgres"
+	"github.com/muhiya/dawa24-store/internal/platform/antiscrape"
 	"github.com/muhiya/dawa24-store/internal/platform/config"
 	"github.com/muhiya/dawa24-store/internal/platform/gateway"
 	"github.com/muhiya/dawa24-store/internal/platform/pagecontrol"
 	"github.com/muhiya/dawa24-store/internal/platform/storage"
 	"github.com/muhiya/dawa24-store/internal/ui"
+
+	"github.com/redis/go-redis/v9"
 
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
 	"github.com/muhiya/dawa24-store/internal/platform/rbac"
@@ -272,6 +275,25 @@ func buildUIHandler(
 	if storageClient != nil {
 		uiHandler.SetStorage(storageClient)
 	}
+	// The public surface publishes supplier identity, net supply price, stock
+	// and expiry to callers who have not signed in. The guard meters that; the
+	// Redis handle is resolved per request because the listener opens before
+	// Redis is dialled, and a client captured here would be nil forever.
+	uiHandler.SetScrapeGuard(antiscrape.New(antiscrape.Options{
+		Enabled: cfg.Scrape.Enabled,
+		Redis: func() *redis.Client {
+			if c := deps.CacheHandle(); c != nil {
+				return c.Redis()
+			}
+			return nil
+		},
+		Log:              log,
+		KeyPrefix:        "dawa24:" + string(cfg.Env) + ":antiscrape:",
+		TrustedProxyHops: cfg.HTTP.TrustedProxyHops,
+		PenaltyTTL:       cfg.Scrape.PenaltyTTL,
+	}))
+	uiHandler.SetGuestListingLimits(cfg.Scrape.GuestMaxPage, cfg.Scrape.GuestMaxPageSize)
+
 	uiHandler.SetAssistantRepository(assistantPostgres.NewRepository(db))
 	uiHandler.SetPermissionResolver(permissions)
 	// The /admin/system-pages screen. The enforcement engine itself is started

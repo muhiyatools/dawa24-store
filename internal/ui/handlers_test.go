@@ -5,6 +5,7 @@ import (
 	"log/slog"
 	"net/http"
 	"net/http/httptest"
+	"strings"
 	"testing"
 
 	"github.com/go-chi/chi/v5"
@@ -100,15 +101,17 @@ func TestPublicAndAuthPageRoutes(t *testing.T) {
 		path   string
 	}{
 		{"GET", "/"},
+		{"GET", "/about"},
+		{"GET", "/how-it-works"},
+		{"GET", "/faq"},
+		{"GET", "/contact"},
 		{"GET", "/privacy"},
 		{"GET", "/terms"},
 		{"GET", "/auth/login"},
 		{"GET", "/auth/register"},
 		{"GET", "/auth/forgot"},
 		{"GET", "/auth/reset?token=test-reset-tok"},
-		{"GET", "/catalog"},
 		{"GET", "/jobs"},
-		{"GET", "/suppliers"},
 	}
 
 	for _, route := range routes {
@@ -125,10 +128,39 @@ func TestPublicAndAuthPageRoutes(t *testing.T) {
 	}
 }
 
+func TestGuestAccessBlockedForCommercialPages(t *testing.T) {
+	router := newTestRouter(nil)
+
+	protectedRoutes := []string{
+		"/catalog",
+		"/offers",
+		"/suppliers",
+		"/compare/results",
+		"/compare",
+	}
+
+	for _, path := range protectedRoutes {
+		t.Run("Guest_Blocked_"+path, func(t *testing.T) {
+			req := httptest.NewRequest("GET", path, nil)
+			rec := httptest.NewRecorder()
+
+			router.ServeHTTP(rec, req)
+
+			if rec.Code != http.StatusSeeOther && rec.Code != http.StatusFound && rec.Code != http.StatusTemporaryRedirect {
+				t.Errorf("GET %s for guest returned status %d, want redirect to login", path, rec.Code)
+			}
+			loc := rec.Header().Get("Location")
+			if !strings.Contains(loc, "/auth/login") {
+				t.Errorf("GET %s redirected to %q, want /auth/login redirect", path, loc)
+			}
+		})
+	}
+}
+
 func TestHTMXPartialHeaderHandling(t *testing.T) {
 	router := setupTestRouter()
 
-	// Anonymous request to catalog partial renders successfully
+	// Authenticated request to catalog partial renders successfully
 	req := httptest.NewRequest("GET", "/catalog", nil)
 	req.Header.Set("HX-Request", "true")
 	rec := httptest.NewRecorder()

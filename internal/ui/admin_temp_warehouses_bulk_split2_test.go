@@ -286,3 +286,116 @@ func TestCompareUpload_SubscriptionLimit_Enforcement(t *testing.T) {
 		t.Errorf("expected success redirect, got error notice: %s", locOk)
 	}
 }
+
+func TestAdminTempWarehouse_BulkActions_Archive_Unarchive_Delete(t *testing.T) {
+	mockRepo := newMockBulkCompareRepo()
+	logger := slog.New(slog.NewTextHandler(io.Discard, nil))
+	compareSvc := compare.NewService(mockRepo, logger)
+
+	handler := ui.NewUIHandler(
+		nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, logger,
+	)
+	handler.SetCompareService(compareSvc)
+
+	r := chi.NewRouter()
+	handler.RegisterAdminRoutes(r)
+
+	adminActor := authctx.Actor{
+		UserID:      1,
+		Email:       "admin@dawa24.com",
+		Role:        "super_admin",
+		IsStaff:     true,
+		IsOwner:     true,
+		Permissions: []string{"*"},
+	}
+
+	// 1. Create test files in mockRepo
+	f1 := &compare.CompareFile{
+		UserID:       1,
+		SupplierName: "مستودع 1",
+		Status:       compare.FileReady,
+	}
+	_ = mockRepo.CreateFile(context.Background(), f1)
+
+	f2 := &compare.CompareFile{
+		UserID:       1,
+		SupplierName: "مستودع 2",
+		Status:       compare.FileReady,
+	}
+	_ = mockRepo.CreateFile(context.Background(), f2)
+
+	f3 := &compare.CompareFile{
+		UserID:       1,
+		SupplierName: "مستودع 3",
+		Status:       compare.FileReady,
+	}
+	_ = mockRepo.CreateFile(context.Background(), f3)
+
+	// Test 1: Bulk Archive (Super Admin)
+	formArchive := url.Values{
+		"bulk_action":  {"archive"},
+		"selected_ids": {fmt.Sprintf("%d", f1.ID), fmt.Sprintf("%d", f2.ID)},
+	}
+	reqArchive := httptest.NewRequest(http.MethodPost, "/admin/temporary-warehouses/bulk", strings.NewReader(formArchive.Encode()))
+	reqArchive.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+	reqArchive = reqArchive.WithContext(authctx.WithActor(reqArchive.Context(), adminActor))
+
+	recArchive := httptest.NewRecorder()
+	r.ServeHTTP(recArchive, reqArchive)
+
+	if recArchive.Code != http.StatusSeeOther {
+		t.Fatalf("expected 303 redirect on bulk archive, got %d", recArchive.Code)
+	}
+
+	// Check status of f1 & f2
+	f1Check, _ := mockRepo.GetFileByID(context.Background(), f1.ID)
+	if f1Check.Status != compare.FileArchived {
+		t.Errorf("expected f1 to be archived, got %s", f1Check.Status)
+	}
+	f2Check, _ := mockRepo.GetFileByID(context.Background(), f2.ID)
+	if f2Check.Status != compare.FileArchived {
+		t.Errorf("expected f2 to be archived, got %s", f2Check.Status)
+	}
+
+	// Test 2: Bulk Unarchive (Super Admin)
+	formUnarchive := url.Values{
+		"bulk_action":  {"unarchive"},
+		"selected_ids": {fmt.Sprintf("%d", f1.ID), fmt.Sprintf("%d", f2.ID)},
+	}
+	reqUnarchive := httptest.NewRequest(http.MethodPost, "/admin/temporary-warehouses/bulk", strings.NewReader(formUnarchive.Encode()))
+	reqUnarchive.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+	reqUnarchive = reqUnarchive.WithContext(authctx.WithActor(reqUnarchive.Context(), adminActor))
+
+	recUnarchive := httptest.NewRecorder()
+	r.ServeHTTP(recUnarchive, reqUnarchive)
+
+	if recUnarchive.Code != http.StatusSeeOther {
+		t.Fatalf("expected 303 redirect on bulk unarchive, got %d", recUnarchive.Code)
+	}
+
+	f1Unarchived, _ := mockRepo.GetFileByID(context.Background(), f1.ID)
+	if f1Unarchived.Status != compare.FileReady {
+		t.Errorf("expected f1 to be unarchived (ready), got %s", f1Unarchived.Status)
+	}
+
+	// Test 3: Bulk Delete (My Temp Warehouses)
+	formDelete := url.Values{
+		"bulk_action":  {"delete"},
+		"selected_ids": {fmt.Sprintf("%d", f1.ID), fmt.Sprintf("%d", f3.ID)},
+	}
+	reqDelete := httptest.NewRequest(http.MethodPost, "/admin/my/temparte-warehouses/bulk", strings.NewReader(formDelete.Encode()))
+	reqDelete.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+	reqDelete = reqDelete.WithContext(authctx.WithActor(reqDelete.Context(), adminActor))
+
+	recDelete := httptest.NewRecorder()
+	r.ServeHTTP(recDelete, reqDelete)
+
+	if recDelete.Code != http.StatusSeeOther {
+		t.Fatalf("expected 303 redirect on bulk delete, got %d", recDelete.Code)
+	}
+
+	deletedF1, _ := mockRepo.GetFileByID(context.Background(), f1.ID)
+	if deletedF1 != nil {
+		t.Errorf("expected f1 to be deleted from repo, got %+v", deletedF1)
+	}
+}

@@ -15,7 +15,12 @@ import (
 func (h *UIHandler) ComparePlansPage(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	lang, dir := h.localeAndDir(r)
-	if actor, ok := authctx.From(ctx); ok && actor.IsCustomer() {
+	actor, ok := authctx.From(ctx)
+	if !ok {
+		http.Redirect(w, r, "/auth/login?redirect="+r.URL.RequestURI(), http.StatusSeeOther)
+		return
+	}
+	if actor.IsCustomer() {
 		h.redirectWithNotice(w, r, "/customer/dashboard", "error", i18n.T(lang, "compare.plans.vendors_only"))
 		return
 	}

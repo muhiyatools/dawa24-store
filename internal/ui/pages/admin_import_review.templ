@@ -24,7 +24,7 @@ templ AdminProductsImportReview(lang, dir string, view ImportReviewView) {
 						<div class="user-avatar-badge text-xl">
 							@components.IconBarChart("icon-sm")
 						</div>
-      <div class="stack-sm">
+						<div>
 							<h1 class="text-2xl font-black text-primary m-0">مراجعة وتحليل بيانات الكتالوج</h1>
 							<p class="text-sm text-secondary m-0 mt-1">فحص مطابقة الحقول، والتحقق من الأسماء والباركودات قبل الاعتماد النهائي في قاعدة البيانات المركزية</p>
 						</div>
@@ -344,9 +344,9 @@ templ ImportRowLine(view ImportReviewView, row *catalog.StagingRow) {
 		<td>
 			for _, issue := range row.Issues {
 				if issue.Severity == catalog.SeverityError {
-					<div class="stack-sm"><span class="badge badge-rose">خطأ</span> <span class="wiz-row-meta">{ issue.Message }</span></div>
+					<div class="d-flex items-center gap-1.5 my-1"><span class="badge badge-rose">خطأ</span> <span class="wiz-row-meta">{ issue.Message }</span></div>
 				} else {
-					<div class="stack-sm"><span class="badge badge-amber">تنبيه</span> <span class="wiz-row-meta">{ issue.Message }</span></div>
+					<div class="d-flex items-center gap-1.5 my-1"><span class="badge badge-amber">تنبيه</span> <span class="wiz-row-meta">{ issue.Message }</span></div>
 				}
 			}
 		</td>
@@ -434,7 +434,7 @@ templ importConfirmCard(view ImportReviewView) {
 			<form method="POST" action={ importAction(view, "cancel") } hx-boost="false" class="wiz-actions-note">
 				<button type="submit" class="btn btn-ghost">إلغاء العملية</button>
 			</form>
-			<form class="stack-md" method="POST" action={ importAction(view, "commit") } hx-boost="false">
+			<form class="d-flex items-center gap-2" method="POST" action={ importAction(view, "commit") } hx-boost="false">
 				if view.ModeIsDestructive() {
 					<label class="wiz-switch">
 						<span class="wiz-switch-icon" aria-hidden="true">@components.IconTrash("icon-sm")</span>
