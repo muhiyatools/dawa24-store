@@ -19,7 +19,7 @@ func (r *Repository) CreateBranch(ctx context.Context, b *org.Branch) error {
 				google_maps_url, manager_id, manager_name, warehouse_type, has_cold_storage,
 				capacity_sqm, operating_hours, status, is_main, phone
 			) VALUES (
-				$1, COALESCE($2, '{"ar":i18n.TDefault("w4_ui.s_133_133"),"en":"Branch"}'::jsonb), NULLIF($3, ''), $4, $5, $6, $7,
+				$1, COALESCE($2, '{"ar":"الفرع","en":"Branch"}'::jsonb), NULLIF($3, ''), $4, $5, $6, $7,
 				COALESCE($8, ''), $9, COALESCE($10, ''), COALESCE(NULLIF($11, ''), 'warehouse'), COALESCE($12, false),
 				COALESCE($13, 0), COALESCE($14, ''), COALESCE(NULLIF($15, ''), 'active'), $16, $17
 			)

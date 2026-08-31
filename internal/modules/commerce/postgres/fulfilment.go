@@ -236,9 +236,9 @@ func (r *Repository) GetShipmentForDeliveryByTracking(ctx context.Context, track
 			       COALESCE(ord.payment_method, 'cod'),
 			       COALESCE(ord.payment_status, 'unpaid'),
 			       COALESCE(ord.notes, ''),
-			       COALESCE(vendor_org.name, '{"ar":i18n.TDefault("w4_mod.s_348_348"),"en":"Approved Supplier"}'::jsonb) AS vendor_name,
-			       COALESCE(cust_org.name, '{"ar":i18n.TDefault("w4_mod.s_358_358"),"en":"Approved Pharmacy"}'::jsonb) AS customer_org_name,
-			       COALESCE(b.name, '{"ar":i18n.TDefault("w4_mod.s_350_350"),"en":"Main Branch"}'::jsonb) AS branch_name,
+			       COALESCE(vendor_org.name, '{"ar":"مورد معتمد","en":"Approved Supplier"}'::jsonb) AS vendor_name,
+			       COALESCE(cust_org.name, '{"ar":"صيدلية معتمدة","en":"Approved Pharmacy"}'::jsonb) AS customer_org_name,
+			       COALESCE(b.name, '{"ar":"الفرع الرئيسي","en":"Main Branch"}'::jsonb) AS branch_name,
 			       COALESCE(b.address, '') AS branch_address,
 			       COALESCE(b.phone, '') AS branch_phone,
 			       COALESCE(b.manager_name, '') AS manager_name

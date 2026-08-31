@@ -43,7 +43,7 @@ func hydrateOrderDetails(txCtx context.Context, tx pgx.Tx, o *commerce.Order) er
 		       s.carrier_name, s.delivery_code, s.delivery_attempts, s.delivery_locked_until,
 		       s.delivery_notes, s.collected_amount_minor, s.delivered_by_courier_at,
 		       s.shipped_at, s.delivered_at, s.created_at, s.updated_at,
-		       COALESCE(org.name, '{"ar":i18n.TDefault("w4_mod.s_348_348"),"en":"Approved Supplier"}'::jsonb) AS vendor_name
+		       COALESCE(org.name, '{"ar":"مورد معتمد","en":"Approved Supplier"}'::jsonb) AS vendor_name
 		FROM commerce.order_shipments s
 		LEFT JOIN org.organizations org ON org.id = s.organization_id
 		WHERE s.order_id = $1

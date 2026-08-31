@@ -224,15 +224,15 @@ func (r *Repository) GetProductProviders(ctx context.Context, productID int64) (
 	err := r.db.InReadTx(database.AsSystem(ctx), func(txCtx context.Context, tx pgx.Tx) error {
 		query := `
 			SELECT pv.id, pv.organization_id,
-			       COALESCE(org.trade_name, jsonb_build_object('ar', org.legal_name, 'en', org.legal_name), '{"ar":i18n.TDefault("w4_mod.s_348_348"),"en":"Approved Supplier"}'::jsonb) AS org_name,
-			       COALESCE(pv.name, '{"ar":i18n.TDefault("w4_mod.s_349_349"),"en":"Standard Pack"}'::jsonb) AS variant_name,
+			       COALESCE(org.trade_name, jsonb_build_object('ar', org.legal_name, 'en', org.legal_name), '{"ar":"مورد معتمد","en":"Approved Supplier"}'::jsonb) AS org_name,
+			       COALESCE(pv.name, '{"ar":"العبوة القياسية","en":"Standard Pack"}'::jsonb) AS variant_name,
 			       COALESCE(pv.sku, '') AS sku,
 			       COALESCE(pv.unit, 'عبوة') AS unit,
 			       pv.price,
 			       COALESCE(pv.discount, 0) AS discount,
 			       pv.status,
 			       COALESCE(st.quantity, 0) AS stock_qty,
-			       COALESCE(b.name, '{"ar":i18n.TDefault("w4_mod.s_350_350"),"en":"Main Branch"}'::jsonb) AS branch_name
+			       COALESCE(b.name, '{"ar":"الفرع الرئيسي","en":"Main Branch"}'::jsonb) AS branch_name
 			FROM catalog.product_variants pv
 			LEFT JOIN org.organizations org ON org.id = pv.organization_id
 			LEFT JOIN org.branches b ON b.id = pv.branch_id
