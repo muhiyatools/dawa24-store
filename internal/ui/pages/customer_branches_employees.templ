@@ -9,26 +9,22 @@ import (
 
 templ CustomerEmployeesTab(data CustomerBranchesData, lang, dir string, perms []string) {
 			<!-- TAB 2: Branch Employees & RBAC Content -->
-			<div class="stack-sm" id="cb-tab-panel-employees" style={ fmt.Sprintf("display: %s;", func() string { if data.ActiveTab == "employees" { return "block" }; return "none" }()) }>
+			<div id="cb-tab-panel-employees" style={ fmt.Sprintf("display: %s;", func() string { if data.ActiveTab == "employees" { return "block" }; return "none" }()) }>
 				
 				<!-- Employees Toolbar -->
-    <div class="stack-sm">
-     <div class="stack-sm">
-      <div class="stack-sm">
+				<div class="p-4 bg-surface-raised rounded-xl border mb-6 flex-between flex-wrap gap-4 shadow-xs">
+					<div class="d-flex items-center gap-3 flex-1 min-w-64 flex-wrap">
+						<div class="relative flex-1 min-w-48">
 							<input
 								type="text"
 								id="cb-emp-search-input"
 								placeholder="ابحث باسم الموظف، البريد، أو الكود..."
-								class="form-input input-sm w-full"
-							
+								class="form-input text-xs w-full"
 								oninput="filterCustomerEmployees()"
 							/>
-							<div class="stack-xs text-sm">
-								@components.IconSearch("icon-xs")
-							</div>
 						</div>
 
-						<select id="cb-emp-branch-filter" class="form-input input-sm" onchange="filterCustomerEmployees()">
+						<select id="cb-emp-branch-filter" class="form-select text-xs min-w-36" onchange="filterCustomerEmployees()">
 							<option value="">كل الفروع</option>
 							for _, b := range data.Branches {
 								<option value={ fmt.Sprintf("%d", b.ID) }>
@@ -42,22 +38,20 @@ templ CustomerEmployeesTab(data CustomerBranchesData, lang, dir string, perms []
 						</select>
 					</div>
 
-					<button type="button" class="btn btn-primary btn-sm fw-700" onclick="openAddEmployeeModal()" data-modal-open="add-employee-modal">
+					<button type="button" class="btn btn-primary btn-sm font-bold gap-1" onclick="openAddEmployeeModal()" data-modal-open="add-employee-modal">
 						@components.IconPlus("icon-xs")
 						<span>إضافة مستخدم جديد للفرع</span>
 					</button>
 				</div>
 
 				if len(data.Employees) == 0 {
-					<div class="empty-state-glass p-8 text-center">
-						<div class="empty-state-icon-wrapper mx-auto mb-3">
-							@components.IconUser("icon-lg")
-						</div>
-						<h3 class="text-lg font-black text-primary mb-1">لم يتم تسجيل موظفين بعد</h3>
-						<p class="text-sm text-muted m-0">أضف موظفي وصيادلة الفروع وقم بتعيين أدوارهم وصلاحياتهم لإدارة الطلبيات والمخزون.</p>
+					<div class="p-8 text-center empty-state">
+						<div class="empty-state-icon">@components.IconUser("icon-lg")</div>
+						<h3 class="font-bold text-base text-primary mb-1">لم يتم تسجيل موظفين بعد</h3>
+						<p class="text-sm text-secondary m-0">أضف موظفي وصيادلة الفروع وقم بتعيين أدوارهم وصلاحياتهم لإدارة الطلبيات والمخزون.</p>
 					</div>
 				} else {
-					<div class="table-container">
+					<div class="card p-0 overflow-hidden shadow-xs">
 						<table class="data-table" id="customer-employees-table">
 							<thead>
 								<tr>
@@ -76,21 +70,21 @@ templ CustomerEmployeesTab(data CustomerBranchesData, lang, dir string, perms []
 											<!-- Personal Info -->
 											<td>
 												<div class="d-flex items-center gap-3">
-             <div class="stack-sm">
+													<div class="w-9 h-9 rounded-full bg-primary-subtle text-primary flex-center font-bold text-xs flex-shrink-0">
 														if len(emp.UserName) >= 2 {
 															{ string([]rune(emp.UserName)[0:1]) }
 														} else {
-															<span>@components.IconUser("icon-sm")</span>
+															<span>@components.IconUser("icon-xs")</span>
 														}
 													</div>
-             <div class="stack-sm">
-														<div class="stack-xs text-sm">
+													<div class="stack-2xs">
+														<div class="font-bold text-sm text-primary">
 															{ emp.UserName }
 														</div>
-              <div class="stack-sm">
+														<div class="text-xs text-muted d-flex items-center gap-2">
 															<span>{ emp.UserEmail }</span>
 															if emp.Member.EmployeeCode != "" {
-																<span class="badge badge-slate tabular-nums">{ emp.Member.EmployeeCode }</span>
+																<span class="badge badge-slate tabular-nums text-xs">{ emp.Member.EmployeeCode }</span>
 															}
 														</div>
 													</div>
@@ -100,12 +94,12 @@ templ CustomerEmployeesTab(data CustomerBranchesData, lang, dir string, perms []
 											<!-- Branch Assignment -->
 											<td>
 												if emp.Member.BranchID != nil && *emp.Member.BranchID > 0 {
-													<div class="inline-row-04">
-														<span class="badge badge-primary text-xs fw-700">
+													<div class="d-flex items-center gap-1.5 flex-wrap">
+														<span class="badge badge-primary text-xs font-bold">
 															{ data.GetBranchName(emp.Member.BranchID) }
 														</span>
 														if emp.IsManager {
-															<span class="badge badge-emerald text-xs">مدير الفرع</span>
+															<span class="badge badge-emerald text-xs font-bold">مدير الفرع</span>
 														}
 													</div>
 												} else {
@@ -118,7 +112,7 @@ templ CustomerEmployeesTab(data CustomerBranchesData, lang, dir string, perms []
 											<!-- Job Title -->
 											<td>
 												if emp.Member.JobTitle != "" {
-													<span>{ emp.Member.JobTitle }</span>
+													<span class="text-sm font-medium">{ emp.Member.JobTitle }</span>
 												} else {
 													<span class="text-xs text-muted">-</span>
 												}
@@ -126,7 +120,7 @@ templ CustomerEmployeesTab(data CustomerBranchesData, lang, dir string, perms []
 
 											<!-- Role & Permissions -->
 											<td>
-												<span class={ "badge text-xs fw-700", cbRoleBadgeClass(emp.Member.RoleKey) }>
+												<span class={ "badge text-xs font-bold", cbRoleBadgeClass(emp.Member.RoleKey) }>
 													{ cbRoleLabelArabic(emp.Member.RoleKey) }
 												</span>
 											</td>
@@ -134,7 +128,7 @@ templ CustomerEmployeesTab(data CustomerBranchesData, lang, dir string, perms []
 											<!-- Status -->
 											<td>
 												if emp.Member.IsActive {
-													<span class="badge badge-emerald text-xs fw-700">نشط</span>
+													<span class="badge badge-emerald text-xs font-bold">نشط</span>
 												} else {
 													<span class="badge badge-slate text-xs">معطل</span>
 												}
@@ -142,11 +136,11 @@ templ CustomerEmployeesTab(data CustomerBranchesData, lang, dir string, perms []
 
 											<!-- Actions -->
 											<td class="text-center">
-            <div class="stack-sm">
+												<div class="d-flex items-center justify-center gap-1">
 													<!-- Edit Button -->
 													<button
 														type="button"
-														class="btn btn-secondary btn-xs fw-700"
+														class="btn btn-secondary btn-xs font-bold"
 														data-emp-id={ fmt.Sprintf("%d", emp.Member.ID) }
 														onclick="openEditEmployeeModalFromBtn(this)"
 														title="تعديل بيانات وصلاحيات الموظف"
@@ -158,15 +152,29 @@ templ CustomerEmployeesTab(data CustomerBranchesData, lang, dir string, perms []
 													<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/customer/employees/%d/status", emp.Member.ID)) } class="m-0">
 														<button type="submit" class="btn btn-secondary btn-xs" title="تبديل حالة التفعيل">
 															if emp.Member.IsActive {
-																<span>تعطيل</span>
+																<span class="text-secondary">تعطيل</span>
 															} else {
-																<span>تفعيل</span>
+																<span class="text-success font-bold">تفعيل</span>
 															}
 														</button>
 													</form>
 
 													<!-- Delete Button -->
 													<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/customer/employees/%d/delete", emp.Member.UserID)) } class="m-0" onsubmit="return confirm('هل أنت متأكد من حذف هذا الموظف وإلغاء ربطه بالفرع؟');">
+														<button type="submit" class="btn btn-secondary btn-xs text-danger" title="حذف وإلغاء الربط">
+															<span>حذف</span>
+														</button>
+													</form>
+												</div>
+											</td>
+										</tr>
+									}
+								}
+							</tbody>
+						</table>
+					</div>
+				}
+			</div>� وإلغاء ربطه بالفرع؟');">
 														<button type="submit" class="btn btn-secondary btn-xs" title="حذف وإلغاء الربط">
 															<span>حذف</span>
 														</button>

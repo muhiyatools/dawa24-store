@@ -260,13 +260,13 @@ templ AdminBrandsPage(brands []BrandViewItem, totalCount, currentPage, pageSize 
 
 					<!-- Pagination Controls -->
 					if totalCount > 0 {
-      <div class="stack-sm">
-							<div class="stack-xs text-sm">
+						<div class="flex-between items-center flex-wrap gap-3 mt-4 pt-4 border-t">
+							<div class="text-sm text-secondary">
 								{ fmt.Sprintf("عرض %d - %d من إجمالي %d شركة مصنعة", minInt((currentPage-1)*pageSize+1, totalCount), minInt(currentPage*pageSize, totalCount), totalCount) }
 							</div>
 
 							<!-- Page navigation numbers -->
-       <div class="stack-sm">
+							<div class="d-flex items-center gap-1 flex-wrap">
 								if currentPage > 1 {
 									<a
 										href={ templ.SafeURL(buildAdminBrandsPageURL(1, pageSize, searchQuery, statusFilter)) }
@@ -330,7 +330,7 @@ templ AdminBrandsPage(brands []BrandViewItem, totalCount, currentPage, pageSize 
 			<!-- Brand Associated Products Modal -->
 			@components.Modal(components.ModalProps{
 				ID:    "brand-products-modal",
-				Title: "إلغاء إلغاء إلغاء? إلغاء",
+				Title: "الأصناف المرتبطة بالشركة المصنعة",
 				Size:  "md",
 			}) {
 				<div class="d-flex flex-col gap-4 text-start">
@@ -366,7 +366,7 @@ templ AdminBrandsPage(brands []BrandViewItem, totalCount, currentPage, pageSize 
 			<!-- Create Brand Modal -->
 			@components.Modal(components.ModalProps{
 				ID:    "brand-create-modal",
-				Title: "إلغاء إلغاء? إضافة علامة تجارية جديدة",
+				Title: "إضافة شركة مصنعة جديدة",
 				Size:  "md",
 			}) {
 				<form method="POST" action="/admin/brands/new" enctype="multipart/form-data" class="d-flex flex-col gap-4 m-0">
@@ -425,7 +425,7 @@ templ AdminBrandsPage(brands []BrandViewItem, totalCount, currentPage, pageSize 
 			<!-- Edit Brand Modal -->
 			@components.Modal(components.ModalProps{
 				ID:    "brand-edit-modal",
-				Title: "حذف وتأكيد العلامة التجارية",
+				Title: "تعديل بيانات الشركة المصنعة",
 				Size:  "md",
 			}) {
 				<form :action="'/admin/brands/' + editData.id + '/edit'" method="POST" enctype="multipart/form-data" class="d-flex flex-col gap-4 m-0">

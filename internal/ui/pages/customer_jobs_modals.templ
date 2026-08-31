@@ -8,480 +8,430 @@ import (
 )
 
 templ CustomerJobsModals(lang, dir string, data CustomerJobsData) {
-		<!-- ================= ADD JOB MODAL ================= -->
-		<div id="add-job-modal" class="modal-backdrop hidden">
-			<div class="card">
-				<div class="section-head">
-     <div class="stack-sm">
-						<h3 class="font-bold text-sm m-0">
-							نشر وظيفة / شاغر صيدلاني جديد
-						</h3>
-      <p class="text-sm text-secondary m-0">
-							أدخل تفاصيل الشاغر لاستقبال طلبات التقديم والسير الذاتية من الكوادر المعتمدة.
-						</p>
-					</div>
-					<button type="button" class="btn btn-secondary btn-sm btn-icon" onclick="closeAddJobModal()">@components.IconX("icon-sm")</button>
+	<!-- ================= ADD JOB MODAL ================= -->
+	@components.Modal(components.ModalProps{
+		ID:       "add-job-modal",
+		Title:    "نشر شاغر وظيفي جديد بالصيدلية",
+		Subtitle: "أدخل تفاصيل الشاغر لاستقبال طلبات التقديم والسير الذاتية من الكوادر المعتمدة",
+		Size:     "lg",
+	}) {
+		<form method="POST" action="/customer/jobs" class="stack-lg">
+			<!-- Job Title Arabic & English -->
+			<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+				<div class="stack-xs">
+					<label class="form-label font-bold text-xs">
+						المسمى الوظيفي (بالعربية) <span class="text-danger">*</span>
+					</label>
+					<input
+						type="text"
+						name="title_ar"
+						required
+						class="form-input"
+						placeholder="مثال: صيدلي أول / مساعد صيدلي"
+					/>
 				</div>
 
-				<form method="POST" action="/customer/jobs" class="stack-115">
-					<!-- Job Title Arabic & English -->
-					<div class="grid-2">
-      <div class="stack-sm">
-							<label class="form-label">
-								المسمى الوظيفي (بالعربية) <span class="text-danger">*</span>
-							</label>
-							<input
- type="text"
- name="title_ar"
- required
- class="form-input field-height"
- placeholder="مثال: صيدلي أول / مساعد صيدلي"
- 
- />
-						</div>
+				<div class="stack-xs">
+					<label class="form-label font-bold text-xs">
+						المسمى الوظيفي (بالإنجليزية)
+					</label>
+					<input
+						type="text"
+						name="title_en"
+						class="form-input"
+						placeholder="e.g. Pharmacist / Branch Manager"
+						dir="ltr"
+					/>
+				</div>
+			</div>
 
-      <div class="stack-sm">
-							<label class="form-label">
-								المسمى الوظيفي (بالإنجليزية)
-							</label>
-							<input
- type="text"
- name="title_en"
- class="form-input field-height"
- placeholder="e.g. Pharmacist / Branch Manager"
- 
- />
+			<!-- Location & Branch Selection -->
+			<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+				<div class="stack-xs">
+					<label class="form-label font-bold text-xs">
+						الفرع المخصص للشاغر <span class="text-danger">*</span>
+					</label>
+					if len(data.Branches) == 0 {
+						<div class="p-3 bg-surface-sunken border rounded-lg text-xs text-secondary">
+							<span>لم تسجل فروعاً بعد. سيتم ربط الوظيفة بـ <strong>(الفرع الرئيسي)</strong>. يمكنك إضافة فروعك من <a href="/customer/branches" class="text-primary font-bold">إدارة الفروع ↗</a>.</span>
 						</div>
-					</div>
-
-					<!-- Location & Branch Selection -->
-					<div class="grid-2">
-      <div class="stack-sm">
-							<label class="form-label">
-								الفرع المخصص للشاغر <span class="text-danger">*</span>
-							</label>
-							if len(data.Branches) == 0 {
-        <div class="stack-sm">
-									<span>لم تسجل فروعاً بعد. سيتم ربط الوظيفة بـ <strong>(الفرع الرئيسي)</strong>. يمكنك إضافة فروعك من <a href="/customer/branches" class="text-primary font-bold text-decoration-none">إدارة الفروع ↗</a>.</span>
-								</div>
-								<input type="hidden" name="location" value="الفرع الرئيسي" />
-							} else {
-								<select
- name="branch_id"
- required
- class="form-input field-cta"
- 
->
-									<option value="">-- اختر الفرع المتاح للوظيفة --</option>
-									for _, b := range data.Branches {
-										<option value={ fmt.Sprintf("%d", b.ID) }>
-											{ b.Name.Get(i18n.ParseLang(lang)) }
-											if b.IsMain {
-												 (الفرع الرئيسي)
-											}
-										</option>
+						<input type="hidden" name="location" value="الفرع الرئيسي" />
+					} else {
+						<select
+							name="branch_id"
+							required
+							class="form-select"
+						>
+							<option value="">-- اختر الفرع المتاح للوظيفة --</option>
+							for _, b := range data.Branches {
+								<option value={ fmt.Sprintf("%d", b.ID) }>
+									{ b.Name.Get(i18n.ParseLang(lang)) }
+									if b.IsMain {
+										(الفرع الرئيسي)
 									}
-								</select>
+								</option>
 							}
-						</div>
-
-      <div class="stack-sm">
-							<label class="form-label">
-								حالة الوظيفة <span class="text-danger">*</span>
-							</label>
-							<select
- name="status"
- required
- class="form-input field-cta"
- 
->
-								<option value="published">منشورة ومتاحة للتقديم (Published)</option>
-								<option value="closed">مغلقة ومكتفية (Closed)</option>
-								<option value="draft">مسودة غير معلنة (Draft)</option>
-							</select>
-						</div>
-					</div>
-
-					<!-- Salary Range -->
-					<div class="grid-2">
-      <div class="stack-sm">
-							<label class="form-label">
-								الحد الأدنى للراتب (اختياري)
-							</label>
-							<input
- type="text"
- name="salary_min"
- class="form-input field-height"
- placeholder="مثال: 8000"
- 
- />
-						</div>
-
-      <div class="stack-sm">
-							<label class="form-label">
-								الحد الأقصى للراتب (اختياري)
-							</label>
-							<input
- type="text"
- name="salary_max"
- class="form-input field-height"
- placeholder="مثال: 12000"
- 
- />
-						</div>
-					</div>
-
-					<!-- Description -->
-     <div class="stack-sm">
-						<label class="form-label">
-							الوصف الوظيفي والمسؤوليات
-						</label>
-						<textarea
-							name="description"
-							rows="4"
-							class="form-input"
-							placeholder="اكتب نبذة عن المسؤوليات اليومية، مواعيد الشفتات، وطبيعة العمل بالفرع..."
-						
-						></textarea>
-					</div>
-
-					<!-- Requirements -->
-     <div class="stack-sm">
-						<label class="form-label">
-							المتطلبات والمؤهلات المطلوبة
-						</label>
-						<textarea
-							name="requirements"
-							rows="3"
-							class="form-input"
-							placeholder="مثال: بكالوريوس صيدلة، ترخيص مزاولة المهنة، خبرة سنة على الأقل..."
-						
-						></textarea>
-					</div>
-
-					<!-- Form Actions -->
-     <div class="stack-sm">
-						<button type="button" class="btn btn-secondary" onclick="closeAddJobModal()">
-							إلغاء
-						</button>
-						<button type="submit" class="btn btn-primary">
-							@components.IconCheck("icon-xs")
-							<span>نشر الشاغر الوظيفي الآن</span>
-						</button>
-					</div>
-
-				</form>
-			</div>
-		</div>
-
-		<!-- ================= EDIT JOB MODAL ================= -->
-		<div id="edit-job-modal" class="modal-backdrop hidden">
-			<div class="card">
-				<div class="section-head">
-     <div class="stack-sm">
-						<h3 class="font-bold text-sm m-0">
-							تعديل بيانات الشاغر الوظيفي
-						</h3>
-      <p class="text-sm text-secondary m-0">
-							تحديث متطلبات الوظيفة أو الراتب أو تغيير حالتها.
-						</p>
-					</div>
-					<button type="button" class="btn btn-secondary btn-sm btn-icon" onclick="closeEditJobModal()">@components.IconX("icon-sm")</button>
+						</select>
+					}
 				</div>
 
-				<form id="edit-job-form" method="POST" action="" class="stack-115">
-					<!-- Job Title Arabic & English -->
-					<div class="grid-2">
-      <div class="stack-sm">
-							<label class="form-label">
-								المسمى الوظيفي (بالعربية) <span class="text-danger">*</span>
-							</label>
-							<input
- type="text"
- name="title_ar"
- id="edit-job-title-ar"
- required
- class="form-input field-height"
- 
- />
-						</div>
+				<div class="stack-xs">
+					<label class="form-label font-bold text-xs">
+						حالة الوظيفة <span class="text-danger">*</span>
+					</label>
+					<select
+						name="status"
+						required
+						class="form-select"
+					>
+						<option value="published">منشورة ومتاحة للتقديم (Published)</option>
+						<option value="closed">مغلقة ومكتفية (Closed)</option>
+						<option value="draft">مسودة غير معلنة (Draft)</option>
+					</select>
+				</div>
+			</div>
 
-      <div class="stack-sm">
-							<label class="form-label">
-								المسمى الوظيفي (بالإنجليزية)
-							</label>
-							<input
- type="text"
- name="title_en"
- id="edit-job-title-en"
- class="form-input field-height"
- 
- />
-						</div>
-					</div>
+			<!-- Salary Range -->
+			<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+				<div class="stack-xs">
+					<label class="form-label font-bold text-xs">
+						الحد الأدنى للراتب (اختياري)
+					</label>
+					<input
+						type="number"
+						name="salary_min"
+						class="form-input tabular-nums font-mono"
+						placeholder="8000"
+					/>
+				</div>
 
-					<!-- Location & Status -->
-					<div class="grid-2">
-      <div class="stack-sm">
-							<label class="form-label">
-								الفرع المخصص للشاغر <span class="text-danger">*</span>
-							</label>
-							if len(data.Branches) == 0 {
-								<input
-									type="text"
-									name="location"
-									id="edit-job-location"
-									readonly
-									class="form-input"
-								
-								/>
-							} else {
-								<select
- name="branch_id"
- id="edit-job-branch-id"
- required
- class="form-input field-cta"
- 
->
-									<option value="">-- اختر الفرع المتاح للوظيفة --</option>
-									for _, b := range data.Branches {
-										<option 
-											value={ fmt.Sprintf("%d", b.ID) }
-											data-branch-name={ b.Name.Get(i18n.ParseLang(lang)) }
-											data-branch-name-ar={ b.Name.Get(i18n.AR) }
-											data-branch-name-en={ b.Name.Get(i18n.EN) }
-										>
-											{ b.Name.Get(i18n.ParseLang(lang)) }
-											if b.IsMain {
-												 (الفرع الرئيسي)
-											}
-										</option>
+				<div class="stack-xs">
+					<label class="form-label font-bold text-xs">
+						الحد الأقصى للراتب (اختياري)
+					</label>
+					<input
+						type="number"
+						name="salary_max"
+						class="form-input tabular-nums font-mono"
+						placeholder="12000"
+					/>
+				</div>
+			</div>
+
+			<!-- Description -->
+			<div class="stack-xs">
+				<label class="form-label font-bold text-xs">
+					الوصف الوظيفي والمسؤوليات
+				</label>
+				<textarea
+					name="description"
+					rows="3"
+					class="form-input"
+					placeholder="اكتب نبذة عن المسؤوليات اليومية، مواعيد الشفتات، وطبيعة العمل بالفرع..."
+				></textarea>
+			</div>
+
+			<!-- Requirements -->
+			<div class="stack-xs">
+				<label class="form-label font-bold text-xs">
+					المتطلبات والمؤهلات المطلوبة
+				</label>
+				<textarea
+					name="requirements"
+					rows="3"
+					class="form-input"
+					placeholder="مثال: بكالوريوس صيدلة، ترخيص مزاولة المهنة، خبرة سنة على الأقل..."
+				></textarea>
+			</div>
+
+			<!-- Form Actions -->
+			<div class="modal-footer pt-3 border-t flex-between items-center">
+				<button type="button" class="btn btn-secondary font-bold" onclick="closeAddJobModal()">
+					إلغاء
+				</button>
+				<button type="submit" class="btn btn-primary font-bold px-6">
+					@components.IconCheck("icon-xs")
+					<span>نشر الشاغر الوظيفي الآن</span>
+				</button>
+			</div>
+		</form>
+	}
+
+	<!-- ================= EDIT JOB MODAL ================= -->
+	@components.Modal(components.ModalProps{
+		ID:       "edit-job-modal",
+		Title:    "تعديل بيانات الشاغر الوظيفي",
+		Subtitle: "تحديث متطلبات الوظيفة أو الراتب أو تغيير حالتها",
+		Size:     "lg",
+	}) {
+		<form id="edit-job-form" method="POST" action="" class="stack-lg">
+			<!-- Job Title Arabic & English -->
+			<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+				<div class="stack-xs">
+					<label class="form-label font-bold text-xs">
+						المسمى الوظيفي (بالعربية) <span class="text-danger">*</span>
+					</label>
+					<input
+						type="text"
+						name="title_ar"
+						id="edit-job-title-ar"
+						required
+						class="form-input"
+					/>
+				</div>
+
+				<div class="stack-xs">
+					<label class="form-label font-bold text-xs">
+						المسمى الوظيفي (بالإنجليزية)
+					</label>
+					<input
+						type="text"
+						name="title_en"
+						id="edit-job-title-en"
+						class="form-input"
+						dir="ltr"
+					/>
+				</div>
+			</div>
+
+			<!-- Location & Status -->
+			<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+				<div class="stack-xs">
+					<label class="form-label font-bold text-xs">
+						الفرع المخصص للشاغر <span class="text-danger">*</span>
+					</label>
+					if len(data.Branches) == 0 {
+						<input
+							type="text"
+							name="location"
+							id="edit-job-location"
+							readonly
+							class="form-input"
+						/>
+					} else {
+						<select
+							name="branch_id"
+							id="edit-job-branch-id"
+							required
+							class="form-select"
+						>
+							<option value="">-- اختر الفرع المتاح للوظيفة --</option>
+							for _, b := range data.Branches {
+								<option 
+									value={ fmt.Sprintf("%d", b.ID) }
+									data-branch-name={ b.Name.Get(i18n.ParseLang(lang)) }
+									data-branch-name-ar={ b.Name.Get(i18n.AR) }
+									data-branch-name-en={ b.Name.Get(i18n.EN) }
+								>
+									{ b.Name.Get(i18n.ParseLang(lang)) }
+									if b.IsMain {
+										(الفرع الرئيسي)
 									}
-								</select>
+								</option>
 							}
-						</div>
-
-      <div class="stack-sm">
-							<label class="form-label">
-								حالة الوظيفة <span class="text-danger">*</span>
-							</label>
-							<select
- name="status"
- id="edit-job-status"
- required
- class="form-input field-cta"
- 
->
-								<option value="published">منشورة ومتاحة للتقديم (Published)</option>
-								<option value="closed">مغلقة ومكتفية (Closed)</option>
-								<option value="draft">مسودة غير معلنة (Draft)</option>
-							</select>
-						</div>
-					</div>
-
-					<!-- Salary Range -->
-					<div class="grid-2">
-      <div class="stack-sm">
-							<label class="form-label">
-								الحد الأدنى للراتب
-							</label>
-							<input
- type="text"
- name="salary_min"
- id="edit-job-salary-min"
- class="form-input field-height"
- 
- />
-						</div>
-
-      <div class="stack-sm">
-							<label class="form-label">
-								الحد الأقصى للراتب
-							</label>
-							<input
- type="text"
- name="salary_max"
- id="edit-job-salary-max"
- class="form-input field-height"
- 
- />
-						</div>
-					</div>
-
-					<!-- Description -->
-     <div class="stack-sm">
-						<label class="form-label">
-							الوصف الوظيفي والمسؤوليات
-						</label>
-						<textarea
-							name="description"
-							id="edit-job-description"
-							rows="4"
-							class="form-input"
-						
-						></textarea>
-					</div>
-
-					<!-- Requirements -->
-     <div class="stack-sm">
-						<label class="form-label">
-							المتطلبات والمؤهلات المطلوبة
-						</label>
-						<textarea
-							name="requirements"
-							id="edit-job-requirements"
-							rows="3"
-							class="form-input"
-						
-						></textarea>
-					</div>
-
-					<!-- Form Actions -->
-     <div class="stack-sm">
-						<button type="button" class="btn btn-secondary" onclick="closeEditJobModal()">
-							إلغاء
-						</button>
-						<button type="submit" class="btn btn-primary">
-							@components.IconCheck("icon-xs")
-							<span>حفظ التعديلات والتحديث</span>
-						</button>
-					</div>
-
-				</form>
-			</div>
-		</div>
-
-		<!-- ================= APPLICANTS & ONBOARDING MODAL ================= -->
-		<div id="job-applicants-modal" class="modal-backdrop hidden">
-			<div class="card">
-				<div class="section-head">
-     <div class="stack-sm">
-						<h3 class="font-bold text-sm m-0">
-							طلبات التقديم والسير الذاتية
-						</h3>
-						<p class="text-sm text-secondary m-0" id="applicants-modal-subtitle">
-							الوظيفة: -
-						</p>
-					</div>
-					<button type="button" class="btn btn-secondary btn-sm btn-icon" onclick="closeApplicantsModal()">@components.IconX("icon-sm")</button>
+						</select>
+					}
 				</div>
 
-				<!-- Dynamic Content -->
-				<div class="stack-sm" id="applicants-modal-content">
-					<!-- Populated by JS -->
+				<div class="stack-xs">
+					<label class="form-label font-bold text-xs">
+						حالة الوظيفة <span class="text-danger">*</span>
+					</label>
+					<select
+						name="status"
+						id="edit-job-status"
+						required
+						class="form-select"
+					>
+						<option value="published">منشورة ومتاحة للتقديم (Published)</option>
+						<option value="closed">مغلقة ومكتفية (Closed)</option>
+						<option value="draft">مسودة غير معلنة (Draft)</option>
+					</select>
 				</div>
 			</div>
-		</div>
 
-		<!-- ================= ONBOARD EMPLOYEE MODAL ================= -->
-		<div id="onboard-modal" class="modal-backdrop hidden">
-			<div class="card">
-    <div class="stack-sm">
-     <div class="stack-sm">
-						<h3 class="font-bold text-sm m-0">
-							قبول المتقدم وتعيينه كموظف
-						</h3>
-						<p class="text-sm text-secondary m-0" id="onboard-modal-subtitle">
-							المتقدم: -
-						</p>
-					</div>
-					<button type="button" class="btn btn-secondary btn-sm btn-icon" onclick="closeOnboardModal()">@components.IconX("icon-sm")</button>
+			<!-- Salary Range -->
+			<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+				<div class="stack-xs">
+					<label class="form-label font-bold text-xs">
+						الحد الأدنى للراتب
+					</label>
+					<input
+						type="number"
+						name="salary_min"
+						id="edit-job-salary-min"
+						class="form-input tabular-nums font-mono"
+					/>
 				</div>
 
-				<form class="stack-md" id="onboard-employee-form" onsubmit="submitOnboardEmployee(event)">
-					<input type="hidden" id="onboard-job-id" value="" />
-					<input type="hidden" id="onboard-app-id" value="" />
+				<div class="stack-xs">
+					<label class="form-label font-bold text-xs">
+						الحد الأقصى للراتب
+					</label>
+					<input
+						type="number"
+						name="salary_max"
+						id="edit-job-salary-max"
+						class="form-input tabular-nums font-mono"
+					/>
+				</div>
+			</div>
 
-					<!-- Branch Selection -->
-     <div class="stack-sm">
-						<label class="form-label">
-							الفرع المخصص للعمل <span class="text-danger">*</span>
-						</label>
-						<select id="onboard-branch-id" required class="form-input field-cta">
-							if len(data.Branches) == 0 {
-								<option value="">الفرع الرئيسي</option>
-							} else {
-								for _, b := range data.Branches {
-									<option value={ fmt.Sprintf("%d", b.ID) }>
-										{ b.Name.Get(i18n.ParseLang(lang)) }
-										if b.IsMain {
-											 (الرئيسي)
-										}
-									</option>
+			<!-- Description -->
+			<div class="stack-xs">
+				<label class="form-label font-bold text-xs">
+					الوصف الوظيفي والمسؤوليات
+				</label>
+				<textarea
+					name="description"
+					id="edit-job-description"
+					rows="3"
+					class="form-input"
+				></textarea>
+			</div>
+
+			<!-- Requirements -->
+			<div class="stack-xs">
+				<label class="form-label font-bold text-xs">
+					المتطلبات والمؤهلات المطلوبة
+				</label>
+				<textarea
+					name="requirements"
+					id="edit-job-requirements"
+					rows="3"
+					class="form-input"
+				></textarea>
+			</div>
+
+			<!-- Form Actions -->
+			<div class="modal-footer pt-3 border-t flex-between items-center">
+				<button type="button" class="btn btn-secondary font-bold" onclick="closeEditJobModal()">
+					إلغاء
+				</button>
+				<button type="submit" class="btn btn-primary font-bold px-6">
+					@components.IconCheck("icon-xs")
+					<span>حفظ التعديلات والتحديث</span>
+				</button>
+			</div>
+		</form>
+	}
+
+	<!-- ================= APPLICANTS MODAL ================= -->
+	@components.Modal(components.ModalProps{
+		ID:       "job-applicants-modal",
+		Title:    "طلبات التقديم والسير الذاتية",
+		Subtitle: "استعراض ملفات المتقدمين للشواغر الوظيفية",
+		Size:     "xl",
+	}) {
+		<div id="applicants-modal-subtitle" class="text-xs text-primary font-bold mb-4 pb-2 border-b">
+			الوظيفة: -
+		</div>
+		<!-- Dynamic Content -->
+		<div class="stack-md" id="applicants-modal-content">
+			<!-- Populated by JS -->
+		</div>
+	}
+
+	<!-- ================= ONBOARD EMPLOYEE MODAL ================= -->
+	@components.Modal(components.ModalProps{
+		ID:       "onboard-modal",
+		Title:    "قبول المتقدم وتعيينه كموظف بالمنشأة",
+		Subtitle: "إضافة المتقدم مباشرة إلى طاقم العمل وتحديد صلاحياته",
+		Size:     "md",
+	}) {
+		<div id="onboard-modal-subtitle" class="text-xs text-muted font-bold mb-4 pb-2 border-b">
+			المتقدم: -
+		</div>
+
+		<form class="stack-md" id="onboard-employee-form" onsubmit="submitOnboardEmployee(event)">
+			<input type="hidden" id="onboard-job-id" value="" />
+			<input type="hidden" id="onboard-app-id" value="" />
+
+			<!-- Branch Selection -->
+			<div class="stack-xs">
+				<label class="form-label font-bold text-xs">
+					الفرع المخصص للعمل <span class="text-danger">*</span>
+				</label>
+				<select id="onboard-branch-id" required class="form-select">
+					if len(data.Branches) == 0 {
+						<option value="">الفرع الرئيسي</option>
+					} else {
+						for _, b := range data.Branches {
+							<option value={ fmt.Sprintf("%d", b.ID) }>
+								{ b.Name.Get(i18n.ParseLang(lang)) }
+								if b.IsMain {
+									(الرئيسي)
 								}
-							}
-						</select>
-					</div>
-
-					<!-- Role / Permissions Selection -->
-     <div class="stack-sm">
-						<label class="form-label">
-							الدور الوظيفي والصلاحيات <span class="text-danger">*</span>
-						</label>
-						<select id="onboard-role-key" required class="form-input field-cta">
-							<option value="org_pharmacist">صيدلي مسؤول (طلبات، فواتير، استلام)</option>
-							<option value="org_manager">مدير فرع (صلاحيات كاملة للفرع)</option>
-							<option value="org_employee">موظف / كاشير (صلاحيات أساسية)</option>
-							<option value="org_warehouse">أمين مخزن (المخزون والاستلام)</option>
-							<option value="org_accountant">محاسب (المالية والفواتير)</option>
-						</select>
-					</div>
-
-					<!-- Job Title -->
-     <div class="stack-sm">
-						<label class="form-label">
-							المسمى الوظيفي المعتمد <span class="text-danger">*</span>
-						</label>
-						<input
- type="text"
- id="onboard-job-title"
- required
- class="form-input field-height"
- placeholder="مثال: صيدلي أول / مدير شفت مسائي"
- 
- />
-					</div>
-
-					<!-- Salary -->
-     <div class="stack-sm">
-						<label class="form-label">
-							الراتب الأساسي (ج.م / شهرياً)
-						</label>
-						<input
- type="text"
- id="onboard-base-salary"
- class="form-input field-height"
- placeholder="مثال: 9500"
- 
- />
-					</div>
-
-					<!-- Notes -->
-     <div class="stack-sm">
-						<label class="form-label">
-							ملاحظات التعيين (اختياري)
-						</label>
-						<textarea
-							id="onboard-notes"
-							rows="2"
-							class="form-input"
-							placeholder="ملاحظات حول موعد بدء العمل أو الشفت..."
-						
-						></textarea>
-					</div>
-
-					<!-- Form Actions -->
-     <div class="stack-sm">
-						<button type="button" class="btn btn-secondary" onclick="closeOnboardModal()">
-							إلغاء
-						</button>
-						<button type="submit" id="onboard-submit-btn" class="btn btn-primary">
-							@components.IconCheck("icon-xs")
-							<span>تأكيد القبول وتعيين الموظف</span>
-						</button>
-					</div>
-				</form>
+							</option>
+						}
+					}
+				</select>
 			</div>
-		</div>
 
+			<!-- Role / Permissions Selection -->
+			<div class="stack-xs">
+				<label class="form-label font-bold text-xs">
+					الدور الوظيفي والصلاحيات <span class="text-danger">*</span>
+				</label>
+				<select id="onboard-role-key" required class="form-select">
+					<option value="org_pharmacist">صيدلي مسؤول (طلبات، فواتير، استلام)</option>
+					<option value="org_manager">مدير فرع (صلاحيات كاملة للفرع)</option>
+					<option value="org_employee">موظف / كاشير (صلاحيات أساسية)</option>
+					<option value="org_warehouse">أمين مخزن (المخزون والاستلام)</option>
+					<option value="org_accountant">محاسب (المالية والفواتير)</option>
+				</select>
+			</div>
+
+			<!-- Job Title -->
+			<div class="stack-xs">
+				<label class="form-label font-bold text-xs">
+					المسمى الوظيفي المعتمد <span class="text-danger">*</span>
+				</label>
+				<input
+					type="text"
+					id="onboard-job-title"
+					required
+					class="form-input"
+					placeholder="مثال: صيدلي أول / مدير شفت مسائي"
+				/>
+			</div>
+
+			<!-- Salary -->
+			<div class="stack-xs">
+				<label class="form-label font-bold text-xs">
+					الراتب الأساسي (ج.م / شهرياً)
+				</label>
+				<input
+					type="text"
+					id="onboard-base-salary"
+					class="form-input tabular-nums font-mono"
+					placeholder="مثال: 9500"
+				/>
+			</div>
+
+			<!-- Notes -->
+			<div class="stack-xs">
+				<label class="form-label font-bold text-xs">
+					ملاحظات التعيين (اختياري)
+				</label>
+				<textarea
+					id="onboard-notes"
+					rows="2"
+					class="form-input"
+					placeholder="ملاحظات حول موعد بدء العمل أو الشفت..."
+				></textarea>
+			</div>
+
+			<!-- Form Actions -->
+			<div class="modal-footer pt-3 border-t flex-between items-center">
+				<button type="button" class="btn btn-secondary font-bold" onclick="closeOnboardModal()">
+					إلغاء
+				</button>
+				<button type="submit" id="onboard-submit-btn" class="btn btn-primary font-bold px-6">
+					@components.IconCheck("icon-xs")
+					<span>تأكيد القبول وتعيين الموظف</span>
+				</button>
+			</div>
+		</form>
+	}
 }

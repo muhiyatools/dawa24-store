@@ -63,13 +63,13 @@ templ AdminProductDetailPage(p *catalog.Product, variants []*catalog.ProductVari
 
 							<div class="d-flex items-center gap-4 flex-wrap text-xs text-muted">
 								if p.SKU != "" {
-									<div class="stack-sm">SKU: <strong class="text-primary tabular-nums font-mono">{ p.SKU }</strong></div>
+									<span>SKU: <strong class="text-primary tabular-nums font-mono">{ p.SKU }</strong></span>
 								}
 								if p.Barcode != "" {
-									<div class="stack-sm">باركود: <strong class="text-primary tabular-nums font-mono">{ p.Barcode }</strong></div>
+									<span>باركود: <strong class="text-primary tabular-nums font-mono">{ p.Barcode }</strong></span>
 								}
 								if p.ManufacturingCompanies != "" {
-									<div class="stack-sm">الشركة: <strong class="text-primary">{ p.ManufacturingCompanies }</strong></div>
+									<span>الشركة: <strong class="text-primary">{ p.ManufacturingCompanies }</strong></span>
 								}
 							</div>
 						</div>
@@ -82,7 +82,7 @@ templ AdminProductDetailPage(p *catalog.Product, variants []*catalog.ProductVari
 						</a>
 						<a href={ templ.SafeURL(fmt.Sprintf("/catalog?q=%s", url.QueryEscape(p.Name.Get("ar")))) } target="_blank" class="btn btn-primary btn-sm font-bold text-xs">
 							@components.IconExternalLink("icon-xs")
-							<span>العودة لقائمة المنتجات</span>
+							<span>عرض في الكتالوج العام</span>
 						</a>
 					</div>
 				</div>
@@ -93,7 +93,7 @@ templ AdminProductDetailPage(p *catalog.Product, variants []*catalog.ProductVari
 				<div class="stat-card-3d">
 					<div class="stat-card-label text-xs">سعر الجمهور الرسمي</div>
 					<div class="stat-card-value text-primary tabular-nums text-2xl font-black">
-						{ p.Price.String() } <span class="text-xs font-normal">?.?</span>
+						{ p.Price.String() } <span class="text-xs font-normal">ج.م</span>
 					</div>
 					<div class="stat-card-sub text-muted text-xs mt-1">السعر المعتمد للصيدليات</div>
 				</div>
@@ -102,7 +102,7 @@ templ AdminProductDetailPage(p *catalog.Product, variants []*catalog.ProductVari
 					<div class="stat-card-label text-xs">السعر القديم / الخصم</div>
 					<div class="stat-card-value text-brand tabular-nums text-2xl font-black">
 						if p.OldPrice.IsPositive() {
-							{ p.OldPrice.String() } <span class="text-xs font-normal">?.?</span>
+							{ p.OldPrice.String() } <span class="text-xs font-normal">ج.م</span>
 						} else {
 							<span class="text-muted text-base font-normal"></span>
 						}
@@ -250,11 +250,11 @@ templ AdminProductDetailPage(p *catalog.Product, variants []*catalog.ProductVari
 								<tr>
 									<th>اسم العرض / التشغيلة</th>
 									<th>المورد</th>
-									<th>المورد</th>
-									<th>المورد</th>
-									<th>المورد</th>
-									<th>المورد</th>
-									<th>المورد</th>
+									<th>سعر البيع</th>
+									<th>الخصم</th>
+									<th>المخزون</th>
+									<th>الصلاحية</th>
+									<th>الحالة</th>
 								</tr>
 							</thead>
 							<tbody>
@@ -276,7 +276,7 @@ templ AdminProductDetailPage(p *catalog.Product, variants []*catalog.ProductVari
 											<span class="badge badge-sky text-xs font-mono">منشأة #{ fmt.Sprintf("%d", v.OrganizationID) }</span>
 										</td>
 										<td class="tabular-nums font-bold text-xs text-primary">
-											{ v.Price.String() } ?.?
+											{ v.Price.String() } ج.م
 										</td>
 										<td class="tabular-nums font-bold text-xs text-brand">
 											{ formatVariantDiscount(v.Price, v.Discount) }
@@ -337,21 +337,15 @@ templ AdminProductChildrenPage(data AdminProductChildrenData, lang, dir string) 
 					</div>
 
 					<div class="d-flex items-center gap-2">
-						<a href="/admin/product-child" class={ "btn btn-sm font-bold text-xs", templ.KV("btn-primary", data.StatusFilter == "" || data.StatusFilter == "all"), templ.KV("btn-secondary", data.StatusFilter != "" && data.StatusFilter != "all") }>
-							<span>العودة لقائمة المنتجات</span>
-						</a>
-						<a href="/admin/product-child?status=active" class={ "btn btn-sm font-bold text-xs", templ.KV("btn-primary", data.StatusFilter == "active"), templ.KV("btn-secondary", data.StatusFilter != "active") }>
-							<span>العودة لقائمة المنتجات</span>
-						</a>
-						<a href="/admin/product-child?status=inactive" class={ "btn btn-sm font-bold text-xs", templ.KV("btn-primary", data.StatusFilter == "inactive"), templ.KV("btn-secondary", data.StatusFilter != "inactive") }>
-							<span>العودة لقائمة المنتجات</span>
+						<a href="/admin/products" class="btn btn-secondary btn-sm font-bold text-xs">
+							@components.IconArrowRight("icon-xs")
+							<span>العودة لكتالوج المنتجات</span>
 						</a>
 					</div>
 				</div>
 
 				<!-- Search Toolbar -->
 				<form method="GET" action="/admin/product-child" class="d-flex gap-3 items-center flex-wrap mt-6 pt-4 border-t">
-					<input type="hidden" name="status" value={ data.StatusFilter } />
 					<div class="flex-1 min-w-64">
 						<input
 							type="text"
@@ -360,6 +354,13 @@ templ AdminProductChildrenPage(data AdminProductChildrenData, lang, dir string) 
 							class="form-input text-xs w-full"
 							placeholder="ابحث باسم المورد أو كود الصنف SKU..."
 						/>
+					</div>
+					<div class="w-auto">
+						<select name="status" class="form-select text-xs w-full" onchange="this.form.submit()">
+							<option value="all" selected?={ data.StatusFilter == "" || data.StatusFilter == "all" }>جميع الحالات</option>
+							<option value="active" selected?={ data.StatusFilter == "active" }>نشط ومعروض</option>
+							<option value="inactive" selected?={ data.StatusFilter == "inactive" }>موقوف / معطل</option>
+						</select>
 					</div>
 					<button type="submit" class="btn btn-primary btn-sm font-bold text-xs px-3">بحث</button>
 				</form>
@@ -381,10 +382,10 @@ templ AdminProductChildrenPage(data AdminProductChildrenData, lang, dir string) 
 									<th class="w-12">الصورة</th>
 									<th>المنتج / SKU</th>
 									<th>المنظمة (المورد)</th>
-									<th>المورد</th>
-									<th>المورد</th>
-									<th>المورد</th>
-									<th>المورد</th>
+									<th>سعر الجمهور</th>
+									<th>نسبة الخصم</th>
+									<th>المخزون</th>
+									<th>حالة العرض</th>
 									<th class="text-end">الإجراءات</th>
 								</tr>
 							</thead>

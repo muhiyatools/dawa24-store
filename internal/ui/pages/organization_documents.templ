@@ -366,18 +366,20 @@ templ OrganizationDocumentsContent(lang string, data *OrganizationDocumentsData)
 	</div>
 
 	<!-- Dynamic In-App Document Viewer Modal (PDF + Image Responsive) -->
-	<div class="stack-sm" id="doc-viewer-modal">
-  <div class="stack-sm">
-			<!-- Modal Header -->
-   <div class="stack-sm">
-    <div class="stack-sm">
-					<div class="d-flex items-center gap-2">
-						<span>@components.IconFileText("icon-sm")</span>
-						<h3 class="card-title font-bold text-base" id="modal-doc-title">
-							معاينة المستند الرسمي
-						</h3>
+	@components.Modal(components.ModalProps{
+		ID:       "doc-viewer-modal",
+		Title:    "معاينة المستند الرسمي",
+		Subtitle: "مستند رقمي مشفر ومحمي لمنشأتك فقط",
+		Size:     "xl",
+	}) {
+		<div class="stack-md">
+			<!-- Modal Sub-header Actions -->
+			<div class="flex-between items-center flex-wrap gap-3 pb-3 border-b">
+				<div class="stack-2xs">
+					<div class="text-sm font-bold text-primary" id="modal-doc-title">
+						معاينة المستند
 					</div>
-					<div class="stack-sm" id="modal-doc-filename" dir="ltr">
+					<div class="text-xs text-muted font-mono" id="modal-doc-filename" dir="ltr">
 						filename.pdf
 					</div>
 				</div>
@@ -387,7 +389,7 @@ templ OrganizationDocumentsContent(lang string, data *OrganizationDocumentsData)
 						id="modal-doc-tab-btn"
 						href="/documents"
 						target="_blank"
-						class="btn btn-secondary btn-sm fw-700"
+						class="btn btn-secondary btn-sm font-bold gap-1"
 					>
 						@components.IconExternalLink("icon-xs")
 						<span>فتح في نافذة جديدة ↗</span>
@@ -395,146 +397,118 @@ templ OrganizationDocumentsContent(lang string, data *OrganizationDocumentsData)
 					<a
 						id="modal-doc-download-btn"
 						href="/documents"
-						class="btn btn-primary btn-sm fw-800"
+						class="btn btn-primary btn-sm font-bold gap-1"
 					>
 						@components.IconDownload("icon-xs")
 						<span>تحميل الملف</span>
 					</a>
-					<button
-						type="button"
-						onclick="closeDocViewer()"
-					
-					>
-						@components.IconX("icon-sm")
-					</button>
 				</div>
 			</div>
 
 			<!-- Dynamic Interactive Viewer Viewport -->
-			<div class="stack-sm" id="modal-doc-viewport">
+			<div class="rounded-xl overflow-hidden border bg-surface-sunken flex-center" id="modal-doc-viewport" style="min-height: 400px;">
 				<!-- Mode 1: PDF Viewer Iframe -->
 				<iframe
 					id="modal-doc-iframe"
 					src="about:blank"
-				
+					class="w-full border-0"
+					style="height: 600px;"
 					loading="lazy"
 				></iframe>
 
 				<!-- Mode 2: Image Viewer -->
-				<div class="stack-sm" id="modal-doc-img-container">
+				<div id="modal-doc-img-container" class="p-4 flex-center w-full" style="display: none;">
 					<img
 						id="modal-doc-img"
 						src=""
 						alt="معاينة المستند"
-					
+						class="max-w-full rounded-lg shadow-sm"
+						style="max-height: 600px; object-fit: contain;"
 					/>
 				</div>
 			</div>
 
 			<!-- Modal Footer -->
-   <div class="stack-sm">
-				<span>مستند رقمي مشفر ومحمي لمنشأتك فقط</span>
+			<div class="modal-footer pt-3 border-t flex-between items-center">
+				<span class="text-xs text-muted">مستند رقمي مشفر ومحمي لمنشأتك فقط</span>
 				<button
 					type="button"
-					class="btn btn-secondary btn-sm"
+					class="btn btn-secondary font-bold"
 					onclick="closeDocViewer()"
 				>
 					إغلاق المعاينة
 				</button>
 			</div>
 		</div>
-	</div>
+	}
 
 	<!-- Modal: Replace Document Modal with Replacement Reason -->
-	<div class="stack-sm" id="replace-doc-modal">
-  <div class="stack-sm">
-			<!-- Header -->
-   <div class="stack-sm">
-				<div class="inline-row-06">
-					<span>@components.IconRefresh("icon-sm")</span>
-     <div class="stack-sm">
-						<h3 class="card-title font-bold text-base" id="replace-modal-title">
-							استبدال وتحديث المستند
-						</h3>
-						<div class="stack-sm" id="replace-modal-subtitle">
-							رفع نسخة جديدة مع توضيح سبب الاستبدال
-						</div>
-					</div>
-				</div>
-				<button
-					type="button"
-					onclick="closeReplaceDocModal()"
-				
-				>
-					@components.IconX("icon-sm")
-				</button>
+	@components.Modal(components.ModalProps{
+		ID:       "replace-doc-modal",
+		Title:    "استبدال وتحديث المستند",
+		Subtitle: "رفع نسخة جديدة مع توضيح سبب الاستبدال لإدارة المنصة",
+		Size:     "md",
+	}) {
+		<form class="stack-md" action="/documents/upload" method="POST" enctype="multipart/form-data">
+			<input type="hidden" name="document_type" id="replace-doc-type" value="" />
+			<input type="hidden" name="existing_doc_id" id="replace-existing-id" value="" />
+
+			<!-- Current File Info Box -->
+			<div class="p-3 bg-surface-sunken rounded-xl border">
+				<span class="text-xs text-muted font-bold d-block mb-1">الملف الحالي المسجل:</span>
+				<span id="replace-modal-current-file" class="font-mono text-sm font-bold text-primary" dir="ltr">file.pdf</span>
 			</div>
 
-			<!-- Body Form -->
-			<form class="stack-md" action="/documents/upload" method="POST" enctype="multipart/form-data">
-				<input type="hidden" name="document_type" id="replace-doc-type" value="" />
-				<input type="hidden" name="existing_doc_id" id="replace-existing-id" value="" />
+			<!-- New File Upload Field -->
+			<div class="form-group m-0">
+				<label class="form-label text-xs font-bold">
+					اختر ملف المستند الجديد <span class="text-danger">*</span>
+				</label>
+				<input
+					type="file"
+					name="file"
+					required
+					accept=".pdf,.png,.jpg,.jpeg,.webp"
+					class="form-input text-xs"
+				/>
+				<span class="text-xs text-muted mt-1 d-block">
+					الصيغ المقبولة: PDF أو صور (PNG, JPG, WebP) بحجم أقصى 20 ميجابايت.
+				</span>
+			</div>
 
-				<!-- Current File Info Box -->
-    <div class="stack-sm">
-					<span>الملف الحالي المسجل:</span>
-					<span id="replace-modal-current-file" dir="ltr">file.pdf</span>
-				</div>
+			<!-- Replacement Reason Field -->
+			<div class="form-group m-0">
+				<label class="form-label text-xs font-bold">
+					سبب استبدال / تحديث المستند <span class="text-danger">*</span>
+				</label>
+				<textarea
+					name="replacement_reason"
+					id="replace-doc-reason"
+					required
+					rows="3"
+					class="form-input text-sm"
+					placeholder="يرجى توضيح سبب الاستبدال لإدارة المنصة (مثال: تجديد ترخيص المنشأة السنوي، تصحيح خطأ بالصورة السابقة، صدور سجل تجاري محدث...)"
+				></textarea>
+			</div>
 
-				<!-- New File Upload Field -->
-    <div class="stack-sm">
-					<label class="form-label">
-						اختر ملف المستند الجديد <span class="text-rose fw-800">*</span>
-					</label>
-					<input
-						type="file"
-						name="file"
-						required
-						accept=".pdf,.png,.jpg,.jpeg,.webp"
-						class="form-control"
-					
-					/>
-					<span>
-						الصيغ المقبولة: PDF أو صور (PNG, JPG, WebP) بحجم أقصى 20 ميجابايت.
-					</span>
-				</div>
-
-				<!-- Replacement Reason Field -->
-    <div class="stack-sm">
-					<label class="form-label">
-						سبب استبدال / تحديث المستند <span class="text-rose fw-800">*</span>
-					</label>
-					<textarea
-						name="replacement_reason"
-						id="replace-doc-reason"
-						required
-						rows="3"
-						class="form-control"
-						placeholder="يرجى توضيح سبب الاستبدال لإدارة المنصة (مثال: تجديد ترخيص المنشأة السنوي، تصحيح خطأ بالصورة السابقة، صدور سجل تجاري محدث...)"
-					
-					></textarea>
-				</div>
-
-				<!-- Footer Actions -->
-    <div class="stack-sm">
-					<button
-						type="button"
-						class="btn btn-secondary"
-						onclick="closeReplaceDocModal()"
-					>
-						إلغاء
-					</button>
-					<button
-						type="submit"
-						class="btn btn-primary"
-					
-					>
-						<span>تأكيد واستبدال المستند </span>
-					</button>
-				</div>
-			</form>
-		</div>
-	</div>
+			<!-- Footer Actions -->
+			<div class="modal-footer pt-3 border-t flex-between items-center">
+				<button
+					type="button"
+					class="btn btn-secondary font-bold"
+					onclick="closeReplaceDocModal()"
+				>
+					إلغاء
+				</button>
+				<button
+					type="submit"
+					class="btn btn-primary font-bold px-6"
+				>
+					<span>تأكيد واستبدال المستند</span>
+				</button>
+			</div>
+		</form>
+	}
 
 	<!-- Viewer & Replace Modal Logic Scripts -->
 	<script>
@@ -597,7 +571,8 @@ templ OrganizationDocumentsContent(lang string, data *OrganizationDocumentsData)
 			}
 
 			if (modal) {
-				modal.style.display = 'flex';
+				if (typeof modal.showModal === 'function') modal.showModal();
+				else modal.setAttribute('open', '');
 			}
 		}
 
@@ -605,7 +580,10 @@ templ OrganizationDocumentsContent(lang string, data *OrganizationDocumentsData)
 			const modal = document.getElementById('doc-viewer-modal');
 			const iframe = document.getElementById('modal-doc-iframe');
 			const img = document.getElementById('modal-doc-img');
-			if (modal) modal.style.display = 'none';
+			if (modal) {
+				if (typeof modal.close === 'function') modal.close();
+				else modal.removeAttribute('open');
+			}
 			if (iframe) iframe.src = 'about:blank';
 			if (img) img.src = '';
 		}
@@ -625,23 +603,17 @@ templ OrganizationDocumentsContent(lang string, data *OrganizationDocumentsData)
 			if (reasonInput) reasonInput.value = '';
 
 			if (modal) {
-				modal.style.display = 'flex';
+				if (typeof modal.showModal === 'function') modal.showModal();
+				else modal.setAttribute('open', '');
 			}
 		}
 
 		function closeReplaceDocModal() {
 			const modal = document.getElementById('replace-doc-modal');
 			if (modal) {
-				modal.style.display = 'none';
+				if (typeof modal.close === 'function') modal.close();
+				else modal.removeAttribute('open');
 			}
 		}
-
-		// Close modals on backdrop click
-		window.addEventListener('click', function(e) {
-			const viewModal = document.getElementById('doc-viewer-modal');
-			const replModal = document.getElementById('replace-doc-modal');
-			if (e.target === viewModal) closeDocViewer();
-			if (e.target === replModal) closeReplaceDocModal();
-		});
 	</script>
 }

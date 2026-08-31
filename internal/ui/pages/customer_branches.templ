@@ -211,33 +211,33 @@ templ CustomerBranches(data CustomerBranchesData, lang string, dir string, perms
 			</div>
 
 			<!-- TAB 1: Branches Network Content -->
-			<div class="stack-sm" id="cb-tab-panel-branches" style={ fmt.Sprintf("display: %s;", func() string { if data.ActiveTab == "employees" { return "none" }; return "block" }()) }>
-				<div class="cb-split-grid">
+			<div id="cb-tab-panel-branches" style={ fmt.Sprintf("display: %s;", func() string { if data.ActiveTab == "employees" { return "none" }; return "block" }()) }>
+				<div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
 					
-					<!-- Left Column: Existing Pharmacy Branches List -->
-     <div class="stack-sm">
-      <div class="stack-sm">
-							<div class="d-flex items-center gap-2">
-								@components.IconBuilding("icon-xs")
+					<!-- Left Column: Existing Pharmacy Branches List (7 cols) -->
+					<div class="lg:col-span-7 card p-5 shadow-xs">
+						<div class="flex-between items-center pb-4 mb-4 border-b">
+							<div class="d-flex items-center gap-2 font-bold text-base text-primary">
+								@components.IconBuilding("icon-sm")
 								<span>فروع الصيدلية المعتمدة</span>
 							</div>
-							<span class="badge badge-sky text-xs fw-700">{ fmt.Sprintf("%d فروع", len(data.Branches)) }</span>
+							<span class="badge badge-sky text-xs font-bold">{ fmt.Sprintf("%d فروع", len(data.Branches)) }</span>
 						</div>
 
 						if len(data.Branches) == 0 {
-       <div class="stack-sm">
-								<div class="stack-xs text-sm">@components.IconBuilding("icon-sm")</div>
-								<h3 class="font-bold text-sm m-0">لم تقم بإضافة فروع بعد</h3>
+							<div class="p-8 text-center empty-state">
+								<div class="empty-state-icon">@components.IconBuilding("icon-lg")</div>
+								<h3 class="font-bold text-base text-primary mb-1">لم تقم بإضافة فروع بعد</h3>
 								<p class="text-sm text-secondary m-0">أضف فرع صيدليتك الرئيسي لتتمكن من تصفح العروض وتحديد نطاق التوريد المتاح لمنطقتك.</p>
 							</div>
 						} else {
-       <div class="stack-sm">
+							<div class="stack-md">
 								for _, b := range data.Branches {
-									<div class="cb-branch-card">
-          <div class="stack-sm">
-           <div class="stack-sm">
-												<div class="inline-row-wrap">
-													<strong>
+									<div class="p-4 bg-surface-sunken rounded-xl border hover:shadow-xs transition-shadow">
+										<div class="flex-between items-start gap-3 mb-3">
+											<div>
+												<div class="d-flex items-center gap-2 flex-wrap mb-1">
+													<strong class="text-sm font-bold text-primary">
 														if b.Name["ar"] != "" {
 															{ b.Name["ar"] }
 														} else {
@@ -245,7 +245,7 @@ templ CustomerBranches(data CustomerBranchesData, lang string, dir string, perms
 														}
 													</strong>
 													if b.IsMain {
-														<span class="badge badge-emerald text-xs fw-700">الفرع الرئيسي</span>
+														<span class="badge badge-emerald text-xs font-bold">الفرع الرئيسي</span>
 													}
 													if b.Status == "inactive" {
 														<span class="badge badge-slate text-xs">معطل</span>
@@ -258,13 +258,12 @@ templ CustomerBranches(data CustomerBranchesData, lang string, dir string, perms
 												}
 											</div>
 
-											<div class="inline-row-04">
-												<!-- Edit Branch Button (Triggers Edit Mode in the same interface) -->
+											<div class="d-flex items-center gap-2">
+												<!-- Edit Branch Button -->
 												<button
 													type="button"
-													class="btn btn-secondary btn-xs fw-700"
+													class="btn btn-secondary btn-xs font-bold gap-1"
 													data-edit-branch-btn={ fmt.Sprintf("%d", b.ID) }
-												
 													@click={ fmt.Sprintf("setEditMode({id: %d, name_ar: '%s', name_en: '%s', code: '%s', city_id: %d, address: '%s', phone: '%s', operating_hours: '%s', google_maps_url: '%s', has_cold_storage: %t, is_main: %t, latitude: %f, longitude: %f})",
 														b.ID, b.Name.Get("ar"), b.Name.Get("en"), b.Code, func() int64 { if b.CityID != nil { return *b.CityID }; return 0 }(), b.Address, b.Phone, b.OperatingHours, b.GoogleMapsURL, b.HasColdStorage, b.IsMain, func() float64 { if b.Latitude != nil { return *b.Latitude }; return 30.0444 }(), func() float64 { if b.Longitude != nil { return *b.Longitude }; return 31.2357 }()) }
 												>
@@ -275,10 +274,9 @@ templ CustomerBranches(data CustomerBranchesData, lang string, dir string, perms
 												<!-- Add Employee to Branch Button -->
 												<button
 													type="button"
-													class="btn btn-secondary btn-xs fw-700"
+													class="btn btn-secondary btn-xs font-bold gap-1"
 													data-branch-id={ fmt.Sprintf("%d", b.ID) }
 													onclick="openAddEmployeeModalFromBtn(this)"
-												
 													title="إضافة موظف لهذا الفرع"
 												>
 													@components.IconPlus("icon-xs")
@@ -288,45 +286,35 @@ templ CustomerBranches(data CustomerBranchesData, lang string, dir string, perms
 												<!-- Delete Branch Button -->
 												if !b.IsMain {
 													<form method="POST" action={ templ.SafeURL(fmt.Sprintf("/customer/branches/%d/delete", b.ID)) } class="m-0" onsubmit="return confirm('هل أنت متأكد من حذف هذا الفرع؟');">
-														<button type="submit" class="btn btn-secondary btn-xs">
-															<span>حذف</span>
+														<button type="submit" class="btn btn-secondary btn-xs text-danger" title="حذف الفرع">
+															@components.IconTrash("icon-xs")
 														</button>
 													</form>
 												}
 											</div>
 										</div>
 
-          <div class="stack-sm">
+										<div class="stack-2xs text-xs text-secondary mb-3">
 											if b.Address != "" {
-												<div class="stack-sm"><span class="text-muted">العنوان: </span><strong class="text-primary">{ b.Address }</strong></div>
+												<div><span class="text-muted font-bold">العنوان: </span><strong class="text-primary">{ b.Address }</strong></div>
 											}
 											if b.Phone != "" {
-												<div class="stack-sm"><span class="text-muted">الهاتف: </span><strong class="tabular-nums text-primary">{ b.Phone }</strong></div>
+												<div><span class="text-muted font-bold">الهاتف: </span><strong class="tabular-nums text-primary">{ b.Phone }</strong></div>
 											}
 											if b.OperatingHours != "" {
-												<div class="stack-sm"><span class="text-muted">ساعات العمل: </span><strong class="tabular-nums">{ b.OperatingHours }</strong></div>
+												<div><span class="text-muted font-bold">ساعات العمل: </span><strong class="tabular-nums">{ b.OperatingHours }</strong></div>
 											}
 										</div>
 
 										<!-- Badges Strip: Cold Storage & Staff Count -->
-          <div class="stack-sm">
-											<div class="inline-row-wrap">
-												<!-- Coordinates -->
-            <div class="stack-sm">
-													<span>الإحداثيات:</span>
-													if b.Latitude != nil && b.Longitude != nil {
-														<span class="tabular-nums fw-700">{ fmt.Sprintf("%.4f, %.4f", *b.Latitude, *b.Longitude) }</span>
-													} else {
-														<span class="text-muted">غير محددة</span>
-													}
-												</div>
-
+										<div class="flex-between items-center pt-2 border-t text-xs">
+											<div class="d-flex items-center gap-2 flex-wrap">
 												if b.HasColdStorage {
-													<span class="badge badge-sky text-xs">مجهز بتبريد 2-8°C</span>
+													<span class="badge badge-sky text-xs font-bold">مجهز بتبريد 2-8°C</span>
 												}
 											</div>
 
-           <div class="stack-sm">
+											<div class="d-flex items-center gap-2">
 												<!-- Assigned Staff Pill -->
 												{{ branchEmps := data.GetBranchEmployees(b.ID) }}
 												<span class="badge badge-secondary text-xs font-bold">
@@ -335,12 +323,12 @@ templ CustomerBranches(data CustomerBranchesData, lang string, dir string, perms
 
 												<!-- Google Maps Link -->
 												if b.GoogleMapsURL != "" {
-													<a href={ templ.SafeURL(b.GoogleMapsURL) } target="_blank" rel="noopener">
-														عرض على الخريطة ↗
+													<a href={ templ.SafeURL(b.GoogleMapsURL) } target="_blank" rel="noopener" class="text-primary font-bold text-xs">
+														الخريطة ↗
 													</a>
 												} else if b.Latitude != nil && b.Longitude != nil {
-													<a href={ templ.SafeURL(fmt.Sprintf("https://www.google.com/maps?q=%f,%f", *b.Latitude, *b.Longitude)) } target="_blank" rel="noopener">
-														عرض على الخريطة ↗
+													<a href={ templ.SafeURL(fmt.Sprintf("https://www.google.com/maps?q=%f,%f", *b.Latitude, *b.Longitude)) } target="_blank" rel="noopener" class="text-primary font-bold text-xs">
+														الخريطة ↗
 													</a>
 												}
 											</div>
@@ -351,30 +339,23 @@ templ CustomerBranches(data CustomerBranchesData, lang string, dir string, perms
 						}
 					</div>
 
-					<!-- Right Column: Unified Pharmacy Branch Form (Add / Edit Modes) -->
-					<div class="stack-sm" id="new-branch-form">
-      <div class="stack-sm">
-							<div class="inline-row-06">
-        <div class="stack-sm">
-									<span x-text="mode === 'edit' ? '' : ''"></span>
-								</div>
-        <div class="stack-sm">
-									<h3 class="text-base fw-800 text-primary m-0" x-text="mode === 'edit' ? 'تعديل بيانات الفرع: ' + (form.name_ar || '') : 'إضافة فرع صيدلية جديد'">
-									</h3>
-									<p class="text-sm text-secondary m-0" x-text="mode === 'edit' ? 'تحديث بيانات الموقع، العنوان، وخصائص الفرع الحالية' : 'أدخل بيانات الفرع وموقعه على الخريطة لتفعيل التغطية'">
-									</p>
-								</div>
+					<!-- Right Column: Unified Pharmacy Branch Form (Add / Edit Modes) (5 cols) -->
+					<div class="lg:col-span-5 card p-6 shadow-xs" id="new-branch-form">
+						<div class="flex-between items-start gap-3 pb-4 mb-4 border-b">
+							<div class="stack-2xs">
+								<h3 class="text-base font-bold text-primary m-0" x-text="mode === 'edit' ? 'تعديل بيانات الفرع: ' + (form.name_ar || '') : 'إضافة فرع صيدلية جديد'"></h3>
+								<p class="text-xs text-secondary m-0" x-text="mode === 'edit' ? 'تحديث بيانات الموقع، العنوان، وخصائص الفرع الحالية' : 'أدخل بيانات الفرع وموقعه على الخريطة لتفعيل التغطية'"></p>
 							</div>
 
 							<!-- Exit Edit Mode Button -->
 							<template x-if="mode === 'edit'">
 								<button
 									type="button"
-									class="btn btn-secondary btn-xs font-bold gap-1"
+									class="btn btn-secondary btn-xs font-bold"
 									@click="resetToAddMode()"
 									title="إلغاء التعديل والعودة لوضع إضافة فرع جديد"
 								>
-									<span>الخروج من وضع التعديل</span>
+									<span>إلغاء</span>
 								</button>
 							</template>
 						</div>

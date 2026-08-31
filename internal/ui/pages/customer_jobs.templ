@@ -23,116 +23,99 @@ type CustomerJobsData struct {
 
 templ CustomerJobs(lang, dir string, data CustomerJobsData) {
 	@layouts.CustomerShell("إدارة التوظيف والوظائف | دواء 24", "jobs", lang, dir, data.Permissions) {
-  <div class="stack-sm">
+		<div class="page-container">
 			
 			<!-- Notice Toast -->
 			if data.NoticeMsg != "" {
 				if data.NoticeType == "error" {
-					<div class="alert alert-danger">
+					<div class="alert alert-danger mb-6 p-4 d-flex items-center gap-3">
 						<span class="text-xl">@components.IconAlert("icon-sm")</span>
-						<span>{ data.NoticeMsg }</span>
+						<span class="font-bold text-sm">{ data.NoticeMsg }</span>
 					</div>
 				} else {
-					<div class="alert alert-success">
+					<div class="alert alert-success mb-6 p-4 d-flex items-center gap-3">
 						<span class="text-xl">@components.IconCheckCircle("icon-sm")</span>
-						<span>{ data.NoticeMsg }</span>
+						<span class="font-bold text-sm">{ data.NoticeMsg }</span>
 					</div>
 				}
 			}
 
 			<!-- Top Header Banner -->
-			<div class="card">
-    <div class="stack-sm">
-					<div class="stat-label text-sm text-secondary">
-						لوحة الصيدلية • إدارة الكوادر والتوظيف
+			<div class="glass-panel p-6 mb-6">
+				<div class="flex-between items-center flex-wrap gap-4">
+					<div class="stack-xs">
+						<div class="stat-label text-xs text-muted font-bold">
+							لوحة الصيدلية • إدارة الكوادر والتوظيف
+						</div>
+						<h1 class="page-title font-bold text-2xl text-primary m-0">
+							شواغر ووظائف الصيدلية
+						</h1>
+						<p class="text-sm text-secondary m-0 mt-1 max-w-2xl leading-relaxed">
+							نشر الشواغر الوظيفية لفروع صيدليتك، استعراض المتقدمين والسير الذاتية، وتعيين الكوادر في الفروع مباشرة.
+						</p>
 					</div>
-					<h1 class="page-title font-bold text-xl m-0">
-						شواغر ووظائف الصيدلية
-					</h1>
-     <p class="text-sm text-secondary m-0">
-						نشر الشواغر الوظيفية لفروع صيدليتك، استعراض المتقدمين والسير الذاتية، وتعيين الكوادر في الفروع مباشرة.
-					</p>
+					<button type="button" class="btn btn-primary font-bold px-5" onclick="openAddJobModal()">
+						@components.IconPlus("icon-xs")
+						<span>نشر وظيفة جديدة</span>
+					</button>
 				</div>
-				<button type="button" class="btn btn-primary" data-modal-open="add-job-modal" onclick="openAddJobModal()">
-					@components.IconPlus("icon-sm")
-					<span>نشر وظيفة جديدة</span>
-				</button>
 			</div>
 
 			<!-- Metric Stats Cards -->
-   <div class="stack-sm">
+			<div class="dashboard-stat-grid cols-4 mb-6">
 				<!-- Card 1 -->
-				<div class="card">
-					<div class="stat-label text-sm text-secondary">
-						@components.IconBriefcase("icon-sm")
-					</div>
-     <div class="stack-sm">
-						<div class="text-sm fw-700 text-muted">إجمالي الوظائف</div>
-						<div class="stat-label text-sm text-secondary">
-							{ fmt.Sprintf("%d", data.TotalCount) }
-						</div>
+				<div class="stat-card-3d">
+					<div class="stat-card-label">إجمالي الوظائف</div>
+					<div class="stat-card-value text-primary tabular-nums">
+						{ fmt.Sprintf("%d", data.TotalCount) }
 					</div>
 				</div>
 
 				<!-- Card 2 -->
-				<div class="card">
-					<div class="stat-label text-sm text-secondary">
-						🟢
-					</div>
-     <div class="stack-sm">
-						<div class="text-sm fw-700 text-muted">الوظائف النشطة</div>
-						<div class="stat-label text-sm text-secondary">
-							{ fmt.Sprintf("%d", data.PublishedCount) }
-						</div>
+				<div class="stat-card-3d">
+					<div class="stat-card-label">الوظائف النشطة</div>
+					<div class="stat-card-value text-success tabular-nums">
+						{ fmt.Sprintf("%d", data.PublishedCount) }
 					</div>
 				</div>
 
 				<!-- Card 3 -->
-				<div class="card">
-					<div class="stat-label text-sm text-secondary">
-						@components.IconShield("icon-sm")
-					</div>
-     <div class="stack-sm">
-						<div class="text-sm fw-700 text-muted">الوظائف المغلقة</div>
-						<div class="stat-label text-sm text-secondary">
-							{ fmt.Sprintf("%d", data.ClosedCount) }
-						</div>
+				<div class="stat-card-3d">
+					<div class="stat-card-label">الوظائف المغلقة</div>
+					<div class="stat-card-value text-muted tabular-nums">
+						{ fmt.Sprintf("%d", data.ClosedCount) }
 					</div>
 				</div>
 
 				<!-- Card 4 -->
-				<div class="card">
-					<div class="stat-label text-sm text-secondary">
-						@components.IconUsers("icon-sm")
-					</div>
-     <div class="stack-sm">
-						<div class="text-sm fw-700 text-muted">إجمالي المتقدمين</div>
-						<div class="stat-label text-sm text-secondary">
-							{ fmt.Sprintf("%d", data.TotalApplications) }
-						</div>
+				<div class="stat-card-3d">
+					<div class="stat-card-label">إجمالي المتقدمين</div>
+					<div class="stat-card-value text-sky tabular-nums">
+						{ fmt.Sprintf("%d", data.TotalApplications) }
 					</div>
 				</div>
 			</div>
 
 			<!-- Main Jobs Table Card -->
-			<div class="card">
-    <div class="stack-sm">
-					<h3 class="font-bold text-sm m-0">
+			<div class="card p-0 overflow-hidden mb-6 shadow-xs">
+				<div class="p-5 border-b bg-surface-raised flex-between items-center">
+					<h3 class="font-bold text-base text-primary m-0">
 						قائمة الوظائف المنشورة
 					</h3>
 				</div>
 
 				if len(data.Jobs) == 0 {
-     <div class="stack-sm">
-						<div class="stat-label text-sm text-secondary">@components.IconBriefcase("icon-sm")</div>
-						<h3 class="font-bold text-sm m-0">لم تقم بنشر أي وظائف حتى الآن</h3>
-      <p class="text-sm text-secondary m-0">
+					<div class="p-10 text-center empty-state">
+						<div class="empty-state-icon">@components.IconBriefcase("icon-lg")</div>
+						<h3 class="font-bold text-base text-primary mb-1">لم تقم بنشر أي وظائف حتى الآن</h3>
+						<p class="text-sm text-secondary m-0 max-w-md mx-auto mb-4">
 							يمكنك نشر وظيفة جديدة الآن لاستقبال طلبات الصيادلة ومساعدي الصيادلة وإدارة التعيينات بكل سهولة.
 						</p>
-						<button type="button" class="btn btn-primary" onclick="openAddJobModal()">
+						<button type="button" class="btn btn-primary font-bold px-6" onclick="openAddJobModal()">
 							@components.IconPlus("icon-xs")
 							<span>نشر وظيفتك الأولى الآن</span>
 						</button>
+					</div>
 					</div>
 				} else {
 					<div class="table-responsive">
@@ -243,8 +226,8 @@ templ CustomerJobs(lang, dir string, data CustomerJobsData) {
 
 												<!-- Delete Form -->
 												<form method="POST" class="m-0" action={ templ.SafeURL(fmt.Sprintf("/customer/jobs/%d/delete", item.Job.ID)) } onsubmit="return confirm('هل أنت متأكد من رغبتك في حذف هذا الشاغر الوظيفي نهائياً؟');">
-													<button type="submit" class="btn btn-danger btn-sm btn-icon" title="حذف الوظيفة">
-														@components.IconTrash("icon-sm")
+													<button type="submit" class="btn btn-outline-danger btn-sm btn-icon" title="حذف الوظيفة">
+														@components.IconTrash("icon-xs")
 													</button>
 												</form>
 											</div>
@@ -266,16 +249,16 @@ templ CustomerJobs(lang, dir string, data CustomerJobsData) {
 			function openAddJobModal() {
 				const el = document.getElementById('add-job-modal');
 				if (el) {
-					el.classList.remove('hidden');
-					el.style.display = 'flex';
+					if (typeof el.showModal === 'function') el.showModal();
+					else el.setAttribute('open', '');
 				}
 			}
 
 			function closeAddJobModal() {
 				const el = document.getElementById('add-job-modal');
 				if (el) {
-					el.classList.add('hidden');
-					el.style.display = 'none';
+					if (typeof el.close === 'function') el.close();
+					else el.removeAttribute('open');
 				}
 			}
 
@@ -335,32 +318,32 @@ templ CustomerJobs(lang, dir string, data CustomerJobsData) {
 
 				const modal = document.getElementById('edit-job-modal');
 				if (modal) {
-					modal.classList.remove('hidden');
-					modal.style.display = 'flex';
+					if (typeof modal.showModal === 'function') modal.showModal();
+					else modal.setAttribute('open', '');
 				}
 			}
 
 			function closeEditJobModal() {
 				const modal = document.getElementById('edit-job-modal');
 				if (modal) {
-					modal.classList.add('hidden');
-					modal.style.display = 'none';
+					if (typeof modal.close === 'function') modal.close();
+					else modal.removeAttribute('open');
 				}
 			}
 
 			function openApplicantsModal() {
 				const el = document.getElementById('job-applicants-modal');
 				if (el) {
-					el.classList.remove('hidden');
-					el.style.display = 'flex';
+					if (typeof el.showModal === 'function') el.showModal();
+					else el.setAttribute('open', '');
 				}
 			}
 
 			function closeApplicantsModal() {
 				const el = document.getElementById('job-applicants-modal');
 				if (el) {
-					el.classList.add('hidden');
-					el.style.display = 'none';
+					if (typeof el.close === 'function') el.close();
+					else el.removeAttribute('open');
 				}
 			}
 
@@ -371,16 +354,16 @@ templ CustomerJobs(lang, dir string, data CustomerJobsData) {
 				document.getElementById('onboard-job-title').value = jobTitle || '';
 				const modal = document.getElementById('onboard-modal');
 				if (modal) {
-					modal.classList.remove('hidden');
-					modal.style.display = 'flex';
+					if (typeof modal.showModal === 'function') modal.showModal();
+					else modal.setAttribute('open', '');
 				}
 			}
 
 			function closeOnboardModal() {
 				const modal = document.getElementById('onboard-modal');
 				if (modal) {
-					modal.classList.add('hidden');
-					modal.style.display = 'none';
+					if (typeof modal.close === 'function') modal.close();
+					else modal.removeAttribute('open');
 				}
 			}
 
@@ -389,9 +372,9 @@ templ CustomerJobs(lang, dir string, data CustomerJobsData) {
 				currentJobTitle = jobTitle;
 				document.getElementById('applicants-modal-subtitle').textContent = `الوظيفة: ${jobTitle}`;
 				document.getElementById('applicants-modal-content').innerHTML = `
-     <div class="stack-sm">
-						<div class="stat-label text-sm text-secondary">⏳</div>
-						<div class="stat-label text-sm text-secondary">جاري استرجاع طلبات التقديم والسير الذاتية...</div>
+					<div class="p-8 text-center text-muted d-flex items-center justify-center gap-2">
+						<span>⏳</span>
+						<span>جاري استرجاع طلبات التقديم والسير الذاتية...</span>
 					</div>
 				`;
 				openApplicantsModal();
@@ -403,10 +386,10 @@ templ CustomerJobs(lang, dir string, data CustomerJobsData) {
 
 					if (!apps || apps.length === 0) {
 						document.getElementById('applicants-modal-content').innerHTML = `
-       <div class="stack-sm">
-								<div class="stat-label text-sm text-secondary">@components.IconMail("icon-sm")</div>
-								<h4 class="font-semibold text-sm m-0">لا يوجد متقدمين حتى الآن</h4>
-        <p class="text-sm text-secondary m-0">
+							<div class="p-8 text-center empty-state">
+								<div class="empty-state-icon">@components.IconMail("icon-lg")</div>
+								<h4 class="font-bold text-base text-primary mb-1">لا يوجد متقدمين حتى الآن</h4>
+								<p class="text-sm text-secondary m-0">
 									لم يقم أي مستخدم بالتقديم على هذه الوظيفة بعد.
 								</p>
 							</div>
@@ -419,9 +402,9 @@ templ CustomerJobs(lang, dir string, data CustomerJobsData) {
 					apps.forEach(app => {
 						const dateStr = app.created_at ? new Date(app.created_at).toLocaleDateString('ar-EG') : '';
 						const cvBtn = app.cv_storage_key 
-							? `<a href="${app.cv_storage_key}" target="_blank" class="btn btn-secondary btn-sm">
-									<span>@components.IconFile("icon-sm")</span>
-									<span>تحميل السيرة الذاتية (CV)</span>
+							? `<a href="${app.cv_storage_key}" target="_blank" class="btn btn-secondary btn-sm font-bold gap-1">
+									<span>@components.IconFile("icon-xs")</span>
+									<span>تحميل CV</span>
 							   </a>`
 							: `<span class="text-xs text-muted">لم يرفق CV</span>`;
 
@@ -430,18 +413,17 @@ templ CustomerJobs(lang, dir string, data CustomerJobsData) {
 
 						if (app.status === 'accepted' || app.status === 'hired') {
 							const branchText = app.branch_name ? `فرع: ${app.branch_name}` : 'الفرع الرئيسي';
-							statusBadge = `<span class="badge badge-emerald text-xs fw-700">تم القبول والتعيين (${branchText})</span>`;
+							statusBadge = `<span class="badge badge-emerald text-xs font-bold">تم القبول والتعيين (${branchText})</span>`;
 						} else if (app.status === 'rejected') {
-							statusBadge = `<span class="badge badge-slate text-xs fw-700">تم رفض الطلب</span>`;
+							statusBadge = `<span class="badge badge-slate text-xs font-bold">تم رفض الطلب</span>`;
 						} else {
-							statusBadge = `<span class="badge badge-sky text-xs fw-700">⏳ قيد المراجعة</span>`;
+							statusBadge = `<span class="badge badge-sky text-xs font-bold">⏳ قيد المراجعة</span>`;
 							actionButtons = `
-        <div class="stack-sm">
-									<button type="button" class="btn btn-primary btn-sm fw-800" onclick="openOnboardModal(${app.id}, '${app.applicant_name}', '${jobTitle}')">
-										<span>@components.IconCheckCircle("icon-sm")</span>
+								<div class="d-flex items-center gap-2">
+									<button type="button" class="btn btn-primary btn-sm font-bold" onclick="openOnboardModal(${app.id}, '${app.applicant_name}', '${jobTitle}')">
 										<span>قبول وتعيين</span>
 									</button>
-									<button type="button" class="btn btn-secondary btn-sm text-danger" onclick="rejectApplicant(${jobId}, ${app.id})">
+									<button type="button" class="btn btn-secondary btn-sm font-bold text-danger" onclick="rejectApplicant(${jobId}, ${app.id})">
 										<span>رفض</span>
 									</button>
 								</div>
@@ -449,19 +431,21 @@ templ CustomerJobs(lang, dir string, data CustomerJobsData) {
 						}
 
 						html += `
-       <div class="stack-sm">
-        <div class="stack-sm">
-									<div class="inline-row-06">
-										<span>${app.applicant_name || 'متقدم'}</span>
+							<div class="p-4 bg-surface-sunken rounded-xl border flex-between items-center flex-wrap gap-4">
+								<div class="stack-xs">
+									<div class="d-flex items-center gap-2 flex-wrap">
+										<strong class="text-sm font-bold text-primary">${app.applicant_name || 'متقدم'}</strong>
 										${statusBadge}
 									</div>
-         <div class="stack-sm">
+									<div class="tabular-nums text-xs text-muted d-flex items-center gap-2 flex-wrap mt-1">
 										<span>${app.applicant_email || '-'}</span>
+										<span>•</span>
 										<span>${app.applicant_phone || '-'}</span>
+										<span>•</span>
 										<span>${dateStr}</span>
 									</div>
 								</div>
-								<div class="stat-label text-sm text-secondary">
+								<div class="d-flex items-center gap-3">
 									${cvBtn}
 									${actionButtons}
 								</div>
@@ -473,7 +457,7 @@ templ CustomerJobs(lang, dir string, data CustomerJobsData) {
 					document.getElementById('applicants-modal-content').innerHTML = html;
 				} catch (err) {
 					document.getElementById('applicants-modal-content').innerHTML = `
-						<div class="alert alert-danger p-md">
+						<div class="alert alert-danger p-4 text-xs font-bold">
 							حدث خطأ أثناء تحميل المتقدمين: ${err.message}
 						</div>
 					`;
@@ -537,18 +521,6 @@ templ CustomerJobs(lang, dir string, data CustomerJobsData) {
 					alert('حدث خطأ: ' + err.message);
 				}
 			}
-
-			// Close on backdrop click
-			window.addEventListener('click', function(e) {
-				const addModal = document.getElementById('add-job-modal');
-				const editModal = document.getElementById('edit-job-modal');
-				const appModal = document.getElementById('job-applicants-modal');
-				const onbModal = document.getElementById('onboard-modal');
-				if (e.target === addModal) closeAddJobModal();
-				if (e.target === editModal) closeEditJobModal();
-				if (e.target === appModal) closeApplicantsModal();
-				if (e.target === onbModal) closeOnboardModal();
-			});
 		</script>
 	}
 }
