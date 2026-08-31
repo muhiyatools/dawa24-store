@@ -60,7 +60,7 @@ templ Modal(props ModalProps) {
 					</div>
 				</div>
 				<form method="dialog">
-					<button class="modal-close" aria-label="إغلاق">
+					<button type="button" class="modal-close" aria-label="إغلاق">
 						@IconClose("icon-sm")
 					</button>
 				</form>
@@ -111,7 +111,7 @@ templ ConfirmModal(props ConfirmModalProps) {
 					<h3 class="modal-title" id={ props.ID + "-title" }>{ props.Title }</h3>
 				</div>
 				<form method="dialog">
-					<button class="modal-close" aria-label="إغلاق">
+					<button type="button" class="modal-close" aria-label="إغلاق">
 						@IconClose("icon-sm")
 					</button>
 				</form>
