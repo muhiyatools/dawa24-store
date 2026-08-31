@@ -78,7 +78,7 @@ func ComponentGallery(props ComponentGalleryProps) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "\"><!-- Header --><div class=\"d-flex items-center justify-between border-b pb-4\"><div><h1 class=\"text-2xl font-bold text-slate-900 dark:text-white\">???? ???????? (Phase 3 Component Gallery)</h1><p class=\"text-sm text-slate-500\">?????? ???????? ?????? ????? ???????? ????????</p></div><div class=\"d-flex gap-2\"><span class=\"badge badge-primary\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "\"><!-- Header --><div class=\"d-flex items-center justify-between border-b pb-4\"><div><h1 class=\"text-2xl font-bold\">معرض المكوّنات (Phase 3 Component Gallery)</h1><p class=\"text-sm text-muted\">مرجع بصري لكل مكوّن في نظام التصميم، بكل حالاته</p></div><div class=\"d-flex gap-2\"><span class=\"badge badge-primary\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -117,12 +117,12 @@ func ComponentGallery(props ComponentGalleryProps) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "</span></div></div><!-- 1. Buttons & Links --><section class=\"card p-4\"><h2 class=\"text-lg font-bold mb-3\">1. Buttons & Variants</h2><div class=\"d-flex flex-wrap gap-3 items-center\"><button type=\"button\" class=\"btn btn-primary\">?? ????? (Primary)</button> <button type=\"button\" class=\"btn btn-secondary\">?? ????? (Secondary)</button> <button type=\"button\" class=\"btn btn-danger\">?? ??? (Danger)</button> <button type=\"button\" class=\"btn btn-ghost\">?? ???? (Ghost)</button> <button type=\"button\" class=\"btn btn-primary btn-sm\">???? (Small)</button> <button type=\"button\" class=\"btn btn-primary btn-xs\">???? (Extra Small)</button> <button type=\"button\" class=\"btn btn-primary\" disabled>???? (Disabled)</button></div></section><!-- 2. Inputs & Form Controls --><section class=\"card p-4\"><h2 class=\"text-lg font-bold mb-3\">2. Form Inputs & Selects</h2><div class=\"grid grid-cols-1 md:grid-cols-3 gap-4\"><div><label class=\"form-label\">??? ??? ????</label> <input type=\"text\" class=\"form-input w-full\" placeholder=\"??? ??????...\" value=\"??????? ??????\"></div><div><label class=\"form-label\">??? ????</label> <input type=\"text\" class=\"form-input w-full\" disabled value=\"???? ??? ????? ???????\"></div><div><label class=\"form-label\">????? ?????? (Select)</label> <select class=\"form-input w-full\"><option>?????? ????? (???)</option> <option>?????? ?????? (????)</option></select></div></div></section><!-- 3. Checkbox & Radio --><section class=\"card p-4\"><h2 class=\"text-lg font-bold mb-3\">3. Checkbox & Radio Controls</h2><div class=\"d-flex gap-6 items-center\"><label class=\"d-flex items-center gap-2 cursor-pointer\"><input type=\"checkbox\" class=\"form-checkbox\" checked> <span>???? ???? (Checked)</span></label> <label class=\"d-flex items-center gap-2 cursor-pointer\"><input type=\"checkbox\" class=\"form-checkbox\"> <span>???? ??? ????</span></label> <label class=\"d-flex items-center gap-2 cursor-pointer\"><input type=\"radio\" name=\"demo-radio\" class=\"form-radio\" checked> <span>???? ????? 1</span></label> <label class=\"d-flex items-center gap-2 cursor-pointer\"><input type=\"radio\" name=\"demo-radio\" class=\"form-radio\"> <span>???? ????? 2</span></label></div></section><!-- 4. Badges --><section class=\"card p-4\"><h2 class=\"text-lg font-bold mb-3\">4. Badges & Tags</h2><div class=\"d-flex flex-wrap gap-2\"><span class=\"badge badge-primary\">?????</span> <span class=\"badge badge-emerald\">????? / ???</span> <span class=\"badge badge-amber\">??? ????????</span> <span class=\"badge badge-red\">???? / ???</span> <span class=\"badge badge-slate\">???????</span> <span class=\"badge badge-primary text-xs\">??? ????</span></div></section><!-- 5. Cards & Stat Cards --><section class=\"card p-4\"><h2 class=\"text-lg font-bold mb-3\">5. Cards & Data Surfaces</h2><div class=\"grid grid-cols-1 md:grid-cols-3 gap-4\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "</span></div></div><!-- 1. Buttons & Links --><section class=\"card p-4\"><h2 class=\"text-lg font-bold mb-3\">1. Buttons & Variants</h2><div class=\"d-flex flex-wrap gap-3 items-center\"><button type=\"button\" class=\"btn btn-primary\">إجراء أساسي (Primary)</button> <button type=\"button\" class=\"btn btn-secondary\">إجراء ثانوي (Secondary)</button> <button type=\"button\" class=\"btn btn-danger\">إجراء خطر (Danger)</button> <button type=\"button\" class=\"btn btn-ghost\">إجراء شفاف (Ghost)</button> <button type=\"button\" class=\"btn btn-primary btn-sm\">صغير (Small)</button> <button type=\"button\" class=\"btn btn-primary btn-xs\">أصغر (Extra Small)</button> <button type=\"button\" class=\"btn btn-primary\" disabled>معطّل (Disabled)</button></div></section><!-- 2. Inputs & Form Controls --><section class=\"card p-4\"><h2 class=\"text-lg font-bold mb-3\">2. Form Inputs & Selects</h2><div class=\"grid grid-cols-1 md:grid-cols-3 gap-4\"><div><label class=\"form-label\">حقل نص عادي</label> <input type=\"text\" class=\"form-input w-full\" placeholder=\"اكتب هنا...\" value=\"قيمة مبدئية\"></div><div><label class=\"form-label\">حقل معطّل</label> <input type=\"text\" class=\"form-input w-full\" disabled value=\"لا يمكن تعديل هذا الحقل\"></div><div><label class=\"form-label\">قائمة اختيار (Select)</label> <select class=\"form-input w-full\"><option>الخيار الأول (افتراضي)</option> <option>الخيار الثاني (بديل)</option></select></div></div></section><!-- 3. Checkbox & Radio --><section class=\"card p-4\"><h2 class=\"text-lg font-bold mb-3\">3. Checkbox & Radio Controls</h2><div class=\"d-flex gap-6 items-center\"><label class=\"d-flex items-center gap-2 cursor-pointer\"><input type=\"checkbox\" class=\"form-checkbox\" checked> <span>خيار مفعّل (Checked)</span></label> <label class=\"d-flex items-center gap-2 cursor-pointer\"><input type=\"checkbox\" class=\"form-checkbox\"> <span>خيار غير مفعّل</span></label> <label class=\"d-flex items-center gap-2 cursor-pointer\"><input type=\"radio\" name=\"demo-radio\" class=\"form-radio\" checked> <span>اختيار واحد ١</span></label> <label class=\"d-flex items-center gap-2 cursor-pointer\"><input type=\"radio\" name=\"demo-radio\" class=\"form-radio\"> <span>اختيار واحد ٢</span></label></div></section><!-- 4. Badges --><section class=\"card p-4\"><h2 class=\"text-lg font-bold mb-3\">4. Badges & Tags</h2><div class=\"d-flex flex-wrap gap-2\"><span class=\"badge badge-primary\">جديد</span> <span class=\"badge badge-emerald\">معتمد / نشط</span> <span class=\"badge badge-amber\">قيد المراجعة</span> <span class=\"badge badge-red\">مرفوض / موقوف</span> <span class=\"badge badge-slate\">مسودة</span> <span class=\"badge badge-primary text-xs\">شارة صغيرة</span></div></section><!-- 5. Cards & Stat Cards --><section class=\"card p-4\"><h2 class=\"text-lg font-bold mb-3\">5. Cards & Data Surfaces</h2><div class=\"grid grid-cols-1 md:grid-cols-3 gap-4\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			templ_7745c5c3_Err = components.StatCard(components.StatCardProps{
-				Label: "?????? ???????",
+				Label: "إجمالي الطلبات",
 				Value: "1,248",
 				Trend: "+12%",
 				Tone:  "primary",
@@ -131,16 +131,16 @@ func ComponentGallery(props ComponentGalleryProps) templ.Component {
 				return templ_7745c5c3_Err
 			}
 			templ_7745c5c3_Err = components.StatCard(components.StatCardProps{
-				Label: "?????? ??????",
-				Value: "45,200 ?.?",
-				Trend: "?????",
+				Label: "مبيعات الشهر",
+				Value: "45,200 ج.م",
+				Trend: "مستقر",
 				Tone:  "emerald",
 			}).Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			templ_7745c5c3_Err = components.StatCard(components.StatCardProps{
-				Label: "????????? ???????",
+				Label: "أصناف تحت الحد الأدنى",
 				Value: "3",
 				Trend: "-2",
 				Tone:  "danger",
@@ -148,7 +148,7 @@ func ComponentGallery(props ComponentGalleryProps) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "</div></section><!-- 6. Table --><section class=\"card p-4\"><h2 class=\"text-lg font-bold mb-3\">6. Data Table</h2><div class=\"table-container\"><table class=\"data-table\"><thead><tr><th>?????</th><th>??? ????? ???????</th><th>?????? ???????</th><th class=\"text-end\">?????</th><th class=\"text-center\">??????</th></tr></thead> <tbody><tr><td class=\"tabular-nums\">#MED-101</td><td class=\"font-bold\">???????? 1 ?? ?????</td><td>GlaxoSmithKline</td><td class=\"text-end tabular-nums\">98.50 ?.?</td><td class=\"text-center\"><span class=\"badge badge-emerald\">?????</span></td></tr><tr><td class=\"tabular-nums\">#MED-102</td><td class=\"font-bold\">???????? 20 ???</td><td>Sigma Pharma</td><td class=\"text-end tabular-nums\">31.00 ?.?</td><td class=\"text-center\"><span class=\"badge badge-amber\">???? ??????</span></td></tr></tbody></table></div></section><!-- 7. Tabs & Pagination --><section class=\"card p-4\"><h2 class=\"text-lg font-bold mb-3\">7. Tabs & Pagination Navigation</h2><div class=\"tabs-nav mb-4\"><button type=\"button\" class=\"tab-btn active\">???? ??????? (120)</button> <button type=\"button\" class=\"tab-btn\">??????? ??????? (95)</button> <button type=\"button\" class=\"tab-btn\">??????? (25)</button></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "</div></section><!-- 6. Table --><section class=\"card p-4\"><h2 class=\"text-lg font-bold mb-3\">6. Data Table</h2><div class=\"table-container\"><table class=\"data-table\"><thead><tr><th>الكود</th><th>اسم الصنف</th><th>المورّد</th><th class=\"text-end\">السعر</th><th class=\"text-center\">الحالة</th></tr></thead> <tbody><tr><td class=\"tabular-nums\">#MED-101</td><td class=\"font-bold\">باراسيتامول ٥٠٠ مجم أقراص</td><td>GlaxoSmithKline</td><td class=\"text-end tabular-nums\">98.50 ج.م</td><td class=\"text-center\"><span class=\"badge badge-emerald\">متوفر</span></td></tr><tr><td class=\"tabular-nums\">#MED-102</td><td class=\"font-bold\">أموكسيسيلين ٢٥٠ مجم شراب</td><td>Sigma Pharma</td><td class=\"text-end tabular-nums\">31.00 ج.م</td><td class=\"text-center\"><span class=\"badge badge-amber\">كمية محدودة</span></td></tr></tbody></table></div></section><!-- 7. Tabs & Pagination --><section class=\"card p-4\"><h2 class=\"text-lg font-bold mb-3\">7. Tabs & Pagination Navigation</h2><div class=\"tabs-nav mb-4\"><button type=\"button\" class=\"tab-btn active\">كل الأصناف (120)</button> <button type=\"button\" class=\"tab-btn\">أصناف متوفرة (95)</button> <button type=\"button\" class=\"tab-btn\">نفدت الكمية (25)</button></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -166,8 +166,8 @@ func ComponentGallery(props ComponentGalleryProps) templ.Component {
 				return templ_7745c5c3_Err
 			}
 			templ_7745c5c3_Err = components.EmptyState(components.EmptyStateProps{
-				Title:   "?? ???? ?????? ?????",
-				Message: "?? ??? ?????? ??? ?? ?????? ?????? ??????? ??????? ??????.",
+				Title:   "لا توجد أصناف بعد",
+				Message: "ابدأ برفع ملف الأصناف أو أضف صنفاً يدوياً لتظهر هنا.",
 			}).Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
@@ -177,8 +177,8 @@ func ComponentGallery(props ComponentGalleryProps) templ.Component {
 				return templ_7745c5c3_Err
 			}
 			templ_7745c5c3_Err = components.ErrorState(components.ErrorStateProps{
-				Title:   "???? ????? ????????",
-				Message: "??? ??? ?? ??????? ???????. ???? ???????? ??? ????.",
+				Title:   "تعذّر تحميل البيانات",
+				Message: "حدث خطأ أثناء جلب الأصناف. حاول مرة أخرى.",
 			}).Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
@@ -191,7 +191,7 @@ func ComponentGallery(props ComponentGalleryProps) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "</div></section><!-- 11. Modal Dialog Component --><section class=\"card p-4\"><h2 class=\"text-lg font-bold mb-3\">11. Modal Component (Phase 4 Native Dialog)</h2><button type=\"button\" class=\"btn btn-secondary\" onclick=\"window.openModal('demo-gallery-modal')\">??? ????? ???????</button>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "</div></section><!-- 11. Modal Dialog Component --><section class=\"card p-4\"><h2 class=\"text-lg font-bold mb-3\">11. Modal Component (Phase 4 Native Dialog)</h2><button type=\"button\" class=\"btn btn-secondary\" onclick=\"window.openModal('demo-gallery-modal')\">هيكل التحميل (Skeleton)</button>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -207,7 +207,7 @@ func ComponentGallery(props ComponentGalleryProps) templ.Component {
 					}()
 				}
 				ctx = templ.InitializeContext(ctx)
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "<div class=\"p-4\"><p class=\"text-sm\">??? ????? ?????? ???? ????? ?????? ?????? ?? ???????? ??????.</p></div><div class=\"modal-footer\"><button type=\"button\" class=\"btn btn-secondary\" onclick=\"window.closeModal('demo-gallery-modal')\">?????</button> <button type=\"button\" class=\"btn btn-primary\" onclick=\"window.closeModal('demo-gallery-modal')\">??? ?????????</button></div>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "<div class=\"p-4\"><p class=\"text-sm\">هذه نافذة تجريبية تعرض التنسيق القياسي للنوافذ في المنصة.</p></div><div class=\"modal-footer\"><button type=\"button\" class=\"btn btn-secondary\" onclick=\"window.closeModal('demo-gallery-modal')\">إلغاء</button> <button type=\"button\" class=\"btn btn-primary\" onclick=\"window.closeModal('demo-gallery-modal')\">تأكيد الإجراء</button></div>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -215,20 +215,20 @@ func ComponentGallery(props ComponentGalleryProps) templ.Component {
 			})
 			templ_7745c5c3_Err = components.Modal(components.ModalProps{
 				ID:       "demo-gallery-modal",
-				Title:    "????? ?????? ?????????",
-				Subtitle: "???? ?????? ?????? ?????? ??? <dialog>",
+				Title:    "نافذة حوارية للعرض",
+				Subtitle: "مبنية على عنصر <dialog> الأصلي",
 				Size:     "md",
 			}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var8), templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "</section><!-- 12. Toast & Banner Notifications --><section class=\"card p-4\"><h2 class=\"text-lg font-bold mb-3\">12. Toasts & Feedback Alerts</h2><div class=\"d-flex flex-col gap-3\"><div class=\"alert alert-success p-3 rounded-lg border\"><span class=\"font-bold\">?? ?????:</span> ?? ??? ???? ????????? ?????? ?????????.</div><div class=\"alert alert-danger p-3 rounded-lg border\"><span class=\"font-bold\">?????:</span> ???? ?????? ????? ???? ????? ??????.</div></div></section></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "</section><!-- 12. Toast & Banner Notifications --><section class=\"card p-4\"><h2 class=\"text-lg font-bold mb-3\">12. Toasts & Feedback Alerts</h2><div class=\"d-flex flex-col gap-3\"><div class=\"alert alert-success p-3 rounded-lg border\"><span class=\"font-bold\">الكثافة:</span> هذه الصفحة تعرض الكثافة المختارة عبر الرابط.</div><div class=\"alert alert-danger p-3 rounded-lg border\"><span class=\"font-bold\">الاتجاه:</span> يجب أن تنعكس كل العناصر في الوضع العربي.</div></div></section></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			return nil
 		})
-		templ_7745c5c3_Err = layouts.AdminShell("???? ???????? ????????", "gallery", props.Lang, props.Dir).Render(templ.WithChildren(ctx, templ_7745c5c3_Var2), templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = layouts.AdminShell("معرض مكوّنات الواجهة", "gallery", props.Lang, props.Dir).Render(templ.WithChildren(ctx, templ_7745c5c3_Var2), templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
