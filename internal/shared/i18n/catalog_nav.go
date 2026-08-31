@@ -43,6 +43,7 @@ func loadNavKeys(e *engine) {
 	addKey(e, "nav.toggle_menu", "nav", "طي/توسيع القائمة", "Toggle Sidebar", "Sidebar toggle tooltip")
 	addKey(e, "nav.all_notifications", "nav", "عرض كل الإشعارات", "View All Notifications", "Notifications dropdown footer")
 	addKey(e, "nav.no_notifications", "nav", "لا توجد إشعارات جديدة", "No new notifications", "Empty notifications popup")
+	addKey(e, "nav.open_menu", "nav", "فتح القائمة", "Open navigation", "Open navigation drawer button")
 	addKey(e, "nav.pharmacy_portal", "nav", "بوابة الصيدلية المعتمدة", "Verified Pharmacy Portal", "Pharmacy sidebar subtitle")
 	addKey(e, "nav.vendor_portal", "nav", "بوابة المورد المعتمد", "Verified Supplier Portal", "Vendor sidebar subtitle")
 	addKey(e, "nav.admin_portal", "nav", "لوحة الإدارة والتحكم", "Administration & Control Panel", "Admin sidebar subtitle")

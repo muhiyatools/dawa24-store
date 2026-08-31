@@ -1,5 +1,7 @@
 package components
 
+import "github.com/muhiya/dawa24-store/internal/shared/i18n"
+
 // The dashboard top bar.
 //
 // There were four of these. The public marketing navbar and the three dashboard
@@ -52,7 +54,7 @@ templ DashboardTopBar(props TopBarProps) {
 				data-drawer-toggle
 				aria-controls="app-sidebar"
 				aria-expanded="false"
-				aria-label={ tr(props.Lang, "فتح القائمة", "Open navigation") }
+				aria-label={ i18n.T(props.Lang, "nav.open_menu") }
 			>
 				@IconMenu("icon-sm")
 			</button>
@@ -74,15 +76,3 @@ templ DashboardTopBar(props TopBarProps) {
 	</header>
 }
 
-// tr picks an Arabic or English string without reaching for the i18n catalogue.
-//
-// The catalogue is the right home for these and Phase 5 moves them there along
-// with the other 1,246 Arabic literals still living in Go. Adding two keys here
-// now, in a different style from the sweep that is coming, would just be a third
-// convention to migrate.
-func tr(lang, ar, en string) string {
-	if lang == "en" {
-		return en
-	}
-	return ar
-}

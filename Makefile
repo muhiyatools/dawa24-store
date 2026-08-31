@@ -51,7 +51,7 @@ migrate-status: ## List migrations and show how many are pending
 # pipeline, so failures are found before a push rather than after one.
 
 .PHONY: check
-check: fmt-check vet lint test check-provider-isolation check-prompt-version check-file-size check-inline-styles check-error-swallow check-no-cdn check-file-size-count check-hardcoded-arabic check-emoji check-unused-components check-important check-backdrop-filter check-transition-all check-breakpoints check-physical-properties check-topbar-impls check-modal-legacy check-css-layered ## Run every gate
+check: fmt-check vet lint test check-provider-isolation check-prompt-version check-file-size check-inline-styles check-error-swallow check-no-cdn check-file-size-count check-hardcoded-arabic check-emoji check-unused-components check-important check-backdrop-filter check-transition-all check-breakpoints check-physical-properties check-topbar-impls check-modal-legacy check-modal-handwritten check-css-layered ## Run every gate
 
 .PHONY: check-error-swallow
 check-error-swallow: ## Fail if a service error is silently discarded
@@ -157,10 +157,10 @@ docker: ## Build the container image
 
 check-inline-styles: ## Fail if inline style attributes grow past the current ceiling
 	@echo "==> checking inline styles"
-	# Ceiling lowered from 3616 to 3374 in Phase 4 (242 styles removed across modal migrations and shell cleanups).
+	# Ceiling lowered to 3320 in Phase 5 Wave 1 (54 styles removed across Wave 1 daily driver screens).
 	@n=$$(grep -oh 'style="' internal/ui/pages/*.templ internal/ui/layouts/*.templ | wc -l | tr -d ' '); \
-	if [ "$$n" -gt 3374 ]; then \
-	  echo "FAIL: $$n inline style attributes (ceiling 3374)."; \
+	if [ "$$n" -gt 3320 ]; then \
+	  echo "FAIL: $$n inline style attributes (ceiling 3320)."; \
 	  echo ""; \
 	  echo "Inline styles bypass the tokens in app.css, which is why the design"; \
 	  echo "drifted: a fix on one page never generalises. Use a class from"; \
@@ -170,7 +170,7 @@ check-inline-styles: ## Fail if inline style attributes grow past the current ce
 	  echo "This is a ratchet: lower the ceiling in the Makefile as it drops."; \
 	  exit 1; \
 	fi; \
-	echo "OK: $$n inline styles (ceiling 3374)"
+	echo "OK: $$n inline styles (ceiling 3320)"
 
 # --- ratchets ------------------------------------------------------------
 # Each number below may only go down. When a change improves one, lower its
@@ -268,6 +268,18 @@ check-modal-legacy: ## Fail if legacy modal-overlay or window.openModal appears
 	  exit 1; \
 	fi; \
 	echo "  ok: 0 legacy modal references"
+
+.PHONY: check-modal-handwritten
+check-modal-handwritten: ## Fail if raw <dialog in pages exceeds ratchet ceiling
+	@echo "==> checking raw <dialog in page templates"
+	# Ceiling lowered from 41 to 37 in Phase 5 Wave 1.
+	@n=$$(grep -rn '<dialog' internal/ui/pages/*.templ 2>/dev/null | wc -l | tr -d ' '); \
+	if [ "$$n" -gt 37 ]; then \
+	  echo "FAIL: $$n raw <dialog elements in pages (ceiling 37). Every modal must go through components.Modal."; \
+	  grep -rn '<dialog' internal/ui/pages/*.templ 2>/dev/null; \
+	  exit 1; \
+	fi; \
+	echo "OK: $$n raw <dialog elements (ceiling 37)"
 
 .PHONY: check-css-layered
 check-css-layered: ## Fail if a stylesheet ships outside the @layer cascade

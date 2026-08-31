@@ -700,158 +700,139 @@ templ AdminSettings(values AdminSettingsValues, lang, dir string) {
 			</div>
 
 			<!-- Dynamic Modal: Add / Edit Platform Payment Channel (Centered Popup) -->
-			<dialog
-				id="payment-method-modal"
-				class="modal"
-				aria-labelledby="payment-method-modal-title"
-			>
-				<div class="modal-box modal-lg">
-					<div class="modal-header">
-						<div class="row-center-sm">
-							<div class="b2b-icon-box-sm">
-								@components.IconWallet("icon-xs")
-							</div>
-							<h3 id="payment-method-modal-title" class="modal-title" x-text="isEditingMethod ? 'تعديل بيانات وسيلة وقناة الدفع' : 'إضافة وسيلة دفع جديدة للمنصة'">
-							</h3>
+			@components.Modal(components.ModalProps{
+				ID:    "payment-method-modal",
+				Title: "إدارة وسيلة وقناة الدفع",
+				Size:  "lg",
+			}) {
+				<form action="/admin/settings/payment-methods" method="POST" class="d-flex flex-col gap-4 m-0">
+					<div class="form-grid-2">
+						<div class="form-group mb-0">
+							<label class="form-label">المعرف البرمجي الفريد (ID) *</label>
+							<input
+								type="text"
+								name="id"
+								x-model="methodForm.id"
+								:readonly="isEditingMethod"
+								class="form-input tabular-nums"
+								dir="ltr"
+								placeholder="مثال: instapay, cbe_cib, vodafone_cash"
+								required
+							/>
 						</div>
-						<form method="dialog">
-							<button type="submit" class="modal-close" aria-label="إغلاق">
-								@components.IconClose("icon-xs")
-							</button>
-						</form>
+
+						<div class="form-group mb-0">
+							<label class="form-label">نوع وسيلة الدفع (Provider Type) *</label>
+							<select name="provider_type" x-model="methodForm.provider_type" class="form-select">
+								<option value="bank">تحويل وحساب بنكي رسمي (Bank Account / IBAN)</option>
+								<option value="instapay">إنستاباي (InstaPay IPN)</option>
+								<option value="wallet">محفظة هاتف محمول (Mobile Wallet)</option>
+								<option value="card">بوابة بطاقات دفع إلكتروني (Cards / Meeza)</option>
+								<option value="cash">دفع نقدي عند الاستلام (Cash on Delivery)</option>
+							</select>
+						</div>
 					</div>
 
-					<form action="/admin/settings/payment-methods" method="POST" class="d-flex flex-col gap-4 m-0">
-						<div class="modal-body d-flex flex-col gap-4">
-							<div class="form-grid-2">
-								<div class="form-group mb-0">
-									<label class="form-label">المعرف البرمجي الفريد (ID) *</label>
-									<input
-										type="text"
-										name="id"
-										x-model="methodForm.id"
-										:readonly="isEditingMethod"
-										class="form-input tabular-nums"
-										dir="ltr"
-										placeholder="مثال: instapay, cbe_cib, vodafone_cash"
-										required
-									/>
-								</div>
+					<div class="form-grid-2">
+						<div class="form-group mb-0">
+							<label class="form-label">الاسم بالعربية *</label>
+							<input type="text" name="name_ar" x-model="methodForm.name_ar" class="form-input" placeholder="مثال: البنك التجاري الدولي CIB" required />
+						</div>
 
-								<div class="form-group mb-0">
-									<label class="form-label">نوع وسيلة الدفع (Provider Type) *</label>
-									<select name="provider_type" x-model="methodForm.provider_type" class="form-select">
-										<option value="bank">تحويل وحساب بنكي رسمي (Bank Account / IBAN)</option>
-										<option value="instapay">إنستاباي (InstaPay IPN)</option>
-										<option value="wallet">محفظة هاتف محمول (Mobile Wallet)</option>
-										<option value="card">بوابة بطاقات دفع إلكتروني (Cards / Meeza)</option>
-										<option value="cash">دفع نقدي عند الاستلام (Cash on Delivery)</option>
-									</select>
-								</div>
-							</div>
+						<div class="form-group mb-0">
+							<label class="form-label">الاسم بالإنجليزية *</label>
+							<input type="text" name="name_en" x-model="methodForm.name_en" class="form-input" placeholder="e.g. Commercial International Bank (CIB)" required />
+						</div>
+					</div>
 
-							<div class="form-grid-2">
-								<div class="form-group mb-0">
-									<label class="form-label">الاسم بالعربية *</label>
-									<input type="text" name="name_ar" x-model="methodForm.name_ar" class="form-input" placeholder="مثال: البنك التجاري الدولي CIB" required />
-								</div>
-
-								<div class="form-group mb-0">
-									<label class="form-label">الاسم بالإنجليزية *</label>
-									<input type="text" name="name_en" x-model="methodForm.name_en" class="form-input" placeholder="e.g. Commercial International Bank (CIB)" required />
-								</div>
-							</div>
-
-							<!-- Bank Specific Fields -->
-							<div x-show="methodForm.provider_type === 'bank'" class="d-flex flex-col gap-3 border rounded-xl p-4 bg-surface-sunken">
-								<strong class="text-sm text-brand">بيانات الحساب البنكي الرسمي:</strong>
-								<div class="form-grid-2">
-									<div class="form-group mb-0">
-										<label class="form-label">اسم البنك</label>
-										<input type="text" name="bank_name" x-model="methodForm.bank_name" class="form-input" placeholder="مثال: البنك التجاري الدولي CIB" />
-									</div>
-									<div class="form-group mb-0">
-										<label class="form-label">اسم صاحب الحساب</label>
-										<input type="text" name="account_name" x-model="methodForm.account_name" class="form-input" placeholder="شركة دواء 24 للتجارة والتوزيع ذ.م.م" />
-									</div>
-								</div>
-								<div class="form-grid-2">
-									<div class="form-group mb-0">
-										<label class="form-label">رقم الحساب البنكي</label>
-										<input type="text" name="account_number" x-model="methodForm.account_number" class="form-input tabular-nums" dir="ltr" placeholder="100048291048" />
-									</div>
-									<div class="form-group mb-0">
-										<label class="form-label">الفرع</label>
-										<input type="text" name="branch_name" x-model="methodForm.branch_name" class="form-input" placeholder="الفرع الرئيسي" />
-									</div>
-								</div>
-								<div class="form-grid-2">
-									<div class="form-group mb-0">
-										<label class="form-label">الآيبان الدولي (IBAN)</label>
-										<input type="text" name="iban" x-model="methodForm.iban" class="form-input tabular-nums" dir="ltr" placeholder="EG3800100004829104800000000000" />
-									</div>
-									<div class="form-group mb-0">
-										<label class="form-label">رمز السويفت (SWIFT / BIC)</label>
-										<input type="text" name="swift_code" x-model="methodForm.swift_code" class="form-input tabular-nums" dir="ltr" placeholder="CIBEEGCX" />
-									</div>
-								</div>
-							</div>
-
-							<!-- InstaPay / Wallet Specific Fields -->
-							<div x-show="methodForm.provider_type === 'instapay' || methodForm.provider_type === 'wallet'" x-cloak class="d-flex flex-col gap-3 border rounded-xl p-4 bg-surface-sunken">
-								<strong class="text-sm text-brand">بيانات الدفع اللحظي والمحافظ:</strong>
-								<div class="form-grid-2">
-									<div class="form-group mb-0">
-										<label class="form-label">معرف إنستاباي اللحظي (IPA)</label>
-										<input type="text" name="instapay_handle" x-model="methodForm.instapay_handle" class="form-input tabular-nums" dir="ltr" placeholder="dawa24@instapay" />
-									</div>
-									<div class="form-group mb-0">
-										<label class="form-label">رقم الهاتف المرتبط بالمحفظة</label>
-										<input type="tel" name="phone_number" x-model="methodForm.phone_number" class="form-input tabular-nums" dir="ltr" placeholder="01065397000" />
-									</div>
-								</div>
-							</div>
-
-							<!-- Descriptions & Instructions -->
+					<!-- Bank Specific Fields -->
+					<div x-show="methodForm.provider_type === 'bank'" class="d-flex flex-col gap-3 border rounded-xl p-4 bg-surface-sunken">
+						<strong class="text-sm text-brand">بيانات الحساب البنكي الرسمي:</strong>
+						<div class="form-grid-2">
 							<div class="form-group mb-0">
-								<label class="form-label">تعليمات وتفاصيل الدفع (عربي)</label>
-								<textarea name="description_ar" x-model="methodForm.description_ar" rows="2" class="form-input" placeholder="تعليمات تظهر للمستخدم عند اختيار وسيلة الدفع هذه..."></textarea>
+								<label class="form-label">اسم البنك</label>
+								<input type="text" name="bank_name" x-model="methodForm.bank_name" class="form-input" placeholder="مثال: البنك التجاري الدولي CIB" />
 							</div>
-
-							<!-- Settings Flags & Ordering -->
-							<div class="d-grid grid-auto-fit-sm gap-3 bg-surface-sunken p-4 rounded-xl border">
-								<label class="d-flex items-center gap-2 cursor-pointer">
-									<input type="checkbox" name="is_active" value="1" x-model="methodForm.is_active" class="form-checkbox" />
-									<span class="font-bold text-xs">مفعلة بالمنصة</span>
-								</label>
-
-								<label class="d-flex items-center gap-2 cursor-pointer">
-									<input type="checkbox" name="is_deposit_enabled" value="1" x-model="methodForm.is_deposit_enabled" class="form-checkbox" />
-									<span class="font-bold text-xs">متاحة لشحن المحفظة</span>
-								</label>
-
-								<label class="d-flex items-center gap-2 cursor-pointer">
-									<input type="checkbox" name="is_checkout_enabled" value="1" x-model="methodForm.is_checkout_enabled" class="form-checkbox" />
-									<span class="font-bold text-xs">متاحة لسداد الطلبات</span>
-								</label>
-
-								<div class="form-group mb-0">
-									<label class="form-label text-xs">ترتيب العرض</label>
-									<input type="number" name="display_order" x-model="methodForm.display_order" class="form-input tabular-nums" min="0" />
-								</div>
+							<div class="form-group mb-0">
+								<label class="form-label">اسم صاحب الحساب</label>
+								<input type="text" name="account_name" x-model="methodForm.account_name" class="form-input" placeholder="شركة دواء 24 للتجارة والتوزيع ذ.م.م" />
 							</div>
 						</div>
-
-						<div class="modal-footer">
-							<button type="button" onclick="document.getElementById('payment-method-modal').close()" class="btn btn-secondary">إلغاء</button>
-							<button type="submit" class="btn btn-primary font-extrabold px-8">
-								@components.IconCheck("icon-xs")
-								<span>حفظ وسيلة الدفع</span>
-							</button>
+						<div class="form-grid-2">
+							<div class="form-group mb-0">
+								<label class="form-label">رقم الحساب البنكي</label>
+								<input type="text" name="account_number" x-model="methodForm.account_number" class="form-input tabular-nums" dir="ltr" placeholder="100048291048" />
+							</div>
+							<div class="form-group mb-0">
+								<label class="form-label">الفرع</label>
+								<input type="text" name="branch_name" x-model="methodForm.branch_name" class="form-input" placeholder="الفرع الرئيسي" />
+							</div>
 						</div>
-					</form>
-				</div>
-			</dialog>
+						<div class="form-grid-2">
+							<div class="form-group mb-0">
+								<label class="form-label">الآيبان الدولي (IBAN)</label>
+								<input type="text" name="iban" x-model="methodForm.iban" class="form-input tabular-nums" dir="ltr" placeholder="EG3800100004829104800000000000" />
+							</div>
+							<div class="form-group mb-0">
+								<label class="form-label">رمز السويفت (SWIFT / BIC)</label>
+								<input type="text" name="swift_code" x-model="methodForm.swift_code" class="form-input tabular-nums" dir="ltr" placeholder="CIBEEGCX" />
+							</div>
+						</div>
+					</div>
+
+					<!-- InstaPay / Wallet Specific Fields -->
+					<div x-show="methodForm.provider_type === 'instapay' || methodForm.provider_type === 'wallet'" x-cloak class="d-flex flex-col gap-3 border rounded-xl p-4 bg-surface-sunken">
+						<strong class="text-sm text-brand">بيانات الدفع اللحظي والمحافظ:</strong>
+						<div class="form-grid-2">
+							<div class="form-group mb-0">
+								<label class="form-label">معرف إنستاباي اللحظي (IPA)</label>
+								<input type="text" name="instapay_handle" x-model="methodForm.instapay_handle" class="form-input tabular-nums" dir="ltr" placeholder="dawa24@instapay" />
+							</div>
+							<div class="form-group mb-0">
+								<label class="form-label">رقم الهاتف المرتبط بالمحفظة</label>
+								<input type="tel" name="phone_number" x-model="methodForm.phone_number" class="form-input tabular-nums" dir="ltr" placeholder="01065397000" />
+							</div>
+						</div>
+					</div>
+
+					<!-- Descriptions & Instructions -->
+					<div class="form-group mb-0">
+						<label class="form-label">تعليمات وتفاصيل الدفع (عربي)</label>
+						<textarea name="description_ar" x-model="methodForm.description_ar" rows="2" class="form-input" placeholder="تعليمات تظهر للمستخدم عند اختيار وسيلة الدفع هذه..."></textarea>
+					</div>
+
+					<!-- Settings Flags & Ordering -->
+					<div class="d-grid grid-auto-fit-sm gap-3 bg-surface-sunken p-4 rounded-xl border">
+						<label class="d-flex items-center gap-2 cursor-pointer">
+							<input type="checkbox" name="is_active" value="1" x-model="methodForm.is_active" class="form-checkbox" />
+							<span class="font-bold text-xs">مفعلة بالمنصة</span>
+						</label>
+
+						<label class="d-flex items-center gap-2 cursor-pointer">
+							<input type="checkbox" name="is_deposit_enabled" value="1" x-model="methodForm.is_deposit_enabled" class="form-checkbox" />
+							<span class="font-bold text-xs">متاحة لشحن المحفظة</span>
+						</label>
+
+						<label class="d-flex items-center gap-2 cursor-pointer">
+							<input type="checkbox" name="is_checkout_enabled" value="1" x-model="methodForm.is_checkout_enabled" class="form-checkbox" />
+							<span class="font-bold text-xs">متاحة لسداد الطلبات</span>
+						</label>
+
+						<div class="form-group mb-0">
+							<label class="form-label text-xs">ترتيب العرض</label>
+							<input type="number" name="display_order" x-model="methodForm.display_order" class="form-input tabular-nums" min="0" />
+						</div>
+					</div>
+
+					<div class="modal-footer">
+						<button type="button" onclick="document.getElementById('payment-method-modal').close()" class="btn btn-secondary">إلغاء</button>
+						<button type="submit" class="btn btn-primary font-extrabold px-8">
+							@components.IconCheck("icon-xs")
+							<span>حفظ وسيلة الدفع</span>
+						</button>
+					</div>
+				</form>
+			}
 
 		</div>
 	}

@@ -24,24 +24,23 @@ templ UnifiedSettingsPage(data UnifiedSettingsData, lang, dir string) {
 	@layouts.ShellFor("إعدادات الحساب والمنشأة", "settings", lang, dir, authctx.FromContext(ctx)) {
 
 		<div
-			style="max-width:100%; margin:0 0 4rem 0;"
+			class="w-full mb-16"
 			x-data="{
-				activeTab: (new URLSearchParams(window.location.search).get('tab') || window.location.hash.replace('#', '') || 'profile'),
-				isDeleteAccountModalOpen: false
+				activeTab: (new URLSearchParams(window.location.search).get('tab') || window.location.hash.replace('#', '') || 'profile')
 			}"
 		>
 			<!-- Page Header -->
-			<div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem; margin-bottom:2rem;">
+			<div class="flex-between items-center flex-wrap gap-4 mb-8">
 				<div>
-					<div class="row-center-sm mb-sm">
+					<div class="row-center-sm mb-2">
 						<div class="b2b-icon-box-sm">
 							@components.IconSettings("icon-sm")
 						</div>
-						<h2 style="font-size:1.6rem; font-weight:900; color:var(--text); margin:0;">
+						<h2 class="text-2xl font-black text-primary m-0">
 							إعدادات الحساب والمنشأة
 						</h2>
 					</div>
-					<p style="color:var(--text-muted); font-size:0.925rem; margin:0;">
+					<p class="text-sm text-muted m-0">
 						إدارة البيانات الشخصية للصيدلي، التراخيص الرسمية للمنشأة، والتفضيلات
 					</p>
 				</div>
@@ -49,8 +48,7 @@ templ UnifiedSettingsPage(data UnifiedSettingsData, lang, dir string) {
 				<div class="row-center">
 					<a
 						href="/customer/wallet"
-						class="btn btn-outline-brand font-bold"
-						style="padding:0.55rem 1.15rem; gap:0.4rem;"
+						class="btn btn-outline-brand font-bold gap-2"
 					>
 						@components.IconWallet("icon-xs")
 						<span>المحفظة والرصيد</span>
@@ -97,12 +95,11 @@ templ UnifiedSettingsPage(data UnifiedSettingsData, lang, dir string) {
 			<!-- Tab 1: Profile -->
 			<div
 				id="tab-profile"
-				class="tab-pane card"
+				class="tab-pane card p-8"
 				:class="{ 'active': activeTab === 'profile' }"
 				x-show="activeTab === 'profile'"
-				style="padding:2.25rem;"
 			>
-				<h3 style="font-size:1.25rem; font-weight:800; color:var(--text); margin-bottom:1.5rem;">
+				<h3 class="text-lg font-extrabold text-primary mb-6">
 					البيانات الشخصية والصورة الرمزية
 				</h3>
 
@@ -110,19 +107,19 @@ templ UnifiedSettingsPage(data UnifiedSettingsData, lang, dir string) {
 					action="/settings/profile" 
 					method="POST" 
 					enctype="multipart/form-data" 
-					style="max-width:680px; display:flex; flex-direction:column; gap:1.5rem; text-align:start;" 
+					class="max-w-2xl d-flex flex-col gap-6 text-start" 
 					x-data="{ avatarPreview: '', removeAvatar: false }"
 				>
 					<!-- Avatar Upload Section -->
-					<div style="display:flex; align-items:center; gap:1.5rem; padding:1.25rem; background:var(--surface-sunken); border:1px solid var(--border); border-radius:var(--radius-xl);" class="flex-wrap sm:flex-nowrap">
+					<div class="d-flex items-center gap-6 p-5 bg-surface-sunken border rounded-xl flex-wrap sm:flex-nowrap">
 						<!-- Circular Avatar Preview -->
-						<div style="position:relative; width:80px; height:80px; border-radius:var(--radius-full); background:var(--accent-subtle); color:var(--accent); display:flex; align-items:center; justify-content:center; flex-shrink:0; border:2.5px solid var(--accent); overflow:hidden; box-shadow:0 4px 12px rgba(0,0,0,0.1);">
+						<div class="avatar-box w-20 h-20 rounded-full bg-accent-subtle text-accent d-flex items-center justify-center flex-shrink-0 border-2 border-accent overflow-hidden shadow-sm">
 							<template x-if="avatarPreview">
-								<img :src="avatarPreview" alt="Avatar Preview" style="width:100%; height:100%; object-fit:cover;" />
+								<img :src="avatarPreview" alt="Avatar Preview" class="w-full h-full object-cover" />
 							</template>
 							<template x-if="!avatarPreview && !removeAvatar">
 								if data.User != nil && data.User.AvatarURL != "" {
-									<img src={ data.User.AvatarURL } alt="Avatar" style="width:100%; height:100%; object-fit:cover;" />
+									<img src={ data.User.AvatarURL } alt="Avatar" class="w-full h-full object-cover" />
 								} else {
 									@components.IconUser("icon-lg")
 								}
@@ -134,9 +131,9 @@ templ UnifiedSettingsPage(data UnifiedSettingsData, lang, dir string) {
 
 						<!-- Upload Controls -->
 						<div class="flex-1">
-							<label class="form-label" style="margin-bottom:0.35rem; font-weight:800; font-size:0.9rem;">الصورة الشخصية / شعار الصيدلية</label>
+							<label class="form-label font-extrabold text-sm mb-1.5">الصورة الشخصية / شعار الصيدلية</label>
 							<div class="d-flex items-center gap-2 flex-wrap">
-								<label class="btn btn-secondary btn-sm font-bold cursor-pointer" style="margin:0; gap:0.4rem; cursor:pointer;">
+								<label class="btn btn-secondary btn-sm font-bold cursor-pointer m-0 gap-1.5">
 									@components.IconUpload("icon-xs")
 									<span>اختيار وتغيير الصورة</span>
 									<input 
@@ -144,7 +141,7 @@ templ UnifiedSettingsPage(data UnifiedSettingsData, lang, dir string) {
 										id="user-avatar-file" 
 										name="avatar_file" 
 										accept="image/png,image/jpeg,image/jpg,image/webp" 
-										style="display:none;" 
+										class="hidden" 
 										@change="
 											const file = $event.target.files[0];
 											if (file) {
@@ -160,8 +157,7 @@ templ UnifiedSettingsPage(data UnifiedSettingsData, lang, dir string) {
 								if data.User != nil && data.User.AvatarURL != "" {
 									<button 
 										type="button" 
-										class="btn btn-ghost btn-sm font-bold text-danger" 
-										style="margin:0; gap:0.3rem;"
+										class="btn btn-ghost btn-sm font-bold text-danger m-0 gap-1" 
 										x-show="!removeAvatar"
 										@click="removeAvatar = true; avatarPreview = ''; const el = document.getElementById('user-avatar-file'); if(el) el.value = '';"
 									>
@@ -171,7 +167,7 @@ templ UnifiedSettingsPage(data UnifiedSettingsData, lang, dir string) {
 								}
 							</div>
 							<input type="hidden" name="remove_avatar" :value="removeAvatar ? '1' : '0'" />
-							<span style="font-size:0.75rem; color:var(--text-muted); display:block; margin-top:0.4rem;">
+							<span class="text-xs text-muted d-block mt-1.5">
 								يدعم الصور بتنسيق JPG, PNG, WEBP حتى 50 ميجابايت كحد أقصى.
 							</span>
 						</div>
@@ -194,11 +190,11 @@ templ UnifiedSettingsPage(data UnifiedSettingsData, lang, dir string) {
 
 					<div class="form-group mb-0">
 						<label class="form-label" for="user-role">نوع الحساب والصلاحية</label>
-						<input type="text" id="user-role" class="form-input" value={ userRoleVal(data.User) } disabled style="background:var(--surface-sunken); color:var(--text-muted);" />
+						<input type="text" id="user-role" class="form-input bg-surface-sunken text-muted" value={ userRoleVal(data.User) } disabled />
 					</div>
 
-					<div style="margin-top:0.75rem;">
-						<button type="submit" class="btn btn-primary" style="padding:0.75rem 2rem; font-weight:800;">
+					<div class="mt-3">
+						<button type="submit" class="btn btn-primary font-black px-8 py-3">
 							@components.IconCheck("icon-xs")
 							<span>حفظ التعديلات وتحديث الملف</span>
 						</button>
@@ -206,22 +202,21 @@ templ UnifiedSettingsPage(data UnifiedSettingsData, lang, dir string) {
 				</form>
 
 				<!-- Danger Zone: Account Deletion Request -->
-				<div style="border-top:1px solid var(--danger-border); margin-top:2.5rem; padding-top:1.75rem;">
-					<div style="background:var(--danger-surface); border:1px solid var(--danger-border); border-radius:var(--radius-xl); padding:1.5rem; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1.25rem;">
+				<div class="border-t border-danger/30 mt-10 pt-7">
+					<div class="bg-danger/5 border border-danger/20 rounded-xl p-6 flex-between items-center flex-wrap gap-5">
 						<div>
-							<div style="display:flex; align-items:center; gap:0.5rem; color:var(--danger-text); font-weight:800; font-size:1.05rem;">
+							<div class="d-flex items-center gap-2 text-danger font-extrabold text-base">
 								@components.IconTrash("icon-xs")
 								<span>طلب حذف الحساب وإنهاء النشاط</span>
 							</div>
-							<p style="font-size:0.85rem; color:var(--text-secondary); margin:0.35rem 0 0 0; line-height:1.5; max-width:620px;">
+							<p class="text-xs text-secondary mt-1.5 leading-relaxed max-w-xl">
 								يمكنك تقديم طلب رسمي لإلغاء الحساب وحذف البيانات. ستتم مراجعة الطلب من إدارة المنصة والتحقق من تسوية المستحقات المالية وأوامر التوريد قبل إتمام الحذف.
 							</p>
 						</div>
 						<button
 							type="button"
-							class="btn btn-danger"
-							style="font-weight:800; padding:0.65rem 1.5rem;"
-							@click="isDeleteAccountModalOpen = true"
+							class="btn btn-danger font-bold px-6 py-2.5"
+							data-modal-open="delete-account-modal"
 						>
 							@components.IconTrash("icon-xs")
 							<span>تقديم طلب حذف الحساب</span>
@@ -233,52 +228,51 @@ templ UnifiedSettingsPage(data UnifiedSettingsData, lang, dir string) {
 			<!-- Tab 2: Organization & Licenses -->
 			<div
 				id="tab-organization"
-				class="tab-pane card"
+				class="tab-pane card p-8"
 				:class="{ 'active': activeTab === 'organization' }"
 				x-show="activeTab === 'organization'"
-				style="padding:2.25rem;"
 			>
-				<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; flex-wrap:wrap; gap:1rem;">
+				<div class="flex-between items-center mb-6 flex-wrap gap-4">
 					<div>
-						<h3 class="text-xl fw-800 text-primary m-0">
+						<h3 class="text-xl font-black text-primary m-0">
 							بيانات المنشأة والتراخيص الرسمية
 						</h3>
-						<p style="color:var(--text-muted); font-size:0.875rem; margin-top:0.25rem;">
+						<p class="text-sm text-muted mt-1">
 							السجلات التجارية وتراخيص هيئة الدواء المصرية (EDA)
 						</p>
 					</div>
 
-					<a href="/customer/branches" class="btn btn-secondary btn-sm fw-700">
+					<a href="/customer/branches" class="btn btn-secondary btn-sm font-bold">
 						@components.IconBuilding("icon-xs")
 						<span>إدارة فروع ومواقع استلام الصيدلية</span>
 					</a>
 				</div>
 
-				<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:1.25rem; margin-bottom:2rem;">
-					<div style="padding:1.25rem; background:var(--surface-sunken); border-radius:var(--radius-lg); border:1px solid var(--border);">
-						<div style="font-size:0.8rem; color:var(--text-muted); font-weight:700;">الاسم القانوني للمنشأة</div>
-						<div style="font-size:1.05rem; font-weight:800; color:var(--text); margin-top:0.25rem;">صيدلية معتمدة - شبكة دواء 24</div>
+				<div class="d-grid grid-auto-fit-lg gap-5 mb-8">
+					<div class="p-5 bg-surface-sunken rounded-lg border">
+						<div class="text-xs text-muted font-bold">الاسم القانوني للمنشأة</div>
+						<div class="text-base font-black text-primary mt-1">صيدلية معتمدة - شبكة دواء 24</div>
 					</div>
 
-					<div style="padding:1.25rem; background:var(--surface-sunken); border-radius:var(--radius-lg); border:1px solid var(--border);">
-						<div style="font-size:0.8rem; color:var(--text-muted); font-weight:700;">رقم السجل التجاري</div>
-						<div style="font-size:1.05rem; font-weight:800; color:var(--text); margin-top:0.25rem;" class="tabular-nums">CR-9481920</div>
+					<div class="p-5 bg-surface-sunken rounded-lg border">
+						<div class="text-xs text-muted font-bold">رقم السجل التجاري</div>
+						<div class="text-base font-black text-primary mt-1 tabular-nums">CR-9481920</div>
 					</div>
 
-					<div style="padding:1.25rem; background:var(--surface-sunken); border-radius:var(--radius-lg); border:1px solid var(--border);">
-						<div style="font-size:0.8rem; color:var(--text-muted); font-weight:700;">رقم البطاقة الضريبية (ETA)</div>
-						<div style="font-size:1.05rem; font-weight:800; color:var(--text); margin-top:0.25rem;" class="tabular-nums">984-210-941</div>
+					<div class="p-5 bg-surface-sunken rounded-lg border">
+						<div class="text-xs text-muted font-bold">رقم البطاقة الضريبية (ETA)</div>
+						<div class="text-base font-black text-primary mt-1 tabular-nums">984-210-941</div>
 					</div>
 
-					<div style="padding:1.25rem; background:var(--surface-sunken); border-radius:var(--radius-lg); border:1px solid var(--border);">
-						<div style="font-size:0.8rem; color:var(--text-muted); font-weight:700;">رقم ترخيص المؤسسة الصيدلية</div>
-						<div style="font-size:1.05rem; font-weight:800; color:var(--accent); margin-top:0.25rem;" class="tabular-nums">EDA-LIC-2024-8842</div>
+					<div class="p-5 bg-surface-sunken rounded-lg border">
+						<div class="text-xs text-muted font-bold">رقم ترخيص المؤسسة الصيدلية</div>
+						<div class="text-base font-black text-accent mt-1 tabular-nums">EDA-LIC-2024-8842</div>
 					</div>
 				</div>
 
-				<div style="padding:1rem 1.25rem; background:var(--success-surface); border:1px solid var(--success-border); border-radius:var(--radius-lg); display:flex; align-items:center; gap:0.75rem;">
+				<div class="p-4 bg-success/10 border border-success/30 rounded-lg d-flex items-center gap-3">
 					<div class="text-success">@components.IconCheckCircle("icon-sm")</div>
-					<div style="color:var(--success-text); font-weight:700; font-size:0.9rem;">
+					<div class="text-success font-bold text-sm">
 						حساب المؤسسة موثق ومعتمد رسمياً للتوريد والشراء المباشر عبر منظومة دواء 24.
 					</div>
 				</div>
@@ -287,42 +281,41 @@ templ UnifiedSettingsPage(data UnifiedSettingsData, lang, dir string) {
 			<!-- Tab 3: Preferences -->
 			<div
 				id="tab-preferences"
-				class="tab-pane card"
+				class="tab-pane card p-8"
 				:class="{ 'active': activeTab === 'preferences' }"
 				x-show="activeTab === 'preferences'"
-				style="padding:2.25rem;"
 			>
-				<h3 style="font-size:1.25rem; font-weight:800; color:var(--text); margin-bottom:1.5rem;">
+				<h3 class="text-lg font-extrabold text-primary mb-6">
 					تفضيلات الإشعارات والتنبيهات
 				</h3>
 
-				<form action="/settings/preferences" method="POST" style="max-width:680px; display:flex; flex-direction:column; gap:1.25rem; text-align:start;">
-					<div style="display:flex; align-items:center; justify-content:space-between; padding:1rem; border:1px solid var(--border); border-radius:var(--radius-lg); background:var(--surface-sunken);">
+				<form action="/settings/preferences" method="POST" class="max-w-2xl d-flex flex-col gap-5 text-start">
+					<div class="flex-between items-center p-4 border rounded-lg bg-surface-sunken">
 						<div>
-							<div class="fw-800 text-primary">إشعارات الواتساب (WhatsApp Alerts)</div>
+							<div class="font-extrabold text-primary">إشعارات الواتساب (WhatsApp Alerts)</div>
 							<div class="text-sm text-muted">استلام تحديثات تسليم الشحنات وتغير حالة أوامر الشراء فورياً</div>
 						</div>
-						<input type="checkbox" name="notif_whatsapp" checked style="width:20px; height:20px; accent-color:var(--accent);" />
+						<input type="checkbox" name="notif_whatsapp" checked class="form-checkbox" />
 					</div>
 
-					<div style="display:flex; align-items:center; justify-content:space-between; padding:1rem; border:1px solid var(--border); border-radius:var(--radius-lg); background:var(--surface-sunken);">
+					<div class="flex-between items-center p-4 border rounded-lg bg-surface-sunken">
 						<div>
-							<div class="fw-800 text-primary">رسائل البريد الإلكتروني للفواتير الضريبية</div>
+							<div class="font-extrabold text-primary">رسائل البريد الإلكتروني للفواتير الضريبية</div>
 							<div class="text-sm text-muted">إرسال نسخة PDF معتمدة من الفاتورة الضريبية فور اكتمال الطلب</div>
 						</div>
-						<input type="checkbox" name="notif_invoices" checked style="width:20px; height:20px; accent-color:var(--accent);" />
+						<input type="checkbox" name="notif_invoices" checked class="form-checkbox" />
 					</div>
 
-					<div style="display:flex; align-items:center; justify-content:space-between; padding:1rem; border:1px solid var(--border); border-radius:var(--radius-lg); background:var(--surface-sunken);">
+					<div class="flex-between items-center p-4 border rounded-lg bg-surface-sunken">
 						<div>
-							<div class="fw-800 text-primary">تنبيهات انخفاض المخزون والخصومات الحصرية</div>
+							<div class="font-extrabold text-primary">تنبيهات انخفاض المخزون والخصومات الحصرية</div>
 							<div class="text-sm text-muted">إشعارات عند توفر أصناف دوائية ناقصة أو وجود عروض بونص خاصة</div>
 						</div>
-						<input type="checkbox" name="notif_promos" checked style="width:20px; height:20px; accent-color:var(--accent);" />
+						<input type="checkbox" name="notif_promos" checked class="form-checkbox" />
 					</div>
 
-					<div style="margin-top:0.75rem;">
-						<button type="submit" class="btn btn-primary" style="padding:0.75rem 2rem; font-weight:800;">
+					<div class="mt-3">
+						<button type="submit" class="btn btn-primary font-black px-8 py-3">
 							@components.IconCheck("icon-xs")
 							<span>حفظ التفضيلات</span>
 						</button>
@@ -330,49 +323,18 @@ templ UnifiedSettingsPage(data UnifiedSettingsData, lang, dir string) {
 				</form>
 			</div>
 
-			<!-- Dynamic Modal: Request Account Deletion Modal (Centered Popup) -->
-			<dialog
-				:open="isDeleteAccountModalOpen"
-				x-cloak
-				class="modal"
-				@keydown.escape.window="isDeleteAccountModalOpen = false"
-				@click.self="isDeleteAccountModalOpen = false"
-			>
-				<div class="modal-box modal-md">
-					<div class="modal-header">
-						<div class="d-flex items-center gap-2 text-danger">
-							@components.IconTrash("icon-sm")
-							<h3 class="modal-title">
-								طلب حذف الحساب
-							</h3>
-						</div>
-						<button type="button" @click="isDeleteAccountModalOpen = false" class="modal-close" aria-label="إغلاق">
-							@components.IconClose("icon-xs")
-						</button>
-					</div>
-
-					<form action="/settings/delete-request" method="POST" class="d-flex flex-col gap-4 text-start m-0">
-						<div class="modal-body d-flex flex-col gap-3">
-							<div class="bg-surface-sunken border rounded-lg p-3 text-sm text-secondary leading-relaxed">
-								تنبيه: سيتم إرسال طلبك إلى إدارة المنصة للتحقق من عدم وجود معاملات معلقة. يمكنك كتابة سبب الحذف اختيارياً:
-							</div>
-
-							<div class="form-group mb-0">
-								<label class="form-label">سبب طلب حذف الحساب (اختياري)</label>
-								<textarea name="reason" rows="3" class="form-input w-full" placeholder="مثال: تغيير النشاط، إغلاق الفرع، أو أي ملاحظات أخرى..."></textarea>
-							</div>
-						</div>
-
-						<div class="modal-footer">
-							<button type="button" @click="isDeleteAccountModalOpen = false" class="btn btn-secondary font-bold">إلغاء</button>
-							<button type="submit" class="btn btn-danger font-bold px-6">
-								@components.IconTrash("icon-xs")
-								<span>تأكيد إرسال طلب الحذف</span>
-							</button>
-						</div>
-					</form>
-				</div>
-			</dialog>
+			<!-- Dynamic Modal: Request Account Deletion Modal (Typed Confirmation) -->
+			@components.ConfirmModal(components.ConfirmModalProps{
+				ID:           "delete-account-modal",
+				Title:        "طلب حذف الحساب وإنهاء النشاط",
+				Message:      "تنبيه: سيتم إرسال طلبك إلى إدارة المنصة للتحقق من عدم وجود معاملات أو مستحقات معلقة قبل إتمام الحذف.",
+				ConfirmURL:   "/settings/delete-request",
+				ConfirmVerb:  "post",
+				ConfirmText:  "تأكيد إرسال طلب الحذف",
+				CancelText:   "إلغاء",
+				RequireMatch: "حذف",
+				Danger:       true,
+			})
 
 		</div>
 	}

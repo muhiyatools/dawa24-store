@@ -1002,91 +1002,80 @@ func max(a, b int) int {
 
 templ CustomerNegotiationModal() {
 	<!-- Price Negotiation Modal Dialog -->
-	<dialog id="negotiation-modal" class="modal" aria-labelledby="negotiation-modal-title">
-		<div class="modal-box modal-md">
-			<div class="modal-header">
-				<div class="d-flex items-center gap-2.5">
-					<div class="b2b-icon-box-sm bg-amber-50 text-amber-600 border border-amber-200/60">
-						@components.IconRefresh("icon-sm")
-					</div>
-					<div>
-						<h3 id="negotiation-modal-title" class="modal-title">طلب تفاوض على سعر الصنف</h3>
-						<span class="text-xs text-secondary font-medium">إرسال عرض سعر خاص ومباشر للمورّد</span>
-					</div>
+	@components.Modal(components.ModalProps{
+		ID:       "negotiation-modal",
+		Title:    "طلب تفاوض على سعر الصنف",
+		Subtitle: "إرسال عرض سعر خاص ومباشر للمورّد",
+		Size:     "md",
+		Icon:     "refresh",
+	}) {
+		<form method="POST" action="/customer/negotiate-order" id="negotiation-form" class="d-flex flex-col gap-4 m-0">
+			<input type="hidden" name="variant_id" id="neg-variant-id" />
+			<input type="hidden" name="vendor_org_id" id="neg-vendor-id" />
+
+			<div class="d-flex flex-col gap-3">
+				<div class="bg-surface-sunken p-3.5 rounded-xl border border-slate-200/80">
+					<div class="text-xs text-muted font-bold">الصنف الدوائي المختار:</div>
+					<div class="text-sm font-black text-primary mt-0.5" id="neg-product-name">-</div>
+					<div class="text-xs text-secondary mt-1 font-semibold">سعر التوريد الحالي المعلن: <strong id="neg-current-price" class="tabular-nums text-primary font-black">-</strong> ج.م</div>
 				</div>
-				<form method="dialog">
-					<button type="submit" class="modal-close" aria-label="إغلاق">@components.IconClose("icon-xs")</button>
-				</form>
-			</div>
 
-			<form method="POST" action="/customer/negotiate-order" id="negotiation-form" class="d-flex flex-col gap-4 m-0">
-				<input type="hidden" name="variant_id" id="neg-variant-id" />
-				<input type="hidden" name="vendor_org_id" id="neg-vendor-id" />
-
-				<div class="modal-body d-flex flex-col gap-3">
-					<div class="bg-surface-sunken p-3.5 rounded-xl border border-slate-200/80">
-						<div class="text-xs text-muted font-bold">الصنف الدوائي المختار:</div>
-						<div class="text-sm font-black text-primary mt-0.5" id="neg-product-name">-</div>
-						<div class="text-xs text-secondary mt-1 font-semibold">سعر التوريد الحالي المعلن: <strong id="neg-current-price" class="tabular-nums text-primary font-black">-</strong> ج.م</div>
-					</div>
-
-					<div class="d-grid grid-cols-2 gap-3">
-						<div>
-							<label class="form-label font-bold text-primary text-xs mb-1.5 d-block">
-								السعر المقترح للعبوة (ج.م) *
-							</label>
-							<input
-								type="number"
-								step="0.01"
-								min="0.01"
-								name="proposed_price"
-								id="neg-proposed-price"
-								required
-								placeholder="0.00"
-								class="form-input tabular-nums font-black text-sm w-full"
-							/>
-						</div>
-
-						<div>
-							<label class="form-label font-bold text-primary text-xs mb-1.5 d-block">
-								الكمية المطلوبة (عبوة) *
-							</label>
-							<input
-								type="number"
-								min="1"
-								name="qty"
-								id="neg-qty"
-								value="1"
-								required
-								class="form-input tabular-nums font-black text-sm w-full"
-							/>
-						</div>
+				<div class="d-grid grid-cols-2 gap-3">
+					<div>
+						<label class="form-label font-bold text-primary text-xs mb-1.5 d-block">
+							السعر المقترح للعبوة (ج.م) *
+						</label>
+						<input
+							type="number"
+							step="0.01"
+							min="0.01"
+							name="proposed_price"
+							id="neg-proposed-price"
+							required
+							placeholder="0.00"
+							class="form-input tabular-nums font-black text-sm w-full"
+						/>
 					</div>
 
 					<div>
 						<label class="form-label font-bold text-primary text-xs mb-1.5 d-block">
-							ملاحظات إضافية للمورّد (اختياري)
+							الكمية المطلوبة (عبوة) *
 						</label>
-						<textarea
-							name="notes"
-							rows="2"
-							placeholder="اكتب أي شروط أو تفاصيل إضافية بخصوص جدول الاستلام أو التوريد..."
-							class="form-input text-xs w-full"
-						></textarea>
+						<input
+							type="number"
+							min="1"
+							name="qty"
+							id="neg-qty"
+							value="1"
+							required
+							class="form-input tabular-nums font-black text-sm w-full"
+						/>
 					</div>
 				</div>
 
-				<div class="modal-footer">
-					<button type="button" class="btn btn-secondary font-bold text-xs" onclick="closeNegotiationModal()">
-						إلغاء
-					</button>
-					<button type="submit" class="btn btn-primary font-black text-xs px-4 shadow-sm">
-						إرسال طلب التفاوض للمورّد
-					</button>
+				<div>
+					<label class="form-label font-bold text-primary text-xs mb-1.5 d-block">
+						ملاحظات إضافية للمورّد (اختياري)
+					</label>
+					<textarea
+						name="notes"
+						rows="2"
+						placeholder="اكتب أي شروط أو تفاصيل إضافية بخصوص جدول الاستلام أو التوريد..."
+						class="form-input text-xs w-full"
+					></textarea>
 				</div>
-			</form>
-		</div>
-	</dialog>
+			</div>
+
+			<div class="modal-footer">
+				<button type="button" class="btn btn-secondary font-bold text-xs" onclick="closeNegotiationModal()">
+					إلغاء
+				</button>
+				<button type="submit" class="btn btn-primary font-black text-xs px-4 shadow-sm">
+					إرسال طلب التفاوض للمورّد
+				</button>
+			</div>
+		</form>
+	}
 
 	<script>
 		function triggerNegotiationModal(btn) {

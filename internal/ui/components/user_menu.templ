@@ -4,6 +4,7 @@ import (
 	"strings"
 
 	"github.com/muhiya/dawa24-store/internal/platform/authctx"
+	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 )
 
 // The account menu in the dashboard top bar.
@@ -59,19 +60,19 @@ templ UserMenu(lang string) {
 				<div class="user-menu-items">
 					<a href="/settings" class="user-menu-item" role="menuitem">
 						@IconSettings("icon-xs")
-						<span>{ tr(lang, "الإعدادات", "Settings") }</span>
+						<span>{ i18n.T(lang, "common.settings") }</span>
 					</a>
 					if orgLink(actor) != "" {
 						<a href={ templ.SafeURL(orgLink(actor)) } class="user-menu-item" role="menuitem">
 							@IconBuilding("icon-xs")
-							<span>{ tr(lang, "المنشآت المرتبطة", "Organizations") }</span>
+							<span>{ i18n.T(lang, "nav.linked_organizations") }</span>
 						</a>
 					}
 				</div>
 				<form action="/auth/logout" method="POST" class="user-menu-logout">
 					<button type="submit" class="user-menu-item user-menu-item-danger" role="menuitem">
 						@IconLogout("icon-xs")
-						<span>{ tr(lang, "تسجيل الخروج", "Sign out") }</span>
+						<span>{ i18n.T(lang, "auth.logout") }</span>
 					</button>
 				</form>
 			</div>
@@ -102,9 +103,9 @@ func roleLabel(actor authctx.Actor, lang string) string {
 		return actor.Role
 	}
 	if actor.IsStaff {
-		return tr(lang, "فريق المنصة", "Platform staff")
+		return i18n.T(lang, "user.platform_staff")
 	}
-	return tr(lang, "عضو", "Member")
+	return i18n.T(lang, "user.member")
 }
 
 // orgLink points at the organizations page for the caller's audience.
