@@ -211,7 +211,7 @@ templ CustomerBranches(data CustomerBranchesData, lang string, dir string, perms
 			</div>
 
 			<!-- TAB 1: Branches Network Content -->
-			<div id="cb-tab-panel-branches" style={ fmt.Sprintf("display: %s;", func() string { if data.ActiveTab == "employees" { return "none" }; return "block" }()) }>
+			<div id="cb-tab-panel-branches" class={ "tab-panel", templ.KV("hidden", data.ActiveTab == "employees") }>
 				<div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
 					
 					<!-- Left Column: Existing Pharmacy Branches List (7 cols) -->
@@ -482,13 +482,13 @@ templ CustomerBranches(data CustomerBranchesData, lang string, dir string, perms
 				if (tabName === 'employees') {
 					if (branchesBtn) branchesBtn.classList.remove('active');
 					if (empsBtn) empsBtn.classList.add('active');
-					if (branchesPanel) branchesPanel.style.display = 'none';
-					if (empsPanel) empsPanel.style.display = 'block';
+					if (branchesPanel) branchesPanel.classList.add('hidden');
+					if (empsPanel) empsPanel.classList.remove('hidden');
 				} else {
 					if (branchesBtn) branchesBtn.classList.add('active');
 					if (empsBtn) empsBtn.classList.remove('active');
-					if (branchesPanel) branchesPanel.style.display = 'block';
-					if (empsPanel) empsPanel.style.display = 'none';
+					if (branchesPanel) branchesPanel.classList.remove('hidden');
+					if (empsPanel) empsPanel.classList.add('hidden');
 				}
 			}
 
@@ -505,9 +505,9 @@ templ CustomerBranches(data CustomerBranchesData, lang string, dir string, perms
 					const matchesBranch = !branchFilter || branchId === branchFilter;
 
 					if (matchesSearch && matchesBranch) {
-						row.style.display = '';
+						row.classList.remove('hidden');
 					} else {
-						row.style.display = 'none';
+						row.classList.add('hidden');
 					}
 				});
 			}
@@ -637,24 +637,17 @@ templ CustomerBranches(data CustomerBranchesData, lang string, dir string, perms
 				if (openBtn) {
 					const modalId = openBtn.getAttribute('data-modal-open');
 					const modal = document.getElementById(modalId);
-					if (modal) {
-						modal.classList.remove('hidden');
-						modal.style.display = 'flex';
+					if (modal && typeof modal.showModal === 'function') {
+						modal.showModal();
 					}
 				}
 				const closeBtn = e.target.closest('[data-modal-close]');
 				if (closeBtn) {
 					const modalId = closeBtn.getAttribute('data-modal-close');
 					const modal = document.getElementById(modalId);
-					if (modal) {
-						modal.classList.add('hidden');
-						modal.style.display = 'none';
+					if (modal && typeof modal.close === 'function') {
+						modal.close();
 					}
-				}
-				// Backdrop click close
-				const addEmpModal = document.getElementById('add-employee-modal');
-				if (e.target === addEmpModal) {
-					closeAddEmployeeModal();
 				}
 			});
 		</script>

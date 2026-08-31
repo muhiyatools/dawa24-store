@@ -85,7 +85,7 @@ templ CustomerUserOrganizationsPage(lang, dir string, data *CustomerUserOrgData,
 						<input type="hidden" id="customer-selected-vendor-id" name="vendor_org_id" required value="" />
 
 						<!-- Selected Vendor Chip Card (shown once a vendor is chosen) -->
-						<div id="customer-selected-vendor-chip" class="selected-vendor-chip d-flex items-center justify-between p-3 bg-surface-sunken rounded-xl border" style="display: none;">
+						<div id="customer-selected-vendor-chip" class="selected-vendor-chip d-flex items-center justify-between p-3 bg-surface-sunken rounded-xl border hidden">
 							<div class="d-flex items-center gap-3">
 								<div class="w-10 h-10 rounded-lg bg-primary-subtle text-primary flex-center">
 									@components.IconBuilding("icon-sm")
@@ -111,7 +111,7 @@ templ CustomerUserOrganizationsPage(lang, dir string, data *CustomerUserOrgData,
 								oninput="handleCustomerVendorSearch(this.value)"
 								onfocus="handleCustomerVendorSearch(this.value)"
 							/>
-							<div id="customer-vendor-search-spinner" class="spinner-container text-muted" style="display: none;">
+							<div id="customer-vendor-search-spinner" class="spinner-container text-muted hidden">
 								⏳
 							</div>
 						</div>
@@ -119,8 +119,7 @@ templ CustomerUserOrganizationsPage(lang, dir string, data *CustomerUserOrgData,
 						<!-- Autocomplete Results Dropdown -->
 						<div
 							id="customer-vendor-search-dropdown"
-							class="dropdown-menu shadow-md"
-							style="display: none;"
+							class="dropdown-menu shadow-md hidden"
 						></div>
 					</div>
 
@@ -321,22 +320,22 @@ templ CustomerUserOrganizationsPage(lang, dir string, data *CustomerUserOrgData,
 
 				const query = (val || '').trim();
 				if (!query) {
-					dropdown.style.display = 'none';
+					dropdown.classList.add('hidden');
 					dropdown.innerHTML = '';
-					if (spinner) spinner.style.display = 'none';
+					if (spinner) spinner.classList.add('hidden');
 					return;
 				}
 
-				if (spinner) spinner.style.display = 'block';
+				if (spinner) spinner.classList.remove('hidden');
 
 				customerVendorSearchTimer = setTimeout(() => {
 					fetch('/customer/api/vendors/search?q=' + encodeURIComponent(query))
 						.then(res => res.json())
 						.then(vendors => {
-							if (spinner) spinner.style.display = 'none';
+							if (spinner) spinner.classList.add('hidden');
 							if (!vendors || vendors.length === 0) {
 								dropdown.innerHTML = '<div class="p-3 text-sm text-muted text-center">لا توجد شركات أو موردين مطابقين</div>';
-								dropdown.style.display = 'block';
+								dropdown.classList.remove('hidden');
 								return;
 							}
 
@@ -360,12 +359,12 @@ templ CustomerUserOrganizationsPage(lang, dir string, data *CustomerUserOrgData,
 								`;
 							});
 							dropdown.innerHTML = html;
-							dropdown.style.display = 'block';
+							dropdown.classList.remove('hidden');
 						})
 						.catch(err => {
-							if (spinner) spinner.style.display = 'none';
+							if (spinner) spinner.classList.add('hidden');
 							dropdown.innerHTML = '<div class="p-3 text-sm text-danger text-center">حدث خطأ أثناء البحث</div>';
-							dropdown.style.display = 'block';
+							dropdown.classList.remove('hidden');
 						});
 				}, 250);
 			}
@@ -382,10 +381,10 @@ templ CustomerUserOrganizationsPage(lang, dir string, data *CustomerUserOrgData,
 				if (hiddenInput) hiddenInput.value = id;
 				if (chipName) chipName.textContent = name;
 				if (chipDetails) chipDetails.textContent = (orgNum ? 'كود: ' + orgNum + ' • ' : '') + 'ID: #' + id;
-				if (chip) chip.style.display = 'flex';
-				if (searchWrapper) searchWrapper.style.display = 'none';
+				if (chip) chip.classList.remove('hidden');
+				if (searchWrapper) searchWrapper.classList.add('hidden');
 				if (dropdown) {
-					dropdown.style.display = 'none';
+					dropdown.classList.add('hidden');
 					dropdown.innerHTML = '';
 				}
 				if (searchInput) searchInput.value = '';
@@ -398,8 +397,8 @@ templ CustomerUserOrganizationsPage(lang, dir string, data *CustomerUserOrgData,
 				const searchInput = document.getElementById('customer-uo-vendor-search');
 
 				if (hiddenInput) hiddenInput.value = '';
-				if (chip) chip.style.display = 'none';
-				if (searchWrapper) searchWrapper.style.display = 'block';
+				if (chip) chip.classList.add('hidden');
+				if (searchWrapper) searchWrapper.classList.remove('hidden');
 				if (searchInput) {
 					searchInput.value = '';
 					searchInput.focus();
@@ -410,7 +409,7 @@ templ CustomerUserOrganizationsPage(lang, dir string, data *CustomerUserOrgData,
 				const dropdown = document.getElementById('customer-vendor-search-dropdown');
 				const searchInput = document.getElementById('customer-uo-vendor-search');
 				if (dropdown && !dropdown.contains(e.target) && e.target !== searchInput) {
-					dropdown.style.display = 'none';
+					dropdown.classList.add('hidden');
 				}
 			});
 		</script>

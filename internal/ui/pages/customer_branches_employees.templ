@@ -9,7 +9,7 @@ import (
 
 templ CustomerEmployeesTab(data CustomerBranchesData, lang, dir string, perms []string) {
 	<!-- TAB 2: Branch Employees & RBAC Content -->
-	<div id="cb-tab-panel-employees" style={ fmt.Sprintf("display: %s;", func() string { if data.ActiveTab == "employees" { return "block" }; return "none" }()) }>
+	<div id="cb-tab-panel-employees" class={ "tab-panel", templ.KV("hidden", data.ActiveTab != "employees") }>
 		
 		<!-- Employees Toolbar -->
 		<div class="p-4 bg-surface-raised rounded-xl border mb-6 flex-between flex-wrap gap-4 shadow-xs">
