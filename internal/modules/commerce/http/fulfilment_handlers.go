@@ -69,9 +69,35 @@ func (h *Handler) GetShipment(w http.ResponseWriter, r *http.Request) {
 
 // TransitionShipmentStatus advances a vendor's shipment through fulfilment.
 func (h *Handler) TransitionShipmentStatus(w http.ResponseWriter, r *http.Request) {
+	actor, ok := authctx.From(r.Context())
+	if !ok {
+		httpx.Error(w, r, h.log, apperr.Unauthorized())
+		return
+	}
+
 	id, err := commerceID(r, "id", "shipment")
 	if err != nil {
 		httpx.Error(w, r, h.log, err)
+		return
+	}
+
+	shipment, err := h.service.GetShipment(r.Context(), id)
+	if err != nil {
+		httpx.Error(w, r, h.log, err)
+		return
+	}
+
+	allowed := actor.IsStaff || actor.Can("commerce.admin") ||
+		(shipment.OrganizationID == actor.OrganizationID && actor.CanAny("commerce.order.fulfil", "commerce.order.dispatch", "commerce.order.update"))
+
+	if !allowed {
+		h.log.WarnContext(r.Context(), "unauthorized shipment status transition attempt",
+			"actor_user_id", actor.UserID,
+			"actor_org_id", actor.OrganizationID,
+			"shipment_id", id,
+			"shipment_org_id", shipment.OrganizationID,
+		)
+		httpx.Error(w, r, h.log, apperr.Forbidden("shipment.unauthorized", "Not authorized to transition this shipment"))
 		return
 	}
 
@@ -84,18 +110,14 @@ func (h *Handler) TransitionShipmentStatus(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	var actor *int64
-	if uid, err := authctx.UserID(r.Context()); err == nil {
-		actor = &uid
-	}
-
-	shipment, err := h.service.TransitionShipmentStatus(
-		r.Context(), id, commerce.OrderStatus(body.Status), actor, body.Notes)
+	actorID := actor.UserID
+	updatedShipment, err := h.service.TransitionShipmentStatus(
+		r.Context(), id, commerce.OrderStatus(body.Status), &actorID, body.Notes)
 	if err != nil {
 		httpx.Error(w, r, h.log, err)
 		return
 	}
-	httpx.JSON(w, http.StatusOK, shipment)
+	httpx.JSON(w, http.StatusOK, updatedShipment)
 }
 
 // GetOrderHistory returns the status audit trail for an order.
