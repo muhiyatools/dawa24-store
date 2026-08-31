@@ -43,9 +43,9 @@ templ CompareToolPage(lang, dir string, files []*compare.CompareFile, maxAllowed
 			}
 			
 			<!-- Header Banner -->
-			<div class="glass-panel p-6 mb-6">
-				<div class="flex-between flex-wrap gap-4">
-     <div class="stack-sm">
+			<div class="card p-6 mb-6">
+				<div class="d-flex items-center justify-between flex-wrap gap-4">
+					<div>
 						<div class="d-flex items-center gap-2 mb-1">
 							<div class="user-avatar-badge">
 								@components.IconBarChart("icon-sm")
@@ -249,7 +249,7 @@ templ CompareToolPage(lang, dir string, files []*compare.CompareFile, maxAllowed
 					if maxAllowedFiles > 0 && len(files) >= maxAllowedFiles {
 						<div class="alert alert-warning p-3 mb-3 d-flex items-start gap-2.5 rounded-xl border border-amber-300/80 bg-amber-50/80 text-xs">
 							<span class="text-base">@components.IconAlert("icon-sm")</span>
-       <div class="stack-sm">
+							<div>
 								<strong class="d-block font-extrabold text-amber-900 mb-0.5">
 									بلغت الحد الأقصى لكشوف الموردين في باقتك ({ fmt.Sprintf("%d / %d", len(files), maxAllowedFiles) })
 								</strong>
@@ -824,7 +824,7 @@ templ CompareToolPage(lang, dir string, files []*compare.CompareFile, maxAllowed
 		</script>
 
 		<!-- Root container for dynamically injected mapping modal -->
-		<div class="stack-sm" id="mapping-modal-root"></div>
+		<div id="mapping-modal-root"></div>
 	}
 }
 

@@ -37,13 +37,13 @@ templ tenantSessionsContent(lang, dir string, data TenantSessionsViewData) {
 	<div class="page-container">
 		
 		<!-- Compact Page Header -->
-		<div class="page-header flex-between flex-wrap gap-4 mb-6">
-			<div class="stack-xs">
+		<div class="d-flex items-center justify-between flex-wrap gap-4 mb-4">
+			<div>
 				<h1 class="page-title font-bold text-xl m-0 d-flex items-center gap-2">
 					<span class="text-primary">@components.IconShield("icon-sm")</span>
 					<span>الأجهزة والجلسات النشطة</span>
 				</h1>
-				<p class="text-sm text-secondary m-0">
+				<p class="text-xs text-secondary m-0 mt-1">
 					إدارة الأجهزة المتصلة بحساب المنشأة وسعة الجلسات المتزامنة ({ data.PlanName })
 				</p>
 			</div>
@@ -73,12 +73,12 @@ templ tenantSessionsContent(lang, dir string, data TenantSessionsViewData) {
 		<!-- Flash Notices -->
 		if data.NoticeMessage != "" {
 			if data.NoticeType == "error" {
-				<div class="alert alert-danger mb-6 p-4 d-flex items-center gap-3">
+				<div class="alert alert-danger mb-4 p-4 d-flex items-center gap-3">
 					@components.IconAlert("icon-xs")
 					<span class="font-bold text-sm">{ data.NoticeMessage }</span>
 				</div>
 			} else {
-				<div class="alert alert-success mb-6 p-4 d-flex items-center gap-3">
+				<div class="alert alert-success mb-4 p-4 d-flex items-center gap-3">
 					@components.IconCheckCircle("icon-xs")
 					<span class="font-bold text-sm">{ data.NoticeMessage }</span>
 				</div>
@@ -86,17 +86,17 @@ templ tenantSessionsContent(lang, dir string, data TenantSessionsViewData) {
 		}
 
 		<!-- Compact Metrics Bar -->
-		<div class="card p-4 mb-6 shadow-xs">
-			<div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-				<div class="stat-card p-3.5 bg-surface-sunken rounded-xl border">
-					<div class="stat-label text-xs text-muted font-bold mb-1">الجلسات المتصلة</div>
-					<div class="tabular-nums font-bold text-base text-primary">
+		<div class="card p-4 mb-4 shadow-xs">
+			<div class="wallet-stats-grid">
+				<div class="wallet-stat-card">
+					<div class="wallet-stat-label">الجلسات المتصلة</div>
+					<div class="wallet-stat-val text-primary tabular-nums">
 						{ fmt.Sprintf("%d", len(data.Sessions)) } <span class="text-xs font-normal text-muted">/ { fmt.Sprintf("%d", data.MaxLoginSessions) } مسموحة</span>
 					</div>
 				</div>
 
-				<div class="stat-card p-3.5 bg-surface-sunken rounded-xl border">
-					<div class="stat-label text-xs text-muted font-bold mb-1">حالة السعة</div>
+				<div class="wallet-stat-card">
+					<div class="wallet-stat-label">حالة السعة</div>
 					<div class="mt-1">
 						if len(data.Sessions) >= data.MaxLoginSessions {
 							<span class="badge badge-amber font-bold text-xs">الحد الأقصى مستنفد</span>
@@ -106,16 +106,16 @@ templ tenantSessionsContent(lang, dir string, data TenantSessionsViewData) {
 					</div>
 				</div>
 
-				<div class="stat-card p-3.5 bg-surface-sunken rounded-xl border">
-					<div class="stat-label text-xs text-muted font-bold mb-1">حد الأجهزة المعتمدة</div>
-					<div class="tabular-nums font-bold text-base text-primary">
+				<div class="wallet-stat-card">
+					<div class="wallet-stat-label">حد الأجهزة المعتمدة</div>
+					<div class="wallet-stat-val text-primary tabular-nums">
 						{ fmt.Sprintf("%d", data.MaxDevices) } <span class="text-xs font-normal text-muted">أجهزة</span>
 					</div>
 				</div>
 
-				<div class="stat-card p-3.5 bg-surface-sunken rounded-xl border">
-					<div class="stat-label text-xs text-muted font-bold mb-1">باقة المنشأة</div>
-					<div class="font-bold text-sm text-primary mt-0.5">
+				<div class="wallet-stat-card">
+					<div class="wallet-stat-label">باقة المنشأة</div>
+					<div class="font-bold text-sm text-primary mt-1">
 						{ data.PlanName }
 					</div>
 				</div>
@@ -123,8 +123,8 @@ templ tenantSessionsContent(lang, dir string, data TenantSessionsViewData) {
 		</div>
 
 		<!-- Active Sessions List -->
-		<div class="card p-6 mb-6 shadow-xs">
-			<div class="flex-between flex-wrap gap-3 pb-4 mb-4 border-b">
+		<div class="card p-5 mb-4 shadow-xs">
+			<div class="d-flex items-center justify-between flex-wrap gap-3 pb-3 mb-3 border-bottom">
 				<h2 class="card-title font-bold text-base text-primary m-0">
 					الأجهزة المتصلة حالياً ({ fmt.Sprintf("%d", len(data.Sessions)) })
 				</h2>
@@ -146,18 +146,18 @@ templ tenantSessionsContent(lang, dir string, data TenantSessionsViewData) {
 					Message: "لم يتم العثور على أي جلسات متصلة حالياً.",
 				})
 			} else {
-				<div class="stack-md">
+				<div class="d-flex flex-col gap-3">
 					for _, sess := range data.Sessions {
-						<div class={ "session-item flex-between flex-wrap gap-3 p-4 rounded-xl border transition-all", templ.KV("bg-primary-subtle border-primary-subtle shadow-xs", sess.Token == data.CurrentToken), templ.KV("bg-surface-sunken border-subtle", sess.Token != data.CurrentToken) }>
+						<div class={ "d-flex items-center justify-between flex-wrap gap-3 p-4 rounded-xl border", templ.KV("bg-primary-subtle border-primary shadow-xs", sess.Token == data.CurrentToken), templ.KV("bg-surface-sunken border", sess.Token != data.CurrentToken) }>
 							<div class="d-flex items-center gap-3">
-								<div class="w-10 h-10 rounded-lg bg-surface-raised border flex-center text-primary flex-shrink-0 shadow-xs">
+								<div class="w-10 h-10 rounded-lg bg-surface-raised border d-flex items-center justify-center text-primary flex-shrink-0 shadow-xs">
 									if sess.Icon != "" {
 										{ sess.Icon }
 									} else {
 										@components.IconMonitor("icon-sm")
 									}
 								</div>
-								<div class="stack-2xs">
+								<div>
 									<div class="d-flex items-center gap-2 flex-wrap">
 										<strong class="text-sm font-bold text-primary">
 											if sess.DeviceName != "" {
@@ -167,12 +167,12 @@ templ tenantSessionsContent(lang, dir string, data TenantSessionsViewData) {
 											}
 										</strong>
 										if sess.Token == data.CurrentToken {
-											<span class="badge badge-emerald text-xs font-bold">
+											<span class="badge badge-emerald text-2xs font-bold">
 												جهازك الحالي
 											</span>
 										}
 									</div>
-									<div class="tabular-nums text-xs text-muted d-flex items-center gap-1.5 flex-wrap">
+									<div class="tabular-nums text-2xs text-muted d-flex items-center gap-1.5 flex-wrap mt-0.5">
 										<span>{ sess.Email }</span>
 										if sess.IP != "" {
 											<span>• { sess.IP }</span>
@@ -197,7 +197,7 @@ templ tenantSessionsContent(lang, dir string, data TenantSessionsViewData) {
 										</button>
 									</form>
 								} else {
-									<span class="badge badge-slate text-xs font-medium">
+									<span class="badge badge-slate text-2xs font-medium">
 										مستخدم آخر
 									</span>
 								}
@@ -209,34 +209,34 @@ templ tenantSessionsContent(lang, dir string, data TenantSessionsViewData) {
 		</div>
 
 		<!-- Password Security Form -->
-		<div class="card p-6 shadow-xs">
-			<div class="stack-xs mb-4 pb-3 border-b">
+		<div class="card p-5 shadow-xs">
+			<div class="mb-3 pb-2 border-bottom">
 				<h2 class="card-title font-bold text-base text-primary m-0">
 					تحديث كلمة المرور
 				</h2>
-				<p class="text-sm text-secondary m-0">
+				<p class="text-xs text-secondary m-0 mt-1">
 					تغيير كلمة المرور الخاصة بحسابك ينهي الجلسات الأخرى فوراً
 				</p>
 			</div>
 
-			<form action={ templ.SafeURL(ternary(data.IsVendor, "/vendor/password", "/customer/password")) } method="POST" class="stack-md max-w-lg">
-				<div class="form-group mb-2">
+			<form action={ templ.SafeURL(ternary(data.IsVendor, "/vendor/password", "/customer/password")) } method="POST" class="d-flex flex-col gap-3 max-w-lg">
+				<div class="form-group mb-0">
 					<label class="form-label text-xs font-bold" for="sess-current-password">كلمة المرور الحالية</label>
-					<input type="password" id="sess-current-password" name="current_password" required class="form-input form-input-sm" placeholder="••••••••" />
+					<input type="password" id="sess-current-password" name="current_password" required class="form-input form-input-sm font-semibold" placeholder="••••••••" />
 				</div>
 
-				<div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-2">
+				<div class="grid grid-cols-1 md:grid-cols-2 gap-3">
 					<div class="form-group mb-0">
 						<label class="form-label text-xs font-bold" for="sess-new-password">كلمة المرور الجديدة</label>
-						<input type="password" id="sess-new-password" name="new_password" required minlength="8" class="form-input form-input-sm" placeholder="8 أحرف كحد أدنى" />
+						<input type="password" id="sess-new-password" name="new_password" required minlength="8" class="form-input form-input-sm font-semibold" placeholder="8 أحرف كحد أدنى" />
 					</div>
 					<div class="form-group mb-0">
 						<label class="form-label text-xs font-bold" for="sess-confirm-password">تأكيد كلمة المرور</label>
-						<input type="password" id="sess-confirm-password" name="confirm_password" required minlength="8" class="form-input form-input-sm" placeholder="••••••••" />
+						<input type="password" id="sess-confirm-password" name="confirm_password" required minlength="8" class="form-input form-input-sm font-semibold" placeholder="••••••••" />
 					</div>
 				</div>
 
-				<div class="pt-2">
+				<div class="pt-1">
 					<button type="submit" class="btn btn-primary btn-sm font-bold px-6">
 						@components.IconCheck("icon-xs")
 						<span>حفظ كلمة المرور الجديدة</span>

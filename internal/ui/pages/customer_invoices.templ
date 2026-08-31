@@ -10,50 +10,49 @@ import (
 
 templ InvoicesPage(lang, dir string, data InvoicesData) {
 	@layouts.ShellFor("فواتير وسندات التوريد", "invoices", lang, dir, authctx.FromContext(ctx)) {
-		<div class="max-w-6xl mx-auto stack-lg">
+		<div class="page-container">
 			
 			<!-- Header Banner -->
-			<div class="card">
-				<div class="flex-between flex-wrap gap-md">
-     <div class="stack-sm">
-      <div class="stack-sm">
-       <div class="stack-sm">
+			<div class="card p-5 mb-4">
+				<div class="d-flex items-center justify-between flex-wrap gap-3">
+					<div>
+						<div class="d-flex items-center gap-2 mb-1">
+							<div class="user-avatar-badge">
 								@components.IconFileText("icon-sm")
 							</div>
-       <h1 class="page-title text-xl font-bold m-0">
+							<h1 class="page-title text-xl font-bold m-0">
 								فواتير وسندات التوريد
 							</h1>
 						</div>
-      <p class="text-sm text-secondary m-0">
+						<p class="text-xs text-secondary m-0">
 							سجل الفواتير وسندات التوريد الصادرة لطلبيات الأدوية مع تفاصيل المبالغ والبنود وقابلة للطباعة الفورية.
 						</p>
 					</div>
 
-     <div class="stack-sm">
-						<span class="badge badge-secondary">
+					<div>
+						<span class="badge badge-secondary text-xs font-bold">
 							@components.IconFileText("icon-xs")
-							<span>سجل الفواتير</span>
+							<span>سجل الفواتير الضريبية</span>
 						</span>
 					</div>
 				</div>
 			</div>
 
 			<!-- Search & Filter Bar -->
-			<div class="card">
-				<form method="GET" class="filter-bar d-flex items-center gap-3 flex-wrap" action="/invoices">
-     <div class="stack-sm">
+			<div class="invoices-filter-card mb-4">
+				<form method="GET" class="invoices-filter-form" action="/invoices">
+					<div>
 						<input
 							type="text"
 							name="q"
 							value={ data.Search }
 							placeholder="بحث برقم الفاتورة، رقم الطلبية، اسم الصيدلية..."
-							class="form-control"
-						
+							class="form-control form-control-sm w-full font-semibold"
 						/>
 					</div>
 
-     <div class="stack-sm">
-						<select name="status" class="form-select">
+					<div>
+						<select name="status" class="form-select form-select-sm w-full font-semibold">
 							<option value="">-- جميع الحالات --</option>
 							<option value="paid" selected?={ data.StatusFilter == "paid" }>مدفوعة (Paid)</option>
 							<option value="issued" selected?={ data.StatusFilter == "issued" }>صادرة (Issued)</option>
@@ -62,34 +61,34 @@ templ InvoicesPage(lang, dir string, data InvoicesData) {
 						</select>
 					</div>
 
-					<button type="submit" class="btn btn-primary fw-800">
+					<button type="submit" class="btn btn-primary btn-sm fw-800">
 						تطبيق الفلتر
 					</button>
 				</form>
 			</div>
 
 			<!-- Invoices Table -->
-			<div class="card">
+			<div class="card p-0">
 				if len(data.Invoices) == 0 {
-     <div class="stack-sm">
-      <div class="stack-sm">
-							@components.IconFile("icon-sm")
+					<div class="p-6 text-center">
+						<div class="mb-2 text-2xl text-muted">
+							@components.IconFile("icon-md")
 						</div>
-      <h3 class="card-title text-sm font-semibold m-0">
+						<h3 class="font-bold text-sm m-0">
 							لا توجد فواتير مطابقة
 						</h3>
-      <p class="text-sm text-secondary m-0">
+						<p class="text-xs text-secondary m-0 mt-1">
 							يتم إنشاء وتوثيق فواتير وسندات التوريد تلقائياً فور تسجيل واعتماد أوامر الشراء.
 						</p>
 					</div>
 				} else {
 					<div class="table-responsive">
-						<table class="data-table">
+						<table class="data-table mb-0">
 							<thead>
 								<tr>
 									<th>رقم الفاتورة</th>
 									<th>رقم الطلبية</th>
-									<th>الصيدلية المستلمة</th>
+									<th>الطرف المستلم</th>
 									<th>تاريخ الإصدار</th>
 									<th>المبلغ الإجمالي</th>
 									<th>الحالة</th>
@@ -98,14 +97,13 @@ templ InvoicesPage(lang, dir string, data InvoicesData) {
 							</thead>
 							<tbody>
 								for _, inv := range data.Invoices {
-									<tr class="rule-bottom">
+									<tr>
 										<!-- رقم الفاتورة -->
 										<td>
 											<a
 												href={ templ.SafeURL(fmt.Sprintf("/invoices/%d/print", inv.ID)) }
 												target="_blank"
-												class="tabular-nums fw-800"
-											
+												class="tabular-nums fw-800 text-primary"
 											>
 												{ inv.InvoiceNumber }
 											</a>
@@ -114,21 +112,21 @@ templ InvoicesPage(lang, dir string, data InvoicesData) {
 										<!-- رقم الطلبية -->
 										<td class="tabular-nums">
 											if inv.OrderID != nil {
-												<span class="badge badge-secondary text-xs">
+												<span class="badge badge-secondary text-2xs font-bold">
 													#{ fmt.Sprintf("%d", *inv.OrderID) }
 												</span>
 											} else if inv.OrderNumber != "" {
-												<span class="badge badge-secondary text-xs">
+												<span class="badge badge-secondary text-2xs font-bold">
 													#{ inv.OrderNumber }
 												</span>
 											} else {
-												<span class="text-muted">—</span>
+												<span class="text-muted text-xs">—</span>
 											}
 										</td>
 
 										<!-- الصيدلية المستلمة -->
 										<td>
-           <div class="stack-sm">
+											<div class="font-bold text-xs">
 												if inv.CustomerName != "" {
 													{ inv.CustomerName }
 												} else {
@@ -136,46 +134,45 @@ templ InvoicesPage(lang, dir string, data InvoicesData) {
 												}
 											</div>
 											if inv.CustomerOrgID != nil {
-            <div class="stack-sm">
+												<div class="text-2xs text-muted">
 													كود العميل: #{ fmt.Sprintf("%d", *inv.CustomerOrgID) }
 												</div>
 											}
 										</td>
 
 										<!-- تاريخ الإصدار -->
-										<td class="tabular-nums">
+										<td class="tabular-nums text-xs text-secondary">
 											{ inv.IssueDate.Format("2006-01-02") }
 										</td>
 
 										<!-- المبلغ الإجمالي -->
-										<td class="tabular-nums">
-											{ inv.TotalAmount.String() } ج.م
+										<td class="tabular-nums font-bold text-xs text-primary">
+											{ inv.TotalAmount.String() } <span class="text-2xs text-muted font-normal">ج.م</span>
 										</td>
 
 										<!-- الحالة -->
 										<td>
 											if inv.Status == "paid" {
-												<span class="badge badge-emerald text-xs">مدفوعة</span>
+												<span class="badge badge-emerald text-2xs font-bold">مدفوعة</span>
 											} else if inv.Status == "issued" {
-												<span class="badge badge-sky text-xs">صادرة</span>
+												<span class="badge badge-sky text-2xs font-bold">صادرة</span>
 											} else if inv.Status == "overdue" {
-												<span class="badge badge-amber text-xs">متأخرة</span>
+												<span class="badge badge-amber text-2xs font-bold">متأخرة</span>
 											} else if inv.Status == "cancelled" {
-												<span class="badge badge-rose text-xs">ملغاة</span>
+												<span class="badge badge-rose text-2xs font-bold">ملغاة</span>
 											} else {
-												<span class="badge badge-secondary text-xs">{ string(inv.Status) }</span>
+												<span class="badge badge-secondary text-2xs font-bold">{ string(inv.Status) }</span>
 											}
 										</td>
 
 										<!-- الإجراءات: عرض + طباعة -->
 										<td>
-           <div class="stack-sm">
+											<div class="d-flex items-center gap-1">
 												<!-- زر الطباعة -->
 												<a
 													href={ templ.SafeURL(fmt.Sprintf("/invoices/%d/print", inv.ID)) }
 													target="_blank"
-													class="btn btn-primary btn-sm"
-												
+													class="btn btn-primary btn-xs font-bold"
 													title="طباعة الفاتورة أو إيصال الكاشير"
 												>
 													<span>طباعة</span>
@@ -185,8 +182,7 @@ templ InvoicesPage(lang, dir string, data InvoicesData) {
 												<a
 													href={ templ.SafeURL(fmt.Sprintf("/invoices/%d/print?autoprint=0", inv.ID)) }
 													target="_blank"
-													class="btn btn-secondary btn-sm"
-												
+													class="btn btn-secondary btn-xs font-bold"
 													title="معاينة تفاصيل الفاتورة"
 												>
 													<span>عرض</span>

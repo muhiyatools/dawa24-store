@@ -4,10 +4,21 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/muhiya/dawa24-store/internal/modules/catalog"
 	"github.com/muhiya/dawa24-store/internal/shared/i18n"
 	"github.com/muhiya/dawa24-store/internal/ui/components"
 	"github.com/muhiya/dawa24-store/internal/ui/layouts"
 )
+
+func calcDiscountPct(v *catalog.ProductVariant, p *catalog.Product) float64 {
+	if p != nil && p.PublicPrice().IsPositive() && v.Price.IsPositive() && v.Price.Minor() < p.PublicPrice().Minor() {
+		return (1.0 - float64(v.Price.Minor())/float64(p.PublicPrice().Minor())) * 100.0
+	} else if v.Discount.IsPositive() {
+		return float64(v.Discount.Minor()) / 100.0
+	}
+	return 0.0
+}
+
 templ SupplierProfile(lang, dir string, data SupplierProfileData) {
 	@layouts.PublicShell(fmt.Sprintf("%s | ملف المورد والكتالوج", data.Org.TradeName.Get(i18n.Lang(lang))), lang, dir) {
 		<div class="sp-container">
@@ -349,15 +360,7 @@ templ SupplierProfile(lang, dir string, data SupplierProfileData) {
 
 										<!-- 2. Discount Percentage (نسبة الخصم %) -->
 										<td>
-											{{
-												discPct := 0.0
-												if p := data.GetProduct(v.ProductID); p != nil && p.PublicPrice().IsPositive() && v.Price.IsPositive() && v.Price.Minor() < p.PublicPrice().Minor() {
-													discPct = (1.0 - float64(v.Price.Minor())/float64(p.PublicPrice().Minor())) * 100.0
-												} else if v.Discount.IsPositive() {
-													discPct = float64(v.Discount.Minor()) / 100.0
-												}
-											}}
-											if discPct > 0 {
+											if discPct := calcDiscountPct(v, data.GetProduct(v.ProductID)); discPct > 0 {
 												<span class="badge badge-emerald tabular-nums">
 													{ fmt.Sprintf("%.0f%%", discPct) }
 												</span>
