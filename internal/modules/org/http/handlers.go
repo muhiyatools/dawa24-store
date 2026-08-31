@@ -26,10 +26,15 @@ func NewHandler(service *org.Service, log *slog.Logger) *Handler {
 	return &Handler{service: service, log: log}
 }
 
-// RegisterRoutes registers organization routes on a Chi router.
-func (h *Handler) RegisterRoutes(r chi.Router) {
+// RegisterPreApprovalRoutes registers routes accessible before organization approval
+// (organization onboarding registration and viewing own organization status).
+func (h *Handler) RegisterPreApprovalRoutes(r chi.Router) {
 	r.Post("/api/v1/org/organizations", h.RegisterOrg)
 	r.Get("/api/v1/org/organizations/{id}", h.GetOrg)
+}
+
+// RegisterApprovedRoutes registers routes requiring an approved organization.
+func (h *Handler) RegisterApprovedRoutes(r chi.Router) {
 	r.Put("/api/v1/org/organizations/{id}", h.UpdateOrg)
 	r.Delete("/api/v1/org/organizations/{id}", h.DeleteOrg)
 	r.Get("/api/v1/org/organizations", h.ListOrgs)
@@ -50,6 +55,12 @@ func (h *Handler) RegisterRoutes(r chi.Router) {
 	r.Post("/api/v1/org/organizations/{id}/follow", h.ToggleFollow)
 
 	h.RegisterAdminRoutes(r)
+}
+
+// RegisterRoutes registers organization routes on a Chi router.
+func (h *Handler) RegisterRoutes(r chi.Router) {
+	h.RegisterPreApprovalRoutes(r)
+	h.RegisterApprovedRoutes(r)
 }
 
 // RegisterOrg handles organization creation.

@@ -5,6 +5,10 @@ import (
 	"log/slog"
 	"net/http"
 	"net/url"
+	"strings"
+
+	"github.com/muhiya/dawa24-store/internal/platform/httpx"
+	"github.com/muhiya/dawa24-store/internal/shared/apperr"
 )
 
 // Audience middleware enforces who may mount an HTML route group (Rebuild V2
@@ -129,6 +133,73 @@ func RequireTenantPagePermission(permissionKeys ...string) func(http.Handler) ht
 	}
 }
 
+// RequireAPIPermission gates a JSON API route on platform/staff permission keys.
+// Pass several and holding any one of them is enough.
+//
+// Unlike RequirePagePermission which returns a 404 to hide URL space from
+// browsing humans, this returns JSON 403 via httpx.Error + apperr.Forbidden.
+// An API client is already authenticated and a misleading 404 would cost
+// debuggability for no security gain.
+func RequireAPIPermission(permissionKeys ...string) func(http.Handler) http.Handler {
+	log := slog.Default()
+	return func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			actor, ok := From(r.Context())
+			if !ok {
+				httpx.Error(w, r, log, apperr.Unauthorized())
+				return
+			}
+			if !actor.IsStaff {
+				denied(r, "api_staff", actor, permissionKeys)
+				httpx.Error(w, r, log, apperr.Forbidden("auth.forbidden", "Staff permission required"))
+				return
+			}
+			if actor.CanAny(permissionKeys...) {
+				next.ServeHTTP(w, r)
+				return
+			}
+			denied(r, "api_staff", actor, permissionKeys)
+			httpx.Error(w, r, log, apperr.Forbidden("auth.forbidden", "Permission denied"))
+		})
+	}
+}
+
+// RequireAPITenantPermission gates a JSON API route on tenant permission keys
+// within the caller's organization.
+//
+// Unlike RequireTenantPagePermission which returns a 404 to hide URL space from
+// browsing humans, this returns JSON 403 via httpx.Error + apperr.Forbidden.
+// An API client is already authenticated and a misleading 404 would cost
+// debuggability for no security gain.
+func RequireAPITenantPermission(permissionKeys ...string) func(http.Handler) http.Handler {
+	log := slog.Default()
+	return func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			actor, ok := From(r.Context())
+			if !ok {
+				httpx.Error(w, r, log, apperr.Unauthorized())
+				return
+			}
+			if actor.IsStaff {
+				denied(r, "api_tenant", actor, permissionKeys)
+				httpx.Error(w, r, log, apperr.Forbidden("auth.forbidden", "Tenant permission required"))
+				return
+			}
+			if actor.OrganizationID <= 0 && actor.OrgID <= 0 {
+				denied(r, "api_tenant", actor, permissionKeys)
+				httpx.Error(w, r, log, apperr.Forbidden("auth.forbidden", "Organization membership required"))
+				return
+			}
+			if actor.CanAny(permissionKeys...) {
+				next.ServeHTTP(w, r)
+				return
+			}
+			denied(r, "api_tenant", actor, permissionKeys)
+			httpx.Error(w, r, log, apperr.Forbidden("auth.forbidden", "Permission denied"))
+		})
+	}
+}
+
 // denied records a refusal. Every gate logs through here so that a permission
 // problem in production is one grep, and so the log line always carries the
 // caller, the path and what was required.
@@ -147,10 +218,42 @@ func denied(r *http.Request, surface string, actor Actor, required []string) {
 // RequireApproved blocks members whose organization has not been approved.
 // Pending organizations are told to wait; rejected and suspended ones are
 // sent to the same screen with a state explaining what happened.
+// On API routes (/api/*), returns JSON 403 rather than an HTML redirect.
 func RequireApproved(log *slog.Logger) func(http.Handler) http.Handler {
+	if log == nil {
+		log = slog.Default()
+	}
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			actor, ok := From(r.Context())
+			if strings.HasPrefix(r.URL.Path, "/api/") {
+				if !ok {
+					httpx.Error(w, r, log, apperr.Unauthorized())
+					return
+				}
+				if actor.IsStaff {
+					next.ServeHTTP(w, r)
+					return
+				}
+				switch actor.OrgStatus {
+				case "approved", "active", "verified":
+					next.ServeHTTP(w, r)
+					return
+				case "pending", "under_review":
+					httpx.Error(w, r, log, apperr.Forbidden("org.pending", "Organization is pending approval."))
+					return
+				case "rejected":
+					httpx.Error(w, r, log, apperr.Forbidden("org.rejected", "Organization has been rejected."))
+					return
+				case "suspended":
+					httpx.Error(w, r, log, apperr.Forbidden("org.suspended", "Organization has been suspended."))
+					return
+				default:
+					httpx.Error(w, r, log, apperr.Forbidden("org.unapproved", "Organization approval required."))
+					return
+				}
+			}
+
 			if !ok {
 				redirectToLogin(w, r)
 				return

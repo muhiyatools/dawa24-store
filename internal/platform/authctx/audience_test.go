@@ -240,3 +240,232 @@ func TestCrossAudienceGates(t *testing.T) {
 		t.Errorf("Vendor on vendor gate: got %d, want 200", recVV.Code)
 	}
 }
+
+func TestRequireAPIPermission(t *testing.T) {
+	gate := authctx.RequireAPIPermission("commerce.admin")
+
+	okHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+		_, _ = w.Write([]byte("OK"))
+	})
+
+	tests := []struct {
+		name       string
+		actor      *authctx.Actor
+		wantStatus int
+	}{
+		{
+			name:       "Anonymous request returns 401",
+			actor:      nil,
+			wantStatus: http.StatusUnauthorized,
+		},
+		{
+			name: "Non-staff user returns 403",
+			actor: &authctx.Actor{
+				UserID:  1,
+				IsStaff: false,
+				Role:    "customer",
+			},
+			wantStatus: http.StatusForbidden,
+		},
+		{
+			name: "Staff user lacking permission returns 403",
+			actor: &authctx.Actor{
+				UserID:      2,
+				IsStaff:     true,
+				Role:        "support",
+				Permissions: []string{"catalog.product.view"},
+			},
+			wantStatus: http.StatusForbidden,
+		},
+		{
+			name: "Staff user with required permission returns 200",
+			actor: &authctx.Actor{
+				UserID:      3,
+				IsStaff:     true,
+				Role:        "admin",
+				Permissions: []string{"commerce.admin"},
+			},
+			wantStatus: http.StatusOK,
+		},
+		{
+			name: "Super admin with wildcard returns 200",
+			actor: &authctx.Actor{
+				UserID:      4,
+				IsStaff:     true,
+				Role:        "super_admin",
+				Permissions: []string{"*"},
+			},
+			wantStatus: http.StatusOK,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			req := httptest.NewRequest("GET", "/api/v1/admin/commerce/orders", nil)
+			if tt.actor != nil {
+				req = req.WithContext(authctx.WithActor(req.Context(), *tt.actor))
+			}
+			rec := httptest.NewRecorder()
+			gate(okHandler).ServeHTTP(rec, req)
+			if rec.Code != tt.wantStatus {
+				t.Errorf("got status %d, want %d", rec.Code, tt.wantStatus)
+			}
+		})
+	}
+}
+
+func TestRequireAPITenantPermission(t *testing.T) {
+	gate := authctx.RequireAPITenantPermission("vendor.order.update")
+
+	okHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+		_, _ = w.Write([]byte("OK"))
+	})
+
+	tests := []struct {
+		name       string
+		actor      *authctx.Actor
+		wantStatus int
+	}{
+		{
+			name:       "Anonymous request returns 401",
+			actor:      nil,
+			wantStatus: http.StatusUnauthorized,
+		},
+		{
+			name: "Staff member calling tenant API returns 403",
+			actor: &authctx.Actor{
+				UserID:  1,
+				IsStaff: true,
+				Role:    "super_admin",
+			},
+			wantStatus: http.StatusForbidden,
+		},
+		{
+			name: "User with no organization returns 403",
+			actor: &authctx.Actor{
+				UserID:         2,
+				OrganizationID: 0,
+				Role:           "vendor",
+				Permissions:    []string{"vendor.order.update"},
+			},
+			wantStatus: http.StatusForbidden,
+		},
+		{
+			name: "Tenant user lacking permission returns 403",
+			actor: &authctx.Actor{
+				UserID:         3,
+				OrganizationID: 10,
+				Role:           "vendor_member",
+				Permissions:    []string{"vendor.catalog.view"},
+			},
+			wantStatus: http.StatusForbidden,
+		},
+		{
+			name: "Tenant user with permission returns 200",
+			actor: &authctx.Actor{
+				UserID:         4,
+				OrganizationID: 10,
+				Role:           "vendor_admin",
+				Permissions:    []string{"vendor.order.update"},
+			},
+			wantStatus: http.StatusOK,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			req := httptest.NewRequest("POST", "/api/v1/vendor/orders/1/status", nil)
+			if tt.actor != nil {
+				req = req.WithContext(authctx.WithActor(req.Context(), *tt.actor))
+			}
+			rec := httptest.NewRecorder()
+			gate(okHandler).ServeHTTP(rec, req)
+			if rec.Code != tt.wantStatus {
+				t.Errorf("got status %d, want %d", rec.Code, tt.wantStatus)
+			}
+		})
+	}
+}
+
+func TestRequireApprovedAPI(t *testing.T) {
+	log := slog.New(slog.NewTextHandler(io.Discard, nil))
+	gate := authctx.RequireApproved(log)
+
+	okHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+		_, _ = w.Write([]byte("OK"))
+	})
+
+	tests := []struct {
+		name       string
+		actor      *authctx.Actor
+		wantStatus int
+	}{
+		{
+			name:       "Anonymous request returns 401",
+			actor:      nil,
+			wantStatus: http.StatusUnauthorized,
+		},
+		{
+			name: "Pending org on API returns 403",
+			actor: &authctx.Actor{
+				UserID:         1,
+				OrganizationID: 10,
+				OrgStatus:      "pending",
+			},
+			wantStatus: http.StatusForbidden,
+		},
+		{
+			name: "Rejected org on API returns 403",
+			actor: &authctx.Actor{
+				UserID:         2,
+				OrganizationID: 10,
+				OrgStatus:      "rejected",
+			},
+			wantStatus: http.StatusForbidden,
+		},
+		{
+			name: "Suspended org on API returns 403",
+			actor: &authctx.Actor{
+				UserID:         3,
+				OrganizationID: 10,
+				OrgStatus:      "suspended",
+			},
+			wantStatus: http.StatusForbidden,
+		},
+		{
+			name: "Approved org on API returns 200",
+			actor: &authctx.Actor{
+				UserID:         4,
+				OrganizationID: 10,
+				OrgStatus:      "approved",
+			},
+			wantStatus: http.StatusOK,
+		},
+		{
+			name: "Staff member on API returns 200",
+			actor: &authctx.Actor{
+				UserID:  5,
+				IsStaff: true,
+				Role:    "super_admin",
+			},
+			wantStatus: http.StatusOK,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			req := httptest.NewRequest("GET", "/api/v1/commerce/orders", nil)
+			if tt.actor != nil {
+				req = req.WithContext(authctx.WithActor(req.Context(), *tt.actor))
+			}
+			rec := httptest.NewRecorder()
+			gate(okHandler).ServeHTTP(rec, req)
+			if rec.Code != tt.wantStatus {
+				t.Errorf("got status %d, want %d", rec.Code, tt.wantStatus)
+			}
+		})
+	}
+}

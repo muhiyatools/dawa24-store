@@ -47,7 +47,7 @@ func TestAdminRoutesRequirePermission(t *testing.T) {
 			if len(paths) == 0 {
 				continue
 			}
-			if strings.Contains(body, "RequirePermission") {
+			if strings.Contains(body, "RequirePermission") || strings.Contains(body, "RequireAPIPermission") {
 				continue
 			}
 			for _, p := range paths {

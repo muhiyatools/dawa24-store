@@ -39,29 +39,54 @@ var routeFiles = []string{
 	"internal/ui/customer_routes.go",
 }
 
-// TestEveryRouteGateNamesADeclaredPermission.
-//
-// A gate on a key the catalogue does not declare cannot be satisfied by any
-// role, so the page is unreachable by everyone except the owner — and it fails
-// silently, as a 404 that reads like the feature was never built. That is
-// exactly what six admin sidebar links did before this catalogue existed.
+// TestEveryRouteGateNamesADeclaredPermission walks every permission gate in the
+// entire codebase (RequireAPIPermission, RequireAPITenantPermission,
+// RequirePagePermission, RequireTenantPagePermission, RequirePermission) and asserts
+// that each referenced key is declared in internal/platform/rbac.
 func TestEveryRouteGateNamesADeclaredPermission(t *testing.T) {
 	const root = ".."
 	catalog := rbac.Default()
+	reAnyGate := regexp.MustCompile(`Require(?:API|Tenant)?(?:Page)?Permission\(([^)]*)\)`)
 
-	for _, rel := range routeFiles {
-		src, err := os.ReadFile(filepath.Join(root, filepath.FromSlash(rel)))
-		if err != nil {
-			t.Fatalf("reading %s: %v", rel, err)
-		}
-		for _, m := range reGateKeys.FindAllStringSubmatch(string(src), -1) {
-			for _, k := range reQuoted.FindAllStringSubmatch(m[1], -1) {
-				if !catalog.Known(k[1]) {
-					t.Errorf("%s gates a route on %q, which internal/platform/rbac does not declare; "+
-						"no role can hold it, so the route is unreachable", rel, k[1])
+	foundCallSites := 0
+	for _, dir := range []string{"cmd", "internal"} {
+		err := filepath.Walk(filepath.Join(root, dir), func(path string, info os.FileInfo, err error) error {
+			if err != nil {
+				return err
+			}
+			if info.IsDir() || !strings.HasSuffix(path, ".go") || strings.HasSuffix(path, "_test.go") || strings.HasSuffix(path, "_templ.go") {
+				return nil
+			}
+			// Skip definition in authctx/audience.go and authctx/middleware.go
+			rel, _ := filepath.Rel(root, path)
+			relSlash := filepath.ToSlash(rel)
+			if relSlash == "internal/platform/authctx/audience.go" || relSlash == "internal/platform/authctx/middleware.go" {
+				return nil
+			}
+
+			src, err := os.ReadFile(path)
+			if err != nil {
+				return err
+			}
+
+			for _, m := range reAnyGate.FindAllStringSubmatch(string(src), -1) {
+				foundCallSites++
+				for _, k := range reQuoted.FindAllStringSubmatch(m[1], -1) {
+					key := k[1]
+					if !catalog.Known(key) {
+						t.Errorf("%s gates on undeclared permission key %q; no role can hold it", relSlash, key)
+					}
 				}
 			}
+			return nil
+		})
+		if err != nil {
+			t.Fatalf("walking %s: %v", dir, err)
 		}
+	}
+
+	if foundCallSites == 0 {
+		t.Fatalf("no permission gate call sites found; regex or directory walk is broken")
 	}
 }
 

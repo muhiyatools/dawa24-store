@@ -134,15 +134,28 @@ func mountModuleRoutes(
 	identityHandler.SetResolver(permissions)
 	identityHandler.RegisterRoutes(r)
 
-	// Authenticated API routes
-	r.Group(func(protected chi.Router) {
-		protected.Use(identityHttp.RequireAuth(idSvc, permissions, cfg.Session.CookieName, log))
-		protected.Use(identityHttp.ResolveTenant(idSvc, log))
+	// Authenticated API routes — Pre-approval / Onboarding allowlist
+	// (Document upload and own organisation status queries needed to achieve approval)
+	r.Group(func(preApproval chi.Router) {
+		preApproval.Use(identityHttp.RequireAuth(idSvc, permissions, cfg.Session.CookieName, log))
+		preApproval.Use(identityHttp.ResolveTenant(idSvc, log))
 
-		// Attachments API
-		attachmentsHttp.NewHandler(attachSvc, log).RegisterRoutes(protected)
+		// Attachments API (document uploads and confirmation for verification)
+		attachmentsHttp.NewHandler(attachSvc, log).RegisterRoutes(preApproval)
 
-		mountAuthenticatedModules(protected, cfg, log, deps, ai, adminKeys, tenantKeys, storageClient, docsGate)
+		// Organization registration & own org query during onboarding
+		orgRepoAPI := orgPostgres.NewRepository(db)
+		orgSvcAPI := org.NewService(orgRepoAPI, log)
+		orgHttp.NewHandler(orgSvcAPI, log).RegisterPreApprovalRoutes(preApproval)
+	})
+
+	// Authenticated API routes — Approved organizations only
+	r.Group(func(approved chi.Router) {
+		approved.Use(identityHttp.RequireAuth(idSvc, permissions, cfg.Session.CookieName, log))
+		approved.Use(identityHttp.ResolveTenant(idSvc, log))
+		approved.Use(authctx.RequireApproved(log))
+
+		mountAuthenticatedModules(approved, cfg, log, deps, ai, adminKeys, tenantKeys, storageClient, docsGate)
 	})
 
 	// 13. Templ SSR Frontend & Static Assets
@@ -557,7 +570,7 @@ func mountAuthenticatedModules(
 	// 12. Organizations & Tenants
 	orgRepo := orgPostgres.NewRepository(db)
 	orgSvc := org.NewService(orgRepo, log)
-	orgHttp.NewHandler(orgSvc, log).RegisterRoutes(r)
+	orgHttp.NewHandler(orgSvc, log).RegisterApprovedRoutes(r)
 
 	// Every employee of a منشأة spends against that منشأة's own Gateway key.
 	//

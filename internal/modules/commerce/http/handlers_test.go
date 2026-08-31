@@ -364,6 +364,7 @@ func newAuthedRouter(repo commerce.Repository) http.Handler {
 			actor := authctx.Actor{
 				UserID:         1,
 				OrganizationID: 1,
+				IsStaff:        true,
 				Role:           "super_admin",
 				Permissions:    []string{"admin", "super_admin", "commerce.admin"},
 			}
