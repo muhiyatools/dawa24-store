@@ -85,7 +85,7 @@ func AdminWarehousesPage(warehouses []*AdminWarehouseRowView, lang, dir string) 
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</div><div class=\"stack-sm\"><h1 class=\"text-xl font-black text-primary m-0\">نشطنشط نشطنشطنشط?? نشطنشطنشطنشط? نشطنشطنشط?</h1><p class=\"text-sm text-secondary m-0 mt-1\">متابعة أرصدة المخزون الحي وحدود الأمان بالمستودعات</p></div></div><div class=\"badge badge-sky font-bold text-sm px-3.5 py-1.5\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</div><div class=\"stack-sm\"><h1 class=\"text-xl font-black text-primary m-0\">إدارة المخازن ومراكز التوزيع</h1><p class=\"text-sm text-secondary m-0 mt-1\">متابعة أرصدة المخزون الحي وحدود الأمان بالمستودعات</p></div></div><div class=\"badge badge-sky font-bold text-sm px-3.5 py-1.5\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -111,12 +111,12 @@ func AdminWarehousesPage(warehouses []*AdminWarehouseRowView, lang, dir string) 
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "</div><h3 class=\"text-lg font-black text-primary m-0 mb-1\">?? نشط?? نشطنشطنشطنشط نشطنشط??</h3><p class=\"text-sm text-secondary max-w-sm mx-auto\">?? نشط? نشطنشط?? ?? نشطنشط نشطنشطنشط?? نشط? نشطنشط?.</p></div>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "</div><h3 class=\"text-lg font-black text-primary m-0 mb-1\">لا توجد مخازن مسجلة</h3><p class=\"text-sm text-secondary max-w-sm mx-auto\">لم تتم إضافة أي مخازن معتمدة بعد.</p></div>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			} else {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "<div class=\"table-container m-0\"><table class=\"data-table m-0\"><thead><tr><th>المورد</th><th>المورد</th><th>المورد</th><th>المورد</th><th class=\"text-center\">الحالة</th><th class=\"text-end\">الإجراءات</th></tr></thead> <tbody>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "<div class=\"table-container m-0\"><table class=\"data-table m-0\"><thead><tr><th>المخزن</th><th>المنشأة المالكة</th><th>العنوان</th><th>الهاتف</th><th class=\"text-center\">الحالة</th><th class=\"text-end\">الإجراءات</th></tr></thead> <tbody>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -147,14 +147,14 @@ func AdminWarehousesPage(warehouses []*AdminWarehouseRowView, lang, dir string) 
 						return templ_7745c5c3_Err
 					}
 					if row.Warehouse.Code != "" {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "<div class=\"text-xs text-muted font-mono\">نشط: ")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "<div class=\"text-xs text-muted font-mono\">الكود: ")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
 						var templ_7745c5c3_Var5 string
 						templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(row.Warehouse.Code)
 						if templ_7745c5c3_Err != nil {
-							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_warehouses.templ`, Line: 93, Col: 84}
+							return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_warehouses.templ`, Line: 93, Col: 88}
 						}
 						_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
 						if templ_7745c5c3_Err != nil {
@@ -272,7 +272,7 @@ func AdminWarehousesPage(warehouses []*AdminWarehouseRowView, lang, dir string) 
 							return templ_7745c5c3_Err
 						}
 					} else {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 27, "<span class=\"badge badge-rose font-black\">نشط?</span>")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 27, "<span class=\"badge badge-rose font-black\">غير نشط</span>")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
@@ -298,7 +298,7 @@ func AdminWarehousesPage(warehouses []*AdminWarehouseRowView, lang, dir string) 
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
-					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 30, "<span>العودة لقائمة المنتجات</span></a></td></tr>")
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 30, "<span>عرض المخزون</span></a></td></tr>")
 					if templ_7745c5c3_Err != nil {
 						return templ_7745c5c3_Err
 					}
@@ -364,7 +364,7 @@ func AdminWarehouseDetailPage(data AdminWarehouseDetailView, lang, dir string) t
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 34, "<span>العودة لقائمة المنتجات</span></a> <span class=\"text-muted\">|</span> <span class=\"text-muted text-xs\">نشط?? نشطنشط??:</span> <strong class=\"text-primary text-sm font-bold\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 34, "<span>العودة لقائمة المخازن</span></a> <span class=\"text-muted\">|</span> <span class=\"text-muted text-xs\">المخزن الحالي:</span> <strong class=\"text-primary text-sm font-bold\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -382,12 +382,12 @@ func AdminWarehouseDetailPage(data AdminWarehouseDetailView, lang, dir string) t
 				return templ_7745c5c3_Err
 			}
 			if data.Warehouse.IsActive {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 36, "<span class=\"badge badge-emerald font-black px-3.5 py-1.5 text-xs\">نشط?? نشطنشط?? نشطنشط?</span>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 36, "<span class=\"badge badge-emerald font-black px-3.5 py-1.5 text-xs\">هذا المخزن نشط</span>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			} else {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 37, "<span class=\"badge badge-rose font-black px-3.5 py-1.5 text-xs\">نشط?? نشطنشط? نشط?</span>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 37, "<span class=\"badge badge-rose font-black px-3.5 py-1.5 text-xs\">هذا المخزن غير نشط</span>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -477,7 +477,7 @@ func AdminWarehouseDetailPage(data AdminWarehouseDetailView, lang, dir string) t
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 48, "<div class=\"d-flex items-center gap-1.5\"><span class=\"text-muted\">كود المخزن:</span> <span class=\"text-primary font-semibold\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 48, "<div class=\"d-flex items-center gap-1.5\"><span class=\"text-muted\">العنوان:</span> <span class=\"text-primary font-semibold\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -492,7 +492,7 @@ func AdminWarehouseDetailPage(data AdminWarehouseDetailView, lang, dir string) t
 					return templ_7745c5c3_Err
 				}
 			} else {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 49, "نشط? نشطنشط?")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 49, "غير محدد")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -502,7 +502,7 @@ func AdminWarehouseDetailPage(data AdminWarehouseDetailView, lang, dir string) t
 				return templ_7745c5c3_Err
 			}
 			if data.Warehouse.Phone != "" {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 51, "<div class=\"d-flex items-center gap-1.5\"><span class=\"text-muted\">كود المخزن:</span> <span dir=\"ltr\" class=\"tabular-nums text-primary font-bold\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 51, "<div class=\"d-flex items-center gap-1.5\"><span class=\"text-muted\">الهاتف:</span> <span dir=\"ltr\" class=\"tabular-nums text-primary font-bold\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -541,7 +541,7 @@ func AdminWarehouseDetailPage(data AdminWarehouseDetailView, lang, dir string) t
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 55, "<span>العودة لقائمة المنتجات</span></a></div></div></div><!-- KPI Stat Summary Cards (Responsive 4-Column Grid) --><div class=\"warehouse-kpi-grid\"><!-- Total SKUs --><div class=\"card mb-0 warehouse-kpi-card border-t-4 border-t-primary bg-surface-raised\"><div class=\"flex-between items-start mb-1.5\"><span class=\"text-xs font-bold text-secondary\">نشطنشط? نشطنشط?? نشطنشط?</span> <span class=\"text-base\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 55, "<span>تحديث البيانات</span></a></div></div></div><!-- KPI Stat Summary Cards (Responsive 4-Column Grid) --><div class=\"warehouse-kpi-grid\"><!-- Total SKUs --><div class=\"card mb-0 warehouse-kpi-card border-t-4 border-t-primary bg-surface-raised\"><div class=\"flex-between items-start mb-1.5\"><span class=\"text-xs font-bold text-secondary\">إجمالي الأصناف</span> <span class=\"text-base\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -562,20 +562,20 @@ func AdminWarehouseDetailPage(data AdminWarehouseDetailView, lang, dir string) t
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 57, "</div><div class=\"text-xs text-muted mt-1\">نشط??: <strong class=\"text-primary\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 57, "</div><div class=\"text-xs text-muted mt-1\">بإجمالي <strong class=\"text-primary\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var22 string
 			templ_7745c5c3_Var22, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", data.TotalUnits))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_warehouses.templ`, Line: 245, Col: 81}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/ui/pages/admin_warehouses.templ`, Line: 245, Col: 86}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var22))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 58, "</strong> نشط?? نشطنشطنشط</div></div><!-- Available (Ready for order) --><div class=\"card mb-0 warehouse-kpi-card border-t-4 border-t-emerald bg-surface-raised\"><div class=\"flex-between items-start mb-1.5\"><span class=\"text-xs font-bold text-secondary\">نشطنشط نشطنشطنشط (نشطنشط نشطنشط??)</span> <span class=\"text-base\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 58, "</strong> وحدة مخزنية</div></div><!-- Available (Ready for order) --><div class=\"card mb-0 warehouse-kpi-card border-t-4 border-t-emerald bg-surface-raised\"><div class=\"flex-between items-start mb-1.5\"><span class=\"text-xs font-bold text-secondary\">متاح للطلب</span> <span class=\"text-base\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -596,7 +596,7 @@ func AdminWarehouseDetailPage(data AdminWarehouseDetailView, lang, dir string) t
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 60, "</div><div class=\"text-xs text-muted mt-1\">نشط? ?? ?? نشطنشطنشط?? نشطنشطنشط</div></div><!-- Low Stock --><div class=\"card mb-0 warehouse-kpi-card border-t-4 border-t-amber bg-surface-raised\"><div class=\"flex-between items-start mb-1.5\"><span class=\"text-xs font-bold text-secondary\">نشطنشط نشطنشط? نشط??</span> <span class=\"text-base\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 60, "</div><div class=\"text-xs text-muted mt-1\">أصناف فوق حد الأمان</div></div><!-- Low Stock --><div class=\"card mb-0 warehouse-kpi-card border-t-4 border-t-amber bg-surface-raised\"><div class=\"flex-between items-start mb-1.5\"><span class=\"text-xs font-bold text-secondary\">رصيد منخفض</span> <span class=\"text-base\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -617,7 +617,7 @@ func AdminWarehouseDetailPage(data AdminWarehouseDetailView, lang, dir string) t
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 62, "</div><div class=\"text-xs text-muted mt-1\">نشط? نشط? ?? ?? نشطنشط?</div></div><!-- Out of Stock --><div class=\"card mb-0 warehouse-kpi-card border-t-4 border-t-rose bg-surface-raised\"><div class=\"flex-between items-start mb-1.5\"><span class=\"text-xs font-bold text-secondary\">نشط?? نشط? نشطنشطنشط?</span> <span class=\"text-base\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 62, "</div><div class=\"text-xs text-muted mt-1\">أصناف تحت حد الأمان</div></div><!-- Out of Stock --><div class=\"card mb-0 warehouse-kpi-card border-t-4 border-t-rose bg-surface-raised\"><div class=\"flex-between items-start mb-1.5\"><span class=\"text-xs font-bold text-secondary\">نفد المخزون</span> <span class=\"text-base\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -651,7 +651,7 @@ func AdminWarehouseDetailPage(data AdminWarehouseDetailView, lang, dir string) t
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 65, "\" class=\"stack-md\"><div class=\"warehouse-filter-grid\"><!-- Search Query --><div class=\"form-group mb-0\"><label class=\"form-label text-xs font-bold text-secondary mb-1\">نشط? نشطنشطنشطنشط نشطنشطنشطنشط?</label><div class=\"relative\"><input type=\"text\" name=\"q\" value=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 65, "\" class=\"stack-md\"><div class=\"warehouse-filter-grid\"><!-- Search Query --><div class=\"form-group mb-0\"><label class=\"form-label text-xs font-bold text-secondary mb-1\">بحث في الأصناف</label><div class=\"relative\"><input type=\"text\" name=\"q\" value=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -664,7 +664,7 @@ func AdminWarehouseDetailPage(data AdminWarehouseDetailView, lang, dir string) t
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 66, "\" placeholder=\"نشط? نشطنشطنشط? نشط SKU? نشطنشطنشط نشط? نشطنشطنشط??...\" class=\"form-input ps-9 text-sm h-10 w-full rounded-lg\"><div class=\"absolute start-3 top-1/2 -translate-y-1/2 text-muted pointer-events-none\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 66, "\" placeholder=\"ابحث باسم الصنف، كود SKU، الباركود أو رقم التشغيلة...\" class=\"form-input ps-9 text-sm h-10 w-full rounded-lg\"><div class=\"absolute start-3 top-1/2 -translate-y-1/2 text-muted pointer-events-none\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -672,7 +672,7 @@ func AdminWarehouseDetailPage(data AdminWarehouseDetailView, lang, dir string) t
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 67, "</div></div></div><!-- Stock Status Filter --><div class=\"form-group mb-0\"><label class=\"form-label text-xs font-bold text-secondary mb-1\">حالة الربط بالكتالوج</label> <select name=\"status\" class=\"form-input text-sm h-10 rounded-lg\"><option value=\"all\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 67, "</div></div></div><!-- Stock Status Filter --><div class=\"form-group mb-0\"><label class=\"form-label text-xs font-bold text-secondary mb-1\">حالة المخزون</label> <select name=\"status\" class=\"form-input text-sm h-10 rounded-lg\"><option value=\"all\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -712,7 +712,7 @@ func AdminWarehouseDetailPage(data AdminWarehouseDetailView, lang, dir string) t
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 75, ">نفد المخزون (صفر)</option></select></div><!-- Negotiation Filter --><div class=\"form-group mb-0\"><label class=\"form-label text-xs font-bold text-secondary mb-1\">حالة الربط بالكتالوج</label> <select name=\"negotiable\" class=\"form-input text-sm h-10 rounded-lg\"><option value=\"all\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 75, ">نفد المخزون (صفر)</option></select></div><!-- Negotiation Filter --><div class=\"form-group mb-0\"><label class=\"form-label text-xs font-bold text-secondary mb-1\">قابلية التفاوض</label> <select name=\"negotiable\" class=\"form-input text-sm h-10 rounded-lg\"><option value=\"all\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -742,7 +742,7 @@ func AdminWarehouseDetailPage(data AdminWarehouseDetailView, lang, dir string) t
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 81, ">سعر ثابت فقط</option></select></div><!-- Page Size Selector --><div class=\"form-group mb-0\"><label class=\"form-label text-xs font-bold text-secondary mb-1\">حالة الربط بالكتالوج</label> <select name=\"limit\" class=\"form-input text-sm h-10 rounded-lg\"><option value=\"25\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 81, ">سعر ثابت فقط</option></select></div><!-- Page Size Selector --><div class=\"form-group mb-0\"><label class=\"form-label text-xs font-bold text-secondary mb-1\">عدد النتائج بالصفحة</label> <select name=\"limit\" class=\"form-input text-sm h-10 rounded-lg\"><option value=\"25\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -782,7 +782,7 @@ func AdminWarehouseDetailPage(data AdminWarehouseDetailView, lang, dir string) t
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 89, ">250 صنف</option></select></div></div><!-- Filter Actions --><div class=\"flex-between items-center border-t pt-3 flex-wrap gap-3\"><div class=\"text-xs text-secondary font-semibold\">نشطنشط نشطنشط??: <span class=\"tabular-nums text-primary font-black\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 89, ">250 صنف</option></select></div></div><!-- Filter Actions --><div class=\"flex-between items-center border-t pt-3 flex-wrap gap-3\"><div class=\"text-xs text-secondary font-semibold\">إجمالي النتائج: <span class=\"tabular-nums text-primary font-black\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -795,7 +795,7 @@ func AdminWarehouseDetailPage(data AdminWarehouseDetailView, lang, dir string) t
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 90, "</span> نشط? نشطنشط??</div><div class=\"d-flex items-center gap-3\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 90, "</span> صنف</div><div class=\"d-flex items-center gap-3\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -813,7 +813,7 @@ func AdminWarehouseDetailPage(data AdminWarehouseDetailView, lang, dir string) t
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 92, "\" class=\"btn btn-ghost btn-sm text-muted\">نشطنشط نشطنشطنشط?</a> ")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 92, "\" class=\"btn btn-ghost btn-sm text-muted\">مسح الفلاتر</a> ")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -826,7 +826,7 @@ func AdminWarehouseDetailPage(data AdminWarehouseDetailView, lang, dir string) t
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 94, "<span>العودة لقائمة المنتجات</span></button></div></div></form></div><!-- Inventory Data Table Card --><div class=\"card mb-0 border rounded-2xl p-0 overflow-hidden bg-surface-raised shadow-xs\"><div class=\"p-5 border-b flex-between items-center flex-wrap gap-3 bg-surface\"><div class=\"d-flex items-center gap-2.5\"><span class=\"text-base\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 94, "<span>بحث وتصفية</span></button></div></div></form></div><!-- Inventory Data Table Card --><div class=\"card mb-0 border rounded-2xl p-0 overflow-hidden bg-surface-raised shadow-xs\"><div class=\"p-5 border-b flex-between items-center flex-wrap gap-3 bg-surface\"><div class=\"d-flex items-center gap-2.5\"><span class=\"text-base\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -834,7 +834,7 @@ func AdminWarehouseDetailPage(data AdminWarehouseDetailView, lang, dir string) t
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 95, "</span><h3 class=\"font-black text-base text-primary m-0\">نشط?? نشطنشط?? نشطنشط?</h3><span class=\"badge badge-slate text-xs tabular-nums font-bold\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 95, "</span><h3 class=\"font-black text-base text-primary m-0\">أصناف المخزون</h3><span class=\"badge badge-slate text-xs tabular-nums font-bold\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -860,7 +860,7 @@ func AdminWarehouseDetailPage(data AdminWarehouseDetailView, lang, dir string) t
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 98, "</div><h4 class=\"text-base font-black text-primary m-0 mb-2\">?? نشط?? نشطنشطنشط نشط? نشطنشطنشط?</h4><p class=\"text-sm text-secondary max-w-md mx-auto mb-6\">?? نشط? نشطنشطنشط نشط ?? نشط?? نشطنشط?? نشط?? نشطنشطنشط? نشط? نشطنشطنشط?? نشطنشط ?? نشطنشط?? نشطنشطنشط?.</p><a href=\"")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 98, "</div><h4 class=\"text-base font-black text-primary m-0 mb-2\">لا توجد أصناف مطابقة</h4><p class=\"text-sm text-secondary max-w-md mx-auto mb-6\">لم يتم العثور على أي أصناف تطابق معايير البحث الحالية. جرّب تعديل الفلاتر أو مسحها.</p><a href=\"")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -873,12 +873,12 @@ func AdminWarehouseDetailPage(data AdminWarehouseDetailView, lang, dir string) t
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 99, "\" class=\"btn btn-secondary btn-sm font-bold\">نشط? نشطنشط?? نشط? نشطنشطنشط?</a></div>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 99, "\" class=\"btn btn-secondary btn-sm font-bold\">مسح الفلاتر وإعادة العرض</a></div>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			} else {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 100, "<div class=\"table-container m-0\"><table class=\"data-table m-0\"><thead><tr><th class=\"w-12\">#</th><th>المورد</th><th>كود SKU والباركود</th><th>المورد</th><th>المورد</th><th>المورد</th><th>المورد</th><th>المورد</th><th>المورد</th><th>المورد</th></tr></thead> <tbody>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 100, "<div class=\"table-container m-0\"><table class=\"data-table m-0\"><thead><tr><th class=\"w-12\">#</th><th>الصنف</th><th>كود SKU والباركود</th><th>التشغيلة والصلاحية</th><th>السعر</th><th>الخصم</th><th>التفاوض</th><th>الكمية</th><th>حد الأمان</th><th>الحالة</th></tr></thead> <tbody>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -911,7 +911,7 @@ func AdminWarehouseDetailPage(data AdminWarehouseDetailView, lang, dir string) t
 							return templ_7745c5c3_Err
 						}
 					} else {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 103, "نشط? نشطنشط??")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 103, "صنف غير معروف")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
@@ -1035,7 +1035,7 @@ func AdminWarehouseDetailPage(data AdminWarehouseDetailView, lang, dir string) t
 						}
 					}
 					if st.ExpiryDate != nil {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 119, "<div class=\"text-xs text-muted\" title=\"نشطنشط نشطنشطنشط??\">")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 119, "<div class=\"text-xs text-muted\" title=\"تاريخ الصلاحية\">")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
@@ -1067,7 +1067,7 @@ func AdminWarehouseDetailPage(data AdminWarehouseDetailView, lang, dir string) t
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 122, " <span class=\"text-xs font-semibold text-secondary\">?.?</span>")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 122, " <span class=\"text-xs font-semibold text-secondary\">ج.م</span>")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
@@ -1118,12 +1118,12 @@ func AdminWarehouseDetailPage(data AdminWarehouseDetailView, lang, dir string) t
 						return templ_7745c5c3_Err
 					}
 					if st.IsNegotiable {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 128, "<span class=\"badge badge-amber font-black text-xs px-2 py-0.5\">نشط?? نشطنشطنشط?</span>")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 128, "<span class=\"badge badge-amber font-black text-xs px-2 py-0.5\">قابل للتفاوض</span>")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
 					} else {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 129, "<span class=\"badge badge-slate text-xs px-2 py-0.5\">نشط? نشطنشط?</span>")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 129, "<span class=\"badge badge-slate text-xs px-2 py-0.5\">سعر ثابت</span>")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
@@ -1205,17 +1205,17 @@ func AdminWarehouseDetailPage(data AdminWarehouseDetailView, lang, dir string) t
 						return templ_7745c5c3_Err
 					}
 					if st.Quantity > st.MinThreshold {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 139, "<span class=\"badge badge-emerald font-black\">نشط??</span>")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 139, "<span class=\"badge badge-emerald font-black\">متوفر</span>")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
 					} else if st.Quantity > 0 {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 140, "<span class=\"badge badge-amber font-black\">نشط?? نشطنشط??</span>")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 140, "<span class=\"badge badge-amber font-black\">رصيد منخفض</span>")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
 					} else {
-						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 141, "<span class=\"badge badge-rose font-black\">نشط? نشطنشطنشط?</span>")
+						templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 141, "<span class=\"badge badge-rose font-black\">نفد</span>")
 						if templ_7745c5c3_Err != nil {
 							return templ_7745c5c3_Err
 						}
@@ -1244,7 +1244,7 @@ func AdminWarehouseDetailPage(data AdminWarehouseDetailView, lang, dir string) t
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 145, "</div></div><style>\n\t\t\t.warehouse-kpi-grid {\n\t\t\t\tdisplay: grid;\n\t\t\t\tgrid-template-columns: repeat(4, 1fr);\n\t\t\t\tgap: 1.25rem;\n\t\t\t\twidth: 100%;\n\t\t\t}\n\t\t\t.warehouse-kpi-card {\n\t\t\t\tpadding: 1.25rem 1.5rem;\n\t\t\t\tborder: 1px solid var(--border);\n\t\t\t\tborder-radius: var(--radius-xl);\n\t\t\t\tbox-shadow: 0 2px 10px rgba(0, 0, 0, 0.02);\n\t\t\t\ttransition: transform 0.15s ease, box-shadow 0.15s ease;\n\t\t\t}\n\t\t\t.warehouse-kpi-card:hover {\n\t\t\t\ttransform: translateY(-2px);\n\t\t\t\tbox-shadow: 0 6px 18px rgba(0, 0, 0, 0.05);\n\t\t\t}\n\t\t\t.warehouse-filter-grid {\n\t\t\t\tdisplay: grid;\n\t\t\t\tgrid-template-columns: minmax(260px, 2.5fr) minmax(160px, 1.2fr) minmax(140px, 1fr) minmax(130px, 1fr);\n\t\t\t\tgap: 1rem;\n\t\t\t\talign-items: flex-end;\n\t\t\t\twidth: 100%;\n\t\t\t}\n\t\t\t@media (max-width: 1100px) {\n\t\t\t\t.warehouse-kpi-grid {\n\t\t\t\t\tgrid-template-columns: repeat(2, 1fr);\n\t\t\t\t}\n\t\t\t\t.warehouse-filter-grid {\n\t\t\t\t\tgrid-template-columns: 1fr 1fr;\n\t\t\t\t}\n\t\t\t}\n\t\t\t@media (max-width: 640px) {\n\t\t\t\t.warehouse-kpi-grid {\n\t\t\t\t\tgrid-template-columns: 1fr;\n\t\t\t\t}\n\t\t\t\t.warehouse-filter-grid {\n\t\t\t\t\tgrid-template-columns: 1fr;\n\t\t\t\t}\n\t\t\t}\n\t\t</style>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 145, "</div></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

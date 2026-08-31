@@ -183,7 +183,7 @@ templ AdminFinance(data AdminFinanceData, lang, dir string) {
     <div class="stack-sm">
 					<!-- TAB 0: DEPOSIT REQUESTS REVIEW -->
 					if data.ActiveTab == "deposits" || data.ActiveTab == "" {
-						<div class="tab-content-pane space-y-4">
+						<div class="tab-content-pane active space-y-4">
 							<div class="flex-between items-center flex-wrap gap-4 pb-3 border-b">
         <div class="stack-sm">
 									<h2 class="text-lg font-black text-primary m-0 d-flex items-center gap-2">
@@ -355,7 +355,7 @@ templ AdminFinance(data AdminFinanceData, lang, dir string) {
 
 					<!-- TAB 1: INVOICES -->
 					if data.ActiveTab == "invoices" {
-						<div class="tab-content-pane space-y-4">
+						<div class="tab-content-pane active space-y-4">
 							<div class="flex-between items-center flex-wrap gap-3 pb-3 border-b">
         <div class="stack-sm">
 									<h2 class="text-lg font-black text-primary m-0">الفواتير والمطالبات الضريبية</h2>
@@ -462,7 +462,7 @@ templ AdminFinance(data AdminFinanceData, lang, dir string) {
 
 					<!-- TAB 2: PAYMENTS -->
 					if data.ActiveTab == "payments" {
-						<div class="tab-content-pane space-y-4">
+						<div class="tab-content-pane active space-y-4">
 							<div class="flex-between items-center flex-wrap gap-3 pb-3 border-b">
         <div class="stack-sm">
 									<h2 class="text-lg font-black text-primary m-0">سجل المدفوعات والتحصيلات الإلكترونية</h2>
@@ -552,7 +552,7 @@ templ AdminFinance(data AdminFinanceData, lang, dir string) {
 
 					<!-- TAB 3: WALLETS (محافظ المنشآت والأرصدة) -->
 					if data.ActiveTab == "wallets" {
-						<div class="tab-content-pane space-y-4">
+						<div class="tab-content-pane active space-y-4">
 							<div class="flex-between items-center flex-wrap gap-3 pb-3 border-b">
         <div class="stack-sm">
 									<h2 class="text-lg font-black text-primary m-0">محافظ الصيدليات والموردين والأرصدة</h2>
@@ -661,7 +661,7 @@ templ AdminFinance(data AdminFinanceData, lang, dir string) {
 
 					<!-- TAB 4: TRANSACTIONS (سجل حركات ومعاملات المحافظ) -->
 					if data.ActiveTab == "transactions" {
-						<div class="tab-content-pane space-y-4">
+						<div class="tab-content-pane active space-y-4">
 							<div class="flex-between items-center flex-wrap gap-3 pb-3 border-b">
         <div class="stack-sm">
 									<h2 class="text-lg font-black text-primary m-0">سجل حركات ومعاملات المحافظ التفصيلي</h2>
@@ -785,7 +785,7 @@ templ AdminFinance(data AdminFinanceData, lang, dir string) {
 
 					<!-- TAB 5: EARNINGS & COMMISSIONS -->
 					if data.ActiveTab == "earnings" {
-						<div class="tab-content-pane space-y-6">
+						<div class="tab-content-pane active space-y-6">
 							<div class="pb-3 border-b">
 								<h2 class="text-lg font-black text-primary m-0">تقرير أرباح وعمولات المنظومة</h2>
 								<p class="text-xs text-secondary mt-1 mb-0">بيان الأرباح المحققة للمنصة ونسب العمولات المحتسبة على المبيعات وأوامر التوريد المكتملة.</p>

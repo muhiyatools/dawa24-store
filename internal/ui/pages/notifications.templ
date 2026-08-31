@@ -134,7 +134,6 @@ templ NotificationsList(logs []*notifications.NotificationLog) {
 					x-show={ notifFilterExpr(l.IsRead) }
 					x-cloak
 					class={ "glass-panel p-4 flex-between items-start flex-wrap gap-4 transition-all", templ.KV("notif-unread-card", !l.IsRead), templ.KV("notif-read-card", l.IsRead) }
-					style={ notifCardInlineStyle(l.IsRead) }
 				>
 					<!-- Icon & Main Details -->
 					<div class="d-flex items-start gap-3.5 flex-1">
@@ -201,13 +200,6 @@ func notifFilterExpr(isRead bool) string {
 		return "tab === 'all' || tab === 'read'"
 	}
 	return "tab === 'all' || tab === 'unread'"
-}
-
-func notifCardInlineStyle(isRead bool) string {
-	if !isRead {
-		return "border-inline-start: 4px solid var(--primary); background: var(--surface-raised);"
-	}
-	return "border-inline-start: 4px solid transparent; background: var(--surface-sunken); opacity: 0.88;"
 }
 
 func notifBadgeClass(title string, isRead bool) string {

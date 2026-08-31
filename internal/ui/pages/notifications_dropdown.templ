@@ -9,47 +9,43 @@ import (
 // NotificationsDropdownPanel is the bell dropdown content, returned as an
 // HTMX partial so the header stays light and the list is always fresh.
 templ NotificationsDropdownPanel(logs []*notifications.NotificationLog, unread int) {
- <div class="stack-sm">
-  <div class="stack-sm">
+	<div class="notification-panel">
+		<div class="notification-header">
 			<div class="row-center-sm">
 				@components.IconBell("icon-xs")
-				<span>الإشعارات</span>
+				<span class="notification-title">الإشعارات</span>
 			</div>
 			if unread > 0 {
-				<span class="badge badge-rose tabular-nums">{ fmt.Sprintf("%d", unread) } غير مقروء</span>
+				<span class="badge badge-rose tabular-nums">{ fmt.Sprintf("%d غير مقروء", unread) }</span>
 			}
 		</div>
 
 		if len(logs) == 0 {
-   <div class="stack-sm">
-				<div class="stack-xs text-sm">
+			<div class="notification-empty">
+				<div class="notification-empty-icon">
 					@components.IconBell("icon-sm")
 				</div>
-				<div class="stack-xs text-sm">لا توجد إشعارات جديدة</div>
+				<div class="text-sm">لا توجد إشعارات جديدة</div>
 			</div>
 		} else {
-   <div class="stack-sm">
+			<div class="notification-feed">
 				for _, n := range logs {
-     <div class="stack-sm">
-						if !n.IsRead {
-							<span></span>
-						} else {
-							<span></span>
-						}
-						<div class="flex-1">
-							<div class="stack-xs text-sm">{ n.Title }</div>
-							<div class="stack-xs text-sm">{ n.Body }</div>
-							<div class="tabular-nums">{ RelTime(n.CreatedAt) }</div>
+					<div class={ "notification-item", templ.KV("is-unread", !n.IsRead), templ.KV("is-read", n.IsRead) }>
+						<span class="notification-item-dot"></span>
+						<div class="notification-item-body">
+							<div class="notification-item-title">{ n.Title }</div>
+							<div class="notification-item-text">{ n.Body }</div>
+							<div class="notification-item-time tabular-nums">{ RelTime(n.CreatedAt) }</div>
 						</div>
 					</div>
 				}
 			</div>
 		}
 
-  <div class="stack-sm">
-			<a href="/notifications">عرض كل الإشعارات</a>
+		<div class="notification-footer">
+			<a href="/notifications" class="notification-footer-link">عرض كل الإشعارات</a>
 			if unread > 0 {
-				<form class="stack-md" method="POST" action="/notifications/read-all" hx-post="/notifications/read-all" hx-target="closest .dropdown-menu">
+				<form method="POST" action="/notifications/read-all" hx-post="/notifications/read-all" hx-target="#notif-dropdown-content" hx-swap="innerHTML" class="m-0">
 					<button type="submit" class="btn btn-secondary btn-sm">تعليم الكل كمقروء</button>
 				</form>
 			}

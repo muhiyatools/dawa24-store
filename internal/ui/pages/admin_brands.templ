@@ -118,7 +118,7 @@ templ AdminBrandsPage(brands []BrandViewItem, totalCount, currentPage, pageSize 
 						/>
 					</div>
 
-     <div class="stack-sm">
+					<div class="w-auto">
 						<select name="status" class="form-select text-xs w-full" onchange="this.form.submit()">
 							<option value="all" selected?={ statusFilter == "" || statusFilter == "all" }>جميع الحالات</option>
 							<option value="active" selected?={ statusFilter == "active" }>نشط ومفعل (Active)</option>
@@ -126,7 +126,7 @@ templ AdminBrandsPage(brands []BrandViewItem, totalCount, currentPage, pageSize 
 						</select>
 					</div>
 
-     <div class="stack-sm">
+					<div class="w-auto">
 						<select name="limit" class="form-select text-xs w-full" onchange="this.form.submit()">
 							<option value="25" selected?={ pageSize == 25 }>25 شركة لكل صفحة</option>
 							<option value="50" selected?={ pageSize == 50 }>50 شركة لكل صفحة</option>
@@ -178,22 +178,22 @@ templ AdminBrandsPage(brands []BrandViewItem, totalCount, currentPage, pageSize 
 											</div>
 										</td>
 										<td>
-											<div class="fw-800 text-primary text-base">
+											<div class="fw-800 text-primary text-sm">
 												{ item.Brand.Name.Get("ar") }
 											</div>
 											if item.Brand.Name.Get("en") != "" {
-												<div class="stack-xs text-sm">
+												<div class="text-xs text-muted" dir="ltr">
 													{ item.Brand.Name.Get("en") }
 												</div>
 											}
 										</td>
 										<td>
 											if item.Brand.Description.Get("ar") != "" {
-												<div class="stack-xs text-sm">
+												<div class="text-sm text-secondary line-clamp-2">
 													{ item.Brand.Description.Get("ar") }
 												</div>
 											} else if item.Brand.Description.Get("en") != "" {
-												<div class="stack-xs text-sm">
+												<div class="text-sm text-secondary line-clamp-2" dir="ltr">
 													{ item.Brand.Description.Get("en") }
 												</div>
 											} else {
@@ -220,12 +220,12 @@ templ AdminBrandsPage(brands []BrandViewItem, totalCount, currentPage, pageSize 
 											}
 										</td>
 										<td class="text-end">
-           <div class="stack-sm">
+											<div class="table-actions justify-end">
 												<!-- Edit Trigger -->
 												<button
 													type="button"
 													@click={ fmt.Sprintf("openEdit(%d, '%s', '%s', '%s', '%s', '%s', '%s')", item.Brand.ID, templateEscape(item.Brand.Name.Get("ar")), templateEscape(item.Brand.Name.Get("en")), templateEscape(item.Brand.Description.Get("ar")), templateEscape(item.Brand.Description.Get("en")), templateEscape(item.Brand.Image), item.Brand.Status) }
-													class="btn btn-secondary btn-icon size-8"
+													class="btn btn-secondary btn-icon"
 													title="تعديل بيانات الشركة"
 												>
 													@components.IconEdit("icon-xs")

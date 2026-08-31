@@ -180,7 +180,7 @@ func AdminMatchDecisionsPage(lang, dir string, data AdminMatchDecisionsData) tem
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "</div><div class=\"stat-label text-sm text-secondary\">حالة المفتاح العام للنظام</div></div></div><!-- Search & Filter Card --><div class=\"card mb-6\"><form method=\"GET\" action=\"/admin/match-decisions\" class=\"filter-bar d-flex items-center gap-3 flex-wrap p-4\"><div class=\"flex-1 min-w-200\"><input type=\"text\" name=\"q\" value=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "</div><div class=\"stat-label text-sm text-secondary\">حالة المفتاح العام للنظام</div></div></div><!-- Search & Filter Card --><div class=\"card mb-6\"><form method=\"GET\" action=\"/admin/match-decisions\" class=\"filter-bar d-flex items-center gap-3 flex-wrap p-4\"><div class=\"flex-1 min-w-48\"><input type=\"text\" name=\"q\" value=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -566,7 +566,7 @@ func AdminMatchDecisionsPage(lang, dir string, data AdminMatchDecisionsData) tem
 				return templ_7745c5c3_Err
 			}
 			if data.Total > data.PerPage {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 63, "<div class=\"stack-sm\"><div class=\"stack-sm\">إجمالي النتائج: <strong>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 63, "<div class=\"flex-between items-center flex-wrap gap-3 p-4 border-t\"><div class=\"text-sm text-secondary\">إجمالي النتائج: <strong>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
